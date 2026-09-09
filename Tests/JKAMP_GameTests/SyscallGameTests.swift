@@ -7,26 +7,20 @@ import JKATestSupport
 /// These tests share `Syscall.transport` and the one world, so they run one after the other.
 @Suite(.serialized)
 final class SyscallGameSuite {
-    init() {
-        Syscall.transport = nil
-    }
-
-    deinit {
-        Syscall.transport = nil
-    }
-
     @Test("the transport is empty before dllEntry")
     func transportStartsEmpty() {
-        #expect(Syscall.transport == nil)
+        withoutTransport {
+            #expect(Syscall.transport == nil)
+        }
     }
 
     @Test("a call records its command and its words on the installed transport")
     func callRecordsCommandAndWords() {
         let recorder = RecordingTransport()
-        Syscall.transport = recorder
-
-        Syscall.call(3, [11, 22, 33])
-        Syscall.call(7)
+        withTransport(recorder) {
+            Syscall.call(3, [11, 22, 33])
+            Syscall.call(7)
+        }
 
         #expect(recorder.calls.count == 2)
         #expect(recorder.calls[0].command == 3)
@@ -39,20 +33,24 @@ final class SyscallGameSuite {
     func answersScriptTheReturnWord() {
         let recorder = RecordingTransport()
         recorder.answers[5] = 42
-        Syscall.transport = recorder
 
-        #expect(Syscall.call(5) == 42)
-        #expect(Syscall.call(6) == 0)
+        let (first, second) = withTransport(recorder) {
+            (Syscall.call(5), Syscall.call(6))
+        }
+
+        #expect(first == 42)
+        #expect(second == 0)
     }
 
     @Test("the typed overload sends a game import with its text pointer")
     func typedOverloadSendsTextPointer() {
         let recorder = RecordingTransport()
         recorder.textCommands = [Int(gameImport_t.G_PRINT.rawValue)]
-        Syscall.transport = recorder
 
-        "jka-swift jampgame init\n".withCString { text in
-            Syscall.call(.G_PRINT, text)
+        withTransport(recorder) {
+            "jka-swift jampgame init\n".withCString { text in
+                Syscall.call(.G_PRINT, text)
+            }
         }
 
         #expect(recorder.calls.count == 1)
@@ -65,10 +63,11 @@ final class SyscallGameSuite {
     func typedOverloadSendsEntityHandle() {
         world = GameWorld()
         let recorder = RecordingTransport()
-        Syscall.transport = recorder
 
         let ent = g_entities[3]
-        Syscall.call(.G_LINKENTITY, ent)
+        withTransport(recorder) {
+            Syscall.call(.G_LINKENTITY, ent)
+        }
 
         #expect(recorder.calls.count == 1)
         #expect(recorder.calls[0].command == Int(gameImport_t.G_LINKENTITY.rawValue))

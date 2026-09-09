@@ -58,7 +58,7 @@ let package = Package(
 
         // MARK: - Tests
         .testTarget(name: "JKASharedTests", dependencies: ["JKAShared", "JKATestSupport"]),
-        .testTarget(name: "JKAMPTests", dependencies: ["JKAMP", "JKAMP_BG"]),
+        .testTarget(name: "JKAMPTests", dependencies: ["JKAMP", "JKAMP_BG", "JKATestSupport"]),
         .testTarget(name: "JKAMP_GameTests", dependencies: ["JKAMP_GameLogic", "JKATestSupport"]),
         // The smoke test loads the built dylib and must not link it, so it does not depend on jampgame.
         .testTarget(name: "jampgameTests", dependencies: ["JKAMP_Game", "CJKASyscall"]),
