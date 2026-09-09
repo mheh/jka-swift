@@ -29,7 +29,7 @@ SPEC = dict(
                        "codemp/renderer/tr_landscape.h",
                        "codemp/renderer/matcomp.h"],
     includes=["codemp/renderer", "codemp/game", "codemp/qcommon", "codemp",
-              "../tools/closure-prototype/glshim"],
+              "../tools/oracle-closure/glshim"],
     defines=["NDEBUG", "MISSIONPACK", "_JK2",
              "USHORT=unsigned short", "BOOL=int", "UINT=unsigned int",
              "FLOAT=float", "HDC=void *", "HGLRC=void *",

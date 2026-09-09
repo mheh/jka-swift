@@ -15,7 +15,7 @@ SPEC = dict(
                        "codemp/client/FXExport.h"],
     includes=["codemp/client", "codemp/game", "codemp/qcommon", "codemp/renderer",
               "codemp/ui", "codemp/cgame", "codemp",
-              "../tools/closure-prototype/glshim"],
+              "../tools/oracle-closure/glshim"],
     defines=["NDEBUG", "MISSIONPACK", "_JK2",
              # The same win32 spellings mp-engine-ded supplies: client.h
              # reaches renderer and platform headers that assume an active

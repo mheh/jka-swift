@@ -40,7 +40,7 @@ SPEC = dict(
     includes=["codemp/qcommon", "codemp/server", "codemp/botlib",
               "codemp/ghoul2", "codemp/icarus", "codemp/RMG",
               "codemp/renderer", "codemp/cgame", "codemp/game", "codemp",
-              "../tools/closure-prototype/glshim"],
+              "../tools/oracle-closure/glshim"],
     defines=["NDEBUG", "DEDICATED", "BOTLIB",
              # win32 spellings the headers assume from an active platform
              # section (icarus tokenizer.h, RMG). Pointer-size handles keep

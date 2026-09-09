@@ -12,7 +12,7 @@ SPEC = dict(
                        "code/renderer/tr_landscape.h",
                        "code/renderer/matcomp.h"],
     includes=["code/renderer", "code/game", "code/qcommon", "code",
-              "../tools/closure-prototype/glshim"],
+              "../tools/oracle-closure/glshim"],
     defines=["NDEBUG", "_IMMERSION",
              "USHORT=unsigned short", "BOOL=int", "UINT=unsigned int",
              "FLOAT=float", "HDC=void *", "HGLRC=void *",
