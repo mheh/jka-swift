@@ -49,7 +49,12 @@ let package = Package(
 
         // MARK: - Test support, a library and not a product, so it ships in no dylib
         // The recording transport a test installs on Syscall.transport.
-        .target(name: "JKATestSupport", dependencies: ["JKAShared"]),
+        .target(
+            name: "JKATestSupport",
+            dependencies: ["JKAShared"],
+            // The goldens are jka-rust's copied parity data, rule 18.
+            resources: [.copy("Oracle")]
+        ),
 
         // MARK: - Tests
         .testTarget(name: "JKASharedTests", dependencies: ["JKAShared", "JKATestSupport"]),
