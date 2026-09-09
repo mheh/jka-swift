@@ -3,7 +3,8 @@
 
 SPEC = dict(
     name="mp-bg",
-    lang="c", entry=["codemp/game/bg_local.h", "codemp/game/bg_saga.h"],
+    lang="c", entry=["codemp/game/q_shared.h", "codemp/game/bg_public.h", "codemp/game/bg_local.h",
+                     "codemp/game/bg_saga.h"],
     includes=["codemp/game"],
     defines=["NDEBUG", "MISSIONPACK", "QAGAME", "_JK2"],
     srcglob=["codemp/game/bg_*.c"],

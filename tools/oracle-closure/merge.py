@@ -35,6 +35,8 @@ from dataclasses import dataclass, field, replace
 from pathlib import Path
 
 HERE = Path(__file__).resolve().parent
+sys.path.insert(0, str(HERE))
+from extract import TRIPLES  # noqa: E402
 EXTRACT = HERE / "out" / "extract"
 
 MP_MODULES = ["mp-game", "mp-bg", "mp-cgame", "mp-ui"]
@@ -176,16 +178,21 @@ def read_platform(root: Path) -> list[str]:
     return [l for l in path.read_text().splitlines() if l.startswith("#define ")]
 
 
-def read_asserts(root: Path) -> dict[str, list[str]]:
-    """The assert lines of one run, keyed by the type name in their message."""
-    out: dict[str, list[str]] = defaultdict(list)
+def read_asserts(root: Path) -> dict[str, dict[str, list[str]]]:
+    """The assert lines of one run, keyed by triple and then by the type name in their message."""
+    out: dict[str, dict[str, list[str]]] = defaultdict(lambda: defaultdict(list))
     path = root / "layout_asserts.h"
     if not path.exists():
         return out
+    triple = ""
     for line in path.read_text().splitlines():
+        block = re.match(r"#(?:el)?if .*// (\S+)$", line)
+        if block:
+            triple = block.group(1)
+            continue
         m = re.match(r'_Static_assert\(.*"([^".]+)(?:\.[^"]*)?"\);', line)
-        if m:
-            out[m.group(1)].append(line)
+        if m and triple:
+            out[triple][m.group(1)].append(line)
     return out
 
 
@@ -202,10 +209,10 @@ class Placed:
 
 
 def load_tree(tree: str, modules: list[str]) -> tuple[dict[str, dict[str, Header]], dict[str, list[str]], dict[str, dict[str, list[str]]]]:
-    """headers[module][identity], platform[module], asserts[module][name]."""
+    """headers[module][identity], platform[module], asserts[module][triple][name]."""
     headers: dict[str, dict[str, Header]] = {}
     platform: dict[str, list[str]] = {}
-    asserts: dict[str, dict[str, list[str]]] = {}
+    asserts: dict[str, dict[str, dict[str, list[str]]]] = {}
     FORWARD.setdefault(tree, [])
     for module in modules:
         root = EXTRACT / module
@@ -230,6 +237,51 @@ def load_tree(tree: str, modules: list[str]) -> tuple[dict[str, dict[str, Header
 def source_header(source_line: str) -> str:
     """The oracle header a `// Source: oracle/codemp/game/q_shared.h:2169` line names."""
     return source_line.split("Source:", 1)[1].strip().rsplit(":", 1)[0]
+
+
+# The types the engine dereferences, from g_public.h and cg_public.h. Rule 12: never edited, and one size per pointer width,
+# because sharedEntity_t holds pointers and is 864 bytes on a 32-bit triple and 976 on a 64-bit one by Raven's construction.
+SEAM = ["sharedEntity_t", "entityShared_t", "entityState_t", "playerState_t", "usercmd_t", "trace_t", "gameState_t"]
+
+
+def pointer_width(triple: str) -> str:
+    return "32" if triple.startswith("i686") else "64"
+
+
+def check_seam_sizes(out: "Output", headers: dict[str, dict[str, Header]]) -> None:
+    """Exits when a seam type, or a record it holds by value, has two sizes across the triples of one pointer width."""
+    by_stem: dict[str, Header] = {}
+    for per in headers.values():
+        for identity, h in per.items():
+            by_stem.setdefault(Path(identity).stem, h)
+    names: set[str] = set()
+    pending = list(SEAM)
+    while pending:
+        name = pending.pop()
+        if name in names:
+            continue
+        names.add(name)
+        h = by_stem.get(name)
+        if h is None:
+            continue
+        # An include is a by-value dependency, because a pointer to a tagged record is satisfied by the forward header.
+        pending += [Path(inc).stem for inc in h.includes if not inc.endswith("/constants.h")]
+    sizes: dict[str, dict[str, str]] = defaultdict(dict)
+    for target, per_triple in out.asserts.items():
+        for triple, lines in per_triple.items():
+            for line in lines:
+                m = re.match(r'_Static_assert\(sizeof\((?:struct |union )?(\w+)\) == (\d+), ', line)
+                if m and m.group(1) in names:
+                    sizes[m.group(1)][triple] = m.group(2)
+    bad = {}
+    for name, t in sizes.items():
+        for width in ("32", "64"):
+            if len({size for triple, size in t.items() if pointer_width(triple) == width}) > 1:
+                bad[name] = t
+    if bad:
+        for name, t in sorted(bad.items()):
+            print(f"[error] seam type {name} has more than one size across triples of one pointer width: {t}", file=sys.stderr)
+        sys.exit("merge.py: a seam type must have one size per pointer width, rule 12")
 
 
 def union_constants(tree: str, identity: str, versions: dict[str, Header]) -> Header:
@@ -413,7 +465,7 @@ class Output:
         self.out_dir = out_dir
         self.files: dict[str, dict[str, str]] = defaultdict(dict)      # target -> rel path -> content
         self.location: dict[str, tuple[str, str]] = {}                 # identity (or identity@module) -> (target, rel path)
-        self.asserts: dict[str, list[str]] = defaultdict(list)
+        self.asserts: dict[str, dict[str, list[str]]] = defaultdict(lambda: defaultdict(list))   # target -> triple -> lines
         self.tags: dict[str, list[str]] = defaultdict(list)
         self.order: dict[str, list[str]] = defaultdict(list)
         self.cxx: dict[str, list[str]] = defaultdict(list)
@@ -515,12 +567,13 @@ def emit(out_dir: Path, mp_modules: list[str], sp_modules: list[str]) -> int:
             out.order[target].append(rel)
             # Asserts follow the type. A shared type must agree in both parses.
             for name in h.names():
-                lines = asserts[h.module].get(name, [])
-                if is_shared:
-                    sp_lines = sp_asserts[sp[p.identity].header.module].get(name, [])
-                    if sp_lines and lines and sp_lines != lines:
-                        print(f"[error] shared type {name} has different asserts in MP and SP", file=sys.stderr)
-                out.asserts[target] += lines
+                for triple, table in asserts[h.module].items():
+                    lines = table.get(name, [])
+                    if is_shared:
+                        sp_lines = sp_asserts[sp[p.identity].header.module].get(triple, {}).get(name, [])
+                        if sp_lines and lines and sp_lines != lines:
+                            print(f"[error] shared type {name} has different asserts in MP and SP for {triple}", file=sys.stderr)
+                    out.asserts[target][triple] += lines
             m = re.search(r"^(struct|union|enum)\s+(\w+)\s*\{", strip_comments(h.body), re.M)
             if m:
                 out.tags[target].append(f"{m.group(1)} {m.group(2)};")
@@ -559,7 +612,12 @@ def emit(out_dir: Path, mp_modules: list[str], sp_modules: list[str]) -> int:
             "",
         ] + [f'#include "{inc}"' for inc in [f"{d}.h" for d in deps] + ordered] + [""]
         out.files[target][f"{target}.h"] = wrap(f"{target}.h", [], [], umbrella)
-        out.files[target]["layout_asserts.h"] = wrap("layout_asserts.h", [], ["#include <assert.h>", "#include <stddef.h>", f'#include "{target}.h"'], [""] + out.asserts[target] + [""])
+        blocks: list[str] = []
+        for i, triple in enumerate(t for t in TRIPLES if t in out.asserts[target]):
+            blocks.append(f"{'#if' if i == 0 else '#elif'} {TRIPLES[triple]} // {triple}")
+            blocks += out.asserts[target][triple]
+        blocks += ["#else", '#error "layout_asserts.h has no block for this target"', "#endif"]
+        out.files[target]["layout_asserts.h"] = wrap("layout_asserts.h", [], ["#include <stddef.h>", f'#include "{target}.h"'], [""] + blocks + [""])
         out.files[target]["module.modulemap"] = "\n".join([
             "// Explicit, because the mirrored oracle directories sit beside the umbrella and SwiftPM's automatic layout does not allow that.",
             f"module {target} {{",
@@ -574,6 +632,8 @@ def emit(out_dir: Path, mp_modules: list[str], sp_modules: list[str]) -> int:
             '#include "layout_asserts.h"',
             "",
         ])
+
+    check_seam_sizes(out, mp_headers)
 
     # Write.
     # The include directory holds only what the umbrella includes, because Clang warns on every header a module leaves out.
@@ -601,7 +661,9 @@ def emit(out_dir: Path, mp_modules: list[str], sp_modules: list[str]) -> int:
         files = out.files.get(target, {})
         types = sum(1 for f in files if f.startswith(("shared/", "codemp/", "code/", "ui/")) and not f.endswith("/constants.h"))
         consts = sum(1 for f in files if f.endswith("/constants.h"))
-        print(f"{target:14} {types:6} {len(out.cxx.get(target, [])):9} {consts:10} {len(out.asserts.get(target, [])):8}")
+        triples = out.asserts.get(target, {})
+        per = max((len(v) for v in triples.values()), default=0)
+        print(f"{target:14} {types:6} {len(out.cxx.get(target, [])):9} {consts:10} {per:8} x {len(triples)} triples")
     same_name = {p.identity for p in mp.values()} & {p.identity for p in sp.values()}
     split = sorted(i for i in same_name if i not in shared and not i.endswith("/constants.h"))
     print(f"{len(shared)} identities shared by MP and SP, {len(split)} same-named identities kept per tree")

@@ -55,6 +55,7 @@
 #include "code/game/bg_public/animevent_t.h"
 #include "code/game/bg_public/entityType_t.h"
 #include "code/game/bg_public/entity_event_t.h"
+#include "code/game/bg_public/gentity_t.h"
 #include "code/game/bg_public/gitem_t.h"
 #include "code/game/bg_public/itemType_t.h"
 #include "code/game/bg_public/meansOfDeath_t.h"

@@ -29,7 +29,10 @@ from __future__ import annotations
 
 import argparse
 import json
+import concurrent.futures
+import multiprocessing
 import os
+import platform
 import re
 import subprocess
 import sys
@@ -644,7 +647,65 @@ def wrap(filename: str, note: str, includes: list[str], body: list[str]) -> str:
     return "\n".join(parts)
 
 
-def emit(module: str, out_dir: Path, check: bool) -> int:
+# The six target triples of the layout check, packet row 6, and the predefined macros that select each block of layout_asserts.h.
+TRIPLES = {
+    "i686-pc-windows-msvc": "defined(_WIN32) && defined(__i386__)",
+    "i686-pc-linux-gnu": "defined(__linux__) && defined(__i386__)",
+    "x86_64-pc-windows-msvc": "defined(_WIN32) && defined(__x86_64__)",
+    "x86_64-pc-linux-gnu": "defined(__linux__) && defined(__x86_64__)",
+    "x86_64-apple-macosx": "defined(__APPLE__) && defined(__x86_64__)",
+    "arm64-apple-macosx": "defined(__APPLE__) && defined(__aarch64__)",
+}
+
+
+def host_triple() -> str:
+    return "arm64-apple-macosx" if platform.machine() == "arm64" else "x86_64-apple-macosx"
+
+
+def triple_asserts(module: str, triple: str) -> dict[str, list[str]]:
+    """The asserts of every record in one module's parse for one triple, by record spelling. Runs in its own process."""
+    tu = C.parse_tu(module, None, target=triple)
+    decls = sweep(tu)
+    name_records(decls)
+    out: dict[str, list[str]] = {}
+    for decl in decls:
+        if decl.kind == "macro":
+            continue
+        name = record_spelling(decl)
+        if name and name not in out:
+            lines = asserts_for(decl)
+            if lines:
+                out[name] = lines
+    return out
+
+
+def assert_blocks(module: str, host: list[tuple[str, list[str]]], triples: list[str]) -> list[str]:
+    """layout_asserts.h's body: one block per triple, the host's from its parse and the others from a parse per triple."""
+    foreign = [t for t in triples if t != host_triple()]
+    by_triple: dict[str, dict[str, list[str]]] = {host_triple(): dict(host)}
+    if foreign:
+        with concurrent.futures.ProcessPoolExecutor(max_workers=len(foreign), mp_context=multiprocessing.get_context("spawn")) as pool:
+            for triple, result in zip(foreign, pool.map(triple_asserts, [module] * len(foreign), foreign)):
+                by_triple[triple] = result
+    lines: list[str] = []
+    for i, triple in enumerate(t for t in TRIPLES if t in triples):
+        lines.append(f"{'#if' if i == 0 else '#elif'} {TRIPLES[triple]} // {triple}")
+        table = by_triple[triple]
+        missing = 0
+        for name, host_lines in host:
+            got = table.get(name)
+            if got is None:
+                missing += 1
+                lines.append(f"// {name} did not parse for {triple}, so it has no asserts here.")
+            else:
+                lines += got
+        if missing:
+            NOTES.append(f"{missing} records have no asserts for {triple}")
+    lines += ["#else", '#error "layout_asserts.h has no block for this target"', "#endif"]
+    return lines
+
+
+def emit(module: str, out_dir: Path, check: bool, triples: list[str]) -> int:
     tu = C.parse_tu(module, None)
     spec = C.spec(module)
     resolver = IfResolver(macro_table(tu))
@@ -672,7 +733,7 @@ def emit(module: str, out_dir: Path, check: bool) -> int:
     manifest = {"module": module, "oracle": commit, "files": {}}
     counts: dict[str, dict[str, int]] = defaultdict(lambda: defaultdict(int))
     not_c: list[str] = []
-    assert_lines: list[str] = []
+    asserted: list[tuple[str, list[str]]] = []
 
     # The C closure. A declaration that is not C, or that includes one, is emitted for reference and kept out of all.h and the asserts.
     cxx_files: set[str] = set()
@@ -785,7 +846,9 @@ def emit(module: str, out_dir: Path, check: bool) -> int:
         counts[decl.stem][decl.kind] += 1
         manifest["files"][decl.filename] = {"kind": decl.kind, "source": decl.cite, "includes": includes, "c": decl.filename not in cxx_files}
         if decl.filename not in cxx_files:
-            assert_lines += asserts_for(decl)
+            lines = asserts_for(decl)
+            if lines:
+                asserted.append((record_spelling(decl), lines))
 
     # all.h and layout_asserts.h
     # all.h follows Raven's include order, header by header, constants first within a header and then its types in source order.
@@ -799,7 +862,7 @@ def emit(module: str, out_dir: Path, check: bool) -> int:
             if filename in files and filename not in cxx_files:
                 ordered.append(filename)
     files["all.h"] = wrap("all.h", note, ordered, [])
-    files["layout_asserts.h"] = wrap("layout_asserts.h", note, [], ["#include <assert.h>", "#include <stddef.h>", '#include "all.h"', ""] + assert_lines + [""])
+    files["layout_asserts.h"] = wrap("layout_asserts.h", note, [], ["#include <stddef.h>", '#include "all.h"', ""] + assert_blocks(module, asserted, triples) + [""])
 
     written = 0
     for filename, content in files.items():
@@ -826,7 +889,7 @@ def emit(module: str, out_dir: Path, check: bool) -> int:
     for stem in sorted(counts):
         c = counts[stem]
         print(f"{stem:20} {c['struct']:6} {c['union']:6} {c['enum']:6} {c['typedef']:8} {c['macro']:6}")
-    print(f"{len(assert_lines)} layout asserts")
+    print(f"{sum(len(lines) for _, lines in asserted)} layout asserts per triple, {len(triples)} triples")
     if resolver.unresolved:
         print(f"{len(set(resolver.unresolved))} conditionals kept as text because the expression did not evaluate:")
         for line in sorted(set(resolver.unresolved)):
@@ -849,13 +912,15 @@ def main():
     ap.add_argument("module")
     ap.add_argument("--out", help="output directory, default out/extract/<module>")
     ap.add_argument("--check", action="store_true", help="report only, write nothing")
+    ap.add_argument("--host-only", action="store_true", help="asserts for the host triple only, for a quick run")
     args = ap.parse_args()
+    triples = [host_triple()] if args.host_only else list(TRIPLES)
     if args.module not in C.MODULES:
         sys.exit(f"unknown module {args.module}. Known: {', '.join(sorted(C.MODULES))}")
     out_dir = Path(args.out) if args.out else Path(__file__).resolve().parent / "out" / "extract" / args.module
     if not args.check:
         out_dir.mkdir(parents=True, exist_ok=True)
-    sys.exit(emit(args.module, out_dir, args.check))
+    sys.exit(emit(args.module, out_dir, args.check, triples))
 
 
 if __name__ == "__main__":

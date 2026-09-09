@@ -141,9 +141,13 @@ def backslash_include_shims():
     return _SHIM_CACHE
 
 
-def parse_tu(module: str, extra_file: str | None, unity: bool = False):
+def parse_tu(module: str, extra_file: str | None, unity: bool = False, target: str | None = None):
+    """target is a triple such as i686-pc-windows-msvc. A foreign target reads the host SDK's C headers through -isystem,
+    because -isysroot is not searched for a target the SDK does not serve, and the layouts do not depend on them."""
     cfg = MODULES[module]
     args = [f"-x{'c++' if cfg['lang'] == 'c++' else 'c'}"]
+    if target:
+        args += ["-target", target]
     if cfg["lang"] == "c++":
         # era-appropriate for the oracle; OpenJK is modernized C++
         args.append("-std=c++03" if SRC_ROOT == ORACLE else "-std=c++11")
@@ -159,7 +163,9 @@ def parse_tu(module: str, extra_file: str | None, unity: bool = False):
     if sys.platform == "darwin":
         sdk = subprocess.run(["xcrun", "--show-sdk-path"], capture_output=True,
                              text=True).stdout.strip()
-        if sdk:
+        if sdk and target and "apple" not in target:
+            args.append(f"-isystem{sdk}/usr/include")
+        elif sdk:
             args.append(f"-isysroot{sdk}")
         res = subprocess.run(["clang", "-print-resource-dir"], capture_output=True,
                              text=True).stdout.strip()

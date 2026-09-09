@@ -3,11 +3,77 @@
 #ifndef JKA_LAYOUT_ASSERTS_H
 #define JKA_LAYOUT_ASSERTS_H
 
-#include <assert.h>
 #include <stddef.h>
 #include "CJKAShared.h"
 
 
+#if defined(_WIN32) && defined(__i386__) // i686-pc-windows-msvc
+_Static_assert(sizeof(cplane_t) == 20, "cplane_t");
+_Static_assert(offsetof(cplane_t, normal) == 0, "cplane_t.normal");
+_Static_assert(offsetof(cplane_t, dist) == 12, "cplane_t.dist");
+_Static_assert(offsetof(cplane_t, type) == 16, "cplane_t.type");
+_Static_assert(offsetof(cplane_t, signbits) == 17, "cplane_t.signbits");
+_Static_assert(offsetof(cplane_t, pad) == 18, "cplane_t.pad");
+_Static_assert(sizeof(markFragment_t) == 8, "markFragment_t");
+_Static_assert(offsetof(markFragment_t, firstPoint) == 0, "markFragment_t.firstPoint");
+_Static_assert(offsetof(markFragment_t, numPoints) == 4, "markFragment_t.numPoints");
+_Static_assert(sizeof(orientation_t) == 48, "orientation_t");
+_Static_assert(offsetof(orientation_t, origin) == 0, "orientation_t.origin");
+_Static_assert(offsetof(orientation_t, axis) == 12, "orientation_t.axis");
+_Static_assert(sizeof(sharedIKMoveParams_t) == 540, "sharedIKMoveParams_t");
+_Static_assert(offsetof(sharedIKMoveParams_t, boneName) == 0, "sharedIKMoveParams_t.boneName");
+_Static_assert(offsetof(sharedIKMoveParams_t, desiredOrigin) == 512, "sharedIKMoveParams_t.desiredOrigin");
+_Static_assert(offsetof(sharedIKMoveParams_t, origin) == 524, "sharedIKMoveParams_t.origin");
+_Static_assert(offsetof(sharedIKMoveParams_t, movementSpeed) == 536, "sharedIKMoveParams_t.movementSpeed");
+_Static_assert(sizeof(stringID_table_t) == 8, "stringID_table_t");
+_Static_assert(offsetof(stringID_table_t, name) == 0, "stringID_table_t.name");
+_Static_assert(offsetof(stringID_table_t, id) == 4, "stringID_table_t.id");
+_Static_assert(sizeof(trajectory_t) == 36, "trajectory_t");
+_Static_assert(offsetof(trajectory_t, trType) == 0, "trajectory_t.trType");
+_Static_assert(offsetof(trajectory_t, trTime) == 4, "trajectory_t.trTime");
+_Static_assert(offsetof(trajectory_t, trDuration) == 8, "trajectory_t.trDuration");
+_Static_assert(offsetof(trajectory_t, trBase) == 12, "trajectory_t.trBase");
+_Static_assert(offsetof(trajectory_t, trDelta) == 24, "trajectory_t.trDelta");
+_Static_assert(sizeof(vmCvar_t) == 272, "vmCvar_t");
+_Static_assert(offsetof(vmCvar_t, handle) == 0, "vmCvar_t.handle");
+_Static_assert(offsetof(vmCvar_t, modificationCount) == 4, "vmCvar_t.modificationCount");
+_Static_assert(offsetof(vmCvar_t, value) == 8, "vmCvar_t.value");
+_Static_assert(offsetof(vmCvar_t, integer) == 12, "vmCvar_t.integer");
+_Static_assert(offsetof(vmCvar_t, string) == 16, "vmCvar_t.string");
+#elif defined(__linux__) && defined(__i386__) // i686-pc-linux-gnu
+_Static_assert(sizeof(cplane_t) == 20, "cplane_t");
+_Static_assert(offsetof(cplane_t, normal) == 0, "cplane_t.normal");
+_Static_assert(offsetof(cplane_t, dist) == 12, "cplane_t.dist");
+_Static_assert(offsetof(cplane_t, type) == 16, "cplane_t.type");
+_Static_assert(offsetof(cplane_t, signbits) == 17, "cplane_t.signbits");
+_Static_assert(offsetof(cplane_t, pad) == 18, "cplane_t.pad");
+_Static_assert(sizeof(markFragment_t) == 8, "markFragment_t");
+_Static_assert(offsetof(markFragment_t, firstPoint) == 0, "markFragment_t.firstPoint");
+_Static_assert(offsetof(markFragment_t, numPoints) == 4, "markFragment_t.numPoints");
+_Static_assert(sizeof(orientation_t) == 48, "orientation_t");
+_Static_assert(offsetof(orientation_t, origin) == 0, "orientation_t.origin");
+_Static_assert(offsetof(orientation_t, axis) == 12, "orientation_t.axis");
+_Static_assert(sizeof(sharedIKMoveParams_t) == 540, "sharedIKMoveParams_t");
+_Static_assert(offsetof(sharedIKMoveParams_t, boneName) == 0, "sharedIKMoveParams_t.boneName");
+_Static_assert(offsetof(sharedIKMoveParams_t, desiredOrigin) == 512, "sharedIKMoveParams_t.desiredOrigin");
+_Static_assert(offsetof(sharedIKMoveParams_t, origin) == 524, "sharedIKMoveParams_t.origin");
+_Static_assert(offsetof(sharedIKMoveParams_t, movementSpeed) == 536, "sharedIKMoveParams_t.movementSpeed");
+_Static_assert(sizeof(stringID_table_t) == 8, "stringID_table_t");
+_Static_assert(offsetof(stringID_table_t, name) == 0, "stringID_table_t.name");
+_Static_assert(offsetof(stringID_table_t, id) == 4, "stringID_table_t.id");
+_Static_assert(sizeof(trajectory_t) == 36, "trajectory_t");
+_Static_assert(offsetof(trajectory_t, trType) == 0, "trajectory_t.trType");
+_Static_assert(offsetof(trajectory_t, trTime) == 4, "trajectory_t.trTime");
+_Static_assert(offsetof(trajectory_t, trDuration) == 8, "trajectory_t.trDuration");
+_Static_assert(offsetof(trajectory_t, trBase) == 12, "trajectory_t.trBase");
+_Static_assert(offsetof(trajectory_t, trDelta) == 24, "trajectory_t.trDelta");
+_Static_assert(sizeof(vmCvar_t) == 272, "vmCvar_t");
+_Static_assert(offsetof(vmCvar_t, handle) == 0, "vmCvar_t.handle");
+_Static_assert(offsetof(vmCvar_t, modificationCount) == 4, "vmCvar_t.modificationCount");
+_Static_assert(offsetof(vmCvar_t, value) == 8, "vmCvar_t.value");
+_Static_assert(offsetof(vmCvar_t, integer) == 12, "vmCvar_t.integer");
+_Static_assert(offsetof(vmCvar_t, string) == 16, "vmCvar_t.string");
+#elif defined(_WIN32) && defined(__x86_64__) // x86_64-pc-windows-msvc
 _Static_assert(sizeof(cplane_t) == 20, "cplane_t");
 _Static_assert(offsetof(cplane_t, normal) == 0, "cplane_t.normal");
 _Static_assert(offsetof(cplane_t, dist) == 12, "cplane_t.dist");
@@ -40,5 +106,107 @@ _Static_assert(offsetof(vmCvar_t, modificationCount) == 4, "vmCvar_t.modificatio
 _Static_assert(offsetof(vmCvar_t, value) == 8, "vmCvar_t.value");
 _Static_assert(offsetof(vmCvar_t, integer) == 12, "vmCvar_t.integer");
 _Static_assert(offsetof(vmCvar_t, string) == 16, "vmCvar_t.string");
+#elif defined(__linux__) && defined(__x86_64__) // x86_64-pc-linux-gnu
+_Static_assert(sizeof(cplane_t) == 20, "cplane_t");
+_Static_assert(offsetof(cplane_t, normal) == 0, "cplane_t.normal");
+_Static_assert(offsetof(cplane_t, dist) == 12, "cplane_t.dist");
+_Static_assert(offsetof(cplane_t, type) == 16, "cplane_t.type");
+_Static_assert(offsetof(cplane_t, signbits) == 17, "cplane_t.signbits");
+_Static_assert(offsetof(cplane_t, pad) == 18, "cplane_t.pad");
+_Static_assert(sizeof(markFragment_t) == 8, "markFragment_t");
+_Static_assert(offsetof(markFragment_t, firstPoint) == 0, "markFragment_t.firstPoint");
+_Static_assert(offsetof(markFragment_t, numPoints) == 4, "markFragment_t.numPoints");
+_Static_assert(sizeof(orientation_t) == 48, "orientation_t");
+_Static_assert(offsetof(orientation_t, origin) == 0, "orientation_t.origin");
+_Static_assert(offsetof(orientation_t, axis) == 12, "orientation_t.axis");
+_Static_assert(sizeof(sharedIKMoveParams_t) == 540, "sharedIKMoveParams_t");
+_Static_assert(offsetof(sharedIKMoveParams_t, boneName) == 0, "sharedIKMoveParams_t.boneName");
+_Static_assert(offsetof(sharedIKMoveParams_t, desiredOrigin) == 512, "sharedIKMoveParams_t.desiredOrigin");
+_Static_assert(offsetof(sharedIKMoveParams_t, origin) == 524, "sharedIKMoveParams_t.origin");
+_Static_assert(offsetof(sharedIKMoveParams_t, movementSpeed) == 536, "sharedIKMoveParams_t.movementSpeed");
+_Static_assert(sizeof(stringID_table_t) == 16, "stringID_table_t");
+_Static_assert(offsetof(stringID_table_t, name) == 0, "stringID_table_t.name");
+_Static_assert(offsetof(stringID_table_t, id) == 8, "stringID_table_t.id");
+_Static_assert(sizeof(trajectory_t) == 36, "trajectory_t");
+_Static_assert(offsetof(trajectory_t, trType) == 0, "trajectory_t.trType");
+_Static_assert(offsetof(trajectory_t, trTime) == 4, "trajectory_t.trTime");
+_Static_assert(offsetof(trajectory_t, trDuration) == 8, "trajectory_t.trDuration");
+_Static_assert(offsetof(trajectory_t, trBase) == 12, "trajectory_t.trBase");
+_Static_assert(offsetof(trajectory_t, trDelta) == 24, "trajectory_t.trDelta");
+_Static_assert(sizeof(vmCvar_t) == 272, "vmCvar_t");
+_Static_assert(offsetof(vmCvar_t, handle) == 0, "vmCvar_t.handle");
+_Static_assert(offsetof(vmCvar_t, modificationCount) == 4, "vmCvar_t.modificationCount");
+_Static_assert(offsetof(vmCvar_t, value) == 8, "vmCvar_t.value");
+_Static_assert(offsetof(vmCvar_t, integer) == 12, "vmCvar_t.integer");
+_Static_assert(offsetof(vmCvar_t, string) == 16, "vmCvar_t.string");
+#elif defined(__APPLE__) && defined(__x86_64__) // x86_64-apple-macosx
+_Static_assert(sizeof(cplane_t) == 20, "cplane_t");
+_Static_assert(offsetof(cplane_t, normal) == 0, "cplane_t.normal");
+_Static_assert(offsetof(cplane_t, dist) == 12, "cplane_t.dist");
+_Static_assert(offsetof(cplane_t, type) == 16, "cplane_t.type");
+_Static_assert(offsetof(cplane_t, signbits) == 17, "cplane_t.signbits");
+_Static_assert(offsetof(cplane_t, pad) == 18, "cplane_t.pad");
+_Static_assert(sizeof(markFragment_t) == 8, "markFragment_t");
+_Static_assert(offsetof(markFragment_t, firstPoint) == 0, "markFragment_t.firstPoint");
+_Static_assert(offsetof(markFragment_t, numPoints) == 4, "markFragment_t.numPoints");
+_Static_assert(sizeof(orientation_t) == 48, "orientation_t");
+_Static_assert(offsetof(orientation_t, origin) == 0, "orientation_t.origin");
+_Static_assert(offsetof(orientation_t, axis) == 12, "orientation_t.axis");
+_Static_assert(sizeof(sharedIKMoveParams_t) == 540, "sharedIKMoveParams_t");
+_Static_assert(offsetof(sharedIKMoveParams_t, boneName) == 0, "sharedIKMoveParams_t.boneName");
+_Static_assert(offsetof(sharedIKMoveParams_t, desiredOrigin) == 512, "sharedIKMoveParams_t.desiredOrigin");
+_Static_assert(offsetof(sharedIKMoveParams_t, origin) == 524, "sharedIKMoveParams_t.origin");
+_Static_assert(offsetof(sharedIKMoveParams_t, movementSpeed) == 536, "sharedIKMoveParams_t.movementSpeed");
+_Static_assert(sizeof(stringID_table_t) == 16, "stringID_table_t");
+_Static_assert(offsetof(stringID_table_t, name) == 0, "stringID_table_t.name");
+_Static_assert(offsetof(stringID_table_t, id) == 8, "stringID_table_t.id");
+_Static_assert(sizeof(trajectory_t) == 36, "trajectory_t");
+_Static_assert(offsetof(trajectory_t, trType) == 0, "trajectory_t.trType");
+_Static_assert(offsetof(trajectory_t, trTime) == 4, "trajectory_t.trTime");
+_Static_assert(offsetof(trajectory_t, trDuration) == 8, "trajectory_t.trDuration");
+_Static_assert(offsetof(trajectory_t, trBase) == 12, "trajectory_t.trBase");
+_Static_assert(offsetof(trajectory_t, trDelta) == 24, "trajectory_t.trDelta");
+_Static_assert(sizeof(vmCvar_t) == 272, "vmCvar_t");
+_Static_assert(offsetof(vmCvar_t, handle) == 0, "vmCvar_t.handle");
+_Static_assert(offsetof(vmCvar_t, modificationCount) == 4, "vmCvar_t.modificationCount");
+_Static_assert(offsetof(vmCvar_t, value) == 8, "vmCvar_t.value");
+_Static_assert(offsetof(vmCvar_t, integer) == 12, "vmCvar_t.integer");
+_Static_assert(offsetof(vmCvar_t, string) == 16, "vmCvar_t.string");
+#elif defined(__APPLE__) && defined(__aarch64__) // arm64-apple-macosx
+_Static_assert(sizeof(cplane_t) == 20, "cplane_t");
+_Static_assert(offsetof(cplane_t, normal) == 0, "cplane_t.normal");
+_Static_assert(offsetof(cplane_t, dist) == 12, "cplane_t.dist");
+_Static_assert(offsetof(cplane_t, type) == 16, "cplane_t.type");
+_Static_assert(offsetof(cplane_t, signbits) == 17, "cplane_t.signbits");
+_Static_assert(offsetof(cplane_t, pad) == 18, "cplane_t.pad");
+_Static_assert(sizeof(markFragment_t) == 8, "markFragment_t");
+_Static_assert(offsetof(markFragment_t, firstPoint) == 0, "markFragment_t.firstPoint");
+_Static_assert(offsetof(markFragment_t, numPoints) == 4, "markFragment_t.numPoints");
+_Static_assert(sizeof(orientation_t) == 48, "orientation_t");
+_Static_assert(offsetof(orientation_t, origin) == 0, "orientation_t.origin");
+_Static_assert(offsetof(orientation_t, axis) == 12, "orientation_t.axis");
+_Static_assert(sizeof(sharedIKMoveParams_t) == 540, "sharedIKMoveParams_t");
+_Static_assert(offsetof(sharedIKMoveParams_t, boneName) == 0, "sharedIKMoveParams_t.boneName");
+_Static_assert(offsetof(sharedIKMoveParams_t, desiredOrigin) == 512, "sharedIKMoveParams_t.desiredOrigin");
+_Static_assert(offsetof(sharedIKMoveParams_t, origin) == 524, "sharedIKMoveParams_t.origin");
+_Static_assert(offsetof(sharedIKMoveParams_t, movementSpeed) == 536, "sharedIKMoveParams_t.movementSpeed");
+_Static_assert(sizeof(stringID_table_t) == 16, "stringID_table_t");
+_Static_assert(offsetof(stringID_table_t, name) == 0, "stringID_table_t.name");
+_Static_assert(offsetof(stringID_table_t, id) == 8, "stringID_table_t.id");
+_Static_assert(sizeof(trajectory_t) == 36, "trajectory_t");
+_Static_assert(offsetof(trajectory_t, trType) == 0, "trajectory_t.trType");
+_Static_assert(offsetof(trajectory_t, trTime) == 4, "trajectory_t.trTime");
+_Static_assert(offsetof(trajectory_t, trDuration) == 8, "trajectory_t.trDuration");
+_Static_assert(offsetof(trajectory_t, trBase) == 12, "trajectory_t.trBase");
+_Static_assert(offsetof(trajectory_t, trDelta) == 24, "trajectory_t.trDelta");
+_Static_assert(sizeof(vmCvar_t) == 272, "vmCvar_t");
+_Static_assert(offsetof(vmCvar_t, handle) == 0, "vmCvar_t.handle");
+_Static_assert(offsetof(vmCvar_t, modificationCount) == 4, "vmCvar_t.modificationCount");
+_Static_assert(offsetof(vmCvar_t, value) == 8, "vmCvar_t.value");
+_Static_assert(offsetof(vmCvar_t, integer) == 12, "vmCvar_t.integer");
+_Static_assert(offsetof(vmCvar_t, string) == 16, "vmCvar_t.string");
+#else
+#error "layout_asserts.h has no block for this target"
+#endif
 
 #endif // JKA_LAYOUT_ASSERTS_H
