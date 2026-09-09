@@ -225,6 +225,26 @@ The unported-work marker keeps the jka-rust form so both repositories grep the s
   The smoke test drives the built dylib from outside, so it keeps its own `@convention(c)` syscall and does not use `RecordingTransport`.
 - The in-process tests install `RecordingTransport` on `Syscall.transport` and read `calls` and `texts` after the code under test ran.
 
+### The engine proof
+
+jka-rust's `mp_app` wants the module as `<fs_basepath>/base/jampgamei386.so` on every host, `crates/mp/engine/qcommon/src/sys_engine.rs:83`, so the release dylib is symlinked under that name in a scratch base path beside the retail `assets0.pk3` to `assets3.pk3`.
+
+```
+swift build -c release
+mkdir -p /tmp/jka-swift-proof/base
+ln -s ~/Developer/jka/jka_server/base/assets{0,1,2,3}.pk3 /tmp/jka-swift-proof/base/
+ln -s "$PWD/.build/release/libjampgame.dylib" /tmp/jka-swift-proof/base/jampgamei386.so
+../jka-rust/target/debug/mp_app +set dedicated 1 +set fs_basepath /tmp/jka-swift-proof +set fs_homepath /tmp/jka-swift-proof +set bot_enable 0 +set g_gametype 0 +devmap mp/duel1
+```
+
+The engine prints these lines and stops on the first stub, which is `GAME_RUN_FRAME`, because the dedicated loop reaches the first server frame right after `GAME_INIT`:
+
+```
+Sys_LoadDll(jampgame) succeeded!
+jka-swift jampgame init
+JKAShared/PortMissing.swift:4: Fatal error: TODO: Port G_RunFrame, source: oracle/codemp/game/g_main.c:540
+```
+
 Anything not on this list is out of scope, and the agent must not add it.
 A new package dependency is a ruling of the user's, and this packet grants none.
 
