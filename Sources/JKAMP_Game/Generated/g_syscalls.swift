@@ -83,7 +83,7 @@ public func trap_Cvar_VariableStringBuffer(_ var_name: String, _ bufsize: Int32)
             Syscall.call(.G_CVAR_VARIABLE_STRING_BUFFER, var_name, bufferPointer.baseAddress!, bufsize)
         }
     }
-    return String(cString: buffer)
+    return String(nulTerminated: buffer)
 }
 
 /// Source: oracle/codemp/game/g_syscalls.c:77
@@ -98,7 +98,7 @@ public func trap_Argv(_ n: Int32, _ bufferLength: Int32) -> String {
     _ = buffer.withUnsafeMutableBufferPointer { bufferPointer in
         Syscall.call(.G_ARGV, n, bufferPointer.baseAddress!, bufferLength)
     }
-    return String(cString: buffer)
+    return String(nulTerminated: buffer)
 }
 
 /// Source: oracle/codemp/game/g_syscalls.c:85
@@ -164,7 +164,7 @@ public func trap_GetConfigstring(_ num: Int32, _ bufferSize: Int32) -> String {
     _ = buffer.withUnsafeMutableBufferPointer { bufferPointer in
         Syscall.call(.G_GET_CONFIGSTRING, num, bufferPointer.baseAddress!, bufferSize)
     }
-    return String(cString: buffer)
+    return String(nulTerminated: buffer)
 }
 
 /// Source: oracle/codemp/game/g_syscalls.c:126
@@ -173,7 +173,7 @@ public func trap_GetUserinfo(_ num: Int32, _ bufferSize: Int32) -> String {
     _ = buffer.withUnsafeMutableBufferPointer { bufferPointer in
         Syscall.call(.G_GET_USERINFO, num, bufferPointer.baseAddress!, bufferSize)
     }
-    return String(cString: buffer)
+    return String(nulTerminated: buffer)
 }
 
 /// Source: oracle/codemp/game/g_syscalls.c:130
@@ -189,7 +189,7 @@ public func trap_GetServerinfo(_ bufferSize: Int32) -> String {
     _ = buffer.withUnsafeMutableBufferPointer { bufferPointer in
         Syscall.call(.G_GET_SERVERINFO, bufferPointer.baseAddress!, bufferSize)
     }
-    return String(cString: buffer)
+    return String(nulTerminated: buffer)
 }
 
 //server culling to reduce traffic on open maps -rww
@@ -322,7 +322,7 @@ public func trap_GetEntityToken(_ bufferSize: Int32) -> (Bool, String) {
     let word = buffer.withUnsafeMutableBufferPointer { bufferPointer in
         Syscall.call(.G_GET_ENTITY_TOKEN, bufferPointer.baseAddress!, bufferSize)
     }
-    return (word != 0, String(cString: buffer))
+    return (word != 0, String(nulTerminated: buffer))
 }
 
 /// Source: oracle/codemp/game/g_syscalls.c:210
@@ -353,7 +353,7 @@ public func trap_FS_GetFileList(_ path: String, _ `extension`: String, _ bufsize
             }
         }
     }
-    return (Int32(truncatingIfNeeded: word), String(cString: listbuf))
+    return (Int32(truncatingIfNeeded: word), String(nulTerminated: listbuf))
 }
 
 /// Source: oracle/codemp/game/g_syscalls.c:223
@@ -419,7 +419,7 @@ public func trap_SP_GetStringTextString(_ text: String, _ bufferLength: Int32) -
             Syscall.call(.SP_GETSTRINGTEXTSTRING, text, bufferPointer.baseAddress!, bufferLength)
         }
     }
-    return (Int32(truncatingIfNeeded: word), String(cString: buffer))
+    return (Int32(truncatingIfNeeded: word), String(nulTerminated: buffer))
 }
 
 /// Source: oracle/codemp/game/g_syscalls.c:257
@@ -948,7 +948,7 @@ public func trap_BotGetServerCommand(_ clientNum: Int32, _ size: Int32) -> (Int3
     let word = message.withUnsafeMutableBufferPointer { messagePointer in
         Syscall.call(.BOTLIB_GET_CONSOLE_MESSAGE, clientNum, messagePointer.baseAddress!, size)
     }
-    return (Int32(truncatingIfNeeded: word), String(cString: message))
+    return (Int32(truncatingIfNeeded: word), String(nulTerminated: message))
 }
 
 /// Source: oracle/codemp/game/g_syscalls.c:651
@@ -1335,7 +1335,7 @@ public func trap_Characteristic_String(_ character: Int32, _ index: Int32, _ siz
     _ = buf.withUnsafeMutableBufferPointer { bufPointer in
         Syscall.call(.BOTLIB_AI_CHARACTERISTIC_STRING, character, index, bufPointer.baseAddress!, size)
     }
-    return String(cString: buf)
+    return String(nulTerminated: buf)
 }
 
 /// Source: oracle/codemp/game/g_syscalls.c:885
@@ -1419,7 +1419,7 @@ public func trap_BotGetChatMessage(_ chatstate: Int32, _ size: Int32) -> String 
     _ = buf.withUnsafeMutableBufferPointer { bufPointer in
         Syscall.call(.BOTLIB_AI_GET_CHAT_MESSAGE, chatstate, bufPointer.baseAddress!, size)
     }
-    return String(cString: buf)
+    return String(nulTerminated: buf)
 }
 
 /// Source: oracle/codemp/game/g_syscalls.c:933
@@ -1446,7 +1446,7 @@ public func trap_BotMatchVariable(_ match: OpaquePointer?, _ variable: Int32, _ 
     _ = buf.withUnsafeMutableBufferPointer { bufPointer in
         Syscall.call(.BOTLIB_AI_MATCH_VARIABLE, match, variable, bufPointer.baseAddress!, size)
     }
-    return String(cString: buf)
+    return String(nulTerminated: buf)
 }
 
 /// Source: oracle/codemp/game/g_syscalls.c:945
@@ -1536,7 +1536,7 @@ public func trap_BotGoalName(_ number: Int32, _ size: Int32) -> String {
     _ = name.withUnsafeMutableBufferPointer { namePointer in
         Syscall.call(.BOTLIB_AI_GOAL_NAME, number, namePointer.baseAddress!, size)
     }
-    return String(cString: name)
+    return String(nulTerminated: name)
 }
 
 /// Source: oracle/codemp/game/g_syscalls.c:1001

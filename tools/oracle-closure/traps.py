@@ -12,7 +12,7 @@ The parameter table is abi-stubs.md row 2:
   float                        Float, bare, the word is PASSFLOAT's
   enum                         the re-exported struct, .rawValue
   const char *                 String, withCString around the call
-  char * with an int size      dropped, the trap returns String, a buffer of the size read after the call
+  char * with an int size      dropped, the trap returns String, a buffer of the size read after the call through String(nulTerminated:)
   const vec3_t, vec3_t         vec3_t, withUnsafePointer around the call, a var copy written back when not const
   pointer to a viewed struct   the view, bare
   void *                       OpaquePointer?, bare
@@ -128,10 +128,10 @@ class Traps:
         if outs and returns:
             # Raven filled the buffer and returned a count, so the trap returns both, per rule 7.
             returns = f"({returns}, String)"
-            mapping = f"({mapping}, String(cString: {outs[0].name}))"
+            mapping = f"({mapping}, String(nulTerminated: {outs[0].name}))"
         elif outs:
             returns = "String"
-            mapping = f"String(cString: {outs[0].name})"
+            mapping = f"String(nulTerminated: {outs[0].name})"
         head = f"public func {name}({signature})" + (f" -> {returns}" if returns else "")
         call = f"Syscall.call(.{command}, {', '.join(words)})" if words else f"Syscall.call(.{command})"
         body: list[str] = []
