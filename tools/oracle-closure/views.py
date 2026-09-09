@@ -396,9 +396,15 @@ class Generator:
                 if signature in covered:
                     continue
                 covered.add(signature)
+                # The pointer is read from a box, not passed to a generic, so no reabstraction thunk can change the word.
+                # NIOSSL's `ClosureBits` in `TLSConfiguration.swift` is the precedent.
                 lines += [
+                    f"private struct {alias}Bits {{ var function: {alias}? }}",
+                    "",
                     f"public func == (lhs: {alias}?, rhs: {alias}?) -> Bool {{",
-                    "    unsafeBitCast(lhs, to: UnsafeRawPointer?.self) == unsafeBitCast(rhs, to: UnsafeRawPointer?.self)",
+                    f"    precondition(MemoryLayout<{alias}Bits>.size == MemoryLayout<UInt>.size)",
+                    f"    return withUnsafeBytes(of: {alias}Bits(function: lhs)) {{ $0.load(as: UInt.self) }}",
+                    f"        == withUnsafeBytes(of: {alias}Bits(function: rhs)) {{ $0.load(as: UInt.self) }}",
                     "}",
                     "",
                 ]

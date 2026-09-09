@@ -50,30 +50,58 @@ public typealias VehicleInfoUpdateRider = @convention(c) (OpaquePointer?, Opaque
 
 public typealias VehicleInfoValidateBoard = @convention(c) (OpaquePointer?, OpaquePointer?) -> Int32
 
+private struct VehicleInfoAddPassengerBits { var function: VehicleInfoAddPassenger? }
+
 public func == (lhs: VehicleInfoAddPassenger?, rhs: VehicleInfoAddPassenger?) -> Bool {
-    unsafeBitCast(lhs, to: UnsafeRawPointer?.self) == unsafeBitCast(rhs, to: UnsafeRawPointer?.self)
+    precondition(MemoryLayout<VehicleInfoAddPassengerBits>.size == MemoryLayout<UInt>.size)
+    return withUnsafeBytes(of: VehicleInfoAddPassengerBits(function: lhs)) { $0.load(as: UInt.self) }
+        == withUnsafeBytes(of: VehicleInfoAddPassengerBits(function: rhs)) { $0.load(as: UInt.self) }
 }
+
+private struct VehicleInfoAnimateBits { var function: VehicleInfoAnimate? }
 
 public func == (lhs: VehicleInfoAnimate?, rhs: VehicleInfoAnimate?) -> Bool {
-    unsafeBitCast(lhs, to: UnsafeRawPointer?.self) == unsafeBitCast(rhs, to: UnsafeRawPointer?.self)
+    precondition(MemoryLayout<VehicleInfoAnimateBits>.size == MemoryLayout<UInt>.size)
+    return withUnsafeBytes(of: VehicleInfoAnimateBits(function: lhs)) { $0.load(as: UInt.self) }
+        == withUnsafeBytes(of: VehicleInfoAnimateBits(function: rhs)) { $0.load(as: UInt.self) }
 }
+
+private struct VehicleInfoBoardBits { var function: VehicleInfoBoard? }
 
 public func == (lhs: VehicleInfoBoard?, rhs: VehicleInfoBoard?) -> Bool {
-    unsafeBitCast(lhs, to: UnsafeRawPointer?.self) == unsafeBitCast(rhs, to: UnsafeRawPointer?.self)
+    precondition(MemoryLayout<VehicleInfoBoardBits>.size == MemoryLayout<UInt>.size)
+    return withUnsafeBytes(of: VehicleInfoBoardBits(function: lhs)) { $0.load(as: UInt.self) }
+        == withUnsafeBytes(of: VehicleInfoBoardBits(function: rhs)) { $0.load(as: UInt.self) }
 }
+
+private struct VehicleInfoEjectBits { var function: VehicleInfoEject? }
 
 public func == (lhs: VehicleInfoEject?, rhs: VehicleInfoEject?) -> Bool {
-    unsafeBitCast(lhs, to: UnsafeRawPointer?.self) == unsafeBitCast(rhs, to: UnsafeRawPointer?.self)
+    precondition(MemoryLayout<VehicleInfoEjectBits>.size == MemoryLayout<UInt>.size)
+    return withUnsafeBytes(of: VehicleInfoEjectBits(function: lhs)) { $0.load(as: UInt.self) }
+        == withUnsafeBytes(of: VehicleInfoEjectBits(function: rhs)) { $0.load(as: UInt.self) }
 }
+
+private struct VehicleInfoGhostBits { var function: VehicleInfoGhost? }
 
 public func == (lhs: VehicleInfoGhost?, rhs: VehicleInfoGhost?) -> Bool {
-    unsafeBitCast(lhs, to: UnsafeRawPointer?.self) == unsafeBitCast(rhs, to: UnsafeRawPointer?.self)
+    precondition(MemoryLayout<VehicleInfoGhostBits>.size == MemoryLayout<UInt>.size)
+    return withUnsafeBytes(of: VehicleInfoGhostBits(function: lhs)) { $0.load(as: UInt.self) }
+        == withUnsafeBytes(of: VehicleInfoGhostBits(function: rhs)) { $0.load(as: UInt.self) }
 }
+
+private struct VehicleInfoStartDeathDelayBits { var function: VehicleInfoStartDeathDelay? }
 
 public func == (lhs: VehicleInfoStartDeathDelay?, rhs: VehicleInfoStartDeathDelay?) -> Bool {
-    unsafeBitCast(lhs, to: UnsafeRawPointer?.self) == unsafeBitCast(rhs, to: UnsafeRawPointer?.self)
+    precondition(MemoryLayout<VehicleInfoStartDeathDelayBits>.size == MemoryLayout<UInt>.size)
+    return withUnsafeBytes(of: VehicleInfoStartDeathDelayBits(function: lhs)) { $0.load(as: UInt.self) }
+        == withUnsafeBytes(of: VehicleInfoStartDeathDelayBits(function: rhs)) { $0.load(as: UInt.self) }
 }
 
+private struct VehicleInfoUpdateRiderBits { var function: VehicleInfoUpdateRider? }
+
 public func == (lhs: VehicleInfoUpdateRider?, rhs: VehicleInfoUpdateRider?) -> Bool {
-    unsafeBitCast(lhs, to: UnsafeRawPointer?.self) == unsafeBitCast(rhs, to: UnsafeRawPointer?.self)
+    precondition(MemoryLayout<VehicleInfoUpdateRiderBits>.size == MemoryLayout<UInt>.size)
+    return withUnsafeBytes(of: VehicleInfoUpdateRiderBits(function: lhs)) { $0.load(as: UInt.self) }
+        == withUnsafeBytes(of: VehicleInfoUpdateRiderBits(function: rhs)) { $0.load(as: UInt.self) }
 }

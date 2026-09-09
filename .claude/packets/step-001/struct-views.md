@@ -100,12 +100,15 @@ if ent.classname == "noclass"
 
 Ratified as replaced, 2026-09-09. The proposal as first written kept the C shape for the stored functions themselves, and that contradicted rule 5 and rule 13, which give every ported function Raven's signature. The ruling: the stored function keeps Raven's signature, `func G_ExplodeMissile(_ ent: Entity)`, and the field keeps Raven's type, so identity is the C address as Raven had it.
 
-The generator writes one public typealias per distinct signature in `JKAMP_Game`, with `OpaquePointer?` for each `gentity_t *` and `trace_t *`, and an `==` per typealias by bitcast to a raw pointer, because a C function pointer is one word, the code address:
+The generator writes one public typealias per distinct signature in `JKAMP_Game`, with `OpaquePointer?` for each `gentity_t *` and `trace_t *`, and an `==` per typealias by a boxed word read, because a C function pointer is one word, the code address. The pointer is read from a struct and never passed to a generic, so no reabstraction thunk can change the word, as NIOSSL's `ClosureBits` in `TLSConfiguration.swift` does:
 
 ```swift
 public typealias EntityThink = @convention(c) (OpaquePointer?) -> Void
+private struct EntityThinkBits { var function: EntityThink? }
 public func == (lhs: EntityThink?, rhs: EntityThink?) -> Bool {
-    unsafeBitCast(lhs, to: UnsafeRawPointer?.self) == unsafeBitCast(rhs, to: UnsafeRawPointer?.self)
+    precondition(MemoryLayout<EntityThinkBits>.size == MemoryLayout<UInt>.size)
+    return withUnsafeBytes(of: EntityThinkBits(function: lhs)) { $0.load(as: UInt.self) }
+        == withUnsafeBytes(of: EntityThinkBits(function: rhs)) { $0.load(as: UInt.self) }
 }
 ```
 
@@ -143,6 +146,6 @@ No guard slot precedes element 0. Raven's `g_entities` is a plain static array, 
 - Row 1, the generated file and its names: ratified as proposed, 2026-09-09.
 - Row 2, the conversion table: ratified with the spawnflags sentence, an `OptionSet` per Raven file whose members read re-exported C macros and never a literal, and the type generator copies a `.c` file's own macros, 2026-09-09.
 - Row 3, the strings: ratified as amended, a literal assigns as a `StaticString` pointer and a runtime string goes through the pool, 2026-09-09.
-- Row 4, the function pointer fields: replaced. The stored function keeps Raven's Swift signature, the field keeps Raven's C type, one generated static thunk per function in a per-field namespace gives the address identity, `==` compares addresses, the call goes through the pointer. 2026-09-09.
+- Row 4, the function pointer fields: replaced. The stored function keeps Raven's Swift signature, the field keeps Raven's C type, one generated static thunk per function in a per-field namespace gives the address identity, `==` compares addresses, the call goes through the pointer. 2026-09-09. Amended 2026-09-09: `==` reads the address from a box, not through `unsafeBitCast`, after the NIOSSL `ClosureBits` precedent.
 - Row 5, the tables and the level: ratified as proposed, 2026-09-09.
 - Row 6, rules 3, 8, and 11 wording for the stored functions: ratified as proposed, 2026-09-09.

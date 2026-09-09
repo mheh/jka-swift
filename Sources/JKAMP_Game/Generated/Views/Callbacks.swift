@@ -19,14 +19,26 @@ public typealias EntityTouch = @convention(c) (OpaquePointer?, OpaquePointer?, O
 
 public typealias EntityUse = @convention(c) (OpaquePointer?, OpaquePointer?, OpaquePointer?) -> Void
 
+private struct EntityDieBits { var function: EntityDie? }
+
 public func == (lhs: EntityDie?, rhs: EntityDie?) -> Bool {
-    unsafeBitCast(lhs, to: UnsafeRawPointer?.self) == unsafeBitCast(rhs, to: UnsafeRawPointer?.self)
+    precondition(MemoryLayout<EntityDieBits>.size == MemoryLayout<UInt>.size)
+    return withUnsafeBytes(of: EntityDieBits(function: lhs)) { $0.load(as: UInt.self) }
+        == withUnsafeBytes(of: EntityDieBits(function: rhs)) { $0.load(as: UInt.self) }
 }
+
+private struct EntityPainBits { var function: EntityPain? }
 
 public func == (lhs: EntityPain?, rhs: EntityPain?) -> Bool {
-    unsafeBitCast(lhs, to: UnsafeRawPointer?.self) == unsafeBitCast(rhs, to: UnsafeRawPointer?.self)
+    precondition(MemoryLayout<EntityPainBits>.size == MemoryLayout<UInt>.size)
+    return withUnsafeBytes(of: EntityPainBits(function: lhs)) { $0.load(as: UInt.self) }
+        == withUnsafeBytes(of: EntityPainBits(function: rhs)) { $0.load(as: UInt.self) }
 }
 
+private struct EntityTouchBits { var function: EntityTouch? }
+
 public func == (lhs: EntityTouch?, rhs: EntityTouch?) -> Bool {
-    unsafeBitCast(lhs, to: UnsafeRawPointer?.self) == unsafeBitCast(rhs, to: UnsafeRawPointer?.self)
+    precondition(MemoryLayout<EntityTouchBits>.size == MemoryLayout<UInt>.size)
+    return withUnsafeBytes(of: EntityTouchBits(function: lhs)) { $0.load(as: UInt.self) }
+        == withUnsafeBytes(of: EntityTouchBits(function: rhs)) { $0.load(as: UInt.self) }
 }
