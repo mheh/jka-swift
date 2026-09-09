@@ -1,2 +1,3 @@
-// SwiftPM needs one translation unit per C target. This one proves the umbrella compiles as C.
+// SwiftPM needs one translation unit per C target. This one compiles the umbrella and the layout asserts on every build.
 #include "CJKAMP.h"
+#include "layout_asserts.h"

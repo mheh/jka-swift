@@ -1,0 +1,5 @@
+// Explicit, because the mirrored oracle directories sit beside the umbrella and SwiftPM's automatic layout does not allow that.
+module CJKASP {
+    umbrella header "CJKASP.h"
+    export *
+}

@@ -1,3 +1,4 @@
+import JKAShared
 internal import CJKAMP
 
 /// This namespace reports the sizes Clang gives the MP structs that cross the engine boundary.

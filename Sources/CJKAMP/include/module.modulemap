@@ -1,4 +1,4 @@
-// An explicit module map, because the codemp symlink sits beside the umbrella header and the automatic layout check rejects that.
+// Explicit, because the mirrored oracle directories sit beside the umbrella and SwiftPM's automatic layout does not allow that.
 module CJKAMP {
     umbrella header "CJKAMP.h"
     export *
