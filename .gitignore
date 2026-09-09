@@ -11,3 +11,6 @@ __pycache__/
 
 # The graphify knowledge graph is a generated, machine-local artifact.
 /graphify-out/
+
+# A parked handoff is session state, absorbed and deleted at the next session start.
+/.claude/HANDOFF.md
