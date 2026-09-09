@@ -201,7 +201,7 @@ The `default` arm returns -1.
 `g_syscalls.c` belongs to `traps.py` and is skipped.
 Functions keep Raven's order.
 Raven's comment block above a function is emitted verbatim as `/** */`, and the `/// Source:` line sits beneath it, directly above the declaration.
-Raven's signature maps through the parameter table above, and Raven's `static` is dropped, because Swift module scope already hides the function and the thunk namespaces must reach it.
+Raven's signature maps through the parameter table above, and Raven's `static` becomes `private`, and so does every copy of a name that more than one file defines, because SpeederNPC.c defines `Update` without `static` and four vehicle files define it with. A function the oracle stores in a callback field stays internal, because its thunk names it from another file. A function that returns a pointer to a viewed struct returns the optional view.
 A body is `// TODO: Port X` plus `portMissing`.
 A signature the table cannot map carries `// TODO: Port signature` with Raven's C text.
 
