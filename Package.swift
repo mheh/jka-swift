@@ -1,4 +1,4 @@
-// swift-tools-version: 6.0
+// swift-tools-version: 6.3
 import PackageDescription
 
 let package = Package(
@@ -30,6 +30,18 @@ let package = Package(
         .testTarget(
             name: "JKAMPTests",
             dependencies: ["JKAMP"]
+        ),
+        // PROTOTYPE, throwaway. It answers row B3 of the porting-rules walk: does a view-based GameWorld over C memory work?
+        // The views target is the only one that imports CJKAMP. The logic target sees the views and never a Raven prototype.
+        .target(
+            name: "GameWorldPrototypeViews",
+            dependencies: ["CJKAMP"],
+            path: "Prototypes/GameWorldPrototypeViews"
+        ),
+        .executableTarget(
+            name: "GameWorldPrototype",
+            dependencies: ["GameWorldPrototypeViews"],
+            path: "Prototypes/GameWorldPrototype"
         ),
     ]
 )

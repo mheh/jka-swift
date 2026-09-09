@@ -24,5 +24,7 @@
 #include "codemp/game/q_shared.h"
 #include "codemp/game/bg_public.h"
 #include "codemp/game/g_public.h"
+// PROTOTYPE: g_local.h is in for the GameWorld view prototype. The row B3 ruling decides whether it stays.
+#include "codemp/game/g_local.h"
 
 #endif
