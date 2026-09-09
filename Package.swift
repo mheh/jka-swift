@@ -47,9 +47,13 @@ let package = Package(
         // dllEntry and vmMain. It decodes words and calls the bare functions.
         .target(name: "jampgame", dependencies: ["JKAMP_GameLogic"]),
 
+        // MARK: - Test support, a library and not a product, so it ships in no dylib
+        // The recording transport a test installs on Syscall.transport.
+        .target(name: "JKATestSupport", dependencies: ["JKAShared"]),
+
         // MARK: - Tests
-        .testTarget(name: "JKASharedTests", dependencies: ["JKAShared"]),
+        .testTarget(name: "JKASharedTests", dependencies: ["JKAShared", "JKATestSupport"]),
         .testTarget(name: "JKAMPTests", dependencies: ["JKAMP", "JKAMP_BG"]),
-        .testTarget(name: "JKAMP_GameTests", dependencies: ["JKAMP_GameLogic"]),
+        .testTarget(name: "JKAMP_GameTests", dependencies: ["JKAMP_GameLogic", "JKATestSupport"]),
     ]
 )
