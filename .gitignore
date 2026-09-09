@@ -1,0 +1,13 @@
+/.build/
+/.swiftpm/
+/Package.resolved
+*.xcodeproj
+.DS_Store
+__pycache__/
+*.py[cod]
+/tools/oracle-closure/.venv/
+/tools/oracle-closure/out/
+.claude/worktrees/
+
+# The graphify knowledge graph is a generated, machine-local artifact.
+/graphify-out/
