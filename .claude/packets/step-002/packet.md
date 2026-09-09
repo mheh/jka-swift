@@ -191,12 +191,14 @@ The user ruled on every row above in a ratification walk on 2026-09-09.
 | 5 | Ratified as proposed, with the ruled paths: `Tests/JKASharedTests/QMathParityTests.swift` and `Tests/JKAMPTests/BGLibParityTests.swift`. |
 | 6 | Ratified as proposed, plus a note on the `inout`-and-value-alias case for a later step. |
 | 7 | Ratified as proposed. `Plane` and `vec4_t` land in `JKAShared`, the `Cplane` view in the same target gains the getter and setter. |
-| 8 | Ratified as proposed. The lane agent measures live-caller coverage before writing the finished file. |
+| 8 | Ratified as proposed, then amended on 2026-09-09 after the lane measurement. The lane agent measures live-caller coverage before writing the finished file. |
 | 9 | Ratified as originally proposed. All four stay unwritten, recorded with cites. |
 
 **Row 1.** The ported `q_math.c` lives in `JKAShared`, at `Sources/JKAShared/q_math.swift`, beside `Sources/JKAShared/Views/Vectors.swift`, which defines `vec3_t`. No new target opens. Every module target already depends on `JKAShared`, so cgame, ui, the SP modules, and any executable share the same functions without a new dependency edge. `skeleton.py` gains one routing line that sends the `q_math` stem to `JKAShared`. The moved file drops its generated header line, which adopts it. The stub file `Sources/JKAMP_GameLogic/q_math.swift` is deleted. The user's reason: the math functions are shared between all built dylibs and executables.
 
 **Row 4.** This step ports `qsort`, with `med3` and `swapfunc`, and nothing else. The stubs `srand`, `rand`, `atof`, `_atof`, and `__builtin___memmove_chk` stay as markers, untouched. The 28 functions the `Q3_VM` guard hid from the parse get no stub now. The finished file lists them under one heading as deferred to the VM step, with cites, so the VM step has its target list. The user's reason: "we will port the VM sometime," so the `Q3_VM` branches are deferred work, not dead code. Commit 6 of the bundle, "drop the dead bg_lib stubs," is removed, and the finished-file commit becomes commit 6.
+
+**Row 8, amended.** A function the native build compiles, that a golden exercises, counts as live under rule 20, even with no Raven caller. The five such functions, `_VectorMA`, `_DotProduct`, `_VectorSubtract`, `_VectorAdd`, and `Vector4Scale`, keep their real bodies. The finished file lists them under a "golden-only callers" heading. The first four lose to the macro forms at `oracle/codemp/game/q_shared.h:1365`.
 
 ## Dispatch flags
 

@@ -50,9 +50,9 @@ Two ported functions no golden line touches directly:
 - `_VectorCopy`, at `oracle/codemp/game/q_math.c:1237`. The dumper uses Raven's `VectorCopy` macro, not this function. The Swift suite calls it where the dumper writes the macro, so it is covered in fact.
 - `VectorNormalizeFast`, at `oracle/codemp/game/q_shared.h:1536`. No golden line reaches it. A later golden needs it.
 
-## Row 8, the live-caller measurement
+## Row 8, golden-only callers
 
-The row 8 reason claims that every `q_math.c` function the native build compiles has a Raven caller. **The measurement contradicts that claim.** A grep of both oracle trees for a call outside `q_math.c` itself finds no caller for five functions:
+The row 8 reason claims that every `q_math.c` function the native build compiles has a Raven caller. A grep of both oracle trees for a call outside `q_math.c` itself finds no caller for five functions. The user ratified an amendment to row 8 on 2026-09-09: a function the native build compiles, that a golden exercises, counts as live under rule 20, even with no Raven caller. These five functions keep their real bodies under that ruling:
 
 | Function | Cite | Why it has no caller |
 |---|---|---|
@@ -114,7 +114,7 @@ None of the four is written, and none has a stub, because the parse never saw on
 
 ## Open gaps
 
-1. **Row 8 needs a ruling, and this is the pause.** The lane brief says that a ported function with no caller gets the rule 20 stub and marker instead of a body. The measurement above finds five such functions. The two instructions cannot both hold, because the `qmath.txt` golden calls all five directly, at the `vma`, `dot`, `vsub`, `vadd`, and `v4s` lines, and three of them are the macro expansions that other ported bodies use. A trapping stub would break the ruled gate and rule 15's green bar. This lane therefore left all five with real bodies and no marker, the row 8 verdict as the packet writes it, and records the conflict here. The open question is whether a function that the native build compiles, that no Raven code calls, and that a golden exercises counts as dead under rule 20.
+1. **Row 8, amended on 2026-09-09.** The lane brief said that a ported function with no caller gets the rule 20 stub and marker instead of a body. The measurement above found five such functions. The `qmath.txt` golden calls all five directly, at the `vma`, `dot`, `vsub`, `vadd`, and `v4s` lines, and three of them are the macro expansions that other ported bodies use. The user ratified the amendment: a function the native build compiles, that a golden exercises, counts as live under rule 20, even with no Raven caller. All five keep their real bodies and no marker, the row 8 verdict as the packet now writes it, under the golden-only callers heading above.
 2. **`AngleVectors` has no way to say NULL.** Raven's three NULL checks have no Swift form under row 6, and a caller passes a scratch vector. A later step that ports a caller writing `AngleVectors(angles, forward, NULL, NULL)` may want an optional shape.
 3. **Row 6 asked for a note on the alias case.** Raven's callers pass one vector as both input and output in places, for example `VectorMA(right, -d, forward, right)` inside `MakeNormalVectors`. The `inout` form handles that inside one body, because the elementwise write reads no other element. A later port that aliases two whole `inout` arguments of one call needs a local copy, and Swift will report the exclusivity violation at compile time.
 4. **`Plane` carries no `pad[2]`.** A trace that hands over a `cplane_t` reaches the value through `Cplane.plane`, and `apply` leaves the padding as the engine left it. If a later engine read depends on the padding, `Plane` needs a fourth field.
