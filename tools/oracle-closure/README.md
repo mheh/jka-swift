@@ -10,11 +10,14 @@ These scripts parse the oracle with libclang and answer layout and dependency qu
 - `pass2lib.py`: the worktree scanner the two sweeps use to mark items as ported.
 - `merge.py`: the second pass. It reads the `extract.py` trees, compares every declaration across modules and trees by code identity, and writes the C targets: `CJKAShared` for what MP and SP agree on, `CJKAMP` and `CJKASP` for what each tree's modules agree on, and `CJKAMP_Game`, `CJKAMP_CGame`, `CJKAMP_UI` and their SP twins for the rest. A type is shared only when everything it includes is shared. Each target is a SwiftPM C target: the umbrella, the module map, and the headers under `include/`, with the translation unit and `layout_asserts.h` beside it. `merge.py --out ../../Sources` writes the package's targets, and the default writes `out/merge/` for a dry run.
 - `reexport.py`: the Swift re-exports. It parses each C target's umbrella and writes one Swift file per Raven header under the view target's `Generated` directory: a macro as a `public let` that reads the C value, an anonymous enum's enumerators as plain constants, a named enum as a struct with one static per enumerator, and a scalar typedef as a typealias. Swift's importer refuses a macro with an expression body and offers no way to ask which, so `--probe` builds, reads the failing lines, and moves each rejected name one rung up a ladder: the C body spelled as a Swift expression, the same expression narrowed to `Int32`, then a `TODO: Port` marker with the C text.
+- `views.py`: the Swift views over Raven's structs, one file per view type under the view target's `Generated/Views` directory. It walks the closure of `gentity_t`, `gclient_t`, `level_locals_t`, and `playerState_t` by value, by array, and by pointer, and maps each field by the table of `struct-views.md` row 2: a scalar as itself, `qboolean` as `Bool`, an enum as its re-exported struct, `vec3_t` as `SIMD3<Float>`, an array as a `Slots` over the field's address, `char *` as `PooledString?`, a nested struct and a struct pointer as views, and a stored function as its C type with a typealias per signature and a `run` method per field. A view in another module is built from its `OpaquePointer` handle, so no raw pointer crosses a module. A field with no table row gets a `TODO: Port` marker with the C text.
 - `extract.py`: the type copier. It writes one C header per Raven struct, union, enum, or typedef, with the oracle path mirrored, plus a constants file per Raven header, `forward.h`, `all.h`, and `layout_asserts.h` with the oracle's sizes and offsets. A file listed in `adopted.json` in the output directory is never overwritten.
 
 ## The placement rules
 
 A type lands in the tree target, `CJKAMP` or `CJKASP`, when every module of the tree that emits it agrees on its text, or when one module alone emits it from a Raven header two or more modules see, because `usercmd_t` in `q_shared.h` belongs to every module and only the game's type closure holds it. A type from a header one module sees lands in that module's target. The bg run reads `q_shared.h`, `bg_public.h`, `bg_local.h`, and `bg_saga.h`, and never `g_local.h`, so the game-private types stay in the game target and the bg types in the tree target. A type both trees define identically lands in `CJKAShared`, and a macro identical in both trees is shared only when every name its body uses is shared too.
+
+A `.c` file's own object-like macros, such as `MOVER_LOCKED` in `g_mover.c`, go to `<dir>/<stem>_c/constants.h` and are placed per module, never unioned, because `bg_misc.c` defines `MAX_POOL_SIZE` one way under `QAGAME` and another way in cgame. Two kinds stay in their `.c` file and are reported: a name a header uses as an identifier, such as Raven's `#define currentOrigin r.currentOrigin`, which would rewrite the header, and a name two `.c` files of one module define differently, which one header cannot carry.
 
 ## The layout check
 
@@ -33,6 +36,7 @@ clang -fsyntax-only -x c -std=gnu11 -Wno-everything -I out/extract/mp-game -I gl
 .venv/bin/python merge.py --out ../../Sources
 ./check.sh ../../Sources
 .venv/bin/python reexport.py --probe
+.venv/bin/python views.py
 ```
 
 `check.sh` compiles every merged target's translation unit as C with its dependency include directories and exits nonzero on the first failure. Its one argument is the directory the merge wrote, `out/merge` by default. `EXTRACT_DEBUG=<TypeName>` makes `extract.py` print every include it adds for that type and why, for a dependency that looks wrong.

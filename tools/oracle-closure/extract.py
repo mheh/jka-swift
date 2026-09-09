@@ -9,7 +9,7 @@ Inactive #if branches inside a slice are removed with the same macro set the par
 
 Output, flat in one directory:
   <TypeName>.h              one file per struct, union, enum, or typedef, named by the typedef where one exists
-  constants_<header>.h      the object-like macros of one Raven header, in Raven's order
+  constants_<header>.h      the object-like macros of one Raven header, in Raven's order, and of one Raven .c file for the macros it defines for itself
   forward.h                 forward declarations and the typedefs that name a struct tag, so pointer fields never need an include
   all.h                     includes everything
   layout_asserts.h          sizeof and offsetof asserts for every record, the oracle's numbers
@@ -207,7 +207,9 @@ class Decl:
         self.file = cur.location.file.name
         self.stem = Path(self.file).stem
         # The output path mirrors the oracle path, so codemp/game/q_shared.h becomes codemp/game/q_shared/.
-        self.reldir = str(Path(oracle_relative(self.file)).parent.relative_to("oracle")) + "/" + self.stem
+        # A .c file's own macros take a _c suffix, because bg_saga.c and bg_saga.h share a stem.
+        suffix = "_c" if self.file.endswith(".c") else ""
+        self.reldir = str(Path(oracle_relative(self.file)).parent.relative_to("oracle")) + "/" + self.stem + suffix
         self.start = cur.extent.start
         self.end = cur.extent.end
         self.includes: set[str] = set()
@@ -807,6 +809,58 @@ def emit(module: str, out_dir: Path, check: bool, triples: list[str]) -> int:
         filename = macros[0].filename
         files[filename] = wrap(filename, note, [], body)
         manifest["files"][filename] = {"source": oracle_relative(macros[0].file), "declarations": [d.name for d in macros]}
+
+    # constants.h of a .c file: the object-like macros a source file defines for itself, such as MOVER_LOCKED in g_mover.c.
+    # struct-views.md row 2: a spawn flag OptionSet reads the re-exported C macro, so the macro must reach a header.
+    # The parse is the module's unity build, so a macro one .c file defines is visible to the next, as the function closure already accepts.
+    if spec.get("srcglob") and spec["lang"] == "c":
+        unity = C.parse_tu(module, None, unity=True)
+        unity_resolver = IfResolver(macro_table(unity))
+        # A macro whose name is an identifier in a header would rewrite that header once the umbrella defines it, as Raven's
+        # `#define currentOrigin r.currentOrigin` in the vehicle files would rewrite entityShared_t, so it stays in its .c file.
+        header_identifiers: set[str] = set()
+        for decl in decls:
+            if decl.kind != "macro":
+                header_identifiers |= set(re.findall(r"\b[A-Za-z_]\w*\b", slice_text(decl, resolver)))
+        c_macros: dict[str, list[Decl]] = defaultdict(list)
+        for cur in unity.cursor.get_children():
+            loc = cur.location.file
+            if cur.kind != CursorKind.MACRO_DEFINITION or not in_oracle(loc and loc.name) or not loc.name.endswith(".c"):
+                continue
+            tokens = list(cur.get_tokens())
+            if cur.spelling in MACRO_SKIP or cur.spelling.startswith("__") or len(tokens) < 2 or is_function_like(tokens) or cur.spelling in macro_names:
+                continue
+            if cur.spelling in header_identifiers:
+                NOTES.append(f"{oracle_relative(loc.name)}:{cur.location.line} macro {cur.spelling} stays in its .c file, because a header uses the name")
+                continue
+            c_macros[loc.name].append(Decl(cur, "macro", cur.spelling))
+        # A name two .c files define with different bodies has a value per file, which one header cannot carry, so it stays in
+        # its .c files. A name two files define alike is copied once.
+        bodies: dict[str, set[str]] = defaultdict(set)
+        for macros in c_macros.values():
+            for decl in macros:
+                bodies[decl.name].add(" ".join(t.spelling for t in decl.cur.get_tokens())[len(decl.name):].strip())
+        copied: set[str] = set()
+        for file, macros in list(c_macros.items()):
+            kept: list[Decl] = []
+            for decl in macros:
+                if len(bodies[decl.name]) > 1:
+                    NOTES.append(f"{decl.cite} macro {decl.name} stays in its .c file, because another .c file defines it differently")
+                elif decl.name not in copied:
+                    copied.add(decl.name)
+                    kept.append(decl)
+            if kept:
+                c_macros[file] = kept
+            else:
+                del c_macros[file]
+        for macros in c_macros.values():
+            body: list[str] = []
+            for decl in macros:
+                body += [f"// Source: {decl.cite}", slice_text(decl, unity_resolver), ""]
+                counts[decl.stem]["macro"] += 1
+            filename = macros[0].filename
+            files[filename] = wrap(filename, note, [], body)
+            manifest["files"][filename] = {"source": oracle_relative(macros[0].file), "declarations": [d.name for d in macros]}
 
     # A name declared twice, such as `byte` in q_shared.h and in the icarus tokenizer, keeps its first file. Includes follow it.
     alias: dict[str, str] = {}

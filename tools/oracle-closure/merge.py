@@ -317,6 +317,15 @@ def partition_tree(tree: str, headers: dict[str, dict[str, Header]]) -> dict[str
     for identity in sorted(identities):
         versions = {m: per[identity] for m, per in headers.items() if identity in per}
         if next(iter(versions.values())).is_constants:
+            carrier = next(iter(versions.values()))
+            if carrier.sources and source_header(carrier.sources[0]).endswith(".c"):
+                # The macros a .c file defines for itself belong to each module that compiles it, with that module's defines,
+                # so bg_misc.c's MAX_POOL_SIZE is one value in the game and another in cgame. The bg parse is the game's, rule of
+                # ported-types.md row 1, so it carries no copy of its own.
+                for m, h in versions.items():
+                    if m not in ("mp-bg", "sp-bg"):
+                        placed[f"{identity}@{m}"] = Placed(identity, TARGET_OF_MODULE[m], h, conflict=m)
+                continue
             # A constants file is a set of macros, not one declaration. Modules see different subsets because Raven guards some macros,
             # so the tree carries the union. A macro with two bodies has no rule yet and stops the merge.
             modules = list(versions)
@@ -695,9 +704,13 @@ def emit(out_dir: Path, mp_modules: list[str], sp_modules: list[str]) -> int:
         print(f"{len(RENAMED)} macros dropped because a type of the same tree has their name:")
         for line in sorted(set(RENAMED)):
             print(f"  {line}")
-    conflicts = sorted({p.identity for p in list(mp.values()) + list(sp.values()) if p.conflict})
+    placed_all = list(mp.values()) + list(sp.values())
+    conflicts = sorted({p.identity for p in placed_all if p.conflict and not p.identity.endswith("_c/constants.h")})
     if conflicts:
         print(f"{len(conflicts)} identities defined differently by two modules of one tree: {', '.join(conflicts)}")
+    c_constants = {p.identity for p in placed_all if p.identity.endswith("_c/constants.h")}
+    if c_constants:
+        print(f"{len(c_constants)} .c files' own macros placed per module")
     return 0
 
 
