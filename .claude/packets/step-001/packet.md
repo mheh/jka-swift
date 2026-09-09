@@ -188,4 +188,13 @@ The user pushes and merges, the agent does not.
 
 ## Amendments
 
-None yet.
+2026-09-08, from the porting-rules ratification walk and the step-001 work so far.
+
+- **Row 2 replaced.** Swift tools version 6.3, Swift 6 language mode. The syscall pointer is `Syscall.entry`, an `OpaquePointer`, because Swift imports a C variadic function pointer as that type and a public property cannot expose a type from an `internal import`.
+- **Row 6 replaced.** The layout asserts are generated per target triple for `i686-pc-windows-msvc`, `i686-pc-linux-gnu`, `x86_64-pc-windows-msvc`, `x86_64-pc-linux-gnu`, `x86_64-apple-macosx`, and `arm64-apple-macosx`, checked with `clang -target -fsyntax-only` on any host. A seam type must have one size on all six. The `intptr_t` shim width stands.
+- **Row 7 replaced.** C targets `CJKAShared`, `CJKAMP`, `CJKAMP_Game`, `CJKAMP_CGame`, `CJKAMP_UI`, `CJKAMP_Engine`, `CJKASP`, `CJKASP_Game`, `CJKASP_CGame`, `CJKASP_UI`. Swift view targets `JKAShared`, `JKAMP`, `JKAMP_Game`, `JKAMP_CGame`, `JKAMP_UI`, `JKAMP_Engine`, `JKASP`, `JKASP_Game`, `JKASP_CGame`, `JKASP_UI`. Logic targets follow the pattern, `JKAMP_BG` for `bg_*`. Products keep Raven's names `jampgame`, `cgame`, `ui`. The packet's `CJKA`, `JKAAbi`, and `JKAGame` names are retired.
+- **Row 11 replaced.** The goldens are copied into the repository from jka-rust's oracle harnesses, so `swift test` is self-contained.
+- **Surface contract, the C target.** Raven's MP game module builds with `QAGAME`, `MISSIONPACK`, `_JK2`, and `NDEBUG`, not `_GAME`, which is OpenJK's spelling. The C headers are no longer the oracle's through a search path. `tools/oracle-closure/extract.py` copies every type of a module into headers we own, one declaration per file with the oracle path mirrored and a `Source:` line, and `merge.py` partitions them into the targets of row 7 with `layout_asserts.h` per target. The oracle symlink under `Sources/CJKAMP/include` and its `__linux__` and `powf` fixes are a stopgap until `merge.py --out Sources` lands.
+- **Surface contract, the shim.** The widest Raven trap is `BOTLIB_AAS_PREDICT_CLIENT_MOVEMENT` at 13 arguments, so the shim has arms 0 through 13.
+- **Surface contract, the syscall home.** `Syscall.call` runs over a `SyscallTransport` protocol. The C shim is the engine conformer and a recorder is the test conformer, per porting rule 11.
+- **Commit bundle.** Commits 1 and 2 landed as `71d943c` and `02a9468`. The extractor, the merge, and the GameWorld prototype landed as `2315d88` and `406de1d`, and the ratified porting rules as `8d65cab`. `docs/porting-rules.md` is the walked text, not a copy with amendments, and `docs/style.md` states the comment style rule 21 cites.
