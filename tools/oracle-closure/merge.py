@@ -40,6 +40,8 @@ EXTRACT = HERE / "out" / "extract"
 MP_MODULES = ["mp-game", "mp-bg", "mp-cgame", "mp-ui"]
 SP_MODULES = ["sp-game", "sp-bg", "sp-cgame", "sp-ui"]
 TREE_PREFIX = {"mp": "codemp/", "sp": "code/"}
+# The bg run parses the bg_*.c files' own headers, bg_local.h and bg_saga.h, and never g_local.h, even though Raven's bg_*.c include
+# it under QAGAME. That keeps the game-private types out of the tree target, and the bg types in it.
 TARGET_OF_MODULE = {
     "mp-game": "CJKAMP_Game", "mp-cgame": "CJKAMP_CGame", "mp-ui": "CJKAMP_UI", "mp-bg": "CJKAMP",
     "sp-game": "CJKASP_Game", "sp-cgame": "CJKASP_CGame", "sp-ui": "CJKASP_UI", "sp-bg": "CJKASP",
@@ -225,6 +227,11 @@ def load_tree(tree: str, modules: list[str]) -> tuple[dict[str, dict[str, Header
     return headers, platform, asserts
 
 
+def source_header(source_line: str) -> str:
+    """The oracle header a `// Source: oracle/codemp/game/q_shared.h:2169` line names."""
+    return source_line.split("Source:", 1)[1].strip().rsplit(":", 1)[0]
+
+
 def union_constants(tree: str, identity: str, versions: dict[str, Header]) -> Header:
     """One constants header per Raven header, with every macro any module of the tree saw, in Raven's line order."""
     bodies: dict[str, str] = {}
@@ -247,6 +254,13 @@ def partition_tree(tree: str, headers: dict[str, dict[str, Header]]) -> dict[str
     for per in headers.values():
         identities |= set(per)
     placed: dict[str, Placed] = {}
+    # The Raven headers each module's parse reached. A type from a header two modules see is a tree type even when only one
+    # module's type closure reached it, because usercmd_t in q_shared.h is every module's type and only the game's closure holds it.
+    seen_by: dict[str, set[str]] = defaultdict(set)
+    for module, per in headers.items():
+        for h in per.values():
+            for source in h.sources:
+                seen_by[source_header(source)].add(module)
     # Sorted, so the umbrella order is the same on every run.
     for identity in sorted(identities):
         versions = {m: per[identity] for m, per in headers.items() if identity in per}
@@ -263,7 +277,8 @@ def partition_tree(tree: str, headers: dict[str, dict[str, Header]]) -> dict[str
             carrier = next(iter(versions.values()))
             modules = list(versions)
             if len(modules) == 1:
-                target = TARGET_OF_MODULE[modules[0]]
+                header = source_header(carrier.sources[0]) if carrier.sources else ""
+                target = TREE_TARGET[tree] if len(seen_by.get(header, ())) > 1 else TARGET_OF_MODULE[modules[0]]
             else:
                 target = TREE_TARGET[tree]
                 # The includes of all agreeing versions are unioned, because a module may see one more forward typedef as a file.

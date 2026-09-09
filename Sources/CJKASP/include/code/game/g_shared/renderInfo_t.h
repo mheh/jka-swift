@@ -4,7 +4,7 @@
 #define JKA_CODE_GAME_G_SHARED_RENDERINFO_T_H
 
 #include "CJKASP_forward.h"
-#include "shared/game/b_public/lookMode_t.h"
+#include "code/game/b_public/lookMode_t.h"
 #include "shared/game/q_shared/byte.h"
 #include "shared/game/q_shared/vec3_t.h"
 

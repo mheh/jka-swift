@@ -4,11 +4,11 @@
 #define JKA_CODEMP_UI_UI_LOCAL_PLAYERINFO_T_H
 
 #include "CJKAMP_UI_forward.h"
+#include "codemp/game/anims/animNumber_t.h"
 #include "codemp/game/bg_public/animation_t.h"
 #include "codemp/game/bg_weapons/weapon_t.h"
 #include "codemp/game/q_shared/qboolean.h"
 #include "codemp/ui/ui_local/lerpFrame_t.h"
-#include "shared/game/anims/animNumber_t.h"
 #include "shared/game/q_shared/qhandle_t.h"
 #include "shared/game/q_shared/vec3_t.h"
 

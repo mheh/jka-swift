@@ -8,16 +8,6 @@
 #include "CJKAShared.h"
 
 
-_Static_assert(sizeof(interestPoint_t) == 24, "interestPoint_t");
-_Static_assert(offsetof(interestPoint_t, origin) == 0, "interestPoint_t.origin");
-_Static_assert(offsetof(interestPoint_t, target) == 16, "interestPoint_t.target");
-_Static_assert(sizeof(waypointData_t) == 324, "waypointData_t");
-_Static_assert(offsetof(waypointData_t, targetname) == 0, "waypointData_t.targetname");
-_Static_assert(offsetof(waypointData_t, target) == 64, "waypointData_t.target");
-_Static_assert(offsetof(waypointData_t, target2) == 128, "waypointData_t.target2");
-_Static_assert(offsetof(waypointData_t, target3) == 192, "waypointData_t.target3");
-_Static_assert(offsetof(waypointData_t, target4) == 256, "waypointData_t.target4");
-_Static_assert(offsetof(waypointData_t, nodeID) == 320, "waypointData_t.nodeID");
 _Static_assert(sizeof(cplane_t) == 20, "cplane_t");
 _Static_assert(offsetof(cplane_t, normal) == 0, "cplane_t.normal");
 _Static_assert(offsetof(cplane_t, dist) == 12, "cplane_t.dist");

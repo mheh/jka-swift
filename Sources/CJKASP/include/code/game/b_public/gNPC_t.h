@@ -7,12 +7,12 @@
 #include "code/game/AI/rank_t.h"
 #include "code/game/b_public/constants.h"
 #include "code/game/b_public/gNPCstats_t.h"
+#include "code/game/b_public/jumpState_t.h"
+#include "code/game/b_public/visibility_t.h"
 #include "code/game/bstate/bState_t.h"
 #include "code/game/q_shared/qboolean.h"
 #include "code/game/q_shared/usercmd_t.h"
 #include "shared/game/b_public/constants.h"
-#include "shared/game/b_public/jumpState_t.h"
-#include "shared/game/b_public/visibility_t.h"
 #include "shared/game/q_shared/vec3_t.h"
 
 // Source: oracle/code/game/b_public.h:146
