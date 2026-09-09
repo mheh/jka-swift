@@ -1,0 +1,5 @@
+// An explicit module map, because the codemp symlink sits beside the umbrella header and the automatic layout check rejects that.
+module CJKAMP {
+    umbrella header "CJKAMP.h"
+    export *
+}
