@@ -266,8 +266,25 @@ The normal will point out of the clock for clockwise ordered points
 */
 /// Source: oracle/codemp/game/q_math.c:384
 public func PlaneFromPoints(_ plane: inout vec4_t, _ a: vec3_t, _ b: vec3_t, _ c: vec3_t) -> Bool {
-    // TODO: Port PlaneFromPoints
-    portMissing("PlaneFromPoints", source: "oracle/codemp/game/q_math.c:384")
+    var d1 = vec3_t()
+    var d2 = vec3_t()
+    // Raven builds the normal in the first three elements of `plane` and normalizes them in place.
+    // A vec4_t is one value here, so the normal goes through a temporary and is written back before either return.
+    var normal = vec3_t()
+
+    _VectorSubtract(b, a, &d1)
+    _VectorSubtract(c, a, &d2)
+    CrossProduct(d2, d1, &normal)
+    let length = VectorNormalize(&normal)
+    plane[0] = normal[0]
+    plane[1] = normal[1]
+    plane[2] = normal[2]
+    if length == 0 {
+        return false
+    }
+
+    plane[3] = _DotProduct(a, normal)
+    return true
 }
 
 /**
@@ -279,8 +296,61 @@ This is not implemented very well...
 */
 /// Source: oracle/codemp/game/q_math.c:405
 public func RotatePointAroundVector(_ dst: inout vec3_t, _ dir: vec3_t, _ point: vec3_t, _ degrees: Float) {
-    // TODO: Port RotatePointAroundVector
-    portMissing("RotatePointAroundVector", source: "oracle/codemp/game/q_math.c:405")
+    var m = [[Float]](repeating: [Float](repeating: 0, count: 3), count: 3)
+    var im = m
+    var zrot = m
+    var tmpmat = m
+    var rot = m
+    var vr = vec3_t()
+    var vup = vec3_t()
+    var vf = vec3_t()
+    var rad: Float
+
+    vf[0] = dir[0]
+    vf[1] = dir[1]
+    vf[2] = dir[2]
+
+    PerpendicularVector(&vr, dir)
+    CrossProduct(vr, vf, &vup)
+
+    m[0][0] = vr[0]
+    m[1][0] = vr[1]
+    m[2][0] = vr[2]
+
+    m[0][1] = vup[0]
+    m[1][1] = vup[1]
+    m[2][1] = vup[2]
+
+    m[0][2] = vf[0]
+    m[1][2] = vf[1]
+    m[2][2] = vf[2]
+
+    im = m
+
+    im[0][1] = m[1][0]
+    im[0][2] = m[2][0]
+    im[1][0] = m[0][1]
+    im[1][2] = m[2][1]
+    im[2][0] = m[0][2]
+    im[2][1] = m[1][2]
+
+    zrot[0][0] = 1.0
+    zrot[1][1] = 1.0
+    zrot[2][2] = 1.0
+
+    // Raven's DEG2RAD multiplies by the double M_PI, so the angle runs in double and rounds once.
+    rad = Float(Double(degrees) * Double.pi / 180.0)
+    zrot[0][0] = Float(cos(Double(rad)))
+    zrot[0][1] = Float(sin(Double(rad)))
+    zrot[1][0] = -Float(sin(Double(rad)))
+    zrot[1][1] = Float(cos(Double(rad)))
+
+    MatrixMultiply(m, zrot, &tmpmat)
+    MatrixMultiply(tmpmat, im, &rot)
+
+    for i in 0 ..< 3 {
+        dst[i] = rot[i][0] * point[0] + rot[i][1] * point[1] + rot[i][2] * point[2]
+    }
 }
 
 /**
@@ -290,14 +360,65 @@ RotateAroundDirection
 */
 /// Source: oracle/codemp/game/q_math.c:466
 public func RotateAroundDirection(_ axis: inout [vec3_t], _ yaw: Float) {
-    // TODO: Port RotateAroundDirection
-    portMissing("RotateAroundDirection", source: "oracle/codemp/game/q_math.c:466")
+
+    // create an arbitrary axis[1]
+    // Raven passes two elements of one array to one call, and Swift allows one exclusive access, so each result lands through a local.
+    var built = vec3_t()
+    PerpendicularVector(&built, axis[0])
+    axis[1] = built
+
+    // rotate it around axis[0] by yaw
+    if yaw != 0 {
+        var temp = vec3_t()
+
+        _VectorCopy(axis[1], &temp)
+        var rotated = vec3_t()
+        RotatePointAroundVector(&rotated, axis[0], temp, yaw)
+        axis[1] = rotated
+    }
+
+    // cross to get axis[2]
+    var crossed = vec3_t()
+    CrossProduct(axis[0], axis[1], &crossed)
+    axis[2] = crossed
 }
 
 /// Source: oracle/codemp/game/q_math.c:485
 public func vectoangles(_ value1: vec3_t, _ angles: inout vec3_t) {
-    // TODO: Port vectoangles
-    portMissing("vectoangles", source: "oracle/codemp/game/q_math.c:485")
+    var forward: Float
+    var yaw: Float
+    var pitch: Float
+
+    if value1[1] == 0 && value1[0] == 0 {
+        yaw = 0
+        if value1[2] > 0 {
+            pitch = 90
+        } else {
+            pitch = 270
+        }
+    } else {
+        // Raven's atan2 and sqrt are the double libm calls and M_PI is the double of math.h.
+        if value1[0] != 0 {
+            yaw = Float(atan2(Double(value1[1]), Double(value1[0])) * 180 / Double.pi)
+        } else if value1[1] > 0 {
+            yaw = 90
+        } else {
+            yaw = 270
+        }
+        if yaw < 0 {
+            yaw += 360
+        }
+
+        forward = Float(Double(value1[0] * value1[0] + value1[1] * value1[1]).squareRoot())
+        pitch = Float(atan2(Double(value1[2]), Double(forward)) * 180 / Double.pi)
+        if pitch < 0 {
+            pitch += 360
+        }
+    }
+
+    angles[Int(PITCH)] = -pitch
+    angles[Int(YAW)] = yaw
+    angles[Int(ROLL)] = 0
 }
 
 /**
@@ -307,26 +428,58 @@ AnglesToAxis
 */
 /// Source: oracle/codemp/game/q_math.c:530
 public func AnglesToAxis(_ angles: vec3_t, _ axis: inout [vec3_t]) {
-    // TODO: Port AnglesToAxis
-    portMissing("AnglesToAxis", source: "oracle/codemp/game/q_math.c:530")
+    var right = vec3_t()
+    var forward = vec3_t()
+    var up = vec3_t()
+
+    // angle vectors returns "right" instead of "y axis"
+    AngleVectors(angles, &forward, &right, &up)
+    axis[0] = forward
+    axis[2] = up
+    var yAxis = vec3_t()
+    _VectorSubtract(vec3_origin, right, &yAxis)
+    axis[1] = yAxis
 }
 
 /// Source: oracle/codemp/game/q_math.c:538
 public func AxisClear(_ axis: inout [vec3_t]) {
-    // TODO: Port AxisClear
-    portMissing("AxisClear", source: "oracle/codemp/game/q_math.c:538")
+    axis[0][0] = 1
+    axis[0][1] = 0
+    axis[0][2] = 0
+    axis[1][0] = 0
+    axis[1][1] = 1
+    axis[1][2] = 0
+    axis[2][0] = 0
+    axis[2][1] = 0
+    axis[2][2] = 1
 }
 
 /// Source: oracle/codemp/game/q_math.c:550
 public func AxisCopy(_ `in`: [vec3_t], _ out: inout [vec3_t]) {
-    // TODO: Port AxisCopy
-    portMissing("AxisCopy", source: "oracle/codemp/game/q_math.c:550")
+    _VectorCopy(`in`[0], &out[0])
+    _VectorCopy(`in`[1], &out[1])
+    _VectorCopy(`in`[2], &out[2])
 }
 
 /// Source: oracle/codemp/game/q_math.c:556
 public func ProjectPointOnPlane(_ dst: inout vec3_t, _ p: vec3_t, _ normal: vec3_t) {
-    // TODO: Port ProjectPointOnPlane
-    portMissing("ProjectPointOnPlane", source: "oracle/codemp/game/q_math.c:556")
+    var d: Float
+    var n = vec3_t()
+    var inv_denom: Float
+
+    inv_denom = _DotProduct(normal, normal)
+    assert(Q_fabs(inv_denom) != 0.0)  // bk010122 - zero vectors get here
+    inv_denom = 1.0 / inv_denom
+
+    d = _DotProduct(normal, p) * inv_denom
+
+    n[0] = normal[0] * inv_denom
+    n[1] = normal[1] * inv_denom
+    n[2] = normal[2] * inv_denom
+
+    dst[0] = p[0] - d * n[0]
+    dst[1] = p[1] - d * n[1]
+    dst[2] = p[2] - d * n[2]
 }
 
 /**
@@ -339,14 +492,28 @@ other perpendicular vectors
 */
 /// Source: oracle/codemp/game/q_math.c:587
 public func MakeNormalVectors(_ forward: vec3_t, _ right: inout vec3_t, _ up: inout vec3_t) {
-    // TODO: Port MakeNormalVectors
-    portMissing("MakeNormalVectors", source: "oracle/codemp/game/q_math.c:587")
+    var d: Float
+
+    // this rotate and negate guarantees a vector
+    // not colinear with the original
+    right[1] = -forward[0]
+    right[2] = forward[1]
+    right[0] = forward[2]
+
+    d = _DotProduct(right, forward)
+    // Raven's VectorMA is the header macro, which writes one element at a time and reads none of the others.
+    right[0] = right[0] + forward[0] * -d
+    right[1] = right[1] + forward[1] * -d
+    right[2] = right[2] + forward[2] * -d
+    _ = VectorNormalize(&right)
+    CrossProduct(right, forward, &up)
 }
 
 /// Source: oracle/codemp/game/q_math.c:603
 public func VectorRotate(_ `in`: vec3_t, _ matrix: [vec3_t], _ out: inout vec3_t) {
-    // TODO: Port VectorRotate
-    portMissing("VectorRotate", source: "oracle/codemp/game/q_math.c:603")
+    out[0] = _DotProduct(`in`, matrix[0])
+    out[1] = _DotProduct(`in`, matrix[1])
+    out[2] = _DotProduct(`in`, matrix[2])
 }
 
 //============================================================================
@@ -391,8 +558,18 @@ LerpAngle
 */
 /// Source: oracle/codemp/game/q_math.c:653
 public func LerpAngle(_ from: Float, _ to: Float, _ frac: Float) -> Float {
-    // TODO: Port LerpAngle
-    portMissing("LerpAngle", source: "oracle/codemp/game/q_math.c:653")
+    var to = to
+    var a: Float
+
+    if to - from > 180 {
+        to -= 360
+    }
+    if to - from < -180 {
+        to += 360
+    }
+    a = from + frac * (to - from)
+
+    return a
 }
 
 /**
@@ -404,20 +581,32 @@ Always returns a value from -180 to 180
 */
 /// Source: oracle/codemp/game/q_math.c:675
 public func AngleSubtract(_ a1: Float, _ a2: Float) -> Float {
-    // TODO: Port AngleSubtract
-    portMissing("AngleSubtract", source: "oracle/codemp/game/q_math.c:675")
+    var a: Float
+
+    a = a1 - a2
+    a = Float(fmod(Double(a), 360))  //chop it down quickly, then level it out
+    while a > 180 {
+        a -= 360
+    }
+    while a < -180 {
+        a += 360
+    }
+    return a
 }
 
 /// Source: oracle/codemp/game/q_math.c:690
 public func AnglesSubtract(_ v1: vec3_t, _ v2: vec3_t, _ v3: inout vec3_t) {
-    // TODO: Port AnglesSubtract
-    portMissing("AnglesSubtract", source: "oracle/codemp/game/q_math.c:690")
+    v3[0] = AngleSubtract(v1[0], v2[0])
+    v3[1] = AngleSubtract(v1[1], v2[1])
+    v3[2] = AngleSubtract(v1[2], v2[2])
 }
 
+/// Raven's `65536/360.0` and `360.0/65536` are double literals, so the scale and the product run in double and round once.
 /// Source: oracle/codemp/game/q_math.c:697
 public func AngleMod(_ a: Float) -> Float {
-    // TODO: Port AngleMod
-    portMissing("AngleMod", source: "oracle/codemp/game/q_math.c:697")
+    var a = a
+    a = Float((360.0 / 65536.0) * Double(truncateToInt(Double(a) * (65536.0 / 360.0)) & 65535))
+    return a
 }
 
 /**
@@ -429,8 +618,8 @@ returns angle normalized to the range [0 <= angle < 360]
 */
 /// Source: oracle/codemp/game/q_math.c:710
 public func AngleNormalize360(_ angle: Float) -> Float {
-    // TODO: Port AngleNormalize360
-    portMissing("AngleNormalize360", source: "oracle/codemp/game/q_math.c:710")
+    // The constants are double literals, as in AngleMod.
+    Float((360.0 / 65536.0) * Double(truncateToInt(Double(angle) * (65536.0 / 360.0)) & 65535))
 }
 
 /**
@@ -442,8 +631,11 @@ returns angle normalized to the range [-180 < angle <= 180]
 */
 /// Source: oracle/codemp/game/q_math.c:722
 public func AngleNormalize180(_ angle: Float) -> Float {
-    // TODO: Port AngleNormalize180
-    portMissing("AngleNormalize180", source: "oracle/codemp/game/q_math.c:722")
+    var angle = AngleNormalize360(angle)
+    if angle > 180.0 {
+        angle -= 360.0
+    }
+    return angle
 }
 
 /**
@@ -455,8 +647,7 @@ returns the normalized delta from angle1 to angle2
 */
 /// Source: oracle/codemp/game/q_math.c:738
 public func AngleDelta(_ angle1: Float, _ angle2: Float) -> Float {
-    // TODO: Port AngleDelta
-    portMissing("AngleDelta", source: "oracle/codemp/game/q_math.c:738")
+    AngleNormalize180(angle1 - angle2)
 }
 
 //============================================================
@@ -468,8 +659,16 @@ SetPlaneSignbits
 */
 /// Source: oracle/codemp/game/q_math.c:751
 public func SetPlaneSignbits(_ out: inout Plane) {
-    // TODO: Port SetPlaneSignbits
-    portMissing("SetPlaneSignbits", source: "oracle/codemp/game/q_math.c:751")
+    var bits: Int32
+
+    // for fast box on planeside test
+    bits = 0
+    for j in 0 ..< 3 {
+        if out.normal[j] < 0 {
+            bits |= 1 << j
+        }
+    }
+    out.signbits = byte(bits)
 }
 
 /**
@@ -481,8 +680,69 @@ Returns 1, 2, or 1 + 2
 */
 /// Source: oracle/codemp/game/q_math.c:809
 public func BoxOnPlaneSide(_ emins: vec3_t, _ emaxs: vec3_t, _ p: inout Plane) -> Int32 {
-    // TODO: Port BoxOnPlaneSide
-    portMissing("BoxOnPlaneSide", source: "oracle/codemp/game/q_math.c:809")
+    var dist1: Float
+    var dist2: Float
+    var sides: Int32
+
+// fast axial cases
+    if p.type < 3 {
+        if p.dist <= emins[Int(p.type)] {
+            return 1
+        }
+        if p.dist >= emaxs[Int(p.type)] {
+            return 2
+        }
+        return 3
+    }
+
+// general case
+    switch p.signbits {
+    case 0:
+        dist1 = p.normal[0] * emaxs[0] + p.normal[1] * emaxs[1] + p.normal[2] * emaxs[2]
+        dist2 = p.normal[0] * emins[0] + p.normal[1] * emins[1] + p.normal[2] * emins[2]
+
+    case 1:
+        dist1 = p.normal[0] * emins[0] + p.normal[1] * emaxs[1] + p.normal[2] * emaxs[2]
+        dist2 = p.normal[0] * emaxs[0] + p.normal[1] * emins[1] + p.normal[2] * emins[2]
+
+    case 2:
+        dist1 = p.normal[0] * emaxs[0] + p.normal[1] * emins[1] + p.normal[2] * emaxs[2]
+        dist2 = p.normal[0] * emins[0] + p.normal[1] * emaxs[1] + p.normal[2] * emins[2]
+
+    case 3:
+        dist1 = p.normal[0] * emins[0] + p.normal[1] * emins[1] + p.normal[2] * emaxs[2]
+        dist2 = p.normal[0] * emaxs[0] + p.normal[1] * emaxs[1] + p.normal[2] * emins[2]
+
+    case 4:
+        dist1 = p.normal[0] * emaxs[0] + p.normal[1] * emaxs[1] + p.normal[2] * emins[2]
+        dist2 = p.normal[0] * emins[0] + p.normal[1] * emins[1] + p.normal[2] * emaxs[2]
+
+    case 5:
+        dist1 = p.normal[0] * emins[0] + p.normal[1] * emaxs[1] + p.normal[2] * emins[2]
+        dist2 = p.normal[0] * emaxs[0] + p.normal[1] * emins[1] + p.normal[2] * emaxs[2]
+
+    case 6:
+        dist1 = p.normal[0] * emaxs[0] + p.normal[1] * emins[1] + p.normal[2] * emins[2]
+        dist2 = p.normal[0] * emins[0] + p.normal[1] * emaxs[1] + p.normal[2] * emaxs[2]
+
+    case 7:
+        dist1 = p.normal[0] * emins[0] + p.normal[1] * emins[1] + p.normal[2] * emins[2]
+        dist2 = p.normal[0] * emaxs[0] + p.normal[1] * emaxs[1] + p.normal[2] * emaxs[2]
+
+    default:
+        dist1 = 0
+        dist2 = 0        // shut up compiler
+    }
+
+    sides = 0
+    if dist1 >= p.dist {
+        sides = 1
+    }
+    if dist2 < p.dist {
+        sides |= 2
+    }
+
+    return sides
 }
 
 /**
@@ -492,32 +752,68 @@ RadiusFromBounds
 */
 /// Source: oracle/codemp/game/q_math.c:1114
 public func RadiusFromBounds(_ mins: vec3_t, _ maxs: vec3_t) -> Float {
-    // TODO: Port RadiusFromBounds
-    portMissing("RadiusFromBounds", source: "oracle/codemp/game/q_math.c:1114")
+    var corner = vec3_t()
+    var a: Float
+    var b: Float
+
+    for i in 0 ..< 3 {
+        a = abs(mins[i])
+        b = abs(maxs[i])
+        corner[i] = a > b ? a : b
+    }
+
+    return VectorLength(corner)
 }
 
 /// Source: oracle/codemp/game/q_math.c:1129
 public func ClearBounds(_ mins: inout vec3_t, _ maxs: inout vec3_t) {
-    // TODO: Port ClearBounds
-    portMissing("ClearBounds", source: "oracle/codemp/game/q_math.c:1129")
+    mins[0] = 99999
+    mins[1] = 99999
+    mins[2] = 99999
+    maxs[0] = -99999
+    maxs[1] = -99999
+    maxs[2] = -99999
 }
 
 /// Source: oracle/codemp/game/q_math.c:1134
 public func DistanceHorizontal(_ p1: vec3_t, _ p2: vec3_t) -> vec_t {
-    // TODO: Port DistanceHorizontal
-    portMissing("DistanceHorizontal", source: "oracle/codemp/game/q_math.c:1134")
+    var v = vec3_t()
+
+    _VectorSubtract(p2, p1, &v)
+    // Raven writes `sqrt`, the double libm call rounded back to float.
+    return Float(Double(v[0] * v[0] + v[1] * v[1]).squareRoot())    //Leave off the z component
 }
 
 /// Source: oracle/codemp/game/q_math.c:1141
 public func DistanceHorizontalSquared(_ p1: vec3_t, _ p2: vec3_t) -> vec_t {
-    // TODO: Port DistanceHorizontalSquared
-    portMissing("DistanceHorizontalSquared", source: "oracle/codemp/game/q_math.c:1141")
+    var v = vec3_t()
+
+    _VectorSubtract(p2, p1, &v)
+    return v[0] * v[0] + v[1] * v[1]    //Leave off the z component
 }
 
 /// Source: oracle/codemp/game/q_math.c:1148
 public func AddPointToBounds(_ v: vec3_t, _ mins: inout vec3_t, _ maxs: inout vec3_t) {
-    // TODO: Port AddPointToBounds
-    portMissing("AddPointToBounds", source: "oracle/codemp/game/q_math.c:1148")
+    if v[0] < mins[0] {
+        mins[0] = v[0]
+    }
+    if v[0] > maxs[0] {
+        maxs[0] = v[0]
+    }
+
+    if v[1] < mins[1] {
+        mins[1] = v[1]
+    }
+    if v[1] > maxs[1] {
+        maxs[1] = v[1]
+    }
+
+    if v[2] < mins[2] {
+        mins[2] = v[2]
+    }
+    if v[2] > maxs[2] {
+        maxs[2] = v[2]
+    }
 }
 
 /// Source: oracle/codemp/game/q_math.c:1172
@@ -541,50 +837,72 @@ public func VectorNormalize(_ v: inout vec3_t) -> vec_t {
 
 /// Source: oracle/codemp/game/q_math.c:1188
 public func VectorNormalize2(_ v: vec3_t, _ out: inout vec3_t) -> vec_t {
-    // TODO: Port VectorNormalize2
-    portMissing("VectorNormalize2", source: "oracle/codemp/game/q_math.c:1188")
+    var length: Float
+    var ilength: Float
+
+    length = v[0] * v[0] + v[1] * v[1] + v[2] * v[2]
+    // Raven writes `sqrt`, the double libm call rounded back to float.
+    length = Float(Double(length).squareRoot())
+
+    if length != 0 {
+        ilength = 1 / length
+        out[0] = v[0] * ilength
+        out[1] = v[1] * ilength
+        out[2] = v[2] * ilength
+    } else {
+        out = vec3_t(0, 0, 0)
+    }
+
+    return length
 }
 
 /// Source: oracle/codemp/game/q_math.c:1214
 public func _VectorMA(_ veca: vec3_t, _ scale: Float, _ vecb: vec3_t, _ vecc: inout vec3_t) {
-    // TODO: Port _VectorMA
-    portMissing("_VectorMA", source: "oracle/codemp/game/q_math.c:1214")
+    vecc[0] = veca[0] + scale * vecb[0]
+    vecc[1] = veca[1] + scale * vecb[1]
+    vecc[2] = veca[2] + scale * vecb[2]
 }
 
+/// A SIMD reduction may reassociate, so the sum keeps Raven's scalar order.
 /// Source: oracle/codemp/game/q_math.c:1221
 public func _DotProduct(_ v1: vec3_t, _ v2: vec3_t) -> vec_t {
-    // TODO: Port _DotProduct
-    portMissing("_DotProduct", source: "oracle/codemp/game/q_math.c:1221")
+    v1[0] * v2[0] + v1[1] * v2[1] + v1[2] * v2[2]
 }
 
 /// Source: oracle/codemp/game/q_math.c:1225
 public func _VectorSubtract(_ veca: vec3_t, _ vecb: vec3_t, _ out: inout vec3_t) {
-    // TODO: Port _VectorSubtract
-    portMissing("_VectorSubtract", source: "oracle/codemp/game/q_math.c:1225")
+    out[0] = veca[0] - vecb[0]
+    out[1] = veca[1] - vecb[1]
+    out[2] = veca[2] - vecb[2]
 }
 
 /// Source: oracle/codemp/game/q_math.c:1231
 public func _VectorAdd(_ veca: vec3_t, _ vecb: vec3_t, _ out: inout vec3_t) {
-    // TODO: Port _VectorAdd
-    portMissing("_VectorAdd", source: "oracle/codemp/game/q_math.c:1231")
+    out[0] = veca[0] + vecb[0]
+    out[1] = veca[1] + vecb[1]
+    out[2] = veca[2] + vecb[2]
 }
 
 /// Source: oracle/codemp/game/q_math.c:1237
 public func _VectorCopy(_ `in`: vec3_t, _ out: inout vec3_t) {
-    // TODO: Port _VectorCopy
-    portMissing("_VectorCopy", source: "oracle/codemp/game/q_math.c:1237")
+    out[0] = `in`[0]
+    out[1] = `in`[1]
+    out[2] = `in`[2]
 }
 
 /// Source: oracle/codemp/game/q_math.c:1243
 public func _VectorScale(_ `in`: vec3_t, _ scale: vec_t, _ out: inout vec3_t) {
-    // TODO: Port _VectorScale
-    portMissing("_VectorScale", source: "oracle/codemp/game/q_math.c:1243")
+    out[0] = `in`[0] * scale
+    out[1] = `in`[1] * scale
+    out[2] = `in`[2] * scale
 }
 
 /// Source: oracle/codemp/game/q_math.c:1249
 public func Vector4Scale(_ `in`: vec4_t, _ scale: vec_t, _ out: inout vec4_t) {
-    // TODO: Port Vector4Scale
-    portMissing("Vector4Scale", source: "oracle/codemp/game/q_math.c:1249")
+    out[0] = `in`[0] * scale
+    out[1] = `in`[1] * scale
+    out[2] = `in`[2] * scale
+    out[3] = `in`[3] * scale
 }
 
 /// Source: oracle/codemp/game/q_math.c:1257
@@ -610,16 +928,62 @@ MatrixMultiply
 */
 /// Source: oracle/codemp/game/q_math.c:1293
 public func MatrixMultiply(_ in1: [[Float]], _ in2: [[Float]], _ out: inout [[Float]]) {
-    // TODO: Port MatrixMultiply
-    portMissing("MatrixMultiply", source: "oracle/codemp/game/q_math.c:1293")
+    out[0][0] = in1[0][0] * in2[0][0] + in1[0][1] * in2[1][0] +
+                in1[0][2] * in2[2][0]
+    out[0][1] = in1[0][0] * in2[0][1] + in1[0][1] * in2[1][1] +
+                in1[0][2] * in2[2][1]
+    out[0][2] = in1[0][0] * in2[0][2] + in1[0][1] * in2[1][2] +
+                in1[0][2] * in2[2][2]
+    out[1][0] = in1[1][0] * in2[0][0] + in1[1][1] * in2[1][0] +
+                in1[1][2] * in2[2][0]
+    out[1][1] = in1[1][0] * in2[0][1] + in1[1][1] * in2[1][1] +
+                in1[1][2] * in2[2][1]
+    out[1][2] = in1[1][0] * in2[0][2] + in1[1][1] * in2[1][2] +
+                in1[1][2] * in2[2][2]
+    out[2][0] = in1[2][0] * in2[0][0] + in1[2][1] * in2[1][0] +
+                in1[2][2] * in2[2][0]
+    out[2][1] = in1[2][0] * in2[0][1] + in1[2][1] * in2[1][1] +
+                in1[2][2] * in2[2][1]
+    out[2][2] = in1[2][0] * in2[0][2] + in1[2][1] * in2[1][2] +
+                in1[2][2] * in2[2][2]
 }
 
 /// Raven guards each of the three outputs with a null test, and a `vec3_t` value cannot be null.
 /// A Swift caller that wants one output passes a scratch vector for the other two.
 /// Source: oracle/codemp/game/q_math.c:1315
 public func AngleVectors(_ angles: vec3_t, _ forward: inout vec3_t, _ right: inout vec3_t, _ up: inout vec3_t) {
-    // TODO: Port AngleVectors
-    portMissing("AngleVectors", source: "oracle/codemp/game/q_math.c:1315")
+    var angle: Float
+    var sr: Float
+    var sp: Float
+    var sy: Float
+    var cr: Float
+    var cp: Float
+    var cy: Float
+    // static to help MS compiler fp bugs
+    // Raven marks the six temporaries static, and each is written before it is read, so a local holds the same value.
+
+    // M_PI is the double of math.h, so each angle runs in double and rounds once. sin and cos are the double libm calls.
+    angle = Float(Double(angles[Int(YAW)]) * (Double.pi * 2 / 360))
+    sy = Float(sin(Double(angle)))
+    cy = Float(cos(Double(angle)))
+    angle = Float(Double(angles[Int(PITCH)]) * (Double.pi * 2 / 360))
+    sp = Float(sin(Double(angle)))
+    cp = Float(cos(Double(angle)))
+    angle = Float(Double(angles[Int(ROLL)]) * (Double.pi * 2 / 360))
+    sr = Float(sin(Double(angle)))
+    cr = Float(cos(Double(angle)))
+
+    forward[0] = cp * cy
+    forward[1] = cp * sy
+    forward[2] = -sp
+
+    right[0] = (-1 * sr * sp * cy + -1 * cr * -sy)
+    right[1] = (-1 * sr * sp * sy + -1 * cr * cy)
+    right[2] = -1 * sr * cp
+
+    up[0] = (cr * sp * cy + -sr * -sy)
+    up[1] = (cr * sp * sy + -sr * cy)
+    up[2] = cr * cp
 }
 
 /**
@@ -627,8 +991,34 @@ public func AngleVectors(_ angles: vec3_t, _ forward: inout vec3_t, _ right: ino
 */
 /// Source: oracle/codemp/game/q_math.c:1353
 public func PerpendicularVector(_ dst: inout vec3_t, _ src: vec3_t) {
-    // TODO: Port PerpendicularVector
-    portMissing("PerpendicularVector", source: "oracle/codemp/game/q_math.c:1353")
+    var pos: Int
+    var minelem: Float = 1.0
+    var tempvec = vec3_t()
+
+    /*
+    ** find the smallest magnitude axially aligned vector
+    */
+    pos = 0
+    for i in 0 ..< 3 {
+        if abs(src[i]) < minelem {
+            pos = i
+            minelem = abs(src[i])
+        }
+    }
+    tempvec[0] = 0.0
+    tempvec[1] = 0.0
+    tempvec[2] = 0.0
+    tempvec[pos] = 1.0
+
+    /*
+    ** project the point onto the plane defined by src
+    */
+    ProjectPointOnPlane(&dst, tempvec, src)
+
+    /*
+    ** normalize the result
+    */
+    _ = VectorNormalize(&dst)
 }
 
 /**
@@ -689,8 +1079,13 @@ DotProductNormalize
 */
 /// Source: oracle/codemp/game/q_math.c:1508
 public func DotProductNormalize(_ inVec1: vec3_t, _ inVec2: vec3_t) -> Float {
-    // TODO: Port DotProductNormalize
-    portMissing("DotProductNormalize", source: "oracle/codemp/game/q_math.c:1508")
+    var v1 = vec3_t()
+    var v2 = vec3_t()
+
+    _ = VectorNormalize2(inVec1, &v1)
+    _ = VectorNormalize2(inVec2, &v2)
+
+    return _DotProduct(v1, v2)
 }
 
 /**
@@ -700,12 +1095,228 @@ G_FindClosestPointOnLineSegment
 */
 /// Source: oracle/codemp/game/q_math.c:1524
 public func G_FindClosestPointOnLineSegment(_ start: vec3_t, _ end: vec3_t, _ from: vec3_t, _ result: inout vec3_t) -> Bool {
-    // TODO: Port G_FindClosestPointOnLineSegment
-    portMissing("G_FindClosestPointOnLineSegment", source: "oracle/codemp/game/q_math.c:1524")
+    var vecStart2From = vec3_t()
+    var vecStart2End = vec3_t()
+    var vecEnd2Start = vec3_t()
+    var vecEnd2From = vec3_t()
+    var distEnd2From: Float
+    var distEnd2Result: Float
+    var theta: Float
+    var cos_theta: Float
+    var dot: Float
+
+    //Find the perpendicular vector to vec from start to end
+    _VectorSubtract(from, start, &vecStart2From)
+    _VectorSubtract(end, start, &vecStart2End)
+
+    dot = DotProductNormalize(vecStart2From, vecStart2End)
+
+    if dot <= 0 {
+        //The perpendicular would be beyond or through the start point
+        _VectorCopy(start, &result)
+        return false
+    }
+
+    if dot == 1 {
+        //parallel, closer of 2 points will be the target
+        if VectorLengthSquared(vecStart2From) < VectorLengthSquared(vecStart2End) {
+            _VectorCopy(from, &result)
+        } else {
+            _VectorCopy(end, &result)
+        }
+        return false
+    }
+
+    //Try other end
+    _VectorSubtract(from, end, &vecEnd2From)
+    _VectorSubtract(start, end, &vecEnd2Start)
+
+    dot = DotProductNormalize(vecEnd2From, vecEnd2Start)
+
+    if dot <= 0 {
+        //The perpendicular would be beyond or through the start point
+        _VectorCopy(end, &result)
+        return false
+    }
+
+    if dot == 1 {
+        //parallel, closer of 2 points will be the target
+        if VectorLengthSquared(vecEnd2From) < VectorLengthSquared(vecEnd2Start) {
+            _VectorCopy(from, &result)
+        } else {
+            _VectorCopy(end, &result)
+        }
+        return false
+    }
+
+    //		      /|
+    //		  c  / |
+    //		    /  |a
+    //	theta  /)__|
+    //		      b
+    //cos(theta) = b / c
+    //solve for b
+    //b = cos(theta) * c
+
+    //angle between vecs end2from and end2start, should be between 0 and 90
+    theta = 90 * (1 - dot)//theta
+
+    //Get length of side from End2Result using sine of theta
+    distEnd2From = VectorLength(vecEnd2From)//c
+    cos_theta = Float(cos(Double(theta) * Double.pi / 180.0))//cos(theta)
+    distEnd2Result = cos_theta * distEnd2From//b
+
+    //Extrapolate to find result
+    _ = VectorNormalize(&vecEnd2Start)
+    // Raven's VectorMA is the header macro, which multiplies the vector by the scale.
+    result[0] = end[0] + vecEnd2Start[0] * distEnd2Result
+    result[1] = end[1] + vecEnd2Start[1] * distEnd2Result
+    result[2] = end[2] + vecEnd2Start[2] * distEnd2Result
+
+    //perpendicular intersection is between the 2 endpoints
+    return true
 }
 
 /// Source: oracle/codemp/game/q_math.c:1606
 public func G_PointDistFromLineSegment(_ start: vec3_t, _ end: vec3_t, _ from: vec3_t) -> Float {
-    // TODO: Port G_PointDistFromLineSegment
-    portMissing("G_PointDistFromLineSegment", source: "oracle/codemp/game/q_math.c:1606")
+    var vecStart2From = vec3_t()
+    var vecStart2End = vec3_t()
+    var vecEnd2Start = vec3_t()
+    var vecEnd2From = vec3_t()
+    var intersection = vec3_t()
+    var distEnd2From: Float
+    var distStart2From: Float
+    var distEnd2Result: Float
+    var theta: Float
+    var cos_theta: Float
+    var dot: Float
+
+    //Find the perpendicular vector to vec from start to end
+    _VectorSubtract(from, start, &vecStart2From)
+    _VectorSubtract(end, start, &vecStart2End)
+    _VectorSubtract(from, end, &vecEnd2From)
+    _VectorSubtract(start, end, &vecEnd2Start)
+
+    dot = DotProductNormalize(vecStart2From, vecStart2End)
+
+    distStart2From = Distance(start, from)
+    distEnd2From = Distance(end, from)
+
+    if dot <= 0 {
+        //The perpendicular would be beyond or through the start point
+        return distStart2From
+    }
+
+    if dot == 1 {
+        //parallel, closer of 2 points will be the target
+        return distStart2From < distEnd2From ? distStart2From : distEnd2From
+    }
+
+    //Try other end
+
+    dot = DotProductNormalize(vecEnd2From, vecEnd2Start)
+
+    if dot <= 0 {
+        //The perpendicular would be beyond or through the end point
+        return distEnd2From
+    }
+
+    if dot == 1 {
+        //parallel, closer of 2 points will be the target
+        return distStart2From < distEnd2From ? distStart2From : distEnd2From
+    }
+
+    //		      /|
+    //		  c  / |
+    //		    /  |a
+    //	theta  /)__|
+    //		      b
+    //cos(theta) = b / c
+    //solve for b
+    //b = cos(theta) * c
+
+    //angle between vecs end2from and end2start, should be between 0 and 90
+    theta = 90 * (1 - dot)//theta
+
+    //Get length of side from End2Result using sine of theta
+    cos_theta = Float(cos(Double(theta) * Double.pi / 180.0))//cos(theta)
+    distEnd2Result = cos_theta * distEnd2From//b
+
+    //Extrapolate to find result
+    _ = VectorNormalize(&vecEnd2Start)
+    // Raven's VectorMA is the header macro, which multiplies the vector by the scale.
+    intersection[0] = end[0] + vecEnd2Start[0] * distEnd2Result
+    intersection[1] = end[1] + vecEnd2Start[1] * distEnd2Result
+    intersection[2] = end[2] + vecEnd2Start[2] * distEnd2Result
+
+    //perpendicular intersection is between the 2 endpoints, return dist to it from from
+    return Distance(intersection, from)
+}
+
+// MARK: - The header twins of q_shared.h
+
+// q_math.c guards these eight with `#ifdef __LCC__`, so the native build takes the `static ID_INLINE` twin of q_shared.h.
+// The twin is the live code, and it lands here because it is one body with the file it belongs to.
+// The `_XBOX` asm branches are dropped, because the plain C branch is the one a native build compiles.
+
+/// Source: oracle/codemp/game/q_shared.h:1453
+public func VectorCompare(_ v1: vec3_t, _ v2: vec3_t) -> Int32 {
+    if v1[0] != v2[0] || v1[1] != v2[1] || v1[2] != v2[2] {
+        return 0
+    }
+    return 1
+}
+
+/// Source: oracle/codemp/game/q_shared.h:1460
+public func VectorLength(_ v: vec3_t) -> vec_t {
+    // Raven writes `(vec_t)sqrt(..)`. The sum is float, and sqrt is the double libm call rounded back to float.
+    Float(Double(v[0] * v[0] + v[1] * v[1] + v[2] * v[2]).squareRoot())
+}
+
+/// Source: oracle/codemp/game/q_shared.h:1491
+public func VectorLengthSquared(_ v: vec3_t) -> vec_t {
+    v[0] * v[0] + v[1] * v[1] + v[2] * v[2]
+}
+
+/// Source: oracle/codemp/game/q_shared.h:1520
+public func Distance(_ p1: vec3_t, _ p2: vec3_t) -> vec_t {
+    var v = vec3_t()
+
+    _VectorSubtract(p2, p1, &v)
+    return VectorLength(v)
+}
+
+/// Source: oracle/codemp/game/q_shared.h:1527
+public func DistanceSquared(_ p1: vec3_t, _ p2: vec3_t) -> vec_t {
+    var v = vec3_t()
+
+    _VectorSubtract(p2, p1, &v)
+    return v[0] * v[0] + v[1] * v[1] + v[2] * v[2]
+}
+
+// fast vector normalize routine that does not check to make sure
+// that length != 0, nor does it return length, uses rsqrt approximation
+/// Source: oracle/codemp/game/q_shared.h:1536
+public func VectorNormalizeFast(_ v: inout vec3_t) {
+    var ilength: Float
+
+    ilength = Q_rsqrt(_DotProduct(v, v))
+
+    v[0] *= ilength
+    v[1] *= ilength
+    v[2] *= ilength
+}
+
+/// Source: oracle/codemp/game/q_shared.h:1547
+public func VectorInverse(_ v: inout vec3_t) {
+    v[0] = -v[0]
+    v[1] = -v[1]
+    v[2] = -v[2]
+}
+
+/// Source: oracle/codemp/game/q_shared.h:1553
+public func CrossProduct(_ v1: vec3_t, _ v2: vec3_t, _ cross: inout vec3_t) {
+    cross[0] = v1[1] * v2[2] - v1[2] * v2[1]
+    cross[1] = v1[2] * v2[0] - v1[0] * v2[2]
+    cross[2] = v1[0] * v2[1] - v1[1] * v2[0]
 }

@@ -6,49 +6,39 @@ import Testing
 /// The dumper it copies is `jka-rust/tools/jampgame-oracle/main_qmath.c`, token for token.
 @Suite("q_math reproduces the qmath golden")
 struct QMathParityTests {
-    @Test("each ported section matches the golden", arguments: ["rng", "qrand", "scalars", "n2ll"])
-    func sectionMatches(name: String) throws {
-        let golden = try QMathGolden.section(name, in: OracleData.golden("qmath"))
-        let got = QMathDump.section(name)
-        #expect(GoldenFormat.mismatch("qmath \(name)", got: got, golden: golden) == nil)
+    @Test("the whole golden text matches")
+    func goldenMatches() throws {
+        let vectors = try QMathDump.loadVectors()
+        var got = ""
+        got += QMathDump.rng()
+        got += QMathDump.qrand()
+        got += QMathDump.scalars()
+        got += QMathDump.n2ll()
+        got += QMathDump.planes(vectors)
+        got += QMathDump.vecmath(vectors)
+        got += "== end ==\n"
+
+        let golden = try OracleData.golden("qmath")
+        #expect(GoldenFormat.mismatch("qmath", got: got, golden: golden) == nil)
         #expect(got == golden)
     }
-}
-
-// MARK: - The golden slices
-
-/// This cuts one `== name ==` section out of the golden, so a lane commit gates on the sections it ported.
-enum QMathGolden {
-    static func section(_ name: String, in golden: String) throws -> String {
-        let opener = "== \(name) ==\n"
-        guard let start = golden.range(of: opener) else {
-            throw QMathGoldenError.noSection(name)
-        }
-        let rest = golden[start.upperBound...]
-        guard let end = rest.range(of: "\n== ") else {
-            throw QMathGoldenError.noSection(name)
-        }
-        return opener + String(rest[..<end.lowerBound]) + "\n"
-    }
-}
-
-enum QMathGoldenError: Error {
-    case noSection(String)
 }
 
 // MARK: - The dump
 
 /// Each method rebuilds one section of the golden with the dumper's tokens and the dumper's order.
 enum QMathDump {
-    /// This builds one section by its golden name.
-    static func section(_ name: String) -> String {
-        switch name {
-        case "rng": self.rng()
-        case "qrand": self.qrand()
-        case "scalars": self.scalars()
-        case "n2ll": self.n2ll()
-        default: ""
+    /// The fixture is 30 lines of three hex bit patterns.
+    /// Source: jka-rust/tools/jampgame-oracle/main_qmath.c:37
+    static func loadVectors() throws -> [vec3_t] {
+        var out: [vec3_t] = []
+        for line in try OracleData.fixture("vectors.txt").split(separator: "\n") {
+            let words = line.split(separator: " ").compactMap { UInt32($0, radix: 16) }
+            if words.count == 3 {
+                out.append(vec3_t(Float(bitPattern: words[0]), Float(bitPattern: words[1]), Float(bitPattern: words[2])))
+            }
         }
+        return out
     }
 
     /// Source: jka-rust/tools/jampgame-oracle/main_qmath.c:52
@@ -167,6 +157,160 @@ enum QMathDump {
             var b: (byte, byte) = (0, 0)
             NormalToLatLong(n, &b)
             out += "n2ll \(GoldenFormat.hex2(b.0))\(GoldenFormat.hex2(b.1))\n"
+        }
+        return out
+    }
+
+    /// Source: jka-rust/tools/jampgame-oracle/main_qmath.c:151
+    static func planes(_ vectors: [vec3_t]) -> String {
+        var out = "== planes ==\n"
+        let count = vectors.count
+        for i in 0 ..< count {
+            let n = vectors[i]
+            for ty in 0 ... 3 {
+                var p = Plane()
+                p.normal = n
+                p.dist = n[0]
+                p.type = byte(ty)
+                SetPlaneSignbits(&p)
+                let j = (i + 1) % count
+                let k = (i + 2) % count
+                let side = BoxOnPlaneSide(vectors[j], vectors[k], &p)
+                out += "plane \(i) ty \(ty) sb \(p.signbits) side \(side)\n"
+            }
+        }
+        return out
+    }
+
+    /// `ProjectPointOnPlane`, `PerpendicularVector`, and `RotatePointAroundVector` divide by the squared length of the normal.
+    /// The dumper prints `SKIP` where that sum is zero, and the port never runs the divide there. Rule 19.
+    ///
+    /// Source: jka-rust/tools/jampgame-oracle/main_qmath.c:168
+    static func vecmath(_ vectors: [vec3_t]) -> String {
+        var out = "== vecmath ==\n"
+        let count = vectors.count
+        for i in 0 ..< count {
+            let j = (i + 1) % count
+            let k = (i + 2) % count
+            let a = vectors[i]
+            let b = vectors[j]
+            let c = vectors[k]
+            var t = vec3_t()
+            var u = vec3_t()
+
+            out += "i \(i)\n"
+
+            var forward = vec3_t()
+            var right = vec3_t()
+            var up = vec3_t()
+            AngleVectors(a, &forward, &right, &up)
+            out += "av \(GoldenFormat.vector(forward)) \(GoldenFormat.vector(right)) \(GoldenFormat.vector(up))\n"
+
+            var ang = vec3_t()
+            vectoangles(a, &ang)
+            out += "va \(GoldenFormat.vector(ang))\n"
+
+            _VectorCopy(a, &t)
+            out += "vn \(GoldenFormat.bits(VectorNormalize(&t))) \(GoldenFormat.vector(t))\n"
+            out += "vn2 \(GoldenFormat.bits(VectorNormalize2(a, &t))) \(GoldenFormat.vector(t))\n"
+
+            out += "vl \(GoldenFormat.bits(VectorLength(a))) vls \(GoldenFormat.bits(VectorLengthSquared(a)))\n"
+            out += "dist \(GoldenFormat.bits(Distance(a, b))) dsq \(GoldenFormat.bits(DistanceSquared(a, b)))\n"
+            out += "dh \(GoldenFormat.bits(DistanceHorizontal(a, b))) dhs \(GoldenFormat.bits(DistanceHorizontalSquared(a, b)))\n"
+            out += "vcmp \(VectorCompare(a, b)) \(VectorCompare(a, a))\n"
+
+            CrossProduct(a, b, &t)
+            out += "cross \(GoldenFormat.vector(t))\n"
+            out += "dot \(GoldenFormat.bits(_DotProduct(a, b))) _dot \(GoldenFormat.bits(_DotProduct(a, b)))\n"
+            out += "dpn \(GoldenFormat.bits(DotProductNormalize(a, b)))\n"
+
+            _VectorCopy(a, &t)
+            VectorInverse(&t)
+            out += "vinv \(GoldenFormat.vector(t))\n"
+            _VectorMA(a, 2.5, b, &t)
+            out += "vma \(GoldenFormat.vector(t))\n"
+            _VectorAdd(a, b, &t)
+            out += "vadd \(GoldenFormat.vector(t))\n"
+            _VectorSubtract(a, b, &t)
+            out += "vsub \(GoldenFormat.vector(t))\n"
+            _VectorScale(a, 1.5, &t)
+            out += "vscale \(GoldenFormat.vector(t))\n"
+            var scaled4 = vec4_t()
+            Vector4Scale(vec4_t(a[0], a[1], a[2], b[0]), 2.0, &scaled4)
+            out += "v4s \(GoldenFormat.vector4(scaled4))\n"
+
+            // The three divides need a non-degenerate normal or direction.
+            if VectorLengthSquared(b) != 0 {
+                ProjectPointOnPlane(&t, a, b)
+                out += "proj \(GoldenFormat.vector(t))\n"
+            } else {
+                out += "proj SKIP\n"
+            }
+
+            MakeNormalVectors(a, &t, &u)
+            out += "mnv \(GoldenFormat.vector(t)) \(GoldenFormat.vector(u))\n"
+            if VectorLengthSquared(a) != 0 {
+                PerpendicularVector(&t, a)
+                out += "perp \(GoldenFormat.vector(t))\n"
+            } else {
+                out += "perp SKIP\n"
+            }
+
+            if VectorLengthSquared(a) != 0 {
+                RotatePointAroundVector(&t, a, b, a[0])
+                out += "rot \(GoldenFormat.vector(t))\n"
+            } else {
+                out += "rot SKIP\n"
+            }
+
+            // PlaneFromPoints leaves plane[3] untouched on the degenerate path, so the caller's zero must match.
+            var plane = vec4_t(0, 0, 0, 0)
+            let ok = PlaneFromPoints(&plane, a, b, c)
+            out += "pfp \(ok ? 1 : 0) \(GoldenFormat.vector4(plane))\n"
+
+            out += "angsub \(GoldenFormat.bits(AngleSubtract(a[0], a[1])))\n"
+            AnglesSubtract(a, b, &t)
+            out += "angssub \(GoldenFormat.vector(t))\n"
+            out += "lerp \(GoldenFormat.bits(LerpAngle(a[0], a[1], a[2])))\n"
+            out += "an360 \(GoldenFormat.bits(AngleNormalize360(a[0]))) an180 \(GoldenFormat.bits(AngleNormalize180(a[0])))"
+            out += " amod \(GoldenFormat.bits(AngleMod(a[0]))) adel \(GoldenFormat.bits(AngleDelta(a[0], a[1])))\n"
+
+            out += "rfb \(GoldenFormat.bits(RadiusFromBounds(a, b)))\n"
+            out += "d2b \(DirToByte(a))\n"
+
+            var closest = vec3_t()
+            let found = G_FindClosestPointOnLineSegment(a, b, c, &closest)
+            out += "gclose \(found ? 1 : 0) \(GoldenFormat.vector(closest))\n"
+            out += "gdist \(GoldenFormat.bits(G_PointDistFromLineSegment(a, b, c)))\n"
+
+            // Matrix / axis ops.
+            var axis = [vec3_t](repeating: vec3_t(), count: 3)
+            AnglesToAxis(a, &axis)
+            out += "a2a \(GoldenFormat.vector(axis[0])) \(GoldenFormat.vector(axis[1])) \(GoldenFormat.vector(axis[2]))\n"
+            VectorRotate(b, axis, &t)
+            out += "vrot \(GoldenFormat.vector(t))\n"
+            var copied = [vec3_t](repeating: vec3_t(), count: 3)
+            AxisCopy(axis, &copied)
+            out += "acopy \(GoldenFormat.vector(copied[1]))\n"
+            RotateAroundDirection(&axis, a[1])
+            out += "rad \(GoldenFormat.vector(axis[1]))\n"
+
+            var cleared = [vec3_t](repeating: vec3_t(), count: 3)
+            AxisClear(&cleared)
+            out += "aclear \(GoldenFormat.bits(cleared[0][0])) \(GoldenFormat.bits(cleared[1][1])) \(GoldenFormat.bits(cleared[2][2]))\n"
+
+            let m1: [[Float]] = [[a[0], a[1], a[2]], [b[0], b[1], b[2]], [c[0], c[1], c[2]]]
+            let m2: [[Float]] = [[c[0], b[1], a[2]], [a[0], c[1], b[2]], [b[0], a[1], c[2]]]
+            var product = [[Float]](repeating: [Float](repeating: 0, count: 3), count: 3)
+            MatrixMultiply(m1, m2, &product)
+            out += "mm \(GoldenFormat.bits(product[0][0])) \(GoldenFormat.bits(product[1][1])) \(GoldenFormat.bits(product[2][2]))\n"
+
+            var mins = vec3_t()
+            var maxs = vec3_t()
+            ClearBounds(&mins, &maxs)
+            AddPointToBounds(a, &mins, &maxs)
+            AddPointToBounds(b, &mins, &maxs)
+            out += "bounds \(GoldenFormat.vector(mins)) \(GoldenFormat.vector(maxs))\n"
         }
         return out
     }
