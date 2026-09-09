@@ -4,10 +4,6 @@ internal import CJKAMP_Game
 import JKAMP
 import JKAShared
 
-/// Source: oracle/codemp/game/g_local.h:11
-// TODO: Port GAME_INLINE
-// Raven wrote: #define GAME_INLINE ID_INLINE
-
 /// Source: oracle/codemp/game/g_local.h:29
 public let GAMEVERSION = CJKAMP_Game.GAMEVERSION
 

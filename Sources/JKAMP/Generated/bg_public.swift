@@ -166,16 +166,13 @@ public let CS_EFFECTS = CJKAMP.CS_EFFECTS
 public let CS_LIGHT_STYLES = CJKAMP.CS_LIGHT_STYLES
 
 /// Source: oracle/codemp/game/bg_public.h:117
-// TODO: Port CS_TERRAINS
-// Raven wrote: #define CS_TERRAINS ( CS_LIGHT_STYLES + ( MAX_LIGHT_STYLES * 3 ) )
+public let CS_TERRAINS = (CS_LIGHT_STYLES + (JKAShared.MAX_LIGHT_STYLES * 3))
 
 /// Source: oracle/codemp/game/bg_public.h:118
-// TODO: Port CS_BSP_MODELS
-// Raven wrote: #define CS_BSP_MODELS ( CS_TERRAINS + MAX_TERRAINS )
+public let CS_BSP_MODELS = (CS_TERRAINS + JKAShared.MAX_TERRAINS)
 
 /// Source: oracle/codemp/game/bg_public.h:120
-// TODO: Port CS_MAX
-// Raven wrote: #define CS_MAX ( CS_BSP_MODELS + MAX_SUB_BSP )
+public let CS_MAX = (CS_BSP_MODELS + JKAShared.MAX_SUB_BSP)
 
 /// Source: oracle/codemp/game/bg_public.h:136
 public let G2_MODEL_PART = CJKAMP.G2_MODEL_PART
@@ -415,12 +412,10 @@ public let DF_FIXED_FOV = CJKAMP.DF_FIXED_FOV
 public let DF_NO_FOOTSTEPS = CJKAMP.DF_NO_FOOTSTEPS
 
 /// Source: oracle/codemp/game/bg_public.h:1176
-// TODO: Port MASK_OPAQUE
-// Raven wrote: #define MASK_OPAQUE ( CONTENTS_SOLID | CONTENTS_SLIME | CONTENTS_LAVA | CONTENTS_TERRAIN )
+public let MASK_OPAQUE = (JKAShared.CONTENTS_SOLID | JKAShared.CONTENTS_SLIME | JKAShared.CONTENTS_LAVA | JKAShared.CONTENTS_TERRAIN)
 
 /// Source: oracle/codemp/game/bg_public.h:1177
-// TODO: Port MASK_SHOT
-// Raven wrote: #define MASK_SHOT ( CONTENTS_SOLID | CONTENTS_BODY | CONTENTS_CORPSE | CONTENTS_TERRAIN )
+public let MASK_SHOT = (JKAShared.CONTENTS_SOLID | JKAShared.CONTENTS_BODY | JKAShared.CONTENTS_CORPSE | JKAShared.CONTENTS_TERRAIN)
 
 /// Source: oracle/codemp/game/bg_public.h:1182
 public let FX_STATE_OFF = CJKAMP.FX_STATE_OFF

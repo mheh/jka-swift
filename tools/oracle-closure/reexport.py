@@ -37,6 +37,8 @@ SOURCES = REPO / "Sources"
 VIEW_OF = {"CJKAShared": "JKAShared", "CJKAMP": "JKAMP", "CJKAMP_Game": "JKAMP_Game"}
 DEPS = {"CJKAShared": [], "CJKAMP": ["CJKAShared"], "CJKAMP_Game": ["CJKAMP", "CJKAShared"]}
 SKIP = {"qboolean"}
+# Macro bodies that are a keyword or a keyword macro, not a value.
+KEYWORD_MACROS = {"inline", "static", "__inline", "ID_INLINE", "QDECL", "MAC_STATIC"}
 
 SCALARS = {
     TypeKind.INT: "Int32", TypeKind.UINT: "UInt32", TypeKind.SHORT: "Int16", TypeKind.USHORT: "UInt16",
@@ -89,7 +91,7 @@ def source_lines(cur: ci.Cursor) -> list[str]:
     return list(reversed(out))
 
 
-def swift_expression(cur: ci.Cursor, enum_of: dict[str, str], narrow: bool = False) -> str | None:
+def swift_expression(cur: ci.Cursor, enum_of: dict[str, str], declared: dict[str, str], narrow: bool = False) -> str | None:
     """Raven's macro body as a Swift expression, or None when a token has no Swift spelling, such as a cast or sizeof."""
     tokens = [t.spelling for t in cur.get_tokens()][1:]
     out: list[str] = []
@@ -115,7 +117,9 @@ def swift_expression(cur: ci.Cursor, enum_of: dict[str, str], narrow: bool = Fal
         elif re.fullmatch(r"[A-Za-z_]\w*", tok):
             if tok in ("sizeof", "int", "float", "unsigned", "long", "short", "char", "double", "void"):
                 return None
-            spelled = f"{enum_of[tok]}.{tok}.rawValue" if tok in enum_of else tok
+            # A name from a dependency view is qualified, because the same name also reaches this file as a C macro through the
+            # umbrella's export, and Swift calls the two ambiguous. A name of this target shadows the import and stays bare.
+            spelled = f"{enum_of[tok]}.{tok}.rawValue" if tok in enum_of else f"{declared[tok]}.{tok}" if tok in declared else tok
             # Raven mixes constants Clang imported as Int32 and UInt32 in one mask, and Swift's checker gives up on the mix.
             out.append(f"Int32(truncatingIfNeeded: {spelled})" if narrow else spelled)
             literal_only = False
@@ -146,7 +150,7 @@ def doc(sources: list[str]) -> list[str]:
     return [f"/// Source: {s}" for s in sources]
 
 
-def emit(target: str, unimportable: set[str], narrowed: set[str], unexpressible: set[str]) -> dict[str, list[str]]:
+def emit(target: str, unimportable: set[str], narrowed: set[str], unexpressible: set[str], declared: dict[str, str]) -> dict[str, list[str]]:
     """The Swift files for one C target, keyed by Raven header stem."""
     tu = parse(target)
     files: dict[str, list[str]] = defaultdict(list)
@@ -162,13 +166,14 @@ def emit(target: str, unimportable: set[str], narrowed: set[str], unexpressible:
             continue
         if cur.kind == CursorKind.MACRO_DEFINITION:
             name = cur.spelling
-            # An include guard and QDECL have no body, and nothing reads them from Swift.
-            if is_function_like(cur) or name in seen or name in SKIP or len(list(cur.get_tokens())) < 2:
+            # An include guard and QDECL have no body, GAME_INLINE is a keyword, and nothing reads those from Swift.
+            tokens = [t.spelling for t in cur.get_tokens()][1:]
+            if is_function_like(cur) or name in seen or name in SKIP or not tokens or set(tokens) <= KEYWORD_MACROS:
                 continue
             seen.add(name)
             sources = source_lines(cur)
             block = doc(sources)
-            expression = swift_expression(cur, enum_of, narrow=name in narrowed) if name in unimportable else None
+            expression = swift_expression(cur, enum_of, declared, narrow=name in narrowed) if name in unimportable else None
             if name in unexpressible or (name in unimportable and expression is None):
                 # Rule 14: a placeholder constant carries the marker alone, and the C text says what it must become.
                 block += [f"// TODO: Port {name}", f"// Raven wrote: #define {macro_text(cur)}"]
@@ -263,8 +268,15 @@ def main() -> int:
     narrowed: set[str] = set()
     unexpressible: set[str] = set()
     for _ in range(12):
+        declared: dict[str, str] = {}
         for target in targets:
-            count = write(target, emit(target, unimportable, narrowed, unexpressible))
+            files = emit(target, unimportable, narrowed, unexpressible, declared)
+            count = write(target, files)
+            for lines in files.values():
+                for line in lines:
+                    m = re.match(r"public (?:let|struct|typealias) (\w+)", line)
+                    if m:
+                        declared[m.group(1)] = VIEW_OF[target]
             print(f"{VIEW_OF[target]:12} {count:5} declarations from {target}")
         if not args.probe:
             return 0
