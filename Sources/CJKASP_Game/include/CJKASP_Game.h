@@ -9,6 +9,7 @@
 #include "CJKASP.h"
 #include "CJKAShared.h"
 #include "CJKASP_Game_forward.h"
+#include "code/game/anims/constants.h"
 #include "code/game/b_local/constants.h"
 #include "code/game/fields/constants.h"
 #include "code/game/g_functions/constants.h"

@@ -210,6 +210,21 @@
 // Source: oracle/code/game/bg_public.h:487
 #define MAX_RANDOM_ANIM_SOUNDS		8
 
+// Source: oracle/code/game/bg_public.h:488
+#define	AED_ARRAY_SIZE				(MAX_RANDOM_ANIM_SOUNDS+3)
+
+// Source: oracle/code/game/bg_public.h:491
+#define	AED_SOUNDINDEX_END			(MAX_RANDOM_ANIM_SOUNDS-1)
+
+// Source: oracle/code/game/bg_public.h:492
+#define	AED_SOUND_NUMRANDOMSNDS		(MAX_RANDOM_ANIM_SOUNDS)
+
+// Source: oracle/code/game/bg_public.h:493
+#define	AED_SOUND_PROBABILITY		(MAX_RANDOM_ANIM_SOUNDS+1)
+
+// Source: oracle/code/game/bg_public.h:495
+#define	AED_SOUNDCHANNEL			(MAX_RANDOM_ANIM_SOUNDS+2)
+
 // Source: oracle/code/game/bg_public.h:701
 #define	MASK_OPAQUE				(CONTENTS_OPAQUE|CONTENTS_SLIME|CONTENTS_LAVA)//was CONTENTS_SOLID, not CONTENTS_OPAQUE...?
 

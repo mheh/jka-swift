@@ -192,6 +192,21 @@
 // Source: oracle/codemp/game/bg_public.h:271
 #define MAX_RANDOM_ANIM_SOUNDS		4
 
+// Source: oracle/codemp/game/bg_public.h:272
+#define	AED_ARRAY_SIZE				(MAX_RANDOM_ANIM_SOUNDS+3)
+
+// Source: oracle/codemp/game/bg_public.h:275
+#define	AED_SOUNDINDEX_END			(MAX_RANDOM_ANIM_SOUNDS-1)
+
+// Source: oracle/codemp/game/bg_public.h:276
+#define	AED_SOUND_NUMRANDOMSNDS		(MAX_RANDOM_ANIM_SOUNDS)
+
+// Source: oracle/codemp/game/bg_public.h:277
+#define	AED_SOUND_PROBABILITY		(MAX_RANDOM_ANIM_SOUNDS+1)
+
+// Source: oracle/codemp/game/bg_public.h:279
+#define	AED_SOUNDCHANNEL			(MAX_RANDOM_ANIM_SOUNDS+2)
+
 // Source: oracle/codemp/game/bg_public.h:403
 #define	PMF_DUCKED			1
 

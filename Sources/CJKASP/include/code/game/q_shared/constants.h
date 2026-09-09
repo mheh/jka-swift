@@ -213,6 +213,9 @@
 // Source: oracle/code/game/q_shared.h:1600
 #define MIN_WORLD_COORD		( -64*1024 )
 
+// Source: oracle/code/game/q_shared.h:1601
+#define WORLD_SIZE			( MAX_WORLD_COORD - MIN_WORLD_COORD )
+
 // Source: oracle/code/game/q_shared.h:1631
 #define MAX_SABER_TRAIL_SEGS 8
 

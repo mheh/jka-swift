@@ -416,6 +416,17 @@ def partition_shared(mp: dict[str, Placed], sp: dict[str, Placed]) -> tuple[set[
             for n, _, _ in p.header.macros:
                 all_macro_names[n] = identity
 
+    # The enumerators each enum header declares, so a macro body that names one is tied to that enum's placement.
+    enumerator_of: dict[str, str] = {}
+    for identity, p in mp.items():
+        if p.header.is_constants or not re.search(r"\benum\b", strip_comments(p.header.body)):
+            continue
+        for m in re.finditer(r"^\s*([A-Za-z_]\w*)\s*(?:=|,|$)", strip_comments(p.header.body), re.M):
+            enumerator_of.setdefault(m.group(1), identity)
+
+    def macro_is_shared(name: str) -> bool:
+        return name in shared_macros.get(all_macro_names.get(name, ""), set())
+
     changed = True
     while changed:
         changed = False
@@ -431,8 +442,21 @@ def partition_shared(mp: dict[str, Placed], sp: dict[str, Placed]) -> tuple[set[
             else:
                 used = macro_names_in(h.body) & set(all_macro_names)
                 for n in used:
-                    if n not in shared_macros.get(all_macro_names[n], set()):
+                    if not macro_is_shared(n):
                         candidates.discard(identity)
+                        changed = True
+                        break
+        # A shared macro whose body names a tree macro or a tree enumerator is a tree macro, because the Swift re-export of a shared
+        # macro is an expression over the same names and JKAShared cannot see JKAMP.
+        for identity, p in mp.items():
+            if not p.header.is_constants or identity not in shared_macros:
+                continue
+            for n, _, text in p.header.macros:
+                if n not in shared_macros[identity]:
+                    continue
+                for used in macro_names_in(text) - {n}:
+                    if (used in all_macro_names and not macro_is_shared(used)) or (used in enumerator_of and enumerator_of[used] not in candidates):
+                        shared_macros[identity].discard(n)
                         changed = True
                         break
     return candidates, shared_macros

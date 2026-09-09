@@ -9,6 +9,7 @@
 #include "CJKAShared.h"
 #include "CJKAMP_forward.h"
 #include "codemp/cgame/tr_types/constants.h"
+#include "codemp/game/anims/constants.h"
 #include "codemp/game/bg_local/constants.h"
 #include "codemp/game/bg_public/constants.h"
 #include "codemp/game/bg_saga/constants.h"

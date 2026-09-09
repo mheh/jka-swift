@@ -10,7 +10,6 @@
 #include "shared/cgame/cg_lights/constants.h"
 #include "shared/cgame/cg_local/constants.h"
 #include "shared/cgame/cg_public/constants.h"
-#include "shared/game/anims/constants.h"
 #include "shared/game/b_local/constants.h"
 #include "shared/game/b_public/constants.h"
 #include "shared/game/bg_local/constants.h"

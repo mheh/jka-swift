@@ -3,10 +3,6 @@
 #ifndef JKA_SHARED_GAME_Q_SHARED_CONSTANTS_H
 #define JKA_SHARED_GAME_Q_SHARED_CONSTANTS_H
 
-// Source: oracle/codemp/game/q_shared.h:20
-// Source: oracle/code/game/q_shared.h:1601
-#define WORLD_SIZE			( MAX_WORLD_COORD - MIN_WORLD_COORD )
-
 // Source: oracle/codemp/game/q_shared.h:46
 // Source: oracle/code/game/q_shared.h:38
 #define G2_PERFORMANCE_ANALYSIS

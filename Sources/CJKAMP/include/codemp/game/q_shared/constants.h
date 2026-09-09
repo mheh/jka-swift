@@ -15,6 +15,9 @@
 // Source: oracle/codemp/game/q_shared.h:19
 #define MIN_WORLD_COORD		( -64 * 1024 )
 
+// Source: oracle/codemp/game/q_shared.h:20
+#define WORLD_SIZE			( MAX_WORLD_COORD - MIN_WORLD_COORD )
+
 // Source: oracle/codemp/game/q_shared.h:23
 #define VALID( a )		( a != NULL )
 
