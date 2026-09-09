@@ -116,3 +116,4 @@ A macro Clang cannot import, such as one that names another macro in an expressi
 - Row 2, adoption: replaced. No adoption. Every copied header is regenerated on every merge and never edited. A port that changes a private type's shape does so in Swift, and the C field goes unused. The seam list stays as the input to row 3's one-size check. 2026-09-09.
 - Row 3, the six-triple asserts: ratified as proposed, 2026-09-09.
 - Row 4, the re-export shape: ratified as proposed, the C value as the single source of truth, a literal only where Clang cannot import, 2026-09-09.
+- Rule 12 wording: ratified. A seam type has one size on every triple of the same pointer width. 2026-09-09.
