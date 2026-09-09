@@ -6,20 +6,21 @@ It compares every emitted declaration across modules and trees by code identity:
 whitespace collapsed. Two declarations with the same identity are one type. A type is shared only when every type it includes is shared
 too, so the partition runs to a fixed point.
 
-The targets it writes, each with its own include directory:
+The targets it writes, each a SwiftPM C target with one translation unit and its include directory:
   CJKAShared    types and macros identical in MP and SP, under shared/<header>/<Type>.h
   CJKAMP        types every MP module agrees on, under codemp/...
-  CJKAMPGame, CJKAMPCgame, CJKAMPUi
+  CJKAMP_Game, CJKAMP_CGame, CJKAMP_UI
                 types one MP module emits, or that MP modules define differently, such as lerpFrame_t
-  CJKASP, CJKASPGame, CJKASPCgame, CJKASPUi
+  CJKASP, CJKASP_Game, CJKASP_CGame, CJKASP_UI
                 the SP twins
 
-Each target carries a forward header named after the target, a platform header, all.h, and layout_asserts.h.
+Each target carries a forward header and a platform header named after the target, the umbrella <Target>.h, and module.modulemap
+under include/, with layout_asserts.h and <Target>.c beside it, and the C++ only headers under cxx/ for reference.
 A shared type keeps MP's comment text, cites both oracle lines, and must carry the same asserts in both parses.
 
 Usage:
   .venv/bin/python merge.py                       # writes out/merge/
-  .venv/bin/python merge.py --out Sources         # writes Sources/<Target>/include/
+  .venv/bin/python merge.py --out ../../Sources   # writes Sources/<Target>/, the package's C targets
   .venv/bin/python merge.py --mp mp-game mp-bg --sp sp-game sp-bg
 """
 from __future__ import annotations
@@ -30,7 +31,7 @@ import re
 import shutil
 import sys
 from collections import defaultdict
-from dataclasses import dataclass, field
+from dataclasses import dataclass, field, replace
 from pathlib import Path
 
 HERE = Path(__file__).resolve().parent
@@ -40,8 +41,8 @@ MP_MODULES = ["mp-game", "mp-bg", "mp-cgame", "mp-ui"]
 SP_MODULES = ["sp-game", "sp-bg", "sp-cgame", "sp-ui"]
 TREE_PREFIX = {"mp": "codemp/", "sp": "code/"}
 TARGET_OF_MODULE = {
-    "mp-game": "CJKAMPGame", "mp-cgame": "CJKAMPCgame", "mp-ui": "CJKAMPUi", "mp-bg": "CJKAMP",
-    "sp-game": "CJKASPGame", "sp-cgame": "CJKASPCgame", "sp-ui": "CJKASPUi", "sp-bg": "CJKASP",
+    "mp-game": "CJKAMP_Game", "mp-cgame": "CJKAMP_CGame", "mp-ui": "CJKAMP_UI", "mp-bg": "CJKAMP",
+    "sp-game": "CJKASP_Game", "sp-cgame": "CJKASP_CGame", "sp-ui": "CJKASP_UI", "sp-bg": "CJKASP",
 }
 TREE_TARGET = {"mp": "CJKAMP", "sp": "CJKASP"}
 SHARED = "CJKAShared"
@@ -49,8 +50,8 @@ FORWARD: dict[str, list[str]] = {}
 # The include directories a target may reach, in order.
 TARGET_DEPS = {
     SHARED: [],
-    "CJKAMP": [SHARED], "CJKAMPGame": ["CJKAMP", SHARED], "CJKAMPCgame": ["CJKAMP", SHARED], "CJKAMPUi": ["CJKAMP", SHARED],
-    "CJKASP": [SHARED], "CJKASPGame": ["CJKASP", SHARED], "CJKASPCgame": ["CJKASP", SHARED], "CJKASPUi": ["CJKASP", SHARED],
+    "CJKAMP": [SHARED], "CJKAMP_Game": ["CJKAMP", SHARED], "CJKAMP_CGame": ["CJKAMP", SHARED], "CJKAMP_UI": ["CJKAMP", SHARED],
+    "CJKASP": [SHARED], "CJKASP_Game": ["CJKASP", SHARED], "CJKASP_CGame": ["CJKASP", SHARED], "CJKASP_UI": ["CJKASP", SHARED],
 }
 
 
@@ -224,14 +225,38 @@ def load_tree(tree: str, modules: list[str]) -> tuple[dict[str, dict[str, Header
     return headers, platform, asserts
 
 
+def union_constants(tree: str, identity: str, versions: dict[str, Header]) -> Header:
+    """One constants header per Raven header, with every macro any module of the tree saw, in Raven's line order."""
+    bodies: dict[str, str] = {}
+    macros: dict[str, tuple[str, str, str]] = {}
+    for module, h in versions.items():
+        for name, source, text in h.macros:
+            key = code_key(text)
+            if name in bodies and bodies[name] != key:
+                sys.exit(f"merge.py: {tree} {identity}: macro {name} has two bodies across modules, and no rule places it")
+            bodies[name] = key
+            macros.setdefault(name, (name, source, text))
+    carrier = replace(next(iter(versions.values())))
+    carrier.macros = sorted(macros.values(), key=lambda m: int(m[1].rsplit(":", 1)[1]))
+    return carrier
+
+
 def partition_tree(tree: str, headers: dict[str, dict[str, Header]]) -> dict[str, Placed]:
     """Within one tree: every identity lands in the tree target, or in one module target when only one module emits it or modules disagree."""
     identities = set()
     for per in headers.values():
         identities |= set(per)
     placed: dict[str, Placed] = {}
-    for identity in identities:
+    # Sorted, so the umbrella order is the same on every run.
+    for identity in sorted(identities):
         versions = {m: per[identity] for m, per in headers.items() if identity in per}
+        if next(iter(versions.values())).is_constants:
+            # A constants file is a set of macros, not one declaration. Modules see different subsets because Raven guards some macros,
+            # so the tree carries the union. A macro with two bodies has no rule yet and stops the merge.
+            modules = list(versions)
+            target = TARGET_OF_MODULE[modules[0]] if len(modules) == 1 else TREE_TARGET[tree]
+            placed[identity] = Placed(identity, target, union_constants(tree, identity, versions))
+            continue
         keys = {h.key for h in versions.values()}
         if len(keys) == 1:
             # Agreement. One module alone means a module-private header, and that module's target.
@@ -377,6 +402,7 @@ class Output:
         self.tags: dict[str, list[str]] = defaultdict(list)
         self.order: dict[str, list[str]] = defaultdict(list)
         self.cxx: dict[str, list[str]] = defaultdict(list)
+        self.units: dict[str, str] = {}                                # target -> the <Target>.c translation unit
 
     def path_for(self, target: str, tree: str | None, identity: str) -> str:
         if target == SHARED:
@@ -511,21 +537,48 @@ def emit(out_dir: Path, mp_modules: list[str], sp_modules: list[str]) -> int:
             defines = [d for d in defines if d not in shared_defines]
         out.files[target][f"{target}_platform.h"] = wrap(f"{target}_platform.h", [], [], ["// The spellings the parse supplied for the platform section Raven never wrote for this host."] + defines + [""])
         ordered = [f"{target}_forward.h"] + [r for r in out.order[target] if r.endswith("/constants.h")] + [r for r in out.order[target] if not r.endswith("/constants.h")]
-        out.files[target]["all.h"] = wrap("all.h", [f"{d}/all.h" if False else f"{d}_all.h" for d in deps] + ordered, [], [])
-        out.files[target][f"{target}_all.h"] = out.files[target]["all.h"].replace(guard("all.h"), guard(f"{target}_all.h"))
-        out.files[target]["layout_asserts.h"] = wrap("layout_asserts.h", [], ["#include <assert.h>", "#include <stddef.h>", '#include "all.h"'], [""] + out.asserts[target] + [""])
+        # The umbrella carries the target's name, because SwiftPM and the Swift importer read it as the module.
+        umbrella = [
+            "// Raven wrote typedef enum { ... }; with no name in bg_weapons.h and its kin, and the copies keep the text verbatim.",
+            '#pragma clang diagnostic ignored "-Wmissing-declarations"',
+            "",
+        ] + [f'#include "{inc}"' for inc in [f"{d}.h" for d in deps] + ordered] + [""]
+        out.files[target][f"{target}.h"] = wrap(f"{target}.h", [], [], umbrella)
+        out.files[target]["layout_asserts.h"] = wrap("layout_asserts.h", [], ["#include <assert.h>", "#include <stddef.h>", f'#include "{target}.h"'], [""] + out.asserts[target] + [""])
+        out.files[target]["module.modulemap"] = "\n".join([
+            "// Explicit, because the mirrored oracle directories sit beside the umbrella and SwiftPM's automatic layout does not allow that.",
+            f"module {target} {{",
+            f'    umbrella header "{target}.h"',
+            "    export *",
+            "}",
+            "",
+        ])
+        out.units[target] = "\n".join([
+            "// SwiftPM needs one translation unit per C target. This one compiles the umbrella and the layout asserts on every build.",
+            f'#include "{target}.h"',
+            '#include "layout_asserts.h"',
+            "",
+        ])
 
     # Write.
+    # The include directory holds only what the umbrella includes, because Clang warns on every header a module leaves out.
+    # layout_asserts.h sits beside the translation unit, and a C++ only header sits under cxx/ for reference.
     for target, files in out.files.items():
-        base = out_dir / target / "include"
+        base = out_dir / target
         if base.exists():
             shutil.rmtree(base)
         for rel, content in files.items():
-            path = base / rel
+            if rel == "layout_asserts.h":
+                path = base / rel
+            elif rel in out.cxx[target]:
+                path = base / "cxx" / rel
+            else:
+                path = base / "include" / rel
             path.parent.mkdir(parents=True, exist_ok=True)
             path.write_text(content)
+        (base / f"{target}.c").write_text(out.units[target])
     manifest = {"shared": sorted(shared), "targets": {t: sorted(f for f in files) for t, files in out.files.items()}, "cxx_only": {t: sorted(v) for t, v in out.cxx.items()}}
-    (out_dir / "merge.json").write_text(json.dumps(manifest, indent=1))
+    (HERE / "out" / "merge.json").write_text(json.dumps(manifest, indent=1))
 
     # Report.
     print(f"{'target':14} {'types':>6} {'C++ only':>9} {'constants':>10} {'asserts':>8}")

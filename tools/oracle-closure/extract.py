@@ -29,6 +29,7 @@ from __future__ import annotations
 
 import argparse
 import json
+import os
 import re
 import subprocess
 import sys
@@ -384,16 +385,6 @@ def name_records(decls: list[Decl]) -> None:
             decl.name = typedef_for[decl.cur.canonical.hash]
 
 
-def parents(cur, stop):
-    """The chain of lexical parents of a cursor up to the stop cursor."""
-    out = []
-    node = cur.lexical_parent
-    while node is not None and node.kind != CursorKind.TRANSLATION_UNIT and node != stop:
-        out.append(node)
-        node = node.lexical_parent
-    return out
-
-
 def link(decls: list[Decl], macro_names: dict[str, Decl]) -> None:
     """This fills each declaration's include set from the AST: by-value types, referenced enums, and the macros in its text."""
     by_hash: dict[int, Decl] = {}
@@ -447,6 +438,10 @@ def link(decls: list[Decl], macro_names: dict[str, Decl]) -> None:
             is_class = record is not None and record.kind in (CursorKind.CLASS_DECL, CursorKind.CLASS_TEMPLATE)
             if not is_class and (dep.forward_only or (record is not None and record.kind in RECORD_KINDS and tag_of(record))):
                 return
+        if os.environ.get("EXTRACT_DEBUG") == decl.name:
+            record = dep.record()
+            print(f"debug {decl.name}: {t.spelling!r} pointer={through_pointer} dep={dep.name} kind={dep.kind} forward_only={dep.forward_only} "
+                  f"record={record.kind.name if record is not None else None} tag={tag_of(record) if record is not None else None} file={dep.filename}")
         decl.includes.add(dep.filename)
 
     overridden = {d.name: d for d in decls if d.override is not None}
@@ -457,6 +452,8 @@ def link(decls: list[Decl], macro_names: dict[str, Decl]) -> None:
         if decl.kind == "typedef" and record is None:
             add_type(decl, decl.cur.underlying_typedef_type, False)
         elif record is not None:
+            # The cursors under a field, by hash, because lexical_parent is empty on a reference inside a function pointer parameter.
+            under_field = {c.hash for f in record.walk_preorder() if f.kind == CursorKind.FIELD_DECL for c in f.walk_preorder() if c.hash != f.hash}
             for field in record.walk_preorder():
                 if field.kind == CursorKind.FIELD_DECL:
                     add_type(decl, field.type, False)
@@ -466,14 +463,18 @@ def link(decls: list[Decl], macro_names: dict[str, Decl]) -> None:
                     # A template argument, a base class, or a nested typedef names the type by value.
                     # A reference inside a field is handled by add_type, which knows about pointers.
                     dep = owner(field.referenced)
-                    inside_field = any(p.kind == CursorKind.FIELD_DECL for p in parents(field, record))
+                    inside_field = field.hash in under_field
                     if dep is not None and dep is not decl and not dep.forward_only and not inside_field:
+                        if os.environ.get("EXTRACT_DEBUG") == decl.name:
+                            print(f"debug typeref {decl.name}: " + str(dep.filename))
                         decl.includes.add(dep.filename)
                 elif field.kind == CursorKind.DECL_REF_EXPR and field.referenced is not None:
                     # An enum constant in an array size or an enumerator value, or a const variable.
                     referenced = field.referenced
                     dep = owner(referenced) if referenced.kind == CursorKind.VAR_DECL else owner(referenced.semantic_parent)
                     if dep is not None and dep is not decl:
+                        if os.environ.get("EXTRACT_DEBUG") == decl.name:
+                            print(f"debug declref {decl.name}: " + str(dep.filename))
                         decl.includes.add(dep.filename)
         # Macros used in the text. The names the declaration defines itself are not uses.
         # menudef.h defines CT_LTBLUE1 as a macro while q_shared.h's ct_table_t names an enumerator the same way.
@@ -485,6 +486,8 @@ def link(decls: list[Decl], macro_names: dict[str, Decl]) -> None:
         # A name the parse read as a macro, such as SP's qboolean, is now a typedef. The text is the only trace of the use.
         for ident in idents & set(overridden):
             if overridden[ident] is not decl:
+                if os.environ.get("EXTRACT_DEBUG") == decl.name:
+                    print(f"debug override {decl.name}: " + str(overridden[ident].filename))
                 decl.includes.add(overridden[ident].filename)
         pending = list(idents)
         seen_macros: set[str] = set()
@@ -495,6 +498,8 @@ def link(decls: list[Decl], macro_names: dict[str, Decl]) -> None:
                 continue
             seen_macros.add(ident)
             if macro.filename != decl.filename:
+                if os.environ.get("EXTRACT_DEBUG") == decl.name:
+                    print(f"debug macro {decl.name}: " + str(macro.filename))
                 decl.includes.add(macro.filename)
             # g_public.h defines MAX_PARM_STRING_LENGTH as MAX_QPATH, which q_shared.h defines.
             pending += [t.spelling for t in macro.cur.get_tokens()][1:]
@@ -688,12 +693,25 @@ def emit(module: str, out_dir: Path, check: bool) -> int:
     for decl in decls:
         record = decl.record() if decl.kind != "macro" else None
         tag = tag_of(record) if record is not None and record.kind in RECORD_KINDS else None
-        if tag is None or decl.filename in cxx_files:
+        # A C++ struct still gets its tag and typedef lines, because a C struct may point at it, and a pointer needs only the name.
+        # A class does not, because `class X;` is not C.
+        if tag is None or (decl.filename in cxx_files and record.kind != CursorKind.STRUCT_DECL and record.kind != CursorKind.UNION_DECL):
             continue
         keyword = record.kind.name.replace("_DECL", "").lower()
         forward.append(f"{keyword} {tag};")
         if decl.kind == "typedef":
             forward.append(f"typedef {keyword} {tag} {decl.name};")
+    # A tag a body names only behind a pointer, such as `struct bot_goal_s *` in ai_export_t, gets a bare declaration too.
+    # Without it, C scopes the tag to the prototype and Clang warns that the declaration is not visible outside the function.
+    declared = set(forward)
+    for decl in decls:
+        if decl.kind == "macro" or decl.forward_only or decl.filename in cxx_files:
+            continue
+        for m in re.finditer(r"\b(struct|union|enum)\s+(\w+)\b(?!\s*\{)", strip_comments(slice_text(decl, resolver))):
+            line = f"{m.group(1)} {m.group(2)};"
+            if line not in declared:
+                declared.add(line)
+                forward.append(line)
     forward_seen: set[str] = set()
     for decl in decls:
         if decl.forward_only:
