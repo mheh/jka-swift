@@ -123,8 +123,8 @@ The parameter table, one row per C shape `views.py` already knows plus the seam 
 | `qboolean` | `Bool` | bare |
 | `float` | `Float` | bare |
 | `const char *` | `String` | `withCString` around the call, the pointer |
-| `char *` followed by an `int` size | dropped, the trap returns `String` | a buffer of the size, read after the call |
-| `const vec3_t`, `vec3_t` | `vec3_t` | a local `var` copy, passed as `&start`, written back when Raven's parameter was not `const` |
+| `char *` followed by an `int` named as a size | dropped, the size stays, the trap returns `String` | a buffer of the size, read after the call |
+| `const vec3_t`, `vec3_t` | `vec3_t` | `withUnsafePointer` around the call, a `var` copy and `withUnsafeMutablePointer` when Raven's parameter was not `const`, because `&x` converts to a pointer only for a pointer parameter |
 | pointer to a struct with a view | the view, `Entity`, `Trace`, `Usercmd` | bare |
 | `void *` | `OpaquePointer?` | bare |
 | anything else | the trap is emitted with `// TODO: Port signature` and Raven's C text, body `portMissing` | |
@@ -146,8 +146,15 @@ public func trap_LinkEntity(_ ent: Entity) {
 
 /// Source: oracle/codemp/game/g_syscalls.c:148
 public func trap_Trace(_ results: Trace, _ start: vec3_t, _ mins: vec3_t, _ maxs: vec3_t, _ end: vec3_t, _ passEntityNum: Int32, _ contentmask: Int32) {
-    var start = start, mins = mins, maxs = maxs, end = end
-    Syscall.call(.G_TRACE, results, &start, &mins, &maxs, &end, passEntityNum, contentmask)
+    _ = withUnsafePointer(to: start) { start in
+        withUnsafePointer(to: mins) { mins in
+            withUnsafePointer(to: maxs) { maxs in
+                withUnsafePointer(to: end) { end in
+                    Syscall.call(.G_TRACE, results, start, mins, maxs, end, passEntityNum, contentmask, 0, 10)
+                }
+            }
+        }
+    }
 }
 ```
 
