@@ -14,6 +14,12 @@ public struct WeaponData: Hashable, HandleView {
     /// The slot behind a handle a generated thunk received. Rule 11 confines the handle to generated code.
     public init(handle: OpaquePointer) { self.raw = UnsafeMutablePointer(handle) }
 
+    /// Raven's cast from a raw pointer, `(weaponData_t *)p`. A body writes this where and only where Raven wrote the cast.
+    public init(_ raw: UnsafeMutableRawPointer) { self.raw = raw.assumingMemoryBound(to: weaponData_t.self) }
+
+    /// Raven's cast from another struct's pointer over the same memory, `(weaponData_t *)other`.
+    public init(_ other: some HandleView) { self.raw = UnsafeMutablePointer(other.handle) }
+
     /// The slot as a handle, for a stored function call and for a view in another module.
     public var handle: OpaquePointer { OpaquePointer(self.raw) }
 
