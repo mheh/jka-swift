@@ -41,7 +41,7 @@ G_FilterPacket
 ```
 */
 /// Source: oracle/codemp/game/g_svcmds.c:134
-func G_FilterPacket(_ from: inout String) -> Bool {
+func G_FilterPacket(_ from: inout JKAShared.CharBuf) -> Bool {
     // TODO: Port G_FilterPacket
     portMissing("G_FilterPacket", source: "oracle/codemp/game/g_svcmds.c:134")
 }
@@ -54,7 +54,7 @@ AddIP
 ```
 */
 /// Source: oracle/codemp/game/g_svcmds.c:173
-func AddIP(_ str: inout String) {
+func AddIP(_ str: inout JKAShared.CharBuf) {
     // TODO: Port AddIP
     portMissing("AddIP", source: "oracle/codemp/game/g_svcmds.c:173")
 }

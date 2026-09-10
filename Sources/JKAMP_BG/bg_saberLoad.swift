@@ -14,7 +14,7 @@ import JKAShared
 // A struct table is C storage in Sources/CJKAMP, reached through a Slots constant.
 
 /// Source: oracle/codemp/game/bg_saberLoad.c:32
-func BG_SoundIndex(_ sound: inout String) -> Int32 {
+func BG_SoundIndex(_ sound: inout JKAShared.CharBuf) -> Int32 {
     // TODO: Port BG_SoundIndex
     portMissing("BG_SoundIndex", source: "oracle/codemp/game/bg_saberLoad.c:32")
 }
@@ -84,7 +84,7 @@ func WP_SaberParseParms(_ SaberName: String, _ saber: JKAMP.SaberInfo) -> Bool {
 }
 
 /// Source: oracle/codemp/game/bg_saberLoad.c:2574
-func WP_SaberParseParm(_ saberName: String, _ parmname: String, _ saberData: inout String) -> Bool {
+func WP_SaberParseParm(_ saberName: String, _ parmname: String, _ saberData: inout JKAShared.CharBuf) -> Bool {
     // TODO: Port WP_SaberParseParm
     portMissing("WP_SaberParseParm", source: "oracle/codemp/game/bg_saberLoad.c:2574")
 }
@@ -108,7 +108,7 @@ func WP_SetSaber(_ entNum: Int32, _ sabers: JKAMP.SaberInfo, _ saberNum: Int32, 
 }
 
 /// Source: oracle/codemp/game/bg_saberLoad.c:2727
-func WP_SaberSetColor(_ sabers: JKAMP.SaberInfo, _ saberNum: Int32, _ bladeNum: Int32, _ colorName: inout String) {
+func WP_SaberSetColor(_ sabers: JKAMP.SaberInfo, _ saberNum: Int32, _ bladeNum: Int32, _ colorName: inout JKAShared.CharBuf) {
     // TODO: Port WP_SaberSetColor
     portMissing("WP_SaberSetColor", source: "oracle/codemp/game/bg_saberLoad.c:2727")
 }

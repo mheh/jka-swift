@@ -92,7 +92,7 @@ Remove case and control characters
 ```
 */
 /// Source: oracle/codemp/game/g_cmds.c:161
-func SanitizeString(_ `in`: inout String, _ out: inout String) {
+func SanitizeString(_ `in`: inout JKAShared.CharBuf, _ out: inout JKAShared.CharBuf) {
     // TODO: Port SanitizeString
     portMissing("SanitizeString", source: "oracle/codemp/game/g_cmds.c:161")
 }
@@ -108,7 +108,7 @@ Returns -1 if invalid
 ```
 */
 /// Source: oracle/codemp/game/g_cmds.c:185
-func ClientNumberFromString(_ to: Entity, _ s: inout String) -> Int32 {
+func ClientNumberFromString(_ to: Entity, _ s: inout JKAShared.CharBuf) -> Int32 {
     // TODO: Port ClientNumberFromString
     portMissing("ClientNumberFromString", source: "oracle/codemp/game/g_cmds.c:185")
 }
@@ -250,7 +250,7 @@ func G_PowerDuelCheckFail(_ ent: Entity) -> Bool {
 }
 
 /// Source: oracle/codemp/game/g_cmds.c:752
-func SetTeam(_ ent: Entity, _ s: inout String) {
+func SetTeam(_ ent: Entity, _ s: inout JKAShared.CharBuf) {
     // TODO: Port SetTeam
     portMissing("SetTeam", source: "oracle/codemp/game/g_cmds.c:752")
 }
@@ -330,7 +330,7 @@ func Cmd_ForceChanged_f(_ ent: Entity) {
 }
 
 /// Source: oracle/codemp/game/g_cmds.c:1396
-func G_SetSaber(_ ent: Entity, _ saberNum: Int32, _ saberName: inout String, _ siegeOverride: Bool) -> Bool {
+func G_SetSaber(_ ent: Entity, _ saberNum: Int32, _ saberName: inout JKAShared.CharBuf, _ siegeOverride: Bool) -> Bool {
     // TODO: Port G_SetSaber
     portMissing("G_SetSaber", source: "oracle/codemp/game/g_cmds.c:1396")
 }
@@ -362,7 +362,7 @@ func Cmd_FollowCycle_f(_ ent: Entity, _ dir: Int32) {
 }
 
 /// Source: oracle/codemp/game/g_cmds.c:1566
-private func G_SayTo(_ ent: Entity, _ other: Entity, _ mode: Int32, _ color: Int32, _ name: String, _ message: String, _ locMsg: inout String) {
+private func G_SayTo(_ ent: Entity, _ other: Entity, _ mode: Int32, _ color: Int32, _ name: String, _ message: String, _ locMsg: inout JKAShared.CharBuf) {
     // TODO: Port G_SayTo
     portMissing("G_SayTo", source: "oracle/codemp/game/g_cmds.c:1566")
 }
@@ -450,7 +450,7 @@ Rich's revised version of SanitizeString
 ```
 */
 /// Source: oracle/codemp/game/g_cmds.c:1899
-func SanitizeString2(_ `in`: inout String, _ out: inout String) {
+func SanitizeString2(_ `in`: inout JKAShared.CharBuf, _ out: inout JKAShared.CharBuf) {
     // TODO: Port SanitizeString2
     portMissing("SanitizeString2", source: "oracle/codemp/game/g_cmds.c:1899")
 }
@@ -590,7 +590,7 @@ func StandardSetBodyAnim(_ `self`: Entity, _ anim: Int32, _ flags: Int32) {
 }
 
 /// Source: oracle/codemp/game/g_cmds.c:3128
-private func G_ClientNumFromNetname(_ name: inout String) -> Int32 {
+private func G_ClientNumFromNetname(_ name: inout JKAShared.CharBuf) -> Int32 {
     // TODO: Port G_ClientNumFromNetname
     portMissing("G_ClientNumFromNetname", source: "oracle/codemp/game/g_cmds.c:3128")
 }

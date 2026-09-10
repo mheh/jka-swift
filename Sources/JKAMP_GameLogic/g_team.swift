@@ -244,7 +244,7 @@ Report a location for the player. Uses placed nearby target_location entities
 ```
 */
 /// Source: oracle/codemp/game/g_team.c:919
-func Team_GetLocationMsg(_ ent: Entity, _ loc: inout String, _ loclen: Int32) -> Bool {
+func Team_GetLocationMsg(_ ent: Entity, _ loc: inout JKAShared.CharBuf, _ loclen: Int32) -> Bool {
     // TODO: Port Team_GetLocationMsg
     portMissing("Team_GetLocationMsg", source: "oracle/codemp/game/g_team.c:919")
 }

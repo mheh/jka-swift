@@ -34,13 +34,13 @@ G_LoadArenasFromFile
 ```
 */
 /// Source: oracle/codemp/game/g_bot.c:106
-private func G_LoadArenasFromFile(_ filename: inout String) {
+private func G_LoadArenasFromFile(_ filename: inout JKAShared.CharBuf) {
     // TODO: Port G_LoadArenasFromFile
     portMissing("G_LoadArenasFromFile", source: "oracle/codemp/game/g_bot.c:106")
 }
 
 /// Source: oracle/codemp/game/g_bot.c:129
-func G_GetMapTypeBits(_ type: inout String) -> Int32 {
+func G_GetMapTypeBits(_ type: inout JKAShared.CharBuf) -> Int32 {
     // TODO: Port G_GetMapTypeBits
     portMissing("G_GetMapTypeBits", source: "oracle/codemp/game/g_bot.c:129")
 }
@@ -218,7 +218,7 @@ G_AddBot
 ```
 */
 /// Source: oracle/codemp/game/g_bot.c:792
-private func G_AddBot(_ name: String, _ skill: Float, _ team: String, _ delay: Int32, _ altname: inout String) {
+private func G_AddBot(_ name: String, _ skill: Float, _ team: String, _ delay: Int32, _ altname: inout JKAShared.CharBuf) {
     // TODO: Port G_AddBot
     portMissing("G_AddBot", source: "oracle/codemp/game/g_bot.c:792")
 }
@@ -257,7 +257,7 @@ G_LoadBotsFromFile
 ```
 */
 /// Source: oracle/codemp/game/g_bot.c:1194
-private func G_LoadBotsFromFile(_ filename: inout String) {
+private func G_LoadBotsFromFile(_ filename: inout JKAShared.CharBuf) {
     // TODO: Port G_LoadBotsFromFile
     portMissing("G_LoadBotsFromFile", source: "oracle/codemp/game/g_bot.c:1194")
 }

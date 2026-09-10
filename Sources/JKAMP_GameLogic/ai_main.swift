@@ -67,7 +67,7 @@ func BotMindTricked(_ botClient: Int32, _ enemyClient: Int32) -> Int32 {
 }
 
 /// Source: oracle/codemp/game/ai_main.c:332
-func BotAI_Print(_ type: Int32, _ fmt: inout String) {
+func BotAI_Print(_ type: Int32, _ fmt: inout JKAShared.CharBuf) {
     // TODO: Port BotAI_Print
     portMissing("BotAI_Print", source: "oracle/codemp/game/ai_main.c:332")
 }
@@ -241,7 +241,7 @@ RemoveColorEscapeSequences
 ```
 */
 /// Source: oracle/codemp/game/ai_main.c:674
-func RemoveColorEscapeSequences(_ text: inout String) {
+func RemoveColorEscapeSequences(_ text: inout JKAShared.CharBuf) {
     // TODO: Port RemoveColorEscapeSequences
     portMissing("RemoveColorEscapeSequences", source: "oracle/codemp/game/ai_main.c:674")
 }

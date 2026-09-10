@@ -67,19 +67,19 @@ import JKAShared
 //Parsing functions
 //======================================
 /// Source: oracle/codemp/game/bg_saga.c:168
-func BG_SiegeStripTabs(_ buf: inout String) {
+func BG_SiegeStripTabs(_ buf: inout JKAShared.CharBuf) {
     // TODO: Port BG_SiegeStripTabs
     portMissing("BG_SiegeStripTabs", source: "oracle/codemp/game/bg_saga.c:168")
 }
 
 /// Source: oracle/codemp/game/bg_saga.c:191
-func BG_SiegeGetValueGroup(_ buf: inout String, _ group: inout String, _ outbuf: inout String) -> Int32 {
+func BG_SiegeGetValueGroup(_ buf: inout JKAShared.CharBuf, _ group: inout JKAShared.CharBuf, _ outbuf: inout JKAShared.CharBuf) -> Int32 {
     // TODO: Port BG_SiegeGetValueGroup
     portMissing("BG_SiegeGetValueGroup", source: "oracle/codemp/game/bg_saga.c:191")
 }
 
 /// Source: oracle/codemp/game/bg_saga.c:408
-func BG_SiegeGetPairedValue(_ buf: inout String, _ key: inout String, _ outbuf: inout String) -> Int32 {
+func BG_SiegeGetPairedValue(_ buf: inout JKAShared.CharBuf, _ key: inout JKAShared.CharBuf, _ outbuf: inout JKAShared.CharBuf) -> Int32 {
     // TODO: Port BG_SiegeGetPairedValue
     portMissing("BG_SiegeGetPairedValue", source: "oracle/codemp/game/bg_saga.c:408")
 }
@@ -88,7 +88,7 @@ func BG_SiegeGetPairedValue(_ buf: inout String, _ key: inout String, _ outbuf: 
 //Class loading functions
 //======================================
 /// Source: oracle/codemp/game/bg_saga.c:571
-func BG_SiegeTranslateForcePowers(_ buf: inout String, _ siegeClass: JKAMP.SiegeClass) {
+func BG_SiegeTranslateForcePowers(_ buf: inout JKAShared.CharBuf, _ siegeClass: JKAMP.SiegeClass) {
     // TODO: Port BG_SiegeTranslateForcePowers
     portMissing("BG_SiegeTranslateForcePowers", source: "oracle/codemp/game/bg_saga.c:571")
 }
@@ -184,19 +184,19 @@ func BG_PrecacheSabersForSiegeTeam(_ team: Int32) {
 }
 
 /// Source: oracle/codemp/game/bg_saga.c:1416
-func BG_SiegeCheckClassLegality(_ team: Int32, _ classname: inout String) -> Bool {
+func BG_SiegeCheckClassLegality(_ team: Int32, _ classname: inout JKAShared.CharBuf) -> Bool {
     // TODO: Port BG_SiegeCheckClassLegality
     portMissing("BG_SiegeCheckClassLegality", source: "oracle/codemp/game/bg_saga.c:1416")
 }
 
 /// Source: oracle/codemp/game/bg_saga.c:1455
-func BG_SiegeFindTeamForTheme(_ themeName: inout String) -> JKAMP.SiegeTeam? {
+func BG_SiegeFindTeamForTheme(_ themeName: inout JKAShared.CharBuf) -> JKAMP.SiegeTeam? {
     // TODO: Port BG_SiegeFindTeamForTheme
     portMissing("BG_SiegeFindTeamForTheme", source: "oracle/codemp/game/bg_saga.c:1455")
 }
 
 /// Source: oracle/codemp/game/bg_saga.c:1473
-func BG_SiegeSetTeamTheme(_ team: Int32, _ themeName: inout String) {
+func BG_SiegeSetTeamTheme(_ team: Int32, _ themeName: inout JKAShared.CharBuf) {
     // TODO: Port BG_SiegeSetTeamTheme
     portMissing("BG_SiegeSetTeamTheme", source: "oracle/codemp/game/bg_saga.c:1473")
 }

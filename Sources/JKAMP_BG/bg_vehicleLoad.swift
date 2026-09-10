@@ -35,7 +35,7 @@ func BG_ClearVehicleParseParms() {
 }
 
 /// Source: oracle/codemp/game/bg_vehicleLoad.c:167
-private func BG_ParseVehWeaponParm(_ vehWeapon: JKAMP.VehWeaponInfo, _ parmName: inout String, _ pValue: inout String) -> Bool {
+private func BG_ParseVehWeaponParm(_ vehWeapon: JKAMP.VehWeaponInfo, _ parmName: inout JKAShared.CharBuf, _ pValue: inout JKAShared.CharBuf) -> Bool {
     // TODO: Port BG_ParseVehWeaponParm
     portMissing("BG_ParseVehWeaponParm", source: "oracle/codemp/game/bg_vehicleLoad.c:167")
 }
@@ -72,7 +72,7 @@ func BG_VehicleClampData(_ vehicle: JKAMP.VehicleInfo) {
 }
 
 /// Source: oracle/codemp/game/bg_vehicleLoad.c:839
-private func BG_ParseVehicleParm(_ vehicle: JKAMP.VehicleInfo, _ parmName: inout String, _ pValue: inout String) -> Bool {
+private func BG_ParseVehicleParm(_ vehicle: JKAMP.VehicleInfo, _ parmName: inout JKAShared.CharBuf, _ pValue: inout JKAShared.CharBuf) -> Bool {
     // TODO: Port BG_ParseVehicleParm
     portMissing("BG_ParseVehicleParm", source: "oracle/codemp/game/bg_vehicleLoad.c:839")
 }
@@ -112,13 +112,13 @@ func BG_VehicleGetIndex(_ vehicleName: String) -> Int32 {
 //we are expected to then get the model for the
 //vehicle and stomp over modelname with it.
 /// Source: oracle/codemp/game/bg_vehicleLoad.c:1599
-func BG_GetVehicleModelName(_ modelname: inout String) {
+func BG_GetVehicleModelName(_ modelname: inout JKAShared.CharBuf) {
     // TODO: Port BG_GetVehicleModelName
     portMissing("BG_GetVehicleModelName", source: "oracle/codemp/game/bg_vehicleLoad.c:1599")
 }
 
 /// Source: oracle/codemp/game/bg_vehicleLoad.c:1613
-func BG_GetVehicleSkinName(_ skinname: inout String) {
+func BG_GetVehicleSkinName(_ skinname: inout JKAShared.CharBuf) {
     // TODO: Port BG_GetVehicleSkinName
     portMissing("BG_GetVehicleSkinName", source: "oracle/codemp/game/bg_vehicleLoad.c:1613")
 }

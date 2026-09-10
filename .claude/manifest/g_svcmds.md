@@ -9,8 +9,8 @@ The oracle range is the whole definition, from the return type to the closing br
 |---|---|---|---|---|---|
 | `StringToFilter` static | `oracle/codemp/game/g_svcmds.c:62-102` | `JKAMP_GameLogic/g_svcmds.swift:18` | marker | `crates/mp/game/src/g_svcmds.rs:43-107` | `private func StringToFilter() -> Never` TODO: Port signature. No table row for `ipFilter_t * f`. |
 | `UpdateIPBans` static | `oracle/codemp/game/g_svcmds.c:109-127` | `JKAMP_GameLogic/g_svcmds.swift:31` | marker | `crates/mp/game/src/g_svcmds.rs:114-126` | `private func UpdateIPBans()` |
-| `G_FilterPacket` | `oracle/codemp/game/g_svcmds.c:134-166` | `JKAMP_GameLogic/g_svcmds.swift:44` | marker | `crates/mp/game/src/g_svcmds.rs:133-180` | `func G_FilterPacket(_ from: inout String) -> Bool` |
-| `AddIP` | `oracle/codemp/game/g_svcmds.c:173-194` | `JKAMP_GameLogic/g_svcmds.swift:57` | marker | `crates/mp/game/src/g_svcmds.rs:187-226` | `func AddIP(_ str: inout String)` |
+| `G_FilterPacket` | `oracle/codemp/game/g_svcmds.c:134-166` | `JKAMP_GameLogic/g_svcmds.swift:44` | marker | `crates/mp/game/src/g_svcmds.rs:133-180` | `func G_FilterPacket(_ from: inout JKAShared.CharBuf) -> Bool` |
+| `AddIP` | `oracle/codemp/game/g_svcmds.c:173-194` | `JKAMP_GameLogic/g_svcmds.swift:57` | marker | `crates/mp/game/src/g_svcmds.rs:187-226` | `func AddIP(_ str: inout JKAShared.CharBuf)` |
 | `G_ProcessIPBans` | `oracle/codemp/game/g_svcmds.c:201-218` | `JKAMP_GameLogic/g_svcmds.swift:70` | marker | `crates/mp/game/src/g_svcmds.rs:233-257` | `func G_ProcessIPBans()` |
 | `Svcmd_AddIP_f` | `oracle/codemp/game/g_svcmds.c:226-239` | `JKAMP_GameLogic/g_svcmds.swift:83` | marker | `crates/mp/game/src/g_svcmds.rs:264-275` | `func Svcmd_AddIP_f()` |
 | `Svcmd_RemoveIP_f` | `oracle/codemp/game/g_svcmds.c:246-274` | `JKAMP_GameLogic/g_svcmds.swift:96` | marker | `crates/mp/game/src/g_svcmds.rs:282-318` | `func Svcmd_RemoveIP_f()` |

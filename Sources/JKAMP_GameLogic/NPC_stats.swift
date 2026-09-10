@@ -83,7 +83,7 @@ func NPC_PrecacheAnimationCFG(_ NPC_type: String) {
 }
 
 /// Source: oracle/codemp/game/NPC_stats.c:551
-func NPC_PrecacheWeapons(_ playerTeam: JKAMP.team_t, _ spawnflags: Int32, _ NPCtype: inout String) {
+func NPC_PrecacheWeapons(_ playerTeam: JKAMP.team_t, _ spawnflags: Int32, _ NPCtype: inout JKAShared.CharBuf) {
     // TODO: Port NPC_PrecacheWeapons
     portMissing("NPC_PrecacheWeapons", source: "oracle/codemp/game/NPC_stats.c:551")
 }

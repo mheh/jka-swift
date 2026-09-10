@@ -319,7 +319,7 @@ func GetNextSpawnInIndex(_ currentSpawn: Entity) -> Entity? {
 }
 
 /// Source: oracle/codemp/game/ai_wpnav.c:3501
-func AcceptBotCommand(_ cmd: inout String, _ pl: Entity) -> Int32 {
+func AcceptBotCommand(_ cmd: inout JKAShared.CharBuf, _ pl: Entity) -> Int32 {
     // TODO: Port AcceptBotCommand
     portMissing("AcceptBotCommand", source: "oracle/codemp/game/ai_wpnav.c:3501")
 }

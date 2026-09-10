@@ -46,7 +46,7 @@ The oracle range is the whole definition, from the return type to the closing br
 | `CheckTournament` | `oracle/codemp/game/g_main.c:2948-3216` | `JKAMP_GameLogic/g_main.swift:363` | marker | `crates/mp/game/src/g_main.rs:2122-2353` | `func CheckTournament()` |
 | `G_KickAllBots` | `oracle/codemp/game/g_main.c:3218-3239` | `JKAMP_GameLogic/g_main.swift:369` | marker | `crates/mp/game/src/g_main.rs:2358-2378` | `func G_KickAllBots()` |
 | `CheckVote` | `oracle/codemp/game/g_main.c:3246-3326` | `JKAMP_GameLogic/g_main.swift:382` | marker | `crates/mp/game/src/g_main.rs:2383-2475` | `func CheckVote()` |
-| `PrintTeam` | `oracle/codemp/game/g_main.c:3333-3341` | `JKAMP_GameLogic/g_main.swift:398` | marker | `crates/mp/game/src/g_main.rs:2480-2493` | `func PrintTeam(_ team: Int32, _ message: inout String)` |
+| `PrintTeam` | `oracle/codemp/game/g_main.c:3333-3341` | `JKAMP_GameLogic/g_main.swift:398` | marker | `crates/mp/game/src/g_main.rs:2480-2493` | `func PrintTeam(_ team: Int32, _ message: inout JKAShared.CharBuf)` |
 | `SetLeader` | `oracle/codemp/game/g_main.c:3348-3370` | `JKAMP_GameLogic/g_main.swift:411` | marker | `crates/mp/game/src/g_main.rs:2498-2544` | `func SetLeader(_ team: Int32, _ client: Int32)` |
 | `CheckTeamLeader` | `oracle/codemp/game/g_main.c:3377-3402` | `JKAMP_GameLogic/g_main.swift:424` | marker | `crates/mp/game/src/g_main.rs:2549-2584` | `func CheckTeamLeader(_ team: Int32)` |
 | `CheckTeamVote` | `oracle/codemp/game/g_main.c:3409-3447` | `JKAMP_GameLogic/g_main.swift:437` | marker | `crates/mp/game/src/g_main.rs:2589-2637` | `func CheckTeamVote(_ team: Int32)` |

@@ -10,7 +10,7 @@ func BG_AttachToRancor(_ ghoul2: OpaquePointer?, _ rancYaw: Float, _ rancOrigin:
 }
 
 /// Source: oracle/codemp/game/bg_g2_utils.c:101
-func BG_GetRootSurfNameWithVariant(_ ghoul2: OpaquePointer?, _ rootSurfName: String, _ returnSurfName: inout String, _ returnSize: Int32) -> Bool {
+func BG_GetRootSurfNameWithVariant(_ ghoul2: OpaquePointer?, _ rootSurfName: String, _ returnSurfName: inout JKAShared.CharBuf, _ returnSize: Int32) -> Bool {
     // TODO: Port BG_GetRootSurfNameWithVariant
     portMissing("BG_GetRootSurfNameWithVariant", source: "oracle/codemp/game/bg_g2_utils.c:101")
 }

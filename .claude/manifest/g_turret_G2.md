@@ -7,7 +7,7 @@ The oracle range is the whole definition, from the return type to the closing br
 
 | Function | Oracle | Swift | State | jka-rust | Signature |
 |---|---|---|---|---|---|
-| `G2Tur_SetBoneAngles` | `oracle/codemp/game/g_turret_G2.c:24-123` | `JKAMP_GameLogic/g_turret_G2.swift:9` | marker | `crates/mp/game/src/g_turret_G2.rs:69-162` | `func G2Tur_SetBoneAngles(_ ent: Entity, _ bone: inout String, _ angles: inout JKAShared.vec3_t)` |
+| `G2Tur_SetBoneAngles` | `oracle/codemp/game/g_turret_G2.c:24-123` | `JKAMP_GameLogic/g_turret_G2.swift:9` | marker | `crates/mp/game/src/g_turret_G2.rs:69-162` | `func G2Tur_SetBoneAngles(_ ent: Entity, _ bone: inout JKAShared.CharBuf, _ angles: inout JKAShared.vec3_t)` |
 | `turretG2_set_models` | `oracle/codemp/game/g_turret_G2.c:125-207` | `JKAMP_GameLogic/g_turret_G2.swift:15` | marker | `crates/mp/game/src/g_turret_G2.rs:167-260` | `func turretG2_set_models(_ `self`: Entity, _ dying: Bool)` |
 | `TurretG2Pain` | `oracle/codemp/game/g_turret_G2.c:210-233` | `JKAMP_GameLogic/g_turret_G2.swift:22` | marker | `crates/mp/game/src/g_turret_G2.rs:265-301` | `func TurretG2Pain(_ `self`: Entity, _ attacker: Entity, _ damage: Int32)` |
 | `turretG2_die` | `oracle/codemp/game/g_turret_G2.c:236-316` | `JKAMP_GameLogic/g_turret_G2.swift:29` | marker | `crates/mp/game/src/g_turret_G2.rs:306-411` | `func turretG2_die(_ `self`: Entity, _ inflictor: Entity, _ attacker: Entity, _ damage: Int32, _ meansOfDeath: Int32)` |

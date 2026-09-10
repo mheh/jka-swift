@@ -6,7 +6,7 @@ import JKAMP_Game
 
 //special routine for tracking angles between client and server -rww
 /// Source: oracle/codemp/game/g_turret_G2.c:24
-func G2Tur_SetBoneAngles(_ ent: Entity, _ bone: inout String, _ angles: inout JKAShared.vec3_t) {
+func G2Tur_SetBoneAngles(_ ent: Entity, _ bone: inout JKAShared.CharBuf, _ angles: inout JKAShared.vec3_t) {
     // TODO: Port G2Tur_SetBoneAngles
     portMissing("G2Tur_SetBoneAngles", source: "oracle/codemp/game/g_turret_G2.c:24")
 }

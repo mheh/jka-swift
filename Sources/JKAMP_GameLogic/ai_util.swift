@@ -47,13 +47,13 @@ func B_CleanupAlloc() {
 }
 
 /// Source: oracle/codemp/game/ai_util.c:160
-func GetValueGroup(_ buf: inout String, _ group: inout String, _ outbuf: inout String) -> Int32 {
+func GetValueGroup(_ buf: inout JKAShared.CharBuf, _ group: inout JKAShared.CharBuf, _ outbuf: inout JKAShared.CharBuf) -> Int32 {
     // TODO: Port GetValueGroup
     portMissing("GetValueGroup", source: "oracle/codemp/game/ai_util.c:160")
 }
 
 /// Source: oracle/codemp/game/ai_util.c:236
-func GetPairedValue(_ buf: inout String, _ key: inout String, _ outbuf: inout String) -> Int32 {
+func GetPairedValue(_ buf: inout JKAShared.CharBuf, _ key: inout JKAShared.CharBuf, _ outbuf: inout JKAShared.CharBuf) -> Int32 {
     // TODO: Port GetPairedValue
     portMissing("GetPairedValue", source: "oracle/codemp/game/ai_util.c:236")
 }

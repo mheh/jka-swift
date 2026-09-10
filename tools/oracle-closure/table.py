@@ -151,8 +151,8 @@ class Table:
                     return Param(name, "String", "cstring")
                 if traps and following is not None and following.type.get_canonical().kind in INT_KINDS and SIZE_NAME.search(following.spelling):
                     return Param(name, None, "out_string", size=following.spelling)
-                # A body reads and rewrites the caller's buffer in place, so the text crosses as one inout string.
-                return None if traps else Param(name, "inout String", "inout_string")
+                # A body reads and rewrites the caller's buffer in place, so the caller's CharBuf crosses with `&`.
+                return None if traps else Param(name, "inout JKAShared.CharBuf", "inout_charbuf")
             record = self.views.record_name(pointee)
             if record and record in self.views.views:
                 if owner == "BG_ParseField":

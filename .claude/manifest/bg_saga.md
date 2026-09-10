@@ -7,10 +7,10 @@ The oracle range is the whole definition, from the return type to the closing br
 
 | Function | Oracle | Swift | State | jka-rust | Signature |
 |---|---|---|---|---|---|
-| `BG_SiegeStripTabs` | `oracle/codemp/game/bg_saga.c:168-189` | `JKAMP_BG/bg_saga.swift:70` | marker | `crates/mp/bg/src/bg_saga.rs:479-499` | `func BG_SiegeStripTabs(_ buf: inout String)` |
-| `BG_SiegeGetValueGroup` | `oracle/codemp/game/bg_saga.c:191-406` | `JKAMP_BG/bg_saga.swift:76` | marker | `crates/mp/bg/src/bg_saga.rs:510-713` | `func BG_SiegeGetValueGroup(_ buf: inout String, _ group: inout String, _ outbuf: inout String) -> Int32` |
-| `BG_SiegeGetPairedValue` | `oracle/codemp/game/bg_saga.c:408-562` | `JKAMP_BG/bg_saga.swift:82` | marker | `crates/mp/bg/src/bg_saga.rs:737-884` | `func BG_SiegeGetPairedValue(_ buf: inout String, _ key: inout String, _ outbuf: inout String) -> Int32` |
-| `BG_SiegeTranslateForcePowers` | `oracle/codemp/game/bg_saga.c:571-682` | `JKAMP_BG/bg_saga.swift:91` | marker | `crates/mp/bg/src/bg_saga.rs:898-999` | `func BG_SiegeTranslateForcePowers(_ buf: inout String, _ siegeClass: JKAMP.SiegeClass)` |
+| `BG_SiegeStripTabs` | `oracle/codemp/game/bg_saga.c:168-189` | `JKAMP_BG/bg_saga.swift:70` | marker | `crates/mp/bg/src/bg_saga.rs:479-499` | `func BG_SiegeStripTabs(_ buf: inout JKAShared.CharBuf)` |
+| `BG_SiegeGetValueGroup` | `oracle/codemp/game/bg_saga.c:191-406` | `JKAMP_BG/bg_saga.swift:76` | marker | `crates/mp/bg/src/bg_saga.rs:510-713` | `func BG_SiegeGetValueGroup(_ buf: inout JKAShared.CharBuf, _ group: inout JKAShared.CharBuf, _ outbuf: inout JKAShared.CharBuf) -> Int32` |
+| `BG_SiegeGetPairedValue` | `oracle/codemp/game/bg_saga.c:408-562` | `JKAMP_BG/bg_saga.swift:82` | marker | `crates/mp/bg/src/bg_saga.rs:737-884` | `func BG_SiegeGetPairedValue(_ buf: inout JKAShared.CharBuf, _ key: inout JKAShared.CharBuf, _ outbuf: inout JKAShared.CharBuf) -> Int32` |
+| `BG_SiegeTranslateForcePowers` | `oracle/codemp/game/bg_saga.c:571-682` | `JKAMP_BG/bg_saga.swift:91` | marker | `crates/mp/bg/src/bg_saga.rs:898-999` | `func BG_SiegeTranslateForcePowers(_ buf: inout JKAShared.CharBuf, _ siegeClass: JKAMP.SiegeClass)` |
 | `BG_SiegeTranslateGenericTable` | `oracle/codemp/game/bg_saga.c:688-746` | `JKAMP_BG/bg_saga.swift:104` | marker | `crates/mp/bg/src/bg_saga.rs:1009-1071` | `func BG_SiegeTranslateGenericTable() -> Never` TODO: Port signature. No table row for `stringID_table_t * table`. |
 | `BG_SiegeParseClassFile` | `oracle/codemp/game/bg_saga.c:759-1068` | `JKAMP_BG/bg_saga.swift:110` | marker | `crates/mp/bg/src/bg_saga.rs:1076-1368` | `func BG_SiegeParseClassFile(_ filename: String, _ descBuffer: JKAMP.SiegeClassDesc)` |
 | `BG_SiegeCountBaseClass` | `oracle/codemp/game/bg_saga.c:1071-1092` | `JKAMP_BG/bg_saga.swift:117` | marker | `crates/mp/bg/src/bg_saga.rs:1374-1393` | `func BG_SiegeCountBaseClass(_ team: Int32, _ classIndex: Int16) -> Int32` |
@@ -23,9 +23,9 @@ The oracle range is the whole definition, from the return type to the closing br
 | `BG_SiegeLoadTeams` | `oracle/codemp/game/bg_saga.c:1314-1335` | `JKAMP_BG/bg_saga.swift:166` | marker | `crates/mp/bg/src/bg_saga.rs:1695-1721` | `func BG_SiegeLoadTeams()` |
 | `BG_SiegeFindThemeForTeam` | `oracle/codemp/game/bg_saga.c:1344-1356` | `JKAMP_BG/bg_saga.swift:175` | marker | `crates/mp/bg/src/bg_saga.rs:1726-1736` | `func BG_SiegeFindThemeForTeam(_ team: Int32) -> JKAMP.SiegeTeam?` |
 | `BG_PrecacheSabersForSiegeTeam` | `oracle/codemp/game/bg_saga.c:1363-1413` | `JKAMP_BG/bg_saga.swift:181` | marker | `crates/mp/bg/src/bg_saga.rs:1742-1783` | `func BG_PrecacheSabersForSiegeTeam(_ team: Int32)` |
-| `BG_SiegeCheckClassLegality` | `oracle/codemp/game/bg_saga.c:1416-1453` | `JKAMP_BG/bg_saga.swift:187` | marker | `crates/mp/bg/src/bg_saga.rs:1788-1816` | `func BG_SiegeCheckClassLegality(_ team: Int32, _ classname: inout String) -> Bool` |
-| `BG_SiegeFindTeamForTheme` | `oracle/codemp/game/bg_saga.c:1455-1471` | `JKAMP_BG/bg_saga.swift:193` | marker | `crates/mp/bg/src/bg_saga.rs:1821-1837` | `func BG_SiegeFindTeamForTheme(_ themeName: inout String) -> JKAMP.SiegeTeam?` |
-| `BG_SiegeSetTeamTheme` | `oracle/codemp/game/bg_saga.c:1473-1487` | `JKAMP_BG/bg_saga.swift:199` | marker | `crates/mp/bg/src/bg_saga.rs:1842-1854` | `func BG_SiegeSetTeamTheme(_ team: Int32, _ themeName: inout String)` |
+| `BG_SiegeCheckClassLegality` | `oracle/codemp/game/bg_saga.c:1416-1453` | `JKAMP_BG/bg_saga.swift:187` | marker | `crates/mp/bg/src/bg_saga.rs:1788-1816` | `func BG_SiegeCheckClassLegality(_ team: Int32, _ classname: inout JKAShared.CharBuf) -> Bool` |
+| `BG_SiegeFindTeamForTheme` | `oracle/codemp/game/bg_saga.c:1455-1471` | `JKAMP_BG/bg_saga.swift:193` | marker | `crates/mp/bg/src/bg_saga.rs:1821-1837` | `func BG_SiegeFindTeamForTheme(_ themeName: inout JKAShared.CharBuf) -> JKAMP.SiegeTeam?` |
+| `BG_SiegeSetTeamTheme` | `oracle/codemp/game/bg_saga.c:1473-1487` | `JKAMP_BG/bg_saga.swift:199` | marker | `crates/mp/bg/src/bg_saga.rs:1842-1854` | `func BG_SiegeSetTeamTheme(_ team: Int32, _ themeName: inout JKAShared.CharBuf)` |
 | `BG_SiegeFindClassIndexByName` | `oracle/codemp/game/bg_saga.c:1489-1503` | `JKAMP_BG/bg_saga.swift:205` | marker | `crates/mp/bg/src/bg_saga.rs:1859-1873` | `func BG_SiegeFindClassIndexByName(_ classname: String) -> Int32` |
 
 12 file-scope variables. The entry is the stub's line for the variable, by rule 3 and rule 6.

@@ -17,7 +17,7 @@ The oracle range is the whole definition, from the return type to the closing br
 | `G_NewString` | `oracle/codemp/game/g_spawn.c:724-749` | `JKAMP_GameLogic/g_spawn.swift:93` | marker | none | `func G_NewString(_ string: String) -> PooledString` |
 | `G_SpawnGEntityFromSpawnVars` | `oracle/codemp/game/g_spawn.c:766-842` | `JKAMP_GameLogic/g_spawn.swift:99` | marker | `crates/mp/game/src/g_spawn.rs:702-809` | `func G_SpawnGEntityFromSpawnVars(_ inSubBSP: Bool)` |
 | `G_AddSpawnVarToken` | `oracle/codemp/game/g_spawn.c:851-866` | `JKAMP_GameLogic/g_spawn.swift:115` | marker | none | `func G_AddSpawnVarToken() -> Never` TODO: Port signature. No table row for the return `char *`. |
-| `AddSpawnField` | `oracle/codemp/game/g_spawn.c:868-884` | `JKAMP_GameLogic/g_spawn.swift:121` | marker | `crates/mp/game/src/g_spawn.rs:819-830` | `func AddSpawnField(_ field: inout String, _ value: inout String)` |
+| `AddSpawnField` | `oracle/codemp/game/g_spawn.c:868-884` | `JKAMP_GameLogic/g_spawn.swift:121` | marker | `crates/mp/game/src/g_spawn.rs:819-830` | `func AddSpawnField(_ field: inout JKAShared.CharBuf, _ value: inout JKAShared.CharBuf)` |
 | `HandleEntityAdjustment` static | `oracle/codemp/game/g_spawn.c:888-1006` | `JKAMP_GameLogic/g_spawn.swift:127` | marker | `crates/mp/game/src/g_spawn.rs:839-937` | `private func HandleEntityAdjustment()` |
 | `G_ParseSpawnVars` | `oracle/codemp/game/g_spawn.c:1018-1067` | `JKAMP_GameLogic/g_spawn.swift:145` | marker | `crates/mp/game/src/g_spawn.rs:945-982` | `func G_ParseSpawnVars(_ inSubBSP: Bool) -> Bool` |
 | `SP_worldspawn` | `oracle/codemp/game/g_spawn.c:1259-1386` | `JKAMP_GameLogic/g_spawn.swift:151` | marker | `crates/mp/game/src/g_spawn.rs:999-1224` | `func SP_worldspawn()` |

@@ -336,7 +336,7 @@ func SP_target_scriptrunner(_ `self`: Entity) {
 }
 
 /// Source: oracle/codemp/game/g_target.c:900
-func G_SetActiveState(_ targetstring: inout String, _ actState: Bool) {
+func G_SetActiveState(_ targetstring: inout JKAShared.CharBuf, _ actState: Bool) {
     // TODO: Port G_SetActiveState
     portMissing("G_SetActiveState", source: "oracle/codemp/game/g_target.c:900")
 }

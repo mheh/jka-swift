@@ -1497,7 +1497,7 @@ Q3_SetCinematicSkipScript
 ```
 */
 /// Source: oracle/codemp/game/g_ICARUScb.c:3903
-private func Q3_SetCinematicSkipScript(_ scriptname: inout String) {
+private func Q3_SetCinematicSkipScript(_ scriptname: inout JKAShared.CharBuf) {
     // TODO: Port Q3_SetCinematicSkipScript
     portMissing("Q3_SetCinematicSkipScript", source: "oracle/codemp/game/g_ICARUScb.c:3903")
 }
@@ -1950,7 +1950,7 @@ Q3_CameraGroup
 ```
 */
 /// Source: oracle/codemp/game/g_ICARUScb.c:4455
-private func Q3_CameraGroup(_ entID: Int32, _ camG: inout String) {
+private func Q3_CameraGroup(_ entID: Int32, _ camG: inout JKAShared.CharBuf) {
     // TODO: Port Q3_CameraGroup
     portMissing("Q3_CameraGroup", source: "oracle/codemp/game/g_ICARUScb.c:4455")
 }
@@ -1980,7 +1980,7 @@ Q3_CameraGroup
 ```
 */
 /// Source: oracle/codemp/game/g_ICARUScb.c:4480
-private func Q3_CameraGroupTag(_ camGTag: inout String) {
+private func Q3_CameraGroupTag(_ camGTag: inout JKAShared.CharBuf) {
     // TODO: Port Q3_CameraGroupTag
     portMissing("Q3_CameraGroupTag", source: "oracle/codemp/game/g_ICARUScb.c:4480")
 }
@@ -1993,7 +1993,7 @@ Q3_RemoveRHandModel
 ```
 */
 /// Source: oracle/codemp/game/g_ICARUScb.c:4491
-private func Q3_RemoveRHandModel(_ entID: Int32, _ addModel: inout String) {
+private func Q3_RemoveRHandModel(_ entID: Int32, _ addModel: inout JKAShared.CharBuf) {
     // TODO: Port Q3_RemoveRHandModel
     portMissing("Q3_RemoveRHandModel", source: "oracle/codemp/game/g_ICARUScb.c:4491")
 }
@@ -2006,7 +2006,7 @@ Q3_AddRHandModel
 ```
 */
 /// Source: oracle/codemp/game/g_ICARUScb.c:4501
-private func Q3_AddRHandModel(_ entID: Int32, _ addModel: inout String) {
+private func Q3_AddRHandModel(_ entID: Int32, _ addModel: inout JKAShared.CharBuf) {
     // TODO: Port Q3_AddRHandModel
     portMissing("Q3_AddRHandModel", source: "oracle/codemp/game/g_ICARUScb.c:4501")
 }
@@ -2019,7 +2019,7 @@ Q3_AddLHandModel
 ```
 */
 /// Source: oracle/codemp/game/g_ICARUScb.c:4511
-private func Q3_AddLHandModel(_ entID: Int32, _ addModel: inout String) {
+private func Q3_AddLHandModel(_ entID: Int32, _ addModel: inout JKAShared.CharBuf) {
     // TODO: Port Q3_AddLHandModel
     portMissing("Q3_AddLHandModel", source: "oracle/codemp/game/g_ICARUScb.c:4511")
 }
@@ -2032,7 +2032,7 @@ Q3_RemoveLHandModel
 ```
 */
 /// Source: oracle/codemp/game/g_ICARUScb.c:4521
-private func Q3_RemoveLHandModel(_ entID: Int32, _ addModel: inout String) {
+private func Q3_RemoveLHandModel(_ entID: Int32, _ addModel: inout JKAShared.CharBuf) {
     // TODO: Port Q3_RemoveLHandModel
     portMissing("Q3_RemoveLHandModel", source: "oracle/codemp/game/g_ICARUScb.c:4521")
 }
@@ -2047,7 +2047,7 @@ Q3_LookTarget
 ```
 */
 /// Source: oracle/codemp/game/g_ICARUScb.c:4533
-private func Q3_LookTarget(_ entID: Int32, _ targetName: inout String) {
+private func Q3_LookTarget(_ entID: Int32, _ targetName: inout JKAShared.CharBuf) {
     // TODO: Port Q3_LookTarget
     portMissing("Q3_LookTarget", source: "oracle/codemp/game/g_ICARUScb.c:4533")
 }

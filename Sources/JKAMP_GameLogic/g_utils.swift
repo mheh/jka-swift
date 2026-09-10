@@ -107,7 +107,7 @@ Broadcasts a command to only a specific team
 ```
 */
 /// Source: oracle/codemp/game/g_utils.c:197
-func G_TeamCommand(_ team: JKAMP.team_t, _ cmd: inout String) {
+func G_TeamCommand(_ team: JKAMP.team_t, _ cmd: inout JKAShared.CharBuf) {
     // TODO: Port G_TeamCommand
     portMissing("G_TeamCommand", source: "oracle/codemp/game/g_utils.c:197")
 }
@@ -207,7 +207,7 @@ func G_SetAnim(_ ent: Entity, _ ucmd: JKAMP.Usercmd, _ setAnimParts: Int32, _ an
 }
 
 /// Source: oracle/codemp/game/g_utils.c:521
-func G_PickTarget(_ targetname: inout String) -> Entity? {
+func G_PickTarget(_ targetname: inout JKAShared.CharBuf) -> Entity? {
     // TODO: Port G_PickTarget
     portMissing("G_PickTarget", source: "oracle/codemp/game/g_utils.c:521")
 }

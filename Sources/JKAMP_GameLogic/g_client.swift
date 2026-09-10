@@ -470,7 +470,7 @@ ClientCheckName
 ```
 */
 /// Source: oracle/codemp/game/g_client.c:1335
-private func ClientCleanName(_ `in`: String, _ out: inout String, _ outSize: Int32) {
+private func ClientCleanName(_ `in`: String, _ out: inout JKAShared.CharBuf, _ outSize: Int32) {
     // TODO: Port ClientCleanName
     portMissing("ClientCleanName", source: "oracle/codemp/game/g_client.c:1335")
 }
@@ -482,7 +482,7 @@ func G_SaberModelSetup(_ ent: Entity) -> Bool {
 }
 
 /// Source: oracle/codemp/game/g_client.c:1519
-func SetupGameGhoul2Model(_ ent: Entity, _ modelname: inout String, _ skinName: inout String) {
+func SetupGameGhoul2Model(_ ent: Entity, _ modelname: inout JKAShared.CharBuf, _ skinName: inout JKAShared.CharBuf) {
     // TODO: Port SetupGameGhoul2Model
     portMissing("SetupGameGhoul2Model", source: "oracle/codemp/game/g_client.c:1519")
 }

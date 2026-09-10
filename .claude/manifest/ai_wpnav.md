@@ -51,7 +51,7 @@ The oracle range is the whole definition, from the return type to the closing br
 | `LoadPath_ThisLevel` | `oracle/codemp/game/ai_wpnav.c:3347-3423` | `JKAMP_GameLogic/ai_wpnav.swift:304` | marker | `crates/mp/game/src/ai_wpnav.rs:3084-3156` | `func LoadPath_ThisLevel()` |
 | `GetClosestSpawn` | `oracle/codemp/game/ai_wpnav.c:3425-3457` | `JKAMP_GameLogic/ai_wpnav.swift:310` | marker | `crates/mp/game/src/ai_wpnav.rs:3163-3194` | `func GetClosestSpawn(_ ent: Entity) -> Entity?` |
 | `GetNextSpawnInIndex` | `oracle/codemp/game/ai_wpnav.c:3459-3499` | `JKAMP_GameLogic/ai_wpnav.swift:316` | marker | `crates/mp/game/src/ai_wpnav.rs:3201-3241` | `func GetNextSpawnInIndex(_ currentSpawn: Entity) -> Entity?` |
-| `AcceptBotCommand` | `oracle/codemp/game/ai_wpnav.c:3501-3813` | `JKAMP_GameLogic/ai_wpnav.swift:322` | marker | `crates/mp/game/src/ai_wpnav.rs:3246-3508` | `func AcceptBotCommand(_ cmd: inout String, _ pl: Entity) -> Int32` |
+| `AcceptBotCommand` | `oracle/codemp/game/ai_wpnav.c:3501-3813` | `JKAMP_GameLogic/ai_wpnav.swift:322` | marker | `crates/mp/game/src/ai_wpnav.rs:3246-3508` | `func AcceptBotCommand(_ cmd: inout JKAShared.CharBuf, _ pl: Entity) -> Int32` |
 
 9 file-scope variables. The entry is the stub's line for the variable, by rule 3 and rule 6.
 

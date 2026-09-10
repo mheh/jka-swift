@@ -178,7 +178,7 @@ func NPC_Spawn(_ ent: Entity, _ other: Entity, _ activator: Entity) {
 }
 
 /// Source: oracle/codemp/game/NPC_spawn.c:1961
-func NPC_PrecacheType(_ NPC_type: inout String) {
+func NPC_PrecacheType(_ NPC_type: inout JKAShared.CharBuf) {
     // TODO: Port NPC_PrecacheType
     portMissing("NPC_PrecacheType", source: "oracle/codemp/game/NPC_spawn.c:1961")
 }
@@ -1377,7 +1377,7 @@ func SP_NPC_Droid_Protocol(_ `self`: Entity) {
 }
 
 /// Source: oracle/codemp/game/NPC_spawn.c:3872
-func NPC_SpawnType(_ ent: Entity, _ npc_type: inout String, _ targetname: inout String, _ isVehicle: Bool) -> Entity? {
+func NPC_SpawnType(_ ent: Entity, _ npc_type: inout JKAShared.CharBuf, _ targetname: inout JKAShared.CharBuf, _ isVehicle: Bool) -> Entity? {
     // TODO: Port NPC_SpawnType
     portMissing("NPC_SpawnType", source: "oracle/codemp/game/NPC_spawn.c:3872")
 }

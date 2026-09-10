@@ -44,7 +44,7 @@ Called on a first-time connect
 ```
 */
 /// Source: oracle/codemp/game/g_session.c:187
-func G_InitSessionData(_ client: Client, _ userinfo: inout String, _ isBot: Bool) {
+func G_InitSessionData(_ client: Client, _ userinfo: inout JKAShared.CharBuf, _ isBot: Bool) {
     // TODO: Port G_InitSessionData
     portMissing("G_InitSessionData", source: "oracle/codemp/game/g_session.c:187")
 }

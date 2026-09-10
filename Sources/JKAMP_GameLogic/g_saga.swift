@@ -120,7 +120,7 @@ func G_SiegeGetCompletionStatus(_ team: Int32, _ objective: Int32) -> Bool {
 }
 
 /// Source: oracle/codemp/game/g_saga.c:482
-func UseSiegeTarget(_ other: Entity, _ en: Entity, _ target: inout String) {
+func UseSiegeTarget(_ other: Entity, _ en: Entity, _ target: inout JKAShared.CharBuf) {
     // TODO: Port UseSiegeTarget
     portMissing("UseSiegeTarget", source: "oracle/codemp/game/g_saga.c:482")
 }

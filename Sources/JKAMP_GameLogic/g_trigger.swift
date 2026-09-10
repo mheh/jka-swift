@@ -28,7 +28,7 @@ func multi_trigger_run(_ ent: Entity) {
 
 //determine if the class given is listed in the string using the | formatting
 /// Source: oracle/codemp/game/g_trigger.c:97
-func G_NameInTriggerClassList(_ list: inout String, _ str: inout String) -> Bool {
+func G_NameInTriggerClassList(_ list: inout JKAShared.CharBuf, _ str: inout JKAShared.CharBuf) -> Bool {
     // TODO: Port G_NameInTriggerClassList
     portMissing("G_NameInTriggerClassList", source: "oracle/codemp/game/g_trigger.c:97")
 }

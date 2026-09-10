@@ -432,7 +432,7 @@ func NAV_StoreWaypoint(_ ent: Entity) {
 }
 
 /// Source: oracle/codemp/game/g_nav.c:1713
-func NAV_GetStoredWaypoint(_ targetname: inout String) -> Int32 {
+func NAV_GetStoredWaypoint(_ targetname: inout JKAShared.CharBuf) -> Int32 {
     // TODO: Port NAV_GetStoredWaypoint
     portMissing("NAV_GetStoredWaypoint", source: "oracle/codemp/game/g_nav.c:1713")
 }

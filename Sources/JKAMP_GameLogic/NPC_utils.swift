@@ -83,7 +83,7 @@ func G_ActivateBehavior(_ `self`: Entity, _ bset: Int32) -> Bool {
 
 //rww - special system for sync'ing bone angles between client and server.
 /// Source: oracle/codemp/game/NPC_utils.c:906
-func NPC_SetBoneAngles(_ ent: Entity, _ bone: inout String, _ angles: inout JKAShared.vec3_t) {
+func NPC_SetBoneAngles(_ ent: Entity, _ bone: inout JKAShared.CharBuf, _ angles: inout JKAShared.vec3_t) {
     // TODO: Port NPC_SetBoneAngles
     portMissing("NPC_SetBoneAngles", source: "oracle/codemp/game/NPC_utils.c:906")
 }
