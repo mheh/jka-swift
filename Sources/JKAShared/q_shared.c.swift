@@ -419,12 +419,12 @@ public func Q_stricmpn(_ s1: CharBuf, _ s2: CharBuf, _ n: Int32) -> Int32 {
         }
 
         if c1 != c2 {
-            // Swift has no C character literal, so Raven's `'a'` is spelled `Int32(UInt8(ascii: "a"))`.
-            if c1 >= Int32(UInt8(ascii: "a")) && c1 <= Int32(UInt8(ascii: "z")) {
-                c1 -= (Int32(UInt8(ascii: "a")) - Int32(UInt8(ascii: "A")))
+            // Swift has no C character literal, so Raven's `'a'` is spelled `Int32(ascii: "a")`.
+            if c1 >= Int32(ascii: "a") && c1 <= Int32(ascii: "z") {
+                c1 -= (Int32(ascii: "a") - Int32(ascii: "A"))
             }
-            if c2 >= Int32(UInt8(ascii: "a")) && c2 <= Int32(UInt8(ascii: "z")) {
-                c2 -= (Int32(UInt8(ascii: "a")) - Int32(UInt8(ascii: "A")))
+            if c2 >= Int32(ascii: "a") && c2 <= Int32(ascii: "z") {
+                c2 -= (Int32(ascii: "a") - Int32(ascii: "A"))
             }
             if c1 != c2 {
                 return c1 < c2 ? -1 : 1
