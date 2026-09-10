@@ -139,9 +139,7 @@ func PM_IsRocketTrooper() -> Bool {
 
 /// Source: oracle/codemp/game/bg_pmove.c:261
 func PM_GetSaberStance() -> Int32 {
-    // Port-note: Raven's `pm->ps` is a pointer his callers always set. The generated field is optional, so the body binds it once, and the nil path traps.
-    guard let ps = bg.pm.ps else { portMissing("PM_GetSaberStance: pm->ps is NULL", source: "oracle/codemp/game/bg_pmove.c:261") }
-
+    let ps = bg.pm.ps
     var anim = BOTH_STAND2
     let saber1 = BG_MySaber(ps.clientNum, 0)
     let saber2 = BG_MySaber(ps.clientNum, 1)
@@ -196,9 +194,7 @@ func PM_GetSaberStance() -> Int32 {
 
 /// Source: oracle/codemp/game/bg_pmove.c:321
 func PM_DoSlowFall() -> Bool {
-    // Port-note: Raven's `pm->ps` is a pointer his callers always set. The generated field is optional, so the body binds it once, and the nil path traps.
-    guard let ps = bg.pm.ps else { portMissing("PM_DoSlowFall: pm->ps is NULL", source: "oracle/codemp/game/bg_pmove.c:321") }
-
+    let ps = bg.pm.ps
     if ((ps.legsAnim) == BOTH_WALL_RUN_RIGHT || (ps.legsAnim) == BOTH_WALL_RUN_LEFT) && ps.legsTimer > 500 {
         return true
     }
@@ -215,9 +211,7 @@ func PM_pitch_roll_for_slope(_ forwhom: JKAMP.BgEntity, _ pass_slope: inout JKAS
 
 /// Source: oracle/codemp/game/bg_pmove.c:447
 func PM_SetSpecialMoveValues() {
-    // Port-note: Raven's `pm->ps` is a pointer his callers always set. The generated field is optional, so the body binds it once, and the nil path traps.
-    guard let ps = bg.pm.ps else { portMissing("PM_SetSpecialMoveValues: pm->ps is NULL", source: "oracle/codemp/game/bg_pmove.c:447") }
-
+    let ps = bg.pm.ps
     let pEnt: JKAMP.BgEntity?
 
     if ps.clientNum < MAX_CLIENTS {
@@ -331,15 +325,13 @@ PM_AddEvent
 */
 /// Source: oracle/codemp/game/bg_pmove.c:910
 func PM_AddEvent(_ newEvent: Int32) {
-    // Port-note: Raven's `pm->ps` is a pointer his callers always set. The generated field is optional, so the body binds it once, and the nil path traps.
-    guard let ps = bg.pm.ps else { portMissing("PM_AddEvent: pm->ps is NULL", source: "oracle/codemp/game/bg_pmove.c:910") }
+    let ps = bg.pm.ps
     BG_AddPredictableEventToPlayerstate(newEvent, 0, ps)
 }
 
 /// Source: oracle/codemp/game/bg_pmove.c:914
 func PM_AddEventWithParm(_ newEvent: Int32, _ parm: Int32) {
-    // Port-note: Raven's `pm->ps` is a pointer his callers always set. The generated field is optional, so the body binds it once, and the nil path traps.
-    guard let ps = bg.pm.ps else { portMissing("PM_AddEventWithParm: pm->ps is NULL", source: "oracle/codemp/game/bg_pmove.c:914") }
+    let ps = bg.pm.ps
     BG_AddPredictableEventToPlayerstate(newEvent, parm, ps)
 }
 
@@ -390,10 +382,7 @@ func PM_ClipVelocity(_ `in`: inout JKAShared.vec3_t, _ normal: inout JKAShared.v
     var change: Float
     let oldInZ: Float
     var i: Int32
-
-    // Port-note: Raven's `pm->ps` is a pointer his callers always set. The generated field is optional, so the body binds it once, and the nil path traps.
-    guard let ps = bg.pm.ps else { portMissing("PM_ClipVelocity: pm->ps is NULL", source: "oracle/codemp/game/bg_pmove.c:954") }
-
+    let ps = bg.pm.ps
     if (ps.pm_flags & PMF_STUCK_TO_WALL) != 0 {
         //no sliding!
         out = `in`
@@ -443,10 +432,7 @@ private func PM_Friction() {
     var control: Float
     var drop: Float
     var pEnt: JKAMP.BgEntity? = nil
-
-    // Port-note: Raven's `pm->ps` is a pointer his callers always set. The generated field is optional, so the body binds it once, and the nil path traps.
-    guard let ps = bg.pm.ps else { portMissing("PM_Friction: pm->ps is NULL", source: "oracle/codemp/game/bg_pmove.c:998") }
-
+    let ps = bg.pm.ps
     // Port-note: Raven aliases `pm->ps->velocity` through `float *vel`. The view carries no pointer, so the body reads and writes the field itself.
     vec = ps.velocity
     if bg.pml.walking {
@@ -568,9 +554,7 @@ Handles user intended acceleration
 */
 /// Source: oracle/codemp/game/bg_pmove.c:1133
 private func PM_Accelerate(_ wishdir: inout JKAShared.vec3_t, _ wishspeed: Float, _ accel: Float) {
-    // Port-note: Raven's `pm->ps` is a pointer his callers always set. The generated field is optional, so the body binds it once, and the nil path traps.
-    guard let ps = bg.pm.ps else { portMissing("PM_Accelerate: pm->ps is NULL", source: "oracle/codemp/game/bg_pmove.c:1133") }
-
+    let ps = bg.pm.ps
     if bg.pm.gametype != GT_SIEGE
         || ps.m_iVehicleNum != 0
         || ps.clientNum >= MAX_CLIENTS
@@ -642,10 +626,7 @@ private func PM_CmdScale(_ cmd: JKAMP.Usercmd) -> Float {
     let scale: Float
     let umove: Int32 = 0 //cmd->upmove;
             //don't factor upmove into scaling speed
-
-    // Port-note: Raven's `pm->ps` is a pointer his callers always set. The generated field is optional, so the body binds it once, and the nil path traps.
-    guard let ps = bg.pm.ps else { portMissing("PM_CmdScale: pm->ps is NULL", source: "oracle/codemp/game/bg_pmove.c:1199") }
-
+    let ps = bg.pm.ps
     // C promotes a `signed char` of `usercmd_t` to `int` in each of these expressions.
     max = abs(Int32(cmd.forwardmove))
     if abs(Int32(cmd.rightmove)) > max {
@@ -678,9 +659,7 @@ to the facing dir
 */
 /// Source: oracle/codemp/game/bg_pmove.c:1233
 private func PM_SetMovementDir() {
-    // Port-note: Raven's `pm->ps` is a pointer his callers always set. The generated field is optional, so the body binds it once, and the nil path traps.
-    guard let ps = bg.pm.ps else { portMissing("PM_SetMovementDir: pm->ps is NULL", source: "oracle/codemp/game/bg_pmove.c:1233") }
-
+    let ps = bg.pm.ps
     if bg.pm.cmd.forwardmove != 0 || bg.pm.cmd.rightmove != 0 {
         if bg.pm.cmd.rightmove == 0 && bg.pm.cmd.forwardmove > 0 {
             ps.movementDir = 0
@@ -713,9 +692,7 @@ private func PM_SetMovementDir() {
 
 /// Source: oracle/codemp/game/bg_pmove.c:1266
 func PM_ForceJumpingUp() -> Bool {
-    // Port-note: Raven's `pm->ps` is a pointer his callers always set. The generated field is optional, so the body binds it once, and the nil path traps.
-    guard let ps = bg.pm.ps else { portMissing("PM_ForceJumpingUp: pm->ps is NULL", source: "oracle/codemp/game/bg_pmove.c:1266") }
-
+    let ps = bg.pm.ps
     if (ps.fd.forcePowersActive & (1 << FP_LEVITATION)) == 0 && ps.fd.forceJumpCharge != 0 {
         //already jumped and let go
         return false
@@ -753,9 +730,7 @@ func PM_ForceJumpingUp() -> Bool {
 
 /// Source: oracle/codemp/game/bg_pmove.c:1308
 private func PM_JumpForDir() {
-    // Port-note: Raven's `pm->ps` is a pointer his callers always set. The generated field is optional, so the body binds it once, and the nil path traps.
-    guard let ps = bg.pm.ps else { portMissing("PM_JumpForDir: pm->ps is NULL", source: "oracle/codemp/game/bg_pmove.c:1308") }
-
+    let ps = bg.pm.ps
     var anim = BOTH_JUMP1
     if bg.pm.cmd.forwardmove > 0 {
         anim = BOTH_JUMP1
@@ -805,9 +780,7 @@ func PM_AdjustAngleForWallRun(_ ps: JKAMP.PlayerState, _ ucmd: JKAMP.Usercmd, _ 
 func PM_AdjustAnglesForWallRunUpFlipAlt(_ ucmd: JKAMP.Usercmd) -> Bool {
 //	ucmd->angles[PITCH] = ANGLE2SHORT( pm->ps->viewangles[PITCH] ) - pm->ps->delta_angles[PITCH];
 //	ucmd->angles[YAW] = ANGLE2SHORT( pm->ps->viewangles[YAW] ) - pm->ps->delta_angles[YAW];
-    // Port-note: Raven's `pm->ps` is a pointer his callers always set. The generated field is optional, so the body binds it once, and the nil path traps.
-    guard let ps = bg.pm.ps else { portMissing("PM_AdjustAnglesForWallRunUpFlipAlt: pm->ps is NULL", source: "oracle/codemp/game/bg_pmove.c:1464") }
-
+    let ps = bg.pm.ps
     PM_SetPMViewAngle(ps, &ps.viewangles, ucmd)
     return true
 }
@@ -835,9 +808,7 @@ func PM_AdjustAngleForWallJump(_ ps: JKAMP.PlayerState, _ ucmd: JKAMP.Usercmd, _
 //Set the height for when a force jump was started. If it's 0, nuge it up (slight hack to prevent holding jump over slopes)
 /// Source: oracle/codemp/game/bg_pmove.c:1759
 func PM_SetForceJumpZStart(_ value: Float) {
-    // Port-note: Raven's `pm->ps` is a pointer his callers always set. The generated field is optional, so the body binds it once, and the nil path traps.
-    guard let ps = bg.pm.ps else { portMissing("PM_SetForceJumpZStart: pm->ps is NULL", source: "oracle/codemp/game/bg_pmove.c:1759") }
-
+    let ps = bg.pm.ps
     ps.fd.forceJumpZStart = value
     if ps.fd.forceJumpZStart == 0 {
         ps.fd.forceJumpZStart -= 0.1
@@ -847,9 +818,7 @@ func PM_SetForceJumpZStart(_ value: Float) {
 /// Source: oracle/codemp/game/bg_pmove.c:1776
 func PM_GrabWallForJump(_ anim: Int32) {
     //NOTE!!! assumes an appropriate anim is being passed in!!!
-    // Port-note: Raven's `pm->ps` is a pointer his callers always set. The generated field is optional, so the body binds it once, and the nil path traps.
-    guard let ps = bg.pm.ps else { portMissing("PM_GrabWallForJump: pm->ps is NULL", source: "oracle/codemp/game/bg_pmove.c:1776") }
-
+    let ps = bg.pm.ps
     PM_SetAnim(SETANIM_BOTH, anim, SETANIM_FLAG_RESTART | SETANIM_FLAG_OVERRIDE | SETANIM_FLAG_HOLD, 0)
     PM_AddEvent(EV_JUMP)//make sound for grab
     ps.pm_flags |= PMF_STUCK_TO_WALL
@@ -881,10 +850,7 @@ private func PM_CheckWaterJump() -> Bool {
     var spot = JKAShared.vec3_t(0, 0, 0)
     var cont: Int32
     var flatforward = JKAShared.vec3_t(0, 0, 0)
-
-    // Port-note: Raven's `pm->ps` is a pointer his callers always set. The generated field is optional, so the body binds it once, and the nil path traps.
-    guard let ps = bg.pm.ps else { portMissing("PM_CheckWaterJump: pm->ps is NULL", source: "oracle/codemp/game/bg_pmove.c:2781") }
-
+    let ps = bg.pm.ps
     if ps.pm_time != 0 {
         return false
     }
@@ -902,14 +868,14 @@ private func PM_CheckWaterJump() -> Bool {
     _VectorMA(ps.origin, 30, flatforward, &spot)
     spot[2] += 4
     // Port-note: Raven calls `pm->pointcontents` with no guard. The generated call gives nil when the stored pointer is nil, so the body binds the result, and the nil path traps.
-    guard let contBelow = bg.pm.runPointcontents(spot, ps.clientNum) else { portMissing("PM_CheckWaterJump: pm->pointcontents is NULL", source: "oracle/codemp/game/bg_pmove.c:2781") }
+    let contBelow = bg.pm.runPointcontents(spot, ps.clientNum)
     cont = contBelow
     if (cont & CONTENTS_SOLID) == 0 {
         return false
     }
 
     spot[2] += 16
-    guard let contAbove = bg.pm.runPointcontents(spot, ps.clientNum) else { portMissing("PM_CheckWaterJump: pm->pointcontents is NULL", source: "oracle/codemp/game/bg_pmove.c:2781") }
+    let contAbove = bg.pm.runPointcontents(spot, ps.clientNum)
     cont = contAbove
     if cont != 0 {
         return false
@@ -937,10 +903,7 @@ Flying out of the water
 /// Source: oracle/codemp/game/bg_pmove.c:2833
 private func PM_WaterJumpMove() {
     // waterjump has no control, but falls
-
-    // Port-note: Raven's `pm->ps` is a pointer his callers always set. The generated field is optional, so the body binds it once, and the nil path traps.
-    guard let ps = bg.pm.ps else { portMissing("PM_WaterJumpMove: pm->ps is NULL", source: "oracle/codemp/game/bg_pmove.c:2833") }
-
+    let ps = bg.pm.ps
     PM_StepSlideMove(true)
 
     ps.velocity[2] -= Float(ps.gravity) * bg.pml.frametime
@@ -967,10 +930,7 @@ private func PM_WaterMove() {
     var wishdir = JKAShared.vec3_t(0, 0, 0)
     let scale: Float
     let vel: Float
-
-    // Port-note: Raven's `pm->ps` is a pointer his callers always set. The generated field is optional, so the body binds it once, and the nil path traps.
-    guard let ps = bg.pm.ps else { portMissing("PM_WaterMove: pm->ps is NULL", source: "oracle/codemp/game/bg_pmove.c:2852") }
-
+    let ps = bg.pm.ps
     if PM_CheckWaterJump() {
         PM_WaterJumpMove()
         return
@@ -1039,10 +999,7 @@ private func PM_FlyVehicleMove() {
     let scale: Float
     let zVel: Float
     let fmove: Float = 0.0, smove: Float = 0.0
-
-    // Port-note: Raven's `pm->ps` is a pointer his callers always set. The generated field is optional, so the body binds it once, and the nil path traps.
-    guard let ps = bg.pm.ps else { portMissing("PM_FlyVehicleMove: pm->ps is NULL", source: "oracle/codemp/game/bg_pmove.c:2924") }
-
+    let ps = bg.pm.ps
     // We don't use these here because we pre-calculate the movedir in the vehicle update anyways, and if
     // you leave this, you get strange motion during boarding (the player can move the vehicle).
     //fmove = pm->cmd.forwardmove;
@@ -1134,10 +1091,7 @@ private func PM_FlyMove() {
     var wishspeed: Float
     var wishdir = JKAShared.vec3_t(0, 0, 0)
     var scale: Float
-
-    // Port-note: Raven's `pm->ps` is a pointer his callers always set. The generated field is optional, so the body binds it once, and the nil path traps.
-    guard let ps = bg.pm.ps else { portMissing("PM_FlyMove: pm->ps is NULL", source: "oracle/codemp/game/bg_pmove.c:3021") }
-
+    let ps = bg.pm.ps
     // normal slowdown
     PM_Friction()
 
@@ -1191,10 +1145,7 @@ private func PM_AirMove() {
     var scale: Float
     var accelerate: Float
     var pVeh: JKAMP.Vehicle? = nil
-
-    // Port-note: Raven's `pm->ps` is a pointer his callers always set. The generated field is optional, so the body binds it once, and the nil path traps.
-    guard let ps = bg.pm.ps else { portMissing("PM_AirMove: pm->ps is NULL", source: "oracle/codemp/game/bg_pmove.c:3068") }
-
+    let ps = bg.pm.ps
     if ps.clientNum >= MAX_CLIENTS {
         let pEnt: JKAMP.BgEntity? = bg.pm_entSelf
 
@@ -1320,10 +1271,7 @@ private func PM_WalkMove() {
     var accelerate: Float
     let vel: Float
     var npcMovement = false
-
-    // Port-note: Raven's `pm->ps` is a pointer his callers always set. The generated field is optional, so the body binds it once, and the nil path traps.
-    guard let ps = bg.pm.ps else { portMissing("PM_WalkMove: pm->ps is NULL", source: "oracle/codemp/game/bg_pmove.c:3305") }
-
+    let ps = bg.pm.ps
     if bg.pm.waterlevel > 2 && _DotProduct(bg.pml.forward, bg.pml.groundTrace.plane.normal) > 0 {
         // begin swimming
         PM_WaterMove()
@@ -1504,10 +1452,7 @@ PM_DeadMove
 /// Source: oracle/codemp/game/bg_pmove.c:3492
 private func PM_DeadMove() {
     var forward: Float
-
-    // Port-note: Raven's `pm->ps` is a pointer his callers always set. The generated field is optional, so the body binds it once, and the nil path traps.
-    guard let ps = bg.pm.ps else { portMissing("PM_DeadMove: pm->ps is NULL", source: "oracle/codemp/game/bg_pmove.c:3492") }
-
+    let ps = bg.pm.ps
     if !bg.pml.walking {
         return
     }
@@ -1541,10 +1486,7 @@ private func PM_NoclipMove() {
     var wishdir = JKAShared.vec3_t(0, 0, 0)
     var wishspeed: Float
     var scale: Float
-
-    // Port-note: Raven's `pm->ps` is a pointer his callers always set. The generated field is optional, so the body binds it once, and the nil path traps.
-    guard let ps = bg.pm.ps else { portMissing("PM_NoclipMove: pm->ps is NULL", source: "oracle/codemp/game/bg_pmove.c:3517") }
-
+    let ps = bg.pm.ps
     ps.viewheight = DEFAULT_VIEWHEIGHT
 
     // friction
@@ -1629,10 +1571,7 @@ private func PM_TryRoll() -> Int32 {
 private func PM_CrashLandEffect() {
     // Port-note: Raven compiles this whole function only for the game module, under `#ifdef QAGAME`. Rule 23 gives no per-function form for that, so the body is here for every consumer, and its one call site takes the game arm.
     var delta: Float
-
-    // Port-note: Raven's `pm->ps` is a pointer his callers always set. The generated field is optional, so the body binds it once, and the nil path traps.
-    guard let ps = bg.pm.ps else { portMissing("PM_CrashLandEffect: pm->ps is NULL", source: "oracle/codemp/game/bg_pmove.c:3684") }
-
+    let ps = bg.pm.ps
     if bg.pm.waterlevel != 0 {
         return
     }
@@ -1686,10 +1625,7 @@ private func PM_CrashLand() {
     let t: Float
     let a: Float, b: Float, c: Float, den: Float
     var didRoll = false
-
-    // Port-note: Raven's `pm->ps` is a pointer his callers always set. The generated field is optional, so the body binds it once, and the nil path traps.
-    guard let ps = bg.pm.ps else { portMissing("PM_CrashLand: pm->ps is NULL", source: "oracle/codemp/game/bg_pmove.c:3731") }
-
+    let ps = bg.pm.ps
     // calculate the exact velocity on landing
     dist = ps.origin[2] - bg.pml.previous_origin[2]
     vel = bg.pml.previous_velocity[2]
@@ -1983,10 +1919,7 @@ private func PM_SetWaterLevel() {
     var cont: Int32
     let sample1: Int32
     let sample2: Int32
-
-    // Port-note: Raven's `pm->ps` is a pointer his callers always set. The generated field is optional, so the body binds it once, and the nil path traps.
-    guard let ps = bg.pm.ps else { portMissing("PM_SetWaterLevel: pm->ps is NULL", source: "oracle/codemp/game/bg_pmove.c:4285") }
-
+    let ps = bg.pm.ps
     //
     // get waterlevel, accounting for ducking
     //
@@ -1998,7 +1931,7 @@ private func PM_SetWaterLevel() {
     // Port-note: Raven adds the int MINS_Z to a float with no cast, and Swift needs Float(MINS_Z). The implicit int-to-float conversion has no ruling.
     point[2] = ps.origin[2] + Float(MINS_Z) + 1
     // Port-note: Raven calls `pm->pointcontents` with no guard. The generated call gives nil when the stored pointer is nil, so the body binds each result, and the nil path traps.
-    guard let cont0 = bg.pm.runPointcontents(point, ps.clientNum) else { portMissing("PM_SetWaterLevel: pm->pointcontents is NULL", source: "oracle/codemp/game/bg_pmove.c:4285") }
+    let cont0 = bg.pm.runPointcontents(point, ps.clientNum)
     cont = cont0
 
     if (cont & MASK_WATER) != 0 {
@@ -2008,12 +1941,12 @@ private func PM_SetWaterLevel() {
         bg.pm.watertype = cont
         bg.pm.waterlevel = 1
         point[2] = ps.origin[2] + Float(MINS_Z) + Float(sample1)
-        guard let cont1 = bg.pm.runPointcontents(point, ps.clientNum) else { portMissing("PM_SetWaterLevel: pm->pointcontents is NULL", source: "oracle/codemp/game/bg_pmove.c:4285") }
+        let cont1 = bg.pm.runPointcontents(point, ps.clientNum)
         cont = cont1
         if (cont & MASK_WATER) != 0 {
             bg.pm.waterlevel = 2
             point[2] = ps.origin[2] + Float(MINS_Z) + Float(sample2)
-            guard let cont2 = bg.pm.runPointcontents(point, ps.clientNum) else { portMissing("PM_SetWaterLevel: pm->pointcontents is NULL", source: "oracle/codemp/game/bg_pmove.c:4285") }
+            let cont2 = bg.pm.runPointcontents(point, ps.clientNum)
             cont = cont2
             if (cont & MASK_WATER) != 0 {
                 bg.pm.waterlevel = 3
@@ -2026,10 +1959,7 @@ private func PM_SetWaterLevel() {
 /// Source: oracle/codemp/game/bg_pmove.c:4322
 func PM_CheckDualForwardJumpDuck() -> Bool {
     var resized = false
-
-    // Port-note: Raven's `pm->ps` is a pointer his callers always set. The generated field is optional, so the body binds it once, and the nil path traps.
-    guard let ps = bg.pm.ps else { portMissing("PM_CheckDualForwardJumpDuck: pm->ps is NULL", source: "oracle/codemp/game/bg_pmove.c:4322") }
-
+    let ps = bg.pm.ps
     if ps.legsAnim == BOTH_JUMPATTACK6 {
         //dynamically reduce bounding box to let character sail over heads of enemies
         if (ps.legsTimer >= 1450
@@ -2070,9 +2000,7 @@ private func PM_CheckDuck() {
 
 /// Source: oracle/codemp/game/bg_pmove.c:4559
 func PM_Use() {
-    // Port-note: Raven's `pm->ps` is a pointer his callers always set. The generated field is optional, so the body binds it once, and the nil path traps.
-    guard let ps = bg.pm.ps else { portMissing("PM_Use: pm->ps is NULL", source: "oracle/codemp/game/bg_pmove.c:4559") }
-
+    let ps = bg.pm.ps
     if ps.useTime > 0 {
         ps.useTime -= 100//pm->cmd.msec;
     }
@@ -2273,10 +2201,7 @@ func PM_AdjustStandAnimForSlope() -> Bool {
     var destAnim: Int32
     var legsAnim: Int32
     //`SLOPERECALCVAR` is Raven's convenience macro for `pm->ps->slopeRecalcTime`.
-
-    // Port-note: Raven's `pm->ps` is a pointer his callers always set. The generated field is optional, so the body binds it once, and the nil path traps.
-    guard let ps = bg.pm.ps else { portMissing("PM_AdjustStandAnimForSlope: pm->ps is NULL", source: "oracle/codemp/game/bg_pmove.c:4804") }
-
+    let ps = bg.pm.ps
     if bg.pm.ghoul2 == nil {
         //probably just changed models and not quite in sync yet
         return false
@@ -2487,9 +2412,7 @@ func PM_AdjustStandAnimForSlope() -> Bool {
 //rww - slowly back out of slope leg anims, to prevent skipping between slope anims and general jittering
 /// Source: oracle/codemp/game/bg_pmove.c:5107
 func PM_LegsSlopeBackTransition(_ desiredAnim: Int32) -> Int32 {
-    // Port-note: Raven's `pm->ps` is a pointer his callers always set. The generated field is optional, so the body binds it once, and the nil path traps.
-    guard let ps = bg.pm.ps else { portMissing("PM_LegsSlopeBackTransition: pm->ps is NULL", source: "oracle/codemp/game/bg_pmove.c:5107") }
-
+    let ps = bg.pm.ps
     let anim = ps.legsAnim
     var resultingAnim = desiredAnim
 
@@ -2538,10 +2461,7 @@ private func PM_Footsteps() {
     let old: Int32
     var footstep: Bool
     var setAnimFlags: Int32 = 0
-
-    // Port-note: Raven's `pm->ps` is a pointer his callers always set. The generated field is optional, so the body binds it once, and the nil path traps.
-    guard let ps = bg.pm.ps else { portMissing("PM_Footsteps: pm->ps is NULL", source: "oracle/codemp/game/bg_pmove.c:5175") }
-
+    let ps = bg.pm.ps
     if (PM_InSaberAnim((ps.legsAnim)) && !BG_SpinningSaberAnim((ps.legsAnim)))
         || (ps.legsAnim) == BOTH_STAND1
         || (ps.legsAnim) == BOTH_STAND1TO2
@@ -2931,9 +2851,7 @@ PM_BeginWeaponChange
 */
 /// Source: oracle/codemp/game/bg_pmove.c:5766
 func PM_BeginWeaponChange(_ weapon: Int32) {
-    // Port-note: Raven's `pm->ps` is a pointer his callers always set. The generated field is optional, so the body binds it once, and the nil path traps.
-    guard let ps = bg.pm.ps else { portMissing("PM_BeginWeaponChange: pm->ps is NULL", source: "oracle/codemp/game/bg_pmove.c:5766") }
-
+    let ps = bg.pm.ps
     if weapon <= WP_NONE || weapon >= WP_NUM_WEAPONS {
         return
     }
@@ -2971,10 +2889,7 @@ PM_FinishWeaponChange
 /// Source: oracle/codemp/game/bg_pmove.c:5801
 func PM_FinishWeaponChange() {
     var weapon: Int32
-
-    // Port-note: Raven's `pm->ps` is a pointer his callers always set. The generated field is optional, so the body binds it once, and the nil path traps.
-    guard let ps = bg.pm.ps else { portMissing("PM_FinishWeaponChange: pm->ps is NULL", source: "oracle/codemp/game/bg_pmove.c:5801") }
-
+    let ps = bg.pm.ps
     weapon = Int32(bg.pm.cmd.weapon)
     if weapon < WP_NONE || weapon >= WP_NUM_WEAPONS {
         weapon = WP_NONE
@@ -3029,9 +2944,7 @@ func PM_ItemUsable(_ ps: JKAMP.PlayerState, _ forcedUse: Int32) -> Int32 {
 //cheesy vehicle weapon hackery
 /// Source: oracle/codemp/game/bg_pmove.c:6369
 func PM_CanSetWeaponAnims() -> Bool {
-    // Port-note: Raven's `pm->ps` is a pointer his callers always set. The generated field is optional, so the body binds it once, and the nil path traps.
-    guard let ps = bg.pm.ps else { portMissing("PM_CanSetWeaponAnims: pm->ps is NULL", source: "oracle/codemp/game/bg_pmove.c:6369") }
-
+    let ps = bg.pm.ps
     if ps.m_iVehicleNum != 0 {
         return false
     }
@@ -3042,10 +2955,7 @@ func PM_CanSetWeaponAnims() -> Bool {
 /// Source: oracle/codemp/game/bg_pmove.c:6381
 func PM_VehicleWeaponAnimate() {
     var iFlags: Int32 = 0, iBlend: Int32 = 0, Anim: Int32 = -1
-
-    // Port-note: Raven's `pm->ps` is a pointer his callers always set. The generated field is optional, so the body binds it once, and the nil path traps.
-    guard let ps = bg.pm.ps else { portMissing("PM_VehicleWeaponAnimate: pm->ps is NULL", source: "oracle/codemp/game/bg_pmove.c:6381") }
-
+    let ps = bg.pm.ps
     guard let veh = bg.pm_entVeh,
         let m_pVehicle = veh.m_pVehicle,
         let m_pPilot = m_pVehicle.m_pPilot,
@@ -3268,9 +3178,7 @@ private func PM_Weapon() {
 
 /// Source: oracle/codemp/game/bg_pmove.c:7680
 private func PM_Animate() {
-    // Port-note: Raven's `pm->ps` is a pointer his callers always set. The generated field is optional, so the body binds it once, and the nil path traps.
-    guard let ps = bg.pm.ps else { portMissing("PM_Animate: pm->ps is NULL", source: "oracle/codemp/game/bg_pmove.c:7680") }
-
+    let ps = bg.pm.ps
     if (bg.pm.cmd.buttons & BUTTON_GESTURE) != 0 {
         if ps.m_iVehicleNum != 0 {
             //eh, fine, clear it
@@ -3305,9 +3213,7 @@ PM_DropTimers
 */
 /// Source: oracle/codemp/game/bg_pmove.c:7748
 private func PM_DropTimers() {
-    // Port-note: Raven's `pm->ps` is a pointer his callers always set. The generated field is optional, so the body binds it once, and the nil path traps.
-    guard let ps = bg.pm.ps else { portMissing("PM_DropTimers: pm->ps is NULL", source: "oracle/codemp/game/bg_pmove.c:7748") }
-
+    let ps = bg.pm.ps
     // drop misc timing counter
     if ps.pm_time != 0 {
         if bg.pml.msec >= ps.pm_time {
@@ -3411,10 +3317,7 @@ func PM_UpdateViewAngles(_ ps: JKAMP.PlayerState, _ cmd: JKAMP.Usercmd) {
 /// Source: oracle/codemp/game/bg_pmove.c:8031
 func PM_AdjustAttackStates(_ pm: JKAMP.Pmove) {
     var amount: Int32
-
-    // Port-note: Raven's `pm->ps` is a pointer his callers always set. The generated field is optional, so the body binds it once, and the nil path traps.
-    guard let ps = pm.ps else { portMissing("PM_AdjustAttackStates: pm->ps is NULL", source: "oracle/codemp/game/bg_pmove.c:8031") }
-
+    let ps = pm.ps
     // Port-note: Raven reads `pm_entSelf->s.NPC_class` with no guard. The state property is optional, so the body binds it, and the nil path takes the same arm.
     if let pm_entSelf = bg.pm_entSelf, pm_entSelf.s.NPC_class != CLASS_VEHICLE,
         ps.m_iVehicleNum != 0 {
@@ -3662,10 +3565,7 @@ func BG_CmdForRoll(_ ps: JKAMP.PlayerState, _ anim: Int32, _ pCmd: JKAMP.Usercmd
 /// Source: oracle/codemp/game/bg_pmove.c:8331
 func BG_AdjustClientSpeed(_ ps: JKAMP.PlayerState, _ cmd: JKAMP.Usercmd, _ svTime: Int32) {
     var saber: JKAMP.SaberInfo?
-
-    // Port-note: Raven's `pm->ps` is a pointer his callers always set. The generated field is optional, so the body binds it once, and the nil path traps.
-    guard let pmPS = bg.pm.ps else { portMissing("BG_AdjustClientSpeed: pm->ps is NULL", source: "oracle/codemp/game/bg_pmove.c:8331") }
-
+    let pmPS = bg.pm.ps
     if ps.clientNum >= MAX_CLIENTS {
         let bgEnt: JKAMP.BgEntity? = bg.pm_entSelf
 
@@ -4402,9 +4302,7 @@ private func PM_AdjustAnglesForDualJumpAttack(_ ps: JKAMP.PlayerState, _ ucmd: J
 
 /// Source: oracle/codemp/game/bg_pmove.c:9474
 private func PM_CmdForSaberMoves(_ ucmd: JKAMP.Usercmd) {
-    // Port-note: Raven's `pm->ps` is a pointer his callers always set. The generated field is optional, so the body binds it once, and the nil path traps.
-    guard let ps = bg.pm.ps else { portMissing("PM_CmdForSaberMoves: pm->ps is NULL", source: "oracle/codemp/game/bg_pmove.c:9474") }
-
+    let ps = bg.pm.ps
     //DUAL FORWARD+JUMP+ATTACK
     if (ps.legsAnim == BOTH_JUMPATTACK6
             && ps.saberMove == LS_JUMPATTACK_DUAL)
@@ -4677,10 +4575,7 @@ func PM_WeaponOkOnVehicle(_ weapon: Int32) -> Bool {
 /// Source: oracle/codemp/game/bg_pmove.c:9762
 func PM_GetOkWeaponForVehicle() -> Int32 {
     var i: Int32 = 0
-
-    // Port-note: Raven's `pm->ps` is a pointer his callers always set. The generated field is optional, so the body binds it once, and the nil path traps.
-    guard let ps = bg.pm.ps else { portMissing("PM_GetOkWeaponForVehicle: pm->ps is NULL", source: "oracle/codemp/game/bg_pmove.c:9762") }
-
+    let ps = bg.pm.ps
     while i < WP_NUM_WEAPONS {
         if (ps.stats[STAT_WEAPONS] & (1 << i)) != 0
             && PM_WeaponOkOnVehicle(i) {
@@ -4701,9 +4596,7 @@ func PM_GetOkWeaponForVehicle() -> Int32 {
 func PM_VehForcedTurning(_ veh: JKAMP.BgEntity) {
     var pitchD: Float, yawD: Float
     var dir = JKAShared.vec3_t(0, 0, 0)
-
-    // Port-note: Raven's `pm->ps` is a pointer his callers always set. The generated field is optional, so the body binds it once, and the nil path traps.
-    guard let ps = bg.pm.ps else { portMissing("PM_VehForcedTurning: pm->ps is NULL", source: "oracle/codemp/game/bg_pmove.c:9783") }
+    let ps = bg.pm.ps
     // Port-note: Raven reads `veh->playerState->vehTurnaroundIndex` before his own NULL checks. The generated field is optional, so the body binds it, and the nil path returns.
     guard let vehPS = veh.playerState else { return }
 
@@ -4758,9 +4651,7 @@ func BG_VehicleAdjustBBoxForOrientation(_ veh: JKAMP.Vehicle, _ origin: inout JK
 
 /// Source: oracle/codemp/game/bg_pmove.c:10092
 func PM_MoveForKata(_ ucmd: JKAMP.Usercmd) {
-    // Port-note: Raven's `pm->ps` is a pointer his callers always set. The generated field is optional, so the body binds it once, and the nil path traps.
-    guard let ps = bg.pm.ps else { portMissing("PM_MoveForKata: pm->ps is NULL", source: "oracle/codemp/game/bg_pmove.c:10092") }
-
+    let ps = bg.pm.ps
     if ps.legsAnim == BOTH_A7_SOULCAL
         && ps.saberMove == LS_STAFF_SOULCAL {
         //forward spinning staff attack
@@ -4843,10 +4734,7 @@ Can be called by either the server or the client
 /// Source: oracle/codemp/game/bg_pmove.c:11167
 func Pmove(_ pmove: JKAMP.Pmove) {
     let finalTime: Int32
-
-    // Port-note: Raven's `pmove->ps` is a pointer his callers always set. The generated field is optional, so the body binds it once, and the nil path traps.
-    guard let ps = pmove.ps else { portMissing("Pmove: pmove->ps is NULL", source: "oracle/codemp/game/bg_pmove.c:11167") }
-
+    let ps = pmove.ps
     finalTime = pmove.cmd.serverTime
 
     if finalTime < ps.commandTime {

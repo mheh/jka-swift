@@ -30,9 +30,13 @@ public struct Pmove: Hashable, HandleView {
     public static let stride = MemoryLayout<pmove_t>.stride
 
     /// Source: oracle/codemp/game/bg_public.h:437
-    public var ps: PlayerState? {
-        get { self.raw.pointee.ps.map { PlayerState(handle: OpaquePointer($0)) } }
-        nonmutating set { self.raw.pointee.ps = UnsafeMutablePointer(newValue?.handle) }
+    /// Raven's callers always set `ps`, so a body reads it with no bind. A NULL here traps with the field's name.
+    public var ps: PlayerState {
+        get {
+            precondition(self.raw.pointee.ps != nil, "ps is NULL")
+            return PlayerState(handle: OpaquePointer(self.raw.pointee.ps!))
+        }
+        nonmutating set { self.raw.pointee.ps = UnsafeMutablePointer(newValue.handle) }
     }
 
     /// Source: oracle/codemp/game/bg_public.h:440
@@ -186,8 +190,12 @@ public struct Pmove: Hashable, HandleView {
     }
 
     /// Source: oracle/codemp/game/bg_public.h:484
-    public var trace: PmoveTrace? {
-        get { unsafeBitCast(self.raw.pointee.trace, to: PmoveTrace?.self) }
+    /// Raven's callers always set `trace`, so a body reads it with no bind. A NULL here traps with the field's name.
+    public var trace: PmoveTrace {
+        get {
+            precondition(self.raw.pointee.trace != nil, "trace is NULL")
+            return unsafeBitCast(self.raw.pointee.trace, to: PmoveTrace.self)
+        }
         nonmutating set { self.raw.pointee.trace = unsafeBitCast(newValue, to: Swift.type(of: self.raw.pointee.trace)) }
     }
 
@@ -197,7 +205,7 @@ public struct Pmove: Hashable, HandleView {
             withUnsafePointer(to: mins) { mins in
                 withUnsafePointer(to: maxs) { maxs in
                     withUnsafePointer(to: end) { end in
-                        self.trace?(results?.handle, OpaquePointer(start), OpaquePointer(mins), OpaquePointer(maxs), OpaquePointer(end), passEntityNum, contentMask)
+                        self.trace(results?.handle, OpaquePointer(start), OpaquePointer(mins), OpaquePointer(maxs), OpaquePointer(end), passEntityNum, contentMask)
                     }
                 }
             }
@@ -205,15 +213,19 @@ public struct Pmove: Hashable, HandleView {
     }
 
     /// Source: oracle/codemp/game/bg_public.h:485
-    public var pointcontents: PmovePointcontents? {
-        get { unsafeBitCast(self.raw.pointee.pointcontents, to: PmovePointcontents?.self) }
+    /// Raven's callers always set `pointcontents`, so a body reads it with no bind. A NULL here traps with the field's name.
+    public var pointcontents: PmovePointcontents {
+        get {
+            precondition(self.raw.pointee.pointcontents != nil, "pointcontents is NULL")
+            return unsafeBitCast(self.raw.pointee.pointcontents, to: PmovePointcontents.self)
+        }
         nonmutating set { self.raw.pointee.pointcontents = unsafeBitCast(newValue, to: Swift.type(of: self.raw.pointee.pointcontents)) }
     }
 
     /// Calls the stored `pointcontents` function through the C pointer, with the caller's arguments, as Raven's `pm->pointcontents(...)` did.
-    public func runPointcontents(_ point: JKAShared.vec3_t, _ passEntityNum: Int32) -> Int32? {
+    public func runPointcontents(_ point: JKAShared.vec3_t, _ passEntityNum: Int32) -> Int32 {
         withUnsafePointer(to: point) { point in
-            self.pointcontents?(OpaquePointer(point), passEntityNum)
+            self.pointcontents(OpaquePointer(point), passEntityNum)
         }
     }
 

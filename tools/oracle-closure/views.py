@@ -41,6 +41,14 @@ from clang.cindex import CursorKind, TypeKind
 from reexport import DEPS, SCALARS, SOURCES, VIEW_OF, parse, source_lines
 
 # Root struct -> (view name, C target). Every other view takes Raven's typedef name with _t dropped and the first letter raised.
+# (struct, field) pairs whose pointer Raven's callers always set. The field is non-optional, and its getter traps with the
+# field's name when the pointer is NULL, the one divergence rule 19 allows. A pair joins only by a ruling.
+NEVER_NULL = {
+    ("pmove_t", "ps"),
+    ("pmove_t", "trace"),
+    ("pmove_t", "pointcontents"),
+}
+
 ROOTS = {
     "gentity_t": ("Entity", "CJKAMP_Game"),
     "gclient_t": ("Client", "CJKAMP_Game"),
@@ -265,6 +273,9 @@ class Generator:
             record = self.record_name(inner)
             if record and record in self.views:
                 view = self.qualified_view(record, target)
+                if self.never_null(field):
+                    get = f"{view}(handle: OpaquePointer({pointee}!))"
+                    return self.trapping(name, view, get, f"{pointee} = UnsafeMutablePointer(newValue.handle)")
                 return self.property(name, f"{view}?", f"{pointee}.map {{ {view}(handle: OpaquePointer($0)) }}", f"{pointee} = UnsafeMutablePointer(newValue?.handle)")
             back = "UnsafeMutableRawPointer" if inner.get_canonical().kind == TypeKind.VOID else "UnsafeMutablePointer"
             return self.property(name, "OpaquePointer?", f"OpaquePointer({pointee})", f"{pointee} = {back}(newValue)")
@@ -304,6 +315,24 @@ class Generator:
         return [
             f"    public var {name}: {swift} {{",
             f"        get {{ {get} }}",
+            f"        nonmutating set {{ {set_} }}",
+            "    }",
+        ]
+
+    def never_null(self, field: ci.Cursor) -> bool:
+        owner = self.record_name(field.semantic_parent.type) or field.semantic_parent.spelling
+        return (owner, field.spelling) in NEVER_NULL
+
+    def trapping(self, name: str, swift: str, get: str, set_: str) -> list[str]:
+        """A field of NEVER_NULL: the getter traps with the field's name when the pointer is NULL, so a body reads it with no bind."""
+        pointee = f"self.raw.pointee.{name}"
+        return [
+            f"    /// Raven's callers always set `{name}`, so a body reads it with no bind. A NULL here traps with the field's name.",
+            f"    public var {name}: {swift} {{",
+            "        get {",
+            f"            precondition({pointee} != nil, \"{name} is NULL\")",
+            f"            return {get}",
+            "        }",
             f"        nonmutating set {{ {set_} }}",
             "    }",
         ]
@@ -369,11 +398,19 @@ class Generator:
             rest = params
             doc = f"    /// Calls the stored `{name}` function through the C pointer, with the caller's arguments, as Raven's `pm->{name}(...)` did."
         pointee = f"self.raw.pointee.{name}"
-        lines = self.property(name, f"{alias}?", f"unsafeBitCast({pointee}, to: {alias}?.self)",
-                              f"{pointee} = unsafeBitCast(newValue, to: Swift.type(of: {pointee}))")
-        call = f"self.{name}?({', '.join(args)})"
-        if returns == "Bool":
-            call = f"({call}).map {{ $0 != 0 }}"
+        always = self.never_null(field)
+        if always:
+            lines = self.trapping(name, alias, f"unsafeBitCast({pointee}, to: {alias}.self)",
+                                  f"{pointee} = unsafeBitCast(newValue, to: Swift.type(of: {pointee}))")
+            call = f"self.{name}({', '.join(args)})"
+            if returns == "Bool":
+                call = f"{call} != 0"
+        else:
+            lines = self.property(name, f"{alias}?", f"unsafeBitCast({pointee}, to: {alias}?.self)",
+                                  f"{pointee} = unsafeBitCast(newValue, to: Swift.type(of: {pointee}))")
+            call = f"self.{name}?({', '.join(args)})"
+            if returns == "Bool":
+                call = f"({call}).map {{ $0 != 0 }}"
         body: list[str] = []
         if layers:
             body.append("        " + layers[0])
@@ -387,7 +424,7 @@ class Generator:
         lines += [
             "",
             doc,
-            f"    public func run{name[0].upper()}{name[1:]}({', '.join(rest)}){f' -> {returns}?' if returns else ''} {{",
+            f"    public func run{name[0].upper()}{name[1:]}({', '.join(rest)}){f' -> {returns}{'' if always else '?'}' if returns else ''} {{",
             *body,
             "    }",
         ]
