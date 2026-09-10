@@ -52,7 +52,7 @@ COM_StripExtension
 ```
 */
 /// Source: oracle/codemp/game/q_shared.c:99
-public func COM_StripExtension(_ `in`: String, _ out: inout String) {
+public func COM_StripExtension(_ `in`: String, _ out: inout CharBuf) {
     // TODO: Port COM_StripExtension
     portMissing("COM_StripExtension", source: "oracle/codemp/game/q_shared.c:99")
 }
@@ -65,7 +65,7 @@ COM_DefaultExtension
 ```
 */
 /// Source: oracle/codemp/game/q_shared.c:112
-public func COM_DefaultExtension(_ path: inout String, _ maxSize: Int32, _ `extension`: String) {
+public func COM_DefaultExtension(_ path: inout CharBuf, _ maxSize: Int32, _ `extension`: String) {
     // TODO: Port COM_DefaultExtension
     portMissing("COM_DefaultExtension", source: "oracle/codemp/game/q_shared.c:112")
 }
@@ -152,13 +152,13 @@ public func COM_Parse() -> Never {
 }
 
 /// Source: oracle/codemp/game/q_shared.c:300
-public func COM_ParseError(_ format: inout String) {
+public func COM_ParseError(_ format: inout CharBuf) {
     // TODO: Port COM_ParseError
     portMissing("COM_ParseError", source: "oracle/codemp/game/q_shared.c:300")
 }
 
 /// Source: oracle/codemp/game/q_shared.c:312
-public func COM_ParseWarning(_ format: inout String) {
+public func COM_ParseWarning(_ format: inout CharBuf) {
     // TODO: Port COM_ParseWarning
     portMissing("COM_ParseWarning", source: "oracle/codemp/game/q_shared.c:312")
 }
@@ -187,7 +187,7 @@ public func SkipWhitespace() -> Never {
 }
 
 /// Source: oracle/codemp/game/q_shared.c:353
-public func COM_Compress(_ data_p: inout String) -> Int32 {
+public func COM_Compress(_ data_p: inout CharBuf) -> Int32 {
     // TODO: Port COM_Compress
     portMissing("COM_Compress", source: "oracle/codemp/game/q_shared.c:353")
 }
@@ -393,7 +393,7 @@ public func Q_strncpyz(_ dest: inout String, _ src: String, _ destsize: Int32) {
 }
 
 /// Source: oracle/codemp/game/q_shared.c:842
-public func Q_stricmpn(_ s1: String, _ s2: String, _ n: Int32) -> Int32 {
+public func Q_stricmpn(_ s1: CharBuf, _ s2: CharBuf, _ n: Int32) -> Int32 {
     var c1: Int32
     var c2: Int32
     var n = n
@@ -402,16 +402,13 @@ public func Q_stricmpn(_ s1: String, _ s2: String, _ n: Int32) -> Int32 {
     // Port-note: Raven returns 0, -1, or 1 here for a NULL s1 or a NULL s2. A `String` is non-optional, so the guard has no Swift form.
 
     // Port-note: A C `char` is signed on the target build, so a byte above 127 reads as a negative int. The port keeps that sign.
-    // The end of a Swift string stands for the C terminating NUL.
-    let b1 = Array(s1.utf8)
-    let b2 = Array(s2.utf8)
     var i1 = 0
     var i2 = 0
 
     repeat {
-        c1 = i1 < b1.count ? Int32(Int8(bitPattern: b1[i1])) : 0
+        c1 = s1[i1]
         i1 += 1
-        c2 = i2 < b2.count ? Int32(Int8(bitPattern: b2[i2])) : 0
+        c2 = s2[i2]
         i2 += 1
 
         // Raven wrote `if (!n--)`, which reads n, then decrements it, and tests the value it read.
@@ -438,23 +435,25 @@ public func Q_stricmpn(_ s1: String, _ s2: String, _ n: Int32) -> Int32 {
     return 0		// strings are equal
 }
 
+/// A `String` caller converts once at the call.
+public func Q_stricmpn(_ s1: String, _ s2: String, _ n: Int32) -> Int32 {
+    Q_stricmpn(CharBuf(s1), CharBuf(s2), n)
+}
+
 /// Source: oracle/codemp/game/q_shared.c:881
-public func Q_strncmp(_ s1: String, _ s2: String, _ n: Int32) -> Int32 {
+public func Q_strncmp(_ s1: CharBuf, _ s2: CharBuf, _ n: Int32) -> Int32 {
     var c1: Int32
     var c2: Int32
     var n = n
 
     // Port-note: A C `char` is signed on the target build, so a byte above 127 reads as a negative int. The port keeps that sign.
-    // The end of a Swift string stands for the C terminating NUL.
-    let b1 = Array(s1.utf8)
-    let b2 = Array(s2.utf8)
     var i1 = 0
     var i2 = 0
 
     repeat {
-        c1 = i1 < b1.count ? Int32(Int8(bitPattern: b1[i1])) : 0
+        c1 = s1[i1]
         i1 += 1
-        c2 = i2 < b2.count ? Int32(Int8(bitPattern: b2[i2])) : 0
+        c2 = s2[i2]
         i2 += 1
 
         // Raven wrote `if (!n--)`, which reads n, then decrements it, and tests the value it read.
@@ -472,10 +471,20 @@ public func Q_strncmp(_ s1: String, _ s2: String, _ n: Int32) -> Int32 {
     return 0		// strings are equal
 }
 
+/// A `String` caller converts once at the call.
+public func Q_strncmp(_ s1: String, _ s2: String, _ n: Int32) -> Int32 {
+    Q_strncmp(CharBuf(s1), CharBuf(s2), n)
+}
+
 /// Source: oracle/codemp/game/q_shared.c:900
-public func Q_stricmp(_ s1: String, _ s2: String) -> Int32 {
+public func Q_stricmp(_ s1: CharBuf, _ s2: CharBuf) -> Int32 {
     // Port-note: Raven returns -1 when s1 or s2 is NULL. A `String` is non-optional, so the guard has no Swift form.
     return Q_stricmpn(s1, s2, 99999)
+}
+
+/// A `String` caller converts once at the call.
+public func Q_stricmp(_ s1: String, _ s2: String) -> Int32 {
+    Q_stricmp(CharBuf(s1), CharBuf(s2))
 }
 
 /// Source: oracle/codemp/game/q_shared.c:905
@@ -519,7 +528,7 @@ public func Q_CleanStr() -> Never {
 }
 
 /// Source: oracle/codemp/game/q_shared.c:985
-public func Com_sprintf(_ dest: inout String, _ size: Int32, _ fmt: String) {
+public func Com_sprintf(_ dest: inout CharBuf, _ size: Int32, _ fmt: String) {
     // TODO: Port Com_sprintf
     portMissing("Com_sprintf", source: "oracle/codemp/game/q_shared.c:985")
 }
@@ -590,7 +599,7 @@ Info_RemoveKey
 ```
 */
 /// Source: oracle/codemp/game/q_shared.c:1147
-public func Info_RemoveKey(_ s: inout String, _ key: String) {
+public func Info_RemoveKey(_ s: inout CharBuf, _ key: String) {
     // TODO: Port Info_RemoveKey
     portMissing("Info_RemoveKey", source: "oracle/codemp/game/q_shared.c:1147")
 }
@@ -603,7 +612,7 @@ Info_RemoveKey_Big
 ```
 */
 /// Source: oracle/codemp/game/q_shared.c:1202
-public func Info_RemoveKey_Big(_ s: inout String, _ key: String) {
+public func Info_RemoveKey_Big(_ s: inout CharBuf, _ key: String) {
     // TODO: Port Info_RemoveKey_Big
     portMissing("Info_RemoveKey_Big", source: "oracle/codemp/game/q_shared.c:1202")
 }
@@ -634,7 +643,7 @@ Changes or adds a key/value pair
 ```
 */
 /// Source: oracle/codemp/game/q_shared.c:1280
-public func Info_SetValueForKey(_ s: inout String, _ key: String, _ value: String) {
+public func Info_SetValueForKey(_ s: inout CharBuf, _ key: String, _ value: String) {
     // TODO: Port Info_SetValueForKey
     portMissing("Info_SetValueForKey", source: "oracle/codemp/game/q_shared.c:1280")
 }
@@ -649,7 +658,7 @@ Changes or adds a key/value pair
 ```
 */
 /// Source: oracle/codemp/game/q_shared.c:1328
-public func Info_SetValueForKey_Big(_ s: inout String, _ key: String, _ value: String) {
+public func Info_SetValueForKey_Big(_ s: inout CharBuf, _ key: String, _ value: String) {
     // TODO: Port Info_SetValueForKey_Big
     portMissing("Info_SetValueForKey_Big", source: "oracle/codemp/game/q_shared.c:1328")
 }
