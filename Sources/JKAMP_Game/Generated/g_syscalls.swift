@@ -42,21 +42,17 @@ let word = Syscall.call(G_PRECISIONTIMER_END, theTimer)
 }
 
 /// Source: oracle/codemp/game/g_syscalls.c:57
-// TODO: Port signature
-// Raven wrote: void trap_Cvar_Register( vmCvar_t *cvar, const char *var_name, const char *value, int flags )
-// No table row for `vmCvar_t * cvar`.
-public func trap_Cvar_Register() -> Never {
-    // TODO: Port trap_Cvar_Register
-    portMissing("trap_Cvar_Register", source: "oracle/codemp/game/g_syscalls.c:57")
+public func trap_Cvar_Register(_ cvar: JKAMP.VmCvar, _ var_name: String, _ value: String, _ flags: Int32) {
+    _ = var_name.withCString { var_name in
+        value.withCString { value in
+            Syscall.call(G_CVAR_REGISTER, cvar, var_name, value, flags)
+        }
+    }
 }
 
 /// Source: oracle/codemp/game/g_syscalls.c:61
-// TODO: Port signature
-// Raven wrote: void trap_Cvar_Update( vmCvar_t *cvar )
-// No table row for `vmCvar_t * cvar`.
-public func trap_Cvar_Update() -> Never {
-    // TODO: Port trap_Cvar_Update
-    portMissing("trap_Cvar_Update", source: "oracle/codemp/game/g_syscalls.c:61")
+public func trap_Cvar_Update(_ cvar: JKAMP.VmCvar) {
+    Syscall.call(G_CVAR_UPDATE, cvar)
 }
 
 /// Source: oracle/codemp/game/g_syscalls.c:65

@@ -13,6 +13,7 @@ One file per viewed struct sits beside this index. The tables below give the Swi
 | `BG_field_t` | `BgField` | `JKAMP` | `.claude/rosetta/BG_field_t.md` |
 | `Vehicle_t` | `Vehicle` | `JKAMP` | `.claude/rosetta/Vehicle_t.md` |
 | `alertEvent_t` | `AlertEvent` | `JKAMP_Game` | `.claude/rosetta/alertEvent_t.md` |
+| `ammoData_t` | `AmmoData` | `JKAMP` | `.claude/rosetta/ammoData_t.md` |
 | `animation_t` | `Animation` | `JKAMP` | `.claude/rosetta/animation_t.md` |
 | `bgEntity_t` | `BgEntity` | `JKAMP` | `.claude/rosetta/bgEntity_t.md` |
 | `bladeInfo_t` | `BladeInfo` | `JKAMP` | `.claude/rosetta/bladeInfo_t.md` |
@@ -50,6 +51,8 @@ One file per viewed struct sits beside this index. The tables below give the Swi
 | `vehWeaponStats_t` | `VehWeaponStats` | `JKAMP` | `.claude/rosetta/vehWeaponStats_t.md` |
 | `vehWeaponStatus_t` | `VehWeaponStatus` | `JKAMP` | `.claude/rosetta/vehWeaponStatus_t.md` |
 | `vehicleInfo_t` | `VehicleInfo` | `JKAMP` | `.claude/rosetta/vehicleInfo_t.md` |
+| `vmCvar_t` | `VmCvar` | `JKAMP` | `.claude/rosetta/vmCvar_t.md` |
+| `weaponData_t` | `WeaponData` | `JKAMP` | `.claude/rosetta/weaponData_t.md` |
 
 ## Scalars and typedefs
 

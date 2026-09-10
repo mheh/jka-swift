@@ -55,6 +55,10 @@ ROOTS = {
     "siegeTeam_t": ("SiegeTeam", "CJKAMP"),
     "vehWeaponInfo_t": ("VehWeaponInfo", "CJKAMP"),
     "BG_field_t": ("BgField", "CJKAMP"),
+    # The weapon and ammo tables are C storage a body indexes, and the game's cvars are C storage bg reads by view.
+    "weaponData_t": ("WeaponData", "CJKAMP"),
+    "ammoData_t": ("AmmoData", "CJKAMP"),
+    "vmCvar_t": ("VmCvar", "CJKAMP"),
 }
 # Every C target the game module's translation unit reaches, most specific first.
 TARGETS = ["CJKAMP_Game", "CJKAMP", "CJKAShared"]
@@ -249,6 +253,9 @@ class Generator:
         t = field.type
         canonical = t.get_canonical()
         pointee = f"self.raw.pointee.{name}"
+        if name in ("handle", "raw"):
+            # The view's own `handle` and `raw` take these names under rule 11. The engine writes a field so named, and no module body reads it.
+            return [f"    // Raven's `{name}` field is the engine's, and the view's own `{name}` takes the name. No module body reads it."]
         if canonical.kind == TypeKind.POINTER:
             inner = canonical.get_pointee()
             if inner.kind == TypeKind.FUNCTIONPROTO:

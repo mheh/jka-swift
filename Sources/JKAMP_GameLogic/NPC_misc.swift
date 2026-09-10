@@ -8,10 +8,7 @@ import JKAMP_Game
 Debug_Printf
 */
 /// Source: oracle/codemp/game/NPC_misc.c:10
-// TODO: Port signature
-// Raven wrote: void Debug_Printf (vmCvar_t *cv, int debugLevel, char *fmt, ...)
-// No table row for `vmCvar_t * cv`.
-func Debug_Printf() -> Never {
+func Debug_Printf(_ cv: JKAMP.VmCvar, _ debugLevel: Int32, _ fmt: inout String) {
     // TODO: Port Debug_Printf
     portMissing("Debug_Printf", source: "oracle/codemp/game/NPC_misc.c:10")
 }
@@ -20,10 +17,7 @@ func Debug_Printf() -> Never {
 Debug_NPCPrintf
 */
 /// Source: oracle/codemp/game/NPC_misc.c:41
-// TODO: Port signature
-// Raven wrote: void Debug_NPCPrintf (gentity_t *printNPC, vmCvar_t *cv, int debugLevel, char *fmt, ...)
-// No table row for `vmCvar_t * cv`.
-func Debug_NPCPrintf() -> Never {
+func Debug_NPCPrintf(_ printNPC: Entity, _ cv: JKAMP.VmCvar, _ debugLevel: Int32, _ fmt: inout String) {
     // TODO: Port Debug_NPCPrintf
     portMissing("Debug_NPCPrintf", source: "oracle/codemp/game/NPC_misc.c:41")
 }

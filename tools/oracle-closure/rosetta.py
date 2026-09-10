@@ -49,6 +49,8 @@ class Rosetta:
                 swift.append(f"`{name}({params})`")
             else:
                 swift.append(f"`{name}: {kind}`")
+        if not swift and lines[0].lstrip().startswith("// Raven's"):
+            return f"| `{c_decl}` | none | The view's own `{field.spelling}` takes the name, and no module body reads the field. |"
         if not swift:
             # A callback field has no property line, the run method lives in Callbacks.swift.
             return f"| `{c_decl}` | callback | Stored through the generated thunk of `Callbacks.swift`, run through the view's `{field.spelling}` method. |"
