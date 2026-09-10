@@ -31,8 +31,8 @@ public struct SaberInfo: Hashable, HandleView {
 
     /// Source: oracle/codemp/game/q_shared.h:739
     public var type: JKAShared.saberType_t {
-        get { JKAShared.saberType_t(rawValue: Int32(truncatingIfNeeded: self.raw.pointee.type.rawValue)) }
-        nonmutating set { self.raw.pointee.type = .init(rawValue: .init(truncatingIfNeeded: newValue.rawValue)) }
+        get { Int32(truncatingIfNeeded: self.raw.pointee.type.rawValue) }
+        nonmutating set { self.raw.pointee.type = .init(rawValue: .init(truncatingIfNeeded: newValue)) }
     }
 
     /// Source: oracle/codemp/game/q_shared.h:740
@@ -136,8 +136,8 @@ public struct SaberInfo: Hashable, HandleView {
 
     /// Source: oracle/codemp/game/q_shared.h:757
     public var singleBladeStyle: JKAShared.saber_styles_t {
-        get { JKAShared.saber_styles_t(rawValue: Int32(truncatingIfNeeded: self.raw.pointee.singleBladeStyle.rawValue)) }
-        nonmutating set { self.raw.pointee.singleBladeStyle = .init(rawValue: .init(truncatingIfNeeded: newValue.rawValue)) }
+        get { Int32(truncatingIfNeeded: self.raw.pointee.singleBladeStyle.rawValue) }
+        nonmutating set { self.raw.pointee.singleBladeStyle = .init(rawValue: .init(truncatingIfNeeded: newValue)) }
     }
 
     /// Source: oracle/codemp/game/q_shared.h:762

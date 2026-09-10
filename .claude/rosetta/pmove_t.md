@@ -34,7 +34,7 @@ A field reads and writes through the C struct, so `ent.r.absmin` is Raven's `ent
 | `float xyspeed` | `xyspeed: Float` |  |
 | `int pmove_fixed` | `pmove_fixed: Int32` |  |
 | `int pmove_msec` | `pmove_msec: Int32` |  |
-| `void (*)(trace_t *, const vec_t *, const vec_t *, const vec_t *, const vec_t *, int, int) trace` | `trace: PmoveTrace?`, `runTrace(_ start: OpaquePointer?, _ mins: OpaquePointer?, _ maxs: OpaquePointer?, _ end: OpaquePointer?, _ passEntityNum: Int32, _ contentMask: Int32)` | Optional, nil for a NULL pointer. |
+| `void (*)(trace_t *, const vec_t *, const vec_t *, const vec_t *, const vec_t *, int, int) trace` | `trace: PmoveTrace?`, `runTrace(_ results: Trace?, _ start: JKAShared.vec3_t, _ mins: JKAShared.vec3_t, _ maxs: JKAShared.vec3_t, _ end: JKAShared.vec3_t, _ passEntityNum: Int32, _ contentMask: Int32)` | Optional, nil for a NULL pointer. |
 | `int (*)(const vec_t *, int) pointcontents` | `pointcontents: PmovePointcontents?` | Optional, nil for a NULL pointer. |
 | `int checkDuelLoss` | `checkDuelLoss: Int32` |  |
 | `bgEntity_t * baseEnt` | `baseEnt: BgEntity?` | Optional, nil for a NULL pointer. |

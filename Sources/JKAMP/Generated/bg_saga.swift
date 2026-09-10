@@ -40,28 +40,22 @@ public let MAX_EXDATA_ENTS_TO_SEND = CJKAMP.MAX_EXDATA_ENTS_TO_SEND
 public let SIEGE_CLASS_DESC_LEN = CJKAMP.SIEGE_CLASS_DESC_LEN
 
 /// Source: oracle/codemp/game/bg_saga.h:31
-public struct siegeClassFlags_t: RawRepresentable, Hashable, Sendable {
-    public let rawValue: Int32
-    public init(rawValue: Int32) { self.rawValue = rawValue }
-    public static let CFL_MORESABERDMG = siegeClassFlags_t(rawValue: Int32(truncatingIfNeeded: CJKAMP.CFL_MORESABERDMG.rawValue))
-    public static let CFL_STRONGAGAINSTPHYSICAL = siegeClassFlags_t(rawValue: Int32(truncatingIfNeeded: CJKAMP.CFL_STRONGAGAINSTPHYSICAL.rawValue))
-    public static let CFL_FASTFORCEREGEN = siegeClassFlags_t(rawValue: Int32(truncatingIfNeeded: CJKAMP.CFL_FASTFORCEREGEN.rawValue))
-    public static let CFL_STATVIEWER = siegeClassFlags_t(rawValue: Int32(truncatingIfNeeded: CJKAMP.CFL_STATVIEWER.rawValue))
-    public static let CFL_HEAVYMELEE = siegeClassFlags_t(rawValue: Int32(truncatingIfNeeded: CJKAMP.CFL_HEAVYMELEE.rawValue))
-    public static let CFL_SINGLE_ROCKET = siegeClassFlags_t(rawValue: Int32(truncatingIfNeeded: CJKAMP.CFL_SINGLE_ROCKET.rawValue))
-    public static let CFL_CUSTOMSKEL = siegeClassFlags_t(rawValue: Int32(truncatingIfNeeded: CJKAMP.CFL_CUSTOMSKEL.rawValue))
-    public static let CFL_EXTRA_AMMO = siegeClassFlags_t(rawValue: Int32(truncatingIfNeeded: CJKAMP.CFL_EXTRA_AMMO.rawValue))
-}
+public typealias siegeClassFlags_t = Int32
+public let CFL_MORESABERDMG: siegeClassFlags_t = Int32(truncatingIfNeeded: CJKAMP.CFL_MORESABERDMG.rawValue)
+public let CFL_STRONGAGAINSTPHYSICAL: siegeClassFlags_t = Int32(truncatingIfNeeded: CJKAMP.CFL_STRONGAGAINSTPHYSICAL.rawValue)
+public let CFL_FASTFORCEREGEN: siegeClassFlags_t = Int32(truncatingIfNeeded: CJKAMP.CFL_FASTFORCEREGEN.rawValue)
+public let CFL_STATVIEWER: siegeClassFlags_t = Int32(truncatingIfNeeded: CJKAMP.CFL_STATVIEWER.rawValue)
+public let CFL_HEAVYMELEE: siegeClassFlags_t = Int32(truncatingIfNeeded: CJKAMP.CFL_HEAVYMELEE.rawValue)
+public let CFL_SINGLE_ROCKET: siegeClassFlags_t = Int32(truncatingIfNeeded: CJKAMP.CFL_SINGLE_ROCKET.rawValue)
+public let CFL_CUSTOMSKEL: siegeClassFlags_t = Int32(truncatingIfNeeded: CJKAMP.CFL_CUSTOMSKEL.rawValue)
+public let CFL_EXTRA_AMMO: siegeClassFlags_t = Int32(truncatingIfNeeded: CJKAMP.CFL_EXTRA_AMMO.rawValue)
 
 /// Source: oracle/codemp/game/bg_saga.h:20
-public struct siegePlayerClassFlags_t: RawRepresentable, Hashable, Sendable {
-    public let rawValue: Int32
-    public init(rawValue: Int32) { self.rawValue = rawValue }
-    public static let SPC_INFANTRY = siegePlayerClassFlags_t(rawValue: Int32(truncatingIfNeeded: CJKAMP.SPC_INFANTRY.rawValue))
-    public static let SPC_VANGUARD = siegePlayerClassFlags_t(rawValue: Int32(truncatingIfNeeded: CJKAMP.SPC_VANGUARD.rawValue))
-    public static let SPC_SUPPORT = siegePlayerClassFlags_t(rawValue: Int32(truncatingIfNeeded: CJKAMP.SPC_SUPPORT.rawValue))
-    public static let SPC_JEDI = siegePlayerClassFlags_t(rawValue: Int32(truncatingIfNeeded: CJKAMP.SPC_JEDI.rawValue))
-    public static let SPC_DEMOLITIONIST = siegePlayerClassFlags_t(rawValue: Int32(truncatingIfNeeded: CJKAMP.SPC_DEMOLITIONIST.rawValue))
-    public static let SPC_HEAVY_WEAPONS = siegePlayerClassFlags_t(rawValue: Int32(truncatingIfNeeded: CJKAMP.SPC_HEAVY_WEAPONS.rawValue))
-    public static let SPC_MAX = siegePlayerClassFlags_t(rawValue: Int32(truncatingIfNeeded: CJKAMP.SPC_MAX.rawValue))
-}
+public typealias siegePlayerClassFlags_t = Int32
+public let SPC_INFANTRY: siegePlayerClassFlags_t = Int32(truncatingIfNeeded: CJKAMP.SPC_INFANTRY.rawValue)
+public let SPC_VANGUARD: siegePlayerClassFlags_t = Int32(truncatingIfNeeded: CJKAMP.SPC_VANGUARD.rawValue)
+public let SPC_SUPPORT: siegePlayerClassFlags_t = Int32(truncatingIfNeeded: CJKAMP.SPC_SUPPORT.rawValue)
+public let SPC_JEDI: siegePlayerClassFlags_t = Int32(truncatingIfNeeded: CJKAMP.SPC_JEDI.rawValue)
+public let SPC_DEMOLITIONIST: siegePlayerClassFlags_t = Int32(truncatingIfNeeded: CJKAMP.SPC_DEMOLITIONIST.rawValue)
+public let SPC_HEAVY_WEAPONS: siegePlayerClassFlags_t = Int32(truncatingIfNeeded: CJKAMP.SPC_HEAVY_WEAPONS.rawValue)
+public let SPC_MAX: siegePlayerClassFlags_t = Int32(truncatingIfNeeded: CJKAMP.SPC_MAX.rawValue)

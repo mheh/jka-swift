@@ -190,7 +190,7 @@ a newline.
 /// Source: oracle/codemp/game/q_shared.c:336
 // TODO: Port signature
 // Raven wrote: const char *SkipWhitespace( const char *data, qboolean *hasNewLines )
-// No table row for `qboolean * hasNewLines`.
+// No table row for the return `const char *`.
 func SkipWhitespace() -> Never {
     // TODO: Port SkipWhitespace
     portMissing("SkipWhitespace", source: "oracle/codemp/game/q_shared.c:336")

@@ -121,26 +121,26 @@ A field reads and writes through the C struct, so `ent.r.absmin` is Raven's `ent
 | `float cameraAlpha` | `cameraAlpha: Float` |  |
 | `qboolean cameraPitchDependantVertOffset` | `cameraPitchDependantVertOffset: Bool` |  |
 | `int modelIndex` | `modelIndex: Int32` |  |
-| `void (*)(Vehicle_t *) AnimateVehicle` | `AnimateVehicle: VehicleInfoAnimateVehicle?`, `runAnimateVehicle()` | Optional, nil for a NULL pointer. |
-| `void (*)(Vehicle_t *) AnimateRiders` | `AnimateRiders: VehicleInfoAnimateRiders?`, `runAnimateRiders()` | Optional, nil for a NULL pointer. |
+| `void (*)(Vehicle_t *) AnimateVehicle` | `AnimateVehicle: VehicleInfoAnimateVehicle?`, `runAnimateVehicle(_ pVeh: Vehicle?)` | Optional, nil for a NULL pointer. |
+| `void (*)(Vehicle_t *) AnimateRiders` | `AnimateRiders: VehicleInfoAnimateRiders?`, `runAnimateRiders(_ pVeh: Vehicle?)` | Optional, nil for a NULL pointer. |
 | `qboolean (*)(Vehicle_t *, bgEntity_t *) ValidateBoard` | `ValidateBoard: VehicleInfoValidateBoard?` | Optional, nil for a NULL pointer. |
-| `void (*)(Vehicle_t *, bgEntity_t *) SetParent` | `SetParent: VehicleInfoSetParent?`, `runSetParent(_ pParentEntity: BgEntity?)` | Optional, nil for a NULL pointer. |
-| `void (*)(Vehicle_t *, bgEntity_t *) SetPilot` | `SetPilot: VehicleInfoSetPilot?`, `runSetPilot(_ pPilot: BgEntity?)` | Optional, nil for a NULL pointer. |
+| `void (*)(Vehicle_t *, bgEntity_t *) SetParent` | `SetParent: VehicleInfoSetParent?`, `runSetParent(_ pVeh: Vehicle?, _ pParentEntity: BgEntity?)` | Optional, nil for a NULL pointer. |
+| `void (*)(Vehicle_t *, bgEntity_t *) SetPilot` | `SetPilot: VehicleInfoSetPilot?`, `runSetPilot(_ pVeh: Vehicle?, _ pPilot: BgEntity?)` | Optional, nil for a NULL pointer. |
 | `qboolean (*)(Vehicle_t *) AddPassenger` | `AddPassenger: VehicleInfoAddPassenger?` | Optional, nil for a NULL pointer. |
-| `void (*)(Vehicle_t *) Animate` | `Animate: VehicleInfoAnimate?`, `runAnimate()` | Optional, nil for a NULL pointer. |
+| `void (*)(Vehicle_t *) Animate` | `Animate: VehicleInfoAnimate?`, `runAnimate(_ pVeh: Vehicle?)` | Optional, nil for a NULL pointer. |
 | `qboolean (*)(Vehicle_t *, bgEntity_t *) Board` | `Board: VehicleInfoBoard?` | Optional, nil for a NULL pointer. |
 | `qboolean (*)(Vehicle_t *, bgEntity_t *, qboolean) Eject` | `Eject: VehicleInfoEject?` | Optional, nil for a NULL pointer. |
 | `qboolean (*)(Vehicle_t *) EjectAll` | `EjectAll: VehicleInfoEjectAll?` | Optional, nil for a NULL pointer. |
-| `void (*)(Vehicle_t *, int) StartDeathDelay` | `StartDeathDelay: VehicleInfoStartDeathDelay?`, `runStartDeathDelay(_ iDelayTime: Int32)` | Optional, nil for a NULL pointer. |
-| `void (*)(Vehicle_t *) DeathUpdate` | `DeathUpdate: VehicleInfoDeathUpdate?`, `runDeathUpdate()` | Optional, nil for a NULL pointer. |
-| `void (*)(Vehicle_t *) RegisterAssets` | `RegisterAssets: VehicleInfoRegisterAssets?`, `runRegisterAssets()` | Optional, nil for a NULL pointer. |
+| `void (*)(Vehicle_t *, int) StartDeathDelay` | `StartDeathDelay: VehicleInfoStartDeathDelay?`, `runStartDeathDelay(_ pVeh: Vehicle?, _ iDelayTime: Int32)` | Optional, nil for a NULL pointer. |
+| `void (*)(Vehicle_t *) DeathUpdate` | `DeathUpdate: VehicleInfoDeathUpdate?`, `runDeathUpdate(_ pVeh: Vehicle?)` | Optional, nil for a NULL pointer. |
+| `void (*)(Vehicle_t *) RegisterAssets` | `RegisterAssets: VehicleInfoRegisterAssets?`, `runRegisterAssets(_ pVeh: Vehicle?)` | Optional, nil for a NULL pointer. |
 | `qboolean (*)(Vehicle_t *) Initialize` | `Initialize: VehicleInfoInitialize?` | Optional, nil for a NULL pointer. |
 | `qboolean (*)(Vehicle_t *, const usercmd_t *) Update` | `Update: VehicleInfoUpdate?` | Optional, nil for a NULL pointer. |
 | `qboolean (*)(Vehicle_t *, bgEntity_t *, usercmd_t *) UpdateRider` | `UpdateRider: VehicleInfoUpdateRider?` | Optional, nil for a NULL pointer. |
-| `void (*)(Vehicle_t *) ProcessMoveCommands` | `ProcessMoveCommands: VehicleInfoProcessMoveCommands?`, `runProcessMoveCommands()` | Optional, nil for a NULL pointer. |
-| `void (*)(Vehicle_t *) ProcessOrientCommands` | `ProcessOrientCommands: VehicleInfoProcessOrientCommands?`, `runProcessOrientCommands()` | Optional, nil for a NULL pointer. |
-| `void (*)(Vehicle_t *) AttachRiders` | `AttachRiders: VehicleInfoAttachRiders?`, `runAttachRiders()` | Optional, nil for a NULL pointer. |
-| `void (*)(Vehicle_t *, bgEntity_t *) Ghost` | `Ghost: VehicleInfoGhost?`, `runGhost(_ pEnt: BgEntity?)` | Optional, nil for a NULL pointer. |
-| `void (*)(Vehicle_t *, bgEntity_t *) UnGhost` | `UnGhost: VehicleInfoUnGhost?`, `runUnGhost(_ pEnt: BgEntity?)` | Optional, nil for a NULL pointer. |
-| `const bgEntity_t *(*)(Vehicle_t *) GetPilot` | `GetPilot: VehicleInfoGetPilot?`, `runGetPilot()` | Optional, nil for a NULL pointer. |
+| `void (*)(Vehicle_t *) ProcessMoveCommands` | `ProcessMoveCommands: VehicleInfoProcessMoveCommands?`, `runProcessMoveCommands(_ pVeh: Vehicle?)` | Optional, nil for a NULL pointer. |
+| `void (*)(Vehicle_t *) ProcessOrientCommands` | `ProcessOrientCommands: VehicleInfoProcessOrientCommands?`, `runProcessOrientCommands(_ pVeh: Vehicle?)` | Optional, nil for a NULL pointer. |
+| `void (*)(Vehicle_t *) AttachRiders` | `AttachRiders: VehicleInfoAttachRiders?`, `runAttachRiders(_ pVeh: Vehicle?)` | Optional, nil for a NULL pointer. |
+| `void (*)(Vehicle_t *, bgEntity_t *) Ghost` | `Ghost: VehicleInfoGhost?`, `runGhost(_ pVeh: Vehicle?, _ pEnt: BgEntity?)` | Optional, nil for a NULL pointer. |
+| `void (*)(Vehicle_t *, bgEntity_t *) UnGhost` | `UnGhost: VehicleInfoUnGhost?`, `runUnGhost(_ pVeh: Vehicle?, _ pEnt: BgEntity?)` | Optional, nil for a NULL pointer. |
+| `const bgEntity_t *(*)(Vehicle_t *) GetPilot` | `GetPilot: VehicleInfoGetPilot?`, `runGetPilot(_ pVeh: Vehicle?)` | Optional, nil for a NULL pointer. |
 | `qboolean (*)(Vehicle_t *) Inhabited` | `Inhabited: VehicleInfoInhabited?` | Optional, nil for a NULL pointer. |

@@ -19,8 +19,8 @@ public struct Trajectory: Hashable, HandleView {
 
     /// Source: oracle/codemp/game/q_shared.h:2655
     public var trType: trType_t {
-        get { trType_t(rawValue: Int32(truncatingIfNeeded: self.raw.pointee.trType.rawValue)) }
-        nonmutating set { self.raw.pointee.trType = .init(rawValue: .init(truncatingIfNeeded: newValue.rawValue)) }
+        get { Int32(truncatingIfNeeded: self.raw.pointee.trType.rawValue) }
+        nonmutating set { self.raw.pointee.trType = .init(rawValue: .init(truncatingIfNeeded: newValue)) }
     }
 
     /// Source: oracle/codemp/game/q_shared.h:2656

@@ -41,8 +41,6 @@ class Param:
         self.size = size
 
     def word(self) -> str:
-        if self.kind == "enum":
-            return f"{self.name}.rawValue"
         if self.kind == "out_string":
             return f"{self.name.strip('`')}Pointer.baseAddress!"
         return self.name
@@ -123,14 +121,18 @@ class Table:
                 return Param(name, self.views.qualified_view(record, TARGET), "view")
             if inner.kind == TypeKind.VOID:
                 return Param(name, "OpaquePointer?", "bare")
+            # A pointer to one scalar is an out-param, `inout`. A body that finds Raven walks it as an array writes a Port-note.
+            if not pointee.is_const_qualified() and (inner.kind in INT_KINDS or inner.kind in (TypeKind.FLOAT, TypeKind.ENUM)):
+                swift = self.views.scalar(pointee, TARGET)
+                if swift is not None and self.known(swift):
+                    return Param(name, f"inout {swift}", "out_scalar")
             return None
         if canonical.kind in (TypeKind.RECORD, TypeKind.CONSTANTARRAY):
             return None
         swift = self.views.scalar(t, TARGET)
         if swift is None or not self.known(swift):
             return None
-        if canonical.kind == TypeKind.ENUM and swift != "Bool":
-            return Param(name, swift, "enum")
+        # A C enum is an Int32 alias, so it travels as a bare word.
         return Param(name, swift, "bare")
 
     def known(self, swift: str) -> bool:
@@ -157,6 +159,4 @@ class Table:
             return None
         if swift == "Bool":
             return ("Bool", "word != 0")
-        if canonical.kind == TypeKind.ENUM:
-            return (swift, f"{swift}(rawValue: Int32(truncatingIfNeeded: word))")
         return (swift, f"{swift}(truncatingIfNeeded: word)")

@@ -49,6 +49,12 @@ ROOTS = {
     # The bg files read pmove_t through the static `pm` and pml_t through `pml`, and no root field points at either.
     "pmove_t": ("Pmove", "CJKAMP"),
     "pml_t": ("Pml", "CJKAMP"),
+    # The bg parsers fill these through a pointer parameter or return one, and no root field points at them.
+    "siegeClassDesc_t": ("SiegeClassDesc", "CJKAMP"),
+    "siegeClass_t": ("SiegeClass", "CJKAMP"),
+    "siegeTeam_t": ("SiegeTeam", "CJKAMP"),
+    "vehWeaponInfo_t": ("VehWeaponInfo", "CJKAMP"),
+    "BG_field_t": ("BgField", "CJKAMP"),
 }
 # Every C target the game module's translation unit reaches, most specific first.
 TARGETS = ["CJKAMP_Game", "CJKAMP", "CJKAShared"]
@@ -159,7 +165,7 @@ class Generator:
         return name
 
     def scalar(self, t: ci.Type, target: str) -> str | None:
-        """The Swift type of a scalar field: the re-exported typealias, the enum struct, or the builtin."""
+        """The Swift type of a scalar field: the re-exported typealias, the enum alias, or the builtin."""
         if t.kind == TypeKind.ELABORATED:
             t = t.get_named_type()
         if t.kind == TypeKind.TYPEDEF:
@@ -280,11 +286,11 @@ class Generator:
             return self.property(name, "Bool", f"{pointee} != qfalse", f"{pointee} = newValue ? qtrue : qfalse")
         if swift in SCALARS.values():
             return self.property(name, swift, pointee, f"{pointee} = newValue")
-        # A re-exported enum struct or scalar typealias. The typealias case is a plain assignment through the same C scalar.
+        # A re-exported enum is an Int32 alias, and Clang imports the C field as a struct, so the property goes through its rawValue.
         base = swift.split(".")[-1]
         if base in self.enums:
-            return self.property(name, swift, f"{swift}(rawValue: Int32(truncatingIfNeeded: {pointee}.rawValue))",
-                                 f"{pointee} = .init(rawValue: .init(truncatingIfNeeded: newValue.rawValue))")
+            return self.property(name, swift, f"Int32(truncatingIfNeeded: {pointee}.rawValue)",
+                                 f"{pointee} = .init(rawValue: .init(truncatingIfNeeded: newValue))")
         return self.property(name, swift, pointee, f"{pointee} = newValue")
 
     def property(self, name: str, swift: str, get: str, set_: str) -> list[str]:

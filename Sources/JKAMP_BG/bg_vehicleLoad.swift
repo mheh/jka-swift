@@ -12,7 +12,7 @@ func BG_ClearVehicleParseParms() {
 /// Source: oracle/codemp/game/bg_vehicleLoad.c:167
 // TODO: Port signature
 // Raven wrote: static qboolean BG_ParseVehWeaponParm( vehWeaponInfo_t *vehWeapon, char *parmName, char *pValue )
-// No table row for `vehWeaponInfo_t * vehWeapon`.
+// No table row for `char * parmName`.
 private func BG_ParseVehWeaponParm() -> Never {
     // TODO: Port BG_ParseVehWeaponParm
     portMissing("BG_ParseVehWeaponParm", source: "oracle/codemp/game/bg_vehicleLoad.c:167")

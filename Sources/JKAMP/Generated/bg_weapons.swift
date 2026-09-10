@@ -22,81 +22,78 @@ public let DEFAULT_SHOTGUN_COUNT = CJKAMP.DEFAULT_SHOTGUN_COUNT
 public let LIGHTNING_RANGE = CJKAMP.LIGHTNING_RANGE
 
 /// Source: oracle/codemp/game/bg_weapons.h:45
-public struct ammo_t: RawRepresentable, Hashable, Sendable {
-    public let rawValue: Int32
-    public init(rawValue: Int32) { self.rawValue = rawValue }
-    public static let AMMO_NONE = ammo_t(rawValue: Int32(truncatingIfNeeded: CJKAMP.AMMO_NONE.rawValue))
-    public static let AMMO_FORCE = ammo_t(rawValue: Int32(truncatingIfNeeded: CJKAMP.AMMO_FORCE.rawValue))
-    public static let AMMO_BLASTER = ammo_t(rawValue: Int32(truncatingIfNeeded: CJKAMP.AMMO_BLASTER.rawValue))
-    public static let AMMO_POWERCELL = ammo_t(rawValue: Int32(truncatingIfNeeded: CJKAMP.AMMO_POWERCELL.rawValue))
-    public static let AMMO_METAL_BOLTS = ammo_t(rawValue: Int32(truncatingIfNeeded: CJKAMP.AMMO_METAL_BOLTS.rawValue))
-    public static let AMMO_ROCKETS = ammo_t(rawValue: Int32(truncatingIfNeeded: CJKAMP.AMMO_ROCKETS.rawValue))
-    public static let AMMO_EMPLACED = ammo_t(rawValue: Int32(truncatingIfNeeded: CJKAMP.AMMO_EMPLACED.rawValue))
-    public static let AMMO_THERMAL = ammo_t(rawValue: Int32(truncatingIfNeeded: CJKAMP.AMMO_THERMAL.rawValue))
-    public static let AMMO_TRIPMINE = ammo_t(rawValue: Int32(truncatingIfNeeded: CJKAMP.AMMO_TRIPMINE.rawValue))
-    public static let AMMO_DETPACK = ammo_t(rawValue: Int32(truncatingIfNeeded: CJKAMP.AMMO_DETPACK.rawValue))
-    public static let AMMO_MAX = ammo_t(rawValue: Int32(truncatingIfNeeded: CJKAMP.AMMO_MAX.rawValue))
-}
+public typealias ammo_t = Int32
+public let AMMO_NONE: ammo_t = Int32(truncatingIfNeeded: CJKAMP.AMMO_NONE.rawValue)
+public let AMMO_FORCE: ammo_t = Int32(truncatingIfNeeded: CJKAMP.AMMO_FORCE.rawValue)
+public let AMMO_BLASTER: ammo_t = Int32(truncatingIfNeeded: CJKAMP.AMMO_BLASTER.rawValue)
+public let AMMO_POWERCELL: ammo_t = Int32(truncatingIfNeeded: CJKAMP.AMMO_POWERCELL.rawValue)
+public let AMMO_METAL_BOLTS: ammo_t = Int32(truncatingIfNeeded: CJKAMP.AMMO_METAL_BOLTS.rawValue)
+public let AMMO_ROCKETS: ammo_t = Int32(truncatingIfNeeded: CJKAMP.AMMO_ROCKETS.rawValue)
+public let AMMO_EMPLACED: ammo_t = Int32(truncatingIfNeeded: CJKAMP.AMMO_EMPLACED.rawValue)
+public let AMMO_THERMAL: ammo_t = Int32(truncatingIfNeeded: CJKAMP.AMMO_THERMAL.rawValue)
+public let AMMO_TRIPMINE: ammo_t = Int32(truncatingIfNeeded: CJKAMP.AMMO_TRIPMINE.rawValue)
+public let AMMO_DETPACK: ammo_t = Int32(truncatingIfNeeded: CJKAMP.AMMO_DETPACK.rawValue)
+public let AMMO_MAX: ammo_t = Int32(truncatingIfNeeded: CJKAMP.AMMO_MAX.rawValue)
 
 /// Source: oracle/codemp/game/bg_weapons.h:8
-public let WP_NONE = CJKAMP.WP_NONE
+public let WP_NONE: Int32 = Int32(truncatingIfNeeded: CJKAMP.WP_NONE)
 
 /// Source: oracle/codemp/game/bg_weapons.h:8
-public let WP_STUN_BATON = CJKAMP.WP_STUN_BATON
+public let WP_STUN_BATON: Int32 = Int32(truncatingIfNeeded: CJKAMP.WP_STUN_BATON)
 
 /// Source: oracle/codemp/game/bg_weapons.h:8
-public let WP_MELEE = CJKAMP.WP_MELEE
+public let WP_MELEE: Int32 = Int32(truncatingIfNeeded: CJKAMP.WP_MELEE)
 
 /// Source: oracle/codemp/game/bg_weapons.h:8
-public let WP_SABER = CJKAMP.WP_SABER
+public let WP_SABER: Int32 = Int32(truncatingIfNeeded: CJKAMP.WP_SABER)
 
 /// Source: oracle/codemp/game/bg_weapons.h:8
-public let WP_BRYAR_PISTOL = CJKAMP.WP_BRYAR_PISTOL
+public let WP_BRYAR_PISTOL: Int32 = Int32(truncatingIfNeeded: CJKAMP.WP_BRYAR_PISTOL)
 
 /// Source: oracle/codemp/game/bg_weapons.h:8
-public let WP_BLASTER = CJKAMP.WP_BLASTER
+public let WP_BLASTER: Int32 = Int32(truncatingIfNeeded: CJKAMP.WP_BLASTER)
 
 /// Source: oracle/codemp/game/bg_weapons.h:8
-public let WP_DISRUPTOR = CJKAMP.WP_DISRUPTOR
+public let WP_DISRUPTOR: Int32 = Int32(truncatingIfNeeded: CJKAMP.WP_DISRUPTOR)
 
 /// Source: oracle/codemp/game/bg_weapons.h:8
-public let WP_BOWCASTER = CJKAMP.WP_BOWCASTER
+public let WP_BOWCASTER: Int32 = Int32(truncatingIfNeeded: CJKAMP.WP_BOWCASTER)
 
 /// Source: oracle/codemp/game/bg_weapons.h:8
-public let WP_REPEATER = CJKAMP.WP_REPEATER
+public let WP_REPEATER: Int32 = Int32(truncatingIfNeeded: CJKAMP.WP_REPEATER)
 
 /// Source: oracle/codemp/game/bg_weapons.h:8
-public let WP_DEMP2 = CJKAMP.WP_DEMP2
+public let WP_DEMP2: Int32 = Int32(truncatingIfNeeded: CJKAMP.WP_DEMP2)
 
 /// Source: oracle/codemp/game/bg_weapons.h:8
-public let WP_FLECHETTE = CJKAMP.WP_FLECHETTE
+public let WP_FLECHETTE: Int32 = Int32(truncatingIfNeeded: CJKAMP.WP_FLECHETTE)
 
 /// Source: oracle/codemp/game/bg_weapons.h:8
-public let WP_ROCKET_LAUNCHER = CJKAMP.WP_ROCKET_LAUNCHER
+public let WP_ROCKET_LAUNCHER: Int32 = Int32(truncatingIfNeeded: CJKAMP.WP_ROCKET_LAUNCHER)
 
 /// Source: oracle/codemp/game/bg_weapons.h:8
-public let WP_THERMAL = CJKAMP.WP_THERMAL
+public let WP_THERMAL: Int32 = Int32(truncatingIfNeeded: CJKAMP.WP_THERMAL)
 
 /// Source: oracle/codemp/game/bg_weapons.h:8
-public let WP_TRIP_MINE = CJKAMP.WP_TRIP_MINE
+public let WP_TRIP_MINE: Int32 = Int32(truncatingIfNeeded: CJKAMP.WP_TRIP_MINE)
 
 /// Source: oracle/codemp/game/bg_weapons.h:8
-public let WP_DET_PACK = CJKAMP.WP_DET_PACK
+public let WP_DET_PACK: Int32 = Int32(truncatingIfNeeded: CJKAMP.WP_DET_PACK)
 
 /// Source: oracle/codemp/game/bg_weapons.h:8
-public let WP_CONCUSSION = CJKAMP.WP_CONCUSSION
+public let WP_CONCUSSION: Int32 = Int32(truncatingIfNeeded: CJKAMP.WP_CONCUSSION)
 
 /// Source: oracle/codemp/game/bg_weapons.h:8
-public let WP_BRYAR_OLD = CJKAMP.WP_BRYAR_OLD
+public let WP_BRYAR_OLD: Int32 = Int32(truncatingIfNeeded: CJKAMP.WP_BRYAR_OLD)
 
 /// Source: oracle/codemp/game/bg_weapons.h:8
-public let WP_EMPLACED_GUN = CJKAMP.WP_EMPLACED_GUN
+public let WP_EMPLACED_GUN: Int32 = Int32(truncatingIfNeeded: CJKAMP.WP_EMPLACED_GUN)
 
 /// Source: oracle/codemp/game/bg_weapons.h:8
-public let WP_TURRET = CJKAMP.WP_TURRET
+public let WP_TURRET: Int32 = Int32(truncatingIfNeeded: CJKAMP.WP_TURRET)
 
 /// Source: oracle/codemp/game/bg_weapons.h:8
-public let WP_NUM_WEAPONS = CJKAMP.WP_NUM_WEAPONS
+public let WP_NUM_WEAPONS: Int32 = Int32(truncatingIfNeeded: CJKAMP.WP_NUM_WEAPONS)
 
 /// Source: oracle/codemp/game/bg_weapons.h:40
 public typealias weapon_t = Int32

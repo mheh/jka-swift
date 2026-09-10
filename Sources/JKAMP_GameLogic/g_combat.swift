@@ -273,10 +273,7 @@ func G_GetHitQuad(_ `self`: Entity, _ hitloc: JKAShared.vec3_t) -> Int32 {
 }
 
 /// Source: oracle/codemp/game/g_combat.c:3757
-// TODO: Port signature
-// Raven wrote: qboolean G_GetHitLocFromSurfName( gentity_t *ent, const char *surfName, int *hitLoc, vec3_t point, vec3_t dir, vec3_t bladeDir, int mod )
-// No table row for `int * hitLoc`.
-func G_GetHitLocFromSurfName() -> Never {
+func G_GetHitLocFromSurfName(_ ent: Entity, _ surfName: String, _ hitLoc: inout Int32, _ point: JKAShared.vec3_t, _ dir: JKAShared.vec3_t, _ bladeDir: JKAShared.vec3_t, _ mod: Int32) -> Bool {
     // TODO: Port G_GetHitLocFromSurfName
     portMissing("G_GetHitLocFromSurfName", source: "oracle/codemp/game/g_combat.c:3757")
 }
@@ -288,10 +285,7 @@ func G_CheckForDismemberment(_ ent: Entity, _ enemy: Entity, _ point: JKAShared.
 }
 
 /// Source: oracle/codemp/game/g_combat.c:4346
-// TODO: Port signature
-// Raven wrote: void G_LocationBasedDamageModifier(gentity_t *ent, vec3_t point, int mod, int dflags, int *damage)
-// No table row for `int * damage`.
-func G_LocationBasedDamageModifier() -> Never {
+func G_LocationBasedDamageModifier(_ ent: Entity, _ point: JKAShared.vec3_t, _ mod: Int32, _ dflags: Int32, _ damage: inout Int32) {
     // TODO: Port G_LocationBasedDamageModifier
     portMissing("G_LocationBasedDamageModifier", source: "oracle/codemp/game/g_combat.c:4346")
 }

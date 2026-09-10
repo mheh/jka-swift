@@ -7,9 +7,9 @@ The oracle range is the whole definition, from the return type to the closing br
 
 | Function | Oracle | Swift | State | jka-rust |
 |---|---|---|---|---|
-| `VEH_TurretCheckFire` | `oracle/codemp/game/g_vehicleTurret.c:12-59` | `JKAMP_GameLogic/g_vehicleTurret.swift:12` | marker | `crates/mp/game/src/g_vehicleTurret.rs:39-103` |
-| `VEH_TurretAnglesToEnemy` | `oracle/codemp/game/g_vehicleTurret.c:61-86` | `JKAMP_GameLogic/g_vehicleTurret.swift:18` | marker | `crates/mp/game/src/g_vehicleTurret.rs:108-142` |
-| `VEH_TurretAim` | `oracle/codemp/game/g_vehicleTurret.c:89-190` | `JKAMP_GameLogic/g_vehicleTurret.swift:28` | marker | `crates/mp/game/src/g_vehicleTurret.rs:147-275` |
-| `VEH_TurretFindEnemies` static | `oracle/codemp/game/g_vehicleTurret.c:193-302` | `JKAMP_GameLogic/g_vehicleTurret.swift:35` | marker | `crates/mp/game/src/g_vehicleTurret.rs:280-457` |
-| `VEH_TurretObeyPassengerControl` | `oracle/codemp/game/g_vehicleTurret.c:304-322` | `JKAMP_GameLogic/g_vehicleTurret.swift:41` | marker | `crates/mp/game/src/g_vehicleTurret.rs:462-514` |
-| `VEH_TurretThink` | `oracle/codemp/game/g_vehicleTurret.c:324-444` | `JKAMP_GameLogic/g_vehicleTurret.swift:47` | marker | `crates/mp/game/src/g_vehicleTurret.rs:519-694` |
+| `VEH_TurretCheckFire` | `oracle/codemp/game/g_vehicleTurret.c:12-59` | `JKAMP_GameLogic/g_vehicleTurret.swift:9` | marker | `crates/mp/game/src/g_vehicleTurret.rs:39-103` |
+| `VEH_TurretAnglesToEnemy` | `oracle/codemp/game/g_vehicleTurret.c:61-86` | `JKAMP_GameLogic/g_vehicleTurret.swift:15` | marker | `crates/mp/game/src/g_vehicleTurret.rs:108-142` |
+| `VEH_TurretAim` | `oracle/codemp/game/g_vehicleTurret.c:89-190` | `JKAMP_GameLogic/g_vehicleTurret.swift:22` | marker | `crates/mp/game/src/g_vehicleTurret.rs:147-275` |
+| `VEH_TurretFindEnemies` static | `oracle/codemp/game/g_vehicleTurret.c:193-302` | `JKAMP_GameLogic/g_vehicleTurret.swift:29` | marker | `crates/mp/game/src/g_vehicleTurret.rs:280-457` |
+| `VEH_TurretObeyPassengerControl` | `oracle/codemp/game/g_vehicleTurret.c:304-322` | `JKAMP_GameLogic/g_vehicleTurret.swift:35` | marker | `crates/mp/game/src/g_vehicleTurret.rs:462-514` |
+| `VEH_TurretThink` | `oracle/codemp/game/g_vehicleTurret.c:324-444` | `JKAMP_GameLogic/g_vehicleTurret.swift:41` | marker | `crates/mp/game/src/g_vehicleTurret.rs:519-694` |

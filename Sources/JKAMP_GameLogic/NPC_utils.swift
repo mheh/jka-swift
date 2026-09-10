@@ -252,10 +252,7 @@ func NPC_EnemyRangeFromBolt(_ boltIndex: Int32) -> Float {
 }
 
 /// Source: oracle/codemp/game/NPC_utils.c:1761
-// TODO: Port signature
-// Raven wrote: int NPC_GetEntsNearBolt( int *radiusEnts, float radius, int boltIndex, vec3_t boltOrg )
-// No table row for `int * radiusEnts`.
-func NPC_GetEntsNearBolt() -> Never {
+func NPC_GetEntsNearBolt(_ radiusEnts: inout Int32, _ radius: Float, _ boltIndex: Int32, _ boltOrg: JKAShared.vec3_t) -> Int32 {
     // TODO: Port NPC_GetEntsNearBolt
     portMissing("NPC_GetEntsNearBolt", source: "oracle/codemp/game/NPC_utils.c:1761")
 }

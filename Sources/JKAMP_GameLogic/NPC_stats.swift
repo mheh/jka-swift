@@ -36,10 +36,7 @@ private func TranslateRankName(_ name: String) -> rank_t {
 }
 
 /// Source: oracle/codemp/game/NPC_stats.c:424
-// TODO: Port signature
-// Raven wrote: qboolean G_ParseAnimFileSet( const char *filename, const char *animCFG, int *animFileIndex )
-// No table row for `int * animFileIndex`.
-func G_ParseAnimFileSet() -> Never {
+func G_ParseAnimFileSet(_ filename: String, _ animCFG: String, _ animFileIndex: inout Int32) -> Bool {
     // TODO: Port G_ParseAnimFileSet
     portMissing("G_ParseAnimFileSet", source: "oracle/codemp/game/NPC_stats.c:424")
 }

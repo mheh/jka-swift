@@ -32,10 +32,7 @@ func strap_G2API_GetBoltMatrix_NoRecNoRot() -> Never {
 }
 
 /// Source: oracle/codemp/game/g_strap.c:24
-// TODO: Port signature
-// Raven wrote: qboolean strap_G2API_SetBoneAngles(void *ghoul2, int modelIndex, const char *boneName, const vec3_t angles, const int flags, const int up, const int right, const int forward, qhandle_t *modelList, int blendTime , int currentTime )
-// No table row for `qhandle_t * modelList`.
-func strap_G2API_SetBoneAngles() -> Never {
+func strap_G2API_SetBoneAngles(_ ghoul2: OpaquePointer?, _ modelIndex: Int32, _ boneName: String, _ angles: JKAShared.vec3_t, _ flags: Int32, _ up: Int32, _ right: Int32, _ forward: Int32, _ modelList: inout Int32, _ blendTime: Int32, _ currentTime: Int32) -> Bool {
     // TODO: Port strap_G2API_SetBoneAngles
     portMissing("strap_G2API_SetBoneAngles", source: "oracle/codemp/game/g_strap.c:24")
 }
@@ -47,10 +44,7 @@ func strap_G2API_SetBoneAnim(_ ghoul2: OpaquePointer?, _ modelIndex: Int32, _ bo
 }
 
 /// Source: oracle/codemp/game/g_strap.c:37
-// TODO: Port signature
-// Raven wrote: qboolean strap_G2API_GetBoneAnim(void *ghoul2, const char *boneName, const int currentTime, float *currentFrame, int *startFrame, int *endFrame, int *flags, float *animSpeed, int *modelList, const int modelIndex)
-// No table row for `float * currentFrame`.
-func strap_G2API_GetBoneAnim() -> Never {
+func strap_G2API_GetBoneAnim(_ ghoul2: OpaquePointer?, _ boneName: String, _ currentTime: Int32, _ currentFrame: inout Float, _ startFrame: inout Int32, _ endFrame: inout Int32, _ flags: inout Int32, _ animSpeed: inout Float, _ modelList: inout Int32, _ modelIndex: Int32) -> Bool {
     // TODO: Port strap_G2API_GetBoneAnim
     portMissing("strap_G2API_GetBoneAnim", source: "oracle/codemp/game/g_strap.c:37")
 }

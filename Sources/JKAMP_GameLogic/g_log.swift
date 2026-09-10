@@ -71,20 +71,14 @@ func G_LogWeaponOutput() {
 
 // did this player earn the efficiency award?
 /// Source: oracle/codemp/game/g_log.c:824
-// TODO: Port signature
-// Raven wrote: qboolean CalculateEfficiency(gentity_t *ent, int *efficiency)
-// No table row for `int * efficiency`.
-func CalculateEfficiency() -> Never {
+func CalculateEfficiency(_ ent: Entity, _ efficiency: inout Int32) -> Bool {
     // TODO: Port CalculateEfficiency
     portMissing("CalculateEfficiency", source: "oracle/codemp/game/g_log.c:824")
 }
 
 // did this player earn the sharpshooter award?
 /// Source: oracle/codemp/game/g_log.c:866
-// TODO: Port signature
-// Raven wrote: qboolean CalculateSharpshooter(gentity_t *ent, int *frags)
-// No table row for `int * frags`.
-func CalculateSharpshooter() -> Never {
+func CalculateSharpshooter(_ ent: Entity, _ frags: inout Int32) -> Bool {
     // TODO: Port CalculateSharpshooter
     portMissing("CalculateSharpshooter", source: "oracle/codemp/game/g_log.c:866")
 }
@@ -98,30 +92,21 @@ func CalculateUntouchable(_ ent: Entity) -> Bool {
 
 // did this player earn the logistics award?
 /// Source: oracle/codemp/game/g_log.c:931
-// TODO: Port signature
-// Raven wrote: qboolean CalculateLogistics(gentity_t *ent, int *stuffUsed)
-// No table row for `int * stuffUsed`.
-func CalculateLogistics() -> Never {
+func CalculateLogistics(_ ent: Entity, _ stuffUsed: inout Int32) -> Bool {
     // TODO: Port CalculateLogistics
     portMissing("CalculateLogistics", source: "oracle/codemp/game/g_log.c:931")
 }
 
 // did this player earn the tactician award?
 /// Source: oracle/codemp/game/g_log.c:988
-// TODO: Port signature
-// Raven wrote: qboolean CalculateTactician(gentity_t *ent, int *kills)
-// No table row for `int * kills`.
-func CalculateTactician() -> Never {
+func CalculateTactician(_ ent: Entity, _ kills: inout Int32) -> Bool {
     // TODO: Port CalculateTactician
     portMissing("CalculateTactician", source: "oracle/codemp/game/g_log.c:988")
 }
 
 // did this player earn the demolitionist award?
 /// Source: oracle/codemp/game/g_log.c:1087
-// TODO: Port signature
-// Raven wrote: qboolean CalculateDemolitionist(gentity_t *ent, int *kills)
-// No table row for `int * kills`.
-func CalculateDemolitionist() -> Never {
+func CalculateDemolitionist(_ ent: Entity, _ kills: inout Int32) -> Bool {
     // TODO: Port CalculateDemolitionist
     portMissing("CalculateDemolitionist", source: "oracle/codemp/game/g_log.c:1087")
 }

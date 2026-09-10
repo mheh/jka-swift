@@ -9,9 +9,9 @@ The oracle range is the whole definition, from the return type to the closing br
 |---|---|---|---|---|
 | `NPC_ReactionTime` | `oracle/codemp/game/NPC_stats.c:220-223` | `JKAMP_GameLogic/NPC_stats.swift:12` | marker | `crates/mp/game/src/NPC_stats.rs:355-359` |
 | `TranslateRankName` static | `oracle/codemp/game/NPC_stats.c:287-330` | `JKAMP_GameLogic/NPC_stats.swift:33` | marker | `crates/mp/game/src/NPC_stats.rs:365-391` |
-| `G_ParseAnimFileSet` | `oracle/codemp/game/NPC_stats.c:424-437` | `JKAMP_GameLogic/NPC_stats.swift:42` | marker | `crates/mp/game/src/NPC_stats.rs:396-432` |
-| `NPC_PrecacheAnimationCFG` | `oracle/codemp/game/NPC_stats.c:439-548` | `JKAMP_GameLogic/NPC_stats.swift:48` | marker | `crates/mp/game/src/NPC_stats.rs:439-442` |
-| `NPC_PrecacheWeapons` | `oracle/codemp/game/NPC_stats.c:551-591` | `JKAMP_GameLogic/NPC_stats.swift:57` | marker | `crates/mp/game/src/NPC_stats.rs:447-467` |
-| `NPC_Precache` | `oracle/codemp/game/NPC_stats.c:599-873` | `JKAMP_GameLogic/NPC_stats.swift:69` | marker | `crates/mp/game/src/NPC_stats.rs:472-803` |
-| `NPC_ParseParms` | `oracle/codemp/game/NPC_stats.c:974-3233` | `JKAMP_GameLogic/NPC_stats.swift:75` | marker | `crates/mp/game/src/NPC_stats.rs:808-2461` |
-| `NPC_LoadParms` | `oracle/codemp/game/NPC_stats.c:3241-3302` | `JKAMP_GameLogic/NPC_stats.swift:81` | marker | `crates/mp/game/src/NPC_stats.rs:2466-2538` |
+| `G_ParseAnimFileSet` | `oracle/codemp/game/NPC_stats.c:424-437` | `JKAMP_GameLogic/NPC_stats.swift:39` | marker | `crates/mp/game/src/NPC_stats.rs:396-432` |
+| `NPC_PrecacheAnimationCFG` | `oracle/codemp/game/NPC_stats.c:439-548` | `JKAMP_GameLogic/NPC_stats.swift:45` | marker | `crates/mp/game/src/NPC_stats.rs:439-442` |
+| `NPC_PrecacheWeapons` | `oracle/codemp/game/NPC_stats.c:551-591` | `JKAMP_GameLogic/NPC_stats.swift:54` | marker | `crates/mp/game/src/NPC_stats.rs:447-467` |
+| `NPC_Precache` | `oracle/codemp/game/NPC_stats.c:599-873` | `JKAMP_GameLogic/NPC_stats.swift:66` | marker | `crates/mp/game/src/NPC_stats.rs:472-803` |
+| `NPC_ParseParms` | `oracle/codemp/game/NPC_stats.c:974-3233` | `JKAMP_GameLogic/NPC_stats.swift:72` | marker | `crates/mp/game/src/NPC_stats.rs:808-2461` |
+| `NPC_LoadParms` | `oracle/codemp/game/NPC_stats.c:3241-3302` | `JKAMP_GameLogic/NPC_stats.swift:78` | marker | `crates/mp/game/src/NPC_stats.rs:2466-2538` |

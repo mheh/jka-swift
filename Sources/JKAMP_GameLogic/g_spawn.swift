@@ -14,28 +14,19 @@ func G_SpawnString() -> Never {
 }
 
 /// Source: oracle/codemp/game/g_spawn.c:25
-// TODO: Port signature
-// Raven wrote: qboolean G_SpawnFloat( const char *key, const char *defaultString, float *out )
-// No table row for `float * out`.
-func G_SpawnFloat() -> Never {
+func G_SpawnFloat(_ key: String, _ defaultString: String, _ out: inout Float) -> Bool {
     // TODO: Port G_SpawnFloat
     portMissing("G_SpawnFloat", source: "oracle/codemp/game/g_spawn.c:25")
 }
 
 /// Source: oracle/codemp/game/g_spawn.c:34
-// TODO: Port signature
-// Raven wrote: qboolean G_SpawnInt( const char *key, const char *defaultString, int *out )
-// No table row for `int * out`.
-func G_SpawnInt() -> Never {
+func G_SpawnInt(_ key: String, _ defaultString: String, _ out: inout Int32) -> Bool {
     // TODO: Port G_SpawnInt
     portMissing("G_SpawnInt", source: "oracle/codemp/game/g_spawn.c:34")
 }
 
 /// Source: oracle/codemp/game/g_spawn.c:43
-// TODO: Port signature
-// Raven wrote: qboolean G_SpawnVector( const char *key, const char *defaultString, float *out )
-// No table row for `float * out`.
-func G_SpawnVector() -> Never {
+func G_SpawnVector(_ key: String, _ defaultString: String, _ out: inout Float) -> Bool {
     // TODO: Port G_SpawnVector
     portMissing("G_SpawnVector", source: "oracle/codemp/game/g_spawn.c:43")
 }

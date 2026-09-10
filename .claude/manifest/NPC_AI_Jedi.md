@@ -52,26 +52,26 @@ The oracle range is the whole definition, from the return type to the closing br
 | `Jedi_SaberBlock` static | `oracle/codemp/game/NPC_AI_Jedi.c:3143-3372` | `JKAMP_GameLogic/NPC_AI_Jedi.swift:271` | marker | `crates/mp/game/src/NPC_AI_Jedi.rs:3766-4017` |
 | `Jedi_EvasionSaber` static | `oracle/codemp/game/NPC_AI_Jedi.c:3380-3666` | `JKAMP_GameLogic/NPC_AI_Jedi.swift:284` | marker | `crates/mp/game/src/NPC_AI_Jedi.rs:4022-4362` |
 | `Jedi_FindEnemyInCone` | `oracle/codemp/game/NPC_AI_Jedi.c:3686-3761` | `JKAMP_GameLogic/NPC_AI_Jedi.swift:295` | marker | `crates/mp/game/src/NPC_AI_Jedi.rs:4367-4491` |
-| `Jedi_SetEnemyInfo` static | `oracle/codemp/game/NPC_AI_Jedi.c:3763-3796` | `JKAMP_GameLogic/NPC_AI_Jedi.swift:304` | marker | `crates/mp/game/src/NPC_AI_Jedi.rs:4496-4548` |
-| `Jedi_FaceEnemy` static | `oracle/codemp/game/NPC_AI_Jedi.c:3799-3874` | `JKAMP_GameLogic/NPC_AI_Jedi.swift:310` | marker | `crates/mp/game/src/NPC_AI_Jedi.rs:4553-4641` |
-| `Jedi_DebounceDirectionChanges` static | `oracle/codemp/game/NPC_AI_Jedi.c:3876-4005` | `JKAMP_GameLogic/NPC_AI_Jedi.swift:316` | marker | `crates/mp/game/src/NPC_AI_Jedi.rs:4646-4842` |
-| `Jedi_TimersApply` static | `oracle/codemp/game/NPC_AI_Jedi.c:4007-4065` | `JKAMP_GameLogic/NPC_AI_Jedi.swift:322` | marker | `crates/mp/game/src/NPC_AI_Jedi.rs:4847-4907` |
-| `Jedi_CombatTimersUpdate` static | `oracle/codemp/game/NPC_AI_Jedi.c:4067-4273` | `JKAMP_GameLogic/NPC_AI_Jedi.swift:328` | marker | `crates/mp/game/src/NPC_AI_Jedi.rs:4912-5119` |
-| `Jedi_CombatIdle` static | `oracle/codemp/game/NPC_AI_Jedi.c:4275-4337` | `JKAMP_GameLogic/NPC_AI_Jedi.swift:334` | marker | `crates/mp/game/src/NPC_AI_Jedi.rs:5124-5196` |
-| `Jedi_AttackDecide` static | `oracle/codemp/game/NPC_AI_Jedi.c:4339-4467` | `JKAMP_GameLogic/NPC_AI_Jedi.swift:340` | marker | `crates/mp/game/src/NPC_AI_Jedi.rs:5201-5341` |
-| `Jedi_Jump` static | `oracle/codemp/game/NPC_AI_Jedi.c:4473-4717` | `JKAMP_GameLogic/NPC_AI_Jedi.swift:346` | marker | `crates/mp/game/src/NPC_AI_Jedi.rs:5346-5523` |
-| `Jedi_TryJump` static | `oracle/codemp/game/NPC_AI_Jedi.c:4719-4865` | `JKAMP_GameLogic/NPC_AI_Jedi.swift:352` | marker | `crates/mp/game/src/NPC_AI_Jedi.rs:5528-5712` |
-| `Jedi_Jumping` static | `oracle/codemp/game/NPC_AI_Jedi.c:4867-4914` | `JKAMP_GameLogic/NPC_AI_Jedi.swift:358` | marker | `crates/mp/game/src/NPC_AI_Jedi.rs:5717-5736` |
-| `Jedi_CheckEnemyMovement` static | `oracle/codemp/game/NPC_AI_Jedi.c:4917-5036` | `JKAMP_GameLogic/NPC_AI_Jedi.swift:364` | marker | `crates/mp/game/src/NPC_AI_Jedi.rs:5741-6000` |
-| `Jedi_CheckJumps` static | `oracle/codemp/game/NPC_AI_Jedi.c:5038-5153` | `JKAMP_GameLogic/NPC_AI_Jedi.swift:370` | marker | `crates/mp/game/src/NPC_AI_Jedi.rs:6005-6154` |
-| `Jedi_Combat` static | `oracle/codemp/game/NPC_AI_Jedi.c:5155-5344` | `JKAMP_GameLogic/NPC_AI_Jedi.swift:376` | marker | `crates/mp/game/src/NPC_AI_Jedi.rs:6159-6363` |
-| `NPC_Jedi_Pain` | `oracle/codemp/game/NPC_AI_Jedi.c:5358-5444` | `JKAMP_GameLogic/NPC_AI_Jedi.swift:382` | marker | `crates/mp/game/src/NPC_AI_Jedi.rs:6368-6501` |
-| `Jedi_CheckDanger` | `oracle/codemp/game/NPC_AI_Jedi.c:5446-5463` | `JKAMP_GameLogic/NPC_AI_Jedi.swift:388` | marker | `crates/mp/game/src/NPC_AI_Jedi.rs:6506-6557` |
-| `Jedi_CheckAmbushPlayer` | `oracle/codemp/game/NPC_AI_Jedi.c:5465-5545` | `JKAMP_GameLogic/NPC_AI_Jedi.swift:394` | marker | `crates/mp/game/src/NPC_AI_Jedi.rs:6562-6682` |
-| `Jedi_Ambush` | `oracle/codemp/game/NPC_AI_Jedi.c:5547-5559` | `JKAMP_GameLogic/NPC_AI_Jedi.swift:400` | marker | `crates/mp/game/src/NPC_AI_Jedi.rs:6687-6713` |
-| `Jedi_WaitingAmbush` | `oracle/codemp/game/NPC_AI_Jedi.c:5561-5568` | `JKAMP_GameLogic/NPC_AI_Jedi.swift:406` | marker | `crates/mp/game/src/NPC_AI_Jedi.rs:6718-6726` |
-| `Jedi_Patrol` static | `oracle/codemp/game/NPC_AI_Jedi.c:5575-5728` | `JKAMP_GameLogic/NPC_AI_Jedi.swift:412` | marker | `crates/mp/game/src/NPC_AI_Jedi.rs:6731-6981` |
-| `Jedi_CanPullBackSaber` | `oracle/codemp/game/NPC_AI_Jedi.c:5730-5752` | `JKAMP_GameLogic/NPC_AI_Jedi.swift:418` | marker | `crates/mp/game/src/NPC_AI_Jedi.rs:6986-7013` |
-| `NPC_BSJedi_FollowLeader` | `oracle/codemp/game/NPC_AI_Jedi.c:5758-5836` | `JKAMP_GameLogic/NPC_AI_Jedi.swift:429` | marker | `crates/mp/game/src/NPC_AI_Jedi.rs:7018-7123` |
-| `Jedi_Attack` static | `oracle/codemp/game/NPC_AI_Jedi.c:5845-6166` | `JKAMP_GameLogic/NPC_AI_Jedi.swift:435` | marker | `crates/mp/game/src/NPC_AI_Jedi.rs:7128-7555` |
-| `NPC_BSJedi_Default` | `oracle/codemp/game/NPC_AI_Jedi.c:6170-6220` | `JKAMP_GameLogic/NPC_AI_Jedi.swift:441` | marker | `crates/mp/game/src/NPC_AI_Jedi.rs:7560-7638` |
+| `Jedi_SetEnemyInfo` static | `oracle/codemp/game/NPC_AI_Jedi.c:3763-3796` | `JKAMP_GameLogic/NPC_AI_Jedi.swift:301` | marker | `crates/mp/game/src/NPC_AI_Jedi.rs:4496-4548` |
+| `Jedi_FaceEnemy` static | `oracle/codemp/game/NPC_AI_Jedi.c:3799-3874` | `JKAMP_GameLogic/NPC_AI_Jedi.swift:307` | marker | `crates/mp/game/src/NPC_AI_Jedi.rs:4553-4641` |
+| `Jedi_DebounceDirectionChanges` static | `oracle/codemp/game/NPC_AI_Jedi.c:3876-4005` | `JKAMP_GameLogic/NPC_AI_Jedi.swift:313` | marker | `crates/mp/game/src/NPC_AI_Jedi.rs:4646-4842` |
+| `Jedi_TimersApply` static | `oracle/codemp/game/NPC_AI_Jedi.c:4007-4065` | `JKAMP_GameLogic/NPC_AI_Jedi.swift:319` | marker | `crates/mp/game/src/NPC_AI_Jedi.rs:4847-4907` |
+| `Jedi_CombatTimersUpdate` static | `oracle/codemp/game/NPC_AI_Jedi.c:4067-4273` | `JKAMP_GameLogic/NPC_AI_Jedi.swift:325` | marker | `crates/mp/game/src/NPC_AI_Jedi.rs:4912-5119` |
+| `Jedi_CombatIdle` static | `oracle/codemp/game/NPC_AI_Jedi.c:4275-4337` | `JKAMP_GameLogic/NPC_AI_Jedi.swift:331` | marker | `crates/mp/game/src/NPC_AI_Jedi.rs:5124-5196` |
+| `Jedi_AttackDecide` static | `oracle/codemp/game/NPC_AI_Jedi.c:4339-4467` | `JKAMP_GameLogic/NPC_AI_Jedi.swift:337` | marker | `crates/mp/game/src/NPC_AI_Jedi.rs:5201-5341` |
+| `Jedi_Jump` static | `oracle/codemp/game/NPC_AI_Jedi.c:4473-4717` | `JKAMP_GameLogic/NPC_AI_Jedi.swift:343` | marker | `crates/mp/game/src/NPC_AI_Jedi.rs:5346-5523` |
+| `Jedi_TryJump` static | `oracle/codemp/game/NPC_AI_Jedi.c:4719-4865` | `JKAMP_GameLogic/NPC_AI_Jedi.swift:349` | marker | `crates/mp/game/src/NPC_AI_Jedi.rs:5528-5712` |
+| `Jedi_Jumping` static | `oracle/codemp/game/NPC_AI_Jedi.c:4867-4914` | `JKAMP_GameLogic/NPC_AI_Jedi.swift:355` | marker | `crates/mp/game/src/NPC_AI_Jedi.rs:5717-5736` |
+| `Jedi_CheckEnemyMovement` static | `oracle/codemp/game/NPC_AI_Jedi.c:4917-5036` | `JKAMP_GameLogic/NPC_AI_Jedi.swift:361` | marker | `crates/mp/game/src/NPC_AI_Jedi.rs:5741-6000` |
+| `Jedi_CheckJumps` static | `oracle/codemp/game/NPC_AI_Jedi.c:5038-5153` | `JKAMP_GameLogic/NPC_AI_Jedi.swift:367` | marker | `crates/mp/game/src/NPC_AI_Jedi.rs:6005-6154` |
+| `Jedi_Combat` static | `oracle/codemp/game/NPC_AI_Jedi.c:5155-5344` | `JKAMP_GameLogic/NPC_AI_Jedi.swift:373` | marker | `crates/mp/game/src/NPC_AI_Jedi.rs:6159-6363` |
+| `NPC_Jedi_Pain` | `oracle/codemp/game/NPC_AI_Jedi.c:5358-5444` | `JKAMP_GameLogic/NPC_AI_Jedi.swift:379` | marker | `crates/mp/game/src/NPC_AI_Jedi.rs:6368-6501` |
+| `Jedi_CheckDanger` | `oracle/codemp/game/NPC_AI_Jedi.c:5446-5463` | `JKAMP_GameLogic/NPC_AI_Jedi.swift:385` | marker | `crates/mp/game/src/NPC_AI_Jedi.rs:6506-6557` |
+| `Jedi_CheckAmbushPlayer` | `oracle/codemp/game/NPC_AI_Jedi.c:5465-5545` | `JKAMP_GameLogic/NPC_AI_Jedi.swift:391` | marker | `crates/mp/game/src/NPC_AI_Jedi.rs:6562-6682` |
+| `Jedi_Ambush` | `oracle/codemp/game/NPC_AI_Jedi.c:5547-5559` | `JKAMP_GameLogic/NPC_AI_Jedi.swift:397` | marker | `crates/mp/game/src/NPC_AI_Jedi.rs:6687-6713` |
+| `Jedi_WaitingAmbush` | `oracle/codemp/game/NPC_AI_Jedi.c:5561-5568` | `JKAMP_GameLogic/NPC_AI_Jedi.swift:403` | marker | `crates/mp/game/src/NPC_AI_Jedi.rs:6718-6726` |
+| `Jedi_Patrol` static | `oracle/codemp/game/NPC_AI_Jedi.c:5575-5728` | `JKAMP_GameLogic/NPC_AI_Jedi.swift:409` | marker | `crates/mp/game/src/NPC_AI_Jedi.rs:6731-6981` |
+| `Jedi_CanPullBackSaber` | `oracle/codemp/game/NPC_AI_Jedi.c:5730-5752` | `JKAMP_GameLogic/NPC_AI_Jedi.swift:415` | marker | `crates/mp/game/src/NPC_AI_Jedi.rs:6986-7013` |
+| `NPC_BSJedi_FollowLeader` | `oracle/codemp/game/NPC_AI_Jedi.c:5758-5836` | `JKAMP_GameLogic/NPC_AI_Jedi.swift:426` | marker | `crates/mp/game/src/NPC_AI_Jedi.rs:7018-7123` |
+| `Jedi_Attack` static | `oracle/codemp/game/NPC_AI_Jedi.c:5845-6166` | `JKAMP_GameLogic/NPC_AI_Jedi.swift:432` | marker | `crates/mp/game/src/NPC_AI_Jedi.rs:7128-7555` |
+| `NPC_BSJedi_Default` | `oracle/codemp/game/NPC_AI_Jedi.c:6170-6220` | `JKAMP_GameLogic/NPC_AI_Jedi.swift:438` | marker | `crates/mp/game/src/NPC_AI_Jedi.rs:7560-7638` |

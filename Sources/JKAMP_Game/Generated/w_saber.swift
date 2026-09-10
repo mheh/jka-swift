@@ -162,33 +162,30 @@ public let SABER_MAX_THROW_DISTANCE = CJKAMP_Game.SABER_MAX_THROW_DISTANCE
 public let STAFF_KICK_RANGE = CJKAMP_Game.STAFF_KICK_RANGE
 
 /// Source: oracle/codemp/game/w_saber.h:35
-public let FJ_FORWARD = CJKAMP_Game.FJ_FORWARD
+public let FJ_FORWARD: Int32 = Int32(truncatingIfNeeded: CJKAMP_Game.FJ_FORWARD)
 
 /// Source: oracle/codemp/game/w_saber.h:35
-public let FJ_BACKWARD = CJKAMP_Game.FJ_BACKWARD
+public let FJ_BACKWARD: Int32 = Int32(truncatingIfNeeded: CJKAMP_Game.FJ_BACKWARD)
 
 /// Source: oracle/codemp/game/w_saber.h:35
-public let FJ_RIGHT = CJKAMP_Game.FJ_RIGHT
+public let FJ_RIGHT: Int32 = Int32(truncatingIfNeeded: CJKAMP_Game.FJ_RIGHT)
 
 /// Source: oracle/codemp/game/w_saber.h:35
-public let FJ_LEFT = CJKAMP_Game.FJ_LEFT
+public let FJ_LEFT: Int32 = Int32(truncatingIfNeeded: CJKAMP_Game.FJ_LEFT)
 
 /// Source: oracle/codemp/game/w_saber.h:35
-public let FJ_UP = CJKAMP_Game.FJ_UP
+public let FJ_UP: Int32 = Int32(truncatingIfNeeded: CJKAMP_Game.FJ_UP)
 
 /// Source: oracle/codemp/game/w_saber.h:44
-public struct evasionType_t: RawRepresentable, Hashable, Sendable {
-    public let rawValue: Int32
-    public init(rawValue: Int32) { self.rawValue = rawValue }
-    public static let EVASION_NONE = evasionType_t(rawValue: Int32(truncatingIfNeeded: CJKAMP_Game.EVASION_NONE.rawValue))
-    public static let EVASION_PARRY = evasionType_t(rawValue: Int32(truncatingIfNeeded: CJKAMP_Game.EVASION_PARRY.rawValue))
-    public static let EVASION_DUCK_PARRY = evasionType_t(rawValue: Int32(truncatingIfNeeded: CJKAMP_Game.EVASION_DUCK_PARRY.rawValue))
-    public static let EVASION_JUMP_PARRY = evasionType_t(rawValue: Int32(truncatingIfNeeded: CJKAMP_Game.EVASION_JUMP_PARRY.rawValue))
-    public static let EVASION_DODGE = evasionType_t(rawValue: Int32(truncatingIfNeeded: CJKAMP_Game.EVASION_DODGE.rawValue))
-    public static let EVASION_JUMP = evasionType_t(rawValue: Int32(truncatingIfNeeded: CJKAMP_Game.EVASION_JUMP.rawValue))
-    public static let EVASION_DUCK = evasionType_t(rawValue: Int32(truncatingIfNeeded: CJKAMP_Game.EVASION_DUCK.rawValue))
-    public static let EVASION_FJUMP = evasionType_t(rawValue: Int32(truncatingIfNeeded: CJKAMP_Game.EVASION_FJUMP.rawValue))
-    public static let EVASION_CARTWHEEL = evasionType_t(rawValue: Int32(truncatingIfNeeded: CJKAMP_Game.EVASION_CARTWHEEL.rawValue))
-    public static let EVASION_OTHER = evasionType_t(rawValue: Int32(truncatingIfNeeded: CJKAMP_Game.EVASION_OTHER.rawValue))
-    public static let NUM_EVASION_TYPES = evasionType_t(rawValue: Int32(truncatingIfNeeded: CJKAMP_Game.NUM_EVASION_TYPES.rawValue))
-}
+public typealias evasionType_t = Int32
+public let EVASION_NONE: evasionType_t = Int32(truncatingIfNeeded: CJKAMP_Game.EVASION_NONE.rawValue)
+public let EVASION_PARRY: evasionType_t = Int32(truncatingIfNeeded: CJKAMP_Game.EVASION_PARRY.rawValue)
+public let EVASION_DUCK_PARRY: evasionType_t = Int32(truncatingIfNeeded: CJKAMP_Game.EVASION_DUCK_PARRY.rawValue)
+public let EVASION_JUMP_PARRY: evasionType_t = Int32(truncatingIfNeeded: CJKAMP_Game.EVASION_JUMP_PARRY.rawValue)
+public let EVASION_DODGE: evasionType_t = Int32(truncatingIfNeeded: CJKAMP_Game.EVASION_DODGE.rawValue)
+public let EVASION_JUMP: evasionType_t = Int32(truncatingIfNeeded: CJKAMP_Game.EVASION_JUMP.rawValue)
+public let EVASION_DUCK: evasionType_t = Int32(truncatingIfNeeded: CJKAMP_Game.EVASION_DUCK.rawValue)
+public let EVASION_FJUMP: evasionType_t = Int32(truncatingIfNeeded: CJKAMP_Game.EVASION_FJUMP.rawValue)
+public let EVASION_CARTWHEEL: evasionType_t = Int32(truncatingIfNeeded: CJKAMP_Game.EVASION_CARTWHEEL.rawValue)
+public let EVASION_OTHER: evasionType_t = Int32(truncatingIfNeeded: CJKAMP_Game.EVASION_OTHER.rawValue)
+public let NUM_EVASION_TYPES: evasionType_t = Int32(truncatingIfNeeded: CJKAMP_Game.NUM_EVASION_TYPES.rawValue)

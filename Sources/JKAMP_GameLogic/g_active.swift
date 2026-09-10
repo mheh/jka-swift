@@ -68,10 +68,7 @@ ClientImpacts
 ==============
 */
 /// Source: oracle/codemp/game/g_active.c:478
-// TODO: Port signature
-// Raven wrote: void ClientImpacts( gentity_t *ent, pmove_t *pm )
-// No table row for `pmove_t * pm`.
-func ClientImpacts() -> Never {
+func ClientImpacts(_ ent: Entity, _ pm: JKAMP.Pmove) {
     // TODO: Port ClientImpacts
     portMissing("ClientImpacts", source: "oracle/codemp/game/g_active.c:478")
 }

@@ -11,55 +11,46 @@ public let MAX_FRAME_GROUPS = CJKAMP_Game.MAX_FRAME_GROUPS
 public let MAX_GROUP_MEMBERS = CJKAMP_Game.MAX_GROUP_MEMBERS
 
 /// Source: oracle/codemp/game/ai.h:18
-public let SQUAD_IDLE = CJKAMP_Game.SQUAD_IDLE
+public let SQUAD_IDLE: Int32 = Int32(truncatingIfNeeded: CJKAMP_Game.SQUAD_IDLE)
 
 /// Source: oracle/codemp/game/ai.h:18
-public let SQUAD_STAND_AND_SHOOT = CJKAMP_Game.SQUAD_STAND_AND_SHOOT
+public let SQUAD_STAND_AND_SHOOT: Int32 = Int32(truncatingIfNeeded: CJKAMP_Game.SQUAD_STAND_AND_SHOOT)
 
 /// Source: oracle/codemp/game/ai.h:18
-public let SQUAD_RETREAT = CJKAMP_Game.SQUAD_RETREAT
+public let SQUAD_RETREAT: Int32 = Int32(truncatingIfNeeded: CJKAMP_Game.SQUAD_RETREAT)
 
 /// Source: oracle/codemp/game/ai.h:18
-public let SQUAD_COVER = CJKAMP_Game.SQUAD_COVER
+public let SQUAD_COVER: Int32 = Int32(truncatingIfNeeded: CJKAMP_Game.SQUAD_COVER)
 
 /// Source: oracle/codemp/game/ai.h:18
-public let SQUAD_TRANSITION = CJKAMP_Game.SQUAD_TRANSITION
+public let SQUAD_TRANSITION: Int32 = Int32(truncatingIfNeeded: CJKAMP_Game.SQUAD_TRANSITION)
 
 /// Source: oracle/codemp/game/ai.h:18
-public let SQUAD_POINT = CJKAMP_Game.SQUAD_POINT
+public let SQUAD_POINT: Int32 = Int32(truncatingIfNeeded: CJKAMP_Game.SQUAD_POINT)
 
 /// Source: oracle/codemp/game/ai.h:18
-public let SQUAD_SCOUT = CJKAMP_Game.SQUAD_SCOUT
+public let SQUAD_SCOUT: Int32 = Int32(truncatingIfNeeded: CJKAMP_Game.SQUAD_SCOUT)
 
 /// Source: oracle/codemp/game/ai.h:18
-public let NUM_SQUAD_STATES = CJKAMP_Game.NUM_SQUAD_STATES
+public let NUM_SQUAD_STATES: Int32 = Int32(truncatingIfNeeded: CJKAMP_Game.NUM_SQUAD_STATES)
 
 /// Source: oracle/codemp/game/ai.h:12
-public struct attack_e: RawRepresentable, Hashable, Sendable {
-    public let rawValue: Int32
-    public init(rawValue: Int32) { self.rawValue = rawValue }
-    public static let ATTACK_MELEE = attack_e(rawValue: Int32(truncatingIfNeeded: CJKAMP_Game.ATTACK_MELEE.rawValue))
-    public static let ATTACK_RANGE = attack_e(rawValue: Int32(truncatingIfNeeded: CJKAMP_Game.ATTACK_RANGE.rawValue))
-}
+public typealias attack_e = Int32
+public let ATTACK_MELEE: attack_e = Int32(truncatingIfNeeded: CJKAMP_Game.ATTACK_MELEE.rawValue)
+public let ATTACK_RANGE: attack_e = Int32(truncatingIfNeeded: CJKAMP_Game.ATTACK_RANGE.rawValue)
 
 /// Source: oracle/codemp/game/ai.h:5
-public struct distance_e: RawRepresentable, Hashable, Sendable {
-    public let rawValue: Int32
-    public init(rawValue: Int32) { self.rawValue = rawValue }
-    public static let DIST_MELEE = distance_e(rawValue: Int32(truncatingIfNeeded: CJKAMP_Game.DIST_MELEE.rawValue))
-    public static let DIST_LONG = distance_e(rawValue: Int32(truncatingIfNeeded: CJKAMP_Game.DIST_LONG.rawValue))
-}
+public typealias distance_e = Int32
+public let DIST_MELEE: distance_e = Int32(truncatingIfNeeded: CJKAMP_Game.DIST_MELEE.rawValue)
+public let DIST_LONG: distance_e = Int32(truncatingIfNeeded: CJKAMP_Game.DIST_LONG.rawValue)
 
 /// Source: oracle/codemp/game/ai.h:31
-public struct rank_t: RawRepresentable, Hashable, Sendable {
-    public let rawValue: Int32
-    public init(rawValue: Int32) { self.rawValue = rawValue }
-    public static let RANK_CIVILIAN = rank_t(rawValue: Int32(truncatingIfNeeded: CJKAMP_Game.RANK_CIVILIAN.rawValue))
-    public static let RANK_CREWMAN = rank_t(rawValue: Int32(truncatingIfNeeded: CJKAMP_Game.RANK_CREWMAN.rawValue))
-    public static let RANK_ENSIGN = rank_t(rawValue: Int32(truncatingIfNeeded: CJKAMP_Game.RANK_ENSIGN.rawValue))
-    public static let RANK_LT_JG = rank_t(rawValue: Int32(truncatingIfNeeded: CJKAMP_Game.RANK_LT_JG.rawValue))
-    public static let RANK_LT = rank_t(rawValue: Int32(truncatingIfNeeded: CJKAMP_Game.RANK_LT.rawValue))
-    public static let RANK_LT_COMM = rank_t(rawValue: Int32(truncatingIfNeeded: CJKAMP_Game.RANK_LT_COMM.rawValue))
-    public static let RANK_COMMANDER = rank_t(rawValue: Int32(truncatingIfNeeded: CJKAMP_Game.RANK_COMMANDER.rawValue))
-    public static let RANK_CAPTAIN = rank_t(rawValue: Int32(truncatingIfNeeded: CJKAMP_Game.RANK_CAPTAIN.rawValue))
-}
+public typealias rank_t = Int32
+public let RANK_CIVILIAN: rank_t = Int32(truncatingIfNeeded: CJKAMP_Game.RANK_CIVILIAN.rawValue)
+public let RANK_CREWMAN: rank_t = Int32(truncatingIfNeeded: CJKAMP_Game.RANK_CREWMAN.rawValue)
+public let RANK_ENSIGN: rank_t = Int32(truncatingIfNeeded: CJKAMP_Game.RANK_ENSIGN.rawValue)
+public let RANK_LT_JG: rank_t = Int32(truncatingIfNeeded: CJKAMP_Game.RANK_LT_JG.rawValue)
+public let RANK_LT: rank_t = Int32(truncatingIfNeeded: CJKAMP_Game.RANK_LT.rawValue)
+public let RANK_LT_COMM: rank_t = Int32(truncatingIfNeeded: CJKAMP_Game.RANK_LT_COMM.rawValue)
+public let RANK_COMMANDER: rank_t = Int32(truncatingIfNeeded: CJKAMP_Game.RANK_COMMANDER.rawValue)
+public let RANK_CAPTAIN: rank_t = Int32(truncatingIfNeeded: CJKAMP_Game.RANK_CAPTAIN.rawValue)

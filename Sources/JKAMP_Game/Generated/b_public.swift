@@ -8,45 +8,33 @@ import JKAShared
 public let NPCAI_CUSTOM_GRAVITY = CJKAMP_Game.NPCAI_CUSTOM_GRAVITY
 
 /// Source: oracle/codemp/game/b_public.h:77
-public struct jumpState_t: RawRepresentable, Hashable, Sendable {
-    public let rawValue: Int32
-    public init(rawValue: Int32) { self.rawValue = rawValue }
-    public static let JS_WAITING = jumpState_t(rawValue: Int32(truncatingIfNeeded: CJKAMP_Game.JS_WAITING.rawValue))
-    public static let JS_FACING = jumpState_t(rawValue: Int32(truncatingIfNeeded: CJKAMP_Game.JS_FACING.rawValue))
-    public static let JS_CROUCHING = jumpState_t(rawValue: Int32(truncatingIfNeeded: CJKAMP_Game.JS_CROUCHING.rawValue))
-    public static let JS_JUMPING = jumpState_t(rawValue: Int32(truncatingIfNeeded: CJKAMP_Game.JS_JUMPING.rawValue))
-    public static let JS_LANDING = jumpState_t(rawValue: Int32(truncatingIfNeeded: CJKAMP_Game.JS_LANDING.rawValue))
-}
+public typealias jumpState_t = Int32
+public let JS_WAITING: jumpState_t = Int32(truncatingIfNeeded: CJKAMP_Game.JS_WAITING.rawValue)
+public let JS_FACING: jumpState_t = Int32(truncatingIfNeeded: CJKAMP_Game.JS_FACING.rawValue)
+public let JS_CROUCHING: jumpState_t = Int32(truncatingIfNeeded: CJKAMP_Game.JS_CROUCHING.rawValue)
+public let JS_JUMPING: jumpState_t = Int32(truncatingIfNeeded: CJKAMP_Game.JS_JUMPING.rawValue)
+public let JS_LANDING: jumpState_t = Int32(truncatingIfNeeded: CJKAMP_Game.JS_LANDING.rawValue)
 
 /// Source: oracle/codemp/game/b_public.h:68
-public struct visibility_t: RawRepresentable, Hashable, Sendable {
-    public let rawValue: Int32
-    public init(rawValue: Int32) { self.rawValue = rawValue }
-    public static let VIS_UNKNOWN = visibility_t(rawValue: Int32(truncatingIfNeeded: CJKAMP_Game.VIS_UNKNOWN.rawValue))
-    public static let VIS_NOT = visibility_t(rawValue: Int32(truncatingIfNeeded: CJKAMP_Game.VIS_NOT.rawValue))
-    public static let VIS_PVS = visibility_t(rawValue: Int32(truncatingIfNeeded: CJKAMP_Game.VIS_PVS.rawValue))
-    public static let VIS_360 = visibility_t(rawValue: Int32(truncatingIfNeeded: CJKAMP_Game.VIS_360.rawValue))
-    public static let VIS_FOV = visibility_t(rawValue: Int32(truncatingIfNeeded: CJKAMP_Game.VIS_FOV.rawValue))
-    public static let VIS_SHOOT = visibility_t(rawValue: Int32(truncatingIfNeeded: CJKAMP_Game.VIS_SHOOT.rawValue))
-}
+public typealias visibility_t = Int32
+public let VIS_UNKNOWN: visibility_t = Int32(truncatingIfNeeded: CJKAMP_Game.VIS_UNKNOWN.rawValue)
+public let VIS_NOT: visibility_t = Int32(truncatingIfNeeded: CJKAMP_Game.VIS_NOT.rawValue)
+public let VIS_PVS: visibility_t = Int32(truncatingIfNeeded: CJKAMP_Game.VIS_PVS.rawValue)
+public let VIS_360: visibility_t = Int32(truncatingIfNeeded: CJKAMP_Game.VIS_360.rawValue)
+public let VIS_FOV: visibility_t = Int32(truncatingIfNeeded: CJKAMP_Game.VIS_FOV.rawValue)
+public let VIS_SHOOT: visibility_t = Int32(truncatingIfNeeded: CJKAMP_Game.VIS_SHOOT.rawValue)
 
 /// Source: oracle/codemp/game/b_public.h:71
-public struct lookMode_t: RawRepresentable, Hashable, Sendable {
-    public let rawValue: Int32
-    public init(rawValue: Int32) { self.rawValue = rawValue }
-    public static let LM_ENT = lookMode_t(rawValue: Int32(truncatingIfNeeded: CJKAMP_Game.LM_ENT.rawValue))
-    public static let LM_INTEREST = lookMode_t(rawValue: Int32(truncatingIfNeeded: CJKAMP_Game.LM_INTEREST.rawValue))
-}
+public typealias lookMode_t = Int32
+public let LM_ENT: lookMode_t = Int32(truncatingIfNeeded: CJKAMP_Game.LM_ENT.rawValue)
+public let LM_INTEREST: lookMode_t = Int32(truncatingIfNeeded: CJKAMP_Game.LM_INTEREST.rawValue)
 
 /// Source: oracle/codemp/game/b_public.h:69
-public struct spot_t: RawRepresentable, Hashable, Sendable {
-    public let rawValue: Int32
-    public init(rawValue: Int32) { self.rawValue = rawValue }
-    public static let SPOT_ORIGIN = spot_t(rawValue: Int32(truncatingIfNeeded: CJKAMP_Game.SPOT_ORIGIN.rawValue))
-    public static let SPOT_CHEST = spot_t(rawValue: Int32(truncatingIfNeeded: CJKAMP_Game.SPOT_CHEST.rawValue))
-    public static let SPOT_HEAD = spot_t(rawValue: Int32(truncatingIfNeeded: CJKAMP_Game.SPOT_HEAD.rawValue))
-    public static let SPOT_HEAD_LEAN = spot_t(rawValue: Int32(truncatingIfNeeded: CJKAMP_Game.SPOT_HEAD_LEAN.rawValue))
-    public static let SPOT_WEAPON = spot_t(rawValue: Int32(truncatingIfNeeded: CJKAMP_Game.SPOT_WEAPON.rawValue))
-    public static let SPOT_LEGS = spot_t(rawValue: Int32(truncatingIfNeeded: CJKAMP_Game.SPOT_LEGS.rawValue))
-    public static let SPOT_GROUND = spot_t(rawValue: Int32(truncatingIfNeeded: CJKAMP_Game.SPOT_GROUND.rawValue))
-}
+public typealias spot_t = Int32
+public let SPOT_ORIGIN: spot_t = Int32(truncatingIfNeeded: CJKAMP_Game.SPOT_ORIGIN.rawValue)
+public let SPOT_CHEST: spot_t = Int32(truncatingIfNeeded: CJKAMP_Game.SPOT_CHEST.rawValue)
+public let SPOT_HEAD: spot_t = Int32(truncatingIfNeeded: CJKAMP_Game.SPOT_HEAD.rawValue)
+public let SPOT_HEAD_LEAN: spot_t = Int32(truncatingIfNeeded: CJKAMP_Game.SPOT_HEAD_LEAN.rawValue)
+public let SPOT_WEAPON: spot_t = Int32(truncatingIfNeeded: CJKAMP_Game.SPOT_WEAPON.rawValue)
+public let SPOT_LEGS: spot_t = Int32(truncatingIfNeeded: CJKAMP_Game.SPOT_LEGS.rawValue)
+public let SPOT_GROUND: spot_t = Int32(truncatingIfNeeded: CJKAMP_Game.SPOT_GROUND.rawValue)

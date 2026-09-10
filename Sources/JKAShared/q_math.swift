@@ -206,7 +206,7 @@ public func ByteToDir(_ b: Int32, _ dir: inout vec3_t) {
         dir = vec3_origin
         return
     }
-    dir = bytedirs[Int(b)]
+    dir = bytedirs[b]
 }
 
 /// Raven writes three bytes of an uninitialized word and leaves byte 3 as stack garbage. Rule 19.
@@ -416,9 +416,9 @@ public func vectoangles(_ value1: vec3_t, _ angles: inout vec3_t) {
         }
     }
 
-    angles[Int(PITCH)] = -pitch
-    angles[Int(YAW)] = yaw
-    angles[Int(ROLL)] = 0
+    angles[PITCH] = -pitch
+    angles[YAW] = yaw
+    angles[ROLL] = 0
 }
 
 /**
@@ -686,10 +686,10 @@ public func BoxOnPlaneSide(_ emins: vec3_t, _ emaxs: vec3_t, _ p: inout Plane) -
 
 // fast axial cases
     if p.type < 3 {
-        if p.dist <= emins[Int(p.type)] {
+        if p.dist <= emins[p.type] {
             return 1
         }
-        if p.dist >= emaxs[Int(p.type)] {
+        if p.dist >= emaxs[p.type] {
             return 2
         }
         return 3
@@ -963,13 +963,13 @@ public func AngleVectors(_ angles: vec3_t, _ forward: inout vec3_t, _ right: ino
     // Raven marks the six temporaries static, and each is written before it is read, so a local holds the same value.
 
     // M_PI is the double of math.h, so each angle runs in double and rounds once. sin and cos are the double libm calls.
-    angle = Float(Double(angles[Int(YAW)]) * (Double.pi * 2 / 360))
+    angle = Float(Double(angles[YAW]) * (Double.pi * 2 / 360))
     sy = Float(sin(Double(angle)))
     cy = Float(cos(Double(angle)))
-    angle = Float(Double(angles[Int(PITCH)]) * (Double.pi * 2 / 360))
+    angle = Float(Double(angles[PITCH]) * (Double.pi * 2 / 360))
     sp = Float(sin(Double(angle)))
     cp = Float(cos(Double(angle)))
-    angle = Float(Double(angles[Int(ROLL)]) * (Double.pi * 2 / 360))
+    angle = Float(Double(angles[ROLL]) * (Double.pi * 2 / 360))
     sr = Float(sin(Double(angle)))
     cr = Float(cos(Double(angle)))
 
@@ -1319,4 +1319,12 @@ public func CrossProduct(_ v1: vec3_t, _ v2: vec3_t, _ cross: inout vec3_t) {
     cross[0] = v1[1] * v2[2] - v1[2] * v2[1]
     cross[1] = v1[2] * v2[0] - v1[0] * v2[2]
     cross[2] = v1[0] * v2[1] - v1[1] * v2[0]
+}
+
+/// Pitiful attempt to reduce _ftol2 calls.
+/// Source: oracle/codemp/game/q_shared.h:1408
+public func SnapVector(_ v: inout vec3_t) {
+    v[0] = Float(Int32(v[0]))
+    v[1] = Float(Int32(v[1]))
+    v[2] = Float(Int32(v[2]))
 }

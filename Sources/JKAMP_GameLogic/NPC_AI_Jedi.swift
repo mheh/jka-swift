@@ -298,10 +298,7 @@ func Jedi_FindEnemyInCone(_ `self`: Entity, _ fallback: Entity, _ minDot: Float)
 }
 
 /// Source: oracle/codemp/game/NPC_AI_Jedi.c:3763
-// TODO: Port signature
-// Raven wrote: static void Jedi_SetEnemyInfo( vec3_t enemy_dest, vec3_t enemy_dir, float *enemy_dist, vec3_t enemy_movedir, float *enemy_movespeed, int prediction )
-// No table row for `float * enemy_dist`.
-private func Jedi_SetEnemyInfo() -> Never {
+private func Jedi_SetEnemyInfo(_ enemy_dest: JKAShared.vec3_t, _ enemy_dir: JKAShared.vec3_t, _ enemy_dist: inout Float, _ enemy_movedir: JKAShared.vec3_t, _ enemy_movespeed: inout Float, _ prediction: Int32) {
     // TODO: Port Jedi_SetEnemyInfo
     portMissing("Jedi_SetEnemyInfo", source: "oracle/codemp/game/NPC_AI_Jedi.c:3763")
 }

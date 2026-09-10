@@ -119,10 +119,7 @@ func RemoveTournamentLoser() {
 }
 
 /// Source: oracle/codemp/game/g_main.c:1321
-// TODO: Port signature
-// Raven wrote: void G_PowerDuelCount(int *loners, int *doubles, qboolean countSpec)
-// No table row for `int * loners`.
-func G_PowerDuelCount() -> Never {
+func G_PowerDuelCount(_ loners: inout Int32, _ doubles: inout Int32, _ countSpec: Bool) {
     // TODO: Port G_PowerDuelCount
     portMissing("G_PowerDuelCount", source: "oracle/codemp/game/g_main.c:1321")
 }

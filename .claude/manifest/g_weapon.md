@@ -77,18 +77,18 @@ The oracle range is the whole definition, from the return type to the closing br
 | `WP_TouchVehMissile` | `oracle/codemp/game/g_weapon.c:3569-3578` | `JKAMP_GameLogic/g_weapon.swift:495` | marker | `crates/mp/game/src/g_weapon.rs:4339-4351` |
 | `WP_CalcVehMuzzle` | `oracle/codemp/game/g_weapon.c:3580-3608` | `JKAMP_GameLogic/g_weapon.swift:501` | marker | `crates/mp/game/src/g_weapon.rs:4356-4416` |
 | `WP_VehWeapSetSolidToOwner` | `oracle/codemp/game/g_weapon.c:3610-3625` | `JKAMP_GameLogic/g_weapon.swift:507` | marker | `crates/mp/game/src/g_weapon.rs:4421-4438` |
-| `WP_FireVehicleWeapon` | `oracle/codemp/game/g_weapon.c:3628-3848` | `JKAMP_GameLogic/g_weapon.swift:516` | marker | `crates/mp/game/src/g_weapon.rs:4443-4677` |
-| `G_VehMuzzleFireFX` | `oracle/codemp/game/g_weapon.c:3851-3881` | `JKAMP_GameLogic/g_weapon.swift:523` | marker | `crates/mp/game/src/g_weapon.rs:4682-4722` |
-| `G_EstimateCamPos` | `oracle/codemp/game/g_weapon.c:3883-3959` | `JKAMP_GameLogic/g_weapon.swift:529` | marker | `crates/mp/game/src/g_weapon.rs:4727-4841` |
-| `WP_GetVehicleCamPos` | `oracle/codemp/game/g_weapon.c:3961-4020` | `JKAMP_GameLogic/g_weapon.swift:535` | marker | `crates/mp/game/src/g_weapon.rs:4846-4914` |
-| `WP_VehLeadCrosshairVeh` | `oracle/codemp/game/g_weapon.c:4022-4047` | `JKAMP_GameLogic/g_weapon.swift:541` | marker | `crates/mp/game/src/g_weapon.rs:4919-4957` |
-| `WP_VehCheckTraceFromCamPos` | `oracle/codemp/game/g_weapon.c:4052-4113` | `JKAMP_GameLogic/g_weapon.swift:547` | marker | `crates/mp/game/src/g_weapon.rs:4962-5082` |
-| `FireVehicleWeapon` | `oracle/codemp/game/g_weapon.c:4116-4413` | `JKAMP_GameLogic/g_weapon.swift:554` | marker | `crates/mp/game/src/g_weapon.rs:5087-5423` |
-| `FireWeapon` | `oracle/codemp/game/g_weapon.c:4424-4608` | `JKAMP_GameLogic/g_weapon.swift:560` | marker | `crates/mp/game/src/g_weapon.rs:5428-5613` |
-| `WP_FireEmplaced` static | `oracle/codemp/game/g_weapon.c:4611-4660` | `JKAMP_GameLogic/g_weapon.swift:567` | marker | `crates/mp/game/src/g_weapon.rs:5618-5663` |
-| `emplaced_gun_use` | `oracle/codemp/game/g_weapon.c:4691-4802` | `JKAMP_GameLogic/g_weapon.swift:573` | marker | `crates/mp/game/src/g_weapon.rs:5668-5782` |
-| `emplaced_gun_realuse` | `oracle/codemp/game/g_weapon.c:4804-4807` | `JKAMP_GameLogic/g_weapon.swift:579` | marker | `crates/mp/game/src/g_weapon.rs:5787-5795` |
-| `emplaced_gun_pain` | `oracle/codemp/game/g_weapon.c:4810-4823` | `JKAMP_GameLogic/g_weapon.swift:586` | marker | `crates/mp/game/src/g_weapon.rs:5800-5815` |
-| `emplaced_gun_update` | `oracle/codemp/game/g_weapon.c:4828-4927` | `JKAMP_GameLogic/g_weapon.swift:593` | marker | `crates/mp/game/src/g_weapon.rs:5820-5958` |
-| `emplaced_gun_die` | `oracle/codemp/game/g_weapon.c:4930-4942` | `JKAMP_GameLogic/g_weapon.swift:600` | marker | `crates/mp/game/src/g_weapon.rs:5963-5980` |
-| `SP_emplaced_gun` | `oracle/codemp/game/g_weapon.c:4944-5027` | `JKAMP_GameLogic/g_weapon.swift:606` | marker | `crates/mp/game/src/g_weapon.rs:5985-6109` |
+| `WP_FireVehicleWeapon` | `oracle/codemp/game/g_weapon.c:3628-3848` | `JKAMP_GameLogic/g_weapon.swift:513` | marker | `crates/mp/game/src/g_weapon.rs:4443-4677` |
+| `G_VehMuzzleFireFX` | `oracle/codemp/game/g_weapon.c:3851-3881` | `JKAMP_GameLogic/g_weapon.swift:520` | marker | `crates/mp/game/src/g_weapon.rs:4682-4722` |
+| `G_EstimateCamPos` | `oracle/codemp/game/g_weapon.c:3883-3959` | `JKAMP_GameLogic/g_weapon.swift:526` | marker | `crates/mp/game/src/g_weapon.rs:4727-4841` |
+| `WP_GetVehicleCamPos` | `oracle/codemp/game/g_weapon.c:3961-4020` | `JKAMP_GameLogic/g_weapon.swift:532` | marker | `crates/mp/game/src/g_weapon.rs:4846-4914` |
+| `WP_VehLeadCrosshairVeh` | `oracle/codemp/game/g_weapon.c:4022-4047` | `JKAMP_GameLogic/g_weapon.swift:538` | marker | `crates/mp/game/src/g_weapon.rs:4919-4957` |
+| `WP_VehCheckTraceFromCamPos` | `oracle/codemp/game/g_weapon.c:4052-4113` | `JKAMP_GameLogic/g_weapon.swift:544` | marker | `crates/mp/game/src/g_weapon.rs:4962-5082` |
+| `FireVehicleWeapon` | `oracle/codemp/game/g_weapon.c:4116-4413` | `JKAMP_GameLogic/g_weapon.swift:551` | marker | `crates/mp/game/src/g_weapon.rs:5087-5423` |
+| `FireWeapon` | `oracle/codemp/game/g_weapon.c:4424-4608` | `JKAMP_GameLogic/g_weapon.swift:557` | marker | `crates/mp/game/src/g_weapon.rs:5428-5613` |
+| `WP_FireEmplaced` static | `oracle/codemp/game/g_weapon.c:4611-4660` | `JKAMP_GameLogic/g_weapon.swift:564` | marker | `crates/mp/game/src/g_weapon.rs:5618-5663` |
+| `emplaced_gun_use` | `oracle/codemp/game/g_weapon.c:4691-4802` | `JKAMP_GameLogic/g_weapon.swift:570` | marker | `crates/mp/game/src/g_weapon.rs:5668-5782` |
+| `emplaced_gun_realuse` | `oracle/codemp/game/g_weapon.c:4804-4807` | `JKAMP_GameLogic/g_weapon.swift:576` | marker | `crates/mp/game/src/g_weapon.rs:5787-5795` |
+| `emplaced_gun_pain` | `oracle/codemp/game/g_weapon.c:4810-4823` | `JKAMP_GameLogic/g_weapon.swift:583` | marker | `crates/mp/game/src/g_weapon.rs:5800-5815` |
+| `emplaced_gun_update` | `oracle/codemp/game/g_weapon.c:4828-4927` | `JKAMP_GameLogic/g_weapon.swift:590` | marker | `crates/mp/game/src/g_weapon.rs:5820-5958` |
+| `emplaced_gun_die` | `oracle/codemp/game/g_weapon.c:4930-4942` | `JKAMP_GameLogic/g_weapon.swift:597` | marker | `crates/mp/game/src/g_weapon.rs:5963-5980` |
+| `SP_emplaced_gun` | `oracle/codemp/game/g_weapon.c:4944-5027` | `JKAMP_GameLogic/g_weapon.swift:603` | marker | `crates/mp/game/src/g_weapon.rs:5985-6109` |

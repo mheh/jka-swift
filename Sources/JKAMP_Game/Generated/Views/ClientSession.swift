@@ -32,8 +32,8 @@ public struct ClientSession: Hashable, HandleView {
 
     /// Source: oracle/codemp/game/g_local.h:415
     public var spectatorState: spectatorState_t {
-        get { spectatorState_t(rawValue: Int32(truncatingIfNeeded: self.raw.pointee.spectatorState.rawValue)) }
-        nonmutating set { self.raw.pointee.spectatorState = .init(rawValue: .init(truncatingIfNeeded: newValue.rawValue)) }
+        get { Int32(truncatingIfNeeded: self.raw.pointee.spectatorState.rawValue) }
+        nonmutating set { self.raw.pointee.spectatorState = .init(rawValue: .init(truncatingIfNeeded: newValue)) }
     }
 
     /// Source: oracle/codemp/game/g_local.h:416

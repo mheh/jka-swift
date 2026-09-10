@@ -45,16 +45,16 @@ final class SyscallGameSuite {
     @Test("the typed overload sends a game import with its text pointer")
     func typedOverloadSendsTextPointer() {
         let recorder = RecordingTransport()
-        recorder.textCommands = [Int(gameImport_t.G_PRINT.rawValue)]
+        recorder.textCommands = [Int(G_PRINT)]
 
         withTransport(recorder) {
             "jka-swift jampgame init\n".withCString { text in
-                Syscall.call(.G_PRINT, text)
+                Syscall.call(G_PRINT, text)
             }
         }
 
         #expect(recorder.calls.count == 1)
-        #expect(recorder.calls[0].command == Int(gameImport_t.G_PRINT.rawValue))
+        #expect(recorder.calls[0].command == Int(G_PRINT))
         #expect(recorder.texts.count == 1)
         #expect(recorder.texts[0].text == "jka-swift jampgame init\n")
     }
@@ -66,11 +66,11 @@ final class SyscallGameSuite {
 
         let ent = g_entities[3]
         withTransport(recorder) {
-            Syscall.call(.G_LINKENTITY, ent)
+            Syscall.call(G_LINKENTITY, ent)
         }
 
         #expect(recorder.calls.count == 1)
-        #expect(recorder.calls[0].command == Int(gameImport_t.G_LINKENTITY.rawValue))
+        #expect(recorder.calls[0].command == Int(G_LINKENTITY))
         #expect(recorder.calls[0].words == [Int(bitPattern: ent.handle)])
     }
 }

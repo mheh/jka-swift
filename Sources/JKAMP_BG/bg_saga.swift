@@ -59,10 +59,7 @@ func BG_SiegeTranslateGenericTable() -> Never {
 }
 
 /// Source: oracle/codemp/game/bg_saga.c:759
-// TODO: Port signature
-// Raven wrote: void BG_SiegeParseClassFile(const char *filename, siegeClassDesc_t *descBuffer)
-// No table row for `siegeClassDesc_t * descBuffer`.
-func BG_SiegeParseClassFile() -> Never {
+func BG_SiegeParseClassFile(_ filename: String, _ descBuffer: JKAMP.SiegeClassDesc) {
     // TODO: Port BG_SiegeParseClassFile
     portMissing("BG_SiegeParseClassFile", source: "oracle/codemp/game/bg_saga.c:759")
 }
@@ -91,19 +88,13 @@ func BG_GetUIPortrait(_ team: Int32, _ classIndex: Int16, _ cntIndex: Int16) -> 
 
 // This is really getting ugly - looking to get the base class (within a class) based on the index passed in
 /// Source: oracle/codemp/game/bg_saga.c:1153
-// TODO: Port signature
-// Raven wrote: siegeClass_t *BG_GetClassOnBaseClass(const int team, const short classIndex, const short cntIndex)
-// No table row for the return `siegeClass_t *`.
-func BG_GetClassOnBaseClass() -> Never {
+func BG_GetClassOnBaseClass(_ team: Int32, _ classIndex: Int16, _ cntIndex: Int16) -> JKAMP.SiegeClass? {
     // TODO: Port BG_GetClassOnBaseClass
     portMissing("BG_GetClassOnBaseClass", source: "oracle/codemp/game/bg_saga.c:1153")
 }
 
 /// Source: oracle/codemp/game/bg_saga.c:1181
-// TODO: Port signature
-// Raven wrote: void BG_SiegeLoadClasses(siegeClassDesc_t *descBuffer)
-// No table row for `siegeClassDesc_t * descBuffer`.
-func BG_SiegeLoadClasses() -> Never {
+func BG_SiegeLoadClasses(_ descBuffer: JKAMP.SiegeClassDesc) {
     // TODO: Port BG_SiegeLoadClasses
     portMissing("BG_SiegeLoadClasses", source: "oracle/codemp/game/bg_saga.c:1181")
 }
@@ -112,10 +103,7 @@ func BG_SiegeLoadClasses() -> Never {
 //Team loading functions
 //======================================
 /// Source: oracle/codemp/game/bg_saga.c:1219
-// TODO: Port signature
-// Raven wrote: siegeClass_t *BG_SiegeFindClassByName(const char *classname)
-// No table row for the return `siegeClass_t *`.
-func BG_SiegeFindClassByName() -> Never {
+func BG_SiegeFindClassByName(_ classname: String) -> JKAMP.SiegeClass? {
     // TODO: Port BG_SiegeFindClassByName
     portMissing("BG_SiegeFindClassByName", source: "oracle/codemp/game/bg_saga.c:1219")
 }
@@ -136,10 +124,7 @@ func BG_SiegeLoadTeams() {
 //Misc/utility functions
 //======================================
 /// Source: oracle/codemp/game/bg_saga.c:1344
-// TODO: Port signature
-// Raven wrote: siegeTeam_t *BG_SiegeFindThemeForTeam(int team)
-// No table row for the return `siegeTeam_t *`.
-func BG_SiegeFindThemeForTeam() -> Never {
+func BG_SiegeFindThemeForTeam(_ team: Int32) -> JKAMP.SiegeTeam? {
     // TODO: Port BG_SiegeFindThemeForTeam
     portMissing("BG_SiegeFindThemeForTeam", source: "oracle/codemp/game/bg_saga.c:1344")
 }

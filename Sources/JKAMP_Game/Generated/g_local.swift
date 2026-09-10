@@ -131,132 +131,117 @@ public let SPF_BUTTON_FPUSHABLE = CJKAMP_Game.SPF_BUTTON_FPUSHABLE
 public let MAX_FILEPATH = CJKAMP_Game.MAX_FILEPATH
 
 /// Source: oracle/codemp/game/g_local.h:785
-public struct alertEventLevel_e: RawRepresentable, Hashable, Sendable {
-    public let rawValue: Int32
-    public init(rawValue: Int32) { self.rawValue = rawValue }
-    public static let AEL_MINOR = alertEventLevel_e(rawValue: Int32(truncatingIfNeeded: CJKAMP_Game.AEL_MINOR.rawValue))
-    public static let AEL_SUSPICIOUS = alertEventLevel_e(rawValue: Int32(truncatingIfNeeded: CJKAMP_Game.AEL_SUSPICIOUS.rawValue))
-    public static let AEL_DISCOVERED = alertEventLevel_e(rawValue: Int32(truncatingIfNeeded: CJKAMP_Game.AEL_DISCOVERED.rawValue))
-    public static let AEL_DANGER = alertEventLevel_e(rawValue: Int32(truncatingIfNeeded: CJKAMP_Game.AEL_DANGER.rawValue))
-    public static let AEL_DANGER_GREAT = alertEventLevel_e(rawValue: Int32(truncatingIfNeeded: CJKAMP_Game.AEL_DANGER_GREAT.rawValue))
-}
+public typealias alertEventLevel_e = Int32
+public let AEL_MINOR: alertEventLevel_e = Int32(truncatingIfNeeded: CJKAMP_Game.AEL_MINOR.rawValue)
+public let AEL_SUSPICIOUS: alertEventLevel_e = Int32(truncatingIfNeeded: CJKAMP_Game.AEL_SUSPICIOUS.rawValue)
+public let AEL_DISCOVERED: alertEventLevel_e = Int32(truncatingIfNeeded: CJKAMP_Game.AEL_DISCOVERED.rawValue)
+public let AEL_DANGER: alertEventLevel_e = Int32(truncatingIfNeeded: CJKAMP_Game.AEL_DANGER.rawValue)
+public let AEL_DANGER_GREAT: alertEventLevel_e = Int32(truncatingIfNeeded: CJKAMP_Game.AEL_DANGER_GREAT.rawValue)
 
 /// Source: oracle/codemp/game/g_local.h:779
-public struct alertEventType_e: RawRepresentable, Hashable, Sendable {
-    public let rawValue: Int32
-    public init(rawValue: Int32) { self.rawValue = rawValue }
-    public static let AET_SIGHT = alertEventType_e(rawValue: Int32(truncatingIfNeeded: CJKAMP_Game.AET_SIGHT.rawValue))
-    public static let AET_SOUND = alertEventType_e(rawValue: Int32(truncatingIfNeeded: CJKAMP_Game.AET_SOUND.rawValue))
-}
+public typealias alertEventType_e = Int32
+public let AET_SIGHT: alertEventType_e = Int32(truncatingIfNeeded: CJKAMP_Game.AET_SIGHT.rawValue)
+public let AET_SOUND: alertEventType_e = Int32(truncatingIfNeeded: CJKAMP_Game.AET_SOUND.rawValue)
 
 /// Source: oracle/codemp/game/g_local.h:371
 public typealias clientConnected_t = Int32
 
 /// Source: oracle/codemp/game/g_local.h:380
-public struct playerTeamStateState_t: RawRepresentable, Hashable, Sendable {
-    public let rawValue: Int32
-    public init(rawValue: Int32) { self.rawValue = rawValue }
-    public static let TEAM_BEGIN = playerTeamStateState_t(rawValue: Int32(truncatingIfNeeded: CJKAMP_Game.TEAM_BEGIN.rawValue))
-    public static let TEAM_ACTIVE = playerTeamStateState_t(rawValue: Int32(truncatingIfNeeded: CJKAMP_Game.TEAM_ACTIVE.rawValue))
-}
+public typealias playerTeamStateState_t = Int32
+public let TEAM_BEGIN: playerTeamStateState_t = Int32(truncatingIfNeeded: CJKAMP_Game.TEAM_BEGIN.rawValue)
+public let TEAM_ACTIVE: playerTeamStateState_t = Int32(truncatingIfNeeded: CJKAMP_Game.TEAM_ACTIVE.rawValue)
 
 /// Source: oracle/codemp/game/g_local.h:373
-public struct spectatorState_t: RawRepresentable, Hashable, Sendable {
-    public let rawValue: Int32
-    public init(rawValue: Int32) { self.rawValue = rawValue }
-    public static let SPECTATOR_NOT = spectatorState_t(rawValue: Int32(truncatingIfNeeded: CJKAMP_Game.SPECTATOR_NOT.rawValue))
-    public static let SPECTATOR_FREE = spectatorState_t(rawValue: Int32(truncatingIfNeeded: CJKAMP_Game.SPECTATOR_FREE.rawValue))
-    public static let SPECTATOR_FOLLOW = spectatorState_t(rawValue: Int32(truncatingIfNeeded: CJKAMP_Game.SPECTATOR_FOLLOW.rawValue))
-    public static let SPECTATOR_SCOREBOARD = spectatorState_t(rawValue: Int32(truncatingIfNeeded: CJKAMP_Game.SPECTATOR_SCOREBOARD.rawValue))
-}
+public typealias spectatorState_t = Int32
+public let SPECTATOR_NOT: spectatorState_t = Int32(truncatingIfNeeded: CJKAMP_Game.SPECTATOR_NOT.rawValue)
+public let SPECTATOR_FREE: spectatorState_t = Int32(truncatingIfNeeded: CJKAMP_Game.SPECTATOR_FREE.rawValue)
+public let SPECTATOR_FOLLOW: spectatorState_t = Int32(truncatingIfNeeded: CJKAMP_Game.SPECTATOR_FOLLOW.rawValue)
+public let SPECTATOR_SCOREBOARD: spectatorState_t = Int32(truncatingIfNeeded: CJKAMP_Game.SPECTATOR_SCOREBOARD.rawValue)
 
 /// Source: oracle/codemp/game/g_local.h:366
-public let CON_DISCONNECTED = CJKAMP_Game.CON_DISCONNECTED
+public let CON_DISCONNECTED: Int32 = Int32(truncatingIfNeeded: CJKAMP_Game.CON_DISCONNECTED)
 
 /// Source: oracle/codemp/game/g_local.h:366
-public let CON_CONNECTING = CJKAMP_Game.CON_CONNECTING
+public let CON_CONNECTING: Int32 = Int32(truncatingIfNeeded: CJKAMP_Game.CON_CONNECTING)
 
 /// Source: oracle/codemp/game/g_local.h:366
-public let CON_CONNECTED = CJKAMP_Game.CON_CONNECTED
+public let CON_CONNECTED: Int32 = Int32(truncatingIfNeeded: CJKAMP_Game.CON_CONNECTED)
 
 /// Source: oracle/codemp/game/g_local.h:98
-public let HL_NONE = CJKAMP_Game.HL_NONE
+public let HL_NONE: Int32 = Int32(truncatingIfNeeded: CJKAMP_Game.HL_NONE)
 
 /// Source: oracle/codemp/game/g_local.h:98
-public let HL_FOOT_RT = CJKAMP_Game.HL_FOOT_RT
+public let HL_FOOT_RT: Int32 = Int32(truncatingIfNeeded: CJKAMP_Game.HL_FOOT_RT)
 
 /// Source: oracle/codemp/game/g_local.h:98
-public let HL_FOOT_LT = CJKAMP_Game.HL_FOOT_LT
+public let HL_FOOT_LT: Int32 = Int32(truncatingIfNeeded: CJKAMP_Game.HL_FOOT_LT)
 
 /// Source: oracle/codemp/game/g_local.h:98
-public let HL_LEG_RT = CJKAMP_Game.HL_LEG_RT
+public let HL_LEG_RT: Int32 = Int32(truncatingIfNeeded: CJKAMP_Game.HL_LEG_RT)
 
 /// Source: oracle/codemp/game/g_local.h:98
-public let HL_LEG_LT = CJKAMP_Game.HL_LEG_LT
+public let HL_LEG_LT: Int32 = Int32(truncatingIfNeeded: CJKAMP_Game.HL_LEG_LT)
 
 /// Source: oracle/codemp/game/g_local.h:98
-public let HL_WAIST = CJKAMP_Game.HL_WAIST
+public let HL_WAIST: Int32 = Int32(truncatingIfNeeded: CJKAMP_Game.HL_WAIST)
 
 /// Source: oracle/codemp/game/g_local.h:98
-public let HL_BACK_RT = CJKAMP_Game.HL_BACK_RT
+public let HL_BACK_RT: Int32 = Int32(truncatingIfNeeded: CJKAMP_Game.HL_BACK_RT)
 
 /// Source: oracle/codemp/game/g_local.h:98
-public let HL_BACK_LT = CJKAMP_Game.HL_BACK_LT
+public let HL_BACK_LT: Int32 = Int32(truncatingIfNeeded: CJKAMP_Game.HL_BACK_LT)
 
 /// Source: oracle/codemp/game/g_local.h:98
-public let HL_BACK = CJKAMP_Game.HL_BACK
+public let HL_BACK: Int32 = Int32(truncatingIfNeeded: CJKAMP_Game.HL_BACK)
 
 /// Source: oracle/codemp/game/g_local.h:98
-public let HL_CHEST_RT = CJKAMP_Game.HL_CHEST_RT
+public let HL_CHEST_RT: Int32 = Int32(truncatingIfNeeded: CJKAMP_Game.HL_CHEST_RT)
 
 /// Source: oracle/codemp/game/g_local.h:98
-public let HL_CHEST_LT = CJKAMP_Game.HL_CHEST_LT
+public let HL_CHEST_LT: Int32 = Int32(truncatingIfNeeded: CJKAMP_Game.HL_CHEST_LT)
 
 /// Source: oracle/codemp/game/g_local.h:98
-public let HL_CHEST = CJKAMP_Game.HL_CHEST
+public let HL_CHEST: Int32 = Int32(truncatingIfNeeded: CJKAMP_Game.HL_CHEST)
 
 /// Source: oracle/codemp/game/g_local.h:98
-public let HL_ARM_RT = CJKAMP_Game.HL_ARM_RT
+public let HL_ARM_RT: Int32 = Int32(truncatingIfNeeded: CJKAMP_Game.HL_ARM_RT)
 
 /// Source: oracle/codemp/game/g_local.h:98
-public let HL_ARM_LT = CJKAMP_Game.HL_ARM_LT
+public let HL_ARM_LT: Int32 = Int32(truncatingIfNeeded: CJKAMP_Game.HL_ARM_LT)
 
 /// Source: oracle/codemp/game/g_local.h:98
-public let HL_HAND_RT = CJKAMP_Game.HL_HAND_RT
+public let HL_HAND_RT: Int32 = Int32(truncatingIfNeeded: CJKAMP_Game.HL_HAND_RT)
 
 /// Source: oracle/codemp/game/g_local.h:98
-public let HL_HAND_LT = CJKAMP_Game.HL_HAND_LT
+public let HL_HAND_LT: Int32 = Int32(truncatingIfNeeded: CJKAMP_Game.HL_HAND_LT)
 
 /// Source: oracle/codemp/game/g_local.h:98
-public let HL_HEAD = CJKAMP_Game.HL_HEAD
+public let HL_HEAD: Int32 = Int32(truncatingIfNeeded: CJKAMP_Game.HL_HEAD)
 
 /// Source: oracle/codemp/game/g_local.h:98
-public let HL_GENERIC1 = CJKAMP_Game.HL_GENERIC1
+public let HL_GENERIC1: Int32 = Int32(truncatingIfNeeded: CJKAMP_Game.HL_GENERIC1)
 
 /// Source: oracle/codemp/game/g_local.h:98
-public let HL_GENERIC2 = CJKAMP_Game.HL_GENERIC2
+public let HL_GENERIC2: Int32 = Int32(truncatingIfNeeded: CJKAMP_Game.HL_GENERIC2)
 
 /// Source: oracle/codemp/game/g_local.h:98
-public let HL_GENERIC3 = CJKAMP_Game.HL_GENERIC3
+public let HL_GENERIC3: Int32 = Int32(truncatingIfNeeded: CJKAMP_Game.HL_GENERIC3)
 
 /// Source: oracle/codemp/game/g_local.h:98
-public let HL_GENERIC4 = CJKAMP_Game.HL_GENERIC4
+public let HL_GENERIC4: Int32 = Int32(truncatingIfNeeded: CJKAMP_Game.HL_GENERIC4)
 
 /// Source: oracle/codemp/game/g_local.h:98
-public let HL_GENERIC5 = CJKAMP_Game.HL_GENERIC5
+public let HL_GENERIC5: Int32 = Int32(truncatingIfNeeded: CJKAMP_Game.HL_GENERIC5)
 
 /// Source: oracle/codemp/game/g_local.h:98
-public let HL_GENERIC6 = CJKAMP_Game.HL_GENERIC6
+public let HL_GENERIC6: Int32 = Int32(truncatingIfNeeded: CJKAMP_Game.HL_GENERIC6)
 
 /// Source: oracle/codemp/game/g_local.h:98
-public let HL_MAX = CJKAMP_Game.HL_MAX
+public let HL_MAX: Int32 = Int32(truncatingIfNeeded: CJKAMP_Game.HL_MAX)
 
 /// Source: oracle/codemp/game/g_local.h:89
-public struct moverState_t: RawRepresentable, Hashable, Sendable {
-    public let rawValue: Int32
-    public init(rawValue: Int32) { self.rawValue = rawValue }
-    public static let MOVER_POS1 = moverState_t(rawValue: Int32(truncatingIfNeeded: CJKAMP_Game.MOVER_POS1.rawValue))
-    public static let MOVER_POS2 = moverState_t(rawValue: Int32(truncatingIfNeeded: CJKAMP_Game.MOVER_POS2.rawValue))
-    public static let MOVER_1TO2 = moverState_t(rawValue: Int32(truncatingIfNeeded: CJKAMP_Game.MOVER_1TO2.rawValue))
-    public static let MOVER_2TO1 = moverState_t(rawValue: Int32(truncatingIfNeeded: CJKAMP_Game.MOVER_2TO1.rawValue))
-}
+public typealias moverState_t = Int32
+public let MOVER_POS1: moverState_t = Int32(truncatingIfNeeded: CJKAMP_Game.MOVER_POS1.rawValue)
+public let MOVER_POS2: moverState_t = Int32(truncatingIfNeeded: CJKAMP_Game.MOVER_POS2.rawValue)
+public let MOVER_1TO2: moverState_t = Int32(truncatingIfNeeded: CJKAMP_Game.MOVER_1TO2.rawValue)
+public let MOVER_2TO1: moverState_t = Int32(truncatingIfNeeded: CJKAMP_Game.MOVER_2TO1.rawValue)

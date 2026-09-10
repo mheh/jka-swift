@@ -28,19 +28,22 @@ Ruling of 2026-09-09. A transcriptor reads exactly this set, and nothing else:
 - the state file of its target, `Sources/JKAMP_BG/bg_local.swift` or `Sources/JKAMP_GameLogic/g_local.swift`
 - the lookup tool
 
-The lookup tool is `tools/oracle-closure/lookup.py`. It is the only command a transcriptor runs, with Bash, from the repository root.
+The lookup tool is `tools/oracle-closure/lookup.py`, the only command a transcriptor runs from the repository root.
 
 - `python3 tools/oracle-closure/lookup.py <C type>` gives the Swift view and every field.
 - `python3 tools/oracle-closure/lookup.py <C type> <field>` gives one field.
 - `python3 tools/oracle-closure/lookup.py <typedef or enum>` gives a scalar or enum spelling.
 - `python3 tools/oracle-closure/lookup.py fn <name>` gives a function's manifest row, with its oracle range, its Swift stub line, and its state.
 
-A type the tool does not know becomes a Port-note.
-
+Unknown types become Port-notes.
 A reviewer reads the same set, plus the jka-rust range from the manifest.
 
-Neither role greps across `Sources/`. Neither opens another Raven file, another stub, or another doc.
+Neither role greps across `Sources/`.
 When a needed fact sits outside the read set, the agent writes a Port-note and moves on.
+
+### The brief
+
+Every transcriptor, reviewer, and sweep brief carries the house-style and asd-ste100 invoke lines at the start. Every sentence the agent writes itself, a Port-note, a comment, or a doc line, follows both. Raven's own comments are copied as written and are exempt.
 
 ## 2. The Port-note
 
@@ -162,12 +165,12 @@ The stub compiles and traps at runtime with `portMissing`. The transcriptor does
 ### Primitive types
 
 `qboolean` is `Bool`. `int` is `Int32`. `float` is `Float`.
-A C enum is the re-exported struct, with `.rawValue` where an integer is needed.
+An array index is the C constant or variable Raven wrote, for example `vec[YAW]` and `ps.stats[STAT_HEALTH]`, never `Int(...)`. Every array in the port takes any C integer index.
+A C enum is an `Int32` typealias, and each case is a bare `Int32` constant with Raven's name.
+A body compares, stores, switches, and shifts it exactly as Raven wrote it. `.rawValue` and `EnumName(rawValue:)` never appear.
 
-### An enum where Raven used an int
-
-A C enum value used as an integer is `.rawValue`. An integer stored into an enum field is `EnumName(rawValue:)`.
-The lookup tool says which type a field is, so the agent asks it before it writes either form.
+A cast Raven wrote explicitly stays on the page, so `(int)v[0]` is `Int32(v[0])` and `(float)x` is `Float(x)`.
+A body never adds a cast Raven did not write.
 
 ### `#ifdef`
 

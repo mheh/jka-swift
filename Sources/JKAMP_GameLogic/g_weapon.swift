@@ -510,10 +510,7 @@ func WP_VehWeapSetSolidToOwner(_ `self`: Entity) {
 }
 
 /// Source: oracle/codemp/game/g_weapon.c:3628
-// TODO: Port signature
-// Raven wrote: gentity_t *WP_FireVehicleWeapon( gentity_t *ent, vec3_t start, vec3_t dir, vehWeaponInfo_t *vehWeapon, qboolean alt_fire, qboolean isTurretWeap )
-// No table row for `vehWeaponInfo_t * vehWeapon`.
-func WP_FireVehicleWeapon() -> Never {
+func WP_FireVehicleWeapon(_ ent: Entity, _ start: JKAShared.vec3_t, _ dir: JKAShared.vec3_t, _ vehWeapon: JKAMP.VehWeaponInfo, _ alt_fire: Bool, _ isTurretWeap: Bool) -> Entity? {
     // TODO: Port WP_FireVehicleWeapon
     portMissing("WP_FireVehicleWeapon", source: "oracle/codemp/game/g_weapon.c:3628")
 }

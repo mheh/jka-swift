@@ -69,10 +69,7 @@ func WP_SaberInitBladeData(_ ent: Entity) {
 }
 
 /// Source: oracle/codemp/game/w_saber.c:642
-// TODO: Port signature
-// Raven wrote: static GAME_INLINE qboolean G_CheckLookTarget( gentity_t *ent, vec3_t lookAngles, float *lookingSpeed )
-// No table row for `float * lookingSpeed`.
-private func G_CheckLookTarget() -> Never {
+private func G_CheckLookTarget(_ ent: Entity, _ lookAngles: JKAShared.vec3_t, _ lookingSpeed: inout Float) -> Bool {
     // TODO: Port G_CheckLookTarget
     portMissing("G_CheckLookTarget", source: "oracle/codemp/game/w_saber.c:642")
 }
@@ -176,7 +173,7 @@ private func G_SaberInBackAttack(_ move: Int32) -> Bool {
 /// Source: oracle/codemp/game/w_saber.c:2454
 // TODO: Port signature
 // Raven wrote: static GAME_INLINE void G_BuildSaberFaces(vec3_t base, vec3_t tip, float radius, vec3_t fwd, vec3_t right, int *fNum, saberFace_t **fList)
-// No table row for `int * fNum`.
+// No table row for `saberFace_t ** fList`.
 private func G_BuildSaberFaces() -> Never {
     // TODO: Port G_BuildSaberFaces
     portMissing("G_BuildSaberFaces", source: "oracle/codemp/game/w_saber.c:2454")
@@ -184,20 +181,14 @@ private func G_BuildSaberFaces() -> Never {
 
 //collision utility function -rww
 /// Source: oracle/codemp/game/w_saber.c:2573
-// TODO: Port signature
-// Raven wrote: static GAME_INLINE void G_SabCol_CalcPlaneEq(vec3_t x, vec3_t y, vec3_t z, float *planeEq)
-// No table row for `float * planeEq`.
-private func G_SabCol_CalcPlaneEq() -> Never {
+private func G_SabCol_CalcPlaneEq(_ x: JKAShared.vec3_t, _ y: JKAShared.vec3_t, _ z: JKAShared.vec3_t, _ planeEq: inout Float) {
     // TODO: Port G_SabCol_CalcPlaneEq
     portMissing("G_SabCol_CalcPlaneEq", source: "oracle/codemp/game/w_saber.c:2573")
 }
 
 //collision utility function -rww
 /// Source: oracle/codemp/game/w_saber.c:2582
-// TODO: Port signature
-// Raven wrote: static GAME_INLINE int G_SabCol_PointRelativeToPlane(vec3_t pos, float *side, float *planeEq)
-// No table row for `float * side`.
-private func G_SabCol_PointRelativeToPlane() -> Never {
+private func G_SabCol_PointRelativeToPlane(_ pos: JKAShared.vec3_t, _ side: inout Float, _ planeEq: inout Float) -> Int32 {
     // TODO: Port G_SabCol_PointRelativeToPlane
     portMissing("G_SabCol_PointRelativeToPlane", source: "oracle/codemp/game/w_saber.c:2582")
 }

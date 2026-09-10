@@ -218,8 +218,8 @@ public struct RenderInfo: Hashable, HandleView {
 
     /// Source: oracle/codemp/game/g_local.h:511
     public var lookMode: lookMode_t {
-        get { lookMode_t(rawValue: Int32(truncatingIfNeeded: self.raw.pointee.lookMode.rawValue)) }
-        nonmutating set { self.raw.pointee.lookMode = .init(rawValue: .init(truncatingIfNeeded: newValue.rawValue)) }
+        get { Int32(truncatingIfNeeded: self.raw.pointee.lookMode.rawValue) }
+        nonmutating set { self.raw.pointee.lookMode = .init(rawValue: .init(truncatingIfNeeded: newValue)) }
     }
 
     /// Source: oracle/codemp/game/g_local.h:512

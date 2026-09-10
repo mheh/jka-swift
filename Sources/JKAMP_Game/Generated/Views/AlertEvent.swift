@@ -32,14 +32,14 @@ public struct AlertEvent: Hashable, HandleView {
 
     /// Source: oracle/codemp/game/g_local.h:798
     public var level: alertEventLevel_e {
-        get { alertEventLevel_e(rawValue: Int32(truncatingIfNeeded: self.raw.pointee.level.rawValue)) }
-        nonmutating set { self.raw.pointee.level = .init(rawValue: .init(truncatingIfNeeded: newValue.rawValue)) }
+        get { Int32(truncatingIfNeeded: self.raw.pointee.level.rawValue) }
+        nonmutating set { self.raw.pointee.level = .init(rawValue: .init(truncatingIfNeeded: newValue)) }
     }
 
     /// Source: oracle/codemp/game/g_local.h:799
     public var type: alertEventType_e {
-        get { alertEventType_e(rawValue: Int32(truncatingIfNeeded: self.raw.pointee.type.rawValue)) }
-        nonmutating set { self.raw.pointee.type = .init(rawValue: .init(truncatingIfNeeded: newValue.rawValue)) }
+        get { Int32(truncatingIfNeeded: self.raw.pointee.type.rawValue) }
+        nonmutating set { self.raw.pointee.type = .init(rawValue: .init(truncatingIfNeeded: newValue)) }
     }
 
     /// Source: oracle/codemp/game/g_local.h:800

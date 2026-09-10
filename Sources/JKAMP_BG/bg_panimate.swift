@@ -401,19 +401,13 @@ func BG_ClearAnimsets() {
 }
 
 /// Source: oracle/codemp/game/bg_panimate.c:1729
-// TODO: Port signature
-// Raven wrote: animation_t *BG_AnimsetAlloc(void)
-// No table row for the return `animation_t *`.
-func BG_AnimsetAlloc() -> Never {
+func BG_AnimsetAlloc() -> JKAMP.Animation? {
     // TODO: Port BG_AnimsetAlloc
     portMissing("BG_AnimsetAlloc", source: "oracle/codemp/game/bg_panimate.c:1729")
 }
 
 /// Source: oracle/codemp/game/bg_panimate.c:1737
-// TODO: Port signature
-// Raven wrote: void BG_AnimsetFree(animation_t *animset)
-// No table row for `animation_t * animset`.
-func BG_AnimsetFree() -> Never {
+func BG_AnimsetFree(_ animset: JKAMP.Animation) {
     // TODO: Port BG_AnimsetFree
     portMissing("BG_AnimsetFree", source: "oracle/codemp/game/bg_panimate.c:1737")
 }
@@ -428,10 +422,7 @@ models/players/visor/animation.cfg, etc
 ======================
 */
 /// Source: oracle/codemp/game/bg_panimate.c:2339
-// TODO: Port signature
-// Raven wrote: int BG_ParseAnimationFile(const char *filename, animation_t *animset, qboolean isHumanoid)
-// No table row for `animation_t * animset`.
-func BG_ParseAnimationFile() -> Never {
+func BG_ParseAnimationFile(_ filename: String, _ animset: JKAMP.Animation, _ isHumanoid: Bool) -> Int32 {
     // TODO: Port BG_ParseAnimationFile
     portMissing("BG_ParseAnimationFile", source: "oracle/codemp/game/bg_panimate.c:2339")
 }
@@ -513,19 +504,13 @@ func PM_SetTorsoAnimTimer(_ time: Int32) {
 }
 
 /// Source: oracle/codemp/game/bg_panimate.c:2733
-// TODO: Port signature
-// Raven wrote: void BG_SaberStartTransAnim( int clientNum, int saberAnimLevel, int weapon, int anim, float *animSpeed, int broken )
-// No table row for `float * animSpeed`.
-func BG_SaberStartTransAnim() -> Never {
+func BG_SaberStartTransAnim(_ clientNum: Int32, _ saberAnimLevel: Int32, _ weapon: Int32, _ anim: Int32, _ animSpeed: inout Float, _ broken: Int32) {
     // TODO: Port BG_SaberStartTransAnim
     portMissing("BG_SaberStartTransAnim", source: "oracle/codemp/game/bg_panimate.c:2733")
 }
 
 /// Source: oracle/codemp/game/bg_panimate.c:2800
-// TODO: Port signature
-// Raven wrote: void BG_SetAnimFinal(playerState_t *ps, animation_t *animations, int setAnimParts,int anim,int setAnimFlags, int blendTime) // default blendTime=350
-// No table row for `animation_t * animations`.
-func BG_SetAnimFinal() -> Never {
+func BG_SetAnimFinal(_ ps: JKAMP.PlayerState, _ animations: JKAMP.Animation, _ setAnimParts: Int32, _ anim: Int32, _ setAnimFlags: Int32, _ blendTime: Int32) {
     // TODO: Port BG_SetAnimFinal
     portMissing("BG_SetAnimFinal", source: "oracle/codemp/game/bg_panimate.c:2800")
 }
@@ -553,10 +538,7 @@ func BG_PickAnim(_ animIndex: Int32, _ minAnim: Int32, _ maxAnim: Int32) -> Int3
 //Please do not reference pm in this function or any functions that it calls,
 //or I will cry. -rww
 /// Source: oracle/codemp/game/bg_panimate.c:2981
-// TODO: Port signature
-// Raven wrote: void BG_SetAnim(playerState_t *ps, animation_t *animations, int setAnimParts,int anim,int setAnimFlags, int blendTime)
-// No table row for `animation_t * animations`.
-func BG_SetAnim() -> Never {
+func BG_SetAnim(_ ps: JKAMP.PlayerState, _ animations: JKAMP.Animation, _ setAnimParts: Int32, _ anim: Int32, _ setAnimFlags: Int32, _ blendTime: Int32) {
     // TODO: Port BG_SetAnim
     portMissing("BG_SetAnim", source: "oracle/codemp/game/bg_panimate.c:2981")
 }

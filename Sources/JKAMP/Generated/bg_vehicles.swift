@@ -181,59 +181,50 @@ public let SHIPSURF_BROKEN_F = CJKAMP.SHIPSURF_BROKEN_F
 public let SHIPSURF_BROKEN_G = CJKAMP.SHIPSURF_BROKEN_G
 
 /// Source: oracle/codemp/game/bg_vehicles.h:20
-public struct EWeaponPose: RawRepresentable, Hashable, Sendable {
-    public let rawValue: Int32
-    public init(rawValue: Int32) { self.rawValue = rawValue }
-    public static let WPOSE_NONE = EWeaponPose(rawValue: Int32(truncatingIfNeeded: CJKAMP.WPOSE_NONE.rawValue))
-    public static let WPOSE_BLASTER = EWeaponPose(rawValue: Int32(truncatingIfNeeded: CJKAMP.WPOSE_BLASTER.rawValue))
-    public static let WPOSE_SABERLEFT = EWeaponPose(rawValue: Int32(truncatingIfNeeded: CJKAMP.WPOSE_SABERLEFT.rawValue))
-    public static let WPOSE_SABERRIGHT = EWeaponPose(rawValue: Int32(truncatingIfNeeded: CJKAMP.WPOSE_SABERRIGHT.rawValue))
-}
+public typealias EWeaponPose = Int32
+public let WPOSE_NONE: EWeaponPose = Int32(truncatingIfNeeded: CJKAMP.WPOSE_NONE.rawValue)
+public let WPOSE_BLASTER: EWeaponPose = Int32(truncatingIfNeeded: CJKAMP.WPOSE_BLASTER.rawValue)
+public let WPOSE_SABERLEFT: EWeaponPose = Int32(truncatingIfNeeded: CJKAMP.WPOSE_SABERLEFT.rawValue)
+public let WPOSE_SABERRIGHT: EWeaponPose = Int32(truncatingIfNeeded: CJKAMP.WPOSE_SABERRIGHT.rawValue)
 
 /// Source: oracle/codemp/game/bg_vehicles.h:9
-public struct vehicleType_t: RawRepresentable, Hashable, Sendable {
-    public let rawValue: Int32
-    public init(rawValue: Int32) { self.rawValue = rawValue }
-    public static let VH_NONE = vehicleType_t(rawValue: Int32(truncatingIfNeeded: CJKAMP.VH_NONE.rawValue))
-    public static let VH_WALKER = vehicleType_t(rawValue: Int32(truncatingIfNeeded: CJKAMP.VH_WALKER.rawValue))
-    public static let VH_FIGHTER = vehicleType_t(rawValue: Int32(truncatingIfNeeded: CJKAMP.VH_FIGHTER.rawValue))
-    public static let VH_SPEEDER = vehicleType_t(rawValue: Int32(truncatingIfNeeded: CJKAMP.VH_SPEEDER.rawValue))
-    public static let VH_ANIMAL = vehicleType_t(rawValue: Int32(truncatingIfNeeded: CJKAMP.VH_ANIMAL.rawValue))
-    public static let VH_FLIER = vehicleType_t(rawValue: Int32(truncatingIfNeeded: CJKAMP.VH_FLIER.rawValue))
-    public static let VH_NUM_VEHICLES = vehicleType_t(rawValue: Int32(truncatingIfNeeded: CJKAMP.VH_NUM_VEHICLES.rawValue))
-}
+public typealias vehicleType_t = Int32
+public let VH_NONE: vehicleType_t = Int32(truncatingIfNeeded: CJKAMP.VH_NONE.rawValue)
+public let VH_WALKER: vehicleType_t = Int32(truncatingIfNeeded: CJKAMP.VH_WALKER.rawValue)
+public let VH_FIGHTER: vehicleType_t = Int32(truncatingIfNeeded: CJKAMP.VH_FIGHTER.rawValue)
+public let VH_SPEEDER: vehicleType_t = Int32(truncatingIfNeeded: CJKAMP.VH_SPEEDER.rawValue)
+public let VH_ANIMAL: vehicleType_t = Int32(truncatingIfNeeded: CJKAMP.VH_ANIMAL.rawValue)
+public let VH_FLIER: vehicleType_t = Int32(truncatingIfNeeded: CJKAMP.VH_FLIER.rawValue)
+public let VH_NUM_VEHICLES: vehicleType_t = Int32(truncatingIfNeeded: CJKAMP.VH_NUM_VEHICLES.rawValue)
 
 /// Source: oracle/codemp/game/bg_vehicles.h:406
-public let VEH_EJECT_LEFT = CJKAMP.VEH_EJECT_LEFT
+public let VEH_EJECT_LEFT: Int32 = Int32(truncatingIfNeeded: CJKAMP.VEH_EJECT_LEFT)
 
 /// Source: oracle/codemp/game/bg_vehicles.h:406
-public let VEH_EJECT_RIGHT = CJKAMP.VEH_EJECT_RIGHT
+public let VEH_EJECT_RIGHT: Int32 = Int32(truncatingIfNeeded: CJKAMP.VEH_EJECT_RIGHT)
 
 /// Source: oracle/codemp/game/bg_vehicles.h:406
-public let VEH_EJECT_FRONT = CJKAMP.VEH_EJECT_FRONT
+public let VEH_EJECT_FRONT: Int32 = Int32(truncatingIfNeeded: CJKAMP.VEH_EJECT_FRONT)
 
 /// Source: oracle/codemp/game/bg_vehicles.h:406
-public let VEH_EJECT_REAR = CJKAMP.VEH_EJECT_REAR
+public let VEH_EJECT_REAR: Int32 = Int32(truncatingIfNeeded: CJKAMP.VEH_EJECT_REAR)
 
 /// Source: oracle/codemp/game/bg_vehicles.h:406
-public let VEH_EJECT_TOP = CJKAMP.VEH_EJECT_TOP
+public let VEH_EJECT_TOP: Int32 = Int32(truncatingIfNeeded: CJKAMP.VEH_EJECT_TOP)
 
 /// Source: oracle/codemp/game/bg_vehicles.h:406
-public let VEH_EJECT_BOTTOM = CJKAMP.VEH_EJECT_BOTTOM
+public let VEH_EJECT_BOTTOM: Int32 = Int32(truncatingIfNeeded: CJKAMP.VEH_EJECT_BOTTOM)
 
 /// Source: oracle/codemp/game/bg_vehicles.h:417
-public struct vehFlags_t: RawRepresentable, Hashable, Sendable {
-    public let rawValue: Int32
-    public init(rawValue: Int32) { self.rawValue = rawValue }
-    public static let VEH_NONE = vehFlags_t(rawValue: Int32(truncatingIfNeeded: CJKAMP.VEH_NONE.rawValue))
-    public static let VEH_FLYING = vehFlags_t(rawValue: Int32(truncatingIfNeeded: CJKAMP.VEH_FLYING.rawValue))
-    public static let VEH_CRASHING = vehFlags_t(rawValue: Int32(truncatingIfNeeded: CJKAMP.VEH_CRASHING.rawValue))
-    public static let VEH_LANDING = vehFlags_t(rawValue: Int32(truncatingIfNeeded: CJKAMP.VEH_LANDING.rawValue))
-    public static let VEH_BUCKING = vehFlags_t(rawValue: Int32(truncatingIfNeeded: CJKAMP.VEH_BUCKING.rawValue))
-    public static let VEH_WINGSOPEN = vehFlags_t(rawValue: Int32(truncatingIfNeeded: CJKAMP.VEH_WINGSOPEN.rawValue))
-    public static let VEH_GEARSOPEN = vehFlags_t(rawValue: Int32(truncatingIfNeeded: CJKAMP.VEH_GEARSOPEN.rawValue))
-    public static let VEH_SLIDEBREAKING = vehFlags_t(rawValue: Int32(truncatingIfNeeded: CJKAMP.VEH_SLIDEBREAKING.rawValue))
-    public static let VEH_SPINNING = vehFlags_t(rawValue: Int32(truncatingIfNeeded: CJKAMP.VEH_SPINNING.rawValue))
-    public static let VEH_OUTOFCONTROL = vehFlags_t(rawValue: Int32(truncatingIfNeeded: CJKAMP.VEH_OUTOFCONTROL.rawValue))
-    public static let VEH_SABERINLEFTHAND = vehFlags_t(rawValue: Int32(truncatingIfNeeded: CJKAMP.VEH_SABERINLEFTHAND.rawValue))
-}
+public typealias vehFlags_t = Int32
+public let VEH_NONE: vehFlags_t = Int32(truncatingIfNeeded: CJKAMP.VEH_NONE.rawValue)
+public let VEH_FLYING: vehFlags_t = Int32(truncatingIfNeeded: CJKAMP.VEH_FLYING.rawValue)
+public let VEH_CRASHING: vehFlags_t = Int32(truncatingIfNeeded: CJKAMP.VEH_CRASHING.rawValue)
+public let VEH_LANDING: vehFlags_t = Int32(truncatingIfNeeded: CJKAMP.VEH_LANDING.rawValue)
+public let VEH_BUCKING: vehFlags_t = Int32(truncatingIfNeeded: CJKAMP.VEH_BUCKING.rawValue)
+public let VEH_WINGSOPEN: vehFlags_t = Int32(truncatingIfNeeded: CJKAMP.VEH_WINGSOPEN.rawValue)
+public let VEH_GEARSOPEN: vehFlags_t = Int32(truncatingIfNeeded: CJKAMP.VEH_GEARSOPEN.rawValue)
+public let VEH_SLIDEBREAKING: vehFlags_t = Int32(truncatingIfNeeded: CJKAMP.VEH_SLIDEBREAKING.rawValue)
+public let VEH_SPINNING: vehFlags_t = Int32(truncatingIfNeeded: CJKAMP.VEH_SPINNING.rawValue)
+public let VEH_OUTOFCONTROL: vehFlags_t = Int32(truncatingIfNeeded: CJKAMP.VEH_OUTOFCONTROL.rawValue)
+public let VEH_SABERINLEFTHAND: vehFlags_t = Int32(truncatingIfNeeded: CJKAMP.VEH_SABERINLEFTHAND.rawValue)

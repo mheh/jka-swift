@@ -163,10 +163,7 @@ func NAV_ResolveEntityCollision(_ `self`: Entity, _ blocker: Entity, _ movedir: 
 }
 
 /// Source: oracle/codemp/game/g_nav.c:873
-// TODO: Port signature
-// Raven wrote: qboolean NAV_TestForBlocked( gentity_t *self, gentity_t *goal, gentity_t *blocker, float distance, int *flags )
-// No table row for `int * flags`.
-func NAV_TestForBlocked() -> Never {
+func NAV_TestForBlocked(_ `self`: Entity, _ goal: Entity, _ blocker: Entity, _ distance: Float, _ flags: inout Int32) -> Bool {
     // TODO: Port NAV_TestForBlocked
     portMissing("NAV_TestForBlocked", source: "oracle/codemp/game/g_nav.c:873")
 }

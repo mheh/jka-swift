@@ -457,1206 +457,1161 @@ public let HYPERSPACE_SPEED = CJKAMP.HYPERSPACE_SPEED
 public let HYPERSPACE_TURN_RATE = CJKAMP.HYPERSPACE_TURN_RATE
 
 /// Source: oracle/codemp/game/bg_public.h:1231
-public struct fieldtype_t: RawRepresentable, Hashable, Sendable {
-    public let rawValue: Int32
-    public init(rawValue: Int32) { self.rawValue = rawValue }
-    public static let F_INT = fieldtype_t(rawValue: Int32(truncatingIfNeeded: CJKAMP.F_INT.rawValue))
-    public static let F_FLOAT = fieldtype_t(rawValue: Int32(truncatingIfNeeded: CJKAMP.F_FLOAT.rawValue))
-    public static let F_LSTRING = fieldtype_t(rawValue: Int32(truncatingIfNeeded: CJKAMP.F_LSTRING.rawValue))
-    public static let F_GSTRING = fieldtype_t(rawValue: Int32(truncatingIfNeeded: CJKAMP.F_GSTRING.rawValue))
-    public static let F_VECTOR = fieldtype_t(rawValue: Int32(truncatingIfNeeded: CJKAMP.F_VECTOR.rawValue))
-    public static let F_ANGLEHACK = fieldtype_t(rawValue: Int32(truncatingIfNeeded: CJKAMP.F_ANGLEHACK.rawValue))
-    public static let F_ENTITY = fieldtype_t(rawValue: Int32(truncatingIfNeeded: CJKAMP.F_ENTITY.rawValue))
-    public static let F_ITEM = fieldtype_t(rawValue: Int32(truncatingIfNeeded: CJKAMP.F_ITEM.rawValue))
-    public static let F_CLIENT = fieldtype_t(rawValue: Int32(truncatingIfNeeded: CJKAMP.F_CLIENT.rawValue))
-    public static let F_PARM1 = fieldtype_t(rawValue: Int32(truncatingIfNeeded: CJKAMP.F_PARM1.rawValue))
-    public static let F_PARM2 = fieldtype_t(rawValue: Int32(truncatingIfNeeded: CJKAMP.F_PARM2.rawValue))
-    public static let F_PARM3 = fieldtype_t(rawValue: Int32(truncatingIfNeeded: CJKAMP.F_PARM3.rawValue))
-    public static let F_PARM4 = fieldtype_t(rawValue: Int32(truncatingIfNeeded: CJKAMP.F_PARM4.rawValue))
-    public static let F_PARM5 = fieldtype_t(rawValue: Int32(truncatingIfNeeded: CJKAMP.F_PARM5.rawValue))
-    public static let F_PARM6 = fieldtype_t(rawValue: Int32(truncatingIfNeeded: CJKAMP.F_PARM6.rawValue))
-    public static let F_PARM7 = fieldtype_t(rawValue: Int32(truncatingIfNeeded: CJKAMP.F_PARM7.rawValue))
-    public static let F_PARM8 = fieldtype_t(rawValue: Int32(truncatingIfNeeded: CJKAMP.F_PARM8.rawValue))
-    public static let F_PARM9 = fieldtype_t(rawValue: Int32(truncatingIfNeeded: CJKAMP.F_PARM9.rawValue))
-    public static let F_PARM10 = fieldtype_t(rawValue: Int32(truncatingIfNeeded: CJKAMP.F_PARM10.rawValue))
-    public static let F_PARM11 = fieldtype_t(rawValue: Int32(truncatingIfNeeded: CJKAMP.F_PARM11.rawValue))
-    public static let F_PARM12 = fieldtype_t(rawValue: Int32(truncatingIfNeeded: CJKAMP.F_PARM12.rawValue))
-    public static let F_PARM13 = fieldtype_t(rawValue: Int32(truncatingIfNeeded: CJKAMP.F_PARM13.rawValue))
-    public static let F_PARM14 = fieldtype_t(rawValue: Int32(truncatingIfNeeded: CJKAMP.F_PARM14.rawValue))
-    public static let F_PARM15 = fieldtype_t(rawValue: Int32(truncatingIfNeeded: CJKAMP.F_PARM15.rawValue))
-    public static let F_PARM16 = fieldtype_t(rawValue: Int32(truncatingIfNeeded: CJKAMP.F_PARM16.rawValue))
-    public static let F_IGNORE = fieldtype_t(rawValue: Int32(truncatingIfNeeded: CJKAMP.F_IGNORE.rawValue))
-}
+public typealias fieldtype_t = Int32
+public let F_INT: fieldtype_t = Int32(truncatingIfNeeded: CJKAMP.F_INT.rawValue)
+public let F_FLOAT: fieldtype_t = Int32(truncatingIfNeeded: CJKAMP.F_FLOAT.rawValue)
+public let F_LSTRING: fieldtype_t = Int32(truncatingIfNeeded: CJKAMP.F_LSTRING.rawValue)
+public let F_GSTRING: fieldtype_t = Int32(truncatingIfNeeded: CJKAMP.F_GSTRING.rawValue)
+public let F_VECTOR: fieldtype_t = Int32(truncatingIfNeeded: CJKAMP.F_VECTOR.rawValue)
+public let F_ANGLEHACK: fieldtype_t = Int32(truncatingIfNeeded: CJKAMP.F_ANGLEHACK.rawValue)
+public let F_ENTITY: fieldtype_t = Int32(truncatingIfNeeded: CJKAMP.F_ENTITY.rawValue)
+public let F_ITEM: fieldtype_t = Int32(truncatingIfNeeded: CJKAMP.F_ITEM.rawValue)
+public let F_CLIENT: fieldtype_t = Int32(truncatingIfNeeded: CJKAMP.F_CLIENT.rawValue)
+public let F_PARM1: fieldtype_t = Int32(truncatingIfNeeded: CJKAMP.F_PARM1.rawValue)
+public let F_PARM2: fieldtype_t = Int32(truncatingIfNeeded: CJKAMP.F_PARM2.rawValue)
+public let F_PARM3: fieldtype_t = Int32(truncatingIfNeeded: CJKAMP.F_PARM3.rawValue)
+public let F_PARM4: fieldtype_t = Int32(truncatingIfNeeded: CJKAMP.F_PARM4.rawValue)
+public let F_PARM5: fieldtype_t = Int32(truncatingIfNeeded: CJKAMP.F_PARM5.rawValue)
+public let F_PARM6: fieldtype_t = Int32(truncatingIfNeeded: CJKAMP.F_PARM6.rawValue)
+public let F_PARM7: fieldtype_t = Int32(truncatingIfNeeded: CJKAMP.F_PARM7.rawValue)
+public let F_PARM8: fieldtype_t = Int32(truncatingIfNeeded: CJKAMP.F_PARM8.rawValue)
+public let F_PARM9: fieldtype_t = Int32(truncatingIfNeeded: CJKAMP.F_PARM9.rawValue)
+public let F_PARM10: fieldtype_t = Int32(truncatingIfNeeded: CJKAMP.F_PARM10.rawValue)
+public let F_PARM11: fieldtype_t = Int32(truncatingIfNeeded: CJKAMP.F_PARM11.rawValue)
+public let F_PARM12: fieldtype_t = Int32(truncatingIfNeeded: CJKAMP.F_PARM12.rawValue)
+public let F_PARM13: fieldtype_t = Int32(truncatingIfNeeded: CJKAMP.F_PARM13.rawValue)
+public let F_PARM14: fieldtype_t = Int32(truncatingIfNeeded: CJKAMP.F_PARM14.rawValue)
+public let F_PARM15: fieldtype_t = Int32(truncatingIfNeeded: CJKAMP.F_PARM15.rawValue)
+public let F_PARM16: fieldtype_t = Int32(truncatingIfNeeded: CJKAMP.F_PARM16.rawValue)
+public let F_IGNORE: fieldtype_t = Int32(truncatingIfNeeded: CJKAMP.F_IGNORE.rawValue)
 
 /// Source: oracle/codemp/game/bg_public.h:172
-public struct brokenLimb_t: RawRepresentable, Hashable, Sendable {
-    public let rawValue: Int32
-    public init(rawValue: Int32) { self.rawValue = rawValue }
-    public static let BROKENLIMB_NONE = brokenLimb_t(rawValue: Int32(truncatingIfNeeded: CJKAMP.BROKENLIMB_NONE.rawValue))
-    public static let BROKENLIMB_LARM = brokenLimb_t(rawValue: Int32(truncatingIfNeeded: CJKAMP.BROKENLIMB_LARM.rawValue))
-    public static let BROKENLIMB_RARM = brokenLimb_t(rawValue: Int32(truncatingIfNeeded: CJKAMP.BROKENLIMB_RARM.rawValue))
-    public static let NUM_BROKENLIMBS = brokenLimb_t(rawValue: Int32(truncatingIfNeeded: CJKAMP.NUM_BROKENLIMBS.rawValue))
-}
+public typealias brokenLimb_t = Int32
+public let BROKENLIMB_NONE: brokenLimb_t = Int32(truncatingIfNeeded: CJKAMP.BROKENLIMB_NONE.rawValue)
+public let BROKENLIMB_LARM: brokenLimb_t = Int32(truncatingIfNeeded: CJKAMP.BROKENLIMB_LARM.rawValue)
+public let BROKENLIMB_RARM: brokenLimb_t = Int32(truncatingIfNeeded: CJKAMP.BROKENLIMB_RARM.rawValue)
+public let NUM_BROKENLIMBS: brokenLimb_t = Int32(truncatingIfNeeded: CJKAMP.NUM_BROKENLIMBS.rawValue)
 
 /// Source: oracle/codemp/game/bg_public.h:707
-public struct ctfMsg_t: RawRepresentable, Hashable, Sendable {
-    public let rawValue: Int32
-    public init(rawValue: Int32) { self.rawValue = rawValue }
-    public static let CTFMESSAGE_FRAGGED_FLAG_CARRIER = ctfMsg_t(rawValue: Int32(truncatingIfNeeded: CJKAMP.CTFMESSAGE_FRAGGED_FLAG_CARRIER.rawValue))
-    public static let CTFMESSAGE_FLAG_RETURNED = ctfMsg_t(rawValue: Int32(truncatingIfNeeded: CJKAMP.CTFMESSAGE_FLAG_RETURNED.rawValue))
-    public static let CTFMESSAGE_PLAYER_RETURNED_FLAG = ctfMsg_t(rawValue: Int32(truncatingIfNeeded: CJKAMP.CTFMESSAGE_PLAYER_RETURNED_FLAG.rawValue))
-    public static let CTFMESSAGE_PLAYER_CAPTURED_FLAG = ctfMsg_t(rawValue: Int32(truncatingIfNeeded: CJKAMP.CTFMESSAGE_PLAYER_CAPTURED_FLAG.rawValue))
-    public static let CTFMESSAGE_PLAYER_GOT_FLAG = ctfMsg_t(rawValue: Int32(truncatingIfNeeded: CJKAMP.CTFMESSAGE_PLAYER_GOT_FLAG.rawValue))
-}
+public typealias ctfMsg_t = Int32
+public let CTFMESSAGE_FRAGGED_FLAG_CARRIER: ctfMsg_t = Int32(truncatingIfNeeded: CJKAMP.CTFMESSAGE_FRAGGED_FLAG_CARRIER.rawValue)
+public let CTFMESSAGE_FLAG_RETURNED: ctfMsg_t = Int32(truncatingIfNeeded: CJKAMP.CTFMESSAGE_FLAG_RETURNED.rawValue)
+public let CTFMESSAGE_PLAYER_RETURNED_FLAG: ctfMsg_t = Int32(truncatingIfNeeded: CJKAMP.CTFMESSAGE_PLAYER_RETURNED_FLAG.rawValue)
+public let CTFMESSAGE_PLAYER_CAPTURED_FLAG: ctfMsg_t = Int32(truncatingIfNeeded: CJKAMP.CTFMESSAGE_PLAYER_CAPTURED_FLAG.rawValue)
+public let CTFMESSAGE_PLAYER_GOT_FLAG: ctfMsg_t = Int32(truncatingIfNeeded: CJKAMP.CTFMESSAGE_PLAYER_GOT_FLAG.rawValue)
 
 /// Source: oracle/codemp/game/bg_public.h:1019
-public struct duelTeam_t: RawRepresentable, Hashable, Sendable {
-    public let rawValue: Int32
-    public init(rawValue: Int32) { self.rawValue = rawValue }
-    public static let DUELTEAM_FREE = duelTeam_t(rawValue: Int32(truncatingIfNeeded: CJKAMP.DUELTEAM_FREE.rawValue))
-    public static let DUELTEAM_LONE = duelTeam_t(rawValue: Int32(truncatingIfNeeded: CJKAMP.DUELTEAM_LONE.rawValue))
-    public static let DUELTEAM_DOUBLE = duelTeam_t(rawValue: Int32(truncatingIfNeeded: CJKAMP.DUELTEAM_DOUBLE.rawValue))
-    public static let DUELTEAM_SINGLE = duelTeam_t(rawValue: Int32(truncatingIfNeeded: CJKAMP.DUELTEAM_SINGLE.rawValue))
-}
+public typealias duelTeam_t = Int32
+public let DUELTEAM_FREE: duelTeam_t = Int32(truncatingIfNeeded: CJKAMP.DUELTEAM_FREE.rawValue)
+public let DUELTEAM_LONE: duelTeam_t = Int32(truncatingIfNeeded: CJKAMP.DUELTEAM_LONE.rawValue)
+public let DUELTEAM_DOUBLE: duelTeam_t = Int32(truncatingIfNeeded: CJKAMP.DUELTEAM_DOUBLE.rawValue)
+public let DUELTEAM_SINGLE: duelTeam_t = Int32(truncatingIfNeeded: CJKAMP.DUELTEAM_SINGLE.rawValue)
 
 /// Source: oracle/codemp/game/bg_public.h:627
-public struct effectTypes_t: RawRepresentable, Hashable, Sendable {
-    public let rawValue: Int32
-    public init(rawValue: Int32) { self.rawValue = rawValue }
-    public static let EFFECT_NONE = effectTypes_t(rawValue: Int32(truncatingIfNeeded: CJKAMP.EFFECT_NONE.rawValue))
-    public static let EFFECT_SMOKE = effectTypes_t(rawValue: Int32(truncatingIfNeeded: CJKAMP.EFFECT_SMOKE.rawValue))
-    public static let EFFECT_EXPLOSION = effectTypes_t(rawValue: Int32(truncatingIfNeeded: CJKAMP.EFFECT_EXPLOSION.rawValue))
-    public static let EFFECT_EXPLOSION_PAS = effectTypes_t(rawValue: Int32(truncatingIfNeeded: CJKAMP.EFFECT_EXPLOSION_PAS.rawValue))
-    public static let EFFECT_SPARK_EXPLOSION = effectTypes_t(rawValue: Int32(truncatingIfNeeded: CJKAMP.EFFECT_SPARK_EXPLOSION.rawValue))
-    public static let EFFECT_EXPLOSION_TRIPMINE = effectTypes_t(rawValue: Int32(truncatingIfNeeded: CJKAMP.EFFECT_EXPLOSION_TRIPMINE.rawValue))
-    public static let EFFECT_EXPLOSION_DETPACK = effectTypes_t(rawValue: Int32(truncatingIfNeeded: CJKAMP.EFFECT_EXPLOSION_DETPACK.rawValue))
-    public static let EFFECT_EXPLOSION_FLECHETTE = effectTypes_t(rawValue: Int32(truncatingIfNeeded: CJKAMP.EFFECT_EXPLOSION_FLECHETTE.rawValue))
-    public static let EFFECT_STUNHIT = effectTypes_t(rawValue: Int32(truncatingIfNeeded: CJKAMP.EFFECT_STUNHIT.rawValue))
-    public static let EFFECT_EXPLOSION_DEMP2ALT = effectTypes_t(rawValue: Int32(truncatingIfNeeded: CJKAMP.EFFECT_EXPLOSION_DEMP2ALT.rawValue))
-    public static let EFFECT_EXPLOSION_TURRET = effectTypes_t(rawValue: Int32(truncatingIfNeeded: CJKAMP.EFFECT_EXPLOSION_TURRET.rawValue))
-    public static let EFFECT_SPARKS = effectTypes_t(rawValue: Int32(truncatingIfNeeded: CJKAMP.EFFECT_SPARKS.rawValue))
-    public static let EFFECT_WATER_SPLASH = effectTypes_t(rawValue: Int32(truncatingIfNeeded: CJKAMP.EFFECT_WATER_SPLASH.rawValue))
-    public static let EFFECT_ACID_SPLASH = effectTypes_t(rawValue: Int32(truncatingIfNeeded: CJKAMP.EFFECT_ACID_SPLASH.rawValue))
-    public static let EFFECT_LAVA_SPLASH = effectTypes_t(rawValue: Int32(truncatingIfNeeded: CJKAMP.EFFECT_LAVA_SPLASH.rawValue))
-    public static let EFFECT_LANDING_MUD = effectTypes_t(rawValue: Int32(truncatingIfNeeded: CJKAMP.EFFECT_LANDING_MUD.rawValue))
-    public static let EFFECT_LANDING_SAND = effectTypes_t(rawValue: Int32(truncatingIfNeeded: CJKAMP.EFFECT_LANDING_SAND.rawValue))
-    public static let EFFECT_LANDING_DIRT = effectTypes_t(rawValue: Int32(truncatingIfNeeded: CJKAMP.EFFECT_LANDING_DIRT.rawValue))
-    public static let EFFECT_LANDING_SNOW = effectTypes_t(rawValue: Int32(truncatingIfNeeded: CJKAMP.EFFECT_LANDING_SNOW.rawValue))
-    public static let EFFECT_LANDING_GRAVEL = effectTypes_t(rawValue: Int32(truncatingIfNeeded: CJKAMP.EFFECT_LANDING_GRAVEL.rawValue))
-    public static let EFFECT_MAX = effectTypes_t(rawValue: Int32(truncatingIfNeeded: CJKAMP.EFFECT_MAX.rawValue))
-}
+public typealias effectTypes_t = Int32
+public let EFFECT_NONE: effectTypes_t = Int32(truncatingIfNeeded: CJKAMP.EFFECT_NONE.rawValue)
+public let EFFECT_SMOKE: effectTypes_t = Int32(truncatingIfNeeded: CJKAMP.EFFECT_SMOKE.rawValue)
+public let EFFECT_EXPLOSION: effectTypes_t = Int32(truncatingIfNeeded: CJKAMP.EFFECT_EXPLOSION.rawValue)
+public let EFFECT_EXPLOSION_PAS: effectTypes_t = Int32(truncatingIfNeeded: CJKAMP.EFFECT_EXPLOSION_PAS.rawValue)
+public let EFFECT_SPARK_EXPLOSION: effectTypes_t = Int32(truncatingIfNeeded: CJKAMP.EFFECT_SPARK_EXPLOSION.rawValue)
+public let EFFECT_EXPLOSION_TRIPMINE: effectTypes_t = Int32(truncatingIfNeeded: CJKAMP.EFFECT_EXPLOSION_TRIPMINE.rawValue)
+public let EFFECT_EXPLOSION_DETPACK: effectTypes_t = Int32(truncatingIfNeeded: CJKAMP.EFFECT_EXPLOSION_DETPACK.rawValue)
+public let EFFECT_EXPLOSION_FLECHETTE: effectTypes_t = Int32(truncatingIfNeeded: CJKAMP.EFFECT_EXPLOSION_FLECHETTE.rawValue)
+public let EFFECT_STUNHIT: effectTypes_t = Int32(truncatingIfNeeded: CJKAMP.EFFECT_STUNHIT.rawValue)
+public let EFFECT_EXPLOSION_DEMP2ALT: effectTypes_t = Int32(truncatingIfNeeded: CJKAMP.EFFECT_EXPLOSION_DEMP2ALT.rawValue)
+public let EFFECT_EXPLOSION_TURRET: effectTypes_t = Int32(truncatingIfNeeded: CJKAMP.EFFECT_EXPLOSION_TURRET.rawValue)
+public let EFFECT_SPARKS: effectTypes_t = Int32(truncatingIfNeeded: CJKAMP.EFFECT_SPARKS.rawValue)
+public let EFFECT_WATER_SPLASH: effectTypes_t = Int32(truncatingIfNeeded: CJKAMP.EFFECT_WATER_SPLASH.rawValue)
+public let EFFECT_ACID_SPLASH: effectTypes_t = Int32(truncatingIfNeeded: CJKAMP.EFFECT_ACID_SPLASH.rawValue)
+public let EFFECT_LAVA_SPLASH: effectTypes_t = Int32(truncatingIfNeeded: CJKAMP.EFFECT_LAVA_SPLASH.rawValue)
+public let EFFECT_LANDING_MUD: effectTypes_t = Int32(truncatingIfNeeded: CJKAMP.EFFECT_LANDING_MUD.rawValue)
+public let EFFECT_LANDING_SAND: effectTypes_t = Int32(truncatingIfNeeded: CJKAMP.EFFECT_LANDING_SAND.rawValue)
+public let EFFECT_LANDING_DIRT: effectTypes_t = Int32(truncatingIfNeeded: CJKAMP.EFFECT_LANDING_DIRT.rawValue)
+public let EFFECT_LANDING_SNOW: effectTypes_t = Int32(truncatingIfNeeded: CJKAMP.EFFECT_LANDING_SNOW.rawValue)
+public let EFFECT_LANDING_GRAVEL: effectTypes_t = Int32(truncatingIfNeeded: CJKAMP.EFFECT_LANDING_GRAVEL.rawValue)
+public let EFFECT_MAX: effectTypes_t = Int32(truncatingIfNeeded: CJKAMP.EFFECT_MAX.rawValue)
 
 /// Source: oracle/codemp/game/bg_public.h:1190
-public struct entityType_t: RawRepresentable, Hashable, Sendable {
-    public let rawValue: Int32
-    public init(rawValue: Int32) { self.rawValue = rawValue }
-    public static let ET_GENERAL = entityType_t(rawValue: Int32(truncatingIfNeeded: CJKAMP.ET_GENERAL.rawValue))
-    public static let ET_PLAYER = entityType_t(rawValue: Int32(truncatingIfNeeded: CJKAMP.ET_PLAYER.rawValue))
-    public static let ET_ITEM = entityType_t(rawValue: Int32(truncatingIfNeeded: CJKAMP.ET_ITEM.rawValue))
-    public static let ET_MISSILE = entityType_t(rawValue: Int32(truncatingIfNeeded: CJKAMP.ET_MISSILE.rawValue))
-    public static let ET_SPECIAL = entityType_t(rawValue: Int32(truncatingIfNeeded: CJKAMP.ET_SPECIAL.rawValue))
-    public static let ET_HOLOCRON = entityType_t(rawValue: Int32(truncatingIfNeeded: CJKAMP.ET_HOLOCRON.rawValue))
-    public static let ET_MOVER = entityType_t(rawValue: Int32(truncatingIfNeeded: CJKAMP.ET_MOVER.rawValue))
-    public static let ET_BEAM = entityType_t(rawValue: Int32(truncatingIfNeeded: CJKAMP.ET_BEAM.rawValue))
-    public static let ET_PORTAL = entityType_t(rawValue: Int32(truncatingIfNeeded: CJKAMP.ET_PORTAL.rawValue))
-    public static let ET_SPEAKER = entityType_t(rawValue: Int32(truncatingIfNeeded: CJKAMP.ET_SPEAKER.rawValue))
-    public static let ET_PUSH_TRIGGER = entityType_t(rawValue: Int32(truncatingIfNeeded: CJKAMP.ET_PUSH_TRIGGER.rawValue))
-    public static let ET_TELEPORT_TRIGGER = entityType_t(rawValue: Int32(truncatingIfNeeded: CJKAMP.ET_TELEPORT_TRIGGER.rawValue))
-    public static let ET_INVISIBLE = entityType_t(rawValue: Int32(truncatingIfNeeded: CJKAMP.ET_INVISIBLE.rawValue))
-    public static let ET_NPC = entityType_t(rawValue: Int32(truncatingIfNeeded: CJKAMP.ET_NPC.rawValue))
-    public static let ET_TEAM = entityType_t(rawValue: Int32(truncatingIfNeeded: CJKAMP.ET_TEAM.rawValue))
-    public static let ET_BODY = entityType_t(rawValue: Int32(truncatingIfNeeded: CJKAMP.ET_BODY.rawValue))
-    public static let ET_TERRAIN = entityType_t(rawValue: Int32(truncatingIfNeeded: CJKAMP.ET_TERRAIN.rawValue))
-    public static let ET_FX = entityType_t(rawValue: Int32(truncatingIfNeeded: CJKAMP.ET_FX.rawValue))
-    public static let ET_EVENTS = entityType_t(rawValue: Int32(truncatingIfNeeded: CJKAMP.ET_EVENTS.rawValue))
-}
+public typealias entityType_t = Int32
+public let ET_GENERAL: entityType_t = Int32(truncatingIfNeeded: CJKAMP.ET_GENERAL.rawValue)
+public let ET_PLAYER: entityType_t = Int32(truncatingIfNeeded: CJKAMP.ET_PLAYER.rawValue)
+public let ET_ITEM: entityType_t = Int32(truncatingIfNeeded: CJKAMP.ET_ITEM.rawValue)
+public let ET_MISSILE: entityType_t = Int32(truncatingIfNeeded: CJKAMP.ET_MISSILE.rawValue)
+public let ET_SPECIAL: entityType_t = Int32(truncatingIfNeeded: CJKAMP.ET_SPECIAL.rawValue)
+public let ET_HOLOCRON: entityType_t = Int32(truncatingIfNeeded: CJKAMP.ET_HOLOCRON.rawValue)
+public let ET_MOVER: entityType_t = Int32(truncatingIfNeeded: CJKAMP.ET_MOVER.rawValue)
+public let ET_BEAM: entityType_t = Int32(truncatingIfNeeded: CJKAMP.ET_BEAM.rawValue)
+public let ET_PORTAL: entityType_t = Int32(truncatingIfNeeded: CJKAMP.ET_PORTAL.rawValue)
+public let ET_SPEAKER: entityType_t = Int32(truncatingIfNeeded: CJKAMP.ET_SPEAKER.rawValue)
+public let ET_PUSH_TRIGGER: entityType_t = Int32(truncatingIfNeeded: CJKAMP.ET_PUSH_TRIGGER.rawValue)
+public let ET_TELEPORT_TRIGGER: entityType_t = Int32(truncatingIfNeeded: CJKAMP.ET_TELEPORT_TRIGGER.rawValue)
+public let ET_INVISIBLE: entityType_t = Int32(truncatingIfNeeded: CJKAMP.ET_INVISIBLE.rawValue)
+public let ET_NPC: entityType_t = Int32(truncatingIfNeeded: CJKAMP.ET_NPC.rawValue)
+public let ET_TEAM: entityType_t = Int32(truncatingIfNeeded: CJKAMP.ET_TEAM.rawValue)
+public let ET_BODY: entityType_t = Int32(truncatingIfNeeded: CJKAMP.ET_BODY.rawValue)
+public let ET_TERRAIN: entityType_t = Int32(truncatingIfNeeded: CJKAMP.ET_TERRAIN.rawValue)
+public let ET_FX: entityType_t = Int32(truncatingIfNeeded: CJKAMP.ET_FX.rawValue)
+public let ET_EVENTS: entityType_t = Int32(truncatingIfNeeded: CJKAMP.ET_EVENTS.rawValue)
 
 /// Source: oracle/codemp/game/bg_public.h:745
-public struct entity_event_t: RawRepresentable, Hashable, Sendable {
-    public let rawValue: Int32
-    public init(rawValue: Int32) { self.rawValue = rawValue }
-    public static let EV_NONE = entity_event_t(rawValue: Int32(truncatingIfNeeded: CJKAMP.EV_NONE.rawValue))
-    public static let EV_CLIENTJOIN = entity_event_t(rawValue: Int32(truncatingIfNeeded: CJKAMP.EV_CLIENTJOIN.rawValue))
-    public static let EV_FOOTSTEP = entity_event_t(rawValue: Int32(truncatingIfNeeded: CJKAMP.EV_FOOTSTEP.rawValue))
-    public static let EV_FOOTSTEP_METAL = entity_event_t(rawValue: Int32(truncatingIfNeeded: CJKAMP.EV_FOOTSTEP_METAL.rawValue))
-    public static let EV_FOOTSPLASH = entity_event_t(rawValue: Int32(truncatingIfNeeded: CJKAMP.EV_FOOTSPLASH.rawValue))
-    public static let EV_FOOTWADE = entity_event_t(rawValue: Int32(truncatingIfNeeded: CJKAMP.EV_FOOTWADE.rawValue))
-    public static let EV_SWIM = entity_event_t(rawValue: Int32(truncatingIfNeeded: CJKAMP.EV_SWIM.rawValue))
-    public static let EV_STEP_4 = entity_event_t(rawValue: Int32(truncatingIfNeeded: CJKAMP.EV_STEP_4.rawValue))
-    public static let EV_STEP_8 = entity_event_t(rawValue: Int32(truncatingIfNeeded: CJKAMP.EV_STEP_8.rawValue))
-    public static let EV_STEP_12 = entity_event_t(rawValue: Int32(truncatingIfNeeded: CJKAMP.EV_STEP_12.rawValue))
-    public static let EV_STEP_16 = entity_event_t(rawValue: Int32(truncatingIfNeeded: CJKAMP.EV_STEP_16.rawValue))
-    public static let EV_FALL = entity_event_t(rawValue: Int32(truncatingIfNeeded: CJKAMP.EV_FALL.rawValue))
-    public static let EV_JUMP_PAD = entity_event_t(rawValue: Int32(truncatingIfNeeded: CJKAMP.EV_JUMP_PAD.rawValue))
-    public static let EV_GHOUL2_MARK = entity_event_t(rawValue: Int32(truncatingIfNeeded: CJKAMP.EV_GHOUL2_MARK.rawValue))
-    public static let EV_GLOBAL_DUEL = entity_event_t(rawValue: Int32(truncatingIfNeeded: CJKAMP.EV_GLOBAL_DUEL.rawValue))
-    public static let EV_PRIVATE_DUEL = entity_event_t(rawValue: Int32(truncatingIfNeeded: CJKAMP.EV_PRIVATE_DUEL.rawValue))
-    public static let EV_JUMP = entity_event_t(rawValue: Int32(truncatingIfNeeded: CJKAMP.EV_JUMP.rawValue))
-    public static let EV_ROLL = entity_event_t(rawValue: Int32(truncatingIfNeeded: CJKAMP.EV_ROLL.rawValue))
-    public static let EV_WATER_TOUCH = entity_event_t(rawValue: Int32(truncatingIfNeeded: CJKAMP.EV_WATER_TOUCH.rawValue))
-    public static let EV_WATER_LEAVE = entity_event_t(rawValue: Int32(truncatingIfNeeded: CJKAMP.EV_WATER_LEAVE.rawValue))
-    public static let EV_WATER_UNDER = entity_event_t(rawValue: Int32(truncatingIfNeeded: CJKAMP.EV_WATER_UNDER.rawValue))
-    public static let EV_WATER_CLEAR = entity_event_t(rawValue: Int32(truncatingIfNeeded: CJKAMP.EV_WATER_CLEAR.rawValue))
-    public static let EV_ITEM_PICKUP = entity_event_t(rawValue: Int32(truncatingIfNeeded: CJKAMP.EV_ITEM_PICKUP.rawValue))
-    public static let EV_GLOBAL_ITEM_PICKUP = entity_event_t(rawValue: Int32(truncatingIfNeeded: CJKAMP.EV_GLOBAL_ITEM_PICKUP.rawValue))
-    public static let EV_VEH_FIRE = entity_event_t(rawValue: Int32(truncatingIfNeeded: CJKAMP.EV_VEH_FIRE.rawValue))
-    public static let EV_NOAMMO = entity_event_t(rawValue: Int32(truncatingIfNeeded: CJKAMP.EV_NOAMMO.rawValue))
-    public static let EV_CHANGE_WEAPON = entity_event_t(rawValue: Int32(truncatingIfNeeded: CJKAMP.EV_CHANGE_WEAPON.rawValue))
-    public static let EV_FIRE_WEAPON = entity_event_t(rawValue: Int32(truncatingIfNeeded: CJKAMP.EV_FIRE_WEAPON.rawValue))
-    public static let EV_ALT_FIRE = entity_event_t(rawValue: Int32(truncatingIfNeeded: CJKAMP.EV_ALT_FIRE.rawValue))
-    public static let EV_SABER_ATTACK = entity_event_t(rawValue: Int32(truncatingIfNeeded: CJKAMP.EV_SABER_ATTACK.rawValue))
-    public static let EV_SABER_HIT = entity_event_t(rawValue: Int32(truncatingIfNeeded: CJKAMP.EV_SABER_HIT.rawValue))
-    public static let EV_SABER_BLOCK = entity_event_t(rawValue: Int32(truncatingIfNeeded: CJKAMP.EV_SABER_BLOCK.rawValue))
-    public static let EV_SABER_CLASHFLARE = entity_event_t(rawValue: Int32(truncatingIfNeeded: CJKAMP.EV_SABER_CLASHFLARE.rawValue))
-    public static let EV_SABER_UNHOLSTER = entity_event_t(rawValue: Int32(truncatingIfNeeded: CJKAMP.EV_SABER_UNHOLSTER.rawValue))
-    public static let EV_BECOME_JEDIMASTER = entity_event_t(rawValue: Int32(truncatingIfNeeded: CJKAMP.EV_BECOME_JEDIMASTER.rawValue))
-    public static let EV_DISRUPTOR_MAIN_SHOT = entity_event_t(rawValue: Int32(truncatingIfNeeded: CJKAMP.EV_DISRUPTOR_MAIN_SHOT.rawValue))
-    public static let EV_DISRUPTOR_SNIPER_SHOT = entity_event_t(rawValue: Int32(truncatingIfNeeded: CJKAMP.EV_DISRUPTOR_SNIPER_SHOT.rawValue))
-    public static let EV_DISRUPTOR_SNIPER_MISS = entity_event_t(rawValue: Int32(truncatingIfNeeded: CJKAMP.EV_DISRUPTOR_SNIPER_MISS.rawValue))
-    public static let EV_DISRUPTOR_HIT = entity_event_t(rawValue: Int32(truncatingIfNeeded: CJKAMP.EV_DISRUPTOR_HIT.rawValue))
-    public static let EV_DISRUPTOR_ZOOMSOUND = entity_event_t(rawValue: Int32(truncatingIfNeeded: CJKAMP.EV_DISRUPTOR_ZOOMSOUND.rawValue))
-    public static let EV_PREDEFSOUND = entity_event_t(rawValue: Int32(truncatingIfNeeded: CJKAMP.EV_PREDEFSOUND.rawValue))
-    public static let EV_TEAM_POWER = entity_event_t(rawValue: Int32(truncatingIfNeeded: CJKAMP.EV_TEAM_POWER.rawValue))
-    public static let EV_SCREENSHAKE = entity_event_t(rawValue: Int32(truncatingIfNeeded: CJKAMP.EV_SCREENSHAKE.rawValue))
-    public static let EV_LOCALTIMER = entity_event_t(rawValue: Int32(truncatingIfNeeded: CJKAMP.EV_LOCALTIMER.rawValue))
-    public static let EV_USE = entity_event_t(rawValue: Int32(truncatingIfNeeded: CJKAMP.EV_USE.rawValue))
-    public static let EV_USE_ITEM0 = entity_event_t(rawValue: Int32(truncatingIfNeeded: CJKAMP.EV_USE_ITEM0.rawValue))
-    public static let EV_USE_ITEM1 = entity_event_t(rawValue: Int32(truncatingIfNeeded: CJKAMP.EV_USE_ITEM1.rawValue))
-    public static let EV_USE_ITEM2 = entity_event_t(rawValue: Int32(truncatingIfNeeded: CJKAMP.EV_USE_ITEM2.rawValue))
-    public static let EV_USE_ITEM3 = entity_event_t(rawValue: Int32(truncatingIfNeeded: CJKAMP.EV_USE_ITEM3.rawValue))
-    public static let EV_USE_ITEM4 = entity_event_t(rawValue: Int32(truncatingIfNeeded: CJKAMP.EV_USE_ITEM4.rawValue))
-    public static let EV_USE_ITEM5 = entity_event_t(rawValue: Int32(truncatingIfNeeded: CJKAMP.EV_USE_ITEM5.rawValue))
-    public static let EV_USE_ITEM6 = entity_event_t(rawValue: Int32(truncatingIfNeeded: CJKAMP.EV_USE_ITEM6.rawValue))
-    public static let EV_USE_ITEM7 = entity_event_t(rawValue: Int32(truncatingIfNeeded: CJKAMP.EV_USE_ITEM7.rawValue))
-    public static let EV_USE_ITEM8 = entity_event_t(rawValue: Int32(truncatingIfNeeded: CJKAMP.EV_USE_ITEM8.rawValue))
-    public static let EV_USE_ITEM9 = entity_event_t(rawValue: Int32(truncatingIfNeeded: CJKAMP.EV_USE_ITEM9.rawValue))
-    public static let EV_USE_ITEM10 = entity_event_t(rawValue: Int32(truncatingIfNeeded: CJKAMP.EV_USE_ITEM10.rawValue))
-    public static let EV_USE_ITEM11 = entity_event_t(rawValue: Int32(truncatingIfNeeded: CJKAMP.EV_USE_ITEM11.rawValue))
-    public static let EV_USE_ITEM12 = entity_event_t(rawValue: Int32(truncatingIfNeeded: CJKAMP.EV_USE_ITEM12.rawValue))
-    public static let EV_USE_ITEM13 = entity_event_t(rawValue: Int32(truncatingIfNeeded: CJKAMP.EV_USE_ITEM13.rawValue))
-    public static let EV_USE_ITEM14 = entity_event_t(rawValue: Int32(truncatingIfNeeded: CJKAMP.EV_USE_ITEM14.rawValue))
-    public static let EV_USE_ITEM15 = entity_event_t(rawValue: Int32(truncatingIfNeeded: CJKAMP.EV_USE_ITEM15.rawValue))
-    public static let EV_ITEMUSEFAIL = entity_event_t(rawValue: Int32(truncatingIfNeeded: CJKAMP.EV_ITEMUSEFAIL.rawValue))
-    public static let EV_ITEM_RESPAWN = entity_event_t(rawValue: Int32(truncatingIfNeeded: CJKAMP.EV_ITEM_RESPAWN.rawValue))
-    public static let EV_ITEM_POP = entity_event_t(rawValue: Int32(truncatingIfNeeded: CJKAMP.EV_ITEM_POP.rawValue))
-    public static let EV_PLAYER_TELEPORT_IN = entity_event_t(rawValue: Int32(truncatingIfNeeded: CJKAMP.EV_PLAYER_TELEPORT_IN.rawValue))
-    public static let EV_PLAYER_TELEPORT_OUT = entity_event_t(rawValue: Int32(truncatingIfNeeded: CJKAMP.EV_PLAYER_TELEPORT_OUT.rawValue))
-    public static let EV_GRENADE_BOUNCE = entity_event_t(rawValue: Int32(truncatingIfNeeded: CJKAMP.EV_GRENADE_BOUNCE.rawValue))
-    public static let EV_MISSILE_STICK = entity_event_t(rawValue: Int32(truncatingIfNeeded: CJKAMP.EV_MISSILE_STICK.rawValue))
-    public static let EV_PLAY_EFFECT = entity_event_t(rawValue: Int32(truncatingIfNeeded: CJKAMP.EV_PLAY_EFFECT.rawValue))
-    public static let EV_PLAY_EFFECT_ID = entity_event_t(rawValue: Int32(truncatingIfNeeded: CJKAMP.EV_PLAY_EFFECT_ID.rawValue))
-    public static let EV_PLAY_PORTAL_EFFECT_ID = entity_event_t(rawValue: Int32(truncatingIfNeeded: CJKAMP.EV_PLAY_PORTAL_EFFECT_ID.rawValue))
-    public static let EV_PLAYDOORSOUND = entity_event_t(rawValue: Int32(truncatingIfNeeded: CJKAMP.EV_PLAYDOORSOUND.rawValue))
-    public static let EV_PLAYDOORLOOPSOUND = entity_event_t(rawValue: Int32(truncatingIfNeeded: CJKAMP.EV_PLAYDOORLOOPSOUND.rawValue))
-    public static let EV_BMODEL_SOUND = entity_event_t(rawValue: Int32(truncatingIfNeeded: CJKAMP.EV_BMODEL_SOUND.rawValue))
-    public static let EV_MUTE_SOUND = entity_event_t(rawValue: Int32(truncatingIfNeeded: CJKAMP.EV_MUTE_SOUND.rawValue))
-    public static let EV_VOICECMD_SOUND = entity_event_t(rawValue: Int32(truncatingIfNeeded: CJKAMP.EV_VOICECMD_SOUND.rawValue))
-    public static let EV_GENERAL_SOUND = entity_event_t(rawValue: Int32(truncatingIfNeeded: CJKAMP.EV_GENERAL_SOUND.rawValue))
-    public static let EV_GLOBAL_SOUND = entity_event_t(rawValue: Int32(truncatingIfNeeded: CJKAMP.EV_GLOBAL_SOUND.rawValue))
-    public static let EV_GLOBAL_TEAM_SOUND = entity_event_t(rawValue: Int32(truncatingIfNeeded: CJKAMP.EV_GLOBAL_TEAM_SOUND.rawValue))
-    public static let EV_ENTITY_SOUND = entity_event_t(rawValue: Int32(truncatingIfNeeded: CJKAMP.EV_ENTITY_SOUND.rawValue))
-    public static let EV_PLAY_ROFF = entity_event_t(rawValue: Int32(truncatingIfNeeded: CJKAMP.EV_PLAY_ROFF.rawValue))
-    public static let EV_GLASS_SHATTER = entity_event_t(rawValue: Int32(truncatingIfNeeded: CJKAMP.EV_GLASS_SHATTER.rawValue))
-    public static let EV_DEBRIS = entity_event_t(rawValue: Int32(truncatingIfNeeded: CJKAMP.EV_DEBRIS.rawValue))
-    public static let EV_MISC_MODEL_EXP = entity_event_t(rawValue: Int32(truncatingIfNeeded: CJKAMP.EV_MISC_MODEL_EXP.rawValue))
-    public static let EV_CONC_ALT_IMPACT = entity_event_t(rawValue: Int32(truncatingIfNeeded: CJKAMP.EV_CONC_ALT_IMPACT.rawValue))
-    public static let EV_MISSILE_HIT = entity_event_t(rawValue: Int32(truncatingIfNeeded: CJKAMP.EV_MISSILE_HIT.rawValue))
-    public static let EV_MISSILE_MISS = entity_event_t(rawValue: Int32(truncatingIfNeeded: CJKAMP.EV_MISSILE_MISS.rawValue))
-    public static let EV_MISSILE_MISS_METAL = entity_event_t(rawValue: Int32(truncatingIfNeeded: CJKAMP.EV_MISSILE_MISS_METAL.rawValue))
-    public static let EV_BULLET = entity_event_t(rawValue: Int32(truncatingIfNeeded: CJKAMP.EV_BULLET.rawValue))
-    public static let EV_PAIN = entity_event_t(rawValue: Int32(truncatingIfNeeded: CJKAMP.EV_PAIN.rawValue))
-    public static let EV_DEATH1 = entity_event_t(rawValue: Int32(truncatingIfNeeded: CJKAMP.EV_DEATH1.rawValue))
-    public static let EV_DEATH2 = entity_event_t(rawValue: Int32(truncatingIfNeeded: CJKAMP.EV_DEATH2.rawValue))
-    public static let EV_DEATH3 = entity_event_t(rawValue: Int32(truncatingIfNeeded: CJKAMP.EV_DEATH3.rawValue))
-    public static let EV_OBITUARY = entity_event_t(rawValue: Int32(truncatingIfNeeded: CJKAMP.EV_OBITUARY.rawValue))
-    public static let EV_POWERUP_QUAD = entity_event_t(rawValue: Int32(truncatingIfNeeded: CJKAMP.EV_POWERUP_QUAD.rawValue))
-    public static let EV_POWERUP_BATTLESUIT = entity_event_t(rawValue: Int32(truncatingIfNeeded: CJKAMP.EV_POWERUP_BATTLESUIT.rawValue))
-    public static let EV_FORCE_DRAINED = entity_event_t(rawValue: Int32(truncatingIfNeeded: CJKAMP.EV_FORCE_DRAINED.rawValue))
-    public static let EV_GIB_PLAYER = entity_event_t(rawValue: Int32(truncatingIfNeeded: CJKAMP.EV_GIB_PLAYER.rawValue))
-    public static let EV_SCOREPLUM = entity_event_t(rawValue: Int32(truncatingIfNeeded: CJKAMP.EV_SCOREPLUM.rawValue))
-    public static let EV_CTFMESSAGE = entity_event_t(rawValue: Int32(truncatingIfNeeded: CJKAMP.EV_CTFMESSAGE.rawValue))
-    public static let EV_BODYFADE = entity_event_t(rawValue: Int32(truncatingIfNeeded: CJKAMP.EV_BODYFADE.rawValue))
-    public static let EV_SIEGE_ROUNDOVER = entity_event_t(rawValue: Int32(truncatingIfNeeded: CJKAMP.EV_SIEGE_ROUNDOVER.rawValue))
-    public static let EV_SIEGE_OBJECTIVECOMPLETE = entity_event_t(rawValue: Int32(truncatingIfNeeded: CJKAMP.EV_SIEGE_OBJECTIVECOMPLETE.rawValue))
-    public static let EV_DESTROY_GHOUL2_INSTANCE = entity_event_t(rawValue: Int32(truncatingIfNeeded: CJKAMP.EV_DESTROY_GHOUL2_INSTANCE.rawValue))
-    public static let EV_DESTROY_WEAPON_MODEL = entity_event_t(rawValue: Int32(truncatingIfNeeded: CJKAMP.EV_DESTROY_WEAPON_MODEL.rawValue))
-    public static let EV_GIVE_NEW_RANK = entity_event_t(rawValue: Int32(truncatingIfNeeded: CJKAMP.EV_GIVE_NEW_RANK.rawValue))
-    public static let EV_SET_FREE_SABER = entity_event_t(rawValue: Int32(truncatingIfNeeded: CJKAMP.EV_SET_FREE_SABER.rawValue))
-    public static let EV_SET_FORCE_DISABLE = entity_event_t(rawValue: Int32(truncatingIfNeeded: CJKAMP.EV_SET_FORCE_DISABLE.rawValue))
-    public static let EV_WEAPON_CHARGE = entity_event_t(rawValue: Int32(truncatingIfNeeded: CJKAMP.EV_WEAPON_CHARGE.rawValue))
-    public static let EV_WEAPON_CHARGE_ALT = entity_event_t(rawValue: Int32(truncatingIfNeeded: CJKAMP.EV_WEAPON_CHARGE_ALT.rawValue))
-    public static let EV_SHIELD_HIT = entity_event_t(rawValue: Int32(truncatingIfNeeded: CJKAMP.EV_SHIELD_HIT.rawValue))
-    public static let EV_DEBUG_LINE = entity_event_t(rawValue: Int32(truncatingIfNeeded: CJKAMP.EV_DEBUG_LINE.rawValue))
-    public static let EV_TESTLINE = entity_event_t(rawValue: Int32(truncatingIfNeeded: CJKAMP.EV_TESTLINE.rawValue))
-    public static let EV_STOPLOOPINGSOUND = entity_event_t(rawValue: Int32(truncatingIfNeeded: CJKAMP.EV_STOPLOOPINGSOUND.rawValue))
-    public static let EV_STARTLOOPINGSOUND = entity_event_t(rawValue: Int32(truncatingIfNeeded: CJKAMP.EV_STARTLOOPINGSOUND.rawValue))
-    public static let EV_TAUNT = entity_event_t(rawValue: Int32(truncatingIfNeeded: CJKAMP.EV_TAUNT.rawValue))
-    public static let EV_ANGER1 = entity_event_t(rawValue: Int32(truncatingIfNeeded: CJKAMP.EV_ANGER1.rawValue))
-    public static let EV_ANGER2 = entity_event_t(rawValue: Int32(truncatingIfNeeded: CJKAMP.EV_ANGER2.rawValue))
-    public static let EV_ANGER3 = entity_event_t(rawValue: Int32(truncatingIfNeeded: CJKAMP.EV_ANGER3.rawValue))
-    public static let EV_VICTORY1 = entity_event_t(rawValue: Int32(truncatingIfNeeded: CJKAMP.EV_VICTORY1.rawValue))
-    public static let EV_VICTORY2 = entity_event_t(rawValue: Int32(truncatingIfNeeded: CJKAMP.EV_VICTORY2.rawValue))
-    public static let EV_VICTORY3 = entity_event_t(rawValue: Int32(truncatingIfNeeded: CJKAMP.EV_VICTORY3.rawValue))
-    public static let EV_CONFUSE1 = entity_event_t(rawValue: Int32(truncatingIfNeeded: CJKAMP.EV_CONFUSE1.rawValue))
-    public static let EV_CONFUSE2 = entity_event_t(rawValue: Int32(truncatingIfNeeded: CJKAMP.EV_CONFUSE2.rawValue))
-    public static let EV_CONFUSE3 = entity_event_t(rawValue: Int32(truncatingIfNeeded: CJKAMP.EV_CONFUSE3.rawValue))
-    public static let EV_PUSHED1 = entity_event_t(rawValue: Int32(truncatingIfNeeded: CJKAMP.EV_PUSHED1.rawValue))
-    public static let EV_PUSHED2 = entity_event_t(rawValue: Int32(truncatingIfNeeded: CJKAMP.EV_PUSHED2.rawValue))
-    public static let EV_PUSHED3 = entity_event_t(rawValue: Int32(truncatingIfNeeded: CJKAMP.EV_PUSHED3.rawValue))
-    public static let EV_CHOKE1 = entity_event_t(rawValue: Int32(truncatingIfNeeded: CJKAMP.EV_CHOKE1.rawValue))
-    public static let EV_CHOKE2 = entity_event_t(rawValue: Int32(truncatingIfNeeded: CJKAMP.EV_CHOKE2.rawValue))
-    public static let EV_CHOKE3 = entity_event_t(rawValue: Int32(truncatingIfNeeded: CJKAMP.EV_CHOKE3.rawValue))
-    public static let EV_FFWARN = entity_event_t(rawValue: Int32(truncatingIfNeeded: CJKAMP.EV_FFWARN.rawValue))
-    public static let EV_FFTURN = entity_event_t(rawValue: Int32(truncatingIfNeeded: CJKAMP.EV_FFTURN.rawValue))
-    public static let EV_CHASE1 = entity_event_t(rawValue: Int32(truncatingIfNeeded: CJKAMP.EV_CHASE1.rawValue))
-    public static let EV_CHASE2 = entity_event_t(rawValue: Int32(truncatingIfNeeded: CJKAMP.EV_CHASE2.rawValue))
-    public static let EV_CHASE3 = entity_event_t(rawValue: Int32(truncatingIfNeeded: CJKAMP.EV_CHASE3.rawValue))
-    public static let EV_COVER1 = entity_event_t(rawValue: Int32(truncatingIfNeeded: CJKAMP.EV_COVER1.rawValue))
-    public static let EV_COVER2 = entity_event_t(rawValue: Int32(truncatingIfNeeded: CJKAMP.EV_COVER2.rawValue))
-    public static let EV_COVER3 = entity_event_t(rawValue: Int32(truncatingIfNeeded: CJKAMP.EV_COVER3.rawValue))
-    public static let EV_COVER4 = entity_event_t(rawValue: Int32(truncatingIfNeeded: CJKAMP.EV_COVER4.rawValue))
-    public static let EV_COVER5 = entity_event_t(rawValue: Int32(truncatingIfNeeded: CJKAMP.EV_COVER5.rawValue))
-    public static let EV_DETECTED1 = entity_event_t(rawValue: Int32(truncatingIfNeeded: CJKAMP.EV_DETECTED1.rawValue))
-    public static let EV_DETECTED2 = entity_event_t(rawValue: Int32(truncatingIfNeeded: CJKAMP.EV_DETECTED2.rawValue))
-    public static let EV_DETECTED3 = entity_event_t(rawValue: Int32(truncatingIfNeeded: CJKAMP.EV_DETECTED3.rawValue))
-    public static let EV_DETECTED4 = entity_event_t(rawValue: Int32(truncatingIfNeeded: CJKAMP.EV_DETECTED4.rawValue))
-    public static let EV_DETECTED5 = entity_event_t(rawValue: Int32(truncatingIfNeeded: CJKAMP.EV_DETECTED5.rawValue))
-    public static let EV_LOST1 = entity_event_t(rawValue: Int32(truncatingIfNeeded: CJKAMP.EV_LOST1.rawValue))
-    public static let EV_OUTFLANK1 = entity_event_t(rawValue: Int32(truncatingIfNeeded: CJKAMP.EV_OUTFLANK1.rawValue))
-    public static let EV_OUTFLANK2 = entity_event_t(rawValue: Int32(truncatingIfNeeded: CJKAMP.EV_OUTFLANK2.rawValue))
-    public static let EV_ESCAPING1 = entity_event_t(rawValue: Int32(truncatingIfNeeded: CJKAMP.EV_ESCAPING1.rawValue))
-    public static let EV_ESCAPING2 = entity_event_t(rawValue: Int32(truncatingIfNeeded: CJKAMP.EV_ESCAPING2.rawValue))
-    public static let EV_ESCAPING3 = entity_event_t(rawValue: Int32(truncatingIfNeeded: CJKAMP.EV_ESCAPING3.rawValue))
-    public static let EV_GIVEUP1 = entity_event_t(rawValue: Int32(truncatingIfNeeded: CJKAMP.EV_GIVEUP1.rawValue))
-    public static let EV_GIVEUP2 = entity_event_t(rawValue: Int32(truncatingIfNeeded: CJKAMP.EV_GIVEUP2.rawValue))
-    public static let EV_GIVEUP3 = entity_event_t(rawValue: Int32(truncatingIfNeeded: CJKAMP.EV_GIVEUP3.rawValue))
-    public static let EV_GIVEUP4 = entity_event_t(rawValue: Int32(truncatingIfNeeded: CJKAMP.EV_GIVEUP4.rawValue))
-    public static let EV_LOOK1 = entity_event_t(rawValue: Int32(truncatingIfNeeded: CJKAMP.EV_LOOK1.rawValue))
-    public static let EV_LOOK2 = entity_event_t(rawValue: Int32(truncatingIfNeeded: CJKAMP.EV_LOOK2.rawValue))
-    public static let EV_SIGHT1 = entity_event_t(rawValue: Int32(truncatingIfNeeded: CJKAMP.EV_SIGHT1.rawValue))
-    public static let EV_SIGHT2 = entity_event_t(rawValue: Int32(truncatingIfNeeded: CJKAMP.EV_SIGHT2.rawValue))
-    public static let EV_SIGHT3 = entity_event_t(rawValue: Int32(truncatingIfNeeded: CJKAMP.EV_SIGHT3.rawValue))
-    public static let EV_SOUND1 = entity_event_t(rawValue: Int32(truncatingIfNeeded: CJKAMP.EV_SOUND1.rawValue))
-    public static let EV_SOUND2 = entity_event_t(rawValue: Int32(truncatingIfNeeded: CJKAMP.EV_SOUND2.rawValue))
-    public static let EV_SOUND3 = entity_event_t(rawValue: Int32(truncatingIfNeeded: CJKAMP.EV_SOUND3.rawValue))
-    public static let EV_SUSPICIOUS1 = entity_event_t(rawValue: Int32(truncatingIfNeeded: CJKAMP.EV_SUSPICIOUS1.rawValue))
-    public static let EV_SUSPICIOUS2 = entity_event_t(rawValue: Int32(truncatingIfNeeded: CJKAMP.EV_SUSPICIOUS2.rawValue))
-    public static let EV_SUSPICIOUS3 = entity_event_t(rawValue: Int32(truncatingIfNeeded: CJKAMP.EV_SUSPICIOUS3.rawValue))
-    public static let EV_SUSPICIOUS4 = entity_event_t(rawValue: Int32(truncatingIfNeeded: CJKAMP.EV_SUSPICIOUS4.rawValue))
-    public static let EV_SUSPICIOUS5 = entity_event_t(rawValue: Int32(truncatingIfNeeded: CJKAMP.EV_SUSPICIOUS5.rawValue))
-    public static let EV_COMBAT1 = entity_event_t(rawValue: Int32(truncatingIfNeeded: CJKAMP.EV_COMBAT1.rawValue))
-    public static let EV_COMBAT2 = entity_event_t(rawValue: Int32(truncatingIfNeeded: CJKAMP.EV_COMBAT2.rawValue))
-    public static let EV_COMBAT3 = entity_event_t(rawValue: Int32(truncatingIfNeeded: CJKAMP.EV_COMBAT3.rawValue))
-    public static let EV_JDETECTED1 = entity_event_t(rawValue: Int32(truncatingIfNeeded: CJKAMP.EV_JDETECTED1.rawValue))
-    public static let EV_JDETECTED2 = entity_event_t(rawValue: Int32(truncatingIfNeeded: CJKAMP.EV_JDETECTED2.rawValue))
-    public static let EV_JDETECTED3 = entity_event_t(rawValue: Int32(truncatingIfNeeded: CJKAMP.EV_JDETECTED3.rawValue))
-    public static let EV_TAUNT1 = entity_event_t(rawValue: Int32(truncatingIfNeeded: CJKAMP.EV_TAUNT1.rawValue))
-    public static let EV_TAUNT2 = entity_event_t(rawValue: Int32(truncatingIfNeeded: CJKAMP.EV_TAUNT2.rawValue))
-    public static let EV_TAUNT3 = entity_event_t(rawValue: Int32(truncatingIfNeeded: CJKAMP.EV_TAUNT3.rawValue))
-    public static let EV_JCHASE1 = entity_event_t(rawValue: Int32(truncatingIfNeeded: CJKAMP.EV_JCHASE1.rawValue))
-    public static let EV_JCHASE2 = entity_event_t(rawValue: Int32(truncatingIfNeeded: CJKAMP.EV_JCHASE2.rawValue))
-    public static let EV_JCHASE3 = entity_event_t(rawValue: Int32(truncatingIfNeeded: CJKAMP.EV_JCHASE3.rawValue))
-    public static let EV_JLOST1 = entity_event_t(rawValue: Int32(truncatingIfNeeded: CJKAMP.EV_JLOST1.rawValue))
-    public static let EV_JLOST2 = entity_event_t(rawValue: Int32(truncatingIfNeeded: CJKAMP.EV_JLOST2.rawValue))
-    public static let EV_JLOST3 = entity_event_t(rawValue: Int32(truncatingIfNeeded: CJKAMP.EV_JLOST3.rawValue))
-    public static let EV_DEFLECT1 = entity_event_t(rawValue: Int32(truncatingIfNeeded: CJKAMP.EV_DEFLECT1.rawValue))
-    public static let EV_DEFLECT2 = entity_event_t(rawValue: Int32(truncatingIfNeeded: CJKAMP.EV_DEFLECT2.rawValue))
-    public static let EV_DEFLECT3 = entity_event_t(rawValue: Int32(truncatingIfNeeded: CJKAMP.EV_DEFLECT3.rawValue))
-    public static let EV_GLOAT1 = entity_event_t(rawValue: Int32(truncatingIfNeeded: CJKAMP.EV_GLOAT1.rawValue))
-    public static let EV_GLOAT2 = entity_event_t(rawValue: Int32(truncatingIfNeeded: CJKAMP.EV_GLOAT2.rawValue))
-    public static let EV_GLOAT3 = entity_event_t(rawValue: Int32(truncatingIfNeeded: CJKAMP.EV_GLOAT3.rawValue))
-    public static let EV_PUSHFAIL = entity_event_t(rawValue: Int32(truncatingIfNeeded: CJKAMP.EV_PUSHFAIL.rawValue))
-    public static let EV_SIEGESPEC = entity_event_t(rawValue: Int32(truncatingIfNeeded: CJKAMP.EV_SIEGESPEC.rawValue))
-}
+public typealias entity_event_t = Int32
+public let EV_NONE: entity_event_t = Int32(truncatingIfNeeded: CJKAMP.EV_NONE.rawValue)
+public let EV_CLIENTJOIN: entity_event_t = Int32(truncatingIfNeeded: CJKAMP.EV_CLIENTJOIN.rawValue)
+public let EV_FOOTSTEP: entity_event_t = Int32(truncatingIfNeeded: CJKAMP.EV_FOOTSTEP.rawValue)
+public let EV_FOOTSTEP_METAL: entity_event_t = Int32(truncatingIfNeeded: CJKAMP.EV_FOOTSTEP_METAL.rawValue)
+public let EV_FOOTSPLASH: entity_event_t = Int32(truncatingIfNeeded: CJKAMP.EV_FOOTSPLASH.rawValue)
+public let EV_FOOTWADE: entity_event_t = Int32(truncatingIfNeeded: CJKAMP.EV_FOOTWADE.rawValue)
+public let EV_SWIM: entity_event_t = Int32(truncatingIfNeeded: CJKAMP.EV_SWIM.rawValue)
+public let EV_STEP_4: entity_event_t = Int32(truncatingIfNeeded: CJKAMP.EV_STEP_4.rawValue)
+public let EV_STEP_8: entity_event_t = Int32(truncatingIfNeeded: CJKAMP.EV_STEP_8.rawValue)
+public let EV_STEP_12: entity_event_t = Int32(truncatingIfNeeded: CJKAMP.EV_STEP_12.rawValue)
+public let EV_STEP_16: entity_event_t = Int32(truncatingIfNeeded: CJKAMP.EV_STEP_16.rawValue)
+public let EV_FALL: entity_event_t = Int32(truncatingIfNeeded: CJKAMP.EV_FALL.rawValue)
+public let EV_JUMP_PAD: entity_event_t = Int32(truncatingIfNeeded: CJKAMP.EV_JUMP_PAD.rawValue)
+public let EV_GHOUL2_MARK: entity_event_t = Int32(truncatingIfNeeded: CJKAMP.EV_GHOUL2_MARK.rawValue)
+public let EV_GLOBAL_DUEL: entity_event_t = Int32(truncatingIfNeeded: CJKAMP.EV_GLOBAL_DUEL.rawValue)
+public let EV_PRIVATE_DUEL: entity_event_t = Int32(truncatingIfNeeded: CJKAMP.EV_PRIVATE_DUEL.rawValue)
+public let EV_JUMP: entity_event_t = Int32(truncatingIfNeeded: CJKAMP.EV_JUMP.rawValue)
+public let EV_ROLL: entity_event_t = Int32(truncatingIfNeeded: CJKAMP.EV_ROLL.rawValue)
+public let EV_WATER_TOUCH: entity_event_t = Int32(truncatingIfNeeded: CJKAMP.EV_WATER_TOUCH.rawValue)
+public let EV_WATER_LEAVE: entity_event_t = Int32(truncatingIfNeeded: CJKAMP.EV_WATER_LEAVE.rawValue)
+public let EV_WATER_UNDER: entity_event_t = Int32(truncatingIfNeeded: CJKAMP.EV_WATER_UNDER.rawValue)
+public let EV_WATER_CLEAR: entity_event_t = Int32(truncatingIfNeeded: CJKAMP.EV_WATER_CLEAR.rawValue)
+public let EV_ITEM_PICKUP: entity_event_t = Int32(truncatingIfNeeded: CJKAMP.EV_ITEM_PICKUP.rawValue)
+public let EV_GLOBAL_ITEM_PICKUP: entity_event_t = Int32(truncatingIfNeeded: CJKAMP.EV_GLOBAL_ITEM_PICKUP.rawValue)
+public let EV_VEH_FIRE: entity_event_t = Int32(truncatingIfNeeded: CJKAMP.EV_VEH_FIRE.rawValue)
+public let EV_NOAMMO: entity_event_t = Int32(truncatingIfNeeded: CJKAMP.EV_NOAMMO.rawValue)
+public let EV_CHANGE_WEAPON: entity_event_t = Int32(truncatingIfNeeded: CJKAMP.EV_CHANGE_WEAPON.rawValue)
+public let EV_FIRE_WEAPON: entity_event_t = Int32(truncatingIfNeeded: CJKAMP.EV_FIRE_WEAPON.rawValue)
+public let EV_ALT_FIRE: entity_event_t = Int32(truncatingIfNeeded: CJKAMP.EV_ALT_FIRE.rawValue)
+public let EV_SABER_ATTACK: entity_event_t = Int32(truncatingIfNeeded: CJKAMP.EV_SABER_ATTACK.rawValue)
+public let EV_SABER_HIT: entity_event_t = Int32(truncatingIfNeeded: CJKAMP.EV_SABER_HIT.rawValue)
+public let EV_SABER_BLOCK: entity_event_t = Int32(truncatingIfNeeded: CJKAMP.EV_SABER_BLOCK.rawValue)
+public let EV_SABER_CLASHFLARE: entity_event_t = Int32(truncatingIfNeeded: CJKAMP.EV_SABER_CLASHFLARE.rawValue)
+public let EV_SABER_UNHOLSTER: entity_event_t = Int32(truncatingIfNeeded: CJKAMP.EV_SABER_UNHOLSTER.rawValue)
+public let EV_BECOME_JEDIMASTER: entity_event_t = Int32(truncatingIfNeeded: CJKAMP.EV_BECOME_JEDIMASTER.rawValue)
+public let EV_DISRUPTOR_MAIN_SHOT: entity_event_t = Int32(truncatingIfNeeded: CJKAMP.EV_DISRUPTOR_MAIN_SHOT.rawValue)
+public let EV_DISRUPTOR_SNIPER_SHOT: entity_event_t = Int32(truncatingIfNeeded: CJKAMP.EV_DISRUPTOR_SNIPER_SHOT.rawValue)
+public let EV_DISRUPTOR_SNIPER_MISS: entity_event_t = Int32(truncatingIfNeeded: CJKAMP.EV_DISRUPTOR_SNIPER_MISS.rawValue)
+public let EV_DISRUPTOR_HIT: entity_event_t = Int32(truncatingIfNeeded: CJKAMP.EV_DISRUPTOR_HIT.rawValue)
+public let EV_DISRUPTOR_ZOOMSOUND: entity_event_t = Int32(truncatingIfNeeded: CJKAMP.EV_DISRUPTOR_ZOOMSOUND.rawValue)
+public let EV_PREDEFSOUND: entity_event_t = Int32(truncatingIfNeeded: CJKAMP.EV_PREDEFSOUND.rawValue)
+public let EV_TEAM_POWER: entity_event_t = Int32(truncatingIfNeeded: CJKAMP.EV_TEAM_POWER.rawValue)
+public let EV_SCREENSHAKE: entity_event_t = Int32(truncatingIfNeeded: CJKAMP.EV_SCREENSHAKE.rawValue)
+public let EV_LOCALTIMER: entity_event_t = Int32(truncatingIfNeeded: CJKAMP.EV_LOCALTIMER.rawValue)
+public let EV_USE: entity_event_t = Int32(truncatingIfNeeded: CJKAMP.EV_USE.rawValue)
+public let EV_USE_ITEM0: entity_event_t = Int32(truncatingIfNeeded: CJKAMP.EV_USE_ITEM0.rawValue)
+public let EV_USE_ITEM1: entity_event_t = Int32(truncatingIfNeeded: CJKAMP.EV_USE_ITEM1.rawValue)
+public let EV_USE_ITEM2: entity_event_t = Int32(truncatingIfNeeded: CJKAMP.EV_USE_ITEM2.rawValue)
+public let EV_USE_ITEM3: entity_event_t = Int32(truncatingIfNeeded: CJKAMP.EV_USE_ITEM3.rawValue)
+public let EV_USE_ITEM4: entity_event_t = Int32(truncatingIfNeeded: CJKAMP.EV_USE_ITEM4.rawValue)
+public let EV_USE_ITEM5: entity_event_t = Int32(truncatingIfNeeded: CJKAMP.EV_USE_ITEM5.rawValue)
+public let EV_USE_ITEM6: entity_event_t = Int32(truncatingIfNeeded: CJKAMP.EV_USE_ITEM6.rawValue)
+public let EV_USE_ITEM7: entity_event_t = Int32(truncatingIfNeeded: CJKAMP.EV_USE_ITEM7.rawValue)
+public let EV_USE_ITEM8: entity_event_t = Int32(truncatingIfNeeded: CJKAMP.EV_USE_ITEM8.rawValue)
+public let EV_USE_ITEM9: entity_event_t = Int32(truncatingIfNeeded: CJKAMP.EV_USE_ITEM9.rawValue)
+public let EV_USE_ITEM10: entity_event_t = Int32(truncatingIfNeeded: CJKAMP.EV_USE_ITEM10.rawValue)
+public let EV_USE_ITEM11: entity_event_t = Int32(truncatingIfNeeded: CJKAMP.EV_USE_ITEM11.rawValue)
+public let EV_USE_ITEM12: entity_event_t = Int32(truncatingIfNeeded: CJKAMP.EV_USE_ITEM12.rawValue)
+public let EV_USE_ITEM13: entity_event_t = Int32(truncatingIfNeeded: CJKAMP.EV_USE_ITEM13.rawValue)
+public let EV_USE_ITEM14: entity_event_t = Int32(truncatingIfNeeded: CJKAMP.EV_USE_ITEM14.rawValue)
+public let EV_USE_ITEM15: entity_event_t = Int32(truncatingIfNeeded: CJKAMP.EV_USE_ITEM15.rawValue)
+public let EV_ITEMUSEFAIL: entity_event_t = Int32(truncatingIfNeeded: CJKAMP.EV_ITEMUSEFAIL.rawValue)
+public let EV_ITEM_RESPAWN: entity_event_t = Int32(truncatingIfNeeded: CJKAMP.EV_ITEM_RESPAWN.rawValue)
+public let EV_ITEM_POP: entity_event_t = Int32(truncatingIfNeeded: CJKAMP.EV_ITEM_POP.rawValue)
+public let EV_PLAYER_TELEPORT_IN: entity_event_t = Int32(truncatingIfNeeded: CJKAMP.EV_PLAYER_TELEPORT_IN.rawValue)
+public let EV_PLAYER_TELEPORT_OUT: entity_event_t = Int32(truncatingIfNeeded: CJKAMP.EV_PLAYER_TELEPORT_OUT.rawValue)
+public let EV_GRENADE_BOUNCE: entity_event_t = Int32(truncatingIfNeeded: CJKAMP.EV_GRENADE_BOUNCE.rawValue)
+public let EV_MISSILE_STICK: entity_event_t = Int32(truncatingIfNeeded: CJKAMP.EV_MISSILE_STICK.rawValue)
+public let EV_PLAY_EFFECT: entity_event_t = Int32(truncatingIfNeeded: CJKAMP.EV_PLAY_EFFECT.rawValue)
+public let EV_PLAY_EFFECT_ID: entity_event_t = Int32(truncatingIfNeeded: CJKAMP.EV_PLAY_EFFECT_ID.rawValue)
+public let EV_PLAY_PORTAL_EFFECT_ID: entity_event_t = Int32(truncatingIfNeeded: CJKAMP.EV_PLAY_PORTAL_EFFECT_ID.rawValue)
+public let EV_PLAYDOORSOUND: entity_event_t = Int32(truncatingIfNeeded: CJKAMP.EV_PLAYDOORSOUND.rawValue)
+public let EV_PLAYDOORLOOPSOUND: entity_event_t = Int32(truncatingIfNeeded: CJKAMP.EV_PLAYDOORLOOPSOUND.rawValue)
+public let EV_BMODEL_SOUND: entity_event_t = Int32(truncatingIfNeeded: CJKAMP.EV_BMODEL_SOUND.rawValue)
+public let EV_MUTE_SOUND: entity_event_t = Int32(truncatingIfNeeded: CJKAMP.EV_MUTE_SOUND.rawValue)
+public let EV_VOICECMD_SOUND: entity_event_t = Int32(truncatingIfNeeded: CJKAMP.EV_VOICECMD_SOUND.rawValue)
+public let EV_GENERAL_SOUND: entity_event_t = Int32(truncatingIfNeeded: CJKAMP.EV_GENERAL_SOUND.rawValue)
+public let EV_GLOBAL_SOUND: entity_event_t = Int32(truncatingIfNeeded: CJKAMP.EV_GLOBAL_SOUND.rawValue)
+public let EV_GLOBAL_TEAM_SOUND: entity_event_t = Int32(truncatingIfNeeded: CJKAMP.EV_GLOBAL_TEAM_SOUND.rawValue)
+public let EV_ENTITY_SOUND: entity_event_t = Int32(truncatingIfNeeded: CJKAMP.EV_ENTITY_SOUND.rawValue)
+public let EV_PLAY_ROFF: entity_event_t = Int32(truncatingIfNeeded: CJKAMP.EV_PLAY_ROFF.rawValue)
+public let EV_GLASS_SHATTER: entity_event_t = Int32(truncatingIfNeeded: CJKAMP.EV_GLASS_SHATTER.rawValue)
+public let EV_DEBRIS: entity_event_t = Int32(truncatingIfNeeded: CJKAMP.EV_DEBRIS.rawValue)
+public let EV_MISC_MODEL_EXP: entity_event_t = Int32(truncatingIfNeeded: CJKAMP.EV_MISC_MODEL_EXP.rawValue)
+public let EV_CONC_ALT_IMPACT: entity_event_t = Int32(truncatingIfNeeded: CJKAMP.EV_CONC_ALT_IMPACT.rawValue)
+public let EV_MISSILE_HIT: entity_event_t = Int32(truncatingIfNeeded: CJKAMP.EV_MISSILE_HIT.rawValue)
+public let EV_MISSILE_MISS: entity_event_t = Int32(truncatingIfNeeded: CJKAMP.EV_MISSILE_MISS.rawValue)
+public let EV_MISSILE_MISS_METAL: entity_event_t = Int32(truncatingIfNeeded: CJKAMP.EV_MISSILE_MISS_METAL.rawValue)
+public let EV_BULLET: entity_event_t = Int32(truncatingIfNeeded: CJKAMP.EV_BULLET.rawValue)
+public let EV_PAIN: entity_event_t = Int32(truncatingIfNeeded: CJKAMP.EV_PAIN.rawValue)
+public let EV_DEATH1: entity_event_t = Int32(truncatingIfNeeded: CJKAMP.EV_DEATH1.rawValue)
+public let EV_DEATH2: entity_event_t = Int32(truncatingIfNeeded: CJKAMP.EV_DEATH2.rawValue)
+public let EV_DEATH3: entity_event_t = Int32(truncatingIfNeeded: CJKAMP.EV_DEATH3.rawValue)
+public let EV_OBITUARY: entity_event_t = Int32(truncatingIfNeeded: CJKAMP.EV_OBITUARY.rawValue)
+public let EV_POWERUP_QUAD: entity_event_t = Int32(truncatingIfNeeded: CJKAMP.EV_POWERUP_QUAD.rawValue)
+public let EV_POWERUP_BATTLESUIT: entity_event_t = Int32(truncatingIfNeeded: CJKAMP.EV_POWERUP_BATTLESUIT.rawValue)
+public let EV_FORCE_DRAINED: entity_event_t = Int32(truncatingIfNeeded: CJKAMP.EV_FORCE_DRAINED.rawValue)
+public let EV_GIB_PLAYER: entity_event_t = Int32(truncatingIfNeeded: CJKAMP.EV_GIB_PLAYER.rawValue)
+public let EV_SCOREPLUM: entity_event_t = Int32(truncatingIfNeeded: CJKAMP.EV_SCOREPLUM.rawValue)
+public let EV_CTFMESSAGE: entity_event_t = Int32(truncatingIfNeeded: CJKAMP.EV_CTFMESSAGE.rawValue)
+public let EV_BODYFADE: entity_event_t = Int32(truncatingIfNeeded: CJKAMP.EV_BODYFADE.rawValue)
+public let EV_SIEGE_ROUNDOVER: entity_event_t = Int32(truncatingIfNeeded: CJKAMP.EV_SIEGE_ROUNDOVER.rawValue)
+public let EV_SIEGE_OBJECTIVECOMPLETE: entity_event_t = Int32(truncatingIfNeeded: CJKAMP.EV_SIEGE_OBJECTIVECOMPLETE.rawValue)
+public let EV_DESTROY_GHOUL2_INSTANCE: entity_event_t = Int32(truncatingIfNeeded: CJKAMP.EV_DESTROY_GHOUL2_INSTANCE.rawValue)
+public let EV_DESTROY_WEAPON_MODEL: entity_event_t = Int32(truncatingIfNeeded: CJKAMP.EV_DESTROY_WEAPON_MODEL.rawValue)
+public let EV_GIVE_NEW_RANK: entity_event_t = Int32(truncatingIfNeeded: CJKAMP.EV_GIVE_NEW_RANK.rawValue)
+public let EV_SET_FREE_SABER: entity_event_t = Int32(truncatingIfNeeded: CJKAMP.EV_SET_FREE_SABER.rawValue)
+public let EV_SET_FORCE_DISABLE: entity_event_t = Int32(truncatingIfNeeded: CJKAMP.EV_SET_FORCE_DISABLE.rawValue)
+public let EV_WEAPON_CHARGE: entity_event_t = Int32(truncatingIfNeeded: CJKAMP.EV_WEAPON_CHARGE.rawValue)
+public let EV_WEAPON_CHARGE_ALT: entity_event_t = Int32(truncatingIfNeeded: CJKAMP.EV_WEAPON_CHARGE_ALT.rawValue)
+public let EV_SHIELD_HIT: entity_event_t = Int32(truncatingIfNeeded: CJKAMP.EV_SHIELD_HIT.rawValue)
+public let EV_DEBUG_LINE: entity_event_t = Int32(truncatingIfNeeded: CJKAMP.EV_DEBUG_LINE.rawValue)
+public let EV_TESTLINE: entity_event_t = Int32(truncatingIfNeeded: CJKAMP.EV_TESTLINE.rawValue)
+public let EV_STOPLOOPINGSOUND: entity_event_t = Int32(truncatingIfNeeded: CJKAMP.EV_STOPLOOPINGSOUND.rawValue)
+public let EV_STARTLOOPINGSOUND: entity_event_t = Int32(truncatingIfNeeded: CJKAMP.EV_STARTLOOPINGSOUND.rawValue)
+public let EV_TAUNT: entity_event_t = Int32(truncatingIfNeeded: CJKAMP.EV_TAUNT.rawValue)
+public let EV_ANGER1: entity_event_t = Int32(truncatingIfNeeded: CJKAMP.EV_ANGER1.rawValue)
+public let EV_ANGER2: entity_event_t = Int32(truncatingIfNeeded: CJKAMP.EV_ANGER2.rawValue)
+public let EV_ANGER3: entity_event_t = Int32(truncatingIfNeeded: CJKAMP.EV_ANGER3.rawValue)
+public let EV_VICTORY1: entity_event_t = Int32(truncatingIfNeeded: CJKAMP.EV_VICTORY1.rawValue)
+public let EV_VICTORY2: entity_event_t = Int32(truncatingIfNeeded: CJKAMP.EV_VICTORY2.rawValue)
+public let EV_VICTORY3: entity_event_t = Int32(truncatingIfNeeded: CJKAMP.EV_VICTORY3.rawValue)
+public let EV_CONFUSE1: entity_event_t = Int32(truncatingIfNeeded: CJKAMP.EV_CONFUSE1.rawValue)
+public let EV_CONFUSE2: entity_event_t = Int32(truncatingIfNeeded: CJKAMP.EV_CONFUSE2.rawValue)
+public let EV_CONFUSE3: entity_event_t = Int32(truncatingIfNeeded: CJKAMP.EV_CONFUSE3.rawValue)
+public let EV_PUSHED1: entity_event_t = Int32(truncatingIfNeeded: CJKAMP.EV_PUSHED1.rawValue)
+public let EV_PUSHED2: entity_event_t = Int32(truncatingIfNeeded: CJKAMP.EV_PUSHED2.rawValue)
+public let EV_PUSHED3: entity_event_t = Int32(truncatingIfNeeded: CJKAMP.EV_PUSHED3.rawValue)
+public let EV_CHOKE1: entity_event_t = Int32(truncatingIfNeeded: CJKAMP.EV_CHOKE1.rawValue)
+public let EV_CHOKE2: entity_event_t = Int32(truncatingIfNeeded: CJKAMP.EV_CHOKE2.rawValue)
+public let EV_CHOKE3: entity_event_t = Int32(truncatingIfNeeded: CJKAMP.EV_CHOKE3.rawValue)
+public let EV_FFWARN: entity_event_t = Int32(truncatingIfNeeded: CJKAMP.EV_FFWARN.rawValue)
+public let EV_FFTURN: entity_event_t = Int32(truncatingIfNeeded: CJKAMP.EV_FFTURN.rawValue)
+public let EV_CHASE1: entity_event_t = Int32(truncatingIfNeeded: CJKAMP.EV_CHASE1.rawValue)
+public let EV_CHASE2: entity_event_t = Int32(truncatingIfNeeded: CJKAMP.EV_CHASE2.rawValue)
+public let EV_CHASE3: entity_event_t = Int32(truncatingIfNeeded: CJKAMP.EV_CHASE3.rawValue)
+public let EV_COVER1: entity_event_t = Int32(truncatingIfNeeded: CJKAMP.EV_COVER1.rawValue)
+public let EV_COVER2: entity_event_t = Int32(truncatingIfNeeded: CJKAMP.EV_COVER2.rawValue)
+public let EV_COVER3: entity_event_t = Int32(truncatingIfNeeded: CJKAMP.EV_COVER3.rawValue)
+public let EV_COVER4: entity_event_t = Int32(truncatingIfNeeded: CJKAMP.EV_COVER4.rawValue)
+public let EV_COVER5: entity_event_t = Int32(truncatingIfNeeded: CJKAMP.EV_COVER5.rawValue)
+public let EV_DETECTED1: entity_event_t = Int32(truncatingIfNeeded: CJKAMP.EV_DETECTED1.rawValue)
+public let EV_DETECTED2: entity_event_t = Int32(truncatingIfNeeded: CJKAMP.EV_DETECTED2.rawValue)
+public let EV_DETECTED3: entity_event_t = Int32(truncatingIfNeeded: CJKAMP.EV_DETECTED3.rawValue)
+public let EV_DETECTED4: entity_event_t = Int32(truncatingIfNeeded: CJKAMP.EV_DETECTED4.rawValue)
+public let EV_DETECTED5: entity_event_t = Int32(truncatingIfNeeded: CJKAMP.EV_DETECTED5.rawValue)
+public let EV_LOST1: entity_event_t = Int32(truncatingIfNeeded: CJKAMP.EV_LOST1.rawValue)
+public let EV_OUTFLANK1: entity_event_t = Int32(truncatingIfNeeded: CJKAMP.EV_OUTFLANK1.rawValue)
+public let EV_OUTFLANK2: entity_event_t = Int32(truncatingIfNeeded: CJKAMP.EV_OUTFLANK2.rawValue)
+public let EV_ESCAPING1: entity_event_t = Int32(truncatingIfNeeded: CJKAMP.EV_ESCAPING1.rawValue)
+public let EV_ESCAPING2: entity_event_t = Int32(truncatingIfNeeded: CJKAMP.EV_ESCAPING2.rawValue)
+public let EV_ESCAPING3: entity_event_t = Int32(truncatingIfNeeded: CJKAMP.EV_ESCAPING3.rawValue)
+public let EV_GIVEUP1: entity_event_t = Int32(truncatingIfNeeded: CJKAMP.EV_GIVEUP1.rawValue)
+public let EV_GIVEUP2: entity_event_t = Int32(truncatingIfNeeded: CJKAMP.EV_GIVEUP2.rawValue)
+public let EV_GIVEUP3: entity_event_t = Int32(truncatingIfNeeded: CJKAMP.EV_GIVEUP3.rawValue)
+public let EV_GIVEUP4: entity_event_t = Int32(truncatingIfNeeded: CJKAMP.EV_GIVEUP4.rawValue)
+public let EV_LOOK1: entity_event_t = Int32(truncatingIfNeeded: CJKAMP.EV_LOOK1.rawValue)
+public let EV_LOOK2: entity_event_t = Int32(truncatingIfNeeded: CJKAMP.EV_LOOK2.rawValue)
+public let EV_SIGHT1: entity_event_t = Int32(truncatingIfNeeded: CJKAMP.EV_SIGHT1.rawValue)
+public let EV_SIGHT2: entity_event_t = Int32(truncatingIfNeeded: CJKAMP.EV_SIGHT2.rawValue)
+public let EV_SIGHT3: entity_event_t = Int32(truncatingIfNeeded: CJKAMP.EV_SIGHT3.rawValue)
+public let EV_SOUND1: entity_event_t = Int32(truncatingIfNeeded: CJKAMP.EV_SOUND1.rawValue)
+public let EV_SOUND2: entity_event_t = Int32(truncatingIfNeeded: CJKAMP.EV_SOUND2.rawValue)
+public let EV_SOUND3: entity_event_t = Int32(truncatingIfNeeded: CJKAMP.EV_SOUND3.rawValue)
+public let EV_SUSPICIOUS1: entity_event_t = Int32(truncatingIfNeeded: CJKAMP.EV_SUSPICIOUS1.rawValue)
+public let EV_SUSPICIOUS2: entity_event_t = Int32(truncatingIfNeeded: CJKAMP.EV_SUSPICIOUS2.rawValue)
+public let EV_SUSPICIOUS3: entity_event_t = Int32(truncatingIfNeeded: CJKAMP.EV_SUSPICIOUS3.rawValue)
+public let EV_SUSPICIOUS4: entity_event_t = Int32(truncatingIfNeeded: CJKAMP.EV_SUSPICIOUS4.rawValue)
+public let EV_SUSPICIOUS5: entity_event_t = Int32(truncatingIfNeeded: CJKAMP.EV_SUSPICIOUS5.rawValue)
+public let EV_COMBAT1: entity_event_t = Int32(truncatingIfNeeded: CJKAMP.EV_COMBAT1.rawValue)
+public let EV_COMBAT2: entity_event_t = Int32(truncatingIfNeeded: CJKAMP.EV_COMBAT2.rawValue)
+public let EV_COMBAT3: entity_event_t = Int32(truncatingIfNeeded: CJKAMP.EV_COMBAT3.rawValue)
+public let EV_JDETECTED1: entity_event_t = Int32(truncatingIfNeeded: CJKAMP.EV_JDETECTED1.rawValue)
+public let EV_JDETECTED2: entity_event_t = Int32(truncatingIfNeeded: CJKAMP.EV_JDETECTED2.rawValue)
+public let EV_JDETECTED3: entity_event_t = Int32(truncatingIfNeeded: CJKAMP.EV_JDETECTED3.rawValue)
+public let EV_TAUNT1: entity_event_t = Int32(truncatingIfNeeded: CJKAMP.EV_TAUNT1.rawValue)
+public let EV_TAUNT2: entity_event_t = Int32(truncatingIfNeeded: CJKAMP.EV_TAUNT2.rawValue)
+public let EV_TAUNT3: entity_event_t = Int32(truncatingIfNeeded: CJKAMP.EV_TAUNT3.rawValue)
+public let EV_JCHASE1: entity_event_t = Int32(truncatingIfNeeded: CJKAMP.EV_JCHASE1.rawValue)
+public let EV_JCHASE2: entity_event_t = Int32(truncatingIfNeeded: CJKAMP.EV_JCHASE2.rawValue)
+public let EV_JCHASE3: entity_event_t = Int32(truncatingIfNeeded: CJKAMP.EV_JCHASE3.rawValue)
+public let EV_JLOST1: entity_event_t = Int32(truncatingIfNeeded: CJKAMP.EV_JLOST1.rawValue)
+public let EV_JLOST2: entity_event_t = Int32(truncatingIfNeeded: CJKAMP.EV_JLOST2.rawValue)
+public let EV_JLOST3: entity_event_t = Int32(truncatingIfNeeded: CJKAMP.EV_JLOST3.rawValue)
+public let EV_DEFLECT1: entity_event_t = Int32(truncatingIfNeeded: CJKAMP.EV_DEFLECT1.rawValue)
+public let EV_DEFLECT2: entity_event_t = Int32(truncatingIfNeeded: CJKAMP.EV_DEFLECT2.rawValue)
+public let EV_DEFLECT3: entity_event_t = Int32(truncatingIfNeeded: CJKAMP.EV_DEFLECT3.rawValue)
+public let EV_GLOAT1: entity_event_t = Int32(truncatingIfNeeded: CJKAMP.EV_GLOAT1.rawValue)
+public let EV_GLOAT2: entity_event_t = Int32(truncatingIfNeeded: CJKAMP.EV_GLOAT2.rawValue)
+public let EV_GLOAT3: entity_event_t = Int32(truncatingIfNeeded: CJKAMP.EV_GLOAT3.rawValue)
+public let EV_PUSHFAIL: entity_event_t = Int32(truncatingIfNeeded: CJKAMP.EV_PUSHFAIL.rawValue)
+public let EV_SIEGESPEC: entity_event_t = Int32(truncatingIfNeeded: CJKAMP.EV_SIEGESPEC.rawValue)
 
 /// Source: oracle/codemp/game/bg_public.h:220
-public let DIR_RIGHT = CJKAMP.DIR_RIGHT
+public let DIR_RIGHT: Int32 = Int32(truncatingIfNeeded: CJKAMP.DIR_RIGHT)
 
 /// Source: oracle/codemp/game/bg_public.h:220
-public let DIR_LEFT = CJKAMP.DIR_LEFT
+public let DIR_LEFT: Int32 = Int32(truncatingIfNeeded: CJKAMP.DIR_LEFT)
 
 /// Source: oracle/codemp/game/bg_public.h:220
-public let DIR_FRONT = CJKAMP.DIR_FRONT
+public let DIR_FRONT: Int32 = Int32(truncatingIfNeeded: CJKAMP.DIR_FRONT)
 
 /// Source: oracle/codemp/game/bg_public.h:220
-public let DIR_BACK = CJKAMP.DIR_BACK
+public let DIR_BACK: Int32 = Int32(truncatingIfNeeded: CJKAMP.DIR_BACK)
 
 /// Source: oracle/codemp/game/bg_public.h:383
-public let FORCE_MASTERY_UNINITIATED = CJKAMP.FORCE_MASTERY_UNINITIATED
+public let FORCE_MASTERY_UNINITIATED: Int32 = Int32(truncatingIfNeeded: CJKAMP.FORCE_MASTERY_UNINITIATED)
 
 /// Source: oracle/codemp/game/bg_public.h:383
-public let FORCE_MASTERY_INITIATE = CJKAMP.FORCE_MASTERY_INITIATE
+public let FORCE_MASTERY_INITIATE: Int32 = Int32(truncatingIfNeeded: CJKAMP.FORCE_MASTERY_INITIATE)
 
 /// Source: oracle/codemp/game/bg_public.h:383
-public let FORCE_MASTERY_PADAWAN = CJKAMP.FORCE_MASTERY_PADAWAN
+public let FORCE_MASTERY_PADAWAN: Int32 = Int32(truncatingIfNeeded: CJKAMP.FORCE_MASTERY_PADAWAN)
 
 /// Source: oracle/codemp/game/bg_public.h:383
-public let FORCE_MASTERY_JEDI = CJKAMP.FORCE_MASTERY_JEDI
+public let FORCE_MASTERY_JEDI: Int32 = Int32(truncatingIfNeeded: CJKAMP.FORCE_MASTERY_JEDI)
 
 /// Source: oracle/codemp/game/bg_public.h:383
-public let FORCE_MASTERY_JEDI_GUARDIAN = CJKAMP.FORCE_MASTERY_JEDI_GUARDIAN
+public let FORCE_MASTERY_JEDI_GUARDIAN: Int32 = Int32(truncatingIfNeeded: CJKAMP.FORCE_MASTERY_JEDI_GUARDIAN)
 
 /// Source: oracle/codemp/game/bg_public.h:383
-public let FORCE_MASTERY_JEDI_ADEPT = CJKAMP.FORCE_MASTERY_JEDI_ADEPT
+public let FORCE_MASTERY_JEDI_ADEPT: Int32 = Int32(truncatingIfNeeded: CJKAMP.FORCE_MASTERY_JEDI_ADEPT)
 
 /// Source: oracle/codemp/game/bg_public.h:383
-public let FORCE_MASTERY_JEDI_KNIGHT = CJKAMP.FORCE_MASTERY_JEDI_KNIGHT
+public let FORCE_MASTERY_JEDI_KNIGHT: Int32 = Int32(truncatingIfNeeded: CJKAMP.FORCE_MASTERY_JEDI_KNIGHT)
 
 /// Source: oracle/codemp/game/bg_public.h:383
-public let FORCE_MASTERY_JEDI_MASTER = CJKAMP.FORCE_MASTERY_JEDI_MASTER
+public let FORCE_MASTERY_JEDI_MASTER: Int32 = Int32(truncatingIfNeeded: CJKAMP.FORCE_MASTERY_JEDI_MASTER)
 
 /// Source: oracle/codemp/game/bg_public.h:383
-public let NUM_FORCE_MASTERY_LEVELS = CJKAMP.NUM_FORCE_MASTERY_LEVELS
+public let NUM_FORCE_MASTERY_LEVELS: Int32 = Int32(truncatingIfNeeded: CJKAMP.NUM_FORCE_MASTERY_LEVELS)
 
 /// Source: oracle/codemp/game/bg_public.h:183
-public let GT_FFA = CJKAMP.GT_FFA
+public let GT_FFA: Int32 = Int32(truncatingIfNeeded: CJKAMP.GT_FFA)
 
 /// Source: oracle/codemp/game/bg_public.h:183
-public let GT_HOLOCRON = CJKAMP.GT_HOLOCRON
+public let GT_HOLOCRON: Int32 = Int32(truncatingIfNeeded: CJKAMP.GT_HOLOCRON)
 
 /// Source: oracle/codemp/game/bg_public.h:183
-public let GT_JEDIMASTER = CJKAMP.GT_JEDIMASTER
+public let GT_JEDIMASTER: Int32 = Int32(truncatingIfNeeded: CJKAMP.GT_JEDIMASTER)
 
 /// Source: oracle/codemp/game/bg_public.h:183
-public let GT_DUEL = CJKAMP.GT_DUEL
+public let GT_DUEL: Int32 = Int32(truncatingIfNeeded: CJKAMP.GT_DUEL)
 
 /// Source: oracle/codemp/game/bg_public.h:183
-public let GT_POWERDUEL = CJKAMP.GT_POWERDUEL
+public let GT_POWERDUEL: Int32 = Int32(truncatingIfNeeded: CJKAMP.GT_POWERDUEL)
 
 /// Source: oracle/codemp/game/bg_public.h:183
-public let GT_SINGLE_PLAYER = CJKAMP.GT_SINGLE_PLAYER
+public let GT_SINGLE_PLAYER: Int32 = Int32(truncatingIfNeeded: CJKAMP.GT_SINGLE_PLAYER)
 
 /// Source: oracle/codemp/game/bg_public.h:183
-public let GT_TEAM = CJKAMP.GT_TEAM
+public let GT_TEAM: Int32 = Int32(truncatingIfNeeded: CJKAMP.GT_TEAM)
 
 /// Source: oracle/codemp/game/bg_public.h:183
-public let GT_SIEGE = CJKAMP.GT_SIEGE
+public let GT_SIEGE: Int32 = Int32(truncatingIfNeeded: CJKAMP.GT_SIEGE)
 
 /// Source: oracle/codemp/game/bg_public.h:183
-public let GT_CTF = CJKAMP.GT_CTF
+public let GT_CTF: Int32 = Int32(truncatingIfNeeded: CJKAMP.GT_CTF)
 
 /// Source: oracle/codemp/game/bg_public.h:183
-public let GT_CTY = CJKAMP.GT_CTY
+public let GT_CTY: Int32 = Int32(truncatingIfNeeded: CJKAMP.GT_CTY)
 
 /// Source: oracle/codemp/game/bg_public.h:183
-public let GT_MAX_GAME_TYPE = CJKAMP.GT_MAX_GAME_TYPE
+public let GT_MAX_GAME_TYPE: Int32 = Int32(truncatingIfNeeded: CJKAMP.GT_MAX_GAME_TYPE)
 
 /// Source: oracle/codemp/game/bg_public.h:686
-public let HI_NONE = CJKAMP.HI_NONE
+public let HI_NONE: Int32 = Int32(truncatingIfNeeded: CJKAMP.HI_NONE)
 
 /// Source: oracle/codemp/game/bg_public.h:686
-public let HI_SEEKER = CJKAMP.HI_SEEKER
+public let HI_SEEKER: Int32 = Int32(truncatingIfNeeded: CJKAMP.HI_SEEKER)
 
 /// Source: oracle/codemp/game/bg_public.h:686
-public let HI_SHIELD = CJKAMP.HI_SHIELD
+public let HI_SHIELD: Int32 = Int32(truncatingIfNeeded: CJKAMP.HI_SHIELD)
 
 /// Source: oracle/codemp/game/bg_public.h:686
-public let HI_MEDPAC = CJKAMP.HI_MEDPAC
+public let HI_MEDPAC: Int32 = Int32(truncatingIfNeeded: CJKAMP.HI_MEDPAC)
 
 /// Source: oracle/codemp/game/bg_public.h:686
-public let HI_MEDPAC_BIG = CJKAMP.HI_MEDPAC_BIG
+public let HI_MEDPAC_BIG: Int32 = Int32(truncatingIfNeeded: CJKAMP.HI_MEDPAC_BIG)
 
 /// Source: oracle/codemp/game/bg_public.h:686
-public let HI_BINOCULARS = CJKAMP.HI_BINOCULARS
+public let HI_BINOCULARS: Int32 = Int32(truncatingIfNeeded: CJKAMP.HI_BINOCULARS)
 
 /// Source: oracle/codemp/game/bg_public.h:686
-public let HI_SENTRY_GUN = CJKAMP.HI_SENTRY_GUN
+public let HI_SENTRY_GUN: Int32 = Int32(truncatingIfNeeded: CJKAMP.HI_SENTRY_GUN)
 
 /// Source: oracle/codemp/game/bg_public.h:686
-public let HI_JETPACK = CJKAMP.HI_JETPACK
+public let HI_JETPACK: Int32 = Int32(truncatingIfNeeded: CJKAMP.HI_JETPACK)
 
 /// Source: oracle/codemp/game/bg_public.h:686
-public let HI_HEALTHDISP = CJKAMP.HI_HEALTHDISP
+public let HI_HEALTHDISP: Int32 = Int32(truncatingIfNeeded: CJKAMP.HI_HEALTHDISP)
 
 /// Source: oracle/codemp/game/bg_public.h:686
-public let HI_AMMODISP = CJKAMP.HI_AMMODISP
+public let HI_AMMODISP: Int32 = Int32(truncatingIfNeeded: CJKAMP.HI_AMMODISP)
 
 /// Source: oracle/codemp/game/bg_public.h:686
-public let HI_EWEB = CJKAMP.HI_EWEB
+public let HI_EWEB: Int32 = Int32(truncatingIfNeeded: CJKAMP.HI_EWEB)
 
 /// Source: oracle/codemp/game/bg_public.h:686
-public let HI_CLOAK = CJKAMP.HI_CLOAK
+public let HI_CLOAK: Int32 = Int32(truncatingIfNeeded: CJKAMP.HI_CLOAK)
 
 /// Source: oracle/codemp/game/bg_public.h:686
-public let HI_NUM_HOLDABLE = CJKAMP.HI_NUM_HOLDABLE
+public let HI_NUM_HOLDABLE: Int32 = Int32(truncatingIfNeeded: CJKAMP.HI_NUM_HOLDABLE)
 
 /// Source: oracle/codemp/game/bg_public.h:1105
-public let IT_BAD = CJKAMP.IT_BAD
+public let IT_BAD: Int32 = Int32(truncatingIfNeeded: CJKAMP.IT_BAD)
 
 /// Source: oracle/codemp/game/bg_public.h:1105
-public let IT_WEAPON = CJKAMP.IT_WEAPON
+public let IT_WEAPON: Int32 = Int32(truncatingIfNeeded: CJKAMP.IT_WEAPON)
 
 /// Source: oracle/codemp/game/bg_public.h:1105
-public let IT_AMMO = CJKAMP.IT_AMMO
+public let IT_AMMO: Int32 = Int32(truncatingIfNeeded: CJKAMP.IT_AMMO)
 
 /// Source: oracle/codemp/game/bg_public.h:1105
-public let IT_ARMOR = CJKAMP.IT_ARMOR
+public let IT_ARMOR: Int32 = Int32(truncatingIfNeeded: CJKAMP.IT_ARMOR)
 
 /// Source: oracle/codemp/game/bg_public.h:1105
-public let IT_HEALTH = CJKAMP.IT_HEALTH
+public let IT_HEALTH: Int32 = Int32(truncatingIfNeeded: CJKAMP.IT_HEALTH)
 
 /// Source: oracle/codemp/game/bg_public.h:1105
-public let IT_POWERUP = CJKAMP.IT_POWERUP
+public let IT_POWERUP: Int32 = Int32(truncatingIfNeeded: CJKAMP.IT_POWERUP)
 
 /// Source: oracle/codemp/game/bg_public.h:1105
-public let IT_HOLDABLE = CJKAMP.IT_HOLDABLE
+public let IT_HOLDABLE: Int32 = Int32(truncatingIfNeeded: CJKAMP.IT_HOLDABLE)
 
 /// Source: oracle/codemp/game/bg_public.h:1105
-public let IT_PERSISTANT_POWERUP = CJKAMP.IT_PERSISTANT_POWERUP
+public let IT_PERSISTANT_POWERUP: Int32 = Int32(truncatingIfNeeded: CJKAMP.IT_PERSISTANT_POWERUP)
 
 /// Source: oracle/codemp/game/bg_public.h:1105
-public let IT_TEAM = CJKAMP.IT_TEAM
+public let IT_TEAM: Int32 = Int32(truncatingIfNeeded: CJKAMP.IT_TEAM)
 
 /// Source: oracle/codemp/game/bg_public.h:1289
-public let LS_INVALID = CJKAMP.LS_INVALID
+public let LS_INVALID: Int32 = Int32(truncatingIfNeeded: CJKAMP.LS_INVALID)
 
 /// Source: oracle/codemp/game/bg_public.h:1289
-public let LS_NONE = CJKAMP.LS_NONE
+public let LS_NONE: Int32 = Int32(truncatingIfNeeded: CJKAMP.LS_NONE)
 
 /// Source: oracle/codemp/game/bg_public.h:1289
-public let LS_READY = CJKAMP.LS_READY
+public let LS_READY: Int32 = Int32(truncatingIfNeeded: CJKAMP.LS_READY)
 
 /// Source: oracle/codemp/game/bg_public.h:1289
-public let LS_DRAW = CJKAMP.LS_DRAW
+public let LS_DRAW: Int32 = Int32(truncatingIfNeeded: CJKAMP.LS_DRAW)
 
 /// Source: oracle/codemp/game/bg_public.h:1289
-public let LS_PUTAWAY = CJKAMP.LS_PUTAWAY
+public let LS_PUTAWAY: Int32 = Int32(truncatingIfNeeded: CJKAMP.LS_PUTAWAY)
 
 /// Source: oracle/codemp/game/bg_public.h:1289
-public let LS_A_TL2BR = CJKAMP.LS_A_TL2BR
+public let LS_A_TL2BR: Int32 = Int32(truncatingIfNeeded: CJKAMP.LS_A_TL2BR)
 
 /// Source: oracle/codemp/game/bg_public.h:1289
-public let LS_A_L2R = CJKAMP.LS_A_L2R
+public let LS_A_L2R: Int32 = Int32(truncatingIfNeeded: CJKAMP.LS_A_L2R)
 
 /// Source: oracle/codemp/game/bg_public.h:1289
-public let LS_A_BL2TR = CJKAMP.LS_A_BL2TR
+public let LS_A_BL2TR: Int32 = Int32(truncatingIfNeeded: CJKAMP.LS_A_BL2TR)
 
 /// Source: oracle/codemp/game/bg_public.h:1289
-public let LS_A_BR2TL = CJKAMP.LS_A_BR2TL
+public let LS_A_BR2TL: Int32 = Int32(truncatingIfNeeded: CJKAMP.LS_A_BR2TL)
 
 /// Source: oracle/codemp/game/bg_public.h:1289
-public let LS_A_R2L = CJKAMP.LS_A_R2L
+public let LS_A_R2L: Int32 = Int32(truncatingIfNeeded: CJKAMP.LS_A_R2L)
 
 /// Source: oracle/codemp/game/bg_public.h:1289
-public let LS_A_TR2BL = CJKAMP.LS_A_TR2BL
+public let LS_A_TR2BL: Int32 = Int32(truncatingIfNeeded: CJKAMP.LS_A_TR2BL)
 
 /// Source: oracle/codemp/game/bg_public.h:1289
-public let LS_A_T2B = CJKAMP.LS_A_T2B
+public let LS_A_T2B: Int32 = Int32(truncatingIfNeeded: CJKAMP.LS_A_T2B)
 
 /// Source: oracle/codemp/game/bg_public.h:1289
-public let LS_A_BACKSTAB = CJKAMP.LS_A_BACKSTAB
+public let LS_A_BACKSTAB: Int32 = Int32(truncatingIfNeeded: CJKAMP.LS_A_BACKSTAB)
 
 /// Source: oracle/codemp/game/bg_public.h:1289
-public let LS_A_BACK = CJKAMP.LS_A_BACK
+public let LS_A_BACK: Int32 = Int32(truncatingIfNeeded: CJKAMP.LS_A_BACK)
 
 /// Source: oracle/codemp/game/bg_public.h:1289
-public let LS_A_BACK_CR = CJKAMP.LS_A_BACK_CR
+public let LS_A_BACK_CR: Int32 = Int32(truncatingIfNeeded: CJKAMP.LS_A_BACK_CR)
 
 /// Source: oracle/codemp/game/bg_public.h:1289
-public let LS_ROLL_STAB = CJKAMP.LS_ROLL_STAB
+public let LS_ROLL_STAB: Int32 = Int32(truncatingIfNeeded: CJKAMP.LS_ROLL_STAB)
 
 /// Source: oracle/codemp/game/bg_public.h:1289
-public let LS_A_LUNGE = CJKAMP.LS_A_LUNGE
+public let LS_A_LUNGE: Int32 = Int32(truncatingIfNeeded: CJKAMP.LS_A_LUNGE)
 
 /// Source: oracle/codemp/game/bg_public.h:1289
-public let LS_A_JUMP_T__B_ = CJKAMP.LS_A_JUMP_T__B_
+public let LS_A_JUMP_T__B_: Int32 = Int32(truncatingIfNeeded: CJKAMP.LS_A_JUMP_T__B_)
 
 /// Source: oracle/codemp/game/bg_public.h:1289
-public let LS_A_FLIP_STAB = CJKAMP.LS_A_FLIP_STAB
+public let LS_A_FLIP_STAB: Int32 = Int32(truncatingIfNeeded: CJKAMP.LS_A_FLIP_STAB)
 
 /// Source: oracle/codemp/game/bg_public.h:1289
-public let LS_A_FLIP_SLASH = CJKAMP.LS_A_FLIP_SLASH
+public let LS_A_FLIP_SLASH: Int32 = Int32(truncatingIfNeeded: CJKAMP.LS_A_FLIP_SLASH)
 
 /// Source: oracle/codemp/game/bg_public.h:1289
-public let LS_JUMPATTACK_DUAL = CJKAMP.LS_JUMPATTACK_DUAL
+public let LS_JUMPATTACK_DUAL: Int32 = Int32(truncatingIfNeeded: CJKAMP.LS_JUMPATTACK_DUAL)
 
 /// Source: oracle/codemp/game/bg_public.h:1289
-public let LS_JUMPATTACK_ARIAL_LEFT = CJKAMP.LS_JUMPATTACK_ARIAL_LEFT
+public let LS_JUMPATTACK_ARIAL_LEFT: Int32 = Int32(truncatingIfNeeded: CJKAMP.LS_JUMPATTACK_ARIAL_LEFT)
 
 /// Source: oracle/codemp/game/bg_public.h:1289
-public let LS_JUMPATTACK_ARIAL_RIGHT = CJKAMP.LS_JUMPATTACK_ARIAL_RIGHT
+public let LS_JUMPATTACK_ARIAL_RIGHT: Int32 = Int32(truncatingIfNeeded: CJKAMP.LS_JUMPATTACK_ARIAL_RIGHT)
 
 /// Source: oracle/codemp/game/bg_public.h:1289
-public let LS_JUMPATTACK_CART_LEFT = CJKAMP.LS_JUMPATTACK_CART_LEFT
+public let LS_JUMPATTACK_CART_LEFT: Int32 = Int32(truncatingIfNeeded: CJKAMP.LS_JUMPATTACK_CART_LEFT)
 
 /// Source: oracle/codemp/game/bg_public.h:1289
-public let LS_JUMPATTACK_CART_RIGHT = CJKAMP.LS_JUMPATTACK_CART_RIGHT
+public let LS_JUMPATTACK_CART_RIGHT: Int32 = Int32(truncatingIfNeeded: CJKAMP.LS_JUMPATTACK_CART_RIGHT)
 
 /// Source: oracle/codemp/game/bg_public.h:1289
-public let LS_JUMPATTACK_STAFF_LEFT = CJKAMP.LS_JUMPATTACK_STAFF_LEFT
+public let LS_JUMPATTACK_STAFF_LEFT: Int32 = Int32(truncatingIfNeeded: CJKAMP.LS_JUMPATTACK_STAFF_LEFT)
 
 /// Source: oracle/codemp/game/bg_public.h:1289
-public let LS_JUMPATTACK_STAFF_RIGHT = CJKAMP.LS_JUMPATTACK_STAFF_RIGHT
+public let LS_JUMPATTACK_STAFF_RIGHT: Int32 = Int32(truncatingIfNeeded: CJKAMP.LS_JUMPATTACK_STAFF_RIGHT)
 
 /// Source: oracle/codemp/game/bg_public.h:1289
-public let LS_BUTTERFLY_LEFT = CJKAMP.LS_BUTTERFLY_LEFT
+public let LS_BUTTERFLY_LEFT: Int32 = Int32(truncatingIfNeeded: CJKAMP.LS_BUTTERFLY_LEFT)
 
 /// Source: oracle/codemp/game/bg_public.h:1289
-public let LS_BUTTERFLY_RIGHT = CJKAMP.LS_BUTTERFLY_RIGHT
+public let LS_BUTTERFLY_RIGHT: Int32 = Int32(truncatingIfNeeded: CJKAMP.LS_BUTTERFLY_RIGHT)
 
 /// Source: oracle/codemp/game/bg_public.h:1289
-public let LS_A_BACKFLIP_ATK = CJKAMP.LS_A_BACKFLIP_ATK
+public let LS_A_BACKFLIP_ATK: Int32 = Int32(truncatingIfNeeded: CJKAMP.LS_A_BACKFLIP_ATK)
 
 /// Source: oracle/codemp/game/bg_public.h:1289
-public let LS_SPINATTACK_DUAL = CJKAMP.LS_SPINATTACK_DUAL
+public let LS_SPINATTACK_DUAL: Int32 = Int32(truncatingIfNeeded: CJKAMP.LS_SPINATTACK_DUAL)
 
 /// Source: oracle/codemp/game/bg_public.h:1289
-public let LS_SPINATTACK = CJKAMP.LS_SPINATTACK
+public let LS_SPINATTACK: Int32 = Int32(truncatingIfNeeded: CJKAMP.LS_SPINATTACK)
 
 /// Source: oracle/codemp/game/bg_public.h:1289
-public let LS_LEAP_ATTACK = CJKAMP.LS_LEAP_ATTACK
+public let LS_LEAP_ATTACK: Int32 = Int32(truncatingIfNeeded: CJKAMP.LS_LEAP_ATTACK)
 
 /// Source: oracle/codemp/game/bg_public.h:1289
-public let LS_SWOOP_ATTACK_RIGHT = CJKAMP.LS_SWOOP_ATTACK_RIGHT
+public let LS_SWOOP_ATTACK_RIGHT: Int32 = Int32(truncatingIfNeeded: CJKAMP.LS_SWOOP_ATTACK_RIGHT)
 
 /// Source: oracle/codemp/game/bg_public.h:1289
-public let LS_SWOOP_ATTACK_LEFT = CJKAMP.LS_SWOOP_ATTACK_LEFT
+public let LS_SWOOP_ATTACK_LEFT: Int32 = Int32(truncatingIfNeeded: CJKAMP.LS_SWOOP_ATTACK_LEFT)
 
 /// Source: oracle/codemp/game/bg_public.h:1289
-public let LS_TAUNTAUN_ATTACK_RIGHT = CJKAMP.LS_TAUNTAUN_ATTACK_RIGHT
+public let LS_TAUNTAUN_ATTACK_RIGHT: Int32 = Int32(truncatingIfNeeded: CJKAMP.LS_TAUNTAUN_ATTACK_RIGHT)
 
 /// Source: oracle/codemp/game/bg_public.h:1289
-public let LS_TAUNTAUN_ATTACK_LEFT = CJKAMP.LS_TAUNTAUN_ATTACK_LEFT
+public let LS_TAUNTAUN_ATTACK_LEFT: Int32 = Int32(truncatingIfNeeded: CJKAMP.LS_TAUNTAUN_ATTACK_LEFT)
 
 /// Source: oracle/codemp/game/bg_public.h:1289
-public let LS_KICK_F = CJKAMP.LS_KICK_F
+public let LS_KICK_F: Int32 = Int32(truncatingIfNeeded: CJKAMP.LS_KICK_F)
 
 /// Source: oracle/codemp/game/bg_public.h:1289
-public let LS_KICK_B = CJKAMP.LS_KICK_B
+public let LS_KICK_B: Int32 = Int32(truncatingIfNeeded: CJKAMP.LS_KICK_B)
 
 /// Source: oracle/codemp/game/bg_public.h:1289
-public let LS_KICK_R = CJKAMP.LS_KICK_R
+public let LS_KICK_R: Int32 = Int32(truncatingIfNeeded: CJKAMP.LS_KICK_R)
 
 /// Source: oracle/codemp/game/bg_public.h:1289
-public let LS_KICK_L = CJKAMP.LS_KICK_L
+public let LS_KICK_L: Int32 = Int32(truncatingIfNeeded: CJKAMP.LS_KICK_L)
 
 /// Source: oracle/codemp/game/bg_public.h:1289
-public let LS_KICK_S = CJKAMP.LS_KICK_S
+public let LS_KICK_S: Int32 = Int32(truncatingIfNeeded: CJKAMP.LS_KICK_S)
 
 /// Source: oracle/codemp/game/bg_public.h:1289
-public let LS_KICK_BF = CJKAMP.LS_KICK_BF
+public let LS_KICK_BF: Int32 = Int32(truncatingIfNeeded: CJKAMP.LS_KICK_BF)
 
 /// Source: oracle/codemp/game/bg_public.h:1289
-public let LS_KICK_RL = CJKAMP.LS_KICK_RL
+public let LS_KICK_RL: Int32 = Int32(truncatingIfNeeded: CJKAMP.LS_KICK_RL)
 
 /// Source: oracle/codemp/game/bg_public.h:1289
-public let LS_KICK_F_AIR = CJKAMP.LS_KICK_F_AIR
+public let LS_KICK_F_AIR: Int32 = Int32(truncatingIfNeeded: CJKAMP.LS_KICK_F_AIR)
 
 /// Source: oracle/codemp/game/bg_public.h:1289
-public let LS_KICK_B_AIR = CJKAMP.LS_KICK_B_AIR
+public let LS_KICK_B_AIR: Int32 = Int32(truncatingIfNeeded: CJKAMP.LS_KICK_B_AIR)
 
 /// Source: oracle/codemp/game/bg_public.h:1289
-public let LS_KICK_R_AIR = CJKAMP.LS_KICK_R_AIR
+public let LS_KICK_R_AIR: Int32 = Int32(truncatingIfNeeded: CJKAMP.LS_KICK_R_AIR)
 
 /// Source: oracle/codemp/game/bg_public.h:1289
-public let LS_KICK_L_AIR = CJKAMP.LS_KICK_L_AIR
+public let LS_KICK_L_AIR: Int32 = Int32(truncatingIfNeeded: CJKAMP.LS_KICK_L_AIR)
 
 /// Source: oracle/codemp/game/bg_public.h:1289
-public let LS_STABDOWN = CJKAMP.LS_STABDOWN
+public let LS_STABDOWN: Int32 = Int32(truncatingIfNeeded: CJKAMP.LS_STABDOWN)
 
 /// Source: oracle/codemp/game/bg_public.h:1289
-public let LS_STABDOWN_STAFF = CJKAMP.LS_STABDOWN_STAFF
+public let LS_STABDOWN_STAFF: Int32 = Int32(truncatingIfNeeded: CJKAMP.LS_STABDOWN_STAFF)
 
 /// Source: oracle/codemp/game/bg_public.h:1289
-public let LS_STABDOWN_DUAL = CJKAMP.LS_STABDOWN_DUAL
+public let LS_STABDOWN_DUAL: Int32 = Int32(truncatingIfNeeded: CJKAMP.LS_STABDOWN_DUAL)
 
 /// Source: oracle/codemp/game/bg_public.h:1289
-public let LS_DUAL_SPIN_PROTECT = CJKAMP.LS_DUAL_SPIN_PROTECT
+public let LS_DUAL_SPIN_PROTECT: Int32 = Int32(truncatingIfNeeded: CJKAMP.LS_DUAL_SPIN_PROTECT)
 
 /// Source: oracle/codemp/game/bg_public.h:1289
-public let LS_STAFF_SOULCAL = CJKAMP.LS_STAFF_SOULCAL
+public let LS_STAFF_SOULCAL: Int32 = Int32(truncatingIfNeeded: CJKAMP.LS_STAFF_SOULCAL)
 
 /// Source: oracle/codemp/game/bg_public.h:1289
-public let LS_A1_SPECIAL = CJKAMP.LS_A1_SPECIAL
+public let LS_A1_SPECIAL: Int32 = Int32(truncatingIfNeeded: CJKAMP.LS_A1_SPECIAL)
 
 /// Source: oracle/codemp/game/bg_public.h:1289
-public let LS_A2_SPECIAL = CJKAMP.LS_A2_SPECIAL
+public let LS_A2_SPECIAL: Int32 = Int32(truncatingIfNeeded: CJKAMP.LS_A2_SPECIAL)
 
 /// Source: oracle/codemp/game/bg_public.h:1289
-public let LS_A3_SPECIAL = CJKAMP.LS_A3_SPECIAL
+public let LS_A3_SPECIAL: Int32 = Int32(truncatingIfNeeded: CJKAMP.LS_A3_SPECIAL)
 
 /// Source: oracle/codemp/game/bg_public.h:1289
-public let LS_UPSIDE_DOWN_ATTACK = CJKAMP.LS_UPSIDE_DOWN_ATTACK
+public let LS_UPSIDE_DOWN_ATTACK: Int32 = Int32(truncatingIfNeeded: CJKAMP.LS_UPSIDE_DOWN_ATTACK)
 
 /// Source: oracle/codemp/game/bg_public.h:1289
-public let LS_PULL_ATTACK_STAB = CJKAMP.LS_PULL_ATTACK_STAB
+public let LS_PULL_ATTACK_STAB: Int32 = Int32(truncatingIfNeeded: CJKAMP.LS_PULL_ATTACK_STAB)
 
 /// Source: oracle/codemp/game/bg_public.h:1289
-public let LS_PULL_ATTACK_SWING = CJKAMP.LS_PULL_ATTACK_SWING
+public let LS_PULL_ATTACK_SWING: Int32 = Int32(truncatingIfNeeded: CJKAMP.LS_PULL_ATTACK_SWING)
 
 /// Source: oracle/codemp/game/bg_public.h:1289
-public let LS_SPINATTACK_ALORA = CJKAMP.LS_SPINATTACK_ALORA
+public let LS_SPINATTACK_ALORA: Int32 = Int32(truncatingIfNeeded: CJKAMP.LS_SPINATTACK_ALORA)
 
 /// Source: oracle/codemp/game/bg_public.h:1289
-public let LS_DUAL_FB = CJKAMP.LS_DUAL_FB
+public let LS_DUAL_FB: Int32 = Int32(truncatingIfNeeded: CJKAMP.LS_DUAL_FB)
 
 /// Source: oracle/codemp/game/bg_public.h:1289
-public let LS_DUAL_LR = CJKAMP.LS_DUAL_LR
+public let LS_DUAL_LR: Int32 = Int32(truncatingIfNeeded: CJKAMP.LS_DUAL_LR)
 
 /// Source: oracle/codemp/game/bg_public.h:1289
-public let LS_HILT_BASH = CJKAMP.LS_HILT_BASH
+public let LS_HILT_BASH: Int32 = Int32(truncatingIfNeeded: CJKAMP.LS_HILT_BASH)
 
 /// Source: oracle/codemp/game/bg_public.h:1289
-public let LS_S_TL2BR = CJKAMP.LS_S_TL2BR
+public let LS_S_TL2BR: Int32 = Int32(truncatingIfNeeded: CJKAMP.LS_S_TL2BR)
 
 /// Source: oracle/codemp/game/bg_public.h:1289
-public let LS_S_L2R = CJKAMP.LS_S_L2R
+public let LS_S_L2R: Int32 = Int32(truncatingIfNeeded: CJKAMP.LS_S_L2R)
 
 /// Source: oracle/codemp/game/bg_public.h:1289
-public let LS_S_BL2TR = CJKAMP.LS_S_BL2TR
+public let LS_S_BL2TR: Int32 = Int32(truncatingIfNeeded: CJKAMP.LS_S_BL2TR)
 
 /// Source: oracle/codemp/game/bg_public.h:1289
-public let LS_S_BR2TL = CJKAMP.LS_S_BR2TL
+public let LS_S_BR2TL: Int32 = Int32(truncatingIfNeeded: CJKAMP.LS_S_BR2TL)
 
 /// Source: oracle/codemp/game/bg_public.h:1289
-public let LS_S_R2L = CJKAMP.LS_S_R2L
+public let LS_S_R2L: Int32 = Int32(truncatingIfNeeded: CJKAMP.LS_S_R2L)
 
 /// Source: oracle/codemp/game/bg_public.h:1289
-public let LS_S_TR2BL = CJKAMP.LS_S_TR2BL
+public let LS_S_TR2BL: Int32 = Int32(truncatingIfNeeded: CJKAMP.LS_S_TR2BL)
 
 /// Source: oracle/codemp/game/bg_public.h:1289
-public let LS_S_T2B = CJKAMP.LS_S_T2B
+public let LS_S_T2B: Int32 = Int32(truncatingIfNeeded: CJKAMP.LS_S_T2B)
 
 /// Source: oracle/codemp/game/bg_public.h:1289
-public let LS_R_TL2BR = CJKAMP.LS_R_TL2BR
+public let LS_R_TL2BR: Int32 = Int32(truncatingIfNeeded: CJKAMP.LS_R_TL2BR)
 
 /// Source: oracle/codemp/game/bg_public.h:1289
-public let LS_R_L2R = CJKAMP.LS_R_L2R
+public let LS_R_L2R: Int32 = Int32(truncatingIfNeeded: CJKAMP.LS_R_L2R)
 
 /// Source: oracle/codemp/game/bg_public.h:1289
-public let LS_R_BL2TR = CJKAMP.LS_R_BL2TR
+public let LS_R_BL2TR: Int32 = Int32(truncatingIfNeeded: CJKAMP.LS_R_BL2TR)
 
 /// Source: oracle/codemp/game/bg_public.h:1289
-public let LS_R_BR2TL = CJKAMP.LS_R_BR2TL
+public let LS_R_BR2TL: Int32 = Int32(truncatingIfNeeded: CJKAMP.LS_R_BR2TL)
 
 /// Source: oracle/codemp/game/bg_public.h:1289
-public let LS_R_R2L = CJKAMP.LS_R_R2L
+public let LS_R_R2L: Int32 = Int32(truncatingIfNeeded: CJKAMP.LS_R_R2L)
 
 /// Source: oracle/codemp/game/bg_public.h:1289
-public let LS_R_TR2BL = CJKAMP.LS_R_TR2BL
+public let LS_R_TR2BL: Int32 = Int32(truncatingIfNeeded: CJKAMP.LS_R_TR2BL)
 
 /// Source: oracle/codemp/game/bg_public.h:1289
-public let LS_R_T2B = CJKAMP.LS_R_T2B
+public let LS_R_T2B: Int32 = Int32(truncatingIfNeeded: CJKAMP.LS_R_T2B)
 
 /// Source: oracle/codemp/game/bg_public.h:1289
-public let LS_T1_BR__R = CJKAMP.LS_T1_BR__R
+public let LS_T1_BR__R: Int32 = Int32(truncatingIfNeeded: CJKAMP.LS_T1_BR__R)
 
 /// Source: oracle/codemp/game/bg_public.h:1289
-public let LS_T1_BR_TR = CJKAMP.LS_T1_BR_TR
+public let LS_T1_BR_TR: Int32 = Int32(truncatingIfNeeded: CJKAMP.LS_T1_BR_TR)
 
 /// Source: oracle/codemp/game/bg_public.h:1289
-public let LS_T1_BR_T_ = CJKAMP.LS_T1_BR_T_
+public let LS_T1_BR_T_: Int32 = Int32(truncatingIfNeeded: CJKAMP.LS_T1_BR_T_)
 
 /// Source: oracle/codemp/game/bg_public.h:1289
-public let LS_T1_BR_TL = CJKAMP.LS_T1_BR_TL
+public let LS_T1_BR_TL: Int32 = Int32(truncatingIfNeeded: CJKAMP.LS_T1_BR_TL)
 
 /// Source: oracle/codemp/game/bg_public.h:1289
-public let LS_T1_BR__L = CJKAMP.LS_T1_BR__L
+public let LS_T1_BR__L: Int32 = Int32(truncatingIfNeeded: CJKAMP.LS_T1_BR__L)
 
 /// Source: oracle/codemp/game/bg_public.h:1289
-public let LS_T1_BR_BL = CJKAMP.LS_T1_BR_BL
+public let LS_T1_BR_BL: Int32 = Int32(truncatingIfNeeded: CJKAMP.LS_T1_BR_BL)
 
 /// Source: oracle/codemp/game/bg_public.h:1289
-public let LS_T1__R_BR = CJKAMP.LS_T1__R_BR
+public let LS_T1__R_BR: Int32 = Int32(truncatingIfNeeded: CJKAMP.LS_T1__R_BR)
 
 /// Source: oracle/codemp/game/bg_public.h:1289
-public let LS_T1__R_TR = CJKAMP.LS_T1__R_TR
+public let LS_T1__R_TR: Int32 = Int32(truncatingIfNeeded: CJKAMP.LS_T1__R_TR)
 
 /// Source: oracle/codemp/game/bg_public.h:1289
-public let LS_T1__R_T_ = CJKAMP.LS_T1__R_T_
+public let LS_T1__R_T_: Int32 = Int32(truncatingIfNeeded: CJKAMP.LS_T1__R_T_)
 
 /// Source: oracle/codemp/game/bg_public.h:1289
-public let LS_T1__R_TL = CJKAMP.LS_T1__R_TL
+public let LS_T1__R_TL: Int32 = Int32(truncatingIfNeeded: CJKAMP.LS_T1__R_TL)
 
 /// Source: oracle/codemp/game/bg_public.h:1289
-public let LS_T1__R__L = CJKAMP.LS_T1__R__L
+public let LS_T1__R__L: Int32 = Int32(truncatingIfNeeded: CJKAMP.LS_T1__R__L)
 
 /// Source: oracle/codemp/game/bg_public.h:1289
-public let LS_T1__R_BL = CJKAMP.LS_T1__R_BL
+public let LS_T1__R_BL: Int32 = Int32(truncatingIfNeeded: CJKAMP.LS_T1__R_BL)
 
 /// Source: oracle/codemp/game/bg_public.h:1289
-public let LS_T1_TR_BR = CJKAMP.LS_T1_TR_BR
+public let LS_T1_TR_BR: Int32 = Int32(truncatingIfNeeded: CJKAMP.LS_T1_TR_BR)
 
 /// Source: oracle/codemp/game/bg_public.h:1289
-public let LS_T1_TR__R = CJKAMP.LS_T1_TR__R
+public let LS_T1_TR__R: Int32 = Int32(truncatingIfNeeded: CJKAMP.LS_T1_TR__R)
 
 /// Source: oracle/codemp/game/bg_public.h:1289
-public let LS_T1_TR_T_ = CJKAMP.LS_T1_TR_T_
+public let LS_T1_TR_T_: Int32 = Int32(truncatingIfNeeded: CJKAMP.LS_T1_TR_T_)
 
 /// Source: oracle/codemp/game/bg_public.h:1289
-public let LS_T1_TR_TL = CJKAMP.LS_T1_TR_TL
+public let LS_T1_TR_TL: Int32 = Int32(truncatingIfNeeded: CJKAMP.LS_T1_TR_TL)
 
 /// Source: oracle/codemp/game/bg_public.h:1289
-public let LS_T1_TR__L = CJKAMP.LS_T1_TR__L
+public let LS_T1_TR__L: Int32 = Int32(truncatingIfNeeded: CJKAMP.LS_T1_TR__L)
 
 /// Source: oracle/codemp/game/bg_public.h:1289
-public let LS_T1_TR_BL = CJKAMP.LS_T1_TR_BL
+public let LS_T1_TR_BL: Int32 = Int32(truncatingIfNeeded: CJKAMP.LS_T1_TR_BL)
 
 /// Source: oracle/codemp/game/bg_public.h:1289
-public let LS_T1_T__BR = CJKAMP.LS_T1_T__BR
+public let LS_T1_T__BR: Int32 = Int32(truncatingIfNeeded: CJKAMP.LS_T1_T__BR)
 
 /// Source: oracle/codemp/game/bg_public.h:1289
-public let LS_T1_T___R = CJKAMP.LS_T1_T___R
+public let LS_T1_T___R: Int32 = Int32(truncatingIfNeeded: CJKAMP.LS_T1_T___R)
 
 /// Source: oracle/codemp/game/bg_public.h:1289
-public let LS_T1_T__TR = CJKAMP.LS_T1_T__TR
+public let LS_T1_T__TR: Int32 = Int32(truncatingIfNeeded: CJKAMP.LS_T1_T__TR)
 
 /// Source: oracle/codemp/game/bg_public.h:1289
-public let LS_T1_T__TL = CJKAMP.LS_T1_T__TL
+public let LS_T1_T__TL: Int32 = Int32(truncatingIfNeeded: CJKAMP.LS_T1_T__TL)
 
 /// Source: oracle/codemp/game/bg_public.h:1289
-public let LS_T1_T___L = CJKAMP.LS_T1_T___L
+public let LS_T1_T___L: Int32 = Int32(truncatingIfNeeded: CJKAMP.LS_T1_T___L)
 
 /// Source: oracle/codemp/game/bg_public.h:1289
-public let LS_T1_T__BL = CJKAMP.LS_T1_T__BL
+public let LS_T1_T__BL: Int32 = Int32(truncatingIfNeeded: CJKAMP.LS_T1_T__BL)
 
 /// Source: oracle/codemp/game/bg_public.h:1289
-public let LS_T1_TL_BR = CJKAMP.LS_T1_TL_BR
+public let LS_T1_TL_BR: Int32 = Int32(truncatingIfNeeded: CJKAMP.LS_T1_TL_BR)
 
 /// Source: oracle/codemp/game/bg_public.h:1289
-public let LS_T1_TL__R = CJKAMP.LS_T1_TL__R
+public let LS_T1_TL__R: Int32 = Int32(truncatingIfNeeded: CJKAMP.LS_T1_TL__R)
 
 /// Source: oracle/codemp/game/bg_public.h:1289
-public let LS_T1_TL_TR = CJKAMP.LS_T1_TL_TR
+public let LS_T1_TL_TR: Int32 = Int32(truncatingIfNeeded: CJKAMP.LS_T1_TL_TR)
 
 /// Source: oracle/codemp/game/bg_public.h:1289
-public let LS_T1_TL_T_ = CJKAMP.LS_T1_TL_T_
+public let LS_T1_TL_T_: Int32 = Int32(truncatingIfNeeded: CJKAMP.LS_T1_TL_T_)
 
 /// Source: oracle/codemp/game/bg_public.h:1289
-public let LS_T1_TL__L = CJKAMP.LS_T1_TL__L
+public let LS_T1_TL__L: Int32 = Int32(truncatingIfNeeded: CJKAMP.LS_T1_TL__L)
 
 /// Source: oracle/codemp/game/bg_public.h:1289
-public let LS_T1_TL_BL = CJKAMP.LS_T1_TL_BL
+public let LS_T1_TL_BL: Int32 = Int32(truncatingIfNeeded: CJKAMP.LS_T1_TL_BL)
 
 /// Source: oracle/codemp/game/bg_public.h:1289
-public let LS_T1__L_BR = CJKAMP.LS_T1__L_BR
+public let LS_T1__L_BR: Int32 = Int32(truncatingIfNeeded: CJKAMP.LS_T1__L_BR)
 
 /// Source: oracle/codemp/game/bg_public.h:1289
-public let LS_T1__L__R = CJKAMP.LS_T1__L__R
+public let LS_T1__L__R: Int32 = Int32(truncatingIfNeeded: CJKAMP.LS_T1__L__R)
 
 /// Source: oracle/codemp/game/bg_public.h:1289
-public let LS_T1__L_TR = CJKAMP.LS_T1__L_TR
+public let LS_T1__L_TR: Int32 = Int32(truncatingIfNeeded: CJKAMP.LS_T1__L_TR)
 
 /// Source: oracle/codemp/game/bg_public.h:1289
-public let LS_T1__L_T_ = CJKAMP.LS_T1__L_T_
+public let LS_T1__L_T_: Int32 = Int32(truncatingIfNeeded: CJKAMP.LS_T1__L_T_)
 
 /// Source: oracle/codemp/game/bg_public.h:1289
-public let LS_T1__L_TL = CJKAMP.LS_T1__L_TL
+public let LS_T1__L_TL: Int32 = Int32(truncatingIfNeeded: CJKAMP.LS_T1__L_TL)
 
 /// Source: oracle/codemp/game/bg_public.h:1289
-public let LS_T1__L_BL = CJKAMP.LS_T1__L_BL
+public let LS_T1__L_BL: Int32 = Int32(truncatingIfNeeded: CJKAMP.LS_T1__L_BL)
 
 /// Source: oracle/codemp/game/bg_public.h:1289
-public let LS_T1_BL_BR = CJKAMP.LS_T1_BL_BR
+public let LS_T1_BL_BR: Int32 = Int32(truncatingIfNeeded: CJKAMP.LS_T1_BL_BR)
 
 /// Source: oracle/codemp/game/bg_public.h:1289
-public let LS_T1_BL__R = CJKAMP.LS_T1_BL__R
+public let LS_T1_BL__R: Int32 = Int32(truncatingIfNeeded: CJKAMP.LS_T1_BL__R)
 
 /// Source: oracle/codemp/game/bg_public.h:1289
-public let LS_T1_BL_TR = CJKAMP.LS_T1_BL_TR
+public let LS_T1_BL_TR: Int32 = Int32(truncatingIfNeeded: CJKAMP.LS_T1_BL_TR)
 
 /// Source: oracle/codemp/game/bg_public.h:1289
-public let LS_T1_BL_T_ = CJKAMP.LS_T1_BL_T_
+public let LS_T1_BL_T_: Int32 = Int32(truncatingIfNeeded: CJKAMP.LS_T1_BL_T_)
 
 /// Source: oracle/codemp/game/bg_public.h:1289
-public let LS_T1_BL_TL = CJKAMP.LS_T1_BL_TL
+public let LS_T1_BL_TL: Int32 = Int32(truncatingIfNeeded: CJKAMP.LS_T1_BL_TL)
 
 /// Source: oracle/codemp/game/bg_public.h:1289
-public let LS_T1_BL__L = CJKAMP.LS_T1_BL__L
+public let LS_T1_BL__L: Int32 = Int32(truncatingIfNeeded: CJKAMP.LS_T1_BL__L)
 
 /// Source: oracle/codemp/game/bg_public.h:1289
-public let LS_B1_BR = CJKAMP.LS_B1_BR
+public let LS_B1_BR: Int32 = Int32(truncatingIfNeeded: CJKAMP.LS_B1_BR)
 
 /// Source: oracle/codemp/game/bg_public.h:1289
-public let LS_B1__R = CJKAMP.LS_B1__R
+public let LS_B1__R: Int32 = Int32(truncatingIfNeeded: CJKAMP.LS_B1__R)
 
 /// Source: oracle/codemp/game/bg_public.h:1289
-public let LS_B1_TR = CJKAMP.LS_B1_TR
+public let LS_B1_TR: Int32 = Int32(truncatingIfNeeded: CJKAMP.LS_B1_TR)
 
 /// Source: oracle/codemp/game/bg_public.h:1289
-public let LS_B1_T_ = CJKAMP.LS_B1_T_
+public let LS_B1_T_: Int32 = Int32(truncatingIfNeeded: CJKAMP.LS_B1_T_)
 
 /// Source: oracle/codemp/game/bg_public.h:1289
-public let LS_B1_TL = CJKAMP.LS_B1_TL
+public let LS_B1_TL: Int32 = Int32(truncatingIfNeeded: CJKAMP.LS_B1_TL)
 
 /// Source: oracle/codemp/game/bg_public.h:1289
-public let LS_B1__L = CJKAMP.LS_B1__L
+public let LS_B1__L: Int32 = Int32(truncatingIfNeeded: CJKAMP.LS_B1__L)
 
 /// Source: oracle/codemp/game/bg_public.h:1289
-public let LS_B1_BL = CJKAMP.LS_B1_BL
+public let LS_B1_BL: Int32 = Int32(truncatingIfNeeded: CJKAMP.LS_B1_BL)
 
 /// Source: oracle/codemp/game/bg_public.h:1289
-public let LS_D1_BR = CJKAMP.LS_D1_BR
+public let LS_D1_BR: Int32 = Int32(truncatingIfNeeded: CJKAMP.LS_D1_BR)
 
 /// Source: oracle/codemp/game/bg_public.h:1289
-public let LS_D1__R = CJKAMP.LS_D1__R
+public let LS_D1__R: Int32 = Int32(truncatingIfNeeded: CJKAMP.LS_D1__R)
 
 /// Source: oracle/codemp/game/bg_public.h:1289
-public let LS_D1_TR = CJKAMP.LS_D1_TR
+public let LS_D1_TR: Int32 = Int32(truncatingIfNeeded: CJKAMP.LS_D1_TR)
 
 /// Source: oracle/codemp/game/bg_public.h:1289
-public let LS_D1_T_ = CJKAMP.LS_D1_T_
+public let LS_D1_T_: Int32 = Int32(truncatingIfNeeded: CJKAMP.LS_D1_T_)
 
 /// Source: oracle/codemp/game/bg_public.h:1289
-public let LS_D1_TL = CJKAMP.LS_D1_TL
+public let LS_D1_TL: Int32 = Int32(truncatingIfNeeded: CJKAMP.LS_D1_TL)
 
 /// Source: oracle/codemp/game/bg_public.h:1289
-public let LS_D1__L = CJKAMP.LS_D1__L
+public let LS_D1__L: Int32 = Int32(truncatingIfNeeded: CJKAMP.LS_D1__L)
 
 /// Source: oracle/codemp/game/bg_public.h:1289
-public let LS_D1_BL = CJKAMP.LS_D1_BL
+public let LS_D1_BL: Int32 = Int32(truncatingIfNeeded: CJKAMP.LS_D1_BL)
 
 /// Source: oracle/codemp/game/bg_public.h:1289
-public let LS_D1_B_ = CJKAMP.LS_D1_B_
+public let LS_D1_B_: Int32 = Int32(truncatingIfNeeded: CJKAMP.LS_D1_B_)
 
 /// Source: oracle/codemp/game/bg_public.h:1289
-public let LS_V1_BR = CJKAMP.LS_V1_BR
+public let LS_V1_BR: Int32 = Int32(truncatingIfNeeded: CJKAMP.LS_V1_BR)
 
 /// Source: oracle/codemp/game/bg_public.h:1289
-public let LS_V1__R = CJKAMP.LS_V1__R
+public let LS_V1__R: Int32 = Int32(truncatingIfNeeded: CJKAMP.LS_V1__R)
 
 /// Source: oracle/codemp/game/bg_public.h:1289
-public let LS_V1_TR = CJKAMP.LS_V1_TR
+public let LS_V1_TR: Int32 = Int32(truncatingIfNeeded: CJKAMP.LS_V1_TR)
 
 /// Source: oracle/codemp/game/bg_public.h:1289
-public let LS_V1_T_ = CJKAMP.LS_V1_T_
+public let LS_V1_T_: Int32 = Int32(truncatingIfNeeded: CJKAMP.LS_V1_T_)
 
 /// Source: oracle/codemp/game/bg_public.h:1289
-public let LS_V1_TL = CJKAMP.LS_V1_TL
+public let LS_V1_TL: Int32 = Int32(truncatingIfNeeded: CJKAMP.LS_V1_TL)
 
 /// Source: oracle/codemp/game/bg_public.h:1289
-public let LS_V1__L = CJKAMP.LS_V1__L
+public let LS_V1__L: Int32 = Int32(truncatingIfNeeded: CJKAMP.LS_V1__L)
 
 /// Source: oracle/codemp/game/bg_public.h:1289
-public let LS_V1_BL = CJKAMP.LS_V1_BL
+public let LS_V1_BL: Int32 = Int32(truncatingIfNeeded: CJKAMP.LS_V1_BL)
 
 /// Source: oracle/codemp/game/bg_public.h:1289
-public let LS_V1_B_ = CJKAMP.LS_V1_B_
+public let LS_V1_B_: Int32 = Int32(truncatingIfNeeded: CJKAMP.LS_V1_B_)
 
 /// Source: oracle/codemp/game/bg_public.h:1289
-public let LS_H1_T_ = CJKAMP.LS_H1_T_
+public let LS_H1_T_: Int32 = Int32(truncatingIfNeeded: CJKAMP.LS_H1_T_)
 
 /// Source: oracle/codemp/game/bg_public.h:1289
-public let LS_H1_TR = CJKAMP.LS_H1_TR
+public let LS_H1_TR: Int32 = Int32(truncatingIfNeeded: CJKAMP.LS_H1_TR)
 
 /// Source: oracle/codemp/game/bg_public.h:1289
-public let LS_H1_TL = CJKAMP.LS_H1_TL
+public let LS_H1_TL: Int32 = Int32(truncatingIfNeeded: CJKAMP.LS_H1_TL)
 
 /// Source: oracle/codemp/game/bg_public.h:1289
-public let LS_H1_BR = CJKAMP.LS_H1_BR
+public let LS_H1_BR: Int32 = Int32(truncatingIfNeeded: CJKAMP.LS_H1_BR)
 
 /// Source: oracle/codemp/game/bg_public.h:1289
-public let LS_H1_B_ = CJKAMP.LS_H1_B_
+public let LS_H1_B_: Int32 = Int32(truncatingIfNeeded: CJKAMP.LS_H1_B_)
 
 /// Source: oracle/codemp/game/bg_public.h:1289
-public let LS_H1_BL = CJKAMP.LS_H1_BL
+public let LS_H1_BL: Int32 = Int32(truncatingIfNeeded: CJKAMP.LS_H1_BL)
 
 /// Source: oracle/codemp/game/bg_public.h:1289
-public let LS_K1_T_ = CJKAMP.LS_K1_T_
+public let LS_K1_T_: Int32 = Int32(truncatingIfNeeded: CJKAMP.LS_K1_T_)
 
 /// Source: oracle/codemp/game/bg_public.h:1289
-public let LS_K1_TR = CJKAMP.LS_K1_TR
+public let LS_K1_TR: Int32 = Int32(truncatingIfNeeded: CJKAMP.LS_K1_TR)
 
 /// Source: oracle/codemp/game/bg_public.h:1289
-public let LS_K1_TL = CJKAMP.LS_K1_TL
+public let LS_K1_TL: Int32 = Int32(truncatingIfNeeded: CJKAMP.LS_K1_TL)
 
 /// Source: oracle/codemp/game/bg_public.h:1289
-public let LS_K1_BR = CJKAMP.LS_K1_BR
+public let LS_K1_BR: Int32 = Int32(truncatingIfNeeded: CJKAMP.LS_K1_BR)
 
 /// Source: oracle/codemp/game/bg_public.h:1289
-public let LS_K1_BL = CJKAMP.LS_K1_BL
+public let LS_K1_BL: Int32 = Int32(truncatingIfNeeded: CJKAMP.LS_K1_BL)
 
 /// Source: oracle/codemp/game/bg_public.h:1289
-public let LS_PARRY_UP = CJKAMP.LS_PARRY_UP
+public let LS_PARRY_UP: Int32 = Int32(truncatingIfNeeded: CJKAMP.LS_PARRY_UP)
 
 /// Source: oracle/codemp/game/bg_public.h:1289
-public let LS_PARRY_UR = CJKAMP.LS_PARRY_UR
+public let LS_PARRY_UR: Int32 = Int32(truncatingIfNeeded: CJKAMP.LS_PARRY_UR)
 
 /// Source: oracle/codemp/game/bg_public.h:1289
-public let LS_PARRY_UL = CJKAMP.LS_PARRY_UL
+public let LS_PARRY_UL: Int32 = Int32(truncatingIfNeeded: CJKAMP.LS_PARRY_UL)
 
 /// Source: oracle/codemp/game/bg_public.h:1289
-public let LS_PARRY_LR = CJKAMP.LS_PARRY_LR
+public let LS_PARRY_LR: Int32 = Int32(truncatingIfNeeded: CJKAMP.LS_PARRY_LR)
 
 /// Source: oracle/codemp/game/bg_public.h:1289
-public let LS_PARRY_LL = CJKAMP.LS_PARRY_LL
+public let LS_PARRY_LL: Int32 = Int32(truncatingIfNeeded: CJKAMP.LS_PARRY_LL)
 
 /// Source: oracle/codemp/game/bg_public.h:1289
-public let LS_REFLECT_UP = CJKAMP.LS_REFLECT_UP
+public let LS_REFLECT_UP: Int32 = Int32(truncatingIfNeeded: CJKAMP.LS_REFLECT_UP)
 
 /// Source: oracle/codemp/game/bg_public.h:1289
-public let LS_REFLECT_UR = CJKAMP.LS_REFLECT_UR
+public let LS_REFLECT_UR: Int32 = Int32(truncatingIfNeeded: CJKAMP.LS_REFLECT_UR)
 
 /// Source: oracle/codemp/game/bg_public.h:1289
-public let LS_REFLECT_UL = CJKAMP.LS_REFLECT_UL
+public let LS_REFLECT_UL: Int32 = Int32(truncatingIfNeeded: CJKAMP.LS_REFLECT_UL)
 
 /// Source: oracle/codemp/game/bg_public.h:1289
-public let LS_REFLECT_LR = CJKAMP.LS_REFLECT_LR
+public let LS_REFLECT_LR: Int32 = Int32(truncatingIfNeeded: CJKAMP.LS_REFLECT_LR)
 
 /// Source: oracle/codemp/game/bg_public.h:1289
-public let LS_REFLECT_LL = CJKAMP.LS_REFLECT_LL
+public let LS_REFLECT_LL: Int32 = Int32(truncatingIfNeeded: CJKAMP.LS_REFLECT_LL)
 
 /// Source: oracle/codemp/game/bg_public.h:1289
-public let LS_MOVE_MAX = CJKAMP.LS_MOVE_MAX
+public let LS_MOVE_MAX: Int32 = Int32(truncatingIfNeeded: CJKAMP.LS_MOVE_MAX)
 
 /// Source: oracle/codemp/game/bg_public.h:652
-public let PW_NONE = CJKAMP.PW_NONE
+public let PW_NONE: Int32 = Int32(truncatingIfNeeded: CJKAMP.PW_NONE)
 
 /// Source: oracle/codemp/game/bg_public.h:652
-public let PW_QUAD = CJKAMP.PW_QUAD
+public let PW_QUAD: Int32 = Int32(truncatingIfNeeded: CJKAMP.PW_QUAD)
 
 /// Source: oracle/codemp/game/bg_public.h:652
-public let PW_BATTLESUIT = CJKAMP.PW_BATTLESUIT
+public let PW_BATTLESUIT: Int32 = Int32(truncatingIfNeeded: CJKAMP.PW_BATTLESUIT)
 
 /// Source: oracle/codemp/game/bg_public.h:652
-public let PW_PULL = CJKAMP.PW_PULL
+public let PW_PULL: Int32 = Int32(truncatingIfNeeded: CJKAMP.PW_PULL)
 
 /// Source: oracle/codemp/game/bg_public.h:652
-public let PW_REDFLAG = CJKAMP.PW_REDFLAG
+public let PW_REDFLAG: Int32 = Int32(truncatingIfNeeded: CJKAMP.PW_REDFLAG)
 
 /// Source: oracle/codemp/game/bg_public.h:652
-public let PW_BLUEFLAG = CJKAMP.PW_BLUEFLAG
+public let PW_BLUEFLAG: Int32 = Int32(truncatingIfNeeded: CJKAMP.PW_BLUEFLAG)
 
 /// Source: oracle/codemp/game/bg_public.h:652
-public let PW_NEUTRALFLAG = CJKAMP.PW_NEUTRALFLAG
+public let PW_NEUTRALFLAG: Int32 = Int32(truncatingIfNeeded: CJKAMP.PW_NEUTRALFLAG)
 
 /// Source: oracle/codemp/game/bg_public.h:652
-public let PW_SHIELDHIT = CJKAMP.PW_SHIELDHIT
+public let PW_SHIELDHIT: Int32 = Int32(truncatingIfNeeded: CJKAMP.PW_SHIELDHIT)
 
 /// Source: oracle/codemp/game/bg_public.h:652
-public let PW_SPEEDBURST = CJKAMP.PW_SPEEDBURST
+public let PW_SPEEDBURST: Int32 = Int32(truncatingIfNeeded: CJKAMP.PW_SPEEDBURST)
 
 /// Source: oracle/codemp/game/bg_public.h:652
-public let PW_DISINT_4 = CJKAMP.PW_DISINT_4
+public let PW_DISINT_4: Int32 = Int32(truncatingIfNeeded: CJKAMP.PW_DISINT_4)
 
 /// Source: oracle/codemp/game/bg_public.h:652
-public let PW_SPEED = CJKAMP.PW_SPEED
+public let PW_SPEED: Int32 = Int32(truncatingIfNeeded: CJKAMP.PW_SPEED)
 
 /// Source: oracle/codemp/game/bg_public.h:652
-public let PW_CLOAKED = CJKAMP.PW_CLOAKED
+public let PW_CLOAKED: Int32 = Int32(truncatingIfNeeded: CJKAMP.PW_CLOAKED)
 
 /// Source: oracle/codemp/game/bg_public.h:652
-public let PW_FORCE_ENLIGHTENED_LIGHT = CJKAMP.PW_FORCE_ENLIGHTENED_LIGHT
+public let PW_FORCE_ENLIGHTENED_LIGHT: Int32 = Int32(truncatingIfNeeded: CJKAMP.PW_FORCE_ENLIGHTENED_LIGHT)
 
 /// Source: oracle/codemp/game/bg_public.h:652
-public let PW_FORCE_ENLIGHTENED_DARK = CJKAMP.PW_FORCE_ENLIGHTENED_DARK
+public let PW_FORCE_ENLIGHTENED_DARK: Int32 = Int32(truncatingIfNeeded: CJKAMP.PW_FORCE_ENLIGHTENED_DARK)
 
 /// Source: oracle/codemp/game/bg_public.h:652
-public let PW_FORCE_BOON = CJKAMP.PW_FORCE_BOON
+public let PW_FORCE_BOON: Int32 = Int32(truncatingIfNeeded: CJKAMP.PW_FORCE_BOON)
 
 /// Source: oracle/codemp/game/bg_public.h:652
-public let PW_YSALAMIRI = CJKAMP.PW_YSALAMIRI
+public let PW_YSALAMIRI: Int32 = Int32(truncatingIfNeeded: CJKAMP.PW_YSALAMIRI)
 
 /// Source: oracle/codemp/game/bg_public.h:652
-public let PW_NUM_POWERUPS = CJKAMP.PW_NUM_POWERUPS
+public let PW_NUM_POWERUPS: Int32 = Int32(truncatingIfNeeded: CJKAMP.PW_NUM_POWERUPS)
 
 /// Source: oracle/codemp/game/bg_public.h:209
-public let SABERLOCK_TOP = CJKAMP.SABERLOCK_TOP
+public let SABERLOCK_TOP: Int32 = Int32(truncatingIfNeeded: CJKAMP.SABERLOCK_TOP)
 
 /// Source: oracle/codemp/game/bg_public.h:209
-public let SABERLOCK_SIDE = CJKAMP.SABERLOCK_SIDE
+public let SABERLOCK_SIDE: Int32 = Int32(truncatingIfNeeded: CJKAMP.SABERLOCK_SIDE)
 
 /// Source: oracle/codemp/game/bg_public.h:209
-public let SABERLOCK_LOCK = CJKAMP.SABERLOCK_LOCK
+public let SABERLOCK_LOCK: Int32 = Int32(truncatingIfNeeded: CJKAMP.SABERLOCK_LOCK)
 
 /// Source: oracle/codemp/game/bg_public.h:209
-public let SABERLOCK_BREAK = CJKAMP.SABERLOCK_BREAK
+public let SABERLOCK_BREAK: Int32 = Int32(truncatingIfNeeded: CJKAMP.SABERLOCK_BREAK)
 
 /// Source: oracle/codemp/game/bg_public.h:209
-public let SABERLOCK_SUPERBREAK = CJKAMP.SABERLOCK_SUPERBREAK
+public let SABERLOCK_SUPERBREAK: Int32 = Int32(truncatingIfNeeded: CJKAMP.SABERLOCK_SUPERBREAK)
 
 /// Source: oracle/codemp/game/bg_public.h:209
-public let SABERLOCK_WIN = CJKAMP.SABERLOCK_WIN
+public let SABERLOCK_WIN: Int32 = Int32(truncatingIfNeeded: CJKAMP.SABERLOCK_WIN)
 
 /// Source: oracle/codemp/game/bg_public.h:209
-public let SABERLOCK_LOSE = CJKAMP.SABERLOCK_LOSE
+public let SABERLOCK_LOSE: Int32 = Int32(truncatingIfNeeded: CJKAMP.SABERLOCK_LOSE)
 
 /// Source: oracle/codemp/game/bg_public.h:1009
-public let TEAM_FREE = CJKAMP.TEAM_FREE
+public let TEAM_FREE: Int32 = Int32(truncatingIfNeeded: CJKAMP.TEAM_FREE)
 
 /// Source: oracle/codemp/game/bg_public.h:1009
-public let TEAM_RED = CJKAMP.TEAM_RED
+public let TEAM_RED: Int32 = Int32(truncatingIfNeeded: CJKAMP.TEAM_RED)
 
 /// Source: oracle/codemp/game/bg_public.h:1009
-public let TEAM_BLUE = CJKAMP.TEAM_BLUE
+public let TEAM_BLUE: Int32 = Int32(truncatingIfNeeded: CJKAMP.TEAM_BLUE)
 
 /// Source: oracle/codemp/game/bg_public.h:1009
-public let TEAM_SPECTATOR = CJKAMP.TEAM_SPECTATOR
+public let TEAM_SPECTATOR: Int32 = Int32(truncatingIfNeeded: CJKAMP.TEAM_SPECTATOR)
 
 /// Source: oracle/codemp/game/bg_public.h:1009
-public let TEAM_NUM_TEAMS = CJKAMP.TEAM_NUM_TEAMS
+public let TEAM_NUM_TEAMS: Int32 = Int32(truncatingIfNeeded: CJKAMP.TEAM_NUM_TEAMS)
 
 /// Source: oracle/codemp/game/bg_public.h:149
-public struct forceHandAnims_t: RawRepresentable, Hashable, Sendable {
-    public let rawValue: Int32
-    public init(rawValue: Int32) { self.rawValue = rawValue }
-    public static let HANDEXTEND_NONE = forceHandAnims_t(rawValue: Int32(truncatingIfNeeded: CJKAMP.HANDEXTEND_NONE.rawValue))
-    public static let HANDEXTEND_FORCEPUSH = forceHandAnims_t(rawValue: Int32(truncatingIfNeeded: CJKAMP.HANDEXTEND_FORCEPUSH.rawValue))
-    public static let HANDEXTEND_FORCEPULL = forceHandAnims_t(rawValue: Int32(truncatingIfNeeded: CJKAMP.HANDEXTEND_FORCEPULL.rawValue))
-    public static let HANDEXTEND_FORCE_HOLD = forceHandAnims_t(rawValue: Int32(truncatingIfNeeded: CJKAMP.HANDEXTEND_FORCE_HOLD.rawValue))
-    public static let HANDEXTEND_SABERPULL = forceHandAnims_t(rawValue: Int32(truncatingIfNeeded: CJKAMP.HANDEXTEND_SABERPULL.rawValue))
-    public static let HANDEXTEND_CHOKE = forceHandAnims_t(rawValue: Int32(truncatingIfNeeded: CJKAMP.HANDEXTEND_CHOKE.rawValue))
-    public static let HANDEXTEND_WEAPONREADY = forceHandAnims_t(rawValue: Int32(truncatingIfNeeded: CJKAMP.HANDEXTEND_WEAPONREADY.rawValue))
-    public static let HANDEXTEND_DODGE = forceHandAnims_t(rawValue: Int32(truncatingIfNeeded: CJKAMP.HANDEXTEND_DODGE.rawValue))
-    public static let HANDEXTEND_KNOCKDOWN = forceHandAnims_t(rawValue: Int32(truncatingIfNeeded: CJKAMP.HANDEXTEND_KNOCKDOWN.rawValue))
-    public static let HANDEXTEND_DUELCHALLENGE = forceHandAnims_t(rawValue: Int32(truncatingIfNeeded: CJKAMP.HANDEXTEND_DUELCHALLENGE.rawValue))
-    public static let HANDEXTEND_TAUNT = forceHandAnims_t(rawValue: Int32(truncatingIfNeeded: CJKAMP.HANDEXTEND_TAUNT.rawValue))
-    public static let HANDEXTEND_PRETHROW = forceHandAnims_t(rawValue: Int32(truncatingIfNeeded: CJKAMP.HANDEXTEND_PRETHROW.rawValue))
-    public static let HANDEXTEND_POSTTHROW = forceHandAnims_t(rawValue: Int32(truncatingIfNeeded: CJKAMP.HANDEXTEND_POSTTHROW.rawValue))
-    public static let HANDEXTEND_PRETHROWN = forceHandAnims_t(rawValue: Int32(truncatingIfNeeded: CJKAMP.HANDEXTEND_PRETHROWN.rawValue))
-    public static let HANDEXTEND_POSTTHROWN = forceHandAnims_t(rawValue: Int32(truncatingIfNeeded: CJKAMP.HANDEXTEND_POSTTHROWN.rawValue))
-    public static let HANDEXTEND_DRAGGING = forceHandAnims_t(rawValue: Int32(truncatingIfNeeded: CJKAMP.HANDEXTEND_DRAGGING.rawValue))
-    public static let HANDEXTEND_JEDITAUNT = forceHandAnims_t(rawValue: Int32(truncatingIfNeeded: CJKAMP.HANDEXTEND_JEDITAUNT.rawValue))
-}
+public typealias forceHandAnims_t = Int32
+public let HANDEXTEND_NONE: forceHandAnims_t = Int32(truncatingIfNeeded: CJKAMP.HANDEXTEND_NONE.rawValue)
+public let HANDEXTEND_FORCEPUSH: forceHandAnims_t = Int32(truncatingIfNeeded: CJKAMP.HANDEXTEND_FORCEPUSH.rawValue)
+public let HANDEXTEND_FORCEPULL: forceHandAnims_t = Int32(truncatingIfNeeded: CJKAMP.HANDEXTEND_FORCEPULL.rawValue)
+public let HANDEXTEND_FORCE_HOLD: forceHandAnims_t = Int32(truncatingIfNeeded: CJKAMP.HANDEXTEND_FORCE_HOLD.rawValue)
+public let HANDEXTEND_SABERPULL: forceHandAnims_t = Int32(truncatingIfNeeded: CJKAMP.HANDEXTEND_SABERPULL.rawValue)
+public let HANDEXTEND_CHOKE: forceHandAnims_t = Int32(truncatingIfNeeded: CJKAMP.HANDEXTEND_CHOKE.rawValue)
+public let HANDEXTEND_WEAPONREADY: forceHandAnims_t = Int32(truncatingIfNeeded: CJKAMP.HANDEXTEND_WEAPONREADY.rawValue)
+public let HANDEXTEND_DODGE: forceHandAnims_t = Int32(truncatingIfNeeded: CJKAMP.HANDEXTEND_DODGE.rawValue)
+public let HANDEXTEND_KNOCKDOWN: forceHandAnims_t = Int32(truncatingIfNeeded: CJKAMP.HANDEXTEND_KNOCKDOWN.rawValue)
+public let HANDEXTEND_DUELCHALLENGE: forceHandAnims_t = Int32(truncatingIfNeeded: CJKAMP.HANDEXTEND_DUELCHALLENGE.rawValue)
+public let HANDEXTEND_TAUNT: forceHandAnims_t = Int32(truncatingIfNeeded: CJKAMP.HANDEXTEND_TAUNT.rawValue)
+public let HANDEXTEND_PRETHROW: forceHandAnims_t = Int32(truncatingIfNeeded: CJKAMP.HANDEXTEND_PRETHROW.rawValue)
+public let HANDEXTEND_POSTTHROW: forceHandAnims_t = Int32(truncatingIfNeeded: CJKAMP.HANDEXTEND_POSTTHROW.rawValue)
+public let HANDEXTEND_PRETHROWN: forceHandAnims_t = Int32(truncatingIfNeeded: CJKAMP.HANDEXTEND_PRETHROWN.rawValue)
+public let HANDEXTEND_POSTTHROWN: forceHandAnims_t = Int32(truncatingIfNeeded: CJKAMP.HANDEXTEND_POSTTHROWN.rawValue)
+public let HANDEXTEND_DRAGGING: forceHandAnims_t = Int32(truncatingIfNeeded: CJKAMP.HANDEXTEND_DRAGGING.rawValue)
+public let HANDEXTEND_JEDITAUNT: forceHandAnims_t = Int32(truncatingIfNeeded: CJKAMP.HANDEXTEND_JEDITAUNT.rawValue)
 
 /// Source: oracle/codemp/game/bg_public.h:126
-public struct g2ModelParts_t: RawRepresentable, Hashable, Sendable {
-    public let rawValue: Int32
-    public init(rawValue: Int32) { self.rawValue = rawValue }
-    public static let G2_MODELPART_HEAD = g2ModelParts_t(rawValue: Int32(truncatingIfNeeded: CJKAMP.G2_MODELPART_HEAD.rawValue))
-    public static let G2_MODELPART_WAIST = g2ModelParts_t(rawValue: Int32(truncatingIfNeeded: CJKAMP.G2_MODELPART_WAIST.rawValue))
-    public static let G2_MODELPART_LARM = g2ModelParts_t(rawValue: Int32(truncatingIfNeeded: CJKAMP.G2_MODELPART_LARM.rawValue))
-    public static let G2_MODELPART_RARM = g2ModelParts_t(rawValue: Int32(truncatingIfNeeded: CJKAMP.G2_MODELPART_RARM.rawValue))
-    public static let G2_MODELPART_RHAND = g2ModelParts_t(rawValue: Int32(truncatingIfNeeded: CJKAMP.G2_MODELPART_RHAND.rawValue))
-    public static let G2_MODELPART_LLEG = g2ModelParts_t(rawValue: Int32(truncatingIfNeeded: CJKAMP.G2_MODELPART_LLEG.rawValue))
-    public static let G2_MODELPART_RLEG = g2ModelParts_t(rawValue: Int32(truncatingIfNeeded: CJKAMP.G2_MODELPART_RLEG.rawValue))
-}
+public typealias g2ModelParts_t = Int32
+public let G2_MODELPART_HEAD: g2ModelParts_t = Int32(truncatingIfNeeded: CJKAMP.G2_MODELPART_HEAD.rawValue)
+public let G2_MODELPART_WAIST: g2ModelParts_t = Int32(truncatingIfNeeded: CJKAMP.G2_MODELPART_WAIST.rawValue)
+public let G2_MODELPART_LARM: g2ModelParts_t = Int32(truncatingIfNeeded: CJKAMP.G2_MODELPART_LARM.rawValue)
+public let G2_MODELPART_RARM: g2ModelParts_t = Int32(truncatingIfNeeded: CJKAMP.G2_MODELPART_RARM.rawValue)
+public let G2_MODELPART_RHAND: g2ModelParts_t = Int32(truncatingIfNeeded: CJKAMP.G2_MODELPART_RHAND.rawValue)
+public let G2_MODELPART_LLEG: g2ModelParts_t = Int32(truncatingIfNeeded: CJKAMP.G2_MODELPART_LLEG.rawValue)
+public let G2_MODELPART_RLEG: g2ModelParts_t = Int32(truncatingIfNeeded: CJKAMP.G2_MODELPART_RLEG.rawValue)
 
 /// Source: oracle/codemp/game/bg_public.h:199
 public typealias gametype_t = Int32
 
 /// Source: oracle/codemp/game/bg_public.h:201
-public struct gender_t: RawRepresentable, Hashable, Sendable {
-    public let rawValue: Int32
-    public init(rawValue: Int32) { self.rawValue = rawValue }
-    public static let GENDER_MALE = gender_t(rawValue: Int32(truncatingIfNeeded: CJKAMP.GENDER_MALE.rawValue))
-    public static let GENDER_FEMALE = gender_t(rawValue: Int32(truncatingIfNeeded: CJKAMP.GENDER_FEMALE.rawValue))
-    public static let GENDER_NEUTER = gender_t(rawValue: Int32(truncatingIfNeeded: CJKAMP.GENDER_NEUTER.rawValue))
-}
+public typealias gender_t = Int32
+public let GENDER_MALE: gender_t = Int32(truncatingIfNeeded: CJKAMP.GENDER_MALE.rawValue)
+public let GENDER_FEMALE: gender_t = Int32(truncatingIfNeeded: CJKAMP.GENDER_FEMALE.rawValue)
+public let GENDER_NEUTER: gender_t = Int32(truncatingIfNeeded: CJKAMP.GENDER_NEUTER.rawValue)
 
 /// Source: oracle/codemp/game/bg_public.h:1118
 public typealias itemType_t = Int32
 
 /// Source: oracle/codemp/game/bg_public.h:993
-public struct global_team_sound_t: RawRepresentable, Hashable, Sendable {
-    public let rawValue: Int32
-    public init(rawValue: Int32) { self.rawValue = rawValue }
-    public static let GTS_RED_CAPTURE = global_team_sound_t(rawValue: Int32(truncatingIfNeeded: CJKAMP.GTS_RED_CAPTURE.rawValue))
-    public static let GTS_BLUE_CAPTURE = global_team_sound_t(rawValue: Int32(truncatingIfNeeded: CJKAMP.GTS_BLUE_CAPTURE.rawValue))
-    public static let GTS_RED_RETURN = global_team_sound_t(rawValue: Int32(truncatingIfNeeded: CJKAMP.GTS_RED_RETURN.rawValue))
-    public static let GTS_BLUE_RETURN = global_team_sound_t(rawValue: Int32(truncatingIfNeeded: CJKAMP.GTS_BLUE_RETURN.rawValue))
-    public static let GTS_RED_TAKEN = global_team_sound_t(rawValue: Int32(truncatingIfNeeded: CJKAMP.GTS_RED_TAKEN.rawValue))
-    public static let GTS_BLUE_TAKEN = global_team_sound_t(rawValue: Int32(truncatingIfNeeded: CJKAMP.GTS_BLUE_TAKEN.rawValue))
-    public static let GTS_REDTEAM_SCORED = global_team_sound_t(rawValue: Int32(truncatingIfNeeded: CJKAMP.GTS_REDTEAM_SCORED.rawValue))
-    public static let GTS_BLUETEAM_SCORED = global_team_sound_t(rawValue: Int32(truncatingIfNeeded: CJKAMP.GTS_BLUETEAM_SCORED.rawValue))
-    public static let GTS_REDTEAM_TOOK_LEAD = global_team_sound_t(rawValue: Int32(truncatingIfNeeded: CJKAMP.GTS_REDTEAM_TOOK_LEAD.rawValue))
-    public static let GTS_BLUETEAM_TOOK_LEAD = global_team_sound_t(rawValue: Int32(truncatingIfNeeded: CJKAMP.GTS_BLUETEAM_TOOK_LEAD.rawValue))
-    public static let GTS_TEAMS_ARE_TIED = global_team_sound_t(rawValue: Int32(truncatingIfNeeded: CJKAMP.GTS_TEAMS_ARE_TIED.rawValue))
-}
+public typealias global_team_sound_t = Int32
+public let GTS_RED_CAPTURE: global_team_sound_t = Int32(truncatingIfNeeded: CJKAMP.GTS_RED_CAPTURE.rawValue)
+public let GTS_BLUE_CAPTURE: global_team_sound_t = Int32(truncatingIfNeeded: CJKAMP.GTS_BLUE_CAPTURE.rawValue)
+public let GTS_RED_RETURN: global_team_sound_t = Int32(truncatingIfNeeded: CJKAMP.GTS_RED_RETURN.rawValue)
+public let GTS_BLUE_RETURN: global_team_sound_t = Int32(truncatingIfNeeded: CJKAMP.GTS_BLUE_RETURN.rawValue)
+public let GTS_RED_TAKEN: global_team_sound_t = Int32(truncatingIfNeeded: CJKAMP.GTS_RED_TAKEN.rawValue)
+public let GTS_BLUE_TAKEN: global_team_sound_t = Int32(truncatingIfNeeded: CJKAMP.GTS_BLUE_TAKEN.rawValue)
+public let GTS_REDTEAM_SCORED: global_team_sound_t = Int32(truncatingIfNeeded: CJKAMP.GTS_REDTEAM_SCORED.rawValue)
+public let GTS_BLUETEAM_SCORED: global_team_sound_t = Int32(truncatingIfNeeded: CJKAMP.GTS_BLUETEAM_SCORED.rawValue)
+public let GTS_REDTEAM_TOOK_LEAD: global_team_sound_t = Int32(truncatingIfNeeded: CJKAMP.GTS_REDTEAM_TOOK_LEAD.rawValue)
+public let GTS_BLUETEAM_TOOK_LEAD: global_team_sound_t = Int32(truncatingIfNeeded: CJKAMP.GTS_BLUETEAM_TOOK_LEAD.rawValue)
+public let GTS_TEAMS_ARE_TIED: global_team_sound_t = Int32(truncatingIfNeeded: CJKAMP.GTS_TEAMS_ARE_TIED.rawValue)
 
 /// Source: oracle/codemp/game/bg_public.h:704
 public typealias holdable_t = Int32
 
 /// Source: oracle/codemp/game/bg_public.h:1046
-public struct meansOfDeath_t: RawRepresentable, Hashable, Sendable {
-    public let rawValue: Int32
-    public init(rawValue: Int32) { self.rawValue = rawValue }
-    public static let MOD_UNKNOWN = meansOfDeath_t(rawValue: Int32(truncatingIfNeeded: CJKAMP.MOD_UNKNOWN.rawValue))
-    public static let MOD_STUN_BATON = meansOfDeath_t(rawValue: Int32(truncatingIfNeeded: CJKAMP.MOD_STUN_BATON.rawValue))
-    public static let MOD_MELEE = meansOfDeath_t(rawValue: Int32(truncatingIfNeeded: CJKAMP.MOD_MELEE.rawValue))
-    public static let MOD_SABER = meansOfDeath_t(rawValue: Int32(truncatingIfNeeded: CJKAMP.MOD_SABER.rawValue))
-    public static let MOD_BRYAR_PISTOL = meansOfDeath_t(rawValue: Int32(truncatingIfNeeded: CJKAMP.MOD_BRYAR_PISTOL.rawValue))
-    public static let MOD_BRYAR_PISTOL_ALT = meansOfDeath_t(rawValue: Int32(truncatingIfNeeded: CJKAMP.MOD_BRYAR_PISTOL_ALT.rawValue))
-    public static let MOD_BLASTER = meansOfDeath_t(rawValue: Int32(truncatingIfNeeded: CJKAMP.MOD_BLASTER.rawValue))
-    public static let MOD_TURBLAST = meansOfDeath_t(rawValue: Int32(truncatingIfNeeded: CJKAMP.MOD_TURBLAST.rawValue))
-    public static let MOD_DISRUPTOR = meansOfDeath_t(rawValue: Int32(truncatingIfNeeded: CJKAMP.MOD_DISRUPTOR.rawValue))
-    public static let MOD_DISRUPTOR_SPLASH = meansOfDeath_t(rawValue: Int32(truncatingIfNeeded: CJKAMP.MOD_DISRUPTOR_SPLASH.rawValue))
-    public static let MOD_DISRUPTOR_SNIPER = meansOfDeath_t(rawValue: Int32(truncatingIfNeeded: CJKAMP.MOD_DISRUPTOR_SNIPER.rawValue))
-    public static let MOD_BOWCASTER = meansOfDeath_t(rawValue: Int32(truncatingIfNeeded: CJKAMP.MOD_BOWCASTER.rawValue))
-    public static let MOD_REPEATER = meansOfDeath_t(rawValue: Int32(truncatingIfNeeded: CJKAMP.MOD_REPEATER.rawValue))
-    public static let MOD_REPEATER_ALT = meansOfDeath_t(rawValue: Int32(truncatingIfNeeded: CJKAMP.MOD_REPEATER_ALT.rawValue))
-    public static let MOD_REPEATER_ALT_SPLASH = meansOfDeath_t(rawValue: Int32(truncatingIfNeeded: CJKAMP.MOD_REPEATER_ALT_SPLASH.rawValue))
-    public static let MOD_DEMP2 = meansOfDeath_t(rawValue: Int32(truncatingIfNeeded: CJKAMP.MOD_DEMP2.rawValue))
-    public static let MOD_DEMP2_ALT = meansOfDeath_t(rawValue: Int32(truncatingIfNeeded: CJKAMP.MOD_DEMP2_ALT.rawValue))
-    public static let MOD_FLECHETTE = meansOfDeath_t(rawValue: Int32(truncatingIfNeeded: CJKAMP.MOD_FLECHETTE.rawValue))
-    public static let MOD_FLECHETTE_ALT_SPLASH = meansOfDeath_t(rawValue: Int32(truncatingIfNeeded: CJKAMP.MOD_FLECHETTE_ALT_SPLASH.rawValue))
-    public static let MOD_ROCKET = meansOfDeath_t(rawValue: Int32(truncatingIfNeeded: CJKAMP.MOD_ROCKET.rawValue))
-    public static let MOD_ROCKET_SPLASH = meansOfDeath_t(rawValue: Int32(truncatingIfNeeded: CJKAMP.MOD_ROCKET_SPLASH.rawValue))
-    public static let MOD_ROCKET_HOMING = meansOfDeath_t(rawValue: Int32(truncatingIfNeeded: CJKAMP.MOD_ROCKET_HOMING.rawValue))
-    public static let MOD_ROCKET_HOMING_SPLASH = meansOfDeath_t(rawValue: Int32(truncatingIfNeeded: CJKAMP.MOD_ROCKET_HOMING_SPLASH.rawValue))
-    public static let MOD_THERMAL = meansOfDeath_t(rawValue: Int32(truncatingIfNeeded: CJKAMP.MOD_THERMAL.rawValue))
-    public static let MOD_THERMAL_SPLASH = meansOfDeath_t(rawValue: Int32(truncatingIfNeeded: CJKAMP.MOD_THERMAL_SPLASH.rawValue))
-    public static let MOD_TRIP_MINE_SPLASH = meansOfDeath_t(rawValue: Int32(truncatingIfNeeded: CJKAMP.MOD_TRIP_MINE_SPLASH.rawValue))
-    public static let MOD_TIMED_MINE_SPLASH = meansOfDeath_t(rawValue: Int32(truncatingIfNeeded: CJKAMP.MOD_TIMED_MINE_SPLASH.rawValue))
-    public static let MOD_DET_PACK_SPLASH = meansOfDeath_t(rawValue: Int32(truncatingIfNeeded: CJKAMP.MOD_DET_PACK_SPLASH.rawValue))
-    public static let MOD_VEHICLE = meansOfDeath_t(rawValue: Int32(truncatingIfNeeded: CJKAMP.MOD_VEHICLE.rawValue))
-    public static let MOD_CONC = meansOfDeath_t(rawValue: Int32(truncatingIfNeeded: CJKAMP.MOD_CONC.rawValue))
-    public static let MOD_CONC_ALT = meansOfDeath_t(rawValue: Int32(truncatingIfNeeded: CJKAMP.MOD_CONC_ALT.rawValue))
-    public static let MOD_FORCE_DARK = meansOfDeath_t(rawValue: Int32(truncatingIfNeeded: CJKAMP.MOD_FORCE_DARK.rawValue))
-    public static let MOD_SENTRY = meansOfDeath_t(rawValue: Int32(truncatingIfNeeded: CJKAMP.MOD_SENTRY.rawValue))
-    public static let MOD_WATER = meansOfDeath_t(rawValue: Int32(truncatingIfNeeded: CJKAMP.MOD_WATER.rawValue))
-    public static let MOD_SLIME = meansOfDeath_t(rawValue: Int32(truncatingIfNeeded: CJKAMP.MOD_SLIME.rawValue))
-    public static let MOD_LAVA = meansOfDeath_t(rawValue: Int32(truncatingIfNeeded: CJKAMP.MOD_LAVA.rawValue))
-    public static let MOD_CRUSH = meansOfDeath_t(rawValue: Int32(truncatingIfNeeded: CJKAMP.MOD_CRUSH.rawValue))
-    public static let MOD_TELEFRAG = meansOfDeath_t(rawValue: Int32(truncatingIfNeeded: CJKAMP.MOD_TELEFRAG.rawValue))
-    public static let MOD_FALLING = meansOfDeath_t(rawValue: Int32(truncatingIfNeeded: CJKAMP.MOD_FALLING.rawValue))
-    public static let MOD_COLLISION = meansOfDeath_t(rawValue: Int32(truncatingIfNeeded: CJKAMP.MOD_COLLISION.rawValue))
-    public static let MOD_VEH_EXPLOSION = meansOfDeath_t(rawValue: Int32(truncatingIfNeeded: CJKAMP.MOD_VEH_EXPLOSION.rawValue))
-    public static let MOD_SUICIDE = meansOfDeath_t(rawValue: Int32(truncatingIfNeeded: CJKAMP.MOD_SUICIDE.rawValue))
-    public static let MOD_TARGET_LASER = meansOfDeath_t(rawValue: Int32(truncatingIfNeeded: CJKAMP.MOD_TARGET_LASER.rawValue))
-    public static let MOD_TRIGGER_HURT = meansOfDeath_t(rawValue: Int32(truncatingIfNeeded: CJKAMP.MOD_TRIGGER_HURT.rawValue))
-    public static let MOD_TEAM_CHANGE = meansOfDeath_t(rawValue: Int32(truncatingIfNeeded: CJKAMP.MOD_TEAM_CHANGE.rawValue))
-    public static let MOD_MAX = meansOfDeath_t(rawValue: Int32(truncatingIfNeeded: CJKAMP.MOD_MAX.rawValue))
-}
+public typealias meansOfDeath_t = Int32
+public let MOD_UNKNOWN: meansOfDeath_t = Int32(truncatingIfNeeded: CJKAMP.MOD_UNKNOWN.rawValue)
+public let MOD_STUN_BATON: meansOfDeath_t = Int32(truncatingIfNeeded: CJKAMP.MOD_STUN_BATON.rawValue)
+public let MOD_MELEE: meansOfDeath_t = Int32(truncatingIfNeeded: CJKAMP.MOD_MELEE.rawValue)
+public let MOD_SABER: meansOfDeath_t = Int32(truncatingIfNeeded: CJKAMP.MOD_SABER.rawValue)
+public let MOD_BRYAR_PISTOL: meansOfDeath_t = Int32(truncatingIfNeeded: CJKAMP.MOD_BRYAR_PISTOL.rawValue)
+public let MOD_BRYAR_PISTOL_ALT: meansOfDeath_t = Int32(truncatingIfNeeded: CJKAMP.MOD_BRYAR_PISTOL_ALT.rawValue)
+public let MOD_BLASTER: meansOfDeath_t = Int32(truncatingIfNeeded: CJKAMP.MOD_BLASTER.rawValue)
+public let MOD_TURBLAST: meansOfDeath_t = Int32(truncatingIfNeeded: CJKAMP.MOD_TURBLAST.rawValue)
+public let MOD_DISRUPTOR: meansOfDeath_t = Int32(truncatingIfNeeded: CJKAMP.MOD_DISRUPTOR.rawValue)
+public let MOD_DISRUPTOR_SPLASH: meansOfDeath_t = Int32(truncatingIfNeeded: CJKAMP.MOD_DISRUPTOR_SPLASH.rawValue)
+public let MOD_DISRUPTOR_SNIPER: meansOfDeath_t = Int32(truncatingIfNeeded: CJKAMP.MOD_DISRUPTOR_SNIPER.rawValue)
+public let MOD_BOWCASTER: meansOfDeath_t = Int32(truncatingIfNeeded: CJKAMP.MOD_BOWCASTER.rawValue)
+public let MOD_REPEATER: meansOfDeath_t = Int32(truncatingIfNeeded: CJKAMP.MOD_REPEATER.rawValue)
+public let MOD_REPEATER_ALT: meansOfDeath_t = Int32(truncatingIfNeeded: CJKAMP.MOD_REPEATER_ALT.rawValue)
+public let MOD_REPEATER_ALT_SPLASH: meansOfDeath_t = Int32(truncatingIfNeeded: CJKAMP.MOD_REPEATER_ALT_SPLASH.rawValue)
+public let MOD_DEMP2: meansOfDeath_t = Int32(truncatingIfNeeded: CJKAMP.MOD_DEMP2.rawValue)
+public let MOD_DEMP2_ALT: meansOfDeath_t = Int32(truncatingIfNeeded: CJKAMP.MOD_DEMP2_ALT.rawValue)
+public let MOD_FLECHETTE: meansOfDeath_t = Int32(truncatingIfNeeded: CJKAMP.MOD_FLECHETTE.rawValue)
+public let MOD_FLECHETTE_ALT_SPLASH: meansOfDeath_t = Int32(truncatingIfNeeded: CJKAMP.MOD_FLECHETTE_ALT_SPLASH.rawValue)
+public let MOD_ROCKET: meansOfDeath_t = Int32(truncatingIfNeeded: CJKAMP.MOD_ROCKET.rawValue)
+public let MOD_ROCKET_SPLASH: meansOfDeath_t = Int32(truncatingIfNeeded: CJKAMP.MOD_ROCKET_SPLASH.rawValue)
+public let MOD_ROCKET_HOMING: meansOfDeath_t = Int32(truncatingIfNeeded: CJKAMP.MOD_ROCKET_HOMING.rawValue)
+public let MOD_ROCKET_HOMING_SPLASH: meansOfDeath_t = Int32(truncatingIfNeeded: CJKAMP.MOD_ROCKET_HOMING_SPLASH.rawValue)
+public let MOD_THERMAL: meansOfDeath_t = Int32(truncatingIfNeeded: CJKAMP.MOD_THERMAL.rawValue)
+public let MOD_THERMAL_SPLASH: meansOfDeath_t = Int32(truncatingIfNeeded: CJKAMP.MOD_THERMAL_SPLASH.rawValue)
+public let MOD_TRIP_MINE_SPLASH: meansOfDeath_t = Int32(truncatingIfNeeded: CJKAMP.MOD_TRIP_MINE_SPLASH.rawValue)
+public let MOD_TIMED_MINE_SPLASH: meansOfDeath_t = Int32(truncatingIfNeeded: CJKAMP.MOD_TIMED_MINE_SPLASH.rawValue)
+public let MOD_DET_PACK_SPLASH: meansOfDeath_t = Int32(truncatingIfNeeded: CJKAMP.MOD_DET_PACK_SPLASH.rawValue)
+public let MOD_VEHICLE: meansOfDeath_t = Int32(truncatingIfNeeded: CJKAMP.MOD_VEHICLE.rawValue)
+public let MOD_CONC: meansOfDeath_t = Int32(truncatingIfNeeded: CJKAMP.MOD_CONC.rawValue)
+public let MOD_CONC_ALT: meansOfDeath_t = Int32(truncatingIfNeeded: CJKAMP.MOD_CONC_ALT.rawValue)
+public let MOD_FORCE_DARK: meansOfDeath_t = Int32(truncatingIfNeeded: CJKAMP.MOD_FORCE_DARK.rawValue)
+public let MOD_SENTRY: meansOfDeath_t = Int32(truncatingIfNeeded: CJKAMP.MOD_SENTRY.rawValue)
+public let MOD_WATER: meansOfDeath_t = Int32(truncatingIfNeeded: CJKAMP.MOD_WATER.rawValue)
+public let MOD_SLIME: meansOfDeath_t = Int32(truncatingIfNeeded: CJKAMP.MOD_SLIME.rawValue)
+public let MOD_LAVA: meansOfDeath_t = Int32(truncatingIfNeeded: CJKAMP.MOD_LAVA.rawValue)
+public let MOD_CRUSH: meansOfDeath_t = Int32(truncatingIfNeeded: CJKAMP.MOD_CRUSH.rawValue)
+public let MOD_TELEFRAG: meansOfDeath_t = Int32(truncatingIfNeeded: CJKAMP.MOD_TELEFRAG.rawValue)
+public let MOD_FALLING: meansOfDeath_t = Int32(truncatingIfNeeded: CJKAMP.MOD_FALLING.rawValue)
+public let MOD_COLLISION: meansOfDeath_t = Int32(truncatingIfNeeded: CJKAMP.MOD_COLLISION.rawValue)
+public let MOD_VEH_EXPLOSION: meansOfDeath_t = Int32(truncatingIfNeeded: CJKAMP.MOD_VEH_EXPLOSION.rawValue)
+public let MOD_SUICIDE: meansOfDeath_t = Int32(truncatingIfNeeded: CJKAMP.MOD_SUICIDE.rawValue)
+public let MOD_TARGET_LASER: meansOfDeath_t = Int32(truncatingIfNeeded: CJKAMP.MOD_TARGET_LASER.rawValue)
+public let MOD_TRIGGER_HURT: meansOfDeath_t = Int32(truncatingIfNeeded: CJKAMP.MOD_TRIGGER_HURT.rawValue)
+public let MOD_TEAM_CHANGE: meansOfDeath_t = Int32(truncatingIfNeeded: CJKAMP.MOD_TEAM_CHANGE.rawValue)
+public let MOD_MAX: meansOfDeath_t = Int32(truncatingIfNeeded: CJKAMP.MOD_MAX.rawValue)
 
 /// Source: oracle/codemp/game/bg_public.h:734
-public struct pdSounds_t: RawRepresentable, Hashable, Sendable {
-    public let rawValue: Int32
-    public init(rawValue: Int32) { self.rawValue = rawValue }
-    public static let PDSOUND_NONE = pdSounds_t(rawValue: Int32(truncatingIfNeeded: CJKAMP.PDSOUND_NONE.rawValue))
-    public static let PDSOUND_PROTECTHIT = pdSounds_t(rawValue: Int32(truncatingIfNeeded: CJKAMP.PDSOUND_PROTECTHIT.rawValue))
-    public static let PDSOUND_PROTECT = pdSounds_t(rawValue: Int32(truncatingIfNeeded: CJKAMP.PDSOUND_PROTECT.rawValue))
-    public static let PDSOUND_ABSORBHIT = pdSounds_t(rawValue: Int32(truncatingIfNeeded: CJKAMP.PDSOUND_ABSORBHIT.rawValue))
-    public static let PDSOUND_ABSORB = pdSounds_t(rawValue: Int32(truncatingIfNeeded: CJKAMP.PDSOUND_ABSORB.rawValue))
-    public static let PDSOUND_FORCEJUMP = pdSounds_t(rawValue: Int32(truncatingIfNeeded: CJKAMP.PDSOUND_FORCEJUMP.rawValue))
-    public static let PDSOUND_FORCEGRIP = pdSounds_t(rawValue: Int32(truncatingIfNeeded: CJKAMP.PDSOUND_FORCEGRIP.rawValue))
-}
+public typealias pdSounds_t = Int32
+public let PDSOUND_NONE: pdSounds_t = Int32(truncatingIfNeeded: CJKAMP.PDSOUND_NONE.rawValue)
+public let PDSOUND_PROTECTHIT: pdSounds_t = Int32(truncatingIfNeeded: CJKAMP.PDSOUND_PROTECTHIT.rawValue)
+public let PDSOUND_PROTECT: pdSounds_t = Int32(truncatingIfNeeded: CJKAMP.PDSOUND_PROTECT.rawValue)
+public let PDSOUND_ABSORBHIT: pdSounds_t = Int32(truncatingIfNeeded: CJKAMP.PDSOUND_ABSORBHIT.rawValue)
+public let PDSOUND_ABSORB: pdSounds_t = Int32(truncatingIfNeeded: CJKAMP.PDSOUND_ABSORB.rawValue)
+public let PDSOUND_FORCEJUMP: pdSounds_t = Int32(truncatingIfNeeded: CJKAMP.PDSOUND_FORCEJUMP.rawValue)
+public let PDSOUND_FORCEGRIP: pdSounds_t = Int32(truncatingIfNeeded: CJKAMP.PDSOUND_FORCEGRIP.rawValue)
 
 /// Source: oracle/codemp/game/bg_public.h:539
-public struct persEnum_t: RawRepresentable, Hashable, Sendable {
-    public let rawValue: Int32
-    public init(rawValue: Int32) { self.rawValue = rawValue }
-    public static let PERS_SCORE = persEnum_t(rawValue: Int32(truncatingIfNeeded: CJKAMP.PERS_SCORE.rawValue))
-    public static let PERS_HITS = persEnum_t(rawValue: Int32(truncatingIfNeeded: CJKAMP.PERS_HITS.rawValue))
-    public static let PERS_RANK = persEnum_t(rawValue: Int32(truncatingIfNeeded: CJKAMP.PERS_RANK.rawValue))
-    public static let PERS_TEAM = persEnum_t(rawValue: Int32(truncatingIfNeeded: CJKAMP.PERS_TEAM.rawValue))
-    public static let PERS_SPAWN_COUNT = persEnum_t(rawValue: Int32(truncatingIfNeeded: CJKAMP.PERS_SPAWN_COUNT.rawValue))
-    public static let PERS_PLAYEREVENTS = persEnum_t(rawValue: Int32(truncatingIfNeeded: CJKAMP.PERS_PLAYEREVENTS.rawValue))
-    public static let PERS_ATTACKER = persEnum_t(rawValue: Int32(truncatingIfNeeded: CJKAMP.PERS_ATTACKER.rawValue))
-    public static let PERS_ATTACKEE_ARMOR = persEnum_t(rawValue: Int32(truncatingIfNeeded: CJKAMP.PERS_ATTACKEE_ARMOR.rawValue))
-    public static let PERS_KILLED = persEnum_t(rawValue: Int32(truncatingIfNeeded: CJKAMP.PERS_KILLED.rawValue))
-    public static let PERS_IMPRESSIVE_COUNT = persEnum_t(rawValue: Int32(truncatingIfNeeded: CJKAMP.PERS_IMPRESSIVE_COUNT.rawValue))
-    public static let PERS_EXCELLENT_COUNT = persEnum_t(rawValue: Int32(truncatingIfNeeded: CJKAMP.PERS_EXCELLENT_COUNT.rawValue))
-    public static let PERS_DEFEND_COUNT = persEnum_t(rawValue: Int32(truncatingIfNeeded: CJKAMP.PERS_DEFEND_COUNT.rawValue))
-    public static let PERS_ASSIST_COUNT = persEnum_t(rawValue: Int32(truncatingIfNeeded: CJKAMP.PERS_ASSIST_COUNT.rawValue))
-    public static let PERS_GAUNTLET_FRAG_COUNT = persEnum_t(rawValue: Int32(truncatingIfNeeded: CJKAMP.PERS_GAUNTLET_FRAG_COUNT.rawValue))
-    public static let PERS_CAPTURES = persEnum_t(rawValue: Int32(truncatingIfNeeded: CJKAMP.PERS_CAPTURES.rawValue))
-}
+public typealias persEnum_t = Int32
+public let PERS_SCORE: persEnum_t = Int32(truncatingIfNeeded: CJKAMP.PERS_SCORE.rawValue)
+public let PERS_HITS: persEnum_t = Int32(truncatingIfNeeded: CJKAMP.PERS_HITS.rawValue)
+public let PERS_RANK: persEnum_t = Int32(truncatingIfNeeded: CJKAMP.PERS_RANK.rawValue)
+public let PERS_TEAM: persEnum_t = Int32(truncatingIfNeeded: CJKAMP.PERS_TEAM.rawValue)
+public let PERS_SPAWN_COUNT: persEnum_t = Int32(truncatingIfNeeded: CJKAMP.PERS_SPAWN_COUNT.rawValue)
+public let PERS_PLAYEREVENTS: persEnum_t = Int32(truncatingIfNeeded: CJKAMP.PERS_PLAYEREVENTS.rawValue)
+public let PERS_ATTACKER: persEnum_t = Int32(truncatingIfNeeded: CJKAMP.PERS_ATTACKER.rawValue)
+public let PERS_ATTACKEE_ARMOR: persEnum_t = Int32(truncatingIfNeeded: CJKAMP.PERS_ATTACKEE_ARMOR.rawValue)
+public let PERS_KILLED: persEnum_t = Int32(truncatingIfNeeded: CJKAMP.PERS_KILLED.rawValue)
+public let PERS_IMPRESSIVE_COUNT: persEnum_t = Int32(truncatingIfNeeded: CJKAMP.PERS_IMPRESSIVE_COUNT.rawValue)
+public let PERS_EXCELLENT_COUNT: persEnum_t = Int32(truncatingIfNeeded: CJKAMP.PERS_EXCELLENT_COUNT.rawValue)
+public let PERS_DEFEND_COUNT: persEnum_t = Int32(truncatingIfNeeded: CJKAMP.PERS_DEFEND_COUNT.rawValue)
+public let PERS_ASSIST_COUNT: persEnum_t = Int32(truncatingIfNeeded: CJKAMP.PERS_ASSIST_COUNT.rawValue)
+public let PERS_GAUNTLET_FRAG_COUNT: persEnum_t = Int32(truncatingIfNeeded: CJKAMP.PERS_GAUNTLET_FRAG_COUNT.rawValue)
+public let PERS_CAPTURES: persEnum_t = Int32(truncatingIfNeeded: CJKAMP.PERS_CAPTURES.rawValue)
 
 /// Source: oracle/codemp/game/bg_public.h:360
-public struct pmtype_t: RawRepresentable, Hashable, Sendable {
-    public let rawValue: Int32
-    public init(rawValue: Int32) { self.rawValue = rawValue }
-    public static let PM_NORMAL = pmtype_t(rawValue: Int32(truncatingIfNeeded: CJKAMP.PM_NORMAL.rawValue))
-    public static let PM_JETPACK = pmtype_t(rawValue: Int32(truncatingIfNeeded: CJKAMP.PM_JETPACK.rawValue))
-    public static let PM_FLOAT = pmtype_t(rawValue: Int32(truncatingIfNeeded: CJKAMP.PM_FLOAT.rawValue))
-    public static let PM_NOCLIP = pmtype_t(rawValue: Int32(truncatingIfNeeded: CJKAMP.PM_NOCLIP.rawValue))
-    public static let PM_SPECTATOR = pmtype_t(rawValue: Int32(truncatingIfNeeded: CJKAMP.PM_SPECTATOR.rawValue))
-    public static let PM_DEAD = pmtype_t(rawValue: Int32(truncatingIfNeeded: CJKAMP.PM_DEAD.rawValue))
-    public static let PM_FREEZE = pmtype_t(rawValue: Int32(truncatingIfNeeded: CJKAMP.PM_FREEZE.rawValue))
-    public static let PM_INTERMISSION = pmtype_t(rawValue: Int32(truncatingIfNeeded: CJKAMP.PM_INTERMISSION.rawValue))
-    public static let PM_SPINTERMISSION = pmtype_t(rawValue: Int32(truncatingIfNeeded: CJKAMP.PM_SPINTERMISSION.rawValue))
-}
+public typealias pmtype_t = Int32
+public let PM_NORMAL: pmtype_t = Int32(truncatingIfNeeded: CJKAMP.PM_NORMAL.rawValue)
+public let PM_JETPACK: pmtype_t = Int32(truncatingIfNeeded: CJKAMP.PM_JETPACK.rawValue)
+public let PM_FLOAT: pmtype_t = Int32(truncatingIfNeeded: CJKAMP.PM_FLOAT.rawValue)
+public let PM_NOCLIP: pmtype_t = Int32(truncatingIfNeeded: CJKAMP.PM_NOCLIP.rawValue)
+public let PM_SPECTATOR: pmtype_t = Int32(truncatingIfNeeded: CJKAMP.PM_SPECTATOR.rawValue)
+public let PM_DEAD: pmtype_t = Int32(truncatingIfNeeded: CJKAMP.PM_DEAD.rawValue)
+public let PM_FREEZE: pmtype_t = Int32(truncatingIfNeeded: CJKAMP.PM_FREEZE.rawValue)
+public let PM_INTERMISSION: pmtype_t = Int32(truncatingIfNeeded: CJKAMP.PM_INTERMISSION.rawValue)
+public let PM_SPINTERMISSION: pmtype_t = Int32(truncatingIfNeeded: CJKAMP.PM_SPINTERMISSION.rawValue)
 
 /// Source: oracle/codemp/game/bg_public.h:684
 public typealias powerup_t = Int32
@@ -1665,48 +1620,39 @@ public typealias powerup_t = Int32
 public typealias saberMoveName_t = Int32
 
 /// Source: oracle/codemp/game/bg_public.h:1484
-public struct saberQuadrant_t: RawRepresentable, Hashable, Sendable {
-    public let rawValue: Int32
-    public init(rawValue: Int32) { self.rawValue = rawValue }
-    public static let Q_BR = saberQuadrant_t(rawValue: Int32(truncatingIfNeeded: CJKAMP.Q_BR.rawValue))
-    public static let Q_R = saberQuadrant_t(rawValue: Int32(truncatingIfNeeded: CJKAMP.Q_R.rawValue))
-    public static let Q_TR = saberQuadrant_t(rawValue: Int32(truncatingIfNeeded: CJKAMP.Q_TR.rawValue))
-    public static let Q_T = saberQuadrant_t(rawValue: Int32(truncatingIfNeeded: CJKAMP.Q_T.rawValue))
-    public static let Q_TL = saberQuadrant_t(rawValue: Int32(truncatingIfNeeded: CJKAMP.Q_TL.rawValue))
-    public static let Q_L = saberQuadrant_t(rawValue: Int32(truncatingIfNeeded: CJKAMP.Q_L.rawValue))
-    public static let Q_BL = saberQuadrant_t(rawValue: Int32(truncatingIfNeeded: CJKAMP.Q_BL.rawValue))
-    public static let Q_B = saberQuadrant_t(rawValue: Int32(truncatingIfNeeded: CJKAMP.Q_B.rawValue))
-    public static let Q_NUM_QUADS = saberQuadrant_t(rawValue: Int32(truncatingIfNeeded: CJKAMP.Q_NUM_QUADS.rawValue))
-}
+public typealias saberQuadrant_t = Int32
+public let Q_BR: saberQuadrant_t = Int32(truncatingIfNeeded: CJKAMP.Q_BR.rawValue)
+public let Q_R: saberQuadrant_t = Int32(truncatingIfNeeded: CJKAMP.Q_R.rawValue)
+public let Q_TR: saberQuadrant_t = Int32(truncatingIfNeeded: CJKAMP.Q_TR.rawValue)
+public let Q_T: saberQuadrant_t = Int32(truncatingIfNeeded: CJKAMP.Q_T.rawValue)
+public let Q_TL: saberQuadrant_t = Int32(truncatingIfNeeded: CJKAMP.Q_TL.rawValue)
+public let Q_L: saberQuadrant_t = Int32(truncatingIfNeeded: CJKAMP.Q_L.rawValue)
+public let Q_BL: saberQuadrant_t = Int32(truncatingIfNeeded: CJKAMP.Q_BL.rawValue)
+public let Q_B: saberQuadrant_t = Int32(truncatingIfNeeded: CJKAMP.Q_B.rawValue)
+public let Q_NUM_QUADS: saberQuadrant_t = Int32(truncatingIfNeeded: CJKAMP.Q_NUM_QUADS.rawValue)
 
 /// Source: oracle/codemp/game/bg_public.h:520
-public struct statIndex_t: RawRepresentable, Hashable, Sendable {
-    public let rawValue: Int32
-    public init(rawValue: Int32) { self.rawValue = rawValue }
-    public static let STAT_HEALTH = statIndex_t(rawValue: Int32(truncatingIfNeeded: CJKAMP.STAT_HEALTH.rawValue))
-    public static let STAT_HOLDABLE_ITEM = statIndex_t(rawValue: Int32(truncatingIfNeeded: CJKAMP.STAT_HOLDABLE_ITEM.rawValue))
-    public static let STAT_HOLDABLE_ITEMS = statIndex_t(rawValue: Int32(truncatingIfNeeded: CJKAMP.STAT_HOLDABLE_ITEMS.rawValue))
-    public static let STAT_PERSISTANT_POWERUP = statIndex_t(rawValue: Int32(truncatingIfNeeded: CJKAMP.STAT_PERSISTANT_POWERUP.rawValue))
-    public static let STAT_WEAPONS = statIndex_t(rawValue: Int32(truncatingIfNeeded: CJKAMP.STAT_WEAPONS.rawValue))
-    public static let STAT_ARMOR = statIndex_t(rawValue: Int32(truncatingIfNeeded: CJKAMP.STAT_ARMOR.rawValue))
-    public static let STAT_DEAD_YAW = statIndex_t(rawValue: Int32(truncatingIfNeeded: CJKAMP.STAT_DEAD_YAW.rawValue))
-    public static let STAT_CLIENTS_READY = statIndex_t(rawValue: Int32(truncatingIfNeeded: CJKAMP.STAT_CLIENTS_READY.rawValue))
-    public static let STAT_MAX_HEALTH = statIndex_t(rawValue: Int32(truncatingIfNeeded: CJKAMP.STAT_MAX_HEALTH.rawValue))
-}
+public typealias statIndex_t = Int32
+public let STAT_HEALTH: statIndex_t = Int32(truncatingIfNeeded: CJKAMP.STAT_HEALTH.rawValue)
+public let STAT_HOLDABLE_ITEM: statIndex_t = Int32(truncatingIfNeeded: CJKAMP.STAT_HOLDABLE_ITEM.rawValue)
+public let STAT_HOLDABLE_ITEMS: statIndex_t = Int32(truncatingIfNeeded: CJKAMP.STAT_HOLDABLE_ITEMS.rawValue)
+public let STAT_PERSISTANT_POWERUP: statIndex_t = Int32(truncatingIfNeeded: CJKAMP.STAT_PERSISTANT_POWERUP.rawValue)
+public let STAT_WEAPONS: statIndex_t = Int32(truncatingIfNeeded: CJKAMP.STAT_WEAPONS.rawValue)
+public let STAT_ARMOR: statIndex_t = Int32(truncatingIfNeeded: CJKAMP.STAT_ARMOR.rawValue)
+public let STAT_DEAD_YAW: statIndex_t = Int32(truncatingIfNeeded: CJKAMP.STAT_DEAD_YAW.rawValue)
+public let STAT_CLIENTS_READY: statIndex_t = Int32(truncatingIfNeeded: CJKAMP.STAT_CLIENTS_READY.rawValue)
+public let STAT_MAX_HEALTH: statIndex_t = Int32(truncatingIfNeeded: CJKAMP.STAT_MAX_HEALTH.rawValue)
 
 /// Source: oracle/codemp/game/bg_public.h:1017
 public typealias team_t = Int32
 
 /// Source: oracle/codemp/game/bg_public.h:1034
-public struct teamtask_t: RawRepresentable, Hashable, Sendable {
-    public let rawValue: Int32
-    public init(rawValue: Int32) { self.rawValue = rawValue }
-    public static let TEAMTASK_NONE = teamtask_t(rawValue: Int32(truncatingIfNeeded: CJKAMP.TEAMTASK_NONE.rawValue))
-    public static let TEAMTASK_OFFENSE = teamtask_t(rawValue: Int32(truncatingIfNeeded: CJKAMP.TEAMTASK_OFFENSE.rawValue))
-    public static let TEAMTASK_DEFENSE = teamtask_t(rawValue: Int32(truncatingIfNeeded: CJKAMP.TEAMTASK_DEFENSE.rawValue))
-    public static let TEAMTASK_PATROL = teamtask_t(rawValue: Int32(truncatingIfNeeded: CJKAMP.TEAMTASK_PATROL.rawValue))
-    public static let TEAMTASK_FOLLOW = teamtask_t(rawValue: Int32(truncatingIfNeeded: CJKAMP.TEAMTASK_FOLLOW.rawValue))
-    public static let TEAMTASK_RETRIEVE = teamtask_t(rawValue: Int32(truncatingIfNeeded: CJKAMP.TEAMTASK_RETRIEVE.rawValue))
-    public static let TEAMTASK_ESCORT = teamtask_t(rawValue: Int32(truncatingIfNeeded: CJKAMP.TEAMTASK_ESCORT.rawValue))
-    public static let TEAMTASK_CAMP = teamtask_t(rawValue: Int32(truncatingIfNeeded: CJKAMP.TEAMTASK_CAMP.rawValue))
-}
+public typealias teamtask_t = Int32
+public let TEAMTASK_NONE: teamtask_t = Int32(truncatingIfNeeded: CJKAMP.TEAMTASK_NONE.rawValue)
+public let TEAMTASK_OFFENSE: teamtask_t = Int32(truncatingIfNeeded: CJKAMP.TEAMTASK_OFFENSE.rawValue)
+public let TEAMTASK_DEFENSE: teamtask_t = Int32(truncatingIfNeeded: CJKAMP.TEAMTASK_DEFENSE.rawValue)
+public let TEAMTASK_PATROL: teamtask_t = Int32(truncatingIfNeeded: CJKAMP.TEAMTASK_PATROL.rawValue)
+public let TEAMTASK_FOLLOW: teamtask_t = Int32(truncatingIfNeeded: CJKAMP.TEAMTASK_FOLLOW.rawValue)
+public let TEAMTASK_RETRIEVE: teamtask_t = Int32(truncatingIfNeeded: CJKAMP.TEAMTASK_RETRIEVE.rawValue)
+public let TEAMTASK_ESCORT: teamtask_t = Int32(truncatingIfNeeded: CJKAMP.TEAMTASK_ESCORT.rawValue)
+public let TEAMTASK_CAMP: teamtask_t = Int32(truncatingIfNeeded: CJKAMP.TEAMTASK_CAMP.rawValue)

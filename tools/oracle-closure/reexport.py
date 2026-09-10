@@ -7,8 +7,8 @@ declaration. The C declaration stays the single source of truth, so each Swift v
 The shapes:
   a macro Clang imports          public let STEPSIZE = CJKAMP.STEPSIZE
   a macro Clang cannot import    a TODO: Port marker with the C text, rule 14
-  an anonymous enum's enumerator public let WP_NONE = CJKAMP.WP_NONE
-  a named enum                   public struct team_t: RawRepresentable with one static per enumerator
+  an anonymous enum's enumerator public let WP_NONE: Int32
+  a named enum                   public typealias team_t = Int32 and one public let per enumerator, typed team_t
   a typedef of a scalar          public typealias weapon_t = Int32
 
 qboolean is skipped, because rule 7 makes it Bool at every Swift surface and the view converts it.
@@ -119,7 +119,9 @@ def swift_expression(cur: ci.Cursor, enum_of: dict[str, str], declared: dict[str
                 return None
             # A name from a dependency view is qualified, because the same name also reaches this file as a C macro through the
             # umbrella's export, and Swift calls the two ambiguous. A name of this target shadows the import and stays bare.
-            spelled = f"{enum_of[tok]}.{tok}.rawValue" if tok in enum_of else f"{declared[tok]}.{tok}" if tok in declared else tok
+            # An enumerator is a bare constant of its enum's module, so it qualifies the same way as its enum.
+            module = declared.get(enum_of.get(tok, ""), declared.get(tok))
+            spelled = f"{module}.{tok}" if module else tok
             # Raven mixes constants Clang imported as Int32 and UInt32 in one mask, and Swift's checker gives up on the mix.
             out.append(f"Int32(truncatingIfNeeded: {spelled})" if narrow else spelled)
             literal_only = False
@@ -196,18 +198,19 @@ def emit(target: str, unimportable: set[str], narrowed: set[str], unexpressible:
                     if e.spelling in seen:
                         continue
                     seen.add(e.spelling)
-                    files[stem] += doc(sources) + [f"public let {e.spelling} = {target}.{e.spelling}", ""]
+                    files[stem] += doc(sources) + [f"public let {e.spelling}: Int32 = Int32(truncatingIfNeeded: {target}.{e.spelling})", ""]
                 continue
             if name in seen:
                 continue
             seen.add(name)
+            # A C enum is an int, ruling of 2026-09-09. The type is an Int32 alias and each enumerator is a bare constant of it.
             block = doc(sources)
-            block.append(f"public struct {name}: RawRepresentable, Hashable, Sendable {{")
-            block.append("    public let rawValue: Int32")
-            block.append("    public init(rawValue: Int32) { self.rawValue = rawValue }")
+            block.append(f"public typealias {name} = Int32")
             for e in enumerators:
-                block.append(f"    public static let {e.spelling} = {name}(rawValue: Int32(truncatingIfNeeded: {target}.{e.spelling}.rawValue))")
-            block.append("}")
+                if e.spelling in seen:
+                    continue
+                seen.add(e.spelling)
+                block.append(f"public let {e.spelling}: {name} = Int32(truncatingIfNeeded: {target}.{e.spelling}.rawValue)")
             files[stem] += block + [""]
         elif cur.kind == CursorKind.TYPEDEF_DECL:
             name = cur.spelling

@@ -185,10 +185,7 @@ func WP_AddAsMindtricked(_ fd: JKAMP.Forcedata, _ entNum: Int32) {
 }
 
 /// Source: oracle/codemp/game/w_force.c:2527
-// TODO: Port signature
-// Raven wrote: qboolean ForceTelepathyCheckDirectNPCTarget( gentity_t *self, trace_t *tr, qboolean *tookPower )
-// No table row for `qboolean * tookPower`.
-func ForceTelepathyCheckDirectNPCTarget() -> Never {
+func ForceTelepathyCheckDirectNPCTarget(_ `self`: Entity, _ tr: JKAMP.Trace, _ tookPower: inout Bool) -> Bool {
     // TODO: Port ForceTelepathyCheckDirectNPCTarget
     portMissing("ForceTelepathyCheckDirectNPCTarget", source: "oracle/codemp/game/w_force.c:2527")
 }

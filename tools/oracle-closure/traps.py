@@ -10,10 +10,10 @@ The parameter table is abi-stubs.md row 2:
   int, scalar typedef          Int32 or the re-exported typealias, bare
   qboolean                     Bool, bare
   float                        Float, bare, the word is PASSFLOAT's
-  enum                         the re-exported struct, .rawValue
   const char *                 String, withCString around the call
   char * with an int size      dropped, the trap returns String, a buffer of the size read after the call through String(nulTerminated:)
   const vec3_t, vec3_t         vec3_t, withUnsafePointer around the call, a var copy written back when not const
+  int *, float *, qboolean *   inout of the scalar, withUnsafeMutablePointer around the call
   pointer to a viewed struct   the view, bare
   void *                       OpaquePointer?, bare
   anything else                TODO: Port signature with Raven's C text, body portMissing
@@ -133,7 +133,7 @@ class Traps:
             returns = "String"
             mapping = f"String(nulTerminated: {outs[0].name})"
         head = f"public func {name}({signature})" + (f" -> {returns}" if returns else "")
-        call = f"Syscall.call(.{command}, {', '.join(words)})" if words else f"Syscall.call(.{command})"
+        call = f"Syscall.call({command}, {', '.join(words)})" if words else f"Syscall.call({command})"
         body: list[str] = []
         for p in outs:
             body.append(f"    var {p.name} = [CChar](repeating: 0, count: Int({p.size}))")
@@ -151,6 +151,8 @@ class Traps:
                 layers.append(f"withUnsafeMutablePointer(to: &{p.name}) {{ {p.name} in")
             elif p.kind == "out_string":
                 layers.append(f"{p.name}.withUnsafeMutableBufferPointer {{ {p.name}Pointer in")
+            elif p.kind == "out_scalar":
+                layers.append(f"withUnsafeMutablePointer(to: &{p.name}) {{ {p.name} in")
         if not returns:
             body += self.nest(layers, call, "    _ = ") if layers else [f"    {call}"]
         else:
@@ -195,7 +197,7 @@ def main() -> None:
     out.write_text("\n".join(gen.emit()).rstrip() + "\n")
     c = gen.counts
     print(f"traps.py: {c['traps']} traps, {c['TODO: Port signature']} TODO: Port signature markers, {out.relative_to(REPO)}")
-    for kind in ("bare", "enum", "cstring", "out_string", "vec3_const", "vec3_mut", "view"):
+    for kind in ("bare", "cstring", "out_string", "out_scalar", "vec3_const", "vec3_mut", "view"):
         print(f"  {kind:12} {c[kind]}")
 
 

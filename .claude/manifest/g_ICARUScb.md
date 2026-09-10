@@ -7,164 +7,164 @@ The oracle range is the whole definition, from the return type to the closing br
 
 | Function | Oracle | Swift | State | jka-rust |
 |---|---|---|---|---|
-| `Q3_TaskIDClear` | `oracle/codemp/game/g_ICARUScb.c:270-273` | `JKAMP_GameLogic/g_ICARUScb.swift:11` | marker | `crates/mp/game/src/g_ICARUScb.rs:52-56` |
-| `G_DebugPrint` | `oracle/codemp/game/g_ICARUScb.c:275-324` | `JKAMP_GameLogic/g_ICARUScb.swift:17` | marker | `crates/mp/game/src/g_ICARUScb.rs:61-113` |
-| `Q3_GetAnimLower` static | `oracle/codemp/game/g_ICARUScb.c:331-344` | `JKAMP_GameLogic/g_ICARUScb.swift:31` | marker | `crates/mp/game/src/g_ICARUScb.rs:118-134` |
-| `Q3_GetAnimUpper` static | `oracle/codemp/game/g_ICARUScb.c:351-364` | `JKAMP_GameLogic/g_ICARUScb.swift:45` | marker | `crates/mp/game/src/g_ICARUScb.rs:139-155` |
-| `Q3_GetAnimBoth` static | `oracle/codemp/game/g_ICARUScb.c:371-398` | `JKAMP_GameLogic/g_ICARUScb.swift:59` | marker | `crates/mp/game/src/g_ICARUScb.rs:160-187` |
-| `Q3_PlaySound` | `oracle/codemp/game/g_ICARUScb.c:400-520` | `JKAMP_GameLogic/g_ICARUScb.swift:65` | marker | `crates/mp/game/src/g_ICARUScb.rs:194-262` |
-| `Q3_Play` | `oracle/codemp/game/g_ICARUScb.c:527-560` | `JKAMP_GameLogic/g_ICARUScb.swift:76` | marker | `crates/mp/game/src/g_ICARUScb.rs:267-307` |
-| `anglerCallback` | `oracle/codemp/game/g_ICARUScb.c:569-591` | `JKAMP_GameLogic/g_ICARUScb.swift:89` | marker | `crates/mp/game/src/g_ICARUScb.rs:313-351` |
-| `moverCallback` | `oracle/codemp/game/g_ICARUScb.c:603-633` | `JKAMP_GameLogic/g_ICARUScb.swift:102` | marker | `crates/mp/game/src/g_ICARUScb.rs:357-386` |
-| `Blocked_Mover` | `oracle/codemp/game/g_ICARUScb.c:635-658` | `JKAMP_GameLogic/g_ICARUScb.swift:108` | marker | `crates/mp/game/src/g_ICARUScb.rs:391-432` |
-| `moveAndRotateCallback` | `oracle/codemp/game/g_ICARUScb.c:667-673` | `JKAMP_GameLogic/g_ICARUScb.swift:121` | marker | `crates/mp/game/src/g_ICARUScb.rs:438-443` |
-| `Q3_Lerp2Start` | `oracle/codemp/game/g_ICARUScb.c:682-721` | `JKAMP_GameLogic/g_ICARUScb.swift:134` | marker | `crates/mp/game/src/g_ICARUScb.rs:448-497` |
-| `Q3_Lerp2End` | `oracle/codemp/game/g_ICARUScb.c:730-769` | `JKAMP_GameLogic/g_ICARUScb.swift:147` | marker | `crates/mp/game/src/g_ICARUScb.rs:502-551` |
-| `Q3_Lerp2Pos` | `oracle/codemp/game/g_ICARUScb.c:781-883` | `JKAMP_GameLogic/g_ICARUScb.swift:161` | marker | `crates/mp/game/src/g_ICARUScb.rs:556-669` |
-| `Q3_Lerp2Angles` | `oracle/codemp/game/g_ICARUScb.c:892-939` | `JKAMP_GameLogic/g_ICARUScb.swift:174` | marker | `crates/mp/game/src/g_ICARUScb.rs:676-726` |
-| `Q3_GetTag` | `oracle/codemp/game/g_ICARUScb.c:948-970` | `JKAMP_GameLogic/g_ICARUScb.swift:187` | marker | `crates/mp/game/src/g_ICARUScb.rs:743-767` |
-| `Q3_Use` | `oracle/codemp/game/g_ICARUScb.c:981-998` | `JKAMP_GameLogic/g_ICARUScb.swift:200` | marker | `crates/mp/game/src/g_ICARUScb.rs:772-782` |
-| `Q3_Kill` | `oracle/codemp/game/g_ICARUScb.c:1009-1052` | `JKAMP_GameLogic/g_ICARUScb.swift:215` | marker | `crates/mp/game/src/g_ICARUScb.rs:787-825` |
-| `Q3_RemoveEnt` | `oracle/codemp/game/g_ICARUScb.c:1062-1116` | `JKAMP_GameLogic/g_ICARUScb.swift:229` | marker | `crates/mp/game/src/g_ICARUScb.rs:830-862` |
-| `Q3_Remove` | `oracle/codemp/game/g_ICARUScb.c:1128-1168` | `JKAMP_GameLogic/g_ICARUScb.swift:244` | marker | `crates/mp/game/src/g_ICARUScb.rs:867-901` |
-| `Q3_GetFloat` | `oracle/codemp/game/g_ICARUScb.c:1189-1559` | `JKAMP_GameLogic/g_ICARUScb.swift:264` | marker | `crates/mp/game/src/g_ICARUScb.rs:906-1203` |
-| `Q3_GetVector` | `oracle/codemp/game/g_ICARUScb.c:1573-1629` | `JKAMP_GameLogic/g_ICARUScb.swift:281` | marker | `crates/mp/game/src/g_ICARUScb.rs:1208-1270` |
-| `Q3_GetString` | `oracle/codemp/game/g_ICARUScb.c:1642-1854` | `JKAMP_GameLogic/g_ICARUScb.swift:301` | marker | `crates/mp/game/src/g_ICARUScb.rs:1275-1533` |
-| `MoveOwner` | `oracle/codemp/game/g_ICARUScb.c:1865-1886` | `JKAMP_GameLogic/g_ICARUScb.swift:307` | marker | `crates/mp/game/src/g_ICARUScb.rs:1538-1567` |
-| `Q3_SetTeleportDest` static | `oracle/codemp/game/g_ICARUScb.c:1895-1920` | `JKAMP_GameLogic/g_ICARUScb.swift:320` | marker | `crates/mp/game/src/g_ICARUScb.rs:1573-1592` |
-| `Q3_SetOrigin` static | `oracle/codemp/game/g_ICARUScb.c:1929-1961` | `JKAMP_GameLogic/g_ICARUScb.swift:333` | marker | `crates/mp/game/src/g_ICARUScb.rs:1597-1627` |
-| `Q3_SetCopyOrigin` static | `oracle/codemp/game/g_ICARUScb.c:1970-1983` | `JKAMP_GameLogic/g_ICARUScb.swift:346` | marker | `crates/mp/game/src/g_ICARUScb.rs:1632-1654` |
-| `Q3_SetVelocity` static | `oracle/codemp/game/g_ICARUScb.c:1992-2013` | `JKAMP_GameLogic/g_ICARUScb.swift:359` | marker | `crates/mp/game/src/g_ICARUScb.rs:1659-1679` |
-| `Q3_SetAngles` static | `oracle/codemp/game/g_ICARUScb.c:2022-2042` | `JKAMP_GameLogic/g_ICARUScb.swift:372` | marker | `crates/mp/game/src/g_ICARUScb.rs:1686-1698` |
-| `Q3_Lerp2Origin` | `oracle/codemp/game/g_ICARUScb.c:2051-2112` | `JKAMP_GameLogic/g_ICARUScb.swift:385` | marker | `crates/mp/game/src/g_ICARUScb.rs:1703-1780` |
-| `Q3_SetOriginOffset` static | `oracle/codemp/game/g_ICARUScb.c:2114-2140` | `JKAMP_GameLogic/g_ICARUScb.swift:391` | marker | `crates/mp/game/src/g_ICARUScb.rs:1785-1813` |
-| `Q3_SetEnemy` static | `oracle/codemp/game/g_ICARUScb.c:2149-2197` | `JKAMP_GameLogic/g_ICARUScb.swift:404` | marker | `crates/mp/game/src/g_ICARUScb.rs:1819-1849` |
-| `Q3_SetLeader` static | `oracle/codemp/game/g_ICARUScb.c:2207-2246` | `JKAMP_GameLogic/g_ICARUScb.swift:417` | marker | `crates/mp/game/src/g_ICARUScb.rs:1854-1890` |
-| `Q3_SetNavGoal` static | `oracle/codemp/game/g_ICARUScb.c:2255-2320` | `JKAMP_GameLogic/g_ICARUScb.swift:430` | marker | `crates/mp/game/src/g_ICARUScb.rs:1895-2027` |
-| `SetLowerAnim` static | `oracle/codemp/game/g_ICARUScb.c:2330-2347` | `JKAMP_GameLogic/g_ICARUScb.swift:445` | marker | `crates/mp/game/src/g_ICARUScb.rs:2033-2054` |
-| `SetUpperAnim` static | `oracle/codemp/game/g_ICARUScb.c:2358-2375` | `JKAMP_GameLogic/g_ICARUScb.swift:460` | marker | `crates/mp/game/src/g_ICARUScb.rs:2060-2081` |
-| `Q3_SetAnimUpper` static | `oracle/codemp/game/g_ICARUScb.c:2384-2405` | `JKAMP_GameLogic/g_ICARUScb.swift:473` | marker | `crates/mp/game/src/g_ICARUScb.rs:2086-2108` |
-| `Q3_SetAnimLower` static | `oracle/codemp/game/g_ICARUScb.c:2414-2437` | `JKAMP_GameLogic/g_ICARUScb.swift:486` | marker | `crates/mp/game/src/g_ICARUScb.rs:2113-2135` |
-| `Q3_SetAnimHoldTime` static | `oracle/codemp/game/g_ICARUScb.c:2449-2476` | `JKAMP_GameLogic/g_ICARUScb.swift:502` | marker | `crates/mp/game/src/g_ICARUScb.rs:2142-2148` |
-| `Q3_SetHealth` static | `oracle/codemp/game/g_ICARUScb.c:2487-2527` | `JKAMP_GameLogic/g_ICARUScb.swift:517` | marker | `crates/mp/game/src/g_ICARUScb.rs:2153-2191` |
-| `Q3_SetArmor` static | `oracle/codemp/game/g_ICARUScb.c:2539-2559` | `JKAMP_GameLogic/g_ICARUScb.swift:532` | marker | `crates/mp/game/src/g_ICARUScb.rs:2196-2211` |
-| `Q3_SetBState` static | `oracle/codemp/game/g_ICARUScb.c:2573-2687` | `JKAMP_GameLogic/g_ICARUScb.swift:549` | marker | `crates/mp/game/src/g_ICARUScb.rs:2216-2299` |
-| `Q3_SetTempBState` static | `oracle/codemp/game/g_ICARUScb.c:2699-2737` | `JKAMP_GameLogic/g_ICARUScb.swift:564` | marker | `crates/mp/game/src/g_ICARUScb.rs:2304-2330` |
-| `Q3_SetDefaultBState` static | `oracle/codemp/game/g_ICARUScb.c:2749-2771` | `JKAMP_GameLogic/g_ICARUScb.swift:579` | marker | `crates/mp/game/src/g_ICARUScb.rs:2335-2359` |
-| `Q3_SetDPitch` static | `oracle/codemp/game/g_ICARUScb.c:2783-2787` | `JKAMP_GameLogic/g_ICARUScb.swift:594` | marker | `crates/mp/game/src/g_ICARUScb.rs:2364-2370` |
-| `Q3_SetDYaw` static | `oracle/codemp/game/g_ICARUScb.c:2799-2803` | `JKAMP_GameLogic/g_ICARUScb.swift:609` | marker | `crates/mp/game/src/g_ICARUScb.rs:2375-2381` |
-| `Q3_SetShootDist` static | `oracle/codemp/game/g_ICARUScb.c:2815-2819` | `JKAMP_GameLogic/g_ICARUScb.swift:624` | marker | `crates/mp/game/src/g_ICARUScb.rs:2386-2392` |
-| `Q3_SetVisrange` static | `oracle/codemp/game/g_ICARUScb.c:2831-2835` | `JKAMP_GameLogic/g_ICARUScb.swift:639` | marker | `crates/mp/game/src/g_ICARUScb.rs:2397-2403` |
-| `Q3_SetEarshot` static | `oracle/codemp/game/g_ICARUScb.c:2847-2851` | `JKAMP_GameLogic/g_ICARUScb.swift:654` | marker | `crates/mp/game/src/g_ICARUScb.rs:2408-2414` |
-| `Q3_SetVigilance` static | `oracle/codemp/game/g_ICARUScb.c:2863-2867` | `JKAMP_GameLogic/g_ICARUScb.swift:669` | marker | `crates/mp/game/src/g_ICARUScb.rs:2419-2425` |
-| `Q3_SetVFOV` static | `oracle/codemp/game/g_ICARUScb.c:2879-2883` | `JKAMP_GameLogic/g_ICARUScb.swift:684` | marker | `crates/mp/game/src/g_ICARUScb.rs:2430-2436` |
-| `Q3_SetHFOV` static | `oracle/codemp/game/g_ICARUScb.c:2895-2899` | `JKAMP_GameLogic/g_ICARUScb.swift:699` | marker | `crates/mp/game/src/g_ICARUScb.rs:2441-2447` |
-| `Q3_SetWidth` static | `oracle/codemp/game/g_ICARUScb.c:2911-2915` | `JKAMP_GameLogic/g_ICARUScb.swift:714` | marker | `crates/mp/game/src/g_ICARUScb.rs:2452-2458` |
-| `Q3_SetTimeScale` static | `oracle/codemp/game/g_ICARUScb.c:2926-2929` | `JKAMP_GameLogic/g_ICARUScb.swift:729` | marker | `crates/mp/game/src/g_ICARUScb.rs:2463-2468` |
-| `Q3_SetInvisible` static | `oracle/codemp/game/g_ICARUScb.c:2941-2968` | `JKAMP_GameLogic/g_ICARUScb.swift:744` | marker | `crates/mp/game/src/g_ICARUScb.rs:2473-2492` |
-| `Q3_SetVampire` static | `oracle/codemp/game/g_ICARUScb.c:2979-2983` | `JKAMP_GameLogic/g_ICARUScb.swift:759` | marker | `crates/mp/game/src/g_ICARUScb.rs:2497-2503` |
-| `Q3_SetGreetAllies` static | `oracle/codemp/game/g_ICARUScb.c:2993-2997` | `JKAMP_GameLogic/g_ICARUScb.swift:774` | marker | `crates/mp/game/src/g_ICARUScb.rs:2508-2514` |
-| `Q3_SetViewTarget` static | `oracle/codemp/game/g_ICARUScb.c:3009-3013` | `JKAMP_GameLogic/g_ICARUScb.swift:789` | marker | `crates/mp/game/src/g_ICARUScb.rs:2519-2525` |
-| `Q3_SetWatchTarget` static | `oracle/codemp/game/g_ICARUScb.c:3025-3029` | `JKAMP_GameLogic/g_ICARUScb.swift:804` | marker | `crates/mp/game/src/g_ICARUScb.rs:2530-2536` |
-| `Q3_SetLoopSound` | `oracle/codemp/game/g_ICARUScb.c:3031-3054` | `JKAMP_GameLogic/g_ICARUScb.swift:810` | marker | `crates/mp/game/src/g_ICARUScb.rs:2541-2566` |
-| `Q3_SetICARUSFreeze` | `oracle/codemp/game/g_ICARUScb.c:3056-3078` | `JKAMP_GameLogic/g_ICARUScb.swift:816` | marker | `crates/mp/game/src/g_ICARUScb.rs:2571-2609` |
-| `Q3_SetViewEntity` | `oracle/codemp/game/g_ICARUScb.c:3089-3092` | `JKAMP_GameLogic/g_ICARUScb.swift:831` | marker | `crates/mp/game/src/g_ICARUScb.rs:2614-2620` |
-| `Q3_SetWeapon` static | `oracle/codemp/game/g_ICARUScb.c:3104-3111` | `JKAMP_GameLogic/g_ICARUScb.swift:837` | marker | `crates/mp/game/src/g_ICARUScb.rs:2625-2638` |
-| `Q3_SetItem` static | `oracle/codemp/game/g_ICARUScb.c:3122-3126` | `JKAMP_GameLogic/g_ICARUScb.swift:852` | marker | `crates/mp/game/src/g_ICARUScb.rs:2644-2650` |
-| `Q3_SetWalkSpeed` static | `oracle/codemp/game/g_ICARUScb.c:3139-3161` | `JKAMP_GameLogic/g_ICARUScb.swift:867` | marker | `crates/mp/game/src/g_ICARUScb.rs:2655-2680` |
-| `Q3_SetRunSpeed` static | `oracle/codemp/game/g_ICARUScb.c:3173-3195` | `JKAMP_GameLogic/g_ICARUScb.swift:882` | marker | `crates/mp/game/src/g_ICARUScb.rs:2685-2710` |
-| `Q3_SetYawSpeed` static | `oracle/codemp/game/g_ICARUScb.c:3207-3211` | `JKAMP_GameLogic/g_ICARUScb.swift:897` | marker | `crates/mp/game/src/g_ICARUScb.rs:2715-2721` |
-| `Q3_SetAggression` static | `oracle/codemp/game/g_ICARUScb.c:3223-3227` | `JKAMP_GameLogic/g_ICARUScb.swift:912` | marker | `crates/mp/game/src/g_ICARUScb.rs:2726-2732` |
-| `Q3_SetAim` static | `oracle/codemp/game/g_ICARUScb.c:3239-3243` | `JKAMP_GameLogic/g_ICARUScb.swift:927` | marker | `crates/mp/game/src/g_ICARUScb.rs:2737-2739` |
-| `Q3_SetFriction` static | `oracle/codemp/game/g_ICARUScb.c:3255-3273` | `JKAMP_GameLogic/g_ICARUScb.swift:942` | marker | `crates/mp/game/src/g_ICARUScb.rs:2744-2762` |
-| `Q3_SetGravity` static | `oracle/codemp/game/g_ICARUScb.c:3285-3307` | `JKAMP_GameLogic/g_ICARUScb.swift:957` | marker | `crates/mp/game/src/g_ICARUScb.rs:2767-2789` |
-| `Q3_SetWait` static | `oracle/codemp/game/g_ICARUScb.c:3319-3330` | `JKAMP_GameLogic/g_ICARUScb.swift:972` | marker | `crates/mp/game/src/g_ICARUScb.rs:2794-2797` |
-| `Q3_SetShotSpacing` static | `oracle/codemp/game/g_ICARUScb.c:3333-3337` | `JKAMP_GameLogic/g_ICARUScb.swift:978` | marker | `crates/mp/game/src/g_ICARUScb.rs:2802-2808` |
-| `Q3_SetFollowDist` static | `oracle/codemp/game/g_ICARUScb.c:3348-3352` | `JKAMP_GameLogic/g_ICARUScb.swift:993` | marker | `crates/mp/game/src/g_ICARUScb.rs:2813-2819` |
-| `Q3_SetScale` static | `oracle/codemp/game/g_ICARUScb.c:3364-3396` | `JKAMP_GameLogic/g_ICARUScb.swift:1008` | marker | `crates/mp/game/src/g_ICARUScb.rs:2824-2844` |
-| `Q3_GameSideCheckStringCounterIncrement` static | `oracle/codemp/game/g_ICARUScb.c:3406-3429` | `JKAMP_GameLogic/g_ICARUScb.swift:1022` | marker | `crates/mp/game/src/g_ICARUScb.rs:2849-2866` |
-| `Q3_SetCount` static | `oracle/codemp/game/g_ICARUScb.c:3440-3460` | `JKAMP_GameLogic/g_ICARUScb.swift:1037` | marker | `crates/mp/game/src/g_ICARUScb.rs:2871-2880` |
-| `Q3_SetTargetName` static | `oracle/codemp/game/g_ICARUScb.c:3472-3490` | `JKAMP_GameLogic/g_ICARUScb.swift:1052` | marker | `crates/mp/game/src/g_ICARUScb.rs:2885-2894` |
-| `Q3_SetTarget` static | `oracle/codemp/game/g_ICARUScb.c:3502-3520` | `JKAMP_GameLogic/g_ICARUScb.swift:1067` | marker | `crates/mp/game/src/g_ICARUScb.rs:2899-2910` |
-| `Q3_SetTarget2` static | `oracle/codemp/game/g_ICARUScb.c:3531-3552` | `JKAMP_GameLogic/g_ICARUScb.swift:1082` | marker | `crates/mp/game/src/g_ICARUScb.rs:2915-2921` |
-| `Q3_SetRemoveTarget` static | `oracle/codemp/game/g_ICARUScb.c:3562-3566` | `JKAMP_GameLogic/g_ICARUScb.swift:1097` | marker | `crates/mp/game/src/g_ICARUScb.rs:2926-2932` |
-| `Q3_SetPainTarget` static | `oracle/codemp/game/g_ICARUScb.c:3578-3599` | `JKAMP_GameLogic/g_ICARUScb.swift:1112` | marker | `crates/mp/game/src/g_ICARUScb.rs:2937-2943` |
-| `Q3_SetFullName` static | `oracle/codemp/game/g_ICARUScb.c:3610-3628` | `JKAMP_GameLogic/g_ICARUScb.swift:1127` | marker | `crates/mp/game/src/g_ICARUScb.rs:2948-2957` |
-| `Q3_SetMusicState` static | `oracle/codemp/game/g_ICARUScb.c:3630-3634` | `JKAMP_GameLogic/g_ICARUScb.swift:1133` | marker | `crates/mp/game/src/g_ICARUScb.rs:2962-2968` |
-| `Q3_SetForcePowerLevel` static | `oracle/codemp/game/g_ICARUScb.c:3636-3640` | `JKAMP_GameLogic/g_ICARUScb.swift:1139` | marker | `crates/mp/game/src/g_ICARUScb.rs:2973-2984` |
-| `Q3_SetParm` | `oracle/codemp/game/g_ICARUScb.c:3651-3690` | `JKAMP_GameLogic/g_ICARUScb.swift:1155` | marker | `crates/mp/game/src/g_ICARUScb.rs:2991-3032` |
-| `Q3_SetCaptureGoal` static | `oracle/codemp/game/g_ICARUScb.c:3701-3705` | `JKAMP_GameLogic/g_ICARUScb.swift:1168` | marker | `crates/mp/game/src/g_ICARUScb.rs:3037-3043` |
-| `Q3_SetEvent` static | `oracle/codemp/game/g_ICARUScb.c:3714-3718` | `JKAMP_GameLogic/g_ICARUScb.swift:1181` | marker | `crates/mp/game/src/g_ICARUScb.rs:3048-3054` |
-| `Q3_SetIgnorePain` static | `oracle/codemp/game/g_ICARUScb.c:3727-3731` | `JKAMP_GameLogic/g_ICARUScb.swift:1194` | marker | `crates/mp/game/src/g_ICARUScb.rs:3059-3065` |
-| `Q3_SetIgnoreEnemies` static | `oracle/codemp/game/g_ICARUScb.c:3740-3744` | `JKAMP_GameLogic/g_ICARUScb.swift:1207` | marker | `crates/mp/game/src/g_ICARUScb.rs:3070-3076` |
-| `Q3_SetIgnoreAlerts` static | `oracle/codemp/game/g_ICARUScb.c:3753-3757` | `JKAMP_GameLogic/g_ICARUScb.swift:1220` | marker | `crates/mp/game/src/g_ICARUScb.rs:3081-3087` |
-| `Q3_SetNoTarget` static | `oracle/codemp/game/g_ICARUScb.c:3767-3781` | `JKAMP_GameLogic/g_ICARUScb.swift:1233` | marker | `crates/mp/game/src/g_ICARUScb.rs:3092-3100` |
-| `Q3_SetDontShoot` static | `oracle/codemp/game/g_ICARUScb.c:3790-3794` | `JKAMP_GameLogic/g_ICARUScb.swift:1246` | marker | `crates/mp/game/src/g_ICARUScb.rs:3105-3111` |
-| `Q3_SetDontFire` static | `oracle/codemp/game/g_ICARUScb.c:3803-3807` | `JKAMP_GameLogic/g_ICARUScb.swift:1259` | marker | `crates/mp/game/src/g_ICARUScb.rs:3116-3122` |
-| `Q3_SetFireWeapon` static | `oracle/codemp/game/g_ICARUScb.c:3816-3820` | `JKAMP_GameLogic/g_ICARUScb.swift:1272` | marker | `crates/mp/game/src/g_ICARUScb.rs:3127-3133` |
-| `Q3_SetInactive` static | `oracle/codemp/game/g_ICARUScb.c:3830-3848` | `JKAMP_GameLogic/g_ICARUScb.swift:1285` | marker | `crates/mp/game/src/g_ICARUScb.rs:3138-3146` |
-| `Q3_SetFuncUsableVisible` static | `oracle/codemp/game/g_ICARUScb.c:3857-3880` | `JKAMP_GameLogic/g_ICARUScb.swift:1298` | marker | `crates/mp/game/src/g_ICARUScb.rs:3151-3163` |
-| `Q3_SetLockedEnemy` static | `oracle/codemp/game/g_ICARUScb.c:3889-3893` | `JKAMP_GameLogic/g_ICARUScb.swift:1311` | marker | `crates/mp/game/src/g_ICARUScb.rs:3168-3174` |
-| `Q3_SetCinematicSkipScript` static | `oracle/codemp/game/g_ICARUScb.c:3903-3907` | `JKAMP_GameLogic/g_ICARUScb.swift:1326` | marker | `crates/mp/game/src/g_ICARUScb.rs:3179-3185` |
-| `Q3_SetNoMindTrick` static | `oracle/codemp/game/g_ICARUScb.c:3916-3920` | `JKAMP_GameLogic/g_ICARUScb.swift:1339` | marker | `crates/mp/game/src/g_ICARUScb.rs:3190-3196` |
-| `Q3_SetCrouched` static | `oracle/codemp/game/g_ICARUScb.c:3929-3933` | `JKAMP_GameLogic/g_ICARUScb.swift:1352` | marker | `crates/mp/game/src/g_ICARUScb.rs:3201-3207` |
-| `Q3_SetWalking` static | `oracle/codemp/game/g_ICARUScb.c:3942-3967` | `JKAMP_GameLogic/g_ICARUScb.swift:1365` | marker | `crates/mp/game/src/g_ICARUScb.rs:3212-3234` |
-| `Q3_SetRunning` static | `oracle/codemp/game/g_ICARUScb.c:3976-3980` | `JKAMP_GameLogic/g_ICARUScb.swift:1378` | marker | `crates/mp/game/src/g_ICARUScb.rs:3239-3245` |
-| `Q3_SetForcedMarch` static | `oracle/codemp/game/g_ICARUScb.c:3989-3993` | `JKAMP_GameLogic/g_ICARUScb.swift:1391` | marker | `crates/mp/game/src/g_ICARUScb.rs:3250-3256` |
-| `Q3_SetChaseEnemies` static | `oracle/codemp/game/g_ICARUScb.c:4001-4005` | `JKAMP_GameLogic/g_ICARUScb.swift:1404` | marker | `crates/mp/game/src/g_ICARUScb.rs:3261-3267` |
-| `Q3_SetLookForEnemies` static | `oracle/codemp/game/g_ICARUScb.c:4015-4019` | `JKAMP_GameLogic/g_ICARUScb.swift:1418` | marker | `crates/mp/game/src/g_ICARUScb.rs:3272-3278` |
-| `Q3_SetFaceMoveDir` static | `oracle/codemp/game/g_ICARUScb.c:4027-4031` | `JKAMP_GameLogic/g_ICARUScb.swift:1430` | marker | `crates/mp/game/src/g_ICARUScb.rs:3283-3289` |
-| `Q3_SetAltFire` static | `oracle/codemp/game/g_ICARUScb.c:4040-4044` | `JKAMP_GameLogic/g_ICARUScb.swift:1443` | marker | `crates/mp/game/src/g_ICARUScb.rs:3294-3300` |
-| `Q3_SetDontFlee` static | `oracle/codemp/game/g_ICARUScb.c:4053-4057` | `JKAMP_GameLogic/g_ICARUScb.swift:1456` | marker | `crates/mp/game/src/g_ICARUScb.rs:3305-3311` |
-| `Q3_SetNoResponse` static | `oracle/codemp/game/g_ICARUScb.c:4066-4070` | `JKAMP_GameLogic/g_ICARUScb.swift:1469` | marker | `crates/mp/game/src/g_ICARUScb.rs:3316-3322` |
-| `Q3_SetCombatTalk` static | `oracle/codemp/game/g_ICARUScb.c:4079-4083` | `JKAMP_GameLogic/g_ICARUScb.swift:1482` | marker | `crates/mp/game/src/g_ICARUScb.rs:3327-3333` |
-| `Q3_SetAlertTalk` static | `oracle/codemp/game/g_ICARUScb.c:4092-4096` | `JKAMP_GameLogic/g_ICARUScb.swift:1495` | marker | `crates/mp/game/src/g_ICARUScb.rs:3338-3344` |
-| `Q3_SetUseCpNearest` static | `oracle/codemp/game/g_ICARUScb.c:4105-4109` | `JKAMP_GameLogic/g_ICARUScb.swift:1508` | marker | `crates/mp/game/src/g_ICARUScb.rs:3349-3355` |
-| `Q3_SetNoForce` static | `oracle/codemp/game/g_ICARUScb.c:4118-4122` | `JKAMP_GameLogic/g_ICARUScb.swift:1521` | marker | `crates/mp/game/src/g_ICARUScb.rs:3360-3366` |
-| `Q3_SetNoAcrobatics` static | `oracle/codemp/game/g_ICARUScb.c:4131-4135` | `JKAMP_GameLogic/g_ICARUScb.swift:1534` | marker | `crates/mp/game/src/g_ICARUScb.rs:3371-3377` |
-| `Q3_SetUseSubtitles` static | `oracle/codemp/game/g_ICARUScb.c:4144-4148` | `JKAMP_GameLogic/g_ICARUScb.swift:1547` | marker | `crates/mp/game/src/g_ICARUScb.rs:3382-3388` |
-| `Q3_SetNoFallToDeath` static | `oracle/codemp/game/g_ICARUScb.c:4157-4161` | `JKAMP_GameLogic/g_ICARUScb.swift:1560` | marker | `crates/mp/game/src/g_ICARUScb.rs:3393-3399` |
-| `Q3_SetDismemberable` static | `oracle/codemp/game/g_ICARUScb.c:4170-4174` | `JKAMP_GameLogic/g_ICARUScb.swift:1573` | marker | `crates/mp/game/src/g_ICARUScb.rs:3404-3410` |
-| `Q3_SetMoreLight` static | `oracle/codemp/game/g_ICARUScb.c:4184-4188` | `JKAMP_GameLogic/g_ICARUScb.swift:1586` | marker | `crates/mp/game/src/g_ICARUScb.rs:3415-3421` |
-| `Q3_SetUndying` static | `oracle/codemp/game/g_ICARUScb.c:4197-4201` | `JKAMP_GameLogic/g_ICARUScb.swift:1599` | marker | `crates/mp/game/src/g_ICARUScb.rs:3426-3432` |
-| `Q3_SetInvincible` static | `oracle/codemp/game/g_ICARUScb.c:4210-4214` | `JKAMP_GameLogic/g_ICARUScb.swift:1612` | marker | `crates/mp/game/src/g_ICARUScb.rs:3438-3444` |
-| `Q3_SetForceInvincible` static | `oracle/codemp/game/g_ICARUScb.c:4224-4228` | `JKAMP_GameLogic/g_ICARUScb.swift:1627` | marker | `crates/mp/game/src/g_ICARUScb.rs:3450-3456` |
-| `Q3_SetNoAvoid` static | `oracle/codemp/game/g_ICARUScb.c:4237-4261` | `JKAMP_GameLogic/g_ICARUScb.swift:1640` | marker | `crates/mp/game/src/g_ICARUScb.rs:3461-3483` |
-| `SolidifyOwner` | `oracle/codemp/game/g_ICARUScb.c:4271-4295` | `JKAMP_GameLogic/g_ICARUScb.swift:1654` | marker | `crates/mp/game/src/g_ICARUScb.rs:3488-3519` |
-| `Q3_SetSolid` static | `oracle/codemp/game/g_ICARUScb.c:4305-4345` | `JKAMP_GameLogic/g_ICARUScb.swift:1667` | marker | `crates/mp/game/src/g_ICARUScb.rs:3524-3566` |
-| `Q3_SetForwardMove` static | `oracle/codemp/game/g_ICARUScb.c:4354-4372` | `JKAMP_GameLogic/g_ICARUScb.swift:1680` | marker | `crates/mp/game/src/g_ICARUScb.rs:3571-3591` |
-| `Q3_SetRightMove` static | `oracle/codemp/game/g_ICARUScb.c:4381-4399` | `JKAMP_GameLogic/g_ICARUScb.swift:1693` | marker | `crates/mp/game/src/g_ICARUScb.rs:3599-3614` |
-| `Q3_SetLockAngle` static | `oracle/codemp/game/g_ICARUScb.c:4408-4445` | `JKAMP_GameLogic/g_ICARUScb.swift:1706` | marker | `crates/mp/game/src/g_ICARUScb.rs:3621-3636` |
-| `Q3_CameraGroup` static | `oracle/codemp/game/g_ICARUScb.c:4455-4459` | `JKAMP_GameLogic/g_ICARUScb.swift:1722` | marker | `crates/mp/game/src/g_ICARUScb.rs:3641-3647` |
-| `Q3_CameraGroupZOfs` static | `oracle/codemp/game/g_ICARUScb.c:4468-4472` | `JKAMP_GameLogic/g_ICARUScb.swift:1735` | marker | `crates/mp/game/src/g_ICARUScb.rs:3652-3658` |
-| `Q3_CameraGroupTag` static | `oracle/codemp/game/g_ICARUScb.c:4480-4484` | `JKAMP_GameLogic/g_ICARUScb.swift:1751` | marker | `crates/mp/game/src/g_ICARUScb.rs:3663-3669` |
-| `Q3_RemoveRHandModel` static | `oracle/codemp/game/g_ICARUScb.c:4491-4494` | `JKAMP_GameLogic/g_ICARUScb.swift:1765` | marker | `crates/mp/game/src/g_ICARUScb.rs:3674-3680` |
-| `Q3_AddRHandModel` static | `oracle/codemp/game/g_ICARUScb.c:4501-4504` | `JKAMP_GameLogic/g_ICARUScb.swift:1779` | marker | `crates/mp/game/src/g_ICARUScb.rs:3685-3691` |
-| `Q3_AddLHandModel` static | `oracle/codemp/game/g_ICARUScb.c:4511-4514` | `JKAMP_GameLogic/g_ICARUScb.swift:1793` | marker | `crates/mp/game/src/g_ICARUScb.rs:3696-3702` |
-| `Q3_RemoveLHandModel` static | `oracle/codemp/game/g_ICARUScb.c:4521-4524` | `JKAMP_GameLogic/g_ICARUScb.swift:1807` | marker | `crates/mp/game/src/g_ICARUScb.rs:3707-3713` |
-| `Q3_LookTarget` static | `oracle/codemp/game/g_ICARUScb.c:4533-4537` | `JKAMP_GameLogic/g_ICARUScb.swift:1823` | marker | `crates/mp/game/src/g_ICARUScb.rs:3718-3724` |
-| `Q3_Face` static | `oracle/codemp/game/g_ICARUScb.c:4546-4549` | `JKAMP_GameLogic/g_ICARUScb.swift:1836` | marker | `crates/mp/game/src/g_ICARUScb.rs:3729-3731` |
-| `Q3_SetLocation` static | `oracle/codemp/game/g_ICARUScb.c:4560-4564` | `JKAMP_GameLogic/g_ICARUScb.swift:1851` | marker | `crates/mp/game/src/g_ICARUScb.rs:3736-3743` |
-| `Q3_SetPlayerLocked` static | `oracle/codemp/game/g_ICARUScb.c:4576-4579` | `JKAMP_GameLogic/g_ICARUScb.swift:1857` | marker | `crates/mp/game/src/g_ICARUScb.rs:3748-3754` |
-| `Q3_SetLockPlayerWeapons` static | `oracle/codemp/game/g_ICARUScb.c:4590-4593` | `JKAMP_GameLogic/g_ICARUScb.swift:1872` | marker | `crates/mp/game/src/g_ICARUScb.rs:3759-3765` |
-| `Q3_SetNoImpactDamage` static | `oracle/codemp/game/g_ICARUScb.c:4605-4608` | `JKAMP_GameLogic/g_ICARUScb.swift:1887` | marker | `crates/mp/game/src/g_ICARUScb.rs:3770-3776` |
-| `Q3_SetBehaviorSet` static | `oracle/codemp/game/g_ICARUScb.c:4617-4708` | `JKAMP_GameLogic/g_ICARUScb.swift:1900` | marker | `crates/mp/game/src/g_ICARUScb.rs:3781-3843` |
-| `Q3_SetDelayScriptTime` static | `oracle/codemp/game/g_ICARUScb.c:4717-4720` | `JKAMP_GameLogic/g_ICARUScb.swift:1913` | marker | `crates/mp/game/src/g_ICARUScb.rs:3848-3854` |
-| `Q3_SetPlayerUsable` static | `oracle/codemp/game/g_ICARUScb.c:4734-4752` | `JKAMP_GameLogic/g_ICARUScb.swift:1928` | marker | `crates/mp/game/src/g_ICARUScb.rs:3859-3868` |
-| `Q3_SetDisableShaderAnims` static | `oracle/codemp/game/g_ICARUScb.c:4763-4767` | `JKAMP_GameLogic/g_ICARUScb.swift:1943` | marker | `crates/mp/game/src/g_ICARUScb.rs:3873-3879` |
-| `Q3_SetShaderAnim` static | `oracle/codemp/game/g_ICARUScb.c:4778-4782` | `JKAMP_GameLogic/g_ICARUScb.swift:1958` | marker | `crates/mp/game/src/g_ICARUScb.rs:3884-3890` |
-| `Q3_SetStartFrame` static | `oracle/codemp/game/g_ICARUScb.c:4793-4796` | `JKAMP_GameLogic/g_ICARUScb.swift:1973` | marker | `crates/mp/game/src/g_ICARUScb.rs:3895-3901` |
-| `Q3_SetEndFrame` static | `oracle/codemp/game/g_ICARUScb.c:4808-4811` | `JKAMP_GameLogic/g_ICARUScb.swift:1988` | marker | `crates/mp/game/src/g_ICARUScb.rs:3906-3912` |
-| `Q3_SetAnimFrame` static | `oracle/codemp/game/g_ICARUScb.c:4822-4825` | `JKAMP_GameLogic/g_ICARUScb.swift:2003` | marker | `crates/mp/game/src/g_ICARUScb.rs:3917-3923` |
-| `Q3_SetLoopAnim` static | `oracle/codemp/game/g_ICARUScb.c:4836-4839` | `JKAMP_GameLogic/g_ICARUScb.swift:2018` | marker | `crates/mp/game/src/g_ICARUScb.rs:3928-3934` |
-| `Q3_SetShields` static | `oracle/codemp/game/g_ICARUScb.c:4851-4855` | `JKAMP_GameLogic/g_ICARUScb.swift:2033` | marker | `crates/mp/game/src/g_ICARUScb.rs:3939-3945` |
-| `Q3_SetSaberActive` static | `oracle/codemp/game/g_ICARUScb.c:4866-4889` | `JKAMP_GameLogic/g_ICARUScb.swift:2048` | marker | `crates/mp/game/src/g_ICARUScb.rs:3950-3976` |
-| `Q3_SetNoKnockback` static | `oracle/codemp/game/g_ICARUScb.c:4900-4918` | `JKAMP_GameLogic/g_ICARUScb.swift:2063` | marker | `crates/mp/game/src/g_ICARUScb.rs:3981-3988` |
-| `Q3_SetCleanDamagingEnts` static | `oracle/codemp/game/g_ICARUScb.c:4927-4931` | `JKAMP_GameLogic/g_ICARUScb.swift:2076` | marker | `crates/mp/game/src/g_ICARUScb.rs:3993-3999` |
-| `SetTextColor` static | `oracle/codemp/game/g_ICARUScb.c:4942-4946` | `JKAMP_GameLogic/g_ICARUScb.swift:2090` | marker | `crates/mp/game/src/g_ICARUScb.rs:4021-4027` |
-| `Q3_SetCaptionTextColor` static | `oracle/codemp/game/g_ICARUScb.c:4955-4958` | `JKAMP_GameLogic/g_ICARUScb.swift:2103` | marker | `crates/mp/game/src/g_ICARUScb.rs:4032-4034` |
-| `Q3_SetCenterTextColor` static | `oracle/codemp/game/g_ICARUScb.c:4967-4970` | `JKAMP_GameLogic/g_ICARUScb.swift:2116` | marker | `crates/mp/game/src/g_ICARUScb.rs:4039-4041` |
-| `Q3_SetScrollTextColor` static | `oracle/codemp/game/g_ICARUScb.c:4979-4982` | `JKAMP_GameLogic/g_ICARUScb.swift:2129` | marker | `crates/mp/game/src/g_ICARUScb.rs:4046-4048` |
-| `Q3_ScrollText` static | `oracle/codemp/game/g_ICARUScb.c:4991-4997` | `JKAMP_GameLogic/g_ICARUScb.swift:2142` | marker | `crates/mp/game/src/g_ICARUScb.rs:4055-4061` |
-| `Q3_LCARSText` static | `oracle/codemp/game/g_ICARUScb.c:5006-5012` | `JKAMP_GameLogic/g_ICARUScb.swift:2155` | marker | `crates/mp/game/src/g_ICARUScb.rs:4069-4075` |
-| `Q3_Set` | `oracle/codemp/game/g_ICARUScb.c:5018-6074` | `JKAMP_GameLogic/g_ICARUScb.swift:2162` | marker | `crates/mp/game/src/g_ICARUScb.rs:4080-5358` |
+| `Q3_TaskIDClear` | `oracle/codemp/game/g_ICARUScb.c:270-273` | `JKAMP_GameLogic/g_ICARUScb.swift:8` | marker | `crates/mp/game/src/g_ICARUScb.rs:52-56` |
+| `G_DebugPrint` | `oracle/codemp/game/g_ICARUScb.c:275-324` | `JKAMP_GameLogic/g_ICARUScb.swift:14` | marker | `crates/mp/game/src/g_ICARUScb.rs:61-113` |
+| `Q3_GetAnimLower` static | `oracle/codemp/game/g_ICARUScb.c:331-344` | `JKAMP_GameLogic/g_ICARUScb.swift:28` | marker | `crates/mp/game/src/g_ICARUScb.rs:118-134` |
+| `Q3_GetAnimUpper` static | `oracle/codemp/game/g_ICARUScb.c:351-364` | `JKAMP_GameLogic/g_ICARUScb.swift:42` | marker | `crates/mp/game/src/g_ICARUScb.rs:139-155` |
+| `Q3_GetAnimBoth` static | `oracle/codemp/game/g_ICARUScb.c:371-398` | `JKAMP_GameLogic/g_ICARUScb.swift:56` | marker | `crates/mp/game/src/g_ICARUScb.rs:160-187` |
+| `Q3_PlaySound` | `oracle/codemp/game/g_ICARUScb.c:400-520` | `JKAMP_GameLogic/g_ICARUScb.swift:62` | marker | `crates/mp/game/src/g_ICARUScb.rs:194-262` |
+| `Q3_Play` | `oracle/codemp/game/g_ICARUScb.c:527-560` | `JKAMP_GameLogic/g_ICARUScb.swift:73` | marker | `crates/mp/game/src/g_ICARUScb.rs:267-307` |
+| `anglerCallback` | `oracle/codemp/game/g_ICARUScb.c:569-591` | `JKAMP_GameLogic/g_ICARUScb.swift:86` | marker | `crates/mp/game/src/g_ICARUScb.rs:313-351` |
+| `moverCallback` | `oracle/codemp/game/g_ICARUScb.c:603-633` | `JKAMP_GameLogic/g_ICARUScb.swift:99` | marker | `crates/mp/game/src/g_ICARUScb.rs:357-386` |
+| `Blocked_Mover` | `oracle/codemp/game/g_ICARUScb.c:635-658` | `JKAMP_GameLogic/g_ICARUScb.swift:105` | marker | `crates/mp/game/src/g_ICARUScb.rs:391-432` |
+| `moveAndRotateCallback` | `oracle/codemp/game/g_ICARUScb.c:667-673` | `JKAMP_GameLogic/g_ICARUScb.swift:118` | marker | `crates/mp/game/src/g_ICARUScb.rs:438-443` |
+| `Q3_Lerp2Start` | `oracle/codemp/game/g_ICARUScb.c:682-721` | `JKAMP_GameLogic/g_ICARUScb.swift:131` | marker | `crates/mp/game/src/g_ICARUScb.rs:448-497` |
+| `Q3_Lerp2End` | `oracle/codemp/game/g_ICARUScb.c:730-769` | `JKAMP_GameLogic/g_ICARUScb.swift:144` | marker | `crates/mp/game/src/g_ICARUScb.rs:502-551` |
+| `Q3_Lerp2Pos` | `oracle/codemp/game/g_ICARUScb.c:781-883` | `JKAMP_GameLogic/g_ICARUScb.swift:158` | marker | `crates/mp/game/src/g_ICARUScb.rs:556-669` |
+| `Q3_Lerp2Angles` | `oracle/codemp/game/g_ICARUScb.c:892-939` | `JKAMP_GameLogic/g_ICARUScb.swift:171` | marker | `crates/mp/game/src/g_ICARUScb.rs:676-726` |
+| `Q3_GetTag` | `oracle/codemp/game/g_ICARUScb.c:948-970` | `JKAMP_GameLogic/g_ICARUScb.swift:184` | marker | `crates/mp/game/src/g_ICARUScb.rs:743-767` |
+| `Q3_Use` | `oracle/codemp/game/g_ICARUScb.c:981-998` | `JKAMP_GameLogic/g_ICARUScb.swift:197` | marker | `crates/mp/game/src/g_ICARUScb.rs:772-782` |
+| `Q3_Kill` | `oracle/codemp/game/g_ICARUScb.c:1009-1052` | `JKAMP_GameLogic/g_ICARUScb.swift:212` | marker | `crates/mp/game/src/g_ICARUScb.rs:787-825` |
+| `Q3_RemoveEnt` | `oracle/codemp/game/g_ICARUScb.c:1062-1116` | `JKAMP_GameLogic/g_ICARUScb.swift:226` | marker | `crates/mp/game/src/g_ICARUScb.rs:830-862` |
+| `Q3_Remove` | `oracle/codemp/game/g_ICARUScb.c:1128-1168` | `JKAMP_GameLogic/g_ICARUScb.swift:241` | marker | `crates/mp/game/src/g_ICARUScb.rs:867-901` |
+| `Q3_GetFloat` | `oracle/codemp/game/g_ICARUScb.c:1189-1559` | `JKAMP_GameLogic/g_ICARUScb.swift:258` | marker | `crates/mp/game/src/g_ICARUScb.rs:906-1203` |
+| `Q3_GetVector` | `oracle/codemp/game/g_ICARUScb.c:1573-1629` | `JKAMP_GameLogic/g_ICARUScb.swift:275` | marker | `crates/mp/game/src/g_ICARUScb.rs:1208-1270` |
+| `Q3_GetString` | `oracle/codemp/game/g_ICARUScb.c:1642-1854` | `JKAMP_GameLogic/g_ICARUScb.swift:295` | marker | `crates/mp/game/src/g_ICARUScb.rs:1275-1533` |
+| `MoveOwner` | `oracle/codemp/game/g_ICARUScb.c:1865-1886` | `JKAMP_GameLogic/g_ICARUScb.swift:301` | marker | `crates/mp/game/src/g_ICARUScb.rs:1538-1567` |
+| `Q3_SetTeleportDest` static | `oracle/codemp/game/g_ICARUScb.c:1895-1920` | `JKAMP_GameLogic/g_ICARUScb.swift:314` | marker | `crates/mp/game/src/g_ICARUScb.rs:1573-1592` |
+| `Q3_SetOrigin` static | `oracle/codemp/game/g_ICARUScb.c:1929-1961` | `JKAMP_GameLogic/g_ICARUScb.swift:327` | marker | `crates/mp/game/src/g_ICARUScb.rs:1597-1627` |
+| `Q3_SetCopyOrigin` static | `oracle/codemp/game/g_ICARUScb.c:1970-1983` | `JKAMP_GameLogic/g_ICARUScb.swift:340` | marker | `crates/mp/game/src/g_ICARUScb.rs:1632-1654` |
+| `Q3_SetVelocity` static | `oracle/codemp/game/g_ICARUScb.c:1992-2013` | `JKAMP_GameLogic/g_ICARUScb.swift:353` | marker | `crates/mp/game/src/g_ICARUScb.rs:1659-1679` |
+| `Q3_SetAngles` static | `oracle/codemp/game/g_ICARUScb.c:2022-2042` | `JKAMP_GameLogic/g_ICARUScb.swift:366` | marker | `crates/mp/game/src/g_ICARUScb.rs:1686-1698` |
+| `Q3_Lerp2Origin` | `oracle/codemp/game/g_ICARUScb.c:2051-2112` | `JKAMP_GameLogic/g_ICARUScb.swift:379` | marker | `crates/mp/game/src/g_ICARUScb.rs:1703-1780` |
+| `Q3_SetOriginOffset` static | `oracle/codemp/game/g_ICARUScb.c:2114-2140` | `JKAMP_GameLogic/g_ICARUScb.swift:385` | marker | `crates/mp/game/src/g_ICARUScb.rs:1785-1813` |
+| `Q3_SetEnemy` static | `oracle/codemp/game/g_ICARUScb.c:2149-2197` | `JKAMP_GameLogic/g_ICARUScb.swift:398` | marker | `crates/mp/game/src/g_ICARUScb.rs:1819-1849` |
+| `Q3_SetLeader` static | `oracle/codemp/game/g_ICARUScb.c:2207-2246` | `JKAMP_GameLogic/g_ICARUScb.swift:411` | marker | `crates/mp/game/src/g_ICARUScb.rs:1854-1890` |
+| `Q3_SetNavGoal` static | `oracle/codemp/game/g_ICARUScb.c:2255-2320` | `JKAMP_GameLogic/g_ICARUScb.swift:424` | marker | `crates/mp/game/src/g_ICARUScb.rs:1895-2027` |
+| `SetLowerAnim` static | `oracle/codemp/game/g_ICARUScb.c:2330-2347` | `JKAMP_GameLogic/g_ICARUScb.swift:439` | marker | `crates/mp/game/src/g_ICARUScb.rs:2033-2054` |
+| `SetUpperAnim` static | `oracle/codemp/game/g_ICARUScb.c:2358-2375` | `JKAMP_GameLogic/g_ICARUScb.swift:454` | marker | `crates/mp/game/src/g_ICARUScb.rs:2060-2081` |
+| `Q3_SetAnimUpper` static | `oracle/codemp/game/g_ICARUScb.c:2384-2405` | `JKAMP_GameLogic/g_ICARUScb.swift:467` | marker | `crates/mp/game/src/g_ICARUScb.rs:2086-2108` |
+| `Q3_SetAnimLower` static | `oracle/codemp/game/g_ICARUScb.c:2414-2437` | `JKAMP_GameLogic/g_ICARUScb.swift:480` | marker | `crates/mp/game/src/g_ICARUScb.rs:2113-2135` |
+| `Q3_SetAnimHoldTime` static | `oracle/codemp/game/g_ICARUScb.c:2449-2476` | `JKAMP_GameLogic/g_ICARUScb.swift:496` | marker | `crates/mp/game/src/g_ICARUScb.rs:2142-2148` |
+| `Q3_SetHealth` static | `oracle/codemp/game/g_ICARUScb.c:2487-2527` | `JKAMP_GameLogic/g_ICARUScb.swift:511` | marker | `crates/mp/game/src/g_ICARUScb.rs:2153-2191` |
+| `Q3_SetArmor` static | `oracle/codemp/game/g_ICARUScb.c:2539-2559` | `JKAMP_GameLogic/g_ICARUScb.swift:526` | marker | `crates/mp/game/src/g_ICARUScb.rs:2196-2211` |
+| `Q3_SetBState` static | `oracle/codemp/game/g_ICARUScb.c:2573-2687` | `JKAMP_GameLogic/g_ICARUScb.swift:543` | marker | `crates/mp/game/src/g_ICARUScb.rs:2216-2299` |
+| `Q3_SetTempBState` static | `oracle/codemp/game/g_ICARUScb.c:2699-2737` | `JKAMP_GameLogic/g_ICARUScb.swift:558` | marker | `crates/mp/game/src/g_ICARUScb.rs:2304-2330` |
+| `Q3_SetDefaultBState` static | `oracle/codemp/game/g_ICARUScb.c:2749-2771` | `JKAMP_GameLogic/g_ICARUScb.swift:573` | marker | `crates/mp/game/src/g_ICARUScb.rs:2335-2359` |
+| `Q3_SetDPitch` static | `oracle/codemp/game/g_ICARUScb.c:2783-2787` | `JKAMP_GameLogic/g_ICARUScb.swift:588` | marker | `crates/mp/game/src/g_ICARUScb.rs:2364-2370` |
+| `Q3_SetDYaw` static | `oracle/codemp/game/g_ICARUScb.c:2799-2803` | `JKAMP_GameLogic/g_ICARUScb.swift:603` | marker | `crates/mp/game/src/g_ICARUScb.rs:2375-2381` |
+| `Q3_SetShootDist` static | `oracle/codemp/game/g_ICARUScb.c:2815-2819` | `JKAMP_GameLogic/g_ICARUScb.swift:618` | marker | `crates/mp/game/src/g_ICARUScb.rs:2386-2392` |
+| `Q3_SetVisrange` static | `oracle/codemp/game/g_ICARUScb.c:2831-2835` | `JKAMP_GameLogic/g_ICARUScb.swift:633` | marker | `crates/mp/game/src/g_ICARUScb.rs:2397-2403` |
+| `Q3_SetEarshot` static | `oracle/codemp/game/g_ICARUScb.c:2847-2851` | `JKAMP_GameLogic/g_ICARUScb.swift:648` | marker | `crates/mp/game/src/g_ICARUScb.rs:2408-2414` |
+| `Q3_SetVigilance` static | `oracle/codemp/game/g_ICARUScb.c:2863-2867` | `JKAMP_GameLogic/g_ICARUScb.swift:663` | marker | `crates/mp/game/src/g_ICARUScb.rs:2419-2425` |
+| `Q3_SetVFOV` static | `oracle/codemp/game/g_ICARUScb.c:2879-2883` | `JKAMP_GameLogic/g_ICARUScb.swift:678` | marker | `crates/mp/game/src/g_ICARUScb.rs:2430-2436` |
+| `Q3_SetHFOV` static | `oracle/codemp/game/g_ICARUScb.c:2895-2899` | `JKAMP_GameLogic/g_ICARUScb.swift:693` | marker | `crates/mp/game/src/g_ICARUScb.rs:2441-2447` |
+| `Q3_SetWidth` static | `oracle/codemp/game/g_ICARUScb.c:2911-2915` | `JKAMP_GameLogic/g_ICARUScb.swift:708` | marker | `crates/mp/game/src/g_ICARUScb.rs:2452-2458` |
+| `Q3_SetTimeScale` static | `oracle/codemp/game/g_ICARUScb.c:2926-2929` | `JKAMP_GameLogic/g_ICARUScb.swift:723` | marker | `crates/mp/game/src/g_ICARUScb.rs:2463-2468` |
+| `Q3_SetInvisible` static | `oracle/codemp/game/g_ICARUScb.c:2941-2968` | `JKAMP_GameLogic/g_ICARUScb.swift:738` | marker | `crates/mp/game/src/g_ICARUScb.rs:2473-2492` |
+| `Q3_SetVampire` static | `oracle/codemp/game/g_ICARUScb.c:2979-2983` | `JKAMP_GameLogic/g_ICARUScb.swift:753` | marker | `crates/mp/game/src/g_ICARUScb.rs:2497-2503` |
+| `Q3_SetGreetAllies` static | `oracle/codemp/game/g_ICARUScb.c:2993-2997` | `JKAMP_GameLogic/g_ICARUScb.swift:768` | marker | `crates/mp/game/src/g_ICARUScb.rs:2508-2514` |
+| `Q3_SetViewTarget` static | `oracle/codemp/game/g_ICARUScb.c:3009-3013` | `JKAMP_GameLogic/g_ICARUScb.swift:783` | marker | `crates/mp/game/src/g_ICARUScb.rs:2519-2525` |
+| `Q3_SetWatchTarget` static | `oracle/codemp/game/g_ICARUScb.c:3025-3029` | `JKAMP_GameLogic/g_ICARUScb.swift:798` | marker | `crates/mp/game/src/g_ICARUScb.rs:2530-2536` |
+| `Q3_SetLoopSound` | `oracle/codemp/game/g_ICARUScb.c:3031-3054` | `JKAMP_GameLogic/g_ICARUScb.swift:804` | marker | `crates/mp/game/src/g_ICARUScb.rs:2541-2566` |
+| `Q3_SetICARUSFreeze` | `oracle/codemp/game/g_ICARUScb.c:3056-3078` | `JKAMP_GameLogic/g_ICARUScb.swift:810` | marker | `crates/mp/game/src/g_ICARUScb.rs:2571-2609` |
+| `Q3_SetViewEntity` | `oracle/codemp/game/g_ICARUScb.c:3089-3092` | `JKAMP_GameLogic/g_ICARUScb.swift:825` | marker | `crates/mp/game/src/g_ICARUScb.rs:2614-2620` |
+| `Q3_SetWeapon` static | `oracle/codemp/game/g_ICARUScb.c:3104-3111` | `JKAMP_GameLogic/g_ICARUScb.swift:831` | marker | `crates/mp/game/src/g_ICARUScb.rs:2625-2638` |
+| `Q3_SetItem` static | `oracle/codemp/game/g_ICARUScb.c:3122-3126` | `JKAMP_GameLogic/g_ICARUScb.swift:846` | marker | `crates/mp/game/src/g_ICARUScb.rs:2644-2650` |
+| `Q3_SetWalkSpeed` static | `oracle/codemp/game/g_ICARUScb.c:3139-3161` | `JKAMP_GameLogic/g_ICARUScb.swift:861` | marker | `crates/mp/game/src/g_ICARUScb.rs:2655-2680` |
+| `Q3_SetRunSpeed` static | `oracle/codemp/game/g_ICARUScb.c:3173-3195` | `JKAMP_GameLogic/g_ICARUScb.swift:876` | marker | `crates/mp/game/src/g_ICARUScb.rs:2685-2710` |
+| `Q3_SetYawSpeed` static | `oracle/codemp/game/g_ICARUScb.c:3207-3211` | `JKAMP_GameLogic/g_ICARUScb.swift:891` | marker | `crates/mp/game/src/g_ICARUScb.rs:2715-2721` |
+| `Q3_SetAggression` static | `oracle/codemp/game/g_ICARUScb.c:3223-3227` | `JKAMP_GameLogic/g_ICARUScb.swift:906` | marker | `crates/mp/game/src/g_ICARUScb.rs:2726-2732` |
+| `Q3_SetAim` static | `oracle/codemp/game/g_ICARUScb.c:3239-3243` | `JKAMP_GameLogic/g_ICARUScb.swift:921` | marker | `crates/mp/game/src/g_ICARUScb.rs:2737-2739` |
+| `Q3_SetFriction` static | `oracle/codemp/game/g_ICARUScb.c:3255-3273` | `JKAMP_GameLogic/g_ICARUScb.swift:936` | marker | `crates/mp/game/src/g_ICARUScb.rs:2744-2762` |
+| `Q3_SetGravity` static | `oracle/codemp/game/g_ICARUScb.c:3285-3307` | `JKAMP_GameLogic/g_ICARUScb.swift:951` | marker | `crates/mp/game/src/g_ICARUScb.rs:2767-2789` |
+| `Q3_SetWait` static | `oracle/codemp/game/g_ICARUScb.c:3319-3330` | `JKAMP_GameLogic/g_ICARUScb.swift:966` | marker | `crates/mp/game/src/g_ICARUScb.rs:2794-2797` |
+| `Q3_SetShotSpacing` static | `oracle/codemp/game/g_ICARUScb.c:3333-3337` | `JKAMP_GameLogic/g_ICARUScb.swift:972` | marker | `crates/mp/game/src/g_ICARUScb.rs:2802-2808` |
+| `Q3_SetFollowDist` static | `oracle/codemp/game/g_ICARUScb.c:3348-3352` | `JKAMP_GameLogic/g_ICARUScb.swift:987` | marker | `crates/mp/game/src/g_ICARUScb.rs:2813-2819` |
+| `Q3_SetScale` static | `oracle/codemp/game/g_ICARUScb.c:3364-3396` | `JKAMP_GameLogic/g_ICARUScb.swift:1002` | marker | `crates/mp/game/src/g_ICARUScb.rs:2824-2844` |
+| `Q3_GameSideCheckStringCounterIncrement` static | `oracle/codemp/game/g_ICARUScb.c:3406-3429` | `JKAMP_GameLogic/g_ICARUScb.swift:1016` | marker | `crates/mp/game/src/g_ICARUScb.rs:2849-2866` |
+| `Q3_SetCount` static | `oracle/codemp/game/g_ICARUScb.c:3440-3460` | `JKAMP_GameLogic/g_ICARUScb.swift:1031` | marker | `crates/mp/game/src/g_ICARUScb.rs:2871-2880` |
+| `Q3_SetTargetName` static | `oracle/codemp/game/g_ICARUScb.c:3472-3490` | `JKAMP_GameLogic/g_ICARUScb.swift:1046` | marker | `crates/mp/game/src/g_ICARUScb.rs:2885-2894` |
+| `Q3_SetTarget` static | `oracle/codemp/game/g_ICARUScb.c:3502-3520` | `JKAMP_GameLogic/g_ICARUScb.swift:1061` | marker | `crates/mp/game/src/g_ICARUScb.rs:2899-2910` |
+| `Q3_SetTarget2` static | `oracle/codemp/game/g_ICARUScb.c:3531-3552` | `JKAMP_GameLogic/g_ICARUScb.swift:1076` | marker | `crates/mp/game/src/g_ICARUScb.rs:2915-2921` |
+| `Q3_SetRemoveTarget` static | `oracle/codemp/game/g_ICARUScb.c:3562-3566` | `JKAMP_GameLogic/g_ICARUScb.swift:1091` | marker | `crates/mp/game/src/g_ICARUScb.rs:2926-2932` |
+| `Q3_SetPainTarget` static | `oracle/codemp/game/g_ICARUScb.c:3578-3599` | `JKAMP_GameLogic/g_ICARUScb.swift:1106` | marker | `crates/mp/game/src/g_ICARUScb.rs:2937-2943` |
+| `Q3_SetFullName` static | `oracle/codemp/game/g_ICARUScb.c:3610-3628` | `JKAMP_GameLogic/g_ICARUScb.swift:1121` | marker | `crates/mp/game/src/g_ICARUScb.rs:2948-2957` |
+| `Q3_SetMusicState` static | `oracle/codemp/game/g_ICARUScb.c:3630-3634` | `JKAMP_GameLogic/g_ICARUScb.swift:1127` | marker | `crates/mp/game/src/g_ICARUScb.rs:2962-2968` |
+| `Q3_SetForcePowerLevel` static | `oracle/codemp/game/g_ICARUScb.c:3636-3640` | `JKAMP_GameLogic/g_ICARUScb.swift:1133` | marker | `crates/mp/game/src/g_ICARUScb.rs:2973-2984` |
+| `Q3_SetParm` | `oracle/codemp/game/g_ICARUScb.c:3651-3690` | `JKAMP_GameLogic/g_ICARUScb.swift:1149` | marker | `crates/mp/game/src/g_ICARUScb.rs:2991-3032` |
+| `Q3_SetCaptureGoal` static | `oracle/codemp/game/g_ICARUScb.c:3701-3705` | `JKAMP_GameLogic/g_ICARUScb.swift:1162` | marker | `crates/mp/game/src/g_ICARUScb.rs:3037-3043` |
+| `Q3_SetEvent` static | `oracle/codemp/game/g_ICARUScb.c:3714-3718` | `JKAMP_GameLogic/g_ICARUScb.swift:1175` | marker | `crates/mp/game/src/g_ICARUScb.rs:3048-3054` |
+| `Q3_SetIgnorePain` static | `oracle/codemp/game/g_ICARUScb.c:3727-3731` | `JKAMP_GameLogic/g_ICARUScb.swift:1188` | marker | `crates/mp/game/src/g_ICARUScb.rs:3059-3065` |
+| `Q3_SetIgnoreEnemies` static | `oracle/codemp/game/g_ICARUScb.c:3740-3744` | `JKAMP_GameLogic/g_ICARUScb.swift:1201` | marker | `crates/mp/game/src/g_ICARUScb.rs:3070-3076` |
+| `Q3_SetIgnoreAlerts` static | `oracle/codemp/game/g_ICARUScb.c:3753-3757` | `JKAMP_GameLogic/g_ICARUScb.swift:1214` | marker | `crates/mp/game/src/g_ICARUScb.rs:3081-3087` |
+| `Q3_SetNoTarget` static | `oracle/codemp/game/g_ICARUScb.c:3767-3781` | `JKAMP_GameLogic/g_ICARUScb.swift:1227` | marker | `crates/mp/game/src/g_ICARUScb.rs:3092-3100` |
+| `Q3_SetDontShoot` static | `oracle/codemp/game/g_ICARUScb.c:3790-3794` | `JKAMP_GameLogic/g_ICARUScb.swift:1240` | marker | `crates/mp/game/src/g_ICARUScb.rs:3105-3111` |
+| `Q3_SetDontFire` static | `oracle/codemp/game/g_ICARUScb.c:3803-3807` | `JKAMP_GameLogic/g_ICARUScb.swift:1253` | marker | `crates/mp/game/src/g_ICARUScb.rs:3116-3122` |
+| `Q3_SetFireWeapon` static | `oracle/codemp/game/g_ICARUScb.c:3816-3820` | `JKAMP_GameLogic/g_ICARUScb.swift:1266` | marker | `crates/mp/game/src/g_ICARUScb.rs:3127-3133` |
+| `Q3_SetInactive` static | `oracle/codemp/game/g_ICARUScb.c:3830-3848` | `JKAMP_GameLogic/g_ICARUScb.swift:1279` | marker | `crates/mp/game/src/g_ICARUScb.rs:3138-3146` |
+| `Q3_SetFuncUsableVisible` static | `oracle/codemp/game/g_ICARUScb.c:3857-3880` | `JKAMP_GameLogic/g_ICARUScb.swift:1292` | marker | `crates/mp/game/src/g_ICARUScb.rs:3151-3163` |
+| `Q3_SetLockedEnemy` static | `oracle/codemp/game/g_ICARUScb.c:3889-3893` | `JKAMP_GameLogic/g_ICARUScb.swift:1305` | marker | `crates/mp/game/src/g_ICARUScb.rs:3168-3174` |
+| `Q3_SetCinematicSkipScript` static | `oracle/codemp/game/g_ICARUScb.c:3903-3907` | `JKAMP_GameLogic/g_ICARUScb.swift:1320` | marker | `crates/mp/game/src/g_ICARUScb.rs:3179-3185` |
+| `Q3_SetNoMindTrick` static | `oracle/codemp/game/g_ICARUScb.c:3916-3920` | `JKAMP_GameLogic/g_ICARUScb.swift:1333` | marker | `crates/mp/game/src/g_ICARUScb.rs:3190-3196` |
+| `Q3_SetCrouched` static | `oracle/codemp/game/g_ICARUScb.c:3929-3933` | `JKAMP_GameLogic/g_ICARUScb.swift:1346` | marker | `crates/mp/game/src/g_ICARUScb.rs:3201-3207` |
+| `Q3_SetWalking` static | `oracle/codemp/game/g_ICARUScb.c:3942-3967` | `JKAMP_GameLogic/g_ICARUScb.swift:1359` | marker | `crates/mp/game/src/g_ICARUScb.rs:3212-3234` |
+| `Q3_SetRunning` static | `oracle/codemp/game/g_ICARUScb.c:3976-3980` | `JKAMP_GameLogic/g_ICARUScb.swift:1372` | marker | `crates/mp/game/src/g_ICARUScb.rs:3239-3245` |
+| `Q3_SetForcedMarch` static | `oracle/codemp/game/g_ICARUScb.c:3989-3993` | `JKAMP_GameLogic/g_ICARUScb.swift:1385` | marker | `crates/mp/game/src/g_ICARUScb.rs:3250-3256` |
+| `Q3_SetChaseEnemies` static | `oracle/codemp/game/g_ICARUScb.c:4001-4005` | `JKAMP_GameLogic/g_ICARUScb.swift:1398` | marker | `crates/mp/game/src/g_ICARUScb.rs:3261-3267` |
+| `Q3_SetLookForEnemies` static | `oracle/codemp/game/g_ICARUScb.c:4015-4019` | `JKAMP_GameLogic/g_ICARUScb.swift:1412` | marker | `crates/mp/game/src/g_ICARUScb.rs:3272-3278` |
+| `Q3_SetFaceMoveDir` static | `oracle/codemp/game/g_ICARUScb.c:4027-4031` | `JKAMP_GameLogic/g_ICARUScb.swift:1424` | marker | `crates/mp/game/src/g_ICARUScb.rs:3283-3289` |
+| `Q3_SetAltFire` static | `oracle/codemp/game/g_ICARUScb.c:4040-4044` | `JKAMP_GameLogic/g_ICARUScb.swift:1437` | marker | `crates/mp/game/src/g_ICARUScb.rs:3294-3300` |
+| `Q3_SetDontFlee` static | `oracle/codemp/game/g_ICARUScb.c:4053-4057` | `JKAMP_GameLogic/g_ICARUScb.swift:1450` | marker | `crates/mp/game/src/g_ICARUScb.rs:3305-3311` |
+| `Q3_SetNoResponse` static | `oracle/codemp/game/g_ICARUScb.c:4066-4070` | `JKAMP_GameLogic/g_ICARUScb.swift:1463` | marker | `crates/mp/game/src/g_ICARUScb.rs:3316-3322` |
+| `Q3_SetCombatTalk` static | `oracle/codemp/game/g_ICARUScb.c:4079-4083` | `JKAMP_GameLogic/g_ICARUScb.swift:1476` | marker | `crates/mp/game/src/g_ICARUScb.rs:3327-3333` |
+| `Q3_SetAlertTalk` static | `oracle/codemp/game/g_ICARUScb.c:4092-4096` | `JKAMP_GameLogic/g_ICARUScb.swift:1489` | marker | `crates/mp/game/src/g_ICARUScb.rs:3338-3344` |
+| `Q3_SetUseCpNearest` static | `oracle/codemp/game/g_ICARUScb.c:4105-4109` | `JKAMP_GameLogic/g_ICARUScb.swift:1502` | marker | `crates/mp/game/src/g_ICARUScb.rs:3349-3355` |
+| `Q3_SetNoForce` static | `oracle/codemp/game/g_ICARUScb.c:4118-4122` | `JKAMP_GameLogic/g_ICARUScb.swift:1515` | marker | `crates/mp/game/src/g_ICARUScb.rs:3360-3366` |
+| `Q3_SetNoAcrobatics` static | `oracle/codemp/game/g_ICARUScb.c:4131-4135` | `JKAMP_GameLogic/g_ICARUScb.swift:1528` | marker | `crates/mp/game/src/g_ICARUScb.rs:3371-3377` |
+| `Q3_SetUseSubtitles` static | `oracle/codemp/game/g_ICARUScb.c:4144-4148` | `JKAMP_GameLogic/g_ICARUScb.swift:1541` | marker | `crates/mp/game/src/g_ICARUScb.rs:3382-3388` |
+| `Q3_SetNoFallToDeath` static | `oracle/codemp/game/g_ICARUScb.c:4157-4161` | `JKAMP_GameLogic/g_ICARUScb.swift:1554` | marker | `crates/mp/game/src/g_ICARUScb.rs:3393-3399` |
+| `Q3_SetDismemberable` static | `oracle/codemp/game/g_ICARUScb.c:4170-4174` | `JKAMP_GameLogic/g_ICARUScb.swift:1567` | marker | `crates/mp/game/src/g_ICARUScb.rs:3404-3410` |
+| `Q3_SetMoreLight` static | `oracle/codemp/game/g_ICARUScb.c:4184-4188` | `JKAMP_GameLogic/g_ICARUScb.swift:1580` | marker | `crates/mp/game/src/g_ICARUScb.rs:3415-3421` |
+| `Q3_SetUndying` static | `oracle/codemp/game/g_ICARUScb.c:4197-4201` | `JKAMP_GameLogic/g_ICARUScb.swift:1593` | marker | `crates/mp/game/src/g_ICARUScb.rs:3426-3432` |
+| `Q3_SetInvincible` static | `oracle/codemp/game/g_ICARUScb.c:4210-4214` | `JKAMP_GameLogic/g_ICARUScb.swift:1606` | marker | `crates/mp/game/src/g_ICARUScb.rs:3438-3444` |
+| `Q3_SetForceInvincible` static | `oracle/codemp/game/g_ICARUScb.c:4224-4228` | `JKAMP_GameLogic/g_ICARUScb.swift:1621` | marker | `crates/mp/game/src/g_ICARUScb.rs:3450-3456` |
+| `Q3_SetNoAvoid` static | `oracle/codemp/game/g_ICARUScb.c:4237-4261` | `JKAMP_GameLogic/g_ICARUScb.swift:1634` | marker | `crates/mp/game/src/g_ICARUScb.rs:3461-3483` |
+| `SolidifyOwner` | `oracle/codemp/game/g_ICARUScb.c:4271-4295` | `JKAMP_GameLogic/g_ICARUScb.swift:1648` | marker | `crates/mp/game/src/g_ICARUScb.rs:3488-3519` |
+| `Q3_SetSolid` static | `oracle/codemp/game/g_ICARUScb.c:4305-4345` | `JKAMP_GameLogic/g_ICARUScb.swift:1661` | marker | `crates/mp/game/src/g_ICARUScb.rs:3524-3566` |
+| `Q3_SetForwardMove` static | `oracle/codemp/game/g_ICARUScb.c:4354-4372` | `JKAMP_GameLogic/g_ICARUScb.swift:1674` | marker | `crates/mp/game/src/g_ICARUScb.rs:3571-3591` |
+| `Q3_SetRightMove` static | `oracle/codemp/game/g_ICARUScb.c:4381-4399` | `JKAMP_GameLogic/g_ICARUScb.swift:1687` | marker | `crates/mp/game/src/g_ICARUScb.rs:3599-3614` |
+| `Q3_SetLockAngle` static | `oracle/codemp/game/g_ICARUScb.c:4408-4445` | `JKAMP_GameLogic/g_ICARUScb.swift:1700` | marker | `crates/mp/game/src/g_ICARUScb.rs:3621-3636` |
+| `Q3_CameraGroup` static | `oracle/codemp/game/g_ICARUScb.c:4455-4459` | `JKAMP_GameLogic/g_ICARUScb.swift:1716` | marker | `crates/mp/game/src/g_ICARUScb.rs:3641-3647` |
+| `Q3_CameraGroupZOfs` static | `oracle/codemp/game/g_ICARUScb.c:4468-4472` | `JKAMP_GameLogic/g_ICARUScb.swift:1729` | marker | `crates/mp/game/src/g_ICARUScb.rs:3652-3658` |
+| `Q3_CameraGroupTag` static | `oracle/codemp/game/g_ICARUScb.c:4480-4484` | `JKAMP_GameLogic/g_ICARUScb.swift:1745` | marker | `crates/mp/game/src/g_ICARUScb.rs:3663-3669` |
+| `Q3_RemoveRHandModel` static | `oracle/codemp/game/g_ICARUScb.c:4491-4494` | `JKAMP_GameLogic/g_ICARUScb.swift:1759` | marker | `crates/mp/game/src/g_ICARUScb.rs:3674-3680` |
+| `Q3_AddRHandModel` static | `oracle/codemp/game/g_ICARUScb.c:4501-4504` | `JKAMP_GameLogic/g_ICARUScb.swift:1773` | marker | `crates/mp/game/src/g_ICARUScb.rs:3685-3691` |
+| `Q3_AddLHandModel` static | `oracle/codemp/game/g_ICARUScb.c:4511-4514` | `JKAMP_GameLogic/g_ICARUScb.swift:1787` | marker | `crates/mp/game/src/g_ICARUScb.rs:3696-3702` |
+| `Q3_RemoveLHandModel` static | `oracle/codemp/game/g_ICARUScb.c:4521-4524` | `JKAMP_GameLogic/g_ICARUScb.swift:1801` | marker | `crates/mp/game/src/g_ICARUScb.rs:3707-3713` |
+| `Q3_LookTarget` static | `oracle/codemp/game/g_ICARUScb.c:4533-4537` | `JKAMP_GameLogic/g_ICARUScb.swift:1817` | marker | `crates/mp/game/src/g_ICARUScb.rs:3718-3724` |
+| `Q3_Face` static | `oracle/codemp/game/g_ICARUScb.c:4546-4549` | `JKAMP_GameLogic/g_ICARUScb.swift:1830` | marker | `crates/mp/game/src/g_ICARUScb.rs:3729-3731` |
+| `Q3_SetLocation` static | `oracle/codemp/game/g_ICARUScb.c:4560-4564` | `JKAMP_GameLogic/g_ICARUScb.swift:1845` | marker | `crates/mp/game/src/g_ICARUScb.rs:3736-3743` |
+| `Q3_SetPlayerLocked` static | `oracle/codemp/game/g_ICARUScb.c:4576-4579` | `JKAMP_GameLogic/g_ICARUScb.swift:1851` | marker | `crates/mp/game/src/g_ICARUScb.rs:3748-3754` |
+| `Q3_SetLockPlayerWeapons` static | `oracle/codemp/game/g_ICARUScb.c:4590-4593` | `JKAMP_GameLogic/g_ICARUScb.swift:1866` | marker | `crates/mp/game/src/g_ICARUScb.rs:3759-3765` |
+| `Q3_SetNoImpactDamage` static | `oracle/codemp/game/g_ICARUScb.c:4605-4608` | `JKAMP_GameLogic/g_ICARUScb.swift:1881` | marker | `crates/mp/game/src/g_ICARUScb.rs:3770-3776` |
+| `Q3_SetBehaviorSet` static | `oracle/codemp/game/g_ICARUScb.c:4617-4708` | `JKAMP_GameLogic/g_ICARUScb.swift:1894` | marker | `crates/mp/game/src/g_ICARUScb.rs:3781-3843` |
+| `Q3_SetDelayScriptTime` static | `oracle/codemp/game/g_ICARUScb.c:4717-4720` | `JKAMP_GameLogic/g_ICARUScb.swift:1907` | marker | `crates/mp/game/src/g_ICARUScb.rs:3848-3854` |
+| `Q3_SetPlayerUsable` static | `oracle/codemp/game/g_ICARUScb.c:4734-4752` | `JKAMP_GameLogic/g_ICARUScb.swift:1922` | marker | `crates/mp/game/src/g_ICARUScb.rs:3859-3868` |
+| `Q3_SetDisableShaderAnims` static | `oracle/codemp/game/g_ICARUScb.c:4763-4767` | `JKAMP_GameLogic/g_ICARUScb.swift:1937` | marker | `crates/mp/game/src/g_ICARUScb.rs:3873-3879` |
+| `Q3_SetShaderAnim` static | `oracle/codemp/game/g_ICARUScb.c:4778-4782` | `JKAMP_GameLogic/g_ICARUScb.swift:1952` | marker | `crates/mp/game/src/g_ICARUScb.rs:3884-3890` |
+| `Q3_SetStartFrame` static | `oracle/codemp/game/g_ICARUScb.c:4793-4796` | `JKAMP_GameLogic/g_ICARUScb.swift:1967` | marker | `crates/mp/game/src/g_ICARUScb.rs:3895-3901` |
+| `Q3_SetEndFrame` static | `oracle/codemp/game/g_ICARUScb.c:4808-4811` | `JKAMP_GameLogic/g_ICARUScb.swift:1982` | marker | `crates/mp/game/src/g_ICARUScb.rs:3906-3912` |
+| `Q3_SetAnimFrame` static | `oracle/codemp/game/g_ICARUScb.c:4822-4825` | `JKAMP_GameLogic/g_ICARUScb.swift:1997` | marker | `crates/mp/game/src/g_ICARUScb.rs:3917-3923` |
+| `Q3_SetLoopAnim` static | `oracle/codemp/game/g_ICARUScb.c:4836-4839` | `JKAMP_GameLogic/g_ICARUScb.swift:2012` | marker | `crates/mp/game/src/g_ICARUScb.rs:3928-3934` |
+| `Q3_SetShields` static | `oracle/codemp/game/g_ICARUScb.c:4851-4855` | `JKAMP_GameLogic/g_ICARUScb.swift:2027` | marker | `crates/mp/game/src/g_ICARUScb.rs:3939-3945` |
+| `Q3_SetSaberActive` static | `oracle/codemp/game/g_ICARUScb.c:4866-4889` | `JKAMP_GameLogic/g_ICARUScb.swift:2042` | marker | `crates/mp/game/src/g_ICARUScb.rs:3950-3976` |
+| `Q3_SetNoKnockback` static | `oracle/codemp/game/g_ICARUScb.c:4900-4918` | `JKAMP_GameLogic/g_ICARUScb.swift:2057` | marker | `crates/mp/game/src/g_ICARUScb.rs:3981-3988` |
+| `Q3_SetCleanDamagingEnts` static | `oracle/codemp/game/g_ICARUScb.c:4927-4931` | `JKAMP_GameLogic/g_ICARUScb.swift:2070` | marker | `crates/mp/game/src/g_ICARUScb.rs:3993-3999` |
+| `SetTextColor` static | `oracle/codemp/game/g_ICARUScb.c:4942-4946` | `JKAMP_GameLogic/g_ICARUScb.swift:2084` | marker | `crates/mp/game/src/g_ICARUScb.rs:4021-4027` |
+| `Q3_SetCaptionTextColor` static | `oracle/codemp/game/g_ICARUScb.c:4955-4958` | `JKAMP_GameLogic/g_ICARUScb.swift:2097` | marker | `crates/mp/game/src/g_ICARUScb.rs:4032-4034` |
+| `Q3_SetCenterTextColor` static | `oracle/codemp/game/g_ICARUScb.c:4967-4970` | `JKAMP_GameLogic/g_ICARUScb.swift:2110` | marker | `crates/mp/game/src/g_ICARUScb.rs:4039-4041` |
+| `Q3_SetScrollTextColor` static | `oracle/codemp/game/g_ICARUScb.c:4979-4982` | `JKAMP_GameLogic/g_ICARUScb.swift:2123` | marker | `crates/mp/game/src/g_ICARUScb.rs:4046-4048` |
+| `Q3_ScrollText` static | `oracle/codemp/game/g_ICARUScb.c:4991-4997` | `JKAMP_GameLogic/g_ICARUScb.swift:2136` | marker | `crates/mp/game/src/g_ICARUScb.rs:4055-4061` |
+| `Q3_LCARSText` static | `oracle/codemp/game/g_ICARUScb.c:5006-5012` | `JKAMP_GameLogic/g_ICARUScb.swift:2149` | marker | `crates/mp/game/src/g_ICARUScb.rs:4069-4075` |
+| `Q3_Set` | `oracle/codemp/game/g_ICARUScb.c:5018-6074` | `JKAMP_GameLogic/g_ICARUScb.swift:2156` | marker | `crates/mp/game/src/g_ICARUScb.rs:4080-5358` |

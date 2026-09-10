@@ -10,6 +10,7 @@ One file per viewed struct sits beside this index. The tables below give the Swi
 |---|---|---|---|
 | `AIGroupInfo_t` | `AIGroupInfo` | `JKAMP_Game` | `.claude/rosetta/AIGroupInfo_t.md` |
 | `AIGroupMember_t` | `AIGroupMember` | `JKAMP_Game` | `.claude/rosetta/AIGroupMember_t.md` |
+| `BG_field_t` | `BgField` | `JKAMP` | `.claude/rosetta/BG_field_t.md` |
 | `Vehicle_t` | `Vehicle` | `JKAMP` | `.claude/rosetta/Vehicle_t.md` |
 | `alertEvent_t` | `AlertEvent` | `JKAMP_Game` | `.claude/rosetta/alertEvent_t.md` |
 | `animation_t` | `Animation` | `JKAMP` | `.claude/rosetta/animation_t.md` |
@@ -37,11 +38,15 @@ One file per viewed struct sits beside this index. The tables below give the Swi
 | `renderInfo_t` | `RenderInfo` | `JKAMP_Game` | `.claude/rosetta/renderInfo_t.md` |
 | `saberInfo_t` | `SaberInfo` | `JKAMP` | `.claude/rosetta/saberInfo_t.md` |
 | `saberTrail_t` | `SaberTrail` | `JKAMP` | `.claude/rosetta/saberTrail_t.md` |
+| `siegeClassDesc_t` | `SiegeClassDesc` | `JKAMP` | `.claude/rosetta/siegeClassDesc_t.md` |
+| `siegeClass_t` | `SiegeClass` | `JKAMP` | `.claude/rosetta/siegeClass_t.md` |
+| `siegeTeam_t` | `SiegeTeam` | `JKAMP` | `.claude/rosetta/siegeTeam_t.md` |
 | `trace_t` | `Trace` | `JKAMP` | `.claude/rosetta/trace_t.md` |
 | `trajectory_t` | `Trajectory` | `JKAShared` | `.claude/rosetta/trajectory_t.md` |
 | `turretStats_t` | `TurretStats` | `JKAMP` | `.claude/rosetta/turretStats_t.md` |
 | `usercmd_t` | `Usercmd` | `JKAMP` | `.claude/rosetta/usercmd_t.md` |
 | `vehTurretStatus_t` | `VehTurretStatus` | `JKAMP` | `.claude/rosetta/vehTurretStatus_t.md` |
+| `vehWeaponInfo_t` | `VehWeaponInfo` | `JKAMP` | `.claude/rosetta/vehWeaponInfo_t.md` |
 | `vehWeaponStats_t` | `VehWeaponStats` | `JKAMP` | `.claude/rosetta/vehWeaponStats_t.md` |
 | `vehWeaponStatus_t` | `VehWeaponStatus` | `JKAMP` | `.claude/rosetta/vehWeaponStatus_t.md` |
 | `vehicleInfo_t` | `VehicleInfo` | `JKAMP` | `.claude/rosetta/vehicleInfo_t.md` |
@@ -161,7 +166,7 @@ One file per viewed struct sits beside this index. The tables below give the Swi
 
 ## Enums
 
-A C enum is a re-exported struct with `.rawValue`, and its cases are static members with Raven's names, `.WP_SABER`.
+A C enum is an `Int32` alias, and each case is a bare `Int32` constant with Raven's name, `WP_SABER`, so a body compares and stores it as written.
 
 | C enum | Swift |
 |---|---|

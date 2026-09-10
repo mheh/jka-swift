@@ -41,4 +41,4 @@ The oracle range is the whole definition, from the return type to the closing br
 | `G_GetBoltPosition` | `oracle/codemp/game/NPC_utils.c:1707-1740` | `JKAMP_GameLogic/NPC_utils.swift:237` | marker | `crates/mp/game/src/NPC_utils.rs:1653-1710` |
 | `NPC_EntRangeFromBolt` | `oracle/codemp/game/NPC_utils.c:1742-1754` | `JKAMP_GameLogic/NPC_utils.swift:243` | marker | `crates/mp/game/src/NPC_utils.rs:1715-1731` |
 | `NPC_EnemyRangeFromBolt` | `oracle/codemp/game/NPC_utils.c:1756-1759` | `JKAMP_GameLogic/NPC_utils.swift:249` | marker | `crates/mp/game/src/NPC_utils.rs:1736-1747` |
-| `NPC_GetEntsNearBolt` | `oracle/codemp/game/NPC_utils.c:1761-1782` | `JKAMP_GameLogic/NPC_utils.swift:258` | marker | `crates/mp/game/src/NPC_utils.rs:1754-1788` |
+| `NPC_GetEntsNearBolt` | `oracle/codemp/game/NPC_utils.c:1761-1782` | `JKAMP_GameLogic/NPC_utils.swift:255` | marker | `crates/mp/game/src/NPC_utils.rs:1754-1788` |

@@ -5,10 +5,7 @@ import JKAShared
 import JKAMP_Game
 
 /// Source: oracle/codemp/game/g_ICARUScb.c:270
-// TODO: Port signature
-// Raven wrote: void Q3_TaskIDClear( int *taskID )
-// No table row for `int * taskID`.
-func Q3_TaskIDClear() -> Never {
+func Q3_TaskIDClear(_ taskID: inout Int32) {
     // TODO: Port Q3_TaskIDClear
     portMissing("Q3_TaskIDClear", source: "oracle/codemp/game/g_ICARUScb.c:270")
 }
@@ -258,10 +255,7 @@ Q3_GetFloat
 ============
 */
 /// Source: oracle/codemp/game/g_ICARUScb.c:1189
-// TODO: Port signature
-// Raven wrote: int Q3_GetFloat( int entID, int type, const char *name, float *value )
-// No table row for `float * value`.
-func Q3_GetFloat() -> Never {
+func Q3_GetFloat(_ entID: Int32, _ type: Int32, _ name: String, _ value: inout Float) -> Int32 {
     // TODO: Port Q3_GetFloat
     portMissing("Q3_GetFloat", source: "oracle/codemp/game/g_ICARUScb.c:1189")
 }

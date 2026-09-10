@@ -572,8 +572,8 @@ public struct Client: Hashable, HandleView {
 
     /// Source: oracle/codemp/game/g_local.h:693
     public var NPC_class: JKAMP.class_t {
-        get { JKAMP.class_t(rawValue: Int32(truncatingIfNeeded: self.raw.pointee.NPC_class.rawValue)) }
-        nonmutating set { self.raw.pointee.NPC_class = .init(rawValue: .init(truncatingIfNeeded: newValue.rawValue)) }
+        get { Int32(truncatingIfNeeded: self.raw.pointee.NPC_class.rawValue) }
+        nonmutating set { self.raw.pointee.NPC_class = .init(rawValue: .init(truncatingIfNeeded: newValue)) }
     }
 
     /// Source: oracle/codemp/game/g_local.h:695

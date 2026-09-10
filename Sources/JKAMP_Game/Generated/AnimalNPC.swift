@@ -21,4 +21,4 @@ import JKAShared
 // Raven wrote: #define Q_flrand flrand
 
 /// Source: oracle/codemp/game/AnimalNPC.c:66
-public let MOD_EXPLOSIVE = meansOfDeath_t.MOD_SUICIDE.rawValue
+public let MOD_EXPLOSIVE = JKAMP.MOD_SUICIDE

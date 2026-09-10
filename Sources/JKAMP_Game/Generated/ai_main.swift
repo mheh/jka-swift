@@ -170,35 +170,26 @@ public let STRAFEAROUND_RIGHT = CJKAMP_Game.STRAFEAROUND_RIGHT
 public let STRAFEAROUND_LEFT = CJKAMP_Game.STRAFEAROUND_LEFT
 
 /// Source: oracle/codemp/game/ai_main.h:81
-public struct bot_ctf_state_t: RawRepresentable, Hashable, Sendable {
-    public let rawValue: Int32
-    public init(rawValue: Int32) { self.rawValue = rawValue }
-    public static let CTFSTATE_NONE = bot_ctf_state_t(rawValue: Int32(truncatingIfNeeded: CJKAMP_Game.CTFSTATE_NONE.rawValue))
-    public static let CTFSTATE_ATTACKER = bot_ctf_state_t(rawValue: Int32(truncatingIfNeeded: CJKAMP_Game.CTFSTATE_ATTACKER.rawValue))
-    public static let CTFSTATE_DEFENDER = bot_ctf_state_t(rawValue: Int32(truncatingIfNeeded: CJKAMP_Game.CTFSTATE_DEFENDER.rawValue))
-    public static let CTFSTATE_RETRIEVAL = bot_ctf_state_t(rawValue: Int32(truncatingIfNeeded: CJKAMP_Game.CTFSTATE_RETRIEVAL.rawValue))
-    public static let CTFSTATE_GUARDCARRIER = bot_ctf_state_t(rawValue: Int32(truncatingIfNeeded: CJKAMP_Game.CTFSTATE_GUARDCARRIER.rawValue))
-    public static let CTFSTATE_GETFLAGHOME = bot_ctf_state_t(rawValue: Int32(truncatingIfNeeded: CJKAMP_Game.CTFSTATE_GETFLAGHOME.rawValue))
-    public static let CTFSTATE_MAXCTFSTATES = bot_ctf_state_t(rawValue: Int32(truncatingIfNeeded: CJKAMP_Game.CTFSTATE_MAXCTFSTATES.rawValue))
-}
+public typealias bot_ctf_state_t = Int32
+public let CTFSTATE_NONE: bot_ctf_state_t = Int32(truncatingIfNeeded: CJKAMP_Game.CTFSTATE_NONE.rawValue)
+public let CTFSTATE_ATTACKER: bot_ctf_state_t = Int32(truncatingIfNeeded: CJKAMP_Game.CTFSTATE_ATTACKER.rawValue)
+public let CTFSTATE_DEFENDER: bot_ctf_state_t = Int32(truncatingIfNeeded: CJKAMP_Game.CTFSTATE_DEFENDER.rawValue)
+public let CTFSTATE_RETRIEVAL: bot_ctf_state_t = Int32(truncatingIfNeeded: CJKAMP_Game.CTFSTATE_RETRIEVAL.rawValue)
+public let CTFSTATE_GUARDCARRIER: bot_ctf_state_t = Int32(truncatingIfNeeded: CJKAMP_Game.CTFSTATE_GUARDCARRIER.rawValue)
+public let CTFSTATE_GETFLAGHOME: bot_ctf_state_t = Int32(truncatingIfNeeded: CJKAMP_Game.CTFSTATE_GETFLAGHOME.rawValue)
+public let CTFSTATE_MAXCTFSTATES: bot_ctf_state_t = Int32(truncatingIfNeeded: CJKAMP_Game.CTFSTATE_MAXCTFSTATES.rawValue)
 
 /// Source: oracle/codemp/game/ai_main.h:92
-public struct bot_siege_state_t: RawRepresentable, Hashable, Sendable {
-    public let rawValue: Int32
-    public init(rawValue: Int32) { self.rawValue = rawValue }
-    public static let SIEGESTATE_NONE = bot_siege_state_t(rawValue: Int32(truncatingIfNeeded: CJKAMP_Game.SIEGESTATE_NONE.rawValue))
-    public static let SIEGESTATE_ATTACKER = bot_siege_state_t(rawValue: Int32(truncatingIfNeeded: CJKAMP_Game.SIEGESTATE_ATTACKER.rawValue))
-    public static let SIEGESTATE_DEFENDER = bot_siege_state_t(rawValue: Int32(truncatingIfNeeded: CJKAMP_Game.SIEGESTATE_DEFENDER.rawValue))
-    public static let SIEGESTATE_MAXSIEGESTATES = bot_siege_state_t(rawValue: Int32(truncatingIfNeeded: CJKAMP_Game.SIEGESTATE_MAXSIEGESTATES.rawValue))
-}
+public typealias bot_siege_state_t = Int32
+public let SIEGESTATE_NONE: bot_siege_state_t = Int32(truncatingIfNeeded: CJKAMP_Game.SIEGESTATE_NONE.rawValue)
+public let SIEGESTATE_ATTACKER: bot_siege_state_t = Int32(truncatingIfNeeded: CJKAMP_Game.SIEGESTATE_ATTACKER.rawValue)
+public let SIEGESTATE_DEFENDER: bot_siege_state_t = Int32(truncatingIfNeeded: CJKAMP_Game.SIEGESTATE_DEFENDER.rawValue)
+public let SIEGESTATE_MAXSIEGESTATES: bot_siege_state_t = Int32(truncatingIfNeeded: CJKAMP_Game.SIEGESTATE_MAXSIEGESTATES.rawValue)
 
 /// Source: oracle/codemp/game/ai_main.h:100
-public struct bot_teamplay_state_t: RawRepresentable, Hashable, Sendable {
-    public let rawValue: Int32
-    public init(rawValue: Int32) { self.rawValue = rawValue }
-    public static let TEAMPLAYSTATE_NONE = bot_teamplay_state_t(rawValue: Int32(truncatingIfNeeded: CJKAMP_Game.TEAMPLAYSTATE_NONE.rawValue))
-    public static let TEAMPLAYSTATE_FOLLOWING = bot_teamplay_state_t(rawValue: Int32(truncatingIfNeeded: CJKAMP_Game.TEAMPLAYSTATE_FOLLOWING.rawValue))
-    public static let TEAMPLAYSTATE_ASSISTING = bot_teamplay_state_t(rawValue: Int32(truncatingIfNeeded: CJKAMP_Game.TEAMPLAYSTATE_ASSISTING.rawValue))
-    public static let TEAMPLAYSTATE_REGROUP = bot_teamplay_state_t(rawValue: Int32(truncatingIfNeeded: CJKAMP_Game.TEAMPLAYSTATE_REGROUP.rawValue))
-    public static let TEAMPLAYSTATE_MAXTPSTATES = bot_teamplay_state_t(rawValue: Int32(truncatingIfNeeded: CJKAMP_Game.TEAMPLAYSTATE_MAXTPSTATES.rawValue))
-}
+public typealias bot_teamplay_state_t = Int32
+public let TEAMPLAYSTATE_NONE: bot_teamplay_state_t = Int32(truncatingIfNeeded: CJKAMP_Game.TEAMPLAYSTATE_NONE.rawValue)
+public let TEAMPLAYSTATE_FOLLOWING: bot_teamplay_state_t = Int32(truncatingIfNeeded: CJKAMP_Game.TEAMPLAYSTATE_FOLLOWING.rawValue)
+public let TEAMPLAYSTATE_ASSISTING: bot_teamplay_state_t = Int32(truncatingIfNeeded: CJKAMP_Game.TEAMPLAYSTATE_ASSISTING.rawValue)
+public let TEAMPLAYSTATE_REGROUP: bot_teamplay_state_t = Int32(truncatingIfNeeded: CJKAMP_Game.TEAMPLAYSTATE_REGROUP.rawValue)
+public let TEAMPLAYSTATE_MAXTPSTATES: bot_teamplay_state_t = Int32(truncatingIfNeeded: CJKAMP_Game.TEAMPLAYSTATE_MAXTPSTATES.rawValue)

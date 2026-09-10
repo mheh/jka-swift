@@ -365,8 +365,8 @@ public struct Entity: Hashable, HandleView {
 
     /// Source: oracle/codemp/game/g_local.h:236
     public var moverState: moverState_t {
-        get { moverState_t(rawValue: Int32(truncatingIfNeeded: self.raw.pointee.moverState.rawValue)) }
-        nonmutating set { self.raw.pointee.moverState = .init(rawValue: .init(truncatingIfNeeded: newValue.rawValue)) }
+        get { Int32(truncatingIfNeeded: self.raw.pointee.moverState.rawValue) }
+        nonmutating set { self.raw.pointee.moverState = .init(rawValue: .init(truncatingIfNeeded: newValue)) }
     }
 
     /// Source: oracle/codemp/game/g_local.h:237

@@ -109,41 +109,35 @@ public let MAX_RENDER_STRING_LENGTH = CJKAMP.MAX_RENDER_STRING_LENGTH
 public let OPENGL_DRIVER_NAME = CJKAMP.OPENGL_DRIVER_NAME
 
 /// Source: oracle/codemp/cgame/tr_types.h:278
-public let STEREO_CENTER = CJKAMP.STEREO_CENTER
+public let STEREO_CENTER: Int32 = Int32(truncatingIfNeeded: CJKAMP.STEREO_CENTER)
 
 /// Source: oracle/codemp/cgame/tr_types.h:278
-public let STEREO_LEFT = CJKAMP.STEREO_LEFT
+public let STEREO_LEFT: Int32 = Int32(truncatingIfNeeded: CJKAMP.STEREO_LEFT)
 
 /// Source: oracle/codemp/cgame/tr_types.h:278
-public let STEREO_RIGHT = CJKAMP.STEREO_RIGHT
+public let STEREO_RIGHT: Int32 = Int32(truncatingIfNeeded: CJKAMP.STEREO_RIGHT)
 
 /// Source: oracle/codemp/cgame/tr_types.h:293
-public struct textureCompression_t: RawRepresentable, Hashable, Sendable {
-    public let rawValue: Int32
-    public init(rawValue: Int32) { self.rawValue = rawValue }
-    public static let TC_NONE = textureCompression_t(rawValue: Int32(truncatingIfNeeded: CJKAMP.TC_NONE.rawValue))
-    public static let TC_S3TC = textureCompression_t(rawValue: Int32(truncatingIfNeeded: CJKAMP.TC_S3TC.rawValue))
-    public static let TC_S3TC_DXT = textureCompression_t(rawValue: Int32(truncatingIfNeeded: CJKAMP.TC_S3TC_DXT.rawValue))
-}
+public typealias textureCompression_t = Int32
+public let TC_NONE: textureCompression_t = Int32(truncatingIfNeeded: CJKAMP.TC_NONE.rawValue)
+public let TC_S3TC: textureCompression_t = Int32(truncatingIfNeeded: CJKAMP.TC_S3TC.rawValue)
+public let TC_S3TC_DXT: textureCompression_t = Int32(truncatingIfNeeded: CJKAMP.TC_S3TC_DXT.rawValue)
 
 /// Source: oracle/codemp/cgame/tr_types.h:83
-public struct refEntityType_t: RawRepresentable, Hashable, Sendable {
-    public let rawValue: Int32
-    public init(rawValue: Int32) { self.rawValue = rawValue }
-    public static let RT_MODEL = refEntityType_t(rawValue: Int32(truncatingIfNeeded: CJKAMP.RT_MODEL.rawValue))
-    public static let RT_POLY = refEntityType_t(rawValue: Int32(truncatingIfNeeded: CJKAMP.RT_POLY.rawValue))
-    public static let RT_SPRITE = refEntityType_t(rawValue: Int32(truncatingIfNeeded: CJKAMP.RT_SPRITE.rawValue))
-    public static let RT_ORIENTED_QUAD = refEntityType_t(rawValue: Int32(truncatingIfNeeded: CJKAMP.RT_ORIENTED_QUAD.rawValue))
-    public static let RT_BEAM = refEntityType_t(rawValue: Int32(truncatingIfNeeded: CJKAMP.RT_BEAM.rawValue))
-    public static let RT_SABER_GLOW = refEntityType_t(rawValue: Int32(truncatingIfNeeded: CJKAMP.RT_SABER_GLOW.rawValue))
-    public static let RT_ELECTRICITY = refEntityType_t(rawValue: Int32(truncatingIfNeeded: CJKAMP.RT_ELECTRICITY.rawValue))
-    public static let RT_PORTALSURFACE = refEntityType_t(rawValue: Int32(truncatingIfNeeded: CJKAMP.RT_PORTALSURFACE.rawValue))
-    public static let RT_LINE = refEntityType_t(rawValue: Int32(truncatingIfNeeded: CJKAMP.RT_LINE.rawValue))
-    public static let RT_ORIENTEDLINE = refEntityType_t(rawValue: Int32(truncatingIfNeeded: CJKAMP.RT_ORIENTEDLINE.rawValue))
-    public static let RT_CYLINDER = refEntityType_t(rawValue: Int32(truncatingIfNeeded: CJKAMP.RT_CYLINDER.rawValue))
-    public static let RT_ENT_CHAIN = refEntityType_t(rawValue: Int32(truncatingIfNeeded: CJKAMP.RT_ENT_CHAIN.rawValue))
-    public static let RT_MAX_REF_ENTITY_TYPE = refEntityType_t(rawValue: Int32(truncatingIfNeeded: CJKAMP.RT_MAX_REF_ENTITY_TYPE.rawValue))
-}
+public typealias refEntityType_t = Int32
+public let RT_MODEL: refEntityType_t = Int32(truncatingIfNeeded: CJKAMP.RT_MODEL.rawValue)
+public let RT_POLY: refEntityType_t = Int32(truncatingIfNeeded: CJKAMP.RT_POLY.rawValue)
+public let RT_SPRITE: refEntityType_t = Int32(truncatingIfNeeded: CJKAMP.RT_SPRITE.rawValue)
+public let RT_ORIENTED_QUAD: refEntityType_t = Int32(truncatingIfNeeded: CJKAMP.RT_ORIENTED_QUAD.rawValue)
+public let RT_BEAM: refEntityType_t = Int32(truncatingIfNeeded: CJKAMP.RT_BEAM.rawValue)
+public let RT_SABER_GLOW: refEntityType_t = Int32(truncatingIfNeeded: CJKAMP.RT_SABER_GLOW.rawValue)
+public let RT_ELECTRICITY: refEntityType_t = Int32(truncatingIfNeeded: CJKAMP.RT_ELECTRICITY.rawValue)
+public let RT_PORTALSURFACE: refEntityType_t = Int32(truncatingIfNeeded: CJKAMP.RT_PORTALSURFACE.rawValue)
+public let RT_LINE: refEntityType_t = Int32(truncatingIfNeeded: CJKAMP.RT_LINE.rawValue)
+public let RT_ORIENTEDLINE: refEntityType_t = Int32(truncatingIfNeeded: CJKAMP.RT_ORIENTEDLINE.rawValue)
+public let RT_CYLINDER: refEntityType_t = Int32(truncatingIfNeeded: CJKAMP.RT_CYLINDER.rawValue)
+public let RT_ENT_CHAIN: refEntityType_t = Int32(truncatingIfNeeded: CJKAMP.RT_ENT_CHAIN.rawValue)
+public let RT_MAX_REF_ENTITY_TYPE: refEntityType_t = Int32(truncatingIfNeeded: CJKAMP.RT_MAX_REF_ENTITY_TYPE.rawValue)
 
 /// Source: oracle/codemp/cgame/tr_types.h:283
 public typealias stereoFrame_t = Int32

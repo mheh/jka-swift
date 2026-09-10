@@ -6,10 +6,7 @@ import JKAMP_Game
 
 //-----------------------------------------------------
 /// Source: oracle/codemp/game/g_vehicleTurret.c:12
-// TODO: Port signature
-// Raven wrote: void VEH_TurretCheckFire( Vehicle_t *pVeh, gentity_t *parent, //gentity_t *turretEnemy, turretStats_t *turretStats, vehWeaponInfo_t *vehWeapon, int turretNum, int curMuzzle )
-// No table row for `vehWeaponInfo_t * vehWeapon`.
-func VEH_TurretCheckFire() -> Never {
+func VEH_TurretCheckFire(_ pVeh: JKAMP.Vehicle, _ parent: Entity, _ turretStats: JKAMP.TurretStats, _ vehWeapon: JKAMP.VehWeaponInfo, _ turretNum: Int32, _ curMuzzle: Int32) {
     // TODO: Port VEH_TurretCheckFire
     portMissing("VEH_TurretCheckFire", source: "oracle/codemp/game/g_vehicleTurret.c:12")
 }
@@ -22,10 +19,7 @@ func VEH_TurretAnglesToEnemy(_ pVeh: JKAMP.Vehicle, _ curMuzzle: Int32, _ fSpeed
 
 //-----------------------------------------------------
 /// Source: oracle/codemp/game/g_vehicleTurret.c:89
-// TODO: Port signature
-// Raven wrote: qboolean VEH_TurretAim( Vehicle_t *pVeh, gentity_t *parent, gentity_t *turretEnemy, turretStats_t *turretStats, vehWeaponInfo_t *vehWeapon, int turretNum, int curMuzzle, vec3_t desiredAngles ) //-----------------------------------------------------
-// No table row for `vehWeaponInfo_t * vehWeapon`.
-func VEH_TurretAim() -> Never {
+func VEH_TurretAim(_ pVeh: JKAMP.Vehicle, _ parent: Entity, _ turretEnemy: Entity, _ turretStats: JKAMP.TurretStats, _ vehWeapon: JKAMP.VehWeaponInfo, _ turretNum: Int32, _ curMuzzle: Int32, _ desiredAngles: JKAShared.vec3_t) -> Bool {
     // TODO: Port VEH_TurretAim
     portMissing("VEH_TurretAim", source: "oracle/codemp/game/g_vehicleTurret.c:89")
 }

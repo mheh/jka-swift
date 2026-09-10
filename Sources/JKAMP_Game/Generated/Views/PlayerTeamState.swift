@@ -20,8 +20,8 @@ public struct PlayerTeamState: Hashable, HandleView {
 
     /// Source: oracle/codemp/game/g_local.h:386
     public var state: playerTeamStateState_t {
-        get { playerTeamStateState_t(rawValue: Int32(truncatingIfNeeded: self.raw.pointee.state.rawValue)) }
-        nonmutating set { self.raw.pointee.state = .init(rawValue: .init(truncatingIfNeeded: newValue.rawValue)) }
+        get { Int32(truncatingIfNeeded: self.raw.pointee.state.rawValue) }
+        nonmutating set { self.raw.pointee.state = .init(rawValue: .init(truncatingIfNeeded: newValue)) }
     }
 
     /// Source: oracle/codemp/game/g_local.h:388

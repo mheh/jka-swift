@@ -47,10 +47,7 @@ func WP_SaberBladeDoTransitionDamage(_ saber: JKAMP.SaberInfo, _ bladeNum: Int32
 }
 
 /// Source: oracle/codemp/game/bg_saberLoad.c:245
-// TODO: Port signature
-// Raven wrote: qboolean WP_UseFirstValidSaberStyle( saberInfo_t *saber1, saberInfo_t *saber2, int saberHolstered, int *saberAnimLevel )
-// No table row for `int * saberAnimLevel`.
-func WP_UseFirstValidSaberStyle() -> Never {
+func WP_UseFirstValidSaberStyle(_ saber1: JKAMP.SaberInfo, _ saber2: JKAMP.SaberInfo, _ saberHolstered: Int32, _ saberAnimLevel: inout Int32) -> Bool {
     // TODO: Port WP_UseFirstValidSaberStyle
     portMissing("WP_UseFirstValidSaberStyle", source: "oracle/codemp/game/bg_saberLoad.c:245")
 }

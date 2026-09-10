@@ -13,33 +13,33 @@ The oracle range is the whole definition, from the return type to the closing br
 | `DoImpact` | `oracle/codemp/game/g_active.c:213-405` | `JKAMP_GameLogic/g_active.swift:43` | marker | `crates/mp/game/src/g_active.rs:338-507` |
 | `Client_CheckImpactBBrush` | `oracle/codemp/game/g_active.c:407-436` | `JKAMP_GameLogic/g_active.swift:49` | marker | `crates/mp/game/src/g_active.rs:512-554` |
 | `G_SetClientSound` | `oracle/codemp/game/g_active.c:444-467` | `JKAMP_GameLogic/g_active.swift:60` | marker | `crates/mp/game/src/g_active.rs:559-587` |
-| `ClientImpacts` | `oracle/codemp/game/g_active.c:478-506` | `JKAMP_GameLogic/g_active.swift:74` | marker | `crates/mp/game/src/g_active.rs:592-645` |
-| `G_TouchTriggers` | `oracle/codemp/game/g_active.c:516-590` | `JKAMP_GameLogic/g_active.swift:88` | marker | `crates/mp/game/src/g_active.rs:650-778` |
-| `G_MoverTouchPushTriggers` | `oracle/codemp/game/g_active.c:601-671` | `JKAMP_GameLogic/g_active.swift:102` | marker | `crates/mp/game/src/g_active.rs:783-895` |
-| `SpectatorThink` | `oracle/codemp/game/g_active.c:678-740` | `JKAMP_GameLogic/g_active.swift:113` | marker | `crates/mp/game/src/g_active.rs:900-982` |
-| `ClientInactivityTimer` | `oracle/codemp/game/g_active.c:751-774` | `JKAMP_GameLogic/g_active.swift:126` | marker | `crates/mp/game/src/g_active.rs:987-1024` |
-| `ClientTimerActions` | `oracle/codemp/game/g_active.c:783-803` | `JKAMP_GameLogic/g_active.swift:139` | marker | `crates/mp/game/src/g_active.rs:1029-1052` |
-| `ClientIntermissionThink` | `oracle/codemp/game/g_active.c:810-823` | `JKAMP_GameLogic/g_active.swift:150` | marker | `crates/mp/game/src/g_active.rs:1057-1071` |
-| `G_VehicleAttachDroidUnit` | `oracle/codemp/game/g_active.c:826-854` | `JKAMP_GameLogic/g_active.swift:156` | marker | `crates/mp/game/src/g_active.rs:1076-1142` |
-| `G_CheapWeaponFire` | `oracle/codemp/game/g_active.c:857-895` | `JKAMP_GameLogic/g_active.swift:163` | marker | `crates/mp/game/src/g_active.rs:1147-1190` |
-| `ClientEvents` | `oracle/codemp/game/g_active.c:909-1052` | `JKAMP_GameLogic/g_active.swift:169` | marker | `crates/mp/game/src/g_active.rs:1195-1326` |
-| `SendPendingPredictableEvents` | `oracle/codemp/game/g_active.c:1059-1087` | `JKAMP_GameLogic/g_active.swift:180` | marker | `crates/mp/game/src/g_active.rs:1331-1358` |
-| `G_UpdateForceSightBroadcasts` static | `oracle/codemp/game/g_active.c:1103-1147` | `JKAMP_GameLogic/g_active.swift:186` | marker | `crates/mp/game/src/g_active.rs:1363-1410` |
-| `G_UpdateJediMasterBroadcasts` static | `oracle/codemp/game/g_active.c:1149-1197` | `JKAMP_GameLogic/g_active.swift:192` | marker | `crates/mp/game/src/g_active.rs:1415-1465` |
-| `G_UpdateClientBroadcasts` | `oracle/codemp/game/g_active.c:1199-1209` | `JKAMP_GameLogic/g_active.swift:198` | marker | `crates/mp/game/src/g_active.rs:1470-1479` |
-| `G_AddPushVecToUcmd` | `oracle/codemp/game/g_active.c:1211-1244` | `JKAMP_GameLogic/g_active.swift:204` | marker | `crates/mp/game/src/g_active.rs:1484-1533` |
-| `G_StandingAnim` | `oracle/codemp/game/g_active.c:1246-1258` | `JKAMP_GameLogic/g_active.swift:210` | marker | `crates/mp/game/src/g_active.rs:1538-1547` |
-| `G_ActionButtonPressed` | `oracle/codemp/game/g_active.c:1260-1300` | `JKAMP_GameLogic/g_active.swift:216` | marker | `crates/mp/game/src/g_active.rs:1552-1574` |
-| `G_CheckClientIdle` | `oracle/codemp/game/g_active.c:1302-1430` | `JKAMP_GameLogic/g_active.swift:222` | marker | `crates/mp/game/src/g_active.rs:1579-1733` |
-| `NPC_Accelerate` | `oracle/codemp/game/g_active.c:1432-1486` | `JKAMP_GameLogic/g_active.swift:228` | marker | `crates/mp/game/src/g_active.rs:1738-1785` |
-| `NPC_GetWalkSpeed` static | `oracle/codemp/game/g_active.c:1494-1510` | `JKAMP_GameLogic/g_active.swift:234` | marker | `crates/mp/game/src/g_active.rs:1790-1802` |
-| `NPC_GetRunSpeed` static | `oracle/codemp/game/g_active.c:1517-1573` | `JKAMP_GameLogic/g_active.swift:245` | marker | `crates/mp/game/src/g_active.rs:1807-1827` |
-| `G_CheckMovingLoopingSounds` | `oracle/codemp/game/g_active.c:1577-1614` | `JKAMP_GameLogic/g_active.swift:251` | marker | `crates/mp/game/src/g_active.rs:1832-1884` |
-| `G_HeldByMonster` | `oracle/codemp/game/g_active.c:1616-1651` | `JKAMP_GameLogic/g_active.swift:260` | marker | `crates/mp/game/src/g_active.rs:1889-1947` |
-| `G_SetTauntAnim` | `oracle/codemp/game/g_active.c:1662-1926` | `JKAMP_GameLogic/g_active.swift:266` | marker | `crates/mp/game/src/g_active.rs:1952-2177` |
-| `ClientThink_real` | `oracle/codemp/game/g_active.c:1939-3611` | `JKAMP_GameLogic/g_active.swift:283` | marker | `crates/mp/game/src/g_active.rs:2182-3867` |
-| `G_CheckClientTimeouts` | `oracle/codemp/game/g_active.c:3620-3640` | `JKAMP_GameLogic/g_active.swift:296` | marker | `crates/mp/game/src/g_active.rs:3872-3897` |
-| `ClientThink` | `oracle/codemp/game/g_active.c:3649-3720` | `JKAMP_GameLogic/g_active.swift:309` | marker | `crates/mp/game/src/g_active.rs:3902-3938` |
-| `G_RunClient` | `oracle/codemp/game/g_active.c:3723-3729` | `JKAMP_GameLogic/g_active.swift:315` | marker | `crates/mp/game/src/g_active.rs:3943-3956` |
-| `SpectatorClientEndFrame` | `oracle/codemp/game/g_active.c:3738-3783` | `JKAMP_GameLogic/g_active.swift:327` | marker | `crates/mp/game/src/g_active.rs:3961-4008` |
-| `ClientEndFrame` | `oracle/codemp/game/g_active.c:3794-3874` | `JKAMP_GameLogic/g_active.swift:342` | marker | `crates/mp/game/src/g_active.rs:4013-4083` |
+| `ClientImpacts` | `oracle/codemp/game/g_active.c:478-506` | `JKAMP_GameLogic/g_active.swift:71` | marker | `crates/mp/game/src/g_active.rs:592-645` |
+| `G_TouchTriggers` | `oracle/codemp/game/g_active.c:516-590` | `JKAMP_GameLogic/g_active.swift:85` | marker | `crates/mp/game/src/g_active.rs:650-778` |
+| `G_MoverTouchPushTriggers` | `oracle/codemp/game/g_active.c:601-671` | `JKAMP_GameLogic/g_active.swift:99` | marker | `crates/mp/game/src/g_active.rs:783-895` |
+| `SpectatorThink` | `oracle/codemp/game/g_active.c:678-740` | `JKAMP_GameLogic/g_active.swift:110` | marker | `crates/mp/game/src/g_active.rs:900-982` |
+| `ClientInactivityTimer` | `oracle/codemp/game/g_active.c:751-774` | `JKAMP_GameLogic/g_active.swift:123` | marker | `crates/mp/game/src/g_active.rs:987-1024` |
+| `ClientTimerActions` | `oracle/codemp/game/g_active.c:783-803` | `JKAMP_GameLogic/g_active.swift:136` | marker | `crates/mp/game/src/g_active.rs:1029-1052` |
+| `ClientIntermissionThink` | `oracle/codemp/game/g_active.c:810-823` | `JKAMP_GameLogic/g_active.swift:147` | marker | `crates/mp/game/src/g_active.rs:1057-1071` |
+| `G_VehicleAttachDroidUnit` | `oracle/codemp/game/g_active.c:826-854` | `JKAMP_GameLogic/g_active.swift:153` | marker | `crates/mp/game/src/g_active.rs:1076-1142` |
+| `G_CheapWeaponFire` | `oracle/codemp/game/g_active.c:857-895` | `JKAMP_GameLogic/g_active.swift:160` | marker | `crates/mp/game/src/g_active.rs:1147-1190` |
+| `ClientEvents` | `oracle/codemp/game/g_active.c:909-1052` | `JKAMP_GameLogic/g_active.swift:166` | marker | `crates/mp/game/src/g_active.rs:1195-1326` |
+| `SendPendingPredictableEvents` | `oracle/codemp/game/g_active.c:1059-1087` | `JKAMP_GameLogic/g_active.swift:177` | marker | `crates/mp/game/src/g_active.rs:1331-1358` |
+| `G_UpdateForceSightBroadcasts` static | `oracle/codemp/game/g_active.c:1103-1147` | `JKAMP_GameLogic/g_active.swift:183` | marker | `crates/mp/game/src/g_active.rs:1363-1410` |
+| `G_UpdateJediMasterBroadcasts` static | `oracle/codemp/game/g_active.c:1149-1197` | `JKAMP_GameLogic/g_active.swift:189` | marker | `crates/mp/game/src/g_active.rs:1415-1465` |
+| `G_UpdateClientBroadcasts` | `oracle/codemp/game/g_active.c:1199-1209` | `JKAMP_GameLogic/g_active.swift:195` | marker | `crates/mp/game/src/g_active.rs:1470-1479` |
+| `G_AddPushVecToUcmd` | `oracle/codemp/game/g_active.c:1211-1244` | `JKAMP_GameLogic/g_active.swift:201` | marker | `crates/mp/game/src/g_active.rs:1484-1533` |
+| `G_StandingAnim` | `oracle/codemp/game/g_active.c:1246-1258` | `JKAMP_GameLogic/g_active.swift:207` | marker | `crates/mp/game/src/g_active.rs:1538-1547` |
+| `G_ActionButtonPressed` | `oracle/codemp/game/g_active.c:1260-1300` | `JKAMP_GameLogic/g_active.swift:213` | marker | `crates/mp/game/src/g_active.rs:1552-1574` |
+| `G_CheckClientIdle` | `oracle/codemp/game/g_active.c:1302-1430` | `JKAMP_GameLogic/g_active.swift:219` | marker | `crates/mp/game/src/g_active.rs:1579-1733` |
+| `NPC_Accelerate` | `oracle/codemp/game/g_active.c:1432-1486` | `JKAMP_GameLogic/g_active.swift:225` | marker | `crates/mp/game/src/g_active.rs:1738-1785` |
+| `NPC_GetWalkSpeed` static | `oracle/codemp/game/g_active.c:1494-1510` | `JKAMP_GameLogic/g_active.swift:231` | marker | `crates/mp/game/src/g_active.rs:1790-1802` |
+| `NPC_GetRunSpeed` static | `oracle/codemp/game/g_active.c:1517-1573` | `JKAMP_GameLogic/g_active.swift:242` | marker | `crates/mp/game/src/g_active.rs:1807-1827` |
+| `G_CheckMovingLoopingSounds` | `oracle/codemp/game/g_active.c:1577-1614` | `JKAMP_GameLogic/g_active.swift:248` | marker | `crates/mp/game/src/g_active.rs:1832-1884` |
+| `G_HeldByMonster` | `oracle/codemp/game/g_active.c:1616-1651` | `JKAMP_GameLogic/g_active.swift:257` | marker | `crates/mp/game/src/g_active.rs:1889-1947` |
+| `G_SetTauntAnim` | `oracle/codemp/game/g_active.c:1662-1926` | `JKAMP_GameLogic/g_active.swift:263` | marker | `crates/mp/game/src/g_active.rs:1952-2177` |
+| `ClientThink_real` | `oracle/codemp/game/g_active.c:1939-3611` | `JKAMP_GameLogic/g_active.swift:280` | marker | `crates/mp/game/src/g_active.rs:2182-3867` |
+| `G_CheckClientTimeouts` | `oracle/codemp/game/g_active.c:3620-3640` | `JKAMP_GameLogic/g_active.swift:293` | marker | `crates/mp/game/src/g_active.rs:3872-3897` |
+| `ClientThink` | `oracle/codemp/game/g_active.c:3649-3720` | `JKAMP_GameLogic/g_active.swift:306` | marker | `crates/mp/game/src/g_active.rs:3902-3938` |
+| `G_RunClient` | `oracle/codemp/game/g_active.c:3723-3729` | `JKAMP_GameLogic/g_active.swift:312` | marker | `crates/mp/game/src/g_active.rs:3943-3956` |
+| `SpectatorClientEndFrame` | `oracle/codemp/game/g_active.c:3738-3783` | `JKAMP_GameLogic/g_active.swift:324` | marker | `crates/mp/game/src/g_active.rs:3961-4008` |
+| `ClientEndFrame` | `oracle/codemp/game/g_active.c:3794-3874` | `JKAMP_GameLogic/g_active.swift:339` | marker | `crates/mp/game/src/g_active.rs:4013-4083` |

@@ -17,72 +17,72 @@ The oracle range is the whole definition, from the return type to the closing br
 | `SaberGotHit` | `oracle/codemp/game/w_saber.c:360-370` | `JKAMP_GameLogic/w_saber.swift:54` | marker | `crates/mp/game/src/w_saber.rs:539-555` |
 | `SetSaberBoxSize` static | `oracle/codemp/game/w_saber.c:376-564` | `JKAMP_GameLogic/w_saber.swift:60` | marker | `crates/mp/game/src/w_saber.rs:560-749` |
 | `WP_SaberInitBladeData` | `oracle/codemp/game/w_saber.c:566-637` | `JKAMP_GameLogic/w_saber.swift:66` | marker | `crates/mp/game/src/w_saber.rs:754-836` |
-| `G_CheckLookTarget` static | `oracle/codemp/game/w_saber.c:642-724` | `JKAMP_GameLogic/w_saber.swift:75` | marker | `crates/mp/game/src/w_saber.rs:841-928` |
-| `G_G2NPCAngles` static | `oracle/codemp/game/w_saber.c:732-879` | `JKAMP_GameLogic/w_saber.swift:84` | marker | `crates/mp/game/src/w_saber.rs:933-1056` |
-| `G_G2PlayerAngles` static | `oracle/codemp/game/w_saber.c:881-1034` | `JKAMP_GameLogic/w_saber.swift:93` | marker | `crates/mp/game/src/w_saber.rs:1061-1323` |
-| `SaberAttacking` static | `oracle/codemp/game/w_saber.c:1036-1073` | `JKAMP_GameLogic/w_saber.swift:99` | marker | `crates/mp/game/src/w_saber.rs:1328-1363` |
-| `G_SaberLockAnim` | `oracle/codemp/game/w_saber.c:1094-1211` | `JKAMP_GameLogic/w_saber.swift:105` | marker | `crates/mp/game/src/w_saber.rs:1368-1462` |
-| `WP_SabersCheckLock2` static | `oracle/codemp/game/w_saber.c:1218-1460` | `JKAMP_GameLogic/w_saber.swift:114` | marker | `crates/mp/game/src/w_saber.rs:1467-1844` |
-| `WP_SabersCheckLock` | `oracle/codemp/game/w_saber.c:1462-1889` | `JKAMP_GameLogic/w_saber.swift:120` | marker | `crates/mp/game/src/w_saber.rs:1849-2411` |
-| `G_GetParryForBlock` static | `oracle/codemp/game/w_saber.c:1891-1930` | `JKAMP_GameLogic/w_saber.swift:126` | marker | `crates/mp/game/src/w_saber.rs:2416-2430` |
-| `WP_GetSaberDeflectionAngle` static | `oracle/codemp/game/w_saber.c:1938-2208` | `JKAMP_GameLogic/w_saber.swift:132` | marker | `crates/mp/game/src/w_saber.rs:2435-2726` |
-| `G_KnockawayForParry` | `oracle/codemp/game/w_saber.c:2210-2233` | `JKAMP_GameLogic/w_saber.swift:138` | marker | `crates/mp/game/src/w_saber.rs:2731-2744` |
-| `G_GetAttackDamage` static | `oracle/codemp/game/w_saber.c:2238-2287` | `JKAMP_GameLogic/w_saber.swift:145` | marker | `crates/mp/game/src/w_saber.rs:2749-2810` |
-| `G_GetAnimPoint` static | `oracle/codemp/game/w_saber.c:2290-2310` | `JKAMP_GameLogic/w_saber.swift:152` | marker | `crates/mp/game/src/w_saber.rs:2815-2847` |
-| `G_ClientIdleInWorld` static | `oracle/codemp/game/w_saber.c:2312-2334` | `JKAMP_GameLogic/w_saber.swift:158` | marker | `crates/mp/game/src/w_saber.rs:2852-2875` |
-| `G_G2TraceCollide` static | `oracle/codemp/game/w_saber.c:2336-2426` | `JKAMP_GameLogic/w_saber.swift:164` | marker | `crates/mp/game/src/w_saber.rs:2910-3038` |
-| `G_SaberInBackAttack` static | `oracle/codemp/game/w_saber.c:2428-2439` | `JKAMP_GameLogic/w_saber.swift:170` | marker | `crates/mp/game/src/w_saber.rs:3043-3048` |
-| `G_BuildSaberFaces` static | `oracle/codemp/game/w_saber.c:2454-2570` | `JKAMP_GameLogic/w_saber.swift:180` | marker | `crates/mp/game/src/w_saber.rs:3053-3189` |
-| `G_SabCol_CalcPlaneEq` static | `oracle/codemp/game/w_saber.c:2573-2579` | `JKAMP_GameLogic/w_saber.swift:190` | marker | `crates/mp/game/src/w_saber.rs:3194-3203` |
-| `G_SabCol_PointRelativeToPlane` static | `oracle/codemp/game/w_saber.c:2582-2596` | `JKAMP_GameLogic/w_saber.swift:200` | marker | `crates/mp/game/src/w_saber.rs:3208-3223` |
-| `G_SaberFaceCollisionCheck` static | `oracle/codemp/game/w_saber.c:2599-2697` | `JKAMP_GameLogic/w_saber.swift:210` | marker | `crates/mp/game/src/w_saber.rs:3228-3356` |
-| `G_SaberCollide` static | `oracle/codemp/game/w_saber.c:2700-2777` | `JKAMP_GameLogic/w_saber.swift:217` | marker | `crates/mp/game/src/w_saber.rs:3361-3457` |
-| `WP_SaberBladeLength` | `oracle/codemp/game/w_saber.c:2779-2791` | `JKAMP_GameLogic/w_saber.swift:223` | marker | `crates/mp/game/src/w_saber.rs:3462-3473` |
-| `WP_SaberLength` | `oracle/codemp/game/w_saber.c:2793-2813` | `JKAMP_GameLogic/w_saber.swift:229` | marker | `crates/mp/game/src/w_saber.rs:3478-3494` |
-| `WPDEBUG_SaberColor` | `oracle/codemp/game/w_saber.c:2814-2840` | `JKAMP_GameLogic/w_saber.swift:235` | marker | `crates/mp/game/src/w_saber.rs:3499-3509` |
-| `WP_SabersIntersect` | `oracle/codemp/game/w_saber.c:2851-2985` | `JKAMP_GameLogic/w_saber.swift:241` | marker | `crates/mp/game/src/w_saber.rs:3514-3758` |
-| `G_PowerLevelForSaberAnim` static | `oracle/codemp/game/w_saber.c:2987-3501` | `JKAMP_GameLogic/w_saber.swift:247` | marker | `crates/mp/game/src/w_saber.rs:3763-4166` |
-| `WP_SaberClearDamage` | `oracle/codemp/game/w_saber.c:3512-3526` | `JKAMP_GameLogic/w_saber.swift:253` | marker | `crates/mp/game/src/w_saber.rs:4171-4183` |
-| `WP_SaberDamageAdd` | `oracle/codemp/game/w_saber.c:3528-3575` | `JKAMP_GameLogic/w_saber.swift:259` | marker | `crates/mp/game/src/w_saber.rs:4188-4240` |
-| `WP_SaberApplyDamage` | `oracle/codemp/game/w_saber.c:3577-3605` | `JKAMP_GameLogic/w_saber.swift:265` | marker | `crates/mp/game/src/w_saber.rs:4245-4286` |
-| `WP_SaberDoHit` | `oracle/codemp/game/w_saber.c:3608-3697` | `JKAMP_GameLogic/w_saber.swift:271` | marker | `crates/mp/game/src/w_saber.rs:4291-4390` |
-| `WP_SaberRadiusDamage` | `oracle/codemp/game/w_saber.c:3701-3792` | `JKAMP_GameLogic/w_saber.swift:277` | marker | `crates/mp/game/src/w_saber.rs:4395-4522` |
-| `WP_SaberDoClash` | `oracle/codemp/game/w_saber.c:3798-3810` | `JKAMP_GameLogic/w_saber.swift:283` | marker | `crates/mp/game/src/w_saber.rs:4527-4545` |
-| `WP_SaberBounceSound` | `oracle/codemp/game/w_saber.c:3812-3844` | `JKAMP_GameLogic/w_saber.swift:289` | marker | `crates/mp/game/src/w_saber.rs:4550-4600` |
-| `CheckSaberDamage` static | `oracle/codemp/game/w_saber.c:3857-5273` | `JKAMP_GameLogic/w_saber.swift:295` | marker | `crates/mp/game/src/w_saber.rs:4605-6272` |
-| `VectorCompare2` | `oracle/codemp/game/w_saber.c:5275-5282` | `JKAMP_GameLogic/w_saber.swift:301` | marker | none |
-| `G_SPSaberDamageTraceLerped` | `oracle/codemp/game/w_saber.c:5285-5480` | `JKAMP_GameLogic/w_saber.swift:307` | marker | `crates/mp/game/src/w_saber.rs:6277-6526` |
-| `WP_SaberStartMissileBlockCheck` | `oracle/codemp/game/w_saber.c:5492-5883` | `JKAMP_GameLogic/w_saber.swift:313` | marker | `crates/mp/game/src/w_saber.rs:6531-6963` |
-| `CheckThrownSaberDamaged` static | `oracle/codemp/game/w_saber.c:5894-6125` | `JKAMP_GameLogic/w_saber.swift:319` | marker | `crates/mp/game/src/w_saber.rs:6968-7307` |
-| `saberCheckRadiusDamage` static | `oracle/codemp/game/w_saber.c:6127-6161` | `JKAMP_GameLogic/w_saber.swift:325` | marker | `crates/mp/game/src/w_saber.rs:7315-7351` |
-| `saberMoveBack` static | `oracle/codemp/game/w_saber.c:6165-6227` | `JKAMP_GameLogic/w_saber.swift:331` | marker | `crates/mp/game/src/w_saber.rs:7356-7450` |
-| `SaberBounceSound` | `oracle/codemp/game/w_saber.c:6229-6233` | `JKAMP_GameLogic/w_saber.swift:337` | marker | `crates/mp/game/src/w_saber.rs:7455-7459` |
-| `DeadSaberThink` | `oracle/codemp/game/w_saber.c:6235-6245` | `JKAMP_GameLogic/w_saber.swift:343` | marker | `crates/mp/game/src/w_saber.rs:7464-7473` |
-| `MakeDeadSaber` | `oracle/codemp/game/w_saber.c:6247-6335` | `JKAMP_GameLogic/w_saber.swift:349` | marker | `crates/mp/game/src/w_saber.rs:7480-7568` |
-| `DownedSaberThink` | `oracle/codemp/game/w_saber.c:6342-6480` | `JKAMP_GameLogic/w_saber.swift:355` | marker | `crates/mp/game/src/w_saber.rs:7573-7719` |
-| `saberReactivate` | `oracle/codemp/game/w_saber.c:6482-6508` | `JKAMP_GameLogic/w_saber.swift:361` | marker | `crates/mp/game/src/w_saber.rs:7724-7761` |
-| `saberKnockDown` | `oracle/codemp/game/w_saber.c:6512-6584` | `JKAMP_GameLogic/w_saber.swift:367` | marker | `crates/mp/game/src/w_saber.rs:7766-7874` |
-| `WP_SaberRemoveG2Model` | `oracle/codemp/game/w_saber.c:6589-6595` | `JKAMP_GameLogic/w_saber.swift:373` | marker | `crates/mp/game/src/w_saber.rs:7879-7889` |
-| `WP_SaberAddG2Model` | `oracle/codemp/game/w_saber.c:6597-6610` | `JKAMP_GameLogic/w_saber.swift:379` | marker | `crates/mp/game/src/w_saber.rs:7894-7927` |
-| `saberKnockOutOfHand` | `oracle/codemp/game/w_saber.c:6613-6678` | `JKAMP_GameLogic/w_saber.swift:386` | marker | `crates/mp/game/src/w_saber.rs:7932-8018` |
-| `saberCheckKnockdown_DuelLoss` | `oracle/codemp/game/w_saber.c:6681-6761` | `JKAMP_GameLogic/w_saber.swift:393` | marker | `crates/mp/game/src/w_saber.rs:8023-8112` |
-| `saberCheckKnockdown_BrokenParry` | `oracle/codemp/game/w_saber.c:6765-6845` | `JKAMP_GameLogic/w_saber.swift:401` | marker | `crates/mp/game/src/w_saber.rs:8117-8205` |
-| `saberCheckKnockdown_Smashed` | `oracle/codemp/game/w_saber.c:6852-6880` | `JKAMP_GameLogic/w_saber.swift:408` | marker | `crates/mp/game/src/w_saber.rs:8210-8257` |
-| `saberCheckKnockdown_Thrown` | `oracle/codemp/game/w_saber.c:6884-6915` | `JKAMP_GameLogic/w_saber.swift:416` | marker | `crates/mp/game/src/w_saber.rs:8262-8307` |
-| `saberBackToOwner` | `oracle/codemp/game/w_saber.c:6917-7076` | `JKAMP_GameLogic/w_saber.swift:422` | marker | `crates/mp/game/src/w_saber.rs:8312-8458` |
-| `thrownSaberTouch` | `oracle/codemp/game/w_saber.c:7080-7113` | `JKAMP_GameLogic/w_saber.swift:428` | marker | `crates/mp/game/src/w_saber.rs:8463-8518` |
-| `saberFirstThrown` | `oracle/codemp/game/w_saber.c:7117-7257` | `JKAMP_GameLogic/w_saber.swift:434` | marker | `crates/mp/game/src/w_saber.rs:8523-8706` |
-| `UpdateClientRenderBolts` | `oracle/codemp/game/w_saber.c:7259-7320` | `JKAMP_GameLogic/w_saber.swift:440` | marker | `crates/mp/game/src/w_saber.rs:8711-8767` |
-| `UpdateClientRenderinfo` | `oracle/codemp/game/w_saber.c:7322-7468` | `JKAMP_GameLogic/w_saber.swift:446` | marker | `crates/mp/game/src/w_saber.rs:8772-9005` |
-| `G_KickDownable` static | `oracle/codemp/game/w_saber.c:7474-7500` | `JKAMP_GameLogic/w_saber.swift:452` | marker | `crates/mp/game/src/w_saber.rs:9010-9038` |
-| `G_TossTheMofo` static | `oracle/codemp/game/w_saber.c:7502-7525` | `JKAMP_GameLogic/w_saber.swift:458` | marker | `crates/mp/game/src/w_saber.rs:9045-9080` |
-| `G_KickTrace` static | `oracle/codemp/game/w_saber.c:7527-7642` | `JKAMP_GameLogic/w_saber.swift:464` | marker | `crates/mp/game/src/w_saber.rs:9092-9288` |
-| `G_KickSomeMofos` static | `oracle/codemp/game/w_saber.c:7644-7956` | `JKAMP_GameLogic/w_saber.swift:470` | marker | `crates/mp/game/src/w_saber.rs:9293-9658` |
-| `G_PrettyCloseIGuess` static | `oracle/codemp/game/w_saber.c:7958-7967` | `JKAMP_GameLogic/w_saber.swift:476` | marker | `crates/mp/game/src/w_saber.rs:9663-9668` |
-| `G_GrabSomeMofos` static | `oracle/codemp/game/w_saber.c:7969-8082` | `JKAMP_GameLogic/w_saber.swift:482` | marker | `crates/mp/game/src/w_saber.rs:9673-9861` |
-| `WP_SaberPositionUpdate` | `oracle/codemp/game/w_saber.c:8084-9102` | `JKAMP_GameLogic/w_saber.swift:488` | marker | `crates/mp/game/src/w_saber.rs:9870-11243` |
-| `WP_MissileBlockForBlock` | `oracle/codemp/game/w_saber.c:9104-9125` | `JKAMP_GameLogic/w_saber.swift:494` | marker | `crates/mp/game/src/w_saber.rs:11248-11257` |
-| `WP_SaberBlockNonRandom` | `oracle/codemp/game/w_saber.c:9127-9198` | `JKAMP_GameLogic/w_saber.swift:500` | marker | `crates/mp/game/src/w_saber.rs:11264-11318` |
-| `WP_SaberBlock` | `oracle/codemp/game/w_saber.c:9200-9274` | `JKAMP_GameLogic/w_saber.swift:506` | marker | `crates/mp/game/src/w_saber.rs:11325-11391` |
-| `WP_SaberCanBlock` | `oracle/codemp/game/w_saber.c:9276-9451` | `JKAMP_GameLogic/w_saber.swift:512` | marker | `crates/mp/game/src/w_saber.rs:11399-11529` |
-| `HasSetSaberOnly` | `oracle/codemp/game/w_saber.c:9453-9484` | `JKAMP_GameLogic/w_saber.swift:518` | marker | `crates/mp/game/src/w_saber.rs:11534-11560` |
+| `G_CheckLookTarget` static | `oracle/codemp/game/w_saber.c:642-724` | `JKAMP_GameLogic/w_saber.swift:72` | marker | `crates/mp/game/src/w_saber.rs:841-928` |
+| `G_G2NPCAngles` static | `oracle/codemp/game/w_saber.c:732-879` | `JKAMP_GameLogic/w_saber.swift:81` | marker | `crates/mp/game/src/w_saber.rs:933-1056` |
+| `G_G2PlayerAngles` static | `oracle/codemp/game/w_saber.c:881-1034` | `JKAMP_GameLogic/w_saber.swift:90` | marker | `crates/mp/game/src/w_saber.rs:1061-1323` |
+| `SaberAttacking` static | `oracle/codemp/game/w_saber.c:1036-1073` | `JKAMP_GameLogic/w_saber.swift:96` | marker | `crates/mp/game/src/w_saber.rs:1328-1363` |
+| `G_SaberLockAnim` | `oracle/codemp/game/w_saber.c:1094-1211` | `JKAMP_GameLogic/w_saber.swift:102` | marker | `crates/mp/game/src/w_saber.rs:1368-1462` |
+| `WP_SabersCheckLock2` static | `oracle/codemp/game/w_saber.c:1218-1460` | `JKAMP_GameLogic/w_saber.swift:111` | marker | `crates/mp/game/src/w_saber.rs:1467-1844` |
+| `WP_SabersCheckLock` | `oracle/codemp/game/w_saber.c:1462-1889` | `JKAMP_GameLogic/w_saber.swift:117` | marker | `crates/mp/game/src/w_saber.rs:1849-2411` |
+| `G_GetParryForBlock` static | `oracle/codemp/game/w_saber.c:1891-1930` | `JKAMP_GameLogic/w_saber.swift:123` | marker | `crates/mp/game/src/w_saber.rs:2416-2430` |
+| `WP_GetSaberDeflectionAngle` static | `oracle/codemp/game/w_saber.c:1938-2208` | `JKAMP_GameLogic/w_saber.swift:129` | marker | `crates/mp/game/src/w_saber.rs:2435-2726` |
+| `G_KnockawayForParry` | `oracle/codemp/game/w_saber.c:2210-2233` | `JKAMP_GameLogic/w_saber.swift:135` | marker | `crates/mp/game/src/w_saber.rs:2731-2744` |
+| `G_GetAttackDamage` static | `oracle/codemp/game/w_saber.c:2238-2287` | `JKAMP_GameLogic/w_saber.swift:142` | marker | `crates/mp/game/src/w_saber.rs:2749-2810` |
+| `G_GetAnimPoint` static | `oracle/codemp/game/w_saber.c:2290-2310` | `JKAMP_GameLogic/w_saber.swift:149` | marker | `crates/mp/game/src/w_saber.rs:2815-2847` |
+| `G_ClientIdleInWorld` static | `oracle/codemp/game/w_saber.c:2312-2334` | `JKAMP_GameLogic/w_saber.swift:155` | marker | `crates/mp/game/src/w_saber.rs:2852-2875` |
+| `G_G2TraceCollide` static | `oracle/codemp/game/w_saber.c:2336-2426` | `JKAMP_GameLogic/w_saber.swift:161` | marker | `crates/mp/game/src/w_saber.rs:2910-3038` |
+| `G_SaberInBackAttack` static | `oracle/codemp/game/w_saber.c:2428-2439` | `JKAMP_GameLogic/w_saber.swift:167` | marker | `crates/mp/game/src/w_saber.rs:3043-3048` |
+| `G_BuildSaberFaces` static | `oracle/codemp/game/w_saber.c:2454-2570` | `JKAMP_GameLogic/w_saber.swift:177` | marker | `crates/mp/game/src/w_saber.rs:3053-3189` |
+| `G_SabCol_CalcPlaneEq` static | `oracle/codemp/game/w_saber.c:2573-2579` | `JKAMP_GameLogic/w_saber.swift:184` | marker | `crates/mp/game/src/w_saber.rs:3194-3203` |
+| `G_SabCol_PointRelativeToPlane` static | `oracle/codemp/game/w_saber.c:2582-2596` | `JKAMP_GameLogic/w_saber.swift:191` | marker | `crates/mp/game/src/w_saber.rs:3208-3223` |
+| `G_SaberFaceCollisionCheck` static | `oracle/codemp/game/w_saber.c:2599-2697` | `JKAMP_GameLogic/w_saber.swift:201` | marker | `crates/mp/game/src/w_saber.rs:3228-3356` |
+| `G_SaberCollide` static | `oracle/codemp/game/w_saber.c:2700-2777` | `JKAMP_GameLogic/w_saber.swift:208` | marker | `crates/mp/game/src/w_saber.rs:3361-3457` |
+| `WP_SaberBladeLength` | `oracle/codemp/game/w_saber.c:2779-2791` | `JKAMP_GameLogic/w_saber.swift:214` | marker | `crates/mp/game/src/w_saber.rs:3462-3473` |
+| `WP_SaberLength` | `oracle/codemp/game/w_saber.c:2793-2813` | `JKAMP_GameLogic/w_saber.swift:220` | marker | `crates/mp/game/src/w_saber.rs:3478-3494` |
+| `WPDEBUG_SaberColor` | `oracle/codemp/game/w_saber.c:2814-2840` | `JKAMP_GameLogic/w_saber.swift:226` | marker | `crates/mp/game/src/w_saber.rs:3499-3509` |
+| `WP_SabersIntersect` | `oracle/codemp/game/w_saber.c:2851-2985` | `JKAMP_GameLogic/w_saber.swift:232` | marker | `crates/mp/game/src/w_saber.rs:3514-3758` |
+| `G_PowerLevelForSaberAnim` static | `oracle/codemp/game/w_saber.c:2987-3501` | `JKAMP_GameLogic/w_saber.swift:238` | marker | `crates/mp/game/src/w_saber.rs:3763-4166` |
+| `WP_SaberClearDamage` | `oracle/codemp/game/w_saber.c:3512-3526` | `JKAMP_GameLogic/w_saber.swift:244` | marker | `crates/mp/game/src/w_saber.rs:4171-4183` |
+| `WP_SaberDamageAdd` | `oracle/codemp/game/w_saber.c:3528-3575` | `JKAMP_GameLogic/w_saber.swift:250` | marker | `crates/mp/game/src/w_saber.rs:4188-4240` |
+| `WP_SaberApplyDamage` | `oracle/codemp/game/w_saber.c:3577-3605` | `JKAMP_GameLogic/w_saber.swift:256` | marker | `crates/mp/game/src/w_saber.rs:4245-4286` |
+| `WP_SaberDoHit` | `oracle/codemp/game/w_saber.c:3608-3697` | `JKAMP_GameLogic/w_saber.swift:262` | marker | `crates/mp/game/src/w_saber.rs:4291-4390` |
+| `WP_SaberRadiusDamage` | `oracle/codemp/game/w_saber.c:3701-3792` | `JKAMP_GameLogic/w_saber.swift:268` | marker | `crates/mp/game/src/w_saber.rs:4395-4522` |
+| `WP_SaberDoClash` | `oracle/codemp/game/w_saber.c:3798-3810` | `JKAMP_GameLogic/w_saber.swift:274` | marker | `crates/mp/game/src/w_saber.rs:4527-4545` |
+| `WP_SaberBounceSound` | `oracle/codemp/game/w_saber.c:3812-3844` | `JKAMP_GameLogic/w_saber.swift:280` | marker | `crates/mp/game/src/w_saber.rs:4550-4600` |
+| `CheckSaberDamage` static | `oracle/codemp/game/w_saber.c:3857-5273` | `JKAMP_GameLogic/w_saber.swift:286` | marker | `crates/mp/game/src/w_saber.rs:4605-6272` |
+| `VectorCompare2` | `oracle/codemp/game/w_saber.c:5275-5282` | `JKAMP_GameLogic/w_saber.swift:292` | marker | none |
+| `G_SPSaberDamageTraceLerped` | `oracle/codemp/game/w_saber.c:5285-5480` | `JKAMP_GameLogic/w_saber.swift:298` | marker | `crates/mp/game/src/w_saber.rs:6277-6526` |
+| `WP_SaberStartMissileBlockCheck` | `oracle/codemp/game/w_saber.c:5492-5883` | `JKAMP_GameLogic/w_saber.swift:304` | marker | `crates/mp/game/src/w_saber.rs:6531-6963` |
+| `CheckThrownSaberDamaged` static | `oracle/codemp/game/w_saber.c:5894-6125` | `JKAMP_GameLogic/w_saber.swift:310` | marker | `crates/mp/game/src/w_saber.rs:6968-7307` |
+| `saberCheckRadiusDamage` static | `oracle/codemp/game/w_saber.c:6127-6161` | `JKAMP_GameLogic/w_saber.swift:316` | marker | `crates/mp/game/src/w_saber.rs:7315-7351` |
+| `saberMoveBack` static | `oracle/codemp/game/w_saber.c:6165-6227` | `JKAMP_GameLogic/w_saber.swift:322` | marker | `crates/mp/game/src/w_saber.rs:7356-7450` |
+| `SaberBounceSound` | `oracle/codemp/game/w_saber.c:6229-6233` | `JKAMP_GameLogic/w_saber.swift:328` | marker | `crates/mp/game/src/w_saber.rs:7455-7459` |
+| `DeadSaberThink` | `oracle/codemp/game/w_saber.c:6235-6245` | `JKAMP_GameLogic/w_saber.swift:334` | marker | `crates/mp/game/src/w_saber.rs:7464-7473` |
+| `MakeDeadSaber` | `oracle/codemp/game/w_saber.c:6247-6335` | `JKAMP_GameLogic/w_saber.swift:340` | marker | `crates/mp/game/src/w_saber.rs:7480-7568` |
+| `DownedSaberThink` | `oracle/codemp/game/w_saber.c:6342-6480` | `JKAMP_GameLogic/w_saber.swift:346` | marker | `crates/mp/game/src/w_saber.rs:7573-7719` |
+| `saberReactivate` | `oracle/codemp/game/w_saber.c:6482-6508` | `JKAMP_GameLogic/w_saber.swift:352` | marker | `crates/mp/game/src/w_saber.rs:7724-7761` |
+| `saberKnockDown` | `oracle/codemp/game/w_saber.c:6512-6584` | `JKAMP_GameLogic/w_saber.swift:358` | marker | `crates/mp/game/src/w_saber.rs:7766-7874` |
+| `WP_SaberRemoveG2Model` | `oracle/codemp/game/w_saber.c:6589-6595` | `JKAMP_GameLogic/w_saber.swift:364` | marker | `crates/mp/game/src/w_saber.rs:7879-7889` |
+| `WP_SaberAddG2Model` | `oracle/codemp/game/w_saber.c:6597-6610` | `JKAMP_GameLogic/w_saber.swift:370` | marker | `crates/mp/game/src/w_saber.rs:7894-7927` |
+| `saberKnockOutOfHand` | `oracle/codemp/game/w_saber.c:6613-6678` | `JKAMP_GameLogic/w_saber.swift:377` | marker | `crates/mp/game/src/w_saber.rs:7932-8018` |
+| `saberCheckKnockdown_DuelLoss` | `oracle/codemp/game/w_saber.c:6681-6761` | `JKAMP_GameLogic/w_saber.swift:384` | marker | `crates/mp/game/src/w_saber.rs:8023-8112` |
+| `saberCheckKnockdown_BrokenParry` | `oracle/codemp/game/w_saber.c:6765-6845` | `JKAMP_GameLogic/w_saber.swift:392` | marker | `crates/mp/game/src/w_saber.rs:8117-8205` |
+| `saberCheckKnockdown_Smashed` | `oracle/codemp/game/w_saber.c:6852-6880` | `JKAMP_GameLogic/w_saber.swift:399` | marker | `crates/mp/game/src/w_saber.rs:8210-8257` |
+| `saberCheckKnockdown_Thrown` | `oracle/codemp/game/w_saber.c:6884-6915` | `JKAMP_GameLogic/w_saber.swift:407` | marker | `crates/mp/game/src/w_saber.rs:8262-8307` |
+| `saberBackToOwner` | `oracle/codemp/game/w_saber.c:6917-7076` | `JKAMP_GameLogic/w_saber.swift:413` | marker | `crates/mp/game/src/w_saber.rs:8312-8458` |
+| `thrownSaberTouch` | `oracle/codemp/game/w_saber.c:7080-7113` | `JKAMP_GameLogic/w_saber.swift:419` | marker | `crates/mp/game/src/w_saber.rs:8463-8518` |
+| `saberFirstThrown` | `oracle/codemp/game/w_saber.c:7117-7257` | `JKAMP_GameLogic/w_saber.swift:425` | marker | `crates/mp/game/src/w_saber.rs:8523-8706` |
+| `UpdateClientRenderBolts` | `oracle/codemp/game/w_saber.c:7259-7320` | `JKAMP_GameLogic/w_saber.swift:431` | marker | `crates/mp/game/src/w_saber.rs:8711-8767` |
+| `UpdateClientRenderinfo` | `oracle/codemp/game/w_saber.c:7322-7468` | `JKAMP_GameLogic/w_saber.swift:437` | marker | `crates/mp/game/src/w_saber.rs:8772-9005` |
+| `G_KickDownable` static | `oracle/codemp/game/w_saber.c:7474-7500` | `JKAMP_GameLogic/w_saber.swift:443` | marker | `crates/mp/game/src/w_saber.rs:9010-9038` |
+| `G_TossTheMofo` static | `oracle/codemp/game/w_saber.c:7502-7525` | `JKAMP_GameLogic/w_saber.swift:449` | marker | `crates/mp/game/src/w_saber.rs:9045-9080` |
+| `G_KickTrace` static | `oracle/codemp/game/w_saber.c:7527-7642` | `JKAMP_GameLogic/w_saber.swift:455` | marker | `crates/mp/game/src/w_saber.rs:9092-9288` |
+| `G_KickSomeMofos` static | `oracle/codemp/game/w_saber.c:7644-7956` | `JKAMP_GameLogic/w_saber.swift:461` | marker | `crates/mp/game/src/w_saber.rs:9293-9658` |
+| `G_PrettyCloseIGuess` static | `oracle/codemp/game/w_saber.c:7958-7967` | `JKAMP_GameLogic/w_saber.swift:467` | marker | `crates/mp/game/src/w_saber.rs:9663-9668` |
+| `G_GrabSomeMofos` static | `oracle/codemp/game/w_saber.c:7969-8082` | `JKAMP_GameLogic/w_saber.swift:473` | marker | `crates/mp/game/src/w_saber.rs:9673-9861` |
+| `WP_SaberPositionUpdate` | `oracle/codemp/game/w_saber.c:8084-9102` | `JKAMP_GameLogic/w_saber.swift:479` | marker | `crates/mp/game/src/w_saber.rs:9870-11243` |
+| `WP_MissileBlockForBlock` | `oracle/codemp/game/w_saber.c:9104-9125` | `JKAMP_GameLogic/w_saber.swift:485` | marker | `crates/mp/game/src/w_saber.rs:11248-11257` |
+| `WP_SaberBlockNonRandom` | `oracle/codemp/game/w_saber.c:9127-9198` | `JKAMP_GameLogic/w_saber.swift:491` | marker | `crates/mp/game/src/w_saber.rs:11264-11318` |
+| `WP_SaberBlock` | `oracle/codemp/game/w_saber.c:9200-9274` | `JKAMP_GameLogic/w_saber.swift:497` | marker | `crates/mp/game/src/w_saber.rs:11325-11391` |
+| `WP_SaberCanBlock` | `oracle/codemp/game/w_saber.c:9276-9451` | `JKAMP_GameLogic/w_saber.swift:503` | marker | `crates/mp/game/src/w_saber.rs:11399-11529` |
+| `HasSetSaberOnly` | `oracle/codemp/game/w_saber.c:9453-9484` | `JKAMP_GameLogic/w_saber.swift:509` | marker | `crates/mp/game/src/w_saber.rs:11534-11560` |

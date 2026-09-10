@@ -37,25 +37,25 @@ The oracle range is the whole definition, from the return type to the closing br
 | `WP_GetVelocityForForceJump` | `oracle/codemp/game/w_force.c:2377-2460` | `JKAMP_GameLogic/w_force.swift:170` | marker | `crates/mp/game/src/w_force.rs:2582-2662` |
 | `ForceJump` | `oracle/codemp/game/w_force.c:2462-2500` | `JKAMP_GameLogic/w_force.swift:176` | marker | `crates/mp/game/src/w_force.rs:2667-2716` |
 | `WP_AddAsMindtricked` | `oracle/codemp/game/w_force.c:2502-2525` | `JKAMP_GameLogic/w_force.swift:182` | marker | `crates/mp/game/src/w_force.rs:2721-2737` |
-| `ForceTelepathyCheckDirectNPCTarget` | `oracle/codemp/game/w_force.c:2527-2721` | `JKAMP_GameLogic/w_force.swift:191` | marker | `crates/mp/game/src/w_force.rs:2742-2948` |
-| `ForceTelepathy` | `oracle/codemp/game/w_force.c:2723-2893` | `JKAMP_GameLogic/w_force.swift:197` | marker | `crates/mp/game/src/w_force.rs:2953-3120` |
-| `GEntity_UseFunc` | `oracle/codemp/game/w_force.c:2895-2898` | `JKAMP_GameLogic/w_force.swift:203` | marker | `crates/mp/game/src/w_force.rs:3125-3132` |
-| `CanCounterThrow` | `oracle/codemp/game/w_force.c:2900-2968` | `JKAMP_GameLogic/w_force.swift:209` | marker | `crates/mp/game/src/w_force.rs:3137-3214` |
-| `G_InGetUpAnim` | `oracle/codemp/game/w_force.c:2970-3023` | `JKAMP_GameLogic/w_force.swift:215` | marker | `crates/mp/game/src/w_force.rs:3219-3273` |
-| `G_LetGoOfWall` | `oracle/codemp/game/w_force.c:3025-3042` | `JKAMP_GameLogic/w_force.swift:221` | marker | `crates/mp/game/src/w_force.rs:3278-3294` |
-| `ForceThrow` | `oracle/codemp/game/w_force.c:3054-3820` | `JKAMP_GameLogic/w_force.swift:227` | marker | `crates/mp/game/src/w_force.rs:3299-4134` |
-| `WP_ForcePowerStop` | `oracle/codemp/game/w_force.c:3822-3946` | `JKAMP_GameLogic/w_force.swift:233` | marker | `crates/mp/game/src/w_force.rs:4139-4273` |
-| `DoGripAction` | `oracle/codemp/game/w_force.c:3948-4162` | `JKAMP_GameLogic/w_force.swift:239` | marker | `crates/mp/game/src/w_force.rs:4278-4542` |
-| `G_IsMindTricked` | `oracle/codemp/game/w_force.c:4164-4206` | `JKAMP_GameLogic/w_force.swift:245` | marker | `crates/mp/game/src/w_force.rs:4547-4580` |
-| `RemoveTrickedEnt` static | `oracle/codemp/game/w_force.c:4208-4231` | `JKAMP_GameLogic/w_force.swift:251` | marker | `crates/mp/game/src/w_force.rs:4585-4601` |
-| `WP_UpdateMindtrickEnts` static | `oracle/codemp/game/w_force.c:4236-4280` | `JKAMP_GameLogic/w_force.swift:257` | marker | `crates/mp/game/src/w_force.rs:4606-4662` |
-| `WP_ForcePowerRun` static | `oracle/codemp/game/w_force.c:4282-4506` | `JKAMP_GameLogic/w_force.swift:263` | marker | `crates/mp/game/src/w_force.rs:4667-4877` |
-| `WP_DoSpecificPower` | `oracle/codemp/game/w_force.c:4508-4671` | `JKAMP_GameLogic/w_force.swift:269` | marker | `crates/mp/game/src/w_force.rs:4882-5021` |
-| `FindGenericEnemyIndex` | `oracle/codemp/game/w_force.c:4673-4709` | `JKAMP_GameLogic/w_force.swift:275` | marker | `crates/mp/game/src/w_force.rs:5026-5079` |
-| `SeekerDroneUpdate` | `oracle/codemp/game/w_force.c:4711-4868` | `JKAMP_GameLogic/w_force.swift:281` | marker | `crates/mp/game/src/w_force.rs:5084-5274` |
-| `HolocronUpdate` | `oracle/codemp/game/w_force.c:4870-4956` | `JKAMP_GameLogic/w_force.swift:287` | marker | `crates/mp/game/src/w_force.rs:5279-5357` |
-| `JediMasterUpdate` | `oracle/codemp/game/w_force.c:4958-5011` | `JKAMP_GameLogic/w_force.swift:293` | marker | `crates/mp/game/src/w_force.rs:5362-5410` |
-| `WP_HasForcePowers` | `oracle/codemp/game/w_force.c:5013-5034` | `JKAMP_GameLogic/w_force.swift:299` | marker | `crates/mp/game/src/w_force.rs:5415-5432` |
-| `G_SpecialRollGetup` | `oracle/codemp/game/w_force.c:5037-5092` | `JKAMP_GameLogic/w_force.swift:306` | marker | `crates/mp/game/src/w_force.rs:5437-5502` |
-| `WP_ForcePowersUpdate` | `oracle/codemp/game/w_force.c:5094-5671` | `JKAMP_GameLogic/w_force.swift:312` | marker | `crates/mp/game/src/w_force.rs:5507-6004` |
-| `Jedi_DodgeEvasion` | `oracle/codemp/game/w_force.c:5673-5801` | `JKAMP_GameLogic/w_force.swift:318` | marker | `crates/mp/game/src/w_force.rs:6009-6111` |
+| `ForceTelepathyCheckDirectNPCTarget` | `oracle/codemp/game/w_force.c:2527-2721` | `JKAMP_GameLogic/w_force.swift:188` | marker | `crates/mp/game/src/w_force.rs:2742-2948` |
+| `ForceTelepathy` | `oracle/codemp/game/w_force.c:2723-2893` | `JKAMP_GameLogic/w_force.swift:194` | marker | `crates/mp/game/src/w_force.rs:2953-3120` |
+| `GEntity_UseFunc` | `oracle/codemp/game/w_force.c:2895-2898` | `JKAMP_GameLogic/w_force.swift:200` | marker | `crates/mp/game/src/w_force.rs:3125-3132` |
+| `CanCounterThrow` | `oracle/codemp/game/w_force.c:2900-2968` | `JKAMP_GameLogic/w_force.swift:206` | marker | `crates/mp/game/src/w_force.rs:3137-3214` |
+| `G_InGetUpAnim` | `oracle/codemp/game/w_force.c:2970-3023` | `JKAMP_GameLogic/w_force.swift:212` | marker | `crates/mp/game/src/w_force.rs:3219-3273` |
+| `G_LetGoOfWall` | `oracle/codemp/game/w_force.c:3025-3042` | `JKAMP_GameLogic/w_force.swift:218` | marker | `crates/mp/game/src/w_force.rs:3278-3294` |
+| `ForceThrow` | `oracle/codemp/game/w_force.c:3054-3820` | `JKAMP_GameLogic/w_force.swift:224` | marker | `crates/mp/game/src/w_force.rs:3299-4134` |
+| `WP_ForcePowerStop` | `oracle/codemp/game/w_force.c:3822-3946` | `JKAMP_GameLogic/w_force.swift:230` | marker | `crates/mp/game/src/w_force.rs:4139-4273` |
+| `DoGripAction` | `oracle/codemp/game/w_force.c:3948-4162` | `JKAMP_GameLogic/w_force.swift:236` | marker | `crates/mp/game/src/w_force.rs:4278-4542` |
+| `G_IsMindTricked` | `oracle/codemp/game/w_force.c:4164-4206` | `JKAMP_GameLogic/w_force.swift:242` | marker | `crates/mp/game/src/w_force.rs:4547-4580` |
+| `RemoveTrickedEnt` static | `oracle/codemp/game/w_force.c:4208-4231` | `JKAMP_GameLogic/w_force.swift:248` | marker | `crates/mp/game/src/w_force.rs:4585-4601` |
+| `WP_UpdateMindtrickEnts` static | `oracle/codemp/game/w_force.c:4236-4280` | `JKAMP_GameLogic/w_force.swift:254` | marker | `crates/mp/game/src/w_force.rs:4606-4662` |
+| `WP_ForcePowerRun` static | `oracle/codemp/game/w_force.c:4282-4506` | `JKAMP_GameLogic/w_force.swift:260` | marker | `crates/mp/game/src/w_force.rs:4667-4877` |
+| `WP_DoSpecificPower` | `oracle/codemp/game/w_force.c:4508-4671` | `JKAMP_GameLogic/w_force.swift:266` | marker | `crates/mp/game/src/w_force.rs:4882-5021` |
+| `FindGenericEnemyIndex` | `oracle/codemp/game/w_force.c:4673-4709` | `JKAMP_GameLogic/w_force.swift:272` | marker | `crates/mp/game/src/w_force.rs:5026-5079` |
+| `SeekerDroneUpdate` | `oracle/codemp/game/w_force.c:4711-4868` | `JKAMP_GameLogic/w_force.swift:278` | marker | `crates/mp/game/src/w_force.rs:5084-5274` |
+| `HolocronUpdate` | `oracle/codemp/game/w_force.c:4870-4956` | `JKAMP_GameLogic/w_force.swift:284` | marker | `crates/mp/game/src/w_force.rs:5279-5357` |
+| `JediMasterUpdate` | `oracle/codemp/game/w_force.c:4958-5011` | `JKAMP_GameLogic/w_force.swift:290` | marker | `crates/mp/game/src/w_force.rs:5362-5410` |
+| `WP_HasForcePowers` | `oracle/codemp/game/w_force.c:5013-5034` | `JKAMP_GameLogic/w_force.swift:296` | marker | `crates/mp/game/src/w_force.rs:5415-5432` |
+| `G_SpecialRollGetup` | `oracle/codemp/game/w_force.c:5037-5092` | `JKAMP_GameLogic/w_force.swift:303` | marker | `crates/mp/game/src/w_force.rs:5437-5502` |
+| `WP_ForcePowersUpdate` | `oracle/codemp/game/w_force.c:5094-5671` | `JKAMP_GameLogic/w_force.swift:309` | marker | `crates/mp/game/src/w_force.rs:5507-6004` |
+| `Jedi_DodgeEvasion` | `oracle/codemp/game/w_force.c:5673-5801` | `JKAMP_GameLogic/w_force.swift:315` | marker | `crates/mp/game/src/w_force.rs:6009-6111` |

@@ -40,12 +40,12 @@ struct JampgameSmokeSuite {
         moduleDllEntry(jka_recorder_entry())
 
         let answer = moduleVmMain(
-            Int(gameExport_t.GAME_INIT.rawValue),
+            Int(GAME_INIT),
             0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0
         )
 
         #expect(answer == 0)
-        #expect(jka_recorded_command() == Int(gameImport_t.G_PRINT.rawValue))
+        #expect(jka_recorded_command() == Int(G_PRINT))
 
         let text = try #require(UnsafePointer<CChar>(bitPattern: Int(jka_recorded_word())))
         #expect(String(cString: text) == "jka-swift jampgame init\n")

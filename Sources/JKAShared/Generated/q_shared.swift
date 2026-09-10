@@ -604,13 +604,10 @@ public typealias byte = UInt8
 
 /// Source: oracle/codemp/game/q_shared.h:405
 /// Source: oracle/code/game/q_shared.h:221
-public struct cbufExec_t: RawRepresentable, Hashable, Sendable {
-    public let rawValue: Int32
-    public init(rawValue: Int32) { self.rawValue = rawValue }
-    public static let EXEC_NOW = cbufExec_t(rawValue: Int32(truncatingIfNeeded: CJKAShared.EXEC_NOW.rawValue))
-    public static let EXEC_INSERT = cbufExec_t(rawValue: Int32(truncatingIfNeeded: CJKAShared.EXEC_INSERT.rawValue))
-    public static let EXEC_APPEND = cbufExec_t(rawValue: Int32(truncatingIfNeeded: CJKAShared.EXEC_APPEND.rawValue))
-}
+public typealias cbufExec_t = Int32
+public let EXEC_NOW: cbufExec_t = Int32(truncatingIfNeeded: CJKAShared.EXEC_NOW.rawValue)
+public let EXEC_INSERT: cbufExec_t = Int32(truncatingIfNeeded: CJKAShared.EXEC_INSERT.rawValue)
+public let EXEC_APPEND: cbufExec_t = Int32(truncatingIfNeeded: CJKAShared.EXEC_APPEND.rawValue)
 
 /// Source: oracle/codemp/game/q_shared.h:363
 /// Source: oracle/code/game/q_shared.h:188
@@ -642,24 +639,18 @@ public typealias fixed8_t = Int32
 
 /// Source: oracle/codemp/game/q_shared.h:1685
 /// Source: oracle/code/game/q_shared.h:1186
-public struct fsMode_t: RawRepresentable, Hashable, Sendable {
-    public let rawValue: Int32
-    public init(rawValue: Int32) { self.rawValue = rawValue }
-    public static let FS_READ = fsMode_t(rawValue: Int32(truncatingIfNeeded: CJKAShared.FS_READ.rawValue))
-    public static let FS_WRITE = fsMode_t(rawValue: Int32(truncatingIfNeeded: CJKAShared.FS_WRITE.rawValue))
-    public static let FS_APPEND = fsMode_t(rawValue: Int32(truncatingIfNeeded: CJKAShared.FS_APPEND.rawValue))
-    public static let FS_APPEND_SYNC = fsMode_t(rawValue: Int32(truncatingIfNeeded: CJKAShared.FS_APPEND_SYNC.rawValue))
-}
+public typealias fsMode_t = Int32
+public let FS_READ: fsMode_t = Int32(truncatingIfNeeded: CJKAShared.FS_READ.rawValue)
+public let FS_WRITE: fsMode_t = Int32(truncatingIfNeeded: CJKAShared.FS_WRITE.rawValue)
+public let FS_APPEND: fsMode_t = Int32(truncatingIfNeeded: CJKAShared.FS_APPEND.rawValue)
+public let FS_APPEND_SYNC: fsMode_t = Int32(truncatingIfNeeded: CJKAShared.FS_APPEND_SYNC.rawValue)
 
 /// Source: oracle/codemp/game/q_shared.h:1692
 /// Source: oracle/code/game/q_shared.h:1193
-public struct fsOrigin_t: RawRepresentable, Hashable, Sendable {
-    public let rawValue: Int32
-    public init(rawValue: Int32) { self.rawValue = rawValue }
-    public static let FS_SEEK_CUR = fsOrigin_t(rawValue: Int32(truncatingIfNeeded: CJKAShared.FS_SEEK_CUR.rawValue))
-    public static let FS_SEEK_END = fsOrigin_t(rawValue: Int32(truncatingIfNeeded: CJKAShared.FS_SEEK_END.rawValue))
-    public static let FS_SEEK_SET = fsOrigin_t(rawValue: Int32(truncatingIfNeeded: CJKAShared.FS_SEEK_SET.rawValue))
-}
+public typealias fsOrigin_t = Int32
+public let FS_SEEK_CUR: fsOrigin_t = Int32(truncatingIfNeeded: CJKAShared.FS_SEEK_CUR.rawValue)
+public let FS_SEEK_END: fsOrigin_t = Int32(truncatingIfNeeded: CJKAShared.FS_SEEK_END.rawValue)
+public let FS_SEEK_SET: fsOrigin_t = Int32(truncatingIfNeeded: CJKAShared.FS_SEEK_SET.rawValue)
 
 /// Source: oracle/codemp/game/q_shared.h:360
 /// Source: oracle/code/game/q_shared.h:185
@@ -671,14 +662,11 @@ public typealias memtag_t = CChar
 
 /// Source: oracle/codemp/game/q_shared.h:438
 /// Source: oracle/code/game/q_shared.h:243
-public struct printParm_t: RawRepresentable, Hashable, Sendable {
-    public let rawValue: Int32
-    public init(rawValue: Int32) { self.rawValue = rawValue }
-    public static let PRINT_ALL = printParm_t(rawValue: Int32(truncatingIfNeeded: CJKAShared.PRINT_ALL.rawValue))
-    public static let PRINT_DEVELOPER = printParm_t(rawValue: Int32(truncatingIfNeeded: CJKAShared.PRINT_DEVELOPER.rawValue))
-    public static let PRINT_WARNING = printParm_t(rawValue: Int32(truncatingIfNeeded: CJKAShared.PRINT_WARNING.rawValue))
-    public static let PRINT_ERROR = printParm_t(rawValue: Int32(truncatingIfNeeded: CJKAShared.PRINT_ERROR.rawValue))
-}
+public typealias printParm_t = Int32
+public let PRINT_ALL: printParm_t = Int32(truncatingIfNeeded: CJKAShared.PRINT_ALL.rawValue)
+public let PRINT_DEVELOPER: printParm_t = Int32(truncatingIfNeeded: CJKAShared.PRINT_DEVELOPER.rawValue)
+public let PRINT_WARNING: printParm_t = Int32(truncatingIfNeeded: CJKAShared.PRINT_WARNING.rawValue)
+public let PRINT_ERROR: printParm_t = Int32(truncatingIfNeeded: CJKAShared.PRINT_ERROR.rawValue)
 
 /// Source: oracle/codemp/game/q_shared.h:358
 /// Source: oracle/code/game/q_shared.h:183
@@ -686,40 +674,34 @@ public typealias qhandle_t = Int32
 
 /// Source: oracle/codemp/game/q_shared.h:615
 /// Source: oracle/code/game/q_shared.h:1561
-public struct saberType_t: RawRepresentable, Hashable, Sendable {
-    public let rawValue: Int32
-    public init(rawValue: Int32) { self.rawValue = rawValue }
-    public static let SABER_NONE = saberType_t(rawValue: Int32(truncatingIfNeeded: CJKAShared.SABER_NONE.rawValue))
-    public static let SABER_SINGLE = saberType_t(rawValue: Int32(truncatingIfNeeded: CJKAShared.SABER_SINGLE.rawValue))
-    public static let SABER_STAFF = saberType_t(rawValue: Int32(truncatingIfNeeded: CJKAShared.SABER_STAFF.rawValue))
-    public static let SABER_DAGGER = saberType_t(rawValue: Int32(truncatingIfNeeded: CJKAShared.SABER_DAGGER.rawValue))
-    public static let SABER_BROAD = saberType_t(rawValue: Int32(truncatingIfNeeded: CJKAShared.SABER_BROAD.rawValue))
-    public static let SABER_PRONG = saberType_t(rawValue: Int32(truncatingIfNeeded: CJKAShared.SABER_PRONG.rawValue))
-    public static let SABER_ARC = saberType_t(rawValue: Int32(truncatingIfNeeded: CJKAShared.SABER_ARC.rawValue))
-    public static let SABER_SAI = saberType_t(rawValue: Int32(truncatingIfNeeded: CJKAShared.SABER_SAI.rawValue))
-    public static let SABER_CLAW = saberType_t(rawValue: Int32(truncatingIfNeeded: CJKAShared.SABER_CLAW.rawValue))
-    public static let SABER_LANCE = saberType_t(rawValue: Int32(truncatingIfNeeded: CJKAShared.SABER_LANCE.rawValue))
-    public static let SABER_STAR = saberType_t(rawValue: Int32(truncatingIfNeeded: CJKAShared.SABER_STAR.rawValue))
-    public static let SABER_TRIDENT = saberType_t(rawValue: Int32(truncatingIfNeeded: CJKAShared.SABER_TRIDENT.rawValue))
-    public static let SABER_SITH_SWORD = saberType_t(rawValue: Int32(truncatingIfNeeded: CJKAShared.SABER_SITH_SWORD.rawValue))
-    public static let NUM_SABERS = saberType_t(rawValue: Int32(truncatingIfNeeded: CJKAShared.NUM_SABERS.rawValue))
-}
+public typealias saberType_t = Int32
+public let SABER_NONE: saberType_t = Int32(truncatingIfNeeded: CJKAShared.SABER_NONE.rawValue)
+public let SABER_SINGLE: saberType_t = Int32(truncatingIfNeeded: CJKAShared.SABER_SINGLE.rawValue)
+public let SABER_STAFF: saberType_t = Int32(truncatingIfNeeded: CJKAShared.SABER_STAFF.rawValue)
+public let SABER_DAGGER: saberType_t = Int32(truncatingIfNeeded: CJKAShared.SABER_DAGGER.rawValue)
+public let SABER_BROAD: saberType_t = Int32(truncatingIfNeeded: CJKAShared.SABER_BROAD.rawValue)
+public let SABER_PRONG: saberType_t = Int32(truncatingIfNeeded: CJKAShared.SABER_PRONG.rawValue)
+public let SABER_ARC: saberType_t = Int32(truncatingIfNeeded: CJKAShared.SABER_ARC.rawValue)
+public let SABER_SAI: saberType_t = Int32(truncatingIfNeeded: CJKAShared.SABER_SAI.rawValue)
+public let SABER_CLAW: saberType_t = Int32(truncatingIfNeeded: CJKAShared.SABER_CLAW.rawValue)
+public let SABER_LANCE: saberType_t = Int32(truncatingIfNeeded: CJKAShared.SABER_LANCE.rawValue)
+public let SABER_STAR: saberType_t = Int32(truncatingIfNeeded: CJKAShared.SABER_STAR.rawValue)
+public let SABER_TRIDENT: saberType_t = Int32(truncatingIfNeeded: CJKAShared.SABER_TRIDENT.rawValue)
+public let SABER_SITH_SWORD: saberType_t = Int32(truncatingIfNeeded: CJKAShared.SABER_SITH_SWORD.rawValue)
+public let NUM_SABERS: saberType_t = Int32(truncatingIfNeeded: CJKAShared.NUM_SABERS.rawValue)
 
 /// Source: oracle/codemp/game/q_shared.h:672
 /// Source: oracle/code/game/q_shared.h:1660
-public struct saber_styles_t: RawRepresentable, Hashable, Sendable {
-    public let rawValue: Int32
-    public init(rawValue: Int32) { self.rawValue = rawValue }
-    public static let SS_NONE = saber_styles_t(rawValue: Int32(truncatingIfNeeded: CJKAShared.SS_NONE.rawValue))
-    public static let SS_FAST = saber_styles_t(rawValue: Int32(truncatingIfNeeded: CJKAShared.SS_FAST.rawValue))
-    public static let SS_MEDIUM = saber_styles_t(rawValue: Int32(truncatingIfNeeded: CJKAShared.SS_MEDIUM.rawValue))
-    public static let SS_STRONG = saber_styles_t(rawValue: Int32(truncatingIfNeeded: CJKAShared.SS_STRONG.rawValue))
-    public static let SS_DESANN = saber_styles_t(rawValue: Int32(truncatingIfNeeded: CJKAShared.SS_DESANN.rawValue))
-    public static let SS_TAVION = saber_styles_t(rawValue: Int32(truncatingIfNeeded: CJKAShared.SS_TAVION.rawValue))
-    public static let SS_DUAL = saber_styles_t(rawValue: Int32(truncatingIfNeeded: CJKAShared.SS_DUAL.rawValue))
-    public static let SS_STAFF = saber_styles_t(rawValue: Int32(truncatingIfNeeded: CJKAShared.SS_STAFF.rawValue))
-    public static let SS_NUM_SABER_STYLES = saber_styles_t(rawValue: Int32(truncatingIfNeeded: CJKAShared.SS_NUM_SABER_STYLES.rawValue))
-}
+public typealias saber_styles_t = Int32
+public let SS_NONE: saber_styles_t = Int32(truncatingIfNeeded: CJKAShared.SS_NONE.rawValue)
+public let SS_FAST: saber_styles_t = Int32(truncatingIfNeeded: CJKAShared.SS_FAST.rawValue)
+public let SS_MEDIUM: saber_styles_t = Int32(truncatingIfNeeded: CJKAShared.SS_MEDIUM.rawValue)
+public let SS_STRONG: saber_styles_t = Int32(truncatingIfNeeded: CJKAShared.SS_STRONG.rawValue)
+public let SS_DESANN: saber_styles_t = Int32(truncatingIfNeeded: CJKAShared.SS_DESANN.rawValue)
+public let SS_TAVION: saber_styles_t = Int32(truncatingIfNeeded: CJKAShared.SS_TAVION.rawValue)
+public let SS_DUAL: saber_styles_t = Int32(truncatingIfNeeded: CJKAShared.SS_DUAL.rawValue)
+public let SS_STAFF: saber_styles_t = Int32(truncatingIfNeeded: CJKAShared.SS_STAFF.rawValue)
+public let SS_NUM_SABER_STYLES: saber_styles_t = Int32(truncatingIfNeeded: CJKAShared.SS_NUM_SABER_STYLES.rawValue)
 
 /// Source: oracle/codemp/game/q_shared.h:361
 /// Source: oracle/code/game/q_shared.h:186
@@ -727,12 +709,9 @@ public typealias sfxHandle_t = Int32
 
 /// Source: oracle/codemp/game/q_shared.h:960
 /// Source: oracle/code/game/q_shared.h:2604
-public struct sharedEIKMoveState: RawRepresentable, Hashable, Sendable {
-    public let rawValue: Int32
-    public init(rawValue: Int32) { self.rawValue = rawValue }
-    public static let IKS_NONE = sharedEIKMoveState(rawValue: Int32(truncatingIfNeeded: CJKAShared.IKS_NONE.rawValue))
-    public static let IKS_DYNAMIC = sharedEIKMoveState(rawValue: Int32(truncatingIfNeeded: CJKAShared.IKS_DYNAMIC.rawValue))
-}
+public typealias sharedEIKMoveState = Int32
+public let IKS_NONE: sharedEIKMoveState = Int32(truncatingIfNeeded: CJKAShared.IKS_NONE.rawValue)
+public let IKS_DYNAMIC: sharedEIKMoveState = Int32(truncatingIfNeeded: CJKAShared.IKS_DYNAMIC.rawValue)
 
 /// Source: oracle/codemp/game/q_shared.h:359
 /// Source: oracle/code/game/q_shared.h:184
@@ -740,17 +719,14 @@ public typealias thandle_t = Int32
 
 /// Source: oracle/codemp/game/q_shared.h:2644
 /// Source: oracle/code/game/q_shared.h:2422
-public struct trType_t: RawRepresentable, Hashable, Sendable {
-    public let rawValue: Int32
-    public init(rawValue: Int32) { self.rawValue = rawValue }
-    public static let TR_STATIONARY = trType_t(rawValue: Int32(truncatingIfNeeded: CJKAShared.TR_STATIONARY.rawValue))
-    public static let TR_INTERPOLATE = trType_t(rawValue: Int32(truncatingIfNeeded: CJKAShared.TR_INTERPOLATE.rawValue))
-    public static let TR_LINEAR = trType_t(rawValue: Int32(truncatingIfNeeded: CJKAShared.TR_LINEAR.rawValue))
-    public static let TR_LINEAR_STOP = trType_t(rawValue: Int32(truncatingIfNeeded: CJKAShared.TR_LINEAR_STOP.rawValue))
-    public static let TR_NONLINEAR_STOP = trType_t(rawValue: Int32(truncatingIfNeeded: CJKAShared.TR_NONLINEAR_STOP.rawValue))
-    public static let TR_SINE = trType_t(rawValue: Int32(truncatingIfNeeded: CJKAShared.TR_SINE.rawValue))
-    public static let TR_GRAVITY = trType_t(rawValue: Int32(truncatingIfNeeded: CJKAShared.TR_GRAVITY.rawValue))
-}
+public typealias trType_t = Int32
+public let TR_STATIONARY: trType_t = Int32(truncatingIfNeeded: CJKAShared.TR_STATIONARY.rawValue)
+public let TR_INTERPOLATE: trType_t = Int32(truncatingIfNeeded: CJKAShared.TR_INTERPOLATE.rawValue)
+public let TR_LINEAR: trType_t = Int32(truncatingIfNeeded: CJKAShared.TR_LINEAR.rawValue)
+public let TR_LINEAR_STOP: trType_t = Int32(truncatingIfNeeded: CJKAShared.TR_LINEAR_STOP.rawValue)
+public let TR_NONLINEAR_STOP: trType_t = Int32(truncatingIfNeeded: CJKAShared.TR_NONLINEAR_STOP.rawValue)
+public let TR_SINE: trType_t = Int32(truncatingIfNeeded: CJKAShared.TR_SINE.rawValue)
+public let TR_GRAVITY: trType_t = Int32(truncatingIfNeeded: CJKAShared.TR_GRAVITY.rawValue)
 
 /// Source: oracle/codemp/game/q_shared.h:351
 /// Source: oracle/code/game/q_shared.h:173

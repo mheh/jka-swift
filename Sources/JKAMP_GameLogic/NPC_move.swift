@@ -23,10 +23,7 @@ private func NPC_LadderMove(_ dir: JKAShared.vec3_t) {
 }
 
 /// Source: oracle/codemp/game/NPC_move.c:126
-// TODO: Port signature
-// Raven wrote: ID_INLINE qboolean NPC_GetMoveInformation( vec3_t dir, float *distance )
-// No table row for `float * distance`.
-func NPC_GetMoveInformation() -> Never {
+func NPC_GetMoveInformation(_ dir: JKAShared.vec3_t, _ distance: inout Float) -> Bool {
     // TODO: Port NPC_GetMoveInformation
     portMissing("NPC_GetMoveInformation", source: "oracle/codemp/game/NPC_move.c:126")
 }
@@ -41,19 +38,13 @@ func NAV_GetLastMove() -> Never {
 }
 
 /// Source: oracle/codemp/game/NPC_move.c:160
-// TODO: Port signature
-// Raven wrote: qboolean NPC_GetMoveDirection( vec3_t out, float *distance )
-// No table row for `float * distance`.
-func NPC_GetMoveDirection() -> Never {
+func NPC_GetMoveDirection(_ out: JKAShared.vec3_t, _ distance: inout Float) -> Bool {
     // TODO: Port NPC_GetMoveDirection
     portMissing("NPC_GetMoveDirection", source: "oracle/codemp/game/NPC_move.c:160")
 }
 
 /// Source: oracle/codemp/game/NPC_move.c:239
-// TODO: Port signature
-// Raven wrote: qboolean NPC_GetMoveDirectionAltRoute( vec3_t out, float *distance, qboolean tryStraight )
-// No table row for `float * distance`.
-func NPC_GetMoveDirectionAltRoute() -> Never {
+func NPC_GetMoveDirectionAltRoute(_ out: JKAShared.vec3_t, _ distance: inout Float, _ tryStraight: Bool) -> Bool {
     // TODO: Port NPC_GetMoveDirectionAltRoute
     portMissing("NPC_GetMoveDirectionAltRoute", source: "oracle/codemp/game/NPC_move.c:239")
 }

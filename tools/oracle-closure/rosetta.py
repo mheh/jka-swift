@@ -124,7 +124,7 @@ class Rosetta:
             "",
             "## Enums",
             "",
-            "A C enum is a re-exported struct with `.rawValue`, and its cases are static members with Raven's names, `.WP_SABER`.",
+            "A C enum is an `Int32` alias, and each case is a bare `Int32` constant with Raven's name, `WP_SABER`, so a body compares and stores it as written.",
             "",
             "| C enum | Swift |",
             "|---|---|",

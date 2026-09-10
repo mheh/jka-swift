@@ -25,8 +25,8 @@ public struct VehicleInfo: Hashable, HandleView {
 
     /// Source: oracle/codemp/game/bg_vehicles.h:137
     public var type: vehicleType_t {
-        get { vehicleType_t(rawValue: Int32(truncatingIfNeeded: self.raw.pointee.type.rawValue)) }
-        nonmutating set { self.raw.pointee.type = .init(rawValue: .init(truncatingIfNeeded: newValue.rawValue)) }
+        get { Int32(truncatingIfNeeded: self.raw.pointee.type.rawValue) }
+        nonmutating set { self.raw.pointee.type = .init(rawValue: .init(truncatingIfNeeded: newValue)) }
     }
 
     /// Source: oracle/codemp/game/bg_vehicles.h:138

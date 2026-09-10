@@ -8,10 +8,7 @@ import JKAMP_Game
 //state value. Origin smoothing on the client is expected to compensate for choppy
 //movement.
 /// Source: oracle/codemp/game/g_exphysics.c:21
-// TODO: Port signature
-// Raven wrote: void G_RunExPhys(gentity_t *ent, float gravity, float mass, float bounce, qboolean autoKill, int *g2Bolts, int numG2Bolts)
-// No table row for `int * g2Bolts`.
-func G_RunExPhys() -> Never {
+func G_RunExPhys(_ ent: Entity, _ gravity: Float, _ mass: Float, _ bounce: Float, _ autoKill: Bool, _ g2Bolts: inout Int32, _ numG2Bolts: Int32) {
     // TODO: Port G_RunExPhys
     portMissing("G_RunExPhys", source: "oracle/codemp/game/g_exphysics.c:21")
 }

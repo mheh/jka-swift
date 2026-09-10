@@ -192,43 +192,34 @@ public let MASK_WATER = (CONTENTS_WATER | CONTENTS_LAVA | CONTENTS_SLIME)
 
 /// Source: oracle/codemp/game/bg_public.h:304
 /// Source: oracle/code/game/bg_public.h:520
-public struct animEventType_t: RawRepresentable, Hashable, Sendable {
-    public let rawValue: Int32
-    public init(rawValue: Int32) { self.rawValue = rawValue }
-    public static let AEV_NONE = animEventType_t(rawValue: Int32(truncatingIfNeeded: CJKAShared.AEV_NONE.rawValue))
-    public static let AEV_SOUND = animEventType_t(rawValue: Int32(truncatingIfNeeded: CJKAShared.AEV_SOUND.rawValue))
-    public static let AEV_FOOTSTEP = animEventType_t(rawValue: Int32(truncatingIfNeeded: CJKAShared.AEV_FOOTSTEP.rawValue))
-    public static let AEV_EFFECT = animEventType_t(rawValue: Int32(truncatingIfNeeded: CJKAShared.AEV_EFFECT.rawValue))
-    public static let AEV_FIRE = animEventType_t(rawValue: Int32(truncatingIfNeeded: CJKAShared.AEV_FIRE.rawValue))
-    public static let AEV_MOVE = animEventType_t(rawValue: Int32(truncatingIfNeeded: CJKAShared.AEV_MOVE.rawValue))
-    public static let AEV_SOUNDCHAN = animEventType_t(rawValue: Int32(truncatingIfNeeded: CJKAShared.AEV_SOUNDCHAN.rawValue))
-    public static let AEV_SABER_SWING = animEventType_t(rawValue: Int32(truncatingIfNeeded: CJKAShared.AEV_SABER_SWING.rawValue))
-    public static let AEV_SABER_SPIN = animEventType_t(rawValue: Int32(truncatingIfNeeded: CJKAShared.AEV_SABER_SPIN.rawValue))
-    public static let AEV_NUM_AEV = animEventType_t(rawValue: Int32(truncatingIfNeeded: CJKAShared.AEV_NUM_AEV.rawValue))
-}
+public typealias animEventType_t = Int32
+public let AEV_NONE: animEventType_t = Int32(truncatingIfNeeded: CJKAShared.AEV_NONE.rawValue)
+public let AEV_SOUND: animEventType_t = Int32(truncatingIfNeeded: CJKAShared.AEV_SOUND.rawValue)
+public let AEV_FOOTSTEP: animEventType_t = Int32(truncatingIfNeeded: CJKAShared.AEV_FOOTSTEP.rawValue)
+public let AEV_EFFECT: animEventType_t = Int32(truncatingIfNeeded: CJKAShared.AEV_EFFECT.rawValue)
+public let AEV_FIRE: animEventType_t = Int32(truncatingIfNeeded: CJKAShared.AEV_FIRE.rawValue)
+public let AEV_MOVE: animEventType_t = Int32(truncatingIfNeeded: CJKAShared.AEV_MOVE.rawValue)
+public let AEV_SOUNDCHAN: animEventType_t = Int32(truncatingIfNeeded: CJKAShared.AEV_SOUNDCHAN.rawValue)
+public let AEV_SABER_SWING: animEventType_t = Int32(truncatingIfNeeded: CJKAShared.AEV_SABER_SWING.rawValue)
+public let AEV_SABER_SPIN: animEventType_t = Int32(truncatingIfNeeded: CJKAShared.AEV_SABER_SPIN.rawValue)
+public let AEV_NUM_AEV: animEventType_t = Int32(truncatingIfNeeded: CJKAShared.AEV_NUM_AEV.rawValue)
 
 /// Source: oracle/codemp/game/bg_public.h:258
 /// Source: oracle/code/game/bg_public.h:550
-public struct footstepType_t: RawRepresentable, Hashable, Sendable {
-    public let rawValue: Int32
-    public init(rawValue: Int32) { self.rawValue = rawValue }
-    public static let FOOTSTEP_R = footstepType_t(rawValue: Int32(truncatingIfNeeded: CJKAShared.FOOTSTEP_R.rawValue))
-    public static let FOOTSTEP_L = footstepType_t(rawValue: Int32(truncatingIfNeeded: CJKAShared.FOOTSTEP_L.rawValue))
-    public static let FOOTSTEP_HEAVY_R = footstepType_t(rawValue: Int32(truncatingIfNeeded: CJKAShared.FOOTSTEP_HEAVY_R.rawValue))
-    public static let FOOTSTEP_HEAVY_L = footstepType_t(rawValue: Int32(truncatingIfNeeded: CJKAShared.FOOTSTEP_HEAVY_L.rawValue))
-    public static let NUM_FOOTSTEP_TYPES = footstepType_t(rawValue: Int32(truncatingIfNeeded: CJKAShared.NUM_FOOTSTEP_TYPES.rawValue))
-}
+public typealias footstepType_t = Int32
+public let FOOTSTEP_R: footstepType_t = Int32(truncatingIfNeeded: CJKAShared.FOOTSTEP_R.rawValue)
+public let FOOTSTEP_L: footstepType_t = Int32(truncatingIfNeeded: CJKAShared.FOOTSTEP_L.rawValue)
+public let FOOTSTEP_HEAVY_R: footstepType_t = Int32(truncatingIfNeeded: CJKAShared.FOOTSTEP_HEAVY_R.rawValue)
+public let FOOTSTEP_HEAVY_L: footstepType_t = Int32(truncatingIfNeeded: CJKAShared.FOOTSTEP_HEAVY_L.rawValue)
+public let NUM_FOOTSTEP_TYPES: footstepType_t = Int32(truncatingIfNeeded: CJKAShared.NUM_FOOTSTEP_TYPES.rawValue)
 
 /// Source: oracle/codemp/game/bg_public.h:372
 /// Source: oracle/code/game/bg_public.h:72
-public struct weaponstate_t: RawRepresentable, Hashable, Sendable {
-    public let rawValue: Int32
-    public init(rawValue: Int32) { self.rawValue = rawValue }
-    public static let WEAPON_READY = weaponstate_t(rawValue: Int32(truncatingIfNeeded: CJKAShared.WEAPON_READY.rawValue))
-    public static let WEAPON_RAISING = weaponstate_t(rawValue: Int32(truncatingIfNeeded: CJKAShared.WEAPON_RAISING.rawValue))
-    public static let WEAPON_DROPPING = weaponstate_t(rawValue: Int32(truncatingIfNeeded: CJKAShared.WEAPON_DROPPING.rawValue))
-    public static let WEAPON_FIRING = weaponstate_t(rawValue: Int32(truncatingIfNeeded: CJKAShared.WEAPON_FIRING.rawValue))
-    public static let WEAPON_CHARGING = weaponstate_t(rawValue: Int32(truncatingIfNeeded: CJKAShared.WEAPON_CHARGING.rawValue))
-    public static let WEAPON_CHARGING_ALT = weaponstate_t(rawValue: Int32(truncatingIfNeeded: CJKAShared.WEAPON_CHARGING_ALT.rawValue))
-    public static let WEAPON_IDLE = weaponstate_t(rawValue: Int32(truncatingIfNeeded: CJKAShared.WEAPON_IDLE.rawValue))
-}
+public typealias weaponstate_t = Int32
+public let WEAPON_READY: weaponstate_t = Int32(truncatingIfNeeded: CJKAShared.WEAPON_READY.rawValue)
+public let WEAPON_RAISING: weaponstate_t = Int32(truncatingIfNeeded: CJKAShared.WEAPON_RAISING.rawValue)
+public let WEAPON_DROPPING: weaponstate_t = Int32(truncatingIfNeeded: CJKAShared.WEAPON_DROPPING.rawValue)
+public let WEAPON_FIRING: weaponstate_t = Int32(truncatingIfNeeded: CJKAShared.WEAPON_FIRING.rawValue)
+public let WEAPON_CHARGING: weaponstate_t = Int32(truncatingIfNeeded: CJKAShared.WEAPON_CHARGING.rawValue)
+public let WEAPON_CHARGING_ALT: weaponstate_t = Int32(truncatingIfNeeded: CJKAShared.WEAPON_CHARGING_ALT.rawValue)
+public let WEAPON_IDLE: weaponstate_t = Int32(truncatingIfNeeded: CJKAShared.WEAPON_IDLE.rawValue)
