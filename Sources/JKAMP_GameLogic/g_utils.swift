@@ -35,10 +35,12 @@ func BuildShaderStateConfig() -> Never {
 }
 
 /**
+```
 ================
 G_FindConfigstringIndex
 
 ================
+```
 */
 /// Source: oracle/codemp/game/g_utils.c:66
 private func G_FindConfigstringIndex(_ name: String, _ start: Int32, _ max: Int32, _ create: Bool) -> Int32 {
@@ -96,11 +98,13 @@ func G_PlayerHasCustomSkeleton(_ ent: Entity) -> Bool {
 }
 
 /**
+```
 ================
 G_TeamCommand
 
 Broadcasts a command to only a specific team
 ================
+```
 */
 /// Source: oracle/codemp/game/g_utils.c:197
 func G_TeamCommand(_ team: JKAMP.team_t, _ cmd: inout String) {
@@ -109,6 +113,7 @@ func G_TeamCommand(_ team: JKAMP.team_t, _ cmd: inout String) {
 }
 
 /**
+```
 =============
 G_Find
 
@@ -119,6 +124,7 @@ Searches beginning at the entity after from, or the beginning if NULL
 NULL will be returned if the end of the list is reached.
 
 =============
+```
 */
 /// Source: oracle/codemp/game/g_utils.c:222
 func G_Find(_ from: Entity, _ fieldofs: Int32, _ match: String) -> Entity? {
@@ -127,9 +133,11 @@ func G_Find(_ from: Entity, _ fieldofs: Int32, _ match: String) -> Entity? {
 }
 
 /**
+```
 ============
 G_RadiusList - given an origin and a radius, return all entities that are in use that are within the list
 ============
+```
 */
 /// Source: oracle/codemp/game/g_utils.c:252
 // TODO: Port signature
@@ -217,6 +225,7 @@ func G_UseTargets2(_ ent: Entity, _ activator: Entity, _ string: String) {
 }
 
 /**
+```
 ==============================
 G_UseTargets
 
@@ -226,6 +235,7 @@ Search for (string)targetname in all entities that
 match (string)self.target and call their .use function
 
 ==============================
+```
 */
 /// Source: oracle/codemp/game/g_utils.c:609
 func G_UseTargets(_ ent: Entity, _ activator: Entity) {
@@ -234,12 +244,14 @@ func G_UseTargets(_ ent: Entity, _ activator: Entity) {
 }
 
 /**
+```
 =============
 TempVector
 
 This is just a convenience function
 for making temporary vectors for function calls
 =============
+```
 */
 /// Source: oracle/codemp/game/g_utils.c:627
 // TODO: Port signature
@@ -251,12 +263,14 @@ func tv() -> Never {
 }
 
 /**
+```
 =============
 VectorToString
 
 This is just a convenience function
 for printing vectors
 =============
+```
 */
 /// Source: oracle/codemp/game/g_utils.c:653
 // TODO: Port signature
@@ -268,6 +282,7 @@ func vtos() -> Never {
 }
 
 /**
+```
 ===============
 G_SetMovedir
 
@@ -276,6 +291,7 @@ but we have special constants to generate an up or down direction.
 Angles will be cleared, because it is being used to represent a direction
 instead of an orientation.
 ===============
+```
 */
 /// Source: oracle/codemp/game/g_utils.c:678
 func G_SetMovedir(_ angles: inout JKAShared.vec3_t, _ movedir: inout JKAShared.vec3_t) {
@@ -297,6 +313,7 @@ private func G_SpewEntList() {
 }
 
 /**
+```
 =================
 G_Spawn
 
@@ -310,6 +327,7 @@ can cause the client to think the entity morphed into something else
 instead of being removed and recreated, which can cause interpolated
 angles and bad trails.
 =================
+```
 */
 /// Source: oracle/codemp/game/g_utils.c:804
 func G_Spawn() -> Entity? {
@@ -318,9 +336,11 @@ func G_Spawn() -> Entity? {
 }
 
 /**
+```
 =================
 G_EntitiesFree
 =================
+```
 */
 /// Source: oracle/codemp/game/g_utils.c:860
 func G_EntitiesFree() -> Bool {
@@ -341,11 +361,13 @@ func G_KillG2Queue(_ entNum: Int32) {
 }
 
 /**
+```
 =================
 G_FreeEntity
 
 Marks the entity as free
 =================
+```
 */
 /// Source: oracle/codemp/game/g_utils.c:932
 func G_FreeEntity(_ ed: Entity) {
@@ -354,6 +376,7 @@ func G_FreeEntity(_ ed: Entity) {
 }
 
 /**
+```
 =================
 G_TempEntity
 
@@ -361,6 +384,7 @@ Spawns an event entity that will be auto-removed
 The origin will be snapped to save net bandwidth, so care
 must be taken if the origin is right on a surface (snap towards start vector first)
 =================
+```
 */
 /// Source: oracle/codemp/game/g_utils.c:1054
 func G_TempEntity(_ origin: inout JKAShared.vec3_t, _ event: Int32) -> Entity? {
@@ -369,11 +393,13 @@ func G_TempEntity(_ origin: inout JKAShared.vec3_t, _ event: Int32) -> Entity? {
 }
 
 /**
+```
 =================
 G_SoundTempEntity
 
 Special event entity that keeps sound trackers in mind
 =================
+```
 */
 /// Source: oracle/codemp/game/g_utils.c:1087
 func G_SoundTempEntity(_ origin: inout JKAShared.vec3_t, _ event: Int32, _ channel: Int32) -> Entity? {
@@ -389,12 +415,14 @@ func G_ScaleNetHealth(_ `self`: Entity) {
 }
 
 /**
+```
 =================
 G_KillBox
 
 Kills all entities that would touch the proposed new positioning
 of ent.  Ent should be unlinked before calling this!
 =================
+```
 */
 /// Source: oracle/codemp/game/g_utils.c:1162
 func G_KillBox(_ ent: Entity) {
@@ -403,6 +431,7 @@ func G_KillBox(_ ent: Entity) {
 }
 
 /**
+```
 ===============
 G_AddPredictableEvent
 
@@ -410,6 +439,7 @@ Use for non-pmove events that would also be predicted on the
 client side: jumppads and item pickups
 Adds an event+parm and twiddles the event counter
 ===============
+```
 */
 /// Source: oracle/codemp/game/g_utils.c:1206
 func G_AddPredictableEvent(_ ent: Entity, _ event: Int32, _ eventParm: Int32) {
@@ -418,11 +448,13 @@ func G_AddPredictableEvent(_ ent: Entity, _ event: Int32, _ eventParm: Int32) {
 }
 
 /**
+```
 ===============
 G_AddEvent
 
 Adds an event+parm and twiddles the event counter
 ===============
+```
 */
 /// Source: oracle/codemp/game/g_utils.c:1221
 func G_AddEvent(_ ent: Entity, _ event: Int32, _ eventParm: Int32) {
@@ -431,9 +463,11 @@ func G_AddEvent(_ ent: Entity, _ event: Int32, _ eventParm: Int32) {
 }
 
 /**
+```
 =============
 G_PlayEffect
 =============
+```
 */
 /// Source: oracle/codemp/game/g_utils.c:1250
 func G_PlayEffect(_ fxID: Int32, _ org: inout JKAShared.vec3_t, _ ang: inout JKAShared.vec3_t) -> Entity? {
@@ -442,9 +476,11 @@ func G_PlayEffect(_ fxID: Int32, _ org: inout JKAShared.vec3_t, _ ang: inout JKA
 }
 
 /**
+```
 =============
 G_PlayEffectID
 =============
+```
 */
 /// Source: oracle/codemp/game/g_utils.c:1267
 func G_PlayEffectID(_ fxID: Int32, _ org: inout JKAShared.vec3_t, _ ang: inout JKAShared.vec3_t) -> Entity? {
@@ -453,9 +489,11 @@ func G_PlayEffectID(_ fxID: Int32, _ org: inout JKAShared.vec3_t, _ ang: inout J
 }
 
 /**
+```
 =============
 G_ScreenShake
 =============
+```
 */
 /// Source: oracle/codemp/game/g_utils.c:1291
 func G_ScreenShake(_ org: inout JKAShared.vec3_t, _ target: Entity, _ intensity: Float, _ duration: Int32, _ global: Bool) -> Entity? {
@@ -464,9 +502,11 @@ func G_ScreenShake(_ org: inout JKAShared.vec3_t, _ target: Entity, _ intensity:
 }
 
 /**
+```
 =============
 G_MuteSound
 =============
+```
 */
 /// Source: oracle/codemp/game/g_utils.c:1322
 func G_MuteSound(_ entnum: Int32, _ channel: Int32) {
@@ -475,9 +515,11 @@ func G_MuteSound(_ entnum: Int32, _ channel: Int32) {
 }
 
 /**
+```
 =============
 G_Sound
 =============
+```
 */
 /// Source: oracle/codemp/game/g_utils.c:1345
 func G_Sound(_ ent: Entity, _ channel: Int32, _ soundIndex: Int32) {
@@ -486,9 +528,11 @@ func G_Sound(_ ent: Entity, _ channel: Int32, _ soundIndex: Int32) {
 }
 
 /**
+```
 =============
 G_SoundAtLoc
 =============
+```
 */
 /// Source: oracle/codemp/game/g_utils.c:1379
 func G_SoundAtLoc(_ loc: inout JKAShared.vec3_t, _ channel: Int32, _ soundIndex: Int32) {
@@ -497,9 +541,11 @@ func G_SoundAtLoc(_ loc: inout JKAShared.vec3_t, _ channel: Int32, _ soundIndex:
 }
 
 /**
+```
 =============
 G_EntitySound
 =============
+```
 */
 /// Source: oracle/codemp/game/g_utils.c:1392
 func G_EntitySound(_ ent: Entity, _ channel: Int32, _ soundIndex: Int32) {
@@ -515,11 +561,13 @@ func G_SoundOnEnt(_ ent: Entity, _ channel: Int32, _ soundPath: String) {
 }
 
 /**
+```
 ==============
 ValidUseTarget
 
 Returns whether or not the targeted entity is useable
 ==============
+```
 */
 /// Source: oracle/codemp/game/g_utils.c:1453
 func ValidUseTarget(_ ent: Entity) -> Bool {
@@ -578,11 +626,13 @@ func G_ClearTrace(_ start: inout JKAShared.vec3_t, _ mins: inout JKAShared.vec3_
 }
 
 /**
+```
 ================
 G_SetOrigin
 
 Sets the pos trajectory for a fixed position
 ================
+```
 */
 /// Source: oracle/codemp/game/g_utils.c:1955
 func G_SetOrigin(_ ent: Entity, _ origin: inout JKAShared.vec3_t) {
@@ -597,12 +647,14 @@ func G_CheckInSolid(_ `self`: Entity, _ fix: Bool) -> Bool {
 }
 
 /**
+```
 ================
 DebugLine
 
   debug polygons only work when running a local game
   with r_debugSurface set to 2
 ================
+```
 */
 /// Source: oracle/codemp/game/g_utils.c:2011
 func DebugLine(_ start: inout JKAShared.vec3_t, _ end: inout JKAShared.vec3_t, _ color: Int32) -> Int32 {

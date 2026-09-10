@@ -11,9 +11,11 @@ func Wampa_SetBolts(_ `self`: Entity) {
 }
 
 /**
+```
 -------------------------
 NPC_Wampa_Precache
 -------------------------
+```
 */
 /// Source: oracle/codemp/game/NPC_AI_Wampa.c:43
 func NPC_Wampa_Precache() {
@@ -22,9 +24,11 @@ func NPC_Wampa_Precache() {
 }
 
 /**
+```
 -------------------------
 Wampa_Idle
 -------------------------
+```
 */
 /// Source: oracle/codemp/game/NPC_AI_Wampa.c:66
 func Wampa_Idle() {
@@ -39,9 +43,11 @@ func Wampa_CheckRoar(_ `self`: Entity) -> Bool {
 }
 
 /**
+```
 -------------------------
 Wampa_Patrol
 -------------------------
+```
 */
 /// Source: oracle/codemp/game/NPC_AI_Wampa.c:94
 func Wampa_Patrol() {
@@ -50,9 +56,11 @@ func Wampa_Patrol() {
 }
 
 /**
+```
 -------------------------
 Wampa_Move
 -------------------------
+```
 */
 /// Source: oracle/codemp/game/NPC_AI_Wampa.c:126
 func Wampa_Move(_ visible: Bool) {
@@ -81,9 +89,11 @@ func Wampa_Combat() {
 }
 
 /**
+```
 -------------------------
 NPC_Wampa_Pain
 -------------------------
+```
 */
 //void NPC_Wampa_Pain( gentity_t *self, gentity_t *inflictor, gentity_t *other, const vec3_t point, int damage, int mod,int hitLoc )
 /// Source: oracle/codemp/game/NPC_AI_Wampa.c:433
@@ -93,9 +103,11 @@ func NPC_Wampa_Pain(_ `self`: Entity, _ attacker: Entity, _ damage: Int32) {
 }
 
 /**
+```
 -------------------------
 NPC_BSWampa_Default
 -------------------------
+```
 */
 /// Source: oracle/codemp/game/NPC_AI_Wampa.c:506
 func NPC_BSWampa_Default() {

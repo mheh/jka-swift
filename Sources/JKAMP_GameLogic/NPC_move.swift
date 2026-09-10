@@ -62,11 +62,13 @@ func NPC_MoveToGoal(_ tryStraight: Bool) -> Bool {
 }
 
 /**
+```
 -------------------------
 void NPC_SlideMoveToGoal( void )
 
   Now assumes goal is goalEntity, if want to use tempGoal, you set that before calling the func
 -------------------------
+```
 */
 /// Source: oracle/codemp/game/NPC_move.c:476
 func NPC_SlideMoveToGoal() -> Bool {

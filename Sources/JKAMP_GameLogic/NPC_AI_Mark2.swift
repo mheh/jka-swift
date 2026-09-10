@@ -11,9 +11,11 @@ func NPC_Mark2_Precache() {
 }
 
 /**
+```
 -------------------------
 NPC_Mark2_Part_Explode
 -------------------------
+```
 */
 /// Source: oracle/codemp/game/NPC_AI_Mark2.c:50
 func NPC_Mark2_Part_Explode(_ `self`: Entity, _ bolt: Int32) {
@@ -22,10 +24,12 @@ func NPC_Mark2_Part_Explode(_ `self`: Entity, _ bolt: Int32) {
 }
 
 /**
+```
 -------------------------
 NPC_Mark2_Pain
 - look at what was hit and see if it should be removed from the model.
 -------------------------
+```
 */
 /// Source: oracle/codemp/game/NPC_AI_Mark2.c:80
 func NPC_Mark2_Pain(_ `self`: Entity, _ attacker: Entity, _ damage: Int32) {
@@ -34,9 +38,11 @@ func NPC_Mark2_Pain(_ `self`: Entity, _ attacker: Entity, _ damage: Int32) {
 }
 
 /**
+```
 -------------------------
 Mark2_Hunt
 -------------------------
+```
 */
 /// Source: oracle/codemp/game/NPC_AI_Mark2.c:118
 func Mark2_Hunt() {
@@ -45,9 +51,11 @@ func Mark2_Hunt() {
 }
 
 /**
+```
 -------------------------
 Mark2_FireBlaster
 -------------------------
+```
 */
 /// Source: oracle/codemp/game/NPC_AI_Mark2.c:137
 func Mark2_FireBlaster(_ advance: Bool) {
@@ -56,9 +64,11 @@ func Mark2_FireBlaster(_ advance: Bool) {
 }
 
 /**
+```
 -------------------------
 Mark2_BlasterAttack
 -------------------------
+```
 */
 /// Source: oracle/codemp/game/NPC_AI_Mark2.c:186
 func Mark2_BlasterAttack(_ advance: Bool) {
@@ -67,9 +77,11 @@ func Mark2_BlasterAttack(_ advance: Bool) {
 }
 
 /**
+```
 -------------------------
 Mark2_AttackDecision
 -------------------------
+```
 */
 /// Source: oracle/codemp/game/NPC_AI_Mark2.c:212
 func Mark2_AttackDecision() {
@@ -78,9 +90,11 @@ func Mark2_AttackDecision() {
 }
 
 /**
+```
 -------------------------
 Mark2_Patrol
 -------------------------
+```
 */
 /// Source: oracle/codemp/game/NPC_AI_Mark2.c:303
 func Mark2_Patrol() {
@@ -89,9 +103,11 @@ func Mark2_Patrol() {
 }
 
 /**
+```
 -------------------------
 Mark2_Idle
 -------------------------
+```
 */
 /// Source: oracle/codemp/game/NPC_AI_Mark2.c:337
 func Mark2_Idle() {
@@ -100,9 +116,11 @@ func Mark2_Idle() {
 }
 
 /**
+```
 -------------------------
 NPC_BSMark2_Default
 -------------------------
+```
 */
 /// Source: oracle/codemp/game/NPC_AI_Mark2.c:347
 func NPC_BSMark2_Default() {

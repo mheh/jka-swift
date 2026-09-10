@@ -52,9 +52,11 @@ private func GM_HoldPosition() {
 }
 
 /**
+```
 -------------------------
 GM_Move
 -------------------------
+```
 */
 /// Source: oracle/codemp/game/NPC_AI_GalakMech.c:376
 private func GM_Move() -> Bool {

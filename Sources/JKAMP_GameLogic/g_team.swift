@@ -56,12 +56,14 @@ func PrintCTFMessage(_ plIndex: Int32, _ teamIndex: Int32, _ ctfMessage: Int32) 
 }
 
 /**
+```
 ==============
 AddTeamScore
 
  used for gametype > GT_TEAM
  for gametype GT_TEAM the level.teamScores is updated in AddScore in g_combat.c
 ==============
+```
 */
 /// Source: oracle/codemp/game/g_team.c:142
 func AddTeamScore(_ origin: inout JKAShared.vec3_t, _ team: Int32, _ score: Int32) {
@@ -88,9 +90,11 @@ func Team_CheckDroppedItem(_ dropped: Entity) {
 }
 
 /**
+```
 ================
 Team_ForceGesture
 ================
+```
 */
 /// Source: oracle/codemp/game/g_team.c:337
 func Team_ForceGesture(_ team: Int32) {
@@ -99,6 +103,7 @@ func Team_ForceGesture(_ team: Int32) {
 }
 
 /**
+```
 ================
 Team_FragBonuses
 
@@ -106,6 +111,7 @@ Calculate the bonuses for flag defense, flag carrier defense, etc.
 Note that bonuses are not cumulative.  You get one, they are in importance
 order.
 ================
+```
 */
 /// Source: oracle/codemp/game/g_team.c:363
 func Team_FragBonuses(_ targ: Entity, _ inflictor: Entity, _ attacker: Entity) {
@@ -114,12 +120,14 @@ func Team_FragBonuses(_ targ: Entity, _ inflictor: Entity, _ attacker: Entity) {
 }
 
 /**
+```
 ================
 Team_CheckHurtCarrier
 
 Check to see if attacker hurt the flag carrier.  Needed when handing out bonuses for assistance to flag
 carrier defense.
 ================
+```
 */
 /// Source: oracle/codemp/game/g_team.c:544
 func Team_CheckHurtCarrier(_ targ: Entity, _ attacker: Entity) {
@@ -170,6 +178,7 @@ func Team_FreeEntity(_ ent: Entity) {
 }
 
 /**
+```
 ==============
 Team_DroppedFlagThink
 
@@ -177,6 +186,7 @@ Automatically set in Launch_Item if the item is one of the flags
 
 Flags are unique in that if they are dropped, the base flag must be respawned when they time out
 ==============
+```
 */
 /// Source: oracle/codemp/game/g_team.c:714
 func Team_DroppedFlagThink(_ ent: Entity) {
@@ -185,9 +195,11 @@ func Team_DroppedFlagThink(_ ent: Entity) {
 }
 
 /**
+```
 ==============
 Team_DroppedFlagThink
 ==============
+```
 */
 /// Source: oracle/codemp/game/g_team.c:737
 func Team_TouchOurFlag(_ ent: Entity, _ other: Entity, _ team: Int32) -> Int32 {
@@ -208,11 +220,13 @@ func Pickup_Team(_ ent: Entity, _ other: Entity) -> Int32 {
 }
 
 /**
+```
 ===========
 Team_GetLocation
 
 Report a location for the player. Uses placed nearby target_location entities
 ============
+```
 */
 /// Source: oracle/codemp/game/g_team.c:880
 func Team_GetLocation(_ ent: Entity) -> Entity? {
@@ -221,11 +235,13 @@ func Team_GetLocation(_ ent: Entity) -> Entity? {
 }
 
 /**
+```
 ===========
 Team_GetLocation
 
 Report a location for the player. Uses placed nearby target_location entities
 ============
+```
 */
 /// Source: oracle/codemp/game/g_team.c:919
 func Team_GetLocationMsg(_ ent: Entity, _ loc: inout String, _ loclen: Int32) -> Bool {
@@ -240,10 +256,12 @@ func SelectRandomTeamSpawnPoint(_ teamstate: Int32, _ team: JKAMP.team_t, _ sieg
 }
 
 /**
+```
 ===========
 SelectCTFSpawnPoint
 
 ============
+```
 */
 /// Source: oracle/codemp/game/g_team.c:1049
 func SelectCTFSpawnPoint(_ team: JKAMP.team_t, _ teamstate: Int32, _ origin: inout JKAShared.vec3_t, _ angles: inout JKAShared.vec3_t) -> Entity? {
@@ -252,10 +270,12 @@ func SelectCTFSpawnPoint(_ team: JKAMP.team_t, _ teamstate: Int32, _ origin: ino
 }
 
 /**
+```
 ===========
 SelectSiegeSpawnPoint
 
 ============
+```
 */
 /// Source: oracle/codemp/game/g_team.c:1071
 func SelectSiegeSpawnPoint(_ siegeClass: Int32, _ team: JKAMP.team_t, _ teamstate: Int32, _ origin: inout JKAShared.vec3_t, _ angles: inout JKAShared.vec3_t) -> Entity? {
@@ -270,6 +290,7 @@ private func SortClients(_ a: OpaquePointer?, _ b: OpaquePointer?) -> Int32 {
 }
 
 /**
+```
 ==================
 TeamplayLocationsMessage
 
@@ -277,6 +298,7 @@ Format:
 	clientNum location health armor weapon powerups
 
 ==================
+```
 */
 /// Source: oracle/codemp/game/g_team.c:1103
 func TeamplayInfoMessage(_ ent: Entity) {
@@ -290,8 +312,11 @@ func CheckTeamStatus() {
     portMissing("CheckTeamStatus", source: "oracle/codemp/game/g_team.c:1161")
 }
 
-/**QUAKED team_CTF_redplayer (1 0 0) (-16 -16 -16) (16 16 32)
+/**
+```
+QUAKED team_CTF_redplayer (1 0 0) (-16 -16 -16) (16 16 32)
 Only in CTF games.  Red players spawn here at game start.
+```
 */
 /// Source: oracle/codemp/game/g_team.c:1209
 func SP_team_CTF_redplayer(_ ent: Entity) {
@@ -299,8 +324,11 @@ func SP_team_CTF_redplayer(_ ent: Entity) {
     portMissing("SP_team_CTF_redplayer", source: "oracle/codemp/game/g_team.c:1209")
 }
 
-/**QUAKED team_CTF_blueplayer (0 0 1) (-16 -16 -16) (16 16 32)
+/**
+```
+QUAKED team_CTF_blueplayer (0 0 1) (-16 -16 -16) (16 16 32)
 Only in CTF games.  Blue players spawn here at game start.
+```
 */
 /// Source: oracle/codemp/game/g_team.c:1216
 func SP_team_CTF_blueplayer(_ ent: Entity) {
@@ -308,9 +336,12 @@ func SP_team_CTF_blueplayer(_ ent: Entity) {
     portMissing("SP_team_CTF_blueplayer", source: "oracle/codemp/game/g_team.c:1216")
 }
 
-/**QUAKED team_CTF_redspawn (1 0 0) (-16 -16 -24) (16 16 32)
+/**
+```
+QUAKED team_CTF_redspawn (1 0 0) (-16 -16 -24) (16 16 32)
 potential spawning position for red team in CTF games.
 Targets will be fired when someone spawns in on them.
+```
 */
 /// Source: oracle/codemp/game/g_team.c:1224
 func SP_team_CTF_redspawn(_ ent: Entity) {
@@ -318,9 +349,12 @@ func SP_team_CTF_redspawn(_ ent: Entity) {
     portMissing("SP_team_CTF_redspawn", source: "oracle/codemp/game/g_team.c:1224")
 }
 
-/**QUAKED team_CTF_bluespawn (0 0 1) (-16 -16 -24) (16 16 32)
+/**
+```
+QUAKED team_CTF_bluespawn (0 0 1) (-16 -16 -24) (16 16 32)
 potential spawning position for blue team in CTF games.
 Targets will be fired when someone spawns in on them.
+```
 */
 /// Source: oracle/codemp/game/g_team.c:1231
 func SP_team_CTF_bluespawn(_ ent: Entity) {

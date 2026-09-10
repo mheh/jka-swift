@@ -11,9 +11,11 @@ func NAV_CheckNodeFailedForEnt(_ ent: Entity, _ nodeNum: Int32) -> Bool {
 }
 
 /**
+```
 -------------------------
 NPC_UnBlocked
 -------------------------
+```
 */
 /// Source: oracle/codemp/game/g_navnew.c:34
 func NPC_ClearBlocked(_ `self`: Entity) {
@@ -28,9 +30,11 @@ func NPC_SetBlocked(_ `self`: Entity, _ blocker: Entity) {
 }
 
 /**
+```
 -------------------------
 NAVNEW_ClearPathBetweenPoints
 -------------------------
+```
 */
 /// Source: oracle/codemp/game/g_navnew.c:58
 func NAVNEW_ClearPathBetweenPoints(_ start: inout JKAShared.vec3_t, _ end: inout JKAShared.vec3_t, _ mins: inout JKAShared.vec3_t, _ maxs: inout JKAShared.vec3_t, _ ignore: Int32, _ clipmask: Int32) -> Int32 {
@@ -39,9 +43,11 @@ func NAVNEW_ClearPathBetweenPoints(_ start: inout JKAShared.vec3_t, _ end: inout
 }
 
 /**
+```
 -------------------------
 NAVNEW_PushBlocker
 -------------------------
+```
 */
 /// Source: oracle/codemp/game/g_navnew.c:84
 func NAVNEW_PushBlocker(_ `self`: Entity, _ blocker: Entity, _ right: inout JKAShared.vec3_t, _ setBlockedInfo: Bool) {
@@ -50,9 +56,11 @@ func NAVNEW_PushBlocker(_ `self`: Entity, _ blocker: Entity, _ right: inout JKAS
 }
 
 /**
+```
 -------------------------
 NAVNEW_DanceWithBlocker
 -------------------------
+```
 */
 /// Source: oracle/codemp/game/g_navnew.c:178
 func NAVNEW_DanceWithBlocker(_ `self`: Entity, _ blocker: Entity, _ movedir: inout JKAShared.vec3_t, _ right: inout JKAShared.vec3_t) -> Bool {
@@ -61,9 +69,11 @@ func NAVNEW_DanceWithBlocker(_ `self`: Entity, _ blocker: Entity, _ movedir: ino
 }
 
 /**
+```
 -------------------------
 NAVNEW_SidestepBlocker
 -------------------------
+```
 */
 /// Source: oracle/codemp/game/g_navnew.c:222
 func NAVNEW_SidestepBlocker(_ `self`: Entity, _ blocker: Entity, _ blocked_dir: inout JKAShared.vec3_t, _ blocked_dist: Float, _ movedir: inout JKAShared.vec3_t, _ right: inout JKAShared.vec3_t) -> Bool {
@@ -72,9 +82,11 @@ func NAVNEW_SidestepBlocker(_ `self`: Entity, _ blocker: Entity, _ blocked_dir: 
 }
 
 /**
+```
 -------------------------
 NAVNEW_Bypass
 -------------------------
+```
 */
 /// Source: oracle/codemp/game/g_navnew.c:347
 func NAVNEW_Bypass(_ `self`: Entity, _ blocker: Entity, _ blocked_dir: inout JKAShared.vec3_t, _ blocked_dist: Float, _ movedir: inout JKAShared.vec3_t, _ setBlockedInfo: Bool) -> Bool {
@@ -83,9 +95,11 @@ func NAVNEW_Bypass(_ `self`: Entity, _ blocker: Entity, _ blocked_dir: inout JKA
 }
 
 /**
+```
 -------------------------
 NAVNEW_CheckDoubleBlock
 -------------------------
+```
 */
 /// Source: oracle/codemp/game/g_navnew.c:384
 func NAVNEW_CheckDoubleBlock(_ `self`: Entity, _ blocker: Entity, _ blocked_dir: inout JKAShared.vec3_t) -> Bool {
@@ -100,9 +114,11 @@ func NAVNEW_ResolveEntityCollision(_ `self`: Entity, _ blocker: Entity, _ movedi
 }
 
 /**
+```
 -------------------------
 NAVNEW_AvoidCollision
 -------------------------
+```
 */
 /// Source: oracle/codemp/game/g_navnew.c:442
 // TODO: Port signature
@@ -120,9 +136,11 @@ func NAVNEW_TestNodeConnectionBlocked(_ wp1: Int32, _ wp2: Int32, _ ignoreEnt: E
 }
 
 /**
+```
 -------------------------
 NAVNEW_MoveToGoal
 -------------------------
+```
 */
 /// Source: oracle/codemp/game/g_navnew.c:578
 // TODO: Port signature

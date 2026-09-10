@@ -5,9 +5,11 @@ import JKAShared
 import JKAMP_Game
 
 /**
+```
 -------------------------
 R2D2_PartsMove
 -------------------------
+```
 */
 /// Source: oracle/codemp/game/NPC_AI_Droid.c:24
 func R2D2_PartsMove() {
@@ -16,9 +18,11 @@ func R2D2_PartsMove() {
 }
 
 /**
+```
 -------------------------
 NPC_BSDroid_Idle
 -------------------------
+```
 */
 /// Source: oracle/codemp/game/NPC_AI_Droid.c:53
 func Droid_Idle() {
@@ -27,9 +31,11 @@ func Droid_Idle() {
 }
 
 /**
+```
 -------------------------
 R2D2_TurnAnims
 -------------------------
+```
 */
 /// Source: oracle/codemp/game/NPC_AI_Droid.c:65
 func R2D2_TurnAnims() {
@@ -38,9 +44,11 @@ func R2D2_TurnAnims() {
 }
 
 /**
+```
 -------------------------
 Droid_Patrol
 -------------------------
+```
 */
 /// Source: oracle/codemp/game/NPC_AI_Droid.c:102
 func Droid_Patrol() {
@@ -49,9 +57,11 @@ func Droid_Patrol() {
 }
 
 /**
+```
 -------------------------
 Droid_Run
 -------------------------
+```
 */
 /// Source: oracle/codemp/game/NPC_AI_Droid.c:175
 func Droid_Run() {
@@ -60,9 +70,11 @@ func Droid_Run() {
 }
 
 /**
+```
 -------------------------
 void Droid_Spin( void )
 -------------------------
+```
 */
 /// Source: oracle/codemp/game/NPC_AI_Droid.c:207
 func Droid_Spin() {
@@ -71,9 +83,11 @@ func Droid_Spin() {
 }
 
 /**
+```
 -------------------------
 NPC_BSDroid_Pain
 -------------------------
+```
 */
 /// Source: oracle/codemp/game/NPC_AI_Droid.c:273
 func NPC_Droid_Pain(_ `self`: Entity, _ attacker: Entity, _ damage: Int32) {
@@ -82,9 +96,11 @@ func NPC_Droid_Pain(_ `self`: Entity, _ attacker: Entity, _ damage: Int32) {
 }
 
 /**
+```
 -------------------------
 Droid_Pain
 -------------------------
+```
 */
 /// Source: oracle/codemp/game/NPC_AI_Droid.c:442
 func Droid_Pain() {
@@ -93,9 +109,11 @@ func Droid_Pain() {
 }
 
 /**
+```
 -------------------------
 NPC_Mouse_Precache
 -------------------------
+```
 */
 /// Source: oracle/codemp/game/NPC_AI_Droid.c:455
 func NPC_Mouse_Precache() {
@@ -104,9 +122,11 @@ func NPC_Mouse_Precache() {
 }
 
 /**
+```
 -------------------------
 NPC_R5D2_Precache
 -------------------------
+```
 */
 /// Source: oracle/codemp/game/NPC_AI_Droid.c:474
 func NPC_R5D2_Precache() {
@@ -115,9 +135,11 @@ func NPC_R5D2_Precache() {
 }
 
 /**
+```
 -------------------------
 NPC_R2D2_Precache
 -------------------------
+```
 */
 /// Source: oracle/codemp/game/NPC_AI_Droid.c:497
 func NPC_R2D2_Precache() {
@@ -126,9 +148,11 @@ func NPC_R2D2_Precache() {
 }
 
 /**
+```
 -------------------------
 NPC_Gonk_Precache
 -------------------------
+```
 */
 /// Source: oracle/codemp/game/NPC_AI_Droid.c:520
 func NPC_Gonk_Precache() {
@@ -137,9 +161,11 @@ func NPC_Gonk_Precache() {
 }
 
 /**
+```
 -------------------------
 NPC_Protocol_Precache
 -------------------------
+```
 */
 /// Source: oracle/codemp/game/NPC_AI_Droid.c:537
 func NPC_Protocol_Precache() {
@@ -148,9 +174,11 @@ func NPC_Protocol_Precache() {
 }
 
 /**
+```
 -------------------------
 NPC_BSDroid_Default
 -------------------------
+```
 */
 /// Source: oracle/codemp/game/NPC_AI_Droid.c:597
 func NPC_BSDroid_Default() {

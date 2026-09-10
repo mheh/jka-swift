@@ -5,11 +5,13 @@ import JKAShared
 import JKAMP_Game
 
 /**
+```
 ================
 G_WriteClientSessionData
 
 Called on game shutdown
 ================
+```
 */
 /// Source: oracle/codemp/game/g_session.c:23
 func G_WriteClientSessionData(_ client: Client) {
@@ -18,11 +20,13 @@ func G_WriteClientSessionData(_ client: Client) {
 }
 
 /**
+```
 ================
 G_ReadSessionData
 
 Called on a reconnect
 ================
+```
 */
 /// Source: oracle/codemp/game/g_session.c:105
 func G_ReadSessionData(_ client: Client) {
@@ -31,11 +35,13 @@ func G_ReadSessionData(_ client: Client) {
 }
 
 /**
+```
 ================
 G_InitSessionData
 
 Called on a first-time connect
 ================
+```
 */
 /// Source: oracle/codemp/game/g_session.c:187
 func G_InitSessionData(_ client: Client, _ userinfo: inout String, _ isBot: Bool) {
@@ -44,10 +50,12 @@ func G_InitSessionData(_ client: Client, _ userinfo: inout String, _ isBot: Bool
 }
 
 /**
+```
 ==================
 G_InitWorldSession
 
 ==================
+```
 */
 /// Source: oracle/codemp/game/g_session.c:291
 func G_InitWorldSession() {
@@ -56,10 +64,12 @@ func G_InitWorldSession() {
 }
 
 /**
+```
 ==================
 G_WriteSessionData
 
 ==================
+```
 */
 /// Source: oracle/codemp/game/g_session.c:312
 func G_WriteSessionData() {

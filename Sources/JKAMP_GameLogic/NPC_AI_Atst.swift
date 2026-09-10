@@ -5,9 +5,11 @@ import JKAShared
 import JKAMP_Game
 
 /**
+```
 -------------------------
 NPC_ATST_Precache
 -------------------------
+```
 */
 /// Source: oracle/codemp/game/NPC_AI_Atst.c:20
 func NPC_ATST_Precache() {
@@ -22,9 +24,11 @@ func G_ATSTCheckPain(_ `self`: Entity, _ other: Entity, _ damage: Int32) {
 }
 
 /**
+```
 -------------------------
 NPC_ATST_Pain
 -------------------------
+```
 */
 /// Source: oracle/codemp/game/NPC_AI_Atst.c:119
 func NPC_ATST_Pain(_ `self`: Entity, _ attacker: Entity, _ damage: Int32) {
@@ -33,9 +37,11 @@ func NPC_ATST_Pain(_ `self`: Entity, _ attacker: Entity, _ damage: Int32) {
 }
 
 /**
+```
 -------------------------
 ATST_Hunt
 -------------------------`
+```
 */
 /// Source: oracle/codemp/game/NPC_AI_Atst.c:130
 func ATST_Hunt(_ visible: Bool, _ advance: Bool) {
@@ -44,9 +50,11 @@ func ATST_Hunt(_ visible: Bool, _ advance: Bool) {
 }
 
 /**
+```
 -------------------------
 ATST_Ranged
 -------------------------
+```
 */
 /// Source: oracle/codemp/game/NPC_AI_Atst.c:149
 func ATST_Ranged(_ visible: Bool, _ advance: Bool, _ altAttack: Bool) {
@@ -55,9 +63,11 @@ func ATST_Ranged(_ visible: Bool, _ advance: Bool, _ altAttack: Bool) {
 }
 
 /**
+```
 -------------------------
 ATST_Attack
 -------------------------
+```
 */
 /// Source: oracle/codemp/game/NPC_AI_Atst.c:177
 func ATST_Attack() {
@@ -66,9 +76,11 @@ func ATST_Attack() {
 }
 
 /**
+```
 -------------------------
 ATST_Patrol
 -------------------------
+```
 */
 /// Source: oracle/codemp/game/NPC_AI_Atst.c:271
 func ATST_Patrol() {
@@ -77,9 +89,11 @@ func ATST_Patrol() {
 }
 
 /**
+```
 -------------------------
 ATST_Idle
 -------------------------
+```
 */
 /// Source: oracle/codemp/game/NPC_AI_Atst.c:297
 func ATST_Idle() {
@@ -88,9 +102,11 @@ func ATST_Idle() {
 }
 
 /**
+```
 -------------------------
 NPC_BSDroid_Default
 -------------------------
+```
 */
 /// Source: oracle/codemp/game/NPC_AI_Atst.c:310
 func NPC_BSATST_Default() {

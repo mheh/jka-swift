@@ -5,9 +5,11 @@ import JKAShared
 import JKAMP_Game
 
 /**
+```
  void NPC_BSAdvanceFight (void)
 
 Advance towards your captureGoal and shoot anyone you can along the way.
+```
 */
 /// Source: oracle/codemp/game/NPC_behavior.c:29
 func NPC_BSAdvanceFight() {
@@ -52,7 +54,9 @@ func NPC_CheckInvestigate(_ alertEventNum: Int32) -> Bool {
 }
 
 /**
+```
 void NPC_BSSleep( void )
+```
 */
 /// Source: oracle/codemp/game/NPC_behavior.c:500
 func NPC_BSSleep() {

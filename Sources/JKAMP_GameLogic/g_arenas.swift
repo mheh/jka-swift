@@ -5,9 +5,11 @@ import JKAShared
 import JKAMP_Game
 
 /**
+```
 ==================
 UpdateTournamentInfo
 ==================
+```
 */
 /// Source: oracle/codemp/game/g_arenas.c:20
 func UpdateTournamentInfo() {

@@ -64,12 +64,14 @@ func SP_gametype_item(_ ent: Entity) {
 }
 
 /**
+```
 ===============
 G_CallSpawn
 
 Finds the spawn function for the entity and calls it,
 returning qfalse if not found
 ===============
+```
 */
 /// Source: oracle/codemp/game/g_spawn.c:683
 func G_CallSpawn(_ ent: Entity) -> Bool {
@@ -78,12 +80,14 @@ func G_CallSpawn(_ ent: Entity) -> Bool {
 }
 
 /**
+```
 =============
 G_NewString
 
 Builds a copy of the string, translating \n to real linefeeds
 so message texts can be multi-line
 =============
+```
 */
 /// Source: oracle/codemp/game/g_spawn.c:724
 // TODO: Port signature
@@ -101,9 +105,11 @@ func G_SpawnGEntityFromSpawnVars(_ inSubBSP: Bool) {
 }
 
 /**
+```
 ====================
 G_AddSpawnVarToken
 ====================
+```
 */
 /// Source: oracle/codemp/game/g_spawn.c:851
 // TODO: Port signature
@@ -127,6 +133,7 @@ private func HandleEntityAdjustment() {
 }
 
 /**
+```
 ====================
 G_ParseSpawnVars
 
@@ -135,6 +142,7 @@ level's entity strings into level.spawnVars[]
 
 This does not actually spawn an entity.
 ====================
+```
 */
 /// Source: oracle/codemp/game/g_spawn.c:1018
 func G_ParseSpawnVars(_ inSubBSP: Bool) -> Bool {
@@ -162,11 +170,13 @@ func G_PrecacheSoundsets() {
 }
 
 /**
+```
 ==============
 G_SpawnEntitiesFromString
 
 Parses textual entity definitions out of an entstring and spawns gentities.
 ==============
+```
 */
 /// Source: oracle/codemp/game/g_spawn.c:1424
 func G_SpawnEntitiesFromString(_ inSubBSP: Bool) {

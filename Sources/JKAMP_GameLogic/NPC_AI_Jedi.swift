@@ -126,9 +126,11 @@ func Jedi_CheckCloak() {
 }
 
 /**
+```
 ==========================================================================================
 AGGRESSION
 ==========================================================================================
+```
 */
 /// Source: oracle/codemp/game/NPC_AI_Jedi.c:863
 private func Jedi_Aggression(_ `self`: Entity, _ change: Int32) {
@@ -167,9 +169,11 @@ private func Jedi_BattleTaunt() -> Bool {
 }
 
 /**
+```
 ==========================================================================================
 MOVEMENT
 ==========================================================================================
+```
 */
 /// Source: oracle/codemp/game/NPC_AI_Jedi.c:1020
 private func Jedi_ClearPathToSpot(_ dest: inout JKAShared.vec3_t, _ impactEntNum: Int32) -> Bool {
@@ -274,11 +278,13 @@ private func Jedi_SaberBlock(_ saberNum: Int32, _ bladeNum: Int32) -> Bool {
 }
 
 /**
+```
 -------------------------
 Jedi_EvasionSaber
 
 defend if other is using saber and attacking me!
 -------------------------
+```
 */
 /// Source: oracle/codemp/game/NPC_AI_Jedi.c:3380
 private func Jedi_EvasionSaber(_ enemy_movedir: inout JKAShared.vec3_t, _ enemy_dist: Float, _ enemy_dir: inout JKAShared.vec3_t) {
@@ -287,9 +293,11 @@ private func Jedi_EvasionSaber(_ enemy_movedir: inout JKAShared.vec3_t, _ enemy_
 }
 
 /**
+```
 ==========================================================================================
 INTERNAL AI ROUTINES
 ==========================================================================================
+```
 */
 /// Source: oracle/codemp/game/NPC_AI_Jedi.c:3686
 func Jedi_FindEnemyInCone(_ `self`: Entity, _ fallback: Entity, _ minDot: Float) -> Entity? {
@@ -418,9 +426,11 @@ func Jedi_CanPullBackSaber(_ `self`: Entity) -> Bool {
 }
 
 /**
+```
 -------------------------
 NPC_BSJedi_FollowLeader
 -------------------------
+```
 */
 /// Source: oracle/codemp/game/NPC_AI_Jedi.c:5758
 func NPC_BSJedi_FollowLeader() {

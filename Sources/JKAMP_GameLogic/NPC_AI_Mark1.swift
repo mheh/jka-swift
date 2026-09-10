@@ -5,9 +5,11 @@ import JKAShared
 import JKAMP_Game
 
 /**
+```
 -------------------------
 NPC_Mark1_Precache
 -------------------------
+```
 */
 /// Source: oracle/codemp/game/NPC_AI_Mark1.c:50
 func NPC_Mark1_Precache() {
@@ -16,9 +18,11 @@ func NPC_Mark1_Precache() {
 }
 
 /**
+```
 -------------------------
 NPC_Mark1_Part_Explode
 -------------------------
+```
 */
 /// Source: oracle/codemp/game/NPC_AI_Mark1.c:81
 func NPC_Mark1_Part_Explode(_ `self`: Entity, _ bolt: Int32) {
@@ -27,9 +31,11 @@ func NPC_Mark1_Part_Explode(_ `self`: Entity, _ bolt: Int32) {
 }
 
 /**
+```
 -------------------------
 Mark1_Idle
 -------------------------
+```
 */
 /// Source: oracle/codemp/game/NPC_AI_Mark1.c:109
 func Mark1_Idle() {
@@ -38,10 +44,12 @@ func Mark1_Idle() {
 }
 
 /**
+```
 -------------------------
 Mark1Dead_FireRocket
 - Shoot the left weapon, the multi-blaster
 -------------------------
+```
 */
 /// Source: oracle/codemp/game/NPC_AI_Mark1.c:123
 func Mark1Dead_FireRocket() {
@@ -50,10 +58,12 @@ func Mark1Dead_FireRocket() {
 }
 
 /**
+```
 -------------------------
 Mark1Dead_FireBlaster
 - Shoot the left weapon, the multi-blaster
 -------------------------
+```
 */
 /// Source: oracle/codemp/game/NPC_AI_Mark1.c:171
 func Mark1Dead_FireBlaster() {
@@ -62,9 +72,11 @@ func Mark1Dead_FireBlaster() {
 }
 
 /**
+```
 -------------------------
 Mark1_die
 -------------------------
+```
 */
 /// Source: oracle/codemp/game/NPC_AI_Mark1.c:209
 func Mark1_die(_ `self`: Entity, _ inflictor: Entity, _ attacker: Entity, _ damage: Int32, _ mod: Int32, _ dFlags: Int32, _ hitLoc: Int32) {
@@ -73,9 +85,11 @@ func Mark1_die(_ `self`: Entity, _ inflictor: Entity, _ attacker: Entity, _ dama
 }
 
 /**
+```
 -------------------------
 Mark1_dying
 -------------------------
+```
 */
 /// Source: oracle/codemp/game/NPC_AI_Mark1.c:250
 func Mark1_dying(_ `self`: Entity) {
@@ -84,10 +98,12 @@ func Mark1_dying(_ `self`: Entity) {
 }
 
 /**
+```
 -------------------------
 NPC_Mark1_Pain
 - look at what was hit and see if it should be removed from the model.
 -------------------------
+```
 */
 /// Source: oracle/codemp/game/NPC_AI_Mark1.c:320
 func NPC_Mark1_Pain(_ `self`: Entity, _ attacker: Entity, _ damage: Int32) {
@@ -96,10 +112,12 @@ func NPC_Mark1_Pain(_ `self`: Entity, _ attacker: Entity, _ damage: Int32) {
 }
 
 /**
+```
 -------------------------
 Mark1_Hunt
 - look for enemy.
 -------------------------`
+```
 */
 /// Source: oracle/codemp/game/NPC_AI_Mark1.c:404
 func Mark1_Hunt() {
@@ -108,10 +126,12 @@ func Mark1_Hunt() {
 }
 
 /**
+```
 -------------------------
 Mark1_FireBlaster
 - Shoot the left weapon, the multi-blaster
 -------------------------
+```
 */
 /// Source: oracle/codemp/game/NPC_AI_Mark1.c:424
 func Mark1_FireBlaster() {
@@ -120,9 +140,11 @@ func Mark1_FireBlaster() {
 }
 
 /**
+```
 -------------------------
 Mark1_BlasterAttack
 -------------------------
+```
 */
 /// Source: oracle/codemp/game/NPC_AI_Mark1.c:495
 func Mark1_BlasterAttack(_ advance: Bool) {
@@ -131,9 +153,11 @@ func Mark1_BlasterAttack(_ advance: Bool) {
 }
 
 /**
+```
 -------------------------
 Mark1_FireRocket
 -------------------------
+```
 */
 /// Source: oracle/codemp/game/NPC_AI_Mark1.c:555
 func Mark1_FireRocket() {
@@ -142,9 +166,11 @@ func Mark1_FireRocket() {
 }
 
 /**
+```
 -------------------------
 Mark1_RocketAttack
 -------------------------
+```
 */
 /// Source: oracle/codemp/game/NPC_AI_Mark1.c:606
 func Mark1_RocketAttack(_ advance: Bool) {
@@ -153,9 +179,11 @@ func Mark1_RocketAttack(_ advance: Bool) {
 }
 
 /**
+```
 -------------------------
 Mark1_AttackDecision
 -------------------------
+```
 */
 /// Source: oracle/codemp/game/NPC_AI_Mark1.c:625
 func Mark1_AttackDecision() {
@@ -164,9 +192,11 @@ func Mark1_AttackDecision() {
 }
 
 /**
+```
 -------------------------
 Mark1_Patrol
 -------------------------
+```
 */
 /// Source: oracle/codemp/game/NPC_AI_Mark1.c:711
 func Mark1_Patrol() {
@@ -175,9 +205,11 @@ func Mark1_Patrol() {
 }
 
 /**
+```
 -------------------------
 NPC_BSMark1_Default
 -------------------------
+```
 */
 /// Source: oracle/codemp/game/NPC_AI_Mark1.c:747
 func NPC_BSMark1_Default() {

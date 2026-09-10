@@ -216,12 +216,15 @@ func siegeTriggerUse(_ ent: Entity, _ other: Entity, _ activator: Entity) {
     portMissing("siegeTriggerUse", source: "oracle/codemp/game/g_saga.c:1060")
 }
 
-/**QUAKED info_siege_objective (1 0 1) (-16 -16 -24) (16 16 32) ? x x STARTOFFRADAR
+/**
+```
+QUAKED info_siege_objective (1 0 1) (-16 -16 -24) (16 16 32) ? x x STARTOFFRADAR
 STARTOFFRADAR - start not displaying on radar, don't display until used.
 
 "objective" - specifies the objective to complete upon activation
 "side" - set to 1 to specify an imperial goal, 2 to specify rebels
 "icon" - icon that represents the objective on the radar
+```
 */
 /// Source: oracle/codemp/game/g_saga.c:1137
 func SP_info_siege_objective(_ ent: Entity) {
@@ -235,12 +238,15 @@ func SiegeIconUse(_ ent: Entity, _ other: Entity, _ activator: Entity) {
     portMissing("SiegeIconUse", source: "oracle/codemp/game/g_saga.c:1182")
 }
 
-/**QUAKED info_siege_radaricon (1 0 1) (-16 -16 -24) (16 16 32) ?
+/**
+```
+QUAKED info_siege_radaricon (1 0 1) (-16 -16 -24) (16 16 32) ?
 Used to arbitrarily display radar icons at placed location. Can be used
 to toggle on and off.
 
 "icon" - icon that represents the objective on the radar
 "startoff" - if 1 start off
+```
 */
 /// Source: oracle/codemp/game/g_saga.c:1203
 func SP_info_siege_radaricon(_ ent: Entity) {
@@ -254,9 +260,12 @@ func decompTriggerUse(_ ent: Entity, _ other: Entity, _ activator: Entity) {
     portMissing("decompTriggerUse", source: "oracle/codemp/game/g_saga.c:1236")
 }
 
-/**QUAKED info_siege_decomplete (1 0 1) (-16 -16 -24) (16 16 32)
+/**
+```
+QUAKED info_siege_decomplete (1 0 1) (-16 -16 -24) (16 16 32)
 "objective" - specifies the objective to decomplete upon activation
 "side" - set to 1 to specify an imperial (team1) goal, 2 to specify rebels (team2)
+```
 */
 /// Source: oracle/codemp/game/g_saga.c:1297
 func SP_info_siege_decomplete(_ ent: Entity) {
@@ -270,8 +279,11 @@ func siegeEndUse(_ ent: Entity, _ other: Entity, _ activator: Entity) {
     portMissing("siegeEndUse", source: "oracle/codemp/game/g_saga.c:1317")
 }
 
-/**QUAKED target_siege_end (1 0 1) (-16 -16 -24) (16 16 32)
+/**
+```
+QUAKED target_siege_end (1 0 1) (-16 -16 -24) (16 16 32)
 Do a logexit for siege when used.
+```
 */
 /// Source: oracle/codemp/game/g_saga.c:1325
 func SP_target_siege_end(_ ent: Entity) {
@@ -327,7 +339,9 @@ func SiegeItemUse(_ ent: Entity, _ other: Entity, _ activator: Entity) {
     portMissing("SiegeItemUse", source: "oracle/codemp/game/g_saga.c:1576")
 }
 
-/**QUAKED misc_siege_item (1 0 1) (-16 -16 -24) (16 16 32) ? x x STARTOFFRADAR
+/**
+```
+QUAKED misc_siege_item (1 0 1) (-16 -16 -24) (16 16 32) ? x x STARTOFFRADAR
 STARTOFFRADAR - start not displaying on radar, don't display until used.
 
 "model"				Name of model to use for the object
@@ -377,6 +391,7 @@ STARTOFFRADAR - start not displaying on radar, don't display until used.
 health charge things only work with showhealth 1 on siege items that take damage.
 "health_chargeamt"	if non-0 will recharge this much health every...
 "health_chargerate"	...this many milliseconds
+```
 */
 /// Source: oracle/codemp/game/g_saga.c:1676
 func SP_misc_siege_item(_ ent: Entity) {

@@ -5,9 +5,11 @@ import JKAShared
 import JKAMP_Game
 
 /**
+```
 =================
 StringToFilter
 =================
+```
 */
 /// Source: oracle/codemp/game/g_svcmds.c:62
 // TODO: Port signature
@@ -19,9 +21,11 @@ private func StringToFilter() -> Never {
 }
 
 /**
+```
 =================
 UpdateIPBans
 =================
+```
 */
 /// Source: oracle/codemp/game/g_svcmds.c:109
 private func UpdateIPBans() {
@@ -30,9 +34,11 @@ private func UpdateIPBans() {
 }
 
 /**
+```
 =================
 G_FilterPacket
 =================
+```
 */
 /// Source: oracle/codemp/game/g_svcmds.c:134
 func G_FilterPacket(_ from: inout String) -> Bool {
@@ -41,9 +47,11 @@ func G_FilterPacket(_ from: inout String) -> Bool {
 }
 
 /**
+```
 =================
 AddIP
 =================
+```
 */
 /// Source: oracle/codemp/game/g_svcmds.c:173
 func AddIP(_ str: inout String) {
@@ -52,9 +60,11 @@ func AddIP(_ str: inout String) {
 }
 
 /**
+```
 =================
 G_ProcessIPBans
 =================
+```
 */
 /// Source: oracle/codemp/game/g_svcmds.c:201
 func G_ProcessIPBans() {
@@ -63,9 +73,11 @@ func G_ProcessIPBans() {
 }
 
 /**
+```
 =================
 Svcmd_AddIP_f
 =================
+```
 */
 /// Source: oracle/codemp/game/g_svcmds.c:226
 func Svcmd_AddIP_f() {
@@ -74,9 +86,11 @@ func Svcmd_AddIP_f() {
 }
 
 /**
+```
 =================
 Svcmd_RemoveIP_f
 =================
+```
 */
 /// Source: oracle/codemp/game/g_svcmds.c:246
 func Svcmd_RemoveIP_f() {
@@ -103,9 +117,11 @@ func G_LoadIPBans() {
 }
 
 /**
+```
 ===================
 Svcmd_EntityList_f
 ===================
+```
 */
 /// Source: oracle/codemp/game/g_svcmds.c:386
 func Svcmd_EntityList_f() {
@@ -120,11 +136,13 @@ func ClientForString(_ s: String) -> Client? {
 }
 
 /**
+```
 ===================
 Svcmd_ForceTeam_f
 
 forceteam <player> <team>
 ===================
+```
 */
 /// Source: oracle/codemp/game/g_svcmds.c:489
 func Svcmd_ForceTeam_f() {
@@ -133,10 +151,12 @@ func Svcmd_ForceTeam_f() {
 }
 
 /**
+```
 =================
 ConsoleCommand
 
 =================
+```
 */
 /// Source: oracle/codemp/game/g_svcmds.c:513
 func ConsoleCommand() -> Bool {

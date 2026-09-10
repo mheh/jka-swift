@@ -11,9 +11,11 @@ func NPC_Remote_Precache() {
 }
 
 /**
+```
 -------------------------
 NPC_Remote_Pain
 -------------------------
+```
 */
 /// Source: oracle/codemp/game/NPC_AI_Remote.c:29
 func NPC_Remote_Pain(_ `self`: Entity, _ attacker: Entity, _ damage: Int32) {
@@ -22,9 +24,11 @@ func NPC_Remote_Pain(_ `self`: Entity, _ attacker: Entity, _ damage: Int32) {
 }
 
 /**
+```
 -------------------------
 Remote_MaintainHeight
 -------------------------
+```
 */
 /// Source: oracle/codemp/game/NPC_AI_Remote.c:44
 func Remote_MaintainHeight() {
@@ -33,9 +37,11 @@ func Remote_MaintainHeight() {
 }
 
 /**
+```
 -------------------------
 Remote_Strafe
 -------------------------
+```
 */
 /// Source: oracle/codemp/game/NPC_AI_Remote.c:139
 func Remote_Strafe() {
@@ -44,9 +50,11 @@ func Remote_Strafe() {
 }
 
 /**
+```
 -------------------------
 Remote_Hunt
 -------------------------
+```
 */
 /// Source: oracle/codemp/game/NPC_AI_Remote.c:178
 func Remote_Hunt(_ visible: Bool, _ advance: Bool, _ retreat: Bool) {
@@ -55,9 +63,11 @@ func Remote_Hunt(_ visible: Bool, _ advance: Bool, _ retreat: Bool) {
 }
 
 /**
+```
 -------------------------
 Remote_Fire
 -------------------------
+```
 */
 /// Source: oracle/codemp/game/NPC_AI_Remote.c:229
 func Remote_Fire() {
@@ -66,9 +76,11 @@ func Remote_Fire() {
 }
 
 /**
+```
 -------------------------
 Remote_Ranged
 -------------------------
+```
 */
 /// Source: oracle/codemp/game/NPC_AI_Remote.c:264
 func Remote_Ranged(_ visible: Bool, _ advance: Bool, _ retreat: Bool) {
@@ -77,9 +89,11 @@ func Remote_Ranged(_ visible: Bool, _ advance: Bool, _ retreat: Bool) {
 }
 
 /**
+```
 -------------------------
 Remote_Attack
 -------------------------
+```
 */
 /// Source: oracle/codemp/game/NPC_AI_Remote.c:290
 func Remote_Attack() {
@@ -88,9 +102,11 @@ func Remote_Attack() {
 }
 
 /**
+```
 -------------------------
 Remote_Idle
 -------------------------
+```
 */
 /// Source: oracle/codemp/game/NPC_AI_Remote.c:339
 func Remote_Idle() {
@@ -99,9 +115,11 @@ func Remote_Idle() {
 }
 
 /**
+```
 -------------------------
 Remote_Patrol
 -------------------------
+```
 */
 /// Source: oracle/codemp/game/NPC_AI_Remote.c:351
 func Remote_Patrol() {
@@ -110,9 +128,11 @@ func Remote_Patrol() {
 }
 
 /**
+```
 -------------------------
 NPC_BSRemote_Default
 -------------------------
+```
 */
 /// Source: oracle/codemp/game/NPC_AI_Remote.c:375
 func NPC_BSRemote_Default() {

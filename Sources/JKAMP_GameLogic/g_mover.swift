@@ -29,10 +29,12 @@ func G_PlayDoorSound(_ ent: Entity, _ type: Int32) {
 }
 
 /**
+```
 ============
 G_TestEntityPosition
 
 ============
+```
 */
 /// Source: oracle/codemp/game/g_mover.c:86
 func G_TestEntityPosition(_ ent: Entity) -> Entity? {
@@ -41,9 +43,11 @@ func G_TestEntityPosition(_ ent: Entity) -> Entity? {
 }
 
 /**
+```
 ================
 G_CreateRotationMatrix
 ================
+```
 */
 /// Source: oracle/codemp/game/g_mover.c:118
 func G_CreateRotationMatrix(_ angles: inout JKAShared.vec3_t, _ matrix: inout [JKAShared.vec3_t]) {
@@ -52,9 +56,11 @@ func G_CreateRotationMatrix(_ angles: inout JKAShared.vec3_t, _ matrix: inout [J
 }
 
 /**
+```
 ================
 G_TransposeMatrix
 ================
+```
 */
 /// Source: oracle/codemp/game/g_mover.c:128
 func G_TransposeMatrix(_ matrix: inout [JKAShared.vec3_t], _ transpose: inout [JKAShared.vec3_t]) {
@@ -63,9 +69,11 @@ func G_TransposeMatrix(_ matrix: inout [JKAShared.vec3_t], _ transpose: inout [J
 }
 
 /**
+```
 ================
 G_RotatePoint
 ================
+```
 */
 /// Source: oracle/codemp/game/g_mover.c:142
 func G_RotatePoint(_ point: inout JKAShared.vec3_t, _ matrix: inout [JKAShared.vec3_t]) {
@@ -80,6 +88,7 @@ func G_TryPushingEntity(_ check: Entity, _ pusher: Entity, _ move: inout JKAShar
 }
 
 /**
+```
 ============
 G_MoverPush
 
@@ -87,6 +96,7 @@ Objects need to be moved back on a failed push,
 otherwise riders would continue to slide.
 If qfalse is returned, *obstacle will be the blocking entity
 ============
+```
 */
 /// Source: oracle/codemp/game/g_mover.c:283
 // TODO: Port signature
@@ -98,9 +108,11 @@ func G_MoverPush() -> Never {
 }
 
 /**
+```
 =================
 G_MoverTeam
 =================
+```
 */
 /// Source: oracle/codemp/game/g_mover.c:416
 func G_MoverTeam(_ ent: Entity) {
@@ -109,10 +121,12 @@ func G_MoverTeam(_ ent: Entity) {
 }
 
 /**
+```
 ================
 G_RunMover
 
 ================
+```
 */
 /// Source: oracle/codemp/game/g_mover.c:479
 func G_RunMover(_ ent: Entity) {
@@ -127,9 +141,11 @@ func CalcTeamDoorCenter(_ ent: Entity, _ center: inout JKAShared.vec3_t) {
 }
 
 /**
+```
 ===============
 SetMoverState
 ===============
+```
 */
 /// Source: oracle/codemp/game/g_mover.c:535
 func SetMoverState(_ ent: Entity, _ moverState: moverState_t, _ time: Int32) {
@@ -138,12 +154,14 @@ func SetMoverState(_ ent: Entity, _ moverState: moverState_t, _ time: Int32) {
 }
 
 /**
+```
 ================
 MatchTeam
 
 All entities in a mover team will move from pos1 to pos2
 in the same amount of time
 ================
+```
 */
 /// Source: oracle/codemp/game/g_mover.c:600
 func MatchTeam(_ teamLeader: Entity, _ moverState: Int32, _ time: Int32) {
@@ -152,9 +170,11 @@ func MatchTeam(_ teamLeader: Entity, _ moverState: Int32, _ time: Int32) {
 }
 
 /**
+```
 ================
 ReturnToPos1
 ================
+```
 */
 /// Source: oracle/codemp/game/g_mover.c:615
 func ReturnToPos1(_ ent: Entity) {
@@ -169,9 +189,11 @@ func Reached_BinaryMover(_ ent: Entity) {
 }
 
 /**
+```
 ================
 Use_BinaryMover_Go
 ================
+```
 */
 /// Source: oracle/codemp/game/g_mover.c:710
 func Use_BinaryMover_Go(_ ent: Entity) {
@@ -192,9 +214,11 @@ func LockDoors(_ ent: Entity) {
 }
 
 /**
+```
 ================
 Use_BinaryMover
 ================
+```
 */
 /// Source: oracle/codemp/game/g_mover.c:863
 func Use_BinaryMover(_ ent: Entity, _ other: Entity, _ activator: Entity) {
@@ -203,12 +227,14 @@ func Use_BinaryMover(_ ent: Entity, _ other: Entity, _ activator: Entity) {
 }
 
 /**
+```
 ================
 InitMover
 
 "pos1", "pos2", and "speed" should be set before calling,
 so the movement delta can be calculated
 ================
+```
 */
 /// Source: oracle/codemp/game/g_mover.c:913
 func InitMoverTrData(_ ent: Entity) {
@@ -223,9 +249,11 @@ func InitMover(_ ent: Entity) {
 }
 
 /**
+```
 ================
 Blocked_Door
 ================
+```
 */
 /// Source: oracle/codemp/game/g_mover.c:1018
 func Blocked_Door(_ ent: Entity, _ other: Entity) {
@@ -234,9 +262,11 @@ func Blocked_Door(_ ent: Entity, _ other: Entity) {
 }
 
 /**
+```
 ================
 Touch_DoorTriggerSpectator
 ================
+```
 */
 /// Source: oracle/codemp/game/g_mover.c:1037
 private func Touch_DoorTriggerSpectator(_ ent: Entity, _ other: Entity, _ trace: JKAMP.Trace) {
@@ -245,9 +275,11 @@ private func Touch_DoorTriggerSpectator(_ ent: Entity, _ other: Entity, _ trace:
 }
 
 /**
+```
 ================
 Touch_DoorTrigger
 ================
+```
 */
 /// Source: oracle/codemp/game/g_mover.c:1078
 func Touch_DoorTrigger(_ ent: Entity, _ other: Entity, _ trace: JKAMP.Trace) {
@@ -256,12 +288,14 @@ func Touch_DoorTrigger(_ ent: Entity, _ other: Entity, _ trace: JKAMP.Trace) {
 }
 
 /**
+```
 ======================
 Think_SpawnNewDoorTrigger
 
 All of the parts of a door have been spawned, so create
 a trigger that encloses all of them
 ======================
+```
 */
 /// Source: oracle/codemp/game/g_mover.c:1168
 func Think_SpawnNewDoorTrigger(_ ent: Entity) {
@@ -293,7 +327,9 @@ func G_EntIsUnlockedDoor(_ entityNum: Int32) -> Bool {
     portMissing("G_EntIsUnlockedDoor", source: "oracle/codemp/game/g_mover.c:1282")
 }
 
-/**QUAKED func_door (0 .5 .8) ? START_OPEN FORCE_ACTIVATE CRUSHER TOGGLE LOCKED x PLAYER_USE INACTIVE
+/**
+```
+QUAKED func_door (0 .5 .8) ? START_OPEN FORCE_ACTIVATE CRUSHER TOGGLE LOCKED x PLAYER_USE INACTIVE
 START_OPEN	the door to moves to its destination when spawned, and operate in reverse.  It is used to temporarily or permanently close off an area when triggered (not useful for touch or takedamage doors).
 FORCE_ACTIVATE	Can only be activated by a force push or pull
 CRUSHER		?
@@ -323,6 +359,7 @@ INACTIVE	must be used by a target_activate before it can be used
 	1 - red
 	2 - blue
 "vehopen"	if non-0, vehicles/players riding vehicles can open
+```
 */
 /// Source: oracle/codemp/game/g_mover.c:1380
 func SP_func_door(_ ent: Entity) {
@@ -331,11 +368,13 @@ func SP_func_door(_ ent: Entity) {
 }
 
 /**
+```
 ==============
 Touch_Plat
 
 Don't allow decent if a living player is on it
 ===============
+```
 */
 /// Source: oracle/codemp/game/g_mover.c:1489
 func Touch_Plat(_ ent: Entity, _ other: Entity, _ trace: JKAMP.Trace) {
@@ -344,11 +383,13 @@ func Touch_Plat(_ ent: Entity, _ other: Entity, _ trace: JKAMP.Trace) {
 }
 
 /**
+```
 ==============
 Touch_PlatCenterTrigger
 
 If the plat is at the bottom position, start it going up
 ===============
+```
 */
 /// Source: oracle/codemp/game/g_mover.c:1507
 func Touch_PlatCenterTrigger(_ ent: Entity, _ other: Entity, _ trace: JKAMP.Trace) {
@@ -357,6 +398,7 @@ func Touch_PlatCenterTrigger(_ ent: Entity, _ other: Entity, _ trace: JKAMP.Trac
 }
 
 /**
+```
 ================
 SpawnPlatTrigger
 
@@ -364,6 +406,7 @@ Spawn a trigger in the middle of the plat's low position
 Elevator cars require that the trigger extend through the entire low position,
 not just sit on top of it.
 ================
+```
 */
 /// Source: oracle/codemp/game/g_mover.c:1527
 func SpawnPlatTrigger(_ ent: Entity) {
@@ -371,7 +414,9 @@ func SpawnPlatTrigger(_ ent: Entity) {
     portMissing("SpawnPlatTrigger", source: "oracle/codemp/game/g_mover.c:1527")
 }
 
-/**QUAKED func_plat (0 .5 .8) ? x x x x x x PLAYER_USE INACTIVE
+/**
+```
+QUAKED func_plat (0 .5 .8) ? x x x x x x PLAYER_USE INACTIVE
 PLAYER_USE	Player can use it with the use button
 INACTIVE	must be used by a target_activate before it can be used
 
@@ -384,6 +429,7 @@ Plats are always drawn in the extended position so they will light correctly.
 "model2"	.md3 model to also draw
 "color"		constantLight color
 "light"		constantLight radius
+```
 */
 /// Source: oracle/codemp/game/g_mover.c:1576
 func SP_func_plat(_ ent: Entity) {
@@ -392,10 +438,12 @@ func SP_func_plat(_ ent: Entity) {
 }
 
 /**
+```
 ==============
 Touch_Button
 
 ===============
+```
 */
 /// Source: oracle/codemp/game/g_mover.c:1633
 func Touch_Button(_ ent: Entity, _ other: Entity, _ trace: JKAMP.Trace) {
@@ -403,7 +451,9 @@ func Touch_Button(_ ent: Entity, _ other: Entity, _ trace: JKAMP.Trace) {
     portMissing("Touch_Button", source: "oracle/codemp/game/g_mover.c:1633")
 }
 
-/**QUAKED func_button (0 .5 .8) ? x x x x x x PLAYER_USE INACTIVE
+/**
+```
+QUAKED func_button (0 .5 .8) ? x x x x x x PLAYER_USE INACTIVE
 PLAYER_USE	Player can use it with the use button
 INACTIVE	must be used by a target_activate before it can be used
 
@@ -418,6 +468,7 @@ When a button is touched, it moves some distance in the direction of it's angle,
 "health"	if set, the button must be killed instead of touched
 "color"		constantLight color
 "light"		constantLight radius
+```
 */
 /// Source: oracle/codemp/game/g_mover.c:1660
 func SP_func_button(_ ent: Entity) {
@@ -426,11 +477,13 @@ func SP_func_button(_ ent: Entity) {
 }
 
 /**
+```
 ===============
 Think_BeginMoving
 
 The wait time at a corner has completed, so start moving again
 ===============
+```
 */
 /// Source: oracle/codemp/game/g_mover.c:1727
 func Think_BeginMoving(_ ent: Entity) {
@@ -439,9 +492,11 @@ func Think_BeginMoving(_ ent: Entity) {
 }
 
 /**
+```
 ===============
 Reached_Train
 ===============
+```
 */
 /// Source: oracle/codemp/game/g_mover.c:1739
 func Reached_Train(_ ent: Entity) {
@@ -450,11 +505,13 @@ func Reached_Train(_ ent: Entity) {
 }
 
 /**
+```
 ===============
 Think_SetupTrainTargets
 
 Link all the corners together
 ===============
+```
 */
 /// Source: oracle/codemp/game/g_mover.c:1802
 func Think_SetupTrainTargets(_ ent: Entity) {
@@ -462,11 +519,14 @@ func Think_SetupTrainTargets(_ ent: Entity) {
     portMissing("Think_SetupTrainTargets", source: "oracle/codemp/game/g_mover.c:1802")
 }
 
-/**QUAKED path_corner (.5 .3 0) (-8 -8 -8) (8 8 8)
+/**
+```
+QUAKED path_corner (.5 .3 0) (-8 -8 -8) (8 8 8)
 Train path corners.
 Target: next path corner and other targets to fire
 "speed" speed to move to the next corner
 "wait" seconds to wait before behining move to next corner
+```
 */
 /// Source: oracle/codemp/game/g_mover.c:1873
 func SP_path_corner(_ `self`: Entity) {
@@ -474,7 +534,9 @@ func SP_path_corner(_ `self`: Entity) {
     portMissing("SP_path_corner", source: "oracle/codemp/game/g_mover.c:1873")
 }
 
-/**QUAKED func_train (0 .5 .8) ? START_ON TOGGLE BLOCK_STOPS ? ? CRUSH_THROUGH PLAYER_USE INACTIVE
+/**
+```
+QUAKED func_train (0 .5 .8) ? START_ON TOGGLE BLOCK_STOPS ? ? CRUSH_THROUGH PLAYER_USE INACTIVE
 A train is a mover that moves between path_corner target points.
 Trains MUST HAVE AN ORIGIN BRUSH.
 The train spawns at the first target it is pointing at.
@@ -486,6 +548,7 @@ entities and damage them on contact as well.
 "target"	next path corner
 "color"		constantLight color
 "light"		constantLight radius
+```
 */
 /// Source: oracle/codemp/game/g_mover.c:1897
 func SP_func_train(_ `self`: Entity) {
@@ -493,7 +556,9 @@ func SP_func_train(_ `self`: Entity) {
     portMissing("SP_func_train", source: "oracle/codemp/game/g_mover.c:1897")
 }
 
-/**QUAKED func_static (0 .5 .8) ? F_PUSH F_PULL SWITCH_SHADER CRUSHER IMPACT x PLAYER_USE INACTIVE BROADCAST
+/**
+```
+QUAKED func_static (0 .5 .8) ? F_PUSH F_PULL SWITCH_SHADER CRUSHER IMPACT x PLAYER_USE INACTIVE BROADCAST
 F_PUSH		Will be used when you Force-Push it
 F_PULL		Will be used when you Force-Pull it
 SWITCH_SHADER	Toggle the shader anim frame between 1 and 2 when used
@@ -510,6 +575,7 @@ A bmodel that just sits there, doing nothing.  Can be used for conditional walls
 "light"		constantLight radius
 "dmg"		how much damage to do when it crushes (use with CRUSHER spawnflag)
 "linear" set to 1 and it will move linearly rather than with acceleration (default is 0)
+```
 */
 /// Source: oracle/codemp/game/g_mover.c:1956
 func SP_func_static(_ ent: Entity) {
@@ -535,7 +601,9 @@ func SP_func_rotating(_ ent: Entity) {
     portMissing("SP_func_rotating", source: "oracle/codemp/game/g_mover.c:2133")
 }
 
-/**QUAKED func_bobbing (0 .5 .8) ? X_AXIS Y_AXIS x x x x PLAYER_USE INACTIVE
+/**
+```
+QUAKED func_bobbing (0 .5 .8) ? X_AXIS Y_AXIS x x x x PLAYER_USE INACTIVE
 Normally bobs on the Z axis
 "model2"	.md3 model to also draw
 "height"	amplitude of bob (32 default)
@@ -544,6 +612,7 @@ Normally bobs on the Z axis
 "dmg"		damage to inflict when blocked (2 default)
 "color"		constantLight color
 "light"		constantLight radius
+```
 */
 /// Source: oracle/codemp/game/g_mover.c:2231
 func SP_func_bobbing(_ ent: Entity) {
@@ -551,7 +620,9 @@ func SP_func_bobbing(_ ent: Entity) {
     portMissing("SP_func_bobbing", source: "oracle/codemp/game/g_mover.c:2231")
 }
 
-/**QUAKED func_pendulum (0 .5 .8) ? x x x x x x PLAYER_USE INACTIVE
+/**
+```
+QUAKED func_pendulum (0 .5 .8) ? x x x x x x PLAYER_USE INACTIVE
 You need to have an origin brush as part of this entity.
 Pendulums always swing north / south on unrotated models.  Add an angles field to the model to allow rotation in other directions.
 Pendulum frequency is a physical constant based on the length of the beam and gravity.
@@ -561,6 +632,7 @@ Pendulum frequency is a physical constant based on the length of the beam and gr
 "dmg"		damage to inflict when blocked (2 default)
 "color"		constantLight color
 "light"		constantLight radius
+```
 */
 /// Source: oracle/codemp/game/g_mover.c:2280
 func SP_func_pendulum(_ ent: Entity) {
@@ -569,11 +641,13 @@ func SP_func_pendulum(_ ent: Entity) {
 }
 
 /**
+```
 ===============================================================================
 
 BREAKABLE BRUSH
 
 ===============================================================================
+```
 */
 //---------------------------------------------------
 /// Source: oracle/codemp/game/g_mover.c:2323
@@ -631,7 +705,9 @@ func funcBBrushTouch(_ ent: Entity, _ other: Entity, _ trace: JKAMP.Trace) {
     portMissing("funcBBrushTouch", source: "oracle/codemp/game/g_mover.c:2663")
 }
 
-/**QUAKED func_breakable (0 .8 .5) ? INVINCIBLE IMPACT CRUSHER THIN SABERONLY HEAVY_WEAP USE_NOT_BREAK PLAYER_USE NO_EXPLOSION
+/**
+```
+QUAKED func_breakable (0 .8 .5) ? INVINCIBLE IMPACT CRUSHER THIN SABERONLY HEAVY_WEAP USE_NOT_BREAK PLAYER_USE NO_EXPLOSION
 INVINCIBLE - can only be broken by being used
 IMPACT - does damage on impact
 CRUSHER - won't reverse movement when hit an obstacle
@@ -693,7 +769,7 @@ Don't know if these work:
 
 Applicable only during Siege gametype:
 teamnodmg - if 1, team 1 can't damage this. If 2, team 2 can't damage this.
-
+```
 */
 /// Source: oracle/codemp/game/g_mover.c:2731
 func SP_func_breakable(_ `self`: Entity) {
@@ -708,11 +784,13 @@ func G_EntIsBreakable(_ entityNum: Int32) -> Bool {
 }
 
 /**
+```
 ===============================================================================
 
 GLASS
 
 ===============================================================================
+```
 */
 /// Source: oracle/codemp/game/g_mover.c:2875
 func GlassDie(_ `self`: Entity, _ inflictor: Entity, _ attacker: Entity, _ damage: Int32, _ mod: Int32) {
@@ -738,12 +816,15 @@ func GlassUse(_ `self`: Entity, _ other: Entity, _ activator: Entity) {
     portMissing("GlassUse", source: "oracle/codemp/game/g_mover.c:2930")
 }
 
-/**QUAKED func_glass (0 .5 .8) ? x x x x x x PLAYER_USE INACTIVE
+/**
+```
+QUAKED func_glass (0 .5 .8) ? x x x x x x PLAYER_USE INACTIVE
 Breakable glass
 "model2"	.md3 model to also draw
 "color"		constantLight color
 "light"		constantLight radius
 "maxshards"	Max number of shards to spawn on glass break
+```
 */
 /// Source: oracle/codemp/game/g_mover.c:2957
 func SP_func_glass(_ ent: Entity) {
@@ -800,7 +881,9 @@ func use_wall(_ ent: Entity, _ other: Entity, _ activator: Entity) {
     portMissing("use_wall", source: "oracle/codemp/game/g_mover.c:3215")
 }
 
-/**QUAKED func_wall (0 .5 .8) ? START_OFF x x x x x PLAYER_USE INACTIVE
+/**
+```
+QUAKED func_wall (0 .5 .8) ? START_OFF x x x x x PLAYER_USE INACTIVE
 PLAYER_USE	Player can use it with the use button
 INACTIVE	must be used by a target_activate before it can be used
 
@@ -810,6 +893,7 @@ A bmodel that just sits there, doing nothing.  Can be used for conditional walls
 "light"		constantLight radius
 
 START_OFF - the wall will not be there
+```
 */
 /// Source: oracle/codemp/game/g_mover.c:3256
 func SP_func_wall(_ ent: Entity) {

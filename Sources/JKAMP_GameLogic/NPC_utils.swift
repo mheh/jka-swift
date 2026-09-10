@@ -5,10 +5,11 @@ import JKAShared
 import JKAMP_Game
 
 /**
+```
 void CalcEntitySpot ( gentity_t *ent, spot_t spot, vec3_t point )
 
 Added: Uses shootAngles if a NPC has them
-
+```
 */
 /// Source: oracle/codemp/game/NPC_utils.c:20
 func CalcEntitySpot(_ ent: Entity, _ spot: spot_t, _ point: inout JKAShared.vec3_t) {
@@ -17,6 +18,7 @@ func CalcEntitySpot(_ ent: Entity, _ spot: spot_t, _ point: inout JKAShared.vec3
 }
 
 /**
+```
 qboolean NPC_UpdateAngles ( qboolean doPitch, qboolean doYaw )
 
 Added: option to do just pitch or just yaw
@@ -24,6 +26,7 @@ Added: option to do just pitch or just yaw
 Does not include "aim" in it's calculations
 
 FIXME: stop compressing angles into shorts!!!!
+```
 */
 /// Source: oracle/codemp/game/NPC_utils.c:182
 func NPC_UpdateAngles(_ doPitch: Bool, _ doYaw: Bool) -> Bool {
@@ -38,10 +41,12 @@ func NPC_AimWiggle(_ enemy_org: inout JKAShared.vec3_t) {
 }
 
 /**
+```
 qboolean NPC_UpdateFiringAngles ( qboolean doPitch, qboolean doYaw )
 
   Includes aim when determining angles - so they don't always hit...
-  */
+```
+*/
 /// Source: oracle/codemp/game/NPC_utils.c:540
 func NPC_UpdateFiringAngles(_ doPitch: Bool, _ doYaw: Bool) -> Bool {
     // TODO: Port NPC_UpdateFiringAngles
@@ -55,12 +60,14 @@ func NPC_UpdateShootAngles(_ angles: inout JKAShared.vec3_t, _ doPitch: Bool, _ 
 }
 
 /**
+```
 void SetTeamNumbers (void)
 
 Sets the number of living clients on each team
 
 FIXME: Does not account for non-respawned players!
 FIXME: Don't include medics?
+```
 */
 /// Source: oracle/codemp/game/NPC_utils.c:818
 func SetTeamNumbers() {
@@ -203,9 +210,11 @@ func NPC_ClearLookTarget(_ `self`: Entity) {
 }
 
 /**
+```
 -------------------------
 NPC_SetLookTarget
 -------------------------
+```
 */
 /// Source: oracle/codemp/game/NPC_utils.c:1632
 func NPC_SetLookTarget(_ `self`: Entity, _ entNum: Int32, _ clearTime: Int32) {
@@ -214,9 +223,11 @@ func NPC_SetLookTarget(_ `self`: Entity, _ entNum: Int32, _ clearTime: Int32) {
 }
 
 /**
+```
 -------------------------
 NPC_CheckLookTarget
 -------------------------
+```
 */
 /// Source: oracle/codemp/game/NPC_utils.c:1653
 func NPC_CheckLookTarget(_ `self`: Entity) -> Bool {

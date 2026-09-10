@@ -5,9 +5,11 @@ import JKAShared
 import JKAMP_Game
 
 /**
+```
 qboolean G_ClearLineOfSight(const vec3_t point1, const vec3_t point2, int ignore, int clipmask)
 
 returns true if can see from point 1 to 2, even through glass (1 pane)- doesn't work with portals
+```
 */
 /// Source: oracle/codemp/game/NPC_senses.c:11
 func G_ClearLineOfSight(_ point1: JKAShared.vec3_t, _ point2: JKAShared.vec3_t, _ ignore: Int32, _ clipmask: Int32) -> Bool {
@@ -16,6 +18,7 @@ func G_ClearLineOfSight(_ point1: JKAShared.vec3_t, _ point2: JKAShared.vec3_t, 
 }
 
 /**
+```
 CanSee
 determine if NPC can see an entity
 
@@ -23,6 +26,7 @@ This is a straight line trace check.  This function does not look at PVS or FOV,
 or take any AI related factors (for example, the NPC's reaction time) into account
 
 FIXME do we need fat and thin version of this?
+```
 */
 /// Source: oracle/codemp/game/NPC_senses.c:47
 func CanSee(_ ent: Entity) -> Bool {
@@ -67,9 +71,11 @@ func NPC_CheckVisibility(_ ent: Entity, _ flags: Int32) -> visibility_t {
 }
 
 /**
+```
 -------------------------
 NPC_CheckSoundEvents
 -------------------------
+```
 */
 /// Source: oracle/codemp/game/NPC_senses.c:332
 private func G_CheckSoundEvents(_ `self`: Entity, _ maxHearDist: Float, _ ignoreAlert: Int32, _ mustHaveOwner: Bool, _ minAlertLevel: Int32) -> Int32 {
@@ -84,9 +90,11 @@ func G_GetLightLevel(_ pos: inout JKAShared.vec3_t, _ fromDir: inout JKAShared.v
 }
 
 /**
+```
 -------------------------
 NPC_CheckSightEvents
 -------------------------
+```
 */
 /// Source: oracle/codemp/game/NPC_senses.c:408
 private func G_CheckSightEvents(_ `self`: Entity, _ hFOV: Int32, _ vFOV: Int32, _ maxSeeDist: Float, _ ignoreAlert: Int32, _ mustHaveOwner: Bool, _ minAlertLevel: Int32) -> Int32 {

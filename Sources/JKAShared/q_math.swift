@@ -257,12 +257,14 @@ public func NormalizeColor(_ `in`: vec3_t, _ out: inout vec3_t) -> Float {
 }
 
 /**
+```
 =====================
 PlaneFromPoints
 
 Returns false if the triangle is degenrate.
 The normal will point out of the clock for clockwise ordered points
 =====================
+```
 */
 /// Source: oracle/codemp/game/q_math.c:384
 public func PlaneFromPoints(_ plane: inout vec4_t, _ a: vec3_t, _ b: vec3_t, _ c: vec3_t) -> Bool {
@@ -288,11 +290,13 @@ public func PlaneFromPoints(_ plane: inout vec4_t, _ a: vec3_t, _ b: vec3_t, _ c
 }
 
 /**
+```
 ===============
 RotatePointAroundVector
 
 This is not implemented very well...
 ===============
+```
 */
 /// Source: oracle/codemp/game/q_math.c:405
 public func RotatePointAroundVector(_ dst: inout vec3_t, _ dir: vec3_t, _ point: vec3_t, _ degrees: Float) {
@@ -354,9 +358,11 @@ public func RotatePointAroundVector(_ dst: inout vec3_t, _ dir: vec3_t, _ point:
 }
 
 /**
+```
 ===============
 RotateAroundDirection
 ===============
+```
 */
 /// Source: oracle/codemp/game/q_math.c:466
 public func RotateAroundDirection(_ axis: inout [vec3_t], _ yaw: Float) {
@@ -422,9 +428,11 @@ public func vectoangles(_ value1: vec3_t, _ angles: inout vec3_t) {
 }
 
 /**
+```
 =================
 AnglesToAxis
 =================
+```
 */
 /// Source: oracle/codemp/game/q_math.c:530
 public func AnglesToAxis(_ angles: vec3_t, _ axis: inout [vec3_t]) {
@@ -483,12 +491,14 @@ public func ProjectPointOnPlane(_ dst: inout vec3_t, _ p: vec3_t, _ normal: vec3
 }
 
 /**
+```
 ================
 MakeNormalVectors
 
 Given a normalized forward vector, create two
 other perpendicular vectors
 ================
+```
 */
 /// Source: oracle/codemp/game/q_math.c:587
 public func MakeNormalVectors(_ forward: vec3_t, _ right: inout vec3_t, _ up: inout vec3_t) {
@@ -519,7 +529,9 @@ public func VectorRotate(_ `in`: vec3_t, _ matrix: [vec3_t], _ out: inout vec3_t
 //============================================================================
 
 /**
+```
 ** float q_rsqrt( float number )
+```
 */
 /// Raven declares `long i`, and the oracle build normalizes it to 32 bits, at jka-rust/tools/jampgame-oracle/run.sh:87.
 /// At 64 bits the read through `*(long *)&y` takes four bytes past the float, which is Raven's undefined behavior. Rule 19.
@@ -551,10 +563,12 @@ public func Q_fabs(_ f: Float) -> Float {
 //============================================================
 
 /**
+```
 ===============
 LerpAngle
 
 ===============
+```
 */
 /// Source: oracle/codemp/game/q_math.c:653
 public func LerpAngle(_ from: Float, _ to: Float, _ frac: Float) -> Float {
@@ -573,11 +587,13 @@ public func LerpAngle(_ from: Float, _ to: Float, _ frac: Float) -> Float {
 }
 
 /**
+```
 =================
 AngleSubtract
 
 Always returns a value from -180 to 180
 =================
+```
 */
 /// Source: oracle/codemp/game/q_math.c:675
 public func AngleSubtract(_ a1: Float, _ a2: Float) -> Float {
@@ -610,11 +626,13 @@ public func AngleMod(_ a: Float) -> Float {
 }
 
 /**
+```
 =================
 AngleNormalize360
 
 returns angle normalized to the range [0 <= angle < 360]
 =================
+```
 */
 /// Source: oracle/codemp/game/q_math.c:710
 public func AngleNormalize360(_ angle: Float) -> Float {
@@ -623,11 +641,13 @@ public func AngleNormalize360(_ angle: Float) -> Float {
 }
 
 /**
+```
 =================
 AngleNormalize180
 
 returns angle normalized to the range [-180 < angle <= 180]
 =================
+```
 */
 /// Source: oracle/codemp/game/q_math.c:722
 public func AngleNormalize180(_ angle: Float) -> Float {
@@ -639,11 +659,13 @@ public func AngleNormalize180(_ angle: Float) -> Float {
 }
 
 /**
+```
 =================
 AngleDelta
 
 returns the normalized delta from angle1 to angle2
 =================
+```
 */
 /// Source: oracle/codemp/game/q_math.c:738
 public func AngleDelta(_ angle1: Float, _ angle2: Float) -> Float {
@@ -653,9 +675,11 @@ public func AngleDelta(_ angle1: Float, _ angle2: Float) -> Float {
 //============================================================
 
 /**
+```
 =================
 SetPlaneSignbits
 =================
+```
 */
 /// Source: oracle/codemp/game/q_math.c:751
 public func SetPlaneSignbits(_ out: inout Plane) {
@@ -672,11 +696,13 @@ public func SetPlaneSignbits(_ out: inout Plane) {
 }
 
 /**
+```
 ==================
 BoxOnPlaneSide
 
 Returns 1, 2, or 1 + 2
 ==================
+```
 */
 /// Source: oracle/codemp/game/q_math.c:809
 public func BoxOnPlaneSide(_ emins: vec3_t, _ emaxs: vec3_t, _ p: inout Plane) -> Int32 {
@@ -746,9 +772,11 @@ public func BoxOnPlaneSide(_ emins: vec3_t, _ emaxs: vec3_t, _ p: inout Plane) -
 }
 
 /**
+```
 =================
 RadiusFromBounds
 =================
+```
 */
 /// Source: oracle/codemp/game/q_math.c:1114
 public func RadiusFromBounds(_ mins: vec3_t, _ maxs: vec3_t) -> Float {
@@ -922,9 +950,11 @@ public func Q_log2(_ val: Int32) -> Int32 {
 }
 
 /**
+```
 ================
 MatrixMultiply
 ================
+```
 */
 /// Source: oracle/codemp/game/q_math.c:1293
 public func MatrixMultiply(_ in1: [[Float]], _ in2: [[Float]], _ out: inout [[Float]]) {
@@ -987,7 +1017,9 @@ public func AngleVectors(_ angles: vec3_t, _ forward: inout vec3_t, _ right: ino
 }
 
 /**
+```
 ** assumes "src" is normalized
+```
 */
 /// Source: oracle/codemp/game/q_math.c:1353
 public func PerpendicularVector(_ dst: inout vec3_t, _ src: vec3_t) {
@@ -1022,12 +1054,14 @@ public func PerpendicularVector(_ dst: inout vec3_t, _ src: vec3_t) {
 }
 
 /**
+```
 ** NormalToLatLong
 **
 ** We use two byte encoded normals in some space critical applications.
 ** Lat = 0 at (1,0,0) to 360 (-1,0,0), encoded in 8-bit sine table format
 ** Lng = 0 at (0,0,1) to 180 (0,0,-1), encoded in 8-bit sine table format
 **
+```
 */
 //rwwRMG - added
 /// Source: oracle/codemp/game/q_math.c:1394
@@ -1073,9 +1107,11 @@ public func powf(_ x: Float, _ y: Int32) -> Float {
 }
 
 /**
+```
 -------------------------
 DotProductNormalize
 -------------------------
+```
 */
 /// Source: oracle/codemp/game/q_math.c:1508
 public func DotProductNormalize(_ inVec1: vec3_t, _ inVec2: vec3_t) -> Float {
@@ -1089,9 +1125,11 @@ public func DotProductNormalize(_ inVec1: vec3_t, _ inVec2: vec3_t) -> Float {
 }
 
 /**
+```
 -------------------------
 G_FindClosestPointOnLineSegment
 -------------------------
+```
 */
 /// Source: oracle/codemp/game/q_math.c:1524
 public func G_FindClosestPointOnLineSegment(_ start: vec3_t, _ end: vec3_t, _ from: vec3_t, _ result: inout vec3_t) -> Bool {

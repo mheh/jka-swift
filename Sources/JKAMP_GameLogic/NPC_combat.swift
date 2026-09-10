@@ -53,8 +53,10 @@ func NPC_ChangeWeapon(_ newWeapon: Int32) {
 }
 
 /**
+```
 void NPC_ApplyWeaponFireDelay(void)
 How long, if at all, in msec the actual fire should delay from the time the attack was started
+```
 */
 /// Source: oracle/codemp/game/NPC_combat.c:878
 func NPC_ApplyWeaponFireDelay() {
@@ -63,9 +65,11 @@ func NPC_ApplyWeaponFireDelay() {
 }
 
 /**
+```
 -------------------------
 ShootThink
 -------------------------
+```
 */
 /// Source: oracle/codemp/game/NPC_combat.c:925
 func ShootThink() {
@@ -74,10 +78,12 @@ func ShootThink() {
 }
 
 /**
+```
 static void WeaponThink( qboolean inCombat )
 FIXME makes this so there's a delay from event that caused us to check to actually doing it
 
 Added: hacks for Borg
+```
 */
 /// Source: oracle/codemp/game/NPC_combat.c:1036
 func WeaponThink(_ inCombat: Bool) {
@@ -104,12 +110,14 @@ func ShotThroughGlass(_ tr: JKAMP.Trace, _ target: Entity, _ spot: inout JKAShar
 }
 
 /**
+```
 CanShoot
 determine if NPC can directly target enemy
 
 this function does not check teams, invulnerability, notarget, etc....
 
 Added: If can't shoot center, try head, if not, see if it's close enough to try anyway.
+```
 */
 /// Source: oracle/codemp/game/NPC_combat.c:1150
 func CanShoot(_ ent: Entity, _ shooter: Entity) -> Bool {
@@ -118,9 +126,11 @@ func CanShoot(_ ent: Entity, _ shooter: Entity) -> Bool {
 }
 
 /**
+```
 void NPC_CheckPossibleEnemy( gentity_t *other, visibility_t vis )
 
 Added: hacks for scripted NPCs
+```
 */
 /// Source: oracle/codemp/game/NPC_combat.c:1229
 func NPC_CheckPossibleEnemy(_ other: Entity, _ vis: visibility_t) {
@@ -129,11 +139,12 @@ func NPC_CheckPossibleEnemy(_ other: Entity, _ vis: visibility_t) {
 }
 
 /**
+```
 int NPC_AttackDebounceForWeapon (void)
 
 DOES NOT control how fast you can fire
 Only makes you keep your weapon up after you fire
-
+```
 */
 /// Source: oracle/codemp/game/NPC_combat.c:1288
 func NPC_AttackDebounceForWeapon() -> Int32 {
@@ -161,6 +172,7 @@ func NPC_EnemyTooFar(_ enemy: Entity, _ dist: Float, _ toShoot: Bool) -> Bool {
 }
 
 /**
+```
 NPC_PickEnemy
 
 Randomly picks a living enemy from the specified team and returns it
@@ -176,6 +188,7 @@ If you specify findPlayersFirst, it will try to find players first
 You can mix and match any of those options (example: find closest visible players first)
 
 FIXME: this should go through the snapshot and find the closest enemy
+```
 */
 /// Source: oracle/codemp/game/NPC_combat.c:1505
 func NPC_PickEnemy(_ closestTo: Entity, _ enemyTeam: Int32, _ checkVis: Bool, _ findPlayersFirst: Bool, _ findClosest: Bool) -> Entity? {
@@ -236,10 +249,12 @@ func NPC_CheckCanAttack(_ attack_scale: Float, _ stationary: Bool) -> Bool {
 //OLD id-style hunt and kill
 //========================================================================================
 /**
+```
 IdealDistance
 
 determines what the NPC's ideal distance from it's enemy should
 be in the current situation
+```
 */
 /// Source: oracle/codemp/game/NPC_combat.c:2475
 func IdealDistance(_ `self`: Entity) -> Float {

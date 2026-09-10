@@ -53,9 +53,11 @@ func pitch_roll_for_slope(_ forwhom: Entity, _ pass_slope: inout JKAShared.vec3_
 }
 
 /**
+```
 ----------------------------------------
 DeadThink
 ----------------------------------------
+```
 */
 /// Source: oracle/codemp/game/NPC.c:478
 private func DeadThink() {
@@ -64,11 +66,13 @@ private func DeadThink() {
 }
 
 /**
+```
 ===============
 SetNPCGlobals
 
 local function to set globals used throughout the AI code
 ===============
+```
 */
 /// Source: oracle/codemp/game/NPC.c:617
 func SetNPCGlobals(_ ent: Entity) {
@@ -132,9 +136,11 @@ func NPC_CheckAttackHold() {
 }
 
 /**
+```
 void NPC_KeepCurrentFacing(void)
 
 Fills in a default ucmd to keep current angles facing
+```
 */
 /// Source: oracle/codemp/game/NPC.c:920
 func NPC_KeepCurrentFacing() {
@@ -155,9 +161,11 @@ func NPC_BehaviorSet_Default(_ bState: Int32) {
 }
 
 /**
+```
 -------------------------
 NPC_BehaviorSet_Interrogator
 -------------------------
+```
 */
 /// Source: oracle/codemp/game/NPC.c:1019
 func NPC_BehaviorSet_Interrogator(_ bState: Int32) {
@@ -166,9 +174,11 @@ func NPC_BehaviorSet_Interrogator(_ bState: Int32) {
 }
 
 /**
+```
 -------------------------
 NPC_BehaviorSet_ImperialProbe
 -------------------------
+```
 */
 /// Source: oracle/codemp/game/NPC.c:1045
 func NPC_BehaviorSet_ImperialProbe(_ bState: Int32) {
@@ -177,9 +187,11 @@ func NPC_BehaviorSet_ImperialProbe(_ bState: Int32) {
 }
 
 /**
+```
 -------------------------
 NPC_BehaviorSet_Seeker
 -------------------------
+```
 */
 /// Source: oracle/codemp/game/NPC.c:1070
 func NPC_BehaviorSet_Seeker(_ bState: Int32) {
@@ -188,9 +200,11 @@ func NPC_BehaviorSet_Seeker(_ bState: Int32) {
 }
 
 /**
+```
 -------------------------
 NPC_BehaviorSet_Remote
 -------------------------
+```
 */
 /// Source: oracle/codemp/game/NPC.c:1094
 func NPC_BehaviorSet_Remote(_ bState: Int32) {
@@ -199,9 +213,11 @@ func NPC_BehaviorSet_Remote(_ bState: Int32) {
 }
 
 /**
+```
 -------------------------
 NPC_BehaviorSet_Sentry
 -------------------------
+```
 */
 /// Source: oracle/codemp/game/NPC.c:1106
 func NPC_BehaviorSet_Sentry(_ bState: Int32) {
@@ -210,9 +226,11 @@ func NPC_BehaviorSet_Sentry(_ bState: Int32) {
 }
 
 /**
+```
 -------------------------
 NPC_BehaviorSet_Grenadier
 -------------------------
+```
 */
 /// Source: oracle/codemp/game/NPC.c:1128
 func NPC_BehaviorSet_Grenadier(_ bState: Int32) {
@@ -221,9 +239,11 @@ func NPC_BehaviorSet_Grenadier(_ bState: Int32) {
 }
 
 /**
+```
 -------------------------
 NPC_BehaviorSet_Sniper
 -------------------------
+```
 */
 /// Source: oracle/codemp/game/NPC.c:1150
 func NPC_BehaviorSet_Sniper(_ bState: Int32) {
@@ -244,9 +264,11 @@ func NPC_BehaviorSet_Jedi(_ bState: Int32) {
 }
 
 /**
+```
 -------------------------
 NPC_BehaviorSet_Droid
 -------------------------
+```
 */
 /// Source: oracle/codemp/game/NPC.c:1232
 func NPC_BehaviorSet_Droid(_ bState: Int32) {
@@ -255,9 +277,11 @@ func NPC_BehaviorSet_Droid(_ bState: Int32) {
 }
 
 /**
+```
 -------------------------
 NPC_BehaviorSet_Mark1
 -------------------------
+```
 */
 /// Source: oracle/codemp/game/NPC.c:1252
 func NPC_BehaviorSet_Mark1(_ bState: Int32) {
@@ -266,9 +290,11 @@ func NPC_BehaviorSet_Mark1(_ bState: Int32) {
 }
 
 /**
+```
 -------------------------
 NPC_BehaviorSet_Mark2
 -------------------------
+```
 */
 /// Source: oracle/codemp/game/NPC.c:1272
 func NPC_BehaviorSet_Mark2(_ bState: Int32) {
@@ -277,9 +303,11 @@ func NPC_BehaviorSet_Mark2(_ bState: Int32) {
 }
 
 /**
+```
 -------------------------
 NPC_BehaviorSet_ATST
 -------------------------
+```
 */
 /// Source: oracle/codemp/game/NPC.c:1293
 func NPC_BehaviorSet_ATST(_ bState: Int32) {
@@ -288,9 +316,11 @@ func NPC_BehaviorSet_ATST(_ bState: Int32) {
 }
 
 /**
+```
 -------------------------
 NPC_BehaviorSet_MineMonster
 -------------------------
+```
 */
 /// Source: oracle/codemp/game/NPC.c:1314
 func NPC_BehaviorSet_MineMonster(_ bState: Int32) {
@@ -299,9 +329,11 @@ func NPC_BehaviorSet_MineMonster(_ bState: Int32) {
 }
 
 /**
+```
 -------------------------
 NPC_BehaviorSet_Howler
 -------------------------
+```
 */
 /// Source: oracle/codemp/game/NPC.c:1336
 func NPC_BehaviorSet_Howler(_ bState: Int32) {
@@ -310,9 +342,11 @@ func NPC_BehaviorSet_Howler(_ bState: Int32) {
 }
 
 /**
+```
 -------------------------
 NPC_BehaviorSet_Rancor
 -------------------------
+```
 */
 /// Source: oracle/codemp/game/NPC.c:1358
 func NPC_BehaviorSet_Rancor(_ bState: Int32) {
@@ -327,6 +361,7 @@ func NPC_RunBehavior(_ team: Int32, _ bState: Int32) {
 }
 
 /**
+```
 ===============
 NPC_ExecuteBState
 
@@ -335,6 +370,7 @@ NPC_ExecuteBState
 NPC Behavior state thinking
 
 ===============
+```
 */
 /// Source: oracle/codemp/game/NPC.c:1576
 func NPC_ExecuteBState(_ `self`: Entity) {

@@ -45,6 +45,7 @@ func BG_ParseField() -> Never {
 }
 
 /**
+```
 ================
 BG_LegalizedForcePowers
 
@@ -55,6 +56,7 @@ to begin with and false if not.
 fpDisabled is actually only expected (needed) from the server, because the ui disables
 force power selection anyway when force powers are disabled on the server.
 ================
+```
 */
 /// Source: oracle/codemp/game/bg_misc.c:439
 // TODO: Port signature
@@ -156,9 +158,11 @@ func BG_CanUseFPNow(_ gametype: Int32, _ ps: JKAMP.PlayerState, _ time: Int32, _
 }
 
 /**
+```
 ==============
 BG_FindItemForPowerup
 ==============
+```
 */
 // Port-note: this body walks Raven's `bg_itemlist` table, and that table has no Swift storage yet.
 /// Source: oracle/codemp/game/bg_misc.c:1881
@@ -168,9 +172,11 @@ func BG_FindItemForPowerup(_ pw: JKAMP.powerup_t) -> JKAMP.Gitem? {
 }
 
 /**
+```
 ==============
 BG_FindItemForHoldable
 ==============
+```
 */
 // Port-note: this body walks Raven's `bg_itemlist` table, and that table has no Swift storage yet.
 /// Source: oracle/codemp/game/bg_misc.c:1901
@@ -180,10 +186,12 @@ func BG_FindItemForHoldable(_ pw: JKAMP.holdable_t) -> JKAMP.Gitem? {
 }
 
 /**
+```
 ===============
 BG_FindItemForWeapon
 
 ===============
+```
 */
 // Port-note: this body walks Raven's `bg_itemlist` table, and that table has no Swift storage yet.
 /// Source: oracle/codemp/game/bg_misc.c:1922
@@ -193,10 +201,12 @@ func BG_FindItemForWeapon(_ weapon: JKAMP.weapon_t) -> JKAMP.Gitem? {
 }
 
 /**
+```
 ===============
 BG_FindItemForAmmo
 
 ===============
+```
 */
 // Port-note: this body walks Raven's `bg_itemlist` table, and that table has no Swift storage yet.
 /// Source: oracle/codemp/game/bg_misc.c:1941
@@ -206,10 +216,12 @@ func BG_FindItemForAmmo(_ ammo: JKAMP.ammo_t) -> JKAMP.Gitem? {
 }
 
 /**
+```
 ===============
 BG_FindItem
 
 ===============
+```
 */
 // Port-note: this body walks Raven's `bg_itemlist` table, and that table has no Swift storage yet.
 /// Source: oracle/codemp/game/bg_misc.c:1960
@@ -219,12 +231,14 @@ func BG_FindItem(_ classname: String) -> JKAMP.Gitem? {
 }
 
 /**
+```
 ============
 BG_PlayerTouchesItem
 
 Items can be picked up without actually touching their physical bounds to make
 grabbing them easier
 ============
+```
 */
 // Port-note: this body needs `BG_EvaluateTrajectory`'s origin, and that stub's `result` parameter is not
 // `inout`, so it cannot hand the origin back yet.
@@ -350,12 +364,14 @@ func BG_CycleInven(_ ps: JKAMP.PlayerState, _ direction: Int32) {
 }
 
 /**
+```
 ================
 BG_CanItemBeGrabbed
 
 Returns false if the item should not be picked up.
 This needs to be the same for client side prediction and server use.
 ================
+```
 */
 // Port-note: this body reads Raven's `bg_itemlist`, `weaponData`, and `ammoData` tables, and none of them has
 // Swift storage yet.
@@ -366,10 +382,12 @@ func BG_CanItemBeGrabbed(_ gametype: Int32, _ ent: JKAMP.EntityState, _ ps: JKAM
 }
 
 /**
+```
 ================
 BG_EvaluateTrajectory
 
 ================
+```
 */
 // Port-note: Raven's `result` is an out-param, `vec3_t result`. The stub's `result` is a plain value, not
 // `inout`, so a body cannot hand the evaluated point back to the caller. This needs the row 6 out-param
@@ -381,11 +399,13 @@ func BG_EvaluateTrajectory(_ tr: JKAShared.Trajectory, _ atTime: Int32, _ result
 }
 
 /**
+```
 ================
 BG_EvaluateTrajectoryDelta
 
 For determining velocity at a given time
 ================
+```
 */
 // Port-note: Raven's `result` is an out-param, `vec3_t result`. The stub's `result` is a plain value, not
 // `inout`, so a body cannot hand the evaluated delta back to the caller. This needs the row 6 out-param
@@ -405,9 +425,11 @@ func BG_AddPredictableEventToPlayerstate(_ newEvent: Int32, _ eventParm: Int32, 
 }
 
 /**
+```
 ========================
 BG_TouchJumpPad
 ========================
+```
 */
 /// Source: oracle/codemp/game/bg_misc.c:2667
 func BG_TouchJumpPad(_ ps: JKAMP.PlayerState, _ jumppad: JKAMP.EntityState) {
@@ -433,11 +455,13 @@ func BG_TouchJumpPad(_ ps: JKAMP.PlayerState, _ jumppad: JKAMP.EntityState) {
 }
 
 /**
+```
 =================
 BG_EmplacedView
 
 Shared code for emplaced angle gun constriction
 =================
+```
 */
 /// Source: oracle/codemp/game/bg_misc.c:2703
 // TODO: Port signature
@@ -482,12 +506,14 @@ func BG_ValidateSkinForTeam() -> Never {
 }
 
 /**
+```
 ========================
 BG_PlayerStateToEntityState
 
 This is done after each set of usercmd_t on the server,
 and after local prediction on the client
 ========================
+```
 */
 /// Source: oracle/codemp/game/bg_misc.c:2887
 func BG_PlayerStateToEntityState(_ ps: JKAMP.PlayerState, _ s: JKAMP.EntityState, _ snap: Bool) {
@@ -628,12 +654,14 @@ func BG_PlayerStateToEntityState(_ ps: JKAMP.PlayerState, _ s: JKAMP.EntityState
 }
 
 /**
+```
 ========================
 BG_PlayerStateToEntityStateExtraPolate
 
 This is done after each set of usercmd_t on the server,
 and after local prediction on the client
 ========================
+```
 */
 /// Source: oracle/codemp/game/bg_misc.c:3037
 func BG_PlayerStateToEntityStateExtraPolate(_ ps: JKAMP.PlayerState, _ s: JKAMP.EntityState, _ time: Int32, _ snap: Bool) {

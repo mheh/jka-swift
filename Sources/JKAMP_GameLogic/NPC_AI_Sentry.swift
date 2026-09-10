@@ -5,9 +5,11 @@ import JKAShared
 import JKAMP_Game
 
 /**
+```
 -------------------------
 NPC_Sentry_Precache
 -------------------------
+```
 */
 /// Source: oracle/codemp/game/NPC_AI_Sentry.c:37
 func NPC_Sentry_Precache() {
@@ -16,9 +18,11 @@ func NPC_Sentry_Precache() {
 }
 
 /**
+```
 ================
 sentry_use
 ================
+```
 */
 /// Source: oracle/codemp/game/NPC_AI_Sentry.c:64
 func sentry_use(_ `self`: Entity, _ other: Entity, _ activator: Entity) {
@@ -27,9 +31,11 @@ func sentry_use(_ `self`: Entity, _ other: Entity, _ activator: Entity) {
 }
 
 /**
+```
 -------------------------
 NPC_Sentry_Pain
 -------------------------
+```
 */
 /// Source: oracle/codemp/game/NPC_AI_Sentry.c:79
 func NPC_Sentry_Pain(_ `self`: Entity, _ attacker: Entity, _ damage: Int32) {
@@ -38,9 +44,11 @@ func NPC_Sentry_Pain(_ `self`: Entity, _ attacker: Entity, _ damage: Int32) {
 }
 
 /**
+```
 -------------------------
 Sentry_Fire
 -------------------------
+```
 */
 /// Source: oracle/codemp/game/NPC_AI_Sentry.c:112
 func Sentry_Fire() {
@@ -49,9 +57,11 @@ func Sentry_Fire() {
 }
 
 /**
+```
 -------------------------
 Sentry_MaintainHeight
 -------------------------
+```
 */
 /// Source: oracle/codemp/game/NPC_AI_Sentry.c:210
 func Sentry_MaintainHeight() {
@@ -60,9 +70,11 @@ func Sentry_MaintainHeight() {
 }
 
 /**
+```
 -------------------------
 Sentry_Idle
 -------------------------
+```
 */
 /// Source: oracle/codemp/game/NPC_AI_Sentry.c:311
 func Sentry_Idle() {
@@ -71,9 +83,11 @@ func Sentry_Idle() {
 }
 
 /**
+```
 -------------------------
 Sentry_Strafe
 -------------------------
+```
 */
 /// Source: oracle/codemp/game/NPC_AI_Sentry.c:338
 func Sentry_Strafe() {
@@ -82,9 +96,11 @@ func Sentry_Strafe() {
 }
 
 /**
+```
 -------------------------
 Sentry_Hunt
 -------------------------
+```
 */
 /// Source: oracle/codemp/game/NPC_AI_Sentry.c:372
 func Sentry_Hunt(_ visible: Bool, _ advance: Bool) {
@@ -93,9 +109,11 @@ func Sentry_Hunt(_ visible: Bool, _ advance: Bool) {
 }
 
 /**
+```
 -------------------------
 Sentry_RangedAttack
 -------------------------
+```
 */
 /// Source: oracle/codemp/game/NPC_AI_Sentry.c:418
 func Sentry_RangedAttack(_ visible: Bool, _ advance: Bool) {
@@ -104,9 +122,11 @@ func Sentry_RangedAttack(_ visible: Bool, _ advance: Bool) {
 }
 
 /**
+```
 -------------------------
 Sentry_AttackDecision
 -------------------------
+```
 */
 /// Source: oracle/codemp/game/NPC_AI_Sentry.c:455
 func Sentry_AttackDecision() {
@@ -115,9 +135,11 @@ func Sentry_AttackDecision() {
 }
 
 /**
+```
 -------------------------
 NPC_Sentry_Patrol
 -------------------------
+```
 */
 /// Source: oracle/codemp/game/NPC_AI_Sentry.c:519
 func NPC_Sentry_Patrol() {
@@ -126,9 +148,11 @@ func NPC_Sentry_Patrol() {
 }
 
 /**
+```
 -------------------------
 NPC_BSSentry_Default
 -------------------------
+```
 */
 /// Source: oracle/codemp/game/NPC_AI_Sentry.c:557
 func NPC_BSSentry_Default() {

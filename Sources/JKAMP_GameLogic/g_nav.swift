@@ -281,12 +281,15 @@ func waypoint_getRadius(_ ent: Entity) -> UInt32 {
     portMissing("waypoint_getRadius", source: "oracle/codemp/game/g_nav.c:1251")
 }
 
-/**QUAKED waypoint  (0.7 0.7 0) (-16 -16 -24) (16 16 32) SOLID_OK
+/**
+```
+QUAKED waypoint  (0.7 0.7 0) (-16 -16 -24) (16 16 32) SOLID_OK
 a place to go.
 
 SOLID_OK - only use if placing inside solid is unavoidable in map, but may be clear in-game (ie: at the bottom of a tall, solid lift that starts at the top position)
 
 radius is automatically calculated in-world.
+```
 */
 /// Source: oracle/codemp/game/g_nav.c:1275
 func SP_waypoint(_ ent: Entity) {
@@ -294,8 +297,11 @@ func SP_waypoint(_ ent: Entity) {
     portMissing("SP_waypoint", source: "oracle/codemp/game/g_nav.c:1275")
 }
 
-/**QUAKED waypoint_small  (0.7 0.7 0) (-2 -2 -24) (2 2 32) SOLID_OK
+/**
+```
+QUAKED waypoint_small  (0.7 0.7 0) (-2 -2 -24) (2 2 32) SOLID_OK
 SOLID_OK - only use if placing inside solid is unavoidable in map, but may be clear in-game (ie: at the bottom of a tall, solid lift that starts at the top position)
+```
 */
 /// Source: oracle/codemp/game/g_nav.c:1318
 func SP_waypoint_small(_ ent: Entity) {
@@ -309,7 +315,9 @@ func SP_waypoint_navgoal(_ ent: Entity) {
     portMissing("SP_waypoint_navgoal", source: "oracle/codemp/game/g_nav.c:1370")
 }
 
-/**QUAKED waypoint_navgoal_8 (0.3 1 0.3) (-8 -8 -24) (8 8 32) SOLID_OK
+/**
+```
+QUAKED waypoint_navgoal_8 (0.3 1 0.3) (-8 -8 -24) (8 8 32) SOLID_OK
 A waypoint for script navgoals, 8 x 8 size
 Not included in navigation data
 
@@ -322,6 +330,7 @@ targetname - name you would use in script when setting a navgoal (like so:)
   set ("navgoal", "console");
 
 You CANNOT set a radius on these navgoals, they are touch-reach ONLY
+```
 */
 /// Source: oracle/codemp/game/g_nav.c:1402
 func SP_waypoint_navgoal_8(_ ent: Entity) {
@@ -329,7 +338,9 @@ func SP_waypoint_navgoal_8(_ ent: Entity) {
     portMissing("SP_waypoint_navgoal_8", source: "oracle/codemp/game/g_nav.c:1402")
 }
 
-/**QUAKED waypoint_navgoal_4 (0.3 1 0.3) (-4 -4 -24) (4 4 32) SOLID_OK
+/**
+```
+QUAKED waypoint_navgoal_4 (0.3 1 0.3) (-4 -4 -24) (4 4 32) SOLID_OK
 A waypoint for script navgoals, 4 x 4 size
 Not included in navigation data
 
@@ -342,6 +353,7 @@ targetname - name you would use in script when setting a navgoal (like so:)
   set ("navgoal", "console");
 
 You CANNOT set a radius on these navgoals, they are touch-reach ONLY
+```
 */
 /// Source: oracle/codemp/game/g_nav.c:1433
 func SP_waypoint_navgoal_4(_ ent: Entity) {
@@ -349,7 +361,9 @@ func SP_waypoint_navgoal_4(_ ent: Entity) {
     portMissing("SP_waypoint_navgoal_4", source: "oracle/codemp/game/g_nav.c:1433")
 }
 
-/**QUAKED waypoint_navgoal_2 (0.3 1 0.3) (-2 -2 -24) (2 2 32) SOLID_OK
+/**
+```
+QUAKED waypoint_navgoal_2 (0.3 1 0.3) (-2 -2 -24) (2 2 32) SOLID_OK
 A waypoint for script navgoals, 2 x 2 size
 Not included in navigation data
 
@@ -362,6 +376,7 @@ targetname - name you would use in script when setting a navgoal (like so:)
   set ("navgoal", "console");
 
 You CANNOT set a radius on these navgoals, they are touch-reach ONLY
+```
 */
 /// Source: oracle/codemp/game/g_nav.c:1464
 func SP_waypoint_navgoal_2(_ ent: Entity) {
@@ -369,7 +384,9 @@ func SP_waypoint_navgoal_2(_ ent: Entity) {
     portMissing("SP_waypoint_navgoal_2", source: "oracle/codemp/game/g_nav.c:1464")
 }
 
-/**QUAKED waypoint_navgoal_1 (0.3 1 0.3) (-1 -1 -24) (1 1 32) SOLID_OK
+/**
+```
+QUAKED waypoint_navgoal_1 (0.3 1 0.3) (-1 -1 -24) (1 1 32) SOLID_OK
 A waypoint for script navgoals, 1 x 1 size
 Not included in navigation data
 
@@ -382,6 +399,7 @@ targetname - name you would use in script when setting a navgoal (like so:)
   set ("navgoal", "console");
 
 You CANNOT set a radius on these navgoals, they are touch-reach ONLY
+```
 */
 /// Source: oracle/codemp/game/g_nav.c:1495
 func SP_waypoint_navgoal_1(_ ent: Entity) {

@@ -72,8 +72,10 @@ func NPC_BSPointShoot(_ shoot: Bool) {
 }
 
 /**
+```
 void NPC_BSMove(void)
 Move in a direction, face another
+```
 */
 /// Source: oracle/codemp/game/NPC_AI_Default.c:616
 func NPC_BSMove() {
@@ -88,10 +90,12 @@ func NPC_BSShoot() {
 }
 
 /**
+```
 void NPC_BSPatrol( void )
 
   Same as idle, but you look for enemies every "vigilance"
   using your angles, HFOV, VFOV and visrange, and listen for sounds within earshot...
+```
 */
 /// Source: oracle/codemp/game/NPC_AI_Default.c:664
 func NPC_BSPatrol() {

@@ -57,7 +57,9 @@ func trigger_cleared_fire(_ `self`: Entity) {
     portMissing("trigger_cleared_fire", source: "oracle/codemp/game/g_trigger.c:549")
 }
 
-/**QUAKED trigger_multiple (.1 .5 .1) ? CLIENTONLY FACING USE_BUTTON FIRE_BUTTON NPCONLY x x INACTIVE MULTIPLE
+/**
+```
+QUAKED trigger_multiple (.1 .5 .1) ? CLIENTONLY FACING USE_BUTTON FIRE_BUTTON NPCONLY x x INACTIVE MULTIPLE
 CLIENTONLY - only a player can trigger this by touch
 FACING - Won't fire unless triggering ent's view angles are within 45 degrees of trigger's angles (in addition to any other conditions)
 USE_BUTTON - Won't fire unless player is in it and pressing use button (in addition to any other conditions)
@@ -103,6 +105,7 @@ target4		-	fire when activated by team2
 idealclass	-	Can only be used by this class/these classes. You can specify use by
 				multiple classes with the use of |, e.g.:
 				"Imperial Medic|Imperial Assassin|Imperial Demolitionist"
+```
 */
 /// Source: oracle/codemp/game/g_trigger.c:607
 func SP_trigger_multiple(_ ent: Entity) {
@@ -110,7 +113,9 @@ func SP_trigger_multiple(_ ent: Entity) {
     portMissing("SP_trigger_multiple", source: "oracle/codemp/game/g_trigger.c:607")
 }
 
-/**QUAKED trigger_once (.5 1 .5) ? CLIENTONLY FACING USE_BUTTON FIRE_BUTTON x x x INACTIVE MULTIPLE
+/**
+```
+QUAKED trigger_once (.5 1 .5) ? CLIENTONLY FACING USE_BUTTON FIRE_BUTTON x x x INACTIVE MULTIPLE
 CLIENTONLY - only a player can trigger this by touch
 FACING - Won't fire unless triggering ent's view angles are within 45 degrees of trigger's angles (in addition to any other conditions)
 USE_BUTTON - Won't fire unless player is in it and pressing use button (in addition to any other conditions)
@@ -144,6 +149,7 @@ siegetrig - if non-0, can only be activated by players carrying a misc_siege_ite
 idealclass	-	Can only be used by this class/these classes. You can specify use by
 				multiple classes with the use of |, e.g.:
 				"Imperial Medic|Imperial Assassin|Imperial Demolitionist"
+```
 */
 /// Source: oracle/codemp/game/g_trigger.c:694
 func SP_trigger_once(_ ent: Entity) {
@@ -152,9 +158,11 @@ func SP_trigger_once(_ ent: Entity) {
 }
 
 /**
+```
 ======================================================================
 trigger_lightningstrike -rww
 ======================================================================
+```
 */
 //lightning strike trigger lightning strike event
 /// Source: oracle/codemp/game/g_trigger.c:739
@@ -177,7 +185,9 @@ func Use_Strike(_ ent: Entity, _ other: Entity, _ activator: Entity) {
     portMissing("Use_Strike", source: "oracle/codemp/game/g_trigger.c:801")
 }
 
-/**QUAKED trigger_lightningstrike (.1 .5 .1) ? START_OFF
+/**
+```
+QUAKED trigger_lightningstrike (.1 .5 .1) ? START_OFF
 START_OFF - start trigger disabled
 
 "lightningfx"	effect to use for lightning, MUST be specified
@@ -189,6 +199,7 @@ START_OFF - start trigger disabled
 				will only do line trace damage. default 0.
 
 use to toggle on and off
+```
 */
 /// Source: oracle/codemp/game/g_trigger.c:824
 func SP_trigger_lightningstrike(_ ent: Entity) {
@@ -202,8 +213,11 @@ func trigger_always_think(_ ent: Entity) {
     portMissing("trigger_always_think", source: "oracle/codemp/game/g_trigger.c:872")
 }
 
-/**QUAKED trigger_always (.5 .5 .5) (-8 -8 -8) (8 8 8)
+/**
+```
+QUAKED trigger_always (.5 .5 .5) (-8 -8 -8) (8 8 8)
 This trigger will always fire.  It is activated by the world.
+```
 */
 /// Source: oracle/codemp/game/g_trigger.c:880
 func SP_trigger_always(_ ent: Entity) {
@@ -218,11 +232,13 @@ func trigger_push_touch(_ `self`: Entity, _ other: Entity, _ trace: JKAMP.Trace)
 }
 
 /**
+```
 =================
 AimAtTarget
 
 Calculate origin2 so the target apogee will be hit
 =================
+```
 */
 /// Source: oracle/codemp/game/g_trigger.c:1039
 func AimAtTarget(_ `self`: Entity) {
@@ -230,7 +246,9 @@ func AimAtTarget(_ `self`: Entity) {
     portMissing("AimAtTarget", source: "oracle/codemp/game/g_trigger.c:1039")
 }
 
-/**QUAKED trigger_push (.5 .5 .5) ? x x LINEAR x RELATIVE x x INACTIVE MULTIPLE
+/**
+```
+QUAKED trigger_push (.5 .5 .5) ? x x LINEAR x RELATIVE x x INACTIVE MULTIPLE
 Must point at a target_position, which will be the apex of the leap.
 This will be client side predicted, unlike target_push
 
@@ -241,6 +259,7 @@ MULTIPLE - multiple entities can touch this trigger in a single frame *and* if n
 
 wait - how long to wait between pushes: -1 = push only once
 speed - when used with the LINEAR spawnflag, pushes the client toward the position at a constant speed (default is 1000)
+```
 */
 /// Source: oracle/codemp/game/g_trigger.c:1112
 func SP_trigger_push(_ `self`: Entity) {
@@ -254,12 +273,15 @@ func Use_target_push(_ `self`: Entity, _ other: Entity, _ activator: Entity) {
     portMissing("Use_target_push", source: "oracle/codemp/game/g_trigger.c:1138")
 }
 
-/**QUAKED target_push (.5 .5 .5) (-8 -8 -8) (8 8 8) bouncepad CONSTANT
+/**
+```
+QUAKED target_push (.5 .5 .5) (-8 -8 -8) (8 8 8) bouncepad CONSTANT
 CONSTANT will push activator in direction of 'target' at constant 'speed'
 
 Pushes the activator in the direction.of angle, or towards a target apex.
 "speed"		defaults to 1000
 if "bouncepad", play bounce noise instead of none
+```
 */
 /// Source: oracle/codemp/game/g_trigger.c:1168
 func SP_target_push(_ `self`: Entity) {
@@ -273,13 +295,16 @@ func trigger_teleporter_touch(_ `self`: Entity, _ other: Entity, _ trace: JKAMP.
     portMissing("trigger_teleporter_touch", source: "oracle/codemp/game/g_trigger.c:1197")
 }
 
-/**QUAKED trigger_teleport (.5 .5 .5) ? SPECTATOR
+/**
+```
+QUAKED trigger_teleport (.5 .5 .5) ? SPECTATOR
 Allows client side prediction of teleportation events.
 Must point at a target_position, which will be the teleport destination.
 
 If spectator is set, only spectators can use this teleport
 Spectator teleporters are not normally placed in the editor, but are created
 automatically near doors to allow spectators to move through them
+```
 */
 /// Source: oracle/codemp/game/g_trigger.c:1236
 func SP_trigger_teleport(_ `self`: Entity) {
@@ -287,7 +312,9 @@ func SP_trigger_teleport(_ `self`: Entity) {
     portMissing("SP_trigger_teleport", source: "oracle/codemp/game/g_trigger.c:1236")
 }
 
-/**QUAKED trigger_hurt (.5 .5 .5) ? START_OFF CAN_TARGET SILENT NO_PROTECTION SLOW
+/**
+```
+QUAKED trigger_hurt (.5 .5 .5) ? START_OFF CAN_TARGET SILENT NO_PROTECTION SLOW
 Any entity that touches this will be hurt.
 It does dmg points of damage each server frame
 Targeting the trigger will toggle its on / off state.
@@ -300,7 +327,7 @@ NO_PROTECTION	*nothing* stops the damage
 "team"			team (1 or 2) to allow hurting (if none then hurt anyone) only applicable for siege
 "dmg"			default 5 (whole numbers only)
 If dmg is set to -1 this brush will use the fade-kill method
-
+```
 */
 /// Source: oracle/codemp/game/g_trigger.c:1280
 func hurt_use(_ `self`: Entity, _ other: Entity, _ activator: Entity) {
@@ -326,9 +353,11 @@ func space_touch(_ `self`: Entity, _ other: Entity, _ trace: JKAMP.Trace) {
     portMissing("space_touch", source: "oracle/codemp/game/g_trigger.c:1442")
 }
 
-/**QUAKED trigger_space (.5 .5 .5) ?
+/**
+```
+QUAKED trigger_space (.5 .5 .5) ?
 causes human clients to suffocate and have no gravity.
-
+```
 */
 /// Source: oracle/codemp/game/g_trigger.c:1484
 func SP_trigger_space(_ `self`: Entity) {
@@ -348,12 +377,14 @@ func shipboundary_think(_ ent: Entity) {
     portMissing("shipboundary_think", source: "oracle/codemp/game/g_trigger.c:1533")
 }
 
-/**QUAKED trigger_shipboundary (.5 .5 .5) ?
+/**
+```
+QUAKED trigger_shipboundary (.5 .5 .5) ?
 causes vehicle to turn toward target and travel in that direction for a set time when hit.
 
 "target"		name of entity to turn toward (can be info_notnull, or whatever).
 "traveltime"	time to travel in this direction
-
+```
 */
 /// Source: oracle/codemp/game/g_trigger.c:1574
 func SP_trigger_shipboundary(_ `self`: Entity) {
@@ -368,6 +399,7 @@ func hyperspace_touch(_ `self`: Entity, _ other: Entity, _ trace: JKAMP.Trace) {
 }
 
 /**
+```
 void trigger_hyperspace_find_targets( gentity_t *self )
 {
 	gentity_t *targEnt = NULL;
@@ -386,13 +418,17 @@ void trigger_hyperspace_find_targets( gentity_t *self )
 	}
 	targEnt->r.svFlags |= SVF_BROADCAST;//crap, need to tell the cgame about the target_position
 }
+```
 */
-/**QUAKED trigger_hyperspace (.5 .5 .5) ?
+/**
+```
+QUAKED trigger_hyperspace (.5 .5 .5) ?
 Ship will turn to face the angles of the first target_position then fly forward, playing the hyperspace effect, then pop out at a relative point around the target
 
 "target"		whatever position the ship teleports from in relation to the target_position specified here, that's the relative position the ship will spawn at around the target2 target_position
 "target2"		name of target_position to teleport the ship to (will be relative to it's origin)
 "exitscale"		Can use this to make the vehicle appear farther from the exit position than they were from the entry position at the time of teleporting (scales the relative position - default is "1" - normal, no scale)
+```
 */
 /// Source: oracle/codemp/game/g_trigger.c:1709
 func SP_trigger_hyperspace(_ `self`: Entity) {
@@ -400,7 +436,9 @@ func SP_trigger_hyperspace(_ `self`: Entity) {
     portMissing("SP_trigger_hyperspace", source: "oracle/codemp/game/g_trigger.c:1709")
 }
 
-/**QUAKED func_timer (0.3 0.1 0.6) (-8 -8 -8) (8 8 8) START_ON
+/**
+```
+QUAKED func_timer (0.3 0.1 0.6) (-8 -8 -8) (8 8 8) START_ON
 This should be renamed trigger_timer...
 Repeatedly fires its targets.
 Can be turned on or off by using.
@@ -409,7 +447,7 @@ Can be turned on or off by using.
 "random"		wait variance, default is 0
 so, the basic time between firing is a random time between
 (wait - random) and (wait + random)
-
+```
 */
 /// Source: oracle/codemp/game/g_trigger.c:1757
 func func_timer_think(_ `self`: Entity) {
@@ -459,10 +497,13 @@ func asteroid_field_think(_ `self`: Entity) {
     portMissing("asteroid_field_think", source: "oracle/codemp/game/g_trigger.c:1927")
 }
 
-/**QUAKED trigger_asteroid_field (.5 .5 .5) ?
+/**
+```
+QUAKED trigger_asteroid_field (.5 .5 .5) ?
 speed - how fast, on average, the asteroid moves
 count - how many asteroids, max, to have at one time
 target - target this at func_rotating asteroids
+```
 */
 /// Source: oracle/codemp/game/g_trigger.c:1986
 func SP_trigger_asteroid_field(_ `self`: Entity) {

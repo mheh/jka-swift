@@ -11,6 +11,7 @@ func P_SetTwitchInfo(_ client: Client) {
 }
 
 /**
+```
 ===============
 G_DamageFeedback
 
@@ -19,6 +20,7 @@ Totals up all damage and generates both the player_state_t
 damage values to that client for pain blends and kicks, and
 global pain sound events for all clients.
 ===============
+```
 */
 /// Source: oracle/codemp/game/g_active.c:36
 func P_DamageFeedback(_ player: Entity) {
@@ -27,11 +29,13 @@ func P_DamageFeedback(_ player: Entity) {
 }
 
 /**
+```
 =============
 P_WorldEffects
 
 Check for lava / slime contents and drowning
 =============
+```
 */
 /// Source: oracle/codemp/game/g_active.c:129
 func P_WorldEffects(_ ent: Entity) {
@@ -52,9 +56,11 @@ func Client_CheckImpactBBrush(_ `self`: Entity, _ other: Entity) {
 }
 
 /**
+```
 ===============
 G_SetClientSound
 ===============
+```
 */
 /// Source: oracle/codemp/game/g_active.c:444
 func G_SetClientSound(_ ent: Entity) {
@@ -63,9 +69,11 @@ func G_SetClientSound(_ ent: Entity) {
 }
 
 /**
+```
 ==============
 ClientImpacts
 ==============
+```
 */
 /// Source: oracle/codemp/game/g_active.c:478
 func ClientImpacts(_ ent: Entity, _ pm: JKAMP.Pmove) {
@@ -74,12 +82,14 @@ func ClientImpacts(_ ent: Entity, _ pm: JKAMP.Pmove) {
 }
 
 /**
+```
 ============
 G_TouchTriggers
 
 Find all trigger entities that ent's current position touches.
 Spectators will only interact with teleporters.
 ============
+```
 */
 /// Source: oracle/codemp/game/g_active.c:516
 func G_TouchTriggers(_ ent: Entity) {
@@ -88,12 +98,14 @@ func G_TouchTriggers(_ ent: Entity) {
 }
 
 /**
+```
 ============
 G_MoverTouchTriggers
 
 Find all trigger entities that ent's current position touches.
 Spectators will only interact with teleporters.
 ============
+```
 */
 /// Source: oracle/codemp/game/g_active.c:601
 func G_MoverTouchPushTriggers(_ ent: Entity, _ oldOrg: inout JKAShared.vec3_t) {
@@ -102,9 +114,11 @@ func G_MoverTouchPushTriggers(_ ent: Entity, _ oldOrg: inout JKAShared.vec3_t) {
 }
 
 /**
+```
 =================
 SpectatorThink
 =================
+```
 */
 /// Source: oracle/codemp/game/g_active.c:678
 func SpectatorThink(_ ent: Entity, _ ucmd: JKAMP.Usercmd) {
@@ -113,11 +127,13 @@ func SpectatorThink(_ ent: Entity, _ ucmd: JKAMP.Usercmd) {
 }
 
 /**
+```
 =================
 ClientInactivityTimer
 
 Returns qfalse if the client is dropped
 =================
+```
 */
 /// Source: oracle/codemp/game/g_active.c:751
 func ClientInactivityTimer(_ client: Client) -> Bool {
@@ -126,11 +142,13 @@ func ClientInactivityTimer(_ client: Client) -> Bool {
 }
 
 /**
+```
 ==================
 ClientTimerActions
 
 Actions that happen once a second
 ==================
+```
 */
 /// Source: oracle/codemp/game/g_active.c:783
 func ClientTimerActions(_ ent: Entity, _ msec: Int32) {
@@ -139,9 +157,11 @@ func ClientTimerActions(_ ent: Entity, _ msec: Int32) {
 }
 
 /**
+```
 ====================
 ClientIntermissionThink
 ====================
+```
 */
 /// Source: oracle/codemp/game/g_active.c:810
 func ClientIntermissionThink(_ client: Client) {
@@ -169,9 +189,11 @@ func ClientEvents(_ ent: Entity, _ oldEventSequence: Int32) {
 }
 
 /**
+```
 ==============
 SendPendingPredictableEvents
 ==============
+```
 */
 /// Source: oracle/codemp/game/g_active.c:1059
 func SendPendingPredictableEvents(_ ps: JKAMP.PlayerState) {
@@ -234,9 +256,11 @@ private func NPC_GetWalkSpeed(_ ent: Entity) -> Int32 {
 }
 
 /**
+```
 -------------------------
 NPC_GetRunSpeed
 -------------------------
+```
 */
 /// Source: oracle/codemp/game/g_active.c:1517
 private func NPC_GetRunSpeed(_ ent: Entity) -> Int32 {
@@ -266,6 +290,7 @@ func G_SetTauntAnim(_ ent: Entity, _ taunt: Int32) {
 }
 
 /**
+```
 ==============
 ClientThink
 
@@ -275,6 +300,7 @@ usually be a couple times for each server frame on fast clients.
 If "g_synchronousClients 1" is set, this will be called exactly
 once for each server frame, which makes for smooth demo recording.
 ==============
+```
 */
 /// Source: oracle/codemp/game/g_active.c:1939
 func ClientThink_real(_ ent: Entity) {
@@ -283,11 +309,13 @@ func ClientThink_real(_ ent: Entity) {
 }
 
 /**
+```
 ==================
 G_CheckClientTimeouts
 
 Checks whether a client has exceded any timeouts and act accordingly
 ==================
+```
 */
 /// Source: oracle/codemp/game/g_active.c:3620
 func G_CheckClientTimeouts(_ ent: Entity) {
@@ -296,11 +324,13 @@ func G_CheckClientTimeouts(_ ent: Entity) {
 }
 
 /**
+```
 ==================
 ClientThink
 
 A new command has arrived from the client
 ==================
+```
 */
 /// Source: oracle/codemp/game/g_active.c:3649
 func ClientThink(_ clientNum: Int32, _ ucmd: JKAMP.Usercmd) {
@@ -315,10 +345,12 @@ func G_RunClient(_ ent: Entity) {
 }
 
 /**
+```
 ==================
 SpectatorClientEndFrame
 
 ==================
+```
 */
 /// Source: oracle/codemp/game/g_active.c:3738
 func SpectatorClientEndFrame(_ ent: Entity) {
@@ -327,6 +359,7 @@ func SpectatorClientEndFrame(_ ent: Entity) {
 }
 
 /**
+```
 ==============
 ClientEndFrame
 
@@ -334,6 +367,7 @@ Called at the end of each server frame for each connected client
 A fast client will have multiple ClientThink for each ClientEdFrame,
 while a slow client may have multiple ClientEndFrame between ClientThink.
 ==============
+```
 */
 /// Source: oracle/codemp/game/g_active.c:3794
 func ClientEndFrame(_ ent: Entity) {

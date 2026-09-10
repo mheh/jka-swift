@@ -17,10 +17,12 @@ func G_DeflectMissile(_ ent: Entity, _ missile: Entity, _ forward: inout JKAShar
 }
 
 /**
+```
 ================
 G_BounceMissile
 
 ================
+```
 */
 /// Source: oracle/codemp/game/g_missile.c:148
 func G_BounceMissile(_ ent: Entity, _ trace: JKAMP.Trace) {
@@ -29,11 +31,13 @@ func G_BounceMissile(_ ent: Entity, _ trace: JKAMP.Trace) {
 }
 
 /**
+```
 ================
 G_ExplodeMissile
 
 Explode a missile without an impact
 ================
+```
 */
 /// Source: oracle/codemp/game/g_missile.c:215
 func G_ExplodeMissile(_ ent: Entity) {
@@ -48,9 +52,11 @@ func G_RunStuckMissile(_ ent: Entity) {
 }
 
 /**
+```
 ================
 G_BounceProjectile
 ================
+```
 */
 /// Source: oracle/codemp/game/g_missile.c:284
 func G_BounceProjectile(_ start: inout JKAShared.vec3_t, _ impact: inout JKAShared.vec3_t, _ dir: inout JKAShared.vec3_t, _ endout: inout JKAShared.vec3_t) {
@@ -78,9 +84,11 @@ func G_MissileImpact(_ ent: Entity, _ trace: JKAMP.Trace) {
 }
 
 /**
+```
 ================
 G_RunMissile
 ================
+```
 */
 /// Source: oracle/codemp/game/g_missile.c:808
 func G_RunMissile(_ ent: Entity) {

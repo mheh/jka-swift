@@ -26,9 +26,11 @@ func G_DebugPrint(_ level: Int32, _ format: String) {
 }
 
 /**
+```
 -------------------------
 Q3_GetAnimLower
 -------------------------
+```
 */
 /// Source: oracle/codemp/game/g_ICARUScb.c:331
 // TODO: Port signature
@@ -40,9 +42,11 @@ private func Q3_GetAnimLower() -> Never {
 }
 
 /**
+```
 -------------------------
 Q3_GetAnimUpper
 -------------------------
+```
 */
 /// Source: oracle/codemp/game/g_ICARUScb.c:351
 // TODO: Port signature
@@ -54,9 +58,11 @@ private func Q3_GetAnimUpper() -> Never {
 }
 
 /**
+```
 -------------------------
 Q3_GetAnimBoth
 -------------------------
+```
 */
 /// Source: oracle/codemp/game/g_ICARUScb.c:371
 // TODO: Port signature
@@ -74,9 +80,11 @@ func Q3_PlaySound(_ taskID: Int32, _ entID: Int32, _ name: String, _ channel: St
 }
 
 /**
+```
 -------------------------
 Q3_Play
 -------------------------
+```
 */
 /// Source: oracle/codemp/game/g_ICARUScb.c:527
 func Q3_Play(_ taskID: Int32, _ entID: Int32, _ type: String, _ name: String) {
@@ -85,11 +93,13 @@ func Q3_Play(_ taskID: Int32, _ entID: Int32, _ type: String, _ name: String) {
 }
 
 /**
+```
 =============
 anglerCallback
 
 Utility function
 =============
+```
 */
 /// Source: oracle/codemp/game/g_ICARUScb.c:569
 func anglerCallback(_ ent: Entity) {
@@ -98,11 +108,13 @@ func anglerCallback(_ ent: Entity) {
 }
 
 /**
+```
 =============
 moverCallback
 
 Utility function
 =============
+```
 */
 /// Source: oracle/codemp/game/g_ICARUScb.c:603
 func moverCallback(_ ent: Entity) {
@@ -117,11 +129,13 @@ func Blocked_Mover(_ ent: Entity, _ other: Entity) {
 }
 
 /**
+```
 =============
 moveAndRotateCallback
 
 Utility function
 =============
+```
 */
 /// Source: oracle/codemp/game/g_ICARUScb.c:667
 func moveAndRotateCallback(_ ent: Entity) {
@@ -130,11 +144,13 @@ func moveAndRotateCallback(_ ent: Entity) {
 }
 
 /**
+```
 =============
 Q3_Lerp2Start
 
 Lerps the origin of an entity to its starting position
 =============
+```
 */
 /// Source: oracle/codemp/game/g_ICARUScb.c:682
 func Q3_Lerp2Start(_ entID: Int32, _ taskID: Int32, _ duration: Float) {
@@ -143,11 +159,13 @@ func Q3_Lerp2Start(_ entID: Int32, _ taskID: Int32, _ duration: Float) {
 }
 
 /**
+```
 =============
 Q3_Lerp2End
 
 Lerps the origin of an entity to its ending position
 =============
+```
 */
 /// Source: oracle/codemp/game/g_ICARUScb.c:730
 func Q3_Lerp2End(_ entID: Int32, _ taskID: Int32, _ duration: Float) {
@@ -156,12 +174,14 @@ func Q3_Lerp2End(_ entID: Int32, _ taskID: Int32, _ duration: Float) {
 }
 
 /**
+```
 =============
 Q3_Lerp2Pos
 
 Lerps the origin and angles of an entity to the destination values
 
 =============
+```
 */
 /// Source: oracle/codemp/game/g_ICARUScb.c:781
 func Q3_Lerp2Pos(_ taskID: Int32, _ entID: Int32, _ origin: inout JKAShared.vec3_t, _ angles: inout JKAShared.vec3_t, _ duration: Float) {
@@ -170,11 +190,13 @@ func Q3_Lerp2Pos(_ taskID: Int32, _ entID: Int32, _ origin: inout JKAShared.vec3
 }
 
 /**
+```
 =============
 Q3_LerpAngles
 
 Lerps the angles to the destination value
 =============
+```
 */
 /// Source: oracle/codemp/game/g_ICARUScb.c:892
 func Q3_Lerp2Angles(_ taskID: Int32, _ entID: Int32, _ angles: inout JKAShared.vec3_t, _ duration: Float) {
@@ -183,11 +205,13 @@ func Q3_Lerp2Angles(_ taskID: Int32, _ entID: Int32, _ angles: inout JKAShared.v
 }
 
 /**
+```
 =============
 Q3_GetTag
 
 Gets the value of a tag by the give name
 =============
+```
 */
 /// Source: oracle/codemp/game/g_ICARUScb.c:948
 func Q3_GetTag(_ entID: Int32, _ name: String, _ lookup: Int32, _ info: inout JKAShared.vec3_t) -> Int32 {
@@ -196,11 +220,13 @@ func Q3_GetTag(_ entID: Int32, _ name: String, _ lookup: Int32, _ info: inout JK
 }
 
 /**
+```
 ============
 Q3_Use
 
 Uses an entity
 ============
+```
 */
 /// Source: oracle/codemp/game/g_ICARUScb.c:981
 func Q3_Use(_ entID: Int32, _ target: String) {
@@ -209,6 +235,7 @@ func Q3_Use(_ entID: Int32, _ target: String) {
 }
 
 /**
+```
 ============
 Q3_Kill
   Description	:
@@ -216,6 +243,7 @@ Q3_Kill
   Argument		:  int entID
   Argument		: const char *name
 ============
+```
 */
 /// Source: oracle/codemp/game/g_ICARUScb.c:1009
 func Q3_Kill(_ entID: Int32, _ name: String) {
@@ -224,12 +252,14 @@ func Q3_Kill(_ entID: Int32, _ name: String) {
 }
 
 /**
+```
 ============
 Q3_RemoveEnt
   Description	:
   Return type	: void
   Argument		: sharedEntity_t *victim
 ============
+```
 */
 /// Source: oracle/codemp/game/g_ICARUScb.c:1062
 func Q3_RemoveEnt(_ victim: Entity) {
@@ -238,6 +268,7 @@ func Q3_RemoveEnt(_ victim: Entity) {
 }
 
 /**
+```
 ============
 Q3_Remove
   Description	:
@@ -245,6 +276,7 @@ Q3_Remove
   Argument		:  int entID
   Argument		: const char *name
 ============
+```
 */
 /// Source: oracle/codemp/game/g_ICARUScb.c:1128
 func Q3_Remove(_ entID: Int32, _ name: String) {
@@ -253,6 +285,7 @@ func Q3_Remove(_ entID: Int32, _ name: String) {
 }
 
 /**
+```
 ============
 Q3_GetFloat
   Description	:
@@ -262,6 +295,7 @@ Q3_GetFloat
   Argument		: const char *name
   Argument		: float *value
 ============
+```
 */
 /// Source: oracle/codemp/game/g_ICARUScb.c:1189
 func Q3_GetFloat(_ entID: Int32, _ type: Int32, _ name: String, _ value: inout Float) -> Int32 {
@@ -270,6 +304,7 @@ func Q3_GetFloat(_ entID: Int32, _ type: Int32, _ name: String, _ value: inout F
 }
 
 /**
+```
 ============
 Q3_GetVector
   Description	:
@@ -279,6 +314,7 @@ Q3_GetVector
   Argument		: const char *name
   Argument		: vec3_t value
 ============
+```
 */
 /// Source: oracle/codemp/game/g_ICARUScb.c:1573
 func Q3_GetVector(_ entID: Int32, _ type: Int32, _ name: String, _ value: inout JKAShared.vec3_t) -> Int32 {
@@ -287,6 +323,7 @@ func Q3_GetVector(_ entID: Int32, _ type: Int32, _ name: String, _ value: inout 
 }
 
 /**
+```
 ============
 Q3_GetString
   Description	:
@@ -296,6 +333,7 @@ Q3_GetString
   Argument		: const char *name
   Argument		: char **value
 ============
+```
 */
 /// Source: oracle/codemp/game/g_ICARUScb.c:1642
 // TODO: Port signature
@@ -313,11 +351,13 @@ func MoveOwner(_ `self`: Entity) {
 }
 
 /**
+```
 =============
 Q3_SetTeleportDest
 
 Copies passed origin to ent running script once there is nothing there blocking the spot
 =============
+```
 */
 /// Source: oracle/codemp/game/g_ICARUScb.c:1895
 private func Q3_SetTeleportDest(_ entID: Int32, _ org: inout JKAShared.vec3_t) -> Bool {
@@ -326,11 +366,13 @@ private func Q3_SetTeleportDest(_ entID: Int32, _ org: inout JKAShared.vec3_t) -
 }
 
 /**
+```
 =============
 Q3_SetOrigin
 
 Sets the origin of an entity directly
 =============
+```
 */
 /// Source: oracle/codemp/game/g_ICARUScb.c:1929
 private func Q3_SetOrigin(_ entID: Int32, _ origin: inout JKAShared.vec3_t) {
@@ -339,11 +381,13 @@ private func Q3_SetOrigin(_ entID: Int32, _ origin: inout JKAShared.vec3_t) {
 }
 
 /**
+```
 =============
 Q3_SetCopyOrigin
 
 Copies origin of found ent into ent running script
 =============`
+```
 */
 /// Source: oracle/codemp/game/g_ICARUScb.c:1970
 private func Q3_SetCopyOrigin(_ entID: Int32, _ name: String) {
@@ -352,11 +396,13 @@ private func Q3_SetCopyOrigin(_ entID: Int32, _ name: String) {
 }
 
 /**
+```
 =============
 Q3_SetVelocity
 
 Set the velocity of an entity directly
 =============
+```
 */
 /// Source: oracle/codemp/game/g_ICARUScb.c:1992
 private func Q3_SetVelocity(_ entID: Int32, _ axis: Int32, _ speed: Float) {
@@ -365,11 +411,13 @@ private func Q3_SetVelocity(_ entID: Int32, _ axis: Int32, _ speed: Float) {
 }
 
 /**
+```
 =============
 Q3_SetAngles
 
 Sets the angles of an entity directly
 =============
+```
 */
 /// Source: oracle/codemp/game/g_ICARUScb.c:2022
 private func Q3_SetAngles(_ entID: Int32, _ angles: inout JKAShared.vec3_t) {
@@ -378,11 +426,13 @@ private func Q3_SetAngles(_ entID: Int32, _ angles: inout JKAShared.vec3_t) {
 }
 
 /**
+```
 =============
 Q3_Lerp2Origin
 
 Lerps the origin to the destination value
 =============
+```
 */
 /// Source: oracle/codemp/game/g_ICARUScb.c:2051
 func Q3_Lerp2Origin(_ taskID: Int32, _ entID: Int32, _ origin: inout JKAShared.vec3_t, _ duration: Float) {
@@ -397,11 +447,13 @@ private func Q3_SetOriginOffset(_ entID: Int32, _ axis: Int32, _ offset: Float) 
 }
 
 /**
+```
 =============
 Q3_SetEnemy
 
 Sets the enemy of an entity
 =============
+```
 */
 /// Source: oracle/codemp/game/g_ICARUScb.c:2149
 private func Q3_SetEnemy(_ entID: Int32, _ name: String) {
@@ -410,11 +462,13 @@ private func Q3_SetEnemy(_ entID: Int32, _ name: String) {
 }
 
 /**
+```
 =============
 Q3_SetLeader
 
 Sets the leader of an NPC
 =============
+```
 */
 /// Source: oracle/codemp/game/g_ICARUScb.c:2207
 private func Q3_SetLeader(_ entID: Int32, _ name: String) {
@@ -423,11 +477,13 @@ private func Q3_SetLeader(_ entID: Int32, _ name: String) {
 }
 
 /**
+```
 =============
 Q3_SetNavGoal
 
 Sets the navigational goal of an entity
 =============
+```
 */
 /// Source: oracle/codemp/game/g_ICARUScb.c:2255
 private func Q3_SetNavGoal(_ entID: Int32, _ name: String) -> Bool {
@@ -436,6 +492,7 @@ private func Q3_SetNavGoal(_ entID: Int32, _ name: String) -> Bool {
 }
 
 /**
+```
 ============
 SetLowerAnim
   Description	:
@@ -443,6 +500,7 @@ SetLowerAnim
   Argument		:  int entID
   Argument		: int animID
 ============
+```
 */
 /// Source: oracle/codemp/game/g_ICARUScb.c:2330
 private func SetLowerAnim(_ entID: Int32, _ animID: Int32) {
@@ -451,6 +509,7 @@ private func SetLowerAnim(_ entID: Int32, _ animID: Int32) {
 }
 
 /**
+```
 ============
 SetUpperAnim
   Description	:
@@ -458,6 +517,7 @@ SetUpperAnim
   Argument		:  int entID
   Argument		: int animID
 ============
+```
 */
 /// Source: oracle/codemp/game/g_ICARUScb.c:2358
 private func SetUpperAnim(_ entID: Int32, _ animID: Int32) {
@@ -466,11 +526,13 @@ private func SetUpperAnim(_ entID: Int32, _ animID: Int32) {
 }
 
 /**
+```
 =============
 Q3_SetAnimUpper
 
 Sets the upper animation of an entity
 =============
+```
 */
 /// Source: oracle/codemp/game/g_ICARUScb.c:2384
 private func Q3_SetAnimUpper(_ entID: Int32, _ anim_name: String) -> Bool {
@@ -479,11 +541,13 @@ private func Q3_SetAnimUpper(_ entID: Int32, _ anim_name: String) -> Bool {
 }
 
 /**
+```
 =============
 Q3_SetAnimLower
 
 Sets the lower animation of an entity
 =============
+```
 */
 /// Source: oracle/codemp/game/g_ICARUScb.c:2414
 private func Q3_SetAnimLower(_ entID: Int32, _ anim_name: String) -> Bool {
@@ -492,6 +556,7 @@ private func Q3_SetAnimLower(_ entID: Int32, _ anim_name: String) -> Bool {
 }
 
 /**
+```
 ============
 Q3_SetAnimHoldTime
   Description	:
@@ -500,6 +565,7 @@ Q3_SetAnimHoldTime
   Argument		: int int_data
   Argument		: qboolean lower
 ============
+```
 */
 /// Source: oracle/codemp/game/g_ICARUScb.c:2449
 private func Q3_SetAnimHoldTime(_ entID: Int32, _ int_data: Int32, _ lower: Bool) {
@@ -508,6 +574,7 @@ private func Q3_SetAnimHoldTime(_ entID: Int32, _ int_data: Int32, _ lower: Bool
 }
 
 /**
+```
 ============
 Q3_SetHealth
   Description	:
@@ -515,6 +582,7 @@ Q3_SetHealth
   Argument		:  int entID
   Argument		: int data
 ============
+```
 */
 /// Source: oracle/codemp/game/g_ICARUScb.c:2487
 private func Q3_SetHealth(_ entID: Int32, _ data: Int32) {
@@ -523,6 +591,7 @@ private func Q3_SetHealth(_ entID: Int32, _ data: Int32) {
 }
 
 /**
+```
 ============
 Q3_SetArmor
   Description	:
@@ -530,6 +599,7 @@ Q3_SetArmor
   Argument		:  int entID
   Argument		: int data
 ============
+```
 */
 /// Source: oracle/codemp/game/g_ICARUScb.c:2539
 private func Q3_SetArmor(_ entID: Int32, _ data: Int32) {
@@ -538,6 +608,7 @@ private func Q3_SetArmor(_ entID: Int32, _ data: Int32) {
 }
 
 /**
+```
 ============
 Q3_SetBState
   Description	:
@@ -547,6 +618,7 @@ Q3_SetBState
 FIXME: this should be a general NPC wrapper function
 	that is called ANY time	a bState is changed...
 ============
+```
 */
 /// Source: oracle/codemp/game/g_ICARUScb.c:2573
 private func Q3_SetBState(_ entID: Int32, _ bs_name: String) -> Bool {
@@ -555,6 +627,7 @@ private func Q3_SetBState(_ entID: Int32, _ bs_name: String) -> Bool {
 }
 
 /**
+```
 ============
 Q3_SetTempBState
   Description	:
@@ -562,6 +635,7 @@ Q3_SetTempBState
   Argument		:  int entID
   Argument		: const char *bs_name
 ============
+```
 */
 /// Source: oracle/codemp/game/g_ICARUScb.c:2699
 private func Q3_SetTempBState(_ entID: Int32, _ bs_name: String) -> Bool {
@@ -570,6 +644,7 @@ private func Q3_SetTempBState(_ entID: Int32, _ bs_name: String) -> Bool {
 }
 
 /**
+```
 ============
 Q3_SetDefaultBState
   Description	:
@@ -577,6 +652,7 @@ Q3_SetDefaultBState
   Argument		:  int entID
   Argument		: const char *bs_name
 ============
+```
 */
 /// Source: oracle/codemp/game/g_ICARUScb.c:2749
 private func Q3_SetDefaultBState(_ entID: Int32, _ bs_name: String) {
@@ -585,6 +661,7 @@ private func Q3_SetDefaultBState(_ entID: Int32, _ bs_name: String) {
 }
 
 /**
+```
 ============
 Q3_SetDPitch
   Description	:
@@ -592,6 +669,7 @@ Q3_SetDPitch
   Argument		:  int entID
   Argument		: float data
 ============
+```
 */
 /// Source: oracle/codemp/game/g_ICARUScb.c:2783
 private func Q3_SetDPitch(_ entID: Int32, _ data: Float) {
@@ -600,6 +678,7 @@ private func Q3_SetDPitch(_ entID: Int32, _ data: Float) {
 }
 
 /**
+```
 ============
 Q3_SetDYaw
   Description	:
@@ -607,6 +686,7 @@ Q3_SetDYaw
   Argument		:  int entID
   Argument		: float data
 ============
+```
 */
 /// Source: oracle/codemp/game/g_ICARUScb.c:2799
 private func Q3_SetDYaw(_ entID: Int32, _ data: Float) {
@@ -615,6 +695,7 @@ private func Q3_SetDYaw(_ entID: Int32, _ data: Float) {
 }
 
 /**
+```
 ============
 Q3_SetShootDist
   Description	:
@@ -622,6 +703,7 @@ Q3_SetShootDist
   Argument		:  int entID
   Argument		: float data
 ============
+```
 */
 /// Source: oracle/codemp/game/g_ICARUScb.c:2815
 private func Q3_SetShootDist(_ entID: Int32, _ data: Float) {
@@ -630,6 +712,7 @@ private func Q3_SetShootDist(_ entID: Int32, _ data: Float) {
 }
 
 /**
+```
 ============
 Q3_SetVisrange
   Description	:
@@ -637,6 +720,7 @@ Q3_SetVisrange
   Argument		:  int entID
   Argument		: float data
 ============
+```
 */
 /// Source: oracle/codemp/game/g_ICARUScb.c:2831
 private func Q3_SetVisrange(_ entID: Int32, _ data: Float) {
@@ -645,6 +729,7 @@ private func Q3_SetVisrange(_ entID: Int32, _ data: Float) {
 }
 
 /**
+```
 ============
 Q3_SetEarshot
   Description	:
@@ -652,6 +737,7 @@ Q3_SetEarshot
   Argument		:  int entID
   Argument		: float data
 ============
+```
 */
 /// Source: oracle/codemp/game/g_ICARUScb.c:2847
 private func Q3_SetEarshot(_ entID: Int32, _ data: Float) {
@@ -660,6 +746,7 @@ private func Q3_SetEarshot(_ entID: Int32, _ data: Float) {
 }
 
 /**
+```
 ============
 Q3_SetVigilance
   Description	:
@@ -667,6 +754,7 @@ Q3_SetVigilance
   Argument		:  int entID
   Argument		: float data
 ============
+```
 */
 /// Source: oracle/codemp/game/g_ICARUScb.c:2863
 private func Q3_SetVigilance(_ entID: Int32, _ data: Float) {
@@ -675,6 +763,7 @@ private func Q3_SetVigilance(_ entID: Int32, _ data: Float) {
 }
 
 /**
+```
 ============
 Q3_SetVFOV
   Description	:
@@ -682,6 +771,7 @@ Q3_SetVFOV
   Argument		:  int entID
   Argument		: int data
 ============
+```
 */
 /// Source: oracle/codemp/game/g_ICARUScb.c:2879
 private func Q3_SetVFOV(_ entID: Int32, _ data: Int32) {
@@ -690,6 +780,7 @@ private func Q3_SetVFOV(_ entID: Int32, _ data: Int32) {
 }
 
 /**
+```
 ============
 Q3_SetHFOV
   Description	:
@@ -697,6 +788,7 @@ Q3_SetHFOV
   Argument		:  int entID
   Argument		: int data
 ============
+```
 */
 /// Source: oracle/codemp/game/g_ICARUScb.c:2895
 private func Q3_SetHFOV(_ entID: Int32, _ data: Int32) {
@@ -705,6 +797,7 @@ private func Q3_SetHFOV(_ entID: Int32, _ data: Int32) {
 }
 
 /**
+```
 ============
 Q3_SetWidth
   Description	:
@@ -712,6 +805,7 @@ Q3_SetWidth
   Argument		:  int entID
   Argument		: float data
 ============
+```
 */
 /// Source: oracle/codemp/game/g_ICARUScb.c:2911
 private func Q3_SetWidth(_ entID: Int32, _ data: Int32) {
@@ -720,6 +814,7 @@ private func Q3_SetWidth(_ entID: Int32, _ data: Int32) {
 }
 
 /**
+```
 ============
 Q3_SetTimeScale
   Description	:
@@ -727,6 +822,7 @@ Q3_SetTimeScale
   Argument		:  int entID
   Argument		: const char *data
 ============
+```
 */
 /// Source: oracle/codemp/game/g_ICARUScb.c:2926
 private func Q3_SetTimeScale(_ entID: Int32, _ data: String) {
@@ -735,6 +831,7 @@ private func Q3_SetTimeScale(_ entID: Int32, _ data: String) {
 }
 
 /**
+```
 ============
 Q3_SetInvisible
   Description	:
@@ -742,6 +839,7 @@ Q3_SetInvisible
   Argument		:  int entID
   Argument		: qboolean invisible
 ============
+```
 */
 /// Source: oracle/codemp/game/g_ICARUScb.c:2941
 private func Q3_SetInvisible(_ entID: Int32, _ invisible: Bool) {
@@ -750,6 +848,7 @@ private func Q3_SetInvisible(_ entID: Int32, _ invisible: Bool) {
 }
 
 /**
+```
 ============
 Q3_SetVampire
   Description	:
@@ -757,6 +856,7 @@ Q3_SetVampire
   Argument		:  int entID
   Argument		: qboolean vampire
 ============
+```
 */
 /// Source: oracle/codemp/game/g_ICARUScb.c:2979
 private func Q3_SetVampire(_ entID: Int32, _ vampire: Bool) {
@@ -765,6 +865,7 @@ private func Q3_SetVampire(_ entID: Int32, _ vampire: Bool) {
 }
 
 /**
+```
 ============
 Q3_SetGreetAllies
   Description	:
@@ -772,6 +873,7 @@ Q3_SetGreetAllies
   Argument		:  int entID
   Argument		: qboolean greet
 ============
+```
 */
 /// Source: oracle/codemp/game/g_ICARUScb.c:2993
 private func Q3_SetGreetAllies(_ entID: Int32, _ greet: Bool) {
@@ -780,6 +882,7 @@ private func Q3_SetGreetAllies(_ entID: Int32, _ greet: Bool) {
 }
 
 /**
+```
 ============
 Q3_SetViewTarget
   Description	:
@@ -787,6 +890,7 @@ Q3_SetViewTarget
   Argument		: int entID
   Argument		: const char *name
 ============
+```
 */
 /// Source: oracle/codemp/game/g_ICARUScb.c:3009
 private func Q3_SetViewTarget(_ entID: Int32, _ name: String) {
@@ -795,6 +899,7 @@ private func Q3_SetViewTarget(_ entID: Int32, _ name: String) {
 }
 
 /**
+```
 ============
 Q3_SetWatchTarget
   Description	:
@@ -802,6 +907,7 @@ Q3_SetWatchTarget
   Argument		: int entID
   Argument		: const char *name
 ============
+```
 */
 /// Source: oracle/codemp/game/g_ICARUScb.c:3025
 private func Q3_SetWatchTarget(_ entID: Int32, _ name: String) {
@@ -822,6 +928,7 @@ func Q3_SetICARUSFreeze(_ entID: Int32, _ name: String, _ freeze: Bool) {
 }
 
 /**
+```
 ============
 Q3_SetViewEntity
   Description	:
@@ -829,6 +936,7 @@ Q3_SetViewEntity
   Argument		: int entID
   Argument		: const char *name
 ============
+```
 */
 /// Source: oracle/codemp/game/g_ICARUScb.c:3089
 func Q3_SetViewEntity(_ entID: Int32, _ name: String) {
@@ -843,6 +951,7 @@ private func Q3_SetWeapon(_ entID: Int32, _ wp_name: String) {
 }
 
 /**
+```
 ============
 Q3_SetItem
   Description	:
@@ -850,6 +959,7 @@ Q3_SetItem
   Argument		: int entID
   Argument		: const char *wp_name
 ============
+```
 */
 /// Source: oracle/codemp/game/g_ICARUScb.c:3122
 private func Q3_SetItem(_ entID: Int32, _ item_name: String) {
@@ -858,6 +968,7 @@ private func Q3_SetItem(_ entID: Int32, _ item_name: String) {
 }
 
 /**
+```
 ============
 Q3_SetWalkSpeed
   Description	:
@@ -865,6 +976,7 @@ Q3_SetWalkSpeed
   Argument		: int entID
   Argument		: int int_data
 ============
+```
 */
 /// Source: oracle/codemp/game/g_ICARUScb.c:3139
 private func Q3_SetWalkSpeed(_ entID: Int32, _ int_data: Int32) {
@@ -873,6 +985,7 @@ private func Q3_SetWalkSpeed(_ entID: Int32, _ int_data: Int32) {
 }
 
 /**
+```
 ============
 Q3_SetRunSpeed
   Description	:
@@ -880,6 +993,7 @@ Q3_SetRunSpeed
   Argument		: int entID
   Argument		: int int_data
 ============
+```
 */
 /// Source: oracle/codemp/game/g_ICARUScb.c:3173
 private func Q3_SetRunSpeed(_ entID: Int32, _ int_data: Int32) {
@@ -888,6 +1002,7 @@ private func Q3_SetRunSpeed(_ entID: Int32, _ int_data: Int32) {
 }
 
 /**
+```
 ============
 Q3_SetYawSpeed
   Description	:
@@ -895,6 +1010,7 @@ Q3_SetYawSpeed
   Argument		: int entID
   Argument		: float float_data
 ============
+```
 */
 /// Source: oracle/codemp/game/g_ICARUScb.c:3207
 private func Q3_SetYawSpeed(_ entID: Int32, _ float_data: Float) {
@@ -903,6 +1019,7 @@ private func Q3_SetYawSpeed(_ entID: Int32, _ float_data: Float) {
 }
 
 /**
+```
 ============
 Q3_SetAggression
   Description	:
@@ -910,6 +1027,7 @@ Q3_SetAggression
   Argument		: int entID
   Argument		: int int_data
 ============
+```
 */
 /// Source: oracle/codemp/game/g_ICARUScb.c:3223
 private func Q3_SetAggression(_ entID: Int32, _ int_data: Int32) {
@@ -918,6 +1036,7 @@ private func Q3_SetAggression(_ entID: Int32, _ int_data: Int32) {
 }
 
 /**
+```
 ============
 Q3_SetAim
   Description	:
@@ -925,6 +1044,7 @@ Q3_SetAim
   Argument		: int entID
   Argument		: int int_data
 ============
+```
 */
 /// Source: oracle/codemp/game/g_ICARUScb.c:3239
 private func Q3_SetAim(_ entID: Int32, _ int_data: Int32) {
@@ -933,6 +1053,7 @@ private func Q3_SetAim(_ entID: Int32, _ int_data: Int32) {
 }
 
 /**
+```
 ============
 Q3_SetFriction
   Description	:
@@ -940,6 +1061,7 @@ Q3_SetFriction
   Argument		: int entID
   Argument		: int int_data
 ============
+```
 */
 /// Source: oracle/codemp/game/g_ICARUScb.c:3255
 private func Q3_SetFriction(_ entID: Int32, _ int_data: Int32) {
@@ -948,6 +1070,7 @@ private func Q3_SetFriction(_ entID: Int32, _ int_data: Int32) {
 }
 
 /**
+```
 ============
 Q3_SetGravity
   Description	:
@@ -955,6 +1078,7 @@ Q3_SetGravity
   Argument		: int entID
   Argument		: float float_data
 ============
+```
 */
 /// Source: oracle/codemp/game/g_ICARUScb.c:3285
 private func Q3_SetGravity(_ entID: Int32, _ float_data: Float) {
@@ -963,6 +1087,7 @@ private func Q3_SetGravity(_ entID: Int32, _ float_data: Float) {
 }
 
 /**
+```
 ============
 Q3_SetWait
   Description	:
@@ -970,6 +1095,7 @@ Q3_SetWait
   Argument		: int entID
   Argument		: float float_data
 ============
+```
 */
 /// Source: oracle/codemp/game/g_ICARUScb.c:3319
 private func Q3_SetWait(_ entID: Int32, _ float_data: Float) {
@@ -984,6 +1110,7 @@ private func Q3_SetShotSpacing(_ entID: Int32, _ int_data: Int32) {
 }
 
 /**
+```
 ============
 Q3_SetFollowDist
   Description	:
@@ -991,6 +1118,7 @@ Q3_SetFollowDist
   Argument		: int entID
   Argument		: float float_data
 ============
+```
 */
 /// Source: oracle/codemp/game/g_ICARUScb.c:3348
 private func Q3_SetFollowDist(_ entID: Int32, _ float_data: Float) {
@@ -999,6 +1127,7 @@ private func Q3_SetFollowDist(_ entID: Int32, _ float_data: Float) {
 }
 
 /**
+```
 ============
 Q3_SetScale
   Description	:
@@ -1006,6 +1135,7 @@ Q3_SetScale
   Argument		: int entID
   Argument		: float float_data
 ============
+```
 */
 /// Source: oracle/codemp/game/g_ICARUScb.c:3364
 private func Q3_SetScale(_ entID: Int32, _ float_data: Float) {
@@ -1014,12 +1144,14 @@ private func Q3_SetScale(_ entID: Int32, _ float_data: Float) {
 }
 
 /**
+```
 ============
 Q3_GameSideCheckStringCounterIncrement
   Description	:
   Return type	: static float
   Argument		: const char *string
 ============
+```
 */
 /// Source: oracle/codemp/game/g_ICARUScb.c:3406
 private func Q3_GameSideCheckStringCounterIncrement(_ string: String) -> Float {
@@ -1028,6 +1160,7 @@ private func Q3_GameSideCheckStringCounterIncrement(_ string: String) -> Float {
 }
 
 /**
+```
 ============
 Q3_SetCount
   Description	:
@@ -1035,6 +1168,7 @@ Q3_SetCount
   Argument		: int entID
   Argument		: const char *data
 ============
+```
 */
 /// Source: oracle/codemp/game/g_ICARUScb.c:3440
 private func Q3_SetCount(_ entID: Int32, _ data: String) {
@@ -1043,6 +1177,7 @@ private func Q3_SetCount(_ entID: Int32, _ data: String) {
 }
 
 /**
+```
 ============
 Q3_SetTargetName
   Description	:
@@ -1050,6 +1185,7 @@ Q3_SetTargetName
   Argument		: int entID
   Argument		: const char *targetname
 ============
+```
 */
 /// Source: oracle/codemp/game/g_ICARUScb.c:3472
 private func Q3_SetTargetName(_ entID: Int32, _ targetname: String) {
@@ -1058,6 +1194,7 @@ private func Q3_SetTargetName(_ entID: Int32, _ targetname: String) {
 }
 
 /**
+```
 ============
 Q3_SetTarget
   Description	:
@@ -1065,6 +1202,7 @@ Q3_SetTarget
   Argument		: int entID
   Argument		: const char *target
 ============
+```
 */
 /// Source: oracle/codemp/game/g_ICARUScb.c:3502
 private func Q3_SetTarget(_ entID: Int32, _ target: String) {
@@ -1073,6 +1211,7 @@ private func Q3_SetTarget(_ entID: Int32, _ target: String) {
 }
 
 /**
+```
 ============
 Q3_SetTarget2
   Description	:
@@ -1080,6 +1219,7 @@ Q3_SetTarget2
   Argument		: int entID
   Argument		: const char *target
 ============
+```
 */
 /// Source: oracle/codemp/game/g_ICARUScb.c:3531
 private func Q3_SetTarget2(_ entID: Int32, _ target2: String) {
@@ -1088,6 +1228,7 @@ private func Q3_SetTarget2(_ entID: Int32, _ target2: String) {
 }
 
 /**
+```
 ============
 Q3_SetRemoveTarget
   Description	:
@@ -1095,6 +1236,7 @@ Q3_SetRemoveTarget
   Argument		: int entID
   Argument		: const char *target
 ============
+```
 */
 /// Source: oracle/codemp/game/g_ICARUScb.c:3562
 private func Q3_SetRemoveTarget(_ entID: Int32, _ target: String) {
@@ -1103,6 +1245,7 @@ private func Q3_SetRemoveTarget(_ entID: Int32, _ target: String) {
 }
 
 /**
+```
 ============
 Q3_SetPainTarget
   Description	:
@@ -1110,6 +1253,7 @@ Q3_SetPainTarget
   Argument		: int entID
   Argument		: const char *targetname
 ============
+```
 */
 /// Source: oracle/codemp/game/g_ICARUScb.c:3578
 private func Q3_SetPainTarget(_ entID: Int32, _ targetname: String) {
@@ -1118,6 +1262,7 @@ private func Q3_SetPainTarget(_ entID: Int32, _ targetname: String) {
 }
 
 /**
+```
 ============
 Q3_SetFullName
   Description	:
@@ -1125,6 +1270,7 @@ Q3_SetFullName
   Argument		: int entID
   Argument		: const char *fullName
 ============
+```
 */
 /// Source: oracle/codemp/game/g_ICARUScb.c:3610
 private func Q3_SetFullName(_ entID: Int32, _ fullName: String) {
@@ -1145,6 +1291,7 @@ private func Q3_SetForcePowerLevel(_ entID: Int32, _ forcePower: Int32, _ forceL
 }
 
 /**
+```
 ============
 Q3_SetParm
   Description	:
@@ -1153,6 +1300,7 @@ Q3_SetParm
   Argument		: int parmNum
   Argument		: const char *parmValue
 ============
+```
 */
 /// Source: oracle/codemp/game/g_ICARUScb.c:3651
 func Q3_SetParm(_ entID: Int32, _ parmNum: Int32, _ parmValue: String) {
@@ -1161,11 +1309,13 @@ func Q3_SetParm(_ entID: Int32, _ parmNum: Int32, _ parmValue: String) {
 }
 
 /**
+```
 =============
 Q3_SetCaptureGoal
 
 Sets the capture spot goal of an entity
 =============
+```
 */
 /// Source: oracle/codemp/game/g_ICARUScb.c:3701
 private func Q3_SetCaptureGoal(_ entID: Int32, _ name: String) {
@@ -1174,11 +1324,13 @@ private func Q3_SetCaptureGoal(_ entID: Int32, _ name: String) {
 }
 
 /**
+```
 =============
 Q3_SetEvent
 
 ?
 =============
+```
 */
 /// Source: oracle/codemp/game/g_ICARUScb.c:3714
 private func Q3_SetEvent(_ entID: Int32, _ event_name: String) {
@@ -1187,11 +1339,13 @@ private func Q3_SetEvent(_ entID: Int32, _ event_name: String) {
 }
 
 /**
+```
 ============
 Q3_SetIgnorePain
 
 ?
 ============
+```
 */
 /// Source: oracle/codemp/game/g_ICARUScb.c:3727
 private func Q3_SetIgnorePain(_ entID: Int32, _ data: Bool) {
@@ -1200,11 +1354,13 @@ private func Q3_SetIgnorePain(_ entID: Int32, _ data: Bool) {
 }
 
 /**
+```
 ============
 Q3_SetIgnoreEnemies
 
 ?
 ============
+```
 */
 /// Source: oracle/codemp/game/g_ICARUScb.c:3740
 private func Q3_SetIgnoreEnemies(_ entID: Int32, _ data: Bool) {
@@ -1213,11 +1369,13 @@ private func Q3_SetIgnoreEnemies(_ entID: Int32, _ data: Bool) {
 }
 
 /**
+```
 ============
 Q3_SetIgnoreAlerts
 
 ?
 ============
+```
 */
 /// Source: oracle/codemp/game/g_ICARUScb.c:3753
 private func Q3_SetIgnoreAlerts(_ entID: Int32, _ data: Bool) {
@@ -1226,11 +1384,13 @@ private func Q3_SetIgnoreAlerts(_ entID: Int32, _ data: Bool) {
 }
 
 /**
+```
 ============
 Q3_SetNoTarget
 
 ?
 ============
+```
 */
 /// Source: oracle/codemp/game/g_ICARUScb.c:3767
 private func Q3_SetNoTarget(_ entID: Int32, _ data: Bool) {
@@ -1239,11 +1399,13 @@ private func Q3_SetNoTarget(_ entID: Int32, _ data: Bool) {
 }
 
 /**
+```
 ============
 Q3_SetDontShoot
 
 ?
 ============
+```
 */
 /// Source: oracle/codemp/game/g_ICARUScb.c:3790
 private func Q3_SetDontShoot(_ entID: Int32, _ add: Bool) {
@@ -1252,11 +1414,13 @@ private func Q3_SetDontShoot(_ entID: Int32, _ add: Bool) {
 }
 
 /**
+```
 ============
 Q3_SetDontFire
 
 ?
 ============
+```
 */
 /// Source: oracle/codemp/game/g_ICARUScb.c:3803
 private func Q3_SetDontFire(_ entID: Int32, _ add: Bool) {
@@ -1265,11 +1429,13 @@ private func Q3_SetDontFire(_ entID: Int32, _ add: Bool) {
 }
 
 /**
+```
 ============
 Q3_SetFireWeapon
 
 ?
 ============
+```
 */
 /// Source: oracle/codemp/game/g_ICARUScb.c:3816
 private func Q3_SetFireWeapon(_ entID: Int32, _ add: Bool) {
@@ -1278,11 +1444,13 @@ private func Q3_SetFireWeapon(_ entID: Int32, _ add: Bool) {
 }
 
 /**
+```
 ============
 Q3_SetInactive
 
 ?
 ============
+```
 */
 /// Source: oracle/codemp/game/g_ICARUScb.c:3830
 private func Q3_SetInactive(_ entID: Int32, _ add: Bool) {
@@ -1291,11 +1459,13 @@ private func Q3_SetInactive(_ entID: Int32, _ add: Bool) {
 }
 
 /**
+```
 ============
 Q3_SetFuncUsableVisible
 
 ?
 ============
+```
 */
 /// Source: oracle/codemp/game/g_ICARUScb.c:3857
 private func Q3_SetFuncUsableVisible(_ entID: Int32, _ visible: Bool) {
@@ -1304,11 +1474,13 @@ private func Q3_SetFuncUsableVisible(_ entID: Int32, _ visible: Bool) {
 }
 
 /**
+```
 ============
 Q3_SetLockedEnemy
 
 ?
 ============
+```
 */
 /// Source: oracle/codemp/game/g_ICARUScb.c:3889
 private func Q3_SetLockedEnemy(_ entID: Int32, _ locked: Bool) {
@@ -1317,10 +1489,12 @@ private func Q3_SetLockedEnemy(_ entID: Int32, _ locked: Bool) {
 }
 
 /**
+```
 ============
 Q3_SetCinematicSkipScript
 
 ============
+```
 */
 /// Source: oracle/codemp/game/g_ICARUScb.c:3903
 private func Q3_SetCinematicSkipScript(_ scriptname: inout String) {
@@ -1329,11 +1503,13 @@ private func Q3_SetCinematicSkipScript(_ scriptname: inout String) {
 }
 
 /**
+```
 ============
 Q3_SetNoMindTrick
 
 ?
 ============
+```
 */
 /// Source: oracle/codemp/game/g_ICARUScb.c:3916
 private func Q3_SetNoMindTrick(_ entID: Int32, _ add: Bool) {
@@ -1342,11 +1518,13 @@ private func Q3_SetNoMindTrick(_ entID: Int32, _ add: Bool) {
 }
 
 /**
+```
 ============
 Q3_SetCrouched
 
 ?
 ============
+```
 */
 /// Source: oracle/codemp/game/g_ICARUScb.c:3929
 private func Q3_SetCrouched(_ entID: Int32, _ add: Bool) {
@@ -1355,11 +1533,13 @@ private func Q3_SetCrouched(_ entID: Int32, _ add: Bool) {
 }
 
 /**
+```
 ============
 Q3_SetWalking
 
 ?
 ============
+```
 */
 /// Source: oracle/codemp/game/g_ICARUScb.c:3942
 private func Q3_SetWalking(_ entID: Int32, _ add: Bool) {
@@ -1368,11 +1548,13 @@ private func Q3_SetWalking(_ entID: Int32, _ add: Bool) {
 }
 
 /**
+```
 ============
 Q3_SetRunning
 
 ?
 ============
+```
 */
 /// Source: oracle/codemp/game/g_ICARUScb.c:3976
 private func Q3_SetRunning(_ entID: Int32, _ add: Bool) {
@@ -1381,11 +1563,13 @@ private func Q3_SetRunning(_ entID: Int32, _ add: Bool) {
 }
 
 /**
+```
 ============
 Q3_SetForcedMarch
 
 ?
 ============
+```
 */
 /// Source: oracle/codemp/game/g_ICARUScb.c:3989
 private func Q3_SetForcedMarch(_ entID: Int32, _ add: Bool) {
@@ -1394,11 +1578,13 @@ private func Q3_SetForcedMarch(_ entID: Int32, _ add: Bool) {
 }
 
 /**
+```
 ============
 Q3_SetChaseEnemies
 
 indicates whether the npc should chase after an enemy
 ============
+```
 */
 /// Source: oracle/codemp/game/g_ICARUScb.c:4001
 private func Q3_SetChaseEnemies(_ entID: Int32, _ add: Bool) {
@@ -1407,12 +1593,14 @@ private func Q3_SetChaseEnemies(_ entID: Int32, _ add: Bool) {
 }
 
 /**
+```
 ============
 Q3_SetLookForEnemies
 
 if set npc will be on the look out for potential enemies
 if not set, npc will ignore enemies
 ============
+```
 */
 /// Source: oracle/codemp/game/g_ICARUScb.c:4015
 private func Q3_SetLookForEnemies(_ entID: Int32, _ add: Bool) {
@@ -1421,10 +1609,12 @@ private func Q3_SetLookForEnemies(_ entID: Int32, _ add: Bool) {
 }
 
 /**
+```
 ============
 Q3_SetFaceMoveDir
 
 ============
+```
 */
 /// Source: oracle/codemp/game/g_ICARUScb.c:4027
 private func Q3_SetFaceMoveDir(_ entID: Int32, _ add: Bool) {
@@ -1433,11 +1623,13 @@ private func Q3_SetFaceMoveDir(_ entID: Int32, _ add: Bool) {
 }
 
 /**
+```
 ============
 Q3_SetAltFire
 
 ?
 ============
+```
 */
 /// Source: oracle/codemp/game/g_ICARUScb.c:4040
 private func Q3_SetAltFire(_ entID: Int32, _ add: Bool) {
@@ -1446,11 +1638,13 @@ private func Q3_SetAltFire(_ entID: Int32, _ add: Bool) {
 }
 
 /**
+```
 ============
 Q3_SetDontFlee
 
 ?
 ============
+```
 */
 /// Source: oracle/codemp/game/g_ICARUScb.c:4053
 private func Q3_SetDontFlee(_ entID: Int32, _ add: Bool) {
@@ -1459,11 +1653,13 @@ private func Q3_SetDontFlee(_ entID: Int32, _ add: Bool) {
 }
 
 /**
+```
 ============
 Q3_SetNoResponse
 
 ?
 ============
+```
 */
 /// Source: oracle/codemp/game/g_ICARUScb.c:4066
 private func Q3_SetNoResponse(_ entID: Int32, _ add: Bool) {
@@ -1472,11 +1668,13 @@ private func Q3_SetNoResponse(_ entID: Int32, _ add: Bool) {
 }
 
 /**
+```
 ============
 Q3_SetCombatTalk
 
 ?
 ============
+```
 */
 /// Source: oracle/codemp/game/g_ICARUScb.c:4079
 private func Q3_SetCombatTalk(_ entID: Int32, _ add: Bool) {
@@ -1485,11 +1683,13 @@ private func Q3_SetCombatTalk(_ entID: Int32, _ add: Bool) {
 }
 
 /**
+```
 ============
 Q3_SetAlertTalk
 
 ?
 ============
+```
 */
 /// Source: oracle/codemp/game/g_ICARUScb.c:4092
 private func Q3_SetAlertTalk(_ entID: Int32, _ add: Bool) {
@@ -1498,11 +1698,13 @@ private func Q3_SetAlertTalk(_ entID: Int32, _ add: Bool) {
 }
 
 /**
+```
 ============
 Q3_SetUseCpNearest
 
 ?
 ============
+```
 */
 /// Source: oracle/codemp/game/g_ICARUScb.c:4105
 private func Q3_SetUseCpNearest(_ entID: Int32, _ add: Bool) {
@@ -1511,11 +1713,13 @@ private func Q3_SetUseCpNearest(_ entID: Int32, _ add: Bool) {
 }
 
 /**
+```
 ============
 Q3_SetNoForce
 
 ?
 ============
+```
 */
 /// Source: oracle/codemp/game/g_ICARUScb.c:4118
 private func Q3_SetNoForce(_ entID: Int32, _ add: Bool) {
@@ -1524,11 +1728,13 @@ private func Q3_SetNoForce(_ entID: Int32, _ add: Bool) {
 }
 
 /**
+```
 ============
 Q3_SetNoAcrobatics
 
 ?
 ============
+```
 */
 /// Source: oracle/codemp/game/g_ICARUScb.c:4131
 private func Q3_SetNoAcrobatics(_ entID: Int32, _ add: Bool) {
@@ -1537,11 +1743,13 @@ private func Q3_SetNoAcrobatics(_ entID: Int32, _ add: Bool) {
 }
 
 /**
+```
 ============
 Q3_SetUseSubtitles
 
 ?
 ============
+```
 */
 /// Source: oracle/codemp/game/g_ICARUScb.c:4144
 private func Q3_SetUseSubtitles(_ entID: Int32, _ add: Bool) {
@@ -1550,11 +1758,13 @@ private func Q3_SetUseSubtitles(_ entID: Int32, _ add: Bool) {
 }
 
 /**
+```
 ============
 Q3_SetNoFallToDeath
 
 ?
 ============
+```
 */
 /// Source: oracle/codemp/game/g_ICARUScb.c:4157
 private func Q3_SetNoFallToDeath(_ entID: Int32, _ add: Bool) {
@@ -1563,11 +1773,13 @@ private func Q3_SetNoFallToDeath(_ entID: Int32, _ add: Bool) {
 }
 
 /**
+```
 ============
 Q3_SetDismemberable
 
 ?
 ============
+```
 */
 /// Source: oracle/codemp/game/g_ICARUScb.c:4170
 private func Q3_SetDismemberable(_ entID: Int32, _ dismemberable: Bool) {
@@ -1576,11 +1788,13 @@ private func Q3_SetDismemberable(_ entID: Int32, _ dismemberable: Bool) {
 }
 
 /**
+```
 ============
 Q3_SetMoreLight
 
 ?
 ============
+```
 */
 /// Source: oracle/codemp/game/g_ICARUScb.c:4184
 private func Q3_SetMoreLight(_ entID: Int32, _ add: Bool) {
@@ -1589,11 +1803,13 @@ private func Q3_SetMoreLight(_ entID: Int32, _ add: Bool) {
 }
 
 /**
+```
 ============
 Q3_SetUndying
 
 ?
 ============
+```
 */
 /// Source: oracle/codemp/game/g_ICARUScb.c:4197
 private func Q3_SetUndying(_ entID: Int32, _ undying: Bool) {
@@ -1602,11 +1818,13 @@ private func Q3_SetUndying(_ entID: Int32, _ undying: Bool) {
 }
 
 /**
+```
 ============
 Q3_SetInvincible
 
 ?
 ============
+```
 */
 /// Source: oracle/codemp/game/g_ICARUScb.c:4210
 private func Q3_SetInvincible(_ entID: Int32, _ invincible: Bool) {
@@ -1615,6 +1833,7 @@ private func Q3_SetInvincible(_ entID: Int32, _ invincible: Bool) {
 }
 
 /**
+```
 ============
 Q3_SetForceInvincible
   Description	:
@@ -1622,6 +1841,7 @@ Q3_SetForceInvincible
   Argument		:  int entID
   Argument		: qboolean forceInv
 ============
+```
 */
 /// Source: oracle/codemp/game/g_ICARUScb.c:4224
 private func Q3_SetForceInvincible(_ entID: Int32, _ forceInv: Bool) {
@@ -1630,11 +1850,13 @@ private func Q3_SetForceInvincible(_ entID: Int32, _ forceInv: Bool) {
 }
 
 /**
+```
 ============
 Q3_SetNoAvoid
 
 ?
 ============
+```
 */
 /// Source: oracle/codemp/game/g_ICARUScb.c:4237
 private func Q3_SetNoAvoid(_ entID: Int32, _ noAvoid: Bool) {
@@ -1643,12 +1865,14 @@ private func Q3_SetNoAvoid(_ entID: Int32, _ noAvoid: Bool) {
 }
 
 /**
+```
 ============
 SolidifyOwner
   Description	:
   Return type	: void
   Argument		: sharedEntity_t *self
 ============
+```
 */
 /// Source: oracle/codemp/game/g_ICARUScb.c:4271
 func SolidifyOwner(_ `self`: Entity) {
@@ -1657,11 +1881,13 @@ func SolidifyOwner(_ `self`: Entity) {
 }
 
 /**
+```
 ============
 Q3_SetSolid
 
 ?
 ============
+```
 */
 /// Source: oracle/codemp/game/g_ICARUScb.c:4305
 private func Q3_SetSolid(_ entID: Int32, _ solid: Bool) -> Bool {
@@ -1670,11 +1896,13 @@ private func Q3_SetSolid(_ entID: Int32, _ solid: Bool) -> Bool {
 }
 
 /**
+```
 ============
 Q3_SetForwardMove
 
 ?
 ============
+```
 */
 /// Source: oracle/codemp/game/g_ICARUScb.c:4354
 private func Q3_SetForwardMove(_ entID: Int32, _ fmoveVal: Int32) {
@@ -1683,11 +1911,13 @@ private func Q3_SetForwardMove(_ entID: Int32, _ fmoveVal: Int32) {
 }
 
 /**
+```
 ============
 Q3_SetRightMove
 
 ?
 ============
+```
 */
 /// Source: oracle/codemp/game/g_ICARUScb.c:4381
 private func Q3_SetRightMove(_ entID: Int32, _ rmoveVal: Int32) {
@@ -1696,11 +1926,13 @@ private func Q3_SetRightMove(_ entID: Int32, _ rmoveVal: Int32) {
 }
 
 /**
+```
 ============
 Q3_SetLockAngle
 
 ?
 ============
+```
 */
 /// Source: oracle/codemp/game/g_ICARUScb.c:4408
 private func Q3_SetLockAngle(_ entID: Int32, _ lockAngle: String) {
@@ -1709,11 +1941,13 @@ private func Q3_SetLockAngle(_ entID: Int32, _ lockAngle: String) {
 }
 
 /**
+```
 ============
 Q3_CameraGroup
 
 ?
 ============
+```
 */
 /// Source: oracle/codemp/game/g_ICARUScb.c:4455
 private func Q3_CameraGroup(_ entID: Int32, _ camG: inout String) {
@@ -1722,11 +1956,13 @@ private func Q3_CameraGroup(_ entID: Int32, _ camG: inout String) {
 }
 
 /**
+```
 ============
 Q3_CameraGroupZOfs
 
 ?
 ============
+```
 */
 /// Source: oracle/codemp/game/g_ICARUScb.c:4468
 private func Q3_CameraGroupZOfs(_ camGZOfs: Float) {
@@ -1735,11 +1971,13 @@ private func Q3_CameraGroupZOfs(_ camGZOfs: Float) {
 }
 
 /**
+```
 ============
 Q3_CameraGroup
 
 ?
 ============
+```
 */
 /// Source: oracle/codemp/game/g_ICARUScb.c:4480
 private func Q3_CameraGroupTag(_ camGTag: inout String) {
@@ -1748,9 +1986,11 @@ private func Q3_CameraGroupTag(_ camGTag: inout String) {
 }
 
 /**
+```
 ============
 Q3_RemoveRHandModel
 ============
+```
 */
 /// Source: oracle/codemp/game/g_ICARUScb.c:4491
 private func Q3_RemoveRHandModel(_ entID: Int32, _ addModel: inout String) {
@@ -1759,9 +1999,11 @@ private func Q3_RemoveRHandModel(_ entID: Int32, _ addModel: inout String) {
 }
 
 /**
+```
 ============
 Q3_AddRHandModel
 ============
+```
 */
 /// Source: oracle/codemp/game/g_ICARUScb.c:4501
 private func Q3_AddRHandModel(_ entID: Int32, _ addModel: inout String) {
@@ -1770,9 +2012,11 @@ private func Q3_AddRHandModel(_ entID: Int32, _ addModel: inout String) {
 }
 
 /**
+```
 ============
 Q3_AddLHandModel
 ============
+```
 */
 /// Source: oracle/codemp/game/g_ICARUScb.c:4511
 private func Q3_AddLHandModel(_ entID: Int32, _ addModel: inout String) {
@@ -1781,9 +2025,11 @@ private func Q3_AddLHandModel(_ entID: Int32, _ addModel: inout String) {
 }
 
 /**
+```
 ============
 Q3_RemoveLHandModel
 ============
+```
 */
 /// Source: oracle/codemp/game/g_ICARUScb.c:4521
 private func Q3_RemoveLHandModel(_ entID: Int32, _ addModel: inout String) {
@@ -1792,11 +2038,13 @@ private func Q3_RemoveLHandModel(_ entID: Int32, _ addModel: inout String) {
 }
 
 /**
+```
 ============
 Q3_LookTarget
 
 ?
 ============
+```
 */
 /// Source: oracle/codemp/game/g_ICARUScb.c:4533
 private func Q3_LookTarget(_ entID: Int32, _ targetName: inout String) {
@@ -1805,11 +2053,13 @@ private func Q3_LookTarget(_ entID: Int32, _ targetName: inout String) {
 }
 
 /**
+```
 ============
 Q3_Face
 
 ?
 ============
+```
 */
 /// Source: oracle/codemp/game/g_ICARUScb.c:4546
 private func Q3_Face(_ entID: Int32, _ expression: Int32, _ holdtime: Float) {
@@ -1818,6 +2068,7 @@ private func Q3_Face(_ entID: Int32, _ expression: Int32, _ holdtime: Float) {
 }
 
 /**
+```
 ============
 Q3_SetLocation
   Description	:
@@ -1825,6 +2076,7 @@ Q3_SetLocation
   Argument		:  int entID
   Argument		: const char *location
 ============
+```
 */
 /// Source: oracle/codemp/game/g_ICARUScb.c:4560
 private func Q3_SetLocation(_ entID: Int32, _ location: String) -> Bool {
@@ -1839,6 +2091,7 @@ private func Q3_SetPlayerLocked(_ entID: Int32, _ locked: Bool) {
 }
 
 /**
+```
 ============
 Q3_SetLockPlayerWeapons
   Description	:
@@ -1846,6 +2099,7 @@ Q3_SetLockPlayerWeapons
   Argument		:  int entID
   Argument		: qboolean locked
 ============
+```
 */
 /// Source: oracle/codemp/game/g_ICARUScb.c:4590
 private func Q3_SetLockPlayerWeapons(_ entID: Int32, _ locked: Bool) {
@@ -1854,6 +2108,7 @@ private func Q3_SetLockPlayerWeapons(_ entID: Int32, _ locked: Bool) {
 }
 
 /**
+```
 ============
 Q3_SetNoImpactDamage
   Description	:
@@ -1861,6 +2116,7 @@ Q3_SetNoImpactDamage
   Argument		:  int entID
   Argument		: qboolean locked
 ============
+```
 */
 /// Source: oracle/codemp/game/g_ICARUScb.c:4605
 private func Q3_SetNoImpactDamage(_ entID: Int32, _ noImp: Bool) {
@@ -1869,11 +2125,13 @@ private func Q3_SetNoImpactDamage(_ entID: Int32, _ noImp: Bool) {
 }
 
 /**
+```
 ============
 Q3_SetBehaviorSet
 
 ?
 ============
+```
 */
 /// Source: oracle/codemp/game/g_ICARUScb.c:4617
 private func Q3_SetBehaviorSet(_ entID: Int32, _ toSet: Int32, _ scriptname: String) -> Bool {
@@ -1882,11 +2140,13 @@ private func Q3_SetBehaviorSet(_ entID: Int32, _ toSet: Int32, _ scriptname: Str
 }
 
 /**
+```
 ============
 Q3_SetDelayScriptTime
 
 ?
 ============
+```
 */
 /// Source: oracle/codemp/game/g_ICARUScb.c:4717
 private func Q3_SetDelayScriptTime(_ entID: Int32, _ delayTime: Int32) {
@@ -1895,6 +2155,7 @@ private func Q3_SetDelayScriptTime(_ entID: Int32, _ delayTime: Int32) {
 }
 
 /**
+```
 ============
 Q3_SetPlayerUsable
   Description	:
@@ -1902,6 +2163,7 @@ Q3_SetPlayerUsable
   Argument		:  int entID
   Argument		: qboolean usable
 ============
+```
 */
 /// Source: oracle/codemp/game/g_ICARUScb.c:4734
 private func Q3_SetPlayerUsable(_ entID: Int32, _ usable: Bool) {
@@ -1910,6 +2172,7 @@ private func Q3_SetPlayerUsable(_ entID: Int32, _ usable: Bool) {
 }
 
 /**
+```
 ============
 Q3_SetDisableShaderAnims
   Description	:
@@ -1917,6 +2180,7 @@ Q3_SetDisableShaderAnims
   Argument		:  int entID
   Argument		: int disabled
 ============
+```
 */
 /// Source: oracle/codemp/game/g_ICARUScb.c:4763
 private func Q3_SetDisableShaderAnims(_ entID: Int32, _ disabled: Int32) {
@@ -1925,6 +2189,7 @@ private func Q3_SetDisableShaderAnims(_ entID: Int32, _ disabled: Int32) {
 }
 
 /**
+```
 ============
 Q3_SetShaderAnim
   Description	:
@@ -1932,6 +2197,7 @@ Q3_SetShaderAnim
   Argument		:  int entID
   Argument		: int disabled
 ============
+```
 */
 /// Source: oracle/codemp/game/g_ICARUScb.c:4778
 private func Q3_SetShaderAnim(_ entID: Int32, _ disabled: Int32) {
@@ -1940,6 +2206,7 @@ private func Q3_SetShaderAnim(_ entID: Int32, _ disabled: Int32) {
 }
 
 /**
+```
 ============
 Q3_SetStartFrame
   Description	:
@@ -1947,6 +2214,7 @@ Q3_SetStartFrame
   Argument		:  int entID
   Argument		: int startFrame
 ============
+```
 */
 /// Source: oracle/codemp/game/g_ICARUScb.c:4793
 private func Q3_SetStartFrame(_ entID: Int32, _ startFrame: Int32) {
@@ -1955,6 +2223,7 @@ private func Q3_SetStartFrame(_ entID: Int32, _ startFrame: Int32) {
 }
 
 /**
+```
 ============
 Q3_SetEndFrame
   Description	:
@@ -1962,6 +2231,7 @@ Q3_SetEndFrame
   Argument		:  int entID
   Argument		: int endFrame
 ============
+```
 */
 /// Source: oracle/codemp/game/g_ICARUScb.c:4808
 private func Q3_SetEndFrame(_ entID: Int32, _ endFrame: Int32) {
@@ -1970,6 +2240,7 @@ private func Q3_SetEndFrame(_ entID: Int32, _ endFrame: Int32) {
 }
 
 /**
+```
 ============
 Q3_SetAnimFrame
   Description	:
@@ -1977,6 +2248,7 @@ Q3_SetAnimFrame
   Argument		:  int entID
   Argument		: int startFrame
 ============
+```
 */
 /// Source: oracle/codemp/game/g_ICARUScb.c:4822
 private func Q3_SetAnimFrame(_ entID: Int32, _ animFrame: Int32) {
@@ -1985,6 +2257,7 @@ private func Q3_SetAnimFrame(_ entID: Int32, _ animFrame: Int32) {
 }
 
 /**
+```
 ============
 Q3_SetLoopAnim
   Description	:
@@ -1992,6 +2265,7 @@ Q3_SetLoopAnim
   Argument		:  int entID
   Argument		: qboolean loopAnim
 ============
+```
 */
 /// Source: oracle/codemp/game/g_ICARUScb.c:4836
 private func Q3_SetLoopAnim(_ entID: Int32, _ loopAnim: Bool) {
@@ -2000,6 +2274,7 @@ private func Q3_SetLoopAnim(_ entID: Int32, _ loopAnim: Bool) {
 }
 
 /**
+```
 ============
 Q3_SetShields
   Description	:
@@ -2007,6 +2282,7 @@ Q3_SetShields
   Argument		:  int entID
   Argument		: qboolean shields
 ============
+```
 */
 /// Source: oracle/codemp/game/g_ICARUScb.c:4851
 private func Q3_SetShields(_ entID: Int32, _ shields: Bool) {
@@ -2015,6 +2291,7 @@ private func Q3_SetShields(_ entID: Int32, _ shields: Bool) {
 }
 
 /**
+```
 ============
 Q3_SetSaberActive
   Description	:
@@ -2022,6 +2299,7 @@ Q3_SetSaberActive
   Argument		:  int entID
   Argument		: qboolean shields
 ============
+```
 */
 /// Source: oracle/codemp/game/g_ICARUScb.c:4866
 private func Q3_SetSaberActive(_ entID: Int32, _ active: Bool) {
@@ -2030,6 +2308,7 @@ private func Q3_SetSaberActive(_ entID: Int32, _ active: Bool) {
 }
 
 /**
+```
 ============
 Q3_SetNoKnockback
   Description	:
@@ -2037,6 +2316,7 @@ Q3_SetNoKnockback
   Argument		:  int entID
   Argument		: qboolean noKnockback
 ============
+```
 */
 /// Source: oracle/codemp/game/g_ICARUScb.c:4900
 private func Q3_SetNoKnockback(_ entID: Int32, _ noKnockback: Bool) {
@@ -2045,11 +2325,13 @@ private func Q3_SetNoKnockback(_ entID: Int32, _ noKnockback: Bool) {
 }
 
 /**
+```
 ============
 Q3_SetCleanDamagingEnts
   Description	:
   Return type	: void
 ============
+```
 */
 /// Source: oracle/codemp/game/g_ICARUScb.c:4927
 private func Q3_SetCleanDamagingEnts() {
@@ -2058,9 +2340,11 @@ private func Q3_SetCleanDamagingEnts() {
 }
 
 /**
+```
 -------------------------
 SetTextColor
 -------------------------
+```
 */
 /// Source: oracle/codemp/game/g_ICARUScb.c:4942
 // TODO: Port signature
@@ -2072,11 +2356,13 @@ private func SetTextColor() -> Never {
 }
 
 /**
+```
 =============
 Q3_SetCaptionTextColor
 
 Change color text prints in
 =============
+```
 */
 /// Source: oracle/codemp/game/g_ICARUScb.c:4955
 private func Q3_SetCaptionTextColor(_ color: String) {
@@ -2085,11 +2371,13 @@ private func Q3_SetCaptionTextColor(_ color: String) {
 }
 
 /**
+```
 =============
 Q3_SetCenterTextColor
 
 Change color text prints in
 =============
+```
 */
 /// Source: oracle/codemp/game/g_ICARUScb.c:4967
 private func Q3_SetCenterTextColor(_ color: String) {
@@ -2098,11 +2386,13 @@ private func Q3_SetCenterTextColor(_ color: String) {
 }
 
 /**
+```
 =============
 Q3_SetScrollTextColor
 
 Change color text prints in
 =============
+```
 */
 /// Source: oracle/codemp/game/g_ICARUScb.c:4979
 private func Q3_SetScrollTextColor(_ color: String) {
@@ -2111,11 +2401,13 @@ private func Q3_SetScrollTextColor(_ color: String) {
 }
 
 /**
+```
 =============
 Q3_ScrollText
 
 Prints a message in the center of the screen
 =============
+```
 */
 /// Source: oracle/codemp/game/g_ICARUScb.c:4991
 private func Q3_ScrollText(_ id: String) {
@@ -2124,11 +2416,13 @@ private func Q3_ScrollText(_ id: String) {
 }
 
 /**
+```
 =============
 Q3_LCARSText
 
 Prints a message in the center of the screen giving it an LCARS frame around it
 =============
+```
 */
 /// Source: oracle/codemp/game/g_ICARUScb.c:5006
 private func Q3_LCARSText(_ id: String) {

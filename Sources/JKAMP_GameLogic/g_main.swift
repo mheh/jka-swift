@@ -19,6 +19,7 @@ func G_Error(_ fmt: String) -> Never {
 }
 
 /**
+```
 ================
 G_FindTeams
 
@@ -28,6 +29,7 @@ Entity teams are used for item groups and multi-entity mover groups.
 All but the first will have the FL_TEAMSLAVE flag set and teammaster field set
 All but the last will have the teamchain field set to the next one
 ================
+```
 */
 /// Source: oracle/codemp/game/g_main.c:736
 func G_FindTeams() {
@@ -42,9 +44,11 @@ func G_RemapTeamShaders() {
 }
 
 /**
+```
 =================
 G_RegisterCvars
 =================
+```
 */
 /// Source: oracle/codemp/game/g_main.c:803
 func G_RegisterCvars() {
@@ -53,9 +57,11 @@ func G_RegisterCvars() {
 }
 
 /**
+```
 =================
 G_UpdateCvars
 =================
+```
 */
 /// Source: oracle/codemp/game/g_main.c:852
 func G_UpdateCvars() {
@@ -87,12 +93,14 @@ public func Com_Printf(_ msg: String) {
 }
 
 /**
+```
 =============
 AddTournamentPlayer
 
 If there are less than two tournament players, put a
 spectator in the game and restart
 =============
+```
 */
 /// Source: oracle/codemp/game/g_main.c:1248
 func AddTournamentPlayer() {
@@ -101,11 +109,13 @@ func AddTournamentPlayer() {
 }
 
 /**
+```
 =======================
 RemoveTournamentLoser
 
 Make the loser a spectator at the back of the line
 =======================
+```
 */
 /// Source: oracle/codemp/game/g_main.c:1304
 func RemoveTournamentLoser() {
@@ -138,9 +148,11 @@ func RemoveDuelDrawLoser() {
 }
 
 /**
+```
 =======================
 RemoveTournamentWinner
 =======================
+```
 */
 /// Source: oracle/codemp/game/g_main.c:1519
 func RemoveTournamentWinner() {
@@ -149,9 +161,11 @@ func RemoveTournamentWinner() {
 }
 
 /**
+```
 =======================
 AdjustTournamentScores
 =======================
+```
 */
 /// Source: oracle/codemp/game/g_main.c:1541
 func AdjustTournamentScores() {
@@ -160,10 +174,12 @@ func AdjustTournamentScores() {
 }
 
 /**
+```
 =============
 SortRanks
 
 =============
+```
 */
 /// Source: oracle/codemp/game/g_main.c:1624
 func SortRanks(_ a: OpaquePointer?, _ b: OpaquePointer?) -> Int32 {
@@ -185,6 +201,7 @@ func G_ResetDuelists() {
 }
 
 /**
+```
 ============
 CalculateRanks
 
@@ -192,6 +209,7 @@ Recalculates the score ranks of all players
 This will be called on every client connect, begin, disconnect, death,
 and team change.
 ============
+```
 */
 /// Source: oracle/codemp/game/g_main.c:1751
 func CalculateRanks() {
@@ -200,12 +218,14 @@ func CalculateRanks() {
 }
 
 /**
+```
 ========================
 SendScoreboardMessageToAllClients
 
 Do this at BeginIntermission time and whenever ranks are recalculated
 due to enters/exits/forced team changes
 ========================
+```
 */
 /// Source: oracle/codemp/game/g_main.c:1925
 func SendScoreboardMessageToAllClients() {
@@ -214,12 +234,14 @@ func SendScoreboardMessageToAllClients() {
 }
 
 /**
+```
 ========================
 MoveClientToIntermission
 
 When the intermission starts, this will be called for all players.
 If a new client connects, this will be called after the spawn function.
 ========================
+```
 */
 /// Source: oracle/codemp/game/g_main.c:1943
 func MoveClientToIntermission(_ ent: Entity) {
@@ -234,9 +256,11 @@ func FindIntermissionPoint() {
 }
 
 /**
+```
 ==================
 BeginIntermission
 ==================
+```
 */
 /// Source: oracle/codemp/game/g_main.c:2035
 func BeginIntermission() {
@@ -263,11 +287,13 @@ func ExitLevel() {
 }
 
 /**
+```
 =================
 G_LogPrintf
 
 Print to the logfile with a time stamp if it is open
 =================
+```
 */
 /// Source: oracle/codemp/game/g_main.c:2213
 func G_LogPrintf(_ fmt: String) {
@@ -276,11 +302,13 @@ func G_LogPrintf(_ fmt: String) {
 }
 
 /**
+```
 ================
 LogExit
 
 Append information about this game to the log file
 ================
+```
 */
 /// Source: oracle/codemp/game/g_main.c:2249
 func LogExit(_ string: String) {
@@ -289,6 +317,7 @@ func LogExit(_ string: String) {
 }
 
 /**
+```
 =================
 CheckIntermissionExit
 
@@ -297,6 +326,7 @@ If all players wish to continue, the level will then exit.
 If one or more players have not acknowledged the continue, the game will
 wait 10 seconds before going on.
 =================
+```
 */
 /// Source: oracle/codemp/game/g_main.c:2317
 func CheckIntermissionExit() {
@@ -305,9 +335,11 @@ func CheckIntermissionExit() {
 }
 
 /**
+```
 =============
 ScoreIsTied
 =============
+```
 */
 /// Source: oracle/codemp/game/g_main.c:2561
 func ScoreIsTied() -> Bool {
@@ -340,9 +372,11 @@ func G_KickAllBots() {
 }
 
 /**
+```
 ==================
 CheckVote
 ==================
+```
 */
 /// Source: oracle/codemp/game/g_main.c:3246
 func CheckVote() {
@@ -351,9 +385,11 @@ func CheckVote() {
 }
 
 /**
+```
 ==================
 PrintTeam
 ==================
+```
 */
 /// Source: oracle/codemp/game/g_main.c:3333
 // TODO: Port signature
@@ -365,9 +401,11 @@ func PrintTeam() -> Never {
 }
 
 /**
+```
 ==================
 SetLeader
 ==================
+```
 */
 /// Source: oracle/codemp/game/g_main.c:3348
 func SetLeader(_ team: Int32, _ client: Int32) {
@@ -376,9 +414,11 @@ func SetLeader(_ team: Int32, _ client: Int32) {
 }
 
 /**
+```
 ==================
 CheckTeamLeader
 ==================
+```
 */
 /// Source: oracle/codemp/game/g_main.c:3377
 func CheckTeamLeader(_ team: Int32) {
@@ -387,9 +427,11 @@ func CheckTeamLeader(_ team: Int32) {
 }
 
 /**
+```
 ==================
 CheckTeamVote
 ==================
+```
 */
 /// Source: oracle/codemp/game/g_main.c:3409
 func CheckTeamVote(_ team: Int32) {
@@ -398,9 +440,11 @@ func CheckTeamVote(_ team: Int32) {
 }
 
 /**
+```
 ==================
 CheckCvars
 ==================
+```
 */
 /// Source: oracle/codemp/game/g_main.c:3455
 func CheckCvars() {
@@ -409,11 +453,13 @@ func CheckCvars() {
 }
 
 /**
+```
 =============
 G_RunThink
 
 Runs thinking code for this frame if necessary
 =============
+```
 */
 /// Source: oracle/codemp/game/g_main.c:3489
 func G_RunThink(_ ent: Entity) {

@@ -19,8 +19,11 @@ import JKAMP_Game
 // Raven wrote: static qboolean g_shooterClientInit = qfalse
 // Rule 3: a stored property of GameWorld with Raven's initializer, spelled world.g_shooterClientInit in a body.
 
-/**QUAKED info_camp (0 0.5 0) (-4 -4 -4) (4 4 4)
+/**
+```
+QUAKED info_camp (0 0.5 0) (-4 -4 -4) (4 4 4)
 Used as a positional target for calculations in the utilities (spotlights, etc), but removed during gameplay.
+```
 */
 /// Source: oracle/codemp/game/g_misc.c:25
 func SP_info_camp(_ `self`: Entity) {
@@ -28,8 +31,11 @@ func SP_info_camp(_ `self`: Entity) {
     portMissing("SP_info_camp", source: "oracle/codemp/game/g_misc.c:25")
 }
 
-/**QUAKED info_null (0 0.5 0) (-4 -4 -4) (4 4 4)
+/**
+```
+QUAKED info_null (0 0.5 0) (-4 -4 -4) (4 4 4)
 Used as a positional target for calculations in the utilities (spotlights, etc), but removed during gameplay.
+```
 */
 /// Source: oracle/codemp/game/g_misc.c:33
 func SP_info_null(_ `self`: Entity) {
@@ -37,9 +43,12 @@ func SP_info_null(_ `self`: Entity) {
     portMissing("SP_info_null", source: "oracle/codemp/game/g_misc.c:33")
 }
 
-/**QUAKED info_notnull (0 0.5 0) (-4 -4 -4) (4 4 4)
+/**
+```
+QUAKED info_notnull (0 0.5 0) (-4 -4 -4) (4 4 4)
 Used as a positional target for in-game calculation, like jumppad targets.
 target_position does the same thing
+```
 */
 /// Source: oracle/codemp/game/g_misc.c:42
 func SP_info_notnull(_ `self`: Entity) {
@@ -47,7 +56,9 @@ func SP_info_notnull(_ `self`: Entity) {
     portMissing("SP_info_notnull", source: "oracle/codemp/game/g_misc.c:42")
 }
 
-/**QUAKED light (0 1 0) (-8 -8 -8) (8 8 8) linear noIncidence START_OFF
+/**
+```
+QUAKED light (0 1 0) (-8 -8 -8) (8 8 8) linear noIncidence START_OFF
 Non-displayed light.
 "light" overrides the default 300 intensity. - affects size
 a negative "light" will subtract the light's color
@@ -75,6 +86,7 @@ Lights pointed at a target will be spotlights.
    11 SLOW PULSE NOT FADE TO BLACK
    12 FAST PULSE FOR JEREMY
    13 Test Blending
+```
 */
 /// Source: oracle/codemp/game/g_misc.c:86
 private func misc_lightstyle_set(_ ent: Entity) {
@@ -100,10 +112,13 @@ func TeleportPlayer(_ player: Entity, _ origin: inout JKAShared.vec3_t, _ angles
     portMissing("TeleportPlayer", source: "oracle/codemp/game/g_misc.c:177")
 }
 
-/**QUAKED misc_teleporter_dest (1 0 0) (-32 -32 -24) (32 32 -16)
+/**
+```
+QUAKED misc_teleporter_dest (1 0 0) (-32 -32 -24) (32 32 -16)
 Point teleporters at these.
 Now that we don't have teleport destination pads, this is just
 an info_notnull
+```
 */
 /// Source: oracle/codemp/game/g_misc.c:239
 func SP_misc_teleporter_dest(_ ent: Entity) {
@@ -111,9 +126,12 @@ func SP_misc_teleporter_dest(_ ent: Entity) {
     portMissing("SP_misc_teleporter_dest", source: "oracle/codemp/game/g_misc.c:239")
 }
 
-/**QUAKED misc_model (1 0 0) (-16 -16 -16) (16 16 16)
+/**
+```
+QUAKED misc_model (1 0 0) (-16 -16 -16) (16 16 16)
 "model"		arbitrary .md3 or .ase file to display
 turns into map triangles - not solid
+```
 */
 /// Source: oracle/codemp/game/g_misc.c:249
 func SP_misc_model(_ ent: Entity) {
@@ -121,7 +139,9 @@ func SP_misc_model(_ ent: Entity) {
     portMissing("SP_misc_model", source: "oracle/codemp/game/g_misc.c:249")
 }
 
-/**QUAKED misc_model_static (1 0 0) (-16 -16 0) (16 16 16)
+/**
+```
+QUAKED misc_model_static (1 0 0) (-16 -16 0) (16 16 16)
 "model"		arbitrary .md3 file to display
 "zoffset"	units to offset vertical culling position by, can be
 			negative or positive. This does not affect the actual
@@ -133,6 +153,7 @@ func SP_misc_model(_ ent: Entity) {
 
 loaded as a model in the renderer - does not take up precious
 bsp space!
+```
 */
 /// Source: oracle/codemp/game/g_misc.c:277
 func SP_misc_model_static(_ ent: Entity) {
@@ -140,8 +161,11 @@ func SP_misc_model_static(_ ent: Entity) {
     portMissing("SP_misc_model_static", source: "oracle/codemp/game/g_misc.c:277")
 }
 
-/**QUAKED misc_G2model (1 0 0) (-16 -16 -16) (16 16 16)
+/**
+```
+QUAKED misc_G2model (1 0 0) (-16 -16 -16) (16 16 16)
 "model"		arbitrary .glm file to display
+```
 */
 /// Source: oracle/codemp/game/g_misc.c:285
 func SP_misc_G2model(_ ent: Entity) {
@@ -155,9 +179,12 @@ func locateCamera(_ ent: Entity) {
     portMissing("locateCamera", source: "oracle/codemp/game/g_misc.c:305")
 }
 
-/**QUAKED misc_portal_surface (0 0 1) (-8 -8 -8) (8 8 8)
+/**
+```
+QUAKED misc_portal_surface (0 0 1) (-8 -8 -8) (8 8 8)
 The portal surface nearest this entity will show a view from the targeted misc_portal_camera, or a mirror view if untargeted.
 This must be within 64 world units of the surface!
+```
 */
 /// Source: oracle/codemp/game/g_misc.c:355
 func SP_misc_portal_surface(_ ent: Entity) {
@@ -165,9 +192,12 @@ func SP_misc_portal_surface(_ ent: Entity) {
     portMissing("SP_misc_portal_surface", source: "oracle/codemp/game/g_misc.c:355")
 }
 
-/**QUAKED misc_portal_camera (0 0 1) (-8 -8 -8) (8 8 8) slowrotate fastrotate noswing
+/**
+```
+QUAKED misc_portal_camera (0 0 1) (-8 -8 -8) (8 8 8) slowrotate fastrotate noswing
 The target for a misc_portal_director.  You can set either angles or target another entity to determine the direction of view.
 "roll" an angle modifier to orient the camera around the target vector;
+```
 */
 /// Source: oracle/codemp/game/g_misc.c:375
 func SP_misc_portal_camera(_ ent: Entity) {
@@ -175,8 +205,11 @@ func SP_misc_portal_camera(_ ent: Entity) {
     portMissing("SP_misc_portal_camera", source: "oracle/codemp/game/g_misc.c:375")
 }
 
-/**QUAKED misc_bsp (1 0 0) (-16 -16 -16) (16 16 16)
+/**
+```
+QUAKED misc_bsp (1 0 0) (-16 -16 -16) (16 16 16)
 "bspmodel"		arbitrary .bsp file to display
+```
 */
 /// Source: oracle/codemp/game/g_misc.c:390
 func SP_misc_bsp(_ ent: Entity) {
@@ -201,11 +234,14 @@ func G_PortalifyEntities(_ ent: Entity) {
     portMissing("G_PortalifyEntities", source: "oracle/codemp/game/g_misc.c:638")
 }
 
-/**QUAKED misc_skyportal_orient (.6 .7 .7) (-8 -8 0) (8 8 16)
+/**
+```
+QUAKED misc_skyportal_orient (.6 .7 .7) (-8 -8 0) (8 8 16)
 point from which to orient the sky portal cam in relation
 to the regular view position.
 
 "modelscale"			the scale at which to scale positions
+```
 */
 /// Source: oracle/codemp/game/g_misc.c:675
 func SP_misc_skyportal_orient(_ ent: Entity) {
@@ -213,7 +249,9 @@ func SP_misc_skyportal_orient(_ ent: Entity) {
     portMissing("SP_misc_skyportal_orient", source: "oracle/codemp/game/g_misc.c:675")
 }
 
-/**QUAKED misc_skyportal (.6 .7 .7) (-8 -8 0) (8 8 16)
+/**
+```
+QUAKED misc_skyportal (.6 .7 .7) (-8 -8 0) (8 8 16)
 "fov" for the skybox default is 80
 To have the portal sky fogged, enter any of the following values:
 "onlyfoghere" if non-0 allows you to set a global fog, but will only use that fog within this sky portal.
@@ -225,6 +263,7 @@ they are, and they will essentially be added to the scene twice if the client
 is in the same PVS as them (only once otherwise, but still once no matter
 where the client is). In other words, don't go overboard with it or everything
 will explode.
+```
 */
 /// Source: oracle/codemp/game/g_misc.c:694
 func SP_misc_skyportal(_ ent: Entity) {
@@ -280,9 +319,12 @@ func InitShooter(_ ent: Entity, _ weapon: Int32) {
     portMissing("InitShooter", source: "oracle/codemp/game/g_misc.c:1148")
 }
 
-/**QUAKED shooter_blaster (1 0 0) (-16 -16 -16) (16 16 16)
+/**
+```
+QUAKED shooter_blaster (1 0 0) (-16 -16 -16) (16 16 16)
 Fires at either the target or the current direction.
 "random" is the number of degrees of deviance from the taget. (1.0 default)
+```
 */
 /// Source: oracle/codemp/game/g_misc.c:1172
 func SP_shooter_blaster(_ ent: Entity) {
@@ -297,9 +339,11 @@ func check_recharge(_ ent: Entity) {
 }
 
 /**
+```
 ================
 EnergyShieldStationSettings
 ================
+```
 */
 /// Source: oracle/codemp/game/g_misc.c:1213
 func EnergyShieldStationSettings(_ ent: Entity) {
@@ -308,9 +352,11 @@ func EnergyShieldStationSettings(_ ent: Entity) {
 }
 
 /**
+```
 ================
 shield_power_converter_use
 ================
+```
 */
 /// Source: oracle/codemp/game/g_misc.c:1230
 func shield_power_converter_use(_ `self`: Entity, _ other: Entity, _ activator: Entity) {
@@ -325,13 +371,16 @@ func ammo_generic_power_converter_use(_ `self`: Entity, _ other: Entity, _ activ
     portMissing("ammo_generic_power_converter_use", source: "oracle/codemp/game/g_misc.c:1331")
 }
 
-/**QUAKED misc_ammo_floor_unit (1 0 0) (-16 -16 0) (16 16 40)
+/**
+```
+QUAKED misc_ammo_floor_unit (1 0 0) (-16 -16 0) (16 16 40)
 model="/models/items/a_pwr_converter.md3"
 Gives generic ammo when used
 
 "count" - max charge value (default 200)
 "chargerate" - rechage 1 point every this many milliseconds (default 2000)
 "nodrain" - don't drain power from station if 1
+```
 */
 /// Source: oracle/codemp/game/g_misc.c:1515
 func SP_misc_ammo_floor_unit(_ ent: Entity) {
@@ -339,13 +388,16 @@ func SP_misc_ammo_floor_unit(_ ent: Entity) {
     portMissing("SP_misc_ammo_floor_unit", source: "oracle/codemp/game/g_misc.c:1515")
 }
 
-/**QUAKED misc_shield_floor_unit (1 0 0) (-16 -16 0) (16 16 40)
+/**
+```
+QUAKED misc_shield_floor_unit (1 0 0) (-16 -16 0) (16 16 40)
 model="/models/items/a_shield_converter.md3"
 Gives shield energy when used.
 
 "count" - max charge value (default 50)
 "chargerate" - rechage 1 point every this many milliseconds (default 3000)
 "nodrain" - don't drain power from me
+```
 */
 /// Source: oracle/codemp/game/g_misc.c:1602
 func SP_misc_shield_floor_unit(_ ent: Entity) {
@@ -353,11 +405,14 @@ func SP_misc_shield_floor_unit(_ ent: Entity) {
     portMissing("SP_misc_shield_floor_unit", source: "oracle/codemp/game/g_misc.c:1602")
 }
 
-/**QUAKED misc_model_shield_power_converter (1 0 0) (-16 -16 -16) (16 16 16)
+/**
+```
+QUAKED misc_model_shield_power_converter (1 0 0) (-16 -16 -16) (16 16 16)
 model="models/items/psd_big.md3"
 Gives shield energy when used.
 
 "count" - the amount of ammo given when used (default 200)
+```
 */
 //------------------------------------------------------------
 /// Source: oracle/codemp/game/g_misc.c:1697
@@ -367,9 +422,11 @@ func SP_misc_model_shield_power_converter(_ ent: Entity) {
 }
 
 /**
+```
 ================
 EnergyAmmoShieldStationSettings
 ================
+```
 */
 /// Source: oracle/codemp/game/g_misc.c:1743
 func EnergyAmmoStationSettings(_ ent: Entity) {
@@ -378,9 +435,11 @@ func EnergyAmmoStationSettings(_ ent: Entity) {
 }
 
 /**
+```
 ================
 ammo_power_converter_use
 ================
+```
 */
 /// Source: oracle/codemp/game/g_misc.c:1753
 func ammo_power_converter_use(_ `self`: Entity, _ other: Entity, _ activator: Entity) {
@@ -388,12 +447,15 @@ func ammo_power_converter_use(_ `self`: Entity, _ other: Entity, _ activator: En
     portMissing("ammo_power_converter_use", source: "oracle/codemp/game/g_misc.c:1753")
 }
 
-/**QUAKED misc_model_ammo_power_converter (1 0 0) (-16 -16 -16) (16 16 16)
+/**
+```
+QUAKED misc_model_ammo_power_converter (1 0 0) (-16 -16 -16) (16 16 16)
 model="models/items/power_converter.md3"
 Gives ammo energy when used.
 
 "count" - the amount of ammo given when used (default 200)
 "nodrain" - don't drain power from me
+```
 */
 //------------------------------------------------------------
 /// Source: oracle/codemp/game/g_misc.c:1864
@@ -403,9 +465,11 @@ func SP_misc_model_ammo_power_converter(_ ent: Entity) {
 }
 
 /**
+```
 ================
 EnergyHealthStationSettings
 ================
+```
 */
 /// Source: oracle/codemp/game/g_misc.c:1911
 func EnergyHealthStationSettings(_ ent: Entity) {
@@ -414,9 +478,11 @@ func EnergyHealthStationSettings(_ ent: Entity) {
 }
 
 /**
+```
 ================
 health_power_converter_use
 ================
+```
 */
 /// Source: oracle/codemp/game/g_misc.c:1921
 func health_power_converter_use(_ `self`: Entity, _ other: Entity, _ activator: Entity) {
@@ -424,11 +490,14 @@ func health_power_converter_use(_ `self`: Entity, _ other: Entity, _ activator: 
     portMissing("health_power_converter_use", source: "oracle/codemp/game/g_misc.c:1921")
 }
 
-/**QUAKED misc_model_health_power_converter (1 0 0) (-16 -16 -16) (16 16 16)
+/**
+```
+QUAKED misc_model_health_power_converter (1 0 0) (-16 -16 -16) (16 16 16)
 model="models/items/power_converter.md3"
 Gives ammo energy when used.
 
 "count" - the amount of ammo given when used (default 200)
+```
 */
 //------------------------------------------------------------
 /// Source: oracle/codemp/game/g_misc.c:1982
@@ -465,10 +534,13 @@ func SP_fx_runner(_ ent: Entity) {
     portMissing("SP_fx_runner", source: "oracle/codemp/game/g_misc.c:2456")
 }
 
-/**QUAKED fx_spacedust (1 0 0) (-16 -16 -16) (16 16 16)
+/**
+```
+QUAKED fx_spacedust (1 0 0) (-16 -16 -16) (16 16 16)
 This world effect will spawn space dust globally into the level.
 
 "count" the number of snow particles (default of 1000)
+```
 */
 //----------------------------------------------------------
 /// Source: oracle/codemp/game/g_misc.c:2509
@@ -477,10 +549,13 @@ func SP_CreateSpaceDust(_ ent: Entity) {
     portMissing("SP_CreateSpaceDust", source: "oracle/codemp/game/g_misc.c:2509")
 }
 
-/**QUAKED fx_snow (1 0 0) (-16 -16 -16) (16 16 16)
+/**
+```
+QUAKED fx_snow (1 0 0) (-16 -16 -16) (16 16 16)
 This world effect will spawn snow globally into the level.
 
 "count" the number of snow particles (default of 1000)
+```
 */
 //----------------------------------------------------------
 /// Source: oracle/codemp/game/g_misc.c:2522
@@ -489,10 +564,13 @@ func SP_CreateSnow(_ ent: Entity) {
     portMissing("SP_CreateSnow", source: "oracle/codemp/game/g_misc.c:2522")
 }
 
-/**QUAKED fx_rain (1 0 0) (-16 -16 -16) (16 16 16)
+/**
+```
+QUAKED fx_rain (1 0 0) (-16 -16 -16) (16 16 16)
 This world effect will spawn rain globally into the level.
 
 "count" the number of rain particles (default of 500)
+```
 */
 //----------------------------------------------------------
 /// Source: oracle/codemp/game/g_misc.c:2535
@@ -525,13 +603,16 @@ func SP_target_escapetrig(_ ent: Entity) {
     portMissing("SP_target_escapetrig", source: "oracle/codemp/game/g_misc.c:2599")
 }
 
-/**QUAKED misc_maglock (0 .5 .8) (-8 -8 -8) (8 8 8) x x x x x x x x
+/**
+```
+QUAKED misc_maglock (0 .5 .8) (-8 -8 -8) (8 8 8) x x x x x x x x
 Place facing a door (using the angle, not a targetname) and it will lock that door.  Can only be destroyed by lightsaber and will automatically unlock the door it's attached to
 
 NOTE: place these half-way in the door to make it flush with the door's surface.
 
 "target"	thing to use when destoryed (not doors - it automatically unlocks the door it was angled at)
 "health"	default is 10
+```
 */
 /// Source: oracle/codemp/game/g_misc.c:2623
 func maglock_die(_ `self`: Entity, _ inflictor: Entity, _ attacker: Entity, _ damage: Int32, _ mod: Int32) {
@@ -575,13 +656,16 @@ func misc_faller_think(_ ent: Entity) {
     portMissing("misc_faller_think", source: "oracle/codemp/game/g_misc.c:2830")
 }
 
-/**QUAKED misc_faller (1 0 0) (-8 -8 -8) (8 8 8)
+/**
+```
+QUAKED misc_faller (1 0 0) (-8 -8 -8) (8 8 8)
 Falling stormtrooper - spawned every interval+random fudgefactor,
 or if specified, when used.
 
 targetname	- if specified, will only spawn when used
 interval	- spawn every so often (milliseconds)
 fudgefactor	- milliseconds between 0 and this number randomly added to interval
+```
 */
 /// Source: oracle/codemp/game/g_misc.c:2844
 func SP_misc_faller(_ ent: Entity) {
@@ -718,8 +802,11 @@ func SP_misc_weapon_shooter(_ `self`: Entity) {
     portMissing("SP_misc_weapon_shooter", source: "oracle/codemp/game/g_misc.c:3444")
 }
 
-/**QUAKED misc_weather_zone (0 .5 .8) ?
+/**
+```
+QUAKED misc_weather_zone (0 .5 .8) ?
 Determines a region to check for weather contents - will significantly reduce load time
+```
 */
 /// Source: oracle/codemp/game/g_misc.c:3491
 func SP_misc_weather_zone(_ ent: Entity) {

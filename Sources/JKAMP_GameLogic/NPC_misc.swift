@@ -5,7 +5,9 @@ import JKAShared
 import JKAMP_Game
 
 /**
+```
 Debug_Printf
+```
 */
 /// Source: oracle/codemp/game/NPC_misc.c:10
 func Debug_Printf(_ cv: JKAMP.VmCvar, _ debugLevel: Int32, _ fmt: inout String) {
@@ -14,7 +16,9 @@ func Debug_Printf(_ cv: JKAMP.VmCvar, _ debugLevel: Int32, _ fmt: inout String) 
 }
 
 /**
+```
 Debug_NPCPrintf
+```
 */
 /// Source: oracle/codemp/game/NPC_misc.c:41
 func Debug_NPCPrintf(_ printNPC: Entity, _ cv: JKAMP.VmCvar, _ debugLevel: Int32, _ fmt: inout String) {

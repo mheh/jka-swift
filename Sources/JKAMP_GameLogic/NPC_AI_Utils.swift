@@ -71,9 +71,11 @@ func AI_ValidateGroupMember(_ group: AIGroupInfo, _ member: Entity) -> Bool {
 }
 
 /**
+```
 -------------------------
 AI_GetGroup
 -------------------------
+```
 */
 //#define MAX_WAITERS	128
 /// Source: oracle/codemp/game/NPC_AI_Utils.c:443

@@ -74,11 +74,13 @@ private func WP_FireBlaster(_ ent: Entity, _ altFire: Bool) {
 }
 
 /**
+```
 ======================================================================
 
 DISRUPTOR
 
 ======================================================================
+```
 */
 //---------------------------------------------------------
 /// Source: oracle/codemp/game/g_weapon.c:483
@@ -344,11 +346,13 @@ func WP_PlaceLaserTrap(_ ent: Entity, _ alt_fire: Bool) {
 }
 
 /**
+```
 ======================================================================
 
 DET PACK
 
 ======================================================================
+```
 */
 /// Source: oracle/codemp/game/g_weapon.c:2636
 func VectorNPos(_ `in`: inout JKAShared.vec3_t, _ out: inout JKAShared.vec3_t) {
@@ -435,6 +439,7 @@ func WP_FireMelee(_ ent: Entity, _ alt_fire: Bool) {
 }
 
 /**
+```
 ======================
 SnapVectorTowards
 
@@ -443,6 +448,7 @@ transmission, but make sure that it rounds towards a given point
 rather than blindly truncating.  This prevents it from truncating
 into a wall.
 ======================
+```
 */
 /// Source: oracle/codemp/game/g_weapon.c:3464
 func SnapVectorTowards(_ v: inout JKAShared.vec3_t, _ to: inout JKAShared.vec3_t) {
@@ -451,9 +457,11 @@ func SnapVectorTowards(_ v: inout JKAShared.vec3_t, _ to: inout JKAShared.vec3_t
 }
 
 /**
+```
 ===============
 LogAccuracyHit
 ===============
+```
 */
 /// Source: oracle/codemp/game/g_weapon.c:3485
 func LogAccuracyHit(_ target: Entity, _ attacker: Entity) -> Bool {
@@ -462,6 +470,7 @@ func LogAccuracyHit(_ target: Entity, _ attacker: Entity) -> Bool {
 }
 
 /**
+```
 ===============
 CalcMuzzlePoint
 
@@ -471,6 +480,7 @@ it may be reasonable to base muzzle point off actual weapon bolt point.
 The down side would be that it does not necessarily look alright from a
 first person perspective.
 ===============
+```
 */
 /// Source: oracle/codemp/game/g_weapon.c:3530
 func CalcMuzzlePoint(_ ent: Entity, _ forward: inout JKAShared.vec3_t, _ right: inout JKAShared.vec3_t, _ up: inout JKAShared.vec3_t, _ muzzlePoint: inout JKAShared.vec3_t) {
@@ -479,11 +489,13 @@ func CalcMuzzlePoint(_ ent: Entity, _ forward: inout JKAShared.vec3_t, _ right: 
 }
 
 /**
+```
 ===============
 CalcMuzzlePointOrigin
 
 set muzzle location relative to pivoting eye
 ===============
+```
 */
 /// Source: oracle/codemp/game/g_weapon.c:3560
 func CalcMuzzlePointOrigin(_ ent: Entity, _ origin: inout JKAShared.vec3_t, _ forward: inout JKAShared.vec3_t, _ right: inout JKAShared.vec3_t, _ up: inout JKAShared.vec3_t, _ muzzlePoint: inout JKAShared.vec3_t) {

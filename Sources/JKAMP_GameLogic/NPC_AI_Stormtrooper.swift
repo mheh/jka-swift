@@ -173,6 +173,7 @@ func ST_GetCPFlags() -> Int32 {
 }
 
 /**
+```
 -------------------------
 ST_Commander
 
@@ -184,6 +185,7 @@ FIXME: more group voice interaction
 FIXME: work in pairs?
 
 -------------------------
+```
 */
 /// Source: oracle/codemp/game/NPC_AI_Stormtrooper.c:1724
 func ST_Commander() {

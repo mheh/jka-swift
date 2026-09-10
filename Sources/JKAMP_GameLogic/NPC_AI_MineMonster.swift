@@ -5,9 +5,11 @@ import JKAShared
 import JKAMP_Game
 
 /**
+```
 -------------------------
 NPC_MineMonster_Precache
 -------------------------
+```
 */
 /// Source: oracle/codemp/game/NPC_AI_MineMonster.c:18
 func NPC_MineMonster_Precache() {
@@ -16,9 +18,11 @@ func NPC_MineMonster_Precache() {
 }
 
 /**
+```
 -------------------------
 MineMonster_Idle
 -------------------------
+```
 */
 /// Source: oracle/codemp/game/NPC_AI_MineMonster.c:35
 func MineMonster_Idle() {
@@ -27,9 +31,11 @@ func MineMonster_Idle() {
 }
 
 /**
+```
 -------------------------
 MineMonster_Patrol
 -------------------------
+```
 */
 /// Source: oracle/codemp/game/NPC_AI_MineMonster.c:50
 func MineMonster_Patrol() {
@@ -38,9 +44,11 @@ func MineMonster_Patrol() {
 }
 
 /**
+```
 -------------------------
 MineMonster_Move
 -------------------------
+```
 */
 /// Source: oracle/codemp/game/NPC_AI_MineMonster.c:90
 func MineMonster_Move(_ visible: Bool) {
@@ -70,9 +78,11 @@ func MineMonster_Combat() {
 }
 
 /**
+```
 -------------------------
 NPC_MineMonster_Pain
 -------------------------
+```
 */
 /// Source: oracle/codemp/game/NPC_AI_MineMonster.c:234
 func NPC_MineMonster_Pain(_ `self`: Entity, _ attacker: Entity, _ damage: Int32) {
@@ -81,9 +91,11 @@ func NPC_MineMonster_Pain(_ `self`: Entity, _ attacker: Entity, _ damage: Int32)
 }
 
 /**
+```
 -------------------------
 NPC_BSMineMonster_Default
 -------------------------
+```
 */
 /// Source: oracle/codemp/game/NPC_AI_MineMonster.c:262
 func NPC_BSMineMonster_Default() {

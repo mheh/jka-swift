@@ -25,10 +25,12 @@ import JKAMP_Game
 // Rule 3: a stored property of GameWorld with Raven's initializer, spelled world.gameNames in a body.
 
 /**
+```
 ==================
 DeathmatchScoreboardMessage
 
 ==================
+```
 */
 /// Source: oracle/codemp/game/g_cmds.c:25
 func DeathmatchScoreboardMessage(_ ent: Entity) {
@@ -37,11 +39,13 @@ func DeathmatchScoreboardMessage(_ ent: Entity) {
 }
 
 /**
+```
 ==================
 Cmd_Score_f
 
 Request current scoreboard information
 ==================
+```
 */
 /// Source: oracle/codemp/game/g_cmds.c:98
 func Cmd_Score_f(_ ent: Entity) {
@@ -50,9 +54,11 @@ func Cmd_Score_f(_ ent: Entity) {
 }
 
 /**
+```
 ==================
 CheatsOk
 ==================
+```
 */
 /// Source: oracle/codemp/game/g_cmds.c:109
 func CheatsOk(_ ent: Entity) -> Bool {
@@ -61,9 +67,11 @@ func CheatsOk(_ ent: Entity) -> Bool {
 }
 
 /**
+```
 ==================
 ConcatArgs
 ==================
+```
 */
 /// Source: oracle/codemp/game/g_cmds.c:127
 // TODO: Port signature
@@ -75,11 +83,13 @@ func ConcatArgs() -> Never {
 }
 
 /**
+```
 ==================
 SanitizeString
 
 Remove case and control characters
 ==================
+```
 */
 /// Source: oracle/codemp/game/g_cmds.c:161
 func SanitizeString(_ `in`: inout String, _ out: inout String) {
@@ -88,12 +98,14 @@ func SanitizeString(_ `in`: inout String, _ out: inout String) {
 }
 
 /**
+```
 ==================
 ClientNumberFromString
 
 Returns a player number for either a number or name string
 Returns -1 if invalid
 ==================
+```
 */
 /// Source: oracle/codemp/game/g_cmds.c:185
 func ClientNumberFromString(_ to: Entity, _ s: inout String) -> Int32 {
@@ -102,11 +114,13 @@ func ClientNumberFromString(_ to: Entity, _ s: inout String) -> Int32 {
 }
 
 /**
+```
 ==================
 Cmd_Give_f
 
 Give items to a client
 ==================
+```
 */
 /// Source: oracle/codemp/game/g_cmds.c:230
 func Cmd_Give_f(_ cmdent: Entity, _ baseArg: Int32) {
@@ -115,6 +129,7 @@ func Cmd_Give_f(_ cmdent: Entity, _ baseArg: Int32) {
 }
 
 /**
+```
 ==================
 Cmd_God_f
 
@@ -122,6 +137,7 @@ Sets client to godmode
 
 argv(0) god
 ==================
+```
 */
 /// Source: oracle/codemp/game/g_cmds.c:403
 func Cmd_God_f(_ ent: Entity) {
@@ -130,6 +146,7 @@ func Cmd_God_f(_ ent: Entity) {
 }
 
 /**
+```
 ==================
 Cmd_Notarget_f
 
@@ -137,6 +154,7 @@ Sets client to notarget
 
 argv(0) notarget
 ==================
+```
 */
 /// Source: oracle/codemp/game/g_cmds.c:430
 func Cmd_Notarget_f(_ ent: Entity) {
@@ -145,11 +163,13 @@ func Cmd_Notarget_f(_ ent: Entity) {
 }
 
 /**
+```
 ==================
 Cmd_Noclip_f
 
 argv(0) noclip
 ==================
+```
 */
 /// Source: oracle/codemp/game/g_cmds.c:454
 func Cmd_Noclip_f(_ ent: Entity) {
@@ -158,6 +178,7 @@ func Cmd_Noclip_f(_ ent: Entity) {
 }
 
 /**
+```
 ==================
 Cmd_LevelShot_f
 
@@ -166,6 +187,7 @@ for the menus.  It goes to the intermission immediately
 and sends over a command to the client to resize the view,
 hide the scoreboard, and take a special screenshot
 ==================
+```
 */
 /// Source: oracle/codemp/game/g_cmds.c:482
 func Cmd_LevelShot_f(_ ent: Entity) {
@@ -174,11 +196,13 @@ func Cmd_LevelShot_f(_ ent: Entity) {
 }
 
 /**
+```
 ==================
 Cmd_TeamTask_f
 
 From TA.
 ==================
+```
 */
 /// Source: oracle/codemp/game/g_cmds.c:506
 func Cmd_TeamTask_f(_ ent: Entity) {
@@ -205,11 +229,13 @@ func G_GetDuelWinner(_ client: Client) -> Entity? {
 }
 
 /**
+```
 =================
 BroadCastTeamChange
 
 Let everyone know about a team change
 =================
+```
 */
 /// Source: oracle/codemp/game/g_cmds.c:670
 func BroadcastTeamChange(_ client: Client, _ oldTeam: Int32) {
@@ -230,12 +256,14 @@ func SetTeam(_ ent: Entity, _ s: inout String) {
 }
 
 /**
+```
 =================
 StopFollowing
 
 If the client being followed leaves the game, or you just want to drop
 to free floating spectator mode
 =================
+```
 */
 /// Source: oracle/codemp/game/g_cmds.c:1032
 func StopFollowing(_ ent: Entity) {
@@ -244,9 +272,11 @@ func StopFollowing(_ ent: Entity) {
 }
 
 /**
+```
 =================
 Cmd_Team_f
 =================
+```
 */
 /// Source: oracle/codemp/game/g_cmds.c:1058
 func Cmd_Team_f(_ ent: Entity) {
@@ -255,9 +285,11 @@ func Cmd_Team_f(_ ent: Entity) {
 }
 
 /**
+```
 =================
 Cmd_DuelTeam_f
 =================
+```
 */
 /// Source: oracle/codemp/game/g_cmds.c:1119
 func Cmd_DuelTeam_f(_ ent: Entity) {
@@ -272,9 +304,11 @@ func G_TeamForSiegeClass(_ clName: String) -> Int32 {
 }
 
 /**
+```
 =================
 Cmd_SiegeClass_f
 =================
+```
 */
 /// Source: oracle/codemp/game/g_cmds.c:1251
 func Cmd_SiegeClass_f(_ ent: Entity) {
@@ -283,9 +317,11 @@ func Cmd_SiegeClass_f(_ ent: Entity) {
 }
 
 /**
+```
 =================
 Cmd_ForceChanged_f
 =================
+```
 */
 /// Source: oracle/codemp/game/g_cmds.c:1355
 func Cmd_ForceChanged_f(_ ent: Entity) {
@@ -300,9 +336,11 @@ func G_SetSaber(_ ent: Entity, _ saberNum: Int32, _ saberName: inout String, _ s
 }
 
 /**
+```
 =================
 Cmd_Follow_f
 =================
+```
 */
 /// Source: oracle/codemp/game/g_cmds.c:1462
 func Cmd_Follow_f(_ ent: Entity) {
@@ -311,9 +349,11 @@ func Cmd_Follow_f(_ ent: Entity) {
 }
 
 /**
+```
 =================
 Cmd_FollowCycle_f
 =================
+```
 */
 /// Source: oracle/codemp/game/g_cmds.c:1510
 func Cmd_FollowCycle_f(_ ent: Entity, _ dir: Int32) {
@@ -334,9 +374,11 @@ func G_Say(_ ent: Entity, _ target: Entity, _ mode: Int32, _ chatText: String) {
 }
 
 /**
+```
 ==================
 Cmd_Say_f
 ==================
+```
 */
 /// Source: oracle/codemp/game/g_cmds.c:1695
 private func Cmd_Say_f(_ ent: Entity, _ mode: Int32, _ arg0: Bool) {
@@ -345,9 +387,11 @@ private func Cmd_Say_f(_ ent: Entity, _ mode: Int32, _ arg0: Bool) {
 }
 
 /**
+```
 ==================
 Cmd_Tell_f
 ==================
+```
 */
 /// Source: oracle/codemp/game/g_cmds.c:1719
 private func Cmd_Tell_f(_ ent: Entity) {
@@ -369,9 +413,11 @@ func Cmd_GameCommand_f(_ ent: Entity) {
 }
 
 /**
+```
 ==================
 Cmd_Where_f
 ==================
+```
 */
 /// Source: oracle/codemp/game/g_cmds.c:1847
 func Cmd_Where_f(_ ent: Entity) {
@@ -380,11 +426,13 @@ func Cmd_Where_f(_ ent: Entity) {
 }
 
 /**
+```
 ==================
 G_ClientNumberFromName
 
 Finds the client number of the client with the given name
 ==================
+```
 */
 /// Source: oracle/codemp/game/g_cmds.c:1871
 func G_ClientNumberFromName(_ name: String) -> Int32 {
@@ -393,11 +441,13 @@ func G_ClientNumberFromName(_ name: String) -> Int32 {
 }
 
 /**
+```
 ==================
 SanitizeString2
 
 Rich's revised version of SanitizeString
 ==================
+```
 */
 /// Source: oracle/codemp/game/g_cmds.c:1899
 func SanitizeString2(_ `in`: inout String, _ out: inout String) {
@@ -406,11 +456,13 @@ func SanitizeString2(_ `in`: inout String, _ out: inout String) {
 }
 
 /**
+```
 ==================
 G_ClientNumberFromStrippedName
 
 Same as above, but strips special characters out of the names before comparing.
 ==================
+```
 */
 /// Source: oracle/codemp/game/g_cmds.c:1946
 func G_ClientNumberFromStrippedName(_ name: String) -> Int32 {
@@ -425,9 +477,11 @@ func Cmd_CallVote_f(_ ent: Entity) {
 }
 
 /**
+```
 ==================
 Cmd_Vote_f
 ==================
+```
 */
 /// Source: oracle/codemp/game/g_cmds.c:2163
 func Cmd_Vote_f(_ ent: Entity) {
@@ -436,9 +490,11 @@ func Cmd_Vote_f(_ ent: Entity) {
 }
 
 /**
+```
 ==================
 Cmd_CallTeamVote_f
 ==================
+```
 */
 /// Source: oracle/codemp/game/g_cmds.c:2206
 func Cmd_CallTeamVote_f(_ ent: Entity) {
@@ -447,9 +503,11 @@ func Cmd_CallTeamVote_f(_ ent: Entity) {
 }
 
 /**
+```
 ==================
 Cmd_TeamVote_f
 ==================
+```
 */
 /// Source: oracle/codemp/game/g_cmds.c:2370
 func Cmd_TeamVote_f(_ ent: Entity) {
@@ -458,9 +516,11 @@ func Cmd_TeamVote_f(_ ent: Entity) {
 }
 
 /**
+```
 =================
 Cmd_SetViewpos_f
 =================
+```
 */
 /// Source: oracle/codemp/game/g_cmds.c:2419
 func Cmd_SetViewpos_f(_ ent: Entity) {
@@ -469,9 +529,11 @@ func Cmd_SetViewpos_f(_ ent: Entity) {
 }
 
 /**
+```
 =================
 Cmd_Stats_f
 =================
+```
 */
 /// Source: oracle/codemp/game/g_cmds.c:2452
 func Cmd_Stats_f(_ ent: Entity) {
@@ -540,9 +602,11 @@ func TryGrapple(_ ent: Entity) -> Bool {
 }
 
 /**
+```
 =================
 ClientCommand
 =================
+```
 */
 /// Source: oracle/codemp/game/g_cmds.c:3202
 func ClientCommand(_ clientNum: Int32) {

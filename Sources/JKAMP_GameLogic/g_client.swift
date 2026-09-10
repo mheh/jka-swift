@@ -14,11 +14,14 @@ import JKAMP_Game
 // Raven wrote: void *g2SaberInstance = NULL
 // No table row for `void *`.
 
-/**QUAKED info_player_duel (1 0 1) (-16 -16 -24) (16 16 32) initial
+/**
+```
+QUAKED info_player_duel (1 0 1) (-16 -16 -24) (16 16 32) initial
 potential spawning position for duelists in duel.
 Targets will be fired when someone spawns in on them.
 "nobots" will prevent bots from using this spot.
 "nohumans" will prevent non-bots from using this spot.
+```
 */
 /// Source: oracle/codemp/game/g_client.c:27
 func SP_info_player_duel(_ ent: Entity) {
@@ -26,11 +29,14 @@ func SP_info_player_duel(_ ent: Entity) {
     portMissing("SP_info_player_duel", source: "oracle/codemp/game/g_client.c:27")
 }
 
-/**QUAKED info_player_duel1 (1 0 1) (-16 -16 -24) (16 16 32) initial
+/**
+```
+QUAKED info_player_duel1 (1 0 1) (-16 -16 -24) (16 16 32) initial
 potential spawning position for lone duelists in powerduel.
 Targets will be fired when someone spawns in on them.
 "nobots" will prevent bots from using this spot.
 "nohumans" will prevent non-bots from using this spot.
+```
 */
 /// Source: oracle/codemp/game/g_client.c:47
 func SP_info_player_duel1(_ ent: Entity) {
@@ -38,11 +44,14 @@ func SP_info_player_duel1(_ ent: Entity) {
     portMissing("SP_info_player_duel1", source: "oracle/codemp/game/g_client.c:47")
 }
 
-/**QUAKED info_player_duel2 (1 0 1) (-16 -16 -24) (16 16 32) initial
+/**
+```
+QUAKED info_player_duel2 (1 0 1) (-16 -16 -24) (16 16 32) initial
 potential spawning position for paired duelists in powerduel.
 Targets will be fired when someone spawns in on them.
 "nobots" will prevent bots from using this spot.
 "nohumans" will prevent non-bots from using this spot.
+```
 */
 /// Source: oracle/codemp/game/g_client.c:67
 func SP_info_player_duel2(_ ent: Entity) {
@@ -50,12 +59,15 @@ func SP_info_player_duel2(_ ent: Entity) {
     portMissing("SP_info_player_duel2", source: "oracle/codemp/game/g_client.c:67")
 }
 
-/**QUAKED info_player_deathmatch (1 0 1) (-16 -16 -24) (16 16 32) initial
+/**
+```
+QUAKED info_player_deathmatch (1 0 1) (-16 -16 -24) (16 16 32) initial
 potential spawning position for deathmatch games.
 The first time a player enters the game, they will be at an 'initial' spot.
 Targets will be fired when someone spawns in on them.
 "nobots" will prevent bots from using this spot.
 "nohumans" will prevent non-bots from using this spot.
+```
 */
 /// Source: oracle/codemp/game/g_client.c:88
 func SP_info_player_deathmatch(_ ent: Entity) {
@@ -63,9 +75,12 @@ func SP_info_player_deathmatch(_ ent: Entity) {
     portMissing("SP_info_player_deathmatch", source: "oracle/codemp/game/g_client.c:88")
 }
 
-/**QUAKED info_player_start (1 0 0) (-16 -16 -24) (16 16 32)
+/**
+```
+QUAKED info_player_start (1 0 0) (-16 -16 -24) (16 16 32)
 Targets will be fired when someone spawns in on them.
 equivelant to info_player_deathmatch
+```
 */
 /// Source: oracle/codemp/game/g_client.c:105
 func SP_info_player_start(_ ent: Entity) {
@@ -73,7 +88,9 @@ func SP_info_player_start(_ ent: Entity) {
     portMissing("SP_info_player_start", source: "oracle/codemp/game/g_client.c:105")
 }
 
-/**QUAKED info_player_start_red (1 0 0) (-16 -16 -24) (16 16 32) INITIAL
+/**
+```
+QUAKED info_player_start_red (1 0 0) (-16 -16 -24) (16 16 32) INITIAL
 For Red Team DM starts
 
 Targets will be fired when someone spawns in on them.
@@ -83,6 +100,7 @@ INITIAL - The first time a player enters the game, they will be at an 'initial' 
 
 "nobots" will prevent bots from using this spot.
 "nohumans" will prevent non-bots from using this spot.
+```
 */
 /// Source: oracle/codemp/game/g_client.c:121
 func SP_info_player_start_red(_ ent: Entity) {
@@ -90,7 +108,9 @@ func SP_info_player_start_red(_ ent: Entity) {
     portMissing("SP_info_player_start_red", source: "oracle/codemp/game/g_client.c:121")
 }
 
-/**QUAKED info_player_start_blue (1 0 0) (-16 -16 -24) (16 16 32) INITIAL
+/**
+```
+QUAKED info_player_start_blue (1 0 0) (-16 -16 -24) (16 16 32) INITIAL
 For Blue Team DM starts
 
 Targets will be fired when someone spawns in on them.
@@ -100,6 +120,7 @@ INITIAL - The first time a player enters the game, they will be at an 'initial' 
 
 "nobots" will prevent bots from using this spot.
 "nohumans" will prevent non-bots from using this spot.
+```
 */
 /// Source: oracle/codemp/game/g_client.c:136
 func SP_info_player_start_blue(_ ent: Entity) {
@@ -113,7 +134,9 @@ func SiegePointUse(_ `self`: Entity, _ other: Entity, _ activator: Entity) {
     portMissing("SiegePointUse", source: "oracle/codemp/game/g_client.c:140")
 }
 
-/**QUAKED info_player_siegeteam1 (1 0 0) (-16 -16 -24) (16 16 32)
+/**
+```
+QUAKED info_player_siegeteam1 (1 0 0) (-16 -16 -24) (16 16 32)
 siege start point - team1
 name and behavior of team1 depends on what is defined in the
 .siege file for this level
@@ -123,6 +146,7 @@ idealclass - if specified, this spawn point will be considered
 "ideal" for players of this class name. Corresponds to the name
 entry in the .scl (siege class) file.
 Targets will be fired when someone spawns in on them.
+```
 */
 /// Source: oracle/codemp/game/g_client.c:164
 func SP_info_player_siegeteam1(_ ent: Entity) {
@@ -130,7 +154,9 @@ func SP_info_player_siegeteam1(_ ent: Entity) {
     portMissing("SP_info_player_siegeteam1", source: "oracle/codemp/game/g_client.c:164")
 }
 
-/**QUAKED info_player_siegeteam2 (0 0 1) (-16 -16 -24) (16 16 32)
+/**
+```
+QUAKED info_player_siegeteam2 (0 0 1) (-16 -16 -24) (16 16 32)
 siege start point - team2
 name and behavior of team2 depends on what is defined in the
 .siege file for this level
@@ -140,6 +166,7 @@ idealclass - if specified, this spawn point will be considered
 "ideal" for players of this class name. Corresponds to the name
 entry in the .scl (siege class) file.
 Targets will be fired when someone spawns in on them.
+```
 */
 /// Source: oracle/codemp/game/g_client.c:200
 func SP_info_player_siegeteam2(_ ent: Entity) {
@@ -147,10 +174,13 @@ func SP_info_player_siegeteam2(_ ent: Entity) {
     portMissing("SP_info_player_siegeteam2", source: "oracle/codemp/game/g_client.c:200")
 }
 
-/**QUAKED info_player_intermission (1 0 1) (-16 -16 -24) (16 16 32) RED BLUE
+/**
+```
+QUAKED info_player_intermission (1 0 1) (-16 -16 -24) (16 16 32) RED BLUE
 The intermission will be viewed from this point.  Target an info_notnull for the view direction.
 RED - In a Siege game, the intermission will happen here if the Red (attacking) team wins
 BLUE - In a Siege game, the intermission will happen here if the Blue (defending) team wins
+```
 */
 /// Source: oracle/codemp/game/g_client.c:230
 func SP_info_player_intermission(_ ent: Entity) {
@@ -158,12 +188,15 @@ func SP_info_player_intermission(_ ent: Entity) {
     portMissing("SP_info_player_intermission", source: "oracle/codemp/game/g_client.c:230")
 }
 
-/**QUAKED info_player_intermission_red (1 0 1) (-16 -16 -24) (16 16 32)
+/**
+```
+QUAKED info_player_intermission_red (1 0 1) (-16 -16 -24) (16 16 32)
 The intermission will be viewed from this point.  Target an info_notnull for the view direction.
 
 In a Siege game, the intermission will happen here if the Red (attacking) team wins
 target - ent to look at
 target2 - ents to use when this intermission point is chosen
+```
 */
 /// Source: oracle/codemp/game/g_client.c:241
 func SP_info_player_intermission_red(_ ent: Entity) {
@@ -171,12 +204,15 @@ func SP_info_player_intermission_red(_ ent: Entity) {
     portMissing("SP_info_player_intermission_red", source: "oracle/codemp/game/g_client.c:241")
 }
 
-/**QUAKED info_player_intermission_blue (1 0 1) (-16 -16 -24) (16 16 32)
+/**
+```
+QUAKED info_player_intermission_blue (1 0 1) (-16 -16 -24) (16 16 32)
 The intermission will be viewed from this point.  Target an info_notnull for the view direction.
 
 In a Siege game, the intermission will happen here if the Blue (defending) team wins
 target - ent to look at
 target2 - ents to use when this intermission point is chosen
+```
 */
 /// Source: oracle/codemp/game/g_client.c:252
 func SP_info_player_intermission_blue(_ ent: Entity) {
@@ -202,8 +238,11 @@ func JMSaberTouch(_ `self`: Entity, _ other: Entity, _ trace: JKAMP.Trace) {
     portMissing("JMSaberTouch", source: "oracle/codemp/game/g_client.c:385")
 }
 
-/**QUAKED info_jedimaster_start (1 0 0) (-16 -16 -24) (16 16 32)
+/**
+```
+QUAKED info_jedimaster_start (1 0 0) (-16 -16 -24) (16 16 32)
 "jedi master" saber spawn point
+```
 */
 /// Source: oracle/codemp/game/g_client.c:476
 func SP_info_jedimaster_start(_ ent: Entity) {
@@ -212,10 +251,12 @@ func SP_info_jedimaster_start(_ ent: Entity) {
 }
 
 /**
+```
 ================
 SpotWouldTelefrag
 
 ================
+```
 */
 /// Source: oracle/codemp/game/g_client.c:532
 func SpotWouldTelefrag(_ spot: Entity) -> Bool {
@@ -242,11 +283,13 @@ func SelectRandomDeathmatchSpawnPoint() -> Entity? {
 }
 
 /**
+```
 ===========
 SelectRandomFurthestSpawnPoint
 
 Chooses a player start, deathmatch start, etc
 ============
+```
 */
 /// Source: oracle/codemp/game/g_client.c:654
 func SelectRandomFurthestSpawnPoint(_ avoidPoint: inout JKAShared.vec3_t, _ origin: inout JKAShared.vec3_t, _ angles: inout JKAShared.vec3_t, _ team: JKAMP.team_t) -> Entity? {
@@ -261,11 +304,13 @@ func SelectDuelSpawnPoint(_ team: Int32, _ avoidPoint: inout JKAShared.vec3_t, _
 }
 
 /**
+```
 ===========
 SelectSpawnPoint
 
 Chooses a player start, deathmatch start, etc
 ============
+```
 */
 /// Source: oracle/codemp/game/g_client.c:854
 func SelectSpawnPoint(_ avoidPoint: inout JKAShared.vec3_t, _ origin: inout JKAShared.vec3_t, _ angles: inout JKAShared.vec3_t, _ team: JKAMP.team_t) -> Entity? {
@@ -274,12 +319,14 @@ func SelectSpawnPoint(_ avoidPoint: inout JKAShared.vec3_t, _ origin: inout JKAS
 }
 
 /**
+```
 ===========
 SelectInitialSpawnPoint
 
 Try to find a spawn point marked 'initial', otherwise
 use normal spawn selection.
 ============
+```
 */
 /// Source: oracle/codemp/game/g_client.c:894
 func SelectInitialSpawnPoint(_ origin: inout JKAShared.vec3_t, _ angles: inout JKAShared.vec3_t, _ team: JKAMP.team_t) -> Entity? {
@@ -288,10 +335,12 @@ func SelectInitialSpawnPoint(_ origin: inout JKAShared.vec3_t, _ angles: inout J
 }
 
 /**
+```
 ===========
 SelectSpectatorSpawnPoint
 
 ============
+```
 */
 /// Source: oracle/codemp/game/g_client.c:921
 func SelectSpectatorSpawnPoint(_ origin: inout JKAShared.vec3_t, _ angles: inout JKAShared.vec3_t) -> Entity? {
@@ -300,9 +349,11 @@ func SelectSpectatorSpawnPoint(_ origin: inout JKAShared.vec3_t, _ angles: inout
 }
 
 /**
+```
 ===============
 InitBodyQue
 ===============
+```
 */
 /// Source: oracle/codemp/game/g_client.c:953
 func InitBodyQue() {
@@ -311,11 +362,13 @@ func InitBodyQue() {
 }
 
 /**
+```
 =============
 BodySink
 
 After sitting around for five seconds, fall into the ground and dissapear
 =============
+```
 */
 /// Source: oracle/codemp/game/g_client.c:973
 func BodySink(_ ent: Entity) {
@@ -324,12 +377,14 @@ func BodySink(_ ent: Entity) {
 }
 
 /**
+```
 =============
 CopyToBodyQue
 
 A player is respawning, so make an entity that looks
 just like the existing corpse to leave behind.
 =============
+```
 */
 /// Source: oracle/codemp/game/g_client.c:996
 private func CopyToBodyQue(_ ent: Entity) -> Bool {
@@ -338,10 +393,12 @@ private func CopyToBodyQue(_ ent: Entity) -> Bool {
 }
 
 /**
+```
 ==================
 SetClientViewAngle
 
 ==================
+```
 */
 /// Source: oracle/codemp/game/g_client.c:1116
 func SetClientViewAngle(_ ent: Entity, _ angle: inout JKAShared.vec3_t) {
@@ -362,11 +419,13 @@ func respawn(_ ent: Entity) {
 }
 
 /**
+```
 ================
 TeamCount
 
 Returns number of players on a team
 ================
+```
 */
 /// Source: oracle/codemp/game/g_client.c:1237
 func TeamCount(_ ignoreClientNum: Int32, _ team: Int32) -> JKAMP.team_t {
@@ -375,11 +434,13 @@ func TeamCount(_ ignoreClientNum: Int32, _ team: Int32) -> JKAMP.team_t {
 }
 
 /**
+```
 ================
 TeamLeader
 
 Returns the client number of the team leader
 ================
+```
 */
 /// Source: oracle/codemp/game/g_client.c:1268
 func TeamLeader(_ team: Int32) -> Int32 {
@@ -388,10 +449,12 @@ func TeamLeader(_ team: Int32) -> Int32 {
 }
 
 /**
+```
 ================
 PickTeam
 
 ================
+```
 */
 /// Source: oracle/codemp/game/g_client.c:1291
 func PickTeam(_ ignoreClientNum: Int32) -> JKAMP.team_t {
@@ -400,9 +463,11 @@ func PickTeam(_ ignoreClientNum: Int32) -> JKAMP.team_t {
 }
 
 /**
+```
 ===========
 ClientCheckName
 ============
+```
 */
 /// Source: oracle/codemp/game/g_client.c:1335
 private func ClientCleanName(_ `in`: String, _ out: inout String, _ outSize: Int32) {
@@ -429,6 +494,7 @@ func ClientUserinfoChanged(_ clientNum: Int32) {
 }
 
 /**
+```
 ===========
 ClientConnect
 
@@ -447,6 +513,7 @@ firstTime will be qtrue the very first time a client connects
 to the server machine, but qfalse on map changes and tournement
 restarts.
 ============
+```
 */
 /// Source: oracle/codemp/game/g_client.c:2258
 // TODO: Port signature
@@ -489,6 +556,7 @@ func ClientSpawn(_ ent: Entity) {
 }
 
 /**
+```
 ===========
 ClientDisconnect
 
@@ -499,6 +567,7 @@ This should NOT be called directly by any game logic,
 call trap_DropClient(), which will call this and do
 server system housekeeping.
 ============
+```
 */
 /// Source: oracle/codemp/game/g_client.c:3816
 func ClientDisconnect(_ clientNum: Int32) {

@@ -69,10 +69,12 @@ func NPC_SetFX_SpawnStates(_ ent: Entity) {
 }
 
 /**
+```
 ================
 NPC_SpotWouldTelefrag
 
 ================
+```
 */
 /// Source: oracle/codemp/game/NPC_spawn.c:831
 func NPC_SpotWouldTelefrag(_ npc: Entity) -> Bool {
@@ -94,11 +96,14 @@ func New_NPC_t(_ entNum: Int32) -> GNPC? {
 }
 
 /**
+```
 -------------------------
 NPC_StasisSpawn_Go
 -------------------------
+```
 */
 /**
+```
 qboolean NPC_StasisSpawn_Go( gentity_t *ent )
 {
 	//Setup an owner pointer if we need it
@@ -140,6 +145,7 @@ qboolean NPC_StasisSpawn_Go( gentity_t *ent )
 
 	return qtrue;
 }
+```
 */
 /// Source: oracle/codemp/game/NPC_spawn.c:1356
 func NPC_DefaultScriptFlags(_ ent: Entity) {
@@ -183,7 +189,9 @@ func SP_NPC_spawner(_ `self`: Entity) {
     portMissing("SP_NPC_spawner", source: "oracle/codemp/game/NPC_spawn.c:1973")
 }
 
-/**QUAKED NPC_Vehicle (1 0 0) (-16 -16 -24) (16 16 32) NO_PILOT_DIE SUSPENDED x x DROPTOFLOOR CINEMATIC NOTSOLID STARTINSOLID SHY
+/**
+```
+QUAKED NPC_Vehicle (1 0 0) (-16 -16 -24) (16 16 32) NO_PILOT_DIE SUSPENDED x x DROPTOFLOOR CINEMATIC NOTSOLID STARTINSOLID SHY
 NO_PILOT_DIE - die after certain amount of time of not having a pilot
 SUSPENDED - Fighters: Don't drop until someone gets in it (this only works as long as no-nw has *ever* ridden the vehicle, to simulate ships that are suspended-docked) - note: ships inside trigger_spaces do not drop when unoccupied
 CINEMATIC - Will spawn with no default AI (BS_CINEMATIC)
@@ -214,6 +222,7 @@ teamnodmg - team that NPC does not take damage from (turrets and other auto-defe
 	0 - none
 	1 - red
 	2 - blue
+```
 */
 /// Source: oracle/codemp/game/NPC_spawn.c:2103
 func NPC_VehiclePrecache(_ spawner: Entity) -> Bool {
@@ -233,11 +242,14 @@ func SP_NPC_Vehicle(_ `self`: Entity) {
     portMissing("SP_NPC_Vehicle", source: "oracle/codemp/game/NPC_spawn.c:2188")
 }
 
-/**QUAKED NPC_Kyle (1 0 0) (-16 -16 -24) (16 16 32) x RIFLEMAN PHASER TRICORDER DROPTOFLOOR CINEMATIC NOTSOLID STARTINSOLID SHY
+/**
+```
+QUAKED NPC_Kyle (1 0 0) (-16 -16 -24) (16 16 32) x RIFLEMAN PHASER TRICORDER DROPTOFLOOR CINEMATIC NOTSOLID STARTINSOLID SHY
 CINEMATIC - Will spawn with no default AI (BS_CINEMATIC)
 NOTSOLID - Starts not solid
 STARTINSOLID - Don't try to fix if spawn in solid
 SHY - Spawner is shy
+```
 */
 /// Source: oracle/codemp/game/NPC_spawn.c:2338
 func SP_NPC_Kyle(_ `self`: Entity) {
@@ -245,12 +257,15 @@ func SP_NPC_Kyle(_ `self`: Entity) {
     portMissing("SP_NPC_Kyle", source: "oracle/codemp/game/NPC_spawn.c:2338")
 }
 
-/**QUAKED NPC_Lando(1 0 0) (-16 -16 -24) (16 16 40) x x x x DROPTOFLOOR CINEMATIC NOTSOLID STARTINSOLID SHY
+/**
+```
+QUAKED NPC_Lando(1 0 0) (-16 -16 -24) (16 16 40) x x x x DROPTOFLOOR CINEMATIC NOTSOLID STARTINSOLID SHY
 DROPTOFLOOR - NPC can be in air, but will spawn on the closest floor surface below it
 CINEMATIC - Will spawn with no default AI (BS_CINEMATIC)
 NOTSOLID - Starts not solid
 STARTINSOLID - Don't try to fix if spawn in solid
 SHY - Spawner is shy
+```
 */
 /// Source: oracle/codemp/game/NPC_spawn.c:2354
 func SP_NPC_Lando(_ `self`: Entity) {
@@ -258,12 +273,15 @@ func SP_NPC_Lando(_ `self`: Entity) {
     portMissing("SP_NPC_Lando", source: "oracle/codemp/game/NPC_spawn.c:2354")
 }
 
-/**QUAKED NPC_Jan(1 0 0) (-16 -16 -24) (16 16 40) x x x x DROPTOFLOOR CINEMATIC NOTSOLID STARTINSOLID SHY
+/**
+```
+QUAKED NPC_Jan(1 0 0) (-16 -16 -24) (16 16 40) x x x x DROPTOFLOOR CINEMATIC NOTSOLID STARTINSOLID SHY
 DROPTOFLOOR - NPC can be in air, but will spawn on the closest floor surface below it
 CINEMATIC - Will spawn with no default AI (BS_CINEMATIC)
 NOTSOLID - Starts not solid
 STARTINSOLID - Don't try to fix if spawn in solid
 SHY - Spawner is shy
+```
 */
 /// Source: oracle/codemp/game/NPC_spawn.c:2368
 func SP_NPC_Jan(_ `self`: Entity) {
@@ -271,12 +289,15 @@ func SP_NPC_Jan(_ `self`: Entity) {
     portMissing("SP_NPC_Jan", source: "oracle/codemp/game/NPC_spawn.c:2368")
 }
 
-/**QUAKED NPC_Luke(1 0 0) (-16 -16 -24) (16 16 40) x x x x CEILING CINEMATIC NOTSOLID STARTINSOLID SHY
+/**
+```
+QUAKED NPC_Luke(1 0 0) (-16 -16 -24) (16 16 40) x x x x CEILING CINEMATIC NOTSOLID STARTINSOLID SHY
 CEILING - Sticks to the ceiling until he sees an enemy or takes pain
 CINEMATIC - Will spawn with no default AI (BS_CINEMATIC)
 NOTSOLID - Starts not solid
 STARTINSOLID - Don't try to fix if spawn in solid
 SHY - Spawner is shy
+```
 */
 /// Source: oracle/codemp/game/NPC_spawn.c:2382
 func SP_NPC_Luke(_ `self`: Entity) {
@@ -284,12 +305,15 @@ func SP_NPC_Luke(_ `self`: Entity) {
     portMissing("SP_NPC_Luke", source: "oracle/codemp/game/NPC_spawn.c:2382")
 }
 
-/**QUAKED NPC_MonMothma(1 0 0) (-16 -16 -24) (16 16 40) x x x x DROPTOFLOOR CINEMATIC NOTSOLID STARTINSOLID SHY
+/**
+```
+QUAKED NPC_MonMothma(1 0 0) (-16 -16 -24) (16 16 40) x x x x DROPTOFLOOR CINEMATIC NOTSOLID STARTINSOLID SHY
 DROPTOFLOOR - NPC can be in air, but will spawn on the closest floor surface below it
 CINEMATIC - Will spawn with no default AI (BS_CINEMATIC)
 NOTSOLID - Starts not solid
 STARTINSOLID - Don't try to fix if spawn in solid
 SHY - Spawner is shy
+```
 */
 /// Source: oracle/codemp/game/NPC_spawn.c:2398
 func SP_NPC_MonMothma(_ `self`: Entity) {
@@ -297,12 +321,15 @@ func SP_NPC_MonMothma(_ `self`: Entity) {
     portMissing("SP_NPC_MonMothma", source: "oracle/codemp/game/NPC_spawn.c:2398")
 }
 
-/**QUAKED NPC_Tavion (1 0 0) (-16 -16 -24) (16 16 32) x x x x CEILING CINEMATIC NOTSOLID STARTINSOLID SHY
+/**
+```
+QUAKED NPC_Tavion (1 0 0) (-16 -16 -24) (16 16 32) x x x x CEILING CINEMATIC NOTSOLID STARTINSOLID SHY
 CEILING - Sticks to the ceiling until he sees an enemy or takes pain
 CINEMATIC - Will spawn with no default AI (BS_CINEMATIC)
 NOTSOLID - Starts not solid
 STARTINSOLID - Don't try to fix if spawn in solid
 SHY - Spawner is shy
+```
 */
 /// Source: oracle/codemp/game/NPC_spawn.c:2412
 func SP_NPC_Tavion(_ `self`: Entity) {
@@ -310,7 +337,9 @@ func SP_NPC_Tavion(_ `self`: Entity) {
     portMissing("SP_NPC_Tavion", source: "oracle/codemp/game/NPC_spawn.c:2412")
 }
 
-/**QUAKED NPC_Tavion_New (1 0 0) (-16 -16 -24) (16 16 32) SCEPTER SITH_SWORD x x CEILING CINEMATIC NOTSOLID STARTINSOLID SHY
+/**
+```
+QUAKED NPC_Tavion_New (1 0 0) (-16 -16 -24) (16 16 32) SCEPTER SITH_SWORD x x CEILING CINEMATIC NOTSOLID STARTINSOLID SHY
 Has a red lightsaber and force powers, uses her saber style from JK2
 
 SCEPTER - Has a red lightsaber and force powers, Ragnos' Scepter in left hand, uses dual saber style and occasionally attacks with Scepter
@@ -320,6 +349,7 @@ CINEMATIC - Will spawn with no default AI (BS_CINEMATIC)
 NOTSOLID - Starts not solid
 STARTINSOLID - Don't try to fix if spawn in solid
 SHY - Spawner is shy
+```
 */
 /// Source: oracle/codemp/game/NPC_spawn.c:2432
 func SP_NPC_Tavion_New(_ `self`: Entity) {
@@ -327,7 +357,9 @@ func SP_NPC_Tavion_New(_ `self`: Entity) {
     portMissing("SP_NPC_Tavion_New", source: "oracle/codemp/game/NPC_spawn.c:2432")
 }
 
-/**QUAKED NPC_Alora (1 0 0) (-16 -16 -24) (16 16 32) DUAL x x x CEILING CINEMATIC NOTSOLID STARTINSOLID SHY
+/**
+```
+QUAKED NPC_Alora (1 0 0) (-16 -16 -24) (16 16 32) DUAL x x x CEILING CINEMATIC NOTSOLID STARTINSOLID SHY
 Lightsaber and level 2 force powers, 300 health
 
 DUAL - Dual sabers and level 3 force powers, 500 health
@@ -336,6 +368,7 @@ CINEMATIC - Will spawn with no default AI (BS_CINEMATIC)
 NOTSOLID - Starts not solid
 STARTINSOLID - Don't try to fix if spawn in solid
 SHY - Spawner is shy
+```
 */
 /// Source: oracle/codemp/game/NPC_spawn.c:2460
 func SP_NPC_Alora(_ `self`: Entity) {
@@ -343,7 +376,9 @@ func SP_NPC_Alora(_ `self`: Entity) {
     portMissing("SP_NPC_Alora", source: "oracle/codemp/game/NPC_spawn.c:2460")
 }
 
-/**QUAKED NPC_Reborn_New(1 0 0) (-16 -16 -24) (16 16 40) DUAL STAFF WEAK x CEILING CINEMATIC NOTSOLID STARTINSOLID SHY
+/**
+```
+QUAKED NPC_Reborn_New(1 0 0) (-16 -16 -24) (16 16 40) DUAL STAFF WEAK x CEILING CINEMATIC NOTSOLID STARTINSOLID SHY
 
 Reborn is an excellent lightsaber fighter, acrobatic and uses force powers.  Full-length red saber, 200 health.
 
@@ -355,6 +390,7 @@ CINEMATIC - Will spawn with no default AI (BS_CINEMATIC)
 NOTSOLID - Starts not solid
 STARTINSOLID - Don't try to fix if spawn in solid
 SHY - Spawner is shy
+```
 */
 /// Source: oracle/codemp/game/NPC_spawn.c:2487
 func SP_NPC_Reborn_New(_ `self`: Entity) {
@@ -362,7 +398,9 @@ func SP_NPC_Reborn_New(_ `self`: Entity) {
     portMissing("SP_NPC_Reborn_New", source: "oracle/codemp/game/NPC_spawn.c:2487")
 }
 
-/**QUAKED NPC_Cultist_Saber(1 0 0) (-16 -16 -24) (16 16 40) MED STRONG ALL THROW CEILING CINEMATIC NOTSOLID STARTINSOLID SHY
+/**
+```
+QUAKED NPC_Cultist_Saber(1 0 0) (-16 -16 -24) (16 16 40) MED STRONG ALL THROW CEILING CINEMATIC NOTSOLID STARTINSOLID SHY
 Uses a saber and no force powers.  100 health.
 
 default fencer uses fast style - weak, but can attack rapidly.  Good defense.
@@ -377,6 +415,7 @@ CINEMATIC - Will spawn with no default AI (BS_CINEMATIC)
 NOTSOLID - Starts not solid
 STARTINSOLID - Don't try to fix if spawn in solid
 SHY - Spawner is shy
+```
 */
 /// Source: oracle/codemp/game/NPC_spawn.c:2542
 func SP_NPC_Cultist_Saber(_ `self`: Entity) {
@@ -384,7 +423,9 @@ func SP_NPC_Cultist_Saber(_ `self`: Entity) {
     portMissing("SP_NPC_Cultist_Saber", source: "oracle/codemp/game/NPC_spawn.c:2542")
 }
 
-/**QUAKED NPC_Cultist_Saber_Powers(1 0 0) (-16 -16 -24) (16 16 40) MED STRONG ALL THROW CEILING CINEMATIC NOTSOLID STARTINSOLID SHY
+/**
+```
+QUAKED NPC_Cultist_Saber_Powers(1 0 0) (-16 -16 -24) (16 16 40) MED STRONG ALL THROW CEILING CINEMATIC NOTSOLID STARTINSOLID SHY
 Uses a saber and has a couple low-level powers.  150 health.
 
 default fencer uses fast style - weak, but can attack rapidly.  Good defense.
@@ -399,6 +440,7 @@ CINEMATIC - Will spawn with no default AI (BS_CINEMATIC)
 NOTSOLID - Starts not solid
 STARTINSOLID - Don't try to fix if spawn in solid
 SHY - Spawner is shy
+```
 */
 /// Source: oracle/codemp/game/NPC_spawn.c:2611
 func SP_NPC_Cultist_Saber_Powers(_ `self`: Entity) {
@@ -406,7 +448,9 @@ func SP_NPC_Cultist_Saber_Powers(_ `self`: Entity) {
     portMissing("SP_NPC_Cultist_Saber_Powers", source: "oracle/codemp/game/NPC_spawn.c:2611")
 }
 
-/**QUAKED NPC_Cultist(1 0 0) (-16 -16 -24) (16 16 40) SABER GRIP LIGHTNING DRAIN CEILING CINEMATIC NOTSOLID STARTINSOLID SHY
+/**
+```
+QUAKED NPC_Cultist(1 0 0) (-16 -16 -24) (16 16 40) SABER GRIP LIGHTNING DRAIN CEILING CINEMATIC NOTSOLID STARTINSOLID SHY
 
 Cultist uses a blaster and force powers.  40 health.
 
@@ -420,6 +464,7 @@ CINEMATIC - Will spawn with no default AI (BS_CINEMATIC)
 NOTSOLID - Starts not solid
 STARTINSOLID - Don't try to fix if spawn in solid
 SHY - Spawner is shy
+```
 */
 /// Source: oracle/codemp/game/NPC_spawn.c:2679
 func SP_NPC_Cultist(_ `self`: Entity) {
@@ -427,7 +472,9 @@ func SP_NPC_Cultist(_ `self`: Entity) {
     portMissing("SP_NPC_Cultist", source: "oracle/codemp/game/NPC_spawn.c:2679")
 }
 
-/**QUAKED NPC_Cultist_Commando(1 0 0) (-16 -16 -24) (16 16 40) x x x x CEILING CINEMATIC NOTSOLID STARTINSOLID SHY
+/**
+```
+QUAKED NPC_Cultist_Commando(1 0 0) (-16 -16 -24) (16 16 40) x x x x CEILING CINEMATIC NOTSOLID STARTINSOLID SHY
 
 Cultist uses dual blaster pistols and force powers.  40 health.
 
@@ -436,6 +483,7 @@ CINEMATIC - Will spawn with no default AI (BS_CINEMATIC)
 NOTSOLID - Starts not solid
 STARTINSOLID - Don't try to fix if spawn in solid
 SHY - Spawner is shy
+```
 */
 /// Source: oracle/codemp/game/NPC_spawn.c:2737
 func SP_NPC_Cultist_Commando(_ `self`: Entity) {
@@ -443,7 +491,9 @@ func SP_NPC_Cultist_Commando(_ `self`: Entity) {
     portMissing("SP_NPC_Cultist_Commando", source: "oracle/codemp/game/NPC_spawn.c:2737")
 }
 
-/**QUAKED NPC_Cultist_Destroyer(1 0 0) (-16 -16 -24) (16 16 40) x x x x CEILING CINEMATIC NOTSOLID STARTINSOLID SHY
+/**
+```
+QUAKED NPC_Cultist_Destroyer(1 0 0) (-16 -16 -24) (16 16 40) x x x x CEILING CINEMATIC NOTSOLID STARTINSOLID SHY
 
 Cultist has no weapons, runs up to you chanting & building up a Force Destruction blast - when gets to you, screams & explodes
 
@@ -452,6 +502,7 @@ CINEMATIC - Will spawn with no default AI (BS_CINEMATIC)
 NOTSOLID - Starts not solid
 STARTINSOLID - Don't try to fix if spawn in solid
 SHY - Spawner is shy
+```
 */
 /// Source: oracle/codemp/game/NPC_spawn.c:2755
 func SP_NPC_Cultist_Destroyer(_ `self`: Entity) {
@@ -459,12 +510,15 @@ func SP_NPC_Cultist_Destroyer(_ `self`: Entity) {
     portMissing("SP_NPC_Cultist_Destroyer", source: "oracle/codemp/game/NPC_spawn.c:2755")
 }
 
-/**QUAKED NPC_Reelo(1 0 0) (-16 -16 -24) (16 16 40) x x x x DROPTOFLOOR CINEMATIC NOTSOLID STARTINSOLID SHY
+/**
+```
+QUAKED NPC_Reelo(1 0 0) (-16 -16 -24) (16 16 40) x x x x DROPTOFLOOR CINEMATIC NOTSOLID STARTINSOLID SHY
 DROPTOFLOOR - NPC can be in air, but will spawn on the closest floor surface below it
 CINEMATIC - Will spawn with no default AI (BS_CINEMATIC)
 NOTSOLID - Starts not solid
 STARTINSOLID - Don't try to fix if spawn in solid
 SHY - Spawner is shy
+```
 */
 /// Source: oracle/codemp/game/NPC_spawn.c:2768
 func SP_NPC_Reelo(_ `self`: Entity) {
@@ -472,7 +526,9 @@ func SP_NPC_Reelo(_ `self`: Entity) {
     portMissing("SP_NPC_Reelo", source: "oracle/codemp/game/NPC_spawn.c:2768")
 }
 
-/**QUAKED NPC_Galak(1 0 0) (-16 -16 -24) (16 16 40) MECH x x x DROPTOFLOOR CINEMATIC NOTSOLID STARTINSOLID SHY
+/**
+```
+QUAKED NPC_Galak(1 0 0) (-16 -16 -24) (16 16 40) MECH x x x DROPTOFLOOR CINEMATIC NOTSOLID STARTINSOLID SHY
 MECH - will be the armored Galak
 
 DROPTOFLOOR - NPC can be in air, but will spawn on the closest floor surface below it
@@ -480,6 +536,7 @@ CINEMATIC - Will spawn with no default AI (BS_CINEMATIC)
 NOTSOLID - Starts not solid
 STARTINSOLID - Don't try to fix if spawn in solid
 SHY - Spawner is shy
+```
 */
 /// Source: oracle/codemp/game/NPC_spawn.c:2784
 func SP_NPC_Galak(_ `self`: Entity) {
@@ -487,12 +544,15 @@ func SP_NPC_Galak(_ `self`: Entity) {
     portMissing("SP_NPC_Galak", source: "oracle/codemp/game/NPC_spawn.c:2784")
 }
 
-/**QUAKED NPC_Desann(1 0 0) (-16 -16 -24) (16 16 40) x x x x CEILING CINEMATIC NOTSOLID STARTINSOLID SHY
+/**
+```
+QUAKED NPC_Desann(1 0 0) (-16 -16 -24) (16 16 40) x x x x CEILING CINEMATIC NOTSOLID STARTINSOLID SHY
 CEILING - Sticks to the ceiling until he sees an enemy or takes pain
 CINEMATIC - Will spawn with no default AI (BS_CINEMATIC)
 NOTSOLID - Starts not solid
 STARTINSOLID - Don't try to fix if spawn in solid
 SHY - Spawner is shy
+```
 */
 /// Source: oracle/codemp/game/NPC_spawn.c:2806
 func SP_NPC_Desann(_ `self`: Entity) {
@@ -500,12 +560,15 @@ func SP_NPC_Desann(_ `self`: Entity) {
     portMissing("SP_NPC_Desann", source: "oracle/codemp/game/NPC_spawn.c:2806")
 }
 
-/**QUAKED NPC_Bartender(1 0 0) (-16 -16 -24) (16 16 40) x x x x DROPTOFLOOR CINEMATIC NOTSOLID STARTINSOLID SHY
+/**
+```
+QUAKED NPC_Bartender(1 0 0) (-16 -16 -24) (16 16 40) x x x x DROPTOFLOOR CINEMATIC NOTSOLID STARTINSOLID SHY
 DROPTOFLOOR - NPC can be in air, but will spawn on the closest floor surface below it
 CINEMATIC - Will spawn with no default AI (BS_CINEMATIC)
 NOTSOLID - Starts not solid
 STARTINSOLID - Don't try to fix if spawn in solid
 SHY - Spawner is shy
+```
 */
 /// Source: oracle/codemp/game/NPC_spawn.c:2822
 func SP_NPC_Bartender(_ `self`: Entity) {
@@ -513,12 +576,15 @@ func SP_NPC_Bartender(_ `self`: Entity) {
     portMissing("SP_NPC_Bartender", source: "oracle/codemp/game/NPC_spawn.c:2822")
 }
 
-/**QUAKED NPC_MorganKatarn(1 0 0) (-16 -16 -24) (16 16 40) x x x x DROPTOFLOOR CINEMATIC NOTSOLID STARTINSOLID SHY
+/**
+```
+QUAKED NPC_MorganKatarn(1 0 0) (-16 -16 -24) (16 16 40) x x x x DROPTOFLOOR CINEMATIC NOTSOLID STARTINSOLID SHY
 DROPTOFLOOR - NPC can be in air, but will spawn on the closest floor surface below it
 CINEMATIC - Will spawn with no default AI (BS_CINEMATIC)
 NOTSOLID - Starts not solid
 STARTINSOLID - Don't try to fix if spawn in solid
 SHY - Spawner is shy
+```
 */
 /// Source: oracle/codemp/game/NPC_spawn.c:2836
 func SP_NPC_MorganKatarn(_ `self`: Entity) {
@@ -526,7 +592,9 @@ func SP_NPC_MorganKatarn(_ `self`: Entity) {
     portMissing("SP_NPC_MorganKatarn", source: "oracle/codemp/game/NPC_spawn.c:2836")
 }
 
-/**QUAKED NPC_Jedi(1 0 0) (-16 -16 -24) (16 16 40) TRAINER x x x CEILING CINEMATIC NOTSOLID STARTINSOLID SHY
+/**
+```
+QUAKED NPC_Jedi(1 0 0) (-16 -16 -24) (16 16 40) TRAINER x x x CEILING CINEMATIC NOTSOLID STARTINSOLID SHY
 TRAINER - Special Jedi- instructor
 CEILING - Sticks to the ceiling until he sees an enemy or takes pain
 CINEMATIC - Will spawn with no default AI (BS_CINEMATIC)
@@ -535,6 +603,7 @@ STARTINSOLID - Don't try to fix if spawn in solid
 SHY - Spawner is shy
 
 Ally Jedi NPC Buddy - tags along with player
+```
 */
 /// Source: oracle/codemp/game/NPC_spawn.c:2857
 func SP_NPC_Jedi(_ `self`: Entity) {
@@ -542,12 +611,15 @@ func SP_NPC_Jedi(_ `self`: Entity) {
     portMissing("SP_NPC_Jedi", source: "oracle/codemp/game/NPC_spawn.c:2857")
 }
 
-/**QUAKED NPC_Prisoner(1 0 0) (-16 -16 -24) (16 16 40) x x x x DROPTOFLOOR CINEMATIC NOTSOLID STARTINSOLID SHY
+/**
+```
+QUAKED NPC_Prisoner(1 0 0) (-16 -16 -24) (16 16 40) x x x x DROPTOFLOOR CINEMATIC NOTSOLID STARTINSOLID SHY
 DROPTOFLOOR - NPC can be in air, but will spawn on the closest floor surface below it
 CINEMATIC - Will spawn with no default AI (BS_CINEMATIC)
 NOTSOLID - Starts not solid
 STARTINSOLID - Don't try to fix if spawn in solid
 SHY - Spawner is shy
+```
 */
 /// Source: oracle/codemp/game/NPC_spawn.c:2896
 func SP_NPC_Prisoner(_ `self`: Entity) {
@@ -555,12 +627,15 @@ func SP_NPC_Prisoner(_ `self`: Entity) {
     portMissing("SP_NPC_Prisoner", source: "oracle/codemp/game/NPC_spawn.c:2896")
 }
 
-/**QUAKED NPC_Rebel(1 0 0) (-16 -16 -24) (16 16 40) x x x x DROPTOFLOOR CINEMATIC NOTSOLID STARTINSOLID SHY
+/**
+```
+QUAKED NPC_Rebel(1 0 0) (-16 -16 -24) (16 16 40) x x x x DROPTOFLOOR CINEMATIC NOTSOLID STARTINSOLID SHY
 DROPTOFLOOR - NPC can be in air, but will spawn on the closest floor surface below it
 CINEMATIC - Will spawn with no default AI (BS_CINEMATIC)
 NOTSOLID - Starts not solid
 STARTINSOLID - Don't try to fix if spawn in solid
 SHY - Spawner is shy
+```
 */
 /// Source: oracle/codemp/game/NPC_spawn.c:2920
 func SP_NPC_Rebel(_ `self`: Entity) {
@@ -568,7 +643,9 @@ func SP_NPC_Rebel(_ `self`: Entity) {
     portMissing("SP_NPC_Rebel", source: "oracle/codemp/game/NPC_spawn.c:2920")
 }
 
-/**QUAKED NPC_Stormtrooper(1 0 0) (-16 -16 -24) (16 16 40) OFFICER COMMANDER ALTOFFICER ROCKET DROPTOFLOOR CINEMATIC NOTSOLID STARTINSOLID SHY
+/**
+```
+QUAKED NPC_Stormtrooper(1 0 0) (-16 -16 -24) (16 16 40) OFFICER COMMANDER ALTOFFICER ROCKET DROPTOFLOOR CINEMATIC NOTSOLID STARTINSOLID SHY
 30 health, blaster
 
 OFFICER - 60 health, flechette
@@ -581,6 +658,7 @@ CINEMATIC - Will spawn with no default AI (BS_CINEMATIC)
 NOTSOLID - Starts not solid
 STARTINSOLID - Don't try to fix if spawn in solid
 SHY - Spawner is shy
+```
 */
 /// Source: oracle/codemp/game/NPC_spawn.c:2955
 func SP_NPC_Stormtrooper(_ `self`: Entity) {
@@ -594,7 +672,9 @@ func SP_NPC_StormtrooperOfficer(_ `self`: Entity) {
     portMissing("SP_NPC_StormtrooperOfficer", source: "oracle/codemp/game/NPC_spawn.c:2987")
 }
 
-/**QUAKED NPC_Snowtrooper(1 0 0) (-16 -16 -24) (16 16 40) x x x x DROPTOFLOOR CINEMATIC NOTSOLID STARTINSOLID SHY
+/**
+```
+QUAKED NPC_Snowtrooper(1 0 0) (-16 -16 -24) (16 16 40) x x x x DROPTOFLOOR CINEMATIC NOTSOLID STARTINSOLID SHY
 30 health, blaster
 
 DROPTOFLOOR - NPC can be in air, but will spawn on the closest floor surface below it
@@ -602,6 +682,7 @@ CINEMATIC - Will spawn with no default AI (BS_CINEMATIC)
 NOTSOLID - Starts not solid
 STARTINSOLID - Don't try to fix if spawn in solid
 SHY - Spawner is shy
+```
 */
 /// Source: oracle/codemp/game/NPC_spawn.c:3001
 func SP_NPC_Snowtrooper(_ `self`: Entity) {
@@ -609,7 +690,9 @@ func SP_NPC_Snowtrooper(_ `self`: Entity) {
     portMissing("SP_NPC_Snowtrooper", source: "oracle/codemp/game/NPC_spawn.c:3001")
 }
 
-/**QUAKED NPC_Tie_Pilot(1 0 0) (-16 -16 -24) (16 16 40) x x x x DROPTOFLOOR CINEMATIC NOTSOLID STARTINSOLID SHY
+/**
+```
+QUAKED NPC_Tie_Pilot(1 0 0) (-16 -16 -24) (16 16 40) x x x x DROPTOFLOOR CINEMATIC NOTSOLID STARTINSOLID SHY
 30 health, blaster
 
 DROPTOFLOOR - NPC can be in air, but will spawn on the closest floor surface below it
@@ -617,6 +700,7 @@ CINEMATIC - Will spawn with no default AI (BS_CINEMATIC)
 NOTSOLID - Starts not solid
 STARTINSOLID - Don't try to fix if spawn in solid
 SHY - Spawner is shy
+```
 */
 /// Source: oracle/codemp/game/NPC_spawn.c:3016
 func SP_NPC_Tie_Pilot(_ `self`: Entity) {
@@ -624,12 +708,15 @@ func SP_NPC_Tie_Pilot(_ `self`: Entity) {
     portMissing("SP_NPC_Tie_Pilot", source: "oracle/codemp/game/NPC_spawn.c:3016")
 }
 
-/**QUAKED NPC_Ugnaught(1 0 0) (-16 -16 -24) (16 16 40) x x x x DROPTOFLOOR CINEMATIC NOTSOLID STARTINSOLID SHY
+/**
+```
+QUAKED NPC_Ugnaught(1 0 0) (-16 -16 -24) (16 16 40) x x x x DROPTOFLOOR CINEMATIC NOTSOLID STARTINSOLID SHY
 DROPTOFLOOR - NPC can be in air, but will spawn on the closest floor surface below it
 CINEMATIC - Will spawn with no default AI (BS_CINEMATIC)
 NOTSOLID - Starts not solid
 STARTINSOLID - Don't try to fix if spawn in solid
 SHY - Spawner is shy
+```
 */
 /// Source: oracle/codemp/game/NPC_spawn.c:3030
 func SP_NPC_Ugnaught(_ `self`: Entity) {
@@ -637,7 +724,9 @@ func SP_NPC_Ugnaught(_ `self`: Entity) {
     portMissing("SP_NPC_Ugnaught", source: "oracle/codemp/game/NPC_spawn.c:3030")
 }
 
-/**QUAKED NPC_Jawa(1 0 0) (-16 -16 -24) (16 16 40) ARMED x x x DROPTOFLOOR CINEMATIC NOTSOLID STARTINSOLID SHY
+/**
+```
+QUAKED NPC_Jawa(1 0 0) (-16 -16 -24) (16 16 40) ARMED x x x DROPTOFLOOR CINEMATIC NOTSOLID STARTINSOLID SHY
 ARMED - starts with the Jawa gun in-hand
 
 DROPTOFLOOR - NPC can be in air, but will spawn on the closest floor surface below it
@@ -645,6 +734,7 @@ CINEMATIC - Will spawn with no default AI (BS_CINEMATIC)
 NOTSOLID - Starts not solid
 STARTINSOLID - Don't try to fix if spawn in solid
 SHY - Spawner is shy
+```
 */
 /// Source: oracle/codemp/game/NPC_spawn.c:3056
 func SP_NPC_Jawa(_ `self`: Entity) {
@@ -652,7 +742,9 @@ func SP_NPC_Jawa(_ `self`: Entity) {
     portMissing("SP_NPC_Jawa", source: "oracle/codemp/game/NPC_spawn.c:3056")
 }
 
-/**QUAKED NPC_Gran(1 0 0) (-16 -16 -24) (16 16 40) SHOOTER BOXER x x DROPTOFLOOR CINEMATIC NOTSOLID STARTINSOLID SHY
+/**
+```
+QUAKED NPC_Gran(1 0 0) (-16 -16 -24) (16 16 40) SHOOTER BOXER x x DROPTOFLOOR CINEMATIC NOTSOLID STARTINSOLID SHY
 Uses grenade
 
 SHOOTER - uses blaster instead of
@@ -662,6 +754,7 @@ CINEMATIC - Will spawn with no default AI (BS_CINEMATIC)
 NOTSOLID - Starts not solid
 STARTINSOLID - Don't try to fix if spawn in solid
 SHY - Spawner is shy
+```
 */
 /// Source: oracle/codemp/game/NPC_spawn.c:3084
 func SP_NPC_Gran(_ `self`: Entity) {
@@ -669,7 +762,9 @@ func SP_NPC_Gran(_ `self`: Entity) {
     portMissing("SP_NPC_Gran", source: "oracle/codemp/game/NPC_spawn.c:3084")
 }
 
-/**QUAKED NPC_Rodian(1 0 0) (-16 -16 -24) (16 16 40) BLASTER NO_HIDE x x DROPTOFLOOR CINEMATIC NOTSOLID STARTINSOLID SHY
+/**
+```
+QUAKED NPC_Rodian(1 0 0) (-16 -16 -24) (16 16 40) BLASTER NO_HIDE x x DROPTOFLOOR CINEMATIC NOTSOLID STARTINSOLID SHY
 BLASTER uses a blaster instead of sniper rifle, different skin
 NO_HIDE (only applicable with snipers) does not duck and hide between shots
 DROPTOFLOOR - NPC can be in air, but will spawn on the closest floor surface below it
@@ -677,6 +772,7 @@ CINEMATIC - Will spawn with no default AI (BS_CINEMATIC)
 NOTSOLID - Starts not solid
 STARTINSOLID - Don't try to fix if spawn in solid
 SHY - Spawner is shy
+```
 */
 /// Source: oracle/codemp/game/NPC_spawn.c:3121
 func SP_NPC_Rodian(_ `self`: Entity) {
@@ -684,12 +780,15 @@ func SP_NPC_Rodian(_ `self`: Entity) {
     portMissing("SP_NPC_Rodian", source: "oracle/codemp/game/NPC_spawn.c:3121")
 }
 
-/**QUAKED NPC_Weequay(1 0 0) (-16 -16 -24) (16 16 40) x x x x DROPTOFLOOR CINEMATIC NOTSOLID STARTINSOLID SHY
+/**
+```
+QUAKED NPC_Weequay(1 0 0) (-16 -16 -24) (16 16 40) x x x x DROPTOFLOOR CINEMATIC NOTSOLID STARTINSOLID SHY
 DROPTOFLOOR - NPC can be in air, but will spawn on the closest floor surface below it
 CINEMATIC - Will spawn with no default AI (BS_CINEMATIC)
 NOTSOLID - Starts not solid
 STARTINSOLID - Don't try to fix if spawn in solid
 SHY - Spawner is shy
+```
 */
 /// Source: oracle/codemp/game/NPC_spawn.c:3145
 func SP_NPC_Weequay(_ `self`: Entity) {
@@ -697,12 +796,15 @@ func SP_NPC_Weequay(_ `self`: Entity) {
     portMissing("SP_NPC_Weequay", source: "oracle/codemp/game/NPC_spawn.c:3145")
 }
 
-/**QUAKED NPC_Trandoshan(1 0 0) (-16 -16 -24) (16 16 40) x x x x DROPTOFLOOR CINEMATIC NOTSOLID STARTINSOLID SHY
+/**
+```
+QUAKED NPC_Trandoshan(1 0 0) (-16 -16 -24) (16 16 40) x x x x DROPTOFLOOR CINEMATIC NOTSOLID STARTINSOLID SHY
 DROPTOFLOOR - NPC can be in air, but will spawn on the closest floor surface below it
 CINEMATIC - Will spawn with no default AI (BS_CINEMATIC)
 NOTSOLID - Starts not solid
 STARTINSOLID - Don't try to fix if spawn in solid
 SHY - Spawner is shy
+```
 */
 /// Source: oracle/codemp/game/NPC_spawn.c:3176
 func SP_NPC_Trandoshan(_ `self`: Entity) {
@@ -710,12 +812,15 @@ func SP_NPC_Trandoshan(_ `self`: Entity) {
     portMissing("SP_NPC_Trandoshan", source: "oracle/codemp/game/NPC_spawn.c:3176")
 }
 
-/**QUAKED NPC_Tusken(1 0 0) (-16 -16 -24) (16 16 40) SNIPER x x x DROPTOFLOOR CINEMATIC NOTSOLID STARTINSOLID SHY
+/**
+```
+QUAKED NPC_Tusken(1 0 0) (-16 -16 -24) (16 16 40) SNIPER x x x DROPTOFLOOR CINEMATIC NOTSOLID STARTINSOLID SHY
 DROPTOFLOOR - NPC can be in air, but will spawn on the closest floor surface below it
 CINEMATIC - Will spawn with no default AI (BS_CINEMATIC)
 NOTSOLID - Starts not solid
 STARTINSOLID - Don't try to fix if spawn in solid
 SHY - Spawner is shy
+```
 */
 /// Source: oracle/codemp/game/NPC_spawn.c:3193
 func SP_NPC_Tusken(_ `self`: Entity) {
@@ -723,12 +828,15 @@ func SP_NPC_Tusken(_ `self`: Entity) {
     portMissing("SP_NPC_Tusken", source: "oracle/codemp/game/NPC_spawn.c:3193")
 }
 
-/**QUAKED NPC_Noghri(1 0 0) (-16 -16 -24) (16 16 40) x x x x DROPTOFLOOR CINEMATIC NOTSOLID STARTINSOLID SHY
+/**
+```
+QUAKED NPC_Noghri(1 0 0) (-16 -16 -24) (16 16 40) x x x x DROPTOFLOOR CINEMATIC NOTSOLID STARTINSOLID SHY
 DROPTOFLOOR - NPC can be in air, but will spawn on the closest floor surface below it
 CINEMATIC - Will spawn with no default AI (BS_CINEMATIC)
 NOTSOLID - Starts not solid
 STARTINSOLID - Don't try to fix if spawn in solid
 SHY - Spawner is shy
+```
 */
 /// Source: oracle/codemp/game/NPC_spawn.c:3217
 func SP_NPC_Noghri(_ `self`: Entity) {
@@ -736,13 +844,16 @@ func SP_NPC_Noghri(_ `self`: Entity) {
     portMissing("SP_NPC_Noghri", source: "oracle/codemp/game/NPC_spawn.c:3217")
 }
 
-/**QUAKED NPC_SwampTrooper(1 0 0) (-16 -16 -24) (16 16 40) REPEATER x x x DROPTOFLOOR CINEMATIC NOTSOLID STARTINSOLID SHY
+/**
+```
+QUAKED NPC_SwampTrooper(1 0 0) (-16 -16 -24) (16 16 40) REPEATER x x x DROPTOFLOOR CINEMATIC NOTSOLID STARTINSOLID SHY
 REPEATER - Swaptrooper who uses the repeater
 DROPTOFLOOR - NPC can be in air, but will spawn on the closest floor surface below it
 CINEMATIC - Will spawn with no default AI (BS_CINEMATIC)
 NOTSOLID - Starts not solid
 STARTINSOLID - Don't try to fix if spawn in solid
 SHY - Spawner is shy
+```
 */
 /// Source: oracle/codemp/game/NPC_spawn.c:3235
 func SP_NPC_SwampTrooper(_ `self`: Entity) {
@@ -750,7 +861,9 @@ func SP_NPC_SwampTrooper(_ `self`: Entity) {
     portMissing("SP_NPC_SwampTrooper", source: "oracle/codemp/game/NPC_spawn.c:3235")
 }
 
-/**QUAKED NPC_Imperial(1 0 0) (-16 -16 -24) (16 16 40) OFFICER COMMANDER x x DROPTOFLOOR CINEMATIC NOTSOLID STARTINSOLID SHY
+/**
+```
+QUAKED NPC_Imperial(1 0 0) (-16 -16 -24) (16 16 40) OFFICER COMMANDER x x DROPTOFLOOR CINEMATIC NOTSOLID STARTINSOLID SHY
 
 Greyshirt grunt, uses blaster pistol, 20 health.
 
@@ -764,6 +877,7 @@ CINEMATIC - Will spawn with no default AI (BS_CINEMATIC)
 NOTSOLID - Starts not solid
 STARTINSOLID - Don't try to fix if spawn in solid
 SHY - Spawner is shy
+```
 */
 /// Source: oracle/codemp/game/NPC_spawn.c:3267
 func SP_NPC_Imperial(_ `self`: Entity) {
@@ -771,12 +885,15 @@ func SP_NPC_Imperial(_ `self`: Entity) {
     portMissing("SP_NPC_Imperial", source: "oracle/codemp/game/NPC_spawn.c:3267")
 }
 
-/**QUAKED NPC_ImpWorker(1 0 0) (-16 -16 -24) (16 16 40) x x x x DROPTOFLOOR CINEMATIC NOTSOLID STARTINSOLID SHY
+/**
+```
+QUAKED NPC_ImpWorker(1 0 0) (-16 -16 -24) (16 16 40) x x x x DROPTOFLOOR CINEMATIC NOTSOLID STARTINSOLID SHY
 DROPTOFLOOR - NPC can be in air, but will spawn on the closest floor surface below it
 CINEMATIC - Will spawn with no default AI (BS_CINEMATIC)
 NOTSOLID - Starts not solid
 STARTINSOLID - Don't try to fix if spawn in solid
 SHY - Spawner is shy
+```
 */
 /// Source: oracle/codemp/game/NPC_spawn.c:3310
 func SP_NPC_ImpWorker(_ `self`: Entity) {
@@ -784,12 +901,15 @@ func SP_NPC_ImpWorker(_ `self`: Entity) {
     portMissing("SP_NPC_ImpWorker", source: "oracle/codemp/game/NPC_spawn.c:3310")
 }
 
-/**QUAKED NPC_BespinCop(1 0 0) (-16 -16 -24) (16 16 40) x x x x DROPTOFLOOR CINEMATIC NOTSOLID STARTINSOLID SHY
+/**
+```
+QUAKED NPC_BespinCop(1 0 0) (-16 -16 -24) (16 16 40) x x x x DROPTOFLOOR CINEMATIC NOTSOLID STARTINSOLID SHY
 DROPTOFLOOR - NPC can be in air, but will spawn on the closest floor surface below it
 CINEMATIC - Will spawn with no default AI (BS_CINEMATIC)
 NOTSOLID - Starts not solid
 STARTINSOLID - Don't try to fix if spawn in solid
 SHY - Spawner is shy
+```
 */
 /// Source: oracle/codemp/game/NPC_spawn.c:3338
 func SP_NPC_BespinCop(_ `self`: Entity) {
@@ -797,7 +917,9 @@ func SP_NPC_BespinCop(_ `self`: Entity) {
     portMissing("SP_NPC_BespinCop", source: "oracle/codemp/game/NPC_spawn.c:3338")
 }
 
-/**QUAKED NPC_Reborn(1 0 0) (-16 -16 -24) (16 16 40) FORCE FENCER ACROBAT BOSS CEILING CINEMATIC NOTSOLID STARTINSOLID SHY
+/**
+```
+QUAKED NPC_Reborn(1 0 0) (-16 -16 -24) (16 16 40) FORCE FENCER ACROBAT BOSS CEILING CINEMATIC NOTSOLID STARTINSOLID SHY
 
 Default Reborn is A poor lightsaber fighter, acrobatic and uses no force powers.  Yellow saber, 40 health.
 
@@ -813,6 +935,7 @@ CINEMATIC - Will spawn with no default AI (BS_CINEMATIC)
 NOTSOLID - Starts not solid
 STARTINSOLID - Don't try to fix if spawn in solid
 SHY - Spawner is shy
+```
 */
 /// Source: oracle/codemp/game/NPC_spawn.c:3372
 func SP_NPC_Reborn(_ `self`: Entity) {
@@ -820,12 +943,15 @@ func SP_NPC_Reborn(_ `self`: Entity) {
     portMissing("SP_NPC_Reborn", source: "oracle/codemp/game/NPC_spawn.c:3372")
 }
 
-/**QUAKED NPC_ShadowTrooper(1 0 0) (-16 -16 -24) (16 16 40) x x x x CEILING CINEMATIC NOTSOLID STARTINSOLID SHY
+/**
+```
+QUAKED NPC_ShadowTrooper(1 0 0) (-16 -16 -24) (16 16 40) x x x x CEILING CINEMATIC NOTSOLID STARTINSOLID SHY
 CEILING - Sticks to the ceiling until he sees an enemy or takes pain
 CINEMATIC - Will spawn with no default AI (BS_CINEMATIC)
 NOTSOLID - Starts not solid
 STARTINSOLID - Don't try to fix if spawn in solid
 SHY - Spawner is shy
+```
 */
 /// Source: oracle/codemp/game/NPC_spawn.c:3409
 func SP_NPC_ShadowTrooper(_ `self`: Entity) {
@@ -833,12 +959,15 @@ func SP_NPC_ShadowTrooper(_ `self`: Entity) {
     portMissing("SP_NPC_ShadowTrooper", source: "oracle/codemp/game/NPC_spawn.c:3409")
 }
 
-/**QUAKED NPC_Monster_Murjj (1 0 0) (-12 -12 -24) (12 12 40) x x x x DROPTOFLOOR CINEMATIC NOTSOLID STARTINSOLID SHY
+/**
+```
+QUAKED NPC_Monster_Murjj (1 0 0) (-12 -12 -24) (12 12 40) x x x x DROPTOFLOOR CINEMATIC NOTSOLID STARTINSOLID SHY
 DROPTOFLOOR - NPC can be in air, but will spawn on the closest floor surface below it
 CINEMATIC - Will spawn with no default AI (BS_CINEMATIC)
 NOTSOLID - Starts not solid
 STARTINSOLID - Don't try to fix if spawn in solid
 SHY - Spawner is shy
+```
 */
 /// Source: oracle/codemp/game/NPC_spawn.c:3439
 func SP_NPC_Monster_Murjj(_ `self`: Entity) {
@@ -846,12 +975,15 @@ func SP_NPC_Monster_Murjj(_ `self`: Entity) {
     portMissing("SP_NPC_Monster_Murjj", source: "oracle/codemp/game/NPC_spawn.c:3439")
 }
 
-/**QUAKED NPC_Monster_Swamp (1 0 0) (-12 -12 -24) (12 12 40) x x x x DROPTOFLOOR CINEMATIC NOTSOLID STARTINSOLID SHY
+/**
+```
+QUAKED NPC_Monster_Swamp (1 0 0) (-12 -12 -24) (12 12 40) x x x x DROPTOFLOOR CINEMATIC NOTSOLID STARTINSOLID SHY
 DROPTOFLOOR - NPC can be in air, but will spawn on the closest floor surface below it
 CINEMATIC - Will spawn with no default AI (BS_CINEMATIC)
 NOTSOLID - Starts not solid
 STARTINSOLID - Don't try to fix if spawn in solid
 SHY - Spawner is shy
+```
 */
 /// Source: oracle/codemp/game/NPC_spawn.c:3453
 func SP_NPC_Monster_Swamp(_ `self`: Entity) {
@@ -859,12 +991,15 @@ func SP_NPC_Monster_Swamp(_ `self`: Entity) {
     portMissing("SP_NPC_Monster_Swamp", source: "oracle/codemp/game/NPC_spawn.c:3453")
 }
 
-/**QUAKED NPC_Monster_Howler (1 0 0) (-12 -12 -24) (12 12 40) x x x x DROPTOFLOOR CINEMATIC NOTSOLID STARTINSOLID SHY
+/**
+```
+QUAKED NPC_Monster_Howler (1 0 0) (-12 -12 -24) (12 12 40) x x x x DROPTOFLOOR CINEMATIC NOTSOLID STARTINSOLID SHY
 DROPTOFLOOR - NPC can be in air, but will spawn on the closest floor surface below it
 CINEMATIC - Will spawn with no default AI (BS_CINEMATIC)
 NOTSOLID - Starts not solid
 STARTINSOLID - Don't try to fix if spawn in solid
 SHY - Spawner is shy
+```
 */
 /// Source: oracle/codemp/game/NPC_spawn.c:3467
 func SP_NPC_Monster_Howler(_ `self`: Entity) {
@@ -872,12 +1007,15 @@ func SP_NPC_Monster_Howler(_ `self`: Entity) {
     portMissing("SP_NPC_Monster_Howler", source: "oracle/codemp/game/NPC_spawn.c:3467")
 }
 
-/**QUAKED NPC_MineMonster (1 0 0) (-12 -12 -24) (12 12 40) x x x x DROPTOFLOOR CINEMATIC NOTSOLID STARTINSOLID SHY
+/**
+```
+QUAKED NPC_MineMonster (1 0 0) (-12 -12 -24) (12 12 40) x x x x DROPTOFLOOR CINEMATIC NOTSOLID STARTINSOLID SHY
 DROPTOFLOOR - NPC can be in air, but will spawn on the closest floor surface below it
 CINEMATIC - Will spawn with no default AI (BS_CINEMATIC)
 NOTSOLID - Starts not solid
 STARTINSOLID - Don't try to fix if spawn in solid
 SHY - Spawner is shy
+```
 */
 /// Source: oracle/codemp/game/NPC_spawn.c:3481
 func SP_NPC_MineMonster(_ `self`: Entity) {
@@ -885,12 +1023,15 @@ func SP_NPC_MineMonster(_ `self`: Entity) {
     portMissing("SP_NPC_MineMonster", source: "oracle/codemp/game/NPC_spawn.c:3481")
 }
 
-/**QUAKED NPC_Monster_Claw (1 0 0) (-12 -12 -24) (12 12 40) x x x x DROPTOFLOOR CINEMATIC NOTSOLID STARTINSOLID SHY
+/**
+```
+QUAKED NPC_Monster_Claw (1 0 0) (-12 -12 -24) (12 12 40) x x x x DROPTOFLOOR CINEMATIC NOTSOLID STARTINSOLID SHY
 DROPTOFLOOR - NPC can be in air, but will spawn on the closest floor surface below it
 CINEMATIC - Will spawn with no default AI (BS_CINEMATIC)
 NOTSOLID - Starts not solid
 STARTINSOLID - Don't try to fix if spawn in solid
 SHY - Spawner is shy
+```
 */
 /// Source: oracle/codemp/game/NPC_spawn.c:3496
 func SP_NPC_Monster_Claw(_ `self`: Entity) {
@@ -898,12 +1039,15 @@ func SP_NPC_Monster_Claw(_ `self`: Entity) {
     portMissing("SP_NPC_Monster_Claw", source: "oracle/codemp/game/NPC_spawn.c:3496")
 }
 
-/**QUAKED NPC_Monster_Glider (1 0 0) (-12 -12 -24) (12 12 40) x x x x DROPTOFLOOR CINEMATIC NOTSOLID STARTINSOLID SHY
+/**
+```
+QUAKED NPC_Monster_Glider (1 0 0) (-12 -12 -24) (12 12 40) x x x x DROPTOFLOOR CINEMATIC NOTSOLID STARTINSOLID SHY
 DROPTOFLOOR - NPC can be in air, but will spawn on the closest floor surface below it
 CINEMATIC - Will spawn with no default AI (BS_CINEMATIC)
 NOTSOLID - Starts not solid
 STARTINSOLID - Don't try to fix if spawn in solid
 SHY - Spawner is shy
+```
 */
 /// Source: oracle/codemp/game/NPC_spawn.c:3510
 func SP_NPC_Monster_Glider(_ `self`: Entity) {
@@ -911,12 +1055,15 @@ func SP_NPC_Monster_Glider(_ `self`: Entity) {
     portMissing("SP_NPC_Monster_Glider", source: "oracle/codemp/game/NPC_spawn.c:3510")
 }
 
-/**QUAKED NPC_Monster_Flier2 (1 0 0) (-12 -12 -24) (12 12 40) x x x x DROPTOFLOOR CINEMATIC NOTSOLID STARTINSOLID SHY
+/**
+```
+QUAKED NPC_Monster_Flier2 (1 0 0) (-12 -12 -24) (12 12 40) x x x x DROPTOFLOOR CINEMATIC NOTSOLID STARTINSOLID SHY
 DROPTOFLOOR - NPC can be in air, but will spawn on the closest floor surface below it
 CINEMATIC - Will spawn with no default AI (BS_CINEMATIC)
 NOTSOLID - Starts not solid
 STARTINSOLID - Don't try to fix if spawn in solid
 SHY - Spawner is shy
+```
 */
 /// Source: oracle/codemp/game/NPC_spawn.c:3524
 func SP_NPC_Monster_Flier2(_ `self`: Entity) {
@@ -924,12 +1071,15 @@ func SP_NPC_Monster_Flier2(_ `self`: Entity) {
     portMissing("SP_NPC_Monster_Flier2", source: "oracle/codemp/game/NPC_spawn.c:3524")
 }
 
-/**QUAKED NPC_Monster_Lizard (1 0 0) (-12 -12 -24) (12 12 40) x x x x DROPTOFLOOR CINEMATIC NOTSOLID STARTINSOLID SHY
+/**
+```
+QUAKED NPC_Monster_Lizard (1 0 0) (-12 -12 -24) (12 12 40) x x x x DROPTOFLOOR CINEMATIC NOTSOLID STARTINSOLID SHY
 DROPTOFLOOR - NPC can be in air, but will spawn on the closest floor surface below it
 CINEMATIC - Will spawn with no default AI (BS_CINEMATIC)
 NOTSOLID - Starts not solid
 STARTINSOLID - Don't try to fix if spawn in solid
 SHY - Spawner is shy
+```
 */
 /// Source: oracle/codemp/game/NPC_spawn.c:3538
 func SP_NPC_Monster_Lizard(_ `self`: Entity) {
@@ -937,12 +1087,15 @@ func SP_NPC_Monster_Lizard(_ `self`: Entity) {
     portMissing("SP_NPC_Monster_Lizard", source: "oracle/codemp/game/NPC_spawn.c:3538")
 }
 
-/**QUAKED NPC_Monster_Fish (1 0 0) (-12 -12 -24) (12 12 40) x x x x DROPTOFLOOR CINEMATIC NOTSOLID STARTINSOLID SHY
+/**
+```
+QUAKED NPC_Monster_Fish (1 0 0) (-12 -12 -24) (12 12 40) x x x x DROPTOFLOOR CINEMATIC NOTSOLID STARTINSOLID SHY
 DROPTOFLOOR - NPC can be in air, but will spawn on the closest floor surface below it
 CINEMATIC - Will spawn with no default AI (BS_CINEMATIC)
 NOTSOLID - Starts not solid
 STARTINSOLID - Don't try to fix if spawn in solid
 SHY - Spawner is shy
+```
 */
 /// Source: oracle/codemp/game/NPC_spawn.c:3552
 func SP_NPC_Monster_Fish(_ `self`: Entity) {
@@ -950,7 +1103,9 @@ func SP_NPC_Monster_Fish(_ `self`: Entity) {
     portMissing("SP_NPC_Monster_Fish", source: "oracle/codemp/game/NPC_spawn.c:3552")
 }
 
-/**QUAKED NPC_Monster_Wampa (1 0 0) (-12 -12 -24) (12 12 40) WANDER SEARCH x x DROPTOFLOOR CINEMATIC NOTSOLID STARTINSOLID SHY
+/**
+```
+QUAKED NPC_Monster_Wampa (1 0 0) (-12 -12 -24) (12 12 40) WANDER SEARCH x x DROPTOFLOOR CINEMATIC NOTSOLID STARTINSOLID SHY
 WANDER - When I don't have an enemy, I'll just wander the waypoint network aimlessly
 SEARCH - When I don't have an enemy, I'll go back and forth between the nearest waypoints, looking for enemies
 DROPTOFLOOR - NPC can be in air, but will spawn on the closest floor surface below it
@@ -958,6 +1113,7 @@ CINEMATIC - Will spawn with no default AI (BS_CINEMATIC)
 NOTSOLID - Starts not solid
 STARTINSOLID - Don't try to fix if spawn in solid
 SHY - Spawner is shy
+```
 */
 /// Source: oracle/codemp/game/NPC_spawn.c:3568
 func SP_NPC_Monster_Wampa(_ `self`: Entity) {
@@ -965,12 +1121,15 @@ func SP_NPC_Monster_Wampa(_ `self`: Entity) {
     portMissing("SP_NPC_Monster_Wampa", source: "oracle/codemp/game/NPC_spawn.c:3568")
 }
 
-/**QUAKED NPC_Monster_Rancor (1 0 0) (-30 -30 -24) (30 30 104) x x x x DROPTOFLOOR CINEMATIC NOTSOLID STARTINSOLID SHY
+/**
+```
+QUAKED NPC_Monster_Rancor (1 0 0) (-30 -30 -24) (30 30 104) x x x x DROPTOFLOOR CINEMATIC NOTSOLID STARTINSOLID SHY
 DROPTOFLOOR - NPC can be in air, but will spawn on the closest floor surface below it
 CINEMATIC - Will spawn with no default AI (BS_CINEMATIC)
 NOTSOLID - Starts not solid
 STARTINSOLID - Don't try to fix if spawn in solid
 SHY - Spawner is shy
+```
 */
 /// Source: oracle/codemp/game/NPC_spawn.c:3584
 func SP_NPC_Monster_Rancor(_ `self`: Entity) {
@@ -978,12 +1137,15 @@ func SP_NPC_Monster_Rancor(_ `self`: Entity) {
     portMissing("SP_NPC_Monster_Rancor", source: "oracle/codemp/game/NPC_spawn.c:3584")
 }
 
-/**QUAKED NPC_Droid_Interrogator (1 0 0) (-12 -12 -24) (12 12 0) x x x x DROPTOFLOOR CINEMATIC NOTSOLID STARTINSOLID SHY
+/**
+```
+QUAKED NPC_Droid_Interrogator (1 0 0) (-12 -12 -24) (12 12 0) x x x x DROPTOFLOOR CINEMATIC NOTSOLID STARTINSOLID SHY
 DROPTOFLOOR - NPC can be in air, but will spawn on the closest floor surface below it
 CINEMATIC - Will spawn with no default AI (BS_CINEMATIC)
 NOTSOLID - Starts not solid
 STARTINSOLID - Don't try to fix if spawn in solid
 SHY - Spawner is shy
+```
 */
 /// Source: oracle/codemp/game/NPC_spawn.c:3602
 func SP_NPC_Droid_Interrogator(_ `self`: Entity) {
@@ -991,7 +1153,9 @@ func SP_NPC_Droid_Interrogator(_ `self`: Entity) {
     portMissing("SP_NPC_Droid_Interrogator", source: "oracle/codemp/game/NPC_spawn.c:3602")
 }
 
-/**QUAKED NPC_Droid_Probe (1 0 0) (-12 -12 -24) (12 12 40) x x x x DROPTOFLOOR CINEMATIC NOTSOLID STARTINSOLID SHY
+/**
+```
+QUAKED NPC_Droid_Probe (1 0 0) (-12 -12 -24) (12 12 40) x x x x DROPTOFLOOR CINEMATIC NOTSOLID STARTINSOLID SHY
 DROPTOFLOOR - NPC can be in air, but will spawn on the closest floor surface below it
 CINEMATIC - Will spawn with no default AI (BS_CINEMATIC)
 NOTSOLID - Starts not solid
@@ -999,6 +1163,7 @@ STARTINSOLID - Don't try to fix if spawn in solid
 SHY - Spawner is shy
 
 Imperial Probe Droid - the multilegged floating droid that Han and Chewie shot on the ice planet Hoth
+```
 */
 /// Source: oracle/codemp/game/NPC_spawn.c:3620
 func SP_NPC_Droid_Probe(_ `self`: Entity) {
@@ -1006,7 +1171,9 @@ func SP_NPC_Droid_Probe(_ `self`: Entity) {
     portMissing("SP_NPC_Droid_Probe", source: "oracle/codemp/game/NPC_spawn.c:3620")
 }
 
-/**QUAKED NPC_Droid_Mark1 (1 0 0) (-36 -36 -24) (36 36 80) x x x x DROPTOFLOOR CINEMATIC NOTSOLID STARTINSOLID SHY
+/**
+```
+QUAKED NPC_Droid_Mark1 (1 0 0) (-36 -36 -24) (36 36 80) x x x x DROPTOFLOOR CINEMATIC NOTSOLID STARTINSOLID SHY
 DROPTOFLOOR - NPC can be in air, but will spawn on the closest floor surface below it
 CINEMATIC - Will spawn with no default AI (BS_CINEMATIC)
 NOTSOLID - Starts not solid
@@ -1014,7 +1181,7 @@ STARTINSOLID - Don't try to fix if spawn in solid
 SHY - Spawner is shy
 
 Big walking droid
-
+```
 */
 /// Source: oracle/codemp/game/NPC_spawn.c:3639
 func SP_NPC_Droid_Mark1(_ `self`: Entity) {
@@ -1022,7 +1189,9 @@ func SP_NPC_Droid_Mark1(_ `self`: Entity) {
     portMissing("SP_NPC_Droid_Mark1", source: "oracle/codemp/game/NPC_spawn.c:3639")
 }
 
-/**QUAKED NPC_Droid_Mark2 (1 0 0) (-12 -12 -24) (12 12 40) x x x x DROPTOFLOOR CINEMATIC NOTSOLID STARTINSOLID SHY
+/**
+```
+QUAKED NPC_Droid_Mark2 (1 0 0) (-12 -12 -24) (12 12 40) x x x x DROPTOFLOOR CINEMATIC NOTSOLID STARTINSOLID SHY
 DROPTOFLOOR - NPC can be in air, but will spawn on the closest floor surface below it
 CINEMATIC - Will spawn with no default AI (BS_CINEMATIC)
 NOTSOLID - Starts not solid
@@ -1030,7 +1199,7 @@ STARTINSOLID - Don't try to fix if spawn in solid
 SHY - Spawner is shy
 
 Small rolling droid with one gun.
-
+```
 */
 /// Source: oracle/codemp/game/NPC_spawn.c:3658
 func SP_NPC_Droid_Mark2(_ `self`: Entity) {
@@ -1038,12 +1207,15 @@ func SP_NPC_Droid_Mark2(_ `self`: Entity) {
     portMissing("SP_NPC_Droid_Mark2", source: "oracle/codemp/game/NPC_spawn.c:3658")
 }
 
-/**QUAKED NPC_Droid_ATST (1 0 0) (-40 -40 -24) (40 40 248) x x x x DROPTOFLOOR CINEMATIC NOTSOLID STARTINSOLID SHY
+/**
+```
+QUAKED NPC_Droid_ATST (1 0 0) (-40 -40 -24) (40 40 248) x x x x DROPTOFLOOR CINEMATIC NOTSOLID STARTINSOLID SHY
 DROPTOFLOOR - NPC can be in air, but will spawn on the closest floor surface below it
 CINEMATIC - Will spawn with no default AI (BS_CINEMATIC)
 NOTSOLID - Starts not solid
 STARTINSOLID - Don't try to fix if spawn in solid
 SHY - Spawner is shy
+```
 */
 /// Source: oracle/codemp/game/NPC_spawn.c:3674
 func SP_NPC_Droid_ATST(_ `self`: Entity) {
@@ -1051,7 +1223,9 @@ func SP_NPC_Droid_ATST(_ `self`: Entity) {
     portMissing("SP_NPC_Droid_ATST", source: "oracle/codemp/game/NPC_spawn.c:3674")
 }
 
-/**QUAKED NPC_Droid_Remote (1 0 0) (-12 -12 -24) (12 12 40) x x x x DROPTOFLOOR CINEMATIC NOTSOLID STARTINSOLID SHY
+/**
+```
+QUAKED NPC_Droid_Remote (1 0 0) (-12 -12 -24) (12 12 40) x x x x DROPTOFLOOR CINEMATIC NOTSOLID STARTINSOLID SHY
 DROPTOFLOOR - NPC can be in air, but will spawn on the closest floor surface below it
 CINEMATIC - Will spawn with no default AI (BS_CINEMATIC)
 NOTSOLID - Starts not solid
@@ -1059,6 +1233,7 @@ STARTINSOLID - Don't try to fix if spawn in solid
 SHY - Spawner is shy
 
 Remote Droid - the floating round droid used by Obi Wan to train Luke about the force while on the Millenium Falcon.
+```
 */
 /// Source: oracle/codemp/game/NPC_spawn.c:3699
 func SP_NPC_Droid_Remote(_ `self`: Entity) {
@@ -1066,7 +1241,9 @@ func SP_NPC_Droid_Remote(_ `self`: Entity) {
     portMissing("SP_NPC_Droid_Remote", source: "oracle/codemp/game/NPC_spawn.c:3699")
 }
 
-/**QUAKED NPC_Droid_Seeker (1 0 0) (-12 -12 -24) (12 12 40) x x x x DROPTOFLOOR CINEMATIC NOTSOLID STARTINSOLID SHY
+/**
+```
+QUAKED NPC_Droid_Seeker (1 0 0) (-12 -12 -24) (12 12 40) x x x x DROPTOFLOOR CINEMATIC NOTSOLID STARTINSOLID SHY
 DROPTOFLOOR - NPC can be in air, but will spawn on the closest floor surface below it
 CINEMATIC - Will spawn with no default AI (BS_CINEMATIC)
 NOTSOLID - Starts not solid
@@ -1074,6 +1251,7 @@ STARTINSOLID - Don't try to fix if spawn in solid
 SHY - Spawner is shy
 
 Seeker Droid - floating round droids that shadow troopers spawn
+```
 */
 /// Source: oracle/codemp/game/NPC_spawn.c:3717
 func SP_NPC_Droid_Seeker(_ `self`: Entity) {
@@ -1081,7 +1259,9 @@ func SP_NPC_Droid_Seeker(_ `self`: Entity) {
     portMissing("SP_NPC_Droid_Seeker", source: "oracle/codemp/game/NPC_spawn.c:3717")
 }
 
-/**QUAKED NPC_Droid_Sentry (1 0 0) (-24 -24 -24) (24 24 40) x x x x DROPTOFLOOR CINEMATIC NOTSOLID STARTINSOLID SHY
+/**
+```
+QUAKED NPC_Droid_Sentry (1 0 0) (-24 -24 -24) (24 24 40) x x x x DROPTOFLOOR CINEMATIC NOTSOLID STARTINSOLID SHY
 DROPTOFLOOR - NPC can be in air, but will spawn on the closest floor surface below it
 CINEMATIC - Will spawn with no default AI (BS_CINEMATIC)
 NOTSOLID - Starts not solid
@@ -1089,6 +1269,7 @@ STARTINSOLID - Don't try to fix if spawn in solid
 SHY - Spawner is shy
 
 Sentry Droid - Large, armored floating Imperial droids with 3 forward-facing gun turrets
+```
 */
 /// Source: oracle/codemp/game/NPC_spawn.c:3735
 func SP_NPC_Droid_Sentry(_ `self`: Entity) {
@@ -1096,7 +1277,9 @@ func SP_NPC_Droid_Sentry(_ `self`: Entity) {
     portMissing("SP_NPC_Droid_Sentry", source: "oracle/codemp/game/NPC_spawn.c:3735")
 }
 
-/**QUAKED NPC_Droid_Gonk (1 0 0) (-12 -12 -24) (12 12 40) x x x x DROPTOFLOOR CINEMATIC NOTSOLID STARTINSOLID SHY
+/**
+```
+QUAKED NPC_Droid_Gonk (1 0 0) (-12 -12 -24) (12 12 40) x x x x DROPTOFLOOR CINEMATIC NOTSOLID STARTINSOLID SHY
 DROPTOFLOOR - NPC can be in air, but will spawn on the closest floor surface below it
 CINEMATIC - Will spawn with no default AI (BS_CINEMATIC)
 NOTSOLID - Starts not solid
@@ -1106,6 +1289,7 @@ SHY - Spawner is shy
 Gonk Droid - the droid that looks like a walking ice machine. Was in the Jawa land crawler, walking around talking to itself.
 
 NOTARGET by default
+```
 */
 /// Source: oracle/codemp/game/NPC_spawn.c:3755
 func SP_NPC_Droid_Gonk(_ `self`: Entity) {
@@ -1113,7 +1297,9 @@ func SP_NPC_Droid_Gonk(_ `self`: Entity) {
     portMissing("SP_NPC_Droid_Gonk", source: "oracle/codemp/game/NPC_spawn.c:3755")
 }
 
-/**QUAKED NPC_Droid_Mouse (1 0 0) (-12 -12 -24) (12 12 40) x x x x DROPTOFLOOR CINEMATIC NOTSOLID STARTINSOLID SHY
+/**
+```
+QUAKED NPC_Droid_Mouse (1 0 0) (-12 -12 -24) (12 12 40) x x x x DROPTOFLOOR CINEMATIC NOTSOLID STARTINSOLID SHY
 DROPTOFLOOR - NPC can be in air, but will spawn on the closest floor surface below it
 CINEMATIC - Will spawn with no default AI (BS_CINEMATIC)
 NOTSOLID - Starts not solid
@@ -1123,6 +1309,7 @@ SHY - Spawner is shy
 Mouse Droid - small, box shaped droid, first seen on the Death Star. Chewie yelled at it and it backed up and ran away.
 
 NOTARGET by default
+```
 */
 /// Source: oracle/codemp/game/NPC_spawn.c:3776
 func SP_NPC_Droid_Mouse(_ `self`: Entity) {
@@ -1130,7 +1317,9 @@ func SP_NPC_Droid_Mouse(_ `self`: Entity) {
     portMissing("SP_NPC_Droid_Mouse", source: "oracle/codemp/game/NPC_spawn.c:3776")
 }
 
-/**QUAKED NPC_Droid_R2D2 (1 0 0) (-12 -12 -24) (12 12 40) IMPERIAL x x x DROPTOFLOOR CINEMATIC NOTSOLID STARTINSOLID SHY
+/**
+```
+QUAKED NPC_Droid_R2D2 (1 0 0) (-12 -12 -24) (12 12 40) IMPERIAL x x x DROPTOFLOOR CINEMATIC NOTSOLID STARTINSOLID SHY
 DROPTOFLOOR - NPC can be in air, but will spawn on the closest floor surface below it
 CINEMATIC - Will spawn with no default AI (BS_CINEMATIC)
 NOTSOLID - Starts not solid
@@ -1140,6 +1329,7 @@ SHY - Spawner is shy
 R2D2 Droid - you probably know this one already.
 
 NOTARGET by default
+```
 */
 /// Source: oracle/codemp/game/NPC_spawn.c:3798
 func SP_NPC_Droid_R2D2(_ `self`: Entity) {
@@ -1147,7 +1337,9 @@ func SP_NPC_Droid_R2D2(_ `self`: Entity) {
     portMissing("SP_NPC_Droid_R2D2", source: "oracle/codemp/game/NPC_spawn.c:3798")
 }
 
-/**QUAKED NPC_Droid_R5D2 (1 0 0) (-12 -12 -24) (12 12 40) IMPERIAL ALWAYSDIE x x DROPTOFLOOR CINEMATIC NOTSOLID STARTINSOLID SHY
+/**
+```
+QUAKED NPC_Droid_R5D2 (1 0 0) (-12 -12 -24) (12 12 40) IMPERIAL ALWAYSDIE x x DROPTOFLOOR CINEMATIC NOTSOLID STARTINSOLID SHY
 DROPTOFLOOR - NPC can be in air, but will spawn on the closest floor surface below it
 ALWAYSDIE - won't go into spinning zombie AI when at low health.
 CINEMATIC - Will spawn with no default AI (BS_CINEMATIC)
@@ -1158,6 +1350,7 @@ SHY - Spawner is shy
 R5D2 Droid - the droid originally chosen by Uncle Owen until it blew a bad motivator, and they took R2D2 instead.
 
 NOTARGET by default
+```
 */
 /// Source: oracle/codemp/game/NPC_spawn.c:3826
 func SP_NPC_Droid_R5D2(_ `self`: Entity) {
@@ -1165,7 +1358,9 @@ func SP_NPC_Droid_R5D2(_ `self`: Entity) {
     portMissing("SP_NPC_Droid_R5D2", source: "oracle/codemp/game/NPC_spawn.c:3826")
 }
 
-/**QUAKED NPC_Droid_Protocol (1 0 0) (-12 -12 -24) (12 12 40) IMPERIAL x x x DROPTOFLOOR CINEMATIC NOTSOLID STARTINSOLID SHY
+/**
+```
+QUAKED NPC_Droid_Protocol (1 0 0) (-12 -12 -24) (12 12 40) IMPERIAL x x x DROPTOFLOOR CINEMATIC NOTSOLID STARTINSOLID SHY
 DROPTOFLOOR - NPC can be in air, but will spawn on the closest floor surface below it
 CINEMATIC - Will spawn with no default AI (BS_CINEMATIC)
 NOTSOLID - Starts not solid
@@ -1173,6 +1368,7 @@ STARTINSOLID - Don't try to fix if spawn in solid
 SHY - Spawner is shy
 
 NOTARGET by default
+```
 */
 /// Source: oracle/codemp/game/NPC_spawn.c:3851
 func SP_NPC_Droid_Protocol(_ `self`: Entity) {

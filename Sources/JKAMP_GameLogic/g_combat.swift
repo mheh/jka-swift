@@ -54,9 +54,11 @@ func ExplodeDeath(_ `self`: Entity) {
 }
 
 /**
+```
 ============
 ScorePlum
 ============
+```
 */
 /// Source: oracle/codemp/game/g_combat.c:417
 func ScorePlum(_ ent: Entity, _ origin: inout JKAShared.vec3_t, _ score: Int32) {
@@ -71,11 +73,13 @@ func AddScore(_ ent: Entity, _ origin: inout JKAShared.vec3_t, _ score: Int32) {
 }
 
 /**
+```
 =================
 TossClientItems
 
 rww - Toss the weapon away from the player in the specified direction
 =================
+```
 */
 /// Source: oracle/codemp/game/g_combat.c:469
 func TossClientWeapon(_ `self`: Entity, _ direction: inout JKAShared.vec3_t, _ speed: Float) {
@@ -84,11 +88,13 @@ func TossClientWeapon(_ `self`: Entity, _ direction: inout JKAShared.vec3_t, _ s
 }
 
 /**
+```
 =================
 TossClientItems
 
 Toss the weapon and powerups for the killed player
 =================
+```
 */
 /// Source: oracle/codemp/game/g_combat.c:568
 func TossClientItems(_ `self`: Entity) {
@@ -97,9 +103,11 @@ func TossClientItems(_ `self`: Entity) {
 }
 
 /**
+```
 ==================
 LookAtKiller
 ==================
+```
 */
 /// Source: oracle/codemp/game/g_combat.c:643
 func LookAtKiller(_ `self`: Entity, _ inflictor: Entity, _ attacker: Entity) {
@@ -108,9 +116,11 @@ func LookAtKiller(_ `self`: Entity, _ inflictor: Entity, _ attacker: Entity) {
 }
 
 /**
+```
 ==================
 GibEntity
 ==================
+```
 */
 /// Source: oracle/codemp/game/g_combat.c:668
 func GibEntity(_ `self`: Entity, _ killer: Int32) {
@@ -125,9 +135,11 @@ func BodyRid(_ ent: Entity) {
 }
 
 /**
+```
 ==================
 body_die
 ==================
+```
 */
 /// Source: oracle/codemp/game/g_combat.c:686
 func body_die(_ `self`: Entity, _ inflictor: Entity, _ attacker: Entity, _ damage: Int32, _ meansOfDeath: Int32) {
@@ -136,9 +148,11 @@ func body_die(_ `self`: Entity, _ inflictor: Entity, _ attacker: Entity, _ damag
 }
 
 /**
+```
 ==================
 CheckAlmostCapture
 ==================
+```
 */
 /// Source: oracle/codemp/game/g_combat.c:806
 func CheckAlmostCapture(_ `self`: Entity, _ attacker: Entity) {
@@ -219,9 +233,11 @@ func player_die(_ `self`: Entity, _ inflictor: Entity, _ attacker: Entity, _ dam
 }
 
 /**
+```
 ================
 CheckArmor
 ================
+```
 */
 /// Source: oracle/codemp/game/g_combat.c:3019
 func CheckArmor(_ ent: Entity, _ damage: Int32, _ dflags: Int32) -> Int32 {
@@ -236,9 +252,11 @@ func G_ApplyKnockback(_ targ: Entity, _ newDir: inout JKAShared.vec3_t, _ knockb
 }
 
 /**
+```
 ================
 RaySphereIntersections
 ================
+```
 */
 /// Source: oracle/codemp/game/g_combat.c:3128
 func RaySphereIntersections(_ origin: inout JKAShared.vec3_t, _ radius: Float, _ point: inout JKAShared.vec3_t, _ dir: inout JKAShared.vec3_t, _ intersections: inout [JKAShared.vec3_t]) -> Int32 {
@@ -349,12 +367,14 @@ func G_DamageFromKiller(_ pEnt: Entity, _ pVehEnt: Entity, _ attacker: Entity, _
 }
 
 /**
+```
 ============
 CanDamage
 
 Returns qtrue if the inflictor can directly damage the target.  Used for
 explosions and melee attacks.
 ============
+```
 */
 /// Source: oracle/codemp/game/g_combat.c:5768
 func CanDamage(_ targ: Entity, _ origin: inout JKAShared.vec3_t) -> Bool {
@@ -363,9 +383,11 @@ func CanDamage(_ targ: Entity, _ origin: inout JKAShared.vec3_t) -> Bool {
 }
 
 /**
+```
 ============
 G_RadiusDamage
 ============
+```
 */
 /// Source: oracle/codemp/game/g_combat.c:5823
 func G_RadiusDamage(_ origin: inout JKAShared.vec3_t, _ attacker: Entity, _ damage: Float, _ radius: Float, _ ignore: Entity, _ missile: Entity, _ mod: Int32) -> Bool {

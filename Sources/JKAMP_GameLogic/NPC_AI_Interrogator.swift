@@ -5,9 +5,11 @@ import JKAShared
 import JKAMP_Game
 
 /**
+```
 -------------------------
 NPC_Interrogator_Precache
 -------------------------
+```
 */
 /// Source: oracle/codemp/game/NPC_AI_Interrogator.c:20
 func NPC_Interrogator_Precache(_ `self`: Entity) {
@@ -16,9 +18,11 @@ func NPC_Interrogator_Precache(_ `self`: Entity) {
 }
 
 /**
+```
 -------------------------
 Interrogator_die
 -------------------------
+```
 */
 /// Source: oracle/codemp/game/NPC_AI_Interrogator.c:34
 func Interrogator_die(_ `self`: Entity, _ inflictor: Entity, _ attacker: Entity, _ damage: Int32, _ mod: Int32, _ dFlags: Int32, _ hitLoc: Int32) {
@@ -27,9 +31,11 @@ func Interrogator_die(_ `self`: Entity, _ inflictor: Entity, _ attacker: Entity,
 }
 
 /**
+```
 -------------------------
 Interrogator_PartsMove
 -------------------------
+```
 */
 /// Source: oracle/codemp/game/NPC_AI_Interrogator.c:64
 func Interrogator_PartsMove() {
@@ -38,9 +44,11 @@ func Interrogator_PartsMove() {
 }
 
 /**
+```
 -------------------------
 Interrogator_MaintainHeight
 -------------------------
+```
 */
 /// Source: oracle/codemp/game/NPC_AI_Interrogator.c:137
 func Interrogator_MaintainHeight() {
@@ -49,9 +57,11 @@ func Interrogator_MaintainHeight() {
 }
 
 /**
+```
 -------------------------
 Interrogator_Strafe
 -------------------------
+```
 */
 /// Source: oracle/codemp/game/NPC_AI_Interrogator.c:238
 func Interrogator_Strafe() {
@@ -66,9 +76,11 @@ func Interrogator_Hunt(_ visible: Bool, _ advance: Bool) {
 }
 
 /**
+```
 -------------------------
 Interrogator_Melee
 -------------------------
+```
 */
 /// Source: oracle/codemp/game/NPC_AI_Interrogator.c:345
 func Interrogator_Melee(_ visible: Bool, _ advance: Bool) {
@@ -77,9 +89,11 @@ func Interrogator_Melee(_ visible: Bool, _ advance: Bool) {
 }
 
 /**
+```
 -------------------------
 Interrogator_Attack
 -------------------------
+```
 */
 /// Source: oracle/codemp/game/NPC_AI_Interrogator.c:381
 func Interrogator_Attack() {
@@ -88,9 +102,11 @@ func Interrogator_Attack() {
 }
 
 /**
+```
 -------------------------
 Interrogator_Idle
 -------------------------
+```
 */
 /// Source: oracle/codemp/game/NPC_AI_Interrogator.c:435
 func Interrogator_Idle() {
@@ -99,9 +115,11 @@ func Interrogator_Idle() {
 }
 
 /**
+```
 -------------------------
 NPC_BSInterrogator_Default
 -------------------------
+```
 */
 /// Source: oracle/codemp/game/NPC_AI_Interrogator.c:454
 func NPC_BSInterrogator_Default() {

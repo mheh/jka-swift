@@ -369,9 +369,11 @@ func Pickup_Armor(_ ent: Entity, _ other: Entity) -> Int32 {
 }
 
 /**
+```
 ===============
 RespawnItem
 ===============
+```
 */
 /// Source: oracle/codemp/game/g_items.c:2288
 func RespawnItem(_ ent: Entity) {
@@ -386,9 +388,11 @@ func CheckItemCanBePickedUpByNPC(_ item: Entity, _ pickerupper: Entity) -> Bool 
 }
 
 /**
+```
 ===============
 Touch_Item
 ===============
+```
 */
 /// Source: oracle/codemp/game/g_items.c:2362
 func Touch_Item(_ ent: Entity, _ other: Entity, _ trace: JKAMP.Trace) {
@@ -397,11 +401,13 @@ func Touch_Item(_ ent: Entity, _ other: Entity, _ trace: JKAMP.Trace) {
 }
 
 /**
+```
 ================
 LaunchItem
 
 Spawns an item and tosses it forward
 ================
+```
 */
 /// Source: oracle/codemp/game/g_items.c:2658
 func LaunchItem(_ item: JKAMP.Gitem, _ origin: inout JKAShared.vec3_t, _ velocity: inout JKAShared.vec3_t) -> Entity? {
@@ -410,11 +416,13 @@ func LaunchItem(_ item: JKAMP.Gitem, _ origin: inout JKAShared.vec3_t, _ velocit
 }
 
 /**
+```
 ================
 Drop_Item
 
 Spawns an item and tosses it forward
 ================
+```
 */
 /// Source: oracle/codemp/game/g_items.c:2742
 func Drop_Item(_ ent: Entity, _ item: JKAMP.Gitem, _ angle: Float) -> Entity? {
@@ -423,11 +431,13 @@ func Drop_Item(_ ent: Entity, _ item: JKAMP.Gitem, _ angle: Float) -> Entity? {
 }
 
 /**
+```
 ================
 Use_Item
 
 Respawn the item
 ================
+```
 */
 /// Source: oracle/codemp/game/g_items.c:2765
 func Use_Item(_ ent: Entity, _ other: Entity, _ activator: Entity) {
@@ -436,12 +446,14 @@ func Use_Item(_ ent: Entity, _ other: Entity, _ activator: Entity) {
 }
 
 /**
+```
 ================
 FinishSpawningItem
 
 Traces down to find where an item should rest, instead of letting them
 free fall from their spawn points
 ================
+```
 */
 /// Source: oracle/codemp/game/g_items.c:2779
 func FinishSpawningItem(_ ent: Entity) {
@@ -450,9 +462,11 @@ func FinishSpawningItem(_ ent: Entity) {
 }
 
 /**
+```
 ==================
 G_CheckTeamItems
 ==================
+```
 */
 /// Source: oracle/codemp/game/g_items.c:2973
 func G_CheckTeamItems() {
@@ -461,9 +475,11 @@ func G_CheckTeamItems() {
 }
 
 /**
+```
 ==============
 ClearRegisteredItems
 ==============
+```
 */
 /// Source: oracle/codemp/game/g_items.c:2998
 func ClearRegisteredItems() {
@@ -472,11 +488,13 @@ func ClearRegisteredItems() {
 }
 
 /**
+```
 ===============
 RegisterItem
 
 The item will be added to the precache list
 ===============
+```
 */
 /// Source: oracle/codemp/game/g_items.c:3020
 func RegisterItem(_ item: JKAMP.Gitem) {
@@ -485,12 +503,14 @@ func RegisterItem(_ item: JKAMP.Gitem) {
 }
 
 /**
+```
 ===============
 SaveRegisteredItems
 
 Write the needed items to a config string
 so the client will know which ones to precache
 ===============
+```
 */
 /// Source: oracle/codemp/game/g_items.c:3036
 func SaveRegisteredItems() {
@@ -499,9 +519,11 @@ func SaveRegisteredItems() {
 }
 
 /**
+```
 ============
 G_ItemDisabled
 ============
+```
 */
 /// Source: oracle/codemp/game/g_items.c:3061
 func G_ItemDisabled(_ item: JKAMP.Gitem) -> Int32 {
@@ -510,6 +532,7 @@ func G_ItemDisabled(_ item: JKAMP.Gitem) -> Int32 {
 }
 
 /**
+```
 ============
 G_SpawnItem
 
@@ -518,6 +541,7 @@ Sets the clipping size and plants the object on the floor.
 Items can't be immediately dropped to floor, because they might
 be on an entity that hasn't spawned yet.
 ============
+```
 */
 /// Source: oracle/codemp/game/g_items.c:3079
 func G_SpawnItem(_ ent: Entity, _ item: JKAMP.Gitem) {
@@ -526,10 +550,12 @@ func G_SpawnItem(_ ent: Entity, _ item: JKAMP.Gitem) {
 }
 
 /**
+```
 ================
 G_BounceItem
 
 ================
+```
 */
 /// Source: oracle/codemp/game/g_items.c:3130
 func G_BounceItem(_ ent: Entity, _ trace: JKAMP.Trace) {
@@ -538,10 +564,12 @@ func G_BounceItem(_ ent: Entity, _ trace: JKAMP.Trace) {
 }
 
 /**
+```
 ================
 G_RunItem
 
 ================
+```
 */
 /// Source: oracle/codemp/game/g_items.c:3183
 func G_RunItem(_ ent: Entity) {

@@ -9,8 +9,11 @@ import JKAMP_Game
 // Raven wrote: int numNewICARUSEnts = 0
 // Rule 3: a stored property of GameWorld with Raven's initializer, spelled world.numNewICARUSEnts in a body.
 
-/**QUAKED target_give (1 0 0) (-8 -8 -8) (8 8 8)
+/**
+```
+QUAKED target_give (1 0 0) (-8 -8 -8) (8 8 8)
 Gives the activator all the items pointed to.
+```
 */
 /// Source: oracle/codemp/game/g_target.c:10
 func Use_Target_Give(_ ent: Entity, _ other: Entity, _ activator: Entity) {
@@ -24,9 +27,12 @@ func SP_target_give(_ ent: Entity) {
     portMissing("SP_target_give", source: "oracle/codemp/game/g_target.c:36")
 }
 
-/**QUAKED target_remove_powerups (1 0 0) (-8 -8 -8) (8 8 8)
+/**
+```
+QUAKED target_remove_powerups (1 0 0) (-8 -8 -8) (8 8 8)
 takes away all the activators powerups.
 Used to drop flight powerups into death puts.
+```
 */
 /// Source: oracle/codemp/game/g_target.c:47
 func Use_target_remove_powerups(_ ent: Entity, _ other: Entity, _ activator: Entity) {
@@ -40,13 +46,16 @@ func SP_target_remove_powerups(_ ent: Entity) {
     portMissing("SP_target_remove_powerups", source: "oracle/codemp/game/g_target.c:63")
 }
 
-/**QUAKED target_delay (1 0 0) (-8 -8 -8) (8 8 8) NO_RETRIGGER
+/**
+```
+QUAKED target_delay (1 0 0) (-8 -8 -8) (8 8 8) NO_RETRIGGER
 
 NO_RETRIGGER - Keeps the delay from resetting the time if it is
 activated again while it is counting down to an event.
 
 "wait" seconds to pause before firing targets.
 "random" delay variance, total delay = delay +/- random seconds
+```
 */
 /// Source: oracle/codemp/game/g_target.c:78
 func Think_Target_Delay(_ ent: Entity) {
@@ -66,10 +75,13 @@ func SP_target_delay(_ ent: Entity) {
     portMissing("SP_target_delay", source: "oracle/codemp/game/g_target.c:93")
 }
 
-/**QUAKED target_score (1 0 0) (-8 -8 -8) (8 8 8)
+/**
+```
+QUAKED target_score (1 0 0) (-8 -8 -8) (8 8 8)
 "count" number of points to add, default 1
 
 The activator is given this many points.
+```
 */
 /// Source: oracle/codemp/game/g_target.c:113
 func Use_Target_Score(_ ent: Entity, _ other: Entity, _ activator: Entity) {
@@ -83,10 +95,13 @@ func SP_target_score(_ ent: Entity) {
     portMissing("SP_target_score", source: "oracle/codemp/game/g_target.c:117")
 }
 
-/**QUAKED target_print (1 0 0) (-8 -8 -8) (8 8 8) redteam blueteam private
+/**
+```
+QUAKED target_print (1 0 0) (-8 -8 -8) (8 8 8) redteam blueteam private
 "message"	text to print
 "wait"		don't fire off again if triggered within this many milliseconds ago
 If "private", only the activator gets the message.  If no checks, all clients get the message.
+```
 */
 /// Source: oracle/codemp/game/g_target.c:132
 func Use_Target_Print(_ ent: Entity, _ other: Entity, _ activator: Entity) {
@@ -100,7 +115,9 @@ func SP_target_print(_ ent: Entity) {
     portMissing("SP_target_print", source: "oracle/codemp/game/g_target.c:239")
 }
 
-/**QUAKED target_speaker (1 0 0) (-8 -8 -8) (8 8 8) looped-on looped-off global activator
+/**
+```
+QUAKED target_speaker (1 0 0) (-8 -8 -8) (8 8 8) looped-on looped-off global activator
 "noise"		wav file to play
 
 A global sound will play full volume throughout the level.
@@ -111,6 +128,7 @@ Looped sounds will be toggled by use functions.
 Multiple identical looping sounds will just increase volume without any speed cost.
 "wait" : Seconds between auto triggerings, 0 = don't auto trigger
 "random"	wait variance, default is 0
+```
 */
 /// Source: oracle/codemp/game/g_target.c:259
 func Use_Target_Speaker(_ ent: Entity, _ other: Entity, _ activator: Entity) {
@@ -124,8 +142,11 @@ func SP_target_speaker(_ ent: Entity) {
     portMissing("SP_target_speaker", source: "oracle/codemp/game/g_target.c:286")
 }
 
-/**QUAKED target_laser (0 .5 .8) (-8 -8 -8) (8 8 8) START_ON
+/**
+```
+QUAKED target_laser (0 .5 .8) (-8 -8 -8) (8 8 8) START_ON
 When triggered, fires a laser.  You can either set a target or a direction.
+```
 */
 /// Source: oracle/codemp/game/g_target.c:349
 func target_laser_think(_ `self`: Entity) {
@@ -169,8 +190,11 @@ func target_teleporter_use(_ `self`: Entity, _ other: Entity, _ activator: Entit
     portMissing("target_teleporter_use", source: "oracle/codemp/game/g_target.c:440")
 }
 
-/**QUAKED target_teleporter (1 0 0) (-8 -8 -8) (8 8 8)
+/**
+```
+QUAKED target_teleporter (1 0 0) (-8 -8 -8) (8 8 8)
 The activator will be teleported away.
+```
 */
 /// Source: oracle/codemp/game/g_target.c:460
 func SP_target_teleporter(_ `self`: Entity) {
@@ -178,7 +202,9 @@ func SP_target_teleporter(_ `self`: Entity) {
     portMissing("SP_target_teleporter", source: "oracle/codemp/game/g_target.c:460")
 }
 
-/**QUAKED target_relay (.5 .5 .5) (-8 -8 -8) (8 8 8) RED_ONLY BLUE_ONLY RANDOM x x x x INACTIVE
+/**
+```
+QUAKED target_relay (.5 .5 .5) (-8 -8 -8) (8 8 8) RED_ONLY BLUE_ONLY RANDOM x x x x INACTIVE
 This doesn't perform any actions except fire its targets.
 The activator can be forced to be from a certain team.
 if RANDOM is checked, only one of the targets will be fired, not all of them
@@ -186,6 +212,7 @@ if RANDOM is checked, only one of the targets will be fired, not all of them
   INACTIVE  Can't be used until activated
 
 wait - set to -1 to use it only once
+```
 */
 /// Source: oracle/codemp/game/g_target.c:479
 func target_relay_use(_ `self`: Entity, _ other: Entity, _ activator: Entity) {
@@ -199,8 +226,11 @@ func SP_target_relay(_ `self`: Entity) {
     portMissing("SP_target_relay", source: "oracle/codemp/game/g_target.c:520")
 }
 
-/**QUAKED target_kill (.5 .5 .5) (-8 -8 -8) (8 8 8)
+/**
+```
+QUAKED target_kill (.5 .5 .5) (-8 -8 -8) (8 8 8)
 Kills the activator.
+```
 */
 /// Source: oracle/codemp/game/g_target.c:534
 func target_kill_use(_ `self`: Entity, _ other: Entity, _ activator: Entity) {
@@ -214,8 +244,11 @@ func SP_target_kill(_ `self`: Entity) {
     portMissing("SP_target_kill", source: "oracle/codemp/game/g_target.c:539")
 }
 
-/**QUAKED target_position (0 0.5 0) (-4 -4 -4) (4 4 4)
+/**
+```
+QUAKED target_position (0 0.5 0) (-4 -4 -4) (4 4 4)
 Used as a positional target for in-game calculation, like jumppad targets.
+```
 */
 /// Source: oracle/codemp/game/g_target.c:546
 func SP_target_position(_ `self`: Entity) {
@@ -229,13 +262,16 @@ func target_location_linkup(_ ent: Entity) {
     portMissing("target_location_linkup", source: "oracle/codemp/game/g_target.c:554")
 }
 
-/**QUAKED target_location (0 0.5 0) (-8 -8 -8) (8 8 8)
+/**
+```
+QUAKED target_location (0 0.5 0) (-8 -8 -8) (8 8 8)
 Set "message" to the name of this location.
 Set "count" to 0-7 for color.
 0:white 1:red 2:green 3:yellow 4:blue 5:cyan 6:magenta 7:white
 
 Closest target_location in sight used for the location, if none
 in site, closest in distance
+```
 */
 /// Source: oracle/codemp/game/g_target.c:592
 func SP_target_location(_ `self`: Entity) {
@@ -279,7 +315,9 @@ func target_scriptrunner_use(_ `self`: Entity, _ other: Entity, _ activator: Ent
     portMissing("target_scriptrunner_use", source: "oracle/codemp/game/g_target.c:839")
 }
 
-/**QUAKED target_scriptrunner (1 0 0) (-4 -4 -4) (4 4 4) runonactivator x x x x x x INACTIVE
+/**
+```
+QUAKED target_scriptrunner (1 0 0) (-4 -4 -4) (4 4 4) runonactivator x x x x x x INACTIVE
 --- SPAWNFLAGS ---
 runonactivator - Will run the script on the entity that used this or tripped the trigger that used this
 INACTIVE - start off
@@ -289,7 +327,7 @@ Usescript - Script to run when used
 count - how many times to run, -1 = infinite.  Default is once
 wait - can't be used again in this amount of seconds (Default is 1 second if it's multiple-use)
 delay - how long to wait after use to run script
-
+```
 */
 /// Source: oracle/codemp/game/g_target.c:871
 func SP_target_scriptrunner(_ `self`: Entity) {
@@ -316,8 +354,11 @@ func target_deactivate_use(_ `self`: Entity, _ other: Entity, _ activator: Entit
 }
 
 //FIXME: make these apply to doors, etc too?
-/**QUAKED target_activate (1 0 0) (-4 -4 -4) (4 4 4)
+/**
+```
+QUAKED target_activate (1 0 0) (-4 -4 -4) (4 4 4)
 Will set the target(s) to be usable/triggerable
+```
 */
 /// Source: oracle/codemp/game/g_target.c:930
 func SP_target_activate(_ `self`: Entity) {
@@ -325,8 +366,11 @@ func SP_target_activate(_ `self`: Entity) {
     portMissing("SP_target_activate", source: "oracle/codemp/game/g_target.c:930")
 }
 
-/**QUAKED target_deactivate (1 0 0) (-4 -4 -4) (4 4 4)
+/**
+```
+QUAKED target_deactivate (1 0 0) (-4 -4 -4) (4 4 4)
 Will set the target(s) to be non-usable/triggerable
+```
 */
 /// Source: oracle/codemp/game/g_target.c:939
 func SP_target_deactivate(_ `self`: Entity) {
@@ -340,8 +384,11 @@ func target_level_change_use(_ `self`: Entity, _ other: Entity, _ activator: Ent
     portMissing("target_level_change_use", source: "oracle/codemp/game/g_target.c:945")
 }
 
-/**QUAKED target_level_change (1 0 0) (-4 -4 -4) (4 4 4)
+/**
+```
+QUAKED target_level_change (1 0 0) (-4 -4 -4) (4 4 4)
 "mapname" - Name of map to change to
+```
 */
 /// Source: oracle/codemp/game/g_target.c:955
 func SP_target_level_change(_ `self`: Entity) {
@@ -355,7 +402,9 @@ func target_play_music_use(_ `self`: Entity, _ other: Entity, _ activator: Entit
     portMissing("target_play_music_use", source: "oracle/codemp/game/g_target.c:972")
 }
 
-/**QUAKED target_play_music (1 0 0) (-4 -4 -4) (4 4 4)
+/**
+```
+QUAKED target_play_music (1 0 0) (-4 -4 -4) (4 4 4)
 target_play_music
 Plays the requested music files when this target is used.
 
@@ -365,6 +414,7 @@ Plays the requested music files when this target is used.
 If an intro file and loop file are specified, the intro plays first, then the looping
 portion will start and loop indefinetly.  If no introfile is entered, only the loopfile
 will play.
+```
 */
 /// Source: oracle/codemp/game/g_target.c:989
 func SP_target_play_music(_ `self`: Entity) {

@@ -56,6 +56,7 @@ func TIMER_Done(_ ent: Entity, _ identifier: String) -> Bool {
 }
 
 /**
+```
 -------------------------
 TIMER_RemoveHelper
 
@@ -64,6 +65,7 @@ timer from the list and put it on the free list
 
 Doesn't do much error checking, only called below
 -------------------------
+```
 */
 /// Source: oracle/codemp/game/g_timer.c:187
 // TODO: Port signature
@@ -81,9 +83,11 @@ func TIMER_Done2(_ ent: Entity, _ identifier: String, _ remove: Bool) -> Bool {
 }
 
 /**
+```
 -------------------------
 TIMER_Exists
 -------------------------
+```
 */
 /// Source: oracle/codemp/game/g_timer.c:249
 func TIMER_Exists(_ ent: Entity, _ identifier: String) -> Bool {
@@ -92,10 +96,12 @@ func TIMER_Exists(_ ent: Entity, _ identifier: String) -> Bool {
 }
 
 /**
+```
 -------------------------
 TIMER_Remove
 Utility to get rid of any timer
 -------------------------
+```
 */
 /// Source: oracle/codemp/game/g_timer.c:267
 func TIMER_Remove(_ ent: Entity, _ identifier: String) {

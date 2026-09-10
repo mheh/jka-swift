@@ -14,9 +14,11 @@ let weaponFromMOD: [Int32] = { () -> [Int32] in portMissing("weaponFromMOD", sou
 // Rule 3: a stored property of GameWorld with Raven's initializer, spelled world.weaponNameFromIndex in a body.
 
 /**
+```
 =================
 G_LogWeaponInit
 =================
+```
 */
 /// Source: oracle/codemp/game/g_log.c:108
 func G_LogWeaponInit() {

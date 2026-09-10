@@ -11,9 +11,11 @@ func trap_Cvar_VariableValue(_ var_name: String) -> Float {
 }
 
 /**
+```
 ===============
 G_ParseInfos
 ===============
+```
 */
 /// Source: oracle/codemp/game/g_bot.c:50
 // TODO: Port signature
@@ -25,9 +27,11 @@ func G_ParseInfos() -> Never {
 }
 
 /**
+```
 ===============
 G_LoadArenasFromFile
 ===============
+```
 */
 /// Source: oracle/codemp/game/g_bot.c:106
 private func G_LoadArenasFromFile(_ filename: inout String) {
@@ -58,9 +62,11 @@ func G_RefreshNextMap() -> Never {
 }
 
 /**
+```
 ===============
 G_LoadArenas
 ===============
+```
 */
 /// Source: oracle/codemp/game/g_bot.c:295
 private func G_LoadArenas() {
@@ -69,9 +75,11 @@ private func G_LoadArenas() {
 }
 
 /**
+```
 ===============
 G_GetArenaInfoByNumber
 ===============
+```
 */
 /// Source: oracle/codemp/game/g_bot.c:329
 // TODO: Port signature
@@ -83,9 +91,11 @@ func G_GetArenaInfoByMap() -> Never {
 }
 
 /**
+```
 ===============
 G_AddRandomBot
 ===============
+```
 */
 /// Source: oracle/codemp/game/g_bot.c:373
 func G_AddRandomBot(_ team: Int32) {
@@ -94,9 +104,11 @@ func G_AddRandomBot(_ team: Int32) {
 }
 
 /**
+```
 ===============
 G_RemoveRandomBot
 ===============
+```
 */
 /// Source: oracle/codemp/game/g_bot.c:461
 func G_RemoveRandomBot(_ team: Int32) -> Int32 {
@@ -105,9 +117,11 @@ func G_RemoveRandomBot(_ team: Int32) -> Int32 {
 }
 
 /**
+```
 ===============
 G_CountHumanPlayers
 ===============
+```
 */
 /// Source: oracle/codemp/game/g_bot.c:499
 func G_CountHumanPlayers(_ team: Int32) -> Int32 {
@@ -116,9 +130,11 @@ func G_CountHumanPlayers(_ team: Int32) -> Int32 {
 }
 
 /**
+```
 ===============
 G_CountBotPlayers
 ===============
+```
 */
 /// Source: oracle/codemp/game/g_bot.c:525
 func G_CountBotPlayers(_ team: Int32) -> Int32 {
@@ -127,9 +143,11 @@ func G_CountBotPlayers(_ team: Int32) -> Int32 {
 }
 
 /**
+```
 ===============
 G_CheckMinimumPlayers
 ===============
+```
 */
 /// Source: oracle/codemp/game/g_bot.c:569
 func G_CheckMinimumPlayers() {
@@ -138,9 +156,11 @@ func G_CheckMinimumPlayers() {
 }
 
 /**
+```
 ===============
 G_CheckBotSpawn
 ===============
+```
 */
 /// Source: oracle/codemp/game/g_bot.c:697
 func G_CheckBotSpawn() {
@@ -149,9 +169,11 @@ func G_CheckBotSpawn() {
 }
 
 /**
+```
 ===============
 AddBotToSpawnQueue
 ===============
+```
 */
 /// Source: oracle/codemp/game/g_bot.c:727
 private func AddBotToSpawnQueue(_ clientNum: Int32, _ delay: Int32) {
@@ -160,12 +182,14 @@ private func AddBotToSpawnQueue(_ clientNum: Int32, _ delay: Int32) {
 }
 
 /**
+```
 ===============
 G_RemoveQueuedBotBegin
 
 Called on client disconnect to make sure the delayed spawn
 doesn't happen on a freed index
 ===============
+```
 */
 /// Source: oracle/codemp/game/g_bot.c:751
 func G_RemoveQueuedBotBegin(_ clientNum: Int32) {
@@ -174,9 +198,11 @@ func G_RemoveQueuedBotBegin(_ clientNum: Int32) {
 }
 
 /**
+```
 ===============
 G_BotConnect
 ===============
+```
 */
 /// Source: oracle/codemp/game/g_bot.c:768
 func G_BotConnect(_ clientNum: Int32, _ restart: Bool) -> Bool {
@@ -185,9 +211,11 @@ func G_BotConnect(_ clientNum: Int32, _ restart: Bool) -> Bool {
 }
 
 /**
+```
 ===============
 G_AddBot
 ===============
+```
 */
 /// Source: oracle/codemp/game/g_bot.c:792
 private func G_AddBot(_ name: String, _ skill: Float, _ team: String, _ delay: Int32, _ altname: inout String) {
@@ -196,9 +224,11 @@ private func G_AddBot(_ name: String, _ skill: Float, _ team: String, _ delay: I
 }
 
 /**
+```
 ===============
 Svcmd_AddBot_f
 ===============
+```
 */
 /// Source: oracle/codemp/game/g_bot.c:1041
 func Svcmd_AddBot_f() {
@@ -207,9 +237,11 @@ func Svcmd_AddBot_f() {
 }
 
 /**
+```
 ===============
 Svcmd_BotList_f
 ===============
+```
 */
 /// Source: oracle/codemp/game/g_bot.c:1100
 func Svcmd_BotList_f() {
@@ -218,9 +250,11 @@ func Svcmd_BotList_f() {
 }
 
 /**
+```
 ===============
 G_LoadBotsFromFile
 ===============
+```
 */
 /// Source: oracle/codemp/game/g_bot.c:1194
 private func G_LoadBotsFromFile(_ filename: inout String) {
@@ -229,9 +263,11 @@ private func G_LoadBotsFromFile(_ filename: inout String) {
 }
 
 /**
+```
 ===============
 G_LoadBots
 ===============
+```
 */
 /// Source: oracle/codemp/game/g_bot.c:1222
 private func G_LoadBots() {
@@ -240,9 +276,11 @@ private func G_LoadBots() {
 }
 
 /**
+```
 ===============
 G_GetBotInfoByNumber
 ===============
+```
 */
 /// Source: oracle/codemp/game/g_bot.c:1265
 // TODO: Port signature
@@ -254,9 +292,11 @@ func G_GetBotInfoByNumber() -> Never {
 }
 
 /**
+```
 ===============
 G_GetBotInfoByName
 ===============
+```
 */
 /// Source: oracle/codemp/game/g_bot.c:1279
 // TODO: Port signature
@@ -268,9 +308,11 @@ func G_GetBotInfoByName() -> Never {
 }
 
 /**
+```
 ===============
 G_InitBots
 ===============
+```
 */
 /// Source: oracle/codemp/game/g_bot.c:1302
 func G_InitBots(_ restart: Bool) {

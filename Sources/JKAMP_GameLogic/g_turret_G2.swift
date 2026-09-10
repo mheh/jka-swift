@@ -93,7 +93,9 @@ func turretG2_base_use(_ `self`: Entity, _ other: Entity, _ activator: Entity) {
     portMissing("turretG2_base_use", source: "oracle/codemp/game/g_turret_G2.c:959")
 }
 
-/**QUAKED misc_turretG2 (1 0 0) (-8 -8 -22) (8 8 0) START_OFF UPSIDE_DOWN CANRESPAWN TURBO LEAD SHOWRADAR
+/**
+```
+QUAKED misc_turretG2 (1 0 0) (-8 -8 -22) (8 8 0) START_OFF UPSIDE_DOWN CANRESPAWN TURBO LEAD SHOWRADAR
 
 Turret that hangs from the ceiling, will aim and shoot at enemies
 
@@ -144,6 +146,7 @@ Turret that hangs from the ceiling, will aim and shoot at enemies
   customscale - custom scaling size. 100 is normal size, 1024 is the max scaling. this will change the bounding box size, so be careful of starting in solid!
 
 "icon" - icon that represents the objective on the radar
+```
 */
 //-----------------------------------------------------
 /// Source: oracle/codemp/game/g_turret_G2.c:1029

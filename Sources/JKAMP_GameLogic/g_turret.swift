@@ -88,7 +88,9 @@ func turret_base_use(_ `self`: Entity, _ other: Entity, _ activator: Entity) {
     portMissing("turret_base_use", source: "oracle/codemp/game/g_turret.c:604")
 }
 
-/**QUAKED misc_turret (1 0 0) (-48 -48 0) (48 48 144) START_OFF
+/**
+```
+QUAKED misc_turret (1 0 0) (-48 -48 0) (48 48 144) START_OFF
 Large 2-piece turbolaser turret
 
   START_OFF - Starts off
@@ -126,6 +128,7 @@ Large 2-piece turbolaser turret
 	2 - blue
 
 "icon" - icon that represents the objective on the radar
+```
 */
 //-----------------------------------------------------
 /// Source: oracle/codemp/game/g_turret.c:663

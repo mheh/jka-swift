@@ -29,9 +29,11 @@ func NPC_ChoosePainAnimation(_ `self`: Entity, _ other: Entity, _ point: inout J
 }
 
 /**
+```
 ===============
 NPC_Pain
 ===============
+```
 */
 /// Source: oracle/codemp/game/NPC_reactions.c:363
 func NPC_Pain(_ `self`: Entity, _ attacker: Entity, _ damage: Int32) {

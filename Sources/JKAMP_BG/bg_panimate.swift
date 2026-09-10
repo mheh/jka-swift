@@ -351,6 +351,7 @@ func BG_FullBodyTauntAnim(_ anim: Int32) -> Bool {
 }
 
 /**
+```
 =============
 BG_AnimLength
 
@@ -358,6 +359,7 @@ Get the "length" of an anim given the local anim index (which skeleton)
 and anim number. Obviously does not take things like the length of the
 anim while force speeding (as an example) and whatnot into account.
 =============
+```
 */
 /// Source: oracle/codemp/game/bg_panimate.c:1573
 func BG_AnimLength(_ index: Int32, _ anim: JKAMP.animNumber_t) -> Int32 {
@@ -423,6 +425,7 @@ func BG_AnimsetFree(_ animset: JKAMP.Animation) {
 }
 
 /**
+```
 ======================
 BG_ParseAnimationFile
 
@@ -430,6 +433,7 @@ Read a configuration file containing animation coutns and rates
 models/players/visor/animation.cfg, etc
 
 ======================
+```
 */
 /// Source: oracle/codemp/game/bg_panimate.c:2339
 func BG_ParseAnimationFile(_ filename: String, _ animset: JKAMP.Animation, _ isHumanoid: Bool) -> Int32 {
@@ -438,10 +442,12 @@ func BG_ParseAnimationFile(_ filename: String, _ animset: JKAMP.Animation, _ isH
 }
 
 /**
+```
 ===================
 LEGS Animations
 Base animation for overall body
 ===================
+```
 */
 /// Source: oracle/codemp/game/bg_panimate.c:2588
 private func BG_StartLegsAnim(_ ps: JKAMP.PlayerState, _ anim: Int32) {
@@ -462,10 +468,12 @@ func PM_ForceLegsAnim(_ anim: Int32) {
 }
 
 /**
+```
 ===================
 TORSO Animations
 Override animations for upper body
 ===================
+```
 */
 /// Source: oracle/codemp/game/bg_panimate.c:2664
 func BG_StartTorsoAnim(_ ps: JKAMP.PlayerState, _ anim: Int32) {
@@ -480,9 +488,11 @@ func PM_StartTorsoAnim(_ anim: Int32) {
 }
 
 /**
+```
 -------------------------
 PM_SetLegsAnimTimer
 -------------------------
+```
 */
 /// Source: oracle/codemp/game/bg_panimate.c:2698
 func BG_SetLegsAnimTimer(_ ps: JKAMP.PlayerState, _ time: Int32) {
@@ -497,9 +507,11 @@ func PM_SetLegsAnimTimer(_ time: Int32) {
 }
 
 /**
+```
 -------------------------
 PM_SetTorsoAnimTimer
 -------------------------
+```
 */
 /// Source: oracle/codemp/game/bg_panimate.c:2718
 func BG_SetTorsoAnimTimer(_ ps: JKAMP.PlayerState, _ time: Int32) {

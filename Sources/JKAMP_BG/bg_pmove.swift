@@ -115,10 +115,12 @@ func PM_HoverTrace() {
 }
 
 /**
+```
 ===============
 PM_AddEvent
 
 ===============
+```
 */
 /// Source: oracle/codemp/game/bg_pmove.c:910
 func PM_AddEvent(_ newEvent: Int32) {
@@ -135,9 +137,11 @@ func PM_AddEventWithParm(_ newEvent: Int32, _ parm: Int32) {
 }
 
 /**
+```
 ===============
 PM_AddTouchEnt
 ===============
+```
 */
 /// Source: oracle/codemp/game/bg_pmove.c:924
 func PM_AddTouchEnt(_ entityNum: Int32) {
@@ -147,11 +151,13 @@ func PM_AddTouchEnt(_ entityNum: Int32) {
 }
 
 /**
+```
 ==================
 PM_ClipVelocity
 
 Slide off of the impacting surface
 ==================
+```
 */
 /// Source: oracle/codemp/game/bg_pmove.c:954
 func PM_ClipVelocity(_ `in`: JKAShared.vec3_t, _ normal: JKAShared.vec3_t, _ out: JKAShared.vec3_t, _ overbounce: Float) {
@@ -161,11 +167,13 @@ func PM_ClipVelocity(_ `in`: JKAShared.vec3_t, _ normal: JKAShared.vec3_t, _ out
 }
 
 /**
+```
 ==================
 PM_Friction
 
 Handles both ground friction and water friction
 ==================
+```
 */
 /// Source: oracle/codemp/game/bg_pmove.c:998
 private func PM_Friction() {
@@ -175,11 +183,13 @@ private func PM_Friction() {
 }
 
 /**
+```
 ==============
 PM_Accelerate
 
 Handles user intended acceleration
 ==============
+```
 */
 /// Source: oracle/codemp/game/bg_pmove.c:1133
 private func PM_Accelerate(_ wishdir: JKAShared.vec3_t, _ wishspeed: Float, _ accel: Float) {
@@ -189,6 +199,7 @@ private func PM_Accelerate(_ wishdir: JKAShared.vec3_t, _ wishspeed: Float, _ ac
 }
 
 /**
+```
 ============
 PM_CmdScale
 
@@ -196,6 +207,7 @@ Returns the scale factor to apply to cmd movements
 This allows the clients to use axial -127 to 127 values for all directions
 without getting a sqrt(2) distortion in speed.
 ============
+```
 */
 /// Source: oracle/codemp/game/bg_pmove.c:1199
 private func PM_CmdScale(_ cmd: JKAMP.Usercmd) -> Float {
@@ -205,12 +217,14 @@ private func PM_CmdScale(_ cmd: JKAMP.Usercmd) -> Float {
 }
 
 /**
+```
 ================
 PM_SetMovementDir
 
 Determine the rotation of the legs reletive
 to the facing dir
 ================
+```
 */
 /// Source: oracle/codemp/game/bg_pmove.c:1233
 private func PM_SetMovementDir() {
@@ -290,9 +304,11 @@ func PM_GrabWallForJump(_ anim: Int32) {
 }
 
 /**
+```
 =============
 PM_CheckJump
 =============
+```
 */
 /// Source: oracle/codemp/game/bg_pmove.c:1788
 private func PM_CheckJump() -> Bool {
@@ -302,9 +318,11 @@ private func PM_CheckJump() -> Bool {
 }
 
 /**
+```
 =============
 PM_CheckWaterJump
 =============
+```
 */
 /// Source: oracle/codemp/game/bg_pmove.c:2781
 private func PM_CheckWaterJump() -> Bool {
@@ -314,11 +332,13 @@ private func PM_CheckWaterJump() -> Bool {
 }
 
 /**
+```
 ===================
 PM_WaterJumpMove
 
 Flying out of the water
 ===================
+```
 */
 /// Source: oracle/codemp/game/bg_pmove.c:2833
 private func PM_WaterJumpMove() {
@@ -328,10 +348,12 @@ private func PM_WaterJumpMove() {
 }
 
 /**
+```
 ===================
 PM_WaterMove
 
 ===================
+```
 */
 /// Source: oracle/codemp/game/bg_pmove.c:2852
 private func PM_WaterMove() {
@@ -341,10 +363,12 @@ private func PM_WaterMove() {
 }
 
 /**
+```
 ===================
 PM_FlyVehicleMove
 
 ===================
+```
 */
 /// Source: oracle/codemp/game/bg_pmove.c:2924
 private func PM_FlyVehicleMove() {
@@ -354,11 +378,13 @@ private func PM_FlyVehicleMove() {
 }
 
 /**
+```
 ===================
 PM_FlyMove
 
 Only with the flight powerup
 ===================
+```
 */
 /// Source: oracle/codemp/game/bg_pmove.c:3021
 private func PM_FlyMove() {
@@ -368,10 +394,12 @@ private func PM_FlyMove() {
 }
 
 /**
+```
 ===================
 PM_AirMove
 
 ===================
+```
 */
 /// Source: oracle/codemp/game/bg_pmove.c:3068
 private func PM_AirMove() {
@@ -381,10 +409,12 @@ private func PM_AirMove() {
 }
 
 /**
+```
 ===================
 PM_WalkMove
 
 ===================
+```
 */
 /// Source: oracle/codemp/game/bg_pmove.c:3305
 private func PM_WalkMove() {
@@ -394,9 +424,11 @@ private func PM_WalkMove() {
 }
 
 /**
+```
 ==============
 PM_DeadMove
 ==============
+```
 */
 /// Source: oracle/codemp/game/bg_pmove.c:3492
 private func PM_DeadMove() {
@@ -406,9 +438,11 @@ private func PM_DeadMove() {
 }
 
 /**
+```
 ===============
 PM_NoclipMove
 ===============
+```
 */
 /// Source: oracle/codemp/game/bg_pmove.c:3517
 private func PM_NoclipMove() {
@@ -418,11 +452,13 @@ private func PM_NoclipMove() {
 }
 
 /**
+```
 ================
 PM_FootstepForSurface
 
 Returns an event number apropriate for the groundsurface
 ================
+```
 */
 /// Source: oracle/codemp/game/bg_pmove.c:3587
 private func PM_FootstepForSurface() -> Int32 {
@@ -446,11 +482,13 @@ private func PM_CrashLandEffect() {
 }
 
 /**
+```
 =================
 PM_CrashLand
 
 Check for hard landings that generate sound events
 =================
+```
 */
 /// Source: oracle/codemp/game/bg_pmove.c:3731
 private func PM_CrashLand() {
@@ -460,9 +498,11 @@ private func PM_CrashLand() {
 }
 
 /**
+```
 =============
 PM_CorrectAllSolid
 =============
+```
 */
 /// Source: oracle/codemp/game/bg_pmove.c:4009
 private func PM_CorrectAllSolid(_ trace: JKAMP.Trace) -> Int32 {
@@ -472,11 +512,13 @@ private func PM_CorrectAllSolid(_ trace: JKAMP.Trace) -> Int32 {
 }
 
 /**
+```
 =============
 PM_GroundTraceMissed
 
 The ground trace didn't hit a surface, so we are in freefall
 =============
+```
 */
 /// Source: oracle/codemp/game/bg_pmove.c:4053
 private func PM_GroundTraceMissed() {
@@ -486,9 +528,11 @@ private func PM_GroundTraceMissed() {
 }
 
 /**
+```
 =============
 PM_GroundTrace
 =============
+```
 */
 /// Source: oracle/codemp/game/bg_pmove.c:4141
 private func PM_GroundTrace() {
@@ -498,9 +542,11 @@ private func PM_GroundTrace() {
 }
 
 /**
+```
 =============
 PM_SetWaterLevel
 =============
+```
 */
 /// Source: oracle/codemp/game/bg_pmove.c:4285
 private func PM_SetWaterLevel() {
@@ -524,11 +570,13 @@ func PM_CheckFixMins() {
 }
 
 /**
+```
 ==============
 PM_CheckDuck
 
 Sets mins, maxs, and pm->ps->viewheight
 ==============
+```
 */
 /// Source: oracle/codemp/game/bg_pmove.c:4410
 private func PM_CheckDuck() {
@@ -707,9 +755,11 @@ func PM_LegsSlopeBackTransition(_ desiredAnim: Int32) -> Int32 {
 }
 
 /**
+```
 ===============
 PM_Footsteps
 ===============
+```
 */
 /// Source: oracle/codemp/game/bg_pmove.c:5175
 private func PM_Footsteps() {
@@ -719,11 +769,13 @@ private func PM_Footsteps() {
 }
 
 /**
+```
 ==============
 PM_WaterEvents
 
 Generate sound events for entering and leaving water
 ==============
+```
 */
 /// Source: oracle/codemp/game/bg_pmove.c:5670
 private func PM_WaterEvents() {
@@ -742,9 +794,11 @@ func BG_ClearRocketLock(_ ps: JKAMP.PlayerState) {
 }
 
 /**
+```
 ===============
 PM_BeginWeaponChange
 ===============
+```
 */
 /// Source: oracle/codemp/game/bg_pmove.c:5766
 func PM_BeginWeaponChange(_ weapon: Int32) {
@@ -754,9 +808,11 @@ func PM_BeginWeaponChange(_ weapon: Int32) {
 }
 
 /**
+```
 ===============
 PM_FinishWeaponChange
 ===============
+```
 */
 /// Source: oracle/codemp/game/bg_pmove.c:5801
 func PM_FinishWeaponChange() {
@@ -824,9 +880,11 @@ private func PM_Animate() {
 }
 
 /**
+```
 ================
 PM_DropTimers
 ================
+```
 */
 /// Source: oracle/codemp/game/bg_pmove.c:7748
 private func PM_DropTimers() {
@@ -843,12 +901,14 @@ func BG_UnrestrainedPitchRoll(_ ps: JKAMP.PlayerState, _ pVeh: JKAMP.Vehicle) ->
 }
 
 /**
+```
 ================
 PM_UpdateViewAngles
 
 This can be used as another entry point when only the viewangles
 are being updated isntead of a full move
 ================
+```
 */
 /// Source: oracle/codemp/game/bg_pmove.c:7813
 func PM_UpdateViewAngles(_ ps: JKAMP.PlayerState, _ cmd: JKAMP.Usercmd) {
@@ -1092,9 +1152,11 @@ private func BG_G2ClientSpineAngles() -> Never {
 }
 
 /**
+```
 ==================
 CG_SwingAngles
 ==================
+```
 */
 /// Source: oracle/codemp/game/bg_pmove.c:8997
 // TODO: Port signature
@@ -1223,6 +1285,7 @@ func PM_VehicleViewAngles(_ ps: JKAMP.PlayerState, _ veh: JKAMP.BgEntity, _ ucmd
 }
 
 /**
+```
 //constrain him based on the angles of his vehicle and the caps
 void PM_VehicleViewAngles(playerState_t *ps, bgEntity_t *veh, usercmd_t *ucmd)
 {
@@ -1250,6 +1313,7 @@ void PM_VehicleViewAngles(playerState_t *ps, bgEntity_t *veh, usercmd_t *ucmd)
 
 	PM_SetPMViewAngle(ps, ps->viewangles, ucmd);
 }
+```
 */
 //see if a weapon is ok to use on a vehicle
 /// Source: oracle/codemp/game/bg_pmove.c:9745
@@ -1319,11 +1383,13 @@ func PmoveSingle() -> Never {
 }
 
 /**
+```
 ================
 Pmove
 
 Can be called by either the server or the client
 ================
+```
 */
 /// Source: oracle/codemp/game/bg_pmove.c:11167
 // TODO: Port signature

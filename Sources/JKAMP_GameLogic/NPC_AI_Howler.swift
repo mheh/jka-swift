@@ -5,9 +5,11 @@ import JKAShared
 import JKAMP_Game
 
 /**
+```
 -------------------------
 NPC_Howler_Precache
 -------------------------
+```
 */
 /// Source: oracle/codemp/game/NPC_AI_Howler.c:18
 func NPC_Howler_Precache() {
@@ -16,9 +18,11 @@ func NPC_Howler_Precache() {
 }
 
 /**
+```
 -------------------------
 Howler_Idle
 -------------------------
+```
 */
 /// Source: oracle/codemp/game/NPC_AI_Howler.c:28
 func Howler_Idle() {
@@ -27,9 +31,11 @@ func Howler_Idle() {
 }
 
 /**
+```
 -------------------------
 Howler_Patrol
 -------------------------
+```
 */
 /// Source: oracle/codemp/game/NPC_AI_Howler.c:38
 func Howler_Patrol() {
@@ -38,9 +44,11 @@ func Howler_Patrol() {
 }
 
 /**
+```
 -------------------------
 Howler_Move
 -------------------------
+```
 */
 /// Source: oracle/codemp/game/NPC_AI_Howler.c:78
 func Howler_Move(_ visible: Bool) {
@@ -70,9 +78,11 @@ func Howler_Combat() {
 }
 
 /**
+```
 -------------------------
 NPC_Howler_Pain
 -------------------------
+```
 */
 /// Source: oracle/codemp/game/NPC_AI_Howler.c:178
 func NPC_Howler_Pain(_ `self`: Entity, _ attacker: Entity, _ damage: Int32) {
@@ -81,9 +91,11 @@ func NPC_Howler_Pain(_ `self`: Entity, _ attacker: Entity, _ damage: Int32) {
 }
 
 /**
+```
 -------------------------
 NPC_BSHowler_Default
 -------------------------
+```
 */
 /// Source: oracle/codemp/game/NPC_AI_Howler.c:202
 func NPC_BSHowler_Default() {

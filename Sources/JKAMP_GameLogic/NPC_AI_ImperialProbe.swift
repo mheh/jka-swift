@@ -29,9 +29,11 @@ func ImperialProbe_Hunt(_ visible: Bool, _ advance: Bool) {
 }
 
 /**
+```
 -------------------------
 ImperialProbe_FireBlaster
 -------------------------
+```
 */
 /// Source: oracle/codemp/game/NPC_AI_ImperialProbe.c:268
 func ImperialProbe_FireBlaster() {
@@ -40,9 +42,11 @@ func ImperialProbe_FireBlaster() {
 }
 
 /**
+```
 -------------------------
 ImperialProbe_Ranged
 -------------------------
+```
 */
 /// Source: oracle/codemp/game/NPC_AI_ImperialProbe.c:331
 func ImperialProbe_Ranged(_ visible: Bool, _ advance: Bool) {
@@ -57,9 +61,11 @@ func ImperialProbe_AttackDecision() {
 }
 
 /**
+```
 -------------------------
 NPC_BSDroid_Pain
 -------------------------
+```
 */
 /// Source: oracle/codemp/game/NPC_AI_ImperialProbe.c:433
 func NPC_Probe_Pain(_ `self`: Entity, _ attacker: Entity, _ damage: Int32) {
@@ -74,9 +80,11 @@ func ImperialProbe_Idle() {
 }
 
 /**
+```
 -------------------------
 NPC_BSImperialProbe_Patrol
 -------------------------
+```
 */
 /// Source: oracle/codemp/game/NPC_AI_ImperialProbe.c:518
 func ImperialProbe_Patrol() {
@@ -85,9 +93,11 @@ func ImperialProbe_Patrol() {
 }
 
 /**
+```
 -------------------------
 ImperialProbe_Wait
 -------------------------
+```
 */
 /// Source: oracle/codemp/game/NPC_AI_ImperialProbe.c:563
 func ImperialProbe_Wait() {
@@ -96,9 +106,11 @@ func ImperialProbe_Wait() {
 }
 
 /**
+```
 -------------------------
 NPC_BSImperialProbe_Default
 -------------------------
+```
 */
 /// Source: oracle/codemp/game/NPC_AI_ImperialProbe.c:589
 func NPC_BSImperialProbe_Default() {

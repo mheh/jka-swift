@@ -79,9 +79,11 @@ func IsTeamplay() -> Int32 {
 }
 
 /**
+```
 ==================
 BotAI_GetClientState
 ==================
+```
 */
 /// Source: oracle/codemp/game/ai_main.c:351
 func BotAI_GetClientState(_ clientNum: Int32, _ state: JKAMP.PlayerState) -> Int32 {
@@ -90,9 +92,11 @@ func BotAI_GetClientState(_ clientNum: Int32, _ state: JKAMP.PlayerState) -> Int
 }
 
 /**
+```
 ==================
 BotAI_GetEntityState
 ==================
+```
 */
 /// Source: oracle/codemp/game/ai_main.c:371
 func BotAI_GetEntityState(_ entityNum: Int32, _ state: JKAMP.EntityState) -> Int32 {
@@ -101,9 +105,11 @@ func BotAI_GetEntityState(_ entityNum: Int32, _ state: JKAMP.EntityState) -> Int
 }
 
 /**
+```
 ==================
 BotAI_GetSnapshotEntity
 ==================
+```
 */
 /// Source: oracle/codemp/game/ai_main.c:388
 func BotAI_GetSnapshotEntity(_ clientNum: Int32, _ sequence: Int32, _ state: JKAMP.EntityState) -> Int32 {
@@ -112,9 +118,11 @@ func BotAI_GetSnapshotEntity(_ clientNum: Int32, _ sequence: Int32, _ state: JKA
 }
 
 /**
+```
 ==============
 BotEntityInfo
 ==============
+```
 */
 /// Source: oracle/codemp/game/ai_main.c:407
 // TODO: Port signature
@@ -126,9 +134,11 @@ func BotEntityInfo() -> Never {
 }
 
 /**
+```
 ==============
 NumBots
 ==============
+```
 */
 /// Source: oracle/codemp/game/ai_main.c:416
 func NumBots() -> Int32 {
@@ -137,9 +147,11 @@ func NumBots() -> Int32 {
 }
 
 /**
+```
 ==============
 AngleDifference
 ==============
+```
 */
 /// Source: oracle/codemp/game/ai_main.c:425
 func AngleDifference(_ ang1: Float, _ ang2: Float) -> Float {
@@ -148,9 +160,11 @@ func AngleDifference(_ ang1: Float, _ ang2: Float) -> Float {
 }
 
 /**
+```
 ==============
 BotChangeViewAngle
 ==============
+```
 */
 /// Source: oracle/codemp/game/ai_main.c:443
 func BotChangeViewAngle(_ angle: Float, _ ideal_angle: Float, _ speed: Float) -> Float {
@@ -159,9 +173,11 @@ func BotChangeViewAngle(_ angle: Float, _ ideal_angle: Float, _ speed: Float) ->
 }
 
 /**
+```
 ==============
 BotChangeViewAngles
 ==============
+```
 */
 /// Source: oracle/codemp/game/ai_main.c:470
 // TODO: Port signature
@@ -173,9 +189,11 @@ func BotChangeViewAngles() -> Never {
 }
 
 /**
+```
 ==============
 BotInputToUserCommand
 ==============
+```
 */
 /// Source: oracle/codemp/game/ai_main.c:537
 // TODO: Port signature
@@ -187,9 +205,11 @@ func BotInputToUserCommand() -> Never {
 }
 
 /**
+```
 ==============
 BotUpdateInput
 ==============
+```
 */
 /// Source: oracle/codemp/game/ai_main.c:633
 // TODO: Port signature
@@ -201,9 +221,11 @@ func BotUpdateInput() -> Never {
 }
 
 /**
+```
 ==============
 BotAIRegularUpdate
 ==============
+```
 */
 /// Source: oracle/codemp/game/ai_main.c:662
 func BotAIRegularUpdate() {
@@ -212,9 +234,11 @@ func BotAIRegularUpdate() {
 }
 
 /**
+```
 ==============
 RemoveColorEscapeSequences
 ==============
+```
 */
 /// Source: oracle/codemp/game/ai_main.c:674
 func RemoveColorEscapeSequences(_ text: inout String) {
@@ -223,9 +247,11 @@ func RemoveColorEscapeSequences(_ text: inout String) {
 }
 
 /**
+```
 ==============
 BotAI
 ==============
+```
 */
 /// Source: oracle/codemp/game/ai_main.c:696
 func BotAI(_ client: Int32, _ thinktime: Float) -> Int32 {
@@ -234,9 +260,11 @@ func BotAI(_ client: Int32, _ thinktime: Float) -> Int32 {
 }
 
 /**
+```
 ==================
 BotScheduleBotThink
 ==================
+```
 */
 /// Source: oracle/codemp/game/ai_main.c:778
 func BotScheduleBotThink() {
@@ -251,9 +279,11 @@ func PlayersInGame() -> Int32 {
 }
 
 /**
+```
 ==============
 BotAISetupClient
 ==============
+```
 */
 /// Source: oracle/codemp/game/ai_main.c:819
 // TODO: Port signature
@@ -265,9 +295,11 @@ func BotAISetupClient() -> Never {
 }
 
 /**
+```
 ==============
 BotAIShutdownClient
 ==============
+```
 */
 /// Source: oracle/codemp/game/ai_main.c:891
 func BotAIShutdownClient(_ client: Int32, _ restart: Bool) -> Int32 {
@@ -276,12 +308,14 @@ func BotAIShutdownClient(_ client: Int32, _ restart: Bool) -> Int32 {
 }
 
 /**
+```
 ==============
 BotResetState
 
 called when a bot enters the intermission or observer mode and
 when the level is changed
 ==============
+```
 */
 /// Source: oracle/codemp/game/ai_main.c:924
 // TODO: Port signature
@@ -293,9 +327,11 @@ func BotResetState() -> Never {
 }
 
 /**
+```
 ==============
 BotAILoadMap
 ==============
+```
 */
 /// Source: oracle/codemp/game/ai_main.c:966
 func BotAILoadMap(_ restart: Int32) -> Int32 {
@@ -1089,9 +1125,11 @@ func StandardBotAI() -> Never {
 }
 
 /**
+```
 ==================
 BotAIStartFrame
 ==================
+```
 */
 /// Source: oracle/codemp/game/ai_main.c:7492
 func BotAIStartFrame(_ time: Int32) -> Int32 {
@@ -1100,9 +1138,11 @@ func BotAIStartFrame(_ time: Int32) -> Int32 {
 }
 
 /**
+```
 ==============
 BotAISetup
 ==============
+```
 */
 /// Source: oracle/codemp/game/ai_main.c:7575
 func BotAISetup(_ restart: Int32) -> Int32 {
@@ -1111,9 +1151,11 @@ func BotAISetup(_ restart: Int32) -> Int32 {
 }
 
 /**
+```
 ==============
 BotAIShutdown
 ==============
+```
 */
 /// Source: oracle/codemp/game/ai_main.c:7623
 func BotAIShutdown(_ restart: Int32) -> Int32 {

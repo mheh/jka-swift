@@ -1824,7 +1824,9 @@ public func trap_PC_SourceFileAndLine() -> Never {
 }
 
 /**
+```
 Ghoul2 Insert Start
+```
 */
 /// Source: oracle/codemp/game/g_syscalls.c:1179
 public func trap_R_RegisterSkin(_ name: String) -> JKAShared.qhandle_t {

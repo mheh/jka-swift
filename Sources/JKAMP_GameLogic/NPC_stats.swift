@@ -34,7 +34,9 @@ import JKAMP_Game
 let ClassNames: [String] = { () -> [String] in portMissing("ClassNames", source: "oracle/codemp/game/NPC_stats.c:156") }()
 
 /**
+```
 NPC_ReactionTime
+```
 */
 //FIXME use grandom in here
 /// Source: oracle/codemp/game/NPC_stats.c:220
@@ -44,6 +46,7 @@ func NPC_ReactionTime() -> Int32 {
 }
 
 /**
+```
 static race_t TranslateRaceName( const char *name )
 {
 	if ( !Q_stricmp( name, "human" ) )
@@ -52,11 +55,14 @@ static race_t TranslateRaceName( const char *name )
 	}
 	return RACE_NONE;
 }
+```
 */
 /**
+```
 static rank_t TranslateRankName( const char *name )
 
   Should be used to determine pip bolt-ons
+```
 */
 /// Source: oracle/codemp/game/NPC_stats.c:287
 private func TranslateRankName(_ name: String) -> rank_t {
@@ -83,10 +89,11 @@ func NPC_PrecacheWeapons(_ playerTeam: JKAMP.team_t, _ spawnflags: Int32, _ NPCt
 }
 
 /**
+```
 void NPC_Precache ( char *NPCName )
 
 Precaches NPC skins, tgas and md3s.
-
+```
 */
 /// Source: oracle/codemp/game/NPC_stats.c:599
 func NPC_Precache(_ spawner: Entity) {

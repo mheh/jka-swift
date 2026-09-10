@@ -11,9 +11,11 @@ func Rancor_SetBolts(_ `self`: Entity) {
 }
 
 /**
+```
 -------------------------
 NPC_Rancor_Precache
 -------------------------
+```
 */
 /// Source: oracle/codemp/game/NPC_AI_Rancor.c:36
 func NPC_Rancor_Precache() {
@@ -22,9 +24,11 @@ func NPC_Rancor_Precache() {
 }
 
 /**
+```
 -------------------------
 Rancor_Idle
 -------------------------
+```
 */
 /// Source: oracle/codemp/game/NPC_AI_Rancor.c:53
 func Rancor_Idle() {
@@ -39,9 +43,11 @@ func Rancor_CheckRoar(_ `self`: Entity) -> Bool {
 }
 
 /**
+```
 -------------------------
 Rancor_Patrol
 -------------------------
+```
 */
 /// Source: oracle/codemp/game/NPC_AI_Rancor.c:83
 func Rancor_Patrol() {
@@ -50,9 +56,11 @@ func Rancor_Patrol() {
 }
 
 /**
+```
 -------------------------
 Rancor_Move
 -------------------------
+```
 */
 /// Source: oracle/codemp/game/NPC_AI_Rancor.c:115
 func Rancor_Move(_ visible: Bool) {
@@ -98,9 +106,11 @@ func Rancor_Combat() {
 }
 
 /**
+```
 -------------------------
 NPC_Rancor_Pain
 -------------------------
+```
 */
 //void NPC_Rancor_Pain( gentity_t *self, gentity_t *inflictor, gentity_t *other, const vec3_t point, int damage, int mod,int hitLoc )
 /// Source: oracle/codemp/game/NPC_AI_Rancor.c:703
@@ -123,9 +133,11 @@ func Rancor_Crush() {
 }
 
 /**
+```
 -------------------------
 NPC_BSRancor_Default
 -------------------------
+```
 */
 /// Source: oracle/codemp/game/NPC_AI_Rancor.c:828
 func NPC_BSRancor_Default() {

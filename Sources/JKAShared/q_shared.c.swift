@@ -31,9 +31,11 @@ func Com_Clamp(_ min: Float, _ max: Float, _ value: Float) -> Float {
 }
 
 /**
+```
 ============
 COM_SkipPath
 ============
+```
 */
 /// Source: oracle/codemp/game/q_shared.c:80
 // TODO: Port signature
@@ -45,9 +47,11 @@ func COM_SkipPath() -> Never {
 }
 
 /**
+```
 ============
 COM_StripExtension
 ============
+```
 */
 /// Source: oracle/codemp/game/q_shared.c:99
 func COM_StripExtension(_ `in`: String, _ out: inout String) {
@@ -56,9 +60,11 @@ func COM_StripExtension(_ `in`: String, _ out: inout String) {
 }
 
 /**
+```
 ==================
 COM_DefaultExtension
 ==================
+```
 */
 /// Source: oracle/codemp/game/q_shared.c:112
 func COM_DefaultExtension(_ path: inout String, _ maxSize: Int32, _ `extension`: String) {
@@ -160,6 +166,7 @@ func COM_ParseWarning(_ format: inout String) {
 }
 
 /**
+```
 ==============
 COM_Parse
 
@@ -170,6 +177,7 @@ If "allowLineBreaks" is qtrue then an empty
 string will be returned if the next token is
 a newline.
 ==============
+```
 */
 /// Source: oracle/codemp/game/q_shared.c:336
 // TODO: Port signature
@@ -196,9 +204,11 @@ func COM_ParseExt() -> Never {
 }
 
 /**
+```
 ===============
 COM_ParseString
 ===============
+```
 */
 /// Source: oracle/codemp/game/q_shared.c:588
 // TODO: Port signature
@@ -210,9 +220,11 @@ func COM_ParseString() -> Never {
 }
 
 /**
+```
 ===============
 COM_ParseInt
 ===============
+```
 */
 /// Source: oracle/codemp/game/q_shared.c:605
 // TODO: Port signature
@@ -224,9 +236,11 @@ func COM_ParseInt() -> Never {
 }
 
 /**
+```
 ===============
 COM_ParseFloat
 ===============
+```
 */
 /// Source: oracle/codemp/game/q_shared.c:625
 // TODO: Port signature
@@ -238,9 +252,11 @@ func COM_ParseFloat() -> Never {
 }
 
 /**
+```
 ===============
 COM_ParseVec4
 ===============
+```
 */
 /// Source: oracle/codemp/game/q_shared.c:645
 // TODO: Port signature
@@ -252,9 +268,11 @@ func COM_ParseVec4() -> Never {
 }
 
 /**
+```
 ==================
 COM_MatchToken
 ==================
+```
 */
 /// Source: oracle/codemp/game/q_shared.c:666
 // TODO: Port signature
@@ -266,6 +284,7 @@ func COM_MatchToken() -> Never {
 }
 
 /**
+```
 =================
 SkipBracedSection
 
@@ -273,6 +292,7 @@ The next token should be an open brace.
 Skips until a matching close brace is found.
 Internal brace depths are properly skipped.
 =================
+```
 */
 /// Source: oracle/codemp/game/q_shared.c:685
 // TODO: Port signature
@@ -284,9 +304,11 @@ func SkipBracedSection() -> Never {
 }
 
 /**
+```
 =================
 SkipRestOfLine
 =================
+```
 */
 /// Source: oracle/codemp/game/q_shared.c:708
 // TODO: Port signature
@@ -358,11 +380,13 @@ func Q_strrchr() -> Never {
 }
 
 /**
+```
 =============
 Q_strncpyz
 
 Safe strncpy that ensures a trailing zero
 =============
+```
 */
 /// Source: oracle/codemp/game/q_shared.c:826
 func Q_strncpyz(_ dest: inout String, _ src: String, _ destsize: Int32) {
@@ -435,6 +459,7 @@ func Com_sprintf(_ dest: inout String, _ size: Int32, _ fmt: String) {
 }
 
 /**
+```
 ============
 va
 
@@ -442,6 +467,7 @@ does a varargs printf into a temp buffer, so I don't need to have
 varargs versions of all text functions.
 FIXME: make this buffer size safe someday
 ============
+```
 */
 /// Source: oracle/codemp/game/q_shared.c:1017
 // TODO: Port signature
@@ -453,6 +479,7 @@ func va() -> Never {
 }
 
 /**
+```
 ===============
 Info_ValueForKey
 
@@ -460,6 +487,7 @@ Searches the string for the given
 key and returns the associated value, or an empty string.
 FIXME: overflow check?
 ===============
+```
 */
 /// Source: oracle/codemp/game/q_shared.c:1051
 // TODO: Port signature
@@ -471,11 +499,13 @@ func Info_ValueForKey() -> Never {
 }
 
 /**
+```
 ===================
 Info_NextPair
 
 Used to itterate through all the key/value pairs in an info string
 ===================
+```
 */
 /// Source: oracle/codemp/game/q_shared.c:1108
 // TODO: Port signature
@@ -487,9 +517,11 @@ func Info_NextPair() -> Never {
 }
 
 /**
+```
 ===================
 Info_RemoveKey
 ===================
+```
 */
 /// Source: oracle/codemp/game/q_shared.c:1147
 func Info_RemoveKey(_ s: inout String, _ key: String) {
@@ -498,9 +530,11 @@ func Info_RemoveKey(_ s: inout String, _ key: String) {
 }
 
 /**
+```
 ===================
 Info_RemoveKey_Big
 ===================
+```
 */
 /// Source: oracle/codemp/game/q_shared.c:1202
 func Info_RemoveKey_Big(_ s: inout String, _ key: String) {
@@ -509,12 +543,14 @@ func Info_RemoveKey_Big(_ s: inout String, _ key: String) {
 }
 
 /**
+```
 ==================
 Info_Validate
 
 Some characters are illegal in info strings because they
 can mess up the server's parsing
 ==================
+```
 */
 /// Source: oracle/codemp/game/q_shared.c:1263
 func Info_Validate(_ s: String) -> Bool {
@@ -523,11 +559,13 @@ func Info_Validate(_ s: String) -> Bool {
 }
 
 /**
+```
 ==================
 Info_SetValueForKey
 
 Changes or adds a key/value pair
 ==================
+```
 */
 /// Source: oracle/codemp/game/q_shared.c:1280
 func Info_SetValueForKey(_ s: inout String, _ key: String, _ value: String) {
@@ -536,11 +574,13 @@ func Info_SetValueForKey(_ s: inout String, _ key: String, _ value: String) {
 }
 
 /**
+```
 ==================
 Info_SetValueForKey_Big
 
 Changes or adds a key/value pair
 ==================
+```
 */
 /// Source: oracle/codemp/game/q_shared.c:1328
 func Info_SetValueForKey_Big(_ s: inout String, _ key: String, _ value: String) {

@@ -35,9 +35,11 @@ func NPC_ReachedGoal() {
 }
 
 /**
+```
 ReachedGoal
 
 id removed checks against waypoints and is now checking surfaces
+```
 */
 //qboolean NAV_HitNavGoal( vec3_t point, vec3_t mins, vec3_t maxs, gentity_t *goal, qboolean flying );
 /// Source: oracle/codemp/game/NPC_goal.c:136

@@ -56,6 +56,24 @@ class Param:
         return self.name
 
 
+def fence(block: list[str]) -> list[str]:
+    """Raven's block as a documentation comment with his text in a code fence, so markdown shows it line for line and touches nothing."""
+    if len(block) == 1:
+        text = block[0]
+        return ["/**", "```", text[text.index("/*") + 2 : text.rindex("*/")].strip(), "```", "*/"]
+    first = block[0].replace("/*", "/**", 1)
+    body = [first[3:].strip()] if first.strip() != "/**" else []
+    body += block[1:-1]
+    last = block[-1]
+    if last.strip() != "*/":
+        body.append(last[: last.rindex("*/")].rstrip())
+    while body and not body[0].strip():
+        body.pop(0)
+    while body and not body[-1].strip():
+        body.pop()
+    return ["/**", "```"] + body + ["```", "*/"]
+
+
 class SourceFile:
     """One oracle .c file, read once, for the text a cursor's extent names and Raven's comment above a function."""
 
@@ -90,8 +108,7 @@ class SourceFile:
                 while "/*" not in self.lines[i]:
                     i -= 1
                     block.insert(0, self.lines[i].rstrip())
-                block[0] = block[0].replace("/*", "/**", 1)
-                out = block + out
+                out = fence(block) + out
                 i -= 1
                 continue
             break

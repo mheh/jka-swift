@@ -5,10 +5,12 @@ import JKAShared
 import JKAMP_Game
 
 /**
+```
 ================
 G_BounceObject
 
 ================
+```
 */
 /// Source: oracle/codemp/game/g_object.c:14
 func G_BounceObject(_ ent: Entity, _ trace: JKAMP.Trace) {
