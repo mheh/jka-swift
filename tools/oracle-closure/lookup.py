@@ -10,6 +10,7 @@ Usage:
   python3 tools/oracle-closure/lookup.py entityShared_t absmin  # one field
   python3 tools/oracle-closure/lookup.py weapon_t               # a scalar, a typedef, or an enum
   python3 tools/oracle-closure/lookup.py fn CanDamage           # the manifest row: oracle range, Swift stub line, state
+  python3 tools/oracle-closure/lookup.py sig Pmove              # the signature the table gives the function today
 """
 
 from __future__ import annotations
@@ -70,14 +71,26 @@ def index(name: str) -> int:
     return 0
 
 
+def manifest_rows(name: str) -> list[tuple[Path, str]]:
+    return [(path, line) for path in sorted(MANIFEST.glob("*.md")) for line in rows(path) if cell(line, 0).startswith(f"`{name}`")]
+
+
 def function(name: str) -> int:
-    found = False
-    for path in sorted(MANIFEST.glob("*.md")):
-        for line in rows(path):
-            if cell(line, 0).startswith(f"`{name}`"):
-                found = True
-                print(f"{path.stem}.c  {cell(line, 0)}  oracle {cell(line, 1)}  swift {cell(line, 2)}  {cell(line, 3)}")
-    return 0 if found else 1
+    hits = manifest_rows(name)
+    for path, line in hits:
+        print(f"{path.stem}.c  {cell(line, 0)}  oracle {cell(line, 1)}  swift {cell(line, 2)}  {cell(line, 3)}")
+        print(f"  {cell(line, 5)}")
+    return 0 if hits else 1
+
+
+def signature(name: str) -> int:
+    """The stub line the table gives the function today. An adopted file keeps its old line, so this is the fresh one."""
+    hits = manifest_rows(name)
+    for path, line in hits:
+        print(f"{path.stem}.c  {cell(line, 5)}")
+    if not hits:
+        print(f"lookup: no function named {name} in the manifests")
+    return 0 if hits else 1
 
 
 def main() -> None:
@@ -87,6 +100,8 @@ def main() -> None:
         sys.exit(2)
     if args[0] == "fn" and len(args) == 2:
         sys.exit(function(args[1]) or 0)
+    if args[0] == "sig" and len(args) == 2:
+        sys.exit(signature(args[1]))
     if len(args) == 1:
         if stone(args[0], None) == 0 or index(args[0]) == 0:
             return

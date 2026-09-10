@@ -153,15 +153,25 @@ class Skeleton:
 
     # MARK: - Emission
 
+    def access(self, fn: Function) -> str:
+        # Raven's static is file scope, and five vehicle files each define `Update`, so a static stub is private.
+        # A static function the oracle stores in a field stays internal, because its thunk names it from another file.
+        hidden = fn.static or fn.name in self.shared_names
+        return "private " if hidden and fn.name not in self.stored_names else ""
+
+    def signature(self, fn: Function) -> str:
+        """The declaration line the table gives the function today, without the brace, so the manifest can carry it after adoption."""
+        name = swift_name(fn.name)
+        if not fn.mapped:
+            return f"{self.access(fn)}func {name}() -> Never"
+        params = ", ".join(f"_ {p.name}: {p.swift}" for p in fn.params)
+        return f"{self.access(fn)}func {name}({params})" + (f" -> {fn.returns}" if fn.returns else "")
+
     def stub(self, fn: Function) -> list[str]:
         source = self.source(fn.stem)
         lines = source.comment_above(fn.cur)
         lines.append(f"/// Source: {fn.cite}")
-        name = swift_name(fn.name)
-        # Raven's static is file scope, and five vehicle files each define `Update`, so a static stub is private.
-        # A static function the oracle stores in a field stays internal, because its thunk names it from another file.
         hidden = fn.static or fn.name in self.shared_names
-        access = "private " if hidden and fn.name not in self.stored_names else ""
         if hidden and fn.name in self.stored_names:
             self.counts["static functions kept internal for a thunk"] += 1
         if not fn.static and fn.name in self.shared_names:
@@ -172,12 +182,11 @@ class Skeleton:
                 "// TODO: Port signature",
                 f"// Raven wrote: {source.c_signature(fn.cur)}",
                 f"// {fn.reason}",
-                f"{access}func {name}() -> Never {{",
+                f"{self.signature(fn)} {{",
             ]
         else:
             self.counts["stubs"] += 1
-            signature = ", ".join(f"_ {p.name}: {p.swift}" for p in fn.params)
-            lines.append(f"{access}func {name}({signature})" + (f" -> {fn.returns}" if fn.returns else "") + " {")
+            lines.append(f"{self.signature(fn)} {{")
         lines += [
             f"    // TODO: Port {fn.name}",
             f'    portMissing("{fn.name}", source: "{fn.cite}")',

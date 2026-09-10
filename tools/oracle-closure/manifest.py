@@ -3,7 +3,9 @@
 
 Reads the same unity parse as skeleton.py and writes .claude/manifest/<stem>.md, one table row per function definition:
 Raven's name, the oracle path with the first and last line of the definition, the line of the Swift stub or body,
-whether it still carries a marker, and the jka-rust function with its first and last line when one exists.
+whether it still carries a marker, the jka-rust function with its first and last line when one exists, and the
+signature the table gives the function today. An adopted file no longer regenerates, so the signature column is where a
+second pass reads the stub line a new view or table row changed.
 A transcriptor reads one slice by line range from the manifest, and the reviewer has both references on the same row.
 
 Usage:
@@ -93,7 +95,10 @@ class Manifest:
         else:
             rust_cell = "none"
         static = " static" if fn.static else ""
-        return f"| `{fn.name}`{static} | `oracle/{ORACLE_DIR}/{fn.stem}.c:{first}-{last}` | {swift_cell} | {state} | {rust_cell} |"
+        signature = f"`{self.skeleton.signature(fn)}`"
+        if not fn.mapped:
+            signature += f" TODO: Port signature. {fn.reason}"
+        return f"| `{fn.name}`{static} | `oracle/{ORACLE_DIR}/{fn.stem}.c:{first}-{last}` | {swift_cell} | {state} | {rust_cell} | {signature} |"
 
     def file(self, stem: str) -> list[str]:
         fns = self.skeleton.files[stem]
@@ -107,8 +112,8 @@ class Manifest:
             f"{len(fns)} functions, {markers} with a marker, {matched} with a jka-rust match.",
             "The oracle range is the whole definition, from the return type to the closing brace.",
             "",
-            "| Function | Oracle | Swift | State | jka-rust |",
-            "|---|---|---|---|---|",
+            "| Function | Oracle | Swift | State | jka-rust | Signature |",
+            "|---|---|---|---|---|---|",
         ]
         lines += [self.row(fn) for fn in fns]
         return lines

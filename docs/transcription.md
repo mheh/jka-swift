@@ -34,6 +34,7 @@ The lookup tool is `tools/oracle-closure/lookup.py`, the only command a transcri
 - `python3 tools/oracle-closure/lookup.py <C type> <field>` gives one field.
 - `python3 tools/oracle-closure/lookup.py <typedef or enum>` gives a scalar or enum spelling.
 - `python3 tools/oracle-closure/lookup.py fn <name>` gives a function's manifest row, with its oracle range, its Swift stub line, and its state.
+- `python3 tools/oracle-closure/lookup.py sig <name>` gives the signature the table gives the function today. An adopted file keeps its old stub line, so a second pass takes the parameter list from this command and not from the file.
 
 Unknown types become Port-notes.
 A reviewer reads the same set, plus the jka-rust range from the manifest.
