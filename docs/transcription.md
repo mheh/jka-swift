@@ -74,14 +74,14 @@ A transcriptor does not rename a parameter, reorder one, or change a return type
 |---|---|
 | a non-const `vec3_t` parameter | `inout JKAShared.vec3_t`, and a call site writes `&v`. A `const vec3_t` stays by value. |
 | a `vec3_t name[3]` parameter | `inout [vec3_t]`, the type `AnglesToAxis`, `AxisClear`, and `AxisCopy` take in `q_math.swift` |
-| a non-const `char *` parameter with no size parameter beside it | `inout String` |
+| a non-const `char *` parameter of a function that is not a trap, with or without a size parameter beside it | `inout CharBuf`, and the caller passes its own buffer with `&`. A `const char *` stays `String`. |
 | a function-pointer parameter | an optional Swift closure, whose parameters go through these same rows |
 | a `void *` return | `UnsafeMutableRawPointer` for `BG_Alloc`, `BG_AllocUnaligned`, and `BG_TempAlloc` only. `BG_StringAlloc` returns `PooledString`. |
 | a pointer parameter Raven fills as a fixed set of floats, such as `float *colors` of `BG_ValidateSkinForTeam` | `inout vec3_t` |
 | a `qhandle_t *` parameter of a trap or strap function | `UnsafeMutablePointer<Int32>?` |
 
-A body with an `inout String` parameter reads it, builds the rewritten text, and assigns it back once, where Raven writes the terminator.
-`BG_ParseField` takes `UnsafeMutableRawPointer` for `byte *ent` and `Slots<BgField>` for the field table, and writes with `storeBytes` at `ent + Int(f.ofs)`. The caller passes the entity's handle turned raw, with a one-line comment that names rule 11.
+A body with an `inout CharBuf` parameter writes as Raven wrote, `powerOut[i] = readBuf[0]`, and `Q_strncpyz(_ dest: inout CharBuf, _ src: String, _ destsize: Int32)` ports line for line.
+`BG_ParseField` takes `UnsafeMutableRawPointer` for `byte *ent` and `Slots<BgField>` for the field table, and writes through the labeled subscript of the section on typed access at a byte offset. The caller passes the entity's handle turned raw, with a one-line comment that names rule 11.
 A body with an `inout vec3_t` parameter such as `colors` drops the `&& colors` half of Raven's guard, and carries the null-guard Port-note this guide already describes.
 A caller that passed `NULL` for that parameter passes a scratch local instead, `var colors = vec3_t(0, 0, 0)`, and reads nothing from it.
 A caller of a trap or strap function writes `nil` where Raven wrote `NULL` for a `qhandle_t *` parameter.
@@ -129,6 +129,13 @@ A view's fields read and write through the C struct behind it. `ent->r.absmin` b
 Every generated view carries `public static let byteCount`, the size of one slot in bytes, for a module that allocates its own slot and cannot see the C type.
 It also carries `public static let stride`, the distance between two slots of a C array of the type, for a `Slots` over one.
 
+Every generated view has, beside `init(handle:)`, `public init(_ raw: UnsafeMutableRawPointer)` and `public init(_ other: some HandleView)`.
+A body writes `View(x)` where and only where Raven wrote an explicit cast to that struct's pointer, from a raw pointer or from another struct's pointer, so `((gentity_t *)(ent))->s.number` reads `BgEntity(ent).s.number` in bg, and `(gentity_t *)bgEnt` is `Entity(bgEnt)` in the game.
+A cast to a view the body already holds, such as a bg body that passes its `BgEntity` to a bg channel function, is dropped without a note.
+The `handle:` form stays inside generated code under rule 11, and a signature keeps the plain view type Raven's parameter had, never a generic or protocol parameter that absorbs the cast.
+`views.py` has a `NEVER_NULL` table beside `ROOTS`, keyed by struct and field, for a pointer field Raven's callers always set.
+A field in the table is generated non-optional, and its getter traps with the field's name when the pointer is NULL, the one divergence rule 19 allows.
+`pmove_t.ps`, `pmove_t.trace`, and `pmove_t.pointcontents` are in it, so a body reads `bg.pm.ps.velocity` for `pm->ps->velocity` with no bind. A field joins the table only by a ruling, never by a transcriptor's guess.
 A view parameter is non-optional, so a body drops Raven's null guard on it and carries the Port-note `// Raven guards a NULL ps here. The view is non-optional, so the guard has no Swift form.`
 A caller that holds an optional view unwraps it at the call site, in Raven's control shape: `guard let ... else { return }` where Raven wrote an early-out, and `if let ... { }` where Raven wrapped a block. No force unwrap appears. A guard that does other work on the NULL path keeps a Port-note.
 
@@ -215,6 +222,11 @@ A body compares, stores, switches, and shifts it exactly as Raven wrote it. `.ra
 An unsigned hex mask Raven applies to an `int`, such as `0xfffffffc`, is spelled as the complement of the low bits, `~0x0000_0003`, the same bit pattern with no cast, and one comment line at the site says what Raven wrote.
 
 A cast Raven wrote explicitly stays on the page, so `(int)v[0]` is `Int32(v[0])` and `(float)x` is `Float(x)`. A body never adds a cast Raven did not write.
+`Sources/JKAShared/Promotion.swift` defines the arithmetic and comparison operators between `Int32` and `Float`, both orders, and the compound assignments, and each one promotes the integer as C does.
+So `ps.velocity[2] -= ps.gravity * bg.pml.frametime` and `ps.origin[2] + MINS_Z + 1` are Raven's lines.
+Swift reads `0.1` beside a `Float` as a `Float`, which changes the bits Raven's double math sets.
+So a body writes `Double(x)` on each float operand of an expression that holds a double literal, and `Float(...)` once at the store, `drop += Float(Double(speed) * 0.1 * Double(bg.pml.frametime))`.
+This is the one place a body writes a conversion Raven did not write, and a Raven explicit cast inside it, `(float)pm->ps->speed`, stays as `Float(ps.speed)`.
 
 ### `#ifdef`
 
@@ -230,11 +242,23 @@ It gets a Port-note naming the label, so the reviewer and the user can check the
 
 A `switch` with fallthrough uses Swift's `fallthrough` keyword, case for case, in Raven's order.
 
+### The C character buffer
+
+`Sources/JKAShared/CharBuf.swift` is a fixed-size byte buffer, `var readBuf = CharBuf(128)` for Raven's `char readBuf[128]`.
+Any integer indexes it, and its subscript is generic in what it returns and stores, sign-extending a byte on the way out as C does for a signed `char` and truncating on the way in.
+So `c1 = s1[i1]` reads Raven's `c1 = *s1` with `c1` declared `Int32`, and `readBuf[c] = powerBuf[i]` moves a byte.
+`String(readBuf)` reads up to the first NUL, and a string literal converts to a `CharBuf` where Raven assigns one.
+A `String` parameter a body walks by byte becomes a `CharBuf` at the top of the body, `let s1 = CharBuf(s1)`, and Raven's `*s1++` is the read plus `i1 += 1`.
+`Int32.init(ascii: Unicode.Scalar)` in `JKAShared` spells Raven's `'a'` as `Int32(ascii: "a")`, one call for one literal, so `c1 -= ('a' - 'A')` reads `c1 -= (Int32(ascii: "a") - Int32(ascii: "A"))`.
+
 ### C string functions
 
 `Q_stricmp`, `Com_sprintf`, `strcpy`, and the rest call the ported `q_shared` functions where a port exists.
-Where none exists yet, the transcriptor uses Swift's `String` and adds a Port-note, since the exact C semantics are not proven yet.
-`q_shared.c` is compiled into every module the same as `q_math.c`, so its port is `Sources/JKAShared/q_shared.c.swift`, named with the `.c` because the re-export of `q_shared.h` already holds the stem in that module. A body reaches `Q_stricmp`, `Q_stricmpn`, and `Q_strncmp` there.
+Where no port exists, the transcriptor adds a Port-note, because the exact C semantics are not proven.
+`q_shared.c` is compiled into every module the same as `q_math.c`, so its port is `Sources/JKAShared/q_shared.c.swift`, named with the `.c` because the re-export of `q_shared.h` already holds the stem in that module. A body reaches `Q_stricmp`, `Q_stricmpn`, and `Q_strncmp` there, and each of the three has a `CharBuf` overload.
+`Sources/JKAShared/CString.swift` holds the libc names Raven calls, `atoi`, `atof`, `strcpy`, `strncpy`, `strlen`, `strcmp`, `strchr`, and `strstr`, with C semantics.
+Each one works over `CharBuf` and `String`, `strcpy` also takes a raw destination, and `strlen` returns `Int32`, narrowed once inside it.
+`PooledString` has `init(_ raw: UnsafeMutableRawPointer)`, so `BG_StringAlloc` reads `strcpy(dest, source)` then `return PooledString(dest)`.
 
 ### Engine and print calls
 
@@ -245,6 +269,13 @@ Where none exists yet, the transcriptor uses Swift's `String` and adds a Port-no
 Raven's comment block above a function stays as the `/** */` the stub already carries.
 Raven's inline comments stay in place, verbatim, inside the ported body.
 A new comment the transcriptor writes follows the house style: STE prose, one sentence per line, no em dashes.
+
+### Typed access at a byte offset
+
+`Sources/JKAShared/Views/RawField.swift` extends `UnsafeMutableRawPointer` with one labeled subscript per C type Raven casts to at an offset, each taking any integer offset.
+`b[int: f.ofs]` stores an `Int32`, `b[float: f.ofs]` a `Float`, `b[float: f.ofs, 1]` the second float after the offset, and `b[string: f.ofs]` the raw pointer of a `PooledString`.
+`BG_ParseField` reads `b[int: f.ofs] = atoi(value)` for Raven's `*(int *)(b+f->ofs) = atoi(value)`, and a body never writes `storeBytes` or `MemoryLayout`.
+The same file defines `+` and `-` between a raw pointer and any integer, so `BG_Alloc` reads `return bg.pool + (bg.poolSize - size)` for Raven's `&bg_pool[bg_poolSize-size]`.
 
 ### No `Unsafe` type
 
