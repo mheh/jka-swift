@@ -18,6 +18,30 @@ The reviewer fixes what this guide settles. It notes the rest as a Port-note.
 Both roles are per file and per assigned block. Neither touches another file.
 A batch runs ten or more files in parallel.
 
+### The read set
+
+Ruling of 2026-09-09. A transcriptor reads exactly this set, and nothing else:
+
+- the oracle slice for the row it is porting, by the manifest's line range
+- its own Swift stub file
+- its manifest
+- the state file of its target, `Sources/JKAMP_BG/bg_local.swift` or `Sources/JKAMP_GameLogic/g_local.swift`
+- the lookup tool
+
+The lookup tool is `tools/oracle-closure/lookup.py`. An agent runs it with Bash from the repository root, as the one command it may run besides `swift build`.
+
+- `python3 tools/oracle-closure/lookup.py <C type>` gives the Swift view and every field.
+- `python3 tools/oracle-closure/lookup.py <C type> <field>` gives one field.
+- `python3 tools/oracle-closure/lookup.py <typedef or enum>` gives a scalar or enum spelling.
+- `python3 tools/oracle-closure/lookup.py fn <name>` gives a function's manifest row, with its oracle range, its Swift stub line, and its state.
+
+A type the tool does not know becomes a Port-note.
+
+A reviewer reads the same set, plus the jka-rust range from the manifest.
+
+Neither role greps across `Sources/`. Neither opens another Raven file, another stub, or another doc.
+When a needed fact sits outside the read set, the agent writes a Port-note and moves on.
+
 ## 2. The Port-note
 
 A Port-note is the one way to raise a problem.
