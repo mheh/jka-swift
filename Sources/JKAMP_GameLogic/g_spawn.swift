@@ -90,10 +90,7 @@ so message texts can be multi-line
 ```
 */
 /// Source: oracle/codemp/game/g_spawn.c:724
-// TODO: Port signature
-// Raven wrote: char *G_NewString( const char *string )
-// No table row for the return `char *`.
-func G_NewString() -> Never {
+func G_NewString(_ string: String) -> PooledString {
     // TODO: Port G_NewString
     portMissing("G_NewString", source: "oracle/codemp/game/g_spawn.c:724")
 }

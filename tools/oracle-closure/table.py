@@ -22,7 +22,7 @@ TARGET = "CJKAMP_Game"
 # The three allocators return a pointer into the pool, and the raw pointer is the only Swift type a view can bind over.
 RAW_RETURNS = {"BG_Alloc", "BG_AllocUnaligned", "BG_TempAlloc"}
 # BG_StringAlloc copies the text into the pool and returns it as the type a `char *` field carries.
-STRING_RETURNS = {"BG_StringAlloc"}
+STRING_RETURNS = {"BG_StringAlloc", "G_NewString"}
 # BG_ParseField writes at a byte offset into the entity, the one body that takes raw memory.
 RAW_PARAMS = {("BG_ParseField", "ent")}
 # A pointer Raven fills as three floats is a vector.

@@ -17,6 +17,9 @@ public struct Gitem: Hashable, HandleView {
     /// The slot as a handle, for a stored function call and for a view in another module.
     public var handle: OpaquePointer { OpaquePointer(self.raw) }
 
+    /// The size of one slot in bytes, for a module that allocates its own slot and cannot see the C type.
+    public static let byteCount = MemoryLayout<gitem_t>.size
+
     /// Source: oracle/codemp/game/bg_public.h:1123
     public var classname: PooledString? {
         get { PooledString(raw: self.raw.pointee.classname) }

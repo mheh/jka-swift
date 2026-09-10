@@ -417,6 +417,9 @@ class Generator:
                 "",
                 "    /// The slot as a handle, for a stored function call and for a view in another module.",
                 "    public var handle: OpaquePointer { OpaquePointer(self.raw) }",
+                "",
+                "    /// The size of one slot in bytes, for a module that allocates its own slot and cannot see the C type.",
+                f"    public static let byteCount = MemoryLayout<{c_name}>.size",
             ]
             for field in record.get_children():
                 if field.kind != CursorKind.FIELD_DECL:

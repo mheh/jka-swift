@@ -18,6 +18,9 @@ public struct ClientPersistant: Hashable, HandleView {
     /// The slot as a handle, for a stored function call and for a view in another module.
     public var handle: OpaquePointer { OpaquePointer(self.raw) }
 
+    /// The size of one slot in bytes, for a module that allocates its own slot and cannot see the C type.
+    public static let byteCount = MemoryLayout<clientPersistant_t>.size
+
     /// Source: oracle/codemp/game/g_local.h:444
     public var connected: clientConnected_t {
         get { self.raw.pointee.connected }

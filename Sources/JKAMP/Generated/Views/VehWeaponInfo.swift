@@ -17,6 +17,9 @@ public struct VehWeaponInfo: Hashable, HandleView {
     /// The slot as a handle, for a stored function call and for a view in another module.
     public var handle: OpaquePointer { OpaquePointer(self.raw) }
 
+    /// The size of one slot in bytes, for a module that allocates its own slot and cannot see the C type.
+    public static let byteCount = MemoryLayout<vehWeaponInfo_t>.size
+
     /// Source: oracle/codemp/game/bg_vehicles.h:39
     public var name: PooledString? {
         get { PooledString(raw: self.raw.pointee.name) }

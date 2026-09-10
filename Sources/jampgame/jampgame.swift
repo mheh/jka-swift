@@ -11,9 +11,11 @@ import JKAMP_BG
 @_cdecl("dllEntry")
 public func dllEntry(_ syscallptr: OpaquePointer) {
     Syscall.transport = EngineTransport(entry: syscallptr)
-    // Raven's bg files reach the engine through the game module's own `Com_Error` and `Com_Printf`.
+    // The game installs the bg channel here, rule 23, with Raven's `MAX_POOL_SIZE` of 3000000 for the game at oracle/codemp/game/bg_misc.c:3312.
+    bg = BgState(consumer: .game, maxPoolSize: 3_000_000)
     bg.error = { level, text in JKAMP_GameLogic.Com_Error(level, text) }
     bg.print = { text in JKAMP_GameLogic.Com_Printf(text) }
+    installBgChannel()
 }
 
 /// Source: oracle/codemp/game/g_main.c:515

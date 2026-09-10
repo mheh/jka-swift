@@ -17,6 +17,9 @@ public struct Cplane: Hashable, HandleView {
     /// The slot as a handle, for a stored function call and for a view in another module.
     public var handle: OpaquePointer { OpaquePointer(self.raw) }
 
+    /// The size of one slot in bytes, for a module that allocates its own slot and cannot see the C type.
+    public static let byteCount = MemoryLayout<cplane_t>.size
+
     /// Source: oracle/codemp/game/q_shared.h:1861
     public var normal: JKAShared.vec3_t {
         get { vec3(of: self.raw.pointee.normal) }

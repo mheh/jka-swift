@@ -17,6 +17,9 @@ public struct Vehicle: Hashable, HandleView {
     /// The slot as a handle, for a stored function call and for a view in another module.
     public var handle: OpaquePointer { OpaquePointer(self.raw) }
 
+    /// The size of one slot in bytes, for a module that allocates its own slot and cannot see the C type.
+    public static let byteCount = MemoryLayout<Vehicle_t>.size
+
     /// Source: oracle/codemp/game/bg_vehicles.h:481
     public var m_pPilot: BgEntity? {
         get { self.raw.pointee.m_pPilot.map { BgEntity(handle: OpaquePointer($0)) } }

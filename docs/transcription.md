@@ -126,6 +126,7 @@ public func _DotProduct(_ v1: vec3_t, _ v2: vec3_t) -> vec_t {
 Engine memory is reached through the views: `Entity`, `Client`, `Trace`, `PlayerState`, and the rest under `Generated/Views/`.
 A view's fields read and write through the C struct behind it. `ent->r.absmin` becomes `ent.r.absmin`.
 `Sources/JKAMP_Game/Generated/Views/Entity.swift` shows the shape: a stored pointer, and a computed property per C field.
+Every generated view carries `public static let byteCount`, the size of one slot in bytes, for a module that allocates its own slot and cannot see the C type.
 
 A view parameter is non-optional, so a body drops Raven's null guard on it and carries the Port-note `// Raven guards a NULL ps here. The view is non-optional, so the guard has no Swift form.`
 A caller that holds an optional view unwraps it at the call site, in Raven's control shape: `guard let ... else { return }` where Raven wrote an early-out, and `if let ... { }` where Raven wrapped a block. No force unwrap appears. A guard that does other work on the NULL path keeps a Port-note.
@@ -176,9 +177,11 @@ The file `bg_local.swift` does not exist yet. The first transcriptor that needs 
 
 ### The bg channel
 
-`Sources/JKAMP_BG/bg_strap.swift` is generated from `bg_strap.h`: one bare `strap_` function per declaration, each forwarding to a closure on `BgState`.
-`Sources/JKAMP_BG/bg_callbacks.swift` holds the bare game functions a bg body calls, in the same shape. A bg body spells `strap_G2API_SetBoneAngles(...)` and `G_NewString(...)` as Raven wrote them.
-`vmCvar_t` has the view `VmCvar`, and `bg_fighterAltControl` is `var bg_fighterAltControl: VmCvar { bg.fighterAltControl }` in `bg_local.swift`, a view over the game's cvar memory, so a body reads `bg_fighterAltControl.integer`.
+`tools/oracle-closure/channel.py` generates `Sources/JKAMP_BG/Generated/bg_strap.swift` from `bg_strap.h`: one bare `strap_` function per declaration, each forwarding to a closure on `bg.straps`, the `BgStraps` struct. A declaration the table cannot map gets a `TODO: Port signature` marker instead of a closure.
+The same generator writes `Sources/JKAMP_BG/Generated/bg_callbacks.swift`, which holds one bare function per game function a bg body calls by name, each forwarding to a closure on `bg.callbacks`, the `BgCallbacks` struct, in the same shape.
+It also writes `Sources/JKAMP_GameLogic/Generated/BgChannel.swift`, whose `installBgChannel()` points every closure at the game function of the same name. A bg body spells `strap_G2API_SetBoneAngles(...)` and `G_NewString(...)` as Raven wrote them.
+The bg side of the channel names `JKAMP.BgEntity` where the game function takes an `Entity`, because the `Entity` view lives in the game target that bg cannot import. `installBgChannel()` turns the one into the other by its handle under rule 11.
+`vmCvar_t` has the view `VmCvar`, and `bg_fighterAltControl` is `var bg_fighterAltControl: VmCvar { bg.fighterAltControl }` in `bg_local.swift`, a view over the game's cvar memory, so a body reads `bg_fighterAltControl.integer`. Until the game's cvar storage exists, the default is a view over one zeroed `vmCvar_t` the state allocates, so `.integer` reads 0, Raven's default.
 
 ### A `char *` at runtime
 

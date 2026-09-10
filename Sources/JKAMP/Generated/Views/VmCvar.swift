@@ -18,6 +18,9 @@ public struct VmCvar: Hashable, HandleView {
     /// The slot as a handle, for a stored function call and for a view in another module.
     public var handle: OpaquePointer { OpaquePointer(self.raw) }
 
+    /// The size of one slot in bytes, for a module that allocates its own slot and cannot see the C type.
+    public static let byteCount = MemoryLayout<vmCvar_t>.size
+
     /// Source: oracle/codemp/game/q_shared.h:1825
     // Raven's `handle` field is the engine's, and the view's own `handle` takes the name. No module body reads it.
 
