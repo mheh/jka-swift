@@ -70,6 +70,17 @@ No question files. No messages to the user mid-batch. No invention to close a ga
 The signature is kept as generated. Row 6 of step 2 already applied the pure-math case in `JKAShared`.
 A transcriptor does not rename a parameter, reorder one, or change a return type, even where the C source suggests a cleaner shape.
 
+| Raven | Swift |
+|---|---|
+| a non-const `vec3_t` parameter | `inout JKAShared.vec3_t`, and a call site writes `&v`. A `const vec3_t` stays by value. |
+| a `vec3_t name[3]` parameter | `inout [vec3_t]`, the type `AnglesToAxis`, `AxisClear`, and `AxisCopy` take in `q_math.swift` |
+| a non-const `char *` parameter with no size parameter beside it | `inout String` |
+| a function-pointer parameter | an optional Swift closure, whose parameters go through these same rows |
+| a `void *` return | `UnsafeMutableRawPointer` for `BG_Alloc`, `BG_AllocUnaligned`, and `BG_TempAlloc` only. `BG_StringAlloc` returns `PooledString`. |
+
+A body with an `inout String` parameter reads it, builds the rewritten text, and assigns it back once, where Raven writes the terminator.
+`BG_ParseField` takes `UnsafeMutableRawPointer` for `byte *ent` and `Slots<BgField>` for the field table, and writes with `storeBytes` at `ent + Int(f.ofs)`. The caller passes the entity's handle turned raw, with a one-line comment that names rule 11.
+
 ### Vectors and the vector macros
 
 `vec3_t` is `SIMD3<Float>`, defined at `Sources/JKAShared/Views/Vectors.swift`.
@@ -89,6 +100,8 @@ Raven's vector macros become operators or the ported `q_math` functions in `Sour
 | `VectorSet(a, x, y, z)` | `a = vec3_t(x, y, z)` |
 | `DotProduct(a, b)` | `_DotProduct(a, b)` |
 
+`ANGLE2SHORT` and `SHORT2ANGLE` are functions in `q_math.swift`, beside `SnapVector`.
+
 A reduction such as `DotProduct` always uses the ported function, never a SIMD sum.
 A SIMD sum may reassociate the terms, and that changes the float bit pattern the oracle produced.
 `_DotProduct` at `Sources/JKAShared/q_math.swift:868` keeps Raven's scalar order for this reason:
@@ -106,6 +119,9 @@ public func _DotProduct(_ v1: vec3_t, _ v2: vec3_t) -> vec_t {
 Engine memory is reached through the views: `Entity`, `Client`, `Trace`, `PlayerState`, and the rest under `Generated/Views/`.
 A view's fields read and write through the C struct behind it. `ent->r.absmin` becomes `ent.r.absmin`.
 `Sources/JKAMP_Game/Generated/Views/Entity.swift` shows the shape: a stored pointer, and a computed property per C field.
+
+A view parameter is non-optional, so a body drops Raven's null guard on it and carries the Port-note `// Raven guards a NULL ps here. The view is non-optional, so the guard has no Swift form.`
+A caller that holds an optional view unwraps it at the call site, in Raven's control shape: `guard let ... else { return }` where Raven wrote an early-out, and `if let ... { }` where Raven wrapped a block. No force unwrap appears. A guard that does other work on the NULL path keeps a Port-note.
 
 ### A scratch C struct on the stack
 
@@ -131,6 +147,12 @@ Ported bodies reach it through the `world` global. The transcriptor adds the pro
 var rng = Rng()
 ```
 
+`bg_itemlist`, `weaponData`, and `ammoData` are C storage in `Sources/CJKAMP/bg_tables.c`, with Raven's initializers as written, reached as the module-scope `let bg_itemlist: Slots<Gitem>`, `let weaponData: Slots<WeaponData>`, and `let ammoData: Slots<AmmoData>` in `bg_local.swift`, with `bg_numItems` as Raven computes it, so a body reads `bg_itemlist[i].giTag`.
+Every other struct-typed table Raven declares at file scope, such as `fields[]` of `g_spawn.c`, is C storage the same way. The stub of a `.c` file carries one entry per file-scope variable, above its first function.
+A variable the module never assigns is a typed `let` with a `portMissing` initializer and a `// Raven wrote:` line, and the transcriptor replaces the initializer with Raven's data.
+A variable the module assigns is a stored property of the state object, `BgState` or `GameWorld`, with Raven's initializer, spelled `bg.name` or `world.name` in a body, and its stub entry carries `// TODO: Port global name` and `// Raven wrote:`.
+A body macro that names a local, such as `SLOPERECALCVAR`, is spelled as its expansion at the site, `pm.ps.slopeRecalcTime`, with Raven's macro name in a one-line comment at the first use.
+
 ### A static in a bg file
 
 Ruling of 2026-09-09. `JKAMP_BG` cannot see `GameWorld`, and cgame links the same bg code with its own instance.
@@ -141,6 +163,15 @@ A scalar static is a Swift stored property. A struct static such as `pml`, which
 A pointer static such as `pm` is the view of the caller's memory, set per call. A test resets state with `bg = BgState()`.
 
 The file `bg_local.swift` does not exist yet. The first transcriptor that needs it creates it, with the class, the global, and a two-line type doc. Later transcriptors add properties to it.
+
+`bg_pool` is one raw allocation of `MAX_POOL_SIZE` bytes, `bg.pool`, made at the consumer's install and never freed. `poolSize` and `poolTail` sit on `BgState`.
+`MAX_POOL_SIZE` is `var MAX_POOL_SIZE: Int32 { bg.maxPoolSize }` in `bg_local.swift`, so a body reads Raven's name.
+
+### The bg channel
+
+`Sources/JKAMP_BG/bg_strap.swift` is generated from `bg_strap.h`: one bare `strap_` function per declaration, each forwarding to a closure on `BgState`.
+`Sources/JKAMP_BG/bg_callbacks.swift` holds the bare game functions a bg body calls, in the same shape. A bg body spells `strap_G2API_SetBoneAngles(...)` and `G_NewString(...)` as Raven wrote them.
+`vmCvar_t` has the view `VmCvar`, and `bg_fighterAltControl` is `var bg_fighterAltControl: VmCvar { bg.fighterAltControl }` in `bg_local.swift`, a view over the game's cvar memory, so a body reads `bg_fighterAltControl.integer`.
 
 ### A `char *` at runtime
 
@@ -176,6 +207,7 @@ A cast Raven wrote explicitly stays on the page, so `(int)v[0]` is `Int32(v[0])`
 ### `#ifdef`
 
 A `#ifdef` takes the native build's branch. The other branch is not written, and it gets no Port-note, because it is dead by the build's own choice.
+Raven's `#ifdef QAGAME` in a bg body is the one exception, and it is `if bg.consumer == .game { ... } else { ... }`, with both arms on the page.
 
 ### `goto`
 
@@ -190,6 +222,7 @@ A `switch` with fallthrough uses Swift's `fallthrough` keyword, case for case, i
 
 `Q_stricmp`, `Com_sprintf`, `strcpy`, and the rest call the ported `q_shared` functions where a port exists.
 Where none exists yet, the transcriptor uses Swift's `String` and adds a Port-note, since the exact C semantics are not proven yet.
+`q_shared.c` is compiled into every module the same as `q_math.c`, so its port is `Sources/JKAShared/q_shared.swift`. A body reaches `Q_stricmp`, `Q_stricmpn`, and `Q_strncmp` there.
 
 ### Engine and print calls
 
