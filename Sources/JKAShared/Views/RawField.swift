@@ -12,8 +12,18 @@ extension UnsafeMutableRawPointer {
         }
     }
 
-    /// The `Float` at a byte offset, plus an index for the Nth float after it, Raven's `*(float *)(b+ofs) + index * sizeof(float)`.
-    public subscript<I: BinaryInteger, J: BinaryInteger>(float ofs: I, _ index: J = 0) -> Float {
+    /// The `Float` at a byte offset, Raven's `*(float *)(b+ofs)`.
+    public subscript<I: BinaryInteger>(float ofs: I) -> Float {
+        get {
+            (self + ofs).loadUnaligned(as: Float.self)
+        }
+        nonmutating set {
+            (self + ofs).storeBytes(of: newValue, as: Float.self)
+        }
+    }
+
+    /// The Nth `Float` after a byte offset, Raven's `((float *)(b+ofs))[index]`.
+    public subscript<I: BinaryInteger, J: BinaryInteger>(float ofs: I, _ index: J) -> Float {
         get {
             (self + ofs + Int(index) * MemoryLayout<Float>.stride).loadUnaligned(as: Float.self)
         }

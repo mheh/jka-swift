@@ -116,13 +116,12 @@ func BG_ParseField(_ l_fields: Slots<JKAMP.BgField>, _ key: String, _ value: Str
         let f = l_fields[index]
         if Q_stricmp(name.string, key) == 0 {
             // found it
-            // Raven takes `b = (byte *)ent`, which is the same address, so the port writes at `ent + Int(f.ofs)`.
-            let b = ent + Int(f.ofs)
+            let b = ent
 
             switch f.type {
             case F_LSTRING:
                 if bg.consumer == .game {
-                    b.storeBytes(of: G_NewString(value).raw, as: UnsafeMutablePointer<CChar>.self)
+                    b[string: f.ofs] = G_NewString(value)
                 } else {
                     // Port-note: Raven calls `CG_NewString` on this arm, and the bg channel has no function of that name today.
                     portMissing("BG_ParseField: CG_NewString", source: "oracle/codemp/game/bg_misc.c:376")
@@ -134,25 +133,23 @@ func BG_ParseField(_ l_fields: Slots<JKAMP.BgField>, _ key: String, _ value: Str
                 if numbers.count > 0, let x = Float(numbers[0]) { vec[0] = x }
                 if numbers.count > 1, let y = Float(numbers[1]) { vec[1] = y }
                 if numbers.count > 2, let z = Float(numbers[2]) { vec[2] = z }
-                b.storeBytes(of: vec[0], toByteOffset: 0 * MemoryLayout<Float>.stride, as: Float.self)
-                b.storeBytes(of: vec[1], toByteOffset: 1 * MemoryLayout<Float>.stride, as: Float.self)
-                b.storeBytes(of: vec[2], toByteOffset: 2 * MemoryLayout<Float>.stride, as: Float.self)
+                b[float: f.ofs, 0] = vec[0]
+                b[float: f.ofs, 1] = vec[1]
+                b[float: f.ofs, 2] = vec[2]
             case F_INT:
-                // Port-note: Raven's `atoi` and `atof` have no ported form yet, so the port reads the number with Swift and takes 0 where `atoi` would.
-                b.storeBytes(of: Int32(value) ?? 0, as: Int32.self)
+                b[int: f.ofs] = atoi(value)
             case F_FLOAT:
-                b.storeBytes(of: Float(value) ?? 0, as: Float.self)
+                b[float: f.ofs] = atof(value)
             case F_ANGLEHACK:
-                v = Float(value) ?? 0
-                b.storeBytes(of: 0, toByteOffset: 0 * MemoryLayout<Float>.stride, as: Float.self)
-                b.storeBytes(of: v, toByteOffset: 1 * MemoryLayout<Float>.stride, as: Float.self)
-                b.storeBytes(of: 0, toByteOffset: 2 * MemoryLayout<Float>.stride, as: Float.self)
+                v = atof(value)
+                b[float: f.ofs, 0] = 0
+                b[float: f.ofs, 1] = v
+                b[float: f.ofs, 2] = 0
             case F_PARM1, F_PARM2, F_PARM3, F_PARM4, F_PARM5, F_PARM6, F_PARM7, F_PARM8,
                 F_PARM9, F_PARM10, F_PARM11, F_PARM12, F_PARM13, F_PARM14, F_PARM15, F_PARM16:
                 if bg.consumer == .game {
-                    // Port-note: Raven casts `ent` to `gentity_t *` and reads `s.number`.
-                    // `bgEntity_t` carries the same leading `entityState_t`, so this view reads the same bytes.
-                    Q3_SetParm(JKAMP.BgEntity(handle: OpaquePointer(ent)).s.number, f.type - F_PARM1, value)
+                    // Port-note: `bgEntity_t` carries the same leading `entityState_t`, so this view reads the same bytes.
+                    Q3_SetParm(BgEntity(ent).s.number, f.type - F_PARM1, value)
                 } else {
                     // Raven compiles no `F_PARM` case for cgame, so the field falls to `F_IGNORE` and nothing happens.
                 }
@@ -182,16 +179,14 @@ force power selection anyway when force powers are disabled on the server.
 ================
 ```
 */
-// Port-note: Raven's `char powerBuf[128]` and `char readBuf[128]` are byte arrays here, because `strcpy`, `strlen`, and `atoi` have no ported form yet.
-// The body indexes the same bytes, and it assigns `powerOut` once where Raven writes the terminator.
 // Port-note: Raven leaves `final_Powers` uninitialized, and a short string leaves the tail of it unread.
 // Swift needs a value, so the port starts every entry at 0.
 /// Source: oracle/codemp/game/bg_misc.c:439
-func BG_LegalizedForcePowers(_ powerOut: inout String, _ maxRank: Int32, _ freeSaber: Bool, _ teamForce: Int32, _ gametype: Int32, _ fpDisabled: Int32) -> Bool {
-    var powerBuf = [UInt8](repeating: 0, count: 128)
-    var readBuf = [UInt8](repeating: 0, count: 128)
+func BG_LegalizedForcePowers(_ powerOut: inout JKAShared.CharBuf, _ maxRank: Int32, _ freeSaber: Bool, _ teamForce: Int32, _ gametype: Int32, _ fpDisabled: Int32) -> Bool {
+    var powerBuf = CharBuf(128)
+    var readBuf = CharBuf(128)
     var maintainsValidity = true
-    let powerLen = Int32(powerOut.utf8.count)
+    let powerLen = strlen(powerOut)
     var i: Int32 = 0
     var c: Int32 = 0
     var allowedPoints: Int32 = 0
@@ -204,26 +199,21 @@ func BG_LegalizedForcePowers(_ powerOut: inout String, _ maxRank: Int32, _ freeS
     if powerLen >= 128 {
         //This should not happen. If it does, this is obviously a bogus string.
         //They can have this string. Because I said so.
-        for (offset, byte) in "7-1-032330000000001333".utf8.enumerated() {
-            powerBuf[offset] = byte
-        }
+        strcpy(&powerBuf, "7-1-032330000000001333")
         maintainsValidity = false
     } else {
-        for (offset, byte) in powerOut.utf8.enumerated() { //copy it as the original
-            powerBuf[offset] = byte
-        }
+        strcpy(&powerBuf, powerOut) //copy it as the original
     }
 
     //first of all, print the max rank into the string as the rank
     // Port-note: `va` has no ported form yet, so the port builds the same text with Swift interpolation.
-    var out = "\(maxRank)-"
+    strcpy(&powerOut, "\(maxRank)-")
 
-    // Raven's `'-'` and `'\n'` are the byte values a `char` literal has.
-    while i < 128 && powerBuf[i] != 0 && powerBuf[i] != UInt8(ascii: "-") {
+    while i < 128 && powerBuf[i] != 0 && powerBuf[i] != Int32(ascii: "-") {
         i += 1
     }
     i += 1
-    while i < 128 && powerBuf[i] != 0 && powerBuf[i] != UInt8(ascii: "-") {
+    while i < 128 && powerBuf[i] != 0 && powerBuf[i] != Int32(ascii: "-") {
         readBuf[c] = powerBuf[i]
         c += 1
         i += 1
@@ -231,8 +221,7 @@ func BG_LegalizedForcePowers(_ powerOut: inout String, _ maxRank: Int32, _ freeS
     readBuf[c] = 0
     i += 1
     //at this point, readBuf contains the intended side
-    // Raven's `atoi` reads the bytes up to the terminator.
-    final_Side = Int32(String(decoding: readBuf.prefix(while: { $0 != 0 }), as: UTF8.self)) ?? 0
+    final_Side = atoi(readBuf)
 
     if final_Side != FORCE_LIGHTSIDE && final_Side != FORCE_DARKSIDE {
         //Not a valid side. You will be dark. Because I said so. (this is something that should never actually happen unless you purposely feed in an invalid config)
@@ -252,10 +241,10 @@ func BG_LegalizedForcePowers(_ powerOut: inout String, _ maxRank: Int32, _ freeS
     //Now we have established a valid rank, and a valid side.
     //Read the force powers in, and cut them down based on the various rules supplied.
     c = 0
-    while i < 128 && powerBuf[i] != 0 && powerBuf[i] != UInt8(ascii: "\n") && c < NUM_FORCE_POWERS {
+    while i < 128 && powerBuf[i] != 0 && powerBuf[i] != Int32(ascii: "\n") && c < NUM_FORCE_POWERS {
         readBuf[0] = powerBuf[i]
         readBuf[1] = 0
-        final_Powers[c] = Int32(String(decoding: readBuf.prefix(while: { $0 != 0 }), as: UTF8.self)) ?? 0
+        final_Powers[c] = atoi(readBuf)
         c += 1
         i += 1
     }
@@ -433,23 +422,19 @@ func BG_LegalizedForcePowers(_ powerOut: inout String, _ maxRank: Int32, _ freeS
     //We finally have all the force powers legalized and stored locally.
     //Put them all into the string and return the result. We already have
     //the rank there, so print the side and the powers now.
-    Q_strcat(&out, 128, "\(final_Side)-")
+    // Port-note: `va` has no ported form yet, so the port builds the same text with Swift interpolation.
+    Q_strcat(&powerOut, 128, "\(final_Side)-")
 
-    i = Int32(out.utf8.count)
+    i = strlen(powerOut)
     c = 0
     while c < NUM_FORCE_POWERS {
-        let digits = "\(final_Powers[c])" // Raven's va("%i", final_Powers[c])
-        for (offset, byte) in digits.utf8.enumerated() {
-            readBuf[offset] = byte
-        }
-        readBuf[digits.utf8.count] = 0
-        // Raven writes powerOut[i], and the port appends the same byte at the same place.
-        out.append(Character(UnicodeScalar(readBuf[0])))
+        // Port-note: `va` has no ported form yet, so the port builds the same text with Swift interpolation.
+        strcpy(&readBuf, "\(final_Powers[c])")
+        powerOut[i] = readBuf[0]
         c += 1
         i += 1
     }
-    // Raven writes the terminator at powerOut[i]. The port hands the built text back here.
-    powerOut = out
+    powerOut[i] = 0
 
     return maintainsValidity
 }
@@ -1030,7 +1015,7 @@ func BG_EvaluateTrajectory(_ tr: JKAShared.Trajectory, _ atTime: Int32, _ result
         deltaTime = Float(Double(atTime - tr.trTime) * 0.001)	// milliseconds to seconds
         _VectorMA(tr.trBase, deltaTime, tr.trDelta, &result)
     case TR_SINE:
-        deltaTime = Float(atTime - tr.trTime) / Float(tr.trDuration)
+        deltaTime = (atTime - tr.trTime) / Float(tr.trDuration)
         // M_PI is the double of math.h and sin is the double libm call, so the term runs in double and rounds once.
         phase = Float(sin(Double(deltaTime) * Double.pi * 2))
         _VectorMA(tr.trBase, phase, tr.trDelta, &result)
@@ -1053,8 +1038,8 @@ func BG_EvaluateTrajectory(_ tr: JKAShared.Trajectory, _ atTime: Int32, _ result
         } else {
             //FIXME: maybe scale this somehow?  So that it starts out faster and stops faster?
             // Raven's DEG2RAD multiplies by the double M_PI and cos is the double libm call, so the angle runs in double.
-            let degrees: Float = 90.0 - (90.0 * (Float(atTime) - Float(tr.trTime)) / Float(tr.trDuration))
-            deltaTime = Float(tr.trDuration) * 0.001 * Float(cos(Double(degrees) * Double.pi / 180.0))
+            let degrees: Float = 90.0 - (90.0 * (Float(atTime) - tr.trTime) / Float(tr.trDuration))
+            deltaTime = tr.trDuration * 0.001 * Float(cos(Double(degrees) * Double.pi / 180.0))
         }
         _VectorMA(tr.trBase, deltaTime, tr.trDelta, &result)
     case TR_GRAVITY:
@@ -1091,7 +1076,7 @@ func BG_EvaluateTrajectoryDelta(_ tr: JKAShared.Trajectory, _ atTime: Int32, _ r
     case TR_LINEAR:
         result = tr.trDelta
     case TR_SINE:
-        deltaTime = Float(atTime - tr.trTime) / Float(tr.trDuration)
+        deltaTime = (atTime - tr.trTime) / Float(tr.trDuration)
         // M_PI is the double of math.h and cos is the double libm call, so the term runs in double and rounds once.
         phase = Float(cos(Double(deltaTime) * Double.pi * 2))	// derivative of sin = cos
         phase *= 0.5
@@ -1108,14 +1093,14 @@ func BG_EvaluateTrajectoryDelta(_ tr: JKAShared.Trajectory, _ atTime: Int32, _ r
             return
         }
         // Raven's DEG2RAD multiplies by the double M_PI and cos is the double libm call, so the angle runs in double.
-        let degrees: Float = 90.0 - (90.0 * (Float(atTime) - Float(tr.trTime)) / Float(tr.trDuration))
-        deltaTime = Float(tr.trDuration) * 0.001 * Float(cos(Double(degrees) * Double.pi / 180.0))
+        let degrees: Float = 90.0 - (90.0 * (Float(atTime) - tr.trTime) / Float(tr.trDuration))
+        deltaTime = tr.trDuration * 0.001 * Float(cos(Double(degrees) * Double.pi / 180.0))
         _VectorScale(tr.trDelta, deltaTime, &result)
     case TR_GRAVITY:
         // Raven's `0.001` is a double, so the product runs in double and rounds once into the float.
         deltaTime = Float(Double(atTime - tr.trTime) * 0.001)	// milliseconds to seconds
         result = tr.trDelta
-        result[2] -= Float(DEFAULT_GRAVITY) * deltaTime		// FIXME: local gravity...
+        result[2] -= DEFAULT_GRAVITY * deltaTime		// FIXME: local gravity...
     default:
         // Raven passes `tr->trTime` to this message, not the trType.
         Com_Error(ERR_DROP, "BG_EvaluateTrajectoryDelta: unknown trType: \(tr.trTime)")
@@ -1218,10 +1203,8 @@ func BG_IsValidCharacterModel(_ modelName: String, _ skinName: String) -> Bool {
     return true
 }
 
-// Port-note: Raven's `strchr`, `strlen`, and `va` have no ported form yet, so this body uses Swift's `String` for the three of them.
-// A skin name is ASCII, so a `Character` count and a byte count agree, but that is not proven for every input.
 /// Source: oracle/codemp/game/bg_misc.c:2768
-func BG_ValidateSkinForTeam(_ modelName: String, _ skinName: inout String, _ team: Int32, _ colors: inout JKAShared.vec3_t) -> Bool {
+func BG_ValidateSkinForTeam(_ modelName: String, _ skinName: inout JKAShared.CharBuf, _ team: Int32, _ colors: inout JKAShared.vec3_t) -> Bool {
     if Q_stricmpn(modelName, "jedi_", 5) == 0 {
         //argh, it's a custom player skin!
         // Raven guards a NULL colors here. The parameter is an inout vector, so the guard has no Swift form.
@@ -1242,18 +1225,19 @@ func BG_ValidateSkinForTeam(_ modelName: String, _ skinName: inout String, _ tea
             //not "red"
             if Q_stricmp("blue", skinName) == 0
                 || Q_stricmp("default", skinName) == 0
-                || skinName.contains("|") //a multi-skin playerModel
-                || !BG_IsValidCharacterModel(modelName, skinName) {
+                || strchr(skinName, "|") != nil //a multi-skin playerModel
+                || !BG_IsValidCharacterModel(modelName, String(skinName)) {
                 Q_strncpyz(&skinName, "red", MAX_QPATH)
                 return false
             } else {
                 //need to set it to red
-                let len = Int32(skinName.utf8.count)
+                let len = strlen(skinName)
                 if len < 3 {
                     //too short to be "red"
                     Q_strcat(&skinName, MAX_QPATH, "_red")
                 } else {
-                    let start = String(skinName.suffix(3))
+                    // Port-note: Raven takes `&skinName[len-3]`, a pointer into the buffer, and `CharBuf` has no offset form yet.
+                    let start = String(String(skinName).suffix(3))
                     if Q_strncmp("red", start, 3) != 0 {
                         //doesn't already end in "red"
                         if len + 4 >= MAX_QPATH {
@@ -1266,7 +1250,8 @@ func BG_ValidateSkinForTeam(_ modelName: String, _ skinName: inout String, _ tea
                     }
                 }
                 //if file does not exist, set to "red"
-                if !BG_FileExists("models/players/\(modelName)/model_\(skinName).skin") {
+                // Port-note: `va` has no ported form yet, so the port builds the same text with Swift interpolation.
+                if !BG_FileExists("models/players/\(modelName)/model_\(String(skinName)).skin") {
                     Q_strncpyz(&skinName, "red", MAX_QPATH)
                 }
                 return false
@@ -1277,18 +1262,19 @@ func BG_ValidateSkinForTeam(_ modelName: String, _ skinName: inout String, _ tea
         if Q_stricmp("blue", skinName) != 0 {
             if Q_stricmp("red", skinName) == 0
                 || Q_stricmp("default", skinName) == 0
-                || skinName.contains("|") //a multi-skin playerModel
-                || !BG_IsValidCharacterModel(modelName, skinName) {
+                || strchr(skinName, "|") != nil //a multi-skin playerModel
+                || !BG_IsValidCharacterModel(modelName, String(skinName)) {
                 Q_strncpyz(&skinName, "blue", MAX_QPATH)
                 return false
             } else {
                 //need to set it to blue
-                let len = Int32(skinName.utf8.count)
+                let len = strlen(skinName)
                 if len < 4 {
                     //too short to be "blue"
                     Q_strcat(&skinName, MAX_QPATH, "_blue")
                 } else {
-                    let start = String(skinName.suffix(4))
+                    // Port-note: Raven takes `&skinName[len-4]`, a pointer into the buffer, and `CharBuf` has no offset form yet.
+                    let start = String(String(skinName).suffix(4))
                     if Q_strncmp("blue", start, 4) != 0 {
                         //doesn't already end in "blue"
                         if len + 5 >= MAX_QPATH {
@@ -1301,7 +1287,8 @@ func BG_ValidateSkinForTeam(_ modelName: String, _ skinName: inout String, _ tea
                     }
                 }
                 //if file does not exist, set to "blue"
-                if !BG_FileExists("models/players/\(modelName)/model_\(skinName).skin") {
+                // Port-note: `va` has no ported form yet, so the port builds the same text with Swift interpolation.
+                if !BG_FileExists("models/players/\(modelName)/model_\(String(skinName)).skin") {
                     Q_strncpyz(&skinName, "blue", MAX_QPATH)
                 }
                 return false
@@ -1366,6 +1353,7 @@ func BG_PlayerStateToEntityState(_ ps: JKAMP.PlayerState, _ s: JKAMP.EntityState
 
     s.activeForcePass = ps.activeForcePass
 
+    // Port-note: Raven wrote no cast here, and `Promotion.swift` gives operators, not this assignment, so the port converts the `Int32`.
     s.angles2[YAW] = Float(ps.movementDir)
     s.legsAnim = ps.legsAnim
     s.torsoAnim = ps.torsoAnim
@@ -1518,6 +1506,7 @@ func BG_PlayerStateToEntityStateExtraPolate(_ ps: JKAMP.PlayerState, _ s: JKAMP.
 
     s.activeForcePass = ps.activeForcePass
 
+    // Port-note: Raven wrote no cast here, and `Promotion.swift` gives operators, not this assignment, so the port converts the `Int32`.
     s.angles2[YAW] = Float(ps.movementDir)
     s.legsAnim = ps.legsAnim
     s.torsoAnim = ps.torsoAnim
@@ -1631,7 +1620,7 @@ func BG_Alloc(_ size: Int32) -> UnsafeMutableRawPointer {
 
     bg.poolSize += size
 
-    return bg.pool + Int(bg.poolSize - size)
+    return bg.pool + (bg.poolSize - size)
 }
 
 /// Source: oracle/codemp/game/bg_misc.c:3343
@@ -1643,7 +1632,7 @@ func BG_AllocUnaligned(_ size: Int32) -> UnsafeMutableRawPointer {
 
     bg.poolSize += size
 
-    return bg.pool + Int(bg.poolSize - size)
+    return bg.pool + (bg.poolSize - size)
 }
 
 /// Source: oracle/codemp/game/bg_misc.c:3356
@@ -1659,7 +1648,7 @@ func BG_TempAlloc(_ size: Int32) -> UnsafeMutableRawPointer {
 
     bg.poolTail -= size
 
-    return bg.pool + Int(bg.poolTail)
+    return bg.pool + bg.poolTail
 }
 
 /// Source: oracle/codemp/game/bg_misc.c:3371
@@ -1672,23 +1661,13 @@ func BG_TempFree(_ size: Int32) {
     bg.poolTail += alignedSize
 }
 
-// Port-note: Raven's `strlen` and `strcpy` have no ported form yet, so this body counts and copies the bytes of the Swift string.
 /// Source: oracle/codemp/game/bg_misc.c:3383
 func BG_StringAlloc(_ source: String) -> PooledString {
     let dest: UnsafeMutableRawPointer
 
-    dest = BG_Alloc(Int32(source.utf8.count) + 1)
-    var offset = 0
-    for byte in source.utf8 {
-        dest.storeBytes(of: CChar(bitPattern: byte), toByteOffset: offset, as: CChar.self)
-        offset += 1
-    }
-    dest.storeBytes(of: 0 as CChar, toByteOffset: offset, as: CChar.self)
-
-    guard let pooled = PooledString(raw: dest.assumingMemoryBound(to: CChar.self)) else {
-        Com_Error(ERR_DROP, "BG_StringAlloc: the pool returned a null pointer")
-    }
-    return pooled
+    dest = BG_Alloc(strlen(source) + 1)
+    strcpy(dest, source)
+    return PooledString(dest)
 }
 
 /// Source: oracle/codemp/game/bg_misc.c:3392

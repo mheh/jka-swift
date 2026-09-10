@@ -50,6 +50,7 @@ let forceJumpHeight: [Float] = [
 
 /// Source: oracle/codemp/game/bg_pmove.c:163
 let forceJumpStrength: [Float] = [
+    // Port-note: Raven puts the int `JUMP_VELOCITY` in a float table. `Promotion.swift` gives operators only, so the element keeps `Float(...)`.
     Float(JUMP_VELOCITY),//normal jump
     420,
     590,
@@ -514,7 +515,7 @@ private func PM_Friction() {
 
     // apply water friction even if just wading
     if bg.pm.waterlevel != 0 {
-        drop += speed * pm_waterfriction * Float(bg.pm.waterlevel) * bg.pml.frametime
+        drop += speed * pm_waterfriction * bg.pm.waterlevel * bg.pml.frametime
     }
     // If on a client then there is no friction
     else if ps.groundEntityNum < MAX_CLIENTS {
@@ -642,7 +643,7 @@ private func PM_CmdScale(_ cmd: JKAMP.Usercmd) -> Float {
     total = Float(sqrt(Double(Float(Int32(cmd.forwardmove) * Int32(cmd.forwardmove)
         + Int32(cmd.rightmove) * Int32(cmd.rightmove) + umove * umove))))
     // C promotes the divide to double, because 127.0 is a double literal.
-    scale = Float(Double(Float(ps.speed) * Float(max)) / (127.0 * Double(total)))
+    scale = Float(Double(Float(ps.speed) * max) / (127.0 * Double(total)))
 
     return scale
 }
@@ -906,7 +907,7 @@ private func PM_WaterJumpMove() {
     let ps = bg.pm.ps
     PM_StepSlideMove(true)
 
-    ps.velocity[2] -= Float(ps.gravity) * bg.pml.frametime
+    ps.velocity[2] -= ps.gravity * bg.pml.frametime
     if ps.velocity[2] < 0 {
         // cancel as soon as we are falling down again
         ps.pm_flags &= ~PMF_ALL_TIMES
@@ -1417,7 +1418,7 @@ private func PM_WalkMove() {
     //Com_Printf("velocity1 = %1.1f\n", VectorLength(pm->ps->velocity));
 
     if (bg.pml.groundTrace.surfaceFlags & SURF_SLICK) != 0 || (ps.pm_flags & PMF_TIME_KNOCKBACK) != 0 {
-        ps.velocity[2] -= Float(ps.gravity) * bg.pml.frametime
+        ps.velocity[2] -= ps.gravity * bg.pml.frametime
     }
 
     vel = VectorLength(ps.velocity)
@@ -1629,6 +1630,7 @@ private func PM_CrashLand() {
     // calculate the exact velocity on landing
     dist = ps.origin[2] - bg.pml.previous_origin[2]
     vel = bg.pml.previous_velocity[2]
+    // Port-note: Raven writes `acc = -pm->ps->gravity`, a plain assignment of a negated int to a float. `Promotion.swift` gives operators only, so the store keeps `Float(...)`.
     acc = -Float(ps.gravity)
 
     a = acc / 2
@@ -1822,7 +1824,7 @@ private func PM_CrashLand() {
                 } else {
                     if delta_send > 8 {
                         let dif = (Int32(ps.fd.forceJumpZStart) - Int32(ps.origin[2]))
-                        var dmgLess = Int32(forceJumpHeight[ps.fd.forcePowerLevel[FP_LEVITATION]] - Float(dif))
+                        var dmgLess = Int32(forceJumpHeight[ps.fd.forcePowerLevel[FP_LEVITATION]] - dif)
 
                         if dmgLess < 0 {
                             dmgLess = 0
@@ -1928,8 +1930,7 @@ private func PM_SetWaterLevel() {
 
     point[0] = ps.origin[0]
     point[1] = ps.origin[1]
-    // Port-note: Raven adds the int MINS_Z to a float with no cast, and Swift needs Float(MINS_Z). The implicit int-to-float conversion has no ruling.
-    point[2] = ps.origin[2] + Float(MINS_Z) + 1
+    point[2] = ps.origin[2] + MINS_Z + 1
     // Port-note: Raven calls `pm->pointcontents` with no guard. The generated call gives nil when the stored pointer is nil, so the body binds each result, and the nil path traps.
     let cont0 = bg.pm.runPointcontents(point, ps.clientNum)
     cont = cont0
@@ -1940,12 +1941,12 @@ private func PM_SetWaterLevel() {
 
         bg.pm.watertype = cont
         bg.pm.waterlevel = 1
-        point[2] = ps.origin[2] + Float(MINS_Z) + Float(sample1)
+        point[2] = ps.origin[2] + MINS_Z + sample1
         let cont1 = bg.pm.runPointcontents(point, ps.clientNum)
         cont = cont1
         if (cont & MASK_WATER) != 0 {
             bg.pm.waterlevel = 2
-            point[2] = ps.origin[2] + Float(MINS_Z) + Float(sample2)
+            point[2] = ps.origin[2] + MINS_Z + sample2
             let cont2 = bg.pm.runPointcontents(point, ps.clientNum)
             cont = cont2
             if (cont & MASK_WATER) != 0 {
@@ -2600,6 +2601,7 @@ private func PM_Footsteps() {
             ps.legsAnim = 0
             PM_SetAnim(SETANIM_BOTH, rolled, SETANIM_FLAG_OVERRIDE | SETANIM_FLAG_HOLD, 150)
             PM_AddEventWithParm(EV_ROLL, 0)
+            // Port-note: Raven writes `pm->maxs[2] = pm->ps->crouchheight`, a plain assignment of an int to a float. `Promotion.swift` gives operators only, so the store keeps `Float(...)`.
             bg.pm.maxs[2] = Float(ps.crouchheight)//CROUCH_MAXS_2;
             ps.viewheight = DEFAULT_VIEWHEIGHT
             ps.pm_flags &= ~PMF_DUCKED
@@ -2800,7 +2802,7 @@ private func PM_Footsteps() {
 
     // check for footstep / splash sounds
     old = ps.bobCycle
-    ps.bobCycle = Int32(Float(old) + bobmove * Float(bg.pml.msec)) & 255
+    ps.bobCycle = Int32(old + bobmove * bg.pml.msec) & 255
 
     // if we just crossed a cycle boundary, play an apropriate footstep event
     if (((old + 64) ^ (ps.bobCycle + 64)) & 128) != 0 {
@@ -3366,7 +3368,7 @@ func PM_AdjustAttackStates(_ pm: JKAMP.Pmove) {
             if ps.zoomMode != 0 {
                 if ps.zoomMode == 1 && !ps.zoomLocked {
                     //approximate what level the client should be zoomed at based on how long zoom was held
-                    ps.zoomFov = Float((pm.cmd.serverTime + 50) - ps.zoomLockTime) * 0.035
+                    ps.zoomFov = ((pm.cmd.serverTime + 50) - ps.zoomLockTime) * 0.035
                     if ps.zoomFov > 50 {
                         ps.zoomFov = 50
                     }
@@ -3578,6 +3580,7 @@ func BG_AdjustClientSpeed(_ ps: JKAMP.PlayerState, _ cmd: JKAMP.Usercmd, _ svTim
     //For prediction, always reset speed back to the last known server base speed
     //If we didn't do this, under lag we'd eventually dwindle speed down to 0 even though
     //that would not be the correct predicted value.
+    // Port-note: Raven writes `ps->speed = ps->basespeed`, a plain assignment of an int to a float. `Promotion.swift` gives operators only, so the store keeps `Float(...)`.
     ps.speed = Float(ps.basespeed)
 
     if ps.forceHandExtend == HANDEXTEND_DODGE {
@@ -3928,14 +3931,14 @@ private func BG_SwingAngles(_ destination: Float, _ swingTolerance: Float, _ cla
 
     // swing towards the destination angle
     if swing >= 0 {
-        move = Float(frametime) * scale * speed
+        move = frametime * scale * speed
         if move >= swing {
             move = swing
             swinging = false
         }
         angle = AngleMod(angle + move)
     } else if swing < 0 {
-        move = Float(frametime) * scale * -speed
+        move = frametime * scale * -speed
         if move <= swing {
             move = swing
             swinging = false
@@ -4384,7 +4387,7 @@ private func PM_CmdForSaberMoves(_ ucmd: JKAMP.Usercmd) {
                 }
             }
 
-            if Float(ps.legsTimer) >= lenMin && Float(ps.legsTimer) < lenMax {
+            if ps.legsTimer >= lenMin && ps.legsTimer < lenMax {
                 //one of the two jumps
                 if ps.groundEntityNum != ENTITYNUM_NONE {
                     //still on ground?

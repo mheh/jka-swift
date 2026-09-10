@@ -387,7 +387,7 @@ Safe strncpy that ensures a trailing zero
 ```
 */
 /// Source: oracle/codemp/game/q_shared.c:826
-public func Q_strncpyz(_ dest: inout String, _ src: String, _ destsize: Int32) {
+public func Q_strncpyz(_ dest: inout CharBuf, _ src: String, _ destsize: Int32) {
     // TODO: Port Q_strncpyz
     portMissing("Q_strncpyz", source: "oracle/codemp/game/q_shared.c:826")
 }
@@ -507,7 +507,7 @@ public func Q_strupr() -> Never {
 
 // never goes past bounds or leaves without a terminating 0
 /// Source: oracle/codemp/game/q_shared.c:929
-public func Q_strcat(_ dest: inout String, _ size: Int32, _ src: String) {
+public func Q_strcat(_ dest: inout CharBuf, _ size: Int32, _ src: String) {
     // TODO: Port Q_strcat
     portMissing("Q_strcat", source: "oracle/codemp/game/q_shared.c:929")
 }
