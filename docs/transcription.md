@@ -168,9 +168,9 @@ The stub compiles and traps at runtime with `portMissing`. The transcriptor does
 An array index is the C constant or variable Raven wrote, for example `vec[YAW]` and `ps.stats[STAT_HEALTH]`, never `Int(...)`. Every array in the port takes any C integer index.
 A C enum is an `Int32` typealias, and each case is a bare `Int32` constant with Raven's name.
 A body compares, stores, switches, and shifts it exactly as Raven wrote it. `.rawValue` and `EnumName(rawValue:)` never appear.
+An unsigned hex mask Raven applies to an `int`, such as `0xfffffffc`, is spelled as the complement of the low bits, `~0x0000_0003`, the same bit pattern with no cast, and one comment line at the site says what Raven wrote.
 
-A cast Raven wrote explicitly stays on the page, so `(int)v[0]` is `Int32(v[0])` and `(float)x` is `Float(x)`.
-A body never adds a cast Raven did not write.
+A cast Raven wrote explicitly stays on the page, so `(int)v[0]` is `Int32(v[0])` and `(float)x` is `Float(x)`. A body never adds a cast Raven did not write.
 
 ### `#ifdef`
 

@@ -823,7 +823,8 @@ func BG_TempAlloc() -> Never {
 // Port-note: Raven's bound is `MAX_POOL_SIZE`, an `#ifdef` macro with no single value. `bg_local.swift` keeps
 // the QAGAME value on `bg.poolTail`'s initializer, and this uses the same literal.
 func BG_TempFree(_ size: Int32) {
-    let alignedSize = (size + 0x0000_0003) & 0xffff_fffc
+    // Raven wrote `0xfffffffc`, the same bit pattern as `~0x0000_0003` on an `Int32`.
+    let alignedSize = (size + 0x0000_0003) & ~0x0000_0003
     let maxPoolSize: Int32 = 3_000_000
     if bg.poolTail + alignedSize > maxPoolSize {
         Com_Error(ERR_DROP, "BG_TempFree: tail greater than size (\(bg.poolTail + alignedSize) > \(maxPoolSize))")

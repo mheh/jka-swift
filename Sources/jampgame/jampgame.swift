@@ -1,6 +1,7 @@
 import JKAShared
 import JKAMP_Game
 import JKAMP_GameLogic
+import JKAMP_BG
 
 /// This target holds the module's two ABI entry points, `dllEntry` and `vmMain`, and the 40-arm command decode.
 /// It is the dynamic library the engine loads.
@@ -10,6 +11,9 @@ import JKAMP_GameLogic
 @_cdecl("dllEntry")
 public func dllEntry(_ syscallptr: OpaquePointer) {
     Syscall.transport = EngineTransport(entry: syscallptr)
+    // Raven's bg files reach the engine through the game module's own `Com_Error` and `Com_Printf`.
+    bg.error = { level, text in JKAMP_GameLogic.Com_Error(level, text) }
+    bg.print = { text in JKAMP_GameLogic.Com_Printf(text) }
 }
 
 /// Source: oracle/codemp/game/g_main.c:515

@@ -12,10 +12,11 @@ public func trap_Printf(_ fmt: String) {
 }
 
 /// Source: oracle/codemp/game/g_syscalls.c:31
-public func trap_Error(_ fmt: String) {
+public func trap_Error(_ fmt: String) -> Never {
     _ = fmt.withCString { fmt in
         Syscall.call(G_ERROR, fmt)
     }
+    fatalError("trap_Error returned: \(fmt)")
 }
 
 /// Source: oracle/codemp/game/g_syscalls.c:35

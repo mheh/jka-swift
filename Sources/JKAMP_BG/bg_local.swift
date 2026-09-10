@@ -2,8 +2,25 @@ import JKAMP
 
 /// All state of the bg files, rule 3. One instance exists behind `bg`, and a test assigns a fresh one.
 /// The game module and cgame each link this code with their own instance, so nothing here reaches `world`.
-final class BgState {
+public final class BgState {
     // MARK: - State
+
+    /// The game module installs its own `Com_Error` at `dllEntry`.
+    /// The default ends the process with Raven's text, as the engine would.
+    public var error: (Int32, String) -> Never = { level, text in
+        fatalError("Com_Error(\(level)): \(text)")
+    }
+
+    /// The game module installs its own `Com_Printf` at `dllEntry`.
+    /// The default writes the text to standard output.
+    public var print: (String) -> Void = { text in
+        Swift.print(text, terminator: "")
+    }
+
+    /// `Com_Error` records the raised error here before the trap.
+    /// A test transport reads what was raised.
+    var lastErrorLevel: Int32 = 0
+    var lastErrorText: String = ""
 
     // A transcriptor adds each Raven static of a bg_*.c file here, with Raven's name and a /// Source: line.
 
@@ -33,4 +50,20 @@ final class BgState {
 }
 
 /// The one instance. The engine calls the module from one thread, so this is not isolated.
-nonisolated(unsafe) var bg = BgState()
+public nonisolated(unsafe) var bg = BgState()
+
+/// This is Raven's `Com_Error` as the bg files call it.
+/// The module supplies the route through `bg.error`.
+/// Source: oracle/codemp/game/g_main.c:1208
+func Com_Error(_ level: Int32, _ text: String) -> Never {
+    bg.lastErrorLevel = level
+    bg.lastErrorText = text
+    bg.error(level, text)
+}
+
+/// This is Raven's `Com_Printf` as the bg files call it.
+/// The module supplies the route through `bg.print`.
+/// Source: oracle/codemp/game/g_main.c:1219
+func Com_Printf(_ text: String) {
+    bg.print(text)
+}

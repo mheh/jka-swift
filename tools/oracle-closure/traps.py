@@ -132,7 +132,9 @@ class Traps:
         elif outs:
             returns = "String"
             mapping = f"String(nulTerminated: {outs[0].name})"
-        head = f"public func {name}({signature})" + (f" -> {returns}" if returns else "")
+        # The engine never returns from G_ERROR, it longjmps to its main loop, ruling of 2026-09-09. Raven's C cannot say so.
+        never = name == "trap_Error"
+        head = f"public func {name}({signature})" + (" -> Never" if never else f" -> {returns}" if returns else "")
         call = f"Syscall.call({command}, {', '.join(words)})" if words else f"Syscall.call({command})"
         body: list[str] = []
         for p in outs:
@@ -162,6 +164,9 @@ class Traps:
         lines.append(f"/// Source: oracle/{SOURCE}:{cur.location.line}")
         lines.append(head + " {")
         lines += body
+        if never:
+            # A transport that returns is a test double, and the trap ends the process with Raven's text, as the engine would.
+            lines.append(f'    fatalError("trap_Error returned: \\({mapped[params[0].spelling].name})")')
         lines.append("}")
         return lines
 
