@@ -293,10 +293,7 @@ func SP_target_scriptrunner(_ `self`: Entity) {
 }
 
 /// Source: oracle/codemp/game/g_target.c:900
-// TODO: Port signature
-// Raven wrote: void G_SetActiveState(char *targetstring, qboolean actState)
-// No table row for `char * targetstring`.
-func G_SetActiveState() -> Never {
+func G_SetActiveState(_ targetstring: inout String, _ actState: Bool) {
     // TODO: Port G_SetActiveState
     portMissing("G_SetActiveState", source: "oracle/codemp/game/g_target.c:900")
 }

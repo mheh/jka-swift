@@ -18,7 +18,7 @@ G_ParseInfos
 /// Source: oracle/codemp/game/g_bot.c:50
 // TODO: Port signature
 // Raven wrote: int G_ParseInfos( char *buf, int max, char *infos[] )
-// No table row for `char * buf`.
+// No table row for `char *[] infos`.
 func G_ParseInfos() -> Never {
     // TODO: Port G_ParseInfos
     portMissing("G_ParseInfos", source: "oracle/codemp/game/g_bot.c:50")
@@ -30,19 +30,13 @@ G_LoadArenasFromFile
 ===============
 */
 /// Source: oracle/codemp/game/g_bot.c:106
-// TODO: Port signature
-// Raven wrote: static void G_LoadArenasFromFile( char *filename )
-// No table row for `char * filename`.
-private func G_LoadArenasFromFile() -> Never {
+private func G_LoadArenasFromFile(_ filename: inout String) {
     // TODO: Port G_LoadArenasFromFile
     portMissing("G_LoadArenasFromFile", source: "oracle/codemp/game/g_bot.c:106")
 }
 
 /// Source: oracle/codemp/game/g_bot.c:129
-// TODO: Port signature
-// Raven wrote: int G_GetMapTypeBits(char *type)
-// No table row for `char * type`.
-func G_GetMapTypeBits() -> Never {
+func G_GetMapTypeBits(_ type: inout String) -> Int32 {
     // TODO: Port G_GetMapTypeBits
     portMissing("G_GetMapTypeBits", source: "oracle/codemp/game/g_bot.c:129")
 }
@@ -196,10 +190,7 @@ G_AddBot
 ===============
 */
 /// Source: oracle/codemp/game/g_bot.c:792
-// TODO: Port signature
-// Raven wrote: static void G_AddBot( const char *name, float skill, const char *team, int delay, char *altname)
-// No table row for `char * altname`.
-private func G_AddBot() -> Never {
+private func G_AddBot(_ name: String, _ skill: Float, _ team: String, _ delay: Int32, _ altname: inout String) {
     // TODO: Port G_AddBot
     portMissing("G_AddBot", source: "oracle/codemp/game/g_bot.c:792")
 }
@@ -232,10 +223,7 @@ G_LoadBotsFromFile
 ===============
 */
 /// Source: oracle/codemp/game/g_bot.c:1194
-// TODO: Port signature
-// Raven wrote: static void G_LoadBotsFromFile( char *filename )
-// No table row for `char * filename`.
-private func G_LoadBotsFromFile() -> Never {
+private func G_LoadBotsFromFile(_ filename: inout String) {
     // TODO: Port G_LoadBotsFromFile
     portMissing("G_LoadBotsFromFile", source: "oracle/codemp/game/g_bot.c:1194")
 }

@@ -11,7 +11,7 @@ func RandFloat(_ min: Float, _ max: Float) -> Float {
 }
 
 /// Source: oracle/codemp/game/w_saber.c:46
-func G_DebugBoxLines(_ mins: JKAShared.vec3_t, _ maxs: JKAShared.vec3_t, _ duration: Int32) {
+func G_DebugBoxLines(_ mins: inout JKAShared.vec3_t, _ maxs: inout JKAShared.vec3_t, _ duration: Int32) {
     // TODO: Port G_DebugBoxLines
     portMissing("G_DebugBoxLines", source: "oracle/codemp/game/w_saber.c:46")
 }
@@ -69,25 +69,19 @@ func WP_SaberInitBladeData(_ ent: Entity) {
 }
 
 /// Source: oracle/codemp/game/w_saber.c:642
-private func G_CheckLookTarget(_ ent: Entity, _ lookAngles: JKAShared.vec3_t, _ lookingSpeed: inout Float) -> Bool {
+private func G_CheckLookTarget(_ ent: Entity, _ lookAngles: inout JKAShared.vec3_t, _ lookingSpeed: inout Float) -> Bool {
     // TODO: Port G_CheckLookTarget
     portMissing("G_CheckLookTarget", source: "oracle/codemp/game/w_saber.c:642")
 }
 
 /// Source: oracle/codemp/game/w_saber.c:732
-// TODO: Port signature
-// Raven wrote: static GAME_INLINE void G_G2NPCAngles(gentity_t *ent, vec3_t legs[3], vec3_t angles)
-// No table row for `vec3_t[3] legs`.
-private func G_G2NPCAngles() -> Never {
+private func G_G2NPCAngles(_ ent: Entity, _ legs: inout [JKAShared.vec3_t], _ angles: inout JKAShared.vec3_t) {
     // TODO: Port G_G2NPCAngles
     portMissing("G_G2NPCAngles", source: "oracle/codemp/game/w_saber.c:732")
 }
 
 /// Source: oracle/codemp/game/w_saber.c:881
-// TODO: Port signature
-// Raven wrote: static GAME_INLINE void G_G2PlayerAngles( gentity_t *ent, vec3_t legs[3], vec3_t legsAngles)
-// No table row for `vec3_t[3] legs`.
-private func G_G2PlayerAngles() -> Never {
+private func G_G2PlayerAngles(_ ent: Entity, _ legs: inout [JKAShared.vec3_t], _ legsAngles: inout JKAShared.vec3_t) {
     // TODO: Port G_G2PlayerAngles
     portMissing("G_G2PlayerAngles", source: "oracle/codemp/game/w_saber.c:881")
 }
@@ -158,7 +152,7 @@ private func G_ClientIdleInWorld(_ ent: Entity) -> Bool {
 }
 
 /// Source: oracle/codemp/game/w_saber.c:2336
-private func G_G2TraceCollide(_ tr: JKAMP.Trace, _ lastValidStart: JKAShared.vec3_t, _ lastValidEnd: JKAShared.vec3_t, _ traceMins: JKAShared.vec3_t, _ traceMaxs: JKAShared.vec3_t) -> Bool {
+private func G_G2TraceCollide(_ tr: JKAMP.Trace, _ lastValidStart: inout JKAShared.vec3_t, _ lastValidEnd: inout JKAShared.vec3_t, _ traceMins: inout JKAShared.vec3_t, _ traceMaxs: inout JKAShared.vec3_t) -> Bool {
     // TODO: Port G_G2TraceCollide
     portMissing("G_G2TraceCollide", source: "oracle/codemp/game/w_saber.c:2336")
 }
@@ -181,14 +175,14 @@ private func G_BuildSaberFaces() -> Never {
 
 //collision utility function -rww
 /// Source: oracle/codemp/game/w_saber.c:2573
-private func G_SabCol_CalcPlaneEq(_ x: JKAShared.vec3_t, _ y: JKAShared.vec3_t, _ z: JKAShared.vec3_t, _ planeEq: inout Float) {
+private func G_SabCol_CalcPlaneEq(_ x: inout JKAShared.vec3_t, _ y: inout JKAShared.vec3_t, _ z: inout JKAShared.vec3_t, _ planeEq: inout Float) {
     // TODO: Port G_SabCol_CalcPlaneEq
     portMissing("G_SabCol_CalcPlaneEq", source: "oracle/codemp/game/w_saber.c:2573")
 }
 
 //collision utility function -rww
 /// Source: oracle/codemp/game/w_saber.c:2582
-private func G_SabCol_PointRelativeToPlane(_ pos: JKAShared.vec3_t, _ side: inout Float, _ planeEq: inout Float) -> Int32 {
+private func G_SabCol_PointRelativeToPlane(_ pos: inout JKAShared.vec3_t, _ side: inout Float, _ planeEq: inout Float) -> Int32 {
     // TODO: Port G_SabCol_PointRelativeToPlane
     portMissing("G_SabCol_PointRelativeToPlane", source: "oracle/codemp/game/w_saber.c:2582")
 }
@@ -205,7 +199,7 @@ private func G_SaberFaceCollisionCheck() -> Never {
 
 //check for collision of 2 blades -rww
 /// Source: oracle/codemp/game/w_saber.c:2700
-private func G_SaberCollide(_ atk: Entity, _ def: Entity, _ atkStart: JKAShared.vec3_t, _ atkEnd: JKAShared.vec3_t, _ atkMins: JKAShared.vec3_t, _ atkMaxs: JKAShared.vec3_t, _ impactPoint: JKAShared.vec3_t) -> Bool {
+private func G_SaberCollide(_ atk: Entity, _ def: Entity, _ atkStart: inout JKAShared.vec3_t, _ atkEnd: inout JKAShared.vec3_t, _ atkMins: inout JKAShared.vec3_t, _ atkMaxs: inout JKAShared.vec3_t, _ impactPoint: inout JKAShared.vec3_t) -> Bool {
     // TODO: Port G_SaberCollide
     portMissing("G_SaberCollide", source: "oracle/codemp/game/w_saber.c:2700")
 }
@@ -247,7 +241,7 @@ func WP_SaberClearDamage() {
 }
 
 /// Source: oracle/codemp/game/w_saber.c:3528
-func WP_SaberDamageAdd(_ trVictimEntityNum: Int32, _ trDmgDir: JKAShared.vec3_t, _ trDmgSpot: JKAShared.vec3_t, _ trDmg: Int32, _ doDismemberment: Bool, _ knockBackFlags: Int32) {
+func WP_SaberDamageAdd(_ trVictimEntityNum: Int32, _ trDmgDir: inout JKAShared.vec3_t, _ trDmgSpot: inout JKAShared.vec3_t, _ trDmg: Int32, _ doDismemberment: Bool, _ knockBackFlags: Int32) {
     // TODO: Port WP_SaberDamageAdd
     portMissing("WP_SaberDamageAdd", source: "oracle/codemp/game/w_saber.c:3528")
 }
@@ -265,7 +259,7 @@ func WP_SaberDoHit(_ `self`: Entity, _ saberNum: Int32, _ bladeNum: Int32) {
 }
 
 /// Source: oracle/codemp/game/w_saber.c:3701
-func WP_SaberRadiusDamage(_ ent: Entity, _ point: JKAShared.vec3_t, _ radius: Float, _ damage: Int32, _ knockBack: Float) {
+func WP_SaberRadiusDamage(_ ent: Entity, _ point: inout JKAShared.vec3_t, _ radius: Float, _ damage: Int32, _ knockBack: Float) {
     // TODO: Port WP_SaberRadiusDamage
     portMissing("WP_SaberRadiusDamage", source: "oracle/codemp/game/w_saber.c:3701")
 }
@@ -283,7 +277,7 @@ func WP_SaberBounceSound(_ ent: Entity, _ saberNum: Int32, _ bladeNum: Int32) {
 }
 
 /// Source: oracle/codemp/game/w_saber.c:3857
-private func CheckSaberDamage(_ `self`: Entity, _ rSaberNum: Int32, _ rBladeNum: Int32, _ saberStart: JKAShared.vec3_t, _ saberEnd: JKAShared.vec3_t, _ doInterpolate: Bool, _ trMask: Int32, _ extrapolate: Bool) -> Bool {
+private func CheckSaberDamage(_ `self`: Entity, _ rSaberNum: Int32, _ rBladeNum: Int32, _ saberStart: inout JKAShared.vec3_t, _ saberEnd: inout JKAShared.vec3_t, _ doInterpolate: Bool, _ trMask: Int32, _ extrapolate: Bool) -> Bool {
     // TODO: Port CheckSaberDamage
     portMissing("CheckSaberDamage", source: "oracle/codemp/game/w_saber.c:3857")
 }
@@ -295,7 +289,7 @@ func VectorCompare2(_ v1: JKAShared.vec3_t, _ v2: JKAShared.vec3_t) -> Int32 {
 }
 
 /// Source: oracle/codemp/game/w_saber.c:5285
-func G_SPSaberDamageTraceLerped(_ `self`: Entity, _ saberNum: Int32, _ bladeNum: Int32, _ baseNew: JKAShared.vec3_t, _ endNew: JKAShared.vec3_t, _ clipmask: Int32) {
+func G_SPSaberDamageTraceLerped(_ `self`: Entity, _ saberNum: Int32, _ bladeNum: Int32, _ baseNew: inout JKAShared.vec3_t, _ endNew: inout JKAShared.vec3_t, _ clipmask: Int32) {
     // TODO: Port G_SPSaberDamageTraceLerped
     portMissing("G_SPSaberDamageTraceLerped", source: "oracle/codemp/game/w_saber.c:5285")
 }
@@ -374,7 +368,7 @@ func WP_SaberAddG2Model(_ saberent: Entity, _ saberModel: String, _ saberSkin: J
 
 //Make the saber go flying directly out of the owner's hand in the specified direction
 /// Source: oracle/codemp/game/w_saber.c:6613
-func saberKnockOutOfHand(_ saberent: Entity, _ saberOwner: Entity, _ velocity: JKAShared.vec3_t) -> Bool {
+func saberKnockOutOfHand(_ saberent: Entity, _ saberOwner: Entity, _ velocity: inout JKAShared.vec3_t) -> Bool {
     // TODO: Port saberKnockOutOfHand
     portMissing("saberKnockOutOfHand", source: "oracle/codemp/game/w_saber.c:6613")
 }
@@ -428,13 +422,13 @@ func saberFirstThrown(_ saberent: Entity) {
 }
 
 /// Source: oracle/codemp/game/w_saber.c:7259
-func UpdateClientRenderBolts(_ `self`: Entity, _ renderOrigin: JKAShared.vec3_t, _ renderAngles: JKAShared.vec3_t) {
+func UpdateClientRenderBolts(_ `self`: Entity, _ renderOrigin: inout JKAShared.vec3_t, _ renderAngles: inout JKAShared.vec3_t) {
     // TODO: Port UpdateClientRenderBolts
     portMissing("UpdateClientRenderBolts", source: "oracle/codemp/game/w_saber.c:7259")
 }
 
 /// Source: oracle/codemp/game/w_saber.c:7322
-func UpdateClientRenderinfo(_ `self`: Entity, _ renderOrigin: JKAShared.vec3_t, _ renderAngles: JKAShared.vec3_t) {
+func UpdateClientRenderinfo(_ `self`: Entity, _ renderOrigin: inout JKAShared.vec3_t, _ renderAngles: inout JKAShared.vec3_t) {
     // TODO: Port UpdateClientRenderinfo
     portMissing("UpdateClientRenderinfo", source: "oracle/codemp/game/w_saber.c:7322")
 }
@@ -446,13 +440,13 @@ private func G_KickDownable(_ ent: Entity) -> Bool {
 }
 
 /// Source: oracle/codemp/game/w_saber.c:7502
-private func G_TossTheMofo(_ ent: Entity, _ tossDir: JKAShared.vec3_t, _ tossStr: Float) {
+private func G_TossTheMofo(_ ent: Entity, _ tossDir: inout JKAShared.vec3_t, _ tossStr: Float) {
     // TODO: Port G_TossTheMofo
     portMissing("G_TossTheMofo", source: "oracle/codemp/game/w_saber.c:7502")
 }
 
 /// Source: oracle/codemp/game/w_saber.c:7527
-private func G_KickTrace(_ ent: Entity, _ kickDir: JKAShared.vec3_t, _ kickDist: Float, _ kickEnd: JKAShared.vec3_t, _ kickDamage: Int32, _ kickPush: Float) -> Entity? {
+private func G_KickTrace(_ ent: Entity, _ kickDir: inout JKAShared.vec3_t, _ kickDist: Float, _ kickEnd: inout JKAShared.vec3_t, _ kickDamage: Int32, _ kickPush: Float) -> Entity? {
     // TODO: Port G_KickTrace
     portMissing("G_KickTrace", source: "oracle/codemp/game/w_saber.c:7527")
 }
@@ -488,19 +482,19 @@ func WP_MissileBlockForBlock(_ saberBlock: Int32) -> Int32 {
 }
 
 /// Source: oracle/codemp/game/w_saber.c:9127
-func WP_SaberBlockNonRandom(_ `self`: Entity, _ hitloc: JKAShared.vec3_t, _ missileBlock: Bool) {
+func WP_SaberBlockNonRandom(_ `self`: Entity, _ hitloc: inout JKAShared.vec3_t, _ missileBlock: Bool) {
     // TODO: Port WP_SaberBlockNonRandom
     portMissing("WP_SaberBlockNonRandom", source: "oracle/codemp/game/w_saber.c:9127")
 }
 
 /// Source: oracle/codemp/game/w_saber.c:9200
-func WP_SaberBlock(_ playerent: Entity, _ hitloc: JKAShared.vec3_t, _ missileBlock: Bool) {
+func WP_SaberBlock(_ playerent: Entity, _ hitloc: inout JKAShared.vec3_t, _ missileBlock: Bool) {
     // TODO: Port WP_SaberBlock
     portMissing("WP_SaberBlock", source: "oracle/codemp/game/w_saber.c:9200")
 }
 
 /// Source: oracle/codemp/game/w_saber.c:9276
-func WP_SaberCanBlock(_ `self`: Entity, _ point: JKAShared.vec3_t, _ dflags: Int32, _ mod: Int32, _ projectile: Bool, _ attackStr: Int32) -> Int32 {
+func WP_SaberCanBlock(_ `self`: Entity, _ point: inout JKAShared.vec3_t, _ dflags: Int32, _ mod: Int32, _ projectile: Bool, _ attackStr: Int32) -> Int32 {
     // TODO: Port WP_SaberCanBlock
     portMissing("WP_SaberCanBlock", source: "oracle/codemp/game/w_saber.c:9276")
 }

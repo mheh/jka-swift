@@ -47,19 +47,13 @@ func B_CleanupAlloc() {
 }
 
 /// Source: oracle/codemp/game/ai_util.c:160
-// TODO: Port signature
-// Raven wrote: int GetValueGroup(char *buf, char *group, char *outbuf)
-// No table row for `char * buf`.
-func GetValueGroup() -> Never {
+func GetValueGroup(_ buf: inout String, _ group: inout String, _ outbuf: inout String) -> Int32 {
     // TODO: Port GetValueGroup
     portMissing("GetValueGroup", source: "oracle/codemp/game/ai_util.c:160")
 }
 
 /// Source: oracle/codemp/game/ai_util.c:236
-// TODO: Port signature
-// Raven wrote: int GetPairedValue(char *buf, char *key, char *outbuf)
-// No table row for `char * buf`.
-func GetPairedValue() -> Never {
+func GetPairedValue(_ buf: inout String, _ key: inout String, _ outbuf: inout String) -> Int32 {
     // TODO: Port GetPairedValue
     portMissing("GetPairedValue", source: "oracle/codemp/game/ai_util.c:236")
 }

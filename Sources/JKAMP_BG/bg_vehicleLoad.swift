@@ -10,10 +10,7 @@ func BG_ClearVehicleParseParms() {
 }
 
 /// Source: oracle/codemp/game/bg_vehicleLoad.c:167
-// TODO: Port signature
-// Raven wrote: static qboolean BG_ParseVehWeaponParm( vehWeaponInfo_t *vehWeapon, char *parmName, char *pValue )
-// No table row for `char * parmName`.
-private func BG_ParseVehWeaponParm() -> Never {
+private func BG_ParseVehWeaponParm(_ vehWeapon: JKAMP.VehWeaponInfo, _ parmName: inout String, _ pValue: inout String) -> Bool {
     // TODO: Port BG_ParseVehWeaponParm
     portMissing("BG_ParseVehWeaponParm", source: "oracle/codemp/game/bg_vehicleLoad.c:167")
 }
@@ -50,10 +47,7 @@ func BG_VehicleClampData(_ vehicle: JKAMP.VehicleInfo) {
 }
 
 /// Source: oracle/codemp/game/bg_vehicleLoad.c:839
-// TODO: Port signature
-// Raven wrote: static qboolean BG_ParseVehicleParm( vehicleInfo_t *vehicle, char *parmName, char *pValue )
-// No table row for `char * parmName`.
-private func BG_ParseVehicleParm() -> Never {
+private func BG_ParseVehicleParm(_ vehicle: JKAMP.VehicleInfo, _ parmName: inout String, _ pValue: inout String) -> Bool {
     // TODO: Port BG_ParseVehicleParm
     portMissing("BG_ParseVehicleParm", source: "oracle/codemp/game/bg_vehicleLoad.c:839")
 }
@@ -93,19 +87,13 @@ func BG_VehicleGetIndex(_ vehicleName: String) -> Int32 {
 //we are expected to then get the model for the
 //vehicle and stomp over modelname with it.
 /// Source: oracle/codemp/game/bg_vehicleLoad.c:1599
-// TODO: Port signature
-// Raven wrote: void BG_GetVehicleModelName(char *modelname)
-// No table row for `char * modelname`.
-func BG_GetVehicleModelName() -> Never {
+func BG_GetVehicleModelName(_ modelname: inout String) {
     // TODO: Port BG_GetVehicleModelName
     portMissing("BG_GetVehicleModelName", source: "oracle/codemp/game/bg_vehicleLoad.c:1599")
 }
 
 /// Source: oracle/codemp/game/bg_vehicleLoad.c:1613
-// TODO: Port signature
-// Raven wrote: void BG_GetVehicleSkinName(char *skinname)
-// No table row for `char * skinname`.
-func BG_GetVehicleSkinName() -> Never {
+func BG_GetVehicleSkinName(_ skinname: inout String) {
     // TODO: Port BG_GetVehicleSkinName
     portMissing("BG_GetVehicleSkinName", source: "oracle/codemp/game/bg_vehicleLoad.c:1613")
 }

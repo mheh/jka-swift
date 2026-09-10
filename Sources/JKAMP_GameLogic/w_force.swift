@@ -5,7 +5,7 @@ import JKAShared
 import JKAMP_Game
 
 /// Source: oracle/codemp/game/w_force.c:40
-func G_PreDefSound(_ org: JKAShared.vec3_t, _ pdSound: Int32) -> Entity? {
+func G_PreDefSound(_ org: inout JKAShared.vec3_t, _ pdSound: Int32) -> Entity? {
     // TODO: Port G_PreDefSound
     portMissing("G_PreDefSound", source: "oracle/codemp/game/w_force.c:40")
 }
@@ -131,7 +131,7 @@ func ForceLightning(_ `self`: Entity) {
 }
 
 /// Source: oracle/codemp/game/w_force.c:1812
-func ForceLightningDamage(_ `self`: Entity, _ traceEnt: Entity, _ dir: JKAShared.vec3_t, _ impactPoint: JKAShared.vec3_t) {
+func ForceLightningDamage(_ `self`: Entity, _ traceEnt: Entity, _ dir: inout JKAShared.vec3_t, _ impactPoint: inout JKAShared.vec3_t) {
     // TODO: Port ForceLightningDamage
     portMissing("ForceLightningDamage", source: "oracle/codemp/game/w_force.c:1812")
 }
@@ -149,7 +149,7 @@ func ForceDrain(_ `self`: Entity) {
 }
 
 /// Source: oracle/codemp/game/w_force.c:2058
-func ForceDrainDamage(_ `self`: Entity, _ traceEnt: Entity, _ dir: JKAShared.vec3_t, _ impactPoint: JKAShared.vec3_t) {
+func ForceDrainDamage(_ `self`: Entity, _ traceEnt: Entity, _ dir: inout JKAShared.vec3_t, _ impactPoint: inout JKAShared.vec3_t) {
     // TODO: Port ForceDrainDamage
     portMissing("ForceDrainDamage", source: "oracle/codemp/game/w_force.c:2058")
 }
@@ -167,7 +167,7 @@ func ForceJumpCharge(_ `self`: Entity, _ ucmd: JKAMP.Usercmd) {
 }
 
 /// Source: oracle/codemp/game/w_force.c:2377
-func WP_GetVelocityForForceJump(_ `self`: Entity, _ jumpVel: JKAShared.vec3_t, _ ucmd: JKAMP.Usercmd) -> Int32 {
+func WP_GetVelocityForForceJump(_ `self`: Entity, _ jumpVel: inout JKAShared.vec3_t, _ ucmd: JKAMP.Usercmd) -> Int32 {
     // TODO: Port WP_GetVelocityForForceJump
     portMissing("WP_GetVelocityForForceJump", source: "oracle/codemp/game/w_force.c:2377")
 }

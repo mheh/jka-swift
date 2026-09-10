@@ -77,9 +77,16 @@ A transcriptor does not rename a parameter, reorder one, or change a return type
 | a non-const `char *` parameter with no size parameter beside it | `inout String` |
 | a function-pointer parameter | an optional Swift closure, whose parameters go through these same rows |
 | a `void *` return | `UnsafeMutableRawPointer` for `BG_Alloc`, `BG_AllocUnaligned`, and `BG_TempAlloc` only. `BG_StringAlloc` returns `PooledString`. |
+| a pointer parameter Raven fills as a fixed set of floats, such as `float *colors` of `BG_ValidateSkinForTeam` | `inout vec3_t` |
+| a `qhandle_t *` parameter of a trap or strap function | `UnsafeMutablePointer<Int32>?` |
 
 A body with an `inout String` parameter reads it, builds the rewritten text, and assigns it back once, where Raven writes the terminator.
 `BG_ParseField` takes `UnsafeMutableRawPointer` for `byte *ent` and `Slots<BgField>` for the field table, and writes with `storeBytes` at `ent + Int(f.ofs)`. The caller passes the entity's handle turned raw, with a one-line comment that names rule 11.
+A body with an `inout vec3_t` parameter such as `colors` drops the `&& colors` half of Raven's guard, and carries the null-guard Port-note this guide already describes.
+A caller that passed `NULL` for that parameter passes a scratch local instead, `var colors = vec3_t(0, 0, 0)`, and reads nothing from it.
+A caller of a trap or strap function writes `nil` where Raven wrote `NULL` for a `qhandle_t *` parameter.
+The pointer stays inside generated code under rule 11, and no ported body indexes it.
+An `int *` or `float *` parameter whose pointee is `qhandle_t` is not an `inout` scalar.
 
 ### Vectors and the vector macros
 

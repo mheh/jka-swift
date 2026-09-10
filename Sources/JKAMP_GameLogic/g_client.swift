@@ -214,13 +214,13 @@ func SpotWouldTelefrag(_ spot: Entity) -> Bool {
 }
 
 /// Source: oracle/codemp/game/g_client.c:554
-func SpotWouldTelefrag2(_ mover: Entity, _ dest: JKAShared.vec3_t) -> Bool {
+func SpotWouldTelefrag2(_ mover: Entity, _ dest: inout JKAShared.vec3_t) -> Bool {
     // TODO: Port SpotWouldTelefrag2
     portMissing("SpotWouldTelefrag2", source: "oracle/codemp/game/g_client.c:554")
 }
 
 /// Source: oracle/codemp/game/g_client.c:590
-func SelectNearestDeathmatchSpawnPoint(_ from: JKAShared.vec3_t) -> Entity? {
+func SelectNearestDeathmatchSpawnPoint(_ from: inout JKAShared.vec3_t) -> Entity? {
     // TODO: Port SelectNearestDeathmatchSpawnPoint
     portMissing("SelectNearestDeathmatchSpawnPoint", source: "oracle/codemp/game/g_client.c:590")
 }
@@ -239,13 +239,13 @@ Chooses a player start, deathmatch start, etc
 ============
 */
 /// Source: oracle/codemp/game/g_client.c:654
-func SelectRandomFurthestSpawnPoint(_ avoidPoint: JKAShared.vec3_t, _ origin: JKAShared.vec3_t, _ angles: JKAShared.vec3_t, _ team: JKAMP.team_t) -> Entity? {
+func SelectRandomFurthestSpawnPoint(_ avoidPoint: inout JKAShared.vec3_t, _ origin: inout JKAShared.vec3_t, _ angles: inout JKAShared.vec3_t, _ team: JKAMP.team_t) -> Entity? {
     // TODO: Port SelectRandomFurthestSpawnPoint
     portMissing("SelectRandomFurthestSpawnPoint", source: "oracle/codemp/game/g_client.c:654")
 }
 
 /// Source: oracle/codemp/game/g_client.c:760
-func SelectDuelSpawnPoint(_ team: Int32, _ avoidPoint: JKAShared.vec3_t, _ origin: JKAShared.vec3_t, _ angles: JKAShared.vec3_t) -> Entity? {
+func SelectDuelSpawnPoint(_ team: Int32, _ avoidPoint: inout JKAShared.vec3_t, _ origin: inout JKAShared.vec3_t, _ angles: inout JKAShared.vec3_t) -> Entity? {
     // TODO: Port SelectDuelSpawnPoint
     portMissing("SelectDuelSpawnPoint", source: "oracle/codemp/game/g_client.c:760")
 }
@@ -258,7 +258,7 @@ Chooses a player start, deathmatch start, etc
 ============
 */
 /// Source: oracle/codemp/game/g_client.c:854
-func SelectSpawnPoint(_ avoidPoint: JKAShared.vec3_t, _ origin: JKAShared.vec3_t, _ angles: JKAShared.vec3_t, _ team: JKAMP.team_t) -> Entity? {
+func SelectSpawnPoint(_ avoidPoint: inout JKAShared.vec3_t, _ origin: inout JKAShared.vec3_t, _ angles: inout JKAShared.vec3_t, _ team: JKAMP.team_t) -> Entity? {
     // TODO: Port SelectSpawnPoint
     portMissing("SelectSpawnPoint", source: "oracle/codemp/game/g_client.c:854")
 }
@@ -272,7 +272,7 @@ use normal spawn selection.
 ============
 */
 /// Source: oracle/codemp/game/g_client.c:894
-func SelectInitialSpawnPoint(_ origin: JKAShared.vec3_t, _ angles: JKAShared.vec3_t, _ team: JKAMP.team_t) -> Entity? {
+func SelectInitialSpawnPoint(_ origin: inout JKAShared.vec3_t, _ angles: inout JKAShared.vec3_t, _ team: JKAMP.team_t) -> Entity? {
     // TODO: Port SelectInitialSpawnPoint
     portMissing("SelectInitialSpawnPoint", source: "oracle/codemp/game/g_client.c:894")
 }
@@ -284,7 +284,7 @@ SelectSpectatorSpawnPoint
 ============
 */
 /// Source: oracle/codemp/game/g_client.c:921
-func SelectSpectatorSpawnPoint(_ origin: JKAShared.vec3_t, _ angles: JKAShared.vec3_t) -> Entity? {
+func SelectSpectatorSpawnPoint(_ origin: inout JKAShared.vec3_t, _ angles: inout JKAShared.vec3_t) -> Entity? {
     // TODO: Port SelectSpectatorSpawnPoint
     portMissing("SelectSpectatorSpawnPoint", source: "oracle/codemp/game/g_client.c:921")
 }
@@ -334,7 +334,7 @@ SetClientViewAngle
 ==================
 */
 /// Source: oracle/codemp/game/g_client.c:1116
-func SetClientViewAngle(_ ent: Entity, _ angle: JKAShared.vec3_t) {
+func SetClientViewAngle(_ ent: Entity, _ angle: inout JKAShared.vec3_t) {
     // TODO: Port SetClientViewAngle
     portMissing("SetClientViewAngle", source: "oracle/codemp/game/g_client.c:1116")
 }
@@ -395,10 +395,7 @@ ClientCheckName
 ============
 */
 /// Source: oracle/codemp/game/g_client.c:1335
-// TODO: Port signature
-// Raven wrote: static void ClientCleanName( const char *in, char *out, int outSize )
-// No table row for `char * out`.
-private func ClientCleanName() -> Never {
+private func ClientCleanName(_ `in`: String, _ out: inout String, _ outSize: Int32) {
     // TODO: Port ClientCleanName
     portMissing("ClientCleanName", source: "oracle/codemp/game/g_client.c:1335")
 }
@@ -410,10 +407,7 @@ func G_SaberModelSetup(_ ent: Entity) -> Bool {
 }
 
 /// Source: oracle/codemp/game/g_client.c:1519
-// TODO: Port signature
-// Raven wrote: void SetupGameGhoul2Model(gentity_t *ent, char *modelname, char *skinName)
-// No table row for `char * modelname`.
-func SetupGameGhoul2Model() -> Never {
+func SetupGameGhoul2Model(_ ent: Entity, _ modelname: inout String, _ skinName: inout String) {
     // TODO: Port SetupGameGhoul2Model
     portMissing("SetupGameGhoul2Model", source: "oracle/codemp/game/g_client.c:1519")
 }

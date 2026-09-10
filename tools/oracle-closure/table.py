@@ -13,10 +13,20 @@ from pathlib import Path
 import clang.cindex as ci
 from clang.cindex import TypeKind
 
+from clang.cindex import CursorKind
+
 from reexport import SCALARS
 from views import Generator
 
 TARGET = "CJKAMP_Game"
+# The three allocators return a pointer into the pool, and the raw pointer is the only Swift type a view can bind over.
+RAW_RETURNS = {"BG_Alloc", "BG_AllocUnaligned", "BG_TempAlloc"}
+# BG_StringAlloc copies the text into the pool and returns it as the type a `char *` field carries.
+STRING_RETURNS = {"BG_StringAlloc"}
+# BG_ParseField writes at a byte offset into the entity, the one body that takes raw memory.
+RAW_PARAMS = {("BG_ParseField", "ent")}
+# A pointer Raven fills as three floats is a vector.
+VEC3_PARAMS = {("BG_ValidateSkinForTeam", "colors")}
 BUILTINS = set(SCALARS.values()) | {"Bool", "Float", "Int32"}
 INT_KINDS = {TypeKind.INT, TypeKind.UINT, TypeKind.LONG, TypeKind.ULONG, TypeKind.SHORT, TypeKind.USHORT}
 # An int beside a char * is its size only when Raven named it so. trap_BotSetChatName's `client` is not a size.
@@ -97,36 +107,54 @@ class Table:
         self.views = Generator(None)
 
 
-    def param(self, cur: ci.Cursor, following: ci.Cursor | None, traps: bool = True) -> Param | None:
+    def param(self, cur: ci.Cursor, following: ci.Cursor | None, traps: bool = True, owner: str | None = None) -> Param | None:
         """The table row of one parameter. A `char *` out-buffer is a returned String only in a trap, where the engine fills it."""
         name = cur.spelling
         t = cur.type
         canonical = t.get_canonical()
+        if (owner, name) in RAW_PARAMS:
+            return Param(name, "UnsafeMutableRawPointer", "bare")
+        if (owner, name) in VEC3_PARAMS:
+            return Param(name, "inout JKAShared.vec3_t", "vec3_mut")
         # A vec3_t parameter is the array type itself, and Clang keeps the typedef name on the parameter.
         if t.spelling.split()[-1] == "vec3_t":
-            return Param(name, "JKAShared.vec3_t", "vec3_const" if "const" in t.spelling else "vec3_mut")
+            if "const" in t.spelling:
+                return Param(name, "JKAShared.vec3_t", "vec3_const")
+            return Param(name, "inout JKAShared.vec3_t", "vec3_mut")
         if canonical.kind == TypeKind.POINTER:
             pointee = canonical.get_pointee()
             inner = pointee.get_canonical()
-            if inner.kind == TypeKind.FUNCTIONPROTO or "vec3_t" in t.spelling:
-                return None
+            if inner.kind == TypeKind.FUNCTIONPROTO:
+                return None if traps else self.closure(cur, name)
+            if "vec3_t" in t.spelling:
+                # `vec3_t name[3]` is an axis, the type the ported q_math axis functions take.
+                return None if traps else Param(name, "inout [JKAShared.vec3_t]", "vec3_axis")
             if inner.kind == TypeKind.CHAR_S:
                 if pointee.is_const_qualified():
                     return Param(name, "String", "cstring")
                 if traps and following is not None and following.type.get_canonical().kind in INT_KINDS and SIZE_NAME.search(following.spelling):
                     return Param(name, None, "out_string", size=following.spelling)
-                return None
+                # A body reads and rewrites the caller's buffer in place, so the text crosses as one inout string.
+                return None if traps else Param(name, "inout String", "inout_string")
             record = self.views.record_name(pointee)
             if record and record in self.views.views:
+                if owner == "BG_ParseField":
+                    return Param(name, f"Slots<{self.views.qualified_view(record, TARGET)}>", "bare")
                 return Param(name, self.views.qualified_view(record, TARGET), "view")
             if inner.kind == TypeKind.VOID:
                 return Param(name, "OpaquePointer?", "bare")
+            # An array of model handles the engine reads, and every caller passes NULL. The pointer stays in generated code.
+            if t.get_pointee().spelling.replace("const ", "") == "qhandle_t":
+                return Param(name, "UnsafeMutablePointer<Int32>?", "bare")
             # A pointer to one scalar is an out-param, `inout`. A body that finds Raven walks it as an array writes a Port-note.
             if not pointee.is_const_qualified() and (inner.kind in INT_KINDS or inner.kind in (TypeKind.FLOAT, TypeKind.ENUM)):
                 swift = self.views.scalar(pointee, TARGET)
                 if swift is not None and self.known(swift):
                     return Param(name, f"inout {swift}", "out_scalar")
             return None
+        if canonical.kind == TypeKind.CONSTANTARRAY and "vec3_t" in t.spelling:
+            # `vec3_t name[3]` is an axis, the type the ported q_math axis functions take.
+            return None if traps else Param(name, "inout [JKAShared.vec3_t]", "vec3_axis")
         if canonical.kind in (TypeKind.RECORD, TypeKind.CONSTANTARRAY):
             return None
         swift = self.views.scalar(t, TARGET)
@@ -135,13 +163,35 @@ class Table:
         # A C enum is an Int32 alias, so it travels as a bare word.
         return Param(name, swift, "bare")
 
+    def closure(self, cur: ci.Cursor, name: str) -> Param | None:
+        """A function-pointer parameter as an optional Swift closure, each prototype parameter through the same rows."""
+        protos = [c for c in cur.get_children() if c.kind == CursorKind.PARM_DECL]
+        types: list[str] = []
+        for i, p in enumerate(protos):
+            following = protos[i + 1] if i + 1 < len(protos) else None
+            m = self.param(p, following, traps=False)
+            if m is None or m.swift is None:
+                return None
+            types.append(m.swift)
+        result = self.result_type(cur.type.get_canonical().get_pointee().get_result())
+        if result is None:
+            return None
+        returns = result[0] or "Void"
+        return Param(name, f"(({', '.join(types)}) -> {returns})?", "bare")
+
     def known(self, swift: str) -> bool:
         """A Swift spelling the logic target can see: a builtin, or a name a view target re-exports. An enum a .c file defines is neither."""
         return swift in BUILTINS or swift.split(".")[-1] in self.views.declared
 
     def result(self, cur: ci.Cursor) -> tuple[str | None, str] | None:
         """The Swift return type and the expression that maps the word into it, or None for an unmappable return."""
-        t = cur.result_type
+        if cur.spelling in RAW_RETURNS:
+            return ("UnsafeMutableRawPointer", "")
+        if cur.spelling in STRING_RETURNS:
+            return ("PooledString", "")
+        return self.result_type(cur.result_type)
+
+    def result_type(self, t: ci.Type) -> tuple[str | None, str] | None:
         canonical = t.get_canonical()
         if canonical.kind == TypeKind.VOID:
             return (None, "")

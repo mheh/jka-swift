@@ -11,7 +11,7 @@ The oracle range is the whole definition, from the return type to the closing br
 | `NPC_RemoveBody` | `oracle/codemp/game/NPC.c:115-223` | `JKAMP_GameLogic/NPC.swift:14` | marker | `crates/mp/game/src/npc_c.rs:138-277` | `func NPC_RemoveBody(_ `self`: Entity)` |
 | `BodyRemovalPadTime` | `oracle/codemp/game/NPC.c:233-312` | `JKAMP_GameLogic/NPC.swift:20` | marker | `crates/mp/game/src/npc_c.rs:283-310` | `func BodyRemovalPadTime(_ ent: Entity) -> Int32` |
 | `NPC_RemoveBodyEffect` static | `oracle/codemp/game/NPC.c:323-378` | `JKAMP_GameLogic/NPC.swift:26` | marker | `crates/mp/game/src/npc_c.rs:315-330` | `private func NPC_RemoveBodyEffect()` |
-| `pitch_roll_for_slope` | `oracle/codemp/game/NPC.c:395-470` | `JKAMP_GameLogic/NPC.swift:32` | marker | `crates/mp/game/src/npc_c.rs:339-466` | `func pitch_roll_for_slope(_ forwhom: Entity, _ pass_slope: JKAShared.vec3_t)` |
+| `pitch_roll_for_slope` | `oracle/codemp/game/NPC.c:395-470` | `JKAMP_GameLogic/NPC.swift:32` | marker | `crates/mp/game/src/npc_c.rs:339-466` | `func pitch_roll_for_slope(_ forwhom: Entity, _ pass_slope: inout JKAShared.vec3_t)` |
 | `DeadThink` static | `oracle/codemp/game/NPC.c:478-607` | `JKAMP_GameLogic/NPC.swift:43` | marker | `crates/mp/game/src/npc_c.rs:471-661` | `private func DeadThink()` |
 | `SetNPCGlobals` | `oracle/codemp/game/NPC.c:617-623` | `JKAMP_GameLogic/NPC.swift:56` | marker | `crates/mp/game/src/npc_c.rs:666-676` | `func SetNPCGlobals(_ ent: Entity)` |
 | `SaveNPCGlobals` | `oracle/codemp/game/NPC.c:630-636` | `JKAMP_GameLogic/NPC.swift:62` | marker | `crates/mp/game/src/npc_c.rs:681-686` | `func SaveNPCGlobals()` |

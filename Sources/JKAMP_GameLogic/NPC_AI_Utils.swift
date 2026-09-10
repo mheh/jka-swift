@@ -5,7 +5,7 @@ import JKAShared
 import JKAMP_Game
 
 /// Source: oracle/codemp/game/NPC_AI_Utils.c:23
-func AI_GetGroupSize(_ origin: JKAShared.vec3_t, _ radius: Int32, _ playerTeam: JKAMP.team_t, _ avoid: Entity) -> Int32 {
+func AI_GetGroupSize(_ origin: inout JKAShared.vec3_t, _ radius: Int32, _ playerTeam: JKAMP.team_t, _ avoid: Entity) -> Int32 {
     // TODO: Port AI_GetGroupSize
     portMissing("AI_GetGroupSize", source: "oracle/codemp/game/NPC_AI_Utils.c:23")
 }
@@ -17,7 +17,7 @@ func AI_GetGroupSize2(_ ent: Entity, _ radius: Int32) -> Int32 {
 }
 
 /// Source: oracle/codemp/game/NPC_AI_Utils.c:80
-func AI_ClosestGroupEntityNumToPoint(_ group: AIGroupInfo, _ point: JKAShared.vec3_t) -> Int32 {
+func AI_ClosestGroupEntityNumToPoint(_ group: AIGroupInfo, _ point: inout JKAShared.vec3_t) -> Int32 {
     // TODO: Port AI_ClosestGroupEntityNumToPoint
     portMissing("AI_ClosestGroupEntityNumToPoint", source: "oracle/codemp/game/NPC_AI_Utils.c:80")
 }
@@ -107,7 +107,7 @@ func AI_GroupMemberKilled(_ `self`: Entity) {
 }
 
 /// Source: oracle/codemp/game/NPC_AI_Utils.c:699
-func AI_GroupUpdateEnemyLastSeen(_ group: AIGroupInfo, _ spot: JKAShared.vec3_t) {
+func AI_GroupUpdateEnemyLastSeen(_ group: AIGroupInfo, _ spot: inout JKAShared.vec3_t) {
     // TODO: Port AI_GroupUpdateEnemyLastSeen
     portMissing("AI_GroupUpdateEnemyLastSeen", source: "oracle/codemp/game/NPC_AI_Utils.c:699")
 }

@@ -80,7 +80,7 @@ func SP_light(_ `self`: Entity) {
 }
 
 /// Source: oracle/codemp/game/g_misc.c:177
-func TeleportPlayer(_ player: Entity, _ origin: JKAShared.vec3_t, _ angles: JKAShared.vec3_t) {
+func TeleportPlayer(_ player: Entity, _ origin: inout JKAShared.vec3_t, _ angles: inout JKAShared.vec3_t) {
     // TODO: Port TeleportPlayer
     portMissing("TeleportPlayer", source: "oracle/codemp/game/g_misc.c:177")
 }
@@ -626,19 +626,19 @@ func TAG_Add() -> Never {
 }
 
 /// Source: oracle/codemp/game/g_misc.c:3112
-func TAG_GetOrigin(_ owner: String, _ name: String, _ origin: JKAShared.vec3_t) -> Int32 {
+func TAG_GetOrigin(_ owner: String, _ name: String, _ origin: inout JKAShared.vec3_t) -> Int32 {
     // TODO: Port TAG_GetOrigin
     portMissing("TAG_GetOrigin", source: "oracle/codemp/game/g_misc.c:3112")
 }
 
 /// Source: oracle/codemp/game/g_misc.c:3134
-func TAG_GetOrigin2(_ owner: String, _ name: String, _ origin: JKAShared.vec3_t) -> Int32 {
+func TAG_GetOrigin2(_ owner: String, _ name: String, _ origin: inout JKAShared.vec3_t) -> Int32 {
     // TODO: Port TAG_GetOrigin2
     portMissing("TAG_GetOrigin2", source: "oracle/codemp/game/g_misc.c:3134")
 }
 
 /// Source: oracle/codemp/game/g_misc.c:3153
-func TAG_GetAngles(_ owner: String, _ name: String, _ angles: JKAShared.vec3_t) -> Int32 {
+func TAG_GetAngles(_ owner: String, _ name: String, _ angles: inout JKAShared.vec3_t) -> Int32 {
     // TODO: Port TAG_GetAngles
     portMissing("TAG_GetAngles", source: "oracle/codemp/game/g_misc.c:3153")
 }

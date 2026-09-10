@@ -40,10 +40,7 @@ func G_SiegeGetCompletionStatus(_ team: Int32, _ objective: Int32) -> Bool {
 }
 
 /// Source: oracle/codemp/game/g_saga.c:482
-// TODO: Port signature
-// Raven wrote: void UseSiegeTarget(gentity_t *other, gentity_t *en, char *target)
-// No table row for `char * target`.
-func UseSiegeTarget() -> Never {
+func UseSiegeTarget(_ other: Entity, _ en: Entity, _ target: inout String) {
     // TODO: Port UseSiegeTarget
     portMissing("UseSiegeTarget", source: "oracle/codemp/game/g_saga.c:482")
 }
@@ -209,7 +206,7 @@ func SiegeItemRemoveOwner(_ ent: Entity, _ carrier: Entity) {
 }
 
 /// Source: oracle/codemp/game/g_saga.c:1351
-private func SiegeItemRespawnEffect(_ ent: Entity, _ newOrg: JKAShared.vec3_t) {
+private func SiegeItemRespawnEffect(_ ent: Entity, _ newOrg: inout JKAShared.vec3_t) {
     // TODO: Port SiegeItemRespawnEffect
     portMissing("SiegeItemRespawnEffect", source: "oracle/codemp/game/g_saga.c:1351")
 }

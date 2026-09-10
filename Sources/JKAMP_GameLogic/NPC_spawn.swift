@@ -167,10 +167,7 @@ func NPC_Spawn(_ ent: Entity, _ other: Entity, _ activator: Entity) {
 }
 
 /// Source: oracle/codemp/game/NPC_spawn.c:1961
-// TODO: Port signature
-// Raven wrote: void NPC_PrecacheType( char *NPC_type )
-// No table row for `char * NPC_type`.
-func NPC_PrecacheType() -> Never {
+func NPC_PrecacheType(_ NPC_type: inout String) {
     // TODO: Port NPC_PrecacheType
     portMissing("NPC_PrecacheType", source: "oracle/codemp/game/NPC_spawn.c:1961")
 }
@@ -1179,10 +1176,7 @@ func SP_NPC_Droid_Protocol(_ `self`: Entity) {
 }
 
 /// Source: oracle/codemp/game/NPC_spawn.c:3872
-// TODO: Port signature
-// Raven wrote: gentity_t *NPC_SpawnType( gentity_t *ent, char *npc_type, char *targetname, qboolean isVehicle )
-// No table row for `char * npc_type`.
-func NPC_SpawnType() -> Never {
+func NPC_SpawnType(_ ent: Entity, _ npc_type: inout String, _ targetname: inout String, _ isVehicle: Bool) -> Entity? {
     // TODO: Port NPC_SpawnType
     portMissing("NPC_SpawnType", source: "oracle/codemp/game/NPC_spawn.c:3872")
 }

@@ -60,7 +60,7 @@ AddTeamScore
 ==============
 */
 /// Source: oracle/codemp/game/g_team.c:142
-func AddTeamScore(_ origin: JKAShared.vec3_t, _ team: Int32, _ score: Int32) {
+func AddTeamScore(_ origin: inout JKAShared.vec3_t, _ team: Int32, _ score: Int32) {
     // TODO: Port AddTeamScore
     portMissing("AddTeamScore", source: "oracle/codemp/game/g_team.c:142")
 }
@@ -224,10 +224,7 @@ Report a location for the player. Uses placed nearby target_location entities
 ============
 */
 /// Source: oracle/codemp/game/g_team.c:919
-// TODO: Port signature
-// Raven wrote: qboolean Team_GetLocationMsg(gentity_t *ent, char *loc, int loclen)
-// No table row for `char * loc`.
-func Team_GetLocationMsg() -> Never {
+func Team_GetLocationMsg(_ ent: Entity, _ loc: inout String, _ loclen: Int32) -> Bool {
     // TODO: Port Team_GetLocationMsg
     portMissing("Team_GetLocationMsg", source: "oracle/codemp/game/g_team.c:919")
 }
@@ -245,7 +242,7 @@ SelectCTFSpawnPoint
 ============
 */
 /// Source: oracle/codemp/game/g_team.c:1049
-func SelectCTFSpawnPoint(_ team: JKAMP.team_t, _ teamstate: Int32, _ origin: JKAShared.vec3_t, _ angles: JKAShared.vec3_t) -> Entity? {
+func SelectCTFSpawnPoint(_ team: JKAMP.team_t, _ teamstate: Int32, _ origin: inout JKAShared.vec3_t, _ angles: inout JKAShared.vec3_t) -> Entity? {
     // TODO: Port SelectCTFSpawnPoint
     portMissing("SelectCTFSpawnPoint", source: "oracle/codemp/game/g_team.c:1049")
 }
@@ -257,7 +254,7 @@ SelectSiegeSpawnPoint
 ============
 */
 /// Source: oracle/codemp/game/g_team.c:1071
-func SelectSiegeSpawnPoint(_ siegeClass: Int32, _ team: JKAMP.team_t, _ teamstate: Int32, _ origin: JKAShared.vec3_t, _ angles: JKAShared.vec3_t) -> Entity? {
+func SelectSiegeSpawnPoint(_ siegeClass: Int32, _ team: JKAMP.team_t, _ teamstate: Int32, _ origin: inout JKAShared.vec3_t, _ angles: inout JKAShared.vec3_t) -> Entity? {
     // TODO: Port SelectSiegeSpawnPoint
     portMissing("SelectSiegeSpawnPoint", source: "oracle/codemp/game/g_team.c:1071")
 }

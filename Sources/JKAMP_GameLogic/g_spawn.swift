@@ -95,10 +95,7 @@ func G_AddSpawnVarToken() -> Never {
 }
 
 /// Source: oracle/codemp/game/g_spawn.c:868
-// TODO: Port signature
-// Raven wrote: void AddSpawnField(char *field, char *value)
-// No table row for `char * field`.
-func AddSpawnField() -> Never {
+func AddSpawnField(_ field: inout String, _ value: inout String) {
     // TODO: Port AddSpawnField
     portMissing("AddSpawnField", source: "oracle/codemp/game/g_spawn.c:868")
 }

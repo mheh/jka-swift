@@ -12,7 +12,7 @@ The parameter table is abi-stubs.md row 2:
   float                        Float, bare, the word is PASSFLOAT's
   const char *                 String, withCString around the call
   char * with an int size      dropped, the trap returns String, a buffer of the size read after the call through String(nulTerminated:)
-  const vec3_t, vec3_t         vec3_t, withUnsafePointer around the call, a var copy written back when not const
+  const vec3_t, vec3_t         vec3_t by value when const, inout vec3_t when not, a pointer scoped around the call
   int *, float *, qboolean *   inout of the scalar, withUnsafeMutablePointer around the call
   pointer to a viewed struct   the view, bare
   void *                       OpaquePointer?, bare
@@ -139,9 +139,6 @@ class Traps:
         body: list[str] = []
         for p in outs:
             body.append(f"    var {p.name} = [CChar](repeating: 0, count: Int({p.size}))")
-        for p in mapped.values():
-            if p.kind == "vec3_mut":
-                body.append(f"    var {p.name} = {p.name}")
         # Every scoped pointer wraps the call in one closure, innermost last.
         layers: list[str] = []
         for p in mapped.values():

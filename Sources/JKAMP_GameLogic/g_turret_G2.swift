@@ -6,10 +6,7 @@ import JKAMP_Game
 
 //special routine for tracking angles between client and server -rww
 /// Source: oracle/codemp/game/g_turret_G2.c:24
-// TODO: Port signature
-// Raven wrote: void G2Tur_SetBoneAngles(gentity_t *ent, char *bone, vec3_t angles)
-// No table row for `char * bone`.
-func G2Tur_SetBoneAngles() -> Never {
+func G2Tur_SetBoneAngles(_ ent: Entity, _ bone: inout String, _ angles: inout JKAShared.vec3_t) {
     // TODO: Port G2Tur_SetBoneAngles
     portMissing("G2Tur_SetBoneAngles", source: "oracle/codemp/game/g_turret_G2.c:24")
 }
@@ -43,7 +40,7 @@ func TurboLaser_SetBoneAnim(_ eweb: Entity, _ startFrame: Int32, _ endFrame: Int
 
 //----------------------------------------------------------------
 /// Source: oracle/codemp/game/g_turret_G2.c:344
-private func turretG2_fire(_ ent: Entity, _ start: JKAShared.vec3_t, _ dir: JKAShared.vec3_t) {
+private func turretG2_fire(_ ent: Entity, _ start: inout JKAShared.vec3_t, _ dir: inout JKAShared.vec3_t) {
     // TODO: Port turretG2_fire
     portMissing("turretG2_fire", source: "oracle/codemp/game/g_turret_G2.c:344")
 }

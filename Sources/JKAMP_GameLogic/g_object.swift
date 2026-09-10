@@ -29,7 +29,7 @@ func G_StopObjectMoving(_ object: Entity) {
 }
 
 /// Source: oracle/codemp/game/g_object.c:260
-func G_StartObjectMoving(_ object: Entity, _ dir: JKAShared.vec3_t, _ speed: Float, _ trType: JKAShared.trType_t) {
+func G_StartObjectMoving(_ object: Entity, _ dir: inout JKAShared.vec3_t, _ speed: Float, _ trType: JKAShared.trType_t) {
     // TODO: Port G_StartObjectMoving
     portMissing("G_StartObjectMoving", source: "oracle/codemp/game/g_object.c:260")
 }

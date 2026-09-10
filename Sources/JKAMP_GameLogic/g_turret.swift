@@ -34,7 +34,7 @@ func bottom_die(_ `self`: Entity, _ inflictor: Entity, _ attacker: Entity, _ dam
 
 //----------------------------------------------------------------
 /// Source: oracle/codemp/game/g_turret.c:129
-private func turret_fire(_ ent: Entity, _ start: JKAShared.vec3_t, _ dir: JKAShared.vec3_t) {
+private func turret_fire(_ ent: Entity, _ start: inout JKAShared.vec3_t, _ dir: inout JKAShared.vec3_t) {
     // TODO: Port turret_fire
     portMissing("turret_fire", source: "oracle/codemp/game/g_turret.c:129")
 }

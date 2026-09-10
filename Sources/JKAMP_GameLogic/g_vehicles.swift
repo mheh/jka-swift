@@ -67,7 +67,7 @@ private func Board(_ pVeh: JKAMP.Vehicle, _ pEnt: JKAMP.BgEntity) -> Bool {
 }
 
 /// Source: oracle/codemp/game/g_vehicles.c:874
-func VEH_TryEject(_ pVeh: JKAMP.Vehicle, _ parent: Entity, _ ent: Entity, _ ejectDir: Int32, _ vExitPos: JKAShared.vec3_t) -> Bool {
+func VEH_TryEject(_ pVeh: JKAMP.Vehicle, _ parent: Entity, _ ent: Entity, _ ejectDir: Int32, _ vExitPos: inout JKAShared.vec3_t) -> Bool {
     // TODO: Port VEH_TryEject
     portMissing("VEH_TryEject", source: "oracle/codemp/game/g_vehicles.c:874")
 }

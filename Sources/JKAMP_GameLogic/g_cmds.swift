@@ -62,10 +62,7 @@ Remove case and control characters
 ==================
 */
 /// Source: oracle/codemp/game/g_cmds.c:161
-// TODO: Port signature
-// Raven wrote: void SanitizeString( char *in, char *out )
-// No table row for `char * in`.
-func SanitizeString() -> Never {
+func SanitizeString(_ `in`: inout String, _ out: inout String) {
     // TODO: Port SanitizeString
     portMissing("SanitizeString", source: "oracle/codemp/game/g_cmds.c:161")
 }
@@ -79,10 +76,7 @@ Returns -1 if invalid
 ==================
 */
 /// Source: oracle/codemp/game/g_cmds.c:185
-// TODO: Port signature
-// Raven wrote: int ClientNumberFromString( gentity_t *to, char *s )
-// No table row for `char * s`.
-func ClientNumberFromString() -> Never {
+func ClientNumberFromString(_ to: Entity, _ s: inout String) -> Int32 {
     // TODO: Port ClientNumberFromString
     portMissing("ClientNumberFromString", source: "oracle/codemp/game/g_cmds.c:185")
 }
@@ -210,10 +204,7 @@ func G_PowerDuelCheckFail(_ ent: Entity) -> Bool {
 }
 
 /// Source: oracle/codemp/game/g_cmds.c:752
-// TODO: Port signature
-// Raven wrote: void SetTeam( gentity_t *ent, char *s )
-// No table row for `char * s`.
-func SetTeam() -> Never {
+func SetTeam(_ ent: Entity, _ s: inout String) {
     // TODO: Port SetTeam
     portMissing("SetTeam", source: "oracle/codemp/game/g_cmds.c:752")
 }
@@ -283,10 +274,7 @@ func Cmd_ForceChanged_f(_ ent: Entity) {
 }
 
 /// Source: oracle/codemp/game/g_cmds.c:1396
-// TODO: Port signature
-// Raven wrote: qboolean G_SetSaber(gentity_t *ent, int saberNum, char *saberName, qboolean siegeOverride)
-// No table row for `char * saberName`.
-func G_SetSaber() -> Never {
+func G_SetSaber(_ ent: Entity, _ saberNum: Int32, _ saberName: inout String, _ siegeOverride: Bool) -> Bool {
     // TODO: Port G_SetSaber
     portMissing("G_SetSaber", source: "oracle/codemp/game/g_cmds.c:1396")
 }
@@ -314,10 +302,7 @@ func Cmd_FollowCycle_f(_ ent: Entity, _ dir: Int32) {
 }
 
 /// Source: oracle/codemp/game/g_cmds.c:1566
-// TODO: Port signature
-// Raven wrote: static void G_SayTo( gentity_t *ent, gentity_t *other, int mode, int color, const char *name, const char *message, char *locMsg )
-// No table row for `char * locMsg`.
-private func G_SayTo() -> Never {
+private func G_SayTo(_ ent: Entity, _ other: Entity, _ mode: Int32, _ color: Int32, _ name: String, _ message: String, _ locMsg: inout String) {
     // TODO: Port G_SayTo
     portMissing("G_SayTo", source: "oracle/codemp/game/g_cmds.c:1566")
 }
@@ -395,10 +380,7 @@ Rich's revised version of SanitizeString
 ==================
 */
 /// Source: oracle/codemp/game/g_cmds.c:1899
-// TODO: Port signature
-// Raven wrote: void SanitizeString2( char *in, char *out )
-// No table row for `char * in`.
-func SanitizeString2() -> Never {
+func SanitizeString2(_ `in`: inout String, _ out: inout String) {
     // TODO: Port SanitizeString2
     portMissing("SanitizeString2", source: "oracle/codemp/game/g_cmds.c:1899")
 }
@@ -526,10 +508,7 @@ func StandardSetBodyAnim(_ `self`: Entity, _ anim: Int32, _ flags: Int32) {
 }
 
 /// Source: oracle/codemp/game/g_cmds.c:3128
-// TODO: Port signature
-// Raven wrote: static int G_ClientNumFromNetname(char *name)
-// No table row for `char * name`.
-private func G_ClientNumFromNetname() -> Never {
+private func G_ClientNumFromNetname(_ name: inout String) -> Int32 {
     // TODO: Port G_ClientNumFromNetname
     portMissing("G_ClientNumFromNetname", source: "oracle/codemp/game/g_cmds.c:3128")
 }

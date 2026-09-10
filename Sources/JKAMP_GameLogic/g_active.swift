@@ -96,7 +96,7 @@ Spectators will only interact with teleporters.
 ============
 */
 /// Source: oracle/codemp/game/g_active.c:601
-func G_MoverTouchPushTriggers(_ ent: Entity, _ oldOrg: JKAShared.vec3_t) {
+func G_MoverTouchPushTriggers(_ ent: Entity, _ oldOrg: inout JKAShared.vec3_t) {
     // TODO: Port G_MoverTouchPushTriggers
     portMissing("G_MoverTouchPushTriggers", source: "oracle/codemp/game/g_active.c:601")
 }

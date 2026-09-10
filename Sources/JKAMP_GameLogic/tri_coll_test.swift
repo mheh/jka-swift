@@ -5,13 +5,13 @@ import JKAShared
 import JKAMP_Game
 
 /// Source: oracle/codemp/game/tri_coll_test.c:149
-func coplanar_tri_tri(_ N: JKAShared.vec3_t, _ V0: JKAShared.vec3_t, _ V1: JKAShared.vec3_t, _ V2: JKAShared.vec3_t, _ U0: JKAShared.vec3_t, _ U1: JKAShared.vec3_t, _ U2: JKAShared.vec3_t) -> Bool {
+func coplanar_tri_tri(_ N: inout JKAShared.vec3_t, _ V0: inout JKAShared.vec3_t, _ V1: inout JKAShared.vec3_t, _ V2: inout JKAShared.vec3_t, _ U0: inout JKAShared.vec3_t, _ U1: inout JKAShared.vec3_t, _ U2: inout JKAShared.vec3_t) -> Bool {
     // TODO: Port coplanar_tri_tri
     portMissing("coplanar_tri_tri", source: "oracle/codemp/game/tri_coll_test.c:149")
 }
 
 /// Source: oracle/codemp/game/tri_coll_test.c:198
-func tri_tri_intersect(_ V0: JKAShared.vec3_t, _ V1: JKAShared.vec3_t, _ V2: JKAShared.vec3_t, _ U0: JKAShared.vec3_t, _ U1: JKAShared.vec3_t, _ U2: JKAShared.vec3_t) -> Bool {
+func tri_tri_intersect(_ V0: inout JKAShared.vec3_t, _ V1: inout JKAShared.vec3_t, _ V2: inout JKAShared.vec3_t, _ U0: inout JKAShared.vec3_t, _ U1: inout JKAShared.vec3_t, _ U2: inout JKAShared.vec3_t) -> Bool {
     // TODO: Port tri_tri_intersect
     portMissing("tri_tri_intersect", source: "oracle/codemp/game/tri_coll_test.c:198")
 }

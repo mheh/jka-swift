@@ -5,7 +5,7 @@ import JKAShared
 import JKAMP_Game
 
 /// Source: oracle/codemp/game/NPC_move.c:27
-func NPC_ClearPathToGoal(_ dir: JKAShared.vec3_t, _ goal: Entity) -> Bool {
+func NPC_ClearPathToGoal(_ dir: inout JKAShared.vec3_t, _ goal: Entity) -> Bool {
     // TODO: Port NPC_ClearPathToGoal
     portMissing("NPC_ClearPathToGoal", source: "oracle/codemp/game/NPC_move.c:27")
 }
@@ -17,13 +17,13 @@ func NPC_CheckCombatMove() -> Bool {
 }
 
 /// Source: oracle/codemp/game/NPC_move.c:103
-private func NPC_LadderMove(_ dir: JKAShared.vec3_t) {
+private func NPC_LadderMove(_ dir: inout JKAShared.vec3_t) {
     // TODO: Port NPC_LadderMove
     portMissing("NPC_LadderMove", source: "oracle/codemp/game/NPC_move.c:103")
 }
 
 /// Source: oracle/codemp/game/NPC_move.c:126
-func NPC_GetMoveInformation(_ dir: JKAShared.vec3_t, _ distance: inout Float) -> Bool {
+func NPC_GetMoveInformation(_ dir: inout JKAShared.vec3_t, _ distance: inout Float) -> Bool {
     // TODO: Port NPC_GetMoveInformation
     portMissing("NPC_GetMoveInformation", source: "oracle/codemp/game/NPC_move.c:126")
 }
@@ -38,19 +38,19 @@ func NAV_GetLastMove() -> Never {
 }
 
 /// Source: oracle/codemp/game/NPC_move.c:160
-func NPC_GetMoveDirection(_ out: JKAShared.vec3_t, _ distance: inout Float) -> Bool {
+func NPC_GetMoveDirection(_ out: inout JKAShared.vec3_t, _ distance: inout Float) -> Bool {
     // TODO: Port NPC_GetMoveDirection
     portMissing("NPC_GetMoveDirection", source: "oracle/codemp/game/NPC_move.c:160")
 }
 
 /// Source: oracle/codemp/game/NPC_move.c:239
-func NPC_GetMoveDirectionAltRoute(_ out: JKAShared.vec3_t, _ distance: inout Float, _ tryStraight: Bool) -> Bool {
+func NPC_GetMoveDirectionAltRoute(_ out: inout JKAShared.vec3_t, _ distance: inout Float, _ tryStraight: Bool) -> Bool {
     // TODO: Port NPC_GetMoveDirectionAltRoute
     portMissing("NPC_GetMoveDirectionAltRoute", source: "oracle/codemp/game/NPC_move.c:239")
 }
 
 /// Source: oracle/codemp/game/NPC_move.c:324
-func G_UcmdMoveForDir(_ `self`: Entity, _ cmd: JKAMP.Usercmd, _ dir: JKAShared.vec3_t) {
+func G_UcmdMoveForDir(_ `self`: Entity, _ cmd: JKAMP.Usercmd, _ dir: inout JKAShared.vec3_t) {
     // TODO: Port G_UcmdMoveForDir
     portMissing("G_UcmdMoveForDir", source: "oracle/codemp/game/NPC_move.c:324")
 }

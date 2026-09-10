@@ -19,7 +19,7 @@ func WP_SpeedOfMissileForWeapon(_ wp: Int32, _ alt_fire: Bool) -> Float {
 
 //-----------------------------------------------------------------------------
 /// Source: oracle/codemp/game/g_weapon.c:182
-func W_TraceSetStart(_ ent: Entity, _ start: JKAShared.vec3_t, _ mins: JKAShared.vec3_t, _ maxs: JKAShared.vec3_t) {
+func W_TraceSetStart(_ ent: Entity, _ start: inout JKAShared.vec3_t, _ mins: inout JKAShared.vec3_t, _ maxs: inout JKAShared.vec3_t) {
     // TODO: Port W_TraceSetStart
     portMissing("W_TraceSetStart", source: "oracle/codemp/game/g_weapon.c:182")
 }
@@ -33,35 +33,35 @@ private func WP_FireBryarPistol(_ ent: Entity, _ altFire: Bool) {
 
 //---------------------------------------------------------
 /// Source: oracle/codemp/game/g_weapon.c:304
-func WP_FireTurretMissile(_ ent: Entity, _ start: JKAShared.vec3_t, _ dir: JKAShared.vec3_t, _ altFire: Bool, _ damage: Int32, _ velocity: Int32, _ mod: Int32, _ ignore: Entity) {
+func WP_FireTurretMissile(_ ent: Entity, _ start: inout JKAShared.vec3_t, _ dir: inout JKAShared.vec3_t, _ altFire: Bool, _ damage: Int32, _ velocity: Int32, _ mod: Int32, _ ignore: Entity) {
     // TODO: Port WP_FireTurretMissile
     portMissing("WP_FireTurretMissile", source: "oracle/codemp/game/g_weapon.c:304")
 }
 
 //---------------------------------------------------------
 /// Source: oracle/codemp/game/g_weapon.c:331
-func WP_FireGenericBlasterMissile(_ ent: Entity, _ start: JKAShared.vec3_t, _ dir: JKAShared.vec3_t, _ altFire: Bool, _ damage: Int32, _ velocity: Int32, _ mod: Int32) {
+func WP_FireGenericBlasterMissile(_ ent: Entity, _ start: inout JKAShared.vec3_t, _ dir: inout JKAShared.vec3_t, _ altFire: Bool, _ damage: Int32, _ velocity: Int32, _ mod: Int32) {
     // TODO: Port WP_FireGenericBlasterMissile
     portMissing("WP_FireGenericBlasterMissile", source: "oracle/codemp/game/g_weapon.c:331")
 }
 
 //---------------------------------------------------------
 /// Source: oracle/codemp/game/g_weapon.c:359
-func WP_FireBlasterMissile(_ ent: Entity, _ start: JKAShared.vec3_t, _ dir: JKAShared.vec3_t, _ altFire: Bool) {
+func WP_FireBlasterMissile(_ ent: Entity, _ start: inout JKAShared.vec3_t, _ dir: inout JKAShared.vec3_t, _ altFire: Bool) {
     // TODO: Port WP_FireBlasterMissile
     portMissing("WP_FireBlasterMissile", source: "oracle/codemp/game/g_weapon.c:359")
 }
 
 //---------------------------------------------------------
 /// Source: oracle/codemp/game/g_weapon.c:386
-func WP_FireTurboLaserMissile(_ ent: Entity, _ start: JKAShared.vec3_t, _ dir: JKAShared.vec3_t) {
+func WP_FireTurboLaserMissile(_ ent: Entity, _ start: inout JKAShared.vec3_t, _ dir: inout JKAShared.vec3_t) {
     // TODO: Port WP_FireTurboLaserMissile
     portMissing("WP_FireTurboLaserMissile", source: "oracle/codemp/game/g_weapon.c:386")
 }
 
 //---------------------------------------------------------
 /// Source: oracle/codemp/game/g_weapon.c:422
-func WP_FireEmplacedMissile(_ ent: Entity, _ start: JKAShared.vec3_t, _ dir: JKAShared.vec3_t, _ altFire: Bool, _ ignore: Entity) {
+func WP_FireEmplacedMissile(_ ent: Entity, _ start: inout JKAShared.vec3_t, _ dir: inout JKAShared.vec3_t, _ altFire: Bool, _ ignore: Entity) {
     // TODO: Port WP_FireEmplacedMissile
     portMissing("WP_FireEmplacedMissile", source: "oracle/codemp/game/g_weapon.c:422")
 }
@@ -129,7 +129,7 @@ private func WP_FireBowcaster(_ ent: Entity, _ altFire: Bool) {
 
 //---------------------------------------------------------
 /// Source: oracle/codemp/game/g_weapon.c:1056
-private func WP_RepeaterMainFire(_ ent: Entity, _ dir: JKAShared.vec3_t) {
+private func WP_RepeaterMainFire(_ ent: Entity, _ dir: inout JKAShared.vec3_t) {
     // TODO: Port WP_RepeaterMainFire
     portMissing("WP_RepeaterMainFire", source: "oracle/codemp/game/g_weapon.c:1056")
 }
@@ -197,7 +197,7 @@ func prox_mine_think(_ ent: Entity) {
 
 //-----------------------------------------------------------------------------
 /// Source: oracle/codemp/game/g_weapon.c:1509
-private func WP_TraceSetStart(_ ent: Entity, _ start: JKAShared.vec3_t, _ mins: JKAShared.vec3_t, _ maxs: JKAShared.vec3_t) {
+private func WP_TraceSetStart(_ ent: Entity, _ start: inout JKAShared.vec3_t, _ mins: inout JKAShared.vec3_t, _ maxs: inout JKAShared.vec3_t) {
     // TODO: Port WP_TraceSetStart
     portMissing("WP_TraceSetStart", source: "oracle/codemp/game/g_weapon.c:1509")
 }
@@ -217,7 +217,7 @@ func WP_flechette_alt_blow(_ ent: Entity) {
 
 //------------------------------------------------------------------------------
 /// Source: oracle/codemp/game/g_weapon.c:1560
-private func WP_CreateFlechetteBouncyThing(_ start: JKAShared.vec3_t, _ fwd: JKAShared.vec3_t, _ `self`: Entity) {
+private func WP_CreateFlechetteBouncyThing(_ start: inout JKAShared.vec3_t, _ fwd: inout JKAShared.vec3_t, _ `self`: Entity) {
     // TODO: Port WP_CreateFlechetteBouncyThing
     portMissing("WP_CreateFlechetteBouncyThing", source: "oracle/codemp/game/g_weapon.c:1560")
 }
@@ -284,7 +284,7 @@ func WP_DropThermal(_ ent: Entity) -> Entity? {
 
 //---------------------------------------------------------
 /// Source: oracle/codemp/game/g_weapon.c:2082
-func WP_LobFire(_ `self`: Entity, _ start: JKAShared.vec3_t, _ target: JKAShared.vec3_t, _ mins: JKAShared.vec3_t, _ maxs: JKAShared.vec3_t, _ clipmask: Int32, _ velocity: JKAShared.vec3_t, _ tracePath: Bool, _ ignoreEntNum: Int32, _ enemyNum: Int32, _ minSpeed: Float, _ maxSpeed: Float, _ idealSpeed: Float, _ mustHit: Bool) -> Bool {
+func WP_LobFire(_ `self`: Entity, _ start: inout JKAShared.vec3_t, _ target: inout JKAShared.vec3_t, _ mins: inout JKAShared.vec3_t, _ maxs: inout JKAShared.vec3_t, _ clipmask: Int32, _ velocity: inout JKAShared.vec3_t, _ tracePath: Bool, _ ignoreEntNum: Int32, _ enemyNum: Int32, _ minSpeed: Float, _ maxSpeed: Float, _ idealSpeed: Float, _ mustHit: Bool) -> Bool {
     // TODO: Port WP_LobFire
     portMissing("WP_LobFire", source: "oracle/codemp/game/g_weapon.c:2082")
 }
@@ -320,7 +320,7 @@ func laserTrapThink(_ ent: Entity) {
 }
 
 /// Source: oracle/codemp/game/g_weapon.c:2402
-func laserTrapStick(_ ent: Entity, _ endpos: JKAShared.vec3_t, _ normal: JKAShared.vec3_t) {
+func laserTrapStick(_ ent: Entity, _ endpos: inout JKAShared.vec3_t, _ normal: inout JKAShared.vec3_t) {
     // TODO: Port laserTrapStick
     portMissing("laserTrapStick", source: "oracle/codemp/game/g_weapon.c:2402")
 }
@@ -332,7 +332,7 @@ func TrapThink(_ ent: Entity) {
 }
 
 /// Source: oracle/codemp/game/g_weapon.c:2477
-func CreateLaserTrap(_ laserTrap: Entity, _ start: JKAShared.vec3_t, _ owner: Entity) {
+func CreateLaserTrap(_ laserTrap: Entity, _ start: inout JKAShared.vec3_t, _ owner: Entity) {
     // TODO: Port CreateLaserTrap
     portMissing("CreateLaserTrap", source: "oracle/codemp/game/g_weapon.c:2477")
 }
@@ -351,7 +351,7 @@ DET PACK
 ======================================================================
 */
 /// Source: oracle/codemp/game/g_weapon.c:2636
-func VectorNPos(_ `in`: JKAShared.vec3_t, _ out: JKAShared.vec3_t) {
+func VectorNPos(_ `in`: inout JKAShared.vec3_t, _ out: inout JKAShared.vec3_t) {
     // TODO: Port VectorNPos
     portMissing("VectorNPos", source: "oracle/codemp/game/g_weapon.c:2636")
 }
@@ -381,7 +381,7 @@ func DetPackDie(_ `self`: Entity, _ inflictor: Entity, _ attacker: Entity, _ dam
 }
 
 /// Source: oracle/codemp/game/g_weapon.c:2782
-func drop_charge(_ `self`: Entity, _ start: JKAShared.vec3_t, _ dir: JKAShared.vec3_t) {
+func drop_charge(_ `self`: Entity, _ start: inout JKAShared.vec3_t, _ dir: inout JKAShared.vec3_t) {
     // TODO: Port drop_charge
     portMissing("drop_charge", source: "oracle/codemp/game/g_weapon.c:2782")
 }
@@ -445,7 +445,7 @@ into a wall.
 ======================
 */
 /// Source: oracle/codemp/game/g_weapon.c:3464
-func SnapVectorTowards(_ v: JKAShared.vec3_t, _ to: JKAShared.vec3_t) {
+func SnapVectorTowards(_ v: inout JKAShared.vec3_t, _ to: inout JKAShared.vec3_t) {
     // TODO: Port SnapVectorTowards
     portMissing("SnapVectorTowards", source: "oracle/codemp/game/g_weapon.c:3464")
 }
@@ -473,7 +473,7 @@ first person perspective.
 ===============
 */
 /// Source: oracle/codemp/game/g_weapon.c:3530
-func CalcMuzzlePoint(_ ent: Entity, _ forward: JKAShared.vec3_t, _ right: JKAShared.vec3_t, _ up: JKAShared.vec3_t, _ muzzlePoint: JKAShared.vec3_t) {
+func CalcMuzzlePoint(_ ent: Entity, _ forward: inout JKAShared.vec3_t, _ right: inout JKAShared.vec3_t, _ up: inout JKAShared.vec3_t, _ muzzlePoint: inout JKAShared.vec3_t) {
     // TODO: Port CalcMuzzlePoint
     portMissing("CalcMuzzlePoint", source: "oracle/codemp/game/g_weapon.c:3530")
 }
@@ -486,7 +486,7 @@ set muzzle location relative to pivoting eye
 ===============
 */
 /// Source: oracle/codemp/game/g_weapon.c:3560
-func CalcMuzzlePointOrigin(_ ent: Entity, _ origin: JKAShared.vec3_t, _ forward: JKAShared.vec3_t, _ right: JKAShared.vec3_t, _ up: JKAShared.vec3_t, _ muzzlePoint: JKAShared.vec3_t) {
+func CalcMuzzlePointOrigin(_ ent: Entity, _ origin: inout JKAShared.vec3_t, _ forward: inout JKAShared.vec3_t, _ right: inout JKAShared.vec3_t, _ up: inout JKAShared.vec3_t, _ muzzlePoint: inout JKAShared.vec3_t) {
     // TODO: Port CalcMuzzlePointOrigin
     portMissing("CalcMuzzlePointOrigin", source: "oracle/codemp/game/g_weapon.c:3560")
 }
@@ -510,7 +510,7 @@ func WP_VehWeapSetSolidToOwner(_ `self`: Entity) {
 }
 
 /// Source: oracle/codemp/game/g_weapon.c:3628
-func WP_FireVehicleWeapon(_ ent: Entity, _ start: JKAShared.vec3_t, _ dir: JKAShared.vec3_t, _ vehWeapon: JKAMP.VehWeaponInfo, _ alt_fire: Bool, _ isTurretWeap: Bool) -> Entity? {
+func WP_FireVehicleWeapon(_ ent: Entity, _ start: inout JKAShared.vec3_t, _ dir: inout JKAShared.vec3_t, _ vehWeapon: JKAMP.VehWeaponInfo, _ alt_fire: Bool, _ isTurretWeap: Bool) -> Entity? {
     // TODO: Port WP_FireVehicleWeapon
     portMissing("WP_FireVehicleWeapon", source: "oracle/codemp/game/g_weapon.c:3628")
 }
@@ -523,25 +523,25 @@ func G_VehMuzzleFireFX(_ ent: Entity, _ broadcaster: Entity, _ muzzlesFired: Int
 }
 
 /// Source: oracle/codemp/game/g_weapon.c:3883
-func G_EstimateCamPos(_ viewAngles: JKAShared.vec3_t, _ cameraFocusLoc: JKAShared.vec3_t, _ viewheight: Float, _ thirdPersonRange: Float, _ thirdPersonHorzOffset: Float, _ vertOffset: Float, _ pitchOffset: Float, _ ignoreEntNum: Int32, _ camPos: JKAShared.vec3_t) {
+func G_EstimateCamPos(_ viewAngles: inout JKAShared.vec3_t, _ cameraFocusLoc: inout JKAShared.vec3_t, _ viewheight: Float, _ thirdPersonRange: Float, _ thirdPersonHorzOffset: Float, _ vertOffset: Float, _ pitchOffset: Float, _ ignoreEntNum: Int32, _ camPos: inout JKAShared.vec3_t) {
     // TODO: Port G_EstimateCamPos
     portMissing("G_EstimateCamPos", source: "oracle/codemp/game/g_weapon.c:3883")
 }
 
 /// Source: oracle/codemp/game/g_weapon.c:3961
-func WP_GetVehicleCamPos(_ ent: Entity, _ pilot: Entity, _ camPos: JKAShared.vec3_t) {
+func WP_GetVehicleCamPos(_ ent: Entity, _ pilot: Entity, _ camPos: inout JKAShared.vec3_t) {
     // TODO: Port WP_GetVehicleCamPos
     portMissing("WP_GetVehicleCamPos", source: "oracle/codemp/game/g_weapon.c:3961")
 }
 
 /// Source: oracle/codemp/game/g_weapon.c:4022
-func WP_VehLeadCrosshairVeh(_ camTraceEnt: Entity, _ newEnd: JKAShared.vec3_t, _ dir: JKAShared.vec3_t, _ shotStart: JKAShared.vec3_t, _ shotDir: JKAShared.vec3_t) {
+func WP_VehLeadCrosshairVeh(_ camTraceEnt: Entity, _ newEnd: inout JKAShared.vec3_t, _ dir: JKAShared.vec3_t, _ shotStart: JKAShared.vec3_t, _ shotDir: inout JKAShared.vec3_t) {
     // TODO: Port WP_VehLeadCrosshairVeh
     portMissing("WP_VehLeadCrosshairVeh", source: "oracle/codemp/game/g_weapon.c:4022")
 }
 
 /// Source: oracle/codemp/game/g_weapon.c:4052
-func WP_VehCheckTraceFromCamPos(_ ent: Entity, _ shotStart: JKAShared.vec3_t, _ shotDir: JKAShared.vec3_t) -> Bool {
+func WP_VehCheckTraceFromCamPos(_ ent: Entity, _ shotStart: JKAShared.vec3_t, _ shotDir: inout JKAShared.vec3_t) -> Bool {
     // TODO: Port WP_VehCheckTraceFromCamPos
     portMissing("WP_VehCheckTraceFromCamPos", source: "oracle/codemp/game/g_weapon.c:4052")
 }

@@ -11,7 +11,7 @@ Added: Uses shootAngles if a NPC has them
 
 */
 /// Source: oracle/codemp/game/NPC_utils.c:20
-func CalcEntitySpot(_ ent: Entity, _ spot: spot_t, _ point: JKAShared.vec3_t) {
+func CalcEntitySpot(_ ent: Entity, _ spot: spot_t, _ point: inout JKAShared.vec3_t) {
     // TODO: Port CalcEntitySpot
     portMissing("CalcEntitySpot", source: "oracle/codemp/game/NPC_utils.c:20")
 }
@@ -32,7 +32,7 @@ func NPC_UpdateAngles(_ doPitch: Bool, _ doYaw: Bool) -> Bool {
 }
 
 /// Source: oracle/codemp/game/NPC_utils.c:519
-func NPC_AimWiggle(_ enemy_org: JKAShared.vec3_t) {
+func NPC_AimWiggle(_ enemy_org: inout JKAShared.vec3_t) {
     // TODO: Port NPC_AimWiggle
     portMissing("NPC_AimWiggle", source: "oracle/codemp/game/NPC_utils.c:519")
 }
@@ -49,7 +49,7 @@ func NPC_UpdateFiringAngles(_ doPitch: Bool, _ doYaw: Bool) -> Bool {
 }
 
 /// Source: oracle/codemp/game/NPC_utils.c:740
-func NPC_UpdateShootAngles(_ angles: JKAShared.vec3_t, _ doPitch: Bool, _ doYaw: Bool) {
+func NPC_UpdateShootAngles(_ angles: inout JKAShared.vec3_t, _ doPitch: Bool, _ doYaw: Bool) {
     // TODO: Port NPC_UpdateShootAngles
     portMissing("NPC_UpdateShootAngles", source: "oracle/codemp/game/NPC_utils.c:740")
 }
@@ -76,10 +76,7 @@ func G_ActivateBehavior(_ `self`: Entity, _ bset: Int32) -> Bool {
 
 //rww - special system for sync'ing bone angles between client and server.
 /// Source: oracle/codemp/game/NPC_utils.c:906
-// TODO: Port signature
-// Raven wrote: void NPC_SetBoneAngles(gentity_t *ent, char *bone, vec3_t angles)
-// No table row for `char * bone`.
-func NPC_SetBoneAngles() -> Never {
+func NPC_SetBoneAngles(_ ent: Entity, _ bone: inout String, _ angles: inout JKAShared.vec3_t) {
     // TODO: Port NPC_SetBoneAngles
     portMissing("NPC_SetBoneAngles", source: "oracle/codemp/game/NPC_utils.c:906")
 }
@@ -176,7 +173,7 @@ func NPC_CheckEnemyExt(_ checkAlerts: Bool) -> Bool {
 }
 
 /// Source: oracle/codemp/game/NPC_utils.c:1491
-func NPC_FacePosition(_ position: JKAShared.vec3_t, _ doPitch: Bool) -> Bool {
+func NPC_FacePosition(_ position: inout JKAShared.vec3_t, _ doPitch: Bool) -> Bool {
     // TODO: Port NPC_FacePosition
     portMissing("NPC_FacePosition", source: "oracle/codemp/game/NPC_utils.c:1491")
 }
@@ -234,7 +231,7 @@ func NPC_CheckCharmed() {
 }
 
 /// Source: oracle/codemp/game/NPC_utils.c:1707
-func G_GetBoltPosition(_ `self`: Entity, _ boltIndex: Int32, _ pos: JKAShared.vec3_t, _ modelIndex: Int32) {
+func G_GetBoltPosition(_ `self`: Entity, _ boltIndex: Int32, _ pos: inout JKAShared.vec3_t, _ modelIndex: Int32) {
     // TODO: Port G_GetBoltPosition
     portMissing("G_GetBoltPosition", source: "oracle/codemp/game/NPC_utils.c:1707")
 }
@@ -252,7 +249,7 @@ func NPC_EnemyRangeFromBolt(_ boltIndex: Int32) -> Float {
 }
 
 /// Source: oracle/codemp/game/NPC_utils.c:1761
-func NPC_GetEntsNearBolt(_ radiusEnts: inout Int32, _ radius: Float, _ boltIndex: Int32, _ boltOrg: JKAShared.vec3_t) -> Int32 {
+func NPC_GetEntsNearBolt(_ radiusEnts: inout Int32, _ radius: Float, _ boltIndex: Int32, _ boltOrg: inout JKAShared.vec3_t) -> Int32 {
     // TODO: Port NPC_GetEntsNearBolt
     portMissing("NPC_GetEntsNearBolt", source: "oracle/codemp/game/NPC_utils.c:1761")
 }

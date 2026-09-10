@@ -17,7 +17,7 @@ func G_HeavyMelee(_ attacker: Entity) -> Bool {
 }
 
 /// Source: oracle/codemp/game/g_combat.c:46
-func G_GetHitLocation(_ target: Entity, _ ppoint: JKAShared.vec3_t) -> Int32 {
+func G_GetHitLocation(_ target: Entity, _ ppoint: inout JKAShared.vec3_t) -> Int32 {
     // TODO: Port G_GetHitLocation
     portMissing("G_GetHitLocation", source: "oracle/codemp/game/g_combat.c:46")
 }
@@ -34,13 +34,13 @@ ScorePlum
 ============
 */
 /// Source: oracle/codemp/game/g_combat.c:417
-func ScorePlum(_ ent: Entity, _ origin: JKAShared.vec3_t, _ score: Int32) {
+func ScorePlum(_ ent: Entity, _ origin: inout JKAShared.vec3_t, _ score: Int32) {
     // TODO: Port ScorePlum
     portMissing("ScorePlum", source: "oracle/codemp/game/g_combat.c:417")
 }
 
 /// Source: oracle/codemp/game/g_combat.c:437
-func AddScore(_ ent: Entity, _ origin: JKAShared.vec3_t, _ score: Int32) {
+func AddScore(_ ent: Entity, _ origin: inout JKAShared.vec3_t, _ score: Int32) {
     // TODO: Port AddScore
     portMissing("AddScore", source: "oracle/codemp/game/g_combat.c:437")
 }
@@ -53,7 +53,7 @@ rww - Toss the weapon away from the player in the specified direction
 =================
 */
 /// Source: oracle/codemp/game/g_combat.c:469
-func TossClientWeapon(_ `self`: Entity, _ direction: JKAShared.vec3_t, _ speed: Float) {
+func TossClientWeapon(_ `self`: Entity, _ direction: inout JKAShared.vec3_t, _ speed: Float) {
     // TODO: Port TossClientWeapon
     portMissing("TossClientWeapon", source: "oracle/codemp/game/g_combat.c:469")
 }
@@ -128,13 +128,13 @@ func G_InKnockDown(_ ps: JKAMP.PlayerState) -> Bool {
 }
 
 /// Source: oracle/codemp/game/g_combat.c:882
-private func G_CheckSpecialDeathAnim(_ `self`: Entity, _ point: JKAShared.vec3_t, _ damage: Int32, _ mod: Int32, _ hitLoc: Int32) -> Int32 {
+private func G_CheckSpecialDeathAnim(_ `self`: Entity, _ point: inout JKAShared.vec3_t, _ damage: Int32, _ mod: Int32, _ hitLoc: Int32) -> Int32 {
     // TODO: Port G_CheckSpecialDeathAnim
     portMissing("G_CheckSpecialDeathAnim", source: "oracle/codemp/game/g_combat.c:882")
 }
 
 /// Source: oracle/codemp/game/g_combat.c:1374
-func G_PickDeathAnim(_ `self`: Entity, _ point: JKAShared.vec3_t, _ damage: Int32, _ mod: Int32, _ hitLoc: Int32) -> Int32 {
+func G_PickDeathAnim(_ `self`: Entity, _ point: inout JKAShared.vec3_t, _ damage: Int32, _ mod: Int32, _ hitLoc: Int32) -> Int32 {
     // TODO: Port G_PickDeathAnim
     portMissing("G_PickDeathAnim", source: "oracle/codemp/game/g_combat.c:1374")
 }
@@ -205,7 +205,7 @@ func CheckArmor(_ ent: Entity, _ damage: Int32, _ dflags: Int32) -> Int32 {
 }
 
 /// Source: oracle/codemp/game/g_combat.c:3074
-func G_ApplyKnockback(_ targ: Entity, _ newDir: JKAShared.vec3_t, _ knockback: Float) {
+func G_ApplyKnockback(_ targ: Entity, _ newDir: inout JKAShared.vec3_t, _ knockback: Float) {
     // TODO: Port G_ApplyKnockback
     portMissing("G_ApplyKnockback", source: "oracle/codemp/game/g_combat.c:3074")
 }
@@ -216,22 +216,19 @@ RaySphereIntersections
 ================
 */
 /// Source: oracle/codemp/game/g_combat.c:3128
-// TODO: Port signature
-// Raven wrote: int RaySphereIntersections( vec3_t origin, float radius, vec3_t point, vec3_t dir, vec3_t intersections[2] )
-// No table row for `vec3_t[2] intersections`.
-func RaySphereIntersections() -> Never {
+func RaySphereIntersections(_ origin: inout JKAShared.vec3_t, _ radius: Float, _ point: inout JKAShared.vec3_t, _ dir: inout JKAShared.vec3_t, _ intersections: inout [JKAShared.vec3_t]) -> Int32 {
     // TODO: Port RaySphereIntersections
     portMissing("RaySphereIntersections", source: "oracle/codemp/game/g_combat.c:3128")
 }
 
 /// Source: oracle/codemp/game/g_combat.c:3192
-func G_GetDismemberLoc(_ `self`: Entity, _ boltPoint: JKAShared.vec3_t, _ limbType: Int32) {
+func G_GetDismemberLoc(_ `self`: Entity, _ boltPoint: inout JKAShared.vec3_t, _ limbType: Int32) {
     // TODO: Port G_GetDismemberLoc
     portMissing("G_GetDismemberLoc", source: "oracle/codemp/game/g_combat.c:3192")
 }
 
 /// Source: oracle/codemp/game/g_combat.c:3264
-func G_GetDismemberBolt(_ `self`: Entity, _ boltPoint: JKAShared.vec3_t, _ limbType: Int32) {
+func G_GetDismemberBolt(_ `self`: Entity, _ boltPoint: inout JKAShared.vec3_t, _ limbType: Int32) {
     // TODO: Port G_GetDismemberBolt
     portMissing("G_GetDismemberBolt", source: "oracle/codemp/game/g_combat.c:3264")
 }
@@ -249,7 +246,7 @@ func LimbThink(_ ent: Entity) {
 }
 
 /// Source: oracle/codemp/game/g_combat.c:3436
-func G_Dismember(_ ent: Entity, _ enemy: Entity, _ point: JKAShared.vec3_t, _ limbType: Int32, _ limbRollBase: Float, _ limbPitchBase: Float, _ deathAnim: Int32, _ postDeath: Bool) {
+func G_Dismember(_ ent: Entity, _ enemy: Entity, _ point: inout JKAShared.vec3_t, _ limbType: Int32, _ limbRollBase: Float, _ limbPitchBase: Float, _ deathAnim: Int32, _ postDeath: Bool) {
     // TODO: Port G_Dismember
     portMissing("G_Dismember", source: "oracle/codemp/game/g_combat.c:3436")
 }
@@ -267,25 +264,25 @@ func DismembermentByNum(_ `self`: Entity, _ num: Int32) {
 }
 
 /// Source: oracle/codemp/game/g_combat.c:3671
-func G_GetHitQuad(_ `self`: Entity, _ hitloc: JKAShared.vec3_t) -> Int32 {
+func G_GetHitQuad(_ `self`: Entity, _ hitloc: inout JKAShared.vec3_t) -> Int32 {
     // TODO: Port G_GetHitQuad
     portMissing("G_GetHitQuad", source: "oracle/codemp/game/g_combat.c:3671")
 }
 
 /// Source: oracle/codemp/game/g_combat.c:3757
-func G_GetHitLocFromSurfName(_ ent: Entity, _ surfName: String, _ hitLoc: inout Int32, _ point: JKAShared.vec3_t, _ dir: JKAShared.vec3_t, _ bladeDir: JKAShared.vec3_t, _ mod: Int32) -> Bool {
+func G_GetHitLocFromSurfName(_ ent: Entity, _ surfName: String, _ hitLoc: inout Int32, _ point: inout JKAShared.vec3_t, _ dir: inout JKAShared.vec3_t, _ bladeDir: inout JKAShared.vec3_t, _ mod: Int32) -> Bool {
     // TODO: Port G_GetHitLocFromSurfName
     portMissing("G_GetHitLocFromSurfName", source: "oracle/codemp/game/g_combat.c:3757")
 }
 
 /// Source: oracle/codemp/game/g_combat.c:4218
-func G_CheckForDismemberment(_ ent: Entity, _ enemy: Entity, _ point: JKAShared.vec3_t, _ damage: Int32, _ deathAnim: Int32, _ postDeath: Bool) {
+func G_CheckForDismemberment(_ ent: Entity, _ enemy: Entity, _ point: inout JKAShared.vec3_t, _ damage: Int32, _ deathAnim: Int32, _ postDeath: Bool) {
     // TODO: Port G_CheckForDismemberment
     portMissing("G_CheckForDismemberment", source: "oracle/codemp/game/g_combat.c:4218")
 }
 
 /// Source: oracle/codemp/game/g_combat.c:4346
-func G_LocationBasedDamageModifier(_ ent: Entity, _ point: JKAShared.vec3_t, _ mod: Int32, _ dflags: Int32, _ damage: inout Int32) {
+func G_LocationBasedDamageModifier(_ ent: Entity, _ point: inout JKAShared.vec3_t, _ mod: Int32, _ dflags: Int32, _ damage: inout Int32) {
     // TODO: Port G_LocationBasedDamageModifier
     portMissing("G_LocationBasedDamageModifier", source: "oracle/codemp/game/g_combat.c:4346")
 }
@@ -315,13 +312,13 @@ func G_CheckVehicleNPCTeamDamage(_ ent: Entity) -> Bool {
 }
 
 /// Source: oracle/codemp/game/g_combat.c:4577
-func G_Damage(_ targ: Entity, _ inflictor: Entity, _ attacker: Entity, _ dir: JKAShared.vec3_t, _ point: JKAShared.vec3_t, _ damage: Int32, _ dflags: Int32, _ mod: Int32) {
+func G_Damage(_ targ: Entity, _ inflictor: Entity, _ attacker: Entity, _ dir: inout JKAShared.vec3_t, _ point: inout JKAShared.vec3_t, _ damage: Int32, _ dflags: Int32, _ mod: Int32) {
     // TODO: Port G_Damage
     portMissing("G_Damage", source: "oracle/codemp/game/g_combat.c:4577")
 }
 
 /// Source: oracle/codemp/game/g_combat.c:5717
-func G_DamageFromKiller(_ pEnt: Entity, _ pVehEnt: Entity, _ attacker: Entity, _ org: JKAShared.vec3_t, _ damage: Int32, _ dflags: Int32, _ mod: Int32) {
+func G_DamageFromKiller(_ pEnt: Entity, _ pVehEnt: Entity, _ attacker: Entity, _ org: inout JKAShared.vec3_t, _ damage: Int32, _ dflags: Int32, _ mod: Int32) {
     // TODO: Port G_DamageFromKiller
     portMissing("G_DamageFromKiller", source: "oracle/codemp/game/g_combat.c:5717")
 }
@@ -335,7 +332,7 @@ explosions and melee attacks.
 ============
 */
 /// Source: oracle/codemp/game/g_combat.c:5768
-func CanDamage(_ targ: Entity, _ origin: JKAShared.vec3_t) -> Bool {
+func CanDamage(_ targ: Entity, _ origin: inout JKAShared.vec3_t) -> Bool {
     // TODO: Port CanDamage
     portMissing("CanDamage", source: "oracle/codemp/game/g_combat.c:5768")
 }
@@ -346,7 +343,7 @@ G_RadiusDamage
 ============
 */
 /// Source: oracle/codemp/game/g_combat.c:5823
-func G_RadiusDamage(_ origin: JKAShared.vec3_t, _ attacker: Entity, _ damage: Float, _ radius: Float, _ ignore: Entity, _ missile: Entity, _ mod: Int32) -> Bool {
+func G_RadiusDamage(_ origin: inout JKAShared.vec3_t, _ attacker: Entity, _ damage: Float, _ radius: Float, _ ignore: Entity, _ missile: Entity, _ mod: Int32) -> Bool {
     // TODO: Port G_RadiusDamage
     portMissing("G_RadiusDamage", source: "oracle/codemp/game/g_combat.c:5823")
 }

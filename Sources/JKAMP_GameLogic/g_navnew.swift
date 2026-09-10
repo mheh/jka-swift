@@ -33,7 +33,7 @@ NAVNEW_ClearPathBetweenPoints
 -------------------------
 */
 /// Source: oracle/codemp/game/g_navnew.c:58
-func NAVNEW_ClearPathBetweenPoints(_ start: JKAShared.vec3_t, _ end: JKAShared.vec3_t, _ mins: JKAShared.vec3_t, _ maxs: JKAShared.vec3_t, _ ignore: Int32, _ clipmask: Int32) -> Int32 {
+func NAVNEW_ClearPathBetweenPoints(_ start: inout JKAShared.vec3_t, _ end: inout JKAShared.vec3_t, _ mins: inout JKAShared.vec3_t, _ maxs: inout JKAShared.vec3_t, _ ignore: Int32, _ clipmask: Int32) -> Int32 {
     // TODO: Port NAVNEW_ClearPathBetweenPoints
     portMissing("NAVNEW_ClearPathBetweenPoints", source: "oracle/codemp/game/g_navnew.c:58")
 }
@@ -44,7 +44,7 @@ NAVNEW_PushBlocker
 -------------------------
 */
 /// Source: oracle/codemp/game/g_navnew.c:84
-func NAVNEW_PushBlocker(_ `self`: Entity, _ blocker: Entity, _ right: JKAShared.vec3_t, _ setBlockedInfo: Bool) {
+func NAVNEW_PushBlocker(_ `self`: Entity, _ blocker: Entity, _ right: inout JKAShared.vec3_t, _ setBlockedInfo: Bool) {
     // TODO: Port NAVNEW_PushBlocker
     portMissing("NAVNEW_PushBlocker", source: "oracle/codemp/game/g_navnew.c:84")
 }
@@ -55,7 +55,7 @@ NAVNEW_DanceWithBlocker
 -------------------------
 */
 /// Source: oracle/codemp/game/g_navnew.c:178
-func NAVNEW_DanceWithBlocker(_ `self`: Entity, _ blocker: Entity, _ movedir: JKAShared.vec3_t, _ right: JKAShared.vec3_t) -> Bool {
+func NAVNEW_DanceWithBlocker(_ `self`: Entity, _ blocker: Entity, _ movedir: inout JKAShared.vec3_t, _ right: inout JKAShared.vec3_t) -> Bool {
     // TODO: Port NAVNEW_DanceWithBlocker
     portMissing("NAVNEW_DanceWithBlocker", source: "oracle/codemp/game/g_navnew.c:178")
 }
@@ -66,7 +66,7 @@ NAVNEW_SidestepBlocker
 -------------------------
 */
 /// Source: oracle/codemp/game/g_navnew.c:222
-func NAVNEW_SidestepBlocker(_ `self`: Entity, _ blocker: Entity, _ blocked_dir: JKAShared.vec3_t, _ blocked_dist: Float, _ movedir: JKAShared.vec3_t, _ right: JKAShared.vec3_t) -> Bool {
+func NAVNEW_SidestepBlocker(_ `self`: Entity, _ blocker: Entity, _ blocked_dir: inout JKAShared.vec3_t, _ blocked_dist: Float, _ movedir: inout JKAShared.vec3_t, _ right: inout JKAShared.vec3_t) -> Bool {
     // TODO: Port NAVNEW_SidestepBlocker
     portMissing("NAVNEW_SidestepBlocker", source: "oracle/codemp/game/g_navnew.c:222")
 }
@@ -77,7 +77,7 @@ NAVNEW_Bypass
 -------------------------
 */
 /// Source: oracle/codemp/game/g_navnew.c:347
-func NAVNEW_Bypass(_ `self`: Entity, _ blocker: Entity, _ blocked_dir: JKAShared.vec3_t, _ blocked_dist: Float, _ movedir: JKAShared.vec3_t, _ setBlockedInfo: Bool) -> Bool {
+func NAVNEW_Bypass(_ `self`: Entity, _ blocker: Entity, _ blocked_dir: inout JKAShared.vec3_t, _ blocked_dist: Float, _ movedir: inout JKAShared.vec3_t, _ setBlockedInfo: Bool) -> Bool {
     // TODO: Port NAVNEW_Bypass
     portMissing("NAVNEW_Bypass", source: "oracle/codemp/game/g_navnew.c:347")
 }
@@ -88,13 +88,13 @@ NAVNEW_CheckDoubleBlock
 -------------------------
 */
 /// Source: oracle/codemp/game/g_navnew.c:384
-func NAVNEW_CheckDoubleBlock(_ `self`: Entity, _ blocker: Entity, _ blocked_dir: JKAShared.vec3_t) -> Bool {
+func NAVNEW_CheckDoubleBlock(_ `self`: Entity, _ blocker: Entity, _ blocked_dir: inout JKAShared.vec3_t) -> Bool {
     // TODO: Port NAVNEW_CheckDoubleBlock
     portMissing("NAVNEW_CheckDoubleBlock", source: "oracle/codemp/game/g_navnew.c:384")
 }
 
 /// Source: oracle/codemp/game/g_navnew.c:399
-func NAVNEW_ResolveEntityCollision(_ `self`: Entity, _ blocker: Entity, _ movedir: JKAShared.vec3_t, _ pathDir: JKAShared.vec3_t, _ setBlockedInfo: Bool) -> Bool {
+func NAVNEW_ResolveEntityCollision(_ `self`: Entity, _ blocker: Entity, _ movedir: inout JKAShared.vec3_t, _ pathDir: inout JKAShared.vec3_t, _ setBlockedInfo: Bool) -> Bool {
     // TODO: Port NAVNEW_ResolveEntityCollision
     portMissing("NAVNEW_ResolveEntityCollision", source: "oracle/codemp/game/g_navnew.c:399")
 }

@@ -4,10 +4,7 @@ import JKAMP
 import JKAShared
 
 /// Source: oracle/codemp/game/bg_saberLoad.c:32
-// TODO: Port signature
-// Raven wrote: int BG_SoundIndex(char *sound)
-// No table row for `char * sound`.
-func BG_SoundIndex() -> Never {
+func BG_SoundIndex(_ sound: inout String) -> Int32 {
     // TODO: Port BG_SoundIndex
     portMissing("BG_SoundIndex", source: "oracle/codemp/game/bg_saberLoad.c:32")
 }
@@ -77,10 +74,7 @@ func WP_SaberParseParms(_ SaberName: String, _ saber: JKAMP.SaberInfo) -> Bool {
 }
 
 /// Source: oracle/codemp/game/bg_saberLoad.c:2574
-// TODO: Port signature
-// Raven wrote: qboolean WP_SaberParseParm( const char *saberName, const char *parmname, char *saberData )
-// No table row for `char * saberData`.
-func WP_SaberParseParm() -> Never {
+func WP_SaberParseParm(_ saberName: String, _ parmname: String, _ saberData: inout String) -> Bool {
     // TODO: Port WP_SaberParseParm
     portMissing("WP_SaberParseParm", source: "oracle/codemp/game/bg_saberLoad.c:2574")
 }
@@ -104,10 +98,7 @@ func WP_SetSaber(_ entNum: Int32, _ sabers: JKAMP.SaberInfo, _ saberNum: Int32, 
 }
 
 /// Source: oracle/codemp/game/bg_saberLoad.c:2727
-// TODO: Port signature
-// Raven wrote: void WP_SaberSetColor( saberInfo_t *sabers, int saberNum, int bladeNum, char *colorName )
-// No table row for `char * colorName`.
-func WP_SaberSetColor() -> Never {
+func WP_SaberSetColor(_ sabers: JKAMP.SaberInfo, _ saberNum: Int32, _ bladeNum: Int32, _ colorName: inout String) {
     // TODO: Port WP_SaberSetColor
     portMissing("WP_SaberSetColor", source: "oracle/codemp/game/bg_saberLoad.c:2727")
 }

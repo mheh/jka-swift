@@ -6,10 +6,7 @@ import JKAMP_Game
 
 //this stuff has got to be predicted, so..
 /// Source: oracle/codemp/game/FighterNPC.c:99
-// TODO: Port signature
-// Raven wrote: bool BG_FighterUpdate(Vehicle_t *pVeh, const usercmd_t *pUcmd, vec3_t trMins, vec3_t trMaxs, float gravity, void (*traceFunc)( trace_t *results, const vec3_t start, const vec3_t lmins, const vec3_t lmaxs, const vec3_t end, int passEntityNum, int contentMask ))
-// No table row for `void (*)(trace_t *, const vec_t *, const vec_t *, const vec_t *, const vec_t *, int, int) traceFunc`.
-func BG_FighterUpdate() -> Never {
+func BG_FighterUpdate(_ pVeh: JKAMP.Vehicle, _ pUcmd: JKAMP.Usercmd, _ trMins: inout JKAShared.vec3_t, _ trMaxs: inout JKAShared.vec3_t, _ gravity: Float, _ traceFunc: ((JKAMP.Trace, JKAShared.vec3_t, JKAShared.vec3_t, JKAShared.vec3_t, JKAShared.vec3_t, Int32, Int32) -> Void)?) -> Bool {
     // TODO: Port BG_FighterUpdate
     portMissing("BG_FighterUpdate", source: "oracle/codemp/game/FighterNPC.c:99")
 }

@@ -12,7 +12,7 @@ StringToFilter
 /// Source: oracle/codemp/game/g_svcmds.c:62
 // TODO: Port signature
 // Raven wrote: static qboolean StringToFilter (char *s, ipFilter_t *f)
-// No table row for `char * s`.
+// No table row for `ipFilter_t * f`.
 private func StringToFilter() -> Never {
     // TODO: Port StringToFilter
     portMissing("StringToFilter", source: "oracle/codemp/game/g_svcmds.c:62")
@@ -35,10 +35,7 @@ G_FilterPacket
 =================
 */
 /// Source: oracle/codemp/game/g_svcmds.c:134
-// TODO: Port signature
-// Raven wrote: qboolean G_FilterPacket (char *from)
-// No table row for `char * from`.
-func G_FilterPacket() -> Never {
+func G_FilterPacket(_ from: inout String) -> Bool {
     // TODO: Port G_FilterPacket
     portMissing("G_FilterPacket", source: "oracle/codemp/game/g_svcmds.c:134")
 }
@@ -49,10 +46,7 @@ AddIP
 =================
 */
 /// Source: oracle/codemp/game/g_svcmds.c:173
-// TODO: Port signature
-// Raven wrote: void AddIP( char *str )
-// No table row for `char * str`.
-func AddIP() -> Never {
+func AddIP(_ str: inout String) {
     // TODO: Port AddIP
     portMissing("AddIP", source: "oracle/codemp/game/g_svcmds.c:173")
 }

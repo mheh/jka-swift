@@ -28,10 +28,7 @@ func multi_trigger_run(_ ent: Entity) {
 
 //determine if the class given is listed in the string using the | formatting
 /// Source: oracle/codemp/game/g_trigger.c:97
-// TODO: Port signature
-// Raven wrote: qboolean G_NameInTriggerClassList(char *list, char *str)
-// No table row for `char * list`.
-func G_NameInTriggerClassList() -> Never {
+func G_NameInTriggerClassList(_ list: inout String, _ str: inout String) -> Bool {
     // TODO: Port G_NameInTriggerClassList
     portMissing("G_NameInTriggerClassList", source: "oracle/codemp/game/g_trigger.c:97")
 }

@@ -42,7 +42,7 @@ COM_SkipPath
 /// Source: oracle/codemp/game/q_shared.c:80
 // TODO: Port signature
 // Raven wrote: char *COM_SkipPath (char *pathname)
-// No table row for `char * pathname`.
+// No table row for the return `char *`.
 func COM_SkipPath() -> Never {
     // TODO: Port COM_SkipPath
     portMissing("COM_SkipPath", source: "oracle/codemp/game/q_shared.c:80")
@@ -54,10 +54,7 @@ COM_StripExtension
 ============
 */
 /// Source: oracle/codemp/game/q_shared.c:99
-// TODO: Port signature
-// Raven wrote: void COM_StripExtension( const char *in, char *out )
-// No table row for `char * out`.
-func COM_StripExtension() -> Never {
+func COM_StripExtension(_ `in`: String, _ out: inout String) {
     // TODO: Port COM_StripExtension
     portMissing("COM_StripExtension", source: "oracle/codemp/game/q_shared.c:99")
 }
@@ -68,10 +65,7 @@ COM_DefaultExtension
 ==================
 */
 /// Source: oracle/codemp/game/q_shared.c:112
-// TODO: Port signature
-// Raven wrote: void COM_DefaultExtension (char *path, int maxSize, const char *extension )
-// No table row for `char * path`.
-func COM_DefaultExtension() -> Never {
+func COM_DefaultExtension(_ path: inout String, _ maxSize: Int32, _ `extension`: String) {
     // TODO: Port COM_DefaultExtension
     portMissing("COM_DefaultExtension", source: "oracle/codemp/game/q_shared.c:112")
 }
@@ -158,19 +152,13 @@ func COM_Parse() -> Never {
 }
 
 /// Source: oracle/codemp/game/q_shared.c:300
-// TODO: Port signature
-// Raven wrote: void COM_ParseError( char *format, ... )
-// No table row for `char * format`.
-func COM_ParseError() -> Never {
+func COM_ParseError(_ format: inout String) {
     // TODO: Port COM_ParseError
     portMissing("COM_ParseError", source: "oracle/codemp/game/q_shared.c:300")
 }
 
 /// Source: oracle/codemp/game/q_shared.c:312
-// TODO: Port signature
-// Raven wrote: void COM_ParseWarning( char *format, ... )
-// No table row for `char * format`.
-func COM_ParseWarning() -> Never {
+func COM_ParseWarning(_ format: inout String) {
     // TODO: Port COM_ParseWarning
     portMissing("COM_ParseWarning", source: "oracle/codemp/game/q_shared.c:312")
 }
@@ -197,10 +185,7 @@ func SkipWhitespace() -> Never {
 }
 
 /// Source: oracle/codemp/game/q_shared.c:353
-// TODO: Port signature
-// Raven wrote: int COM_Compress( char *data_p )
-// No table row for `char * data_p`.
-func COM_Compress() -> Never {
+func COM_Compress(_ data_p: inout String) -> Int32 {
     // TODO: Port COM_Compress
     portMissing("COM_Compress", source: "oracle/codemp/game/q_shared.c:353")
 }
@@ -384,10 +369,7 @@ Safe strncpy that ensures a trailing zero
 =============
 */
 /// Source: oracle/codemp/game/q_shared.c:826
-// TODO: Port signature
-// Raven wrote: void Q_strncpyz( char *dest, const char *src, int destsize )
-// No table row for `char * dest`.
-func Q_strncpyz() -> Never {
+func Q_strncpyz(_ dest: inout String, _ src: String, _ destsize: Int32) {
     // TODO: Port Q_strncpyz
     portMissing("Q_strncpyz", source: "oracle/codemp/game/q_shared.c:826")
 }
@@ -413,7 +395,7 @@ func Q_stricmp(_ s1: String, _ s2: String) -> Int32 {
 /// Source: oracle/codemp/game/q_shared.c:905
 // TODO: Port signature
 // Raven wrote: char *Q_strlwr( char *s1 )
-// No table row for `char * s1`.
+// No table row for the return `char *`.
 func Q_strlwr() -> Never {
     // TODO: Port Q_strlwr
     portMissing("Q_strlwr", source: "oracle/codemp/game/q_shared.c:905")
@@ -422,7 +404,7 @@ func Q_strlwr() -> Never {
 /// Source: oracle/codemp/game/q_shared.c:916
 // TODO: Port signature
 // Raven wrote: char *Q_strupr( char *s1 )
-// No table row for `char * s1`.
+// No table row for the return `char *`.
 func Q_strupr() -> Never {
     // TODO: Port Q_strupr
     portMissing("Q_strupr", source: "oracle/codemp/game/q_shared.c:916")
@@ -430,10 +412,7 @@ func Q_strupr() -> Never {
 
 // never goes past bounds or leaves without a terminating 0
 /// Source: oracle/codemp/game/q_shared.c:929
-// TODO: Port signature
-// Raven wrote: void Q_strcat( char *dest, int size, const char *src )
-// No table row for `char * dest`.
-func Q_strcat() -> Never {
+func Q_strcat(_ dest: inout String, _ size: Int32, _ src: String) {
     // TODO: Port Q_strcat
     portMissing("Q_strcat", source: "oracle/codemp/game/q_shared.c:929")
 }
@@ -447,17 +426,14 @@ func Q_PrintStrlen(_ string: String) -> Int32 {
 /// Source: oracle/codemp/game/q_shared.c:963
 // TODO: Port signature
 // Raven wrote: char *Q_CleanStr( char *string )
-// No table row for `char * string`.
+// No table row for the return `char *`.
 func Q_CleanStr() -> Never {
     // TODO: Port Q_CleanStr
     portMissing("Q_CleanStr", source: "oracle/codemp/game/q_shared.c:963")
 }
 
 /// Source: oracle/codemp/game/q_shared.c:985
-// TODO: Port signature
-// Raven wrote: void QDECL Com_sprintf( char *dest, int size, const char *fmt, ...)
-// No table row for `char * dest`.
-func Com_sprintf() -> Never {
+func Com_sprintf(_ dest: inout String, _ size: Int32, _ fmt: String) {
     // TODO: Port Com_sprintf
     portMissing("Com_sprintf", source: "oracle/codemp/game/q_shared.c:985")
 }
@@ -520,10 +496,7 @@ Info_RemoveKey
 ===================
 */
 /// Source: oracle/codemp/game/q_shared.c:1147
-// TODO: Port signature
-// Raven wrote: void Info_RemoveKey( char *s, const char *key )
-// No table row for `char * s`.
-func Info_RemoveKey() -> Never {
+func Info_RemoveKey(_ s: inout String, _ key: String) {
     // TODO: Port Info_RemoveKey
     portMissing("Info_RemoveKey", source: "oracle/codemp/game/q_shared.c:1147")
 }
@@ -534,10 +507,7 @@ Info_RemoveKey_Big
 ===================
 */
 /// Source: oracle/codemp/game/q_shared.c:1202
-// TODO: Port signature
-// Raven wrote: void Info_RemoveKey_Big( char *s, const char *key )
-// No table row for `char * s`.
-func Info_RemoveKey_Big() -> Never {
+func Info_RemoveKey_Big(_ s: inout String, _ key: String) {
     // TODO: Port Info_RemoveKey_Big
     portMissing("Info_RemoveKey_Big", source: "oracle/codemp/game/q_shared.c:1202")
 }
@@ -564,10 +534,7 @@ Changes or adds a key/value pair
 ==================
 */
 /// Source: oracle/codemp/game/q_shared.c:1280
-// TODO: Port signature
-// Raven wrote: void Info_SetValueForKey( char *s, const char *key, const char *value )
-// No table row for `char * s`.
-func Info_SetValueForKey() -> Never {
+func Info_SetValueForKey(_ s: inout String, _ key: String, _ value: String) {
     // TODO: Port Info_SetValueForKey
     portMissing("Info_SetValueForKey", source: "oracle/codemp/game/q_shared.c:1280")
 }
@@ -580,10 +547,7 @@ Changes or adds a key/value pair
 ==================
 */
 /// Source: oracle/codemp/game/q_shared.c:1328
-// TODO: Port signature
-// Raven wrote: void Info_SetValueForKey_Big( char *s, const char *key, const char *value )
-// No table row for `char * s`.
-func Info_SetValueForKey_Big() -> Never {
+func Info_SetValueForKey_Big(_ s: inout String, _ key: String, _ value: String) {
     // TODO: Port Info_SetValueForKey_Big
     portMissing("Info_SetValueForKey_Big", source: "oracle/codemp/game/q_shared.c:1328")
 }

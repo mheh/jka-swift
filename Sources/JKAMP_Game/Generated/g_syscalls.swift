@@ -632,8 +632,7 @@ public func trap_Nav_Save(_ filename: String, _ checksum: Int32) -> Bool {
 }
 
 /// Source: oracle/codemp/game/g_syscalls.c:410
-public func trap_Nav_AddRawPoint(_ point: JKAShared.vec3_t, _ flags: Int32, _ radius: Int32) -> Int32 {
-    var point = point
+public func trap_Nav_AddRawPoint(_ point: inout JKAShared.vec3_t, _ flags: Int32, _ radius: Int32) -> Int32 {
     let word = withUnsafeMutablePointer(to: &point) { point in
         Syscall.call(G_NAV_ADDRAWPOINT, point, flags, radius)
     }
@@ -678,8 +677,7 @@ let word = Syscall.call(G_NAV_GETBESTNODE, startID, endID, rejectID)
 }
 
 /// Source: oracle/codemp/game/g_syscalls.c:450
-public func trap_Nav_GetNodePosition(_ nodeID: Int32, _ out: JKAShared.vec3_t) -> Int32 {
-    var out = out
+public func trap_Nav_GetNodePosition(_ nodeID: Int32, _ out: inout JKAShared.vec3_t) -> Int32 {
     let word = withUnsafeMutablePointer(to: &out) { out in
         Syscall.call(G_NAV_GETNODEPOSITION, nodeID, out)
     }
@@ -723,8 +721,7 @@ let word = Syscall.call(G_NAV_GETEDGECOST, startID, endID)
 }
 
 /// Source: oracle/codemp/game/g_syscalls.c:485
-public func trap_Nav_GetProjectedNode(_ origin: JKAShared.vec3_t, _ nodeID: Int32) -> Int32 {
-    var origin = origin
+public func trap_Nav_GetProjectedNode(_ origin: inout JKAShared.vec3_t, _ nodeID: Int32) -> Int32 {
     let word = withUnsafeMutablePointer(to: &origin) { origin in
         Syscall.call(G_NAV_GETPROJECTEDNODE, origin, nodeID)
     }
@@ -971,9 +968,7 @@ let word = Syscall.call(BOTLIB_AAS_INITIALIZED)
 }
 
 /// Source: oracle/codemp/game/g_syscalls.c:663
-public func trap_AAS_PresenceTypeBoundingBox(_ presencetype: Int32, _ mins: JKAShared.vec3_t, _ maxs: JKAShared.vec3_t) {
-    var mins = mins
-    var maxs = maxs
+public func trap_AAS_PresenceTypeBoundingBox(_ presencetype: Int32, _ mins: inout JKAShared.vec3_t, _ maxs: inout JKAShared.vec3_t) {
     _ = withUnsafeMutablePointer(to: &mins) { mins in
         withUnsafeMutablePointer(to: &maxs) { maxs in
             Syscall.call(BOTLIB_AAS_PRESENCE_TYPE_BOUNDING_BOX, presencetype, mins, maxs)
@@ -988,8 +983,7 @@ let word = Syscall.call(BOTLIB_AAS_TIME)
 }
 
 /// Source: oracle/codemp/game/g_syscalls.c:673
-public func trap_AAS_PointAreaNum(_ point: JKAShared.vec3_t) -> Int32 {
-    var point = point
+public func trap_AAS_PointAreaNum(_ point: inout JKAShared.vec3_t) -> Int32 {
     let word = withUnsafeMutablePointer(to: &point) { point in
         Syscall.call(BOTLIB_AAS_POINT_AREA_NUM, point)
     }
@@ -997,8 +991,7 @@ public func trap_AAS_PointAreaNum(_ point: JKAShared.vec3_t) -> Int32 {
 }
 
 /// Source: oracle/codemp/game/g_syscalls.c:677
-public func trap_AAS_PointReachabilityAreaIndex(_ point: JKAShared.vec3_t) -> Int32 {
-    var point = point
+public func trap_AAS_PointReachabilityAreaIndex(_ point: inout JKAShared.vec3_t) -> Int32 {
     let word = withUnsafeMutablePointer(to: &point) { point in
         Syscall.call(BOTLIB_AAS_POINT_REACHABILITY_AREA_INDEX, point)
     }
@@ -1015,9 +1008,7 @@ public func trap_AAS_TraceAreas() -> Never {
 }
 
 /// Source: oracle/codemp/game/g_syscalls.c:685
-public func trap_AAS_BBoxAreas(_ absmins: JKAShared.vec3_t, _ absmaxs: JKAShared.vec3_t, _ areas: inout Int32, _ maxareas: Int32) -> Int32 {
-    var absmins = absmins
-    var absmaxs = absmaxs
+public func trap_AAS_BBoxAreas(_ absmins: inout JKAShared.vec3_t, _ absmaxs: inout JKAShared.vec3_t, _ areas: inout Int32, _ maxareas: Int32) -> Int32 {
     let word = withUnsafeMutablePointer(to: &absmins) { absmins in
         withUnsafeMutablePointer(to: &absmaxs) { absmaxs in
             withUnsafeMutablePointer(to: &areas) { areas in
@@ -1035,8 +1026,7 @@ let word = Syscall.call(BOTLIB_AAS_AREA_INFO, areanum, info)
 }
 
 /// Source: oracle/codemp/game/g_syscalls.c:693
-public func trap_AAS_PointContents(_ point: JKAShared.vec3_t) -> Int32 {
-    var point = point
+public func trap_AAS_PointContents(_ point: inout JKAShared.vec3_t) -> Int32 {
     let word = withUnsafeMutablePointer(to: &point) { point in
         Syscall.call(BOTLIB_AAS_POINT_CONTENTS, point)
     }
@@ -1092,8 +1082,7 @@ let word = Syscall.call(BOTLIB_AAS_AREA_REACHABILITY, areanum)
 }
 
 /// Source: oracle/codemp/game/g_syscalls.c:721
-public func trap_AAS_AreaTravelTimeToGoalArea(_ areanum: Int32, _ origin: JKAShared.vec3_t, _ goalareanum: Int32, _ travelflags: Int32) -> Int32 {
-    var origin = origin
+public func trap_AAS_AreaTravelTimeToGoalArea(_ areanum: Int32, _ origin: inout JKAShared.vec3_t, _ goalareanum: Int32, _ travelflags: Int32) -> Int32 {
     let word = withUnsafeMutablePointer(to: &origin) { origin in
         Syscall.call(BOTLIB_AAS_AREA_TRAVEL_TIME_TO_GOAL_AREA, areanum, origin, goalareanum, travelflags)
     }
@@ -1107,8 +1096,7 @@ let word = Syscall.call(BOTLIB_AAS_ENABLE_ROUTING_AREA, areanum, enable)
 }
 
 /// Source: oracle/codemp/game/g_syscalls.c:729
-public func trap_AAS_PredictRoute(_ route: OpaquePointer?, _ areanum: Int32, _ origin: JKAShared.vec3_t, _ goalareanum: Int32, _ travelflags: Int32, _ maxareas: Int32, _ maxtime: Int32, _ stopevent: Int32, _ stopcontents: Int32, _ stoptfl: Int32, _ stopareanum: Int32) -> Int32 {
-    var origin = origin
+public func trap_AAS_PredictRoute(_ route: OpaquePointer?, _ areanum: Int32, _ origin: inout JKAShared.vec3_t, _ goalareanum: Int32, _ travelflags: Int32, _ maxareas: Int32, _ maxtime: Int32, _ stopevent: Int32, _ stopcontents: Int32, _ stoptfl: Int32, _ stopareanum: Int32) -> Int32 {
     let word = withUnsafeMutablePointer(to: &origin) { origin in
         Syscall.call(BOTLIB_AAS_PREDICT_ROUTE, route, areanum, origin, goalareanum, travelflags, maxareas, maxtime, stopevent, stopcontents, stoptfl, stopareanum)
     }
@@ -1116,9 +1104,7 @@ public func trap_AAS_PredictRoute(_ route: OpaquePointer?, _ areanum: Int32, _ o
 }
 
 /// Source: oracle/codemp/game/g_syscalls.c:735
-public func trap_AAS_AlternativeRouteGoals(_ start: JKAShared.vec3_t, _ startareanum: Int32, _ goal: JKAShared.vec3_t, _ goalareanum: Int32, _ travelflags: Int32, _ altroutegoals: OpaquePointer?, _ maxaltroutegoals: Int32, _ type: Int32) -> Int32 {
-    var start = start
-    var goal = goal
+public func trap_AAS_AlternativeRouteGoals(_ start: inout JKAShared.vec3_t, _ startareanum: Int32, _ goal: inout JKAShared.vec3_t, _ goalareanum: Int32, _ travelflags: Int32, _ altroutegoals: OpaquePointer?, _ maxaltroutegoals: Int32, _ type: Int32) -> Int32 {
     let word = withUnsafeMutablePointer(to: &start) { start in
         withUnsafeMutablePointer(to: &goal) { goal in
             Syscall.call(BOTLIB_AAS_ALTERNATIVE_ROUTE_GOAL, start, startareanum, goal, goalareanum, travelflags, altroutegoals, maxaltroutegoals, type)
@@ -1128,8 +1114,7 @@ public func trap_AAS_AlternativeRouteGoals(_ start: JKAShared.vec3_t, _ startare
 }
 
 /// Source: oracle/codemp/game/g_syscalls.c:741
-public func trap_AAS_Swimming(_ origin: JKAShared.vec3_t) -> Int32 {
-    var origin = origin
+public func trap_AAS_Swimming(_ origin: inout JKAShared.vec3_t) -> Int32 {
     let word = withUnsafeMutablePointer(to: &origin) { origin in
         Syscall.call(BOTLIB_AAS_SWIMMING, origin)
     }
@@ -1137,10 +1122,7 @@ public func trap_AAS_Swimming(_ origin: JKAShared.vec3_t) -> Int32 {
 }
 
 /// Source: oracle/codemp/game/g_syscalls.c:745
-public func trap_AAS_PredictClientMovement(_ move: OpaquePointer?, _ entnum: Int32, _ origin: JKAShared.vec3_t, _ presencetype: Int32, _ onground: Int32, _ velocity: JKAShared.vec3_t, _ cmdmove: JKAShared.vec3_t, _ cmdframes: Int32, _ maxframes: Int32, _ frametime: Float, _ stopevent: Int32, _ stopareanum: Int32, _ visualize: Int32) -> Int32 {
-    var origin = origin
-    var velocity = velocity
-    var cmdmove = cmdmove
+public func trap_AAS_PredictClientMovement(_ move: OpaquePointer?, _ entnum: Int32, _ origin: inout JKAShared.vec3_t, _ presencetype: Int32, _ onground: Int32, _ velocity: inout JKAShared.vec3_t, _ cmdmove: inout JKAShared.vec3_t, _ cmdframes: Int32, _ maxframes: Int32, _ frametime: Float, _ stopevent: Int32, _ stopareanum: Int32, _ visualize: Int32) -> Int32 {
     let word = withUnsafeMutablePointer(to: &origin) { origin in
         withUnsafeMutablePointer(to: &velocity) { velocity in
             withUnsafeMutablePointer(to: &cmdmove) { cmdmove in
@@ -1269,16 +1251,14 @@ public func trap_EA_DelayedJump(_ client: Int32) {
 }
 
 /// Source: oracle/codemp/game/g_syscalls.c:833
-public func trap_EA_Move(_ client: Int32, _ dir: JKAShared.vec3_t, _ speed: Float) {
-    var dir = dir
+public func trap_EA_Move(_ client: Int32, _ dir: inout JKAShared.vec3_t, _ speed: Float) {
     _ = withUnsafeMutablePointer(to: &dir) { dir in
         Syscall.call(BOTLIB_EA_MOVE, client, dir, speed)
     }
 }
 
 /// Source: oracle/codemp/game/g_syscalls.c:837
-public func trap_EA_View(_ client: Int32, _ viewangles: JKAShared.vec3_t) {
-    var viewangles = viewangles
+public func trap_EA_View(_ client: Int32, _ viewangles: inout JKAShared.vec3_t) {
     _ = withUnsafeMutablePointer(to: &viewangles) { viewangles in
         Syscall.call(BOTLIB_EA_VIEW, client, viewangles)
     }
@@ -1560,8 +1540,7 @@ let word = Syscall.call(BOTLIB_AI_GET_SECOND_GOAL, goalstate, goal)
 }
 
 /// Source: oracle/codemp/game/g_syscalls.c:1009
-public func trap_BotChooseLTGItem(_ goalstate: Int32, _ origin: JKAShared.vec3_t, _ inventory: inout Int32, _ travelflags: Int32) -> Int32 {
-    var origin = origin
+public func trap_BotChooseLTGItem(_ goalstate: Int32, _ origin: inout JKAShared.vec3_t, _ inventory: inout Int32, _ travelflags: Int32) -> Int32 {
     let word = withUnsafeMutablePointer(to: &origin) { origin in
         withUnsafeMutablePointer(to: &inventory) { inventory in
             Syscall.call(BOTLIB_AI_CHOOSE_LTG_ITEM, goalstate, origin, inventory, travelflags)
@@ -1571,8 +1550,7 @@ public func trap_BotChooseLTGItem(_ goalstate: Int32, _ origin: JKAShared.vec3_t
 }
 
 /// Source: oracle/codemp/game/g_syscalls.c:1013
-public func trap_BotChooseNBGItem(_ goalstate: Int32, _ origin: JKAShared.vec3_t, _ inventory: inout Int32, _ travelflags: Int32, _ ltg: OpaquePointer?, _ maxtime: Float) -> Int32 {
-    var origin = origin
+public func trap_BotChooseNBGItem(_ goalstate: Int32, _ origin: inout JKAShared.vec3_t, _ inventory: inout Int32, _ travelflags: Int32, _ ltg: OpaquePointer?, _ maxtime: Float) -> Int32 {
     let word = withUnsafeMutablePointer(to: &origin) { origin in
         withUnsafeMutablePointer(to: &inventory) { inventory in
             Syscall.call(BOTLIB_AI_CHOOSE_NBG_ITEM, goalstate, origin, inventory, travelflags, ltg, maxtime)
@@ -1582,8 +1560,7 @@ public func trap_BotChooseNBGItem(_ goalstate: Int32, _ origin: JKAShared.vec3_t
 }
 
 /// Source: oracle/codemp/game/g_syscalls.c:1017
-public func trap_BotTouchingGoal(_ origin: JKAShared.vec3_t, _ goal: OpaquePointer?) -> Int32 {
-    var origin = origin
+public func trap_BotTouchingGoal(_ origin: inout JKAShared.vec3_t, _ goal: OpaquePointer?) -> Int32 {
     let word = withUnsafeMutablePointer(to: &origin) { origin in
         Syscall.call(BOTLIB_AI_TOUCHING_GOAL, origin, goal)
     }
@@ -1591,9 +1568,7 @@ public func trap_BotTouchingGoal(_ origin: JKAShared.vec3_t, _ goal: OpaquePoint
 }
 
 /// Source: oracle/codemp/game/g_syscalls.c:1021
-public func trap_BotItemGoalInVisButNotVisible(_ viewer: Int32, _ eye: JKAShared.vec3_t, _ viewangles: JKAShared.vec3_t, _ goal: OpaquePointer?) -> Int32 {
-    var eye = eye
-    var viewangles = viewangles
+public func trap_BotItemGoalInVisButNotVisible(_ viewer: Int32, _ eye: inout JKAShared.vec3_t, _ viewangles: inout JKAShared.vec3_t, _ goal: OpaquePointer?) -> Int32 {
     let word = withUnsafeMutablePointer(to: &eye) { eye in
         withUnsafeMutablePointer(to: &viewangles) { viewangles in
             Syscall.call(BOTLIB_AI_ITEM_GOAL_IN_VIS_BUT_NOT_VISIBLE, viewer, eye, viewangles, goal)
@@ -1697,8 +1672,7 @@ public func trap_BotResetMoveState(_ movestate: Int32) {
 }
 
 /// Source: oracle/codemp/game/g_syscalls.c:1087
-public func trap_BotAddAvoidSpot(_ movestate: Int32, _ origin: JKAShared.vec3_t, _ radius: Float, _ type: Int32) {
-    var origin = origin
+public func trap_BotAddAvoidSpot(_ movestate: Int32, _ origin: inout JKAShared.vec3_t, _ radius: Float, _ type: Int32) {
     _ = withUnsafeMutablePointer(to: &origin) { origin in
         Syscall.call(BOTLIB_AI_ADD_AVOID_SPOT, movestate, origin, radius, type)
     }
@@ -1710,8 +1684,7 @@ public func trap_BotMoveToGoal(_ result: OpaquePointer?, _ movestate: Int32, _ g
 }
 
 /// Source: oracle/codemp/game/g_syscalls.c:1095
-public func trap_BotMoveInDirection(_ movestate: Int32, _ dir: JKAShared.vec3_t, _ speed: Float, _ type: Int32) -> Int32 {
-    var dir = dir
+public func trap_BotMoveInDirection(_ movestate: Int32, _ dir: inout JKAShared.vec3_t, _ speed: Float, _ type: Int32) -> Int32 {
     let word = withUnsafeMutablePointer(to: &dir) { dir in
         Syscall.call(BOTLIB_AI_MOVE_IN_DIRECTION, movestate, dir, speed, type)
     }
@@ -1729,8 +1702,7 @@ public func trap_BotResetLastAvoidReach(_ movestate: Int32) {
 }
 
 /// Source: oracle/codemp/game/g_syscalls.c:1107
-public func trap_BotReachabilityArea(_ origin: JKAShared.vec3_t, _ testground: Int32) -> Int32 {
-    var origin = origin
+public func trap_BotReachabilityArea(_ origin: inout JKAShared.vec3_t, _ testground: Int32) -> Int32 {
     let word = withUnsafeMutablePointer(to: &origin) { origin in
         Syscall.call(BOTLIB_AI_REACHABILITY_AREA, origin, testground)
     }
@@ -1738,8 +1710,7 @@ public func trap_BotReachabilityArea(_ origin: JKAShared.vec3_t, _ testground: I
 }
 
 /// Source: oracle/codemp/game/g_syscalls.c:1111
-public func trap_BotMovementViewTarget(_ movestate: Int32, _ goal: OpaquePointer?, _ travelflags: Int32, _ lookahead: Float, _ target: JKAShared.vec3_t) -> Int32 {
-    var target = target
+public func trap_BotMovementViewTarget(_ movestate: Int32, _ goal: OpaquePointer?, _ travelflags: Int32, _ lookahead: Float, _ target: inout JKAShared.vec3_t) -> Int32 {
     let word = withUnsafeMutablePointer(to: &target) { target in
         Syscall.call(BOTLIB_AI_MOVEMENT_VIEW_TARGET, movestate, goal, travelflags, lookahead, target)
     }
@@ -1747,9 +1718,7 @@ public func trap_BotMovementViewTarget(_ movestate: Int32, _ goal: OpaquePointer
 }
 
 /// Source: oracle/codemp/game/g_syscalls.c:1115
-public func trap_BotPredictVisiblePosition(_ origin: JKAShared.vec3_t, _ areanum: Int32, _ goal: OpaquePointer?, _ travelflags: Int32, _ target: JKAShared.vec3_t) -> Int32 {
-    var origin = origin
-    var target = target
+public func trap_BotPredictVisiblePosition(_ origin: inout JKAShared.vec3_t, _ areanum: Int32, _ goal: OpaquePointer?, _ travelflags: Int32, _ target: inout JKAShared.vec3_t) -> Int32 {
     let word = withUnsafeMutablePointer(to: &origin) { origin in
         withUnsafeMutablePointer(to: &target) { target in
             Syscall.call(BOTLIB_AI_PREDICT_VISIBLE_POSITION, origin, areanum, goal, travelflags, target)
@@ -1887,12 +1856,8 @@ let word = Syscall.call(G_G2_HAVEWEGHOULMODELS, ghoul2)
 }
 
 /// Source: oracle/codemp/game/g_syscalls.c:1200
-public func trap_G2_SetGhoul2ModelIndexes(_ ghoul2: OpaquePointer?, _ modelList: inout Int32, _ skinList: inout Int32) {
-    _ = withUnsafeMutablePointer(to: &modelList) { modelList in
-        withUnsafeMutablePointer(to: &skinList) { skinList in
-            Syscall.call(G_G2_SETMODELS, ghoul2, modelList, skinList)
-        }
-    }
+public func trap_G2_SetGhoul2ModelIndexes(_ ghoul2: OpaquePointer?, _ modelList: UnsafeMutablePointer<Int32>?, _ skinList: UnsafeMutablePointer<Int32>?) {
+    Syscall.call(G_G2_SETMODELS, ghoul2, modelList, skinList)
 }
 
 /// Source: oracle/codemp/game/g_syscalls.c:1205
@@ -1957,12 +1922,10 @@ public func trap_G2API_SetBoltInfo(_ ghoul2: OpaquePointer?, _ modelIndex: Int32
 }
 
 /// Source: oracle/codemp/game/g_syscalls.c:1249
-public func trap_G2API_SetBoneAngles(_ ghoul2: OpaquePointer?, _ modelIndex: Int32, _ boneName: String, _ angles: JKAShared.vec3_t, _ flags: Int32, _ up: Int32, _ right: Int32, _ forward: Int32, _ modelList: inout Int32, _ blendTime: Int32, _ currentTime: Int32) -> Bool {
+public func trap_G2API_SetBoneAngles(_ ghoul2: OpaquePointer?, _ modelIndex: Int32, _ boneName: String, _ angles: JKAShared.vec3_t, _ flags: Int32, _ up: Int32, _ right: Int32, _ forward: Int32, _ modelList: UnsafeMutablePointer<Int32>?, _ blendTime: Int32, _ currentTime: Int32) -> Bool {
     let word = boneName.withCString { boneName in
         withUnsafePointer(to: angles) { angles in
-            withUnsafeMutablePointer(to: &modelList) { modelList in
-                Syscall.call(G_G2_ANGLEOVERRIDE, ghoul2, modelIndex, boneName, angles, flags, up, right, forward, modelList, blendTime, currentTime)
-            }
+            Syscall.call(G_G2_ANGLEOVERRIDE, ghoul2, modelIndex, boneName, angles, flags, up, right, forward, modelList, blendTime, currentTime)
         }
     }
     return word != 0
@@ -2144,9 +2107,7 @@ public func trap_G2API_AnimateG2Models() -> Never {
 
 //additional ragdoll options -rww
 /// Source: oracle/codemp/game/g_syscalls.c:1394
-public func trap_G2API_RagPCJConstraint(_ ghoul2: OpaquePointer?, _ boneName: String, _ min: JKAShared.vec3_t, _ max: JKAShared.vec3_t) -> Bool {
-    var min = min
-    var max = max
+public func trap_G2API_RagPCJConstraint(_ ghoul2: OpaquePointer?, _ boneName: String, _ min: inout JKAShared.vec3_t, _ max: inout JKAShared.vec3_t) -> Bool {
     let word = boneName.withCString { boneName in
         withUnsafeMutablePointer(to: &min) { min in
             withUnsafeMutablePointer(to: &max) { max in
@@ -2166,8 +2127,7 @@ public func trap_G2API_RagPCJGradientSpeed(_ ghoul2: OpaquePointer?, _ boneName:
 }
 
 /// Source: oracle/codemp/game/g_syscalls.c:1404
-public func trap_G2API_RagEffectorGoal(_ ghoul2: OpaquePointer?, _ boneName: String, _ pos: JKAShared.vec3_t) -> Bool {
-    var pos = pos
+public func trap_G2API_RagEffectorGoal(_ ghoul2: OpaquePointer?, _ boneName: String, _ pos: inout JKAShared.vec3_t) -> Bool {
     let word = boneName.withCString { boneName in
         withUnsafeMutablePointer(to: &pos) { pos in
             Syscall.call(G_G2_RAGEFFECTORGOAL, ghoul2, boneName, pos)
@@ -2177,11 +2137,7 @@ public func trap_G2API_RagEffectorGoal(_ ghoul2: OpaquePointer?, _ boneName: Str
 }
 
 /// Source: oracle/codemp/game/g_syscalls.c:1409
-public func trap_G2API_GetRagBonePos(_ ghoul2: OpaquePointer?, _ boneName: String, _ pos: JKAShared.vec3_t, _ entAngles: JKAShared.vec3_t, _ entPos: JKAShared.vec3_t, _ entScale: JKAShared.vec3_t) -> Bool {
-    var pos = pos
-    var entAngles = entAngles
-    var entPos = entPos
-    var entScale = entScale
+public func trap_G2API_GetRagBonePos(_ ghoul2: OpaquePointer?, _ boneName: String, _ pos: inout JKAShared.vec3_t, _ entAngles: inout JKAShared.vec3_t, _ entPos: inout JKAShared.vec3_t, _ entScale: inout JKAShared.vec3_t) -> Bool {
     let word = boneName.withCString { boneName in
         withUnsafeMutablePointer(to: &pos) { pos in
             withUnsafeMutablePointer(to: &entAngles) { entAngles in
@@ -2197,8 +2153,7 @@ public func trap_G2API_GetRagBonePos(_ ghoul2: OpaquePointer?, _ boneName: Strin
 }
 
 /// Source: oracle/codemp/game/g_syscalls.c:1414
-public func trap_G2API_RagEffectorKick(_ ghoul2: OpaquePointer?, _ boneName: String, _ velocity: JKAShared.vec3_t) -> Bool {
-    var velocity = velocity
+public func trap_G2API_RagEffectorKick(_ ghoul2: OpaquePointer?, _ boneName: String, _ velocity: inout JKAShared.vec3_t) -> Bool {
     let word = boneName.withCString { boneName in
         withUnsafeMutablePointer(to: &velocity) { velocity in
             Syscall.call(G_G2_RAGEFFECTORKICK, ghoul2, boneName, velocity)

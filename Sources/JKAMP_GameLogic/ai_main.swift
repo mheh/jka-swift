@@ -43,10 +43,7 @@ func BotMindTricked(_ botClient: Int32, _ enemyClient: Int32) -> Int32 {
 }
 
 /// Source: oracle/codemp/game/ai_main.c:332
-// TODO: Port signature
-// Raven wrote: void QDECL BotAI_Print(int type, char *fmt, ...)
-// No table row for `char * fmt`.
-func BotAI_Print() -> Never {
+func BotAI_Print(_ type: Int32, _ fmt: inout String) {
     // TODO: Port BotAI_Print
     portMissing("BotAI_Print", source: "oracle/codemp/game/ai_main.c:332")
 }
@@ -196,10 +193,7 @@ RemoveColorEscapeSequences
 ==============
 */
 /// Source: oracle/codemp/game/ai_main.c:674
-// TODO: Port signature
-// Raven wrote: void RemoveColorEscapeSequences( char *text )
-// No table row for `char * text`.
-func RemoveColorEscapeSequences() -> Never {
+func RemoveColorEscapeSequences(_ text: inout String) {
     // TODO: Port RemoveColorEscapeSequences
     portMissing("RemoveColorEscapeSequences", source: "oracle/codemp/game/ai_main.c:674")
 }
@@ -287,21 +281,21 @@ func BotAILoadMap(_ restart: Int32) -> Int32 {
 
 //standard visibility check
 /// Source: oracle/codemp/game/ai_main.c:982
-func OrgVisible(_ org1: JKAShared.vec3_t, _ org2: JKAShared.vec3_t, _ ignore: Int32) -> Int32 {
+func OrgVisible(_ org1: inout JKAShared.vec3_t, _ org2: inout JKAShared.vec3_t, _ ignore: Int32) -> Int32 {
     // TODO: Port OrgVisible
     portMissing("OrgVisible", source: "oracle/codemp/game/ai_main.c:982")
 }
 
 //special waypoint visibility check
 /// Source: oracle/codemp/game/ai_main.c:997
-func WPOrgVisible(_ bot: Entity, _ org1: JKAShared.vec3_t, _ org2: JKAShared.vec3_t, _ ignore: Int32) -> Int32 {
+func WPOrgVisible(_ bot: Entity, _ org1: inout JKAShared.vec3_t, _ org2: inout JKAShared.vec3_t, _ ignore: Int32) -> Int32 {
     // TODO: Port WPOrgVisible
     portMissing("WPOrgVisible", source: "oracle/codemp/game/ai_main.c:997")
 }
 
 //visibility check with hull trace
 /// Source: oracle/codemp/game/ai_main.c:1029
-func OrgVisibleBox(_ org1: JKAShared.vec3_t, _ mins: JKAShared.vec3_t, _ maxs: JKAShared.vec3_t, _ org2: JKAShared.vec3_t, _ ignore: Int32) -> Int32 {
+func OrgVisibleBox(_ org1: inout JKAShared.vec3_t, _ mins: inout JKAShared.vec3_t, _ maxs: inout JKAShared.vec3_t, _ org2: inout JKAShared.vec3_t, _ ignore: Int32) -> Int32 {
     // TODO: Port OrgVisibleBox
     portMissing("OrgVisibleBox", source: "oracle/codemp/game/ai_main.c:1029")
 }
@@ -310,7 +304,7 @@ func OrgVisibleBox(_ org1: JKAShared.vec3_t, _ mins: JKAShared.vec3_t, _ maxs: J
 //kind of badly done, but this shouldn't happen
 //often.
 /// Source: oracle/codemp/game/ai_main.c:1053
-func CheckForFunc(_ org: JKAShared.vec3_t, _ ignore: Int32) -> Int32 {
+func CheckForFunc(_ org: inout JKAShared.vec3_t, _ ignore: Int32) -> Int32 {
     // TODO: Port CheckForFunc
     portMissing("CheckForFunc", source: "oracle/codemp/game/ai_main.c:1053")
 }
@@ -324,7 +318,7 @@ func BotPVSCheck(_ p1: JKAShared.vec3_t, _ p2: JKAShared.vec3_t) -> Bool {
 
 //get the index to the nearest visible waypoint in the global trail
 /// Source: oracle/codemp/game/ai_main.c:1104
-func GetNearestVisibleWP(_ org: JKAShared.vec3_t, _ ignore: Int32) -> Int32 {
+func GetNearestVisibleWP(_ org: inout JKAShared.vec3_t, _ ignore: Int32) -> Int32 {
     // TODO: Port GetNearestVisibleWP
     portMissing("GetNearestVisibleWP", source: "oracle/codemp/game/ai_main.c:1104")
 }
@@ -475,7 +469,7 @@ func UpdateEventTracker() {
 
 //check if said angles are within our fov
 /// Source: oracle/codemp/game/ai_main.c:2034
-func InFieldOfVision(_ viewangles: JKAShared.vec3_t, _ fov: Float, _ angles: JKAShared.vec3_t) -> Int32 {
+func InFieldOfVision(_ viewangles: inout JKAShared.vec3_t, _ fov: Float, _ angles: inout JKAShared.vec3_t) -> Int32 {
     // TODO: Port InFieldOfVision
     portMissing("InFieldOfVision", source: "oracle/codemp/game/ai_main.c:2034")
 }
@@ -613,7 +607,7 @@ func CTFTakesPriority() -> Never {
 }
 
 /// Source: oracle/codemp/game/ai_main.c:3036
-func EntityVisibleBox(_ org1: JKAShared.vec3_t, _ mins: JKAShared.vec3_t, _ maxs: JKAShared.vec3_t, _ org2: JKAShared.vec3_t, _ ignore: Int32, _ ignore2: Int32) -> Int32 {
+func EntityVisibleBox(_ org1: inout JKAShared.vec3_t, _ mins: inout JKAShared.vec3_t, _ maxs: inout JKAShared.vec3_t, _ org2: inout JKAShared.vec3_t, _ ignore: Int32, _ ignore2: Int32) -> Int32 {
     // TODO: Port EntityVisibleBox
     portMissing("EntityVisibleBox", source: "oracle/codemp/game/ai_main.c:3036")
 }

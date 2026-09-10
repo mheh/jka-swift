@@ -98,7 +98,7 @@ func EntIsGlass(_ check: Entity) -> Bool {
 }
 
 /// Source: oracle/codemp/game/NPC_combat.c:1126
-func ShotThroughGlass(_ tr: JKAMP.Trace, _ target: Entity, _ spot: JKAShared.vec3_t, _ mask: Int32) -> Bool {
+func ShotThroughGlass(_ tr: JKAMP.Trace, _ target: Entity, _ spot: inout JKAShared.vec3_t, _ mask: Int32) -> Bool {
     // TODO: Port ShotThroughGlass
     portMissing("ShotThroughGlass", source: "oracle/codemp/game/NPC_combat.c:1126")
 }
@@ -202,7 +202,7 @@ func NPC_ClearShot(_ ent: Entity) -> Bool {
 }
 
 /// Source: oracle/codemp/game/NPC_combat.c:2152
-func NPC_ShotEntity(_ ent: Entity, _ impactPos: JKAShared.vec3_t) -> Int32 {
+func NPC_ShotEntity(_ ent: Entity, _ impactPos: inout JKAShared.vec3_t) -> Int32 {
     // TODO: Port NPC_ShotEntity
     portMissing("NPC_ShotEntity", source: "oracle/codemp/game/NPC_combat.c:2152")
 }
@@ -269,13 +269,13 @@ private func NPC_CollectCombatPoints() -> Never {
 }
 
 /// Source: oracle/codemp/game/NPC_combat.c:2657
-func NPC_FindCombatPoint(_ position: JKAShared.vec3_t, _ avoidPosition: JKAShared.vec3_t, _ enemyPosition: JKAShared.vec3_t, _ flags: Int32, _ avoidDist: Float, _ ignorePoint: Int32) -> Int32 {
+func NPC_FindCombatPoint(_ position: JKAShared.vec3_t, _ avoidPosition: JKAShared.vec3_t, _ enemyPosition: inout JKAShared.vec3_t, _ flags: Int32, _ avoidDist: Float, _ ignorePoint: Int32) -> Int32 {
     // TODO: Port NPC_FindCombatPoint
     portMissing("NPC_FindCombatPoint", source: "oracle/codemp/game/NPC_combat.c:2657")
 }
 
 /// Source: oracle/codemp/game/NPC_combat.c:2882
-func NPC_FindSquadPoint(_ position: JKAShared.vec3_t) -> Int32 {
+func NPC_FindSquadPoint(_ position: inout JKAShared.vec3_t) -> Int32 {
     // TODO: Port NPC_FindSquadPoint
     portMissing("NPC_FindSquadPoint", source: "oracle/codemp/game/NPC_combat.c:2882")
 }

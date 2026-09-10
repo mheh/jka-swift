@@ -7,5 +7,5 @@ The oracle range is the whole definition, from the return type to the closing br
 
 | Function | Oracle | Swift | State | jka-rust | Signature |
 |---|---|---|---|---|---|
-| `BG_AttachToRancor` | `oracle/codemp/game/bg_g2_utils.c:25-98` | `JKAMP_BG/bg_g2_utils.swift:10` | marker | `crates/mp/bg/src/bg_g2_utils.rs:12-139` | `func BG_AttachToRancor() -> Never` TODO: Port signature. No table row for `vec3_t[3] out_axis`. |
-| `BG_GetRootSurfNameWithVariant` | `oracle/codemp/game/bg_g2_utils.c:101-122` | `JKAMP_BG/bg_g2_utils.swift:19` | marker | `crates/mp/bg/src/bg_g2_utils.rs:147-174` | `func BG_GetRootSurfNameWithVariant() -> Never` TODO: Port signature. No table row for `char * returnSurfName`. |
+| `BG_AttachToRancor` | `oracle/codemp/game/bg_g2_utils.c:25-98` | `JKAMP_BG/bg_g2_utils.swift:7` | marker | `crates/mp/bg/src/bg_g2_utils.rs:12-139` | `func BG_AttachToRancor(_ ghoul2: OpaquePointer?, _ rancYaw: Float, _ rancOrigin: inout JKAShared.vec3_t, _ time: Int32, _ modelList: UnsafeMutablePointer<Int32>?, _ modelScale: inout JKAShared.vec3_t, _ inMouth: Bool, _ out_origin: inout JKAShared.vec3_t, _ out_angles: inout JKAShared.vec3_t, _ out_axis: inout [JKAShared.vec3_t])` |
+| `BG_GetRootSurfNameWithVariant` | `oracle/codemp/game/bg_g2_utils.c:101-122` | `JKAMP_BG/bg_g2_utils.swift:13` | marker | `crates/mp/bg/src/bg_g2_utils.rs:147-174` | `func BG_GetRootSurfNameWithVariant(_ ghoul2: OpaquePointer?, _ rootSurfName: String, _ returnSurfName: inout String, _ returnSize: Int32) -> Bool` |

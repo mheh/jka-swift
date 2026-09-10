@@ -172,10 +172,7 @@ func CalculateSection31Award(_ ent: Entity) -> Bool {
 }
 
 /// Source: oracle/codemp/game/g_log.c:1518
-// TODO: Port signature
-// Raven wrote: void CalculateAwards(gentity_t *ent, char *msg)
-// No table row for `char * msg`.
-func CalculateAwards() -> Never {
+func CalculateAwards(_ ent: Entity, _ msg: inout String) {
     // TODO: Port CalculateAwards
     portMissing("CalculateAwards", source: "oracle/codemp/game/g_log.c:1518")
 }

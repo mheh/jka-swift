@@ -38,10 +38,7 @@ Called on a first-time connect
 ================
 */
 /// Source: oracle/codemp/game/g_session.c:187
-// TODO: Port signature
-// Raven wrote: void G_InitSessionData( gclient_t *client, char *userinfo, qboolean isBot )
-// No table row for `char * userinfo`.
-func G_InitSessionData() -> Never {
+func G_InitSessionData(_ client: Client, _ userinfo: inout String, _ isBot: Bool) {
     // TODO: Port G_InitSessionData
     portMissing("G_InitSessionData", source: "oracle/codemp/game/g_session.c:187")
 }

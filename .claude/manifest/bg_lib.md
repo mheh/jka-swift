@@ -7,9 +7,9 @@ The oracle range is the whole definition, from the return type to the closing br
 
 | Function | Oracle | Swift | State | jka-rust | Signature |
 |---|---|---|---|---|---|
-| `swapfunc` static | `oracle/codemp/game/bg_lib.c:80-86` | `JKAMP_BG/bg_lib.swift:14` | ported | none | `private func swapfunc() -> Never` TODO: Port signature. No table row for `char * a`. |
-| `med3` static | `oracle/codemp/game/bg_lib.c:98-103` | `JKAMP_BG/bg_lib.swift:22` | ported | none | `private func med3() -> Never` TODO: Port signature. No table row for `char * a`. |
-| `qsort` | `oracle/codemp/game/bg_lib.c:105-181` | `JKAMP_BG/bg_lib.swift:47` | ported | none | `func qsort() -> Never` TODO: Port signature. No table row for `cmp_t * cmp`. |
+| `swapfunc` static | `oracle/codemp/game/bg_lib.c:80-86` | `JKAMP_BG/bg_lib.swift:14` | ported | none | `private func swapfunc(_ a: inout String, _ b: inout String, _ n: Int32, _ swaptype: Int32)` |
+| `med3` static | `oracle/codemp/game/bg_lib.c:98-103` | `JKAMP_BG/bg_lib.swift:22` | ported | none | `private func med3() -> Never` TODO: Port signature. No table row for the return `char *`. |
+| `qsort` | `oracle/codemp/game/bg_lib.c:105-181` | `JKAMP_BG/bg_lib.swift:47` | ported | none | `func qsort(_ a: OpaquePointer?, _ n: UInt, _ es: UInt, _ cmp: (() -> Int32)?)` |
 | `__builtin___memmove_chk` | `oracle/codemp/game/bg_lib.c:287-300` | `JKAMP_BG/bg_lib.swift:148` | marker | none | `func __builtin___memmove_chk() -> Never` TODO: Port signature. No table row for `int (void *) __builtin_object_size`. |
 | `srand` | `oracle/codemp/game/bg_lib.c:765-767` | `JKAMP_BG/bg_lib.swift:154` | marker | none | `func srand(_ seed: UInt32)` |
 | `rand` | `oracle/codemp/game/bg_lib.c:769-772` | `JKAMP_BG/bg_lib.swift:160` | marker | none | `func rand() -> Int32` |

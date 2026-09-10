@@ -29,7 +29,7 @@ func ST_MarkToCover(_ `self`: Entity) {
 }
 
 /// Source: oracle/codemp/game/NPC_AI_Stormtrooper.c:242
-func ST_StartFlee(_ `self`: Entity, _ enemy: Entity, _ dangerPoint: JKAShared.vec3_t, _ dangerLevel: Int32, _ minTime: Int32, _ maxTime: Int32) {
+func ST_StartFlee(_ `self`: Entity, _ enemy: Entity, _ dangerPoint: inout JKAShared.vec3_t, _ dangerLevel: Int32, _ minTime: Int32, _ maxTime: Int32) {
     // TODO: Port ST_StartFlee
     portMissing("ST_StartFlee", source: "oracle/codemp/game/NPC_AI_Stormtrooper.c:242")
 }
@@ -95,7 +95,7 @@ private func NPC_ST_InvestigateEvent(_ eventID: Int32, _ extraSuspicious: Bool) 
 }
 
 /// Source: oracle/codemp/game/NPC_AI_Stormtrooper.c:927
-private func ST_OffsetLook(_ offset: Float, _ out: JKAShared.vec3_t) {
+private func ST_OffsetLook(_ offset: Float, _ out: inout JKAShared.vec3_t) {
     // TODO: Port ST_OffsetLook
     portMissing("ST_OffsetLook", source: "oracle/codemp/game/NPC_AI_Stormtrooper.c:927")
 }
@@ -137,7 +137,7 @@ private func ST_CheckFireState() {
 }
 
 /// Source: oracle/codemp/game/NPC_AI_Stormtrooper.c:1536
-func ST_TrackEnemy(_ `self`: Entity, _ enemyPos: JKAShared.vec3_t) {
+func ST_TrackEnemy(_ `self`: Entity, _ enemyPos: inout JKAShared.vec3_t) {
     // TODO: Port ST_TrackEnemy
     portMissing("ST_TrackEnemy", source: "oracle/codemp/game/NPC_AI_Stormtrooper.c:1536")
 }

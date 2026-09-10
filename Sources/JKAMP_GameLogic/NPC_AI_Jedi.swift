@@ -59,7 +59,7 @@ func WP_ResistForcePush(_ `self`: Entity, _ pusher: Entity, _ noPenalty: Bool) {
 }
 
 /// Source: oracle/codemp/game/NPC_AI_Jedi.c:272
-func Boba_StopKnockdown(_ `self`: Entity, _ pusher: Entity, _ pushDir: JKAShared.vec3_t, _ forceKnockdown: Bool) -> Bool {
+func Boba_StopKnockdown(_ `self`: Entity, _ pusher: Entity, _ pushDir: inout JKAShared.vec3_t, _ forceKnockdown: Bool) -> Bool {
     // TODO: Port Boba_StopKnockdown
     portMissing("Boba_StopKnockdown", source: "oracle/codemp/game/NPC_AI_Jedi.c:272")
 }
@@ -172,7 +172,7 @@ MOVEMENT
 ==========================================================================================
 */
 /// Source: oracle/codemp/game/NPC_AI_Jedi.c:1020
-private func Jedi_ClearPathToSpot(_ dest: JKAShared.vec3_t, _ impactEntNum: Int32) -> Bool {
+private func Jedi_ClearPathToSpot(_ dest: inout JKAShared.vec3_t, _ impactEntNum: Int32) -> Bool {
     // TODO: Port Jedi_ClearPathToSpot
     portMissing("Jedi_ClearPathToSpot", source: "oracle/codemp/game/NPC_AI_Jedi.c:1020")
 }
@@ -262,7 +262,7 @@ func Jedi_SaberBusy(_ `self`: Entity) -> Bool {
 }
 
 /// Source: oracle/codemp/game/NPC_AI_Jedi.c:2485
-func Jedi_SaberBlockGo(_ `self`: Entity, _ cmd: JKAMP.Usercmd, _ pHitloc: JKAShared.vec3_t, _ phitDir: JKAShared.vec3_t, _ incoming: Entity, _ dist: Float) -> evasionType_t {
+func Jedi_SaberBlockGo(_ `self`: Entity, _ cmd: JKAMP.Usercmd, _ pHitloc: inout JKAShared.vec3_t, _ phitDir: inout JKAShared.vec3_t, _ incoming: Entity, _ dist: Float) -> evasionType_t {
     // TODO: Port Jedi_SaberBlockGo
     portMissing("Jedi_SaberBlockGo", source: "oracle/codemp/game/NPC_AI_Jedi.c:2485")
 }
@@ -281,7 +281,7 @@ defend if other is using saber and attacking me!
 -------------------------
 */
 /// Source: oracle/codemp/game/NPC_AI_Jedi.c:3380
-private func Jedi_EvasionSaber(_ enemy_movedir: JKAShared.vec3_t, _ enemy_dist: Float, _ enemy_dir: JKAShared.vec3_t) {
+private func Jedi_EvasionSaber(_ enemy_movedir: inout JKAShared.vec3_t, _ enemy_dist: Float, _ enemy_dir: inout JKAShared.vec3_t) {
     // TODO: Port Jedi_EvasionSaber
     portMissing("Jedi_EvasionSaber", source: "oracle/codemp/game/NPC_AI_Jedi.c:3380")
 }
@@ -298,7 +298,7 @@ func Jedi_FindEnemyInCone(_ `self`: Entity, _ fallback: Entity, _ minDot: Float)
 }
 
 /// Source: oracle/codemp/game/NPC_AI_Jedi.c:3763
-private func Jedi_SetEnemyInfo(_ enemy_dest: JKAShared.vec3_t, _ enemy_dir: JKAShared.vec3_t, _ enemy_dist: inout Float, _ enemy_movedir: JKAShared.vec3_t, _ enemy_movespeed: inout Float, _ prediction: Int32) {
+private func Jedi_SetEnemyInfo(_ enemy_dest: inout JKAShared.vec3_t, _ enemy_dir: inout JKAShared.vec3_t, _ enemy_dist: inout Float, _ enemy_movedir: inout JKAShared.vec3_t, _ enemy_movespeed: inout Float, _ prediction: Int32) {
     // TODO: Port Jedi_SetEnemyInfo
     portMissing("Jedi_SetEnemyInfo", source: "oracle/codemp/game/NPC_AI_Jedi.c:3763")
 }
@@ -340,7 +340,7 @@ private func Jedi_AttackDecide(_ enemy_dist: Int32) -> Bool {
 }
 
 /// Source: oracle/codemp/game/NPC_AI_Jedi.c:4473
-private func Jedi_Jump(_ dest: JKAShared.vec3_t, _ goalEntNum: Int32) -> Bool {
+private func Jedi_Jump(_ dest: inout JKAShared.vec3_t, _ goalEntNum: Int32) -> Bool {
     // TODO: Port Jedi_Jump
     portMissing("Jedi_Jump", source: "oracle/codemp/game/NPC_AI_Jedi.c:4473")
 }

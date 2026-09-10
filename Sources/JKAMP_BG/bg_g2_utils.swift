@@ -4,19 +4,13 @@ import JKAMP
 import JKAShared
 
 /// Source: oracle/codemp/game/bg_g2_utils.c:25
-// TODO: Port signature
-// Raven wrote: void BG_AttachToRancor( void *ghoul2, float rancYaw, vec3_t rancOrigin, int time, qhandle_t *modelList, vec3_t modelScale, qboolean inMouth, vec3_t out_origin, vec3_t out_angles, vec3_t out_axis[3] )
-// No table row for `vec3_t[3] out_axis`.
-func BG_AttachToRancor() -> Never {
+func BG_AttachToRancor(_ ghoul2: OpaquePointer?, _ rancYaw: Float, _ rancOrigin: inout JKAShared.vec3_t, _ time: Int32, _ modelList: UnsafeMutablePointer<Int32>?, _ modelScale: inout JKAShared.vec3_t, _ inMouth: Bool, _ out_origin: inout JKAShared.vec3_t, _ out_angles: inout JKAShared.vec3_t, _ out_axis: inout [JKAShared.vec3_t]) {
     // TODO: Port BG_AttachToRancor
     portMissing("BG_AttachToRancor", source: "oracle/codemp/game/bg_g2_utils.c:25")
 }
 
 /// Source: oracle/codemp/game/bg_g2_utils.c:101
-// TODO: Port signature
-// Raven wrote: qboolean BG_GetRootSurfNameWithVariant( void *ghoul2, const char *rootSurfName, char *returnSurfName, int returnSize )
-// No table row for `char * returnSurfName`.
-func BG_GetRootSurfNameWithVariant() -> Never {
+func BG_GetRootSurfNameWithVariant(_ ghoul2: OpaquePointer?, _ rootSurfName: String, _ returnSurfName: inout String, _ returnSize: Int32) -> Bool {
     // TODO: Port BG_GetRootSurfNameWithVariant
     portMissing("BG_GetRootSurfNameWithVariant", source: "oracle/codemp/game/bg_g2_utils.c:101")
 }

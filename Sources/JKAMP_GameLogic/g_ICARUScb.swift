@@ -155,7 +155,7 @@ Lerps the origin and angles of an entity to the destination values
 =============
 */
 /// Source: oracle/codemp/game/g_ICARUScb.c:781
-func Q3_Lerp2Pos(_ taskID: Int32, _ entID: Int32, _ origin: JKAShared.vec3_t, _ angles: JKAShared.vec3_t, _ duration: Float) {
+func Q3_Lerp2Pos(_ taskID: Int32, _ entID: Int32, _ origin: inout JKAShared.vec3_t, _ angles: inout JKAShared.vec3_t, _ duration: Float) {
     // TODO: Port Q3_Lerp2Pos
     portMissing("Q3_Lerp2Pos", source: "oracle/codemp/game/g_ICARUScb.c:781")
 }
@@ -168,7 +168,7 @@ Lerps the angles to the destination value
 =============
 */
 /// Source: oracle/codemp/game/g_ICARUScb.c:892
-func Q3_Lerp2Angles(_ taskID: Int32, _ entID: Int32, _ angles: JKAShared.vec3_t, _ duration: Float) {
+func Q3_Lerp2Angles(_ taskID: Int32, _ entID: Int32, _ angles: inout JKAShared.vec3_t, _ duration: Float) {
     // TODO: Port Q3_Lerp2Angles
     portMissing("Q3_Lerp2Angles", source: "oracle/codemp/game/g_ICARUScb.c:892")
 }
@@ -181,7 +181,7 @@ Gets the value of a tag by the give name
 =============
 */
 /// Source: oracle/codemp/game/g_ICARUScb.c:948
-func Q3_GetTag(_ entID: Int32, _ name: String, _ lookup: Int32, _ info: JKAShared.vec3_t) -> Int32 {
+func Q3_GetTag(_ entID: Int32, _ name: String, _ lookup: Int32, _ info: inout JKAShared.vec3_t) -> Int32 {
     // TODO: Port Q3_GetTag
     portMissing("Q3_GetTag", source: "oracle/codemp/game/g_ICARUScb.c:948")
 }
@@ -272,7 +272,7 @@ Q3_GetVector
 ============
 */
 /// Source: oracle/codemp/game/g_ICARUScb.c:1573
-func Q3_GetVector(_ entID: Int32, _ type: Int32, _ name: String, _ value: JKAShared.vec3_t) -> Int32 {
+func Q3_GetVector(_ entID: Int32, _ type: Int32, _ name: String, _ value: inout JKAShared.vec3_t) -> Int32 {
     // TODO: Port Q3_GetVector
     portMissing("Q3_GetVector", source: "oracle/codemp/game/g_ICARUScb.c:1573")
 }
@@ -311,7 +311,7 @@ Copies passed origin to ent running script once there is nothing there blocking 
 =============
 */
 /// Source: oracle/codemp/game/g_ICARUScb.c:1895
-private func Q3_SetTeleportDest(_ entID: Int32, _ org: JKAShared.vec3_t) -> Bool {
+private func Q3_SetTeleportDest(_ entID: Int32, _ org: inout JKAShared.vec3_t) -> Bool {
     // TODO: Port Q3_SetTeleportDest
     portMissing("Q3_SetTeleportDest", source: "oracle/codemp/game/g_ICARUScb.c:1895")
 }
@@ -324,7 +324,7 @@ Sets the origin of an entity directly
 =============
 */
 /// Source: oracle/codemp/game/g_ICARUScb.c:1929
-private func Q3_SetOrigin(_ entID: Int32, _ origin: JKAShared.vec3_t) {
+private func Q3_SetOrigin(_ entID: Int32, _ origin: inout JKAShared.vec3_t) {
     // TODO: Port Q3_SetOrigin
     portMissing("Q3_SetOrigin", source: "oracle/codemp/game/g_ICARUScb.c:1929")
 }
@@ -363,7 +363,7 @@ Sets the angles of an entity directly
 =============
 */
 /// Source: oracle/codemp/game/g_ICARUScb.c:2022
-private func Q3_SetAngles(_ entID: Int32, _ angles: JKAShared.vec3_t) {
+private func Q3_SetAngles(_ entID: Int32, _ angles: inout JKAShared.vec3_t) {
     // TODO: Port Q3_SetAngles
     portMissing("Q3_SetAngles", source: "oracle/codemp/game/g_ICARUScb.c:2022")
 }
@@ -376,7 +376,7 @@ Lerps the origin to the destination value
 =============
 */
 /// Source: oracle/codemp/game/g_ICARUScb.c:2051
-func Q3_Lerp2Origin(_ taskID: Int32, _ entID: Int32, _ origin: JKAShared.vec3_t, _ duration: Float) {
+func Q3_Lerp2Origin(_ taskID: Int32, _ entID: Int32, _ origin: inout JKAShared.vec3_t, _ duration: Float) {
     // TODO: Port Q3_Lerp2Origin
     portMissing("Q3_Lerp2Origin", source: "oracle/codemp/game/g_ICARUScb.c:2051")
 }
@@ -1314,10 +1314,7 @@ Q3_SetCinematicSkipScript
 ============
 */
 /// Source: oracle/codemp/game/g_ICARUScb.c:3903
-// TODO: Port signature
-// Raven wrote: static void Q3_SetCinematicSkipScript( char *scriptname )
-// No table row for `char * scriptname`.
-private func Q3_SetCinematicSkipScript() -> Never {
+private func Q3_SetCinematicSkipScript(_ scriptname: inout String) {
     // TODO: Port Q3_SetCinematicSkipScript
     portMissing("Q3_SetCinematicSkipScript", source: "oracle/codemp/game/g_ICARUScb.c:3903")
 }
@@ -1710,10 +1707,7 @@ Q3_CameraGroup
 ============
 */
 /// Source: oracle/codemp/game/g_ICARUScb.c:4455
-// TODO: Port signature
-// Raven wrote: static void Q3_CameraGroup( int entID, char *camG)
-// No table row for `char * camG`.
-private func Q3_CameraGroup() -> Never {
+private func Q3_CameraGroup(_ entID: Int32, _ camG: inout String) {
     // TODO: Port Q3_CameraGroup
     portMissing("Q3_CameraGroup", source: "oracle/codemp/game/g_ICARUScb.c:4455")
 }
@@ -1739,10 +1733,7 @@ Q3_CameraGroup
 ============
 */
 /// Source: oracle/codemp/game/g_ICARUScb.c:4480
-// TODO: Port signature
-// Raven wrote: static void Q3_CameraGroupTag( char *camGTag )
-// No table row for `char * camGTag`.
-private func Q3_CameraGroupTag() -> Never {
+private func Q3_CameraGroupTag(_ camGTag: inout String) {
     // TODO: Port Q3_CameraGroupTag
     portMissing("Q3_CameraGroupTag", source: "oracle/codemp/game/g_ICARUScb.c:4480")
 }
@@ -1753,10 +1744,7 @@ Q3_RemoveRHandModel
 ============
 */
 /// Source: oracle/codemp/game/g_ICARUScb.c:4491
-// TODO: Port signature
-// Raven wrote: static void Q3_RemoveRHandModel( int entID, char *addModel)
-// No table row for `char * addModel`.
-private func Q3_RemoveRHandModel() -> Never {
+private func Q3_RemoveRHandModel(_ entID: Int32, _ addModel: inout String) {
     // TODO: Port Q3_RemoveRHandModel
     portMissing("Q3_RemoveRHandModel", source: "oracle/codemp/game/g_ICARUScb.c:4491")
 }
@@ -1767,10 +1755,7 @@ Q3_AddRHandModel
 ============
 */
 /// Source: oracle/codemp/game/g_ICARUScb.c:4501
-// TODO: Port signature
-// Raven wrote: static void Q3_AddRHandModel( int entID, char *addModel)
-// No table row for `char * addModel`.
-private func Q3_AddRHandModel() -> Never {
+private func Q3_AddRHandModel(_ entID: Int32, _ addModel: inout String) {
     // TODO: Port Q3_AddRHandModel
     portMissing("Q3_AddRHandModel", source: "oracle/codemp/game/g_ICARUScb.c:4501")
 }
@@ -1781,10 +1766,7 @@ Q3_AddLHandModel
 ============
 */
 /// Source: oracle/codemp/game/g_ICARUScb.c:4511
-// TODO: Port signature
-// Raven wrote: static void Q3_AddLHandModel( int entID, char *addModel)
-// No table row for `char * addModel`.
-private func Q3_AddLHandModel() -> Never {
+private func Q3_AddLHandModel(_ entID: Int32, _ addModel: inout String) {
     // TODO: Port Q3_AddLHandModel
     portMissing("Q3_AddLHandModel", source: "oracle/codemp/game/g_ICARUScb.c:4511")
 }
@@ -1795,10 +1777,7 @@ Q3_RemoveLHandModel
 ============
 */
 /// Source: oracle/codemp/game/g_ICARUScb.c:4521
-// TODO: Port signature
-// Raven wrote: static void Q3_RemoveLHandModel( int entID, char *addModel)
-// No table row for `char * addModel`.
-private func Q3_RemoveLHandModel() -> Never {
+private func Q3_RemoveLHandModel(_ entID: Int32, _ addModel: inout String) {
     // TODO: Port Q3_RemoveLHandModel
     portMissing("Q3_RemoveLHandModel", source: "oracle/codemp/game/g_ICARUScb.c:4521")
 }
@@ -1811,10 +1790,7 @@ Q3_LookTarget
 ============
 */
 /// Source: oracle/codemp/game/g_ICARUScb.c:4533
-// TODO: Port signature
-// Raven wrote: static void Q3_LookTarget( int entID, char *targetName)
-// No table row for `char * targetName`.
-private func Q3_LookTarget() -> Never {
+private func Q3_LookTarget(_ entID: Int32, _ targetName: inout String) {
     // TODO: Port Q3_LookTarget
     portMissing("Q3_LookTarget", source: "oracle/codemp/game/g_ICARUScb.c:4533")
 }

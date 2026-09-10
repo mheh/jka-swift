@@ -48,10 +48,7 @@ func NPC_PrecacheAnimationCFG(_ NPC_type: String) {
 }
 
 /// Source: oracle/codemp/game/NPC_stats.c:551
-// TODO: Port signature
-// Raven wrote: void NPC_PrecacheWeapons( team_t playerTeam, int spawnflags, char *NPCtype )
-// No table row for `char * NPCtype`.
-func NPC_PrecacheWeapons() -> Never {
+func NPC_PrecacheWeapons(_ playerTeam: JKAMP.team_t, _ spawnflags: Int32, _ NPCtype: inout String) {
     // TODO: Port NPC_PrecacheWeapons
     portMissing("NPC_PrecacheWeapons", source: "oracle/codemp/game/NPC_stats.c:551")
 }

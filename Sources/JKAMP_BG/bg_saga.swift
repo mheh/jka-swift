@@ -7,28 +7,19 @@ import JKAShared
 //Parsing functions
 //======================================
 /// Source: oracle/codemp/game/bg_saga.c:168
-// TODO: Port signature
-// Raven wrote: void BG_SiegeStripTabs(char *buf)
-// No table row for `char * buf`.
-func BG_SiegeStripTabs() -> Never {
+func BG_SiegeStripTabs(_ buf: inout String) {
     // TODO: Port BG_SiegeStripTabs
     portMissing("BG_SiegeStripTabs", source: "oracle/codemp/game/bg_saga.c:168")
 }
 
 /// Source: oracle/codemp/game/bg_saga.c:191
-// TODO: Port signature
-// Raven wrote: int BG_SiegeGetValueGroup(char *buf, char *group, char *outbuf)
-// No table row for `char * buf`.
-func BG_SiegeGetValueGroup() -> Never {
+func BG_SiegeGetValueGroup(_ buf: inout String, _ group: inout String, _ outbuf: inout String) -> Int32 {
     // TODO: Port BG_SiegeGetValueGroup
     portMissing("BG_SiegeGetValueGroup", source: "oracle/codemp/game/bg_saga.c:191")
 }
 
 /// Source: oracle/codemp/game/bg_saga.c:408
-// TODO: Port signature
-// Raven wrote: int BG_SiegeGetPairedValue(char *buf, char *key, char *outbuf)
-// No table row for `char * buf`.
-func BG_SiegeGetPairedValue() -> Never {
+func BG_SiegeGetPairedValue(_ buf: inout String, _ key: inout String, _ outbuf: inout String) -> Int32 {
     // TODO: Port BG_SiegeGetPairedValue
     portMissing("BG_SiegeGetPairedValue", source: "oracle/codemp/game/bg_saga.c:408")
 }
@@ -37,10 +28,7 @@ func BG_SiegeGetPairedValue() -> Never {
 //Class loading functions
 //======================================
 /// Source: oracle/codemp/game/bg_saga.c:571
-// TODO: Port signature
-// Raven wrote: void BG_SiegeTranslateForcePowers(char *buf, siegeClass_t *siegeClass)
-// No table row for `char * buf`.
-func BG_SiegeTranslateForcePowers() -> Never {
+func BG_SiegeTranslateForcePowers(_ buf: inout String, _ siegeClass: JKAMP.SiegeClass) {
     // TODO: Port BG_SiegeTranslateForcePowers
     portMissing("BG_SiegeTranslateForcePowers", source: "oracle/codemp/game/bg_saga.c:571")
 }
@@ -52,7 +40,7 @@ func BG_SiegeTranslateForcePowers() -> Never {
 /// Source: oracle/codemp/game/bg_saga.c:688
 // TODO: Port signature
 // Raven wrote: int BG_SiegeTranslateGenericTable(char *buf, stringID_table_t *table, qboolean bitflag)
-// No table row for `char * buf`.
+// No table row for `stringID_table_t * table`.
 func BG_SiegeTranslateGenericTable() -> Never {
     // TODO: Port BG_SiegeTranslateGenericTable
     portMissing("BG_SiegeTranslateGenericTable", source: "oracle/codemp/game/bg_saga.c:688")
@@ -136,28 +124,19 @@ func BG_PrecacheSabersForSiegeTeam(_ team: Int32) {
 }
 
 /// Source: oracle/codemp/game/bg_saga.c:1416
-// TODO: Port signature
-// Raven wrote: qboolean BG_SiegeCheckClassLegality(int team, char *classname)
-// No table row for `char * classname`.
-func BG_SiegeCheckClassLegality() -> Never {
+func BG_SiegeCheckClassLegality(_ team: Int32, _ classname: inout String) -> Bool {
     // TODO: Port BG_SiegeCheckClassLegality
     portMissing("BG_SiegeCheckClassLegality", source: "oracle/codemp/game/bg_saga.c:1416")
 }
 
 /// Source: oracle/codemp/game/bg_saga.c:1455
-// TODO: Port signature
-// Raven wrote: siegeTeam_t *BG_SiegeFindTeamForTheme(char *themeName)
-// No table row for `char * themeName`.
-func BG_SiegeFindTeamForTheme() -> Never {
+func BG_SiegeFindTeamForTheme(_ themeName: inout String) -> JKAMP.SiegeTeam? {
     // TODO: Port BG_SiegeFindTeamForTheme
     portMissing("BG_SiegeFindTeamForTheme", source: "oracle/codemp/game/bg_saga.c:1455")
 }
 
 /// Source: oracle/codemp/game/bg_saga.c:1473
-// TODO: Port signature
-// Raven wrote: void BG_SiegeSetTeamTheme(int team, char *themeName)
-// No table row for `char * themeName`.
-func BG_SiegeSetTeamTheme() -> Never {
+func BG_SiegeSetTeamTheme(_ team: Int32, _ themeName: inout String) {
     // TODO: Port BG_SiegeSetTeamTheme
     portMissing("BG_SiegeSetTeamTheme", source: "oracle/codemp/game/bg_saga.c:1473")
 }

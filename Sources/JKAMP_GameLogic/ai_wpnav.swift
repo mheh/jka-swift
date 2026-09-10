@@ -14,7 +14,7 @@ func GetFlagStr() -> Never {
 }
 
 /// Source: oracle/codemp/game/ai_wpnav.c:212
-func G_TestLine(_ start: JKAShared.vec3_t, _ end: JKAShared.vec3_t, _ color: Int32, _ time: Int32) {
+func G_TestLine(_ start: inout JKAShared.vec3_t, _ end: inout JKAShared.vec3_t, _ color: Int32, _ time: Int32) {
     // TODO: Port G_TestLine
     portMissing("G_TestLine", source: "oracle/codemp/game/ai_wpnav.c:212")
 }
@@ -32,7 +32,7 @@ func TransferWPData(_ from: Int32, _ to: Int32) {
 }
 
 /// Source: oracle/codemp/game/ai_wpnav.c:371
-func CreateNewWP(_ origin: JKAShared.vec3_t, _ flags: Int32) {
+func CreateNewWP(_ origin: inout JKAShared.vec3_t, _ flags: Int32) {
     // TODO: Port CreateNewWP
     portMissing("CreateNewWP", source: "oracle/codemp/game/ai_wpnav.c:371")
 }
@@ -65,13 +65,13 @@ func RemoveWP_InTrail(_ afterindex: Int32) {
 }
 
 /// Source: oracle/codemp/game/ai_wpnav.c:559
-func CreateNewWP_InTrail(_ origin: JKAShared.vec3_t, _ flags: Int32, _ afterindex: Int32) -> Int32 {
+func CreateNewWP_InTrail(_ origin: inout JKAShared.vec3_t, _ flags: Int32, _ afterindex: Int32) -> Int32 {
     // TODO: Port CreateNewWP_InTrail
     portMissing("CreateNewWP_InTrail", source: "oracle/codemp/game/ai_wpnav.c:559")
 }
 
 /// Source: oracle/codemp/game/ai_wpnav.c:637
-func CreateNewWP_InsertUnder(_ origin: JKAShared.vec3_t, _ flags: Int32, _ afterindex: Int32) -> Int32 {
+func CreateNewWP_InsertUnder(_ origin: inout JKAShared.vec3_t, _ flags: Int32, _ afterindex: Int32) -> Int32 {
     // TODO: Port CreateNewWP_InsertUnder
     portMissing("CreateNewWP_InsertUnder", source: "oracle/codemp/game/ai_wpnav.c:637")
 }
@@ -95,19 +95,19 @@ private func NotWithinRange(_ base: Int32, _ extent: Int32) -> Int32 {
 }
 
 /// Source: oracle/codemp/game/ai_wpnav.c:787
-func NodeHere(_ spot: JKAShared.vec3_t) -> Int32 {
+func NodeHere(_ spot: inout JKAShared.vec3_t) -> Int32 {
     // TODO: Port NodeHere
     portMissing("NodeHere", source: "oracle/codemp/game/ai_wpnav.c:787")
 }
 
 /// Source: oracle/codemp/game/ai_wpnav.c:812
-func CanGetToVector(_ org1: JKAShared.vec3_t, _ org2: JKAShared.vec3_t, _ mins: JKAShared.vec3_t, _ maxs: JKAShared.vec3_t) -> Int32 {
+func CanGetToVector(_ org1: inout JKAShared.vec3_t, _ org2: inout JKAShared.vec3_t, _ mins: inout JKAShared.vec3_t, _ maxs: inout JKAShared.vec3_t) -> Int32 {
     // TODO: Port CanGetToVector
     portMissing("CanGetToVector", source: "oracle/codemp/game/ai_wpnav.c:812")
 }
 
 /// Source: oracle/codemp/game/ai_wpnav.c:883
-func CanGetToVectorTravel(_ org1: JKAShared.vec3_t, _ moveTo: JKAShared.vec3_t, _ mins: JKAShared.vec3_t, _ maxs: JKAShared.vec3_t) -> Int32 {
+func CanGetToVectorTravel(_ org1: inout JKAShared.vec3_t, _ moveTo: inout JKAShared.vec3_t, _ mins: inout JKAShared.vec3_t, _ maxs: inout JKAShared.vec3_t) -> Int32 {
     // TODO: Port CanGetToVectorTravel
     portMissing("CanGetToVectorTravel", source: "oracle/codemp/game/ai_wpnav.c:883")
 }
@@ -137,7 +137,7 @@ func RepairPaths(_ behindTheScenes: Bool) -> Int32 {
 }
 
 /// Source: oracle/codemp/game/ai_wpnav.c:1526
-func OrgVisibleCurve(_ org1: JKAShared.vec3_t, _ mins: JKAShared.vec3_t, _ maxs: JKAShared.vec3_t, _ org2: JKAShared.vec3_t, _ ignore: Int32) -> Int32 {
+func OrgVisibleCurve(_ org1: inout JKAShared.vec3_t, _ mins: inout JKAShared.vec3_t, _ maxs: inout JKAShared.vec3_t, _ org2: inout JKAShared.vec3_t, _ ignore: Int32) -> Int32 {
     // TODO: Port OrgVisibleCurve
     portMissing("OrgVisibleCurve", source: "oracle/codemp/game/ai_wpnav.c:1526")
 }
@@ -167,7 +167,7 @@ func CalculateSiegeGoals() {
 }
 
 /// Source: oracle/codemp/game/ai_wpnav.c:1817
-func GetNearestVisibleWPToItem(_ org: JKAShared.vec3_t, _ ignore: Int32) -> Int32 {
+func GetNearestVisibleWPToItem(_ org: inout JKAShared.vec3_t, _ ignore: Int32) -> Int32 {
     // TODO: Port GetNearestVisibleWPToItem
     portMissing("GetNearestVisibleWPToItem", source: "oracle/codemp/game/ai_wpnav.c:1817")
 }
@@ -203,7 +203,7 @@ func SavePathData(_ filename: String) -> Int32 {
 }
 
 /// Source: oracle/codemp/game/ai_wpnav.c:2510
-func G_NearestNodeToPoint(_ point: JKAShared.vec3_t) -> Int32 {
+func G_NearestNodeToPoint(_ point: inout JKAShared.vec3_t) -> Int32 {
     // TODO: Port G_NearestNodeToPoint
     portMissing("G_NearestNodeToPoint", source: "oracle/codemp/game/ai_wpnav.c:2510")
 }
@@ -275,10 +275,7 @@ func GetNextSpawnInIndex(_ currentSpawn: Entity) -> Entity? {
 }
 
 /// Source: oracle/codemp/game/ai_wpnav.c:3501
-// TODO: Port signature
-// Raven wrote: int AcceptBotCommand(char *cmd, gentity_t *pl)
-// No table row for `char * cmd`.
-func AcceptBotCommand() -> Never {
+func AcceptBotCommand(_ cmd: inout String, _ pl: Entity) -> Int32 {
     // TODO: Port AcceptBotCommand
     portMissing("AcceptBotCommand", source: "oracle/codemp/game/ai_wpnav.c:3501")
 }
