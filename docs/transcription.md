@@ -1,0 +1,195 @@
+# Transcription
+
+This is the working guide for the agents that port Raven's C into the Swift stubs.
+A transcriptor and a reviewer are blind transcriptors: they apply the shapes below and never design.
+`docs/porting-rules.md` and its ratified rulings bind. Where this guide and a rule disagree, the rule wins.
+
+## 1. The roles
+
+A transcriptor takes one manifest file under `.claude/manifest/<stem>.md`.
+The manifest lists each function of one oracle file, with its oracle line range, its Swift stub location, and its jka-rust line range.
+The transcriptor reads each function's oracle slice by that line range and ports it into the Swift stub at the listed line.
+It reads the oracle only. It never reads jka-rust. The port carries Raven's behavior, not jka-rust's.
+
+A reviewer runs after all transcriptors of a batch finish.
+It takes one file. For each function it reads the oracle slice, the jka-rust slice from the manifest, and the Swift body, and confirms the three agree.
+The reviewer fixes what this guide settles. It notes the rest as a Port-note.
+
+Both roles are per file and per assigned block. Neither touches another file.
+A batch runs ten or more files in parallel.
+
+## 2. The Port-note
+
+A Port-note is the one way to raise a problem.
+It is a comment directly above the affected line, in this form:
+
+```swift
+// Port-note: <what is missing or uncertain>
+```
+
+Place it above the function when the whole function is in doubt.
+
+A function the transcriptor cannot port keeps its `// TODO: Port` marker and its `portMissing` body, and gains a Port-note above them.
+A function ported with a doubt gets its real body and a Port-note.
+
+`grep -rn "Port-note:" Sources/` is the docket. The user rules on it after a batch.
+No question files. No messages to the user mid-batch. No invention to close a gap.
+
+## 3. The shapes
+
+### The stub's signature
+
+The signature is kept as generated. Row 6 of step 2 already applied the pure-math case in `JKAShared`.
+A transcriptor does not rename a parameter, reorder one, or change a return type, even where the C source suggests a cleaner shape.
+
+### Vectors and the vector macros
+
+`vec3_t` is `SIMD3<Float>`, defined at `Sources/JKAShared/Views/Vectors.swift`.
+`vec4_t` is `SIMD4<Float>`.
+
+Raven's vector macros become operators or the ported `q_math` functions in `Sources/JKAShared/q_math.swift`:
+
+| Raven | Swift |
+|---|---|
+| `VectorAdd(a, b, c)` | `c = a + b`, or `_VectorAdd(a, b, &c)` |
+| `VectorSubtract(a, b, c)` | `c = a - b`, or `_VectorSubtract(a, b, &c)` |
+| `VectorScale(a, s, b)` | `b = a * s`, or `_VectorScale(a, s, &b)` |
+| `VectorCopy(a, b)` | `b = a` |
+| `VectorMA(a, s, b, c)` | `_VectorMA(a, s, b, &c)` |
+| `VectorNegate(a, b)` | `b = -a` |
+| `VectorClear(a)` | `a = vec3_t(0, 0, 0)` |
+| `VectorSet(a, x, y, z)` | `a = vec3_t(x, y, z)` |
+| `DotProduct(a, b)` | `_DotProduct(a, b)` |
+
+A reduction such as `DotProduct` always uses the ported function, never a SIMD sum.
+A SIMD sum may reassociate the terms, and that changes the float bit pattern the oracle produced.
+`_DotProduct` at `Sources/JKAShared/q_math.swift:868` keeps Raven's scalar order for this reason:
+
+```swift
+/// A SIMD reduction may reassociate, so the sum keeps Raven's scalar order.
+/// Source: oracle/codemp/game/q_math.c:1221
+public func _DotProduct(_ v1: vec3_t, _ v2: vec3_t) -> vec_t {
+    v1[0] * v2[0] + v1[1] * v2[1] + v1[2] * v2[2]
+}
+```
+
+### Engine memory through views
+
+Engine memory is reached through the views: `Entity`, `Client`, `Trace`, `PlayerState`, and the rest under `Generated/Views/`.
+A view's fields read and write through the C struct behind it. `ent->r.absmin` becomes `ent.r.absmin`.
+`Sources/JKAMP_Game/Generated/Views/Entity.swift` shows the shape: a stored pointer, and a computed property per C field.
+
+### A scratch C struct on the stack
+
+A scratch C struct on the stack uses a `scratch` helper on its view, for example `Trace.scratch { tr in ... }`:
+
+```swift
+let direct = Trace.scratch { tr in
+    trap_Trace(tr, origin, vec3_origin, vec3_origin, dest, ENTITYNUM_NONE, MASK_SOLID)
+    return tr.fraction == 1.0 || Int32(tr.entityNum) == targ.s.number
+}
+```
+
+A view that has no `scratch` helper yet gets a Port-note. The transcriptor does not add the helper itself.
+
+### A file-scope static or a static local
+
+A Raven file-scope static, or a static local, becomes a stored property on `GameWorld` in `g_local.swift`, under rule 3.
+Ported bodies reach it through the `world` global. The transcriptor adds the property with Raven's name and a `/// Source:` line, for example:
+
+```swift
+/// Raven's `static unsigned long holdrand` of `q_math.c`, which the game module owns one copy of.
+/// Source: oracle/codemp/game/q_math.c:1432
+var rng = Rng()
+```
+
+### A static in a bg file
+
+Ruling of 2026-09-09. `JKAMP_BG` cannot see `GameWorld`, and cgame links the same bg code with its own instance.
+A Raven static in a `bg_*.c` file lives on `final class BgState`, in the hand file `Sources/JKAMP_BG/bg_local.swift`, behind `nonisolated(unsafe) var bg = BgState()`.
+This is the same shape as `world`.
+
+The transcriptor adds the property with Raven's name and a `/// Source:` line, and writes `bg.name`.
+
+A scalar static is a Swift stored property.
+A struct static such as `pml`, which Raven's bodies read through a view, gets C storage owned by `BgState`, with the view over it, the pattern `GameMemory` uses at `Sources/JKAMP_Game/GameMemory.swift`.
+A pointer static such as `pm` is the view of the caller's memory, set per call.
+A test resets state with `bg = BgState()`.
+
+The file `bg_local.swift` does not exist yet. The first transcriptor that needs it creates it, with the class, the global, and a two-line type doc.
+Later transcriptors add properties to it.
+
+### A `char *` at runtime
+
+A `char *` at runtime comes from the world's string pool of rule 9, `Sources/JKAShared/Views/StringPool.swift`.
+`world.strings.intern("text")` returns a `PooledString`, the pointer type a `char *` field takes.
+A `PooledString` compares by pointer, as Raven's `char *` compare did, so `ent.classname == "noclass"` reads as Raven's `strcmp` did.
+
+### A callback store
+
+A Raven store such as `ent->think = Name` uses the generated thunk in `Callbacks.swift`, for example `ent.think = Think.G_FreeEntity`.
+The thunk carries the one address that lives for the module's life. The transcriptor never writes a closure into a callback field by hand.
+
+### The five `holdrand` draws
+
+The five `holdrand` draws are the bare forwarders in `g_local.swift`: `flrand`, `irand`, `Q_flrand`, `Q_irand`, `Rand_Init`.
+A ported body calls them exactly as Raven called `holdrand`'s five functions, with no direct read of `world.rng`.
+
+### A call to a not yet ported function
+
+A call to a function not yet ported stays a call to its stub.
+The stub compiles and traps at runtime with `portMissing`. The transcriptor does not port the callee to unblock the caller.
+
+### Primitive types
+
+`qboolean` is `Bool`. `int` is `Int32`. `float` is `Float`.
+A C enum is the re-exported struct, with `.rawValue` where an integer is needed.
+
+### `#ifdef`
+
+A `#ifdef` takes the native build's branch. The other branch is not written, and it gets no Port-note, because it is dead by the build's own choice.
+
+### `goto`
+
+A `goto` is restructured with the smallest change that preserves Raven's control flow, per rule 10.
+It gets a Port-note naming the label, so the reviewer and the user can check the restructuring against Raven's intent.
+
+### `switch` with fallthrough
+
+A `switch` with fallthrough uses Swift's `fallthrough` keyword, case for case, in Raven's order.
+
+### C string functions
+
+`Q_stricmp`, `Com_sprintf`, `strcpy`, and the rest call the ported `q_shared` functions where a port exists.
+Where none exists yet, the transcriptor uses Swift's `String` and adds a Port-note, since the exact C semantics are not proven yet.
+
+### Engine and print calls
+
+`Com_Printf`, `G_Printf`, and every `trap_*` call are calls to the existing functions. The transcriptor does not stub these.
+
+### Comments
+
+Raven's comment block above a function stays as the `/** */` the stub already carries.
+Raven's inline comments stay in place, verbatim, inside the ported body.
+A new comment the transcriptor writes follows the house style: STE prose, one sentence per line, no em dashes.
+
+### No `Unsafe` type
+
+No `Unsafe` type appears in a logic target, under rule 11. A pointer stays inside the view target.
+A transcriptor that finds it needs one stops and writes a Port-note instead.
+
+## 4. The gate
+
+A transcriptor ends when its file builds with `swift build`. It does not run tests.
+A reviewer ends the same way.
+
+The batch gate runs after the reviewers, and the coordinator runs it: `swift build`, `swift build -c release`, and `swift test`.
+A golden test is written per golden once the files it needs are ported in.
+
+## 5. The finished report
+
+Each agent reports back in under 20 lines:
+
+- the functions it ported
+- the functions it left with a marker, and the Port-note above each one
+- any Port-note left in a ported body
