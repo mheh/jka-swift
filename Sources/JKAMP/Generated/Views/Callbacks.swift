@@ -4,6 +4,10 @@ internal import CJKAMP
 import JKAShared
 
 /// The C types of the stored functions, one per signature, and the address compare Raven's `==` did.
+public typealias PmovePointcontents = @convention(c) (OpaquePointer?, Int32) -> Int32
+
+public typealias PmoveTrace = @convention(c) (OpaquePointer?, OpaquePointer?, OpaquePointer?, OpaquePointer?, OpaquePointer?, Int32, Int32) -> Void
+
 public typealias VehicleInfoAddPassenger = @convention(c) (OpaquePointer?) -> Int32
 
 public typealias VehicleInfoAnimate = @convention(c) (OpaquePointer?) -> Void
@@ -49,6 +53,22 @@ public typealias VehicleInfoUpdate = @convention(c) (OpaquePointer?, OpaquePoint
 public typealias VehicleInfoUpdateRider = @convention(c) (OpaquePointer?, OpaquePointer?, OpaquePointer?) -> Int32
 
 public typealias VehicleInfoValidateBoard = @convention(c) (OpaquePointer?, OpaquePointer?) -> Int32
+
+private struct PmovePointcontentsBits { var function: PmovePointcontents? }
+
+public func == (lhs: PmovePointcontents?, rhs: PmovePointcontents?) -> Bool {
+    precondition(MemoryLayout<PmovePointcontentsBits>.size == MemoryLayout<UInt>.size)
+    return withUnsafeBytes(of: PmovePointcontentsBits(function: lhs)) { $0.load(as: UInt.self) }
+        == withUnsafeBytes(of: PmovePointcontentsBits(function: rhs)) { $0.load(as: UInt.self) }
+}
+
+private struct PmoveTraceBits { var function: PmoveTrace? }
+
+public func == (lhs: PmoveTrace?, rhs: PmoveTrace?) -> Bool {
+    precondition(MemoryLayout<PmoveTraceBits>.size == MemoryLayout<UInt>.size)
+    return withUnsafeBytes(of: PmoveTraceBits(function: lhs)) { $0.load(as: UInt.self) }
+        == withUnsafeBytes(of: PmoveTraceBits(function: rhs)) { $0.load(as: UInt.self) }
+}
 
 private struct VehicleInfoAddPassengerBits { var function: VehicleInfoAddPassenger? }
 

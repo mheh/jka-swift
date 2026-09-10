@@ -12,6 +12,7 @@ One file per viewed struct sits beside this index. The tables below give the Swi
 | `AIGroupMember_t` | `AIGroupMember` | `JKAMP_Game` | `.claude/rosetta/AIGroupMember_t.md` |
 | `Vehicle_t` | `Vehicle` | `JKAMP` | `.claude/rosetta/Vehicle_t.md` |
 | `alertEvent_t` | `AlertEvent` | `JKAMP_Game` | `.claude/rosetta/alertEvent_t.md` |
+| `animation_t` | `Animation` | `JKAMP` | `.claude/rosetta/animation_t.md` |
 | `bgEntity_t` | `BgEntity` | `JKAMP` | `.claude/rosetta/bgEntity_t.md` |
 | `bladeInfo_t` | `BladeInfo` | `JKAMP` | `.claude/rosetta/bladeInfo_t.md` |
 | `clientPersistant_t` | `ClientPersistant` | `JKAMP_Game` | `.claude/rosetta/clientPersistant_t.md` |
@@ -31,6 +32,8 @@ One file per viewed struct sits beside this index. The tables below give the Swi
 | `parms_t` | `Parms` | `JKAMP_Game` | `.claude/rosetta/parms_t.md` |
 | `playerState_t` | `PlayerState` | `JKAMP` | `.claude/rosetta/playerState_t.md` |
 | `playerTeamState_t` | `PlayerTeamState` | `JKAMP_Game` | `.claude/rosetta/playerTeamState_t.md` |
+| `pml_t` | `Pml` | `JKAMP` | `.claude/rosetta/pml_t.md` |
+| `pmove_t` | `Pmove` | `JKAMP` | `.claude/rosetta/pmove_t.md` |
 | `renderInfo_t` | `RenderInfo` | `JKAMP_Game` | `.claude/rosetta/renderInfo_t.md` |
 | `saberInfo_t` | `SaberInfo` | `JKAMP` | `.claude/rosetta/saberInfo_t.md` |
 | `saberTrail_t` | `SaberTrail` | `JKAMP` | `.claude/rosetta/saberTrail_t.md` |

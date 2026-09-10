@@ -698,9 +698,9 @@ public struct VehicleInfo: Hashable, HandleView {
         nonmutating set { self.raw.pointee.AnimateVehicle = unsafeBitCast(newValue, to: Swift.type(of: self.raw.pointee.AnimateVehicle)) }
     }
 
-    /// Calls the stored `AnimateVehicle` function through the C pointer, with this slot first, as Raven's `ent->AnimateVehicle(ent, ...)` did.
-    public func runAnimateVehicle() {
-        self.AnimateVehicle?(self.handle)
+    /// Calls the stored `AnimateVehicle` function through the C pointer, with the caller's arguments, as Raven's `pm->AnimateVehicle(...)` did.
+    public func runAnimateVehicle(_ pVeh: Vehicle?) {
+        self.AnimateVehicle?(pVeh?.handle)
     }
 
     /// Source: oracle/codemp/game/bg_vehicles.h:294
@@ -709,9 +709,9 @@ public struct VehicleInfo: Hashable, HandleView {
         nonmutating set { self.raw.pointee.AnimateRiders = unsafeBitCast(newValue, to: Swift.type(of: self.raw.pointee.AnimateRiders)) }
     }
 
-    /// Calls the stored `AnimateRiders` function through the C pointer, with this slot first, as Raven's `ent->AnimateRiders(ent, ...)` did.
-    public func runAnimateRiders() {
-        self.AnimateRiders?(self.handle)
+    /// Calls the stored `AnimateRiders` function through the C pointer, with the caller's arguments, as Raven's `pm->AnimateRiders(...)` did.
+    public func runAnimateRiders(_ pVeh: Vehicle?) {
+        self.AnimateRiders?(pVeh?.handle)
     }
 
     /// Source: oracle/codemp/game/bg_vehicles.h:297
@@ -720,9 +720,9 @@ public struct VehicleInfo: Hashable, HandleView {
         nonmutating set { self.raw.pointee.ValidateBoard = unsafeBitCast(newValue, to: Swift.type(of: self.raw.pointee.ValidateBoard)) }
     }
 
-    /// Calls the stored `ValidateBoard` function through the C pointer, with this slot first, as Raven's `ent->ValidateBoard(ent, ...)` did.
-    public func runValidateBoard(_ pEnt: BgEntity?) -> Bool? {
-        (self.ValidateBoard?(self.handle, pEnt?.handle)).map { $0 != 0 }
+    /// Calls the stored `ValidateBoard` function through the C pointer, with the caller's arguments, as Raven's `pm->ValidateBoard(...)` did.
+    public func runValidateBoard(_ pVeh: Vehicle?, _ pEnt: BgEntity?) -> Bool? {
+        (self.ValidateBoard?(pVeh?.handle, pEnt?.handle)).map { $0 != 0 }
     }
 
     /// Source: oracle/codemp/game/bg_vehicles.h:300
@@ -731,9 +731,9 @@ public struct VehicleInfo: Hashable, HandleView {
         nonmutating set { self.raw.pointee.SetParent = unsafeBitCast(newValue, to: Swift.type(of: self.raw.pointee.SetParent)) }
     }
 
-    /// Calls the stored `SetParent` function through the C pointer, with this slot first, as Raven's `ent->SetParent(ent, ...)` did.
-    public func runSetParent(_ pParentEntity: BgEntity?) {
-        self.SetParent?(self.handle, pParentEntity?.handle)
+    /// Calls the stored `SetParent` function through the C pointer, with the caller's arguments, as Raven's `pm->SetParent(...)` did.
+    public func runSetParent(_ pVeh: Vehicle?, _ pParentEntity: BgEntity?) {
+        self.SetParent?(pVeh?.handle, pParentEntity?.handle)
     }
 
     /// Source: oracle/codemp/game/bg_vehicles.h:303
@@ -742,9 +742,9 @@ public struct VehicleInfo: Hashable, HandleView {
         nonmutating set { self.raw.pointee.SetPilot = unsafeBitCast(newValue, to: Swift.type(of: self.raw.pointee.SetPilot)) }
     }
 
-    /// Calls the stored `SetPilot` function through the C pointer, with this slot first, as Raven's `ent->SetPilot(ent, ...)` did.
-    public func runSetPilot(_ pPilot: BgEntity?) {
-        self.SetPilot?(self.handle, pPilot?.handle)
+    /// Calls the stored `SetPilot` function through the C pointer, with the caller's arguments, as Raven's `pm->SetPilot(...)` did.
+    public func runSetPilot(_ pVeh: Vehicle?, _ pPilot: BgEntity?) {
+        self.SetPilot?(pVeh?.handle, pPilot?.handle)
     }
 
     /// Source: oracle/codemp/game/bg_vehicles.h:306
@@ -753,9 +753,9 @@ public struct VehicleInfo: Hashable, HandleView {
         nonmutating set { self.raw.pointee.AddPassenger = unsafeBitCast(newValue, to: Swift.type(of: self.raw.pointee.AddPassenger)) }
     }
 
-    /// Calls the stored `AddPassenger` function through the C pointer, with this slot first, as Raven's `ent->AddPassenger(ent, ...)` did.
-    public func runAddPassenger() -> Bool? {
-        (self.AddPassenger?(self.handle)).map { $0 != 0 }
+    /// Calls the stored `AddPassenger` function through the C pointer, with the caller's arguments, as Raven's `pm->AddPassenger(...)` did.
+    public func runAddPassenger(_ pVeh: Vehicle?) -> Bool? {
+        (self.AddPassenger?(pVeh?.handle)).map { $0 != 0 }
     }
 
     /// Source: oracle/codemp/game/bg_vehicles.h:309
@@ -764,9 +764,9 @@ public struct VehicleInfo: Hashable, HandleView {
         nonmutating set { self.raw.pointee.Animate = unsafeBitCast(newValue, to: Swift.type(of: self.raw.pointee.Animate)) }
     }
 
-    /// Calls the stored `Animate` function through the C pointer, with this slot first, as Raven's `ent->Animate(ent, ...)` did.
-    public func runAnimate() {
-        self.Animate?(self.handle)
+    /// Calls the stored `Animate` function through the C pointer, with the caller's arguments, as Raven's `pm->Animate(...)` did.
+    public func runAnimate(_ pVeh: Vehicle?) {
+        self.Animate?(pVeh?.handle)
     }
 
     /// Source: oracle/codemp/game/bg_vehicles.h:312
@@ -775,9 +775,9 @@ public struct VehicleInfo: Hashable, HandleView {
         nonmutating set { self.raw.pointee.Board = unsafeBitCast(newValue, to: Swift.type(of: self.raw.pointee.Board)) }
     }
 
-    /// Calls the stored `Board` function through the C pointer, with this slot first, as Raven's `ent->Board(ent, ...)` did.
-    public func runBoard(_ pEnt: BgEntity?) -> Bool? {
-        (self.Board?(self.handle, pEnt?.handle)).map { $0 != 0 }
+    /// Calls the stored `Board` function through the C pointer, with the caller's arguments, as Raven's `pm->Board(...)` did.
+    public func runBoard(_ pVeh: Vehicle?, _ pEnt: BgEntity?) -> Bool? {
+        (self.Board?(pVeh?.handle, pEnt?.handle)).map { $0 != 0 }
     }
 
     /// Source: oracle/codemp/game/bg_vehicles.h:315
@@ -786,9 +786,9 @@ public struct VehicleInfo: Hashable, HandleView {
         nonmutating set { self.raw.pointee.Eject = unsafeBitCast(newValue, to: Swift.type(of: self.raw.pointee.Eject)) }
     }
 
-    /// Calls the stored `Eject` function through the C pointer, with this slot first, as Raven's `ent->Eject(ent, ...)` did.
-    public func runEject(_ pEnt: BgEntity?, _ forceEject: Bool) -> Bool? {
-        (self.Eject?(self.handle, pEnt?.handle, forceEject ? 1 : 0)).map { $0 != 0 }
+    /// Calls the stored `Eject` function through the C pointer, with the caller's arguments, as Raven's `pm->Eject(...)` did.
+    public func runEject(_ pVeh: Vehicle?, _ pEnt: BgEntity?, _ forceEject: Bool) -> Bool? {
+        (self.Eject?(pVeh?.handle, pEnt?.handle, forceEject ? 1 : 0)).map { $0 != 0 }
     }
 
     /// Source: oracle/codemp/game/bg_vehicles.h:318
@@ -797,9 +797,9 @@ public struct VehicleInfo: Hashable, HandleView {
         nonmutating set { self.raw.pointee.EjectAll = unsafeBitCast(newValue, to: Swift.type(of: self.raw.pointee.EjectAll)) }
     }
 
-    /// Calls the stored `EjectAll` function through the C pointer, with this slot first, as Raven's `ent->EjectAll(ent, ...)` did.
-    public func runEjectAll() -> Bool? {
-        (self.EjectAll?(self.handle)).map { $0 != 0 }
+    /// Calls the stored `EjectAll` function through the C pointer, with the caller's arguments, as Raven's `pm->EjectAll(...)` did.
+    public func runEjectAll(_ pVeh: Vehicle?) -> Bool? {
+        (self.EjectAll?(pVeh?.handle)).map { $0 != 0 }
     }
 
     /// Source: oracle/codemp/game/bg_vehicles.h:321
@@ -808,9 +808,9 @@ public struct VehicleInfo: Hashable, HandleView {
         nonmutating set { self.raw.pointee.StartDeathDelay = unsafeBitCast(newValue, to: Swift.type(of: self.raw.pointee.StartDeathDelay)) }
     }
 
-    /// Calls the stored `StartDeathDelay` function through the C pointer, with this slot first, as Raven's `ent->StartDeathDelay(ent, ...)` did.
-    public func runStartDeathDelay(_ iDelayTime: Int32) {
-        self.StartDeathDelay?(self.handle, iDelayTime)
+    /// Calls the stored `StartDeathDelay` function through the C pointer, with the caller's arguments, as Raven's `pm->StartDeathDelay(...)` did.
+    public func runStartDeathDelay(_ pVeh: Vehicle?, _ iDelayTime: Int32) {
+        self.StartDeathDelay?(pVeh?.handle, iDelayTime)
     }
 
     /// Source: oracle/codemp/game/bg_vehicles.h:324
@@ -819,9 +819,9 @@ public struct VehicleInfo: Hashable, HandleView {
         nonmutating set { self.raw.pointee.DeathUpdate = unsafeBitCast(newValue, to: Swift.type(of: self.raw.pointee.DeathUpdate)) }
     }
 
-    /// Calls the stored `DeathUpdate` function through the C pointer, with this slot first, as Raven's `ent->DeathUpdate(ent, ...)` did.
-    public func runDeathUpdate() {
-        self.DeathUpdate?(self.handle)
+    /// Calls the stored `DeathUpdate` function through the C pointer, with the caller's arguments, as Raven's `pm->DeathUpdate(...)` did.
+    public func runDeathUpdate(_ pVeh: Vehicle?) {
+        self.DeathUpdate?(pVeh?.handle)
     }
 
     /// Source: oracle/codemp/game/bg_vehicles.h:327
@@ -830,9 +830,9 @@ public struct VehicleInfo: Hashable, HandleView {
         nonmutating set { self.raw.pointee.RegisterAssets = unsafeBitCast(newValue, to: Swift.type(of: self.raw.pointee.RegisterAssets)) }
     }
 
-    /// Calls the stored `RegisterAssets` function through the C pointer, with this slot first, as Raven's `ent->RegisterAssets(ent, ...)` did.
-    public func runRegisterAssets() {
-        self.RegisterAssets?(self.handle)
+    /// Calls the stored `RegisterAssets` function through the C pointer, with the caller's arguments, as Raven's `pm->RegisterAssets(...)` did.
+    public func runRegisterAssets(_ pVeh: Vehicle?) {
+        self.RegisterAssets?(pVeh?.handle)
     }
 
     /// Source: oracle/codemp/game/bg_vehicles.h:330
@@ -841,9 +841,9 @@ public struct VehicleInfo: Hashable, HandleView {
         nonmutating set { self.raw.pointee.Initialize = unsafeBitCast(newValue, to: Swift.type(of: self.raw.pointee.Initialize)) }
     }
 
-    /// Calls the stored `Initialize` function through the C pointer, with this slot first, as Raven's `ent->Initialize(ent, ...)` did.
-    public func runInitialize() -> Bool? {
-        (self.Initialize?(self.handle)).map { $0 != 0 }
+    /// Calls the stored `Initialize` function through the C pointer, with the caller's arguments, as Raven's `pm->Initialize(...)` did.
+    public func runInitialize(_ pVeh: Vehicle?) -> Bool? {
+        (self.Initialize?(pVeh?.handle)).map { $0 != 0 }
     }
 
     /// Source: oracle/codemp/game/bg_vehicles.h:333
@@ -852,9 +852,9 @@ public struct VehicleInfo: Hashable, HandleView {
         nonmutating set { self.raw.pointee.Update = unsafeBitCast(newValue, to: Swift.type(of: self.raw.pointee.Update)) }
     }
 
-    /// Calls the stored `Update` function through the C pointer, with this slot first, as Raven's `ent->Update(ent, ...)` did.
-    public func runUpdate(_ pUcmd: Usercmd?) -> Bool? {
-        (self.Update?(self.handle, pUcmd?.handle)).map { $0 != 0 }
+    /// Calls the stored `Update` function through the C pointer, with the caller's arguments, as Raven's `pm->Update(...)` did.
+    public func runUpdate(_ pVeh: Vehicle?, _ pUcmd: Usercmd?) -> Bool? {
+        (self.Update?(pVeh?.handle, pUcmd?.handle)).map { $0 != 0 }
     }
 
     /// Source: oracle/codemp/game/bg_vehicles.h:338
@@ -863,9 +863,9 @@ public struct VehicleInfo: Hashable, HandleView {
         nonmutating set { self.raw.pointee.UpdateRider = unsafeBitCast(newValue, to: Swift.type(of: self.raw.pointee.UpdateRider)) }
     }
 
-    /// Calls the stored `UpdateRider` function through the C pointer, with this slot first, as Raven's `ent->UpdateRider(ent, ...)` did.
-    public func runUpdateRider(_ pRider: BgEntity?, _ pUcmd: Usercmd?) -> Bool? {
-        (self.UpdateRider?(self.handle, pRider?.handle, pUcmd?.handle)).map { $0 != 0 }
+    /// Calls the stored `UpdateRider` function through the C pointer, with the caller's arguments, as Raven's `pm->UpdateRider(...)` did.
+    public func runUpdateRider(_ pVeh: Vehicle?, _ pRider: BgEntity?, _ pUcmd: Usercmd?) -> Bool? {
+        (self.UpdateRider?(pVeh?.handle, pRider?.handle, pUcmd?.handle)).map { $0 != 0 }
     }
 
     /// Source: oracle/codemp/game/bg_vehicles.h:341
@@ -874,9 +874,9 @@ public struct VehicleInfo: Hashable, HandleView {
         nonmutating set { self.raw.pointee.ProcessMoveCommands = unsafeBitCast(newValue, to: Swift.type(of: self.raw.pointee.ProcessMoveCommands)) }
     }
 
-    /// Calls the stored `ProcessMoveCommands` function through the C pointer, with this slot first, as Raven's `ent->ProcessMoveCommands(ent, ...)` did.
-    public func runProcessMoveCommands() {
-        self.ProcessMoveCommands?(self.handle)
+    /// Calls the stored `ProcessMoveCommands` function through the C pointer, with the caller's arguments, as Raven's `pm->ProcessMoveCommands(...)` did.
+    public func runProcessMoveCommands(_ pVeh: Vehicle?) {
+        self.ProcessMoveCommands?(pVeh?.handle)
     }
 
     /// Source: oracle/codemp/game/bg_vehicles.h:344
@@ -885,9 +885,9 @@ public struct VehicleInfo: Hashable, HandleView {
         nonmutating set { self.raw.pointee.ProcessOrientCommands = unsafeBitCast(newValue, to: Swift.type(of: self.raw.pointee.ProcessOrientCommands)) }
     }
 
-    /// Calls the stored `ProcessOrientCommands` function through the C pointer, with this slot first, as Raven's `ent->ProcessOrientCommands(ent, ...)` did.
-    public func runProcessOrientCommands() {
-        self.ProcessOrientCommands?(self.handle)
+    /// Calls the stored `ProcessOrientCommands` function through the C pointer, with the caller's arguments, as Raven's `pm->ProcessOrientCommands(...)` did.
+    public func runProcessOrientCommands(_ pVeh: Vehicle?) {
+        self.ProcessOrientCommands?(pVeh?.handle)
     }
 
     /// Source: oracle/codemp/game/bg_vehicles.h:347
@@ -896,9 +896,9 @@ public struct VehicleInfo: Hashable, HandleView {
         nonmutating set { self.raw.pointee.AttachRiders = unsafeBitCast(newValue, to: Swift.type(of: self.raw.pointee.AttachRiders)) }
     }
 
-    /// Calls the stored `AttachRiders` function through the C pointer, with this slot first, as Raven's `ent->AttachRiders(ent, ...)` did.
-    public func runAttachRiders() {
-        self.AttachRiders?(self.handle)
+    /// Calls the stored `AttachRiders` function through the C pointer, with the caller's arguments, as Raven's `pm->AttachRiders(...)` did.
+    public func runAttachRiders(_ pVeh: Vehicle?) {
+        self.AttachRiders?(pVeh?.handle)
     }
 
     /// Source: oracle/codemp/game/bg_vehicles.h:350
@@ -907,9 +907,9 @@ public struct VehicleInfo: Hashable, HandleView {
         nonmutating set { self.raw.pointee.Ghost = unsafeBitCast(newValue, to: Swift.type(of: self.raw.pointee.Ghost)) }
     }
 
-    /// Calls the stored `Ghost` function through the C pointer, with this slot first, as Raven's `ent->Ghost(ent, ...)` did.
-    public func runGhost(_ pEnt: BgEntity?) {
-        self.Ghost?(self.handle, pEnt?.handle)
+    /// Calls the stored `Ghost` function through the C pointer, with the caller's arguments, as Raven's `pm->Ghost(...)` did.
+    public func runGhost(_ pVeh: Vehicle?, _ pEnt: BgEntity?) {
+        self.Ghost?(pVeh?.handle, pEnt?.handle)
     }
 
     /// Source: oracle/codemp/game/bg_vehicles.h:353
@@ -918,9 +918,9 @@ public struct VehicleInfo: Hashable, HandleView {
         nonmutating set { self.raw.pointee.UnGhost = unsafeBitCast(newValue, to: Swift.type(of: self.raw.pointee.UnGhost)) }
     }
 
-    /// Calls the stored `UnGhost` function through the C pointer, with this slot first, as Raven's `ent->UnGhost(ent, ...)` did.
-    public func runUnGhost(_ pEnt: BgEntity?) {
-        self.UnGhost?(self.handle, pEnt?.handle)
+    /// Calls the stored `UnGhost` function through the C pointer, with the caller's arguments, as Raven's `pm->UnGhost(...)` did.
+    public func runUnGhost(_ pVeh: Vehicle?, _ pEnt: BgEntity?) {
+        self.UnGhost?(pVeh?.handle, pEnt?.handle)
     }
 
     /// Source: oracle/codemp/game/bg_vehicles.h:356
@@ -929,9 +929,9 @@ public struct VehicleInfo: Hashable, HandleView {
         nonmutating set { self.raw.pointee.GetPilot = unsafeBitCast(newValue, to: Swift.type(of: self.raw.pointee.GetPilot)) }
     }
 
-    /// Calls the stored `GetPilot` function through the C pointer, with this slot first, as Raven's `ent->GetPilot(ent, ...)` did.
-    public func runGetPilot() {
-        self.GetPilot?(self.handle)
+    /// Calls the stored `GetPilot` function through the C pointer, with the caller's arguments, as Raven's `pm->GetPilot(...)` did.
+    public func runGetPilot(_ pVeh: Vehicle?) {
+        self.GetPilot?(pVeh?.handle)
     }
 
     /// Source: oracle/codemp/game/bg_vehicles.h:359
@@ -940,8 +940,8 @@ public struct VehicleInfo: Hashable, HandleView {
         nonmutating set { self.raw.pointee.Inhabited = unsafeBitCast(newValue, to: Swift.type(of: self.raw.pointee.Inhabited)) }
     }
 
-    /// Calls the stored `Inhabited` function through the C pointer, with this slot first, as Raven's `ent->Inhabited(ent, ...)` did.
-    public func runInhabited() -> Bool? {
-        (self.Inhabited?(self.handle)).map { $0 != 0 }
+    /// Calls the stored `Inhabited` function through the C pointer, with the caller's arguments, as Raven's `pm->Inhabited(...)` did.
+    public func runInhabited(_ pVeh: Vehicle?) -> Bool? {
+        (self.Inhabited?(pVeh?.handle)).map { $0 != 0 }
     }
 }

@@ -46,6 +46,9 @@ ROOTS = {
     "gclient_t": ("Client", "CJKAMP_Game"),
     "level_locals_t": ("Level", "CJKAMP_Game"),
     "playerState_t": ("PlayerState", "CJKAMP"),
+    # The bg files read pmove_t through the static `pm` and pml_t through `pml`, and no root field points at either.
+    "pmove_t": ("Pmove", "CJKAMP"),
+    "pml_t": ("Pml", "CJKAMP"),
 }
 # Every C target the game module's translation unit reaches, most specific first.
 TARGETS = ["CJKAMP_Game", "CJKAMP", "CJKAShared"]
@@ -302,15 +305,30 @@ class Generator:
         params: list[str] = []
         args: list[str] = []
         c_params: list[str] = []
-        for i, arg in enumerate(proto.argument_types()):
+        layers: list[str] = []
+        owner = self.record_name(field.semantic_parent.type) or field.semantic_parent.spelling
+        arg_types = list(proto.argument_types())
+        first_record = self.record_name(arg_types[0].get_canonical().get_pointee()) if arg_types and arg_types[0].get_canonical().kind == TypeKind.POINTER else None
+        owner_first = first_record == owner
+        for i, arg in enumerate(arg_types):
             canonical = arg.get_canonical()
             label = names[i] if i < len(names) else f"p{i}"
             if canonical.kind == TypeKind.POINTER:
-                record = self.record_name(canonical.get_pointee())
+                pointee = canonical.get_pointee()
+                record = self.record_name(pointee)
                 c_params.append("OpaquePointer?")
                 if record in self.views:
                     params.append(f"_ {label}: {self.qualified_view(record, target)}?")
                     args.append(f"{label}?.handle")
+                elif pointee.get_canonical().kind == TypeKind.FLOAT:
+                    # A `vec_t *` parameter is a vector, by value when const and inout when Raven writes it, rule 11.
+                    if pointee.is_const_qualified():
+                        params.append(f"_ {label}: JKAShared.vec3_t")
+                        layers.append(f"withUnsafePointer(to: {label}) {{ {label} in")
+                    else:
+                        params.append(f"_ {label}: inout JKAShared.vec3_t")
+                        layers.append(f"withUnsafeMutablePointer(to: &{label}) {{ {label} in")
+                    args.append(f"OpaquePointer({label})")
                 else:
                     params.append(f"_ {label}: OpaquePointer?")
                     args.append(label)
@@ -328,17 +346,36 @@ class Generator:
         returns = self.scalar(result, target) if result.get_canonical().kind != TypeKind.VOID else None
         c_result = "Int32" if returns == "Bool" else returns or "Void"
         self.callbacks[(target, alias)] = f"@convention(c) ({', '.join(c_params)}) -> {c_result}"
-        # The first parameter is always the owner, so the run method passes this slot and takes the rest.
-        rest = params[1:]
-        args = ["self.handle"] + args[1:]
+        # When Raven's first parameter is the owner, the run method passes this slot and takes the rest.
+        # Otherwise every parameter is the caller's, as `pm->trace(&trace, start, ...)` is.
+        if owner_first:
+            rest = params[1:]
+            args = ["self.handle"] + args[1:]
+            doc = f"    /// Calls the stored `{name}` function through the C pointer, with this slot first, as Raven's `ent->{name}(ent, ...)` did."
+        else:
+            rest = params
+            doc = f"    /// Calls the stored `{name}` function through the C pointer, with the caller's arguments, as Raven's `pm->{name}(...)` did."
         pointee = f"self.raw.pointee.{name}"
         lines = self.property(name, f"{alias}?", f"unsafeBitCast({pointee}, to: {alias}?.self)",
                               f"{pointee} = unsafeBitCast(newValue, to: Swift.type(of: {pointee}))")
+        call = f"self.{name}?({', '.join(args)})"
+        if returns == "Bool":
+            call = f"({call}).map {{ $0 != 0 }}"
+        body: list[str] = []
+        if layers:
+            body.append("        " + layers[0])
+            for depth, layer in enumerate(layers[1:], start=3):
+                body.append("    " * depth + layer)
+            body.append("    " * (len(layers) + 2) + call)
+            for depth in range(len(layers) + 1, 1, -1):
+                body.append("    " * depth + "}")
+        else:
+            body.append(f"        {call}")
         lines += [
             "",
-            f"    /// Calls the stored `{name}` function through the C pointer, with this slot first, as Raven's `ent->{name}(ent, ...)` did.",
+            doc,
             f"    public func run{name[0].upper()}{name[1:]}({', '.join(rest)}){f' -> {returns}?' if returns else ''} {{",
-            f"        {'(' if returns == 'Bool' else ''}self.{name}?({', '.join(args)}){').map { $0 != 0 }' if returns == 'Bool' else ''}",
+            *body,
             "    }",
         ]
         return lines
