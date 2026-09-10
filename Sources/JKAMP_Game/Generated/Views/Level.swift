@@ -21,6 +21,9 @@ public struct Level: Hashable, HandleView {
     /// The size of one slot in bytes, for a module that allocates its own slot and cannot see the C type.
     public static let byteCount = MemoryLayout<level_locals_t>.size
 
+    /// The distance between two slots of a C array of this type, for a Slots over one.
+    public static let stride = MemoryLayout<level_locals_t>.stride
+
     /// Source: oracle/codemp/game/g_local.h:821
     public var clients: Client? {
         get { self.raw.pointee.clients.map { Client(handle: OpaquePointer($0)) } }

@@ -20,6 +20,9 @@ public struct Trace: Hashable, HandleView {
     /// The size of one slot in bytes, for a module that allocates its own slot and cannot see the C type.
     public static let byteCount = MemoryLayout<trace_t>.size
 
+    /// The distance between two slots of a C array of this type, for a Slots over one.
+    public static let stride = MemoryLayout<trace_t>.stride
+
     /// Source: oracle/codemp/game/q_shared.h:1895
     public var allsolid: JKAShared.byte {
         get { self.raw.pointee.allsolid }

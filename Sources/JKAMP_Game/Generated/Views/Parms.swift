@@ -21,6 +21,9 @@ public struct Parms: Hashable, HandleView {
     /// The size of one slot in bytes, for a module that allocates its own slot and cannot see the C type.
     public static let byteCount = MemoryLayout<parms_t>.size
 
+    /// The distance between two slots of a C array of this type, for a Slots over one.
+    public static let stride = MemoryLayout<parms_t>.stride
+
     /// Source: oracle/codemp/game/g_public.h:670
     public var parm: Slots<String> { Slots(cStrings: UnsafeMutableRawPointer(self.raw.pointer(to: \.parm)!), count: 16, capacity: 64) }
 }

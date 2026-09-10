@@ -127,6 +127,7 @@ Engine memory is reached through the views: `Entity`, `Client`, `Trace`, `Player
 A view's fields read and write through the C struct behind it. `ent->r.absmin` becomes `ent.r.absmin`.
 `Sources/JKAMP_Game/Generated/Views/Entity.swift` shows the shape: a stored pointer, and a computed property per C field.
 Every generated view carries `public static let byteCount`, the size of one slot in bytes, for a module that allocates its own slot and cannot see the C type.
+It also carries `public static let stride`, the distance between two slots of a C array of the type, for a `Slots` over one.
 
 A view parameter is non-optional, so a body drops Raven's null guard on it and carries the Port-note `// Raven guards a NULL ps here. The view is non-optional, so the guard has no Swift form.`
 A caller that holds an optional view unwraps it at the call site, in Raven's control shape: `guard let ... else { return }` where Raven wrote an early-out, and `if let ... { }` where Raven wrapped a block. No force unwrap appears. A guard that does other work on the NULL path keeps a Port-note.
@@ -155,7 +156,8 @@ Ported bodies reach it through the `world` global. The transcriptor adds the pro
 var rng = Rng()
 ```
 
-`bg_itemlist`, `weaponData`, and `ammoData` are C storage in `Sources/CJKAMP/bg_tables.c`, with Raven's initializers as written, reached as the module-scope `let bg_itemlist: Slots<Gitem>`, `let weaponData: Slots<WeaponData>`, and `let ammoData: Slots<AmmoData>` in `bg_local.swift`, with `bg_numItems` as Raven computes it, so a body reads `bg_itemlist[i].giTag`.
+`bg_itemlist`, `weaponData`, and `ammoData` are C storage in `Sources/CJKAMP/bg_tables.c`, with Raven's initializers as written, and `Sources/JKAMP/BgTables.swift` reaches each one as a `Slots` over the C array, with the view's `stride`, because the view target is the one Swift module that imports the C target and can take the address of the C array, and `bg_numItems` reads the C global, so a body reads `bg_itemlist[i].giTag`.
+The header `Sources/CJKAMP/include/bg_tables.h` declares each array with a written bound, because the Swift importer drops an array of unknown bound, and clang checks the bound against the initializer.
 Every other struct-typed table Raven declares at file scope, such as `fields[]` of `g_spawn.c`, is C storage the same way. The stub of a `.c` file carries one entry per file-scope variable, above its first function.
 A variable the module never assigns is a typed `let` with a `portMissing` initializer and a `// Raven wrote:` line, and the transcriptor replaces the initializer with Raven's data.
 A variable the module assigns is a stored property of the state object, `BgState` or `GameWorld`, with Raven's initializer, spelled `bg.name` or `world.name` in a body, and its stub entry carries `// TODO: Port global name` and `// Raven wrote:`.
@@ -170,7 +172,7 @@ The transcriptor adds the property with Raven's name and a `/// Source:` line, a
 A scalar static is a Swift stored property. A struct static such as `pml`, which Raven's bodies read through a view, gets C storage owned by `BgState`, with the view over it, the pattern `GameMemory` uses at `Sources/JKAMP_Game/GameMemory.swift`.
 A pointer static such as `pm` is the view of the caller's memory, set per call. A test resets state with `bg = BgState()`.
 
-The file `bg_local.swift` does not exist yet. The first transcriptor that needs it creates it, with the class, the global, and a two-line type doc. Later transcriptors add properties to it.
+A transcriptor adds a property to `bg_local.swift` with Raven's name and a `/// Source:` line.
 
 `bg_pool` is one raw allocation of `MAX_POOL_SIZE` bytes, `bg.pool`, made at the consumer's install and never freed. `poolSize` and `poolTail` sit on `BgState`.
 `MAX_POOL_SIZE` is `var MAX_POOL_SIZE: Int32 { bg.maxPoolSize }` in `bg_local.swift`, so a body reads Raven's name.

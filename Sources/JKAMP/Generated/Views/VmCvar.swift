@@ -21,6 +21,9 @@ public struct VmCvar: Hashable, HandleView {
     /// The size of one slot in bytes, for a module that allocates its own slot and cannot see the C type.
     public static let byteCount = MemoryLayout<vmCvar_t>.size
 
+    /// The distance between two slots of a C array of this type, for a Slots over one.
+    public static let stride = MemoryLayout<vmCvar_t>.stride
+
     /// Source: oracle/codemp/game/q_shared.h:1825
     // Raven's `handle` field is the engine's, and the view's own `handle` takes the name. No module body reads it.
 

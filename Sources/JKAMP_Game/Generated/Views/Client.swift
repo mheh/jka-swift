@@ -21,6 +21,9 @@ public struct Client: Hashable, HandleView {
     /// The size of one slot in bytes, for a module that allocates its own slot and cannot see the C type.
     public static let byteCount = MemoryLayout<gclient_t>.size
 
+    /// The distance between two slots of a C array of this type, for a Slots over one.
+    public static let stride = MemoryLayout<gclient_t>.stride
+
     /// Source: oracle/codemp/game/g_local.h:538
     public var ps: JKAMP.PlayerState { JKAMP.PlayerState(handle: OpaquePointer(self.raw.pointer(to: \.ps)!)) }
 

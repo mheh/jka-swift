@@ -21,6 +21,9 @@ public struct InterestPoint: Hashable, HandleView {
     /// The size of one slot in bytes, for a module that allocates its own slot and cannot see the C type.
     public static let byteCount = MemoryLayout<interestPoint_t>.size
 
+    /// The distance between two slots of a C array of this type, for a Slots over one.
+    public static let stride = MemoryLayout<interestPoint_t>.stride
+
     /// Source: oracle/codemp/game/g_local.h:756
     public var origin: JKAShared.vec3_t {
         get { vec3(of: self.raw.pointee.origin) }

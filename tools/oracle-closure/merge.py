@@ -37,6 +37,10 @@ from pathlib import Path
 HERE = Path(__file__).resolve().parent
 sys.path.insert(0, str(HERE))
 from extract import TRIPLES  # noqa: E402
+
+# Hand-written headers a target's umbrella includes after the extracted ones, one per file of C storage under Sources/<Target>/.
+HAND_HEADERS = {"CJKAMP": ["bg_tables.h"]}
+HAND_FILES = {"CJKAMP": ["bg_tables.c", "include/bg_tables.h"]}
 EXTRACT = HERE / "out" / "extract"
 
 MP_MODULES = ["mp-game", "mp-bg", "mp-cgame", "mp-ui"]
@@ -638,6 +642,8 @@ def emit(out_dir: Path, mp_modules: list[str], sp_modules: list[str]) -> int:
             defines = [d for d in defines if d not in shared_defines]
         out.files[target][f"{target}_platform.h"] = wrap(f"{target}_platform.h", [], [], ["// The spellings the parse supplied for the platform section Raven never wrote for this host."] + defines + [""])
         ordered = [f"{target}_forward.h"] + [r for r in out.order[target] if r.endswith("/constants.h")] + [r for r in out.order[target] if not r.endswith("/constants.h")]
+        # A hand-written header beside the umbrella declares Raven's tables the target compiles as C storage, bg_tables.c for the MP tree.
+        ordered += HAND_HEADERS.get(target, [])
         # The umbrella carries the target's name, because SwiftPM and the Swift importer read it as the module.
         umbrella = [
             "// Raven wrote typedef enum { ... }; with no name in bg_weapons.h and its kin, and the copies keep the text verbatim.",
@@ -673,6 +679,8 @@ def emit(out_dir: Path, mp_modules: list[str], sp_modules: list[str]) -> int:
     # layout_asserts.h sits beside the translation unit, and a C++ only header sits under cxx/ for reference.
     for target, files in out.files.items():
         base = out_dir / target
+        # The hand-written C storage and its header survive the rewrite, merge.py never generates them.
+        kept = {rel: (base / rel).read_bytes() for rel in HAND_FILES.get(target, []) if (base / rel).exists()}
         if base.exists():
             shutil.rmtree(base)
         for rel, content in files.items():
@@ -685,6 +693,9 @@ def emit(out_dir: Path, mp_modules: list[str], sp_modules: list[str]) -> int:
             path.parent.mkdir(parents=True, exist_ok=True)
             path.write_text(content)
         (base / f"{target}.c").write_text(out.units[target])
+        for rel, data in kept.items():
+            (base / rel).parent.mkdir(parents=True, exist_ok=True)
+            (base / rel).write_bytes(data)
     manifest = {"shared": sorted(shared), "targets": {t: sorted(f for f in files) for t, files in out.files.items()}, "cxx_only": {t: sorted(v) for t, v in out.cxx.items()}}
     (HERE / "out" / "merge.json").write_text(json.dumps(manifest, indent=1))
 

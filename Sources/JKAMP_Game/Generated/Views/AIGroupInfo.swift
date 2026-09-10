@@ -21,6 +21,9 @@ public struct AIGroupInfo: Hashable, HandleView {
     /// The size of one slot in bytes, for a module that allocates its own slot and cannot see the C type.
     public static let byteCount = MemoryLayout<AIGroupInfo_t>.size
 
+    /// The distance between two slots of a C array of this type, for a Slots over one.
+    public static let stride = MemoryLayout<AIGroupInfo_t>.stride
+
     /// Source: oracle/codemp/game/ai.h:99
     public var numGroup: Int32 {
         get { self.raw.pointee.numGroup }

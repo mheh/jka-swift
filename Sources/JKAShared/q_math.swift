@@ -1366,3 +1366,14 @@ public func SnapVector(_ v: inout vec3_t) {
     v[1] = Float(Int32(v[1]))
     v[2] = Float(Int32(v[2]))
 }
+
+/// Source: oracle/codemp/game/q_shared.h:1972
+public func ANGLE2SHORT(_ x: Float) -> Int32 {
+    Int32(x * 65536 / 360) & 65535
+}
+
+/// Source: oracle/codemp/game/q_shared.h:1973
+public func SHORT2ANGLE(_ x: Int32) -> Float {
+    // Raven's 360.0 is a double literal, so the multiply runs in double and narrows to float once, on return.
+    Float(Double(x) * (360.0 / 65536))
+}

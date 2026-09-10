@@ -20,6 +20,9 @@ public struct TurretStats: Hashable, HandleView {
     /// The size of one slot in bytes, for a module that allocates its own slot and cannot see the C type.
     public static let byteCount = MemoryLayout<turretStats_t>.size
 
+    /// The distance between two slots of a C array of this type, for a Slots over one.
+    public static let stride = MemoryLayout<turretStats_t>.stride
+
     /// Source: oracle/codemp/game/bg_vehicles.h:91
     public var iWeapon: Int32 {
         get { self.raw.pointee.iWeapon }

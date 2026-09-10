@@ -20,6 +20,9 @@ public struct Usercmd: Hashable, HandleView {
     /// The size of one slot in bytes, for a module that allocates its own slot and cannot see the C type.
     public static let byteCount = MemoryLayout<usercmd_t>.size
 
+    /// The distance between two slots of a C array of this type, for a Slots over one.
+    public static let stride = MemoryLayout<usercmd_t>.stride
+
     /// Source: oracle/codemp/game/q_shared.h:2525
     public var serverTime: Int32 {
         get { self.raw.pointee.serverTime }

@@ -20,6 +20,9 @@ public struct VehWeaponInfo: Hashable, HandleView {
     /// The size of one slot in bytes, for a module that allocates its own slot and cannot see the C type.
     public static let byteCount = MemoryLayout<vehWeaponInfo_t>.size
 
+    /// The distance between two slots of a C array of this type, for a Slots over one.
+    public static let stride = MemoryLayout<vehWeaponInfo_t>.stride
+
     /// Source: oracle/codemp/game/bg_vehicles.h:39
     public var name: PooledString? {
         get { PooledString(raw: self.raw.pointee.name) }

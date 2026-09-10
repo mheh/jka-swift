@@ -155,5 +155,6 @@
 #include "codemp/game/teams/class_t.h"
 #include "codemp/game/teams/enum_NPCTEAM_FREE.h"
 #include "codemp/game/teams/npcteam_t.h"
+#include "bg_tables.h"
 
 #endif // JKA_CJKAMP_H

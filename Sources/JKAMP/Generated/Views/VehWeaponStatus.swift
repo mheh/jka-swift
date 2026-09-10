@@ -20,6 +20,9 @@ public struct VehWeaponStatus: Hashable, HandleView {
     /// The size of one slot in bytes, for a module that allocates its own slot and cannot see the C type.
     public static let byteCount = MemoryLayout<vehWeaponStatus_t>.size
 
+    /// The distance between two slots of a C array of this type, for a Slots over one.
+    public static let stride = MemoryLayout<vehWeaponStatus_t>.stride
+
     /// Source: oracle/codemp/game/bg_vehicles.h:453
     public var linked: Bool {
         get { self.raw.pointee.linked != qfalse }

@@ -420,6 +420,9 @@ class Generator:
                 "",
                 "    /// The size of one slot in bytes, for a module that allocates its own slot and cannot see the C type.",
                 f"    public static let byteCount = MemoryLayout<{c_name}>.size",
+                "",
+                "    /// The distance between two slots of a C array of this type, for a Slots over one.",
+                f"    public static let stride = MemoryLayout<{c_name}>.stride",
             ]
             for field in record.get_children():
                 if field.kind != CursorKind.FIELD_DECL:

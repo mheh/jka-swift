@@ -20,6 +20,9 @@ public struct Cplane: Hashable, HandleView {
     /// The size of one slot in bytes, for a module that allocates its own slot and cannot see the C type.
     public static let byteCount = MemoryLayout<cplane_t>.size
 
+    /// The distance between two slots of a C array of this type, for a Slots over one.
+    public static let stride = MemoryLayout<cplane_t>.stride
+
     /// Source: oracle/codemp/game/q_shared.h:1861
     public var normal: JKAShared.vec3_t {
         get { vec3(of: self.raw.pointee.normal) }
