@@ -17,6 +17,7 @@
 #include "codemp/game/bg_weapons/constants.h"
 #include "codemp/game/q_shared/constants.h"
 #include "codemp/game/surfaceflags/constants.h"
+#include "codemp/ghoul2/G2/constants.h"
 #include "codemp/cgame/tr_types/color4ub_t.h"
 #include "codemp/cgame/tr_types/enum_STEREO_CENTER.h"
 #include "codemp/cgame/tr_types/glconfig_t.h"

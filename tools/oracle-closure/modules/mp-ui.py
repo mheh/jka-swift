@@ -7,9 +7,10 @@
 # ui_syscalls.c (seam) are listed; bg_*.c ride in as satisfied-dep callee
 # bodies (already ported → mp_bg). Found 2026-07-24 during U0.
 
+# The bg .c files include ghoul2/G2.h, which no module header reaches, so the entry lists it too.
 SPEC = dict(
     name="mp-ui",
-    lang="c", entry="codemp/ui/ui_local.h",
+    lang="c", entry=["codemp/ui/ui_local.h", "codemp/ghoul2/G2.h"],
     includes=["codemp/ui", "codemp/game"],
     defines=["NDEBUG", "MISSIONPACK", "UI_EXPORTS", "_JK2"],
     srcglob=["codemp/ui/ui_main.c", "codemp/ui/ui_atoms.c",

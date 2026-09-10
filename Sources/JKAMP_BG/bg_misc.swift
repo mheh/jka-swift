@@ -2,6 +2,43 @@ import Foundation
 import JKAMP
 import JKAShared
 
+/// Raven's `forceMasteryPoints` of `bg_misc.c`, the points a rank allows.
+/// Source: oracle/codemp/game/bg_misc.c:162
+let forceMasteryPoints: [Int32] = [
+    0,		// FORCE_MASTERY_UNINITIATED,
+    5,		// FORCE_MASTERY_INITIATE,
+    10,		// FORCE_MASTERY_PADAWAN,
+    20,		// FORCE_MASTERY_JEDI,
+    30,		// FORCE_MASTERY_JEDI_GUARDIAN,
+    50,		// FORCE_MASTERY_JEDI_ADEPT,
+    75,		// FORCE_MASTERY_JEDI_KNIGHT,
+    100		// FORCE_MASTERY_JEDI_MASTER,
+]
+
+/// Raven's `bgForcePowerCost` of `bg_misc.c`, the cost of one power at one level.
+/// Source: oracle/codemp/game/bg_misc.c:174
+let bgForcePowerCost: [[Int32]] = [ //0 == neutral
+    [	0,	2,	4,	6	],	// Heal			// FP_HEAL
+    [	0,	0,	2,	6	],	// Jump			//FP_LEVITATION,//hold/duration
+    [	0,	2,	4,	6	],	// Speed		//FP_SPEED,//duration
+    [	0,	1,	3,	6	],	// Push			//FP_PUSH,//hold/duration
+    [	0,	1,	3,	6	],	// Pull			//FP_PULL,//hold/duration
+    [	0,	4,	6,	8	],	// Mind Trick	//FP_TELEPATHY,//instant
+    [	0,	1,	3,	6	],	// Grip			//FP_GRIP,//hold/duration
+    [	0,	2,	5,	8	],	// Lightning	//FP_LIGHTNING,//hold/duration
+    [	0,	4,	6,	8	],	// Dark Rage	//FP_RAGE,//duration
+    [	0,	2,	5,	8	],	// Protection	//FP_PROTECT,//duration
+    [	0,	1,	3,	6	],	// Absorb		//FP_ABSORB,//duration
+    [	0,	1,	3,	6	],	// Team Heal	//FP_TEAM_HEAL,//instant
+    [	0,	1,	3,	6	],	// Team Force	//FP_TEAM_FORCE,//instant
+    [	0,	2,	4,	6	],	// Drain		//FP_DRAIN,//hold/duration
+    [	0,	2,	5,	8	],	// Sight		//FP_SEE,//duration
+    [	0,	1,	5,	8	],	// Saber Attack	//FP_SABER_OFFENSE,
+    [	0,	1,	5,	8	],	// Saber Defend	//FP_SABER_DEFENSE,
+    [	0,	4,	6,	8	]	// Saber Throw	//FP_SABERTHROW,
+    //NUM_FORCE_POWERS
+]
+
 /// Raven's `forcePowerSorted` of `bg_misc.c`. Always use this order when drawing force powers, for any reason.
 /// Source: oracle/codemp/game/bg_misc.c:197
 let forcePowerSorted: [Int32] = [
@@ -25,23 +62,110 @@ let forcePowerSorted: [Int32] = [
     FP_SABERTHROW,
 ]
 
-// Port-note: `trap_FS_FOpenFile`'s own stub has no table row for its `int *f` out-param, so it takes no
-// arguments yet and this body cannot open the file to test it.
+/// Raven's `forcePowerDarkLight` of `bg_misc.c`, the side one power belongs to.
+/// Source: oracle/codemp/game/bg_misc.c:219
+let forcePowerDarkLight: [Int32] = [ //0 == neutral
+    //nothing should be usable at rank 0..
+    FORCE_LIGHTSIDE,//FP_HEAL,//instant
+    0,//FP_LEVITATION,//hold/duration
+    0,//FP_SPEED,//duration
+    0,//FP_PUSH,//hold/duration
+    0,//FP_PULL,//hold/duration
+    FORCE_LIGHTSIDE,//FP_TELEPATHY,//instant
+    FORCE_DARKSIDE,//FP_GRIP,//hold/duration
+    FORCE_DARKSIDE,//FP_LIGHTNING,//hold/duration
+    FORCE_DARKSIDE,//FP_RAGE,//duration
+    FORCE_LIGHTSIDE,//FP_PROTECT,//duration
+    FORCE_LIGHTSIDE,//FP_ABSORB,//duration
+    FORCE_LIGHTSIDE,//FP_TEAM_HEAL,//instant
+    FORCE_DARKSIDE,//FP_TEAM_FORCE,//instant
+    FORCE_DARKSIDE,//FP_DRAIN,//hold/duration
+    0,//FP_SEE,//duration
+    0,//FP_SABER_OFFENSE,
+    0,//FP_SABER_DEFENSE,
+    0//FP_SABERTHROW,
+        //NUM_FORCE_POWERS
+]
+
+// Port-note: the body opens the file with `trap_FS_FOpenFile` and closes it with `trap_FS_FCloseFile`.
+// `bg_strap.h` declares neither, so the bg channel has no route to the file system today.
 /// Source: oracle/codemp/game/bg_misc.c:319
 func BG_FileExists(_ fileName: String) -> Bool {
     // TODO: Port BG_FileExists
     portMissing("BG_FileExists", source: "oracle/codemp/game/bg_misc.c:319")
 }
 
+/**
+```
+===============
+BG_ParseField
+
+Takes a key/value pair and sets the binary values
+in a gentity/centity/whatever the hell you want
+===============
+```
+*/
 /// Source: oracle/codemp/game/bg_misc.c:358
-// TODO: Port signature
-// Raven wrote: void BG_ParseField( BG_field_t *l_fields, const char *key, const char *value, byte *ent )
-// No table row for `BG_field_t * l_fields`.
-// Port-note: the body writes through a `byte *ent` at a field's byte offset, so it needs a design for typed field
-// tables and raw byte-offset writes before it can port.
-func BG_ParseField() -> Never {
-    // TODO: Port BG_ParseField
-    portMissing("BG_ParseField", source: "oracle/codemp/game/bg_misc.c:358")
+func BG_ParseField(_ l_fields: Slots<JKAMP.BgField>, _ key: String, _ value: String, _ ent: UnsafeMutableRawPointer) {
+    var v: Float
+    var vec = vec3_t()
+
+    // Raven walks a `BG_field_t *` from `l_fields` while `f->name` is set. The port indexes the same slots.
+    var index: Int32 = 0
+    while let name = l_fields[index].name {
+        let f = l_fields[index]
+        if Q_stricmp(name.string, key) == 0 {
+            // found it
+            // Raven takes `b = (byte *)ent`, which is the same address, so the port writes at `ent + Int(f.ofs)`.
+            let b = ent + Int(f.ofs)
+
+            switch f.type {
+            case F_LSTRING:
+                if bg.consumer == .game {
+                    b.storeBytes(of: G_NewString(value).raw, as: UnsafeMutablePointer<CChar>.self)
+                } else {
+                    // Port-note: Raven calls `CG_NewString` on this arm, and the bg channel has no function of that name today.
+                    portMissing("BG_ParseField: CG_NewString", source: "oracle/codemp/game/bg_misc.c:376")
+                }
+            case F_VECTOR:
+                // Port-note: Raven reads the three floats with `sscanf`, which has no ported form yet.
+                // This splits the text on spaces, and it leaves a component alone when the text has no number for it, as `sscanf` does.
+                let numbers = value.split(separator: " ")
+                if numbers.count > 0, let x = Float(numbers[0]) { vec[0] = x }
+                if numbers.count > 1, let y = Float(numbers[1]) { vec[1] = y }
+                if numbers.count > 2, let z = Float(numbers[2]) { vec[2] = z }
+                b.storeBytes(of: vec[0], toByteOffset: 0 * MemoryLayout<Float>.stride, as: Float.self)
+                b.storeBytes(of: vec[1], toByteOffset: 1 * MemoryLayout<Float>.stride, as: Float.self)
+                b.storeBytes(of: vec[2], toByteOffset: 2 * MemoryLayout<Float>.stride, as: Float.self)
+            case F_INT:
+                // Port-note: Raven's `atoi` and `atof` have no ported form yet, so the port reads the number with Swift and takes 0 where `atoi` would.
+                b.storeBytes(of: Int32(value) ?? 0, as: Int32.self)
+            case F_FLOAT:
+                b.storeBytes(of: Float(value) ?? 0, as: Float.self)
+            case F_ANGLEHACK:
+                v = Float(value) ?? 0
+                b.storeBytes(of: 0, toByteOffset: 0 * MemoryLayout<Float>.stride, as: Float.self)
+                b.storeBytes(of: v, toByteOffset: 1 * MemoryLayout<Float>.stride, as: Float.self)
+                b.storeBytes(of: 0, toByteOffset: 2 * MemoryLayout<Float>.stride, as: Float.self)
+            case F_PARM1, F_PARM2, F_PARM3, F_PARM4, F_PARM5, F_PARM6, F_PARM7, F_PARM8,
+                F_PARM9, F_PARM10, F_PARM11, F_PARM12, F_PARM13, F_PARM14, F_PARM15, F_PARM16:
+                if bg.consumer == .game {
+                    // Port-note: Raven casts `ent` to `gentity_t *` and reads `s.number`.
+                    // `bgEntity_t` carries the same leading `entityState_t`, so this view reads the same bytes.
+                    Q3_SetParm(JKAMP.BgEntity(handle: OpaquePointer(ent)).s.number, f.type - F_PARM1, value)
+                } else {
+                    // Raven compiles no `F_PARM` case for cgame, so the field falls to `F_IGNORE` and nothing happens.
+                }
+            case F_IGNORE:
+                break
+            default:
+                break
+            }
+            return
+        }
+
+        index += 1
+    }
 }
 
 /**
@@ -58,15 +182,276 @@ force power selection anyway when force powers are disabled on the server.
 ================
 ```
 */
+// Port-note: Raven's `char powerBuf[128]` and `char readBuf[128]` are byte arrays here, because `strcpy`, `strlen`, and `atoi` have no ported form yet.
+// The body indexes the same bytes, and it assigns `powerOut` once where Raven writes the terminator.
+// Port-note: Raven leaves `final_Powers` uninitialized, and a short string leaves the tail of it unread.
+// Swift needs a value, so the port starts every entry at 0.
 /// Source: oracle/codemp/game/bg_misc.c:439
-// TODO: Port signature
-// Raven wrote: qboolean BG_LegalizedForcePowers(char *powerOut, int maxRank, qboolean freeSaber, int teamForce, int gametype, int fpDisabled)
-// No table row for `char * powerOut`.
-// Port-note: `powerOut` is read and rewritten in place as a fixed-size char buffer, an in-out `char *` the
-// generator has no row for. This needs a design for that shape before it can port.
-func BG_LegalizedForcePowers() -> Never {
-    // TODO: Port BG_LegalizedForcePowers
-    portMissing("BG_LegalizedForcePowers", source: "oracle/codemp/game/bg_misc.c:439")
+func BG_LegalizedForcePowers(_ powerOut: inout String, _ maxRank: Int32, _ freeSaber: Bool, _ teamForce: Int32, _ gametype: Int32, _ fpDisabled: Int32) -> Bool {
+    var powerBuf = [UInt8](repeating: 0, count: 128)
+    var readBuf = [UInt8](repeating: 0, count: 128)
+    var maintainsValidity = true
+    let powerLen = Int32(powerOut.utf8.count)
+    var i: Int32 = 0
+    var c: Int32 = 0
+    var allowedPoints: Int32 = 0
+    var usedPoints: Int32 = 0
+    var countDown: Int32 = 0
+
+    var final_Side: Int32
+    var final_Powers = [Int32](repeating: 0, count: Int(NUM_FORCE_POWERS))
+
+    if powerLen >= 128 {
+        //This should not happen. If it does, this is obviously a bogus string.
+        //They can have this string. Because I said so.
+        for (offset, byte) in "7-1-032330000000001333".utf8.enumerated() {
+            powerBuf[offset] = byte
+        }
+        maintainsValidity = false
+    } else {
+        for (offset, byte) in powerOut.utf8.enumerated() { //copy it as the original
+            powerBuf[offset] = byte
+        }
+    }
+
+    //first of all, print the max rank into the string as the rank
+    // Port-note: `va` has no ported form yet, so the port builds the same text with Swift interpolation.
+    var out = "\(maxRank)-"
+
+    // Raven's `'-'` and `'\n'` are the byte values a `char` literal has.
+    while i < 128 && powerBuf[i] != 0 && powerBuf[i] != UInt8(ascii: "-") {
+        i += 1
+    }
+    i += 1
+    while i < 128 && powerBuf[i] != 0 && powerBuf[i] != UInt8(ascii: "-") {
+        readBuf[c] = powerBuf[i]
+        c += 1
+        i += 1
+    }
+    readBuf[c] = 0
+    i += 1
+    //at this point, readBuf contains the intended side
+    // Raven's `atoi` reads the bytes up to the terminator.
+    final_Side = Int32(String(decoding: readBuf.prefix(while: { $0 != 0 }), as: UTF8.self)) ?? 0
+
+    if final_Side != FORCE_LIGHTSIDE && final_Side != FORCE_DARKSIDE {
+        //Not a valid side. You will be dark. Because I said so. (this is something that should never actually happen unless you purposely feed in an invalid config)
+        final_Side = FORCE_DARKSIDE
+        maintainsValidity = false
+    }
+
+    if teamForce != 0 {
+        //If we are under force-aligned teams, make sure we're on the right side.
+        if final_Side != teamForce {
+            final_Side = teamForce
+            //maintainsValidity = qfalse;
+            //Not doing this, for now. Let them join the team with their filtered powers.
+        }
+    }
+
+    //Now we have established a valid rank, and a valid side.
+    //Read the force powers in, and cut them down based on the various rules supplied.
+    c = 0
+    while i < 128 && powerBuf[i] != 0 && powerBuf[i] != UInt8(ascii: "\n") && c < NUM_FORCE_POWERS {
+        readBuf[0] = powerBuf[i]
+        readBuf[1] = 0
+        final_Powers[c] = Int32(String(decoding: readBuf.prefix(while: { $0 != 0 }), as: UTF8.self)) ?? 0
+        c += 1
+        i += 1
+    }
+
+    //final_Powers now contains all the stuff from the string
+    //Set the maximum allowed points used based on the max rank level, and count the points actually used.
+    allowedPoints = forceMasteryPoints[maxRank]
+
+    i = 0
+    while i < NUM_FORCE_POWERS {
+        //if this power doesn't match the side we're on, then 0 it now.
+        if final_Powers[i] != 0 && forcePowerDarkLight[i] != 0 && forcePowerDarkLight[i] != final_Side {
+            final_Powers[i] = 0
+            //This is only likely to happen with g_forceBasedTeams. Let it slide.
+        }
+
+        if final_Powers[i] != 0 && (fpDisabled & (1 << i)) != 0 {
+            //if this power is disabled on the server via said server option, then we don't get it.
+            final_Powers[i] = 0
+        }
+
+        i += 1
+    }
+
+    if gametype < GT_TEAM {
+        //don't bother with team powers then
+        final_Powers[FP_TEAM_HEAL] = 0
+        final_Powers[FP_TEAM_FORCE] = 0
+    }
+
+    usedPoints = 0
+    i = 0
+    while i < NUM_FORCE_POWERS {
+        countDown = 0
+
+        countDown = final_Powers[i]
+
+        while countDown > 0 {
+            usedPoints += bgForcePowerCost[i][countDown] //[fp index][fp level]
+            //if this is jump, or we have a free saber and it's offense or defense, take the level back down on level 1
+            if countDown == 1
+                && ((i == FP_LEVITATION)
+                    || (i == FP_SABER_OFFENSE && freeSaber)
+                    || (i == FP_SABER_DEFENSE && freeSaber)) {
+                usedPoints -= bgForcePowerCost[i][countDown]
+            }
+            countDown -= 1
+        }
+
+        i += 1
+    }
+
+    if usedPoints > allowedPoints {
+        //Time to do the fancy stuff. (meaning, slowly cut parts off while taking a guess at what is most or least important in the config)
+        var attemptedCycles: Int32 = 0
+        var powerCycle: Int32 = 2
+        var minPow: Int32 = 0
+
+        if freeSaber {
+            minPow = 1
+        }
+
+        maintainsValidity = false
+
+        while usedPoints > allowedPoints {
+            c = 0
+
+            while c < NUM_FORCE_POWERS && usedPoints > allowedPoints {
+                if final_Powers[c] != 0 && final_Powers[c] < powerCycle {
+                    //kill in order of lowest powers, because the higher powers are probably more important
+                    if c == FP_SABER_OFFENSE
+                        && (final_Powers[FP_SABER_DEFENSE] > minPow || final_Powers[FP_SABERTHROW] > 0) {
+                        //if we're on saber attack, only suck it down if we have no def or throw either
+                        var whichOne: Int32 = FP_SABERTHROW //first try throw
+
+                        if final_Powers[whichOne] == 0 {
+                            whichOne = FP_SABER_DEFENSE //if no throw, drain defense
+                        }
+
+                        while final_Powers[whichOne] > 0 && usedPoints > allowedPoints {
+                            if final_Powers[whichOne] > 1
+                                || ((whichOne != FP_SABER_OFFENSE || !freeSaber)
+                                    && (whichOne != FP_SABER_DEFENSE || !freeSaber)) {
+                                //don't take attack or defend down on level 1 still, if it's free
+                                usedPoints -= bgForcePowerCost[whichOne][final_Powers[whichOne]]
+                                final_Powers[whichOne] -= 1
+                            } else {
+                                break
+                            }
+                        }
+                    } else {
+                        while final_Powers[c] > 0 && usedPoints > allowedPoints {
+                            if final_Powers[c] > 1
+                                || ((c != FP_LEVITATION)
+                                    && (c != FP_SABER_OFFENSE || !freeSaber)
+                                    && (c != FP_SABER_DEFENSE || !freeSaber)) {
+                                usedPoints -= bgForcePowerCost[c][final_Powers[c]]
+                                final_Powers[c] -= 1
+                            } else {
+                                break
+                            }
+                        }
+                    }
+                }
+
+                c += 1
+            }
+
+            powerCycle += 1
+            attemptedCycles += 1
+
+            if attemptedCycles > NUM_FORCE_POWERS {
+                //I think this should be impossible. But just in case.
+                break
+            }
+        }
+
+        if usedPoints > allowedPoints {
+            //Still? Fine then.. we will kill all of your powers, except the freebies.
+            i = 0
+
+            while i < NUM_FORCE_POWERS {
+                final_Powers[i] = 0
+                if i == FP_LEVITATION
+                    || (i == FP_SABER_OFFENSE && freeSaber)
+                    || (i == FP_SABER_DEFENSE && freeSaber) {
+                    final_Powers[i] = 1
+                }
+                i += 1
+            }
+            usedPoints = 0
+        }
+    }
+
+    if freeSaber {
+        if final_Powers[FP_SABER_OFFENSE] < 1 {
+            final_Powers[FP_SABER_OFFENSE] = 1
+        }
+        if final_Powers[FP_SABER_DEFENSE] < 1 {
+            final_Powers[FP_SABER_DEFENSE] = 1
+        }
+    }
+    if final_Powers[FP_LEVITATION] < 1 {
+        final_Powers[FP_LEVITATION] = 1
+    }
+
+    i = 0
+    while i < NUM_FORCE_POWERS {
+        if final_Powers[i] > FORCE_LEVEL_3 {
+            final_Powers[i] = FORCE_LEVEL_3
+        }
+        i += 1
+    }
+
+    if fpDisabled != 0 {
+        //If we specifically have attack or def disabled, force them up to level 3. It's the way
+        //things work for the case of all powers disabled.
+        //If jump is disabled, down-cap it to level 1. Otherwise don't do a thing.
+        if (fpDisabled & (1 << FP_LEVITATION)) != 0 {
+            final_Powers[FP_LEVITATION] = 1
+        }
+        if (fpDisabled & (1 << FP_SABER_OFFENSE)) != 0 {
+            final_Powers[FP_SABER_OFFENSE] = 3
+        }
+        if (fpDisabled & (1 << FP_SABER_DEFENSE)) != 0 {
+            final_Powers[FP_SABER_DEFENSE] = 3
+        }
+    }
+
+    if final_Powers[FP_SABER_OFFENSE] < 1 {
+        final_Powers[FP_SABER_DEFENSE] = 0
+        final_Powers[FP_SABERTHROW] = 0
+    }
+
+    //We finally have all the force powers legalized and stored locally.
+    //Put them all into the string and return the result. We already have
+    //the rank there, so print the side and the powers now.
+    Q_strcat(&out, 128, "\(final_Side)-")
+
+    i = Int32(out.utf8.count)
+    c = 0
+    while c < NUM_FORCE_POWERS {
+        let digits = "\(final_Powers[c])" // Raven's va("%i", final_Powers[c])
+        for (offset, byte) in digits.utf8.enumerated() {
+            readBuf[offset] = byte
+        }
+        readBuf[digits.utf8.count] = 0
+        // Raven writes powerOut[i], and the port appends the same byte at the same place.
+        out.append(Character(UnicodeScalar(readBuf[0])))
+        c += 1
+        i += 1
+    }
+    // Raven writes the terminator at powerOut[i]. The port hands the built text back here.
+    powerOut = out
+
+    return maintainsValidity
 }
 
 /// Source: oracle/codemp/game/bg_misc.c:1773
@@ -164,11 +549,20 @@ BG_FindItemForPowerup
 ==============
 ```
 */
-// Port-note: this body walks Raven's `bg_itemlist` table, and that table has no Swift storage yet.
 /// Source: oracle/codemp/game/bg_misc.c:1881
 func BG_FindItemForPowerup(_ pw: JKAMP.powerup_t) -> JKAMP.Gitem? {
-    // TODO: Port BG_FindItemForPowerup
-    portMissing("BG_FindItemForPowerup", source: "oracle/codemp/game/bg_misc.c:1881")
+    var i: Int32
+
+    i = 0
+    while i < bg_numItems {
+        if (bg_itemlist[i].giType == IT_POWERUP || bg_itemlist[i].giType == IT_TEAM)
+            && bg_itemlist[i].giTag == pw {
+            return bg_itemlist[i]
+        }
+        i += 1
+    }
+
+    return nil
 }
 
 /**
@@ -178,11 +572,20 @@ BG_FindItemForHoldable
 ==============
 ```
 */
-// Port-note: this body walks Raven's `bg_itemlist` table, and that table has no Swift storage yet.
 /// Source: oracle/codemp/game/bg_misc.c:1901
 func BG_FindItemForHoldable(_ pw: JKAMP.holdable_t) -> JKAMP.Gitem? {
-    // TODO: Port BG_FindItemForHoldable
-    portMissing("BG_FindItemForHoldable", source: "oracle/codemp/game/bg_misc.c:1901")
+    var i: Int32
+
+    i = 0
+    while i < bg_numItems {
+        if bg_itemlist[i].giType == IT_HOLDABLE && bg_itemlist[i].giTag == pw {
+            return bg_itemlist[i]
+        }
+        i += 1
+    }
+
+    // Raven writes `return NULL` after this call, which `Com_Error` never reaches.
+    Com_Error(ERR_DROP, "HoldableItem not found")
 }
 
 /**
@@ -193,11 +596,20 @@ BG_FindItemForWeapon
 ===============
 ```
 */
-// Port-note: this body walks Raven's `bg_itemlist` table, and that table has no Swift storage yet.
 /// Source: oracle/codemp/game/bg_misc.c:1922
 func BG_FindItemForWeapon(_ weapon: JKAMP.weapon_t) -> JKAMP.Gitem? {
-    // TODO: Port BG_FindItemForWeapon
-    portMissing("BG_FindItemForWeapon", source: "oracle/codemp/game/bg_misc.c:1922")
+    // Raven walks a `gitem_t *` from `bg_itemlist + 1` while `it->classname` is set. The port indexes the same slots.
+    var index: Int32 = 1
+    while bg_itemlist[index].classname != nil {
+        let it = bg_itemlist[index]
+        if it.giType == IT_WEAPON && it.giTag == weapon {
+            return it
+        }
+        index += 1
+    }
+
+    // Raven writes `return NULL` after this call, which `Com_Error` never reaches.
+    Com_Error(ERR_DROP, "Couldn't find item for weapon \(weapon)")
 }
 
 /**
@@ -208,11 +620,19 @@ BG_FindItemForAmmo
 ===============
 ```
 */
-// Port-note: this body walks Raven's `bg_itemlist` table, and that table has no Swift storage yet.
 /// Source: oracle/codemp/game/bg_misc.c:1941
 func BG_FindItemForAmmo(_ ammo: JKAMP.ammo_t) -> JKAMP.Gitem? {
-    // TODO: Port BG_FindItemForAmmo
-    portMissing("BG_FindItemForAmmo", source: "oracle/codemp/game/bg_misc.c:1941")
+    var index: Int32 = 1
+    while bg_itemlist[index].classname != nil {
+        let it = bg_itemlist[index]
+        if it.giType == IT_AMMO && it.giTag == ammo {
+            return it
+        }
+        index += 1
+    }
+
+    // Raven writes `return NULL` after this call, which `Com_Error` never reaches.
+    Com_Error(ERR_DROP, "Couldn't find item for ammo \(ammo)")
 }
 
 /**
@@ -223,11 +643,17 @@ BG_FindItem
 ===============
 ```
 */
-// Port-note: this body walks Raven's `bg_itemlist` table, and that table has no Swift storage yet.
 /// Source: oracle/codemp/game/bg_misc.c:1960
 func BG_FindItem(_ classname: String) -> JKAMP.Gitem? {
-    // TODO: Port BG_FindItem
-    portMissing("BG_FindItem", source: "oracle/codemp/game/bg_misc.c:1960")
+    var index: Int32 = 1
+    while let itemClassname = bg_itemlist[index].classname {
+        if Q_stricmp(itemClassname.string, classname) == 0 {
+            return bg_itemlist[index]
+        }
+        index += 1
+    }
+
+    return nil
 }
 
 /**
@@ -240,12 +666,23 @@ grabbing them easier
 ============
 ```
 */
-// Port-note: this body needs `BG_EvaluateTrajectory`'s origin, and that stub's `result` parameter is not
-// `inout`, so it cannot hand the origin back yet.
 /// Source: oracle/codemp/game/bg_misc.c:1979
 func BG_PlayerTouchesItem(_ ps: JKAMP.PlayerState, _ item: JKAMP.EntityState, _ atTime: Int32) -> Bool {
-    // TODO: Port BG_PlayerTouchesItem
-    portMissing("BG_PlayerTouchesItem", source: "oracle/codemp/game/bg_misc.c:1979")
+    var origin = vec3_t()
+
+    BG_EvaluateTrajectory(item.pos, atTime, &origin)
+
+    // we are ignoring ducked differences here
+    if ps.origin[0] - origin[0] > 44
+        || ps.origin[0] - origin[0] < -50
+        || ps.origin[1] - origin[1] > 36
+        || ps.origin[1] - origin[1] < -36
+        || ps.origin[2] - origin[2] > 36
+        || ps.origin[2] - origin[2] < -36 {
+        return false
+    }
+
+    return true
 }
 
 /// Source: oracle/codemp/game/bg_misc.c:1997
@@ -339,11 +776,20 @@ func BG_CycleForce(_ ps: JKAMP.PlayerState, _ direction: Int32) {
     }
 }
 
-// Port-note: this body walks Raven's `bg_itemlist` table, and that table has no Swift storage yet.
 /// Source: oracle/codemp/game/bg_misc.c:2092
 func BG_GetItemIndexByTag(_ tag: Int32, _ type: Int32) -> Int32 {
-    // TODO: Port BG_GetItemIndexByTag
-    portMissing("BG_GetItemIndexByTag", source: "oracle/codemp/game/bg_misc.c:2092")
+    //Get the itemlist index from the tag and type
+    var i: Int32 = 0
+
+    while i < bg_numItems {
+        if bg_itemlist[i].giTag == tag && bg_itemlist[i].giType == type {
+            return i
+        }
+
+        i += 1
+    }
+
+    return 0
 }
 
 //yeah..
@@ -355,12 +801,61 @@ func BG_IsItemSelectable(_ ps: JKAMP.PlayerState, _ item: Int32) -> Bool {
     return true
 }
 
-// Port-note: this body reads Raven's `bg_itemlist` table and calls `BG_GetItemIndexByTag`, and neither the
-// table nor that lookup has Swift storage yet.
 /// Source: oracle/codemp/game/bg_misc.c:2121
 func BG_CycleInven(_ ps: JKAMP.PlayerState, _ direction: Int32) {
-    // TODO: Port BG_CycleInven
-    portMissing("BG_CycleInven", source: "oracle/codemp/game/bg_misc.c:2121")
+    var i: Int32
+    var dontFreeze: Int32 = 0
+    var original: Int32
+
+    i = bg_itemlist[ps.stats[STAT_HOLDABLE_ITEM]].giTag
+    original = i
+
+    if direction == 1 {
+        //next
+        i += 1
+        if i == HI_NUM_HOLDABLE {
+            i = 1
+        }
+    } else {
+        //previous
+        i -= 1
+        if i == 0 {
+            i = HI_NUM_HOLDABLE - 1
+        }
+    }
+
+    while i != original {
+        //go in a full loop until hitting something, if hit nothing then select nothing
+        if (ps.stats[STAT_HOLDABLE_ITEMS] & (1 << i)) != 0 {
+            //we have it, select it.
+            if BG_IsItemSelectable(ps, i) {
+                ps.stats[STAT_HOLDABLE_ITEM] = BG_GetItemIndexByTag(i, IT_HOLDABLE)
+                break
+            }
+        }
+
+        if direction == 1 {
+            //next
+            i += 1
+        } else {
+            //previous
+            i -= 1
+        }
+
+        if i <= 0 {
+            //wrap around to the last
+            i = HI_NUM_HOLDABLE - 1
+        } else if i >= HI_NUM_HOLDABLE {
+            //wrap around to the first
+            i = 1
+        }
+
+        dontFreeze += 1
+        if dontFreeze >= 32 {
+            //yeah, sure, whatever (it's 2 am and I'm paranoid and can't frickin think)
+            break
+        }
+    }
 }
 
 /**
@@ -373,12 +868,144 @@ This needs to be the same for client side prediction and server use.
 ================
 ```
 */
-// Port-note: this body reads Raven's `bg_itemlist`, `weaponData`, and `ammoData` tables, and none of them has
-// Swift storage yet.
 /// Source: oracle/codemp/game/bg_misc.c:2192
 func BG_CanItemBeGrabbed(_ gametype: Int32, _ ent: JKAMP.EntityState, _ ps: JKAMP.PlayerState) -> Bool {
-    // TODO: Port BG_CanItemBeGrabbed
-    portMissing("BG_CanItemBeGrabbed", source: "oracle/codemp/game/bg_misc.c:2192")
+    let item: JKAMP.Gitem
+
+    if ent.modelindex < 1 || ent.modelindex >= bg_numItems {
+        Com_Error(ERR_DROP, "BG_CanItemBeGrabbed: index out of range")
+    }
+
+    item = bg_itemlist[ent.modelindex]
+
+    // Raven guards a NULL ps here. The view is non-optional, so the guard has no Swift form.
+    // Port-note: Raven's NULL path returns qfalse with the comment "safety return since below code assumes a non-null ps".
+    if ps.trueJedi {
+        //force powers and saber only
+        if item.giType != IT_TEAM //not a flag
+            && item.giType != IT_ARMOR //not shields
+            && (item.giType != IT_WEAPON || item.giTag != WP_SABER) //not a saber
+            && (item.giType != IT_HOLDABLE || item.giTag != HI_SEEKER) //not a seeker
+            && (item.giType != IT_POWERUP || item.giTag == PW_YSALAMIRI) { //not a force pick-up
+            return false
+        }
+    } else if ps.trueNonJedi {
+        //can't pick up force powerups
+        if (item.giType == IT_POWERUP && item.giTag != PW_YSALAMIRI) //if a powerup, can only can pick up ysalamiri
+            || (item.giType == IT_HOLDABLE && item.giTag == HI_SEEKER) //if holdable, cannot pick up seeker
+            || (item.giType == IT_WEAPON && item.giTag == WP_SABER) { //or if it's a saber
+            return false
+        }
+    }
+    // Port-note: Raven also tests `item` for NULL here. The view is non-optional, so that half of the guard has no Swift form.
+    if ps.isJediMaster && (item.giType == IT_WEAPON || item.giType == IT_AMMO) {
+        //jedi master cannot pick up weapons
+        return false
+    }
+    if ps.duelInProgress {
+        //no picking stuff up while in a duel, no matter what the type is
+        return false
+    }
+
+    switch item.giType {
+    case IT_WEAPON:
+        if ent.generic1 == ps.clientNum && ent.powerups != 0 {
+            return false
+        }
+        if (ent.eFlags & EF_DROPPEDWEAPON) == 0 && (ps.stats[STAT_WEAPONS] & (1 << item.giTag)) != 0
+            && item.giTag != WP_THERMAL && item.giTag != WP_TRIP_MINE && item.giTag != WP_DET_PACK {
+            //weaponstay stuff.. if this isn't dropped, and you already have it, you don't get it.
+            return false
+        }
+        if item.giTag == WP_THERMAL || item.giTag == WP_TRIP_MINE || item.giTag == WP_DET_PACK {
+            //check to see if full on ammo for this, if so, then..
+            let ammoIndex = weaponData[item.giTag].ammoIndex
+            if ps.ammo[ammoIndex] >= ammoData[ammoIndex].max {
+                //don't need it
+                return false
+            }
+        }
+        return true	// weapons are always picked up
+
+    case IT_AMMO:
+        if item.giTag == -1 {
+            //special case for "all ammo" packs
+            return true
+        }
+        if ps.ammo[item.giTag] >= ammoData[item.giTag].max {
+            return false		// can't hold any more
+        }
+        return true
+
+    case IT_ARMOR:
+        if ps.stats[STAT_ARMOR] >= ps.stats[STAT_MAX_HEALTH] /* * item->giTag*/ {
+            return false
+        }
+        return true
+
+    case IT_HEALTH:
+        // small and mega healths will go over the max, otherwise
+        // don't pick up if already at max
+        if (ps.fd.forcePowersActive & (1 << FP_RAGE)) != 0 {
+            return false
+        }
+
+        if item.quantity == 5 || item.quantity == 100 {
+            if ps.stats[STAT_HEALTH] >= ps.stats[STAT_MAX_HEALTH] * 2 {
+                return false
+            }
+            return true
+        }
+
+        if ps.stats[STAT_HEALTH] >= ps.stats[STAT_MAX_HEALTH] {
+            return false
+        }
+        return true
+
+    case IT_POWERUP:
+        // Raven also tests `ps` for NULL here. The view is non-optional, so that half of the guard has no Swift form.
+        if ps.powerups[PW_YSALAMIRI] != 0 {
+            if item.giTag != PW_YSALAMIRI {
+                return false
+            }
+        }
+        return true	// powerups are always picked up
+
+    case IT_TEAM: // team items, such as flags
+        if gametype == GT_CTF || gametype == GT_CTY {
+            // ent->modelindex2 is non-zero on items if they are dropped
+            // we need to know this because we can pick up our dropped flag (and return it)
+            // but we can't pick up our flag at base
+            if ps.persistant[PERS_TEAM] == TEAM_RED {
+                if item.giTag == PW_BLUEFLAG
+                    || (item.giTag == PW_REDFLAG && ent.modelindex2 != 0)
+                    || (item.giTag == PW_REDFLAG && ps.powerups[PW_BLUEFLAG] != 0) {
+                    return true
+                }
+            } else if ps.persistant[PERS_TEAM] == TEAM_BLUE {
+                if item.giTag == PW_REDFLAG
+                    || (item.giTag == PW_BLUEFLAG && ent.modelindex2 != 0)
+                    || (item.giTag == PW_BLUEFLAG && ps.powerups[PW_REDFLAG] != 0) {
+                    return true
+                }
+            }
+        }
+
+        return false
+
+    case IT_HOLDABLE:
+        if (ps.stats[STAT_HOLDABLE_ITEMS] & (1 << item.giTag)) != 0 {
+            return false
+        }
+        return true
+
+    case IT_BAD:
+        Com_Error(ERR_DROP, "BG_CanItemBeGrabbed: IT_BAD")
+    default:
+        Com_Printf("BG_CanItemBeGrabbed: unknown enum \(item.giType)\n")
+    }
+
+    return false
 }
 
 /**
@@ -389,13 +1016,59 @@ BG_EvaluateTrajectory
 ================
 ```
 */
-// Port-note: Raven's `result` is an out-param, `vec3_t result`. The stub's `result` is a plain value, not
-// `inout`, so a body cannot hand the evaluated point back to the caller. This needs the row 6 out-param
-// treatment before it can port.
 /// Source: oracle/codemp/game/bg_misc.c:2353
-func BG_EvaluateTrajectory(_ tr: JKAShared.Trajectory, _ atTime: Int32, _ result: JKAShared.vec3_t) {
-    // TODO: Port BG_EvaluateTrajectory
-    portMissing("BG_EvaluateTrajectory", source: "oracle/codemp/game/bg_misc.c:2353")
+func BG_EvaluateTrajectory(_ tr: JKAShared.Trajectory, _ atTime: Int32, _ result: inout JKAShared.vec3_t) {
+    var atTime = atTime
+    var deltaTime: Float
+    var phase: Float
+
+    switch tr.trType {
+    case TR_STATIONARY, TR_INTERPOLATE:
+        result = tr.trBase
+    case TR_LINEAR:
+        // Raven's `0.001` is a double, so the product runs in double and rounds once into the float.
+        deltaTime = Float(Double(atTime - tr.trTime) * 0.001)	// milliseconds to seconds
+        _VectorMA(tr.trBase, deltaTime, tr.trDelta, &result)
+    case TR_SINE:
+        deltaTime = Float(atTime - tr.trTime) / Float(tr.trDuration)
+        // M_PI is the double of math.h and sin is the double libm call, so the term runs in double and rounds once.
+        phase = Float(sin(Double(deltaTime) * Double.pi * 2))
+        _VectorMA(tr.trBase, phase, tr.trDelta, &result)
+    case TR_LINEAR_STOP:
+        if atTime > tr.trTime + tr.trDuration {
+            atTime = tr.trTime + tr.trDuration
+        }
+        deltaTime = Float(Double(atTime - tr.trTime) * 0.001)	// milliseconds to seconds
+        if deltaTime < 0 {
+            deltaTime = 0
+        }
+        _VectorMA(tr.trBase, deltaTime, tr.trDelta, &result)
+    case TR_NONLINEAR_STOP:
+        if atTime > tr.trTime + tr.trDuration {
+            atTime = tr.trTime + tr.trDuration
+        }
+        //new slow-down at end
+        if atTime - tr.trTime > tr.trDuration || atTime - tr.trTime <= 0 {
+            deltaTime = 0
+        } else {
+            //FIXME: maybe scale this somehow?  So that it starts out faster and stops faster?
+            // Raven's DEG2RAD multiplies by the double M_PI and cos is the double libm call, so the angle runs in double.
+            let degrees: Float = 90.0 - (90.0 * (Float(atTime) - Float(tr.trTime)) / Float(tr.trDuration))
+            deltaTime = Float(tr.trDuration) * 0.001 * Float(cos(Double(degrees) * Double.pi / 180.0))
+        }
+        _VectorMA(tr.trBase, deltaTime, tr.trDelta, &result)
+    case TR_GRAVITY:
+        deltaTime = Float(Double(atTime - tr.trTime) * 0.001)	// milliseconds to seconds
+        _VectorMA(tr.trBase, deltaTime, tr.trDelta, &result)
+        // Raven's `0.5` is a double, so the whole term runs in double and rounds once into the float.
+        result[2] -= Float(0.5 * Double(DEFAULT_GRAVITY) * Double(deltaTime) * Double(deltaTime))		// FIXME: local gravity...
+    default:
+        if bg.consumer == .game {
+            Com_Error(ERR_DROP, "BG_EvaluateTrajectory: [GAME SIDE] unknown trType: \(tr.trType)")
+        } else {
+            Com_Error(ERR_DROP, "BG_EvaluateTrajectory: [CLIENTGAME SIDE] unknown trType: \(tr.trType)")
+        }
+    }
 }
 
 /**
@@ -407,13 +1080,46 @@ For determining velocity at a given time
 ================
 ```
 */
-// Port-note: Raven's `result` is an out-param, `vec3_t result`. The stub's `result` is a plain value, not
-// `inout`, so a body cannot hand the evaluated delta back to the caller. This needs the row 6 out-param
-// treatment before it can port.
 /// Source: oracle/codemp/game/bg_misc.c:2419
-func BG_EvaluateTrajectoryDelta(_ tr: JKAShared.Trajectory, _ atTime: Int32, _ result: JKAShared.vec3_t) {
-    // TODO: Port BG_EvaluateTrajectoryDelta
-    portMissing("BG_EvaluateTrajectoryDelta", source: "oracle/codemp/game/bg_misc.c:2419")
+func BG_EvaluateTrajectoryDelta(_ tr: JKAShared.Trajectory, _ atTime: Int32, _ result: inout JKAShared.vec3_t) {
+    var deltaTime: Float
+    var phase: Float
+
+    switch tr.trType {
+    case TR_STATIONARY, TR_INTERPOLATE:
+        result = vec3_t(0, 0, 0)
+    case TR_LINEAR:
+        result = tr.trDelta
+    case TR_SINE:
+        deltaTime = Float(atTime - tr.trTime) / Float(tr.trDuration)
+        // M_PI is the double of math.h and cos is the double libm call, so the term runs in double and rounds once.
+        phase = Float(cos(Double(deltaTime) * Double.pi * 2))	// derivative of sin = cos
+        phase *= 0.5
+        _VectorScale(tr.trDelta, phase, &result)
+    case TR_LINEAR_STOP:
+        if atTime > tr.trTime + tr.trDuration {
+            result = vec3_t(0, 0, 0)
+            return
+        }
+        result = tr.trDelta
+    case TR_NONLINEAR_STOP:
+        if atTime - tr.trTime > tr.trDuration || atTime - tr.trTime <= 0 {
+            result = vec3_t(0, 0, 0)
+            return
+        }
+        // Raven's DEG2RAD multiplies by the double M_PI and cos is the double libm call, so the angle runs in double.
+        let degrees: Float = 90.0 - (90.0 * (Float(atTime) - Float(tr.trTime)) / Float(tr.trDuration))
+        deltaTime = Float(tr.trDuration) * 0.001 * Float(cos(Double(degrees) * Double.pi / 180.0))
+        _VectorScale(tr.trDelta, deltaTime, &result)
+    case TR_GRAVITY:
+        // Raven's `0.001` is a double, so the product runs in double and rounds once into the float.
+        deltaTime = Float(Double(atTime - tr.trTime) * 0.001)	// milliseconds to seconds
+        result = tr.trDelta
+        result[2] -= Float(DEFAULT_GRAVITY) * deltaTime		// FIXME: local gravity...
+    default:
+        // Raven passes `tr->trTime` to this message, not the trType.
+        Com_Error(ERR_DROP, "BG_EvaluateTrajectoryDelta: unknown trType: \(tr.trTime)")
+    }
 }
 
 /// Source: oracle/codemp/game/bg_misc.c:2635
@@ -464,45 +1170,145 @@ Shared code for emplaced angle gun constriction
 ```
 */
 /// Source: oracle/codemp/game/bg_misc.c:2703
-// TODO: Port signature
-// Raven wrote: int BG_EmplacedView(vec3_t baseAngles, vec3_t angles, float *newYaw, float constraint)
-// No table row for `float * newYaw`.
-// Port-note: `newYaw` is an out-param the generator has no row for. This needs the row 6 out-param treatment
-// before it can port.
-func BG_EmplacedView() -> Never {
-    // TODO: Port BG_EmplacedView
-    portMissing("BG_EmplacedView", source: "oracle/codemp/game/bg_misc.c:2703")
+func BG_EmplacedView(_ baseAngles: inout JKAShared.vec3_t, _ angles: inout JKAShared.vec3_t, _ newYaw: inout Float, _ constraint: Float) -> Int32 {
+    var dif = AngleSubtract(baseAngles[YAW], angles[YAW])
+
+    if dif > constraint || dif < -constraint {
+        var amt: Float
+
+        if dif > constraint {
+            amt = (dif - constraint)
+            dif = constraint
+        } else if dif < -constraint {
+            amt = (dif + constraint)
+            dif = -constraint
+        } else {
+            amt = 0.0
+        }
+
+        newYaw = AngleSubtract(angles[YAW], -dif)
+
+        if amt > 1.0 || amt < -1.0 {
+            //significant, force the view
+            return 2
+        } else {
+            //just a little out of range
+            return 1
+        }
+    }
+
+    return 0
 }
 
 //To see if the client is trying to use one of the included skins not meant for MP.
 //I don't much care for hardcoded strings, but this seems the best way to go.
 /// Source: oracle/codemp/game/bg_misc.c:2744
 func BG_IsValidCharacterModel(_ modelName: String, _ skinName: String) -> Bool {
-    // Port-note: Raven compares with `Q_stricmp`, a case-insensitive C string compare with no Swift port yet.
-    // This uses Swift's `lowercased()` compare, which is not proven to match `Q_stricmp` byte for byte.
-    if skinName.lowercased() == "menu" {
+    if Q_stricmp(skinName, "menu") == 0 {
         return false
-    } else if modelName.lowercased() == "kyle" {
-        if skinName.lowercased() == "fpls" {
+    } else if Q_stricmp(modelName, "kyle") == 0 {
+        if Q_stricmp(skinName, "fpls") == 0 {
             return false
-        } else if skinName.lowercased() == "fpls2" {
+        } else if Q_stricmp(skinName, "fpls2") == 0 {
             return false
-        } else if skinName.lowercased() == "fpls3" {
+        } else if Q_stricmp(skinName, "fpls3") == 0 {
             return false
         }
     }
     return true
 }
 
+// Port-note: Raven's `strchr`, `strlen`, and `va` have no ported form yet, so this body uses Swift's `String` for the three of them.
+// A skin name is ASCII, so a `Character` count and a byte count agree, but that is not proven for every input.
 /// Source: oracle/codemp/game/bg_misc.c:2768
-// TODO: Port signature
-// Raven wrote: qboolean BG_ValidateSkinForTeam( const char *modelName, char *skinName, int team, float *colors )
-// No table row for `char * skinName`.
-// Port-note: `skinName` is rewritten in place as a fixed-size char buffer, and `colors` is an out-param.
-// Neither has a row yet. This needs the row 6 out-param treatment before it can port.
-func BG_ValidateSkinForTeam() -> Never {
-    // TODO: Port BG_ValidateSkinForTeam
-    portMissing("BG_ValidateSkinForTeam", source: "oracle/codemp/game/bg_misc.c:2768")
+func BG_ValidateSkinForTeam(_ modelName: String, _ skinName: inout String, _ team: Int32, _ colors: inout JKAShared.vec3_t) -> Bool {
+    if Q_stricmpn(modelName, "jedi_", 5) == 0 {
+        //argh, it's a custom player skin!
+        // Raven guards a NULL colors here. The parameter is an inout vector, so the guard has no Swift form.
+        if team == TEAM_RED {
+            colors[0] = 1.0
+            colors[1] = 0.0
+            colors[2] = 0.0
+        } else if team == TEAM_BLUE {
+            colors[0] = 0.0
+            colors[1] = 0.0
+            colors[2] = 1.0
+        }
+        return true
+    }
+
+    if team == TEAM_RED {
+        if Q_stricmp("red", skinName) != 0 {
+            //not "red"
+            if Q_stricmp("blue", skinName) == 0
+                || Q_stricmp("default", skinName) == 0
+                || skinName.contains("|") //a multi-skin playerModel
+                || !BG_IsValidCharacterModel(modelName, skinName) {
+                Q_strncpyz(&skinName, "red", MAX_QPATH)
+                return false
+            } else {
+                //need to set it to red
+                let len = Int32(skinName.utf8.count)
+                if len < 3 {
+                    //too short to be "red"
+                    Q_strcat(&skinName, MAX_QPATH, "_red")
+                } else {
+                    let start = String(skinName.suffix(3))
+                    if Q_strncmp("red", start, 3) != 0 {
+                        //doesn't already end in "red"
+                        if len + 4 >= MAX_QPATH {
+                            //too big to append "_red"
+                            Q_strncpyz(&skinName, "red", MAX_QPATH)
+                            return false
+                        } else {
+                            Q_strcat(&skinName, MAX_QPATH, "_red")
+                        }
+                    }
+                }
+                //if file does not exist, set to "red"
+                if !BG_FileExists("models/players/\(modelName)/model_\(skinName).skin") {
+                    Q_strncpyz(&skinName, "red", MAX_QPATH)
+                }
+                return false
+            }
+        }
+
+    } else if team == TEAM_BLUE {
+        if Q_stricmp("blue", skinName) != 0 {
+            if Q_stricmp("red", skinName) == 0
+                || Q_stricmp("default", skinName) == 0
+                || skinName.contains("|") //a multi-skin playerModel
+                || !BG_IsValidCharacterModel(modelName, skinName) {
+                Q_strncpyz(&skinName, "blue", MAX_QPATH)
+                return false
+            } else {
+                //need to set it to blue
+                let len = Int32(skinName.utf8.count)
+                if len < 4 {
+                    //too short to be "blue"
+                    Q_strcat(&skinName, MAX_QPATH, "_blue")
+                } else {
+                    let start = String(skinName.suffix(4))
+                    if Q_strncmp("blue", start, 4) != 0 {
+                        //doesn't already end in "blue"
+                        if len + 5 >= MAX_QPATH {
+                            //too big to append "_blue"
+                            Q_strncpyz(&skinName, "blue", MAX_QPATH)
+                            return false
+                        } else {
+                            Q_strcat(&skinName, MAX_QPATH, "_blue")
+                        }
+                    }
+                }
+                //if file does not exist, set to "blue"
+                if !BG_FileExists("models/players/\(modelName)/model_\(skinName).skin") {
+                    Q_strncpyz(&skinName, "blue", MAX_QPATH)
+                }
+                return false
+            }
+        }
+    }
+    return true
 }
 
 /**
@@ -805,9 +1611,8 @@ func BG_PlayerStateToEntityStateExtraPolate(_ ps: JKAMP.PlayerState, _ s: JKAMP.
     s.m_iVehicleNum = ps.m_iVehicleNum
 }
 
-// Port-note: Raven branches this body on `#ifdef QAGAME`, one path for the game module and another for cgame
-// and the UI. `bg_local.swift` says `JKAMP_BG` is one Swift module shared by both, with no build flag yet to
-// pick a branch, so this needs that design before it can port.
+// Port-note: the game arm calls `trap_G2API_InitGhoul2Model` and `trap_G2API_CleanGhoul2Models`, and both arms call
+// `trap_R_RegisterSkin` or `trap_R_RegisterModel`. `bg_strap.h` declares none of the four, so the bg channel has no route to them.
 /// Source: oracle/codemp/game/bg_misc.c:3200
 func BG_ModelCache(_ modelName: String, _ skinName: String) -> Int32 {
     // TODO: Port BG_ModelCache
@@ -815,36 +1620,46 @@ func BG_ModelCache(_ modelName: String, _ skinName: String) -> Int32 {
 }
 
 /// Source: oracle/codemp/game/bg_misc.c:3328
-// TODO: Port signature
-// Raven wrote: void *BG_Alloc ( int size )
-// No table row for the return `void *`.
-// Port-note: the body bumps a pointer into Raven's `bg_pool` buffer and returns it. This needs a design for a
-// `void *` return before it can port.
-func BG_Alloc() -> Never {
-    // TODO: Port BG_Alloc
-    portMissing("BG_Alloc", source: "oracle/codemp/game/bg_misc.c:3328")
+func BG_Alloc(_ size: Int32) -> UnsafeMutableRawPointer {
+    // Raven wrote `0xfffffffc`, the same bit pattern as `~0x0000_0003` on an `Int32`.
+    bg.poolSize = ((bg.poolSize + 0x0000_0003) & ~0x0000_0003)
+
+    if bg.poolSize + size > bg.poolTail {
+        // Raven writes `return 0` after this call, which `Com_Error` never reaches.
+        Com_Error(ERR_DROP, "BG_Alloc: buffer exceeded tail (\(bg.poolSize + size) > \(bg.poolTail))")
+    }
+
+    bg.poolSize += size
+
+    return bg.pool + Int(bg.poolSize - size)
 }
 
 /// Source: oracle/codemp/game/bg_misc.c:3343
-// TODO: Port signature
-// Raven wrote: void *BG_AllocUnaligned ( int size )
-// No table row for the return `void *`.
-// Port-note: the body bumps a pointer into Raven's `bg_pool` buffer and returns it. This needs a design for a
-// `void *` return before it can port.
-func BG_AllocUnaligned() -> Never {
-    // TODO: Port BG_AllocUnaligned
-    portMissing("BG_AllocUnaligned", source: "oracle/codemp/game/bg_misc.c:3343")
+func BG_AllocUnaligned(_ size: Int32) -> UnsafeMutableRawPointer {
+    if bg.poolSize + size > bg.poolTail {
+        // Raven writes `return 0` after this call, which `Com_Error` never reaches.
+        Com_Error(ERR_DROP, "BG_AllocUnaligned: buffer exceeded tail (\(bg.poolSize + size) > \(bg.poolTail))")
+    }
+
+    bg.poolSize += size
+
+    return bg.pool + Int(bg.poolSize - size)
 }
 
 /// Source: oracle/codemp/game/bg_misc.c:3356
-// TODO: Port signature
-// Raven wrote: void *BG_TempAlloc( int size )
-// No table row for the return `void *`.
-// Port-note: the body bumps a pointer from the tail of Raven's `bg_pool` buffer and returns it. This needs a
-// design for a `void *` return before it can port.
-func BG_TempAlloc() -> Never {
-    // TODO: Port BG_TempAlloc
-    portMissing("BG_TempAlloc", source: "oracle/codemp/game/bg_misc.c:3356")
+func BG_TempAlloc(_ size: Int32) -> UnsafeMutableRawPointer {
+    // Raven wrote `0xfffffffc`, the same bit pattern as `~0x0000_0003` on an `Int32`.
+    var size = size
+    size = ((size + 0x0000_0003) & ~0x0000_0003)
+
+    if bg.poolTail - size < bg.poolSize {
+        // Raven writes `return 0` after this call, which `Com_Error` never reaches.
+        Com_Error(ERR_DROP, "BG_TempAlloc: buffer exceeded head (\(bg.poolTail - size) > \(bg.poolSize))")
+    }
+
+    bg.poolTail -= size
+
+    return bg.pool + Int(bg.poolTail)
 }
 
 /// Source: oracle/codemp/game/bg_misc.c:3371
@@ -857,14 +1672,23 @@ func BG_TempFree(_ size: Int32) {
     bg.poolTail += alignedSize
 }
 
+// Port-note: Raven's `strlen` and `strcpy` have no ported form yet, so this body counts and copies the bytes of the Swift string.
 /// Source: oracle/codemp/game/bg_misc.c:3383
-// TODO: Port signature
-// Raven wrote: char *BG_StringAlloc ( const char *source )
-// No table row for the return `char *`.
-// Port-note: the body copies through `BG_Alloc`, which is itself unported for the same `void *` return reason.
-func BG_StringAlloc() -> Never {
-    // TODO: Port BG_StringAlloc
-    portMissing("BG_StringAlloc", source: "oracle/codemp/game/bg_misc.c:3383")
+func BG_StringAlloc(_ source: String) -> PooledString {
+    let dest: UnsafeMutableRawPointer
+
+    dest = BG_Alloc(Int32(source.utf8.count) + 1)
+    var offset = 0
+    for byte in source.utf8 {
+        dest.storeBytes(of: CChar(bitPattern: byte), toByteOffset: offset, as: CChar.self)
+        offset += 1
+    }
+    dest.storeBytes(of: 0 as CChar, toByteOffset: offset, as: CChar.self)
+
+    guard let pooled = PooledString(raw: dest.assumingMemoryBound(to: CChar.self)) else {
+        Com_Error(ERR_DROP, "BG_StringAlloc: the pool returned a null pointer")
+    }
+    return pooled
 }
 
 /// Source: oracle/codemp/game/bg_misc.c:3392

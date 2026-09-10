@@ -1,10 +1,11 @@
 # bg_* compiles into game/cgame/ui; parse it through the game TU. Alias
 # so tier-named callers (crate mp_bg) resolve without knowing that.
 
+# The bg .c files include ghoul2/G2.h, which no module header reaches, so the entry lists it too.
 SPEC = dict(
     name="mp-bg",
     lang="c", entry=["codemp/game/q_shared.h", "codemp/game/bg_public.h", "codemp/game/bg_local.h",
-                     "codemp/game/bg_saga.h"],
+                     "codemp/game/bg_saga.h", "codemp/ghoul2/G2.h"],
     includes=["codemp/game"],
     defines=["NDEBUG", "MISSIONPACK", "QAGAME", "_JK2"],
     srcglob=["codemp/game/bg_*.c"],

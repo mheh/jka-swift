@@ -298,7 +298,10 @@ class Skeleton:
         # Raven's static is file scope, and five vehicle files each define `Update`, so a static stub is private.
         # A static function the oracle stores in a field stays internal, because its thunk names it from another file.
         hidden = fn.static or fn.name in self.shared_names
-        return "private " if hidden and fn.name not in self.stored_names else ""
+        if hidden and fn.name not in self.stored_names:
+            return "private "
+        # A function of the shared module is called from every other module, so it is public, the same as the hand-ported q_math.
+        return "public " if target_of(fn.stem) == SHARED else ""
 
     def signature(self, fn: Function) -> str:
         """The declaration line the table gives the function today, without the brace, so the manifest can carry it after adoption."""

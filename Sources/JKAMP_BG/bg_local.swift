@@ -61,6 +61,89 @@ public final class BgState {
 
     // MARK: - bg_misc.c
 
+    /// Raven's `WeaponReadyAnim[WP_NUM_WEAPONS]` of `bg_misc.c`, the torso animation a weapon rests in.
+    /// Source: oracle/codemp/game/bg_misc.c:242
+    var WeaponReadyAnim: [Int32] = [
+        TORSO_DROPWEAP1,//WP_NONE,
+
+        TORSO_WEAPONREADY3,//WP_STUN_BATON,
+        TORSO_WEAPONREADY3,//WP_MELEE,
+        BOTH_STAND2,//WP_SABER,
+        TORSO_WEAPONREADY2,//WP_BRYAR_PISTOL,
+        TORSO_WEAPONREADY3,//WP_BLASTER,
+        TORSO_WEAPONREADY3,//TORSO_WEAPONREADY4,//WP_DISRUPTOR,
+        TORSO_WEAPONREADY3,//TORSO_WEAPONREADY5,//WP_BOWCASTER,
+        TORSO_WEAPONREADY3,//TORSO_WEAPONREADY6,//WP_REPEATER,
+        TORSO_WEAPONREADY3,//TORSO_WEAPONREADY7,//WP_DEMP2,
+        TORSO_WEAPONREADY3,//TORSO_WEAPONREADY8,//WP_FLECHETTE,
+        TORSO_WEAPONREADY3,//TORSO_WEAPONREADY9,//WP_ROCKET_LAUNCHER,
+        TORSO_WEAPONREADY10,//WP_THERMAL,
+        TORSO_WEAPONREADY10,//TORSO_WEAPONREADY11,//WP_TRIP_MINE,
+        TORSO_WEAPONREADY10,//TORSO_WEAPONREADY12,//WP_DET_PACK,
+        TORSO_WEAPONREADY3,//WP_CONCUSSION
+        TORSO_WEAPONREADY2,//WP_BRYAR_OLD,
+
+        //NOT VALID (e.g. should never really be used):
+        BOTH_STAND1,//WP_EMPLACED_GUN,
+        TORSO_WEAPONREADY1//WP_TURRET,
+    ]
+
+    /// Raven's `WeaponReadyLegsAnim[WP_NUM_WEAPONS]` of `bg_misc.c`, the legs animation a weapon rests in.
+    /// Source: oracle/codemp/game/bg_misc.c:268
+    var WeaponReadyLegsAnim: [Int32] = [
+        BOTH_STAND1,//WP_NONE,
+
+        BOTH_STAND1,//WP_STUN_BATON,
+        BOTH_STAND1,//WP_MELEE,
+        BOTH_STAND2,//WP_SABER,
+        BOTH_STAND1,//WP_BRYAR_PISTOL,
+        BOTH_STAND1,//WP_BLASTER,
+        BOTH_STAND1,//TORSO_WEAPONREADY4,//WP_DISRUPTOR,
+        BOTH_STAND1,//TORSO_WEAPONREADY5,//WP_BOWCASTER,
+        BOTH_STAND1,//TORSO_WEAPONREADY6,//WP_REPEATER,
+        BOTH_STAND1,//TORSO_WEAPONREADY7,//WP_DEMP2,
+        BOTH_STAND1,//TORSO_WEAPONREADY8,//WP_FLECHETTE,
+        BOTH_STAND1,//TORSO_WEAPONREADY9,//WP_ROCKET_LAUNCHER,
+        BOTH_STAND1,//WP_THERMAL,
+        BOTH_STAND1,//TORSO_WEAPONREADY11,//WP_TRIP_MINE,
+        BOTH_STAND1,//TORSO_WEAPONREADY12,//WP_DET_PACK,
+        BOTH_STAND1,//WP_CONCUSSION
+        BOTH_STAND1,//WP_BRYAR_OLD,
+
+        //NOT VALID (e.g. should never really be used):
+        BOTH_STAND1,//WP_EMPLACED_GUN,
+        BOTH_STAND1//WP_TURRET,
+    ]
+
+    // Port-note: Raven writes 18 rows for a `WP_NUM_WEAPONS` array, so C zeroes the last slot.
+    // The last row here is that zero, and it keeps the read at `WP_TURRET` the same as the C.
+    /// Raven's `WeaponAttackAnim[WP_NUM_WEAPONS]` of `bg_misc.c`, the animation a weapon attacks with.
+    /// Source: oracle/codemp/game/bg_misc.c:294
+    var WeaponAttackAnim: [Int32] = [
+        BOTH_ATTACK1,//WP_NONE, //(shouldn't happen)
+
+        BOTH_ATTACK3,//WP_STUN_BATON,
+        BOTH_ATTACK3,//WP_MELEE,
+        BOTH_STAND2,//WP_SABER, //(has its own handling)
+        BOTH_ATTACK2,//WP_BRYAR_PISTOL,
+        BOTH_ATTACK3,//WP_BLASTER,
+        BOTH_ATTACK3,//BOTH_ATTACK4,//WP_DISRUPTOR,
+        BOTH_ATTACK3,//BOTH_ATTACK5,//WP_BOWCASTER,
+        BOTH_ATTACK3,//BOTH_ATTACK6,//WP_REPEATER,
+        BOTH_ATTACK3,//BOTH_ATTACK7,//WP_DEMP2,
+        BOTH_ATTACK3,//BOTH_ATTACK8,//WP_FLECHETTE,
+        BOTH_ATTACK3,//BOTH_ATTACK9,//WP_ROCKET_LAUNCHER,
+        BOTH_THERMAL_THROW,//WP_THERMAL,
+        BOTH_ATTACK3,//BOTH_ATTACK11,//WP_TRIP_MINE,
+        BOTH_ATTACK3,//BOTH_ATTACK12,//WP_DET_PACK,
+        BOTH_ATTACK2,//WP_BRYAR_OLD,
+
+        //NOT VALID (e.g. should never really be used):
+        BOTH_STAND1,//WP_EMPLACED_GUN,
+        BOTH_ATTACK1,//WP_TURRET,
+        0,
+    ]
+
     /// Raven's `static int bg_poolSize` of `bg_misc.c`.
     /// Source: oracle/codemp/game/bg_misc.c:3325
     var poolSize: Int32 = 0
@@ -71,13 +154,182 @@ public final class BgState {
 
     // MARK: - bg_pmove.c
 
-    /// Source: oracle/codemp/game/bg_pmove.c:161
-    var forceJumpStrength: [Float] = [
-        Float(JUMP_VELOCITY), //normal jump
-        420,
-        590,
-        840,
+    /// Raven's `pmove_t *pm` of `bg_pmove.c`, the view of the caller's memory, which `Pmove` sets on each call.
+    /// The default is a view over one zeroed `pmove_t` this state owns, so a body has a slot before the first call.
+    /// Source: oracle/codemp/game/bg_pmove.c:30
+    public var pm: Pmove
+
+    /// Raven's `pml_t pml` of `bg_pmove.c`, C storage this state owns for the life of the module.
+    /// Source: oracle/codemp/game/bg_pmove.c:31
+    public var pml: Pml
+
+    /// Raven's `bgEntity_t *pm_entSelf` of `bg_pmove.c`.
+    /// Source: oracle/codemp/game/bg_pmove.c:33
+    var pm_entSelf: BgEntity? = nil
+
+    /// Raven's `bgEntity_t *pm_entVeh` of `bg_pmove.c`.
+    /// Source: oracle/codemp/game/bg_pmove.c:34
+    var pm_entVeh: BgEntity? = nil
+
+    /// Raven's `qboolean gPMDoSlowFall` of `bg_pmove.c`.
+    /// Source: oracle/codemp/game/bg_pmove.c:36
+    var gPMDoSlowFall: Bool = false
+
+    /// Raven's `qboolean pm_cancelOutZoom` of `bg_pmove.c`.
+    /// Source: oracle/codemp/game/bg_pmove.c:38
+    var pm_cancelOutZoom: Bool = false
+
+    /// Raven's `int c_pmove` of `bg_pmove.c`, the count of pmove calls.
+    /// Source: oracle/codemp/game/bg_pmove.c:57
+    var c_pmove: Int32 = 0
+
+    /// Raven's `int forcePowerNeeded[NUM_FORCE_POWER_LEVELS][NUM_FORCE_POWERS]` of `bg_pmove.c`.
+    /// The game module writes rows of this table when it reads the siege class data, so the state owns it.
+    /// Source: oracle/codemp/game/bg_pmove.c:67
+    var forcePowerNeeded: [[Int32]] = [
+        [ //nothing should be usable at rank 0..
+            999,//FP_HEAL,//instant
+            999,//FP_LEVITATION,//hold/duration
+            999,//FP_SPEED,//duration
+            999,//FP_PUSH,//hold/duration
+            999,//FP_PULL,//hold/duration
+            999,//FP_TELEPATHY,//instant
+            999,//FP_GRIP,//hold/duration
+            999,//FP_LIGHTNING,//hold/duration
+            999,//FP_RAGE,//duration
+            999,//FP_PROTECT,//duration
+            999,//FP_ABSORB,//duration
+            999,//FP_TEAM_HEAL,//instant
+            999,//FP_TEAM_FORCE,//instant
+            999,//FP_DRAIN,//hold/duration
+            999,//FP_SEE,//duration
+            999,//FP_SABER_OFFENSE,
+            999,//FP_SABER_DEFENSE,
+            999//FP_SABERTHROW,
+            //NUM_FORCE_POWERS
+        ],
+        [
+            65,//FP_HEAL,//instant //was 25, but that was way too little
+            10,//FP_LEVITATION,//hold/duration
+            50,//FP_SPEED,//duration
+            20,//FP_PUSH,//hold/duration
+            20,//FP_PULL,//hold/duration
+            20,//FP_TELEPATHY,//instant
+            30,//FP_GRIP,//hold/duration
+            1,//FP_LIGHTNING,//hold/duration
+            50,//FP_RAGE,//duration
+            50,//FP_PROTECT,//duration
+            50,//FP_ABSORB,//duration
+            50,//FP_TEAM_HEAL,//instant
+            50,//FP_TEAM_FORCE,//instant
+            20,//FP_DRAIN,//hold/duration
+            20,//FP_SEE,//duration
+            0,//FP_SABER_OFFENSE,
+            2,//FP_SABER_DEFENSE,
+            20//FP_SABERTHROW,
+            //NUM_FORCE_POWERS
+        ],
+        [
+            60,//FP_HEAL,//instant
+            10,//FP_LEVITATION,//hold/duration
+            50,//FP_SPEED,//duration
+            20,//FP_PUSH,//hold/duration
+            20,//FP_PULL,//hold/duration
+            20,//FP_TELEPATHY,//instant
+            30,//FP_GRIP,//hold/duration
+            1,//FP_LIGHTNING,//hold/duration
+            50,//FP_RAGE,//duration
+            25,//FP_PROTECT,//duration
+            25,//FP_ABSORB,//duration
+            33,//FP_TEAM_HEAL,//instant
+            33,//FP_TEAM_FORCE,//instant
+            20,//FP_DRAIN,//hold/duration
+            20,//FP_SEE,//duration
+            0,//FP_SABER_OFFENSE,
+            1,//FP_SABER_DEFENSE,
+            20//FP_SABERTHROW,
+            //NUM_FORCE_POWERS
+        ],
+        [
+            50,//FP_HEAL,//instant //You get 5 points of health.. for 50 force points!
+            10,//FP_LEVITATION,//hold/duration
+            50,//FP_SPEED,//duration
+            20,//FP_PUSH,//hold/duration
+            20,//FP_PULL,//hold/duration
+            20,//FP_TELEPATHY,//instant
+            60,//FP_GRIP,//hold/duration
+            1,//FP_LIGHTNING,//hold/duration
+            50,//FP_RAGE,//duration
+            10,//FP_PROTECT,//duration
+            10,//FP_ABSORB,//duration
+            25,//FP_TEAM_HEAL,//instant
+            25,//FP_TEAM_FORCE,//instant
+            20,//FP_DRAIN,//hold/duration
+            20,//FP_SEE,//duration
+            0,//FP_SABER_OFFENSE,
+            0,//FP_SABER_DEFENSE,
+            20//FP_SABERTHROW,
+            //NUM_FORCE_POWERS
+        ],
     ]
+
+    /// Raven's `static vec3_t oldLookAngles` of `BG_UpdateLookAngles` in `bg_pmove.c`.
+    /// Source: oracle/codemp/game/bg_pmove.c:8737
+    var oldLookAngles: JKAShared.vec3_t = JKAShared.vec3_t(0, 0, 0)
+
+    /// Raven's `static vec3_t lookAnglesDiff` of `BG_UpdateLookAngles` in `bg_pmove.c`.
+    /// Source: oracle/codemp/game/bg_pmove.c:8738
+    var lookAnglesDiff: JKAShared.vec3_t = JKAShared.vec3_t(0, 0, 0)
+
+    /// Raven's `static int ang` of `BG_UpdateLookAngles` in `bg_pmove.c`.
+    /// Source: oracle/codemp/game/bg_pmove.c:8739
+    var ang: Int32 = 0
+
+    // Raven's statics of `BG_G2PlayerAngles` in `bg_pmove.c`, one copy per module.
+    /// Source: oracle/codemp/game/bg_pmove.c:9090
+    var dir: Int32 = 0
+    /// Source: oracle/codemp/game/bg_pmove.c:9091
+    var i: Int32 = 0
+    /// Source: oracle/codemp/game/bg_pmove.c:9092
+    var movementOffsets: [Int32] = [0, 22, 45, -22, 0, 22, -45, -22]
+    /// Source: oracle/codemp/game/bg_pmove.c:9095
+    var dif: Float = 0
+    /// Source: oracle/codemp/game/bg_pmove.c:9096
+    var dest: Float = 0
+    /// Source: oracle/codemp/game/bg_pmove.c:9097
+    var speed: Float = 0
+    /// Source: oracle/codemp/game/bg_pmove.c:9102
+    var eyeAngles: JKAShared.vec3_t = JKAShared.vec3_t(0, 0, 0)
+    /// Source: oracle/codemp/game/bg_pmove.c:9103
+    var neckAngles: JKAShared.vec3_t = JKAShared.vec3_t(0, 0, 0)
+    /// Source: oracle/codemp/game/bg_pmove.c:9104
+    var velocity: JKAShared.vec3_t = JKAShared.vec3_t(0, 0, 0)
+    /// Source: oracle/codemp/game/bg_pmove.c:9105
+    var torsoAngles: JKAShared.vec3_t = JKAShared.vec3_t(0, 0, 0)
+    /// Source: oracle/codemp/game/bg_pmove.c:9105
+    var headAngles: JKAShared.vec3_t = JKAShared.vec3_t(0, 0, 0)
+    /// Source: oracle/codemp/game/bg_pmove.c:9106
+    var velPos: JKAShared.vec3_t = JKAShared.vec3_t(0, 0, 0)
+    /// Source: oracle/codemp/game/bg_pmove.c:9106
+    var velAng: JKAShared.vec3_t = JKAShared.vec3_t(0, 0, 0)
+    /// Source: oracle/codemp/game/bg_pmove.c:9107
+    var ulAngles: JKAShared.vec3_t = JKAShared.vec3_t(0, 0, 0)
+    /// Source: oracle/codemp/game/bg_pmove.c:9107
+    var llAngles: JKAShared.vec3_t = JKAShared.vec3_t(0, 0, 0)
+    /// Source: oracle/codemp/game/bg_pmove.c:9107
+    var viewAngles: JKAShared.vec3_t = JKAShared.vec3_t(0, 0, 0)
+    /// Source: oracle/codemp/game/bg_pmove.c:9107
+    var angles: JKAShared.vec3_t = JKAShared.vec3_t(0, 0, 0)
+    /// Source: oracle/codemp/game/bg_pmove.c:9107
+    var thoracicAngles: JKAShared.vec3_t = JKAShared.vec3_t(0, 0, 0)
+    /// Source: oracle/codemp/game/bg_pmove.c:9108
+    var headClampMinAngles: JKAShared.vec3_t = JKAShared.vec3_t(-25, -55, -10)
+    /// Source: oracle/codemp/game/bg_pmove.c:9108
+    var headClampMaxAngles: JKAShared.vec3_t = JKAShared.vec3_t(50, 50, 10)
+
+    /// Raven's `static int pm_flying` of `bg_pmove.c`.
+    /// Source: oracle/codemp/game/bg_pmove.c:445
+    var pm_flying: Int32 = FLY_NONE
 
     /// The defaults are the game's, so a test builds a state with no argument.
     public init(consumer: BgConsumer = .game, maxPoolSize: Int32 = 3_000_000) {
@@ -89,6 +341,14 @@ public final class BgState {
         let cvarStorage = UnsafeMutableRawPointer.allocate(byteCount: VmCvar.byteCount, alignment: 4)
         cvarStorage.initializeMemory(as: UInt8.self, repeating: 0, count: VmCvar.byteCount)
         self.fighterAltControl = VmCvar(handle: OpaquePointer(cvarStorage))
+
+        let pmoveStorage = UnsafeMutableRawPointer.allocate(byteCount: Pmove.byteCount, alignment: 16)
+        pmoveStorage.initializeMemory(as: UInt8.self, repeating: 0, count: Pmove.byteCount)
+        self.pm = Pmove(handle: OpaquePointer(pmoveStorage))
+
+        let pmlStorage = UnsafeMutableRawPointer.allocate(byteCount: Pml.byteCount, alignment: 16)
+        pmlStorage.initializeMemory(as: UInt8.self, repeating: 0, count: Pml.byteCount)
+        self.pml = Pml(handle: OpaquePointer(pmlStorage))
     }
 }
 
