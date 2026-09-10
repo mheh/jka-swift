@@ -7,19 +7,19 @@ The oracle range is the whole definition, from the return type to the closing br
 
 | Function | Oracle | Swift | State | jka-rust | Signature |
 |---|---|---|---|---|---|
-| `NPC_Mark1_Precache` | `oracle/codemp/game/NPC_AI_Mark1.c:50-74` | `JKAMP_GameLogic/NPC_AI_Mark1.swift:13` | marker | `crates/mp/game/src/NPC_AI_Mark1.rs:56-91` | `func NPC_Mark1_Precache()` |
-| `NPC_Mark1_Part_Explode` | `oracle/codemp/game/NPC_AI_Mark1.c:81-102` | `JKAMP_GameLogic/NPC_AI_Mark1.swift:24` | marker | `crates/mp/game/src/NPC_AI_Mark1.rs:96-138` | `func NPC_Mark1_Part_Explode(_ `self`: Entity, _ bolt: Int32)` |
-| `Mark1_Idle` | `oracle/codemp/game/NPC_AI_Mark1.c:109-115` | `JKAMP_GameLogic/NPC_AI_Mark1.swift:35` | marker | `crates/mp/game/src/NPC_AI_Mark1.rs:143-155` | `func Mark1_Idle()` |
-| `Mark1Dead_FireRocket` | `oracle/codemp/game/NPC_AI_Mark1.c:123-163` | `JKAMP_GameLogic/NPC_AI_Mark1.swift:47` | marker | `crates/mp/game/src/NPC_AI_Mark1.rs:160-234` | `func Mark1Dead_FireRocket()` |
-| `Mark1Dead_FireBlaster` | `oracle/codemp/game/NPC_AI_Mark1.c:171-202` | `JKAMP_GameLogic/NPC_AI_Mark1.swift:59` | marker | `crates/mp/game/src/NPC_AI_Mark1.rs:239-293` | `func Mark1Dead_FireBlaster()` |
-| `Mark1_die` | `oracle/codemp/game/NPC_AI_Mark1.c:209-243` | `JKAMP_GameLogic/NPC_AI_Mark1.swift:70` | marker | `crates/mp/game/src/NPC_AI_Mark1.rs:298-337` | `func Mark1_die(_ `self`: Entity, _ inflictor: Entity, _ attacker: Entity, _ damage: Int32, _ mod: Int32, _ dFlags: Int32, _ hitLoc: Int32)` |
-| `Mark1_dying` | `oracle/codemp/game/NPC_AI_Mark1.c:250-312` | `JKAMP_GameLogic/NPC_AI_Mark1.swift:81` | marker | `crates/mp/game/src/NPC_AI_Mark1.rs:342-404` | `func Mark1_dying(_ `self`: Entity)` |
-| `NPC_Mark1_Pain` | `oracle/codemp/game/NPC_AI_Mark1.c:320-396` | `JKAMP_GameLogic/NPC_AI_Mark1.swift:93` | marker | `crates/mp/game/src/NPC_AI_Mark1.rs:409-521` | `func NPC_Mark1_Pain(_ `self`: Entity, _ attacker: Entity, _ damage: Int32)` |
-| `Mark1_Hunt` | `oracle/codemp/game/NPC_AI_Mark1.c:404-416` | `JKAMP_GameLogic/NPC_AI_Mark1.swift:105` | marker | `crates/mp/game/src/NPC_AI_Mark1.rs:526-549` | `func Mark1_Hunt()` |
-| `Mark1_FireBlaster` | `oracle/codemp/game/NPC_AI_Mark1.c:424-488` | `JKAMP_GameLogic/NPC_AI_Mark1.swift:117` | marker | `crates/mp/game/src/NPC_AI_Mark1.rs:554-660` | `func Mark1_FireBlaster()` |
-| `Mark1_BlasterAttack` | `oracle/codemp/game/NPC_AI_Mark1.c:495-548` | `JKAMP_GameLogic/NPC_AI_Mark1.swift:128` | marker | `crates/mp/game/src/NPC_AI_Mark1.rs:665-734` | `func Mark1_BlasterAttack(_ advance: Bool)` |
-| `Mark1_FireRocket` | `oracle/codemp/game/NPC_AI_Mark1.c:555-599` | `JKAMP_GameLogic/NPC_AI_Mark1.swift:139` | marker | `crates/mp/game/src/NPC_AI_Mark1.rs:739-824` | `func Mark1_FireRocket()` |
-| `Mark1_RocketAttack` | `oracle/codemp/game/NPC_AI_Mark1.c:606-618` | `JKAMP_GameLogic/NPC_AI_Mark1.swift:150` | marker | `crates/mp/game/src/NPC_AI_Mark1.rs:829-850` | `func Mark1_RocketAttack(_ advance: Bool)` |
-| `Mark1_AttackDecision` | `oracle/codemp/game/NPC_AI_Mark1.c:625-704` | `JKAMP_GameLogic/NPC_AI_Mark1.swift:161` | marker | `crates/mp/game/src/NPC_AI_Mark1.rs:855-945` | `func Mark1_AttackDecision()` |
-| `Mark1_Patrol` | `oracle/codemp/game/NPC_AI_Mark1.c:711-739` | `JKAMP_GameLogic/NPC_AI_Mark1.swift:172` | marker | `crates/mp/game/src/NPC_AI_Mark1.rs:950-973` | `func Mark1_Patrol()` |
-| `NPC_BSMark1_Default` | `oracle/codemp/game/NPC_AI_Mark1.c:747-764` | `JKAMP_GameLogic/NPC_AI_Mark1.swift:183` | marker | `crates/mp/game/src/NPC_AI_Mark1.rs:978-999` | `func NPC_BSMark1_Default()` |
+| `NPC_Mark1_Precache` | `oracle/codemp/game/NPC_AI_Mark1.c:50-74` | `JKAMP_GameLogic/NPC_AI_Mark1.swift:15` | marker | `crates/mp/game/src/NPC_AI_Mark1.rs:56-91` | `func NPC_Mark1_Precache()` |
+| `NPC_Mark1_Part_Explode` | `oracle/codemp/game/NPC_AI_Mark1.c:81-102` | `JKAMP_GameLogic/NPC_AI_Mark1.swift:28` | marker | `crates/mp/game/src/NPC_AI_Mark1.rs:96-138` | `func NPC_Mark1_Part_Explode(_ `self`: Entity, _ bolt: Int32)` |
+| `Mark1_Idle` | `oracle/codemp/game/NPC_AI_Mark1.c:109-115` | `JKAMP_GameLogic/NPC_AI_Mark1.swift:41` | marker | `crates/mp/game/src/NPC_AI_Mark1.rs:143-155` | `func Mark1_Idle()` |
+| `Mark1Dead_FireRocket` | `oracle/codemp/game/NPC_AI_Mark1.c:123-163` | `JKAMP_GameLogic/NPC_AI_Mark1.swift:55` | marker | `crates/mp/game/src/NPC_AI_Mark1.rs:160-234` | `func Mark1Dead_FireRocket()` |
+| `Mark1Dead_FireBlaster` | `oracle/codemp/game/NPC_AI_Mark1.c:171-202` | `JKAMP_GameLogic/NPC_AI_Mark1.swift:69` | marker | `crates/mp/game/src/NPC_AI_Mark1.rs:239-293` | `func Mark1Dead_FireBlaster()` |
+| `Mark1_die` | `oracle/codemp/game/NPC_AI_Mark1.c:209-243` | `JKAMP_GameLogic/NPC_AI_Mark1.swift:82` | marker | `crates/mp/game/src/NPC_AI_Mark1.rs:298-337` | `func Mark1_die(_ `self`: Entity, _ inflictor: Entity, _ attacker: Entity, _ damage: Int32, _ mod: Int32, _ dFlags: Int32, _ hitLoc: Int32)` |
+| `Mark1_dying` | `oracle/codemp/game/NPC_AI_Mark1.c:250-312` | `JKAMP_GameLogic/NPC_AI_Mark1.swift:95` | marker | `crates/mp/game/src/NPC_AI_Mark1.rs:342-404` | `func Mark1_dying(_ `self`: Entity)` |
+| `NPC_Mark1_Pain` | `oracle/codemp/game/NPC_AI_Mark1.c:320-396` | `JKAMP_GameLogic/NPC_AI_Mark1.swift:109` | marker | `crates/mp/game/src/NPC_AI_Mark1.rs:409-521` | `func NPC_Mark1_Pain(_ `self`: Entity, _ attacker: Entity, _ damage: Int32)` |
+| `Mark1_Hunt` | `oracle/codemp/game/NPC_AI_Mark1.c:404-416` | `JKAMP_GameLogic/NPC_AI_Mark1.swift:123` | marker | `crates/mp/game/src/NPC_AI_Mark1.rs:526-549` | `func Mark1_Hunt()` |
+| `Mark1_FireBlaster` | `oracle/codemp/game/NPC_AI_Mark1.c:424-488` | `JKAMP_GameLogic/NPC_AI_Mark1.swift:137` | marker | `crates/mp/game/src/NPC_AI_Mark1.rs:554-660` | `func Mark1_FireBlaster()` |
+| `Mark1_BlasterAttack` | `oracle/codemp/game/NPC_AI_Mark1.c:495-548` | `JKAMP_GameLogic/NPC_AI_Mark1.swift:150` | marker | `crates/mp/game/src/NPC_AI_Mark1.rs:665-734` | `func Mark1_BlasterAttack(_ advance: Bool)` |
+| `Mark1_FireRocket` | `oracle/codemp/game/NPC_AI_Mark1.c:555-599` | `JKAMP_GameLogic/NPC_AI_Mark1.swift:163` | marker | `crates/mp/game/src/NPC_AI_Mark1.rs:739-824` | `func Mark1_FireRocket()` |
+| `Mark1_RocketAttack` | `oracle/codemp/game/NPC_AI_Mark1.c:606-618` | `JKAMP_GameLogic/NPC_AI_Mark1.swift:176` | marker | `crates/mp/game/src/NPC_AI_Mark1.rs:829-850` | `func Mark1_RocketAttack(_ advance: Bool)` |
+| `Mark1_AttackDecision` | `oracle/codemp/game/NPC_AI_Mark1.c:625-704` | `JKAMP_GameLogic/NPC_AI_Mark1.swift:189` | marker | `crates/mp/game/src/NPC_AI_Mark1.rs:855-945` | `func Mark1_AttackDecision()` |
+| `Mark1_Patrol` | `oracle/codemp/game/NPC_AI_Mark1.c:711-739` | `JKAMP_GameLogic/NPC_AI_Mark1.swift:202` | marker | `crates/mp/game/src/NPC_AI_Mark1.rs:950-973` | `func Mark1_Patrol()` |
+| `NPC_BSMark1_Default` | `oracle/codemp/game/NPC_AI_Mark1.c:747-764` | `JKAMP_GameLogic/NPC_AI_Mark1.swift:215` | marker | `crates/mp/game/src/NPC_AI_Mark1.rs:978-999` | `func NPC_BSMark1_Default()` |

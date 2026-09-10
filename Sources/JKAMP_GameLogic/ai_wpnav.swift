@@ -4,6 +4,50 @@ import JKAMP
 import JKAShared
 import JKAMP_Game
 
+/// Source: oracle/codemp/game/ai_wpnav.c:6
+// TODO: Port global gWPRenderTime
+// Raven wrote: float gWPRenderTime = 0
+// Rule 3: a stored property of GameWorld with Raven's initializer, spelled world.gWPRenderTime in a body.
+
+/// Source: oracle/codemp/game/ai_wpnav.c:7
+// TODO: Port global gDeactivated
+// Raven wrote: float gDeactivated = 0
+// Rule 3: a stored property of GameWorld with Raven's initializer, spelled world.gDeactivated in a body.
+
+/// Source: oracle/codemp/game/ai_wpnav.c:8
+// TODO: Port global gBotEdit
+// Raven wrote: float gBotEdit = 0
+// Rule 3: a stored property of GameWorld with Raven's initializer, spelled world.gBotEdit in a body.
+
+/// Source: oracle/codemp/game/ai_wpnav.c:9
+// TODO: Port global gWPRenderedFrame
+// Raven wrote: int gWPRenderedFrame = 0
+// Rule 3: a stored property of GameWorld with Raven's initializer, spelled world.gWPRenderedFrame in a body.
+
+/// Source: oracle/codemp/game/ai_wpnav.c:13
+// TODO: Port global gWPNum
+// Raven wrote: int gWPNum = 0
+// Rule 3: a stored property of GameWorld with Raven's initializer, spelled world.gWPNum in a body.
+
+/// Source: oracle/codemp/game/ai_wpnav.c:16
+// TODO: Port global gLastPrintedIndex
+// Raven wrote: int gLastPrintedIndex = -1
+// Rule 3: a stored property of GameWorld with Raven's initializer, spelled world.gLastPrintedIndex in a body.
+
+/// Source: oracle/codemp/game/ai_wpnav.c:23
+// TODO: Port global gLevelFlags
+// Raven wrote: int gLevelFlags = 0
+// Rule 3: a stored property of GameWorld with Raven's initializer, spelled world.gLevelFlags in a body.
+
+/// Source: oracle/codemp/game/ai_wpnav.c:1796
+// Raven wrote: float botGlobalNavWeaponWeights[WP_NUM_WEAPONS]
+let botGlobalNavWeaponWeights: [Float] = { () -> [Float] in portMissing("botGlobalNavWeaponWeights", source: "oracle/codemp/game/ai_wpnav.c:1796") }()
+
+/// Source: oracle/codemp/game/ai_wpnav.c:2506
+// TODO: Port global gSpawnPointNum
+// Raven wrote: int gSpawnPointNum = 0
+// Rule 3: a stored property of GameWorld with Raven's initializer, spelled world.gSpawnPointNum in a body.
+
 /// Source: oracle/codemp/game/ai_wpnav.c:25
 // TODO: Port signature
 // Raven wrote: char *GetFlagStr( int flags )

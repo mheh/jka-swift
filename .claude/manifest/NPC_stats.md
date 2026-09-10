@@ -7,11 +7,22 @@ The oracle range is the whole definition, from the return type to the closing br
 
 | Function | Oracle | Swift | State | jka-rust | Signature |
 |---|---|---|---|---|---|
-| `NPC_ReactionTime` | `oracle/codemp/game/NPC_stats.c:220-223` | `JKAMP_GameLogic/NPC_stats.swift:12` | marker | `crates/mp/game/src/NPC_stats.rs:355-359` | `func NPC_ReactionTime() -> Int32` |
-| `TranslateRankName` static | `oracle/codemp/game/NPC_stats.c:287-330` | `JKAMP_GameLogic/NPC_stats.swift:33` | marker | `crates/mp/game/src/NPC_stats.rs:365-391` | `private func TranslateRankName(_ name: String) -> rank_t` |
-| `G_ParseAnimFileSet` | `oracle/codemp/game/NPC_stats.c:424-437` | `JKAMP_GameLogic/NPC_stats.swift:39` | marker | `crates/mp/game/src/NPC_stats.rs:396-432` | `func G_ParseAnimFileSet(_ filename: String, _ animCFG: String, _ animFileIndex: inout Int32) -> Bool` |
-| `NPC_PrecacheAnimationCFG` | `oracle/codemp/game/NPC_stats.c:439-548` | `JKAMP_GameLogic/NPC_stats.swift:45` | marker | `crates/mp/game/src/NPC_stats.rs:439-442` | `func NPC_PrecacheAnimationCFG(_ NPC_type: String)` |
-| `NPC_PrecacheWeapons` | `oracle/codemp/game/NPC_stats.c:551-591` | `JKAMP_GameLogic/NPC_stats.swift:51` | marker | `crates/mp/game/src/NPC_stats.rs:447-467` | `func NPC_PrecacheWeapons(_ playerTeam: JKAMP.team_t, _ spawnflags: Int32, _ NPCtype: inout String)` |
-| `NPC_Precache` | `oracle/codemp/game/NPC_stats.c:599-873` | `JKAMP_GameLogic/NPC_stats.swift:63` | marker | `crates/mp/game/src/NPC_stats.rs:472-803` | `func NPC_Precache(_ spawner: Entity)` |
-| `NPC_ParseParms` | `oracle/codemp/game/NPC_stats.c:974-3233` | `JKAMP_GameLogic/NPC_stats.swift:69` | marker | `crates/mp/game/src/NPC_stats.rs:808-2461` | `func NPC_ParseParms(_ NPCName: String, _ NPC: Entity) -> Bool` |
-| `NPC_LoadParms` | `oracle/codemp/game/NPC_stats.c:3241-3302` | `JKAMP_GameLogic/NPC_stats.swift:75` | marker | `crates/mp/game/src/NPC_stats.rs:2466-2538` | `func NPC_LoadParms()` |
+| `NPC_ReactionTime` | `oracle/codemp/game/NPC_stats.c:220-223` | `JKAMP_GameLogic/NPC_stats.swift:43` | marker | `crates/mp/game/src/NPC_stats.rs:355-359` | `func NPC_ReactionTime() -> Int32` |
+| `TranslateRankName` static | `oracle/codemp/game/NPC_stats.c:287-330` | `JKAMP_GameLogic/NPC_stats.swift:68` | marker | `crates/mp/game/src/NPC_stats.rs:365-391` | `private func TranslateRankName(_ name: String) -> rank_t` |
+| `G_ParseAnimFileSet` | `oracle/codemp/game/NPC_stats.c:424-437` | `JKAMP_GameLogic/NPC_stats.swift:74` | marker | `crates/mp/game/src/NPC_stats.rs:396-432` | `func G_ParseAnimFileSet(_ filename: String, _ animCFG: String, _ animFileIndex: inout Int32) -> Bool` |
+| `NPC_PrecacheAnimationCFG` | `oracle/codemp/game/NPC_stats.c:439-548` | `JKAMP_GameLogic/NPC_stats.swift:80` | marker | `crates/mp/game/src/NPC_stats.rs:439-442` | `func NPC_PrecacheAnimationCFG(_ NPC_type: String)` |
+| `NPC_PrecacheWeapons` | `oracle/codemp/game/NPC_stats.c:551-591` | `JKAMP_GameLogic/NPC_stats.swift:86` | marker | `crates/mp/game/src/NPC_stats.rs:447-467` | `func NPC_PrecacheWeapons(_ playerTeam: JKAMP.team_t, _ spawnflags: Int32, _ NPCtype: inout String)` |
+| `NPC_Precache` | `oracle/codemp/game/NPC_stats.c:599-873` | `JKAMP_GameLogic/NPC_stats.swift:99` | marker | `crates/mp/game/src/NPC_stats.rs:472-803` | `func NPC_Precache(_ spawner: Entity)` |
+| `NPC_ParseParms` | `oracle/codemp/game/NPC_stats.c:974-3233` | `JKAMP_GameLogic/NPC_stats.swift:105` | marker | `crates/mp/game/src/NPC_stats.rs:808-2461` | `func NPC_ParseParms(_ NPCName: String, _ NPC: Entity) -> Bool` |
+| `NPC_LoadParms` | `oracle/codemp/game/NPC_stats.c:3241-3302` | `JKAMP_GameLogic/NPC_stats.swift:111` | marker | `crates/mp/game/src/NPC_stats.rs:2466-2538` | `func NPC_LoadParms()` |
+
+6 file-scope variables. The entry is the stub's line for the variable, by rule 3 and rule 6.
+
+| Variable | Oracle | Kind | Entry |
+|---|---|---|---|
+| `TeamTable` | `oracle/codemp/game/NPC_stats.c:14` | storage | `// A struct table is C storage in Sources/CJKAMP, reached through a Slots constant.` |
+| `ClassTable` | `oracle/codemp/game/NPC_stats.c:24` | storage | `// A struct table is C storage in Sources/CJKAMP, reached through a Slots constant.` |
+| `BSTable` | `oracle/codemp/game/NPC_stats.c:88` | storage | `// A struct table is C storage in Sources/CJKAMP, reached through a Slots constant.` |
+| `BSETTable` | `oracle/codemp/game/NPC_stats.c:106` | storage | `// A struct table is C storage in Sources/CJKAMP, reached through a Slots constant.` |
+| `TeamNames` | `oracle/codemp/game/NPC_stats.c:133` | state | `// Rule 3: a stored property of GameWorld with Raven's initializer, spelled world.TeamNames in a body.` |
+| `ClassNames` | `oracle/codemp/game/NPC_stats.c:156` | let | `let ClassNames: [String] = { () -> [String] in portMissing("ClassNames", source: "oracle/codemp/game/NPC_stats.c:156") }()` |

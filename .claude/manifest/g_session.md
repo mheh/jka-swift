@@ -7,8 +7,8 @@ The oracle range is the whole definition, from the return type to the closing br
 
 | Function | Oracle | Swift | State | jka-rust | Signature |
 |---|---|---|---|---|---|
-| `G_WriteClientSessionData` | `oracle/codemp/game/g_session.c:23-96` | `JKAMP_GameLogic/g_session.swift:15` | marker | `crates/mp/game/src/g_session.rs:19-86` | `func G_WriteClientSessionData(_ client: Client)` |
-| `G_ReadSessionData` | `oracle/codemp/game/g_session.c:105-177` | `JKAMP_GameLogic/g_session.swift:28` | marker | `crates/mp/game/src/g_session.rs:91-183` | `func G_ReadSessionData(_ client: Client)` |
-| `G_InitSessionData` | `oracle/codemp/game/g_session.c:187-282` | `JKAMP_GameLogic/g_session.swift:41` | marker | `crates/mp/game/src/g_session.rs:188-269` | `func G_InitSessionData(_ client: Client, _ userinfo: inout String, _ isBot: Bool)` |
-| `G_InitWorldSession` | `oracle/codemp/game/g_session.c:291-304` | `JKAMP_GameLogic/g_session.swift:53` | marker | `crates/mp/game/src/g_session.rs:274-283` | `func G_InitWorldSession()` |
-| `G_WriteSessionData` | `oracle/codemp/game/g_session.c:312-322` | `JKAMP_GameLogic/g_session.swift:65` | marker | `crates/mp/game/src/g_session.rs:288-297` | `func G_WriteSessionData()` |
+| `G_WriteClientSessionData` | `oracle/codemp/game/g_session.c:23-96` | `JKAMP_GameLogic/g_session.swift:17` | marker | `crates/mp/game/src/g_session.rs:19-86` | `func G_WriteClientSessionData(_ client: Client)` |
+| `G_ReadSessionData` | `oracle/codemp/game/g_session.c:105-177` | `JKAMP_GameLogic/g_session.swift:32` | marker | `crates/mp/game/src/g_session.rs:91-183` | `func G_ReadSessionData(_ client: Client)` |
+| `G_InitSessionData` | `oracle/codemp/game/g_session.c:187-282` | `JKAMP_GameLogic/g_session.swift:47` | marker | `crates/mp/game/src/g_session.rs:188-269` | `func G_InitSessionData(_ client: Client, _ userinfo: inout String, _ isBot: Bool)` |
+| `G_InitWorldSession` | `oracle/codemp/game/g_session.c:291-304` | `JKAMP_GameLogic/g_session.swift:61` | marker | `crates/mp/game/src/g_session.rs:274-283` | `func G_InitWorldSession()` |
+| `G_WriteSessionData` | `oracle/codemp/game/g_session.c:312-322` | `JKAMP_GameLogic/g_session.swift:75` | marker | `crates/mp/game/src/g_session.rs:288-297` | `func G_WriteSessionData()` |

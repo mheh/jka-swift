@@ -15,3 +15,9 @@ The oracle range is the whole definition, from the return type to the closing br
 | `rand` | `oracle/codemp/game/bg_lib.c:769-772` | `JKAMP_BG/bg_lib.swift:160` | marker | none | `func rand() -> Int32` |
 | `atof` | `oracle/codemp/game/bg_lib.c:774-839` | `JKAMP_BG/bg_lib.swift:166` | marker | none | `func atof(_ string: String) -> Double` |
 | `_atof` | `oracle/codemp/game/bg_lib.c:841-907` | `JKAMP_BG/bg_lib.swift:175` | marker | none | `func _atof() -> Never` TODO: Port signature. No table row for `const char ** stringPtr`. |
+
+1 file-scope variables. The entry is the stub's line for the variable, by rule 3 and rule 6.
+
+| Variable | Oracle | Kind | Entry |
+|---|---|---|---|
+| `randSeed` | `oracle/codemp/game/bg_lib.c:763` | state | `// Rule 3: a stored property of BgState with Raven's initializer, spelled bg.randSeed in a body.` |

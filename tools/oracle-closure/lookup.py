@@ -11,6 +11,7 @@ Usage:
   python3 tools/oracle-closure/lookup.py weapon_t               # a scalar, a typedef, or an enum
   python3 tools/oracle-closure/lookup.py fn CanDamage           # the manifest row: oracle range, Swift stub line, state
   python3 tools/oracle-closure/lookup.py sig Pmove              # the signature the table gives the function today
+  python3 tools/oracle-closure/lookup.py sig pm_stopspeed       # the stub entry of a file-scope variable
 """
 
 from __future__ import annotations
@@ -84,10 +85,11 @@ def function(name: str) -> int:
 
 
 def signature(name: str) -> int:
-    """The stub line the table gives the function today. An adopted file keeps its old line, so this is the fresh one."""
+    """The stub line the table gives a function or a file-scope variable today. An adopted file keeps its old line, so this is the fresh one."""
     hits = manifest_rows(name)
     for path, line in hits:
-        print(f"{path.stem}.c  {cell(line, 5)}")
+        # A function row ends in its signature, and a variable row ends in its entry.
+        print(f"{path.stem}.c  {line.split('|')[-2].strip()}")
     if not hits:
         print(f"lookup: no function named {name} in the manifests")
     return 0 if hits else 1

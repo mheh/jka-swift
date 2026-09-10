@@ -4,6 +4,11 @@ import JKAMP
 import JKAShared
 import JKAMP_Game
 
+/// Source: oracle/codemp/game/NPC_spawn.c:4182
+// TODO: Port global showBBoxes
+// Raven wrote: qboolean showBBoxes = qfalse
+// Rule 3: a stored property of GameWorld with Raven's initializer, spelled world.showBBoxes in a body.
+
 /// Source: oracle/codemp/game/NPC_spawn.c:90
 func WP_SetSaberModel(_ client: Client, _ npcClass: JKAMP.class_t) -> Int32 {
     // TODO: Port WP_SetSaberModel

@@ -20,7 +20,7 @@ import re
 from pathlib import Path
 
 from reexport import REPO, SOURCES
-from skeleton import ORACLE_DIR, Function, Skeleton, target_of
+from skeleton import ORACLE_DIR, Function, Skeleton, Variable, stub_path, target_of
 
 RUST = Path("/Users/milohehmsoth/Developer/Milo/jka-rust/crates/mp")
 OUT = REPO / ".claude" / "manifest"
@@ -71,7 +71,7 @@ class Manifest:
 
     def swift_line(self, fn: Function) -> tuple[int | None, bool]:
         """The line of the Swift declaration and whether a marker still sits under it."""
-        path = SOURCES / target_of(fn.stem) / f"{fn.stem}.swift"
+        path = stub_path(fn.stem)
         if not path.exists():
             return None, True
         lines = path.read_text().split("\n")
@@ -86,7 +86,7 @@ class Manifest:
         first = fn.cur.extent.start.line
         last = fn.cur.extent.end.line
         swift, marker = self.swift_line(fn)
-        swift_cell = f"`{target_of(fn.stem)}/{fn.stem}.swift:{swift}`" if swift else "missing"
+        swift_cell = f"`{stub_path(fn.stem).relative_to(SOURCES)}:{swift}`" if swift else "missing"
         state = "marker" if marker else "ported"
         span = self.rust.spans.get(fn.name)
         if span:
@@ -101,7 +101,7 @@ class Manifest:
         return f"| `{fn.name}`{static} | `oracle/{ORACLE_DIR}/{fn.stem}.c:{first}-{last}` | {swift_cell} | {state} | {rust_cell} | {signature} |"
 
     def file(self, stem: str) -> list[str]:
-        fns = self.skeleton.files[stem]
+        fns = self.skeleton.files.get(stem, [])
         markers = sum(1 for fn in fns if self.swift_line(fn)[1])
         matched = sum(1 for fn in fns if fn.name in self.rust.spans)
         lines = [
@@ -116,18 +116,33 @@ class Manifest:
             "|---|---|---|---|---|---|",
         ]
         lines += [self.row(fn) for fn in fns]
+        variables = self.skeleton.variables.get(stem, [])
+        if variables:
+            lines += [
+                "",
+                f"{len(variables)} file-scope variables. The entry is the stub's line for the variable, by rule 3 and rule 6.",
+                "",
+                "| Variable | Oracle | Kind | Entry |",
+                "|---|---|---|---|",
+            ]
+            lines += [self.variable_row(var) for var in variables]
         return lines
+
+    def variable_row(self, var: Variable) -> str:
+        entry = self.skeleton.variable_entry(var)
+        # The last line is the `let`, the rule 3 line, the storage line, or the reason.
+        return f"| `{var.name}` | `oracle/{ORACLE_DIR}/{var.stem}.c:{var.line}` | {var.kind} | `{entry[-1]}` |"
 
     def write(self) -> tuple[int, int, int]:
         OUT.mkdir(parents=True, exist_ok=True)
         files = 0
         total = 0
         matched = 0
-        for stem in sorted(self.skeleton.files):
+        for stem in sorted(set(self.skeleton.files) | set(self.skeleton.variables)):
             (OUT / f"{stem}.md").write_text("\n".join(self.file(stem)) + "\n")
             files += 1
-            total += len(self.skeleton.files[stem])
-            matched += sum(1 for fn in self.skeleton.files[stem] if fn.name in self.rust.spans)
+            total += len(self.skeleton.files.get(stem, []))
+            matched += sum(1 for fn in self.skeleton.files.get(stem, []) if fn.name in self.rust.spans)
         return files, total, matched
 
 
@@ -137,7 +152,7 @@ def main() -> None:
     args = ap.parse_args()
     manifest = Manifest()
     if args.only:
-        if args.only not in manifest.skeleton.files:
+        if args.only not in manifest.skeleton.files and args.only not in manifest.skeleton.variables:
             raise SystemExit(f"manifest.py: no file named {args.only}.c")
         print("\n".join(manifest.file(args.only)))
         return

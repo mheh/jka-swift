@@ -4,6 +4,18 @@ import JKAMP
 import JKAShared
 import JKAMP_Game
 
+/// Source: oracle/codemp/game/g_mover.c:35
+// Raven wrote: int BMS_START = 0
+let BMS_START: Int32 = { () -> Int32 in portMissing("BMS_START", source: "oracle/codemp/game/g_mover.c:35") }()
+
+/// Source: oracle/codemp/game/g_mover.c:36
+// Raven wrote: int BMS_MID = 1
+let BMS_MID: Int32 = { () -> Int32 in portMissing("BMS_MID", source: "oracle/codemp/game/g_mover.c:36") }()
+
+/// Source: oracle/codemp/game/g_mover.c:37
+// Raven wrote: int BMS_END = 2
+let BMS_END: Int32 = { () -> Int32 in portMissing("BMS_END", source: "oracle/codemp/game/g_mover.c:37") }()
+
 /// Source: oracle/codemp/game/g_mover.c:45
 func G_PlayDoorLoopSound(_ ent: Entity) {
     // TODO: Port G_PlayDoorLoopSound

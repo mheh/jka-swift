@@ -4,6 +4,26 @@ import JKAMP
 import JKAShared
 import JKAMP_Game
 
+/// Source: oracle/codemp/game/g_spawn.c:54
+// TODO: Port global fields
+// Raven wrote: BG_field_t fields[]
+// A struct table is C storage in Sources/CJKAMP, reached through a Slots constant.
+
+/// Source: oracle/codemp/game/g_spawn.c:435
+// TODO: Port global spawns
+// Raven wrote: spawn_t spawns[]
+// A struct table is C storage in Sources/CJKAMP, reached through a Slots constant.
+
+/// Source: oracle/codemp/game/g_spawn.c:1070
+// TODO: Port global defaultStyles
+// Raven wrote: static char *defaultStyles[32][3]
+// Rule 3: a stored property of GameWorld with Raven's initializer, spelled world.defaultStyles in a body.
+
+/// Source: oracle/codemp/game/g_spawn.c:1234
+// TODO: Port global precachedKyle
+// Raven wrote: void *precachedKyle = 0
+// No table row for `void *`.
+
 /// Source: oracle/codemp/game/g_spawn.c:6
 // TODO: Port signature
 // Raven wrote: qboolean G_SpawnString( const char *key, const char *defaultString, char **out )

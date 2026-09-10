@@ -7,46 +7,55 @@ The oracle range is the whole definition, from the return type to the closing br
 
 | Function | Oracle | Swift | State | jka-rust | Signature |
 |---|---|---|---|---|---|
-| `PM_irand_timesync` | `oracle/codemp/game/bg_saber.c:10-25` | `JKAMP_BG/bg_saber.swift:7` | marker | `crates/mp/bg/src/bg_saber.rs:426-438` | `func PM_irand_timesync(_ val1: Int32, _ val2: Int32) -> Int32` |
-| `BG_ForcePowerDrain` | `oracle/codemp/game/bg_saber.c:27-100` | `JKAMP_BG/bg_saber.swift:13` | marker | `crates/mp/bg/src/bg_saber.rs:144-195` | `func BG_ForcePowerDrain(_ ps: JKAMP.PlayerState, _ forcePower: JKAMP.forcePowers_t, _ overrideAmt: Int32)` |
-| `BG_EnoughForcePowerForMove` | `oracle/codemp/game/bg_saber.c:102-111` | `JKAMP_BG/bg_saber.swift:19` | marker | `crates/mp/bg/src/bg_saber.rs:442-451` | `func BG_EnoughForcePowerForMove(_ cost: Int32) -> Bool` |
-| `PM_AttackMoveForQuad` | `oracle/codemp/game/bg_saber.c:392-420` | `JKAMP_BG/bg_saber.swift:25` | marker | `crates/mp/bg/src/bg_saber.rs:202-225` | `func PM_AttackMoveForQuad(_ quad: Int32) -> JKAMP.saberMoveName_t` |
-| `PM_SaberAnimTransitionAnim` | `oracle/codemp/game/bg_saber.c:424-581` | `JKAMP_BG/bg_saber.swift:31` | marker | `crates/mp/bg/src/bg_saber.rs:455-513` | `func PM_SaberAnimTransitionAnim(_ curmove: Int32, _ newmove: Int32) -> Int32` |
-| `PM_CheckStabDown` | `oracle/codemp/game/bg_saber.c:584-648` | `JKAMP_BG/bg_saber.swift:37` | marker | `crates/mp/bg/src/bg_saber.rs:517-579` | `func PM_CheckStabDown() -> JKAMP.saberMoveName_t` |
-| `PM_SaberMoveQuadrantForMovement` | `oracle/codemp/game/bg_saber.c:650-697` | `JKAMP_BG/bg_saber.swift:43` | marker | `crates/mp/bg/src/bg_saber.rs:232-274` | `func PM_SaberMoveQuadrantForMovement(_ ucmd: JKAMP.Usercmd) -> Int32` |
-| `PM_SaberInBounce` | `oracle/codemp/game/bg_saber.c:700-711` | `JKAMP_BG/bg_saber.swift:50` | marker | `crates/mp/bg/src/bg_saber.rs:279-287` | `func PM_SaberInBounce(_ move: Int32) -> Bool` |
-| `PM_SaberAttackChainAngle` | `oracle/codemp/game/bg_saber.c:783-790` | `JKAMP_BG/bg_saber.swift:56` | marker | `crates/mp/bg/src/bg_saber.rs:292-298` | `func PM_SaberAttackChainAngle(_ move1: Int32, _ move2: Int32) -> Int32` |
-| `PM_SaberKataDone` | `oracle/codemp/game/bg_saber.c:792-884` | `JKAMP_BG/bg_saber.swift:62` | marker | `crates/mp/bg/src/bg_saber.rs:583-651` | `func PM_SaberKataDone(_ curmove: Int32, _ newmove: Int32) -> Bool` |
-| `PM_SetAnimFrame` | `oracle/codemp/game/bg_saber.c:886-889` | `JKAMP_BG/bg_saber.swift:68` | marker | `crates/mp/bg/src/bg_saber.rs:305-309` | `func PM_SetAnimFrame(_ gent: JKAMP.PlayerState, _ frame: Int32, _ torso: Bool, _ legs: Bool)` |
-| `PM_SaberLockWinAnim` | `oracle/codemp/game/bg_saber.c:891-983` | `JKAMP_BG/bg_saber.swift:74` | marker | `crates/mp/bg/src/bg_saber.rs:655-717` | `func PM_SaberLockWinAnim(_ victory: Bool, _ superBreak: Bool) -> Int32` |
-| `PM_SaberLockLoseAnim` | `oracle/codemp/game/bg_saber.c:1000-1126` | `JKAMP_BG/bg_saber.swift:80` | marker | `crates/mp/bg/src/bg_saber.rs:721-802` | `func PM_SaberLockLoseAnim(_ genemy: JKAMP.PlayerState, _ victory: Bool, _ superBreak: Bool) -> Int32` |
-| `PM_SaberLockResultAnim` | `oracle/codemp/game/bg_saber.c:1128-1232` | `JKAMP_BG/bg_saber.swift:86` | marker | `crates/mp/bg/src/bg_saber.rs:806-864` | `func PM_SaberLockResultAnim(_ duelist: JKAMP.PlayerState, _ superBreak: Bool, _ won: Bool) -> Int32` |
-| `PM_SaberLockBreak` | `oracle/codemp/game/bg_saber.c:1234-1340` | `JKAMP_BG/bg_saber.swift:92` | marker | `crates/mp/bg/src/bg_saber.rs:868-961` | `func PM_SaberLockBreak(_ genemy: JKAMP.PlayerState, _ victory: Bool, _ strength: Int32)` |
-| `BG_CheckIncrementLockAnim` | `oracle/codemp/game/bg_saber.c:1342-1398` | `JKAMP_BG/bg_saber.swift:98` | marker | `crates/mp/bg/src/bg_saber.rs:314-357` | `func BG_CheckIncrementLockAnim(_ anim: Int32, _ winOrLose: Int32) -> Bool` |
-| `PM_SaberLocked` | `oracle/codemp/game/bg_saber.c:1401-1581` | `JKAMP_BG/bg_saber.swift:104` | marker | `crates/mp/bg/src/bg_saber.rs:965-1097` | `func PM_SaberLocked()` |
-| `PM_SaberInBrokenParry` | `oracle/codemp/game/bg_saber.c:1583-1594` | `JKAMP_BG/bg_saber.swift:110` | marker | `crates/mp/bg/src/bg_saber.rs:362-370` | `func PM_SaberInBrokenParry(_ move: Int32) -> Bool` |
-| `PM_BrokenParryForParry` | `oracle/codemp/game/bg_saber.c:1597-1621` | `JKAMP_BG/bg_saber.swift:116` | marker | `crates/mp/bg/src/bg_saber.rs:375-395` | `func PM_BrokenParryForParry(_ move: Int32) -> Int32` |
-| `PM_CanBackstab` | `oracle/codemp/game/bg_saber.c:1625-1655` | `JKAMP_BG/bg_saber.swift:122` | marker | `crates/mp/bg/src/bg_saber.rs:1101-1144` | `func PM_CanBackstab() -> Bool` |
-| `PM_SaberFlipOverAttackMove` | `oracle/codemp/game/bg_saber.c:1657-1753` | `JKAMP_BG/bg_saber.swift:128` | marker | `crates/mp/bg/src/bg_saber.rs:1148-1185` | `func PM_SaberFlipOverAttackMove() -> JKAMP.saberMoveName_t` |
-| `PM_SaberBackflipAttackMove` | `oracle/codemp/game/bg_saber.c:1755-1791` | `JKAMP_BG/bg_saber.swift:134` | marker | `crates/mp/bg/src/bg_saber.rs:1189-1214` | `func PM_SaberBackflipAttackMove() -> Int32` |
-| `PM_SaberDualJumpAttackMove` | `oracle/codemp/game/bg_saber.c:1793-1800` | `JKAMP_BG/bg_saber.swift:140` | marker | `crates/mp/bg/src/bg_saber.rs:1218-1223` | `func PM_SaberDualJumpAttackMove() -> Int32` |
-| `PM_SomeoneInFront` | `oracle/codemp/game/bg_saber.c:1804-1833` | `JKAMP_BG/bg_saber.swift:146` | marker | `crates/mp/bg/src/bg_saber.rs:1227-1269` | `func PM_SomeoneInFront(_ tr: JKAMP.Trace) -> Bool` |
-| `PM_SaberLungeAttackMove` | `oracle/codemp/game/bg_saber.c:1835-1889` | `JKAMP_BG/bg_saber.swift:152` | marker | `crates/mp/bg/src/bg_saber.rs:1273-1311` | `func PM_SaberLungeAttackMove(_ noSpecials: Bool) -> JKAMP.saberMoveName_t` |
-| `PM_SaberJumpAttackMove2` | `oracle/codemp/game/bg_saber.c:1891-1945` | `JKAMP_BG/bg_saber.swift:158` | marker | `crates/mp/bg/src/bg_saber.rs:1315-1343` | `func PM_SaberJumpAttackMove2() -> JKAMP.saberMoveName_t` |
-| `PM_SaberJumpAttackMove` | `oracle/codemp/game/bg_saber.c:1947-1993` | `JKAMP_BG/bg_saber.swift:164` | marker | `crates/mp/bg/src/bg_saber.rs:1347-1384` | `func PM_SaberJumpAttackMove() -> JKAMP.saberMoveName_t` |
-| `PM_GroundDistance` | `oracle/codemp/game/bg_saber.c:1995-2009` | `JKAMP_BG/bg_saber.swift:170` | marker | `crates/mp/bg/src/bg_saber.rs:1388-1409` | `func PM_GroundDistance() -> Float` |
-| `PM_WalkableGroundDistance` | `oracle/codemp/game/bg_saber.c:2011-2030` | `JKAMP_BG/bg_saber.swift:176` | marker | `crates/mp/bg/src/bg_saber.rs:1413-1438` | `func PM_WalkableGroundDistance() -> Float` |
-| `PM_CanDoDualDoubleAttacks` static | `oracle/codemp/game/bg_saber.c:2033-2056` | `JKAMP_BG/bg_saber.swift:182` | marker | `crates/mp/bg/src/bg_saber.rs:1442-1462` | `private func PM_CanDoDualDoubleAttacks() -> Bool` |
-| `PM_CheckEnemyPresence` static | `oracle/codemp/game/bg_saber.c:2058-2110` | `JKAMP_BG/bg_saber.swift:188` | marker | `crates/mp/bg/src/bg_saber.rs:1466-1527` | `private func PM_CheckEnemyPresence(_ dir: Int32, _ radius: Float) -> Bool` |
-| `PM_CheckPullAttack` | `oracle/codemp/game/bg_saber.c:2117-2226` | `JKAMP_BG/bg_saber.swift:194` | marker | `crates/mp/bg/src/bg_saber.rs:402-404` | `func PM_CheckPullAttack() -> JKAMP.saberMoveName_t` |
-| `PM_InSecondaryStyle` | `oracle/codemp/game/bg_saber.c:2228-2239` | `JKAMP_BG/bg_saber.swift:200` | marker | `crates/mp/bg/src/bg_saber.rs:1531-1543` | `func PM_InSecondaryStyle() -> Bool` |
-| `PM_SaberAttackForMovement` | `oracle/codemp/game/bg_saber.c:2241-2618` | `JKAMP_BG/bg_saber.swift:206` | marker | `crates/mp/bg/src/bg_saber.rs:1547-1808` | `func PM_SaberAttackForMovement(_ curmove: JKAMP.saberMoveName_t) -> JKAMP.saberMoveName_t` |
-| `PM_KickMoveForConditions` | `oracle/codemp/game/bg_saber.c:2620-2691` | `JKAMP_BG/bg_saber.swift:212` | marker | `crates/mp/bg/src/bg_saber.rs:1812-1835` | `func PM_KickMoveForConditions() -> Int32` |
-| `PM_SaberMoveOkayForKata` | `oracle/codemp/game/bg_saber.c:2696-2707` | `JKAMP_BG/bg_saber.swift:218` | marker | `crates/mp/bg/src/bg_saber.rs:1839-1850` | `func PM_SaberMoveOkayForKata() -> Bool` |
-| `PM_CanDoKata` | `oracle/codemp/game/bg_saber.c:2709-2748` | `JKAMP_BG/bg_saber.swift:224` | marker | `crates/mp/bg/src/bg_saber.rs:1854-1886` | `func PM_CanDoKata() -> Bool` |
-| `PM_CheckAltKickAttack` | `oracle/codemp/game/bg_saber.c:2750-2775` | `JKAMP_BG/bg_saber.swift:230` | marker | `crates/mp/bg/src/bg_saber.rs:1890-1913` | `func PM_CheckAltKickAttack() -> Bool` |
-| `PM_SaberPowerCheck` | `oracle/codemp/game/bg_saber.c:2785-2800` | `JKAMP_BG/bg_saber.swift:236` | marker | `crates/mp/bg/src/bg_saber.rs:1917-1931` | `func PM_SaberPowerCheck() -> Bool` |
-| `PM_CanDoRollStab` | `oracle/codemp/game/bg_saber.c:2802-2820` | `JKAMP_BG/bg_saber.swift:242` | marker | `crates/mp/bg/src/bg_saber.rs:1935-1950` | `func PM_CanDoRollStab() -> Bool` |
-| `PM_WeaponLightsaber` | `oracle/codemp/game/bg_saber.c:2836-3800` | `JKAMP_BG/bg_saber.swift:248` | marker | `crates/mp/bg/src/bg_saber.rs:1959-2311` | `func PM_WeaponLightsaber()` |
-| `PM_SetSaberMove` | `oracle/codemp/game/bg_saber.c:3802-4098` | `JKAMP_BG/bg_saber.swift:254` | marker | `crates/mp/bg/src/bg_saber.rs:2669-2889` | `func PM_SetSaberMove(_ newMove: Int16)` |
-| `BG_MySaber` | `oracle/codemp/game/bg_saber.c:4100-4141` | `JKAMP_BG/bg_saber.swift:260` | marker | none | `func BG_MySaber(_ clientNum: Int32, _ saberNum: Int32) -> JKAMP.SaberInfo?` |
+| `PM_irand_timesync` | `oracle/codemp/game/bg_saber.c:10-25` | `JKAMP_BG/bg_saber.swift:24` | marker | `crates/mp/bg/src/bg_saber.rs:426-438` | `func PM_irand_timesync(_ val1: Int32, _ val2: Int32) -> Int32` |
+| `BG_ForcePowerDrain` | `oracle/codemp/game/bg_saber.c:27-100` | `JKAMP_BG/bg_saber.swift:30` | marker | `crates/mp/bg/src/bg_saber.rs:144-195` | `func BG_ForcePowerDrain(_ ps: JKAMP.PlayerState, _ forcePower: JKAMP.forcePowers_t, _ overrideAmt: Int32)` |
+| `BG_EnoughForcePowerForMove` | `oracle/codemp/game/bg_saber.c:102-111` | `JKAMP_BG/bg_saber.swift:36` | marker | `crates/mp/bg/src/bg_saber.rs:442-451` | `func BG_EnoughForcePowerForMove(_ cost: Int32) -> Bool` |
+| `PM_AttackMoveForQuad` | `oracle/codemp/game/bg_saber.c:392-420` | `JKAMP_BG/bg_saber.swift:42` | marker | `crates/mp/bg/src/bg_saber.rs:202-225` | `func PM_AttackMoveForQuad(_ quad: Int32) -> JKAMP.saberMoveName_t` |
+| `PM_SaberAnimTransitionAnim` | `oracle/codemp/game/bg_saber.c:424-581` | `JKAMP_BG/bg_saber.swift:48` | marker | `crates/mp/bg/src/bg_saber.rs:455-513` | `func PM_SaberAnimTransitionAnim(_ curmove: Int32, _ newmove: Int32) -> Int32` |
+| `PM_CheckStabDown` | `oracle/codemp/game/bg_saber.c:584-648` | `JKAMP_BG/bg_saber.swift:54` | marker | `crates/mp/bg/src/bg_saber.rs:517-579` | `func PM_CheckStabDown() -> JKAMP.saberMoveName_t` |
+| `PM_SaberMoveQuadrantForMovement` | `oracle/codemp/game/bg_saber.c:650-697` | `JKAMP_BG/bg_saber.swift:60` | marker | `crates/mp/bg/src/bg_saber.rs:232-274` | `func PM_SaberMoveQuadrantForMovement(_ ucmd: JKAMP.Usercmd) -> Int32` |
+| `PM_SaberInBounce` | `oracle/codemp/game/bg_saber.c:700-711` | `JKAMP_BG/bg_saber.swift:67` | marker | `crates/mp/bg/src/bg_saber.rs:279-287` | `func PM_SaberInBounce(_ move: Int32) -> Bool` |
+| `PM_SaberAttackChainAngle` | `oracle/codemp/game/bg_saber.c:783-790` | `JKAMP_BG/bg_saber.swift:73` | marker | `crates/mp/bg/src/bg_saber.rs:292-298` | `func PM_SaberAttackChainAngle(_ move1: Int32, _ move2: Int32) -> Int32` |
+| `PM_SaberKataDone` | `oracle/codemp/game/bg_saber.c:792-884` | `JKAMP_BG/bg_saber.swift:79` | marker | `crates/mp/bg/src/bg_saber.rs:583-651` | `func PM_SaberKataDone(_ curmove: Int32, _ newmove: Int32) -> Bool` |
+| `PM_SetAnimFrame` | `oracle/codemp/game/bg_saber.c:886-889` | `JKAMP_BG/bg_saber.swift:85` | marker | `crates/mp/bg/src/bg_saber.rs:305-309` | `func PM_SetAnimFrame(_ gent: JKAMP.PlayerState, _ frame: Int32, _ torso: Bool, _ legs: Bool)` |
+| `PM_SaberLockWinAnim` | `oracle/codemp/game/bg_saber.c:891-983` | `JKAMP_BG/bg_saber.swift:91` | marker | `crates/mp/bg/src/bg_saber.rs:655-717` | `func PM_SaberLockWinAnim(_ victory: Bool, _ superBreak: Bool) -> Int32` |
+| `PM_SaberLockLoseAnim` | `oracle/codemp/game/bg_saber.c:1000-1126` | `JKAMP_BG/bg_saber.swift:97` | marker | `crates/mp/bg/src/bg_saber.rs:721-802` | `func PM_SaberLockLoseAnim(_ genemy: JKAMP.PlayerState, _ victory: Bool, _ superBreak: Bool) -> Int32` |
+| `PM_SaberLockResultAnim` | `oracle/codemp/game/bg_saber.c:1128-1232` | `JKAMP_BG/bg_saber.swift:103` | marker | `crates/mp/bg/src/bg_saber.rs:806-864` | `func PM_SaberLockResultAnim(_ duelist: JKAMP.PlayerState, _ superBreak: Bool, _ won: Bool) -> Int32` |
+| `PM_SaberLockBreak` | `oracle/codemp/game/bg_saber.c:1234-1340` | `JKAMP_BG/bg_saber.swift:109` | marker | `crates/mp/bg/src/bg_saber.rs:868-961` | `func PM_SaberLockBreak(_ genemy: JKAMP.PlayerState, _ victory: Bool, _ strength: Int32)` |
+| `BG_CheckIncrementLockAnim` | `oracle/codemp/game/bg_saber.c:1342-1398` | `JKAMP_BG/bg_saber.swift:115` | marker | `crates/mp/bg/src/bg_saber.rs:314-357` | `func BG_CheckIncrementLockAnim(_ anim: Int32, _ winOrLose: Int32) -> Bool` |
+| `PM_SaberLocked` | `oracle/codemp/game/bg_saber.c:1401-1581` | `JKAMP_BG/bg_saber.swift:121` | marker | `crates/mp/bg/src/bg_saber.rs:965-1097` | `func PM_SaberLocked()` |
+| `PM_SaberInBrokenParry` | `oracle/codemp/game/bg_saber.c:1583-1594` | `JKAMP_BG/bg_saber.swift:127` | marker | `crates/mp/bg/src/bg_saber.rs:362-370` | `func PM_SaberInBrokenParry(_ move: Int32) -> Bool` |
+| `PM_BrokenParryForParry` | `oracle/codemp/game/bg_saber.c:1597-1621` | `JKAMP_BG/bg_saber.swift:133` | marker | `crates/mp/bg/src/bg_saber.rs:375-395` | `func PM_BrokenParryForParry(_ move: Int32) -> Int32` |
+| `PM_CanBackstab` | `oracle/codemp/game/bg_saber.c:1625-1655` | `JKAMP_BG/bg_saber.swift:139` | marker | `crates/mp/bg/src/bg_saber.rs:1101-1144` | `func PM_CanBackstab() -> Bool` |
+| `PM_SaberFlipOverAttackMove` | `oracle/codemp/game/bg_saber.c:1657-1753` | `JKAMP_BG/bg_saber.swift:145` | marker | `crates/mp/bg/src/bg_saber.rs:1148-1185` | `func PM_SaberFlipOverAttackMove() -> JKAMP.saberMoveName_t` |
+| `PM_SaberBackflipAttackMove` | `oracle/codemp/game/bg_saber.c:1755-1791` | `JKAMP_BG/bg_saber.swift:151` | marker | `crates/mp/bg/src/bg_saber.rs:1189-1214` | `func PM_SaberBackflipAttackMove() -> Int32` |
+| `PM_SaberDualJumpAttackMove` | `oracle/codemp/game/bg_saber.c:1793-1800` | `JKAMP_BG/bg_saber.swift:157` | marker | `crates/mp/bg/src/bg_saber.rs:1218-1223` | `func PM_SaberDualJumpAttackMove() -> Int32` |
+| `PM_SomeoneInFront` | `oracle/codemp/game/bg_saber.c:1804-1833` | `JKAMP_BG/bg_saber.swift:163` | marker | `crates/mp/bg/src/bg_saber.rs:1227-1269` | `func PM_SomeoneInFront(_ tr: JKAMP.Trace) -> Bool` |
+| `PM_SaberLungeAttackMove` | `oracle/codemp/game/bg_saber.c:1835-1889` | `JKAMP_BG/bg_saber.swift:169` | marker | `crates/mp/bg/src/bg_saber.rs:1273-1311` | `func PM_SaberLungeAttackMove(_ noSpecials: Bool) -> JKAMP.saberMoveName_t` |
+| `PM_SaberJumpAttackMove2` | `oracle/codemp/game/bg_saber.c:1891-1945` | `JKAMP_BG/bg_saber.swift:175` | marker | `crates/mp/bg/src/bg_saber.rs:1315-1343` | `func PM_SaberJumpAttackMove2() -> JKAMP.saberMoveName_t` |
+| `PM_SaberJumpAttackMove` | `oracle/codemp/game/bg_saber.c:1947-1993` | `JKAMP_BG/bg_saber.swift:181` | marker | `crates/mp/bg/src/bg_saber.rs:1347-1384` | `func PM_SaberJumpAttackMove() -> JKAMP.saberMoveName_t` |
+| `PM_GroundDistance` | `oracle/codemp/game/bg_saber.c:1995-2009` | `JKAMP_BG/bg_saber.swift:187` | marker | `crates/mp/bg/src/bg_saber.rs:1388-1409` | `func PM_GroundDistance() -> Float` |
+| `PM_WalkableGroundDistance` | `oracle/codemp/game/bg_saber.c:2011-2030` | `JKAMP_BG/bg_saber.swift:193` | marker | `crates/mp/bg/src/bg_saber.rs:1413-1438` | `func PM_WalkableGroundDistance() -> Float` |
+| `PM_CanDoDualDoubleAttacks` static | `oracle/codemp/game/bg_saber.c:2033-2056` | `JKAMP_BG/bg_saber.swift:199` | marker | `crates/mp/bg/src/bg_saber.rs:1442-1462` | `private func PM_CanDoDualDoubleAttacks() -> Bool` |
+| `PM_CheckEnemyPresence` static | `oracle/codemp/game/bg_saber.c:2058-2110` | `JKAMP_BG/bg_saber.swift:205` | marker | `crates/mp/bg/src/bg_saber.rs:1466-1527` | `private func PM_CheckEnemyPresence(_ dir: Int32, _ radius: Float) -> Bool` |
+| `PM_CheckPullAttack` | `oracle/codemp/game/bg_saber.c:2117-2226` | `JKAMP_BG/bg_saber.swift:211` | marker | `crates/mp/bg/src/bg_saber.rs:402-404` | `func PM_CheckPullAttack() -> JKAMP.saberMoveName_t` |
+| `PM_InSecondaryStyle` | `oracle/codemp/game/bg_saber.c:2228-2239` | `JKAMP_BG/bg_saber.swift:217` | marker | `crates/mp/bg/src/bg_saber.rs:1531-1543` | `func PM_InSecondaryStyle() -> Bool` |
+| `PM_SaberAttackForMovement` | `oracle/codemp/game/bg_saber.c:2241-2618` | `JKAMP_BG/bg_saber.swift:223` | marker | `crates/mp/bg/src/bg_saber.rs:1547-1808` | `func PM_SaberAttackForMovement(_ curmove: JKAMP.saberMoveName_t) -> JKAMP.saberMoveName_t` |
+| `PM_KickMoveForConditions` | `oracle/codemp/game/bg_saber.c:2620-2691` | `JKAMP_BG/bg_saber.swift:229` | marker | `crates/mp/bg/src/bg_saber.rs:1812-1835` | `func PM_KickMoveForConditions() -> Int32` |
+| `PM_SaberMoveOkayForKata` | `oracle/codemp/game/bg_saber.c:2696-2707` | `JKAMP_BG/bg_saber.swift:235` | marker | `crates/mp/bg/src/bg_saber.rs:1839-1850` | `func PM_SaberMoveOkayForKata() -> Bool` |
+| `PM_CanDoKata` | `oracle/codemp/game/bg_saber.c:2709-2748` | `JKAMP_BG/bg_saber.swift:241` | marker | `crates/mp/bg/src/bg_saber.rs:1854-1886` | `func PM_CanDoKata() -> Bool` |
+| `PM_CheckAltKickAttack` | `oracle/codemp/game/bg_saber.c:2750-2775` | `JKAMP_BG/bg_saber.swift:247` | marker | `crates/mp/bg/src/bg_saber.rs:1890-1913` | `func PM_CheckAltKickAttack() -> Bool` |
+| `PM_SaberPowerCheck` | `oracle/codemp/game/bg_saber.c:2785-2800` | `JKAMP_BG/bg_saber.swift:253` | marker | `crates/mp/bg/src/bg_saber.rs:1917-1931` | `func PM_SaberPowerCheck() -> Bool` |
+| `PM_CanDoRollStab` | `oracle/codemp/game/bg_saber.c:2802-2820` | `JKAMP_BG/bg_saber.swift:259` | marker | `crates/mp/bg/src/bg_saber.rs:1935-1950` | `func PM_CanDoRollStab() -> Bool` |
+| `PM_WeaponLightsaber` | `oracle/codemp/game/bg_saber.c:2836-3800` | `JKAMP_BG/bg_saber.swift:265` | marker | `crates/mp/bg/src/bg_saber.rs:1959-2311` | `func PM_WeaponLightsaber()` |
+| `PM_SetSaberMove` | `oracle/codemp/game/bg_saber.c:3802-4098` | `JKAMP_BG/bg_saber.swift:271` | marker | `crates/mp/bg/src/bg_saber.rs:2669-2889` | `func PM_SetSaberMove(_ newMove: Int16)` |
+| `BG_MySaber` | `oracle/codemp/game/bg_saber.c:4100-4141` | `JKAMP_BG/bg_saber.swift:277` | marker | none | `func BG_MySaber(_ clientNum: Int32, _ saberNum: Int32) -> JKAMP.SaberInfo?` |
+
+4 file-scope variables. The entry is the stub's line for the variable, by rule 3 and rule 6.
+
+| Variable | Oracle | Kind | Entry |
+|---|---|---|---|
+| `saberMoveData` | `oracle/codemp/game/bg_saber.c:120` | storage | `// A struct table is C storage in Sources/CJKAMP, reached through a Slots constant.` |
+| `transitionMove` | `oracle/codemp/game/bg_saber.c:324` | let | `let transitionMove: [[Int32]] = { () -> [[Int32]] in portMissing("transitionMove", source: "oracle/codemp/game/bg_saber.c:324") }()` |
+| `saberMoveTransitionAngle` | `oracle/codemp/game/bg_saber.c:715` | let | `let saberMoveTransitionAngle: [[Int32]] = { () -> [[Int32]] in portMissing("saberMoveTransitionAngle", source: "oracle/codemp/game/bg_saber.c:715") }()` |
+| `bg_parryDebounce` | `oracle/codemp/game/bg_saber.c:2777` | let | `let bg_parryDebounce: [Int32] = { () -> [Int32] in portMissing("bg_parryDebounce", source: "oracle/codemp/game/bg_saber.c:2777") }()` |

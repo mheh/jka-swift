@@ -4,6 +4,24 @@ import JKAMP
 import JKAShared
 import JKAMP_Game
 
+/// Source: oracle/codemp/game/NPC.c:656
+// TODO: Port global NPCDEBUG_RED
+// Raven wrote: vec3_t NPCDEBUG_RED = {1.0, 0.0, 0.0}
+// Rule 3: a stored property of GameWorld with Raven's initializer, spelled world.NPCDEBUG_RED in a body.
+
+/// Source: oracle/codemp/game/NPC.c:657
+// Raven wrote: vec3_t NPCDEBUG_GREEN = {0.0, 1.0, 0.0}
+let NPCDEBUG_GREEN: JKAShared.vec3_t = { () -> JKAShared.vec3_t in portMissing("NPCDEBUG_GREEN", source: "oracle/codemp/game/NPC.c:657") }()
+
+/// Source: oracle/codemp/game/NPC.c:658
+// TODO: Port global NPCDEBUG_BLUE
+// Raven wrote: vec3_t NPCDEBUG_BLUE = {0.0, 0.0, 1.0}
+// Rule 3: a stored property of GameWorld with Raven's initializer, spelled world.NPCDEBUG_BLUE in a body.
+
+/// Source: oracle/codemp/game/NPC.c:659
+// Raven wrote: vec3_t NPCDEBUG_LIGHT_BLUE = {0.3f, 0.7f, 1.0}
+let NPCDEBUG_LIGHT_BLUE: JKAShared.vec3_t = { () -> JKAShared.vec3_t in portMissing("NPCDEBUG_LIGHT_BLUE", source: "oracle/codemp/game/NPC.c:659") }()
+
 /// Source: oracle/codemp/game/NPC.c:46
 func CorpsePhysics(_ `self`: Entity) {
     // TODO: Port CorpsePhysics

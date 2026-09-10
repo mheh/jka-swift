@@ -4,6 +4,31 @@ import JKAMP
 import JKAShared
 import JKAMP_Game
 
+/// Source: oracle/codemp/game/g_combat.c:755
+// TODO: Port global modNames
+// Raven wrote: char *modNames[MOD_MAX]
+// Rule 3: a stored property of GameWorld with Raven's initializer, spelled world.modNames in a body.
+
+/// Source: oracle/codemp/game/g_combat.c:3165
+// TODO: Port global hitLocName
+// Raven wrote: char *hitLocName[HL_MAX]
+// Rule 3: a stored property of GameWorld with Raven's initializer, spelled world.hitLocName in a body.
+
+/// Source: oracle/codemp/game/g_combat.c:3753
+// TODO: Port global gGAvoidDismember
+// Raven wrote: int gGAvoidDismember = 0
+// Rule 3: a stored property of GameWorld with Raven's initializer, spelled world.gGAvoidDismember in a body.
+
+/// Source: oracle/codemp/game/g_combat.c:4573
+// TODO: Port global gPainMOD
+// Raven wrote: int gPainMOD = 0
+// Rule 3: a stored property of GameWorld with Raven's initializer, spelled world.gPainMOD in a body.
+
+/// Source: oracle/codemp/game/g_combat.c:4574
+// TODO: Port global gPainHitLoc
+// Raven wrote: int gPainHitLoc = -1
+// Rule 3: a stored property of GameWorld with Raven's initializer, spelled world.gPainHitLoc in a body.
+
 /// Source: oracle/codemp/game/g_combat.c:22
 func ObjectDie(_ `self`: Entity, _ inflictor: Entity, _ attacker: Entity, _ damage: Int32, _ meansOfDeath: Int32) {
     // TODO: Port ObjectDie

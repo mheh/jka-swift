@@ -4,6 +4,16 @@ import JKAMP
 import JKAShared
 import JKAMP_Game
 
+/// Source: oracle/codemp/game/g_client.c:471
+// TODO: Port global gJMSaberEnt
+// Raven wrote: gentity_t *gJMSaberEnt = NULL
+// Rule 3: a stored property of GameWorld with Raven's initializer, spelled world.gJMSaberEnt in a body.
+
+/// Source: oracle/codemp/game/g_client.c:1511
+// TODO: Port global g2SaberInstance
+// Raven wrote: void *g2SaberInstance = NULL
+// No table row for `void *`.
+
 /**QUAKED info_player_duel (1 0 1) (-16 -16 -24) (16 16 32) initial
 potential spawning position for duelists in duel.
 Targets will be fired when someone spawns in on them.

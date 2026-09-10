@@ -4,6 +4,48 @@ import JKAMP
 import JKAShared
 import JKAMP_Game
 
+/// Source: oracle/codemp/game/w_force.c:24
+// TODO: Port global speedLoopSound
+// Raven wrote: int speedLoopSound = 0
+// Rule 3: a stored property of GameWorld with Raven's initializer, spelled world.speedLoopSound in a body.
+
+/// Source: oracle/codemp/game/w_force.c:26
+// TODO: Port global rageLoopSound
+// Raven wrote: int rageLoopSound = 0
+// Rule 3: a stored property of GameWorld with Raven's initializer, spelled world.rageLoopSound in a body.
+
+/// Source: oracle/codemp/game/w_force.c:28
+// TODO: Port global protectLoopSound
+// Raven wrote: int protectLoopSound = 0
+// Rule 3: a stored property of GameWorld with Raven's initializer, spelled world.protectLoopSound in a body.
+
+/// Source: oracle/codemp/game/w_force.c:30
+// TODO: Port global absorbLoopSound
+// Raven wrote: int absorbLoopSound = 0
+// Rule 3: a stored property of GameWorld with Raven's initializer, spelled world.absorbLoopSound in a body.
+
+/// Source: oracle/codemp/game/w_force.c:32
+// TODO: Port global seeLoopSound
+// Raven wrote: int seeLoopSound = 0
+// Rule 3: a stored property of GameWorld with Raven's initializer, spelled world.seeLoopSound in a body.
+
+/// Source: oracle/codemp/game/w_force.c:34
+// TODO: Port global ysalamiriLoopSound
+// Raven wrote: int ysalamiriLoopSound = 0
+// Rule 3: a stored property of GameWorld with Raven's initializer, spelled world.ysalamiriLoopSound in a body.
+
+/// Source: oracle/codemp/game/w_force.c:51
+// Raven wrote: const int forcePowerMinRank[NUM_FORCE_POWER_LEVELS][NUM_FORCE_POWERS]
+let forcePowerMinRank: [[Int32]] = { () -> [[Int32]] in portMissing("forcePowerMinRank", source: "oracle/codemp/game/w_force.c:51") }()
+
+/// Source: oracle/codemp/game/w_force.c:139
+// Raven wrote: const int mindTrickTime[NUM_FORCE_POWER_LEVELS]
+let mindTrickTime: [Int32] = { () -> [Int32] in portMissing("mindTrickTime", source: "oracle/codemp/game/w_force.c:139") }()
+
+/// Source: oracle/codemp/game/w_force.c:3044
+// Raven wrote: float forcePushPullRadius[NUM_FORCE_POWER_LEVELS]
+let forcePushPullRadius: [Float] = { () -> [Float] in portMissing("forcePushPullRadius", source: "oracle/codemp/game/w_force.c:3044") }()
+
 /// Source: oracle/codemp/game/w_force.c:40
 func G_PreDefSound(_ org: inout JKAShared.vec3_t, _ pdSound: Int32) -> Entity? {
     // TODO: Port G_PreDefSound

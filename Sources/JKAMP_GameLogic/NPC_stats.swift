@@ -4,6 +4,35 @@ import JKAMP
 import JKAShared
 import JKAMP_Game
 
+/// Source: oracle/codemp/game/NPC_stats.c:14
+// TODO: Port global TeamTable
+// Raven wrote: stringID_table_t TeamTable[]
+// A struct table is C storage in Sources/CJKAMP, reached through a Slots constant.
+
+/// Source: oracle/codemp/game/NPC_stats.c:24
+// TODO: Port global ClassTable
+// Raven wrote: stringID_table_t ClassTable[]
+// A struct table is C storage in Sources/CJKAMP, reached through a Slots constant.
+
+/// Source: oracle/codemp/game/NPC_stats.c:88
+// TODO: Port global BSTable
+// Raven wrote: stringID_table_t BSTable[]
+// A struct table is C storage in Sources/CJKAMP, reached through a Slots constant.
+
+/// Source: oracle/codemp/game/NPC_stats.c:106
+// TODO: Port global BSETTable
+// Raven wrote: stringID_table_t BSETTable[]
+// A struct table is C storage in Sources/CJKAMP, reached through a Slots constant.
+
+/// Source: oracle/codemp/game/NPC_stats.c:133
+// TODO: Port global TeamNames
+// Raven wrote: char *TeamNames[TEAM_NUM_TEAMS]
+// Rule 3: a stored property of GameWorld with Raven's initializer, spelled world.TeamNames in a body.
+
+/// Source: oracle/codemp/game/NPC_stats.c:156
+// Raven wrote: char *ClassNames[CLASS_NUM_CLASSES]
+let ClassNames: [String] = { () -> [String] in portMissing("ClassNames", source: "oracle/codemp/game/NPC_stats.c:156") }()
+
 /**
 NPC_ReactionTime
 */

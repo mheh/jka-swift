@@ -4,6 +4,30 @@ import JKAMP
 import JKAShared
 import JKAMP_Game
 
+/// Source: oracle/codemp/game/ai_main.c:96
+// Raven wrote: char *ctfStateNames[]
+let ctfStateNames: [String] = { () -> [String] in portMissing("ctfStateNames", source: "oracle/codemp/game/ai_main.c:96") }()
+
+/// Source: oracle/codemp/game/ai_main.c:106
+// TODO: Port global ctfStateDescriptions
+// Raven wrote: char *ctfStateDescriptions[]
+// Rule 3: a stored property of GameWorld with Raven's initializer, spelled world.ctfStateDescriptions in a body.
+
+/// Source: oracle/codemp/game/ai_main.c:115
+// TODO: Port global siegeStateDescriptions
+// Raven wrote: char *siegeStateDescriptions[]
+// Rule 3: a stored property of GameWorld with Raven's initializer, spelled world.siegeStateDescriptions in a body.
+
+/// Source: oracle/codemp/game/ai_main.c:121
+// TODO: Port global teamplayStateDescriptions
+// Raven wrote: char *teamplayStateDescriptions[]
+// Rule 3: a stored property of GameWorld with Raven's initializer, spelled world.teamplayStateDescriptions in a body.
+
+/// Source: oracle/codemp/game/ai_main.c:7485
+// TODO: Port global gUpdateVars
+// Raven wrote: int gUpdateVars = 0
+// Rule 3: a stored property of GameWorld with Raven's initializer, spelled world.gUpdateVars in a body.
+
 /// Source: oracle/codemp/game/ai_main.c:128
 // TODO: Port signature
 // Raven wrote: void BotStraightTPOrderCheck(gentity_t *ent, int ordernum, bot_state_t *bs)

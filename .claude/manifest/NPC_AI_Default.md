@@ -18,7 +18,7 @@ The oracle range is the whole definition, from the return type to the closing br
 | `NPC_BSRunAndShoot` | `oracle/codemp/game/NPC_AI_Default.c:394-487` | `JKAMP_GameLogic/NPC_AI_Default.swift:56` | marker | `crates/mp/game/src/NPC_AI_Default.rs:309-368` | `func NPC_BSRunAndShoot()` |
 | `NPC_BSFace` | `oracle/codemp/game/NPC_AI_Default.c:490-503` | `JKAMP_GameLogic/NPC_AI_Default.swift:63` | marker | `crates/mp/game/src/NPC_AI_Default.rs:373-393` | `func NPC_BSFace()` |
 | `NPC_BSPointShoot` | `oracle/codemp/game/NPC_AI_Default.c:505-610` | `JKAMP_GameLogic/NPC_AI_Default.swift:69` | marker | `crates/mp/game/src/NPC_AI_Default.rs:398-496` | `func NPC_BSPointShoot(_ shoot: Bool)` |
-| `NPC_BSMove` | `oracle/codemp/game/NPC_AI_Default.c:616-637` | `JKAMP_GameLogic/NPC_AI_Default.swift:79` | marker | `crates/mp/game/src/NPC_AI_Default.rs:501-514` | `func NPC_BSMove()` |
-| `NPC_BSShoot` | `oracle/codemp/game/NPC_AI_Default.c:644-656` | `JKAMP_GameLogic/NPC_AI_Default.swift:85` | marker | `crates/mp/game/src/NPC_AI_Default.rs:519-531` | `func NPC_BSShoot()` |
-| `NPC_BSPatrol` | `oracle/codemp/game/NPC_AI_Default.c:664-703` | `JKAMP_GameLogic/NPC_AI_Default.swift:97` | marker | `crates/mp/game/src/NPC_AI_Default.rs:536-562` | `func NPC_BSPatrol()` |
-| `NPC_BSDefault` | `oracle/codemp/game/NPC_AI_Default.c:712-957` | `JKAMP_GameLogic/NPC_AI_Default.swift:103` | marker | `crates/mp/game/src/NPC_AI_Default.rs:567-704` | `func NPC_BSDefault()` |
+| `NPC_BSMove` | `oracle/codemp/game/NPC_AI_Default.c:616-637` | `JKAMP_GameLogic/NPC_AI_Default.swift:81` | marker | `crates/mp/game/src/NPC_AI_Default.rs:501-514` | `func NPC_BSMove()` |
+| `NPC_BSShoot` | `oracle/codemp/game/NPC_AI_Default.c:644-656` | `JKAMP_GameLogic/NPC_AI_Default.swift:87` | marker | `crates/mp/game/src/NPC_AI_Default.rs:519-531` | `func NPC_BSShoot()` |
+| `NPC_BSPatrol` | `oracle/codemp/game/NPC_AI_Default.c:664-703` | `JKAMP_GameLogic/NPC_AI_Default.swift:101` | marker | `crates/mp/game/src/NPC_AI_Default.rs:536-562` | `func NPC_BSPatrol()` |
+| `NPC_BSDefault` | `oracle/codemp/game/NPC_AI_Default.c:712-957` | `JKAMP_GameLogic/NPC_AI_Default.swift:107` | marker | `crates/mp/game/src/NPC_AI_Default.rs:567-704` | `func NPC_BSDefault()` |

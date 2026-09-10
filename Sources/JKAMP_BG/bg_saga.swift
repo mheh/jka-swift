@@ -3,6 +3,66 @@
 import JKAMP
 import JKAShared
 
+/// Source: oracle/codemp/game/bg_saga.c:33
+// TODO: Port global siege_valid
+// Raven wrote: int siege_valid = 0
+// Rule 3: a stored property of BgState with Raven's initializer, spelled bg.siege_valid in a body.
+
+/// Source: oracle/codemp/game/bg_saga.c:35
+// TODO: Port global team1Theme
+// Raven wrote: siegeTeam_t *team1Theme = NULL
+// Rule 3: a stored property of BgState with Raven's initializer, spelled bg.team1Theme in a body.
+
+/// Source: oracle/codemp/game/bg_saga.c:36
+// TODO: Port global team2Theme
+// Raven wrote: siegeTeam_t *team2Theme = NULL
+// Rule 3: a stored property of BgState with Raven's initializer, spelled bg.team2Theme in a body.
+
+/// Source: oracle/codemp/game/bg_saga.c:39
+// TODO: Port global bgNumSiegeClasses
+// Raven wrote: int bgNumSiegeClasses = 0
+// Rule 3: a stored property of BgState with Raven's initializer, spelled bg.bgNumSiegeClasses in a body.
+
+/// Source: oracle/codemp/game/bg_saga.c:42
+// TODO: Port global bgNumSiegeTeams
+// Raven wrote: int bgNumSiegeTeams = 0
+// Rule 3: a stored property of BgState with Raven's initializer, spelled bg.bgNumSiegeTeams in a body.
+
+/// Source: oracle/codemp/game/bg_saga.c:45
+// TODO: Port global bgSiegeClassFlagNames
+// Raven wrote: stringID_table_t bgSiegeClassFlagNames[]
+// A struct table is C storage in Sources/CJKAMP, reached through a Slots constant.
+
+/// Source: oracle/codemp/game/bg_saga.c:59
+// TODO: Port global StanceTable
+// Raven wrote: stringID_table_t StanceTable[]
+// A struct table is C storage in Sources/CJKAMP, reached through a Slots constant.
+
+/// Source: oracle/codemp/game/bg_saga.c:73
+// TODO: Port global WPTable
+// Raven wrote: stringID_table_t WPTable[]
+// A struct table is C storage in Sources/CJKAMP, reached through a Slots constant.
+
+/// Source: oracle/codemp/game/bg_saga.c:100
+// TODO: Port global FPTable
+// Raven wrote: stringID_table_t FPTable[]
+// A struct table is C storage in Sources/CJKAMP, reached through a Slots constant.
+
+/// Source: oracle/codemp/game/bg_saga.c:123
+// TODO: Port global HoldableTable
+// Raven wrote: stringID_table_t HoldableTable[]
+// A struct table is C storage in Sources/CJKAMP, reached through a Slots constant.
+
+/// Source: oracle/codemp/game/bg_saga.c:142
+// TODO: Port global PowerupTable
+// Raven wrote: stringID_table_t PowerupTable[]
+// A struct table is C storage in Sources/CJKAMP, reached through a Slots constant.
+
+/// Source: oracle/codemp/game/bg_saga.c:748
+// TODO: Port global classTitles
+// Raven wrote: char *classTitles[SPC_MAX]
+// Rule 3: a stored property of BgState with Raven's initializer, spelled bg.classTitles in a body.
+
 //======================================
 //Parsing functions
 //======================================

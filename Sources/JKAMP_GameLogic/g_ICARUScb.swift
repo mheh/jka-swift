@@ -4,6 +4,15 @@ import JKAMP
 import JKAShared
 import JKAMP_Game
 
+/// Source: oracle/codemp/game/g_ICARUScb.c:52
+// TODO: Port global setTable
+// Raven wrote: stringID_table_t setTable[]
+// A struct table is C storage in Sources/CJKAMP, reached through a Slots constant.
+
+/// Source: oracle/codemp/game/g_ICARUScb.c:4575
+// Raven wrote: qboolean player_locked = qfalse
+let player_locked: Bool = { () -> Bool in portMissing("player_locked", source: "oracle/codemp/game/g_ICARUScb.c:4575") }()
+
 /// Source: oracle/codemp/game/g_ICARUScb.c:270
 func Q3_TaskIDClear(_ taskID: inout Int32) {
     // TODO: Port Q3_TaskIDClear

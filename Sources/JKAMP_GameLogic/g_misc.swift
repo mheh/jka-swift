@@ -4,6 +4,21 @@ import JKAMP
 import JKAShared
 import JKAMP_Game
 
+/// Source: oracle/codemp/game/g_misc.c:2540
+// TODO: Port global gEscaping
+// Raven wrote: qboolean gEscaping = qfalse
+// Rule 3: a stored property of GameWorld with Raven's initializer, spelled world.gEscaping in a body.
+
+/// Source: oracle/codemp/game/g_misc.c:2541
+// TODO: Port global gEscapeTime
+// Raven wrote: int gEscapeTime = 0
+// Rule 3: a stored property of GameWorld with Raven's initializer, spelled world.gEscapeTime in a body.
+
+/// Source: oracle/codemp/game/g_misc.c:3352
+// TODO: Port global g_shooterClientInit
+// Raven wrote: static qboolean g_shooterClientInit = qfalse
+// Rule 3: a stored property of GameWorld with Raven's initializer, spelled world.g_shooterClientInit in a body.
+
 /**QUAKED info_camp (0 0.5 0) (-4 -4 -4) (4 4 4)
 Used as a positional target for calculations in the utilities (spotlights, etc), but removed during gameplay.
 */

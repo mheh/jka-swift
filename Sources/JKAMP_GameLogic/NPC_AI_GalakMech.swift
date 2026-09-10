@@ -4,6 +4,16 @@ import JKAMP
 import JKAShared
 import JKAMP_Game
 
+/// Source: oracle/codemp/game/NPC_AI_GalakMech.c:28
+// TODO: Port global shieldMins
+// Raven wrote: static vec3_t shieldMins = {-60, -60, -24 }
+// Rule 3: a stored property of GameWorld with Raven's initializer, spelled world.shieldMins in a body.
+
+/// Source: oracle/codemp/game/NPC_AI_GalakMech.c:29
+// TODO: Port global shieldMaxs
+// Raven wrote: static vec3_t shieldMaxs = {60, 60, 80}
+// Rule 3: a stored property of GameWorld with Raven's initializer, spelled world.shieldMaxs in a body.
+
 /// Source: oracle/codemp/game/NPC_AI_GalakMech.c:42
 func NPC_GalakMech_Precache() {
     // TODO: Port NPC_GalakMech_Precache

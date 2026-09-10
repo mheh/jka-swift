@@ -12,5 +12,5 @@ The oracle range is the whole definition, from the return type to the closing br
 | `NPC_ClearGoal` | `oracle/codemp/game/NPC_goal.c:65-86` | `JKAMP_GameLogic/NPC_goal.swift:20` | marker | `crates/mp/game/src/NPC_goal.rs:59-83` | `func NPC_ClearGoal()` |
 | `G_BoundsOverlap` | `oracle/codemp/game/NPC_goal.c:94-115` | `JKAMP_GameLogic/NPC_goal.swift:26` | marker | `crates/mp/game/src/NPC_goal.rs:91-113` | `func G_BoundsOverlap(_ mins1: JKAShared.vec3_t, _ maxs1: JKAShared.vec3_t, _ mins2: JKAShared.vec3_t, _ maxs2: JKAShared.vec3_t) -> Bool` |
 | `NPC_ReachedGoal` | `oracle/codemp/game/NPC_goal.c:117-129` | `JKAMP_GameLogic/NPC_goal.swift:32` | marker | `crates/mp/game/src/NPC_goal.rs:118-138` | `func NPC_ReachedGoal()` |
-| `ReachedGoal` | `oracle/codemp/game/NPC_goal.c:136-231` | `JKAMP_GameLogic/NPC_goal.swift:44` | marker | `crates/mp/game/src/NPC_goal.rs:148-170` | `func ReachedGoal(_ goal: Entity) -> Bool` |
-| `UpdateGoal` | `oracle/codemp/game/NPC_goal.c:243-267` | `JKAMP_GameLogic/NPC_goal.swift:50` | marker | `crates/mp/game/src/NPC_goal.rs:179-203` | `func UpdateGoal() -> Entity?` |
+| `ReachedGoal` | `oracle/codemp/game/NPC_goal.c:136-231` | `JKAMP_GameLogic/NPC_goal.swift:46` | marker | `crates/mp/game/src/NPC_goal.rs:148-170` | `func ReachedGoal(_ goal: Entity) -> Bool` |
+| `UpdateGoal` | `oracle/codemp/game/NPC_goal.c:243-267` | `JKAMP_GameLogic/NPC_goal.swift:52` | marker | `crates/mp/game/src/NPC_goal.rs:179-203` | `func UpdateGoal() -> Entity?` |

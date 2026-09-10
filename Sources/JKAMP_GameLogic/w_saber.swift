@@ -4,6 +4,50 @@ import JKAMP
 import JKAShared
 import JKAMP_Game
 
+/// Source: oracle/codemp/game/w_saber.c:18
+// TODO: Port global saberSpinSound
+// Raven wrote: int saberSpinSound = 0
+// Rule 3: a stored property of GameWorld with Raven's initializer, spelled world.saberSpinSound in a body.
+
+/// Source: oracle/codemp/game/w_saber.c:3511
+// TODO: Port global numVictims
+// Raven wrote: static int numVictims = 0
+// Rule 3: a stored property of GameWorld with Raven's initializer, spelled world.numVictims in a body.
+
+/// Source: oracle/codemp/game/w_saber.c:3794
+// TODO: Port global saberDoClashEffect
+// Raven wrote: static qboolean saberDoClashEffect = qfalse
+// Rule 3: a stored property of GameWorld with Raven's initializer, spelled world.saberDoClashEffect in a body.
+
+/// Source: oracle/codemp/game/w_saber.c:3795
+// TODO: Port global saberClashPos
+// Raven wrote: static vec3_t saberClashPos = {0}
+// Rule 3: a stored property of GameWorld with Raven's initializer, spelled world.saberClashPos in a body.
+
+/// Source: oracle/codemp/game/w_saber.c:3796
+// Raven wrote: static vec3_t saberClashNorm = {0}
+let saberClashNorm: JKAShared.vec3_t = { () -> JKAShared.vec3_t in portMissing("saberClashNorm", source: "oracle/codemp/game/w_saber.c:3796") }()
+
+/// Source: oracle/codemp/game/w_saber.c:3797
+// TODO: Port global saberClashEventParm
+// Raven wrote: static int saberClashEventParm = 1
+// Rule 3: a stored property of GameWorld with Raven's initializer, spelled world.saberClashEventParm in a body.
+
+/// Source: oracle/codemp/game/w_saber.c:3846
+// TODO: Port global saberHitWall
+// Raven wrote: static qboolean saberHitWall = qfalse
+// Rule 3: a stored property of GameWorld with Raven's initializer, spelled world.saberHitWall in a body.
+
+/// Source: oracle/codemp/game/w_saber.c:3847
+// TODO: Port global saberHitSaber
+// Raven wrote: static qboolean saberHitSaber = qfalse
+// Rule 3: a stored property of GameWorld with Raven's initializer, spelled world.saberHitSaber in a body.
+
+/// Source: oracle/codemp/game/w_saber.c:3848
+// TODO: Port global saberHitFraction
+// Raven wrote: static float saberHitFraction = 1.0f
+// Rule 3: a stored property of GameWorld with Raven's initializer, spelled world.saberHitFraction in a body.
+
 /// Source: oracle/codemp/game/w_saber.c:39
 func RandFloat(_ min: Float, _ max: Float) -> Float {
     // TODO: Port RandFloat

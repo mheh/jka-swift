@@ -7,41 +7,62 @@ The oracle range is the whole definition, from the return type to the closing br
 
 | Function | Oracle | Swift | State | jka-rust | Signature |
 |---|---|---|---|---|---|
-| `G_SiegeRegisterWeaponsAndHoldables` | `oracle/codemp/game/g_saga.c:51-87` | `JKAMP_GameLogic/g_saga.swift:10` | marker | `crates/mp/game/src/g_saga.rs:56-87` | `func G_SiegeRegisterWeaponsAndHoldables(_ team: Int32)` |
-| `SiegeSetCompleteData` | `oracle/codemp/game/g_saga.c:91-94` | `JKAMP_GameLogic/g_saga.swift:18` | marker | `crates/mp/game/src/g_saga.rs:94-96` | `func SiegeSetCompleteData(_ team: Int32)` |
-| `InitSiegeMode` | `oracle/codemp/game/g_saga.c:96-373` | `JKAMP_GameLogic/g_saga.swift:24` | marker | `crates/mp/game/src/g_saga.rs:101-430` | `func InitSiegeMode()` |
-| `G_SiegeSetObjectiveComplete` | `oracle/codemp/game/g_saga.c:375-427` | `JKAMP_GameLogic/g_saga.swift:30` | marker | `crates/mp/game/src/g_saga.rs:435-497` | `func G_SiegeSetObjectiveComplete(_ team: Int32, _ objective: Int32, _ failIt: Bool)` |
-| `G_SiegeGetCompletionStatus` | `oracle/codemp/game/g_saga.c:430-480` | `JKAMP_GameLogic/g_saga.swift:37` | marker | `crates/mp/game/src/g_saga.rs:504-559` | `func G_SiegeGetCompletionStatus(_ team: Int32, _ objective: Int32) -> Bool` |
-| `UseSiegeTarget` | `oracle/codemp/game/g_saga.c:482-526` | `JKAMP_GameLogic/g_saga.swift:43` | marker | `crates/mp/game/src/g_saga.rs:566-607` | `func UseSiegeTarget(_ other: Entity, _ en: Entity, _ target: inout String)` |
-| `SiegeBroadcast_OBJECTIVECOMPLETE` | `oracle/codemp/game/g_saga.c:528-540` | `JKAMP_GameLogic/g_saga.swift:49` | marker | `crates/mp/game/src/g_saga.rs:612-630` | `func SiegeBroadcast_OBJECTIVECOMPLETE(_ team: Int32, _ client: Int32, _ objective: Int32)` |
-| `SiegeBroadcast_ROUNDOVER` | `oracle/codemp/game/g_saga.c:542-553` | `JKAMP_GameLogic/g_saga.swift:55` | marker | `crates/mp/game/src/g_saga.rs:635-643` | `func SiegeBroadcast_ROUNDOVER(_ winningteam: Int32, _ winningclient: Int32)` |
-| `BroadcastObjectiveCompletion` | `oracle/codemp/game/g_saga.c:555-564` | `JKAMP_GameLogic/g_saga.swift:61` | marker | `crates/mp/game/src/g_saga.rs:648-670` | `func BroadcastObjectiveCompletion(_ team: Int32, _ objective: Int32, _ final: Int32, _ client: Int32)` |
-| `AddSiegeWinningTeamPoints` | `oracle/codemp/game/g_saga.c:566-589` | `JKAMP_GameLogic/g_saga.swift:67` | marker | `crates/mp/game/src/g_saga.rs:675-700` | `func AddSiegeWinningTeamPoints(_ team: Int32, _ winner: Int32)` |
-| `SiegeClearSwitchData` | `oracle/codemp/game/g_saga.c:591-595` | `JKAMP_GameLogic/g_saga.swift:73` | marker | `crates/mp/game/src/g_saga.rs:705-713` | `func SiegeClearSwitchData()` |
-| `SiegeDoTeamAssign` | `oracle/codemp/game/g_saga.c:597-630` | `JKAMP_GameLogic/g_saga.swift:79` | marker | `crates/mp/game/src/g_saga.rs:720-752` | `func SiegeDoTeamAssign()` |
-| `SiegeTeamSwitch` | `oracle/codemp/game/g_saga.c:632-652` | `JKAMP_GameLogic/g_saga.swift:85` | marker | `crates/mp/game/src/g_saga.rs:757-784` | `func SiegeTeamSwitch(_ winTeam: Int32, _ winTime: Int32)` |
-| `SiegeRoundComplete` | `oracle/codemp/game/g_saga.c:654-742` | `JKAMP_GameLogic/g_saga.swift:91` | marker | `crates/mp/game/src/g_saga.rs:789-894` | `func SiegeRoundComplete(_ winningteam: Int32, _ winningclient: Int32)` |
-| `G_ValidateSiegeClassForTeam` | `oracle/codemp/game/g_saga.c:744-784` | `JKAMP_GameLogic/g_saga.swift:97` | marker | `crates/mp/game/src/g_saga.rs:899-950` | `func G_ValidateSiegeClassForTeam(_ ent: Entity, _ team: Int32)` |
-| `SetTeamQuick` | `oracle/codemp/game/g_saga.c:787-834` | `JKAMP_GameLogic/g_saga.swift:104` | marker | `crates/mp/game/src/g_saga.rs:957-998` | `func SetTeamQuick(_ ent: Entity, _ team: Int32, _ doBegin: Bool)` |
-| `SiegeRespawn` | `oracle/codemp/game/g_saga.c:836-851` | `JKAMP_GameLogic/g_saga.swift:110` | marker | `crates/mp/game/src/g_saga.rs:1003-1023` | `func SiegeRespawn(_ ent: Entity)` |
-| `SiegeBeginRound` | `oracle/codemp/game/g_saga.c:853-903` | `JKAMP_GameLogic/g_saga.swift:116` | marker | `crates/mp/game/src/g_saga.rs:1030-1094` | `func SiegeBeginRound(_ entNum: Int32)` |
-| `SiegeCheckTimers` | `oracle/codemp/game/g_saga.c:905-1013` | `JKAMP_GameLogic/g_saga.swift:122` | marker | `crates/mp/game/src/g_saga.rs:1099-1213` | `func SiegeCheckTimers()` |
-| `SiegeObjectiveCompleted` | `oracle/codemp/game/g_saga.c:1015-1058` | `JKAMP_GameLogic/g_saga.swift:128` | marker | `crates/mp/game/src/g_saga.rs:1218-1256` | `func SiegeObjectiveCompleted(_ team: Int32, _ objective: Int32, _ final: Int32, _ client: Int32)` |
-| `siegeTriggerUse` | `oracle/codemp/game/g_saga.c:1060-1128` | `JKAMP_GameLogic/g_saga.swift:134` | marker | `crates/mp/game/src/g_saga.rs:1261-1348` | `func siegeTriggerUse(_ ent: Entity, _ other: Entity, _ activator: Entity)` |
-| `SP_info_siege_objective` | `oracle/codemp/game/g_saga.c:1137-1179` | `JKAMP_GameLogic/g_saga.swift:147` | marker | `crates/mp/game/src/g_saga.rs:1353-1416` | `func SP_info_siege_objective(_ ent: Entity)` |
-| `SiegeIconUse` | `oracle/codemp/game/g_saga.c:1182-1194` | `JKAMP_GameLogic/g_saga.swift:153` | marker | `crates/mp/game/src/g_saga.rs:1423-1433` | `func SiegeIconUse(_ ent: Entity, _ other: Entity, _ activator: Entity)` |
-| `SP_info_siege_radaricon` | `oracle/codemp/game/g_saga.c:1203-1234` | `JKAMP_GameLogic/g_saga.swift:166` | marker | `crates/mp/game/src/g_saga.rs:1438-1483` | `func SP_info_siege_radaricon(_ ent: Entity)` |
-| `decompTriggerUse` | `oracle/codemp/game/g_saga.c:1236-1291` | `JKAMP_GameLogic/g_saga.swift:172` | marker | `crates/mp/game/src/g_saga.rs:1488-1559` | `func decompTriggerUse(_ ent: Entity, _ other: Entity, _ activator: Entity)` |
-| `SP_info_siege_decomplete` | `oracle/codemp/game/g_saga.c:1297-1315` | `JKAMP_GameLogic/g_saga.swift:182` | marker | `crates/mp/game/src/g_saga.rs:1564-1599` | `func SP_info_siege_decomplete(_ ent: Entity)` |
-| `siegeEndUse` | `oracle/codemp/game/g_saga.c:1317-1320` | `JKAMP_GameLogic/g_saga.swift:188` | marker | `crates/mp/game/src/g_saga.rs:1604-1612` | `func siegeEndUse(_ ent: Entity, _ other: Entity, _ activator: Entity)` |
-| `SP_target_siege_end` | `oracle/codemp/game/g_saga.c:1325-1334` | `JKAMP_GameLogic/g_saga.swift:197` | marker | `crates/mp/game/src/g_saga.rs:1617-1624` | `func SP_target_siege_end(_ ent: Entity)` |
-| `SiegeItemRemoveOwner` | `oracle/codemp/game/g_saga.c:1338-1349` | `JKAMP_GameLogic/g_saga.swift:203` | marker | `crates/mp/game/src/g_saga.rs:1629-1645` | `func SiegeItemRemoveOwner(_ ent: Entity, _ carrier: Entity)` |
-| `SiegeItemRespawnEffect` static | `oracle/codemp/game/g_saga.c:1351-1370` | `JKAMP_GameLogic/g_saga.swift:209` | marker | `crates/mp/game/src/g_saga.rs:1650-1672` | `private func SiegeItemRespawnEffect(_ ent: Entity, _ newOrg: inout JKAShared.vec3_t)` |
-| `SiegeItemRespawnOnOriginalSpot` static | `oracle/codemp/game/g_saga.c:1372-1380` | `JKAMP_GameLogic/g_saga.swift:215` | marker | `crates/mp/game/src/g_saga.rs:1677-1689` | `private func SiegeItemRespawnOnOriginalSpot(_ ent: Entity, _ carrier: Entity)` |
-| `SiegeItemThink` | `oracle/codemp/game/g_saga.c:1382-1475` | `JKAMP_GameLogic/g_saga.swift:221` | marker | `crates/mp/game/src/g_saga.rs:1694-1831` | `func SiegeItemThink(_ ent: Entity)` |
-| `SiegeItemTouch` | `oracle/codemp/game/g_saga.c:1477-1545` | `JKAMP_GameLogic/g_saga.swift:227` | marker | `crates/mp/game/src/g_saga.rs:1836-1929` | `func SiegeItemTouch(_ `self`: Entity, _ other: Entity, _ trace: JKAMP.Trace)` |
-| `SiegeItemPain` | `oracle/codemp/game/g_saga.c:1547-1551` | `JKAMP_GameLogic/g_saga.swift:233` | marker | `crates/mp/game/src/g_saga.rs:1936-1945` | `func SiegeItemPain(_ `self`: Entity, _ attacker: Entity, _ damage: Int32)` |
-| `SiegeItemDie` | `oracle/codemp/game/g_saga.c:1553-1574` | `JKAMP_GameLogic/g_saga.swift:239` | marker | `crates/mp/game/src/g_saga.rs:1950-1981` | `func SiegeItemDie(_ `self`: Entity, _ inflictor: Entity, _ attacker: Entity, _ damage: Int32, _ meansOfDeath: Int32)` |
-| `SiegeItemUse` | `oracle/codemp/game/g_saga.c:1576-1623` | `JKAMP_GameLogic/g_saga.swift:245` | marker | `crates/mp/game/src/g_saga.rs:1988-2051` | `func SiegeItemUse(_ ent: Entity, _ other: Entity, _ activator: Entity)` |
-| `SP_misc_siege_item` | `oracle/codemp/game/g_saga.c:1676-1835` | `JKAMP_GameLogic/g_saga.swift:302` | marker | `crates/mp/game/src/g_saga.rs:2056-2328` | `func SP_misc_siege_item(_ ent: Entity)` |
-| `G_SiegeClientExData` | `oracle/codemp/game/g_saga.c:1845-1886` | `JKAMP_GameLogic/g_saga.swift:316` | marker | `crates/mp/game/src/g_saga.rs:2335-2398` | `func G_SiegeClientExData(_ msgTarg: Entity)` |
+| `G_SiegeRegisterWeaponsAndHoldables` | `oracle/codemp/game/g_saga.c:51-87` | `JKAMP_GameLogic/g_saga.swift:90` | marker | `crates/mp/game/src/g_saga.rs:56-87` | `func G_SiegeRegisterWeaponsAndHoldables(_ team: Int32)` |
+| `SiegeSetCompleteData` | `oracle/codemp/game/g_saga.c:91-94` | `JKAMP_GameLogic/g_saga.swift:98` | marker | `crates/mp/game/src/g_saga.rs:94-96` | `func SiegeSetCompleteData(_ team: Int32)` |
+| `InitSiegeMode` | `oracle/codemp/game/g_saga.c:96-373` | `JKAMP_GameLogic/g_saga.swift:104` | marker | `crates/mp/game/src/g_saga.rs:101-430` | `func InitSiegeMode()` |
+| `G_SiegeSetObjectiveComplete` | `oracle/codemp/game/g_saga.c:375-427` | `JKAMP_GameLogic/g_saga.swift:110` | marker | `crates/mp/game/src/g_saga.rs:435-497` | `func G_SiegeSetObjectiveComplete(_ team: Int32, _ objective: Int32, _ failIt: Bool)` |
+| `G_SiegeGetCompletionStatus` | `oracle/codemp/game/g_saga.c:430-480` | `JKAMP_GameLogic/g_saga.swift:117` | marker | `crates/mp/game/src/g_saga.rs:504-559` | `func G_SiegeGetCompletionStatus(_ team: Int32, _ objective: Int32) -> Bool` |
+| `UseSiegeTarget` | `oracle/codemp/game/g_saga.c:482-526` | `JKAMP_GameLogic/g_saga.swift:123` | marker | `crates/mp/game/src/g_saga.rs:566-607` | `func UseSiegeTarget(_ other: Entity, _ en: Entity, _ target: inout String)` |
+| `SiegeBroadcast_OBJECTIVECOMPLETE` | `oracle/codemp/game/g_saga.c:528-540` | `JKAMP_GameLogic/g_saga.swift:129` | marker | `crates/mp/game/src/g_saga.rs:612-630` | `func SiegeBroadcast_OBJECTIVECOMPLETE(_ team: Int32, _ client: Int32, _ objective: Int32)` |
+| `SiegeBroadcast_ROUNDOVER` | `oracle/codemp/game/g_saga.c:542-553` | `JKAMP_GameLogic/g_saga.swift:135` | marker | `crates/mp/game/src/g_saga.rs:635-643` | `func SiegeBroadcast_ROUNDOVER(_ winningteam: Int32, _ winningclient: Int32)` |
+| `BroadcastObjectiveCompletion` | `oracle/codemp/game/g_saga.c:555-564` | `JKAMP_GameLogic/g_saga.swift:141` | marker | `crates/mp/game/src/g_saga.rs:648-670` | `func BroadcastObjectiveCompletion(_ team: Int32, _ objective: Int32, _ final: Int32, _ client: Int32)` |
+| `AddSiegeWinningTeamPoints` | `oracle/codemp/game/g_saga.c:566-589` | `JKAMP_GameLogic/g_saga.swift:147` | marker | `crates/mp/game/src/g_saga.rs:675-700` | `func AddSiegeWinningTeamPoints(_ team: Int32, _ winner: Int32)` |
+| `SiegeClearSwitchData` | `oracle/codemp/game/g_saga.c:591-595` | `JKAMP_GameLogic/g_saga.swift:153` | marker | `crates/mp/game/src/g_saga.rs:705-713` | `func SiegeClearSwitchData()` |
+| `SiegeDoTeamAssign` | `oracle/codemp/game/g_saga.c:597-630` | `JKAMP_GameLogic/g_saga.swift:159` | marker | `crates/mp/game/src/g_saga.rs:720-752` | `func SiegeDoTeamAssign()` |
+| `SiegeTeamSwitch` | `oracle/codemp/game/g_saga.c:632-652` | `JKAMP_GameLogic/g_saga.swift:165` | marker | `crates/mp/game/src/g_saga.rs:757-784` | `func SiegeTeamSwitch(_ winTeam: Int32, _ winTime: Int32)` |
+| `SiegeRoundComplete` | `oracle/codemp/game/g_saga.c:654-742` | `JKAMP_GameLogic/g_saga.swift:171` | marker | `crates/mp/game/src/g_saga.rs:789-894` | `func SiegeRoundComplete(_ winningteam: Int32, _ winningclient: Int32)` |
+| `G_ValidateSiegeClassForTeam` | `oracle/codemp/game/g_saga.c:744-784` | `JKAMP_GameLogic/g_saga.swift:177` | marker | `crates/mp/game/src/g_saga.rs:899-950` | `func G_ValidateSiegeClassForTeam(_ ent: Entity, _ team: Int32)` |
+| `SetTeamQuick` | `oracle/codemp/game/g_saga.c:787-834` | `JKAMP_GameLogic/g_saga.swift:184` | marker | `crates/mp/game/src/g_saga.rs:957-998` | `func SetTeamQuick(_ ent: Entity, _ team: Int32, _ doBegin: Bool)` |
+| `SiegeRespawn` | `oracle/codemp/game/g_saga.c:836-851` | `JKAMP_GameLogic/g_saga.swift:190` | marker | `crates/mp/game/src/g_saga.rs:1003-1023` | `func SiegeRespawn(_ ent: Entity)` |
+| `SiegeBeginRound` | `oracle/codemp/game/g_saga.c:853-903` | `JKAMP_GameLogic/g_saga.swift:196` | marker | `crates/mp/game/src/g_saga.rs:1030-1094` | `func SiegeBeginRound(_ entNum: Int32)` |
+| `SiegeCheckTimers` | `oracle/codemp/game/g_saga.c:905-1013` | `JKAMP_GameLogic/g_saga.swift:202` | marker | `crates/mp/game/src/g_saga.rs:1099-1213` | `func SiegeCheckTimers()` |
+| `SiegeObjectiveCompleted` | `oracle/codemp/game/g_saga.c:1015-1058` | `JKAMP_GameLogic/g_saga.swift:208` | marker | `crates/mp/game/src/g_saga.rs:1218-1256` | `func SiegeObjectiveCompleted(_ team: Int32, _ objective: Int32, _ final: Int32, _ client: Int32)` |
+| `siegeTriggerUse` | `oracle/codemp/game/g_saga.c:1060-1128` | `JKAMP_GameLogic/g_saga.swift:214` | marker | `crates/mp/game/src/g_saga.rs:1261-1348` | `func siegeTriggerUse(_ ent: Entity, _ other: Entity, _ activator: Entity)` |
+| `SP_info_siege_objective` | `oracle/codemp/game/g_saga.c:1137-1179` | `JKAMP_GameLogic/g_saga.swift:230` | marker | `crates/mp/game/src/g_saga.rs:1353-1416` | `func SP_info_siege_objective(_ ent: Entity)` |
+| `SiegeIconUse` | `oracle/codemp/game/g_saga.c:1182-1194` | `JKAMP_GameLogic/g_saga.swift:236` | marker | `crates/mp/game/src/g_saga.rs:1423-1433` | `func SiegeIconUse(_ ent: Entity, _ other: Entity, _ activator: Entity)` |
+| `SP_info_siege_radaricon` | `oracle/codemp/game/g_saga.c:1203-1234` | `JKAMP_GameLogic/g_saga.swift:252` | marker | `crates/mp/game/src/g_saga.rs:1438-1483` | `func SP_info_siege_radaricon(_ ent: Entity)` |
+| `decompTriggerUse` | `oracle/codemp/game/g_saga.c:1236-1291` | `JKAMP_GameLogic/g_saga.swift:258` | marker | `crates/mp/game/src/g_saga.rs:1488-1559` | `func decompTriggerUse(_ ent: Entity, _ other: Entity, _ activator: Entity)` |
+| `SP_info_siege_decomplete` | `oracle/codemp/game/g_saga.c:1297-1315` | `JKAMP_GameLogic/g_saga.swift:271` | marker | `crates/mp/game/src/g_saga.rs:1564-1599` | `func SP_info_siege_decomplete(_ ent: Entity)` |
+| `siegeEndUse` | `oracle/codemp/game/g_saga.c:1317-1320` | `JKAMP_GameLogic/g_saga.swift:277` | marker | `crates/mp/game/src/g_saga.rs:1604-1612` | `func siegeEndUse(_ ent: Entity, _ other: Entity, _ activator: Entity)` |
+| `SP_target_siege_end` | `oracle/codemp/game/g_saga.c:1325-1334` | `JKAMP_GameLogic/g_saga.swift:289` | marker | `crates/mp/game/src/g_saga.rs:1617-1624` | `func SP_target_siege_end(_ ent: Entity)` |
+| `SiegeItemRemoveOwner` | `oracle/codemp/game/g_saga.c:1338-1349` | `JKAMP_GameLogic/g_saga.swift:295` | marker | `crates/mp/game/src/g_saga.rs:1629-1645` | `func SiegeItemRemoveOwner(_ ent: Entity, _ carrier: Entity)` |
+| `SiegeItemRespawnEffect` static | `oracle/codemp/game/g_saga.c:1351-1370` | `JKAMP_GameLogic/g_saga.swift:301` | marker | `crates/mp/game/src/g_saga.rs:1650-1672` | `private func SiegeItemRespawnEffect(_ ent: Entity, _ newOrg: inout JKAShared.vec3_t)` |
+| `SiegeItemRespawnOnOriginalSpot` static | `oracle/codemp/game/g_saga.c:1372-1380` | `JKAMP_GameLogic/g_saga.swift:307` | marker | `crates/mp/game/src/g_saga.rs:1677-1689` | `private func SiegeItemRespawnOnOriginalSpot(_ ent: Entity, _ carrier: Entity)` |
+| `SiegeItemThink` | `oracle/codemp/game/g_saga.c:1382-1475` | `JKAMP_GameLogic/g_saga.swift:313` | marker | `crates/mp/game/src/g_saga.rs:1694-1831` | `func SiegeItemThink(_ ent: Entity)` |
+| `SiegeItemTouch` | `oracle/codemp/game/g_saga.c:1477-1545` | `JKAMP_GameLogic/g_saga.swift:319` | marker | `crates/mp/game/src/g_saga.rs:1836-1929` | `func SiegeItemTouch(_ `self`: Entity, _ other: Entity, _ trace: JKAMP.Trace)` |
+| `SiegeItemPain` | `oracle/codemp/game/g_saga.c:1547-1551` | `JKAMP_GameLogic/g_saga.swift:325` | marker | `crates/mp/game/src/g_saga.rs:1936-1945` | `func SiegeItemPain(_ `self`: Entity, _ attacker: Entity, _ damage: Int32)` |
+| `SiegeItemDie` | `oracle/codemp/game/g_saga.c:1553-1574` | `JKAMP_GameLogic/g_saga.swift:331` | marker | `crates/mp/game/src/g_saga.rs:1950-1981` | `func SiegeItemDie(_ `self`: Entity, _ inflictor: Entity, _ attacker: Entity, _ damage: Int32, _ meansOfDeath: Int32)` |
+| `SiegeItemUse` | `oracle/codemp/game/g_saga.c:1576-1623` | `JKAMP_GameLogic/g_saga.swift:337` | marker | `crates/mp/game/src/g_saga.rs:1988-2051` | `func SiegeItemUse(_ ent: Entity, _ other: Entity, _ activator: Entity)` |
+| `SP_misc_siege_item` | `oracle/codemp/game/g_saga.c:1676-1835` | `JKAMP_GameLogic/g_saga.swift:397` | marker | `crates/mp/game/src/g_saga.rs:2056-2328` | `func SP_misc_siege_item(_ ent: Entity)` |
+| `G_SiegeClientExData` | `oracle/codemp/game/g_saga.c:1845-1886` | `JKAMP_GameLogic/g_saga.swift:411` | marker | `crates/mp/game/src/g_saga.rs:2335-2398` | `func G_SiegeClientExData(_ msgTarg: Entity)` |
+
+16 file-scope variables. The entry is the stub's line for the variable, by rule 3 and rule 6.
+
+| Variable | Oracle | Kind | Entry |
+|---|---|---|---|
+| `g_siegePersistant` | `oracle/codemp/game/g_saga.c:20` | storage | `// A struct table is C storage in Sources/CJKAMP, reached through a Slots constant.` |
+| `imperial_goals_required` | `oracle/codemp/game/g_saga.c:22` | state | `// Rule 3: a stored property of GameWorld with Raven's initializer, spelled world.imperial_goals_required in a body.` |
+| `imperial_goals_completed` | `oracle/codemp/game/g_saga.c:23` | state | `// Rule 3: a stored property of GameWorld with Raven's initializer, spelled world.imperial_goals_completed in a body.` |
+| `rebel_goals_required` | `oracle/codemp/game/g_saga.c:24` | state | `// Rule 3: a stored property of GameWorld with Raven's initializer, spelled world.rebel_goals_required in a body.` |
+| `rebel_goals_completed` | `oracle/codemp/game/g_saga.c:25` | state | `// Rule 3: a stored property of GameWorld with Raven's initializer, spelled world.rebel_goals_completed in a body.` |
+| `imperial_time_limit` | `oracle/codemp/game/g_saga.c:27` | state | `// Rule 3: a stored property of GameWorld with Raven's initializer, spelled world.imperial_time_limit in a body.` |
+| `rebel_time_limit` | `oracle/codemp/game/g_saga.c:28` | state | `// Rule 3: a stored property of GameWorld with Raven's initializer, spelled world.rebel_time_limit in a body.` |
+| `gImperialCountdown` | `oracle/codemp/game/g_saga.c:30` | state | `// Rule 3: a stored property of GameWorld with Raven's initializer, spelled world.gImperialCountdown in a body.` |
+| `gRebelCountdown` | `oracle/codemp/game/g_saga.c:31` | state | `// Rule 3: a stored property of GameWorld with Raven's initializer, spelled world.gRebelCountdown in a body.` |
+| `rebel_attackers` | `oracle/codemp/game/g_saga.c:33` | state | `// Rule 3: a stored property of GameWorld with Raven's initializer, spelled world.rebel_attackers in a body.` |
+| `imperial_attackers` | `oracle/codemp/game/g_saga.c:34` | state | `// Rule 3: a stored property of GameWorld with Raven's initializer, spelled world.imperial_attackers in a body.` |
+| `gSiegeRoundBegun` | `oracle/codemp/game/g_saga.c:36` | state | `// Rule 3: a stored property of GameWorld with Raven's initializer, spelled world.gSiegeRoundBegun in a body.` |
+| `gSiegeRoundEnded` | `oracle/codemp/game/g_saga.c:37` | state | `// Rule 3: a stored property of GameWorld with Raven's initializer, spelled world.gSiegeRoundEnded in a body.` |
+| `gSiegeRoundWinningTeam` | `oracle/codemp/game/g_saga.c:38` | state | `// Rule 3: a stored property of GameWorld with Raven's initializer, spelled world.gSiegeRoundWinningTeam in a body.` |
+| `gSiegeBeginTime` | `oracle/codemp/game/g_saga.c:39` | state | `// Rule 3: a stored property of GameWorld with Raven's initializer, spelled world.gSiegeBeginTime in a body.` |
+| `g_preroundState` | `oracle/codemp/game/g_saga.c:41` | state | `// Rule 3: a stored property of GameWorld with Raven's initializer, spelled world.g_preroundState in a body.` |

@@ -7,15 +7,15 @@ The oracle range is the whole definition, from the return type to the closing br
 
 | Function | Oracle | Swift | State | jka-rust | Signature |
 |---|---|---|---|---|---|
-| `NPC_Sentry_Precache` | `oracle/codemp/game/NPC_AI_Sentry.c:37-57` | `JKAMP_GameLogic/NPC_AI_Sentry.swift:13` | marker | `crates/mp/game/src/NPC_AI_Sentry.rs:46-64` | `func NPC_Sentry_Precache()` |
-| `sentry_use` | `oracle/codemp/game/NPC_AI_Sentry.c:64-72` | `JKAMP_GameLogic/NPC_AI_Sentry.swift:24` | marker | `crates/mp/game/src/NPC_AI_Sentry.rs:69-91` | `func sentry_use(_ `self`: Entity, _ other: Entity, _ activator: Entity)` |
-| `NPC_Sentry_Pain` | `oracle/codemp/game/NPC_AI_Sentry.c:79-105` | `JKAMP_GameLogic/NPC_AI_Sentry.swift:35` | marker | `crates/mp/game/src/NPC_AI_Sentry.rs:96-135` | `func NPC_Sentry_Pain(_ `self`: Entity, _ attacker: Entity, _ damage: Int32)` |
-| `Sentry_Fire` | `oracle/codemp/game/NPC_AI_Sentry.c:112-203` | `JKAMP_GameLogic/NPC_AI_Sentry.swift:46` | marker | `crates/mp/game/src/NPC_AI_Sentry.rs:140-260` | `func Sentry_Fire()` |
-| `Sentry_MaintainHeight` | `oracle/codemp/game/NPC_AI_Sentry.c:210-304` | `JKAMP_GameLogic/NPC_AI_Sentry.swift:57` | marker | `crates/mp/game/src/NPC_AI_Sentry.rs:265-352` | `func Sentry_MaintainHeight()` |
-| `Sentry_Idle` | `oracle/codemp/game/NPC_AI_Sentry.c:311-331` | `JKAMP_GameLogic/NPC_AI_Sentry.swift:68` | marker | `crates/mp/game/src/NPC_AI_Sentry.rs:357-389` | `func Sentry_Idle()` |
-| `Sentry_Strafe` | `oracle/codemp/game/NPC_AI_Sentry.c:338-365` | `JKAMP_GameLogic/NPC_AI_Sentry.swift:79` | marker | `crates/mp/game/src/NPC_AI_Sentry.rs:394-458` | `func Sentry_Strafe()` |
-| `Sentry_Hunt` | `oracle/codemp/game/NPC_AI_Sentry.c:372-411` | `JKAMP_GameLogic/NPC_AI_Sentry.swift:90` | marker | `crates/mp/game/src/NPC_AI_Sentry.rs:463-521` | `func Sentry_Hunt(_ visible: Bool, _ advance: Bool)` |
-| `Sentry_RangedAttack` | `oracle/codemp/game/NPC_AI_Sentry.c:418-448` | `JKAMP_GameLogic/NPC_AI_Sentry.swift:101` | marker | `crates/mp/game/src/NPC_AI_Sentry.rs:526-578` | `func Sentry_RangedAttack(_ visible: Bool, _ advance: Bool)` |
-| `Sentry_AttackDecision` | `oracle/codemp/game/NPC_AI_Sentry.c:455-510` | `JKAMP_GameLogic/NPC_AI_Sentry.swift:112` | marker | `crates/mp/game/src/NPC_AI_Sentry.rs:583-664` | `func Sentry_AttackDecision()` |
-| `NPC_Sentry_Patrol` | `oracle/codemp/game/NPC_AI_Sentry.c:519-550` | `JKAMP_GameLogic/NPC_AI_Sentry.swift:123` | marker | `crates/mp/game/src/NPC_AI_Sentry.rs:669-705` | `func NPC_Sentry_Patrol()` |
-| `NPC_BSSentry_Default` | `oracle/codemp/game/NPC_AI_Sentry.c:557-577` | `JKAMP_GameLogic/NPC_AI_Sentry.swift:134` | marker | `crates/mp/game/src/NPC_AI_Sentry.rs:710-731` | `func NPC_BSSentry_Default()` |
+| `NPC_Sentry_Precache` | `oracle/codemp/game/NPC_AI_Sentry.c:37-57` | `JKAMP_GameLogic/NPC_AI_Sentry.swift:15` | marker | `crates/mp/game/src/NPC_AI_Sentry.rs:46-64` | `func NPC_Sentry_Precache()` |
+| `sentry_use` | `oracle/codemp/game/NPC_AI_Sentry.c:64-72` | `JKAMP_GameLogic/NPC_AI_Sentry.swift:28` | marker | `crates/mp/game/src/NPC_AI_Sentry.rs:69-91` | `func sentry_use(_ `self`: Entity, _ other: Entity, _ activator: Entity)` |
+| `NPC_Sentry_Pain` | `oracle/codemp/game/NPC_AI_Sentry.c:79-105` | `JKAMP_GameLogic/NPC_AI_Sentry.swift:41` | marker | `crates/mp/game/src/NPC_AI_Sentry.rs:96-135` | `func NPC_Sentry_Pain(_ `self`: Entity, _ attacker: Entity, _ damage: Int32)` |
+| `Sentry_Fire` | `oracle/codemp/game/NPC_AI_Sentry.c:112-203` | `JKAMP_GameLogic/NPC_AI_Sentry.swift:54` | marker | `crates/mp/game/src/NPC_AI_Sentry.rs:140-260` | `func Sentry_Fire()` |
+| `Sentry_MaintainHeight` | `oracle/codemp/game/NPC_AI_Sentry.c:210-304` | `JKAMP_GameLogic/NPC_AI_Sentry.swift:67` | marker | `crates/mp/game/src/NPC_AI_Sentry.rs:265-352` | `func Sentry_MaintainHeight()` |
+| `Sentry_Idle` | `oracle/codemp/game/NPC_AI_Sentry.c:311-331` | `JKAMP_GameLogic/NPC_AI_Sentry.swift:80` | marker | `crates/mp/game/src/NPC_AI_Sentry.rs:357-389` | `func Sentry_Idle()` |
+| `Sentry_Strafe` | `oracle/codemp/game/NPC_AI_Sentry.c:338-365` | `JKAMP_GameLogic/NPC_AI_Sentry.swift:93` | marker | `crates/mp/game/src/NPC_AI_Sentry.rs:394-458` | `func Sentry_Strafe()` |
+| `Sentry_Hunt` | `oracle/codemp/game/NPC_AI_Sentry.c:372-411` | `JKAMP_GameLogic/NPC_AI_Sentry.swift:106` | marker | `crates/mp/game/src/NPC_AI_Sentry.rs:463-521` | `func Sentry_Hunt(_ visible: Bool, _ advance: Bool)` |
+| `Sentry_RangedAttack` | `oracle/codemp/game/NPC_AI_Sentry.c:418-448` | `JKAMP_GameLogic/NPC_AI_Sentry.swift:119` | marker | `crates/mp/game/src/NPC_AI_Sentry.rs:526-578` | `func Sentry_RangedAttack(_ visible: Bool, _ advance: Bool)` |
+| `Sentry_AttackDecision` | `oracle/codemp/game/NPC_AI_Sentry.c:455-510` | `JKAMP_GameLogic/NPC_AI_Sentry.swift:132` | marker | `crates/mp/game/src/NPC_AI_Sentry.rs:583-664` | `func Sentry_AttackDecision()` |
+| `NPC_Sentry_Patrol` | `oracle/codemp/game/NPC_AI_Sentry.c:519-550` | `JKAMP_GameLogic/NPC_AI_Sentry.swift:145` | marker | `crates/mp/game/src/NPC_AI_Sentry.rs:669-705` | `func NPC_Sentry_Patrol()` |
+| `NPC_BSSentry_Default` | `oracle/codemp/game/NPC_AI_Sentry.c:557-577` | `JKAMP_GameLogic/NPC_AI_Sentry.swift:158` | marker | `crates/mp/game/src/NPC_AI_Sentry.rs:710-731` | `func NPC_BSSentry_Default()` |

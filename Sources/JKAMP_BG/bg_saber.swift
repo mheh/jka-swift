@@ -3,6 +3,23 @@
 import JKAMP
 import JKAShared
 
+/// Source: oracle/codemp/game/bg_saber.c:120
+// TODO: Port global saberMoveData
+// Raven wrote: saberMoveData_t saberMoveData[LS_MOVE_MAX]
+// A struct table is C storage in Sources/CJKAMP, reached through a Slots constant.
+
+/// Source: oracle/codemp/game/bg_saber.c:324
+// Raven wrote: int transitionMove[Q_NUM_QUADS][Q_NUM_QUADS]
+let transitionMove: [[Int32]] = { () -> [[Int32]] in portMissing("transitionMove", source: "oracle/codemp/game/bg_saber.c:324") }()
+
+/// Source: oracle/codemp/game/bg_saber.c:715
+// Raven wrote: int saberMoveTransitionAngle[Q_NUM_QUADS][Q_NUM_QUADS]
+let saberMoveTransitionAngle: [[Int32]] = { () -> [[Int32]] in portMissing("saberMoveTransitionAngle", source: "oracle/codemp/game/bg_saber.c:715") }()
+
+/// Source: oracle/codemp/game/bg_saber.c:2777
+// Raven wrote: int bg_parryDebounce[NUM_FORCE_POWER_LEVELS]
+let bg_parryDebounce: [Int32] = { () -> [Int32] in portMissing("bg_parryDebounce", source: "oracle/codemp/game/bg_saber.c:2777") }()
+
 /// Source: oracle/codemp/game/bg_saber.c:10
 func PM_irand_timesync(_ val1: Int32, _ val2: Int32) -> Int32 {
     // TODO: Port PM_irand_timesync

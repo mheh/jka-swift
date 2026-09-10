@@ -4,6 +4,26 @@ import JKAMP
 import JKAShared
 import JKAMP_Game
 
+/// Source: oracle/codemp/game/g_cmds.c:750
+// TODO: Port global g_dontPenalizeTeam
+// Raven wrote: qboolean g_dontPenalizeTeam = qfalse
+// Rule 3: a stored property of GameWorld with Raven's initializer, spelled world.g_dontPenalizeTeam in a body.
+
+/// Source: oracle/codemp/game/g_cmds.c:751
+// TODO: Port global g_preventTeamBegin
+// Raven wrote: qboolean g_preventTeamBegin = qfalse
+// Rule 3: a stored property of GameWorld with Raven's initializer, spelled world.g_preventTeamBegin in a body.
+
+/// Source: oracle/codemp/game/g_cmds.c:1812
+// TODO: Port global gc_orders
+// Raven wrote: static char *gc_orders[]
+// Rule 3: a stored property of GameWorld with Raven's initializer, spelled world.gc_orders in a body.
+
+/// Source: oracle/codemp/game/g_cmds.c:1851
+// TODO: Port global gameNames
+// Raven wrote: static const char *gameNames[]
+// Rule 3: a stored property of GameWorld with Raven's initializer, spelled world.gameNames in a body.
+
 /**
 ==================
 DeathmatchScoreboardMessage

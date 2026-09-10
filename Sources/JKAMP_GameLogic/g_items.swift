@@ -4,6 +4,31 @@ import JKAMP
 import JKAShared
 import JKAMP_Game
 
+/// Source: oracle/codemp/game/g_items.c:101
+// TODO: Port global shieldLoopSound
+// Raven wrote: static qhandle_t shieldLoopSound=0
+// Rule 3: a stored property of GameWorld with Raven's initializer, spelled world.shieldLoopSound in a body.
+
+/// Source: oracle/codemp/game/g_items.c:102
+// TODO: Port global shieldAttachSound
+// Raven wrote: static qhandle_t shieldAttachSound=0
+// Rule 3: a stored property of GameWorld with Raven's initializer, spelled world.shieldAttachSound in a body.
+
+/// Source: oracle/codemp/game/g_items.c:103
+// TODO: Port global shieldActivateSound
+// Raven wrote: static qhandle_t shieldActivateSound=0
+// Rule 3: a stored property of GameWorld with Raven's initializer, spelled world.shieldActivateSound in a body.
+
+/// Source: oracle/codemp/game/g_items.c:104
+// TODO: Port global shieldDeactivateSound
+// Raven wrote: static qhandle_t shieldDeactivateSound=0
+// Rule 3: a stored property of GameWorld with Raven's initializer, spelled world.shieldDeactivateSound in a body.
+
+/// Source: oracle/codemp/game/g_items.c:105
+// TODO: Port global shieldDamageSound
+// Raven wrote: static qhandle_t shieldDamageSound=0
+// Rule 3: a stored property of GameWorld with Raven's initializer, spelled world.shieldDamageSound in a body.
+
 // For more than four players, adjust the respawn times, up to 1/4.
 /// Source: oracle/codemp/game/g_items.c:47
 func adjustRespawnTime(_ preRespawnTime: Float, _ itemType: Int32, _ itemTag: Int32) -> Int32 {

@@ -229,7 +229,7 @@ A `switch` with fallthrough uses Swift's `fallthrough` keyword, case for case, i
 
 `Q_stricmp`, `Com_sprintf`, `strcpy`, and the rest call the ported `q_shared` functions where a port exists.
 Where none exists yet, the transcriptor uses Swift's `String` and adds a Port-note, since the exact C semantics are not proven yet.
-`q_shared.c` is compiled into every module the same as `q_math.c`, so its port is `Sources/JKAShared/q_shared.swift`. A body reaches `Q_stricmp`, `Q_stricmpn`, and `Q_strncmp` there.
+`q_shared.c` is compiled into every module the same as `q_math.c`, so its port is `Sources/JKAShared/q_shared.c.swift`, named with the `.c` because the re-export of `q_shared.h` already holds the stem in that module. A body reaches `Q_stricmp`, `Q_stricmpn`, and `Q_strncmp` there.
 
 ### Engine and print calls
 

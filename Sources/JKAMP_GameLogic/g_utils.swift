@@ -4,6 +4,21 @@ import JKAMP
 import JKAShared
 import JKAMP_Game
 
+/// Source: oracle/codemp/game/g_utils.c:17
+// TODO: Port global remapCount
+// Raven wrote: int remapCount = 0
+// Rule 3: a stored property of GameWorld with Raven's initializer, spelled world.remapCount in a body.
+
+/// Source: oracle/codemp/game/g_utils.c:387
+// TODO: Port global g_vehiclePoolInit
+// Raven wrote: static qboolean g_vehiclePoolInit = qfalse
+// Rule 3: a stored property of GameWorld with Raven's initializer, spelled world.g_vehiclePoolInit in a body.
+
+/// Source: oracle/codemp/game/g_utils.c:878
+// TODO: Port global gG2KillNum
+// Raven wrote: int gG2KillNum = 0
+// Rule 3: a stored property of GameWorld with Raven's initializer, spelled world.gG2KillNum in a body.
+
 /// Source: oracle/codemp/game/g_utils.c:20
 func AddRemap(_ oldShader: String, _ newShader: String, _ timeOffset: Float) {
     // TODO: Port AddRemap

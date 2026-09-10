@@ -7,7 +7,7 @@ The oracle range is the whole definition, from the return type to the closing br
 
 | Function | Oracle | Swift | State | jka-rust | Signature |
 |---|---|---|---|---|---|
-| `G_BounceObject` | `oracle/codemp/game/g_object.c:14-59` | `JKAMP_GameLogic/g_object.swift:14` | marker | `crates/mp/game/src/g_object.rs:17-81` | `func G_BounceObject(_ ent: Entity, _ trace: JKAMP.Trace)` |
-| `G_RunObject` | `oracle/codemp/game/g_object.c:72-241` | `JKAMP_GameLogic/g_object.swift:20` | marker | `crates/mp/game/src/g_object.rs:86-290` | `func G_RunObject(_ ent: Entity)` |
-| `G_StopObjectMoving` | `oracle/codemp/game/g_object.c:244-258` | `JKAMP_GameLogic/g_object.swift:26` | marker | `crates/mp/game/src/g_object.rs:299-310` | `func G_StopObjectMoving(_ object: Entity)` |
-| `G_StartObjectMoving` | `oracle/codemp/game/g_object.c:260-287` | `JKAMP_GameLogic/g_object.swift:32` | marker | `crates/mp/game/src/g_object.rs:315-350` | `func G_StartObjectMoving(_ object: Entity, _ dir: inout JKAShared.vec3_t, _ speed: Float, _ trType: JKAShared.trType_t)` |
+| `G_BounceObject` | `oracle/codemp/game/g_object.c:14-59` | `JKAMP_GameLogic/g_object.swift:16` | marker | `crates/mp/game/src/g_object.rs:17-81` | `func G_BounceObject(_ ent: Entity, _ trace: JKAMP.Trace)` |
+| `G_RunObject` | `oracle/codemp/game/g_object.c:72-241` | `JKAMP_GameLogic/g_object.swift:22` | marker | `crates/mp/game/src/g_object.rs:86-290` | `func G_RunObject(_ ent: Entity)` |
+| `G_StopObjectMoving` | `oracle/codemp/game/g_object.c:244-258` | `JKAMP_GameLogic/g_object.swift:28` | marker | `crates/mp/game/src/g_object.rs:299-310` | `func G_StopObjectMoving(_ object: Entity)` |
+| `G_StartObjectMoving` | `oracle/codemp/game/g_object.c:260-287` | `JKAMP_GameLogic/g_object.swift:34` | marker | `crates/mp/game/src/g_object.rs:315-350` | `func G_StartObjectMoving(_ object: Entity, _ dir: inout JKAShared.vec3_t, _ speed: Float, _ trType: JKAShared.trType_t)` |

@@ -19,5 +19,5 @@ The oracle range is the whole definition, from the return type to the closing br
 | `turret_find_enemies` static | `oracle/codemp/game/g_turret.c:394-502` | `JKAMP_GameLogic/g_turret.swift:72` | marker | `crates/mp/game/src/g_turret.rs:558-710` | `private func turret_find_enemies(_ `self`: Entity) -> Bool` |
 | `turret_base_think` | `oracle/codemp/game/g_turret.c:505-601` | `JKAMP_GameLogic/g_turret.swift:79` | marker | `crates/mp/game/src/g_turret.rs:715-837` | `func turret_base_think(_ `self`: Entity)` |
 | `turret_base_use` | `oracle/codemp/game/g_turret.c:604-620` | `JKAMP_GameLogic/g_turret.swift:86` | marker | `crates/mp/game/src/g_turret.rs:842-851` | `func turret_base_use(_ `self`: Entity, _ other: Entity, _ activator: Entity)` |
-| `SP_misc_turret` | `oracle/codemp/game/g_turret.c:663-703` | `JKAMP_GameLogic/g_turret.swift:132` | marker | `crates/mp/game/src/g_turret.rs:856-901` | `func SP_misc_turret(_ base: Entity)` |
-| `turret_base_spawn_top` | `oracle/codemp/game/g_turret.c:706-861` | `JKAMP_GameLogic/g_turret.swift:139` | marker | `crates/mp/game/src/g_turret.rs:906-1091` | `func turret_base_spawn_top(_ base: Entity) -> Bool` |
+| `SP_misc_turret` | `oracle/codemp/game/g_turret.c:663-703` | `JKAMP_GameLogic/g_turret.swift:135` | marker | `crates/mp/game/src/g_turret.rs:856-901` | `func SP_misc_turret(_ base: Entity)` |
+| `turret_base_spawn_top` | `oracle/codemp/game/g_turret.c:706-861` | `JKAMP_GameLogic/g_turret.swift:142` | marker | `crates/mp/game/src/g_turret.rs:906-1091` | `func turret_base_spawn_top(_ base: Entity) -> Bool` |

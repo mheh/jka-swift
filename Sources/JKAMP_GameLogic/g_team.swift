@@ -4,6 +4,10 @@ import JKAMP
 import JKAShared
 import JKAMP_Game
 
+/// Source: oracle/codemp/game/g_team.c:279
+// Raven wrote: static char ctfFlagStatusRemap[] = { '0', '1', '*', '*', '2' }
+let ctfFlagStatusRemap: [CChar] = { () -> [CChar] in portMissing("ctfFlagStatusRemap", source: "oracle/codemp/game/g_team.c:279") }()
+
 /// Source: oracle/codemp/game/g_team.c:22
 func Team_InitGame() {
     // TODO: Port Team_InitGame

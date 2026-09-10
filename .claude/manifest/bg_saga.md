@@ -7,23 +7,40 @@ The oracle range is the whole definition, from the return type to the closing br
 
 | Function | Oracle | Swift | State | jka-rust | Signature |
 |---|---|---|---|---|---|
-| `BG_SiegeStripTabs` | `oracle/codemp/game/bg_saga.c:168-189` | `JKAMP_BG/bg_saga.swift:10` | marker | `crates/mp/bg/src/bg_saga.rs:479-499` | `func BG_SiegeStripTabs(_ buf: inout String)` |
-| `BG_SiegeGetValueGroup` | `oracle/codemp/game/bg_saga.c:191-406` | `JKAMP_BG/bg_saga.swift:16` | marker | `crates/mp/bg/src/bg_saga.rs:510-713` | `func BG_SiegeGetValueGroup(_ buf: inout String, _ group: inout String, _ outbuf: inout String) -> Int32` |
-| `BG_SiegeGetPairedValue` | `oracle/codemp/game/bg_saga.c:408-562` | `JKAMP_BG/bg_saga.swift:22` | marker | `crates/mp/bg/src/bg_saga.rs:737-884` | `func BG_SiegeGetPairedValue(_ buf: inout String, _ key: inout String, _ outbuf: inout String) -> Int32` |
-| `BG_SiegeTranslateForcePowers` | `oracle/codemp/game/bg_saga.c:571-682` | `JKAMP_BG/bg_saga.swift:31` | marker | `crates/mp/bg/src/bg_saga.rs:898-999` | `func BG_SiegeTranslateForcePowers(_ buf: inout String, _ siegeClass: JKAMP.SiegeClass)` |
-| `BG_SiegeTranslateGenericTable` | `oracle/codemp/game/bg_saga.c:688-746` | `JKAMP_BG/bg_saga.swift:44` | marker | `crates/mp/bg/src/bg_saga.rs:1009-1071` | `func BG_SiegeTranslateGenericTable() -> Never` TODO: Port signature. No table row for `stringID_table_t * table`. |
-| `BG_SiegeParseClassFile` | `oracle/codemp/game/bg_saga.c:759-1068` | `JKAMP_BG/bg_saga.swift:50` | marker | `crates/mp/bg/src/bg_saga.rs:1076-1368` | `func BG_SiegeParseClassFile(_ filename: String, _ descBuffer: JKAMP.SiegeClassDesc)` |
-| `BG_SiegeCountBaseClass` | `oracle/codemp/game/bg_saga.c:1071-1092` | `JKAMP_BG/bg_saga.swift:57` | marker | `crates/mp/bg/src/bg_saga.rs:1374-1393` | `func BG_SiegeCountBaseClass(_ team: Int32, _ classIndex: Int16) -> Int32` |
-| `BG_GetUIPortraitFile` | `oracle/codemp/game/bg_saga.c:1094-1121` | `JKAMP_BG/bg_saga.swift:66` | marker | `crates/mp/bg/src/bg_saga.rs:1401-1429` | `func BG_GetUIPortraitFile() -> Never` TODO: Port signature. No table row for the return `char *`. |
-| `BG_GetUIPortrait` | `oracle/codemp/game/bg_saga.c:1123-1150` | `JKAMP_BG/bg_saga.swift:72` | marker | `crates/mp/bg/src/bg_saga.rs:1434-1462` | `func BG_GetUIPortrait(_ team: Int32, _ classIndex: Int16, _ cntIndex: Int16) -> Int32` |
-| `BG_GetClassOnBaseClass` | `oracle/codemp/game/bg_saga.c:1153-1179` | `JKAMP_BG/bg_saga.swift:79` | marker | `crates/mp/bg/src/bg_saga.rs:1496-1524` | `func BG_GetClassOnBaseClass(_ team: Int32, _ classIndex: Int16, _ cntIndex: Int16) -> JKAMP.SiegeClass?` |
-| `BG_SiegeLoadClasses` | `oracle/codemp/game/bg_saga.c:1181-1210` | `JKAMP_BG/bg_saga.swift:85` | marker | `crates/mp/bg/src/bg_saga.rs:1529-1582` | `func BG_SiegeLoadClasses(_ descBuffer: JKAMP.SiegeClassDesc)` |
-| `BG_SiegeFindClassByName` | `oracle/codemp/game/bg_saga.c:1219-1233` | `JKAMP_BG/bg_saga.swift:94` | marker | `crates/mp/bg/src/bg_saga.rs:1587-1601` | `func BG_SiegeFindClassByName(_ classname: String) -> JKAMP.SiegeClass?` |
-| `BG_SiegeParseTeamFile` | `oracle/codemp/game/bg_saga.c:1235-1312` | `JKAMP_BG/bg_saga.swift:100` | marker | `crates/mp/bg/src/bg_saga.rs:1606-1690` | `func BG_SiegeParseTeamFile(_ filename: String)` |
-| `BG_SiegeLoadTeams` | `oracle/codemp/game/bg_saga.c:1314-1335` | `JKAMP_BG/bg_saga.swift:106` | marker | `crates/mp/bg/src/bg_saga.rs:1695-1721` | `func BG_SiegeLoadTeams()` |
-| `BG_SiegeFindThemeForTeam` | `oracle/codemp/game/bg_saga.c:1344-1356` | `JKAMP_BG/bg_saga.swift:115` | marker | `crates/mp/bg/src/bg_saga.rs:1726-1736` | `func BG_SiegeFindThemeForTeam(_ team: Int32) -> JKAMP.SiegeTeam?` |
-| `BG_PrecacheSabersForSiegeTeam` | `oracle/codemp/game/bg_saga.c:1363-1413` | `JKAMP_BG/bg_saga.swift:121` | marker | `crates/mp/bg/src/bg_saga.rs:1742-1783` | `func BG_PrecacheSabersForSiegeTeam(_ team: Int32)` |
-| `BG_SiegeCheckClassLegality` | `oracle/codemp/game/bg_saga.c:1416-1453` | `JKAMP_BG/bg_saga.swift:127` | marker | `crates/mp/bg/src/bg_saga.rs:1788-1816` | `func BG_SiegeCheckClassLegality(_ team: Int32, _ classname: inout String) -> Bool` |
-| `BG_SiegeFindTeamForTheme` | `oracle/codemp/game/bg_saga.c:1455-1471` | `JKAMP_BG/bg_saga.swift:133` | marker | `crates/mp/bg/src/bg_saga.rs:1821-1837` | `func BG_SiegeFindTeamForTheme(_ themeName: inout String) -> JKAMP.SiegeTeam?` |
-| `BG_SiegeSetTeamTheme` | `oracle/codemp/game/bg_saga.c:1473-1487` | `JKAMP_BG/bg_saga.swift:139` | marker | `crates/mp/bg/src/bg_saga.rs:1842-1854` | `func BG_SiegeSetTeamTheme(_ team: Int32, _ themeName: inout String)` |
-| `BG_SiegeFindClassIndexByName` | `oracle/codemp/game/bg_saga.c:1489-1503` | `JKAMP_BG/bg_saga.swift:145` | marker | `crates/mp/bg/src/bg_saga.rs:1859-1873` | `func BG_SiegeFindClassIndexByName(_ classname: String) -> Int32` |
+| `BG_SiegeStripTabs` | `oracle/codemp/game/bg_saga.c:168-189` | `JKAMP_BG/bg_saga.swift:70` | marker | `crates/mp/bg/src/bg_saga.rs:479-499` | `func BG_SiegeStripTabs(_ buf: inout String)` |
+| `BG_SiegeGetValueGroup` | `oracle/codemp/game/bg_saga.c:191-406` | `JKAMP_BG/bg_saga.swift:76` | marker | `crates/mp/bg/src/bg_saga.rs:510-713` | `func BG_SiegeGetValueGroup(_ buf: inout String, _ group: inout String, _ outbuf: inout String) -> Int32` |
+| `BG_SiegeGetPairedValue` | `oracle/codemp/game/bg_saga.c:408-562` | `JKAMP_BG/bg_saga.swift:82` | marker | `crates/mp/bg/src/bg_saga.rs:737-884` | `func BG_SiegeGetPairedValue(_ buf: inout String, _ key: inout String, _ outbuf: inout String) -> Int32` |
+| `BG_SiegeTranslateForcePowers` | `oracle/codemp/game/bg_saga.c:571-682` | `JKAMP_BG/bg_saga.swift:91` | marker | `crates/mp/bg/src/bg_saga.rs:898-999` | `func BG_SiegeTranslateForcePowers(_ buf: inout String, _ siegeClass: JKAMP.SiegeClass)` |
+| `BG_SiegeTranslateGenericTable` | `oracle/codemp/game/bg_saga.c:688-746` | `JKAMP_BG/bg_saga.swift:104` | marker | `crates/mp/bg/src/bg_saga.rs:1009-1071` | `func BG_SiegeTranslateGenericTable() -> Never` TODO: Port signature. No table row for `stringID_table_t * table`. |
+| `BG_SiegeParseClassFile` | `oracle/codemp/game/bg_saga.c:759-1068` | `JKAMP_BG/bg_saga.swift:110` | marker | `crates/mp/bg/src/bg_saga.rs:1076-1368` | `func BG_SiegeParseClassFile(_ filename: String, _ descBuffer: JKAMP.SiegeClassDesc)` |
+| `BG_SiegeCountBaseClass` | `oracle/codemp/game/bg_saga.c:1071-1092` | `JKAMP_BG/bg_saga.swift:117` | marker | `crates/mp/bg/src/bg_saga.rs:1374-1393` | `func BG_SiegeCountBaseClass(_ team: Int32, _ classIndex: Int16) -> Int32` |
+| `BG_GetUIPortraitFile` | `oracle/codemp/game/bg_saga.c:1094-1121` | `JKAMP_BG/bg_saga.swift:126` | marker | `crates/mp/bg/src/bg_saga.rs:1401-1429` | `func BG_GetUIPortraitFile() -> Never` TODO: Port signature. No table row for the return `char *`. |
+| `BG_GetUIPortrait` | `oracle/codemp/game/bg_saga.c:1123-1150` | `JKAMP_BG/bg_saga.swift:132` | marker | `crates/mp/bg/src/bg_saga.rs:1434-1462` | `func BG_GetUIPortrait(_ team: Int32, _ classIndex: Int16, _ cntIndex: Int16) -> Int32` |
+| `BG_GetClassOnBaseClass` | `oracle/codemp/game/bg_saga.c:1153-1179` | `JKAMP_BG/bg_saga.swift:139` | marker | `crates/mp/bg/src/bg_saga.rs:1496-1524` | `func BG_GetClassOnBaseClass(_ team: Int32, _ classIndex: Int16, _ cntIndex: Int16) -> JKAMP.SiegeClass?` |
+| `BG_SiegeLoadClasses` | `oracle/codemp/game/bg_saga.c:1181-1210` | `JKAMP_BG/bg_saga.swift:145` | marker | `crates/mp/bg/src/bg_saga.rs:1529-1582` | `func BG_SiegeLoadClasses(_ descBuffer: JKAMP.SiegeClassDesc)` |
+| `BG_SiegeFindClassByName` | `oracle/codemp/game/bg_saga.c:1219-1233` | `JKAMP_BG/bg_saga.swift:154` | marker | `crates/mp/bg/src/bg_saga.rs:1587-1601` | `func BG_SiegeFindClassByName(_ classname: String) -> JKAMP.SiegeClass?` |
+| `BG_SiegeParseTeamFile` | `oracle/codemp/game/bg_saga.c:1235-1312` | `JKAMP_BG/bg_saga.swift:160` | marker | `crates/mp/bg/src/bg_saga.rs:1606-1690` | `func BG_SiegeParseTeamFile(_ filename: String)` |
+| `BG_SiegeLoadTeams` | `oracle/codemp/game/bg_saga.c:1314-1335` | `JKAMP_BG/bg_saga.swift:166` | marker | `crates/mp/bg/src/bg_saga.rs:1695-1721` | `func BG_SiegeLoadTeams()` |
+| `BG_SiegeFindThemeForTeam` | `oracle/codemp/game/bg_saga.c:1344-1356` | `JKAMP_BG/bg_saga.swift:175` | marker | `crates/mp/bg/src/bg_saga.rs:1726-1736` | `func BG_SiegeFindThemeForTeam(_ team: Int32) -> JKAMP.SiegeTeam?` |
+| `BG_PrecacheSabersForSiegeTeam` | `oracle/codemp/game/bg_saga.c:1363-1413` | `JKAMP_BG/bg_saga.swift:181` | marker | `crates/mp/bg/src/bg_saga.rs:1742-1783` | `func BG_PrecacheSabersForSiegeTeam(_ team: Int32)` |
+| `BG_SiegeCheckClassLegality` | `oracle/codemp/game/bg_saga.c:1416-1453` | `JKAMP_BG/bg_saga.swift:187` | marker | `crates/mp/bg/src/bg_saga.rs:1788-1816` | `func BG_SiegeCheckClassLegality(_ team: Int32, _ classname: inout String) -> Bool` |
+| `BG_SiegeFindTeamForTheme` | `oracle/codemp/game/bg_saga.c:1455-1471` | `JKAMP_BG/bg_saga.swift:193` | marker | `crates/mp/bg/src/bg_saga.rs:1821-1837` | `func BG_SiegeFindTeamForTheme(_ themeName: inout String) -> JKAMP.SiegeTeam?` |
+| `BG_SiegeSetTeamTheme` | `oracle/codemp/game/bg_saga.c:1473-1487` | `JKAMP_BG/bg_saga.swift:199` | marker | `crates/mp/bg/src/bg_saga.rs:1842-1854` | `func BG_SiegeSetTeamTheme(_ team: Int32, _ themeName: inout String)` |
+| `BG_SiegeFindClassIndexByName` | `oracle/codemp/game/bg_saga.c:1489-1503` | `JKAMP_BG/bg_saga.swift:205` | marker | `crates/mp/bg/src/bg_saga.rs:1859-1873` | `func BG_SiegeFindClassIndexByName(_ classname: String) -> Int32` |
+
+12 file-scope variables. The entry is the stub's line for the variable, by rule 3 and rule 6.
+
+| Variable | Oracle | Kind | Entry |
+|---|---|---|---|
+| `siege_valid` | `oracle/codemp/game/bg_saga.c:33` | state | `// Rule 3: a stored property of BgState with Raven's initializer, spelled bg.siege_valid in a body.` |
+| `team1Theme` | `oracle/codemp/game/bg_saga.c:35` | state | `// Rule 3: a stored property of BgState with Raven's initializer, spelled bg.team1Theme in a body.` |
+| `team2Theme` | `oracle/codemp/game/bg_saga.c:36` | state | `// Rule 3: a stored property of BgState with Raven's initializer, spelled bg.team2Theme in a body.` |
+| `bgNumSiegeClasses` | `oracle/codemp/game/bg_saga.c:39` | state | `// Rule 3: a stored property of BgState with Raven's initializer, spelled bg.bgNumSiegeClasses in a body.` |
+| `bgNumSiegeTeams` | `oracle/codemp/game/bg_saga.c:42` | state | `// Rule 3: a stored property of BgState with Raven's initializer, spelled bg.bgNumSiegeTeams in a body.` |
+| `bgSiegeClassFlagNames` | `oracle/codemp/game/bg_saga.c:45` | storage | `// A struct table is C storage in Sources/CJKAMP, reached through a Slots constant.` |
+| `StanceTable` | `oracle/codemp/game/bg_saga.c:59` | storage | `// A struct table is C storage in Sources/CJKAMP, reached through a Slots constant.` |
+| `WPTable` | `oracle/codemp/game/bg_saga.c:73` | storage | `// A struct table is C storage in Sources/CJKAMP, reached through a Slots constant.` |
+| `FPTable` | `oracle/codemp/game/bg_saga.c:100` | storage | `// A struct table is C storage in Sources/CJKAMP, reached through a Slots constant.` |
+| `HoldableTable` | `oracle/codemp/game/bg_saga.c:123` | storage | `// A struct table is C storage in Sources/CJKAMP, reached through a Slots constant.` |
+| `PowerupTable` | `oracle/codemp/game/bg_saga.c:142` | storage | `// A struct table is C storage in Sources/CJKAMP, reached through a Slots constant.` |
+| `classTitles` | `oracle/codemp/game/bg_saga.c:748` | state | `// Rule 3: a stored property of BgState with Raven's initializer, spelled bg.classTitles in a body.` |

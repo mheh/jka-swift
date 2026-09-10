@@ -4,6 +4,15 @@ import JKAMP
 import JKAShared
 import JKAMP_Game
 
+/// Source: oracle/codemp/game/g_log.c:35
+// Raven wrote: int weaponFromMOD[MOD_MAX]
+let weaponFromMOD: [Int32] = { () -> [Int32] in portMissing("weaponFromMOD", source: "oracle/codemp/game/g_log.c:35") }()
+
+/// Source: oracle/codemp/game/g_log.c:79
+// TODO: Port global weaponNameFromIndex
+// Raven wrote: char *weaponNameFromIndex[WP_NUM_WEAPONS]
+// Rule 3: a stored property of GameWorld with Raven's initializer, spelled world.weaponNameFromIndex in a body.
+
 /**
 =================
 G_LogWeaponInit

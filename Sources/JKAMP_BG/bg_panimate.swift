@@ -3,6 +3,16 @@
 import JKAMP
 import JKAShared
 
+/// Source: oracle/codemp/game/bg_panimate.c:1671
+// TODO: Port global BGPAFtextLoaded
+// Raven wrote: qboolean BGPAFtextLoaded = qfalse
+// Rule 3: a stored property of BgState with Raven's initializer, spelled bg.BGPAFtextLoaded in a body.
+
+/// Source: oracle/codemp/game/bg_panimate.c:1703
+// TODO: Port global bgNumAllAnims
+// Raven wrote: int bgNumAllAnims = 2
+// Rule 3: a stored property of BgState with Raven's initializer, spelled bg.bgNumAllAnims in a body.
+
 /// Source: oracle/codemp/game/bg_panimate.c:33
 func BG_SaberStanceAnim(_ anim: Int32) -> Bool {
     // TODO: Port BG_SaberStanceAnim

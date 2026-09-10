@@ -3,6 +3,16 @@
 import JKAMP
 import JKAShared
 
+/// Source: oracle/codemp/game/bg_saberLoad.c:46
+// TODO: Port global SaberTable
+// Raven wrote: stringID_table_t SaberTable[]
+// A struct table is C storage in Sources/CJKAMP, reached through a Slots constant.
+
+/// Source: oracle/codemp/game/bg_saberLoad.c:63
+// TODO: Port global SaberMoveTable
+// Raven wrote: stringID_table_t SaberMoveTable[]
+// A struct table is C storage in Sources/CJKAMP, reached through a Slots constant.
+
 /// Source: oracle/codemp/game/bg_saberLoad.c:32
 func BG_SoundIndex(_ sound: inout String) -> Int32 {
     // TODO: Port BG_SoundIndex

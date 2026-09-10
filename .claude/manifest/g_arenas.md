@@ -7,4 +7,4 @@ The oracle range is the whole definition, from the return type to the closing br
 
 | Function | Oracle | Swift | State | jka-rust | Signature |
 |---|---|---|---|---|---|
-| `UpdateTournamentInfo` | `oracle/codemp/game/g_arenas.c:20-101` | `JKAMP_GameLogic/g_arenas.swift:13` | marker | `crates/mp/game/src/g_arenas.rs:16-161` | `func UpdateTournamentInfo()` |
+| `UpdateTournamentInfo` | `oracle/codemp/game/g_arenas.c:20-101` | `JKAMP_GameLogic/g_arenas.swift:15` | marker | `crates/mp/game/src/g_arenas.rs:16-161` | `func UpdateTournamentInfo()` |
