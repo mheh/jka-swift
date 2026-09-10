@@ -14,6 +14,11 @@ public struct PooledString: Hashable, ExpressibleByStringLiteral {
         self.raw = raw
     }
 
+    /// The pointer for memory a body just wrote a string into, Raven's `(char *)` cast on the allocator's pointer.
+    public init(_ raw: UnsafeMutableRawPointer) {
+        self.raw = raw.assumingMemoryBound(to: CChar.self)
+    }
+
     /// A literal points into the binary's read-only data, NUL-terminated and alive for the process, exactly as Raven's C literals were.
     public init(stringLiteral literal: StaticString) {
         precondition(literal.hasPointerRepresentation, "a PooledString literal must have UTF-8 storage")
