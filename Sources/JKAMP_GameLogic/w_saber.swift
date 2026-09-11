@@ -209,10 +209,7 @@ private func G_SaberInBackAttack(_ move: Int32) -> Bool {
 
 //build faces around blade for collision checking -rww
 /// Source: oracle/codemp/game/w_saber.c:2454
-// TODO: Port signature
-// Raven wrote: static GAME_INLINE void G_BuildSaberFaces(vec3_t base, vec3_t tip, float radius, vec3_t fwd, vec3_t right, int *fNum, saberFace_t **fList)
-// No table row for `saberFace_t ** fList`.
-private func G_BuildSaberFaces() -> Never {
+private func G_BuildSaberFaces(_ base: inout JKAShared.vec3_t, _ tip: inout JKAShared.vec3_t, _ radius: Float, _ fwd: inout JKAShared.vec3_t, _ right: inout JKAShared.vec3_t, _ fNum: inout Int32, _ fList: inout SaberFace?) {
     // TODO: Port G_BuildSaberFaces
     portMissing("G_BuildSaberFaces", source: "oracle/codemp/game/w_saber.c:2454")
 }

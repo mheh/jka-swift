@@ -37,10 +37,7 @@ func G_VehicleSpawn(_ `self`: Entity) {
 
 // Attachs an entity to the vehicle it's riding (it's owner).
 /// Source: oracle/codemp/game/g_vehicles.c:247
-// TODO: Port signature
-// Raven wrote: void G_AttachToVehicle( gentity_t *pEnt, usercmd_t **ucmd )
-// No table row for `usercmd_t ** ucmd`.
-func G_AttachToVehicle() -> Never {
+func G_AttachToVehicle(_ pEnt: Entity, _ ucmd: inout JKAMP.Usercmd?) {
     // TODO: Port G_AttachToVehicle
     portMissing("G_AttachToVehicle", source: "oracle/codemp/game/g_vehicles.c:247")
 }

@@ -99,10 +99,7 @@ If qfalse is returned, *obstacle will be the blocking entity
 ```
 */
 /// Source: oracle/codemp/game/g_mover.c:283
-// TODO: Port signature
-// Raven wrote: qboolean G_MoverPush( gentity_t *pusher, vec3_t move, vec3_t amove, gentity_t **obstacle )
-// No table row for `gentity_t ** obstacle`.
-func G_MoverPush() -> Never {
+func G_MoverPush(_ pusher: Entity, _ move: inout JKAShared.vec3_t, _ amove: inout JKAShared.vec3_t, _ obstacle: inout Entity?) -> Bool {
     // TODO: Port G_MoverPush
     portMissing("G_MoverPush", source: "oracle/codemp/game/g_mover.c:283")
 }

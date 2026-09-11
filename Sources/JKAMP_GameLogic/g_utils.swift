@@ -157,19 +157,13 @@ func G_Throw(_ targ: Entity, _ newDir: inout JKAShared.vec3_t, _ push: Float) {
 //it is left around you will have a memory leak, because true dynamic memory is
 //allocated by the exe.
 /// Source: oracle/codemp/game/g_utils.c:376
-// TODO: Port signature
-// Raven wrote: void G_FreeFakeClient(gclient_t **cl)
-// No table row for `gclient_t ** cl`.
-func G_FreeFakeClient() -> Never {
+func G_FreeFakeClient(_ cl: inout Client?) {
     // TODO: Port G_FreeFakeClient
     portMissing("G_FreeFakeClient", source: "oracle/codemp/game/g_utils.c:376")
 }
 
 /// Source: oracle/codemp/game/g_utils.c:388
-// TODO: Port signature
-// Raven wrote: void G_AllocateVehicleObject(Vehicle_t **pVeh)
-// No table row for `Vehicle_t ** pVeh`.
-func G_AllocateVehicleObject() -> Never {
+func G_AllocateVehicleObject(_ pVeh: inout JKAMP.Vehicle?) {
     // TODO: Port G_AllocateVehicleObject
     portMissing("G_AllocateVehicleObject", source: "oracle/codemp/game/g_utils.c:388")
 }
@@ -182,10 +176,7 @@ func G_FreeVehicleObject(_ pVeh: JKAMP.Vehicle) {
 }
 
 /// Source: oracle/codemp/game/g_utils.c:430
-// TODO: Port signature
-// Raven wrote: void G_CreateFakeClient(int entNum, gclient_t **cl)
-// No table row for `gclient_t ** cl`.
-func G_CreateFakeClient() -> Never {
+func G_CreateFakeClient(_ entNum: Int32, _ cl: inout Client?) {
     // TODO: Port G_CreateFakeClient
     portMissing("G_CreateFakeClient", source: "oracle/codemp/game/g_utils.c:430")
 }

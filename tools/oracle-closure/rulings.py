@@ -93,7 +93,9 @@ RETURNS = {
 # (function, parameter) -> the kind of the parameter, where the C type alone does not say.
 #   raw       an UnsafeMutableRawPointer a body writes at a byte offset, see "Typed access at a byte offset"
 #   vec3_mut  an inout vec3_t for a `float *` Raven fills as three floats, see "A pointer out-param Raven indexes"
+#   pointer_array  a C array of struct pointers a trap reads, a storage table's base, which keeps its marker until that storage is ruled
 PARAMS = {
+    ("trap_Bot_UpdateWaypoints", "wps"): "pointer_array",
     ("BG_ParseField", "ent"): "raw",
     ("BG_ValidateSkinForTeam", "colors"): "vec3_mut",
 }

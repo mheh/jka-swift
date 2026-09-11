@@ -61,10 +61,7 @@ func G_SetSpeederVehicleFunctions(_ pVehInfo: JKAMP.VehicleInfo) {
 
 // Create/Allocate a new Animal Vehicle (initializing it as well).
 /// Source: oracle/codemp/game/SpeederNPC.c:1092
-// TODO: Port signature
-// Raven wrote: void G_CreateSpeederNPC( Vehicle_t **pVeh, const char *strType )
-// No table row for `Vehicle_t ** pVeh`.
-func G_CreateSpeederNPC() -> Never {
+func G_CreateSpeederNPC(_ pVeh: inout JKAMP.Vehicle?, _ strType: String) {
     // TODO: Port G_CreateSpeederNPC
     portMissing("G_CreateSpeederNPC", source: "oracle/codemp/game/SpeederNPC.c:1092")
 }

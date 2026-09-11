@@ -157,6 +157,14 @@ class Table:
             if inner.kind == TypeKind.POINTER and inner.get_pointee().get_canonical().kind == TypeKind.VOID:
                 # The address of a `void *` the engine fills or clears, one word up from the handle it holds.
                 return Param(name, "inout OpaquePointer?", "out_opaque")
+            if inner.kind == TypeKind.POINTER and not pointee.is_const_qualified():
+                # The address of a struct pointer the body sets, an out-param, `inout View?`. A pointer array into a trap is a
+                # storage table's base, which has no row, so the entry in PARAMS holds it.
+                if PARAMS.get((owner, name)) == "pointer_array":
+                    return None
+                record = self.views.record_name(inner.get_pointee())
+                if record and record in self.views.views and not traps:
+                    return Param(name, f"inout {self.views.qualified_view(record, TARGET)}?", "out_view")
             # An array of model handles the engine reads, and every caller passes NULL. The pointer stays in generated code.
             if t.get_pointee().spelling.replace("const ", "") == "qhandle_t":
                 return Param(name, "UnsafeMutablePointer<Int32>?", "bare")

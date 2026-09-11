@@ -152,10 +152,7 @@ func G_SetFighterVehicleFunctions(_ pVehInfo: JKAMP.VehicleInfo) {
 
 // Create/Allocate a new Animal Vehicle (initializing it as well).
 /// Source: oracle/codemp/game/FighterNPC.c:1994
-// TODO: Port signature
-// Raven wrote: void G_CreateFighterNPC( Vehicle_t **pVeh, const char *strType )
-// No table row for `Vehicle_t ** pVeh`.
-func G_CreateFighterNPC() -> Never {
+func G_CreateFighterNPC(_ pVeh: inout JKAMP.Vehicle?, _ strType: String) {
     // TODO: Port G_CreateFighterNPC
     portMissing("G_CreateFighterNPC", source: "oracle/codemp/game/FighterNPC.c:1994")
 }

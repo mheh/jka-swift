@@ -275,10 +275,7 @@ func G_CheckMovingLoopingSounds(_ ent: Entity, _ ucmd: JKAMP.Usercmd) {
 }
 
 /// Source: oracle/codemp/game/g_active.c:1616
-// TODO: Port signature
-// Raven wrote: void G_HeldByMonster( gentity_t *ent, usercmd_t **ucmd )
-// No table row for `usercmd_t ** ucmd`.
-func G_HeldByMonster() -> Never {
+func G_HeldByMonster(_ ent: Entity, _ ucmd: inout JKAMP.Usercmd?) {
     // TODO: Port G_HeldByMonster
     portMissing("G_HeldByMonster", source: "oracle/codemp/game/g_active.c:1616")
 }

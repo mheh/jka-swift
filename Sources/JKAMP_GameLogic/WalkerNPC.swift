@@ -66,10 +66,7 @@ func G_SetWalkerVehicleFunctions(_ pVehInfo: JKAMP.VehicleInfo) {
 // Create/Allocate a new Animal Vehicle (initializing it as well).
 //this is a BG function too in MP so don't un-bg-compatibilify it -rww
 /// Source: oracle/codemp/game/WalkerNPC.c:594
-// TODO: Port signature
-// Raven wrote: void G_CreateWalkerNPC( Vehicle_t **pVeh, const char *strAnimalType )
-// No table row for `Vehicle_t ** pVeh`.
-func G_CreateWalkerNPC() -> Never {
+func G_CreateWalkerNPC(_ pVeh: inout JKAMP.Vehicle?, _ strAnimalType: String) {
     // TODO: Port G_CreateWalkerNPC
     portMissing("G_CreateWalkerNPC", source: "oracle/codemp/game/WalkerNPC.c:594")
 }
