@@ -242,10 +242,7 @@ for making temporary vectors for function calls
 ```
 */
 /// Source: oracle/codemp/game/g_utils.c:627
-// TODO: Port signature
-// Raven wrote: float *tv( float x, float y, float z )
-// No table row for the return `float *`.
-func tv() -> Never {
+func tv(_ x: Float, _ y: Float, _ z: Float) -> JKAShared.vec3_t {
     // TODO: Port tv
     portMissing("tv", source: "oracle/codemp/game/g_utils.c:627")
 }

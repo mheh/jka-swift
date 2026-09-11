@@ -78,6 +78,7 @@ TYPES = {
 #   in_place       Void, for a function that rewrites its `char *` argument and returns it
 #   text_offset    an Int32? byte offset into the argument, or nil, the shape strchr has in CString.swift
 #   text_offset_nonnull  an Int32 byte offset into the argument that is never NULL
+#   vec3           a JKAShared.vec3_t by value, for a `float *` Raven returns out of a static ring of temporaries
 RETURNS = {
     "SkipWhitespace": "text_cursor",
     "ClientConnect": "optional_string",
@@ -99,6 +100,7 @@ RETURNS = {
     "G_Alloc": "raw",
     "BG_StringAlloc": "pooled_string",
     "G_NewString": "pooled_string",
+    "tv": "vec3",
 }
 
 # (function, parameter) -> the kind of the parameter, where the C type alone does not say.

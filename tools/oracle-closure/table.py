@@ -259,6 +259,8 @@ class Table:
             return ("Int32?", "")
         if ruled == "text_offset_nonnull":
             return ("Int32", "")
+        if ruled == "vec3":
+            return ("JKAShared.vec3_t", "")
         return self.result_type(cur.result_type)
 
     def result_type(self, t: ci.Type) -> tuple[str | None, str] | None:
