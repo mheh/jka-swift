@@ -1236,9 +1236,8 @@ func BG_ValidateSkinForTeam(_ modelName: String, _ skinName: inout JKAShared.Cha
                     //too short to be "red"
                     Q_strcat(&skinName, MAX_QPATH, "_red")
                 } else {
-                    // Port-note: Raven takes `&skinName[len-3]`, a pointer into the buffer, and `CharBuf` has no offset form yet.
-                    let start = String(String(skinName).suffix(3))
-                    if Q_strncmp("red", start, 3) != 0 {
+                    let start = len - 3
+                    if Q_strncmp("red", skinName[start...], 3) != 0 {
                         //doesn't already end in "red"
                         if len + 4 >= MAX_QPATH {
                             //too big to append "_red"
@@ -1273,9 +1272,8 @@ func BG_ValidateSkinForTeam(_ modelName: String, _ skinName: inout JKAShared.Cha
                     //too short to be "blue"
                     Q_strcat(&skinName, MAX_QPATH, "_blue")
                 } else {
-                    // Port-note: Raven takes `&skinName[len-4]`, a pointer into the buffer, and `CharBuf` has no offset form yet.
-                    let start = String(String(skinName).suffix(4))
-                    if Q_strncmp("blue", start, 4) != 0 {
+                    let start = len - 4
+                    if Q_strncmp("blue", skinName[start...], 4) != 0 {
                         //doesn't already end in "blue"
                         if len + 5 >= MAX_QPATH {
                             //too big to append "_blue"

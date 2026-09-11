@@ -51,6 +51,16 @@ public struct CharBuf: ExpressibleByStringLiteral {
         set { self.setByte(newValue, at: Int(i)) }
     }
 
+    /// Raven's `&buf[start]`, a pointer into the buffer, as the bytes from that offset to the end.
+    /// A read through the pointer reads this copy, `Q_strncmp("red", skinName[start...], 3)`.
+    public subscript<I: BinaryInteger>(range: PartialRangeFrom<I>) -> CharBuf {
+        let start = Int(range.lowerBound)
+        precondition(start >= 0 && start <= self.count, "CharBuf offset past the end")
+        var suffix = CharBuf(self.count - start)
+        suffix.bytes = Array(self.bytes[start...])
+        return suffix
+    }
+
     /// The body gets a raw pointer into the buffer to copy bytes in, for `CString.swift`'s `strcpy` and the rest.
     public mutating func withUnsafeMutableRawPointer<R>(_ body: (UnsafeMutableRawPointer) throws -> R) rethrows -> R {
         try self.bytes.withUnsafeMutableBytes { rawBuffer in

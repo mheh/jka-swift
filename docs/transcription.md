@@ -297,6 +297,9 @@ So `c1 = s1[i1]` reads Raven's `c1 = *s1` with `c1` declared `Int32`, and `readB
 `String(readBuf)` reads up to the first NUL, and a string literal converts to a `CharBuf` where Raven assigns one.
 A `String` parameter a body walks by byte becomes a `CharBuf` at the top of the body, `let s1 = CharBuf(s1)`, and Raven's `*s1++` is the read plus `i1 += 1`.
 `Int32.init(ascii: Unicode.Scalar)` in `JKAShared` spells Raven's `'a'` as `Int32(ascii: "a")`, one call for one literal, so `c1 -= ('a' - 'A')` reads `c1 -= (Int32(ascii: "a") - Int32(ascii: "A"))`.
+A pointer into the buffer, Raven's `&skinName[len-3]` or the `char *slash` that `Q_strrchr` returns, is its byte offset, an `Int32`.
+A read through it is the suffix subscript, `Q_strncmp("red", skinName[start...], 3)`, and a write through it is `strcpy(&GLAName, "/animation.cfg", at: slash)`.
+`strchr`, `strstr`, and `Q_strrchr` return that offset as `Int32?`, so `if let slash` is Raven's `if (slash)`.
 
 ### The text cursor
 
