@@ -2338,10 +2338,7 @@ SetTextColor
 ```
 */
 /// Source: oracle/codemp/game/g_ICARUScb.c:4942
-// TODO: Port signature
-// Raven wrote: static void SetTextColor ( vec4_t textcolor,const char *color)
-// No table row for `vec4_t textcolor`.
-private func SetTextColor() -> Never {
+private func SetTextColor(_ textcolor: inout JKAShared.vec4_t, _ color: String) {
     // TODO: Port SetTextColor
     portMissing("SetTextColor", source: "oracle/codemp/game/g_ICARUScb.c:4942")
 }

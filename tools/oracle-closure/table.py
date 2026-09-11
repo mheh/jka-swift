@@ -16,12 +16,14 @@ from clang.cindex import TypeKind
 from clang.cindex import CursorKind
 
 from reexport import SCALARS
-from rulings import PARAMS, RETURNS
+from rulings import PARAMS, RETURNS, TYPES
 from views import Generator
 
 TARGET = "CJKAMP_Game"
 BUILTINS = set(SCALARS.values()) | {"Bool", "Float", "Int32"}
 INT_KINDS = {TypeKind.INT, TypeKind.UINT, TypeKind.LONG, TypeKind.ULONG, TypeKind.SHORT, TypeKind.USHORT}
+# The vector typedefs JKAShared spells as SIMD types, so a parameter of one is the vector itself, never a pointer.
+VECTORS = {"vec3_t", "vec4_t"}
 # An int beside a char * is its size only when Raven named it so. trap_BotSetChatName's `client` is not a size.
 SIZE_NAME = re.compile(r"size|len|max", re.I)
 # A Raven parameter name that is a Swift keyword is written in backticks.
@@ -127,13 +129,23 @@ class Table:
             return Param(name, "UnsafeMutableRawPointer", "bare")
         if ruled == "vec3_mut":
             return Param(name, "inout JKAShared.vec3_t", "vec3_mut")
-        # A vec3_t parameter is the array type itself, and Clang keeps the typedef name on the parameter.
-        if t.spelling.split()[-1] == "vec3_t":
+        if t.spelling.replace("const ", "") in TYPES:
+            return Param(name, TYPES[t.spelling.replace("const ", "")], "bare")
+        # A vector parameter is the array type itself, and Clang keeps the typedef name on the parameter.
+        if t.spelling.split()[-1] in VECTORS:
             if "const" in t.spelling:
-                return Param(name, "JKAShared.vec3_t", "vec3_const")
-            return Param(name, "inout JKAShared.vec3_t", "vec3_mut")
+                return Param(name, f"JKAShared.{t.spelling.split()[-1]}", "vec3_const")
+            return Param(name, f"inout JKAShared.{t.spelling.split()[-1]}", "vec3_mut")
         if canonical.kind == TypeKind.POINTER:
             pointee = canonical.get_pointee()
+            if t.get_pointee().spelling in VECTORS:
+                # A pointer to one vector the caller owns, which Raven writes as `(*c)[i]`. A pointer array has its own row.
+                return None if traps else Param(name, f"inout JKAShared.{t.get_pointee().spelling}", "vec3_mut")
+            if pointee.is_const_qualified() and pointee.kind in INT_KINDS | {TypeKind.FLOAT}:
+                # Raven takes the address of a const scalar to reinterpret its bytes, so the scalar crosses by value.
+                swift = self.views.scalar(pointee, TARGET)
+                if swift is not None and self.known(swift):
+                    return Param(name, swift, "bare")
             inner = pointee.get_canonical()
             if inner.kind == TypeKind.FUNCTIONPROTO:
                 return None if traps else self.closure(cur, name)
@@ -243,6 +255,8 @@ class Table:
 
     def result_type(self, t: ci.Type) -> tuple[str | None, str] | None:
         canonical = t.get_canonical()
+        if t.spelling in TYPES:
+            return (TYPES[t.spelling], f"{TYPES[t.spelling]}(word)")
         if canonical.kind == TypeKind.VOID:
             return (None, "")
         if canonical.kind == TypeKind.FLOAT:

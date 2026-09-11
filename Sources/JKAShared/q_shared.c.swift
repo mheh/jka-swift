@@ -92,37 +92,25 @@ public func LongNoSwap(_ l: Int32) -> Int32 {
 }
 
 /// Source: oracle/codemp/game/q_shared.c:194
-// TODO: Port signature
-// Raven wrote: qint64 Long64Swap (qint64 ll)
-// No table row for `qint64 ll`.
-public func Long64Swap() -> Never {
+public func Long64Swap(_ ll: Int64) -> Int64 {
     // TODO: Port Long64Swap
     portMissing("Long64Swap", source: "oracle/codemp/game/q_shared.c:194")
 }
 
 /// Source: oracle/codemp/game/q_shared.c:210
-// TODO: Port signature
-// Raven wrote: qint64 Long64NoSwap (qint64 ll)
-// No table row for `qint64 ll`.
-public func Long64NoSwap() -> Never {
+public func Long64NoSwap(_ ll: Int64) -> Int64 {
     // TODO: Port Long64NoSwap
     portMissing("Long64NoSwap", source: "oracle/codemp/game/q_shared.c:210")
 }
 
 /// Source: oracle/codemp/game/q_shared.c:220
-// TODO: Port signature
-// Raven wrote: float FloatSwap (const float *f)
-// No table row for `const float * f`.
-public func FloatSwap() -> Never {
+public func FloatSwap(_ f: Float) -> Float {
     // TODO: Port FloatSwap
     portMissing("FloatSwap", source: "oracle/codemp/game/q_shared.c:220")
 }
 
 /// Source: oracle/codemp/game/q_shared.c:230
-// TODO: Port signature
-// Raven wrote: float FloatNoSwap (const float *f)
-// No table row for `const float * f`.
-public func FloatNoSwap() -> Never {
+public func FloatNoSwap(_ f: Float) -> Float {
     // TODO: Port FloatNoSwap
     portMissing("FloatNoSwap", source: "oracle/codemp/game/q_shared.c:230")
 }
@@ -236,10 +224,7 @@ COM_ParseVec4
 ```
 */
 /// Source: oracle/codemp/game/q_shared.c:645
-// TODO: Port signature
-// Raven wrote: qboolean COM_ParseVec4( const char **buffer, vec4_t *c)
-// No table row for `const char ** buffer`.
-public func COM_ParseVec4() -> Never {
+public func COM_ParseVec4(_ buffer: inout JKAShared.TextCursor, _ c: inout JKAShared.vec4_t) -> Bool {
     // TODO: Port COM_ParseVec4
     portMissing("COM_ParseVec4", source: "oracle/codemp/game/q_shared.c:645")
 }

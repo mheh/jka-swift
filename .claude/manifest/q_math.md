@@ -17,7 +17,7 @@ The oracle range is the whole definition, from the return type to the closing br
 | `ColorBytes3` | `oracle/codemp/game/q_math.c:333-341` | `JKAShared/q_math.swift:215` | ported | none | `public func ColorBytes3(_ r: Float, _ g: Float, _ b: Float) -> UInt32` |
 | `ColorBytes4` | `oracle/codemp/game/q_math.c:343-352` | `JKAShared/q_math.swift:226` | ported | none | `public func ColorBytes4(_ r: Float, _ g: Float, _ b: Float, _ a: Float) -> UInt32` |
 | `NormalizeColor` | `oracle/codemp/game/q_math.c:354-373` | `JKAShared/q_math.swift:238` | ported | none | `public func NormalizeColor(_ `in`: JKAShared.vec3_t, _ out: inout JKAShared.vec3_t) -> Float` |
-| `PlaneFromPoints` | `oracle/codemp/game/q_math.c:384-396` | `JKAShared/q_math.swift:270` | ported | none | `public func PlaneFromPoints() -> Never` TODO: Port signature. No table row for `vec4_t plane`. |
+| `PlaneFromPoints` | `oracle/codemp/game/q_math.c:384-396` | `JKAShared/q_math.swift:270` | ported | none | `public func PlaneFromPoints(_ plane: inout JKAShared.vec4_t, _ a: JKAShared.vec3_t, _ b: JKAShared.vec3_t, _ c: JKAShared.vec3_t) -> Bool` |
 | `RotatePointAroundVector` | `oracle/codemp/game/q_math.c:405-459` | `JKAShared/q_math.swift:302` | ported | none | `public func RotatePointAroundVector(_ dst: inout JKAShared.vec3_t, _ dir: JKAShared.vec3_t, _ point: JKAShared.vec3_t, _ degrees: Float)` |
 | `RotateAroundDirection` | `oracle/codemp/game/q_math.c:466-481` | `JKAShared/q_math.swift:368` | ported | none | `public func RotateAroundDirection(_ axis: inout [JKAShared.vec3_t], _ yaw: Float)` |
 | `vectoangles` | `oracle/codemp/game/q_math.c:485-522` | `JKAShared/q_math.swift:393` | ported | none | `public func vectoangles(_ value1: JKAShared.vec3_t, _ angles: inout JKAShared.vec3_t)` |
@@ -51,7 +51,7 @@ The oracle range is the whole definition, from the return type to the closing br
 | `_VectorAdd` | `oracle/codemp/game/q_math.c:1231-1235` | `JKAShared/q_math.swift:908` | ported | none | `public func _VectorAdd(_ veca: JKAShared.vec3_t, _ vecb: JKAShared.vec3_t, _ out: inout JKAShared.vec3_t)` |
 | `_VectorCopy` | `oracle/codemp/game/q_math.c:1237-1241` | `JKAShared/q_math.swift:915` | ported | none | `public func _VectorCopy(_ `in`: JKAShared.vec3_t, _ out: inout JKAShared.vec3_t)` |
 | `_VectorScale` | `oracle/codemp/game/q_math.c:1243-1247` | `JKAShared/q_math.swift:922` | ported | none | `public func _VectorScale(_ `in`: JKAShared.vec3_t, _ scale: Float, _ out: inout JKAShared.vec3_t)` |
-| `Vector4Scale` | `oracle/codemp/game/q_math.c:1249-1254` | `JKAShared/q_math.swift:929` | ported | none | `public func Vector4Scale() -> Never` TODO: Port signature. No table row for `const vec4_t in`. |
+| `Vector4Scale` | `oracle/codemp/game/q_math.c:1249-1254` | `JKAShared/q_math.swift:929` | ported | none | `public func Vector4Scale(_ `in`: JKAShared.vec4_t, _ scale: Float, _ out: inout JKAShared.vec4_t)` |
 | `Q_log2` | `oracle/codemp/game/q_math.c:1257-1265` | `JKAShared/q_math.swift:937` | ported | none | `public func Q_log2(_ val: Int32) -> Int32` |
 | `MatrixMultiply` | `oracle/codemp/game/q_math.c:1293-1312` | `JKAShared/q_math.swift:960` | ported | none | `public func MatrixMultiply() -> Never` TODO: Port signature. No table row for `float[3][3] in1`. |
 | `AngleVectors` | `oracle/codemp/game/q_math.c:1315-1348` | `JKAShared/q_math.swift:984` | ported | none | `public func AngleVectors(_ angles: JKAShared.vec3_t, _ forward: inout JKAShared.vec3_t, _ right: inout JKAShared.vec3_t, _ up: inout JKAShared.vec3_t)` |

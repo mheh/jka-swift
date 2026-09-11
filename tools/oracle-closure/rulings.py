@@ -60,6 +60,14 @@ NEVER_NULL = {
     ("pmove_t", "pointcontents"),
 }
 
+# MARK: - Types
+
+# C typedef -> the Swift type it is at every surface, where the C definition alone does not say.
+# qint64 is Raven's struct of eight bytes from before the compilers had a portable 64-bit integer, and only the byte-swap pair touches it.
+TYPES = {
+    "qint64": "Int64",
+}
+
 # MARK: - Functions
 
 # Function -> the kind of its return, where the C type alone does not say. See "The bg pool" and "C string functions".
