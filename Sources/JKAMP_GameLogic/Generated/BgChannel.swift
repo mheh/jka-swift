@@ -7,6 +7,15 @@ import JKAMP_Game
 /// The game module points every closure of the bg channel at its own function of the same name.
 /// `dllEntry` calls this once. A `BgEntity` bg holds becomes the `Entity` the game function takes, by its handle, under rule 11.
 public func installBgChannel() {
+    bg.straps.strap_G2API_GetBoltMatrix = { ghoul2, modelIndex, boltIndex, matrix, angles, position, frameNum, modelList, scale in
+        strap_G2API_GetBoltMatrix(ghoul2, modelIndex, boltIndex, matrix, angles, position, frameNum, modelList, &scale)
+    }
+    bg.straps.strap_G2API_GetBoltMatrix_NoReconstruct = { ghoul2, modelIndex, boltIndex, matrix, angles, position, frameNum, modelList, scale in
+        strap_G2API_GetBoltMatrix_NoReconstruct(ghoul2, modelIndex, boltIndex, matrix, angles, position, frameNum, modelList, &scale)
+    }
+    bg.straps.strap_G2API_GetBoltMatrix_NoRecNoRot = { ghoul2, modelIndex, boltIndex, matrix, angles, position, frameNum, modelList, scale in
+        strap_G2API_GetBoltMatrix_NoRecNoRot(ghoul2, modelIndex, boltIndex, matrix, angles, position, frameNum, modelList, &scale)
+    }
     bg.straps.strap_G2API_SetBoneAngles = { ghoul2, modelIndex, boneName, angles, flags, up, right, forward, modelList, blendTime, currentTime in
         strap_G2API_SetBoneAngles(ghoul2, modelIndex, boneName, angles, flags, up, right, forward, modelList, blendTime, currentTime)
     }
@@ -15,6 +24,18 @@ public func installBgChannel() {
     }
     bg.straps.strap_G2API_GetBoneAnim = { ghoul2, boneName, currentTime, currentFrame, startFrame, endFrame, flags, animSpeed, modelList, modelIndex in
         strap_G2API_GetBoneAnim(ghoul2, boneName, currentTime, &currentFrame, &startFrame, &endFrame, &flags, &animSpeed, &modelList, modelIndex)
+    }
+    bg.straps.strap_G2API_SetRagDoll = { ghoul2, params in
+        strap_G2API_SetRagDoll(ghoul2, params)
+    }
+    bg.straps.strap_G2API_AnimateG2Models = { ghoul2, time, params in
+        strap_G2API_AnimateG2Models(ghoul2, time, params)
+    }
+    bg.straps.strap_G2API_SetBoneIKState = { ghoul2, time, boneName, ikState, params in
+        strap_G2API_SetBoneIKState(ghoul2, time, boneName, ikState, params)
+    }
+    bg.straps.strap_G2API_IKMove = { ghoul2, time, params in
+        strap_G2API_IKMove(ghoul2, time, params)
     }
     bg.callbacks.BG_GetTime = {
         BG_GetTime()

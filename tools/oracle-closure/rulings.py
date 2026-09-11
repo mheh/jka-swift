@@ -31,6 +31,21 @@ ROOTS = {
     "weaponData_t": ("WeaponData", "CJKAMP"),
     "ammoData_t": ("AmmoData", "CJKAMP"),
     "vmCvar_t": ("VmCvar", "CJKAMP"),
+    # A parameter or a return names these, and no root field points at them.
+    "mdxaBone_t": ("MdxaBone", "CJKAMP"),
+    "sharedRagDollParams_t": ("SharedRagDollParams", "CJKAMP"),
+    "sharedRagDollUpdateParams_t": ("SharedRagDollUpdateParams", "CJKAMP"),
+    "sharedIKMoveParams_t": ("SharedIKMoveParams", "CJKAMP"),
+    "sharedSetBoneIKStateParams_t": ("SharedSetBoneIKStateParams", "CJKAMP"),
+    "stringID_table_t": ("StringIDTable", "CJKAMP"),
+    "wpobject_t": ("Wpobject", "CJKAMP"),
+    "siegePers_t": ("SiegePers", "CJKAMP"),
+    "bot_state_t": ("BotState", "CJKAMP_Game"),
+    "bot_settings_t": ("BotSettings", "CJKAMP_Game"),
+    "navInfo_t": ("NavInfo", "CJKAMP_Game"),
+    "reference_tag_t": ("ReferenceTag", "CJKAMP_Game"),
+    "failedEdge_t": ("FailedEdge", "CJKAMP_Game"),
+    "CollisionRecord_t": ("CollisionRecord", "CJKAMP_Game"),
 }
 
 # (struct, field) pairs whose pointer Raven's callers always set. The field is non-optional, and its getter traps with the

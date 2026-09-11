@@ -327,21 +327,13 @@ public func trap_GetEntityToken(_ bufferSize: Int32) -> (Bool, String) {
 }
 
 /// Source: oracle/codemp/game/g_syscalls.c:210
-// TODO: Port signature
-// Raven wrote: void trap_SiegePersSet(siegePers_t *pers)
-// No table row for `siegePers_t * pers`.
-public func trap_SiegePersSet() -> Never {
-    // TODO: Port trap_SiegePersSet
-    portMissing("trap_SiegePersSet", source: "oracle/codemp/game/g_syscalls.c:210")
+public func trap_SiegePersSet(_ pers: JKAMP.SiegePers) {
+    Syscall.call(G_SIEGEPERSSET, pers)
 }
 
 /// Source: oracle/codemp/game/g_syscalls.c:214
-// TODO: Port signature
-// Raven wrote: void trap_SiegePersGet(siegePers_t *pers)
-// No table row for `siegePers_t * pers`.
-public func trap_SiegePersGet() -> Never {
-    // TODO: Port trap_SiegePersGet
-    portMissing("trap_SiegePersGet", source: "oracle/codemp/game/g_syscalls.c:214")
+public func trap_SiegePersGet(_ pers: JKAMP.SiegePers) {
+    Syscall.call(G_SIEGEPERSGET, pers)
 }
 
 /// Source: oracle/codemp/game/g_syscalls.c:219
@@ -747,12 +739,8 @@ let word = Syscall.call(G_NAV_NODESARENEIGHBORS, startID, endID)
 }
 
 /// Source: oracle/codemp/game/g_syscalls.c:510
-// TODO: Port signature
-// Raven wrote: void trap_Nav_ClearFailedEdge( failedEdge_t *failedEdge )
-// No table row for `failedEdge_t * failedEdge`.
-public func trap_Nav_ClearFailedEdge() -> Never {
-    // TODO: Port trap_Nav_ClearFailedEdge
-    portMissing("trap_Nav_ClearFailedEdge", source: "oracle/codemp/game/g_syscalls.c:510")
+public func trap_Nav_ClearFailedEdge(_ failedEdge: FailedEdge) {
+    Syscall.call(G_NAV_CLEARFAILEDEDGE, failedEdge)
 }
 
 /// Source: oracle/codemp/game/g_syscalls.c:515
@@ -772,12 +760,9 @@ public func trap_Nav_AddFailedEdge(_ entID: Int32, _ startID: Int32, _ endID: In
 }
 
 /// Source: oracle/codemp/game/g_syscalls.c:530
-// TODO: Port signature
-// Raven wrote: qboolean trap_Nav_CheckFailedEdge( failedEdge_t *failedEdge )
-// No table row for `failedEdge_t * failedEdge`.
-public func trap_Nav_CheckFailedEdge() -> Never {
-    // TODO: Port trap_Nav_CheckFailedEdge
-    portMissing("trap_Nav_CheckFailedEdge", source: "oracle/codemp/game/g_syscalls.c:530")
+public func trap_Nav_CheckFailedEdge(_ failedEdge: FailedEdge) -> Bool {
+let word = Syscall.call(G_NAV_CHECKFAILEDEDGE, failedEdge)
+    return word != 0
 }
 
 /// Source: oracle/codemp/game/g_syscalls.c:535
@@ -1859,30 +1844,39 @@ public func trap_G2_SetGhoul2ModelIndexes(_ ghoul2: OpaquePointer?, _ modelList:
 }
 
 /// Source: oracle/codemp/game/g_syscalls.c:1205
-// TODO: Port signature
-// Raven wrote: qboolean trap_G2API_GetBoltMatrix(void *ghoul2, const int modelIndex, const int boltIndex, mdxaBone_t *matrix, const vec3_t angles, const vec3_t position, const int frameNum, qhandle_t *modelList, vec3_t scale)
-// No table row for `mdxaBone_t * matrix`.
-public func trap_G2API_GetBoltMatrix() -> Never {
-    // TODO: Port trap_G2API_GetBoltMatrix
-    portMissing("trap_G2API_GetBoltMatrix", source: "oracle/codemp/game/g_syscalls.c:1205")
+public func trap_G2API_GetBoltMatrix(_ ghoul2: OpaquePointer?, _ modelIndex: Int32, _ boltIndex: Int32, _ matrix: JKAMP.MdxaBone, _ angles: JKAShared.vec3_t, _ position: JKAShared.vec3_t, _ frameNum: Int32, _ modelList: UnsafeMutablePointer<Int32>?, _ scale: inout JKAShared.vec3_t) -> Bool {
+    let word = withUnsafePointer(to: angles) { angles in
+        withUnsafePointer(to: position) { position in
+            withUnsafeMutablePointer(to: &scale) { scale in
+                Syscall.call(G_G2_GETBOLT, ghoul2, modelIndex, boltIndex, matrix, angles, position, frameNum, modelList, scale)
+            }
+        }
+    }
+    return word != 0
 }
 
 /// Source: oracle/codemp/game/g_syscalls.c:1211
-// TODO: Port signature
-// Raven wrote: qboolean trap_G2API_GetBoltMatrix_NoReconstruct(void *ghoul2, const int modelIndex, const int boltIndex, mdxaBone_t *matrix, const vec3_t angles, const vec3_t position, const int frameNum, qhandle_t *modelList, vec3_t scale)
-// No table row for `mdxaBone_t * matrix`.
-public func trap_G2API_GetBoltMatrix_NoReconstruct() -> Never {
-    // TODO: Port trap_G2API_GetBoltMatrix_NoReconstruct
-    portMissing("trap_G2API_GetBoltMatrix_NoReconstruct", source: "oracle/codemp/game/g_syscalls.c:1211")
+public func trap_G2API_GetBoltMatrix_NoReconstruct(_ ghoul2: OpaquePointer?, _ modelIndex: Int32, _ boltIndex: Int32, _ matrix: JKAMP.MdxaBone, _ angles: JKAShared.vec3_t, _ position: JKAShared.vec3_t, _ frameNum: Int32, _ modelList: UnsafeMutablePointer<Int32>?, _ scale: inout JKAShared.vec3_t) -> Bool {
+    let word = withUnsafePointer(to: angles) { angles in
+        withUnsafePointer(to: position) { position in
+            withUnsafeMutablePointer(to: &scale) { scale in
+                Syscall.call(G_G2_GETBOLT_NOREC, ghoul2, modelIndex, boltIndex, matrix, angles, position, frameNum, modelList, scale)
+            }
+        }
+    }
+    return word != 0
 }
 
 /// Source: oracle/codemp/game/g_syscalls.c:1217
-// TODO: Port signature
-// Raven wrote: qboolean trap_G2API_GetBoltMatrix_NoRecNoRot(void *ghoul2, const int modelIndex, const int boltIndex, mdxaBone_t *matrix, const vec3_t angles, const vec3_t position, const int frameNum, qhandle_t *modelList, vec3_t scale)
-// No table row for `mdxaBone_t * matrix`.
-public func trap_G2API_GetBoltMatrix_NoRecNoRot() -> Never {
-    // TODO: Port trap_G2API_GetBoltMatrix_NoRecNoRot
-    portMissing("trap_G2API_GetBoltMatrix_NoRecNoRot", source: "oracle/codemp/game/g_syscalls.c:1217")
+public func trap_G2API_GetBoltMatrix_NoRecNoRot(_ ghoul2: OpaquePointer?, _ modelIndex: Int32, _ boltIndex: Int32, _ matrix: JKAMP.MdxaBone, _ angles: JKAShared.vec3_t, _ position: JKAShared.vec3_t, _ frameNum: Int32, _ modelList: UnsafeMutablePointer<Int32>?, _ scale: inout JKAShared.vec3_t) -> Bool {
+    let word = withUnsafePointer(to: angles) { angles in
+        withUnsafePointer(to: position) { position in
+            withUnsafeMutablePointer(to: &scale) { scale in
+                Syscall.call(G_G2_GETBOLT_NOREC_NOROT, ghoul2, modelIndex, boltIndex, matrix, angles, position, frameNum, modelList, scale)
+            }
+        }
+    }
+    return word != 0
 }
 
 /// Source: oracle/codemp/game/g_syscalls.c:1223
@@ -2014,21 +2008,33 @@ public func trap_G2API_CleanGhoul2Models() -> Never {
 }
 
 /// Source: oracle/codemp/game/g_syscalls.c:1308
-// TODO: Port signature
-// Raven wrote: void trap_G2API_CollisionDetect ( CollisionRecord_t *collRecMap, void* ghoul2, const vec3_t angles, const vec3_t position, int frameNumber, int entNum, vec3_t rayStart, vec3_t rayEnd, vec3_t scale, int traceFlags, int useLod, float fRadius )
-// No table row for `CollisionRecord_t * collRecMap`.
-public func trap_G2API_CollisionDetect() -> Never {
-    // TODO: Port trap_G2API_CollisionDetect
-    portMissing("trap_G2API_CollisionDetect", source: "oracle/codemp/game/g_syscalls.c:1308")
+public func trap_G2API_CollisionDetect(_ collRecMap: CollisionRecord, _ ghoul2: OpaquePointer?, _ angles: JKAShared.vec3_t, _ position: JKAShared.vec3_t, _ frameNumber: Int32, _ entNum: Int32, _ rayStart: inout JKAShared.vec3_t, _ rayEnd: inout JKAShared.vec3_t, _ scale: inout JKAShared.vec3_t, _ traceFlags: Int32, _ useLod: Int32, _ fRadius: Float) {
+    _ = withUnsafePointer(to: angles) { angles in
+        withUnsafePointer(to: position) { position in
+            withUnsafeMutablePointer(to: &rayStart) { rayStart in
+                withUnsafeMutablePointer(to: &rayEnd) { rayEnd in
+                    withUnsafeMutablePointer(to: &scale) { scale in
+                        Syscall.call(G_G2_COLLISIONDETECT, collRecMap, ghoul2, angles, position, frameNumber, entNum, rayStart, rayEnd, scale, traceFlags, useLod, fRadius)
+                    }
+                }
+            }
+        }
+    }
 }
 
 /// Source: oracle/codemp/game/g_syscalls.c:1326
-// TODO: Port signature
-// Raven wrote: void trap_G2API_CollisionDetectCache ( CollisionRecord_t *collRecMap, void* ghoul2, const vec3_t angles, const vec3_t position, int frameNumber, int entNum, vec3_t rayStart, vec3_t rayEnd, vec3_t scale, int traceFlags, int useLod, float fRadius )
-// No table row for `CollisionRecord_t * collRecMap`.
-public func trap_G2API_CollisionDetectCache() -> Never {
-    // TODO: Port trap_G2API_CollisionDetectCache
-    portMissing("trap_G2API_CollisionDetectCache", source: "oracle/codemp/game/g_syscalls.c:1326")
+public func trap_G2API_CollisionDetectCache(_ collRecMap: CollisionRecord, _ ghoul2: OpaquePointer?, _ angles: JKAShared.vec3_t, _ position: JKAShared.vec3_t, _ frameNumber: Int32, _ entNum: Int32, _ rayStart: inout JKAShared.vec3_t, _ rayEnd: inout JKAShared.vec3_t, _ scale: inout JKAShared.vec3_t, _ traceFlags: Int32, _ useLod: Int32, _ fRadius: Float) {
+    _ = withUnsafePointer(to: angles) { angles in
+        withUnsafePointer(to: position) { position in
+            withUnsafeMutablePointer(to: &rayStart) { rayStart in
+                withUnsafeMutablePointer(to: &rayEnd) { rayEnd in
+                    withUnsafeMutablePointer(to: &scale) { scale in
+                        Syscall.call(G_G2_COLLISIONDETECTCACHE, collRecMap, ghoul2, angles, position, frameNumber, entNum, rayStart, rayEnd, scale, traceFlags, useLod, fRadius)
+                    }
+                }
+            }
+        }
+    }
 }
 
 /// Source: oracle/codemp/game/g_syscalls.c:1344
@@ -2085,22 +2091,15 @@ public func trap_G2API_AbsurdSmoothing(_ ghoul2: OpaquePointer?, _ status: Bool)
     Syscall.call(G_G2_ABSURDSMOOTHING, ghoul2, status)
 }
 
+//rww - RAGDOLL_BEGIN
 /// Source: oracle/codemp/game/g_syscalls.c:1382
-// TODO: Port signature
-// Raven wrote: void trap_G2API_SetRagDoll(void *ghoul2, sharedRagDollParams_t *params)
-// No table row for `sharedRagDollParams_t * params`.
-public func trap_G2API_SetRagDoll() -> Never {
-    // TODO: Port trap_G2API_SetRagDoll
-    portMissing("trap_G2API_SetRagDoll", source: "oracle/codemp/game/g_syscalls.c:1382")
+public func trap_G2API_SetRagDoll(_ ghoul2: OpaquePointer?, _ params: JKAMP.SharedRagDollParams) {
+    Syscall.call(G_G2_SETRAGDOLL, ghoul2, params)
 }
 
 /// Source: oracle/codemp/game/g_syscalls.c:1387
-// TODO: Port signature
-// Raven wrote: void trap_G2API_AnimateG2Models(void *ghoul2, int time, sharedRagDollUpdateParams_t *params)
-// No table row for `sharedRagDollUpdateParams_t * params`.
-public func trap_G2API_AnimateG2Models() -> Never {
-    // TODO: Port trap_G2API_AnimateG2Models
-    portMissing("trap_G2API_AnimateG2Models", source: "oracle/codemp/game/g_syscalls.c:1387")
+public func trap_G2API_AnimateG2Models(_ ghoul2: OpaquePointer?, _ time: Int32, _ params: JKAMP.SharedRagDollUpdateParams) {
+    Syscall.call(G_G2_ANIMATEG2MODELS, ghoul2, time, params)
 }
 
 //additional ragdoll options -rww
@@ -2167,21 +2166,17 @@ let word = Syscall.call(G_G2_RAGFORCESOLVE, ghoul2, force)
 }
 
 /// Source: oracle/codemp/game/g_syscalls.c:1424
-// TODO: Port signature
-// Raven wrote: qboolean trap_G2API_SetBoneIKState(void *ghoul2, int time, const char *boneName, int ikState, sharedSetBoneIKStateParams_t *params)
-// No table row for `sharedSetBoneIKStateParams_t * params`.
-public func trap_G2API_SetBoneIKState() -> Never {
-    // TODO: Port trap_G2API_SetBoneIKState
-    portMissing("trap_G2API_SetBoneIKState", source: "oracle/codemp/game/g_syscalls.c:1424")
+public func trap_G2API_SetBoneIKState(_ ghoul2: OpaquePointer?, _ time: Int32, _ boneName: String, _ ikState: Int32, _ params: JKAMP.SharedSetBoneIKStateParams) -> Bool {
+    let word = boneName.withCString { boneName in
+        Syscall.call(G_G2_SETBONEIKSTATE, ghoul2, time, boneName, ikState, params)
+    }
+    return word != 0
 }
 
 /// Source: oracle/codemp/game/g_syscalls.c:1429
-// TODO: Port signature
-// Raven wrote: qboolean trap_G2API_IKMove(void *ghoul2, int time, sharedIKMoveParams_t *params)
-// No table row for `sharedIKMoveParams_t * params`.
-public func trap_G2API_IKMove() -> Never {
-    // TODO: Port trap_G2API_IKMove
-    portMissing("trap_G2API_IKMove", source: "oracle/codemp/game/g_syscalls.c:1429")
+public func trap_G2API_IKMove(_ ghoul2: OpaquePointer?, _ time: Int32, _ params: JKAMP.SharedIKMoveParams) -> Bool {
+let word = Syscall.call(G_G2_IKMOVE, ghoul2, time, params)
+    return word != 0
 }
 
 /// Source: oracle/codemp/game/g_syscalls.c:1434

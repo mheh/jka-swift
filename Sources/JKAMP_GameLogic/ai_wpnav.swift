@@ -82,10 +82,7 @@ func CreateNewWP(_ origin: inout JKAShared.vec3_t, _ flags: Int32) {
 }
 
 /// Source: oracle/codemp/game/ai_wpnav.c:403
-// TODO: Port signature
-// Raven wrote: void CreateNewWP_FromObject(wpobject_t *wp)
-// No table row for `wpobject_t * wp`.
-func CreateNewWP_FromObject() -> Never {
+func CreateNewWP_FromObject(_ wp: JKAMP.Wpobject) {
     // TODO: Port CreateNewWP_FromObject
     portMissing("CreateNewWP_FromObject", source: "oracle/codemp/game/ai_wpnav.c:403")
 }

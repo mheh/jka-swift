@@ -11,18 +11,24 @@ One file per viewed struct sits beside this index. The tables below give the Swi
 | `AIGroupInfo_t` | `AIGroupInfo` | `JKAMP_Game` | `.claude/rosetta/AIGroupInfo_t.md` |
 | `AIGroupMember_t` | `AIGroupMember` | `JKAMP_Game` | `.claude/rosetta/AIGroupMember_t.md` |
 | `BG_field_t` | `BgField` | `JKAMP` | `.claude/rosetta/BG_field_t.md` |
+| `CollisionRecord_t` | `CollisionRecord` | `JKAMP_Game` | `.claude/rosetta/CollisionRecord_t.md` |
 | `Vehicle_t` | `Vehicle` | `JKAMP` | `.claude/rosetta/Vehicle_t.md` |
 | `alertEvent_t` | `AlertEvent` | `JKAMP_Game` | `.claude/rosetta/alertEvent_t.md` |
 | `ammoData_t` | `AmmoData` | `JKAMP` | `.claude/rosetta/ammoData_t.md` |
 | `animation_t` | `Animation` | `JKAMP` | `.claude/rosetta/animation_t.md` |
 | `bgEntity_t` | `BgEntity` | `JKAMP` | `.claude/rosetta/bgEntity_t.md` |
 | `bladeInfo_t` | `BladeInfo` | `JKAMP` | `.claude/rosetta/bladeInfo_t.md` |
+| `bot_settings_t` | `BotSettings` | `JKAMP_Game` | `.claude/rosetta/bot_settings_t.md` |
+| `bot_state_t` | `BotState` | `JKAMP_Game` | `.claude/rosetta/bot_state_t.md` |
+| `botattachment_t` | `Botattachment` | `JKAMP_Game` | `.claude/rosetta/botattachment_t.md` |
+| `botskills_t` | `Botskills` | `JKAMP_Game` | `.claude/rosetta/botskills_t.md` |
 | `clientPersistant_t` | `ClientPersistant` | `JKAMP_Game` | `.claude/rosetta/clientPersistant_t.md` |
 | `clientSession_t` | `ClientSession` | `JKAMP_Game` | `.claude/rosetta/clientSession_t.md` |
 | `combatPoint_t` | `CombatPoint` | `JKAMP_Game` | `.claude/rosetta/combatPoint_t.md` |
 | `cplane_t` | `Cplane` | `JKAShared` | `.claude/rosetta/cplane_t.md` |
 | `entityShared_t` | `EntityShared` | `JKAMP_Game` | `.claude/rosetta/entityShared_t.md` |
 | `entityState_t` | `EntityState` | `JKAMP` | `.claude/rosetta/entityState_t.md` |
+| `failedEdge_t` | `FailedEdge` | `JKAMP_Game` | `.claude/rosetta/failedEdge_t.md` |
 | `forcedata_t` | `Forcedata` | `JKAMP` | `.claude/rosetta/forcedata_t.md` |
 | `gNPC_t` | `GNPC` | `JKAMP_Game` | `.claude/rosetta/gNPC_t.md` |
 | `gNPCstats_t` | `GNPCstats` | `JKAMP_Game` | `.claude/rosetta/gNPCstats_t.md` |
@@ -31,17 +37,26 @@ One file per viewed struct sits beside this index. The tables below give the Swi
 | `gitem_t` | `Gitem` | `JKAMP` | `.claude/rosetta/gitem_t.md` |
 | `interestPoint_t` | `InterestPoint` | `JKAMP_Game` | `.claude/rosetta/interestPoint_t.md` |
 | `level_locals_t` | `Level` | `JKAMP_Game` | `.claude/rosetta/level_locals_t.md` |
+| `mdxaBone_t` | `MdxaBone` | `JKAMP` | `.claude/rosetta/mdxaBone_t.md` |
+| `navInfo_t` | `NavInfo` | `JKAMP_Game` | `.claude/rosetta/navInfo_t.md` |
 | `parms_t` | `Parms` | `JKAMP_Game` | `.claude/rosetta/parms_t.md` |
 | `playerState_t` | `PlayerState` | `JKAMP` | `.claude/rosetta/playerState_t.md` |
 | `playerTeamState_t` | `PlayerTeamState` | `JKAMP_Game` | `.claude/rosetta/playerTeamState_t.md` |
 | `pml_t` | `Pml` | `JKAMP` | `.claude/rosetta/pml_t.md` |
 | `pmove_t` | `Pmove` | `JKAMP` | `.claude/rosetta/pmove_t.md` |
+| `reference_tag_t` | `ReferenceTag` | `JKAMP_Game` | `.claude/rosetta/reference_tag_t.md` |
 | `renderInfo_t` | `RenderInfo` | `JKAMP_Game` | `.claude/rosetta/renderInfo_t.md` |
 | `saberInfo_t` | `SaberInfo` | `JKAMP` | `.claude/rosetta/saberInfo_t.md` |
 | `saberTrail_t` | `SaberTrail` | `JKAMP` | `.claude/rosetta/saberTrail_t.md` |
+| `sharedIKMoveParams_t` | `SharedIKMoveParams` | `JKAMP` | `.claude/rosetta/sharedIKMoveParams_t.md` |
+| `sharedRagDollParams_t` | `SharedRagDollParams` | `JKAMP` | `.claude/rosetta/sharedRagDollParams_t.md` |
+| `sharedRagDollUpdateParams_t` | `SharedRagDollUpdateParams` | `JKAMP` | `.claude/rosetta/sharedRagDollUpdateParams_t.md` |
+| `sharedSetBoneIKStateParams_t` | `SharedSetBoneIKStateParams` | `JKAMP` | `.claude/rosetta/sharedSetBoneIKStateParams_t.md` |
 | `siegeClassDesc_t` | `SiegeClassDesc` | `JKAMP` | `.claude/rosetta/siegeClassDesc_t.md` |
 | `siegeClass_t` | `SiegeClass` | `JKAMP` | `.claude/rosetta/siegeClass_t.md` |
+| `siegePers_t` | `SiegePers` | `JKAMP` | `.claude/rosetta/siegePers_t.md` |
 | `siegeTeam_t` | `SiegeTeam` | `JKAMP` | `.claude/rosetta/siegeTeam_t.md` |
+| `stringID_table_t` | `StringIDTable` | `JKAMP` | `.claude/rosetta/stringID_table_t.md` |
 | `trace_t` | `Trace` | `JKAMP` | `.claude/rosetta/trace_t.md` |
 | `trajectory_t` | `Trajectory` | `JKAShared` | `.claude/rosetta/trajectory_t.md` |
 | `turretStats_t` | `TurretStats` | `JKAMP` | `.claude/rosetta/turretStats_t.md` |
@@ -53,6 +68,8 @@ One file per viewed struct sits beside this index. The tables below give the Swi
 | `vehicleInfo_t` | `VehicleInfo` | `JKAMP` | `.claude/rosetta/vehicleInfo_t.md` |
 | `vmCvar_t` | `VmCvar` | `JKAMP` | `.claude/rosetta/vmCvar_t.md` |
 | `weaponData_t` | `WeaponData` | `JKAMP` | `.claude/rosetta/weaponData_t.md` |
+| `wpneighbor_t` | `Wpneighbor` | `JKAMP` | `.claude/rosetta/wpneighbor_t.md` |
+| `wpobject_t` | `Wpobject` | `JKAMP` | `.claude/rosetta/wpobject_t.md` |
 
 ## Scalars and typedefs
 

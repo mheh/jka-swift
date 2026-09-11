@@ -121,10 +121,7 @@ NAVNEW_AvoidCollision
 ```
 */
 /// Source: oracle/codemp/game/g_navnew.c:442
-// TODO: Port signature
-// Raven wrote: qboolean NAVNEW_AvoidCollision( gentity_t *self, gentity_t *goal, navInfo_t *info, qboolean setBlockedInfo, int blockedMovesLimit )
-// No table row for `navInfo_t * info`.
-func NAVNEW_AvoidCollision() -> Never {
+func NAVNEW_AvoidCollision(_ `self`: Entity, _ goal: Entity, _ info: NavInfo, _ setBlockedInfo: Bool, _ blockedMovesLimit: Int32) -> Bool {
     // TODO: Port NAVNEW_AvoidCollision
     portMissing("NAVNEW_AvoidCollision", source: "oracle/codemp/game/g_navnew.c:442")
 }
@@ -143,10 +140,7 @@ NAVNEW_MoveToGoal
 ```
 */
 /// Source: oracle/codemp/game/g_navnew.c:578
-// TODO: Port signature
-// Raven wrote: int NAVNEW_MoveToGoal( gentity_t *self, navInfo_t *info )
-// No table row for `navInfo_t * info`.
-func NAVNEW_MoveToGoal() -> Never {
+func NAVNEW_MoveToGoal(_ `self`: Entity, _ info: NavInfo) -> Int32 {
     // TODO: Port NAVNEW_MoveToGoal
     portMissing("NAVNEW_MoveToGoal", source: "oracle/codemp/game/g_navnew.c:578")
 }

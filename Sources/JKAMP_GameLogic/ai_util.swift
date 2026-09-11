@@ -59,37 +59,25 @@ func GetPairedValue(_ buf: inout JKAShared.CharBuf, _ key: inout JKAShared.CharB
 }
 
 /// Source: oracle/codemp/game/ai_util.c:328
-// TODO: Port signature
-// Raven wrote: int BotDoChat(bot_state_t *bs, char *section, int always)
-// No table row for `bot_state_t * bs`.
-func BotDoChat() -> Never {
+func BotDoChat(_ bs: BotState, _ section: inout JKAShared.CharBuf, _ always: Int32) -> Int32 {
     // TODO: Port BotDoChat
     portMissing("BotDoChat", source: "oracle/codemp/game/ai_util.c:328")
 }
 
 /// Source: oracle/codemp/game/ai_util.c:517
-// TODO: Port signature
-// Raven wrote: void ParseEmotionalAttachments(bot_state_t *bs, char *buf)
-// No table row for `bot_state_t * bs`.
-func ParseEmotionalAttachments() -> Never {
+func ParseEmotionalAttachments(_ bs: BotState, _ buf: inout JKAShared.CharBuf) {
     // TODO: Port ParseEmotionalAttachments
     portMissing("ParseEmotionalAttachments", source: "oracle/codemp/game/ai_util.c:517")
 }
 
 /// Source: oracle/codemp/game/ai_util.c:574
-// TODO: Port signature
-// Raven wrote: int ReadChatGroups(bot_state_t *bs, char *buf)
-// No table row for `bot_state_t * bs`.
-func ReadChatGroups() -> Never {
+func ReadChatGroups(_ bs: BotState, _ buf: inout JKAShared.CharBuf) -> Int32 {
     // TODO: Port ReadChatGroups
     portMissing("ReadChatGroups", source: "oracle/codemp/game/ai_util.c:574")
 }
 
 /// Source: oracle/codemp/game/ai_util.c:614
-// TODO: Port signature
-// Raven wrote: void BotUtilizePersonality(bot_state_t *bs)
-// No table row for `bot_state_t * bs`.
-func BotUtilizePersonality() -> Never {
+func BotUtilizePersonality(_ bs: BotState) {
     // TODO: Port BotUtilizePersonality
     portMissing("BotUtilizePersonality", source: "oracle/codemp/game/ai_util.c:614")
 }

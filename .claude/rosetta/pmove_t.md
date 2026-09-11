@@ -7,7 +7,7 @@ A field reads and writes through the C struct, so `ent.r.absmin` is Raven's `ent
 
 | C field | Swift | Note |
 |---|---|---|
-| `playerState_t * ps` | `ps: PlayerState?` | Optional, nil for a NULL pointer. |
+| `playerState_t * ps` | `ps: PlayerState` |  |
 | `void * ghoul2` | `ghoul2: OpaquePointer?` | Optional, nil for a NULL pointer. |
 | `int g2Bolts_LFoot` | `g2Bolts_LFoot: Int32` |  |
 | `int g2Bolts_RFoot` | `g2Bolts_RFoot: Int32` |  |
@@ -34,8 +34,8 @@ A field reads and writes through the C struct, so `ent.r.absmin` is Raven's `ent
 | `float xyspeed` | `xyspeed: Float` |  |
 | `int pmove_fixed` | `pmove_fixed: Int32` |  |
 | `int pmove_msec` | `pmove_msec: Int32` |  |
-| `void (*)(trace_t *, const vec_t *, const vec_t *, const vec_t *, const vec_t *, int, int) trace` | `trace: PmoveTrace?`, `runTrace(_ results: Trace?, _ start: JKAShared.vec3_t, _ mins: JKAShared.vec3_t, _ maxs: JKAShared.vec3_t, _ end: JKAShared.vec3_t, _ passEntityNum: Int32, _ contentMask: Int32)` | Optional, nil for a NULL pointer. |
-| `int (*)(const vec_t *, int) pointcontents` | `pointcontents: PmovePointcontents?` | Optional, nil for a NULL pointer. |
+| `void (*)(trace_t *, const vec_t *, const vec_t *, const vec_t *, const vec_t *, int, int) trace` | `trace: PmoveTrace`, `runTrace(_ results: Trace?, _ start: JKAShared.vec3_t, _ mins: JKAShared.vec3_t, _ maxs: JKAShared.vec3_t, _ end: JKAShared.vec3_t, _ passEntityNum: Int32, _ contentMask: Int32)` |  |
+| `int (*)(const vec_t *, int) pointcontents` | `pointcontents: PmovePointcontents` |  |
 | `int checkDuelLoss` | `checkDuelLoss: Int32` |  |
 | `bgEntity_t * baseEnt` | `baseEnt: BgEntity?` | Optional, nil for a NULL pointer. |
 | `int entSize` | `entSize: Int32` |  |

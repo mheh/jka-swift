@@ -707,19 +707,13 @@ func TAG_FindOwner() -> Never {
 }
 
 /// Source: oracle/codemp/game/g_misc.c:2975
-// TODO: Port signature
-// Raven wrote: reference_tag_t *TAG_Find( const char *owner, const char *name )
-// No table row for the return `reference_tag_t *`.
-func TAG_Find() -> Never {
+func TAG_Find(_ owner: String, _ name: String) -> ReferenceTag? {
     // TODO: Port TAG_Find
     portMissing("TAG_Find", source: "oracle/codemp/game/g_misc.c:2975")
 }
 
 /// Source: oracle/codemp/game/g_misc.c:3036
-// TODO: Port signature
-// Raven wrote: reference_tag_t *TAG_Add( const char *name, const char *owner, vec3_t origin, vec3_t angles, int radius, int flags )
-// No table row for the return `reference_tag_t *`.
-func TAG_Add() -> Never {
+func TAG_Add(_ name: String, _ owner: String, _ origin: inout JKAShared.vec3_t, _ angles: inout JKAShared.vec3_t, _ radius: Int32, _ flags: Int32) -> ReferenceTag? {
     // TODO: Port TAG_Add
     portMissing("TAG_Add", source: "oracle/codemp/game/g_misc.c:3036")
 }

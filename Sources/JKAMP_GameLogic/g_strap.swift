@@ -3,30 +3,18 @@ import JKAShared
 import JKAMP_Game
 
 /// Source: oracle/codemp/game/g_strap.c:6
-// TODO: Port signature
-// Raven wrote: qboolean strap_G2API_GetBoltMatrix(void *ghoul2, const int modelIndex, const int boltIndex, mdxaBone_t *matrix, const vec3_t angles, const vec3_t position, const int frameNum, qhandle_t *modelList, vec3_t scale)
-// No table row for `mdxaBone_t * matrix`.
-func strap_G2API_GetBoltMatrix() -> Never {
-    // TODO: Port strap_G2API_GetBoltMatrix
-    portMissing("strap_G2API_GetBoltMatrix", source: "oracle/codemp/game/g_strap.c:6")
+func strap_G2API_GetBoltMatrix(_ ghoul2: OpaquePointer?, _ modelIndex: Int32, _ boltIndex: Int32, _ matrix: JKAMP.MdxaBone, _ angles: JKAShared.vec3_t, _ position: JKAShared.vec3_t, _ frameNum: Int32, _ modelList: UnsafeMutablePointer<Int32>?, _ scale: inout JKAShared.vec3_t) -> Bool {
+    return trap_G2API_GetBoltMatrix(ghoul2, modelIndex, boltIndex, matrix, angles, position, frameNum, modelList, &scale)
 }
 
 /// Source: oracle/codemp/game/g_strap.c:12
-// TODO: Port signature
-// Raven wrote: qboolean strap_G2API_GetBoltMatrix_NoReconstruct(void *ghoul2, const int modelIndex, const int boltIndex, mdxaBone_t *matrix, const vec3_t angles, const vec3_t position, const int frameNum, qhandle_t *modelList, vec3_t scale)
-// No table row for `mdxaBone_t * matrix`.
-func strap_G2API_GetBoltMatrix_NoReconstruct() -> Never {
-    // TODO: Port strap_G2API_GetBoltMatrix_NoReconstruct
-    portMissing("strap_G2API_GetBoltMatrix_NoReconstruct", source: "oracle/codemp/game/g_strap.c:12")
+func strap_G2API_GetBoltMatrix_NoReconstruct(_ ghoul2: OpaquePointer?, _ modelIndex: Int32, _ boltIndex: Int32, _ matrix: JKAMP.MdxaBone, _ angles: JKAShared.vec3_t, _ position: JKAShared.vec3_t, _ frameNum: Int32, _ modelList: UnsafeMutablePointer<Int32>?, _ scale: inout JKAShared.vec3_t) -> Bool {
+    return trap_G2API_GetBoltMatrix_NoReconstruct(ghoul2, modelIndex, boltIndex, matrix, angles, position, frameNum, modelList, &scale)
 }
 
 /// Source: oracle/codemp/game/g_strap.c:18
-// TODO: Port signature
-// Raven wrote: qboolean strap_G2API_GetBoltMatrix_NoRecNoRot(void *ghoul2, const int modelIndex, const int boltIndex, mdxaBone_t *matrix, const vec3_t angles, const vec3_t position, const int frameNum, qhandle_t *modelList, vec3_t scale)
-// No table row for `mdxaBone_t * matrix`.
-func strap_G2API_GetBoltMatrix_NoRecNoRot() -> Never {
-    // TODO: Port strap_G2API_GetBoltMatrix_NoRecNoRot
-    portMissing("strap_G2API_GetBoltMatrix_NoRecNoRot", source: "oracle/codemp/game/g_strap.c:18")
+func strap_G2API_GetBoltMatrix_NoRecNoRot(_ ghoul2: OpaquePointer?, _ modelIndex: Int32, _ boltIndex: Int32, _ matrix: JKAMP.MdxaBone, _ angles: JKAShared.vec3_t, _ position: JKAShared.vec3_t, _ frameNum: Int32, _ modelList: UnsafeMutablePointer<Int32>?, _ scale: inout JKAShared.vec3_t) -> Bool {
+    return trap_G2API_GetBoltMatrix_NoRecNoRot(ghoul2, modelIndex, boltIndex, matrix, angles, position, frameNum, modelList, &scale)
 }
 
 /// Source: oracle/codemp/game/g_strap.c:24
@@ -45,39 +33,23 @@ func strap_G2API_GetBoneAnim(_ ghoul2: OpaquePointer?, _ boneName: String, _ cur
 }
 
 /// Source: oracle/codemp/game/g_strap.c:43
-// TODO: Port signature
-// Raven wrote: void strap_G2API_SetRagDoll(void *ghoul2, sharedRagDollParams_t *params)
-// No table row for `sharedRagDollParams_t * params`.
-func strap_G2API_SetRagDoll() -> Never {
-    // TODO: Port strap_G2API_SetRagDoll
-    portMissing("strap_G2API_SetRagDoll", source: "oracle/codemp/game/g_strap.c:43")
+func strap_G2API_SetRagDoll(_ ghoul2: OpaquePointer?, _ params: JKAMP.SharedRagDollParams) {
+    trap_G2API_SetRagDoll(ghoul2, params)
 }
 
 /// Source: oracle/codemp/game/g_strap.c:48
-// TODO: Port signature
-// Raven wrote: void strap_G2API_AnimateG2Models(void *ghoul2, int time, sharedRagDollUpdateParams_t *params)
-// No table row for `sharedRagDollUpdateParams_t * params`.
-func strap_G2API_AnimateG2Models() -> Never {
-    // TODO: Port strap_G2API_AnimateG2Models
-    portMissing("strap_G2API_AnimateG2Models", source: "oracle/codemp/game/g_strap.c:48")
+func strap_G2API_AnimateG2Models(_ ghoul2: OpaquePointer?, _ time: Int32, _ params: JKAMP.SharedRagDollUpdateParams) {
+    trap_G2API_AnimateG2Models(ghoul2, time, params)
 }
 
 /// Source: oracle/codemp/game/g_strap.c:53
-// TODO: Port signature
-// Raven wrote: qboolean strap_G2API_SetBoneIKState(void *ghoul2, int time, const char *boneName, int ikState, sharedSetBoneIKStateParams_t *params)
-// No table row for `sharedSetBoneIKStateParams_t * params`.
-func strap_G2API_SetBoneIKState() -> Never {
-    // TODO: Port strap_G2API_SetBoneIKState
-    portMissing("strap_G2API_SetBoneIKState", source: "oracle/codemp/game/g_strap.c:53")
+func strap_G2API_SetBoneIKState(_ ghoul2: OpaquePointer?, _ time: Int32, _ boneName: String, _ ikState: Int32, _ params: JKAMP.SharedSetBoneIKStateParams) -> Bool {
+    return trap_G2API_SetBoneIKState(ghoul2, time, boneName, ikState, params)
 }
 
 /// Source: oracle/codemp/game/g_strap.c:58
-// TODO: Port signature
-// Raven wrote: qboolean strap_G2API_IKMove(void *ghoul2, int time, sharedIKMoveParams_t *params)
-// No table row for `sharedIKMoveParams_t * params`.
-func strap_G2API_IKMove() -> Never {
-    // TODO: Port strap_G2API_IKMove
-    portMissing("strap_G2API_IKMove", source: "oracle/codemp/game/g_strap.c:58")
+func strap_G2API_IKMove(_ ghoul2: OpaquePointer?, _ time: Int32, _ params: JKAMP.SharedIKMoveParams) -> Bool {
+    return trap_G2API_IKMove(ghoul2, time, params)
 }
 
 /// Source: oracle/codemp/game/g_strap.c:63

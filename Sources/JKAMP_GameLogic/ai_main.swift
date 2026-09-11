@@ -29,10 +29,7 @@ let ctfStateNames: [String] = { () -> [String] in portMissing("ctfStateNames", s
 // Rule 3: a stored property of GameWorld with Raven's initializer, spelled world.gUpdateVars in a body.
 
 /// Source: oracle/codemp/game/ai_main.c:128
-// TODO: Port signature
-// Raven wrote: void BotStraightTPOrderCheck(gentity_t *ent, int ordernum, bot_state_t *bs)
-// No table row for `bot_state_t * bs`.
-func BotStraightTPOrderCheck() -> Never {
+func BotStraightTPOrderCheck(_ ent: Entity, _ ordernum: Int32, _ bs: BotState) {
     // TODO: Port BotStraightTPOrderCheck
     portMissing("BotStraightTPOrderCheck", source: "oracle/codemp/game/ai_main.c:128")
 }
@@ -44,10 +41,7 @@ func BotSelectWeapon(_ client: Int32, _ weapon: Int32) {
 }
 
 /// Source: oracle/codemp/game/ai_main.c:167
-// TODO: Port signature
-// Raven wrote: void BotReportStatus(bot_state_t *bs)
-// No table row for `bot_state_t * bs`.
-func BotReportStatus() -> Never {
+func BotReportStatus(_ bs: BotState) {
     // TODO: Port BotReportStatus
     portMissing("BotReportStatus", source: "oracle/codemp/game/ai_main.c:167")
 }
@@ -180,10 +174,7 @@ BotChangeViewAngles
 ```
 */
 /// Source: oracle/codemp/game/ai_main.c:470
-// TODO: Port signature
-// Raven wrote: void BotChangeViewAngles(bot_state_t *bs, float thinktime)
-// No table row for `bot_state_t * bs`.
-func BotChangeViewAngles() -> Never {
+func BotChangeViewAngles(_ bs: BotState, _ thinktime: Float) {
     // TODO: Port BotChangeViewAngles
     portMissing("BotChangeViewAngles", source: "oracle/codemp/game/ai_main.c:470")
 }
@@ -212,10 +203,7 @@ BotUpdateInput
 ```
 */
 /// Source: oracle/codemp/game/ai_main.c:633
-// TODO: Port signature
-// Raven wrote: void BotUpdateInput(bot_state_t *bs, int time, int elapsed_time)
-// No table row for `bot_state_t * bs`.
-func BotUpdateInput() -> Never {
+func BotUpdateInput(_ bs: BotState, _ time: Int32, _ elapsed_time: Int32) {
     // TODO: Port BotUpdateInput
     portMissing("BotUpdateInput", source: "oracle/codemp/game/ai_main.c:633")
 }
@@ -286,10 +274,7 @@ BotAISetupClient
 ```
 */
 /// Source: oracle/codemp/game/ai_main.c:819
-// TODO: Port signature
-// Raven wrote: int BotAISetupClient(int client, struct bot_settings_s *settings, qboolean restart)
-// No table row for `struct bot_settings_s * settings`.
-func BotAISetupClient() -> Never {
+func BotAISetupClient(_ client: Int32, _ settings: BotSettings, _ restart: Bool) -> Int32 {
     // TODO: Port BotAISetupClient
     portMissing("BotAISetupClient", source: "oracle/codemp/game/ai_main.c:819")
 }
@@ -318,10 +303,7 @@ when the level is changed
 ```
 */
 /// Source: oracle/codemp/game/ai_main.c:924
-// TODO: Port signature
-// Raven wrote: void BotResetState(bot_state_t *bs)
-// No table row for `bot_state_t * bs`.
-func BotResetState() -> Never {
+func BotResetState(_ bs: BotState) {
     // TODO: Port BotResetState
     portMissing("BotResetState", source: "oracle/codemp/game/ai_main.c:924")
 }
@@ -386,20 +368,14 @@ func GetNearestVisibleWP(_ org: inout JKAShared.vec3_t, _ ignore: Int32) -> Int3
 //see if this is a valid waypoint to pick up in our
 //current state (whatever that may be)
 /// Source: oracle/codemp/game/ai_main.c:1157
-// TODO: Port signature
-// Raven wrote: int PassWayCheck(bot_state_t *bs, int windex)
-// No table row for `bot_state_t * bs`.
-func PassWayCheck() -> Never {
+func PassWayCheck(_ bs: BotState, _ windex: Int32) -> Int32 {
     // TODO: Port PassWayCheck
     portMissing("PassWayCheck", source: "oracle/codemp/game/ai_main.c:1157")
 }
 
 //tally up the distance between two waypoints
 /// Source: oracle/codemp/game/ai_main.c:1193
-// TODO: Port signature
-// Raven wrote: float TotalTrailDistance(int start, int end, bot_state_t *bs)
-// No table row for `bot_state_t * bs`.
-func TotalTrailDistance() -> Never {
+func TotalTrailDistance(_ start: Int32, _ end: Int32, _ bs: BotState) -> Float {
     // TODO: Port TotalTrailDistance
     portMissing("TotalTrailDistance", source: "oracle/codemp/game/ai_main.c:1193")
 }
@@ -407,10 +383,7 @@ func TotalTrailDistance() -> Never {
 //see if there's a route shorter than our current one to get
 //to the final destination we currently desire
 /// Source: oracle/codemp/game/ai_main.c:1263
-// TODO: Port signature
-// Raven wrote: void CheckForShorterRoutes(bot_state_t *bs, int newwpindex)
-// No table row for `bot_state_t * bs`.
-func CheckForShorterRoutes() -> Never {
+func CheckForShorterRoutes(_ bs: BotState, _ newwpindex: Int32) {
     // TODO: Port CheckForShorterRoutes
     portMissing("CheckForShorterRoutes", source: "oracle/codemp/game/ai_main.c:1263")
 }
@@ -418,20 +391,14 @@ func CheckForShorterRoutes() -> Never {
 //check for flags on the waypoint we're currently travelling to
 //and perform the desired behavior based on the flag
 /// Source: oracle/codemp/game/ai_main.c:1353
-// TODO: Port signature
-// Raven wrote: void WPConstantRoutine(bot_state_t *bs)
-// No table row for `bot_state_t * bs`.
-func WPConstantRoutine() -> Never {
+func WPConstantRoutine(_ bs: BotState) {
     // TODO: Port WPConstantRoutine
     portMissing("WPConstantRoutine", source: "oracle/codemp/game/ai_main.c:1353")
 }
 
 //check if our ctf state is to guard the base
 /// Source: oracle/codemp/game/ai_main.c:1432
-// TODO: Port signature
-// Raven wrote: qboolean BotCTFGuardDuty(bot_state_t *bs)
-// No table row for `bot_state_t * bs`.
-func BotCTFGuardDuty() -> Never {
+func BotCTFGuardDuty(_ bs: BotState) -> Bool {
     // TODO: Port BotCTFGuardDuty
     portMissing("BotCTFGuardDuty", source: "oracle/codemp/game/ai_main.c:1432")
 }
@@ -441,10 +408,7 @@ func BotCTFGuardDuty() -> Never {
 //checks for flags on the current wp and activate
 //any "touch" events based on that.
 /// Source: oracle/codemp/game/ai_main.c:1452
-// TODO: Port signature
-// Raven wrote: void WPTouchRoutine(bot_state_t *bs)
-// No table row for `bot_state_t * bs`.
-func WPTouchRoutine() -> Never {
+func WPTouchRoutine(_ bs: BotState) {
     // TODO: Port WPTouchRoutine
     portMissing("WPTouchRoutine", source: "oracle/codemp/game/ai_main.c:1452")
 }
@@ -452,10 +416,7 @@ func WPTouchRoutine() -> Never {
 //could also slowly lerp toward, but for now
 //just copying straight over.
 /// Source: oracle/codemp/game/ai_main.c:1543
-// TODO: Port signature
-// Raven wrote: void MoveTowardIdealAngles(bot_state_t *bs)
-// No table row for `bot_state_t * bs`.
-func MoveTowardIdealAngles() -> Never {
+func MoveTowardIdealAngles(_ bs: BotState) {
     // TODO: Port MoveTowardIdealAngles
     portMissing("MoveTowardIdealAngles", source: "oracle/codemp/game/ai_main.c:1543")
 }
@@ -463,10 +424,7 @@ func MoveTowardIdealAngles() -> Never {
 //do some trace checks for strafing to get an idea of where we
 //are and if we should move to avoid obstacles.
 /// Source: oracle/codemp/game/ai_main.c:1556
-// TODO: Port signature
-// Raven wrote: int BotTrace_Strafe(bot_state_t *bs, vec3_t traceto)
-// No table row for `bot_state_t * bs`.
-func BotTrace_Strafe() -> Never {
+func BotTrace_Strafe(_ bs: BotState, _ traceto: inout JKAShared.vec3_t) -> Int32 {
     // TODO: Port BotTrace_Strafe
     portMissing("BotTrace_Strafe", source: "oracle/codemp/game/ai_main.c:1556")
 }
@@ -474,30 +432,21 @@ func BotTrace_Strafe() -> Never {
 //Similar to the trace check, but we want to trace to see
 //if there's anything we can jump over.
 /// Source: oracle/codemp/game/ai_main.c:1638
-// TODO: Port signature
-// Raven wrote: int BotTrace_Jump(bot_state_t *bs, vec3_t traceto)
-// No table row for `bot_state_t * bs`.
-func BotTrace_Jump() -> Never {
+func BotTrace_Jump(_ bs: BotState, _ traceto: inout JKAShared.vec3_t) -> Int32 {
     // TODO: Port BotTrace_Jump
     portMissing("BotTrace_Jump", source: "oracle/codemp/game/ai_main.c:1638")
 }
 
 //And yet another check to duck under any obstacles.
 /// Source: oracle/codemp/game/ai_main.c:1702
-// TODO: Port signature
-// Raven wrote: int BotTrace_Duck(bot_state_t *bs, vec3_t traceto)
-// No table row for `bot_state_t * bs`.
-func BotTrace_Duck() -> Never {
+func BotTrace_Duck(_ bs: BotState, _ traceto: inout JKAShared.vec3_t) -> Int32 {
     // TODO: Port BotTrace_Duck
     portMissing("BotTrace_Duck", source: "oracle/codemp/game/ai_main.c:1702")
 }
 
 //check of the potential enemy is a valid one
 /// Source: oracle/codemp/game/ai_main.c:1753
-// TODO: Port signature
-// Raven wrote: int PassStandardEnemyChecks(bot_state_t *bs, gentity_t *en)
-// No table row for `bot_state_t * bs`.
-func PassStandardEnemyChecks() -> Never {
+func PassStandardEnemyChecks(_ bs: BotState, _ en: Entity) -> Int32 {
     // TODO: Port PassStandardEnemyChecks
     portMissing("PassStandardEnemyChecks", source: "oracle/codemp/game/ai_main.c:1753")
 }
@@ -512,10 +461,7 @@ func BotDamageNotification(_ bot: Client, _ attacker: Entity) {
 //perform cheap "hearing" checks based on the event catching
 //system
 /// Source: oracle/codemp/game/ai_main.c:1945
-// TODO: Port signature
-// Raven wrote: int BotCanHear(bot_state_t *bs, gentity_t *en, float endist)
-// No table row for `bot_state_t * bs`.
-func BotCanHear() -> Never {
+func BotCanHear(_ bs: BotState, _ en: Entity, _ endist: Float) -> Int32 {
     // TODO: Port BotCanHear
     portMissing("BotCanHear", source: "oracle/codemp/game/ai_main.c:1945")
 }
@@ -537,29 +483,20 @@ func InFieldOfVision(_ viewangles: inout JKAShared.vec3_t, _ fov: Float, _ angle
 //We cannot hurt the ones we love. Unless of course this
 //function says we can.
 /// Source: oracle/codemp/game/ai_main.c:2078
-// TODO: Port signature
-// Raven wrote: int PassLovedOneCheck(bot_state_t *bs, gentity_t *ent)
-// No table row for `bot_state_t * bs`.
-func PassLovedOneCheck() -> Never {
+func PassLovedOneCheck(_ bs: BotState, _ ent: Entity) -> Int32 {
     // TODO: Port PassLovedOneCheck
     portMissing("PassLovedOneCheck", source: "oracle/codemp/game/ai_main.c:2078")
 }
 
 //standard check to find a new enemy.
 /// Source: oracle/codemp/game/ai_main.c:2134
-// TODO: Port signature
-// Raven wrote: int ScanForEnemies(bot_state_t *bs)
-// No table row for `bot_state_t * bs`.
-func ScanForEnemies() -> Never {
+func ScanForEnemies(_ bs: BotState) -> Int32 {
     // TODO: Port ScanForEnemies
     portMissing("ScanForEnemies", source: "oracle/codemp/game/ai_main.c:2134")
 }
 
 /// Source: oracle/codemp/game/ai_main.c:2222
-// TODO: Port signature
-// Raven wrote: int WaitingForNow(bot_state_t *bs, vec3_t goalpos)
-// No table row for `bot_state_t * bs`.
-func WaitingForNow() -> Never {
+func WaitingForNow(_ bs: BotState, _ goalpos: inout JKAShared.vec3_t) -> Int32 {
     // TODO: Port WaitingForNow
     portMissing("WaitingForNow", source: "oracle/codemp/game/ai_main.c:2222")
 }
@@ -567,20 +504,14 @@ func WaitingForNow() -> Never {
 //get an ideal distance for us to be at in relation to our opponent
 //based on our weapon.
 /// Source: oracle/codemp/game/ai_main.c:2264
-// TODO: Port signature
-// Raven wrote: int BotGetWeaponRange(bot_state_t *bs)
-// No table row for `bot_state_t * bs`.
-func BotGetWeaponRange() -> Never {
+func BotGetWeaponRange(_ bs: BotState) -> Int32 {
     // TODO: Port BotGetWeaponRange
     portMissing("BotGetWeaponRange", source: "oracle/codemp/game/ai_main.c:2264")
 }
 
 //see if we want to run away from the opponent for whatever reason
 /// Source: oracle/codemp/game/ai_main.c:2301
-// TODO: Port signature
-// Raven wrote: int BotIsAChickenWuss(bot_state_t *bs)
-// No table row for `bot_state_t * bs`.
-func BotIsAChickenWuss() -> Never {
+func BotIsAChickenWuss(_ bs: BotState) -> Int32 {
     // TODO: Port BotIsAChickenWuss
     portMissing("BotIsAChickenWuss", source: "oracle/codemp/game/ai_main.c:2301")
 }
@@ -588,40 +519,28 @@ func BotIsAChickenWuss() -> Never {
 //look for "bad things". bad things include detpacks, thermal detonators,
 //and other dangerous explodey items.
 /// Source: oracle/codemp/game/ai_main.c:2395
-// TODO: Port signature
-// Raven wrote: gentity_t *GetNearestBadThing(bot_state_t *bs)
-// No table row for `bot_state_t * bs`.
-func GetNearestBadThing() -> Never {
+func GetNearestBadThing(_ bs: BotState) -> Entity? {
     // TODO: Port GetNearestBadThing
     portMissing("GetNearestBadThing", source: "oracle/codemp/game/ai_main.c:2395")
 }
 
 //Keep our CTF priorities on defending our team's flag
 /// Source: oracle/codemp/game/ai_main.c:2507
-// TODO: Port signature
-// Raven wrote: int BotDefendFlag(bot_state_t *bs)
-// No table row for `bot_state_t * bs`.
-func BotDefendFlag() -> Never {
+func BotDefendFlag(_ bs: BotState) -> Int32 {
     // TODO: Port BotDefendFlag
     portMissing("BotDefendFlag", source: "oracle/codemp/game/ai_main.c:2507")
 }
 
 //Keep our CTF priorities on getting the other team's flag
 /// Source: oracle/codemp/game/ai_main.c:2541
-// TODO: Port signature
-// Raven wrote: int BotGetEnemyFlag(bot_state_t *bs)
-// No table row for `bot_state_t * bs`.
-func BotGetEnemyFlag() -> Never {
+func BotGetEnemyFlag(_ bs: BotState) -> Int32 {
     // TODO: Port BotGetEnemyFlag
     portMissing("BotGetEnemyFlag", source: "oracle/codemp/game/ai_main.c:2541")
 }
 
 //Our team's flag is gone, so try to get it back
 /// Source: oracle/codemp/game/ai_main.c:2575
-// TODO: Port signature
-// Raven wrote: int BotGetFlagBack(bot_state_t *bs)
-// No table row for `bot_state_t * bs`.
-func BotGetFlagBack() -> Never {
+func BotGetFlagBack(_ bs: BotState) -> Int32 {
     // TODO: Port BotGetFlagBack
     portMissing("BotGetFlagBack", source: "oracle/codemp/game/ai_main.c:2575")
 }
@@ -629,39 +548,27 @@ func BotGetFlagBack() -> Never {
 //Someone else on our team has the enemy flag, so try to get
 //to their assistance
 /// Source: oracle/codemp/game/ai_main.c:2641
-// TODO: Port signature
-// Raven wrote: int BotGuardFlagCarrier(bot_state_t *bs)
-// No table row for `bot_state_t * bs`.
-func BotGuardFlagCarrier() -> Never {
+func BotGuardFlagCarrier(_ bs: BotState) -> Int32 {
     // TODO: Port BotGuardFlagCarrier
     portMissing("BotGuardFlagCarrier", source: "oracle/codemp/game/ai_main.c:2641")
 }
 
 //We have the flag, let's get it home.
 /// Source: oracle/codemp/game/ai_main.c:2706
-// TODO: Port signature
-// Raven wrote: int BotGetFlagHome(bot_state_t *bs)
-// No table row for `bot_state_t * bs`.
-func BotGetFlagHome() -> Never {
+func BotGetFlagHome(_ bs: BotState) -> Int32 {
     // TODO: Port BotGetFlagHome
     portMissing("BotGetFlagHome", source: "oracle/codemp/game/ai_main.c:2706")
 }
 
 /// Source: oracle/codemp/game/ai_main.c:2739
-// TODO: Port signature
-// Raven wrote: void GetNewFlagPoint(wpobject_t *wp, gentity_t *flagEnt, int team)
-// No table row for `wpobject_t * wp`.
-func GetNewFlagPoint() -> Never {
+func GetNewFlagPoint(_ wp: JKAMP.Wpobject, _ flagEnt: Entity, _ team: Int32) {
     // TODO: Port GetNewFlagPoint
     portMissing("GetNewFlagPoint", source: "oracle/codemp/game/ai_main.c:2739")
 }
 
 //See if our CTF state should take priority in our nav routines
 /// Source: oracle/codemp/game/ai_main.c:2804
-// TODO: Port signature
-// Raven wrote: int CTFTakesPriority(bot_state_t *bs)
-// No table row for `bot_state_t * bs`.
-func CTFTakesPriority() -> Never {
+func CTFTakesPriority(_ bs: BotState) -> Int32 {
     // TODO: Port CTFTakesPriority
     portMissing("CTFTakesPriority", source: "oracle/codemp/game/ai_main.c:2804")
 }
@@ -674,39 +581,27 @@ func EntityVisibleBox(_ org1: inout JKAShared.vec3_t, _ mins: inout JKAShared.ve
 
 //Get the closest objective for siege and go after it
 /// Source: oracle/codemp/game/ai_main.c:3055
-// TODO: Port signature
-// Raven wrote: int Siege_TargetClosestObjective(bot_state_t *bs, int flag)
-// No table row for `bot_state_t * bs`.
-func Siege_TargetClosestObjective() -> Never {
+func Siege_TargetClosestObjective(_ bs: BotState, _ flag: Int32) -> Int32 {
     // TODO: Port Siege_TargetClosestObjective
     portMissing("Siege_TargetClosestObjective", source: "oracle/codemp/game/ai_main.c:3055")
 }
 
 /// Source: oracle/codemp/game/ai_main.c:3154
-// TODO: Port signature
-// Raven wrote: void Siege_DefendFromAttackers(bot_state_t *bs)
-// No table row for `bot_state_t * bs`.
-func Siege_DefendFromAttackers() -> Never {
+func Siege_DefendFromAttackers(_ bs: BotState) {
     // TODO: Port Siege_DefendFromAttackers
     portMissing("Siege_DefendFromAttackers", source: "oracle/codemp/game/ai_main.c:3154")
 }
 
 //how many defenders on our team?
 /// Source: oracle/codemp/game/ai_main.c:3202
-// TODO: Port signature
-// Raven wrote: int Siege_CountDefenders(bot_state_t *bs)
-// No table row for `bot_state_t * bs`.
-func Siege_CountDefenders() -> Never {
+func Siege_CountDefenders(_ bs: BotState) -> Int32 {
     // TODO: Port Siege_CountDefenders
     portMissing("Siege_CountDefenders", source: "oracle/codemp/game/ai_main.c:3202")
 }
 
 //how many other players on our team?
 /// Source: oracle/codemp/game/ai_main.c:3230
-// TODO: Port signature
-// Raven wrote: int Siege_CountTeammates(bot_state_t *bs)
-// No table row for `bot_state_t * bs`.
-func Siege_CountTeammates() -> Never {
+func Siege_CountTeammates(_ bs: BotState) -> Int32 {
     // TODO: Port Siege_CountTeammates
     portMissing("Siege_CountTeammates", source: "oracle/codemp/game/ai_main.c:3230")
 }
@@ -714,10 +609,7 @@ func Siege_CountTeammates() -> Never {
 //see if siege objective completion should take priority in our
 //nav routines.
 /// Source: oracle/codemp/game/ai_main.c:3256
-// TODO: Port signature
-// Raven wrote: int SiegeTakesPriority(bot_state_t *bs)
-// No table row for `bot_state_t * bs`.
-func SiegeTakesPriority() -> Never {
+func SiegeTakesPriority(_ bs: BotState) -> Int32 {
     // TODO: Port SiegeTakesPriority
     portMissing("SiegeTakesPriority", source: "oracle/codemp/game/ai_main.c:3256")
 }
@@ -725,10 +617,7 @@ func SiegeTakesPriority() -> Never {
 //see if jedi master priorities should take priority in our nav
 //routines.
 /// Source: oracle/codemp/game/ai_main.c:3424
-// TODO: Port signature
-// Raven wrote: int JMTakesPriority(bot_state_t *bs)
-// No table row for `bot_state_t * bs`.
-func JMTakesPriority() -> Never {
+func JMTakesPriority(_ bs: BotState) -> Int32 {
     // TODO: Port JMTakesPriority
     portMissing("JMTakesPriority", source: "oracle/codemp/game/ai_main.c:3424")
 }
@@ -736,10 +625,7 @@ func JMTakesPriority() -> Never {
 //see if we already have an item/powerup/etc. that is associated
 //with this waypoint.
 /// Source: oracle/codemp/game/ai_main.c:3500
-// TODO: Port signature
-// Raven wrote: int BotHasAssociated(bot_state_t *bs, wpobject_t *wp)
-// No table row for `bot_state_t * bs`.
-func BotHasAssociated() -> Never {
+func BotHasAssociated(_ bs: BotState, _ wp: JKAMP.Wpobject) -> Int32 {
     // TODO: Port BotHasAssociated
     portMissing("BotHasAssociated", source: "oracle/codemp/game/ai_main.c:3500")
 }
@@ -748,10 +634,7 @@ func BotHasAssociated() -> Never {
 //let's just find the best thing to do given the current
 //situation.
 /// Source: oracle/codemp/game/ai_main.c:3559
-// TODO: Port signature
-// Raven wrote: int GetBestIdleGoal(bot_state_t *bs)
-// No table row for `bot_state_t * bs`.
-func GetBestIdleGoal() -> Never {
+func GetBestIdleGoal(_ bs: BotState) -> Int32 {
     // TODO: Port GetBestIdleGoal
     portMissing("GetBestIdleGoal", source: "oracle/codemp/game/ai_main.c:3559")
 }
@@ -759,10 +642,7 @@ func GetBestIdleGoal() -> Never {
 //go through the list of possible priorities for navigating
 //and work out the best destination point.
 /// Source: oracle/codemp/game/ai_main.c:3625
-// TODO: Port signature
-// Raven wrote: void GetIdealDestination(bot_state_t *bs)
-// No table row for `bot_state_t * bs`.
-func GetIdealDestination() -> Never {
+func GetIdealDestination(_ bs: BotState) {
     // TODO: Port GetIdealDestination
     portMissing("GetIdealDestination", source: "oracle/codemp/game/ai_main.c:3625")
 }
@@ -770,70 +650,49 @@ func GetIdealDestination() -> Never {
 //commander CTF AI - tell other bots in the so-called
 //"squad" what to do.
 /// Source: oracle/codemp/game/ai_main.c:3911
-// TODO: Port signature
-// Raven wrote: void CommanderBotCTFAI(bot_state_t *bs)
-// No table row for `bot_state_t * bs`.
-func CommanderBotCTFAI() -> Never {
+func CommanderBotCTFAI(_ bs: BotState) {
     // TODO: Port CommanderBotCTFAI
     portMissing("CommanderBotCTFAI", source: "oracle/codemp/game/ai_main.c:3911")
 }
 
 //similar to ctf ai, for siege
 /// Source: oracle/codemp/game/ai_main.c:4077
-// TODO: Port signature
-// Raven wrote: void CommanderBotSiegeAI(bot_state_t *bs)
-// No table row for `bot_state_t * bs`.
-func CommanderBotSiegeAI() -> Never {
+func CommanderBotSiegeAI(_ bs: BotState) {
     // TODO: Port CommanderBotSiegeAI
     portMissing("CommanderBotSiegeAI", source: "oracle/codemp/game/ai_main.c:4077")
 }
 
 //teamplay ffa squad ai
 /// Source: oracle/codemp/game/ai_main.c:4143
-// TODO: Port signature
-// Raven wrote: void BotDoTeamplayAI(bot_state_t *bs)
-// No table row for `bot_state_t * bs`.
-func BotDoTeamplayAI() -> Never {
+func BotDoTeamplayAI(_ bs: BotState) {
     // TODO: Port BotDoTeamplayAI
     portMissing("BotDoTeamplayAI", source: "oracle/codemp/game/ai_main.c:4143")
 }
 
 //like ctf and siege commander ai, instruct the squad
 /// Source: oracle/codemp/game/ai_main.c:4158
-// TODO: Port signature
-// Raven wrote: void CommanderBotTeamplayAI(bot_state_t *bs)
-// No table row for `bot_state_t * bs`.
-func CommanderBotTeamplayAI() -> Never {
+func CommanderBotTeamplayAI(_ bs: BotState) {
     // TODO: Port CommanderBotTeamplayAI
     portMissing("CommanderBotTeamplayAI", source: "oracle/codemp/game/ai_main.c:4158")
 }
 
 //pick which commander ai to use based on gametype
 /// Source: oracle/codemp/game/ai_main.c:4252
-// TODO: Port signature
-// Raven wrote: void CommanderBotAI(bot_state_t *bs)
-// No table row for `bot_state_t * bs`.
-func CommanderBotAI() -> Never {
+func CommanderBotAI(_ bs: BotState) {
     // TODO: Port CommanderBotAI
     portMissing("CommanderBotAI", source: "oracle/codemp/game/ai_main.c:4252")
 }
 
 //close range combat routines
 /// Source: oracle/codemp/game/ai_main.c:4269
-// TODO: Port signature
-// Raven wrote: void MeleeCombatHandling(bot_state_t *bs)
-// No table row for `bot_state_t * bs`.
-func MeleeCombatHandling() -> Never {
+func MeleeCombatHandling(_ bs: BotState) {
     // TODO: Port MeleeCombatHandling
     portMissing("MeleeCombatHandling", source: "oracle/codemp/game/ai_main.c:4269")
 }
 
 //saber combat routines (it's simple, but it works)
 /// Source: oracle/codemp/game/ai_main.c:4354
-// TODO: Port signature
-// Raven wrote: void SaberCombatHandling(bot_state_t *bs)
-// No table row for `bot_state_t * bs`.
-func SaberCombatHandling() -> Never {
+func SaberCombatHandling(_ bs: BotState) {
     // TODO: Port SaberCombatHandling
     portMissing("SaberCombatHandling", source: "oracle/codemp/game/ai_main.c:4354")
 }
@@ -841,50 +700,35 @@ func SaberCombatHandling() -> Never {
 //should we be "leading" our aim with this weapon? And if
 //so, by how much?
 /// Source: oracle/codemp/game/ai_main.c:4570
-// TODO: Port signature
-// Raven wrote: float BotWeaponCanLead(bot_state_t *bs)
-// No table row for `bot_state_t * bs`.
-func BotWeaponCanLead() -> Never {
+func BotWeaponCanLead(_ bs: BotState) -> Float {
     // TODO: Port BotWeaponCanLead
     portMissing("BotWeaponCanLead", source: "oracle/codemp/game/ai_main.c:4570")
 }
 
 //offset the desired view angles with aim leading in mind
 /// Source: oracle/codemp/game/ai_main.c:4607
-// TODO: Port signature
-// Raven wrote: void BotAimLeading(bot_state_t *bs, vec3_t headlevel, float leadAmount)
-// No table row for `bot_state_t * bs`.
-func BotAimLeading() -> Never {
+func BotAimLeading(_ bs: BotState, _ headlevel: inout JKAShared.vec3_t, _ leadAmount: Float) {
     // TODO: Port BotAimLeading
     portMissing("BotAimLeading", source: "oracle/codemp/game/ai_main.c:4607")
 }
 
 //wobble our aim around based on our sk1llz
 /// Source: oracle/codemp/game/ai_main.c:4687
-// TODO: Port signature
-// Raven wrote: void BotAimOffsetGoalAngles(bot_state_t *bs)
-// No table row for `bot_state_t * bs`.
-func BotAimOffsetGoalAngles() -> Never {
+func BotAimOffsetGoalAngles(_ bs: BotState) {
     // TODO: Port BotAimOffsetGoalAngles
     portMissing("BotAimOffsetGoalAngles", source: "oracle/codemp/game/ai_main.c:4687")
 }
 
 //do we want to alt fire with this weapon?
 /// Source: oracle/codemp/game/ai_main.c:4804
-// TODO: Port signature
-// Raven wrote: int ShouldSecondaryFire(bot_state_t *bs)
-// No table row for `bot_state_t * bs`.
-func ShouldSecondaryFire() -> Never {
+func ShouldSecondaryFire(_ bs: BotState) -> Int32 {
     // TODO: Port ShouldSecondaryFire
     portMissing("ShouldSecondaryFire", source: "oracle/codemp/game/ai_main.c:4804")
 }
 
 //standard weapon combat routines
 /// Source: oracle/codemp/game/ai_main.c:4885
-// TODO: Port signature
-// Raven wrote: int CombatBotAI(bot_state_t *bs, float thinktime)
-// No table row for `bot_state_t * bs`.
-func CombatBotAI() -> Never {
+func CombatBotAI(_ bs: BotState, _ thinktime: Float) -> Int32 {
     // TODO: Port CombatBotAI
     portMissing("CombatBotAI", source: "oracle/codemp/game/ai_main.c:4885")
 }
@@ -894,207 +738,144 @@ func CombatBotAI() -> Never {
 //directions off walls to see if we can get back to a
 //good place.
 /// Source: oracle/codemp/game/ai_main.c:5029
-// TODO: Port signature
-// Raven wrote: int BotFallbackNavigation(bot_state_t *bs)
-// No table row for `bot_state_t * bs`.
-func BotFallbackNavigation() -> Never {
+func BotFallbackNavigation(_ bs: BotState) -> Int32 {
     // TODO: Port BotFallbackNavigation
     portMissing("BotFallbackNavigation", source: "oracle/codemp/game/ai_main.c:5029")
 }
 
 /// Source: oracle/codemp/game/ai_main.c:5072
-// TODO: Port signature
-// Raven wrote: int BotTryAnotherWeapon(bot_state_t *bs)
-// No table row for `bot_state_t * bs`.
-func BotTryAnotherWeapon() -> Never {
+func BotTryAnotherWeapon(_ bs: BotState) -> Int32 {
     // TODO: Port BotTryAnotherWeapon
     portMissing("BotTryAnotherWeapon", source: "oracle/codemp/game/ai_main.c:5072")
 }
 
 //is this weapon available to us?
 /// Source: oracle/codemp/game/ai_main.c:5106
-// TODO: Port signature
-// Raven wrote: qboolean BotWeaponSelectable(bot_state_t *bs, int weapon)
-// No table row for `bot_state_t * bs`.
-func BotWeaponSelectable() -> Never {
+func BotWeaponSelectable(_ bs: BotState, _ weapon: Int32) -> Bool {
     // TODO: Port BotWeaponSelectable
     portMissing("BotWeaponSelectable", source: "oracle/codemp/game/ai_main.c:5106")
 }
 
 //select the best weapon we can
 /// Source: oracle/codemp/game/ai_main.c:5123
-// TODO: Port signature
-// Raven wrote: int BotSelectIdealWeapon(bot_state_t *bs)
-// No table row for `bot_state_t * bs`.
-func BotSelectIdealWeapon() -> Never {
+func BotSelectIdealWeapon(_ bs: BotState) -> Int32 {
     // TODO: Port BotSelectIdealWeapon
     portMissing("BotSelectIdealWeapon", source: "oracle/codemp/game/ai_main.c:5123")
 }
 
 //check/select the chosen weapon
 /// Source: oracle/codemp/game/ai_main.c:5216
-// TODO: Port signature
-// Raven wrote: int BotSelectChoiceWeapon(bot_state_t *bs, int weapon, int doselection)
-// No table row for `bot_state_t * bs`.
-func BotSelectChoiceWeapon() -> Never {
+func BotSelectChoiceWeapon(_ bs: BotState, _ weapon: Int32, _ doselection: Int32) -> Int32 {
     // TODO: Port BotSelectChoiceWeapon
     portMissing("BotSelectChoiceWeapon", source: "oracle/codemp/game/ai_main.c:5216")
 }
 
 //override our standard weapon choice with a melee weapon
 /// Source: oracle/codemp/game/ai_main.c:5254
-// TODO: Port signature
-// Raven wrote: int BotSelectMelee(bot_state_t *bs)
-// No table row for `bot_state_t * bs`.
-func BotSelectMelee() -> Never {
+func BotSelectMelee(_ bs: BotState) -> Int32 {
     // TODO: Port BotSelectMelee
     portMissing("BotSelectMelee", source: "oracle/codemp/game/ai_main.c:5254")
 }
 
 //See if we our in love with the potential bot.
 /// Source: oracle/codemp/game/ai_main.c:5269
-// TODO: Port signature
-// Raven wrote: int GetLoveLevel(bot_state_t *bs, bot_state_t *love)
-// No table row for `bot_state_t * bs`.
-func GetLoveLevel() -> Never {
+func GetLoveLevel(_ bs: BotState, _ love: BotState) -> Int32 {
     // TODO: Port GetLoveLevel
     portMissing("GetLoveLevel", source: "oracle/codemp/game/ai_main.c:5269")
 }
 
 //Our loved one was killed. We must become infuriated!
 /// Source: oracle/codemp/game/ai_main.c:5315
-// TODO: Port signature
-// Raven wrote: void BotLovedOneDied(bot_state_t *bs, bot_state_t *loved, int lovelevel)
-// No table row for `bot_state_t * bs`.
-func BotLovedOneDied() -> Never {
+func BotLovedOneDied(_ bs: BotState, _ loved: BotState, _ lovelevel: Int32) {
     // TODO: Port BotLovedOneDied
     portMissing("BotLovedOneDied", source: "oracle/codemp/game/ai_main.c:5315")
 }
 
 /// Source: oracle/codemp/game/ai_main.c:5390
-// TODO: Port signature
-// Raven wrote: void BotDeathNotify(bot_state_t *bs)
-// No table row for `bot_state_t * bs`.
-func BotDeathNotify() -> Never {
+func BotDeathNotify(_ bs: BotState) {
     // TODO: Port BotDeathNotify
     portMissing("BotDeathNotify", source: "oracle/codemp/game/ai_main.c:5390")
 }
 
 //perform strafe trace checks
 /// Source: oracle/codemp/game/ai_main.c:5417
-// TODO: Port signature
-// Raven wrote: void StrafeTracing(bot_state_t *bs)
-// No table row for `bot_state_t * bs`.
-func StrafeTracing() -> Never {
+func StrafeTracing(_ bs: BotState) {
     // TODO: Port StrafeTracing
     portMissing("StrafeTracing", source: "oracle/codemp/game/ai_main.c:5417")
 }
 
 //doing primary weapon fire
 /// Source: oracle/codemp/game/ai_main.c:5466
-// TODO: Port signature
-// Raven wrote: int PrimFiring(bot_state_t *bs)
-// No table row for `bot_state_t * bs`.
-func PrimFiring() -> Never {
+func PrimFiring(_ bs: BotState) -> Int32 {
     // TODO: Port PrimFiring
     portMissing("PrimFiring", source: "oracle/codemp/game/ai_main.c:5466")
 }
 
 //should we keep our primary weapon from firing?
 /// Source: oracle/codemp/game/ai_main.c:5484
-// TODO: Port signature
-// Raven wrote: int KeepPrimFromFiring(bot_state_t *bs)
-// No table row for `bot_state_t * bs`.
-func KeepPrimFromFiring() -> Never {
+func KeepPrimFromFiring(_ bs: BotState) -> Int32 {
     // TODO: Port KeepPrimFromFiring
     portMissing("KeepPrimFromFiring", source: "oracle/codemp/game/ai_main.c:5484")
 }
 
 //doing secondary weapon fire
 /// Source: oracle/codemp/game/ai_main.c:5502
-// TODO: Port signature
-// Raven wrote: int AltFiring(bot_state_t *bs)
-// No table row for `bot_state_t * bs`.
-func AltFiring() -> Never {
+func AltFiring(_ bs: BotState) -> Int32 {
     // TODO: Port AltFiring
     portMissing("AltFiring", source: "oracle/codemp/game/ai_main.c:5502")
 }
 
 //should we keep our alt from firing?
 /// Source: oracle/codemp/game/ai_main.c:5520
-// TODO: Port signature
-// Raven wrote: int KeepAltFromFiring(bot_state_t *bs)
-// No table row for `bot_state_t * bs`.
-func KeepAltFromFiring() -> Never {
+func KeepAltFromFiring(_ bs: BotState) -> Int32 {
     // TODO: Port KeepAltFromFiring
     portMissing("KeepAltFromFiring", source: "oracle/codemp/game/ai_main.c:5520")
 }
 
 //Try not to shoot our friends in the back. Or in the face. Or anywhere, really.
 /// Source: oracle/codemp/game/ai_main.c:5538
-// TODO: Port signature
-// Raven wrote: gentity_t *CheckForFriendInLOF(bot_state_t *bs)
-// No table row for `bot_state_t * bs`.
-func CheckForFriendInLOF() -> Never {
+func CheckForFriendInLOF(_ bs: BotState) -> Entity? {
     // TODO: Port CheckForFriendInLOF
     portMissing("CheckForFriendInLOF", source: "oracle/codemp/game/ai_main.c:5538")
 }
 
 /// Source: oracle/codemp/game/ai_main.c:5585
-// TODO: Port signature
-// Raven wrote: void BotScanForLeader(bot_state_t *bs)
-// No table row for `bot_state_t * bs`.
-func BotScanForLeader() -> Never {
+func BotScanForLeader(_ bs: BotState) {
     // TODO: Port BotScanForLeader
     portMissing("BotScanForLeader", source: "oracle/codemp/game/ai_main.c:5585")
 }
 
 //w3rd to the p33pz.
 /// Source: oracle/codemp/game/ai_main.c:5618
-// TODO: Port signature
-// Raven wrote: void BotReplyGreetings(bot_state_t *bs)
-// No table row for `bot_state_t * bs`.
-func BotReplyGreetings() -> Never {
+func BotReplyGreetings(_ bs: BotState) {
     // TODO: Port BotReplyGreetings
     portMissing("BotReplyGreetings", source: "oracle/codemp/game/ai_main.c:5618")
 }
 
 //try to move in to grab a nearby flag
 /// Source: oracle/codemp/game/ai_main.c:5647
-// TODO: Port signature
-// Raven wrote: void CTFFlagMovement(bot_state_t *bs)
-// No table row for `bot_state_t * bs`.
-func CTFFlagMovement() -> Never {
+func CTFFlagMovement(_ bs: BotState) {
     // TODO: Port CTFFlagMovement
     portMissing("CTFFlagMovement", source: "oracle/codemp/game/ai_main.c:5647")
 }
 
 //see if we want to make our detpacks blow up
 /// Source: oracle/codemp/game/ai_main.c:5726
-// TODO: Port signature
-// Raven wrote: void BotCheckDetPacks(bot_state_t *bs)
-// No table row for `bot_state_t * bs`.
-func BotCheckDetPacks() -> Never {
+func BotCheckDetPacks(_ bs: BotState) {
     // TODO: Port BotCheckDetPacks
     portMissing("BotCheckDetPacks", source: "oracle/codemp/game/ai_main.c:5726")
 }
 
 //see if it would be beneficial at this time to use one of our inv items
 /// Source: oracle/codemp/game/ai_main.c:5780
-// TODO: Port signature
-// Raven wrote: int BotUseInventoryItem(bot_state_t *bs)
-// No table row for `bot_state_t * bs`.
-func BotUseInventoryItem() -> Never {
+func BotUseInventoryItem(_ bs: BotState) -> Int32 {
     // TODO: Port BotUseInventoryItem
     portMissing("BotUseInventoryItem", source: "oracle/codemp/game/ai_main.c:5780")
 }
 
 //trace forward to see if we can plant a detpack or something
 /// Source: oracle/codemp/game/ai_main.c:5833
-// TODO: Port signature
-// Raven wrote: int BotSurfaceNear(bot_state_t *bs)
-// No table row for `bot_state_t * bs`.
-func BotSurfaceNear() -> Never {
+func BotSurfaceNear(_ bs: BotState) -> Int32 {
     // TODO: Port BotSurfaceNear
     portMissing("BotSurfaceNear", source: "oracle/codemp/game/ai_main.c:5833")
 }
@@ -1116,10 +897,7 @@ func Bot_SetForcedMovement(_ bot: Int32, _ forward: Int32, _ right: Int32, _ up:
 //the main AI loop.
 //please don't be too frightened.
 /// Source: oracle/codemp/game/ai_main.c:5931
-// TODO: Port signature
-// Raven wrote: void StandardBotAI(bot_state_t *bs, float thinktime)
-// No table row for `bot_state_t * bs`.
-func StandardBotAI() -> Never {
+func StandardBotAI(_ bs: BotState, _ thinktime: Float) {
     // TODO: Port StandardBotAI
     portMissing("StandardBotAI", source: "oracle/codemp/game/ai_main.c:5931")
 }

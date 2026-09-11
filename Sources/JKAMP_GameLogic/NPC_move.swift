@@ -29,10 +29,7 @@ func NPC_GetMoveInformation(_ dir: inout JKAShared.vec3_t, _ distance: inout Flo
 }
 
 /// Source: oracle/codemp/game/NPC_move.c:149
-// TODO: Port signature
-// Raven wrote: void NAV_GetLastMove( navInfo_t *info )
-// No table row for `navInfo_t * info`.
-func NAV_GetLastMove() -> Never {
+func NAV_GetLastMove(_ info: NavInfo) {
     // TODO: Port NAV_GetLastMove
     portMissing("NAV_GetLastMove", source: "oracle/codemp/game/NPC_move.c:149")
 }

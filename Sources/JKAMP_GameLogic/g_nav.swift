@@ -234,10 +234,7 @@ func NAV_TestForBlocked(_ `self`: Entity, _ goal: Entity, _ blocker: Entity, _ d
 }
 
 /// Source: oracle/codemp/game/g_nav.c:902
-// TODO: Port signature
-// Raven wrote: qboolean NAV_AvoidCollision( gentity_t *self, gentity_t *goal, navInfo_t *info )
-// No table row for `navInfo_t * info`.
-func NAV_AvoidCollision() -> Never {
+func NAV_AvoidCollision(_ `self`: Entity, _ goal: Entity, _ info: NavInfo) -> Bool {
     // TODO: Port NAV_AvoidCollision
     portMissing("NAV_AvoidCollision", source: "oracle/codemp/game/g_nav.c:902")
 }
@@ -261,10 +258,7 @@ func NAV_MicroError(_ start: inout JKAShared.vec3_t, _ end: inout JKAShared.vec3
 }
 
 /// Source: oracle/codemp/game/g_nav.c:1113
-// TODO: Port signature
-// Raven wrote: int NAV_MoveToGoal( gentity_t *self, navInfo_t *info )
-// No table row for `navInfo_t * info`.
-func NAV_MoveToGoal() -> Never {
+func NAV_MoveToGoal(_ `self`: Entity, _ info: NavInfo) -> Int32 {
     // TODO: Port NAV_MoveToGoal
     portMissing("NAV_MoveToGoal", source: "oracle/codemp/game/g_nav.c:1113")
 }

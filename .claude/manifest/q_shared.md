@@ -7,8 +7,8 @@ The oracle range is the whole definition, from the return type to the closing br
 
 | Function | Oracle | Swift | State | jka-rust | Signature |
 |---|---|---|---|---|---|
-| `GetIDForString` | `oracle/codemp/game/q_shared.c:13-27` | `JKAShared/q_shared.c.swift:5` | marker | `crates/mp/qshared/src/shared/q_string.rs:514-529` | `public func GetIDForString() -> Never` TODO: Port signature. No table row for `stringID_table_t * table`. |
-| `GetStringForID` | `oracle/codemp/game/q_shared.c:35-49` | `JKAShared/q_shared.c.swift:14` | marker | `crates/mp/game/src/q_shared.rs:54-69` | `public func GetStringForID() -> Never` TODO: Port signature. No table row for `stringID_table_t * table`. |
+| `GetIDForString` | `oracle/codemp/game/q_shared.c:13-27` | `JKAShared/q_shared.c.swift:5` | marker | `crates/mp/qshared/src/shared/q_string.rs:514-529` | `public func GetIDForString(_ table: JKAMP.StringIDTable, _ string: String) -> Int32` |
+| `GetStringForID` | `oracle/codemp/game/q_shared.c:35-49` | `JKAShared/q_shared.c.swift:14` | marker | `crates/mp/game/src/q_shared.rs:54-69` | `public func GetStringForID() -> Never` TODO: Port signature. No table row for the return `const char *`. |
 | `Com_Clampi` | `oracle/codemp/game/q_shared.c:51-62` | `JKAShared/q_shared.c.swift:20` | marker | none | `public func Com_Clampi(_ min: Int32, _ max: Int32, _ value: Int32) -> Int32` |
 | `Com_Clamp` | `oracle/codemp/game/q_shared.c:64-72` | `JKAShared/q_shared.c.swift:26` | marker | none | `public func Com_Clamp(_ min: Float, _ max: Float, _ value: Float) -> Float` |
 | `COM_SkipPath` | `oracle/codemp/game/q_shared.c:80-92` | `JKAShared/q_shared.c.swift:42` | marker | `crates/mp/game/src/q_shared.rs:74-86` | `public func COM_SkipPath() -> Never` TODO: Port signature. No table row for the return `char *`. |
