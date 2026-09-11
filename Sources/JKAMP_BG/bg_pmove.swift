@@ -526,6 +526,7 @@ private func PM_Friction() {
         if ps.pm_type == PM_FLOAT {
             //almost no friction while floating
             // C promotes this product to double, because 0.1 is a double literal.
+            // Port-note: Raven adds `drop` in double here, and jka-rust keeps that, so the guide's `Float(...)` at the store can round one ulp early.
             drop += Float(Double(speed) * 0.1 * Double(bg.pml.frametime))
         } else {
             drop += speed * pm_spectatorfriction * bg.pml.frametime
@@ -1498,7 +1499,8 @@ private func PM_NoclipMove() {
     } else {
         drop = 0
 
-        friction = pm_friction * 1.5 // extra friction
+        // C works this line in double, because 1.5 is a double literal.
+        friction = Float(Double(pm_friction) * 1.5) // extra friction
         control = speed < pm_stopspeed ? pm_stopspeed : speed
         drop += control * friction * bg.pml.frametime
 
@@ -2554,7 +2556,6 @@ private func PM_Footsteps() {
                             if ps.weapon == WP_SABER {
                                 PM_ContinueLegsAnim(PM_LegsSlopeBackTransition(PM_GetSaberStance()))
                             } else {
-                                // Port-note: `WeaponReadyLegsAnim` is a file-scope table of `bg_misc.c`, and rule 3 puts it on `BgState`. The transcriptor of that file adds the property.
                                 PM_ContinueLegsAnim(PM_LegsSlopeBackTransition(bg.WeaponReadyLegsAnim[ps.weapon]))
                             }
                         }
@@ -2892,6 +2893,7 @@ PM_FinishWeaponChange
 func PM_FinishWeaponChange() {
     var weapon: Int32
     let ps = bg.pm.ps
+    // Port-note: Raven writes `weapon = pm->cmd.weapon`, a plain assignment of a `byte` to an `int`. `Promotion.swift` gives operators only, so the read keeps `Int32(...)`.
     weapon = Int32(bg.pm.cmd.weapon)
     if weapon < WP_NONE || weapon >= WP_NUM_WEAPONS {
         weapon = WP_NONE
@@ -2954,6 +2956,7 @@ func PM_CanSetWeaponAnims() -> Bool {
     return true
 }
 
+//perform player anim overrides while on vehicle.
 /// Source: oracle/codemp/game/bg_pmove.c:6381
 func PM_VehicleWeaponAnimate() {
     var iFlags: Int32 = 0, iBlend: Int32 = 0, Anim: Int32 = -1
@@ -3325,6 +3328,7 @@ func PM_AdjustAttackStates(_ pm: JKAMP.Pmove) {
         ps.m_iVehicleNum != 0 {
         //riding a vehicle
         let veh: JKAMP.BgEntity? = bg.pm_entVeh
+        // Port-note: Raven reads `m_pVehicleInfo->type` with no guard, so the body binds the optional field, and the nil path skips the early return.
         if let veh,
             let m_pVehicle = veh.m_pVehicle,
             let m_pVehicleInfo = m_pVehicle.m_pVehicleInfo,
@@ -3725,7 +3729,8 @@ func BG_InKnockDown(_ anim: Int32) -> Bool {
     case BOTH_KNOCKDOWN1,
          BOTH_KNOCKDOWN2,
          BOTH_KNOCKDOWN3,
-         BOTH_KNOCKDOWN4:
+         BOTH_KNOCKDOWN4,
+         BOTH_KNOCKDOWN5:
         return true
     case BOTH_GETUP1,
          BOTH_GETUP2,
@@ -3745,7 +3750,8 @@ func BG_InKnockDown(_ anim: Int32) -> Bool {
          BOTH_GETUP_BROLL_R,
          BOTH_GETUP_FROLL_B,
          BOTH_GETUP_FROLL_F,
-         BOTH_GETUP_FROLL_L:
+         BOTH_GETUP_FROLL_L,
+         BOTH_GETUP_FROLL_R:
         return true
     default:
         break
@@ -4017,7 +4023,6 @@ func BG_G2PlayerAngles(_ ghoul2: OpaquePointer?, _ motionBolt: Int32, _ cent: JK
     // --------- yaw -------------
 
     // allow yaw to drift a bit
-    // Port-note: `WeaponReadyAnim` is a file-scope table of `bg_misc.c`, and rule 3 puts it on `BgState`. The transcriptor of that file adds the property.
     if ((cent.legsAnim) != BOTH_STAND1)
             || (cent.torsoAnim) != bg.WeaponReadyAnim[cent.weapon] {
         // if not standing still, always point all in the same direction
@@ -4190,7 +4195,7 @@ func BG_G2PlayerAngles(_ ghoul2: OpaquePointer?, _ motionBolt: Int32, _ cent: JK
     bg.viewAngles = cent_lerpAngles
     bg.viewAngles[YAW] = 0
     bg.viewAngles[ROLL] = 0
-    bg.viewAngles[PITCH] *= 0.5
+    bg.viewAngles[PITCH] = Float(Double(bg.viewAngles[PITCH]) * 0.5)
 
     bg.angles = JKAShared.vec3_t(0, legsAngles[1], 0)
 
@@ -4467,7 +4472,8 @@ private func PM_CmdForSaberMoves(_ ucmd: JKAMP.Usercmd) {
 /// Source: oracle/codemp/game/bg_pmove.c:9642
 func PM_VehicleViewAngles(_ ps: JKAMP.PlayerState, _ veh: JKAMP.BgEntity, _ ucmd: JKAMP.Usercmd) {
     // Port-note: Raven leaves `clampMin` and `clampMax` uninitialized on the turret path, so this port zeroes them, rule 19.
-    let pVeh = veh.m_pVehicle
+    // Port-note: Raven dereferences `veh->m_pVehicle` and `m_pVehicleInfo` with no guard. The generated fields are optional, so this port returns on nil, rule 19.
+    guard let pVeh = veh.m_pVehicle, let pVehInfo = pVeh.m_pVehicleInfo else { return }
     var setAngles = true
     var clampMin = vec3_t(0, 0, 0)
     var clampMax = vec3_t(0, 0, 0)
@@ -4475,11 +4481,11 @@ func PM_VehicleViewAngles(_ ps: JKAMP.PlayerState, _ veh: JKAMP.BgEntity, _ ucmd
     if let pilot = veh.m_pVehicle?.m_pPilot,
         pilot.s.number == ps.clientNum {
         //set the pilot's viewangles to the vehicle's viewangles
-        if !BG_UnrestrainedPitchRoll(ps, veh.m_pVehicle!) {
+        if !BG_UnrestrainedPitchRoll(ps, pVeh) {
             //only if not if doing special free-roll/pitch control
             setAngles = true
-            clampMin[PITCH] = -pVeh!.m_pVehicleInfo!.lookPitch
-            clampMax[PITCH] = pVeh!.m_pVehicleInfo!.lookPitch
+            clampMin[PITCH] = -pVehInfo.lookPitch
+            clampMax[PITCH] = pVehInfo.lookPitch
             clampMin[YAW] = 0
             clampMax[YAW] = 0
             clampMin[ROLL] = -1
@@ -4488,17 +4494,17 @@ func PM_VehicleViewAngles(_ ps: JKAMP.PlayerState, _ veh: JKAMP.BgEntity, _ ucmd
     } else {
         //NOTE: passengers can look around freely, UNLESS they're controlling a turret!
         for i in 0..<Int(MAX_VEHICLE_TURRETS) {
-            if veh.m_pVehicle!.m_pVehicleInfo!.turret[i].passengerNum == ps.generic1 {
+            if pVehInfo.turret[i].passengerNum == ps.generic1 {
                 //this turret is my station
                 //nevermind, don't clamp
                 return
                 /*
                 setAngles = qtrue;
-                clampMin[Int(PITCH)] = veh->m_pVehicle->m_pVehicleInfo->turret[i].pitchClampUp;
-                clampMax[Int(PITCH)] = veh->m_pVehicle->m_pVehicleInfo->turret[i].pitchClampDown;
-                clampMin[Int(YAW)] = veh->m_pVehicle->m_pVehicleInfo->turret[i].yawClampRight;
-                clampMax[Int(YAW)] = veh->m_pVehicle->m_pVehicleInfo->turret[i].yawClampLeft;
-                clampMin[Int(ROLL)] = clampMax[Int(ROLL)] = 0;
+                clampMin[PITCH] = veh->m_pVehicle->m_pVehicleInfo->turret[i].pitchClampUp;
+                clampMax[PITCH] = veh->m_pVehicle->m_pVehicleInfo->turret[i].pitchClampDown;
+                clampMin[YAW] = veh->m_pVehicle->m_pVehicleInfo->turret[i].yawClampRight;
+                clampMax[YAW] = veh->m_pVehicle->m_pVehicleInfo->turret[i].yawClampLeft;
+                clampMin[ROLL] = clampMax[ROLL] = 0;
                 break;
                 */
             }

@@ -447,7 +447,8 @@ func vectoyaw(_ vec: JKAShared.vec3_t) -> Float {
         yaw = 0
     } else {
         if vec[PITCH] != 0 {
-            yaw = atan2(vec[YAW], vec[PITCH]) * 180 / .pi
+            // Raven's atan2 is the double libm call and M_PI is the double of math.h.
+            yaw = Float(atan2(Double(vec[YAW]), Double(vec[PITCH])) * 180 / Double.pi)
         } else if vec[YAW] > 0 {
             yaw = 90
         } else {
@@ -485,17 +486,18 @@ func BG_CanUseFPNow(_ gametype: Int32, _ ps: JKAMP.PlayerState, _ time: Int32, _
     }
 
     if ps.weapon == WP_EMPLACED_GUN {
-        // Can't use any of your powers while on an emplaced weapon.
+        //can't use any of your powers while on an emplaced weapon
         return false
     }
 
     if ps.m_iVehicleNum != 0 {
-        // Can't use powers while riding a vehicle. This may change.
+        //can't use powers while riding a vehicle (this may change, I don't know)
         return false
     }
 
     if ps.duelInProgress {
-        if power != FP_SABER_OFFENSE && power != FP_SABER_DEFENSE && power != FP_LEVITATION {
+        if power != FP_SABER_OFFENSE && power != FP_SABER_DEFENSE && /*power != FP_SABERTHROW &&*/
+            power != FP_LEVITATION {
             if ps.saberLockFrame == 0 || power != FP_PUSH {
                 return false
             }
@@ -512,10 +514,9 @@ func BG_CanUseFPNow(_ gametype: Int32, _ ps: JKAMP.PlayerState, _ time: Int32, _
         return false
     }
 
-    let brokenRightArm = (1 as Int32) << BROKENLIMB_RARM
-    let brokenLeftArm = (1 as Int32) << BROKENLIMB_LARM
-    if (ps.brokenLimbs & brokenRightArm) != 0 || (ps.brokenLimbs & brokenLeftArm) != 0 {
-        // Powers we can't use with a broken arm.
+    if (ps.brokenLimbs & (1 << BROKENLIMB_RARM)) != 0
+        || (ps.brokenLimbs & (1 << BROKENLIMB_LARM)) != 0 {
+        //powers we can't use with a broken arm
         switch power {
         case FP_PUSH, FP_PULL, FP_GRIP, FP_LIGHTNING, FP_DRAIN:
             return false
@@ -697,7 +698,7 @@ func BG_CycleForce(_ ps: JKAMP.PlayerState, _ direction: Int32) {
     // The port keeps that order per rule 2.
     let hasNoKnownPowers: Int32 = (ps.fd.forcePowersKnown == 0 ? 1 : 0) & (1 << x)
     if hasNoKnownPowers != 0 || x >= NUM_FORCE_POWERS || x == -1 {
-        // Apparently we have no valid force powers.
+        //apparently we have no valid force powers
         return
     }
 
@@ -705,58 +706,58 @@ func BG_CycleForce(_ ps: JKAMP.PlayerState, _ direction: Int32) {
     presel = x
 
     if direction == 1 {
-        // Get the next power.
+        //get the next power
         x += 1
     } else {
-        // Get the previous power.
+        //get the previous power
         x -= 1
     }
 
     if x >= NUM_FORCE_POWERS {
-        // Cycled off the end, cycle around to the first.
+        //cycled off the end.. cycle around to the first
         x = 0
     }
     if x < 0 {
-        // Cycled off the beginning, cycle around to the last.
+        //cycled off the beginning.. cycle around to the last
         x = NUM_FORCE_POWERS - 1
     }
 
-    i = forcePowerSorted[x]
+    i = forcePowerSorted[x] //the "sorted" value of this power
 
     while x != presel {
-        // Loop around to the current force power.
+        //loop around to the current force power
         if (ps.fd.forcePowersKnown & (1 << i)) != 0 && i != ps.fd.forcePowerSelected {
-            // We have the force power.
+            //we have the force power
             if i != FP_LEVITATION && i != FP_SABER_OFFENSE
                 && i != FP_SABER_DEFENSE && i != FP_SABERTHROW {
-                // It's selectable.
+                //it's selectable
                 foundnext = i
                 break
             }
         }
 
         if direction == 1 {
-            // Next.
+            //next
             x += 1
         } else {
-            // Previous.
+            //previous
             x -= 1
         }
 
         if x >= NUM_FORCE_POWERS {
-            // Loop around.
+            //loop around
             x = 0
         }
         if x < 0 {
-            // Loop around.
+            //loop around
             x = NUM_FORCE_POWERS - 1
         }
 
-        i = forcePowerSorted[x]
+        i = forcePowerSorted[x] //set to the sorted value again
     }
 
     if foundnext != -1 {
-        // Found one, select it.
+        //found one, select it
         ps.fd.forcePowerSelected = foundnext
     }
 }
@@ -1109,9 +1110,8 @@ func BG_EvaluateTrajectoryDelta(_ tr: JKAShared.Trajectory, _ atTime: Int32, _ r
 
 /// Source: oracle/codemp/game/bg_misc.c:2635
 func BG_AddPredictableEventToPlayerstate(_ newEvent: Int32, _ eventParm: Int32, _ ps: JKAMP.PlayerState) {
-    let seq = Int(ps.eventSequence) & (Int(MAX_PS_EVENTS) - 1)
-    ps.events[seq] = newEvent
-    ps.eventParms[seq] = eventParm
+    ps.events[ps.eventSequence & (MAX_PS_EVENTS - 1)] = newEvent
+    ps.eventParms[ps.eventSequence & (MAX_PS_EVENTS - 1)] = eventParm
     ps.eventSequence += 1
 }
 
@@ -1124,13 +1124,13 @@ BG_TouchJumpPad
 */
 /// Source: oracle/codemp/game/bg_misc.c:2667
 func BG_TouchJumpPad(_ ps: JKAMP.PlayerState, _ jumppad: JKAMP.EntityState) {
-    // Spectators don't use jump pads.
+    // spectators don't use jump pads
     if ps.pm_type != PM_NORMAL && ps.pm_type != PM_JETPACK && ps.pm_type != PM_FLOAT {
         return
     }
 
-    // If we didn't hit this same jumppad the previous frame,
-    // then don't play the event sound again if we are in a fat trigger.
+    // if we didn't hit this same jumppad the previous frame
+    // then don't play the event sound again if we are in a fat trigger
     if ps.jumppad_ent != jumppad.number {
         var angles = vec3_t()
         vectoangles(jumppad.origin2, &angles)
@@ -1138,10 +1138,10 @@ func BG_TouchJumpPad(_ ps: JKAMP.PlayerState, _ jumppad: JKAMP.EntityState) {
         // Port-note: `effectNum` was computed here in Raven's body and never used again, so it is dropped.
         _ = p < 45 ? 0 : 1
     }
-    // Remember hitting this jumppad this frame.
+    // remember hitting this jumppad this frame
     ps.jumppad_ent = jumppad.number
     ps.jumppad_frame = ps.pmove_framecount
-    // Give the player the velocity from the jumppad.
+    // give the player the velocity from the jumppad
     ps.velocity = jumppad.origin2
 }
 
@@ -1327,7 +1327,7 @@ func BG_PlayerStateToEntityState(_ ps: JKAMP.PlayerState, _ s: JKAMP.EntityState
         SnapVector(&base)
         s.pos.trBase = base
     }
-    // Set the trDelta for flag direction.
+    // set the trDelta for flag direction
     s.pos.trDelta = ps.velocity
 
     s.apos.trType = TR_INTERPOLATE
@@ -1361,8 +1361,8 @@ func BG_PlayerStateToEntityState(_ ps: JKAMP.PlayerState, _ s: JKAMP.EntityState
     s.legsFlip = ps.legsFlip
     s.torsoFlip = ps.torsoFlip
 
-    // ET_PLAYER looks here instead of at number, so corpses can also reference the proper config.
-    s.clientNum = ps.clientNum
+    s.clientNum = ps.clientNum		// ET_PLAYER looks here instead of at number
+    // so corpses can also reference the proper config
     s.eFlags = ps.eFlags
     s.eFlags2 = ps.eFlags2
 
@@ -1398,7 +1398,7 @@ func BG_PlayerStateToEntityState(_ ps: JKAMP.PlayerState, _ s: JKAMP.EntityState
         if ps.entityEventSequence < ps.eventSequence - MAX_PS_EVENTS {
             ps.entityEventSequence = ps.eventSequence - MAX_PS_EVENTS
         }
-        let seq = Int(ps.entityEventSequence) & (Int(MAX_PS_EVENTS) - 1)
+        let seq = ps.entityEventSequence & (MAX_PS_EVENTS - 1)
         s.event = ps.events[seq] | ((ps.entityEventSequence & 3) << 8)
         s.eventParm = ps.eventParms[seq]
         ps.entityEventSequence += 1
@@ -1408,16 +1408,18 @@ func BG_PlayerStateToEntityState(_ ps: JKAMP.PlayerState, _ s: JKAMP.EntityState
     s.groundEntityNum = ps.groundEntityNum
 
     s.powerups = 0
-    for i in 0..<Int(MAX_POWERUPS) {
+    var i: Int32 = 0
+    while i < MAX_POWERUPS {
         if ps.powerups[i] != 0 {
             s.powerups |= 1 << i
         }
+        i += 1
     }
 
     s.loopSound = ps.loopSound
     s.generic1 = ps.generic1
 
-    // Not included in EntityStateToPlayerState.
+    //NOT INCLUDED IN ENTITYSTATETOPLAYERSTATE:
     s.modelindex2 = ps.weaponstate
     s.constantLight = ps.weaponChargeTime
 
@@ -1476,11 +1478,11 @@ func BG_PlayerStateToEntityStateExtraPolate(_ ps: JKAMP.PlayerState, _ s: JKAMP.
         SnapVector(&base)
         s.pos.trBase = base
     }
-    // Set the trDelta for flag direction and linear prediction.
+    // set the trDelta for flag direction and linear prediction
     s.pos.trDelta = ps.velocity
-    // Set the time for linear prediction.
+    // set the time for linear prediction
     s.pos.trTime = time
-    // Set maximum extrapolation time.
+    // set maximum extra polation time
     s.pos.trDuration = 50 // 1000 / sv_fps (default = 20)
 
     s.apos.trType = TR_INTERPOLATE
@@ -1514,8 +1516,8 @@ func BG_PlayerStateToEntityStateExtraPolate(_ ps: JKAMP.PlayerState, _ s: JKAMP.
     s.legsFlip = ps.legsFlip
     s.torsoFlip = ps.torsoFlip
 
-    // ET_PLAYER looks here instead of at number, so corpses can also reference the proper config.
-    s.clientNum = ps.clientNum
+    s.clientNum = ps.clientNum		// ET_PLAYER looks here instead of at number
+    // so corpses can also reference the proper config
     s.eFlags = ps.eFlags
     s.eFlags2 = ps.eFlags2
 
@@ -1551,7 +1553,7 @@ func BG_PlayerStateToEntityStateExtraPolate(_ ps: JKAMP.PlayerState, _ s: JKAMP.
         if ps.entityEventSequence < ps.eventSequence - MAX_PS_EVENTS {
             ps.entityEventSequence = ps.eventSequence - MAX_PS_EVENTS
         }
-        let seq = Int(ps.entityEventSequence) & (Int(MAX_PS_EVENTS) - 1)
+        let seq = ps.entityEventSequence & (MAX_PS_EVENTS - 1)
         s.event = ps.events[seq] | ((ps.entityEventSequence & 3) << 8)
         s.eventParm = ps.eventParms[seq]
         ps.entityEventSequence += 1
@@ -1561,16 +1563,18 @@ func BG_PlayerStateToEntityStateExtraPolate(_ ps: JKAMP.PlayerState, _ s: JKAMP.
     s.groundEntityNum = ps.groundEntityNum
 
     s.powerups = 0
-    for i in 0..<Int(MAX_POWERUPS) {
+    var i: Int32 = 0
+    while i < MAX_POWERUPS {
         if ps.powerups[i] != 0 {
             s.powerups |= 1 << i
         }
+        i += 1
     }
 
     s.loopSound = ps.loopSound
     s.generic1 = ps.generic1
 
-    // Not included in EntityStateToPlayerState.
+    //NOT INCLUDED IN ENTITYSTATETOPLAYERSTATE:
     s.modelindex2 = ps.weaponstate
     s.constantLight = ps.weaponChargeTime
 
@@ -1654,11 +1658,14 @@ func BG_TempAlloc(_ size: Int32) -> UnsafeMutableRawPointer {
 /// Source: oracle/codemp/game/bg_misc.c:3371
 func BG_TempFree(_ size: Int32) {
     // Raven wrote `0xfffffffc`, the same bit pattern as `~0x0000_0003` on an `Int32`.
-    let alignedSize = (size + 0x0000_0003) & ~0x0000_0003
-    if bg.poolTail + alignedSize > MAX_POOL_SIZE {
-        Com_Error(ERR_DROP, "BG_TempFree: tail greater than size (\(bg.poolTail + alignedSize) > \(MAX_POOL_SIZE))")
+    var size = size
+    size = ((size + 0x0000_0003) & ~0x0000_0003)
+
+    if bg.poolTail + size > MAX_POOL_SIZE {
+        Com_Error(ERR_DROP, "BG_TempFree: tail greater than size (\(bg.poolTail + size) > \(MAX_POOL_SIZE))")
     }
-    bg.poolTail += alignedSize
+
+    bg.poolTail += size
 }
 
 /// Source: oracle/codemp/game/bg_misc.c:3383
