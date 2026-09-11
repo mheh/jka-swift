@@ -270,10 +270,7 @@ for printing vectors
 ```
 */
 /// Source: oracle/codemp/game/g_utils.c:653
-// TODO: Port signature
-// Raven wrote: char *vtos( const vec3_t v )
-// No table row for the return `char *`.
-func vtos() -> Never {
+func vtos(_ v: JKAShared.vec3_t) -> String {
     // TODO: Port vtos
     portMissing("vtos", source: "oracle/codemp/game/g_utils.c:653")
 }

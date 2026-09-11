@@ -516,10 +516,7 @@ restarts.
 ```
 */
 /// Source: oracle/codemp/game/g_client.c:2258
-// TODO: Port signature
-// Raven wrote: char *ClientConnect( int clientNum, qboolean firstTime, qboolean isBot )
-// No table row for the return `char *`.
-func ClientConnect() -> Never {
+func ClientConnect(_ clientNum: Int32, _ firstTime: Bool, _ isBot: Bool) -> String? {
     // TODO: Port ClientConnect
     portMissing("ClientConnect", source: "oracle/codemp/game/g_client.c:2258")
 }

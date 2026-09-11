@@ -36,10 +36,7 @@ COM_SkipPath
 ```
 */
 /// Source: oracle/codemp/game/q_shared.c:80
-// TODO: Port signature
-// Raven wrote: char *COM_SkipPath (char *pathname)
-// No table row for the return `char *`.
-public func COM_SkipPath() -> Never {
+public func COM_SkipPath(_ pathname: inout JKAShared.CharBuf) -> Int32 {
     // TODO: Port COM_SkipPath
     portMissing("COM_SkipPath", source: "oracle/codemp/game/q_shared.c:80")
 }
@@ -369,10 +366,7 @@ public func Q_isalpha(_ c: Int32) -> Int32 {
 }
 
 /// Source: oracle/codemp/game/q_shared.c:799
-// TODO: Port signature
-// Raven wrote: char* Q_strrchr( const char* string, int c )
-// No table row for the return `char *`.
-public func Q_strrchr() -> Never {
+public func Q_strrchr(_ string: String, _ c: Int32) -> Int32? {
     // TODO: Port Q_strrchr
     portMissing("Q_strrchr", source: "oracle/codemp/game/q_shared.c:799")
 }
@@ -488,19 +482,15 @@ public func Q_stricmp(_ s1: String, _ s2: String) -> Int32 {
 }
 
 /// Source: oracle/codemp/game/q_shared.c:905
-// TODO: Port signature
-// Raven wrote: char *Q_strlwr( char *s1 )
-// No table row for the return `char *`.
-public func Q_strlwr() -> Never {
+// Raven returns the argument, which the caller already holds.
+public func Q_strlwr(_ s1: inout JKAShared.CharBuf) {
     // TODO: Port Q_strlwr
     portMissing("Q_strlwr", source: "oracle/codemp/game/q_shared.c:905")
 }
 
 /// Source: oracle/codemp/game/q_shared.c:916
-// TODO: Port signature
-// Raven wrote: char *Q_strupr( char *s1 )
-// No table row for the return `char *`.
-public func Q_strupr() -> Never {
+// Raven returns the argument, which the caller already holds.
+public func Q_strupr(_ s1: inout JKAShared.CharBuf) {
     // TODO: Port Q_strupr
     portMissing("Q_strupr", source: "oracle/codemp/game/q_shared.c:916")
 }
@@ -519,10 +509,8 @@ public func Q_PrintStrlen(_ string: String) -> Int32 {
 }
 
 /// Source: oracle/codemp/game/q_shared.c:963
-// TODO: Port signature
-// Raven wrote: char *Q_CleanStr( char *string )
-// No table row for the return `char *`.
-public func Q_CleanStr() -> Never {
+// Raven returns the argument, which the caller already holds.
+public func Q_CleanStr(_ string: inout JKAShared.CharBuf) {
     // TODO: Port Q_CleanStr
     portMissing("Q_CleanStr", source: "oracle/codemp/game/q_shared.c:963")
 }
@@ -545,10 +533,7 @@ FIXME: make this buffer size safe someday
 ```
 */
 /// Source: oracle/codemp/game/q_shared.c:1017
-// TODO: Port signature
-// Raven wrote: char * QDECL va( const char *format, ... )
-// No table row for the return `char *`.
-public func va() -> Never {
+public func va(_ format: String) -> String {
     // TODO: Port va
     portMissing("va", source: "oracle/codemp/game/q_shared.c:1017")
 }
@@ -565,10 +550,7 @@ FIXME: overflow check?
 ```
 */
 /// Source: oracle/codemp/game/q_shared.c:1051
-// TODO: Port signature
-// Raven wrote: char *Info_ValueForKey( const char *s, const char *key )
-// No table row for the return `char *`.
-public func Info_ValueForKey() -> Never {
+public func Info_ValueForKey(_ s: String, _ key: String) -> String {
     // TODO: Port Info_ValueForKey
     portMissing("Info_ValueForKey", source: "oracle/codemp/game/q_shared.c:1051")
 }

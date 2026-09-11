@@ -117,10 +117,7 @@ func BG_SiegeCountBaseClass(_ team: Int32, _ classIndex: Int16) -> Int32 {
 }
 
 /// Source: oracle/codemp/game/bg_saga.c:1094
-// TODO: Port signature
-// Raven wrote: char *BG_GetUIPortraitFile(const int team, const short classIndex, const short cntIndex)
-// No table row for the return `char *`.
-func BG_GetUIPortraitFile() -> Never {
+func BG_GetUIPortraitFile(_ team: Int32, _ classIndex: Int16, _ cntIndex: Int16) -> String {
     // TODO: Port BG_GetUIPortraitFile
     portMissing("BG_GetUIPortraitFile", source: "oracle/codemp/game/bg_saga.c:1094")
 }

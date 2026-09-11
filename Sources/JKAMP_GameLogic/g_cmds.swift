@@ -74,10 +74,7 @@ ConcatArgs
 ```
 */
 /// Source: oracle/codemp/game/g_cmds.c:127
-// TODO: Port signature
-// Raven wrote: char *ConcatArgs( int start )
-// No table row for the return `char *`.
-func ConcatArgs() -> Never {
+func ConcatArgs(_ start: Int32) -> String {
     // TODO: Port ConcatArgs
     portMissing("ConcatArgs", source: "oracle/codemp/game/g_cmds.c:127")
 }

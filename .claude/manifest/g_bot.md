@@ -29,6 +29,6 @@ The oracle range is the whole definition, from the return type to the closing br
 | `Svcmd_BotList_f` | `oracle/codemp/game/g_bot.c:1100-1127` | `JKAMP_GameLogic/g_bot.swift:241` | marker | `crates/mp/game/src/g_bot.rs:905-935` | `func Svcmd_BotList_f()` |
 | `G_LoadBotsFromFile` static | `oracle/codemp/game/g_bot.c:1194-1215` | `JKAMP_GameLogic/g_bot.swift:254` | marker | `crates/mp/game/src/g_bot.rs:940-973` | `private func G_LoadBotsFromFile(_ filename: inout JKAShared.CharBuf)` |
 | `G_LoadBots` static | `oracle/codemp/game/g_bot.c:1222-1256` | `JKAMP_GameLogic/g_bot.swift:267` | marker | `crates/mp/game/src/g_bot.rs:978-1011` | `private func G_LoadBots()` |
-| `G_GetBotInfoByNumber` | `oracle/codemp/game/g_bot.c:1265-1271` | `JKAMP_GameLogic/g_bot.swift:283` | marker | `crates/mp/game/src/g_bot.rs:1016-1027` | `func G_GetBotInfoByNumber() -> Never` TODO: Port signature. No table row for the return `char *`. |
-| `G_GetBotInfoByName` | `oracle/codemp/game/g_bot.c:1279-1291` | `JKAMP_GameLogic/g_bot.swift:299` | marker | `crates/mp/game/src/g_bot.rs:1032-1040` | `func G_GetBotInfoByName() -> Never` TODO: Port signature. No table row for the return `char *`. |
-| `G_InitBots` | `oracle/codemp/game/g_bot.c:1302-1311` | `JKAMP_GameLogic/g_bot.swift:312` | marker | `crates/mp/game/src/g_bot.rs:1045-1060` | `func G_InitBots(_ restart: Bool)` |
+| `G_GetBotInfoByNumber` | `oracle/codemp/game/g_bot.c:1265-1271` | `JKAMP_GameLogic/g_bot.swift:280` | marker | `crates/mp/game/src/g_bot.rs:1016-1027` | `func G_GetBotInfoByNumber(_ num: Int32) -> String?` |
+| `G_GetBotInfoByName` | `oracle/codemp/game/g_bot.c:1279-1291` | `JKAMP_GameLogic/g_bot.swift:293` | marker | `crates/mp/game/src/g_bot.rs:1032-1040` | `func G_GetBotInfoByName(_ name: String) -> String?` |
+| `G_InitBots` | `oracle/codemp/game/g_bot.c:1302-1311` | `JKAMP_GameLogic/g_bot.swift:306` | marker | `crates/mp/game/src/g_bot.rs:1045-1060` | `func G_InitBots(_ restart: Bool)` |

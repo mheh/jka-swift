@@ -277,10 +277,7 @@ G_GetBotInfoByNumber
 ```
 */
 /// Source: oracle/codemp/game/g_bot.c:1265
-// TODO: Port signature
-// Raven wrote: char *G_GetBotInfoByNumber( int num )
-// No table row for the return `char *`.
-func G_GetBotInfoByNumber() -> Never {
+func G_GetBotInfoByNumber(_ num: Int32) -> String? {
     // TODO: Port G_GetBotInfoByNumber
     portMissing("G_GetBotInfoByNumber", source: "oracle/codemp/game/g_bot.c:1265")
 }
@@ -293,10 +290,7 @@ G_GetBotInfoByName
 ```
 */
 /// Source: oracle/codemp/game/g_bot.c:1279
-// TODO: Port signature
-// Raven wrote: char *G_GetBotInfoByName( const char *name )
-// No table row for the return `char *`.
-func G_GetBotInfoByName() -> Never {
+func G_GetBotInfoByName(_ name: String) -> String? {
     // TODO: Port G_GetBotInfoByName
     portMissing("G_GetBotInfoByName", source: "oracle/codemp/game/g_bot.c:1279")
 }

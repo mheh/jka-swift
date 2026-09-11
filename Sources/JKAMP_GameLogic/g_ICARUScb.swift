@@ -33,10 +33,7 @@ Q3_GetAnimLower
 ```
 */
 /// Source: oracle/codemp/game/g_ICARUScb.c:331
-// TODO: Port signature
-// Raven wrote: static char *Q3_GetAnimLower( gentity_t *ent )
-// No table row for the return `char *`.
-private func Q3_GetAnimLower() -> Never {
+private func Q3_GetAnimLower(_ ent: Entity) -> String? {
     // TODO: Port Q3_GetAnimLower
     portMissing("Q3_GetAnimLower", source: "oracle/codemp/game/g_ICARUScb.c:331")
 }
@@ -49,10 +46,7 @@ Q3_GetAnimUpper
 ```
 */
 /// Source: oracle/codemp/game/g_ICARUScb.c:351
-// TODO: Port signature
-// Raven wrote: static char *Q3_GetAnimUpper( gentity_t *ent )
-// No table row for the return `char *`.
-private func Q3_GetAnimUpper() -> Never {
+private func Q3_GetAnimUpper(_ ent: Entity) -> String? {
     // TODO: Port Q3_GetAnimUpper
     portMissing("Q3_GetAnimUpper", source: "oracle/codemp/game/g_ICARUScb.c:351")
 }
@@ -65,10 +59,7 @@ Q3_GetAnimBoth
 ```
 */
 /// Source: oracle/codemp/game/g_ICARUScb.c:371
-// TODO: Port signature
-// Raven wrote: static char *Q3_GetAnimBoth( gentity_t *ent )
-// No table row for the return `char *`.
-private func Q3_GetAnimBoth() -> Never {
+private func Q3_GetAnimBoth(_ ent: Entity) -> String? {
     // TODO: Port Q3_GetAnimBoth
     portMissing("Q3_GetAnimBoth", source: "oracle/codemp/game/g_ICARUScb.c:371")
 }

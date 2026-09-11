@@ -109,10 +109,7 @@ G_AddSpawnVarToken
 ```
 */
 /// Source: oracle/codemp/game/g_spawn.c:851
-// TODO: Port signature
-// Raven wrote: char *G_AddSpawnVarToken( const char *string )
-// No table row for the return `char *`.
-func G_AddSpawnVarToken() -> Never {
+func G_AddSpawnVarToken(_ string: String) -> String {
     // TODO: Port G_AddSpawnVarToken
     portMissing("G_AddSpawnVarToken", source: "oracle/codemp/game/g_spawn.c:851")
 }

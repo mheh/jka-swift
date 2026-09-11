@@ -49,10 +49,7 @@ let botGlobalNavWeaponWeights: [Float] = { () -> [Float] in portMissing("botGlob
 // Rule 3: a stored property of GameWorld with Raven's initializer, spelled world.gSpawnPointNum in a body.
 
 /// Source: oracle/codemp/game/ai_wpnav.c:25
-// TODO: Port signature
-// Raven wrote: char *GetFlagStr( int flags )
-// No table row for the return `char *`.
-func GetFlagStr() -> Never {
+func GetFlagStr(_ flags: Int32) -> String {
     // TODO: Port GetFlagStr
     portMissing("GetFlagStr", source: "oracle/codemp/game/ai_wpnav.c:25")
 }

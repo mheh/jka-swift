@@ -204,6 +204,15 @@ class Table:
             return ("UnsafeMutableRawPointer", "")
         if ruled == "pooled_string":
             return ("PooledString", "")
+        if ruled == "optional_string":
+            return ("String?", "UnsafeMutableRawPointer(bitPattern: word).map { cString(at: $0) }")
+        if ruled == "in_place":
+            # Raven returns the argument it rewrote in place, which the caller already holds.
+            return (None, "")
+        if ruled == "text_offset":
+            return ("Int32?", "")
+        if ruled == "text_offset_nonnull":
+            return ("Int32", "")
         return self.result_type(cur.result_type)
 
     def result_type(self, t: ci.Type) -> tuple[str | None, str] | None:
@@ -214,8 +223,9 @@ class Table:
             return ("Float", "Float(bitPattern: UInt32(truncatingIfNeeded: word))")
         if canonical.kind == TypeKind.POINTER:
             pointee = canonical.get_pointee()
-            if pointee.get_canonical().kind == TypeKind.CHAR_S and pointee.is_const_qualified():
-                # Read-only text the caller reads and nothing else, so it crosses as a String.
+            if pointee.get_canonical().kind == TypeKind.CHAR_S:
+                # Text the caller reads and nothing else, so it crosses as a String. A function that returns NULL, rewrites its
+                # argument in place, or returns a pointer into its argument has a RETURNS entry instead.
                 return ("String", "cString(at: UnsafeMutableRawPointer(bitPattern: word)!)")
             # Raven returns NULL for no entity, so a returned view is optional.
             record = self.views.record_name(pointee)

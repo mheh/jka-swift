@@ -66,8 +66,23 @@ NEVER_NULL = {
 #   raw            an UnsafeMutableRawPointer into the pool, the only Swift type a view can bind over
 #   pooled_string  a PooledString, the type a `char *` field carries
 #   text_cursor    a pointer into the caller's text, the COM_Parse family, which keeps its marker until that row is ruled
+#   optional_string  a String?, for a `char *` return Raven sets to NULL on one path
+#   in_place       Void, for a function that rewrites its `char *` argument and returns it
+#   text_offset    an Int32? byte offset into the argument, or nil, the shape strchr has in CString.swift
+#   text_offset_nonnull  an Int32 byte offset into the argument that is never NULL
 RETURNS = {
     "SkipWhitespace": "text_cursor",
+    "ClientConnect": "optional_string",
+    "G_GetBotInfoByName": "optional_string",
+    "G_GetBotInfoByNumber": "optional_string",
+    "Q3_GetAnimBoth": "optional_string",
+    "Q3_GetAnimLower": "optional_string",
+    "Q3_GetAnimUpper": "optional_string",
+    "Q_strlwr": "in_place",
+    "Q_strupr": "in_place",
+    "Q_CleanStr": "in_place",
+    "Q_strrchr": "text_offset",
+    "COM_SkipPath": "text_offset_nonnull",
     "BG_Alloc": "raw",
     "BG_AllocUnaligned": "raw",
     "BG_TempAlloc": "raw",

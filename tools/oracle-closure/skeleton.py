@@ -32,6 +32,7 @@ from clang.cindex import CursorKind, TypeKind
 import closure as C
 from fnsweep import binop_assign_op, rhs_function, root_var
 from reexport import REPO, SOURCES
+from rulings import RETURNS
 from table import Param, SourceFile, Table, swift_name
 
 ORACLE_DIR = "codemp/game"
@@ -330,6 +331,8 @@ class Skeleton:
             ]
         else:
             self.counts["stubs"] += 1
+            if RETURNS.get(fn.name) == "in_place":
+                lines.append("// Raven returns the argument, which the caller already holds.")
             lines.append(f"{self.signature(fn)} {{")
         lines += [
             f"    // TODO: Port {fn.name}",
