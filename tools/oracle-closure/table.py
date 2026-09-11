@@ -16,17 +16,10 @@ from clang.cindex import TypeKind
 from clang.cindex import CursorKind
 
 from reexport import SCALARS
+from rulings import PARAMS, RETURNS
 from views import Generator
 
 TARGET = "CJKAMP_Game"
-# The three allocators return a pointer into the pool, and the raw pointer is the only Swift type a view can bind over.
-RAW_RETURNS = {"BG_Alloc", "BG_AllocUnaligned", "BG_TempAlloc"}
-# BG_StringAlloc copies the text into the pool and returns it as the type a `char *` field carries.
-STRING_RETURNS = {"BG_StringAlloc", "G_NewString"}
-# BG_ParseField writes at a byte offset into the entity, the one body that takes raw memory.
-RAW_PARAMS = {("BG_ParseField", "ent")}
-# A pointer Raven fills as three floats is a vector.
-VEC3_PARAMS = {("BG_ValidateSkinForTeam", "colors")}
 BUILTINS = set(SCALARS.values()) | {"Bool", "Float", "Int32"}
 INT_KINDS = {TypeKind.INT, TypeKind.UINT, TypeKind.LONG, TypeKind.ULONG, TypeKind.SHORT, TypeKind.USHORT}
 # An int beside a char * is its size only when Raven named it so. trap_BotSetChatName's `client` is not a size.
@@ -129,9 +122,10 @@ class Table:
         name = cur.spelling
         t = cur.type
         canonical = t.get_canonical()
-        if (owner, name) in RAW_PARAMS:
+        ruled = PARAMS.get((owner, name))
+        if ruled == "raw":
             return Param(name, "UnsafeMutableRawPointer", "bare")
-        if (owner, name) in VEC3_PARAMS:
+        if ruled == "vec3_mut":
             return Param(name, "inout JKAShared.vec3_t", "vec3_mut")
         # A vec3_t parameter is the array type itself, and Clang keeps the typedef name on the parameter.
         if t.spelling.split()[-1] == "vec3_t":
@@ -202,9 +196,10 @@ class Table:
 
     def result(self, cur: ci.Cursor) -> tuple[str | None, str] | None:
         """The Swift return type and the expression that maps the word into it, or None for an unmappable return."""
-        if cur.spelling in RAW_RETURNS:
+        ruled = RETURNS.get(cur.spelling)
+        if ruled == "raw":
             return ("UnsafeMutableRawPointer", "")
-        if cur.spelling in STRING_RETURNS:
+        if ruled == "pooled_string":
             return ("PooledString", "")
         return self.result_type(cur.result_type)
 

@@ -37,10 +37,8 @@ from pathlib import Path
 HERE = Path(__file__).resolve().parent
 sys.path.insert(0, str(HERE))
 from extract import TRIPLES  # noqa: E402
+from rulings import HAND_FILES, HAND_HEADERS  # noqa: E402
 
-# Hand-written headers a target's umbrella includes after the extracted ones, one per file of C storage under Sources/<Target>/.
-HAND_HEADERS = {"CJKAMP": ["bg_tables.h"]}
-HAND_FILES = {"CJKAMP": ["bg_tables.c", "include/bg_tables.h"]}
 EXTRACT = HERE / "out" / "extract"
 
 MP_MODULES = ["mp-game", "mp-bg", "mp-cgame", "mp-ui"]
