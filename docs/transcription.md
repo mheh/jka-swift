@@ -70,15 +70,60 @@ No question files. No messages to the user mid-batch. No invention to close a ga
 The signature is kept as generated. Row 6 of step 2 already applied the pure-math case in `JKAShared`.
 A transcriptor does not rename a parameter, reorder one, or change a return type, even where the C source suggests a cleaner shape.
 
+A name rule lives in `tools/oracle-closure/rulings.py`, in the tables `ROOTS`, `NEVER_NULL`, `TYPES`, `RETURNS`, and `PARAMS`.
+A shape rule is code in `table.py`.
+A function or parameter whose C type alone does not say its Swift shape has an entry in one of the `rulings.py` tables.
+
+A struct a header declares that no root reaches joins `ROOTS` in `rulings.py`, so it gets a view.
+A struct Raven defines inside a `.c` file has its definition copied as Raven wrote it, with a `// Source:` cite, into a hand header the target's umbrella includes.
+`Sources/CJKAMP_Game/include/g_types.h` is this hand header for the game target, so a view can bind over the struct.
+
 | Raven | Swift |
 |---|---|
-| a non-const `vec3_t` parameter | `inout JKAShared.vec3_t`, and a call site writes `&v`. A `const vec3_t` stays by value. |
+| a non-const `vec3_t` parameter | `inout JKAShared.vec3_t`, and a call site writes `&v`. A `const vec3_t` stays by value. A non-const `vec4_t` parameter is `inout JKAShared.vec4_t` by the same rule, and a `const vec4_t` also stays by value. |
 | a `vec3_t name[3]` parameter | `inout [vec3_t]`, the type `AnglesToAxis`, `AxisClear`, and `AxisCopy` take in `q_math.swift` |
 | a non-const `char *` parameter of a function that is not a trap, with or without a size parameter beside it | `inout CharBuf`, and the caller passes its own buffer with `&`. A `const char *` stays `String`. |
 | a function-pointer parameter | an optional Swift closure, whose parameters go through these same rows |
-| a `void *` return | `UnsafeMutableRawPointer` for `BG_Alloc`, `BG_AllocUnaligned`, and `BG_TempAlloc` only. `BG_StringAlloc` returns `PooledString`. |
+| a `void *` return | `UnsafeMutableRawPointer` for `BG_Alloc`, `BG_AllocUnaligned`, and `BG_TempAlloc`, and also for `B_Alloc`, `B_TempAlloc`, and `G_Alloc`. `BG_StringAlloc` and `G_NewString` return `PooledString`. |
 | a pointer parameter Raven fills as a fixed set of floats, such as `float *colors` of `BG_ValidateSkinForTeam` | `inout vec3_t` |
 | a `qhandle_t *` parameter of a trap or strap function | `UnsafeMutablePointer<Int32>?` |
+| a `const char *` return | `String`, or `String?` where the RETURNS kind `optional_string` marks a function that returns `NULL` on one path. |
+| a `char *` return | `String`. |
+| a `void **` parameter | `inout OpaquePointer?` |
+| a pointer to a struct pointer, in a function that is not a trap | `inout View?`, the out-param the body sets. |
+| a `const char **` parameter | `inout JKAShared.TextCursor`, or `inout String` where the PARAMS kind `out_string` marks a parameter the function sets to the token instead of walking, such as `COM_ParseString`. |
+| a non-const `char *` parameter of a trap with no size parameter beside it | `String`, an input the engine reads. Raven's missing `const` is habit. |
+| `qint64` | `Int64`, by the TYPES map. |
+| a pointer to a const scalar, such as `const float *f` of `FloatSwap` | the scalar by value, `Float`. |
+| a function-pointer return, such as `PAIN_FUNC *NPC_PainFunc` | the view's callback typealias, optional, such as `EntityPain?`. |
+| a `vec3_t *` parameter of a trap with a count beside it | `[JKAShared.vec3_t]` by value. |
+| a `float *` return out of a static ring of temporaries, such as `tv` | `JKAShared.vec3_t` by value, RETURNS kind `vec3`. |
+
+Three RETURNS kinds cover the `char *` return cases beyond a plain `String`.
+`in_place` marks a function that rewrites its argument and returns it, such as `Q_strlwr`, `Q_strupr`, and `Q_CleanStr`.
+It returns nothing, and the skeleton writes the comment `// Raven returns the argument, which the caller already holds.` above it.
+`text_offset` marks a pointer into the argument or `NULL`, such as `Q_strrchr`, and it returns `Int32?`.
+`text_offset_nonnull` marks the same shape with no `NULL` case, such as `COM_SkipPath`, and it returns `Int32`.
+`SkipWhitespace` takes the cursor by value and returns it advanced.
+It has PARAMS kind `text_cursor` and RETURNS kind `text_cursor`.
+
+A trap's array of struct pointers is a storage table's base, and it keeps its marker under the PARAMS kind `pointer_array`.
+A trap's `char *` parameter with a size beside it is already the returned `String` the engine filled.
+A buffer the engine fills with no size beside it, or rewrites in place, keeps its marker under the PARAMS kinds `fill_buffer` and `in_place`.
+A raw block the engine keeps, such as `trap_SV_RegisterSharedMemory`, has a PARAMS entry `raw` and is `UnsafeMutableRawPointer`.
+
+Raven's struct of eight bytes exists because the compilers of the time had no portable 64-bit integer.
+Only the byte-swap pair touches `qint64`, and a body swaps with `byteSwapped`.
+Raven takes the address of a const scalar to reinterpret the bytes, and a body reads `bitPattern`.
+
+A pointer to one vector, such as `vec4_t *c` of `COM_ParseVec4` where Raven writes `(*c)[i]`, is `inout` too.
+
+The returned value of a function-pointer return goes nowhere but into the view's stored function, and `ent.pain = NPC_PainFunc(ent)` reads as Raven wrote it.
+
+A trap copies a `[JKAShared.vec3_t]` parameter into a flat `[Float]` of three per vector before the syscall, because `SIMD3<Float>` strides 16 bytes and Raven's `vec3_t` is 12.
+An array the engine fills, such as `areas` and `points` of `trap_AAS_TraceAreas`, keeps its marker under the PARAMS kind `out_array`.
+
+The body of a `float *` return out of a static ring of temporaries is `vec3_t(x, y, z)`.
 
 A body with an `inout CharBuf` parameter writes as Raven wrote, `powerOut[i] = readBuf[0]`, and `Q_strncpyz(_ dest: inout CharBuf, _ src: String, _ destsize: Int32)` ports line for line.
 `BG_ParseField` takes `UnsafeMutableRawPointer` for `byte *ent` and `Slots<BgField>` for the field table, and writes through the labeled subscript of the section on typed access at a byte offset. The caller passes the entity's handle turned raw, with a one-line comment that names rule 11.
@@ -250,6 +295,12 @@ So `c1 = s1[i1]` reads Raven's `c1 = *s1` with `c1` declared `Int32`, and `readB
 `String(readBuf)` reads up to the first NUL, and a string literal converts to a `CharBuf` where Raven assigns one.
 A `String` parameter a body walks by byte becomes a `CharBuf` at the top of the body, `let s1 = CharBuf(s1)`, and Raven's `*s1++` is the read plus `i1 += 1`.
 `Int32.init(ascii: Unicode.Scalar)` in `JKAShared` spells Raven's `'a'` as `Int32(ascii: "a")`, one call for one literal, so `c1 -= ('a' - 'A')` reads `c1 -= (Int32(ascii: "a") - Int32(ascii: "A"))`.
+
+### The text cursor
+
+`Sources/JKAShared/TextCursor.swift` is Raven's `const char *p` into a text buffer, a `CharBuf` and a byte offset `Int32?`, where `nil` is his `NULL`.
+`isNull`, `byte`, and `advance()` are the reads and the step.
+`token = COM_ParseExt(&p, true)` reads as Raven wrote it.
 
 ### C string functions
 
