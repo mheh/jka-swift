@@ -123,16 +123,10 @@ func BG_ParseField(_ l_fields: Slots<JKAMP.BgField>, _ key: String, _ value: Str
                 if bg.consumer == .game {
                     b[string: f.ofs] = G_NewString(value)
                 } else {
-                    // Port-note: Raven calls `CG_NewString` on this arm, and the bg channel has no function of that name today.
-                    portMissing("BG_ParseField: CG_NewString", source: "oracle/codemp/game/bg_misc.c:376")
+                    b[string: f.ofs] = CG_NewString(value)
                 }
             case F_VECTOR:
-                // Port-note: Raven reads the three floats with `sscanf`, which has no ported form yet.
-                // This splits the text on spaces, and it leaves a component alone when the text has no number for it, as `sscanf` does.
-                let numbers = value.split(separator: " ")
-                if numbers.count > 0, let x = Float(numbers[0]) { vec[0] = x }
-                if numbers.count > 1, let y = Float(numbers[1]) { vec[1] = y }
-                if numbers.count > 2, let z = Float(numbers[2]) { vec[2] = z }
+                sscanf(value, "%f %f %f", &vec)
                 b[float: f.ofs, 0] = vec[0]
                 b[float: f.ofs, 1] = vec[1]
                 b[float: f.ofs, 2] = vec[2]

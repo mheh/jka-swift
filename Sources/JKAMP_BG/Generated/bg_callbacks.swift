@@ -9,6 +9,9 @@ public struct BgCallbacks {
     /// Source: oracle/codemp/game/g_main.c:3559
     public var BG_GetTime: () -> Int32 = { portMissing("BG_GetTime", source: "oracle/codemp/game/g_main.c:3559") }
 
+    /// Source: oracle/codemp/cgame/cg_main.c:3344
+    public var CG_NewString: (String) -> PooledString = { _ in portMissing("CG_NewString", source: "oracle/codemp/cgame/cg_main.c:3344") }
+
     /// Source: oracle/codemp/game/g_active.c:407
     public var Client_CheckImpactBBrush: (JKAMP.BgEntity, JKAMP.BgEntity) -> Void = { _, _ in portMissing("Client_CheckImpactBBrush", source: "oracle/codemp/game/g_active.c:407") }
 
@@ -84,6 +87,11 @@ public struct BgCallbacks {
 /// Source: oracle/codemp/game/g_main.c:3559
 func BG_GetTime() -> Int32 {
     bg.callbacks.BG_GetTime()
+}
+
+/// Source: oracle/codemp/cgame/cg_main.c:3344
+func CG_NewString(_ string: String) -> PooledString {
+    bg.callbacks.CG_NewString(string)
 }
 
 /// Source: oracle/codemp/game/g_active.c:407

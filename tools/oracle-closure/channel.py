@@ -31,7 +31,7 @@ from clang.cindex import CursorKind
 
 import closure as C
 from reexport import REPO, SOURCES
-from rulings import OWN_HOOKS, SHARED_STEMS
+from rulings import EXTRA_HOOKS, OWN_HOOKS, SHARED_STEMS
 from table import Param, SourceFile, Table
 
 ORACLE_DIR = "codemp/game"
@@ -43,15 +43,20 @@ ENTITY = re.compile(r"\bEntity\b")
 class Hook:
     """One function of the channel: Raven's declaration, the table's signature, and the reason when it has none."""
 
-    def __init__(self, cur: ci.Cursor, name: str) -> None:
+    def __init__(self, cur: ci.Cursor, name: str, cite: str | None = None) -> None:
         self.cur = cur
         self.name = name
         self.params: list[Param] = []
         self.returns: str | None = None
         self.reason: str | None = None
+        # An EXTRA_HOOKS entry takes its shape from a game function and its cite from the consumer that defines it.
+        self.foreign = cite is not None
+        self._cite = cite
 
     @property
     def cite(self) -> str:
+        if self._cite is not None:
+            return self._cite
         path = Path(self.cur.location.file.name)
         return f"oracle/{ORACLE_DIR}/{path.name}:{self.cur.location.line}"
 
@@ -145,9 +150,11 @@ class Channel:
                 path = Path(cur.location.file.name).resolve()
                 if path.parent == self.game and path.stem.startswith("bg_"):
                     walk(cur)
+        for name, (shape, cite) in EXTRA_HOOKS.items():
+            called.setdefault(name, definitions[shape][1])
         hooks = []
         for name in sorted(called):
-            hook = Hook(called[name], name)
+            hook = Hook(called[name], name, EXTRA_HOOKS[name][1] if name in EXTRA_HOOKS else None)
             self.map(hook)
             hooks.append(hook)
         return hooks
@@ -200,7 +207,7 @@ class Channel:
                  "public func installBgChannel() {"]
         for store, hooks in (("straps", self.straps), ("callbacks", self.callbacks)):
             for hook in hooks:
-                if not hook.mapped:
+                if not hook.mapped or hook.foreign:
                     continue
                 names = ", ".join(p.name for p in hook.params) or ""
                 args = []

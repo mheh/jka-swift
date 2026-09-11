@@ -130,6 +130,9 @@ PARAMS = {
 
 # Functions bg reaches through hooks of their own, not through the channel. See rule 23.
 OWN_HOOKS = {"Com_Error", "Com_Printf"}
+# A function bg calls that another consumer defines, so no game definition can shape it. The entry names the game function whose
+# signature it shares and the definition's cite. The game consumer installs nothing, so the trapping default names it at the first call.
+EXTRA_HOOKS = {"CG_NewString": ("G_NewString", "oracle/codemp/cgame/cg_main.c:3344")}
 # Files whose functions a bg body reaches directly, because they live in the shared module or in bg itself.
 SHARED_STEMS = {"q_shared", "q_math", "g_syscalls", "g_strap"}
 
