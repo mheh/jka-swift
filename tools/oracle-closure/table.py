@@ -142,6 +142,9 @@ class Table:
                 return None if traps else Param(name, "inout [JKAShared.vec3_t]", "vec3_axis")
             if inner.kind == TypeKind.CHAR_S:
                 if pointee.is_const_qualified():
+                    if PARAMS.get((owner, name)) == "text_cursor":
+                        # A cursor Raven passes by value and returns advanced, the SkipWhitespace shape.
+                        return Param(name, "JKAShared.TextCursor", "text_cursor")
                     return Param(name, "String", "cstring")
                 if traps and following is not None and following.type.get_canonical().kind in INT_KINDS and SIZE_NAME.search(following.spelling):
                     return Param(name, None, "out_string", size=following.spelling)
@@ -157,6 +160,12 @@ class Table:
             if inner.kind == TypeKind.POINTER and inner.get_pointee().get_canonical().kind == TypeKind.VOID:
                 # The address of a `void *` the engine fills or clears, one word up from the handle it holds.
                 return Param(name, "inout OpaquePointer?", "out_opaque")
+            if inner.kind == TypeKind.POINTER and inner.get_pointee().get_canonical().kind == TypeKind.CHAR_S and inner.get_pointee().is_const_qualified():
+                # A `const char **` is Raven's cursor into a text buffer, which the COM_Parse family advances. A parameter the
+                # function sets to the token instead has a PARAMS entry.
+                if PARAMS.get((owner, name)) == "out_string":
+                    return Param(name, "inout String", "out_string_ref")
+                return None if traps else Param(name, "inout JKAShared.TextCursor", "text_cursor")
             if inner.kind == TypeKind.POINTER and not pointee.is_const_qualified():
                 # The address of a struct pointer the body sets, an out-param, `inout View?`. A pointer array into a trap is a
                 # storage table's base, which has no row, so the entry in PARAMS holds it.
@@ -209,8 +218,8 @@ class Table:
         """The Swift return type and the expression that maps the word into it, or None for an unmappable return."""
         ruled = RETURNS.get(cur.spelling)
         if ruled == "text_cursor":
-            # A pointer into the caller's text, the COM_Parse family's shape, which has no row yet.
-            return None
+            # A pointer into the caller's text, returned as the cursor it is.
+            return ("JKAShared.TextCursor", "")
         if ruled == "raw":
             return ("UnsafeMutableRawPointer", "")
         if ruled == "pooled_string":

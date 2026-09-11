@@ -140,10 +140,7 @@ public func COM_GetCurrentParseLine() -> Int32 {
 }
 
 /// Source: oracle/codemp/game/q_shared.c:295
-// TODO: Port signature
-// Raven wrote: char *COM_Parse( const char **data_p )
-// No table row for `const char ** data_p`.
-public func COM_Parse() -> Never {
+public func COM_Parse(_ data_p: inout JKAShared.TextCursor) -> String {
     // TODO: Port COM_Parse
     portMissing("COM_Parse", source: "oracle/codemp/game/q_shared.c:295")
 }
@@ -175,10 +172,7 @@ a newline.
 ```
 */
 /// Source: oracle/codemp/game/q_shared.c:336
-// TODO: Port signature
-// Raven wrote: const char *SkipWhitespace( const char *data, qboolean *hasNewLines )
-// No table row for the return `const char *`.
-public func SkipWhitespace() -> Never {
+public func SkipWhitespace(_ data: JKAShared.TextCursor, _ hasNewLines: inout Bool) -> JKAShared.TextCursor {
     // TODO: Port SkipWhitespace
     portMissing("SkipWhitespace", source: "oracle/codemp/game/q_shared.c:336")
 }
@@ -190,10 +184,7 @@ public func COM_Compress(_ data_p: inout CharBuf) -> Int32 {
 }
 
 /// Source: oracle/codemp/game/q_shared.c:421
-// TODO: Port signature
-// Raven wrote: char *COM_ParseExt( const char **data_p, qboolean allowLineBreaks )
-// No table row for `const char ** data_p`.
-public func COM_ParseExt() -> Never {
+public func COM_ParseExt(_ data_p: inout JKAShared.TextCursor, _ allowLineBreaks: Bool) -> String {
     // TODO: Port COM_ParseExt
     portMissing("COM_ParseExt", source: "oracle/codemp/game/q_shared.c:421")
 }
@@ -206,10 +197,7 @@ COM_ParseString
 ```
 */
 /// Source: oracle/codemp/game/q_shared.c:588
-// TODO: Port signature
-// Raven wrote: qboolean COM_ParseString( const char **data, const char **s )
-// No table row for `const char ** data`.
-public func COM_ParseString() -> Never {
+public func COM_ParseString(_ data: inout JKAShared.TextCursor, _ s: inout String) -> Bool {
     // TODO: Port COM_ParseString
     portMissing("COM_ParseString", source: "oracle/codemp/game/q_shared.c:588")
 }
@@ -222,10 +210,7 @@ COM_ParseInt
 ```
 */
 /// Source: oracle/codemp/game/q_shared.c:605
-// TODO: Port signature
-// Raven wrote: qboolean COM_ParseInt( const char **data, int *i )
-// No table row for `const char ** data`.
-public func COM_ParseInt() -> Never {
+public func COM_ParseInt(_ data: inout JKAShared.TextCursor, _ i: inout Int32) -> Bool {
     // TODO: Port COM_ParseInt
     portMissing("COM_ParseInt", source: "oracle/codemp/game/q_shared.c:605")
 }
@@ -238,10 +223,7 @@ COM_ParseFloat
 ```
 */
 /// Source: oracle/codemp/game/q_shared.c:625
-// TODO: Port signature
-// Raven wrote: qboolean COM_ParseFloat( const char **data, float *f )
-// No table row for `const char ** data`.
-public func COM_ParseFloat() -> Never {
+public func COM_ParseFloat(_ data: inout JKAShared.TextCursor, _ f: inout Float) -> Bool {
     // TODO: Port COM_ParseFloat
     portMissing("COM_ParseFloat", source: "oracle/codemp/game/q_shared.c:625")
 }
@@ -270,10 +252,7 @@ COM_MatchToken
 ```
 */
 /// Source: oracle/codemp/game/q_shared.c:666
-// TODO: Port signature
-// Raven wrote: void COM_MatchToken( const char **buf_p, char *match )
-// No table row for `const char ** buf_p`.
-public func COM_MatchToken() -> Never {
+public func COM_MatchToken(_ buf_p: inout JKAShared.TextCursor, _ match: inout JKAShared.CharBuf) {
     // TODO: Port COM_MatchToken
     portMissing("COM_MatchToken", source: "oracle/codemp/game/q_shared.c:666")
 }
@@ -290,10 +269,7 @@ Internal brace depths are properly skipped.
 ```
 */
 /// Source: oracle/codemp/game/q_shared.c:685
-// TODO: Port signature
-// Raven wrote: void SkipBracedSection (const char **program)
-// No table row for `const char ** program`.
-public func SkipBracedSection() -> Never {
+public func SkipBracedSection(_ program: inout JKAShared.TextCursor) {
     // TODO: Port SkipBracedSection
     portMissing("SkipBracedSection", source: "oracle/codemp/game/q_shared.c:685")
 }
@@ -306,37 +282,25 @@ SkipRestOfLine
 ```
 */
 /// Source: oracle/codemp/game/q_shared.c:708
-// TODO: Port signature
-// Raven wrote: void SkipRestOfLine ( const char **data )
-// No table row for `const char ** data`.
-public func SkipRestOfLine() -> Never {
+public func SkipRestOfLine(_ data: inout JKAShared.TextCursor) {
     // TODO: Port SkipRestOfLine
     portMissing("SkipRestOfLine", source: "oracle/codemp/game/q_shared.c:708")
 }
 
 /// Source: oracle/codemp/game/q_shared.c:724
-// TODO: Port signature
-// Raven wrote: void Parse1DMatrix (const char **buf_p, int x, float *m)
-// No table row for `const char ** buf_p`.
-public func Parse1DMatrix() -> Never {
+public func Parse1DMatrix(_ buf_p: inout JKAShared.TextCursor, _ x: Int32, _ m: inout Float) {
     // TODO: Port Parse1DMatrix
     portMissing("Parse1DMatrix", source: "oracle/codemp/game/q_shared.c:724")
 }
 
 /// Source: oracle/codemp/game/q_shared.c:738
-// TODO: Port signature
-// Raven wrote: void Parse2DMatrix (const char **buf_p, int y, int x, float *m)
-// No table row for `const char ** buf_p`.
-public func Parse2DMatrix() -> Never {
+public func Parse2DMatrix(_ buf_p: inout JKAShared.TextCursor, _ y: Int32, _ x: Int32, _ m: inout Float) {
     // TODO: Port Parse2DMatrix
     portMissing("Parse2DMatrix", source: "oracle/codemp/game/q_shared.c:738")
 }
 
 /// Source: oracle/codemp/game/q_shared.c:750
-// TODO: Port signature
-// Raven wrote: void Parse3DMatrix (const char **buf_p, int z, int y, int x, float *m)
-// No table row for `const char ** buf_p`.
-public func Parse3DMatrix() -> Never {
+public func Parse3DMatrix(_ buf_p: inout JKAShared.TextCursor, _ z: Int32, _ y: Int32, _ x: Int32, _ m: inout Float) {
     // TODO: Port Parse3DMatrix
     portMissing("Parse3DMatrix", source: "oracle/codemp/game/q_shared.c:750")
 }
@@ -565,10 +529,7 @@ Used to itterate through all the key/value pairs in an info string
 ```
 */
 /// Source: oracle/codemp/game/q_shared.c:1108
-// TODO: Port signature
-// Raven wrote: void Info_NextPair( const char **head, char *key, char *value )
-// No table row for `const char ** head`.
-public func Info_NextPair() -> Never {
+public func Info_NextPair(_ head: inout JKAShared.TextCursor, _ key: inout JKAShared.CharBuf, _ value: inout JKAShared.CharBuf) {
     // TODO: Port Info_NextPair
     portMissing("Info_NextPair", source: "oracle/codemp/game/q_shared.c:1108")
 }

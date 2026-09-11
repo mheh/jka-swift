@@ -14,7 +14,7 @@ The oracle range is the whole definition, from the return type to the closing br
 | `srand` | `oracle/codemp/game/bg_lib.c:765-767` | `JKAMP_BG/bg_lib.swift:154` | marker | none | `func srand(_ seed: UInt32)` |
 | `rand` | `oracle/codemp/game/bg_lib.c:769-772` | `JKAMP_BG/bg_lib.swift:160` | marker | none | `func rand() -> Int32` |
 | `atof` | `oracle/codemp/game/bg_lib.c:774-839` | `JKAMP_BG/bg_lib.swift:166` | marker | none | `func atof(_ string: String) -> Double` |
-| `_atof` | `oracle/codemp/game/bg_lib.c:841-907` | `JKAMP_BG/bg_lib.swift:175` | marker | none | `func _atof() -> Never` TODO: Port signature. No table row for `const char ** stringPtr`. |
+| `_atof` | `oracle/codemp/game/bg_lib.c:841-907` | `JKAMP_BG/bg_lib.swift:175` | marker | none | `func _atof(_ stringPtr: inout JKAShared.TextCursor) -> Double` |
 
 1 file-scope variables. The entry is the stub's line for the variable, by rule 3 and rule 6.
 

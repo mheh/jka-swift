@@ -21,10 +21,7 @@ func BG_SoundIndex(_ sound: inout JKAShared.CharBuf) -> Int32 {
 
 //Also used in npc code
 /// Source: oracle/codemp/game/bg_saberLoad.c:129
-// TODO: Port signature
-// Raven wrote: qboolean BG_ParseLiteral( const char **data, const char *string )
-// No table row for `const char ** data`.
-func BG_ParseLiteral() -> Never {
+func BG_ParseLiteral(_ data: inout JKAShared.TextCursor, _ string: String) -> Bool {
     // TODO: Port BG_ParseLiteral
     portMissing("BG_ParseLiteral", source: "oracle/codemp/game/bg_saberLoad.c:129")
 }

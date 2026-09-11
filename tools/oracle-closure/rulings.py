@@ -65,7 +65,7 @@ NEVER_NULL = {
 # Function -> the kind of its return, where the C type alone does not say. See "The bg pool" and "C string functions".
 #   raw            an UnsafeMutableRawPointer into the pool, the only Swift type a view can bind over
 #   pooled_string  a PooledString, the type a `char *` field carries
-#   text_cursor    a pointer into the caller's text, the COM_Parse family, which keeps its marker until that row is ruled
+#   text_cursor    a TextCursor, a pointer into the caller's text that the function returns advanced
 #   optional_string  a String?, for a `char *` return Raven sets to NULL on one path
 #   in_place       Void, for a function that rewrites its `char *` argument and returns it
 #   text_offset    an Int32? byte offset into the argument, or nil, the shape strchr has in CString.swift
@@ -94,7 +94,11 @@ RETURNS = {
 #   raw       an UnsafeMutableRawPointer a body writes at a byte offset, see "Typed access at a byte offset"
 #   vec3_mut  an inout vec3_t for a `float *` Raven fills as three floats, see "A pointer out-param Raven indexes"
 #   pointer_array  a C array of struct pointers a trap reads, a storage table's base, which keeps its marker until that storage is ruled
+#   out_string  an inout String, for a `const char **` the function sets to the token instead of walking
+#   text_cursor  a TextCursor by value, for a `const char *` Raven passes as a cursor and returns advanced
 PARAMS = {
+    ("COM_ParseString", "s"): "out_string",
+    ("SkipWhitespace", "data"): "text_cursor",
     ("trap_Bot_UpdateWaypoints", "wps"): "pointer_array",
     ("BG_ParseField", "ent"): "raw",
     ("BG_ValidateSkinForTeam", "colors"): "vec3_mut",
