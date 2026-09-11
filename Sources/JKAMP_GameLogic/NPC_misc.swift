@@ -10,7 +10,7 @@ Debug_Printf
 ```
 */
 /// Source: oracle/codemp/game/NPC_misc.c:10
-func Debug_Printf(_ cv: JKAMP.VmCvar, _ debugLevel: Int32, _ fmt: inout JKAShared.CharBuf) {
+func Debug_Printf(_ cv: JKAMP.VmCvar, _ debugLevel: Int32, _ fmt: inout JKAShared.CharBuf, _ args: any JKAShared.FormatArg...) {
     // TODO: Port Debug_Printf
     portMissing("Debug_Printf", source: "oracle/codemp/game/NPC_misc.c:10")
 }
@@ -21,7 +21,7 @@ Debug_NPCPrintf
 ```
 */
 /// Source: oracle/codemp/game/NPC_misc.c:41
-func Debug_NPCPrintf(_ printNPC: Entity, _ cv: JKAMP.VmCvar, _ debugLevel: Int32, _ fmt: inout JKAShared.CharBuf) {
+func Debug_NPCPrintf(_ printNPC: Entity, _ cv: JKAMP.VmCvar, _ debugLevel: Int32, _ fmt: inout JKAShared.CharBuf, _ args: any JKAShared.FormatArg...) {
     // TODO: Port Debug_NPCPrintf
     portMissing("Debug_NPCPrintf", source: "oracle/codemp/game/NPC_misc.c:41")
 }

@@ -9,13 +9,13 @@ func vmMain(_ command: Int32, _ arg0: Int32, _ arg1: Int32, _ arg2: Int32, _ arg
 }
 
 /// Source: oracle/codemp/game/g_main.c:703
-func G_Printf(_ fmt: String) {
-    trap_Printf(fmt)
+func G_Printf(_ fmt: String, _ args: any JKAShared.FormatArg...) {
+    trap_Printf(format(fmt, args))
 }
 
 /// Source: oracle/codemp/game/g_main.c:714
-func G_Error(_ fmt: String) -> Never {
-    trap_Error(fmt)
+func G_Error(_ fmt: String, _ args: any JKAShared.FormatArg...) -> Never {
+    trap_Error(format(fmt, args))
 }
 
 /**
@@ -82,14 +82,14 @@ func G_ShutdownGame(_ restart: Int32) {
 }
 
 /// Source: oracle/codemp/game/g_main.c:1208
-public func Com_Error(_ level: Int32, _ error: String) -> Never {
+public func Com_Error(_ level: Int32, _ error: String, _ args: any JKAShared.FormatArg...) -> Never {
     // Raven's `G_Error("%s", text)` drops `level`, so this does too.
-    trap_Error(error)
+    trap_Error(format(error, args))
 }
 
 /// Source: oracle/codemp/game/g_main.c:1219
-public func Com_Printf(_ msg: String) {
-    trap_Printf(msg)
+public func Com_Printf(_ msg: String, _ args: any JKAShared.FormatArg...) {
+    trap_Printf(format(msg, args))
 }
 
 /**
@@ -296,7 +296,7 @@ Print to the logfile with a time stamp if it is open
 ```
 */
 /// Source: oracle/codemp/game/g_main.c:2213
-func G_LogPrintf(_ fmt: String) {
+func G_LogPrintf(_ fmt: String, _ args: any JKAShared.FormatArg...) {
     // TODO: Port G_LogPrintf
     portMissing("G_LogPrintf", source: "oracle/codemp/game/g_main.c:2213")
 }

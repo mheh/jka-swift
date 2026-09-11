@@ -134,13 +134,13 @@ public func COM_Parse(_ data_p: inout JKAShared.TextCursor) -> String {
 }
 
 /// Source: oracle/codemp/game/q_shared.c:300
-public func COM_ParseError(_ format: inout CharBuf) {
+public func COM_ParseError(_ format: inout JKAShared.CharBuf, _ args: any JKAShared.FormatArg...) {
     // TODO: Port COM_ParseError
     portMissing("COM_ParseError", source: "oracle/codemp/game/q_shared.c:300")
 }
 
 /// Source: oracle/codemp/game/q_shared.c:312
-public func COM_ParseWarning(_ format: inout CharBuf) {
+public func COM_ParseWarning(_ format: inout JKAShared.CharBuf, _ args: any JKAShared.FormatArg...) {
     // TODO: Port COM_ParseWarning
     portMissing("COM_ParseWarning", source: "oracle/codemp/game/q_shared.c:312")
 }
@@ -465,7 +465,7 @@ public func Q_CleanStr(_ string: inout JKAShared.CharBuf) {
 }
 
 /// Source: oracle/codemp/game/q_shared.c:985
-public func Com_sprintf(_ dest: inout CharBuf, _ size: Int32, _ fmt: String) {
+public func Com_sprintf(_ dest: inout JKAShared.CharBuf, _ size: Int32, _ fmt: String, _ args: any JKAShared.FormatArg...) {
     // TODO: Port Com_sprintf
     portMissing("Com_sprintf", source: "oracle/codemp/game/q_shared.c:985")
 }
@@ -482,9 +482,9 @@ FIXME: make this buffer size safe someday
 ```
 */
 /// Source: oracle/codemp/game/q_shared.c:1017
-public func va(_ format: String) -> String {
-    // TODO: Port va
-    portMissing("va", source: "oracle/codemp/game/q_shared.c:1017")
+public func va(_ format: String, _ args: any JKAShared.FormatArg...) -> String {
+    // Raven's two static buffers exist because C cannot return a string, and no caller keeps a result across a second call.
+    JKAShared.format(format, args)
 }
 
 /**

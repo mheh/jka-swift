@@ -358,7 +358,8 @@ public nonisolated(unsafe) var bg = BgState()
 /// This is Raven's `Com_Error` as the bg files call it.
 /// The module supplies the route through `bg.error`.
 /// Source: oracle/codemp/game/g_main.c:1208
-func Com_Error(_ level: Int32, _ text: String) -> Never {
+func Com_Error(_ level: Int32, _ text: String, _ args: any JKAShared.FormatArg...) -> Never {
+    let text = format(text, args)
     bg.lastErrorLevel = level
     bg.lastErrorText = text
     bg.error(level, text)
@@ -367,8 +368,8 @@ func Com_Error(_ level: Int32, _ text: String) -> Never {
 /// This is Raven's `Com_Printf` as the bg files call it.
 /// The module supplies the route through `bg.print`.
 /// Source: oracle/codemp/game/g_main.c:1219
-func Com_Printf(_ text: String) {
-    bg.print(text)
+func Com_Printf(_ text: String, _ args: any JKAShared.FormatArg...) {
+    bg.print(format(text, args))
 }
 
 /// A body reads Raven's `MAX_POOL_SIZE`, and the value comes from the installed state.

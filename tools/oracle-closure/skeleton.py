@@ -155,6 +155,9 @@ class Skeleton:
                 fn.reason = f"No table row for `{' '.join(p.type.spelling.split())} {p.spelling}`."
                 return
             fn.params.append(m)
+        if fn.cur.type.kind == TypeKind.FUNCTIONPROTO and fn.cur.type.is_function_variadic():
+            # Raven's `...` is a printf argument list, and `Format.swift` in JKAShared formats it.
+            fn.params.append(Param("args", "any JKAShared.FormatArg...", "bare"))
         result = self.table.result(fn.cur)
         if result is None:
             fn.reason = f"No table row for the return `{fn.cur.result_type.spelling}`."

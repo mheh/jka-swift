@@ -8,7 +8,7 @@ The oracle range is the whole definition, from the return type to the closing br
 | Function | Oracle | Swift | State | jka-rust | Signature |
 |---|---|---|---|---|---|
 | `Q3_TaskIDClear` | `oracle/codemp/game/g_ICARUScb.c:270-273` | `JKAMP_GameLogic/g_ICARUScb.swift:17` | marker | `crates/mp/game/src/g_ICARUScb.rs:52-56` | `func Q3_TaskIDClear(_ taskID: inout Int32)` |
-| `G_DebugPrint` | `oracle/codemp/game/g_ICARUScb.c:275-324` | `JKAMP_GameLogic/g_ICARUScb.swift:23` | marker | `crates/mp/game/src/g_ICARUScb.rs:61-113` | `func G_DebugPrint(_ level: Int32, _ format: String)` |
+| `G_DebugPrint` | `oracle/codemp/game/g_ICARUScb.c:275-324` | `JKAMP_GameLogic/g_ICARUScb.swift:23` | marker | `crates/mp/game/src/g_ICARUScb.rs:61-113` | `func G_DebugPrint(_ level: Int32, _ format: String, _ args: any JKAShared.FormatArg...)` |
 | `Q3_GetAnimLower` static | `oracle/codemp/game/g_ICARUScb.c:331-344` | `JKAMP_GameLogic/g_ICARUScb.swift:36` | marker | `crates/mp/game/src/g_ICARUScb.rs:118-134` | `private func Q3_GetAnimLower(_ ent: Entity) -> String?` |
 | `Q3_GetAnimUpper` static | `oracle/codemp/game/g_ICARUScb.c:351-364` | `JKAMP_GameLogic/g_ICARUScb.swift:49` | marker | `crates/mp/game/src/g_ICARUScb.rs:139-155` | `private func Q3_GetAnimUpper(_ ent: Entity) -> String?` |
 | `Q3_GetAnimBoth` static | `oracle/codemp/game/g_ICARUScb.c:371-398` | `JKAMP_GameLogic/g_ICARUScb.swift:62` | marker | `crates/mp/game/src/g_ICARUScb.rs:160-187` | `private func Q3_GetAnimBoth(_ ent: Entity) -> String?` |

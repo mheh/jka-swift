@@ -61,7 +61,7 @@ func BotMindTricked(_ botClient: Int32, _ enemyClient: Int32) -> Int32 {
 }
 
 /// Source: oracle/codemp/game/ai_main.c:332
-func BotAI_Print(_ type: Int32, _ fmt: inout JKAShared.CharBuf) {
+func BotAI_Print(_ type: Int32, _ fmt: inout JKAShared.CharBuf, _ args: any JKAShared.FormatArg...) {
     // TODO: Port BotAI_Print
     portMissing("BotAI_Print", source: "oracle/codemp/game/ai_main.c:332")
 }

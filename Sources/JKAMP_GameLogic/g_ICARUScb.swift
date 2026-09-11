@@ -20,7 +20,7 @@ func Q3_TaskIDClear(_ taskID: inout Int32) {
 }
 
 /// Source: oracle/codemp/game/g_ICARUScb.c:275
-func G_DebugPrint(_ level: Int32, _ format: String) {
+func G_DebugPrint(_ level: Int32, _ format: String, _ args: any JKAShared.FormatArg...) {
     // TODO: Port G_DebugPrint
     portMissing("G_DebugPrint", source: "oracle/codemp/game/g_ICARUScb.c:275")
 }

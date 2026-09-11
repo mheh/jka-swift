@@ -315,6 +315,9 @@ Where no port exists, the transcriptor adds a Port-note, because the exact C sem
 `Sources/JKAShared/CString.swift` holds the libc names Raven calls, `atoi`, `atof`, `strcpy`, `strncpy`, `strlen`, `strcmp`, `strchr`, and `strstr`, with C semantics.
 Each one works over `CharBuf` and `String`, `strcpy` also takes a raw destination, and `strlen` returns `Int32`, narrowed once inside it.
 `PooledString` has `init(_ raw: UnsafeMutableRawPointer)`, so `BG_StringAlloc` reads `strcpy(dest, source)` then `return PooledString(dest)`.
+Raven's `...` is `_ args: any JKAShared.FormatArg...`, and `Sources/JKAShared/Format.swift` formats it with the `printf` subset the game uses, `%i`, `%d`, `%s`, and `%f` with a width, a precision, and the left-align flag.
+`va` returns that text, so `strcpy(&powerOut, va("%i-", maxRank))` is Raven's line, and `Com_Printf`, `G_Printf`, and `Com_Error` format the same way.
+A specifier outside the subset is a precondition failure, so a new shape surfaces at once.
 
 ### Engine and print calls
 

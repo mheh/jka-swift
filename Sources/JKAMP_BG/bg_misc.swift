@@ -206,8 +206,7 @@ func BG_LegalizedForcePowers(_ powerOut: inout JKAShared.CharBuf, _ maxRank: Int
     }
 
     //first of all, print the max rank into the string as the rank
-    // Port-note: `va` has no ported form yet, so the port builds the same text with Swift interpolation.
-    strcpy(&powerOut, "\(maxRank)-")
+    strcpy(&powerOut, va("%i-", maxRank))
 
     while i < 128 && powerBuf[i] != 0 && powerBuf[i] != Int32(ascii: "-") {
         i += 1
@@ -422,14 +421,12 @@ func BG_LegalizedForcePowers(_ powerOut: inout JKAShared.CharBuf, _ maxRank: Int
     //We finally have all the force powers legalized and stored locally.
     //Put them all into the string and return the result. We already have
     //the rank there, so print the side and the powers now.
-    // Port-note: `va` has no ported form yet, so the port builds the same text with Swift interpolation.
-    Q_strcat(&powerOut, 128, "\(final_Side)-")
+    Q_strcat(&powerOut, 128, va("%i-", final_Side))
 
     i = strlen(powerOut)
     c = 0
     while c < NUM_FORCE_POWERS {
-        // Port-note: `va` has no ported form yet, so the port builds the same text with Swift interpolation.
-        strcpy(&readBuf, "\(final_Powers[c])")
+        strcpy(&readBuf, va("%i", final_Powers[c]))
         powerOut[i] = readBuf[0]
         c += 1
         i += 1
@@ -1249,8 +1246,7 @@ func BG_ValidateSkinForTeam(_ modelName: String, _ skinName: inout JKAShared.Cha
                     }
                 }
                 //if file does not exist, set to "red"
-                // Port-note: `va` has no ported form yet, so the port builds the same text with Swift interpolation.
-                if !BG_FileExists("models/players/\(modelName)/model_\(String(skinName)).skin") {
+                if !BG_FileExists(va("models/players/%s/model_%s.skin", modelName, skinName)) {
                     Q_strncpyz(&skinName, "red", MAX_QPATH)
                 }
                 return false
@@ -1285,8 +1281,7 @@ func BG_ValidateSkinForTeam(_ modelName: String, _ skinName: inout JKAShared.Cha
                     }
                 }
                 //if file does not exist, set to "blue"
-                // Port-note: `va` has no ported form yet, so the port builds the same text with Swift interpolation.
-                if !BG_FileExists("models/players/\(modelName)/model_\(String(skinName)).skin") {
+                if !BG_FileExists(va("models/players/%s/model_%s.skin", modelName, skinName)) {
                     Q_strncpyz(&skinName, "blue", MAX_QPATH)
                 }
                 return false
