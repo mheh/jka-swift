@@ -351,12 +351,12 @@ public func trap_FS_GetFileList(_ path: String, _ `extension`: String, _ bufsize
 }
 
 /// Source: oracle/codemp/game/g_syscalls.c:223
-// TODO: Port signature
-// Raven wrote: int trap_DebugPolygonCreate(int color, int numPoints, vec3_t *points)
-// No table row for `vec3_t * points`.
-public func trap_DebugPolygonCreate() -> Never {
-    // TODO: Port trap_DebugPolygonCreate
-    portMissing("trap_DebugPolygonCreate", source: "oracle/codemp/game/g_syscalls.c:223")
+public func trap_DebugPolygonCreate(_ color: Int32, _ numPoints: Int32, _ points: [JKAShared.vec3_t]) -> Int32 {
+    let pointsFlat = points.flatMap { [$0.x, $0.y, $0.z] }
+    let word = pointsFlat.withUnsafeBufferPointer { pointsFlat in
+        Syscall.call(G_DEBUG_POLYGON_CREATE, color, numPoints, pointsFlat.baseAddress!)
+    }
+    return Int32(truncatingIfNeeded: word)
 }
 
 /// Source: oracle/codemp/game/g_syscalls.c:227
@@ -980,7 +980,7 @@ public func trap_AAS_PointReachabilityAreaIndex(_ point: inout JKAShared.vec3_t)
 /// Source: oracle/codemp/game/g_syscalls.c:681
 // TODO: Port signature
 // Raven wrote: int trap_AAS_TraceAreas(vec3_t start, vec3_t end, int *areas, vec3_t *points, int maxareas)
-// No table row for `vec3_t * points`.
+// No table row for `int * areas`.
 public func trap_AAS_TraceAreas() -> Never {
     // TODO: Port trap_AAS_TraceAreas
     portMissing("trap_AAS_TraceAreas", source: "oracle/codemp/game/g_syscalls.c:681")

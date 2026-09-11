@@ -109,6 +109,7 @@ RETURNS = {
 #   text_cursor  a TextCursor by value, for a `const char *` Raven passes as a cursor and returns advanced
 #   fill_buffer  a `char *` a trap fills with no size beside it, which keeps its marker until that shape is ruled
 #   in_place  a `char *` a trap rewrites in place, which keeps its marker until that shape is ruled
+#   out_array  an array the engine fills, sized by a count beside it, which keeps its marker until a caller needs that shape
 PARAMS = {
     ("COM_ParseString", "s"): "out_string",
     ("SkipWhitespace", "data"): "text_cursor",
@@ -119,6 +120,8 @@ PARAMS = {
     ("trap_G2API_GetGLAName", "fillBuf"): "fill_buffer",
     ("trap_G2API_GetSurfaceName", "fillBuf"): "fill_buffer",
     ("trap_UnifyWhiteSpaces", "string"): "in_place",
+    ("trap_AAS_TraceAreas", "areas"): "out_array",
+    ("trap_AAS_TraceAreas", "points"): "out_array",
 }
 
 # MARK: - The bg channel

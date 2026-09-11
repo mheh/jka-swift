@@ -48,6 +48,8 @@ class Param:
     def word(self) -> str:
         if self.kind == "out_string":
             return f"{self.name.strip('`')}Pointer.baseAddress!"
+        if self.kind == "vec3_array":
+            return f"{self.name.strip('`')}Flat.baseAddress!"
         return self.name
 
 
@@ -138,9 +140,15 @@ class Table:
             return Param(name, f"inout JKAShared.{t.spelling.split()[-1]}", "vec3_mut")
         if canonical.kind == TypeKind.POINTER:
             pointee = canonical.get_pointee()
+            if ruled == "out_array":
+                # An array the engine fills, sized by a count beside it, which keeps its marker until that shape is ruled.
+                return None
             if t.get_pointee().spelling in VECTORS:
-                # A pointer to one vector the caller owns, which Raven writes as `(*c)[i]`. A pointer array has its own row.
-                return None if traps else Param(name, f"inout JKAShared.{t.get_pointee().spelling}", "vec3_mut")
+                if traps:
+                    # An array of vectors the engine reads, with a count beside it. The trap packs it flat, see traps.py.
+                    return Param(name, f"[JKAShared.{t.get_pointee().spelling}]", "vec3_array")
+                # A pointer to one vector the caller owns, which Raven writes as `(*c)[i]`.
+                return Param(name, f"inout JKAShared.{t.get_pointee().spelling}", "vec3_mut")
             if pointee.is_const_qualified() and pointee.kind in INT_KINDS | {TypeKind.FLOAT}:
                 # Raven takes the address of a const scalar to reinterpret its bytes, so the scalar crosses by value.
                 swift = self.views.scalar(pointee, TARGET)

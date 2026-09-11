@@ -139,6 +139,10 @@ class Traps:
         body: list[str] = []
         for p in outs:
             body.append(f"    var {p.name} = [CChar](repeating: 0, count: Int({p.size}))")
+        for p in mapped.values():
+            if p.kind == "vec3_array":
+                # Raven's vec3_t is three floats of 12 bytes, and SIMD3<Float> strides 16, so the engine reads a flat copy.
+                body.append(f"    let {p.name}Flat = {p.name}.flatMap {{ [$0.x, $0.y, $0.z] }}")
         # Every scoped pointer wraps the call in one closure, innermost last.
         layers: list[str] = []
         for p in mapped.values():
@@ -148,6 +152,8 @@ class Traps:
                 layers.append(f"withUnsafePointer(to: {p.name}) {{ {p.name} in")
             elif p.kind == "vec3_mut":
                 layers.append(f"withUnsafeMutablePointer(to: &{p.name}) {{ {p.name} in")
+            elif p.kind == "vec3_array":
+                layers.append(f"{p.name}Flat.withUnsafeBufferPointer {{ {p.name}Flat in")
             elif p.kind == "out_string":
                 layers.append(f"{p.name}.withUnsafeMutableBufferPointer {{ {p.name}Pointer in")
             elif p.kind in ("out_scalar", "out_opaque"):
@@ -199,7 +205,7 @@ def main() -> None:
     out.write_text("\n".join(gen.emit()).rstrip() + "\n")
     c = gen.counts
     print(f"traps.py: {c['traps']} traps, {c['TODO: Port signature']} TODO: Port signature markers, {out.relative_to(REPO)}")
-    for kind in ("bare", "cstring", "out_string", "out_scalar", "out_opaque", "vec3_const", "vec3_mut", "view"):
+    for kind in ("bare", "cstring", "out_string", "out_scalar", "out_opaque", "vec3_const", "vec3_mut", "vec3_array", "view"):
         print(f"  {kind:12} {c[kind]}")
 
 
