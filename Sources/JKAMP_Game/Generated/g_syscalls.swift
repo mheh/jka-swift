@@ -25,13 +25,14 @@ let word = Syscall.call(G_MILLISECONDS)
     return Int32(truncatingIfNeeded: word)
 }
 
+//Start should be suppled with a pointer to an empty pointer (e.g. void *blah; trap_PrecisionTimer_Start(&blah);),
+//the empty pointer will be filled with an exe address to our timer (this address means nothing in vm land however).
+//You must pass this pointer back unmodified to the timer end func.
 /// Source: oracle/codemp/game/g_syscalls.c:46
-// TODO: Port signature
-// Raven wrote: void trap_PrecisionTimer_Start(void **theNewTimer)
-// No table row for `void ** theNewTimer`.
-public func trap_PrecisionTimer_Start() -> Never {
-    // TODO: Port trap_PrecisionTimer_Start
-    portMissing("trap_PrecisionTimer_Start", source: "oracle/codemp/game/g_syscalls.c:46")
+public func trap_PrecisionTimer_Start(_ theNewTimer: inout OpaquePointer?) {
+    _ = withUnsafeMutablePointer(to: &theNewTimer) { theNewTimer in
+        Syscall.call(G_PRECISIONTIMER_START, theNewTimer)
+    }
 }
 
 //If you're using the above example, the appropriate call for this is int result = trap_PrecisionTimer_End(blah);
@@ -445,22 +446,19 @@ let word = Syscall.call(G_ROFF_PURGE_ENT, entID)
     return word != 0
 }
 
+//rww - dynamic vm memory allocation!
 /// Source: oracle/codemp/game/g_syscalls.c:283
-// TODO: Port signature
-// Raven wrote: void trap_TrueMalloc(void **ptr, int size)
-// No table row for `void ** ptr`.
-public func trap_TrueMalloc() -> Never {
-    // TODO: Port trap_TrueMalloc
-    portMissing("trap_TrueMalloc", source: "oracle/codemp/game/g_syscalls.c:283")
+public func trap_TrueMalloc(_ ptr: inout OpaquePointer?, _ size: Int32) {
+    _ = withUnsafeMutablePointer(to: &ptr) { ptr in
+        Syscall.call(G_TRUEMALLOC, ptr, size)
+    }
 }
 
 /// Source: oracle/codemp/game/g_syscalls.c:288
-// TODO: Port signature
-// Raven wrote: void trap_TrueFree(void **ptr)
-// No table row for `void ** ptr`.
-public func trap_TrueFree() -> Never {
-    // TODO: Port trap_TrueFree
-    portMissing("trap_TrueFree", source: "oracle/codemp/game/g_syscalls.c:288")
+public func trap_TrueFree(_ ptr: inout OpaquePointer?) {
+    _ = withUnsafeMutablePointer(to: &ptr) { ptr in
+        Syscall.call(G_TRUEFREE, ptr)
+    }
 }
 
 //rww - icarus traps
@@ -1880,12 +1878,13 @@ public func trap_G2API_GetBoltMatrix_NoRecNoRot(_ ghoul2: OpaquePointer?, _ mode
 }
 
 /// Source: oracle/codemp/game/g_syscalls.c:1223
-// TODO: Port signature
-// Raven wrote: int trap_G2API_InitGhoul2Model(void **ghoul2Ptr, const char *fileName, int modelIndex, qhandle_t customSkin, qhandle_t customShader, int modelFlags, int lodBias)
-// No table row for `void ** ghoul2Ptr`.
-public func trap_G2API_InitGhoul2Model() -> Never {
-    // TODO: Port trap_G2API_InitGhoul2Model
-    portMissing("trap_G2API_InitGhoul2Model", source: "oracle/codemp/game/g_syscalls.c:1223")
+public func trap_G2API_InitGhoul2Model(_ ghoul2Ptr: inout OpaquePointer?, _ fileName: String, _ modelIndex: Int32, _ customSkin: JKAShared.qhandle_t, _ customShader: JKAShared.qhandle_t, _ modelFlags: Int32, _ lodBias: Int32) -> Int32 {
+    let word = withUnsafeMutablePointer(to: &ghoul2Ptr) { ghoul2Ptr in
+        fileName.withCString { fileName in
+            Syscall.call(G_G2_INITGHOUL2MODEL, ghoul2Ptr, fileName, modelIndex, customSkin, customShader, modelFlags, lodBias)
+        }
+    }
+    return Int32(truncatingIfNeeded: word)
 }
 
 /// Source: oracle/codemp/game/g_syscalls.c:1229
@@ -1972,12 +1971,10 @@ public func trap_G2API_CopySpecificGhoul2Model(_ g2From: OpaquePointer?, _ model
 }
 
 /// Source: oracle/codemp/game/g_syscalls.c:1283
-// TODO: Port signature
-// Raven wrote: void trap_G2API_DuplicateGhoul2Instance(void *g2From, void **g2To)
-// No table row for `void ** g2To`.
-public func trap_G2API_DuplicateGhoul2Instance() -> Never {
-    // TODO: Port trap_G2API_DuplicateGhoul2Instance
-    portMissing("trap_G2API_DuplicateGhoul2Instance", source: "oracle/codemp/game/g_syscalls.c:1283")
+public func trap_G2API_DuplicateGhoul2Instance(_ g2From: OpaquePointer?, _ g2To: inout OpaquePointer?) {
+    _ = withUnsafeMutablePointer(to: &g2To) { g2To in
+        Syscall.call(G_G2_DUPLICATEGHOUL2INSTANCE, g2From, g2To)
+    }
 }
 
 /// Source: oracle/codemp/game/g_syscalls.c:1288
@@ -1999,12 +1996,10 @@ let word = Syscall.call(G_G2_REMOVEGHOUL2MODELS, ghlInfo)
 }
 
 /// Source: oracle/codemp/game/g_syscalls.c:1303
-// TODO: Port signature
-// Raven wrote: void trap_G2API_CleanGhoul2Models(void **ghoul2Ptr)
-// No table row for `void ** ghoul2Ptr`.
-public func trap_G2API_CleanGhoul2Models() -> Never {
-    // TODO: Port trap_G2API_CleanGhoul2Models
-    portMissing("trap_G2API_CleanGhoul2Models", source: "oracle/codemp/game/g_syscalls.c:1303")
+public func trap_G2API_CleanGhoul2Models(_ ghoul2Ptr: inout OpaquePointer?) {
+    _ = withUnsafeMutablePointer(to: &ghoul2Ptr) { ghoul2Ptr in
+        Syscall.call(G_G2_CLEANMODELS, ghoul2Ptr)
+    }
 }
 
 /// Source: oracle/codemp/game/g_syscalls.c:1308

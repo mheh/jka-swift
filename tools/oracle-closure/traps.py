@@ -150,7 +150,7 @@ class Traps:
                 layers.append(f"withUnsafeMutablePointer(to: &{p.name}) {{ {p.name} in")
             elif p.kind == "out_string":
                 layers.append(f"{p.name}.withUnsafeMutableBufferPointer {{ {p.name}Pointer in")
-            elif p.kind == "out_scalar":
+            elif p.kind in ("out_scalar", "out_opaque"):
                 layers.append(f"withUnsafeMutablePointer(to: &{p.name}) {{ {p.name} in")
         if not returns:
             body += self.nest(layers, call, "    _ = ") if layers else [f"    {call}"]
@@ -199,7 +199,7 @@ def main() -> None:
     out.write_text("\n".join(gen.emit()).rstrip() + "\n")
     c = gen.counts
     print(f"traps.py: {c['traps']} traps, {c['TODO: Port signature']} TODO: Port signature markers, {out.relative_to(REPO)}")
-    for kind in ("bare", "cstring", "out_string", "out_scalar", "vec3_const", "vec3_mut", "view"):
+    for kind in ("bare", "cstring", "out_string", "out_scalar", "out_opaque", "vec3_const", "vec3_mut", "view"):
         print(f"  {kind:12} {c[kind]}")
 
 

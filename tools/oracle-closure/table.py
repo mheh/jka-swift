@@ -154,6 +154,9 @@ class Table:
                 return Param(name, self.views.qualified_view(record, TARGET), "view")
             if inner.kind == TypeKind.VOID:
                 return Param(name, "OpaquePointer?", "bare")
+            if inner.kind == TypeKind.POINTER and inner.get_pointee().get_canonical().kind == TypeKind.VOID:
+                # The address of a `void *` the engine fills or clears, one word up from the handle it holds.
+                return Param(name, "inout OpaquePointer?", "out_opaque")
             # An array of model handles the engine reads, and every caller passes NULL. The pointer stays in generated code.
             if t.get_pointee().spelling.replace("const ", "") == "qhandle_t":
                 return Param(name, "UnsafeMutablePointer<Int32>?", "bare")

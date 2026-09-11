@@ -53,19 +53,11 @@ func strap_G2API_IKMove(_ ghoul2: OpaquePointer?, _ time: Int32, _ params: JKAMP
 }
 
 /// Source: oracle/codemp/game/g_strap.c:63
-// TODO: Port signature
-// Raven wrote: void strap_TrueMalloc(void **ptr, int size)
-// No table row for `void ** ptr`.
-func strap_TrueMalloc() -> Never {
-    // TODO: Port strap_TrueMalloc
-    portMissing("strap_TrueMalloc", source: "oracle/codemp/game/g_strap.c:63")
+func strap_TrueMalloc(_ ptr: inout OpaquePointer?, _ size: Int32) {
+    trap_TrueMalloc(&ptr, size)
 }
 
 /// Source: oracle/codemp/game/g_strap.c:68
-// TODO: Port signature
-// Raven wrote: void strap_TrueFree(void **ptr)
-// No table row for `void ** ptr`.
-func strap_TrueFree() -> Never {
-    // TODO: Port strap_TrueFree
-    portMissing("strap_TrueFree", source: "oracle/codemp/game/g_strap.c:68")
+func strap_TrueFree(_ ptr: inout OpaquePointer?) {
+    trap_TrueFree(&ptr)
 }

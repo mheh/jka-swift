@@ -36,6 +36,12 @@ public struct BgStraps {
     /// Source: oracle/codemp/game/bg_strap.h:32
     public var strap_G2API_IKMove: (OpaquePointer?, Int32, JKAMP.SharedIKMoveParams) -> Bool = { _, _, _ in portMissing("strap_G2API_IKMove", source: "oracle/codemp/game/bg_strap.h:32") }
 
+    /// Source: oracle/codemp/game/bg_strap.h:34
+    public var strap_TrueMalloc: (inout OpaquePointer?, Int32) -> Void = { _, _ in portMissing("strap_TrueMalloc", source: "oracle/codemp/game/bg_strap.h:34") }
+
+    /// Source: oracle/codemp/game/bg_strap.h:36
+    public var strap_TrueFree: (inout OpaquePointer?) -> Void = { _ in portMissing("strap_TrueFree", source: "oracle/codemp/game/bg_strap.h:36") }
+
     public init() {}
 }
 
@@ -90,17 +96,11 @@ func strap_G2API_IKMove(_ ghoul2: OpaquePointer?, _ time: Int32, _ params: JKAMP
 }
 
 /// Source: oracle/codemp/game/bg_strap.h:34
-// TODO: Port signature
-// Raven wrote: void strap_TrueMalloc(void **ptr, int size)
-// No table row for `void ** ptr`.
-func strap_TrueMalloc() -> Never {
-    portMissing("strap_TrueMalloc", source: "oracle/codemp/game/bg_strap.h:34")
+func strap_TrueMalloc(_ ptr: inout OpaquePointer?, _ size: Int32) {
+    bg.straps.strap_TrueMalloc(&ptr, size)
 }
 
 /// Source: oracle/codemp/game/bg_strap.h:36
-// TODO: Port signature
-// Raven wrote: void strap_TrueFree(void **ptr)
-// No table row for `void ** ptr`.
-func strap_TrueFree() -> Never {
-    portMissing("strap_TrueFree", source: "oracle/codemp/game/bg_strap.h:36")
+func strap_TrueFree(_ ptr: inout OpaquePointer?) {
+    bg.straps.strap_TrueFree(&ptr)
 }

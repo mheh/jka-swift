@@ -37,6 +37,12 @@ public func installBgChannel() {
     bg.straps.strap_G2API_IKMove = { ghoul2, time, params in
         strap_G2API_IKMove(ghoul2, time, params)
     }
+    bg.straps.strap_TrueMalloc = { ptr, size in
+        strap_TrueMalloc(&ptr, size)
+    }
+    bg.straps.strap_TrueFree = { ptr in
+        strap_TrueFree(&ptr)
+    }
     bg.callbacks.BG_GetTime = {
         BG_GetTime()
     }
