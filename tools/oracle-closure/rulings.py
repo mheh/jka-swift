@@ -94,6 +94,9 @@ RETURNS = {
     "BG_Alloc": "raw",
     "BG_AllocUnaligned": "raw",
     "BG_TempAlloc": "raw",
+    "B_Alloc": "raw",
+    "B_TempAlloc": "raw",
+    "G_Alloc": "raw",
     "BG_StringAlloc": "pooled_string",
     "G_NewString": "pooled_string",
 }

@@ -5,10 +5,7 @@ import JKAShared
 import JKAMP_Game
 
 /// Source: oracle/codemp/game/ai_util.c:14
-// TODO: Port signature
-// Raven wrote: void *B_TempAlloc(int size)
-// No table row for the return `void *`.
-func B_TempAlloc() -> Never {
+func B_TempAlloc(_ size: Int32) -> UnsafeMutableRawPointer {
     // TODO: Port B_TempAlloc
     portMissing("B_TempAlloc", source: "oracle/codemp/game/ai_util.c:14")
 }
@@ -20,10 +17,7 @@ func B_TempFree(_ size: Int32) {
 }
 
 /// Source: oracle/codemp/game/ai_util.c:25
-// TODO: Port signature
-// Raven wrote: void *B_Alloc(int size)
-// No table row for the return `void *`.
-func B_Alloc() -> Never {
+func B_Alloc(_ size: Int32) -> UnsafeMutableRawPointer {
     // TODO: Port B_Alloc
     portMissing("B_Alloc", source: "oracle/codemp/game/ai_util.c:25")
 }

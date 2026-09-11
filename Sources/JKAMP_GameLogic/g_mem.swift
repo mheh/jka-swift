@@ -5,10 +5,7 @@ import JKAShared
 import JKAMP_Game
 
 /// Source: oracle/codemp/game/g_mem.c:16
-// TODO: Port signature
-// Raven wrote: void *G_Alloc( int size )
-// No table row for the return `void *`.
-func G_Alloc() -> Never {
+func G_Alloc(_ size: Int32) -> UnsafeMutableRawPointer {
     // TODO: Port G_Alloc
     portMissing("G_Alloc", source: "oracle/codemp/game/g_mem.c:16")
 }
