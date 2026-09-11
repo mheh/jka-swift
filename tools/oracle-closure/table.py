@@ -263,6 +263,10 @@ class Table:
             return ("Float", "Float(bitPattern: UInt32(truncatingIfNeeded: word))")
         if canonical.kind == TypeKind.POINTER:
             pointee = canonical.get_pointee()
+            if pointee.get_canonical().kind == TypeKind.FUNCTIONPROTO:
+                # A returned function pointer goes into a view's stored function, so it is that field's callback type, optional.
+                alias = self.views.callback_alias(pointee.get_canonical(), TARGET)
+                return (f"{alias}?", "") if alias else None
             if pointee.get_canonical().kind == TypeKind.CHAR_S:
                 # Text the caller reads and nothing else, so it crosses as a String. A function that returns NULL, rewrites its
                 # argument in place, or returns a pointer into its argument has a RETURNS entry instead.

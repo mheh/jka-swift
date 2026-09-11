@@ -169,10 +169,7 @@ func atof(_ string: String) -> Double {
 }
 
 /// Source: oracle/codemp/game/bg_lib.c:841
-// TODO: Port signature
-// Raven wrote: double _atof( const char **stringPtr )
-// No table row for `const char ** stringPtr`.
-func _atof() -> Never {
+func _atof(_ stringPtr: inout JKAShared.TextCursor) -> Double {
     // TODO: Port _atof
     portMissing("_atof", source: "oracle/codemp/game/bg_lib.c:841")
 }

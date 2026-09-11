@@ -16,19 +16,13 @@ func WP_SetSaberModel(_ client: Client, _ npcClass: JKAMP.class_t) -> Int32 {
 }
 
 /// Source: oracle/codemp/game/NPC_spawn.c:103
-// TODO: Port signature
-// Raven wrote: PAIN_FUNC *NPC_PainFunc( gentity_t *ent )
-// No table row for the return `PAIN_FUNC *`.
-func NPC_PainFunc() -> Never {
+func NPC_PainFunc(_ ent: Entity) -> EntityPain? {
     // TODO: Port NPC_PainFunc
     portMissing("NPC_PainFunc", source: "oracle/codemp/game/NPC_spawn.c:103")
 }
 
 /// Source: oracle/codemp/game/NPC_spawn.c:199
-// TODO: Port signature
-// Raven wrote: TOUCH_FUNC *NPC_TouchFunc( gentity_t *ent )
-// No table row for the return `TOUCH_FUNC *`.
-func NPC_TouchFunc() -> Never {
+func NPC_TouchFunc(_ ent: Entity) -> EntityTouch? {
     // TODO: Port NPC_TouchFunc
     portMissing("NPC_TouchFunc", source: "oracle/codemp/game/NPC_spawn.c:199")
 }

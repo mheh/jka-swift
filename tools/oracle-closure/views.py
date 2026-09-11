@@ -343,6 +343,34 @@ class Generator:
             "    }",
         ]
 
+    def c_signature(self, proto: ci.Type, target: str) -> str:
+        """The `@convention(c)` spelling of a function prototype, the type a stored function has in Swift."""
+        c_params: list[str] = []
+        for arg in proto.argument_types():
+            if arg.get_canonical().kind == TypeKind.POINTER:
+                c_params.append("OpaquePointer?")
+            elif self.scalar(arg, target) == "Bool":
+                c_params.append("Int32")
+            else:
+                c_params.append(self.scalar(arg, target) or "Int32")
+        result = proto.get_result()
+        returns = self.scalar(result, target) if result.get_canonical().kind != TypeKind.VOID else None
+        c_result = "Int32" if returns == "Bool" else returns or "Void"
+        return f"@convention(c) ({', '.join(c_params)}) -> {c_result}"
+
+    def callback_alias(self, proto: ci.Type, target: str) -> str | None:
+        """The callback typealias a view field holds for this prototype, qualified for the target, or None when no field has it.
+        Every alias of one signature is the same type, so the first in name order serves."""
+        signature = self.c_signature(proto, target)
+        for owner in [target] + DEPS[target]:
+            # The aliases are read from the Callbacks file views.py wrote, the same way exported_names reads reexport's names.
+            path = SOURCES / VIEW_OF[owner] / "Generated" / "Views" / "Callbacks.swift"
+            text = path.read_text() if path.exists() else ""
+            aliases = sorted(alias for alias, sig in re.findall(r"^public typealias (\w+) = (@convention\(c\) .*)$", text, re.M) if sig == signature)
+            if aliases:
+                return aliases[0] if owner == target else f"{VIEW_OF[owner]}.{aliases[0]}"
+        return None
+
     def callback(self, field: ci.Cursor, target: str) -> list[str]:
         """A stored function keeps the C type. The typealias per signature and the run method per field are collected for one file."""
         name = field.spelling
@@ -352,7 +380,6 @@ class Generator:
         names = [c.spelling or f"p{i}" for i, c in enumerate(c for c in field.get_children() if c.kind == CursorKind.PARM_DECL)]
         params: list[str] = []
         args: list[str] = []
-        c_params: list[str] = []
         layers: list[str] = []
         owner = self.record_name(field.semantic_parent.type) or field.semantic_parent.spelling
         arg_types = list(proto.argument_types())
@@ -364,7 +391,6 @@ class Generator:
             if canonical.kind == TypeKind.POINTER:
                 pointee = canonical.get_pointee()
                 record = self.record_name(pointee)
-                c_params.append("OpaquePointer?")
                 if record in self.views:
                     params.append(f"_ {label}: {self.qualified_view(record, target)}?")
                     args.append(f"{label}?.handle")
@@ -382,18 +408,15 @@ class Generator:
                     args.append(label)
             elif self.scalar(arg, target) == "Bool":
                 # Rule 7: qboolean is Bool at the surface, and its C shape is a four-byte enum, so Int32 in the thunk's signature.
-                c_params.append("Int32")
                 params.append(f"_ {label}: Bool")
                 args.append(f"{label} ? 1 : 0")
             else:
                 swift = self.scalar(arg, target) or "Int32"
-                c_params.append(swift)
                 params.append(f"_ {label}: {swift}")
                 args.append(label)
         result = proto.get_result()
         returns = self.scalar(result, target) if result.get_canonical().kind != TypeKind.VOID else None
-        c_result = "Int32" if returns == "Bool" else returns or "Void"
-        self.callbacks[(target, alias)] = f"@convention(c) ({', '.join(c_params)}) -> {c_result}"
+        self.callbacks[(target, alias)] = self.c_signature(proto, target)
         # When Raven's first parameter is the owner, the run method passes this slot and takes the rest.
         # Otherwise every parameter is the caller's, as `pm->trace(&trace, start, ...)` is.
         if owner_first:
