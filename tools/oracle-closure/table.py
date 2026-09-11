@@ -148,8 +148,14 @@ class Table:
                     return Param(name, "String", "cstring")
                 if traps and following is not None and following.type.get_canonical().kind in INT_KINDS and SIZE_NAME.search(following.spelling):
                     return Param(name, None, "out_string", size=following.spelling)
+                if traps:
+                    # A buffer the engine fills with no size beside it, or rewrites in place, keeps its marker until that shape is ruled.
+                    if ruled in ("fill_buffer", "in_place"):
+                        return None
+                    # A `char *` Raven wrote without `const` into a trap is an input the engine reads, a String like `const char *`.
+                    return Param(name, "String", "cstring")
                 # A body reads and rewrites the caller's buffer in place, so the caller's CharBuf crosses with `&`.
-                return None if traps else Param(name, "inout JKAShared.CharBuf", "inout_charbuf")
+                return Param(name, "inout JKAShared.CharBuf", "inout_charbuf")
             record = self.views.record_name(pointee)
             if record and record in self.views.views:
                 if owner == "BG_ParseField":

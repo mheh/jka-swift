@@ -392,10 +392,7 @@ PrintTeam
 ```
 */
 /// Source: oracle/codemp/game/g_main.c:3333
-// TODO: Port signature
-// Raven wrote: void PrintTeam(int team, char *message)
-// No table row for `char * message`.
-func PrintTeam() -> Never {
+func PrintTeam(_ team: Int32, _ message: inout JKAShared.CharBuf) {
     // TODO: Port PrintTeam
     portMissing("PrintTeam", source: "oracle/codemp/game/g_main.c:3333")
 }
@@ -486,10 +483,7 @@ func G_RunFrame(_ levelTime: Int32) {
 }
 
 /// Source: oracle/codemp/game/g_main.c:4104
-// TODO: Port signature
-// Raven wrote: const char *G_GetStringEdString(char *refSection, char *refName)
-// No table row for `char * refSection`.
-func G_GetStringEdString() -> Never {
+func G_GetStringEdString(_ refSection: inout JKAShared.CharBuf, _ refName: inout JKAShared.CharBuf) -> String {
     // TODO: Port G_GetStringEdString
     portMissing("G_GetStringEdString", source: "oracle/codemp/game/g_main.c:4104")
 }

@@ -96,12 +96,18 @@ RETURNS = {
 #   pointer_array  a C array of struct pointers a trap reads, a storage table's base, which keeps its marker until that storage is ruled
 #   out_string  an inout String, for a `const char **` the function sets to the token instead of walking
 #   text_cursor  a TextCursor by value, for a `const char *` Raven passes as a cursor and returns advanced
+#   fill_buffer  a `char *` a trap fills with no size beside it, which keeps its marker until that shape is ruled
+#   in_place  a `char *` a trap rewrites in place, which keeps its marker until that shape is ruled
 PARAMS = {
     ("COM_ParseString", "s"): "out_string",
     ("SkipWhitespace", "data"): "text_cursor",
     ("trap_Bot_UpdateWaypoints", "wps"): "pointer_array",
     ("BG_ParseField", "ent"): "raw",
     ("BG_ValidateSkinForTeam", "colors"): "vec3_mut",
+    ("trap_SV_RegisterSharedMemory", "memory"): "raw",
+    ("trap_G2API_GetGLAName", "fillBuf"): "fill_buffer",
+    ("trap_G2API_GetSurfaceName", "fillBuf"): "fill_buffer",
+    ("trap_UnifyWhiteSpaces", "string"): "in_place",
 }
 
 # MARK: - The bg channel

@@ -95,7 +95,7 @@ class Traps:
         mapped: dict[str, Param] = {}
         for i, p in enumerate(params):
             following = params[i + 1] if i + 1 < len(params) else None
-            m = self.table.param(p, following)
+            m = self.table.param(p, following, owner=name)
             if m is None:
                 return self.marker(cur, f"No table row for `{' '.join(p.type.spelling.split())} {p.spelling}`.")
             mapped[p.spelling] = m

@@ -426,12 +426,11 @@ public func trap_ROFF_UpdateEntities() {
 }
 
 /// Source: oracle/codemp/game/g_syscalls.c:267
-// TODO: Port signature
-// Raven wrote: int trap_ROFF_Cache( char *file )
-// No table row for `char * file`.
-public func trap_ROFF_Cache() -> Never {
-    // TODO: Port trap_ROFF_Cache
-    portMissing("trap_ROFF_Cache", source: "oracle/codemp/game/g_syscalls.c:267")
+public func trap_ROFF_Cache(_ file: String) -> Int32 {
+    let word = file.withCString { file in
+        Syscall.call(G_ROFF_CACHE, file)
+    }
+    return Int32(truncatingIfNeeded: word)
 }
 
 /// Source: oracle/codemp/game/g_syscalls.c:272
@@ -838,12 +837,8 @@ public func trap_Nav_SetPathsCalculated(_ newVal: Bool) {
 }
 
 /// Source: oracle/codemp/game/g_syscalls.c:601
-// TODO: Port signature
-// Raven wrote: void trap_SV_RegisterSharedMemory(char *memory)
-// No table row for `char * memory`.
-public func trap_SV_RegisterSharedMemory() -> Never {
-    // TODO: Port trap_SV_RegisterSharedMemory
-    portMissing("trap_SV_RegisterSharedMemory", source: "oracle/codemp/game/g_syscalls.c:601")
+public func trap_SV_RegisterSharedMemory(_ memory: UnsafeMutableRawPointer) {
+    Syscall.call(G_SET_SHARED_BUFFER, memory)
 }
 
 // BotLib traps start here
@@ -860,30 +855,32 @@ let word = Syscall.call(BOTLIB_SHUTDOWN)
 }
 
 /// Source: oracle/codemp/game/g_syscalls.c:615
-// TODO: Port signature
-// Raven wrote: int trap_BotLibVarSet(char *var_name, char *value)
-// No table row for `char * var_name`.
-public func trap_BotLibVarSet() -> Never {
-    // TODO: Port trap_BotLibVarSet
-    portMissing("trap_BotLibVarSet", source: "oracle/codemp/game/g_syscalls.c:615")
+public func trap_BotLibVarSet(_ var_name: String, _ value: String) -> Int32 {
+    let word = var_name.withCString { var_name in
+        value.withCString { value in
+            Syscall.call(BOTLIB_LIBVAR_SET, var_name, value)
+        }
+    }
+    return Int32(truncatingIfNeeded: word)
 }
 
 /// Source: oracle/codemp/game/g_syscalls.c:619
-// TODO: Port signature
-// Raven wrote: int trap_BotLibVarGet(char *var_name, char *value, int size)
-// No table row for `char * var_name`.
-public func trap_BotLibVarGet() -> Never {
-    // TODO: Port trap_BotLibVarGet
-    portMissing("trap_BotLibVarGet", source: "oracle/codemp/game/g_syscalls.c:619")
+public func trap_BotLibVarGet(_ var_name: String, _ size: Int32) -> (Int32, String) {
+    var value = [CChar](repeating: 0, count: Int(size))
+    let word = var_name.withCString { var_name in
+        value.withUnsafeMutableBufferPointer { valuePointer in
+            Syscall.call(BOTLIB_LIBVAR_GET, var_name, valuePointer.baseAddress!, size)
+        }
+    }
+    return (Int32(truncatingIfNeeded: word), String(nulTerminated: value))
 }
 
 /// Source: oracle/codemp/game/g_syscalls.c:623
-// TODO: Port signature
-// Raven wrote: int trap_BotLibDefine(char *string)
-// No table row for `char * string`.
-public func trap_BotLibDefine() -> Never {
-    // TODO: Port trap_BotLibDefine
-    portMissing("trap_BotLibDefine", source: "oracle/codemp/game/g_syscalls.c:623")
+public func trap_BotLibDefine(_ string: String) -> Int32 {
+    let word = string.withCString { string in
+        Syscall.call(BOTLIB_PC_ADD_GLOBAL_DEFINE, string)
+    }
+    return Int32(truncatingIfNeeded: word)
 }
 
 /// Source: oracle/codemp/game/g_syscalls.c:627
@@ -907,12 +904,15 @@ let word = Syscall.call(BOTLIB_UPDATENTITY, ent, bue)
 }
 
 /// Source: oracle/codemp/game/g_syscalls.c:639
-// TODO: Port signature
-// Raven wrote: int trap_BotLibTest(int parm0, char *parm1, vec3_t parm2, vec3_t parm3)
-// No table row for `char * parm1`.
-public func trap_BotLibTest() -> Never {
-    // TODO: Port trap_BotLibTest
-    portMissing("trap_BotLibTest", source: "oracle/codemp/game/g_syscalls.c:639")
+public func trap_BotLibTest(_ parm0: Int32, _ parm1: String, _ parm2: inout JKAShared.vec3_t, _ parm3: inout JKAShared.vec3_t) -> Int32 {
+    let word = parm1.withCString { parm1 in
+        withUnsafeMutablePointer(to: &parm2) { parm2 in
+            withUnsafeMutablePointer(to: &parm3) { parm3 in
+                Syscall.call(BOTLIB_TEST, parm0, parm1, parm2, parm3)
+            }
+        }
+    }
+    return Int32(truncatingIfNeeded: word)
 }
 
 /// Source: oracle/codemp/game/g_syscalls.c:643
@@ -1019,39 +1019,44 @@ let word = Syscall.call(BOTLIB_AAS_NEXT_BSP_ENTITY, ent)
 }
 
 /// Source: oracle/codemp/game/g_syscalls.c:701
-// TODO: Port signature
-// Raven wrote: int trap_AAS_ValueForBSPEpairKey(int ent, char *key, char *value, int size)
-// No table row for `char * key`.
-public func trap_AAS_ValueForBSPEpairKey() -> Never {
-    // TODO: Port trap_AAS_ValueForBSPEpairKey
-    portMissing("trap_AAS_ValueForBSPEpairKey", source: "oracle/codemp/game/g_syscalls.c:701")
+public func trap_AAS_ValueForBSPEpairKey(_ ent: Int32, _ key: String, _ size: Int32) -> (Int32, String) {
+    var value = [CChar](repeating: 0, count: Int(size))
+    let word = key.withCString { key in
+        value.withUnsafeMutableBufferPointer { valuePointer in
+            Syscall.call(BOTLIB_AAS_VALUE_FOR_BSP_EPAIR_KEY, ent, key, valuePointer.baseAddress!, size)
+        }
+    }
+    return (Int32(truncatingIfNeeded: word), String(nulTerminated: value))
 }
 
 /// Source: oracle/codemp/game/g_syscalls.c:705
-// TODO: Port signature
-// Raven wrote: int trap_AAS_VectorForBSPEpairKey(int ent, char *key, vec3_t v)
-// No table row for `char * key`.
-public func trap_AAS_VectorForBSPEpairKey() -> Never {
-    // TODO: Port trap_AAS_VectorForBSPEpairKey
-    portMissing("trap_AAS_VectorForBSPEpairKey", source: "oracle/codemp/game/g_syscalls.c:705")
+public func trap_AAS_VectorForBSPEpairKey(_ ent: Int32, _ key: String, _ v: inout JKAShared.vec3_t) -> Int32 {
+    let word = key.withCString { key in
+        withUnsafeMutablePointer(to: &v) { v in
+            Syscall.call(BOTLIB_AAS_VECTOR_FOR_BSP_EPAIR_KEY, ent, key, v)
+        }
+    }
+    return Int32(truncatingIfNeeded: word)
 }
 
 /// Source: oracle/codemp/game/g_syscalls.c:709
-// TODO: Port signature
-// Raven wrote: int trap_AAS_FloatForBSPEpairKey(int ent, char *key, float *value)
-// No table row for `char * key`.
-public func trap_AAS_FloatForBSPEpairKey() -> Never {
-    // TODO: Port trap_AAS_FloatForBSPEpairKey
-    portMissing("trap_AAS_FloatForBSPEpairKey", source: "oracle/codemp/game/g_syscalls.c:709")
+public func trap_AAS_FloatForBSPEpairKey(_ ent: Int32, _ key: String, _ value: inout Float) -> Int32 {
+    let word = key.withCString { key in
+        withUnsafeMutablePointer(to: &value) { value in
+            Syscall.call(BOTLIB_AAS_FLOAT_FOR_BSP_EPAIR_KEY, ent, key, value)
+        }
+    }
+    return Int32(truncatingIfNeeded: word)
 }
 
 /// Source: oracle/codemp/game/g_syscalls.c:713
-// TODO: Port signature
-// Raven wrote: int trap_AAS_IntForBSPEpairKey(int ent, char *key, int *value)
-// No table row for `char * key`.
-public func trap_AAS_IntForBSPEpairKey() -> Never {
-    // TODO: Port trap_AAS_IntForBSPEpairKey
-    portMissing("trap_AAS_IntForBSPEpairKey", source: "oracle/codemp/game/g_syscalls.c:713")
+public func trap_AAS_IntForBSPEpairKey(_ ent: Int32, _ key: String, _ value: inout Int32) -> Int32 {
+    let word = key.withCString { key in
+        withUnsafeMutablePointer(to: &value) { value in
+            Syscall.call(BOTLIB_AAS_INT_FOR_BSP_EPAIR_KEY, ent, key, value)
+        }
+    }
+    return Int32(truncatingIfNeeded: word)
 }
 
 /// Source: oracle/codemp/game/g_syscalls.c:717
@@ -1113,30 +1118,24 @@ public func trap_AAS_PredictClientMovement(_ move: OpaquePointer?, _ entnum: Int
 }
 
 /// Source: oracle/codemp/game/g_syscalls.c:749
-// TODO: Port signature
-// Raven wrote: void trap_EA_Say(int client, char *str)
-// No table row for `char * str`.
-public func trap_EA_Say() -> Never {
-    // TODO: Port trap_EA_Say
-    portMissing("trap_EA_Say", source: "oracle/codemp/game/g_syscalls.c:749")
+public func trap_EA_Say(_ client: Int32, _ str: String) {
+    _ = str.withCString { str in
+        Syscall.call(BOTLIB_EA_SAY, client, str)
+    }
 }
 
 /// Source: oracle/codemp/game/g_syscalls.c:753
-// TODO: Port signature
-// Raven wrote: void trap_EA_SayTeam(int client, char *str)
-// No table row for `char * str`.
-public func trap_EA_SayTeam() -> Never {
-    // TODO: Port trap_EA_SayTeam
-    portMissing("trap_EA_SayTeam", source: "oracle/codemp/game/g_syscalls.c:753")
+public func trap_EA_SayTeam(_ client: Int32, _ str: String) {
+    _ = str.withCString { str in
+        Syscall.call(BOTLIB_EA_SAY_TEAM, client, str)
+    }
 }
 
 /// Source: oracle/codemp/game/g_syscalls.c:757
-// TODO: Port signature
-// Raven wrote: void trap_EA_Command(int client, char *command)
-// No table row for `char * command`.
-public func trap_EA_Command() -> Never {
-    // TODO: Port trap_EA_Command
-    portMissing("trap_EA_Command", source: "oracle/codemp/game/g_syscalls.c:757")
+public func trap_EA_Command(_ client: Int32, _ command: String) {
+    _ = command.withCString { command in
+        Syscall.call(BOTLIB_EA_COMMAND, client, command)
+    }
 }
 
 /// Source: oracle/codemp/game/g_syscalls.c:761
@@ -1259,12 +1258,11 @@ public func trap_EA_ResetInput(_ client: Int32) {
 }
 
 /// Source: oracle/codemp/game/g_syscalls.c:853
-// TODO: Port signature
-// Raven wrote: int trap_BotLoadCharacter(char *charfile, float skill)
-// No table row for `char * charfile`.
-public func trap_BotLoadCharacter() -> Never {
-    // TODO: Port trap_BotLoadCharacter
-    portMissing("trap_BotLoadCharacter", source: "oracle/codemp/game/g_syscalls.c:853")
+public func trap_BotLoadCharacter(_ charfile: String, _ skill: Float) -> Int32 {
+    let word = charfile.withCString { charfile in
+        Syscall.call(BOTLIB_AI_LOAD_CHARACTER, charfile, skill)
+    }
+    return Int32(truncatingIfNeeded: word)
 }
 
 /// Source: oracle/codemp/game/g_syscalls.c:857
@@ -1317,12 +1315,10 @@ public func trap_BotFreeChatState(_ handle: Int32) {
 }
 
 /// Source: oracle/codemp/game/g_syscalls.c:893
-// TODO: Port signature
-// Raven wrote: void trap_BotQueueConsoleMessage(int chatstate, int type, char *message)
-// No table row for `char * message`.
-public func trap_BotQueueConsoleMessage() -> Never {
-    // TODO: Port trap_BotQueueConsoleMessage
-    portMissing("trap_BotQueueConsoleMessage", source: "oracle/codemp/game/g_syscalls.c:893")
+public func trap_BotQueueConsoleMessage(_ chatstate: Int32, _ type: Int32, _ message: String) {
+    _ = message.withCString { message in
+        Syscall.call(BOTLIB_AI_QUEUE_CONSOLE_MESSAGE, chatstate, type, message)
+    }
 }
 
 /// Source: oracle/codemp/game/g_syscalls.c:897
@@ -1343,30 +1339,58 @@ let word = Syscall.call(BOTLIB_AI_NUM_CONSOLE_MESSAGE, chatstate)
 }
 
 /// Source: oracle/codemp/game/g_syscalls.c:909
-// TODO: Port signature
-// Raven wrote: void trap_BotInitialChat(int chatstate, char *type, int mcontext, char *var0, char *var1, char *var2, char *var3, char *var4, char *var5, char *var6, char *var7 )
-// No table row for `char * type`.
-public func trap_BotInitialChat() -> Never {
-    // TODO: Port trap_BotInitialChat
-    portMissing("trap_BotInitialChat", source: "oracle/codemp/game/g_syscalls.c:909")
+public func trap_BotInitialChat(_ chatstate: Int32, _ type: String, _ mcontext: Int32, _ var0: String, _ var1: String, _ var2: String, _ var3: String, _ var4: String, _ var5: String, _ var6: String, _ var7: String) {
+    _ = type.withCString { type in
+        var0.withCString { var0 in
+            var1.withCString { var1 in
+                var2.withCString { var2 in
+                    var3.withCString { var3 in
+                        var4.withCString { var4 in
+                            var5.withCString { var5 in
+                                var6.withCString { var6 in
+                                    var7.withCString { var7 in
+                                        Syscall.call(BOTLIB_AI_INITIAL_CHAT, chatstate, type, mcontext, var0, var1, var2, var3, var4, var5, var6, var7)
+                                    }
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        }
+    }
 }
 
 /// Source: oracle/codemp/game/g_syscalls.c:913
-// TODO: Port signature
-// Raven wrote: int trap_BotNumInitialChats(int chatstate, char *type)
-// No table row for `char * type`.
-public func trap_BotNumInitialChats() -> Never {
-    // TODO: Port trap_BotNumInitialChats
-    portMissing("trap_BotNumInitialChats", source: "oracle/codemp/game/g_syscalls.c:913")
+public func trap_BotNumInitialChats(_ chatstate: Int32, _ type: String) -> Int32 {
+    let word = type.withCString { type in
+        Syscall.call(BOTLIB_AI_NUM_INITIAL_CHATS, chatstate, type)
+    }
+    return Int32(truncatingIfNeeded: word)
 }
 
 /// Source: oracle/codemp/game/g_syscalls.c:917
-// TODO: Port signature
-// Raven wrote: int trap_BotReplyChat(int chatstate, char *message, int mcontext, int vcontext, char *var0, char *var1, char *var2, char *var3, char *var4, char *var5, char *var6, char *var7 )
-// No table row for `char * message`.
-public func trap_BotReplyChat() -> Never {
-    // TODO: Port trap_BotReplyChat
-    portMissing("trap_BotReplyChat", source: "oracle/codemp/game/g_syscalls.c:917")
+public func trap_BotReplyChat(_ chatstate: Int32, _ message: String, _ mcontext: Int32, _ vcontext: Int32, _ var0: String, _ var1: String, _ var2: String, _ var3: String, _ var4: String, _ var5: String, _ var6: String, _ var7: String) -> Int32 {
+    let word = message.withCString { message in
+        var0.withCString { var0 in
+            var1.withCString { var1 in
+                var2.withCString { var2 in
+                    var3.withCString { var3 in
+                        var4.withCString { var4 in
+                            var5.withCString { var5 in
+                                var6.withCString { var6 in
+                                    var7.withCString { var7 in
+                                        Syscall.call(BOTLIB_AI_REPLY_CHAT, chatstate, message, mcontext, vcontext, var0, var1, var2, var3, var4, var5, var6, var7)
+                                    }
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        }
+    }
+    return Int32(truncatingIfNeeded: word)
 }
 
 /// Source: oracle/codemp/game/g_syscalls.c:921
@@ -1390,21 +1414,21 @@ public func trap_BotGetChatMessage(_ chatstate: Int32, _ size: Int32) -> String 
 }
 
 /// Source: oracle/codemp/game/g_syscalls.c:933
-// TODO: Port signature
-// Raven wrote: int trap_StringContains(char *str1, char *str2, int casesensitive)
-// No table row for `char * str1`.
-public func trap_StringContains() -> Never {
-    // TODO: Port trap_StringContains
-    portMissing("trap_StringContains", source: "oracle/codemp/game/g_syscalls.c:933")
+public func trap_StringContains(_ str1: String, _ str2: String, _ casesensitive: Int32) -> Int32 {
+    let word = str1.withCString { str1 in
+        str2.withCString { str2 in
+            Syscall.call(BOTLIB_AI_STRING_CONTAINS, str1, str2, casesensitive)
+        }
+    }
+    return Int32(truncatingIfNeeded: word)
 }
 
 /// Source: oracle/codemp/game/g_syscalls.c:937
-// TODO: Port signature
-// Raven wrote: int trap_BotFindMatch(char *str, void /* struct bot_match_s */ *match, unsigned long int context)
-// No table row for `char * str`.
-public func trap_BotFindMatch() -> Never {
-    // TODO: Port trap_BotFindMatch
-    portMissing("trap_BotFindMatch", source: "oracle/codemp/game/g_syscalls.c:937")
+public func trap_BotFindMatch(_ str: String, _ match: OpaquePointer?, _ context: UInt) -> Int32 {
+    let word = str.withCString { str in
+        Syscall.call(BOTLIB_AI_FIND_MATCH, str, match, context)
+    }
+    return Int32(truncatingIfNeeded: word)
 }
 
 /// Source: oracle/codemp/game/g_syscalls.c:941
@@ -1426,21 +1450,20 @@ public func trap_UnifyWhiteSpaces() -> Never {
 }
 
 /// Source: oracle/codemp/game/g_syscalls.c:949
-// TODO: Port signature
-// Raven wrote: void trap_BotReplaceSynonyms(char *string, unsigned long int context)
-// No table row for `char * string`.
-public func trap_BotReplaceSynonyms() -> Never {
-    // TODO: Port trap_BotReplaceSynonyms
-    portMissing("trap_BotReplaceSynonyms", source: "oracle/codemp/game/g_syscalls.c:949")
+public func trap_BotReplaceSynonyms(_ string: String, _ context: UInt) {
+    _ = string.withCString { string in
+        Syscall.call(BOTLIB_AI_REPLACE_SYNONYMS, string, context)
+    }
 }
 
 /// Source: oracle/codemp/game/g_syscalls.c:953
-// TODO: Port signature
-// Raven wrote: int trap_BotLoadChatFile(int chatstate, char *chatfile, char *chatname)
-// No table row for `char * chatfile`.
-public func trap_BotLoadChatFile() -> Never {
-    // TODO: Port trap_BotLoadChatFile
-    portMissing("trap_BotLoadChatFile", source: "oracle/codemp/game/g_syscalls.c:953")
+public func trap_BotLoadChatFile(_ chatstate: Int32, _ chatfile: String, _ chatname: String) -> Int32 {
+    let word = chatfile.withCString { chatfile in
+        chatname.withCString { chatname in
+            Syscall.call(BOTLIB_AI_LOAD_CHAT_FILE, chatstate, chatfile, chatname)
+        }
+    }
+    return Int32(truncatingIfNeeded: word)
 }
 
 /// Source: oracle/codemp/game/g_syscalls.c:957
@@ -1449,12 +1472,10 @@ public func trap_BotSetChatGender(_ chatstate: Int32, _ gender: Int32) {
 }
 
 /// Source: oracle/codemp/game/g_syscalls.c:961
-// TODO: Port signature
-// Raven wrote: void trap_BotSetChatName(int chatstate, char *name, int client)
-// No table row for `char * name`.
-public func trap_BotSetChatName() -> Never {
-    // TODO: Port trap_BotSetChatName
-    portMissing("trap_BotSetChatName", source: "oracle/codemp/game/g_syscalls.c:961")
+public func trap_BotSetChatName(_ chatstate: Int32, _ name: String, _ client: Int32) {
+    _ = name.withCString { name in
+        Syscall.call(BOTLIB_AI_SET_CHAT_NAME, chatstate, name, client)
+    }
 }
 
 /// Source: oracle/codemp/game/g_syscalls.c:965
@@ -1557,12 +1578,11 @@ public func trap_BotItemGoalInVisButNotVisible(_ viewer: Int32, _ eye: inout JKA
 }
 
 /// Source: oracle/codemp/game/g_syscalls.c:1025
-// TODO: Port signature
-// Raven wrote: int trap_BotGetLevelItemGoal(int index, char *classname, void /* struct bot_goal_s */ *goal)
-// No table row for `char * classname`.
-public func trap_BotGetLevelItemGoal() -> Never {
-    // TODO: Port trap_BotGetLevelItemGoal
-    portMissing("trap_BotGetLevelItemGoal", source: "oracle/codemp/game/g_syscalls.c:1025")
+public func trap_BotGetLevelItemGoal(_ index: Int32, _ classname: String, _ goal: OpaquePointer?) -> Int32 {
+    let word = classname.withCString { classname in
+        Syscall.call(BOTLIB_AI_GET_LEVEL_ITEM_GOAL, index, classname, goal)
+    }
+    return Int32(truncatingIfNeeded: word)
 }
 
 /// Source: oracle/codemp/game/g_syscalls.c:1029
@@ -1572,12 +1592,11 @@ let word = Syscall.call(BOTLIB_AI_GET_NEXT_CAMP_SPOT_GOAL, num, goal)
 }
 
 /// Source: oracle/codemp/game/g_syscalls.c:1033
-// TODO: Port signature
-// Raven wrote: int trap_BotGetMapLocationGoal(char *name, void /* struct bot_goal_s */ *goal)
-// No table row for `char * name`.
-public func trap_BotGetMapLocationGoal() -> Never {
-    // TODO: Port trap_BotGetMapLocationGoal
-    portMissing("trap_BotGetMapLocationGoal", source: "oracle/codemp/game/g_syscalls.c:1033")
+public func trap_BotGetMapLocationGoal(_ name: String, _ goal: OpaquePointer?) -> Int32 {
+    let word = name.withCString { name in
+        Syscall.call(BOTLIB_AI_GET_MAP_LOCATION_GOAL, name, goal)
+    }
+    return Int32(truncatingIfNeeded: word)
 }
 
 /// Source: oracle/codemp/game/g_syscalls.c:1037
@@ -1602,12 +1621,11 @@ public func trap_BotUpdateEntityItems() {
 }
 
 /// Source: oracle/codemp/game/g_syscalls.c:1055
-// TODO: Port signature
-// Raven wrote: int trap_BotLoadItemWeights(int goalstate, char *filename)
-// No table row for `char * filename`.
-public func trap_BotLoadItemWeights() -> Never {
-    // TODO: Port trap_BotLoadItemWeights
-    portMissing("trap_BotLoadItemWeights", source: "oracle/codemp/game/g_syscalls.c:1055")
+public func trap_BotLoadItemWeights(_ goalstate: Int32, _ filename: String) -> Int32 {
+    let word = filename.withCString { filename in
+        Syscall.call(BOTLIB_AI_LOAD_ITEM_WEIGHTS, goalstate, filename)
+    }
+    return Int32(truncatingIfNeeded: word)
 }
 
 /// Source: oracle/codemp/game/g_syscalls.c:1059
@@ -1621,12 +1639,10 @@ public func trap_BotInterbreedGoalFuzzyLogic(_ parent1: Int32, _ parent2: Int32,
 }
 
 /// Source: oracle/codemp/game/g_syscalls.c:1067
-// TODO: Port signature
-// Raven wrote: void trap_BotSaveGoalFuzzyLogic(int goalstate, char *filename)
-// No table row for `char * filename`.
-public func trap_BotSaveGoalFuzzyLogic() -> Never {
-    // TODO: Port trap_BotSaveGoalFuzzyLogic
-    portMissing("trap_BotSaveGoalFuzzyLogic", source: "oracle/codemp/game/g_syscalls.c:1067")
+public func trap_BotSaveGoalFuzzyLogic(_ goalstate: Int32, _ filename: String) {
+    _ = filename.withCString { filename in
+        Syscall.call(BOTLIB_AI_SAVE_GOAL_FUZZY_LOGIC, goalstate, filename)
+    }
 }
 
 /// Source: oracle/codemp/game/g_syscalls.c:1071
@@ -1736,12 +1752,11 @@ public func trap_BotGetWeaponInfo(_ weaponstate: Int32, _ weapon: Int32, _ weapo
 }
 
 /// Source: oracle/codemp/game/g_syscalls.c:1139
-// TODO: Port signature
-// Raven wrote: int trap_BotLoadWeaponWeights(int weaponstate, char *filename)
-// No table row for `char * filename`.
-public func trap_BotLoadWeaponWeights() -> Never {
-    // TODO: Port trap_BotLoadWeaponWeights
-    portMissing("trap_BotLoadWeaponWeights", source: "oracle/codemp/game/g_syscalls.c:1139")
+public func trap_BotLoadWeaponWeights(_ weaponstate: Int32, _ filename: String) -> Int32 {
+    let word = filename.withCString { filename in
+        Syscall.call(BOTLIB_AI_LOAD_WEAPON_WEIGHTS, weaponstate, filename)
+    }
+    return Int32(truncatingIfNeeded: word)
 }
 
 /// Source: oracle/codemp/game/g_syscalls.c:1143
@@ -1798,12 +1813,13 @@ public func trap_PC_ReadToken() -> Never {
 }
 
 /// Source: oracle/codemp/game/g_syscalls.c:1171
-// TODO: Port signature
-// Raven wrote: int trap_PC_SourceFileAndLine( int handle, char *filename, int *line )
-// No table row for `char * filename`.
-public func trap_PC_SourceFileAndLine() -> Never {
-    // TODO: Port trap_PC_SourceFileAndLine
-    portMissing("trap_PC_SourceFileAndLine", source: "oracle/codemp/game/g_syscalls.c:1171")
+public func trap_PC_SourceFileAndLine(_ handle: Int32, _ filename: String, _ line: inout Int32) -> Int32 {
+    let word = filename.withCString { filename in
+        withUnsafeMutablePointer(to: &line) { line in
+            Syscall.call(BOTLIB_PC_SOURCE_FILE_AND_LINE, handle, filename, line)
+        }
+    }
+    return Int32(truncatingIfNeeded: word)
 }
 
 /**

@@ -46,16 +46,16 @@ The oracle range is the whole definition, from the return type to the closing br
 | `CheckTournament` | `oracle/codemp/game/g_main.c:2948-3216` | `JKAMP_GameLogic/g_main.swift:363` | marker | `crates/mp/game/src/g_main.rs:2122-2353` | `func CheckTournament()` |
 | `G_KickAllBots` | `oracle/codemp/game/g_main.c:3218-3239` | `JKAMP_GameLogic/g_main.swift:369` | marker | `crates/mp/game/src/g_main.rs:2358-2378` | `func G_KickAllBots()` |
 | `CheckVote` | `oracle/codemp/game/g_main.c:3246-3326` | `JKAMP_GameLogic/g_main.swift:382` | marker | `crates/mp/game/src/g_main.rs:2383-2475` | `func CheckVote()` |
-| `PrintTeam` | `oracle/codemp/game/g_main.c:3333-3341` | `JKAMP_GameLogic/g_main.swift:398` | marker | `crates/mp/game/src/g_main.rs:2480-2493` | `func PrintTeam(_ team: Int32, _ message: inout JKAShared.CharBuf)` |
-| `SetLeader` | `oracle/codemp/game/g_main.c:3348-3370` | `JKAMP_GameLogic/g_main.swift:411` | marker | `crates/mp/game/src/g_main.rs:2498-2544` | `func SetLeader(_ team: Int32, _ client: Int32)` |
-| `CheckTeamLeader` | `oracle/codemp/game/g_main.c:3377-3402` | `JKAMP_GameLogic/g_main.swift:424` | marker | `crates/mp/game/src/g_main.rs:2549-2584` | `func CheckTeamLeader(_ team: Int32)` |
-| `CheckTeamVote` | `oracle/codemp/game/g_main.c:3409-3447` | `JKAMP_GameLogic/g_main.swift:437` | marker | `crates/mp/game/src/g_main.rs:2589-2637` | `func CheckTeamVote(_ team: Int32)` |
-| `CheckCvars` | `oracle/codemp/game/g_main.c:3455-3480` | `JKAMP_GameLogic/g_main.swift:450` | marker | `crates/mp/game/src/g_main.rs:2642-2662` | `func CheckCvars()` |
-| `G_RunThink` | `oracle/codemp/game/g_main.c:3489-3512` | `JKAMP_GameLogic/g_main.swift:465` | marker | `crates/mp/game/src/g_main.rs:2667-2696` | `func G_RunThink(_ ent: Entity)` |
-| `NAV_CheckCalcPaths` | `oracle/codemp/game/g_main.c:3522-3555` | `JKAMP_GameLogic/g_main.swift:471` | marker | `crates/mp/game/src/g_main.rs:2701-2744` | `func NAV_CheckCalcPaths()` |
-| `BG_GetTime` | `oracle/codemp/game/g_main.c:3559-3562` | `JKAMP_GameLogic/g_main.swift:477` | marker | none | `func BG_GetTime() -> Int32` |
-| `G_RunFrame` | `oracle/codemp/game/g_main.c:3582-4102` | `JKAMP_GameLogic/g_main.swift:483` | marker | `crates/mp/game/src/g_main.rs:2758-3254` | `func G_RunFrame(_ levelTime: Int32)` |
-| `G_GetStringEdString` | `oracle/codemp/game/g_main.c:4104-4120` | `JKAMP_GameLogic/g_main.swift:492` | marker | `crates/mp/game/src/g_main.rs:3259-3266` | `func G_GetStringEdString(_ refSection: inout JKAShared.CharBuf, _ refName: inout JKAShared.CharBuf) -> String` |
+| `PrintTeam` | `oracle/codemp/game/g_main.c:3333-3341` | `JKAMP_GameLogic/g_main.swift:395` | marker | `crates/mp/game/src/g_main.rs:2480-2493` | `func PrintTeam(_ team: Int32, _ message: inout JKAShared.CharBuf)` |
+| `SetLeader` | `oracle/codemp/game/g_main.c:3348-3370` | `JKAMP_GameLogic/g_main.swift:408` | marker | `crates/mp/game/src/g_main.rs:2498-2544` | `func SetLeader(_ team: Int32, _ client: Int32)` |
+| `CheckTeamLeader` | `oracle/codemp/game/g_main.c:3377-3402` | `JKAMP_GameLogic/g_main.swift:421` | marker | `crates/mp/game/src/g_main.rs:2549-2584` | `func CheckTeamLeader(_ team: Int32)` |
+| `CheckTeamVote` | `oracle/codemp/game/g_main.c:3409-3447` | `JKAMP_GameLogic/g_main.swift:434` | marker | `crates/mp/game/src/g_main.rs:2589-2637` | `func CheckTeamVote(_ team: Int32)` |
+| `CheckCvars` | `oracle/codemp/game/g_main.c:3455-3480` | `JKAMP_GameLogic/g_main.swift:447` | marker | `crates/mp/game/src/g_main.rs:2642-2662` | `func CheckCvars()` |
+| `G_RunThink` | `oracle/codemp/game/g_main.c:3489-3512` | `JKAMP_GameLogic/g_main.swift:462` | marker | `crates/mp/game/src/g_main.rs:2667-2696` | `func G_RunThink(_ ent: Entity)` |
+| `NAV_CheckCalcPaths` | `oracle/codemp/game/g_main.c:3522-3555` | `JKAMP_GameLogic/g_main.swift:468` | marker | `crates/mp/game/src/g_main.rs:2701-2744` | `func NAV_CheckCalcPaths()` |
+| `BG_GetTime` | `oracle/codemp/game/g_main.c:3559-3562` | `JKAMP_GameLogic/g_main.swift:474` | marker | none | `func BG_GetTime() -> Int32` |
+| `G_RunFrame` | `oracle/codemp/game/g_main.c:3582-4102` | `JKAMP_GameLogic/g_main.swift:480` | marker | `crates/mp/game/src/g_main.rs:2758-3254` | `func G_RunFrame(_ levelTime: Int32)` |
+| `G_GetStringEdString` | `oracle/codemp/game/g_main.c:4104-4120` | `JKAMP_GameLogic/g_main.swift:486` | marker | `crates/mp/game/src/g_main.rs:3259-3266` | `func G_GetStringEdString(_ refSection: inout JKAShared.CharBuf, _ refName: inout JKAShared.CharBuf) -> String` |
 
 19 file-scope variables. The entry is the stub's line for the variable, by rule 3 and rule 6.
 
