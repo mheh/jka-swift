@@ -19,20 +19,14 @@ func TIMER_Clear2(_ ent: Entity) {
 //New C "lookup" func.
 //Returns existing timer in array if
 /// Source: oracle/codemp/game/g_timer.c:79
-// TODO: Port signature
-// Raven wrote: gtimer_t *TIMER_GetNew(int num, const char *identifier)
-// No table row for the return `gtimer_t *`.
-func TIMER_GetNew() -> Never {
+func TIMER_GetNew(_ num: Int32, _ identifier: String) -> Gtimer? {
     // TODO: Port TIMER_GetNew
     portMissing("TIMER_GetNew", source: "oracle/codemp/game/g_timer.c:79")
 }
 
 //don't return the first free if it doesn't already exist, return null.
 /// Source: oracle/codemp/game/g_timer.c:106
-// TODO: Port signature
-// Raven wrote: gtimer_t *TIMER_GetExisting(int num, const char *identifier)
-// No table row for the return `gtimer_t *`.
-func TIMER_GetExisting() -> Never {
+func TIMER_GetExisting(_ num: Int32, _ identifier: String) -> Gtimer? {
     // TODO: Port TIMER_GetExisting
     portMissing("TIMER_GetExisting", source: "oracle/codemp/game/g_timer.c:106")
 }
@@ -68,10 +62,7 @@ Doesn't do much error checking, only called below
 ```
 */
 /// Source: oracle/codemp/game/g_timer.c:187
-// TODO: Port signature
-// Raven wrote: void TIMER_RemoveHelper( int num, gtimer_t *timer )
-// No table row for `gtimer_t * timer`.
-func TIMER_RemoveHelper() -> Never {
+func TIMER_RemoveHelper(_ num: Int32, _ timer: Gtimer) {
     // TODO: Port TIMER_RemoveHelper
     portMissing("TIMER_RemoveHelper", source: "oracle/codemp/game/g_timer.c:187")
 }

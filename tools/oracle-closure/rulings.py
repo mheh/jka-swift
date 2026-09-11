@@ -46,6 +46,10 @@ ROOTS = {
     "reference_tag_t": ("ReferenceTag", "CJKAMP_Game"),
     "failedEdge_t": ("FailedEdge", "CJKAMP_Game"),
     "CollisionRecord_t": ("CollisionRecord", "CJKAMP_Game"),
+    # Raven defines these inside a .c file, and g_types.h carries them into the game target.
+    "gtimer_t": ("Gtimer", "CJKAMP_Game"),
+    "tagOwner_t": ("TagOwner", "CJKAMP_Game"),
+    "saberFace_t": ("SaberFace", "CJKAMP_Game"),
 }
 
 # (struct, field) pairs whose pointer Raven's callers always set. The field is non-optional, and its getter traps with the
@@ -88,5 +92,6 @@ SHARED_STEMS = {"q_shared", "q_math", "g_syscalls", "g_strap"}
 
 # Hand-written headers a target's umbrella includes after the extracted ones, one per file of C storage under Sources/<Target>/.
 # See "Raven's tables as C storage". merge.py keeps these files across a rewrite of the target.
-HAND_HEADERS = {"CJKAMP": ["bg_tables.h"]}
-HAND_FILES = {"CJKAMP": ["bg_tables.c", "include/bg_tables.h"]}
+# g_types.h holds the structs Raven defines inside a .c file, so a view can bind over them. See "A struct Raven defines inside a .c file".
+HAND_HEADERS = {"CJKAMP": ["bg_tables.h"], "CJKAMP_Game": ["g_types.h"]}
+HAND_FILES = {"CJKAMP": ["bg_tables.c", "include/bg_tables.h"], "CJKAMP_Game": ["include/g_types.h"]}

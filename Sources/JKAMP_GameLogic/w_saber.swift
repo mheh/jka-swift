@@ -233,10 +233,7 @@ private func G_SabCol_PointRelativeToPlane(_ pos: inout JKAShared.vec3_t, _ side
 
 //do actual collision check using generated saber "faces"
 /// Source: oracle/codemp/game/w_saber.c:2599
-// TODO: Port signature
-// Raven wrote: static GAME_INLINE qboolean G_SaberFaceCollisionCheck(int fNum, saberFace_t *fList, vec3_t atkStart, vec3_t atkEnd, vec3_t atkMins, vec3_t atkMaxs, vec3_t impactPoint)
-// No table row for `saberFace_t * fList`.
-private func G_SaberFaceCollisionCheck() -> Never {
+private func G_SaberFaceCollisionCheck(_ fNum: Int32, _ fList: SaberFace, _ atkStart: inout JKAShared.vec3_t, _ atkEnd: inout JKAShared.vec3_t, _ atkMins: inout JKAShared.vec3_t, _ atkMaxs: inout JKAShared.vec3_t, _ impactPoint: inout JKAShared.vec3_t) -> Bool {
     // TODO: Port G_SaberFaceCollisionCheck
     portMissing("G_SaberFaceCollisionCheck", source: "oracle/codemp/game/w_saber.c:2599")
 }

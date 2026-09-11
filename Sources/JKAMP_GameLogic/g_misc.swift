@@ -674,19 +674,13 @@ func SP_misc_faller(_ ent: Entity) {
 }
 
 /// Source: oracle/codemp/game/g_misc.c:2888
-// TODO: Port signature
-// Raven wrote: tagOwner_t *FirstFreeTagOwner(void)
-// No table row for the return `tagOwner_t *`.
-func FirstFreeTagOwner() -> Never {
+func FirstFreeTagOwner() -> TagOwner? {
     // TODO: Port FirstFreeTagOwner
     portMissing("FirstFreeTagOwner", source: "oracle/codemp/game/g_misc.c:2888")
 }
 
 /// Source: oracle/codemp/game/g_misc.c:2905
-// TODO: Port signature
-// Raven wrote: reference_tag_t *FirstFreeRefTag(tagOwner_t *tagOwner)
-// No table row for `tagOwner_t * tagOwner`.
-func FirstFreeRefTag() -> Never {
+func FirstFreeRefTag(_ tagOwner: TagOwner) -> ReferenceTag? {
     // TODO: Port FirstFreeRefTag
     portMissing("FirstFreeRefTag", source: "oracle/codemp/game/g_misc.c:2905")
 }
@@ -698,10 +692,7 @@ func TAG_Init() {
 }
 
 /// Source: oracle/codemp/game/g_misc.c:2953
-// TODO: Port signature
-// Raven wrote: tagOwner_t *TAG_FindOwner( const char *owner )
-// No table row for the return `tagOwner_t *`.
-func TAG_FindOwner() -> Never {
+func TAG_FindOwner(_ owner: String) -> TagOwner? {
     // TODO: Port TAG_FindOwner
     portMissing("TAG_FindOwner", source: "oracle/codemp/game/g_misc.c:2953")
 }

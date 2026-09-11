@@ -242,6 +242,10 @@ class Generator:
             if inner.kind == TypeKind.FUNCTIONPROTO:
                 return self.callback(field, target)
             if inner.get_canonical().kind == TypeKind.CHAR_S:
+                if inner.is_const_qualified():
+                    # A `const char *` field holds the same text. The view drops the const on the way out and puts it back on the way in.
+                    return self.property(name, "PooledString?", f"PooledString(raw: {pointee}.map {{ UnsafeMutablePointer(mutating: $0) }})",
+                                         f"{pointee} = UnsafePointer(newValue?.raw)")
                 return self.property(name, "PooledString?", f"PooledString(raw: {pointee})", f"{pointee} = newValue?.raw")
             record = self.record_name(inner)
             if record and record in self.views:

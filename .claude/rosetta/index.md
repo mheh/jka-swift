@@ -35,6 +35,7 @@ One file per viewed struct sits beside this index. The tables below give the Swi
 | `gclient_t` | `Client` | `JKAMP_Game` | `.claude/rosetta/gclient_t.md` |
 | `gentity_t` | `Entity` | `JKAMP_Game` | `.claude/rosetta/gentity_t.md` |
 | `gitem_t` | `Gitem` | `JKAMP` | `.claude/rosetta/gitem_t.md` |
+| `gtimer_t` | `Gtimer` | `JKAMP_Game` | `.claude/rosetta/gtimer_t.md` |
 | `interestPoint_t` | `InterestPoint` | `JKAMP_Game` | `.claude/rosetta/interestPoint_t.md` |
 | `level_locals_t` | `Level` | `JKAMP_Game` | `.claude/rosetta/level_locals_t.md` |
 | `mdxaBone_t` | `MdxaBone` | `JKAMP` | `.claude/rosetta/mdxaBone_t.md` |
@@ -46,6 +47,7 @@ One file per viewed struct sits beside this index. The tables below give the Swi
 | `pmove_t` | `Pmove` | `JKAMP` | `.claude/rosetta/pmove_t.md` |
 | `reference_tag_t` | `ReferenceTag` | `JKAMP_Game` | `.claude/rosetta/reference_tag_t.md` |
 | `renderInfo_t` | `RenderInfo` | `JKAMP_Game` | `.claude/rosetta/renderInfo_t.md` |
+| `saberFace_t` | `SaberFace` | `JKAMP_Game` | `.claude/rosetta/saberFace_t.md` |
 | `saberInfo_t` | `SaberInfo` | `JKAMP` | `.claude/rosetta/saberInfo_t.md` |
 | `saberTrail_t` | `SaberTrail` | `JKAMP` | `.claude/rosetta/saberTrail_t.md` |
 | `sharedIKMoveParams_t` | `SharedIKMoveParams` | `JKAMP` | `.claude/rosetta/sharedIKMoveParams_t.md` |
@@ -57,6 +59,7 @@ One file per viewed struct sits beside this index. The tables below give the Swi
 | `siegePers_t` | `SiegePers` | `JKAMP` | `.claude/rosetta/siegePers_t.md` |
 | `siegeTeam_t` | `SiegeTeam` | `JKAMP` | `.claude/rosetta/siegeTeam_t.md` |
 | `stringID_table_t` | `StringIDTable` | `JKAMP` | `.claude/rosetta/stringID_table_t.md` |
+| `tagOwner_t` | `TagOwner` | `JKAMP_Game` | `.claude/rosetta/tagOwner_t.md` |
 | `trace_t` | `Trace` | `JKAMP` | `.claude/rosetta/trace_t.md` |
 | `trajectory_t` | `Trajectory` | `JKAShared` | `.claude/rosetta/trajectory_t.md` |
 | `turretStats_t` | `TurretStats` | `JKAMP` | `.claude/rosetta/turretStats_t.md` |
