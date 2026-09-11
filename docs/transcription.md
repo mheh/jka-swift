@@ -272,6 +272,8 @@ So `ps.velocity[2] -= ps.gravity * bg.pml.frametime` and `ps.origin[2] + MINS_Z 
 Swift reads `0.1` beside a `Float` as a `Float`, which changes the bits Raven's double math sets.
 So a body writes `Double(x)` on each float operand of an expression that holds a double literal, and `Float(...)` once at the store, `drop += Float(Double(speed) * 0.1 * Double(bg.pml.frametime))`.
 This is the one place a body writes a conversion Raven did not write, and a Raven explicit cast inside it, `(float)pm->ps->speed`, stays as `Float(ps.speed)`.
+An `int` stored into a `float` with no operator between them takes `Float(...)` at the store, `ps.speed = Float(ps.basespeed)`, because Swift has no conversion on assignment and no operator reaches `=`.
+The same holds for an `int` in a float table, `Float(JUMP_VELOCITY)`. The site carries no Port-note.
 
 ### `#ifdef`
 

@@ -50,7 +50,6 @@ let forceJumpHeight: [Float] = [
 
 /// Source: oracle/codemp/game/bg_pmove.c:163
 let forceJumpStrength: [Float] = [
-    // Port-note: Raven puts the int `JUMP_VELOCITY` in a float table. `Promotion.swift` gives operators only, so the element keeps `Float(...)`.
     Float(JUMP_VELOCITY),//normal jump
     420,
     590,
@@ -1632,7 +1631,6 @@ private func PM_CrashLand() {
     // calculate the exact velocity on landing
     dist = ps.origin[2] - bg.pml.previous_origin[2]
     vel = bg.pml.previous_velocity[2]
-    // Port-note: Raven writes `acc = -pm->ps->gravity`, a plain assignment of a negated int to a float. `Promotion.swift` gives operators only, so the store keeps `Float(...)`.
     acc = -Float(ps.gravity)
 
     a = acc / 2
@@ -2602,7 +2600,6 @@ private func PM_Footsteps() {
             ps.legsAnim = 0
             PM_SetAnim(SETANIM_BOTH, rolled, SETANIM_FLAG_OVERRIDE | SETANIM_FLAG_HOLD, 150)
             PM_AddEventWithParm(EV_ROLL, 0)
-            // Port-note: Raven writes `pm->maxs[2] = pm->ps->crouchheight`, a plain assignment of an int to a float. `Promotion.swift` gives operators only, so the store keeps `Float(...)`.
             bg.pm.maxs[2] = Float(ps.crouchheight)//CROUCH_MAXS_2;
             ps.viewheight = DEFAULT_VIEWHEIGHT
             ps.pm_flags &= ~PMF_DUCKED
@@ -3584,7 +3581,6 @@ func BG_AdjustClientSpeed(_ ps: JKAMP.PlayerState, _ cmd: JKAMP.Usercmd, _ svTim
     //For prediction, always reset speed back to the last known server base speed
     //If we didn't do this, under lag we'd eventually dwindle speed down to 0 even though
     //that would not be the correct predicted value.
-    // Port-note: Raven writes `ps->speed = ps->basespeed`, a plain assignment of an int to a float. `Promotion.swift` gives operators only, so the store keeps `Float(...)`.
     ps.speed = Float(ps.basespeed)
 
     if ps.forceHandExtend == HANDEXTEND_DODGE {
