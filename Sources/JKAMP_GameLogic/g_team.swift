@@ -21,28 +21,19 @@ func OtherTeam(_ team: Int32) -> Int32 {
 }
 
 /// Source: oracle/codemp/game/g_team.c:45
-// TODO: Port signature
-// Raven wrote: const char *TeamName(int team)
-// No table row for the return `const char *`.
-func TeamName() -> Never {
+func TeamName(_ team: Int32) -> String {
     // TODO: Port TeamName
     portMissing("TeamName", source: "oracle/codemp/game/g_team.c:45")
 }
 
 /// Source: oracle/codemp/game/g_team.c:55
-// TODO: Port signature
-// Raven wrote: const char *OtherTeamName(int team)
-// No table row for the return `const char *`.
-func OtherTeamName() -> Never {
+func OtherTeamName(_ team: Int32) -> String {
     // TODO: Port OtherTeamName
     portMissing("OtherTeamName", source: "oracle/codemp/game/g_team.c:55")
 }
 
 /// Source: oracle/codemp/game/g_team.c:65
-// TODO: Port signature
-// Raven wrote: const char *TeamColorString(int team)
-// No table row for the return `const char *`.
-func TeamColorString() -> Never {
+func TeamColorString(_ team: Int32) -> String {
     // TODO: Port TeamColorString
     portMissing("TeamColorString", source: "oracle/codemp/game/g_team.c:65")
 }

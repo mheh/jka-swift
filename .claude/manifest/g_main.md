@@ -55,7 +55,7 @@ The oracle range is the whole definition, from the return type to the closing br
 | `NAV_CheckCalcPaths` | `oracle/codemp/game/g_main.c:3522-3555` | `JKAMP_GameLogic/g_main.swift:471` | marker | `crates/mp/game/src/g_main.rs:2701-2744` | `func NAV_CheckCalcPaths()` |
 | `BG_GetTime` | `oracle/codemp/game/g_main.c:3559-3562` | `JKAMP_GameLogic/g_main.swift:477` | marker | none | `func BG_GetTime() -> Int32` |
 | `G_RunFrame` | `oracle/codemp/game/g_main.c:3582-4102` | `JKAMP_GameLogic/g_main.swift:483` | marker | `crates/mp/game/src/g_main.rs:2758-3254` | `func G_RunFrame(_ levelTime: Int32)` |
-| `G_GetStringEdString` | `oracle/codemp/game/g_main.c:4104-4120` | `JKAMP_GameLogic/g_main.swift:492` | marker | `crates/mp/game/src/g_main.rs:3259-3266` | `func G_GetStringEdString() -> Never` TODO: Port signature. No table row for the return `const char *`. |
+| `G_GetStringEdString` | `oracle/codemp/game/g_main.c:4104-4120` | `JKAMP_GameLogic/g_main.swift:492` | marker | `crates/mp/game/src/g_main.rs:3259-3266` | `func G_GetStringEdString(_ refSection: inout JKAShared.CharBuf, _ refName: inout JKAShared.CharBuf) -> String` |
 
 19 file-scope variables. The entry is the stub's line for the variable, by rule 3 and rule 6.
 

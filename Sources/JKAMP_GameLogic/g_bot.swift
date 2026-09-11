@@ -53,10 +53,7 @@ func G_DoesMapSupportGametype(_ mapname: String, _ gametype: Int32) -> Bool {
 
 //rww - auto-obtain nextmap. I could've sworn Q3 had something like this, but I guess not.
 /// Source: oracle/codemp/game/g_bot.c:216
-// TODO: Port signature
-// Raven wrote: const char *G_RefreshNextMap(int gametype, qboolean forced)
-// No table row for the return `const char *`.
-func G_RefreshNextMap() -> Never {
+func G_RefreshNextMap(_ gametype: Int32, _ forced: Bool) -> String {
     // TODO: Port G_RefreshNextMap
     portMissing("G_RefreshNextMap", source: "oracle/codemp/game/g_bot.c:216")
 }
@@ -82,10 +79,7 @@ G_GetArenaInfoByNumber
 ```
 */
 /// Source: oracle/codemp/game/g_bot.c:329
-// TODO: Port signature
-// Raven wrote: const char *G_GetArenaInfoByMap( const char *map )
-// No table row for the return `const char *`.
-func G_GetArenaInfoByMap() -> Never {
+func G_GetArenaInfoByMap(_ map: String) -> String {
     // TODO: Port G_GetArenaInfoByMap
     portMissing("G_GetArenaInfoByMap", source: "oracle/codemp/game/g_bot.c:329")
 }

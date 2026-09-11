@@ -197,6 +197,9 @@ class Table:
     def result(self, cur: ci.Cursor) -> tuple[str | None, str] | None:
         """The Swift return type and the expression that maps the word into it, or None for an unmappable return."""
         ruled = RETURNS.get(cur.spelling)
+        if ruled == "text_cursor":
+            # A pointer into the caller's text, the COM_Parse family's shape, which has no row yet.
+            return None
         if ruled == "raw":
             return ("UnsafeMutableRawPointer", "")
         if ruled == "pooled_string":
@@ -210,8 +213,12 @@ class Table:
         if canonical.kind == TypeKind.FLOAT:
             return ("Float", "Float(bitPattern: UInt32(truncatingIfNeeded: word))")
         if canonical.kind == TypeKind.POINTER:
+            pointee = canonical.get_pointee()
+            if pointee.get_canonical().kind == TypeKind.CHAR_S and pointee.is_const_qualified():
+                # Read-only text the caller reads and nothing else, so it crosses as a String.
+                return ("String", "cString(at: UnsafeMutableRawPointer(bitPattern: word)!)")
             # Raven returns NULL for no entity, so a returned view is optional.
-            record = self.views.record_name(canonical.get_pointee())
+            record = self.views.record_name(pointee)
             if record and record in self.views.views:
                 view = self.views.qualified_view(record, TARGET)
                 return (f"{view}?", f"OpaquePointer(bitPattern: word).map {{ {view}(handle: $0) }}")

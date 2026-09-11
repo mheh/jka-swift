@@ -26,10 +26,7 @@ func AddRemap(_ oldShader: String, _ newShader: String, _ timeOffset: Float) {
 }
 
 /// Source: oracle/codemp/game/g_utils.c:39
-// TODO: Port signature
-// Raven wrote: const char *BuildShaderStateConfig(void)
-// No table row for the return `const char *`.
-func BuildShaderStateConfig() -> Never {
+func BuildShaderStateConfig() -> String {
     // TODO: Port BuildShaderStateConfig
     portMissing("BuildShaderStateConfig", source: "oracle/codemp/game/g_utils.c:39")
 }

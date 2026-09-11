@@ -65,7 +65,9 @@ NEVER_NULL = {
 # Function -> the kind of its return, where the C type alone does not say. See "The bg pool" and "C string functions".
 #   raw            an UnsafeMutableRawPointer into the pool, the only Swift type a view can bind over
 #   pooled_string  a PooledString, the type a `char *` field carries
+#   text_cursor    a pointer into the caller's text, the COM_Parse family, which keeps its marker until that row is ruled
 RETURNS = {
+    "SkipWhitespace": "text_cursor",
     "BG_Alloc": "raw",
     "BG_AllocUnaligned": "raw",
     "BG_TempAlloc": "raw",
