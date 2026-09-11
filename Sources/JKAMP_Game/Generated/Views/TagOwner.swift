@@ -33,7 +33,7 @@ public struct TagOwner: Hashable, HandleView {
     /// Source: oracle/codemp/game/g_misc.c:2881
     public var name: String {
         get { cString(at: UnsafeMutableRawPointer(self.raw.pointer(to: \.name)!)) }
-        nonmutating set { store(newValue, at: UnsafeMutableRawPointer(self.raw.pointer(to: \.name)!), capacity: 32) }
+        nonmutating set { store(newValue, at: UnsafeMutableRawPointer(self.raw.pointer(to: \.name)!), capacity: Int(JKAShared.MAX_REFNAME)) }
     }
 
     /// Source: oracle/codemp/game/g_misc.c:2882

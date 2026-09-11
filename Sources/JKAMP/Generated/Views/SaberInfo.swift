@@ -50,7 +50,7 @@ public struct SaberInfo: Hashable, HandleView {
     /// Source: oracle/codemp/game/q_shared.h:740
     public var model: String {
         get { cString(at: UnsafeMutableRawPointer(self.raw.pointer(to: \.model)!)) }
-        nonmutating set { store(newValue, at: UnsafeMutableRawPointer(self.raw.pointer(to: \.model)!), capacity: 64) }
+        nonmutating set { store(newValue, at: UnsafeMutableRawPointer(self.raw.pointer(to: \.model)!), capacity: Int(JKAShared.MAX_QPATH)) }
     }
 
     /// Source: oracle/codemp/game/q_shared.h:741

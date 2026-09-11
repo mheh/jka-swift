@@ -32,6 +32,6 @@ public struct SiegeClassDesc: Hashable, HandleView {
     /// Source: oracle/codemp/game/bg_saga.h:51
     public var desc: String {
         get { cString(at: UnsafeMutableRawPointer(self.raw.pointer(to: \.desc)!)) }
-        nonmutating set { store(newValue, at: UnsafeMutableRawPointer(self.raw.pointer(to: \.desc)!), capacity: 4096) }
+        nonmutating set { store(newValue, at: UnsafeMutableRawPointer(self.raw.pointer(to: \.desc)!), capacity: Int(JKAMP.SIEGE_CLASS_DESC_LEN)) }
     }
 }

@@ -31,5 +31,5 @@ public struct Parms: Hashable, HandleView {
     public static let stride = MemoryLayout<parms_t>.stride
 
     /// Source: oracle/codemp/game/g_public.h:670
-    public var parm: Slots<String> { Slots(cStrings: UnsafeMutableRawPointer(self.raw.pointer(to: \.parm)!), count: 16, capacity: 64) }
+    public var parm: Slots<String> { Slots(cStrings: UnsafeMutableRawPointer(self.raw.pointer(to: \.parm)!), count: 16, capacity: Int(JKAMP_Game.MAX_PARM_STRING_LENGTH)) }
 }

@@ -183,13 +183,13 @@ public struct Level: Hashable, HandleView {
     /// Source: oracle/codemp/game/g_local.h:863
     public var voteString: String {
         get { cString(at: UnsafeMutableRawPointer(self.raw.pointer(to: \.voteString)!)) }
-        nonmutating set { store(newValue, at: UnsafeMutableRawPointer(self.raw.pointer(to: \.voteString)!), capacity: 1024) }
+        nonmutating set { store(newValue, at: UnsafeMutableRawPointer(self.raw.pointer(to: \.voteString)!), capacity: Int(JKAShared.MAX_STRING_CHARS)) }
     }
 
     /// Source: oracle/codemp/game/g_local.h:864
     public var voteDisplayString: String {
         get { cString(at: UnsafeMutableRawPointer(self.raw.pointer(to: \.voteDisplayString)!)) }
-        nonmutating set { store(newValue, at: UnsafeMutableRawPointer(self.raw.pointer(to: \.voteDisplayString)!), capacity: 1024) }
+        nonmutating set { store(newValue, at: UnsafeMutableRawPointer(self.raw.pointer(to: \.voteDisplayString)!), capacity: Int(JKAShared.MAX_STRING_CHARS)) }
     }
 
     /// Source: oracle/codemp/game/g_local.h:865
@@ -235,7 +235,7 @@ public struct Level: Hashable, HandleView {
     }
 
     /// Source: oracle/codemp/game/g_local.h:875
-    public var teamVoteString: Slots<String> { Slots(cStrings: UnsafeMutableRawPointer(self.raw.pointer(to: \.teamVoteString)!), count: 2, capacity: 1024) }
+    public var teamVoteString: Slots<String> { Slots(cStrings: UnsafeMutableRawPointer(self.raw.pointer(to: \.teamVoteString)!), count: 2, capacity: Int(JKAShared.MAX_STRING_CHARS)) }
 
     /// Source: oracle/codemp/game/g_local.h:876
     public var teamVoteTime: Slots<Int32> { Slots<Int32>(scalars: UnsafeMutableRawPointer(self.raw.pointer(to: \.teamVoteTime)!), count: 2) }
@@ -273,7 +273,7 @@ public struct Level: Hashable, HandleView {
     /// Source: oracle/codemp/game/g_local.h:886
     public var spawnVarChars: String {
         get { cString(at: UnsafeMutableRawPointer(self.raw.pointer(to: \.spawnVarChars)!)) }
-        nonmutating set { store(newValue, at: UnsafeMutableRawPointer(self.raw.pointer(to: \.spawnVarChars)!), capacity: 4096) }
+        nonmutating set { store(newValue, at: UnsafeMutableRawPointer(self.raw.pointer(to: \.spawnVarChars)!), capacity: Int(JKAMP.MAX_SPAWN_VARS_CHARS)) }
     }
 
     /// Source: oracle/codemp/game/g_local.h:889
@@ -414,6 +414,6 @@ public struct Level: Hashable, HandleView {
     /// Source: oracle/codemp/game/g_local.h:928
     public var mTeamFilter: String {
         get { cString(at: UnsafeMutableRawPointer(self.raw.pointer(to: \.mTeamFilter)!)) }
-        nonmutating set { store(newValue, at: UnsafeMutableRawPointer(self.raw.pointer(to: \.mTeamFilter)!), capacity: 64) }
+        nonmutating set { store(newValue, at: UnsafeMutableRawPointer(self.raw.pointer(to: \.mTeamFilter)!), capacity: Int(JKAShared.MAX_QPATH)) }
     }
 }

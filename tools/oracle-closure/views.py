@@ -165,8 +165,9 @@ class Generator:
             return "Bool" if name == "qboolean" else self.qualified(name, target)
         return SCALARS.get(t.kind)
 
-    def element(self, t: ci.Type, target: str, address: str) -> tuple[str, str] | None:
-        """The Swift element type and the Slots initializer call for an array field whose elements sit at `address`, a raw pointer."""
+    def element(self, t: ci.Type, target: str, address: str, field: ci.Cursor | None = None) -> tuple[str, str] | None:
+        """The Swift element type and the Slots initializer call for an array field whose elements sit at `address`, a raw pointer.
+        The field cursor, when given, lets a char array's inner bound keep the macro name Raven wrote."""
         canonical = t.get_canonical()
         if canonical.kind == TypeKind.POINTER:
             pointee = canonical.get_pointee()
@@ -185,7 +186,8 @@ class Generator:
             inner_count = canonical.element_count
             inner_c = self.element_type(t)
             if inner_c.get_canonical().kind == TypeKind.CHAR_S:
-                return "String", f"Slots(cStrings: {address}, count: {{count}}, capacity: {inner_count})"
+                capacity = self.bound(field, target, 1, inner_count) if field is not None else str(inner_count)
+                return "String", f"Slots(cStrings: {address}, count: {{count}}, capacity: {capacity})"
             if self.is_vec3(inner_c):
                 return "JKAShared.vec3_t", f"Slots(vectors: {address}, count: {{count}})"
             inner = self.element(inner_c, target, "$0")
@@ -260,10 +262,11 @@ class Generator:
             count = canonical.element_count
             address = f"UnsafeMutableRawPointer(self.raw.pointer(to: \\.{name})!)"
             if canonical.element_type.get_canonical().kind == TypeKind.CHAR_S:
-                return self.property(name, "String", f"cString(at: {address})", f"store(newValue, at: {address}, capacity: {count})")
+                capacity = self.bound(field, target, 0, count)
+                return self.property(name, "String", f"cString(at: {address})", f"store(newValue, at: {address}, capacity: {capacity})")
             if self.is_vec3(t):
                 return self.property(name, "JKAShared.vec3_t", f"vec3(of: {pointee})", f"{pointee} = tuple(of: newValue)")
-            mapped = self.element(self.element_type(t), target, address)
+            mapped = self.element(self.element_type(t), target, address, field)
             if mapped is None:
                 return None
             element_type, call = mapped
@@ -287,6 +290,32 @@ class Generator:
             return self.property(name, swift, f"Int32(truncatingIfNeeded: {pointee}.rawValue)",
                                  f"{pointee} = .init(rawValue: .init(truncatingIfNeeded: newValue))")
         return self.property(name, swift, pointee, f"{pointee} = newValue")
+
+    def exported_names(self, target: str) -> dict[str, str]:
+        """The macro and enum names reexport.py wrote as `public let`, each with the Swift module that exports it, for the
+        view's module and the modules it imports. The name is qualified in the view, because the C module exports it too."""
+        if not hasattr(self, "_exported"):
+            self._exported: dict[str, dict[str, str]] = {}
+        if target not in self._exported:
+            names: dict[str, str] = {}
+            for c_target in [target] + DEPS[target]:
+                for path in (SOURCES / VIEW_OF[c_target] / "Generated").glob("*.swift"):
+                    for name in re.findall(r"^public let (\w+)", path.read_text(), re.M):
+                        names.setdefault(name, VIEW_OF[c_target])
+            self._exported[target] = names
+        return self._exported[target]
+
+    def bound(self, field: ci.Cursor, target: str, index: int, fallback: int) -> str:
+        """The array bound as Raven spelled it, `Int(JKAShared.MAX_QPATH)` for a macro a module exports, or the number when it is not one."""
+        tokens = [t.spelling for t in field.get_tokens()]
+        brackets = []
+        for i, t in enumerate(tokens):
+            if t == "[" and i + 2 < len(tokens) and tokens[i + 2] == "]":
+                brackets.append(tokens[i + 1])
+        exported = self.exported_names(target)
+        if index < len(brackets) and brackets[index] in exported:
+            return f"Int({exported[brackets[index]]}.{brackets[index]})"
+        return str(fallback)
 
     def property(self, name: str, swift: str, get: str, set_: str) -> list[str]:
         return [

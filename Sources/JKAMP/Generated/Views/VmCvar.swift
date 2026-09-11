@@ -54,6 +54,6 @@ public struct VmCvar: Hashable, HandleView {
     /// Source: oracle/codemp/game/q_shared.h:1829
     public var string: String {
         get { cString(at: UnsafeMutableRawPointer(self.raw.pointer(to: \.string)!)) }
-        nonmutating set { store(newValue, at: UnsafeMutableRawPointer(self.raw.pointer(to: \.string)!), capacity: 256) }
+        nonmutating set { store(newValue, at: UnsafeMutableRawPointer(self.raw.pointer(to: \.string)!), capacity: Int(JKAShared.MAX_CVAR_VALUE_STRING)) }
     }
 }

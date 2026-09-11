@@ -33,7 +33,7 @@ public struct ReferenceTag: Hashable, HandleView {
     /// Source: oracle/codemp/game/g_local.h:1242
     public var name: String {
         get { cString(at: UnsafeMutableRawPointer(self.raw.pointer(to: \.name)!)) }
-        nonmutating set { store(newValue, at: UnsafeMutableRawPointer(self.raw.pointer(to: \.name)!), capacity: 32) }
+        nonmutating set { store(newValue, at: UnsafeMutableRawPointer(self.raw.pointer(to: \.name)!), capacity: Int(JKAShared.MAX_REFNAME)) }
     }
 
     /// Source: oracle/codemp/game/g_local.h:1243

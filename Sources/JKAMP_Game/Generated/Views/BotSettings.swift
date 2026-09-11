@@ -33,7 +33,7 @@ public struct BotSettings: Hashable, HandleView {
     /// Source: oracle/codemp/game/g_local.h:1493
     public var personalityfile: String {
         get { cString(at: UnsafeMutableRawPointer(self.raw.pointer(to: \.personalityfile)!)) }
-        nonmutating set { store(newValue, at: UnsafeMutableRawPointer(self.raw.pointer(to: \.personalityfile)!), capacity: 144) }
+        nonmutating set { store(newValue, at: UnsafeMutableRawPointer(self.raw.pointer(to: \.personalityfile)!), capacity: Int(JKAMP_Game.MAX_FILEPATH)) }
     }
 
     /// Source: oracle/codemp/game/g_local.h:1494
@@ -45,6 +45,6 @@ public struct BotSettings: Hashable, HandleView {
     /// Source: oracle/codemp/game/g_local.h:1495
     public var team: String {
         get { cString(at: UnsafeMutableRawPointer(self.raw.pointer(to: \.team)!)) }
-        nonmutating set { store(newValue, at: UnsafeMutableRawPointer(self.raw.pointer(to: \.team)!), capacity: 144) }
+        nonmutating set { store(newValue, at: UnsafeMutableRawPointer(self.raw.pointer(to: \.team)!), capacity: Int(JKAMP_Game.MAX_FILEPATH)) }
     }
 }

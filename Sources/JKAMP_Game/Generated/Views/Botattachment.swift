@@ -39,6 +39,6 @@ public struct Botattachment: Hashable, HandleView {
     /// Source: oracle/codemp/game/ai_main.h:112
     public var name: String {
         get { cString(at: UnsafeMutableRawPointer(self.raw.pointer(to: \.name)!)) }
-        nonmutating set { store(newValue, at: UnsafeMutableRawPointer(self.raw.pointer(to: \.name)!), capacity: 64) }
+        nonmutating set { store(newValue, at: UnsafeMutableRawPointer(self.raw.pointer(to: \.name)!), capacity: Int(JKAMP_Game.MAX_ATTACHMENT_NAME)) }
     }
 }

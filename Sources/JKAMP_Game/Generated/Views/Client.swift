@@ -480,7 +480,7 @@ public struct Client: Hashable, HandleView {
     /// Source: oracle/codemp/game/g_local.h:668
     public var modelname: String {
         get { cString(at: UnsafeMutableRawPointer(self.raw.pointer(to: \.modelname)!)) }
-        nonmutating set { store(newValue, at: UnsafeMutableRawPointer(self.raw.pointer(to: \.modelname)!), capacity: 64) }
+        nonmutating set { store(newValue, at: UnsafeMutableRawPointer(self.raw.pointer(to: \.modelname)!), capacity: Int(JKAShared.MAX_QPATH)) }
     }
 
     /// Source: oracle/codemp/game/g_local.h:670

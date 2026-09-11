@@ -66,7 +66,7 @@ public struct ClientPersistant: Hashable, HandleView {
     /// Source: oracle/codemp/game/g_local.h:450
     public var netname: String {
         get { cString(at: UnsafeMutableRawPointer(self.raw.pointer(to: \.netname)!)) }
-        nonmutating set { store(newValue, at: UnsafeMutableRawPointer(self.raw.pointer(to: \.netname)!), capacity: 36) }
+        nonmutating set { store(newValue, at: UnsafeMutableRawPointer(self.raw.pointer(to: \.netname)!), capacity: Int(JKAMP_Game.MAX_NETNAME)) }
     }
 
     /// Source: oracle/codemp/game/g_local.h:451

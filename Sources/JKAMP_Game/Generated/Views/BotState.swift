@@ -498,7 +498,7 @@ public struct BotState: Hashable, HandleView {
     /// Source: oracle/codemp/game/ai_main.h:254
     public var currentChat: String {
         get { cString(at: UnsafeMutableRawPointer(self.raw.pointer(to: \.currentChat)!)) }
-        nonmutating set { store(newValue, at: UnsafeMutableRawPointer(self.raw.pointer(to: \.currentChat)!), capacity: 128) }
+        nonmutating set { store(newValue, at: UnsafeMutableRawPointer(self.raw.pointer(to: \.currentChat)!), capacity: Int(JKAMP_Game.MAX_CHAT_LINE_SIZE)) }
     }
 
     /// Source: oracle/codemp/game/ai_main.h:255
@@ -747,7 +747,7 @@ public struct BotState: Hashable, HandleView {
     /// Source: oracle/codemp/game/ai_main.h:323
     public var forceinfo: String {
         get { cString(at: UnsafeMutableRawPointer(self.raw.pointer(to: \.forceinfo)!)) }
-        nonmutating set { store(newValue, at: UnsafeMutableRawPointer(self.raw.pointer(to: \.forceinfo)!), capacity: 2048) }
+        nonmutating set { store(newValue, at: UnsafeMutableRawPointer(self.raw.pointer(to: \.forceinfo)!), capacity: Int(JKAMP_Game.MAX_FORCE_INFO_SIZE)) }
     }
 
     /// Source: oracle/codemp/game/ai_main.h:325
