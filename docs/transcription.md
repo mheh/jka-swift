@@ -327,6 +327,7 @@ Swift has no `inout` variadic, so `sscanf(value, "%f %f %f", &vec)` is Raven's c
 `Q_strlwr`, `Q_strupr`, and `Q_CleanStr` rewrite a local buffer in place, `Q_CleanStr(&netname)`, and each has a value form, `String` to `String`, for the two shapes with no `CharBuf` behind them.
 A view's `char` array writes back through its setter, `tagOwner.name = Q_strlwr(tagOwner.name)`, into the same bytes.
 A pooled string takes the value form before the pool, `ent.NPC_type = G_NewString(Q_strlwr(ent.NPC_type.string))`, because the pool holds one copy per text and a rewrite in place would change every holder. Raven lowercased after his copy, and the result is the same string.
+`Parse1DMatrix`, `Parse2DMatrix`, and `Parse3DMatrix` take their matrix as `inout [Float]`, and the 2D and 3D bodies fill a row-sized local through the 1D function and copy it into place, `m[i * x ..< i * x + x]`, where Raven walked the pointer with `m + i * x`.
 
 ### Engine and print calls
 

@@ -131,6 +131,8 @@ class Table:
             return Param(name, "UnsafeMutableRawPointer", "bare")
         if ruled == "vec3_mut":
             return Param(name, "inout JKAShared.vec3_t", "vec3_mut")
+        if ruled == "float_array":
+            return Param(name, "inout [Float]", "bare")
         if t.spelling.replace("const ", "") in TYPES:
             return Param(name, TYPES[t.spelling.replace("const ", "")], "bare")
         # A vector parameter is the array type itself, and Clang keeps the typedef name on the parameter.

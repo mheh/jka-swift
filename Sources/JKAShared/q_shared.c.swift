@@ -273,19 +273,19 @@ public func SkipRestOfLine(_ data: inout JKAShared.TextCursor) {
 }
 
 /// Source: oracle/codemp/game/q_shared.c:724
-public func Parse1DMatrix(_ buf_p: inout JKAShared.TextCursor, _ x: Int32, _ m: inout Float) {
+public func Parse1DMatrix(_ buf_p: inout JKAShared.TextCursor, _ x: Int32, _ m: inout [Float]) {
     // TODO: Port Parse1DMatrix
     portMissing("Parse1DMatrix", source: "oracle/codemp/game/q_shared.c:724")
 }
 
 /// Source: oracle/codemp/game/q_shared.c:738
-public func Parse2DMatrix(_ buf_p: inout JKAShared.TextCursor, _ y: Int32, _ x: Int32, _ m: inout Float) {
+public func Parse2DMatrix(_ buf_p: inout JKAShared.TextCursor, _ y: Int32, _ x: Int32, _ m: inout [Float]) {
     // TODO: Port Parse2DMatrix
     portMissing("Parse2DMatrix", source: "oracle/codemp/game/q_shared.c:738")
 }
 
 /// Source: oracle/codemp/game/q_shared.c:750
-public func Parse3DMatrix(_ buf_p: inout JKAShared.TextCursor, _ z: Int32, _ y: Int32, _ x: Int32, _ m: inout Float) {
+public func Parse3DMatrix(_ buf_p: inout JKAShared.TextCursor, _ z: Int32, _ y: Int32, _ x: Int32, _ m: inout [Float]) {
     // TODO: Port Parse3DMatrix
     portMissing("Parse3DMatrix", source: "oracle/codemp/game/q_shared.c:750")
 }

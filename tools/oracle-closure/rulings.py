@@ -112,6 +112,7 @@ RETURNS = {
 #   fill_buffer  a `char *` a trap fills with no size beside it, which keeps its marker until that shape is ruled
 #   in_place  a `char *` a trap rewrites in place, which keeps its marker until that shape is ruled
 #   out_array  an array the engine fills, sized by a count beside it, which keeps its marker until a caller needs that shape
+#   float_array  an inout [Float] for a `float *` a body fills as a matrix of the counts beside it
 PARAMS = {
     ("COM_ParseString", "s"): "out_string",
     ("SkipWhitespace", "data"): "text_cursor",
@@ -119,6 +120,9 @@ PARAMS = {
     ("BG_ParseField", "ent"): "raw",
     ("BG_ValidateSkinForTeam", "colors"): "vec3_mut",
     ("trap_SnapVector", "v"): "vec3_mut",
+    ("Parse1DMatrix", "m"): "float_array",
+    ("Parse2DMatrix", "m"): "float_array",
+    ("Parse3DMatrix", "m"): "float_array",
     ("trap_SV_RegisterSharedMemory", "memory"): "raw",
     ("trap_G2API_GetGLAName", "fillBuf"): "fill_buffer",
     ("trap_G2API_GetSurfaceName", "fillBuf"): "fill_buffer",
