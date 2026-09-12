@@ -191,6 +191,9 @@ class Table:
                 return Param(name, "inout JKAShared.CharBuf", "inout_charbuf")
             record = self.views.record_name(pointee)
             if record and record in self.views.views:
+                if ruled == "table":
+                    # Raven indexes the table through the pointer, so the Slots over it crosses, and its base is the word.
+                    return Param(name, f"Slots<{self.views.qualified_view(record, TARGET)}>", "slots")
                 if owner == "BG_ParseField":
                     return Param(name, f"Slots<{self.views.qualified_view(record, TARGET)}>", "bare")
                 return Param(name, self.views.qualified_view(record, TARGET), "view")

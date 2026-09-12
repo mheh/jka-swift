@@ -37,7 +37,8 @@ ROOTS = {
     "sharedRagDollUpdateParams_t": ("SharedRagDollUpdateParams", "CJKAMP"),
     "sharedIKMoveParams_t": ("SharedIKMoveParams", "CJKAMP"),
     "sharedSetBoneIKStateParams_t": ("SharedSetBoneIKStateParams", "CJKAMP"),
-    "stringID_table_t": ("StringIDTable", "CJKAMP"),
+    # q_shared.h declares it, so the view lives in the shared module, where the stub of q_shared.c can name it.
+    "stringID_table_t": ("StringIDTable", "CJKAShared"),
     # A trap fills these two through a pointer parameter.
     "qtime_t": ("Qtime", "CJKAMP"),
     "pc_token_t": ("PcToken", "CJKAMP"),
@@ -159,6 +160,9 @@ PARAMS = {
     ("trap_UnifyWhiteSpaces", "string"): "in_place",
     ("trap_AAS_TraceAreas", "areas"): "out_array",
     ("trap_AAS_TraceAreas", "points"): "out_array",
+    # A pointer to a table of records the body indexes, `table[i]`, crosses as the Slots over the table.
+    ("GetIDForString", "table"): "table",
+    ("GetStringForID", "table"): "table",
 }
 
 # MARK: - The bg channel

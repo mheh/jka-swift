@@ -117,7 +117,7 @@ func BG_SiegeTranslateForcePowers(_ buf: inout JKAShared.CharBuf, _ siegeClass: 
 //values are accumulated into a bitflag. If bitflag is qfalse then the first value
 //is returned as a directly corresponding id and no further parsing is done.
 /// Source: oracle/codemp/game/bg_saga.c:688
-func BG_SiegeTranslateGenericTable(_ buf: inout JKAShared.CharBuf, _ table: JKAMP.StringIDTable, _ bitflag: Bool) -> Int32 {
+func BG_SiegeTranslateGenericTable(_ buf: inout JKAShared.CharBuf, _ table: JKAShared.StringIDTable, _ bitflag: Bool) -> Int32 {
     // TODO: Port BG_SiegeTranslateGenericTable
     portMissing("BG_SiegeTranslateGenericTable", source: "oracle/codemp/game/bg_saga.c:688")
 }

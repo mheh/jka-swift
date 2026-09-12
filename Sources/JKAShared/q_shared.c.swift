@@ -14,19 +14,13 @@
 // Rule 3: a stored property of GameWorld with C's zero, since Raven wrote no initializer, spelled world.com_lines in a body.
 
 /// Source: oracle/codemp/game/q_shared.c:13
-// TODO: Port signature
-// Raven wrote: int GetIDForString ( stringID_table_t *table, const char *string )
-// No table row for `stringID_table_t * table`.
-public func GetIDForString() -> Never {
+public func GetIDForString(_ table: Slots<JKAShared.StringIDTable>, _ string: String) -> Int32 {
     // TODO: Port GetIDForString
     portMissing("GetIDForString", source: "oracle/codemp/game/q_shared.c:13")
 }
 
 /// Source: oracle/codemp/game/q_shared.c:35
-// TODO: Port signature
-// Raven wrote: const char *GetStringForID( stringID_table_t *table, int id )
-// No table row for `stringID_table_t * table`.
-public func GetStringForID() -> Never {
+public func GetStringForID(_ table: Slots<JKAShared.StringIDTable>, _ id: Int32) -> String {
     // TODO: Port GetStringForID
     portMissing("GetStringForID", source: "oracle/codemp/game/q_shared.c:35")
 }
