@@ -202,11 +202,12 @@ class Table:
             if inner.kind == TypeKind.POINTER and inner.get_pointee().get_canonical().kind == TypeKind.VOID:
                 # The address of a `void *` the engine fills or clears, one word up from the handle it holds.
                 return Param(name, "inout OpaquePointer?", "out_opaque")
-            if inner.kind == TypeKind.POINTER and inner.get_pointee().get_canonical().kind == TypeKind.CHAR_S and inner.get_pointee().is_const_qualified():
+            if inner.kind == TypeKind.POINTER and inner.get_pointee().get_canonical().kind == TypeKind.CHAR_S:
                 # A `const char **` is Raven's cursor into a text buffer, which the COM_Parse family advances. A parameter the
-                # function sets to the token instead has a PARAMS entry.
+                # function sets to the token instead has a PARAMS entry, and a non-const `char **` takes that entry the same way.
                 if PARAMS.get((owner, name)) == "out_string":
                     return Param(name, "inout String", "out_string_ref")
+            if inner.kind == TypeKind.POINTER and inner.get_pointee().get_canonical().kind == TypeKind.CHAR_S and inner.get_pointee().is_const_qualified():
                 return None if traps else Param(name, "inout JKAShared.TextCursor", "text_cursor")
             if inner.kind == TypeKind.POINTER and not pointee.is_const_qualified():
                 # The address of a struct pointer the body sets, an out-param, `inout View?`. A pointer table into a trap has a PARAMS entry.

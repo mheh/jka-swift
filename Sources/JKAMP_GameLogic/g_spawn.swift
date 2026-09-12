@@ -33,10 +33,7 @@ var g_cullDistance: Float {
 }
 
 /// Source: oracle/codemp/game/g_spawn.c:6
-// TODO: Port signature
-// Raven wrote: qboolean G_SpawnString( const char *key, const char *defaultString, char **out )
-// No table row for `char ** out`.
-func G_SpawnString() -> Never {
+func G_SpawnString(_ key: String, _ defaultString: String, _ out: inout String) -> Bool {
     // TODO: Port G_SpawnString
     portMissing("G_SpawnString", source: "oracle/codemp/game/g_spawn.c:6")
 }

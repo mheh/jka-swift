@@ -146,6 +146,9 @@ RETURNS = {
 #   pointer_table  a Slots<View?> over a file-scope array of struct pointers, whose base a trap hands to the engine
 PARAMS = {
     ("COM_ParseString", "s"): "out_string",
+    # A `char **` the function sets once to a string it owns, never walked, the same shape as the const one.
+    ("G_SpawnString", "out"): "out_string",
+    ("Q3_GetString", "value"): "out_string",
     ("SkipWhitespace", "data"): "text_cursor",
     ("trap_Bot_UpdateWaypoints", "wps"): "pointer_table",
     ("BG_ParseField", "ent"): "raw",

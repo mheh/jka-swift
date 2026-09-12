@@ -349,10 +349,7 @@ Q3_GetString
 ```
 */
 /// Source: oracle/codemp/game/g_ICARUScb.c:1642
-// TODO: Port signature
-// Raven wrote: int Q3_GetString( int entID, int type, const char *name, char **value )
-// No table row for `char ** value`.
-func Q3_GetString() -> Never {
+func Q3_GetString(_ entID: Int32, _ type: Int32, _ name: String, _ value: inout String) -> Int32 {
     // TODO: Port Q3_GetString
     portMissing("Q3_GetString", source: "oracle/codemp/game/g_ICARUScb.c:1642")
 }
