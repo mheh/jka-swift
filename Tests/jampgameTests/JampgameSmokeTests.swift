@@ -1,57 +1,47 @@
 import Foundation
 import Testing
-import CJKASyscall
-import JKAMP_Game
+import CJKAMP_Game
 
 /// A class in this test bundle, so `Bundle(for:)` can find the bundle's directory.
 private final class Anchor {}
 
-/// The C shape of the module's `dllEntry`, as `@_cdecl` exports it.
-private typealias DllEntryFn = @convention(c) (OpaquePointer) -> Void
-
-/// The C shape of the module's `vmMain`, twelve words after the command.
-private typealias VmMainFn = @convention(c) (
-    Int, Int, Int, Int, Int, Int, Int, Int, Int, Int, Int, Int, Int
-) -> Int
-
-/// This test drives the built `jampgame` library from outside, the way the engine does.
-/// It installs the C recorder as the engine, so `Syscall.transport` inside the test process stays untouched.
+/// This test runs the `jampsmoke` loader in its own process, the way the engine loads a module.
+/// The loader does the dlopen, so the built `jampgame` library never loads into this test process.
 @Suite(.serialized)
 struct JampgameSmokeSuite {
     @Test("the loaded module answers GAME_INIT with the init line through G_PRINT")
     func gameInitPrintsTheInitLine() throws {
-        let library = try #require(Self.builtLibraryPath())
+        let library = try #require(Self.builtArtifactPath(named: Self.libraryName))
+        let loader = try #require(Self.builtArtifactPath(named: Self.loaderName))
 
-        guard let handle = dlopen(library, RTLD_NOW | RTLD_LOCAL) else {
-            Issue.record("dlopen of \(library) failed: \(Self.lastError())")
+        let process = Process()
+        process.executableURL = URL(fileURLWithPath: loader)
+        process.arguments = [library]
+
+        let stdoutPipe = Pipe()
+        let stderrPipe = Pipe()
+        process.standardOutput = stdoutPipe
+        process.standardError = stderrPipe
+
+        try process.run()
+        let stdoutData = stdoutPipe.fileHandleForReading.readDataToEndOfFile()
+        let stderrData = stderrPipe.fileHandleForReading.readDataToEndOfFile()
+        process.waitUntilExit()
+
+        let stderrText = String(data: stderrData, encoding: .utf8) ?? ""
+        guard process.terminationStatus == 0 else {
+            Issue.record("jampsmoke exited with status \(process.terminationStatus): \(stderrText)")
             return
         }
-        // The handle stays open. The Swift runtime keeps the library's metadata after a load, so an unload leaves it unsafe to use.
 
-        guard let entrySymbol = dlsym(handle, "dllEntry") else {
-            Issue.record("dlsym of dllEntry failed: \(Self.lastError())")
-            return
-        }
-        guard let mainSymbol = dlsym(handle, "vmMain") else {
-            Issue.record("dlsym of vmMain failed: \(Self.lastError())")
-            return
-        }
-        let moduleDllEntry = unsafeBitCast(entrySymbol, to: DllEntryFn.self)
-        let moduleVmMain = unsafeBitCast(mainSymbol, to: VmMainFn.self)
+        let stdoutText = String(data: stdoutData, encoding: .utf8) ?? ""
+        let lines = stdoutText.split(separator: "\n", omittingEmptySubsequences: true).map(String.init)
 
-        jka_recorder_reset()
-        moduleDllEntry(jka_recorder_entry())
-
-        let answer = moduleVmMain(
-            Int(GAME_INIT),
-            0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0
-        )
-
-        #expect(answer == 0)
-        #expect(jka_recorded_command() == Int(G_PRINT))
-
-        let text = try #require(UnsafePointer<CChar>(bitPattern: Int(jka_recorded_word())))
-        #expect(String(cString: text) == "jka-swift jampgame init\n")
+        #expect(lines == [
+            "answer 0",
+            "command \(G_PRINT.rawValue)",
+            "text jka-swift jampgame init\\n",
+        ])
     }
 
     /// The dynamic product's file name on this platform, as the linker writes it.
@@ -65,24 +55,28 @@ struct JampgameSmokeSuite {
         #endif
     }
 
-    /// `swift test` builds the dynamic product in the same configuration directory as the test code, so we walk up from the test bundle.
+    /// The loader executable's file name on this platform, as the linker writes it.
+    private static var loaderName: String {
+        #if os(Windows)
+        return "jampsmoke.exe"
+        #else
+        return "jampsmoke"
+        #endif
+    }
+
+    /// `swift test` builds the product and the loader in the same configuration directory as the test code.
+    /// We walk up from the test bundle to find them.
     /// On macOS the tests run inside the `xctest` host, so the main bundle is the wrong one, and the bundle of a class in this file is the right one.
-    /// The walk stops at the first ancestor that holds the library, which keeps a second scratch directory or a release copy out of the answer.
-    private static func builtLibraryPath() -> String? {
+    /// The walk stops at the first ancestor that holds the named file, which keeps a second scratch directory or a release copy out of the answer.
+    private static func builtArtifactPath(named name: String) -> String? {
         var directory = Bundle(for: Anchor.self).bundleURL.standardizedFileURL
         while directory.path != "/" {
-            let candidate = directory.appendingPathComponent(Self.libraryName)
+            let candidate = directory.appendingPathComponent(name)
             if FileManager.default.fileExists(atPath: candidate.path) {
                 return candidate.path
             }
             directory = directory.deletingLastPathComponent()
         }
         return nil
-    }
-
-    /// This reads the dynamic loader's message for the failure that just happened.
-    private static func lastError() -> String {
-        guard let message = dlerror() else { return "dlerror reported no message." }
-        return String(cString: message)
     }
 }

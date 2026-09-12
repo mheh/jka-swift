@@ -46,6 +46,8 @@ let package = Package(
         // MARK: - Shell, the product
         // dllEntry and vmMain. It decodes words and calls the bare functions.
         .target(name: "jampgame", dependencies: ["JKAMP_GameLogic"]),
+        // The dlopen loader, run in its own process, so the smoke test never loads the built library into the test process.
+        .executableTarget(name: "jampsmoke", dependencies: ["CJKASyscall"]),
 
         // MARK: - Test support, a library and not a product, so it ships in no dylib
         // The recording transport a test installs on Syscall.transport.
@@ -60,7 +62,7 @@ let package = Package(
         .testTarget(name: "JKASharedTests", dependencies: ["JKAShared", "JKATestSupport"]),
         .testTarget(name: "JKAMPTests", dependencies: ["JKAMP", "JKAMP_BG", "JKATestSupport"]),
         .testTarget(name: "JKAMP_GameTests", dependencies: ["JKAMP_GameLogic", "JKATestSupport"]),
-        // The smoke test loads the built dylib and must not link it, so it does not depend on jampgame.
-        .testTarget(name: "jampgameTests", dependencies: ["JKAMP_Game", "CJKASyscall"]),
+        // The smoke test runs the jampsmoke loader as a process and must not link the built dylib, so it does not depend on jampgame.
+        .testTarget(name: "jampgameTests", dependencies: ["CJKAMP_Game"]),
     ]
 )
