@@ -159,6 +159,8 @@ class Drafter:
         self.names = {c.spelling: p.name for c, p in zip(fn.cur.get_arguments(), fn.params)}
         self.params_by_name = {c.spelling: p for c, p in zip(fn.cur.get_arguments(), fn.params)}
         self.scratch_names: dict[str, int] = {}
+        # The Swift statement each of Raven's labels gives its gotos, `break rest` or `continue backAgain`.
+        self.goto_forms: dict[str, str] = {}
         self.lets = self.single_writes(fn.cur)
         if any(self.record_local(c) is not None for c in fn.cur.walk_preorder()):
             # A closure cannot initialize a let of the enclosing body, so a body with a scratch record keeps every local a var.
@@ -177,7 +179,7 @@ class Drafter:
 
     def block_body(self, block: ci.Cursor, depth: int) -> list[str]:
         """The statements of a compound statement, with Raven's comment and blank lines between them."""
-        out = self.statements(list(block.get_children()), block.extent.start.line, block.extent.end.line, depth)
+        out = self.opening(block, depth) + self.statements(list(block.get_children()), block.extent.start.line, block.extent.end.line, depth)
         while out and not out[0].strip():
             out.pop(0)
         while out and not out[-1].strip():
@@ -188,6 +190,9 @@ class Drafter:
         """A run of statements. A record local, `trace_t trace;`, opens a scratch closure, and the rest of the run is its body."""
         out: list[str] = []
         previous_line = first_line
+        labels = [i for i, c in enumerate(children) if c.kind == CursorKind.LABEL_STMT]
+        if labels:
+            return self.labeled(children, labels[0], first_line, last_line, depth)
         for i, child in enumerate(children):
             record = self.record_local(child)
             if depth == 1 and self.param_copies and (child.kind != CursorKind.DECL_STMT or record is not None):
@@ -203,6 +208,45 @@ class Drafter:
             previous_line = child.extent.end.line
         out += self.gap(previous_line, last_line, depth)
         return out
+
+    def labeled(self, children: list[ci.Cursor], i: int, previous_line: int, last_line: int, depth: int) -> list[str]:
+        """Raven's label as a labeled Swift block. Every goto before the label is `break` out of a `do` around the statements before it,
+        and every goto after the label is `continue` of a `while true` around the statements from it, by "goto"."""
+        pad = INDENT * depth
+        label = children[i]
+        name = label.spelling
+        gotos = [c for c in self.fn.cur.walk_preorder() if c.kind == CursorKind.GOTO_STMT and any(k.spelling == name for k in c.get_children())]
+        before = [g for g in gotos if g.extent.start.offset < label.extent.start.offset]
+        after = [g for g in gotos if g.extent.start.offset > label.extent.start.offset]
+        inner = list(label.get_children())
+        rest = inner + children[i + 1:]
+        out: list[str] = []
+        if before and not after:
+            region = children[:i]
+            if any(g.extent.start.offset < region[0].extent.start.offset for g in before) if region else before:
+                raise Hole(f"Raven's `goto {name}` jumps into a block from outside it, and the transcriptor restructures the flow.")
+            # The block cannot hide a local from the statements after the label, so the leading declarations stay outside it.
+            lead = 0
+            while lead < len(region) and region[lead].kind == CursorKind.DECL_STMT and self.record_local(region[lead]) is None:
+                lead += 1
+            self.goto_forms[name] = f"break {name}"
+            out += self.statements(region[:lead], previous_line, region[lead].extent.start.line if lead < len(region) else label.extent.start.line, depth)
+            out.append(f"{pad}{name}: do {{")
+            out += self.statements(region[lead:], region[lead].extent.start.line - 1 if lead < len(region) else label.extent.start.line - 1, label.extent.start.line, depth + 1)
+            out.append(f"{pad}}}")
+            out += self.statements(rest, label.extent.start.line, last_line, depth)
+            return out
+        if after and not before:
+            if self.escapes(rest):
+                raise Hole(f"A break or a continue after Raven's `{name}:` targets a loop outside it, and the transcriptor restructures the flow.")
+            self.goto_forms[name] = f"continue {name}"
+            out += self.statements(children[:i], previous_line, label.extent.start.line, depth)
+            out.append(f"{pad}{name}: while true {{")
+            out += self.statements(rest, label.extent.start.line, last_line, depth + 1)
+            out.append(f"{INDENT * (depth + 1)}break")
+            out.append(f"{pad}}}")
+            return out
+        raise Hole(f"Raven's `{name}:` takes a goto from both sides, and the transcriptor restructures the flow.")
 
     def record_local(self, cur: ci.Cursor) -> ci.Cursor | None:
         """The one variable of a declaration that is a C struct with a view, or None."""
@@ -291,13 +335,27 @@ class Drafter:
     def gap(self, after: int, before: int, depth: int) -> list[str]:
         """Raven's comment and blank lines strictly between two statements, re-indented."""
         out: list[str] = []
+        block = False
         for line in self.source.lines[after:before - 1]:
             text = line.strip()
-            if not text:
+            if block:
+                # A line inside Raven's `/* */` comment keeps its text, and the closing line ends the block.
+                out.append(INDENT * depth + text if text else "")
+                block = not text.endswith("*/")
+            elif not text:
                 out.append("")
             elif text.startswith("//") or (text.startswith("/*") and text.endswith("*/")):
                 out.append(INDENT * depth + text)
+            elif text.startswith("/*"):
+                out.append(INDENT * depth + text)
+                block = True
         return out
+
+    def opening(self, block: ci.Cursor, depth: int) -> list[str]:
+        """Raven's comment on the line of the opening brace, `{ //lost it`, as the first line of the block."""
+        line = self.source.lines[block.extent.start.line - 1]
+        rest = line[block.extent.start.column:].strip()
+        return [INDENT * depth + rest] if rest.startswith("//") or (rest.startswith("/*") and rest.endswith("*/")) else []
 
     def trailing(self, cur: ci.Cursor) -> str:
         """Raven's comment on the last line of a statement, after the statement's text."""
@@ -496,8 +554,13 @@ class Drafter:
             return [f"{pad}continue" + self.trailing(cur)]
         if kind == CursorKind.NULL_STMT:
             return []
-        if kind in (CursorKind.GOTO_STMT, CursorKind.LABEL_STMT):
+        if kind == CursorKind.GOTO_STMT:
+            name = next((k.spelling for k in cur.get_children()), "")
+            if name in self.goto_forms:
+                return [f"{pad}{self.goto_forms[name]}" + self.trailing(cur)]
             raise Hole("Raven's goto has no Swift form, and the transcriptor restructures the flow.")
+        if kind == CursorKind.LABEL_STMT:
+            raise Hole("Raven's label is not a statement of a block, and the transcriptor restructures the flow.")
         if kind == CursorKind.UNARY_OPERATOR:
             op, prefix, operand = self.unary_parts(cur)
             if op in ("++", "--"):
@@ -575,19 +638,21 @@ class Drafter:
         out = [f"{pad}if {test} {{"] + self.branch(then, depth + 1)
         if len(kids) == 3:
             other = kids[2]
+            # Raven's comment between the then arm's brace and his `else` has no seat there in Swift, so it opens the else arm.
+            between = [line for line in self.gap(then.extent.end.line, other.extent.start.line, depth + 1) if line.strip()]
             if other.kind == CursorKind.IF_STMT:
                 nested = self.if_statement(other, depth)
                 if nested and nested[0].strip().startswith("if "):
                     out.append(f"{pad}}} else {nested[0].strip()}")
-                    out += nested[1:]
+                    out += between + nested[1:]
                     return out
                 # The nested if folded to one arm, so the arm is the else block.
                 out.append(f"{pad}}} else {{")
-                out += [INDENT + line if line.strip() else line for line in nested]
+                out += between + [INDENT + line if line.strip() else line for line in nested]
                 out.append(f"{pad}}}")
                 return out
             out.append(f"{pad}}} else {{")
-            out += self.branch(other, depth + 1)
+            out += between + self.branch(other, depth + 1)
         out.append(f"{pad}}}")
         return out
 
@@ -642,12 +707,14 @@ class Drafter:
         subject, body = list(cur.get_children())
         if body.kind != CursorKind.COMPOUND_STMT:
             raise Hole("The switch body is not a block.")
-        groups: list[tuple[list[str], list[ci.Cursor]]] = []
+        groups: list[tuple[list[str], list[ci.Cursor], int]] = []
         for child in body.get_children():
             labels: list[str] = []
             stmt = child
+            label_line = child.extent.start.line
             while stmt.kind in (CursorKind.CASE_STMT, CursorKind.DEFAULT_STMT):
                 inner = list(stmt.get_children())
+                label_line = stmt.extent.start.line
                 if stmt.kind == CursorKind.CASE_STMT:
                     labels.append(self.expr(inner[0]))
                     stmt = inner[-1]
@@ -655,14 +722,17 @@ class Drafter:
                     labels.append("default")
                     stmt = inner[0]
             if labels:
-                groups.append((labels, []))
+                groups.append((labels, [], label_line))
             if not groups:
                 raise Hole("A statement before the first case of the switch.")
             if stmt.kind in (CursorKind.CASE_STMT, CursorKind.DEFAULT_STMT) or stmt is child and labels and stmt.kind == CursorKind.NULL_STMT:
                 continue
             groups[-1][1].append(stmt)
         out = [f"{pad}switch {self.expr(subject)} {{"]
-        for i, (labels, stmts) in enumerate(groups):
+        if groups:
+            # Raven's comment between the switch's brace and his first case, `//case WP_NONE:`, stays above the first case.
+            out += [line for line in self.gap(body.extent.start.line, groups[0][2], depth) if line.strip()]
+        for i, (labels, stmts, label_line) in enumerate(groups):
             label = "default" if labels == ["default"] else "case " + ", ".join(l for l in labels if l != "default")
             if "default" in labels and len(labels) > 1:
                 label = "default"
@@ -671,20 +741,29 @@ class Drafter:
             ends_in_exit = bool(stmts) and stmts[-1].kind in (CursorKind.RETURN_STMT, CursorKind.CONTINUE_STMT)
             inner_stmts = stmts[:-1] if ends_in_break else stmts
             lines: list[str] = []
-            previous_line = None
+            previous_line = label_line
             for s in inner_stmts:
-                if previous_line is not None:
-                    lines += self.gap(previous_line, s.extent.start.line, depth + 1)
+                lines += self.gap(previous_line, s.extent.start.line, depth + 1)
                 lines += self.statement(s, depth + 1)
                 previous_line = s.extent.end.line
+            if not inner_stmts and stmts:
+                # The case holds only its break, and Raven's comment above the break stays.
+                lines += [line for line in self.gap(label_line, stmts[0].extent.start.line, depth + 1) if line.strip()]
+            while lines and not lines[0].strip():
+                lines.pop(0)
+            if i + 1 < len(groups):
+                # Raven's comment after the case's last statement, or between two labels, stays with the case.
+                last = stmts[-1].extent.end.line if stmts else label_line
+                lines += [line for line in self.gap(last, groups[i + 1][2], depth + 1) if line.strip()]
             if not ends_in_break and not ends_in_exit and i + 1 < len(groups):
                 lines.append(f"{INDENT * (depth + 1)}fallthrough")
-            if not lines:
+            if not any(line.strip() and not line.strip().startswith("//") for line in lines):
+                # A case with comments alone still needs its break.
                 lines.append(f"{INDENT * (depth + 1)}break")
             out += lines
             if i + 1 < len(groups):
                 out.append("")
-        if not any("default" in labels for labels, _ in groups):
+        if not any("default" in labels for labels, _, _ in groups):
             out += ["", f"{pad}default:", f"{INDENT * (depth + 1)}break"]
         out.append(f"{pad}}}")
         return out
