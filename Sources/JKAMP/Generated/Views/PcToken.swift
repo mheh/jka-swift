@@ -41,6 +41,16 @@ public struct PcToken: Hashable, HandleView {
         return try withUnsafeMutablePointer(to: &slot) { try body(PcToken(raw: $0)) }
     }
 
+    /// Raven's `memset(&pc_token, 0, sizeof(pc_token))`, every byte of the slot to zero.
+    public func clear() {
+        self.raw.pointee = pc_token_t()
+    }
+
+    /// Raven's `pc_token = *other;` or his `memcpy`, every byte of the other slot into this one.
+    public func copy(from other: PcToken) {
+        self.raw.pointee = other.raw.pointee
+    }
+
     /// Source: oracle/codemp/game/q_shared.h:1663
     public var type: Int32 {
         get { self.raw.pointee.type }

@@ -42,6 +42,16 @@ public struct Pushed: Hashable, HandleView {
         return try withUnsafeMutablePointer(to: &slot) { try body(Pushed(raw: $0)) }
     }
 
+    /// Raven's `memset(&pushed, 0, sizeof(pushed))`, every byte of the slot to zero.
+    public func clear() {
+        self.raw.pointee = pushed_t()
+    }
+
+    /// Raven's `pushed = *other;` or his `memcpy`, every byte of the other slot into this one.
+    public func copy(from other: Pushed) {
+        self.raw.pointee = other.raw.pointee
+    }
+
     /// Source: oracle/codemp/game/g_mover.c:19
     public var ent: Entity? {
         get { self.raw.pointee.ent.map { Entity(handle: OpaquePointer($0)) } }

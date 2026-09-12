@@ -42,6 +42,16 @@ public struct CombatPoint: Hashable, HandleView {
         return try withUnsafeMutablePointer(to: &slot) { try body(CombatPoint(raw: $0)) }
     }
 
+    /// Raven's `memset(&combatPoint, 0, sizeof(combatPoint))`, every byte of the slot to zero.
+    public func clear() {
+        self.raw.pointee = combatPoint_t()
+    }
+
+    /// Raven's `combatPoint = *other;` or his `memcpy`, every byte of the other slot into this one.
+    public func copy(from other: CombatPoint) {
+        self.raw.pointee = other.raw.pointee
+    }
+
     /// Source: oracle/codemp/game/g_local.h:766
     public var origin: JKAShared.vec3_t {
         get { vec3(of: self.raw.pointee.origin) }

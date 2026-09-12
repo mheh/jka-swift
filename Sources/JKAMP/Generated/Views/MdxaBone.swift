@@ -41,6 +41,16 @@ public struct MdxaBone: Hashable, HandleView {
         return try withUnsafeMutablePointer(to: &slot) { try body(MdxaBone(raw: $0)) }
     }
 
+    /// Raven's `memset(&mdxaBone, 0, sizeof(mdxaBone))`, every byte of the slot to zero.
+    public func clear() {
+        self.raw.pointee = mdxaBone_t()
+    }
+
+    /// Raven's `mdxaBone = *other;` or his `memcpy`, every byte of the other slot into this one.
+    public func copy(from other: MdxaBone) {
+        self.raw.pointee = other.raw.pointee
+    }
+
     /// Source: oracle/codemp/game/q_shared.h:3081
     public var matrix: Slots<Slots<Float>> { Slots(rows: UnsafeMutableRawPointer(self.raw.pointer(to: \.matrix)!), count: 3, stride: 4 * MemoryLayout<Float>.stride) { Slots<Float>(scalars: $0, count: 4) } }
 }

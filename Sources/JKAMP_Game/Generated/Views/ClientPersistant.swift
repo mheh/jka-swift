@@ -42,6 +42,16 @@ public struct ClientPersistant: Hashable, HandleView {
         return try withUnsafeMutablePointer(to: &slot) { try body(ClientPersistant(raw: $0)) }
     }
 
+    /// Raven's `memset(&clientPersistant, 0, sizeof(clientPersistant))`, every byte of the slot to zero.
+    public func clear() {
+        self.raw.pointee = clientPersistant_t()
+    }
+
+    /// Raven's `clientPersistant = *other;` or his `memcpy`, every byte of the other slot into this one.
+    public func copy(from other: ClientPersistant) {
+        self.raw.pointee = other.raw.pointee
+    }
+
     /// Source: oracle/codemp/game/g_local.h:444
     public var connected: clientConnected_t {
         get { self.raw.pointee.connected }

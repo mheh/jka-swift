@@ -41,6 +41,16 @@ public struct Pml: Hashable, HandleView {
         return try withUnsafeMutablePointer(to: &slot) { try body(Pml(raw: $0)) }
     }
 
+    /// Raven's `memset(&pml, 0, sizeof(pml))`, every byte of the slot to zero.
+    public func clear() {
+        self.raw.pointee = pml_t()
+    }
+
+    /// Raven's `pml = *other;` or his `memcpy`, every byte of the other slot into this one.
+    public func copy(from other: Pml) {
+        self.raw.pointee = other.raw.pointee
+    }
+
     /// Source: oracle/codemp/game/bg_local.h:17
     public var forward: JKAShared.vec3_t {
         get { vec3(of: self.raw.pointee.forward) }

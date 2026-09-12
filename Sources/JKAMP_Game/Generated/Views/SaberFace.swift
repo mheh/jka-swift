@@ -42,6 +42,16 @@ public struct SaberFace: Hashable, HandleView {
         return try withUnsafeMutablePointer(to: &slot) { try body(SaberFace(raw: $0)) }
     }
 
+    /// Raven's `memset(&saberFace, 0, sizeof(saberFace))`, every byte of the slot to zero.
+    public func clear() {
+        self.raw.pointee = saberFace_t()
+    }
+
+    /// Raven's `saberFace = *other;` or his `memcpy`, every byte of the other slot into this one.
+    public func copy(from other: SaberFace) {
+        self.raw.pointee = other.raw.pointee
+    }
+
     /// Source: oracle/codemp/game/w_saber.c:2448
     public var v1: JKAShared.vec3_t {
         get { vec3(of: self.raw.pointee.v1) }

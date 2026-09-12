@@ -70,7 +70,9 @@ MACRO_RETURNS = {"DotProduct": "float", "Q_fabs": "float", "DEG2RAD": "float", "
                  "SHORT2ANGLE": "float", "min": "float", "max": "float"}
 # `assert` is `((void)0)` under Raven's NDEBUG build, and the overlay makes it a call the draft drops by name.
 DROPPED = {"assert"}
-OVERLAY = "".join(f"#undef {name}\n{MACRO_RETURNS.get(name, 'void')} {name}(...);\n" for name in list(MACROS) + sorted(DROPPED))
+# The SDK's fortify macros rename `memset` and `memcpy` to builtins with an extra argument, so the overlay undefines them and string.h's prototypes serve.
+UNDEFINED = ("memset", "memcpy")
+OVERLAY = "".join(f"#undef {name}\n{MACRO_RETURNS.get(name, 'void')} {name}(...);\n" for name in list(MACROS) + sorted(DROPPED)) + "".join(f"#undef {name}\n" for name in UNDEFINED)
 FUNC_LINE = re.compile(r"func\s+`?(\w+)`?\s*\((.*)\)")
 # A file-scope `var`, `let`, or `func` of a Swift file: at column 0, after its modifiers. A method sits indented under its type.
 MODIFIERS = r"(?:(?:public|package|internal|private|fileprivate|nonisolated\(unsafe\)|@\w+(?:\([^)]*\))?)\s+)*"
@@ -404,6 +406,35 @@ class Drafter:
             f'{pad}portMissing("{self.fn.name}", source: "{self.fn.cite}")',
         ]
 
+    def record_bytes(self, cur: ci.Cursor, depth: int) -> list[str]:
+        """Raven's `memset` and `memcpy` over a whole record, as the view's `clear()` and `copy(from:)`. A memset of a record local
+        drops, because the scratch slot is zero at entry."""
+        pad = INDENT * depth
+        name = self.callee_name(cur)
+        args = [self.strip(a) for a in list(cur.get_children())[1:]]
+        targets = []
+        for arg in args[: 2 if name == "memcpy" else 1]:
+            if arg.kind == CursorKind.UNARY_OPERATOR and self.unary_parts(arg)[0] == "&":
+                arg = self.strip(self.unary_parts(arg)[2])
+            if not self.is_record(arg.type):
+                raven = self.bytes[cur.extent.start.offset:cur.extent.end.offset].decode("utf-8", "replace")
+                raise Hole(f"Raven's `{raven}` runs over bytes that are not one record with a view.")
+            targets.append(arg)
+        if name == "memset":
+            ref = targets[0].referenced if targets[0].kind == CursorKind.DECL_REF_EXPR else None
+            if ref is not None and ref.kind == CursorKind.VAR_DECL and ref.semantic_parent is not None and ref.semantic_parent.kind != CursorKind.TRANSLATION_UNIT:
+                return [f"{pad}// Raven clears the record with `memset` here. The scratch slot is zero at entry, so the body drops the call."]
+            return [f"{pad}{self.expr(targets[0])}.clear()" + self.trailing(cur)]
+        return [f"{pad}{self.expr(targets[0])}.copy(from: {self.expr(targets[1])})" + self.trailing(cur)]
+
+    def is_record(self, t: ci.Type) -> bool:
+        """True for a C struct the views cover."""
+        canonical = t.get_canonical()
+        if canonical.kind != TypeKind.RECORD:
+            return False
+        record = self.views.record_name(canonical)
+        return bool(record) and record in self.views.views
+
     def is_call(self, cur: ci.Cursor) -> bool:
         """A call, which the parse sometimes leaves unexposed: the first child names a function, and the rest are the arguments."""
         if cur.kind == CursorKind.CALL_EXPR:
@@ -490,6 +521,9 @@ class Drafter:
                     lines.append(f"{pad}{target} = {self.expr(list(inner.get_children())[0])}" + self.trailing(cur))
                     return lines
                 if self.strip(left).type.get_canonical().kind == TypeKind.RECORD:
+                    if op == "=" and self.is_record(left.type) and self.is_record(right.type):
+                        # Raven's `a = b` on two records is a byte copy, and the view's `copy(from:)` is that copy.
+                        return [f"{pad}{self.expr(left)}.copy(from: {self.expr(right)})" + self.trailing(cur)]
                     raise Hole("A whole-record store, which a view has no operator for.")
                 lhs_kind = self.swift_type_of(left)
                 unsigned = self.unsigned_of(left)
@@ -505,6 +539,8 @@ class Drafter:
                     return [f"{pad}{target} {op} {self.wrapped(right, unsigned)}" + self.trailing(cur)]
                 value = self.converted(right, lhs_kind) if op == "=" else self.expr(right)
                 return [f"{pad}{target} {op} {value}" + self.trailing(cur)]
+        if self.is_call(cur) and self.callee_name(cur) in UNDEFINED:
+            return self.record_bytes(cur, depth)
         if self.is_call(cur) and self.callee_name(cur) in DROPPED:
             # `assert` is `((void)0)` under Raven's NDEBUG build, so the body drops it, by "assert".
             rest = self.trailing(cur).strip()
@@ -1219,6 +1255,9 @@ class Drafter:
             return before, True, operand
         if after in ("++", "--"):
             return after, False, operand
+        if not before and not after and self.macro_span(cur):
+            # The operator sits inside a macro, `DEFAULT_MINS_2` for `-24`, and the name is what the draft writes.
+            return "", True, cur
         raise Hole(f"No operator beside the operand, the text there is `{before or after}`.")
 
 

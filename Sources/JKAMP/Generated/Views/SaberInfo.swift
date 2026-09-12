@@ -41,6 +41,16 @@ public struct SaberInfo: Hashable, HandleView {
         return try withUnsafeMutablePointer(to: &slot) { try body(SaberInfo(raw: $0)) }
     }
 
+    /// Raven's `memset(&saberInfo, 0, sizeof(saberInfo))`, every byte of the slot to zero.
+    public func clear() {
+        self.raw.pointee = saberInfo_t()
+    }
+
+    /// Raven's `saberInfo = *other;` or his `memcpy`, every byte of the other slot into this one.
+    public func copy(from other: SaberInfo) {
+        self.raw.pointee = other.raw.pointee
+    }
+
     /// Source: oracle/codemp/game/q_shared.h:737
     public var name: String {
         get { cString(at: UnsafeMutableRawPointer(self.raw.pointer(to: \.name)!)) }

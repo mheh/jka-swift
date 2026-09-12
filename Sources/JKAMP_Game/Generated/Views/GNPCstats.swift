@@ -42,6 +42,16 @@ public struct GNPCstats: Hashable, HandleView {
         return try withUnsafeMutablePointer(to: &slot) { try body(GNPCstats(raw: $0)) }
     }
 
+    /// Raven's `memset(&gNPCstats, 0, sizeof(gNPCstats))`, every byte of the slot to zero.
+    public func clear() {
+        self.raw.pointee = gNPCstats_t()
+    }
+
+    /// Raven's `gNPCstats = *other;` or his `memcpy`, every byte of the other slot into this one.
+    public func copy(from other: GNPCstats) {
+        self.raw.pointee = other.raw.pointee
+    }
+
     /// Source: oracle/codemp/game/b_public.h:89
     public var aggression: Int32 {
         get { self.raw.pointee.aggression }

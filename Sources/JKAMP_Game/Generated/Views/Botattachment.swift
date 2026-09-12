@@ -42,6 +42,16 @@ public struct Botattachment: Hashable, HandleView {
         return try withUnsafeMutablePointer(to: &slot) { try body(Botattachment(raw: $0)) }
     }
 
+    /// Raven's `memset(&botattachment, 0, sizeof(botattachment))`, every byte of the slot to zero.
+    public func clear() {
+        self.raw.pointee = botattachment_t()
+    }
+
+    /// Raven's `botattachment = *other;` or his `memcpy`, every byte of the other slot into this one.
+    public func copy(from other: Botattachment) {
+        self.raw.pointee = other.raw.pointee
+    }
+
     /// Source: oracle/codemp/game/ai_main.h:111
     public var level: Int32 {
         get { self.raw.pointee.level }

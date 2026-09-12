@@ -42,6 +42,16 @@ public struct EntityShared: Hashable, HandleView {
         return try withUnsafeMutablePointer(to: &slot) { try body(EntityShared(raw: $0)) }
     }
 
+    /// Raven's `memset(&entityShared, 0, sizeof(entityShared))`, every byte of the slot to zero.
+    public func clear() {
+        self.raw.pointee = entityShared_t()
+    }
+
+    /// Raven's `entityShared = *other;` or his `memcpy`, every byte of the other slot into this one.
+    public func copy(from other: EntityShared) {
+        self.raw.pointee = other.raw.pointee
+    }
+
     /// Source: oracle/codemp/game/g_public.h:61
     public var linked: Bool {
         get { self.raw.pointee.linked != qfalse }

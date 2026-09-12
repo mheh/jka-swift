@@ -42,6 +42,16 @@ public struct ReferenceTag: Hashable, HandleView {
         return try withUnsafeMutablePointer(to: &slot) { try body(ReferenceTag(raw: $0)) }
     }
 
+    /// Raven's `memset(&reference_tag, 0, sizeof(reference_tag))`, every byte of the slot to zero.
+    public func clear() {
+        self.raw.pointee = reference_tag_t()
+    }
+
+    /// Raven's `reference_tag = *other;` or his `memcpy`, every byte of the other slot into this one.
+    public func copy(from other: ReferenceTag) {
+        self.raw.pointee = other.raw.pointee
+    }
+
     /// Source: oracle/codemp/game/g_local.h:1242
     public var name: String {
         get { cString(at: UnsafeMutableRawPointer(self.raw.pointer(to: \.name)!)) }

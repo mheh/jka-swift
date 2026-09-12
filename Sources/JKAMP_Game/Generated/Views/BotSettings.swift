@@ -42,6 +42,16 @@ public struct BotSettings: Hashable, HandleView {
         return try withUnsafeMutablePointer(to: &slot) { try body(BotSettings(raw: $0)) }
     }
 
+    /// Raven's `memset(&bot_settings, 0, sizeof(bot_settings))`, every byte of the slot to zero.
+    public func clear() {
+        self.raw.pointee = bot_settings_t()
+    }
+
+    /// Raven's `bot_settings = *other;` or his `memcpy`, every byte of the other slot into this one.
+    public func copy(from other: BotSettings) {
+        self.raw.pointee = other.raw.pointee
+    }
+
     /// Source: oracle/codemp/game/g_local.h:1493
     public var personalityfile: String {
         get { cString(at: UnsafeMutableRawPointer(self.raw.pointer(to: \.personalityfile)!)) }

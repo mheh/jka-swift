@@ -42,6 +42,16 @@ public struct BotInput: Hashable, HandleView {
         return try withUnsafeMutablePointer(to: &slot) { try body(BotInput(raw: $0)) }
     }
 
+    /// Raven's `memset(&bot_input, 0, sizeof(bot_input))`, every byte of the slot to zero.
+    public func clear() {
+        self.raw.pointee = bot_input_t()
+    }
+
+    /// Raven's `bot_input = *other;` or his `memcpy`, every byte of the other slot into this one.
+    public func copy(from other: BotInput) {
+        self.raw.pointee = other.raw.pointee
+    }
+
     /// Source: oracle/codemp/game/botlib.h:95
     public var thinktime: Float {
         get { self.raw.pointee.thinktime }

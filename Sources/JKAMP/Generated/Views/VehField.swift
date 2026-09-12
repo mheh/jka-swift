@@ -41,6 +41,16 @@ public struct VehField: Hashable, HandleView {
         return try withUnsafeMutablePointer(to: &slot) { try body(VehField(raw: $0)) }
     }
 
+    /// Raven's `memset(&vehField, 0, sizeof(vehField))`, every byte of the slot to zero.
+    public func clear() {
+        self.raw.pointee = vehField_t()
+    }
+
+    /// Raven's `vehField = *other;` or his `memcpy`, every byte of the other slot into this one.
+    public func copy(from other: VehField) {
+        self.raw.pointee = other.raw.pointee
+    }
+
     /// Source: oracle/codemp/game/bg_vehicleLoad.c:133
     public var name: PooledString? {
         get { PooledString(raw: self.raw.pointee.name) }

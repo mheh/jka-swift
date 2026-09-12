@@ -41,6 +41,16 @@ public struct Pmove: Hashable, HandleView {
         return try withUnsafeMutablePointer(to: &slot) { try body(Pmove(raw: $0)) }
     }
 
+    /// Raven's `memset(&pmove, 0, sizeof(pmove))`, every byte of the slot to zero.
+    public func clear() {
+        self.raw.pointee = pmove_t()
+    }
+
+    /// Raven's `pmove = *other;` or his `memcpy`, every byte of the other slot into this one.
+    public func copy(from other: Pmove) {
+        self.raw.pointee = other.raw.pointee
+    }
+
     /// Source: oracle/codemp/game/bg_public.h:437
     /// Raven's callers always set `ps`, so a body reads it with no bind. A NULL here traps with the field's name.
     public var ps: PlayerState {

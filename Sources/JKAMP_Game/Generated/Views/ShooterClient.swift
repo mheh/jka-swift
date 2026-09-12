@@ -42,6 +42,16 @@ public struct ShooterClient: Hashable, HandleView {
         return try withUnsafeMutablePointer(to: &slot) { try body(ShooterClient(raw: $0)) }
     }
 
+    /// Raven's `memset(&shooterClient, 0, sizeof(shooterClient))`, every byte of the slot to zero.
+    public func clear() {
+        self.raw.pointee = shooterClient_t()
+    }
+
+    /// Raven's `shooterClient = *other;` or his `memcpy`, every byte of the other slot into this one.
+    public func copy(from other: ShooterClient) {
+        self.raw.pointee = other.raw.pointee
+    }
+
     /// Source: oracle/codemp/game/g_misc.c:3348
     public var cl: Client { Client(handle: OpaquePointer(self.raw.pointer(to: \.cl)!)) }
 

@@ -40,6 +40,16 @@ public struct Animation: Hashable, HandleView {
         return try withUnsafeMutablePointer(to: &slot) { try body(Animation(raw: $0)) }
     }
 
+    /// Raven's `memset(&animation, 0, sizeof(animation))`, every byte of the slot to zero.
+    public func clear() {
+        self.raw.pointee = animation_t()
+    }
+
+    /// Raven's `animation = *other;` or his `memcpy`, every byte of the other slot into this one.
+    public func copy(from other: Animation) {
+        self.raw.pointee = other.raw.pointee
+    }
+
     /// Source: unknown:1
     public var firstFrame: Int32 {
         get { Int32(self.raw.pointee.firstFrame) }

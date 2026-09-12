@@ -42,6 +42,16 @@ public struct InterestPoint: Hashable, HandleView {
         return try withUnsafeMutablePointer(to: &slot) { try body(InterestPoint(raw: $0)) }
     }
 
+    /// Raven's `memset(&interestPoint, 0, sizeof(interestPoint))`, every byte of the slot to zero.
+    public func clear() {
+        self.raw.pointee = interestPoint_t()
+    }
+
+    /// Raven's `interestPoint = *other;` or his `memcpy`, every byte of the other slot into this one.
+    public func copy(from other: InterestPoint) {
+        self.raw.pointee = other.raw.pointee
+    }
+
     /// Source: oracle/codemp/game/g_local.h:756
     public var origin: JKAShared.vec3_t {
         get { vec3(of: self.raw.pointee.origin) }

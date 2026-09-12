@@ -42,6 +42,16 @@ public struct VmCvar: Hashable, HandleView {
         return try withUnsafeMutablePointer(to: &slot) { try body(VmCvar(raw: $0)) }
     }
 
+    /// Raven's `memset(&vmCvar, 0, sizeof(vmCvar))`, every byte of the slot to zero.
+    public func clear() {
+        self.raw.pointee = vmCvar_t()
+    }
+
+    /// Raven's `vmCvar = *other;` or his `memcpy`, every byte of the other slot into this one.
+    public func copy(from other: VmCvar) {
+        self.raw.pointee = other.raw.pointee
+    }
+
     /// Source: oracle/codemp/game/q_shared.h:1825
     // Raven's `handle` field is the engine's, and the view's own `handle` takes the name. No module body reads it.
 

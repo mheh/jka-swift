@@ -42,6 +42,16 @@ public struct TagOwner: Hashable, HandleView {
         return try withUnsafeMutablePointer(to: &slot) { try body(TagOwner(raw: $0)) }
     }
 
+    /// Raven's `memset(&tagOwner, 0, sizeof(tagOwner))`, every byte of the slot to zero.
+    public func clear() {
+        self.raw.pointee = tagOwner_t()
+    }
+
+    /// Raven's `tagOwner = *other;` or his `memcpy`, every byte of the other slot into this one.
+    public func copy(from other: TagOwner) {
+        self.raw.pointee = other.raw.pointee
+    }
+
     /// Source: oracle/codemp/game/g_misc.c:2881
     public var name: String {
         get { cString(at: UnsafeMutableRawPointer(self.raw.pointer(to: \.name)!)) }

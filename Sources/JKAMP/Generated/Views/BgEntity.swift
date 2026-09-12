@@ -41,6 +41,16 @@ public struct BgEntity: Hashable, HandleView {
         return try withUnsafeMutablePointer(to: &slot) { try body(BgEntity(raw: $0)) }
     }
 
+    /// Raven's `memset(&bgEntity, 0, sizeof(bgEntity))`, every byte of the slot to zero.
+    public func clear() {
+        self.raw.pointee = bgEntity_t()
+    }
+
+    /// Raven's `bgEntity = *other;` or his `memcpy`, every byte of the other slot into this one.
+    public func copy(from other: BgEntity) {
+        self.raw.pointee = other.raw.pointee
+    }
+
     /// Source: oracle/codemp/game/bg_public.h:425
     public var s: EntityState { EntityState(handle: OpaquePointer(self.raw.pointer(to: \.s)!)) }
 

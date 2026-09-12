@@ -42,6 +42,16 @@ public struct RenderInfo: Hashable, HandleView {
         return try withUnsafeMutablePointer(to: &slot) { try body(RenderInfo(raw: $0)) }
     }
 
+    /// Raven's `memset(&renderInfo, 0, sizeof(renderInfo))`, every byte of the slot to zero.
+    public func clear() {
+        self.raw.pointee = renderInfo_t()
+    }
+
+    /// Raven's `renderInfo = *other;` or his `memcpy`, every byte of the other slot into this one.
+    public func copy(from other: RenderInfo) {
+        self.raw.pointee = other.raw.pointee
+    }
+
     /// Source: oracle/codemp/game/g_local.h:463
     public var headYawRangeLeft: Int32 {
         get { self.raw.pointee.headYawRangeLeft }

@@ -42,6 +42,16 @@ public struct IpFilter: Hashable, HandleView {
         return try withUnsafeMutablePointer(to: &slot) { try body(IpFilter(raw: $0)) }
     }
 
+    /// Raven's `memset(&ipFilter, 0, sizeof(ipFilter))`, every byte of the slot to zero.
+    public func clear() {
+        self.raw.pointee = ipFilter_t()
+    }
+
+    /// Raven's `ipFilter = *other;` or his `memcpy`, every byte of the other slot into this one.
+    public func copy(from other: IpFilter) {
+        self.raw.pointee = other.raw.pointee
+    }
+
     /// Source: oracle/codemp/game/g_svcmds.c:43
     public var mask: UInt32 {
         get { self.raw.pointee.mask }

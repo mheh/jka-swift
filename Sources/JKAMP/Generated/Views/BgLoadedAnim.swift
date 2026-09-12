@@ -41,6 +41,16 @@ public struct BgLoadedAnim: Hashable, HandleView {
         return try withUnsafeMutablePointer(to: &slot) { try body(BgLoadedAnim(raw: $0)) }
     }
 
+    /// Raven's `memset(&bgLoadedAnim, 0, sizeof(bgLoadedAnim))`, every byte of the slot to zero.
+    public func clear() {
+        self.raw.pointee = bgLoadedAnim_t()
+    }
+
+    /// Raven's `bgLoadedAnim = *other;` or his `memcpy`, every byte of the other slot into this one.
+    public func copy(from other: BgLoadedAnim) {
+        self.raw.pointee = other.raw.pointee
+    }
+
     /// Source: oracle/codemp/game/bg_public.h:328
     public var filename: String {
         get { cString(at: UnsafeMutableRawPointer(self.raw.pointer(to: \.filename)!)) }

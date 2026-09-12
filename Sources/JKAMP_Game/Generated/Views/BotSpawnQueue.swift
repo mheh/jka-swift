@@ -42,6 +42,16 @@ public struct BotSpawnQueue: Hashable, HandleView {
         return try withUnsafeMutablePointer(to: &slot) { try body(BotSpawnQueue(raw: $0)) }
     }
 
+    /// Raven's `memset(&botSpawnQueue, 0, sizeof(botSpawnQueue))`, every byte of the slot to zero.
+    public func clear() {
+        self.raw.pointee = botSpawnQueue_t()
+    }
+
+    /// Raven's `botSpawnQueue = *other;` or his `memcpy`, every byte of the other slot into this one.
+    public func copy(from other: BotSpawnQueue) {
+        self.raw.pointee = other.raw.pointee
+    }
+
     /// Source: oracle/codemp/game/g_bot.c:22
     public var clientNum: Int32 {
         get { self.raw.pointee.clientNum }

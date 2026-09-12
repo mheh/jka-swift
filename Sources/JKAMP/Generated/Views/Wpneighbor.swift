@@ -41,6 +41,16 @@ public struct Wpneighbor: Hashable, HandleView {
         return try withUnsafeMutablePointer(to: &slot) { try body(Wpneighbor(raw: $0)) }
     }
 
+    /// Raven's `memset(&wpneighbor, 0, sizeof(wpneighbor))`, every byte of the slot to zero.
+    public func clear() {
+        self.raw.pointee = wpneighbor_t()
+    }
+
+    /// Raven's `wpneighbor = *other;` or his `memcpy`, every byte of the other slot into this one.
+    public func copy(from other: Wpneighbor) {
+        self.raw.pointee = other.raw.pointee
+    }
+
     /// Source: oracle/codemp/game/q_shared.h:1003
     public var num: Int32 {
         get { self.raw.pointee.num }

@@ -41,6 +41,16 @@ public struct SiegePers: Hashable, HandleView {
         return try withUnsafeMutablePointer(to: &slot) { try body(SiegePers(raw: $0)) }
     }
 
+    /// Raven's `memset(&siegePers, 0, sizeof(siegePers))`, every byte of the slot to zero.
+    public func clear() {
+        self.raw.pointee = siegePers_t()
+    }
+
+    /// Raven's `siegePers = *other;` or his `memcpy`, every byte of the other slot into this one.
+    public func copy(from other: SiegePers) {
+        self.raw.pointee = other.raw.pointee
+    }
+
     /// Source: oracle/codemp/game/q_shared.h:2439
     public var beatingTime: Bool {
         get { self.raw.pointee.beatingTime != qfalse }

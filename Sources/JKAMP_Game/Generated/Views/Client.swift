@@ -42,6 +42,16 @@ public struct Client: Hashable, HandleView {
         return try withUnsafeMutablePointer(to: &slot) { try body(Client(raw: $0)) }
     }
 
+    /// Raven's `memset(&gclient, 0, sizeof(gclient))`, every byte of the slot to zero.
+    public func clear() {
+        self.raw.pointee = gclient_t()
+    }
+
+    /// Raven's `gclient = *other;` or his `memcpy`, every byte of the other slot into this one.
+    public func copy(from other: Client) {
+        self.raw.pointee = other.raw.pointee
+    }
+
     /// Source: oracle/codemp/game/g_local.h:538
     public var ps: JKAMP.PlayerState { JKAMP.PlayerState(handle: OpaquePointer(self.raw.pointer(to: \.ps)!)) }
 

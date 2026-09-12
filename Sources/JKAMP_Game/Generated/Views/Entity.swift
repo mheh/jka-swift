@@ -42,6 +42,16 @@ public struct Entity: Hashable, HandleView {
         return try withUnsafeMutablePointer(to: &slot) { try body(Entity(raw: $0)) }
     }
 
+    /// Raven's `memset(&gentity, 0, sizeof(gentity))`, every byte of the slot to zero.
+    public func clear() {
+        self.raw.pointee = gentity_t()
+    }
+
+    /// Raven's `gentity = *other;` or his `memcpy`, every byte of the other slot into this one.
+    public func copy(from other: Entity) {
+        self.raw.pointee = other.raw.pointee
+    }
+
     /// Source: oracle/codemp/game/g_local.h:135
     public var s: JKAMP.EntityState { JKAMP.EntityState(handle: OpaquePointer(self.raw.pointer(to: \.s)!)) }
 

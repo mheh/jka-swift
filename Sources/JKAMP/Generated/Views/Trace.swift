@@ -41,6 +41,16 @@ public struct Trace: Hashable, HandleView {
         return try withUnsafeMutablePointer(to: &slot) { try body(Trace(raw: $0)) }
     }
 
+    /// Raven's `memset(&trace, 0, sizeof(trace))`, every byte of the slot to zero.
+    public func clear() {
+        self.raw.pointee = trace_t()
+    }
+
+    /// Raven's `trace = *other;` or his `memcpy`, every byte of the other slot into this one.
+    public func copy(from other: Trace) {
+        self.raw.pointee = other.raw.pointee
+    }
+
     /// Source: oracle/codemp/game/q_shared.h:1895
     public var allsolid: Int32 {
         get { Int32(self.raw.pointee.allsolid) }

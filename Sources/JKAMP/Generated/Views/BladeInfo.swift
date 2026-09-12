@@ -41,6 +41,16 @@ public struct BladeInfo: Hashable, HandleView {
         return try withUnsafeMutablePointer(to: &slot) { try body(BladeInfo(raw: $0)) }
     }
 
+    /// Raven's `memset(&bladeInfo, 0, sizeof(bladeInfo))`, every byte of the slot to zero.
+    public func clear() {
+        self.raw.pointee = bladeInfo_t()
+    }
+
+    /// Raven's `bladeInfo = *other;` or his `memcpy`, every byte of the other slot into this one.
+    public func copy(from other: BladeInfo) {
+        self.raw.pointee = other.raw.pointee
+    }
+
     /// Source: oracle/codemp/game/q_shared.h:654
     public var active: Bool {
         get { self.raw.pointee.active != qfalse }

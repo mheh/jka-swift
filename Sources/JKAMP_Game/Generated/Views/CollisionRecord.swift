@@ -42,6 +42,16 @@ public struct CollisionRecord: Hashable, HandleView {
         return try withUnsafeMutablePointer(to: &slot) { try body(CollisionRecord(raw: $0)) }
     }
 
+    /// Raven's `memset(&CollisionRecord, 0, sizeof(CollisionRecord))`, every byte of the slot to zero.
+    public func clear() {
+        self.raw.pointee = CollisionRecord_t()
+    }
+
+    /// Raven's `CollisionRecord = *other;` or his `memcpy`, every byte of the other slot into this one.
+    public func copy(from other: CollisionRecord) {
+        self.raw.pointee = other.raw.pointee
+    }
+
     /// Source: oracle/codemp/game/q_shared.h:1872
     public var mDistance: Float {
         get { self.raw.pointee.mDistance }

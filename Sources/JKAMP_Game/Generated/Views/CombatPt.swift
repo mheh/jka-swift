@@ -42,6 +42,16 @@ public struct CombatPt: Hashable, HandleView {
         return try withUnsafeMutablePointer(to: &slot) { try body(CombatPt(raw: $0)) }
     }
 
+    /// Raven's `memset(&combatPt, 0, sizeof(combatPt))`, every byte of the slot to zero.
+    public func clear() {
+        self.raw.pointee = combatPt_t()
+    }
+
+    /// Raven's `combatPt = *other;` or his `memcpy`, every byte of the other slot into this one.
+    public func copy(from other: CombatPt) {
+        self.raw.pointee = other.raw.pointee
+    }
+
     /// Source: oracle/codemp/game/NPC_combat.c:2572
     public var dist: Float {
         get { self.raw.pointee.dist }

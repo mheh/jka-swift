@@ -41,6 +41,16 @@ public struct Trajectory: Hashable, HandleView {
         return try withUnsafeMutablePointer(to: &slot) { try body(Trajectory(raw: $0)) }
     }
 
+    /// Raven's `memset(&trajectory, 0, sizeof(trajectory))`, every byte of the slot to zero.
+    public func clear() {
+        self.raw.pointee = trajectory_t()
+    }
+
+    /// Raven's `trajectory = *other;` or his `memcpy`, every byte of the other slot into this one.
+    public func copy(from other: Trajectory) {
+        self.raw.pointee = other.raw.pointee
+    }
+
     /// Source: oracle/codemp/game/q_shared.h:2655
     public var trType: trType_t {
         get { Int32(truncatingIfNeeded: self.raw.pointee.trType.rawValue) }

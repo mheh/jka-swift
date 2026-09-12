@@ -42,6 +42,16 @@ public struct Level: Hashable, HandleView {
         return try withUnsafeMutablePointer(to: &slot) { try body(Level(raw: $0)) }
     }
 
+    /// Raven's `memset(&level_locals, 0, sizeof(level_locals))`, every byte of the slot to zero.
+    public func clear() {
+        self.raw.pointee = level_locals_t()
+    }
+
+    /// Raven's `level_locals = *other;` or his `memcpy`, every byte of the other slot into this one.
+    public func copy(from other: Level) {
+        self.raw.pointee = other.raw.pointee
+    }
+
     /// Source: oracle/codemp/game/g_local.h:821
     public var clients: Client? {
         get { self.raw.pointee.clients.map { Client(handle: OpaquePointer($0)) } }

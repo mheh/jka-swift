@@ -42,6 +42,16 @@ public struct Boteventtracker: Hashable, HandleView {
         return try withUnsafeMutablePointer(to: &slot) { try body(Boteventtracker(raw: $0)) }
     }
 
+    /// Raven's `memset(&boteventtracker, 0, sizeof(boteventtracker))`, every byte of the slot to zero.
+    public func clear() {
+        self.raw.pointee = boteventtracker_t()
+    }
+
+    /// Raven's `boteventtracker = *other;` or his `memcpy`, every byte of the other slot into this one.
+    public func copy(from other: Boteventtracker) {
+        self.raw.pointee = other.raw.pointee
+    }
+
     /// Source: oracle/codemp/game/ai_main.h:132
     public var eventSequence: Int32 {
         get { self.raw.pointee.eventSequence }

@@ -517,6 +517,16 @@ class Generator:
                 "        var slot = other.raw.pointee",
                 f"        return try withUnsafeMutablePointer(to: &slot) {{ try body({view}(raw: $0)) }}",
                 "    }",
+                "",
+                f"    /// Raven's `memset(&{local}, 0, sizeof({local}))`, every byte of the slot to zero.",
+                "    public func clear() {",
+                f"        self.raw.pointee = {c_name}()",
+                "    }",
+                "",
+                f"    /// Raven's `{local} = *other;` or his `memcpy`, every byte of the other slot into this one.",
+                f"    public func copy(from other: {view}) {{",
+                "        self.raw.pointee = other.raw.pointee",
+                "    }",
             ]
             for field in record.get_children():
                 if field.kind != CursorKind.FIELD_DECL:

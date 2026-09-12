@@ -42,6 +42,16 @@ public struct CvarTable: Hashable, HandleView {
         return try withUnsafeMutablePointer(to: &slot) { try body(CvarTable(raw: $0)) }
     }
 
+    /// Raven's `memset(&cvarTable, 0, sizeof(cvarTable))`, every byte of the slot to zero.
+    public func clear() {
+        self.raw.pointee = cvarTable_t()
+    }
+
+    /// Raven's `cvarTable = *other;` or his `memcpy`, every byte of the other slot into this one.
+    public func copy(from other: CvarTable) {
+        self.raw.pointee = other.raw.pointee
+    }
+
     /// Source: oracle/codemp/game/g_main.c:18
     public var vmCvar: JKAMP.VmCvar? {
         get { self.raw.pointee.vmCvar.map { JKAMP.VmCvar(handle: OpaquePointer($0)) } }

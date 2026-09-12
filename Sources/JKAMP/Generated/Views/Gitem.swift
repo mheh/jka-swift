@@ -41,6 +41,16 @@ public struct Gitem: Hashable, HandleView {
         return try withUnsafeMutablePointer(to: &slot) { try body(Gitem(raw: $0)) }
     }
 
+    /// Raven's `memset(&gitem, 0, sizeof(gitem))`, every byte of the slot to zero.
+    public func clear() {
+        self.raw.pointee = gitem_t()
+    }
+
+    /// Raven's `gitem = *other;` or his `memcpy`, every byte of the other slot into this one.
+    public func copy(from other: Gitem) {
+        self.raw.pointee = other.raw.pointee
+    }
+
     /// Source: oracle/codemp/game/bg_public.h:1123
     public var classname: PooledString? {
         get { PooledString(raw: self.raw.pointee.classname) }

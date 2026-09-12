@@ -41,6 +41,16 @@ public struct BgField: Hashable, HandleView {
         return try withUnsafeMutablePointer(to: &slot) { try body(BgField(raw: $0)) }
     }
 
+    /// Raven's `memset(&BG_field, 0, sizeof(BG_field))`, every byte of the slot to zero.
+    public func clear() {
+        self.raw.pointee = BG_field_t()
+    }
+
+    /// Raven's `BG_field = *other;` or his `memcpy`, every byte of the other slot into this one.
+    public func copy(from other: BgField) {
+        self.raw.pointee = other.raw.pointee
+    }
+
     /// Source: oracle/codemp/game/bg_public.h:1265
     public var name: PooledString? {
         get { PooledString(raw: self.raw.pointee.name) }

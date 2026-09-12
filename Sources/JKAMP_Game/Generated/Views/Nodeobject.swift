@@ -42,6 +42,16 @@ public struct Nodeobject: Hashable, HandleView {
         return try withUnsafeMutablePointer(to: &slot) { try body(Nodeobject(raw: $0)) }
     }
 
+    /// Raven's `memset(&nodeobject, 0, sizeof(nodeobject))`, every byte of the slot to zero.
+    public func clear() {
+        self.raw.pointee = nodeobject_t()
+    }
+
+    /// Raven's `nodeobject = *other;` or his `memcpy`, every byte of the other slot into this one.
+    public func copy(from other: Nodeobject) {
+        self.raw.pointee = other.raw.pointee
+    }
+
     /// Source: oracle/codemp/game/ai_main.h:117
     public var origin: JKAShared.vec3_t {
         get { vec3(of: self.raw.pointee.origin) }

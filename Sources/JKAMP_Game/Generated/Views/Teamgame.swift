@@ -42,6 +42,16 @@ public struct Teamgame: Hashable, HandleView {
         return try withUnsafeMutablePointer(to: &slot) { try body(Teamgame(raw: $0)) }
     }
 
+    /// Raven's `memset(&teamgame, 0, sizeof(teamgame))`, every byte of the slot to zero.
+    public func clear() {
+        self.raw.pointee = teamgame_t()
+    }
+
+    /// Raven's `teamgame = *other;` or his `memcpy`, every byte of the other slot into this one.
+    public func copy(from other: Teamgame) {
+        self.raw.pointee = other.raw.pointee
+    }
+
     /// Source: oracle/codemp/game/g_team.c:9
     public var last_flag_capture: Float {
         get { self.raw.pointee.last_flag_capture }

@@ -42,6 +42,16 @@ public struct ShaderRemap: Hashable, HandleView {
         return try withUnsafeMutablePointer(to: &slot) { try body(ShaderRemap(raw: $0)) }
     }
 
+    /// Raven's `memset(&shaderRemap, 0, sizeof(shaderRemap))`, every byte of the slot to zero.
+    public func clear() {
+        self.raw.pointee = shaderRemap_t()
+    }
+
+    /// Raven's `shaderRemap = *other;` or his `memcpy`, every byte of the other slot into this one.
+    public func copy(from other: ShaderRemap) {
+        self.raw.pointee = other.raw.pointee
+    }
+
     /// Source: oracle/codemp/game/g_utils.c:10
     public var oldShader: String {
         get { cString(at: UnsafeMutableRawPointer(self.raw.pointer(to: \.oldShader)!)) }

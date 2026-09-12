@@ -42,6 +42,16 @@ public struct BotState: Hashable, HandleView {
         return try withUnsafeMutablePointer(to: &slot) { try body(BotState(raw: $0)) }
     }
 
+    /// Raven's `memset(&bot_state, 0, sizeof(bot_state))`, every byte of the slot to zero.
+    public func clear() {
+        self.raw.pointee = bot_state_t()
+    }
+
+    /// Raven's `bot_state = *other;` or his `memcpy`, every byte of the other slot into this one.
+    public func copy(from other: BotState) {
+        self.raw.pointee = other.raw.pointee
+    }
+
     /// Source: oracle/codemp/game/ai_main.h:150
     public var inuse: Int32 {
         get { self.raw.pointee.inuse }

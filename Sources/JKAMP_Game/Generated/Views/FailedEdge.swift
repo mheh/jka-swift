@@ -42,6 +42,16 @@ public struct FailedEdge: Hashable, HandleView {
         return try withUnsafeMutablePointer(to: &slot) { try body(FailedEdge(raw: $0)) }
     }
 
+    /// Raven's `memset(&failedEdge, 0, sizeof(failedEdge))`, every byte of the slot to zero.
+    public func clear() {
+        self.raw.pointee = failedEdge_t()
+    }
+
+    /// Raven's `failedEdge = *other;` or his `memcpy`, every byte of the other slot into this one.
+    public func copy(from other: FailedEdge) {
+        self.raw.pointee = other.raw.pointee
+    }
+
     /// Source: oracle/codemp/game/g_public.h:54
     public var startID: Int32 {
         get { self.raw.pointee.startID }

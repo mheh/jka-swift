@@ -42,6 +42,16 @@ public struct AIGroupMember: Hashable, HandleView {
         return try withUnsafeMutablePointer(to: &slot) { try body(AIGroupMember(raw: $0)) }
     }
 
+    /// Raven's `memset(&AIGroupMember, 0, sizeof(AIGroupMember))`, every byte of the slot to zero.
+    public func clear() {
+        self.raw.pointee = AIGroupMember_t()
+    }
+
+    /// Raven's `AIGroupMember = *other;` or his `memcpy`, every byte of the other slot into this one.
+    public func copy(from other: AIGroupMember) {
+        self.raw.pointee = other.raw.pointee
+    }
+
     /// Source: oracle/codemp/game/ai.h:89
     public var number: Int32 {
         get { self.raw.pointee.number }

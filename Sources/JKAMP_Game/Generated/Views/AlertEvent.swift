@@ -42,6 +42,16 @@ public struct AlertEvent: Hashable, HandleView {
         return try withUnsafeMutablePointer(to: &slot) { try body(AlertEvent(raw: $0)) }
     }
 
+    /// Raven's `memset(&alertEvent, 0, sizeof(alertEvent))`, every byte of the slot to zero.
+    public func clear() {
+        self.raw.pointee = alertEvent_t()
+    }
+
+    /// Raven's `alertEvent = *other;` or his `memcpy`, every byte of the other slot into this one.
+    public func copy(from other: AlertEvent) {
+        self.raw.pointee = other.raw.pointee
+    }
+
     /// Source: oracle/codemp/game/g_local.h:796
     public var position: JKAShared.vec3_t {
         get { vec3(of: self.raw.pointee.position) }

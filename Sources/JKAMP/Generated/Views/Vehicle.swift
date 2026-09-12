@@ -41,6 +41,16 @@ public struct Vehicle: Hashable, HandleView {
         return try withUnsafeMutablePointer(to: &slot) { try body(Vehicle(raw: $0)) }
     }
 
+    /// Raven's `memset(&Vehicle, 0, sizeof(Vehicle))`, every byte of the slot to zero.
+    public func clear() {
+        self.raw.pointee = Vehicle_t()
+    }
+
+    /// Raven's `Vehicle = *other;` or his `memcpy`, every byte of the other slot into this one.
+    public func copy(from other: Vehicle) {
+        self.raw.pointee = other.raw.pointee
+    }
+
     /// Source: oracle/codemp/game/bg_vehicles.h:481
     public var m_pPilot: BgEntity? {
         get { self.raw.pointee.m_pPilot.map { BgEntity(handle: OpaquePointer($0)) } }

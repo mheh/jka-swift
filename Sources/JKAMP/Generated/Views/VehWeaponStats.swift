@@ -41,6 +41,16 @@ public struct VehWeaponStats: Hashable, HandleView {
         return try withUnsafeMutablePointer(to: &slot) { try body(VehWeaponStats(raw: $0)) }
     }
 
+    /// Raven's `memset(&vehWeaponStats, 0, sizeof(vehWeaponStats))`, every byte of the slot to zero.
+    public func clear() {
+        self.raw.pointee = vehWeaponStats_t()
+    }
+
+    /// Raven's `vehWeaponStats = *other;` or his `memcpy`, every byte of the other slot into this one.
+    public func copy(from other: VehWeaponStats) {
+        self.raw.pointee = other.raw.pointee
+    }
+
     /// Source: oracle/codemp/game/bg_vehicles.h:116
     public var ID: Int32 {
         get { self.raw.pointee.ID }

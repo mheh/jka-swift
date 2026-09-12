@@ -41,6 +41,16 @@ public struct SiegeClass: Hashable, HandleView {
         return try withUnsafeMutablePointer(to: &slot) { try body(SiegeClass(raw: $0)) }
     }
 
+    /// Raven's `memset(&siegeClass, 0, sizeof(siegeClass))`, every byte of the slot to zero.
+    public func clear() {
+        self.raw.pointee = siegeClass_t()
+    }
+
+    /// Raven's `siegeClass = *other;` or his `memcpy`, every byte of the other slot into this one.
+    public func copy(from other: SiegeClass) {
+        self.raw.pointee = other.raw.pointee
+    }
+
     /// Source: oracle/codemp/game/bg_saga.h:56
     public var name: String {
         get { cString(at: UnsafeMutableRawPointer(self.raw.pointer(to: \.name)!)) }

@@ -93,7 +93,8 @@ def main() -> None:
     LOG.write_text(build.stdout + build.stderr)
     cascades = 0
     defects: list[str] = []
-    for line in (build.stdout + build.stderr).splitlines():
+    # The compiler reports one error under more than one job at times, so each error line counts once.
+    for line in dict.fromkeys((build.stdout + build.stderr).splitlines()):
         m = ERROR.match(line)
         if m is None:
             if line.startswith("error:"):

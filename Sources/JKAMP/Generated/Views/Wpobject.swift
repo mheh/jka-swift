@@ -41,6 +41,16 @@ public struct Wpobject: Hashable, HandleView {
         return try withUnsafeMutablePointer(to: &slot) { try body(Wpobject(raw: $0)) }
     }
 
+    /// Raven's `memset(&wpobject, 0, sizeof(wpobject))`, every byte of the slot to zero.
+    public func clear() {
+        self.raw.pointee = wpobject_t()
+    }
+
+    /// Raven's `wpobject = *other;` or his `memcpy`, every byte of the other slot into this one.
+    public func copy(from other: Wpobject) {
+        self.raw.pointee = other.raw.pointee
+    }
+
     /// Source: oracle/codemp/game/q_shared.h:1009
     public var origin: JKAShared.vec3_t {
         get { vec3(of: self.raw.pointee.origin) }

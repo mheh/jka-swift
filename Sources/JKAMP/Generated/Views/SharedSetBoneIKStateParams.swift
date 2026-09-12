@@ -41,6 +41,16 @@ public struct SharedSetBoneIKStateParams: Hashable, HandleView {
         return try withUnsafeMutablePointer(to: &slot) { try body(SharedSetBoneIKStateParams(raw: $0)) }
     }
 
+    /// Raven's `memset(&sharedSetBoneIKStateParams, 0, sizeof(sharedSetBoneIKStateParams))`, every byte of the slot to zero.
+    public func clear() {
+        self.raw.pointee = sharedSetBoneIKStateParams_t()
+    }
+
+    /// Raven's `sharedSetBoneIKStateParams = *other;` or his `memcpy`, every byte of the other slot into this one.
+    public func copy(from other: SharedSetBoneIKStateParams) {
+        self.raw.pointee = other.raw.pointee
+    }
+
     /// Source: oracle/codemp/game/q_shared.h:947
     public var pcjMins: JKAShared.vec3_t {
         get { vec3(of: self.raw.pointee.pcjMins) }

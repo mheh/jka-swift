@@ -41,6 +41,16 @@ public struct SharedRagDollParams: Hashable, HandleView {
         return try withUnsafeMutablePointer(to: &slot) { try body(SharedRagDollParams(raw: $0)) }
     }
 
+    /// Raven's `memset(&sharedRagDollParams, 0, sizeof(sharedRagDollParams))`, every byte of the slot to zero.
+    public func clear() {
+        self.raw.pointee = sharedRagDollParams_t()
+    }
+
+    /// Raven's `sharedRagDollParams = *other;` or his `memcpy`, every byte of the other slot into this one.
+    public func copy(from other: SharedRagDollParams) {
+        self.raw.pointee = other.raw.pointee
+    }
+
     /// Source: oracle/codemp/game/q_shared.h:898
     public var angles: JKAShared.vec3_t {
         get { vec3(of: self.raw.pointee.angles) }

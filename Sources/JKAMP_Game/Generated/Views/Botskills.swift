@@ -42,6 +42,16 @@ public struct Botskills: Hashable, HandleView {
         return try withUnsafeMutablePointer(to: &slot) { try body(Botskills(raw: $0)) }
     }
 
+    /// Raven's `memset(&botskills, 0, sizeof(botskills))`, every byte of the slot to zero.
+    public func clear() {
+        self.raw.pointee = botskills_t()
+    }
+
+    /// Raven's `botskills = *other;` or his `memcpy`, every byte of the other slot into this one.
+    public func copy(from other: Botskills) {
+        self.raw.pointee = other.raw.pointee
+    }
+
     /// Source: oracle/codemp/game/ai_main.h:139
     public var reflex: Int32 {
         get { self.raw.pointee.reflex }

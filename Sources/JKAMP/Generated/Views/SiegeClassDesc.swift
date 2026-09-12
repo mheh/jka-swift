@@ -41,6 +41,16 @@ public struct SiegeClassDesc: Hashable, HandleView {
         return try withUnsafeMutablePointer(to: &slot) { try body(SiegeClassDesc(raw: $0)) }
     }
 
+    /// Raven's `memset(&siegeClassDesc, 0, sizeof(siegeClassDesc))`, every byte of the slot to zero.
+    public func clear() {
+        self.raw.pointee = siegeClassDesc_t()
+    }
+
+    /// Raven's `siegeClassDesc = *other;` or his `memcpy`, every byte of the other slot into this one.
+    public func copy(from other: SiegeClassDesc) {
+        self.raw.pointee = other.raw.pointee
+    }
+
     /// Source: oracle/codemp/game/bg_saga.h:51
     public var desc: String {
         get { cString(at: UnsafeMutableRawPointer(self.raw.pointer(to: \.desc)!)) }

@@ -41,6 +41,16 @@ public struct SaberTrail: Hashable, HandleView {
         return try withUnsafeMutablePointer(to: &slot) { try body(SaberTrail(raw: $0)) }
     }
 
+    /// Raven's `memset(&saberTrail, 0, sizeof(saberTrail))`, every byte of the slot to zero.
+    public func clear() {
+        self.raw.pointee = saberTrail_t()
+    }
+
+    /// Raven's `saberTrail = *other;` or his `memcpy`, every byte of the other slot into this one.
+    public func copy(from other: SaberTrail) {
+        self.raw.pointee = other.raw.pointee
+    }
+
     /// Source: oracle/codemp/game/q_shared.h:636
     public var inAction: Int32 {
         get { self.raw.pointee.inAction }

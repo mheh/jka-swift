@@ -42,6 +42,16 @@ public struct PlayerTeamState: Hashable, HandleView {
         return try withUnsafeMutablePointer(to: &slot) { try body(PlayerTeamState(raw: $0)) }
     }
 
+    /// Raven's `memset(&playerTeamState, 0, sizeof(playerTeamState))`, every byte of the slot to zero.
+    public func clear() {
+        self.raw.pointee = playerTeamState_t()
+    }
+
+    /// Raven's `playerTeamState = *other;` or his `memcpy`, every byte of the other slot into this one.
+    public func copy(from other: PlayerTeamState) {
+        self.raw.pointee = other.raw.pointee
+    }
+
     /// Source: oracle/codemp/game/g_local.h:386
     public var state: playerTeamStateState_t {
         get { Int32(truncatingIfNeeded: self.raw.pointee.state.rawValue) }

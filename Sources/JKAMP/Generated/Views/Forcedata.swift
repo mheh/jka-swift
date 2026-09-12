@@ -41,6 +41,16 @@ public struct Forcedata: Hashable, HandleView {
         return try withUnsafeMutablePointer(to: &slot) { try body(Forcedata(raw: $0)) }
     }
 
+    /// Raven's `memset(&forcedata, 0, sizeof(forcedata))`, every byte of the slot to zero.
+    public func clear() {
+        self.raw.pointee = forcedata_t()
+    }
+
+    /// Raven's `forcedata = *other;` or his `memcpy`, every byte of the other slot into this one.
+    public func copy(from other: Forcedata) {
+        self.raw.pointee = other.raw.pointee
+    }
+
     /// Source: oracle/codemp/game/q_shared.h:2069
     public var forcePowerDebounce: Slots<Int32> { Slots<Int32>(scalars: UnsafeMutableRawPointer(self.raw.pointer(to: \.forcePowerDebounce)!), count: 18) }
 

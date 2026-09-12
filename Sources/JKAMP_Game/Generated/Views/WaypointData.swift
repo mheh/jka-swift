@@ -42,6 +42,16 @@ public struct WaypointData: Hashable, HandleView {
         return try withUnsafeMutablePointer(to: &slot) { try body(WaypointData(raw: $0)) }
     }
 
+    /// Raven's `memset(&waypointData, 0, sizeof(waypointData))`, every byte of the slot to zero.
+    public func clear() {
+        self.raw.pointee = waypointData_t()
+    }
+
+    /// Raven's `waypointData = *other;` or his `memcpy`, every byte of the other slot into this one.
+    public func copy(from other: WaypointData) {
+        self.raw.pointee = other.raw.pointee
+    }
+
     /// Source: oracle/codemp/game/g_local.h:812
     public var targetname: String {
         get { cString(at: UnsafeMutableRawPointer(self.raw.pointer(to: \.targetname)!)) }

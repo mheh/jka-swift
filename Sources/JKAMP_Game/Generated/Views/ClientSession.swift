@@ -42,6 +42,16 @@ public struct ClientSession: Hashable, HandleView {
         return try withUnsafeMutablePointer(to: &slot) { try body(ClientSession(raw: $0)) }
     }
 
+    /// Raven's `memset(&clientSession, 0, sizeof(clientSession))`, every byte of the slot to zero.
+    public func clear() {
+        self.raw.pointee = clientSession_t()
+    }
+
+    /// Raven's `clientSession = *other;` or his `memcpy`, every byte of the other slot into this one.
+    public func copy(from other: ClientSession) {
+        self.raw.pointee = other.raw.pointee
+    }
+
     /// Source: oracle/codemp/game/g_local.h:413
     public var sessionTeam: JKAMP.team_t {
         get { self.raw.pointee.sessionTeam }

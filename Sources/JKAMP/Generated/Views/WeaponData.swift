@@ -41,6 +41,16 @@ public struct WeaponData: Hashable, HandleView {
         return try withUnsafeMutablePointer(to: &slot) { try body(WeaponData(raw: $0)) }
     }
 
+    /// Raven's `memset(&weaponData, 0, sizeof(weaponData))`, every byte of the slot to zero.
+    public func clear() {
+        self.raw.pointee = weaponData_t()
+    }
+
+    /// Raven's `weaponData = *other;` or his `memcpy`, every byte of the other slot into this one.
+    public func copy(from other: WeaponData) {
+        self.raw.pointee = other.raw.pointee
+    }
+
     /// Source: oracle/codemp/game/bg_weapons.h:65
     public var ammoIndex: Int32 {
         get { self.raw.pointee.ammoIndex }

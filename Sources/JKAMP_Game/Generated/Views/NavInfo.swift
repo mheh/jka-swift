@@ -42,6 +42,16 @@ public struct NavInfo: Hashable, HandleView {
         return try withUnsafeMutablePointer(to: &slot) { try body(NavInfo(raw: $0)) }
     }
 
+    /// Raven's `memset(&navInfo, 0, sizeof(navInfo))`, every byte of the slot to zero.
+    public func clear() {
+        self.raw.pointee = navInfo_t()
+    }
+
+    /// Raven's `navInfo = *other;` or his `memcpy`, every byte of the other slot into this one.
+    public func copy(from other: NavInfo) {
+        self.raw.pointee = other.raw.pointee
+    }
+
     /// Source: oracle/codemp/game/b_local.h:316
     public var blocker: Entity? {
         get { self.raw.pointee.blocker.map { Entity(handle: OpaquePointer($0)) } }

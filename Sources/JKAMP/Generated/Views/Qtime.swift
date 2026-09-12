@@ -41,6 +41,16 @@ public struct Qtime: Hashable, HandleView {
         return try withUnsafeMutablePointer(to: &slot) { try body(Qtime(raw: $0)) }
     }
 
+    /// Raven's `memset(&qtime, 0, sizeof(qtime))`, every byte of the slot to zero.
+    public func clear() {
+        self.raw.pointee = qtime_t()
+    }
+
+    /// Raven's `qtime = *other;` or his `memcpy`, every byte of the other slot into this one.
+    public func copy(from other: Qtime) {
+        self.raw.pointee = other.raw.pointee
+    }
+
     /// Source: oracle/codemp/game/q_shared.h:3012
     public var tm_sec: Int32 {
         get { self.raw.pointee.tm_sec }
