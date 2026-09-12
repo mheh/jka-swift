@@ -28,9 +28,7 @@ var team2Theme: JKAMP.SiegeTeam? {
 }
 
 /// Source: oracle/codemp/game/bg_saga.c:38
-// TODO: Port global bgSiegeClasses
-// Raven wrote: siegeClass_t bgSiegeClasses[MAX_SIEGE_CLASSES]
-// A struct table is C storage in Sources/CJKAMP, reached through a Slots constant.
+var bgSiegeClasses: Slots<JKAMP.SiegeClass> { bg.storage.bgSiegeClasses }
 
 /// Source: oracle/codemp/game/bg_saga.c:39
 var bgNumSiegeClasses: Int32 {
@@ -39,9 +37,7 @@ var bgNumSiegeClasses: Int32 {
 }
 
 /// Source: oracle/codemp/game/bg_saga.c:41
-// TODO: Port global bgSiegeTeams
-// Raven wrote: siegeTeam_t bgSiegeTeams[MAX_SIEGE_TEAMS]
-// A struct table is C storage in Sources/CJKAMP, reached through a Slots constant.
+var bgSiegeTeams: Slots<JKAMP.SiegeTeam> { bg.storage.bgSiegeTeams }
 
 /// Source: oracle/codemp/game/bg_saga.c:42
 var bgNumSiegeTeams: Int32 {
@@ -52,32 +48,32 @@ var bgNumSiegeTeams: Int32 {
 /// Source: oracle/codemp/game/bg_saga.c:45
 // TODO: Port global bgSiegeClassFlagNames
 // Raven wrote: stringID_table_t bgSiegeClassFlagNames[]
-// A struct table is C storage in Sources/CJKAMP, reached through a Slots constant.
+// Raven's data table is C storage by hand in the C target, with his initializer as written, reached as a Slots over the C array, the bg_tables.c shape.
 
 /// Source: oracle/codemp/game/bg_saga.c:59
 // TODO: Port global StanceTable
 // Raven wrote: stringID_table_t StanceTable[]
-// A struct table is C storage in Sources/CJKAMP, reached through a Slots constant.
+// Raven's data table is C storage by hand in the C target, with his initializer as written, reached as a Slots over the C array, the bg_tables.c shape.
 
 /// Source: oracle/codemp/game/bg_saga.c:73
 // TODO: Port global WPTable
 // Raven wrote: stringID_table_t WPTable[]
-// A struct table is C storage in Sources/CJKAMP, reached through a Slots constant.
+// Raven's data table is C storage by hand in the C target, with his initializer as written, reached as a Slots over the C array, the bg_tables.c shape.
 
 /// Source: oracle/codemp/game/bg_saga.c:100
 // TODO: Port global FPTable
 // Raven wrote: stringID_table_t FPTable[]
-// A struct table is C storage in Sources/CJKAMP, reached through a Slots constant.
+// Raven's data table is C storage by hand in the C target, with his initializer as written, reached as a Slots over the C array, the bg_tables.c shape.
 
 /// Source: oracle/codemp/game/bg_saga.c:123
 // TODO: Port global HoldableTable
 // Raven wrote: stringID_table_t HoldableTable[]
-// A struct table is C storage in Sources/CJKAMP, reached through a Slots constant.
+// Raven's data table is C storage by hand in the C target, with his initializer as written, reached as a Slots over the C array, the bg_tables.c shape.
 
 /// Source: oracle/codemp/game/bg_saga.c:142
 // TODO: Port global PowerupTable
 // Raven wrote: stringID_table_t PowerupTable[]
-// A struct table is C storage in Sources/CJKAMP, reached through a Slots constant.
+// Raven's data table is C storage by hand in the C target, with his initializer as written, reached as a Slots over the C array, the bg_tables.c shape.
 
 /// Source: oracle/codemp/game/bg_saga.c:748
 /// Raven's data table, a hand property of `BgState`.

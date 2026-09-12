@@ -10,7 +10,7 @@ A Swift port of Star Wars Jedi Knight: Jedi Academy, modeled on [jka-rust](../jk
 
 The tree holds every function of the MP game module as a callable stub, and the bg files with the most logic, `bg_pmove` and `bg_misc`, have bodies. The per file tables under [`.claude/manifest`](.claude/manifest) say which functions are ported, which are markers, and what each stub's signature is, and a Port-note in a body marks each place Raven's C has no Swift form yet.
 
-The ported bodies are untested. The test targets cover the shared layer and the generated seam: the math parity, the string pool, `Slots`, the syscall word, the format and scan helpers, the bg channel, the bg tables, the type layouts, the world, the game memory, the game traps, and the dylib smoke test. No test names a `PM_` function. I report that the module booted under the engine, registered, and fatal errored at the first unported body. The tree cannot show that run.
+The ported bodies are untested. The test targets cover the shared layer and the generated seam: the math parity, the string pool, `Slots`, the syscall word, the format and scan helpers, the bg channel, the bg tables, the type layouts, the world, the game storage, the game traps, and the dylib smoke test. No test names a `PM_` function. I report that the module booted under the engine, registered, and fatal errored at the first unported body. The tree cannot show that run.
 
 The rulings that shaped the tools were made one row at a time, each shown as generated output and committed on its own, and the ledger of those walks sits in the guide.
 
@@ -79,7 +79,7 @@ Where jka-rust treated ownership as the point of truth and passed a context of t
 ```swift
 /// All state of the game module, rule 3. One instance exists behind `world`, and a test assigns a fresh one.
 final class GameWorld {
-    let memory = GameMemory()
+    let storage = GameStorage()
     let strings = StringPool()
 
     /// Raven's `static unsigned long holdrand` of `q_math.c`, which the game module owns one copy of.
@@ -91,7 +91,7 @@ final class GameWorld {
 nonisolated(unsafe) var world = GameWorld()
 
 /// Source: oracle/codemp/game/g_main.c:27
-var g_entities: Slots<Entity> { world.memory.entities }
+var g_entities: Slots<Entity> { world.storage.g_entities }
 ```
 
 A test swaps the world with `world = GameWorld()`. The bg files, which Raven compiles into each module, keep the same shape on `BgState` behind `bg`. One thread as the game and ABI layer while other threads copy the whole state out still seems worth having, and the singleton keeps that door open, because the state is one object.

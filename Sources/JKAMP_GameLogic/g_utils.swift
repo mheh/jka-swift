@@ -13,12 +13,10 @@ var remapCount: Int32 {
 /// Source: oracle/codemp/game/g_utils.c:18
 // TODO: Port global remappedShaders
 // Raven wrote: shaderRemap_t remappedShaders[MAX_SHADER_REMAPS]
-// A struct table is C storage in Sources/CJKAMP, reached through a Slots constant.
+// No view for `shaderRemap_t`, a struct Raven defines inside a .c file.
 
 /// Source: oracle/codemp/game/g_utils.c:385
-// TODO: Port global g_vehiclePool
-// Raven wrote: static Vehicle_t g_vehiclePool[MAX_VEHICLES_AT_A_TIME]
-// A struct table is C storage in Sources/CJKAMP, reached through a Slots constant.
+var g_vehiclePool: Slots<JKAMP.Vehicle> { world.storage.g_vehiclePool }
 
 /// Source: oracle/codemp/game/g_utils.c:386
 var g_vehiclePoolOccupied: [Bool] {

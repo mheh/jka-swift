@@ -46,7 +46,7 @@ var gLastPrintedIndex: Int32 {
 /// Source: oracle/codemp/game/ai_wpnav.c:19
 // TODO: Port global nodetable
 // Raven wrote: nodeobject_t nodetable[MAX_NODETABLE_SIZE]
-// A struct table is C storage in Sources/CJKAMP, reached through a Slots constant.
+// No view for `struct nodeobject_s`, a struct Raven defines inside a .c file.
 
 /// Source: oracle/codemp/game/ai_wpnav.c:20
 var nodenum: Int32 {

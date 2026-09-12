@@ -21,7 +21,7 @@ struct GameWorldSuite {
 
         level.time = 100
 
-        #expect(world.memory.level.time == 100)
+        #expect(world.storage.level.time == 100)
     }
 
     @Test("the string pool interns one pointer per distinct text")

@@ -31,12 +31,10 @@ var g_arenaInfos: [String] {
 /// Source: oracle/codemp/game/g_bot.c:27
 // TODO: Port global botSpawnQueue
 // Raven wrote: static botSpawnQueue_t botSpawnQueue[BOT_SPAWN_QUEUE_DEPTH]
-// A struct table is C storage in Sources/CJKAMP, reached through a Slots constant.
+// No view for `botSpawnQueue_t`, a struct Raven defines inside a .c file.
 
 /// Source: oracle/codemp/game/g_bot.c:29
-// TODO: Port global bot_minplayers
-// Raven wrote: vmCvar_t bot_minplayers
-// A struct table is C storage in Sources/CJKAMP, reached through a Slots constant.
+var bot_minplayers: JKAMP.VmCvar { world.storage.bot_minplayers }
 
 /// Source: oracle/codemp/game/g_bot.c:36
 func trap_Cvar_VariableValue(_ var_name: String) -> Float {

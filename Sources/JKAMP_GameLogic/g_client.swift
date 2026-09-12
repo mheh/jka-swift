@@ -19,9 +19,7 @@ private var playerMaxs: JKAShared.vec3_t {
 }
 
 /// Source: oracle/codemp/game/g_client.c:19
-// TODO: Port global Client_Force
-// Raven wrote: forcedata_t Client_Force[MAX_CLIENTS]
-// A struct table is C storage in Sources/CJKAMP, reached through a Slots constant.
+var Client_Force: Slots<JKAMP.Forcedata> { world.storage.Client_Force }
 
 /// Source: oracle/codemp/game/g_client.c:471
 var gJMSaberEnt: Entity? {

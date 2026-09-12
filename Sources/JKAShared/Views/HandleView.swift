@@ -5,6 +5,10 @@ public protocol HandleView: Hashable, SyscallWord {
     init(handle: OpaquePointer)
 
     var handle: OpaquePointer { get }
+
+    /// The size of one slot in bytes, and the distance between two slots of a C array, so a module that cannot see the C type allocates one.
+    static var byteCount: Int { get }
+    static var stride: Int { get }
 }
 
 extension HandleView {

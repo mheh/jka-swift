@@ -2,6 +2,9 @@ import JKAMP
 import JKAShared
 import JKAMP_Game
 
+/// Source: oracle/codemp/game/g_main.c:9
+var level: Level { world.storage.level }
+
 /// Source: oracle/codemp/game/g_main.c:11
 var eventClearTime: Int32 {
     get { world.variables.eventClearTime }
@@ -20,6 +23,12 @@ var killPlayerTimer: Int32 {
     set { world.variables.killPlayerTimer = newValue }
 }
 
+/// Source: oracle/codemp/game/g_main.c:27
+var g_entities: Slots<Entity> { world.storage.g_entities }
+
+/// Source: oracle/codemp/game/g_main.c:28
+var g_clients: Slots<Client> { world.storage.g_clients }
+
 /// Source: oracle/codemp/game/g_main.c:30
 var gDuelExit: Bool {
     get { world.variables.gDuelExit }
@@ -27,709 +36,429 @@ var gDuelExit: Bool {
 }
 
 /// Source: oracle/codemp/game/g_main.c:32
-// TODO: Port global g_trueJedi
-// Raven wrote: vmCvar_t g_trueJedi
-// A struct table is C storage in Sources/CJKAMP, reached through a Slots constant.
+var g_trueJedi: JKAMP.VmCvar { world.storage.g_trueJedi }
 
 /// Source: oracle/codemp/game/g_main.c:34
-// TODO: Port global g_gametype
-// Raven wrote: vmCvar_t g_gametype
-// A struct table is C storage in Sources/CJKAMP, reached through a Slots constant.
+var g_gametype: JKAMP.VmCvar { world.storage.g_gametype }
 
 /// Source: oracle/codemp/game/g_main.c:35
-// TODO: Port global g_MaxHolocronCarry
-// Raven wrote: vmCvar_t g_MaxHolocronCarry
-// A struct table is C storage in Sources/CJKAMP, reached through a Slots constant.
+var g_MaxHolocronCarry: JKAMP.VmCvar { world.storage.g_MaxHolocronCarry }
 
 /// Source: oracle/codemp/game/g_main.c:36
-// TODO: Port global g_ff_objectives
-// Raven wrote: vmCvar_t g_ff_objectives
-// A struct table is C storage in Sources/CJKAMP, reached through a Slots constant.
+var g_ff_objectives: JKAMP.VmCvar { world.storage.g_ff_objectives }
 
 /// Source: oracle/codemp/game/g_main.c:37
-// TODO: Port global g_autoMapCycle
-// Raven wrote: vmCvar_t g_autoMapCycle
-// A struct table is C storage in Sources/CJKAMP, reached through a Slots constant.
+var g_autoMapCycle: JKAMP.VmCvar { world.storage.g_autoMapCycle }
 
 /// Source: oracle/codemp/game/g_main.c:38
-// TODO: Port global g_dmflags
-// Raven wrote: vmCvar_t g_dmflags
-// A struct table is C storage in Sources/CJKAMP, reached through a Slots constant.
+var g_dmflags: JKAMP.VmCvar { world.storage.g_dmflags }
 
 /// Source: oracle/codemp/game/g_main.c:39
-// TODO: Port global g_maxForceRank
-// Raven wrote: vmCvar_t g_maxForceRank
-// A struct table is C storage in Sources/CJKAMP, reached through a Slots constant.
+var g_maxForceRank: JKAMP.VmCvar { world.storage.g_maxForceRank }
 
 /// Source: oracle/codemp/game/g_main.c:40
-// TODO: Port global g_forceBasedTeams
-// Raven wrote: vmCvar_t g_forceBasedTeams
-// A struct table is C storage in Sources/CJKAMP, reached through a Slots constant.
+var g_forceBasedTeams: JKAMP.VmCvar { world.storage.g_forceBasedTeams }
 
 /// Source: oracle/codemp/game/g_main.c:41
-// TODO: Port global g_privateDuel
-// Raven wrote: vmCvar_t g_privateDuel
-// A struct table is C storage in Sources/CJKAMP, reached through a Slots constant.
+var g_privateDuel: JKAMP.VmCvar { world.storage.g_privateDuel }
 
 /// Source: oracle/codemp/game/g_main.c:43
-// TODO: Port global g_allowNPC
-// Raven wrote: vmCvar_t g_allowNPC
-// A struct table is C storage in Sources/CJKAMP, reached through a Slots constant.
+var g_allowNPC: JKAMP.VmCvar { world.storage.g_allowNPC }
 
 /// Source: oracle/codemp/game/g_main.c:45
-// TODO: Port global g_armBreakage
-// Raven wrote: vmCvar_t g_armBreakage
-// A struct table is C storage in Sources/CJKAMP, reached through a Slots constant.
+var g_armBreakage: JKAMP.VmCvar { world.storage.g_armBreakage }
 
 /// Source: oracle/codemp/game/g_main.c:47
-// TODO: Port global g_saberLocking
-// Raven wrote: vmCvar_t g_saberLocking
-// A struct table is C storage in Sources/CJKAMP, reached through a Slots constant.
+var g_saberLocking: JKAMP.VmCvar { world.storage.g_saberLocking }
 
 /// Source: oracle/codemp/game/g_main.c:48
-// TODO: Port global g_saberLockFactor
-// Raven wrote: vmCvar_t g_saberLockFactor
-// A struct table is C storage in Sources/CJKAMP, reached through a Slots constant.
+var g_saberLockFactor: JKAMP.VmCvar { world.storage.g_saberLockFactor }
 
 /// Source: oracle/codemp/game/g_main.c:49
-// TODO: Port global g_saberTraceSaberFirst
-// Raven wrote: vmCvar_t g_saberTraceSaberFirst
-// A struct table is C storage in Sources/CJKAMP, reached through a Slots constant.
+var g_saberTraceSaberFirst: JKAMP.VmCvar { world.storage.g_saberTraceSaberFirst }
 
 /// Source: oracle/codemp/game/g_main.c:51
-// TODO: Port global d_saberKickTweak
-// Raven wrote: vmCvar_t d_saberKickTweak
-// A struct table is C storage in Sources/CJKAMP, reached through a Slots constant.
+var d_saberKickTweak: JKAMP.VmCvar { world.storage.d_saberKickTweak }
 
 /// Source: oracle/codemp/game/g_main.c:53
-// TODO: Port global d_powerDuelPrint
-// Raven wrote: vmCvar_t d_powerDuelPrint
-// A struct table is C storage in Sources/CJKAMP, reached through a Slots constant.
+var d_powerDuelPrint: JKAMP.VmCvar { world.storage.d_powerDuelPrint }
 
 /// Source: oracle/codemp/game/g_main.c:55
-// TODO: Port global d_saberGhoul2Collision
-// Raven wrote: vmCvar_t d_saberGhoul2Collision
-// A struct table is C storage in Sources/CJKAMP, reached through a Slots constant.
+var d_saberGhoul2Collision: JKAMP.VmCvar { world.storage.d_saberGhoul2Collision }
 
 /// Source: oracle/codemp/game/g_main.c:56
-// TODO: Port global g_saberBladeFaces
-// Raven wrote: vmCvar_t g_saberBladeFaces
-// A struct table is C storage in Sources/CJKAMP, reached through a Slots constant.
+var g_saberBladeFaces: JKAMP.VmCvar { world.storage.g_saberBladeFaces }
 
 /// Source: oracle/codemp/game/g_main.c:57
-// TODO: Port global d_saberAlwaysBoxTrace
-// Raven wrote: vmCvar_t d_saberAlwaysBoxTrace
-// A struct table is C storage in Sources/CJKAMP, reached through a Slots constant.
+var d_saberAlwaysBoxTrace: JKAMP.VmCvar { world.storage.d_saberAlwaysBoxTrace }
 
 /// Source: oracle/codemp/game/g_main.c:58
-// TODO: Port global d_saberBoxTraceSize
-// Raven wrote: vmCvar_t d_saberBoxTraceSize
-// A struct table is C storage in Sources/CJKAMP, reached through a Slots constant.
+var d_saberBoxTraceSize: JKAMP.VmCvar { world.storage.d_saberBoxTraceSize }
 
 /// Source: oracle/codemp/game/g_main.c:60
-// TODO: Port global d_siegeSeekerNPC
-// Raven wrote: vmCvar_t d_siegeSeekerNPC
-// A struct table is C storage in Sources/CJKAMP, reached through a Slots constant.
+var d_siegeSeekerNPC: JKAMP.VmCvar { world.storage.d_siegeSeekerNPC }
 
 /// Source: oracle/codemp/game/g_main.c:62
-// TODO: Port global g_debugMelee
-// Raven wrote: vmCvar_t g_debugMelee
-// A struct table is C storage in Sources/CJKAMP, reached through a Slots constant.
+var g_debugMelee: JKAMP.VmCvar { world.storage.g_debugMelee }
 
 /// Source: oracle/codemp/game/g_main.c:63
-// TODO: Port global g_stepSlideFix
-// Raven wrote: vmCvar_t g_stepSlideFix
-// A struct table is C storage in Sources/CJKAMP, reached through a Slots constant.
+var g_stepSlideFix: JKAMP.VmCvar { world.storage.g_stepSlideFix }
 
 /// Source: oracle/codemp/game/g_main.c:65
-// TODO: Port global g_noSpecMove
-// Raven wrote: vmCvar_t g_noSpecMove
-// A struct table is C storage in Sources/CJKAMP, reached through a Slots constant.
+var g_noSpecMove: JKAMP.VmCvar { world.storage.g_noSpecMove }
 
 /// Source: oracle/codemp/game/g_main.c:71
-// TODO: Port global d_perPlayerGhoul2
-// Raven wrote: vmCvar_t d_perPlayerGhoul2
-// A struct table is C storage in Sources/CJKAMP, reached through a Slots constant.
+var d_perPlayerGhoul2: JKAMP.VmCvar { world.storage.d_perPlayerGhoul2 }
 
 /// Source: oracle/codemp/game/g_main.c:73
-// TODO: Port global d_projectileGhoul2Collision
-// Raven wrote: vmCvar_t d_projectileGhoul2Collision
-// A struct table is C storage in Sources/CJKAMP, reached through a Slots constant.
+var d_projectileGhoul2Collision: JKAMP.VmCvar { world.storage.d_projectileGhoul2Collision }
 
 /// Source: oracle/codemp/game/g_main.c:75
-// TODO: Port global g_g2TraceLod
-// Raven wrote: vmCvar_t g_g2TraceLod
-// A struct table is C storage in Sources/CJKAMP, reached through a Slots constant.
+var g_g2TraceLod: JKAMP.VmCvar { world.storage.g_g2TraceLod }
 
 /// Source: oracle/codemp/game/g_main.c:77
-// TODO: Port global g_optvehtrace
-// Raven wrote: vmCvar_t g_optvehtrace
-// A struct table is C storage in Sources/CJKAMP, reached through a Slots constant.
+var g_optvehtrace: JKAMP.VmCvar { world.storage.g_optvehtrace }
 
 /// Source: oracle/codemp/game/g_main.c:79
-// TODO: Port global g_locationBasedDamage
-// Raven wrote: vmCvar_t g_locationBasedDamage
-// A struct table is C storage in Sources/CJKAMP, reached through a Slots constant.
+var g_locationBasedDamage: JKAMP.VmCvar { world.storage.g_locationBasedDamage }
 
 /// Source: oracle/codemp/game/g_main.c:81
-// TODO: Port global g_allowHighPingDuelist
-// Raven wrote: vmCvar_t g_allowHighPingDuelist
-// A struct table is C storage in Sources/CJKAMP, reached through a Slots constant.
+var g_allowHighPingDuelist: JKAMP.VmCvar { world.storage.g_allowHighPingDuelist }
 
 /// Source: oracle/codemp/game/g_main.c:83
-// TODO: Port global g_logClientInfo
-// Raven wrote: vmCvar_t g_logClientInfo
-// A struct table is C storage in Sources/CJKAMP, reached through a Slots constant.
+var g_logClientInfo: JKAMP.VmCvar { world.storage.g_logClientInfo }
 
 /// Source: oracle/codemp/game/g_main.c:85
-// TODO: Port global g_slowmoDuelEnd
-// Raven wrote: vmCvar_t g_slowmoDuelEnd
-// A struct table is C storage in Sources/CJKAMP, reached through a Slots constant.
+var g_slowmoDuelEnd: JKAMP.VmCvar { world.storage.g_slowmoDuelEnd }
 
 /// Source: oracle/codemp/game/g_main.c:87
-// TODO: Port global g_saberDamageScale
-// Raven wrote: vmCvar_t g_saberDamageScale
-// A struct table is C storage in Sources/CJKAMP, reached through a Slots constant.
+var g_saberDamageScale: JKAMP.VmCvar { world.storage.g_saberDamageScale }
 
 /// Source: oracle/codemp/game/g_main.c:89
-// TODO: Port global g_useWhileThrowing
-// Raven wrote: vmCvar_t g_useWhileThrowing
-// A struct table is C storage in Sources/CJKAMP, reached through a Slots constant.
+var g_useWhileThrowing: JKAMP.VmCvar { world.storage.g_useWhileThrowing }
 
 /// Source: oracle/codemp/game/g_main.c:91
-// TODO: Port global g_RMG
-// Raven wrote: vmCvar_t g_RMG
-// A struct table is C storage in Sources/CJKAMP, reached through a Slots constant.
+var g_RMG: JKAMP.VmCvar { world.storage.g_RMG }
 
 /// Source: oracle/codemp/game/g_main.c:93
-// TODO: Port global g_svfps
-// Raven wrote: vmCvar_t g_svfps
-// A struct table is C storage in Sources/CJKAMP, reached through a Slots constant.
+var g_svfps: JKAMP.VmCvar { world.storage.g_svfps }
 
 /// Source: oracle/codemp/game/g_main.c:95
-// TODO: Port global g_forceRegenTime
-// Raven wrote: vmCvar_t g_forceRegenTime
-// A struct table is C storage in Sources/CJKAMP, reached through a Slots constant.
+var g_forceRegenTime: JKAMP.VmCvar { world.storage.g_forceRegenTime }
 
 /// Source: oracle/codemp/game/g_main.c:96
-// TODO: Port global g_spawnInvulnerability
-// Raven wrote: vmCvar_t g_spawnInvulnerability
-// A struct table is C storage in Sources/CJKAMP, reached through a Slots constant.
+var g_spawnInvulnerability: JKAMP.VmCvar { world.storage.g_spawnInvulnerability }
 
 /// Source: oracle/codemp/game/g_main.c:97
-// TODO: Port global g_forcePowerDisable
-// Raven wrote: vmCvar_t g_forcePowerDisable
-// A struct table is C storage in Sources/CJKAMP, reached through a Slots constant.
+var g_forcePowerDisable: JKAMP.VmCvar { world.storage.g_forcePowerDisable }
 
 /// Source: oracle/codemp/game/g_main.c:98
-// TODO: Port global g_weaponDisable
-// Raven wrote: vmCvar_t g_weaponDisable
-// A struct table is C storage in Sources/CJKAMP, reached through a Slots constant.
+var g_weaponDisable: JKAMP.VmCvar { world.storage.g_weaponDisable }
 
 /// Source: oracle/codemp/game/g_main.c:99
-// TODO: Port global g_duelWeaponDisable
-// Raven wrote: vmCvar_t g_duelWeaponDisable
-// A struct table is C storage in Sources/CJKAMP, reached through a Slots constant.
+var g_duelWeaponDisable: JKAMP.VmCvar { world.storage.g_duelWeaponDisable }
 
 /// Source: oracle/codemp/game/g_main.c:100
-// TODO: Port global g_allowDuelSuicide
-// Raven wrote: vmCvar_t g_allowDuelSuicide
-// A struct table is C storage in Sources/CJKAMP, reached through a Slots constant.
+var g_allowDuelSuicide: JKAMP.VmCvar { world.storage.g_allowDuelSuicide }
 
 /// Source: oracle/codemp/game/g_main.c:101
-// TODO: Port global g_fraglimitVoteCorrection
-// Raven wrote: vmCvar_t g_fraglimitVoteCorrection
-// A struct table is C storage in Sources/CJKAMP, reached through a Slots constant.
+var g_fraglimitVoteCorrection: JKAMP.VmCvar { world.storage.g_fraglimitVoteCorrection }
 
 /// Source: oracle/codemp/game/g_main.c:102
-// TODO: Port global g_fraglimit
-// Raven wrote: vmCvar_t g_fraglimit
-// A struct table is C storage in Sources/CJKAMP, reached through a Slots constant.
+var g_fraglimit: JKAMP.VmCvar { world.storage.g_fraglimit }
 
 /// Source: oracle/codemp/game/g_main.c:103
-// TODO: Port global g_duel_fraglimit
-// Raven wrote: vmCvar_t g_duel_fraglimit
-// A struct table is C storage in Sources/CJKAMP, reached through a Slots constant.
+var g_duel_fraglimit: JKAMP.VmCvar { world.storage.g_duel_fraglimit }
 
 /// Source: oracle/codemp/game/g_main.c:104
-// TODO: Port global g_timelimit
-// Raven wrote: vmCvar_t g_timelimit
-// A struct table is C storage in Sources/CJKAMP, reached through a Slots constant.
+var g_timelimit: JKAMP.VmCvar { world.storage.g_timelimit }
 
 /// Source: oracle/codemp/game/g_main.c:105
-// TODO: Port global g_capturelimit
-// Raven wrote: vmCvar_t g_capturelimit
-// A struct table is C storage in Sources/CJKAMP, reached through a Slots constant.
+var g_capturelimit: JKAMP.VmCvar { world.storage.g_capturelimit }
 
 /// Source: oracle/codemp/game/g_main.c:106
-// TODO: Port global d_saberInterpolate
-// Raven wrote: vmCvar_t d_saberInterpolate
-// A struct table is C storage in Sources/CJKAMP, reached through a Slots constant.
+var d_saberInterpolate: JKAMP.VmCvar { world.storage.d_saberInterpolate }
 
 /// Source: oracle/codemp/game/g_main.c:107
-// TODO: Port global g_friendlyFire
-// Raven wrote: vmCvar_t g_friendlyFire
-// A struct table is C storage in Sources/CJKAMP, reached through a Slots constant.
+var g_friendlyFire: JKAMP.VmCvar { world.storage.g_friendlyFire }
 
 /// Source: oracle/codemp/game/g_main.c:108
-// TODO: Port global g_friendlySaber
-// Raven wrote: vmCvar_t g_friendlySaber
-// A struct table is C storage in Sources/CJKAMP, reached through a Slots constant.
+var g_friendlySaber: JKAMP.VmCvar { world.storage.g_friendlySaber }
 
 /// Source: oracle/codemp/game/g_main.c:109
-// TODO: Port global g_password
-// Raven wrote: vmCvar_t g_password
-// A struct table is C storage in Sources/CJKAMP, reached through a Slots constant.
+var g_password: JKAMP.VmCvar { world.storage.g_password }
 
 /// Source: oracle/codemp/game/g_main.c:110
-// TODO: Port global g_needpass
-// Raven wrote: vmCvar_t g_needpass
-// A struct table is C storage in Sources/CJKAMP, reached through a Slots constant.
+var g_needpass: JKAMP.VmCvar { world.storage.g_needpass }
 
 /// Source: oracle/codemp/game/g_main.c:111
-// TODO: Port global g_maxclients
-// Raven wrote: vmCvar_t g_maxclients
-// A struct table is C storage in Sources/CJKAMP, reached through a Slots constant.
+var g_maxclients: JKAMP.VmCvar { world.storage.g_maxclients }
 
 /// Source: oracle/codemp/game/g_main.c:112
-// TODO: Port global g_maxGameClients
-// Raven wrote: vmCvar_t g_maxGameClients
-// A struct table is C storage in Sources/CJKAMP, reached through a Slots constant.
+var g_maxGameClients: JKAMP.VmCvar { world.storage.g_maxGameClients }
 
 /// Source: oracle/codemp/game/g_main.c:113
-// TODO: Port global g_dedicated
-// Raven wrote: vmCvar_t g_dedicated
-// A struct table is C storage in Sources/CJKAMP, reached through a Slots constant.
+var g_dedicated: JKAMP.VmCvar { world.storage.g_dedicated }
 
 /// Source: oracle/codemp/game/g_main.c:114
-// TODO: Port global g_developer
-// Raven wrote: vmCvar_t g_developer
-// A struct table is C storage in Sources/CJKAMP, reached through a Slots constant.
+var g_developer: JKAMP.VmCvar { world.storage.g_developer }
 
 /// Source: oracle/codemp/game/g_main.c:115
-// TODO: Port global g_speed
-// Raven wrote: vmCvar_t g_speed
-// A struct table is C storage in Sources/CJKAMP, reached through a Slots constant.
+var g_speed: JKAMP.VmCvar { world.storage.g_speed }
 
 /// Source: oracle/codemp/game/g_main.c:116
-// TODO: Port global g_gravity
-// Raven wrote: vmCvar_t g_gravity
-// A struct table is C storage in Sources/CJKAMP, reached through a Slots constant.
+var g_gravity: JKAMP.VmCvar { world.storage.g_gravity }
 
 /// Source: oracle/codemp/game/g_main.c:117
-// TODO: Port global g_cheats
-// Raven wrote: vmCvar_t g_cheats
-// A struct table is C storage in Sources/CJKAMP, reached through a Slots constant.
+var g_cheats: JKAMP.VmCvar { world.storage.g_cheats }
 
 /// Source: oracle/codemp/game/g_main.c:118
-// TODO: Port global g_knockback
-// Raven wrote: vmCvar_t g_knockback
-// A struct table is C storage in Sources/CJKAMP, reached through a Slots constant.
+var g_knockback: JKAMP.VmCvar { world.storage.g_knockback }
 
 /// Source: oracle/codemp/game/g_main.c:119
-// TODO: Port global g_quadfactor
-// Raven wrote: vmCvar_t g_quadfactor
-// A struct table is C storage in Sources/CJKAMP, reached through a Slots constant.
+var g_quadfactor: JKAMP.VmCvar { world.storage.g_quadfactor }
 
 /// Source: oracle/codemp/game/g_main.c:120
-// TODO: Port global g_forcerespawn
-// Raven wrote: vmCvar_t g_forcerespawn
-// A struct table is C storage in Sources/CJKAMP, reached through a Slots constant.
+var g_forcerespawn: JKAMP.VmCvar { world.storage.g_forcerespawn }
 
 /// Source: oracle/codemp/game/g_main.c:121
-// TODO: Port global g_siegeRespawn
-// Raven wrote: vmCvar_t g_siegeRespawn
-// A struct table is C storage in Sources/CJKAMP, reached through a Slots constant.
+var g_siegeRespawn: JKAMP.VmCvar { world.storage.g_siegeRespawn }
 
 /// Source: oracle/codemp/game/g_main.c:122
-// TODO: Port global g_inactivity
-// Raven wrote: vmCvar_t g_inactivity
-// A struct table is C storage in Sources/CJKAMP, reached through a Slots constant.
+var g_inactivity: JKAMP.VmCvar { world.storage.g_inactivity }
 
 /// Source: oracle/codemp/game/g_main.c:123
-// TODO: Port global g_debugMove
-// Raven wrote: vmCvar_t g_debugMove
-// A struct table is C storage in Sources/CJKAMP, reached through a Slots constant.
+var g_debugMove: JKAMP.VmCvar { world.storage.g_debugMove }
 
 /// Source: oracle/codemp/game/g_main.c:125
-// TODO: Port global g_debugDamage
-// Raven wrote: vmCvar_t g_debugDamage
-// A struct table is C storage in Sources/CJKAMP, reached through a Slots constant.
+var g_debugDamage: JKAMP.VmCvar { world.storage.g_debugDamage }
 
 /// Source: oracle/codemp/game/g_main.c:127
-// TODO: Port global g_debugAlloc
-// Raven wrote: vmCvar_t g_debugAlloc
-// A struct table is C storage in Sources/CJKAMP, reached through a Slots constant.
+var g_debugAlloc: JKAMP.VmCvar { world.storage.g_debugAlloc }
 
 /// Source: oracle/codemp/game/g_main.c:128
-// TODO: Port global g_debugServerSkel
-// Raven wrote: vmCvar_t g_debugServerSkel
-// A struct table is C storage in Sources/CJKAMP, reached through a Slots constant.
+var g_debugServerSkel: JKAMP.VmCvar { world.storage.g_debugServerSkel }
 
 /// Source: oracle/codemp/game/g_main.c:129
-// TODO: Port global g_weaponRespawn
-// Raven wrote: vmCvar_t g_weaponRespawn
-// A struct table is C storage in Sources/CJKAMP, reached through a Slots constant.
+var g_weaponRespawn: JKAMP.VmCvar { world.storage.g_weaponRespawn }
 
 /// Source: oracle/codemp/game/g_main.c:130
-// TODO: Port global g_weaponTeamRespawn
-// Raven wrote: vmCvar_t g_weaponTeamRespawn
-// A struct table is C storage in Sources/CJKAMP, reached through a Slots constant.
+var g_weaponTeamRespawn: JKAMP.VmCvar { world.storage.g_weaponTeamRespawn }
 
 /// Source: oracle/codemp/game/g_main.c:131
-// TODO: Port global g_adaptRespawn
-// Raven wrote: vmCvar_t g_adaptRespawn
-// A struct table is C storage in Sources/CJKAMP, reached through a Slots constant.
+var g_adaptRespawn: JKAMP.VmCvar { world.storage.g_adaptRespawn }
 
 /// Source: oracle/codemp/game/g_main.c:132
-// TODO: Port global g_motd
-// Raven wrote: vmCvar_t g_motd
-// A struct table is C storage in Sources/CJKAMP, reached through a Slots constant.
+var g_motd: JKAMP.VmCvar { world.storage.g_motd }
 
 /// Source: oracle/codemp/game/g_main.c:133
-// TODO: Port global g_synchronousClients
-// Raven wrote: vmCvar_t g_synchronousClients
-// A struct table is C storage in Sources/CJKAMP, reached through a Slots constant.
+var g_synchronousClients: JKAMP.VmCvar { world.storage.g_synchronousClients }
 
 /// Source: oracle/codemp/game/g_main.c:134
-// TODO: Port global g_warmup
-// Raven wrote: vmCvar_t g_warmup
-// A struct table is C storage in Sources/CJKAMP, reached through a Slots constant.
+var g_warmup: JKAMP.VmCvar { world.storage.g_warmup }
 
 /// Source: oracle/codemp/game/g_main.c:135
-// TODO: Port global g_doWarmup
-// Raven wrote: vmCvar_t g_doWarmup
-// A struct table is C storage in Sources/CJKAMP, reached through a Slots constant.
+var g_doWarmup: JKAMP.VmCvar { world.storage.g_doWarmup }
 
 /// Source: oracle/codemp/game/g_main.c:136
-// TODO: Port global g_restarted
-// Raven wrote: vmCvar_t g_restarted
-// A struct table is C storage in Sources/CJKAMP, reached through a Slots constant.
+var g_restarted: JKAMP.VmCvar { world.storage.g_restarted }
 
 /// Source: oracle/codemp/game/g_main.c:137
-// TODO: Port global g_log
-// Raven wrote: vmCvar_t g_log
-// A struct table is C storage in Sources/CJKAMP, reached through a Slots constant.
+var g_log: JKAMP.VmCvar { world.storage.g_log }
 
 /// Source: oracle/codemp/game/g_main.c:138
-// TODO: Port global g_logSync
-// Raven wrote: vmCvar_t g_logSync
-// A struct table is C storage in Sources/CJKAMP, reached through a Slots constant.
+var g_logSync: JKAMP.VmCvar { world.storage.g_logSync }
 
 /// Source: oracle/codemp/game/g_main.c:139
-// TODO: Port global g_statLog
-// Raven wrote: vmCvar_t g_statLog
-// A struct table is C storage in Sources/CJKAMP, reached through a Slots constant.
+var g_statLog: JKAMP.VmCvar { world.storage.g_statLog }
 
 /// Source: oracle/codemp/game/g_main.c:140
-// TODO: Port global g_statLogFile
-// Raven wrote: vmCvar_t g_statLogFile
-// A struct table is C storage in Sources/CJKAMP, reached through a Slots constant.
+var g_statLogFile: JKAMP.VmCvar { world.storage.g_statLogFile }
 
 /// Source: oracle/codemp/game/g_main.c:141
-// TODO: Port global g_blood
-// Raven wrote: vmCvar_t g_blood
-// A struct table is C storage in Sources/CJKAMP, reached through a Slots constant.
+var g_blood: JKAMP.VmCvar { world.storage.g_blood }
 
 /// Source: oracle/codemp/game/g_main.c:142
-// TODO: Port global g_podiumDist
-// Raven wrote: vmCvar_t g_podiumDist
-// A struct table is C storage in Sources/CJKAMP, reached through a Slots constant.
+var g_podiumDist: JKAMP.VmCvar { world.storage.g_podiumDist }
 
 /// Source: oracle/codemp/game/g_main.c:143
-// TODO: Port global g_podiumDrop
-// Raven wrote: vmCvar_t g_podiumDrop
-// A struct table is C storage in Sources/CJKAMP, reached through a Slots constant.
+var g_podiumDrop: JKAMP.VmCvar { world.storage.g_podiumDrop }
 
 /// Source: oracle/codemp/game/g_main.c:144
-// TODO: Port global g_allowVote
-// Raven wrote: vmCvar_t g_allowVote
-// A struct table is C storage in Sources/CJKAMP, reached through a Slots constant.
+var g_allowVote: JKAMP.VmCvar { world.storage.g_allowVote }
 
 /// Source: oracle/codemp/game/g_main.c:145
-// TODO: Port global g_allowTeamVote
-// Raven wrote: vmCvar_t g_allowTeamVote
-// A struct table is C storage in Sources/CJKAMP, reached through a Slots constant.
+var g_allowTeamVote: JKAMP.VmCvar { world.storage.g_allowTeamVote }
 
 /// Source: oracle/codemp/game/g_main.c:146
-// TODO: Port global g_teamAutoJoin
-// Raven wrote: vmCvar_t g_teamAutoJoin
-// A struct table is C storage in Sources/CJKAMP, reached through a Slots constant.
+var g_teamAutoJoin: JKAMP.VmCvar { world.storage.g_teamAutoJoin }
 
 /// Source: oracle/codemp/game/g_main.c:147
-// TODO: Port global g_teamForceBalance
-// Raven wrote: vmCvar_t g_teamForceBalance
-// A struct table is C storage in Sources/CJKAMP, reached through a Slots constant.
+var g_teamForceBalance: JKAMP.VmCvar { world.storage.g_teamForceBalance }
 
 /// Source: oracle/codemp/game/g_main.c:148
-// TODO: Port global g_banIPs
-// Raven wrote: vmCvar_t g_banIPs
-// A struct table is C storage in Sources/CJKAMP, reached through a Slots constant.
+var g_banIPs: JKAMP.VmCvar { world.storage.g_banIPs }
 
 /// Source: oracle/codemp/game/g_main.c:149
-// TODO: Port global g_filterBan
-// Raven wrote: vmCvar_t g_filterBan
-// A struct table is C storage in Sources/CJKAMP, reached through a Slots constant.
+var g_filterBan: JKAMP.VmCvar { world.storage.g_filterBan }
 
 /// Source: oracle/codemp/game/g_main.c:150
-// TODO: Port global g_debugForward
-// Raven wrote: vmCvar_t g_debugForward
-// A struct table is C storage in Sources/CJKAMP, reached through a Slots constant.
+var g_debugForward: JKAMP.VmCvar { world.storage.g_debugForward }
 
 /// Source: oracle/codemp/game/g_main.c:151
-// TODO: Port global g_debugRight
-// Raven wrote: vmCvar_t g_debugRight
-// A struct table is C storage in Sources/CJKAMP, reached through a Slots constant.
+var g_debugRight: JKAMP.VmCvar { world.storage.g_debugRight }
 
 /// Source: oracle/codemp/game/g_main.c:152
-// TODO: Port global g_debugUp
-// Raven wrote: vmCvar_t g_debugUp
-// A struct table is C storage in Sources/CJKAMP, reached through a Slots constant.
+var g_debugUp: JKAMP.VmCvar { world.storage.g_debugUp }
 
 /// Source: oracle/codemp/game/g_main.c:153
-// TODO: Port global g_smoothClients
-// Raven wrote: vmCvar_t g_smoothClients
-// A struct table is C storage in Sources/CJKAMP, reached through a Slots constant.
+var g_smoothClients: JKAMP.VmCvar { world.storage.g_smoothClients }
 
 /// Source: oracle/codemp/game/g_main.c:156
-// TODO: Port global pmove_fixed
-// Raven wrote: vmCvar_t pmove_fixed
-// A struct table is C storage in Sources/CJKAMP, reached through a Slots constant.
+var pmove_fixed: JKAMP.VmCvar { world.storage.pmove_fixed }
 
 /// Source: oracle/codemp/game/g_main.c:157
-// TODO: Port global pmove_msec
-// Raven wrote: vmCvar_t pmove_msec
-// A struct table is C storage in Sources/CJKAMP, reached through a Slots constant.
+var pmove_msec: JKAMP.VmCvar { world.storage.pmove_msec }
 
 /// Source: oracle/codemp/game/g_main.c:160
-// TODO: Port global g_listEntity
-// Raven wrote: vmCvar_t g_listEntity
-// A struct table is C storage in Sources/CJKAMP, reached through a Slots constant.
+var g_listEntity: JKAMP.VmCvar { world.storage.g_listEntity }
 
 /// Source: oracle/codemp/game/g_main.c:163
-// TODO: Port global g_singlePlayer
-// Raven wrote: vmCvar_t g_singlePlayer
-// A struct table is C storage in Sources/CJKAMP, reached through a Slots constant.
+var g_singlePlayer: JKAMP.VmCvar { world.storage.g_singlePlayer }
 
 /// Source: oracle/codemp/game/g_main.c:164
-// TODO: Port global g_enableBreath
-// Raven wrote: vmCvar_t g_enableBreath
-// A struct table is C storage in Sources/CJKAMP, reached through a Slots constant.
+var g_enableBreath: JKAMP.VmCvar { world.storage.g_enableBreath }
 
 /// Source: oracle/codemp/game/g_main.c:165
-// TODO: Port global g_dismember
-// Raven wrote: vmCvar_t g_dismember
-// A struct table is C storage in Sources/CJKAMP, reached through a Slots constant.
+var g_dismember: JKAMP.VmCvar { world.storage.g_dismember }
 
 /// Source: oracle/codemp/game/g_main.c:166
-// TODO: Port global g_forceDodge
-// Raven wrote: vmCvar_t g_forceDodge
-// A struct table is C storage in Sources/CJKAMP, reached through a Slots constant.
+var g_forceDodge: JKAMP.VmCvar { world.storage.g_forceDodge }
 
 /// Source: oracle/codemp/game/g_main.c:167
-// TODO: Port global g_timeouttospec
-// Raven wrote: vmCvar_t g_timeouttospec
-// A struct table is C storage in Sources/CJKAMP, reached through a Slots constant.
+var g_timeouttospec: JKAMP.VmCvar { world.storage.g_timeouttospec }
 
 /// Source: oracle/codemp/game/g_main.c:169
-// TODO: Port global g_saberDmgVelocityScale
-// Raven wrote: vmCvar_t g_saberDmgVelocityScale
-// A struct table is C storage in Sources/CJKAMP, reached through a Slots constant.
+var g_saberDmgVelocityScale: JKAMP.VmCvar { world.storage.g_saberDmgVelocityScale }
 
 /// Source: oracle/codemp/game/g_main.c:170
-// TODO: Port global g_saberDmgDelay_Idle
-// Raven wrote: vmCvar_t g_saberDmgDelay_Idle
-// A struct table is C storage in Sources/CJKAMP, reached through a Slots constant.
+var g_saberDmgDelay_Idle: JKAMP.VmCvar { world.storage.g_saberDmgDelay_Idle }
 
 /// Source: oracle/codemp/game/g_main.c:171
-// TODO: Port global g_saberDmgDelay_Wound
-// Raven wrote: vmCvar_t g_saberDmgDelay_Wound
-// A struct table is C storage in Sources/CJKAMP, reached through a Slots constant.
+var g_saberDmgDelay_Wound: JKAMP.VmCvar { world.storage.g_saberDmgDelay_Wound }
 
 /// Source: oracle/codemp/game/g_main.c:173
-// TODO: Port global g_saberDebugPrint
-// Raven wrote: vmCvar_t g_saberDebugPrint
-// A struct table is C storage in Sources/CJKAMP, reached through a Slots constant.
+var g_saberDebugPrint: JKAMP.VmCvar { world.storage.g_saberDebugPrint }
 
 /// Source: oracle/codemp/game/g_main.c:175
-// TODO: Port global g_siegeTeamSwitch
-// Raven wrote: vmCvar_t g_siegeTeamSwitch
-// A struct table is C storage in Sources/CJKAMP, reached through a Slots constant.
+var g_siegeTeamSwitch: JKAMP.VmCvar { world.storage.g_siegeTeamSwitch }
 
 /// Source: oracle/codemp/game/g_main.c:177
-// TODO: Port global bg_fighterAltControl
-// Raven wrote: vmCvar_t bg_fighterAltControl
-// A struct table is C storage in Sources/CJKAMP, reached through a Slots constant.
+var bg_fighterAltControl: JKAMP.VmCvar { world.storage.bg_fighterAltControl }
 
 /// Source: oracle/codemp/game/g_main.c:178
-// TODO: Port global g_vehAutoAimLead
-// Raven wrote: vmCvar_t g_vehAutoAimLead
-// A struct table is C storage in Sources/CJKAMP, reached through a Slots constant.
+var g_vehAutoAimLead: JKAMP.VmCvar { world.storage.g_vehAutoAimLead }
 
 /// Source: oracle/codemp/game/g_main.c:179
-// TODO: Port global g_autoKickKillSpammers
-// Raven wrote: vmCvar_t g_autoKickKillSpammers
-// A struct table is C storage in Sources/CJKAMP, reached through a Slots constant.
+var g_autoKickKillSpammers: JKAMP.VmCvar { world.storage.g_autoKickKillSpammers }
 
 /// Source: oracle/codemp/game/g_main.c:180
-// TODO: Port global g_autoBanKillSpammers
-// Raven wrote: vmCvar_t g_autoBanKillSpammers
-// A struct table is C storage in Sources/CJKAMP, reached through a Slots constant.
+var g_autoBanKillSpammers: JKAMP.VmCvar { world.storage.g_autoBanKillSpammers }
 
 /// Source: oracle/codemp/game/g_main.c:181
-// TODO: Port global g_autoKickTKSpammers
-// Raven wrote: vmCvar_t g_autoKickTKSpammers
-// A struct table is C storage in Sources/CJKAMP, reached through a Slots constant.
+var g_autoKickTKSpammers: JKAMP.VmCvar { world.storage.g_autoKickTKSpammers }
 
 /// Source: oracle/codemp/game/g_main.c:182
-// TODO: Port global g_autoBanTKSpammers
-// Raven wrote: vmCvar_t g_autoBanTKSpammers
-// A struct table is C storage in Sources/CJKAMP, reached through a Slots constant.
+var g_autoBanTKSpammers: JKAMP.VmCvar { world.storage.g_autoBanTKSpammers }
 
 /// Source: oracle/codemp/game/g_main.c:185
-// TODO: Port global g_saberDebugBox
-// Raven wrote: vmCvar_t g_saberDebugBox
-// A struct table is C storage in Sources/CJKAMP, reached through a Slots constant.
+var g_saberDebugBox: JKAMP.VmCvar { world.storage.g_saberDebugBox }
 
 /// Source: oracle/codemp/game/g_main.c:189
-// TODO: Port global d_altRoutes
-// Raven wrote: vmCvar_t d_altRoutes
-// A struct table is C storage in Sources/CJKAMP, reached through a Slots constant.
+var d_altRoutes: JKAMP.VmCvar { world.storage.d_altRoutes }
 
 /// Source: oracle/codemp/game/g_main.c:190
-// TODO: Port global d_patched
-// Raven wrote: vmCvar_t d_patched
-// A struct table is C storage in Sources/CJKAMP, reached through a Slots constant.
+var d_patched: JKAMP.VmCvar { world.storage.d_patched }
 
 /// Source: oracle/codemp/game/g_main.c:192
-// TODO: Port global g_saberRealisticCombat
-// Raven wrote: vmCvar_t g_saberRealisticCombat
-// A struct table is C storage in Sources/CJKAMP, reached through a Slots constant.
+var g_saberRealisticCombat: JKAMP.VmCvar { world.storage.g_saberRealisticCombat }
 
 /// Source: oracle/codemp/game/g_main.c:193
-// TODO: Port global g_saberRestrictForce
-// Raven wrote: vmCvar_t g_saberRestrictForce
-// A struct table is C storage in Sources/CJKAMP, reached through a Slots constant.
+var g_saberRestrictForce: JKAMP.VmCvar { world.storage.g_saberRestrictForce }
 
 /// Source: oracle/codemp/game/g_main.c:194
-// TODO: Port global d_saberSPStyleDamage
-// Raven wrote: vmCvar_t d_saberSPStyleDamage
-// A struct table is C storage in Sources/CJKAMP, reached through a Slots constant.
+var d_saberSPStyleDamage: JKAMP.VmCvar { world.storage.d_saberSPStyleDamage }
 
 /// Source: oracle/codemp/game/g_main.c:195
-// TODO: Port global g_debugSaberLocks
-// Raven wrote: vmCvar_t g_debugSaberLocks
-// A struct table is C storage in Sources/CJKAMP, reached through a Slots constant.
+var g_debugSaberLocks: JKAMP.VmCvar { world.storage.g_debugSaberLocks }
 
 /// Source: oracle/codemp/game/g_main.c:196
-// TODO: Port global g_saberLockRandomNess
-// Raven wrote: vmCvar_t g_saberLockRandomNess
-// A struct table is C storage in Sources/CJKAMP, reached through a Slots constant.
+var g_saberLockRandomNess: JKAMP.VmCvar { world.storage.g_saberLockRandomNess }
 
 /// Source: oracle/codemp/game/g_main.c:198
-// TODO: Port global g_saberWallDamageScale
-// Raven wrote: vmCvar_t g_saberWallDamageScale
-// A struct table is C storage in Sources/CJKAMP, reached through a Slots constant.
+var g_saberWallDamageScale: JKAMP.VmCvar { world.storage.g_saberWallDamageScale }
 
 /// Source: oracle/codemp/game/g_main.c:200
-// TODO: Port global d_saberStanceDebug
-// Raven wrote: vmCvar_t d_saberStanceDebug
-// A struct table is C storage in Sources/CJKAMP, reached through a Slots constant.
+var d_saberStanceDebug: JKAMP.VmCvar { world.storage.d_saberStanceDebug }
 
 /// Source: oracle/codemp/game/g_main.c:202
-// TODO: Port global debugNPCAI
-// Raven wrote: vmCvar_t debugNPCAI
-// A struct table is C storage in Sources/CJKAMP, reached through a Slots constant.
+var debugNPCAI: JKAMP.VmCvar { world.storage.debugNPCAI }
 
 /// Source: oracle/codemp/game/g_main.c:203
-// TODO: Port global debugNPCFreeze
-// Raven wrote: vmCvar_t debugNPCFreeze
-// A struct table is C storage in Sources/CJKAMP, reached through a Slots constant.
+var debugNPCFreeze: JKAMP.VmCvar { world.storage.debugNPCFreeze }
 
 /// Source: oracle/codemp/game/g_main.c:204
-// TODO: Port global debugNPCAimingBeam
-// Raven wrote: vmCvar_t debugNPCAimingBeam
-// A struct table is C storage in Sources/CJKAMP, reached through a Slots constant.
+var debugNPCAimingBeam: JKAMP.VmCvar { world.storage.debugNPCAimingBeam }
 
 /// Source: oracle/codemp/game/g_main.c:205
-// TODO: Port global debugBreak
-// Raven wrote: vmCvar_t debugBreak
-// A struct table is C storage in Sources/CJKAMP, reached through a Slots constant.
+var debugBreak: JKAMP.VmCvar { world.storage.debugBreak }
 
 /// Source: oracle/codemp/game/g_main.c:206
-// TODO: Port global debugNoRoam
-// Raven wrote: vmCvar_t debugNoRoam
-// A struct table is C storage in Sources/CJKAMP, reached through a Slots constant.
+var debugNoRoam: JKAMP.VmCvar { world.storage.debugNoRoam }
 
 /// Source: oracle/codemp/game/g_main.c:207
-// TODO: Port global d_saberCombat
-// Raven wrote: vmCvar_t d_saberCombat
-// A struct table is C storage in Sources/CJKAMP, reached through a Slots constant.
+var d_saberCombat: JKAMP.VmCvar { world.storage.d_saberCombat }
 
 /// Source: oracle/codemp/game/g_main.c:208
-// TODO: Port global d_JediAI
-// Raven wrote: vmCvar_t d_JediAI
-// A struct table is C storage in Sources/CJKAMP, reached through a Slots constant.
+var d_JediAI: JKAMP.VmCvar { world.storage.d_JediAI }
 
 /// Source: oracle/codemp/game/g_main.c:209
-// TODO: Port global d_noGroupAI
-// Raven wrote: vmCvar_t d_noGroupAI
-// A struct table is C storage in Sources/CJKAMP, reached through a Slots constant.
+var d_noGroupAI: JKAMP.VmCvar { world.storage.d_noGroupAI }
 
 /// Source: oracle/codemp/game/g_main.c:210
-// TODO: Port global d_asynchronousGroupAI
-// Raven wrote: vmCvar_t d_asynchronousGroupAI
-// A struct table is C storage in Sources/CJKAMP, reached through a Slots constant.
+var d_asynchronousGroupAI: JKAMP.VmCvar { world.storage.d_asynchronousGroupAI }
 
 /// Source: oracle/codemp/game/g_main.c:211
-// TODO: Port global d_slowmodeath
-// Raven wrote: vmCvar_t d_slowmodeath
-// A struct table is C storage in Sources/CJKAMP, reached through a Slots constant.
+var d_slowmodeath: JKAMP.VmCvar { world.storage.d_slowmodeath }
 
 /// Source: oracle/codemp/game/g_main.c:212
-// TODO: Port global d_noIntermissionWait
-// Raven wrote: vmCvar_t d_noIntermissionWait
-// A struct table is C storage in Sources/CJKAMP, reached through a Slots constant.
+var d_noIntermissionWait: JKAMP.VmCvar { world.storage.d_noIntermissionWait }
 
 /// Source: oracle/codemp/game/g_main.c:214
-// TODO: Port global g_spskill
-// Raven wrote: vmCvar_t g_spskill
-// A struct table is C storage in Sources/CJKAMP, reached through a Slots constant.
+var g_spskill: JKAMP.VmCvar { world.storage.g_spskill }
 
 /// Source: oracle/codemp/game/g_main.c:217
-// TODO: Port global g_siegeTeam1
-// Raven wrote: vmCvar_t g_siegeTeam1
-// A struct table is C storage in Sources/CJKAMP, reached through a Slots constant.
+var g_siegeTeam1: JKAMP.VmCvar { world.storage.g_siegeTeam1 }
 
 /// Source: oracle/codemp/game/g_main.c:218
-// TODO: Port global g_siegeTeam2
-// Raven wrote: vmCvar_t g_siegeTeam2
-// A struct table is C storage in Sources/CJKAMP, reached through a Slots constant.
+var g_siegeTeam2: JKAMP.VmCvar { world.storage.g_siegeTeam2 }
 
 /// Source: oracle/codemp/game/g_main.c:220
-// TODO: Port global g_austrian
-// Raven wrote: vmCvar_t g_austrian
-// A struct table is C storage in Sources/CJKAMP, reached through a Slots constant.
+var g_austrian: JKAMP.VmCvar { world.storage.g_austrian }
 
 /// Source: oracle/codemp/game/g_main.c:222
-// TODO: Port global g_powerDuelStartHealth
-// Raven wrote: vmCvar_t g_powerDuelStartHealth
-// A struct table is C storage in Sources/CJKAMP, reached through a Slots constant.
+var g_powerDuelStartHealth: JKAMP.VmCvar { world.storage.g_powerDuelStartHealth }
 
 /// Source: oracle/codemp/game/g_main.c:223
-// TODO: Port global g_powerDuelEndHealth
-// Raven wrote: vmCvar_t g_powerDuelEndHealth
-// A struct table is C storage in Sources/CJKAMP, reached through a Slots constant.
+var g_powerDuelEndHealth: JKAMP.VmCvar { world.storage.g_powerDuelEndHealth }
 
 /// Source: oracle/codemp/game/g_main.c:227
-// TODO: Port global g_showDuelHealths
-// Raven wrote: vmCvar_t g_showDuelHealths
-// A struct table is C storage in Sources/CJKAMP, reached through a Slots constant.
+var g_showDuelHealths: JKAMP.VmCvar { world.storage.g_showDuelHealths }
 
 /// Source: oracle/codemp/game/g_main.c:230
 // TODO: Port global gameCvarTable
 // Raven wrote: static cvarTable_t gameCvarTable[]
-// A struct table is C storage in Sources/CJKAMP, reached through a Slots constant.
+// No view for `cvarTable_t`, a struct Raven defines inside a .c file.
 
 /// Source: oracle/codemp/game/g_main.c:881
 var gSharedBuffer: JKAShared.CharBuf {

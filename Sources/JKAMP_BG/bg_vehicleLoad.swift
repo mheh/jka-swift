@@ -16,9 +16,7 @@ var VehicleParms: JKAShared.CharBuf {
 }
 
 /// Source: oracle/codemp/game/bg_vehicleLoad.c:103
-// TODO: Port global g_vehWeaponInfo
-// Raven wrote: vehWeaponInfo_t g_vehWeaponInfo[MAX_VEH_WEAPONS]
-// A struct table is C storage in Sources/CJKAMP, reached through a Slots constant.
+var g_vehWeaponInfo: Slots<JKAMP.VehWeaponInfo> { bg.storage.g_vehWeaponInfo }
 
 /// Source: oracle/codemp/game/bg_vehicleLoad.c:104
 var numVehicleWeapons: Int32 {
@@ -27,9 +25,7 @@ var numVehicleWeapons: Int32 {
 }
 
 /// Source: oracle/codemp/game/bg_vehicleLoad.c:106
-// TODO: Port global g_vehicleInfo
-// Raven wrote: vehicleInfo_t g_vehicleInfo[MAX_VEHICLES]
-// A struct table is C storage in Sources/CJKAMP, reached through a Slots constant.
+var g_vehicleInfo: Slots<JKAMP.VehicleInfo> { bg.storage.g_vehicleInfo }
 
 /// Source: oracle/codemp/game/bg_vehicleLoad.c:107
 var numVehicles: Int32 {
@@ -40,17 +36,17 @@ var numVehicles: Int32 {
 /// Source: oracle/codemp/game/bg_vehicleLoad.c:138
 // TODO: Port global vehWeaponFields
 // Raven wrote: vehField_t vehWeaponFields[NUM_VWEAP_PARMS]
-// A struct table is C storage in Sources/CJKAMP, reached through a Slots constant.
+// No view for `vehField_t`, a struct Raven defines inside a .c file.
 
 /// Source: oracle/codemp/game/bg_vehicleLoad.c:445
 // TODO: Port global vehicleFields
 // Raven wrote: vehField_t vehicleFields[]
-// A struct table is C storage in Sources/CJKAMP, reached through a Slots constant.
+// No view for `vehField_t`, a struct Raven defines inside a .c file.
 
 /// Source: oracle/codemp/game/bg_vehicleLoad.c:671
 // TODO: Port global VehicleTable
 // Raven wrote: stringID_table_t VehicleTable[VH_NUM_VEHICLES+1]
-// A struct table is C storage in Sources/CJKAMP, reached through a Slots constant.
+// Raven's data table is C storage by hand in the C target, with his initializer as written, reached as a Slots over the C array, the bg_tables.c shape.
 
 /// Source: oracle/codemp/game/bg_vehicleLoad.c:79
 func BG_ClearVehicleParseParms() {

@@ -5,9 +5,7 @@ import JKAShared
 import JKAMP_Game
 
 /// Source: oracle/codemp/game/NPC_move.c:14
-// TODO: Port global frameNavInfo
-// Raven wrote: navInfo_t frameNavInfo
-// A struct table is C storage in Sources/CJKAMP, reached through a Slots constant.
+var frameNavInfo: NavInfo { world.storage.frameNavInfo }
 
 /// Source: oracle/codemp/game/NPC_move.c:27
 func NPC_ClearPathToGoal(_ dir: inout JKAShared.vec3_t, _ goal: Entity) -> Bool {

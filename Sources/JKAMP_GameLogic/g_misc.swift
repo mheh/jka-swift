@@ -17,14 +17,12 @@ var gEscapeTime: Int32 {
 }
 
 /// Source: oracle/codemp/game/g_misc.c:2886
-// TODO: Port global refTagOwnerMap
-// Raven wrote: tagOwner_t refTagOwnerMap[MAX_TAG_OWNERS]
-// A struct table is C storage in Sources/CJKAMP, reached through a Slots constant.
+var refTagOwnerMap: Slots<TagOwner> { world.storage.refTagOwnerMap }
 
 /// Source: oracle/codemp/game/g_misc.c:3351
 // TODO: Port global g_shooterClients
 // Raven wrote: static shooterClient_t g_shooterClients[MAX_SHOOTERS]
-// A struct table is C storage in Sources/CJKAMP, reached through a Slots constant.
+// No view for `struct shooterClient_s`, a struct Raven defines inside a .c file.
 
 /// Source: oracle/codemp/game/g_misc.c:3352
 var g_shooterClientInit: Bool {

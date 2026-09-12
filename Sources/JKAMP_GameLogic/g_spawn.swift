@@ -7,12 +7,12 @@ import JKAMP_Game
 /// Source: oracle/codemp/game/g_spawn.c:54
 // TODO: Port global fields
 // Raven wrote: BG_field_t fields[]
-// A struct table is C storage in Sources/CJKAMP, reached through a Slots constant.
+// Raven's data table is C storage by hand in the C target, with his initializer as written, reached as a Slots over the C array, the bg_tables.c shape.
 
 /// Source: oracle/codemp/game/g_spawn.c:435
 // TODO: Port global spawns
 // Raven wrote: spawn_t spawns[]
-// A struct table is C storage in Sources/CJKAMP, reached through a Slots constant.
+// No view for `spawn_t`, a struct Raven defines inside a .c file.
 
 /// Source: oracle/codemp/game/g_spawn.c:1070
 /// Raven's data table, a hand property of `GameWorld`.

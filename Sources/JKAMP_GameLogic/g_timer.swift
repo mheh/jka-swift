@@ -5,9 +5,7 @@ import JKAShared
 import JKAMP_Game
 
 /// Source: oracle/codemp/game/g_timer.c:17
-// TODO: Port global g_timerPool
-// Raven wrote: gtimer_t g_timerPool[ MAX_GTIMERS ]
-// A struct table is C storage in Sources/CJKAMP, reached through a Slots constant.
+var g_timerPool: Slots<Gtimer> { world.storage.g_timerPool }
 
 /// Source: oracle/codemp/game/g_timer.c:18
 var g_timers: Slots<Gtimer?> { world.storage.g_timers }

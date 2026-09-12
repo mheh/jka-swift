@@ -10,12 +10,12 @@ nonisolated(unsafe) let SaberParms: JKAShared.CharBuf = JKAShared.CharBuf(524288
 /// Source: oracle/codemp/game/bg_saberLoad.c:46
 // TODO: Port global SaberTable
 // Raven wrote: stringID_table_t SaberTable[]
-// A struct table is C storage in Sources/CJKAMP, reached through a Slots constant.
+// Raven's data table is C storage by hand in the C target, with his initializer as written, reached as a Slots over the C array, the bg_tables.c shape.
 
 /// Source: oracle/codemp/game/bg_saberLoad.c:63
 // TODO: Port global SaberMoveTable
 // Raven wrote: stringID_table_t SaberMoveTable[]
-// A struct table is C storage in Sources/CJKAMP, reached through a Slots constant.
+// Raven's data table is C storage by hand in the C target, with his initializer as written, reached as a Slots over the C array, the bg_tables.c shape.
 
 /// Source: oracle/codemp/game/bg_saberLoad.c:2736
 var bgSaberParseTBuffer: JKAShared.CharBuf {

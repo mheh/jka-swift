@@ -23,9 +23,7 @@ var client: Client? {
 }
 
 /// Source: oracle/codemp/game/NPC.c:37
-// TODO: Port global ucmd
-// Raven wrote: usercmd_t ucmd
-// A struct table is C storage in Sources/CJKAMP, reached through a Slots constant.
+var ucmd: JKAMP.Usercmd { world.storage.ucmd }
 
 /// Source: oracle/codemp/game/NPC.c:38
 var enemyVisibility: visibility_t {
@@ -52,9 +50,7 @@ var _saved_client: Client? {
 }
 
 /// Source: oracle/codemp/game/NPC.c:628
-// TODO: Port global _saved_ucmd
-// Raven wrote: usercmd_t _saved_ucmd
-// A struct table is C storage in Sources/CJKAMP, reached through a Slots constant.
+var _saved_ucmd: JKAMP.Usercmd { world.storage._saved_ucmd }
 
 /// Source: oracle/codemp/game/NPC.c:656
 /// Raven's data table, a hand property of `GameWorld`.

@@ -10,14 +10,12 @@ var BGPAFtextLoaded: Bool {
 }
 
 /// Source: oracle/codemp/game/bg_panimate.c:1672
-// TODO: Port global bgHumanoidAnimations
-// Raven wrote: animation_t bgHumanoidAnimations[MAX_TOTALANIMATIONS]
-// A struct table is C storage in Sources/CJKAMP, reached through a Slots constant.
+var bgHumanoidAnimations: Slots<JKAMP.Animation> { bg.storage.bgHumanoidAnimations }
 
 /// Source: oracle/codemp/game/bg_panimate.c:1702
 // TODO: Port global bgAllAnims
 // Raven wrote: bgLoadedAnim_t bgAllAnims[MAX_ANIM_FILES]
-// A struct table is C storage in Sources/CJKAMP, reached through a Slots constant.
+// No view for `bgLoadedAnim_t`, a struct Raven defines inside a .c file.
 
 /// Source: oracle/codemp/game/bg_panimate.c:1703
 var bgNumAllAnims: Int32 {

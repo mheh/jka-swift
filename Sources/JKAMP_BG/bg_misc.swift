@@ -2,13 +2,12 @@ import Foundation
 import JKAMP
 import JKAShared
 
-/// Raven's `forceMasteryPoints` of `bg_misc.c`, the points a rank allows./// Source: oracle/codemp/game/bg_misc.c:34
+/// Source: oracle/codemp/game/bg_misc.c:34
 /// Raven's data table, a hand property of `BgState`.
 var bgToggleableSurfaces: [String] {
     get { bg.bgToggleableSurfaces }
     set { bg.bgToggleableSurfaces = newValue }
 }
-
 
 /// Source: oracle/codemp/game/bg_misc.c:113
 /// Raven's data table, a hand property of `BgState`.
@@ -17,6 +16,7 @@ var bg_customSiegeSoundNames: [String] {
     set { bg.bg_customSiegeSoundNames = newValue }
 }
 
+/// Raven's `forceMasteryPoints` of `bg_misc.c`, the points a rank allows.
 /// Source: oracle/codemp/game/bg_misc.c:162
 let forceMasteryPoints: [Int32] = [
     0,		// FORCE_MASTERY_UNINITIATED,
@@ -471,6 +471,11 @@ func BG_LegalizedForcePowers(_ powerOut: inout JKAShared.CharBuf, _ maxRank: Int
 
     return maintainsValidity
 }
+
+/// Source: oracle/codemp/game/bg_misc.c:795
+// TODO: Port global bg_itemlist
+// Raven wrote: gitem_t bg_itemlist[]
+// Raven's data table is C storage by hand in the C target, with his initializer as written, reached as a Slots over the C array, the bg_tables.c shape.
 
 /// Source: oracle/codemp/game/bg_misc.c:1773
 func vectoyaw(_ vec: JKAShared.vec3_t) -> Float {

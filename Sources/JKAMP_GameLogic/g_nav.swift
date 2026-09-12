@@ -91,7 +91,7 @@ var numStoredWaypoints: Int32 {
 /// Source: oracle/codemp/game/g_nav.c:1660
 // TODO: Port global tempWaypointList
 // Raven wrote: static waypointData_t tempWaypointList[MAX_STORED_WAYPOINTS]
-// A struct table is C storage in Sources/CJKAMP, reached through a Slots constant.
+// No view for `waypointData_t`, a struct Raven defines inside a .c file.
 
 //For debug graphics
 //rwwFIXMEFIXME: Write these at some point for the sake of being able to debug visually

@@ -7,7 +7,7 @@ import JKAMP_Game
 /// Source: oracle/codemp/game/g_svcmds.c:54
 // TODO: Port global ipFilters
 // Raven wrote: static ipFilter_t ipFilters[MAX_IPFILTERS]
-// A struct table is C storage in Sources/CJKAMP, reached through a Slots constant.
+// No view for `struct ipFilter_s`, a struct Raven defines inside a .c file.
 
 /// Source: oracle/codemp/game/g_svcmds.c:55
 var numIPFilters: Int32 {

@@ -19,7 +19,7 @@ var team2: JKAShared.CharBuf {
 /// Source: oracle/codemp/game/g_saga.c:20
 // TODO: Port global g_siegePersistant
 // Raven wrote: siegePers_t g_siegePersistant = {qfalse, 0, 0}
-// A struct table is C storage in Sources/CJKAMP, reached through a Slots constant.
+// Raven's data table is C storage by hand in the C target, with his initializer as written, reached as a Slots over the C array, the bg_tables.c shape.
 
 /// Source: oracle/codemp/game/g_saga.c:22
 var imperial_goals_required: Int32 {

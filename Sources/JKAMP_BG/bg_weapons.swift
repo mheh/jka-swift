@@ -10,9 +10,9 @@ let WP_MuzzlePoint: [JKAShared.vec3_t] = { () -> [JKAShared.vec3_t] in portMissi
 /// Source: oracle/codemp/game/bg_weapons.c:31
 // TODO: Port global weaponData
 // Raven wrote: weaponData_t weaponData[WP_NUM_WEAPONS]
-// A struct table is C storage in Sources/CJKAMP, reached through a Slots constant.
+// Raven's data table is C storage by hand in the C target, with his initializer as written, reached as a Slots over the C array, the bg_tables.c shape.
 
 /// Source: oracle/codemp/game/bg_weapons.c:358
 // TODO: Port global ammoData
 // Raven wrote: ammoData_t ammoData[AMMO_MAX]
-// A struct table is C storage in Sources/CJKAMP, reached through a Slots constant.
+// Raven's data table is C storage by hand in the C target, with his initializer as written, reached as a Slots over the C array, the bg_tables.c shape.

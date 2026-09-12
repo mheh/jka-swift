@@ -2,7 +2,7 @@ import Foundation
 import JKAMP
 import JKAShared
 
-// movement parameters/// Source: oracle/codemp/game/bg_pmove.c:30
+/// Source: oracle/codemp/game/bg_pmove.c:30
 /// Raven's callers always set `pm`, so a body reads it with no bind. A NULL here traps with the name.
 var pm: JKAMP.Pmove {
     get {
@@ -12,6 +12,8 @@ var pm: JKAMP.Pmove {
     set { bg.variables.pm = newValue }
 }
 
+/// Source: oracle/codemp/game/bg_pmove.c:31
+var pml: JKAMP.Pml { bg.storage.pml }
 
 /// Source: oracle/codemp/game/bg_pmove.c:33
 var pm_entSelf: JKAMP.BgEntity? {
@@ -37,6 +39,7 @@ var pm_cancelOutZoom: Bool {
     set { bg.variables.pm_cancelOutZoom = newValue }
 }
 
+// movement parameters
 /// Source: oracle/codemp/game/bg_pmove.c:41
 let pm_stopspeed: Float = 100.0
 /// Source: oracle/codemp/game/bg_pmove.c:42
@@ -570,7 +573,7 @@ private func PM_Friction() {
     let ps = pm.ps
     // Port-note: Raven aliases `pm->ps->velocity` through `float *vel`. The view carries no pointer, so the body reads and writes the field itself.
     vec = ps.velocity
-    if bg.pml.walking {
+    if pml.walking {
         vec[2] = 0 // ignore slope movement
     }
 
@@ -604,7 +607,7 @@ private func PM_Friction() {
         let friction = m_pVehicleInfo.friction
         if (ps.pm_flags & PMF_TIME_KNOCKBACK) == 0 /*&& !(pm->ps->pm_flags & PMF_TIME_NOFRICTION)*/ {
             control = speed < pm_stopspeed ? pm_stopspeed : speed
-            drop += control * friction * bg.pml.frametime
+            drop += control * friction * pml.frametime
             /*
             if ( Flying == FLY_HOVER )
             {
@@ -630,11 +633,11 @@ private func PM_Friction() {
     } else if pm_flying != FLY_NORMAL && pm_flying != FLY_VEHICLE {
         // apply ground friction
         if pm.waterlevel <= 1 {
-            if bg.pml.walking && (bg.pml.groundTrace.surfaceFlags & SURF_SLICK) == 0 {
+            if pml.walking && (pml.groundTrace.surfaceFlags & SURF_SLICK) == 0 {
                 // if getting knocked back, no friction
                 if (ps.pm_flags & PMF_TIME_KNOCKBACK) == 0 {
                     control = speed < pm_stopspeed ? pm_stopspeed : speed
-                    drop += control * pm_friction * bg.pml.frametime
+                    drop += control * pm_friction * pml.frametime
                 }
             }
         }
@@ -643,13 +646,13 @@ private func PM_Friction() {
     if pm_flying == FLY_VEHICLE {
         if (ps.pm_flags & PMF_TIME_KNOCKBACK) == 0 {
             control = speed// < pm_stopspeed ? pm_stopspeed : speed;
-            drop += control * pm_friction * bg.pml.frametime
+            drop += control * pm_friction * pml.frametime
         }
     }
 
     // apply water friction even if just wading
     if pm.waterlevel != 0 {
-        drop += speed * pm_waterfriction * pm.waterlevel * bg.pml.frametime
+        drop += speed * pm_waterfriction * pm.waterlevel * pml.frametime
     }
     // If on a client then there is no friction
     else if ps.groundEntityNum < MAX_CLIENTS {
@@ -661,9 +664,9 @@ private func PM_Friction() {
             //almost no friction while floating
             // C promotes this product to double, because 0.1 is a double literal.
             // Port-note: Raven adds `drop` in double here, and jka-rust keeps that, so the guide's `Float(...)` at the store can round one ulp early.
-            drop += Float(Double(speed) * 0.1 * Double(bg.pml.frametime))
+            drop += Float(Double(speed) * 0.1 * Double(pml.frametime))
         } else {
-            drop += speed * pm_spectatorfriction * bg.pml.frametime
+            drop += speed * pm_spectatorfriction * pml.frametime
         }
     }
 
@@ -708,12 +711,12 @@ private func PM_Accelerate(_ wishdir: inout JKAShared.vec3_t, _ wishspeed: Float
         }
 
         if addspeed < 0 {
-            accelspeed = (-accel) * bg.pml.frametime * wishspeed
+            accelspeed = (-accel) * pml.frametime * wishspeed
             if accelspeed < addspeed {
                 accelspeed = addspeed
             }
         } else {
-            accelspeed = accel * bg.pml.frametime * wishspeed
+            accelspeed = accel * pml.frametime * wishspeed
             if accelspeed > addspeed {
                 accelspeed = addspeed
             }
@@ -735,7 +738,7 @@ private func PM_Accelerate(_ wishdir: inout JKAShared.vec3_t, _ wishspeed: Float
         _VectorSubtract(wishVelocity, ps.velocity, &pushDir)
         pushLen = VectorNormalize(&pushDir)
 
-        canPush = accel * bg.pml.frametime * wishspeed
+        canPush = accel * pml.frametime * wishspeed
         if canPush > pushLen {
             canPush = pushLen
         }
@@ -2298,8 +2301,8 @@ private func PM_CheckJump() -> Bool {
     }
 
     //Jumping
-    bg.pml.groundPlane = false
-    bg.pml.walking = false
+    pml.groundPlane = false
+    pml.walking = false
     ps.pm_flags |= PMF_JUMP_HELD
     ps.groundEntityNum = ENTITYNUM_NONE
     PM_SetForceJumpZStart(ps.origin[2])
@@ -2336,8 +2339,8 @@ private func PM_CheckWaterJump() -> Bool {
         return false
     }
 
-    flatforward[0] = bg.pml.forward[0]
-    flatforward[1] = bg.pml.forward[1]
+    flatforward[0] = pml.forward[0]
+    flatforward[1] = pml.forward[1]
     flatforward[2] = 0
     _ = VectorNormalize(&flatforward)
 
@@ -2358,7 +2361,7 @@ private func PM_CheckWaterJump() -> Bool {
     }
 
     // jump out of water
-    ps.velocity = bg.pml.forward * 200
+    ps.velocity = pml.forward * 200
     ps.velocity[2] = 350
 
     ps.pm_flags |= PMF_TIME_WATERJUMP
@@ -2382,7 +2385,7 @@ private func PM_WaterJumpMove() {
     let ps = pm.ps
     PM_StepSlideMove(true)
 
-    ps.velocity[2] -= ps.gravity * bg.pml.frametime
+    ps.velocity[2] -= ps.gravity * pml.frametime
     if ps.velocity[2] < 0 {
         // cancel as soon as we are falling down again
         ps.pm_flags &= ~PMF_ALL_TIMES
@@ -2424,7 +2427,7 @@ private func PM_WaterMove() {
     } else {
         i = 0
         while i < 3 {
-            wishvel[i] = scale * bg.pml.forward[i] * Float(pm.cmd.forwardmove) + scale * bg.pml.right[i] * Float(pm.cmd.rightmove)
+            wishvel[i] = scale * pml.forward[i] * Float(pm.cmd.forwardmove) + scale * pml.right[i] * Float(pm.cmd.rightmove)
             i += 1
         }
 
@@ -2441,12 +2444,12 @@ private func PM_WaterMove() {
     PM_Accelerate(&wishdir, wishspeed, pm_wateraccelerate)
 
     // make sure we can go up slopes easily under water
-    if bg.pml.groundPlane && _DotProduct(ps.velocity, bg.pml.groundTrace.plane.normal) < 0 {
+    if pml.groundPlane && _DotProduct(ps.velocity, pml.groundTrace.plane.normal) < 0 {
         vel = VectorLength(ps.velocity)
         // slide along the ground plane
         // Port-note: Raven passes `pm->ps->velocity` as both the input and the output of `PM_ClipVelocity`. Swift forbids two overlapping `inout` arguments, so the body uses locals and writes the result back.
         var clipIn = ps.velocity
-        var clipNormal = bg.pml.groundTrace.plane.normal
+        var clipNormal = pml.groundTrace.plane.normal
         var clipOut = ps.velocity
         PM_ClipVelocity(&clipIn, &clipNormal, &clipOut, OVERCLIP)
         ps.velocity = clipOut
@@ -2507,7 +2510,7 @@ private func PM_FlyVehicleMove() {
             //gi.Printf("Generating MoveDir\n");
             i = 0
             while i < 3 {
-                wishvel[i] = bg.pml.forward[i] * fmove + bg.pml.right[i] * smove
+                wishvel[i] = pml.forward[i] * fmove + pml.right[i] * smove
                 i += 1
             }
 
@@ -2525,7 +2528,7 @@ private func PM_FlyVehicleMove() {
     } else {
         i = 0
         while i < 3 {
-            wishvel[i] = bg.pml.forward[i] * fmove + bg.pml.right[i] * smove
+            wishvel[i] = pml.forward[i] * fmove + pml.right[i] * smove
             i += 1
         }
         // when going up or down slopes the wish velocity should Not be zero
@@ -2588,7 +2591,7 @@ private func PM_FlyMove() {
     } else {
         i = 0
         while i < 3 {
-            wishvel[i] = scale * bg.pml.forward[i] * Float(pm.cmd.forwardmove) + scale * bg.pml.right[i] * Float(pm.cmd.rightmove)
+            wishvel[i] = scale * pml.forward[i] * Float(pm.cmd.forwardmove) + scale * pml.right[i] * Float(pm.cmd.rightmove)
             i += 1
         }
 
@@ -2646,10 +2649,10 @@ private func PM_AirMove() {
     PM_SetMovementDir()
 
     // project moves down to flat plane
-    bg.pml.forward[2] = 0
-    bg.pml.right[2] = 0
-    _ = VectorNormalize(&bg.pml.forward)
-    _ = VectorNormalize(&bg.pml.right)
+    pml.forward[2] = 0
+    pml.right[2] = 0
+    _ = VectorNormalize(&pml.forward)
+    _ = VectorNormalize(&pml.right)
 
     // Port-note: Raven walks `pVeh->m_pVehicleInfo` with no guard. The generated field is optional, so the body binds it here and at the acceleration test below.
     if let m_pVehicleInfo = pVeh?.m_pVehicleInfo, m_pVehicleInfo.hoverHeight > 0 {
@@ -2667,7 +2670,7 @@ private func PM_AirMove() {
         //reduced air control while not jetting
         i = 0
         while i < 2 {
-            wishvel[i] = bg.pml.forward[i] * fmove + bg.pml.right[i] * smove
+            wishvel[i] = pml.forward[i] * fmove + pml.right[i] * smove
             i += 1
         }
         wishvel[2] = 0
@@ -2681,7 +2684,7 @@ private func PM_AirMove() {
     } else {
         i = 0
         while i < 2 {
-            wishvel[i] = bg.pml.forward[i] * fmove + bg.pml.right[i] * smove
+            wishvel[i] = pml.forward[i] * fmove + pml.right[i] * smove
             i += 1
         }
         wishvel[2] = 0
@@ -2696,7 +2699,7 @@ private func PM_AirMove() {
         //speeders have more control in air
         //in mid-air
         accelerate = m_pVehicleInfo.traction
-        if bg.pml.groundPlane {
+        if pml.groundPlane {
             //on a slope of some kind, shouldn't have much control and should slide a lot
             accelerate *= 0.5
         }
@@ -2707,13 +2710,13 @@ private func PM_AirMove() {
     // we may have a ground plane that is very steep, even
     // though we don't have a groundentity
     // slide along the steep plane
-    if bg.pml.groundPlane {
+    if pml.groundPlane {
         if (ps.pm_flags & PMF_STUCK_TO_WALL) == 0 {
             //don't slide when stuck to a wall
-            if PM_GroundSlideOkay(bg.pml.groundTrace.plane.normal[2]) {
+            if PM_GroundSlideOkay(pml.groundTrace.plane.normal[2]) {
                 // Port-note: Raven passes `pm->ps->velocity` as both the input and the output of `PM_ClipVelocity`. Swift forbids two overlapping `inout` arguments, so the body uses locals and writes the result back.
                 var clipIn = ps.velocity
-                var clipNormal = bg.pml.groundTrace.plane.normal
+                var clipNormal = pml.groundTrace.plane.normal
                 var clipOut = ps.velocity
                 PM_ClipVelocity(&clipIn, &clipNormal, &clipOut, OVERCLIP)
                 ps.velocity = clipOut
@@ -2749,7 +2752,7 @@ private func PM_WalkMove() {
     let vel: Float
     var npcMovement = false
     let ps = pm.ps
-    if pm.waterlevel > 2 && _DotProduct(bg.pml.forward, bg.pml.groundTrace.plane.normal) > 0 {
+    if pm.waterlevel > 2 && _DotProduct(pml.forward, pml.groundTrace.plane.normal) > 0 {
         // begin swimming
         PM_WaterMove()
         return
@@ -2780,23 +2783,23 @@ private func PM_WalkMove() {
     PM_SetMovementDir()
 
     // project moves down to flat plane
-    bg.pml.forward[2] = 0
-    bg.pml.right[2] = 0
+    pml.forward[2] = 0
+    pml.right[2] = 0
 
     // project the forward and right directions onto the ground plane
     // Port-note: Raven passes one vector as both the input and the output of `PM_ClipVelocity`. Swift forbids two overlapping `inout` arguments, so the body uses locals and writes the result back.
-    var clipForwardIn = bg.pml.forward
-    var clipGroundNormal = bg.pml.groundTrace.plane.normal
-    var clipForwardOut = bg.pml.forward
+    var clipForwardIn = pml.forward
+    var clipGroundNormal = pml.groundTrace.plane.normal
+    var clipForwardOut = pml.forward
     PM_ClipVelocity(&clipForwardIn, &clipGroundNormal, &clipForwardOut, OVERCLIP)
-    bg.pml.forward = clipForwardOut
-    var clipRightIn = bg.pml.right
-    var clipRightOut = bg.pml.right
+    pml.forward = clipForwardOut
+    var clipRightIn = pml.right
+    var clipRightOut = pml.right
     PM_ClipVelocity(&clipRightIn, &clipGroundNormal, &clipRightOut, OVERCLIP)
-    bg.pml.right = clipRightOut
+    pml.right = clipRightOut
     //
-    _ = VectorNormalize(&bg.pml.forward)
-    _ = VectorNormalize(&bg.pml.right)
+    _ = VectorNormalize(&pml.forward)
+    _ = VectorNormalize(&pml.right)
 
     // Get The WishVel And WishSpeed
     //-------------------------------
@@ -2811,7 +2814,7 @@ private func PM_WalkMove() {
                 //gi.Printf("Generating MoveDir\n");
                 i = 0
                 while i < 3 {
-                    wishvel[i] = bg.pml.forward[i] * fmove + bg.pml.right[i] * smove
+                    wishvel[i] = pml.forward[i] * fmove + pml.right[i] * smove
                     i += 1
                 }
 
@@ -2835,7 +2838,7 @@ private func PM_WalkMove() {
     if !npcMovement {
         i = 0
         while i < 3 {
-            wishvel[i] = bg.pml.forward[i] * fmove + bg.pml.right[i] * smove
+            wishvel[i] = pml.forward[i] * fmove + pml.right[i] * smove
             i += 1
         }
         // when going up or down slopes the wish velocity should Not be zero
@@ -2873,7 +2876,7 @@ private func PM_WalkMove() {
     // full control, which allows them to be moved a bit
     if pm_flying == FLY_HOVER {
         accelerate = pm_vehicleaccelerate
-    } else if (bg.pml.groundTrace.surfaceFlags & SURF_SLICK) != 0 || (ps.pm_flags & PMF_TIME_KNOCKBACK) != 0 {
+    } else if (pml.groundTrace.surfaceFlags & SURF_SLICK) != 0 || (ps.pm_flags & PMF_TIME_KNOCKBACK) != 0 {
         accelerate = pm_airaccelerate
     } else {
         accelerate = pm_accelerate
@@ -2894,8 +2897,8 @@ private func PM_WalkMove() {
     //Com_Printf("velocity = %1.1f %1.1f %1.1f\n", pm->ps->velocity[0], pm->ps->velocity[1], pm->ps->velocity[2]);
     //Com_Printf("velocity1 = %1.1f\n", VectorLength(pm->ps->velocity));
 
-    if (bg.pml.groundTrace.surfaceFlags & SURF_SLICK) != 0 || (ps.pm_flags & PMF_TIME_KNOCKBACK) != 0 {
-        ps.velocity[2] -= ps.gravity * bg.pml.frametime
+    if (pml.groundTrace.surfaceFlags & SURF_SLICK) != 0 || (ps.pm_flags & PMF_TIME_KNOCKBACK) != 0 {
+        ps.velocity[2] -= ps.gravity * pml.frametime
     }
 
     vel = VectorLength(ps.velocity)
@@ -2931,7 +2934,7 @@ PM_DeadMove
 private func PM_DeadMove() {
     var forward: Float
     let ps = pm.ps
-    if !bg.pml.walking {
+    if !pml.walking {
         return
     }
 
@@ -2978,7 +2981,7 @@ private func PM_NoclipMove() {
         // C works this line in double, because 1.5 is a double literal.
         friction = Float(Double(pm_friction) * 1.5) // extra friction
         control = speed < pm_stopspeed ? pm_stopspeed : speed
-        drop += control * friction * bg.pml.frametime
+        drop += control * friction * pml.frametime
 
         // scale the velocity
         newspeed = speed - drop
@@ -3004,7 +3007,7 @@ private func PM_NoclipMove() {
 
     i = 0
     while i < 3 {
-        wishvel[i] = bg.pml.forward[i] * fmove + bg.pml.right[i] * smove
+        wishvel[i] = pml.forward[i] * fmove + pml.right[i] * smove
         i += 1
     }
     wishvel[2] += Float(pm.cmd.upmove)
@@ -3018,7 +3021,7 @@ private func PM_NoclipMove() {
     // move
     // Port-note: Raven passes `pm->ps->origin` as both the first and the last argument of `VectorMA`. Swift forbids the overlapping `inout`, so the body uses a local and writes the result back.
     var newOrigin = ps.origin
-    _VectorMA(ps.origin, bg.pml.frametime, ps.velocity, &newOrigin)
+    _VectorMA(ps.origin, pml.frametime, ps.velocity, &newOrigin)
     ps.origin = newOrigin
 }
 
@@ -3033,10 +3036,10 @@ Returns an event number apropriate for the groundsurface
 */
 /// Source: oracle/codemp/game/bg_pmove.c:3587
 private func PM_FootstepForSurface() -> Int32 {
-    if (bg.pml.groundTrace.surfaceFlags & SURF_NOSTEPS) != 0 {
+    if (pml.groundTrace.surfaceFlags & SURF_NOSTEPS) != 0 {
         return 0
     }
-    return (bg.pml.groundTrace.surfaceFlags & MATERIAL_MASK)
+    return (pml.groundTrace.surfaceFlags & MATERIAL_MASK)
 }
 
 /// Source: oracle/codemp/game/bg_pmove.c:3597
@@ -3132,11 +3135,11 @@ private func PM_CrashLandEffect() {
     if pm.waterlevel != 0 {
         return
     }
-    delta = Q_fabs(bg.pml.previous_velocity[2]) / 10 //VectorLength( pml.previous_velocity );?
+    delta = Q_fabs(pml.previous_velocity[2]) / 10 //VectorLength( pml.previous_velocity );?
     if delta >= 30 {
         var bottom = JKAShared.vec3_t(0, 0, 0)
         var effectID: Int32 = -1
-        let material = (bg.pml.groundTrace.surfaceFlags & MATERIAL_MASK)
+        let material = (pml.groundTrace.surfaceFlags & MATERIAL_MASK)
         bottom = JKAShared.vec3_t(ps.origin[0], ps.origin[1], ps.origin[2] + pm.mins[2] + 1)
         switch material {
         case MATERIAL_MUD:
@@ -3159,7 +3162,7 @@ private func PM_CrashLandEffect() {
         }
 
         if effectID != -1 {
-            var groundNormal = bg.pml.groundTrace.plane.normal
+            var groundNormal = pml.groundTrace.plane.normal
             _ = G_PlayEffect(effectID, &bottom, &groundNormal)
         }
     }
@@ -3184,8 +3187,8 @@ private func PM_CrashLand() {
     var didRoll = false
     let ps = pm.ps
     // calculate the exact velocity on landing
-    dist = ps.origin[2] - bg.pml.previous_origin[2]
-    vel = bg.pml.previous_velocity[2]
+    dist = ps.origin[2] - pml.previous_origin[2]
+    vel = pml.previous_velocity[2]
     acc = -Float(ps.gravity)
 
     a = acc / 2
@@ -3361,7 +3364,7 @@ private func PM_CrashLand() {
 
     // SURF_NODAMAGE is used for bounce pads where you don't ever
     // want to take damage or play a crunch sound
-    if (bg.pml.groundTrace.surfaceFlags & SURF_NODAMAGE) == 0 {
+    if (pml.groundTrace.surfaceFlags & SURF_NODAMAGE) == 0 {
         if delta > 7 {
             var delta_send = Int32(delta)
 
@@ -3514,8 +3517,8 @@ private func PM_GroundTraceMissed() {
     }
 
     ps.groundEntityNum = ENTITYNUM_NONE
-    bg.pml.groundPlane = false
-    bg.pml.walking = false
+    pml.groundPlane = false
+    pml.walking = false
 }
 
 /**
@@ -3561,16 +3564,16 @@ private func PM_GroundTrace() {
 
         if ps.pm_type == PM_FLOAT || ps.pm_type == PM_JETPACK {
             PM_GroundTraceMissed()
-            bg.pml.groundPlane = false
-            bg.pml.walking = false
+            pml.groundPlane = false
+            pml.walking = false
             return
         }
 
         // if the trace didn't hit anything, we are in free fall
         if trace.fraction == 1.0 {
             PM_GroundTraceMissed()
-            bg.pml.groundPlane = false
-            bg.pml.walking = false
+            pml.groundPlane = false
+            pml.walking = false
             return
         }
 
@@ -3589,8 +3592,8 @@ private func PM_GroundTrace() {
             }
 
             ps.groundEntityNum = ENTITYNUM_NONE
-            bg.pml.groundPlane = false
-            bg.pml.walking = false
+            pml.groundPlane = false
+            pml.walking = false
             return
         }
 
@@ -3600,13 +3603,13 @@ private func PM_GroundTrace() {
                 Com_Printf("%i:steep\n", c_pmove)
             }
             ps.groundEntityNum = ENTITYNUM_NONE
-            bg.pml.groundPlane = true
-            bg.pml.walking = false
+            pml.groundPlane = true
+            pml.walking = false
             return
         }
 
-        bg.pml.groundPlane = true
-        bg.pml.walking = true
+        pml.groundPlane = true
+        pml.walking = true
 
         // hitting solid ground will end a waterjump
         if (ps.pm_flags & PMF_TIME_WATERJUMP) != 0 {
@@ -3625,7 +3628,7 @@ private func PM_GroundTrace() {
             // Port-note: The game arm of Raven's `#ifdef QAGAME` reads `g_entities` and casts a `bgEntity_t *` to `gentity_t *` to board a vehicle. The `Entity` view lives in the game target, which the bg target cannot import.
 
             // don't do landing time if we were just going down a slope
-            if bg.pml.previous_velocity[2] < -200 {
+            if pml.previous_velocity[2] < -200 {
                 // don't allow another jump for a little while
                 ps.pm_flags |= PMF_TIME_LAND
                 ps.pm_time = 250
@@ -4747,7 +4750,7 @@ private func PM_Footsteps() {
 
     // check for footstep / splash sounds
     old = ps.bobCycle
-    ps.bobCycle = Int32(old + bobmove * bg.pml.msec) & 255
+    ps.bobCycle = Int32(old + bobmove * pml.msec) & 255
 
     // if we just crossed a cycle boundary, play an apropriate footstep event
     if (((old + 64) ^ (ps.bobCycle + 64)) & 128) != 0 {
@@ -4782,7 +4785,7 @@ private func PM_WaterEvents() {
     //
     // if just entered a water volume, play a sound
     //
-    if bg.pml.previous_waterlevel == 0 && pm.waterlevel != 0 {
+    if pml.previous_waterlevel == 0 && pm.waterlevel != 0 {
         if bg.consumer == .game {
             if VectorLengthSquared(ps.velocity) > 40000 {
                 impact_splash = true
@@ -4794,7 +4797,7 @@ private func PM_WaterEvents() {
     //
     // if just completely exited a water volume, play a sound
     //
-    if bg.pml.previous_waterlevel != 0 && pm.waterlevel == 0 {
+    if pml.previous_waterlevel != 0 && pm.waterlevel == 0 {
         if bg.consumer == .game {
             if VectorLengthSquared(ps.velocity) > 40000 {
                 impact_splash = true
@@ -4834,14 +4837,14 @@ private func PM_WaterEvents() {
     //
     // check for head just going under water
     //
-    if bg.pml.previous_waterlevel != 3 && pm.waterlevel == 3 {
+    if pml.previous_waterlevel != 3 && pm.waterlevel == 3 {
         PM_AddEvent(EV_WATER_UNDER)
     }
 
     //
     // check for head just coming out of water
     //
-    if bg.pml.previous_waterlevel == 3 && pm.waterlevel != 3 {
+    if pml.previous_waterlevel == 3 && pm.waterlevel != 3 {
         PM_AddEvent(EV_WATER_CLEAR)
     }
 }
@@ -5501,24 +5504,24 @@ private func PM_DropTimers() {
     let ps = pm.ps
     // drop misc timing counter
     if ps.pm_time != 0 {
-        if bg.pml.msec >= ps.pm_time {
+        if pml.msec >= ps.pm_time {
             ps.pm_flags &= ~PMF_ALL_TIMES
             ps.pm_time = 0
         } else {
-            ps.pm_time -= bg.pml.msec
+            ps.pm_time -= pml.msec
         }
     }
 
     // drop animation counter
     if ps.legsTimer > 0 {
-        ps.legsTimer -= bg.pml.msec
+        ps.legsTimer -= pml.msec
         if ps.legsTimer < 0 {
             ps.legsTimer = 0
         }
     }
 
     if ps.torsoTimer > 0 {
-        ps.torsoTimer -= bg.pml.msec
+        ps.torsoTimer -= pml.msec
         if ps.torsoTimer < 0 {
             ps.torsoTimer = 0
         }
@@ -5875,7 +5878,6 @@ func BG_AdjustClientSpeed(_ ps: JKAMP.PlayerState, _ cmd: JKAMP.Usercmd, _ svTim
         || ps.forceHandExtend == HANDEXTEND_POSTTHROWN {
         ps.speed = 0
     }
-
 
     if cmd.forwardmove < 0 && (cmd.buttons & BUTTON_WALKING) == 0 && pmPS.groundEntityNum != ENTITYNUM_NONE {
         //running backwards is slower than running forwards (like SP)
@@ -7022,8 +7024,8 @@ func PM_VehForcedTurning(_ veh: JKAMP.BgEntity) {
     yawD = AngleSubtract(ps.viewangles[YAW], dir[YAW])
     pitchD = AngleSubtract(ps.viewangles[PITCH], dir[PITCH])
 
-    yawD *= 0.6 * bg.pml.frametime
-    pitchD *= 0.6 * bg.pml.frametime
+    yawD *= 0.6 * pml.frametime
+    pitchD *= 0.6 * pml.frametime
 
     ps.viewangles[YAW] = AngleSubtract(ps.viewangles[YAW], yawD)
     ps.viewangles[PITCH] = AngleSubtract(ps.viewangles[PITCH], pitchD)

@@ -7,7 +7,7 @@ import JKAMP_Game
 /// Source: oracle/codemp/game/g_team.c:18
 // TODO: Port global teamgame
 // Raven wrote: teamgame_t teamgame
-// A struct table is C storage in Sources/CJKAMP, reached through a Slots constant.
+// No view for `struct teamgame_s`, a struct Raven defines inside a .c file.
 
 /// Source: oracle/codemp/game/g_team.c:279
 // Raven wrote: static char ctfFlagStatusRemap[] = { '0', '1', '*', '*', '2' }

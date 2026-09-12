@@ -7,22 +7,22 @@ import JKAMP_Game
 /// Source: oracle/codemp/game/NPC_stats.c:14
 // TODO: Port global TeamTable
 // Raven wrote: stringID_table_t TeamTable[]
-// A struct table is C storage in Sources/CJKAMP, reached through a Slots constant.
+// Raven's data table is C storage by hand in the C target, with his initializer as written, reached as a Slots over the C array, the bg_tables.c shape.
 
 /// Source: oracle/codemp/game/NPC_stats.c:24
 // TODO: Port global ClassTable
 // Raven wrote: stringID_table_t ClassTable[]
-// A struct table is C storage in Sources/CJKAMP, reached through a Slots constant.
+// Raven's data table is C storage by hand in the C target, with his initializer as written, reached as a Slots over the C array, the bg_tables.c shape.
 
 /// Source: oracle/codemp/game/NPC_stats.c:88
 // TODO: Port global BSTable
 // Raven wrote: stringID_table_t BSTable[]
-// A struct table is C storage in Sources/CJKAMP, reached through a Slots constant.
+// Raven's data table is C storage by hand in the C target, with his initializer as written, reached as a Slots over the C array, the bg_tables.c shape.
 
 /// Source: oracle/codemp/game/NPC_stats.c:106
 // TODO: Port global BSETTable
 // Raven wrote: stringID_table_t BSETTable[]
-// A struct table is C storage in Sources/CJKAMP, reached through a Slots constant.
+// Raven's data table is C storage by hand in the C target, with his initializer as written, reached as a Slots over the C array, the bg_tables.c shape.
 
 /// Source: oracle/codemp/game/NPC_stats.c:133
 /// Raven's data table, a hand property of `GameWorld`.

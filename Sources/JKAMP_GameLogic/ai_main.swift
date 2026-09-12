@@ -26,72 +26,46 @@ var regularupdate_time: Float {
 /// Source: oracle/codemp/game/ai_main.c:59
 // TODO: Port global gBotEventTracker
 // Raven wrote: boteventtracker_t gBotEventTracker[MAX_CLIENTS]
-// A struct table is C storage in Sources/CJKAMP, reached through a Slots constant.
+// No view for `struct boteventtracker_s`, a struct Raven defines inside a .c file.
 
 /// Source: oracle/codemp/game/ai_main.c:62
-// TODO: Port global bot_forcepowers
-// Raven wrote: vmCvar_t bot_forcepowers
-// A struct table is C storage in Sources/CJKAMP, reached through a Slots constant.
+var bot_forcepowers: JKAMP.VmCvar { world.storage.bot_forcepowers }
 
 /// Source: oracle/codemp/game/ai_main.c:63
-// TODO: Port global bot_forgimmick
-// Raven wrote: vmCvar_t bot_forgimmick
-// A struct table is C storage in Sources/CJKAMP, reached through a Slots constant.
+var bot_forgimmick: JKAMP.VmCvar { world.storage.bot_forgimmick }
 
 /// Source: oracle/codemp/game/ai_main.c:64
-// TODO: Port global bot_honorableduelacceptance
-// Raven wrote: vmCvar_t bot_honorableduelacceptance
-// A struct table is C storage in Sources/CJKAMP, reached through a Slots constant.
+var bot_honorableduelacceptance: JKAMP.VmCvar { world.storage.bot_honorableduelacceptance }
 
 /// Source: oracle/codemp/game/ai_main.c:65
-// TODO: Port global bot_pvstype
-// Raven wrote: vmCvar_t bot_pvstype
-// A struct table is C storage in Sources/CJKAMP, reached through a Slots constant.
+var bot_pvstype: JKAMP.VmCvar { world.storage.bot_pvstype }
 
 /// Source: oracle/codemp/game/ai_main.c:66
-// TODO: Port global bot_normgpath
-// Raven wrote: vmCvar_t bot_normgpath
-// A struct table is C storage in Sources/CJKAMP, reached through a Slots constant.
+var bot_normgpath: JKAMP.VmCvar { world.storage.bot_normgpath }
 
 /// Source: oracle/codemp/game/ai_main.c:68
-// TODO: Port global bot_getinthecarrr
-// Raven wrote: vmCvar_t bot_getinthecarrr
-// A struct table is C storage in Sources/CJKAMP, reached through a Slots constant.
+var bot_getinthecarrr: JKAMP.VmCvar { world.storage.bot_getinthecarrr }
 
 /// Source: oracle/codemp/game/ai_main.c:76
-// TODO: Port global bot_attachments
-// Raven wrote: vmCvar_t bot_attachments
-// A struct table is C storage in Sources/CJKAMP, reached through a Slots constant.
+var bot_attachments: JKAMP.VmCvar { world.storage.bot_attachments }
 
 /// Source: oracle/codemp/game/ai_main.c:77
-// TODO: Port global bot_camp
-// Raven wrote: vmCvar_t bot_camp
-// A struct table is C storage in Sources/CJKAMP, reached through a Slots constant.
+var bot_camp: JKAMP.VmCvar { world.storage.bot_camp }
 
 /// Source: oracle/codemp/game/ai_main.c:79
-// TODO: Port global bot_wp_info
-// Raven wrote: vmCvar_t bot_wp_info
-// A struct table is C storage in Sources/CJKAMP, reached through a Slots constant.
+var bot_wp_info: JKAMP.VmCvar { world.storage.bot_wp_info }
 
 /// Source: oracle/codemp/game/ai_main.c:80
-// TODO: Port global bot_wp_edit
-// Raven wrote: vmCvar_t bot_wp_edit
-// A struct table is C storage in Sources/CJKAMP, reached through a Slots constant.
+var bot_wp_edit: JKAMP.VmCvar { world.storage.bot_wp_edit }
 
 /// Source: oracle/codemp/game/ai_main.c:81
-// TODO: Port global bot_wp_clearweight
-// Raven wrote: vmCvar_t bot_wp_clearweight
-// A struct table is C storage in Sources/CJKAMP, reached through a Slots constant.
+var bot_wp_clearweight: JKAMP.VmCvar { world.storage.bot_wp_clearweight }
 
 /// Source: oracle/codemp/game/ai_main.c:82
-// TODO: Port global bot_wp_distconnect
-// Raven wrote: vmCvar_t bot_wp_distconnect
-// A struct table is C storage in Sources/CJKAMP, reached through a Slots constant.
+var bot_wp_distconnect: JKAMP.VmCvar { world.storage.bot_wp_distconnect }
 
 /// Source: oracle/codemp/game/ai_main.c:83
-// TODO: Port global bot_wp_visconnect
-// Raven wrote: vmCvar_t bot_wp_visconnect
-// A struct table is C storage in Sources/CJKAMP, reached through a Slots constant.
+var bot_wp_visconnect: JKAMP.VmCvar { world.storage.bot_wp_visconnect }
 
 /// Source: oracle/codemp/game/ai_main.c:86
 var flagRed: JKAMP.Wpobject? {

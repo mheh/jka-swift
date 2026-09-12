@@ -218,7 +218,11 @@ var rng = Rng()
 
 `bg_itemlist`, `weaponData`, and `ammoData` are C storage in `Sources/CJKAMP/bg_tables.c`, with Raven's initializers as written, and `Sources/JKAMP/BgTables.swift` reaches each one as a `Slots` over the C array, with the view's `stride`, because the view target is the one Swift module that imports the C target and can take the address of the C array, and `bg_numItems` reads the C global, so a body reads `bg_itemlist[i].giTag`.
 The header `Sources/CJKAMP/include/bg_tables.h` declares each array with a written bound, because the Swift importer drops an array of unknown bound, and clang checks the bound against the initializer.
-Every other struct-typed table Raven declares at file scope, such as `fields[]` of `g_spawn.c`, is C storage the same way. The stub of a `.c` file carries one entry per file-scope variable, above its first function.
+Every other struct-typed table with Raven's data, such as `fields[]` of `g_spawn.c`, is C storage the same way, and its stub entry says so.
+A struct table or record Raven leaves zero, `g_entities`, `level`, `pml`, `g_timerPool`, and every `vmCvar_t` among them, is one zeroed allocation on the generated storage class, `GameStorage` in `Sources/JKAMP_Game/Generated/Storage/GameStorage.swift` or `BgStorage` in `Sources/JKAMP_BG/Generated/BgStorage.swift`, which the state object owns as `storage`.
+An array is a `Slots` of the view with the view's stride, a record is the view over one slot, and the stub forwards the name at Raven's line, `var level: Level { world.storage.level }`.
+A struct Raven defines inside a `.c` file with no view yet keeps a marker that names the struct.
+The stub of a `.c` file carries one entry per file-scope variable, above its first function.
 A variable the module never assigns is a typed `let` with a `portMissing` initializer and a `// Raven wrote:` line, and the transcriptor replaces the initializer with Raven's data.
 A variable the module assigns is a stored property of the generated variables struct, `BgVariables` in `Sources/JKAMP_BG/Generated/BgVariables.swift` or `GameVariables` in `Sources/JKAMP_Game/Generated/Storage/GameVariables.swift`, which the state object owns as `variables`.
 The property carries Raven's initializer when it is a number, `qtrue`, `qfalse`, `NULL`, a string, or a name a module exports, and C's zero otherwise, with a `// TODO: Port initializer` line that names the hand line in the state object's `init`.
@@ -237,7 +241,7 @@ A body macro that names a local, such as `SLOPERECALCVAR`, is spelled as its exp
 
 Ruling of 2026-09-09. `JKAMP_BG` cannot see `GameWorld`, and cgame links the same bg code with its own instance.
 A Raven static in a `bg_*.c` file lives on `final class BgState`, in the hand file `Sources/JKAMP_BG/bg_local.swift`, behind `nonisolated(unsafe) var bg = BgState()`, the same shape as `world`.
-A scalar static is a property of the generated `BgVariables`, which `BgState` owns, and the stub forwards it under Raven's name, so a body writes `pm_flying = FLY_NONE`. A struct static such as `pml`, which Raven's bodies read through a view, gets C storage owned by `BgState`, with the view over it, the pattern `GameMemory` uses at `Sources/JKAMP_Game/GameMemory.swift`.
+A scalar static is a property of the generated `BgVariables`, which `BgState` owns, and the stub forwards it under Raven's name, so a body writes `pm_flying = FLY_NONE`. A struct static such as `pml` is one zeroed allocation on the generated `BgStorage`, which `BgState` owns, and a body reads `pml.forward` through the forwarder.
 A pointer static such as `pm` is the view of the caller's memory, set per call, and a body reads `pm.ps` with no bind. A test resets state with `bg = BgState()`.
 A static local that every path of the body writes before it reads is scratch, Raven's habit of keeping vectors off the stack, and it is a local of the body, declared where Raven declared it with his initializer.
 The 23 statics of `BG_UpdateLookAngles` and `BG_G2PlayerAngles` are this shape, and none of them sits on `BgState`.
