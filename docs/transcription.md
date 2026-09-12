@@ -418,7 +418,7 @@ Ruling of 2026-09-09. A transcriptor never runs `swift build`, not between funct
 
 A reviewer runs `swift build` once, at the end of its own file. A body that fails to compile keeps its marker and gets a Port-note carrying the compiler's first line, never a guessed fix.
 
-The batch gate runs after every reviewer of the batch is done, and the coordinator runs it: `swift build`, `swift build -c release`, and `swift test`. A golden test is written per golden once the files it needs are ported in.
+The batch gate runs after every reviewer of the batch is done, and the coordinator runs it: `swift build`, `swift build -c release`, and `swift test --no-parallel`. A golden test is written per golden once the files it needs are ported in.
 
 ## 5. The finished report
 

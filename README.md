@@ -20,7 +20,7 @@ Run these from the repo root.
 
 1. Fetch the oracle source: `git submodule update --init`. The generators and the tests read it.
 2. Build: `swift build`, and `swift build -c release` for the library the engine loads. `Package.swift` declares `swift-tools-version: 6.3`, and the tree builds with Apple Swift 6.3.3.
-3. Test: `swift test`.
+3. Test: `swift test --no-parallel`. The tests share the module's one world and one bg state, so the suites run one at a time.
 
 ## For readers of Raven's `g_*.c`
 
