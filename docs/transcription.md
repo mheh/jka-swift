@@ -341,6 +341,7 @@ The same holds for an `int` in a float table, `Float(JUMP_VELOCITY)`. The site c
 ### `#ifdef`
 
 A `#ifdef` takes the native build's branch. The other branch is not written, and it gets no Port-note, because it is dead by the build's own choice.
+A define with no body, `_JK2MP`, `MISSIONPACK`, `BOT_STRAFE_AVOIDANCE`, an include guard, is a switch of the build, fixed by the parse's defines in `tools/oracle-closure/modules/mp-game.py`, Raven's release configuration, and it is never a Swift name.
 Raven's `#ifdef QAGAME` in a bg body is the one exception, and it is `if bg.consumer == .game { ... } else { ... }`, with both arms on the page.
 
 ### `goto`
