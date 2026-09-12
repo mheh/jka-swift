@@ -29,7 +29,7 @@ from table import INT_KINDS
 from reexport import SOURCES
 from rulings import HAND_VARS, NEVER_NULL_VARS
 import closure as C
-from skeleton import BG, ORACLE_DIR, Function, Skeleton, target_of
+from skeleton import BG, LOGIC, ORACLE_DIR, Function, Skeleton, target_of
 from table import Param, TARGET, swift_name
 
 INDENT = "    "
@@ -72,6 +72,10 @@ MACRO_RETURNS = {"DotProduct": "float", "Q_fabs": "float", "DEG2RAD": "float", "
 DROPPED = {"assert"}
 OVERLAY = "".join(f"#undef {name}\n{MACRO_RETURNS.get(name, 'void')} {name}(...);\n" for name in list(MACROS) + sorted(DROPPED))
 FUNC_LINE = re.compile(r"func\s+`?(\w+)`?\s*\((.*)\)")
+# A file-scope `var`, `let`, or `func` of a Swift file: at column 0, after its modifiers. A method sits indented under its type.
+MODIFIERS = r"(?:(?:public|package|internal|private|fileprivate|nonisolated\(unsafe\)|@\w+(?:\([^)]*\))?)\s+)*"
+VAR_LINE = re.compile(MODIFIERS + r"(?:var|let)\s+`?(\w+)`?")
+FILE_FUNC = re.compile(MODIFIERS + r"func\s")
 
 
 def split_params(text: str) -> list[str]:
@@ -99,8 +103,14 @@ class Registry:
 
     def __init__(self) -> None:
         self.params: dict[str, list[tuple[str, str]]] = {}
+        # The Swift targets that hold each file-scope function and variable, so a bg body that reaches a game-only name keeps a hole.
+        self.homes: dict[str, set[str]] = {}
         for path in SOURCES.rglob("*.swift"):
+            target = path.relative_to(SOURCES).parts[0]
             for line in path.read_text().splitlines():
+                v = VAR_LINE.match(line)
+                if v is not None:
+                    self.homes.setdefault(v.group(1), set()).add(target)
                 m = FUNC_LINE.search(line)
                 if m is None or "func " not in line.split("//")[0]:
                     continue
@@ -109,6 +119,8 @@ class Registry:
                     label, _, swift = p.partition(":")
                     params.append((label.split()[-1].strip("`"), swift.strip()))
                 self.params.setdefault(m.group(1), params)
+                if FILE_FUNC.match(line):
+                    self.homes.setdefault(m.group(1), set()).add(target)
 
 
 class Hole(Exception):
@@ -151,6 +163,8 @@ class Drafter:
             self.lets = set()
         self.written = self.written_names(fn.cur)
         self.inout_locals = {c.spelling for c, p in zip(fn.cur.get_arguments(), fn.params) if (p.swift or "").startswith("inout ")}
+        # Raven assigns a parameter of his own. A Swift parameter is immutable, so the body opens with a mutable copy, after the declarations.
+        self.param_copies = [p.name for c, p in zip(fn.cur.get_arguments(), fn.params) if c.spelling in self.written and c.spelling not in self.inout_locals]
         body = [c for c in fn.cur.get_children() if c.kind == CursorKind.COMPOUND_STMT][-1]
         lines = header[:-3]
         lines += self.block_body(body, 1)
@@ -173,8 +187,13 @@ class Drafter:
         out: list[str] = []
         previous_line = first_line
         for i, child in enumerate(children):
-            out += self.gap(previous_line, child.extent.start.line, depth)
             record = self.record_local(child)
+            if depth == 1 and self.param_copies and (child.kind != CursorKind.DECL_STMT or record is not None):
+                for name in self.param_copies:
+                    out.append(f"{INDENT}// Raven assigns his own `{name}` parameter. A Swift parameter is immutable, so the body takes a mutable copy of it.")
+                    out.append(f"{INDENT}var {name} = {name}")
+                self.param_copies = []
+            out += self.gap(previous_line, child.extent.start.line, depth)
             if record is not None:
                 out += self.scratch(child, record, children[i + 1:], last_line, depth)
                 return out
@@ -968,7 +987,20 @@ class Drafter:
             return name
         if name in HAND_VARS:
             return HAND_VARS[name]
+        if ref is not None and ref.kind == CursorKind.VAR_DECL and ref.semantic_parent is not None and ref.semantic_parent.kind == CursorKind.TRANSLATION_UNIT:
+            self.reach(name, "variable")
         return swift_name(name)
+
+    def reach(self, name: str, what: str) -> None:
+        """A bg body sees JKAShared and JKAMP, and not the game module. A game function or variable reached from a bg body keeps a hole,
+        and so does a file-scope variable that has no Swift home yet."""
+        if target_of(self.fn.stem) != BG:
+            return
+        homes = self.registry.homes.get(swift_name(name), set())
+        if homes == {LOGIC}:
+            raise Hole(f"Raven reaches the game's `{name}` here, and the bg module has no view of it.")
+        if not homes and what == "variable":
+            raise Hole(f"Raven reaches `{name}` here, and no Swift file holds it yet.")
 
     def optional_base(self, cur: ci.Cursor) -> bool:
         """True when the expression is a pointer a Swift view holds as optional, so a member read through it takes `!`."""
@@ -1010,6 +1042,7 @@ class Drafter:
             name = callee.spelling
             if name in MACROS:
                 return self.macro_call(name, args)
+            self.reach(name, "function")
             params = self.callee_params(name)
             words = [self.argument(a, i < len(params) and params[i][1].startswith("inout "), params[i] if i < len(params) else None) for i, a in enumerate(args)]
             return f"{swift_name(name)}({', '.join(words)})"
