@@ -20,6 +20,7 @@ public func trap_Error(_ fmt: String) -> Never {
 }
 
 /// Source: oracle/codemp/game/g_syscalls.c:35
+@discardableResult
 public func trap_Milliseconds() -> Int32 {
 let word = Syscall.call(G_MILLISECONDS)
     return Int32(truncatingIfNeeded: word)
@@ -37,6 +38,7 @@ public func trap_PrecisionTimer_Start(_ theNewTimer: inout OpaquePointer?) {
 
 //If you're using the above example, the appropriate call for this is int result = trap_PrecisionTimer_End(blah);
 /// Source: oracle/codemp/game/g_syscalls.c:52
+@discardableResult
 public func trap_PrecisionTimer_End(_ theTimer: OpaquePointer?) -> Int32 {
 let word = Syscall.call(G_PRECISIONTIMER_END, theTimer)
     return Int32(truncatingIfNeeded: word)
@@ -66,6 +68,7 @@ public func trap_Cvar_Set(_ var_name: String, _ value: String) {
 }
 
 /// Source: oracle/codemp/game/g_syscalls.c:69
+@discardableResult
 public func trap_Cvar_VariableIntegerValue(_ var_name: String) -> Int32 {
     let word = var_name.withCString { var_name in
         Syscall.call(G_CVAR_VARIABLE_INTEGER_VALUE, var_name)
@@ -74,6 +77,7 @@ public func trap_Cvar_VariableIntegerValue(_ var_name: String) -> Int32 {
 }
 
 /// Source: oracle/codemp/game/g_syscalls.c:73
+@discardableResult
 public func trap_Cvar_VariableStringBuffer(_ var_name: String, _ bufsize: Int32) -> String {
     var buffer = [CChar](repeating: 0, count: Int(bufsize))
     _ = var_name.withCString { var_name in
@@ -85,12 +89,14 @@ public func trap_Cvar_VariableStringBuffer(_ var_name: String, _ bufsize: Int32)
 }
 
 /// Source: oracle/codemp/game/g_syscalls.c:77
+@discardableResult
 public func trap_Argc() -> Int32 {
 let word = Syscall.call(G_ARGC)
     return Int32(truncatingIfNeeded: word)
 }
 
 /// Source: oracle/codemp/game/g_syscalls.c:81
+@discardableResult
 public func trap_Argv(_ n: Int32, _ bufferLength: Int32) -> String {
     var buffer = [CChar](repeating: 0, count: Int(bufferLength))
     _ = buffer.withUnsafeMutableBufferPointer { bufferPointer in
@@ -100,6 +106,7 @@ public func trap_Argv(_ n: Int32, _ bufferLength: Int32) -> String {
 }
 
 /// Source: oracle/codemp/game/g_syscalls.c:85
+@discardableResult
 public func trap_FS_FOpenFile(_ qpath: String, _ f: inout Int32, _ mode: JKAShared.fsMode_t) -> Int32 {
     let word = qpath.withCString { qpath in
         withUnsafeMutablePointer(to: &f) { f in
@@ -158,6 +165,7 @@ public func trap_SetConfigstring(_ num: Int32, _ string: String) {
 }
 
 /// Source: oracle/codemp/game/g_syscalls.c:122
+@discardableResult
 public func trap_GetConfigstring(_ num: Int32, _ bufferSize: Int32) -> String {
     var buffer = [CChar](repeating: 0, count: Int(bufferSize))
     _ = buffer.withUnsafeMutableBufferPointer { bufferPointer in
@@ -167,6 +175,7 @@ public func trap_GetConfigstring(_ num: Int32, _ bufferSize: Int32) -> String {
 }
 
 /// Source: oracle/codemp/game/g_syscalls.c:126
+@discardableResult
 public func trap_GetUserinfo(_ num: Int32, _ bufferSize: Int32) -> String {
     var buffer = [CChar](repeating: 0, count: Int(bufferSize))
     _ = buffer.withUnsafeMutableBufferPointer { bufferPointer in
@@ -183,6 +192,7 @@ public func trap_SetUserinfo(_ num: Int32, _ buffer: String) {
 }
 
 /// Source: oracle/codemp/game/g_syscalls.c:134
+@discardableResult
 public func trap_GetServerinfo(_ bufferSize: Int32) -> String {
     var buffer = [CChar](repeating: 0, count: Int(bufferSize))
     _ = buffer.withUnsafeMutableBufferPointer { bufferPointer in
@@ -232,6 +242,7 @@ public func trap_G2Trace(_ results: JKAMP.Trace, _ start: JKAShared.vec3_t, _ mi
 }
 
 /// Source: oracle/codemp/game/g_syscalls.c:157
+@discardableResult
 public func trap_PointContents(_ point: JKAShared.vec3_t, _ passEntityNum: Int32) -> Int32 {
     let word = withUnsafePointer(to: point) { point in
         Syscall.call(G_POINT_CONTENTS, point, passEntityNum)
@@ -240,6 +251,7 @@ public func trap_PointContents(_ point: JKAShared.vec3_t, _ passEntityNum: Int32
 }
 
 /// Source: oracle/codemp/game/g_syscalls.c:162
+@discardableResult
 public func trap_InPVS(_ p1: JKAShared.vec3_t, _ p2: JKAShared.vec3_t) -> Bool {
     let word = withUnsafePointer(to: p1) { p1 in
         withUnsafePointer(to: p2) { p2 in
@@ -250,6 +262,7 @@ public func trap_InPVS(_ p1: JKAShared.vec3_t, _ p2: JKAShared.vec3_t) -> Bool {
 }
 
 /// Source: oracle/codemp/game/g_syscalls.c:166
+@discardableResult
 public func trap_InPVSIgnorePortals(_ p1: JKAShared.vec3_t, _ p2: JKAShared.vec3_t) -> Bool {
     let word = withUnsafePointer(to: p1) { p1 in
         withUnsafePointer(to: p2) { p2 in
@@ -265,6 +278,7 @@ public func trap_AdjustAreaPortalState(_ ent: Entity, _ open: Bool) {
 }
 
 /// Source: oracle/codemp/game/g_syscalls.c:174
+@discardableResult
 public func trap_AreasConnected(_ area1: Int32, _ area2: Int32) -> Bool {
 let word = Syscall.call(G_AREAS_CONNECTED, area1, area2)
     return word != 0
@@ -281,6 +295,7 @@ public func trap_UnlinkEntity(_ ent: Entity) {
 }
 
 /// Source: oracle/codemp/game/g_syscalls.c:186
+@discardableResult
 public func trap_EntitiesInBox(_ mins: JKAShared.vec3_t, _ maxs: JKAShared.vec3_t, _ list: inout Int32, _ maxcount: Int32) -> Int32 {
     let word = withUnsafePointer(to: mins) { mins in
         withUnsafePointer(to: maxs) { maxs in
@@ -293,6 +308,7 @@ public func trap_EntitiesInBox(_ mins: JKAShared.vec3_t, _ maxs: JKAShared.vec3_
 }
 
 /// Source: oracle/codemp/game/g_syscalls.c:190
+@discardableResult
 public func trap_EntityContact(_ mins: JKAShared.vec3_t, _ maxs: JKAShared.vec3_t, _ ent: Entity) -> Bool {
     let word = withUnsafePointer(to: mins) { mins in
         withUnsafePointer(to: maxs) { maxs in
@@ -303,6 +319,7 @@ public func trap_EntityContact(_ mins: JKAShared.vec3_t, _ maxs: JKAShared.vec3_
 }
 
 /// Source: oracle/codemp/game/g_syscalls.c:194
+@discardableResult
 public func trap_BotAllocateClient() -> Int32 {
 let word = Syscall.call(G_BOT_ALLOCATE_CLIENT)
     return Int32(truncatingIfNeeded: word)
@@ -319,6 +336,7 @@ public func trap_GetUsercmd(_ clientNum: Int32, _ cmd: JKAMP.Usercmd) {
 }
 
 /// Source: oracle/codemp/game/g_syscalls.c:206
+@discardableResult
 public func trap_GetEntityToken(_ bufferSize: Int32) -> (Bool, String) {
     var buffer = [CChar](repeating: 0, count: Int(bufferSize))
     let word = buffer.withUnsafeMutableBufferPointer { bufferPointer in
@@ -338,6 +356,7 @@ public func trap_SiegePersGet(_ pers: JKAMP.SiegePers) {
 }
 
 /// Source: oracle/codemp/game/g_syscalls.c:219
+@discardableResult
 public func trap_FS_GetFileList(_ path: String, _ `extension`: String, _ bufsize: Int32) -> (Int32, String) {
     var listbuf = [CChar](repeating: 0, count: Int(bufsize))
     let word = path.withCString { path in
@@ -351,6 +370,7 @@ public func trap_FS_GetFileList(_ path: String, _ `extension`: String, _ bufsize
 }
 
 /// Source: oracle/codemp/game/g_syscalls.c:223
+@discardableResult
 public func trap_DebugPolygonCreate(_ color: Int32, _ numPoints: Int32, _ points: [JKAShared.vec3_t]) -> Int32 {
     let pointsFlat = points.flatMap { [$0.x, $0.y, $0.z] }
     let word = pointsFlat.withUnsafeBufferPointer { pointsFlat in
@@ -394,6 +414,7 @@ public func trap_TraceCapsule(_ results: JKAMP.Trace, _ start: JKAShared.vec3_t,
 }
 
 /// Source: oracle/codemp/game/g_syscalls.c:243
+@discardableResult
 public func trap_EntityContactCapsule(_ mins: JKAShared.vec3_t, _ maxs: JKAShared.vec3_t, _ ent: Entity) -> Bool {
     let word = withUnsafePointer(to: mins) { mins in
         withUnsafePointer(to: maxs) { maxs in
@@ -404,6 +425,7 @@ public func trap_EntityContactCapsule(_ mins: JKAShared.vec3_t, _ maxs: JKAShare
 }
 
 /// Source: oracle/codemp/game/g_syscalls.c:252
+@discardableResult
 public func trap_SP_GetStringTextString(_ text: String, _ bufferLength: Int32) -> (Int32, String) {
     var buffer = [CChar](repeating: 0, count: Int(bufferLength))
     let word = text.withCString { text in
@@ -415,6 +437,7 @@ public func trap_SP_GetStringTextString(_ text: String, _ bufferLength: Int32) -
 }
 
 /// Source: oracle/codemp/game/g_syscalls.c:257
+@discardableResult
 public func trap_ROFF_Clean() -> Bool {
 let word = Syscall.call(G_ROFF_CLEAN)
     return word != 0
@@ -426,6 +449,7 @@ public func trap_ROFF_UpdateEntities() {
 }
 
 /// Source: oracle/codemp/game/g_syscalls.c:267
+@discardableResult
 public func trap_ROFF_Cache(_ file: String) -> Int32 {
     let word = file.withCString { file in
         Syscall.call(G_ROFF_CACHE, file)
@@ -434,12 +458,14 @@ public func trap_ROFF_Cache(_ file: String) -> Int32 {
 }
 
 /// Source: oracle/codemp/game/g_syscalls.c:272
+@discardableResult
 public func trap_ROFF_Play(_ entID: Int32, _ roffID: Int32, _ doTranslation: Bool) -> Bool {
 let word = Syscall.call(G_ROFF_PLAY, entID, roffID, doTranslation)
     return word != 0
 }
 
 /// Source: oracle/codemp/game/g_syscalls.c:277
+@discardableResult
 public func trap_ROFF_Purge_Ent(_ entID: Int32) -> Bool {
 let word = Syscall.call(G_ROFF_PURGE_ENT, entID)
     return word != 0
@@ -462,6 +488,7 @@ public func trap_TrueFree(_ ptr: inout OpaquePointer?) {
 
 //rww - icarus traps
 /// Source: oracle/codemp/game/g_syscalls.c:294
+@discardableResult
 public func trap_ICARUS_RunScript(_ ent: Entity, _ name: String) -> Int32 {
     let word = name.withCString { name in
         Syscall.call(G_ICARUS_RUNSCRIPT, ent, name)
@@ -470,6 +497,7 @@ public func trap_ICARUS_RunScript(_ ent: Entity, _ name: String) -> Int32 {
 }
 
 /// Source: oracle/codemp/game/g_syscalls.c:299
+@discardableResult
 public func trap_ICARUS_RegisterScript(_ name: String, _ bCalledDuringInterrogate: Bool) -> Bool {
     let word = name.withCString { name in
         Syscall.call(G_ICARUS_REGISTERSCRIPT, name, bCalledDuringInterrogate)
@@ -483,30 +511,35 @@ public func trap_ICARUS_Init() {
 }
 
 /// Source: oracle/codemp/game/g_syscalls.c:309
+@discardableResult
 public func trap_ICARUS_ValidEnt(_ ent: Entity) -> Bool {
 let word = Syscall.call(G_ICARUS_VALIDENT, ent)
     return word != 0
 }
 
 /// Source: oracle/codemp/game/g_syscalls.c:314
+@discardableResult
 public func trap_ICARUS_IsInitialized(_ entID: Int32) -> Bool {
 let word = Syscall.call(G_ICARUS_ISINITIALIZED, entID)
     return word != 0
 }
 
 /// Source: oracle/codemp/game/g_syscalls.c:319
+@discardableResult
 public func trap_ICARUS_MaintainTaskManager(_ entID: Int32) -> Bool {
 let word = Syscall.call(G_ICARUS_MAINTAINTASKMANAGER, entID)
     return word != 0
 }
 
 /// Source: oracle/codemp/game/g_syscalls.c:324
+@discardableResult
 public func trap_ICARUS_IsRunning(_ entID: Int32) -> Bool {
 let word = Syscall.call(G_ICARUS_ISRUNNING, entID)
     return word != 0
 }
 
 /// Source: oracle/codemp/game/g_syscalls.c:329
+@discardableResult
 public func trap_ICARUS_TaskIDPending(_ ent: Entity, _ taskID: Int32) -> Bool {
 let word = Syscall.call(G_ICARUS_TASKIDPENDING, ent, taskID)
     return word != 0
@@ -552,6 +585,7 @@ public func trap_ICARUS_SetVar(_ taskID: Int32, _ entID: Int32, _ type_name: Str
 }
 
 /// Source: oracle/codemp/game/g_syscalls.c:369
+@discardableResult
 public func trap_ICARUS_VariableDeclared(_ type_name: String) -> Int32 {
     let word = type_name.withCString { type_name in
         Syscall.call(G_ICARUS_VARIABLEDECLARED, type_name)
@@ -560,6 +594,7 @@ public func trap_ICARUS_VariableDeclared(_ type_name: String) -> Int32 {
 }
 
 /// Source: oracle/codemp/game/g_syscalls.c:374
+@discardableResult
 public func trap_ICARUS_GetFloatVariable(_ name: String, _ value: inout Float) -> Int32 {
     let word = name.withCString { name in
         withUnsafeMutablePointer(to: &value) { value in
@@ -570,6 +605,7 @@ public func trap_ICARUS_GetFloatVariable(_ name: String, _ value: inout Float) -
 }
 
 /// Source: oracle/codemp/game/g_syscalls.c:379
+@discardableResult
 public func trap_ICARUS_GetStringVariable(_ name: String, _ value: String) -> Int32 {
     let word = name.withCString { name in
         value.withCString { value in
@@ -580,6 +616,7 @@ public func trap_ICARUS_GetStringVariable(_ name: String, _ value: String) -> In
 }
 
 /// Source: oracle/codemp/game/g_syscalls.c:384
+@discardableResult
 public func trap_ICARUS_GetVectorVariable(_ name: String, _ value: JKAShared.vec3_t) -> Int32 {
     let word = name.withCString { name in
         withUnsafePointer(to: value) { value in
@@ -601,6 +638,7 @@ public func trap_Nav_Free() {
 }
 
 /// Source: oracle/codemp/game/g_syscalls.c:400
+@discardableResult
 public func trap_Nav_Load(_ filename: String, _ checksum: Int32) -> Bool {
     let word = filename.withCString { filename in
         Syscall.call(G_NAV_LOAD, filename, checksum)
@@ -609,6 +647,7 @@ public func trap_Nav_Load(_ filename: String, _ checksum: Int32) -> Bool {
 }
 
 /// Source: oracle/codemp/game/g_syscalls.c:405
+@discardableResult
 public func trap_Nav_Save(_ filename: String, _ checksum: Int32) -> Bool {
     let word = filename.withCString { filename in
         Syscall.call(G_NAV_SAVE, filename, checksum)
@@ -617,6 +656,7 @@ public func trap_Nav_Save(_ filename: String, _ checksum: Int32) -> Bool {
 }
 
 /// Source: oracle/codemp/game/g_syscalls.c:410
+@discardableResult
 public func trap_Nav_AddRawPoint(_ point: inout JKAShared.vec3_t, _ flags: Int32, _ radius: Int32) -> Int32 {
     let word = withUnsafeMutablePointer(to: &point) { point in
         Syscall.call(G_NAV_ADDRAWPOINT, point, flags, radius)
@@ -650,18 +690,21 @@ public func trap_Nav_ShowPath(_ start: Int32, _ end: Int32) {
 }
 
 /// Source: oracle/codemp/game/g_syscalls.c:440
+@discardableResult
 public func trap_Nav_GetNearestNode(_ ent: Entity, _ lastID: Int32, _ flags: Int32, _ targetID: Int32) -> Int32 {
 let word = Syscall.call(G_NAV_GETNEARESTNODE, ent, lastID, flags, targetID)
     return Int32(truncatingIfNeeded: word)
 }
 
 /// Source: oracle/codemp/game/g_syscalls.c:445
+@discardableResult
 public func trap_Nav_GetBestNode(_ startID: Int32, _ endID: Int32, _ rejectID: Int32) -> Int32 {
 let word = Syscall.call(G_NAV_GETBESTNODE, startID, endID, rejectID)
     return Int32(truncatingIfNeeded: word)
 }
 
 /// Source: oracle/codemp/game/g_syscalls.c:450
+@discardableResult
 public func trap_Nav_GetNodePosition(_ nodeID: Int32, _ out: inout JKAShared.vec3_t) -> Int32 {
     let word = withUnsafeMutablePointer(to: &out) { out in
         Syscall.call(G_NAV_GETNODEPOSITION, nodeID, out)
@@ -670,42 +713,49 @@ public func trap_Nav_GetNodePosition(_ nodeID: Int32, _ out: inout JKAShared.vec
 }
 
 /// Source: oracle/codemp/game/g_syscalls.c:455
+@discardableResult
 public func trap_Nav_GetNodeNumEdges(_ nodeID: Int32) -> Int32 {
 let word = Syscall.call(G_NAV_GETNODENUMEDGES, nodeID)
     return Int32(truncatingIfNeeded: word)
 }
 
 /// Source: oracle/codemp/game/g_syscalls.c:460
+@discardableResult
 public func trap_Nav_GetNodeEdge(_ nodeID: Int32, _ edge: Int32) -> Int32 {
 let word = Syscall.call(G_NAV_GETNODEEDGE, nodeID, edge)
     return Int32(truncatingIfNeeded: word)
 }
 
 /// Source: oracle/codemp/game/g_syscalls.c:465
+@discardableResult
 public func trap_Nav_GetNumNodes() -> Int32 {
 let word = Syscall.call(G_NAV_GETNUMNODES)
     return Int32(truncatingIfNeeded: word)
 }
 
 /// Source: oracle/codemp/game/g_syscalls.c:470
+@discardableResult
 public func trap_Nav_Connected(_ startID: Int32, _ endID: Int32) -> Bool {
 let word = Syscall.call(G_NAV_CONNECTED, startID, endID)
     return word != 0
 }
 
 /// Source: oracle/codemp/game/g_syscalls.c:475
+@discardableResult
 public func trap_Nav_GetPathCost(_ startID: Int32, _ endID: Int32) -> Int32 {
 let word = Syscall.call(G_NAV_GETPATHCOST, startID, endID)
     return Int32(truncatingIfNeeded: word)
 }
 
 /// Source: oracle/codemp/game/g_syscalls.c:480
+@discardableResult
 public func trap_Nav_GetEdgeCost(_ startID: Int32, _ endID: Int32) -> Int32 {
 let word = Syscall.call(G_NAV_GETEDGECOST, startID, endID)
     return Int32(truncatingIfNeeded: word)
 }
 
 /// Source: oracle/codemp/game/g_syscalls.c:485
+@discardableResult
 public func trap_Nav_GetProjectedNode(_ origin: inout JKAShared.vec3_t, _ nodeID: Int32) -> Int32 {
     let word = withUnsafeMutablePointer(to: &origin) { origin in
         Syscall.call(G_NAV_GETPROJECTEDNODE, origin, nodeID)
@@ -724,12 +774,14 @@ public func trap_Nav_AddFailedNode(_ ent: Entity, _ nodeID: Int32) {
 }
 
 /// Source: oracle/codemp/game/g_syscalls.c:500
+@discardableResult
 public func trap_Nav_NodeFailed(_ ent: Entity, _ nodeID: Int32) -> Bool {
 let word = Syscall.call(G_NAV_NODEFAILED, ent, nodeID)
     return word != 0
 }
 
 /// Source: oracle/codemp/game/g_syscalls.c:505
+@discardableResult
 public func trap_Nav_NodesAreNeighbors(_ startID: Int32, _ endID: Int32) -> Bool {
 let word = Syscall.call(G_NAV_NODESARENEIGHBORS, startID, endID)
     return word != 0
@@ -746,6 +798,7 @@ public func trap_Nav_ClearAllFailedEdges() {
 }
 
 /// Source: oracle/codemp/game/g_syscalls.c:520
+@discardableResult
 public func trap_Nav_EdgeFailed(_ startID: Int32, _ endID: Int32) -> Int32 {
 let word = Syscall.call(G_NAV_EDGEFAILED, startID, endID)
     return Int32(truncatingIfNeeded: word)
@@ -757,6 +810,7 @@ public func trap_Nav_AddFailedEdge(_ entID: Int32, _ startID: Int32, _ endID: In
 }
 
 /// Source: oracle/codemp/game/g_syscalls.c:530
+@discardableResult
 public func trap_Nav_CheckFailedEdge(_ failedEdge: FailedEdge) -> Bool {
 let word = Syscall.call(G_NAV_CHECKFAILEDEDGE, failedEdge)
     return word != 0
@@ -768,12 +822,14 @@ public func trap_Nav_CheckAllFailedEdges() {
 }
 
 /// Source: oracle/codemp/game/g_syscalls.c:540
+@discardableResult
 public func trap_Nav_RouteBlocked(_ startID: Int32, _ testEdgeID: Int32, _ endID: Int32, _ rejectRank: Int32) -> Bool {
 let word = Syscall.call(G_NAV_ROUTEBLOCKED, startID, testEdgeID, endID, rejectRank)
     return word != 0
 }
 
 /// Source: oracle/codemp/game/g_syscalls.c:545
+@discardableResult
 public func trap_Nav_GetBestNodeAltRoute(_ startID: Int32, _ endID: Int32, _ pathCost: inout Int32, _ rejectID: Int32) -> Int32 {
     let word = withUnsafeMutablePointer(to: &pathCost) { pathCost in
         Syscall.call(G_NAV_GETBESTNODEALTROUTE, startID, endID, pathCost, rejectID)
@@ -782,18 +838,21 @@ public func trap_Nav_GetBestNodeAltRoute(_ startID: Int32, _ endID: Int32, _ pat
 }
 
 /// Source: oracle/codemp/game/g_syscalls.c:550
+@discardableResult
 public func trap_Nav_GetBestNodeAltRoute2(_ startID: Int32, _ endID: Int32, _ rejectID: Int32) -> Int32 {
 let word = Syscall.call(G_NAV_GETBESTNODEALT2, startID, endID, rejectID)
     return Int32(truncatingIfNeeded: word)
 }
 
 /// Source: oracle/codemp/game/g_syscalls.c:555
+@discardableResult
 public func trap_Nav_GetBestPathBetweenEnts(_ ent: Entity, _ goal: Entity, _ flags: Int32) -> Int32 {
 let word = Syscall.call(G_NAV_GETBESTPATHBETWEENENTS, ent, goal, flags)
     return Int32(truncatingIfNeeded: word)
 }
 
 /// Source: oracle/codemp/game/g_syscalls.c:560
+@discardableResult
 public func trap_Nav_GetNodeRadius(_ nodeID: Int32) -> Int32 {
 let word = Syscall.call(G_NAV_GETNODERADIUS, nodeID)
     return Int32(truncatingIfNeeded: word)
@@ -810,6 +869,7 @@ public func trap_Nav_ClearCheckedNodes() {
 }
 
 /// Source: oracle/codemp/game/g_syscalls.c:575
+@discardableResult
 public func trap_Nav_CheckedNode(_ wayPoint: Int32, _ ent: Int32) -> Int32 {
 let word = Syscall.call(G_NAV_CHECKEDNODE, wayPoint, ent)
     return Int32(truncatingIfNeeded: word)
@@ -826,6 +886,7 @@ public func trap_Nav_FlagAllNodes(_ newFlag: Int32) {
 }
 
 /// Source: oracle/codemp/game/g_syscalls.c:590
+@discardableResult
 public func trap_Nav_GetPathsCalculated() -> Bool {
 let word = Syscall.call(G_NAV_GETPATHSCALCULATED)
     return word != 0
@@ -843,18 +904,21 @@ public func trap_SV_RegisterSharedMemory(_ memory: UnsafeMutableRawPointer) {
 
 // BotLib traps start here
 /// Source: oracle/codemp/game/g_syscalls.c:607
+@discardableResult
 public func trap_BotLibSetup() -> Int32 {
 let word = Syscall.call(BOTLIB_SETUP)
     return Int32(truncatingIfNeeded: word)
 }
 
 /// Source: oracle/codemp/game/g_syscalls.c:611
+@discardableResult
 public func trap_BotLibShutdown() -> Int32 {
 let word = Syscall.call(BOTLIB_SHUTDOWN)
     return Int32(truncatingIfNeeded: word)
 }
 
 /// Source: oracle/codemp/game/g_syscalls.c:615
+@discardableResult
 public func trap_BotLibVarSet(_ var_name: String, _ value: String) -> Int32 {
     let word = var_name.withCString { var_name in
         value.withCString { value in
@@ -865,6 +929,7 @@ public func trap_BotLibVarSet(_ var_name: String, _ value: String) -> Int32 {
 }
 
 /// Source: oracle/codemp/game/g_syscalls.c:619
+@discardableResult
 public func trap_BotLibVarGet(_ var_name: String, _ size: Int32) -> (Int32, String) {
     var value = [CChar](repeating: 0, count: Int(size))
     let word = var_name.withCString { var_name in
@@ -876,6 +941,7 @@ public func trap_BotLibVarGet(_ var_name: String, _ size: Int32) -> (Int32, Stri
 }
 
 /// Source: oracle/codemp/game/g_syscalls.c:623
+@discardableResult
 public func trap_BotLibDefine(_ string: String) -> Int32 {
     let word = string.withCString { string in
         Syscall.call(BOTLIB_PC_ADD_GLOBAL_DEFINE, string)
@@ -884,12 +950,14 @@ public func trap_BotLibDefine(_ string: String) -> Int32 {
 }
 
 /// Source: oracle/codemp/game/g_syscalls.c:627
+@discardableResult
 public func trap_BotLibStartFrame(_ time: Float) -> Int32 {
 let word = Syscall.call(BOTLIB_START_FRAME, time)
     return Int32(truncatingIfNeeded: word)
 }
 
 /// Source: oracle/codemp/game/g_syscalls.c:631
+@discardableResult
 public func trap_BotLibLoadMap(_ mapname: String) -> Int32 {
     let word = mapname.withCString { mapname in
         Syscall.call(BOTLIB_LOAD_MAP, mapname)
@@ -898,12 +966,14 @@ public func trap_BotLibLoadMap(_ mapname: String) -> Int32 {
 }
 
 /// Source: oracle/codemp/game/g_syscalls.c:635
+@discardableResult
 public func trap_BotLibUpdateEntity(_ ent: Int32, _ bue: OpaquePointer?) -> Int32 {
 let word = Syscall.call(BOTLIB_UPDATENTITY, ent, bue)
     return Int32(truncatingIfNeeded: word)
 }
 
 /// Source: oracle/codemp/game/g_syscalls.c:639
+@discardableResult
 public func trap_BotLibTest(_ parm0: Int32, _ parm1: String, _ parm2: inout JKAShared.vec3_t, _ parm3: inout JKAShared.vec3_t) -> Int32 {
     let word = parm1.withCString { parm1 in
         withUnsafeMutablePointer(to: &parm2) { parm2 in
@@ -916,12 +986,14 @@ public func trap_BotLibTest(_ parm0: Int32, _ parm1: String, _ parm2: inout JKAS
 }
 
 /// Source: oracle/codemp/game/g_syscalls.c:643
+@discardableResult
 public func trap_BotGetSnapshotEntity(_ clientNum: Int32, _ sequence: Int32) -> Int32 {
 let word = Syscall.call(BOTLIB_GET_SNAPSHOT_ENTITY, clientNum, sequence)
     return Int32(truncatingIfNeeded: word)
 }
 
 /// Source: oracle/codemp/game/g_syscalls.c:647
+@discardableResult
 public func trap_BotGetServerCommand(_ clientNum: Int32, _ size: Int32) -> (Int32, String) {
     var message = [CChar](repeating: 0, count: Int(size))
     let word = message.withUnsafeMutableBufferPointer { messagePointer in
@@ -941,6 +1013,7 @@ public func trap_AAS_EntityInfo(_ entnum: Int32, _ info: OpaquePointer?) {
 }
 
 /// Source: oracle/codemp/game/g_syscalls.c:659
+@discardableResult
 public func trap_AAS_Initialized() -> Int32 {
 let word = Syscall.call(BOTLIB_AAS_INITIALIZED)
     return Int32(truncatingIfNeeded: word)
@@ -956,12 +1029,14 @@ public func trap_AAS_PresenceTypeBoundingBox(_ presencetype: Int32, _ mins: inou
 }
 
 /// Source: oracle/codemp/game/g_syscalls.c:667
+@discardableResult
 public func trap_AAS_Time() -> Float {
 let word = Syscall.call(BOTLIB_AAS_TIME)
     return Float(bitPattern: UInt32(truncatingIfNeeded: word))
 }
 
 /// Source: oracle/codemp/game/g_syscalls.c:673
+@discardableResult
 public func trap_AAS_PointAreaNum(_ point: inout JKAShared.vec3_t) -> Int32 {
     let word = withUnsafeMutablePointer(to: &point) { point in
         Syscall.call(BOTLIB_AAS_POINT_AREA_NUM, point)
@@ -970,6 +1045,7 @@ public func trap_AAS_PointAreaNum(_ point: inout JKAShared.vec3_t) -> Int32 {
 }
 
 /// Source: oracle/codemp/game/g_syscalls.c:677
+@discardableResult
 public func trap_AAS_PointReachabilityAreaIndex(_ point: inout JKAShared.vec3_t) -> Int32 {
     let word = withUnsafeMutablePointer(to: &point) { point in
         Syscall.call(BOTLIB_AAS_POINT_REACHABILITY_AREA_INDEX, point)
@@ -987,6 +1063,7 @@ public func trap_AAS_TraceAreas() -> Never {
 }
 
 /// Source: oracle/codemp/game/g_syscalls.c:685
+@discardableResult
 public func trap_AAS_BBoxAreas(_ absmins: inout JKAShared.vec3_t, _ absmaxs: inout JKAShared.vec3_t, _ areas: inout Int32, _ maxareas: Int32) -> Int32 {
     let word = withUnsafeMutablePointer(to: &absmins) { absmins in
         withUnsafeMutablePointer(to: &absmaxs) { absmaxs in
@@ -999,12 +1076,14 @@ public func trap_AAS_BBoxAreas(_ absmins: inout JKAShared.vec3_t, _ absmaxs: ino
 }
 
 /// Source: oracle/codemp/game/g_syscalls.c:689
+@discardableResult
 public func trap_AAS_AreaInfo(_ areanum: Int32, _ info: OpaquePointer?) -> Int32 {
 let word = Syscall.call(BOTLIB_AAS_AREA_INFO, areanum, info)
     return Int32(truncatingIfNeeded: word)
 }
 
 /// Source: oracle/codemp/game/g_syscalls.c:693
+@discardableResult
 public func trap_AAS_PointContents(_ point: inout JKAShared.vec3_t) -> Int32 {
     let word = withUnsafeMutablePointer(to: &point) { point in
         Syscall.call(BOTLIB_AAS_POINT_CONTENTS, point)
@@ -1013,12 +1092,14 @@ public func trap_AAS_PointContents(_ point: inout JKAShared.vec3_t) -> Int32 {
 }
 
 /// Source: oracle/codemp/game/g_syscalls.c:697
+@discardableResult
 public func trap_AAS_NextBSPEntity(_ ent: Int32) -> Int32 {
 let word = Syscall.call(BOTLIB_AAS_NEXT_BSP_ENTITY, ent)
     return Int32(truncatingIfNeeded: word)
 }
 
 /// Source: oracle/codemp/game/g_syscalls.c:701
+@discardableResult
 public func trap_AAS_ValueForBSPEpairKey(_ ent: Int32, _ key: String, _ size: Int32) -> (Int32, String) {
     var value = [CChar](repeating: 0, count: Int(size))
     let word = key.withCString { key in
@@ -1030,6 +1111,7 @@ public func trap_AAS_ValueForBSPEpairKey(_ ent: Int32, _ key: String, _ size: In
 }
 
 /// Source: oracle/codemp/game/g_syscalls.c:705
+@discardableResult
 public func trap_AAS_VectorForBSPEpairKey(_ ent: Int32, _ key: String, _ v: inout JKAShared.vec3_t) -> Int32 {
     let word = key.withCString { key in
         withUnsafeMutablePointer(to: &v) { v in
@@ -1040,6 +1122,7 @@ public func trap_AAS_VectorForBSPEpairKey(_ ent: Int32, _ key: String, _ v: inou
 }
 
 /// Source: oracle/codemp/game/g_syscalls.c:709
+@discardableResult
 public func trap_AAS_FloatForBSPEpairKey(_ ent: Int32, _ key: String, _ value: inout Float) -> Int32 {
     let word = key.withCString { key in
         withUnsafeMutablePointer(to: &value) { value in
@@ -1050,6 +1133,7 @@ public func trap_AAS_FloatForBSPEpairKey(_ ent: Int32, _ key: String, _ value: i
 }
 
 /// Source: oracle/codemp/game/g_syscalls.c:713
+@discardableResult
 public func trap_AAS_IntForBSPEpairKey(_ ent: Int32, _ key: String, _ value: inout Int32) -> Int32 {
     let word = key.withCString { key in
         withUnsafeMutablePointer(to: &value) { value in
@@ -1060,12 +1144,14 @@ public func trap_AAS_IntForBSPEpairKey(_ ent: Int32, _ key: String, _ value: ino
 }
 
 /// Source: oracle/codemp/game/g_syscalls.c:717
+@discardableResult
 public func trap_AAS_AreaReachability(_ areanum: Int32) -> Int32 {
 let word = Syscall.call(BOTLIB_AAS_AREA_REACHABILITY, areanum)
     return Int32(truncatingIfNeeded: word)
 }
 
 /// Source: oracle/codemp/game/g_syscalls.c:721
+@discardableResult
 public func trap_AAS_AreaTravelTimeToGoalArea(_ areanum: Int32, _ origin: inout JKAShared.vec3_t, _ goalareanum: Int32, _ travelflags: Int32) -> Int32 {
     let word = withUnsafeMutablePointer(to: &origin) { origin in
         Syscall.call(BOTLIB_AAS_AREA_TRAVEL_TIME_TO_GOAL_AREA, areanum, origin, goalareanum, travelflags)
@@ -1074,12 +1160,14 @@ public func trap_AAS_AreaTravelTimeToGoalArea(_ areanum: Int32, _ origin: inout 
 }
 
 /// Source: oracle/codemp/game/g_syscalls.c:725
+@discardableResult
 public func trap_AAS_EnableRoutingArea(_ areanum: Int32, _ enable: Int32) -> Int32 {
 let word = Syscall.call(BOTLIB_AAS_ENABLE_ROUTING_AREA, areanum, enable)
     return Int32(truncatingIfNeeded: word)
 }
 
 /// Source: oracle/codemp/game/g_syscalls.c:729
+@discardableResult
 public func trap_AAS_PredictRoute(_ route: OpaquePointer?, _ areanum: Int32, _ origin: inout JKAShared.vec3_t, _ goalareanum: Int32, _ travelflags: Int32, _ maxareas: Int32, _ maxtime: Int32, _ stopevent: Int32, _ stopcontents: Int32, _ stoptfl: Int32, _ stopareanum: Int32) -> Int32 {
     let word = withUnsafeMutablePointer(to: &origin) { origin in
         Syscall.call(BOTLIB_AAS_PREDICT_ROUTE, route, areanum, origin, goalareanum, travelflags, maxareas, maxtime, stopevent, stopcontents, stoptfl, stopareanum)
@@ -1088,6 +1176,7 @@ public func trap_AAS_PredictRoute(_ route: OpaquePointer?, _ areanum: Int32, _ o
 }
 
 /// Source: oracle/codemp/game/g_syscalls.c:735
+@discardableResult
 public func trap_AAS_AlternativeRouteGoals(_ start: inout JKAShared.vec3_t, _ startareanum: Int32, _ goal: inout JKAShared.vec3_t, _ goalareanum: Int32, _ travelflags: Int32, _ altroutegoals: OpaquePointer?, _ maxaltroutegoals: Int32, _ type: Int32) -> Int32 {
     let word = withUnsafeMutablePointer(to: &start) { start in
         withUnsafeMutablePointer(to: &goal) { goal in
@@ -1098,6 +1187,7 @@ public func trap_AAS_AlternativeRouteGoals(_ start: inout JKAShared.vec3_t, _ st
 }
 
 /// Source: oracle/codemp/game/g_syscalls.c:741
+@discardableResult
 public func trap_AAS_Swimming(_ origin: inout JKAShared.vec3_t) -> Int32 {
     let word = withUnsafeMutablePointer(to: &origin) { origin in
         Syscall.call(BOTLIB_AAS_SWIMMING, origin)
@@ -1106,6 +1196,7 @@ public func trap_AAS_Swimming(_ origin: inout JKAShared.vec3_t) -> Int32 {
 }
 
 /// Source: oracle/codemp/game/g_syscalls.c:745
+@discardableResult
 public func trap_AAS_PredictClientMovement(_ move: OpaquePointer?, _ entnum: Int32, _ origin: inout JKAShared.vec3_t, _ presencetype: Int32, _ onground: Int32, _ velocity: inout JKAShared.vec3_t, _ cmdmove: inout JKAShared.vec3_t, _ cmdframes: Int32, _ maxframes: Int32, _ frametime: Float, _ stopevent: Int32, _ stopareanum: Int32, _ visualize: Int32) -> Int32 {
     let word = withUnsafeMutablePointer(to: &origin) { origin in
         withUnsafeMutablePointer(to: &velocity) { velocity in
@@ -1258,6 +1349,7 @@ public func trap_EA_ResetInput(_ client: Int32) {
 }
 
 /// Source: oracle/codemp/game/g_syscalls.c:853
+@discardableResult
 public func trap_BotLoadCharacter(_ charfile: String, _ skill: Float) -> Int32 {
     let word = charfile.withCString { charfile in
         Syscall.call(BOTLIB_AI_LOAD_CHARACTER, charfile, skill)
@@ -1271,30 +1363,35 @@ public func trap_BotFreeCharacter(_ character: Int32) {
 }
 
 /// Source: oracle/codemp/game/g_syscalls.c:861
+@discardableResult
 public func trap_Characteristic_Float(_ character: Int32, _ index: Int32) -> Float {
 let word = Syscall.call(BOTLIB_AI_CHARACTERISTIC_FLOAT, character, index)
     return Float(bitPattern: UInt32(truncatingIfNeeded: word))
 }
 
 /// Source: oracle/codemp/game/g_syscalls.c:867
+@discardableResult
 public func trap_Characteristic_BFloat(_ character: Int32, _ index: Int32, _ min: Float, _ max: Float) -> Float {
 let word = Syscall.call(BOTLIB_AI_CHARACTERISTIC_BFLOAT, character, index, min, max)
     return Float(bitPattern: UInt32(truncatingIfNeeded: word))
 }
 
 /// Source: oracle/codemp/game/g_syscalls.c:873
+@discardableResult
 public func trap_Characteristic_Integer(_ character: Int32, _ index: Int32) -> Int32 {
 let word = Syscall.call(BOTLIB_AI_CHARACTERISTIC_INTEGER, character, index)
     return Int32(truncatingIfNeeded: word)
 }
 
 /// Source: oracle/codemp/game/g_syscalls.c:877
+@discardableResult
 public func trap_Characteristic_BInteger(_ character: Int32, _ index: Int32, _ min: Int32, _ max: Int32) -> Int32 {
 let word = Syscall.call(BOTLIB_AI_CHARACTERISTIC_BINTEGER, character, index, min, max)
     return Int32(truncatingIfNeeded: word)
 }
 
 /// Source: oracle/codemp/game/g_syscalls.c:881
+@discardableResult
 public func trap_Characteristic_String(_ character: Int32, _ index: Int32, _ size: Int32) -> String {
     var buf = [CChar](repeating: 0, count: Int(size))
     _ = buf.withUnsafeMutableBufferPointer { bufPointer in
@@ -1304,6 +1401,7 @@ public func trap_Characteristic_String(_ character: Int32, _ index: Int32, _ siz
 }
 
 /// Source: oracle/codemp/game/g_syscalls.c:885
+@discardableResult
 public func trap_BotAllocChatState() -> Int32 {
 let word = Syscall.call(BOTLIB_AI_ALLOC_CHAT_STATE)
     return Int32(truncatingIfNeeded: word)
@@ -1327,12 +1425,14 @@ public func trap_BotRemoveConsoleMessage(_ chatstate: Int32, _ handle: Int32) {
 }
 
 /// Source: oracle/codemp/game/g_syscalls.c:901
+@discardableResult
 public func trap_BotNextConsoleMessage(_ chatstate: Int32, _ cm: OpaquePointer?) -> Int32 {
 let word = Syscall.call(BOTLIB_AI_NEXT_CONSOLE_MESSAGE, chatstate, cm)
     return Int32(truncatingIfNeeded: word)
 }
 
 /// Source: oracle/codemp/game/g_syscalls.c:905
+@discardableResult
 public func trap_BotNumConsoleMessages(_ chatstate: Int32) -> Int32 {
 let word = Syscall.call(BOTLIB_AI_NUM_CONSOLE_MESSAGE, chatstate)
     return Int32(truncatingIfNeeded: word)
@@ -1362,6 +1462,7 @@ public func trap_BotInitialChat(_ chatstate: Int32, _ type: String, _ mcontext: 
 }
 
 /// Source: oracle/codemp/game/g_syscalls.c:913
+@discardableResult
 public func trap_BotNumInitialChats(_ chatstate: Int32, _ type: String) -> Int32 {
     let word = type.withCString { type in
         Syscall.call(BOTLIB_AI_NUM_INITIAL_CHATS, chatstate, type)
@@ -1370,6 +1471,7 @@ public func trap_BotNumInitialChats(_ chatstate: Int32, _ type: String) -> Int32
 }
 
 /// Source: oracle/codemp/game/g_syscalls.c:917
+@discardableResult
 public func trap_BotReplyChat(_ chatstate: Int32, _ message: String, _ mcontext: Int32, _ vcontext: Int32, _ var0: String, _ var1: String, _ var2: String, _ var3: String, _ var4: String, _ var5: String, _ var6: String, _ var7: String) -> Int32 {
     let word = message.withCString { message in
         var0.withCString { var0 in
@@ -1394,6 +1496,7 @@ public func trap_BotReplyChat(_ chatstate: Int32, _ message: String, _ mcontext:
 }
 
 /// Source: oracle/codemp/game/g_syscalls.c:921
+@discardableResult
 public func trap_BotChatLength(_ chatstate: Int32) -> Int32 {
 let word = Syscall.call(BOTLIB_AI_CHAT_LENGTH, chatstate)
     return Int32(truncatingIfNeeded: word)
@@ -1405,6 +1508,7 @@ public func trap_BotEnterChat(_ chatstate: Int32, _ client: Int32, _ sendto: Int
 }
 
 /// Source: oracle/codemp/game/g_syscalls.c:929
+@discardableResult
 public func trap_BotGetChatMessage(_ chatstate: Int32, _ size: Int32) -> String {
     var buf = [CChar](repeating: 0, count: Int(size))
     _ = buf.withUnsafeMutableBufferPointer { bufPointer in
@@ -1414,6 +1518,7 @@ public func trap_BotGetChatMessage(_ chatstate: Int32, _ size: Int32) -> String 
 }
 
 /// Source: oracle/codemp/game/g_syscalls.c:933
+@discardableResult
 public func trap_StringContains(_ str1: String, _ str2: String, _ casesensitive: Int32) -> Int32 {
     let word = str1.withCString { str1 in
         str2.withCString { str2 in
@@ -1424,6 +1529,7 @@ public func trap_StringContains(_ str1: String, _ str2: String, _ casesensitive:
 }
 
 /// Source: oracle/codemp/game/g_syscalls.c:937
+@discardableResult
 public func trap_BotFindMatch(_ str: String, _ match: OpaquePointer?, _ context: UInt) -> Int32 {
     let word = str.withCString { str in
         Syscall.call(BOTLIB_AI_FIND_MATCH, str, match, context)
@@ -1432,6 +1538,7 @@ public func trap_BotFindMatch(_ str: String, _ match: OpaquePointer?, _ context:
 }
 
 /// Source: oracle/codemp/game/g_syscalls.c:941
+@discardableResult
 public func trap_BotMatchVariable(_ match: OpaquePointer?, _ variable: Int32, _ size: Int32) -> String {
     var buf = [CChar](repeating: 0, count: Int(size))
     _ = buf.withUnsafeMutableBufferPointer { bufPointer in
@@ -1457,6 +1564,7 @@ public func trap_BotReplaceSynonyms(_ string: String, _ context: UInt) {
 }
 
 /// Source: oracle/codemp/game/g_syscalls.c:953
+@discardableResult
 public func trap_BotLoadChatFile(_ chatstate: Int32, _ chatfile: String, _ chatname: String) -> Int32 {
     let word = chatfile.withCString { chatfile in
         chatname.withCString { chatname in
@@ -1519,6 +1627,7 @@ public func trap_BotDumpGoalStack(_ goalstate: Int32) {
 }
 
 /// Source: oracle/codemp/game/g_syscalls.c:997
+@discardableResult
 public func trap_BotGoalName(_ number: Int32, _ size: Int32) -> String {
     var name = [CChar](repeating: 0, count: Int(size))
     _ = name.withUnsafeMutableBufferPointer { namePointer in
@@ -1528,18 +1637,21 @@ public func trap_BotGoalName(_ number: Int32, _ size: Int32) -> String {
 }
 
 /// Source: oracle/codemp/game/g_syscalls.c:1001
+@discardableResult
 public func trap_BotGetTopGoal(_ goalstate: Int32, _ goal: OpaquePointer?) -> Int32 {
 let word = Syscall.call(BOTLIB_AI_GET_TOP_GOAL, goalstate, goal)
     return Int32(truncatingIfNeeded: word)
 }
 
 /// Source: oracle/codemp/game/g_syscalls.c:1005
+@discardableResult
 public func trap_BotGetSecondGoal(_ goalstate: Int32, _ goal: OpaquePointer?) -> Int32 {
 let word = Syscall.call(BOTLIB_AI_GET_SECOND_GOAL, goalstate, goal)
     return Int32(truncatingIfNeeded: word)
 }
 
 /// Source: oracle/codemp/game/g_syscalls.c:1009
+@discardableResult
 public func trap_BotChooseLTGItem(_ goalstate: Int32, _ origin: inout JKAShared.vec3_t, _ inventory: inout Int32, _ travelflags: Int32) -> Int32 {
     let word = withUnsafeMutablePointer(to: &origin) { origin in
         withUnsafeMutablePointer(to: &inventory) { inventory in
@@ -1550,6 +1662,7 @@ public func trap_BotChooseLTGItem(_ goalstate: Int32, _ origin: inout JKAShared.
 }
 
 /// Source: oracle/codemp/game/g_syscalls.c:1013
+@discardableResult
 public func trap_BotChooseNBGItem(_ goalstate: Int32, _ origin: inout JKAShared.vec3_t, _ inventory: inout Int32, _ travelflags: Int32, _ ltg: OpaquePointer?, _ maxtime: Float) -> Int32 {
     let word = withUnsafeMutablePointer(to: &origin) { origin in
         withUnsafeMutablePointer(to: &inventory) { inventory in
@@ -1560,6 +1673,7 @@ public func trap_BotChooseNBGItem(_ goalstate: Int32, _ origin: inout JKAShared.
 }
 
 /// Source: oracle/codemp/game/g_syscalls.c:1017
+@discardableResult
 public func trap_BotTouchingGoal(_ origin: inout JKAShared.vec3_t, _ goal: OpaquePointer?) -> Int32 {
     let word = withUnsafeMutablePointer(to: &origin) { origin in
         Syscall.call(BOTLIB_AI_TOUCHING_GOAL, origin, goal)
@@ -1568,6 +1682,7 @@ public func trap_BotTouchingGoal(_ origin: inout JKAShared.vec3_t, _ goal: Opaqu
 }
 
 /// Source: oracle/codemp/game/g_syscalls.c:1021
+@discardableResult
 public func trap_BotItemGoalInVisButNotVisible(_ viewer: Int32, _ eye: inout JKAShared.vec3_t, _ viewangles: inout JKAShared.vec3_t, _ goal: OpaquePointer?) -> Int32 {
     let word = withUnsafeMutablePointer(to: &eye) { eye in
         withUnsafeMutablePointer(to: &viewangles) { viewangles in
@@ -1578,6 +1693,7 @@ public func trap_BotItemGoalInVisButNotVisible(_ viewer: Int32, _ eye: inout JKA
 }
 
 /// Source: oracle/codemp/game/g_syscalls.c:1025
+@discardableResult
 public func trap_BotGetLevelItemGoal(_ index: Int32, _ classname: String, _ goal: OpaquePointer?) -> Int32 {
     let word = classname.withCString { classname in
         Syscall.call(BOTLIB_AI_GET_LEVEL_ITEM_GOAL, index, classname, goal)
@@ -1586,12 +1702,14 @@ public func trap_BotGetLevelItemGoal(_ index: Int32, _ classname: String, _ goal
 }
 
 /// Source: oracle/codemp/game/g_syscalls.c:1029
+@discardableResult
 public func trap_BotGetNextCampSpotGoal(_ num: Int32, _ goal: OpaquePointer?) -> Int32 {
 let word = Syscall.call(BOTLIB_AI_GET_NEXT_CAMP_SPOT_GOAL, num, goal)
     return Int32(truncatingIfNeeded: word)
 }
 
 /// Source: oracle/codemp/game/g_syscalls.c:1033
+@discardableResult
 public func trap_BotGetMapLocationGoal(_ name: String, _ goal: OpaquePointer?) -> Int32 {
     let word = name.withCString { name in
         Syscall.call(BOTLIB_AI_GET_MAP_LOCATION_GOAL, name, goal)
@@ -1600,6 +1718,7 @@ public func trap_BotGetMapLocationGoal(_ name: String, _ goal: OpaquePointer?) -
 }
 
 /// Source: oracle/codemp/game/g_syscalls.c:1037
+@discardableResult
 public func trap_BotAvoidGoalTime(_ goalstate: Int32, _ number: Int32) -> Float {
 let word = Syscall.call(BOTLIB_AI_AVOID_GOAL_TIME, goalstate, number)
     return Float(bitPattern: UInt32(truncatingIfNeeded: word))
@@ -1621,6 +1740,7 @@ public func trap_BotUpdateEntityItems() {
 }
 
 /// Source: oracle/codemp/game/g_syscalls.c:1055
+@discardableResult
 public func trap_BotLoadItemWeights(_ goalstate: Int32, _ filename: String) -> Int32 {
     let word = filename.withCString { filename in
         Syscall.call(BOTLIB_AI_LOAD_ITEM_WEIGHTS, goalstate, filename)
@@ -1651,6 +1771,7 @@ public func trap_BotMutateGoalFuzzyLogic(_ goalstate: Int32, _ range: Float) {
 }
 
 /// Source: oracle/codemp/game/g_syscalls.c:1075
+@discardableResult
 public func trap_BotAllocGoalState(_ state: Int32) -> Int32 {
 let word = Syscall.call(BOTLIB_AI_ALLOC_GOAL_STATE, state)
     return Int32(truncatingIfNeeded: word)
@@ -1679,6 +1800,7 @@ public func trap_BotMoveToGoal(_ result: OpaquePointer?, _ movestate: Int32, _ g
 }
 
 /// Source: oracle/codemp/game/g_syscalls.c:1095
+@discardableResult
 public func trap_BotMoveInDirection(_ movestate: Int32, _ dir: inout JKAShared.vec3_t, _ speed: Float, _ type: Int32) -> Int32 {
     let word = withUnsafeMutablePointer(to: &dir) { dir in
         Syscall.call(BOTLIB_AI_MOVE_IN_DIRECTION, movestate, dir, speed, type)
@@ -1697,6 +1819,7 @@ public func trap_BotResetLastAvoidReach(_ movestate: Int32) {
 }
 
 /// Source: oracle/codemp/game/g_syscalls.c:1107
+@discardableResult
 public func trap_BotReachabilityArea(_ origin: inout JKAShared.vec3_t, _ testground: Int32) -> Int32 {
     let word = withUnsafeMutablePointer(to: &origin) { origin in
         Syscall.call(BOTLIB_AI_REACHABILITY_AREA, origin, testground)
@@ -1705,6 +1828,7 @@ public func trap_BotReachabilityArea(_ origin: inout JKAShared.vec3_t, _ testgro
 }
 
 /// Source: oracle/codemp/game/g_syscalls.c:1111
+@discardableResult
 public func trap_BotMovementViewTarget(_ movestate: Int32, _ goal: OpaquePointer?, _ travelflags: Int32, _ lookahead: Float, _ target: inout JKAShared.vec3_t) -> Int32 {
     let word = withUnsafeMutablePointer(to: &target) { target in
         Syscall.call(BOTLIB_AI_MOVEMENT_VIEW_TARGET, movestate, goal, travelflags, lookahead, target)
@@ -1713,6 +1837,7 @@ public func trap_BotMovementViewTarget(_ movestate: Int32, _ goal: OpaquePointer
 }
 
 /// Source: oracle/codemp/game/g_syscalls.c:1115
+@discardableResult
 public func trap_BotPredictVisiblePosition(_ origin: inout JKAShared.vec3_t, _ areanum: Int32, _ goal: OpaquePointer?, _ travelflags: Int32, _ target: inout JKAShared.vec3_t) -> Int32 {
     let word = withUnsafeMutablePointer(to: &origin) { origin in
         withUnsafeMutablePointer(to: &target) { target in
@@ -1723,6 +1848,7 @@ public func trap_BotPredictVisiblePosition(_ origin: inout JKAShared.vec3_t, _ a
 }
 
 /// Source: oracle/codemp/game/g_syscalls.c:1119
+@discardableResult
 public func trap_BotAllocMoveState() -> Int32 {
 let word = Syscall.call(BOTLIB_AI_ALLOC_MOVE_STATE)
     return Int32(truncatingIfNeeded: word)
@@ -1739,6 +1865,7 @@ public func trap_BotInitMoveState(_ handle: Int32, _ initmove: OpaquePointer?) {
 }
 
 /// Source: oracle/codemp/game/g_syscalls.c:1131
+@discardableResult
 public func trap_BotChooseBestFightWeapon(_ weaponstate: Int32, _ inventory: inout Int32) -> Int32 {
     let word = withUnsafeMutablePointer(to: &inventory) { inventory in
         Syscall.call(BOTLIB_AI_CHOOSE_BEST_FIGHT_WEAPON, weaponstate, inventory)
@@ -1752,6 +1879,7 @@ public func trap_BotGetWeaponInfo(_ weaponstate: Int32, _ weapon: Int32, _ weapo
 }
 
 /// Source: oracle/codemp/game/g_syscalls.c:1139
+@discardableResult
 public func trap_BotLoadWeaponWeights(_ weaponstate: Int32, _ filename: String) -> Int32 {
     let word = filename.withCString { filename in
         Syscall.call(BOTLIB_AI_LOAD_WEAPON_WEIGHTS, weaponstate, filename)
@@ -1760,6 +1888,7 @@ public func trap_BotLoadWeaponWeights(_ weaponstate: Int32, _ filename: String) 
 }
 
 /// Source: oracle/codemp/game/g_syscalls.c:1143
+@discardableResult
 public func trap_BotAllocWeaponState() -> Int32 {
 let word = Syscall.call(BOTLIB_AI_ALLOC_WEAPON_STATE)
     return Int32(truncatingIfNeeded: word)
@@ -1776,6 +1905,7 @@ public func trap_BotResetWeaponState(_ weaponstate: Int32) {
 }
 
 /// Source: oracle/codemp/game/g_syscalls.c:1155
+@discardableResult
 public func trap_GeneticParentsAndChildSelection(_ numranks: Int32, _ ranks: inout Float, _ parent1: inout Int32, _ parent2: inout Int32, _ child: inout Int32) -> Int32 {
     let word = withUnsafeMutablePointer(to: &ranks) { ranks in
         withUnsafeMutablePointer(to: &parent1) { parent1 in
@@ -1790,6 +1920,7 @@ public func trap_GeneticParentsAndChildSelection(_ numranks: Int32, _ ranks: ino
 }
 
 /// Source: oracle/codemp/game/g_syscalls.c:1159
+@discardableResult
 public func trap_PC_LoadSource(_ filename: String) -> Int32 {
     let word = filename.withCString { filename in
         Syscall.call(BOTLIB_PC_LOAD_SOURCE, filename)
@@ -1798,6 +1929,7 @@ public func trap_PC_LoadSource(_ filename: String) -> Int32 {
 }
 
 /// Source: oracle/codemp/game/g_syscalls.c:1163
+@discardableResult
 public func trap_PC_FreeSource(_ handle: Int32) -> Int32 {
 let word = Syscall.call(BOTLIB_PC_FREE_SOURCE, handle)
     return Int32(truncatingIfNeeded: word)
@@ -1813,6 +1945,7 @@ public func trap_PC_ReadToken() -> Never {
 }
 
 /// Source: oracle/codemp/game/g_syscalls.c:1171
+@discardableResult
 public func trap_PC_SourceFileAndLine(_ handle: Int32, _ filename: String, _ line: inout Int32) -> Int32 {
     let word = filename.withCString { filename in
         withUnsafeMutablePointer(to: &line) { line in
@@ -1828,6 +1961,7 @@ Ghoul2 Insert Start
 ```
 */
 /// Source: oracle/codemp/game/g_syscalls.c:1179
+@discardableResult
 public func trap_R_RegisterSkin(_ name: String) -> JKAShared.qhandle_t {
     let word = name.withCString { name in
         Syscall.call(G_R_REGISTERSKIN, name)
@@ -1847,6 +1981,7 @@ public func trap_G2_ListModelSurfaces(_ ghlInfo: OpaquePointer?) {
 }
 
 /// Source: oracle/codemp/game/g_syscalls.c:1195
+@discardableResult
 public func trap_G2_HaveWeGhoul2Models(_ ghoul2: OpaquePointer?) -> Bool {
 let word = Syscall.call(G_G2_HAVEWEGHOULMODELS, ghoul2)
     return word != 0
@@ -1858,6 +1993,7 @@ public func trap_G2_SetGhoul2ModelIndexes(_ ghoul2: OpaquePointer?, _ modelList:
 }
 
 /// Source: oracle/codemp/game/g_syscalls.c:1205
+@discardableResult
 public func trap_G2API_GetBoltMatrix(_ ghoul2: OpaquePointer?, _ modelIndex: Int32, _ boltIndex: Int32, _ matrix: JKAMP.MdxaBone, _ angles: JKAShared.vec3_t, _ position: JKAShared.vec3_t, _ frameNum: Int32, _ modelList: UnsafeMutablePointer<Int32>?, _ scale: inout JKAShared.vec3_t) -> Bool {
     let word = withUnsafePointer(to: angles) { angles in
         withUnsafePointer(to: position) { position in
@@ -1870,6 +2006,7 @@ public func trap_G2API_GetBoltMatrix(_ ghoul2: OpaquePointer?, _ modelIndex: Int
 }
 
 /// Source: oracle/codemp/game/g_syscalls.c:1211
+@discardableResult
 public func trap_G2API_GetBoltMatrix_NoReconstruct(_ ghoul2: OpaquePointer?, _ modelIndex: Int32, _ boltIndex: Int32, _ matrix: JKAMP.MdxaBone, _ angles: JKAShared.vec3_t, _ position: JKAShared.vec3_t, _ frameNum: Int32, _ modelList: UnsafeMutablePointer<Int32>?, _ scale: inout JKAShared.vec3_t) -> Bool {
     let word = withUnsafePointer(to: angles) { angles in
         withUnsafePointer(to: position) { position in
@@ -1882,6 +2019,7 @@ public func trap_G2API_GetBoltMatrix_NoReconstruct(_ ghoul2: OpaquePointer?, _ m
 }
 
 /// Source: oracle/codemp/game/g_syscalls.c:1217
+@discardableResult
 public func trap_G2API_GetBoltMatrix_NoRecNoRot(_ ghoul2: OpaquePointer?, _ modelIndex: Int32, _ boltIndex: Int32, _ matrix: JKAMP.MdxaBone, _ angles: JKAShared.vec3_t, _ position: JKAShared.vec3_t, _ frameNum: Int32, _ modelList: UnsafeMutablePointer<Int32>?, _ scale: inout JKAShared.vec3_t) -> Bool {
     let word = withUnsafePointer(to: angles) { angles in
         withUnsafePointer(to: position) { position in
@@ -1894,6 +2032,7 @@ public func trap_G2API_GetBoltMatrix_NoRecNoRot(_ ghoul2: OpaquePointer?, _ mode
 }
 
 /// Source: oracle/codemp/game/g_syscalls.c:1223
+@discardableResult
 public func trap_G2API_InitGhoul2Model(_ ghoul2Ptr: inout OpaquePointer?, _ fileName: String, _ modelIndex: Int32, _ customSkin: JKAShared.qhandle_t, _ customShader: JKAShared.qhandle_t, _ modelFlags: Int32, _ lodBias: Int32) -> Int32 {
     let word = withUnsafeMutablePointer(to: &ghoul2Ptr) { ghoul2Ptr in
         fileName.withCString { fileName in
@@ -1904,18 +2043,21 @@ public func trap_G2API_InitGhoul2Model(_ ghoul2Ptr: inout OpaquePointer?, _ file
 }
 
 /// Source: oracle/codemp/game/g_syscalls.c:1229
+@discardableResult
 public func trap_G2API_SetSkin(_ ghoul2: OpaquePointer?, _ modelIndex: Int32, _ customSkin: JKAShared.qhandle_t, _ renderSkin: JKAShared.qhandle_t) -> Bool {
 let word = Syscall.call(G_G2_SETSKIN, ghoul2, modelIndex, customSkin, renderSkin)
     return word != 0
 }
 
 /// Source: oracle/codemp/game/g_syscalls.c:1234
+@discardableResult
 public func trap_G2API_Ghoul2Size(_ ghlInfo: OpaquePointer?) -> Int32 {
 let word = Syscall.call(G_G2_SIZE, ghlInfo)
     return Int32(truncatingIfNeeded: word)
 }
 
 /// Source: oracle/codemp/game/g_syscalls.c:1239
+@discardableResult
 public func trap_G2API_AddBolt(_ ghoul2: OpaquePointer?, _ modelIndex: Int32, _ boneName: String) -> Int32 {
     let word = boneName.withCString { boneName in
         Syscall.call(G_G2_ADDBOLT, ghoul2, modelIndex, boneName)
@@ -1929,6 +2071,7 @@ public func trap_G2API_SetBoltInfo(_ ghoul2: OpaquePointer?, _ modelIndex: Int32
 }
 
 /// Source: oracle/codemp/game/g_syscalls.c:1249
+@discardableResult
 public func trap_G2API_SetBoneAngles(_ ghoul2: OpaquePointer?, _ modelIndex: Int32, _ boneName: String, _ angles: JKAShared.vec3_t, _ flags: Int32, _ up: Int32, _ right: Int32, _ forward: Int32, _ modelList: UnsafeMutablePointer<Int32>?, _ blendTime: Int32, _ currentTime: Int32) -> Bool {
     let word = boneName.withCString { boneName in
         withUnsafePointer(to: angles) { angles in
@@ -1939,6 +2082,7 @@ public func trap_G2API_SetBoneAngles(_ ghoul2: OpaquePointer?, _ modelIndex: Int
 }
 
 /// Source: oracle/codemp/game/g_syscalls.c:1256
+@discardableResult
 public func trap_G2API_SetBoneAnim(_ ghoul2: OpaquePointer?, _ modelIndex: Int32, _ boneName: String, _ startFrame: Int32, _ endFrame: Int32, _ flags: Int32, _ animSpeed: Float, _ currentTime: Int32, _ setFrame: Float, _ blendTime: Int32) -> Bool {
     let word = boneName.withCString { boneName in
         Syscall.call(G_G2_PLAYANIM, ghoul2, modelIndex, boneName, startFrame, endFrame, flags, animSpeed, currentTime, setFrame, blendTime)
@@ -1947,6 +2091,7 @@ public func trap_G2API_SetBoneAnim(_ ghoul2: OpaquePointer?, _ modelIndex: Int32
 }
 
 /// Source: oracle/codemp/game/g_syscalls.c:1262
+@discardableResult
 public func trap_G2API_GetBoneAnim(_ ghoul2: OpaquePointer?, _ boneName: String, _ currentTime: Int32, _ currentFrame: inout Float, _ startFrame: inout Int32, _ endFrame: inout Int32, _ flags: inout Int32, _ animSpeed: inout Float, _ modelList: inout Int32, _ modelIndex: Int32) -> Bool {
     let word = boneName.withCString { boneName in
         withUnsafeMutablePointer(to: &currentFrame) { currentFrame in
@@ -1976,6 +2121,7 @@ public func trap_G2API_GetGLAName() -> Never {
 }
 
 /// Source: oracle/codemp/game/g_syscalls.c:1273
+@discardableResult
 public func trap_G2API_CopyGhoul2Instance(_ g2From: OpaquePointer?, _ g2To: OpaquePointer?, _ modelIndex: Int32) -> Int32 {
 let word = Syscall.call(G_G2_COPYGHOUL2INSTANCE, g2From, g2To, modelIndex)
     return Int32(truncatingIfNeeded: word)
@@ -1994,18 +2140,21 @@ public func trap_G2API_DuplicateGhoul2Instance(_ g2From: OpaquePointer?, _ g2To:
 }
 
 /// Source: oracle/codemp/game/g_syscalls.c:1288
+@discardableResult
 public func trap_G2API_HasGhoul2ModelOnIndex(_ ghlInfo: OpaquePointer?, _ modelIndex: Int32) -> Bool {
 let word = Syscall.call(G_G2_HASGHOUL2MODELONINDEX, ghlInfo, modelIndex)
     return word != 0
 }
 
 /// Source: oracle/codemp/game/g_syscalls.c:1293
+@discardableResult
 public func trap_G2API_RemoveGhoul2Model(_ ghlInfo: OpaquePointer?, _ modelIndex: Int32) -> Bool {
 let word = Syscall.call(G_G2_REMOVEGHOUL2MODEL, ghlInfo, modelIndex)
     return word != 0
 }
 
 /// Source: oracle/codemp/game/g_syscalls.c:1298
+@discardableResult
 public func trap_G2API_RemoveGhoul2Models(_ ghlInfo: OpaquePointer?) -> Bool {
 let word = Syscall.call(G_G2_REMOVEGHOUL2MODELS, ghlInfo)
     return word != 0
@@ -2058,6 +2207,7 @@ public func trap_G2API_GetSurfaceName() -> Never {
 }
 
 /// Source: oracle/codemp/game/g_syscalls.c:1349
+@discardableResult
 public func trap_G2API_SetRootSurface(_ ghoul2: OpaquePointer?, _ modelIndex: Int32, _ surfaceName: String) -> Bool {
     let word = surfaceName.withCString { surfaceName in
         Syscall.call(G_G2_SETROOTSURFACE, ghoul2, modelIndex, surfaceName)
@@ -2066,6 +2216,7 @@ public func trap_G2API_SetRootSurface(_ ghoul2: OpaquePointer?, _ modelIndex: In
 }
 
 /// Source: oracle/codemp/game/g_syscalls.c:1354
+@discardableResult
 public func trap_G2API_SetSurfaceOnOff(_ ghoul2: OpaquePointer?, _ surfaceName: String, _ flags: Int32) -> Bool {
     let word = surfaceName.withCString { surfaceName in
         Syscall.call(G_G2_SETSURFACEONOFF, ghoul2, surfaceName, flags)
@@ -2074,6 +2225,7 @@ public func trap_G2API_SetSurfaceOnOff(_ ghoul2: OpaquePointer?, _ surfaceName: 
 }
 
 /// Source: oracle/codemp/game/g_syscalls.c:1359
+@discardableResult
 public func trap_G2API_SetNewOrigin(_ ghoul2: OpaquePointer?, _ boltIndex: Int32) -> Bool {
 let word = Syscall.call(G_G2_SETNEWORIGIN, ghoul2, boltIndex)
     return word != 0
@@ -2081,6 +2233,7 @@ let word = Syscall.call(G_G2_SETNEWORIGIN, ghoul2, boltIndex)
 
 //check if a bone exists on skeleton without actually adding to the bone list -rww
 /// Source: oracle/codemp/game/g_syscalls.c:1365
+@discardableResult
 public func trap_G2API_DoesBoneExist(_ ghoul2: OpaquePointer?, _ modelIndex: Int32, _ boneName: String) -> Bool {
     let word = boneName.withCString { boneName in
         Syscall.call(G_G2_DOESBONEEXIST, ghoul2, modelIndex, boneName)
@@ -2089,6 +2242,7 @@ public func trap_G2API_DoesBoneExist(_ ghoul2: OpaquePointer?, _ modelIndex: Int
 }
 
 /// Source: oracle/codemp/game/g_syscalls.c:1370
+@discardableResult
 public func trap_G2API_GetSurfaceRenderStatus(_ ghoul2: OpaquePointer?, _ modelIndex: Int32, _ surfaceName: String) -> Int32 {
     let word = surfaceName.withCString { surfaceName in
         Syscall.call(G_G2_GETSURFACERENDERSTATUS, ghoul2, modelIndex, surfaceName)
@@ -2115,6 +2269,7 @@ public func trap_G2API_AnimateG2Models(_ ghoul2: OpaquePointer?, _ time: Int32, 
 
 //additional ragdoll options -rww
 /// Source: oracle/codemp/game/g_syscalls.c:1394
+@discardableResult
 public func trap_G2API_RagPCJConstraint(_ ghoul2: OpaquePointer?, _ boneName: String, _ min: inout JKAShared.vec3_t, _ max: inout JKAShared.vec3_t) -> Bool {
     let word = boneName.withCString { boneName in
         withUnsafeMutablePointer(to: &min) { min in
@@ -2127,6 +2282,7 @@ public func trap_G2API_RagPCJConstraint(_ ghoul2: OpaquePointer?, _ boneName: St
 }
 
 /// Source: oracle/codemp/game/g_syscalls.c:1399
+@discardableResult
 public func trap_G2API_RagPCJGradientSpeed(_ ghoul2: OpaquePointer?, _ boneName: String, _ speed: Float) -> Bool {
     let word = boneName.withCString { boneName in
         Syscall.call(G_G2_RAGPCJGRADIENTSPEED, ghoul2, boneName, speed)
@@ -2135,6 +2291,7 @@ public func trap_G2API_RagPCJGradientSpeed(_ ghoul2: OpaquePointer?, _ boneName:
 }
 
 /// Source: oracle/codemp/game/g_syscalls.c:1404
+@discardableResult
 public func trap_G2API_RagEffectorGoal(_ ghoul2: OpaquePointer?, _ boneName: String, _ pos: inout JKAShared.vec3_t) -> Bool {
     let word = boneName.withCString { boneName in
         withUnsafeMutablePointer(to: &pos) { pos in
@@ -2145,6 +2302,7 @@ public func trap_G2API_RagEffectorGoal(_ ghoul2: OpaquePointer?, _ boneName: Str
 }
 
 /// Source: oracle/codemp/game/g_syscalls.c:1409
+@discardableResult
 public func trap_G2API_GetRagBonePos(_ ghoul2: OpaquePointer?, _ boneName: String, _ pos: inout JKAShared.vec3_t, _ entAngles: inout JKAShared.vec3_t, _ entPos: inout JKAShared.vec3_t, _ entScale: inout JKAShared.vec3_t) -> Bool {
     let word = boneName.withCString { boneName in
         withUnsafeMutablePointer(to: &pos) { pos in
@@ -2161,6 +2319,7 @@ public func trap_G2API_GetRagBonePos(_ ghoul2: OpaquePointer?, _ boneName: Strin
 }
 
 /// Source: oracle/codemp/game/g_syscalls.c:1414
+@discardableResult
 public func trap_G2API_RagEffectorKick(_ ghoul2: OpaquePointer?, _ boneName: String, _ velocity: inout JKAShared.vec3_t) -> Bool {
     let word = boneName.withCString { boneName in
         withUnsafeMutablePointer(to: &velocity) { velocity in
@@ -2171,12 +2330,14 @@ public func trap_G2API_RagEffectorKick(_ ghoul2: OpaquePointer?, _ boneName: Str
 }
 
 /// Source: oracle/codemp/game/g_syscalls.c:1419
+@discardableResult
 public func trap_G2API_RagForceSolve(_ ghoul2: OpaquePointer?, _ force: Bool) -> Bool {
 let word = Syscall.call(G_G2_RAGFORCESOLVE, ghoul2, force)
     return word != 0
 }
 
 /// Source: oracle/codemp/game/g_syscalls.c:1424
+@discardableResult
 public func trap_G2API_SetBoneIKState(_ ghoul2: OpaquePointer?, _ time: Int32, _ boneName: String, _ ikState: Int32, _ params: JKAMP.SharedSetBoneIKStateParams) -> Bool {
     let word = boneName.withCString { boneName in
         Syscall.call(G_G2_SETBONEIKSTATE, ghoul2, time, boneName, ikState, params)
@@ -2185,12 +2346,14 @@ public func trap_G2API_SetBoneIKState(_ ghoul2: OpaquePointer?, _ time: Int32, _
 }
 
 /// Source: oracle/codemp/game/g_syscalls.c:1429
+@discardableResult
 public func trap_G2API_IKMove(_ ghoul2: OpaquePointer?, _ time: Int32, _ params: JKAMP.SharedIKMoveParams) -> Bool {
 let word = Syscall.call(G_G2_IKMOVE, ghoul2, time, params)
     return word != 0
 }
 
 /// Source: oracle/codemp/game/g_syscalls.c:1434
+@discardableResult
 public func trap_G2API_RemoveBone(_ ghoul2: OpaquePointer?, _ boneName: String, _ modelIndex: Int32) -> Bool {
     let word = boneName.withCString { boneName in
         Syscall.call(G_G2_REMOVEBONE, ghoul2, boneName, modelIndex)
@@ -2219,6 +2382,7 @@ public func trap_G2API_CleanEntAttachments() {
 }
 
 /// Source: oracle/codemp/game/g_syscalls.c:1459
+@discardableResult
 public func trap_G2API_OverrideServer(_ serverInstance: OpaquePointer?) -> Bool {
 let word = Syscall.call(G_G2_OVERRIDESERVER, serverInstance)
     return word != 0
@@ -2230,6 +2394,7 @@ public func trap_SetActiveSubBSP(_ index: Int32) {
 }
 
 /// Source: oracle/codemp/game/g_syscalls.c:1473
+@discardableResult
 public func trap_CM_RegisterTerrain(_ config: String) -> Int32 {
     let word = config.withCString { config in
         Syscall.call(G_CM_REGISTER_TERRAIN, config)

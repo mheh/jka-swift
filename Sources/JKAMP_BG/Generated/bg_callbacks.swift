@@ -85,11 +85,13 @@ public struct BgCallbacks {
 }
 
 /// Source: oracle/codemp/game/g_main.c:3559
+@discardableResult
 func BG_GetTime() -> Int32 {
     bg.callbacks.BG_GetTime()
 }
 
 /// Source: oracle/codemp/cgame/cg_main.c:3344
+@discardableResult
 func CG_NewString(_ string: String) -> PooledString {
     bg.callbacks.CG_NewString(string)
 }
@@ -100,6 +102,7 @@ func Client_CheckImpactBBrush(_ `self`: JKAMP.BgEntity, _ other: JKAMP.BgEntity)
 }
 
 /// Source: oracle/codemp/game/FighterNPC.c:300
+@discardableResult
 func FighterIsLanded(_ pVeh: JKAMP.Vehicle, _ parentPS: JKAMP.PlayerState) -> Bool {
     bg.callbacks.FighterIsLanded(pVeh, parentPS)
 }
@@ -110,6 +113,7 @@ func G_AddEvent(_ ent: JKAMP.BgEntity, _ event: Int32, _ eventParm: Int32) {
 }
 
 /// Source: oracle/codemp/game/w_saber.c:82
+@discardableResult
 func G_CanBeEnemy(_ `self`: JKAMP.BgEntity, _ enemy: JKAMP.BgEntity) -> Bool {
     bg.callbacks.G_CanBeEnemy(`self`, enemy)
 }
@@ -130,6 +134,7 @@ func G_DamageFromKiller(_ pEnt: JKAMP.BgEntity, _ pVehEnt: JKAMP.BgEntity, _ att
 }
 
 /// Source: oracle/codemp/game/g_utils.c:148
+@discardableResult
 func G_EffectIndex(_ name: String) -> Int32 {
     bg.callbacks.G_EffectIndex(name)
 }
@@ -140,21 +145,25 @@ func G_FlyVehicleSurfaceDestruction(_ veh: JKAMP.BgEntity, _ trace: JKAMP.Trace,
 }
 
 /// Source: oracle/codemp/game/g_utils.c:108
+@discardableResult
 func G_ModelIndex(_ name: String) -> Int32 {
     bg.callbacks.G_ModelIndex(name)
 }
 
 /// Source: oracle/codemp/game/g_spawn.c:724
+@discardableResult
 func G_NewString(_ string: String) -> PooledString {
     bg.callbacks.G_NewString(string)
 }
 
 /// Source: oracle/codemp/game/g_utils.c:1250
+@discardableResult
 func G_PlayEffect(_ fxID: Int32, _ org: inout JKAShared.vec3_t, _ ang: inout JKAShared.vec3_t) -> JKAMP.BgEntity? {
     bg.callbacks.G_PlayEffect(fxID, &org, &ang)
 }
 
 /// Source: oracle/codemp/game/g_utils.c:1267
+@discardableResult
 func G_PlayEffectID(_ fxID: Int32, _ org: inout JKAShared.vec3_t, _ ang: inout JKAShared.vec3_t) -> JKAMP.BgEntity? {
     bg.callbacks.G_PlayEffectID(fxID, &org, &ang)
 }
@@ -185,6 +194,7 @@ func G_SetWalkerVehicleFunctions(_ pVehInfo: JKAMP.VehicleInfo) {
 }
 
 /// Source: oracle/codemp/game/g_utils.c:138
+@discardableResult
 func G_SoundIndex(_ name: String) -> Int32 {
     bg.callbacks.G_SoundIndex(name)
 }
@@ -200,6 +210,7 @@ func Q3_SetParm(_ entID: Int32, _ parmNum: Int32, _ parmValue: String) {
 }
 
 /// Source: oracle/codemp/game/g_cmds.c:3148
+@discardableResult
 func TryGrapple(_ ent: JKAMP.BgEntity) -> Bool {
     bg.callbacks.TryGrapple(ent)
 }

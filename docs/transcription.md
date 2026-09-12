@@ -328,6 +328,7 @@ Swift has no `inout` variadic, so `sscanf(value, "%f %f %f", &vec)` is Raven's c
 ### Engine and print calls
 
 `Com_Printf`, `G_Printf`, and every `trap_*` call are calls to the existing functions. The transcriptor does not stub these.
+A trap's return is `@discardableResult`, and so is a strap's or a callback's, because Raven drops it at most sites and C never warned, so a body writes his line with no `_ =`.
 
 ### Comments
 

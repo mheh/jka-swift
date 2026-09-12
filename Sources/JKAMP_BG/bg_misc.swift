@@ -92,7 +92,7 @@ func BG_FileExists(_ fileName: String) -> Bool {
     // Raven also tests `fileName` for NULL here. A String is never NULL, so that half of the guard has no Swift form.
     if !fileName.isEmpty {
         var fh: Int32 = 0
-        _ = trap_FS_FOpenFile(fileName, &fh, FS_READ)
+        trap_FS_FOpenFile(fileName, &fh, FS_READ)
         if fh > 0 {
             trap_FS_FCloseFile(fh)
             return true
@@ -1603,18 +1603,18 @@ func BG_ModelCache(_ modelName: String, _ skinName: String) -> Int32 {
 
         // Raven also tests `skinName` for NULL here. A String is never NULL, so that half of the guard has no Swift form.
         if !skinName.isEmpty {
-            _ = trap_R_RegisterSkin(skinName)
+            trap_R_RegisterSkin(skinName)
         }
 
         //I could hook up a precache ghoul2 function, but oh well, this works
-        _ = trap_G2API_InitGhoul2Model(&g2, modelName, 0, 0, 0, 0, 0)
+        trap_G2API_InitGhoul2Model(&g2, modelName, 0, 0, 0, 0, 0)
         if g2 != nil { //now get rid of it
             trap_G2API_CleanGhoul2Models(&g2)
         }
         return 0
     } else {
         if !skinName.isEmpty {
-            _ = trap_R_RegisterSkin(skinName)
+            trap_R_RegisterSkin(skinName)
         }
         // Port-note: Raven returns `trap_R_RegisterModel(modelName)` here. Only the cgame module defines that trap, and the channel does not carry it yet.
         portMissing("BG_ModelCache: trap_R_RegisterModel", source: "oracle/codemp/game/bg_misc.c:3200")

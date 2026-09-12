@@ -82,31 +82,37 @@ public struct BgStraps {
 }
 
 /// Source: oracle/codemp/game/bg_strap.h:7
+@discardableResult
 func strap_G2API_GetBoltMatrix(_ ghoul2: OpaquePointer?, _ modelIndex: Int32, _ boltIndex: Int32, _ matrix: JKAMP.MdxaBone, _ angles: JKAShared.vec3_t, _ position: JKAShared.vec3_t, _ frameNum: Int32, _ modelList: UnsafeMutablePointer<Int32>?, _ scale: inout JKAShared.vec3_t) -> Bool {
     bg.straps.strap_G2API_GetBoltMatrix(ghoul2, modelIndex, boltIndex, matrix, angles, position, frameNum, modelList, &scale)
 }
 
 /// Source: oracle/codemp/game/bg_strap.h:10
+@discardableResult
 func strap_G2API_GetBoltMatrix_NoReconstruct(_ ghoul2: OpaquePointer?, _ modelIndex: Int32, _ boltIndex: Int32, _ matrix: JKAMP.MdxaBone, _ angles: JKAShared.vec3_t, _ position: JKAShared.vec3_t, _ frameNum: Int32, _ modelList: UnsafeMutablePointer<Int32>?, _ scale: inout JKAShared.vec3_t) -> Bool {
     bg.straps.strap_G2API_GetBoltMatrix_NoReconstruct(ghoul2, modelIndex, boltIndex, matrix, angles, position, frameNum, modelList, &scale)
 }
 
 /// Source: oracle/codemp/game/bg_strap.h:13
+@discardableResult
 func strap_G2API_GetBoltMatrix_NoRecNoRot(_ ghoul2: OpaquePointer?, _ modelIndex: Int32, _ boltIndex: Int32, _ matrix: JKAMP.MdxaBone, _ angles: JKAShared.vec3_t, _ position: JKAShared.vec3_t, _ frameNum: Int32, _ modelList: UnsafeMutablePointer<Int32>?, _ scale: inout JKAShared.vec3_t) -> Bool {
     bg.straps.strap_G2API_GetBoltMatrix_NoRecNoRot(ghoul2, modelIndex, boltIndex, matrix, angles, position, frameNum, modelList, &scale)
 }
 
 /// Source: oracle/codemp/game/bg_strap.h:16
+@discardableResult
 func strap_G2API_SetBoneAngles(_ ghoul2: OpaquePointer?, _ modelIndex: Int32, _ boneName: String, _ angles: JKAShared.vec3_t, _ flags: Int32, _ up: Int32, _ right: Int32, _ forward: Int32, _ modelList: UnsafeMutablePointer<Int32>?, _ blendTime: Int32, _ currentTime: Int32) -> Bool {
     bg.straps.strap_G2API_SetBoneAngles(ghoul2, modelIndex, boneName, angles, flags, up, right, forward, modelList, blendTime, currentTime)
 }
 
 /// Source: oracle/codemp/game/bg_strap.h:20
+@discardableResult
 func strap_G2API_SetBoneAnim(_ ghoul2: OpaquePointer?, _ modelIndex: Int32, _ boneName: String, _ startFrame: Int32, _ endFrame: Int32, _ flags: Int32, _ animSpeed: Float, _ currentTime: Int32, _ setFrame: Float, _ blendTime: Int32) -> Bool {
     bg.straps.strap_G2API_SetBoneAnim(ghoul2, modelIndex, boneName, startFrame, endFrame, flags, animSpeed, currentTime, setFrame, blendTime)
 }
 
 /// Source: oracle/codemp/game/bg_strap.h:23
+@discardableResult
 func strap_G2API_GetBoneAnim(_ ghoul2: OpaquePointer?, _ boneName: String, _ currentTime: Int32, _ currentFrame: inout Float, _ startFrame: inout Int32, _ endFrame: inout Int32, _ flags: inout Int32, _ animSpeed: inout Float, _ modelList: inout Int32, _ modelIndex: Int32) -> Bool {
     bg.straps.strap_G2API_GetBoneAnim(ghoul2, boneName, currentTime, &currentFrame, &startFrame, &endFrame, &flags, &animSpeed, &modelList, modelIndex)
 }
@@ -122,11 +128,13 @@ func strap_G2API_AnimateG2Models(_ ghoul2: OpaquePointer?, _ time: Int32, _ para
 }
 
 /// Source: oracle/codemp/game/bg_strap.h:30
+@discardableResult
 func strap_G2API_SetBoneIKState(_ ghoul2: OpaquePointer?, _ time: Int32, _ boneName: String, _ ikState: Int32, _ params: JKAMP.SharedSetBoneIKStateParams) -> Bool {
     bg.straps.strap_G2API_SetBoneIKState(ghoul2, time, boneName, ikState, params)
 }
 
 /// Source: oracle/codemp/game/bg_strap.h:32
+@discardableResult
 func strap_G2API_IKMove(_ ghoul2: OpaquePointer?, _ time: Int32, _ params: JKAMP.SharedIKMoveParams) -> Bool {
     bg.straps.strap_G2API_IKMove(ghoul2, time, params)
 }
@@ -147,11 +155,13 @@ func trap_FS_FCloseFile(_ f: JKAShared.fileHandle_t) {
 }
 
 /// Source: oracle/codemp/game/g_syscalls.c:85
+@discardableResult
 func trap_FS_FOpenFile(_ qpath: String, _ f: inout Int32, _ mode: JKAShared.fsMode_t) -> Int32 {
     bg.straps.trap_FS_FOpenFile(qpath, &f, mode)
 }
 
 /// Source: oracle/codemp/game/g_syscalls.c:219
+@discardableResult
 func trap_FS_GetFileList(_ path: String, _ `extension`: String, _ bufsize: Int32) -> (Int32, String) {
     bg.straps.trap_FS_GetFileList(path, `extension`, bufsize)
 }
@@ -162,6 +172,7 @@ func trap_FS_Read(_ buffer: OpaquePointer?, _ len: Int32, _ f: JKAShared.fileHan
 }
 
 /// Source: oracle/codemp/game/g_syscalls.c:1239
+@discardableResult
 func trap_G2API_AddBolt(_ ghoul2: OpaquePointer?, _ modelIndex: Int32, _ boneName: String) -> Int32 {
     bg.straps.trap_G2API_AddBolt(ghoul2, modelIndex, boneName)
 }
@@ -172,21 +183,25 @@ func trap_G2API_CleanGhoul2Models(_ ghoul2Ptr: inout OpaquePointer?) {
 }
 
 /// Source: oracle/codemp/game/g_syscalls.c:1205
+@discardableResult
 func trap_G2API_GetBoltMatrix(_ ghoul2: OpaquePointer?, _ modelIndex: Int32, _ boltIndex: Int32, _ matrix: JKAMP.MdxaBone, _ angles: JKAShared.vec3_t, _ position: JKAShared.vec3_t, _ frameNum: Int32, _ modelList: UnsafeMutablePointer<Int32>?, _ scale: inout JKAShared.vec3_t) -> Bool {
     bg.straps.trap_G2API_GetBoltMatrix(ghoul2, modelIndex, boltIndex, matrix, angles, position, frameNum, modelList, &scale)
 }
 
 /// Source: oracle/codemp/game/g_syscalls.c:1370
+@discardableResult
 func trap_G2API_GetSurfaceRenderStatus(_ ghoul2: OpaquePointer?, _ modelIndex: Int32, _ surfaceName: String) -> Int32 {
     bg.straps.trap_G2API_GetSurfaceRenderStatus(ghoul2, modelIndex, surfaceName)
 }
 
 /// Source: oracle/codemp/game/g_syscalls.c:1223
+@discardableResult
 func trap_G2API_InitGhoul2Model(_ ghoul2Ptr: inout OpaquePointer?, _ fileName: String, _ modelIndex: Int32, _ customSkin: JKAShared.qhandle_t, _ customShader: JKAShared.qhandle_t, _ modelFlags: Int32, _ lodBias: Int32) -> Int32 {
     bg.straps.trap_G2API_InitGhoul2Model(&ghoul2Ptr, fileName, modelIndex, customSkin, customShader, modelFlags, lodBias)
 }
 
 /// Source: oracle/codemp/game/g_syscalls.c:1179
+@discardableResult
 func trap_R_RegisterSkin(_ name: String) -> JKAShared.qhandle_t {
     bg.straps.trap_R_RegisterSkin(name)
 }

@@ -135,6 +135,9 @@ class Traps:
         # The engine never returns from G_ERROR, it longjmps to its main loop, ruling of 2026-09-09. Raven's C cannot say so.
         never = name == "trap_Error"
         head = f"public func {name}({signature})" + (" -> Never" if never else f" -> {returns}" if returns else "")
+        if returns and not never:
+            # Raven drops a trap's return at most call sites, and C never warned, so a body reads his line without `_ =`.
+            head = "@discardableResult\n" + head
         call = f"Syscall.call({command}, {', '.join(words)})" if words else f"Syscall.call({command})"
         body: list[str] = []
         for p in outs:

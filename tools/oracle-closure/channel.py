@@ -235,7 +235,8 @@ class Channel:
                 continue
             self.counts["hooks"] += 1
             returns = f" -> {hook.bg_returns()}" if hook.bg_returns() else ""
-            lines += [
+            # A returning hook is discardable like the trap behind it, so a body reads Raven's line without `_ =`.
+            lines += (["@discardableResult"] if returns else []) + [
                 f"func {hook.name}({hook.signature()}){returns} {{",
                 f"    bg.{store}.{hook.name}({hook.words()})",
                 "}",
