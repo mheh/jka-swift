@@ -649,15 +649,39 @@ def wrap(filename: str, note: str, includes: list[str], body: list[str]) -> str:
     return "\n".join(parts)
 
 
-# The six target triples of the layout check, packet row 6, and the predefined macros that select each block of layout_asserts.h.
-TRIPLES = {
-    "i686-pc-windows-msvc": "defined(_WIN32) && defined(__i386__)",
-    "i686-pc-linux-gnu": "defined(__linux__) && defined(__i386__)",
-    "x86_64-pc-windows-msvc": "defined(_WIN32) && defined(__x86_64__)",
-    "x86_64-pc-linux-gnu": "defined(__linux__) && defined(__x86_64__)",
-    "x86_64-apple-macosx": "defined(__APPLE__) && defined(__x86_64__)",
-    "arm64-apple-macosx": "defined(__APPLE__) && defined(__aarch64__)",
+# The three ABIs the layouts depend on, and the predicate that selects each block of layout_asserts.h.
+# Clang defines both widths on every target, so a block is chosen by the ABI and not by the operating system or the instruction set.
+ABIS = {
+    "ilp32": "__SIZEOF_POINTER__ == 4",
+    "llp64": "__SIZEOF_POINTER__ == 8 && __SIZEOF_LONG__ == 4",
+    "lp64": "__SIZEOF_POINTER__ == 8 && __SIZEOF_LONG__ == 8",
 }
+
+# The target triples of the layout check, packet row 6, and the ABI each one follows.
+# Every triple of one ABI must give the same asserts, and the writer exits when two of them do not.
+TRIPLES = {
+    "i686-pc-windows-msvc": "ilp32",
+    "i686-pc-linux-gnu": "ilp32",
+    "armv7-linux-gnueabihf": "ilp32",
+    "arm64_32-apple-watchos": "ilp32",
+    "x86_64-pc-windows-msvc": "llp64",
+    "aarch64-pc-windows-msvc": "llp64",
+    "x86_64-pc-linux-gnu": "lp64",
+    "aarch64-linux-gnu": "lp64",
+    "x86_64-apple-macosx": "lp64",
+    "arm64-apple-macosx": "lp64",
+}
+
+
+def abi_blocks(tables: dict[str, list[str]], triples: list[str]) -> list[str]:
+    """The #if chain of layout_asserts.h: one block per ABI in ABIS order, each headed by its predicate and the triples it covers."""
+    lines: list[str] = []
+    for i, (abi, predicate) in enumerate((abi, predicate) for abi, predicate in ABIS.items() if abi in tables):
+        covered = ", ".join(t for t in triples if TRIPLES[t] == abi)
+        lines.append(f"{'#if' if i == 0 else '#elif'} {predicate} // {abi}: {covered}")
+        lines += tables[abi]
+    lines += ["#else", '#error "layout_asserts.h has no block for this target"', "#endif"]
+    return lines
 
 
 def host_triple() -> str:
@@ -682,29 +706,37 @@ def triple_asserts(module: str, triple: str) -> dict[str, list[str]]:
 
 
 def assert_blocks(module: str, host: list[tuple[str, list[str]]], triples: list[str]) -> list[str]:
-    """layout_asserts.h's body: one block per triple, the host's from its parse and the others from a parse per triple."""
+    """layout_asserts.h's body: one block per ABI, from the host's parse and a parse per foreign triple, after every triple of the ABI agrees."""
     foreign = [t for t in triples if t != host_triple()]
     by_triple: dict[str, dict[str, list[str]]] = {host_triple(): dict(host)}
     if foreign:
         with concurrent.futures.ProcessPoolExecutor(max_workers=len(foreign), mp_context=multiprocessing.get_context("spawn")) as pool:
             for triple, result in zip(foreign, pool.map(triple_asserts, [module] * len(foreign), foreign)):
                 by_triple[triple] = result
-    lines: list[str] = []
-    for i, triple in enumerate(t for t in TRIPLES if t in triples):
-        lines.append(f"{'#if' if i == 0 else '#elif'} {TRIPLES[triple]} // {triple}")
-        table = by_triple[triple]
-        missing = 0
-        for name, host_lines in host:
-            got = table.get(name)
-            if got is None:
-                missing += 1
-                lines.append(f"// {name} did not parse for {triple}, so it has no asserts here.")
-            else:
-                lines += got
-        if missing:
-            NOTES.append(f"{missing} records have no asserts for {triple}")
-    lines += ["#else", '#error "layout_asserts.h has no block for this target"', "#endif"]
-    return lines
+    tables: dict[str, list[str]] = {}
+    for abi in ABIS:
+        members = [t for t in triples if TRIPLES[t] == abi]
+        if not members:
+            continue
+        lines: list[str] = []
+        missing: dict[str, list[str]] = defaultdict(list)
+        for name, _ in host:
+            got = {t: by_triple[t].get(name) for t in members}
+            present = {t: g for t, g in got.items() if g is not None}
+            for t in members:
+                if t not in present:
+                    missing[t].append(name)
+            if not present:
+                lines.append(f"// {name} did not parse for {abi}, so it has no asserts here.")
+                continue
+            distinct = {tuple(g) for g in present.values()}
+            if len(distinct) > 1:
+                sys.exit(f"extract.py: {name} has {len(distinct)} layouts across the {abi} triples {', '.join(present)}, and one block cannot hold them")
+            lines += next(iter(present.values()))
+        for t, names in missing.items():
+            NOTES.append(f"{len(names)} records have no asserts for {t}")
+        tables[abi] = lines
+    return abi_blocks(tables, triples)
 
 
 def emit(module: str, out_dir: Path, check: bool, triples: list[str]) -> int:

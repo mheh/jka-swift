@@ -24,7 +24,7 @@ A `.c` file's own object-like macros, such as `MOVER_LOCKED` in `g_mover.c`, go 
 
 ## The layout check
 
-`extract.py` parses each module once per target triple, `i686-pc-windows-msvc`, `i686-pc-linux-gnu`, `x86_64-pc-windows-msvc`, `x86_64-pc-linux-gnu`, `x86_64-apple-macosx`, and `arm64-apple-macosx`, and writes `layout_asserts.h` as one block per triple under a guard on Clang's predefined macros. `check.sh` compiles every target for every triple with `-ffreestanding`, so no SDK is needed for a foreign one. The merge exits when a seam type, or a record it holds by value, has two sizes across the triples of one pointer width. `--host-only` skips the foreign parses for a quick run.
+`extract.py` parses each module once per target triple and writes `layout_asserts.h` as one block per ABI under a guard on Clang's `__SIZEOF_POINTER__` and `__SIZEOF_LONG__`. Three ABIs cover every triple: `ilp32` for the 32-bit targets, `llp64` for 64-bit Windows, and `lp64` for 64-bit Linux and Apple. `TRIPLES` in `extract.py` lists the triples and the ABI of each, and the writer exits when two triples of one ABI give different asserts, so a target that breaks the grouping shows up as a run that fails and not as a block that lies. `check.sh` compiles every target for every triple with `-ffreestanding`, so no SDK is needed for a foreign one. The merge exits when a seam type, or a record it holds by value, has two sizes across the ABIs of one pointer width. `--host-only` skips the foreign parses for a quick run.
 
 ## Setup
 
