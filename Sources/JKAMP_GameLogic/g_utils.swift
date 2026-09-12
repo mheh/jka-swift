@@ -175,10 +175,7 @@ G_RadiusList - given an origin and a radius, return all entities that are in use
 ```
 */
 /// Source: oracle/codemp/game/g_utils.c:252
-// TODO: Port signature
-// Raven wrote: int G_RadiusList ( vec3_t origin, float radius, gentity_t *ignore, qboolean takeDamage, gentity_t *ent_list[MAX_GENTITIES])
-// No table row for `gentity_t *[1024] ent_list`.
-func G_RadiusList() -> Never {
+func G_RadiusList(_ origin: inout JKAShared.vec3_t, _ radius: Float, _ ignore: Entity, _ takeDamage: Bool, _ ent_list: inout [Entity?]) -> Int32 {
     // TODO: Port G_RadiusList
     portMissing("G_RadiusList", source: "oracle/codemp/game/g_utils.c:252")
 }

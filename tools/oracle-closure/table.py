@@ -229,6 +229,13 @@ class Table:
         if canonical.kind == TypeKind.CONSTANTARRAY and "vec3_t" in t.spelling:
             # `vec3_t name[3]` is an axis, the type the ported q_math axis functions take.
             return None if traps else Param(name, "inout [JKAShared.vec3_t]", "vec3_axis")
+        if canonical.kind == TypeKind.CONSTANTARRAY and not traps:
+            # A C array of struct pointers the function fills, `gentity_t *ent_list[MAX_GENTITIES]`, is the caller's array of optional views.
+            element = canonical.element_type.get_canonical()
+            if element.kind == TypeKind.POINTER:
+                record = self.views.record_name(element.get_pointee())
+                if record and record in self.views.views:
+                    return Param(name, f"inout [{self.views.qualified_view(record, TARGET)}?]", "view_array")
         if canonical.kind in (TypeKind.RECORD, TypeKind.CONSTANTARRAY):
             return None
         swift = self.views.scalar(t, TARGET)
