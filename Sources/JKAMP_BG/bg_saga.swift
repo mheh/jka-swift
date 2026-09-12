@@ -133,26 +133,26 @@ func BG_SiegeParseClassFile(_ filename: String, _ descBuffer: JKAMP.SiegeClassDe
 
 // Count the number of like base classes
 /// Source: oracle/codemp/game/bg_saga.c:1071
-func BG_SiegeCountBaseClass(_ team: Int32, _ classIndex: Int16) -> Int32 {
+func BG_SiegeCountBaseClass(_ team: Int32, _ classIndex: Int32) -> Int32 {
     // TODO: Port BG_SiegeCountBaseClass
     portMissing("BG_SiegeCountBaseClass", source: "oracle/codemp/game/bg_saga.c:1071")
 }
 
 /// Source: oracle/codemp/game/bg_saga.c:1094
-func BG_GetUIPortraitFile(_ team: Int32, _ classIndex: Int16, _ cntIndex: Int16) -> String {
+func BG_GetUIPortraitFile(_ team: Int32, _ classIndex: Int32, _ cntIndex: Int32) -> String {
     // TODO: Port BG_GetUIPortraitFile
     portMissing("BG_GetUIPortraitFile", source: "oracle/codemp/game/bg_saga.c:1094")
 }
 
 /// Source: oracle/codemp/game/bg_saga.c:1123
-func BG_GetUIPortrait(_ team: Int32, _ classIndex: Int16, _ cntIndex: Int16) -> Int32 {
+func BG_GetUIPortrait(_ team: Int32, _ classIndex: Int32, _ cntIndex: Int32) -> Int32 {
     // TODO: Port BG_GetUIPortrait
     portMissing("BG_GetUIPortrait", source: "oracle/codemp/game/bg_saga.c:1123")
 }
 
 // This is really getting ugly - looking to get the base class (within a class) based on the index passed in
 /// Source: oracle/codemp/game/bg_saga.c:1153
-func BG_GetClassOnBaseClass(_ team: Int32, _ classIndex: Int16, _ cntIndex: Int16) -> JKAMP.SiegeClass? {
+func BG_GetClassOnBaseClass(_ team: Int32, _ classIndex: Int32, _ cntIndex: Int32) -> JKAMP.SiegeClass? {
     // TODO: Port BG_GetClassOnBaseClass
     portMissing("BG_GetClassOnBaseClass", source: "oracle/codemp/game/bg_saga.c:1153")
 }

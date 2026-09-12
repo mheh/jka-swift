@@ -177,8 +177,8 @@ public struct SiegeClass: Hashable, HandleView {
     }
 
     /// Source: oracle/codemp/game/bg_saga.h:79
-    public var playerClass: Int16 {
-        get { self.raw.pointee.playerClass }
-        nonmutating set { self.raw.pointee.playerClass = newValue }
+    public var playerClass: Int32 {
+        get { Int32(self.raw.pointee.playerClass) }
+        nonmutating set { self.raw.pointee.playerClass = Int16(truncatingIfNeeded: newValue) }
     }
 }

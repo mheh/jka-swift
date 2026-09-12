@@ -48,7 +48,7 @@ The oracle range is the whole definition, from the return type to the closing br
 | `PM_SaberPowerCheck` | `oracle/codemp/game/bg_saber.c:2785-2800` | `JKAMP_BG/bg_saber.swift:280` | marker | `crates/mp/bg/src/bg_saber.rs:1917-1931` | `func PM_SaberPowerCheck() -> Bool` |
 | `PM_CanDoRollStab` | `oracle/codemp/game/bg_saber.c:2802-2820` | `JKAMP_BG/bg_saber.swift:286` | marker | `crates/mp/bg/src/bg_saber.rs:1935-1950` | `func PM_CanDoRollStab() -> Bool` |
 | `PM_WeaponLightsaber` | `oracle/codemp/game/bg_saber.c:2836-3800` | `JKAMP_BG/bg_saber.swift:292` | marker | `crates/mp/bg/src/bg_saber.rs:1959-2311` | `func PM_WeaponLightsaber()` |
-| `PM_SetSaberMove` | `oracle/codemp/game/bg_saber.c:3802-4098` | `JKAMP_BG/bg_saber.swift:298` | marker | `crates/mp/bg/src/bg_saber.rs:2669-2889` | `func PM_SetSaberMove(_ newMove: Int16)` |
+| `PM_SetSaberMove` | `oracle/codemp/game/bg_saber.c:3802-4098` | `JKAMP_BG/bg_saber.swift:298` | marker | `crates/mp/bg/src/bg_saber.rs:2669-2889` | `func PM_SetSaberMove(_ newMove: Int32)` |
 | `BG_MySaber` | `oracle/codemp/game/bg_saber.c:4100-4141` | `JKAMP_BG/bg_saber.swift:304` | marker | none | `func BG_MySaber(_ clientNum: Int32, _ saberNum: Int32) -> JKAMP.SaberInfo?` |
 
 4 file-scope variables. The entry is the stub's line for the variable, by rule 3 and rule 6.

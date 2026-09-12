@@ -42,21 +42,21 @@ public struct Trace: Hashable, HandleView {
     }
 
     /// Source: oracle/codemp/game/q_shared.h:1895
-    public var allsolid: JKAShared.byte {
-        get { self.raw.pointee.allsolid }
-        nonmutating set { self.raw.pointee.allsolid = newValue }
+    public var allsolid: Int32 {
+        get { Int32(self.raw.pointee.allsolid) }
+        nonmutating set { self.raw.pointee.allsolid = UInt8(truncatingIfNeeded: newValue) }
     }
 
     /// Source: oracle/codemp/game/q_shared.h:1896
-    public var startsolid: JKAShared.byte {
-        get { self.raw.pointee.startsolid }
-        nonmutating set { self.raw.pointee.startsolid = newValue }
+    public var startsolid: Int32 {
+        get { Int32(self.raw.pointee.startsolid) }
+        nonmutating set { self.raw.pointee.startsolid = UInt8(truncatingIfNeeded: newValue) }
     }
 
     /// Source: oracle/codemp/game/q_shared.h:1897
-    public var entityNum: Int16 {
-        get { self.raw.pointee.entityNum }
-        nonmutating set { self.raw.pointee.entityNum = newValue }
+    public var entityNum: Int32 {
+        get { Int32(self.raw.pointee.entityNum) }
+        nonmutating set { self.raw.pointee.entityNum = Int16(truncatingIfNeeded: newValue) }
     }
 
     /// Source: oracle/codemp/game/q_shared.h:1899

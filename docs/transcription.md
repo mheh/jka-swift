@@ -324,6 +324,9 @@ The stub compiles and traps at runtime with `portMissing`. The transcriptor does
 ### Primitive types
 
 `qboolean` is `Bool`. `int` is `Int32`. `float` is `Float`.
+A C integer narrower than `int`, a `short`, an `unsigned short`, a `signed char`, or an `unsigned char`, is `Int32` as a view's scalar field, a parameter, and a return, because C widens it to `int` at every read.
+The view's getter widens and its setter stores the truncation C performs, and the C struct keeps Raven's type.
+A fixed array of a narrow type keeps its element type.
 An array index is the C constant or variable Raven wrote, for example `vec[YAW]` and `ps.stats[STAT_HEALTH]`, never `Int(...)`. Every array in the port takes any C integer index.
 A C enum is an `Int32` typealias, and each case is a bare `Int32` constant with Raven's name.
 A body compares, stores, switches, and shifts it exactly as Raven wrote it. `.rawValue` and `EnumName(rawValue:)` never appear.

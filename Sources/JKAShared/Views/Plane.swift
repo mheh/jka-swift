@@ -12,13 +12,13 @@ public struct Plane: Hashable {
 
     /// for fast side tests: 0,1,2 = axial, 3 = nonaxial
     /// Source: oracle/codemp/game/q_shared.h:1863
-    public var type: byte
+    public var type: Int32
 
     /// signx + (signy<<1) + (signz<<2), used as lookup during collision
     /// Source: oracle/codemp/game/q_shared.h:1864
-    public var signbits: byte
+    public var signbits: Int32
 
-    public init(normal: vec3_t = .zero, dist: Float = 0, type: byte = 0, signbits: byte = 0) {
+    public init(normal: vec3_t = .zero, dist: Float = 0, type: Int32 = 0, signbits: Int32 = 0) {
         self.normal = normal
         self.dist = dist
         self.type = type

@@ -252,6 +252,9 @@ class Table:
         swift = self.views.scalar(t, TARGET)
         if swift is None or not self.known(swift):
             return None
+        if self.views.narrow(t) is not None:
+            # C widens a short or a char argument to int at the call, so the parameter is Int32.
+            swift = "Int32"
         # A C enum is an Int32 alias, so it travels as a bare word.
         return Param(name, swift, "bare")
 
@@ -327,4 +330,7 @@ class Table:
             return None
         if swift == "Bool":
             return ("Bool", "word != 0")
+        if self.views.narrow(t) is not None:
+            # C widens a short or a char return to int at the caller, so the return is Int32.
+            return ("Int32", "Int32(truncatingIfNeeded: word)")
         return (swift, f"{swift}(truncatingIfNeeded: word)")

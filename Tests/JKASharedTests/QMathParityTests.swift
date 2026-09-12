@@ -171,7 +171,7 @@ enum QMathDump {
                 var p = Plane()
                 p.normal = n
                 p.dist = n[0]
-                p.type = byte(ty)
+                p.type = Int32(ty)
                 SetPlaneSignbits(&p)
                 let j = (i + 1) % count
                 let k = (i + 2) % count

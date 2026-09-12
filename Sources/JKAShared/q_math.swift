@@ -692,7 +692,7 @@ public func SetPlaneSignbits(_ out: inout Plane) {
             bits |= 1 << j
         }
     }
-    out.signbits = byte(bits)
+    out.signbits = bits
 }
 
 /**

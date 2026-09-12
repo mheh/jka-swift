@@ -14,8 +14,8 @@ The oracle range is the whole definition, from the return type to the closing br
 | `COM_SkipPath` | `oracle/codemp/game/q_shared.c:80-92` | `JKAShared/q_shared.c.swift:48` | marker | `crates/mp/game/src/q_shared.rs:74-86` | `public func COM_SkipPath(_ pathname: inout JKAShared.CharBuf) -> Int32` |
 | `COM_StripExtension` | `oracle/codemp/game/q_shared.c:99-104` | `JKAShared/q_shared.c.swift:61` | marker | `crates/mp/game/src/q_shared.rs:91-102` | `public func COM_StripExtension(_ `in`: String, _ out: inout JKAShared.CharBuf)` |
 | `COM_DefaultExtension` | `oracle/codemp/game/q_shared.c:112-131` | `JKAShared/q_shared.c.swift:74` | marker | `crates/mp/game/src/q_shared.rs:110-141` | `public func COM_DefaultExtension(_ path: inout JKAShared.CharBuf, _ maxSize: Int32, _ `extension`: String)` |
-| `ShortSwap` | `oracle/codemp/game/q_shared.c:162-170` | `JKAShared/q_shared.c.swift:80` | marker | `crates/mp/game/src/q_shared.rs:146-150` | `public func ShortSwap(_ l: Int16) -> Int16` |
-| `ShortNoSwap` | `oracle/codemp/game/q_shared.c:172-175` | `JKAShared/q_shared.c.swift:86` | marker | `crates/mp/game/src/q_shared.rs:155-157` | `public func ShortNoSwap(_ l: Int16) -> Int16` |
+| `ShortSwap` | `oracle/codemp/game/q_shared.c:162-170` | `JKAShared/q_shared.c.swift:80` | marker | `crates/mp/game/src/q_shared.rs:146-150` | `public func ShortSwap(_ l: Int32) -> Int32` |
+| `ShortNoSwap` | `oracle/codemp/game/q_shared.c:172-175` | `JKAShared/q_shared.c.swift:86` | marker | `crates/mp/game/src/q_shared.rs:155-157` | `public func ShortNoSwap(_ l: Int32) -> Int32` |
 | `LongSwap` | `oracle/codemp/game/q_shared.c:177-187` | `JKAShared/q_shared.c.swift:92` | marker | `crates/mp/game/src/q_shared.rs:162-168` | `public func LongSwap(_ l: Int32) -> Int32` |
 | `LongNoSwap` | `oracle/codemp/game/q_shared.c:189-192` | `JKAShared/q_shared.c.swift:98` | marker | `crates/mp/game/src/q_shared.rs:173-175` | `public func LongNoSwap(_ l: Int32) -> Int32` |
 | `Long64Swap` | `oracle/codemp/game/q_shared.c:194-208` | `JKAShared/q_shared.c.swift:104` | marker | `crates/mp/game/src/q_shared.rs:180-191` | `public func Long64Swap(_ ll: Int64) -> Int64` |

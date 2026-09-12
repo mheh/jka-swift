@@ -41,26 +41,26 @@ public struct Animation: Hashable, HandleView {
     }
 
     /// Source: unknown:1
-    public var firstFrame: UInt16 {
-        get { self.raw.pointee.firstFrame }
-        nonmutating set { self.raw.pointee.firstFrame = newValue }
+    public var firstFrame: Int32 {
+        get { Int32(self.raw.pointee.firstFrame) }
+        nonmutating set { self.raw.pointee.firstFrame = UInt16(truncatingIfNeeded: newValue) }
     }
 
     /// Source: unknown:2
-    public var numFrames: UInt16 {
-        get { self.raw.pointee.numFrames }
-        nonmutating set { self.raw.pointee.numFrames = newValue }
+    public var numFrames: Int32 {
+        get { Int32(self.raw.pointee.numFrames) }
+        nonmutating set { self.raw.pointee.numFrames = UInt16(truncatingIfNeeded: newValue) }
     }
 
     /// Source: unknown:3
-    public var frameLerp: Int16 {
-        get { self.raw.pointee.frameLerp }
-        nonmutating set { self.raw.pointee.frameLerp = newValue }
+    public var frameLerp: Int32 {
+        get { Int32(self.raw.pointee.frameLerp) }
+        nonmutating set { self.raw.pointee.frameLerp = Int16(truncatingIfNeeded: newValue) }
     }
 
     /// Source: unknown:5
-    public var loopFrames: Int8 {
-        get { self.raw.pointee.loopFrames }
-        nonmutating set { self.raw.pointee.loopFrames = newValue }
+    public var loopFrames: Int32 {
+        get { Int32(self.raw.pointee.loopFrames) }
+        nonmutating set { self.raw.pointee.loopFrames = Int8(truncatingIfNeeded: newValue) }
     }
 }

@@ -54,15 +54,15 @@ public struct Cplane: Hashable, HandleView {
     }
 
     /// Source: oracle/codemp/game/q_shared.h:1863
-    public var type: byte {
-        get { self.raw.pointee.type }
-        nonmutating set { self.raw.pointee.type = newValue }
+    public var type: Int32 {
+        get { Int32(self.raw.pointee.type) }
+        nonmutating set { self.raw.pointee.type = UInt8(truncatingIfNeeded: newValue) }
     }
 
     /// Source: oracle/codemp/game/q_shared.h:1864
-    public var signbits: byte {
-        get { self.raw.pointee.signbits }
-        nonmutating set { self.raw.pointee.signbits = newValue }
+    public var signbits: Int32 {
+        get { Int32(self.raw.pointee.signbits) }
+        nonmutating set { self.raw.pointee.signbits = UInt8(truncatingIfNeeded: newValue) }
     }
 
     /// Source: oracle/codemp/game/q_shared.h:1865

@@ -1806,9 +1806,8 @@ private func PM_CheckJump() -> Bool {
                         _ = VectorNormalize(&idealNormal)
                     }
 
-                    // Port-note: `trace_t.entityNum` is Raven's `short`, which C promotes to `int` in this compare. Swift has no such promotion, so the body adds `Int32(...)`.
                     // C computes the dot-product compare in double, because 0.7 is a double literal.
-                    if !doTrace || (trace.fraction < 1.0 && (Int32(trace.entityNum) < MAX_CLIENTS || Double(_DotProduct(wallNormal, idealNormal)) > 0.7)) {
+                    if !doTrace || (trace.fraction < 1.0 && (trace.entityNum < MAX_CLIENTS || Double(_DotProduct(wallNormal, idealNormal)) > 0.7)) {
                         //there is a wall there.. or hit a client
                         if (anim != BOTH_WALL_RUN_LEFT
                                 && anim != BOTH_WALL_RUN_RIGHT
@@ -2097,12 +2096,11 @@ private func PM_CheckJump() -> Bool {
                             pm.runTrace(trace, ps.origin, mins, maxs, traceto, ps.clientNum, contents)//FIXME: clip brushes too?
                             _VectorSubtract(ps.origin, traceto, &idealNormal)
                             _ = VectorNormalize(&idealNormal)
-                            // Port-note: `trace_t.entityNum` is Raven's `short`, which C promotes to `int` at this call. Swift has no such promotion, so the body adds `Int32(...)`.
-                            traceEnt = PM_BGEntForNum(Int32(trace.entityNum))
+                            traceEnt = PM_BGEntForNum(trace.entityNum)
 
                             // Port-note: Raven tests `traceEnt` inside one `&&` chain. The generated view is optional, so the body binds it into a flag first.
                             var hitPushableEnt = false
-                            if Int32(trace.entityNum) < ENTITYNUM_WORLD,
+                            if trace.entityNum < ENTITYNUM_WORLD,
                                 let traceEnt,
                                 traceEnt.s.solid != SOLID_BMODEL {
                                 hitPushableEnt = true
@@ -2207,11 +2205,10 @@ private func PM_CheckJump() -> Bool {
                             pm.runTrace(trace, ps.origin, mins, maxs, traceto, ps.clientNum, CONTENTS_SOLID)//FIXME: clip brushes too?
                             _VectorSubtract(ps.origin, traceto, &idealNormal)
                             _ = VectorNormalize(&idealNormal)
-                            // Port-note: `trace_t.entityNum` is Raven's `short`, which C promotes to `int` at this call. Swift has no such promotion, so the body adds `Int32(...)`.
-                            traceEnt = PM_BGEntForNum(Int32(trace.entityNum))
+                            traceEnt = PM_BGEntForNum(trace.entityNum)
                             // Port-note: Raven tests `traceEnt` inside one `&&` chain. The generated view is optional, so the body binds it into a flag first.
                             var hitPushableEnt = false
-                            if Int32(trace.entityNum) < ENTITYNUM_WORLD,
+                            if trace.entityNum < ENTITYNUM_WORLD,
                                 let traceEnt,
                                 traceEnt.s.solid != SOLID_BMODEL {
                                 hitPushableEnt = true
@@ -3644,11 +3641,10 @@ private func PM_GroundTrace() {
             }
         }
 
-        // Port-note: `trace.entityNum` is a `short`, and both the store and the call take an `int`, so each needs a widening Raven did not write.
-        ps.groundEntityNum = Int32(trace.entityNum)
+        ps.groundEntityNum = trace.entityNum
         ps.lastOnGround = pm.cmd.serverTime
 
-        PM_AddTouchEnt(Int32(trace.entityNum))
+        PM_AddTouchEnt(trace.entityNum)
     }
 }
 
@@ -4930,8 +4926,7 @@ func PM_FinishWeaponChange() {
     }
 
     if weapon == WP_SABER {
-        // Port-note: The generated `PM_SetSaberMove` takes an `Int16`, and Raven's `LS_DRAW` is an `int` case, so the call needs a narrowing Raven did not write.
-        PM_SetSaberMove(Int16(LS_DRAW))
+        PM_SetSaberMove(LS_DRAW)
     } else {
         //PM_StartTorsoAnim( TORSO_RAISEWEAP1);
         PM_SetAnim(SETANIM_TORSO, TORSO_RAISEWEAP1, SETANIM_FLAG_OVERRIDE, 0)
@@ -4986,8 +4981,7 @@ func BG_VehTraceFromCamPos(_ camTrace: JKAMP.Trace, _ bgEnt: JKAMP.BgEntity, _ e
         newEnd = camTrace.endpos
         _VectorSubtract(newEnd, shotStart, &shotDir)
         _ = VectorNormalize(&shotDir)
-        // Port-note: `trace_t.entityNum` is Raven's `short`, which C promotes to `int` in this return. Swift has no such promotion, so the body adds `Int32(...)`.
-        return (Int32(camTrace.entityNum) + 1)
+        return (camTrace.entityNum + 1)
     }
     return 0
 }
@@ -5046,26 +5040,25 @@ func PM_RocketLock(_ lockDist: Float, _ vehicleLock: Bool) {
             }
         }
 
-        // Port-note: Raven's `trace_t.entityNum` is a `short` that C promotes to `int` at each read. `Promotion.swift` carries no `Int16` form, so each read below takes a widening Raven did not write.
-        if tr.fraction != 1 && Int32(tr.entityNum) < ENTITYNUM_NONE && Int32(tr.entityNum) != ps.clientNum {
-            let bgEnt = PM_BGEntForNum(Int32(tr.entityNum))
+        if tr.fraction != 1 && tr.entityNum < ENTITYNUM_NONE && tr.entityNum != ps.clientNum {
+            let bgEnt = PM_BGEntForNum(tr.entityNum)
             if let bgEnt, (bgEnt.s.powerups & PW_CLOAKED) != 0 {
                 ps.rocketLockIndex = ENTITYNUM_NONE
                 ps.rocketLockTime = 0
             } else if let bgEnt, (bgEnt.s.eType == ET_PLAYER || bgEnt.s.eType == ET_NPC) {
                 if ps.rocketLockIndex == ENTITYNUM_NONE {
-                    ps.rocketLockIndex = Int32(tr.entityNum)
+                    ps.rocketLockIndex = tr.entityNum
                     ps.rocketLockTime = Float(pm.cmd.serverTime)
-                } else if ps.rocketLockIndex != Int32(tr.entityNum) && ps.rocketTargetTime < pm.cmd.serverTime {
-                    ps.rocketLockIndex = Int32(tr.entityNum)
+                } else if ps.rocketLockIndex != tr.entityNum && ps.rocketTargetTime < pm.cmd.serverTime {
+                    ps.rocketLockIndex = tr.entityNum
                     ps.rocketLockTime = Float(pm.cmd.serverTime)
-                } else if ps.rocketLockIndex == Int32(tr.entityNum) {
+                } else if ps.rocketLockIndex == tr.entityNum {
                     if ps.rocketLockTime == -1 {
                         ps.rocketLockTime = ps.rocketLastValidTime
                     }
                 }
 
-                if ps.rocketLockIndex == Int32(tr.entityNum) {
+                if ps.rocketLockIndex == tr.entityNum {
                     ps.rocketTargetTime = Float(pm.cmd.serverTime + 500)
                 }
             } else if !vehicleLock {
@@ -5179,8 +5172,7 @@ func PM_ItemUsable(_ ps: JKAMP.PlayerState, _ forcedUse: Int32) -> Int32 {
         let noRoom = Trace.scratch { tr in
             pm.runTrace(tr, ps.origin, mins, maxs, trtest, ps.clientNum, MASK_PLAYERSOLID)
 
-            // Port-note: `trace_t.entityNum` is an `Int16` and `clientNum` is an `Int32`. `Promotion.swift` carries no operator between the two, so the compare needs a widening Raven did not write.
-            if (tr.fraction != 1 && Int32(tr.entityNum) != ps.clientNum) || tr.startsolid != 0 || tr.allsolid != 0 {
+            if (tr.fraction != 1 && tr.entityNum != ps.clientNum) || tr.startsolid != 0 || tr.allsolid != 0 {
                 PM_AddEventWithParm(EV_ITEMUSEFAIL, SENTRY_NOROOM)
                 return true
             }

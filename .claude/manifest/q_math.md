@@ -10,8 +10,8 @@ The oracle range is the whole definition, from the return type to the closing br
 | `Q_rand` | `oracle/codemp/game/q_math.c:126-129` | `JKAShared/q_math.swift:141` | ported | none | `public func Q_rand(_ seed: inout Int32) -> Int32` |
 | `Q_random` | `oracle/codemp/game/q_math.c:131-133` | `JKAShared/q_math.swift:147` | ported | none | `public func Q_random(_ seed: inout Int32) -> Float` |
 | `Q_crandom` | `oracle/codemp/game/q_math.c:135-137` | `JKAShared/q_math.swift:152` | ported | none | `public func Q_crandom(_ seed: inout Int32) -> Float` |
-| `ClampChar` | `oracle/codemp/game/q_math.c:279-287` | `JKAShared/q_math.swift:160` | ported | none | `public func ClampChar(_ i: Int32) -> Int8` |
-| `ClampShort` | `oracle/codemp/game/q_math.c:289-297` | `JKAShared/q_math.swift:171` | ported | none | `public func ClampShort(_ i: Int32) -> Int16` |
+| `ClampChar` | `oracle/codemp/game/q_math.c:279-287` | `JKAShared/q_math.swift:160` | ported | none | `public func ClampChar(_ i: Int32) -> Int32` |
+| `ClampShort` | `oracle/codemp/game/q_math.c:289-297` | `JKAShared/q_math.swift:171` | ported | none | `public func ClampShort(_ i: Int32) -> Int32` |
 | `DirToByte` | `oracle/codemp/game/q_math.c:301-322` | `JKAShared/q_math.swift:184` | ported | none | `public func DirToByte(_ dir: inout JKAShared.vec3_t) -> Int32` |
 | `ByteToDir` | `oracle/codemp/game/q_math.c:324-330` | `JKAShared/q_math.swift:204` | ported | none | `public func ByteToDir(_ b: Int32, _ dir: inout JKAShared.vec3_t)` |
 | `ColorBytes3` | `oracle/codemp/game/q_math.c:333-341` | `JKAShared/q_math.swift:215` | ported | none | `public func ColorBytes3(_ r: Float, _ g: Float, _ b: Float) -> UInt32` |

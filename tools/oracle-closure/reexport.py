@@ -48,6 +48,10 @@ SCALARS = {
     TypeKind.LONGLONG: "Int64", TypeKind.ULONGLONG: "UInt64", TypeKind.FLOAT: "Float", TypeKind.DOUBLE: "Double",
 }
 
+# A C integer narrower than int, which C widens to int at every read. A view's scalar field, a parameter, and a return of one of
+# these is Int32 in Swift, and the view's setter stores the truncation C performs. The storage type stays what Raven wrote.
+NARROW = {TypeKind.SHORT, TypeKind.USHORT, TypeKind.SCHAR, TypeKind.UCHAR}
+
 OPERATORS = {"(", "+", "-", "*", "/", "%", "|", "&", "^", "~", "<<", ">>", "!", "?", ":", "<", ">", "<=", ">=", "==", "!="}
 CLOSE = {")"}
 

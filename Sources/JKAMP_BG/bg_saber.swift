@@ -295,7 +295,7 @@ func PM_WeaponLightsaber() {
 }
 
 /// Source: oracle/codemp/game/bg_saber.c:3802
-func PM_SetSaberMove(_ newMove: Int16) {
+func PM_SetSaberMove(_ newMove: Int32) {
     // TODO: Port PM_SetSaberMove
     portMissing("PM_SetSaberMove", source: "oracle/codemp/game/bg_saber.c:3802")
 }

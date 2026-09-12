@@ -38,7 +38,7 @@ from pathlib import Path
 import clang.cindex as ci
 from clang.cindex import CursorKind, TypeKind
 
-from reexport import DEPS, SCALARS, SOURCES, VIEW_OF, parse, source_lines
+from reexport import DEPS, NARROW, SCALARS, SOURCES, VIEW_OF, parse, source_lines
 from rulings import NEVER_NULL, ROOTS
 
 # Every C target the game module's translation unit reaches, most specific first.
@@ -165,6 +165,11 @@ class Generator:
             return "Bool" if name == "qboolean" else self.qualified(name, target)
         return SCALARS.get(t.kind)
 
+    def narrow(self, t: ci.Type) -> str | None:
+        """The storage type of a C integer narrower than int, `Int16` for a `short`, or None for any other type."""
+        canonical = t.get_canonical()
+        return SCALARS[canonical.kind] if canonical.kind in NARROW else None
+
     def element(self, t: ci.Type, target: str, address: str, field: ci.Cursor | None = None) -> tuple[str, str] | None:
         """The Swift element type and the Slots initializer call for an array field whose elements sit at `address`, a raw pointer.
         The field cursor, when given, lets a char array's inner bound keep the macro name Raven wrote."""
@@ -282,6 +287,10 @@ class Generator:
             return None
         if swift == "Bool":
             return self.property(name, "Bool", f"{pointee} != qfalse", f"{pointee} = newValue ? qtrue : qfalse")
+        storage = self.narrow(t)
+        if storage is not None:
+            # C widens the field to int at every read, so the getter does, and the setter truncates as C's store does.
+            return self.property(name, "Int32", f"Int32({pointee})", f"{pointee} = {storage}(truncatingIfNeeded: newValue)")
         if swift in SCALARS.values():
             return self.property(name, swift, pointee, f"{pointee} = newValue")
         # A re-exported enum is an Int32 alias, and Clang imports the C field as a struct, so the property goes through its rawValue.

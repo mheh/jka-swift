@@ -57,44 +57,44 @@ public struct Usercmd: Hashable, HandleView {
     }
 
     /// Source: oracle/codemp/game/q_shared.h:2528
-    public var weapon: JKAShared.byte {
-        get { self.raw.pointee.weapon }
-        nonmutating set { self.raw.pointee.weapon = newValue }
+    public var weapon: Int32 {
+        get { Int32(self.raw.pointee.weapon) }
+        nonmutating set { self.raw.pointee.weapon = UInt8(truncatingIfNeeded: newValue) }
     }
 
     /// Source: oracle/codemp/game/q_shared.h:2529
-    public var forcesel: JKAShared.byte {
-        get { self.raw.pointee.forcesel }
-        nonmutating set { self.raw.pointee.forcesel = newValue }
+    public var forcesel: Int32 {
+        get { Int32(self.raw.pointee.forcesel) }
+        nonmutating set { self.raw.pointee.forcesel = UInt8(truncatingIfNeeded: newValue) }
     }
 
     /// Source: oracle/codemp/game/q_shared.h:2530
-    public var invensel: JKAShared.byte {
-        get { self.raw.pointee.invensel }
-        nonmutating set { self.raw.pointee.invensel = newValue }
+    public var invensel: Int32 {
+        get { Int32(self.raw.pointee.invensel) }
+        nonmutating set { self.raw.pointee.invensel = UInt8(truncatingIfNeeded: newValue) }
     }
 
     /// Source: oracle/codemp/game/q_shared.h:2531
-    public var generic_cmd: JKAShared.byte {
-        get { self.raw.pointee.generic_cmd }
-        nonmutating set { self.raw.pointee.generic_cmd = newValue }
+    public var generic_cmd: Int32 {
+        get { Int32(self.raw.pointee.generic_cmd) }
+        nonmutating set { self.raw.pointee.generic_cmd = UInt8(truncatingIfNeeded: newValue) }
     }
 
     /// Source: oracle/codemp/game/q_shared.h:2532
-    public var forwardmove: Int8 {
-        get { self.raw.pointee.forwardmove }
-        nonmutating set { self.raw.pointee.forwardmove = newValue }
+    public var forwardmove: Int32 {
+        get { Int32(self.raw.pointee.forwardmove) }
+        nonmutating set { self.raw.pointee.forwardmove = Int8(truncatingIfNeeded: newValue) }
     }
 
     /// Source: oracle/codemp/game/q_shared.h:2532
-    public var rightmove: Int8 {
-        get { self.raw.pointee.rightmove }
-        nonmutating set { self.raw.pointee.rightmove = newValue }
+    public var rightmove: Int32 {
+        get { Int32(self.raw.pointee.rightmove) }
+        nonmutating set { self.raw.pointee.rightmove = Int8(truncatingIfNeeded: newValue) }
     }
 
     /// Source: oracle/codemp/game/q_shared.h:2532
-    public var upmove: Int8 {
-        get { self.raw.pointee.upmove }
-        nonmutating set { self.raw.pointee.upmove = newValue }
+    public var upmove: Int32 {
+        get { Int32(self.raw.pointee.upmove) }
+        nonmutating set { self.raw.pointee.upmove = Int8(truncatingIfNeeded: newValue) }
     }
 }
