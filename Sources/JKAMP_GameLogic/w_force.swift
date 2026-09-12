@@ -5,34 +5,40 @@ import JKAShared
 import JKAMP_Game
 
 /// Source: oracle/codemp/game/w_force.c:24
-// TODO: Port global speedLoopSound
-// Raven wrote: int speedLoopSound = 0
-// Rule 3: a stored property of GameWorld with Raven's initializer, spelled world.speedLoopSound in a body.
+var speedLoopSound: Int32 {
+    get { world.variables.speedLoopSound }
+    set { world.variables.speedLoopSound = newValue }
+}
 
 /// Source: oracle/codemp/game/w_force.c:26
-// TODO: Port global rageLoopSound
-// Raven wrote: int rageLoopSound = 0
-// Rule 3: a stored property of GameWorld with Raven's initializer, spelled world.rageLoopSound in a body.
+var rageLoopSound: Int32 {
+    get { world.variables.rageLoopSound }
+    set { world.variables.rageLoopSound = newValue }
+}
 
 /// Source: oracle/codemp/game/w_force.c:28
-// TODO: Port global protectLoopSound
-// Raven wrote: int protectLoopSound = 0
-// Rule 3: a stored property of GameWorld with Raven's initializer, spelled world.protectLoopSound in a body.
+var protectLoopSound: Int32 {
+    get { world.variables.protectLoopSound }
+    set { world.variables.protectLoopSound = newValue }
+}
 
 /// Source: oracle/codemp/game/w_force.c:30
-// TODO: Port global absorbLoopSound
-// Raven wrote: int absorbLoopSound = 0
-// Rule 3: a stored property of GameWorld with Raven's initializer, spelled world.absorbLoopSound in a body.
+var absorbLoopSound: Int32 {
+    get { world.variables.absorbLoopSound }
+    set { world.variables.absorbLoopSound = newValue }
+}
 
 /// Source: oracle/codemp/game/w_force.c:32
-// TODO: Port global seeLoopSound
-// Raven wrote: int seeLoopSound = 0
-// Rule 3: a stored property of GameWorld with Raven's initializer, spelled world.seeLoopSound in a body.
+var seeLoopSound: Int32 {
+    get { world.variables.seeLoopSound }
+    set { world.variables.seeLoopSound = newValue }
+}
 
 /// Source: oracle/codemp/game/w_force.c:34
-// TODO: Port global ysalamiriLoopSound
-// Raven wrote: int ysalamiriLoopSound = 0
-// Rule 3: a stored property of GameWorld with Raven's initializer, spelled world.ysalamiriLoopSound in a body.
+var ysalamiriLoopSound: Int32 {
+    get { world.variables.ysalamiriLoopSound }
+    set { world.variables.ysalamiriLoopSound = newValue }
+}
 
 /// Source: oracle/codemp/game/w_force.c:51
 // Raven wrote: const int forcePowerMinRank[NUM_FORCE_POWER_LEVELS][NUM_FORCE_POWERS]

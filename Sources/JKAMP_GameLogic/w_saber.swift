@@ -5,83 +5,99 @@ import JKAShared
 import JKAMP_Game
 
 /// Source: oracle/codemp/game/w_saber.c:18
-// TODO: Port global saberSpinSound
-// Raven wrote: int saberSpinSound = 0
-// Rule 3: a stored property of GameWorld with Raven's initializer, spelled world.saberSpinSound in a body.
+var saberSpinSound: Int32 {
+    get { world.variables.saberSpinSound }
+    set { world.variables.saberSpinSound = newValue }
+}
 
 /// Source: oracle/codemp/game/w_saber.c:3504
-// TODO: Port global victimEntityNum
-// Raven wrote: static int victimEntityNum[MAX_SABER_VICTIMS]
-// Rule 3: a stored property of GameWorld with C's zero, since Raven wrote no initializer, spelled world.victimEntityNum in a body.
+var victimEntityNum: [Int32] {
+    get { world.variables.victimEntityNum }
+    set { world.variables.victimEntityNum = newValue }
+}
 
 /// Source: oracle/codemp/game/w_saber.c:3505
-// TODO: Port global victimHitEffectDone
-// Raven wrote: static qboolean victimHitEffectDone[MAX_SABER_VICTIMS]
-// Rule 3: a stored property of GameWorld with C's zero, since Raven wrote no initializer, spelled world.victimHitEffectDone in a body.
+var victimHitEffectDone: [Bool] {
+    get { world.variables.victimHitEffectDone }
+    set { world.variables.victimHitEffectDone = newValue }
+}
 
 /// Source: oracle/codemp/game/w_saber.c:3506
-// TODO: Port global totalDmg
-// Raven wrote: static float totalDmg[MAX_SABER_VICTIMS]
-// Rule 3: a stored property of GameWorld with C's zero, since Raven wrote no initializer, spelled world.totalDmg in a body.
+var totalDmg: [Float] {
+    get { world.variables.totalDmg }
+    set { world.variables.totalDmg = newValue }
+}
 
 /// Source: oracle/codemp/game/w_saber.c:3507
-// TODO: Port global dmgDir
-// Raven wrote: static vec3_t dmgDir[MAX_SABER_VICTIMS]
-// Rule 3: a stored property of GameWorld with C's zero, since Raven wrote no initializer, spelled world.dmgDir in a body.
+var dmgDir: [JKAShared.vec3_t] {
+    get { world.variables.dmgDir }
+    set { world.variables.dmgDir = newValue }
+}
 
 /// Source: oracle/codemp/game/w_saber.c:3508
-// TODO: Port global dmgSpot
-// Raven wrote: static vec3_t dmgSpot[MAX_SABER_VICTIMS]
-// Rule 3: a stored property of GameWorld with C's zero, since Raven wrote no initializer, spelled world.dmgSpot in a body.
+var dmgSpot: [JKAShared.vec3_t] {
+    get { world.variables.dmgSpot }
+    set { world.variables.dmgSpot = newValue }
+}
 
 /// Source: oracle/codemp/game/w_saber.c:3509
-// TODO: Port global dismemberDmg
-// Raven wrote: static qboolean dismemberDmg[MAX_SABER_VICTIMS]
-// Rule 3: a stored property of GameWorld with C's zero, since Raven wrote no initializer, spelled world.dismemberDmg in a body.
+var dismemberDmg: [Bool] {
+    get { world.variables.dismemberDmg }
+    set { world.variables.dismemberDmg = newValue }
+}
 
 /// Source: oracle/codemp/game/w_saber.c:3510
-// TODO: Port global saberKnockbackFlags
-// Raven wrote: static int saberKnockbackFlags[MAX_SABER_VICTIMS]
-// Rule 3: a stored property of GameWorld with C's zero, since Raven wrote no initializer, spelled world.saberKnockbackFlags in a body.
+var saberKnockbackFlags: [Int32] {
+    get { world.variables.saberKnockbackFlags }
+    set { world.variables.saberKnockbackFlags = newValue }
+}
 
 /// Source: oracle/codemp/game/w_saber.c:3511
-// TODO: Port global numVictims
-// Raven wrote: static int numVictims = 0
-// Rule 3: a stored property of GameWorld with Raven's initializer, spelled world.numVictims in a body.
+var numVictims: Int32 {
+    get { world.variables.numVictims }
+    set { world.variables.numVictims = newValue }
+}
 
 /// Source: oracle/codemp/game/w_saber.c:3794
-// TODO: Port global saberDoClashEffect
-// Raven wrote: static qboolean saberDoClashEffect = qfalse
-// Rule 3: a stored property of GameWorld with Raven's initializer, spelled world.saberDoClashEffect in a body.
+var saberDoClashEffect: Bool {
+    get { world.variables.saberDoClashEffect }
+    set { world.variables.saberDoClashEffect = newValue }
+}
 
 /// Source: oracle/codemp/game/w_saber.c:3795
-// TODO: Port global saberClashPos
-// Raven wrote: static vec3_t saberClashPos = {0}
-// Rule 3: a stored property of GameWorld with Raven's initializer, spelled world.saberClashPos in a body.
+/// Raven's data table, a hand property of `GameWorld`.
+var saberClashPos: JKAShared.vec3_t {
+    get { world.saberClashPos }
+    set { world.saberClashPos = newValue }
+}
 
 /// Source: oracle/codemp/game/w_saber.c:3796
 // Raven wrote: static vec3_t saberClashNorm = {0}
 let saberClashNorm: JKAShared.vec3_t = { () -> JKAShared.vec3_t in portMissing("saberClashNorm", source: "oracle/codemp/game/w_saber.c:3796") }()
 
 /// Source: oracle/codemp/game/w_saber.c:3797
-// TODO: Port global saberClashEventParm
-// Raven wrote: static int saberClashEventParm = 1
-// Rule 3: a stored property of GameWorld with Raven's initializer, spelled world.saberClashEventParm in a body.
+var saberClashEventParm: Int32 {
+    get { world.variables.saberClashEventParm }
+    set { world.variables.saberClashEventParm = newValue }
+}
 
 /// Source: oracle/codemp/game/w_saber.c:3846
-// TODO: Port global saberHitWall
-// Raven wrote: static qboolean saberHitWall = qfalse
-// Rule 3: a stored property of GameWorld with Raven's initializer, spelled world.saberHitWall in a body.
+var saberHitWall: Bool {
+    get { world.variables.saberHitWall }
+    set { world.variables.saberHitWall = newValue }
+}
 
 /// Source: oracle/codemp/game/w_saber.c:3847
-// TODO: Port global saberHitSaber
-// Raven wrote: static qboolean saberHitSaber = qfalse
-// Rule 3: a stored property of GameWorld with Raven's initializer, spelled world.saberHitSaber in a body.
+var saberHitSaber: Bool {
+    get { world.variables.saberHitSaber }
+    set { world.variables.saberHitSaber = newValue }
+}
 
 /// Source: oracle/codemp/game/w_saber.c:3848
-// TODO: Port global saberHitFraction
-// Raven wrote: static float saberHitFraction = 1.0f
-// Rule 3: a stored property of GameWorld with Raven's initializer, spelled world.saberHitFraction in a body.
+var saberHitFraction: Float {
+    get { world.variables.saberHitFraction }
+    set { world.variables.saberHitFraction = newValue }
+}
 
 /// Source: oracle/codemp/game/w_saber.c:39
 func RandFloat(_ min: Float, _ max: Float) -> Float {

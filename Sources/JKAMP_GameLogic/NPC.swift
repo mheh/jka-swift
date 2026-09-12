@@ -5,19 +5,22 @@ import JKAShared
 import JKAMP_Game
 
 /// Source: oracle/codemp/game/NPC.c:34
-// TODO: Port global NPC
-// Raven wrote: gentity_t *NPC
-// Rule 3: a stored property of GameWorld with C's zero, since Raven wrote no initializer, spelled world.NPC in a body.
+var NPC: Entity? {
+    get { world.variables.NPC }
+    set { world.variables.NPC = newValue }
+}
 
 /// Source: oracle/codemp/game/NPC.c:35
-// TODO: Port global NPCInfo
-// Raven wrote: gNPC_t *NPCInfo
-// Rule 3: a stored property of GameWorld with C's zero, since Raven wrote no initializer, spelled world.NPCInfo in a body.
+var NPCInfo: GNPC? {
+    get { world.variables.NPCInfo }
+    set { world.variables.NPCInfo = newValue }
+}
 
 /// Source: oracle/codemp/game/NPC.c:36
-// TODO: Port global client
-// Raven wrote: gclient_t *client
-// Rule 3: a stored property of GameWorld with C's zero, since Raven wrote no initializer, spelled world.client in a body.
+var client: Client? {
+    get { world.variables.client }
+    set { world.variables.client = newValue }
+}
 
 /// Source: oracle/codemp/game/NPC.c:37
 // TODO: Port global ucmd
@@ -25,24 +28,28 @@ import JKAMP_Game
 // A struct table is C storage in Sources/CJKAMP, reached through a Slots constant.
 
 /// Source: oracle/codemp/game/NPC.c:38
-// TODO: Port global enemyVisibility
-// Raven wrote: visibility_t enemyVisibility
-// Rule 3: a stored property of GameWorld with C's zero, since Raven wrote no initializer, spelled world.enemyVisibility in a body.
+var enemyVisibility: visibility_t {
+    get { world.variables.enemyVisibility }
+    set { world.variables.enemyVisibility = newValue }
+}
 
 /// Source: oracle/codemp/game/NPC.c:625
-// TODO: Port global _saved_NPC
-// Raven wrote: gentity_t *_saved_NPC
-// Rule 3: a stored property of GameWorld with C's zero, since Raven wrote no initializer, spelled world._saved_NPC in a body.
+var _saved_NPC: Entity? {
+    get { world.variables._saved_NPC }
+    set { world.variables._saved_NPC = newValue }
+}
 
 /// Source: oracle/codemp/game/NPC.c:626
-// TODO: Port global _saved_NPCInfo
-// Raven wrote: gNPC_t *_saved_NPCInfo
-// Rule 3: a stored property of GameWorld with C's zero, since Raven wrote no initializer, spelled world._saved_NPCInfo in a body.
+var _saved_NPCInfo: GNPC? {
+    get { world.variables._saved_NPCInfo }
+    set { world.variables._saved_NPCInfo = newValue }
+}
 
 /// Source: oracle/codemp/game/NPC.c:627
-// TODO: Port global _saved_client
-// Raven wrote: gclient_t *_saved_client
-// Rule 3: a stored property of GameWorld with C's zero, since Raven wrote no initializer, spelled world._saved_client in a body.
+var _saved_client: Client? {
+    get { world.variables._saved_client }
+    set { world.variables._saved_client = newValue }
+}
 
 /// Source: oracle/codemp/game/NPC.c:628
 // TODO: Port global _saved_ucmd
@@ -50,18 +57,22 @@ import JKAMP_Game
 // A struct table is C storage in Sources/CJKAMP, reached through a Slots constant.
 
 /// Source: oracle/codemp/game/NPC.c:656
-// TODO: Port global NPCDEBUG_RED
-// Raven wrote: vec3_t NPCDEBUG_RED = {1.0, 0.0, 0.0}
-// Rule 3: a stored property of GameWorld with Raven's initializer, spelled world.NPCDEBUG_RED in a body.
+/// Raven's data table, a hand property of `GameWorld`.
+var NPCDEBUG_RED: JKAShared.vec3_t {
+    get { world.NPCDEBUG_RED }
+    set { world.NPCDEBUG_RED = newValue }
+}
 
 /// Source: oracle/codemp/game/NPC.c:657
 // Raven wrote: vec3_t NPCDEBUG_GREEN = {0.0, 1.0, 0.0}
 let NPCDEBUG_GREEN: JKAShared.vec3_t = { () -> JKAShared.vec3_t in portMissing("NPCDEBUG_GREEN", source: "oracle/codemp/game/NPC.c:657") }()
 
 /// Source: oracle/codemp/game/NPC.c:658
-// TODO: Port global NPCDEBUG_BLUE
-// Raven wrote: vec3_t NPCDEBUG_BLUE = {0.0, 0.0, 1.0}
-// Rule 3: a stored property of GameWorld with Raven's initializer, spelled world.NPCDEBUG_BLUE in a body.
+/// Raven's data table, a hand property of `GameWorld`.
+var NPCDEBUG_BLUE: JKAShared.vec3_t {
+    get { world.NPCDEBUG_BLUE }
+    set { world.NPCDEBUG_BLUE = newValue }
+}
 
 /// Source: oracle/codemp/game/NPC.c:659
 // Raven wrote: vec3_t NPCDEBUG_LIGHT_BLUE = {0.3f, 0.7f, 1.0}

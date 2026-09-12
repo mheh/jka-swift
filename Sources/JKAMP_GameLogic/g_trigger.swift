@@ -5,9 +5,10 @@ import JKAShared
 import JKAMP_Game
 
 /// Source: oracle/codemp/game/g_trigger.c:6
-// TODO: Port global gTrigFallSound
-// Raven wrote: int gTrigFallSound
-// Rule 3: a stored property of GameWorld with C's zero, since Raven wrote no initializer, spelled world.gTrigFallSound in a body.
+var gTrigFallSound: Int32 {
+    get { world.variables.gTrigFallSound }
+    set { world.variables.gTrigFallSound = newValue }
+}
 
 /// Source: oracle/codemp/game/g_trigger.c:8
 func InitTrigger(_ `self`: Entity) {

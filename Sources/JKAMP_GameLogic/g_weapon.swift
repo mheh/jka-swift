@@ -5,29 +5,34 @@ import JKAShared
 import JKAMP_Game
 
 /// Source: oracle/codemp/game/g_weapon.c:12
-// TODO: Port global s_quadFactor
-// Raven wrote: static float s_quadFactor
-// Rule 3: a stored property of GameWorld with C's zero, since Raven wrote no initializer, spelled world.s_quadFactor in a body.
+var s_quadFactor: Float {
+    get { world.variables.s_quadFactor }
+    set { world.variables.s_quadFactor = newValue }
+}
 
 /// Source: oracle/codemp/game/g_weapon.c:13
-// TODO: Port global forward
-// Raven wrote: static vec3_t forward
-// Rule 3: a stored property of GameWorld with C's zero, since Raven wrote no initializer, spelled world.forward in a body.
+var forward: JKAShared.vec3_t {
+    get { world.variables.forward }
+    set { world.variables.forward = newValue }
+}
 
 /// Source: oracle/codemp/game/g_weapon.c:13
-// TODO: Port global vright
-// Raven wrote: static vec3_t forward, vright
-// Rule 3: a stored property of GameWorld with C's zero, since Raven wrote no initializer, spelled world.vright in a body.
+var vright: JKAShared.vec3_t {
+    get { world.variables.vright }
+    set { world.variables.vright = newValue }
+}
 
 /// Source: oracle/codemp/game/g_weapon.c:13
-// TODO: Port global up
-// Raven wrote: static vec3_t forward, vright, up
-// Rule 3: a stored property of GameWorld with C's zero, since Raven wrote no initializer, spelled world.up in a body.
+var up: JKAShared.vec3_t {
+    get { world.variables.up }
+    set { world.variables.up = newValue }
+}
 
 /// Source: oracle/codemp/game/g_weapon.c:14
-// TODO: Port global muzzle
-// Raven wrote: static vec3_t muzzle
-// Rule 3: a stored property of GameWorld with C's zero, since Raven wrote no initializer, spelled world.muzzle in a body.
+var muzzle: JKAShared.vec3_t {
+    get { world.variables.muzzle }
+    set { world.variables.muzzle = newValue }
+}
 
 /// Source: oracle/codemp/game/g_weapon.c:1162
 var ent_list: Slots<Entity?> { world.storage.ent_list }

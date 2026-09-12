@@ -5,9 +5,10 @@ import JKAShared
 import JKAMP_Game
 
 /// Source: oracle/codemp/game/g_utils.c:17
-// TODO: Port global remapCount
-// Raven wrote: int remapCount = 0
-// Rule 3: a stored property of GameWorld with Raven's initializer, spelled world.remapCount in a body.
+var remapCount: Int32 {
+    get { world.variables.remapCount }
+    set { world.variables.remapCount = newValue }
+}
 
 /// Source: oracle/codemp/game/g_utils.c:18
 // TODO: Port global remappedShaders
@@ -20,37 +21,45 @@ import JKAMP_Game
 // A struct table is C storage in Sources/CJKAMP, reached through a Slots constant.
 
 /// Source: oracle/codemp/game/g_utils.c:386
-// TODO: Port global g_vehiclePoolOccupied
-// Raven wrote: static qboolean g_vehiclePoolOccupied[MAX_VEHICLES_AT_A_TIME]
-// Rule 3: a stored property of GameWorld with C's zero, since Raven wrote no initializer, spelled world.g_vehiclePoolOccupied in a body.
+var g_vehiclePoolOccupied: [Bool] {
+    get { world.variables.g_vehiclePoolOccupied }
+    set { world.variables.g_vehiclePoolOccupied = newValue }
+}
 
 /// Source: oracle/codemp/game/g_utils.c:387
-// TODO: Port global g_vehiclePoolInit
-// Raven wrote: static qboolean g_vehiclePoolInit = qfalse
-// Rule 3: a stored property of GameWorld with Raven's initializer, spelled world.g_vehiclePoolInit in a body.
+var g_vehiclePoolInit: Bool {
+    get { world.variables.g_vehiclePoolInit }
+    set { world.variables.g_vehiclePoolInit = newValue }
+}
 
 /// Source: oracle/codemp/game/g_utils.c:428
 var gClPtrs: Slots<Client?> { world.storage.gClPtrs }
 
 /// Source: oracle/codemp/game/g_utils.c:877
-// TODO: Port global gG2KillIndex
-// Raven wrote: int gG2KillIndex[MAX_G2_KILL_QUEUE]
-// Rule 3: a stored property of GameWorld with C's zero, since Raven wrote no initializer, spelled world.gG2KillIndex in a body.
+var gG2KillIndex: [Int32] {
+    get { world.variables.gG2KillIndex }
+    set { world.variables.gG2KillIndex = newValue }
+}
 
 /// Source: oracle/codemp/game/g_utils.c:878
-// TODO: Port global gG2KillNum
-// Raven wrote: int gG2KillNum = 0
-// Rule 3: a stored property of GameWorld with Raven's initializer, spelled world.gG2KillNum in a body.
+var gG2KillNum: Int32 {
+    get { world.variables.gG2KillNum }
+    set { world.variables.gG2KillNum = newValue }
+}
 
 /// Source: oracle/codemp/game/g_utils.c:1616
-// TODO: Port global playerMins
-// Raven wrote: static vec3_t playerMins
-// Rule 3: a stored property of GameWorld with C's zero, since Raven wrote no initializer, spelled world.playerMins in a body.
+/// Raven's data table, a hand property of `GameWorld`.
+private var playerMins: JKAShared.vec3_t {
+    get { world.g_utils_playerMins }
+    set { world.g_utils_playerMins = newValue }
+}
 
 /// Source: oracle/codemp/game/g_utils.c:1617
-// TODO: Port global playerMaxs
-// Raven wrote: static vec3_t playerMaxs
-// Rule 3: a stored property of GameWorld with C's zero, since Raven wrote no initializer, spelled world.playerMaxs in a body.
+/// Raven's data table, a hand property of `GameWorld`.
+private var playerMaxs: JKAShared.vec3_t {
+    get { world.g_utils_playerMaxs }
+    set { world.g_utils_playerMaxs = newValue }
+}
 
 /// Source: oracle/codemp/game/g_utils.c:20
 func AddRemap(_ oldShader: String, _ newShader: String, _ timeOffset: Float) {

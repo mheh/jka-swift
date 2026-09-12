@@ -5,29 +5,36 @@ import JKAShared
 import JKAMP_Game
 
 /// Source: oracle/codemp/game/g_combat.c:755
-// TODO: Port global modNames
-// Raven wrote: char *modNames[MOD_MAX]
-// Rule 3: a stored property of GameWorld with Raven's initializer, spelled world.modNames in a body.
+/// Raven's data table, a hand property of `GameWorld`.
+var modNames: [String] {
+    get { world.modNames }
+    set { world.modNames = newValue }
+}
 
 /// Source: oracle/codemp/game/g_combat.c:3165
-// TODO: Port global hitLocName
-// Raven wrote: char *hitLocName[HL_MAX]
-// Rule 3: a stored property of GameWorld with Raven's initializer, spelled world.hitLocName in a body.
+/// Raven's data table, a hand property of `GameWorld`.
+var hitLocName: [String] {
+    get { world.hitLocName }
+    set { world.hitLocName = newValue }
+}
 
 /// Source: oracle/codemp/game/g_combat.c:3753
-// TODO: Port global gGAvoidDismember
-// Raven wrote: int gGAvoidDismember = 0
-// Rule 3: a stored property of GameWorld with Raven's initializer, spelled world.gGAvoidDismember in a body.
+var gGAvoidDismember: Int32 {
+    get { world.variables.gGAvoidDismember }
+    set { world.variables.gGAvoidDismember = newValue }
+}
 
 /// Source: oracle/codemp/game/g_combat.c:4573
-// TODO: Port global gPainMOD
-// Raven wrote: int gPainMOD = 0
-// Rule 3: a stored property of GameWorld with Raven's initializer, spelled world.gPainMOD in a body.
+var gPainMOD: Int32 {
+    get { world.variables.gPainMOD }
+    set { world.variables.gPainMOD = newValue }
+}
 
 /// Source: oracle/codemp/game/g_combat.c:4574
-// TODO: Port global gPainHitLoc
-// Raven wrote: int gPainHitLoc = -1
-// Rule 3: a stored property of GameWorld with Raven's initializer, spelled world.gPainHitLoc in a body.
+var gPainHitLoc: Int32 {
+    get { world.variables.gPainHitLoc }
+    set { world.variables.gPainHitLoc = newValue }
+}
 
 /// Source: oracle/codemp/game/g_combat.c:4575
 // Raven wrote: vec3_t gPainPoint

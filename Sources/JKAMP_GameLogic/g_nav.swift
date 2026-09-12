@@ -5,74 +5,88 @@ import JKAShared
 import JKAMP_Game
 
 /// Source: oracle/codemp/game/g_nav.c:1597
-// TODO: Port global navCalculatePaths
-// Raven wrote: qboolean navCalculatePaths = qfalse
-// Rule 3: a stored property of GameWorld with Raven's initializer, spelled world.navCalculatePaths in a body.
+var navCalculatePaths: Bool {
+    get { world.variables.navCalculatePaths }
+    set { world.variables.navCalculatePaths = newValue }
+}
 
 /// Source: oracle/codemp/game/g_nav.c:1599
-// TODO: Port global NAVDEBUG_showNodes
-// Raven wrote: qboolean NAVDEBUG_showNodes = qfalse
-// Rule 3: a stored property of GameWorld with Raven's initializer, spelled world.NAVDEBUG_showNodes in a body.
+var NAVDEBUG_showNodes: Bool {
+    get { world.variables.NAVDEBUG_showNodes }
+    set { world.variables.NAVDEBUG_showNodes = newValue }
+}
 
 /// Source: oracle/codemp/game/g_nav.c:1600
-// TODO: Port global NAVDEBUG_showRadius
-// Raven wrote: qboolean NAVDEBUG_showRadius = qfalse
-// Rule 3: a stored property of GameWorld with Raven's initializer, spelled world.NAVDEBUG_showRadius in a body.
+var NAVDEBUG_showRadius: Bool {
+    get { world.variables.NAVDEBUG_showRadius }
+    set { world.variables.NAVDEBUG_showRadius = newValue }
+}
 
 /// Source: oracle/codemp/game/g_nav.c:1601
-// TODO: Port global NAVDEBUG_showEdges
-// Raven wrote: qboolean NAVDEBUG_showEdges = qfalse
-// Rule 3: a stored property of GameWorld with Raven's initializer, spelled world.NAVDEBUG_showEdges in a body.
+var NAVDEBUG_showEdges: Bool {
+    get { world.variables.NAVDEBUG_showEdges }
+    set { world.variables.NAVDEBUG_showEdges = newValue }
+}
 
 /// Source: oracle/codemp/game/g_nav.c:1602
-// TODO: Port global NAVDEBUG_showTestPath
-// Raven wrote: qboolean NAVDEBUG_showTestPath = qfalse
-// Rule 3: a stored property of GameWorld with Raven's initializer, spelled world.NAVDEBUG_showTestPath in a body.
+var NAVDEBUG_showTestPath: Bool {
+    get { world.variables.NAVDEBUG_showTestPath }
+    set { world.variables.NAVDEBUG_showTestPath = newValue }
+}
 
 /// Source: oracle/codemp/game/g_nav.c:1603
-// TODO: Port global NAVDEBUG_showEnemyPath
-// Raven wrote: qboolean NAVDEBUG_showEnemyPath = qfalse
-// Rule 3: a stored property of GameWorld with Raven's initializer, spelled world.NAVDEBUG_showEnemyPath in a body.
+var NAVDEBUG_showEnemyPath: Bool {
+    get { world.variables.NAVDEBUG_showEnemyPath }
+    set { world.variables.NAVDEBUG_showEnemyPath = newValue }
+}
 
 /// Source: oracle/codemp/game/g_nav.c:1604
-// TODO: Port global NAVDEBUG_showCombatPoints
-// Raven wrote: qboolean NAVDEBUG_showCombatPoints = qfalse
-// Rule 3: a stored property of GameWorld with Raven's initializer, spelled world.NAVDEBUG_showCombatPoints in a body.
+var NAVDEBUG_showCombatPoints: Bool {
+    get { world.variables.NAVDEBUG_showCombatPoints }
+    set { world.variables.NAVDEBUG_showCombatPoints = newValue }
+}
 
 /// Source: oracle/codemp/game/g_nav.c:1605
-// TODO: Port global NAVDEBUG_showNavGoals
-// Raven wrote: qboolean NAVDEBUG_showNavGoals = qfalse
-// Rule 3: a stored property of GameWorld with Raven's initializer, spelled world.NAVDEBUG_showNavGoals in a body.
+var NAVDEBUG_showNavGoals: Bool {
+    get { world.variables.NAVDEBUG_showNavGoals }
+    set { world.variables.NAVDEBUG_showNavGoals = newValue }
+}
 
 /// Source: oracle/codemp/game/g_nav.c:1606
-// TODO: Port global NAVDEBUG_showCollision
-// Raven wrote: qboolean NAVDEBUG_showCollision = qfalse
-// Rule 3: a stored property of GameWorld with Raven's initializer, spelled world.NAVDEBUG_showCollision in a body.
+var NAVDEBUG_showCollision: Bool {
+    get { world.variables.NAVDEBUG_showCollision }
+    set { world.variables.NAVDEBUG_showCollision = newValue }
+}
 
 /// Source: oracle/codemp/game/g_nav.c:1607
-// TODO: Port global NAVDEBUG_curGoal
-// Raven wrote: int NAVDEBUG_curGoal = 0
-// Rule 3: a stored property of GameWorld with Raven's initializer, spelled world.NAVDEBUG_curGoal in a body.
+var NAVDEBUG_curGoal: Int32 {
+    get { world.variables.NAVDEBUG_curGoal }
+    set { world.variables.NAVDEBUG_curGoal = newValue }
+}
 
 /// Source: oracle/codemp/game/g_nav.c:1615
-// TODO: Port global fatalErrors
-// Raven wrote: int fatalErrors = 0
-// Rule 3: a stored property of GameWorld with Raven's initializer, spelled world.fatalErrors in a body.
+var fatalErrors: Int32 {
+    get { world.variables.fatalErrors }
+    set { world.variables.fatalErrors = newValue }
+}
 
 /// Source: oracle/codemp/game/g_nav.c:1616
-// TODO: Port global fatalErrorPointer
-// Raven wrote: char *fatalErrorPointer = NULL
-// Rule 3: a stored property of GameWorld with Raven's initializer, spelled world.fatalErrorPointer in a body.
+var fatalErrorPointer: String {
+    get { world.variables.fatalErrorPointer }
+    set { world.variables.fatalErrorPointer = newValue }
+}
 
 /// Source: oracle/codemp/game/g_nav.c:1617
-// TODO: Port global fatalErrorString
-// Raven wrote: char fatalErrorString[4096]
-// Rule 3: a stored property of GameWorld with C's zero, since Raven wrote no initializer, spelled world.fatalErrorString in a body.
+var fatalErrorString: JKAShared.CharBuf {
+    get { world.variables.fatalErrorString }
+    set { world.variables.fatalErrorString = newValue }
+}
 
 /// Source: oracle/codemp/game/g_nav.c:1658
-// TODO: Port global numStoredWaypoints
-// Raven wrote: static int numStoredWaypoints = 0
-// Rule 3: a stored property of GameWorld with Raven's initializer, spelled world.numStoredWaypoints in a body.
+var numStoredWaypoints: Int32 {
+    get { world.variables.numStoredWaypoints }
+    set { world.variables.numStoredWaypoints = newValue }
+}
 
 /// Source: oracle/codemp/game/g_nav.c:1660
 // TODO: Port global tempWaypointList

@@ -5,9 +5,10 @@ import JKAShared
 import JKAMP_Game
 
 /// Source: oracle/codemp/game/g_target.c:753
-// TODO: Port global numNewICARUSEnts
-// Raven wrote: int numNewICARUSEnts = 0
-// Rule 3: a stored property of GameWorld with Raven's initializer, spelled world.numNewICARUSEnts in a body.
+var numNewICARUSEnts: Int32 {
+    get { world.variables.numNewICARUSEnts }
+    set { world.variables.numNewICARUSEnts = newValue }
+}
 
 /**
 ```

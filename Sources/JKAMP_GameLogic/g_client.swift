@@ -5,12 +5,18 @@ import JKAShared
 import JKAMP_Game
 
 /// Source: oracle/codemp/game/g_client.c:9
-// Raven wrote: static vec3_t playerMins
-let playerMins: JKAShared.vec3_t = JKAShared.vec3_t(0, 0, 0)
+/// Raven's data table, a hand property of `GameWorld`.
+private var playerMins: JKAShared.vec3_t {
+    get { world.g_client_playerMins }
+    set { world.g_client_playerMins = newValue }
+}
 
 /// Source: oracle/codemp/game/g_client.c:10
-// Raven wrote: static vec3_t playerMaxs
-let playerMaxs: JKAShared.vec3_t = JKAShared.vec3_t(0, 0, 0)
+/// Raven's data table, a hand property of `GameWorld`.
+private var playerMaxs: JKAShared.vec3_t {
+    get { world.g_client_playerMaxs }
+    set { world.g_client_playerMaxs = newValue }
+}
 
 /// Source: oracle/codemp/game/g_client.c:19
 // TODO: Port global Client_Force
@@ -18,9 +24,10 @@ let playerMaxs: JKAShared.vec3_t = JKAShared.vec3_t(0, 0, 0)
 // A struct table is C storage in Sources/CJKAMP, reached through a Slots constant.
 
 /// Source: oracle/codemp/game/g_client.c:471
-// TODO: Port global gJMSaberEnt
-// Raven wrote: gentity_t *gJMSaberEnt = NULL
-// Rule 3: a stored property of GameWorld with Raven's initializer, spelled world.gJMSaberEnt in a body.
+var gJMSaberEnt: Entity? {
+    get { world.variables.gJMSaberEnt }
+    set { world.variables.gJMSaberEnt = newValue }
+}
 
 /// Source: oracle/codemp/game/g_client.c:1511
 // TODO: Port global g2SaberInstance

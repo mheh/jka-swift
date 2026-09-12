@@ -15,9 +15,11 @@ import JKAMP_Game
 // A struct table is C storage in Sources/CJKAMP, reached through a Slots constant.
 
 /// Source: oracle/codemp/game/g_spawn.c:1070
-// TODO: Port global defaultStyles
-// Raven wrote: static char *defaultStyles[32][3]
-// Rule 3: a stored property of GameWorld with Raven's initializer, spelled world.defaultStyles in a body.
+/// Raven's data table, a hand property of `GameWorld`.
+var defaultStyles: [[String]] {
+    get { world.defaultStyles }
+    set { world.defaultStyles = newValue }
+}
 
 /// Source: oracle/codemp/game/g_spawn.c:1234
 // TODO: Port global precachedKyle
@@ -25,9 +27,10 @@ import JKAMP_Game
 // No table row for `void *`.
 
 /// Source: oracle/codemp/game/g_spawn.c:1258
-// TODO: Port global g_cullDistance
-// Raven wrote: float g_cullDistance
-// Rule 3: a stored property of GameWorld with C's zero, since Raven wrote no initializer, spelled world.g_cullDistance in a body.
+var g_cullDistance: Float {
+    get { world.variables.g_cullDistance }
+    set { world.variables.g_cullDistance = newValue }
+}
 
 /// Source: oracle/codemp/game/g_spawn.c:6
 // TODO: Port signature

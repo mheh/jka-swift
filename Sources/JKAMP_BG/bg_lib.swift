@@ -150,6 +150,12 @@ func __builtin___memmove_chk() -> Never {
     portMissing("__builtin___memmove_chk", source: "oracle/codemp/game/bg_lib.c:287")
 }
 
+/// Source: oracle/codemp/game/bg_lib.c:763
+var randSeed: Int32 {
+    get { bg.variables.randSeed }
+    set { bg.variables.randSeed = newValue }
+}
+
 /// Source: oracle/codemp/game/bg_lib.c:765
 func srand(_ seed: UInt32) {
     // TODO: Port srand

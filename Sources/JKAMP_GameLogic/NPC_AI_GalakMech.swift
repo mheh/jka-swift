@@ -5,54 +5,66 @@ import JKAShared
 import JKAMP_Game
 
 /// Source: oracle/codemp/game/NPC_AI_GalakMech.c:28
-// TODO: Port global shieldMins
-// Raven wrote: static vec3_t shieldMins = {-60, -60, -24 }
-// Rule 3: a stored property of GameWorld with Raven's initializer, spelled world.shieldMins in a body.
+/// Raven's data table, a hand property of `GameWorld`.
+var shieldMins: JKAShared.vec3_t {
+    get { world.shieldMins }
+    set { world.shieldMins = newValue }
+}
 
 /// Source: oracle/codemp/game/NPC_AI_GalakMech.c:29
-// TODO: Port global shieldMaxs
-// Raven wrote: static vec3_t shieldMaxs = {60, 60, 80}
-// Rule 3: a stored property of GameWorld with Raven's initializer, spelled world.shieldMaxs in a body.
+/// Raven's data table, a hand property of `GameWorld`.
+var shieldMaxs: JKAShared.vec3_t {
+    get { world.shieldMaxs }
+    set { world.shieldMaxs = newValue }
+}
 
 /// Source: oracle/codemp/game/NPC_AI_GalakMech.c:33
-// TODO: Port global enemyLOS4
-// Raven wrote: static qboolean enemyLOS4
-// Rule 3: a stored property of GameWorld with C's zero, since Raven wrote no initializer, spelled world.enemyLOS4 in a body.
+var enemyLOS4: Bool {
+    get { world.variables.enemyLOS4 }
+    set { world.variables.enemyLOS4 = newValue }
+}
 
 /// Source: oracle/codemp/game/NPC_AI_GalakMech.c:34
-// TODO: Port global enemyCS4
-// Raven wrote: static qboolean enemyCS4
-// Rule 3: a stored property of GameWorld with C's zero, since Raven wrote no initializer, spelled world.enemyCS4 in a body.
+var enemyCS4: Bool {
+    get { world.variables.enemyCS4 }
+    set { world.variables.enemyCS4 = newValue }
+}
 
 /// Source: oracle/codemp/game/NPC_AI_GalakMech.c:35
-// TODO: Port global hitAlly4
-// Raven wrote: static qboolean hitAlly4
-// Rule 3: a stored property of GameWorld with C's zero, since Raven wrote no initializer, spelled world.hitAlly4 in a body.
+var hitAlly4: Bool {
+    get { world.variables.hitAlly4 }
+    set { world.variables.hitAlly4 = newValue }
+}
 
 /// Source: oracle/codemp/game/NPC_AI_GalakMech.c:36
-// TODO: Port global faceEnemy4
-// Raven wrote: static qboolean faceEnemy4
-// Rule 3: a stored property of GameWorld with C's zero, since Raven wrote no initializer, spelled world.faceEnemy4 in a body.
+var faceEnemy4: Bool {
+    get { world.variables.faceEnemy4 }
+    set { world.variables.faceEnemy4 = newValue }
+}
 
 /// Source: oracle/codemp/game/NPC_AI_GalakMech.c:37
-// TODO: Port global move4
-// Raven wrote: static qboolean move4
-// Rule 3: a stored property of GameWorld with C's zero, since Raven wrote no initializer, spelled world.move4 in a body.
+var move4: Bool {
+    get { world.variables.move4 }
+    set { world.variables.move4 = newValue }
+}
 
 /// Source: oracle/codemp/game/NPC_AI_GalakMech.c:38
-// TODO: Port global shoot4
-// Raven wrote: static qboolean shoot4
-// Rule 3: a stored property of GameWorld with C's zero, since Raven wrote no initializer, spelled world.shoot4 in a body.
+var shoot4: Bool {
+    get { world.variables.shoot4 }
+    set { world.variables.shoot4 = newValue }
+}
 
 /// Source: oracle/codemp/game/NPC_AI_GalakMech.c:39
-// TODO: Port global enemyDist4
-// Raven wrote: static float enemyDist4
-// Rule 3: a stored property of GameWorld with C's zero, since Raven wrote no initializer, spelled world.enemyDist4 in a body.
+var enemyDist4: Float {
+    get { world.variables.enemyDist4 }
+    set { world.variables.enemyDist4 = newValue }
+}
 
 /// Source: oracle/codemp/game/NPC_AI_GalakMech.c:40
-// TODO: Port global impactPos4
-// Raven wrote: static vec3_t impactPos4
-// Rule 3: a stored property of GameWorld with C's zero, since Raven wrote no initializer, spelled world.impactPos4 in a body.
+var impactPos4: JKAShared.vec3_t {
+    get { world.variables.impactPos4 }
+    set { world.variables.impactPos4 = newValue }
+}
 
 /// Source: oracle/codemp/game/NPC_AI_GalakMech.c:42
 func NPC_GalakMech_Precache() {

@@ -5,53 +5,64 @@ import JKAShared
 import JKAMP_Game
 
 /// Source: oracle/codemp/game/NPC_AI_Stormtrooper.c:40
-// TODO: Port global enemyLOS
-// Raven wrote: static qboolean enemyLOS
-// Rule 3: a stored property of GameWorld with C's zero, since Raven wrote no initializer, spelled world.enemyLOS in a body.
+var enemyLOS: Bool {
+    get { world.variables.enemyLOS }
+    set { world.variables.enemyLOS = newValue }
+}
 
 /// Source: oracle/codemp/game/NPC_AI_Stormtrooper.c:41
-// TODO: Port global enemyCS
-// Raven wrote: static qboolean enemyCS
-// Rule 3: a stored property of GameWorld with C's zero, since Raven wrote no initializer, spelled world.enemyCS in a body.
+var enemyCS: Bool {
+    get { world.variables.enemyCS }
+    set { world.variables.enemyCS = newValue }
+}
 
 /// Source: oracle/codemp/game/NPC_AI_Stormtrooper.c:42
-// TODO: Port global enemyInFOV
-// Raven wrote: static qboolean enemyInFOV
-// Rule 3: a stored property of GameWorld with C's zero, since Raven wrote no initializer, spelled world.enemyInFOV in a body.
+var enemyInFOV: Bool {
+    get { world.variables.enemyInFOV }
+    set { world.variables.enemyInFOV = newValue }
+}
 
 /// Source: oracle/codemp/game/NPC_AI_Stormtrooper.c:43
-// TODO: Port global hitAlly
-// Raven wrote: static qboolean hitAlly
-// Rule 3: a stored property of GameWorld with C's zero, since Raven wrote no initializer, spelled world.hitAlly in a body.
+var hitAlly: Bool {
+    get { world.variables.hitAlly }
+    set { world.variables.hitAlly = newValue }
+}
 
 /// Source: oracle/codemp/game/NPC_AI_Stormtrooper.c:44
-// TODO: Port global faceEnemy
-// Raven wrote: static qboolean faceEnemy
-// Rule 3: a stored property of GameWorld with C's zero, since Raven wrote no initializer, spelled world.faceEnemy in a body.
+var faceEnemy: Bool {
+    get { world.variables.faceEnemy }
+    set { world.variables.faceEnemy = newValue }
+}
 
 /// Source: oracle/codemp/game/NPC_AI_Stormtrooper.c:45
-// TODO: Port global move
-// Raven wrote: static qboolean move
-// Rule 3: a stored property of GameWorld with C's zero, since Raven wrote no initializer, spelled world.move in a body.
+var move: Bool {
+    get { world.variables.move }
+    set { world.variables.move = newValue }
+}
 
 /// Source: oracle/codemp/game/NPC_AI_Stormtrooper.c:46
-// TODO: Port global shoot
-// Raven wrote: static qboolean shoot
-// Rule 3: a stored property of GameWorld with C's zero, since Raven wrote no initializer, spelled world.shoot in a body.
+var shoot: Bool {
+    get { world.variables.shoot }
+    set { world.variables.shoot = newValue }
+}
 
 /// Source: oracle/codemp/game/NPC_AI_Stormtrooper.c:47
-// Raven wrote: static float enemyDist
-let enemyDist: Float = 0
+private var enemyDist: Float {
+    get { world.variables.NPC_AI_Stormtrooper_enemyDist }
+    set { world.variables.NPC_AI_Stormtrooper_enemyDist = newValue }
+}
 
 /// Source: oracle/codemp/game/NPC_AI_Stormtrooper.c:48
-// TODO: Port global impactPos
-// Raven wrote: static vec3_t impactPos
-// Rule 3: a stored property of GameWorld with C's zero, since Raven wrote no initializer, spelled world.impactPos in a body.
+var impactPos: JKAShared.vec3_t {
+    get { world.variables.impactPos }
+    set { world.variables.impactPos = newValue }
+}
 
 /// Source: oracle/codemp/game/NPC_AI_Stormtrooper.c:50
-// TODO: Port global groupSpeechDebounceTime
-// Raven wrote: int groupSpeechDebounceTime[TEAM_NUM_TEAMS]
-// Rule 3: a stored property of GameWorld with C's zero, since Raven wrote no initializer, spelled world.groupSpeechDebounceTime in a body.
+var groupSpeechDebounceTime: [Int32] {
+    get { world.variables.groupSpeechDebounceTime }
+    set { world.variables.groupSpeechDebounceTime = newValue }
+}
 
 /// Source: oracle/codemp/game/NPC_AI_Stormtrooper.c:60
 func ST_AggressionAdjust(_ `self`: Entity, _ change: Int32) {

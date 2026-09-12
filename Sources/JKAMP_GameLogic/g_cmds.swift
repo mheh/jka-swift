@@ -5,24 +5,30 @@ import JKAShared
 import JKAMP_Game
 
 /// Source: oracle/codemp/game/g_cmds.c:750
-// TODO: Port global g_dontPenalizeTeam
-// Raven wrote: qboolean g_dontPenalizeTeam = qfalse
-// Rule 3: a stored property of GameWorld with Raven's initializer, spelled world.g_dontPenalizeTeam in a body.
+var g_dontPenalizeTeam: Bool {
+    get { world.variables.g_dontPenalizeTeam }
+    set { world.variables.g_dontPenalizeTeam = newValue }
+}
 
 /// Source: oracle/codemp/game/g_cmds.c:751
-// TODO: Port global g_preventTeamBegin
-// Raven wrote: qboolean g_preventTeamBegin = qfalse
-// Rule 3: a stored property of GameWorld with Raven's initializer, spelled world.g_preventTeamBegin in a body.
+var g_preventTeamBegin: Bool {
+    get { world.variables.g_preventTeamBegin }
+    set { world.variables.g_preventTeamBegin = newValue }
+}
 
 /// Source: oracle/codemp/game/g_cmds.c:1812
-// TODO: Port global gc_orders
-// Raven wrote: static char *gc_orders[]
-// Rule 3: a stored property of GameWorld with Raven's initializer, spelled world.gc_orders in a body.
+/// Raven's data table, a hand property of `GameWorld`.
+var gc_orders: [String] {
+    get { world.gc_orders }
+    set { world.gc_orders = newValue }
+}
 
 /// Source: oracle/codemp/game/g_cmds.c:1851
-// TODO: Port global gameNames
-// Raven wrote: static const char *gameNames[]
-// Rule 3: a stored property of GameWorld with Raven's initializer, spelled world.gameNames in a body.
+/// Raven's data table, a hand property of `GameWorld`.
+var gameNames: [String] {
+    get { world.gameNames }
+    set { world.gameNames = newValue }
+}
 
 /**
 ```

@@ -5,24 +5,28 @@ import JKAShared
 import JKAMP_Game
 
 /// Source: oracle/codemp/game/g_bot.c:8
-// TODO: Port global g_numBots
-// Raven wrote: static int g_numBots
-// Rule 3: a stored property of GameWorld with C's zero, since Raven wrote no initializer, spelled world.g_numBots in a body.
+var g_numBots: Int32 {
+    get { world.variables.g_numBots }
+    set { world.variables.g_numBots = newValue }
+}
 
 /// Source: oracle/codemp/game/g_bot.c:9
-// TODO: Port global g_botInfos
-// Raven wrote: static char *g_botInfos[MAX_BOTS]
-// Rule 3: a stored property of GameWorld with C's zero, since Raven wrote no initializer, spelled world.g_botInfos in a body.
+var g_botInfos: [String] {
+    get { world.variables.g_botInfos }
+    set { world.variables.g_botInfos = newValue }
+}
 
 /// Source: oracle/codemp/game/g_bot.c:12
-// TODO: Port global g_numArenas
-// Raven wrote: int g_numArenas
-// Rule 3: a stored property of GameWorld with C's zero, since Raven wrote no initializer, spelled world.g_numArenas in a body.
+var g_numArenas: Int32 {
+    get { world.variables.g_numArenas }
+    set { world.variables.g_numArenas = newValue }
+}
 
 /// Source: oracle/codemp/game/g_bot.c:13
-// TODO: Port global g_arenaInfos
-// Raven wrote: static char *g_arenaInfos[MAX_ARENAS]
-// Rule 3: a stored property of GameWorld with C's zero, since Raven wrote no initializer, spelled world.g_arenaInfos in a body.
+var g_arenaInfos: [String] {
+    get { world.variables.g_arenaInfos }
+    set { world.variables.g_arenaInfos = newValue }
+}
 
 /// Source: oracle/codemp/game/g_bot.c:27
 // TODO: Port global botSpawnQueue

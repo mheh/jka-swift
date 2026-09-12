@@ -5,34 +5,40 @@ import JKAShared
 import JKAMP_Game
 
 /// Source: oracle/codemp/game/NPC_AI_Grenadier.c:34
-// TODO: Port global enemyLOS3
-// Raven wrote: static qboolean enemyLOS3
-// Rule 3: a stored property of GameWorld with C's zero, since Raven wrote no initializer, spelled world.enemyLOS3 in a body.
+var enemyLOS3: Bool {
+    get { world.variables.enemyLOS3 }
+    set { world.variables.enemyLOS3 = newValue }
+}
 
 /// Source: oracle/codemp/game/NPC_AI_Grenadier.c:35
-// TODO: Port global enemyCS3
-// Raven wrote: static qboolean enemyCS3
-// Rule 3: a stored property of GameWorld with C's zero, since Raven wrote no initializer, spelled world.enemyCS3 in a body.
+var enemyCS3: Bool {
+    get { world.variables.enemyCS3 }
+    set { world.variables.enemyCS3 = newValue }
+}
 
 /// Source: oracle/codemp/game/NPC_AI_Grenadier.c:36
-// TODO: Port global faceEnemy3
-// Raven wrote: static qboolean faceEnemy3
-// Rule 3: a stored property of GameWorld with C's zero, since Raven wrote no initializer, spelled world.faceEnemy3 in a body.
+var faceEnemy3: Bool {
+    get { world.variables.faceEnemy3 }
+    set { world.variables.faceEnemy3 = newValue }
+}
 
 /// Source: oracle/codemp/game/NPC_AI_Grenadier.c:37
-// TODO: Port global move3
-// Raven wrote: static qboolean move3
-// Rule 3: a stored property of GameWorld with C's zero, since Raven wrote no initializer, spelled world.move3 in a body.
+var move3: Bool {
+    get { world.variables.move3 }
+    set { world.variables.move3 = newValue }
+}
 
 /// Source: oracle/codemp/game/NPC_AI_Grenadier.c:38
-// TODO: Port global shoot3
-// Raven wrote: static qboolean shoot3
-// Rule 3: a stored property of GameWorld with C's zero, since Raven wrote no initializer, spelled world.shoot3 in a body.
+var shoot3: Bool {
+    get { world.variables.shoot3 }
+    set { world.variables.shoot3 = newValue }
+}
 
 /// Source: oracle/codemp/game/NPC_AI_Grenadier.c:39
-// TODO: Port global enemyDist3
-// Raven wrote: static float enemyDist3
-// Rule 3: a stored property of GameWorld with C's zero, since Raven wrote no initializer, spelled world.enemyDist3 in a body.
+var enemyDist3: Float {
+    get { world.variables.enemyDist3 }
+    set { world.variables.enemyDist3 = newValue }
+}
 
 /// Source: oracle/codemp/game/NPC_AI_Grenadier.c:49
 func Grenadier_ClearTimers(_ ent: Entity) {

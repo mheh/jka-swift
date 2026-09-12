@@ -5,34 +5,40 @@ import JKAShared
 import JKAMP_Game
 
 /// Source: oracle/codemp/game/NPC_AI_Sniper.c:29
-// TODO: Port global enemyLOS2
-// Raven wrote: static qboolean enemyLOS2
-// Rule 3: a stored property of GameWorld with C's zero, since Raven wrote no initializer, spelled world.enemyLOS2 in a body.
+var enemyLOS2: Bool {
+    get { world.variables.enemyLOS2 }
+    set { world.variables.enemyLOS2 = newValue }
+}
 
 /// Source: oracle/codemp/game/NPC_AI_Sniper.c:30
-// TODO: Port global enemyCS2
-// Raven wrote: static qboolean enemyCS2
-// Rule 3: a stored property of GameWorld with C's zero, since Raven wrote no initializer, spelled world.enemyCS2 in a body.
+var enemyCS2: Bool {
+    get { world.variables.enemyCS2 }
+    set { world.variables.enemyCS2 = newValue }
+}
 
 /// Source: oracle/codemp/game/NPC_AI_Sniper.c:31
-// TODO: Port global faceEnemy2
-// Raven wrote: static qboolean faceEnemy2
-// Rule 3: a stored property of GameWorld with C's zero, since Raven wrote no initializer, spelled world.faceEnemy2 in a body.
+var faceEnemy2: Bool {
+    get { world.variables.faceEnemy2 }
+    set { world.variables.faceEnemy2 = newValue }
+}
 
 /// Source: oracle/codemp/game/NPC_AI_Sniper.c:32
-// TODO: Port global move2
-// Raven wrote: static qboolean move2
-// Rule 3: a stored property of GameWorld with C's zero, since Raven wrote no initializer, spelled world.move2 in a body.
+var move2: Bool {
+    get { world.variables.move2 }
+    set { world.variables.move2 = newValue }
+}
 
 /// Source: oracle/codemp/game/NPC_AI_Sniper.c:33
-// TODO: Port global shoot2
-// Raven wrote: static qboolean shoot2
-// Rule 3: a stored property of GameWorld with C's zero, since Raven wrote no initializer, spelled world.shoot2 in a body.
+var shoot2: Bool {
+    get { world.variables.shoot2 }
+    set { world.variables.shoot2 = newValue }
+}
 
 /// Source: oracle/codemp/game/NPC_AI_Sniper.c:34
-// TODO: Port global enemyDist2
-// Raven wrote: static float enemyDist2
-// Rule 3: a stored property of GameWorld with C's zero, since Raven wrote no initializer, spelled world.enemyDist2 in a body.
+var enemyDist2: Float {
+    get { world.variables.enemyDist2 }
+    set { world.variables.enemyDist2 = newValue }
+}
 
 /// Source: oracle/codemp/game/NPC_AI_Sniper.c:44
 func Sniper_ClearTimers(_ ent: Entity) {

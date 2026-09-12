@@ -3,24 +3,28 @@ import JKAShared
 import JKAMP_Game
 
 /// Source: oracle/codemp/game/g_main.c:11
-// TODO: Port global eventClearTime
-// Raven wrote: int eventClearTime = 0
-// Rule 3: a stored property of GameWorld with Raven's initializer, spelled world.eventClearTime in a body.
+var eventClearTime: Int32 {
+    get { world.variables.eventClearTime }
+    set { world.variables.eventClearTime = newValue }
+}
 
 /// Source: oracle/codemp/game/g_main.c:12
-// TODO: Port global navCalcPathTime
-// Raven wrote: static int navCalcPathTime = 0
-// Rule 3: a stored property of GameWorld with Raven's initializer, spelled world.navCalcPathTime in a body.
+var navCalcPathTime: Int32 {
+    get { world.variables.navCalcPathTime }
+    set { world.variables.navCalcPathTime = newValue }
+}
 
 /// Source: oracle/codemp/game/g_main.c:15
-// TODO: Port global killPlayerTimer
-// Raven wrote: int killPlayerTimer = 0
-// Rule 3: a stored property of GameWorld with Raven's initializer, spelled world.killPlayerTimer in a body.
+var killPlayerTimer: Int32 {
+    get { world.variables.killPlayerTimer }
+    set { world.variables.killPlayerTimer = newValue }
+}
 
 /// Source: oracle/codemp/game/g_main.c:30
-// TODO: Port global gDuelExit
-// Raven wrote: qboolean gDuelExit = qfalse
-// Rule 3: a stored property of GameWorld with Raven's initializer, spelled world.gDuelExit in a body.
+var gDuelExit: Bool {
+    get { world.variables.gDuelExit }
+    set { world.variables.gDuelExit = newValue }
+}
 
 /// Source: oracle/codemp/game/g_main.c:32
 // TODO: Port global g_trueJedi
@@ -728,69 +732,82 @@ import JKAMP_Game
 // A struct table is C storage in Sources/CJKAMP, reached through a Slots constant.
 
 /// Source: oracle/codemp/game/g_main.c:881
-// TODO: Port global gSharedBuffer
-// Raven wrote: char gSharedBuffer[MAX_G_SHARED_BUFFER_SIZE]
-// Rule 3: a stored property of GameWorld with C's zero, since Raven wrote no initializer, spelled world.gSharedBuffer in a body.
+var gSharedBuffer: JKAShared.CharBuf {
+    get { world.variables.gSharedBuffer }
+    set { world.variables.gSharedBuffer = newValue }
+}
 
 /// Source: oracle/codemp/game/g_main.c:1427
-// TODO: Port global g_dontFrickinCheck
-// Raven wrote: qboolean g_dontFrickinCheck = qfalse
-// Rule 3: a stored property of GameWorld with Raven's initializer, spelled world.g_dontFrickinCheck in a body.
+var g_dontFrickinCheck: Bool {
+    get { world.variables.g_dontFrickinCheck }
+    set { world.variables.g_dontFrickinCheck = newValue }
+}
 
 /// Source: oracle/codemp/game/g_main.c:1691
-// TODO: Port global gQueueScoreMessage
-// Raven wrote: qboolean gQueueScoreMessage = qfalse
-// Rule 3: a stored property of GameWorld with Raven's initializer, spelled world.gQueueScoreMessage in a body.
+var gQueueScoreMessage: Bool {
+    get { world.variables.gQueueScoreMessage }
+    set { world.variables.gQueueScoreMessage = newValue }
+}
 
 /// Source: oracle/codemp/game/g_main.c:1692
-// TODO: Port global gQueueScoreMessageTime
-// Raven wrote: int gQueueScoreMessageTime = 0
-// Rule 3: a stored property of GameWorld with Raven's initializer, spelled world.gQueueScoreMessageTime in a body.
+var gQueueScoreMessageTime: Int32 {
+    get { world.variables.gQueueScoreMessageTime }
+    set { world.variables.gQueueScoreMessageTime = newValue }
+}
 
 /// Source: oracle/codemp/game/g_main.c:1717
-// TODO: Port global g_noPDuelCheck
-// Raven wrote: qboolean g_noPDuelCheck = qfalse
-// Rule 3: a stored property of GameWorld with Raven's initializer, spelled world.g_noPDuelCheck in a body.
+var g_noPDuelCheck: Bool {
+    get { world.variables.g_noPDuelCheck }
+    set { world.variables.g_noPDuelCheck = newValue }
+}
 
 /// Source: oracle/codemp/game/g_main.c:2305
-// TODO: Port global gDidDuelStuff
-// Raven wrote: qboolean gDidDuelStuff = qfalse
-// Rule 3: a stored property of GameWorld with Raven's initializer, spelled world.gDidDuelStuff in a body.
+var gDidDuelStuff: Bool {
+    get { world.variables.gDidDuelStuff }
+    set { world.variables.gDidDuelStuff = newValue }
+}
 
 /// Source: oracle/codemp/game/g_main.c:2587
-// TODO: Port global g_endPDuel
-// Raven wrote: qboolean g_endPDuel = qfalse
-// Rule 3: a stored property of GameWorld with Raven's initializer, spelled world.g_endPDuel in a body.
+var g_endPDuel: Bool {
+    get { world.variables.g_endPDuel }
+    set { world.variables.g_endPDuel = newValue }
+}
 
 /// Source: oracle/codemp/game/g_main.c:2947
-// TODO: Port global g_duelPrintTimer
-// Raven wrote: int g_duelPrintTimer = 0
-// Rule 3: a stored property of GameWorld with Raven's initializer, spelled world.g_duelPrintTimer in a body.
+var g_duelPrintTimer: Int32 {
+    get { world.variables.g_duelPrintTimer }
+    set { world.variables.g_duelPrintTimer = newValue }
+}
 
 /// Source: oracle/codemp/game/g_main.c:3514
-// TODO: Port global g_LastFrameTime
-// Raven wrote: int g_LastFrameTime = 0
-// Rule 3: a stored property of GameWorld with Raven's initializer, spelled world.g_LastFrameTime in a body.
+var g_LastFrameTime: Int32 {
+    get { world.variables.g_LastFrameTime }
+    set { world.variables.g_LastFrameTime = newValue }
+}
 
 /// Source: oracle/codemp/game/g_main.c:3515
-// TODO: Port global g_TimeSinceLastFrame
-// Raven wrote: int g_TimeSinceLastFrame = 0
-// Rule 3: a stored property of GameWorld with Raven's initializer, spelled world.g_TimeSinceLastFrame in a body.
+var g_TimeSinceLastFrame: Int32 {
+    get { world.variables.g_TimeSinceLastFrame }
+    set { world.variables.g_TimeSinceLastFrame = newValue }
+}
 
 /// Source: oracle/codemp/game/g_main.c:3517
-// TODO: Port global gDoSlowMoDuel
-// Raven wrote: qboolean gDoSlowMoDuel = qfalse
-// Rule 3: a stored property of GameWorld with Raven's initializer, spelled world.gDoSlowMoDuel in a body.
+var gDoSlowMoDuel: Bool {
+    get { world.variables.gDoSlowMoDuel }
+    set { world.variables.gDoSlowMoDuel = newValue }
+}
 
 /// Source: oracle/codemp/game/g_main.c:3518
-// TODO: Port global gSlowMoDuelTime
-// Raven wrote: int gSlowMoDuelTime = 0
-// Rule 3: a stored property of GameWorld with Raven's initializer, spelled world.gSlowMoDuelTime in a body.
+var gSlowMoDuelTime: Int32 {
+    get { world.variables.gSlowMoDuelTime }
+    set { world.variables.gSlowMoDuelTime = newValue }
+}
 
 /// Source: oracle/codemp/game/g_main.c:3580
-// TODO: Port global g_siegeRespawnCheck
-// Raven wrote: int g_siegeRespawnCheck = 0
-// Rule 3: a stored property of GameWorld with Raven's initializer, spelled world.g_siegeRespawnCheck in a body.
+var g_siegeRespawnCheck: Int32 {
+    get { world.variables.g_siegeRespawnCheck }
+    set { world.variables.g_siegeRespawnCheck = newValue }
+}
 
 /// Source: oracle/codemp/game/g_main.c:515
 func vmMain(_ command: Int32, _ arg0: Int32, _ arg1: Int32, _ arg2: Int32, _ arg3: Int32, _ arg4: Int32, _ arg5: Int32, _ arg6: Int32, _ arg7: Int32, _ arg8: Int32, _ arg9: Int32, _ arg10: Int32, _ arg11: Int32) -> Int32 {

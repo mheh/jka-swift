@@ -5,14 +5,16 @@ import JKAShared
 import JKAMP_Game
 
 /// Source: oracle/codemp/game/g_saga.c:17
-// TODO: Port global team1
-// Raven wrote: static char team1[512]
-// Rule 3: a stored property of GameWorld with C's zero, since Raven wrote no initializer, spelled world.team1 in a body.
+var team1: JKAShared.CharBuf {
+    get { world.variables.team1 }
+    set { world.variables.team1 = newValue }
+}
 
 /// Source: oracle/codemp/game/g_saga.c:18
-// TODO: Port global team2
-// Raven wrote: static char team2[512]
-// Rule 3: a stored property of GameWorld with C's zero, since Raven wrote no initializer, spelled world.team2 in a body.
+var team2: JKAShared.CharBuf {
+    get { world.variables.team2 }
+    set { world.variables.team2 = newValue }
+}
 
 /// Source: oracle/codemp/game/g_saga.c:20
 // TODO: Port global g_siegePersistant
@@ -20,89 +22,106 @@ import JKAMP_Game
 // A struct table is C storage in Sources/CJKAMP, reached through a Slots constant.
 
 /// Source: oracle/codemp/game/g_saga.c:22
-// TODO: Port global imperial_goals_required
-// Raven wrote: int imperial_goals_required = 0
-// Rule 3: a stored property of GameWorld with Raven's initializer, spelled world.imperial_goals_required in a body.
+var imperial_goals_required: Int32 {
+    get { world.variables.imperial_goals_required }
+    set { world.variables.imperial_goals_required = newValue }
+}
 
 /// Source: oracle/codemp/game/g_saga.c:23
-// TODO: Port global imperial_goals_completed
-// Raven wrote: int imperial_goals_completed = 0
-// Rule 3: a stored property of GameWorld with Raven's initializer, spelled world.imperial_goals_completed in a body.
+var imperial_goals_completed: Int32 {
+    get { world.variables.imperial_goals_completed }
+    set { world.variables.imperial_goals_completed = newValue }
+}
 
 /// Source: oracle/codemp/game/g_saga.c:24
-// TODO: Port global rebel_goals_required
-// Raven wrote: int rebel_goals_required = 0
-// Rule 3: a stored property of GameWorld with Raven's initializer, spelled world.rebel_goals_required in a body.
+var rebel_goals_required: Int32 {
+    get { world.variables.rebel_goals_required }
+    set { world.variables.rebel_goals_required = newValue }
+}
 
 /// Source: oracle/codemp/game/g_saga.c:25
-// TODO: Port global rebel_goals_completed
-// Raven wrote: int rebel_goals_completed = 0
-// Rule 3: a stored property of GameWorld with Raven's initializer, spelled world.rebel_goals_completed in a body.
+var rebel_goals_completed: Int32 {
+    get { world.variables.rebel_goals_completed }
+    set { world.variables.rebel_goals_completed = newValue }
+}
 
 /// Source: oracle/codemp/game/g_saga.c:27
-// TODO: Port global imperial_time_limit
-// Raven wrote: int imperial_time_limit = 0
-// Rule 3: a stored property of GameWorld with Raven's initializer, spelled world.imperial_time_limit in a body.
+var imperial_time_limit: Int32 {
+    get { world.variables.imperial_time_limit }
+    set { world.variables.imperial_time_limit = newValue }
+}
 
 /// Source: oracle/codemp/game/g_saga.c:28
-// TODO: Port global rebel_time_limit
-// Raven wrote: int rebel_time_limit = 0
-// Rule 3: a stored property of GameWorld with Raven's initializer, spelled world.rebel_time_limit in a body.
+var rebel_time_limit: Int32 {
+    get { world.variables.rebel_time_limit }
+    set { world.variables.rebel_time_limit = newValue }
+}
 
 /// Source: oracle/codemp/game/g_saga.c:30
-// TODO: Port global gImperialCountdown
-// Raven wrote: int gImperialCountdown = 0
-// Rule 3: a stored property of GameWorld with Raven's initializer, spelled world.gImperialCountdown in a body.
+var gImperialCountdown: Int32 {
+    get { world.variables.gImperialCountdown }
+    set { world.variables.gImperialCountdown = newValue }
+}
 
 /// Source: oracle/codemp/game/g_saga.c:31
-// TODO: Port global gRebelCountdown
-// Raven wrote: int gRebelCountdown = 0
-// Rule 3: a stored property of GameWorld with Raven's initializer, spelled world.gRebelCountdown in a body.
+var gRebelCountdown: Int32 {
+    get { world.variables.gRebelCountdown }
+    set { world.variables.gRebelCountdown = newValue }
+}
 
 /// Source: oracle/codemp/game/g_saga.c:33
-// TODO: Port global rebel_attackers
-// Raven wrote: int rebel_attackers = 0
-// Rule 3: a stored property of GameWorld with Raven's initializer, spelled world.rebel_attackers in a body.
+var rebel_attackers: Int32 {
+    get { world.variables.rebel_attackers }
+    set { world.variables.rebel_attackers = newValue }
+}
 
 /// Source: oracle/codemp/game/g_saga.c:34
-// TODO: Port global imperial_attackers
-// Raven wrote: int imperial_attackers = 0
-// Rule 3: a stored property of GameWorld with Raven's initializer, spelled world.imperial_attackers in a body.
+var imperial_attackers: Int32 {
+    get { world.variables.imperial_attackers }
+    set { world.variables.imperial_attackers = newValue }
+}
 
 /// Source: oracle/codemp/game/g_saga.c:36
-// TODO: Port global gSiegeRoundBegun
-// Raven wrote: qboolean gSiegeRoundBegun = qfalse
-// Rule 3: a stored property of GameWorld with Raven's initializer, spelled world.gSiegeRoundBegun in a body.
+var gSiegeRoundBegun: Bool {
+    get { world.variables.gSiegeRoundBegun }
+    set { world.variables.gSiegeRoundBegun = newValue }
+}
 
 /// Source: oracle/codemp/game/g_saga.c:37
-// TODO: Port global gSiegeRoundEnded
-// Raven wrote: qboolean gSiegeRoundEnded = qfalse
-// Rule 3: a stored property of GameWorld with Raven's initializer, spelled world.gSiegeRoundEnded in a body.
+var gSiegeRoundEnded: Bool {
+    get { world.variables.gSiegeRoundEnded }
+    set { world.variables.gSiegeRoundEnded = newValue }
+}
 
 /// Source: oracle/codemp/game/g_saga.c:38
-// TODO: Port global gSiegeRoundWinningTeam
-// Raven wrote: qboolean gSiegeRoundWinningTeam = 0
-// Rule 3: a stored property of GameWorld with Raven's initializer, spelled world.gSiegeRoundWinningTeam in a body.
+var gSiegeRoundWinningTeam: Bool {
+    get { world.variables.gSiegeRoundWinningTeam }
+    set { world.variables.gSiegeRoundWinningTeam = newValue }
+}
 
 /// Source: oracle/codemp/game/g_saga.c:39
-// TODO: Port global gSiegeBeginTime
-// Raven wrote: int gSiegeBeginTime = Q3_INFINITE
-// Rule 3: a stored property of GameWorld with Raven's initializer, spelled world.gSiegeBeginTime in a body.
+var gSiegeBeginTime: Int32 {
+    get { world.variables.gSiegeBeginTime }
+    set { world.variables.gSiegeBeginTime = newValue }
+}
 
 /// Source: oracle/codemp/game/g_saga.c:41
-// TODO: Port global g_preroundState
-// Raven wrote: int g_preroundState = 0
-// Rule 3: a stored property of GameWorld with Raven's initializer, spelled world.g_preroundState in a body.
+var g_preroundState: Int32 {
+    get { world.variables.g_preroundState }
+    set { world.variables.g_preroundState = newValue }
+}
 
 /// Source: oracle/codemp/game/g_saga.c:46
-// TODO: Port global gParseObjectives
-// Raven wrote: static char gParseObjectives[MAX_SIEGE_INFO_SIZE]
-// Rule 3: a stored property of GameWorld with C's zero, since Raven wrote no initializer, spelled world.gParseObjectives in a body.
+var gParseObjectives: JKAShared.CharBuf {
+    get { world.variables.gParseObjectives }
+    set { world.variables.gParseObjectives = newValue }
+}
 
 /// Source: oracle/codemp/game/g_saga.c:47
-// TODO: Port global gObjectiveCfgStr
-// Raven wrote: static char gObjectiveCfgStr[1024]
-// Rule 3: a stored property of GameWorld with C's zero, since Raven wrote no initializer, spelled world.gObjectiveCfgStr in a body.
+var gObjectiveCfgStr: JKAShared.CharBuf {
+    get { world.variables.gObjectiveCfgStr }
+    set { world.variables.gObjectiveCfgStr = newValue }
+}
 
 //go through all classes on a team and register their
 //weapons and items for precaching.

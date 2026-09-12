@@ -5,7 +5,7 @@ import JKAShared
 
 /// Source: oracle/codemp/game/bg_saberLoad.c:44
 // Raven wrote: static char SaberParms[MAX_SABER_DATA_SIZE]
-let SaberParms: [CChar] = [CChar](repeating: 0, count: 524288)
+nonisolated(unsafe) let SaberParms: JKAShared.CharBuf = JKAShared.CharBuf(524288)
 
 /// Source: oracle/codemp/game/bg_saberLoad.c:46
 // TODO: Port global SaberTable
@@ -18,9 +18,10 @@ let SaberParms: [CChar] = [CChar](repeating: 0, count: 524288)
 // A struct table is C storage in Sources/CJKAMP, reached through a Slots constant.
 
 /// Source: oracle/codemp/game/bg_saberLoad.c:2736
-// TODO: Port global bgSaberParseTBuffer
-// Raven wrote: static char bgSaberParseTBuffer[MAX_SABER_DATA_SIZE]
-// Rule 3: a stored property of BgState with C's zero, since Raven wrote no initializer, spelled bg.bgSaberParseTBuffer in a body.
+var bgSaberParseTBuffer: JKAShared.CharBuf {
+    get { bg.variables.bgSaberParseTBuffer }
+    set { bg.variables.bgSaberParseTBuffer = newValue }
+}
 
 /// Source: oracle/codemp/game/bg_saberLoad.c:32
 func BG_SoundIndex(_ sound: inout JKAShared.CharBuf) -> Int32 {

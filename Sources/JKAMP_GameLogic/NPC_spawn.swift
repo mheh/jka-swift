@@ -8,9 +8,10 @@ import JKAMP_Game
 var gNPCPtrs: Slots<GNPC?> { world.storage.gNPCPtrs }
 
 /// Source: oracle/codemp/game/NPC_spawn.c:4182
-// TODO: Port global showBBoxes
-// Raven wrote: qboolean showBBoxes = qfalse
-// Rule 3: a stored property of GameWorld with Raven's initializer, spelled world.showBBoxes in a body.
+var showBBoxes: Bool {
+    get { world.variables.showBBoxes }
+    set { world.variables.showBBoxes = newValue }
+}
 
 /// Source: oracle/codemp/game/NPC_spawn.c:90
 func WP_SetSaberModel(_ client: Client, _ npcClass: JKAMP.class_t) -> Int32 {

@@ -61,7 +61,7 @@ struct BgChannelTests {
         bg = BgState(consumer: .cgame, maxPoolSize: 2_048_000)
 
         #expect(MAX_POOL_SIZE == 2_048_000)
-        #expect(bg.poolTail == 2_048_000)
+        #expect(bg.variables.bg_poolTail == 2_048_000)
         #expect(bg.consumer == .cgame)
         bg = BgState()
     }

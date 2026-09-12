@@ -5,14 +5,16 @@ import JKAShared
 import JKAMP_Game
 
 /// Source: oracle/codemp/game/g_misc.c:2540
-// TODO: Port global gEscaping
-// Raven wrote: qboolean gEscaping = qfalse
-// Rule 3: a stored property of GameWorld with Raven's initializer, spelled world.gEscaping in a body.
+var gEscaping: Bool {
+    get { world.variables.gEscaping }
+    set { world.variables.gEscaping = newValue }
+}
 
 /// Source: oracle/codemp/game/g_misc.c:2541
-// TODO: Port global gEscapeTime
-// Raven wrote: int gEscapeTime = 0
-// Rule 3: a stored property of GameWorld with Raven's initializer, spelled world.gEscapeTime in a body.
+var gEscapeTime: Int32 {
+    get { world.variables.gEscapeTime }
+    set { world.variables.gEscapeTime = newValue }
+}
 
 /// Source: oracle/codemp/game/g_misc.c:2886
 // TODO: Port global refTagOwnerMap
@@ -25,9 +27,10 @@ import JKAMP_Game
 // A struct table is C storage in Sources/CJKAMP, reached through a Slots constant.
 
 /// Source: oracle/codemp/game/g_misc.c:3352
-// TODO: Port global g_shooterClientInit
-// Raven wrote: static qboolean g_shooterClientInit = qfalse
-// Rule 3: a stored property of GameWorld with Raven's initializer, spelled world.g_shooterClientInit in a body.
+var g_shooterClientInit: Bool {
+    get { world.variables.g_shooterClientInit }
+    set { world.variables.g_shooterClientInit = newValue }
+}
 
 /**
 ```

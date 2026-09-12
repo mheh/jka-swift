@@ -180,7 +180,7 @@ A cast to a view the body already holds, such as a bg body that passes its `BgEn
 The `handle:` form stays inside generated code under rule 11, and a signature keeps the plain view type Raven's parameter had, never a generic or protocol parameter that absorbs the cast.
 `views.py` has a `NEVER_NULL` table beside `ROOTS`, keyed by struct and field, for a pointer field Raven's callers always set.
 A field in the table is generated non-optional, and its getter traps with the field's name when the pointer is NULL, the one divergence rule 19 allows.
-`pmove_t.ps`, `pmove_t.trace`, and `pmove_t.pointcontents` are in it, so a body reads `bg.pm.ps.velocity` for `pm->ps->velocity` with no bind. A field joins the table only by a ruling, never by a transcriptor's guess.
+`pmove_t.ps`, `pmove_t.trace`, and `pmove_t.pointcontents` are in it, so a body reads `pm.ps.velocity` for `pm->ps->velocity` with no bind. A field joins the table only by a ruling, never by a transcriptor's guess.
 A view parameter is non-optional, so a body drops Raven's null guard on it and carries the Port-note `// Raven guards a NULL ps here. The view is non-optional, so the guard has no Swift form.`
 A caller that holds an optional view unwraps it at the call site, in Raven's control shape: `guard let ... else { return }` where Raven wrote an early-out, and `if let ... { }` where Raven wrapped a block. No force unwrap appears. A guard that does other work on the NULL path keeps a Port-note.
 
@@ -190,7 +190,7 @@ A scratch C struct on the stack, `trace_t trace;`, is the `scratch` helper on it
 
 ```swift
 let earlyOut = Trace.scratch { trace in
-    bg.pm.runTrace(trace, ps.origin, vec3_origin, vec3_origin, endspot, forwhom.s.number, MASK_SOLID)
+    pm.runTrace(trace, ps.origin, vec3_origin, vec3_origin, endspot, forwhom.s.number, MASK_SOLID)
     if trace.fraction >= 1.0 { return true }
     _VectorCopy(trace.plane.normal, &slope)
     return false
@@ -202,7 +202,7 @@ The slot is a stack local of the `scratch` frame, zero at entry where Raven's wa
 A `return` inside Raven's block is the closure's value, and the body acts on that value after the closure.
 The closure returns a value read from the slot, never the view itself, because the slot is gone when `scratch` returns.
 Two records in one scope nest two closures.
-A copy of another slot, `usercmd_t cmd = pm->cmd;`, is the `copying` form: `Usercmd.scratch(copying: bg.pm.cmd) { cmd in ... }`.
+A copy of another slot, `usercmd_t cmd = pm->cmd;`, is the `copying` form: `Usercmd.scratch(copying: pm.cmd) { cmd in ... }`.
 Every view carries both forms, written by `views.py`.
 
 ### A file-scope static or a static local
@@ -220,7 +220,13 @@ var rng = Rng()
 The header `Sources/CJKAMP/include/bg_tables.h` declares each array with a written bound, because the Swift importer drops an array of unknown bound, and clang checks the bound against the initializer.
 Every other struct-typed table Raven declares at file scope, such as `fields[]` of `g_spawn.c`, is C storage the same way. The stub of a `.c` file carries one entry per file-scope variable, above its first function.
 A variable the module never assigns is a typed `let` with a `portMissing` initializer and a `// Raven wrote:` line, and the transcriptor replaces the initializer with Raven's data.
-A variable the module assigns is a stored property of the state object, `BgState` or `GameWorld`, with Raven's initializer, spelled `bg.name` or `world.name` in a body, and its stub entry carries `// TODO: Port global name` and `// Raven wrote:`.
+A variable the module assigns is a stored property of the generated variables struct, `BgVariables` in `Sources/JKAMP_BG/Generated/BgVariables.swift` or `GameVariables` in `Sources/JKAMP_Game/Generated/Storage/GameVariables.swift`, which the state object owns as `variables`.
+The property carries Raven's initializer when it is a number, `qtrue`, `qfalse`, `NULL`, a string, or a name a module exports, and C's zero otherwise, with a `// TODO: Port initializer` line that names the hand line in the state object's `init`.
+The stub forwards it under Raven's name at Raven's line, `var gWPNum: Int32 { get { world.variables.gWPNum } set { world.variables.gWPNum = newValue } }`, so a body writes `gWPNum = 0` as Raven wrote it.
+A name in `NEVER_NULL_VARS` of `rulings.py`, `pm` among them, forwards non-optional and traps on nil with the name, because Raven's callers set it before any body runs.
+A variable the module assigns and Raven gives a data initializer, a brace list, is a hand property of the state object with Raven's data, and the stub forwards it the same way.
+A name in `HAND_VARS` of `rulings.py` keeps its hand storage, `bg_pool` as `bg.pool`, and its stub entry says so.
+A C character array at file scope is a `CharBuf` of Raven's bound.
 A variable Raven declares with no initializer is his all the same, zeroed by the loader, and its entry says C's zero where the initializer would be.
 A file-scope array of struct pointers, such as `gWPArray`, is one zeroed allocation the world owns, on the generated `GameStorage` class in `Sources/JKAMP_Game/Generated/Storage/GameStorage.swift`, as a `Slots` of optional views, born and freed with `GameWorld`.
 The stub carries the name at Raven's line, `var gWPArray: Slots<JKAMP.Wpobject?> { world.storage.gWPArray }`, so a test that swaps the world swaps the tables with it.
@@ -231,16 +237,12 @@ A body macro that names a local, such as `SLOPERECALCVAR`, is spelled as its exp
 
 Ruling of 2026-09-09. `JKAMP_BG` cannot see `GameWorld`, and cgame links the same bg code with its own instance.
 A Raven static in a `bg_*.c` file lives on `final class BgState`, in the hand file `Sources/JKAMP_BG/bg_local.swift`, behind `nonisolated(unsafe) var bg = BgState()`, the same shape as `world`.
-The transcriptor adds the property with Raven's name and a `/// Source:` line, and writes `bg.name`.
-
-A scalar static is a Swift stored property. A struct static such as `pml`, which Raven's bodies read through a view, gets C storage owned by `BgState`, with the view over it, the pattern `GameMemory` uses at `Sources/JKAMP_Game/GameMemory.swift`.
-A pointer static such as `pm` is the view of the caller's memory, set per call. A test resets state with `bg = BgState()`.
+A scalar static is a property of the generated `BgVariables`, which `BgState` owns, and the stub forwards it under Raven's name, so a body writes `pm_flying = FLY_NONE`. A struct static such as `pml`, which Raven's bodies read through a view, gets C storage owned by `BgState`, with the view over it, the pattern `GameMemory` uses at `Sources/JKAMP_Game/GameMemory.swift`.
+A pointer static such as `pm` is the view of the caller's memory, set per call, and a body reads `pm.ps` with no bind. A test resets state with `bg = BgState()`.
 A static local that every path of the body writes before it reads is scratch, Raven's habit of keeping vectors off the stack, and it is a local of the body, declared where Raven declared it with his initializer.
 The 23 statics of `BG_UpdateLookAngles` and `BG_G2PlayerAngles` are this shape, and none of them sits on `BgState`.
 
-A transcriptor adds a property to `bg_local.swift` with Raven's name and a `/// Source:` line.
-
-`bg_pool` is one raw allocation of `MAX_POOL_SIZE` bytes, `bg.pool`, made at the consumer's install and never freed. `poolSize` and `poolTail` sit on `BgState`.
+`bg_pool` is one raw allocation of `MAX_POOL_SIZE` bytes, `bg.pool`, made at the consumer's install and never freed. `bg_poolSize` and `bg_poolTail` are `BgVariables` properties, and `BgState.init` sets `bg_poolTail` to the consumer's `MAX_POOL_SIZE` by hand.
 `MAX_POOL_SIZE` is `var MAX_POOL_SIZE: Int32 { bg.maxPoolSize }` in `bg_local.swift`, so a body reads Raven's name.
 
 ### The bg channel

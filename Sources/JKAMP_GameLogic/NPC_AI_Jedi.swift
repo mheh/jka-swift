@@ -5,9 +5,10 @@ import JKAShared
 import JKAMP_Game
 
 /// Source: oracle/codemp/game/NPC_AI_Jedi.c:94
-// TODO: Port global jediSpeechDebounceTime
-// Raven wrote: static int jediSpeechDebounceTime[TEAM_NUM_TEAMS]
-// Rule 3: a stored property of GameWorld with C's zero, since Raven wrote no initializer, spelled world.jediSpeechDebounceTime in a body.
+var jediSpeechDebounceTime: [Int32] {
+    get { world.variables.jediSpeechDebounceTime }
+    set { world.variables.jediSpeechDebounceTime = newValue }
+}
 
 /// Source: oracle/codemp/game/NPC_AI_Jedi.c:16
 func G_StartMatrixEffect(_ ent: Entity) {

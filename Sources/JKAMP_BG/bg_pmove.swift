@@ -2,7 +2,41 @@ import Foundation
 import JKAMP
 import JKAShared
 
-// movement parameters
+// movement parameters/// Source: oracle/codemp/game/bg_pmove.c:30
+/// Raven's callers always set `pm`, so a body reads it with no bind. A NULL here traps with the name.
+var pm: JKAMP.Pmove {
+    get {
+        guard let pm = bg.variables.pm else { preconditionFailure("pm is NULL") }
+        return pm
+    }
+    set { bg.variables.pm = newValue }
+}
+
+
+/// Source: oracle/codemp/game/bg_pmove.c:33
+var pm_entSelf: JKAMP.BgEntity? {
+    get { bg.variables.pm_entSelf }
+    set { bg.variables.pm_entSelf = newValue }
+}
+
+/// Source: oracle/codemp/game/bg_pmove.c:34
+var pm_entVeh: JKAMP.BgEntity? {
+    get { bg.variables.pm_entVeh }
+    set { bg.variables.pm_entVeh = newValue }
+}
+
+/// Source: oracle/codemp/game/bg_pmove.c:36
+var gPMDoSlowFall: Bool {
+    get { bg.variables.gPMDoSlowFall }
+    set { bg.variables.gPMDoSlowFall = newValue }
+}
+
+/// Source: oracle/codemp/game/bg_pmove.c:38
+var pm_cancelOutZoom: Bool {
+    get { bg.variables.pm_cancelOutZoom }
+    set { bg.variables.pm_cancelOutZoom = newValue }
+}
+
 /// Source: oracle/codemp/game/bg_pmove.c:41
 let pm_stopspeed: Float = 100.0
 /// Source: oracle/codemp/game/bg_pmove.c:42
@@ -32,6 +66,12 @@ let pm_flightfriction: Float = 3.0
 /// Source: oracle/codemp/game/bg_pmove.c:55
 let pm_spectatorfriction: Float = 5.0
 
+/// Source: oracle/codemp/game/bg_pmove.c:57
+var c_pmove: Int32 {
+    get { bg.variables.c_pmove }
+    set { bg.variables.c_pmove = newValue }
+}
+
 /// Source: oracle/codemp/game/bg_pmove.c:59
 let forceSpeedLevels: [Float] = [
     1, //rank 0?
@@ -39,6 +79,13 @@ let forceSpeedLevels: [Float] = [
     1.5,
     1.75,
 ]
+
+/// Source: oracle/codemp/game/bg_pmove.c:67
+/// Raven's data table, a hand property of `BgState`.
+var forcePowerNeeded: [[Int32]] {
+    get { bg.forcePowerNeeded }
+    set { bg.forcePowerNeeded = newValue }
+}
 
 /// Source: oracle/codemp/game/bg_pmove.c:155
 let forceJumpHeight: [Float] = [
@@ -139,7 +186,7 @@ func PM_IsRocketTrooper() -> Bool {
 
 /// Source: oracle/codemp/game/bg_pmove.c:261
 func PM_GetSaberStance() -> Int32 {
-    let ps = bg.pm.ps
+    let ps = pm.ps
     var anim = BOTH_STAND2
     let saber1 = BG_MySaber(ps.clientNum, 0)
     let saber2 = BG_MySaber(ps.clientNum, 1)
@@ -194,7 +241,7 @@ func PM_GetSaberStance() -> Int32 {
 
 /// Source: oracle/codemp/game/bg_pmove.c:321
 func PM_DoSlowFall() -> Bool {
-    let ps = bg.pm.ps
+    let ps = pm.ps
     if ((ps.legsAnim) == BOTH_WALL_RUN_RIGHT || (ps.legsAnim) == BOTH_WALL_RUN_LEFT) && ps.legsTimer > 500 {
         return true
     }
@@ -214,7 +261,7 @@ func PM_pitch_roll_for_slope(_ forwhom: JKAMP.BgEntity, _ pass_slope: inout JKAS
     let pitch: Float
     var mod: Float
     let dot: Float
-    let ps = bg.pm.ps
+    let ps = pm.ps
 
     //if we don't have a slope, get one
     // Port-note: Raven guards a NULL `pass_slope` here. The parameter is `inout`, so the guard has no Swift form.
@@ -223,10 +270,10 @@ func PM_pitch_roll_for_slope(_ forwhom: JKAMP.BgEntity, _ pass_slope: inout JKAS
         // The closure gives true where Raven returns from the function.
         let earlyOut = JKAMP.Trace.scratch { trace -> Bool in
             startspot = ps.origin
-            startspot[2] += bg.pm.mins[2] + 4
+            startspot[2] += pm.mins[2] + 4
             endspot = startspot
             endspot[2] -= 300
-            bg.pm.runTrace(trace, ps.origin, vec3_origin, vec3_origin, endspot, forwhom.s.number, MASK_SOLID)
+            pm.runTrace(trace, ps.origin, vec3_origin, vec3_origin, endspot, forwhom.s.number, MASK_SOLID)
 //		if(trace_fraction>0.05&&forwhom.movetype==MOVETYPE_STEP)
 //			forwhom.flags(-)FL_ONGROUND;
 
@@ -291,32 +338,38 @@ func PM_pitch_roll_for_slope(_ forwhom: JKAMP.BgEntity, _ pass_slope: inout JKAS
     */
 }
 
+/// Source: oracle/codemp/game/bg_pmove.c:445
+var pm_flying: Int32 {
+    get { bg.variables.pm_flying }
+    set { bg.variables.pm_flying = newValue }
+}
+
 /// Source: oracle/codemp/game/bg_pmove.c:447
 func PM_SetSpecialMoveValues() {
-    let ps = bg.pm.ps
+    let ps = pm.ps
     let pEnt: JKAMP.BgEntity?
 
     if ps.clientNum < MAX_CLIENTS {
         //we know that real players aren't vehs
-        bg.pm_flying = FLY_NONE
+        pm_flying = FLY_NONE
         return
     }
 
     //default until we decide otherwise
-    bg.pm_flying = FLY_NONE
+    pm_flying = FLY_NONE
 
-    pEnt = bg.pm_entSelf
+    pEnt = pm_entSelf
 
     if let pEnt {
         if (ps.eFlags2 & EF2_FLYING) != 0 {// pm->gent->client->moveType == MT_FLYSWIM )
-            bg.pm_flying = FLY_NORMAL
+            pm_flying = FLY_NORMAL
         } else if pEnt.s.NPC_class == CLASS_VEHICLE {
             // Port-note: Raven walks `pEnt->m_pVehicle->m_pVehicleInfo` with no guard. Both generated fields are optional, so the body binds them, and the nil path takes neither arm.
             if let pVehicleInfo = pEnt.m_pVehicle?.m_pVehicleInfo {
                 if pVehicleInfo.type == VH_FIGHTER {
-                    bg.pm_flying = FLY_VEHICLE
+                    pm_flying = FLY_VEHICLE
                 } else if pVehicleInfo.hoverHeight > 0 {
-                    bg.pm_flying = FLY_HOVER
+                    pm_flying = FLY_HOVER
                 }
             }
         }
@@ -407,13 +460,13 @@ PM_AddEvent
 */
 /// Source: oracle/codemp/game/bg_pmove.c:910
 func PM_AddEvent(_ newEvent: Int32) {
-    let ps = bg.pm.ps
+    let ps = pm.ps
     BG_AddPredictableEventToPlayerstate(newEvent, 0, ps)
 }
 
 /// Source: oracle/codemp/game/bg_pmove.c:914
 func PM_AddEventWithParm(_ newEvent: Int32, _ parm: Int32) {
-    let ps = bg.pm.ps
+    let ps = pm.ps
     BG_AddPredictableEventToPlayerstate(newEvent, parm, ps)
 }
 
@@ -431,22 +484,22 @@ func PM_AddTouchEnt(_ entityNum: Int32) {
     if entityNum == ENTITYNUM_WORLD {
         return
     }
-    if bg.pm.numtouch == MAXTOUCH {
+    if pm.numtouch == MAXTOUCH {
         return
     }
 
     // see if it is already added
     i = 0
-    while i < bg.pm.numtouch {
-        if bg.pm.touchents[i] == entityNum {
+    while i < pm.numtouch {
+        if pm.touchents[i] == entityNum {
             return
         }
         i += 1
     }
 
     // add it
-    bg.pm.touchents[bg.pm.numtouch] = entityNum
-    bg.pm.numtouch += 1
+    pm.touchents[pm.numtouch] = entityNum
+    pm.numtouch += 1
 }
 
 /**
@@ -464,7 +517,7 @@ func PM_ClipVelocity(_ `in`: inout JKAShared.vec3_t, _ normal: inout JKAShared.v
     var change: Float
     let oldInZ: Float
     var i: Int32
-    let ps = bg.pm.ps
+    let ps = pm.ps
     if (ps.pm_flags & PMF_STUCK_TO_WALL) != 0 {
         //no sliding!
         out = `in`
@@ -486,7 +539,7 @@ func PM_ClipVelocity(_ `in`: inout JKAShared.vec3_t, _ normal: inout JKAShared.v
         out[i] = `in`[i] - change
         i += 1
     }
-    if bg.pm.stepSlideFix != 0 {
+    if pm.stepSlideFix != 0 {
         if ps.clientNum < MAX_CLIENTS//normal player
             && ps.groundEntityNum != ENTITYNUM_NONE//on the ground
             && normal[2] < MIN_WALK_NORMAL//sliding against a steep slope
@@ -514,7 +567,7 @@ private func PM_Friction() {
     var control: Float
     var drop: Float
     var pEnt: JKAMP.BgEntity? = nil
-    let ps = bg.pm.ps
+    let ps = pm.ps
     // Port-note: Raven aliases `pm->ps->velocity` through `float *vel`. The view carries no pointer, so the body reads and writes the field itself.
     vec = ps.velocity
     if bg.pml.walking {
@@ -535,12 +588,12 @@ private func PM_Friction() {
     drop = 0
 
     if ps.clientNum >= MAX_CLIENTS {
-        pEnt = bg.pm_entSelf
+        pEnt = pm_entSelf
     }
 
     // apply ground friction, even if on ladder
     // Port-note: Raven guards `pEnt->m_pVehicle` and then walks `m_pVehicleInfo` with no guard. Both generated fields are optional, so the body binds both.
-    if bg.pm_flying != FLY_VEHICLE,
+    if pm_flying != FLY_VEHICLE,
         let pEnt,
         pEnt.s.NPC_class == CLASS_VEHICLE,
         let m_pVehicle = pEnt.m_pVehicle,
@@ -574,9 +627,9 @@ private func PM_Friction() {
             }
             */
         }
-    } else if bg.pm_flying != FLY_NORMAL && bg.pm_flying != FLY_VEHICLE {
+    } else if pm_flying != FLY_NORMAL && pm_flying != FLY_VEHICLE {
         // apply ground friction
-        if bg.pm.waterlevel <= 1 {
+        if pm.waterlevel <= 1 {
             if bg.pml.walking && (bg.pml.groundTrace.surfaceFlags & SURF_SLICK) == 0 {
                 // if getting knocked back, no friction
                 if (ps.pm_flags & PMF_TIME_KNOCKBACK) == 0 {
@@ -587,7 +640,7 @@ private func PM_Friction() {
         }
     }
 
-    if bg.pm_flying == FLY_VEHICLE {
+    if pm_flying == FLY_VEHICLE {
         if (ps.pm_flags & PMF_TIME_KNOCKBACK) == 0 {
             control = speed// < pm_stopspeed ? pm_stopspeed : speed;
             drop += control * pm_friction * bg.pml.frametime
@@ -595,8 +648,8 @@ private func PM_Friction() {
     }
 
     // apply water friction even if just wading
-    if bg.pm.waterlevel != 0 {
-        drop += speed * pm_waterfriction * bg.pm.waterlevel * bg.pml.frametime
+    if pm.waterlevel != 0 {
+        drop += speed * pm_waterfriction * pm.waterlevel * bg.pml.frametime
     }
     // If on a client then there is no friction
     else if ps.groundEntityNum < MAX_CLIENTS {
@@ -637,8 +690,8 @@ Handles user intended acceleration
 */
 /// Source: oracle/codemp/game/bg_pmove.c:1133
 private func PM_Accelerate(_ wishdir: inout JKAShared.vec3_t, _ wishspeed: Float, _ accel: Float) {
-    let ps = bg.pm.ps
-    if bg.pm.gametype != GT_SIEGE
+    let ps = pm.ps
+    if pm.gametype != GT_SIEGE
         || ps.m_iVehicleNum != 0
         || ps.clientNum >= MAX_CLIENTS
         || ps.pm_type != PM_NORMAL {
@@ -709,7 +762,7 @@ private func PM_CmdScale(_ cmd: JKAMP.Usercmd) -> Float {
     let scale: Float
     let umove: Int32 = 0 //cmd->upmove;
             //don't factor upmove into scaling speed
-    let ps = bg.pm.ps
+    let ps = pm.ps
     // C promotes a `signed char` of `usercmd_t` to `int` in each of these expressions.
     max = abs(Int32(cmd.forwardmove))
     if abs(Int32(cmd.rightmove)) > max {
@@ -742,23 +795,23 @@ to the facing dir
 */
 /// Source: oracle/codemp/game/bg_pmove.c:1233
 private func PM_SetMovementDir() {
-    let ps = bg.pm.ps
-    if bg.pm.cmd.forwardmove != 0 || bg.pm.cmd.rightmove != 0 {
-        if bg.pm.cmd.rightmove == 0 && bg.pm.cmd.forwardmove > 0 {
+    let ps = pm.ps
+    if pm.cmd.forwardmove != 0 || pm.cmd.rightmove != 0 {
+        if pm.cmd.rightmove == 0 && pm.cmd.forwardmove > 0 {
             ps.movementDir = 0
-        } else if bg.pm.cmd.rightmove < 0 && bg.pm.cmd.forwardmove > 0 {
+        } else if pm.cmd.rightmove < 0 && pm.cmd.forwardmove > 0 {
             ps.movementDir = 1
-        } else if bg.pm.cmd.rightmove < 0 && bg.pm.cmd.forwardmove == 0 {
+        } else if pm.cmd.rightmove < 0 && pm.cmd.forwardmove == 0 {
             ps.movementDir = 2
-        } else if bg.pm.cmd.rightmove < 0 && bg.pm.cmd.forwardmove < 0 {
+        } else if pm.cmd.rightmove < 0 && pm.cmd.forwardmove < 0 {
             ps.movementDir = 3
-        } else if bg.pm.cmd.rightmove == 0 && bg.pm.cmd.forwardmove < 0 {
+        } else if pm.cmd.rightmove == 0 && pm.cmd.forwardmove < 0 {
             ps.movementDir = 4
-        } else if bg.pm.cmd.rightmove > 0 && bg.pm.cmd.forwardmove < 0 {
+        } else if pm.cmd.rightmove > 0 && pm.cmd.forwardmove < 0 {
             ps.movementDir = 5
-        } else if bg.pm.cmd.rightmove > 0 && bg.pm.cmd.forwardmove == 0 {
+        } else if pm.cmd.rightmove > 0 && pm.cmd.forwardmove == 0 {
             ps.movementDir = 6
-        } else if bg.pm.cmd.rightmove > 0 && bg.pm.cmd.forwardmove > 0 {
+        } else if pm.cmd.rightmove > 0 && pm.cmd.forwardmove > 0 {
             ps.movementDir = 7
         }
     } else {
@@ -775,7 +828,7 @@ private func PM_SetMovementDir() {
 
 /// Source: oracle/codemp/game/bg_pmove.c:1266
 func PM_ForceJumpingUp() -> Bool {
-    let ps = bg.pm.ps
+    let ps = pm.ps
     if (ps.fd.forcePowersActive & (1 << FP_LEVITATION)) == 0 && ps.fd.forceJumpCharge != 0 {
         //already jumped and let go
         return false
@@ -793,11 +846,11 @@ func PM_ForceJumpingUp() -> Bool {
         return false
     }
 
-    if BG_HasYsalamiri(bg.pm.gametype, ps) {
+    if BG_HasYsalamiri(pm.gametype, ps) {
         return false
     }
 
-    if !BG_CanUseFPNow(bg.pm.gametype, ps, bg.pm.cmd.serverTime, FP_LEVITATION) {
+    if !BG_CanUseFPNow(pm.gametype, ps, pm.cmd.serverTime, FP_LEVITATION) {
         return false
     }
 
@@ -813,18 +866,18 @@ func PM_ForceJumpingUp() -> Bool {
 
 /// Source: oracle/codemp/game/bg_pmove.c:1308
 private func PM_JumpForDir() {
-    let ps = bg.pm.ps
+    let ps = pm.ps
     var anim = BOTH_JUMP1
-    if bg.pm.cmd.forwardmove > 0 {
+    if pm.cmd.forwardmove > 0 {
         anim = BOTH_JUMP1
         ps.pm_flags &= ~PMF_BACKWARDS_JUMP
-    } else if bg.pm.cmd.forwardmove < 0 {
+    } else if pm.cmd.forwardmove < 0 {
         anim = BOTH_JUMPBACK1
         ps.pm_flags |= PMF_BACKWARDS_JUMP
-    } else if bg.pm.cmd.rightmove > 0 {
+    } else if pm.cmd.rightmove > 0 {
         anim = BOTH_JUMPRIGHT1
         ps.pm_flags &= ~PMF_BACKWARDS_JUMP
-    } else if bg.pm.cmd.rightmove < 0 {
+    } else if pm.cmd.rightmove < 0 {
         anim = BOTH_JUMPLEFT1
         ps.pm_flags &= ~PMF_BACKWARDS_JUMP
     } else {
@@ -871,7 +924,7 @@ func PM_AdjustAngleForWallRun(_ ps: JKAMP.PlayerState, _ ucmd: JKAMP.Usercmd, _ 
 
             mins = JKAShared.vec3_t(-15, -15, 0)
             maxs = JKAShared.vec3_t(15, 15, 24)
-            fwdAngles = JKAShared.vec3_t(0, bg.pm.ps.viewangles[YAW], 0)
+            fwdAngles = JKAShared.vec3_t(0, pm.ps.viewangles[YAW], 0)
 
             // Raven passes NULL for the third output of `AngleVectors`. The ported function takes it by reference, so the body passes a scratch vector it never reads.
             var scratchUp = JKAShared.vec3_t(0, 0, 0)
@@ -885,7 +938,7 @@ func PM_AdjustAngleForWallRun(_ ps: JKAMP.PlayerState, _ ucmd: JKAMP.Usercmd, _ 
             }
             _VectorMA(ps.origin, dist, rt, &traceTo)
 
-            bg.pm.runTrace(trace, ps.origin, mins, maxs, traceTo, ps.clientNum, MASK_PLAYERSOLID)
+            pm.runTrace(trace, ps.origin, mins, maxs, traceTo, ps.clientNum, MASK_PLAYERSOLID)
 
             if trace.fraction < 1.0
                 && (trace.plane.normal[2] >= 0.0 && trace.plane.normal[2] <= 0.4) {//&& ent->client->ps.groundEntityNum == ENTITYNUM_NONE )
@@ -901,8 +954,8 @@ func PM_AdjustAngleForWallRun(_ ps: JKAMP.PlayerState, _ ucmd: JKAMP.Usercmd, _ 
                     var wallRunUp = JKAShared.vec3_t(0, 0, 0)
                     AngleVectors(wallRunAngles, &wallRunFwd, &wallRunRight, &wallRunUp)
 
-                    _VectorMA(bg.pm.ps.origin, 32, wallRunFwd, &traceTo2)
-                    bg.pm.runTrace(trace2, bg.pm.ps.origin, mins, maxs, traceTo2, bg.pm.ps.clientNum, MASK_PLAYERSOLID)
+                    _VectorMA(pm.ps.origin, 32, wallRunFwd, &traceTo2)
+                    pm.runTrace(trace2, pm.ps.origin, mins, maxs, traceTo2, pm.ps.clientNum, MASK_PLAYERSOLID)
                     if trace2.fraction < 1.0 && _DotProduct(trace2.plane.normal, wallRunFwd) <= -0.999 {
                         //wall we can't run on in front of us
                         trace.fraction = 1.0//just a way to get it to kick us off the wall below
@@ -969,7 +1022,7 @@ func PM_AdjustAngleForWallRun(_ ps: JKAMP.PlayerState, _ ucmd: JKAMP.Usercmd, _ 
 func PM_AdjustAnglesForWallRunUpFlipAlt(_ ucmd: JKAMP.Usercmd) -> Bool {
 //	ucmd->angles[PITCH] = ANGLE2SHORT( pm->ps->viewangles[PITCH] ) - pm->ps->delta_angles[PITCH];
 //	ucmd->angles[YAW] = ANGLE2SHORT( pm->ps->viewangles[YAW] ) - pm->ps->delta_angles[YAW];
-    let ps = bg.pm.ps
+    let ps = pm.ps
     PM_SetPMViewAngle(ps, &ps.viewangles, ucmd)
     return true
 }
@@ -991,14 +1044,14 @@ func PM_AdjustAngleForWallRunUp(_ ps: JKAMP.PlayerState, _ ucmd: JKAMP.Usercmd, 
 
             mins = JKAShared.vec3_t(-15, -15, 0)
             maxs = JKAShared.vec3_t(15, 15, 24)
-            fwdAngles = JKAShared.vec3_t(0, bg.pm.ps.viewangles[YAW], 0)
+            fwdAngles = JKAShared.vec3_t(0, pm.ps.viewangles[YAW], 0)
 
             // Raven passes NULL for the second and third outputs of `AngleVectors`. The ported function takes them by reference, so the body passes scratch vectors it never reads.
             var scratchRight = JKAShared.vec3_t(0, 0, 0)
             var scratchUp = JKAShared.vec3_t(0, 0, 0)
             AngleVectors(fwdAngles, &fwd, &scratchRight, &scratchUp)
             _VectorMA(ps.origin, dist, fwd, &traceTo)
-            bg.pm.runTrace(trace, ps.origin, mins, maxs, traceTo, ps.clientNum, MASK_PLAYERSOLID)
+            pm.runTrace(trace, ps.origin, mins, maxs, traceTo, ps.clientNum, MASK_PLAYERSOLID)
             if trace.fraction > 0.5 {
                 //hmm, some room, see if there's a floor right here
                 let landed = JKAMP.Trace.scratch { trace2 -> Bool? in
@@ -1006,19 +1059,19 @@ func PM_AdjustAngleForWallRunUp(_ ps: JKAMP.PlayerState, _ ucmd: JKAMP.Usercmd, 
                     var bottom = JKAShared.vec3_t(0, 0, 0)
 
                     top = trace.endpos
-                    top[2] += (bg.pm.mins[2] * -1) + 4.0
+                    top[2] += (pm.mins[2] * -1) + 4.0
                     bottom = top
                     bottom[2] -= 64.0
-                    bg.pm.runTrace(trace2, top, bg.pm.mins, bg.pm.maxs, bottom, ps.clientNum, MASK_PLAYERSOLID)
+                    pm.runTrace(trace2, top, pm.mins, pm.maxs, bottom, ps.clientNum, MASK_PLAYERSOLID)
                     if trace2.allsolid == 0
                         && trace2.startsolid == 0
                         && trace2.fraction < 1.0
                         && trace2.plane.normal[2] > 0.7 {//slope we can stand on
                         //cool, do the alt-flip and land on whetever it is we just scaled up
-                        _VectorScale(fwd, 100, &bg.pm.ps.velocity)
-                        bg.pm.ps.velocity[2] += 400
+                        _VectorScale(fwd, 100, &pm.ps.velocity)
+                        pm.ps.velocity[2] += 400
                         PM_SetAnim(SETANIM_BOTH, BOTH_FORCEWALLRUNFLIP_ALT, SETANIM_FLAG_OVERRIDE | SETANIM_FLAG_HOLD, 0)
-                        bg.pm.ps.pm_flags |= PMF_JUMP_HELD
+                        pm.ps.pm_flags |= PMF_JUMP_HELD
                         //ent->client->ps.pm_flags |= PMF_JUMPING|PMF_SLOW_MO_FALL;
                         //ent->client->ps.forcePowersActive |= (1<<FP_LEVITATION);
                         //G_AddEvent( ent, EV_JUMP, 0 );
@@ -1043,7 +1096,7 @@ func PM_AdjustAngleForWallRunUp(_ ps: JKAMP.PlayerState, _ ucmd: JKAMP.Usercmd, 
                 let keptGoing = JKAMP.Trace.scratch { trace2 -> Bool? in
                     traceTo = ps.origin
                     traceTo[2] += 64
-                    bg.pm.runTrace(trace2, ps.origin, mins, maxs, traceTo, ps.clientNum, MASK_PLAYERSOLID)
+                    pm.runTrace(trace2, ps.origin, mins, maxs, traceTo, ps.clientNum, MASK_PLAYERSOLID)
                     if trace2.fraction < 1.0 {
                         //will hit a ceiling, so force jump-off right now
                         //NOTE: hits any entity or clip brush in the way, too, not just architecture!
@@ -1133,7 +1186,7 @@ private func BG_ForceWallJumpStrength() -> Float {
 func PM_AdjustAngleForWallJump(_ ps: JKAMP.PlayerState, _ ucmd: JKAMP.Usercmd, _ doMove: Bool) -> Bool {
     if ((BG_InReboundJump(ps.legsAnim) || BG_InReboundHold(ps.legsAnim))
             && (BG_InReboundJump(ps.torsoAnim) || BG_InReboundHold(ps.torsoAnim)))
-        || (bg.pm.ps.pm_flags & PMF_STUCK_TO_WALL) != 0 {
+        || (pm.ps.pm_flags & PMF_STUCK_TO_WALL) != 0 {
         //hugging wall, getting ready to jump off
         //stick to wall, if there is one
         // Raven's record lives to the end of his block, so the block is the closure.
@@ -1147,9 +1200,9 @@ func PM_AdjustAngleForWallJump(_ ps: JKAMP.PlayerState, _ ucmd: JKAMP.Usercmd, _
             let dist: Float = 128.0
             let yawAdjust: Float
 
-            mins = JKAShared.vec3_t(bg.pm.mins[0], bg.pm.mins[1], 0)
-            maxs = JKAShared.vec3_t(bg.pm.maxs[0], bg.pm.maxs[1], 24)
-            fwdAngles = JKAShared.vec3_t(0, bg.pm.ps.viewangles[YAW], 0)
+            mins = JKAShared.vec3_t(pm.mins[0], pm.mins[1], 0)
+            maxs = JKAShared.vec3_t(pm.maxs[0], pm.maxs[1], 24)
+            fwdAngles = JKAShared.vec3_t(0, pm.ps.viewangles[YAW], 0)
 
             // Raven passes NULL for the outputs of `AngleVectors` he does not read. The ported function takes them by reference, so the body passes scratch vectors it never reads.
             var scratchForward = JKAShared.vec3_t(0, 0, 0)
@@ -1181,10 +1234,10 @@ func PM_AdjustAngleForWallJump(_ ps: JKAMP.PlayerState, _ ucmd: JKAMP.Usercmd, _
 
             default:
                 //WTF???
-                bg.pm.ps.pm_flags &= ~PMF_STUCK_TO_WALL
+                pm.ps.pm_flags &= ~PMF_STUCK_TO_WALL
                 return false
             }
-            if bg.pm.debugMelee != 0 {
+            if pm.debugMelee != 0 {
                 //uber-skillz
                 if ucmd.upmove > 0 {
                     //hold on until you let go manually
@@ -1205,7 +1258,7 @@ func PM_AdjustAngleForWallJump(_ ps: JKAMP.PlayerState, _ ucmd: JKAMP.Usercmd, _
                 }
             }
             _VectorMA(ps.origin, dist, checkDir, &traceTo)
-            bg.pm.runTrace(trace, ps.origin, mins, maxs, traceTo, ps.clientNum, MASK_PLAYERSOLID)
+            pm.runTrace(trace, ps.origin, mins, maxs, traceTo, ps.clientNum, MASK_PLAYERSOLID)
             if //ucmd->upmove <= 0 && 
                 ps.legsTimer > 100 &&
                 trace.fraction < 1.0 &&
@@ -1291,7 +1344,7 @@ func PM_AdjustAngleForWallJump(_ ps: JKAMP.PlayerState, _ ucmd: JKAMP.Usercmd, _
 //Set the height for when a force jump was started. If it's 0, nuge it up (slight hack to prevent holding jump over slopes)
 /// Source: oracle/codemp/game/bg_pmove.c:1759
 func PM_SetForceJumpZStart(_ value: Float) {
-    let ps = bg.pm.ps
+    let ps = pm.ps
     ps.fd.forceJumpZStart = value
     if ps.fd.forceJumpZStart == 0 {
         ps.fd.forceJumpZStart -= 0.1
@@ -1301,7 +1354,7 @@ func PM_SetForceJumpZStart(_ value: Float) {
 /// Source: oracle/codemp/game/bg_pmove.c:1776
 func PM_GrabWallForJump(_ anim: Int32) {
     //NOTE!!! assumes an appropriate anim is being passed in!!!
-    let ps = bg.pm.ps
+    let ps = pm.ps
     PM_SetAnim(SETANIM_BOTH, anim, SETANIM_FLAG_RESTART | SETANIM_FLAG_OVERRIDE | SETANIM_FLAG_HOLD, 0)
     PM_AddEvent(EV_JUMP)//make sound for grab
     ps.pm_flags |= PMF_STUCK_TO_WALL
@@ -1317,10 +1370,10 @@ PM_CheckJump
 /// Source: oracle/codemp/game/bg_pmove.c:1788
 private func PM_CheckJump() -> Bool {
     var allowFlips = true
-    let ps = bg.pm.ps
+    let ps = pm.ps
 
     if ps.clientNum >= MAX_CLIENTS {
-        let pEnt: JKAMP.BgEntity? = bg.pm_entSelf
+        let pEnt: JKAMP.BgEntity? = pm_entSelf
 
         // Port-note: Raven reads `pEnt` with no NULL guard. The generated view is optional, so the body binds it.
         if let pEnt,
@@ -1371,18 +1424,18 @@ private func PM_CheckJump() -> Bool {
 
     if (ps.fd.forcePowersActive & (1 << FP_LEVITATION)) != 0 {
         //Force jump is already active.. continue draining power appropriately until we land.
-        if ps.fd.forcePowerDebounce[FP_LEVITATION] < bg.pm.cmd.serverTime {
-            if bg.pm.gametype == GT_DUEL
-                || bg.pm.gametype == GT_POWERDUEL {
+        if ps.fd.forcePowerDebounce[FP_LEVITATION] < pm.cmd.serverTime {
+            if pm.gametype == GT_DUEL
+                || pm.gametype == GT_POWERDUEL {
                 //jump takes less power
                 BG_ForcePowerDrain(ps, FP_LEVITATION, 1)
             } else {
                 BG_ForcePowerDrain(ps, FP_LEVITATION, 5)
             }
             if ps.fd.forcePowerLevel[FP_LEVITATION] >= FORCE_LEVEL_2 {
-                ps.fd.forcePowerDebounce[FP_LEVITATION] = bg.pm.cmd.serverTime + 300
+                ps.fd.forcePowerDebounce[FP_LEVITATION] = pm.cmd.serverTime + 300
             } else {
-                ps.fd.forcePowerDebounce[FP_LEVITATION] = bg.pm.cmd.serverTime + 200
+                ps.fd.forcePowerDebounce[FP_LEVITATION] = pm.cmd.serverTime + 200
             }
         }
     }
@@ -1392,23 +1445,23 @@ private func PM_CheckJump() -> Bool {
         var anim = BOTH_FORCEINAIR1
         var parts = SETANIM_BOTH
         if allowFlips {
-            if bg.pm.cmd.forwardmove > 0 {
+            if pm.cmd.forwardmove > 0 {
                 anim = BOTH_FLIP_F
-            } else if bg.pm.cmd.forwardmove < 0 {
+            } else if pm.cmd.forwardmove < 0 {
                 anim = BOTH_FLIP_B
-            } else if bg.pm.cmd.rightmove > 0 {
+            } else if pm.cmd.rightmove > 0 {
                 anim = BOTH_FLIP_R
-            } else if bg.pm.cmd.rightmove < 0 {
+            } else if pm.cmd.rightmove < 0 {
                 anim = BOTH_FLIP_L
             }
         } else {
-            if bg.pm.cmd.forwardmove > 0 {
+            if pm.cmd.forwardmove > 0 {
                 anim = BOTH_FORCEINAIR1
-            } else if bg.pm.cmd.forwardmove < 0 {
+            } else if pm.cmd.forwardmove < 0 {
                 anim = BOTH_FORCEINAIRBACK1
-            } else if bg.pm.cmd.rightmove > 0 {
+            } else if pm.cmd.rightmove > 0 {
                 anim = BOTH_FORCEINAIRRIGHT1
-            } else if bg.pm.cmd.rightmove < 0 {
+            } else if pm.cmd.rightmove < 0 {
                 anim = BOTH_FORCEINAIRLEFT1
             }
         }
@@ -1422,7 +1475,7 @@ private func PM_CheckJump() -> Bool {
         return true
     }
     // Raven's `#if METROID_JUMP` is 1 in this build, so the block below is the arm the build takes.
-    if bg.pm.waterlevel < 2 {
+    if pm.waterlevel < 2 {
         if ps.gravity > 0 {
             //can't do this in zero-G
             if PM_ForceJumpingUp() {
@@ -1430,7 +1483,7 @@ private func PM_CheckJump() -> Bool {
                 let curHeight = ps.origin[2] - ps.fd.forceJumpZStart
                 //check for max force jump level and cap off & cut z vel
                 if (curHeight <= forceJumpHeight[0] ||//still below minimum jump height
-                        (ps.fd.forcePower != 0 && bg.pm.cmd.upmove >= 10))////still have force power available and still trying to jump up
+                        (ps.fd.forcePower != 0 && pm.cmd.upmove >= 10))////still have force power available and still trying to jump up
                     && curHeight < forceJumpHeight[ps.fd.forcePowerLevel[FP_LEVITATION]]
                     && ps.fd.forceJumpZStart != 0 {//still below maximum jump height
                     //can still go up
@@ -1441,7 +1494,7 @@ private func PM_CheckJump() -> Bool {
                             ps.fd.forcePowersActive |= (1 << FP_LEVITATION)
                             ps.fd.forceJumpSound = 1
                             //play flip
-                            if (bg.pm.cmd.forwardmove != 0 || bg.pm.cmd.rightmove != 0) && //pushing in a dir
+                            if (pm.cmd.forwardmove != 0 || pm.cmd.rightmove != 0) && //pushing in a dir
                                 (ps.legsAnim) != BOTH_FLIP_F &&//not already flipping
                                 (ps.legsAnim) != BOTH_FLIP_B &&
                                 (ps.legsAnim) != BOTH_FLIP_R &&
@@ -1450,13 +1503,13 @@ private func PM_CheckJump() -> Bool {
                                 var anim = BOTH_FORCEINAIR1
                                 var parts = SETANIM_BOTH
 
-                                if bg.pm.cmd.forwardmove > 0 {
+                                if pm.cmd.forwardmove > 0 {
                                     anim = BOTH_FLIP_F
-                                } else if bg.pm.cmd.forwardmove < 0 {
+                                } else if pm.cmd.forwardmove < 0 {
                                     anim = BOTH_FLIP_B
-                                } else if bg.pm.cmd.rightmove > 0 {
+                                } else if pm.cmd.rightmove > 0 {
                                     anim = BOTH_FLIP_R
-                                } else if bg.pm.cmd.rightmove < 0 {
+                                } else if pm.cmd.rightmove < 0 {
                                     anim = BOTH_FLIP_L
                                 }
                                 if ps.weaponTime != 0 {
@@ -1555,21 +1608,21 @@ private func PM_CheckJump() -> Bool {
                         ps.velocity[2] = Float(JUMP_VELOCITY)
                     }
                 }
-                bg.pm.cmd.upmove = 0
+                pm.cmd.upmove = 0
                 return false
             }
         }
     }
 
     //Not jumping
-    if bg.pm.cmd.upmove < 10 && ps.groundEntityNum != ENTITYNUM_NONE {
+    if pm.cmd.upmove < 10 && ps.groundEntityNum != ENTITYNUM_NONE {
         return false
     }
 
     // must wait for jump to be released
     if (ps.pm_flags & PMF_JUMP_HELD) != 0 {
         // clear upmove so cmdscale doesn't lower running speed
-        bg.pm.cmd.upmove = 0
+        pm.cmd.upmove = 0
         return false
     }
 
@@ -1584,21 +1637,21 @@ private func PM_CheckJump() -> Bool {
         AngleVectors(ps.viewangles, &forward, &scratchRight, &scratchUp)
         _VectorMA(ps.origin, -8, forward, &back)
         Trace.scratch { trace in
-            bg.pm.runTrace(trace, ps.origin, bg.pm.mins, bg.pm.maxs, back, ps.clientNum, bg.pm.tracemask)
+            pm.runTrace(trace, ps.origin, pm.mins, pm.maxs, back, ps.clientNum, pm.tracemask)
 
             if trace.fraction <= 1.0 {
                 _VectorMA(ps.velocity, Float(JUMP_VELOCITY * 2), forward, &ps.velocity)
                 PM_SetAnim(SETANIM_LEGS, BOTH_FORCEJUMP1, SETANIM_FLAG_OVERRIDE | SETANIM_FLAG_HOLD | SETANIM_FLAG_RESTART, 150)
             }//else no surf close enough to push off of
         }
-        bg.pm.cmd.upmove = 0
-    } else if bg.pm.cmd.upmove > 0 && bg.pm.waterlevel < 2
+        pm.cmd.upmove = 0
+    } else if pm.cmd.upmove > 0 && pm.waterlevel < 2
         && ps.fd.forcePowerLevel[FP_LEVITATION] > FORCE_LEVEL_0
         && (ps.pm_flags & PMF_JUMP_HELD) == 0
         && (ps.weapon == WP_SABER || ps.weapon == WP_MELEE)
         && !PM_IsRocketTrooper()
-        && !BG_HasYsalamiri(bg.pm.gametype, ps)
-        && BG_CanUseFPNow(bg.pm.gametype, ps, bg.pm.cmd.serverTime, FP_LEVITATION) {
+        && !BG_HasYsalamiri(pm.gametype, ps)
+        && BG_CanUseFPNow(pm.gametype, ps, pm.cmd.serverTime, FP_LEVITATION) {
         var allowWallRuns = true
         var allowWallFlips = true
         var allowFlips = true
@@ -1645,37 +1698,37 @@ private func PM_CheckJump() -> Bool {
             //check for left-wall and right-wall special jumps
             var anim: Int32 = -1
             var vertPush: Float = 0
-            if bg.pm.cmd.rightmove > 0 && ps.fd.forcePowerLevel[FP_LEVITATION] > FORCE_LEVEL_1 {
+            if pm.cmd.rightmove > 0 && ps.fd.forcePowerLevel[FP_LEVITATION] > FORCE_LEVEL_1 {
                 //strafing right
-                if bg.pm.cmd.forwardmove > 0 {
+                if pm.cmd.forwardmove > 0 {
                     //wall-run
                     if allowWallRuns {
                         vertPush = forceJumpStrength[FORCE_LEVEL_2] / 2.0
                         anim = BOTH_WALL_RUN_RIGHT
                     }
-                } else if bg.pm.cmd.forwardmove == 0 {
+                } else if pm.cmd.forwardmove == 0 {
                     //wall-flip
                     if allowWallFlips {
                         vertPush = forceJumpStrength[FORCE_LEVEL_2] / 2.25
                         anim = BOTH_WALL_FLIP_RIGHT
                     }
                 }
-            } else if bg.pm.cmd.rightmove < 0 && ps.fd.forcePowerLevel[FP_LEVITATION] > FORCE_LEVEL_1 {
+            } else if pm.cmd.rightmove < 0 && ps.fd.forcePowerLevel[FP_LEVITATION] > FORCE_LEVEL_1 {
                 //strafing left
-                if bg.pm.cmd.forwardmove > 0 {
+                if pm.cmd.forwardmove > 0 {
                     //wall-run
                     if allowWallRuns {
                         vertPush = forceJumpStrength[FORCE_LEVEL_2] / 2.0
                         anim = BOTH_WALL_RUN_LEFT
                     }
-                } else if bg.pm.cmd.forwardmove == 0 {
+                } else if pm.cmd.forwardmove == 0 {
                     //wall-flip
                     if allowWallFlips {
                         vertPush = forceJumpStrength[FORCE_LEVEL_2] / 2.25
                         anim = BOTH_WALL_FLIP_LEFT
                     }
                 }
-            } else if bg.pm.cmd.forwardmove < 0 && (bg.pm.cmd.buttons & BUTTON_ATTACK) == 0 {
+            } else if pm.cmd.forwardmove < 0 && (pm.cmd.buttons & BUTTON_ATTACK) == 0 {
                 //backflip
                 if allowFlips {
                     vertPush = Float(JUMP_VELOCITY)
@@ -1698,8 +1751,8 @@ private func PM_CheckJump() -> Bool {
                     var doTrace = false
                     let contents = MASK_SOLID//MASK_PLAYERSOLID;
 
-                    mins = JKAShared.vec3_t(bg.pm.mins[0], bg.pm.mins[1], 0)
-                    maxs = JKAShared.vec3_t(bg.pm.maxs[0], bg.pm.maxs[1], 24)
+                    mins = JKAShared.vec3_t(pm.mins[0], pm.mins[1], 0)
+                    maxs = JKAShared.vec3_t(pm.maxs[0], pm.maxs[1], 24)
                     fwdAngles = JKAShared.vec3_t(0, ps.viewangles[YAW], 0)
 
                     //to shut the compiler up
@@ -1734,7 +1787,7 @@ private func PM_CheckJump() -> Bool {
                     }
 
                     if doTrace {
-                        bg.pm.runTrace(trace, ps.origin, mins, maxs, traceto, ps.clientNum, contents)
+                        pm.runTrace(trace, ps.origin, mins, maxs, traceto, ps.clientNum, contents)
                         wallNormal = trace.plane.normal
                         _ = VectorNormalize(&wallNormal)
                         _VectorSubtract(ps.origin, traceto, &idealNormal)
@@ -1788,7 +1841,7 @@ private func PM_CheckJump() -> Bool {
                             parts = SETANIM_LEGS
                             if anim == BOTH_BUTTERFLY_LEFT {
                                 parts = SETANIM_BOTH
-                                bg.pm.cmd.buttons &= ~BUTTON_ATTACK
+                                pm.cmd.buttons &= ~BUTTON_ATTACK
                                 ps.saberMove = LS_NONE
                             } else if ps.weaponTime == 0 {
                                 parts = SETANIM_BOTH
@@ -1799,7 +1852,7 @@ private func PM_CheckJump() -> Bool {
                             }
                             PM_SetForceJumpZStart(ps.origin[2])//so we don't take damage if we land at same height
                             ps.pm_flags |= PMF_JUMP_HELD
-                            bg.pm.cmd.upmove = 0
+                            pm.cmd.upmove = 0
                             ps.fd.forceJumpSound = 1
                         }
                     }
@@ -1818,8 +1871,8 @@ private func PM_CheckJump() -> Bool {
                 var fwdAngles = JKAShared.vec3_t(0, 0, 0)
                 var anim: Int32 = -1
 
-                mins = JKAShared.vec3_t(bg.pm.mins[0], bg.pm.mins[0], 0)
-                maxs = JKAShared.vec3_t(bg.pm.maxs[0], bg.pm.maxs[0], 24)
+                mins = JKAShared.vec3_t(pm.mins[0], pm.mins[0], 0)
+                maxs = JKAShared.vec3_t(pm.maxs[0], pm.maxs[0], 24)
                 fwdAngles = JKAShared.vec3_t(0, ps.viewangles[YAW], 0)
 
                 // Raven passes NULL for the first and third outputs of `AngleVectors`. The ported function takes them by reference, so the body passes scratch vectors it never reads.
@@ -1850,7 +1903,7 @@ private func PM_CheckJump() -> Bool {
                 }
                 if anim != -1 {
                     Trace.scratch { trace in
-                        bg.pm.runTrace(trace, ps.origin, mins, maxs, traceto, ps.clientNum, CONTENTS_SOLID | CONTENTS_BODY)
+                        pm.runTrace(trace, ps.origin, mins, maxs, traceto, ps.clientNum, CONTENTS_SOLID | CONTENTS_BODY)
                         if trace.fraction < 1.0 {
                             //flip off wall
                             var parts: Int32 = 0
@@ -1869,11 +1922,11 @@ private func PM_CheckJump() -> Bool {
                                 parts = SETANIM_BOTH
                             }
                             PM_SetAnim(parts, anim, SETANIM_FLAG_OVERRIDE | SETANIM_FLAG_HOLD, 0)
-                            bg.pm.cmd.upmove = 0
+                            pm.cmd.upmove = 0
                         }
                     }
                 }
-                if bg.pm.cmd.upmove != 0 {
+                if pm.cmd.upmove != 0 {
                     //jump failed, so don't try to do normal jump code, just return
                     return false
                 }
@@ -1888,8 +1941,8 @@ private func PM_CheckJump() -> Bool {
                 var anim: Int32 = -1
                 var animLen: Float
 
-                mins = JKAShared.vec3_t(bg.pm.mins[0], bg.pm.mins[0], 0.0)
-                maxs = JKAShared.vec3_t(bg.pm.maxs[0], bg.pm.maxs[0], 24.0)
+                mins = JKAShared.vec3_t(pm.mins[0], pm.mins[0], 0.0)
+                maxs = JKAShared.vec3_t(pm.maxs[0], pm.maxs[0], 24.0)
                 //hmm, did you mean [1] and [1]?
                 fwdAngles = JKAShared.vec3_t(0, ps.viewangles[YAW], 0.0)
                 // Raven passes NULL for the last two outputs of `AngleVectors`. The ported function takes them by reference, so the body passes scratch vectors it never reads.
@@ -1897,9 +1950,9 @@ private func PM_CheckJump() -> Bool {
                 var scratchUp = JKAShared.vec3_t(0, 0, 0)
                 AngleVectors(fwdAngles, &fwd, &scratchRight, &scratchUp)
 
-                assert(bg.pm_entSelf != nil) //null pm_entSelf would be a Bad Thing<tm>
+                assert(pm_entSelf != nil) //null pm_entSelf would be a Bad Thing<tm>
                 // Port-note: Raven reads `pm_entSelf` right after his assert. The generated view is optional, so the body binds it, and the nil path leaves `anim` at -1.
-                if let pm_entSelf = bg.pm_entSelf {
+                if let pm_entSelf = pm_entSelf {
                     animLen = Float(BG_AnimLength(pm_entSelf.localAnimIndex, BOTH_FORCEWALLRUNFLIP_START))
                     if ps.legsTimer < animLen - 400 {
                         //not at start of anim
@@ -1909,7 +1962,7 @@ private func PM_CheckJump() -> Bool {
                 }
                 if anim != -1 {
                     Trace.scratch { trace in
-                        bg.pm.runTrace(trace, ps.origin, mins, maxs, traceto, ps.clientNum, CONTENTS_SOLID | CONTENTS_BODY)
+                        pm.runTrace(trace, ps.origin, mins, maxs, traceto, ps.clientNum, CONTENTS_SOLID | CONTENTS_BODY)
                         if trace.fraction < 1.0 {
                             //flip off wall
                             var parts = SETANIM_LEGS
@@ -1926,12 +1979,12 @@ private func PM_CheckJump() -> Bool {
                             //FIXME: do damage to traceEnt, like above?
                             //pm->ps->pm_flags |= PMF_JUMPING|PMF_SLOW_MO_FALL;
                             //ha ha, so silly with your silly jumpy fally flags.
-                            bg.pm.cmd.upmove = 0
+                            pm.cmd.upmove = 0
                             PM_AddEvent(EV_JUMP)
                         }
                     }
                 }
-                if bg.pm.cmd.upmove != 0 {
+                if pm.cmd.upmove != 0 {
                     //jump failed, so don't try to do normal jump code, just return
                     return false
                 }
@@ -1987,8 +2040,8 @@ private func PM_CheckJump() -> Bool {
                 }
             }
             */
-            else if bg.pm.cmd.forwardmove > 0 //pushing forward
-                && ps.fd.forceRageRecoveryTime < bg.pm.cmd.serverTime	//not in a force Rage recovery period
+            else if pm.cmd.forwardmove > 0 //pushing forward
+                && ps.fd.forceRageRecoveryTime < pm.cmd.serverTime	//not in a force Rage recovery period
                 && ps.fd.forcePowerLevel[FP_LEVITATION] > FORCE_LEVEL_1
                 && PM_WalkableGroundDistance() <= 80 //unfortunately we do not have a happy ground timer like SP (this would use up more bandwidth if we wanted prediction workign right), so we'll just use the actual ground distance.
                 && (ps.legsAnim == BOTH_JUMP1 || ps.legsAnim == BOTH_INAIR1) {//not in a flip or spin or anything
@@ -2019,8 +2072,8 @@ private func PM_CheckJump() -> Bool {
                         var idealNormal = JKAShared.vec3_t(0, 0, 0)
                         var traceEnt: JKAMP.BgEntity? = nil
                         Trace.scratch { trace in
-                            mins = JKAShared.vec3_t(bg.pm.mins[0], bg.pm.mins[1], 0.0)
-                            maxs = JKAShared.vec3_t(bg.pm.maxs[0], bg.pm.maxs[1], 24.0)
+                            mins = JKAShared.vec3_t(pm.mins[0], pm.mins[1], 0.0)
+                            maxs = JKAShared.vec3_t(pm.maxs[0], pm.maxs[1], 24.0)
                             fwdAngles = JKAShared.vec3_t(0, ps.viewangles[YAW], 0.0)
 
                             // Raven passes NULL for the last two outputs of `AngleVectors`. The ported function takes them by reference, so the body passes scratch vectors it never reads.
@@ -2029,7 +2082,7 @@ private func PM_CheckJump() -> Bool {
                             AngleVectors(fwdAngles, &fwd, &scratchRight, &scratchUp)
                             _VectorMA(ps.origin, 32, fwd, &traceto)
 
-                            bg.pm.runTrace(trace, ps.origin, mins, maxs, traceto, ps.clientNum, contents)//FIXME: clip brushes too?
+                            pm.runTrace(trace, ps.origin, mins, maxs, traceto, ps.clientNum, contents)//FIXME: clip brushes too?
                             _VectorSubtract(ps.origin, traceto, &idealNormal)
                             _ = VectorNormalize(&idealNormal)
                             // Port-note: `trace_t.entityNum` is Raven's `short`, which C promotes to `int` at this call. Swift has no such promotion, so the body adds `Int32(...)`.
@@ -2061,7 +2114,7 @@ private func PM_CheckJump() -> Bool {
                                 //G_SoundOnEnt( pm->gent, CHAN_BODY, "sound/weapons/force/jump.wav" );
                                 //yucky!
                                 PM_SetForceJumpZStart(ps.origin[2])//so we don't take damage if we land at same height
-                                bg.pm.cmd.upmove = 0
+                                pm.cmd.upmove = 0
                                 ps.fd.forceJumpSound = 1
                                 BG_ForcePowerDrain(ps, FP_LEVITATION, 5)
 
@@ -2072,8 +2125,8 @@ private func PM_CheckJump() -> Bool {
                                     pm->ps->forceKickFlip = traceEnt->s.number+1;
                                 }
                                 */
-                                bg.pm.cmd.forwardmove = 0
-                                bg.pm.cmd.rightmove = 0
+                                pm.cmd.forwardmove = 0
+                                pm.cmd.rightmove = 0
                             }
                         }
                         _ = traceEnt
@@ -2085,11 +2138,11 @@ private func PM_CheckJump() -> Bool {
                     //&& pm->ps->velocity[2] <= 0
                     && ps.velocity[2] > -1200 //not falling down very fast
                     && (ps.pm_flags & PMF_JUMP_HELD) == 0//have to have released jump since last press
-                    && (bg.pm.cmd.forwardmove != 0 || bg.pm.cmd.rightmove != 0)//pushing in a direction
+                    && (pm.cmd.forwardmove != 0 || pm.cmd.rightmove != 0)//pushing in a direction
                     //&& pm->ps->forceRageRecoveryTime < pm->cmd.serverTime	//not in a force Rage recovery period
                     && ps.fd.forcePowerLevel[FP_LEVITATION] > FORCE_LEVEL_2//level 3 jump or better
                     //&& WP_ForcePowerAvailable( pm->gent, FP_LEVITATION, 10 )//have enough force power to do another one
-                    && BG_CanUseFPNow(bg.pm.gametype, ps, bg.pm.cmd.serverTime, FP_LEVITATION)
+                    && BG_CanUseFPNow(pm.gametype, ps, pm.cmd.serverTime, FP_LEVITATION)
                     && (ps.origin[2] - ps.fd.forceJumpZStart) < (forceJumpHeightMax[FORCE_LEVEL_3] - (BG_ForceWallJumpStrength() / 2.0)) //can fit at least one more wall jump in (yes, using "magic numbers"... for now)
                     //&& (pm->ps->legsAnim == BOTH_JUMP1 || pm->ps->legsAnim == BOTH_INAIR1 ) )//not in a flip or spin or anything
                     {
@@ -2108,27 +2161,27 @@ private func PM_CheckJump() -> Bool {
                     var idealNormal = JKAShared.vec3_t(0, 0, 0)
                     var anim: Int32 = -1
 
-                    mins = JKAShared.vec3_t(bg.pm.mins[0], bg.pm.mins[1], 0.0)
-                    maxs = JKAShared.vec3_t(bg.pm.maxs[0], bg.pm.maxs[1], 24.0)
+                    mins = JKAShared.vec3_t(pm.mins[0], pm.mins[1], 0.0)
+                    maxs = JKAShared.vec3_t(pm.maxs[0], pm.maxs[1], 24.0)
                     fwdAngles = JKAShared.vec3_t(0, ps.viewangles[YAW], 0.0)
 
                     // Raven passes NULL for two of the three outputs of `AngleVectors` at each call below. The ported function takes them by reference, so the body passes scratch vectors it never reads.
                     var scratchForward = JKAShared.vec3_t(0, 0, 0)
                     var scratchRight = JKAShared.vec3_t(0, 0, 0)
                     var scratchUp = JKAShared.vec3_t(0, 0, 0)
-                    if bg.pm.cmd.rightmove != 0 {
-                        if bg.pm.cmd.rightmove > 0 {
+                    if pm.cmd.rightmove != 0 {
+                        if pm.cmd.rightmove > 0 {
                             anim = BOTH_FORCEWALLREBOUND_RIGHT
                             AngleVectors(fwdAngles, &scratchForward, &checkDir, &scratchUp)
-                        } else if bg.pm.cmd.rightmove < 0 {
+                        } else if pm.cmd.rightmove < 0 {
                             anim = BOTH_FORCEWALLREBOUND_LEFT
                             AngleVectors(fwdAngles, &scratchForward, &checkDir, &scratchUp)
                             _VectorScale(checkDir, -1, &checkDir)
                         }
-                    } else if bg.pm.cmd.forwardmove > 0 {
+                    } else if pm.cmd.forwardmove > 0 {
                         anim = BOTH_FORCEWALLREBOUND_FORWARD
                         AngleVectors(fwdAngles, &checkDir, &scratchRight, &scratchUp)
-                    } else if bg.pm.cmd.forwardmove < 0 {
+                    } else if pm.cmd.forwardmove < 0 {
                         anim = BOTH_FORCEWALLREBOUND_BACK
                         AngleVectors(fwdAngles, &checkDir, &scratchRight, &scratchUp)
                         _VectorScale(checkDir, -1, &checkDir)
@@ -2139,7 +2192,7 @@ private func PM_CheckJump() -> Bool {
 
                         Trace.scratch { trace in
                             _VectorMA(ps.origin, 8, checkDir, &traceto)
-                            bg.pm.runTrace(trace, ps.origin, mins, maxs, traceto, ps.clientNum, CONTENTS_SOLID)//FIXME: clip brushes too?
+                            pm.runTrace(trace, ps.origin, mins, maxs, traceto, ps.clientNum, CONTENTS_SOLID)//FIXME: clip brushes too?
                             _VectorSubtract(ps.origin, traceto, &idealNormal)
                             _ = VectorNormalize(&idealNormal)
                             // Port-note: `trace_t.entityNum` is Raven's `short`, which C promotes to `int` at this call. Swift has no such promotion, so the body adds `Int32(...)`.
@@ -2237,7 +2290,7 @@ private func PM_CheckJump() -> Bool {
     if ps.groundEntityNum == ENTITYNUM_NONE {
         return false
     }
-    if bg.pm.cmd.upmove > 0 {
+    if pm.cmd.upmove > 0 {
         //no special jumps
         ps.velocity[2] = Float(JUMP_VELOCITY)
         PM_SetForceJumpZStart(ps.origin[2])//so we don't take damage if we land at same height
@@ -2273,13 +2326,13 @@ private func PM_CheckWaterJump() -> Bool {
     var spot = JKAShared.vec3_t(0, 0, 0)
     var cont: Int32
     var flatforward = JKAShared.vec3_t(0, 0, 0)
-    let ps = bg.pm.ps
+    let ps = pm.ps
     if ps.pm_time != 0 {
         return false
     }
 
     // check for water jump
-    if bg.pm.waterlevel != 2 {
+    if pm.waterlevel != 2 {
         return false
     }
 
@@ -2291,14 +2344,14 @@ private func PM_CheckWaterJump() -> Bool {
     _VectorMA(ps.origin, 30, flatforward, &spot)
     spot[2] += 4
     // Port-note: Raven calls `pm->pointcontents` with no guard. The generated call gives nil when the stored pointer is nil, so the body binds the result, and the nil path traps.
-    let contBelow = bg.pm.runPointcontents(spot, ps.clientNum)
+    let contBelow = pm.runPointcontents(spot, ps.clientNum)
     cont = contBelow
     if (cont & CONTENTS_SOLID) == 0 {
         return false
     }
 
     spot[2] += 16
-    let contAbove = bg.pm.runPointcontents(spot, ps.clientNum)
+    let contAbove = pm.runPointcontents(spot, ps.clientNum)
     cont = contAbove
     if cont != 0 {
         return false
@@ -2326,7 +2379,7 @@ Flying out of the water
 /// Source: oracle/codemp/game/bg_pmove.c:2833
 private func PM_WaterJumpMove() {
     // waterjump has no control, but falls
-    let ps = bg.pm.ps
+    let ps = pm.ps
     PM_StepSlideMove(true)
 
     ps.velocity[2] -= ps.gravity * bg.pml.frametime
@@ -2353,14 +2406,14 @@ private func PM_WaterMove() {
     var wishdir = JKAShared.vec3_t(0, 0, 0)
     let scale: Float
     let vel: Float
-    let ps = bg.pm.ps
+    let ps = pm.ps
     if PM_CheckWaterJump() {
         PM_WaterJumpMove()
         return
     }
     PM_Friction()
 
-    scale = PM_CmdScale(bg.pm.cmd)
+    scale = PM_CmdScale(pm.cmd)
     //
     // user intentions
     //
@@ -2371,11 +2424,11 @@ private func PM_WaterMove() {
     } else {
         i = 0
         while i < 3 {
-            wishvel[i] = scale * bg.pml.forward[i] * Float(bg.pm.cmd.forwardmove) + scale * bg.pml.right[i] * Float(bg.pm.cmd.rightmove)
+            wishvel[i] = scale * bg.pml.forward[i] * Float(pm.cmd.forwardmove) + scale * bg.pml.right[i] * Float(pm.cmd.rightmove)
             i += 1
         }
 
-        wishvel[2] += scale * Float(bg.pm.cmd.upmove)
+        wishvel[2] += scale * Float(pm.cmd.upmove)
     }
 
     wishdir = wishvel
@@ -2422,7 +2475,7 @@ private func PM_FlyVehicleMove() {
     let scale: Float
     let zVel: Float
     let fmove: Float = 0.0, smove: Float = 0.0
-    let ps = bg.pm.ps
+    let ps = pm.ps
     // We don't use these here because we pre-calculate the movedir in the vehicle update anyways, and if
     // you leave this, you get strange motion during boarding (the player can move the vehicle).
     //fmove = pm->cmd.forwardmove;
@@ -2441,7 +2494,7 @@ private func PM_FlyVehicleMove() {
         }
     }
 
-    scale = PM_CmdScale(bg.pm.cmd)
+    scale = PM_CmdScale(pm.cmd)
 
     // Get The WishVel And WishSpeed
     //-------------------------------
@@ -2514,13 +2567,13 @@ private func PM_FlyMove() {
     var wishspeed: Float
     var wishdir = JKAShared.vec3_t(0, 0, 0)
     var scale: Float
-    let ps = bg.pm.ps
+    let ps = pm.ps
     // normal slowdown
     PM_Friction()
 
-    scale = PM_CmdScale(bg.pm.cmd)
+    scale = PM_CmdScale(pm.cmd)
 
-    if ps.pm_type == PM_SPECTATOR && (bg.pm.cmd.buttons & BUTTON_ALT_ATTACK) != 0 {
+    if ps.pm_type == PM_SPECTATOR && (pm.cmd.buttons & BUTTON_ALT_ATTACK) != 0 {
         //turbo boost
         scale *= 10
     }
@@ -2531,15 +2584,15 @@ private func PM_FlyMove() {
     if scale == 0 {
         wishvel[0] = 0
         wishvel[1] = 0
-        wishvel[2] = ps.speed * (Float(bg.pm.cmd.upmove) / 127.0)
+        wishvel[2] = ps.speed * (Float(pm.cmd.upmove) / 127.0)
     } else {
         i = 0
         while i < 3 {
-            wishvel[i] = scale * bg.pml.forward[i] * Float(bg.pm.cmd.forwardmove) + scale * bg.pml.right[i] * Float(bg.pm.cmd.rightmove)
+            wishvel[i] = scale * bg.pml.forward[i] * Float(pm.cmd.forwardmove) + scale * bg.pml.right[i] * Float(pm.cmd.rightmove)
             i += 1
         }
 
-        wishvel[2] += scale * Float(bg.pm.cmd.upmove)
+        wishvel[2] += scale * Float(pm.cmd.upmove)
     }
 
     wishdir = wishvel
@@ -2568,9 +2621,9 @@ private func PM_AirMove() {
     var scale: Float
     var accelerate: Float
     var pVeh: JKAMP.Vehicle? = nil
-    let ps = bg.pm.ps
+    let ps = pm.ps
     if ps.clientNum >= MAX_CLIENTS {
-        let pEnt: JKAMP.BgEntity? = bg.pm_entSelf
+        let pEnt: JKAMP.BgEntity? = pm_entSelf
 
         if let pEnt, pEnt.s.NPC_class == CLASS_VEHICLE {
             pVeh = pEnt.m_pVehicle
@@ -2582,10 +2635,10 @@ private func PM_AirMove() {
     }
     PM_Friction()
 
-    fmove = Float(bg.pm.cmd.forwardmove)
-    smove = Float(bg.pm.cmd.rightmove)
+    fmove = Float(pm.cmd.forwardmove)
+    smove = Float(pm.cmd.rightmove)
 
-    scale = Usercmd.scratch(copying: bg.pm.cmd) { cmd in
+    scale = Usercmd.scratch(copying: pm.cmd) { cmd in
         PM_CmdScale(cmd)
     }
 
@@ -2607,7 +2660,7 @@ private func PM_AirMove() {
             wishdir = ps.moveDir
             scale = 1.0
         }
-    } else if bg.gPMDoSlowFall {
+    } else if gPMDoSlowFall {
         //no air-control
         wishvel = JKAShared.vec3_t(0, 0, 0)
     } else if ps.pm_type == PM_JETPACK {
@@ -2619,7 +2672,7 @@ private func PM_AirMove() {
         }
         wishvel[2] = 0
 
-        if bg.pm.cmd.upmove <= 0 {
+        if pm.cmd.upmove <= 0 {
             wishvel = wishvel * 0.8
         } else {
             //if we are jetting then we have more control than usual
@@ -2695,8 +2748,8 @@ private func PM_WalkMove() {
     var accelerate: Float
     let vel: Float
     var npcMovement = false
-    let ps = bg.pm.ps
-    if bg.pm.waterlevel > 2 && _DotProduct(bg.pml.forward, bg.pml.groundTrace.plane.normal) > 0 {
+    let ps = pm.ps
+    if pm.waterlevel > 2 && _DotProduct(bg.pml.forward, bg.pml.groundTrace.plane.normal) > 0 {
         // begin swimming
         PM_WaterMove()
         return
@@ -2705,7 +2758,7 @@ private func PM_WalkMove() {
     if ps.pm_type != PM_SPECTATOR {
         if PM_CheckJump() {
             // jumped away
-            if bg.pm.waterlevel > 1 {
+            if pm.waterlevel > 1 {
                 PM_WaterMove()
             } else {
                 PM_AirMove()
@@ -2716,10 +2769,10 @@ private func PM_WalkMove() {
 
     PM_Friction()
 
-    fmove = Float(bg.pm.cmd.forwardmove)
-    smove = Float(bg.pm.cmd.rightmove)
+    fmove = Float(pm.cmd.forwardmove)
+    smove = Float(pm.cmd.rightmove)
 
-    scale = Usercmd.scratch(copying: bg.pm.cmd) { cmd in
+    scale = Usercmd.scratch(copying: pm.cmd) { cmd in
         PM_CmdScale(cmd)
     }
 
@@ -2749,7 +2802,7 @@ private func PM_WalkMove() {
     //-------------------------------
     if ps.clientNum >= MAX_CLIENTS && VectorCompare(ps.moveDir, vec3_origin) == 0 {
         //NPC
-        let pEnt: JKAMP.BgEntity? = bg.pm_entSelf
+        let pEnt: JKAMP.BgEntity? = pm_entSelf
 
         if let pEnt, pEnt.s.NPC_class == CLASS_VEHICLE {
             // If The UCmds Were Set, But Never Converted Into A MoveDir, Then Make The WishDir From UCmds
@@ -2805,11 +2858,11 @@ private func PM_WalkMove() {
     }
 
     // clamp the speed lower if wading or walking on the bottom
-    if bg.pm.waterlevel != 0 {
+    if pm.waterlevel != 0 {
         var waterScale: Float
 
         // C works these two lines in double, because 3.0, 1.0, and 1.0 are double literals.
-        waterScale = Float(Double(bg.pm.waterlevel) / 3.0)
+        waterScale = Float(Double(pm.waterlevel) / 3.0)
         waterScale = Float(1.0 - (1.0 - Double(pm_swimScale)) * Double(waterScale))
         if wishspeed > ps.speed * waterScale {
             wishspeed = ps.speed * waterScale
@@ -2818,7 +2871,7 @@ private func PM_WalkMove() {
 
     // when a player gets hit, they temporarily lose
     // full control, which allows them to be moved a bit
-    if bg.pm_flying == FLY_HOVER {
+    if pm_flying == FLY_HOVER {
         accelerate = pm_vehicleaccelerate
     } else if (bg.pml.groundTrace.surfaceFlags & SURF_SLICK) != 0 || (ps.pm_flags & PMF_TIME_KNOCKBACK) != 0 {
         accelerate = pm_airaccelerate
@@ -2877,7 +2930,7 @@ PM_DeadMove
 /// Source: oracle/codemp/game/bg_pmove.c:3492
 private func PM_DeadMove() {
     var forward: Float
-    let ps = bg.pm.ps
+    let ps = pm.ps
     if !bg.pml.walking {
         return
     }
@@ -2911,7 +2964,7 @@ private func PM_NoclipMove() {
     var wishdir = JKAShared.vec3_t(0, 0, 0)
     var wishspeed: Float
     var scale: Float
-    let ps = bg.pm.ps
+    let ps = pm.ps
     ps.viewheight = DEFAULT_VIEWHEIGHT
 
     // friction
@@ -2938,23 +2991,23 @@ private func PM_NoclipMove() {
     }
 
     // accelerate
-    scale = PM_CmdScale(bg.pm.cmd)
-    if (bg.pm.cmd.buttons & BUTTON_ATTACK) != 0 { //turbo boost
+    scale = PM_CmdScale(pm.cmd)
+    if (pm.cmd.buttons & BUTTON_ATTACK) != 0 { //turbo boost
         scale *= 10
     }
-    if (bg.pm.cmd.buttons & BUTTON_ALT_ATTACK) != 0 { //turbo boost
+    if (pm.cmd.buttons & BUTTON_ALT_ATTACK) != 0 { //turbo boost
         scale *= 10
     }
 
-    fmove = Float(bg.pm.cmd.forwardmove)
-    smove = Float(bg.pm.cmd.rightmove)
+    fmove = Float(pm.cmd.forwardmove)
+    smove = Float(pm.cmd.rightmove)
 
     i = 0
     while i < 3 {
         wishvel[i] = bg.pml.forward[i] * fmove + bg.pml.right[i] * smove
         i += 1
     }
-    wishvel[2] += Float(bg.pm.cmd.upmove)
+    wishvel[2] += Float(pm.cmd.upmove)
 
     wishdir = wishvel
     wishspeed = VectorNormalize(&wishdir)
@@ -2995,7 +3048,7 @@ private func PM_TryRoll() -> Int32 {
     var mins = JKAShared.vec3_t(0, 0, 0)
     var maxs = JKAShared.vec3_t(0, 0, 0)
     var fwdAngles = JKAShared.vec3_t(0, 0, 0)
-    let ps = bg.pm.ps
+    let ps = pm.ps
 
     if BG_SaberInAttack(ps.saberMove) || BG_SaberInSpecialAttack(ps.torsoAnim)
         || BG_SpinningSaberAnim(ps.legsAnim)
@@ -3010,8 +3063,8 @@ private func PM_TryRoll() -> Int32 {
 
     if (ps.weapon != WP_SABER && ps.weapon != WP_MELEE)
         || PM_IsRocketTrooper()
-        || BG_HasYsalamiri(bg.pm.gametype, ps)
-        || !BG_CanUseFPNow(bg.pm.gametype, ps, bg.pm.cmd.serverTime, FP_LEVITATION) {
+        || BG_HasYsalamiri(pm.gametype, ps)
+        || !BG_CanUseFPNow(pm.gametype, ps, pm.cmd.serverTime, FP_LEVITATION) {
         //Not using saber, or can't use jump
         return 0
     }
@@ -3029,8 +3082,8 @@ private func PM_TryRoll() -> Int32 {
         }
     }
 
-    mins = JKAShared.vec3_t(bg.pm.mins[0], bg.pm.mins[1], bg.pm.mins[2] + STEPSIZE)
-    maxs = JKAShared.vec3_t(bg.pm.maxs[0], bg.pm.maxs[1], Float(ps.crouchheight))
+    mins = JKAShared.vec3_t(pm.mins[0], pm.mins[1], pm.mins[2] + STEPSIZE)
+    maxs = JKAShared.vec3_t(pm.maxs[0], pm.maxs[1], Float(ps.crouchheight))
 
     fwdAngles = JKAShared.vec3_t(0, ps.viewangles[YAW], 0)
 
@@ -3038,7 +3091,7 @@ private func PM_TryRoll() -> Int32 {
     var scratchUp = JKAShared.vec3_t(0, 0, 0)
     AngleVectors(fwdAngles, &fwd, &right, &scratchUp)
 
-    if bg.pm.cmd.forwardmove != 0 {
+    if pm.cmd.forwardmove != 0 {
         //check forward/backward rolls
         if (ps.pm_flags & PMF_BACKWARDS_RUN) != 0 {
             anim = BOTH_ROLL_B
@@ -3047,11 +3100,11 @@ private func PM_TryRoll() -> Int32 {
             anim = BOTH_ROLL_F
             _VectorMA(ps.origin, 64, fwd, &traceto)
         }
-    } else if bg.pm.cmd.rightmove > 0 {
+    } else if pm.cmd.rightmove > 0 {
         //right
         anim = BOTH_ROLL_R
         _VectorMA(ps.origin, 64, right, &traceto)
-    } else if bg.pm.cmd.rightmove < 0 {
+    } else if pm.cmd.rightmove < 0 {
         //left
         anim = BOTH_ROLL_L
         _VectorMA(ps.origin, -64, right, &traceto)
@@ -3060,7 +3113,7 @@ private func PM_TryRoll() -> Int32 {
     if anim != -1 {
         //We want to roll. Perform a trace to see if we can, and if so, send us into one.
         let clear = JKAMP.Trace.scratch { trace in
-            bg.pm.runTrace(trace, ps.origin, mins, maxs, traceto, ps.clientNum, CONTENTS_SOLID)
+            pm.runTrace(trace, ps.origin, mins, maxs, traceto, ps.clientNum, CONTENTS_SOLID)
             return trace.fraction >= 1.0
         }
         if clear {
@@ -3075,8 +3128,8 @@ private func PM_TryRoll() -> Int32 {
 private func PM_CrashLandEffect() {
     // Port-note: Raven compiles this whole function only for the game module, under `#ifdef QAGAME`. Rule 23 gives no per-function form for that, so the body is here for every consumer, and its one call site takes the game arm.
     var delta: Float
-    let ps = bg.pm.ps
-    if bg.pm.waterlevel != 0 {
+    let ps = pm.ps
+    if pm.waterlevel != 0 {
         return
     }
     delta = Q_fabs(bg.pml.previous_velocity[2]) / 10 //VectorLength( pml.previous_velocity );?
@@ -3084,7 +3137,7 @@ private func PM_CrashLandEffect() {
         var bottom = JKAShared.vec3_t(0, 0, 0)
         var effectID: Int32 = -1
         let material = (bg.pml.groundTrace.surfaceFlags & MATERIAL_MASK)
-        bottom = JKAShared.vec3_t(ps.origin[0], ps.origin[1], ps.origin[2] + bg.pm.mins[2] + 1)
+        bottom = JKAShared.vec3_t(ps.origin[0], ps.origin[1], ps.origin[2] + pm.mins[2] + 1)
         switch material {
         case MATERIAL_MUD:
             effectID = EFFECT_LANDING_MUD
@@ -3129,7 +3182,7 @@ private func PM_CrashLand() {
     let t: Float
     let a: Float, b: Float, c: Float, den: Float
     var didRoll = false
-    let ps = bg.pm.ps
+    let ps = pm.ps
     // calculate the exact velocity on landing
     dist = ps.origin[2] - bg.pml.previous_origin[2]
     vel = bg.pml.previous_velocity[2]
@@ -3261,15 +3314,15 @@ private func PM_CrashLand() {
     }
 
     // never take falling damage if completely underwater
-    if bg.pm.waterlevel == 3 {
+    if pm.waterlevel == 3 {
         return
     }
 
     // reduce falling damage if there is standing water
-    if bg.pm.waterlevel == 2 {
+    if pm.waterlevel == 2 {
         delta *= 0.25
     }
-    if bg.pm.waterlevel == 1 {
+    if pm.waterlevel == 1 {
         delta *= 0.5
     }
 
@@ -3392,7 +3445,7 @@ The ground trace didn't hit a surface, so we are in freefall
 /// Source: oracle/codemp/game/bg_pmove.c:4053
 private func PM_GroundTraceMissed() {
     var point = JKAShared.vec3_t(0, 0, 0)
-    let ps = bg.pm.ps
+    let ps = pm.ps
 
     //rww - don't want to do this when handextend_choke, because you can be standing on the ground
     //while still holding your throat.
@@ -3412,8 +3465,8 @@ private func PM_GroundTraceMissed() {
     //If the anim is choke3, act like we just went into the air because we aren't in a float
     else if ps.groundEntityNum != ENTITYNUM_NONE || (ps.legsAnim) == BOTH_CHOKE3 {
         // we just transitioned into freefall
-        if bg.pm.debugLevel != 0 {
-            Com_Printf("%i:lift\n", bg.c_pmove)
+        if pm.debugLevel != 0 {
+            Com_Printf("%i:lift\n", c_pmove)
         }
 
         // if they aren't in a jumping animation and the ground is a ways away, force into it
@@ -3422,13 +3475,13 @@ private func PM_GroundTraceMissed() {
         point[2] -= 64
 
         JKAMP.Trace.scratch { trace in
-            bg.pm.runTrace(trace, ps.origin, bg.pm.mins, bg.pm.maxs, point, ps.clientNum, bg.pm.tracemask)
+            pm.runTrace(trace, ps.origin, pm.mins, pm.maxs, point, ps.clientNum, pm.tracemask)
             if trace.fraction == 1.0 || ps.pm_type == PM_FLOAT {
                 if ps.velocity[2] <= 0 && (ps.pm_flags & PMF_JUMP_HELD) == 0 {
                     //PM_SetAnim(SETANIM_LEGS,BOTH_INAIR1,SETANIM_FLAG_OVERRIDE, 100);
                     PM_SetAnim(SETANIM_LEGS, BOTH_INAIR1, 0, 100)
                     ps.pm_flags &= ~PMF_BACKWARDS_JUMP
-                } else if bg.pm.cmd.forwardmove >= 0 {
+                } else if pm.cmd.forwardmove >= 0 {
                     PM_SetAnim(SETANIM_LEGS, BOTH_JUMP1, SETANIM_FLAG_OVERRIDE, 100)
                     ps.pm_flags &= ~PMF_BACKWARDS_JUMP
                 } else {
@@ -3446,7 +3499,7 @@ private func PM_GroundTraceMissed() {
         point[2] -= 64
 
         JKAMP.Trace.scratch { trace in
-            bg.pm.runTrace(trace, ps.origin, bg.pm.mins, bg.pm.maxs, point, ps.clientNum, bg.pm.tracemask)
+            pm.runTrace(trace, ps.origin, pm.mins, pm.maxs, point, ps.clientNum, pm.tracemask)
             if trace.fraction == 1.0 || ps.pm_type == PM_FLOAT {
                 ps.inAirAnim = true
             }
@@ -3476,10 +3529,10 @@ PM_GroundTrace
 private func PM_GroundTrace() {
     var point = JKAShared.vec3_t(0, 0, 0)
     var minNormal = Float(MIN_WALK_NORMAL)
-    let ps = bg.pm.ps
+    let ps = pm.ps
 
     if ps.clientNum >= MAX_CLIENTS {
-        let pEnt = bg.pm_entSelf
+        let pEnt = pm_entSelf
 
         // Port-note: Raven walks `pEnt->m_pVehicle->m_pVehicleInfo` with no guard. Both generated fields are optional, so the body binds both.
         if let pEnt, pEnt.s.NPC_class == CLASS_VEHICLE,
@@ -3496,7 +3549,7 @@ private func PM_GroundTrace() {
 
     // Raven's record lives to the end of the function, so the rest of the body is the closure, and each of his early-outs returns from it.
     JKAMP.Trace.scratch { trace in
-        bg.pm.runTrace(trace, ps.origin, bg.pm.mins, bg.pm.maxs, point, ps.clientNum, bg.pm.tracemask)
+        pm.runTrace(trace, ps.origin, pm.mins, pm.maxs, point, ps.clientNum, pm.tracemask)
         // Port-note: Raven copies the whole record with `pml.groundTrace = trace`. The `Trace` view of `pml.groundTrace` is read-only, so the record copy has no Swift form.
 
         // do something corrective if the trace starts in a solid...
@@ -3523,11 +3576,11 @@ private func PM_GroundTrace() {
 
         // check if getting thrown off the ground
         if ps.velocity[2] > 0 && _DotProduct(ps.velocity, trace.plane.normal) > 10 {
-            if bg.pm.debugLevel != 0 {
-                Com_Printf("%i:kickoff\n", bg.c_pmove)
+            if pm.debugLevel != 0 {
+                Com_Printf("%i:kickoff\n", c_pmove)
             }
             // go into jump animation
-            if bg.pm.cmd.forwardmove >= 0 {
+            if pm.cmd.forwardmove >= 0 {
                 PM_ForceLegsAnim(BOTH_JUMP1)
                 ps.pm_flags &= ~PMF_BACKWARDS_JUMP
             } else {
@@ -3543,8 +3596,8 @@ private func PM_GroundTrace() {
 
         // slopes that are too steep will not be considered onground
         if trace.plane.normal[2] < minNormal {
-            if bg.pm.debugLevel != 0 {
-                Com_Printf("%i:steep\n", bg.c_pmove)
+            if pm.debugLevel != 0 {
+                Com_Printf("%i:steep\n", c_pmove)
             }
             ps.groundEntityNum = ENTITYNUM_NONE
             bg.pml.groundPlane = true
@@ -3563,8 +3616,8 @@ private func PM_GroundTrace() {
 
         if ps.groundEntityNum == ENTITYNUM_NONE {
             // just hit the ground
-            if bg.pm.debugLevel != 0 {
-                Com_Printf("%i:Land\n", bg.c_pmove)
+            if pm.debugLevel != 0 {
+                Com_Printf("%i:Land\n", c_pmove)
             }
 
             PM_CrashLand()
@@ -3581,7 +3634,7 @@ private func PM_GroundTrace() {
 
         // Port-note: `trace.entityNum` is a `short`, and both the store and the call take an `int`, so each needs a widening Raven did not write.
         ps.groundEntityNum = Int32(trace.entityNum)
-        ps.lastOnGround = bg.pm.cmd.serverTime
+        ps.lastOnGround = pm.cmd.serverTime
 
         PM_AddTouchEnt(Int32(trace.entityNum))
     }
@@ -3600,36 +3653,36 @@ private func PM_SetWaterLevel() {
     var cont: Int32
     let sample1: Int32
     let sample2: Int32
-    let ps = bg.pm.ps
+    let ps = pm.ps
     //
     // get waterlevel, accounting for ducking
     //
-    bg.pm.waterlevel = 0
-    bg.pm.watertype = 0
+    pm.waterlevel = 0
+    pm.watertype = 0
 
     point[0] = ps.origin[0]
     point[1] = ps.origin[1]
     point[2] = ps.origin[2] + MINS_Z + 1
     // Port-note: Raven calls `pm->pointcontents` with no guard. The generated call gives nil when the stored pointer is nil, so the body binds each result, and the nil path traps.
-    let cont0 = bg.pm.runPointcontents(point, ps.clientNum)
+    let cont0 = pm.runPointcontents(point, ps.clientNum)
     cont = cont0
 
     if (cont & MASK_WATER) != 0 {
         sample2 = ps.viewheight - MINS_Z
         sample1 = sample2 / 2
 
-        bg.pm.watertype = cont
-        bg.pm.waterlevel = 1
+        pm.watertype = cont
+        pm.waterlevel = 1
         point[2] = ps.origin[2] + MINS_Z + sample1
-        let cont1 = bg.pm.runPointcontents(point, ps.clientNum)
+        let cont1 = pm.runPointcontents(point, ps.clientNum)
         cont = cont1
         if (cont & MASK_WATER) != 0 {
-            bg.pm.waterlevel = 2
+            pm.waterlevel = 2
             point[2] = ps.origin[2] + MINS_Z + sample2
-            let cont2 = bg.pm.runPointcontents(point, ps.clientNum)
+            let cont2 = pm.runPointcontents(point, ps.clientNum)
             cont = cont2
             if (cont & MASK_WATER) != 0 {
-                bg.pm.waterlevel = 3
+                pm.waterlevel = 3
             }
         }
     }
@@ -3639,7 +3692,7 @@ private func PM_SetWaterLevel() {
 /// Source: oracle/codemp/game/bg_pmove.c:4322
 func PM_CheckDualForwardJumpDuck() -> Bool {
     var resized = false
-    let ps = bg.pm.ps
+    let ps = pm.ps
     if ps.legsAnim == BOTH_JUMPATTACK6 {
         //dynamically reduce bounding box to let character sail over heads of enemies
         if (ps.legsTimer >= 1450
@@ -3647,7 +3700,7 @@ func PM_CheckDualForwardJumpDuck() -> Bool {
             || (ps.legsTimer >= 400
                 && PM_AnimLength(0, BOTH_JUMPATTACK6) - ps.legsTimer >= 1100) {
             //in a part of the anim that we're pretty much sideways in, raise up the mins
-            bg.pm.mins[2] = 0
+            pm.mins[2] = 0
             ps.pm_flags |= PMF_FIX_MINS
             resized = true
         }
@@ -3657,7 +3710,7 @@ func PM_CheckDualForwardJumpDuck() -> Bool {
 
 /// Source: oracle/codemp/game/bg_pmove.c:4341
 func PM_CheckFixMins() {
-    let ps = bg.pm.ps
+    let ps = pm.ps
     if (ps.pm_flags & PMF_FIX_MINS) != 0 {// pm->mins[2] > DEFAULT_MINS_2 )
         //drop the mins back down
         //do a trace to make sure it's okay
@@ -3666,24 +3719,24 @@ func PM_CheckFixMins() {
         var curMaxs = JKAShared.vec3_t(0, 0, 0)
 
         end = JKAShared.vec3_t(ps.origin[0], ps.origin[1], ps.origin[2] + MINS_Z)
-        curMins = JKAShared.vec3_t(bg.pm.mins[0], bg.pm.mins[1], 0)
-        curMaxs = JKAShared.vec3_t(bg.pm.maxs[0], bg.pm.maxs[1], Float(ps.standheight))
+        curMins = JKAShared.vec3_t(pm.mins[0], pm.mins[1], 0)
+        curMaxs = JKAShared.vec3_t(pm.maxs[0], pm.maxs[1], Float(ps.standheight))
 
         JKAMP.Trace.scratch { trace in
-            bg.pm.runTrace(trace, ps.origin, curMins, curMaxs, end, ps.clientNum, bg.pm.tracemask)
+            pm.runTrace(trace, ps.origin, curMins, curMaxs, end, ps.clientNum, pm.tracemask)
             if trace.allsolid == 0 && trace.startsolid == 0 {
                 //should never start in solid
                 if trace.fraction >= 1.0 {
                     //all clear
                     //drop the bottom of my bbox back down
-                    bg.pm.mins[2] = Float(MINS_Z)
+                    pm.mins[2] = Float(MINS_Z)
                     ps.pm_flags &= ~PMF_FIX_MINS
                 } else {
                     //move me up so the bottom of my bbox will be where the trace ended, at least
                     //need to trace up, too
                     let updist = ((1.0 - trace.fraction) * -MINS_Z)
                     end[2] = ps.origin[2] + updist
-                    bg.pm.runTrace(trace, ps.origin, curMins, curMaxs, end, ps.clientNum, bg.pm.tracemask)
+                    pm.runTrace(trace, ps.origin, curMins, curMaxs, end, ps.clientNum, pm.tracemask)
                     if trace.allsolid == 0 && trace.startsolid == 0 {
                         //should never start in solid
                         if trace.fraction >= 1.0 {
@@ -3691,7 +3744,7 @@ func PM_CheckFixMins() {
                             //move me up
                             ps.origin[2] += updist
                             //drop the bottom of my bbox back down
-                            bg.pm.mins[2] = Float(MINS_Z)
+                            pm.mins[2] = Float(MINS_Z)
                             ps.pm_flags &= ~PMF_FIX_MINS
                         } else {
                             //crap, no room to expand, so just crouch us
@@ -3699,9 +3752,9 @@ func PM_CheckFixMins() {
                                 || ps.legsTimer <= 200 {
                                 //at the end of the anim, and we can't leave ourselves like this
                                 //so drop the maxs, put the mins back and move us up
-                                bg.pm.maxs[2] += MINS_Z
+                                pm.maxs[2] += MINS_Z
                                 ps.origin[2] -= MINS_Z
-                                bg.pm.mins[2] = Float(MINS_Z)
+                                pm.mins[2] = Float(MINS_Z)
                                 //this way we'll be in a crouch when we're done
                                 if ps.legsAnim == BOTH_JUMPATTACK6 {
                                     // Raven chains one store, `pm->ps->legsTimer = pm->ps->torsoTimer = 0`, which Swift writes as two.
@@ -3731,7 +3784,7 @@ Sets mins, maxs, and pm->ps->viewheight
 */
 /// Source: oracle/codemp/game/bg_pmove.c:4410
 private func PM_CheckDuck() {
-    let ps = bg.pm.ps
+    let ps = pm.ps
     // Raven's record lives to the end of the function, so the whole body is the closure, and each of his early-outs returns from it.
     JKAMP.Trace.scratch { trace in
         if ps.m_iVehicleNum > 0 && ps.m_iVehicleNum < ENTITYNUM_NONE {
@@ -3748,36 +3801,36 @@ private func PM_CheckDuck() {
                 return
             }
             // Port-note: Raven walks `pm_entVeh->m_pVehicle->m_pVehicleInfo` with no guard on the last field. The generated field is optional, so the body binds it.
-            if let pm_entVeh = bg.pm_entVeh, let m_pVehicle = pm_entVeh.m_pVehicle,
+            if let pm_entVeh = pm_entVeh, let m_pVehicle = pm_entVeh.m_pVehicle,
                 let m_pVehicleInfo = m_pVehicle.m_pVehicleInfo,
                 (m_pVehicleInfo.type == VH_SPEEDER
                  || m_pVehicleInfo.type == VH_ANIMAL) {
-                bg.pm.mins[0] = -16
-                bg.pm.mins[1] = -16
-                bg.pm.mins[2] = Float(MINS_Z)
+                pm.mins[0] = -16
+                pm.mins[1] = -16
+                pm.mins[2] = Float(MINS_Z)
 
-                bg.pm.maxs[0] = 16
-                bg.pm.maxs[1] = 16
-                bg.pm.maxs[2] = Float(ps.standheight)//DEFAULT_MAXS_2;
+                pm.maxs[0] = 16
+                pm.maxs[1] = 16
+                pm.maxs[2] = Float(ps.standheight)//DEFAULT_MAXS_2;
                 ps.viewheight = DEFAULT_VIEWHEIGHT
 
                 JKAMP.Trace.scratch { solidTr in
-                    bg.pm.runTrace(solidTr, ps.origin, bg.pm.mins, bg.pm.maxs, ps.origin, ps.m_iVehicleNum, bg.pm.tracemask)
+                    pm.runTrace(solidTr, ps.origin, pm.mins, pm.maxs, ps.origin, ps.m_iVehicleNum, pm.tracemask)
                     if solidTr.startsolid != 0 || solidTr.allsolid != 0 || solidTr.fraction != 1.0 {
                         //whoops, can't fit here. Down to 0!
-                        bg.pm.mins = JKAShared.vec3_t(0, 0, 0)
-                        bg.pm.maxs = JKAShared.vec3_t(0, 0, 0)
+                        pm.mins = JKAShared.vec3_t(0, 0, 0)
+                        pm.maxs = JKAShared.vec3_t(0, 0, 0)
                         // Port-note: The game arm of Raven's `#ifdef QAGAME` reads `g_entities` and `level.time` through a `gentity_t *`. The `Entity` view and the level state live in the game target, which the bg target cannot import.
                     }
                 }
             }
         } else {
             if ps.clientNum < MAX_CLIENTS {
-                bg.pm.mins[0] = -15
-                bg.pm.mins[1] = -15
+                pm.mins[0] = -15
+                pm.mins[1] = -15
 
-                bg.pm.maxs[0] = 15
-                bg.pm.maxs[1] = 15
+                pm.maxs[0] = 15
+                pm.maxs[1] = 15
             }
 
             if PM_CheckDualForwardJumpDuck() {
@@ -3785,31 +3838,31 @@ private func PM_CheckDuck() {
             } else {
                 PM_CheckFixMins()
 
-                if bg.pm.mins[2] == 0 {
-                    bg.pm.mins[2] = Float(MINS_Z)
+                if pm.mins[2] == 0 {
+                    pm.mins[2] = Float(MINS_Z)
                 }
             }
 
             if ps.pm_type == PM_DEAD && ps.clientNum < MAX_CLIENTS {
-                bg.pm.maxs[2] = -8
+                pm.maxs[2] = -8
                 ps.viewheight = DEAD_VIEWHEIGHT
                 return
             }
 
             if BG_InRoll(ps, ps.legsAnim) && !BG_KickingAnim(ps.legsAnim) {
-                bg.pm.maxs[2] = Float(ps.crouchheight) //CROUCH_MAXS_2;
+                pm.maxs[2] = Float(ps.crouchheight) //CROUCH_MAXS_2;
                 ps.viewheight = DEFAULT_VIEWHEIGHT
                 ps.pm_flags &= ~PMF_DUCKED
                 ps.pm_flags |= PMF_ROLLING
                 return
             } else if (ps.pm_flags & PMF_ROLLING) != 0 {
                 // try to stand up
-                bg.pm.maxs[2] = Float(ps.standheight)//DEFAULT_MAXS_2;
-                bg.pm.runTrace(trace, ps.origin, bg.pm.mins, bg.pm.maxs, ps.origin, ps.clientNum, bg.pm.tracemask)
+                pm.maxs[2] = Float(ps.standheight)//DEFAULT_MAXS_2;
+                pm.runTrace(trace, ps.origin, pm.mins, pm.maxs, ps.origin, ps.clientNum, pm.tracemask)
                 if trace.allsolid == 0 {
                     ps.pm_flags &= ~PMF_ROLLING
                 }
-            } else if bg.pm.cmd.upmove < 0
+            } else if pm.cmd.upmove < 0
                 || ps.forceHandExtend == HANDEXTEND_KNOCKDOWN
                 || ps.forceHandExtend == HANDEXTEND_PRETHROWN
                 || ps.forceHandExtend == HANDEXTEND_POSTTHROWN {
@@ -3819,8 +3872,8 @@ private func PM_CheckDuck() {
                 // stand up if possible
                 if (ps.pm_flags & PMF_DUCKED) != 0 {
                     // try to stand up
-                    bg.pm.maxs[2] = Float(ps.standheight)//DEFAULT_MAXS_2;
-                    bg.pm.runTrace(trace, ps.origin, bg.pm.mins, bg.pm.maxs, ps.origin, ps.clientNum, bg.pm.tracemask)
+                    pm.maxs[2] = Float(ps.standheight)//DEFAULT_MAXS_2;
+                    pm.runTrace(trace, ps.origin, pm.mins, pm.maxs, ps.origin, ps.clientNum, pm.tracemask)
                     if trace.allsolid == 0 {
                         ps.pm_flags &= ~PMF_DUCKED
                     }
@@ -3829,13 +3882,13 @@ private func PM_CheckDuck() {
         }
 
         if (ps.pm_flags & PMF_DUCKED) != 0 {
-            bg.pm.maxs[2] = Float(ps.crouchheight)//CROUCH_MAXS_2;
+            pm.maxs[2] = Float(ps.crouchheight)//CROUCH_MAXS_2;
             ps.viewheight = CROUCH_VIEWHEIGHT
         } else if (ps.pm_flags & PMF_ROLLING) != 0 {
-            bg.pm.maxs[2] = Float(ps.crouchheight)//CROUCH_MAXS_2;
+            pm.maxs[2] = Float(ps.crouchheight)//CROUCH_MAXS_2;
             ps.viewheight = DEFAULT_VIEWHEIGHT
         } else {
-            bg.pm.maxs[2] = Float(ps.standheight)//DEFAULT_MAXS_2;
+            pm.maxs[2] = Float(ps.standheight)//DEFAULT_MAXS_2;
             ps.viewheight = DEFAULT_VIEWHEIGHT
         }
     }
@@ -3843,7 +3896,7 @@ private func PM_CheckDuck() {
 
 /// Source: oracle/codemp/game/bg_pmove.c:4559
 func PM_Use() {
-    let ps = bg.pm.ps
+    let ps = pm.ps
     if ps.useTime > 0 {
         ps.useTime -= 100//pm->cmd.msec;
     }
@@ -3852,13 +3905,13 @@ func PM_Use() {
         return
     }
 
-    if (bg.pm.cmd.buttons & BUTTON_USE) == 0 {
-        bg.pm.useEvent = 0
+    if (pm.cmd.buttons & BUTTON_USE) == 0 {
+        pm.useEvent = 0
         ps.useTime = 0
         return
     }
 
-    bg.pm.useEvent = EV_USE
+    pm.useEvent = EV_USE
     ps.useTime = USE_DELAY
 }
 
@@ -3980,19 +4033,19 @@ func PM_FootSlopeTrace(_ pDiff: inout Float, _ pInterval: inout Float) {
     let diff: Float, interval: Float
 
     var G2Angles = JKAShared.vec3_t(0, 0, 0)
-    let ps = bg.pm.ps
+    let ps = pm.ps
 
     G2Angles = JKAShared.vec3_t(0, ps.viewangles[YAW], 0)
 
     interval = 4 //?
 
     MdxaBone.scratch { boltMatrix in
-        strap_G2API_GetBoltMatrix(bg.pm.ghoul2, 0, bg.pm.g2Bolts_LFoot, boltMatrix, G2Angles, ps.origin, bg.pm.cmd.serverTime, nil, &bg.pm.modelScale)
+        strap_G2API_GetBoltMatrix(pm.ghoul2, 0, pm.g2Bolts_LFoot, boltMatrix, G2Angles, ps.origin, pm.cmd.serverTime, nil, &pm.modelScale)
         footLPoint[0] = boltMatrix.matrix[0][3]
         footLPoint[1] = boltMatrix.matrix[1][3]
         footLPoint[2] = boltMatrix.matrix[2][3]
 
-        strap_G2API_GetBoltMatrix(bg.pm.ghoul2, 0, bg.pm.g2Bolts_RFoot, boltMatrix, G2Angles, ps.origin, bg.pm.cmd.serverTime, nil, &bg.pm.modelScale)
+        strap_G2API_GetBoltMatrix(pm.ghoul2, 0, pm.g2Bolts_RFoot, boltMatrix, G2Angles, ps.origin, pm.cmd.serverTime, nil, &pm.modelScale)
         footRPoint[0] = boltMatrix.matrix[0][3]
         footRPoint[1] = boltMatrix.matrix[1][3]
         footRPoint[2] = boltMatrix.matrix[2][3]
@@ -4003,8 +4056,8 @@ func PM_FootSlopeTrace(_ pDiff: inout Float, _ pInterval: inout Float) {
     footROrg = footRPoint
 
     //step 2: adjust foot tag z height to bottom of bbox+1
-    footLOrg[2] = ps.origin[2] + bg.pm.mins[2] + 1
-    footROrg[2] = ps.origin[2] + bg.pm.mins[2] + 1
+    footLOrg[2] = ps.origin[2] + pm.mins[2] + 1
+    footROrg[2] = ps.origin[2] + pm.mins[2] + 1
     footLBot = JKAShared.vec3_t(footLOrg[0], footLOrg[1], footLOrg[2] - interval * 10)
     footRBot = JKAShared.vec3_t(footROrg[0], footROrg[1], footROrg[2] - interval * 10)
 
@@ -4013,11 +4066,11 @@ func PM_FootSlopeTrace(_ pDiff: inout Float, _ pInterval: inout Float) {
     footMaxs = JKAShared.vec3_t(3, 3, 1)
 
     Trace.scratch { trace in
-        bg.pm.runTrace(trace, footLOrg, footMins, footMaxs, footLBot, ps.clientNum, bg.pm.tracemask)
+        pm.runTrace(trace, footLOrg, footMins, footMaxs, footLBot, ps.clientNum, pm.tracemask)
         footLBot = trace.endpos
         _VectorCopy(trace.plane.normal, &footLSlope)
 
-        bg.pm.runTrace(trace, footROrg, footMins, footMaxs, footRBot, ps.clientNum, bg.pm.tracemask)
+        pm.runTrace(trace, footROrg, footMins, footMaxs, footRBot, ps.clientNum, pm.tracemask)
         footRBot = trace.endpos
         _VectorCopy(trace.plane.normal, &footRSlope)
     }
@@ -4096,13 +4149,13 @@ func PM_AdjustStandAnimForSlope() -> Bool {
     var destAnim: Int32
     var legsAnim: Int32
     //`SLOPERECALCVAR` is Raven's convenience macro for `pm->ps->slopeRecalcTime`.
-    let ps = bg.pm.ps
-    if bg.pm.ghoul2 == nil {
+    let ps = pm.ps
+    if pm.ghoul2 == nil {
         //probably just changed models and not quite in sync yet
         return false
     }
 
-    if bg.pm.g2Bolts_LFoot == -1 || bg.pm.g2Bolts_RFoot == -1 {
+    if pm.g2Bolts_LFoot == -1 || pm.g2Bolts_RFoot == -1 {
         //need these bolts!
         return false
     }
@@ -4187,12 +4240,12 @@ func PM_AdjustStandAnimForSlope() -> Bool {
         || (legsAnim >= LEGS_S4_LUP1 && legsAnim <= LEGS_S4_LUP5)
         || (legsAnim >= LEGS_S5_LUP1 && legsAnim <= LEGS_S5_LUP5) {
         //already in left-side up
-        if destAnim > legsAnim && ps.slopeRecalcTime < bg.pm.cmd.serverTime {
+        if destAnim > legsAnim && ps.slopeRecalcTime < pm.cmd.serverTime {
             legsAnim += 1
-            ps.slopeRecalcTime = bg.pm.cmd.serverTime + SLOPE_RECALC_INT
-        } else if destAnim < legsAnim && ps.slopeRecalcTime < bg.pm.cmd.serverTime {
+            ps.slopeRecalcTime = pm.cmd.serverTime + SLOPE_RECALC_INT
+        } else if destAnim < legsAnim && ps.slopeRecalcTime < pm.cmd.serverTime {
             legsAnim -= 1
-            ps.slopeRecalcTime = bg.pm.cmd.serverTime + SLOPE_RECALC_INT
+            ps.slopeRecalcTime = pm.cmd.serverTime + SLOPE_RECALC_INT
         } else //if (SLOPERECALCVAR < pm->cmd.serverTime)
         {
             legsAnim = destAnim
@@ -4205,12 +4258,12 @@ func PM_AdjustStandAnimForSlope() -> Bool {
         || (legsAnim >= LEGS_S4_RUP1 && legsAnim <= LEGS_S4_RUP5)
         || (legsAnim >= LEGS_S5_RUP1 && legsAnim <= LEGS_S5_RUP5) {
         //already in right-side up
-        if destAnim > legsAnim && ps.slopeRecalcTime < bg.pm.cmd.serverTime {
+        if destAnim > legsAnim && ps.slopeRecalcTime < pm.cmd.serverTime {
             legsAnim += 1
-            ps.slopeRecalcTime = bg.pm.cmd.serverTime + SLOPE_RECALC_INT
-        } else if destAnim < legsAnim && ps.slopeRecalcTime < bg.pm.cmd.serverTime {
+            ps.slopeRecalcTime = pm.cmd.serverTime + SLOPE_RECALC_INT
+        } else if destAnim < legsAnim && ps.slopeRecalcTime < pm.cmd.serverTime {
             legsAnim -= 1
-            ps.slopeRecalcTime = bg.pm.cmd.serverTime + SLOPE_RECALC_INT
+            ps.slopeRecalcTime = pm.cmd.serverTime + SLOPE_RECALC_INT
         } else //if (SLOPERECALCVAR < pm->cmd.serverTime)
         {
             legsAnim = destAnim
@@ -4224,11 +4277,11 @@ func PM_AdjustStandAnimForSlope() -> Bool {
             if destAnim >= LEGS_S1_LUP1 && destAnim <= LEGS_S1_LUP5 {
                 //going into left side up
                 destAnim = LEGS_S1_LUP1
-                ps.slopeRecalcTime = bg.pm.cmd.serverTime + SLOPE_RECALC_INT
+                ps.slopeRecalcTime = pm.cmd.serverTime + SLOPE_RECALC_INT
             } else if destAnim >= LEGS_S1_RUP1 && destAnim <= LEGS_S1_RUP5 {
                 //going into right side up
                 destAnim = LEGS_S1_RUP1
-                ps.slopeRecalcTime = bg.pm.cmd.serverTime + SLOPE_RECALC_INT
+                ps.slopeRecalcTime = pm.cmd.serverTime + SLOPE_RECALC_INT
             } else {
                 //will never get here
                 return false
@@ -4238,11 +4291,11 @@ func PM_AdjustStandAnimForSlope() -> Bool {
             if destAnim >= LEGS_LEFTUP1 && destAnim <= LEGS_LEFTUP5 {
                 //going into left side up
                 destAnim = LEGS_LEFTUP1
-                ps.slopeRecalcTime = bg.pm.cmd.serverTime + SLOPE_RECALC_INT
+                ps.slopeRecalcTime = pm.cmd.serverTime + SLOPE_RECALC_INT
             } else if destAnim >= LEGS_RIGHTUP1 && destAnim <= LEGS_RIGHTUP5 {
                 //going into right side up
                 destAnim = LEGS_RIGHTUP1
-                ps.slopeRecalcTime = bg.pm.cmd.serverTime + SLOPE_RECALC_INT
+                ps.slopeRecalcTime = pm.cmd.serverTime + SLOPE_RECALC_INT
             } else {
                 //will never get here
                 return false
@@ -4252,11 +4305,11 @@ func PM_AdjustStandAnimForSlope() -> Bool {
             if destAnim >= LEGS_S3_LUP1 && destAnim <= LEGS_S3_LUP5 {
                 //going into left side up
                 destAnim = LEGS_S3_LUP1
-                ps.slopeRecalcTime = bg.pm.cmd.serverTime + SLOPE_RECALC_INT
+                ps.slopeRecalcTime = pm.cmd.serverTime + SLOPE_RECALC_INT
             } else if destAnim >= LEGS_S3_RUP1 && destAnim <= LEGS_S3_RUP5 {
                 //going into right side up
                 destAnim = LEGS_S3_RUP1
-                ps.slopeRecalcTime = bg.pm.cmd.serverTime + SLOPE_RECALC_INT
+                ps.slopeRecalcTime = pm.cmd.serverTime + SLOPE_RECALC_INT
             } else {
                 //will never get here
                 return false
@@ -4266,11 +4319,11 @@ func PM_AdjustStandAnimForSlope() -> Bool {
             if destAnim >= LEGS_S4_LUP1 && destAnim <= LEGS_S4_LUP5 {
                 //going into left side up
                 destAnim = LEGS_S4_LUP1
-                ps.slopeRecalcTime = bg.pm.cmd.serverTime + SLOPE_RECALC_INT
+                ps.slopeRecalcTime = pm.cmd.serverTime + SLOPE_RECALC_INT
             } else if destAnim >= LEGS_S4_RUP1 && destAnim <= LEGS_S4_RUP5 {
                 //going into right side up
                 destAnim = LEGS_S4_RUP1
-                ps.slopeRecalcTime = bg.pm.cmd.serverTime + SLOPE_RECALC_INT
+                ps.slopeRecalcTime = pm.cmd.serverTime + SLOPE_RECALC_INT
             } else {
                 //will never get here
                 return false
@@ -4280,11 +4333,11 @@ func PM_AdjustStandAnimForSlope() -> Bool {
             if destAnim >= LEGS_S5_LUP1 && destAnim <= LEGS_S5_LUP5 {
                 //going into left side up
                 destAnim = LEGS_S5_LUP1
-                ps.slopeRecalcTime = bg.pm.cmd.serverTime + SLOPE_RECALC_INT
+                ps.slopeRecalcTime = pm.cmd.serverTime + SLOPE_RECALC_INT
             } else if destAnim >= LEGS_S5_RUP1 && destAnim <= LEGS_S5_RUP5 {
                 //going into right side up
                 destAnim = LEGS_S5_RUP1
-                ps.slopeRecalcTime = bg.pm.cmd.serverTime + SLOPE_RECALC_INT
+                ps.slopeRecalcTime = pm.cmd.serverTime + SLOPE_RECALC_INT
             } else {
                 //will never get here
                 return false
@@ -4307,7 +4360,7 @@ func PM_AdjustStandAnimForSlope() -> Bool {
 //rww - slowly back out of slope leg anims, to prevent skipping between slope anims and general jittering
 /// Source: oracle/codemp/game/bg_pmove.c:5107
 func PM_LegsSlopeBackTransition(_ desiredAnim: Int32) -> Int32 {
-    let ps = bg.pm.ps
+    let ps = pm.ps
     let anim = ps.legsAnim
     var resultingAnim = desiredAnim
 
@@ -4328,9 +4381,9 @@ func PM_LegsSlopeBackTransition(_ desiredAnim: Int32) -> Int32 {
         LEGS_S4_RUP2, LEGS_S4_RUP3, LEGS_S4_RUP4, LEGS_S4_RUP5,
         LEGS_S5_LUP2, LEGS_S5_LUP3, LEGS_S5_LUP4, LEGS_S5_LUP5,
         LEGS_S5_RUP2, LEGS_S5_RUP3, LEGS_S5_RUP4, LEGS_S5_RUP5:
-        if ps.slopeRecalcTime < bg.pm.cmd.serverTime {
+        if ps.slopeRecalcTime < pm.cmd.serverTime {
             resultingAnim = anim - 1
-            ps.slopeRecalcTime = bg.pm.cmd.serverTime + 8//SLOPE_RECALC_INT;
+            ps.slopeRecalcTime = pm.cmd.serverTime + 8//SLOPE_RECALC_INT;
         } else {
             resultingAnim = anim
         }
@@ -4356,7 +4409,7 @@ private func PM_Footsteps() {
     let old: Int32
     var footstep: Bool
     var setAnimFlags: Int32 = 0
-    let ps = bg.pm.ps
+    let ps = pm.ps
     if (PM_InSaberAnim((ps.legsAnim)) && !BG_SpinningSaberAnim((ps.legsAnim)))
         || (ps.legsAnim) == BOTH_STAND1
         || (ps.legsAnim) == BOTH_STAND1TO2
@@ -4377,7 +4430,7 @@ private func PM_Footsteps() {
     // all cyclic walking effects
     //
     // C promotes the argument of `sqrt` to double, so the port does the same.
-    bg.pm.xyspeed = Float(sqrt(Double(ps.velocity[0] * ps.velocity[0]
+    pm.xyspeed = Float(sqrt(Double(ps.velocity[0] * ps.velocity[0]
         + ps.velocity[1] * ps.velocity[1])))
 
     if ps.saberMove == LS_SPINATTACK {
@@ -4385,8 +4438,8 @@ private func PM_Footsteps() {
     } else if ps.groundEntityNum == ENTITYNUM_NONE {
 
         // airborne leaves position in cycle intact, but doesn't advance
-        if bg.pm.waterlevel > 1 {
-            if bg.pm.xyspeed > 60 {
+        if pm.waterlevel > 1 {
+            if pm.xyspeed > 60 {
                 PM_ContinueLegsAnim(BOTH_SWIMFORWARD)
             } else {
                 PM_ContinueLegsAnim(BOTH_SWIM_IDLE1)
@@ -4395,11 +4448,11 @@ private func PM_Footsteps() {
         return
     }
     // if not trying to move
-    else if bg.pm.cmd.forwardmove == 0 && bg.pm.cmd.rightmove == 0 {
-        if bg.pm.xyspeed < 5 {
+    else if pm.cmd.forwardmove == 0 && pm.cmd.rightmove == 0 {
+        if pm.xyspeed < 5 {
             ps.bobCycle = 0 // start at beginning of cycle again
             if ps.clientNum >= MAX_CLIENTS,
-                let pm_entSelf = bg.pm_entSelf,
+                let pm_entSelf = pm_entSelf,
                 pm_entSelf.s.NPC_class == CLASS_RANCOR {
                 if (ps.eFlags2 & EF2_USE_ALT_ANIM) != 0 {
                     //holding someone
@@ -4415,7 +4468,7 @@ private func PM_Footsteps() {
                     //PM_SetAnim(pm,SETANIM_LEGS,BOTH_STAND1,SETANIM_FLAG_NORMAL);
                 }
             } else if ps.clientNum >= MAX_CLIENTS,
-                let pm_entSelf = bg.pm_entSelf,
+                let pm_entSelf = pm_entSelf,
                 pm_entSelf.s.NPC_class == CLASS_WAMPA {
                 if (ps.eFlags2 & EF2_USE_ALT_ANIM) != 0 {
                     //holding a victim
@@ -4494,7 +4547,7 @@ private func PM_Footsteps() {
             ps.legsAnim = 0
             PM_SetAnim(SETANIM_BOTH, rolled, SETANIM_FLAG_OVERRIDE | SETANIM_FLAG_HOLD, 150)
             PM_AddEventWithParm(EV_ROLL, 0)
-            bg.pm.maxs[2] = Float(ps.crouchheight)//CROUCH_MAXS_2;
+            pm.maxs[2] = Float(ps.crouchheight)//CROUCH_MAXS_2;
             ps.viewheight = DEFAULT_VIEWHEIGHT
             ps.pm_flags &= ~PMF_DUCKED
             ps.pm_flags |= PMF_ROLLING
@@ -4526,11 +4579,11 @@ private func PM_Footsteps() {
             && ps.legsTimer > 0 {
             //let it finish first
             bobmove = 0.2
-        } else if (bg.pm.cmd.buttons & BUTTON_WALKING) == 0 {
+        } else if (pm.cmd.buttons & BUTTON_WALKING) == 0 {
             //running
             bobmove = 0.4 // faster speeds bob faster
             if ps.clientNum >= MAX_CLIENTS,
-                let pm_entSelf = bg.pm_entSelf,
+                let pm_entSelf = pm_entSelf,
                 pm_entSelf.s.NPC_class == CLASS_WAMPA {
                 if (ps.eFlags2 & EF2_USE_ALT_ANIM) != 0 {
                     //full on run, on all fours
@@ -4540,7 +4593,7 @@ private func PM_Footsteps() {
                     desiredAnim = BOTH_RUN2
                 }
             } else if ps.clientNum >= MAX_CLIENTS,
-                let pm_entSelf = bg.pm_entSelf,
+                let pm_entSelf = pm_entSelf,
                 pm_entSelf.s.NPC_class == CLASS_RANCOR {
                 //no run anims
                 if (ps.pm_flags & PMF_BACKWARDS_RUN) != 0 {
@@ -4698,14 +4751,14 @@ private func PM_Footsteps() {
 
     // if we just crossed a cycle boundary, play an apropriate footstep event
     if (((old + 64) ^ (ps.bobCycle + 64)) & 128) != 0 {
-        ps.footstepTime = bg.pm.cmd.serverTime + 300
-        if bg.pm.waterlevel == 1 {
+        ps.footstepTime = pm.cmd.serverTime + 300
+        if pm.waterlevel == 1 {
             // splashing
             PM_AddEvent(EV_FOOTSPLASH)
-        } else if bg.pm.waterlevel == 2 {
+        } else if pm.waterlevel == 2 {
             // wading / swimming at surface
             PM_AddEvent(EV_SWIM)
-        } else if bg.pm.waterlevel == 3 {
+        } else if pm.waterlevel == 3 {
             // no sound when completely underwater
         }
     }
@@ -4725,11 +4778,11 @@ private func PM_WaterEvents() {
     // FIXME?
     // Raven declares `impact_splash` under `#ifdef QAGAME`. Swift has no arm-local declaration, so it stands here, and only the game arm reads it.
     var impact_splash = false
-    let ps = bg.pm.ps
+    let ps = pm.ps
     //
     // if just entered a water volume, play a sound
     //
-    if bg.pml.previous_waterlevel == 0 && bg.pm.waterlevel != 0 {
+    if bg.pml.previous_waterlevel == 0 && pm.waterlevel != 0 {
         if bg.consumer == .game {
             if VectorLengthSquared(ps.velocity) > 40000 {
                 impact_splash = true
@@ -4741,7 +4794,7 @@ private func PM_WaterEvents() {
     //
     // if just completely exited a water volume, play a sound
     //
-    if bg.pml.previous_waterlevel != 0 && bg.pm.waterlevel == 0 {
+    if bg.pml.previous_waterlevel != 0 && pm.waterlevel == 0 {
         if bg.consumer == .game {
             if VectorLengthSquared(ps.velocity) > 40000 {
                 impact_splash = true
@@ -4763,7 +4816,7 @@ private func PM_WaterEvents() {
                 start[2] += 10
                 end[2] -= 40
 
-                bg.pm.runTrace(tr, start, vec3_origin, vec3_origin, end, ps.clientNum, MASK_WATER)
+                pm.runTrace(tr, start, vec3_origin, vec3_origin, end, ps.clientNum, MASK_WATER)
 
                 if tr.fraction < 1.0 {
                     if (tr.contents & CONTENTS_LAVA) != 0 {
@@ -4781,14 +4834,14 @@ private func PM_WaterEvents() {
     //
     // check for head just going under water
     //
-    if bg.pml.previous_waterlevel != 3 && bg.pm.waterlevel == 3 {
+    if bg.pml.previous_waterlevel != 3 && pm.waterlevel == 3 {
         PM_AddEvent(EV_WATER_UNDER)
     }
 
     //
     // check for head just coming out of water
     //
-    if bg.pml.previous_waterlevel == 3 && bg.pm.waterlevel != 3 {
+    if bg.pml.previous_waterlevel == 3 && pm.waterlevel != 3 {
         PM_AddEvent(EV_WATER_CLEAR)
     }
 }
@@ -4811,7 +4864,7 @@ PM_BeginWeaponChange
 */
 /// Source: oracle/codemp/game/bg_pmove.c:5766
 func PM_BeginWeaponChange(_ weapon: Int32) {
-    let ps = bg.pm.ps
+    let ps = pm.ps
     if weapon <= WP_NONE || weapon >= WP_NUM_WEAPONS {
         return
     }
@@ -4849,9 +4902,9 @@ PM_FinishWeaponChange
 /// Source: oracle/codemp/game/bg_pmove.c:5801
 func PM_FinishWeaponChange() {
     var weapon: Int32
-    let ps = bg.pm.ps
+    let ps = pm.ps
     // Port-note: Raven writes `weapon = pm->cmd.weapon`, a plain assignment of a `byte` to an `int`. `Promotion.swift` gives operators only, so the read keeps `Int32(...)`.
-    weapon = Int32(bg.pm.cmd.weapon)
+    weapon = Int32(pm.cmd.weapon)
     if weapon < WP_NONE || weapon >= WP_NUM_WEAPONS {
         weapon = WP_NONE
     }
@@ -4904,7 +4957,7 @@ func BG_VehTraceFromCamPos(_ camTrace: JKAMP.Trace, _ bgEnt: JKAMP.BgEntity, _ e
         trap_Trace(camTrace, camPos, vec3_origin, vec3_origin, extraEnd,
             bgEnt.s.number, CONTENTS_SOLID | CONTENTS_BODY)
     } else {
-        bg.pm.runTrace(camTrace, camPos, vec3_origin, vec3_origin, extraEnd,
+        pm.runTrace(camTrace, camPos, vec3_origin, vec3_origin, extraEnd,
             bgEnt.s.number, CONTENTS_SOLID | CONTENTS_BODY)
     }
 
@@ -4934,7 +4987,7 @@ func PM_RocketLock(_ lockDist: Float, _ vehicleLock: Bool) {
     var forward = JKAShared.vec3_t(0, 0, 0)
     var right = JKAShared.vec3_t(0, 0, 0)
     var up = JKAShared.vec3_t(0, 0, 0)
-    let ps = bg.pm.ps
+    let ps = pm.ps
 
     if vehicleLock {
         AngleVectors(ps.viewangles, &forward, &right, &up)
@@ -4960,7 +5013,7 @@ func PM_RocketLock(_ lockDist: Float, _ vehicleLock: Bool) {
     }
 
     Trace.scratch { tr in
-        bg.pm.runTrace(tr, muzzlePoint, vec3_origin, vec3_origin, ang, ps.clientNum, MASK_PLAYERSOLID)
+        pm.runTrace(tr, muzzlePoint, vec3_origin, vec3_origin, ang, ps.clientNum, MASK_PLAYERSOLID)
 
         if vehicleLock {//vehicles also do a trace from the camera point if the main one misses
             if tr.fraction >= 1.0 {
@@ -4986,10 +5039,10 @@ func PM_RocketLock(_ lockDist: Float, _ vehicleLock: Bool) {
             } else if let bgEnt, (bgEnt.s.eType == ET_PLAYER || bgEnt.s.eType == ET_NPC) {
                 if ps.rocketLockIndex == ENTITYNUM_NONE {
                     ps.rocketLockIndex = Int32(tr.entityNum)
-                    ps.rocketLockTime = Float(bg.pm.cmd.serverTime)
-                } else if ps.rocketLockIndex != Int32(tr.entityNum) && ps.rocketTargetTime < bg.pm.cmd.serverTime {
+                    ps.rocketLockTime = Float(pm.cmd.serverTime)
+                } else if ps.rocketLockIndex != Int32(tr.entityNum) && ps.rocketTargetTime < pm.cmd.serverTime {
                     ps.rocketLockIndex = Int32(tr.entityNum)
-                    ps.rocketLockTime = Float(bg.pm.cmd.serverTime)
+                    ps.rocketLockTime = Float(pm.cmd.serverTime)
                 } else if ps.rocketLockIndex == Int32(tr.entityNum) {
                     if ps.rocketLockTime == -1 {
                         ps.rocketLockTime = ps.rocketLastValidTime
@@ -4997,15 +5050,15 @@ func PM_RocketLock(_ lockDist: Float, _ vehicleLock: Bool) {
                 }
 
                 if ps.rocketLockIndex == Int32(tr.entityNum) {
-                    ps.rocketTargetTime = Float(bg.pm.cmd.serverTime + 500)
+                    ps.rocketTargetTime = Float(pm.cmd.serverTime + 500)
                 }
             } else if !vehicleLock {
-                if ps.rocketTargetTime < bg.pm.cmd.serverTime {
+                if ps.rocketTargetTime < pm.cmd.serverTime {
                     ps.rocketLockIndex = ENTITYNUM_NONE
                     ps.rocketLockTime = 0
                 }
             }
-        } else if ps.rocketTargetTime < bg.pm.cmd.serverTime {
+        } else if ps.rocketTargetTime < pm.cmd.serverTime {
             ps.rocketLockIndex = ENTITYNUM_NONE
             ps.rocketLockTime = 0
         } else {
@@ -5102,7 +5155,7 @@ func PM_ItemUsable(_ ps: JKAMP.PlayerState, _ forcedUse: Int32) -> Int32 {
         trtest[2] = fwdorg[2] + fwd[2] * 16
 
         let noRoom = Trace.scratch { tr in
-            bg.pm.runTrace(tr, ps.origin, mins, maxs, trtest, ps.clientNum, MASK_PLAYERSOLID)
+            pm.runTrace(tr, ps.origin, mins, maxs, trtest, ps.clientNum, MASK_PLAYERSOLID)
 
             // Port-note: `trace_t.entityNum` is an `Int16` and `clientNum` is an `Int32`. `Promotion.swift` carries no operator between the two, so the compare needs a widening Raven did not write.
             if (tr.fraction != 1 && Int32(tr.entityNum) != ps.clientNum) || tr.startsolid != 0 || tr.allsolid != 0 {
@@ -5134,11 +5187,11 @@ func PM_ItemUsable(_ ps: JKAMP.PlayerState, _ forcedUse: Int32) -> Int32 {
         fwd[2] = 0
         _VectorMA(ps.origin, 64, fwd, &dest)
         let roomFound = Trace.scratch { tr in
-            bg.pm.runTrace(tr, ps.origin, mins, maxs, dest, ps.clientNum, MASK_SHOT)
+            pm.runTrace(tr, ps.origin, mins, maxs, dest, ps.clientNum, MASK_SHOT)
             if Double(tr.fraction) > 0.9 && tr.startsolid == 0 && tr.allsolid == 0 {
                 pos = tr.endpos
                 dest = JKAShared.vec3_t(pos[0], pos[1], pos[2] - 4096)
-                bg.pm.runTrace(tr, pos, mins, maxs, dest, ps.clientNum, MASK_SOLID)
+                pm.runTrace(tr, pos, mins, maxs, dest, ps.clientNum, MASK_SOLID)
                 if tr.startsolid == 0 && tr.allsolid == 0 {
                     return true
                 }
@@ -5175,7 +5228,7 @@ func PM_ItemUsable(_ ps: JKAMP.PlayerState, _ forcedUse: Int32) -> Int32 {
 //cheesy vehicle weapon hackery
 /// Source: oracle/codemp/game/bg_pmove.c:6369
 func PM_CanSetWeaponAnims() -> Bool {
-    let ps = bg.pm.ps
+    let ps = pm.ps
     if ps.m_iVehicleNum != 0 {
         return false
     }
@@ -5187,8 +5240,8 @@ func PM_CanSetWeaponAnims() -> Bool {
 /// Source: oracle/codemp/game/bg_pmove.c:6381
 func PM_VehicleWeaponAnimate() {
     var iFlags: Int32 = 0, iBlend: Int32 = 0, Anim: Int32 = -1
-    let ps = bg.pm.ps
-    guard let veh = bg.pm_entVeh,
+    let ps = pm.ps
+    guard let veh = pm_entVeh,
         let m_pVehicle = veh.m_pVehicle,
         let m_pPilot = m_pVehicle.m_pPilot,
         let pilotPS = m_pPilot.playerState,
@@ -5213,15 +5266,15 @@ func PM_VehicleWeaponAnimate() {
     // Port-note: Raven writes the label `backAgain:` here and jumps back to it once, from the saber case. Rule 10 turns that jump into a loop that repeats the block.
     backAgain: while true {
         // If they're firing, play the right fire animation.
-        if (bg.pm.cmd.buttons & (BUTTON_ATTACK | BUTTON_ALT_ATTACK)) != 0 {
+        if (pm.cmd.buttons & (BUTTON_ATTACK | BUTTON_ALT_ATTACK)) != 0 {
             iFlags = SETANIM_FLAG_OVERRIDE | SETANIM_FLAG_HOLD
             iBlend = 200
 
             switch ps.weapon {
             case WP_SABER:
-                if (bg.pm.cmd.buttons & BUTTON_ALT_ATTACK) != 0 {
+                if (pm.cmd.buttons & BUTTON_ALT_ATTACK) != 0 {
                     //don't do anything.. I guess.
-                    bg.pm.cmd.buttons &= ~BUTTON_ALT_ATTACK
+                    pm.cmd.buttons &= ~BUTTON_ALT_ATTACK
                     continue backAgain
                 }
                 // If we're already in an attack animation, leave (let it continue).
@@ -5246,9 +5299,9 @@ func PM_VehicleWeaponAnimate() {
                 }
 
                 // Start the attack.
-                if bg.pm.cmd.rightmove > 0 { //right side attack
+                if pm.cmd.rightmove > 0 { //right side attack
                     Anim = BOTH_VS_ATR_S
-                } else if bg.pm.cmd.rightmove < 0 { //left-side attack
+                } else if pm.cmd.rightmove < 0 { //left-side attack
                     Anim = BOTH_VS_ATL_S
                 } else { //random
                     //FIXME: alternate back and forth or auto-aim?
@@ -5268,9 +5321,9 @@ func PM_VehicleWeaponAnimate() {
             case WP_BLASTER:
                 // Override the shoot anim.
                 if ps.torsoAnim == BOTH_ATTACK3 {
-                    if bg.pm.cmd.rightmove > 0 { //right side attack
+                    if pm.cmd.rightmove > 0 { //right side attack
                         Anim = BOTH_VS_ATR_G
-                    } else if bg.pm.cmd.rightmove < 0 { //left side
+                    } else if pm.cmd.rightmove < 0 { //left side
                         Anim = BOTH_VS_ATL_G
                     } else { //frontal
                         Anim = BOTH_VS_ATF_G
@@ -5410,24 +5463,24 @@ private func PM_Weapon() {
 
 /// Source: oracle/codemp/game/bg_pmove.c:7680
 private func PM_Animate() {
-    let ps = bg.pm.ps
-    if (bg.pm.cmd.buttons & BUTTON_GESTURE) != 0 {
+    let ps = pm.ps
+    if (pm.cmd.buttons & BUTTON_GESTURE) != 0 {
         if ps.m_iVehicleNum != 0 {
             //eh, fine, clear it
-            if ps.forceHandExtendTime < bg.pm.cmd.serverTime {
+            if ps.forceHandExtendTime < pm.cmd.serverTime {
                 ps.forceHandExtend = HANDEXTEND_NONE
             }
         }
 
         if ps.torsoTimer < 1 && ps.forceHandExtend == HANDEXTEND_NONE
-            && ps.legsTimer < 1 && ps.weaponTime < 1 && ps.saberLockTime < bg.pm.cmd.serverTime {
+            && ps.legsTimer < 1 && ps.weaponTime < 1 && ps.saberLockTime < pm.cmd.serverTime {
 
             ps.forceHandExtend = HANDEXTEND_TAUNT
 
             //FIXME: random taunt anims?
             ps.forceDodgeAnim = BOTH_ENGAGETAUNT
 
-            ps.forceHandExtendTime = bg.pm.cmd.serverTime + 1000
+            ps.forceHandExtendTime = pm.cmd.serverTime + 1000
 
             //pm->ps->weaponTime = 100;
 
@@ -5445,7 +5498,7 @@ PM_DropTimers
 */
 /// Source: oracle/codemp/game/bg_pmove.c:7748
 private func PM_DropTimers() {
-    let ps = bg.pm.ps
+    let ps = pm.ps
     // drop misc timing counter
     if ps.pm_time != 0 {
         if bg.pml.msec >= ps.pm_time {
@@ -5517,7 +5570,7 @@ func PM_UpdateViewAngles(_ ps: JKAMP.PlayerState, _ cmd: JKAMP.Usercmd) {
         // C truncates the `int` sum into the `short`, so the port does the same.
         temp = Int16(truncatingIfNeeded: cmd.angles[i] + ps.delta_angles[i])
         // Port-note: Raven passes a possibly NULL `m_pVehicle` to `BG_UnrestrainedPitchRoll`, which answers false for NULL. The generated field is optional, so the body binds it, and the nil path takes the same arm.
-        if let pm_entVeh = bg.pm_entVeh, let m_pVehicle = pm_entVeh.m_pVehicle,
+        if let pm_entVeh = pm_entVeh, let m_pVehicle = pm_entVeh.m_pVehicle,
             BG_UnrestrainedPitchRoll(ps, m_pVehicle) {
             //in a fighter
             /*
@@ -5551,10 +5604,10 @@ func PM_AdjustAttackStates(_ pm: JKAMP.Pmove) {
     var amount: Int32
     let ps = pm.ps
     // Port-note: Raven reads `pm_entSelf->s.NPC_class` with no guard. The state property is optional, so the body binds it, and the nil path takes the same arm.
-    if let pm_entSelf = bg.pm_entSelf, pm_entSelf.s.NPC_class != CLASS_VEHICLE,
+    if let pm_entSelf = pm_entSelf, pm_entSelf.s.NPC_class != CLASS_VEHICLE,
         ps.m_iVehicleNum != 0 {
         //riding a vehicle
-        let veh: JKAMP.BgEntity? = bg.pm_entVeh
+        let veh: JKAMP.BgEntity? = pm_entVeh
         // Port-note: Raven reads `m_pVehicleInfo->type` with no guard, so the body binds the optional field, and the nil path skips the early return.
         if let veh,
             let m_pVehicle = veh.m_pVehicle,
@@ -5798,9 +5851,9 @@ func BG_CmdForRoll(_ ps: JKAMP.PlayerState, _ anim: Int32, _ pCmd: JKAMP.Usercmd
 /// Source: oracle/codemp/game/bg_pmove.c:8331
 func BG_AdjustClientSpeed(_ ps: JKAMP.PlayerState, _ cmd: JKAMP.Usercmd, _ svTime: Int32) {
     var saber: JKAMP.SaberInfo?
-    let pmPS = bg.pm.ps
+    let pmPS = pm.ps
     if ps.clientNum >= MAX_CLIENTS {
-        let bgEnt: JKAMP.BgEntity? = bg.pm_entSelf
+        let bgEnt: JKAMP.BgEntity? = pm_entSelf
 
         if let bgEnt, bgEnt.s.NPC_class == CLASS_VEHICLE {
             //vehicles manage their own speed
@@ -5843,7 +5896,7 @@ func BG_AdjustClientSpeed(_ ps: JKAMP.PlayerState, _ cmd: JKAMP.Usercmd, _ svTim
     }
 
     if pmPS.weapon == WP_DISRUPTOR
-        && pmPS.zoomMode == 1 && pmPS.zoomLockTime < bg.pm.cmd.serverTime {
+        && pmPS.zoomMode == 1 && pmPS.zoomLockTime < pm.cmd.serverTime {
         ps.speed *= 0.5
     }
 
@@ -6645,7 +6698,7 @@ private func PM_AdjustAnglesForDualJumpAttack(_ ps: JKAMP.PlayerState, _ ucmd: J
 
 /// Source: oracle/codemp/game/bg_pmove.c:9474
 private func PM_CmdForSaberMoves(_ ucmd: JKAMP.Usercmd) {
-    let ps = bg.pm.ps
+    let ps = pm.ps
     //DUAL FORWARD+JUMP+ATTACK
     if (ps.legsAnim == BOTH_JUMPATTACK6
             && ps.saberMove == LS_JUMPATTACK_DUAL)
@@ -6919,7 +6972,7 @@ func PM_WeaponOkOnVehicle(_ weapon: Int32) -> Bool {
 /// Source: oracle/codemp/game/bg_pmove.c:9762
 func PM_GetOkWeaponForVehicle() -> Int32 {
     var i: Int32 = 0
-    let ps = bg.pm.ps
+    let ps = pm.ps
     while i < WP_NUM_WEAPONS {
         if (ps.stats[STAT_WEAPONS] & (1 << i)) != 0
             && PM_WeaponOkOnVehicle(i) {
@@ -6940,7 +6993,7 @@ func PM_GetOkWeaponForVehicle() -> Int32 {
 func PM_VehForcedTurning(_ veh: JKAMP.BgEntity) {
     var pitchD: Float, yawD: Float
     var dir = JKAShared.vec3_t(0, 0, 0)
-    let ps = bg.pm.ps
+    let ps = pm.ps
     // Port-note: Raven reads `veh->playerState->vehTurnaroundIndex` before his own NULL checks. The generated field is optional, so the body binds it, and the nil path returns.
     guard let vehPS = veh.playerState else { return }
 
@@ -6957,11 +7010,11 @@ func PM_VehForcedTurning(_ veh: JKAMP.BgEntity) {
     }
 
     m_pVehicle.m_ucmd.upmove = 127
-    bg.pm.cmd.upmove = 127
+    pm.cmd.upmove = 127
     m_pVehicle.m_ucmd.forwardmove = 0
-    bg.pm.cmd.forwardmove = 0
+    pm.cmd.forwardmove = 0
     m_pVehicle.m_ucmd.rightmove = 0
-    bg.pm.cmd.rightmove = 0
+    pm.cmd.rightmove = 0
 
     dir = dst.s.origin - vehPS.origin
     vectoangles(dir, &dir)
@@ -6975,7 +7028,7 @@ func PM_VehForcedTurning(_ veh: JKAMP.BgEntity) {
     ps.viewangles[YAW] = AngleSubtract(ps.viewangles[YAW], yawD)
     ps.viewangles[PITCH] = AngleSubtract(ps.viewangles[PITCH], pitchD)
 
-    PM_SetPMViewAngle(ps, &ps.viewangles, bg.pm.cmd)
+    PM_SetPMViewAngle(ps, &ps.viewangles, pm.cmd)
 }
 
 /// Source: oracle/codemp/game/bg_pmove.c:9916
@@ -7013,7 +7066,7 @@ func BG_VehicleAdjustBBoxForOrientation(_ veh: JKAMP.Vehicle, _ origin: inout JK
 
 /// Source: oracle/codemp/game/bg_pmove.c:10092
 func PM_MoveForKata(_ ucmd: JKAMP.Usercmd) {
-    let ps = bg.pm.ps
+    let ps = pm.ps
     if ps.legsAnim == BOTH_A7_SOULCAL
         && ps.saberMove == LS_STAFF_SOULCAL {
         //forward spinning staff attack
@@ -7051,28 +7104,28 @@ func PM_MoveForKata(_ ucmd: JKAMP.Usercmd) {
         }
     } else if ps.legsAnim == BOTH_A2_SPECIAL {
         //medium kata
-        bg.pm.cmd.rightmove = 0
-        bg.pm.cmd.upmove = 0
+        pm.cmd.rightmove = 0
+        pm.cmd.upmove = 0
         if ps.legsTimer < 2700 && ps.legsTimer > 2300 {
-            bg.pm.cmd.forwardmove = 127
+            pm.cmd.forwardmove = 127
         } else if ps.legsTimer < 900 && ps.legsTimer > 500 {
-            bg.pm.cmd.forwardmove = 127
+            pm.cmd.forwardmove = 127
         } else {
-            bg.pm.cmd.forwardmove = 0
+            pm.cmd.forwardmove = 0
         }
     } else if ps.legsAnim == BOTH_A3_SPECIAL {
         //strong kata
-        bg.pm.cmd.rightmove = 0
-        bg.pm.cmd.upmove = 0
+        pm.cmd.rightmove = 0
+        pm.cmd.upmove = 0
         if ps.legsTimer < 1700 && ps.legsTimer > 1000 {
-            bg.pm.cmd.forwardmove = 127
+            pm.cmd.forwardmove = 127
         } else {
-            bg.pm.cmd.forwardmove = 0
+            pm.cmd.forwardmove = 0
         }
     } else {
-        bg.pm.cmd.forwardmove = 0
-        bg.pm.cmd.rightmove = 0
-        bg.pm.cmd.upmove = 0
+        pm.cmd.forwardmove = 0
+        pm.cmd.rightmove = 0
+        pm.cmd.upmove = 0
     }
 }
 

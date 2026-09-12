@@ -4,24 +4,28 @@ import JKAMP
 import JKAShared
 
 /// Source: oracle/codemp/game/bg_saga.c:32
-// TODO: Port global siege_info
-// Raven wrote: char siege_info[MAX_SIEGE_INFO_SIZE]
-// Rule 3: a stored property of BgState with C's zero, since Raven wrote no initializer, spelled bg.siege_info in a body.
+var siege_info: JKAShared.CharBuf {
+    get { bg.variables.siege_info }
+    set { bg.variables.siege_info = newValue }
+}
 
 /// Source: oracle/codemp/game/bg_saga.c:33
-// TODO: Port global siege_valid
-// Raven wrote: int siege_valid = 0
-// Rule 3: a stored property of BgState with Raven's initializer, spelled bg.siege_valid in a body.
+var siege_valid: Int32 {
+    get { bg.variables.siege_valid }
+    set { bg.variables.siege_valid = newValue }
+}
 
 /// Source: oracle/codemp/game/bg_saga.c:35
-// TODO: Port global team1Theme
-// Raven wrote: siegeTeam_t *team1Theme = NULL
-// Rule 3: a stored property of BgState with Raven's initializer, spelled bg.team1Theme in a body.
+var team1Theme: JKAMP.SiegeTeam? {
+    get { bg.variables.team1Theme }
+    set { bg.variables.team1Theme = newValue }
+}
 
 /// Source: oracle/codemp/game/bg_saga.c:36
-// TODO: Port global team2Theme
-// Raven wrote: siegeTeam_t *team2Theme = NULL
-// Rule 3: a stored property of BgState with Raven's initializer, spelled bg.team2Theme in a body.
+var team2Theme: JKAMP.SiegeTeam? {
+    get { bg.variables.team2Theme }
+    set { bg.variables.team2Theme = newValue }
+}
 
 /// Source: oracle/codemp/game/bg_saga.c:38
 // TODO: Port global bgSiegeClasses
@@ -29,9 +33,10 @@ import JKAShared
 // A struct table is C storage in Sources/CJKAMP, reached through a Slots constant.
 
 /// Source: oracle/codemp/game/bg_saga.c:39
-// TODO: Port global bgNumSiegeClasses
-// Raven wrote: int bgNumSiegeClasses = 0
-// Rule 3: a stored property of BgState with Raven's initializer, spelled bg.bgNumSiegeClasses in a body.
+var bgNumSiegeClasses: Int32 {
+    get { bg.variables.bgNumSiegeClasses }
+    set { bg.variables.bgNumSiegeClasses = newValue }
+}
 
 /// Source: oracle/codemp/game/bg_saga.c:41
 // TODO: Port global bgSiegeTeams
@@ -39,9 +44,10 @@ import JKAShared
 // A struct table is C storage in Sources/CJKAMP, reached through a Slots constant.
 
 /// Source: oracle/codemp/game/bg_saga.c:42
-// TODO: Port global bgNumSiegeTeams
-// Raven wrote: int bgNumSiegeTeams = 0
-// Rule 3: a stored property of BgState with Raven's initializer, spelled bg.bgNumSiegeTeams in a body.
+var bgNumSiegeTeams: Int32 {
+    get { bg.variables.bgNumSiegeTeams }
+    set { bg.variables.bgNumSiegeTeams = newValue }
+}
 
 /// Source: oracle/codemp/game/bg_saga.c:45
 // TODO: Port global bgSiegeClassFlagNames
@@ -74,9 +80,11 @@ import JKAShared
 // A struct table is C storage in Sources/CJKAMP, reached through a Slots constant.
 
 /// Source: oracle/codemp/game/bg_saga.c:748
-// TODO: Port global classTitles
-// Raven wrote: char *classTitles[SPC_MAX]
-// Rule 3: a stored property of BgState with Raven's initializer, spelled bg.classTitles in a body.
+/// Raven's data table, a hand property of `BgState`.
+var classTitles: [String] {
+    get { bg.classTitles }
+    set { bg.classTitles = newValue }
+}
 
 //======================================
 //Parsing functions

@@ -5,9 +5,10 @@ import JKAShared
 import JKAMP_Game
 
 /// Source: oracle/codemp/game/ai_util.c:12
-// TODO: Port global gBotChatBuffer
-// Raven wrote: char gBotChatBuffer[MAX_CLIENTS][MAX_CHAT_BUFFER_SIZE]
-// Rule 3: a stored property of GameWorld with C's zero, since Raven wrote no initializer, spelled world.gBotChatBuffer in a body.
+var gBotChatBuffer: [JKAShared.CharBuf] {
+    get { world.variables.gBotChatBuffer }
+    set { world.variables.gBotChatBuffer = newValue }
+}
 
 /// Source: oracle/codemp/game/ai_util.c:14
 func B_TempAlloc(_ size: Int32) -> UnsafeMutableRawPointer {

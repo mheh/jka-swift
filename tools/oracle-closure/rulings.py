@@ -60,6 +60,14 @@ NEVER_NULL = {
     ("pmove_t", "pointcontents"),
 }
 
+# File-scope variables a body reads with no bind, because Raven's callers always set them before any body runs.
+# The stub forwards each one non-optional and traps on nil with the variable's name, as a view field in NEVER_NULL does.
+NEVER_NULL_VARS = {"pm"}
+
+# File-scope variables whose storage is hand work on the state object, because the generated shape is wrong for them.
+# `bg_pool` is the raw allocation of rule 9 that `BG_Alloc` hands pointers into, `bg.pool`, sized by the consumer's `MAX_POOL_SIZE`.
+HAND_VARS = {"bg_pool": "bg.pool"}
+
 # MARK: - Types
 
 # C typedef -> the Swift type it is at every surface, where the C definition alone does not say.

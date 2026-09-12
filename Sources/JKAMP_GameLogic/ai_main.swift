@@ -8,18 +8,20 @@ import JKAMP_Game
 var botstates: Slots<BotState?> { world.storage.botstates }
 
 /// Source: oracle/codemp/game/ai_main.c:48
-// TODO: Port global numbots
-// Raven wrote: int numbots
-// Rule 3: a stored property of GameWorld with C's zero, since Raven wrote no initializer, spelled world.numbots in a body.
+var numbots: Int32 {
+    get { world.variables.numbots }
+    set { world.variables.numbots = newValue }
+}
 
 /// Source: oracle/codemp/game/ai_main.c:50
 // Raven wrote: float floattime
 let floattime: Float = 0
 
 /// Source: oracle/codemp/game/ai_main.c:52
-// TODO: Port global regularupdate_time
-// Raven wrote: float regularupdate_time
-// Rule 3: a stored property of GameWorld with C's zero, since Raven wrote no initializer, spelled world.regularupdate_time in a body.
+var regularupdate_time: Float {
+    get { world.variables.regularupdate_time }
+    set { world.variables.regularupdate_time = newValue }
+}
 
 /// Source: oracle/codemp/game/ai_main.c:59
 // TODO: Port global gBotEventTracker
@@ -92,68 +94,83 @@ let floattime: Float = 0
 // A struct table is C storage in Sources/CJKAMP, reached through a Slots constant.
 
 /// Source: oracle/codemp/game/ai_main.c:86
-// TODO: Port global flagRed
-// Raven wrote: wpobject_t *flagRed
-// Rule 3: a stored property of GameWorld with C's zero, since Raven wrote no initializer, spelled world.flagRed in a body.
+var flagRed: JKAMP.Wpobject? {
+    get { world.variables.flagRed }
+    set { world.variables.flagRed = newValue }
+}
 
 /// Source: oracle/codemp/game/ai_main.c:87
-// TODO: Port global oFlagRed
-// Raven wrote: wpobject_t *oFlagRed
-// Rule 3: a stored property of GameWorld with C's zero, since Raven wrote no initializer, spelled world.oFlagRed in a body.
+var oFlagRed: JKAMP.Wpobject? {
+    get { world.variables.oFlagRed }
+    set { world.variables.oFlagRed = newValue }
+}
 
 /// Source: oracle/codemp/game/ai_main.c:88
-// TODO: Port global flagBlue
-// Raven wrote: wpobject_t *flagBlue
-// Rule 3: a stored property of GameWorld with C's zero, since Raven wrote no initializer, spelled world.flagBlue in a body.
+var flagBlue: JKAMP.Wpobject? {
+    get { world.variables.flagBlue }
+    set { world.variables.flagBlue = newValue }
+}
 
 /// Source: oracle/codemp/game/ai_main.c:89
-// TODO: Port global oFlagBlue
-// Raven wrote: wpobject_t *oFlagBlue
-// Rule 3: a stored property of GameWorld with C's zero, since Raven wrote no initializer, spelled world.oFlagBlue in a body.
+var oFlagBlue: JKAMP.Wpobject? {
+    get { world.variables.oFlagBlue }
+    set { world.variables.oFlagBlue = newValue }
+}
 
 /// Source: oracle/codemp/game/ai_main.c:91
-// TODO: Port global eFlagRed
-// Raven wrote: gentity_t *eFlagRed
-// Rule 3: a stored property of GameWorld with C's zero, since Raven wrote no initializer, spelled world.eFlagRed in a body.
+var eFlagRed: Entity? {
+    get { world.variables.eFlagRed }
+    set { world.variables.eFlagRed = newValue }
+}
 
 /// Source: oracle/codemp/game/ai_main.c:92
-// TODO: Port global droppedRedFlag
-// Raven wrote: gentity_t *droppedRedFlag
-// Rule 3: a stored property of GameWorld with C's zero, since Raven wrote no initializer, spelled world.droppedRedFlag in a body.
+var droppedRedFlag: Entity? {
+    get { world.variables.droppedRedFlag }
+    set { world.variables.droppedRedFlag = newValue }
+}
 
 /// Source: oracle/codemp/game/ai_main.c:93
-// TODO: Port global eFlagBlue
-// Raven wrote: gentity_t *eFlagBlue
-// Rule 3: a stored property of GameWorld with C's zero, since Raven wrote no initializer, spelled world.eFlagBlue in a body.
+var eFlagBlue: Entity? {
+    get { world.variables.eFlagBlue }
+    set { world.variables.eFlagBlue = newValue }
+}
 
 /// Source: oracle/codemp/game/ai_main.c:94
-// TODO: Port global droppedBlueFlag
-// Raven wrote: gentity_t *droppedBlueFlag
-// Rule 3: a stored property of GameWorld with C's zero, since Raven wrote no initializer, spelled world.droppedBlueFlag in a body.
+var droppedBlueFlag: Entity? {
+    get { world.variables.droppedBlueFlag }
+    set { world.variables.droppedBlueFlag = newValue }
+}
 
 /// Source: oracle/codemp/game/ai_main.c:96
 // Raven wrote: char *ctfStateNames[]
 let ctfStateNames: [String] = { () -> [String] in portMissing("ctfStateNames", source: "oracle/codemp/game/ai_main.c:96") }()
 
 /// Source: oracle/codemp/game/ai_main.c:106
-// TODO: Port global ctfStateDescriptions
-// Raven wrote: char *ctfStateDescriptions[]
-// Rule 3: a stored property of GameWorld with Raven's initializer, spelled world.ctfStateDescriptions in a body.
+/// Raven's data table, a hand property of `GameWorld`.
+var ctfStateDescriptions: [String] {
+    get { world.ctfStateDescriptions }
+    set { world.ctfStateDescriptions = newValue }
+}
 
 /// Source: oracle/codemp/game/ai_main.c:115
-// TODO: Port global siegeStateDescriptions
-// Raven wrote: char *siegeStateDescriptions[]
-// Rule 3: a stored property of GameWorld with Raven's initializer, spelled world.siegeStateDescriptions in a body.
+/// Raven's data table, a hand property of `GameWorld`.
+var siegeStateDescriptions: [String] {
+    get { world.siegeStateDescriptions }
+    set { world.siegeStateDescriptions = newValue }
+}
 
 /// Source: oracle/codemp/game/ai_main.c:121
-// TODO: Port global teamplayStateDescriptions
-// Raven wrote: char *teamplayStateDescriptions[]
-// Rule 3: a stored property of GameWorld with Raven's initializer, spelled world.teamplayStateDescriptions in a body.
+/// Raven's data table, a hand property of `GameWorld`.
+var teamplayStateDescriptions: [String] {
+    get { world.teamplayStateDescriptions }
+    set { world.teamplayStateDescriptions = newValue }
+}
 
 /// Source: oracle/codemp/game/ai_main.c:7485
-// TODO: Port global gUpdateVars
-// Raven wrote: int gUpdateVars = 0
-// Rule 3: a stored property of GameWorld with Raven's initializer, spelled world.gUpdateVars in a body.
+var gUpdateVars: Int32 {
+    get { world.variables.gUpdateVars }
+    set { world.variables.gUpdateVars = newValue }
+}
 
 /// Source: oracle/codemp/game/ai_main.c:128
 func BotStraightTPOrderCheck(_ ent: Entity, _ ordernum: Int32, _ bs: BotState) {

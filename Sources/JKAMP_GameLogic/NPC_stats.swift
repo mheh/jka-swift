@@ -25,9 +25,11 @@ import JKAMP_Game
 // A struct table is C storage in Sources/CJKAMP, reached through a Slots constant.
 
 /// Source: oracle/codemp/game/NPC_stats.c:133
-// TODO: Port global TeamNames
-// Raven wrote: char *TeamNames[TEAM_NUM_TEAMS]
-// Rule 3: a stored property of GameWorld with Raven's initializer, spelled world.TeamNames in a body.
+/// Raven's data table, a hand property of `GameWorld`.
+var TeamNames: [String] {
+    get { world.TeamNames }
+    set { world.TeamNames = newValue }
+}
 
 /// Source: oracle/codemp/game/NPC_stats.c:156
 // Raven wrote: char *ClassNames[CLASS_NUM_CLASSES]
@@ -35,17 +37,19 @@ let ClassNames: [String] = { () -> [String] in portMissing("ClassNames", source:
 
 /// Source: oracle/codemp/game/NPC_stats.c:237
 // Raven wrote: char NPCParms[MAX_NPC_DATA_SIZE]
-let NPCParms: [CChar] = [CChar](repeating: 0, count: 131072)
+nonisolated(unsafe) let NPCParms: JKAShared.CharBuf = JKAShared.CharBuf(Int(JKAMP_Game.MAX_NPC_DATA_SIZE))
 
 /// Source: oracle/codemp/game/NPC_stats.c:238
-// TODO: Port global NPCFile
-// Raven wrote: char NPCFile[MAX_QPATH]
-// Rule 3: a stored property of GameWorld with C's zero, since Raven wrote no initializer, spelled world.NPCFile in a body.
+var NPCFile: JKAShared.CharBuf {
+    get { world.variables.NPCFile }
+    set { world.variables.NPCFile = newValue }
+}
 
 /// Source: oracle/codemp/game/NPC_stats.c:3238
-// TODO: Port global npcParseBuffer
-// Raven wrote: char npcParseBuffer[MAX_NPC_DATA_SIZE]
-// Rule 3: a stored property of GameWorld with C's zero, since Raven wrote no initializer, spelled world.npcParseBuffer in a body.
+var npcParseBuffer: JKAShared.CharBuf {
+    get { world.variables.npcParseBuffer }
+    set { world.variables.npcParseBuffer = newValue }
+}
 
 /**
 ```

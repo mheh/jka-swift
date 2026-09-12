@@ -6,7 +6,7 @@ import JKAMP_Game
 
 /// Source: oracle/codemp/game/g_mover.c:24
 // TODO: Port global pushed
-// Raven wrote: pushed_t pushed[MAX_GENTITIES]
+// Raven wrote: pushed_t pushed[MAX_GENTITIES], *pushed_p
 // A struct table is C storage in Sources/CJKAMP, reached through a Slots constant.
 
 /// Source: oracle/codemp/game/g_mover.c:24

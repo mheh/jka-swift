@@ -13,9 +13,10 @@ import JKAMP_Game
 var g_timers: Slots<Gtimer?> { world.storage.g_timers }
 
 /// Source: oracle/codemp/game/g_timer.c:19
-// TODO: Port global g_timerFreeList
-// Raven wrote: gtimer_t *g_timerFreeList
-// Rule 3: a stored property of GameWorld with C's zero, since Raven wrote no initializer, spelled world.g_timerFreeList in a body.
+var g_timerFreeList: Gtimer? {
+    get { world.variables.g_timerFreeList }
+    set { world.variables.g_timerFreeList = newValue }
+}
 
 /// Source: oracle/codemp/game/g_timer.c:27
 func TIMER_Clear() {

@@ -23,6 +23,7 @@ Usage:
 from __future__ import annotations
 
 import argparse
+import re
 from collections import Counter, defaultdict
 from pathlib import Path
 
@@ -32,7 +33,7 @@ from clang.cindex import CursorKind, TypeKind
 import closure as C
 from fnsweep import binop_assign_op, rhs_function, root_var
 from reexport import REPO, SOURCES
-from rulings import RETURNS
+from rulings import HAND_VARS, NEVER_NULL_VARS, RETURNS
 from table import Param, SourceFile, Table, swift_name
 
 ORACLE_DIR = "codemp/game"
@@ -93,6 +94,22 @@ class Variable:
         self.reason: str | None = None
         self.view: str | None = None
         self.count = 0
+        # The innermost array bound as Raven spelled it, for a `CharBuf`, and Raven's initializer text when a body writes the variable.
+        self.bound: str | None = None
+        self.data = False
+        # Raven's `static` keeps the name to his file. Two files that share a name keep two variables, and the struct's field carries the stem.
+        self.static = cur.storage_class == ci.StorageClass.STATIC
+        self.shared = False
+
+    @property
+    def field(self) -> str:
+        """The property name on the variables struct: Raven's name, or the stem and the name when another file declares the name too."""
+        return f"{self.stem}_{self.name}" if self.shared else self.name
+
+    @property
+    def access(self) -> str:
+        """`private ` for a name another file declares too, the rule shared function names take, because Swift file-scope names share one module."""
+        return "private " if self.shared else ""
 
     @property
     def cite(self) -> str:
@@ -105,7 +122,11 @@ class Variable:
             return self.reason
         if self.reason is not None:
             return "marker"
-        return "state" if self.written else "let"
+        if self.name in HAND_VARS:
+            return "hand"
+        if self.written:
+            return "state_data" if self.data else "state"
+        return "let"
 
 
 class Skeleton:
@@ -169,7 +190,7 @@ class Skeleton:
     def collect_variables(self) -> None:
         """Every file-scope variable definition of the module, and whether any body in the module writes it."""
         game = (C.ORACLE / ORACLE_DIR).resolve()
-        by_name: dict[str, Variable] = {}
+        by_name: dict[str, list[Variable]] = defaultdict(list)
         for cur in self.tu.cursor.get_children():
             if cur.kind != CursorKind.VAR_DECL or not cur.location.file or cur.storage_class == ci.StorageClass.EXTERN:
                 continue
@@ -186,8 +207,17 @@ class Skeleton:
                     continue
             var = Variable(cur, path.stem)
             self.map_variable(var)
+            text = self.declaration_text(var)
+            var.data = "=" in text and "{" in text.split("=", 1)[1]
             self.variables[path.stem].append(var)
-            by_name[var.name] = var
+            by_name[var.name].append(var)
+        owners: dict[str, set[str]] = defaultdict(set)
+        for stem, variables in self.variables.items():
+            for var in variables:
+                owners[var.name].add(target_of(stem) + "/" + stem)
+        for stem, variables in self.variables.items():
+            for var in variables:
+                var.shared = len(owners[var.name]) > 1
 
         def written(node: ci.Cursor) -> None:
             if node.kind == CursorKind.BINARY_OPERATOR or node.kind == CursorKind.COMPOUND_ASSIGNMENT_OPERATOR:
@@ -210,16 +240,17 @@ class Skeleton:
             if cur.kind == CursorKind.FUNCTION_DECL and cur.is_definition():
                 written(cur)
 
-    def note_write(self, lvalue: ci.Cursor, by_name: dict[str, Variable], arrays_only: bool = False) -> None:
+    def note_write(self, lvalue: ci.Cursor, by_name: dict[str, list[Variable]], arrays_only: bool = False) -> None:
+        """A write marks every file's copy of the name, because the unity parse binds a shared static's uses to one declaration."""
         rooted = root_var(lvalue)
         if rooted is None:
             return
-        var = by_name.get(rooted[0])
-        if var is None or var.cur.type.is_const_qualified():
-            return
-        if arrays_only and var.cur.type.get_canonical().kind != TypeKind.CONSTANTARRAY:
-            return
-        var.written = True
+        for var in by_name.get(rooted[0], []):
+            if var.cur.type.is_const_qualified():
+                continue
+            if arrays_only and var.cur.type.get_canonical().kind != TypeKind.CONSTANTARRAY:
+                continue
+            var.written = True
 
     def map_variable(self, var: Variable) -> None:
         """The Swift type of a variable, or the reason it has none. A struct table is C storage, never a Swift type."""
@@ -253,6 +284,11 @@ class Skeleton:
                     var.view = inner[:-1]
                     var.count = canonical.element_count
                     return
+        elif depth and element.kind == TypeKind.CHAR_S:
+            # A C character array is a `CharBuf` of Raven's bound, the shape a body's buffers take.
+            var.swift = "[" * (depth - 1) + "JKAShared.CharBuf" + "]" * (depth - 1)
+            var.bound = self.bound_text(var)
+            return
         else:
             scalar_type = t
             for _ in range(depth):
@@ -264,6 +300,84 @@ class Skeleton:
                 var.reason = f"No table row for `{' '.join(t.spelling.split())}`."
                 return
         var.swift = "[" * depth + inner + "]" * depth
+
+    def declaration_text(self, var: Variable) -> str:
+        """Raven's declaration through its `;`, read from the file. The unity parse drops the initializer of a static two files name alike,
+        because one translation unit sees a redefinition, so the cursor's extent is not trusted for a variable."""
+        source = self.source(var.stem)
+        text = "\n".join(source.lines)
+        start_line = var.cur.extent.start.line
+        start = sum(len(line) + 1 for line in source.lines[:start_line - 1]) + var.cur.extent.start.column - 1
+        depth = 0
+        i = start
+        while i < len(text):
+            ch = text[i]
+            if ch in ("\"", "'"):
+                # A string or character literal, with backslash escapes, is skipped whole.
+                i += 1
+                while i < len(text) and text[i] != ch:
+                    i += 2 if text[i] == "\\" else 1
+            elif ch == "{":
+                depth += 1
+            elif ch == "}":
+                depth -= 1
+            elif ch == ";" and depth == 0:
+                return text[start:i]
+            i += 1
+        return text[start:]
+
+    def exported(self, var: Variable) -> dict[str, str]:
+        return self.table.views.exported_names("CJKAMP" if target_of(var.stem) == BG else "CJKAMP_Game")
+
+    def bound_text(self, var: Variable) -> str:
+        """The innermost array bound, `Int(JKAShared.MAX_QPATH)` when Raven named a macro a module exports, else the number."""
+        declaration = self.declaration_text(var).split("=", 1)[0]
+        bounds = re.findall(r"\[([^\]]*)\]", declaration)
+        t = var.cur.type.get_canonical()
+        count = 0
+        while t.kind == TypeKind.CONSTANTARRAY:
+            count = t.element_count
+            t = t.element_type.get_canonical()
+        exported = self.exported(var)
+        bound = bounds[-1].strip() if bounds else ""
+        return f"Int({exported[bound]}.{bound})" if bound in exported else str(count)
+
+    def initializer(self, var: Variable) -> str | None:
+        """Raven's initializer as a Swift literal: a number, `qtrue`, `qfalse`, `NULL`, a string, or a macro a module exports. None otherwise."""
+        text = self.declaration_text(var)
+        if "=" not in text:
+            return None
+        raw = " ".join(text.split("=", 1)[1].split()).rstrip(";").strip()
+        swift = var.swift or ""
+        if swift == "Bool":
+            return {"qtrue": "true", "qfalse": "false", "1": "true", "0": "false"}.get(raw)
+        if raw == "NULL":
+            return "nil" if swift.endswith("?") else ('""' if swift == "String" else None)
+        if swift == "String" and raw.startswith('"') and raw.endswith('"'):
+            return raw
+        if re.fullmatch(r"-?\d+", raw):
+            return raw
+        m = re.fullmatch(r"(-?\d*)\.(\d*)[fF]?", raw)
+        if m and (m.group(1).strip("-") or m.group(2)):
+            return f"{m.group(1) or '0'}.{m.group(2) or '0'}"
+        exported = self.exported(var)
+        if re.fullmatch(r"\w+", raw) and raw in exported:
+            return f"{exported[raw]}.{raw}"
+        if re.fullmatch(r"\w+", raw) and raw in self.module_lets(target_of(var.stem)):
+            # A constant the module's own Swift declares, such as an enum Raven defined inside the .c file.
+            return raw
+        return None
+
+    def module_lets(self, target: str) -> set[str]:
+        """Every file-scope `let` name the target's hand and stub Swift declares."""
+        if not hasattr(self, "_lets"):
+            self._lets: dict[str, set[str]] = {}
+        if target not in self._lets:
+            names: set[str] = set()
+            for path in (SOURCES / target).rglob("*.swift"):
+                names |= set(re.findall(r"^(?:public |nonisolated\(unsafe\) )*let (\w+)", path.read_text(), re.M))
+            self._lets[target] = names
+        return self._lets[target]
 
     def zero(self, var: Variable) -> str:
         """C's zero for a variable Raven left uninitialized, spelled in the variable's Swift type."""
@@ -285,6 +399,8 @@ class Skeleton:
             literal = '""'
         elif inner == "JKAShared.vec3_t":
             literal = "JKAShared.vec3_t(0, 0, 0)"
+        elif inner == "JKAShared.CharBuf":
+            literal = f"JKAShared.CharBuf({var.bound})"
         else:
             literal = "0"
         for count, depth in zip(reversed(counts), range(len(counts))):
@@ -292,9 +408,15 @@ class Skeleton:
             literal = f"[{element}](repeating: {literal}, count: {count})"
         return literal
 
+    @staticmethod
+    def let_prefix(var: Variable) -> str:
+        """A view and a CharBuf are not Sendable, so their let says so, and a shared static is private to its file."""
+        swift = var.swift or ""
+        unsafe = "nonisolated(unsafe) " if "?" in swift or "CharBuf" in swift else ""
+        return var.access + unsafe
+
     def variable_entry(self, var: Variable) -> list[str]:
-        source = self.source(var.stem)
-        text = source.slice(var.cur.extent)
+        text = self.declaration_text(var)
         # A one-line definition keeps its initializer on the page. A table's initializer is Raven's data, read from the oracle.
         declaration = " ".join(text.split("=", 1)[0].split()) if "\n" in text else " ".join(text.split())
         lines = [f"/// Source: {var.cite}", f"// Raven wrote: {declaration}"]
@@ -303,15 +425,43 @@ class Skeleton:
         self.counts[f"variables, {kind}"] += 1
         if kind == "let" and "=" not in text:
             # Nothing writes it and Raven gave it no value, so it is C's zero for the module's life. A view is not Sendable, so its let says so.
-            prefix = "nonisolated(unsafe) " if (var.swift or "").endswith("?") else ""
-            lines.append(f"{prefix}let {var.name}: {var.swift} = {self.zero(var)}")
+            lines.append(f"{self.let_prefix(var)}let {var.name}: {var.swift} = {self.zero(var)}")
         elif kind == "let":
-            lines.append(f"let {var.name}: {var.swift} = {{ () -> {var.swift} in portMissing(\"{var.name}\", source: \"{var.cite}\") }}()")
+            lines.append(f"{self.let_prefix(var)}let {var.name}: {var.swift} = {{ () -> {var.swift} in portMissing(\"{var.name}\", source: \"{var.cite}\") }}()")
+        elif kind in ("state", "state_data") and target_of(var.stem) == SHARED:
+            lines.insert(1, f"// TODO: Port global {var.name}")
+            lines.append(f"// Rule 3: a stored property of the shared module's owner with {initializer}.")
         elif kind == "state":
+            # The value lives on the generated variables struct the world owns, and the stub carries Raven's name at Raven's line.
+            spelled = "bg" if target_of(var.stem) == BG else "world"
+            if var.name in NEVER_NULL_VARS:
+                lines = [f"/// Source: {var.cite}",
+                         f"/// Raven's callers always set `{var.name}`, so a body reads it with no bind. A NULL here traps with the name.",
+                         f"{var.access}var {var.name}: {var.swift.rstrip('?')} {{",
+                         "    get {",
+                         f"        guard let {var.name} = {spelled}.variables.{var.field} else {{ preconditionFailure(\"{var.name} is NULL\") }}",
+                         f"        return {var.name}",
+                         "    }",
+                         f"    set {{ {spelled}.variables.{var.field} = newValue }}",
+                         "}"]
+            else:
+                lines = [f"/// Source: {var.cite}",
+                         f"{var.access}var {var.name}: {var.swift} {{",
+                         f"    get {{ {spelled}.variables.{var.field} }}",
+                         f"    set {{ {spelled}.variables.{var.field} = newValue }}",
+                         "}"]
+        elif kind == "hand":
+            lines.append(f"// A hand property of the state object, `{HAND_VARS[var.name]}`, by the HAND_VARS ruling.")
+        elif kind == "state_data":
+            # Raven's data is hand work on the state object, and the stub forwards it under Raven's name.
             home = "BgState" if target_of(var.stem) == BG else "GameWorld"
             spelled = "bg" if target_of(var.stem) == BG else "world"
-            lines.insert(1, f"// TODO: Port global {var.name}")
-            lines.append(f"// Rule 3: a stored property of {home} with {initializer}, spelled {spelled}.{var.name} in a body.")
+            lines = [f"/// Source: {var.cite}",
+                     f"/// Raven's data table, a hand property of `{home}`.",
+                     f"{var.access}var {var.name}: {var.swift} {{",
+                     f"    get {{ {spelled}.{var.field} }}",
+                     f"    set {{ {spelled}.{var.field} = newValue }}",
+                     "}"]
         elif kind == "storage":
             lines.insert(1, f"// TODO: Port global {var.name}")
             lines.append(f"// A struct table is C storage in Sources/CJKAMP, reached through a Slots constant.")
@@ -477,7 +627,36 @@ class Skeleton:
         out.parent.mkdir(parents=True, exist_ok=True)
         out.write_text("\n".join(self.thunks()).rstrip() + "\n")
         self.write_storage()
+        self.write_variables()
         return written, adopted
+
+    def write_variables(self) -> None:
+        """One variables struct per tree: every written scalar, vector, buffer, and view pointer as a stored property the state object owns."""
+        homes = {
+            BG: (SOURCES / "JKAMP_BG" / "Generated" / "BgVariables.swift", "BgVariables", "BgState", "bg"),
+            LOGIC: (SOURCES / "JKAMP_Game" / "Generated" / "Storage" / "GameVariables.swift", "GameVariables", "GameWorld", "world"),
+        }
+        for target, (out, struct, home, spelled) in homes.items():
+            variables = [(stem, v) for stem in sorted(self.variables) for v in self.variables[stem]
+                         if v.kind == "state" and target_of(stem) == target]
+            lines = ["// Generated by tools/oracle-closure/skeleton.py from the oracle's .c files. Do not edit. The variables Raven writes at file scope.",
+                     "", "import JKAMP", "import JKAShared", "",
+                     f"/// Raven's file-scope variables the module writes, one stored property each, with Raven's initializer or C's zero, owned by `{home}` under rule 3.",
+                     "/// A body reaches each one by Raven's name through the forwarder in the stub of the file that declared it.",
+                     f"public struct {struct} {{"]
+            for stem, var in variables:
+                text = self.declaration_text(var)
+                declaration = " ".join(text.split("=", 1)[0].split()).removeprefix("static ")
+                lines += [f"    /// Raven's `{declaration}` of `{stem}.c`.", f"    /// Source: {var.cite}"]
+                value = self.initializer(var)
+                if value is None and "=" in text:
+                    raw = " ".join(text.split("=", 1)[1].split()).rstrip(";")
+                    lines.append(f"    // TODO: Port initializer {var.name}, Raven wrote `= {raw}`. The hand line sits in `{home}.init`.")
+                    self.counts["variables, initializer by hand"] += 1
+                lines += [f"    public var {var.field}: {var.swift} = {value if value is not None else self.zero(var)}", ""]
+            lines += ["    public init() {}", "}"]
+            out.parent.mkdir(parents=True, exist_ok=True)
+            out.write_text("\n".join(lines).rstrip() + "\n")
 
     def write_storage(self) -> None:
         """One GameStorage class in the view target: every pointer table as a Slots of optional views over a zeroed allocation the world owns."""
@@ -536,7 +715,8 @@ def main() -> None:
     c = gen.counts
     print(f"skeleton.py: {written} files, {c['stubs']} stubs, {c['TODO: Port signature']} TODO: Port signature markers, "
           f"{c['thunks']} thunks in {len(FIELDS)} namespaces, {c['thunks over an unmapped signature']} thunks over an unmapped signature")
-    print(f"  variables: {c['variables, let']} let, {c['variables, state']} state, {c['variables, storage']} storage, {c['variables, marker']} markers")
+    print(f"  variables: {c['variables, let']} let, {c['variables, state']} state, {c['variables, state_data']} data by hand, "
+          f"{c['variables, initializer by hand']} initializers by hand, {c['variables, storage']} storage, {c['variables, marker']} markers")
     if c["functions made private because another file defines the name"]:
         print(f"  {c['functions made private because another file defines the name']} functions made private, because another file defines the name")
     if c["static functions kept internal for a thunk"]:

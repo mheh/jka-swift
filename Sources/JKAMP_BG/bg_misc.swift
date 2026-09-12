@@ -2,7 +2,21 @@ import Foundation
 import JKAMP
 import JKAShared
 
-/// Raven's `forceMasteryPoints` of `bg_misc.c`, the points a rank allows.
+/// Raven's `forceMasteryPoints` of `bg_misc.c`, the points a rank allows./// Source: oracle/codemp/game/bg_misc.c:34
+/// Raven's data table, a hand property of `BgState`.
+var bgToggleableSurfaces: [String] {
+    get { bg.bgToggleableSurfaces }
+    set { bg.bgToggleableSurfaces = newValue }
+}
+
+
+/// Source: oracle/codemp/game/bg_misc.c:113
+/// Raven's data table, a hand property of `BgState`.
+var bg_customSiegeSoundNames: [String] {
+    get { bg.bg_customSiegeSoundNames }
+    set { bg.bg_customSiegeSoundNames = newValue }
+}
+
 /// Source: oracle/codemp/game/bg_misc.c:162
 let forceMasteryPoints: [Int32] = [
     0,		// FORCE_MASTERY_UNINITIATED,
@@ -86,6 +100,27 @@ let forcePowerDarkLight: [Int32] = [ //0 == neutral
     0//FP_SABERTHROW,
         //NUM_FORCE_POWERS
 ]
+
+/// Source: oracle/codemp/game/bg_misc.c:242
+/// Raven's data table, a hand property of `BgState`.
+var WeaponReadyAnim: [Int32] {
+    get { bg.WeaponReadyAnim }
+    set { bg.WeaponReadyAnim = newValue }
+}
+
+/// Source: oracle/codemp/game/bg_misc.c:268
+/// Raven's data table, a hand property of `BgState`.
+var WeaponReadyLegsAnim: [Int32] {
+    get { bg.WeaponReadyLegsAnim }
+    set { bg.WeaponReadyLegsAnim = newValue }
+}
+
+/// Source: oracle/codemp/game/bg_misc.c:294
+/// Raven's data table, a hand property of `BgState`.
+var WeaponAttackAnim: [Int32] {
+    get { bg.WeaponAttackAnim }
+    set { bg.WeaponAttackAnim = newValue }
+}
 
 /// Source: oracle/codemp/game/bg_misc.c:319
 func BG_FileExists(_ fileName: String) -> Bool {
@@ -1620,31 +1655,47 @@ func BG_ModelCache(_ modelName: String, _ skinName: String) -> Int32 {
     }
 }
 
+/// Source: oracle/codemp/game/bg_misc.c:3324
+// Raven wrote: static char bg_pool[MAX_POOL_SIZE]
+// A hand property of the state object, `bg.pool`, by the HAND_VARS ruling.
+
+/// Source: oracle/codemp/game/bg_misc.c:3325
+var bg_poolSize: Int32 {
+    get { bg.variables.bg_poolSize }
+    set { bg.variables.bg_poolSize = newValue }
+}
+
+/// Source: oracle/codemp/game/bg_misc.c:3326
+var bg_poolTail: Int32 {
+    get { bg.variables.bg_poolTail }
+    set { bg.variables.bg_poolTail = newValue }
+}
+
 /// Source: oracle/codemp/game/bg_misc.c:3328
 func BG_Alloc(_ size: Int32) -> UnsafeMutableRawPointer {
     // Raven wrote `0xfffffffc`, the same bit pattern as `~0x0000_0003` on an `Int32`.
-    bg.poolSize = ((bg.poolSize + 0x0000_0003) & ~0x0000_0003)
+    bg_poolSize = ((bg_poolSize + 0x0000_0003) & ~0x0000_0003)
 
-    if bg.poolSize + size > bg.poolTail {
+    if bg_poolSize + size > bg_poolTail {
         // Raven writes `return 0` after this call, which `Com_Error` never reaches.
-        Com_Error(ERR_DROP, "BG_Alloc: buffer exceeded tail (\(bg.poolSize + size) > \(bg.poolTail))")
+        Com_Error(ERR_DROP, "BG_Alloc: buffer exceeded tail (\(bg_poolSize + size) > \(bg_poolTail))")
     }
 
-    bg.poolSize += size
+    bg_poolSize += size
 
-    return bg.pool + (bg.poolSize - size)
+    return bg.pool + (bg_poolSize - size)
 }
 
 /// Source: oracle/codemp/game/bg_misc.c:3343
 func BG_AllocUnaligned(_ size: Int32) -> UnsafeMutableRawPointer {
-    if bg.poolSize + size > bg.poolTail {
+    if bg_poolSize + size > bg_poolTail {
         // Raven writes `return 0` after this call, which `Com_Error` never reaches.
-        Com_Error(ERR_DROP, "BG_AllocUnaligned: buffer exceeded tail (\(bg.poolSize + size) > \(bg.poolTail))")
+        Com_Error(ERR_DROP, "BG_AllocUnaligned: buffer exceeded tail (\(bg_poolSize + size) > \(bg_poolTail))")
     }
 
-    bg.poolSize += size
+    bg_poolSize += size
 
-    return bg.pool + (bg.poolSize - size)
+    return bg.pool + (bg_poolSize - size)
 }
 
 /// Source: oracle/codemp/game/bg_misc.c:3356
@@ -1653,14 +1704,14 @@ func BG_TempAlloc(_ size: Int32) -> UnsafeMutableRawPointer {
     var size = size
     size = ((size + 0x0000_0003) & ~0x0000_0003)
 
-    if bg.poolTail - size < bg.poolSize {
+    if bg_poolTail - size < bg_poolSize {
         // Raven writes `return 0` after this call, which `Com_Error` never reaches.
-        Com_Error(ERR_DROP, "BG_TempAlloc: buffer exceeded head (\(bg.poolTail - size) > \(bg.poolSize))")
+        Com_Error(ERR_DROP, "BG_TempAlloc: buffer exceeded head (\(bg_poolTail - size) > \(bg_poolSize))")
     }
 
-    bg.poolTail -= size
+    bg_poolTail -= size
 
-    return bg.pool + bg.poolTail
+    return bg.pool + bg_poolTail
 }
 
 /// Source: oracle/codemp/game/bg_misc.c:3371
@@ -1669,11 +1720,11 @@ func BG_TempFree(_ size: Int32) {
     var size = size
     size = ((size + 0x0000_0003) & ~0x0000_0003)
 
-    if bg.poolTail + size > MAX_POOL_SIZE {
-        Com_Error(ERR_DROP, "BG_TempFree: tail greater than size (\(bg.poolTail + size) > \(MAX_POOL_SIZE))")
+    if bg_poolTail + size > MAX_POOL_SIZE {
+        Com_Error(ERR_DROP, "BG_TempFree: tail greater than size (\(bg_poolTail + size) > \(MAX_POOL_SIZE))")
     }
 
-    bg.poolTail += size
+    bg_poolTail += size
 }
 
 /// Source: oracle/codemp/game/bg_misc.c:3383
@@ -1687,5 +1738,5 @@ func BG_StringAlloc(_ source: String) -> PooledString {
 
 /// Source: oracle/codemp/game/bg_misc.c:3392
 func BG_OutOfMemory() -> Bool {
-    return bg.poolSize >= MAX_POOL_SIZE
+    return bg_poolSize >= MAX_POOL_SIZE
 }

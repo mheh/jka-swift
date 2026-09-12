@@ -10,9 +10,10 @@ import JKAMP_Game
 // A struct table is C storage in Sources/CJKAMP, reached through a Slots constant.
 
 /// Source: oracle/codemp/game/g_svcmds.c:55
-// TODO: Port global numIPFilters
-// Raven wrote: static int numIPFilters
-// Rule 3: a stored property of GameWorld with C's zero, since Raven wrote no initializer, spelled world.numIPFilters in a body.
+var numIPFilters: Int32 {
+    get { world.variables.numIPFilters }
+    set { world.variables.numIPFilters = newValue }
+}
 
 /**
 ```

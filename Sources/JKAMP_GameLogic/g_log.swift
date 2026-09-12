@@ -5,68 +5,81 @@ import JKAShared
 import JKAMP_Game
 
 /// Source: oracle/codemp/game/g_log.c:19
-// TODO: Port global G_WeaponLogPickups
-// Raven wrote: int G_WeaponLogPickups[MAX_CLIENTS][WP_NUM_WEAPONS]
-// Rule 3: a stored property of GameWorld with C's zero, since Raven wrote no initializer, spelled world.G_WeaponLogPickups in a body.
+var G_WeaponLogPickups: [[Int32]] {
+    get { world.variables.G_WeaponLogPickups }
+    set { world.variables.G_WeaponLogPickups = newValue }
+}
 
 /// Source: oracle/codemp/game/g_log.c:20
-// TODO: Port global G_WeaponLogFired
-// Raven wrote: int G_WeaponLogFired[MAX_CLIENTS][WP_NUM_WEAPONS]
-// Rule 3: a stored property of GameWorld with C's zero, since Raven wrote no initializer, spelled world.G_WeaponLogFired in a body.
+var G_WeaponLogFired: [[Int32]] {
+    get { world.variables.G_WeaponLogFired }
+    set { world.variables.G_WeaponLogFired = newValue }
+}
 
 /// Source: oracle/codemp/game/g_log.c:21
-// TODO: Port global G_WeaponLogDamage
-// Raven wrote: int G_WeaponLogDamage[MAX_CLIENTS][MOD_MAX]
-// Rule 3: a stored property of GameWorld with C's zero, since Raven wrote no initializer, spelled world.G_WeaponLogDamage in a body.
+var G_WeaponLogDamage: [[Int32]] {
+    get { world.variables.G_WeaponLogDamage }
+    set { world.variables.G_WeaponLogDamage = newValue }
+}
 
 /// Source: oracle/codemp/game/g_log.c:22
-// TODO: Port global G_WeaponLogKills
-// Raven wrote: int G_WeaponLogKills[MAX_CLIENTS][MOD_MAX]
-// Rule 3: a stored property of GameWorld with C's zero, since Raven wrote no initializer, spelled world.G_WeaponLogKills in a body.
+var G_WeaponLogKills: [[Int32]] {
+    get { world.variables.G_WeaponLogKills }
+    set { world.variables.G_WeaponLogKills = newValue }
+}
 
 /// Source: oracle/codemp/game/g_log.c:23
-// TODO: Port global G_WeaponLogDeaths
-// Raven wrote: int G_WeaponLogDeaths[MAX_CLIENTS][WP_NUM_WEAPONS]
-// Rule 3: a stored property of GameWorld with C's zero, since Raven wrote no initializer, spelled world.G_WeaponLogDeaths in a body.
+var G_WeaponLogDeaths: [[Int32]] {
+    get { world.variables.G_WeaponLogDeaths }
+    set { world.variables.G_WeaponLogDeaths = newValue }
+}
 
 /// Source: oracle/codemp/game/g_log.c:24
-// TODO: Port global G_WeaponLogFrags
-// Raven wrote: int G_WeaponLogFrags[MAX_CLIENTS][MAX_CLIENTS]
-// Rule 3: a stored property of GameWorld with C's zero, since Raven wrote no initializer, spelled world.G_WeaponLogFrags in a body.
+var G_WeaponLogFrags: [[Int32]] {
+    get { world.variables.G_WeaponLogFrags }
+    set { world.variables.G_WeaponLogFrags = newValue }
+}
 
 /// Source: oracle/codemp/game/g_log.c:25
-// TODO: Port global G_WeaponLogTime
-// Raven wrote: int G_WeaponLogTime[MAX_CLIENTS][WP_NUM_WEAPONS]
-// Rule 3: a stored property of GameWorld with C's zero, since Raven wrote no initializer, spelled world.G_WeaponLogTime in a body.
+var G_WeaponLogTime: [[Int32]] {
+    get { world.variables.G_WeaponLogTime }
+    set { world.variables.G_WeaponLogTime = newValue }
+}
 
 /// Source: oracle/codemp/game/g_log.c:26
-// TODO: Port global G_WeaponLogLastTime
-// Raven wrote: int G_WeaponLogLastTime[MAX_CLIENTS]
-// Rule 3: a stored property of GameWorld with C's zero, since Raven wrote no initializer, spelled world.G_WeaponLogLastTime in a body.
+var G_WeaponLogLastTime: [Int32] {
+    get { world.variables.G_WeaponLogLastTime }
+    set { world.variables.G_WeaponLogLastTime = newValue }
+}
 
 /// Source: oracle/codemp/game/g_log.c:27
-// TODO: Port global G_WeaponLogClientTouch
-// Raven wrote: qboolean G_WeaponLogClientTouch[MAX_CLIENTS]
-// Rule 3: a stored property of GameWorld with C's zero, since Raven wrote no initializer, spelled world.G_WeaponLogClientTouch in a body.
+var G_WeaponLogClientTouch: [Bool] {
+    get { world.variables.G_WeaponLogClientTouch }
+    set { world.variables.G_WeaponLogClientTouch = newValue }
+}
 
 /// Source: oracle/codemp/game/g_log.c:28
-// TODO: Port global G_WeaponLogPowerups
-// Raven wrote: int G_WeaponLogPowerups[MAX_CLIENTS][HI_NUM_HOLDABLE]
-// Rule 3: a stored property of GameWorld with C's zero, since Raven wrote no initializer, spelled world.G_WeaponLogPowerups in a body.
+var G_WeaponLogPowerups: [[Int32]] {
+    get { world.variables.G_WeaponLogPowerups }
+    set { world.variables.G_WeaponLogPowerups = newValue }
+}
 
 /// Source: oracle/codemp/game/g_log.c:29
-// TODO: Port global G_WeaponLogItems
-// Raven wrote: int G_WeaponLogItems[MAX_CLIENTS][PW_NUM_POWERUPS]
-// Rule 3: a stored property of GameWorld with C's zero, since Raven wrote no initializer, spelled world.G_WeaponLogItems in a body.
+var G_WeaponLogItems: [[Int32]] {
+    get { world.variables.G_WeaponLogItems }
+    set { world.variables.G_WeaponLogItems = newValue }
+}
 
 /// Source: oracle/codemp/game/g_log.c:35
 // Raven wrote: int weaponFromMOD[MOD_MAX]
 let weaponFromMOD: [Int32] = { () -> [Int32] in portMissing("weaponFromMOD", source: "oracle/codemp/game/g_log.c:35") }()
 
 /// Source: oracle/codemp/game/g_log.c:79
-// TODO: Port global weaponNameFromIndex
-// Raven wrote: char *weaponNameFromIndex[WP_NUM_WEAPONS]
-// Rule 3: a stored property of GameWorld with Raven's initializer, spelled world.weaponNameFromIndex in a body.
+/// Raven's data table, a hand property of `GameWorld`.
+var weaponNameFromIndex: [String] {
+    get { world.weaponNameFromIndex }
+    set { world.weaponNameFromIndex = newValue }
+}
 
 /**
 ```

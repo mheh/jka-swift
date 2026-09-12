@@ -4,14 +4,16 @@ import JKAMP
 import JKAShared
 
 /// Source: oracle/codemp/game/bg_vehicleLoad.c:76
-// TODO: Port global VehWeaponParms
-// Raven wrote: char VehWeaponParms[MAX_VEH_WEAPON_DATA_SIZE]
-// Rule 3: a stored property of BgState with C's zero, since Raven wrote no initializer, spelled bg.VehWeaponParms in a body.
+var VehWeaponParms: JKAShared.CharBuf {
+    get { bg.variables.VehWeaponParms }
+    set { bg.variables.VehWeaponParms = newValue }
+}
 
 /// Source: oracle/codemp/game/bg_vehicleLoad.c:77
-// TODO: Port global VehicleParms
-// Raven wrote: char VehicleParms[MAX_VEHICLE_DATA_SIZE]
-// Rule 3: a stored property of BgState with C's zero, since Raven wrote no initializer, spelled bg.VehicleParms in a body.
+var VehicleParms: JKAShared.CharBuf {
+    get { bg.variables.VehicleParms }
+    set { bg.variables.VehicleParms = newValue }
+}
 
 /// Source: oracle/codemp/game/bg_vehicleLoad.c:103
 // TODO: Port global g_vehWeaponInfo
@@ -19,9 +21,10 @@ import JKAShared
 // A struct table is C storage in Sources/CJKAMP, reached through a Slots constant.
 
 /// Source: oracle/codemp/game/bg_vehicleLoad.c:104
-// TODO: Port global numVehicleWeapons
-// Raven wrote: int numVehicleWeapons = 1
-// Rule 3: a stored property of BgState with Raven's initializer, spelled bg.numVehicleWeapons in a body.
+var numVehicleWeapons: Int32 {
+    get { bg.variables.numVehicleWeapons }
+    set { bg.variables.numVehicleWeapons = newValue }
+}
 
 /// Source: oracle/codemp/game/bg_vehicleLoad.c:106
 // TODO: Port global g_vehicleInfo
@@ -29,9 +32,10 @@ import JKAShared
 // A struct table is C storage in Sources/CJKAMP, reached through a Slots constant.
 
 /// Source: oracle/codemp/game/bg_vehicleLoad.c:107
-// TODO: Port global numVehicles
-// Raven wrote: int numVehicles = 0
-// Rule 3: a stored property of BgState with Raven's initializer, spelled bg.numVehicles in a body.
+var numVehicles: Int32 {
+    get { bg.variables.numVehicles }
+    set { bg.variables.numVehicles = newValue }
+}
 
 /// Source: oracle/codemp/game/bg_vehicleLoad.c:138
 // TODO: Port global vehWeaponFields
