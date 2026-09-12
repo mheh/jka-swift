@@ -10,9 +10,7 @@ import JKAMP_Game
 // A struct table is C storage in Sources/CJKAMP, reached through a Slots constant.
 
 /// Source: oracle/codemp/game/g_timer.c:18
-// TODO: Port global g_timers
-// Raven wrote: gtimer_t *g_timers[ MAX_GENTITIES ]
-// Rule 3: a stored property of GameWorld with C's zero, since Raven wrote no initializer, spelled world.g_timers in a body.
+var g_timers: Slots<Gtimer?> { JKAMP_Game.g_timers }
 
 /// Source: oracle/codemp/game/g_timer.c:19
 // TODO: Port global g_timerFreeList

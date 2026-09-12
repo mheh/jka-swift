@@ -30,9 +30,7 @@ import JKAMP_Game
 // Rule 3: a stored property of GameWorld with C's zero, since Raven wrote no initializer, spelled world.muzzle in a body.
 
 /// Source: oracle/codemp/game/g_weapon.c:1162
-// TODO: Port global ent_list
-// Raven wrote: static gentity_t *ent_list[MAX_GENTITIES]
-// Rule 3: a stored property of GameWorld with C's zero, since Raven wrote no initializer, spelled world.ent_list in a body.
+var ent_list: Slots<Entity?> { JKAMP_Game.ent_list }
 
 /// Source: oracle/codemp/game/g_weapon.c:165
 func touch_NULL(_ ent: Entity, _ other: Entity, _ trace: JKAMP.Trace) {

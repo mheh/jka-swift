@@ -106,17 +106,17 @@ RETURNS = {
 # (function, parameter) -> the kind of the parameter, where the C type alone does not say.
 #   raw       an UnsafeMutableRawPointer a body writes at a byte offset, see "Typed access at a byte offset"
 #   vec3_mut  an inout vec3_t for a `float *` Raven fills as three floats, see "A pointer out-param Raven indexes"
-#   pointer_array  a C array of struct pointers a trap reads, a storage table's base, which keeps its marker until that storage is ruled
 #   out_string  an inout String, for a `const char **` the function sets to the token instead of walking
 #   text_cursor  a TextCursor by value, for a `const char *` Raven passes as a cursor and returns advanced
 #   fill_buffer  a `char *` a trap fills with no size beside it, which keeps its marker until that shape is ruled
 #   in_place  a `char *` a trap rewrites in place, which keeps its marker until that shape is ruled
 #   out_array  an array the engine fills, sized by a count beside it, which keeps its marker until a caller needs that shape
 #   float_array  an inout [Float] for a `float *` a body fills as a matrix of the counts beside it
+#   pointer_table  a Slots<View?> over a file-scope array of struct pointers, whose base a trap hands to the engine
 PARAMS = {
     ("COM_ParseString", "s"): "out_string",
     ("SkipWhitespace", "data"): "text_cursor",
-    ("trap_Bot_UpdateWaypoints", "wps"): "pointer_array",
+    ("trap_Bot_UpdateWaypoints", "wps"): "pointer_table",
     ("BG_ParseField", "ent"): "raw",
     ("BG_ValidateSkinForTeam", "colors"): "vec3_mut",
     ("trap_SnapVector", "v"): "vec3_mut",
@@ -146,5 +146,6 @@ SHARED_STEMS = {"q_shared", "q_math", "g_syscalls", "g_strap"}
 # Hand-written headers a target's umbrella includes after the extracted ones, one per file of C storage under Sources/<Target>/.
 # See "Raven's tables as C storage". merge.py keeps these files across a rewrite of the target.
 # g_types.h holds the structs Raven defines inside a .c file, so a view can bind over them. See "A struct Raven defines inside a .c file".
-HAND_HEADERS = {"CJKAMP": ["bg_tables.h"], "CJKAMP_Game": ["g_types.h"]}
-HAND_FILES = {"CJKAMP": ["bg_tables.c", "include/bg_tables.h"], "CJKAMP_Game": ["include/g_types.h"]}
+# g_storage.h declares the pointer tables skeleton.py writes as C storage, one Generated/<stem>.c per Raven file. See "A file-scope array of struct pointers".
+HAND_HEADERS = {"CJKAMP": ["bg_tables.h"], "CJKAMP_Game": ["g_types.h", "g_storage.h"]}
+HAND_FILES = {"CJKAMP": ["bg_tables.c", "include/bg_tables.h"], "CJKAMP_Game": ["include/g_types.h", "include/g_storage.h"]}

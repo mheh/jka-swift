@@ -5,9 +5,7 @@ import JKAShared
 import JKAMP_Game
 
 /// Source: oracle/codemp/game/NPC_spawn.c:1276
-// TODO: Port global gNPCPtrs
-// Raven wrote: gNPC_t *gNPCPtrs[MAX_GENTITIES]
-// Rule 3: a stored property of GameWorld with C's zero, since Raven wrote no initializer, spelled world.gNPCPtrs in a body.
+var gNPCPtrs: Slots<GNPC?> { JKAMP_Game.gNPCPtrs }
 
 /// Source: oracle/codemp/game/NPC_spawn.c:4182
 // TODO: Port global showBBoxes

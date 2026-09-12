@@ -5,9 +5,7 @@ import JKAShared
 import JKAMP_Game
 
 /// Source: oracle/codemp/game/ai_main.c:46
-// TODO: Port global botstates
-// Raven wrote: bot_state_t *botstates[MAX_CLIENTS]
-// Rule 3: a stored property of GameWorld with C's zero, since Raven wrote no initializer, spelled world.botstates in a body.
+var botstates: Slots<BotState?> { JKAMP_Game.botstates }
 
 /// Source: oracle/codemp/game/ai_main.c:48
 // TODO: Port global numbots

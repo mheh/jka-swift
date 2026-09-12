@@ -30,9 +30,7 @@ import JKAMP_Game
 // Rule 3: a stored property of GameWorld with Raven's initializer, spelled world.g_vehiclePoolInit in a body.
 
 /// Source: oracle/codemp/game/g_utils.c:428
-// TODO: Port global gClPtrs
-// Raven wrote: gclient_t *gClPtrs[MAX_GENTITIES]
-// Rule 3: a stored property of GameWorld with C's zero, since Raven wrote no initializer, spelled world.gClPtrs in a body.
+var gClPtrs: Slots<Client?> { JKAMP_Game.gClPtrs }
 
 /// Source: oracle/codemp/game/g_utils.c:877
 // TODO: Port global gG2KillIndex

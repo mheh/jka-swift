@@ -208,7 +208,7 @@ def main() -> None:
     out.write_text("\n".join(gen.emit()).rstrip() + "\n")
     c = gen.counts
     print(f"traps.py: {c['traps']} traps, {c['TODO: Port signature']} TODO: Port signature markers, {out.relative_to(REPO)}")
-    for kind in ("bare", "cstring", "out_string", "out_scalar", "out_opaque", "vec3_const", "vec3_mut", "vec3_array", "view"):
+    for kind in ("bare", "cstring", "out_string", "out_scalar", "out_opaque", "vec3_const", "vec3_mut", "vec3_array", "slots", "view"):
         print(f"  {kind:12} {c[kind]}")
 
 

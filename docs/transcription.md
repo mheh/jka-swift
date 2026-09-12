@@ -214,6 +214,9 @@ Every other struct-typed table Raven declares at file scope, such as `fields[]` 
 A variable the module never assigns is a typed `let` with a `portMissing` initializer and a `// Raven wrote:` line, and the transcriptor replaces the initializer with Raven's data.
 A variable the module assigns is a stored property of the state object, `BgState` or `GameWorld`, with Raven's initializer, spelled `bg.name` or `world.name` in a body, and its stub entry carries `// TODO: Port global name` and `// Raven wrote:`.
 A variable Raven declares with no initializer is his all the same, zeroed by the loader, and its entry says C's zero where the initializer would be.
+A file-scope array of struct pointers, such as `gWPArray`, is C storage the generator writes, one `Sources/CJKAMP_Game/Generated/<stem>.c` per Raven file, declared for the umbrella in `include/g_storage.h`.
+The view target holds a `Slots` of optional views over it in `Sources/JKAMP_Game/Generated/Storage/<stem>.swift`, and the stub carries the name at Raven's line, `var gWPArray: Slots<JKAMP.Wpobject?> { JKAMP_Game.gWPArray }`.
+A body reads `gWPArray[i]?.inuse` and writes `gWPArray[i] = Wpobject(B_Alloc(...))`, and a trap that takes the table, `trap_Bot_UpdateWaypoints`, takes the `Slots` and hands the engine its base.
 A body macro that names a local, such as `SLOPERECALCVAR`, is spelled as its expansion at the site, `pm.ps.slopeRecalcTime`, with Raven's macro name in a one-line comment at the first use.
 
 ### A static in a bg file

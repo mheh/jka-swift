@@ -50,6 +50,8 @@ class Param:
             return f"{self.name.strip('`')}Pointer.baseAddress!"
         if self.kind == "vec3_array":
             return f"{self.name.strip('`')}Flat.baseAddress!"
+        if self.kind == "slots":
+            return f"{self.name}.base"
         return self.name
 
 
@@ -195,11 +197,11 @@ class Table:
                     return Param(name, "inout String", "out_string_ref")
                 return None if traps else Param(name, "inout JKAShared.TextCursor", "text_cursor")
             if inner.kind == TypeKind.POINTER and not pointee.is_const_qualified():
-                # The address of a struct pointer the body sets, an out-param, `inout View?`. A pointer array into a trap is a
-                # storage table's base, which has no row, so the entry in PARAMS holds it.
-                if PARAMS.get((owner, name)) == "pointer_array":
-                    return None
+                # The address of a struct pointer the body sets, an out-param, `inout View?`. A pointer table into a trap has a PARAMS entry.
                 record = self.views.record_name(inner.get_pointee())
+                if ruled == "pointer_table" and record and record in self.views.views:
+                    # The table's base crosses to the engine, and the body holds the Slots over the C storage.
+                    return Param(name, f"Slots<{self.views.qualified_view(record, TARGET)}?>", "slots")
                 if record and record in self.views.views and not traps:
                     return Param(name, f"inout {self.views.qualified_view(record, TARGET)}?", "out_view")
             # An array of model handles the engine reads, and every caller passes NULL. The pointer stays in generated code.

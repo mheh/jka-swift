@@ -2408,12 +2408,8 @@ public func trap_RMG_Init(_ terrainID: Int32) {
 }
 
 /// Source: oracle/codemp/game/g_syscalls.c:1483
-// TODO: Port signature
-// Raven wrote: void trap_Bot_UpdateWaypoints(int wpnum, wpobject_t **wps)
-// No table row for `wpobject_t ** wps`.
-public func trap_Bot_UpdateWaypoints() -> Never {
-    // TODO: Port trap_Bot_UpdateWaypoints
-    portMissing("trap_Bot_UpdateWaypoints", source: "oracle/codemp/game/g_syscalls.c:1483")
+public func trap_Bot_UpdateWaypoints(_ wpnum: Int32, _ wps: Slots<JKAMP.Wpobject?>) {
+    Syscall.call(G_BOT_UPDATEWAYPOINTS, wpnum, wps.base)
 }
 
 /// Source: oracle/codemp/game/g_syscalls.c:1488
