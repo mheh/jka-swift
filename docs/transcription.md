@@ -171,6 +171,30 @@ public func _DotProduct(_ v1: vec3_t, _ v2: vec3_t) -> vec_t {
 }
 ```
 
+### Function-like macros
+
+A function-like macro that a body uses is a hand Swift function of the same name, with a `/// Source:` cite to its `#define`.
+
+| Macro | Home |
+|---|---|
+| `random()` | `Sources/JKAMP_BG/bg_lib.swift` |
+| `crandom()` | `Sources/JKAMP_BG/bg_lib.swift` |
+| `DEG2RAD` | `Sources/JKAShared/q_shared.h.swift` |
+| `RAD2DEG` | `Sources/JKAShared/q_shared.h.swift` |
+| `M_PI` | `Sources/JKAShared/q_shared.h.swift` |
+| `VALIDSTRING` | `Sources/JKAShared/q_shared.h.swift`, one overload for `String` and one for `PooledString?` |
+| `Q_IsColorString` | `Sources/JKAShared/q_shared.h.swift`, as `Q_IsColorString(buf, at: i)` for Raven's `Q_IsColorString(&text[i])` |
+| `ColorIndex` | `Sources/JKAShared/q_shared.h.swift` |
+| `PlaneTypeForNormal` | `Sources/JKAShared/q_math.swift` |
+| `ANGLE2SHORT` and `SHORT2ANGLE` | `Sources/JKAShared/q_math.swift` |
+
+`VALID(a)` is `a != nil`.
+`FOFS`, `VFOFS`, `VWFOFS`, and `ENUM2STRING` appear only inside data tables, which are hand C storage.
+`assert` is `((void)0)` under Raven's NDEBUG build, so a body drops it.
+`va_start` and `va_end` go with the variadic form.
+`min` and `max` are Swift's.
+`FloatTime()` is the bare global `floattime`.
+
 ### Engine memory through views
 
 Engine memory is reached through the views: `Entity`, `Client`, `Trace`, `PlayerState`, and the rest under `Generated/Views/`.

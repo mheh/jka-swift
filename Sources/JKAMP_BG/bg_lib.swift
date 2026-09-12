@@ -163,6 +163,17 @@ func rand() -> Int32 {
     portMissing("rand", source: "oracle/codemp/game/bg_lib.c:769")
 }
 
+/// Source: oracle/codemp/game/q_shared.h:1591
+public func random() -> Float {
+    Float(rand() & 0x7fff) / Float(0x7fff)
+}
+
+/// Source: oracle/codemp/game/q_shared.h:1592
+public func crandom() -> Float {
+    // Raven's 2.0 and 0.5 are double literals, so the arithmetic runs in double and narrows to float once, on return.
+    Float(2.0 * (Double(random()) - 0.5))
+}
+
 /// Source: oracle/codemp/game/bg_lib.c:774
 func atof(_ string: String) -> Double {
     // TODO: Port atof

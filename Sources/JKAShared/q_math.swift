@@ -1377,3 +1377,17 @@ public func SHORT2ANGLE(_ x: Int32) -> Float {
     // Raven's 360.0 is a double literal, so the multiply runs in double and narrows to float once, on return.
     Float(Double(x) * (360.0 / 65536))
 }
+
+/// Source: oracle/codemp/game/q_shared.h:1856
+public func PlaneTypeForNormal(_ x: vec3_t) -> Int32 {
+    if x[0] == 1.0 {
+        return PLANE_X
+    }
+    if x[1] == 1.0 {
+        return PLANE_Y
+    }
+    if x[2] == 1.0 {
+        return PLANE_Z
+    }
+    return PLANE_NON_AXIAL
+}
