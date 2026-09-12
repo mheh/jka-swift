@@ -5,7 +5,7 @@ import JKAShared
 import JKAMP_Game
 
 /// Source: oracle/codemp/game/NPC_spawn.c:1276
-var gNPCPtrs: Slots<GNPC?> { JKAMP_Game.gNPCPtrs }
+var gNPCPtrs: Slots<GNPC?> { world.storage.gNPCPtrs }
 
 /// Source: oracle/codemp/game/NPC_spawn.c:4182
 // TODO: Port global showBBoxes

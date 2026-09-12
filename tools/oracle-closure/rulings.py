@@ -146,6 +146,5 @@ SHARED_STEMS = {"q_shared", "q_math", "g_syscalls", "g_strap"}
 # Hand-written headers a target's umbrella includes after the extracted ones, one per file of C storage under Sources/<Target>/.
 # See "Raven's tables as C storage". merge.py keeps these files across a rewrite of the target.
 # g_types.h holds the structs Raven defines inside a .c file, so a view can bind over them. See "A struct Raven defines inside a .c file".
-# g_storage.h declares the pointer tables skeleton.py writes as C storage, one Generated/<stem>.c per Raven file. See "A file-scope array of struct pointers".
-HAND_HEADERS = {"CJKAMP": ["bg_tables.h"], "CJKAMP_Game": ["g_types.h", "g_storage.h"]}
-HAND_FILES = {"CJKAMP": ["bg_tables.c", "include/bg_tables.h"], "CJKAMP_Game": ["include/g_types.h", "include/g_storage.h"]}
+HAND_HEADERS = {"CJKAMP": ["bg_tables.h"], "CJKAMP_Game": ["g_types.h"]}
+HAND_FILES = {"CJKAMP": ["bg_tables.c", "include/bg_tables.h"], "CJKAMP_Game": ["include/g_types.h"]}

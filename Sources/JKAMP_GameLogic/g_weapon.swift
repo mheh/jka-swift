@@ -30,7 +30,7 @@ import JKAMP_Game
 // Rule 3: a stored property of GameWorld with C's zero, since Raven wrote no initializer, spelled world.muzzle in a body.
 
 /// Source: oracle/codemp/game/g_weapon.c:1162
-var ent_list: Slots<Entity?> { JKAMP_Game.ent_list }
+var ent_list: Slots<Entity?> { world.storage.ent_list }
 
 /// Source: oracle/codemp/game/g_weapon.c:165
 func touch_NULL(_ ent: Entity, _ other: Entity, _ trace: JKAMP.Trace) {

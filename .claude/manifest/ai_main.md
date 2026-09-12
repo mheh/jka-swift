@@ -121,7 +121,7 @@ The oracle range is the whole definition, from the return type to the closing br
 
 | Variable | Oracle | Kind | Entry |
 |---|---|---|---|
-| `botstates` | `oracle/codemp/game/ai_main.c:46` | pointer_table | `var botstates: Slots<BotState?> { JKAMP_Game.botstates }` |
+| `botstates` | `oracle/codemp/game/ai_main.c:46` | pointer_table | `var botstates: Slots<BotState?> { world.storage.botstates }` |
 | `numbots` | `oracle/codemp/game/ai_main.c:48` | state | `// Rule 3: a stored property of GameWorld with C's zero, since Raven wrote no initializer, spelled world.numbots in a body.` |
 | `floattime` | `oracle/codemp/game/ai_main.c:50` | let | `let floattime: Float = 0` |
 | `regularupdate_time` | `oracle/codemp/game/ai_main.c:52` | state | `// Rule 3: a stored property of GameWorld with C's zero, since Raven wrote no initializer, spelled world.regularupdate_time in a body.` |

@@ -102,5 +102,5 @@ The oracle range is the whole definition, from the return type to the closing br
 
 | Variable | Oracle | Kind | Entry |
 |---|---|---|---|
-| `gNPCPtrs` | `oracle/codemp/game/NPC_spawn.c:1276` | pointer_table | `var gNPCPtrs: Slots<GNPC?> { JKAMP_Game.gNPCPtrs }` |
+| `gNPCPtrs` | `oracle/codemp/game/NPC_spawn.c:1276` | pointer_table | `var gNPCPtrs: Slots<GNPC?> { world.storage.gNPCPtrs }` |
 | `showBBoxes` | `oracle/codemp/game/NPC_spawn.c:4182` | state | `// Rule 3: a stored property of GameWorld with Raven's initializer, spelled world.showBBoxes in a body.` |

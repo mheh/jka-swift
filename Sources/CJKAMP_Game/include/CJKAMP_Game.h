@@ -160,6 +160,5 @@
 #include "codemp/game/w_saber/enum_FJ_FORWARD.h"
 #include "codemp/game/w_saber/evasionType_t.h"
 #include "g_types.h"
-#include "g_storage.h"
 
 #endif // JKA_CJKAMP_GAME_H

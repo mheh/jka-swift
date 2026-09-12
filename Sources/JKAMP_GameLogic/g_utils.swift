@@ -30,7 +30,7 @@ import JKAMP_Game
 // Rule 3: a stored property of GameWorld with Raven's initializer, spelled world.g_vehiclePoolInit in a body.
 
 /// Source: oracle/codemp/game/g_utils.c:428
-var gClPtrs: Slots<Client?> { JKAMP_Game.gClPtrs }
+var gClPtrs: Slots<Client?> { world.storage.gClPtrs }
 
 /// Source: oracle/codemp/game/g_utils.c:877
 // TODO: Port global gG2KillIndex

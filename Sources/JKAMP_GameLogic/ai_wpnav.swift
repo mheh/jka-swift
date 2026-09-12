@@ -25,7 +25,7 @@ import JKAMP_Game
 // Rule 3: a stored property of GameWorld with Raven's initializer, spelled world.gWPRenderedFrame in a body.
 
 /// Source: oracle/codemp/game/ai_wpnav.c:12
-var gWPArray: Slots<JKAMP.Wpobject?> { JKAMP_Game.gWPArray }
+var gWPArray: Slots<JKAMP.Wpobject?> { world.storage.gWPArray }
 
 /// Source: oracle/codemp/game/ai_wpnav.c:13
 // TODO: Port global gWPNum
@@ -62,7 +62,7 @@ let botGlobalNavWeaponWeights: [Float] = { () -> [Float] in portMissing("botGlob
 // Rule 3: a stored property of GameWorld with Raven's initializer, spelled world.gSpawnPointNum in a body.
 
 /// Source: oracle/codemp/game/ai_wpnav.c:2507
-var gSpawnPoints: Slots<Entity?> { JKAMP_Game.gSpawnPoints }
+var gSpawnPoints: Slots<Entity?> { world.storage.gSpawnPoints }
 
 /// Source: oracle/codemp/game/ai_wpnav.c:25
 func GetFlagStr(_ flags: Int32) -> String {

@@ -5,7 +5,7 @@ import JKAShared
 import JKAMP_Game
 
 /// Source: oracle/codemp/game/ai_main.c:46
-var botstates: Slots<BotState?> { JKAMP_Game.botstates }
+var botstates: Slots<BotState?> { world.storage.botstates }
 
 /// Source: oracle/codemp/game/ai_main.c:48
 // TODO: Port global numbots

@@ -3,6 +3,7 @@ import JKAMP_Game
 /// All state of the game module, rule 3. One instance exists behind `world`, and a test assigns a fresh one.
 final class GameWorld {
     let memory = GameMemory()
+    let storage = GameStorage()
     let strings = StringPool()
 
     /// Raven's `static unsigned long holdrand` of `q_math.c`, which the game module owns one copy of.

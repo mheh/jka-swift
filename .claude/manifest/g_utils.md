@@ -83,7 +83,7 @@ The oracle range is the whole definition, from the return type to the closing br
 | `g_vehiclePool` | `oracle/codemp/game/g_utils.c:385` | storage | `// A struct table is C storage in Sources/CJKAMP, reached through a Slots constant.` |
 | `g_vehiclePoolOccupied` | `oracle/codemp/game/g_utils.c:386` | state | `// Rule 3: a stored property of GameWorld with C's zero, since Raven wrote no initializer, spelled world.g_vehiclePoolOccupied in a body.` |
 | `g_vehiclePoolInit` | `oracle/codemp/game/g_utils.c:387` | state | `// Rule 3: a stored property of GameWorld with Raven's initializer, spelled world.g_vehiclePoolInit in a body.` |
-| `gClPtrs` | `oracle/codemp/game/g_utils.c:428` | pointer_table | `var gClPtrs: Slots<Client?> { JKAMP_Game.gClPtrs }` |
+| `gClPtrs` | `oracle/codemp/game/g_utils.c:428` | pointer_table | `var gClPtrs: Slots<Client?> { world.storage.gClPtrs }` |
 | `gG2KillIndex` | `oracle/codemp/game/g_utils.c:877` | state | `// Rule 3: a stored property of GameWorld with C's zero, since Raven wrote no initializer, spelled world.gG2KillIndex in a body.` |
 | `gG2KillNum` | `oracle/codemp/game/g_utils.c:878` | state | `// Rule 3: a stored property of GameWorld with Raven's initializer, spelled world.gG2KillNum in a body.` |
 | `playerMins` | `oracle/codemp/game/g_utils.c:1616` | state | `// Rule 3: a stored property of GameWorld with C's zero, since Raven wrote no initializer, spelled world.playerMins in a body.` |

@@ -61,7 +61,7 @@ The oracle range is the whole definition, from the return type to the closing br
 | `gDeactivated` | `oracle/codemp/game/ai_wpnav.c:7` | state | `// Rule 3: a stored property of GameWorld with Raven's initializer, spelled world.gDeactivated in a body.` |
 | `gBotEdit` | `oracle/codemp/game/ai_wpnav.c:8` | state | `// Rule 3: a stored property of GameWorld with Raven's initializer, spelled world.gBotEdit in a body.` |
 | `gWPRenderedFrame` | `oracle/codemp/game/ai_wpnav.c:9` | state | `// Rule 3: a stored property of GameWorld with Raven's initializer, spelled world.gWPRenderedFrame in a body.` |
-| `gWPArray` | `oracle/codemp/game/ai_wpnav.c:12` | pointer_table | `var gWPArray: Slots<JKAMP.Wpobject?> { JKAMP_Game.gWPArray }` |
+| `gWPArray` | `oracle/codemp/game/ai_wpnav.c:12` | pointer_table | `var gWPArray: Slots<JKAMP.Wpobject?> { world.storage.gWPArray }` |
 | `gWPNum` | `oracle/codemp/game/ai_wpnav.c:13` | state | `// Rule 3: a stored property of GameWorld with Raven's initializer, spelled world.gWPNum in a body.` |
 | `gLastPrintedIndex` | `oracle/codemp/game/ai_wpnav.c:16` | state | `// Rule 3: a stored property of GameWorld with Raven's initializer, spelled world.gLastPrintedIndex in a body.` |
 | `nodetable` | `oracle/codemp/game/ai_wpnav.c:19` | storage | `// A struct table is C storage in Sources/CJKAMP, reached through a Slots constant.` |
@@ -69,4 +69,4 @@ The oracle range is the whole definition, from the return type to the closing br
 | `gLevelFlags` | `oracle/codemp/game/ai_wpnav.c:23` | state | `// Rule 3: a stored property of GameWorld with Raven's initializer, spelled world.gLevelFlags in a body.` |
 | `botGlobalNavWeaponWeights` | `oracle/codemp/game/ai_wpnav.c:1796` | let | `let botGlobalNavWeaponWeights: [Float] = { () -> [Float] in portMissing("botGlobalNavWeaponWeights", source: "oracle/codemp/game/ai_wpnav.c:1796") }()` |
 | `gSpawnPointNum` | `oracle/codemp/game/ai_wpnav.c:2506` | state | `// Rule 3: a stored property of GameWorld with Raven's initializer, spelled world.gSpawnPointNum in a body.` |
-| `gSpawnPoints` | `oracle/codemp/game/ai_wpnav.c:2507` | pointer_table | `var gSpawnPoints: Slots<Entity?> { JKAMP_Game.gSpawnPoints }` |
+| `gSpawnPoints` | `oracle/codemp/game/ai_wpnav.c:2507` | pointer_table | `var gSpawnPoints: Slots<Entity?> { world.storage.gSpawnPoints }` |

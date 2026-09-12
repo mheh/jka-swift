@@ -25,5 +25,5 @@ The oracle range is the whole definition, from the return type to the closing br
 | Variable | Oracle | Kind | Entry |
 |---|---|---|---|
 | `g_timerPool` | `oracle/codemp/game/g_timer.c:17` | storage | `// A struct table is C storage in Sources/CJKAMP, reached through a Slots constant.` |
-| `g_timers` | `oracle/codemp/game/g_timer.c:18` | pointer_table | `var g_timers: Slots<Gtimer?> { JKAMP_Game.g_timers }` |
+| `g_timers` | `oracle/codemp/game/g_timer.c:18` | pointer_table | `var g_timers: Slots<Gtimer?> { world.storage.g_timers }` |
 | `g_timerFreeList` | `oracle/codemp/game/g_timer.c:19` | state | `// Rule 3: a stored property of GameWorld with C's zero, since Raven wrote no initializer, spelled world.g_timerFreeList in a body.` |

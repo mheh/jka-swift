@@ -102,4 +102,4 @@ The oracle range is the whole definition, from the return type to the closing br
 | `vright` | `oracle/codemp/game/g_weapon.c:13` | state | `// Rule 3: a stored property of GameWorld with C's zero, since Raven wrote no initializer, spelled world.vright in a body.` |
 | `up` | `oracle/codemp/game/g_weapon.c:13` | state | `// Rule 3: a stored property of GameWorld with C's zero, since Raven wrote no initializer, spelled world.up in a body.` |
 | `muzzle` | `oracle/codemp/game/g_weapon.c:14` | state | `// Rule 3: a stored property of GameWorld with C's zero, since Raven wrote no initializer, spelled world.muzzle in a body.` |
-| `ent_list` | `oracle/codemp/game/g_weapon.c:1162` | pointer_table | `var ent_list: Slots<Entity?> { JKAMP_Game.ent_list }` |
+| `ent_list` | `oracle/codemp/game/g_weapon.c:1162` | pointer_table | `var ent_list: Slots<Entity?> { world.storage.ent_list }` |
