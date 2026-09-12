@@ -42,6 +42,42 @@ public struct BgStraps {
     /// Source: oracle/codemp/game/bg_strap.h:36
     public var strap_TrueFree: (inout OpaquePointer?) -> Void = { _ in portMissing("strap_TrueFree", source: "oracle/codemp/game/bg_strap.h:36") }
 
+    /// Source: oracle/codemp/game/g_syscalls.c:97
+    public var trap_FS_FCloseFile: (JKAShared.fileHandle_t) -> Void = { _ in portMissing("trap_FS_FCloseFile", source: "oracle/codemp/game/g_syscalls.c:97") }
+
+    /// Source: oracle/codemp/game/g_syscalls.c:85
+    public var trap_FS_FOpenFile: (String, inout Int32, JKAShared.fsMode_t) -> Int32 = { _, _, _ in portMissing("trap_FS_FOpenFile", source: "oracle/codemp/game/g_syscalls.c:85") }
+
+    /// Source: oracle/codemp/game/g_syscalls.c:219
+    public var trap_FS_GetFileList: (String, String, Int32) -> (Int32, String) = { _, _, _ in portMissing("trap_FS_GetFileList", source: "oracle/codemp/game/g_syscalls.c:219") }
+
+    /// Source: oracle/codemp/game/g_syscalls.c:89
+    public var trap_FS_Read: (OpaquePointer?, Int32, JKAShared.fileHandle_t) -> Void = { _, _, _ in portMissing("trap_FS_Read", source: "oracle/codemp/game/g_syscalls.c:89") }
+
+    /// Source: oracle/codemp/game/g_syscalls.c:1239
+    public var trap_G2API_AddBolt: (OpaquePointer?, Int32, String) -> Int32 = { _, _, _ in portMissing("trap_G2API_AddBolt", source: "oracle/codemp/game/g_syscalls.c:1239") }
+
+    /// Source: oracle/codemp/game/g_syscalls.c:1303
+    public var trap_G2API_CleanGhoul2Models: (inout OpaquePointer?) -> Void = { _ in portMissing("trap_G2API_CleanGhoul2Models", source: "oracle/codemp/game/g_syscalls.c:1303") }
+
+    /// Source: oracle/codemp/game/g_syscalls.c:1205
+    public var trap_G2API_GetBoltMatrix: (OpaquePointer?, Int32, Int32, JKAMP.MdxaBone, JKAShared.vec3_t, JKAShared.vec3_t, Int32, UnsafeMutablePointer<Int32>?, inout JKAShared.vec3_t) -> Bool = { _, _, _, _, _, _, _, _, _ in portMissing("trap_G2API_GetBoltMatrix", source: "oracle/codemp/game/g_syscalls.c:1205") }
+
+    /// Source: oracle/codemp/game/g_syscalls.c:1370
+    public var trap_G2API_GetSurfaceRenderStatus: (OpaquePointer?, Int32, String) -> Int32 = { _, _, _ in portMissing("trap_G2API_GetSurfaceRenderStatus", source: "oracle/codemp/game/g_syscalls.c:1370") }
+
+    /// Source: oracle/codemp/game/g_syscalls.c:1223
+    public var trap_G2API_InitGhoul2Model: (inout OpaquePointer?, String, Int32, JKAShared.qhandle_t, JKAShared.qhandle_t, Int32, Int32) -> Int32 = { _, _, _, _, _, _, _ in portMissing("trap_G2API_InitGhoul2Model", source: "oracle/codemp/game/g_syscalls.c:1223") }
+
+    /// Source: oracle/codemp/game/g_syscalls.c:1179
+    public var trap_R_RegisterSkin: (String) -> JKAShared.qhandle_t = { _ in portMissing("trap_R_RegisterSkin", source: "oracle/codemp/game/g_syscalls.c:1179") }
+
+    /// Source: oracle/codemp/game/g_syscalls.c:235
+    public var trap_SnapVector: (inout JKAShared.vec3_t) -> Void = { _ in portMissing("trap_SnapVector", source: "oracle/codemp/game/g_syscalls.c:235") }
+
+    /// Source: oracle/codemp/game/g_syscalls.c:148
+    public var trap_Trace: (JKAMP.Trace, JKAShared.vec3_t, JKAShared.vec3_t, JKAShared.vec3_t, JKAShared.vec3_t, Int32, Int32) -> Void = { _, _, _, _, _, _, _ in portMissing("trap_Trace", source: "oracle/codemp/game/g_syscalls.c:148") }
+
     public init() {}
 }
 
@@ -103,4 +139,64 @@ func strap_TrueMalloc(_ ptr: inout OpaquePointer?, _ size: Int32) {
 /// Source: oracle/codemp/game/bg_strap.h:36
 func strap_TrueFree(_ ptr: inout OpaquePointer?) {
     bg.straps.strap_TrueFree(&ptr)
+}
+
+/// Source: oracle/codemp/game/g_syscalls.c:97
+func trap_FS_FCloseFile(_ f: JKAShared.fileHandle_t) {
+    bg.straps.trap_FS_FCloseFile(f)
+}
+
+/// Source: oracle/codemp/game/g_syscalls.c:85
+func trap_FS_FOpenFile(_ qpath: String, _ f: inout Int32, _ mode: JKAShared.fsMode_t) -> Int32 {
+    bg.straps.trap_FS_FOpenFile(qpath, &f, mode)
+}
+
+/// Source: oracle/codemp/game/g_syscalls.c:219
+func trap_FS_GetFileList(_ path: String, _ `extension`: String, _ bufsize: Int32) -> (Int32, String) {
+    bg.straps.trap_FS_GetFileList(path, `extension`, bufsize)
+}
+
+/// Source: oracle/codemp/game/g_syscalls.c:89
+func trap_FS_Read(_ buffer: OpaquePointer?, _ len: Int32, _ f: JKAShared.fileHandle_t) {
+    bg.straps.trap_FS_Read(buffer, len, f)
+}
+
+/// Source: oracle/codemp/game/g_syscalls.c:1239
+func trap_G2API_AddBolt(_ ghoul2: OpaquePointer?, _ modelIndex: Int32, _ boneName: String) -> Int32 {
+    bg.straps.trap_G2API_AddBolt(ghoul2, modelIndex, boneName)
+}
+
+/// Source: oracle/codemp/game/g_syscalls.c:1303
+func trap_G2API_CleanGhoul2Models(_ ghoul2Ptr: inout OpaquePointer?) {
+    bg.straps.trap_G2API_CleanGhoul2Models(&ghoul2Ptr)
+}
+
+/// Source: oracle/codemp/game/g_syscalls.c:1205
+func trap_G2API_GetBoltMatrix(_ ghoul2: OpaquePointer?, _ modelIndex: Int32, _ boltIndex: Int32, _ matrix: JKAMP.MdxaBone, _ angles: JKAShared.vec3_t, _ position: JKAShared.vec3_t, _ frameNum: Int32, _ modelList: UnsafeMutablePointer<Int32>?, _ scale: inout JKAShared.vec3_t) -> Bool {
+    bg.straps.trap_G2API_GetBoltMatrix(ghoul2, modelIndex, boltIndex, matrix, angles, position, frameNum, modelList, &scale)
+}
+
+/// Source: oracle/codemp/game/g_syscalls.c:1370
+func trap_G2API_GetSurfaceRenderStatus(_ ghoul2: OpaquePointer?, _ modelIndex: Int32, _ surfaceName: String) -> Int32 {
+    bg.straps.trap_G2API_GetSurfaceRenderStatus(ghoul2, modelIndex, surfaceName)
+}
+
+/// Source: oracle/codemp/game/g_syscalls.c:1223
+func trap_G2API_InitGhoul2Model(_ ghoul2Ptr: inout OpaquePointer?, _ fileName: String, _ modelIndex: Int32, _ customSkin: JKAShared.qhandle_t, _ customShader: JKAShared.qhandle_t, _ modelFlags: Int32, _ lodBias: Int32) -> Int32 {
+    bg.straps.trap_G2API_InitGhoul2Model(&ghoul2Ptr, fileName, modelIndex, customSkin, customShader, modelFlags, lodBias)
+}
+
+/// Source: oracle/codemp/game/g_syscalls.c:1179
+func trap_R_RegisterSkin(_ name: String) -> JKAShared.qhandle_t {
+    bg.straps.trap_R_RegisterSkin(name)
+}
+
+/// Source: oracle/codemp/game/g_syscalls.c:235
+func trap_SnapVector(_ v: inout JKAShared.vec3_t) {
+    bg.straps.trap_SnapVector(&v)
+}
+
+/// Source: oracle/codemp/game/g_syscalls.c:148
+func trap_Trace(_ results: JKAMP.Trace, _ start: JKAShared.vec3_t, _ mins: JKAShared.vec3_t, _ maxs: JKAShared.vec3_t, _ end: JKAShared.vec3_t, _ passEntityNum: Int32, _ contentmask: Int32) {
+    bg.straps.trap_Trace(results, start, mins, maxs, end, passEntityNum, contentmask)
 }

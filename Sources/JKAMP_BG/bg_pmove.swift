@@ -3772,7 +3772,6 @@ func BG_InRollES(_ ps: JKAMP.EntityState, _ anim: Int32) -> Bool {
 /// Source: oracle/codemp/game/bg_pmove.c:8576
 func BG_IK_MoveArm(_ ghoul2: OpaquePointer?, _ lHandBolt: Int32, _ time: Int32, _ ent: JKAMP.EntityState, _ basePose: Int32, _ desiredPos: inout JKAShared.vec3_t, _ ikInProgress: inout Bool, _ origin: inout JKAShared.vec3_t, _ angles: inout JKAShared.vec3_t, _ scale: inout JKAShared.vec3_t, _ blendTime: Int32, _ forceHalt: Bool) {
     // Port-note: The body puts an `mdxaBone_t`, a `sharedSetBoneIKStateParams_t`, a `sharedIKMoveParams_t`, and a `sharedRagDollUpdateParams_t` on the stack. No view carries the `scratch` helper the guide names.
-    // Port-note: `strap_G2API_SetBoneIKState`, `strap_G2API_IKMove`, `strap_G2API_GetBoltMatrix`, and `strap_G2API_AnimateG2Models` still carry `TODO: Port signature` in `bg_strap.swift`.
     // TODO: Port BG_IK_MoveArm
     portMissing("BG_IK_MoveArm", source: "oracle/codemp/game/bg_pmove.c:8576")
 }

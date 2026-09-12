@@ -87,12 +87,19 @@ let forcePowerDarkLight: [Int32] = [ //0 == neutral
         //NUM_FORCE_POWERS
 ]
 
-// Port-note: the body opens the file with `trap_FS_FOpenFile` and closes it with `trap_FS_FCloseFile`.
-// `bg_strap.h` declares neither, so the bg channel has no route to the file system today.
 /// Source: oracle/codemp/game/bg_misc.c:319
 func BG_FileExists(_ fileName: String) -> Bool {
-    // TODO: Port BG_FileExists
-    portMissing("BG_FileExists", source: "oracle/codemp/game/bg_misc.c:319")
+    // Raven also tests `fileName` for NULL here. A String is never NULL, so that half of the guard has no Swift form.
+    if !fileName.isEmpty {
+        var fh: Int32 = 0
+        _ = trap_FS_FOpenFile(fileName, &fh, FS_READ)
+        if fh > 0 {
+            trap_FS_FCloseFile(fh)
+            return true
+        }
+    }
+
+    return false
 }
 
 /**
@@ -1340,7 +1347,6 @@ func BG_PlayerStateToEntityState(_ ps: JKAMP.PlayerState, _ s: JKAMP.EntityState
 
     s.activeForcePass = ps.activeForcePass
 
-    // Port-note: Raven wrote no cast here, and `Promotion.swift` gives operators, not this assignment, so the port converts the `Int32`.
     s.angles2[YAW] = Float(ps.movementDir)
     s.legsAnim = ps.legsAnim
     s.torsoAnim = ps.torsoAnim
@@ -1495,7 +1501,6 @@ func BG_PlayerStateToEntityStateExtraPolate(_ ps: JKAMP.PlayerState, _ s: JKAMP.
 
     s.activeForcePass = ps.activeForcePass
 
-    // Port-note: Raven wrote no cast here, and `Promotion.swift` gives operators, not this assignment, so the port converts the `Int32`.
     s.angles2[YAW] = Float(ps.movementDir)
     s.legsAnim = ps.legsAnim
     s.torsoAnim = ps.torsoAnim
@@ -1591,12 +1596,29 @@ func BG_PlayerStateToEntityStateExtraPolate(_ ps: JKAMP.PlayerState, _ s: JKAMP.
     s.m_iVehicleNum = ps.m_iVehicleNum
 }
 
-// Port-note: the game arm calls `trap_G2API_InitGhoul2Model` and `trap_G2API_CleanGhoul2Models`, and both arms call
-// `trap_R_RegisterSkin` or `trap_R_RegisterModel`. `bg_strap.h` declares none of the four, so the bg channel has no route to them.
 /// Source: oracle/codemp/game/bg_misc.c:3200
 func BG_ModelCache(_ modelName: String, _ skinName: String) -> Int32 {
-    // TODO: Port BG_ModelCache
-    portMissing("BG_ModelCache", source: "oracle/codemp/game/bg_misc.c:3200")
+    if bg.consumer == .game {
+        var g2: OpaquePointer? = nil
+
+        // Raven also tests `skinName` for NULL here. A String is never NULL, so that half of the guard has no Swift form.
+        if !skinName.isEmpty {
+            _ = trap_R_RegisterSkin(skinName)
+        }
+
+        //I could hook up a precache ghoul2 function, but oh well, this works
+        _ = trap_G2API_InitGhoul2Model(&g2, modelName, 0, 0, 0, 0, 0)
+        if g2 != nil { //now get rid of it
+            trap_G2API_CleanGhoul2Models(&g2)
+        }
+        return 0
+    } else {
+        if !skinName.isEmpty {
+            _ = trap_R_RegisterSkin(skinName)
+        }
+        // Port-note: Raven returns `trap_R_RegisterModel(modelName)` here. Only the cgame module defines that trap, and the channel does not carry it yet.
+        portMissing("BG_ModelCache: trap_R_RegisterModel", source: "oracle/codemp/game/bg_misc.c:3200")
+    }
 }
 
 /// Source: oracle/codemp/game/bg_misc.c:3328

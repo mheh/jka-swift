@@ -43,6 +43,42 @@ public func installBgChannel() {
     bg.straps.strap_TrueFree = { ptr in
         strap_TrueFree(&ptr)
     }
+    bg.straps.trap_FS_FCloseFile = { f in
+        trap_FS_FCloseFile(f)
+    }
+    bg.straps.trap_FS_FOpenFile = { qpath, f, mode in
+        trap_FS_FOpenFile(qpath, &f, mode)
+    }
+    bg.straps.trap_FS_GetFileList = { path, `extension`, bufsize in
+        trap_FS_GetFileList(path, `extension`, bufsize)
+    }
+    bg.straps.trap_FS_Read = { buffer, len, f in
+        trap_FS_Read(buffer, len, f)
+    }
+    bg.straps.trap_G2API_AddBolt = { ghoul2, modelIndex, boneName in
+        trap_G2API_AddBolt(ghoul2, modelIndex, boneName)
+    }
+    bg.straps.trap_G2API_CleanGhoul2Models = { ghoul2Ptr in
+        trap_G2API_CleanGhoul2Models(&ghoul2Ptr)
+    }
+    bg.straps.trap_G2API_GetBoltMatrix = { ghoul2, modelIndex, boltIndex, matrix, angles, position, frameNum, modelList, scale in
+        trap_G2API_GetBoltMatrix(ghoul2, modelIndex, boltIndex, matrix, angles, position, frameNum, modelList, &scale)
+    }
+    bg.straps.trap_G2API_GetSurfaceRenderStatus = { ghoul2, modelIndex, surfaceName in
+        trap_G2API_GetSurfaceRenderStatus(ghoul2, modelIndex, surfaceName)
+    }
+    bg.straps.trap_G2API_InitGhoul2Model = { ghoul2Ptr, fileName, modelIndex, customSkin, customShader, modelFlags, lodBias in
+        trap_G2API_InitGhoul2Model(&ghoul2Ptr, fileName, modelIndex, customSkin, customShader, modelFlags, lodBias)
+    }
+    bg.straps.trap_R_RegisterSkin = { name in
+        trap_R_RegisterSkin(name)
+    }
+    bg.straps.trap_SnapVector = { v in
+        trap_SnapVector(&v)
+    }
+    bg.straps.trap_Trace = { results, start, mins, maxs, end, passEntityNum, contentmask in
+        trap_Trace(results, start, mins, maxs, end, passEntityNum, contentmask)
+    }
     bg.callbacks.BG_GetTime = {
         BG_GetTime()
     }

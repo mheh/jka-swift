@@ -43,7 +43,7 @@ ENTITY = re.compile(r"\bEntity\b")
 class Hook:
     """One function of the channel: Raven's declaration, the table's signature, and the reason when it has none."""
 
-    def __init__(self, cur: ci.Cursor, name: str, cite: str | None = None) -> None:
+    def __init__(self, cur: ci.Cursor | None, name: str, cite: str | None = None) -> None:
         self.cur = cur
         self.name = name
         self.params: list[Param] = []
@@ -52,6 +52,8 @@ class Hook:
         # An EXTRA_HOOKS entry takes its shape from a game function and its cite from the consumer that defines it.
         self.foreign = cite is not None
         self._cite = cite
+        # A trap hook takes the trap's own shape, the one traps.py wrote in g_syscalls.swift, so a filled buffer is a returned String.
+        self.trap = name.startswith("trap_")
 
     @property
     def cite(self) -> str:
@@ -64,21 +66,33 @@ class Hook:
     def mapped(self) -> bool:
         return self.reason is None
 
+    @property
+    def crossing(self) -> list[Param]:
+        """The parameters the Swift signature carries. A trap's filled buffer crosses as the return instead."""
+        return [p for p in self.params if p.swift is not None]
+
     def bg_types(self) -> list[str]:
-        return [ENTITY.sub("JKAMP.BgEntity", p.swift or "") for p in self.params]
+        return [ENTITY.sub("JKAMP.BgEntity", p.swift or "") for p in self.crossing]
 
     def bg_returns(self) -> str | None:
-        return ENTITY.sub("JKAMP.BgEntity", self.returns) if self.returns else None
+        # A trap that fills a buffer returns the text, beside its word when Raven returned one, the shape traps.py writes.
+        outs = [p for p in self.params if p.kind == "out_string"]
+        returns = self.returns
+        if outs and returns:
+            returns = f"({returns}, String)"
+        elif outs:
+            returns = "String"
+        return ENTITY.sub("JKAMP.BgEntity", returns) if returns else None
 
     def signature(self) -> str:
-        return ", ".join(f"_ {p.name}: {t}" for p, t in zip(self.params, self.bg_types()))
+        return ", ".join(f"_ {p.name}: {t}" for p, t in zip(self.crossing, self.bg_types()))
 
     def closure_type(self) -> str:
         return f"({', '.join(self.bg_types())}) -> {self.bg_returns() or 'Void'}"
 
     def words(self) -> str:
         """The arguments a bare function forwards, `&` for an inout."""
-        return ", ".join(f"&{p.name}" if (p.swift or "").startswith("inout ") else p.name for p in self.params)
+        return ", ".join(f"&{p.name}" if (p.swift or "").startswith("inout ") else p.name for p in self.crossing)
 
 
 class Channel:
@@ -100,8 +114,8 @@ class Channel:
         params = list(hook.cur.get_arguments())
         for i, p in enumerate(params):
             following = params[i + 1] if i + 1 < len(params) else None
-            m = self.table.param(p, following, traps=False, owner=hook.name)
-            if m is None or m.swift is None:
+            m = self.table.param(p, following, traps=hook.trap, owner=hook.name)
+            if m is None or (m.swift is None and m.kind != "out_string"):
                 hook.reason = f"No table row for `{' '.join(p.type.spelling.split())} {p.spelling}`."
                 return
             hook.params.append(m)
@@ -113,8 +127,39 @@ class Channel:
 
     # MARK: - Collecting
 
+    def definitions(self) -> dict[str, tuple[str, ci.Cursor]]:
+        """Every function definition of the game's .c files, by name, with its file stem."""
+        if not hasattr(self, "_definitions"):
+            self._definitions: dict[str, tuple[str, ci.Cursor]] = {}
+            for cur in self.tu.cursor.get_children():
+                if cur.kind == CursorKind.FUNCTION_DECL and cur.is_definition() and cur.location.file:
+                    path = Path(cur.location.file.name).resolve()
+                    if path.parent == self.game and path.suffix == ".c":
+                        self._definitions[cur.spelling] = (path.stem, cur)
+        return self._definitions
+
+    def called_from_bg(self) -> list[str]:
+        """Every function name a bg body calls, in name order, resolved or not."""
+        if not hasattr(self, "_called"):
+            called: set[str] = set()
+
+            def walk(node: ci.Cursor) -> None:
+                if node.kind == CursorKind.CALL_EXPR and node.referenced is not None and node.referenced.kind == CursorKind.FUNCTION_DECL:
+                    called.add(node.referenced.spelling)
+                for child in node.get_children():
+                    walk(child)
+
+            for cur in self.tu.cursor.get_children():
+                if cur.kind == CursorKind.FUNCTION_DECL and cur.is_definition() and cur.location.file:
+                    path = Path(cur.location.file.name).resolve()
+                    if path.parent == self.game and path.stem.startswith("bg_"):
+                        walk(cur)
+            self._called = sorted(called)
+        return self._called
+
     def collect_straps(self) -> list[Hook]:
-        """Every declaration of bg_strap.h, once, in Raven's order."""
+        """Every declaration of bg_strap.h, once, in Raven's order, then every trap a bg body calls by name.
+        A trap the game's g_syscalls.c defines takes that shape. A trap only another consumer defines keeps a marker by name."""
         hooks: dict[str, Hook] = {}
         for cur in self.tu.cursor.get_children():
             if cur.kind != CursorKind.FUNCTION_DECL or cur.is_definition() or not cur.location.file:
@@ -124,32 +169,28 @@ class Channel:
             hook = Hook(cur, cur.spelling)
             self.map(hook)
             hooks[cur.spelling] = hook
+        definitions = self.definitions()
+        for name in self.called_from_bg():
+            if not name.startswith("trap_") or name in hooks:
+                continue
+            found = definitions.get(name)
+            if found and found[0] == "g_syscalls":
+                hook = Hook(found[1], name)
+                self.map(hook)
+            else:
+                hook = Hook(None, name, "oracle/codemp/cgame/cg_syscalls.c")
+                hook.reason = "Only the cgame module defines this trap, and its syscalls are not parsed yet."
+            hooks[name] = hook
         return list(hooks.values())
 
     def collect_callbacks(self) -> list[Hook]:
         """Every game function a bg body calls by name, by the definitions the unity parse compiled."""
-        definitions: dict[str, tuple[str, ci.Cursor]] = {}
-        for cur in self.tu.cursor.get_children():
-            if cur.kind == CursorKind.FUNCTION_DECL and cur.is_definition() and cur.location.file:
-                path = Path(cur.location.file.name).resolve()
-                if path.parent == self.game and path.suffix == ".c":
-                    definitions[cur.spelling] = (path.stem, cur)
+        definitions = self.definitions()
         called: dict[str, ci.Cursor] = {}
-
-        def walk(node: ci.Cursor) -> None:
-            if node.kind == CursorKind.CALL_EXPR and node.referenced is not None and node.referenced.kind == CursorKind.FUNCTION_DECL:
-                name = node.referenced.spelling
-                found = definitions.get(name)
-                if found and not found[0].startswith("bg_") and found[0] not in SHARED_STEMS and name not in OWN_HOOKS:
-                    called.setdefault(name, found[1])
-            for child in node.get_children():
-                walk(child)
-
-        for cur in self.tu.cursor.get_children():
-            if cur.kind == CursorKind.FUNCTION_DECL and cur.is_definition() and cur.location.file:
-                path = Path(cur.location.file.name).resolve()
-                if path.parent == self.game and path.stem.startswith("bg_"):
-                    walk(cur)
+        for name in self.called_from_bg():
+            found = definitions.get(name)
+            if found and not found[0].startswith("bg_") and found[0] not in SHARED_STEMS and name not in OWN_HOOKS:
+                called.setdefault(name, found[1])
         for name, (shape, cite) in EXTRA_HOOKS.items():
             called.setdefault(name, definitions[shape][1])
         hooks = []
@@ -168,19 +209,23 @@ class Channel:
         for hook in hooks:
             if not hook.mapped:
                 continue
-            blanks = ", ".join("_" for _ in hook.params)
-            default = f"{{ {blanks} in portMissing(\"{hook.name}\", source: \"{hook.cite}\") }}" if hook.params else \
+            blanks = ", ".join("_" for _ in hook.crossing)
+            default = f"{{ {blanks} in portMissing(\"{hook.name}\", source: \"{hook.cite}\") }}" if hook.crossing else \
                 f"{{ portMissing(\"{hook.name}\", source: \"{hook.cite}\") }}"
             lines += [f"    /// Source: {hook.cite}", f"    public var {hook.name}: {hook.closure_type()} = {default}", ""]
         lines += ["    public init() {}", "}", ""]
         for hook in hooks:
-            source_file = self.source(Path(hook.cur.location.file.name))
             lines.append(f"/// Source: {hook.cite}")
             if not hook.mapped:
                 self.counts["markers"] += 1
+                if hook.cur is None:
+                    wrote = "a trap of the cgame module"
+                else:
+                    source_file = self.source(Path(hook.cur.location.file.name))
+                    wrote = source_file.c_signature(hook.cur) if hook.cur.is_definition() else ' '.join(source_file.slice(hook.cur.extent).split())
                 lines += [
                     "// TODO: Port signature",
-                    f"// Raven wrote: {source_file.c_signature(hook.cur) if hook.cur.is_definition() else ' '.join(source_file.slice(hook.cur.extent).split())}",
+                    f"// Raven wrote: {wrote}",
                     f"// {hook.reason}",
                     f"func {hook.name}() -> Never {{",
                     f"    portMissing(\"{hook.name}\", source: \"{hook.cite}\")",
@@ -209,9 +254,9 @@ class Channel:
             for hook in hooks:
                 if not hook.mapped or hook.foreign:
                     continue
-                names = ", ".join(p.name for p in hook.params) or ""
+                names = ", ".join(p.name for p in hook.crossing) or ""
                 args = []
-                for p, t in zip(hook.params, hook.bg_types()):
+                for p, t in zip(hook.crossing, hook.bg_types()):
                     if t == "JKAMP.BgEntity":
                         args.append(f"Entity(handle: {p.name}.handle)")
                     elif t == "JKAMP.BgEntity?":

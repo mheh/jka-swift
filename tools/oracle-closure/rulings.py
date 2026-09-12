@@ -118,6 +118,7 @@ PARAMS = {
     ("trap_Bot_UpdateWaypoints", "wps"): "pointer_array",
     ("BG_ParseField", "ent"): "raw",
     ("BG_ValidateSkinForTeam", "colors"): "vec3_mut",
+    ("trap_SnapVector", "v"): "vec3_mut",
     ("trap_SV_RegisterSharedMemory", "memory"): "raw",
     ("trap_G2API_GetGLAName", "fillBuf"): "fill_buffer",
     ("trap_G2API_GetSurfaceName", "fillBuf"): "fill_buffer",

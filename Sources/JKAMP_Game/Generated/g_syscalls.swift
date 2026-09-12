@@ -374,7 +374,7 @@ public func trap_RealTime() -> Never {
 }
 
 /// Source: oracle/codemp/game/g_syscalls.c:235
-public func trap_SnapVector(_ v: inout Float) {
+public func trap_SnapVector(_ v: inout JKAShared.vec3_t) {
     _ = withUnsafeMutablePointer(to: &v) { v in
         Syscall.call(G_SNAPVECTOR, v)
     }
