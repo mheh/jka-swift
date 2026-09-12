@@ -3781,6 +3781,9 @@ func BG_IK_MoveArm(_ ghoul2: OpaquePointer?, _ lHandBolt: Int32, _ time: Int32, 
 /// Source: oracle/codemp/game/bg_pmove.c:8733
 func BG_UpdateLookAngles(_ lookingDebounceTime: Int32, _ lastHeadAngles: inout JKAShared.vec3_t, _ time: Int32, _ lookAngles: inout JKAShared.vec3_t, _ lookSpeed: Float, _ minPitch: Float, _ maxPitch: Float, _ minYaw: Float, _ maxYaw: Float, _ minRoll: Float, _ maxRoll: Float) {
     let fFrameInter: Float = 0.1
+    var oldLookAngles = JKAShared.vec3_t(0, 0, 0)
+    var lookAnglesDiff = JKAShared.vec3_t(0, 0, 0)
+    var ang: Int32 = 0
 
     if lookingDebounceTime > time {
         //clamp so don't get "Exorcist" effect
@@ -3802,19 +3805,19 @@ func BG_UpdateLookAngles(_ lookingDebounceTime: Int32, _ lastHeadAngles: inout J
 
         //slowly lerp to this new value
         //Remember last headAngles
-        bg.oldLookAngles = lastHeadAngles
-        bg.lookAnglesDiff = lookAngles - bg.oldLookAngles
+        oldLookAngles = lastHeadAngles
+        lookAnglesDiff = lookAngles - oldLookAngles
 
-        bg.ang = 0
-        while bg.ang < 3 {
-            bg.lookAnglesDiff[bg.ang] = AngleNormalize180(bg.lookAnglesDiff[bg.ang])
-            bg.ang += 1
+        ang = 0
+        while ang < 3 {
+            lookAnglesDiff[ang] = AngleNormalize180(lookAnglesDiff[ang])
+            ang += 1
         }
 
-        if VectorLengthSquared(bg.lookAnglesDiff) != 0 {
-            lookAngles[PITCH] = AngleNormalize180(bg.oldLookAngles[PITCH] + (bg.lookAnglesDiff[PITCH] * fFrameInter * lookSpeed))
-            lookAngles[YAW] = AngleNormalize180(bg.oldLookAngles[YAW] + (bg.lookAnglesDiff[YAW] * fFrameInter * lookSpeed))
-            lookAngles[ROLL] = AngleNormalize180(bg.oldLookAngles[ROLL] + (bg.lookAnglesDiff[ROLL] * fFrameInter * lookSpeed))
+        if VectorLengthSquared(lookAnglesDiff) != 0 {
+            lookAngles[PITCH] = AngleNormalize180(oldLookAngles[PITCH] + (lookAnglesDiff[PITCH] * fFrameInter * lookSpeed))
+            lookAngles[YAW] = AngleNormalize180(oldLookAngles[YAW] + (lookAnglesDiff[YAW] * fFrameInter * lookSpeed))
+            lookAngles[ROLL] = AngleNormalize180(oldLookAngles[ROLL] + (lookAnglesDiff[ROLL] * fFrameInter * lookSpeed))
         }
     }
     //Remember current lookAngles next time
@@ -3987,6 +3990,26 @@ func BG_G2PlayerAngles(_ ghoul2: OpaquePointer?, _ motionBolt: Int32, _ cent: JK
     var degrees_negative: Float = 0
     var degrees_positive: Float = 0
     let lookSpeed: Float = 1.5
+    var dir: Int32 = 0
+    var i: Int32 = 0
+    // Raven's static `movementOffsets` table has no live read, its one use sits inside a comment below.
+    var dif: Float = 0
+    var dest: Float = 0
+    var speed: Float = 0
+    var eyeAngles = JKAShared.vec3_t(0, 0, 0)
+    var neckAngles = JKAShared.vec3_t(0, 0, 0)
+    var velocity = JKAShared.vec3_t(0, 0, 0)
+    var torsoAngles = JKAShared.vec3_t(0, 0, 0)
+    var headAngles = JKAShared.vec3_t(0, 0, 0)
+    var velPos = JKAShared.vec3_t(0, 0, 0)
+    var velAng = JKAShared.vec3_t(0, 0, 0)
+    var ulAngles = JKAShared.vec3_t(0, 0, 0)
+    var llAngles = JKAShared.vec3_t(0, 0, 0)
+    var viewAngles = JKAShared.vec3_t(0, 0, 0)
+    var angles = JKAShared.vec3_t(0, 0, 0)
+    var thoracicAngles = JKAShared.vec3_t(0, 0, 0)
+    var headClampMinAngles = JKAShared.vec3_t(-25, -55, -10)
+    var headClampMaxAngles = JKAShared.vec3_t(50, 50, 10)
 
     if cent.m_iVehicleNum != 0 || cent.forceFrame != 0 || BG_SaberLockBreakAnim(cent.legsAnim) || BG_SaberLockBreakAnim(cent.torsoAnim) {
         //a vehicle or riding a vehicle - in either case we don't need to be in here
@@ -4012,10 +4035,10 @@ func BG_G2PlayerAngles(_ ghoul2: OpaquePointer?, _ motionBolt: Int32, _ cent: JK
         corrTime = 0
     }
 
-    bg.headAngles = cent_lerpAngles
-    bg.headAngles[YAW] = AngleMod(bg.headAngles[YAW])
+    headAngles = cent_lerpAngles
+    headAngles[YAW] = AngleMod(headAngles[YAW])
     legsAngles = JKAShared.vec3_t(0, 0, 0)
-    bg.torsoAngles = JKAShared.vec3_t(0, 0, 0)
+    torsoAngles = JKAShared.vec3_t(0, 0, 0)
     // --------- yaw -------------
 
     // allow yaw to drift a bit
@@ -4033,123 +4056,123 @@ func BG_G2PlayerAngles(_ ghoul2: OpaquePointer?, _ motionBolt: Int32, _ cent: JK
     // adjust legs for movement dir
     if (cent.eFlags & EF_DEAD) != 0 {
         // don't let dead bodies twitch
-        bg.dir = 0
+        dir = 0
     } else {
-        bg.dir = Int32(cent.angles2[YAW])
-        if bg.dir < 0 || bg.dir > 7 {
-            Com_Error(ERR_DROP, "Bad player movement angle (\(bg.dir))")
+        dir = Int32(cent.angles2[YAW])
+        if dir < 0 || dir > 7 {
+            Com_Error(ERR_DROP, "Bad player movement angle (\(dir))")
         }
     }
 
-    bg.torsoAngles[YAW] = bg.headAngles[YAW]
+    torsoAngles[YAW] = headAngles[YAW]
 
     //for now, turn torso instantly and let the legs swing to follow
-    tYawAngle = bg.torsoAngles[YAW]
+    tYawAngle = torsoAngles[YAW]
 
     // --------- pitch -------------
 
-    bg.velocity = cent.pos.trDelta
+    velocity = cent.pos.trDelta
 
     if BG_InRoll2(cent) {
         //don't affect angles based on vel then
-        bg.velocity = JKAShared.vec3_t(0, 0, 0)
+        velocity = JKAShared.vec3_t(0, 0, 0)
     } else if cent.weapon == WP_SABER
         && BG_SaberInSpecial(cent.saberMove) {
-        bg.velocity = JKAShared.vec3_t(0, 0, 0)
+        velocity = JKAShared.vec3_t(0, 0, 0)
     }
 
-    bg.speed = VectorNormalize(&bg.velocity)
+    speed = VectorNormalize(&velocity)
 
-    if bg.speed == 0 {
-        bg.torsoAngles[YAW] = bg.headAngles[YAW]
+    if speed == 0 {
+        torsoAngles[YAW] = headAngles[YAW]
     }
 
     // only show a fraction of the pitch angle in the torso
     // Raven wrote no `f` suffix here, so C works the product in double.
-    if bg.headAngles[PITCH] > 180 {
-        bg.dest = Float(Double(-360 + bg.headAngles[PITCH]) * 0.75)
+    if headAngles[PITCH] > 180 {
+        dest = Float(Double(-360 + headAngles[PITCH]) * 0.75)
     } else {
-        bg.dest = Float(Double(bg.headAngles[PITCH]) * 0.75)
+        dest = Float(Double(headAngles[PITCH]) * 0.75)
     }
 
     if cent.m_iVehicleNum != 0 {
         //swing instantly on vehicles
-        tPitchAngle = bg.dest
+        tPitchAngle = dest
     } else {
-        _ = BG_SwingAngles(bg.dest, 15, 30, 0.1, &tPitchAngle, &tPitching, frametime)
+        _ = BG_SwingAngles(dest, 15, 30, 0.1, &tPitchAngle, &tPitching, frametime)
     }
-    bg.torsoAngles[PITCH] = tPitchAngle
+    torsoAngles[PITCH] = tPitchAngle
 
     // --------- roll -------------
 
-    if bg.speed != 0 {
+    if speed != 0 {
         var axis: [JKAShared.vec3_t] = [JKAShared.vec3_t(0, 0, 0), JKAShared.vec3_t(0, 0, 0), JKAShared.vec3_t(0, 0, 0)]
         var side: Float
 
-        bg.speed = Float(Double(bg.speed) * 0.05)
+        speed = Float(Double(speed) * 0.05)
 
         AnglesToAxis(legsAngles, &axis)
-        side = bg.speed * _DotProduct(bg.velocity, axis[1])
+        side = speed * _DotProduct(velocity, axis[1])
         legsAngles[ROLL] -= side
 
-        side = bg.speed * _DotProduct(bg.velocity, axis[0])
+        side = speed * _DotProduct(velocity, axis[0])
         legsAngles[PITCH] += side
     }
 
     //legsAngles[YAW] = headAngles[YAW] + (movementOffsets[ dir ]*speed_dif);
 
     //rww - crazy velocity-based leg angle calculation
-    legsAngles[YAW] = bg.headAngles[YAW]
-    bg.velPos[0] = cent_lerpOrigin[0] + bg.velocity[0]
-    bg.velPos[1] = cent_lerpOrigin[1] + bg.velocity[1]
-    bg.velPos[2] = cent_lerpOrigin[2]// + velocity[2];
+    legsAngles[YAW] = headAngles[YAW]
+    velPos[0] = cent_lerpOrigin[0] + velocity[0]
+    velPos[1] = cent_lerpOrigin[1] + velocity[1]
+    velPos[2] = cent_lerpOrigin[2]// + velocity[2];
 
     if cent.groundEntityNum == ENTITYNUM_NONE
         || cent.forceFrame != 0
         // Port-note: Raven guards a NULL `emplaced` here. The view is non-optional, so that half of the guard has no Swift form.
         || cent.weapon == WP_EMPLACED_GUN {
         //off the ground, no direction-based leg angles (same if in saberlock)
-        bg.velPos = cent_lerpOrigin
+        velPos = cent_lerpOrigin
     }
 
-    bg.velAng = cent_lerpOrigin - bg.velPos
+    velAng = cent_lerpOrigin - velPos
 
-    if VectorCompare(bg.velAng, vec3_origin) == 0 {
-        vectoangles(bg.velAng, &bg.velAng)
+    if VectorCompare(velAng, vec3_origin) == 0 {
+        vectoangles(velAng, &velAng)
 
-        if bg.velAng[YAW] <= legsAngles[YAW] {
-            degrees_negative = (legsAngles[YAW] - bg.velAng[YAW])
-            degrees_positive = (360 - legsAngles[YAW]) + bg.velAng[YAW]
+        if velAng[YAW] <= legsAngles[YAW] {
+            degrees_negative = (legsAngles[YAW] - velAng[YAW])
+            degrees_positive = (360 - legsAngles[YAW]) + velAng[YAW]
         } else {
-            degrees_negative = legsAngles[YAW] + (360 - bg.velAng[YAW])
-            degrees_positive = (bg.velAng[YAW] - legsAngles[YAW])
+            degrees_negative = legsAngles[YAW] + (360 - velAng[YAW])
+            degrees_positive = (velAng[YAW] - legsAngles[YAW])
         }
 
         if degrees_negative < degrees_positive {
-            bg.dif = degrees_negative
+            dif = degrees_negative
             adddir = 0
         } else {
-            bg.dif = degrees_positive
+            dif = degrees_positive
             adddir = 1
         }
 
-        if bg.dif > 90 {
-            bg.dif = (180 - bg.dif)
+        if dif > 90 {
+            dif = (180 - dif)
         }
 
-        if bg.dif > 60 {
-            bg.dif = 60
+        if dif > 60 {
+            dif = 60
         }
 
         //Slight hack for when playing is running backward
-        if bg.dir == 3 || bg.dir == 5 {
-            bg.dif = -bg.dif
+        if dir == 3 || dir == 5 {
+            dif = -dif
         }
 
         if adddir != 0 {
-            legsAngles[YAW] -= bg.dif
+            legsAngles[YAW] -= dif
         } else {
-            legsAngles[YAW] += bg.dif
+            legsAngles[YAW] += dif
         }
     }
 
@@ -4167,13 +4190,13 @@ func BG_G2PlayerAngles(_ ghoul2: OpaquePointer?, _ motionBolt: Int32, _ cent: JK
     */
 
     legsAngles[ROLL] = 0
-    bg.torsoAngles[ROLL] = 0
+    torsoAngles[ROLL] = 0
 
 //	VectorCopy(legsAngles, turAngles);
 
     // pull the angles back out of the hierarchial chain
-    AnglesSubtract(bg.headAngles, bg.torsoAngles, &bg.headAngles)
-    AnglesSubtract(bg.torsoAngles, legsAngles, &bg.torsoAngles)
+    AnglesSubtract(headAngles, torsoAngles, &headAngles)
+    AnglesSubtract(torsoAngles, legsAngles, &torsoAngles)
 
     legsAngles[PITCH] = 0
 
@@ -4188,18 +4211,18 @@ func BG_G2PlayerAngles(_ ghoul2: OpaquePointer?, _ motionBolt: Int32, _ cent: JK
 
     AnglesToAxis(legsAngles, &legs)
 
-    bg.viewAngles = cent_lerpAngles
-    bg.viewAngles[YAW] = 0
-    bg.viewAngles[ROLL] = 0
-    bg.viewAngles[PITCH] = Float(Double(bg.viewAngles[PITCH]) * 0.5)
+    viewAngles = cent_lerpAngles
+    viewAngles[YAW] = 0
+    viewAngles[ROLL] = 0
+    viewAngles[PITCH] = Float(Double(viewAngles[PITCH]) * 0.5)
 
-    bg.angles = JKAShared.vec3_t(0, legsAngles[1], 0)
+    angles = JKAShared.vec3_t(0, legsAngles[1], 0)
 
-    bg.angles[0] = legsAngles[0]
-    if bg.angles[0] > 30 {
-        bg.angles[0] = 30
-    } else if bg.angles[0] < -30 {
-        bg.angles[0] = -30
+    angles[0] = legsAngles[0]
+    if angles[0] > 30 {
+        angles[0] = 30
+    } else if angles[0] < -30 {
+        angles[0] = -30
     }
 
     // Port-note: Raven guards a NULL `emplaced` here. The view is non-optional, so that half of the guard has no Swift form.
@@ -4233,13 +4256,13 @@ func BG_G2PlayerAngles(_ ghoul2: OpaquePointer?, _ motionBolt: Int32, _ cent: JK
                 crazySmoothFactor = time + 1000
 
                 BG_G2ClientSpineAngles(ghoul2, motionBolt, &cent_lerpOrigin, &cent_lerpAngles, cent, time,
-                    &bg.viewAngles, ciLegs, ciTorso, bg.angles, &bg.thoracicAngles, &bg.ulAngles, &bg.llAngles, &modelScale,
+                    &viewAngles, ciLegs, ciTorso, angles, &thoracicAngles, &ulAngles, &llAngles, &modelScale,
                     &tPitchAngle, &tYawAngle, &corrTime)
-                _ = strap_G2API_SetBoneAngles(ghoul2, 0, "lower_lumbar", bg.llAngles, BONE_ANGLES_POSTMULT, POSITIVE_X, NEGATIVE_Y, NEGATIVE_Z, nil, 0, time)
-                _ = strap_G2API_SetBoneAngles(ghoul2, 0, "upper_lumbar", bg.ulAngles, BONE_ANGLES_POSTMULT, POSITIVE_X, NEGATIVE_Y, NEGATIVE_Z, nil, 0, time)
+                _ = strap_G2API_SetBoneAngles(ghoul2, 0, "lower_lumbar", llAngles, BONE_ANGLES_POSTMULT, POSITIVE_X, NEGATIVE_Y, NEGATIVE_Z, nil, 0, time)
+                _ = strap_G2API_SetBoneAngles(ghoul2, 0, "upper_lumbar", ulAngles, BONE_ANGLES_POSTMULT, POSITIVE_X, NEGATIVE_Y, NEGATIVE_Z, nil, 0, time)
                 _ = strap_G2API_SetBoneAngles(ghoul2, 0, "cranium", vec3_origin, BONE_ANGLES_POSTMULT, POSITIVE_X, NEGATIVE_Y, NEGATIVE_Z, nil, 0, time)
 
-                facingAngles = facingAngles + bg.thoracicAngles
+                facingAngles = facingAngles + thoracicAngles
 
                 if cent.legsAnim == BOTH_STRAFE_LEFT1 {
                     //this one needs some further correction
@@ -4268,26 +4291,26 @@ func BG_G2PlayerAngles(_ ghoul2: OpaquePointer?, _ motionBolt: Int32, _ cent: JK
     }
 
     BG_G2ClientSpineAngles(ghoul2, motionBolt, &cent_lerpOrigin, &cent_lerpAngles, cent, time,
-        &bg.viewAngles, ciLegs, ciTorso, bg.angles, &bg.thoracicAngles, &bg.ulAngles, &bg.llAngles, &modelScale,
+        &viewAngles, ciLegs, ciTorso, angles, &thoracicAngles, &ulAngles, &llAngles, &modelScale,
         &tPitchAngle, &tYawAngle, &corrTime)
 
-    bg.eyeAngles = cent_lerpAngles
+    eyeAngles = cent_lerpAngles
 
-    bg.i = 0
-    while bg.i < 3 {
-        lookAngles[bg.i] = AngleNormalize180(lookAngles[bg.i])
-        bg.eyeAngles[bg.i] = AngleNormalize180(bg.eyeAngles[bg.i])
-        bg.i += 1
+    i = 0
+    while i < 3 {
+        lookAngles[i] = AngleNormalize180(lookAngles[i])
+        eyeAngles[i] = AngleNormalize180(eyeAngles[i])
+        i += 1
     }
-    AnglesSubtract(lookAngles, bg.eyeAngles, &lookAngles)
+    AnglesSubtract(lookAngles, eyeAngles, &lookAngles)
 
     BG_UpdateLookAngles(lookTime, &lastHeadAngles, time, &lookAngles, lookSpeed, -50.0, 50.0, -70.0, 70.0, -30.0, 30.0)
 
-    BG_G2ClientNeckAngles(ghoul2, time, lookAngles, &bg.headAngles, &bg.neckAngles, &bg.thoracicAngles, &bg.headClampMinAngles, &bg.headClampMaxAngles)
+    BG_G2ClientNeckAngles(ghoul2, time, lookAngles, &headAngles, &neckAngles, &thoracicAngles, &headClampMinAngles, &headClampMaxAngles)
 
-    _ = strap_G2API_SetBoneAngles(ghoul2, 0, "lower_lumbar", bg.llAngles, BONE_ANGLES_POSTMULT, POSITIVE_X, NEGATIVE_Y, NEGATIVE_Z, nil, 0, time)
-    _ = strap_G2API_SetBoneAngles(ghoul2, 0, "upper_lumbar", bg.ulAngles, BONE_ANGLES_POSTMULT, POSITIVE_X, NEGATIVE_Y, NEGATIVE_Z, nil, 0, time)
-    _ = strap_G2API_SetBoneAngles(ghoul2, 0, "thoracic", bg.thoracicAngles, BONE_ANGLES_POSTMULT, POSITIVE_X, NEGATIVE_Y, NEGATIVE_Z, nil, 0, time)
+    _ = strap_G2API_SetBoneAngles(ghoul2, 0, "lower_lumbar", llAngles, BONE_ANGLES_POSTMULT, POSITIVE_X, NEGATIVE_Y, NEGATIVE_Z, nil, 0, time)
+    _ = strap_G2API_SetBoneAngles(ghoul2, 0, "upper_lumbar", ulAngles, BONE_ANGLES_POSTMULT, POSITIVE_X, NEGATIVE_Y, NEGATIVE_Z, nil, 0, time)
+    _ = strap_G2API_SetBoneAngles(ghoul2, 0, "thoracic", thoracicAngles, BONE_ANGLES_POSTMULT, POSITIVE_X, NEGATIVE_Y, NEGATIVE_Z, nil, 0, time)
     //strap_G2API_SetBoneAngles(ghoul2, 0, "cervical", vec3_origin, BONE_ANGLES_POSTMULT, POSITIVE_X, NEGATIVE_Y, NEGATIVE_Z, 0, 0, time);
 }
 

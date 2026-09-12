@@ -223,6 +223,8 @@ The transcriptor adds the property with Raven's name and a `/// Source:` line, a
 
 A scalar static is a Swift stored property. A struct static such as `pml`, which Raven's bodies read through a view, gets C storage owned by `BgState`, with the view over it, the pattern `GameMemory` uses at `Sources/JKAMP_Game/GameMemory.swift`.
 A pointer static such as `pm` is the view of the caller's memory, set per call. A test resets state with `bg = BgState()`.
+A static local that every path of the body writes before it reads is scratch, Raven's habit of keeping vectors off the stack, and it is a local of the body, declared where Raven declared it with his initializer.
+The 23 statics of `BG_UpdateLookAngles` and `BG_G2PlayerAngles` are this shape, and none of them sits on `BgState`.
 
 A transcriptor adds a property to `bg_local.swift` with Raven's name and a `/// Source:` line.
 

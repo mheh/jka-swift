@@ -273,60 +273,6 @@ public final class BgState {
         ],
     ]
 
-    /// Raven's `static vec3_t oldLookAngles` of `BG_UpdateLookAngles` in `bg_pmove.c`.
-    /// Source: oracle/codemp/game/bg_pmove.c:8737
-    var oldLookAngles: JKAShared.vec3_t = JKAShared.vec3_t(0, 0, 0)
-
-    /// Raven's `static vec3_t lookAnglesDiff` of `BG_UpdateLookAngles` in `bg_pmove.c`.
-    /// Source: oracle/codemp/game/bg_pmove.c:8738
-    var lookAnglesDiff: JKAShared.vec3_t = JKAShared.vec3_t(0, 0, 0)
-
-    /// Raven's `static int ang` of `BG_UpdateLookAngles` in `bg_pmove.c`.
-    /// Source: oracle/codemp/game/bg_pmove.c:8739
-    var ang: Int32 = 0
-
-    // Raven's statics of `BG_G2PlayerAngles` in `bg_pmove.c`, one copy per module.
-    /// Source: oracle/codemp/game/bg_pmove.c:9090
-    var dir: Int32 = 0
-    /// Source: oracle/codemp/game/bg_pmove.c:9091
-    var i: Int32 = 0
-    /// Source: oracle/codemp/game/bg_pmove.c:9092
-    var movementOffsets: [Int32] = [0, 22, 45, -22, 0, 22, -45, -22]
-    /// Source: oracle/codemp/game/bg_pmove.c:9095
-    var dif: Float = 0
-    /// Source: oracle/codemp/game/bg_pmove.c:9096
-    var dest: Float = 0
-    /// Source: oracle/codemp/game/bg_pmove.c:9097
-    var speed: Float = 0
-    /// Source: oracle/codemp/game/bg_pmove.c:9102
-    var eyeAngles: JKAShared.vec3_t = JKAShared.vec3_t(0, 0, 0)
-    /// Source: oracle/codemp/game/bg_pmove.c:9103
-    var neckAngles: JKAShared.vec3_t = JKAShared.vec3_t(0, 0, 0)
-    /// Source: oracle/codemp/game/bg_pmove.c:9104
-    var velocity: JKAShared.vec3_t = JKAShared.vec3_t(0, 0, 0)
-    /// Source: oracle/codemp/game/bg_pmove.c:9105
-    var torsoAngles: JKAShared.vec3_t = JKAShared.vec3_t(0, 0, 0)
-    /// Source: oracle/codemp/game/bg_pmove.c:9105
-    var headAngles: JKAShared.vec3_t = JKAShared.vec3_t(0, 0, 0)
-    /// Source: oracle/codemp/game/bg_pmove.c:9106
-    var velPos: JKAShared.vec3_t = JKAShared.vec3_t(0, 0, 0)
-    /// Source: oracle/codemp/game/bg_pmove.c:9106
-    var velAng: JKAShared.vec3_t = JKAShared.vec3_t(0, 0, 0)
-    /// Source: oracle/codemp/game/bg_pmove.c:9107
-    var ulAngles: JKAShared.vec3_t = JKAShared.vec3_t(0, 0, 0)
-    /// Source: oracle/codemp/game/bg_pmove.c:9107
-    var llAngles: JKAShared.vec3_t = JKAShared.vec3_t(0, 0, 0)
-    /// Source: oracle/codemp/game/bg_pmove.c:9107
-    var viewAngles: JKAShared.vec3_t = JKAShared.vec3_t(0, 0, 0)
-    /// Source: oracle/codemp/game/bg_pmove.c:9107
-    var angles: JKAShared.vec3_t = JKAShared.vec3_t(0, 0, 0)
-    /// Source: oracle/codemp/game/bg_pmove.c:9107
-    var thoracicAngles: JKAShared.vec3_t = JKAShared.vec3_t(0, 0, 0)
-    /// Source: oracle/codemp/game/bg_pmove.c:9108
-    var headClampMinAngles: JKAShared.vec3_t = JKAShared.vec3_t(-25, -55, -10)
-    /// Source: oracle/codemp/game/bg_pmove.c:9108
-    var headClampMaxAngles: JKAShared.vec3_t = JKAShared.vec3_t(50, 50, 10)
-
     /// Raven's `static int pm_flying` of `bg_pmove.c`.
     /// Source: oracle/codemp/game/bg_pmove.c:445
     var pm_flying: Int32 = FLY_NONE
