@@ -475,6 +475,13 @@ class Drafter:
             op = self.binary_op(cur)
             if op in ASSIGNS:
                 left, right = list(cur.get_children())
+                buffer = self.char_buffer(left)
+                if buffer is not None:
+                    # Raven's `name[0] = 0` empties a character buffer the view holds as a String.
+                    if op == "=" and self.is_null(right) and self.is_null(list(self.strip(left).get_children())[1]):
+                        return [f"{pad}{self.member(buffer)} = \"\"" + self.trailing(cur)]
+                    raven = self.bytes[cur.extent.start.offset:cur.extent.end.offset].decode("utf-8", "replace")
+                    raise Hole(f"Raven writes `{raven}` into a character buffer the view holds as a String.")
                 target = self.expr(left)
                 inner = self.strip(right)
                 if op == "=" and inner.kind == CursorKind.BINARY_OPERATOR and not self.macro_span(inner) and self.binary_op(inner) == "=":
@@ -1032,6 +1039,12 @@ class Drafter:
         kids = list(cur.get_children())
         if not kids:
             raise Hole("A member reference with no base.")
+        field = cur.referenced
+        if field is not None and field.kind == CursorKind.FIELD_DECL:
+            t = field.type.get_canonical()
+            if t.kind == TypeKind.POINTER and self.views.scalar(t.get_pointee(), TARGET) is not None:
+                text = self.bytes[cur.extent.start.offset:cur.extent.end.offset].decode("utf-8", "replace")
+                raise Hole(f"Raven reads `{text}`, a `{field.type.spelling}` field. The generated field is an `OpaquePointer?`, and rule 11 keeps a pointer out of a logic target.")
         return f"{self.base(kids[0])}.{swift_name(cur.spelling)}"
 
     def call(self, cur: ci.Cursor) -> str:
@@ -1056,6 +1069,9 @@ class Drafter:
             return f"{self.base(kids_[0])}.{method}({', '.join(words)})"
         if callee is not None:
             words = [self.argument(a, False) for a in args]
+            if callee.kind == CursorKind.DECL_REF_EXPR and (self.params_by_name.get(callee.spelling, Param("", None, "")).swift or "").endswith(")?"):
+                # A callback parameter is an optional closure, and Raven calls it under his `if (localTrace)` guard.
+                return f"{self.expr(callee)}?({', '.join(words)})"
             return f"{self.expr(callee)}({', '.join(words)})"
         raise Hole("A call with no callee.")
 
@@ -1106,12 +1122,34 @@ class Drafter:
         if param is not None and param[1].replace("JKAShared.", "") == "vec3_t" and self.is_null(inner):
             self.pending.append(f"// Port-note: Raven passes NULL for `{param[0]}`, and the callee reads NULL as the zero vector.")
             return "JKAShared.vec3_origin"
-        if param is not None and param[1] == "String" and self.is_null(inner):
-            raise Hole(f"NULL for `{param[0]}`, a String parameter.")
+        if param is not None and not param[1].endswith("?") and self.is_null(inner):
+            raise Hole(f"NULL for `{param[0]}`, a {param[1]} parameter.")
+        if param is not None and "->" in param[1] and inner.kind == CursorKind.MEMBER_REF_EXPR and self.is_callback(inner):
+            # A stored function on a view goes where the callee takes a closure as the view's run method, bound to the view.
+            field = inner.spelling
+            return f"{self.base(list(inner.get_children())[0])}.run{field[0].upper()}{field[1:]}"
         text = self.expr(inner)
         if param is not None and not param[1].endswith("?") and not inout and self.optional_base(inner):
             text += "!"
         return f"&{text}" if inout else text
+
+    def is_callback(self, cur: ci.Cursor) -> bool:
+        """True for a member reference to a field that stores a function pointer."""
+        t = cur.type.get_canonical()
+        return t.kind == TypeKind.POINTER and t.get_pointee().kind == TypeKind.FUNCTIONPROTO
+
+    def char_buffer(self, cur: ci.Cursor) -> ci.Cursor | None:
+        """The member reference under a subscript into a `char[]` field, which the view holds as a String, or None."""
+        inner = self.strip(cur)
+        if inner.kind != CursorKind.ARRAY_SUBSCRIPT_EXPR:
+            return None
+        base = self.strip(list(inner.get_children())[0])
+        if base.kind != CursorKind.MEMBER_REF_EXPR:
+            return None
+        t = base.type.get_canonical()
+        if t.kind == TypeKind.CONSTANTARRAY and t.element_type.get_canonical().kind == TypeKind.CHAR_S:
+            return base
+        return None
 
     def is_null(self, cur: ci.Cursor) -> bool:
         inner = self.unwrap(cur)
