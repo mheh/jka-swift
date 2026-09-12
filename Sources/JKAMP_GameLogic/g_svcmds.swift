@@ -4,6 +4,9 @@ import JKAMP
 import JKAShared
 import JKAMP_Game
 
+/// Source: oracle/codemp/game/g_svcmds.c:51
+let MAX_IPFILTERS = 1024 as Int32
+
 /// Source: oracle/codemp/game/g_svcmds.c:54
 var ipFilters: Slots<IpFilter> { world.storage.ipFilters }
 

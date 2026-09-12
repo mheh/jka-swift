@@ -4,6 +4,36 @@ import JKAMP
 import JKAShared
 import JKAMP_Game
 
+/// Source: oracle/codemp/game/NPC_AI_ImperialProbe.c:47
+private let VELOCITY_DECAY = 0.85 as Float
+
+/// Source: oracle/codemp/game/NPC_AI_ImperialProbe.c:178
+private let HUNTER_STRAFE_VEL = 256 as Int32
+
+/// Source: oracle/codemp/game/NPC_AI_ImperialProbe.c:179
+private let HUNTER_STRAFE_DIS = 200 as Int32
+
+/// Source: oracle/codemp/game/NPC_AI_ImperialProbe.c:180
+private let HUNTER_UPWARD_PUSH = 32 as Int32
+
+/// Source: oracle/codemp/game/NPC_AI_ImperialProbe.c:217
+private let HUNTER_FORWARD_BASE_SPEED = 10 as Int32
+
+/// Source: oracle/codemp/game/NPC_AI_ImperialProbe.c:218
+private let HUNTER_FORWARD_MULTIPLIER = 5 as Int32
+
+/// Source: oracle/codemp/game/NPC_AI_ImperialProbe.c:371
+private let MIN_MELEE_RANGE = 320 as Int32
+
+/// Source: oracle/codemp/game/NPC_AI_ImperialProbe.c:372
+private let MIN_MELEE_RANGE_SQR = (MIN_MELEE_RANGE * MIN_MELEE_RANGE)
+
+/// Source: oracle/codemp/game/NPC_AI_ImperialProbe.c:374
+private let MIN_DISTANCE = 128 as Int32
+
+/// Source: oracle/codemp/game/NPC_AI_ImperialProbe.c:375
+private let MIN_DISTANCE_SQR = (MIN_DISTANCE * MIN_DISTANCE)
+
 /// Source: oracle/codemp/game/NPC_AI_ImperialProbe.c:21
 func NPC_Probe_Precache() {
     // TODO: Port NPC_Probe_Precache

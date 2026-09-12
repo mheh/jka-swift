@@ -4,6 +4,9 @@ import JKAMP
 import JKAShared
 import JKAMP_Game
 
+/// Source: oracle/codemp/game/g_utils.c:15
+let MAX_SHADER_REMAPS = 128 as Int32
+
 /// Source: oracle/codemp/game/g_utils.c:17
 var remapCount: Int32 {
     get { world.variables.remapCount }
@@ -12,6 +15,9 @@ var remapCount: Int32 {
 
 /// Source: oracle/codemp/game/g_utils.c:18
 var remappedShaders: Slots<ShaderRemap> { world.storage.remappedShaders }
+
+/// Source: oracle/codemp/game/g_utils.c:384
+let MAX_VEHICLES_AT_A_TIME = 128 as Int32
 
 /// Source: oracle/codemp/game/g_utils.c:385
 var g_vehiclePool: Slots<JKAMP.Vehicle> { world.storage.g_vehiclePool }
@@ -31,6 +37,12 @@ var g_vehiclePoolInit: Bool {
 /// Source: oracle/codemp/game/g_utils.c:428
 var gClPtrs: Slots<Client?> { world.storage.gClPtrs }
 
+/// Source: oracle/codemp/game/g_utils.c:519
+let MAXCHOICES = 32 as Int32
+
+/// Source: oracle/codemp/game/g_utils.c:875
+let MAX_G2_KILL_QUEUE = 256 as Int32
+
 /// Source: oracle/codemp/game/g_utils.c:877
 var gG2KillIndex: [Int32] {
     get { world.variables.gG2KillIndex }
@@ -42,6 +54,9 @@ var gG2KillNum: Int32 {
     get { world.variables.gG2KillNum }
     set { world.variables.gG2KillNum = newValue }
 }
+
+/// Source: oracle/codemp/game/g_utils.c:1612
+let USE_DISTANCE = 64.0 as Float
 
 /// Source: oracle/codemp/game/g_utils.c:1616
 /// Raven's data table, a hand property of `GameWorld`.

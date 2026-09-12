@@ -10,6 +10,12 @@ var numNewICARUSEnts: Int32 {
     set { world.variables.numNewICARUSEnts = newValue }
 }
 
+/// Source: oracle/codemp/game/g_target.c:909
+let ACT_ACTIVE = true
+
+/// Source: oracle/codemp/game/g_target.c:910
+let ACT_INACTIVE = false
+
 /**
 ```
 QUAKED target_give (1 0 0) (-8 -8 -8) (8 8 8)

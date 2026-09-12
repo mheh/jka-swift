@@ -4,6 +4,24 @@ import JKAMP
 import JKAShared
 import JKAMP_Game
 
+/// Source: oracle/codemp/game/NPC_AI_MineMonster.c:4
+private let MIN_DISTANCE = 54 as Int32
+
+/// Source: oracle/codemp/game/NPC_AI_MineMonster.c:5
+private let MIN_DISTANCE_SQR = (MIN_DISTANCE * MIN_DISTANCE)
+
+/// Source: oracle/codemp/game/NPC_AI_MineMonster.c:7
+private let MAX_DISTANCE = 128 as Int32
+
+/// Source: oracle/codemp/game/NPC_AI_MineMonster.c:8
+private let MAX_DISTANCE_SQR = (MAX_DISTANCE * MAX_DISTANCE)
+
+/// Source: oracle/codemp/game/NPC_AI_MineMonster.c:10
+private let LSTATE_CLEAR = 0 as Int32
+
+/// Source: oracle/codemp/game/NPC_AI_MineMonster.c:11
+private let LSTATE_WAITING = 1 as Int32
+
 /**
 ```
 -------------------------

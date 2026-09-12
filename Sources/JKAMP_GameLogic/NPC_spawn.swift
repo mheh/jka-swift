@@ -4,8 +4,20 @@ import JKAMP
 import JKAShared
 import JKAMP_Game
 
+/// Source: oracle/codemp/game/NPC_spawn.c:57
+let NSF_DROP_TO_FLOOR = 16 as Int32
+
 /// Source: oracle/codemp/game/NPC_spawn.c:1276
 var gNPCPtrs: Slots<GNPC?> { world.storage.gNPCPtrs }
+
+/// Source: oracle/codemp/game/NPC_spawn.c:1810
+let SHY_THINK_TIME = 1000 as Int32
+
+/// Source: oracle/codemp/game/NPC_spawn.c:1811
+let SHY_SPAWN_DISTANCE = 128 as Int32
+
+/// Source: oracle/codemp/game/NPC_spawn.c:1812
+let SHY_SPAWN_DISTANCE_SQR = (SHY_SPAWN_DISTANCE * SHY_SPAWN_DISTANCE)
 
 /// Source: oracle/codemp/game/NPC_spawn.c:4182
 var showBBoxes: Bool {

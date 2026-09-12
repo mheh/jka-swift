@@ -14,6 +14,9 @@ import JKAMP_Game
 // Raven wrote: spawn_t spawns[]
 // Raven's data table is C storage by hand in the C target, with his initializer as written, reached as a Slots over the C array, the bg_tables.c shape.
 
+/// Source: oracle/codemp/game/g_spawn.c:886
+let NOVALUE = "novalue"
+
 /// Source: oracle/codemp/game/g_spawn.c:1070
 /// Raven's data table, a hand property of `GameWorld`.
 var defaultStyles: [[String]] {

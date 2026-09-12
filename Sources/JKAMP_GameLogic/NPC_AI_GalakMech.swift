@@ -4,6 +4,30 @@ import JKAMP
 import JKAShared
 import JKAMP_Game
 
+/// Source: oracle/codemp/game/NPC_AI_GalakMech.c:19
+let MELEE_DIST_SQUARED = 6400 as Int32
+
+/// Source: oracle/codemp/game/NPC_AI_GalakMech.c:20
+let MIN_LOB_DIST_SQUARED = 65536 as Int32
+
+/// Source: oracle/codemp/game/NPC_AI_GalakMech.c:21
+let MAX_LOB_DIST_SQUARED = 200704 as Int32
+
+/// Source: oracle/codemp/game/NPC_AI_GalakMech.c:22
+private let REPEATER_ALT_SIZE = 3 as Int32
+
+/// Source: oracle/codemp/game/NPC_AI_GalakMech.c:23
+let GENERATOR_HEALTH = 25 as Int32
+
+/// Source: oracle/codemp/game/NPC_AI_GalakMech.c:24
+private let TURN_ON = 0x00000000 as Int32
+
+/// Source: oracle/codemp/game/NPC_AI_GalakMech.c:25
+private let TURN_OFF = 0x00000100 as Int32
+
+/// Source: oracle/codemp/game/NPC_AI_GalakMech.c:26
+let GALAK_SHIELD_HEALTH = 500 as Int32
+
 /// Source: oracle/codemp/game/NPC_AI_GalakMech.c:28
 /// Raven's data table, a hand property of `GameWorld`.
 var shieldMins: JKAShared.vec3_t {

@@ -4,6 +4,24 @@ import JKAMP
 import JKAShared
 import JKAMP_Game
 
+/// Source: oracle/codemp/game/NPC_AI_Wampa.c:5
+private let MIN_DISTANCE = 48 as Int32
+
+/// Source: oracle/codemp/game/NPC_AI_Wampa.c:6
+private let MIN_DISTANCE_SQR = (MIN_DISTANCE * MIN_DISTANCE)
+
+/// Source: oracle/codemp/game/NPC_AI_Wampa.c:8
+private let MAX_DISTANCE = 1024 as Int32
+
+/// Source: oracle/codemp/game/NPC_AI_Wampa.c:9
+private let MAX_DISTANCE_SQR = (MAX_DISTANCE * MAX_DISTANCE)
+
+/// Source: oracle/codemp/game/NPC_AI_Wampa.c:11
+private let LSTATE_CLEAR = 0 as Int32
+
+/// Source: oracle/codemp/game/NPC_AI_Wampa.c:12
+private let LSTATE_WAITING = 1 as Int32
+
 /// Source: oracle/codemp/game/NPC_AI_Wampa.c:14
 private var enemyDist: Float {
     get { world.variables.NPC_AI_Wampa_enemyDist }

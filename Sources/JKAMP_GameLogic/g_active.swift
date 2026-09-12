@@ -4,6 +4,24 @@ import JKAMP
 import JKAShared
 import JKAMP_Game
 
+/// Source: oracle/codemp/game/g_active.c:1097
+let MAX_JEDIMASTER_DISTANCE = 2500 as Int32
+
+/// Source: oracle/codemp/game/g_active.c:1098
+let MAX_JEDIMASTER_FOV = 100 as Int32
+
+/// Source: oracle/codemp/game/g_active.c:1100
+let MAX_SIGHT_DISTANCE = 1500 as Int32
+
+/// Source: oracle/codemp/game/g_active.c:1101
+let MAX_SIGHT_FOV = 100 as Int32
+
+/// Source: oracle/codemp/game/g_active.c:2203
+let SLOWDOWN_DIST = 128.0 as Float
+
+/// Source: oracle/codemp/game/g_active.c:2204
+let MIN_NPC_SPEED = 16.0 as Float
+
 /// Source: oracle/codemp/game/g_active.c:20
 func P_SetTwitchInfo(_ client: Client) {
     // TODO: Port P_SetTwitchInfo

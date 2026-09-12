@@ -4,6 +4,9 @@ import JKAMP
 import JKAShared
 import JKAMP_Game
 
+/// Source: oracle/codemp/game/g_missile.c:7
+let MISSILE_PRESTEP_TIME = 50 as Int32
+
 /// Source: oracle/codemp/game/g_missile.c:24
 func G_ReflectMissile(_ ent: Entity, _ missile: Entity, _ forward: inout JKAShared.vec3_t) {
     // TODO: Port G_ReflectMissile

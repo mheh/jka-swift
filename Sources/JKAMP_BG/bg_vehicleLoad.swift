@@ -3,6 +3,12 @@
 import JKAMP
 import JKAShared
 
+/// Source: oracle/codemp/game/bg_vehicleLoad.c:72
+let MAX_VEH_WEAPON_DATA_SIZE = 0x20000 as Int32
+
+/// Source: oracle/codemp/game/bg_vehicleLoad.c:73
+let MAX_VEHICLE_DATA_SIZE = 0x80000 as Int32
+
 /// Source: oracle/codemp/game/bg_vehicleLoad.c:76
 var VehWeaponParms: JKAShared.CharBuf {
     get { bg.variables.VehWeaponParms }

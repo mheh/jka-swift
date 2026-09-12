@@ -4,6 +4,24 @@ import JKAMP
 import JKAShared
 import JKAMP_Game
 
+/// Source: oracle/codemp/game/NPC_AI_Rancor.c:10
+private let MIN_DISTANCE = 128 as Int32
+
+/// Source: oracle/codemp/game/NPC_AI_Rancor.c:11
+private let MIN_DISTANCE_SQR = (MIN_DISTANCE * MIN_DISTANCE)
+
+/// Source: oracle/codemp/game/NPC_AI_Rancor.c:13
+private let MAX_DISTANCE = 1024 as Int32
+
+/// Source: oracle/codemp/game/NPC_AI_Rancor.c:14
+private let MAX_DISTANCE_SQR = (MAX_DISTANCE * MAX_DISTANCE)
+
+/// Source: oracle/codemp/game/NPC_AI_Rancor.c:16
+private let LSTATE_CLEAR = 0 as Int32
+
+/// Source: oracle/codemp/game/NPC_AI_Rancor.c:17
+private let LSTATE_WAITING = 1 as Int32
+
 /// Source: oracle/codemp/game/NPC_AI_Rancor.c:19
 func Rancor_SetBolts(_ `self`: Entity) {
     // TODO: Port Rancor_SetBolts

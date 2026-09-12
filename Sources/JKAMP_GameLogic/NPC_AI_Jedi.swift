@@ -4,11 +4,57 @@ import JKAMP
 import JKAShared
 import JKAMP_Game
 
+/// Source: oracle/codemp/game/NPC_AI_Jedi.c:21
+private let MAX_VIEW_DIST = 2048 as Int32
+
+/// Source: oracle/codemp/game/NPC_AI_Jedi.c:22
+private let MAX_VIEW_SPEED = 100 as Int32
+
+/// Source: oracle/codemp/game/NPC_AI_Jedi.c:23
+let JEDI_MAX_LIGHT_INTENSITY = 64 as Int32
+
+/// Source: oracle/codemp/game/NPC_AI_Jedi.c:24
+let JEDI_MIN_LIGHT_THRESHOLD = 10 as Int32
+
+/// Source: oracle/codemp/game/NPC_AI_Jedi.c:25
+let JEDI_MAX_LIGHT_THRESHOLD = 50 as Int32
+
+/// Source: oracle/codemp/game/NPC_AI_Jedi.c:27
+private let DISTANCE_SCALE = 0.25 as Float
+
+/// Source: oracle/codemp/game/NPC_AI_Jedi.c:29
+private let SPEED_SCALE = 0.25 as Float
+
+/// Source: oracle/codemp/game/NPC_AI_Jedi.c:30
+private let FOV_SCALE = 0.5 as Float
+
+/// Source: oracle/codemp/game/NPC_AI_Jedi.c:31
+private let LIGHT_SCALE = 0.25 as Float
+
+/// Source: oracle/codemp/game/NPC_AI_Jedi.c:33
+private let REALIZE_THRESHOLD = 0.6 as Float
+
+/// Source: oracle/codemp/game/NPC_AI_Jedi.c:34
+private let CAUTIOUS_THRESHOLD = (REALIZE_THRESHOLD * 0.3)
+
+/// Source: oracle/codemp/game/NPC_AI_Jedi.c:36
+private let MAX_CHECK_THRESHOLD = 1 as Int32
+
 /// Source: oracle/codemp/game/NPC_AI_Jedi.c:94
 var jediSpeechDebounceTime: [Int32] {
     get { world.variables.jediSpeechDebounceTime }
     set { world.variables.jediSpeechDebounceTime = newValue }
 }
+
+/// Source: oracle/codemp/game/NPC_AI_Jedi.c:4469
+private let APEX_HEIGHT = 200.0 as Float
+
+/// Source: oracle/codemp/game/NPC_AI_Jedi.c:4470
+// Raven wrote: #define PARA_WIDTH ( sqrt ( APEX_HEIGHT ) + sqrt ( APEX_HEIGHT ) )
+// The macro's text is not a constant over this file's names, so a body spells its expansion at the site.
+
+/// Source: oracle/codemp/game/NPC_AI_Jedi.c:4471
+private let JUMP_SPEED = 200.0 as Float
 
 /// Source: oracle/codemp/game/NPC_AI_Jedi.c:16
 func G_StartMatrixEffect(_ ent: Entity) {

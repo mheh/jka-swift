@@ -13,6 +13,30 @@ var pushed_p: Pushed? {
     set { world.variables.pushed_p = newValue }
 }
 
+/// Source: oracle/codemp/game/g_mover.c:26
+let MOVER_START_ON = 1 as Int32
+
+/// Source: oracle/codemp/game/g_mover.c:27
+let MOVER_FORCE_ACTIVATE = 2 as Int32
+
+/// Source: oracle/codemp/game/g_mover.c:28
+let MOVER_CRUSHER = 4 as Int32
+
+/// Source: oracle/codemp/game/g_mover.c:29
+let MOVER_TOGGLE = 8 as Int32
+
+/// Source: oracle/codemp/game/g_mover.c:30
+let MOVER_LOCKED = 16 as Int32
+
+/// Source: oracle/codemp/game/g_mover.c:31
+let MOVER_GOODIE = 32 as Int32
+
+/// Source: oracle/codemp/game/g_mover.c:32
+let MOVER_PLAYER_USE = 64 as Int32
+
+/// Source: oracle/codemp/game/g_mover.c:33
+let MOVER_INACTIVE = 128 as Int32
+
 /// Source: oracle/codemp/game/g_mover.c:35
 // Raven wrote: int BMS_START = 0
 let BMS_START: Int32 = { () -> Int32 in portMissing("BMS_START", source: "oracle/codemp/game/g_mover.c:35") }()
@@ -24,6 +48,18 @@ let BMS_MID: Int32 = { () -> Int32 in portMissing("BMS_MID", source: "oracle/cod
 /// Source: oracle/codemp/game/g_mover.c:37
 // Raven wrote: int BMS_END = 2
 let BMS_END: Int32 = { () -> Int32 in portMissing("BMS_END", source: "oracle/codemp/game/g_mover.c:37") }()
+
+/// Source: oracle/codemp/game/g_mover.c:1716
+let TRAIN_START_ON = 1 as Int32
+
+/// Source: oracle/codemp/game/g_mover.c:1717
+let TRAIN_TOGGLE = 2 as Int32
+
+/// Source: oracle/codemp/game/g_mover.c:1718
+let TRAIN_BLOCK_STOPS = 4 as Int32
+
+/// Source: oracle/codemp/game/g_mover.c:3243
+let FUNC_WALL_OFF = 1 as Int32
 
 /// Source: oracle/codemp/game/g_mover.c:45
 func G_PlayDoorLoopSound(_ ent: Entity) {

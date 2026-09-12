@@ -4,6 +4,51 @@ import JKAMP
 import JKAShared
 import JKAMP_Game
 
+/// Source: oracle/codemp/game/NPC_AI_Mark1.c:4
+private let MIN_MELEE_RANGE = 320 as Int32
+
+/// Source: oracle/codemp/game/NPC_AI_Mark1.c:5
+private let MIN_MELEE_RANGE_SQR = (MIN_MELEE_RANGE * MIN_MELEE_RANGE)
+
+/// Source: oracle/codemp/game/NPC_AI_Mark1.c:7
+private let MIN_DISTANCE = 128 as Int32
+
+/// Source: oracle/codemp/game/NPC_AI_Mark1.c:8
+private let MIN_DISTANCE_SQR = (MIN_DISTANCE * MIN_DISTANCE)
+
+/// Source: oracle/codemp/game/NPC_AI_Mark1.c:10
+private let TURN_OFF = 0x00000100 as Int32
+
+/// Source: oracle/codemp/game/NPC_AI_Mark1.c:12
+private let LEFT_ARM_HEALTH = 40 as Int32
+
+/// Source: oracle/codemp/game/NPC_AI_Mark1.c:13
+private let RIGHT_ARM_HEALTH = 40 as Int32
+
+/// Source: oracle/codemp/game/NPC_AI_Mark1.c:14
+private let AMMO_POD_HEALTH = 40 as Int32
+
+/// Source: oracle/codemp/game/NPC_AI_Mark1.c:16
+private let BOWCASTER_VELOCITY = 1300 as Int32
+
+/// Source: oracle/codemp/game/NPC_AI_Mark1.c:17
+let BOWCASTER_NPC_DAMAGE_EASY = 12 as Int32
+
+/// Source: oracle/codemp/game/NPC_AI_Mark1.c:18
+let BOWCASTER_NPC_DAMAGE_NORMAL = 24 as Int32
+
+/// Source: oracle/codemp/game/NPC_AI_Mark1.c:19
+let BOWCASTER_NPC_DAMAGE_HARD = 36 as Int32
+
+/// Source: oracle/codemp/game/NPC_AI_Mark1.c:20
+private let BOWCASTER_SIZE = 2 as Int32
+
+/// Source: oracle/codemp/game/NPC_AI_Mark1.c:21
+private let BOWCASTER_SPLASH_DAMAGE = 0 as Int32
+
+/// Source: oracle/codemp/game/NPC_AI_Mark1.c:22
+private let BOWCASTER_SPLASH_RADIUS = 0 as Int32
+
 /**
 ```
 -------------------------

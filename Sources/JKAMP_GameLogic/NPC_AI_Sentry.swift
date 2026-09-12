@@ -4,6 +4,33 @@ import JKAMP
 import JKAShared
 import JKAMP_Game
 
+/// Source: oracle/codemp/game/NPC_AI_Sentry.c:9
+private let MIN_DISTANCE = 256 as Int32
+
+/// Source: oracle/codemp/game/NPC_AI_Sentry.c:10
+private let MIN_DISTANCE_SQR = (MIN_DISTANCE * MIN_DISTANCE)
+
+/// Source: oracle/codemp/game/NPC_AI_Sentry.c:12
+let SENTRY_FORWARD_BASE_SPEED = 10 as Int32
+
+/// Source: oracle/codemp/game/NPC_AI_Sentry.c:13
+let SENTRY_FORWARD_MULTIPLIER = 5 as Int32
+
+/// Source: oracle/codemp/game/NPC_AI_Sentry.c:15
+let SENTRY_VELOCITY_DECAY = 0.85 as Float
+
+/// Source: oracle/codemp/game/NPC_AI_Sentry.c:16
+let SENTRY_STRAFE_VEL = 256 as Int32
+
+/// Source: oracle/codemp/game/NPC_AI_Sentry.c:17
+let SENTRY_STRAFE_DIS = 200 as Int32
+
+/// Source: oracle/codemp/game/NPC_AI_Sentry.c:18
+let SENTRY_UPWARD_PUSH = 32 as Int32
+
+/// Source: oracle/codemp/game/NPC_AI_Sentry.c:19
+let SENTRY_HOVER_HEIGHT = 24 as Int32
+
 /**
 ```
 -------------------------

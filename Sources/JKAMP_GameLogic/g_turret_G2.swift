@@ -4,6 +4,36 @@ import JKAMP
 import JKAShared
 import JKAMP_Game
 
+/// Source: oracle/codemp/game/g_turret_G2.c:11
+let SPF_TURRETG2_CANRESPAWN = 4 as Int32
+
+/// Source: oracle/codemp/game/g_turret_G2.c:12
+let SPF_TURRETG2_TURBO = 8 as Int32
+
+/// Source: oracle/codemp/game/g_turret_G2.c:13
+let SPF_TURRETG2_LEAD_ENEMY = 16 as Int32
+
+/// Source: oracle/codemp/game/g_turret_G2.c:14
+let SPF_SHOWONRADAR = 32 as Int32
+
+/// Source: oracle/codemp/game/g_turret_G2.c:16
+let ARM_ANGLE_RANGE = 60 as Int32
+
+/// Source: oracle/codemp/game/g_turret_G2.c:17
+let HEAD_ANGLE_RANGE = 90 as Int32
+
+/// Source: oracle/codemp/game/g_turret_G2.c:19
+let name = "models/map_objects/imp_mine/turret_canon.glm"
+
+/// Source: oracle/codemp/game/g_turret_G2.c:20
+let name2 = "models/map_objects/imp_mine/turret_damage.md3"
+
+/// Source: oracle/codemp/game/g_turret_G2.c:21
+let name3 = "models/map_objects/wedge/laser_cannon_model.glm"
+
+/// Source: oracle/codemp/game/g_turret_G2.c:318
+private let START_DIS = 15 as Int32
+
 //special routine for tracking angles between client and server -rww
 /// Source: oracle/codemp/game/g_turret_G2.c:24
 func G2Tur_SetBoneAngles(_ ent: Entity, _ bone: inout JKAShared.CharBuf, _ angles: inout JKAShared.vec3_t) {

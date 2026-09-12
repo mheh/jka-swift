@@ -10,6 +10,21 @@ var gTrigFallSound: Int32 {
     set { world.variables.gTrigFallSound = newValue }
 }
 
+/// Source: oracle/codemp/game/g_trigger.c:895
+let PUSH_LINEAR = 4 as Int32
+
+/// Source: oracle/codemp/game/g_trigger.c:896
+let PUSH_RELATIVE = 16 as Int32
+
+/// Source: oracle/codemp/game/g_trigger.c:897
+let PUSH_MULTIPLE = 2048 as Int32
+
+/// Source: oracle/codemp/game/g_trigger.c:899
+let PUSH_CONSTANT = 2 as Int32
+
+/// Source: oracle/codemp/game/g_trigger.c:1441
+let INITIAL_SUFFOCATION_DELAY = 500 as Int32
+
 /// Source: oracle/codemp/game/g_trigger.c:8
 func InitTrigger(_ `self`: Entity) {
     // TODO: Port InitTrigger

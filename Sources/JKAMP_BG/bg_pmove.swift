@@ -2,6 +2,9 @@ import Foundation
 import JKAMP
 import JKAShared
 
+/// Source: oracle/codemp/game/bg_pmove.c:16
+let MAX_WEAPON_CHARGE_TIME = 5000 as Int32
+
 /// Source: oracle/codemp/game/bg_pmove.c:30
 /// Raven's callers always set `pm`, so a body reads it with no bind. A NULL here traps with the name.
 var pm: JKAMP.Pmove {
@@ -116,21 +119,21 @@ let forceJumpHeightMax: [Float] = [
 
 /// Raven's `#define SLOPE_RECALC_INT`, a file-local macro of `bg_pmove.c`.
 /// Source: oracle/codemp/game/bg_pmove.c:4802
-let SLOPE_RECALC_INT: Int32 = 100
+let SLOPE_RECALC_INT = 100 as Int32
 
 /// Raven's `#define USE_DELAY`, a file-local macro of `bg_pmove.c`.
 /// Source: oracle/codemp/game/bg_pmove.c:4557
-let USE_DELAY: Int32 = 2000
+let USE_DELAY = 2000 as Int32
 
 /// Raven's `#define FLY_NONE`, a file-local macro of `bg_pmove.c` that names a value of `pm_flying`.
 /// Source: oracle/codemp/game/bg_pmove.c:440
-let FLY_NONE: Int32 = 0
+let FLY_NONE = 0 as Int32
 /// Source: oracle/codemp/game/bg_pmove.c:441
-let FLY_NORMAL: Int32 = 1
+let FLY_NORMAL = 1 as Int32
 /// Source: oracle/codemp/game/bg_pmove.c:442
-let FLY_VEHICLE: Int32 = 2
+let FLY_VEHICLE = 2 as Int32
 /// Source: oracle/codemp/game/bg_pmove.c:443
-let FLY_HOVER: Int32 = 3
+let FLY_HOVER = 3 as Int32
 
 //rww - Get a pointer to the bgEntity by the index
 /// Source: oracle/codemp/game/bg_pmove.c:172
@@ -829,6 +832,9 @@ private func PM_SetMovementDir() {
     }
 }
 
+/// Source: oracle/codemp/game/bg_pmove.c:1264
+private let METROID_JUMP = 1 as Int32
+
 /// Source: oracle/codemp/game/bg_pmove.c:1266
 func PM_ForceJumpingUp() -> Bool {
     let ps = pm.ps
@@ -1179,7 +1185,10 @@ func PM_AdjustAngleForWallRunUp(_ ps: JKAMP.PlayerState, _ ucmd: JKAMP.Usercmd, 
     return false
 }
 
-//nice...
+//nice.../// Source: oracle/codemp/game/bg_pmove.c:1600
+let JUMP_OFF_WALL_SPEED = 200.0 as Float
+
+
 /// Source: oracle/codemp/game/bg_pmove.c:1602
 private func BG_ForceWallJumpStrength() -> Float {
     return (forceJumpStrength[FORCE_LEVEL_3] / 2.5)
@@ -4360,7 +4369,11 @@ func PM_AdjustStandAnimForSlope() -> Bool {
     return true
 }
 
-//rww - slowly back out of slope leg anims, to prevent skipping between slope anims and general jittering
+//rww - slowly back out of slope leg anims, to prevent skipping between slope anims and general jittering/// Source: oracle/codemp/game/bg_pmove.c:4810
+// Raven wrote: #define SLOPERECALCVAR pm -> ps -> slopeRecalcTime
+// The macro's text is not a constant over this file's names, so a body spells its expansion at the site.
+
+
 /// Source: oracle/codemp/game/bg_pmove.c:5107
 func PM_LegsSlopeBackTransition(_ desiredAnim: Int32) -> Int32 {
     let ps = pm.ps
@@ -4929,7 +4942,7 @@ func PM_FinishWeaponChange() {
 }
 
 /// Source: oracle/codemp/game/bg_pmove.c:5832
-let MAX_XHAIR_DIST_ACCURACY: Float = 20000.0
+private let MAX_XHAIR_DIST_ACCURACY = 20000.0 as Float
 
 /// Source: oracle/codemp/game/bg_pmove.c:5833
 func BG_VehTraceFromCamPos(_ camTrace: JKAMP.Trace, _ bgEnt: JKAMP.BgEntity, _ entOrg: JKAShared.vec3_t, _ shotStart: JKAShared.vec3_t, _ end: JKAShared.vec3_t, _ newEnd: inout JKAShared.vec3_t, _ shotDir: inout JKAShared.vec3_t, _ bestDist: Float) -> Int32 {
@@ -5081,6 +5094,12 @@ private func PM_DoChargedWeapons(_ vehicleRocketLock: Bool, _ veh: JKAMP.BgEntit
     // TODO: Port PM_DoChargedWeapons
     portMissing("PM_DoChargedWeapons", source: "oracle/codemp/game/bg_pmove.c:5980")
 }
+
+/// Source: oracle/codemp/game/bg_pmove.c:6236
+private let BOWCASTER_CHARGE_UNIT = 200.0 as Float
+
+/// Source: oracle/codemp/game/bg_pmove.c:6237
+private let BRYAR_CHARGE_UNIT = 200.0 as Float
 
 /// Source: oracle/codemp/game/bg_pmove.c:6239
 func PM_ItemUsable(_ ps: JKAMP.PlayerState, _ forcedUse: Int32) -> Int32 {
@@ -7065,6 +7084,9 @@ func BG_VehicleAdjustBBoxForOrientation(_ veh: JKAMP.Vehicle, _ origin: inout JK
         portMissing("BG_VehicleAdjustBBoxForOrientation: veh->m_vOrientation", source: "oracle/codemp/game/bg_pmove.c:10020")
     }
 }
+
+/// Source: oracle/codemp/game/bg_pmove.c:10088
+let JETPACK_HOVER_HEIGHT = 64 as Int32
 
 /// Source: oracle/codemp/game/bg_pmove.c:10092
 func PM_MoveForKata(_ ucmd: JKAMP.Usercmd) {

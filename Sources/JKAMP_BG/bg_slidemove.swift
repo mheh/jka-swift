@@ -3,6 +3,12 @@
 import JKAMP
 import JKAShared
 
+/// Source: oracle/codemp/game/bg_slidemove.c:48
+let MAX_IMPACT_TURN_ANGLE = 45.0 as Float
+
+/// Source: oracle/codemp/game/bg_slidemove.c:633
+let MAX_CLIP_PLANES = 5 as Int32
+
 /// Source: oracle/codemp/game/bg_slidemove.c:49
 func PM_VehicleImpact(_ pEnt: JKAMP.BgEntity, _ trace: JKAMP.Trace) {
     // TODO: Port PM_VehicleImpact

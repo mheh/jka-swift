@@ -4,6 +4,12 @@ import JKAMP
 import JKAShared
 import JKAMP_Game
 
+/// Source: oracle/codemp/game/NPC_AI_Utils.c:9
+private let MAX_RADIUS_ENTS = 128 as Int32
+
+/// Source: oracle/codemp/game/NPC_AI_Utils.c:10
+let DEFAULT_RADIUS = 45 as Int32
+
 /// Source: oracle/codemp/game/NPC_AI_Utils.c:23
 func AI_GetGroupSize(_ origin: inout JKAShared.vec3_t, _ radius: Int32, _ playerTeam: JKAMP.team_t, _ avoid: Entity) -> Int32 {
     // TODO: Port AI_GetGroupSize

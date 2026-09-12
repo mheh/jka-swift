@@ -4,6 +4,9 @@ import JKAMP
 import JKAShared
 import JKAMP_Game
 
+/// Source: oracle/codemp/game/w_force.c:7
+private let METROID_JUMP = 1 as Int32
+
 /// Source: oracle/codemp/game/w_force.c:24
 var speedLoopSound: Int32 {
     get { world.variables.speedLoopSound }
@@ -39,6 +42,9 @@ var ysalamiriLoopSound: Int32 {
     get { world.variables.ysalamiriLoopSound }
     set { world.variables.ysalamiriLoopSound = newValue }
 }
+
+/// Source: oracle/codemp/game/w_force.c:36
+let FORCE_VELOCITY_DAMAGE = 0 as Int32
 
 /// Source: oracle/codemp/game/w_force.c:51
 // Raven wrote: const int forcePowerMinRank[NUM_FORCE_POWER_LEVELS][NUM_FORCE_POWERS]

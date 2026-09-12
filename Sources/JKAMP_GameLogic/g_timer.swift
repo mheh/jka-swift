@@ -4,6 +4,9 @@ import JKAMP
 import JKAShared
 import JKAMP_Game
 
+/// Source: oracle/codemp/game/g_timer.c:8
+let MAX_GTIMERS = 16384 as Int32
+
 /// Source: oracle/codemp/game/g_timer.c:17
 var g_timerPool: Slots<Gtimer> { world.storage.g_timerPool }
 

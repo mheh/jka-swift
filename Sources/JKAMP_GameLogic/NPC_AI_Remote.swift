@@ -4,6 +4,36 @@ import JKAMP
 import JKAShared
 import JKAMP_Game
 
+/// Source: oracle/codemp/game/NPC_AI_Remote.c:6
+private let VELOCITY_DECAY = 0.85 as Float
+
+/// Source: oracle/codemp/game/NPC_AI_Remote.c:130
+let REMOTE_STRAFE_VEL = 256 as Int32
+
+/// Source: oracle/codemp/game/NPC_AI_Remote.c:131
+let REMOTE_STRAFE_DIS = 200 as Int32
+
+/// Source: oracle/codemp/game/NPC_AI_Remote.c:132
+let REMOTE_UPWARD_PUSH = 32 as Int32
+
+/// Source: oracle/codemp/game/NPC_AI_Remote.c:170
+let REMOTE_FORWARD_BASE_SPEED = 10 as Int32
+
+/// Source: oracle/codemp/game/NPC_AI_Remote.c:171
+let REMOTE_FORWARD_MULTIPLIER = 5 as Int32
+
+/// Source: oracle/codemp/game/NPC_AI_Remote.c:279
+private let MIN_MELEE_RANGE = 320 as Int32
+
+/// Source: oracle/codemp/game/NPC_AI_Remote.c:280
+private let MIN_MELEE_RANGE_SQR = (MIN_MELEE_RANGE * MIN_MELEE_RANGE)
+
+/// Source: oracle/codemp/game/NPC_AI_Remote.c:282
+private let MIN_DISTANCE = 80 as Int32
+
+/// Source: oracle/codemp/game/NPC_AI_Remote.c:283
+private let MIN_DISTANCE_SQR = (MIN_DISTANCE * MIN_DISTANCE)
+
 /// Source: oracle/codemp/game/NPC_AI_Remote.c:17
 func NPC_Remote_Precache() {
     // TODO: Port NPC_Remote_Precache

@@ -31,6 +31,12 @@ var enemyVisibility: visibility_t {
     set { world.variables.enemyVisibility = newValue }
 }
 
+/// Source: oracle/codemp/game/NPC.c:112
+let REMOVE_DISTANCE = 128 as Int32
+
+/// Source: oracle/codemp/game/NPC.c:113
+let REMOVE_DISTANCE_SQR = (REMOVE_DISTANCE * REMOVE_DISTANCE)
+
 /// Source: oracle/codemp/game/NPC.c:625
 var _saved_NPC: Entity? {
     get { world.variables._saved_NPC }

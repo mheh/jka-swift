@@ -31,9 +31,10 @@ import clang.cindex as ci
 from clang.cindex import CursorKind, TypeKind
 
 import closure as C
+import reexport
 from fnsweep import binop_assign_op, rhs_function, root_var
 from reexport import REPO, SOURCES
-from rulings import HAND_VARS, NEVER_NULL_VARS, NOT_PORTED, RETURNS
+from rulings import HAND_MACROS, HAND_VARS, NEVER_NULL_VARS, NOT_PORTED, RETURNS
 from table import Param, SourceFile, Table, swift_name
 
 ORACLE_DIR = "codemp/game"
@@ -136,6 +137,25 @@ class Variable:
         return "let"
 
 
+class Macro:
+    """One object-like macro Raven wrote inside a .c file, a constant of that file, written into its stub at Raven's line."""
+
+    def __init__(self, cur: ci.Cursor, stem: str) -> None:
+        self.cur = cur
+        self.name = cur.spelling
+        self.stem = stem
+        self.line = cur.location.line
+        self.shared = False
+
+    @property
+    def cite(self) -> str:
+        return f"oracle/{ORACLE_DIR}/{self.stem}.c:{self.line}"
+
+    @property
+    def access(self) -> str:
+        return "private " if self.shared else ""
+
+
 class Skeleton:
     def __init__(self) -> None:
         self.table = Table()
@@ -147,6 +167,8 @@ class Skeleton:
         self.collect()
         self.variables: dict[str, list[Variable]] = defaultdict(list)
         self.collect_variables()
+        self.macros: dict[str, list[Macro]] = defaultdict(list)
+        self.collect_macros()
         self.stores = self.collect_stores()
         self.stored_names = {fn.name for pairs in self.stores.values() for _, fn in pairs}
         # SpeederNPC.c defines `Update` without static, and four other files define it with. Every copy of a shared name is private.
@@ -246,6 +268,56 @@ class Skeleton:
         for cur in self.tu.cursor.get_children():
             if cur.kind == CursorKind.FUNCTION_DECL and cur.is_definition():
                 written(cur)
+
+    def collect_macros(self) -> None:
+        """Every object-like macro of the module's .c files, first per name and file. A name two files define is private in each."""
+        game = (C.ORACLE / ORACLE_DIR).resolve()
+        for cur in self.tu.cursor.get_children():
+            if cur.kind != CursorKind.MACRO_DEFINITION or not cur.location.file:
+                continue
+            path = Path(cur.location.file.name).resolve()
+            if path.parent != game or path.suffix != ".c" or path.name in SKIP:
+                continue
+            tokens = [t.spelling for t in cur.get_tokens()][1:]
+            if reexport.is_function_like(cur) or not tokens or set(tokens) <= reexport.KEYWORD_MACROS:
+                continue
+            if any(m.name == cur.spelling for m in self.macros[path.stem]):
+                continue
+            self.macros[path.stem].append(Macro(cur, path.stem))
+        owners: dict[str, set[str]] = defaultdict(set)
+        for stem, macros in self.macros.items():
+            for macro in macros:
+                owners[macro.name].add(target_of(stem) + "/" + stem)
+        for stem, macros in self.macros.items():
+            for macro in macros:
+                macro.shared = len(owners[macro.name]) > 1
+
+    def macro_entry(self, macro: Macro) -> list[str]:
+        """The stub's line for a .c macro: a let over its expression, or the reason a body spells it at the site."""
+        text = " ".join(t.spelling for t in macro.cur.get_tokens())
+        lines = [f"/// Source: {macro.cite}"]
+        if macro.name in ("true", "false", "inline", "static", "register", "const"):
+            # Raven aliases a keyword, `#define true qtrue`, which Swift has as a keyword already, so nothing is written.
+            self.counts["macros that alias a keyword"] += 1
+            lines += [f"// Raven wrote: #define {text}", "// Swift has the keyword, so a body writes it as is."]
+            return lines
+        if macro.name in HAND_MACROS:
+            self.counts["macros by hand"] += 1
+            lines += [f"// Raven wrote: #define {text}", f"// A hand value: {HAND_MACROS[macro.name]}."]
+            return lines
+        local = {m.name for m in self.macros[macro.stem]}
+        expression = reexport.swift_expression(macro.cur, {}, self.exported_of(macro.stem), local=local, float_suffix=True)
+        self.counts["macros"] += 1
+        if expression is None:
+            self.counts["macros spelled at the site"] += 1
+            lines += [f"// Raven wrote: #define {text}",
+                      "// The macro's text is not a constant over this file's names, so a body spells its expansion at the site."]
+            return lines
+        lines.append(f"{macro.access}let {macro.name} = {expression}")
+        return lines
+
+    def exported_of(self, stem: str) -> dict[str, str]:
+        return self.table.views.exported_names("CJKAMP" if target_of(stem) == BG else "CJKAMP_Game")
 
     def note_write(self, lvalue: ci.Cursor, by_name: dict[str, list[Variable]], arrays_only: bool = False) -> None:
         """A write marks every file's copy of the name, because the unity parse binds a shared static's uses to one declaration."""
@@ -571,8 +643,9 @@ class Skeleton:
         # A file inside JKAShared imports nothing, because it is the module the others import.
         imports = [] if target == SHARED else ["import JKAMP", "import JKAShared"] + (["import JKAMP_Game"] if target == LOGIC else [])
         lines = [NOTE.format(stem=stem), ""] + (imports + [""] if imports else [])
-        for var in self.variables.get(stem, []):
-            lines += self.variable_entry(var)
+        entries = [(var.line, 0, var) for var in self.variables.get(stem, [])] + [(m.line, 1, m) for m in self.macros.get(stem, [])]
+        for _, kind, entry in sorted(entries, key=lambda e: (e[0], e[1])):
+            lines += self.variable_entry(entry) if kind == 0 else self.macro_entry(entry)
             lines.append("")
         for fn in self.files[stem]:
             lines += self.stub(fn)
@@ -635,7 +708,7 @@ class Skeleton:
     def write(self) -> tuple[int, list[str]]:
         written = 0
         adopted: list[str] = []
-        for stem in sorted(set(self.files) | set(self.variables)):
+        for stem in sorted(set(self.files) | set(self.variables) | set(self.macros)):
             out = stub_path(stem)
             if out.exists() and out.read_text().split("\n", 1)[0] != NOTE.format(stem=stem):
                 adopted.append(str(out.relative_to(REPO)))
@@ -756,6 +829,7 @@ def main() -> None:
     c = gen.counts
     print(f"skeleton.py: {written} files, {c['stubs']} stubs, {c['TODO: Port signature']} TODO: Port signature markers, "
           f"{c['thunks']} thunks in {len(FIELDS)} namespaces, {c['thunks over an unmapped signature']} thunks over an unmapped signature")
+    print(f"  macros: {c['macros']} in the stubs, {c['macros spelled at the site']} spelled at the site")
     print(f"  variables: {c['variables, let']} let, {c['variables, state']} state, {c['variables, state_data']} data by hand, "
           f"{c['variables, initializer by hand']} initializers by hand, {c['variables, storage']} storage, {c['variables, storage_data']} data tables by hand, {c['variables, marker']} markers")
     if c["functions made private because another file defines the name"]:

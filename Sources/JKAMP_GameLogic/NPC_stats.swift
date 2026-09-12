@@ -35,9 +35,12 @@ var TeamNames: [String] {
 // Raven wrote: char *ClassNames[CLASS_NUM_CLASSES]
 let ClassNames: [String] = { () -> [String] in portMissing("ClassNames", source: "oracle/codemp/game/NPC_stats.c:156") }()
 
+/// Source: oracle/codemp/game/NPC_stats.c:236
+let MAX_NPC_DATA_SIZE = 0x20000 as Int32
+
 /// Source: oracle/codemp/game/NPC_stats.c:237
 // Raven wrote: char NPCParms[MAX_NPC_DATA_SIZE]
-nonisolated(unsafe) let NPCParms: JKAShared.CharBuf = JKAShared.CharBuf(Int(JKAMP_Game.MAX_NPC_DATA_SIZE))
+nonisolated(unsafe) let NPCParms: JKAShared.CharBuf = JKAShared.CharBuf(131072)
 
 /// Source: oracle/codemp/game/NPC_stats.c:238
 var NPCFile: JKAShared.CharBuf {

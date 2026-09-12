@@ -4,6 +4,12 @@ import JKAMP
 import JKAShared
 import JKAMP_Game
 
+/// Source: oracle/codemp/game/tri_coll_test.c:23
+let USE_EPSILON_TEST = 1 as Int32
+
+/// Source: oracle/codemp/game/tri_coll_test.c:24
+let EPSILON = 0.000001 as Double
+
 /// Source: oracle/codemp/game/tri_coll_test.c:149
 func coplanar_tri_tri(_ N: inout JKAShared.vec3_t, _ V0: inout JKAShared.vec3_t, _ V1: inout JKAShared.vec3_t, _ V2: inout JKAShared.vec3_t, _ U0: inout JKAShared.vec3_t, _ U1: inout JKAShared.vec3_t, _ U2: inout JKAShared.vec3_t) -> Bool {
     // TODO: Port coplanar_tri_tri

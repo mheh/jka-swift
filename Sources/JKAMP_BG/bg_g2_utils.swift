@@ -3,6 +3,9 @@
 import JKAMP
 import JKAShared
 
+/// Source: oracle/codemp/game/bg_g2_utils.c:100
+let MAX_VARIANTS = 8 as Int32
+
 /// Source: oracle/codemp/game/bg_g2_utils.c:25
 func BG_AttachToRancor(_ ghoul2: OpaquePointer?, _ rancYaw: Float, _ rancOrigin: inout JKAShared.vec3_t, _ time: Int32, _ modelList: UnsafeMutablePointer<Int32>?, _ modelScale: inout JKAShared.vec3_t, _ inMouth: Bool, _ out_origin: inout JKAShared.vec3_t, _ out_angles: inout JKAShared.vec3_t, _ out_axis: inout [JKAShared.vec3_t]) {
     // TODO: Port BG_AttachToRancor

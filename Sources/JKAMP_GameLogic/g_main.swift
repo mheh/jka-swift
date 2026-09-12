@@ -1018,6 +1018,18 @@ func G_RunFrame(_ levelTime: Int32) {
     portMissing("G_RunFrame", source: "oracle/codemp/game/g_main.c:3582")
 }
 
+/// Source: oracle/codemp/game/g_main.c:3895
+let JETPACK_DEFUEL_RATE = 200 as Int32
+
+/// Source: oracle/codemp/game/g_main.c:3896
+let JETPACK_REFUEL_RATE = 150 as Int32
+
+/// Source: oracle/codemp/game/g_main.c:3927
+let CLOAK_DEFUEL_RATE = 200 as Int32
+
+/// Source: oracle/codemp/game/g_main.c:3928
+let CLOAK_REFUEL_RATE = 150 as Int32
+
 /// Source: oracle/codemp/game/g_main.c:4104
 func G_GetStringEdString(_ refSection: inout JKAShared.CharBuf, _ refName: inout JKAShared.CharBuf) -> String {
     // TODO: Port G_GetStringEdString

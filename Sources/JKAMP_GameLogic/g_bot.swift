@@ -28,6 +28,15 @@ var g_arenaInfos: [String] {
     set { world.variables.g_arenaInfos = newValue }
 }
 
+/// Source: oracle/codemp/game/g_bot.c:16
+let BOT_BEGIN_DELAY_BASE = 2000 as Int32
+
+/// Source: oracle/codemp/game/g_bot.c:17
+let BOT_BEGIN_DELAY_INCREMENT = 1500 as Int32
+
+/// Source: oracle/codemp/game/g_bot.c:19
+let BOT_SPAWN_QUEUE_DEPTH = 16 as Int32
+
 /// Source: oracle/codemp/game/g_bot.c:27
 var botSpawnQueue: Slots<BotSpawnQueue> { world.storage.botSpawnQueue }
 

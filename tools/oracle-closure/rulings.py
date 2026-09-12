@@ -91,6 +91,9 @@ NEVER_NULL_VARS = {"pm"}
 # `bg_pool` is the raw allocation of rule 9 that `BG_Alloc` hands pointers into, `bg.pool`, sized by the consumer's `MAX_POOL_SIZE`.
 HAND_VARS = {"bg_pool": "bg.pool"}
 
+# .c macros whose value is hand work on the state object. `MAX_POOL_SIZE` is the consumer's value under rule 23, `bg.maxPoolSize`.
+HAND_MACROS = {"MAX_POOL_SIZE": "bg.maxPoolSize, the consumer's value under rule 23, which bg_local.swift forwards under Raven's name"}
+
 # MARK: - Types
 
 # C typedef -> the Swift type it is at every surface, where the C definition alone does not say.
@@ -173,6 +176,11 @@ NOT_PORTED = {
     "memmove": "the C library's, which no body of the module calls, and a Swift body moves bytes through CharBuf and a view's setter",
     "BotEntityInfo": "no caller in the module, and the botlib record it forwards belongs to the engine, which the module reaches through trap_AAS_EntityInfo alone. "
                      "A view over aas_entityinfo_t of be_aas.h is the fallback if a ported body calls it",
+}
+
+# Header macros the port leaves out, with the reason the reexport carries instead of a marker.
+NOT_PORTED_MACROS = {
+    "MATERIALS": "a list of material names no body of the module names",
 }
 
 # MARK: - The bg channel

@@ -4,6 +4,9 @@ import JKAMP
 import JKAShared
 import JKAMP_Game
 
+/// Source: oracle/codemp/game/g_saga.c:15
+let SIEGEITEM_STARTOFFRADAR = 8 as Int32
+
 /// Source: oracle/codemp/game/g_saga.c:17
 var team1: JKAShared.CharBuf {
     get { world.variables.team1 }
@@ -122,6 +125,9 @@ var gObjectiveCfgStr: JKAShared.CharBuf {
     get { world.variables.gObjectiveCfgStr }
     set { world.variables.gObjectiveCfgStr = newValue }
 }
+
+/// Source: oracle/codemp/game/g_saga.c:1336
+let SIEGE_ITEM_RESPAWN_TIME = 20000 as Int32
 
 //go through all classes on a team and register their
 //weapons and items for precaching.

@@ -4,6 +4,39 @@ import JKAMP
 import JKAShared
 import JKAMP_Game
 
+/// Source: oracle/codemp/game/NPC_AI_Grenadier.c:18
+private let MAX_VIEW_DIST = 1024 as Int32
+
+/// Source: oracle/codemp/game/NPC_AI_Grenadier.c:19
+private let MAX_VIEW_SPEED = 250 as Int32
+
+/// Source: oracle/codemp/game/NPC_AI_Grenadier.c:20
+private let MAX_LIGHT_INTENSITY = 255 as Int32
+
+/// Source: oracle/codemp/game/NPC_AI_Grenadier.c:21
+private let MIN_LIGHT_THRESHOLD = 0.1 as Double
+
+/// Source: oracle/codemp/game/NPC_AI_Grenadier.c:23
+private let DISTANCE_SCALE = 0.25 as Float
+
+/// Source: oracle/codemp/game/NPC_AI_Grenadier.c:24
+private let DISTANCE_THRESHOLD = 0.075 as Float
+
+/// Source: oracle/codemp/game/NPC_AI_Grenadier.c:25
+private let SPEED_SCALE = 0.25 as Float
+
+/// Source: oracle/codemp/game/NPC_AI_Grenadier.c:26
+private let FOV_SCALE = 0.5 as Float
+
+/// Source: oracle/codemp/game/NPC_AI_Grenadier.c:27
+private let LIGHT_SCALE = 0.25 as Float
+
+/// Source: oracle/codemp/game/NPC_AI_Grenadier.c:29
+private let REALIZE_THRESHOLD = 0.6 as Float
+
+/// Source: oracle/codemp/game/NPC_AI_Grenadier.c:30
+private let CAUTIOUS_THRESHOLD = (REALIZE_THRESHOLD * 0.75)
+
 /// Source: oracle/codemp/game/NPC_AI_Grenadier.c:34
 var enemyLOS3: Bool {
     get { world.variables.enemyLOS3 }

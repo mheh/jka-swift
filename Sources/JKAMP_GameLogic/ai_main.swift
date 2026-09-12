@@ -4,6 +4,12 @@ import JKAMP
 import JKAShared
 import JKAMP_Game
 
+/// Source: oracle/codemp/game/ai_main.c:41
+let MAX_PATH = 144 as Int32
+
+/// Source: oracle/codemp/game/ai_main.c:43
+let BOT_THINK_TIME = 0 as Int32
+
 /// Source: oracle/codemp/game/ai_main.c:46
 var botstates: Slots<BotState?> { world.storage.botstates }
 
@@ -137,6 +143,12 @@ var teamplayStateDescriptions: [String] {
     get { world.teamplayStateDescriptions }
     set { world.teamplayStateDescriptions = newValue }
 }
+
+/// Source: oracle/codemp/game/ai_main.c:1551
+let STRAFEAROUND_RIGHT = 1 as Int32
+
+/// Source: oracle/codemp/game/ai_main.c:1552
+let STRAFEAROUND_LEFT = 2 as Int32
 
 /// Source: oracle/codemp/game/ai_main.c:7485
 var gUpdateVars: Int32 {

@@ -34,8 +34,353 @@ var muzzle: JKAShared.vec3_t {
     set { world.variables.muzzle = newValue }
 }
 
+/// Source: oracle/codemp/game/g_weapon.c:18
+let BRYAR_PISTOL_VEL = 1600 as Int32
+
+/// Source: oracle/codemp/game/g_weapon.c:19
+let BRYAR_PISTOL_DAMAGE = 10 as Int32
+
+/// Source: oracle/codemp/game/g_weapon.c:20
+private let BRYAR_CHARGE_UNIT = 200.0 as Float
+
+/// Source: oracle/codemp/game/g_weapon.c:21
+let BRYAR_ALT_SIZE = 1.0 as Float
+
+/// Source: oracle/codemp/game/g_weapon.c:25
+let BLASTER_SPREAD = 1.6 as Float
+
+/// Source: oracle/codemp/game/g_weapon.c:26
+let BLASTER_VELOCITY = 2300 as Int32
+
+/// Source: oracle/codemp/game/g_weapon.c:27
+let BLASTER_DAMAGE = 20 as Int32
+
+/// Source: oracle/codemp/game/g_weapon.c:31
+let DISRUPTOR_MAIN_DAMAGE = 30 as Int32
+
+/// Source: oracle/codemp/game/g_weapon.c:32
+let DISRUPTOR_MAIN_DAMAGE_SIEGE = 50 as Int32
+
+/// Source: oracle/codemp/game/g_weapon.c:33
+let DISRUPTOR_NPC_MAIN_DAMAGE_CUT = 0.25 as Float
+
+/// Source: oracle/codemp/game/g_weapon.c:35
+let DISRUPTOR_ALT_DAMAGE = 100 as Int32
+
+/// Source: oracle/codemp/game/g_weapon.c:36
+let DISRUPTOR_NPC_ALT_DAMAGE_CUT = 0.2 as Float
+
+/// Source: oracle/codemp/game/g_weapon.c:37
+let DISRUPTOR_ALT_TRACES = 3 as Int32
+
+/// Source: oracle/codemp/game/g_weapon.c:38
+let DISRUPTOR_CHARGE_UNIT = 50.0 as Float
+
+/// Source: oracle/codemp/game/g_weapon.c:42
+let BOWCASTER_DAMAGE = 50 as Int32
+
+/// Source: oracle/codemp/game/g_weapon.c:43
+private let BOWCASTER_VELOCITY = 1300 as Int32
+
+/// Source: oracle/codemp/game/g_weapon.c:44
+private let BOWCASTER_SPLASH_DAMAGE = 0 as Int32
+
+/// Source: oracle/codemp/game/g_weapon.c:45
+private let BOWCASTER_SPLASH_RADIUS = 0 as Int32
+
+/// Source: oracle/codemp/game/g_weapon.c:46
+private let BOWCASTER_SIZE = 2 as Int32
+
+/// Source: oracle/codemp/game/g_weapon.c:48
+let BOWCASTER_ALT_SPREAD = 5.0 as Float
+
+/// Source: oracle/codemp/game/g_weapon.c:49
+let BOWCASTER_VEL_RANGE = 0.3 as Float
+
+/// Source: oracle/codemp/game/g_weapon.c:50
+private let BOWCASTER_CHARGE_UNIT = 200.0 as Float
+
+/// Source: oracle/codemp/game/g_weapon.c:54
+let REPEATER_SPREAD = 1.4 as Float
+
+/// Source: oracle/codemp/game/g_weapon.c:55
+let REPEATER_DAMAGE = 14 as Int32
+
+/// Source: oracle/codemp/game/g_weapon.c:56
+let REPEATER_VELOCITY = 1600 as Int32
+
+/// Source: oracle/codemp/game/g_weapon.c:58
+private let REPEATER_ALT_SIZE = 3 as Int32
+
+/// Source: oracle/codemp/game/g_weapon.c:59
+let REPEATER_ALT_DAMAGE = 60 as Int32
+
+/// Source: oracle/codemp/game/g_weapon.c:60
+let REPEATER_ALT_SPLASH_DAMAGE = 60 as Int32
+
+/// Source: oracle/codemp/game/g_weapon.c:61
+let REPEATER_ALT_SPLASH_RADIUS = 128 as Int32
+
+/// Source: oracle/codemp/game/g_weapon.c:62
+let REPEATER_ALT_SPLASH_RAD_SIEGE = 80 as Int32
+
+/// Source: oracle/codemp/game/g_weapon.c:63
+let REPEATER_ALT_VELOCITY = 1100 as Int32
+
+/// Source: oracle/codemp/game/g_weapon.c:67
+let DEMP2_DAMAGE = 35 as Int32
+
+/// Source: oracle/codemp/game/g_weapon.c:68
+let DEMP2_VELOCITY = 1800 as Int32
+
+/// Source: oracle/codemp/game/g_weapon.c:69
+let DEMP2_SIZE = 2 as Int32
+
+/// Source: oracle/codemp/game/g_weapon.c:71
+let DEMP2_ALT_DAMAGE = 8 as Int32
+
+/// Source: oracle/codemp/game/g_weapon.c:72
+let DEMP2_CHARGE_UNIT = 700.0 as Float
+
+/// Source: oracle/codemp/game/g_weapon.c:73
+let DEMP2_ALT_RANGE = 4096 as Int32
+
+/// Source: oracle/codemp/game/g_weapon.c:74
+let DEMP2_ALT_SPLASHRADIUS = 256 as Int32
+
+/// Source: oracle/codemp/game/g_weapon.c:78
+let FLECHETTE_SHOTS = 5 as Int32
+
+/// Source: oracle/codemp/game/g_weapon.c:79
+let FLECHETTE_SPREAD = 4.0 as Float
+
+/// Source: oracle/codemp/game/g_weapon.c:80
+let FLECHETTE_DAMAGE = 12 as Int32
+
+/// Source: oracle/codemp/game/g_weapon.c:81
+let FLECHETTE_VEL = 3500 as Int32
+
+/// Source: oracle/codemp/game/g_weapon.c:82
+let FLECHETTE_SIZE = 1 as Int32
+
+/// Source: oracle/codemp/game/g_weapon.c:83
+let FLECHETTE_MINE_RADIUS_CHECK = 256 as Int32
+
+/// Source: oracle/codemp/game/g_weapon.c:84
+let FLECHETTE_ALT_DAMAGE = 60 as Int32
+
+/// Source: oracle/codemp/game/g_weapon.c:85
+let FLECHETTE_ALT_SPLASH_DAM = 60 as Int32
+
+/// Source: oracle/codemp/game/g_weapon.c:86
+let FLECHETTE_ALT_SPLASH_RAD = 128 as Int32
+
+/// Source: oracle/codemp/game/g_weapon.c:90
+let ROCKET_VELOCITY = 900 as Int32
+
+/// Source: oracle/codemp/game/g_weapon.c:91
+let ROCKET_DAMAGE = 100 as Int32
+
+/// Source: oracle/codemp/game/g_weapon.c:92
+let ROCKET_SPLASH_DAMAGE = 100 as Int32
+
+/// Source: oracle/codemp/game/g_weapon.c:93
+let ROCKET_SPLASH_RADIUS = 160 as Int32
+
+/// Source: oracle/codemp/game/g_weapon.c:94
+let ROCKET_SIZE = 3 as Int32
+
+/// Source: oracle/codemp/game/g_weapon.c:95
+let ROCKET_ALT_THINK_TIME = 100 as Int32
+
+/// Source: oracle/codemp/game/g_weapon.c:102
+let CONC_VELOCITY = 3000 as Int32
+
+/// Source: oracle/codemp/game/g_weapon.c:103
+let CONC_DAMAGE = 75 as Int32
+
+/// Source: oracle/codemp/game/g_weapon.c:104
+let CONC_NPC_DAMAGE_EASY = 40 as Int32
+
+/// Source: oracle/codemp/game/g_weapon.c:105
+let CONC_NPC_DAMAGE_NORMAL = 80 as Int32
+
+/// Source: oracle/codemp/game/g_weapon.c:106
+let CONC_NPC_DAMAGE_HARD = 100 as Int32
+
+/// Source: oracle/codemp/game/g_weapon.c:107
+let CONC_SPLASH_DAMAGE = 40 as Int32
+
+/// Source: oracle/codemp/game/g_weapon.c:108
+let CONC_SPLASH_RADIUS = 200 as Int32
+
+/// Source: oracle/codemp/game/g_weapon.c:110
+let CONC_ALT_DAMAGE = 25 as Int32
+
+/// Source: oracle/codemp/game/g_weapon.c:111
+let CONC_ALT_NPC_DAMAGE_EASY = 20 as Int32
+
+/// Source: oracle/codemp/game/g_weapon.c:112
+let CONC_ALT_NPC_DAMAGE_MEDIUM = 35 as Int32
+
+/// Source: oracle/codemp/game/g_weapon.c:113
+let CONC_ALT_NPC_DAMAGE_HARD = 50 as Int32
+
+/// Source: oracle/codemp/game/g_weapon.c:117
+let STUN_BATON_DAMAGE = 20 as Int32
+
+/// Source: oracle/codemp/game/g_weapon.c:118
+let STUN_BATON_ALT_DAMAGE = 20 as Int32
+
+/// Source: oracle/codemp/game/g_weapon.c:119
+let STUN_BATON_RANGE = 8 as Int32
+
+/// Source: oracle/codemp/game/g_weapon.c:123
+let MELEE_SWING1_DAMAGE = 10 as Int32
+
+/// Source: oracle/codemp/game/g_weapon.c:124
+let MELEE_SWING2_DAMAGE = 12 as Int32
+
+/// Source: oracle/codemp/game/g_weapon.c:125
+let MELEE_RANGE = 8 as Int32
+
+/// Source: oracle/codemp/game/g_weapon.c:129
+let ATST_MAIN_VEL = 4000 as Int32
+
+/// Source: oracle/codemp/game/g_weapon.c:130
+let ATST_MAIN_DAMAGE = 25 as Int32
+
+/// Source: oracle/codemp/game/g_weapon.c:131
+let ATST_MAIN_SIZE = 3 as Int32
+
+/// Source: oracle/codemp/game/g_weapon.c:135
+let ATST_SIDE_MAIN_DAMAGE = 75 as Int32
+
+/// Source: oracle/codemp/game/g_weapon.c:136
+let ATST_SIDE_MAIN_VELOCITY = 1300 as Int32
+
+/// Source: oracle/codemp/game/g_weapon.c:137
+let ATST_SIDE_MAIN_NPC_DAMAGE_EASY = 30 as Int32
+
+/// Source: oracle/codemp/game/g_weapon.c:138
+let ATST_SIDE_MAIN_NPC_DAMAGE_NORMAL = 40 as Int32
+
+/// Source: oracle/codemp/game/g_weapon.c:139
+let ATST_SIDE_MAIN_NPC_DAMAGE_HARD = 50 as Int32
+
+/// Source: oracle/codemp/game/g_weapon.c:140
+let ATST_SIDE_MAIN_SIZE = 4 as Int32
+
+/// Source: oracle/codemp/game/g_weapon.c:141
+let ATST_SIDE_MAIN_SPLASH_DAMAGE = 10 as Int32
+
+/// Source: oracle/codemp/game/g_weapon.c:142
+let ATST_SIDE_MAIN_SPLASH_RADIUS = 16 as Int32
+
+/// Source: oracle/codemp/game/g_weapon.c:144
+let ATST_SIDE_ALT_VELOCITY = 1100 as Int32
+
+/// Source: oracle/codemp/game/g_weapon.c:145
+let ATST_SIDE_ALT_NPC_VELOCITY = 600 as Int32
+
+/// Source: oracle/codemp/game/g_weapon.c:146
+let ATST_SIDE_ALT_DAMAGE = 130 as Int32
+
+/// Source: oracle/codemp/game/g_weapon.c:148
+let ATST_SIDE_ROCKET_NPC_DAMAGE_EASY = 30 as Int32
+
+/// Source: oracle/codemp/game/g_weapon.c:149
+let ATST_SIDE_ROCKET_NPC_DAMAGE_NORMAL = 50 as Int32
+
+/// Source: oracle/codemp/game/g_weapon.c:150
+let ATST_SIDE_ROCKET_NPC_DAMAGE_HARD = 90 as Int32
+
+/// Source: oracle/codemp/game/g_weapon.c:152
+let ATST_SIDE_ALT_SPLASH_DAMAGE = 130 as Int32
+
+/// Source: oracle/codemp/game/g_weapon.c:153
+let ATST_SIDE_ALT_SPLASH_RADIUS = 200 as Int32
+
+/// Source: oracle/codemp/game/g_weapon.c:154
+let ATST_SIDE_ALT_ROCKET_SIZE = 5 as Int32
+
+/// Source: oracle/codemp/game/g_weapon.c:155
+let ATST_SIDE_ALT_ROCKET_SPLASH_SCALE = 0.5 as Float
+
 /// Source: oracle/codemp/game/g_weapon.c:1162
 var ent_list: Slots<Entity?> { world.storage.ent_list }
+
+/// Source: oracle/codemp/game/g_weapon.c:1918
+let TD_DAMAGE = 70 as Int32
+
+/// Source: oracle/codemp/game/g_weapon.c:1919
+let TD_SPLASH_RAD = 128 as Int32
+
+/// Source: oracle/codemp/game/g_weapon.c:1920
+let TD_SPLASH_DAM = 90 as Int32
+
+/// Source: oracle/codemp/game/g_weapon.c:1921
+let TD_VELOCITY = 900 as Int32
+
+/// Source: oracle/codemp/game/g_weapon.c:1922
+let TD_MIN_CHARGE = 0.15 as Float
+
+/// Source: oracle/codemp/game/g_weapon.c:1923
+let TD_TIME = 3000 as Int32
+
+/// Source: oracle/codemp/game/g_weapon.c:1924
+let TD_ALT_TIME = 3000 as Int32
+
+/// Source: oracle/codemp/game/g_weapon.c:1926
+let TD_ALT_DAMAGE = 60 as Int32
+
+/// Source: oracle/codemp/game/g_weapon.c:1927
+let TD_ALT_SPLASH_RAD = 128 as Int32
+
+/// Source: oracle/codemp/game/g_weapon.c:1928
+let TD_ALT_SPLASH_DAM = 50 as Int32
+
+/// Source: oracle/codemp/game/g_weapon.c:1929
+let TD_ALT_VELOCITY = 600 as Int32
+
+/// Source: oracle/codemp/game/g_weapon.c:1930
+let TD_ALT_MIN_CHARGE = 0.15 as Float
+
+/// Source: oracle/codemp/game/g_weapon.c:2235
+let LT_DAMAGE = 100 as Int32
+
+/// Source: oracle/codemp/game/g_weapon.c:2236
+let LT_SPLASH_RAD = 256.0 as Float
+
+/// Source: oracle/codemp/game/g_weapon.c:2237
+let LT_SPLASH_DAM = 105 as Int32
+
+/// Source: oracle/codemp/game/g_weapon.c:2238
+let LT_VELOCITY = 900.0 as Float
+
+/// Source: oracle/codemp/game/g_weapon.c:2239
+let LT_SIZE = 1.5 as Float
+
+/// Source: oracle/codemp/game/g_weapon.c:2240
+let LT_ALT_TIME = 2000 as Int32
+
+/// Source: oracle/codemp/game/g_weapon.c:2241
+let LT_ACTIVATION_DELAY = 1000 as Int32
+
+/// Source: oracle/codemp/game/g_weapon.c:2242
+let LT_DELAY_TIME = 50 as Int32
+
+/// Source: oracle/codemp/game/g_weapon.c:3627
+let VEH_HOMING_MISSILE_THINK_TIME = 100 as Int32
+
+/// Source: oracle/codemp/game/g_weapon.c:4049
+private let MAX_XHAIR_DIST_ACCURACY = 20000.0 as Float
+
+/// Source: oracle/codemp/game/g_weapon.c:4662
+let EMPLACED_CANRESPAWN = 1 as Int32
+
+/// Source: oracle/codemp/game/g_weapon.c:4825
+let EMPLACED_GUN_HEALTH = 800 as Int32
 
 /// Source: oracle/codemp/game/g_weapon.c:165
 func touch_NULL(_ ent: Entity, _ other: Entity, _ trace: JKAMP.Trace) {

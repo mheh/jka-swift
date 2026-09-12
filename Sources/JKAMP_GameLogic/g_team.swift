@@ -11,6 +11,9 @@ var teamgame: Teamgame { world.storage.teamgame }
 // Raven wrote: static char ctfFlagStatusRemap[] = { '0', '1', '*', '*', '2' }
 nonisolated(unsafe) let ctfFlagStatusRemap: JKAShared.CharBuf = { () -> JKAShared.CharBuf in portMissing("ctfFlagStatusRemap", source: "oracle/codemp/game/g_team.c:279") }()
 
+/// Source: oracle/codemp/game/g_team.c:950
+let MAX_TEAM_SPAWN_POINTS = 32 as Int32
+
 /// Source: oracle/codemp/game/g_team.c:22
 func Team_InitGame() {
     // TODO: Port Team_InitGame

@@ -29,6 +29,8 @@ from pathlib import Path
 import clang.cindex as ci
 from clang.cindex import CursorKind, TypeKind
 
+from rulings import NOT_PORTED_MACROS
+
 HERE = Path(__file__).resolve().parent
 REPO = HERE.parent.parent
 SOURCES = REPO / "Sources"
@@ -91,12 +93,17 @@ def source_lines(cur: ci.Cursor) -> list[str]:
     return list(reversed(out))
 
 
-def swift_expression(cur: ci.Cursor, enum_of: dict[str, str], declared: dict[str, str], narrow: bool = False) -> str | None:
-    """Raven's macro body as a Swift expression, or None when a token has no Swift spelling, such as a cast or sizeof."""
+def swift_expression(cur: ci.Cursor, enum_of: dict[str, str], declared: dict[str, str], narrow: bool = False,
+                     local: set[str] | None = None, float_suffix: bool = False) -> str | None:
+    """Raven's macro body as a Swift expression, or None when a token has no Swift spelling, such as a cast or sizeof.
+    `local` names the macros of the same .c file, which a stub spells bare, and any other unqualified name is a miss.
+    `float_suffix` types a literal Raven wrote with `f` as Float, the C type, for a stub's let."""
     tokens = [t.spelling for t in cur.get_tokens()][1:]
     out: list[str] = []
     literal_only = True
     has_float = False
+    has_float_suffix = False
+    has_string = False
     for tok in tokens:
         if re.fullmatch(r"0[xX][0-9a-fA-F]+[uUlL]*", tok):
             out.append(re.sub(r"[uUlL]+$", "", tok))
@@ -105,8 +112,18 @@ def swift_expression(cur: ci.Cursor, enum_of: dict[str, str], declared: dict[str
         elif re.fullmatch(r"\d+[uUlL]*", tok):
             out.append(re.sub(r"[uUlL]+$", "", tok))
         elif re.fullmatch(r"(\d+\.\d*|\.\d+|\d+)([eE][+-]?\d+)?[fFlL]?", tok):
-            out.append(re.sub(r"[fFlL]$", "", tok))
+            out.append(re.sub(r"[fFlL]$", "", tok) + ("0" if tok.rstrip("fFlL").endswith(".") else ""))
             has_float = True
+            has_float_suffix = has_float_suffix or tok[-1] in "fF"
+        elif tok.startswith('"') and tok.endswith('"') and len(tok) >= 2:
+            # A string literal macro, `#define DEFAULT_SABER "Kyle"`, is a String constant. C's hex and octal escapes take Swift's `\u{}` form.
+            spelled = re.sub(r"\\x([0-9a-fA-F]{1,2})", lambda m: "\\u{" + m.group(1) + "}", tok)
+            spelled = re.sub(r"\\([0-7]{1,3})", lambda m: "\\u{" + format(int(m.group(1), 8), "x") + "}", spelled)
+            out.append(spelled)
+            has_string = True
+        elif tok in ("qtrue", "qfalse"):
+            out.append("true" if tok == "qtrue" else "false")
+            literal_only = False
         elif re.fullmatch(r"'(\\?.)'", tok):
             out.append(f'Int32(UInt8(ascii: "{tok[1:-1]}"))')
             literal_only = False
@@ -121,6 +138,8 @@ def swift_expression(cur: ci.Cursor, enum_of: dict[str, str], declared: dict[str
             # umbrella's export, and Swift calls the two ambiguous. A name of this target shadows the import and stays bare.
             # An enumerator is a bare constant of its enum's module, so it qualifies the same way as its enum.
             module = declared.get(enum_of.get(tok, ""), declared.get(tok))
+            if local is not None and module is None and tok not in local:
+                return None
             spelled = f"{module}.{tok}" if module else tok
             # Raven mixes constants Clang imported as Int32 and UInt32 in one mask, and Swift's checker gives up on the mix.
             out.append(f"Int32(truncatingIfNeeded: {spelled})" if narrow else spelled)
@@ -130,8 +149,10 @@ def swift_expression(cur: ci.Cursor, enum_of: dict[str, str], declared: dict[str
     if not out:
         return None
     text = " ".join(out).replace("\0 ", "").replace("( ", "(").replace(" )", ")")
+    if literal_only and has_string:
+        return text if len(out) == 1 else None
     if literal_only:
-        return f"{text} as {'Double' if has_float else 'Int32'}"
+        return f"{text} as {('Float' if float_suffix and has_float_suffix else 'Double') if has_float else 'Int32'}"
     return f"{text} as Int32" if narrow else text
 
 
@@ -168,6 +189,11 @@ def emit(target: str, unimportable: set[str], narrowed: set[str], unexpressible:
             continue
         if cur.kind == CursorKind.MACRO_DEFINITION:
             name = cur.spelling
+            # A .c file's macros are constants of that file, and skeleton.py writes them into its stub at Raven's line.
+            # extract.py copied them into a per-stem header, so the oracle cite says where Raven wrote them.
+            origins = source_lines(cur)
+            if origins and origins[0].rsplit(":", 1)[0].endswith(".c"):
+                continue
             # An include guard and QDECL have no body, GAME_INLINE is a keyword, and nothing reads those from Swift.
             tokens = [t.spelling for t in cur.get_tokens()][1:]
             if is_function_like(cur) or name in seen or name in SKIP or not tokens or set(tokens) <= KEYWORD_MACROS:
@@ -176,7 +202,9 @@ def emit(target: str, unimportable: set[str], narrowed: set[str], unexpressible:
             sources = source_lines(cur)
             block = doc(sources)
             expression = swift_expression(cur, enum_of, declared, narrow=name in narrowed) if name in unimportable else None
-            if name in unexpressible or (name in unimportable and expression is None):
+            if name in NOT_PORTED_MACROS:
+                block += [f"// Raven wrote: #define {macro_text(cur)}", f"// Not ported: {NOT_PORTED_MACROS[name]}."]
+            elif name in unexpressible or (name in unimportable and expression is None):
                 # Rule 14: a placeholder constant carries the marker alone, and the C text says what it must become.
                 block += [f"// TODO: Port {name}", f"// Raven wrote: #define {macro_text(cur)}"]
             elif name in unimportable:

@@ -11,6 +11,12 @@ var modNames: [String] {
     set { world.modNames = newValue }
 }
 
+/// Source: oracle/codemp/game/g_combat.c:1866
+let DEATH_ALERT_RADIUS = 512 as Int32
+
+/// Source: oracle/codemp/game/g_combat.c:1867
+let DEATH_ALERT_SOUND_RADIUS = 512 as Int32
+
 /// Source: oracle/codemp/game/g_combat.c:3165
 /// Raven's data table, a hand property of `GameWorld`.
 var hitLocName: [String] {

@@ -284,5 +284,5 @@ public let MATERIAL_LAST = CJKAShared.MATERIAL_LAST
 
 /// Source: oracle/codemp/game/surfaceflags.h:90
 /// Source: oracle/code/game/surfaceflags.h:96
-// TODO: Port MATERIALS
 // Raven wrote: #define MATERIALS "none" , "solidwood" , "hollowwood" , "solidmetal" , "hollowmetal" , "shortgrass" , "longgrass" , "dirt" , "sand" , "gravel" , "glass" , "concrete" , "marble" , "water" , "snow" , "ice" , "flesh" , "mud" , "bpglass" , "dryleaves" , "greenleaves" , "fabric" , "canvas" , "rock" , "rubber" , "plastic" , "tiles" , "carpet" , "plaster" , "shatterglass" , "armor" , "computer"
+// Not ported: a list of material names no body of the module names.

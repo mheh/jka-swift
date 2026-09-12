@@ -4,11 +4,44 @@ import JKAMP
 import JKAShared
 import JKAMP_Game
 
+/// Source: oracle/codemp/game/w_saber.c:7
+let SABER_BOX_SIZE = 16.0 as Float
+
 /// Source: oracle/codemp/game/w_saber.c:18
 var saberSpinSound: Int32 {
     get { world.variables.saberSpinSound }
     set { world.variables.saberSpinSound = newValue }
 }
+
+/// Source: oracle/codemp/game/w_saber.c:284
+let PROPER_THROWN_VALUE = 999 as Int32
+
+/// Source: oracle/codemp/game/w_saber.c:639
+let LOOK_DEFAULT_SPEED = 0.15 as Float
+
+/// Source: oracle/codemp/game/w_saber.c:640
+let LOOK_TALKING_SPEED = 0.15 as Float
+
+/// Source: oracle/codemp/game/w_saber.c:1088
+let LOCK_IDEAL_DIST_TOP = 32.0 as Float
+
+/// Source: oracle/codemp/game/w_saber.c:1089
+let LOCK_IDEAL_DIST_CIRCLE = 48.0 as Float
+
+/// Source: oracle/codemp/game/w_saber.c:1091
+let SABER_HITDAMAGE = 35 as Int32
+
+/// Source: oracle/codemp/game/w_saber.c:1216
+let LOCK_IDEAL_DIST_JKA = 46.0 as Float
+
+/// Source: oracle/codemp/game/w_saber.c:2235
+let SABER_NONATTACK_DAMAGE = 1 as Int32
+
+/// Source: oracle/codemp/game/w_saber.c:2850
+let SABER_EXTRAPOLATE_DIST = 16.0 as Float
+
+/// Source: oracle/codemp/game/w_saber.c:3503
+let MAX_SABER_VICTIMS = 16 as Int32
 
 /// Source: oracle/codemp/game/w_saber.c:3504
 var victimEntityNum: [Int32] {
@@ -98,6 +131,37 @@ var saberHitFraction: Float {
     get { world.variables.saberHitFraction }
     set { world.variables.saberHitFraction = newValue }
 }
+
+/// Source: oracle/codemp/game/w_saber.c:5284
+let MAX_SABER_SWING_INC = 0.33 as Float
+
+/// Source: oracle/codemp/game/w_saber.c:5885
+let MIN_SABER_SLICE_DISTANCE = 50 as Int32
+
+/// Source: oracle/codemp/game/w_saber.c:5887
+let MIN_SABER_SLICE_RETURN_DISTANCE = 30 as Int32
+
+/// Source: oracle/codemp/game/w_saber.c:5889
+let SABER_THROWN_HIT_DAMAGE = 30 as Int32
+
+/// Source: oracle/codemp/game/w_saber.c:5890
+let SABER_THROWN_RETURN_HIT_DAMAGE = 5 as Int32
+
+/// Source: oracle/codemp/game/w_saber.c:6337
+let MAX_LEAVE_TIME = 20000 as Int32
+
+/// Source: oracle/codemp/game/w_saber.c:6510
+let SABER_RETRIEVE_DELAY = 3000 as Int32
+
+/// Source: oracle/codemp/game/w_saber.c:6587
+// Raven wrote: #define SABERINVALID ( ! saberent || ! saberOwner || ! other || ! saberent -> inuse || ! saberOwner -> inuse || ! other -> inuse || ! saberOwner -> client || ! other -> client || ! saberOwner -> client -> ps . saberEntityNum || saberOwner -> client -> ps . saberLockTime > ( level . time - 100 ) )
+// The macro's text is not a constant over this file's names, so a body spells its expansion at the site.
+
+/// Source: oracle/codemp/game/w_saber.c:7115
+let SABER_MAX_THROW_DISTANCE = 700 as Int32
+
+/// Source: oracle/codemp/game/w_saber.c:7470
+let STAFF_KICK_RANGE = 16 as Int32
 
 /// Source: oracle/codemp/game/w_saber.c:39
 func RandFloat(_ min: Float, _ max: Float) -> Float {

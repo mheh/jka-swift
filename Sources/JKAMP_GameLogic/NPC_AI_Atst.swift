@@ -4,6 +4,27 @@ import JKAMP
 import JKAShared
 import JKAMP_Game
 
+/// Source: oracle/codemp/game/NPC_AI_Atst.c:3
+private let MIN_MELEE_RANGE = 640 as Int32
+
+/// Source: oracle/codemp/game/NPC_AI_Atst.c:4
+private let MIN_MELEE_RANGE_SQR = (MIN_MELEE_RANGE * MIN_MELEE_RANGE)
+
+/// Source: oracle/codemp/game/NPC_AI_Atst.c:6
+private let MIN_DISTANCE = 128 as Int32
+
+/// Source: oracle/codemp/game/NPC_AI_Atst.c:7
+private let MIN_DISTANCE_SQR = (MIN_DISTANCE * MIN_DISTANCE)
+
+/// Source: oracle/codemp/game/NPC_AI_Atst.c:9
+private let TURN_OFF = 0x00000100 as Int32
+
+/// Source: oracle/codemp/game/NPC_AI_Atst.c:11
+private let LEFT_ARM_HEALTH = 40 as Int32
+
+/// Source: oracle/codemp/game/NPC_AI_Atst.c:12
+private let RIGHT_ARM_HEALTH = 40 as Int32
+
 /**
 ```
 -------------------------

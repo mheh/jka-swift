@@ -3,6 +3,9 @@
 import JKAMP
 import JKAShared
 
+/// Source: oracle/codemp/game/bg_saga.c:17
+let SIEGECHAR_TAB = 9 as Int32
+
 /// Source: oracle/codemp/game/bg_saga.c:32
 var siege_info: JKAShared.CharBuf {
     get { bg.variables.siege_info }

@@ -4,6 +4,48 @@ import JKAMP
 import JKAShared
 import JKAMP_Game
 
+/// Source: oracle/codemp/game/NPC_AI_Stormtrooper.c:20
+private let MAX_VIEW_DIST = 1024 as Int32
+
+/// Source: oracle/codemp/game/NPC_AI_Stormtrooper.c:21
+private let MAX_VIEW_SPEED = 250 as Int32
+
+/// Source: oracle/codemp/game/NPC_AI_Stormtrooper.c:22
+private let MAX_LIGHT_INTENSITY = 255 as Int32
+
+/// Source: oracle/codemp/game/NPC_AI_Stormtrooper.c:23
+private let MIN_LIGHT_THRESHOLD = 0.1 as Double
+
+/// Source: oracle/codemp/game/NPC_AI_Stormtrooper.c:24
+let ST_MIN_LIGHT_THRESHOLD = 30 as Int32
+
+/// Source: oracle/codemp/game/NPC_AI_Stormtrooper.c:25
+let ST_MAX_LIGHT_THRESHOLD = 180 as Int32
+
+/// Source: oracle/codemp/game/NPC_AI_Stormtrooper.c:26
+private let DISTANCE_THRESHOLD = 0.075 as Float
+
+/// Source: oracle/codemp/game/NPC_AI_Stormtrooper.c:28
+private let DISTANCE_SCALE = 0.35 as Float
+
+/// Source: oracle/codemp/game/NPC_AI_Stormtrooper.c:29
+private let FOV_SCALE = 0.40 as Float
+
+/// Source: oracle/codemp/game/NPC_AI_Stormtrooper.c:30
+private let LIGHT_SCALE = 0.25 as Float
+
+/// Source: oracle/codemp/game/NPC_AI_Stormtrooper.c:32
+private let SPEED_SCALE = 0.25 as Float
+
+/// Source: oracle/codemp/game/NPC_AI_Stormtrooper.c:33
+let TURNING_SCALE = 0.25 as Float
+
+/// Source: oracle/codemp/game/NPC_AI_Stormtrooper.c:35
+private let REALIZE_THRESHOLD = 0.6 as Float
+
+/// Source: oracle/codemp/game/NPC_AI_Stormtrooper.c:36
+private let CAUTIOUS_THRESHOLD = (REALIZE_THRESHOLD * 0.75)
+
 /// Source: oracle/codemp/game/NPC_AI_Stormtrooper.c:40
 var enemyLOS: Bool {
     get { world.variables.enemyLOS }
@@ -63,6 +105,9 @@ var groupSpeechDebounceTime: [Int32] {
     get { world.variables.groupSpeechDebounceTime }
     set { world.variables.groupSpeechDebounceTime = newValue }
 }
+
+/// Source: oracle/codemp/game/NPC_AI_Stormtrooper.c:764
+private let MAX_CHECK_THRESHOLD = 1 as Int32
 
 /// Source: oracle/codemp/game/NPC_AI_Stormtrooper.c:60
 func ST_AggressionAdjust(_ `self`: Entity, _ change: Int32) {

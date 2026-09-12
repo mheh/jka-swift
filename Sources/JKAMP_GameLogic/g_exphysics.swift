@@ -4,6 +4,9 @@ import JKAMP
 import JKAShared
 import JKAMP_Game
 
+/// Source: oracle/codemp/game/g_exphysics.c:16
+let MAX_GRAVITY_PULL = 512 as Int32
+
 //Run physics on the object (purely origin-related) using custom epVelocity entity
 //state value. Origin smoothing on the client is expected to compensate for choppy
 //movement.

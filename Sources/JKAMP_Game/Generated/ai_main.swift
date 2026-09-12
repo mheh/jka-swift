@@ -157,18 +157,6 @@ public let BOT_FLAG_GET_DISTANCE = CJKAMP_Game.BOT_FLAG_GET_DISTANCE
 /// Source: oracle/codemp/game/ai_main.h:79
 public let BOT_SABER_THROW_RANGE = CJKAMP_Game.BOT_SABER_THROW_RANGE
 
-/// Source: oracle/codemp/game/ai_main.c:41
-public let MAX_PATH = CJKAMP_Game.MAX_PATH
-
-/// Source: oracle/codemp/game/ai_main.c:43
-public let BOT_THINK_TIME = CJKAMP_Game.BOT_THINK_TIME
-
-/// Source: oracle/codemp/game/ai_main.c:1551
-public let STRAFEAROUND_RIGHT = CJKAMP_Game.STRAFEAROUND_RIGHT
-
-/// Source: oracle/codemp/game/ai_main.c:1552
-public let STRAFEAROUND_LEFT = CJKAMP_Game.STRAFEAROUND_LEFT
-
 /// Source: oracle/codemp/game/ai_main.h:81
 public typealias bot_ctf_state_t = Int32
 public let CTFSTATE_NONE: bot_ctf_state_t = Int32(truncatingIfNeeded: CJKAMP_Game.CTFSTATE_NONE.rawValue)

@@ -3,6 +3,18 @@
 import JKAMP
 import JKAShared
 
+/// Source: oracle/codemp/game/bg_saber.c:114
+let AFLAG_IDLE = (JKAShared.SETANIM_FLAG_NORMAL)
+
+/// Source: oracle/codemp/game/bg_saber.c:115
+let AFLAG_ACTIVE = (JKAShared.SETANIM_FLAG_OVERRIDE | JKAShared.SETANIM_FLAG_HOLD | JKAShared.SETANIM_FLAG_HOLDLESS)
+
+/// Source: oracle/codemp/game/bg_saber.c:116
+let AFLAG_WAIT = (JKAShared.SETANIM_FLAG_HOLD | JKAShared.SETANIM_FLAG_HOLDLESS)
+
+/// Source: oracle/codemp/game/bg_saber.c:117
+let AFLAG_FINISH = (JKAShared.SETANIM_FLAG_HOLD)
+
 /// Source: oracle/codemp/game/bg_saber.c:120
 // TODO: Port global saberMoveData
 // Raven wrote: saberMoveData_t saberMoveData[LS_MOVE_MAX]
@@ -15,6 +27,21 @@ let transitionMove: [[Int32]] = { () -> [[Int32]] in portMissing("transitionMove
 /// Source: oracle/codemp/game/bg_saber.c:715
 // Raven wrote: int saberMoveTransitionAngle[Q_NUM_QUADS][Q_NUM_QUADS]
 let saberMoveTransitionAngle: [[Int32]] = { () -> [[Int32]] in portMissing("saberMoveTransitionAngle", source: "oracle/codemp/game/bg_saber.c:715") }()
+
+/// Source: oracle/codemp/game/bg_saber.c:1623
+let BACK_STAB_DISTANCE = 128 as Int32
+
+/// Source: oracle/codemp/game/bg_saber.c:1802
+let FLIPHACK_DISTANCE = 200 as Int32
+
+/// Source: oracle/codemp/game/bg_saber.c:2112
+let SABER_ALT_ATTACK_POWER = 50 as Int32
+
+/// Source: oracle/codemp/game/bg_saber.c:2113
+let SABER_ALT_ATTACK_POWER_LR = 10 as Int32
+
+/// Source: oracle/codemp/game/bg_saber.c:2114
+let SABER_ALT_ATTACK_POWER_FB = 25 as Int32
 
 /// Source: oracle/codemp/game/bg_saber.c:2777
 // Raven wrote: int bg_parryDebounce[NUM_FORCE_POWER_LEVELS]

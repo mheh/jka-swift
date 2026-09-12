@@ -1660,6 +1660,10 @@ func BG_ModelCache(_ modelName: String, _ skinName: String) -> Int32 {
     }
 }
 
+/// Source: oracle/codemp/game/bg_misc.c:3312
+// Raven wrote: #define MAX_POOL_SIZE 3000000
+// A hand value: bg.maxPoolSize, the consumer's value under rule 23, which bg_local.swift forwards under Raven's name.
+
 /// Source: oracle/codemp/game/bg_misc.c:3324
 // Raven wrote: static char bg_pool[MAX_POOL_SIZE]
 // A hand property of the state object, `bg.pool`, by the HAND_VARS ruling.

@@ -4,6 +4,24 @@ import JKAMP
 import JKAShared
 import JKAMP_Game
 
+/// Source: oracle/codemp/game/NPC_combat.c:44
+let ANGER_ALERT_RADIUS = 512 as Int32
+
+/// Source: oracle/codemp/game/NPC_combat.c:45
+let ANGER_ALERT_SOUND_RADIUS = 256 as Int32
+
+/// Source: oracle/codemp/game/NPC_combat.c:2652
+let MIN_AVOID_DOT = 0.75 as Float
+
+/// Source: oracle/codemp/game/NPC_combat.c:2653
+let MIN_AVOID_DISTANCE = 128 as Int32
+
+/// Source: oracle/codemp/game/NPC_combat.c:2654
+let MIN_AVOID_DISTANCE_SQUARED = (MIN_AVOID_DISTANCE * MIN_AVOID_DISTANCE)
+
+/// Source: oracle/codemp/game/NPC_combat.c:2655
+let CP_COLLECT_RADIUS = 512.0 as Float
+
 /// Source: oracle/codemp/game/NPC_combat.c:17
 func G_ClearEnemy(_ `self`: Entity) {
     // TODO: Port G_ClearEnemy

@@ -4,6 +4,27 @@ import JKAMP
 import JKAShared
 import JKAMP_Game
 
+/// Source: oracle/codemp/game/NPC_AI_Mark2.c:5
+private let AMMO_POD_HEALTH = 1 as Int32
+
+/// Source: oracle/codemp/game/NPC_AI_Mark2.c:6
+private let TURN_OFF = 0x00000100 as Int32
+
+/// Source: oracle/codemp/game/NPC_AI_Mark2.c:8
+private let VELOCITY_DECAY = 0.25 as Double
+
+/// Source: oracle/codemp/game/NPC_AI_Mark2.c:9
+private let MAX_DISTANCE = 256 as Int32
+
+/// Source: oracle/codemp/game/NPC_AI_Mark2.c:10
+private let MAX_DISTANCE_SQR = (MAX_DISTANCE * MAX_DISTANCE)
+
+/// Source: oracle/codemp/game/NPC_AI_Mark2.c:11
+private let MIN_DISTANCE = 24 as Int32
+
+/// Source: oracle/codemp/game/NPC_AI_Mark2.c:12
+private let MIN_DISTANCE_SQR = (MIN_DISTANCE * MIN_DISTANCE)
+
 /// Source: oracle/codemp/game/NPC_AI_Mark2.c:27
 func NPC_Mark2_Precache() {
     // TODO: Port NPC_Mark2_Precache

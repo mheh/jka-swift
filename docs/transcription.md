@@ -171,6 +171,15 @@ public func _DotProduct(_ v1: vec3_t, _ v2: vec3_t) -> vec_t {
 }
 ```
 
+### A macro inside a `.c` file
+
+An object-like macro Raven wrote inside a `.c` file is a constant of that file, and its stub carries it as a file-scope `let` at Raven's line, `let MAX_DISTANCE = 128 as Int32`, `private` where another file defines the name with its own value.
+A literal Raven wrote with `f` is a `Float`, and one without is a `Double`, C's types.
+A macro over the same file's names is a `let` over them, `let MAX_DISTANCE_SQR = (MAX_DISTANCE * MAX_DISTANCE)`.
+A macro whose text is not a constant over the file's names, such as `SLOPERECALCVAR` over `pm->ps`, has an entry that says so, and a body spells the expansion at the site with Raven's name in a one-line comment at the first use.
+A macro that aliases a keyword, `#define true qtrue`, writes nothing, and a name in `HAND_MACROS` of `rulings.py`, `MAX_POOL_SIZE`, is a hand value of the state object.
+The reexport carries the header macros and the enums, never a `.c` file's macros.
+
 ### Function-like macros
 
 A function-like macro that a body uses is a hand Swift function of the same name, with a `/// Source:` cite to its `#define`.

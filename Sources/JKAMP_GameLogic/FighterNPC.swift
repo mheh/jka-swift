@@ -4,6 +4,56 @@ import JKAMP
 import JKAShared
 import JKAMP_Game
 
+/// Source: oracle/codemp/game/FighterNPC.c:53
+// Raven wrote: #define currentAngles r . currentAngles
+// The macro's text is not a constant over this file's names, so a body spells its expansion at the site.
+
+/// Source: oracle/codemp/game/FighterNPC.c:54
+// Raven wrote: #define currentOrigin r . currentOrigin
+// The macro's text is not a constant over this file's names, so a body spells its expansion at the site.
+
+/// Source: oracle/codemp/game/FighterNPC.c:55
+// Raven wrote: #define mins r . mins
+// The macro's text is not a constant over this file's names, so a body spells its expansion at the site.
+
+/// Source: oracle/codemp/game/FighterNPC.c:56
+// Raven wrote: #define maxs r . maxs
+// The macro's text is not a constant over this file's names, so a body spells its expansion at the site.
+
+/// Source: oracle/codemp/game/FighterNPC.c:57
+// Raven wrote: #define legsAnimTimer legsTimer
+// The macro's text is not a constant over this file's names, so a body spells its expansion at the site.
+
+/// Source: oracle/codemp/game/FighterNPC.c:58
+// Raven wrote: #define torsoAnimTimer torsoTimer
+// The macro's text is not a constant over this file's names, so a body spells its expansion at the site.
+
+/// Source: oracle/codemp/game/FighterNPC.c:59
+// Raven wrote: #define bool qboolean
+// The macro's text is not a constant over this file's names, so a body spells its expansion at the site.
+
+/// Source: oracle/codemp/game/FighterNPC.c:60
+// Raven wrote: #define false qfalse
+// Swift has the keyword, so a body writes it as is.
+
+/// Source: oracle/codemp/game/FighterNPC.c:61
+// Raven wrote: #define true qtrue
+// Swift has the keyword, so a body writes it as is.
+
+/// Source: oracle/codemp/game/FighterNPC.c:63
+// Raven wrote: #define sqrtf sqrt
+// The macro's text is not a constant over this file's names, so a body spells its expansion at the site.
+
+/// Source: oracle/codemp/game/FighterNPC.c:64
+// Raven wrote: #define Q_flrand flrand
+// The macro's text is not a constant over this file's names, so a body spells its expansion at the site.
+
+/// Source: oracle/codemp/game/FighterNPC.c:66
+private let MOD_EXPLOSIVE = JKAMP.MOD_SUICIDE
+
+/// Source: oracle/codemp/game/FighterNPC.c:369
+let FIGHTER_MIN_TAKEOFF_FRACTION = 0.7 as Float
+
 //this stuff has got to be predicted, so..
 /// Source: oracle/codemp/game/FighterNPC.c:99
 func BG_FighterUpdate(_ pVeh: JKAMP.Vehicle, _ pUcmd: JKAMP.Usercmd, _ trMins: inout JKAShared.vec3_t, _ trMaxs: inout JKAShared.vec3_t, _ gravity: Float, _ traceFunc: ((JKAMP.Trace, JKAShared.vec3_t, JKAShared.vec3_t, JKAShared.vec3_t, JKAShared.vec3_t, Int32, Int32) -> Void)?) -> Bool {

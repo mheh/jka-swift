@@ -4,6 +4,39 @@ import JKAMP
 import JKAShared
 import JKAMP_Game
 
+/// Source: oracle/codemp/game/NPC_AI_Seeker.c:8
+private let VELOCITY_DECAY = 0.7 as Float
+
+/// Source: oracle/codemp/game/NPC_AI_Seeker.c:10
+private let MIN_MELEE_RANGE = 320 as Int32
+
+/// Source: oracle/codemp/game/NPC_AI_Seeker.c:11
+private let MIN_MELEE_RANGE_SQR = (MIN_MELEE_RANGE * MIN_MELEE_RANGE)
+
+/// Source: oracle/codemp/game/NPC_AI_Seeker.c:13
+private let MIN_DISTANCE = 80 as Int32
+
+/// Source: oracle/codemp/game/NPC_AI_Seeker.c:14
+private let MIN_DISTANCE_SQR = (MIN_DISTANCE * MIN_DISTANCE)
+
+/// Source: oracle/codemp/game/NPC_AI_Seeker.c:16
+let SEEKER_STRAFE_VEL = 100 as Int32
+
+/// Source: oracle/codemp/game/NPC_AI_Seeker.c:17
+let SEEKER_STRAFE_DIS = 200 as Int32
+
+/// Source: oracle/codemp/game/NPC_AI_Seeker.c:18
+let SEEKER_UPWARD_PUSH = 32 as Int32
+
+/// Source: oracle/codemp/game/NPC_AI_Seeker.c:20
+let SEEKER_FORWARD_BASE_SPEED = 10 as Int32
+
+/// Source: oracle/codemp/game/NPC_AI_Seeker.c:21
+let SEEKER_FORWARD_MULTIPLIER = 2 as Int32
+
+/// Source: oracle/codemp/game/NPC_AI_Seeker.c:23
+let SEEKER_SEEK_RADIUS = 1024 as Int32
+
 //------------------------------------
 /// Source: oracle/codemp/game/NPC_AI_Seeker.c:26
 func NPC_Seeker_Precache() {

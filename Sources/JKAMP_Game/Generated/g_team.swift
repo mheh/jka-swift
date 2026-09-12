@@ -60,6 +60,3 @@ public let CTF_GRAPPLE_PULL_SPEED = CJKAMP_Game.CTF_GRAPPLE_PULL_SPEED
 
 /// Source: oracle/codemp/game/g_team.h:27
 public let OVERLOAD_ATTACK_BASE_SOUND_TIME = CJKAMP_Game.OVERLOAD_ATTACK_BASE_SOUND_TIME
-
-/// Source: oracle/codemp/game/g_team.c:950
-public let MAX_TEAM_SPAWN_POINTS = CJKAMP_Game.MAX_TEAM_SPAWN_POINTS

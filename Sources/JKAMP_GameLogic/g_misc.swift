@@ -4,6 +4,24 @@ import JKAMP
 import JKAShared
 import JKAMP_Game
 
+/// Source: oracle/codemp/game/g_misc.c:10
+let HOLOCRON_RESPAWN_TIME = 30000 as Int32
+
+/// Source: oracle/codemp/game/g_misc.c:11
+let MAX_AMMO_GIVE = 2 as Int32
+
+/// Source: oracle/codemp/game/g_misc.c:12
+let STATION_RECHARGE_TIME = 100 as Int32
+
+/// Source: oracle/codemp/game/g_misc.c:483
+let MAX_INSTANCE_TYPES = 16 as Int32
+
+/// Source: oracle/codemp/game/g_misc.c:2260
+let FX_RUNNER_RESERVED = 0x800000 as Int32
+
+/// Source: oracle/codemp/game/g_misc.c:2261
+let FX_ENT_RADIUS = 32 as Int32
+
 /// Source: oracle/codemp/game/g_misc.c:2540
 var gEscaping: Bool {
     get { world.variables.gEscaping }
@@ -16,8 +34,20 @@ var gEscapeTime: Int32 {
     set { world.variables.gEscapeTime = newValue }
 }
 
+/// Source: oracle/codemp/game/g_misc.c:2868
+let TAG_GENERIC_NAME = "__WORLD__"
+
+/// Source: oracle/codemp/game/g_misc.c:2873
+let MAX_TAGS = 256 as Int32
+
+/// Source: oracle/codemp/game/g_misc.c:2874
+let MAX_TAG_OWNERS = 16 as Int32
+
 /// Source: oracle/codemp/game/g_misc.c:2886
 var refTagOwnerMap: Slots<TagOwner> { world.storage.refTagOwnerMap }
+
+/// Source: oracle/codemp/game/g_misc.c:3345
+let MAX_SHOOTERS = 16 as Int32
 
 /// Source: oracle/codemp/game/g_misc.c:3351
 var g_shooterClients: Slots<ShooterClient> { world.storage.g_shooterClients }

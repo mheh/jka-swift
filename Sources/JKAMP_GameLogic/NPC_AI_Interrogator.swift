@@ -4,6 +4,27 @@ import JKAMP
 import JKAShared
 import JKAMP_Game
 
+/// Source: oracle/codemp/game/NPC_AI_Interrogator.c:129
+private let VELOCITY_DECAY = 0.85 as Float
+
+/// Source: oracle/codemp/game/NPC_AI_Interrogator.c:130
+private let HUNTER_UPWARD_PUSH = 2 as Int32
+
+/// Source: oracle/codemp/game/NPC_AI_Interrogator.c:231
+private let HUNTER_STRAFE_VEL = 32 as Int32
+
+/// Source: oracle/codemp/game/NPC_AI_Interrogator.c:232
+private let HUNTER_STRAFE_DIS = 200 as Int32
+
+/// Source: oracle/codemp/game/NPC_AI_Interrogator.c:287
+private let HUNTER_FORWARD_BASE_SPEED = 10 as Int32
+
+/// Source: oracle/codemp/game/NPC_AI_Interrogator.c:288
+private let HUNTER_FORWARD_MULTIPLIER = 2 as Int32
+
+/// Source: oracle/codemp/game/NPC_AI_Interrogator.c:338
+private let MIN_DISTANCE = 64 as Int32
+
 /**
 ```
 -------------------------

@@ -4,6 +4,78 @@ import JKAMP
 import JKAShared
 import JKAMP_Game
 
+/// Source: oracle/codemp/game/g_items.c:21
+let RESPAWN_ARMOR = 20 as Int32
+
+/// Source: oracle/codemp/game/g_items.c:22
+let RESPAWN_TEAM_WEAPON = 30 as Int32
+
+/// Source: oracle/codemp/game/g_items.c:23
+let RESPAWN_HEALTH = 30 as Int32
+
+/// Source: oracle/codemp/game/g_items.c:24
+let RESPAWN_AMMO = 40 as Int32
+
+/// Source: oracle/codemp/game/g_items.c:25
+let RESPAWN_HOLDABLE = 60 as Int32
+
+/// Source: oracle/codemp/game/g_items.c:26
+let RESPAWN_MEGAHEALTH = 120 as Int32
+
+/// Source: oracle/codemp/game/g_items.c:27
+let RESPAWN_POWERUP = 120 as Int32
+
+/// Source: oracle/codemp/game/g_items.c:30
+let ITMSF_SUSPEND = 1 as Int32
+
+/// Source: oracle/codemp/game/g_items.c:31
+let ITMSF_NOPLAYER = 2 as Int32
+
+/// Source: oracle/codemp/game/g_items.c:32
+let ITMSF_ALLOWNPC = 4 as Int32
+
+/// Source: oracle/codemp/game/g_items.c:33
+let ITMSF_NOTSOLID = 8 as Int32
+
+/// Source: oracle/codemp/game/g_items.c:34
+let ITMSF_VERTICAL = 16 as Int32
+
+/// Source: oracle/codemp/game/g_items.c:35
+let ITMSF_INVISIBLE = 32 as Int32
+
+/// Source: oracle/codemp/game/g_items.c:42
+let MAX_MEDPACK_HEAL_AMOUNT = 25 as Int32
+
+/// Source: oracle/codemp/game/g_items.c:43
+let MAX_MEDPACK_BIG_HEAL_AMOUNT = 50 as Int32
+
+/// Source: oracle/codemp/game/g_items.c:44
+let MAX_SENTRY_DISTANCE = 256 as Int32
+
+/// Source: oracle/codemp/game/g_items.c:91
+let SHIELD_HEALTH = 250 as Int32
+
+/// Source: oracle/codemp/game/g_items.c:92
+let SHIELD_HEALTH_DEC = 10 as Int32
+
+/// Source: oracle/codemp/game/g_items.c:93
+let MAX_SHIELD_HEIGHT = 254 as Int32
+
+/// Source: oracle/codemp/game/g_items.c:94
+let MAX_SHIELD_HALFWIDTH = 255 as Int32
+
+/// Source: oracle/codemp/game/g_items.c:95
+let SHIELD_HALFTHICKNESS = 4 as Int32
+
+/// Source: oracle/codemp/game/g_items.c:96
+let SHIELD_PLACEDIST = 64 as Int32
+
+/// Source: oracle/codemp/game/g_items.c:98
+let SHIELD_SIEGE_HEALTH = 2000 as Int32
+
+/// Source: oracle/codemp/game/g_items.c:99
+let SHIELD_SIEGE_HEALTH_DEC = (SHIELD_SIEGE_HEALTH / 25)
+
 /// Source: oracle/codemp/game/g_items.c:101
 var shieldLoopSound: JKAShared.qhandle_t {
     get { world.variables.shieldLoopSound }
@@ -33,6 +105,54 @@ var shieldDamageSound: JKAShared.qhandle_t {
     get { world.variables.shieldDamageSound }
     set { world.variables.shieldDamageSound = newValue }
 }
+
+/// Source: oracle/codemp/game/g_items.c:513
+let PAS_DAMAGE = 2 as Int32
+
+/// Source: oracle/codemp/game/g_items.c:544
+let TURRET_RADIUS = 800 as Int32
+
+/// Source: oracle/codemp/game/g_items.c:697
+let TURRET_DEATH_DELAY = 2000 as Int32
+
+/// Source: oracle/codemp/game/g_items.c:698
+let TURRET_LIFETIME = 60000 as Int32
+
+/// Source: oracle/codemp/game/g_items.c:975
+let TURRET_AMMO_COUNT = 40 as Int32
+
+/// Source: oracle/codemp/game/g_items.c:1164
+let JETPACK_TOGGLE_TIME = 1000 as Int32
+
+/// Source: oracle/codemp/game/g_items.c:1236
+let CLOAK_TOGGLE_TIME = 1000 as Int32
+
+/// Source: oracle/codemp/game/g_items.c:1274
+let TOSSED_ITEM_STAY_PERIOD = 20000 as Int32
+
+/// Source: oracle/codemp/game/g_items.c:1275
+let TOSSED_ITEM_OWNER_NOTOUCH_DUR = 1000 as Int32
+
+/// Source: oracle/codemp/game/g_items.c:1333
+let DISP_HEALTH_ITEM = "item_medpak_instant"
+
+/// Source: oracle/codemp/game/g_items.c:1334
+let DISP_AMMO_ITEM = "ammo_all"
+
+/// Source: oracle/codemp/game/g_items.c:1442
+let EWEB_DEATH_RADIUS = 128 as Int32
+
+/// Source: oracle/codemp/game/g_items.c:1443
+let EWEB_DEATH_DMG = 90 as Int32
+
+/// Source: oracle/codemp/game/g_items.c:1623
+let EWEB_MISSILE_DAMAGE = 20 as Int32
+
+/// Source: oracle/codemp/game/g_items.c:1856
+let EWEB_HEALTH = 200 as Int32
+
+/// Source: oracle/codemp/game/g_items.c:1982
+let EWEB_USE_DEBOUNCE = 1000 as Int32
 
 /// Source: oracle/codemp/game/g_items.c:2966
 var itemRegistered: [Bool] {

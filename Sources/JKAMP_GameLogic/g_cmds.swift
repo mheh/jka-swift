@@ -16,6 +16,9 @@ var g_preventTeamBegin: Bool {
     set { world.variables.g_preventTeamBegin = newValue }
 }
 
+/// Source: oracle/codemp/game/g_cmds.c:1616
+let EC = "\u{19}"
+
 /// Source: oracle/codemp/game/g_cmds.c:1812
 /// Raven's data table, a hand property of `GameWorld`.
 var gc_orders: [String] {

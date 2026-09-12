@@ -21,11 +21,20 @@ private var playerMaxs: JKAShared.vec3_t {
 /// Source: oracle/codemp/game/g_client.c:19
 var Client_Force: Slots<JKAMP.Forcedata> { world.storage.Client_Force }
 
+/// Source: oracle/codemp/game/g_client.c:256
+let JMSABER_RESPAWN_TIME = 20000 as Int32
+
 /// Source: oracle/codemp/game/g_client.c:471
 var gJMSaberEnt: Entity? {
     get { world.variables.gJMSaberEnt }
     set { world.variables.gJMSaberEnt = newValue }
 }
+
+/// Source: oracle/codemp/game/g_client.c:589
+let MAX_SPAWN_POINTS = 128 as Int32
+
+/// Source: oracle/codemp/game/g_client.c:946
+let BODY_SINK_TIME = 30000 as Int32
 
 /// Source: oracle/codemp/game/g_client.c:1511
 // TODO: Port global g2SaberInstance

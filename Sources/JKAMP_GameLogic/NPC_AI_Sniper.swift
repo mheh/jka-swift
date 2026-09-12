@@ -4,6 +4,42 @@ import JKAMP
 import JKAShared
 import JKAMP_Game
 
+/// Source: oracle/codemp/game/NPC_AI_Sniper.c:11
+let SPF_NO_HIDE = 2 as Int32
+
+/// Source: oracle/codemp/game/NPC_AI_Sniper.c:13
+private let MAX_VIEW_DIST = 1024 as Int32
+
+/// Source: oracle/codemp/game/NPC_AI_Sniper.c:14
+private let MAX_VIEW_SPEED = 250 as Int32
+
+/// Source: oracle/codemp/game/NPC_AI_Sniper.c:15
+private let MAX_LIGHT_INTENSITY = 255 as Int32
+
+/// Source: oracle/codemp/game/NPC_AI_Sniper.c:16
+private let MIN_LIGHT_THRESHOLD = 0.1 as Double
+
+/// Source: oracle/codemp/game/NPC_AI_Sniper.c:18
+private let DISTANCE_SCALE = 0.25 as Float
+
+/// Source: oracle/codemp/game/NPC_AI_Sniper.c:19
+private let DISTANCE_THRESHOLD = 0.075 as Float
+
+/// Source: oracle/codemp/game/NPC_AI_Sniper.c:20
+private let SPEED_SCALE = 0.25 as Float
+
+/// Source: oracle/codemp/game/NPC_AI_Sniper.c:21
+private let FOV_SCALE = 0.5 as Float
+
+/// Source: oracle/codemp/game/NPC_AI_Sniper.c:22
+private let LIGHT_SCALE = 0.25 as Float
+
+/// Source: oracle/codemp/game/NPC_AI_Sniper.c:24
+private let REALIZE_THRESHOLD = 0.6 as Float
+
+/// Source: oracle/codemp/game/NPC_AI_Sniper.c:25
+private let CAUTIOUS_THRESHOLD = (REALIZE_THRESHOLD * 0.75)
+
 /// Source: oracle/codemp/game/NPC_AI_Sniper.c:29
 var enemyLOS2: Bool {
     get { world.variables.enemyLOS2 }

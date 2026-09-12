@@ -4,6 +4,55 @@ import JKAMP
 import JKAShared
 import JKAMP_Game
 
+/// Source: oracle/codemp/game/g_vehicles.c:24
+// Raven wrote: #define currentAngles r . currentAngles
+// The macro's text is not a constant over this file's names, so a body spells its expansion at the site.
+
+/// Source: oracle/codemp/game/g_vehicles.c:25
+// Raven wrote: #define currentOrigin r . currentOrigin
+// The macro's text is not a constant over this file's names, so a body spells its expansion at the site.
+
+/// Source: oracle/codemp/game/g_vehicles.c:26
+// Raven wrote: #define mins r . mins
+// The macro's text is not a constant over this file's names, so a body spells its expansion at the site.
+
+/// Source: oracle/codemp/game/g_vehicles.c:27
+// Raven wrote: #define maxs r . maxs
+// The macro's text is not a constant over this file's names, so a body spells its expansion at the site.
+
+/// Source: oracle/codemp/game/g_vehicles.c:28
+// Raven wrote: #define legsAnimTimer legsTimer
+// The macro's text is not a constant over this file's names, so a body spells its expansion at the site.
+
+/// Source: oracle/codemp/game/g_vehicles.c:29
+// Raven wrote: #define torsoAnimTimer torsoTimer
+// The macro's text is not a constant over this file's names, so a body spells its expansion at the site.
+
+/// Source: oracle/codemp/game/g_vehicles.c:30
+// Raven wrote: #define bool qboolean
+// The macro's text is not a constant over this file's names, so a body spells its expansion at the site.
+
+/// Source: oracle/codemp/game/g_vehicles.c:31
+// Raven wrote: #define false qfalse
+// Swift has the keyword, so a body writes it as is.
+
+/// Source: oracle/codemp/game/g_vehicles.c:32
+// Raven wrote: #define true qtrue
+// Swift has the keyword, so a body writes it as is.
+
+/// Source: oracle/codemp/game/g_vehicles.c:34
+// Raven wrote: #define sqrtf sqrt
+// The macro's text is not a constant over this file's names, so a body spells its expansion at the site.
+
+/// Source: oracle/codemp/game/g_vehicles.c:36
+private let MOD_EXPLOSIVE = JKAMP.MOD_SUICIDE
+
+/// Source: oracle/codemp/game/g_vehicles.c:2927
+private let TURN_ON = 0x00000000 as Int32
+
+/// Source: oracle/codemp/game/g_vehicles.c:2928
+private let TURN_OFF = 0x00000100 as Int32
+
 /// Source: oracle/codemp/game/g_vehicles.c:91
 func Vehicle_SetAnim(_ ent: Entity, _ setAnimParts: Int32, _ anim: Int32, _ setAnimFlags: Int32, _ iBlend: Int32) {
     // TODO: Port Vehicle_SetAnim

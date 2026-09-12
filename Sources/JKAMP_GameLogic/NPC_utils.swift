@@ -20,6 +20,21 @@ var teamStrength: [Int32] {
 // Raven wrote: int teamCounter[TEAM_NUM_TEAMS]
 let teamCounter: [Int32] = [Int32](repeating: 0, count: 4)
 
+/// Source: oracle/codemp/game/NPC_utils.c:11
+let VALID_ATTACK_CONE = 2.0 as Float
+
+/// Source: oracle/codemp/game/NPC_utils.c:998
+private let TURN_ON = 0x00000000 as Int32
+
+/// Source: oracle/codemp/game/NPC_utils.c:999
+private let TURN_OFF = 0x00000100 as Int32
+
+/// Source: oracle/codemp/game/NPC_utils.c:1243
+private let MAX_RADIUS_ENTS = 256 as Int32
+
+/// Source: oracle/codemp/game/NPC_utils.c:1244
+let NEAR_DEFAULT_RADIUS = 256 as Int32
+
 /**
 ```
 void CalcEntitySpot ( gentity_t *ent, spot_t spot, vec3_t point )

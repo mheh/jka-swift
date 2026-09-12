@@ -81,6 +81,9 @@ var weaponNameFromIndex: [String] {
     set { world.weaponNameFromIndex = newValue }
 }
 
+/// Source: oracle/codemp/game/g_log.c:1516
+let AWARDS_MSG_LENGTH = 256 as Int32
+
 /**
 ```
 =================

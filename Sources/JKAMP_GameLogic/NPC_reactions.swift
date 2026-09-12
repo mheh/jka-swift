@@ -4,6 +4,9 @@ import JKAMP
 import JKAShared
 import JKAMP_Game
 
+/// Source: oracle/codemp/game/NPC_reactions.c:204
+let MIN_PAIN_TIME = 200 as Int32
+
 /// Source: oracle/codemp/game/NPC_reactions.c:42
 private func NPC_CheckAttacker(_ other: Entity, _ mod: Int32) {
     // TODO: Port NPC_CheckAttacker

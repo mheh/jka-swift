@@ -4,6 +4,16 @@ import JKAMP
 import JKAShared
 import JKAMP_Game
 
+/// Source: oracle/codemp/game/NPC_behavior.c:730
+private let APEX_HEIGHT = 200.0 as Float
+
+/// Source: oracle/codemp/game/NPC_behavior.c:731
+// Raven wrote: #define PARA_WIDTH ( sqrt ( APEX_HEIGHT ) + sqrt ( APEX_HEIGHT ) )
+// The macro's text is not a constant over this file's names, so a body spells its expansion at the site.
+
+/// Source: oracle/codemp/game/NPC_behavior.c:732
+private let JUMP_SPEED = 200.0 as Float
+
 /**
 ```
  void NPC_BSAdvanceFight (void)

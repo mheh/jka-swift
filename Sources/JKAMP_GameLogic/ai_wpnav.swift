@@ -62,6 +62,9 @@ var gLevelFlags: Int32 {
 // Raven wrote: float botGlobalNavWeaponWeights[WP_NUM_WEAPONS]
 let botGlobalNavWeaponWeights: [Float] = { () -> [Float] in portMissing("botGlobalNavWeaponWeights", source: "oracle/codemp/game/ai_wpnav.c:1796") }()
 
+/// Source: oracle/codemp/game/ai_wpnav.c:2505
+let MAX_SPAWNPOINT_ARRAY = 64 as Int32
+
 /// Source: oracle/codemp/game/ai_wpnav.c:2506
 var gSpawnPointNum: Int32 {
     get { world.variables.gSpawnPointNum }

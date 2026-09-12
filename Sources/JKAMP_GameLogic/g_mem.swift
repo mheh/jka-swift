@@ -4,6 +4,9 @@ import JKAMP
 import JKAShared
 import JKAMP_Game
 
+/// Source: oracle/codemp/game/g_mem.c:11
+let POOLSIZE = (256 * 1024) as Int32
+
 /// Source: oracle/codemp/game/g_mem.c:13
 var memoryPool: JKAShared.CharBuf {
     get { world.variables.memoryPool }

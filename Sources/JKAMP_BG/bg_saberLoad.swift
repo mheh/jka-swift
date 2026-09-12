@@ -3,6 +3,9 @@
 import JKAMP
 import JKAShared
 
+/// Source: oracle/codemp/game/bg_saberLoad.c:43
+let MAX_SABER_DATA_SIZE = 0x80000 as Int32
+
 /// Source: oracle/codemp/game/bg_saberLoad.c:44
 // Raven wrote: static char SaberParms[MAX_SABER_DATA_SIZE]
 nonisolated(unsafe) let SaberParms: JKAShared.CharBuf = JKAShared.CharBuf(524288)
@@ -16,6 +19,9 @@ nonisolated(unsafe) let SaberParms: JKAShared.CharBuf = JKAShared.CharBuf(524288
 // TODO: Port global SaberMoveTable
 // Raven wrote: stringID_table_t SaberMoveTable[]
 // Raven's data table is C storage by hand in the C target, with his initializer as written, reached as a Slots over the C array, the bg_tables.c shape.
+
+/// Source: oracle/codemp/game/bg_saberLoad.c:615
+let DEFAULT_SABER = "Kyle"
 
 /// Source: oracle/codemp/game/bg_saberLoad.c:2736
 var bgSaberParseTBuffer: JKAShared.CharBuf {

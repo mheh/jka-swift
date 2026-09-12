@@ -4,6 +4,9 @@ import JKAMP
 import JKAShared
 import JKAMP_Game
 
+/// Source: oracle/codemp/game/g_turret.c:126
+private let START_DIS = 15 as Int32
+
 //------------------------------------------------------------------------------------------------------------
 /// Source: oracle/codemp/game/g_turret.c:11
 func TurretPain(_ `self`: Entity, _ attacker: Entity, _ damage: Int32) {

@@ -4,6 +4,53 @@ import JKAMP
 import JKAShared
 import JKAMP_Game
 
+/// Source: oracle/codemp/game/WalkerNPC.c:53
+// Raven wrote: #define currentAngles r . currentAngles
+// The macro's text is not a constant over this file's names, so a body spells its expansion at the site.
+
+/// Source: oracle/codemp/game/WalkerNPC.c:54
+// Raven wrote: #define currentOrigin r . currentOrigin
+// The macro's text is not a constant over this file's names, so a body spells its expansion at the site.
+
+/// Source: oracle/codemp/game/WalkerNPC.c:55
+// Raven wrote: #define mins r . mins
+// The macro's text is not a constant over this file's names, so a body spells its expansion at the site.
+
+/// Source: oracle/codemp/game/WalkerNPC.c:56
+// Raven wrote: #define maxs r . maxs
+// The macro's text is not a constant over this file's names, so a body spells its expansion at the site.
+
+/// Source: oracle/codemp/game/WalkerNPC.c:57
+// Raven wrote: #define legsAnimTimer legsTimer
+// The macro's text is not a constant over this file's names, so a body spells its expansion at the site.
+
+/// Source: oracle/codemp/game/WalkerNPC.c:58
+// Raven wrote: #define torsoAnimTimer torsoTimer
+// The macro's text is not a constant over this file's names, so a body spells its expansion at the site.
+
+/// Source: oracle/codemp/game/WalkerNPC.c:59
+// Raven wrote: #define bool qboolean
+// The macro's text is not a constant over this file's names, so a body spells its expansion at the site.
+
+/// Source: oracle/codemp/game/WalkerNPC.c:60
+// Raven wrote: #define false qfalse
+// Swift has the keyword, so a body writes it as is.
+
+/// Source: oracle/codemp/game/WalkerNPC.c:61
+// Raven wrote: #define true qtrue
+// Swift has the keyword, so a body writes it as is.
+
+/// Source: oracle/codemp/game/WalkerNPC.c:63
+// Raven wrote: #define sqrtf sqrt
+// The macro's text is not a constant over this file's names, so a body spells its expansion at the site.
+
+/// Source: oracle/codemp/game/WalkerNPC.c:64
+// Raven wrote: #define Q_flrand flrand
+// The macro's text is not a constant over this file's names, so a body spells its expansion at the site.
+
+/// Source: oracle/codemp/game/WalkerNPC.c:66
+private let MOD_EXPLOSIVE = JKAMP.MOD_SUICIDE
+
 /// Source: oracle/codemp/game/WalkerNPC.c:84
 private func RegisterAssets(_ pVeh: JKAMP.Vehicle) {
     // TODO: Port RegisterAssets

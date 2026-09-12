@@ -172,7 +172,7 @@ public struct GameVariables {
 
     /// Raven's `char npcParseBuffer[MAX_NPC_DATA_SIZE]` of `NPC_stats.c`.
     /// Source: oracle/codemp/game/NPC_stats.c:3238
-    public var npcParseBuffer: JKAShared.CharBuf = JKAShared.CharBuf(Int(JKAMP_Game.MAX_NPC_DATA_SIZE))
+    public var npcParseBuffer: JKAShared.CharBuf = JKAShared.CharBuf(131072)
 
     /// Raven's `int teamNumbers[TEAM_NUM_TEAMS]` of `NPC_utils.c`.
     /// Source: oracle/codemp/game/NPC_utils.c:7
@@ -456,7 +456,7 @@ public struct GameVariables {
 
     /// Raven's `char memoryPool[POOLSIZE]` of `g_mem.c`.
     /// Source: oracle/codemp/game/g_mem.c:13
-    public var memoryPool: JKAShared.CharBuf = JKAShared.CharBuf(Int(JKAMP_Game.POOLSIZE))
+    public var memoryPool: JKAShared.CharBuf = JKAShared.CharBuf(262144)
 
     /// Raven's `int allocPoint` of `g_mem.c`.
     /// Source: oracle/codemp/game/g_mem.c:14
