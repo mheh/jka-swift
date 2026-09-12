@@ -141,9 +141,11 @@ def backslash_include_shims():
     return _SHIM_CACHE
 
 
-def parse_tu(module: str, extra_file: str | None, unity: bool = False, target: str | None = None):
+def parse_tu(module: str, extra_file: str | None, unity: bool = False, target: str | None = None, overlay: str | None = None):
     """target is a triple such as i686-pc-windows-msvc. A foreign target reads the host SDK's C headers through -isystem,
-    because -isysroot is not searched for a target the SDK does not serve, and the layouts do not depend on them."""
+    because -isysroot is not searched for a target the SDK does not serve, and the layouts do not depend on them.
+    overlay is C text the unity source carries after q_shared.h and before the module's files, so a caller can undefine a
+    function-like macro and declare a function under its name, and every use parses as a call with its arguments as nodes."""
     cfg = MODULES[module]
     args = [f"-x{'c++' if cfg['lang'] == 'c++' else 'c'}"]
     if target:
@@ -189,7 +191,8 @@ def parse_tu(module: str, extra_file: str | None, unity: bool = False, target: s
             sys.exit(f"module '{module}' has no srcglob — function trees need one")
         files = sorted(p for g in cfg["srcglob"] for p in SRC_ROOT.glob(g))
         src = str(entry.parent / "__closure_unity__.c")
-        unsaved.append((src, "".join(f'#include "{p}"\n' for p in files)))
+        prelude = f'#include "q_shared.h"\n{overlay}\n' if overlay else ""
+        unsaved.append((src, prelude + "".join(f'#include "{p}"\n' for p in files)))
     elif len(entries) > 1 or entry.suffix == ".h":  # synthesize a TU around the header(s)
         src = str(entry.parent / "__closure_tu__.c")
         unsaved.append((src, "".join(f'#include "{e}"\n' for e in entries)))

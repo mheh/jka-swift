@@ -24,11 +24,13 @@ from pathlib import Path
 import clang.cindex as ci
 from clang.cindex import CursorKind, TypeKind
 
+from table import INT_KINDS
+
 from reexport import SOURCES
 from rulings import HAND_VARS, NEVER_NULL_VARS
 import closure as C
-from skeleton import ORACLE_DIR, Function, Skeleton
-from table import TARGET, swift_name
+from skeleton import BG, ORACLE_DIR, Function, Skeleton, target_of
+from table import Param, TARGET, swift_name
 
 INDENT = "    "
 COMPARISONS = {"==", "!=", "<", ">", "<=", ">="}
@@ -38,38 +40,37 @@ BINARY_OPS = COMPARISONS | LOGICAL | ASSIGNS | {"+", "-", "*", "/", "%", "&", "|
 UNARY_PREFIX = {"-", "+", "!", "~", "*", "&", "++", "--"}
 WRAPPERS = {CursorKind.UNEXPOSED_EXPR, CursorKind.PAREN_EXPR}
 COMMENT = re.compile(r"//[^\n]*|/\*.*?\*/", re.S)
+NUMBER = re.compile(r"-?\s*((\d+(\.\d*)?|\.\d+)([eE][-+]?\d+)?[fFuUlL]*|0[xX][0-9a-fA-F]+[uUlL]*)")
 IDENTIFIER = re.compile(r"[A-Za-z_]\w*")
-MACRO_USE = re.compile(r"([A-Za-z_]\w*)\s*\((.*)\)\s*;?", re.S)
-# Raven's vector macros by the table of docs/transcription.md, "Vectors and the vector macros".
-# The parse expands a macro and keeps no extent for its arguments, so each entry holds the shape of the expansion's first
-# component with Raven's parameter names as placeholders, and the draft matches the shape to find the argument nodes.
-# In a shape, `bin` is a binary operator, `sub` an array subscript with the base as its one child, `neg` a unary minus,
-# and `_` any node. A comma chain of three components reads `components[0..2]`, and the shape names the component it matches.
-VECTOR_MACROS = {
-    "VectorAdd": (("a", "b", "c"), 3, [(0, ("bin", ("sub", "c"), ("bin", ("sub", "a"), ("sub", "b"))))], "{c} = {a} + {b}"),
-    "VectorSubtract": (("a", "b", "c"), 3, [(0, ("bin", ("sub", "c"), ("bin", ("sub", "a"), ("sub", "b"))))], "{c} = {a} - {b}"),
-    "VectorScale": (("v", "s", "o"), 3, [(0, ("bin", ("sub", "o"), ("bin", ("sub", "v"), "s")))], "{o} = {v} * {s}"),
-    "VectorCopy": (("a", "b"), 3, [(0, ("bin", ("sub", "b"), ("sub", "a")))], "{b} = {a}"),
-    "VectorMA": (("v", "s", "b", "o"), 3, [(0, ("bin", ("sub", "o"), ("bin", ("sub", "v"), ("bin", ("sub", "b"), "s"))))], "_VectorMA({v}, {s}, {b}, &{o})"),
-    "VectorNegate": (("a", "b"), 3, [(0, ("bin", ("sub", "b"), ("neg", ("sub", "a"))))], "{b} = -{a}"),
-    "VectorClear": (("a",), 1, [(0, ("bin", ("sub", "a"), "_"))], "{a} = JKAShared.vec3_t(0, 0, 0)"),
-    "VectorSet": (("v", "x", "y", "z"), 3, [(0, ("bin", ("sub", "v"), "x")), (1, ("bin", "_", "y")), (2, ("bin", "_", "z"))], "{v} = JKAShared.vec3_t({x}, {y}, {z})"),
-    "DotProduct": (("x", "y"), 3, [(0, ("bin", ("sub", "x"), ("sub", "y")))], "_DotProduct({x}, {y})"),
+# Raven's function-like macros the draft maps, by the table of docs/transcription.md, "Vectors and the vector macros".
+# The parse sees each one as a call, because the overlay below undefines the macro and declares a function under its name,
+# so every argument is a node with its text, its type, and its tokens. The template writes the Swift form, `{0}` the first
+# argument. `floats` names the argument positions that are one float, where an integer argument converts as C does.
+MACROS = {
+    "VectorAdd": ("{2} = {0} + {1}", ()),
+    "VectorSubtract": ("{2} = {0} - {1}", ()),
+    "VectorScale": ("{2} = {0} * {1}", (1,)),
+    "VectorCopy": ("{1} = {0}", ()),
+    "VectorMA": ("_VectorMA({0}, {1}, {2}, &{3})", (1,)),
+    "VectorNegate": ("{1} = -{0}", ()),
+    "VectorClear": ("{0} = JKAShared.vec3_t(0, 0, 0)", ()),
+    "VectorSet": ("{0} = JKAShared.vec3_t({1}, {2}, {3})", (1, 2, 3)),
+    "DotProduct": ("_DotProduct({0}, {1})", ()),
+    "Q_fabs": ("Q_fabs({0})", (0,)),
+    "DEG2RAD": ("DEG2RAD({0})", (0,)),
+    "RAD2DEG": ("RAD2DEG({0})", (0,)),
+    "ANGLE2SHORT": ("ANGLE2SHORT({0})", (0,)),
+    "SHORT2ANGLE": ("SHORT2ANGLE({0})", ()),
+    "SnapVector": ("SnapVector(&{0})", ()),
+    "min": ("min({0}, {1})", ()),
+    "max": ("max({0}, {1})", ()),
 }
-# Macros q_math.swift and q_shared.h.swift port as functions, so a use is a call, in the same shape table.
-# `cast` is a C cast with the operand as its one child, `call` a call with the arguments as its children after the callee,
-# and `block` a compound statement whose first statement the shape matches, the SnapVector form.
-VECTOR_MACROS.update({
-    "Q_fabs": (("x",), 1, [(0, ("call", "x"))], "Q_fabs({x})"),
-    "DEG2RAD": (("a",), 1, [(0, ("bin", ("bin", "a", "_"), "_"))], "DEG2RAD({a})"),
-    "RAD2DEG": (("a",), 1, [(0, ("bin", ("bin", "a", "_"), "_"))], "RAD2DEG({a})"),
-    "ANGLE2SHORT": (("x",), 1, [(0, ("bin", ("cast", ("bin", ("bin", "x", "_"), "_")), "_"))], "ANGLE2SHORT({x})"),
-    "SHORT2ANGLE": (("x",), 1, [(0, ("bin", "x", "_"))], "SHORT2ANGLE({x})"),
-    "SnapVector": (("v",), 1, [(0, ("block", ("bin", ("sub", "v"), "_")))], "SnapVector(&{v})"),
-})
-# A macro argument that is a path with plain subscripts, `pm->ps->velocity[2]`, so the index texts pair with the subscript nodes.
-PATH_ARG = re.compile(r"&?\s*[A-Za-z_]\w*(\s*(->|\.)\s*[A-Za-z_]\w*|\s*\[[^\[\]]*\])*")
-SIMPLE_ARG = re.compile(r"-?\s*(\d+(\.\d*)?|\.\d+)([eE][-+]?\d+)?[fF]?|[A-Za-z_]\w*")
+# The C return type each function takes in the overlay, so the use keeps the type Raven's expression had.
+MACRO_RETURNS = {"DotProduct": "float", "Q_fabs": "float", "DEG2RAD": "float", "RAD2DEG": "float", "ANGLE2SHORT": "int",
+                 "SHORT2ANGLE": "float", "min": "float", "max": "float"}
+# `assert` is `((void)0)` under Raven's NDEBUG build, and the overlay makes it a call the draft drops by name.
+DROPPED = {"assert"}
+OVERLAY = "".join(f"#undef {name}\n{MACRO_RETURNS.get(name, 'void')} {name}(...);\n" for name in list(MACROS) + sorted(DROPPED))
 FUNC_LINE = re.compile(r"func\s+`?(\w+)`?\s*\((.*)\)")
 
 
@@ -97,14 +98,17 @@ class Registry:
     takes `&` where the Swift signature asks for it."""
 
     def __init__(self) -> None:
-        self.inout: dict[str, set[int]] = {}
+        self.params: dict[str, list[tuple[str, str]]] = {}
         for path in SOURCES.rglob("*.swift"):
             for line in path.read_text().splitlines():
                 m = FUNC_LINE.search(line)
                 if m is None or "func " not in line.split("//")[0]:
                     continue
-                positions = {i for i, p in enumerate(split_params(m.group(2))) if p.split(":", 1)[-1].strip().startswith("inout ")}
-                self.inout.setdefault(m.group(1), positions)
+                params = []
+                for p in split_params(m.group(2)):
+                    label, _, swift = p.partition(":")
+                    params.append((label.split()[-1].strip("`"), swift.strip()))
+                self.params.setdefault(m.group(1), params)
 
 
 class Hole(Exception):
@@ -117,8 +121,17 @@ class Drafter:
         self.views = sk.table.views
         self.registry = registry
         self.holes = 0
-        self.in_macro = False
-        self.macro_indexes: list[str] = []
+        # The locals a hole declares, so a later error on one of them counts as a cascade of the hole, not a new defect.
+        self.hole_names: set[str] = set()
+        # Lines an expression asks to go above its statement: a Port-note, or a scratch local for a NULL output argument.
+        self.pending: list[str] = []
+        # The parameters and the local declarations of the function being drafted, by name, for the let and the guard rules.
+        self.params_by_name: dict[str, Param] = {}
+        self.lets: set[str] = set()
+        # A conversion every numeric leaf of the expression being drafted takes: "Double" under a double literal, or an unsigned type.
+        self.leaf_wrap: str | None = None
+        # The scratch closures open around the statement being drafted, innermost last: None, "flag", or "value".
+        self.scratch_modes: list[str | None] = []
 
     # MARK: - One function
 
@@ -130,6 +143,13 @@ class Drafter:
         self.source = self.sk.source(fn.stem)
         self.bytes = (C.ORACLE / ORACLE_DIR / f"{fn.stem}.c").read_bytes()
         self.names = {c.spelling: p.name for c, p in zip(fn.cur.get_arguments(), fn.params)}
+        self.params_by_name = {c.spelling: p for c, p in zip(fn.cur.get_arguments(), fn.params)}
+        self.scratch_names: dict[str, int] = {}
+        self.lets = self.single_writes(fn.cur)
+        if any(self.record_local(c) is not None for c in fn.cur.walk_preorder()):
+            # A closure cannot initialize a let of the enclosing body, so a body with a scratch record keeps every local a var.
+            self.lets = set()
+        self.written = self.written_names(fn.cur)
         self.inout_locals = {c.spelling for c, p in zip(fn.cur.get_arguments(), fn.params) if (p.swift or "").startswith("inout ")}
         body = [c for c in fn.cur.get_children() if c.kind == CursorKind.COMPOUND_STMT][-1]
         lines = header[:-3]
@@ -141,19 +161,111 @@ class Drafter:
 
     def block_body(self, block: ci.Cursor, depth: int) -> list[str]:
         """The statements of a compound statement, with Raven's comment and blank lines between them."""
-        out: list[str] = []
-        children = list(block.get_children())
-        previous_line = block.extent.start.line
-        for child in children:
-            out += self.gap(previous_line, child.extent.start.line, depth)
-            out += self.statement(child, depth)
-            previous_line = child.extent.end.line
-        out += self.gap(previous_line, block.extent.end.line, depth)
+        out = self.statements(list(block.get_children()), block.extent.start.line, block.extent.end.line, depth)
         while out and not out[0].strip():
             out.pop(0)
         while out and not out[-1].strip():
             out.pop()
         return out
+
+    def statements(self, children: list[ci.Cursor], first_line: int, last_line: int, depth: int) -> list[str]:
+        """A run of statements. A record local, `trace_t trace;`, opens a scratch closure, and the rest of the run is its body."""
+        out: list[str] = []
+        previous_line = first_line
+        for i, child in enumerate(children):
+            out += self.gap(previous_line, child.extent.start.line, depth)
+            record = self.record_local(child)
+            if record is not None:
+                out += self.scratch(child, record, children[i + 1:], last_line, depth)
+                return out
+            out += self.statement(child, depth)
+            previous_line = child.extent.end.line
+        out += self.gap(previous_line, last_line, depth)
+        return out
+
+    def record_local(self, cur: ci.Cursor) -> ci.Cursor | None:
+        """The one variable of a declaration that is a C struct with a view, or None."""
+        if cur.kind != CursorKind.DECL_STMT:
+            return None
+        vars_ = [v for v in cur.get_children() if v.kind == CursorKind.VAR_DECL]
+        if len(vars_) != 1:
+            return None
+        t = vars_[0].type.get_canonical()
+        if t.kind != TypeKind.RECORD:
+            return None
+        record = self.views.record_name(t)
+        return vars_[0] if record and record in self.views.views else None
+
+    def scratch(self, decl: ci.Cursor, var: ci.Cursor, rest: list[ci.Cursor], last_line: int, depth: int) -> list[str]:
+        """Raven's block from the record local on, as the closure of the view's scratch helper. A return inside the block is
+        the closure's value, and the body acts on it after the closure, by "A scratch C struct on the stack"."""
+        pad = INDENT * depth
+        view = self.views.qualified_view(self.views.record_name(var.type.get_canonical()), TARGET)
+        name = swift_name(var.spelling)
+        init = [c for c in var.get_children() if c.kind.is_expression() and b"=" in self.bytes[var.extent.start.offset:c.extent.start.offset]]
+        if not init and rest and self.record_store(rest[0], var):
+            # Raven fills the record from another right after declaring it, `cmd = pm->cmd;`, which is the copying form.
+            init = [list(self.strip(rest[0]).get_children())[1]]
+            rest = rest[1:]
+        opener = f"{view}.scratch(copying: {self.expr(init[0])})" if init else f"{view}.scratch"
+        returns = any(c.kind == CursorKind.RETURN_STMT for r in rest for c in r.walk_preorder())
+        if self.escapes(rest):
+            raise Hole("Raven's block leaves a loop outside the record's scope, and the closure cannot.")
+        mode = None
+        if returns:
+            mode = "flag" if self.fn.returns is None else "value"
+        result = "earlyOut" if not self.scratch_modes else f"earlyOut{len(self.scratch_modes) + 1}"
+        out = [f"{pad}// Raven's record lives to the end of his block, so the block is the closure."]
+        if mode == "flag":
+            out.append(f"{pad}// The closure gives true where Raven returns from the function.")
+            out.append(f"{pad}let {result} = {opener} {{ {name} -> Bool in")
+        elif mode == "value":
+            out.append(f"{pad}// The closure gives nil where Raven's block falls through to its end.")
+            out.append(f"{pad}let {result} = {opener} {{ {name} -> {self.fn.returns}? in")
+        else:
+            out.append(f"{pad}{opener} {{ {name} in")
+        self.scratch_modes.append(mode)
+        try:
+            body = self.statements(rest, decl.extent.end.line, last_line, depth + 1)
+        finally:
+            self.scratch_modes.pop()
+        while body and not body[-1].strip():
+            body.pop()
+        out += body
+        if mode == "flag":
+            out.append(f"{INDENT * (depth + 1)}return false")
+        elif mode == "value":
+            out.append(f"{INDENT * (depth + 1)}return nil")
+        out.append(f"{pad}}}")
+        if mode == "flag":
+            out += [f"{pad}if {result} {{", f"{INDENT * (depth + 1)}return", f"{pad}}}"]
+        elif mode == "value":
+            out += [f"{pad}if let {result} {{", f"{INDENT * (depth + 1)}return {result}", f"{pad}}}"]
+        return out
+
+    def record_store(self, cur: ci.Cursor, var: ci.Cursor) -> bool:
+        """True when the statement stores a whole record into the named local, `cmd = pm->cmd;`."""
+        cur = self.strip(cur)
+        if cur.kind != CursorKind.BINARY_OPERATOR or self.collapsed(cur):
+            return False
+        kids = list(cur.get_children())
+        if len(kids) != 2 or self.binary_op(cur) != "=":
+            return False
+        left = self.unwrap(kids[0])
+        return left.kind == CursorKind.DECL_REF_EXPR and left.referenced is not None and left.referenced == var
+
+    def escapes(self, rest: list[ci.Cursor]) -> bool:
+        """True when a break or a continue in the run targets a loop or a switch outside it."""
+        loops = {CursorKind.FOR_STMT, CursorKind.WHILE_STMT, CursorKind.DO_STMT}
+
+        def walk(cur: ci.Cursor, loop: bool, switch: bool) -> bool:
+            if cur.kind == CursorKind.BREAK_STMT and not loop and not switch:
+                return True
+            if cur.kind == CursorKind.CONTINUE_STMT and not loop:
+                return True
+            return any(walk(k, loop or cur.kind in loops, switch or cur.kind == CursorKind.SWITCH_STMT) for k in cur.get_children())
+
+        return any(walk(r, False, False) for r in rest)
 
     def gap(self, after: int, before: int, depth: int) -> list[str]:
         """Raven's comment and blank lines strictly between two statements, re-indented."""
@@ -173,13 +285,98 @@ class Drafter:
         return f" {rest}" if rest.startswith("//") else ""
 
     def statement(self, cur: ci.Cursor, depth: int) -> list[str]:
+        outer = self.pending
+        self.pending = []
         try:
-            return self.statement_lines(cur, depth)
+            lines = self.statement_lines(cur, depth)
         except Hole as hole:
-            return self.hole(cur, depth, str(hole))
+            lines = self.hole(cur, depth, str(hole))
+        lines = [INDENT * depth + line for line in self.pending] + lines
+        self.pending = outer
+        return lines
+
+    def single_writes(self, fn: ci.Cursor) -> set[str]:
+        """The locals Swift can hold in a `let`: written once outside a loop, or once in each arm of one if, and never by `&`."""
+        writes: dict[str, list[tuple[bool, tuple[ci.Cursor, int] | None]]] = {}
+        loops = {CursorKind.FOR_STMT, CursorKind.WHILE_STMT, CursorKind.DO_STMT}
+
+        def root(cur: ci.Cursor) -> str | None:
+            cur = self.unwrap(cur)
+            if cur.kind == CursorKind.DECL_REF_EXPR:
+                ref = cur.referenced
+                return cur.spelling if ref is not None and ref.kind == CursorKind.VAR_DECL else None
+            if cur.kind in (CursorKind.ARRAY_SUBSCRIPT_EXPR, CursorKind.MEMBER_REF_EXPR):
+                kids = list(cur.get_children())
+                return root(kids[0]) if kids and cur.kind == CursorKind.ARRAY_SUBSCRIPT_EXPR else None
+            return None
+
+        def walk(cur: ci.Cursor, in_loop: bool, arm: tuple[ci.Cursor, int] | None) -> None:
+            kids = list(cur.get_children())
+            if cur.kind in (CursorKind.BINARY_OPERATOR, CursorKind.COMPOUND_ASSIGNMENT_OPERATOR) and len(kids) == 2:
+                between = self.bytes[kids[0].extent.end.offset:kids[1].extent.start.offset].decode("utf-8", "replace")
+                if COMMENT.sub("", between).strip() in ASSIGNS or kids[0].extent.start.offset == kids[1].extent.start.offset:
+                    name = root(kids[0])
+                    if name is not None:
+                        writes.setdefault(name, []).append((in_loop, arm))
+            if cur.kind == CursorKind.UNARY_OPERATOR and kids:
+                before = self.bytes[cur.extent.start.offset:kids[0].extent.start.offset].decode("utf-8", "replace").strip()
+                after = self.bytes[kids[0].extent.end.offset:cur.extent.end.offset].decode("utf-8", "replace").strip()
+                name = root(kids[0])
+                if name is not None and (before in ("++", "--", "&") or after in ("++", "--")):
+                    writes.setdefault(name, []).append((True, None))
+            if cur.kind == CursorKind.IF_STMT and len(kids) == 3:
+                walk(kids[0], in_loop, arm)
+                walk(kids[1], in_loop, (cur, 1))
+                walk(kids[2], in_loop, (cur, 2))
+                return
+            for k in kids:
+                walk(k, in_loop or cur.kind in loops, arm)
+
+        walk(fn, False, None)
+        out = set()
+        for name, sites in writes.items():
+            if len(sites) == 1 and not sites[0][0]:
+                out.add(name)
+            if len(sites) == 2 and not sites[0][0] and not sites[1][0] and sites[0][1] is not None and sites[1][1] is not None \
+                    and sites[0][1][0] == sites[1][1][0] and sites[0][1][1] != sites[1][1][1]:
+                out.add(name)
+        return out
+
+    def written_names(self, fn: ci.Cursor) -> set[str]:
+        """Every local a statement writes after its declaration, by any operator."""
+        out: set[str] = set()
+        for cur in fn.walk_preorder():
+            kids = list(cur.get_children())
+            if cur.kind in (CursorKind.BINARY_OPERATOR, CursorKind.COMPOUND_ASSIGNMENT_OPERATOR) and len(kids) == 2:
+                between = COMMENT.sub("", self.bytes[kids[0].extent.end.offset:kids[1].extent.start.offset].decode("utf-8", "replace")).strip()
+                if between in ASSIGNS or kids[0].extent.start.offset == kids[1].extent.start.offset:
+                    out.add(self.written_root(kids[0]))
+            if cur.kind == CursorKind.UNARY_OPERATOR and kids:
+                before = self.bytes[cur.extent.start.offset:kids[0].extent.start.offset].decode("utf-8", "replace").strip()
+                after = self.bytes[kids[0].extent.end.offset:cur.extent.end.offset].decode("utf-8", "replace").strip()
+                if before in ("++", "--", "&") or after in ("++", "--"):
+                    out.add(self.written_root(kids[0]))
+        return out
+
+    def written_root(self, cur: ci.Cursor) -> str:
+        cur = self.unwrap(cur)
+        while cur.kind == CursorKind.ARRAY_SUBSCRIPT_EXPR:
+            cur = self.unwrap(list(cur.get_children())[0])
+        return cur.spelling if cur.kind == CursorKind.DECL_REF_EXPR else ""
+
+    def keyword(self, var: ci.Cursor, init: bool) -> str:
+        name = var.spelling
+        if init:
+            return "let" if name not in self.single_writes_cache() else "var"
+        return "let" if name in self.lets else "var"
+
+    def single_writes_cache(self) -> set[str]:
+        return self.written
+
 
     def hole(self, cur: ci.Cursor, depth: int, reason: str) -> list[str]:
         self.holes += 1
+        self.hole_names |= {c.spelling for c in cur.walk_preorder() if c.kind == CursorKind.VAR_DECL}
         pad = INDENT * depth
         raven = " ".join(self.source.slice(cur.extent).split())
         return [
@@ -201,6 +398,15 @@ class Drafter:
         ref = callee.referenced
         return callee.kind == CursorKind.DECL_REF_EXPR and ref is not None and ref.kind == CursorKind.FUNCTION_DECL
 
+    def callee_name(self, cur: ci.Cursor) -> str | None:
+        kids = list(cur.get_children())
+        callee = self.strip(kids[0]) if kids else None
+        return callee.spelling if callee is not None and callee.kind == CursorKind.DECL_REF_EXPR else None
+
+    def collapsed(self, cur: ci.Cursor) -> bool:
+        """True when a child spans the same bytes as the node, the mark of a macro expansion, whose nodes keep no text of their own."""
+        return any(k.extent.start.offset == cur.extent.start.offset and k.extent.end.offset == cur.extent.end.offset for k in cur.get_children())
+
     def macro_span(self, cur: ci.Cursor) -> bool:
         """True when the node's whole text is one name, so the node is a macro use and its children keep no text of their own."""
         return IDENTIFIER.fullmatch(self.bytes[cur.extent.start.offset:cur.extent.end.offset].decode("utf-8", "replace").strip()) is not None
@@ -211,17 +417,16 @@ class Drafter:
             return self.statement_lines(list(cur.get_children())[0], depth)
         kind = cur.kind
         if kind == CursorKind.COMPOUND_STMT:
-            macro = self.macro_use(cur)
-            if macro is not None:
-                return [f"{pad}{macro}" + self.trailing(cur)]
             return [f"{pad}do {{"] + self.block_body(cur, depth + 1) + [f"{pad}}}"]
         if kind == CursorKind.DECL_STMT:
             return [pad + line for line in self.declarations(cur)]
         if kind == CursorKind.RETURN_STMT:
             kids = list(cur.get_children())
+            if self.scratch_modes and self.scratch_modes[-1] == "flag":
+                return [f"{pad}return true" + self.trailing(cur)]
             if not kids:
                 return [f"{pad}return" + self.trailing(cur)]
-            value = self.coerced(kids[0], self.fn.returns)
+            value = self.converted(kids[0], self.fn.returns)
             return [f"{pad}return {value}" + self.trailing(cur)]
         if kind == CursorKind.IF_STMT:
             return self.if_statement(cur, depth)
@@ -258,14 +463,29 @@ class Drafter:
                     lines = self.statement_lines(inner, depth)
                     lines.append(f"{pad}{target} = {self.expr(list(inner.get_children())[0])}" + self.trailing(cur))
                     return lines
-                value = self.coerced(right, self.swift_type_of(left)) if op == "=" else self.expr(right)
+                if self.strip(left).type.get_canonical().kind == TypeKind.RECORD:
+                    raise Hole("A whole-record store, which a view has no operator for.")
+                lhs_kind = self.swift_type_of(left)
+                unsigned = self.unsigned_of(left)
+                if op == "=" and lhs_kind == "Int32" and self.has_double_literal(right):
+                    # C computes the double expression and truncates at the store, by "A double literal".
+                    return [f"{pad}{target} = Int32({self.wrapped(right, 'Double')})" + self.trailing(cur)]
+                if op != "=" and lhs_kind == "Int32" and self.has_double_literal(right):
+                    return [f"{pad}{target} = Int32(Double({target}) {op[:-1]} {self.wrapped(right, 'Double')})" + self.trailing(cur)]
+                if op != "=" and lhs_kind == "Int32" and self.number_kind(self.strip(right).type) == "Float":
+                    # C computes in float and truncates at the store.
+                    return [f"{pad}{target} = Int32(Float({target}) {op[:-1]} {self.expr(right)})" + self.trailing(cur)]
+                if unsigned is not None and not self.is_literal(right):
+                    return [f"{pad}{target} {op} {self.wrapped(right, unsigned)}" + self.trailing(cur)]
+                value = self.converted(right, lhs_kind) if op == "=" else self.expr(right)
                 return [f"{pad}{target} {op} {value}" + self.trailing(cur)]
+        if self.is_call(cur) and self.callee_name(cur) in DROPPED:
+            # `assert` is `((void)0)` under Raven's NDEBUG build, so the body drops it, by "assert".
+            rest = self.trailing(cur).strip()
+            return [f"{pad}{rest}"] if rest else []
         if self.is_call(cur):
             return [f"{pad}{self.expr(cur)}" + self.trailing(cur)]
         if kind.is_expression():
-            macro = self.macro_use(cur)
-            if macro is not None:
-                return [f"{pad}{macro}" + self.trailing(cur)]
             raise Hole("An expression statement with no effect the draft knows.")
         raise Hole(f"No rule for a {kind.name} statement.")
 
@@ -279,18 +499,40 @@ class Drafter:
         pad = INDENT * depth
         kids = list(cur.get_children())
         cond, then = kids[0], kids[1]
-        out = [f"{pad}if {self.condition(cond)} {{"] + self.branch(then, depth + 1)
+        test = self.condition(cond)
+        if test == "false":
+            # The guard folded away, so its arm never runs, and only the else arm stays.
+            self.pending.append("// Raven's arm under the guard has no path, and its text stays here:")
+            self.pending += self.commented(then)
+            return self.branch(kids[2], depth) if len(kids) == 3 else []
+        if test == "true":
+            if len(kids) == 3:
+                self.pending.append("// Raven's else arm has no path, and its text stays here:")
+                self.pending += self.commented(kids[2])
+            return self.branch(then, depth)
+        out = [f"{pad}if {test} {{"] + self.branch(then, depth + 1)
         if len(kids) == 3:
             other = kids[2]
             if other.kind == CursorKind.IF_STMT:
                 nested = self.if_statement(other, depth)
-                out.append(f"{pad}}} else {nested[0].strip()}")
-                out += nested[1:]
+                if nested and nested[0].strip().startswith("if "):
+                    out.append(f"{pad}}} else {nested[0].strip()}")
+                    out += nested[1:]
+                    return out
+                # The nested if folded to one arm, so the arm is the else block.
+                out.append(f"{pad}}} else {{")
+                out += [INDENT + line if line.strip() else line for line in nested]
+                out.append(f"{pad}}}")
                 return out
             out.append(f"{pad}}} else {{")
             out += self.branch(other, depth + 1)
         out.append(f"{pad}}}")
         return out
+
+    def commented(self, cur: ci.Cursor) -> list[str]:
+        """Raven's text of a statement as comment lines, for an arm the draft leaves out."""
+        text = self.bytes[cur.extent.start.offset:cur.extent.end.offset].decode("utf-8", "replace")
+        return [f"// {line.rstrip()}".rstrip() for line in text.replace("\t", "    ").splitlines()]
 
     def for_statement(self, cur: ci.Cursor, depth: int) -> list[str]:
         """Raven's three clauses by their place between the two semicolons of the head, then `init; while cond { body; step }`."""
@@ -380,6 +622,8 @@ class Drafter:
             out += lines
             if i + 1 < len(groups):
                 out.append("")
+        if not any("default" in labels for labels, _ in groups):
+            out += ["", f"{pad}default:", f"{INDENT * (depth + 1)}break"]
         out.append(f"{pad}}}")
         return out
 
@@ -388,34 +632,58 @@ class Drafter:
         for var in cur.get_children():
             if var.kind != CursorKind.VAR_DECL:
                 raise Hole(f"A {var.kind.name} inside a declaration.")
-            name = swift_name(var.spelling)
-            t = var.type
-            init = [c for c in var.get_children() if c.kind.is_expression()]
-            if t.get_canonical().kind == TypeKind.CONSTANTARRAY and self.views.is_vec3(t):
-                if init:
-                    raise Hole("A vector local with an initializer.")
-                out.append(f"var {name} = JKAShared.vec3_t(0, 0, 0)")
-                continue
-            if t.get_canonical().kind == TypeKind.POINTER:
-                record = self.views.record_name(t.get_canonical().get_pointee())
-                if record and record in self.views.views:
-                    view = self.views.qualified_view(record, TARGET)
-                    if init:
-                        out.append(f"var {name}: {view}? = {self.expr(init[0])}")
-                    else:
-                        out.append(f"var {name}: {view}?")
-                    continue
-                raise Hole(f"A pointer local `{t.spelling} {var.spelling}` with no view.")
-            swift = self.views.scalar(t, TARGET)
-            if swift is None:
-                raise Hole(f"A local `{t.spelling} {var.spelling}` the table has no type for.")
-            if self.views.narrow(t) is not None:
-                swift = "Int32"
-            if init:
-                out.append(f"var {name}: {swift} = {self.coerced(init[0], swift)}")
-            else:
-                out.append(f"var {name}: {swift}")
+            try:
+                out.append(self.declaration(var))
+            except Hole as hole:
+                self.holes += 1
+                self.hole_names.add(var.spelling)
+                raven = " ".join(self.bytes[var.extent.start.offset:var.extent.end.offset].decode("utf-8", "replace").split())
+                out += [f"// Port-note: {hole}", f"// Raven wrote: {raven};", f'portMissing("{self.fn.name}", source: "{self.fn.cite}")']
         return out
+
+    def declaration(self, var: ci.Cursor) -> str:
+        name = swift_name(var.spelling)
+        t = var.type
+        init = [c for c in var.get_children() if c.kind.is_expression() and b"=" in self.bytes[var.extent.start.offset:c.extent.start.offset]]
+        keyword = self.keyword(var, bool(init))
+        if t.get_canonical().kind == TypeKind.CONSTANTARRAY and self.views.is_vec3(t):
+            if not init:
+                return f"var {name} = JKAShared.vec3_t(0, 0, 0)"
+            return f"var {name} = {self.vector_literal(init[0])}"
+        if t.get_canonical().kind == TypeKind.CONSTANTARRAY and self.views.is_vec3(t.element_type):
+            # `vec3_t axis[3]` is an array of vectors, each at zero.
+            count = t.get_canonical().element_count
+            if init:
+                raise Hole("An array of vectors with an initializer.")
+            return f"var {name}: [JKAShared.vec3_t] = [{', '.join(['JKAShared.vec3_t(0, 0, 0)'] * count)}]"
+        if t.get_canonical().kind == TypeKind.POINTER:
+            record = self.views.record_name(t.get_canonical().get_pointee())
+            if record and record in self.views.views:
+                self.reachable(record)
+                view = self.views.qualified_view(record, TARGET)
+                if init:
+                    return f"{keyword} {name}: {view}? = {self.expr(init[0])}"
+                return f"var {name}: {view}?"
+            raise Hole(f"A pointer local `{t.spelling} {var.spelling}` with no view.")
+        swift = self.views.scalar(t, TARGET)
+        if swift is None:
+            raise Hole(f"A local `{t.spelling} {var.spelling}` the table has no type for.")
+        if self.views.narrow(t) is not None:
+            swift = "Int32"
+        if init:
+            return f"{keyword} {name}: {swift} = {self.converted(init[0], swift)}"
+        return f"{keyword} {name}: {swift}"
+
+    def vector_literal(self, cur: ci.Cursor) -> str:
+        """Raven's `{ 0, 0, 0 }` or `{0}` as the vector, with the members he left out at zero."""
+        cur = self.unwrap(cur)
+        if cur.kind != CursorKind.INIT_LIST_EXPR:
+            raise Hole("A vector local with an initializer that is not a list.")
+        words = [self.expr(k) for k in cur.get_children()]
+        if len(words) > 3:
+            raise Hole("A vector initializer with more than three members.")
+        words += ["0"] * (3 - len(words))
+        return f"JKAShared.vec3_t({', '.join(words)})"
 
     # MARK: - Expressions
 
@@ -429,18 +697,49 @@ class Drafter:
         return cur
 
     def swift_type_of(self, cur: ci.Cursor) -> str | None:
-        """`Bool` for a qboolean-typed expression, so an assignment coerces its right side. Anything else takes the value as written."""
-        return "Bool" if self.is_bool(cur) else None
+        """`Bool` for a qboolean, `Float` or `Int32` for a number, so a store converts its right side as C does."""
+        if self.is_bool(cur):
+            return "Bool"
+        return self.number_kind(self.strip(cur).type)
+
+    def number_kind(self, t: ci.Type) -> str | None:
+        kind = t.get_canonical().kind
+        if kind in (TypeKind.FLOAT, TypeKind.DOUBLE):
+            return "Float"
+        if kind in INT_KINDS or kind in (TypeKind.ENUM, TypeKind.CHAR_S, TypeKind.SCHAR, TypeKind.UCHAR, TypeKind.CHAR_U):
+            return "Int32"
+        return None
+
+    def is_literal(self, cur: ci.Cursor) -> bool:
+        """A number Raven spelled as digits, which Swift types by context. A macro name is a typed constant, not a literal."""
+        inner = self.unwrap(cur)
+        text = self.bytes[inner.extent.start.offset:inner.extent.end.offset].decode("utf-8", "replace").strip()
+        return NUMBER.fullmatch(text) is not None
+
+    def converted(self, cur: ci.Cursor, swift: str) -> str:
+        """An expression stored where Swift wants `swift`: `Float(x)` for an integer into a float, `Int32(x)` the other way,
+        and a literal or a matching kind as it is."""
+        have = self.number_kind(self.strip(cur).type)
+        if swift in ("Float", "Int32") and self.is_bool(cur):
+            text = self.expr(cur)
+            if text in ("true", "false"):
+                return "1" if text == "true" else "0"
+            return f"({text} ? 1 : 0)"
+        if swift in ("Float", "Int32") and have is not None and have != swift and not self.is_literal(cur):
+            return f"{swift}({self.expr(cur)})"
+        return self.coerced(cur, swift)
 
     def is_bool(self, cur: ci.Cursor) -> bool:
         """True when the expression already is a Swift Bool: a comparison, a logical operator, a `!`, qtrue, qfalse, or a qboolean."""
         cur = self.strip(cur)
+        if self.collapsed(cur):
+            return cur.type.spelling.replace("const ", "") == "qboolean"
         if cur.kind == CursorKind.PAREN_EXPR:
             return self.is_bool(list(cur.get_children())[0])
         if cur.kind == CursorKind.BINARY_OPERATOR:
             return self.binary_op(cur) in COMPARISONS | LOGICAL
-        if cur.kind == CursorKind.UNARY_OPERATOR:
-            return self.unary_parts(cur)[0] == "!"
+        if cur.kind == CursorKind.UNARY_OPERATOR and self.unary_parts(cur)[0] == "!":
+            return True
         if cur.kind == CursorKind.DECL_REF_EXPR and cur.spelling in ("qtrue", "qfalse"):
             return True
         return cur.type.spelling.replace("const ", "") == "qboolean"
@@ -452,6 +751,20 @@ class Drafter:
         """A C truth test as a Swift Bool: a Bool as it is, a pointer against nil, a number against 0."""
         return self.coerced(cur, "Bool")
 
+    def always_set(self, cur: ci.Cursor) -> str | None:
+        """Raven's name for a pointer Swift holds as a value, when a truth test on it has no Swift form."""
+        inner = self.unwrap(cur)
+        if inner.kind == CursorKind.UNARY_OPERATOR and self.unary_parts(inner)[0] == "&":
+            return self.bytes[inner.extent.start.offset:inner.extent.end.offset].decode("utf-8", "replace")
+        if inner.kind == CursorKind.DECL_REF_EXPR and inner.spelling in self.params_by_name:
+            kind = self.params_by_name[inner.spelling].kind
+            swift = self.params_by_name[inner.spelling].swift or ""
+            if swift.startswith("inout ") or kind in ("view", "vec3_const", "cstring", "slots"):
+                return inner.spelling
+        if inner.kind == CursorKind.DECL_REF_EXPR and inner.spelling in NEVER_NULL_VARS:
+            return inner.spelling
+        return None
+
     def coerced(self, cur: ci.Cursor, swift: str | None) -> str:
         if swift != "Bool":
             return self.expr(cur)
@@ -460,6 +773,10 @@ class Drafter:
         inner = self.strip(cur)
         if inner.kind == CursorKind.PAREN_EXPR:
             return self.coerced(list(inner.get_children())[0], "Bool")
+        name = self.always_set(cur)
+        if name is not None:
+            self.pending.append(f"// Port-note: Raven tests `{name}` for NULL here. Swift holds it as a value, so the test has no form and reads true.")
+            return "true"
         if self.is_pointer(cur):
             return f"{self.expr(cur)} != nil"
         return f"{self.operand(cur)} != 0"
@@ -472,16 +789,46 @@ class Drafter:
             return f"({text})"
         return text
 
+    UNSIGNED = {"UInt", "UInt8", "UInt16", "UInt32", "UInt64"}
+
+    def has_double_literal(self, cur: ci.Cursor) -> bool:
+        """True when Raven's expression holds a floating literal with no f suffix, which C computes in double."""
+        for c in cur.walk_preorder():
+            if c.kind == CursorKind.FLOATING_LITERAL:
+                text = self.bytes[c.extent.start.offset:c.extent.end.offset].decode("utf-8", "replace").strip()
+                if NUMBER.fullmatch(text) and not text.endswith(("f", "F")):
+                    return True
+        return False
+
+    def unsigned_of(self, cur: ci.Cursor) -> str | None:
+        """The unsigned Swift type of the expression, when the views spell its C type unsigned."""
+        swift = self.views.scalar(self.strip(cur).type, TARGET)
+        return swift if swift in self.UNSIGNED else None
+
+    def wrapped(self, cur: ci.Cursor, wrap: str) -> str:
+        """The expression with `wrap(...)` on each numeric leaf that is not a literal."""
+        outer = self.leaf_wrap
+        self.leaf_wrap = wrap
+        try:
+            return self.expr(cur)
+        finally:
+            self.leaf_wrap = outer
+
+    def leaf(self, cur: ci.Cursor, text: str) -> str:
+        """A leaf of an expression, wrapped when a conversion is open and the leaf is a number Swift types on its own."""
+        if self.leaf_wrap is None or self.number_kind(cur.type) is None:
+            return text
+        if self.leaf_wrap in self.UNSIGNED and self.unsigned_of(cur) is not None:
+            return text
+        return f"{self.leaf_wrap}({text})"
+
     def expr(self, cur: ci.Cursor) -> str:
         kind = cur.kind
-        if self.strip(cur).kind not in (CursorKind.DECL_REF_EXPR, CursorKind.MEMBER_REF_EXPR) and not self.in_macro:
+        if self.strip(cur).kind not in (CursorKind.DECL_REF_EXPR, CursorKind.MEMBER_REF_EXPR):
             # A node whose whole text is one name is a macro use, `ENTITYNUM_WORLD`, and the name is what Raven wrote.
             text = self.source.slice(cur.extent).strip()
             if IDENTIFIER.fullmatch(text):
-                return swift_name(text)
-            macro = self.macro_use(cur)
-            if macro is not None:
-                return macro
+                return "nil" if text == "NULL" else self.leaf(cur, swift_name(text))
         if kind == CursorKind.UNEXPOSED_EXPR:
             if self.is_call(cur):
                 return self.call(cur)
@@ -495,28 +842,46 @@ class Drafter:
             return self.literal(cur)
         if kind == CursorKind.CHARACTER_LITERAL:
             text = self.source.slice(cur.extent)
-            return f"Int32(ascii: {text.replace(chr(39), chr(34))})" if len(text) == 3 else self.hole_text(cur, "A character literal with an escape.")
+            if len(text) != 3:
+                raise Hole("A character literal with an escape.")
+            return f"Int32(ascii: {text.replace(chr(39), chr(34))})"
         if kind == CursorKind.STRING_LITERAL:
             return self.source.slice(cur.extent)
         if kind == CursorKind.DECL_REF_EXPR:
-            return self.reference(cur)
+            word = self.reference(cur)
+            return word if word in ("true", "false", "nil") else self.leaf(cur, word)
         if kind == CursorKind.MEMBER_REF_EXPR:
-            return self.member(cur)
+            return self.leaf(cur, self.member(cur))
         if kind == CursorKind.ARRAY_SUBSCRIPT_EXPR:
             base, index = list(cur.get_children())
-            if self.in_macro and self.macro_indexes:
-                # The outermost subscript is the last one in Raven's text.
-                word = self.simple_argument(self.macro_indexes.pop().strip())
-                if word is None:
-                    raise Hole("A subscript inside a macro argument that is more than a name or a number.")
-                return f"{self.base(base)}[{word}]"
-            return f"{self.base(base)}[{self.expr(index)}]"
+            inner_base = self.strip(base)
+            if inner_base.kind == CursorKind.MEMBER_REF_EXPR and inner_base.type.get_canonical().kind == TypeKind.POINTER:
+                raven = self.bytes[cur.extent.start.offset:cur.extent.end.offset].decode("utf-8", "replace")
+                raise Hole(f"Raven reads `{raven}` through a `{inner_base.type.spelling}` field. The generated field is an `OpaquePointer?`, and rule 11 keeps a pointer out of a logic target.")
+            base_text = self.base(base)
+            outer = self.leaf_wrap
+            self.leaf_wrap = None
+            try:
+                index_text = self.expr(index)
+            finally:
+                self.leaf_wrap = outer
+            return self.leaf(cur, f"{base_text}[{index_text}]")
         if kind == CursorKind.CALL_EXPR:
-            return self.call(cur)
+            outer = self.leaf_wrap
+            self.leaf_wrap = None
+            try:
+                text = self.call(cur)
+            finally:
+                self.leaf_wrap = outer
+            return self.leaf(cur, text)
         if kind == CursorKind.UNARY_OPERATOR:
             op, prefix, operand = self.unary_parts(cur)
             if op == "!":
                 inner = self.strip(operand)
+                name = self.always_set(operand)
+                if name is not None:
+                    self.pending.append(f"// Port-note: Raven guards a NULL `{name}` here. Swift holds it as a value, so the guard has no form and reads false.")
+                    return "false"
                 if self.is_bool(operand):
                     return f"!{self.operand(operand)}"
                 if inner.kind == CursorKind.PAREN_EXPR:
@@ -540,9 +905,29 @@ class Drafter:
             op = self.binary_op(cur)
             left, right = list(cur.get_children())
             if op in LOGICAL:
-                return f"{self.condition(left)} {op} {self.condition(right)}"
+                a, b = self.condition(left), self.condition(right)
+                # A folded guard drops out of the operator it sat in.
+                if op == "||" and a == "false":
+                    return b
+                if op == "||" and b == "false":
+                    return a
+                if op == "&&" and a == "true":
+                    return b
+                if op == "&&" and b == "true":
+                    return a
+                return f"{a} {op} {b}"
             if op in ASSIGNS:
                 raise Hole("An assignment inside an expression.")
+            if op not in COMPARISONS | LOGICAL and self.leaf_wrap is None:
+                lu, ru = self.unsigned_of(left), self.unsigned_of(right)
+                if lu is not None and ru is None and not self.is_literal(right):
+                    return f"{self.expr(left)} {op} {self.wrapped(right, lu)}"
+                if ru is not None and lu is None and not self.is_literal(left):
+                    return f"{self.wrapped(left, ru)} {op} {self.expr(right)}"
+            if op in ("==", "!=") and self.is_bool(left) and self.is_literal(right):
+                # Raven compares a qboolean with 0 or 1, and Swift reads the Bool itself.
+                zero = self.bytes[self.unwrap(right).extent.start.offset:self.unwrap(right).extent.end.offset].decode().strip() == "0"
+                return f"!{self.operand(left)}" if zero == (op == "==") else self.operand(left)
             return f"{self.expr(left)} {op} {self.expr(right)}"
         if kind == CursorKind.CONDITIONAL_OPERATOR:
             test, yes, no = list(cur.get_children())
@@ -553,96 +938,6 @@ class Drafter:
             raise Hole("A sizeof the draft cannot size.")
         raise Hole(f"No rule for a {kind.name} expression.")
 
-    def macro_use(self, cur: ci.Cursor) -> str | None:
-        """Raven's `VectorCopy(a, b)` as the table's Swift. The name and the argument texts come from Raven's line, and an
-        argument that is more than a name or a number comes from the node the shape of the expansion puts in its place."""
-        if self.in_macro:
-            return None
-        start, end = cur.extent.start.offset, cur.extent.end.offset
-        text = self.bytes[start:end].decode("utf-8", "replace")
-        m = MACRO_USE.fullmatch(text.strip())
-        if m is None:
-            return None
-        name = m.group(1)
-        if name not in VECTOR_MACROS:
-            return None
-        if cur.kind == CursorKind.CALL_EXPR and cur.spelling == name:
-            return None
-        texts = self.argument_texts(text[text.index("(") + 1:])
-        params, count, shapes, template = VECTOR_MACROS[name]
-        if len(texts) != len(params):
-            raise Hole(f"{name} takes {len(params)} arguments, and Raven gave {len(texts)}.")
-        components = self.components(cur, count)
-        found: dict[str, ci.Cursor] = {}
-        for index, shape in shapes:
-            if not self.match(components[index], shape, found):
-                raise Hole(f"The expansion of {name} does not have the shape the draft knows.")
-        words: dict[str, str] = {}
-        self.in_macro = True
-        try:
-            for param, t in zip(params, texts):
-                simple = self.simple_argument(t)
-                words[param] = simple if simple is not None else self.path_argument(found[param], t)
-        finally:
-            self.in_macro = False
-        return template.format(**words)
-
-    def path_argument(self, node: ci.Cursor, text: str) -> str:
-        """A macro argument from its node, with the subscript indexes taken from Raven's text, because the nodes keep no number."""
-        if PATH_ARG.fullmatch(text) is not None:
-            self.macro_indexes = re.findall(r"\[([^\[\]]*)\]", text)
-        else:
-            self.macro_indexes = []
-        try:
-            return self.expr(node)
-        finally:
-            self.macro_indexes = []
-
-    def argument_texts(self, text: str) -> list[str]:
-        """The argument texts of a macro use, split at the commas outside brackets, up to the closing parenthesis."""
-        out: list[str] = []
-        depth = 0
-        start = 0
-        for i, ch in enumerate(text):
-            if ch in "([":
-                depth += 1
-            elif ch in ")]":
-                if depth == 0:
-                    out.append(text[start:i].strip())
-                    return out
-                depth -= 1
-            elif ch == "," and depth == 0:
-                out.append(text[start:i].strip())
-                start = i + 1
-        raise Hole("A macro use with no closing parenthesis.")
-
-    def simple_argument(self, text: str) -> str | None:
-        """A name or a number as Raven wrote it, or None for an argument the AST must translate."""
-        if SIMPLE_ARG.fullmatch(text) is None:
-            return None
-        if text[0] == "-" or text[0].isdigit() or text[0] == ".":
-            return re.sub(r"[fF]$", "", text.replace(" ", ""))
-        if text == "qtrue":
-            return "true"
-        if text == "qfalse":
-            return "false"
-        if text in self.names:
-            return self.names[text]
-        if text in HAND_VARS:
-            return HAND_VARS[text]
-        return swift_name(text)
-
-    def components(self, cur: ci.Cursor, count: int) -> list[ci.Cursor]:
-        """The components of a left-leaning comma chain, or the one node when the macro has one component."""
-        node = self.unwrap(cur)
-        if count == 1:
-            return [node]
-        out = [node]
-        for _ in range(count - 1):
-            left, right = list(out[0].get_children())
-            out[0:1] = [self.unwrap(left), self.unwrap(right)]
-        return out
-
     def unwrap(self, cur: ci.Cursor) -> ci.Cursor:
         while cur.kind in (CursorKind.PAREN_EXPR, CursorKind.UNEXPOSED_EXPR):
             kids = list(cur.get_children())
@@ -651,35 +946,8 @@ class Drafter:
             cur = kids[0]
         return cur
 
-    def match(self, cur: ci.Cursor, shape, found: dict[str, ci.Cursor]) -> bool:
-        cur = self.unwrap(cur)
-        if isinstance(shape, str):
-            if shape != "_":
-                found[shape] = cur
-            return True
-        head, *parts = shape
-        kids = list(cur.get_children())
-        if head == "bin":
-            return cur.kind == CursorKind.BINARY_OPERATOR and len(kids) == 2 and all(self.match(k, p, found) for k, p in zip(kids, parts))
-        if head == "sub":
-            return cur.kind == CursorKind.ARRAY_SUBSCRIPT_EXPR and len(kids) == 2 and self.match(kids[0], parts[0], found)
-        if head == "neg":
-            return cur.kind == CursorKind.UNARY_OPERATOR and len(kids) == 1 and self.match(kids[0], parts[0], found)
-        if head == "cast":
-            return cur.kind == CursorKind.CSTYLE_CAST_EXPR and bool(kids) and self.match(kids[-1], parts[0], found)
-        if head == "call":
-            return cur.kind == CursorKind.CALL_EXPR and len(kids) == len(parts) + 1 and all(self.match(k, p, found) for k, p in zip(kids[1:], parts))
-        if head == "block":
-            return cur.kind == CursorKind.COMPOUND_STMT and bool(kids) and self.match(kids[0], parts[0], found)
-        return False
-
-    def hole_text(self, cur: ci.Cursor, reason: str) -> str:
-        raise Hole(reason)
-
     def literal(self, cur: ci.Cursor) -> str:
         """Raven's spelling, which keeps a macro name where he wrote one, with the C suffixes dropped."""
-        if self.in_macro:
-            raise Hole("A number inside a macro argument, which the expansion keeps no text for.")
         text = self.source.slice(cur.extent).strip()
         if cur.kind == CursorKind.FLOATING_LITERAL:
             return re.sub(r"[fF]$", "", text)
@@ -707,6 +975,9 @@ class Drafter:
         inner = self.strip(cur)
         if inner.kind == CursorKind.PAREN_EXPR:
             return self.optional_base(list(inner.get_children())[0])
+        if inner.kind == CursorKind.CSTYLE_CAST_EXPR:
+            kids = [k for k in inner.get_children() if k.kind.is_expression()]
+            return bool(kids) and self.optional_base(kids[-1])
         if not self.is_pointer(inner):
             return False
         if inner.kind == CursorKind.DECL_REF_EXPR:
@@ -737,26 +1008,101 @@ class Drafter:
         args = kids[1:]
         if callee is not None and callee.kind == CursorKind.DECL_REF_EXPR and callee.referenced is not None and callee.referenced.kind == CursorKind.FUNCTION_DECL:
             name = callee.spelling
-            inout = self.inout_positions(name)
-            words = [self.argument(a, i in inout) for i, a in enumerate(args)]
+            if name in MACROS:
+                return self.macro_call(name, args)
+            params = self.callee_params(name)
+            words = [self.argument(a, i < len(params) and params[i][1].startswith("inout "), params[i] if i < len(params) else None) for i, a in enumerate(args)]
             return f"{swift_name(name)}({', '.join(words)})"
+        if callee is not None and callee.kind == CursorKind.MEMBER_REF_EXPR:
+            # A stored function on a view runs through the view's method, `pm.runTrace(...)`, which views.py writes per field.
+            kids_ = list(callee.get_children())
+            field = callee.spelling
+            method = f"run{field[0].upper()}{field[1:]}"
+            params = self.registry.params.get(method, [])
+            words = [self.argument(a, i < len(params) and params[i][1].startswith("inout "), params[i] if i < len(params) else None) for i, a in enumerate(args)]
+            return f"{self.base(kids_[0])}.{method}({', '.join(words)})"
         if callee is not None:
             words = [self.argument(a, False) for a in args]
             return f"{self.expr(callee)}({', '.join(words)})"
         raise Hole("A call with no callee.")
 
-    def inout_positions(self, name: str) -> set[int]:
+    def macro_call(self, name: str, args: list[ci.Cursor]) -> str:
+        """Raven's `VectorCopy(a, b)` as the table's Swift, each argument a node of the overlay's call."""
+        template, floats = MACROS[name]
+        if template.count("{") != len(args):
+            raise Hole(f"{name} takes {template.count('{')} arguments, and Raven gave {len(args)}.")
+        words = []
+        for i, arg in enumerate(args):
+            inner = self.strip(arg)
+            if inner.kind == CursorKind.UNARY_OPERATOR and self.unary_parts(inner)[0] == "&":
+                inner = self.unary_parts(inner)[2]
+            words.append(self.converted(inner, "Float") if i in floats else self.expr(inner))
+        return template.format(*words)
+
+    def callee_params(self, name: str) -> list[tuple[str, str]]:
+        """The callee's Swift parameters: the signature under Sources/ when one exists, because a hand port of q_math takes a
+        vector by value where the table would say inout, and the table's row for a function not yet written."""
+        if name in self.registry.params:
+            return self.registry.params[name]
         fn = self.sk.by_name.get(name)
         if fn is not None and fn.mapped:
-            return {i for i, p in enumerate(fn.params) if (p.swift or "").startswith("inout ")}
-        return self.registry.inout.get(name, set())
+            return [(p.name.strip("`"), p.swift or "") for p in fn.params]
+        return []
 
-    def argument(self, cur: ci.Cursor, inout: bool) -> str:
+    def inout_positions(self, name: str) -> set[int]:
+        return {i for i, (_, swift) in enumerate(self.callee_params(name)) if swift.startswith("inout ")}
+
+    def argument(self, cur: ci.Cursor, inout: bool, param: tuple[str, str] | None = None) -> str:
         inner = self.strip(cur)
         if inner.kind == CursorKind.UNARY_OPERATOR and self.unary_parts(inner)[0] == "&":
             inner = self.unary_parts(inner)[2]
+        if inout and self.is_null(inner):
+            if param is None or param[1].replace("JKAShared.", "") != "inout vec3_t":
+                raise Hole("NULL for an inout parameter that is not a vector.")
+            scratch = f"scratch{param[0][0].upper()}{param[0][1:]}"
+            self.scratch_names[scratch] = self.scratch_names.get(scratch, 0) + 1
+            if self.scratch_names[scratch] > 1:
+                scratch += str(self.scratch_names[scratch])
+            self.pending.append(f"// Raven passes NULL for the `{param[0]}` output. The ported function takes it by reference, so the body passes a scratch vector it never reads.")
+            self.pending.append(f"var {scratch} = JKAShared.vec3_t(0, 0, 0)")
+            return f"&{scratch}"
+        if param is not None and param[1] in ("Float", "Int32", "Bool"):
+            return self.converted(inner, param[1])
+        if param is not None and param[1].endswith("?") and self.is_null(inner):
+            return "nil"
+        if param is not None and param[1].replace("JKAShared.", "") == "vec3_t" and self.is_null(inner):
+            self.pending.append(f"// Port-note: Raven passes NULL for `{param[0]}`, and the callee reads NULL as the zero vector.")
+            return "JKAShared.vec3_origin"
+        if param is not None and param[1] == "String" and self.is_null(inner):
+            raise Hole(f"NULL for `{param[0]}`, a String parameter.")
         text = self.expr(inner)
+        if param is not None and not param[1].endswith("?") and not inout and self.optional_base(inner):
+            text += "!"
         return f"&{text}" if inout else text
+
+    def is_null(self, cur: ci.Cursor) -> bool:
+        inner = self.unwrap(cur)
+        text = self.bytes[inner.extent.start.offset:inner.extent.end.offset].decode("utf-8", "replace").strip()
+        return text in ("NULL", "0")
+
+    def optional_local(self, cur: ci.Cursor) -> bool:
+        """A local the draft declared as an optional view, `var pVeh: Vehicle?`."""
+        inner = self.unwrap(cur)
+        if inner.kind != CursorKind.DECL_REF_EXPR or inner.spelling in self.names:
+            return False
+        ref = inner.referenced
+        if ref is None or ref.kind != CursorKind.VAR_DECL or ref.semantic_parent is None or ref.semantic_parent.kind != CursorKind.FUNCTION_DECL and ref.semantic_parent.kind != CursorKind.COMPOUND_STMT:
+            return False
+        t = ref.type.get_canonical()
+        if t.kind != TypeKind.POINTER:
+            return False
+        record = self.views.record_name(t.get_pointee())
+        return bool(record) and record in self.views.views
+
+    def reachable(self, record: str) -> None:
+        """A view of the game target has no name in a bg file, so a bg body that reaches for one keeps a hole."""
+        if target_of(self.fn.stem) == BG and self.views.views[record][1] == "CJKAMP_Game":
+            raise Hole(f"Raven reaches the game's `{record}` here, and the bg module has no view of it.")
 
     def cast(self, cur: ci.Cursor) -> str:
         kids = [k for k in cur.get_children() if k.kind.is_expression()]
@@ -768,6 +1114,10 @@ class Drafter:
         if canonical.kind == TypeKind.POINTER:
             record = self.views.record_name(canonical.get_pointee())
             if record and record in self.views.views:
+                self.reachable(record)
+                if self.views.record_name(self.strip(operand).type.get_canonical().get_pointee()) == record:
+                    # A cast to the type the operand already has is Raven's habit, and the view is the same view.
+                    return self.expr(operand)
                 return f"{self.views.qualified_view(record, TARGET)}({self.expr(operand)})"
             raise Hole(f"A cast to `{target.spelling}` the draft has no view for.")
         swift = self.views.scalar(target, TARGET)
@@ -783,8 +1133,6 @@ class Drafter:
         """The operator between the two operands, read from the bytes between them. The binding exposes no operator on the
         cursor, and the tokens are empty when the range starts inside a macro expansion, so the source text carries it."""
         left, right = list(cur.get_children())
-        if self.in_macro and left.extent.end.offset == right.extent.start.offset:
-            raise Hole("Arithmetic inside a macro argument, which the expansion keeps no text for.")
         text = self.bytes[left.extent.end.offset:right.extent.start.offset].decode("utf-8", "replace")
         # A comment Raven wrote between two operands of a condition that spans lines is dropped from the draft.
         text = COMMENT.sub("", text).strip()
@@ -808,7 +1156,7 @@ def main() -> None:
     parser.add_argument("--only", help="comma-separated function names to print")
     parser.add_argument("--stem", help="print every draft of one .c file")
     args = parser.parse_args()
-    sk = Skeleton()
+    sk = Skeleton(overlay=OVERLAY)
     drafter = Drafter(sk, Registry())
     if args.only:
         fns = [sk.by_name[n] for n in args.only.split(",")]
