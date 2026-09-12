@@ -239,6 +239,12 @@ class Table:
                 if element.get_pointee().get_canonical().kind == TypeKind.CHAR_S:
                     # A C array of strings the function fills from a caller's `&array[i]`, `char *infos[]`, is the caller's slice from `i` on.
                     return Param(name, "inout ArraySlice<String>", "string_slice")
+            if canonical.kind == TypeKind.CONSTANTARRAY and (element.kind in INT_KINDS or element.kind == TypeKind.FLOAT):
+                # A fixed C array of a scalar the body reads, `int delta_angles[3]`, is the values by value, copied at the call.
+                # A body that writes through it would take `inout`, and none does.
+                swift = self.views.scalar(canonical.element_type, TARGET)
+                if swift is not None and self.known(swift):
+                    return Param(name, f"[{swift}]", "bare")
         if canonical.kind in (TypeKind.RECORD, TypeKind.CONSTANTARRAY, TypeKind.INCOMPLETEARRAY):
             return None
         swift = self.views.scalar(t, TARGET)

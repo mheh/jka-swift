@@ -102,6 +102,7 @@ A struct Raven defines inside a `.c` file has its definition copied as Raven wro
 | a non-const `char **` the function sets once to a string it owns, such as `G_SpawnString` | `inout String`, PARAMS kind `out_string`, and the text a body assigns is a copy. |
 | a C array of struct pointers the function fills, such as `gentity_t *ent_list[MAX_GENTITIES]` | `inout [View?]`, and the caller declares `var entity_list = [Entity?](repeating: nil, count: Int(MAX_GENTITIES))` where Raven declared the local. |
 | a C array of strings the function fills from a caller's `&array[i]`, such as `char *infos[]` | `inout ArraySlice<String>`, the caller passes `&g_arenaInfos[Int(g_numArenas)...]`, and the body writes `infos[infos.startIndex + count]`, because a slice keeps the parent's indices. |
+| a fixed C array of a scalar the body reads, such as `int delta_angles[3]` | `[Int32]` by value, and a caller with a view field passes `Array(bs.cur_ps.delta_angles)`. |
 
 Three RETURNS kinds cover the `char *` return cases beyond a plain `String`.
 `in_place` marks a function that rewrites its argument and returns it, such as `Q_strlwr`, `Q_strupr`, and `Q_CleanStr`.

@@ -303,10 +303,7 @@ BotInputToUserCommand
 ```
 */
 /// Source: oracle/codemp/game/ai_main.c:537
-// TODO: Port signature
-// Raven wrote: void BotInputToUserCommand(bot_input_t *bi, usercmd_t *ucmd, int delta_angles[3], int time, int useTime)
-// No table row for `int[3] delta_angles`.
-func BotInputToUserCommand() -> Never {
+func BotInputToUserCommand(_ bi: BotInput, _ ucmd: JKAMP.Usercmd, _ delta_angles: [Int32], _ time: Int32, _ useTime: Int32) {
     // TODO: Port BotInputToUserCommand
     portMissing("BotInputToUserCommand", source: "oracle/codemp/game/ai_main.c:537")
 }
