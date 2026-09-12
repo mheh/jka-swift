@@ -142,13 +142,8 @@ private func qsortSpan<T>(_ a: inout [T], _ lo: Int, _ n: Int, _ cmp: (T, T) -> 
 }
 
 /// Source: oracle/codemp/game/bg_lib.c:287
-// TODO: Port signature
 // Raven wrote: void *memmove( void *dest, const void *src, size_t count )
-// No table row for `int (void *) __builtin_object_size`.
-func __builtin___memmove_chk() -> Never {
-    // TODO: Port __builtin___memmove_chk
-    portMissing("__builtin___memmove_chk", source: "oracle/codemp/game/bg_lib.c:287")
-}
+// Not ported: the C library's, which no body of the module calls, and a Swift body moves bytes through CharBuf and a view's setter.
 
 /// Source: oracle/codemp/game/bg_lib.c:763
 var randSeed: Int32 {

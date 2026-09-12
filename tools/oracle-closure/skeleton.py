@@ -33,7 +33,7 @@ from clang.cindex import CursorKind, TypeKind
 import closure as C
 from fnsweep import binop_assign_op, rhs_function, root_var
 from reexport import REPO, SOURCES
-from rulings import HAND_VARS, NEVER_NULL_VARS, RETURNS
+from rulings import HAND_VARS, NEVER_NULL_VARS, NOT_PORTED, RETURNS
 from table import Param, SourceFile, Table, swift_name
 
 ORACLE_DIR = "codemp/game"
@@ -75,6 +75,11 @@ class Function:
     @property
     def cite(self) -> str:
         return f"oracle/{ORACLE_DIR}/{self.stem}.c:{self.line}"
+
+    @property
+    def raven_name(self) -> str:
+        """The name Raven wrote. The SDK's fortify macro renames `memmove` to `__builtin___memmove_chk` in the parse."""
+        return "memmove" if self.name == "__builtin___memmove_chk" else self.name
 
     @property
     def mapped(self) -> bool:
@@ -537,6 +542,10 @@ class Skeleton:
             self.counts["static functions kept internal for a thunk"] += 1
         if not fn.static and fn.name in self.shared_names:
             self.counts["functions made private because another file defines the name"] += 1
+        if fn.raven_name in NOT_PORTED:
+            self.counts["not ported by ruling"] += 1
+            lines += [f"// Raven wrote: {source.c_signature(fn.cur)}", f"// Not ported: {NOT_PORTED[fn.raven_name]}."]
+            return lines
         if not fn.mapped:
             self.counts["TODO: Port signature"] += 1
             lines += [

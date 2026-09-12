@@ -168,6 +168,13 @@ PARAMS = {
     ("GetStringForID", "table"): "table",
 }
 
+# Functions of the oracle the port leaves out. The stub carries the cite, Raven's line, and the reason, and no function.
+NOT_PORTED = {
+    "memmove": "the C library's, which no body of the module calls, and a Swift body moves bytes through CharBuf and a view's setter",
+    "BotEntityInfo": "no caller in the module, and the botlib record it forwards belongs to the engine, which the module reaches through trap_AAS_EntityInfo alone. "
+                     "A view over aas_entityinfo_t of be_aas.h is the fallback if a ported body calls it",
+}
+
 # MARK: - The bg channel
 
 # Functions bg reaches through hooks of their own, not through the channel. See rule 23.

@@ -235,13 +235,8 @@ BotEntityInfo
 ```
 */
 /// Source: oracle/codemp/game/ai_main.c:407
-// TODO: Port signature
 // Raven wrote: void BotEntityInfo(int entnum, aas_entityinfo_t *info)
-// No table row for `aas_entityinfo_t * info`.
-func BotEntityInfo() -> Never {
-    // TODO: Port BotEntityInfo
-    portMissing("BotEntityInfo", source: "oracle/codemp/game/ai_main.c:407")
-}
+// Not ported: no caller in the module, and the botlib record it forwards belongs to the engine, which the module reaches through trap_AAS_EntityInfo alone. A view over aas_entityinfo_t of be_aas.h is the fallback if a ported body calls it.
 
 /**
 ```
