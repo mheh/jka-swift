@@ -1052,13 +1052,8 @@ public func trap_AAS_PointReachabilityAreaIndex(_ point: inout JKAShared.vec3_t)
 }
 
 /// Source: oracle/codemp/game/g_syscalls.c:681
-// TODO: Port signature
 // Raven wrote: int trap_AAS_TraceAreas(vec3_t start, vec3_t end, int *areas, vec3_t *points, int maxareas)
-// Held by PARAMS as `out_array`, `int * areas`, until a ruling gives the kind a shape.
-public func trap_AAS_TraceAreas() -> Never {
-    // TODO: Port trap_AAS_TraceAreas
-    portMissing("trap_AAS_TraceAreas", source: "oracle/codemp/game/g_syscalls.c:681")
-}
+// Not ported: no caller in the game module, and its arrays the engine fills are shaped when a module that calls it is generated.
 
 /// Source: oracle/codemp/game/g_syscalls.c:685
 @discardableResult
@@ -1546,13 +1541,8 @@ public func trap_BotMatchVariable(_ match: OpaquePointer?, _ variable: Int32, _ 
 }
 
 /// Source: oracle/codemp/game/g_syscalls.c:945
-// TODO: Port signature
 // Raven wrote: void trap_UnifyWhiteSpaces(char *string)
-// Held by PARAMS as `in_place`, `char * string`, until a ruling gives the kind a shape.
-public func trap_UnifyWhiteSpaces() -> Never {
-    // TODO: Port trap_UnifyWhiteSpaces
-    portMissing("trap_UnifyWhiteSpaces", source: "oracle/codemp/game/g_syscalls.c:945")
-}
+// Not ported: no caller in the game module, and its `char *` rewritten in place is shaped when a module that calls it is generated.
 
 /// Source: oracle/codemp/game/g_syscalls.c:949
 public func trap_BotReplaceSynonyms(_ string: String, _ context: UInt) {
@@ -2108,12 +2098,13 @@ public func trap_G2API_GetBoneAnim(_ ghoul2: OpaquePointer?, _ boneName: String,
 }
 
 /// Source: oracle/codemp/game/g_syscalls.c:1268
-// TODO: Port signature
-// Raven wrote: void trap_G2API_GetGLAName(void *ghoul2, int modelIndex, char *fillBuf)
-// Held by PARAMS as `fill_buffer`, `char * fillBuf`, until a ruling gives the kind a shape.
-public func trap_G2API_GetGLAName() -> Never {
-    // TODO: Port trap_G2API_GetGLAName
-    portMissing("trap_G2API_GetGLAName", source: "oracle/codemp/game/g_syscalls.c:1268")
+@discardableResult
+public func trap_G2API_GetGLAName(_ ghoul2: OpaquePointer?, _ modelIndex: Int32) -> String {
+    var fillBuf = [CChar](repeating: 0, count: Int(1024))
+    _ = fillBuf.withUnsafeMutableBufferPointer { fillBufPointer in
+        Syscall.call(G_G2_GETGLANAME, ghoul2, modelIndex, fillBufPointer.baseAddress!)
+    }
+    return String(nulTerminated: fillBuf)
 }
 
 /// Source: oracle/codemp/game/g_syscalls.c:1273
@@ -2194,12 +2185,13 @@ public func trap_G2API_CollisionDetectCache(_ collRecMap: CollisionRecord, _ gho
 }
 
 /// Source: oracle/codemp/game/g_syscalls.c:1344
-// TODO: Port signature
-// Raven wrote: void trap_G2API_GetSurfaceName(void *ghoul2, int surfNumber, int modelIndex, char *fillBuf)
-// Held by PARAMS as `fill_buffer`, `char * fillBuf`, until a ruling gives the kind a shape.
-public func trap_G2API_GetSurfaceName() -> Never {
-    // TODO: Port trap_G2API_GetSurfaceName
-    portMissing("trap_G2API_GetSurfaceName", source: "oracle/codemp/game/g_syscalls.c:1344")
+@discardableResult
+public func trap_G2API_GetSurfaceName(_ ghoul2: OpaquePointer?, _ surfNumber: Int32, _ modelIndex: Int32) -> String {
+    var fillBuf = [CChar](repeating: 0, count: Int(JKAShared.MAX_QPATH))
+    _ = fillBuf.withUnsafeMutableBufferPointer { fillBufPointer in
+        Syscall.call(G_G2_GETSURFACENAME, ghoul2, surfNumber, modelIndex, fillBufPointer.baseAddress!)
+    }
+    return String(nulTerminated: fillBuf)
 }
 
 /// Source: oracle/codemp/game/g_syscalls.c:1349

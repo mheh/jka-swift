@@ -35,6 +35,7 @@ from clang.cindex import CursorKind, TypeKind
 
 import closure as C
 from reexport import REPO, SOURCES
+from rulings import NOT_PORTED
 from table import Param, SourceFile, Table, swift_name
 
 TARGET = "CJKAMP_Game"
@@ -88,6 +89,13 @@ class Traps:
 
     def trap(self, cur: ci.Cursor) -> list[str]:
         name = cur.spelling
+        if name in NOT_PORTED:
+            self.counts["not ported by ruling"] += 1
+            return [
+                f"/// Source: oracle/{SOURCE}:{cur.location.line}",
+                f"// Raven wrote: {self.source.c_signature(cur)}",
+                f"// Not ported: {NOT_PORTED[name]}.",
+            ]
         calls = self.syscalls(cur)
         if len(calls) != 1:
             return self.marker(cur, f"The body holds {len(calls)} syscall calls, not one.")

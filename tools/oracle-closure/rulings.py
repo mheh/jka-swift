@@ -142,9 +142,8 @@ RETURNS = {
 #   vec3_mut  an inout vec3_t for a `float *` Raven fills as three floats, see "A pointer out-param Raven indexes"
 #   out_string  an inout String, for a `const char **` the function sets to the token instead of walking
 #   text_cursor  a TextCursor by value, for a `const char *` Raven passes as a cursor and returns advanced
-#   fill_buffer  a `char *` a trap fills with no size beside it, which keeps its marker until that shape is ruled
-#   in_place  a `char *` a trap rewrites in place, which keeps its marker until that shape is ruled
-#   out_array  an array the engine fills, sized by a count beside it, which keeps its marker until a caller needs that shape
+#   fill_buffer  a `char *` a trap fills with no size beside it, given as ("fill_buffer", capacity) with the capacity Raven's
+#                callers declare for the buffer, and the trap returns the String the same way a sized buffer does
 #   float_array  an inout [Float] for a `float *` a body fills as a matrix of the counts beside it
 #   pointer_table  a Slots<View?> over a file-scope array of struct pointers, whose base a trap hands to the engine
 PARAMS = {
@@ -161,11 +160,9 @@ PARAMS = {
     ("Parse2DMatrix", "m"): "float_array",
     ("Parse3DMatrix", "m"): "float_array",
     ("trap_SV_RegisterSharedMemory", "memory"): "raw",
-    ("trap_G2API_GetGLAName", "fillBuf"): "fill_buffer",
-    ("trap_G2API_GetSurfaceName", "fillBuf"): "fill_buffer",
-    ("trap_UnifyWhiteSpaces", "string"): "in_place",
-    ("trap_AAS_TraceAreas", "areas"): "out_array",
-    ("trap_AAS_TraceAreas", "points"): "out_array",
+    # Raven's callers declare `char GLAName[1024]` and `char hitSurface[MAX_QPATH]`, the only sizes there are.
+    ("trap_G2API_GetGLAName", "fillBuf"): ("fill_buffer", "1024"),
+    ("trap_G2API_GetSurfaceName", "fillBuf"): ("fill_buffer", "JKAShared.MAX_QPATH"),
     # A pointer to a table of records the body indexes, `table[i]`, crosses as the Slots over the table.
     ("GetIDForString", "table"): "table",
     ("GetStringForID", "table"): "table",
@@ -177,6 +174,9 @@ NOT_PORTED = {
     "memmove": "the C library's, which no body of the module calls, and a Swift body moves bytes through CharBuf and a view's setter",
     "BotEntityInfo": "no caller in the module, and the botlib record it forwards belongs to the engine, which the module reaches through trap_AAS_EntityInfo alone. "
                      "A view over aas_entityinfo_t of be_aas.h is the fallback if a ported body calls it",
+    # A trap no file of the module calls gets its shape when a module that calls it is generated.
+    "trap_UnifyWhiteSpaces": "no caller in the game module, and its `char *` rewritten in place is shaped when a module that calls it is generated",
+    "trap_AAS_TraceAreas": "no caller in the game module, and its arrays the engine fills are shaped when a module that calls it is generated",
 }
 
 # C library functions a .c file aliases, `#define sqrtf sqrt`, with the Swift signature the forwarder takes.

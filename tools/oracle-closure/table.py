@@ -128,6 +128,8 @@ class Table:
         and any other parameter has no row yet."""
         spelled = f"`{' '.join(cur.type.spelling.split())} {cur.spelling}`"
         ruled = PARAMS.get((owner, cur.spelling))
+        if isinstance(ruled, tuple):
+            ruled = ruled[0]
         if ruled is not None:
             return f"Held by PARAMS as `{ruled}`, {spelled}, until a ruling gives the kind a shape."
         return f"No table row for {spelled}."
@@ -138,6 +140,9 @@ class Table:
         t = cur.type
         canonical = t.get_canonical()
         ruled = PARAMS.get((owner, name))
+        capacity = None
+        if isinstance(ruled, tuple):
+            ruled, capacity = ruled
         if ruled == "raw":
             return Param(name, "UnsafeMutableRawPointer", "bare")
         if ruled == "vec3_mut":
@@ -153,9 +158,6 @@ class Table:
             return Param(name, f"inout JKAShared.{t.spelling.split()[-1]}", "vec3_mut")
         if canonical.kind == TypeKind.POINTER:
             pointee = canonical.get_pointee()
-            if ruled == "out_array":
-                # An array the engine fills, sized by a count beside it, which keeps its marker until that shape is ruled.
-                return None
             if t.get_pointee().spelling in VECTORS:
                 if traps:
                     # An array of vectors the engine reads, with a count beside it. The trap packs it flat, see traps.py.
@@ -181,10 +183,10 @@ class Table:
                     return Param(name, "String", "cstring")
                 if traps and following is not None and following.type.get_canonical().kind in INT_KINDS and SIZE_NAME.search(following.spelling):
                     return Param(name, None, "out_string", size=following.spelling)
+                if traps and ruled == "fill_buffer":
+                    # A buffer the engine fills with no size beside it takes the capacity Raven's callers declare, and the trap returns the String.
+                    return Param(name, None, "out_string", size=capacity)
                 if traps:
-                    # A buffer the engine fills with no size beside it, or rewrites in place, keeps its marker until that shape is ruled.
-                    if ruled in ("fill_buffer", "in_place"):
-                        return None
                     # A `char *` Raven wrote without `const` into a trap is an input the engine reads, a String like `const char *`.
                     return Param(name, "String", "cstring")
                 # A body reads and rewrites the caller's buffer in place, so the caller's CharBuf crosses with `&`.

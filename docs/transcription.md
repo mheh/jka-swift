@@ -114,7 +114,8 @@ It has PARAMS kind `text_cursor` and RETURNS kind `text_cursor`.
 
 A trap's array of struct pointers is a storage table's base, and it keeps its marker under the PARAMS kind `pointer_array`.
 A trap's `char *` parameter with a size beside it is already the returned `String` the engine filled.
-A buffer the engine fills with no size beside it, or rewrites in place, keeps its marker under the PARAMS kinds `fill_buffer` and `in_place`.
+A buffer the engine fills with no size beside it has a PARAMS entry `("fill_buffer", capacity)`, with the capacity Raven's callers declare for it, and the trap returns the `String` the same way a sized buffer does.
+A trap no file of the module calls, such as `trap_UnifyWhiteSpaces` and `trap_AAS_TraceAreas`, is a NOT_PORTED entry with that reason, and its shape is ruled when a module that calls it is generated.
 A raw block the engine keeps, such as `trap_SV_RegisterSharedMemory`, has a PARAMS entry `raw` and is `UnsafeMutableRawPointer`.
 
 Raven's struct of eight bytes exists because the compilers of the time had no portable 64-bit integer.
@@ -126,7 +127,6 @@ A pointer to one vector, such as `vec4_t *c` of `COM_ParseVec4` where Raven writ
 The returned value of a function-pointer return goes nowhere but into the view's stored function, and `ent.pain = NPC_PainFunc(ent)` reads as Raven wrote it.
 
 A trap copies a `[JKAShared.vec3_t]` parameter into a flat `[Float]` of three per vector before the syscall, because `SIMD3<Float>` strides 16 bytes and Raven's `vec3_t` is 12.
-An array the engine fills, such as `areas` and `points` of `trap_AAS_TraceAreas`, keeps its marker under the PARAMS kind `out_array`.
 
 The body of a `float *` return out of a static ring of temporaries is `vec3_t(x, y, z)`.
 
