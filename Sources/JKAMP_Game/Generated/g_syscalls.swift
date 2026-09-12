@@ -1056,7 +1056,7 @@ public func trap_AAS_PointReachabilityAreaIndex(_ point: inout JKAShared.vec3_t)
 /// Source: oracle/codemp/game/g_syscalls.c:681
 // TODO: Port signature
 // Raven wrote: int trap_AAS_TraceAreas(vec3_t start, vec3_t end, int *areas, vec3_t *points, int maxareas)
-// No table row for `int * areas`.
+// Held by PARAMS as `out_array`, `int * areas`, until a ruling gives the kind a shape.
 public func trap_AAS_TraceAreas() -> Never {
     // TODO: Port trap_AAS_TraceAreas
     portMissing("trap_AAS_TraceAreas", source: "oracle/codemp/game/g_syscalls.c:681")
@@ -1550,7 +1550,7 @@ public func trap_BotMatchVariable(_ match: OpaquePointer?, _ variable: Int32, _ 
 /// Source: oracle/codemp/game/g_syscalls.c:945
 // TODO: Port signature
 // Raven wrote: void trap_UnifyWhiteSpaces(char *string)
-// No table row for `char * string`.
+// Held by PARAMS as `in_place`, `char * string`, until a ruling gives the kind a shape.
 public func trap_UnifyWhiteSpaces() -> Never {
     // TODO: Port trap_UnifyWhiteSpaces
     portMissing("trap_UnifyWhiteSpaces", source: "oracle/codemp/game/g_syscalls.c:945")
@@ -2114,7 +2114,7 @@ public func trap_G2API_GetBoneAnim(_ ghoul2: OpaquePointer?, _ boneName: String,
 /// Source: oracle/codemp/game/g_syscalls.c:1268
 // TODO: Port signature
 // Raven wrote: void trap_G2API_GetGLAName(void *ghoul2, int modelIndex, char *fillBuf)
-// No table row for `char * fillBuf`.
+// Held by PARAMS as `fill_buffer`, `char * fillBuf`, until a ruling gives the kind a shape.
 public func trap_G2API_GetGLAName() -> Never {
     // TODO: Port trap_G2API_GetGLAName
     portMissing("trap_G2API_GetGLAName", source: "oracle/codemp/game/g_syscalls.c:1268")
@@ -2200,7 +2200,7 @@ public func trap_G2API_CollisionDetectCache(_ collRecMap: CollisionRecord, _ gho
 /// Source: oracle/codemp/game/g_syscalls.c:1344
 // TODO: Port signature
 // Raven wrote: void trap_G2API_GetSurfaceName(void *ghoul2, int surfNumber, int modelIndex, char *fillBuf)
-// No table row for `char * fillBuf`.
+// Held by PARAMS as `fill_buffer`, `char * fillBuf`, until a ruling gives the kind a shape.
 public func trap_G2API_GetSurfaceName() -> Never {
     // TODO: Port trap_G2API_GetSurfaceName
     portMissing("trap_G2API_GetSurfaceName", source: "oracle/codemp/game/g_syscalls.c:1344")

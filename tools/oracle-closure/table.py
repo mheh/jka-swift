@@ -123,6 +123,15 @@ class Table:
         self.views = Generator(None)
 
 
+    def marker_reason(self, cur: ci.Cursor, owner: str | None = None) -> str:
+        """The marker line for a parameter the table cannot shape: a PARAMS hold names its kind and the ruling it waits on,
+        and any other parameter has no row yet."""
+        spelled = f"`{' '.join(cur.type.spelling.split())} {cur.spelling}`"
+        ruled = PARAMS.get((owner, cur.spelling))
+        if ruled is not None:
+            return f"Held by PARAMS as `{ruled}`, {spelled}, until a ruling gives the kind a shape."
+        return f"No table row for {spelled}."
+
     def param(self, cur: ci.Cursor, following: ci.Cursor | None, traps: bool = True, owner: str | None = None) -> Param | None:
         """The table row of one parameter. A `char *` out-buffer is a returned String only in a trap, where the engine fills it."""
         name = cur.spelling

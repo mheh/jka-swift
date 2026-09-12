@@ -177,7 +177,7 @@ class Skeleton:
             following = params[i + 1] if i + 1 < len(params) else None
             m = self.table.param(p, following, traps=False, owner=fn.name)
             if m is None:
-                fn.reason = f"No table row for `{' '.join(p.type.spelling.split())} {p.spelling}`."
+                fn.reason = self.table.marker_reason(p, fn.name)
                 return
             fn.params.append(m)
         if fn.cur.type.kind == TypeKind.FUNCTIONPROTO and fn.cur.type.is_function_variadic():

@@ -97,7 +97,7 @@ class Traps:
             following = params[i + 1] if i + 1 < len(params) else None
             m = self.table.param(p, following, owner=name)
             if m is None:
-                return self.marker(cur, f"No table row for `{' '.join(p.type.spelling.split())} {p.spelling}`.")
+                return self.marker(cur, self.table.marker_reason(p, name))
             mapped[p.spelling] = m
         result = self.table.result(cur)
         if result is None:

@@ -122,7 +122,7 @@ class Channel:
             following = params[i + 1] if i + 1 < len(params) else None
             m = self.table.param(p, following, traps=hook.trap, owner=hook.name)
             if m is None or (m.swift is None and m.kind != "out_string"):
-                hook.reason = f"No table row for `{' '.join(p.type.spelling.split())} {p.spelling}`."
+                hook.reason = self.table.marker_reason(p, hook.name)
                 return
             hook.params.append(m)
         result = self.table.result(hook.cur)
