@@ -30,6 +30,18 @@ public struct PlayerTeamState: Hashable, HandleView {
     /// The distance between two slots of a C array of this type, for a Slots over one.
     public static let stride = MemoryLayout<playerTeamState_t>.stride
 
+    /// Raven's `playerTeamState_t playerTeamState;` on the stack. The slot is zero at entry, lives for the closure, and the closure's value is the result.
+    public static func scratch<Result>(_ body: (PlayerTeamState) throws -> Result) rethrows -> Result {
+        var slot = playerTeamState_t()
+        return try withUnsafeMutablePointer(to: &slot) { try body(PlayerTeamState(raw: $0)) }
+    }
+
+    /// Raven's `playerTeamState_t playerTeamState = *other;`, a copy of another slot on the stack.
+    public static func scratch<Result>(copying other: PlayerTeamState, _ body: (PlayerTeamState) throws -> Result) rethrows -> Result {
+        var slot = other.raw.pointee
+        return try withUnsafeMutablePointer(to: &slot) { try body(PlayerTeamState(raw: $0)) }
+    }
+
     /// Source: oracle/codemp/game/g_local.h:386
     public var state: playerTeamStateState_t {
         get { Int32(truncatingIfNeeded: self.raw.pointee.state.rawValue) }

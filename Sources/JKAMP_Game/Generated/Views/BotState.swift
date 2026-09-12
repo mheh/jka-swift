@@ -30,6 +30,18 @@ public struct BotState: Hashable, HandleView {
     /// The distance between two slots of a C array of this type, for a Slots over one.
     public static let stride = MemoryLayout<bot_state_t>.stride
 
+    /// Raven's `bot_state_t bot_state;` on the stack. The slot is zero at entry, lives for the closure, and the closure's value is the result.
+    public static func scratch<Result>(_ body: (BotState) throws -> Result) rethrows -> Result {
+        var slot = bot_state_t()
+        return try withUnsafeMutablePointer(to: &slot) { try body(BotState(raw: $0)) }
+    }
+
+    /// Raven's `bot_state_t bot_state = *other;`, a copy of another slot on the stack.
+    public static func scratch<Result>(copying other: BotState, _ body: (BotState) throws -> Result) rethrows -> Result {
+        var slot = other.raw.pointee
+        return try withUnsafeMutablePointer(to: &slot) { try body(BotState(raw: $0)) }
+    }
+
     /// Source: oracle/codemp/game/ai_main.h:150
     public var inuse: Int32 {
         get { self.raw.pointee.inuse }

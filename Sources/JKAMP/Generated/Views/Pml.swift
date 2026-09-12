@@ -29,6 +29,18 @@ public struct Pml: Hashable, HandleView {
     /// The distance between two slots of a C array of this type, for a Slots over one.
     public static let stride = MemoryLayout<pml_t>.stride
 
+    /// Raven's `pml_t pml;` on the stack. The slot is zero at entry, lives for the closure, and the closure's value is the result.
+    public static func scratch<Result>(_ body: (Pml) throws -> Result) rethrows -> Result {
+        var slot = pml_t()
+        return try withUnsafeMutablePointer(to: &slot) { try body(Pml(raw: $0)) }
+    }
+
+    /// Raven's `pml_t pml = *other;`, a copy of another slot on the stack.
+    public static func scratch<Result>(copying other: Pml, _ body: (Pml) throws -> Result) rethrows -> Result {
+        var slot = other.raw.pointee
+        return try withUnsafeMutablePointer(to: &slot) { try body(Pml(raw: $0)) }
+    }
+
     /// Source: oracle/codemp/game/bg_local.h:17
     public var forward: JKAShared.vec3_t {
         get { vec3(of: self.raw.pointee.forward) }

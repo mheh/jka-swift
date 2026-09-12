@@ -29,6 +29,18 @@ public struct SaberInfo: Hashable, HandleView {
     /// The distance between two slots of a C array of this type, for a Slots over one.
     public static let stride = MemoryLayout<saberInfo_t>.stride
 
+    /// Raven's `saberInfo_t saberInfo;` on the stack. The slot is zero at entry, lives for the closure, and the closure's value is the result.
+    public static func scratch<Result>(_ body: (SaberInfo) throws -> Result) rethrows -> Result {
+        var slot = saberInfo_t()
+        return try withUnsafeMutablePointer(to: &slot) { try body(SaberInfo(raw: $0)) }
+    }
+
+    /// Raven's `saberInfo_t saberInfo = *other;`, a copy of another slot on the stack.
+    public static func scratch<Result>(copying other: SaberInfo, _ body: (SaberInfo) throws -> Result) rethrows -> Result {
+        var slot = other.raw.pointee
+        return try withUnsafeMutablePointer(to: &slot) { try body(SaberInfo(raw: $0)) }
+    }
+
     /// Source: oracle/codemp/game/q_shared.h:737
     public var name: String {
         get { cString(at: UnsafeMutableRawPointer(self.raw.pointer(to: \.name)!)) }

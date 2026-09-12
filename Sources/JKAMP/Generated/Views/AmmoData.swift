@@ -29,6 +29,18 @@ public struct AmmoData: Hashable, HandleView {
     /// The distance between two slots of a C array of this type, for a Slots over one.
     public static let stride = MemoryLayout<ammoData_t>.stride
 
+    /// Raven's `ammoData_t ammoData;` on the stack. The slot is zero at entry, lives for the closure, and the closure's value is the result.
+    public static func scratch<Result>(_ body: (AmmoData) throws -> Result) rethrows -> Result {
+        var slot = ammoData_t()
+        return try withUnsafeMutablePointer(to: &slot) { try body(AmmoData(raw: $0)) }
+    }
+
+    /// Raven's `ammoData_t ammoData = *other;`, a copy of another slot on the stack.
+    public static func scratch<Result>(copying other: AmmoData, _ body: (AmmoData) throws -> Result) rethrows -> Result {
+        var slot = other.raw.pointee
+        return try withUnsafeMutablePointer(to: &slot) { try body(AmmoData(raw: $0)) }
+    }
+
     /// Source: oracle/codemp/game/bg_weapons.h:90
     public var max: Int32 {
         get { self.raw.pointee.max }

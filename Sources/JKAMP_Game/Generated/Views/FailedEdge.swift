@@ -30,6 +30,18 @@ public struct FailedEdge: Hashable, HandleView {
     /// The distance between two slots of a C array of this type, for a Slots over one.
     public static let stride = MemoryLayout<failedEdge_t>.stride
 
+    /// Raven's `failedEdge_t failedEdge;` on the stack. The slot is zero at entry, lives for the closure, and the closure's value is the result.
+    public static func scratch<Result>(_ body: (FailedEdge) throws -> Result) rethrows -> Result {
+        var slot = failedEdge_t()
+        return try withUnsafeMutablePointer(to: &slot) { try body(FailedEdge(raw: $0)) }
+    }
+
+    /// Raven's `failedEdge_t failedEdge = *other;`, a copy of another slot on the stack.
+    public static func scratch<Result>(copying other: FailedEdge, _ body: (FailedEdge) throws -> Result) rethrows -> Result {
+        var slot = other.raw.pointee
+        return try withUnsafeMutablePointer(to: &slot) { try body(FailedEdge(raw: $0)) }
+    }
+
     /// Source: oracle/codemp/game/g_public.h:54
     public var startID: Int32 {
         get { self.raw.pointee.startID }

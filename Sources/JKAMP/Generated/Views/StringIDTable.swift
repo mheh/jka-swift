@@ -30,6 +30,18 @@ public struct StringIDTable: Hashable, HandleView {
     /// The distance between two slots of a C array of this type, for a Slots over one.
     public static let stride = MemoryLayout<stringID_table_t>.stride
 
+    /// Raven's `stringID_table_t stringID_table;` on the stack. The slot is zero at entry, lives for the closure, and the closure's value is the result.
+    public static func scratch<Result>(_ body: (StringIDTable) throws -> Result) rethrows -> Result {
+        var slot = stringID_table_t()
+        return try withUnsafeMutablePointer(to: &slot) { try body(StringIDTable(raw: $0)) }
+    }
+
+    /// Raven's `stringID_table_t stringID_table = *other;`, a copy of another slot on the stack.
+    public static func scratch<Result>(copying other: StringIDTable, _ body: (StringIDTable) throws -> Result) rethrows -> Result {
+        var slot = other.raw.pointee
+        return try withUnsafeMutablePointer(to: &slot) { try body(StringIDTable(raw: $0)) }
+    }
+
     /// Source: oracle/codemp/game/q_shared.h:3156
     public var name: PooledString? {
         get { PooledString(raw: self.raw.pointee.name) }

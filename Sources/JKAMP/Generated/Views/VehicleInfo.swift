@@ -29,6 +29,18 @@ public struct VehicleInfo: Hashable, HandleView {
     /// The distance between two slots of a C array of this type, for a Slots over one.
     public static let stride = MemoryLayout<vehicleInfo_t>.stride
 
+    /// Raven's `vehicleInfo_t vehicleInfo;` on the stack. The slot is zero at entry, lives for the closure, and the closure's value is the result.
+    public static func scratch<Result>(_ body: (VehicleInfo) throws -> Result) rethrows -> Result {
+        var slot = vehicleInfo_t()
+        return try withUnsafeMutablePointer(to: &slot) { try body(VehicleInfo(raw: $0)) }
+    }
+
+    /// Raven's `vehicleInfo_t vehicleInfo = *other;`, a copy of another slot on the stack.
+    public static func scratch<Result>(copying other: VehicleInfo, _ body: (VehicleInfo) throws -> Result) rethrows -> Result {
+        var slot = other.raw.pointee
+        return try withUnsafeMutablePointer(to: &slot) { try body(VehicleInfo(raw: $0)) }
+    }
+
     /// Source: oracle/codemp/game/bg_vehicles.h:134
     public var name: PooledString? {
         get { PooledString(raw: self.raw.pointee.name) }

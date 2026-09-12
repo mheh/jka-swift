@@ -29,6 +29,18 @@ public struct Wpneighbor: Hashable, HandleView {
     /// The distance between two slots of a C array of this type, for a Slots over one.
     public static let stride = MemoryLayout<wpneighbor_t>.stride
 
+    /// Raven's `wpneighbor_t wpneighbor;` on the stack. The slot is zero at entry, lives for the closure, and the closure's value is the result.
+    public static func scratch<Result>(_ body: (Wpneighbor) throws -> Result) rethrows -> Result {
+        var slot = wpneighbor_t()
+        return try withUnsafeMutablePointer(to: &slot) { try body(Wpneighbor(raw: $0)) }
+    }
+
+    /// Raven's `wpneighbor_t wpneighbor = *other;`, a copy of another slot on the stack.
+    public static func scratch<Result>(copying other: Wpneighbor, _ body: (Wpneighbor) throws -> Result) rethrows -> Result {
+        var slot = other.raw.pointee
+        return try withUnsafeMutablePointer(to: &slot) { try body(Wpneighbor(raw: $0)) }
+    }
+
     /// Source: oracle/codemp/game/q_shared.h:1003
     public var num: Int32 {
         get { self.raw.pointee.num }

@@ -30,6 +30,18 @@ public struct ClientSession: Hashable, HandleView {
     /// The distance between two slots of a C array of this type, for a Slots over one.
     public static let stride = MemoryLayout<clientSession_t>.stride
 
+    /// Raven's `clientSession_t clientSession;` on the stack. The slot is zero at entry, lives for the closure, and the closure's value is the result.
+    public static func scratch<Result>(_ body: (ClientSession) throws -> Result) rethrows -> Result {
+        var slot = clientSession_t()
+        return try withUnsafeMutablePointer(to: &slot) { try body(ClientSession(raw: $0)) }
+    }
+
+    /// Raven's `clientSession_t clientSession = *other;`, a copy of another slot on the stack.
+    public static func scratch<Result>(copying other: ClientSession, _ body: (ClientSession) throws -> Result) rethrows -> Result {
+        var slot = other.raw.pointee
+        return try withUnsafeMutablePointer(to: &slot) { try body(ClientSession(raw: $0)) }
+    }
+
     /// Source: oracle/codemp/game/g_local.h:413
     public var sessionTeam: JKAMP.team_t {
         get { self.raw.pointee.sessionTeam }

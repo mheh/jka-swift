@@ -470,6 +470,7 @@ class Generator:
             base_line = int(sources[0].rsplit(":", 1)[1]) if sources else 0
             source_path = sources[0].rsplit(":", 1)[0] if sources else "unknown"
             lines = [f"/// Source: {s}" for s in sources]
+            local = c_name[:-2] if c_name.endswith("_t") else c_name
             lines += [
                 f"/// A view over one `{c_name}` in C memory.",
                 "/// A copy of a view is a copy of the pointer, and two views of one slot compare equal.",
@@ -495,6 +496,18 @@ class Generator:
                 "",
                 "    /// The distance between two slots of a C array of this type, for a Slots over one.",
                 f"    public static let stride = MemoryLayout<{c_name}>.stride",
+                "",
+                f"    /// Raven's `{c_name} {local};` on the stack. The slot is zero at entry, lives for the closure, and the closure's value is the result.",
+                f"    public static func scratch<Result>(_ body: ({view}) throws -> Result) rethrows -> Result {{",
+                f"        var slot = {c_name}()",
+                f"        return try withUnsafeMutablePointer(to: &slot) {{ try body({view}(raw: $0)) }}",
+                "    }",
+                "",
+                f"    /// Raven's `{c_name} {local} = *other;`, a copy of another slot on the stack.",
+                f"    public static func scratch<Result>(copying other: {view}, _ body: ({view}) throws -> Result) rethrows -> Result {{",
+                "        var slot = other.raw.pointee",
+                f"        return try withUnsafeMutablePointer(to: &slot) {{ try body({view}(raw: $0)) }}",
+                "    }",
             ]
             for field in record.get_children():
                 if field.kind != CursorKind.FIELD_DECL:

@@ -30,6 +30,18 @@ public struct AIGroupInfo: Hashable, HandleView {
     /// The distance between two slots of a C array of this type, for a Slots over one.
     public static let stride = MemoryLayout<AIGroupInfo_t>.stride
 
+    /// Raven's `AIGroupInfo_t AIGroupInfo;` on the stack. The slot is zero at entry, lives for the closure, and the closure's value is the result.
+    public static func scratch<Result>(_ body: (AIGroupInfo) throws -> Result) rethrows -> Result {
+        var slot = AIGroupInfo_t()
+        return try withUnsafeMutablePointer(to: &slot) { try body(AIGroupInfo(raw: $0)) }
+    }
+
+    /// Raven's `AIGroupInfo_t AIGroupInfo = *other;`, a copy of another slot on the stack.
+    public static func scratch<Result>(copying other: AIGroupInfo, _ body: (AIGroupInfo) throws -> Result) rethrows -> Result {
+        var slot = other.raw.pointee
+        return try withUnsafeMutablePointer(to: &slot) { try body(AIGroupInfo(raw: $0)) }
+    }
+
     /// Source: oracle/codemp/game/ai.h:99
     public var numGroup: Int32 {
         get { self.raw.pointee.numGroup }

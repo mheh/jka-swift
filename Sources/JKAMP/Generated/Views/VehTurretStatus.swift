@@ -29,6 +29,18 @@ public struct VehTurretStatus: Hashable, HandleView {
     /// The distance between two slots of a C array of this type, for a Slots over one.
     public static let stride = MemoryLayout<vehTurretStatus_t>.stride
 
+    /// Raven's `vehTurretStatus_t vehTurretStatus;` on the stack. The slot is zero at entry, lives for the closure, and the closure's value is the result.
+    public static func scratch<Result>(_ body: (VehTurretStatus) throws -> Result) rethrows -> Result {
+        var slot = vehTurretStatus_t()
+        return try withUnsafeMutablePointer(to: &slot) { try body(VehTurretStatus(raw: $0)) }
+    }
+
+    /// Raven's `vehTurretStatus_t vehTurretStatus = *other;`, a copy of another slot on the stack.
+    public static func scratch<Result>(copying other: VehTurretStatus, _ body: (VehTurretStatus) throws -> Result) rethrows -> Result {
+        var slot = other.raw.pointee
+        return try withUnsafeMutablePointer(to: &slot) { try body(VehTurretStatus(raw: $0)) }
+    }
+
     /// Source: oracle/codemp/game/bg_vehicles.h:465
     public var ammo: Int32 {
         get { self.raw.pointee.ammo }

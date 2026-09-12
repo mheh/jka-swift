@@ -30,6 +30,18 @@ public struct EntityShared: Hashable, HandleView {
     /// The distance between two slots of a C array of this type, for a Slots over one.
     public static let stride = MemoryLayout<entityShared_t>.stride
 
+    /// Raven's `entityShared_t entityShared;` on the stack. The slot is zero at entry, lives for the closure, and the closure's value is the result.
+    public static func scratch<Result>(_ body: (EntityShared) throws -> Result) rethrows -> Result {
+        var slot = entityShared_t()
+        return try withUnsafeMutablePointer(to: &slot) { try body(EntityShared(raw: $0)) }
+    }
+
+    /// Raven's `entityShared_t entityShared = *other;`, a copy of another slot on the stack.
+    public static func scratch<Result>(copying other: EntityShared, _ body: (EntityShared) throws -> Result) rethrows -> Result {
+        var slot = other.raw.pointee
+        return try withUnsafeMutablePointer(to: &slot) { try body(EntityShared(raw: $0)) }
+    }
+
     /// Source: oracle/codemp/game/g_public.h:61
     public var linked: Bool {
         get { self.raw.pointee.linked != qfalse }

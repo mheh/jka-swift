@@ -29,6 +29,18 @@ public struct Cplane: Hashable, HandleView {
     /// The distance between two slots of a C array of this type, for a Slots over one.
     public static let stride = MemoryLayout<cplane_t>.stride
 
+    /// Raven's `cplane_t cplane;` on the stack. The slot is zero at entry, lives for the closure, and the closure's value is the result.
+    public static func scratch<Result>(_ body: (Cplane) throws -> Result) rethrows -> Result {
+        var slot = cplane_t()
+        return try withUnsafeMutablePointer(to: &slot) { try body(Cplane(raw: $0)) }
+    }
+
+    /// Raven's `cplane_t cplane = *other;`, a copy of another slot on the stack.
+    public static func scratch<Result>(copying other: Cplane, _ body: (Cplane) throws -> Result) rethrows -> Result {
+        var slot = other.raw.pointee
+        return try withUnsafeMutablePointer(to: &slot) { try body(Cplane(raw: $0)) }
+    }
+
     /// Source: oracle/codemp/game/q_shared.h:1861
     public var normal: JKAShared.vec3_t {
         get { vec3(of: self.raw.pointee.normal) }

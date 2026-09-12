@@ -204,9 +204,91 @@ func PM_DoSlowFall() -> Bool {
 
 /// Source: oracle/codemp/game/bg_pmove.c:346
 func PM_pitch_roll_for_slope(_ forwhom: JKAMP.BgEntity, _ pass_slope: inout JKAShared.vec3_t, _ storeAngles: inout JKAShared.vec3_t) {
-    // Port-note: Raven puts a `trace_t` on the stack here. No view carries the `scratch` helper the guide names, so the body has no Swift form.
-    // TODO: Port PM_pitch_roll_for_slope
-    portMissing("PM_pitch_roll_for_slope", source: "oracle/codemp/game/bg_pmove.c:346")
+    var slope = JKAShared.vec3_t(0, 0, 0)
+    var nvf = JKAShared.vec3_t(0, 0, 0)
+    var ovf = JKAShared.vec3_t(0, 0, 0)
+    var ovr = JKAShared.vec3_t(0, 0, 0)
+    var startspot = JKAShared.vec3_t(0, 0, 0)
+    var endspot = JKAShared.vec3_t(0, 0, 0)
+    var new_angles = JKAShared.vec3_t(0, 0, 0)
+    let pitch: Float
+    var mod: Float
+    let dot: Float
+    let ps = bg.pm.ps
+
+    //if we don't have a slope, get one
+    // Port-note: Raven guards a NULL `pass_slope` here. The parameter is `inout`, so the guard has no Swift form.
+    if VectorCompare(vec3_origin, pass_slope) != 0 {
+        // Raven's record lives to the end of his block, so the block is the closure.
+        // The closure gives true where Raven returns from the function.
+        let earlyOut = JKAMP.Trace.scratch { trace -> Bool in
+            startspot = ps.origin
+            startspot[2] += bg.pm.mins[2] + 4
+            endspot = startspot
+            endspot[2] -= 300
+            bg.pm.runTrace(trace, ps.origin, vec3_origin, vec3_origin, endspot, forwhom.s.number, MASK_SOLID)
+//		if(trace_fraction>0.05&&forwhom.movetype==MOVETYPE_STEP)
+//			forwhom.flags(-)FL_ONGROUND;
+
+            if trace.fraction >= 1.0 {
+                return true
+            }
+
+            // Port-note: Raven tests the address of `trace.plane`, which C never gives as NULL. The view is non-optional, so the test has no Swift form.
+
+            if VectorCompare(vec3_origin, trace.plane.normal) != 0 {
+                return true
+            }
+
+            slope = trace.plane.normal
+            return false
+        }
+        if earlyOut {
+            return
+        }
+    } else {
+        slope = pass_slope
+    }
+
+    if forwhom.s.NPC_class == CLASS_VEHICLE {
+        //special code for vehicles
+        // Port-note: Raven reads `pVeh->m_vOrientation[YAW]` in this arm. The generated field is an `OpaquePointer?` for Raven's `float *`, and rule 11 keeps a pointer out of a logic target, so the arm has no Swift form.
+        portMissing("PM_pitch_roll_for_slope: pVeh->m_vOrientation", source: "oracle/codemp/game/bg_pmove.c:387")
+    } else {
+        // Raven passes NULL for the third output of `AngleVectors`. The ported function takes it by reference, so the body passes a scratch vector it never reads.
+        var scratchUp = JKAShared.vec3_t(0, 0, 0)
+        AngleVectors(ps.viewangles, &ovf, &ovr, &scratchUp)
+    }
+
+    vectoangles(slope, &new_angles)
+    pitch = new_angles[PITCH] + 90
+    new_angles[ROLL] = 0
+    new_angles[PITCH] = 0
+
+    var scratchRight = JKAShared.vec3_t(0, 0, 0)
+    var scratchUp = JKAShared.vec3_t(0, 0, 0)
+    AngleVectors(new_angles, &nvf, &scratchRight, &scratchUp)
+
+    mod = _DotProduct(nvf, ovr)
+
+    if mod < 0 {
+        mod = -1
+    } else {
+        mod = 1
+    }
+
+    dot = _DotProduct(nvf, ovf)
+
+    // Port-note: Raven guards a NULL `storeAngles` here. The parameter is `inout`, so the guard has no Swift form, and no path reaches Raven's else arm, which writes `pm->ps->viewangles` and `pm->mins[2]`.
+    storeAngles[PITCH] = dot * pitch
+    storeAngles[ROLL] = ((1 - Q_fabs(dot)) * pitch * mod)
+    /*
+    else
+    {
+        forwhom->currentAngles[PITCH] = dot * pitch;
+        forwhom->currentAngles[ROLL] = ((1-Q_fabs(dot)) * pitch * mod);
+    }
+    */
 }
 
 /// Source: oracle/codemp/game/bg_pmove.c:447
@@ -772,9 +854,115 @@ func PM_SetPMViewAngle(_ ps: JKAMP.PlayerState, _ angle: inout JKAShared.vec3_t,
 
 /// Source: oracle/codemp/game/bg_pmove.c:1356
 func PM_AdjustAngleForWallRun(_ ps: JKAMP.PlayerState, _ ucmd: JKAMP.Usercmd, _ doMove: Bool) -> Bool {
-    // Port-note: Raven puts two `trace_t` records on the stack here. No view carries the `scratch` helper the guide names, so the body has no Swift form.
-    // TODO: Port PM_AdjustAngleForWallRun
-    portMissing("PM_AdjustAngleForWallRun", source: "oracle/codemp/game/bg_pmove.c:1356")
+    if ((ps.legsAnim) == BOTH_WALL_RUN_RIGHT || (ps.legsAnim) == BOTH_WALL_RUN_LEFT) && ps.legsTimer > 500 {
+        //wall-running and not at end of anim
+        //stick to wall, if there is one
+        // Raven's record lives to the end of his block, so the block is the closure.
+        // The closure gives nil where Raven's block falls through to the trailing return.
+        let earlyOut = JKAMP.Trace.scratch { trace -> Bool? in
+            var fwd = JKAShared.vec3_t(0, 0, 0)
+            var rt = JKAShared.vec3_t(0, 0, 0)
+            var traceTo = JKAShared.vec3_t(0, 0, 0)
+            var mins = JKAShared.vec3_t(0, 0, 0)
+            var maxs = JKAShared.vec3_t(0, 0, 0)
+            var fwdAngles = JKAShared.vec3_t(0, 0, 0)
+            let dist: Float
+            let yawAdjust: Float
+
+            mins = JKAShared.vec3_t(-15, -15, 0)
+            maxs = JKAShared.vec3_t(15, 15, 24)
+            fwdAngles = JKAShared.vec3_t(0, bg.pm.ps.viewangles[YAW], 0)
+
+            // Raven passes NULL for the third output of `AngleVectors`. The ported function takes it by reference, so the body passes a scratch vector it never reads.
+            var scratchUp = JKAShared.vec3_t(0, 0, 0)
+            AngleVectors(fwdAngles, &fwd, &rt, &scratchUp)
+            if (ps.legsAnim) == BOTH_WALL_RUN_RIGHT {
+                dist = 128
+                yawAdjust = -90
+            } else {
+                dist = -128
+                yawAdjust = 90
+            }
+            _VectorMA(ps.origin, dist, rt, &traceTo)
+
+            bg.pm.runTrace(trace, ps.origin, mins, maxs, traceTo, ps.clientNum, MASK_PLAYERSOLID)
+
+            if trace.fraction < 1.0
+                && (trace.plane.normal[2] >= 0.0 && trace.plane.normal[2] <= 0.4) {//&& ent->client->ps.groundEntityNum == ENTITYNUM_NONE )
+                JKAMP.Trace.scratch { trace2 in
+                    var traceTo2 = JKAShared.vec3_t(0, 0, 0)
+                    var wallRunFwd = JKAShared.vec3_t(0, 0, 0)
+                    var wallRunAngles = JKAShared.vec3_t(0, 0, 0)
+
+                    wallRunAngles = JKAShared.vec3_t(0, 0, 0)
+                    wallRunAngles[YAW] = vectoyaw(trace.plane.normal) + yawAdjust
+                    // Raven passes NULL for the second and third outputs of `AngleVectors`. The ported function takes them by reference, so the body passes scratch vectors it never reads.
+                    var wallRunRight = JKAShared.vec3_t(0, 0, 0)
+                    var wallRunUp = JKAShared.vec3_t(0, 0, 0)
+                    AngleVectors(wallRunAngles, &wallRunFwd, &wallRunRight, &wallRunUp)
+
+                    _VectorMA(bg.pm.ps.origin, 32, wallRunFwd, &traceTo2)
+                    bg.pm.runTrace(trace2, bg.pm.ps.origin, mins, maxs, traceTo2, bg.pm.ps.clientNum, MASK_PLAYERSOLID)
+                    if trace2.fraction < 1.0 && _DotProduct(trace2.plane.normal, wallRunFwd) <= -0.999 {
+                        //wall we can't run on in front of us
+                        trace.fraction = 1.0//just a way to get it to kick us off the wall below
+                    }
+                }
+            }
+
+            if trace.fraction < 1.0
+                && (trace.plane.normal[2] >= 0.0 && trace.plane.normal[2] <= 0.4/*MAX_WALL_RUN_Z_NORMAL*/) {
+                //still a wall there
+                if (ps.legsAnim) == BOTH_WALL_RUN_RIGHT {
+                    ucmd.rightmove = 127
+                } else {
+                    ucmd.rightmove = -127
+                }
+                if ucmd.upmove < 0 {
+                    ucmd.upmove = 0
+                }
+                //make me face perpendicular to the wall
+                ps.viewangles[YAW] = vectoyaw(trace.plane.normal) + yawAdjust
+
+                PM_SetPMViewAngle(ps, &ps.viewangles, ucmd)
+
+                ucmd.angles[YAW] = ANGLE2SHORT(ps.viewangles[YAW]) - ps.delta_angles[YAW]
+                if doMove {
+                    //push me forward
+                    let zVel = ps.velocity[2]
+                    if ps.legsTimer > 500 {
+                        //not at end of anim yet
+                        var speed: Float = 175
+                        if ucmd.forwardmove < 0 {
+                            //slower
+                            speed = 100
+                        } else if ucmd.forwardmove > 0 {
+                            speed = 250//running speed
+                        }
+                        _VectorScale(fwd, speed, &ps.velocity)
+                    }
+                    ps.velocity[2] = zVel//preserve z velocity
+                    //pull me toward the wall, too
+                    _VectorMA(ps.velocity, dist, rt, &ps.velocity)
+                }
+                ucmd.forwardmove = 0
+                return true
+            } else if doMove {
+                //stop it
+                if (ps.legsAnim) == BOTH_WALL_RUN_RIGHT {
+                    PM_SetAnim(SETANIM_BOTH, BOTH_WALL_RUN_RIGHT_STOP, SETANIM_FLAG_OVERRIDE | SETANIM_FLAG_HOLD, 0)
+                } else if (ps.legsAnim) == BOTH_WALL_RUN_LEFT {
+                    PM_SetAnim(SETANIM_BOTH, BOTH_WALL_RUN_LEFT_STOP, SETANIM_FLAG_OVERRIDE | SETANIM_FLAG_HOLD, 0)
+                }
+            }
+            return nil
+        }
+        if let earlyOut {
+            return earlyOut
+        }
+    }
+
+    return false
 }
 
 /// Source: oracle/codemp/game/bg_pmove.c:1464
@@ -788,9 +976,151 @@ func PM_AdjustAnglesForWallRunUpFlipAlt(_ ucmd: JKAMP.Usercmd) -> Bool {
 
 /// Source: oracle/codemp/game/bg_pmove.c:1472
 func PM_AdjustAngleForWallRunUp(_ ps: JKAMP.PlayerState, _ ucmd: JKAMP.Usercmd, _ doMove: Bool) -> Bool {
-    // Port-note: Raven puts three `trace_t` records on the stack here. No view carries the `scratch` helper the guide names, so the body has no Swift form.
-    // TODO: Port PM_AdjustAngleForWallRunUp
-    portMissing("PM_AdjustAngleForWallRunUp", source: "oracle/codemp/game/bg_pmove.c:1472")
+    if ps.legsAnim == BOTH_FORCEWALLRUNFLIP_START {
+        //wall-running up
+        //stick to wall, if there is one
+        // Raven's record lives to the end of his block, so the block is the closure.
+        // The closure gives nil where Raven's block falls through to the trailing return.
+        let earlyOut = JKAMP.Trace.scratch { trace -> Bool? in
+            var fwd = JKAShared.vec3_t(0, 0, 0)
+            var traceTo = JKAShared.vec3_t(0, 0, 0)
+            var mins = JKAShared.vec3_t(0, 0, 0)
+            var maxs = JKAShared.vec3_t(0, 0, 0)
+            var fwdAngles = JKAShared.vec3_t(0, 0, 0)
+            let dist: Float = 128
+
+            mins = JKAShared.vec3_t(-15, -15, 0)
+            maxs = JKAShared.vec3_t(15, 15, 24)
+            fwdAngles = JKAShared.vec3_t(0, bg.pm.ps.viewangles[YAW], 0)
+
+            // Raven passes NULL for the second and third outputs of `AngleVectors`. The ported function takes them by reference, so the body passes scratch vectors it never reads.
+            var scratchRight = JKAShared.vec3_t(0, 0, 0)
+            var scratchUp = JKAShared.vec3_t(0, 0, 0)
+            AngleVectors(fwdAngles, &fwd, &scratchRight, &scratchUp)
+            _VectorMA(ps.origin, dist, fwd, &traceTo)
+            bg.pm.runTrace(trace, ps.origin, mins, maxs, traceTo, ps.clientNum, MASK_PLAYERSOLID)
+            if trace.fraction > 0.5 {
+                //hmm, some room, see if there's a floor right here
+                let landed = JKAMP.Trace.scratch { trace2 -> Bool? in
+                    var top = JKAShared.vec3_t(0, 0, 0)
+                    var bottom = JKAShared.vec3_t(0, 0, 0)
+
+                    top = trace.endpos
+                    top[2] += (bg.pm.mins[2] * -1) + 4.0
+                    bottom = top
+                    bottom[2] -= 64.0
+                    bg.pm.runTrace(trace2, top, bg.pm.mins, bg.pm.maxs, bottom, ps.clientNum, MASK_PLAYERSOLID)
+                    if trace2.allsolid == 0
+                        && trace2.startsolid == 0
+                        && trace2.fraction < 1.0
+                        && trace2.plane.normal[2] > 0.7 {//slope we can stand on
+                        //cool, do the alt-flip and land on whetever it is we just scaled up
+                        _VectorScale(fwd, 100, &bg.pm.ps.velocity)
+                        bg.pm.ps.velocity[2] += 400
+                        PM_SetAnim(SETANIM_BOTH, BOTH_FORCEWALLRUNFLIP_ALT, SETANIM_FLAG_OVERRIDE | SETANIM_FLAG_HOLD, 0)
+                        bg.pm.ps.pm_flags |= PMF_JUMP_HELD
+                        //ent->client->ps.pm_flags |= PMF_JUMPING|PMF_SLOW_MO_FALL;
+                        //ent->client->ps.forcePowersActive |= (1<<FP_LEVITATION);
+                        //G_AddEvent( ent, EV_JUMP, 0 );
+                        PM_AddEvent(EV_JUMP)
+                        ucmd.upmove = 0
+                        return false
+                    }
+                    return nil
+                }
+                if let landed {
+                    return landed
+                }
+            }
+
+            if //ucmd->upmove <= 0 && 
+                ps.legsTimer > 0 &&
+                ucmd.forwardmove > 0 &&
+                trace.fraction < 1.0 &&
+                (trace.plane.normal[2] >= 0.0 && trace.plane.normal[2] <= 0.4/*MAX_WALL_RUN_Z_NORMAL*/) {
+                //still a vertical wall there
+                //make sure there's not a ceiling above us!
+                let keptGoing = JKAMP.Trace.scratch { trace2 -> Bool? in
+                    traceTo = ps.origin
+                    traceTo[2] += 64
+                    bg.pm.runTrace(trace2, ps.origin, mins, maxs, traceTo, ps.clientNum, MASK_PLAYERSOLID)
+                    if trace2.fraction < 1.0 {
+                        //will hit a ceiling, so force jump-off right now
+                        //NOTE: hits any entity or clip brush in the way, too, not just architecture!
+                    } else {
+                        //all clear, keep going
+                        //FIXME: don't pull around 90 turns
+                        //FIXME: simulate stepping up steps here, somehow?
+                        ucmd.forwardmove = 127
+                        if ucmd.upmove < 0 {
+                            ucmd.upmove = 0
+                        }
+                        //make me face the wall
+                        ps.viewangles[YAW] = vectoyaw(trace.plane.normal) + 180
+                        PM_SetPMViewAngle(ps, &ps.viewangles, ucmd)
+                        /*
+                        if ( ent->client->ps.viewEntity <= 0 || ent->client->ps.viewEntity >= ENTITYNUM_WORLD )
+                        {//don't clamp angles when looking through a viewEntity
+                            SetClientViewAngle( ent, ent->client->ps.viewangles );
+                        }
+                        */
+                        ucmd.angles[YAW] = ANGLE2SHORT(ps.viewangles[YAW]) - ps.delta_angles[YAW]
+                        //if ( ent->s.number || !player_locked )
+                        if true {//aslkfhsakf
+                            if doMove {
+                                //pull me toward the wall
+                                _VectorScale(trace.plane.normal, -dist * trace.fraction, &ps.velocity)
+                                //push me up
+                                if ps.legsTimer > 200 {
+                                    //not at end of anim yet
+                                    let speed: Float = 300
+                                    /*
+                                    if ( ucmd->forwardmove < 0 )
+                                    {//slower
+                                        speed = 100;
+                                    }
+                                    else if ( ucmd->forwardmove > 0 )
+                                    {
+                                        speed = 250;//running speed
+                                    }
+                                    */
+                                    ps.velocity[2] = speed//preserve z velocity
+                                }
+                            }
+                        }
+                        ucmd.forwardmove = 0
+                        return true
+                    }
+                    return nil
+                }
+                if let keptGoing {
+                    return keptGoing
+                }
+            }
+            //failed!
+            if doMove {
+                //stop it
+                _VectorScale(fwd, -300.0, &ps.velocity)
+                ps.velocity[2] += 200
+                //NPC_SetAnim( ent, SETANIM_BOTH, BOTH_FORCEWALLRUNFLIP_END, SETANIM_FLAG_OVERRIDE|SETANIM_FLAG_HOLD );
+                //why?!?#?#@!%$R@$KR#F:Hdl;asfm
+                PM_SetAnim(SETANIM_BOTH, BOTH_FORCEWALLRUNFLIP_END, SETANIM_FLAG_OVERRIDE | SETANIM_FLAG_HOLD, 0)
+                ps.pm_flags |= PMF_JUMP_HELD
+                //ent->client->ps.pm_flags |= PMF_JUMPING|PMF_SLOW_MO_FALL;
+
+                //FIXME do I need this in mp?
+                //ent->client->ps.forcePowersActive |= (1<<FP_LEVITATION);
+                PM_AddEvent(EV_JUMP)
+                ucmd.upmove = 0
+                //return qtrue;
+            }
+            return nil
+        }
+        if let earlyOut {
+            return earlyOut
+        }
+    }
+    return false
 }
 
 //nice...
@@ -801,9 +1131,161 @@ private func BG_ForceWallJumpStrength() -> Float {
 
 /// Source: oracle/codemp/game/bg_pmove.c:1607
 func PM_AdjustAngleForWallJump(_ ps: JKAMP.PlayerState, _ ucmd: JKAMP.Usercmd, _ doMove: Bool) -> Bool {
-    // Port-note: Raven puts a `trace_t` on the stack here. No view carries the `scratch` helper the guide names, so the body has no Swift form.
-    // TODO: Port PM_AdjustAngleForWallJump
-    portMissing("PM_AdjustAngleForWallJump", source: "oracle/codemp/game/bg_pmove.c:1607")
+    if ((BG_InReboundJump(ps.legsAnim) || BG_InReboundHold(ps.legsAnim))
+            && (BG_InReboundJump(ps.torsoAnim) || BG_InReboundHold(ps.torsoAnim)))
+        || (bg.pm.ps.pm_flags & PMF_STUCK_TO_WALL) != 0 {
+        //hugging wall, getting ready to jump off
+        //stick to wall, if there is one
+        // Raven's record lives to the end of his block, so the block is the closure.
+        // The closure gives nil where Raven's block falls through to the trailing return.
+        let earlyOut = JKAMP.Trace.scratch { trace -> Bool? in
+            var checkDir = JKAShared.vec3_t(0, 0, 0)
+            var traceTo = JKAShared.vec3_t(0, 0, 0)
+            var mins = JKAShared.vec3_t(0, 0, 0)
+            var maxs = JKAShared.vec3_t(0, 0, 0)
+            var fwdAngles = JKAShared.vec3_t(0, 0, 0)
+            let dist: Float = 128.0
+            let yawAdjust: Float
+
+            mins = JKAShared.vec3_t(bg.pm.mins[0], bg.pm.mins[1], 0)
+            maxs = JKAShared.vec3_t(bg.pm.maxs[0], bg.pm.maxs[1], 24)
+            fwdAngles = JKAShared.vec3_t(0, bg.pm.ps.viewangles[YAW], 0)
+
+            // Raven passes NULL for the outputs of `AngleVectors` he does not read. The ported function takes them by reference, so the body passes scratch vectors it never reads.
+            var scratchForward = JKAShared.vec3_t(0, 0, 0)
+            var scratchRight = JKAShared.vec3_t(0, 0, 0)
+            var scratchUp = JKAShared.vec3_t(0, 0, 0)
+
+            switch ps.legsAnim {
+            case BOTH_FORCEWALLREBOUND_RIGHT,
+                 BOTH_FORCEWALLHOLD_RIGHT:
+                AngleVectors(fwdAngles, &scratchForward, &checkDir, &scratchUp)
+                yawAdjust = -90
+
+            case BOTH_FORCEWALLREBOUND_LEFT,
+                 BOTH_FORCEWALLHOLD_LEFT:
+                AngleVectors(fwdAngles, &scratchForward, &checkDir, &scratchUp)
+                checkDir = checkDir * -1
+                yawAdjust = 90
+
+            case BOTH_FORCEWALLREBOUND_FORWARD,
+                 BOTH_FORCEWALLHOLD_FORWARD:
+                AngleVectors(fwdAngles, &checkDir, &scratchRight, &scratchUp)
+                yawAdjust = 180
+
+            case BOTH_FORCEWALLREBOUND_BACK,
+                 BOTH_FORCEWALLHOLD_BACK:
+                AngleVectors(fwdAngles, &checkDir, &scratchRight, &scratchUp)
+                checkDir = checkDir * -1
+                yawAdjust = 0
+
+            default:
+                //WTF???
+                bg.pm.ps.pm_flags &= ~PMF_STUCK_TO_WALL
+                return false
+            }
+            if bg.pm.debugMelee != 0 {
+                //uber-skillz
+                if ucmd.upmove > 0 {
+                    //hold on until you let go manually
+                    if BG_InReboundHold(ps.legsAnim) {
+                        //keep holding
+                        if ps.legsTimer < 150 {
+                            ps.legsTimer = 150
+                        }
+                    } else {
+                        //if got to hold part of anim, play hold anim
+                        if ps.legsTimer <= 300 {
+                            ps.saberHolstered = 2
+                            PM_SetAnim(SETANIM_BOTH, BOTH_FORCEWALLRELEASE_FORWARD + (ps.legsAnim - BOTH_FORCEWALLHOLD_FORWARD), SETANIM_FLAG_OVERRIDE | SETANIM_FLAG_HOLD, 0)
+                            ps.legsTimer = 150
+                            ps.torsoTimer = 150
+                        }
+                    }
+                }
+            }
+            _VectorMA(ps.origin, dist, checkDir, &traceTo)
+            bg.pm.runTrace(trace, ps.origin, mins, maxs, traceTo, ps.clientNum, MASK_PLAYERSOLID)
+            if //ucmd->upmove <= 0 && 
+                ps.legsTimer > 100 &&
+                trace.fraction < 1.0 &&
+                Q_fabs(trace.plane.normal[2]) <= 0.2/*MAX_WALL_GRAB_SLOPE*/ {
+                //still a vertical wall there
+                //FIXME: don't pull around 90 turns
+                /*
+                if ( ent->s.number || !player_locked )
+                {
+                    ucmd->forwardmove = 127;
+                }
+                */
+                if ucmd.upmove < 0 {
+                    ucmd.upmove = 0
+                }
+                //align me to the wall
+                ps.viewangles[YAW] = vectoyaw(trace.plane.normal) + yawAdjust
+                PM_SetPMViewAngle(ps, &ps.viewangles, ucmd)
+                /*
+                if ( ent->client->ps.viewEntity <= 0 || ent->client->ps.viewEntity >= ENTITYNUM_WORLD )
+                {//don't clamp angles when looking through a viewEntity
+                    SetClientViewAngle( ent, ent->client->ps.viewangles );
+                }
+                */
+                ucmd.angles[YAW] = ANGLE2SHORT(ps.viewangles[YAW]) - ps.delta_angles[YAW]
+                //if ( ent->s.number || !player_locked )
+                if true {
+                    if doMove {
+                        //pull me toward the wall
+                        _VectorScale(trace.plane.normal, -128.0, &ps.velocity)
+                    }
+                }
+                ucmd.upmove = 0
+                ps.pm_flags |= PMF_STUCK_TO_WALL
+                return true
+            } else if doMove
+                && (ps.pm_flags & PMF_STUCK_TO_WALL) != 0 {
+                //jump off
+                //push off of it!
+                ps.pm_flags &= ~PMF_STUCK_TO_WALL
+                ps.velocity[0] = 0
+                ps.velocity[1] = 0
+                // Raven's `JUMP_OFF_WALL_SPEED` is 200.0f.
+                _VectorScale(checkDir, -200.0, &ps.velocity)
+                ps.velocity[2] = BG_ForceWallJumpStrength()
+                ps.pm_flags |= PMF_JUMP_HELD//PMF_JUMPING|PMF_JUMP_HELD;
+                //G_SoundOnEnt( ent, CHAN_BODY, "sound/weapons/force/jump.wav" );
+                ps.fd.forceJumpSound = 1 //this is a stupid thing, i should fix it.
+                //ent->client->ps.forcePowersActive |= (1<<FP_LEVITATION);
+                if ps.origin[2] < ps.fd.forceJumpZStart {
+                    ps.fd.forceJumpZStart = ps.origin[2]
+                }
+                //FIXME do I need this?
+
+                BG_ForcePowerDrain(ps, FP_LEVITATION, 10)
+                //no control for half a second
+                ps.pm_flags |= PMF_TIME_KNOCKBACK
+                ps.pm_time = 500
+                ucmd.forwardmove = 0
+                ucmd.rightmove = 0
+                ucmd.upmove = 127
+
+                if BG_InReboundHold(ps.legsAnim) {
+                    //if was in hold pose, release now
+                    PM_SetAnim(SETANIM_BOTH, BOTH_FORCEWALLRELEASE_FORWARD + (ps.legsAnim - BOTH_FORCEWALLHOLD_FORWARD), SETANIM_FLAG_OVERRIDE | SETANIM_FLAG_HOLD, 0)
+                } else {
+                    //PM_JumpForDir();
+                    PM_SetAnim(SETANIM_LEGS, BOTH_FORCEJUMP1, SETANIM_FLAG_OVERRIDE | SETANIM_FLAG_HOLD | SETANIM_FLAG_RESTART, 0)
+                }
+
+                //return qtrue;
+            }
+            return nil
+        }
+        if let earlyOut {
+            return earlyOut
+        }
+    }
+    ps.pm_flags &= ~PMF_STUCK_TO_WALL
+    return false
 }
 
 //Set the height for when a force jump was started. If it's 0, nuge it up (slight hack to prevent holding jump over slopes)
@@ -834,9 +1316,949 @@ PM_CheckJump
 */
 /// Source: oracle/codemp/game/bg_pmove.c:1788
 private func PM_CheckJump() -> Bool {
-    // Port-note: Raven puts eight `trace_t` records on the stack across this body. No view carries the `scratch` helper the guide names, so the body has no Swift form.
-    // TODO: Port PM_CheckJump
-    portMissing("PM_CheckJump", source: "oracle/codemp/game/bg_pmove.c:1788")
+    var allowFlips = true
+    let ps = bg.pm.ps
+
+    if ps.clientNum >= MAX_CLIENTS {
+        let pEnt: JKAMP.BgEntity? = bg.pm_entSelf
+
+        // Port-note: Raven reads `pEnt` with no NULL guard. The generated view is optional, so the body binds it.
+        if let pEnt,
+            pEnt.s.eType == ET_NPC,
+            pEnt.s.NPC_class == CLASS_VEHICLE {
+            //no!
+            return false
+        }
+    }
+
+    if ps.forceHandExtend == HANDEXTEND_KNOCKDOWN
+        || ps.forceHandExtend == HANDEXTEND_PRETHROWN
+        || ps.forceHandExtend == HANDEXTEND_POSTTHROWN {
+        return false
+    }
+
+    if ps.pm_type == PM_JETPACK {
+        //there's no actual jumping while we jetpack
+        return false
+    }
+
+    //Don't allow jump until all buttons are up
+    if (ps.pm_flags & PMF_RESPAWNED) != 0 {
+        return false
+    }
+
+    if PM_InKnockDown(ps) || BG_InRoll(ps, ps.legsAnim) {
+        //in knockdown
+        return false
+    }
+
+    if ps.weapon == WP_SABER {
+        let saber1 = BG_MySaber(ps.clientNum, 0)
+        let saber2 = BG_MySaber(ps.clientNum, 1)
+        if let saber1,
+            (saber1.saberFlags & SFL_NO_FLIPS) != 0 {
+            allowFlips = false
+        }
+        if let saber2,
+            (saber2.saberFlags & SFL_NO_FLIPS) != 0 {
+            allowFlips = false
+        }
+    }
+
+    if ps.groundEntityNum != ENTITYNUM_NONE || ps.origin[2] < ps.fd.forceJumpZStart {
+        ps.fd.forcePowersActive &= ~(1 << FP_LEVITATION)
+    }
+
+    if (ps.fd.forcePowersActive & (1 << FP_LEVITATION)) != 0 {
+        //Force jump is already active.. continue draining power appropriately until we land.
+        if ps.fd.forcePowerDebounce[FP_LEVITATION] < bg.pm.cmd.serverTime {
+            if bg.pm.gametype == GT_DUEL
+                || bg.pm.gametype == GT_POWERDUEL {
+                //jump takes less power
+                BG_ForcePowerDrain(ps, FP_LEVITATION, 1)
+            } else {
+                BG_ForcePowerDrain(ps, FP_LEVITATION, 5)
+            }
+            if ps.fd.forcePowerLevel[FP_LEVITATION] >= FORCE_LEVEL_2 {
+                ps.fd.forcePowerDebounce[FP_LEVITATION] = bg.pm.cmd.serverTime + 300
+            } else {
+                ps.fd.forcePowerDebounce[FP_LEVITATION] = bg.pm.cmd.serverTime + 200
+            }
+        }
+    }
+
+    if ps.forceJumpFlip {
+        //Forced jump anim
+        var anim = BOTH_FORCEINAIR1
+        var parts = SETANIM_BOTH
+        if allowFlips {
+            if bg.pm.cmd.forwardmove > 0 {
+                anim = BOTH_FLIP_F
+            } else if bg.pm.cmd.forwardmove < 0 {
+                anim = BOTH_FLIP_B
+            } else if bg.pm.cmd.rightmove > 0 {
+                anim = BOTH_FLIP_R
+            } else if bg.pm.cmd.rightmove < 0 {
+                anim = BOTH_FLIP_L
+            }
+        } else {
+            if bg.pm.cmd.forwardmove > 0 {
+                anim = BOTH_FORCEINAIR1
+            } else if bg.pm.cmd.forwardmove < 0 {
+                anim = BOTH_FORCEINAIRBACK1
+            } else if bg.pm.cmd.rightmove > 0 {
+                anim = BOTH_FORCEINAIRRIGHT1
+            } else if bg.pm.cmd.rightmove < 0 {
+                anim = BOTH_FORCEINAIRLEFT1
+            }
+        }
+        if ps.weaponTime != 0 {
+            //FIXME: really only care if we're in a saber attack anim...
+            parts = SETANIM_LEGS
+        }
+
+        PM_SetAnim(parts, anim, SETANIM_FLAG_OVERRIDE | SETANIM_FLAG_HOLD, 150)
+        ps.forceJumpFlip = false
+        return true
+    }
+    // Raven's `#if METROID_JUMP` is 1 in this build, so the block below is the arm the build takes.
+    if bg.pm.waterlevel < 2 {
+        if ps.gravity > 0 {
+            //can't do this in zero-G
+            if PM_ForceJumpingUp() {
+                //holding jump in air
+                let curHeight = ps.origin[2] - ps.fd.forceJumpZStart
+                //check for max force jump level and cap off & cut z vel
+                if (curHeight <= forceJumpHeight[0] ||//still below minimum jump height
+                        (ps.fd.forcePower != 0 && bg.pm.cmd.upmove >= 10))////still have force power available and still trying to jump up
+                    && curHeight < forceJumpHeight[ps.fd.forcePowerLevel[FP_LEVITATION]]
+                    && ps.fd.forceJumpZStart != 0 {//still below maximum jump height
+                    //can still go up
+                    if curHeight > forceJumpHeight[0] {
+                        //passed normal jump height  *2?
+                        if (ps.fd.forcePowersActive & (1 << FP_LEVITATION)) == 0 {//haven't started forcejump yet
+                            //start force jump
+                            ps.fd.forcePowersActive |= (1 << FP_LEVITATION)
+                            ps.fd.forceJumpSound = 1
+                            //play flip
+                            if (bg.pm.cmd.forwardmove != 0 || bg.pm.cmd.rightmove != 0) && //pushing in a dir
+                                (ps.legsAnim) != BOTH_FLIP_F &&//not already flipping
+                                (ps.legsAnim) != BOTH_FLIP_B &&
+                                (ps.legsAnim) != BOTH_FLIP_R &&
+                                (ps.legsAnim) != BOTH_FLIP_L
+                                && allowFlips {
+                                var anim = BOTH_FORCEINAIR1
+                                var parts = SETANIM_BOTH
+
+                                if bg.pm.cmd.forwardmove > 0 {
+                                    anim = BOTH_FLIP_F
+                                } else if bg.pm.cmd.forwardmove < 0 {
+                                    anim = BOTH_FLIP_B
+                                } else if bg.pm.cmd.rightmove > 0 {
+                                    anim = BOTH_FLIP_R
+                                } else if bg.pm.cmd.rightmove < 0 {
+                                    anim = BOTH_FLIP_L
+                                }
+                                if ps.weaponTime != 0 {
+                                    parts = SETANIM_LEGS
+                                }
+
+                                PM_SetAnim(parts, anim, SETANIM_FLAG_OVERRIDE | SETANIM_FLAG_HOLD, 150)
+                            } else if ps.fd.forcePowerLevel[FP_LEVITATION] > FORCE_LEVEL_1 {
+                                var facingFwd = JKAShared.vec3_t(0, 0, 0)
+                                var facingRight = JKAShared.vec3_t(0, 0, 0)
+                                var facingAngles = JKAShared.vec3_t(0, 0, 0)
+                                var anim: Int32 = -1
+                                let dotR: Float, dotF: Float
+
+                                facingAngles = JKAShared.vec3_t(0, ps.viewangles[YAW], 0)
+
+                                // Raven passes NULL for the third output of `AngleVectors`. The ported function takes it by reference, so the body passes a scratch vector it never reads.
+                                var scratchUp = JKAShared.vec3_t(0, 0, 0)
+                                AngleVectors(facingAngles, &facingFwd, &facingRight, &scratchUp)
+                                dotR = _DotProduct(facingRight, ps.velocity)
+                                dotF = _DotProduct(facingFwd, ps.velocity)
+
+                                // C computes this comparison in double, because `fabs` returns a double and 1.5 is a double literal.
+                                if Double(Q_fabs(dotR)) > Double(Q_fabs(dotF)) * 1.5 {
+                                    if dotR > 150 {
+                                        anim = BOTH_FORCEJUMPRIGHT1
+                                    } else if dotR < -150 {
+                                        anim = BOTH_FORCEJUMPLEFT1
+                                    }
+                                } else {
+                                    if dotF > 150 {
+                                        anim = BOTH_FORCEJUMP1
+                                    } else if dotF < -150 {
+                                        anim = BOTH_FORCEJUMPBACK1
+                                    }
+                                }
+                                if anim != -1 {
+                                    var parts = SETANIM_BOTH
+                                    if ps.weaponTime != 0 {
+                                        //FIXME: really only care if we're in a saber attack anim...
+                                        parts = SETANIM_LEGS
+                                    }
+
+                                    PM_SetAnim(parts, anim, SETANIM_FLAG_OVERRIDE | SETANIM_FLAG_HOLD, 150)
+                                }
+                            }
+                        } else {
+                            //jump is already active (the anim has started)
+                            if ps.legsTimer < 1 {
+                                //not in the middle of a legsAnim
+                                let anim = (ps.legsAnim)
+                                var newAnim: Int32 = -1
+                                switch anim {
+                                case BOTH_FORCEJUMP1:
+                                    newAnim = BOTH_FORCELAND1//BOTH_FORCEINAIR1;
+
+                                case BOTH_FORCEJUMPBACK1:
+                                    newAnim = BOTH_FORCELANDBACK1//BOTH_FORCEINAIRBACK1;
+
+                                case BOTH_FORCEJUMPLEFT1:
+                                    newAnim = BOTH_FORCELANDLEFT1//BOTH_FORCEINAIRLEFT1;
+
+                                case BOTH_FORCEJUMPRIGHT1:
+                                    newAnim = BOTH_FORCELANDRIGHT1//BOTH_FORCEINAIRRIGHT1;
+
+                                default:
+                                    break
+                                }
+                                if newAnim != -1 {
+                                    var parts = SETANIM_BOTH
+                                    if ps.weaponTime != 0 {
+                                        parts = SETANIM_LEGS
+                                    }
+
+                                    PM_SetAnim(parts, newAnim, SETANIM_FLAG_OVERRIDE | SETANIM_FLAG_HOLD, 150)
+                                }
+                            }
+                        }
+                    }
+
+                    //need to scale this down, start with height velocity (based on max force jump height) and scale down to regular jump vel
+                    ps.velocity[2] = (forceJumpHeight[ps.fd.forcePowerLevel[FP_LEVITATION]] - curHeight) / forceJumpHeight[ps.fd.forcePowerLevel[FP_LEVITATION]] * forceJumpStrength[ps.fd.forcePowerLevel[FP_LEVITATION]]//JUMP_VELOCITY;
+                    ps.velocity[2] /= 10
+                    ps.velocity[2] += JUMP_VELOCITY
+                    ps.pm_flags |= PMF_JUMP_HELD
+                } else if curHeight > forceJumpHeight[0] && curHeight < forceJumpHeight[ps.fd.forcePowerLevel[FP_LEVITATION]] - forceJumpHeight[0] {
+                    //still have some headroom, don't totally stop it
+                    if ps.velocity[2] > JUMP_VELOCITY {
+                        ps.velocity[2] = Float(JUMP_VELOCITY)
+                    }
+                } else {
+                    //pm->ps->velocity[2] = 0;
+                    //rww - changed for the sake of balance in multiplayer
+
+                    if ps.velocity[2] > JUMP_VELOCITY {
+                        ps.velocity[2] = Float(JUMP_VELOCITY)
+                    }
+                }
+                bg.pm.cmd.upmove = 0
+                return false
+            }
+        }
+    }
+
+    //Not jumping
+    if bg.pm.cmd.upmove < 10 && ps.groundEntityNum != ENTITYNUM_NONE {
+        return false
+    }
+
+    // must wait for jump to be released
+    if (ps.pm_flags & PMF_JUMP_HELD) != 0 {
+        // clear upmove so cmdscale doesn't lower running speed
+        bg.pm.cmd.upmove = 0
+        return false
+    }
+
+    if ps.gravity <= 0 {
+        //in low grav, you push in the dir you're facing as long as there is something behind you to shove off of
+        var forward = JKAShared.vec3_t(0, 0, 0)
+        var back = JKAShared.vec3_t(0, 0, 0)
+
+        // Raven passes NULL for the last two outputs of `AngleVectors`. The ported function takes them by reference, so the body passes scratch vectors it never reads.
+        var scratchRight = JKAShared.vec3_t(0, 0, 0)
+        var scratchUp = JKAShared.vec3_t(0, 0, 0)
+        AngleVectors(ps.viewangles, &forward, &scratchRight, &scratchUp)
+        _VectorMA(ps.origin, -8, forward, &back)
+        Trace.scratch { trace in
+            bg.pm.runTrace(trace, ps.origin, bg.pm.mins, bg.pm.maxs, back, ps.clientNum, bg.pm.tracemask)
+
+            if trace.fraction <= 1.0 {
+                _VectorMA(ps.velocity, Float(JUMP_VELOCITY * 2), forward, &ps.velocity)
+                PM_SetAnim(SETANIM_LEGS, BOTH_FORCEJUMP1, SETANIM_FLAG_OVERRIDE | SETANIM_FLAG_HOLD | SETANIM_FLAG_RESTART, 150)
+            }//else no surf close enough to push off of
+        }
+        bg.pm.cmd.upmove = 0
+    } else if bg.pm.cmd.upmove > 0 && bg.pm.waterlevel < 2
+        && ps.fd.forcePowerLevel[FP_LEVITATION] > FORCE_LEVEL_0
+        && (ps.pm_flags & PMF_JUMP_HELD) == 0
+        && (ps.weapon == WP_SABER || ps.weapon == WP_MELEE)
+        && !PM_IsRocketTrooper()
+        && !BG_HasYsalamiri(bg.pm.gametype, ps)
+        && BG_CanUseFPNow(bg.pm.gametype, ps, bg.pm.cmd.serverTime, FP_LEVITATION) {
+        var allowWallRuns = true
+        var allowWallFlips = true
+        var allowFlips = true
+        var allowWallGrabs = true
+        if ps.weapon == WP_SABER {
+            let saber1 = BG_MySaber(ps.clientNum, 0)
+            let saber2 = BG_MySaber(ps.clientNum, 1)
+            if let saber1,
+                (saber1.saberFlags & SFL_NO_WALL_RUNS) != 0 {
+                allowWallRuns = false
+            }
+            if let saber2,
+                (saber2.saberFlags & SFL_NO_WALL_RUNS) != 0 {
+                allowWallRuns = false
+            }
+            if let saber1,
+                (saber1.saberFlags & SFL_NO_WALL_FLIPS) != 0 {
+                allowWallFlips = false
+            }
+            if let saber2,
+                (saber2.saberFlags & SFL_NO_WALL_FLIPS) != 0 {
+                allowWallFlips = false
+            }
+            if let saber1,
+                (saber1.saberFlags & SFL_NO_FLIPS) != 0 {
+                allowFlips = false
+            }
+            if let saber2,
+                (saber2.saberFlags & SFL_NO_FLIPS) != 0 {
+                allowFlips = false
+            }
+            if let saber1,
+                (saber1.saberFlags & SFL_NO_WALL_GRAB) != 0 {
+                allowWallGrabs = false
+            }
+            if let saber2,
+                (saber2.saberFlags & SFL_NO_WALL_GRAB) != 0 {
+                allowWallGrabs = false
+            }
+        }
+
+        if ps.groundEntityNum != ENTITYNUM_NONE {
+            //on the ground
+            //check for left-wall and right-wall special jumps
+            var anim: Int32 = -1
+            var vertPush: Float = 0
+            if bg.pm.cmd.rightmove > 0 && ps.fd.forcePowerLevel[FP_LEVITATION] > FORCE_LEVEL_1 {
+                //strafing right
+                if bg.pm.cmd.forwardmove > 0 {
+                    //wall-run
+                    if allowWallRuns {
+                        vertPush = forceJumpStrength[FORCE_LEVEL_2] / 2.0
+                        anim = BOTH_WALL_RUN_RIGHT
+                    }
+                } else if bg.pm.cmd.forwardmove == 0 {
+                    //wall-flip
+                    if allowWallFlips {
+                        vertPush = forceJumpStrength[FORCE_LEVEL_2] / 2.25
+                        anim = BOTH_WALL_FLIP_RIGHT
+                    }
+                }
+            } else if bg.pm.cmd.rightmove < 0 && ps.fd.forcePowerLevel[FP_LEVITATION] > FORCE_LEVEL_1 {
+                //strafing left
+                if bg.pm.cmd.forwardmove > 0 {
+                    //wall-run
+                    if allowWallRuns {
+                        vertPush = forceJumpStrength[FORCE_LEVEL_2] / 2.0
+                        anim = BOTH_WALL_RUN_LEFT
+                    }
+                } else if bg.pm.cmd.forwardmove == 0 {
+                    //wall-flip
+                    if allowWallFlips {
+                        vertPush = forceJumpStrength[FORCE_LEVEL_2] / 2.25
+                        anim = BOTH_WALL_FLIP_LEFT
+                    }
+                }
+            } else if bg.pm.cmd.forwardmove < 0 && (bg.pm.cmd.buttons & BUTTON_ATTACK) == 0 {
+                //backflip
+                if allowFlips {
+                    vertPush = Float(JUMP_VELOCITY)
+                    anim = BOTH_FLIP_BACK1//BG_PickAnim( BOTH_FLIP_BACK1, BOTH_FLIP_BACK3 );
+                }
+            }
+
+            vertPush += 128 //give them an extra shove
+
+            if anim != -1 {
+                var fwd = JKAShared.vec3_t(0, 0, 0)
+                var right = JKAShared.vec3_t(0, 0, 0)
+                var traceto = JKAShared.vec3_t(0, 0, 0)
+                var mins = JKAShared.vec3_t(0, 0, 0)
+                var maxs = JKAShared.vec3_t(0, 0, 0)
+                var fwdAngles = JKAShared.vec3_t(0, 0, 0)
+                var idealNormal = JKAShared.vec3_t(0, 0, 0)
+                var wallNormal = JKAShared.vec3_t(0, 0, 0)
+                Trace.scratch { trace in
+                    var doTrace = false
+                    let contents = MASK_SOLID//MASK_PLAYERSOLID;
+
+                    mins = JKAShared.vec3_t(bg.pm.mins[0], bg.pm.mins[1], 0)
+                    maxs = JKAShared.vec3_t(bg.pm.maxs[0], bg.pm.maxs[1], 24)
+                    fwdAngles = JKAShared.vec3_t(0, ps.viewangles[YAW], 0)
+
+                    //to shut the compiler up
+                    // Raven clears the record with `memset` here. The scratch slot is zero at entry, so the body drops the call.
+
+                    // Raven passes NULL for the third output of `AngleVectors`. The ported function takes it by reference, so the body passes a scratch vector it never reads.
+                    var scratchUp = JKAShared.vec3_t(0, 0, 0)
+                    AngleVectors(fwdAngles, &fwd, &right, &scratchUp)
+
+                    //trace-check for a wall, if necc.
+                    switch anim {
+                    case BOTH_WALL_FLIP_LEFT:
+                        //NOTE: purposely falls through to next case!
+                        fallthrough
+                    case BOTH_WALL_RUN_LEFT:
+                        doTrace = true
+                        _VectorMA(ps.origin, -16, right, &traceto)
+
+                    case BOTH_WALL_FLIP_RIGHT:
+                        //NOTE: purposely falls through to next case!
+                        fallthrough
+                    case BOTH_WALL_RUN_RIGHT:
+                        doTrace = true
+                        _VectorMA(ps.origin, 16, right, &traceto)
+
+                    case BOTH_WALL_FLIP_BACK1:
+                        doTrace = true
+                        _VectorMA(ps.origin, 16, fwd, &traceto)
+
+                    default:
+                        break
+                    }
+
+                    if doTrace {
+                        bg.pm.runTrace(trace, ps.origin, mins, maxs, traceto, ps.clientNum, contents)
+                        wallNormal = trace.plane.normal
+                        _ = VectorNormalize(&wallNormal)
+                        _VectorSubtract(ps.origin, traceto, &idealNormal)
+                        _ = VectorNormalize(&idealNormal)
+                    }
+
+                    // Port-note: `trace_t.entityNum` is Raven's `short`, which C promotes to `int` in this compare. Swift has no such promotion, so the body adds `Int32(...)`.
+                    // C computes the dot-product compare in double, because 0.7 is a double literal.
+                    if !doTrace || (trace.fraction < 1.0 && (Int32(trace.entityNum) < MAX_CLIENTS || Double(_DotProduct(wallNormal, idealNormal)) > 0.7)) {
+                        //there is a wall there.. or hit a client
+                        if (anim != BOTH_WALL_RUN_LEFT
+                                && anim != BOTH_WALL_RUN_RIGHT
+                                && anim != BOTH_FORCEWALLRUNFLIP_START)
+                            || (wallNormal[2] >= 0.0 && wallNormal[2] <= 0.4/*MAX_WALL_RUN_Z_NORMAL*/) {
+                            //wall-runs can only run on perfectly flat walls, sorry.
+                            var parts: Int32
+                            //move me to side
+                            if anim == BOTH_WALL_FLIP_LEFT {
+                                ps.velocity[0] = 0
+                                ps.velocity[1] = 0
+                                _VectorMA(ps.velocity, 150, right, &ps.velocity)
+                            } else if anim == BOTH_WALL_FLIP_RIGHT {
+                                ps.velocity[0] = 0
+                                ps.velocity[1] = 0
+                                _VectorMA(ps.velocity, -150, right, &ps.velocity)
+                            } else if anim == BOTH_FLIP_BACK1
+                                || anim == BOTH_FLIP_BACK2
+                                || anim == BOTH_FLIP_BACK3
+                                || anim == BOTH_WALL_FLIP_BACK1 {
+                                ps.velocity[0] = 0
+                                ps.velocity[1] = 0
+                                _VectorMA(ps.velocity, -150, fwd, &ps.velocity)
+                            }
+
+                            /*
+                            if ( doTrace && anim != BOTH_WALL_RUN_LEFT && anim != BOTH_WALL_RUN_RIGHT )
+                            {
+                                if (trace.entityNum < MAX_CLIENTS)
+                                {
+                                    pm->ps->forceKickFlip = trace.entityNum+1; //let the server know that this person gets kicked by this client
+                                }
+                            }
+                            */
+
+                            //up
+                            if vertPush != 0 {
+                                ps.velocity[2] = vertPush
+                                ps.fd.forcePowersActive |= (1 << FP_LEVITATION)
+                            }
+                            //animate me
+                            parts = SETANIM_LEGS
+                            if anim == BOTH_BUTTERFLY_LEFT {
+                                parts = SETANIM_BOTH
+                                bg.pm.cmd.buttons &= ~BUTTON_ATTACK
+                                ps.saberMove = LS_NONE
+                            } else if ps.weaponTime == 0 {
+                                parts = SETANIM_BOTH
+                            }
+                            PM_SetAnim(parts, anim, SETANIM_FLAG_OVERRIDE | SETANIM_FLAG_HOLD, 0)
+                            if anim == BOTH_BUTTERFLY_LEFT {
+                                ps.weaponTime = ps.torsoTimer
+                            }
+                            PM_SetForceJumpZStart(ps.origin[2])//so we don't take damage if we land at same height
+                            ps.pm_flags |= PMF_JUMP_HELD
+                            bg.pm.cmd.upmove = 0
+                            ps.fd.forceJumpSound = 1
+                        }
+                    }
+                }
+            }
+        } else {
+            //in the air
+            let legsAnim = ps.legsAnim
+
+            if legsAnim == BOTH_WALL_RUN_LEFT || legsAnim == BOTH_WALL_RUN_RIGHT {
+                //running on a wall
+                var right = JKAShared.vec3_t(0, 0, 0)
+                var traceto = JKAShared.vec3_t(0, 0, 0)
+                var mins = JKAShared.vec3_t(0, 0, 0)
+                var maxs = JKAShared.vec3_t(0, 0, 0)
+                var fwdAngles = JKAShared.vec3_t(0, 0, 0)
+                var anim: Int32 = -1
+
+                mins = JKAShared.vec3_t(bg.pm.mins[0], bg.pm.mins[0], 0)
+                maxs = JKAShared.vec3_t(bg.pm.maxs[0], bg.pm.maxs[0], 24)
+                fwdAngles = JKAShared.vec3_t(0, ps.viewangles[YAW], 0)
+
+                // Raven passes NULL for the first and third outputs of `AngleVectors`. The ported function takes them by reference, so the body passes scratch vectors it never reads.
+                var scratchForward = JKAShared.vec3_t(0, 0, 0)
+                var scratchUp = JKAShared.vec3_t(0, 0, 0)
+                AngleVectors(fwdAngles, &scratchForward, &right, &scratchUp)
+
+                if legsAnim == BOTH_WALL_RUN_LEFT {
+                    if ps.legsTimer > 400 {
+                        //not at the end of the anim
+                        let animLen = Float(PM_AnimLength(0, BOTH_WALL_RUN_LEFT))
+                        if ps.legsTimer < animLen - 400 {
+                            //not at start of anim
+                            _VectorMA(ps.origin, -16, right, &traceto)
+                            anim = BOTH_WALL_RUN_LEFT_FLIP
+                        }
+                    }
+                } else if legsAnim == BOTH_WALL_RUN_RIGHT {
+                    if ps.legsTimer > 400 {
+                        //not at the end of the anim
+                        let animLen = Float(PM_AnimLength(0, BOTH_WALL_RUN_RIGHT))
+                        if ps.legsTimer < animLen - 400 {
+                            //not at start of anim
+                            _VectorMA(ps.origin, 16, right, &traceto)
+                            anim = BOTH_WALL_RUN_RIGHT_FLIP
+                        }
+                    }
+                }
+                if anim != -1 {
+                    Trace.scratch { trace in
+                        bg.pm.runTrace(trace, ps.origin, mins, maxs, traceto, ps.clientNum, CONTENTS_SOLID | CONTENTS_BODY)
+                        if trace.fraction < 1.0 {
+                            //flip off wall
+                            var parts: Int32 = 0
+
+                            if anim == BOTH_WALL_RUN_LEFT_FLIP {
+                                ps.velocity[0] *= 0.5
+                                ps.velocity[1] *= 0.5
+                                _VectorMA(ps.velocity, 150, right, &ps.velocity)
+                            } else if anim == BOTH_WALL_RUN_RIGHT_FLIP {
+                                ps.velocity[0] *= 0.5
+                                ps.velocity[1] *= 0.5
+                                _VectorMA(ps.velocity, -150, right, &ps.velocity)
+                            }
+                            parts = SETANIM_LEGS
+                            if ps.weaponTime == 0 {
+                                parts = SETANIM_BOTH
+                            }
+                            PM_SetAnim(parts, anim, SETANIM_FLAG_OVERRIDE | SETANIM_FLAG_HOLD, 0)
+                            bg.pm.cmd.upmove = 0
+                        }
+                    }
+                }
+                if bg.pm.cmd.upmove != 0 {
+                    //jump failed, so don't try to do normal jump code, just return
+                    return false
+                }
+            }
+            //NEW JKA
+            else if ps.legsAnim == BOTH_FORCEWALLRUNFLIP_START {
+                var fwd = JKAShared.vec3_t(0, 0, 0)
+                var traceto = JKAShared.vec3_t(0, 0, 0)
+                var mins = JKAShared.vec3_t(0, 0, 0)
+                var maxs = JKAShared.vec3_t(0, 0, 0)
+                var fwdAngles = JKAShared.vec3_t(0, 0, 0)
+                var anim: Int32 = -1
+                var animLen: Float
+
+                mins = JKAShared.vec3_t(bg.pm.mins[0], bg.pm.mins[0], 0.0)
+                maxs = JKAShared.vec3_t(bg.pm.maxs[0], bg.pm.maxs[0], 24.0)
+                //hmm, did you mean [1] and [1]?
+                fwdAngles = JKAShared.vec3_t(0, ps.viewangles[YAW], 0.0)
+                // Raven passes NULL for the last two outputs of `AngleVectors`. The ported function takes them by reference, so the body passes scratch vectors it never reads.
+                var scratchRight = JKAShared.vec3_t(0, 0, 0)
+                var scratchUp = JKAShared.vec3_t(0, 0, 0)
+                AngleVectors(fwdAngles, &fwd, &scratchRight, &scratchUp)
+
+                assert(bg.pm_entSelf != nil) //null pm_entSelf would be a Bad Thing<tm>
+                // Port-note: Raven reads `pm_entSelf` right after his assert. The generated view is optional, so the body binds it, and the nil path leaves `anim` at -1.
+                if let pm_entSelf = bg.pm_entSelf {
+                    animLen = Float(BG_AnimLength(pm_entSelf.localAnimIndex, BOTH_FORCEWALLRUNFLIP_START))
+                    if ps.legsTimer < animLen - 400 {
+                        //not at start of anim
+                        _VectorMA(ps.origin, 16, fwd, &traceto)
+                        anim = BOTH_FORCEWALLRUNFLIP_END
+                    }
+                }
+                if anim != -1 {
+                    Trace.scratch { trace in
+                        bg.pm.runTrace(trace, ps.origin, mins, maxs, traceto, ps.clientNum, CONTENTS_SOLID | CONTENTS_BODY)
+                        if trace.fraction < 1.0 {
+                            //flip off wall
+                            var parts = SETANIM_LEGS
+
+                            ps.velocity[0] *= 0.5
+                            ps.velocity[1] *= 0.5
+                            _VectorMA(ps.velocity, -300, fwd, &ps.velocity)
+                            ps.velocity[2] += 200
+                            if ps.weaponTime == 0 {
+                                //not attacking, set anim on both
+                                parts = SETANIM_BOTH
+                            }
+                            PM_SetAnim(parts, anim, SETANIM_FLAG_OVERRIDE | SETANIM_FLAG_HOLD, 0)
+                            //FIXME: do damage to traceEnt, like above?
+                            //pm->ps->pm_flags |= PMF_JUMPING|PMF_SLOW_MO_FALL;
+                            //ha ha, so silly with your silly jumpy fally flags.
+                            bg.pm.cmd.upmove = 0
+                            PM_AddEvent(EV_JUMP)
+                        }
+                    }
+                }
+                if bg.pm.cmd.upmove != 0 {
+                    //jump failed, so don't try to do normal jump code, just return
+                    return false
+                }
+            }
+            /*
+            else if ( pm->cmd.forwardmove > 0 //pushing forward
+                && pm->ps->fd.forcePowerLevel[FP_LEVITATION] > FORCE_LEVEL_1
+                && pm->ps->velocity[2] > 200
+                && PM_GroundDistance() <= 80 //unfortunately we do not have a happy ground timer like SP (this would use up more bandwidth if we wanted prediction workign right), so we'll just use the actual ground distance.
+                && !BG_InSpecialJump(pm->ps->legsAnim))
+            {//run up wall, flip backwards
+                vec3_t fwd, traceto, mins, maxs, fwdAngles;
+                trace_t	trace;
+                vec3_t	idealNormal;
+
+                VectorSet(mins, pm->mins[0],pm->mins[1],pm->mins[2]);
+                VectorSet(maxs, pm->maxs[0],pm->maxs[1],pm->maxs[2]);
+                VectorSet(fwdAngles, 0, pm->ps->viewangles[YAW], 0);
+
+                AngleVectors( fwdAngles, fwd, NULL, NULL );
+                VectorMA( pm->ps->origin, 32, fwd, traceto );
+
+                pm->trace( &trace, pm->ps->origin, mins, maxs, traceto, pm->ps->clientNum, MASK_PLAYERSOLID );//FIXME: clip brushes too?
+                VectorSubtract( pm->ps->origin, traceto, idealNormal );
+                VectorNormalize( idealNormal );
+
+                if ( trace.fraction < 1.0f )
+                {//there is a wall there
+                    int parts = SETANIM_LEGS;
+
+                    pm->ps->velocity[0] = pm->ps->velocity[1] = 0;
+                    VectorMA( pm->ps->velocity, -150, fwd, pm->ps->velocity );
+                    pm->ps->velocity[2] += 128;
+
+                    if ( !pm->ps->weaponTime )
+                    {
+                        parts = SETANIM_BOTH;
+                    }
+                    PM_SetAnim( parts, BOTH_WALL_FLIP_BACK1, SETANIM_FLAG_OVERRIDE|SETANIM_FLAG_HOLD, 0 );
+
+                    pm->ps->legsTimer -= 600; //I force this anim to play to the end to prevent landing on your head and suddenly flipping over.
+                                              //It is a bit too long at the end though, so I'll just shorten it.
+
+                    PM_SetForceJumpZStart(pm->ps->origin[2]);//so we don't take damage if we land at same height
+                    pm->cmd.upmove = 0;
+                    pm->ps->fd.forceJumpSound = 1;
+                    BG_ForcePowerDrain( pm->ps, FP_LEVITATION, 5 );
+
+                    if (trace.entityNum < MAX_CLIENTS)
+                    {
+                        pm->ps->forceKickFlip = trace.entityNum+1; //let the server know that this person gets kicked by this client
+                    }
+                }
+            }
+            */
+            else if bg.pm.cmd.forwardmove > 0 //pushing forward
+                && ps.fd.forceRageRecoveryTime < bg.pm.cmd.serverTime	//not in a force Rage recovery period
+                && ps.fd.forcePowerLevel[FP_LEVITATION] > FORCE_LEVEL_1
+                && PM_WalkableGroundDistance() <= 80 //unfortunately we do not have a happy ground timer like SP (this would use up more bandwidth if we wanted prediction workign right), so we'll just use the actual ground distance.
+                && (ps.legsAnim == BOTH_JUMP1 || ps.legsAnim == BOTH_INAIR1) {//not in a flip or spin or anything
+                //run up wall, flip backwards
+                if allowWallRuns {
+                    //FIXME: have to be moving... make sure it's opposite the wall... or at least forward?
+                    var wallWalkAnim = BOTH_WALL_FLIP_BACK1
+                    var parts = SETANIM_LEGS
+                    let contents = MASK_SOLID//MASK_PLAYERSOLID;//CONTENTS_SOLID;
+                    //qboolean kick = qtrue;
+                    if ps.fd.forcePowerLevel[FP_LEVITATION] > FORCE_LEVEL_2 {
+                        wallWalkAnim = BOTH_FORCEWALLRUNFLIP_START
+                        parts = SETANIM_BOTH
+                        //kick = qfalse;
+                    } else {
+                        if ps.weaponTime == 0 {
+                            parts = SETANIM_BOTH
+                        }
+                    }
+                    //if ( PM_HasAnimation( pm->gent, wallWalkAnim ) )
+                    if true {
+                        //sure, we have it! Because I SAID SO.
+                        var fwd = JKAShared.vec3_t(0, 0, 0)
+                        var traceto = JKAShared.vec3_t(0, 0, 0)
+                        var mins = JKAShared.vec3_t(0, 0, 0)
+                        var maxs = JKAShared.vec3_t(0, 0, 0)
+                        var fwdAngles = JKAShared.vec3_t(0, 0, 0)
+                        var idealNormal = JKAShared.vec3_t(0, 0, 0)
+                        var traceEnt: JKAMP.BgEntity? = nil
+                        Trace.scratch { trace in
+                            mins = JKAShared.vec3_t(bg.pm.mins[0], bg.pm.mins[1], 0.0)
+                            maxs = JKAShared.vec3_t(bg.pm.maxs[0], bg.pm.maxs[1], 24.0)
+                            fwdAngles = JKAShared.vec3_t(0, ps.viewangles[YAW], 0.0)
+
+                            // Raven passes NULL for the last two outputs of `AngleVectors`. The ported function takes them by reference, so the body passes scratch vectors it never reads.
+                            var scratchRight = JKAShared.vec3_t(0, 0, 0)
+                            var scratchUp = JKAShared.vec3_t(0, 0, 0)
+                            AngleVectors(fwdAngles, &fwd, &scratchRight, &scratchUp)
+                            _VectorMA(ps.origin, 32, fwd, &traceto)
+
+                            bg.pm.runTrace(trace, ps.origin, mins, maxs, traceto, ps.clientNum, contents)//FIXME: clip brushes too?
+                            _VectorSubtract(ps.origin, traceto, &idealNormal)
+                            _ = VectorNormalize(&idealNormal)
+                            // Port-note: `trace_t.entityNum` is Raven's `short`, which C promotes to `int` at this call. Swift has no such promotion, so the body adds `Int32(...)`.
+                            traceEnt = PM_BGEntForNum(Int32(trace.entityNum))
+
+                            // Port-note: Raven tests `traceEnt` inside one `&&` chain. The generated view is optional, so the body binds it into a flag first.
+                            var hitPushableEnt = false
+                            if Int32(trace.entityNum) < ENTITYNUM_WORLD,
+                                let traceEnt,
+                                traceEnt.s.solid != SOLID_BMODEL {
+                                hitPushableEnt = true
+                            }
+                            // C computes the dot-product compare in double, because 0.7 is a double literal.
+                            if trace.fraction < 1.0
+                                && (hitPushableEnt || Double(_DotProduct(trace.plane.normal, idealNormal)) > 0.7) {
+                                //there is a wall there
+                                ps.velocity[0] = 0
+                                ps.velocity[1] = 0
+                                if wallWalkAnim == BOTH_FORCEWALLRUNFLIP_START {
+                                    ps.velocity[2] = forceJumpStrength[FORCE_LEVEL_3] / 2.0
+                                } else {
+                                    _VectorMA(ps.velocity, -150, fwd, &ps.velocity)
+                                    ps.velocity[2] += 150.0
+                                }
+                                //animate me
+                                PM_SetAnim(parts, wallWalkAnim, SETANIM_FLAG_OVERRIDE | SETANIM_FLAG_HOLD, 0)
+    //						pm->ps->pm_flags |= PMF_JUMPING|PMF_SLOW_MO_FALL;
+                                //again with the flags!
+                                //G_SoundOnEnt( pm->gent, CHAN_BODY, "sound/weapons/force/jump.wav" );
+                                //yucky!
+                                PM_SetForceJumpZStart(ps.origin[2])//so we don't take damage if we land at same height
+                                bg.pm.cmd.upmove = 0
+                                ps.fd.forceJumpSound = 1
+                                BG_ForcePowerDrain(ps, FP_LEVITATION, 5)
+
+                                //kick if jumping off an ent
+                                /*
+                                if ( kick && traceEnt && (traceEnt->s.eType == ET_PLAYER || traceEnt->s.eType == ET_NPC) )
+                                { //kick that thang!
+                                    pm->ps->forceKickFlip = traceEnt->s.number+1;
+                                }
+                                */
+                                bg.pm.cmd.forwardmove = 0
+                                bg.pm.cmd.rightmove = 0
+                            }
+                        }
+                        _ = traceEnt
+                    }
+                }
+            } else if (!BG_InSpecialJump(legsAnim)//not in a special jump anim
+                        || BG_InReboundJump(legsAnim)//we're already in a rebound
+                        || BG_InBackFlip(legsAnim))//a backflip (needed so you can jump off a wall behind you)
+                    //&& pm->ps->velocity[2] <= 0
+                    && ps.velocity[2] > -1200 //not falling down very fast
+                    && (ps.pm_flags & PMF_JUMP_HELD) == 0//have to have released jump since last press
+                    && (bg.pm.cmd.forwardmove != 0 || bg.pm.cmd.rightmove != 0)//pushing in a direction
+                    //&& pm->ps->forceRageRecoveryTime < pm->cmd.serverTime	//not in a force Rage recovery period
+                    && ps.fd.forcePowerLevel[FP_LEVITATION] > FORCE_LEVEL_2//level 3 jump or better
+                    //&& WP_ForcePowerAvailable( pm->gent, FP_LEVITATION, 10 )//have enough force power to do another one
+                    && BG_CanUseFPNow(bg.pm.gametype, ps, bg.pm.cmd.serverTime, FP_LEVITATION)
+                    && (ps.origin[2] - ps.fd.forceJumpZStart) < (forceJumpHeightMax[FORCE_LEVEL_3] - (BG_ForceWallJumpStrength() / 2.0)) //can fit at least one more wall jump in (yes, using "magic numbers"... for now)
+                    //&& (pm->ps->legsAnim == BOTH_JUMP1 || pm->ps->legsAnim == BOTH_INAIR1 ) )//not in a flip or spin or anything
+                    {
+                //see if we're pushing at a wall and jump off it if so
+                if allowWallGrabs {
+                    //FIXME: make sure we have enough force power
+                    //FIXME: check  to see if we can go any higher
+                    //FIXME: limit to a certain number of these in a row?
+                    //FIXME: maybe don't require a ucmd direction, just check all 4?
+                    //FIXME: should stick to the wall for a second, then push off...
+                    var checkDir = JKAShared.vec3_t(0, 0, 0)
+                    var traceto = JKAShared.vec3_t(0, 0, 0)
+                    var mins = JKAShared.vec3_t(0, 0, 0)
+                    var maxs = JKAShared.vec3_t(0, 0, 0)
+                    var fwdAngles = JKAShared.vec3_t(0, 0, 0)
+                    var idealNormal = JKAShared.vec3_t(0, 0, 0)
+                    var anim: Int32 = -1
+
+                    mins = JKAShared.vec3_t(bg.pm.mins[0], bg.pm.mins[1], 0.0)
+                    maxs = JKAShared.vec3_t(bg.pm.maxs[0], bg.pm.maxs[1], 24.0)
+                    fwdAngles = JKAShared.vec3_t(0, ps.viewangles[YAW], 0.0)
+
+                    // Raven passes NULL for two of the three outputs of `AngleVectors` at each call below. The ported function takes them by reference, so the body passes scratch vectors it never reads.
+                    var scratchForward = JKAShared.vec3_t(0, 0, 0)
+                    var scratchRight = JKAShared.vec3_t(0, 0, 0)
+                    var scratchUp = JKAShared.vec3_t(0, 0, 0)
+                    if bg.pm.cmd.rightmove != 0 {
+                        if bg.pm.cmd.rightmove > 0 {
+                            anim = BOTH_FORCEWALLREBOUND_RIGHT
+                            AngleVectors(fwdAngles, &scratchForward, &checkDir, &scratchUp)
+                        } else if bg.pm.cmd.rightmove < 0 {
+                            anim = BOTH_FORCEWALLREBOUND_LEFT
+                            AngleVectors(fwdAngles, &scratchForward, &checkDir, &scratchUp)
+                            _VectorScale(checkDir, -1, &checkDir)
+                        }
+                    } else if bg.pm.cmd.forwardmove > 0 {
+                        anim = BOTH_FORCEWALLREBOUND_FORWARD
+                        AngleVectors(fwdAngles, &checkDir, &scratchRight, &scratchUp)
+                    } else if bg.pm.cmd.forwardmove < 0 {
+                        anim = BOTH_FORCEWALLREBOUND_BACK
+                        AngleVectors(fwdAngles, &checkDir, &scratchRight, &scratchUp)
+                        _VectorScale(checkDir, -1, &checkDir)
+                    }
+                    if anim != -1 {
+                        //trace in the dir we're pushing in and see if there's a vertical wall there
+                        var traceEnt: JKAMP.BgEntity? = nil
+
+                        Trace.scratch { trace in
+                            _VectorMA(ps.origin, 8, checkDir, &traceto)
+                            bg.pm.runTrace(trace, ps.origin, mins, maxs, traceto, ps.clientNum, CONTENTS_SOLID)//FIXME: clip brushes too?
+                            _VectorSubtract(ps.origin, traceto, &idealNormal)
+                            _ = VectorNormalize(&idealNormal)
+                            // Port-note: `trace_t.entityNum` is Raven's `short`, which C promotes to `int` at this call. Swift has no such promotion, so the body adds `Int32(...)`.
+                            traceEnt = PM_BGEntForNum(Int32(trace.entityNum))
+                            // Port-note: Raven tests `traceEnt` inside one `&&` chain. The generated view is optional, so the body binds it into a flag first.
+                            var hitPushableEnt = false
+                            if Int32(trace.entityNum) < ENTITYNUM_WORLD,
+                                let traceEnt,
+                                traceEnt.s.solid != SOLID_BMODEL {
+                                hitPushableEnt = true
+                            }
+                            // C computes the dot-product compare in double, because 0.7 is a double literal.
+                            if trace.fraction < 1.0
+                                && Q_fabs(trace.plane.normal[2]) <= 0.2/*MAX_WALL_GRAB_SLOPE*/
+                                && (hitPushableEnt || Double(_DotProduct(trace.plane.normal, idealNormal)) > 0.7) {
+                                //there is a wall there
+                                let dot = _DotProduct(ps.velocity, trace.plane.normal)
+                                if dot < 1.0 {
+                                    //can't be heading *away* from the wall!
+                                    //grab it!
+                                    PM_GrabWallForJump(anim)
+                                }
+                            }
+                        }
+                        _ = traceEnt
+                    }
+                }
+            } else {
+                //FIXME: if in a butterfly, kick people away?
+            }
+            //END NEW JKA
+        }
+    }
+
+    /*
+    if ( pm->cmd.upmove > 0
+        && (pm->ps->weapon == WP_SABER || pm->ps->weapon == WP_MELEE)
+        && !PM_IsRocketTrooper()
+        && (pm->ps->weaponTime > 0||pm->cmd.buttons&BUTTON_ATTACK) )
+    {//okay, we just jumped and we're in an attack
+        if ( !BG_InRoll( pm->ps, pm->ps->legsAnim )
+            && !PM_InKnockDown( pm->ps )
+            && !BG_InDeathAnim(pm->ps->legsAnim)
+            && !BG_FlippingAnim( pm->ps->legsAnim )
+            && !PM_SpinningAnim( pm->ps->legsAnim )
+            && !BG_SaberInSpecialAttack( pm->ps->torsoAnim )
+            && ( BG_SaberInAttack( pm->ps->saberMove ) ) )
+        {//not in an anim we shouldn't interrupt
+            //see if it's not too late to start a special jump-attack
+            float animLength = PM_AnimLength( 0, (animNumber_t)pm->ps->torsoAnim );
+            if ( animLength - pm->ps->torsoTimer < 500 )
+            {//just started the saberMove
+                //check for special-case jump attacks
+                if ( pm->ps->fd.saberAnimLevel == FORCE_LEVEL_2 )
+                {//using medium attacks
+                    if (PM_GroundDistance() < 32 &&
+                        !BG_InSpecialJump(pm->ps->legsAnim))
+                    { //FLIP AND DOWNWARD ATTACK
+                        //trace_t tr;
+
+                        //if (PM_SomeoneInFront(&tr))
+                        {
+                            PM_SetSaberMove(PM_SaberFlipOverAttackMove());
+                            pml.groundPlane = qfalse;
+                            pml.walking = qfalse;
+                            pm->ps->pm_flags |= PMF_JUMP_HELD;
+                            pm->ps->groundEntityNum = ENTITYNUM_NONE;
+                            VectorClear(pml.groundTrace.plane.normal);
+
+                            pm->ps->weaponTime = pm->ps->torsoTimer;
+                        }
+                    }
+                }
+                else if ( pm->ps->fd.saberAnimLevel == FORCE_LEVEL_3 )
+                {//using strong attacks
+                    if ( pm->cmd.forwardmove > 0 && //going forward
+                        (pm->cmd.buttons & BUTTON_ATTACK) && //must be holding attack still
+                        PM_GroundDistance() < 32 &&
+                        !BG_InSpecialJump(pm->ps->legsAnim))
+                    {//strong attack: jump-hack
+                        PM_SetSaberMove( PM_SaberJumpAttackMove() );
+                        pml.groundPlane = qfalse;
+                        pml.walking = qfalse;
+                        pm->ps->pm_flags |= PMF_JUMP_HELD;
+                        pm->ps->groundEntityNum = ENTITYNUM_NONE;
+                        VectorClear(pml.groundTrace.plane.normal);
+
+                        pm->ps->weaponTime = pm->ps->torsoTimer;
+                    }
+                }
+            }
+        }
+    }
+    */
+    if ps.groundEntityNum == ENTITYNUM_NONE {
+        return false
+    }
+    if bg.pm.cmd.upmove > 0 {
+        //no special jumps
+        ps.velocity[2] = Float(JUMP_VELOCITY)
+        PM_SetForceJumpZStart(ps.origin[2])//so we don't take damage if we land at same height
+        ps.pm_flags |= PMF_JUMP_HELD
+    }
+
+    //Jumping
+    bg.pml.groundPlane = false
+    bg.pml.walking = false
+    ps.pm_flags |= PMF_JUMP_HELD
+    ps.groundEntityNum = ENTITYNUM_NONE
+    PM_SetForceJumpZStart(ps.origin[2])
+
+    PM_AddEvent(EV_JUMP)
+
+    //Set the animations
+    if ps.gravity > 0 && !BG_InSpecialJump(ps.legsAnim) {
+        PM_JumpForDir()
+    }
+
+    return true
 }
 
 /**
@@ -1163,8 +2585,9 @@ private func PM_AirMove() {
     fmove = Float(bg.pm.cmd.forwardmove)
     smove = Float(bg.pm.cmd.rightmove)
 
-    // Port-note: Raven copies `pm->cmd` into a `usercmd_t` on the stack and passes that copy. No view carries the `scratch` helper the guide names, and the copy is never written, so the body passes `pm->cmd` itself.
-    scale = PM_CmdScale(bg.pm.cmd)
+    scale = Usercmd.scratch(copying: bg.pm.cmd) { cmd in
+        PM_CmdScale(cmd)
+    }
 
     // set the movementDir so clients can rotate the legs for strafing
     PM_SetMovementDir()
@@ -1296,8 +2719,9 @@ private func PM_WalkMove() {
     fmove = Float(bg.pm.cmd.forwardmove)
     smove = Float(bg.pm.cmd.rightmove)
 
-    // Port-note: Raven copies `pm->cmd` into a `usercmd_t` on the stack and passes that copy. No view carries the `scratch` helper the guide names, and the copy is never written, so the body passes `pm->cmd` itself.
-    scale = PM_CmdScale(bg.pm.cmd)
+    scale = Usercmd.scratch(copying: bg.pm.cmd) { cmd in
+        PM_CmdScale(cmd)
+    }
 
     // set the movementDir so clients can rotate the legs for strafing
     PM_SetMovementDir()
@@ -1564,9 +2988,87 @@ private func PM_FootstepForSurface() -> Int32 {
 
 /// Source: oracle/codemp/game/bg_pmove.c:3597
 private func PM_TryRoll() -> Int32 {
-    // Port-note: Raven puts a `trace_t` on the stack here. No view carries the `scratch` helper the guide names, so the body has no Swift form.
-    // TODO: Port PM_TryRoll
-    portMissing("PM_TryRoll", source: "oracle/codemp/game/bg_pmove.c:3597")
+    var anim: Int32 = -1
+    var fwd = JKAShared.vec3_t(0, 0, 0)
+    var right = JKAShared.vec3_t(0, 0, 0)
+    var traceto = JKAShared.vec3_t(0, 0, 0)
+    var mins = JKAShared.vec3_t(0, 0, 0)
+    var maxs = JKAShared.vec3_t(0, 0, 0)
+    var fwdAngles = JKAShared.vec3_t(0, 0, 0)
+    let ps = bg.pm.ps
+
+    if BG_SaberInAttack(ps.saberMove) || BG_SaberInSpecialAttack(ps.torsoAnim)
+        || BG_SpinningSaberAnim(ps.legsAnim)
+        || PM_SaberInStart(ps.saberMove) {
+        //attacking or spinning (or, if player, starting an attack)
+        if PM_CanRollFromSoulCal(ps) {
+            //hehe
+        } else {
+            return 0
+        }
+    }
+
+    if (ps.weapon != WP_SABER && ps.weapon != WP_MELEE)
+        || PM_IsRocketTrooper()
+        || BG_HasYsalamiri(bg.pm.gametype, ps)
+        || !BG_CanUseFPNow(bg.pm.gametype, ps, bg.pm.cmd.serverTime, FP_LEVITATION) {
+        //Not using saber, or can't use jump
+        return 0
+    }
+
+    if ps.weapon == WP_SABER {
+        var saber = BG_MySaber(ps.clientNum, 0)
+        if let saber,
+            (saber.saberFlags & SFL_NO_ROLLS) != 0 {
+            return 0
+        }
+        saber = BG_MySaber(ps.clientNum, 1)
+        if let saber,
+            (saber.saberFlags & SFL_NO_ROLLS) != 0 {
+            return 0
+        }
+    }
+
+    mins = JKAShared.vec3_t(bg.pm.mins[0], bg.pm.mins[1], bg.pm.mins[2] + STEPSIZE)
+    maxs = JKAShared.vec3_t(bg.pm.maxs[0], bg.pm.maxs[1], Float(ps.crouchheight))
+
+    fwdAngles = JKAShared.vec3_t(0, ps.viewangles[YAW], 0)
+
+    // Raven passes NULL for the third output of `AngleVectors`. The ported function takes it by reference, so the body passes a scratch vector it never reads.
+    var scratchUp = JKAShared.vec3_t(0, 0, 0)
+    AngleVectors(fwdAngles, &fwd, &right, &scratchUp)
+
+    if bg.pm.cmd.forwardmove != 0 {
+        //check forward/backward rolls
+        if (ps.pm_flags & PMF_BACKWARDS_RUN) != 0 {
+            anim = BOTH_ROLL_B
+            _VectorMA(ps.origin, -64, fwd, &traceto)
+        } else {
+            anim = BOTH_ROLL_F
+            _VectorMA(ps.origin, 64, fwd, &traceto)
+        }
+    } else if bg.pm.cmd.rightmove > 0 {
+        //right
+        anim = BOTH_ROLL_R
+        _VectorMA(ps.origin, 64, right, &traceto)
+    } else if bg.pm.cmd.rightmove < 0 {
+        //left
+        anim = BOTH_ROLL_L
+        _VectorMA(ps.origin, -64, right, &traceto)
+    }
+
+    if anim != -1 {
+        //We want to roll. Perform a trace to see if we can, and if so, send us into one.
+        let clear = JKAMP.Trace.scratch { trace in
+            bg.pm.runTrace(trace, ps.origin, mins, maxs, traceto, ps.clientNum, CONTENTS_SOLID)
+            return trace.fraction >= 1.0
+        }
+        if clear {
+            ps.saberMove = LS_NONE
+            return anim
+        }
+    }
+    return 0
 }
 
 /// Source: oracle/codemp/game/bg_pmove.c:3684
@@ -1889,9 +3391,78 @@ The ground trace didn't hit a surface, so we are in freefall
 */
 /// Source: oracle/codemp/game/bg_pmove.c:4053
 private func PM_GroundTraceMissed() {
-    // Port-note: Raven puts a `trace_t` on the stack here. No view carries the `scratch` helper the guide names, so the body has no Swift form.
-    // TODO: Port PM_GroundTraceMissed
-    portMissing("PM_GroundTraceMissed", source: "oracle/codemp/game/bg_pmove.c:4053")
+    var point = JKAShared.vec3_t(0, 0, 0)
+    let ps = bg.pm.ps
+
+    //rww - don't want to do this when handextend_choke, because you can be standing on the ground
+    //while still holding your throat.
+    if ps.pm_type == PM_FLOAT {
+        //we're assuming this is because you're being choked
+        let parts = SETANIM_LEGS
+
+        //rww - also don't use SETANIM_FLAG_HOLD, it will cause the legs to float around a bit before going into
+        //a proper anim even when on the ground.
+        PM_SetAnim(parts, BOTH_CHOKE3, SETANIM_FLAG_OVERRIDE, 100)
+    } else if ps.pm_type == PM_JETPACK {
+        //jetpacking
+        //rww - also don't use SETANIM_FLAG_HOLD, it will cause the legs to float around a bit before going into
+        //a proper anim even when on the ground.
+        //PM_SetAnim(SETANIM_LEGS,BOTH_FORCEJUMP1,SETANIM_FLAG_OVERRIDE, 100);
+    }
+    //If the anim is choke3, act like we just went into the air because we aren't in a float
+    else if ps.groundEntityNum != ENTITYNUM_NONE || (ps.legsAnim) == BOTH_CHOKE3 {
+        // we just transitioned into freefall
+        if bg.pm.debugLevel != 0 {
+            Com_Printf("%i:lift\n", bg.c_pmove)
+        }
+
+        // if they aren't in a jumping animation and the ground is a ways away, force into it
+        // if we didn't do the trace, the player would be backflipping down staircases
+        point = ps.origin
+        point[2] -= 64
+
+        JKAMP.Trace.scratch { trace in
+            bg.pm.runTrace(trace, ps.origin, bg.pm.mins, bg.pm.maxs, point, ps.clientNum, bg.pm.tracemask)
+            if trace.fraction == 1.0 || ps.pm_type == PM_FLOAT {
+                if ps.velocity[2] <= 0 && (ps.pm_flags & PMF_JUMP_HELD) == 0 {
+                    //PM_SetAnim(SETANIM_LEGS,BOTH_INAIR1,SETANIM_FLAG_OVERRIDE, 100);
+                    PM_SetAnim(SETANIM_LEGS, BOTH_INAIR1, 0, 100)
+                    ps.pm_flags &= ~PMF_BACKWARDS_JUMP
+                } else if bg.pm.cmd.forwardmove >= 0 {
+                    PM_SetAnim(SETANIM_LEGS, BOTH_JUMP1, SETANIM_FLAG_OVERRIDE, 100)
+                    ps.pm_flags &= ~PMF_BACKWARDS_JUMP
+                } else {
+                    PM_SetAnim(SETANIM_LEGS, BOTH_JUMPBACK1, SETANIM_FLAG_OVERRIDE, 100)
+                    ps.pm_flags |= PMF_BACKWARDS_JUMP
+                }
+
+                ps.inAirAnim = true
+            }
+        }
+    } else if !ps.inAirAnim {
+        // if they aren't in a jumping animation and the ground is a ways away, force into it
+        // if we didn't do the trace, the player would be backflipping down staircases
+        point = ps.origin
+        point[2] -= 64
+
+        JKAMP.Trace.scratch { trace in
+            bg.pm.runTrace(trace, ps.origin, bg.pm.mins, bg.pm.maxs, point, ps.clientNum, bg.pm.tracemask)
+            if trace.fraction == 1.0 || ps.pm_type == PM_FLOAT {
+                ps.inAirAnim = true
+            }
+        }
+    }
+
+    if PM_InRollComplete(ps, ps.legsAnim) {
+        //Client won't catch an animation restart because it only checks frame against incoming frame, so if you roll when you land after rolling
+        //off of something it won't replay the roll anim unless we switch it off in the air. This fixes that.
+        PM_SetAnim(SETANIM_BOTH, BOTH_INAIR1, SETANIM_FLAG_OVERRIDE|SETANIM_FLAG_HOLD, 150)
+        ps.inAirAnim = true
+    }
+
+    ps.groundEntityNum = ENTITYNUM_NONE
+    bg.pml.groundPlane = false
+    bg.pml.walking = false
 }
 
 /**
@@ -1903,9 +3474,117 @@ PM_GroundTrace
 */
 /// Source: oracle/codemp/game/bg_pmove.c:4141
 private func PM_GroundTrace() {
-    // Port-note: Raven puts a `trace_t` on the stack here. No view carries the `scratch` helper the guide names, so the body has no Swift form.
-    // TODO: Port PM_GroundTrace
-    portMissing("PM_GroundTrace", source: "oracle/codemp/game/bg_pmove.c:4141")
+    var point = JKAShared.vec3_t(0, 0, 0)
+    var minNormal = Float(MIN_WALK_NORMAL)
+    let ps = bg.pm.ps
+
+    if ps.clientNum >= MAX_CLIENTS {
+        let pEnt = bg.pm_entSelf
+
+        // Port-note: Raven walks `pEnt->m_pVehicle->m_pVehicleInfo` with no guard. Both generated fields are optional, so the body binds both.
+        if let pEnt, pEnt.s.NPC_class == CLASS_VEHICLE,
+            let m_pVehicle = pEnt.m_pVehicle,
+            let m_pVehicleInfo = m_pVehicle.m_pVehicleInfo {
+            minNormal = m_pVehicleInfo.maxSlope
+        }
+    }
+
+    point[0] = ps.origin[0]
+    point[1] = ps.origin[1]
+    // C promotes this difference to double, because 0.25 is a double literal.
+    point[2] = Float(Double(ps.origin[2]) - 0.25)
+
+    // Raven's record lives to the end of the function, so the rest of the body is the closure, and each of his early-outs returns from it.
+    JKAMP.Trace.scratch { trace in
+        bg.pm.runTrace(trace, ps.origin, bg.pm.mins, bg.pm.maxs, point, ps.clientNum, bg.pm.tracemask)
+        // Port-note: Raven copies the whole record with `pml.groundTrace = trace`. The `Trace` view of `pml.groundTrace` is read-only, so the record copy has no Swift form.
+
+        // do something corrective if the trace starts in a solid...
+        if trace.allsolid != 0 {
+            if PM_CorrectAllSolid(trace) == 0 {
+                return
+            }
+        }
+
+        if ps.pm_type == PM_FLOAT || ps.pm_type == PM_JETPACK {
+            PM_GroundTraceMissed()
+            bg.pml.groundPlane = false
+            bg.pml.walking = false
+            return
+        }
+
+        // if the trace didn't hit anything, we are in free fall
+        if trace.fraction == 1.0 {
+            PM_GroundTraceMissed()
+            bg.pml.groundPlane = false
+            bg.pml.walking = false
+            return
+        }
+
+        // check if getting thrown off the ground
+        if ps.velocity[2] > 0 && _DotProduct(ps.velocity, trace.plane.normal) > 10 {
+            if bg.pm.debugLevel != 0 {
+                Com_Printf("%i:kickoff\n", bg.c_pmove)
+            }
+            // go into jump animation
+            if bg.pm.cmd.forwardmove >= 0 {
+                PM_ForceLegsAnim(BOTH_JUMP1)
+                ps.pm_flags &= ~PMF_BACKWARDS_JUMP
+            } else {
+                PM_ForceLegsAnim(BOTH_JUMPBACK1)
+                ps.pm_flags |= PMF_BACKWARDS_JUMP
+            }
+
+            ps.groundEntityNum = ENTITYNUM_NONE
+            bg.pml.groundPlane = false
+            bg.pml.walking = false
+            return
+        }
+
+        // slopes that are too steep will not be considered onground
+        if trace.plane.normal[2] < minNormal {
+            if bg.pm.debugLevel != 0 {
+                Com_Printf("%i:steep\n", bg.c_pmove)
+            }
+            ps.groundEntityNum = ENTITYNUM_NONE
+            bg.pml.groundPlane = true
+            bg.pml.walking = false
+            return
+        }
+
+        bg.pml.groundPlane = true
+        bg.pml.walking = true
+
+        // hitting solid ground will end a waterjump
+        if (ps.pm_flags & PMF_TIME_WATERJUMP) != 0 {
+            ps.pm_flags &= ~(PMF_TIME_WATERJUMP | PMF_TIME_LAND)
+            ps.pm_time = 0
+        }
+
+        if ps.groundEntityNum == ENTITYNUM_NONE {
+            // just hit the ground
+            if bg.pm.debugLevel != 0 {
+                Com_Printf("%i:Land\n", bg.c_pmove)
+            }
+
+            PM_CrashLand()
+
+            // Port-note: The game arm of Raven's `#ifdef QAGAME` reads `g_entities` and casts a `bgEntity_t *` to `gentity_t *` to board a vehicle. The `Entity` view lives in the game target, which the bg target cannot import.
+
+            // don't do landing time if we were just going down a slope
+            if bg.pml.previous_velocity[2] < -200 {
+                // don't allow another jump for a little while
+                ps.pm_flags |= PMF_TIME_LAND
+                ps.pm_time = 250
+            }
+        }
+
+        // Port-note: `trace.entityNum` is a `short`, and both the store and the call take an `int`, so each needs a widening Raven did not write.
+        ps.groundEntityNum = Int32(trace.entityNum)
+        ps.lastOnGround = bg.pm.cmd.serverTime
+
+        PM_AddTouchEnt(Int32(trace.entityNum))
+    }
 }
 
 /**
@@ -1978,9 +3657,67 @@ func PM_CheckDualForwardJumpDuck() -> Bool {
 
 /// Source: oracle/codemp/game/bg_pmove.c:4341
 func PM_CheckFixMins() {
-    // Port-note: Raven puts a `trace_t` on the stack here. No view carries the `scratch` helper the guide names, so the body has no Swift form.
-    // TODO: Port PM_CheckFixMins
-    portMissing("PM_CheckFixMins", source: "oracle/codemp/game/bg_pmove.c:4341")
+    let ps = bg.pm.ps
+    if (ps.pm_flags & PMF_FIX_MINS) != 0 {// pm->mins[2] > DEFAULT_MINS_2 )
+        //drop the mins back down
+        //do a trace to make sure it's okay
+        var end = JKAShared.vec3_t(0, 0, 0)
+        var curMins = JKAShared.vec3_t(0, 0, 0)
+        var curMaxs = JKAShared.vec3_t(0, 0, 0)
+
+        end = JKAShared.vec3_t(ps.origin[0], ps.origin[1], ps.origin[2] + MINS_Z)
+        curMins = JKAShared.vec3_t(bg.pm.mins[0], bg.pm.mins[1], 0)
+        curMaxs = JKAShared.vec3_t(bg.pm.maxs[0], bg.pm.maxs[1], Float(ps.standheight))
+
+        JKAMP.Trace.scratch { trace in
+            bg.pm.runTrace(trace, ps.origin, curMins, curMaxs, end, ps.clientNum, bg.pm.tracemask)
+            if trace.allsolid == 0 && trace.startsolid == 0 {
+                //should never start in solid
+                if trace.fraction >= 1.0 {
+                    //all clear
+                    //drop the bottom of my bbox back down
+                    bg.pm.mins[2] = Float(MINS_Z)
+                    ps.pm_flags &= ~PMF_FIX_MINS
+                } else {
+                    //move me up so the bottom of my bbox will be where the trace ended, at least
+                    //need to trace up, too
+                    let updist = ((1.0 - trace.fraction) * -MINS_Z)
+                    end[2] = ps.origin[2] + updist
+                    bg.pm.runTrace(trace, ps.origin, curMins, curMaxs, end, ps.clientNum, bg.pm.tracemask)
+                    if trace.allsolid == 0 && trace.startsolid == 0 {
+                        //should never start in solid
+                        if trace.fraction >= 1.0 {
+                            //all clear
+                            //move me up
+                            ps.origin[2] += updist
+                            //drop the bottom of my bbox back down
+                            bg.pm.mins[2] = Float(MINS_Z)
+                            ps.pm_flags &= ~PMF_FIX_MINS
+                        } else {
+                            //crap, no room to expand, so just crouch us
+                            if ps.legsAnim != BOTH_JUMPATTACK6
+                                || ps.legsTimer <= 200 {
+                                //at the end of the anim, and we can't leave ourselves like this
+                                //so drop the maxs, put the mins back and move us up
+                                bg.pm.maxs[2] += MINS_Z
+                                ps.origin[2] -= MINS_Z
+                                bg.pm.mins[2] = Float(MINS_Z)
+                                //this way we'll be in a crouch when we're done
+                                if ps.legsAnim == BOTH_JUMPATTACK6 {
+                                    // Raven chains one store, `pm->ps->legsTimer = pm->ps->torsoTimer = 0`, which Swift writes as two.
+                                    ps.torsoTimer = 0
+                                    ps.legsTimer = 0
+                                }
+                                ps.pm_flags |= PMF_DUCKED
+                                //FIXME: do we need to set a crouch anim here?
+                                ps.pm_flags &= ~PMF_FIX_MINS
+                            }
+                        }
+                    }//crap, stuck
+                }
+            }//crap, stuck!
+        }
+    }
 }
 
 /**
@@ -1994,9 +3731,114 @@ Sets mins, maxs, and pm->ps->viewheight
 */
 /// Source: oracle/codemp/game/bg_pmove.c:4410
 private func PM_CheckDuck() {
-    // Port-note: Raven puts two `trace_t` records on the stack here. No view carries the `scratch` helper the guide names, so the body has no Swift form.
-    // TODO: Port PM_CheckDuck
-    portMissing("PM_CheckDuck", source: "oracle/codemp/game/bg_pmove.c:4410")
+    let ps = bg.pm.ps
+    // Raven's record lives to the end of the function, so the whole body is the closure, and each of his early-outs returns from it.
+    JKAMP.Trace.scratch { trace in
+        if ps.m_iVehicleNum > 0 && ps.m_iVehicleNum < ENTITYNUM_NONE {
+            //riding a vehicle or are a vehicle
+            //no ducking or rolling when on a vehicle
+            //right?  not even on ones that you just ride on top of?
+            ps.pm_flags &= ~PMF_DUCKED
+            ps.pm_flags &= ~PMF_ROLLING
+            //NOTE: we don't clear the pm->cmd.upmove here because
+            //the vehicle code may need it later... but, for riders,
+            //it should have already been copied over to the vehicle, right?
+
+            if ps.clientNum >= MAX_CLIENTS {
+                return
+            }
+            // Port-note: Raven walks `pm_entVeh->m_pVehicle->m_pVehicleInfo` with no guard on the last field. The generated field is optional, so the body binds it.
+            if let pm_entVeh = bg.pm_entVeh, let m_pVehicle = pm_entVeh.m_pVehicle,
+                let m_pVehicleInfo = m_pVehicle.m_pVehicleInfo,
+                (m_pVehicleInfo.type == VH_SPEEDER
+                 || m_pVehicleInfo.type == VH_ANIMAL) {
+                bg.pm.mins[0] = -16
+                bg.pm.mins[1] = -16
+                bg.pm.mins[2] = Float(MINS_Z)
+
+                bg.pm.maxs[0] = 16
+                bg.pm.maxs[1] = 16
+                bg.pm.maxs[2] = Float(ps.standheight)//DEFAULT_MAXS_2;
+                ps.viewheight = DEFAULT_VIEWHEIGHT
+
+                JKAMP.Trace.scratch { solidTr in
+                    bg.pm.runTrace(solidTr, ps.origin, bg.pm.mins, bg.pm.maxs, ps.origin, ps.m_iVehicleNum, bg.pm.tracemask)
+                    if solidTr.startsolid != 0 || solidTr.allsolid != 0 || solidTr.fraction != 1.0 {
+                        //whoops, can't fit here. Down to 0!
+                        bg.pm.mins = JKAShared.vec3_t(0, 0, 0)
+                        bg.pm.maxs = JKAShared.vec3_t(0, 0, 0)
+                        // Port-note: The game arm of Raven's `#ifdef QAGAME` reads `g_entities` and `level.time` through a `gentity_t *`. The `Entity` view and the level state live in the game target, which the bg target cannot import.
+                    }
+                }
+            }
+        } else {
+            if ps.clientNum < MAX_CLIENTS {
+                bg.pm.mins[0] = -15
+                bg.pm.mins[1] = -15
+
+                bg.pm.maxs[0] = 15
+                bg.pm.maxs[1] = 15
+            }
+
+            if PM_CheckDualForwardJumpDuck() {
+                //special anim resizing us
+            } else {
+                PM_CheckFixMins()
+
+                if bg.pm.mins[2] == 0 {
+                    bg.pm.mins[2] = Float(MINS_Z)
+                }
+            }
+
+            if ps.pm_type == PM_DEAD && ps.clientNum < MAX_CLIENTS {
+                bg.pm.maxs[2] = -8
+                ps.viewheight = DEAD_VIEWHEIGHT
+                return
+            }
+
+            if BG_InRoll(ps, ps.legsAnim) && !BG_KickingAnim(ps.legsAnim) {
+                bg.pm.maxs[2] = Float(ps.crouchheight) //CROUCH_MAXS_2;
+                ps.viewheight = DEFAULT_VIEWHEIGHT
+                ps.pm_flags &= ~PMF_DUCKED
+                ps.pm_flags |= PMF_ROLLING
+                return
+            } else if (ps.pm_flags & PMF_ROLLING) != 0 {
+                // try to stand up
+                bg.pm.maxs[2] = Float(ps.standheight)//DEFAULT_MAXS_2;
+                bg.pm.runTrace(trace, ps.origin, bg.pm.mins, bg.pm.maxs, ps.origin, ps.clientNum, bg.pm.tracemask)
+                if trace.allsolid == 0 {
+                    ps.pm_flags &= ~PMF_ROLLING
+                }
+            } else if bg.pm.cmd.upmove < 0
+                || ps.forceHandExtend == HANDEXTEND_KNOCKDOWN
+                || ps.forceHandExtend == HANDEXTEND_PRETHROWN
+                || ps.forceHandExtend == HANDEXTEND_POSTTHROWN {
+                // duck
+                ps.pm_flags |= PMF_DUCKED
+            } else {
+                // stand up if possible
+                if (ps.pm_flags & PMF_DUCKED) != 0 {
+                    // try to stand up
+                    bg.pm.maxs[2] = Float(ps.standheight)//DEFAULT_MAXS_2;
+                    bg.pm.runTrace(trace, ps.origin, bg.pm.mins, bg.pm.maxs, ps.origin, ps.clientNum, bg.pm.tracemask)
+                    if trace.allsolid == 0 {
+                        ps.pm_flags &= ~PMF_DUCKED
+                    }
+                }
+            }
+        }
+
+        if (ps.pm_flags & PMF_DUCKED) != 0 {
+            bg.pm.maxs[2] = Float(ps.crouchheight)//CROUCH_MAXS_2;
+            ps.viewheight = CROUCH_VIEWHEIGHT
+        } else if (ps.pm_flags & PMF_ROLLING) != 0 {
+            bg.pm.maxs[2] = Float(ps.crouchheight)//CROUCH_MAXS_2;
+            ps.viewheight = DEFAULT_VIEWHEIGHT
+        } else {
+            bg.pm.maxs[2] = Float(ps.standheight)//DEFAULT_MAXS_2;
+            ps.viewheight = DEFAULT_VIEWHEIGHT
+        }
+    }
 }
 
 /// Source: oracle/codemp/game/bg_pmove.c:4559
@@ -2130,9 +3972,61 @@ func PM_AnglesForSlope(_ yaw: Float, _ slope: JKAShared.vec3_t, _ angles: inout 
 
 /// Source: oracle/codemp/game/bg_pmove.c:4677
 func PM_FootSlopeTrace(_ pDiff: inout Float, _ pInterval: inout Float) {
-    // Port-note: Raven puts a `trace_t` on the stack here. No view carries the `scratch` helper the guide names, so the body has no Swift form.
-    // TODO: Port PM_FootSlopeTrace
-    portMissing("PM_FootSlopeTrace", source: "oracle/codemp/game/bg_pmove.c:4677")
+    var footLOrg = JKAShared.vec3_t(0, 0, 0), footROrg = JKAShared.vec3_t(0, 0, 0), footLBot = JKAShared.vec3_t(0, 0, 0), footRBot = JKAShared.vec3_t(0, 0, 0)
+    var footLPoint = JKAShared.vec3_t(0, 0, 0), footRPoint = JKAShared.vec3_t(0, 0, 0)
+    var footMins = JKAShared.vec3_t(0, 0, 0), footMaxs = JKAShared.vec3_t(0, 0, 0)
+    var footLSlope = JKAShared.vec3_t(0, 0, 0), footRSlope = JKAShared.vec3_t(0, 0, 0)
+
+    let diff: Float, interval: Float
+
+    var G2Angles = JKAShared.vec3_t(0, 0, 0)
+    let ps = bg.pm.ps
+
+    G2Angles = JKAShared.vec3_t(0, ps.viewangles[YAW], 0)
+
+    interval = 4 //?
+
+    MdxaBone.scratch { boltMatrix in
+        strap_G2API_GetBoltMatrix(bg.pm.ghoul2, 0, bg.pm.g2Bolts_LFoot, boltMatrix, G2Angles, ps.origin, bg.pm.cmd.serverTime, nil, &bg.pm.modelScale)
+        footLPoint[0] = boltMatrix.matrix[0][3]
+        footLPoint[1] = boltMatrix.matrix[1][3]
+        footLPoint[2] = boltMatrix.matrix[2][3]
+
+        strap_G2API_GetBoltMatrix(bg.pm.ghoul2, 0, bg.pm.g2Bolts_RFoot, boltMatrix, G2Angles, ps.origin, bg.pm.cmd.serverTime, nil, &bg.pm.modelScale)
+        footRPoint[0] = boltMatrix.matrix[0][3]
+        footRPoint[1] = boltMatrix.matrix[1][3]
+        footRPoint[2] = boltMatrix.matrix[2][3]
+    }
+
+    //get these on the cgame and store it, save ourselves a ghoul2 construct skel call
+    footLOrg = footLPoint
+    footROrg = footRPoint
+
+    //step 2: adjust foot tag z height to bottom of bbox+1
+    footLOrg[2] = ps.origin[2] + bg.pm.mins[2] + 1
+    footROrg[2] = ps.origin[2] + bg.pm.mins[2] + 1
+    footLBot = JKAShared.vec3_t(footLOrg[0], footLOrg[1], footLOrg[2] - interval * 10)
+    footRBot = JKAShared.vec3_t(footROrg[0], footROrg[1], footROrg[2] - interval * 10)
+
+    //step 3: trace down from each, find difference
+    footMins = JKAShared.vec3_t(-3, -3, 0)
+    footMaxs = JKAShared.vec3_t(3, 3, 1)
+
+    Trace.scratch { trace in
+        bg.pm.runTrace(trace, footLOrg, footMins, footMaxs, footLBot, ps.clientNum, bg.pm.tracemask)
+        footLBot = trace.endpos
+        _VectorCopy(trace.plane.normal, &footLSlope)
+
+        bg.pm.runTrace(trace, footROrg, footMins, footMaxs, footRBot, ps.clientNum, bg.pm.tracemask)
+        footRBot = trace.endpos
+        _VectorCopy(trace.plane.normal, &footRSlope)
+    }
+
+    diff = footLBot[2] - footRBot[2]
+
+    // Port-note: Raven guards a NULL `pDiff` and a NULL `pInterval` here. Each generated parameter is a plain `inout Float`, so neither guard has a Swift form.
+    pDiff = diff
+    pInterval = interval
 }
 
 /// Source: oracle/codemp/game/bg_pmove.c:4742
@@ -2828,9 +4722,75 @@ Generate sound events for entering and leaving water
 */
 /// Source: oracle/codemp/game/bg_pmove.c:5670
 private func PM_WaterEvents() {
-    // Port-note: Raven puts a `trace_t` on the stack here. No view carries the `scratch` helper the guide names, so the body has no Swift form.
-    // TODO: Port PM_WaterEvents
-    portMissing("PM_WaterEvents", source: "oracle/codemp/game/bg_pmove.c:5670")
+    // FIXME?
+    // Raven declares `impact_splash` under `#ifdef QAGAME`. Swift has no arm-local declaration, so it stands here, and only the game arm reads it.
+    var impact_splash = false
+    let ps = bg.pm.ps
+    //
+    // if just entered a water volume, play a sound
+    //
+    if bg.pml.previous_waterlevel == 0 && bg.pm.waterlevel != 0 {
+        if bg.consumer == .game {
+            if VectorLengthSquared(ps.velocity) > 40000 {
+                impact_splash = true
+            }
+        }
+        PM_AddEvent(EV_WATER_TOUCH)
+    }
+
+    //
+    // if just completely exited a water volume, play a sound
+    //
+    if bg.pml.previous_waterlevel != 0 && bg.pm.waterlevel == 0 {
+        if bg.consumer == .game {
+            if VectorLengthSquared(ps.velocity) > 40000 {
+                impact_splash = true
+            }
+        }
+        PM_AddEvent(EV_WATER_LEAVE)
+    }
+
+    if bg.consumer == .game {
+        if impact_splash {
+            //play the splash effect
+            Trace.scratch { tr in
+                var start: JKAShared.vec3_t, end: JKAShared.vec3_t
+
+                start = ps.origin
+                end = ps.origin
+
+                // FIXME: set start and end better
+                start[2] += 10
+                end[2] -= 40
+
+                bg.pm.runTrace(tr, start, vec3_origin, vec3_origin, end, ps.clientNum, MASK_WATER)
+
+                if tr.fraction < 1.0 {
+                    if (tr.contents & CONTENTS_LAVA) != 0 {
+                        G_PlayEffect(EFFECT_LAVA_SPLASH, &tr.endpos, &tr.plane.normal)
+                    } else if (tr.contents & CONTENTS_SLIME) != 0 {
+                        G_PlayEffect(EFFECT_ACID_SPLASH, &tr.endpos, &tr.plane.normal)
+                    } else { //must be water
+                        G_PlayEffect(EFFECT_WATER_SPLASH, &tr.endpos, &tr.plane.normal)
+                    }
+                }
+            }
+        }
+    }
+
+    //
+    // check for head just going under water
+    //
+    if bg.pml.previous_waterlevel != 3 && bg.pm.waterlevel == 3 {
+        PM_AddEvent(EV_WATER_UNDER)
+    }
+
+    //
+    // check for head just coming out of water
+    //
+    if bg.pml.previous_waterlevel == 3 && bg.pm.waterlevel != 3 {
+        PM_AddEvent(EV_WATER_CLEAR)
+    }
 }
 
 /// Source: oracle/codemp/game/bg_pmove.c:5750
@@ -2921,9 +4881,96 @@ func BG_VehTraceFromCamPos(_ camTrace: JKAMP.Trace, _ bgEnt: JKAMP.BgEntity, _ e
 
 /// Source: oracle/codemp/game/bg_pmove.c:5874
 func PM_RocketLock(_ lockDist: Float, _ vehicleLock: Bool) {
-    // Port-note: Raven puts two `trace_t` records on the stack here. No view carries the `scratch` helper the guide names, so the body has no Swift form.
-    // TODO: Port PM_RocketLock
-    portMissing("PM_RocketLock", source: "oracle/codemp/game/bg_pmove.c:5874")
+    // Not really a charge weapon, but we still want to delay fire until the button comes up so that we can
+    //	implement our alt-fire locking stuff
+    var ang = JKAShared.vec3_t(0, 0, 0)
+
+    var muzzleOffPoint = JKAShared.vec3_t(0, 0, 0)
+    var muzzlePoint = JKAShared.vec3_t(0, 0, 0)
+    var forward = JKAShared.vec3_t(0, 0, 0)
+    var right = JKAShared.vec3_t(0, 0, 0)
+    var up = JKAShared.vec3_t(0, 0, 0)
+    let ps = bg.pm.ps
+
+    if vehicleLock {
+        AngleVectors(ps.viewangles, &forward, &right, &up)
+        muzzlePoint = ps.origin
+        _VectorMA(muzzlePoint, lockDist, forward, &ang)
+    } else {
+        AngleVectors(ps.viewangles, &forward, &right, &up)
+
+        // Raven passes NULL for the last two vectors, so these two scratch locals take the write and the body reads neither.
+        var nullRight = JKAShared.vec3_t(0, 0, 0)
+        var nullUp = JKAShared.vec3_t(0, 0, 0)
+        AngleVectors(ps.viewangles, &ang, &nullRight, &nullUp)
+
+        muzzlePoint = ps.origin
+        muzzleOffPoint = WP_MuzzlePoint[WP_ROCKET_LAUNCHER]
+
+        _VectorMA(muzzlePoint, muzzleOffPoint[0], forward, &muzzlePoint)
+        _VectorMA(muzzlePoint, muzzleOffPoint[1], right, &muzzlePoint)
+        muzzlePoint[2] += ps.viewheight + muzzleOffPoint[2]
+        ang[0] = muzzlePoint[0] + ang[0] * lockDist
+        ang[1] = muzzlePoint[1] + ang[1] * lockDist
+        ang[2] = muzzlePoint[2] + ang[2] * lockDist
+    }
+
+    Trace.scratch { tr in
+        bg.pm.runTrace(tr, muzzlePoint, vec3_origin, vec3_origin, ang, ps.clientNum, MASK_PLAYERSOLID)
+
+        if vehicleLock {//vehicles also do a trace from the camera point if the main one misses
+            if tr.fraction >= 1.0 {
+                Trace.scratch { camTrace in
+                    var newEnd = JKAShared.vec3_t(0, 0, 0)
+                    var shotDir = JKAShared.vec3_t(0, 0, 0)
+                    // Port-note: Raven hands `PM_BGEntForNum` straight to the call with no guard. The generated return is optional, so the body binds it.
+                    if let bgEnt = PM_BGEntForNum(ps.clientNum),
+                        BG_VehTraceFromCamPos(camTrace, bgEnt, ps.origin, muzzlePoint, tr.endpos, &newEnd, &shotDir, (tr.fraction * lockDist)) != 0 {
+                        // Port-note: Raven copies the whole record with `memcpy( &tr, &camTrace, sizeof(tr) )`. The `Trace` view carries no copy into an existing slot, so the record copy has no Swift form.
+                        portMissing("PM_RocketLock: memcpy of trace_t", source: "oracle/codemp/game/bg_pmove.c:5917")
+                    }
+                }
+            }
+        }
+
+        // Port-note: Raven's `trace_t.entityNum` is a `short` that C promotes to `int` at each read. `Promotion.swift` carries no `Int16` form, so each read below takes a widening Raven did not write.
+        if tr.fraction != 1 && Int32(tr.entityNum) < ENTITYNUM_NONE && Int32(tr.entityNum) != ps.clientNum {
+            let bgEnt = PM_BGEntForNum(Int32(tr.entityNum))
+            if let bgEnt, (bgEnt.s.powerups & PW_CLOAKED) != 0 {
+                ps.rocketLockIndex = ENTITYNUM_NONE
+                ps.rocketLockTime = 0
+            } else if let bgEnt, (bgEnt.s.eType == ET_PLAYER || bgEnt.s.eType == ET_NPC) {
+                if ps.rocketLockIndex == ENTITYNUM_NONE {
+                    ps.rocketLockIndex = Int32(tr.entityNum)
+                    ps.rocketLockTime = Float(bg.pm.cmd.serverTime)
+                } else if ps.rocketLockIndex != Int32(tr.entityNum) && ps.rocketTargetTime < bg.pm.cmd.serverTime {
+                    ps.rocketLockIndex = Int32(tr.entityNum)
+                    ps.rocketLockTime = Float(bg.pm.cmd.serverTime)
+                } else if ps.rocketLockIndex == Int32(tr.entityNum) {
+                    if ps.rocketLockTime == -1 {
+                        ps.rocketLockTime = ps.rocketLastValidTime
+                    }
+                }
+
+                if ps.rocketLockIndex == Int32(tr.entityNum) {
+                    ps.rocketTargetTime = Float(bg.pm.cmd.serverTime + 500)
+                }
+            } else if !vehicleLock {
+                if ps.rocketTargetTime < bg.pm.cmd.serverTime {
+                    ps.rocketLockIndex = ENTITYNUM_NONE
+                    ps.rocketLockTime = 0
+                }
+            }
+        } else if ps.rocketTargetTime < bg.pm.cmd.serverTime {
+            ps.rocketLockIndex = ENTITYNUM_NONE
+            ps.rocketLockTime = 0
+        } else {
+            if ps.rocketLockTime != -1 {
+                ps.rocketLastValidTime = ps.rocketLockTime
+            }
+            ps.rocketLockTime = -1
+        }
+    }
 }
 
 //---------------------------------------
@@ -2937,9 +4984,148 @@ private func PM_DoChargedWeapons(_ vehicleRocketLock: Bool, _ veh: JKAMP.BgEntit
 
 /// Source: oracle/codemp/game/bg_pmove.c:6239
 func PM_ItemUsable(_ ps: JKAMP.PlayerState, _ forcedUse: Int32) -> Int32 {
-    // Port-note: Raven puts a `trace_t` on the stack here. No view carries the `scratch` helper the guide names, so the body has no Swift form.
-    // TODO: Port PM_ItemUsable
-    portMissing("PM_ItemUsable", source: "oracle/codemp/game/bg_pmove.c:6239")
+    var fwd = JKAShared.vec3_t(0, 0, 0), fwdorg = JKAShared.vec3_t(0, 0, 0), dest = JKAShared.vec3_t(0, 0, 0), pos = JKAShared.vec3_t(0, 0, 0)
+    var yawonly = JKAShared.vec3_t(0, 0, 0)
+    var mins = JKAShared.vec3_t(0, 0, 0), maxs = JKAShared.vec3_t(0, 0, 0)
+    var trtest = JKAShared.vec3_t(0, 0, 0)
+    // Raven assigns his own `forcedUse` parameter. A Swift parameter is immutable, so the body takes a mutable copy of it.
+    var forcedUse = forcedUse
+
+    if ps.m_iVehicleNum != 0 {
+        return 0
+    }
+
+    if (ps.pm_flags & PMF_USE_ITEM_HELD) != 0 { //force to let go first
+        return 0
+    }
+
+    if ps.duelInProgress { //not allowed to use holdables while in a private duel.
+        return 0
+    }
+
+    if forcedUse == 0 {
+        forcedUse = bg_itemlist[ps.stats[STAT_HOLDABLE_ITEM]].giTag
+    }
+
+    if !BG_IsItemSelectable(ps, forcedUse) {
+        return 0
+    }
+
+    switch forcedUse {
+    case HI_MEDPAC, HI_MEDPAC_BIG:
+        if ps.stats[STAT_HEALTH] >= ps.stats[STAT_MAX_HEALTH] {
+            return 0
+        }
+        if ps.stats[STAT_HEALTH] <= 0
+            || (ps.eFlags & EF_DEAD) != 0 {
+            return 0
+        }
+
+        return 1
+
+    case HI_SEEKER:
+        if (ps.eFlags & EF_SEEKERDRONE) != 0 {
+            PM_AddEventWithParm(EV_ITEMUSEFAIL, SEEKER_ALREADYDEPLOYED)
+            return 0
+        }
+
+        return 1
+
+    case HI_SENTRY_GUN:
+        if ps.fd.sentryDeployed {
+            PM_AddEventWithParm(EV_ITEMUSEFAIL, SENTRY_ALREADYPLACED)
+            return 0
+        }
+
+        yawonly[ROLL] = 0
+        yawonly[PITCH] = 0
+        yawonly[YAW] = ps.viewangles[YAW]
+
+        mins = JKAShared.vec3_t(-8, -8, 0)
+        maxs = JKAShared.vec3_t(8, 8, 24)
+
+        // Raven passes NULL for the last two outputs of `AngleVectors`. The ported function takes them by reference, so the body passes scratch vectors it never reads.
+        var scratchRight = JKAShared.vec3_t(0, 0, 0)
+        var scratchUp = JKAShared.vec3_t(0, 0, 0)
+        AngleVectors(yawonly, &fwd, &scratchRight, &scratchUp)
+
+        fwdorg[0] = ps.origin[0] + fwd[0] * 64
+        fwdorg[1] = ps.origin[1] + fwd[1] * 64
+        fwdorg[2] = ps.origin[2] + fwd[2] * 64
+
+        trtest[0] = fwdorg[0] + fwd[0] * 16
+        trtest[1] = fwdorg[1] + fwd[1] * 16
+        trtest[2] = fwdorg[2] + fwd[2] * 16
+
+        let noRoom = Trace.scratch { tr in
+            bg.pm.runTrace(tr, ps.origin, mins, maxs, trtest, ps.clientNum, MASK_PLAYERSOLID)
+
+            // Port-note: `trace_t.entityNum` is an `Int16` and `clientNum` is an `Int32`. `Promotion.swift` carries no operator between the two, so the compare needs a widening Raven did not write.
+            if (tr.fraction != 1 && Int32(tr.entityNum) != ps.clientNum) || tr.startsolid != 0 || tr.allsolid != 0 {
+                PM_AddEventWithParm(EV_ITEMUSEFAIL, SENTRY_NOROOM)
+                return true
+            }
+
+            return false
+        }
+        if noRoom {
+            return 0
+        }
+
+        return 1
+
+    case HI_SHIELD:
+        mins[0] = -8
+        mins[1] = -8
+        mins[2] = 0
+
+        maxs[0] = 8
+        maxs[1] = 8
+        maxs[2] = 8
+
+        // Raven passes NULL for the last two outputs of `AngleVectors`. The ported function takes them by reference, so the body passes scratch vectors it never reads.
+        var scratchRight = JKAShared.vec3_t(0, 0, 0)
+        var scratchUp = JKAShared.vec3_t(0, 0, 0)
+        AngleVectors(ps.viewangles, &fwd, &scratchRight, &scratchUp)
+        fwd[2] = 0
+        _VectorMA(ps.origin, 64, fwd, &dest)
+        let roomFound = Trace.scratch { tr in
+            bg.pm.runTrace(tr, ps.origin, mins, maxs, dest, ps.clientNum, MASK_SHOT)
+            if Double(tr.fraction) > 0.9 && tr.startsolid == 0 && tr.allsolid == 0 {
+                pos = tr.endpos
+                dest = JKAShared.vec3_t(pos[0], pos[1], pos[2] - 4096)
+                bg.pm.runTrace(tr, pos, mins, maxs, dest, ps.clientNum, MASK_SOLID)
+                if tr.startsolid == 0 && tr.allsolid == 0 {
+                    return true
+                }
+            }
+
+            return false
+        }
+        if roomFound {
+            return 1
+        }
+        PM_AddEventWithParm(EV_ITEMUSEFAIL, SHIELD_NOROOM)
+        return 0
+
+    case HI_JETPACK: //check for stuff here?
+        return 1
+
+    case HI_HEALTHDISP:
+        return 1
+
+    case HI_AMMODISP:
+        return 1
+
+    case HI_EWEB:
+        return 1
+
+    case HI_CLOAK: //check for stuff here?
+        return 1
+
+    default:
+        return 1
+    }
 }
 
 //cheesy vehicle weapon hackery
@@ -3771,7 +5957,9 @@ func BG_InRollES(_ ps: JKAMP.EntityState, _ anim: Int32) -> Bool {
 
 /// Source: oracle/codemp/game/bg_pmove.c:8576
 func BG_IK_MoveArm(_ ghoul2: OpaquePointer?, _ lHandBolt: Int32, _ time: Int32, _ ent: JKAMP.EntityState, _ basePose: Int32, _ desiredPos: inout JKAShared.vec3_t, _ ikInProgress: inout Bool, _ origin: inout JKAShared.vec3_t, _ angles: inout JKAShared.vec3_t, _ scale: inout JKAShared.vec3_t, _ blendTime: Int32, _ forceHalt: Bool) {
-    // Port-note: The body puts an `mdxaBone_t`, a `sharedSetBoneIKStateParams_t`, a `sharedIKMoveParams_t`, and a `sharedRagDollUpdateParams_t` on the stack. No view carries the `scratch` helper the guide names.
+    // Port-note: The body reads `bgHumanoidAnimations[basePose]`, the animation table of `bg_panimate.c`. That table is still a `TODO: Port global` entry with no Swift name, so the first arm has no spelling.
+    // Port-note: Raven passes NULL for the bone name of `strap_G2API_SetBoneIKState`. The generated parameter is a non-optional `String`, so that call has no Swift form.
+    // Port-note: Raven passes NULL for the parameter record of `strap_G2API_SetBoneIKState`. The generated parameter is a non-optional `JKAMP.SharedSetBoneIKStateParams`, so that call has no Swift form.
     // TODO: Port BG_IK_MoveArm
     portMissing("BG_IK_MoveArm", source: "oracle/codemp/game/bg_pmove.c:8576")
 }
@@ -3891,9 +6079,94 @@ private func BG_G2ClientNeckAngles(_ ghoul2: OpaquePointer?, _ time: Int32, _ lo
 //rww - Finally decided to convert all this stuff to BG form.
 /// Source: oracle/codemp/game/bg_pmove.c:8869
 private func BG_G2ClientSpineAngles(_ ghoul2: OpaquePointer?, _ motionBolt: Int32, _ cent_lerpOrigin: inout JKAShared.vec3_t, _ cent_lerpAngles: inout JKAShared.vec3_t, _ cent: JKAMP.EntityState, _ time: Int32, _ viewAngles: inout JKAShared.vec3_t, _ ciLegs: Int32, _ ciTorso: Int32, _ angles: JKAShared.vec3_t, _ thoracicAngles: inout JKAShared.vec3_t, _ ulAngles: inout JKAShared.vec3_t, _ llAngles: inout JKAShared.vec3_t, _ modelScale: inout JKAShared.vec3_t, _ tPitchAngle: inout Float, _ tYawAngle: inout Float, _ corrTime: inout Int32) {
-    // Port-note: The body puts an `mdxaBone_t` on the stack and calls `strap_G2API_GetBoltMatrix_NoRecNoRot`, which still carries `TODO: Port signature` in `bg_strap.swift`.
-    // TODO: Port BG_G2ClientSpineAngles
-    portMissing("BG_G2ClientSpineAngles", source: "oracle/codemp/game/bg_pmove.c:8869")
+    var doCorr: Bool = false
+
+    //*tPitchAngle = viewAngles[PITCH];
+    viewAngles[YAW] = AngleDelta(cent_lerpAngles[YAW], angles[YAW])
+    //*tYawAngle = viewAngles[YAW];
+
+    if !BG_FlippingAnim(cent.legsAnim) &&
+        !BG_SpinningSaberAnim(cent.legsAnim) &&
+        !BG_SpinningSaberAnim(cent.torsoAnim) &&
+        !BG_InSpecialJump(cent.legsAnim) &&
+        !BG_InSpecialJump(cent.torsoAnim) &&
+        !BG_InDeathAnim(cent.legsAnim) &&
+        !BG_InDeathAnim(cent.torsoAnim) &&
+        !BG_InRollES(cent, cent.legsAnim) &&
+        !BG_InRollAnim(cent) &&
+        !BG_SaberInSpecial(cent.saberMove) &&
+        !BG_SaberInSpecialAttack(cent.torsoAnim) &&
+        !BG_SaberInSpecialAttack(cent.legsAnim) &&
+
+        !BG_InKnockDown(cent.torsoAnim) &&
+        !BG_InKnockDown(cent.legsAnim) &&
+        !BG_InKnockDown(ciTorso) &&
+        !BG_InKnockDown(ciLegs) &&
+
+        !BG_FlippingAnim(ciLegs) &&
+        !BG_SpinningSaberAnim(ciLegs) &&
+        !BG_SpinningSaberAnim(ciTorso) &&
+        !BG_InSpecialJump(ciLegs) &&
+        !BG_InSpecialJump(ciTorso) &&
+        !BG_InDeathAnim(ciLegs) &&
+        !BG_InDeathAnim(ciTorso) &&
+        !BG_SaberInSpecialAttack(ciTorso) &&
+        !BG_SaberInSpecialAttack(ciLegs) &&
+
+        (cent.eFlags & EF_DEAD) == 0 &&
+        (cent.legsAnim) != (cent.torsoAnim) &&
+        (ciLegs) != (ciTorso) &&
+        cent.m_iVehicleNum == 0 {
+        doCorr = true
+    }
+
+    if doCorr {
+        //FIXME: no need to do this if legs and torso on are same frame
+        //adjust for motion offset
+        JKAMP.MdxaBone.scratch { boltMatrix in
+            var motionFwd = JKAShared.vec3_t(0, 0, 0)
+            var motionAngles = JKAShared.vec3_t(0, 0, 0)
+            var motionRt = JKAShared.vec3_t(0, 0, 0)
+            var tempAng = JKAShared.vec3_t(0, 0, 0)
+            var ang: Int32 = 0
+
+            strap_G2API_GetBoltMatrix_NoRecNoRot(ghoul2, 0, motionBolt, boltMatrix, vec3_origin, cent_lerpOrigin, time, nil, &modelScale)
+            //BG_GiveMeVectorFromMatrix( &boltMatrix, NEGATIVE_Y, motionFwd );
+            motionFwd[0] = -boltMatrix.matrix[0][1]
+            motionFwd[1] = -boltMatrix.matrix[1][1]
+            motionFwd[2] = -boltMatrix.matrix[2][1]
+
+            vectoangles(motionFwd, &motionAngles)
+
+            //BG_GiveMeVectorFromMatrix( &boltMatrix, NEGATIVE_X, motionRt );
+            motionRt[0] = -boltMatrix.matrix[0][0]
+            motionRt[1] = -boltMatrix.matrix[1][0]
+            motionRt[2] = -boltMatrix.matrix[2][0]
+
+            vectoangles(motionRt, &tempAng)
+            motionAngles[ROLL] = -tempAng[PITCH]
+
+            ang = 0
+            while ang < 3 {
+                viewAngles[ang] = AngleNormalize180(viewAngles[ang] - AngleNormalize180(motionAngles[ang]))
+                ang += 1
+            }
+        }
+    }
+
+    //distribute the angles differently up the spine
+    //NOTE: each of these distributions must add up to 1.0f
+    thoracicAngles[PITCH] = viewAngles[PITCH] * 0.20
+    llAngles[PITCH] = viewAngles[PITCH] * 0.40
+    ulAngles[PITCH] = viewAngles[PITCH] * 0.40
+
+    thoracicAngles[YAW] = viewAngles[YAW] * 0.20
+    ulAngles[YAW] = viewAngles[YAW] * 0.35
+    llAngles[YAW] = viewAngles[YAW] * 0.45
+
+    thoracicAngles[ROLL] = viewAngles[ROLL] * 0.20
+    ulAngles[ROLL] = viewAngles[ROLL] * 0.35
+    llAngles[ROLL] = viewAngles[ROLL] * 0.45
 }
 
 /**
@@ -4670,10 +6943,28 @@ func PM_VehFaceHyperspacePoint(_ veh: JKAMP.BgEntity) {
 
 /// Source: oracle/codemp/game/bg_pmove.c:9993
 func BG_VehicleAdjustBBoxForOrientation(_ veh: JKAMP.Vehicle, _ origin: inout JKAShared.vec3_t, _ mins: inout JKAShared.vec3_t, _ maxs: inout JKAShared.vec3_t, _ clientNum: Int32, _ tracemask: Int32, _ localTrace: ((JKAMP.Trace, JKAShared.vec3_t, JKAShared.vec3_t, JKAShared.vec3_t, JKAShared.vec3_t, Int32, Int32) -> Void)?) {
-    // Port-note: Raven reads `veh->m_vOrientation`. The generated field is an `OpaquePointer?` for Raven's `float *`, and rule 11 keeps a pointer out of a logic target.
-    // Port-note: Raven also puts a `trace_t` on the stack here. No view carries the `scratch` helper the guide names.
-    // TODO: Port BG_VehicleAdjustBBoxForOrientation
-    portMissing("BG_VehicleAdjustBBoxForOrientation", source: "oracle/codemp/game/bg_pmove.c:9993")
+    // Port-note: Raven guards a NULL `veh` here. The view is non-optional, so that half of the guard has no Swift form.
+    // Port-note: Raven walks `veh->m_pVehicleInfo` with no guard. The generated field is optional, so the body binds it and takes Raven's early return where it is NULL.
+    guard let m_pVehicleInfo = veh.m_pVehicleInfo else {
+        return
+    }
+    if m_pVehicleInfo.length == 0
+        || m_pVehicleInfo.width == 0
+        || m_pVehicleInfo.height == 0
+        //|| veh->m_LandTrace.fraction < 1.0f )
+    {
+        return
+    } else if m_pVehicleInfo.type != VH_FIGHTER
+        //&& veh->m_pVehicleInfo->type != VH_SPEEDER
+        && m_pVehicleInfo.type != VH_FLIER {
+        //only those types of vehicles have dynamic bboxes, the rest just use a static bbox
+        maxs = JKAShared.vec3_t(m_pVehicleInfo.width / 2.0, m_pVehicleInfo.width / 2.0, m_pVehicleInfo.height + DEFAULT_MINS_2)
+        mins = JKAShared.vec3_t(m_pVehicleInfo.width / -2.0, m_pVehicleInfo.width / -2.0, Float(DEFAULT_MINS_2))
+        return
+    } else {
+        // Port-note: Raven opens this arm with `AnglesToAxis( veh->m_vOrientation, axis )`. The generated `m_vOrientation` is an `OpaquePointer?` for Raven's `float *`, and rule 11 keeps a pointer out of a logic target, so the rest of this arm has no Swift form.
+        portMissing("BG_VehicleAdjustBBoxForOrientation: veh->m_vOrientation", source: "oracle/codemp/game/bg_pmove.c:10020")
+    }
 }
 
 /// Source: oracle/codemp/game/bg_pmove.c:10092

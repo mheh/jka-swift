@@ -30,6 +30,18 @@ public struct CombatPoint: Hashable, HandleView {
     /// The distance between two slots of a C array of this type, for a Slots over one.
     public static let stride = MemoryLayout<combatPoint_t>.stride
 
+    /// Raven's `combatPoint_t combatPoint;` on the stack. The slot is zero at entry, lives for the closure, and the closure's value is the result.
+    public static func scratch<Result>(_ body: (CombatPoint) throws -> Result) rethrows -> Result {
+        var slot = combatPoint_t()
+        return try withUnsafeMutablePointer(to: &slot) { try body(CombatPoint(raw: $0)) }
+    }
+
+    /// Raven's `combatPoint_t combatPoint = *other;`, a copy of another slot on the stack.
+    public static func scratch<Result>(copying other: CombatPoint, _ body: (CombatPoint) throws -> Result) rethrows -> Result {
+        var slot = other.raw.pointee
+        return try withUnsafeMutablePointer(to: &slot) { try body(CombatPoint(raw: $0)) }
+    }
+
     /// Source: oracle/codemp/game/g_local.h:766
     public var origin: JKAShared.vec3_t {
         get { vec3(of: self.raw.pointee.origin) }

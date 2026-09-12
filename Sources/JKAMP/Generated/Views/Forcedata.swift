@@ -29,6 +29,18 @@ public struct Forcedata: Hashable, HandleView {
     /// The distance between two slots of a C array of this type, for a Slots over one.
     public static let stride = MemoryLayout<forcedata_t>.stride
 
+    /// Raven's `forcedata_t forcedata;` on the stack. The slot is zero at entry, lives for the closure, and the closure's value is the result.
+    public static func scratch<Result>(_ body: (Forcedata) throws -> Result) rethrows -> Result {
+        var slot = forcedata_t()
+        return try withUnsafeMutablePointer(to: &slot) { try body(Forcedata(raw: $0)) }
+    }
+
+    /// Raven's `forcedata_t forcedata = *other;`, a copy of another slot on the stack.
+    public static func scratch<Result>(copying other: Forcedata, _ body: (Forcedata) throws -> Result) rethrows -> Result {
+        var slot = other.raw.pointee
+        return try withUnsafeMutablePointer(to: &slot) { try body(Forcedata(raw: $0)) }
+    }
+
     /// Source: oracle/codemp/game/q_shared.h:2069
     public var forcePowerDebounce: Slots<Int32> { Slots<Int32>(scalars: UnsafeMutableRawPointer(self.raw.pointer(to: \.forcePowerDebounce)!), count: 18) }
 

@@ -30,6 +30,18 @@ public struct SharedIKMoveParams: Hashable, HandleView {
     /// The distance between two slots of a C array of this type, for a Slots over one.
     public static let stride = MemoryLayout<sharedIKMoveParams_t>.stride
 
+    /// Raven's `sharedIKMoveParams_t sharedIKMoveParams;` on the stack. The slot is zero at entry, lives for the closure, and the closure's value is the result.
+    public static func scratch<Result>(_ body: (SharedIKMoveParams) throws -> Result) rethrows -> Result {
+        var slot = sharedIKMoveParams_t()
+        return try withUnsafeMutablePointer(to: &slot) { try body(SharedIKMoveParams(raw: $0)) }
+    }
+
+    /// Raven's `sharedIKMoveParams_t sharedIKMoveParams = *other;`, a copy of another slot on the stack.
+    public static func scratch<Result>(copying other: SharedIKMoveParams, _ body: (SharedIKMoveParams) throws -> Result) rethrows -> Result {
+        var slot = other.raw.pointee
+        return try withUnsafeMutablePointer(to: &slot) { try body(SharedIKMoveParams(raw: $0)) }
+    }
+
     /// Source: oracle/codemp/game/q_shared.h:938
     public var boneName: String {
         get { cString(at: UnsafeMutableRawPointer(self.raw.pointer(to: \.boneName)!)) }

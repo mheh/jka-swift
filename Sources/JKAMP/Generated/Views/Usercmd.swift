@@ -29,6 +29,18 @@ public struct Usercmd: Hashable, HandleView {
     /// The distance between two slots of a C array of this type, for a Slots over one.
     public static let stride = MemoryLayout<usercmd_t>.stride
 
+    /// Raven's `usercmd_t usercmd;` on the stack. The slot is zero at entry, lives for the closure, and the closure's value is the result.
+    public static func scratch<Result>(_ body: (Usercmd) throws -> Result) rethrows -> Result {
+        var slot = usercmd_t()
+        return try withUnsafeMutablePointer(to: &slot) { try body(Usercmd(raw: $0)) }
+    }
+
+    /// Raven's `usercmd_t usercmd = *other;`, a copy of another slot on the stack.
+    public static func scratch<Result>(copying other: Usercmd, _ body: (Usercmd) throws -> Result) rethrows -> Result {
+        var slot = other.raw.pointee
+        return try withUnsafeMutablePointer(to: &slot) { try body(Usercmd(raw: $0)) }
+    }
+
     /// Source: oracle/codemp/game/q_shared.h:2525
     public var serverTime: Int32 {
         get { self.raw.pointee.serverTime }

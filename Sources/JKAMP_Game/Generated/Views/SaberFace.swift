@@ -30,6 +30,18 @@ public struct SaberFace: Hashable, HandleView {
     /// The distance between two slots of a C array of this type, for a Slots over one.
     public static let stride = MemoryLayout<saberFace_t>.stride
 
+    /// Raven's `saberFace_t saberFace;` on the stack. The slot is zero at entry, lives for the closure, and the closure's value is the result.
+    public static func scratch<Result>(_ body: (SaberFace) throws -> Result) rethrows -> Result {
+        var slot = saberFace_t()
+        return try withUnsafeMutablePointer(to: &slot) { try body(SaberFace(raw: $0)) }
+    }
+
+    /// Raven's `saberFace_t saberFace = *other;`, a copy of another slot on the stack.
+    public static func scratch<Result>(copying other: SaberFace, _ body: (SaberFace) throws -> Result) rethrows -> Result {
+        var slot = other.raw.pointee
+        return try withUnsafeMutablePointer(to: &slot) { try body(SaberFace(raw: $0)) }
+    }
+
     /// Source: oracle/codemp/game/w_saber.c:2448
     public var v1: JKAShared.vec3_t {
         get { vec3(of: self.raw.pointee.v1) }

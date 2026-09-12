@@ -29,6 +29,18 @@ public struct MdxaBone: Hashable, HandleView {
     /// The distance between two slots of a C array of this type, for a Slots over one.
     public static let stride = MemoryLayout<mdxaBone_t>.stride
 
+    /// Raven's `mdxaBone_t mdxaBone;` on the stack. The slot is zero at entry, lives for the closure, and the closure's value is the result.
+    public static func scratch<Result>(_ body: (MdxaBone) throws -> Result) rethrows -> Result {
+        var slot = mdxaBone_t()
+        return try withUnsafeMutablePointer(to: &slot) { try body(MdxaBone(raw: $0)) }
+    }
+
+    /// Raven's `mdxaBone_t mdxaBone = *other;`, a copy of another slot on the stack.
+    public static func scratch<Result>(copying other: MdxaBone, _ body: (MdxaBone) throws -> Result) rethrows -> Result {
+        var slot = other.raw.pointee
+        return try withUnsafeMutablePointer(to: &slot) { try body(MdxaBone(raw: $0)) }
+    }
+
     /// Source: oracle/codemp/game/q_shared.h:3081
     public var matrix: Slots<Slots<Float>> { Slots(rows: UnsafeMutableRawPointer(self.raw.pointer(to: \.matrix)!), count: 3, stride: 4 * MemoryLayout<Float>.stride) { Slots<Float>(scalars: $0, count: 4) } }
 }

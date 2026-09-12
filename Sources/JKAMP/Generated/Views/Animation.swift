@@ -28,6 +28,18 @@ public struct Animation: Hashable, HandleView {
     /// The distance between two slots of a C array of this type, for a Slots over one.
     public static let stride = MemoryLayout<animation_t>.stride
 
+    /// Raven's `animation_t animation;` on the stack. The slot is zero at entry, lives for the closure, and the closure's value is the result.
+    public static func scratch<Result>(_ body: (Animation) throws -> Result) rethrows -> Result {
+        var slot = animation_t()
+        return try withUnsafeMutablePointer(to: &slot) { try body(Animation(raw: $0)) }
+    }
+
+    /// Raven's `animation_t animation = *other;`, a copy of another slot on the stack.
+    public static func scratch<Result>(copying other: Animation, _ body: (Animation) throws -> Result) rethrows -> Result {
+        var slot = other.raw.pointee
+        return try withUnsafeMutablePointer(to: &slot) { try body(Animation(raw: $0)) }
+    }
+
     /// Source: unknown:1
     public var firstFrame: UInt16 {
         get { self.raw.pointee.firstFrame }

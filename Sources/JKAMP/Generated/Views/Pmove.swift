@@ -29,6 +29,18 @@ public struct Pmove: Hashable, HandleView {
     /// The distance between two slots of a C array of this type, for a Slots over one.
     public static let stride = MemoryLayout<pmove_t>.stride
 
+    /// Raven's `pmove_t pmove;` on the stack. The slot is zero at entry, lives for the closure, and the closure's value is the result.
+    public static func scratch<Result>(_ body: (Pmove) throws -> Result) rethrows -> Result {
+        var slot = pmove_t()
+        return try withUnsafeMutablePointer(to: &slot) { try body(Pmove(raw: $0)) }
+    }
+
+    /// Raven's `pmove_t pmove = *other;`, a copy of another slot on the stack.
+    public static func scratch<Result>(copying other: Pmove, _ body: (Pmove) throws -> Result) rethrows -> Result {
+        var slot = other.raw.pointee
+        return try withUnsafeMutablePointer(to: &slot) { try body(Pmove(raw: $0)) }
+    }
+
     /// Source: oracle/codemp/game/bg_public.h:437
     /// Raven's callers always set `ps`, so a body reads it with no bind. A NULL here traps with the field's name.
     public var ps: PlayerState {

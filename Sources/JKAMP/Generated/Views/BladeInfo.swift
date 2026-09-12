@@ -29,6 +29,18 @@ public struct BladeInfo: Hashable, HandleView {
     /// The distance between two slots of a C array of this type, for a Slots over one.
     public static let stride = MemoryLayout<bladeInfo_t>.stride
 
+    /// Raven's `bladeInfo_t bladeInfo;` on the stack. The slot is zero at entry, lives for the closure, and the closure's value is the result.
+    public static func scratch<Result>(_ body: (BladeInfo) throws -> Result) rethrows -> Result {
+        var slot = bladeInfo_t()
+        return try withUnsafeMutablePointer(to: &slot) { try body(BladeInfo(raw: $0)) }
+    }
+
+    /// Raven's `bladeInfo_t bladeInfo = *other;`, a copy of another slot on the stack.
+    public static func scratch<Result>(copying other: BladeInfo, _ body: (BladeInfo) throws -> Result) rethrows -> Result {
+        var slot = other.raw.pointee
+        return try withUnsafeMutablePointer(to: &slot) { try body(BladeInfo(raw: $0)) }
+    }
+
     /// Source: oracle/codemp/game/q_shared.h:654
     public var active: Bool {
         get { self.raw.pointee.active != qfalse }

@@ -30,6 +30,18 @@ public struct NavInfo: Hashable, HandleView {
     /// The distance between two slots of a C array of this type, for a Slots over one.
     public static let stride = MemoryLayout<navInfo_t>.stride
 
+    /// Raven's `navInfo_t navInfo;` on the stack. The slot is zero at entry, lives for the closure, and the closure's value is the result.
+    public static func scratch<Result>(_ body: (NavInfo) throws -> Result) rethrows -> Result {
+        var slot = navInfo_t()
+        return try withUnsafeMutablePointer(to: &slot) { try body(NavInfo(raw: $0)) }
+    }
+
+    /// Raven's `navInfo_t navInfo = *other;`, a copy of another slot on the stack.
+    public static func scratch<Result>(copying other: NavInfo, _ body: (NavInfo) throws -> Result) rethrows -> Result {
+        var slot = other.raw.pointee
+        return try withUnsafeMutablePointer(to: &slot) { try body(NavInfo(raw: $0)) }
+    }
+
     /// Source: oracle/codemp/game/b_local.h:316
     public var blocker: Entity? {
         get { self.raw.pointee.blocker.map { Entity(handle: OpaquePointer($0)) } }

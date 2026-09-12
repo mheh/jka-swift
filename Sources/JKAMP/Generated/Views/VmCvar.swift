@@ -30,6 +30,18 @@ public struct VmCvar: Hashable, HandleView {
     /// The distance between two slots of a C array of this type, for a Slots over one.
     public static let stride = MemoryLayout<vmCvar_t>.stride
 
+    /// Raven's `vmCvar_t vmCvar;` on the stack. The slot is zero at entry, lives for the closure, and the closure's value is the result.
+    public static func scratch<Result>(_ body: (VmCvar) throws -> Result) rethrows -> Result {
+        var slot = vmCvar_t()
+        return try withUnsafeMutablePointer(to: &slot) { try body(VmCvar(raw: $0)) }
+    }
+
+    /// Raven's `vmCvar_t vmCvar = *other;`, a copy of another slot on the stack.
+    public static func scratch<Result>(copying other: VmCvar, _ body: (VmCvar) throws -> Result) rethrows -> Result {
+        var slot = other.raw.pointee
+        return try withUnsafeMutablePointer(to: &slot) { try body(VmCvar(raw: $0)) }
+    }
+
     /// Source: oracle/codemp/game/q_shared.h:1825
     // Raven's `handle` field is the engine's, and the view's own `handle` takes the name. No module body reads it.
 

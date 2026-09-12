@@ -186,16 +186,24 @@ A caller that holds an optional view unwraps it at the call site, in Raven's con
 
 ### A scratch C struct on the stack
 
-A scratch C struct on the stack uses a `scratch` helper on its view, for example `Trace.scratch { tr in ... }`:
+A scratch C struct on the stack, `trace_t trace;`, is the `scratch` helper on its view, and Raven's block is the closure:
 
 ```swift
-let direct = Trace.scratch { tr in
-    trap_Trace(tr, origin, vec3_origin, vec3_origin, dest, ENTITYNUM_NONE, MASK_SOLID)
-    return tr.fraction == 1.0 || Int32(tr.entityNum) == targ.s.number
+let earlyOut = Trace.scratch { trace in
+    bg.pm.runTrace(trace, ps.origin, vec3_origin, vec3_origin, endspot, forwhom.s.number, MASK_SOLID)
+    if trace.fraction >= 1.0 { return true }
+    _VectorCopy(trace.plane.normal, &slope)
+    return false
 }
+if earlyOut { return }
 ```
 
-A view that has no `scratch` helper yet gets a Port-note. The transcriptor does not add the helper itself.
+The slot is a stack local of the `scratch` frame, zero at entry where Raven's was uninitialized, and it lives for the closure.
+A `return` inside Raven's block is the closure's value, and the body acts on that value after the closure.
+The closure returns a value read from the slot, never the view itself, because the slot is gone when `scratch` returns.
+Two records in one scope nest two closures.
+A copy of another slot, `usercmd_t cmd = pm->cmd;`, is the `copying` form: `Usercmd.scratch(copying: bg.pm.cmd) { cmd in ... }`.
+Every view carries both forms, written by `views.py`.
 
 ### A file-scope static or a static local
 

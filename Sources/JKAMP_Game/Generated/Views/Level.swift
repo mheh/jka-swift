@@ -30,6 +30,18 @@ public struct Level: Hashable, HandleView {
     /// The distance between two slots of a C array of this type, for a Slots over one.
     public static let stride = MemoryLayout<level_locals_t>.stride
 
+    /// Raven's `level_locals_t level_locals;` on the stack. The slot is zero at entry, lives for the closure, and the closure's value is the result.
+    public static func scratch<Result>(_ body: (Level) throws -> Result) rethrows -> Result {
+        var slot = level_locals_t()
+        return try withUnsafeMutablePointer(to: &slot) { try body(Level(raw: $0)) }
+    }
+
+    /// Raven's `level_locals_t level_locals = *other;`, a copy of another slot on the stack.
+    public static func scratch<Result>(copying other: Level, _ body: (Level) throws -> Result) rethrows -> Result {
+        var slot = other.raw.pointee
+        return try withUnsafeMutablePointer(to: &slot) { try body(Level(raw: $0)) }
+    }
+
     /// Source: oracle/codemp/game/g_local.h:821
     public var clients: Client? {
         get { self.raw.pointee.clients.map { Client(handle: OpaquePointer($0)) } }

@@ -29,6 +29,18 @@ public struct Gitem: Hashable, HandleView {
     /// The distance between two slots of a C array of this type, for a Slots over one.
     public static let stride = MemoryLayout<gitem_t>.stride
 
+    /// Raven's `gitem_t gitem;` on the stack. The slot is zero at entry, lives for the closure, and the closure's value is the result.
+    public static func scratch<Result>(_ body: (Gitem) throws -> Result) rethrows -> Result {
+        var slot = gitem_t()
+        return try withUnsafeMutablePointer(to: &slot) { try body(Gitem(raw: $0)) }
+    }
+
+    /// Raven's `gitem_t gitem = *other;`, a copy of another slot on the stack.
+    public static func scratch<Result>(copying other: Gitem, _ body: (Gitem) throws -> Result) rethrows -> Result {
+        var slot = other.raw.pointee
+        return try withUnsafeMutablePointer(to: &slot) { try body(Gitem(raw: $0)) }
+    }
+
     /// Source: oracle/codemp/game/bg_public.h:1123
     public var classname: PooledString? {
         get { PooledString(raw: self.raw.pointee.classname) }

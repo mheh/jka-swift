@@ -30,6 +30,18 @@ public struct Botskills: Hashable, HandleView {
     /// The distance between two slots of a C array of this type, for a Slots over one.
     public static let stride = MemoryLayout<botskills_t>.stride
 
+    /// Raven's `botskills_t botskills;` on the stack. The slot is zero at entry, lives for the closure, and the closure's value is the result.
+    public static func scratch<Result>(_ body: (Botskills) throws -> Result) rethrows -> Result {
+        var slot = botskills_t()
+        return try withUnsafeMutablePointer(to: &slot) { try body(Botskills(raw: $0)) }
+    }
+
+    /// Raven's `botskills_t botskills = *other;`, a copy of another slot on the stack.
+    public static func scratch<Result>(copying other: Botskills, _ body: (Botskills) throws -> Result) rethrows -> Result {
+        var slot = other.raw.pointee
+        return try withUnsafeMutablePointer(to: &slot) { try body(Botskills(raw: $0)) }
+    }
+
     /// Source: oracle/codemp/game/ai_main.h:139
     public var reflex: Int32 {
         get { self.raw.pointee.reflex }

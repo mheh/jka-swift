@@ -29,6 +29,18 @@ public struct Trajectory: Hashable, HandleView {
     /// The distance between two slots of a C array of this type, for a Slots over one.
     public static let stride = MemoryLayout<trajectory_t>.stride
 
+    /// Raven's `trajectory_t trajectory;` on the stack. The slot is zero at entry, lives for the closure, and the closure's value is the result.
+    public static func scratch<Result>(_ body: (Trajectory) throws -> Result) rethrows -> Result {
+        var slot = trajectory_t()
+        return try withUnsafeMutablePointer(to: &slot) { try body(Trajectory(raw: $0)) }
+    }
+
+    /// Raven's `trajectory_t trajectory = *other;`, a copy of another slot on the stack.
+    public static func scratch<Result>(copying other: Trajectory, _ body: (Trajectory) throws -> Result) rethrows -> Result {
+        var slot = other.raw.pointee
+        return try withUnsafeMutablePointer(to: &slot) { try body(Trajectory(raw: $0)) }
+    }
+
     /// Source: oracle/codemp/game/q_shared.h:2655
     public var trType: trType_t {
         get { Int32(truncatingIfNeeded: self.raw.pointee.trType.rawValue) }

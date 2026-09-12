@@ -30,6 +30,18 @@ public struct ReferenceTag: Hashable, HandleView {
     /// The distance between two slots of a C array of this type, for a Slots over one.
     public static let stride = MemoryLayout<reference_tag_t>.stride
 
+    /// Raven's `reference_tag_t reference_tag;` on the stack. The slot is zero at entry, lives for the closure, and the closure's value is the result.
+    public static func scratch<Result>(_ body: (ReferenceTag) throws -> Result) rethrows -> Result {
+        var slot = reference_tag_t()
+        return try withUnsafeMutablePointer(to: &slot) { try body(ReferenceTag(raw: $0)) }
+    }
+
+    /// Raven's `reference_tag_t reference_tag = *other;`, a copy of another slot on the stack.
+    public static func scratch<Result>(copying other: ReferenceTag, _ body: (ReferenceTag) throws -> Result) rethrows -> Result {
+        var slot = other.raw.pointee
+        return try withUnsafeMutablePointer(to: &slot) { try body(ReferenceTag(raw: $0)) }
+    }
+
     /// Source: oracle/codemp/game/g_local.h:1242
     public var name: String {
         get { cString(at: UnsafeMutableRawPointer(self.raw.pointer(to: \.name)!)) }

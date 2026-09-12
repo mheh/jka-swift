@@ -30,6 +30,18 @@ public struct AlertEvent: Hashable, HandleView {
     /// The distance between two slots of a C array of this type, for a Slots over one.
     public static let stride = MemoryLayout<alertEvent_t>.stride
 
+    /// Raven's `alertEvent_t alertEvent;` on the stack. The slot is zero at entry, lives for the closure, and the closure's value is the result.
+    public static func scratch<Result>(_ body: (AlertEvent) throws -> Result) rethrows -> Result {
+        var slot = alertEvent_t()
+        return try withUnsafeMutablePointer(to: &slot) { try body(AlertEvent(raw: $0)) }
+    }
+
+    /// Raven's `alertEvent_t alertEvent = *other;`, a copy of another slot on the stack.
+    public static func scratch<Result>(copying other: AlertEvent, _ body: (AlertEvent) throws -> Result) rethrows -> Result {
+        var slot = other.raw.pointee
+        return try withUnsafeMutablePointer(to: &slot) { try body(AlertEvent(raw: $0)) }
+    }
+
     /// Source: oracle/codemp/game/g_local.h:796
     public var position: JKAShared.vec3_t {
         get { vec3(of: self.raw.pointee.position) }

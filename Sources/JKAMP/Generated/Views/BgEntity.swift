@@ -29,6 +29,18 @@ public struct BgEntity: Hashable, HandleView {
     /// The distance between two slots of a C array of this type, for a Slots over one.
     public static let stride = MemoryLayout<bgEntity_t>.stride
 
+    /// Raven's `bgEntity_t bgEntity;` on the stack. The slot is zero at entry, lives for the closure, and the closure's value is the result.
+    public static func scratch<Result>(_ body: (BgEntity) throws -> Result) rethrows -> Result {
+        var slot = bgEntity_t()
+        return try withUnsafeMutablePointer(to: &slot) { try body(BgEntity(raw: $0)) }
+    }
+
+    /// Raven's `bgEntity_t bgEntity = *other;`, a copy of another slot on the stack.
+    public static func scratch<Result>(copying other: BgEntity, _ body: (BgEntity) throws -> Result) rethrows -> Result {
+        var slot = other.raw.pointee
+        return try withUnsafeMutablePointer(to: &slot) { try body(BgEntity(raw: $0)) }
+    }
+
     /// Source: oracle/codemp/game/bg_public.h:425
     public var s: EntityState { EntityState(handle: OpaquePointer(self.raw.pointer(to: \.s)!)) }
 

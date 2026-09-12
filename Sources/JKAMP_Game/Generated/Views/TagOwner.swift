@@ -30,6 +30,18 @@ public struct TagOwner: Hashable, HandleView {
     /// The distance between two slots of a C array of this type, for a Slots over one.
     public static let stride = MemoryLayout<tagOwner_t>.stride
 
+    /// Raven's `tagOwner_t tagOwner;` on the stack. The slot is zero at entry, lives for the closure, and the closure's value is the result.
+    public static func scratch<Result>(_ body: (TagOwner) throws -> Result) rethrows -> Result {
+        var slot = tagOwner_t()
+        return try withUnsafeMutablePointer(to: &slot) { try body(TagOwner(raw: $0)) }
+    }
+
+    /// Raven's `tagOwner_t tagOwner = *other;`, a copy of another slot on the stack.
+    public static func scratch<Result>(copying other: TagOwner, _ body: (TagOwner) throws -> Result) rethrows -> Result {
+        var slot = other.raw.pointee
+        return try withUnsafeMutablePointer(to: &slot) { try body(TagOwner(raw: $0)) }
+    }
+
     /// Source: oracle/codemp/game/g_misc.c:2881
     public var name: String {
         get { cString(at: UnsafeMutableRawPointer(self.raw.pointer(to: \.name)!)) }

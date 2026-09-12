@@ -29,6 +29,18 @@ public struct SiegeClassDesc: Hashable, HandleView {
     /// The distance between two slots of a C array of this type, for a Slots over one.
     public static let stride = MemoryLayout<siegeClassDesc_t>.stride
 
+    /// Raven's `siegeClassDesc_t siegeClassDesc;` on the stack. The slot is zero at entry, lives for the closure, and the closure's value is the result.
+    public static func scratch<Result>(_ body: (SiegeClassDesc) throws -> Result) rethrows -> Result {
+        var slot = siegeClassDesc_t()
+        return try withUnsafeMutablePointer(to: &slot) { try body(SiegeClassDesc(raw: $0)) }
+    }
+
+    /// Raven's `siegeClassDesc_t siegeClassDesc = *other;`, a copy of another slot on the stack.
+    public static func scratch<Result>(copying other: SiegeClassDesc, _ body: (SiegeClassDesc) throws -> Result) rethrows -> Result {
+        var slot = other.raw.pointee
+        return try withUnsafeMutablePointer(to: &slot) { try body(SiegeClassDesc(raw: $0)) }
+    }
+
     /// Source: oracle/codemp/game/bg_saga.h:51
     public var desc: String {
         get { cString(at: UnsafeMutableRawPointer(self.raw.pointer(to: \.desc)!)) }

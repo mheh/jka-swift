@@ -29,6 +29,18 @@ public struct Trace: Hashable, HandleView {
     /// The distance between two slots of a C array of this type, for a Slots over one.
     public static let stride = MemoryLayout<trace_t>.stride
 
+    /// Raven's `trace_t trace;` on the stack. The slot is zero at entry, lives for the closure, and the closure's value is the result.
+    public static func scratch<Result>(_ body: (Trace) throws -> Result) rethrows -> Result {
+        var slot = trace_t()
+        return try withUnsafeMutablePointer(to: &slot) { try body(Trace(raw: $0)) }
+    }
+
+    /// Raven's `trace_t trace = *other;`, a copy of another slot on the stack.
+    public static func scratch<Result>(copying other: Trace, _ body: (Trace) throws -> Result) rethrows -> Result {
+        var slot = other.raw.pointee
+        return try withUnsafeMutablePointer(to: &slot) { try body(Trace(raw: $0)) }
+    }
+
     /// Source: oracle/codemp/game/q_shared.h:1895
     public var allsolid: JKAShared.byte {
         get { self.raw.pointee.allsolid }
