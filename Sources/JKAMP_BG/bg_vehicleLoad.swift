@@ -3,10 +3,30 @@
 import JKAMP
 import JKAShared
 
+/// Source: oracle/codemp/game/bg_vehicleLoad.c:76
+// TODO: Port global VehWeaponParms
+// Raven wrote: char VehWeaponParms[MAX_VEH_WEAPON_DATA_SIZE]
+// Rule 3: a stored property of BgState with C's zero, since Raven wrote no initializer, spelled bg.VehWeaponParms in a body.
+
+/// Source: oracle/codemp/game/bg_vehicleLoad.c:77
+// TODO: Port global VehicleParms
+// Raven wrote: char VehicleParms[MAX_VEHICLE_DATA_SIZE]
+// Rule 3: a stored property of BgState with C's zero, since Raven wrote no initializer, spelled bg.VehicleParms in a body.
+
+/// Source: oracle/codemp/game/bg_vehicleLoad.c:103
+// TODO: Port global g_vehWeaponInfo
+// Raven wrote: vehWeaponInfo_t g_vehWeaponInfo[MAX_VEH_WEAPONS]
+// A struct table is C storage in Sources/CJKAMP, reached through a Slots constant.
+
 /// Source: oracle/codemp/game/bg_vehicleLoad.c:104
 // TODO: Port global numVehicleWeapons
 // Raven wrote: int numVehicleWeapons = 1
 // Rule 3: a stored property of BgState with Raven's initializer, spelled bg.numVehicleWeapons in a body.
+
+/// Source: oracle/codemp/game/bg_vehicleLoad.c:106
+// TODO: Port global g_vehicleInfo
+// Raven wrote: vehicleInfo_t g_vehicleInfo[MAX_VEHICLES]
+// A struct table is C storage in Sources/CJKAMP, reached through a Slots constant.
 
 /// Source: oracle/codemp/game/bg_vehicleLoad.c:107
 // TODO: Port global numVehicles

@@ -4,6 +4,11 @@ import JKAMP
 import JKAShared
 import JKAMP_Game
 
+/// Source: oracle/codemp/game/g_team.c:18
+// TODO: Port global teamgame
+// Raven wrote: teamgame_t teamgame
+// A struct table is C storage in Sources/CJKAMP, reached through a Slots constant.
+
 /// Source: oracle/codemp/game/g_team.c:279
 // Raven wrote: static char ctfFlagStatusRemap[] = { '0', '1', '*', '*', '2' }
 let ctfFlagStatusRemap: [CChar] = { () -> [CChar] in portMissing("ctfFlagStatusRemap", source: "oracle/codemp/game/g_team.c:279") }()

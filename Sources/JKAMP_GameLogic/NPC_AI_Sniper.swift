@@ -4,6 +4,36 @@ import JKAMP
 import JKAShared
 import JKAMP_Game
 
+/// Source: oracle/codemp/game/NPC_AI_Sniper.c:29
+// TODO: Port global enemyLOS2
+// Raven wrote: static qboolean enemyLOS2
+// Rule 3: a stored property of GameWorld with C's zero, since Raven wrote no initializer, spelled world.enemyLOS2 in a body.
+
+/// Source: oracle/codemp/game/NPC_AI_Sniper.c:30
+// TODO: Port global enemyCS2
+// Raven wrote: static qboolean enemyCS2
+// Rule 3: a stored property of GameWorld with C's zero, since Raven wrote no initializer, spelled world.enemyCS2 in a body.
+
+/// Source: oracle/codemp/game/NPC_AI_Sniper.c:31
+// TODO: Port global faceEnemy2
+// Raven wrote: static qboolean faceEnemy2
+// Rule 3: a stored property of GameWorld with C's zero, since Raven wrote no initializer, spelled world.faceEnemy2 in a body.
+
+/// Source: oracle/codemp/game/NPC_AI_Sniper.c:32
+// TODO: Port global move2
+// Raven wrote: static qboolean move2
+// Rule 3: a stored property of GameWorld with C's zero, since Raven wrote no initializer, spelled world.move2 in a body.
+
+/// Source: oracle/codemp/game/NPC_AI_Sniper.c:33
+// TODO: Port global shoot2
+// Raven wrote: static qboolean shoot2
+// Rule 3: a stored property of GameWorld with C's zero, since Raven wrote no initializer, spelled world.shoot2 in a body.
+
+/// Source: oracle/codemp/game/NPC_AI_Sniper.c:34
+// TODO: Port global enemyDist2
+// Raven wrote: static float enemyDist2
+// Rule 3: a stored property of GameWorld with C's zero, since Raven wrote no initializer, spelled world.enemyDist2 in a body.
+
 /// Source: oracle/codemp/game/NPC_AI_Sniper.c:44
 func Sniper_ClearTimers(_ ent: Entity) {
     // TODO: Port Sniper_ClearTimers

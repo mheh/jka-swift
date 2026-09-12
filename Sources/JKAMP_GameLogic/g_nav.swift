@@ -64,10 +64,20 @@ import JKAMP_Game
 // Raven wrote: char *fatalErrorPointer = NULL
 // Rule 3: a stored property of GameWorld with Raven's initializer, spelled world.fatalErrorPointer in a body.
 
+/// Source: oracle/codemp/game/g_nav.c:1617
+// TODO: Port global fatalErrorString
+// Raven wrote: char fatalErrorString[4096]
+// Rule 3: a stored property of GameWorld with C's zero, since Raven wrote no initializer, spelled world.fatalErrorString in a body.
+
 /// Source: oracle/codemp/game/g_nav.c:1658
 // TODO: Port global numStoredWaypoints
 // Raven wrote: static int numStoredWaypoints = 0
 // Rule 3: a stored property of GameWorld with Raven's initializer, spelled world.numStoredWaypoints in a body.
+
+/// Source: oracle/codemp/game/g_nav.c:1660
+// TODO: Port global tempWaypointList
+// Raven wrote: static waypointData_t tempWaypointList[MAX_STORED_WAYPOINTS]
+// A struct table is C storage in Sources/CJKAMP, reached through a Slots constant.
 
 //For debug graphics
 //rwwFIXMEFIXME: Write these at some point for the sake of being able to debug visually

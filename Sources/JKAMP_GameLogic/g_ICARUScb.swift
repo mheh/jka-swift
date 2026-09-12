@@ -9,9 +9,28 @@ import JKAMP_Game
 // Raven wrote: stringID_table_t setTable[]
 // A struct table is C storage in Sources/CJKAMP, reached through a Slots constant.
 
+/// Source: oracle/codemp/game/g_ICARUScb.c:3895
+// Raven wrote: char cinematicSkipScript[1024]
+let cinematicSkipScript: [CChar] = [CChar](repeating: 0, count: 1024)
+
 /// Source: oracle/codemp/game/g_ICARUScb.c:4575
 // Raven wrote: qboolean player_locked = qfalse
 let player_locked: Bool = { () -> Bool in portMissing("player_locked", source: "oracle/codemp/game/g_ICARUScb.c:4575") }()
+
+/// Source: oracle/codemp/game/g_ICARUScb.c:4933
+// TODO: Port global textcolor_caption
+// Raven wrote: vec4_t textcolor_caption
+// Rule 3: a stored property of GameWorld with C's zero, since Raven wrote no initializer, spelled world.textcolor_caption in a body.
+
+/// Source: oracle/codemp/game/g_ICARUScb.c:4934
+// TODO: Port global textcolor_center
+// Raven wrote: vec4_t textcolor_center
+// Rule 3: a stored property of GameWorld with C's zero, since Raven wrote no initializer, spelled world.textcolor_center in a body.
+
+/// Source: oracle/codemp/game/g_ICARUScb.c:4935
+// TODO: Port global textcolor_scroll
+// Raven wrote: vec4_t textcolor_scroll
+// Rule 3: a stored property of GameWorld with C's zero, since Raven wrote no initializer, spelled world.textcolor_scroll in a body.
 
 /// Source: oracle/codemp/game/g_ICARUScb.c:270
 func Q3_TaskIDClear(_ taskID: inout Int32) {

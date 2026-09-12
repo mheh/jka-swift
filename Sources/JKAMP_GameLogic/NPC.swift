@@ -4,6 +4,51 @@ import JKAMP
 import JKAShared
 import JKAMP_Game
 
+/// Source: oracle/codemp/game/NPC.c:34
+// TODO: Port global NPC
+// Raven wrote: gentity_t *NPC
+// Rule 3: a stored property of GameWorld with C's zero, since Raven wrote no initializer, spelled world.NPC in a body.
+
+/// Source: oracle/codemp/game/NPC.c:35
+// TODO: Port global NPCInfo
+// Raven wrote: gNPC_t *NPCInfo
+// Rule 3: a stored property of GameWorld with C's zero, since Raven wrote no initializer, spelled world.NPCInfo in a body.
+
+/// Source: oracle/codemp/game/NPC.c:36
+// TODO: Port global client
+// Raven wrote: gclient_t *client
+// Rule 3: a stored property of GameWorld with C's zero, since Raven wrote no initializer, spelled world.client in a body.
+
+/// Source: oracle/codemp/game/NPC.c:37
+// TODO: Port global ucmd
+// Raven wrote: usercmd_t ucmd
+// A struct table is C storage in Sources/CJKAMP, reached through a Slots constant.
+
+/// Source: oracle/codemp/game/NPC.c:38
+// TODO: Port global enemyVisibility
+// Raven wrote: visibility_t enemyVisibility
+// Rule 3: a stored property of GameWorld with C's zero, since Raven wrote no initializer, spelled world.enemyVisibility in a body.
+
+/// Source: oracle/codemp/game/NPC.c:625
+// TODO: Port global _saved_NPC
+// Raven wrote: gentity_t *_saved_NPC
+// Rule 3: a stored property of GameWorld with C's zero, since Raven wrote no initializer, spelled world._saved_NPC in a body.
+
+/// Source: oracle/codemp/game/NPC.c:626
+// TODO: Port global _saved_NPCInfo
+// Raven wrote: gNPC_t *_saved_NPCInfo
+// Rule 3: a stored property of GameWorld with C's zero, since Raven wrote no initializer, spelled world._saved_NPCInfo in a body.
+
+/// Source: oracle/codemp/game/NPC.c:627
+// TODO: Port global _saved_client
+// Raven wrote: gclient_t *_saved_client
+// Rule 3: a stored property of GameWorld with C's zero, since Raven wrote no initializer, spelled world._saved_client in a body.
+
+/// Source: oracle/codemp/game/NPC.c:628
+// TODO: Port global _saved_ucmd
+// Raven wrote: usercmd_t _saved_ucmd
+// A struct table is C storage in Sources/CJKAMP, reached through a Slots constant.
+
 /// Source: oracle/codemp/game/NPC.c:656
 // TODO: Port global NPCDEBUG_RED
 // Raven wrote: vec3_t NPCDEBUG_RED = {1.0, 0.0, 0.0}

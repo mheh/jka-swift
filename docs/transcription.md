@@ -213,6 +213,7 @@ The header `Sources/CJKAMP/include/bg_tables.h` declares each array with a writt
 Every other struct-typed table Raven declares at file scope, such as `fields[]` of `g_spawn.c`, is C storage the same way. The stub of a `.c` file carries one entry per file-scope variable, above its first function.
 A variable the module never assigns is a typed `let` with a `portMissing` initializer and a `// Raven wrote:` line, and the transcriptor replaces the initializer with Raven's data.
 A variable the module assigns is a stored property of the state object, `BgState` or `GameWorld`, with Raven's initializer, spelled `bg.name` or `world.name` in a body, and its stub entry carries `// TODO: Port global name` and `// Raven wrote:`.
+A variable Raven declares with no initializer is his all the same, zeroed by the loader, and its entry says C's zero where the initializer would be.
 A body macro that names a local, such as `SLOPERECALCVAR`, is spelled as its expansion at the site, `pm.ps.slopeRecalcTime`, with Raven's macro name in a one-line comment at the first use.
 
 ### A static in a bg file

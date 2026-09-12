@@ -3,6 +3,11 @@
 import JKAMP
 import JKAShared
 
+/// Source: oracle/codemp/game/bg_saga.c:32
+// TODO: Port global siege_info
+// Raven wrote: char siege_info[MAX_SIEGE_INFO_SIZE]
+// Rule 3: a stored property of BgState with C's zero, since Raven wrote no initializer, spelled bg.siege_info in a body.
+
 /// Source: oracle/codemp/game/bg_saga.c:33
 // TODO: Port global siege_valid
 // Raven wrote: int siege_valid = 0
@@ -18,10 +23,20 @@ import JKAShared
 // Raven wrote: siegeTeam_t *team2Theme = NULL
 // Rule 3: a stored property of BgState with Raven's initializer, spelled bg.team2Theme in a body.
 
+/// Source: oracle/codemp/game/bg_saga.c:38
+// TODO: Port global bgSiegeClasses
+// Raven wrote: siegeClass_t bgSiegeClasses[MAX_SIEGE_CLASSES]
+// A struct table is C storage in Sources/CJKAMP, reached through a Slots constant.
+
 /// Source: oracle/codemp/game/bg_saga.c:39
 // TODO: Port global bgNumSiegeClasses
 // Raven wrote: int bgNumSiegeClasses = 0
 // Rule 3: a stored property of BgState with Raven's initializer, spelled bg.bgNumSiegeClasses in a body.
+
+/// Source: oracle/codemp/game/bg_saga.c:41
+// TODO: Port global bgSiegeTeams
+// Raven wrote: siegeTeam_t bgSiegeTeams[MAX_SIEGE_TEAMS]
+// A struct table is C storage in Sources/CJKAMP, reached through a Slots constant.
 
 /// Source: oracle/codemp/game/bg_saga.c:42
 // TODO: Port global bgNumSiegeTeams

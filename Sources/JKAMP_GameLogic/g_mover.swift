@@ -4,6 +4,16 @@ import JKAMP
 import JKAShared
 import JKAMP_Game
 
+/// Source: oracle/codemp/game/g_mover.c:24
+// TODO: Port global pushed
+// Raven wrote: pushed_t pushed[MAX_GENTITIES]
+// A struct table is C storage in Sources/CJKAMP, reached through a Slots constant.
+
+/// Source: oracle/codemp/game/g_mover.c:24
+// TODO: Port global pushed_p
+// Raven wrote: pushed_t pushed[MAX_GENTITIES], *pushed_p
+// No table row for `pushed_t *`.
+
 /// Source: oracle/codemp/game/g_mover.c:35
 // Raven wrote: int BMS_START = 0
 let BMS_START: Int32 = { () -> Int32 in portMissing("BMS_START", source: "oracle/codemp/game/g_mover.c:35") }()

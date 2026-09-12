@@ -9,6 +9,41 @@ import JKAMP_Game
 // Raven wrote: int saberSpinSound = 0
 // Rule 3: a stored property of GameWorld with Raven's initializer, spelled world.saberSpinSound in a body.
 
+/// Source: oracle/codemp/game/w_saber.c:3504
+// TODO: Port global victimEntityNum
+// Raven wrote: static int victimEntityNum[MAX_SABER_VICTIMS]
+// Rule 3: a stored property of GameWorld with C's zero, since Raven wrote no initializer, spelled world.victimEntityNum in a body.
+
+/// Source: oracle/codemp/game/w_saber.c:3505
+// TODO: Port global victimHitEffectDone
+// Raven wrote: static qboolean victimHitEffectDone[MAX_SABER_VICTIMS]
+// Rule 3: a stored property of GameWorld with C's zero, since Raven wrote no initializer, spelled world.victimHitEffectDone in a body.
+
+/// Source: oracle/codemp/game/w_saber.c:3506
+// TODO: Port global totalDmg
+// Raven wrote: static float totalDmg[MAX_SABER_VICTIMS]
+// Rule 3: a stored property of GameWorld with C's zero, since Raven wrote no initializer, spelled world.totalDmg in a body.
+
+/// Source: oracle/codemp/game/w_saber.c:3507
+// TODO: Port global dmgDir
+// Raven wrote: static vec3_t dmgDir[MAX_SABER_VICTIMS]
+// Rule 3: a stored property of GameWorld with C's zero, since Raven wrote no initializer, spelled world.dmgDir in a body.
+
+/// Source: oracle/codemp/game/w_saber.c:3508
+// TODO: Port global dmgSpot
+// Raven wrote: static vec3_t dmgSpot[MAX_SABER_VICTIMS]
+// Rule 3: a stored property of GameWorld with C's zero, since Raven wrote no initializer, spelled world.dmgSpot in a body.
+
+/// Source: oracle/codemp/game/w_saber.c:3509
+// TODO: Port global dismemberDmg
+// Raven wrote: static qboolean dismemberDmg[MAX_SABER_VICTIMS]
+// Rule 3: a stored property of GameWorld with C's zero, since Raven wrote no initializer, spelled world.dismemberDmg in a body.
+
+/// Source: oracle/codemp/game/w_saber.c:3510
+// TODO: Port global saberKnockbackFlags
+// Raven wrote: static int saberKnockbackFlags[MAX_SABER_VICTIMS]
+// Rule 3: a stored property of GameWorld with C's zero, since Raven wrote no initializer, spelled world.saberKnockbackFlags in a body.
+
 /// Source: oracle/codemp/game/w_saber.c:3511
 // TODO: Port global numVictims
 // Raven wrote: static int numVictims = 0

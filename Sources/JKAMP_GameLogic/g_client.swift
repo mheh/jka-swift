@@ -4,6 +4,19 @@ import JKAMP
 import JKAShared
 import JKAMP_Game
 
+/// Source: oracle/codemp/game/g_client.c:9
+// Raven wrote: static vec3_t playerMins
+let playerMins: JKAShared.vec3_t = JKAShared.vec3_t(0, 0, 0)
+
+/// Source: oracle/codemp/game/g_client.c:10
+// Raven wrote: static vec3_t playerMaxs
+let playerMaxs: JKAShared.vec3_t = JKAShared.vec3_t(0, 0, 0)
+
+/// Source: oracle/codemp/game/g_client.c:19
+// TODO: Port global Client_Force
+// Raven wrote: forcedata_t Client_Force[MAX_CLIENTS]
+// A struct table is C storage in Sources/CJKAMP, reached through a Slots constant.
+
 /// Source: oracle/codemp/game/g_client.c:471
 // TODO: Port global gJMSaberEnt
 // Raven wrote: gentity_t *gJMSaberEnt = NULL

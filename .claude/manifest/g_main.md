@@ -7,66 +7,210 @@ The oracle range is the whole definition, from the return type to the closing br
 
 | Function | Oracle | Swift | State | jka-rust | Signature |
 |---|---|---|---|---|---|
-| `vmMain` | `oracle/codemp/game/g_main.c:515-696` | `JKAMP_GameLogic/g_main.swift:6` | marker | none | `func vmMain(_ command: Int32, _ arg0: Int32, _ arg1: Int32, _ arg2: Int32, _ arg3: Int32, _ arg4: Int32, _ arg5: Int32, _ arg6: Int32, _ arg7: Int32, _ arg8: Int32, _ arg9: Int32, _ arg10: Int32, _ arg11: Int32) -> Int32` |
-| `G_Printf` | `oracle/codemp/game/g_main.c:703-712` | `JKAMP_GameLogic/g_main.swift:12` | ported | `crates/mp/game/src/g_main.rs:64-66` | `func G_Printf(_ fmt: String, _ args: any JKAShared.FormatArg...)` |
-| `G_Error` | `oracle/codemp/game/g_main.c:714-723` | `JKAMP_GameLogic/g_main.swift:17` | ported | `crates/mp/game/src/g_main.rs:71-73` | `func G_Error(_ fmt: String, _ args: any JKAShared.FormatArg...)` |
-| `G_FindTeams` | `oracle/codemp/game/g_main.c:736-781` | `JKAMP_GameLogic/g_main.swift:35` | marker | `crates/mp/game/src/g_main.rs:78-125` | `func G_FindTeams()` |
-| `G_RemapTeamShaders` | `oracle/codemp/game/g_main.c:783-795` | `JKAMP_GameLogic/g_main.swift:41` | marker | `crates/mp/game/src/g_main.rs:134-134` | `func G_RemapTeamShaders()` |
-| `G_RegisterCvars` | `oracle/codemp/game/g_main.c:803-845` | `JKAMP_GameLogic/g_main.swift:54` | marker | `crates/mp/game/src/g_main.rs:321-379` | `func G_RegisterCvars()` |
-| `G_UpdateCvars` | `oracle/codemp/game/g_main.c:852-879` | `JKAMP_GameLogic/g_main.swift:67` | marker | `crates/mp/game/src/g_main.rs:384-429` | `func G_UpdateCvars()` |
-| `G_InitGame` | `oracle/codemp/game/g_main.c:897-1118` | `JKAMP_GameLogic/g_main.swift:73` | marker | none | `func G_InitGame(_ levelTime: Int32, _ randomSeed: Int32, _ restart: Int32)` |
-| `G_ShutdownGame` | `oracle/codemp/game/g_main.c:1128-1199` | `JKAMP_GameLogic/g_main.swift:79` | marker | none | `func G_ShutdownGame(_ restart: Int32)` |
-| `Com_Error` | `oracle/codemp/game/g_main.c:1208-1217` | `JKAMP_GameLogic/g_main.swift:85` | ported | `crates/mp/game/src/g_main.rs:434-449` | `func Com_Error(_ level: Int32, _ error: String, _ args: any JKAShared.FormatArg...)` |
-| `Com_Printf` | `oracle/codemp/game/g_main.c:1219-1228` | `JKAMP_GameLogic/g_main.swift:91` | ported | `crates/mp/game/src/g_main.rs:454-463` | `func Com_Printf(_ msg: String, _ args: any JKAShared.FormatArg...)` |
-| `AddTournamentPlayer` | `oracle/codemp/game/g_main.c:1248-1295` | `JKAMP_GameLogic/g_main.swift:106` | marker | `crates/mp/game/src/g_main.rs:468-523` | `func AddTournamentPlayer()` |
-| `RemoveTournamentLoser` | `oracle/codemp/game/g_main.c:1304-1319` | `JKAMP_GameLogic/g_main.swift:121` | marker | `crates/mp/game/src/g_main.rs:528-541` | `func RemoveTournamentLoser()` |
-| `G_PowerDuelCount` | `oracle/codemp/game/g_main.c:1321-1343` | `JKAMP_GameLogic/g_main.swift:127` | marker | `crates/mp/game/src/g_main.rs:546-576` | `func G_PowerDuelCount(_ loners: inout Int32, _ doubles: inout Int32, _ countSpec: Bool)` |
-| `AddPowerDuelPlayers` | `oracle/codemp/game/g_main.c:1346-1425` | `JKAMP_GameLogic/g_main.swift:133` | marker | `crates/mp/game/src/g_main.rs:581-668` | `func AddPowerDuelPlayers()` |
-| `RemovePowerDuelLosers` | `oracle/codemp/game/g_main.c:1429-1471` | `JKAMP_GameLogic/g_main.swift:139` | marker | `crates/mp/game/src/g_main.rs:673-710` | `func RemovePowerDuelLosers()` |
-| `RemoveDuelDrawLoser` | `oracle/codemp/game/g_main.c:1473-1512` | `JKAMP_GameLogic/g_main.swift:145` | marker | `crates/mp/game/src/g_main.rs:715-748` | `func RemoveDuelDrawLoser()` |
-| `RemoveTournamentWinner` | `oracle/codemp/game/g_main.c:1519-1534` | `JKAMP_GameLogic/g_main.swift:158` | marker | `crates/mp/game/src/g_main.rs:753-766` | `func RemoveTournamentWinner()` |
-| `AdjustTournamentScores` | `oracle/codemp/game/g_main.c:1541-1616` | `JKAMP_GameLogic/g_main.swift:171` | marker | `crates/mp/game/src/g_main.rs:771-832` | `func AdjustTournamentScores()` |
-| `SortRanks` | `oracle/codemp/game/g_main.c:1624-1689` | `JKAMP_GameLogic/g_main.swift:185` | marker | `crates/mp/game/src/g_main.rs:883-949` | `func SortRanks(_ a: OpaquePointer?, _ b: OpaquePointer?) -> Int32` |
-| `G_CanResetDuelists` | `oracle/codemp/game/g_main.c:1695-1715` | `JKAMP_GameLogic/g_main.swift:192` | marker | `crates/mp/game/src/g_main.rs:954-976` | `func G_CanResetDuelists() -> Bool` |
-| `G_ResetDuelists` | `oracle/codemp/game/g_main.c:1718-1740` | `JKAMP_GameLogic/g_main.swift:198` | marker | `crates/mp/game/src/g_main.rs:981-1004` | `func G_ResetDuelists()` |
-| `CalculateRanks` | `oracle/codemp/game/g_main.c:1751-1906` | `JKAMP_GameLogic/g_main.swift:215` | marker | `crates/mp/game/src/g_main.rs:1009-1188` | `func CalculateRanks()` |
-| `SendScoreboardMessageToAllClients` | `oracle/codemp/game/g_main.c:1925-1933` | `JKAMP_GameLogic/g_main.swift:231` | marker | `crates/mp/game/src/g_main.rs:1193-1202` | `func SendScoreboardMessageToAllClients()` |
-| `MoveClientToIntermission` | `oracle/codemp/game/g_main.c:1943-1967` | `JKAMP_GameLogic/g_main.swift:247` | marker | `crates/mp/game/src/g_main.rs:1207-1243` | `func MoveClientToIntermission(_ ent: Entity)` |
-| `FindIntermissionPoint` | `oracle/codemp/game/g_main.c:1979-2026` | `JKAMP_GameLogic/g_main.swift:253` | marker | `crates/mp/game/src/g_main.rs:1248-1328` | `func FindIntermissionPoint()` |
-| `BeginIntermission` | `oracle/codemp/game/g_main.c:2035-2092` | `JKAMP_GameLogic/g_main.swift:266` | marker | `crates/mp/game/src/g_main.rs:1333-1386` | `func BeginIntermission()` |
-| `DuelLimitHit` | `oracle/codemp/game/g_main.c:2094-2112` | `JKAMP_GameLogic/g_main.swift:272` | marker | `crates/mp/game/src/g_main.rs:1391-1409` | `func DuelLimitHit() -> Bool` |
-| `DuelResetWinsLosses` | `oracle/codemp/game/g_main.c:2114-2128` | `JKAMP_GameLogic/g_main.swift:278` | marker | `crates/mp/game/src/g_main.rs:1414-1427` | `func DuelResetWinsLosses()` |
-| `ExitLevel` | `oracle/codemp/game/g_main.c:2141-2204` | `JKAMP_GameLogic/g_main.swift:284` | marker | `crates/mp/game/src/g_main.rs:1432-1493` | `func ExitLevel()` |
-| `G_LogPrintf` | `oracle/codemp/game/g_main.c:2213-2240` | `JKAMP_GameLogic/g_main.swift:299` | marker | `crates/mp/game/src/g_main.rs:1498-1515` | `func G_LogPrintf(_ fmt: String, _ args: any JKAShared.FormatArg...)` |
-| `LogExit` | `oracle/codemp/game/g_main.c:2249-2303` | `JKAMP_GameLogic/g_main.swift:314` | marker | `crates/mp/game/src/g_main.rs:1520-1570` | `func LogExit(_ string: String)` |
-| `CheckIntermissionExit` | `oracle/codemp/game/g_main.c:2317-2554` | `JKAMP_GameLogic/g_main.swift:332` | marker | `crates/mp/game/src/g_main.rs:1575-1852` | `func CheckIntermissionExit()` |
-| `ScoreIsTied` | `oracle/codemp/game/g_main.c:2561-2576` | `JKAMP_GameLogic/g_main.swift:345` | marker | `crates/mp/game/src/g_main.rs:1857-1873` | `func ScoreIsTied() -> Bool` |
-| `CheckExitRules` | `oracle/codemp/game/g_main.c:2588-2911` | `JKAMP_GameLogic/g_main.swift:351` | marker | `crates/mp/game/src/g_main.rs:1878-2095` | `func CheckExitRules()` |
-| `G_RemoveDuelist` | `oracle/codemp/game/g_main.c:2923-2938` | `JKAMP_GameLogic/g_main.swift:357` | marker | `crates/mp/game/src/g_main.rs:2100-2117` | `func G_RemoveDuelist(_ team: Int32)` |
-| `CheckTournament` | `oracle/codemp/game/g_main.c:2948-3216` | `JKAMP_GameLogic/g_main.swift:363` | marker | `crates/mp/game/src/g_main.rs:2122-2353` | `func CheckTournament()` |
-| `G_KickAllBots` | `oracle/codemp/game/g_main.c:3218-3239` | `JKAMP_GameLogic/g_main.swift:369` | marker | `crates/mp/game/src/g_main.rs:2358-2378` | `func G_KickAllBots()` |
-| `CheckVote` | `oracle/codemp/game/g_main.c:3246-3326` | `JKAMP_GameLogic/g_main.swift:382` | marker | `crates/mp/game/src/g_main.rs:2383-2475` | `func CheckVote()` |
-| `PrintTeam` | `oracle/codemp/game/g_main.c:3333-3341` | `JKAMP_GameLogic/g_main.swift:395` | marker | `crates/mp/game/src/g_main.rs:2480-2493` | `func PrintTeam(_ team: Int32, _ message: inout JKAShared.CharBuf)` |
-| `SetLeader` | `oracle/codemp/game/g_main.c:3348-3370` | `JKAMP_GameLogic/g_main.swift:408` | marker | `crates/mp/game/src/g_main.rs:2498-2544` | `func SetLeader(_ team: Int32, _ client: Int32)` |
-| `CheckTeamLeader` | `oracle/codemp/game/g_main.c:3377-3402` | `JKAMP_GameLogic/g_main.swift:421` | marker | `crates/mp/game/src/g_main.rs:2549-2584` | `func CheckTeamLeader(_ team: Int32)` |
-| `CheckTeamVote` | `oracle/codemp/game/g_main.c:3409-3447` | `JKAMP_GameLogic/g_main.swift:434` | marker | `crates/mp/game/src/g_main.rs:2589-2637` | `func CheckTeamVote(_ team: Int32)` |
-| `CheckCvars` | `oracle/codemp/game/g_main.c:3455-3480` | `JKAMP_GameLogic/g_main.swift:447` | marker | `crates/mp/game/src/g_main.rs:2642-2662` | `func CheckCvars()` |
-| `G_RunThink` | `oracle/codemp/game/g_main.c:3489-3512` | `JKAMP_GameLogic/g_main.swift:462` | marker | `crates/mp/game/src/g_main.rs:2667-2696` | `func G_RunThink(_ ent: Entity)` |
-| `NAV_CheckCalcPaths` | `oracle/codemp/game/g_main.c:3522-3555` | `JKAMP_GameLogic/g_main.swift:468` | marker | `crates/mp/game/src/g_main.rs:2701-2744` | `func NAV_CheckCalcPaths()` |
-| `BG_GetTime` | `oracle/codemp/game/g_main.c:3559-3562` | `JKAMP_GameLogic/g_main.swift:474` | marker | none | `func BG_GetTime() -> Int32` |
-| `G_RunFrame` | `oracle/codemp/game/g_main.c:3582-4102` | `JKAMP_GameLogic/g_main.swift:480` | marker | `crates/mp/game/src/g_main.rs:2758-3254` | `func G_RunFrame(_ levelTime: Int32)` |
-| `G_GetStringEdString` | `oracle/codemp/game/g_main.c:4104-4120` | `JKAMP_GameLogic/g_main.swift:486` | marker | `crates/mp/game/src/g_main.rs:3259-3266` | `func G_GetStringEdString(_ refSection: inout JKAShared.CharBuf, _ refName: inout JKAShared.CharBuf) -> String` |
+| `vmMain` | `oracle/codemp/game/g_main.c:515-696` | `JKAMP_GameLogic/g_main.swift:796` | marker | none | `func vmMain(_ command: Int32, _ arg0: Int32, _ arg1: Int32, _ arg2: Int32, _ arg3: Int32, _ arg4: Int32, _ arg5: Int32, _ arg6: Int32, _ arg7: Int32, _ arg8: Int32, _ arg9: Int32, _ arg10: Int32, _ arg11: Int32) -> Int32` |
+| `G_Printf` | `oracle/codemp/game/g_main.c:703-712` | `JKAMP_GameLogic/g_main.swift:802` | ported | `crates/mp/game/src/g_main.rs:64-66` | `func G_Printf(_ fmt: String, _ args: any JKAShared.FormatArg...)` |
+| `G_Error` | `oracle/codemp/game/g_main.c:714-723` | `JKAMP_GameLogic/g_main.swift:807` | ported | `crates/mp/game/src/g_main.rs:71-73` | `func G_Error(_ fmt: String, _ args: any JKAShared.FormatArg...)` |
+| `G_FindTeams` | `oracle/codemp/game/g_main.c:736-781` | `JKAMP_GameLogic/g_main.swift:825` | marker | `crates/mp/game/src/g_main.rs:78-125` | `func G_FindTeams()` |
+| `G_RemapTeamShaders` | `oracle/codemp/game/g_main.c:783-795` | `JKAMP_GameLogic/g_main.swift:831` | marker | `crates/mp/game/src/g_main.rs:134-134` | `func G_RemapTeamShaders()` |
+| `G_RegisterCvars` | `oracle/codemp/game/g_main.c:803-845` | `JKAMP_GameLogic/g_main.swift:844` | marker | `crates/mp/game/src/g_main.rs:321-379` | `func G_RegisterCvars()` |
+| `G_UpdateCvars` | `oracle/codemp/game/g_main.c:852-879` | `JKAMP_GameLogic/g_main.swift:857` | marker | `crates/mp/game/src/g_main.rs:384-429` | `func G_UpdateCvars()` |
+| `G_InitGame` | `oracle/codemp/game/g_main.c:897-1118` | `JKAMP_GameLogic/g_main.swift:863` | marker | none | `func G_InitGame(_ levelTime: Int32, _ randomSeed: Int32, _ restart: Int32)` |
+| `G_ShutdownGame` | `oracle/codemp/game/g_main.c:1128-1199` | `JKAMP_GameLogic/g_main.swift:869` | marker | none | `func G_ShutdownGame(_ restart: Int32)` |
+| `Com_Error` | `oracle/codemp/game/g_main.c:1208-1217` | `JKAMP_GameLogic/g_main.swift:875` | ported | `crates/mp/game/src/g_main.rs:434-449` | `func Com_Error(_ level: Int32, _ error: String, _ args: any JKAShared.FormatArg...)` |
+| `Com_Printf` | `oracle/codemp/game/g_main.c:1219-1228` | `JKAMP_GameLogic/g_main.swift:881` | ported | `crates/mp/game/src/g_main.rs:454-463` | `func Com_Printf(_ msg: String, _ args: any JKAShared.FormatArg...)` |
+| `AddTournamentPlayer` | `oracle/codemp/game/g_main.c:1248-1295` | `JKAMP_GameLogic/g_main.swift:896` | marker | `crates/mp/game/src/g_main.rs:468-523` | `func AddTournamentPlayer()` |
+| `RemoveTournamentLoser` | `oracle/codemp/game/g_main.c:1304-1319` | `JKAMP_GameLogic/g_main.swift:911` | marker | `crates/mp/game/src/g_main.rs:528-541` | `func RemoveTournamentLoser()` |
+| `G_PowerDuelCount` | `oracle/codemp/game/g_main.c:1321-1343` | `JKAMP_GameLogic/g_main.swift:917` | marker | `crates/mp/game/src/g_main.rs:546-576` | `func G_PowerDuelCount(_ loners: inout Int32, _ doubles: inout Int32, _ countSpec: Bool)` |
+| `AddPowerDuelPlayers` | `oracle/codemp/game/g_main.c:1346-1425` | `JKAMP_GameLogic/g_main.swift:923` | marker | `crates/mp/game/src/g_main.rs:581-668` | `func AddPowerDuelPlayers()` |
+| `RemovePowerDuelLosers` | `oracle/codemp/game/g_main.c:1429-1471` | `JKAMP_GameLogic/g_main.swift:929` | marker | `crates/mp/game/src/g_main.rs:673-710` | `func RemovePowerDuelLosers()` |
+| `RemoveDuelDrawLoser` | `oracle/codemp/game/g_main.c:1473-1512` | `JKAMP_GameLogic/g_main.swift:935` | marker | `crates/mp/game/src/g_main.rs:715-748` | `func RemoveDuelDrawLoser()` |
+| `RemoveTournamentWinner` | `oracle/codemp/game/g_main.c:1519-1534` | `JKAMP_GameLogic/g_main.swift:948` | marker | `crates/mp/game/src/g_main.rs:753-766` | `func RemoveTournamentWinner()` |
+| `AdjustTournamentScores` | `oracle/codemp/game/g_main.c:1541-1616` | `JKAMP_GameLogic/g_main.swift:961` | marker | `crates/mp/game/src/g_main.rs:771-832` | `func AdjustTournamentScores()` |
+| `SortRanks` | `oracle/codemp/game/g_main.c:1624-1689` | `JKAMP_GameLogic/g_main.swift:975` | marker | `crates/mp/game/src/g_main.rs:883-949` | `func SortRanks(_ a: OpaquePointer?, _ b: OpaquePointer?) -> Int32` |
+| `G_CanResetDuelists` | `oracle/codemp/game/g_main.c:1695-1715` | `JKAMP_GameLogic/g_main.swift:982` | marker | `crates/mp/game/src/g_main.rs:954-976` | `func G_CanResetDuelists() -> Bool` |
+| `G_ResetDuelists` | `oracle/codemp/game/g_main.c:1718-1740` | `JKAMP_GameLogic/g_main.swift:988` | marker | `crates/mp/game/src/g_main.rs:981-1004` | `func G_ResetDuelists()` |
+| `CalculateRanks` | `oracle/codemp/game/g_main.c:1751-1906` | `JKAMP_GameLogic/g_main.swift:1005` | marker | `crates/mp/game/src/g_main.rs:1009-1188` | `func CalculateRanks()` |
+| `SendScoreboardMessageToAllClients` | `oracle/codemp/game/g_main.c:1925-1933` | `JKAMP_GameLogic/g_main.swift:1021` | marker | `crates/mp/game/src/g_main.rs:1193-1202` | `func SendScoreboardMessageToAllClients()` |
+| `MoveClientToIntermission` | `oracle/codemp/game/g_main.c:1943-1967` | `JKAMP_GameLogic/g_main.swift:1037` | marker | `crates/mp/game/src/g_main.rs:1207-1243` | `func MoveClientToIntermission(_ ent: Entity)` |
+| `FindIntermissionPoint` | `oracle/codemp/game/g_main.c:1979-2026` | `JKAMP_GameLogic/g_main.swift:1043` | marker | `crates/mp/game/src/g_main.rs:1248-1328` | `func FindIntermissionPoint()` |
+| `BeginIntermission` | `oracle/codemp/game/g_main.c:2035-2092` | `JKAMP_GameLogic/g_main.swift:1056` | marker | `crates/mp/game/src/g_main.rs:1333-1386` | `func BeginIntermission()` |
+| `DuelLimitHit` | `oracle/codemp/game/g_main.c:2094-2112` | `JKAMP_GameLogic/g_main.swift:1062` | marker | `crates/mp/game/src/g_main.rs:1391-1409` | `func DuelLimitHit() -> Bool` |
+| `DuelResetWinsLosses` | `oracle/codemp/game/g_main.c:2114-2128` | `JKAMP_GameLogic/g_main.swift:1068` | marker | `crates/mp/game/src/g_main.rs:1414-1427` | `func DuelResetWinsLosses()` |
+| `ExitLevel` | `oracle/codemp/game/g_main.c:2141-2204` | `JKAMP_GameLogic/g_main.swift:1074` | marker | `crates/mp/game/src/g_main.rs:1432-1493` | `func ExitLevel()` |
+| `G_LogPrintf` | `oracle/codemp/game/g_main.c:2213-2240` | `JKAMP_GameLogic/g_main.swift:1089` | marker | `crates/mp/game/src/g_main.rs:1498-1515` | `func G_LogPrintf(_ fmt: String, _ args: any JKAShared.FormatArg...)` |
+| `LogExit` | `oracle/codemp/game/g_main.c:2249-2303` | `JKAMP_GameLogic/g_main.swift:1104` | marker | `crates/mp/game/src/g_main.rs:1520-1570` | `func LogExit(_ string: String)` |
+| `CheckIntermissionExit` | `oracle/codemp/game/g_main.c:2317-2554` | `JKAMP_GameLogic/g_main.swift:1122` | marker | `crates/mp/game/src/g_main.rs:1575-1852` | `func CheckIntermissionExit()` |
+| `ScoreIsTied` | `oracle/codemp/game/g_main.c:2561-2576` | `JKAMP_GameLogic/g_main.swift:1135` | marker | `crates/mp/game/src/g_main.rs:1857-1873` | `func ScoreIsTied() -> Bool` |
+| `CheckExitRules` | `oracle/codemp/game/g_main.c:2588-2911` | `JKAMP_GameLogic/g_main.swift:1141` | marker | `crates/mp/game/src/g_main.rs:1878-2095` | `func CheckExitRules()` |
+| `G_RemoveDuelist` | `oracle/codemp/game/g_main.c:2923-2938` | `JKAMP_GameLogic/g_main.swift:1147` | marker | `crates/mp/game/src/g_main.rs:2100-2117` | `func G_RemoveDuelist(_ team: Int32)` |
+| `CheckTournament` | `oracle/codemp/game/g_main.c:2948-3216` | `JKAMP_GameLogic/g_main.swift:1153` | marker | `crates/mp/game/src/g_main.rs:2122-2353` | `func CheckTournament()` |
+| `G_KickAllBots` | `oracle/codemp/game/g_main.c:3218-3239` | `JKAMP_GameLogic/g_main.swift:1159` | marker | `crates/mp/game/src/g_main.rs:2358-2378` | `func G_KickAllBots()` |
+| `CheckVote` | `oracle/codemp/game/g_main.c:3246-3326` | `JKAMP_GameLogic/g_main.swift:1172` | marker | `crates/mp/game/src/g_main.rs:2383-2475` | `func CheckVote()` |
+| `PrintTeam` | `oracle/codemp/game/g_main.c:3333-3341` | `JKAMP_GameLogic/g_main.swift:1185` | marker | `crates/mp/game/src/g_main.rs:2480-2493` | `func PrintTeam(_ team: Int32, _ message: inout JKAShared.CharBuf)` |
+| `SetLeader` | `oracle/codemp/game/g_main.c:3348-3370` | `JKAMP_GameLogic/g_main.swift:1198` | marker | `crates/mp/game/src/g_main.rs:2498-2544` | `func SetLeader(_ team: Int32, _ client: Int32)` |
+| `CheckTeamLeader` | `oracle/codemp/game/g_main.c:3377-3402` | `JKAMP_GameLogic/g_main.swift:1211` | marker | `crates/mp/game/src/g_main.rs:2549-2584` | `func CheckTeamLeader(_ team: Int32)` |
+| `CheckTeamVote` | `oracle/codemp/game/g_main.c:3409-3447` | `JKAMP_GameLogic/g_main.swift:1224` | marker | `crates/mp/game/src/g_main.rs:2589-2637` | `func CheckTeamVote(_ team: Int32)` |
+| `CheckCvars` | `oracle/codemp/game/g_main.c:3455-3480` | `JKAMP_GameLogic/g_main.swift:1237` | marker | `crates/mp/game/src/g_main.rs:2642-2662` | `func CheckCvars()` |
+| `G_RunThink` | `oracle/codemp/game/g_main.c:3489-3512` | `JKAMP_GameLogic/g_main.swift:1252` | marker | `crates/mp/game/src/g_main.rs:2667-2696` | `func G_RunThink(_ ent: Entity)` |
+| `NAV_CheckCalcPaths` | `oracle/codemp/game/g_main.c:3522-3555` | `JKAMP_GameLogic/g_main.swift:1258` | marker | `crates/mp/game/src/g_main.rs:2701-2744` | `func NAV_CheckCalcPaths()` |
+| `BG_GetTime` | `oracle/codemp/game/g_main.c:3559-3562` | `JKAMP_GameLogic/g_main.swift:1264` | marker | none | `func BG_GetTime() -> Int32` |
+| `G_RunFrame` | `oracle/codemp/game/g_main.c:3582-4102` | `JKAMP_GameLogic/g_main.swift:1270` | marker | `crates/mp/game/src/g_main.rs:2758-3254` | `func G_RunFrame(_ levelTime: Int32)` |
+| `G_GetStringEdString` | `oracle/codemp/game/g_main.c:4104-4120` | `JKAMP_GameLogic/g_main.swift:1276` | marker | `crates/mp/game/src/g_main.rs:3259-3266` | `func G_GetStringEdString(_ refSection: inout JKAShared.CharBuf, _ refName: inout JKAShared.CharBuf) -> String` |
 
-19 file-scope variables. The entry is the stub's line for the variable, by rule 3 and rule 6.
+163 file-scope variables. The entry is the stub's line for the variable, by rule 3 and rule 6.
 
 | Variable | Oracle | Kind | Entry |
 |---|---|---|---|
+| `level` | `oracle/codemp/game/g_main.c:9` | storage | `// A struct table is C storage in Sources/CJKAMP, reached through a Slots constant.` |
 | `eventClearTime` | `oracle/codemp/game/g_main.c:11` | state | `// Rule 3: a stored property of GameWorld with Raven's initializer, spelled world.eventClearTime in a body.` |
 | `navCalcPathTime` | `oracle/codemp/game/g_main.c:12` | state | `// Rule 3: a stored property of GameWorld with Raven's initializer, spelled world.navCalcPathTime in a body.` |
 | `killPlayerTimer` | `oracle/codemp/game/g_main.c:15` | state | `// Rule 3: a stored property of GameWorld with Raven's initializer, spelled world.killPlayerTimer in a body.` |
+| `g_entities` | `oracle/codemp/game/g_main.c:27` | storage | `// A struct table is C storage in Sources/CJKAMP, reached through a Slots constant.` |
+| `g_clients` | `oracle/codemp/game/g_main.c:28` | storage | `// A struct table is C storage in Sources/CJKAMP, reached through a Slots constant.` |
 | `gDuelExit` | `oracle/codemp/game/g_main.c:30` | state | `// Rule 3: a stored property of GameWorld with Raven's initializer, spelled world.gDuelExit in a body.` |
+| `g_trueJedi` | `oracle/codemp/game/g_main.c:32` | storage | `// A struct table is C storage in Sources/CJKAMP, reached through a Slots constant.` |
+| `g_gametype` | `oracle/codemp/game/g_main.c:34` | storage | `// A struct table is C storage in Sources/CJKAMP, reached through a Slots constant.` |
+| `g_MaxHolocronCarry` | `oracle/codemp/game/g_main.c:35` | storage | `// A struct table is C storage in Sources/CJKAMP, reached through a Slots constant.` |
+| `g_ff_objectives` | `oracle/codemp/game/g_main.c:36` | storage | `// A struct table is C storage in Sources/CJKAMP, reached through a Slots constant.` |
+| `g_autoMapCycle` | `oracle/codemp/game/g_main.c:37` | storage | `// A struct table is C storage in Sources/CJKAMP, reached through a Slots constant.` |
+| `g_dmflags` | `oracle/codemp/game/g_main.c:38` | storage | `// A struct table is C storage in Sources/CJKAMP, reached through a Slots constant.` |
+| `g_maxForceRank` | `oracle/codemp/game/g_main.c:39` | storage | `// A struct table is C storage in Sources/CJKAMP, reached through a Slots constant.` |
+| `g_forceBasedTeams` | `oracle/codemp/game/g_main.c:40` | storage | `// A struct table is C storage in Sources/CJKAMP, reached through a Slots constant.` |
+| `g_privateDuel` | `oracle/codemp/game/g_main.c:41` | storage | `// A struct table is C storage in Sources/CJKAMP, reached through a Slots constant.` |
+| `g_allowNPC` | `oracle/codemp/game/g_main.c:43` | storage | `// A struct table is C storage in Sources/CJKAMP, reached through a Slots constant.` |
+| `g_armBreakage` | `oracle/codemp/game/g_main.c:45` | storage | `// A struct table is C storage in Sources/CJKAMP, reached through a Slots constant.` |
+| `g_saberLocking` | `oracle/codemp/game/g_main.c:47` | storage | `// A struct table is C storage in Sources/CJKAMP, reached through a Slots constant.` |
+| `g_saberLockFactor` | `oracle/codemp/game/g_main.c:48` | storage | `// A struct table is C storage in Sources/CJKAMP, reached through a Slots constant.` |
+| `g_saberTraceSaberFirst` | `oracle/codemp/game/g_main.c:49` | storage | `// A struct table is C storage in Sources/CJKAMP, reached through a Slots constant.` |
+| `d_saberKickTweak` | `oracle/codemp/game/g_main.c:51` | storage | `// A struct table is C storage in Sources/CJKAMP, reached through a Slots constant.` |
+| `d_powerDuelPrint` | `oracle/codemp/game/g_main.c:53` | storage | `// A struct table is C storage in Sources/CJKAMP, reached through a Slots constant.` |
+| `d_saberGhoul2Collision` | `oracle/codemp/game/g_main.c:55` | storage | `// A struct table is C storage in Sources/CJKAMP, reached through a Slots constant.` |
+| `g_saberBladeFaces` | `oracle/codemp/game/g_main.c:56` | storage | `// A struct table is C storage in Sources/CJKAMP, reached through a Slots constant.` |
+| `d_saberAlwaysBoxTrace` | `oracle/codemp/game/g_main.c:57` | storage | `// A struct table is C storage in Sources/CJKAMP, reached through a Slots constant.` |
+| `d_saberBoxTraceSize` | `oracle/codemp/game/g_main.c:58` | storage | `// A struct table is C storage in Sources/CJKAMP, reached through a Slots constant.` |
+| `d_siegeSeekerNPC` | `oracle/codemp/game/g_main.c:60` | storage | `// A struct table is C storage in Sources/CJKAMP, reached through a Slots constant.` |
+| `g_debugMelee` | `oracle/codemp/game/g_main.c:62` | storage | `// A struct table is C storage in Sources/CJKAMP, reached through a Slots constant.` |
+| `g_stepSlideFix` | `oracle/codemp/game/g_main.c:63` | storage | `// A struct table is C storage in Sources/CJKAMP, reached through a Slots constant.` |
+| `g_noSpecMove` | `oracle/codemp/game/g_main.c:65` | storage | `// A struct table is C storage in Sources/CJKAMP, reached through a Slots constant.` |
+| `d_perPlayerGhoul2` | `oracle/codemp/game/g_main.c:71` | storage | `// A struct table is C storage in Sources/CJKAMP, reached through a Slots constant.` |
+| `d_projectileGhoul2Collision` | `oracle/codemp/game/g_main.c:73` | storage | `// A struct table is C storage in Sources/CJKAMP, reached through a Slots constant.` |
+| `g_g2TraceLod` | `oracle/codemp/game/g_main.c:75` | storage | `// A struct table is C storage in Sources/CJKAMP, reached through a Slots constant.` |
+| `g_optvehtrace` | `oracle/codemp/game/g_main.c:77` | storage | `// A struct table is C storage in Sources/CJKAMP, reached through a Slots constant.` |
+| `g_locationBasedDamage` | `oracle/codemp/game/g_main.c:79` | storage | `// A struct table is C storage in Sources/CJKAMP, reached through a Slots constant.` |
+| `g_allowHighPingDuelist` | `oracle/codemp/game/g_main.c:81` | storage | `// A struct table is C storage in Sources/CJKAMP, reached through a Slots constant.` |
+| `g_logClientInfo` | `oracle/codemp/game/g_main.c:83` | storage | `// A struct table is C storage in Sources/CJKAMP, reached through a Slots constant.` |
+| `g_slowmoDuelEnd` | `oracle/codemp/game/g_main.c:85` | storage | `// A struct table is C storage in Sources/CJKAMP, reached through a Slots constant.` |
+| `g_saberDamageScale` | `oracle/codemp/game/g_main.c:87` | storage | `// A struct table is C storage in Sources/CJKAMP, reached through a Slots constant.` |
+| `g_useWhileThrowing` | `oracle/codemp/game/g_main.c:89` | storage | `// A struct table is C storage in Sources/CJKAMP, reached through a Slots constant.` |
+| `g_RMG` | `oracle/codemp/game/g_main.c:91` | storage | `// A struct table is C storage in Sources/CJKAMP, reached through a Slots constant.` |
+| `g_svfps` | `oracle/codemp/game/g_main.c:93` | storage | `// A struct table is C storage in Sources/CJKAMP, reached through a Slots constant.` |
+| `g_forceRegenTime` | `oracle/codemp/game/g_main.c:95` | storage | `// A struct table is C storage in Sources/CJKAMP, reached through a Slots constant.` |
+| `g_spawnInvulnerability` | `oracle/codemp/game/g_main.c:96` | storage | `// A struct table is C storage in Sources/CJKAMP, reached through a Slots constant.` |
+| `g_forcePowerDisable` | `oracle/codemp/game/g_main.c:97` | storage | `// A struct table is C storage in Sources/CJKAMP, reached through a Slots constant.` |
+| `g_weaponDisable` | `oracle/codemp/game/g_main.c:98` | storage | `// A struct table is C storage in Sources/CJKAMP, reached through a Slots constant.` |
+| `g_duelWeaponDisable` | `oracle/codemp/game/g_main.c:99` | storage | `// A struct table is C storage in Sources/CJKAMP, reached through a Slots constant.` |
+| `g_allowDuelSuicide` | `oracle/codemp/game/g_main.c:100` | storage | `// A struct table is C storage in Sources/CJKAMP, reached through a Slots constant.` |
+| `g_fraglimitVoteCorrection` | `oracle/codemp/game/g_main.c:101` | storage | `// A struct table is C storage in Sources/CJKAMP, reached through a Slots constant.` |
+| `g_fraglimit` | `oracle/codemp/game/g_main.c:102` | storage | `// A struct table is C storage in Sources/CJKAMP, reached through a Slots constant.` |
+| `g_duel_fraglimit` | `oracle/codemp/game/g_main.c:103` | storage | `// A struct table is C storage in Sources/CJKAMP, reached through a Slots constant.` |
+| `g_timelimit` | `oracle/codemp/game/g_main.c:104` | storage | `// A struct table is C storage in Sources/CJKAMP, reached through a Slots constant.` |
+| `g_capturelimit` | `oracle/codemp/game/g_main.c:105` | storage | `// A struct table is C storage in Sources/CJKAMP, reached through a Slots constant.` |
+| `d_saberInterpolate` | `oracle/codemp/game/g_main.c:106` | storage | `// A struct table is C storage in Sources/CJKAMP, reached through a Slots constant.` |
+| `g_friendlyFire` | `oracle/codemp/game/g_main.c:107` | storage | `// A struct table is C storage in Sources/CJKAMP, reached through a Slots constant.` |
+| `g_friendlySaber` | `oracle/codemp/game/g_main.c:108` | storage | `// A struct table is C storage in Sources/CJKAMP, reached through a Slots constant.` |
+| `g_password` | `oracle/codemp/game/g_main.c:109` | storage | `// A struct table is C storage in Sources/CJKAMP, reached through a Slots constant.` |
+| `g_needpass` | `oracle/codemp/game/g_main.c:110` | storage | `// A struct table is C storage in Sources/CJKAMP, reached through a Slots constant.` |
+| `g_maxclients` | `oracle/codemp/game/g_main.c:111` | storage | `// A struct table is C storage in Sources/CJKAMP, reached through a Slots constant.` |
+| `g_maxGameClients` | `oracle/codemp/game/g_main.c:112` | storage | `// A struct table is C storage in Sources/CJKAMP, reached through a Slots constant.` |
+| `g_dedicated` | `oracle/codemp/game/g_main.c:113` | storage | `// A struct table is C storage in Sources/CJKAMP, reached through a Slots constant.` |
+| `g_developer` | `oracle/codemp/game/g_main.c:114` | storage | `// A struct table is C storage in Sources/CJKAMP, reached through a Slots constant.` |
+| `g_speed` | `oracle/codemp/game/g_main.c:115` | storage | `// A struct table is C storage in Sources/CJKAMP, reached through a Slots constant.` |
+| `g_gravity` | `oracle/codemp/game/g_main.c:116` | storage | `// A struct table is C storage in Sources/CJKAMP, reached through a Slots constant.` |
+| `g_cheats` | `oracle/codemp/game/g_main.c:117` | storage | `// A struct table is C storage in Sources/CJKAMP, reached through a Slots constant.` |
+| `g_knockback` | `oracle/codemp/game/g_main.c:118` | storage | `// A struct table is C storage in Sources/CJKAMP, reached through a Slots constant.` |
+| `g_quadfactor` | `oracle/codemp/game/g_main.c:119` | storage | `// A struct table is C storage in Sources/CJKAMP, reached through a Slots constant.` |
+| `g_forcerespawn` | `oracle/codemp/game/g_main.c:120` | storage | `// A struct table is C storage in Sources/CJKAMP, reached through a Slots constant.` |
+| `g_siegeRespawn` | `oracle/codemp/game/g_main.c:121` | storage | `// A struct table is C storage in Sources/CJKAMP, reached through a Slots constant.` |
+| `g_inactivity` | `oracle/codemp/game/g_main.c:122` | storage | `// A struct table is C storage in Sources/CJKAMP, reached through a Slots constant.` |
+| `g_debugMove` | `oracle/codemp/game/g_main.c:123` | storage | `// A struct table is C storage in Sources/CJKAMP, reached through a Slots constant.` |
+| `g_debugDamage` | `oracle/codemp/game/g_main.c:125` | storage | `// A struct table is C storage in Sources/CJKAMP, reached through a Slots constant.` |
+| `g_debugAlloc` | `oracle/codemp/game/g_main.c:127` | storage | `// A struct table is C storage in Sources/CJKAMP, reached through a Slots constant.` |
+| `g_debugServerSkel` | `oracle/codemp/game/g_main.c:128` | storage | `// A struct table is C storage in Sources/CJKAMP, reached through a Slots constant.` |
+| `g_weaponRespawn` | `oracle/codemp/game/g_main.c:129` | storage | `// A struct table is C storage in Sources/CJKAMP, reached through a Slots constant.` |
+| `g_weaponTeamRespawn` | `oracle/codemp/game/g_main.c:130` | storage | `// A struct table is C storage in Sources/CJKAMP, reached through a Slots constant.` |
+| `g_adaptRespawn` | `oracle/codemp/game/g_main.c:131` | storage | `// A struct table is C storage in Sources/CJKAMP, reached through a Slots constant.` |
+| `g_motd` | `oracle/codemp/game/g_main.c:132` | storage | `// A struct table is C storage in Sources/CJKAMP, reached through a Slots constant.` |
+| `g_synchronousClients` | `oracle/codemp/game/g_main.c:133` | storage | `// A struct table is C storage in Sources/CJKAMP, reached through a Slots constant.` |
+| `g_warmup` | `oracle/codemp/game/g_main.c:134` | storage | `// A struct table is C storage in Sources/CJKAMP, reached through a Slots constant.` |
+| `g_doWarmup` | `oracle/codemp/game/g_main.c:135` | storage | `// A struct table is C storage in Sources/CJKAMP, reached through a Slots constant.` |
+| `g_restarted` | `oracle/codemp/game/g_main.c:136` | storage | `// A struct table is C storage in Sources/CJKAMP, reached through a Slots constant.` |
+| `g_log` | `oracle/codemp/game/g_main.c:137` | storage | `// A struct table is C storage in Sources/CJKAMP, reached through a Slots constant.` |
+| `g_logSync` | `oracle/codemp/game/g_main.c:138` | storage | `// A struct table is C storage in Sources/CJKAMP, reached through a Slots constant.` |
+| `g_statLog` | `oracle/codemp/game/g_main.c:139` | storage | `// A struct table is C storage in Sources/CJKAMP, reached through a Slots constant.` |
+| `g_statLogFile` | `oracle/codemp/game/g_main.c:140` | storage | `// A struct table is C storage in Sources/CJKAMP, reached through a Slots constant.` |
+| `g_blood` | `oracle/codemp/game/g_main.c:141` | storage | `// A struct table is C storage in Sources/CJKAMP, reached through a Slots constant.` |
+| `g_podiumDist` | `oracle/codemp/game/g_main.c:142` | storage | `// A struct table is C storage in Sources/CJKAMP, reached through a Slots constant.` |
+| `g_podiumDrop` | `oracle/codemp/game/g_main.c:143` | storage | `// A struct table is C storage in Sources/CJKAMP, reached through a Slots constant.` |
+| `g_allowVote` | `oracle/codemp/game/g_main.c:144` | storage | `// A struct table is C storage in Sources/CJKAMP, reached through a Slots constant.` |
+| `g_allowTeamVote` | `oracle/codemp/game/g_main.c:145` | storage | `// A struct table is C storage in Sources/CJKAMP, reached through a Slots constant.` |
+| `g_teamAutoJoin` | `oracle/codemp/game/g_main.c:146` | storage | `// A struct table is C storage in Sources/CJKAMP, reached through a Slots constant.` |
+| `g_teamForceBalance` | `oracle/codemp/game/g_main.c:147` | storage | `// A struct table is C storage in Sources/CJKAMP, reached through a Slots constant.` |
+| `g_banIPs` | `oracle/codemp/game/g_main.c:148` | storage | `// A struct table is C storage in Sources/CJKAMP, reached through a Slots constant.` |
+| `g_filterBan` | `oracle/codemp/game/g_main.c:149` | storage | `// A struct table is C storage in Sources/CJKAMP, reached through a Slots constant.` |
+| `g_debugForward` | `oracle/codemp/game/g_main.c:150` | storage | `// A struct table is C storage in Sources/CJKAMP, reached through a Slots constant.` |
+| `g_debugRight` | `oracle/codemp/game/g_main.c:151` | storage | `// A struct table is C storage in Sources/CJKAMP, reached through a Slots constant.` |
+| `g_debugUp` | `oracle/codemp/game/g_main.c:152` | storage | `// A struct table is C storage in Sources/CJKAMP, reached through a Slots constant.` |
+| `g_smoothClients` | `oracle/codemp/game/g_main.c:153` | storage | `// A struct table is C storage in Sources/CJKAMP, reached through a Slots constant.` |
+| `pmove_fixed` | `oracle/codemp/game/g_main.c:156` | storage | `// A struct table is C storage in Sources/CJKAMP, reached through a Slots constant.` |
+| `pmove_msec` | `oracle/codemp/game/g_main.c:157` | storage | `// A struct table is C storage in Sources/CJKAMP, reached through a Slots constant.` |
+| `g_listEntity` | `oracle/codemp/game/g_main.c:160` | storage | `// A struct table is C storage in Sources/CJKAMP, reached through a Slots constant.` |
+| `g_singlePlayer` | `oracle/codemp/game/g_main.c:163` | storage | `// A struct table is C storage in Sources/CJKAMP, reached through a Slots constant.` |
+| `g_enableBreath` | `oracle/codemp/game/g_main.c:164` | storage | `// A struct table is C storage in Sources/CJKAMP, reached through a Slots constant.` |
+| `g_dismember` | `oracle/codemp/game/g_main.c:165` | storage | `// A struct table is C storage in Sources/CJKAMP, reached through a Slots constant.` |
+| `g_forceDodge` | `oracle/codemp/game/g_main.c:166` | storage | `// A struct table is C storage in Sources/CJKAMP, reached through a Slots constant.` |
+| `g_timeouttospec` | `oracle/codemp/game/g_main.c:167` | storage | `// A struct table is C storage in Sources/CJKAMP, reached through a Slots constant.` |
+| `g_saberDmgVelocityScale` | `oracle/codemp/game/g_main.c:169` | storage | `// A struct table is C storage in Sources/CJKAMP, reached through a Slots constant.` |
+| `g_saberDmgDelay_Idle` | `oracle/codemp/game/g_main.c:170` | storage | `// A struct table is C storage in Sources/CJKAMP, reached through a Slots constant.` |
+| `g_saberDmgDelay_Wound` | `oracle/codemp/game/g_main.c:171` | storage | `// A struct table is C storage in Sources/CJKAMP, reached through a Slots constant.` |
+| `g_saberDebugPrint` | `oracle/codemp/game/g_main.c:173` | storage | `// A struct table is C storage in Sources/CJKAMP, reached through a Slots constant.` |
+| `g_siegeTeamSwitch` | `oracle/codemp/game/g_main.c:175` | storage | `// A struct table is C storage in Sources/CJKAMP, reached through a Slots constant.` |
+| `bg_fighterAltControl` | `oracle/codemp/game/g_main.c:177` | storage | `// A struct table is C storage in Sources/CJKAMP, reached through a Slots constant.` |
+| `g_vehAutoAimLead` | `oracle/codemp/game/g_main.c:178` | storage | `// A struct table is C storage in Sources/CJKAMP, reached through a Slots constant.` |
+| `g_autoKickKillSpammers` | `oracle/codemp/game/g_main.c:179` | storage | `// A struct table is C storage in Sources/CJKAMP, reached through a Slots constant.` |
+| `g_autoBanKillSpammers` | `oracle/codemp/game/g_main.c:180` | storage | `// A struct table is C storage in Sources/CJKAMP, reached through a Slots constant.` |
+| `g_autoKickTKSpammers` | `oracle/codemp/game/g_main.c:181` | storage | `// A struct table is C storage in Sources/CJKAMP, reached through a Slots constant.` |
+| `g_autoBanTKSpammers` | `oracle/codemp/game/g_main.c:182` | storage | `// A struct table is C storage in Sources/CJKAMP, reached through a Slots constant.` |
+| `g_saberDebugBox` | `oracle/codemp/game/g_main.c:185` | storage | `// A struct table is C storage in Sources/CJKAMP, reached through a Slots constant.` |
+| `d_altRoutes` | `oracle/codemp/game/g_main.c:189` | storage | `// A struct table is C storage in Sources/CJKAMP, reached through a Slots constant.` |
+| `d_patched` | `oracle/codemp/game/g_main.c:190` | storage | `// A struct table is C storage in Sources/CJKAMP, reached through a Slots constant.` |
+| `g_saberRealisticCombat` | `oracle/codemp/game/g_main.c:192` | storage | `// A struct table is C storage in Sources/CJKAMP, reached through a Slots constant.` |
+| `g_saberRestrictForce` | `oracle/codemp/game/g_main.c:193` | storage | `// A struct table is C storage in Sources/CJKAMP, reached through a Slots constant.` |
+| `d_saberSPStyleDamage` | `oracle/codemp/game/g_main.c:194` | storage | `// A struct table is C storage in Sources/CJKAMP, reached through a Slots constant.` |
+| `g_debugSaberLocks` | `oracle/codemp/game/g_main.c:195` | storage | `// A struct table is C storage in Sources/CJKAMP, reached through a Slots constant.` |
+| `g_saberLockRandomNess` | `oracle/codemp/game/g_main.c:196` | storage | `// A struct table is C storage in Sources/CJKAMP, reached through a Slots constant.` |
+| `g_saberWallDamageScale` | `oracle/codemp/game/g_main.c:198` | storage | `// A struct table is C storage in Sources/CJKAMP, reached through a Slots constant.` |
+| `d_saberStanceDebug` | `oracle/codemp/game/g_main.c:200` | storage | `// A struct table is C storage in Sources/CJKAMP, reached through a Slots constant.` |
+| `debugNPCAI` | `oracle/codemp/game/g_main.c:202` | storage | `// A struct table is C storage in Sources/CJKAMP, reached through a Slots constant.` |
+| `debugNPCFreeze` | `oracle/codemp/game/g_main.c:203` | storage | `// A struct table is C storage in Sources/CJKAMP, reached through a Slots constant.` |
+| `debugNPCAimingBeam` | `oracle/codemp/game/g_main.c:204` | storage | `// A struct table is C storage in Sources/CJKAMP, reached through a Slots constant.` |
+| `debugBreak` | `oracle/codemp/game/g_main.c:205` | storage | `// A struct table is C storage in Sources/CJKAMP, reached through a Slots constant.` |
+| `debugNoRoam` | `oracle/codemp/game/g_main.c:206` | storage | `// A struct table is C storage in Sources/CJKAMP, reached through a Slots constant.` |
+| `d_saberCombat` | `oracle/codemp/game/g_main.c:207` | storage | `// A struct table is C storage in Sources/CJKAMP, reached through a Slots constant.` |
+| `d_JediAI` | `oracle/codemp/game/g_main.c:208` | storage | `// A struct table is C storage in Sources/CJKAMP, reached through a Slots constant.` |
+| `d_noGroupAI` | `oracle/codemp/game/g_main.c:209` | storage | `// A struct table is C storage in Sources/CJKAMP, reached through a Slots constant.` |
+| `d_asynchronousGroupAI` | `oracle/codemp/game/g_main.c:210` | storage | `// A struct table is C storage in Sources/CJKAMP, reached through a Slots constant.` |
+| `d_slowmodeath` | `oracle/codemp/game/g_main.c:211` | storage | `// A struct table is C storage in Sources/CJKAMP, reached through a Slots constant.` |
+| `d_noIntermissionWait` | `oracle/codemp/game/g_main.c:212` | storage | `// A struct table is C storage in Sources/CJKAMP, reached through a Slots constant.` |
+| `g_spskill` | `oracle/codemp/game/g_main.c:214` | storage | `// A struct table is C storage in Sources/CJKAMP, reached through a Slots constant.` |
+| `g_siegeTeam1` | `oracle/codemp/game/g_main.c:217` | storage | `// A struct table is C storage in Sources/CJKAMP, reached through a Slots constant.` |
+| `g_siegeTeam2` | `oracle/codemp/game/g_main.c:218` | storage | `// A struct table is C storage in Sources/CJKAMP, reached through a Slots constant.` |
+| `g_austrian` | `oracle/codemp/game/g_main.c:220` | storage | `// A struct table is C storage in Sources/CJKAMP, reached through a Slots constant.` |
+| `g_powerDuelStartHealth` | `oracle/codemp/game/g_main.c:222` | storage | `// A struct table is C storage in Sources/CJKAMP, reached through a Slots constant.` |
+| `g_powerDuelEndHealth` | `oracle/codemp/game/g_main.c:223` | storage | `// A struct table is C storage in Sources/CJKAMP, reached through a Slots constant.` |
+| `g_showDuelHealths` | `oracle/codemp/game/g_main.c:227` | storage | `// A struct table is C storage in Sources/CJKAMP, reached through a Slots constant.` |
 | `gameCvarTable` | `oracle/codemp/game/g_main.c:230` | storage | `// A struct table is C storage in Sources/CJKAMP, reached through a Slots constant.` |
 | `gameCvarTableSize` | `oracle/codemp/game/g_main.c:478` | let | `let gameCvarTableSize: Int32 = { () -> Int32 in portMissing("gameCvarTableSize", source: "oracle/codemp/game/g_main.c:478") }()` |
+| `gSharedBuffer` | `oracle/codemp/game/g_main.c:881` | state | `// Rule 3: a stored property of GameWorld with C's zero, since Raven wrote no initializer, spelled world.gSharedBuffer in a body.` |
 | `g_duelAssigning` | `oracle/codemp/game/g_main.c:1345` | let | `let g_duelAssigning: Bool = { () -> Bool in portMissing("g_duelAssigning", source: "oracle/codemp/game/g_main.c:1345") }()` |
 | `g_dontFrickinCheck` | `oracle/codemp/game/g_main.c:1427` | state | `// Rule 3: a stored property of GameWorld with Raven's initializer, spelled world.g_dontFrickinCheck in a body.` |
 | `gQueueScoreMessage` | `oracle/codemp/game/g_main.c:1691` | state | `// Rule 3: a stored property of GameWorld with Raven's initializer, spelled world.gQueueScoreMessage in a body.` |

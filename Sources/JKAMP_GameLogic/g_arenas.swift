@@ -4,6 +4,18 @@ import JKAMP
 import JKAShared
 import JKAMP_Game
 
+/// Source: oracle/codemp/game/g_arenas.c:10
+// Raven wrote: gentity_t *podium1
+nonisolated(unsafe) let podium1: Entity? = nil
+
+/// Source: oracle/codemp/game/g_arenas.c:11
+// Raven wrote: gentity_t *podium2
+nonisolated(unsafe) let podium2: Entity? = nil
+
+/// Source: oracle/codemp/game/g_arenas.c:12
+// Raven wrote: gentity_t *podium3
+nonisolated(unsafe) let podium3: Entity? = nil
+
 /**
 ```
 ==================

@@ -33,6 +33,20 @@ import JKAMP_Game
 // Raven wrote: char *ClassNames[CLASS_NUM_CLASSES]
 let ClassNames: [String] = { () -> [String] in portMissing("ClassNames", source: "oracle/codemp/game/NPC_stats.c:156") }()
 
+/// Source: oracle/codemp/game/NPC_stats.c:237
+// Raven wrote: char NPCParms[MAX_NPC_DATA_SIZE]
+let NPCParms: [CChar] = [CChar](repeating: 0, count: 131072)
+
+/// Source: oracle/codemp/game/NPC_stats.c:238
+// TODO: Port global NPCFile
+// Raven wrote: char NPCFile[MAX_QPATH]
+// Rule 3: a stored property of GameWorld with C's zero, since Raven wrote no initializer, spelled world.NPCFile in a body.
+
+/// Source: oracle/codemp/game/NPC_stats.c:3238
+// TODO: Port global npcParseBuffer
+// Raven wrote: char npcParseBuffer[MAX_NPC_DATA_SIZE]
+// Rule 3: a stored property of GameWorld with C's zero, since Raven wrote no initializer, spelled world.npcParseBuffer in a body.
+
 /**
 ```
 NPC_ReactionTime

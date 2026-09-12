@@ -4,6 +4,16 @@ import JKAMP
 import JKAShared
 import JKAMP_Game
 
+/// Source: oracle/codemp/game/g_saga.c:17
+// TODO: Port global team1
+// Raven wrote: static char team1[512]
+// Rule 3: a stored property of GameWorld with C's zero, since Raven wrote no initializer, spelled world.team1 in a body.
+
+/// Source: oracle/codemp/game/g_saga.c:18
+// TODO: Port global team2
+// Raven wrote: static char team2[512]
+// Rule 3: a stored property of GameWorld with C's zero, since Raven wrote no initializer, spelled world.team2 in a body.
+
 /// Source: oracle/codemp/game/g_saga.c:20
 // TODO: Port global g_siegePersistant
 // Raven wrote: siegePers_t g_siegePersistant = {qfalse, 0, 0}
@@ -83,6 +93,16 @@ import JKAMP_Game
 // TODO: Port global g_preroundState
 // Raven wrote: int g_preroundState = 0
 // Rule 3: a stored property of GameWorld with Raven's initializer, spelled world.g_preroundState in a body.
+
+/// Source: oracle/codemp/game/g_saga.c:46
+// TODO: Port global gParseObjectives
+// Raven wrote: static char gParseObjectives[MAX_SIEGE_INFO_SIZE]
+// Rule 3: a stored property of GameWorld with C's zero, since Raven wrote no initializer, spelled world.gParseObjectives in a body.
+
+/// Source: oracle/codemp/game/g_saga.c:47
+// TODO: Port global gObjectiveCfgStr
+// Raven wrote: static char gObjectiveCfgStr[1024]
+// Rule 3: a stored property of GameWorld with C's zero, since Raven wrote no initializer, spelled world.gObjectiveCfgStr in a body.
 
 //go through all classes on a team and register their
 //weapons and items for precaching.

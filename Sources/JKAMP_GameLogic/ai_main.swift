@@ -4,6 +4,135 @@ import JKAMP
 import JKAShared
 import JKAMP_Game
 
+/// Source: oracle/codemp/game/ai_main.c:46
+// TODO: Port global botstates
+// Raven wrote: bot_state_t *botstates[MAX_CLIENTS]
+// Rule 3: a stored property of GameWorld with C's zero, since Raven wrote no initializer, spelled world.botstates in a body.
+
+/// Source: oracle/codemp/game/ai_main.c:48
+// TODO: Port global numbots
+// Raven wrote: int numbots
+// Rule 3: a stored property of GameWorld with C's zero, since Raven wrote no initializer, spelled world.numbots in a body.
+
+/// Source: oracle/codemp/game/ai_main.c:50
+// Raven wrote: float floattime
+let floattime: Float = 0
+
+/// Source: oracle/codemp/game/ai_main.c:52
+// TODO: Port global regularupdate_time
+// Raven wrote: float regularupdate_time
+// Rule 3: a stored property of GameWorld with C's zero, since Raven wrote no initializer, spelled world.regularupdate_time in a body.
+
+/// Source: oracle/codemp/game/ai_main.c:59
+// TODO: Port global gBotEventTracker
+// Raven wrote: boteventtracker_t gBotEventTracker[MAX_CLIENTS]
+// A struct table is C storage in Sources/CJKAMP, reached through a Slots constant.
+
+/// Source: oracle/codemp/game/ai_main.c:62
+// TODO: Port global bot_forcepowers
+// Raven wrote: vmCvar_t bot_forcepowers
+// A struct table is C storage in Sources/CJKAMP, reached through a Slots constant.
+
+/// Source: oracle/codemp/game/ai_main.c:63
+// TODO: Port global bot_forgimmick
+// Raven wrote: vmCvar_t bot_forgimmick
+// A struct table is C storage in Sources/CJKAMP, reached through a Slots constant.
+
+/// Source: oracle/codemp/game/ai_main.c:64
+// TODO: Port global bot_honorableduelacceptance
+// Raven wrote: vmCvar_t bot_honorableduelacceptance
+// A struct table is C storage in Sources/CJKAMP, reached through a Slots constant.
+
+/// Source: oracle/codemp/game/ai_main.c:65
+// TODO: Port global bot_pvstype
+// Raven wrote: vmCvar_t bot_pvstype
+// A struct table is C storage in Sources/CJKAMP, reached through a Slots constant.
+
+/// Source: oracle/codemp/game/ai_main.c:66
+// TODO: Port global bot_normgpath
+// Raven wrote: vmCvar_t bot_normgpath
+// A struct table is C storage in Sources/CJKAMP, reached through a Slots constant.
+
+/// Source: oracle/codemp/game/ai_main.c:68
+// TODO: Port global bot_getinthecarrr
+// Raven wrote: vmCvar_t bot_getinthecarrr
+// A struct table is C storage in Sources/CJKAMP, reached through a Slots constant.
+
+/// Source: oracle/codemp/game/ai_main.c:76
+// TODO: Port global bot_attachments
+// Raven wrote: vmCvar_t bot_attachments
+// A struct table is C storage in Sources/CJKAMP, reached through a Slots constant.
+
+/// Source: oracle/codemp/game/ai_main.c:77
+// TODO: Port global bot_camp
+// Raven wrote: vmCvar_t bot_camp
+// A struct table is C storage in Sources/CJKAMP, reached through a Slots constant.
+
+/// Source: oracle/codemp/game/ai_main.c:79
+// TODO: Port global bot_wp_info
+// Raven wrote: vmCvar_t bot_wp_info
+// A struct table is C storage in Sources/CJKAMP, reached through a Slots constant.
+
+/// Source: oracle/codemp/game/ai_main.c:80
+// TODO: Port global bot_wp_edit
+// Raven wrote: vmCvar_t bot_wp_edit
+// A struct table is C storage in Sources/CJKAMP, reached through a Slots constant.
+
+/// Source: oracle/codemp/game/ai_main.c:81
+// TODO: Port global bot_wp_clearweight
+// Raven wrote: vmCvar_t bot_wp_clearweight
+// A struct table is C storage in Sources/CJKAMP, reached through a Slots constant.
+
+/// Source: oracle/codemp/game/ai_main.c:82
+// TODO: Port global bot_wp_distconnect
+// Raven wrote: vmCvar_t bot_wp_distconnect
+// A struct table is C storage in Sources/CJKAMP, reached through a Slots constant.
+
+/// Source: oracle/codemp/game/ai_main.c:83
+// TODO: Port global bot_wp_visconnect
+// Raven wrote: vmCvar_t bot_wp_visconnect
+// A struct table is C storage in Sources/CJKAMP, reached through a Slots constant.
+
+/// Source: oracle/codemp/game/ai_main.c:86
+// TODO: Port global flagRed
+// Raven wrote: wpobject_t *flagRed
+// Rule 3: a stored property of GameWorld with C's zero, since Raven wrote no initializer, spelled world.flagRed in a body.
+
+/// Source: oracle/codemp/game/ai_main.c:87
+// TODO: Port global oFlagRed
+// Raven wrote: wpobject_t *oFlagRed
+// Rule 3: a stored property of GameWorld with C's zero, since Raven wrote no initializer, spelled world.oFlagRed in a body.
+
+/// Source: oracle/codemp/game/ai_main.c:88
+// TODO: Port global flagBlue
+// Raven wrote: wpobject_t *flagBlue
+// Rule 3: a stored property of GameWorld with C's zero, since Raven wrote no initializer, spelled world.flagBlue in a body.
+
+/// Source: oracle/codemp/game/ai_main.c:89
+// TODO: Port global oFlagBlue
+// Raven wrote: wpobject_t *oFlagBlue
+// Rule 3: a stored property of GameWorld with C's zero, since Raven wrote no initializer, spelled world.oFlagBlue in a body.
+
+/// Source: oracle/codemp/game/ai_main.c:91
+// TODO: Port global eFlagRed
+// Raven wrote: gentity_t *eFlagRed
+// Rule 3: a stored property of GameWorld with C's zero, since Raven wrote no initializer, spelled world.eFlagRed in a body.
+
+/// Source: oracle/codemp/game/ai_main.c:92
+// TODO: Port global droppedRedFlag
+// Raven wrote: gentity_t *droppedRedFlag
+// Rule 3: a stored property of GameWorld with C's zero, since Raven wrote no initializer, spelled world.droppedRedFlag in a body.
+
+/// Source: oracle/codemp/game/ai_main.c:93
+// TODO: Port global eFlagBlue
+// Raven wrote: gentity_t *eFlagBlue
+// Rule 3: a stored property of GameWorld with C's zero, since Raven wrote no initializer, spelled world.eFlagBlue in a body.
+
+/// Source: oracle/codemp/game/ai_main.c:94
+// TODO: Port global droppedBlueFlag
+// Raven wrote: gentity_t *droppedBlueFlag
+// Rule 3: a stored property of GameWorld with C's zero, since Raven wrote no initializer, spelled world.droppedBlueFlag in a body.
+
 /// Source: oracle/codemp/game/ai_main.c:96
 // Raven wrote: char *ctfStateNames[]
 let ctfStateNames: [String] = { () -> [String] in portMissing("ctfStateNames", source: "oracle/codemp/game/ai_main.c:96") }()

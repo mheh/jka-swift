@@ -42,7 +42,7 @@ The oracle range is the whole definition, from the return type to the closing br
 | `BG_StringAlloc` | `oracle/codemp/game/bg_misc.c:3383-3390` | `JKAMP_BG/bg_misc.swift:1681` | ported | `crates/mp/bg/src/bg_misc.rs:1918-1928` | `func BG_StringAlloc(_ source: String) -> PooledString` |
 | `BG_OutOfMemory` | `oracle/codemp/game/bg_misc.c:3392-3395` | `JKAMP_BG/bg_misc.swift:1690` | ported | `crates/mp/bg/src/bg_misc.rs:1933-1940` | `func BG_OutOfMemory() -> Bool` |
 
-16 file-scope variables. The entry is the stub's line for the variable, by rule 3 and rule 6.
+17 file-scope variables. The entry is the stub's line for the variable, by rule 3 and rule 6.
 
 | Variable | Oracle | Kind | Entry |
 |---|---|---|---|
@@ -60,5 +60,6 @@ The oracle range is the whole definition, from the return type to the closing br
 | `bg_itemlist` | `oracle/codemp/game/bg_misc.c:795` | storage | `// A struct table is C storage in Sources/CJKAMP, reached through a Slots constant.` |
 | `bg_numItems` | `oracle/codemp/game/bg_misc.c:1771` | let | `let bg_numItems: Int32 = { () -> Int32 in portMissing("bg_numItems", source: "oracle/codemp/game/bg_misc.c:1771") }()` |
 | `eventnames` | `oracle/codemp/game/bg_misc.c:2464` | let | `let eventnames: [String] = { () -> [String] in portMissing("eventnames", source: "oracle/codemp/game/bg_misc.c:2464") }()` |
+| `bg_pool` | `oracle/codemp/game/bg_misc.c:3324` | state | `// Rule 3: a stored property of BgState with C's zero, since Raven wrote no initializer, spelled bg.bg_pool in a body.` |
 | `bg_poolSize` | `oracle/codemp/game/bg_misc.c:3325` | state | `// Rule 3: a stored property of BgState with Raven's initializer, spelled bg.bg_poolSize in a body.` |
 | `bg_poolTail` | `oracle/codemp/game/bg_misc.c:3326` | state | `// Rule 3: a stored property of BgState with Raven's initializer, spelled bg.bg_poolTail in a body.` |

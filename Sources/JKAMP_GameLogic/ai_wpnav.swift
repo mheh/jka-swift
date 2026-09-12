@@ -24,6 +24,11 @@ import JKAMP_Game
 // Raven wrote: int gWPRenderedFrame = 0
 // Rule 3: a stored property of GameWorld with Raven's initializer, spelled world.gWPRenderedFrame in a body.
 
+/// Source: oracle/codemp/game/ai_wpnav.c:12
+// TODO: Port global gWPArray
+// Raven wrote: wpobject_t *gWPArray[MAX_WPARRAY_SIZE]
+// Rule 3: a stored property of GameWorld with C's zero, since Raven wrote no initializer, spelled world.gWPArray in a body.
+
 /// Source: oracle/codemp/game/ai_wpnav.c:13
 // TODO: Port global gWPNum
 // Raven wrote: int gWPNum = 0
@@ -33,6 +38,16 @@ import JKAMP_Game
 // TODO: Port global gLastPrintedIndex
 // Raven wrote: int gLastPrintedIndex = -1
 // Rule 3: a stored property of GameWorld with Raven's initializer, spelled world.gLastPrintedIndex in a body.
+
+/// Source: oracle/codemp/game/ai_wpnav.c:19
+// TODO: Port global nodetable
+// Raven wrote: nodeobject_t nodetable[MAX_NODETABLE_SIZE]
+// A struct table is C storage in Sources/CJKAMP, reached through a Slots constant.
+
+/// Source: oracle/codemp/game/ai_wpnav.c:20
+// TODO: Port global nodenum
+// Raven wrote: int nodenum
+// Rule 3: a stored property of GameWorld with C's zero, since Raven wrote no initializer, spelled world.nodenum in a body.
 
 /// Source: oracle/codemp/game/ai_wpnav.c:23
 // TODO: Port global gLevelFlags
@@ -47,6 +62,11 @@ let botGlobalNavWeaponWeights: [Float] = { () -> [Float] in portMissing("botGlob
 // TODO: Port global gSpawnPointNum
 // Raven wrote: int gSpawnPointNum = 0
 // Rule 3: a stored property of GameWorld with Raven's initializer, spelled world.gSpawnPointNum in a body.
+
+/// Source: oracle/codemp/game/ai_wpnav.c:2507
+// TODO: Port global gSpawnPoints
+// Raven wrote: gentity_t *gSpawnPoints[MAX_SPAWNPOINT_ARRAY]
+// Rule 3: a stored property of GameWorld with C's zero, since Raven wrote no initializer, spelled world.gSpawnPoints in a body.
 
 /// Source: oracle/codemp/game/ai_wpnav.c:25
 func GetFlagStr(_ flags: Int32) -> String {

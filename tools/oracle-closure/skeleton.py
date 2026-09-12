@@ -169,11 +169,19 @@ class Skeleton:
         game = (C.ORACLE / ORACLE_DIR).resolve()
         by_name: dict[str, Variable] = {}
         for cur in self.tu.cursor.get_children():
-            if cur.kind != CursorKind.VAR_DECL or not cur.is_definition() or not cur.location.file:
+            if cur.kind != CursorKind.VAR_DECL or not cur.location.file or cur.storage_class == ci.StorageClass.EXTERN:
                 continue
             path = Path(cur.location.file.name).resolve()
             if path.parent != game or path.suffix != ".c" or path.name in SKIP:
                 continue
+            # A file-scope variable with no initializer is C's tentative definition, which clang does not call a definition.
+            # It is Raven's variable all the same, zeroed by the loader, so the sweep keeps the first one per name and file.
+            previous = next((v for v in self.variables[path.stem] if v.name == cur.spelling), None)
+            if previous is not None:
+                if cur.is_definition() and not previous.cur.is_definition():
+                    self.variables[path.stem].remove(previous)
+                else:
+                    continue
             var = Variable(cur, path.stem)
             self.map_variable(var)
             self.variables[path.stem].append(var)
@@ -248,6 +256,33 @@ class Skeleton:
                 return
         var.swift = "[" * depth + inner + "]" * depth
 
+    def zero(self, var: Variable) -> str:
+        """C's zero for a variable Raven left uninitialized, spelled in the variable's Swift type."""
+        counts: list[int] = []
+        t = var.cur.type.get_canonical()
+        while t.kind == TypeKind.CONSTANTARRAY:
+            counts.append(t.element_count)
+            t = t.element_type.get_canonical()
+        inner = var.swift or ""
+        # A vec3_t is a C array of three floats and one Swift value, so only the levels the Swift type spells count.
+        counts = counts[:inner.count("[")]
+        for _ in counts:
+            inner = inner[1:-1]
+        if inner.endswith("?"):
+            literal = "nil"
+        elif inner == "Bool":
+            literal = "false"
+        elif inner == "String":
+            literal = '""'
+        elif inner == "JKAShared.vec3_t":
+            literal = "JKAShared.vec3_t(0, 0, 0)"
+        else:
+            literal = "0"
+        for count, depth in zip(reversed(counts), range(len(counts))):
+            element = inner if depth == 0 else "[" * depth + inner + "]" * depth
+            literal = f"[{element}](repeating: {literal}, count: {count})"
+        return literal
+
     def variable_entry(self, var: Variable) -> list[str]:
         source = self.source(var.stem)
         text = source.slice(var.cur.extent)
@@ -255,14 +290,19 @@ class Skeleton:
         declaration = " ".join(text.split("=", 1)[0].split()) if "\n" in text else " ".join(text.split())
         lines = [f"/// Source: {var.cite}", f"// Raven wrote: {declaration}"]
         kind = var.kind
+        initializer = "Raven's initializer" if "=" in text else "C's zero, since Raven wrote no initializer"
         self.counts[f"variables, {kind}"] += 1
-        if kind == "let":
+        if kind == "let" and "=" not in text:
+            # Nothing writes it and Raven gave it no value, so it is C's zero for the module's life. A view is not Sendable, so its let says so.
+            prefix = "nonisolated(unsafe) " if (var.swift or "").endswith("?") else ""
+            lines.append(f"{prefix}let {var.name}: {var.swift} = {self.zero(var)}")
+        elif kind == "let":
             lines.append(f"let {var.name}: {var.swift} = {{ () -> {var.swift} in portMissing(\"{var.name}\", source: \"{var.cite}\") }}()")
         elif kind == "state":
             home = "BgState" if target_of(var.stem) == BG else "GameWorld"
             spelled = "bg" if target_of(var.stem) == BG else "world"
             lines.insert(1, f"// TODO: Port global {var.name}")
-            lines.append(f"// Rule 3: a stored property of {home} with Raven's initializer, spelled {spelled}.{var.name} in a body.")
+            lines.append(f"// Rule 3: a stored property of {home} with {initializer}, spelled {spelled}.{var.name} in a body.")
         elif kind == "storage":
             lines.insert(1, f"// TODO: Port global {var.name}")
             lines.append(f"// A struct table is C storage in Sources/CJKAMP, reached through a Slots constant.")

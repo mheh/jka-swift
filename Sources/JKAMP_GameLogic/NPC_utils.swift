@@ -4,6 +4,20 @@ import JKAMP
 import JKAShared
 import JKAMP_Game
 
+/// Source: oracle/codemp/game/NPC_utils.c:7
+// TODO: Port global teamNumbers
+// Raven wrote: int teamNumbers[TEAM_NUM_TEAMS]
+// Rule 3: a stored property of GameWorld with C's zero, since Raven wrote no initializer, spelled world.teamNumbers in a body.
+
+/// Source: oracle/codemp/game/NPC_utils.c:8
+// TODO: Port global teamStrength
+// Raven wrote: int teamStrength[TEAM_NUM_TEAMS]
+// Rule 3: a stored property of GameWorld with C's zero, since Raven wrote no initializer, spelled world.teamStrength in a body.
+
+/// Source: oracle/codemp/game/NPC_utils.c:9
+// Raven wrote: int teamCounter[TEAM_NUM_TEAMS]
+let teamCounter: [Int32] = [Int32](repeating: 0, count: 4)
+
 /**
 ```
 void CalcEntitySpot ( gentity_t *ent, spot_t spot, vec3_t point )

@@ -29,6 +29,10 @@ import JKAMP_Game
 // Raven wrote: int gPainHitLoc = -1
 // Rule 3: a stored property of GameWorld with Raven's initializer, spelled world.gPainHitLoc in a body.
 
+/// Source: oracle/codemp/game/g_combat.c:4575
+// Raven wrote: vec3_t gPainPoint
+let gPainPoint: JKAShared.vec3_t = JKAShared.vec3_t(0, 0, 0)
+
 /// Source: oracle/codemp/game/g_combat.c:22
 func ObjectDie(_ `self`: Entity, _ inflictor: Entity, _ attacker: Entity, _ damage: Int32, _ meansOfDeath: Int32) {
     // TODO: Port ObjectDie

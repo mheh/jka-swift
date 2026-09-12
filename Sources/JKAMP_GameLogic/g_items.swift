@@ -29,6 +29,11 @@ import JKAMP_Game
 // Raven wrote: static qhandle_t shieldDamageSound=0
 // Rule 3: a stored property of GameWorld with Raven's initializer, spelled world.shieldDamageSound in a body.
 
+/// Source: oracle/codemp/game/g_items.c:2966
+// TODO: Port global itemRegistered
+// Raven wrote: qboolean itemRegistered[MAX_ITEMS]
+// Rule 3: a stored property of GameWorld with C's zero, since Raven wrote no initializer, spelled world.itemRegistered in a body.
+
 // For more than four players, adjust the respawn times, up to 1/4.
 /// Source: oracle/codemp/game/g_items.c:47
 func adjustRespawnTime(_ preRespawnTime: Float, _ itemType: Int32, _ itemTag: Int32) -> Int32 {

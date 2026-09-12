@@ -24,6 +24,11 @@ import JKAMP_Game
 // Raven wrote: void *precachedKyle = 0
 // No table row for `void *`.
 
+/// Source: oracle/codemp/game/g_spawn.c:1258
+// TODO: Port global g_cullDistance
+// Raven wrote: float g_cullDistance
+// Rule 3: a stored property of GameWorld with C's zero, since Raven wrote no initializer, spelled world.g_cullDistance in a body.
+
 /// Source: oracle/codemp/game/g_spawn.c:6
 // TODO: Port signature
 // Raven wrote: qboolean G_SpawnString( const char *key, const char *defaultString, char **out )

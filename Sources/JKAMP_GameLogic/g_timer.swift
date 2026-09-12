@@ -4,6 +4,21 @@ import JKAMP
 import JKAShared
 import JKAMP_Game
 
+/// Source: oracle/codemp/game/g_timer.c:17
+// TODO: Port global g_timerPool
+// Raven wrote: gtimer_t g_timerPool[ MAX_GTIMERS ]
+// A struct table is C storage in Sources/CJKAMP, reached through a Slots constant.
+
+/// Source: oracle/codemp/game/g_timer.c:18
+// TODO: Port global g_timers
+// Raven wrote: gtimer_t *g_timers[ MAX_GENTITIES ]
+// Rule 3: a stored property of GameWorld with C's zero, since Raven wrote no initializer, spelled world.g_timers in a body.
+
+/// Source: oracle/codemp/game/g_timer.c:19
+// TODO: Port global g_timerFreeList
+// Raven wrote: gtimer_t *g_timerFreeList
+// Rule 3: a stored property of GameWorld with C's zero, since Raven wrote no initializer, spelled world.g_timerFreeList in a body.
+
 /// Source: oracle/codemp/game/g_timer.c:27
 func TIMER_Clear() {
     // TODO: Port TIMER_Clear

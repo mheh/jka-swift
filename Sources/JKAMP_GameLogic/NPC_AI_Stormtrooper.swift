@@ -4,6 +4,55 @@ import JKAMP
 import JKAShared
 import JKAMP_Game
 
+/// Source: oracle/codemp/game/NPC_AI_Stormtrooper.c:40
+// TODO: Port global enemyLOS
+// Raven wrote: static qboolean enemyLOS
+// Rule 3: a stored property of GameWorld with C's zero, since Raven wrote no initializer, spelled world.enemyLOS in a body.
+
+/// Source: oracle/codemp/game/NPC_AI_Stormtrooper.c:41
+// TODO: Port global enemyCS
+// Raven wrote: static qboolean enemyCS
+// Rule 3: a stored property of GameWorld with C's zero, since Raven wrote no initializer, spelled world.enemyCS in a body.
+
+/// Source: oracle/codemp/game/NPC_AI_Stormtrooper.c:42
+// TODO: Port global enemyInFOV
+// Raven wrote: static qboolean enemyInFOV
+// Rule 3: a stored property of GameWorld with C's zero, since Raven wrote no initializer, spelled world.enemyInFOV in a body.
+
+/// Source: oracle/codemp/game/NPC_AI_Stormtrooper.c:43
+// TODO: Port global hitAlly
+// Raven wrote: static qboolean hitAlly
+// Rule 3: a stored property of GameWorld with C's zero, since Raven wrote no initializer, spelled world.hitAlly in a body.
+
+/// Source: oracle/codemp/game/NPC_AI_Stormtrooper.c:44
+// TODO: Port global faceEnemy
+// Raven wrote: static qboolean faceEnemy
+// Rule 3: a stored property of GameWorld with C's zero, since Raven wrote no initializer, spelled world.faceEnemy in a body.
+
+/// Source: oracle/codemp/game/NPC_AI_Stormtrooper.c:45
+// TODO: Port global move
+// Raven wrote: static qboolean move
+// Rule 3: a stored property of GameWorld with C's zero, since Raven wrote no initializer, spelled world.move in a body.
+
+/// Source: oracle/codemp/game/NPC_AI_Stormtrooper.c:46
+// TODO: Port global shoot
+// Raven wrote: static qboolean shoot
+// Rule 3: a stored property of GameWorld with C's zero, since Raven wrote no initializer, spelled world.shoot in a body.
+
+/// Source: oracle/codemp/game/NPC_AI_Stormtrooper.c:47
+// Raven wrote: static float enemyDist
+let enemyDist: Float = 0
+
+/// Source: oracle/codemp/game/NPC_AI_Stormtrooper.c:48
+// TODO: Port global impactPos
+// Raven wrote: static vec3_t impactPos
+// Rule 3: a stored property of GameWorld with C's zero, since Raven wrote no initializer, spelled world.impactPos in a body.
+
+/// Source: oracle/codemp/game/NPC_AI_Stormtrooper.c:50
+// TODO: Port global groupSpeechDebounceTime
+// Raven wrote: int groupSpeechDebounceTime[TEAM_NUM_TEAMS]
+// Rule 3: a stored property of GameWorld with C's zero, since Raven wrote no initializer, spelled world.groupSpeechDebounceTime in a body.
+
 /// Source: oracle/codemp/game/NPC_AI_Stormtrooper.c:60
 func ST_AggressionAdjust(_ `self`: Entity, _ change: Int32) {
     // TODO: Port ST_AggressionAdjust

@@ -4,6 +4,11 @@ import JKAMP
 import JKAShared
 import JKAMP_Game
 
+/// Source: oracle/codemp/game/NPC_AI_Wampa.c:14
+// TODO: Port global enemyDist
+// Raven wrote: float enemyDist
+// Rule 3: a stored property of GameWorld with C's zero, since Raven wrote no initializer, spelled world.enemyDist in a body.
+
 /// Source: oracle/codemp/game/NPC_AI_Wampa.c:16
 func Wampa_SetBolts(_ `self`: Entity) {
     // TODO: Port Wampa_SetBolts

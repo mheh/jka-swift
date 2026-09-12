@@ -4,6 +4,36 @@ import JKAMP
 import JKAShared
 import JKAMP_Game
 
+/// Source: oracle/codemp/game/g_weapon.c:12
+// TODO: Port global s_quadFactor
+// Raven wrote: static float s_quadFactor
+// Rule 3: a stored property of GameWorld with C's zero, since Raven wrote no initializer, spelled world.s_quadFactor in a body.
+
+/// Source: oracle/codemp/game/g_weapon.c:13
+// TODO: Port global forward
+// Raven wrote: static vec3_t forward
+// Rule 3: a stored property of GameWorld with C's zero, since Raven wrote no initializer, spelled world.forward in a body.
+
+/// Source: oracle/codemp/game/g_weapon.c:13
+// TODO: Port global vright
+// Raven wrote: static vec3_t forward, vright
+// Rule 3: a stored property of GameWorld with C's zero, since Raven wrote no initializer, spelled world.vright in a body.
+
+/// Source: oracle/codemp/game/g_weapon.c:13
+// TODO: Port global up
+// Raven wrote: static vec3_t forward, vright, up
+// Rule 3: a stored property of GameWorld with C's zero, since Raven wrote no initializer, spelled world.up in a body.
+
+/// Source: oracle/codemp/game/g_weapon.c:14
+// TODO: Port global muzzle
+// Raven wrote: static vec3_t muzzle
+// Rule 3: a stored property of GameWorld with C's zero, since Raven wrote no initializer, spelled world.muzzle in a body.
+
+/// Source: oracle/codemp/game/g_weapon.c:1162
+// TODO: Port global ent_list
+// Raven wrote: static gentity_t *ent_list[MAX_GENTITIES]
+// Rule 3: a stored property of GameWorld with C's zero, since Raven wrote no initializer, spelled world.ent_list in a body.
+
 /// Source: oracle/codemp/game/g_weapon.c:165
 func touch_NULL(_ ent: Entity, _ other: Entity, _ trace: JKAMP.Trace) {
     // TODO: Port touch_NULL

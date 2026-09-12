@@ -7,4 +7,12 @@ The oracle range is the whole definition, from the return type to the closing br
 
 | Function | Oracle | Swift | State | jka-rust | Signature |
 |---|---|---|---|---|---|
-| `UpdateTournamentInfo` | `oracle/codemp/game/g_arenas.c:20-101` | `JKAMP_GameLogic/g_arenas.swift:15` | marker | `crates/mp/game/src/g_arenas.rs:16-161` | `func UpdateTournamentInfo()` |
+| `UpdateTournamentInfo` | `oracle/codemp/game/g_arenas.c:20-101` | `JKAMP_GameLogic/g_arenas.swift:27` | marker | `crates/mp/game/src/g_arenas.rs:16-161` | `func UpdateTournamentInfo()` |
+
+3 file-scope variables. The entry is the stub's line for the variable, by rule 3 and rule 6.
+
+| Variable | Oracle | Kind | Entry |
+|---|---|---|---|
+| `podium1` | `oracle/codemp/game/g_arenas.c:10` | let | `nonisolated(unsafe) let podium1: Entity? = nil` |
+| `podium2` | `oracle/codemp/game/g_arenas.c:11` | let | `nonisolated(unsafe) let podium2: Entity? = nil` |
+| `podium3` | `oracle/codemp/game/g_arenas.c:12` | let | `nonisolated(unsafe) let podium3: Entity? = nil` |

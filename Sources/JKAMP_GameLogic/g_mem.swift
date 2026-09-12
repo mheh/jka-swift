@@ -4,6 +4,16 @@ import JKAMP
 import JKAShared
 import JKAMP_Game
 
+/// Source: oracle/codemp/game/g_mem.c:13
+// TODO: Port global memoryPool
+// Raven wrote: static char memoryPool[POOLSIZE]
+// Rule 3: a stored property of GameWorld with C's zero, since Raven wrote no initializer, spelled world.memoryPool in a body.
+
+/// Source: oracle/codemp/game/g_mem.c:14
+// TODO: Port global allocPoint
+// Raven wrote: static int allocPoint
+// Rule 3: a stored property of GameWorld with C's zero, since Raven wrote no initializer, spelled world.allocPoint in a body.
+
 /// Source: oracle/codemp/game/g_mem.c:16
 func G_Alloc(_ size: Int32) -> UnsafeMutableRawPointer {
     // TODO: Port G_Alloc

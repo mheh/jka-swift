@@ -110,10 +110,12 @@ The oracle range is the whole definition, from the return type to the closing br
 | `PmoveSingle` | `oracle/codemp/game/bg_pmove.c:10174-11157` | `JKAMP_BG/bg_pmove.swift:4745` | marker | `crates/mp/bg/src/bg_pmove.rs:994-1943` | `func PmoveSingle(_ pmove: JKAMP.Pmove)` |
 | `Pmove` | `oracle/codemp/game/bg_pmove.c:11167-11215` | `JKAMP_BG/bg_pmove.swift:4762` | ported | `crates/mp/bg/src/bg_pmove.rs:10449-10499` | `func Pmove(_ pmove: JKAMP.Pmove)` |
 
-24 file-scope variables. The entry is the stub's line for the variable, by rule 3 and rule 6.
+26 file-scope variables. The entry is the stub's line for the variable, by rule 3 and rule 6.
 
 | Variable | Oracle | Kind | Entry |
 |---|---|---|---|
+| `pm` | `oracle/codemp/game/bg_pmove.c:30` | state | `// Rule 3: a stored property of BgState with C's zero, since Raven wrote no initializer, spelled bg.pm in a body.` |
+| `pml` | `oracle/codemp/game/bg_pmove.c:31` | storage | `// A struct table is C storage in Sources/CJKAMP, reached through a Slots constant.` |
 | `pm_entSelf` | `oracle/codemp/game/bg_pmove.c:33` | state | `// Rule 3: a stored property of BgState with Raven's initializer, spelled bg.pm_entSelf in a body.` |
 | `pm_entVeh` | `oracle/codemp/game/bg_pmove.c:34` | state | `// Rule 3: a stored property of BgState with Raven's initializer, spelled bg.pm_entVeh in a body.` |
 | `gPMDoSlowFall` | `oracle/codemp/game/bg_pmove.c:36` | state | `// Rule 3: a stored property of BgState with Raven's initializer, spelled bg.gPMDoSlowFall in a body.` |

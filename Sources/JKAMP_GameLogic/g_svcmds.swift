@@ -4,6 +4,16 @@ import JKAMP
 import JKAShared
 import JKAMP_Game
 
+/// Source: oracle/codemp/game/g_svcmds.c:54
+// TODO: Port global ipFilters
+// Raven wrote: static ipFilter_t ipFilters[MAX_IPFILTERS]
+// A struct table is C storage in Sources/CJKAMP, reached through a Slots constant.
+
+/// Source: oracle/codemp/game/g_svcmds.c:55
+// TODO: Port global numIPFilters
+// Raven wrote: static int numIPFilters
+// Rule 3: a stored property of GameWorld with C's zero, since Raven wrote no initializer, spelled world.numIPFilters in a body.
+
 /**
 ```
 =================

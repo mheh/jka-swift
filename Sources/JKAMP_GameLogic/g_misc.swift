@@ -14,6 +14,16 @@ import JKAMP_Game
 // Raven wrote: int gEscapeTime = 0
 // Rule 3: a stored property of GameWorld with Raven's initializer, spelled world.gEscapeTime in a body.
 
+/// Source: oracle/codemp/game/g_misc.c:2886
+// TODO: Port global refTagOwnerMap
+// Raven wrote: tagOwner_t refTagOwnerMap[MAX_TAG_OWNERS]
+// A struct table is C storage in Sources/CJKAMP, reached through a Slots constant.
+
+/// Source: oracle/codemp/game/g_misc.c:3351
+// TODO: Port global g_shooterClients
+// Raven wrote: static shooterClient_t g_shooterClients[MAX_SHOOTERS]
+// A struct table is C storage in Sources/CJKAMP, reached through a Slots constant.
+
 /// Source: oracle/codemp/game/g_misc.c:3352
 // TODO: Port global g_shooterClientInit
 // Raven wrote: static qboolean g_shooterClientInit = qfalse

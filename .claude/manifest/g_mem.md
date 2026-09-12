@@ -7,6 +7,13 @@ The oracle range is the whole definition, from the return type to the closing br
 
 | Function | Oracle | Swift | State | jka-rust | Signature |
 |---|---|---|---|---|---|
-| `G_Alloc` | `oracle/codemp/game/g_mem.c:16-33` | `JKAMP_GameLogic/g_mem.swift:8` | marker | `crates/mp/game/src/g_mem.rs:21-56` | `func G_Alloc(_ size: Int32) -> UnsafeMutableRawPointer` |
-| `G_InitMemory` | `oracle/codemp/game/g_mem.c:35-37` | `JKAMP_GameLogic/g_mem.swift:14` | marker | `crates/mp/game/src/g_mem.rs:61-64` | `func G_InitMemory()` |
-| `Svcmd_GameMem_f` | `oracle/codemp/game/g_mem.c:39-41` | `JKAMP_GameLogic/g_mem.swift:20` | marker | `crates/mp/game/src/g_mem.rs:69-78` | `func Svcmd_GameMem_f()` |
+| `G_Alloc` | `oracle/codemp/game/g_mem.c:16-33` | `JKAMP_GameLogic/g_mem.swift:18` | marker | `crates/mp/game/src/g_mem.rs:21-56` | `func G_Alloc(_ size: Int32) -> UnsafeMutableRawPointer` |
+| `G_InitMemory` | `oracle/codemp/game/g_mem.c:35-37` | `JKAMP_GameLogic/g_mem.swift:24` | marker | `crates/mp/game/src/g_mem.rs:61-64` | `func G_InitMemory()` |
+| `Svcmd_GameMem_f` | `oracle/codemp/game/g_mem.c:39-41` | `JKAMP_GameLogic/g_mem.swift:30` | marker | `crates/mp/game/src/g_mem.rs:69-78` | `func Svcmd_GameMem_f()` |
+
+2 file-scope variables. The entry is the stub's line for the variable, by rule 3 and rule 6.
+
+| Variable | Oracle | Kind | Entry |
+|---|---|---|---|
+| `memoryPool` | `oracle/codemp/game/g_mem.c:13` | state | `// Rule 3: a stored property of GameWorld with C's zero, since Raven wrote no initializer, spelled world.memoryPool in a body.` |
+| `allocPoint` | `oracle/codemp/game/g_mem.c:14` | state | `// Rule 3: a stored property of GameWorld with C's zero, since Raven wrote no initializer, spelled world.allocPoint in a body.` |

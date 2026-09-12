@@ -1,3 +1,18 @@
+/// Source: oracle/codemp/game/q_shared.c:280
+// TODO: Port global com_token
+// Raven wrote: static char com_token[MAX_TOKEN_CHARS]
+// Rule 3: a stored property of GameWorld with C's zero, since Raven wrote no initializer, spelled world.com_token in a body.
+
+/// Source: oracle/codemp/game/q_shared.c:281
+// TODO: Port global com_parsename
+// Raven wrote: static char com_parsename[MAX_TOKEN_CHARS]
+// Rule 3: a stored property of GameWorld with C's zero, since Raven wrote no initializer, spelled world.com_parsename in a body.
+
+/// Source: oracle/codemp/game/q_shared.c:282
+// TODO: Port global com_lines
+// Raven wrote: static int com_lines
+// Rule 3: a stored property of GameWorld with C's zero, since Raven wrote no initializer, spelled world.com_lines in a body.
+
 /// Source: oracle/codemp/game/q_shared.c:13
 // TODO: Port signature
 // Raven wrote: int GetIDForString ( stringID_table_t *table, const char *string )

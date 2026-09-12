@@ -8,6 +8,16 @@ import JKAShared
 // Raven wrote: qboolean BGPAFtextLoaded = qfalse
 // Rule 3: a stored property of BgState with Raven's initializer, spelled bg.BGPAFtextLoaded in a body.
 
+/// Source: oracle/codemp/game/bg_panimate.c:1672
+// TODO: Port global bgHumanoidAnimations
+// Raven wrote: animation_t bgHumanoidAnimations[MAX_TOTALANIMATIONS]
+// A struct table is C storage in Sources/CJKAMP, reached through a Slots constant.
+
+/// Source: oracle/codemp/game/bg_panimate.c:1702
+// TODO: Port global bgAllAnims
+// Raven wrote: bgLoadedAnim_t bgAllAnims[MAX_ANIM_FILES]
+// A struct table is C storage in Sources/CJKAMP, reached through a Slots constant.
+
 /// Source: oracle/codemp/game/bg_panimate.c:1703
 // TODO: Port global bgNumAllAnims
 // Raven wrote: int bgNumAllAnims = 2
