@@ -3,6 +3,9 @@ import Testing
 import CJKASyscall
 import JKAMP_Game
 
+/// A class in this test bundle, so `Bundle(for:)` can find the bundle's directory.
+private final class Anchor {}
+
 /// The C shape of the module's `dllEntry`, as `@_cdecl` exports it.
 private typealias DllEntryFn = @convention(c) (OpaquePointer) -> Void
 
@@ -11,7 +14,7 @@ private typealias VmMainFn = @convention(c) (
     Int, Int, Int, Int, Int, Int, Int, Int, Int, Int, Int, Int, Int
 ) -> Int
 
-/// This test drives the built `libjampgame.dylib` from outside, the way the engine does.
+/// This test drives the built `jampgame` library from outside, the way the engine does.
 /// It installs the C recorder as the engine, so `Syscall.transport` inside the test process stays untouched.
 @Suite(.serialized)
 struct JampgameSmokeSuite {
@@ -23,7 +26,7 @@ struct JampgameSmokeSuite {
             Issue.record("dlopen of \(library) failed: \(Self.lastError())")
             return
         }
-        defer { dlclose(handle) }
+        // The handle stays open. The Swift runtime keeps the library's metadata after a load, so an unload leaves it unsafe to use.
 
         guard let entrySymbol = dlsym(handle, "dllEntry") else {
             Issue.record("dlsym of dllEntry failed: \(Self.lastError())")
@@ -51,39 +54,30 @@ struct JampgameSmokeSuite {
         #expect(String(cString: text) == "jka-swift jampgame init\n")
     }
 
-    /// `swift test` builds the dynamic product beside the test bundle, so we walk up from the test binary.
-    /// The walk starts at this source file and stops at the first ancestor that holds a `.build` directory.
+    /// The dynamic product's file name on this platform, as the linker writes it.
+    private static var libraryName: String {
+        #if os(Linux)
+        return "libjampgame.so"
+        #elseif os(Windows)
+        return "jampgame.dll"
+        #else
+        return "libjampgame.dylib"
+        #endif
+    }
+
+    /// `swift test` builds the dynamic product in the same configuration directory as the test code, so we walk up from the test bundle.
+    /// On macOS the tests run inside the `xctest` host, so the main bundle is the wrong one, and the bundle of a class in this file is the right one.
+    /// The walk stops at the first ancestor that holds the library, which keeps a second scratch directory or a release copy out of the answer.
     private static func builtLibraryPath() -> String? {
-        var directory = URL(fileURLWithPath: #filePath).deletingLastPathComponent().standardizedFileURL
+        var directory = Bundle(for: Anchor.self).bundleURL.standardizedFileURL
         while directory.path != "/" {
-            let build = directory.appendingPathComponent(".build")
-            if FileManager.default.fileExists(atPath: build.path), let library = Self.libraryInBuild(build) {
-                return library
+            let candidate = directory.appendingPathComponent(Self.libraryName)
+            if FileManager.default.fileExists(atPath: candidate.path) {
+                return candidate.path
             }
             directory = directory.deletingLastPathComponent()
         }
         return nil
-    }
-
-    /// This picks the most recently written `libjampgame.dylib` under `.build/<triple>/<config>/`.
-    /// A release gate leaves a second copy, and both hold the same module, so the newest one answers.
-    private static func libraryInBuild(_ build: URL) -> String? {
-        let manager = FileManager.default
-        guard let triples = try? manager.contentsOfDirectory(at: build, includingPropertiesForKeys: nil) else { return nil }
-
-        var newest: (path: String, written: Date)?
-        for triple in triples {
-            guard let configurations = try? manager.contentsOfDirectory(at: triple, includingPropertiesForKeys: nil) else { continue }
-            for configuration in configurations {
-                let candidate = configuration.appendingPathComponent("libjampgame.dylib")
-                let values = try? candidate.resourceValues(forKeys: [.contentModificationDateKey])
-                guard let written = values?.contentModificationDate else { continue }
-                if newest == nil || written > newest!.written {
-                    newest = (candidate.path, written)
-                }
-            }
-        }
-        return newest?.path
     }
 
     /// This reads the dynamic loader's message for the failure that just happened.
