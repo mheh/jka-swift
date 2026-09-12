@@ -21,16 +21,26 @@ import JKAMP_Game
 // The macro's text is not a constant over this file's names, so a body spells its expansion at the site.
 
 /// Source: oracle/codemp/game/g_vehicles.c:28
-// Raven wrote: #define legsAnimTimer legsTimer
-// The macro's text is not a constant over this file's names, so a body spells its expansion at the site.
+extension JKAMP.PlayerState {
+    /// Raven's `#define legsAnimTimer legsTimer`, an alias of the field, file-private to this stub.
+    fileprivate var legsAnimTimer: Int32 {
+        get { self.legsTimer }
+        nonmutating set { self.legsTimer = newValue }
+    }
+}
 
 /// Source: oracle/codemp/game/g_vehicles.c:29
-// Raven wrote: #define torsoAnimTimer torsoTimer
-// The macro's text is not a constant over this file's names, so a body spells its expansion at the site.
+extension JKAMP.PlayerState {
+    /// Raven's `#define torsoAnimTimer torsoTimer`, an alias of the field, file-private to this stub.
+    fileprivate var torsoAnimTimer: Int32 {
+        get { self.torsoTimer }
+        nonmutating set { self.torsoTimer = newValue }
+    }
+}
 
 /// Source: oracle/codemp/game/g_vehicles.c:30
 // Raven wrote: #define bool qboolean
-// The macro's text is not a constant over this file's names, so a body spells its expansion at the site.
+// Swift has `Bool`, so a body writes it.
 
 /// Source: oracle/codemp/game/g_vehicles.c:31
 // Raven wrote: #define false qfalse
@@ -42,7 +52,9 @@ import JKAMP_Game
 
 /// Source: oracle/codemp/game/g_vehicles.c:34
 // Raven wrote: #define sqrtf sqrt
-// The macro's text is not a constant over this file's names, so a body spells its expansion at the site.
+private func sqrtf(_ x: Float) -> Float {
+    x.squareRoot()
+}
 
 /// Source: oracle/codemp/game/g_vehicles.c:36
 private let MOD_EXPLOSIVE = JKAMP.MOD_SUICIDE

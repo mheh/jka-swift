@@ -178,6 +178,9 @@ NOT_PORTED = {
                      "A view over aas_entityinfo_t of be_aas.h is the fallback if a ported body calls it",
 }
 
+# C library functions a .c file aliases, `#define sqrtf sqrt`, with the Swift signature the forwarder takes.
+LIBC_FUNCTIONS = {"sqrt": ([("x", "Float")], "Float", "x.squareRoot()")}
+
 # Header macros the port leaves out, with the reason the reexport carries instead of a marker.
 NOT_PORTED_MACROS = {
     "MATERIALS": "a list of material names no body of the module names",

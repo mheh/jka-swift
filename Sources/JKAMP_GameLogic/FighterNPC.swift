@@ -21,16 +21,26 @@ import JKAMP_Game
 // The macro's text is not a constant over this file's names, so a body spells its expansion at the site.
 
 /// Source: oracle/codemp/game/FighterNPC.c:57
-// Raven wrote: #define legsAnimTimer legsTimer
-// The macro's text is not a constant over this file's names, so a body spells its expansion at the site.
+extension JKAMP.PlayerState {
+    /// Raven's `#define legsAnimTimer legsTimer`, an alias of the field, file-private to this stub.
+    fileprivate var legsAnimTimer: Int32 {
+        get { self.legsTimer }
+        nonmutating set { self.legsTimer = newValue }
+    }
+}
 
 /// Source: oracle/codemp/game/FighterNPC.c:58
-// Raven wrote: #define torsoAnimTimer torsoTimer
-// The macro's text is not a constant over this file's names, so a body spells its expansion at the site.
+extension JKAMP.PlayerState {
+    /// Raven's `#define torsoAnimTimer torsoTimer`, an alias of the field, file-private to this stub.
+    fileprivate var torsoAnimTimer: Int32 {
+        get { self.torsoTimer }
+        nonmutating set { self.torsoTimer = newValue }
+    }
+}
 
 /// Source: oracle/codemp/game/FighterNPC.c:59
 // Raven wrote: #define bool qboolean
-// The macro's text is not a constant over this file's names, so a body spells its expansion at the site.
+// Swift has `Bool`, so a body writes it.
 
 /// Source: oracle/codemp/game/FighterNPC.c:60
 // Raven wrote: #define false qfalse
@@ -42,11 +52,13 @@ import JKAMP_Game
 
 /// Source: oracle/codemp/game/FighterNPC.c:63
 // Raven wrote: #define sqrtf sqrt
-// The macro's text is not a constant over this file's names, so a body spells its expansion at the site.
+private func sqrtf(_ x: Float) -> Float {
+    x.squareRoot()
+}
 
 /// Source: oracle/codemp/game/FighterNPC.c:64
 // Raven wrote: #define Q_flrand flrand
-// The macro's text is not a constant over this file's names, so a body spells its expansion at the site.
+// The module declares `Q_flrand` too, so a body writes `flrand` where Raven wrote `Q_flrand`.
 
 /// Source: oracle/codemp/game/FighterNPC.c:66
 private let MOD_EXPLOSIVE = JKAMP.MOD_SUICIDE

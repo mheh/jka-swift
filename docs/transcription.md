@@ -178,6 +178,8 @@ A literal Raven wrote with `f` is a `Float`, and one without is a `Double`, C's 
 A macro over the same file's names is a `let` over them, `let MAX_DISTANCE_SQR = (MAX_DISTANCE * MAX_DISTANCE)`.
 A macro whose text is not a constant over the file's names, such as `SLOPERECALCVAR` over `pm->ps`, has an entry that says so, and a body spells the expansion at the site with Raven's name in a one-line comment at the first use.
 A macro that aliases a keyword, `#define true qtrue`, writes nothing, and a name in `HAND_MACROS` of `rulings.py`, `MAX_POOL_SIZE`, is a hand value of the state object.
+An alias of one name, `#define legsAnimTimer legsTimer`, is a file-private declaration of the stub under Raven's name, so a body writes the alias as he wrote it: a `fileprivate` accessor in an extension on the view that owns a field, a private forwarding function for a function, and nothing for `bool`, where a body writes `Bool`.
+Where the module declares the alias's name too, `Q_flrand` beside `flrand`, Swift takes no second declaration, so the entry says a body writes the target's name.
 The reexport carries the header macros and the enums, never a `.c` file's macros.
 
 ### Function-like macros

@@ -34,7 +34,7 @@ import closure as C
 import reexport
 from fnsweep import binop_assign_op, rhs_function, root_var
 from reexport import REPO, SOURCES
-from rulings import HAND_MACROS, HAND_VARS, NEVER_NULL_VARS, NOT_PORTED, RETURNS
+from rulings import HAND_MACROS, HAND_VARS, LIBC_FUNCTIONS, NEVER_NULL_VARS, NOT_PORTED, RETURNS
 from table import Param, SourceFile, Table, swift_name
 
 ORACLE_DIR = "codemp/game"
@@ -305,6 +305,11 @@ class Skeleton:
             self.counts["macros by hand"] += 1
             lines += [f"// Raven wrote: #define {text}", f"// A hand value: {HAND_MACROS[macro.name]}."]
             return lines
+        tokens = [t.spelling for t in macro.cur.get_tokens()][1:]
+        if len(tokens) == 1 and re.fullmatch(r"[A-Za-z_]\w*", tokens[0]):
+            alias = self.alias_entry(macro, tokens[0], text)
+            if alias is not None:
+                return lines + alias
         local = {m.name for m in self.macros[macro.stem]}
         expression = reexport.swift_expression(macro.cur, {}, self.exported_of(macro.stem), local=local, float_suffix=True)
         self.counts["macros"] += 1
@@ -315,6 +320,53 @@ class Skeleton:
             return lines
         lines.append(f"{macro.access}let {macro.name} = {expression}")
         return lines
+
+    def alias_entry(self, macro: Macro, target: str, text: str) -> list[str] | None:
+        """The file-private declaration for an alias of one name: nothing for a Swift type, an accessor on the view that owns a field,
+        a forwarding function for a function. None when the target is none of those."""
+        doc = f"// Raven wrote: #define {text}"
+        if target == "qboolean":
+            self.counts["macros that alias a keyword"] += 1
+            return [doc, "// Swift has `Bool`, so a body writes it."]
+        owners = self.field_owners(target)
+        if len(owners) == 1:
+            view, swift, settable = owners[0]
+            self.counts["macros that alias a field"] += 1
+            setter = [f"        nonmutating set {{ self.{target} = newValue }}"] if settable else []
+            return [f"extension {view} {{", f"    /// Raven's `#define {text}`, an alias of the field, file-private to this stub.",
+                    f"    fileprivate var {macro.name}: {swift} {{", f"        get {{ self.{target} }}"] + setter + ["    }", "}"]
+        if macro.name in self.by_name:
+            # Raven's define renames a function the module declares too, and Swift takes no second declaration in the module,
+            # so a body writes the target's name.
+            self.counts["macros that alias a function"] += 1
+            return [doc, f"// The module declares `{macro.name}` too, so a body writes `{target}` where Raven wrote `{macro.name}`."]
+        fn = self.by_name.get(target)
+        visible = {BG: (BG, SHARED), LOGIC: (LOGIC, BG, SHARED), SHARED: (SHARED,)}[target_of(macro.stem)]
+        if fn is not None and fn.mapped and target_of(fn.stem) in visible:
+            self.counts["macros that alias a function"] += 1
+            params = ", ".join(f"_ {p.name}: {p.swift}" for p in fn.params)
+            words = ", ".join(f"&{p.name}" if (p.swift or "").startswith("inout ") else p.name for p in fn.params)
+            returns = f" -> {fn.returns}" if fn.returns else ""
+            return [doc, f"private func {macro.name}({params}){returns} {{", f"    {target}({words})", "}"]
+        if target in LIBC_FUNCTIONS:
+            self.counts["macros that alias a function"] += 1
+            ps, ret, body = LIBC_FUNCTIONS[target]
+            params = ", ".join(f"_ {n}: {t}" for n, t in ps)
+            return [doc, f"private func {macro.name}({params}) -> {ret} {{", f"    {body}", "}"]
+        return None
+
+    def field_owners(self, field: str) -> list[tuple[str, str, bool]]:
+        """The views that declare an accessor of this name, with its Swift type and whether it has a setter, read from the view files."""
+        if not hasattr(self, "_accessors"):
+            self._accessors: dict[str, list[tuple[str, str, bool]]] = defaultdict(list)
+            for view_dir in ("JKAShared", "JKAMP", "JKAMP_Game"):
+                for path in (SOURCES / view_dir / "Generated" / "Views").glob("*.swift"):
+                    text = path.read_text()
+                    view = path.stem
+                    qualified = view if view_dir == "JKAMP_Game" else f"{view_dir}.{view}"
+                    for m in re.finditer(r"    public var (\w+): ([^{\n]+?) \{\n((?:        [^\n]*\n)*?)    \}", text):
+                        self._accessors[m.group(1)].append((qualified, m.group(2).strip(), "nonmutating set" in m.group(3)))
+        return self._accessors.get(field, [])
 
     def exported_of(self, stem: str) -> dict[str, str]:
         return self.table.views.exported_names("CJKAMP" if target_of(stem) == BG else "CJKAMP_Game")
@@ -829,7 +881,8 @@ def main() -> None:
     c = gen.counts
     print(f"skeleton.py: {written} files, {c['stubs']} stubs, {c['TODO: Port signature']} TODO: Port signature markers, "
           f"{c['thunks']} thunks in {len(FIELDS)} namespaces, {c['thunks over an unmapped signature']} thunks over an unmapped signature")
-    print(f"  macros: {c['macros']} in the stubs, {c['macros spelled at the site']} spelled at the site")
+    print(f"  macros: {c['macros']} in the stubs, {c['macros spelled at the site']} spelled at the site, "
+          f"{c['macros that alias a field']} field aliases, {c['macros that alias a function']} function aliases")
     print(f"  variables: {c['variables, let']} let, {c['variables, state']} state, {c['variables, state_data']} data by hand, "
           f"{c['variables, initializer by hand']} initializers by hand, {c['variables, storage']} storage, {c['variables, storage_data']} data tables by hand, {c['variables, marker']} markers")
     if c["functions made private because another file defines the name"]:
