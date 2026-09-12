@@ -6,8 +6,14 @@ import JKAShared
 /// The game functions a bg body calls by name, which the game installs at its entry point, rule 23.
 /// A default traps as a marker, so a consumer that installs nothing fails at the first call and names it.
 public struct BgCallbacks {
+    /// Source: oracle/codemp/game/FighterNPC.c:99
+    public var BG_FighterUpdate: (JKAMP.Vehicle, JKAMP.Usercmd, inout JKAShared.vec3_t, inout JKAShared.vec3_t, Float, ((JKAMP.Trace, JKAShared.vec3_t, JKAShared.vec3_t, JKAShared.vec3_t, JKAShared.vec3_t, Int32, Int32) -> Void)?) -> Bool = { _, _, _, _, _, _ in portMissing("BG_FighterUpdate", source: "oracle/codemp/game/FighterNPC.c:99") }
+
     /// Source: oracle/codemp/game/g_main.c:3559
     public var BG_GetTime: () -> Int32 = { portMissing("BG_GetTime", source: "oracle/codemp/game/g_main.c:3559") }
+
+    /// Source: oracle/codemp/cgame/cg_view.c:797
+    public var CG_GetVehicleCamPos: (inout JKAShared.vec3_t) -> Void = { _ in portMissing("CG_GetVehicleCamPos", source: "oracle/codemp/cgame/cg_view.c:797") }
 
     /// Source: oracle/codemp/cgame/cg_main.c:3344
     public var CG_NewString: (String) -> PooledString = { _ in portMissing("CG_NewString", source: "oracle/codemp/cgame/cg_main.c:3344") }
@@ -84,10 +90,21 @@ public struct BgCallbacks {
     public init() {}
 }
 
+/// Source: oracle/codemp/game/FighterNPC.c:99
+@discardableResult
+func BG_FighterUpdate(_ pVeh: JKAMP.Vehicle, _ pUcmd: JKAMP.Usercmd, _ trMins: inout JKAShared.vec3_t, _ trMaxs: inout JKAShared.vec3_t, _ gravity: Float, _ traceFunc: ((JKAMP.Trace, JKAShared.vec3_t, JKAShared.vec3_t, JKAShared.vec3_t, JKAShared.vec3_t, Int32, Int32) -> Void)?) -> Bool {
+    bg.callbacks.BG_FighterUpdate(pVeh, pUcmd, &trMins, &trMaxs, gravity, traceFunc)
+}
+
 /// Source: oracle/codemp/game/g_main.c:3559
 @discardableResult
 func BG_GetTime() -> Int32 {
     bg.callbacks.BG_GetTime()
+}
+
+/// Source: oracle/codemp/cgame/cg_view.c:797
+func CG_GetVehicleCamPos(_ camPos: inout JKAShared.vec3_t) {
+    bg.callbacks.CG_GetVehicleCamPos(&camPos)
 }
 
 /// Source: oracle/codemp/cgame/cg_main.c:3344

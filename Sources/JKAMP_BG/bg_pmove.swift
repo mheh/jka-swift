@@ -4872,11 +4872,55 @@ func PM_FinishWeaponChange() {
     ps.weaponTime += 250
 }
 
+/// Source: oracle/codemp/game/bg_pmove.c:5832
+let MAX_XHAIR_DIST_ACCURACY: Float = 20000.0
+
 /// Source: oracle/codemp/game/bg_pmove.c:5833
 func BG_VehTraceFromCamPos(_ camTrace: JKAMP.Trace, _ bgEnt: JKAMP.BgEntity, _ entOrg: JKAShared.vec3_t, _ shotStart: JKAShared.vec3_t, _ end: JKAShared.vec3_t, _ newEnd: inout JKAShared.vec3_t, _ shotDir: inout JKAShared.vec3_t, _ bestDist: Float) -> Int32 {
-    // Port-note: The game arm calls `trap_Trace`, and the cgame arm calls `CG_GetVehicleCamPos`. Neither name is on the bg channel of `bg_strap.swift` or `bg_callbacks.swift`, so both arms of Raven's `#ifdef QAGAME` are unreachable.
-    // TODO: Port BG_VehTraceFromCamPos
-    portMissing("BG_VehTraceFromCamPos", source: "oracle/codemp/game/bg_pmove.c:5833")
+    //NOTE: this MUST stay up to date with the method used in CG_ScanForCrosshairEntity (where it checks the doExtraVehTraceFromViewPos bool)
+    var viewDir2End = JKAShared.vec3_t(0, 0, 0)
+    var extraEnd = JKAShared.vec3_t(0, 0, 0)
+    var camPos = JKAShared.vec3_t(0, 0, 0)
+
+    if bg.consumer == .game {
+        // Port-note: Raven walks `bgEnt->m_pVehicle->m_pPilot` with no guard. Both generated fields are optional, so the body binds them, and the nil path makes no call.
+        if let m_pVehicle = bgEnt.m_pVehicle, let m_pPilot = m_pVehicle.m_pPilot {
+            WP_GetVehicleCamPos(bgEnt, m_pPilot, &camPos)
+        }
+    } else {
+        CG_GetVehicleCamPos(&camPos)
+    }
+
+    // Port-note: Raven walks `bgEnt->m_pVehicle->m_pVehicleInfo` with no guard. Both generated fields are optional, so the body binds them, and the nil path returns 0, the value of Raven's miss path.
+    guard let m_pVehicleInfo = bgEnt.m_pVehicle?.m_pVehicleInfo else { return 0 }
+    let minAutoAimDist = Distance(entOrg, camPos) + (m_pVehicleInfo.length / 2.0) + 200.0
+
+    newEnd = end
+    _VectorSubtract(end, camPos, &viewDir2End)
+    _ = VectorNormalize(&viewDir2End)
+    _VectorMA(camPos, MAX_XHAIR_DIST_ACCURACY, viewDir2End, &extraEnd)
+
+    if bg.consumer == .game {
+        trap_Trace(camTrace, camPos, vec3_origin, vec3_origin, extraEnd,
+            bgEnt.s.number, CONTENTS_SOLID | CONTENTS_BODY)
+    } else {
+        bg.pm.runTrace(camTrace, camPos, vec3_origin, vec3_origin, extraEnd,
+            bgEnt.s.number, CONTENTS_SOLID | CONTENTS_BODY)
+    }
+
+    if camTrace.allsolid == 0
+        && camTrace.startsolid == 0
+        && camTrace.fraction < 1.0
+        && (camTrace.fraction * MAX_XHAIR_DIST_ACCURACY) > minAutoAimDist
+        && ((camTrace.fraction * MAX_XHAIR_DIST_ACCURACY) - Distance(entOrg, camPos)) < bestDist {
+        //this trace hit *something* that's closer than the thing the main trace hit, so use this result instead
+        newEnd = camTrace.endpos
+        _VectorSubtract(newEnd, shotStart, &shotDir)
+        _ = VectorNormalize(&shotDir)
+        // Port-note: `trace_t.entityNum` is Raven's `short`, which C promotes to `int` in this return. Swift has no such promotion, so the body adds `Int32(...)`.
+        return (Int32(camTrace.entityNum) + 1)
+    }
+    return 0
 }
 
 /// Source: oracle/codemp/game/bg_pmove.c:5874

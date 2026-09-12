@@ -79,6 +79,9 @@ public func installBgChannel() {
     bg.straps.trap_Trace = { results, start, mins, maxs, end, passEntityNum, contentmask in
         trap_Trace(results, start, mins, maxs, end, passEntityNum, contentmask)
     }
+    bg.callbacks.BG_FighterUpdate = { pVeh, pUcmd, trMins, trMaxs, gravity, traceFunc in
+        BG_FighterUpdate(pVeh, pUcmd, &trMins, &trMaxs, gravity, traceFunc)
+    }
     bg.callbacks.BG_GetTime = {
         BG_GetTime()
     }

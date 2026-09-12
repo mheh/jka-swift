@@ -54,6 +54,12 @@ public struct BgStraps {
     /// Source: oracle/codemp/game/g_syscalls.c:89
     public var trap_FS_Read: (OpaquePointer?, Int32, JKAShared.fileHandle_t) -> Void = { _, _, _ in portMissing("trap_FS_Read", source: "oracle/codemp/game/g_syscalls.c:89") }
 
+    /// Source: oracle/codemp/cgame/cg_syscalls.c:637
+    public var trap_FX_PlayEffectID: (Int32, inout JKAShared.vec3_t, inout JKAShared.vec3_t, Int32, Int32) -> Void = { _, _, _, _, _ in portMissing("trap_FX_PlayEffectID", source: "oracle/codemp/cgame/cg_syscalls.c:637") }
+
+    /// Source: oracle/codemp/cgame/cg_syscalls.c:621
+    public var trap_FX_RegisterEffect: (String) -> Int32 = { _ in portMissing("trap_FX_RegisterEffect", source: "oracle/codemp/cgame/cg_syscalls.c:621") }
+
     /// Source: oracle/codemp/game/g_syscalls.c:1239
     public var trap_G2API_AddBolt: (OpaquePointer?, Int32, String) -> Int32 = { _, _, _ in portMissing("trap_G2API_AddBolt", source: "oracle/codemp/game/g_syscalls.c:1239") }
 
@@ -69,8 +75,20 @@ public struct BgStraps {
     /// Source: oracle/codemp/game/g_syscalls.c:1223
     public var trap_G2API_InitGhoul2Model: (inout OpaquePointer?, String, Int32, JKAShared.qhandle_t, JKAShared.qhandle_t, Int32, Int32) -> Int32 = { _, _, _, _, _, _, _ in portMissing("trap_G2API_InitGhoul2Model", source: "oracle/codemp/game/g_syscalls.c:1223") }
 
+    /// Source: oracle/codemp/cgame/cg_syscalls.c:266
+    public var trap_R_RegisterModel: (String) -> JKAShared.qhandle_t = { _ in portMissing("trap_R_RegisterModel", source: "oracle/codemp/cgame/cg_syscalls.c:266") }
+
+    /// Source: oracle/codemp/cgame/cg_syscalls.c:274
+    public var trap_R_RegisterShader: (String) -> JKAShared.qhandle_t = { _ in portMissing("trap_R_RegisterShader", source: "oracle/codemp/cgame/cg_syscalls.c:274") }
+
+    /// Source: oracle/codemp/cgame/cg_syscalls.c:278
+    public var trap_R_RegisterShaderNoMip: (String) -> JKAShared.qhandle_t = { _ in portMissing("trap_R_RegisterShaderNoMip", source: "oracle/codemp/cgame/cg_syscalls.c:278") }
+
     /// Source: oracle/codemp/game/g_syscalls.c:1179
     public var trap_R_RegisterSkin: (String) -> JKAShared.qhandle_t = { _ in portMissing("trap_R_RegisterSkin", source: "oracle/codemp/game/g_syscalls.c:1179") }
+
+    /// Source: oracle/codemp/cgame/cg_syscalls.c:229
+    public var trap_S_RegisterSound: (String) -> JKAShared.sfxHandle_t = { _ in portMissing("trap_S_RegisterSound", source: "oracle/codemp/cgame/cg_syscalls.c:229") }
 
     /// Source: oracle/codemp/game/g_syscalls.c:235
     public var trap_SnapVector: (inout JKAShared.vec3_t) -> Void = { _ in portMissing("trap_SnapVector", source: "oracle/codemp/game/g_syscalls.c:235") }
@@ -171,6 +189,17 @@ func trap_FS_Read(_ buffer: OpaquePointer?, _ len: Int32, _ f: JKAShared.fileHan
     bg.straps.trap_FS_Read(buffer, len, f)
 }
 
+/// Source: oracle/codemp/cgame/cg_syscalls.c:637
+func trap_FX_PlayEffectID(_ id: Int32, _ org: inout JKAShared.vec3_t, _ fwd: inout JKAShared.vec3_t, _ vol: Int32, _ rad: Int32) {
+    bg.straps.trap_FX_PlayEffectID(id, &org, &fwd, vol, rad)
+}
+
+/// Source: oracle/codemp/cgame/cg_syscalls.c:621
+@discardableResult
+func trap_FX_RegisterEffect(_ file: String) -> Int32 {
+    bg.straps.trap_FX_RegisterEffect(file)
+}
+
 /// Source: oracle/codemp/game/g_syscalls.c:1239
 @discardableResult
 func trap_G2API_AddBolt(_ ghoul2: OpaquePointer?, _ modelIndex: Int32, _ boneName: String) -> Int32 {
@@ -200,10 +229,34 @@ func trap_G2API_InitGhoul2Model(_ ghoul2Ptr: inout OpaquePointer?, _ fileName: S
     bg.straps.trap_G2API_InitGhoul2Model(&ghoul2Ptr, fileName, modelIndex, customSkin, customShader, modelFlags, lodBias)
 }
 
+/// Source: oracle/codemp/cgame/cg_syscalls.c:266
+@discardableResult
+func trap_R_RegisterModel(_ name: String) -> JKAShared.qhandle_t {
+    bg.straps.trap_R_RegisterModel(name)
+}
+
+/// Source: oracle/codemp/cgame/cg_syscalls.c:274
+@discardableResult
+func trap_R_RegisterShader(_ name: String) -> JKAShared.qhandle_t {
+    bg.straps.trap_R_RegisterShader(name)
+}
+
+/// Source: oracle/codemp/cgame/cg_syscalls.c:278
+@discardableResult
+func trap_R_RegisterShaderNoMip(_ name: String) -> JKAShared.qhandle_t {
+    bg.straps.trap_R_RegisterShaderNoMip(name)
+}
+
 /// Source: oracle/codemp/game/g_syscalls.c:1179
 @discardableResult
 func trap_R_RegisterSkin(_ name: String) -> JKAShared.qhandle_t {
     bg.straps.trap_R_RegisterSkin(name)
+}
+
+/// Source: oracle/codemp/cgame/cg_syscalls.c:229
+@discardableResult
+func trap_S_RegisterSound(_ sample: String) -> JKAShared.sfxHandle_t {
+    bg.straps.trap_S_RegisterSound(sample)
 }
 
 /// Source: oracle/codemp/game/g_syscalls.c:235

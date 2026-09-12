@@ -247,7 +247,8 @@ A transcriptor adds a property to `bg_local.swift` with Raven's name and a `/// 
 
 `tools/oracle-closure/channel.py` generates `Sources/JKAMP_BG/Generated/bg_strap.swift` from `bg_strap.h`: one bare `strap_` function per declaration, each forwarding to a closure on `bg.straps`, the `BgStraps` struct. A declaration the table cannot map gets a `TODO: Port signature` marker instead of a closure.
 Every `trap_` a bg body calls joins `bg_strap.swift` beside the header's declarations, with the shape of the game's `g_syscalls.c` definition, so a body reads `trap_FS_FOpenFile(fileName, &fh, FS_READ)` as Raven wrote it.
-A trap only the cgame module defines is out of the game's parse, so a cgame arm that calls one carries a Port-note that names it.
+A name only the cgame module defines is on the channel in the same shape as a game trap: a `trap_R_`, `trap_S_`, or `trap_FX_` trap, or a `CG_` function a bg body calls on a cgame arm.
+Its entry cites the cgame definition, and `installBgChannel()` skips it, because the game module defines no such function.
 The same generator writes `Sources/JKAMP_BG/Generated/bg_callbacks.swift`, which holds one bare function per game function a bg body calls by name, each forwarding to a closure on `bg.callbacks`, the `BgCallbacks` struct, in the same shape.
 It also writes `Sources/JKAMP_GameLogic/Generated/BgChannel.swift`, whose `installBgChannel()` points every closure at the game function of the same name. A bg body spells `strap_G2API_SetBoneAngles(...)` and `G_NewString(...)` as Raven wrote them.
 The bg side of the channel names `JKAMP.BgEntity` where the game function takes an `Entity`, because the `Entity` view lives in the game target that bg cannot import. `installBgChannel()` turns the one into the other by its handle under rule 11.

@@ -1616,8 +1616,7 @@ func BG_ModelCache(_ modelName: String, _ skinName: String) -> Int32 {
         if !skinName.isEmpty {
             trap_R_RegisterSkin(skinName)
         }
-        // Port-note: Raven returns `trap_R_RegisterModel(modelName)` here. Only the cgame module defines that trap, and the channel does not carry it yet.
-        portMissing("BG_ModelCache: trap_R_RegisterModel", source: "oracle/codemp/game/bg_misc.c:3200")
+        return trap_R_RegisterModel(modelName)
     }
 }
 
