@@ -7,12 +7,12 @@ The oracle range is the whole definition, from the return type to the closing br
 
 | Function | Oracle | Swift | State | jka-rust | Signature |
 |---|---|---|---|---|---|
-| `DeathUpdate` static | `oracle/codemp/game/AnimalNPC.c:97-148` | `JKAMP_GameLogic/AnimalNPC.swift:9` | marker | `crates/mp/game/src/AnimalNPC.rs:16-27` | `private func DeathUpdate(_ pVeh: JKAMP.Vehicle)` |
-| `Update` static | `oracle/codemp/game/AnimalNPC.c:151-154` | `JKAMP_GameLogic/AnimalNPC.swift:16` | marker | `crates/mp/game/src/AnimalNPC.rs:33-36` | `private func Update(_ pVeh: JKAMP.Vehicle, _ pUcmd: JKAMP.Usercmd) -> Bool` |
-| `ProcessMoveCommands` static | `oracle/codemp/game/AnimalNPC.c:168-329` | `JKAMP_GameLogic/AnimalNPC.swift:29` | marker | `crates/mp/bg/src/vehicles/animal_npc.rs:19-116` | `private func ProcessMoveCommands(_ pVeh: JKAMP.Vehicle)` |
-| `ProcessOrientCommands` static | `oracle/codemp/game/AnimalNPC.c:338-464` | `JKAMP_GameLogic/AnimalNPC.swift:42` | marker | `crates/mp/bg/src/vehicles/animal_npc.rs:123-160` | `private func ProcessOrientCommands(_ pVeh: JKAMP.Vehicle)` |
-| `AnimalProcessOri` | `oracle/codemp/game/AnimalNPC.c:467-470` | `JKAMP_GameLogic/AnimalNPC.swift:48` | marker | `crates/mp/game/src/AnimalNPC.rs:43-52` | `func AnimalProcessOri(_ pVeh: JKAMP.Vehicle)` |
-| `AnimateVehicle` static | `oracle/codemp/game/AnimalNPC.c:474-615` | `JKAMP_GameLogic/AnimalNPC.swift:54` | marker | `crates/mp/game/src/AnimalNPC.rs:57-194` | `private func AnimateVehicle(_ pVeh: JKAMP.Vehicle)` |
-| `AnimateRiders` static | `oracle/codemp/game/AnimalNPC.c:620-849` | `JKAMP_GameLogic/AnimalNPC.swift:63` | marker | `crates/mp/game/src/AnimalNPC.rs:202-371` | `private func AnimateRiders(_ pVeh: JKAMP.Vehicle)` |
-| `G_SetAnimalVehicleFunctions` | `oracle/codemp/game/AnimalNPC.c:857-887` | `JKAMP_GameLogic/AnimalNPC.swift:70` | marker | none | `func G_SetAnimalVehicleFunctions(_ pVehInfo: JKAMP.VehicleInfo)` |
-| `G_CreateAnimalNPC` | `oracle/codemp/game/AnimalNPC.c:904-925` | `JKAMP_GameLogic/AnimalNPC.swift:78` | marker | `crates/mp/game/src/AnimalNPC.rs:383-406` | `func G_CreateAnimalNPC(_ pVeh: inout JKAMP.Vehicle?, _ strAnimalType: String)` |
+| `DeathUpdate` static | `oracle/codemp/game/AnimalNPC.c:97-148` | `JKAMP_GameLogic/AnimalNPC.swift:68` | marker | `crates/mp/game/src/AnimalNPC.rs:16-27` | `private func DeathUpdate(_ pVeh: JKAMP.Vehicle)` |
+| `Update` static | `oracle/codemp/game/AnimalNPC.c:151-154` | `JKAMP_GameLogic/AnimalNPC.swift:75` | marker | `crates/mp/game/src/AnimalNPC.rs:33-36` | `private func Update(_ pVeh: JKAMP.Vehicle, _ pUcmd: JKAMP.Usercmd) -> Bool` |
+| `ProcessMoveCommands` static | `oracle/codemp/game/AnimalNPC.c:168-329` | `JKAMP_GameLogic/AnimalNPC.swift:88` | marker | `crates/mp/bg/src/vehicles/animal_npc.rs:19-116` | `private func ProcessMoveCommands(_ pVeh: JKAMP.Vehicle)` |
+| `ProcessOrientCommands` static | `oracle/codemp/game/AnimalNPC.c:338-464` | `JKAMP_GameLogic/AnimalNPC.swift:101` | marker | `crates/mp/bg/src/vehicles/animal_npc.rs:123-160` | `private func ProcessOrientCommands(_ pVeh: JKAMP.Vehicle)` |
+| `AnimalProcessOri` | `oracle/codemp/game/AnimalNPC.c:467-470` | `JKAMP_GameLogic/AnimalNPC.swift:107` | marker | `crates/mp/game/src/AnimalNPC.rs:43-52` | `func AnimalProcessOri(_ pVeh: JKAMP.Vehicle)` |
+| `AnimateVehicle` static | `oracle/codemp/game/AnimalNPC.c:474-615` | `JKAMP_GameLogic/AnimalNPC.swift:113` | marker | `crates/mp/game/src/AnimalNPC.rs:57-194` | `private func AnimateVehicle(_ pVeh: JKAMP.Vehicle)` |
+| `AnimateRiders` static | `oracle/codemp/game/AnimalNPC.c:620-849` | `JKAMP_GameLogic/AnimalNPC.swift:122` | marker | `crates/mp/game/src/AnimalNPC.rs:202-371` | `private func AnimateRiders(_ pVeh: JKAMP.Vehicle)` |
+| `G_SetAnimalVehicleFunctions` | `oracle/codemp/game/AnimalNPC.c:857-887` | `JKAMP_GameLogic/AnimalNPC.swift:129` | marker | none | `func G_SetAnimalVehicleFunctions(_ pVehInfo: JKAMP.VehicleInfo)` |
+| `G_CreateAnimalNPC` | `oracle/codemp/game/AnimalNPC.c:904-925` | `JKAMP_GameLogic/AnimalNPC.swift:137` | marker | `crates/mp/game/src/AnimalNPC.rs:383-406` | `func G_CreateAnimalNPC(_ pVeh: inout JKAMP.Vehicle?, _ strAnimalType: String)` |

@@ -7,93 +7,93 @@ The oracle range is the whole definition, from the return type to the closing br
 
 | Function | Oracle | Swift | State | jka-rust | Signature |
 |---|---|---|---|---|---|
-| `SP_info_camp` | `oracle/codemp/game/g_misc.c:25-27` | `JKAMP_GameLogic/g_misc.swift:39` | marker | `crates/mp/game/src/g_misc.rs:99-102` | `func SP_info_camp(_ `self`: Entity)` |
-| `SP_info_null` | `oracle/codemp/game/g_misc.c:33-35` | `JKAMP_GameLogic/g_misc.swift:51` | marker | `crates/mp/game/src/g_misc.rs:109-111` | `func SP_info_null(_ `self`: Entity)` |
-| `SP_info_notnull` | `oracle/codemp/game/g_misc.c:42-44` | `JKAMP_GameLogic/g_misc.swift:64` | marker | `crates/mp/game/src/g_misc.rs:118-121` | `func SP_info_notnull(_ `self`: Entity)` |
-| `misc_lightstyle_set` static | `oracle/codemp/game/g_misc.c:86-132` | `JKAMP_GameLogic/g_misc.swift:102` | marker | `crates/mp/game/src/g_misc.rs:126-173` | `private func misc_lightstyle_set(_ ent: Entity)` |
-| `misc_dlight_use` | `oracle/codemp/game/g_misc.c:134-140` | `JKAMP_GameLogic/g_misc.swift:108` | marker | `crates/mp/game/src/g_misc.rs:178-188` | `func misc_dlight_use(_ ent: Entity, _ other: Entity, _ activator: Entity)` |
-| `SP_light` | `oracle/codemp/game/g_misc.c:142-166` | `JKAMP_GameLogic/g_misc.swift:114` | marker | `crates/mp/game/src/g_misc.rs:193-232` | `func SP_light(_ `self`: Entity)` |
-| `TeleportPlayer` | `oracle/codemp/game/g_misc.c:177-231` | `JKAMP_GameLogic/g_misc.swift:120` | marker | `crates/mp/game/src/g_misc.rs:237-308` | `func TeleportPlayer(_ player: Entity, _ origin: inout JKAShared.vec3_t, _ angles: inout JKAShared.vec3_t)` |
-| `SP_misc_teleporter_dest` | `oracle/codemp/game/g_misc.c:239-240` | `JKAMP_GameLogic/g_misc.swift:134` | marker | `crates/mp/game/src/g_misc.rs:315-315` | `func SP_misc_teleporter_dest(_ ent: Entity)` |
-| `SP_misc_model` | `oracle/codemp/game/g_misc.c:249-262` | `JKAMP_GameLogic/g_misc.swift:147` | marker | `crates/mp/game/src/g_misc.rs:322-324` | `func SP_misc_model(_ ent: Entity)` |
-| `SP_misc_model_static` | `oracle/codemp/game/g_misc.c:277-280` | `JKAMP_GameLogic/g_misc.swift:169` | marker | `crates/mp/game/src/g_misc.rs:329-331` | `func SP_misc_model_static(_ ent: Entity)` |
-| `SP_misc_G2model` | `oracle/codemp/game/g_misc.c:285-301` | `JKAMP_GameLogic/g_misc.swift:181` | marker | `crates/mp/game/src/g_misc.rs:337-339` | `func SP_misc_G2model(_ ent: Entity)` |
-| `locateCamera` | `oracle/codemp/game/g_misc.c:305-349` | `JKAMP_GameLogic/g_misc.swift:187` | marker | `crates/mp/game/src/g_misc.rs:344-396` | `func locateCamera(_ ent: Entity)` |
-| `SP_misc_portal_surface` | `oracle/codemp/game/g_misc.c:355-369` | `JKAMP_GameLogic/g_misc.swift:200` | marker | `crates/mp/game/src/g_misc.rs:401-421` | `func SP_misc_portal_surface(_ ent: Entity)` |
-| `SP_misc_portal_camera` | `oracle/codemp/game/g_misc.c:375-385` | `JKAMP_GameLogic/g_misc.swift:213` | marker | `crates/mp/game/src/g_misc.rs:426-440` | `func SP_misc_portal_camera(_ ent: Entity)` |
-| `SP_misc_bsp` | `oracle/codemp/game/g_misc.c:390-462` | `JKAMP_GameLogic/g_misc.swift:225` | marker | `crates/mp/game/src/g_misc.rs:445-514` | `func SP_misc_bsp(_ ent: Entity)` |
-| `SP_terrain` | `oracle/codemp/game/g_misc.c:484-631` | `JKAMP_GameLogic/g_misc.swift:231` | marker | `crates/mp/game/src/g_misc.rs:519-659` | `func SP_terrain(_ ent: Entity)` |
-| `G_PortalifyEntities` | `oracle/codemp/game/g_misc.c:638-667` | `JKAMP_GameLogic/g_misc.swift:242` | marker | `crates/mp/game/src/g_misc.rs:664-715` | `func G_PortalifyEntities(_ ent: Entity)` |
-| `SP_misc_skyportal_orient` | `oracle/codemp/game/g_misc.c:675-678` | `JKAMP_GameLogic/g_misc.swift:257` | marker | `crates/mp/game/src/g_misc.rs:720-722` | `func SP_misc_skyportal_orient(_ ent: Entity)` |
-| `SP_misc_skyportal` | `oracle/codemp/game/g_misc.c:694-715` | `JKAMP_GameLogic/g_misc.swift:279` | marker | `crates/mp/game/src/g_misc.rs:727-755` | `func SP_misc_skyportal(_ ent: Entity)` |
-| `HolocronRespawn` | `oracle/codemp/game/g_misc.c:760-763` | `JKAMP_GameLogic/g_misc.swift:285` | marker | `crates/mp/game/src/g_misc.rs:760-762` | `func HolocronRespawn(_ `self`: Entity)` |
-| `HolocronPopOut` | `oracle/codemp/game/g_misc.c:765-784` | `JKAMP_GameLogic/g_misc.swift:291` | marker | `crates/mp/game/src/g_misc.rs:767-784` | `func HolocronPopOut(_ `self`: Entity)` |
-| `HolocronTouch` | `oracle/codemp/game/g_misc.c:786-905` | `JKAMP_GameLogic/g_misc.swift:297` | marker | `crates/mp/game/src/g_misc.rs:789-914` | `func HolocronTouch(_ `self`: Entity, _ other: Entity, _ trace: JKAMP.Trace)` |
-| `HolocronThink` | `oracle/codemp/game/g_misc.c:907-991` | `JKAMP_GameLogic/g_misc.swift:303` | marker | `crates/mp/game/src/g_misc.rs:921-1065` | `func HolocronThink(_ ent: Entity)` |
-| `SP_misc_holocron` | `oracle/codemp/game/g_misc.c:993-1097` | `JKAMP_GameLogic/g_misc.swift:309` | marker | `crates/mp/game/src/g_misc.rs:1070-1196` | `func SP_misc_holocron(_ ent: Entity)` |
-| `Use_Shooter` | `oracle/codemp/game/g_misc.c:1107-1139` | `JKAMP_GameLogic/g_misc.swift:315` | marker | `crates/mp/game/src/g_misc.rs:1201-1253` | `func Use_Shooter(_ ent: Entity, _ other: Entity, _ activator: Entity)` |
-| `InitShooter_Finish` static | `oracle/codemp/game/g_misc.c:1142-1146` | `JKAMP_GameLogic/g_misc.swift:321` | marker | `crates/mp/game/src/g_misc.rs:1258-1266` | `func InitShooter_Finish(_ ent: Entity)` |
-| `InitShooter` | `oracle/codemp/game/g_misc.c:1148-1166` | `JKAMP_GameLogic/g_misc.swift:327` | marker | `crates/mp/game/src/g_misc.rs:1271-1305` | `func InitShooter(_ ent: Entity, _ weapon: Int32)` |
-| `SP_shooter_blaster` | `oracle/codemp/game/g_misc.c:1172-1174` | `JKAMP_GameLogic/g_misc.swift:340` | marker | `crates/mp/game/src/g_misc.rs:1310-1312` | `func SP_shooter_blaster(_ ent: Entity)` |
-| `check_recharge` | `oracle/codemp/game/g_misc.c:1176-1206` | `JKAMP_GameLogic/g_misc.swift:346` | marker | `crates/mp/game/src/g_misc.rs:1317-1358` | `func check_recharge(_ ent: Entity)` |
-| `EnergyShieldStationSettings` | `oracle/codemp/game/g_misc.c:1213-1223` | `JKAMP_GameLogic/g_misc.swift:359` | marker | `crates/mp/game/src/g_misc.rs:1363-1375` | `func EnergyShieldStationSettings(_ ent: Entity)` |
-| `shield_power_converter_use` | `oracle/codemp/game/g_misc.c:1230-1328` | `JKAMP_GameLogic/g_misc.swift:372` | marker | `crates/mp/game/src/g_misc.rs:1380-1492` | `func shield_power_converter_use(_ `self`: Entity, _ other: Entity, _ activator: Entity)` |
-| `ammo_generic_power_converter_use` | `oracle/codemp/game/g_misc.c:1331-1505` | `JKAMP_GameLogic/g_misc.swift:379` | marker | `crates/mp/game/src/g_misc.rs:1497-1617` | `func ammo_generic_power_converter_use(_ `self`: Entity, _ other: Entity, _ activator: Entity)` |
-| `SP_misc_ammo_floor_unit` | `oracle/codemp/game/g_misc.c:1515-1592` | `JKAMP_GameLogic/g_misc.swift:396` | marker | `crates/mp/game/src/g_misc.rs:1622-1744` | `func SP_misc_ammo_floor_unit(_ ent: Entity)` |
-| `SP_misc_shield_floor_unit` | `oracle/codemp/game/g_misc.c:1602-1687` | `JKAMP_GameLogic/g_misc.swift:413` | marker | `crates/mp/game/src/g_misc.rs:1749-1882` | `func SP_misc_shield_floor_unit(_ ent: Entity)` |
-| `SP_misc_model_shield_power_converter` | `oracle/codemp/game/g_misc.c:1697-1735` | `JKAMP_GameLogic/g_misc.swift:429` | marker | `crates/mp/game/src/g_misc.rs:1887-1944` | `func SP_misc_model_shield_power_converter(_ ent: Entity)` |
-| `EnergyAmmoStationSettings` | `oracle/codemp/game/g_misc.c:1743-1746` | `JKAMP_GameLogic/g_misc.swift:442` | marker | `crates/mp/game/src/g_misc.rs:1949-1953` | `func EnergyAmmoStationSettings(_ ent: Entity)` |
-| `ammo_power_converter_use` | `oracle/codemp/game/g_misc.c:1753-1853` | `JKAMP_GameLogic/g_misc.swift:455` | marker | `crates/mp/game/src/g_misc.rs:1958-2027` | `func ammo_power_converter_use(_ `self`: Entity, _ other: Entity, _ activator: Entity)` |
-| `SP_misc_model_ammo_power_converter` | `oracle/codemp/game/g_misc.c:1864-1904` | `JKAMP_GameLogic/g_misc.swift:472` | marker | `crates/mp/game/src/g_misc.rs:2032-2098` | `func SP_misc_model_ammo_power_converter(_ ent: Entity)` |
-| `EnergyHealthStationSettings` | `oracle/codemp/game/g_misc.c:1911-1914` | `JKAMP_GameLogic/g_misc.swift:485` | marker | `crates/mp/game/src/g_misc.rs:2103-2107` | `func EnergyHealthStationSettings(_ ent: Entity)` |
-| `health_power_converter_use` | `oracle/codemp/game/g_misc.c:1921-1972` | `JKAMP_GameLogic/g_misc.swift:498` | marker | `crates/mp/game/src/g_misc.rs:2112-2166` | `func health_power_converter_use(_ `self`: Entity, _ other: Entity, _ activator: Entity)` |
-| `SP_misc_model_health_power_converter` | `oracle/codemp/game/g_misc.c:1982-2027` | `JKAMP_GameLogic/g_misc.swift:514` | marker | `crates/mp/game/src/g_misc.rs:2171-2238` | `func SP_misc_model_health_power_converter(_ ent: Entity)` |
-| `fx_runner_think` | `oracle/codemp/game/g_misc.c:2266-2310` | `JKAMP_GameLogic/g_misc.swift:521` | marker | `crates/mp/game/src/g_misc.rs:2243-2313` | `func fx_runner_think(_ ent: Entity)` |
-| `fx_runner_use` | `oracle/codemp/game/g_misc.c:2313-2384` | `JKAMP_GameLogic/g_misc.swift:528` | marker | `crates/mp/game/src/g_misc.rs:2318-2404` | `func fx_runner_use(_ `self`: Entity, _ other: Entity, _ activator: Entity)` |
-| `fx_runner_link` | `oracle/codemp/game/g_misc.c:2387-2453` | `JKAMP_GameLogic/g_misc.swift:535` | marker | `crates/mp/game/src/g_misc.rs:2409-2480` | `func fx_runner_link(_ ent: Entity)` |
-| `SP_fx_runner` | `oracle/codemp/game/g_misc.c:2456-2501` | `JKAMP_GameLogic/g_misc.swift:542` | marker | `crates/mp/game/src/g_misc.rs:2485-2560` | `func SP_fx_runner(_ ent: Entity)` |
-| `SP_CreateSpaceDust` | `oracle/codemp/game/g_misc.c:2509-2513` | `JKAMP_GameLogic/g_misc.swift:557` | marker | `crates/mp/game/src/g_misc.rs:2565-2569` | `func SP_CreateSpaceDust(_ ent: Entity)` |
-| `SP_CreateSnow` | `oracle/codemp/game/g_misc.c:2522-2527` | `JKAMP_GameLogic/g_misc.swift:572` | marker | `crates/mp/game/src/g_misc.rs:2574-2578` | `func SP_CreateSnow(_ ent: Entity)` |
-| `SP_CreateRain` | `oracle/codemp/game/g_misc.c:2535-2538` | `JKAMP_GameLogic/g_misc.swift:587` | marker | `crates/mp/game/src/g_misc.rs:2583-2586` | `func SP_CreateRain(_ ent: Entity)` |
-| `Use_Target_Screenshake` | `oracle/codemp/game/g_misc.c:2543-2553` | `JKAMP_GameLogic/g_misc.swift:593` | marker | `crates/mp/game/src/g_misc.rs:2591-2603` | `func Use_Target_Screenshake(_ ent: Entity, _ other: Entity, _ activator: Entity)` |
-| `SP_target_screenshake` | `oracle/codemp/game/g_misc.c:2555-2565` | `JKAMP_GameLogic/g_misc.swift:599` | marker | `crates/mp/game/src/g_misc.rs:2608-2625` | `func SP_target_screenshake(_ ent: Entity)` |
-| `Use_Target_Escapetrig` | `oracle/codemp/game/g_misc.c:2569-2597` | `JKAMP_GameLogic/g_misc.swift:605` | marker | `crates/mp/game/src/g_misc.rs:2630-2677` | `func Use_Target_Escapetrig(_ ent: Entity, _ other: Entity, _ activator: Entity)` |
-| `SP_target_escapetrig` | `oracle/codemp/game/g_misc.c:2599-2613` | `JKAMP_GameLogic/g_misc.swift:611` | marker | `crates/mp/game/src/g_misc.rs:2682-2703` | `func SP_target_escapetrig(_ ent: Entity)` |
-| `maglock_die` | `oracle/codemp/game/g_misc.c:2623-2640` | `JKAMP_GameLogic/g_misc.swift:628` | marker | `crates/mp/game/src/g_misc.rs:2710-2727` | `func maglock_die(_ `self`: Entity, _ inflictor: Entity, _ attacker: Entity, _ damage: Int32, _ mod: Int32)` |
-| `SP_misc_maglock` | `oracle/codemp/game/g_misc.c:2645-2658` | `JKAMP_GameLogic/g_misc.swift:634` | marker | `crates/mp/game/src/g_misc.rs:2732-2750` | `func SP_misc_maglock(_ `self`: Entity)` |
-| `maglock_link` | `oracle/codemp/game/g_misc.c:2659-2728` | `JKAMP_GameLogic/g_misc.swift:640` | marker | `crates/mp/game/src/g_misc.rs:2755-2851` | `func maglock_link(_ `self`: Entity)` |
-| `faller_touch` | `oracle/codemp/game/g_misc.c:2730-2756` | `JKAMP_GameLogic/g_misc.swift:646` | marker | `crates/mp/game/src/g_misc.rs:2856-2888` | `func faller_touch(_ `self`: Entity, _ other: Entity, _ trace: JKAMP.Trace)` |
-| `faller_think` | `oracle/codemp/game/g_misc.c:2758-2787` | `JKAMP_GameLogic/g_misc.swift:652` | marker | `crates/mp/game/src/g_misc.rs:2893-2933` | `func faller_think(_ ent: Entity)` |
-| `misc_faller_create` | `oracle/codemp/game/g_misc.c:2789-2828` | `JKAMP_GameLogic/g_misc.swift:658` | marker | `crates/mp/game/src/g_misc.rs:2938-3002` | `func misc_faller_create(_ ent: Entity, _ other: Entity, _ activator: Entity)` |
-| `misc_faller_think` | `oracle/codemp/game/g_misc.c:2830-2834` | `JKAMP_GameLogic/g_misc.swift:664` | marker | `crates/mp/game/src/g_misc.rs:3007-3014` | `func misc_faller_think(_ ent: Entity)` |
-| `SP_misc_faller` | `oracle/codemp/game/g_misc.c:2844-2865` | `JKAMP_GameLogic/g_misc.swift:681` | marker | `crates/mp/game/src/g_misc.rs:3019-3046` | `func SP_misc_faller(_ ent: Entity)` |
-| `FirstFreeTagOwner` | `oracle/codemp/game/g_misc.c:2888-2903` | `JKAMP_GameLogic/g_misc.swift:687` | marker | `crates/mp/game/src/g_misc.rs:3051-3065` | `func FirstFreeTagOwner() -> TagOwner?` |
-| `FirstFreeRefTag` | `oracle/codemp/game/g_misc.c:2905-2922` | `JKAMP_GameLogic/g_misc.swift:693` | marker | `crates/mp/game/src/g_misc.rs:3070-3089` | `func FirstFreeRefTag(_ tagOwner: TagOwner) -> ReferenceTag?` |
-| `TAG_Init` | `oracle/codemp/game/g_misc.c:2930-2945` | `JKAMP_GameLogic/g_misc.swift:699` | marker | `crates/mp/game/src/g_misc.rs:3094-3107` | `func TAG_Init()` |
-| `TAG_FindOwner` | `oracle/codemp/game/g_misc.c:2953-2967` | `JKAMP_GameLogic/g_misc.swift:705` | marker | `crates/mp/game/src/g_misc.rs:3112-3127` | `func TAG_FindOwner(_ owner: String) -> TagOwner?` |
-| `TAG_Find` | `oracle/codemp/game/g_misc.c:2975-3028` | `JKAMP_GameLogic/g_misc.swift:711` | marker | `crates/mp/game/src/g_misc.rs:3132-3187` | `func TAG_Find(_ owner: String, _ name: String) -> ReferenceTag?` |
-| `TAG_Add` | `oracle/codemp/game/g_misc.c:3036-3104` | `JKAMP_GameLogic/g_misc.swift:717` | marker | `crates/mp/game/src/g_misc.rs:3192-3267` | `func TAG_Add(_ name: String, _ owner: String, _ origin: inout JKAShared.vec3_t, _ angles: inout JKAShared.vec3_t, _ radius: Int32, _ flags: Int32) -> ReferenceTag?` |
-| `TAG_GetOrigin` | `oracle/codemp/game/g_misc.c:3112-3125` | `JKAMP_GameLogic/g_misc.swift:723` | marker | `crates/mp/game/src/g_misc.rs:3275-3290` | `func TAG_GetOrigin(_ owner: String, _ name: String, _ origin: inout JKAShared.vec3_t) -> Int32` |
-| `TAG_GetOrigin2` | `oracle/codemp/game/g_misc.c:3134-3146` | `JKAMP_GameLogic/g_misc.swift:729` | marker | `crates/mp/game/src/g_misc.rs:3296-3310` | `func TAG_GetOrigin2(_ owner: String, _ name: String, _ origin: inout JKAShared.vec3_t) -> Int32` |
-| `TAG_GetAngles` | `oracle/codemp/game/g_misc.c:3153-3166` | `JKAMP_GameLogic/g_misc.swift:735` | marker | `crates/mp/game/src/g_misc.rs:3316-3332` | `func TAG_GetAngles(_ owner: String, _ name: String, _ angles: inout JKAShared.vec3_t) -> Int32` |
-| `TAG_GetRadius` | `oracle/codemp/game/g_misc.c:3174-3185` | `JKAMP_GameLogic/g_misc.swift:741` | marker | `crates/mp/game/src/g_misc.rs:3337-3345` | `func TAG_GetRadius(_ owner: String, _ name: String) -> Int32` |
-| `TAG_GetFlags` | `oracle/codemp/game/g_misc.c:3193-3204` | `JKAMP_GameLogic/g_misc.swift:747` | marker | `crates/mp/game/src/g_misc.rs:3350-3358` | `func TAG_GetFlags(_ owner: String, _ name: String) -> Int32` |
-| `ref_link` | `oracle/codemp/game/g_misc.c:3267-3298` | `JKAMP_GameLogic/g_misc.swift:753` | marker | `crates/mp/game/src/g_misc.rs:3363-3406` | `func ref_link(_ ent: Entity)` |
-| `SP_reference_tag` | `oracle/codemp/game/g_misc.c:3300-3312` | `JKAMP_GameLogic/g_misc.swift:759` | marker | `crates/mp/game/src/g_misc.rs:3411-3421` | `func SP_reference_tag(_ ent: Entity)` |
-| `G_ClientForShooter` | `oracle/codemp/game/g_misc.c:3354-3375` | `JKAMP_GameLogic/g_misc.swift:765` | marker | `crates/mp/game/src/g_misc.rs:3426-3453` | `func G_ClientForShooter() -> Client?` |
-| `G_FreeClientForShooter` | `oracle/codemp/game/g_misc.c:3377-3389` | `JKAMP_GameLogic/g_misc.swift:771` | marker | `crates/mp/game/src/g_misc.rs:3458-3467` | `func G_FreeClientForShooter(_ cl: Client)` |
-| `misc_weapon_shooter_fire` | `oracle/codemp/game/g_misc.c:3391-3399` | `JKAMP_GameLogic/g_misc.swift:777` | marker | `crates/mp/game/src/g_misc.rs:3472-3484` | `func misc_weapon_shooter_fire(_ `self`: Entity)` |
-| `misc_weapon_shooter_use` | `oracle/codemp/game/g_misc.c:3401-3415` | `JKAMP_GameLogic/g_misc.swift:783` | marker | `crates/mp/game/src/g_misc.rs:3489-3507` | `func misc_weapon_shooter_use(_ `self`: Entity, _ other: Entity, _ activator: Entity)` |
-| `misc_weapon_shooter_aim` | `oracle/codemp/game/g_misc.c:3417-3438` | `JKAMP_GameLogic/g_misc.swift:789` | marker | `crates/mp/game/src/g_misc.rs:3512-3546` | `func misc_weapon_shooter_aim(_ `self`: Entity)` |
-| `SP_misc_weapon_shooter` | `oracle/codemp/game/g_misc.c:3444-3486` | `JKAMP_GameLogic/g_misc.swift:795` | marker | `crates/mp/game/src/g_misc.rs:3551-3613` | `func SP_misc_weapon_shooter(_ `self`: Entity)` |
-| `SP_misc_weather_zone` | `oracle/codemp/game/g_misc.c:3491-3494` | `JKAMP_GameLogic/g_misc.swift:807` | marker | `crates/mp/game/src/g_misc.rs:3618-3620` | `func SP_misc_weather_zone(_ ent: Entity)` |
+| `SP_info_camp` | `oracle/codemp/game/g_misc.c:25-27` | `JKAMP_GameLogic/g_misc.swift:68` | marker | `crates/mp/game/src/g_misc.rs:99-102` | `func SP_info_camp(_ `self`: Entity)` |
+| `SP_info_null` | `oracle/codemp/game/g_misc.c:33-35` | `JKAMP_GameLogic/g_misc.swift:80` | marker | `crates/mp/game/src/g_misc.rs:109-111` | `func SP_info_null(_ `self`: Entity)` |
+| `SP_info_notnull` | `oracle/codemp/game/g_misc.c:42-44` | `JKAMP_GameLogic/g_misc.swift:93` | marker | `crates/mp/game/src/g_misc.rs:118-121` | `func SP_info_notnull(_ `self`: Entity)` |
+| `misc_lightstyle_set` static | `oracle/codemp/game/g_misc.c:86-132` | `JKAMP_GameLogic/g_misc.swift:131` | marker | `crates/mp/game/src/g_misc.rs:126-173` | `private func misc_lightstyle_set(_ ent: Entity)` |
+| `misc_dlight_use` | `oracle/codemp/game/g_misc.c:134-140` | `JKAMP_GameLogic/g_misc.swift:137` | marker | `crates/mp/game/src/g_misc.rs:178-188` | `func misc_dlight_use(_ ent: Entity, _ other: Entity, _ activator: Entity)` |
+| `SP_light` | `oracle/codemp/game/g_misc.c:142-166` | `JKAMP_GameLogic/g_misc.swift:143` | marker | `crates/mp/game/src/g_misc.rs:193-232` | `func SP_light(_ `self`: Entity)` |
+| `TeleportPlayer` | `oracle/codemp/game/g_misc.c:177-231` | `JKAMP_GameLogic/g_misc.swift:149` | marker | `crates/mp/game/src/g_misc.rs:237-308` | `func TeleportPlayer(_ player: Entity, _ origin: inout JKAShared.vec3_t, _ angles: inout JKAShared.vec3_t)` |
+| `SP_misc_teleporter_dest` | `oracle/codemp/game/g_misc.c:239-240` | `JKAMP_GameLogic/g_misc.swift:163` | marker | `crates/mp/game/src/g_misc.rs:315-315` | `func SP_misc_teleporter_dest(_ ent: Entity)` |
+| `SP_misc_model` | `oracle/codemp/game/g_misc.c:249-262` | `JKAMP_GameLogic/g_misc.swift:176` | marker | `crates/mp/game/src/g_misc.rs:322-324` | `func SP_misc_model(_ ent: Entity)` |
+| `SP_misc_model_static` | `oracle/codemp/game/g_misc.c:277-280` | `JKAMP_GameLogic/g_misc.swift:198` | marker | `crates/mp/game/src/g_misc.rs:329-331` | `func SP_misc_model_static(_ ent: Entity)` |
+| `SP_misc_G2model` | `oracle/codemp/game/g_misc.c:285-301` | `JKAMP_GameLogic/g_misc.swift:210` | marker | `crates/mp/game/src/g_misc.rs:337-339` | `func SP_misc_G2model(_ ent: Entity)` |
+| `locateCamera` | `oracle/codemp/game/g_misc.c:305-349` | `JKAMP_GameLogic/g_misc.swift:216` | marker | `crates/mp/game/src/g_misc.rs:344-396` | `func locateCamera(_ ent: Entity)` |
+| `SP_misc_portal_surface` | `oracle/codemp/game/g_misc.c:355-369` | `JKAMP_GameLogic/g_misc.swift:229` | marker | `crates/mp/game/src/g_misc.rs:401-421` | `func SP_misc_portal_surface(_ ent: Entity)` |
+| `SP_misc_portal_camera` | `oracle/codemp/game/g_misc.c:375-385` | `JKAMP_GameLogic/g_misc.swift:242` | marker | `crates/mp/game/src/g_misc.rs:426-440` | `func SP_misc_portal_camera(_ ent: Entity)` |
+| `SP_misc_bsp` | `oracle/codemp/game/g_misc.c:390-462` | `JKAMP_GameLogic/g_misc.swift:254` | marker | `crates/mp/game/src/g_misc.rs:445-514` | `func SP_misc_bsp(_ ent: Entity)` |
+| `SP_terrain` | `oracle/codemp/game/g_misc.c:484-631` | `JKAMP_GameLogic/g_misc.swift:260` | marker | `crates/mp/game/src/g_misc.rs:519-659` | `func SP_terrain(_ ent: Entity)` |
+| `G_PortalifyEntities` | `oracle/codemp/game/g_misc.c:638-667` | `JKAMP_GameLogic/g_misc.swift:271` | marker | `crates/mp/game/src/g_misc.rs:664-715` | `func G_PortalifyEntities(_ ent: Entity)` |
+| `SP_misc_skyportal_orient` | `oracle/codemp/game/g_misc.c:675-678` | `JKAMP_GameLogic/g_misc.swift:286` | marker | `crates/mp/game/src/g_misc.rs:720-722` | `func SP_misc_skyportal_orient(_ ent: Entity)` |
+| `SP_misc_skyportal` | `oracle/codemp/game/g_misc.c:694-715` | `JKAMP_GameLogic/g_misc.swift:308` | marker | `crates/mp/game/src/g_misc.rs:727-755` | `func SP_misc_skyportal(_ ent: Entity)` |
+| `HolocronRespawn` | `oracle/codemp/game/g_misc.c:760-763` | `JKAMP_GameLogic/g_misc.swift:314` | marker | `crates/mp/game/src/g_misc.rs:760-762` | `func HolocronRespawn(_ `self`: Entity)` |
+| `HolocronPopOut` | `oracle/codemp/game/g_misc.c:765-784` | `JKAMP_GameLogic/g_misc.swift:320` | marker | `crates/mp/game/src/g_misc.rs:767-784` | `func HolocronPopOut(_ `self`: Entity)` |
+| `HolocronTouch` | `oracle/codemp/game/g_misc.c:786-905` | `JKAMP_GameLogic/g_misc.swift:326` | marker | `crates/mp/game/src/g_misc.rs:789-914` | `func HolocronTouch(_ `self`: Entity, _ other: Entity, _ trace: JKAMP.Trace)` |
+| `HolocronThink` | `oracle/codemp/game/g_misc.c:907-991` | `JKAMP_GameLogic/g_misc.swift:332` | marker | `crates/mp/game/src/g_misc.rs:921-1065` | `func HolocronThink(_ ent: Entity)` |
+| `SP_misc_holocron` | `oracle/codemp/game/g_misc.c:993-1097` | `JKAMP_GameLogic/g_misc.swift:338` | marker | `crates/mp/game/src/g_misc.rs:1070-1196` | `func SP_misc_holocron(_ ent: Entity)` |
+| `Use_Shooter` | `oracle/codemp/game/g_misc.c:1107-1139` | `JKAMP_GameLogic/g_misc.swift:344` | marker | `crates/mp/game/src/g_misc.rs:1201-1253` | `func Use_Shooter(_ ent: Entity, _ other: Entity, _ activator: Entity)` |
+| `InitShooter_Finish` static | `oracle/codemp/game/g_misc.c:1142-1146` | `JKAMP_GameLogic/g_misc.swift:350` | marker | `crates/mp/game/src/g_misc.rs:1258-1266` | `func InitShooter_Finish(_ ent: Entity)` |
+| `InitShooter` | `oracle/codemp/game/g_misc.c:1148-1166` | `JKAMP_GameLogic/g_misc.swift:356` | marker | `crates/mp/game/src/g_misc.rs:1271-1305` | `func InitShooter(_ ent: Entity, _ weapon: Int32)` |
+| `SP_shooter_blaster` | `oracle/codemp/game/g_misc.c:1172-1174` | `JKAMP_GameLogic/g_misc.swift:369` | marker | `crates/mp/game/src/g_misc.rs:1310-1312` | `func SP_shooter_blaster(_ ent: Entity)` |
+| `check_recharge` | `oracle/codemp/game/g_misc.c:1176-1206` | `JKAMP_GameLogic/g_misc.swift:375` | marker | `crates/mp/game/src/g_misc.rs:1317-1358` | `func check_recharge(_ ent: Entity)` |
+| `EnergyShieldStationSettings` | `oracle/codemp/game/g_misc.c:1213-1223` | `JKAMP_GameLogic/g_misc.swift:388` | marker | `crates/mp/game/src/g_misc.rs:1363-1375` | `func EnergyShieldStationSettings(_ ent: Entity)` |
+| `shield_power_converter_use` | `oracle/codemp/game/g_misc.c:1230-1328` | `JKAMP_GameLogic/g_misc.swift:401` | marker | `crates/mp/game/src/g_misc.rs:1380-1492` | `func shield_power_converter_use(_ `self`: Entity, _ other: Entity, _ activator: Entity)` |
+| `ammo_generic_power_converter_use` | `oracle/codemp/game/g_misc.c:1331-1505` | `JKAMP_GameLogic/g_misc.swift:408` | marker | `crates/mp/game/src/g_misc.rs:1497-1617` | `func ammo_generic_power_converter_use(_ `self`: Entity, _ other: Entity, _ activator: Entity)` |
+| `SP_misc_ammo_floor_unit` | `oracle/codemp/game/g_misc.c:1515-1592` | `JKAMP_GameLogic/g_misc.swift:425` | marker | `crates/mp/game/src/g_misc.rs:1622-1744` | `func SP_misc_ammo_floor_unit(_ ent: Entity)` |
+| `SP_misc_shield_floor_unit` | `oracle/codemp/game/g_misc.c:1602-1687` | `JKAMP_GameLogic/g_misc.swift:442` | marker | `crates/mp/game/src/g_misc.rs:1749-1882` | `func SP_misc_shield_floor_unit(_ ent: Entity)` |
+| `SP_misc_model_shield_power_converter` | `oracle/codemp/game/g_misc.c:1697-1735` | `JKAMP_GameLogic/g_misc.swift:458` | marker | `crates/mp/game/src/g_misc.rs:1887-1944` | `func SP_misc_model_shield_power_converter(_ ent: Entity)` |
+| `EnergyAmmoStationSettings` | `oracle/codemp/game/g_misc.c:1743-1746` | `JKAMP_GameLogic/g_misc.swift:471` | marker | `crates/mp/game/src/g_misc.rs:1949-1953` | `func EnergyAmmoStationSettings(_ ent: Entity)` |
+| `ammo_power_converter_use` | `oracle/codemp/game/g_misc.c:1753-1853` | `JKAMP_GameLogic/g_misc.swift:484` | marker | `crates/mp/game/src/g_misc.rs:1958-2027` | `func ammo_power_converter_use(_ `self`: Entity, _ other: Entity, _ activator: Entity)` |
+| `SP_misc_model_ammo_power_converter` | `oracle/codemp/game/g_misc.c:1864-1904` | `JKAMP_GameLogic/g_misc.swift:501` | marker | `crates/mp/game/src/g_misc.rs:2032-2098` | `func SP_misc_model_ammo_power_converter(_ ent: Entity)` |
+| `EnergyHealthStationSettings` | `oracle/codemp/game/g_misc.c:1911-1914` | `JKAMP_GameLogic/g_misc.swift:514` | marker | `crates/mp/game/src/g_misc.rs:2103-2107` | `func EnergyHealthStationSettings(_ ent: Entity)` |
+| `health_power_converter_use` | `oracle/codemp/game/g_misc.c:1921-1972` | `JKAMP_GameLogic/g_misc.swift:527` | marker | `crates/mp/game/src/g_misc.rs:2112-2166` | `func health_power_converter_use(_ `self`: Entity, _ other: Entity, _ activator: Entity)` |
+| `SP_misc_model_health_power_converter` | `oracle/codemp/game/g_misc.c:1982-2027` | `JKAMP_GameLogic/g_misc.swift:543` | marker | `crates/mp/game/src/g_misc.rs:2171-2238` | `func SP_misc_model_health_power_converter(_ ent: Entity)` |
+| `fx_runner_think` | `oracle/codemp/game/g_misc.c:2266-2310` | `JKAMP_GameLogic/g_misc.swift:550` | marker | `crates/mp/game/src/g_misc.rs:2243-2313` | `func fx_runner_think(_ ent: Entity)` |
+| `fx_runner_use` | `oracle/codemp/game/g_misc.c:2313-2384` | `JKAMP_GameLogic/g_misc.swift:557` | marker | `crates/mp/game/src/g_misc.rs:2318-2404` | `func fx_runner_use(_ `self`: Entity, _ other: Entity, _ activator: Entity)` |
+| `fx_runner_link` | `oracle/codemp/game/g_misc.c:2387-2453` | `JKAMP_GameLogic/g_misc.swift:564` | marker | `crates/mp/game/src/g_misc.rs:2409-2480` | `func fx_runner_link(_ ent: Entity)` |
+| `SP_fx_runner` | `oracle/codemp/game/g_misc.c:2456-2501` | `JKAMP_GameLogic/g_misc.swift:571` | marker | `crates/mp/game/src/g_misc.rs:2485-2560` | `func SP_fx_runner(_ ent: Entity)` |
+| `SP_CreateSpaceDust` | `oracle/codemp/game/g_misc.c:2509-2513` | `JKAMP_GameLogic/g_misc.swift:586` | marker | `crates/mp/game/src/g_misc.rs:2565-2569` | `func SP_CreateSpaceDust(_ ent: Entity)` |
+| `SP_CreateSnow` | `oracle/codemp/game/g_misc.c:2522-2527` | `JKAMP_GameLogic/g_misc.swift:601` | marker | `crates/mp/game/src/g_misc.rs:2574-2578` | `func SP_CreateSnow(_ ent: Entity)` |
+| `SP_CreateRain` | `oracle/codemp/game/g_misc.c:2535-2538` | `JKAMP_GameLogic/g_misc.swift:616` | marker | `crates/mp/game/src/g_misc.rs:2583-2586` | `func SP_CreateRain(_ ent: Entity)` |
+| `Use_Target_Screenshake` | `oracle/codemp/game/g_misc.c:2543-2553` | `JKAMP_GameLogic/g_misc.swift:622` | marker | `crates/mp/game/src/g_misc.rs:2591-2603` | `func Use_Target_Screenshake(_ ent: Entity, _ other: Entity, _ activator: Entity)` |
+| `SP_target_screenshake` | `oracle/codemp/game/g_misc.c:2555-2565` | `JKAMP_GameLogic/g_misc.swift:628` | marker | `crates/mp/game/src/g_misc.rs:2608-2625` | `func SP_target_screenshake(_ ent: Entity)` |
+| `Use_Target_Escapetrig` | `oracle/codemp/game/g_misc.c:2569-2597` | `JKAMP_GameLogic/g_misc.swift:634` | marker | `crates/mp/game/src/g_misc.rs:2630-2677` | `func Use_Target_Escapetrig(_ ent: Entity, _ other: Entity, _ activator: Entity)` |
+| `SP_target_escapetrig` | `oracle/codemp/game/g_misc.c:2599-2613` | `JKAMP_GameLogic/g_misc.swift:640` | marker | `crates/mp/game/src/g_misc.rs:2682-2703` | `func SP_target_escapetrig(_ ent: Entity)` |
+| `maglock_die` | `oracle/codemp/game/g_misc.c:2623-2640` | `JKAMP_GameLogic/g_misc.swift:657` | marker | `crates/mp/game/src/g_misc.rs:2710-2727` | `func maglock_die(_ `self`: Entity, _ inflictor: Entity, _ attacker: Entity, _ damage: Int32, _ mod: Int32)` |
+| `SP_misc_maglock` | `oracle/codemp/game/g_misc.c:2645-2658` | `JKAMP_GameLogic/g_misc.swift:663` | marker | `crates/mp/game/src/g_misc.rs:2732-2750` | `func SP_misc_maglock(_ `self`: Entity)` |
+| `maglock_link` | `oracle/codemp/game/g_misc.c:2659-2728` | `JKAMP_GameLogic/g_misc.swift:669` | marker | `crates/mp/game/src/g_misc.rs:2755-2851` | `func maglock_link(_ `self`: Entity)` |
+| `faller_touch` | `oracle/codemp/game/g_misc.c:2730-2756` | `JKAMP_GameLogic/g_misc.swift:675` | marker | `crates/mp/game/src/g_misc.rs:2856-2888` | `func faller_touch(_ `self`: Entity, _ other: Entity, _ trace: JKAMP.Trace)` |
+| `faller_think` | `oracle/codemp/game/g_misc.c:2758-2787` | `JKAMP_GameLogic/g_misc.swift:681` | marker | `crates/mp/game/src/g_misc.rs:2893-2933` | `func faller_think(_ ent: Entity)` |
+| `misc_faller_create` | `oracle/codemp/game/g_misc.c:2789-2828` | `JKAMP_GameLogic/g_misc.swift:687` | marker | `crates/mp/game/src/g_misc.rs:2938-3002` | `func misc_faller_create(_ ent: Entity, _ other: Entity, _ activator: Entity)` |
+| `misc_faller_think` | `oracle/codemp/game/g_misc.c:2830-2834` | `JKAMP_GameLogic/g_misc.swift:693` | marker | `crates/mp/game/src/g_misc.rs:3007-3014` | `func misc_faller_think(_ ent: Entity)` |
+| `SP_misc_faller` | `oracle/codemp/game/g_misc.c:2844-2865` | `JKAMP_GameLogic/g_misc.swift:710` | marker | `crates/mp/game/src/g_misc.rs:3019-3046` | `func SP_misc_faller(_ ent: Entity)` |
+| `FirstFreeTagOwner` | `oracle/codemp/game/g_misc.c:2888-2903` | `JKAMP_GameLogic/g_misc.swift:716` | marker | `crates/mp/game/src/g_misc.rs:3051-3065` | `func FirstFreeTagOwner() -> TagOwner?` |
+| `FirstFreeRefTag` | `oracle/codemp/game/g_misc.c:2905-2922` | `JKAMP_GameLogic/g_misc.swift:722` | marker | `crates/mp/game/src/g_misc.rs:3070-3089` | `func FirstFreeRefTag(_ tagOwner: TagOwner) -> ReferenceTag?` |
+| `TAG_Init` | `oracle/codemp/game/g_misc.c:2930-2945` | `JKAMP_GameLogic/g_misc.swift:728` | marker | `crates/mp/game/src/g_misc.rs:3094-3107` | `func TAG_Init()` |
+| `TAG_FindOwner` | `oracle/codemp/game/g_misc.c:2953-2967` | `JKAMP_GameLogic/g_misc.swift:734` | marker | `crates/mp/game/src/g_misc.rs:3112-3127` | `func TAG_FindOwner(_ owner: String) -> TagOwner?` |
+| `TAG_Find` | `oracle/codemp/game/g_misc.c:2975-3028` | `JKAMP_GameLogic/g_misc.swift:740` | marker | `crates/mp/game/src/g_misc.rs:3132-3187` | `func TAG_Find(_ owner: String, _ name: String) -> ReferenceTag?` |
+| `TAG_Add` | `oracle/codemp/game/g_misc.c:3036-3104` | `JKAMP_GameLogic/g_misc.swift:746` | marker | `crates/mp/game/src/g_misc.rs:3192-3267` | `func TAG_Add(_ name: String, _ owner: String, _ origin: inout JKAShared.vec3_t, _ angles: inout JKAShared.vec3_t, _ radius: Int32, _ flags: Int32) -> ReferenceTag?` |
+| `TAG_GetOrigin` | `oracle/codemp/game/g_misc.c:3112-3125` | `JKAMP_GameLogic/g_misc.swift:752` | marker | `crates/mp/game/src/g_misc.rs:3275-3290` | `func TAG_GetOrigin(_ owner: String, _ name: String, _ origin: inout JKAShared.vec3_t) -> Int32` |
+| `TAG_GetOrigin2` | `oracle/codemp/game/g_misc.c:3134-3146` | `JKAMP_GameLogic/g_misc.swift:758` | marker | `crates/mp/game/src/g_misc.rs:3296-3310` | `func TAG_GetOrigin2(_ owner: String, _ name: String, _ origin: inout JKAShared.vec3_t) -> Int32` |
+| `TAG_GetAngles` | `oracle/codemp/game/g_misc.c:3153-3166` | `JKAMP_GameLogic/g_misc.swift:764` | marker | `crates/mp/game/src/g_misc.rs:3316-3332` | `func TAG_GetAngles(_ owner: String, _ name: String, _ angles: inout JKAShared.vec3_t) -> Int32` |
+| `TAG_GetRadius` | `oracle/codemp/game/g_misc.c:3174-3185` | `JKAMP_GameLogic/g_misc.swift:770` | marker | `crates/mp/game/src/g_misc.rs:3337-3345` | `func TAG_GetRadius(_ owner: String, _ name: String) -> Int32` |
+| `TAG_GetFlags` | `oracle/codemp/game/g_misc.c:3193-3204` | `JKAMP_GameLogic/g_misc.swift:776` | marker | `crates/mp/game/src/g_misc.rs:3350-3358` | `func TAG_GetFlags(_ owner: String, _ name: String) -> Int32` |
+| `ref_link` | `oracle/codemp/game/g_misc.c:3267-3298` | `JKAMP_GameLogic/g_misc.swift:782` | marker | `crates/mp/game/src/g_misc.rs:3363-3406` | `func ref_link(_ ent: Entity)` |
+| `SP_reference_tag` | `oracle/codemp/game/g_misc.c:3300-3312` | `JKAMP_GameLogic/g_misc.swift:788` | marker | `crates/mp/game/src/g_misc.rs:3411-3421` | `func SP_reference_tag(_ ent: Entity)` |
+| `G_ClientForShooter` | `oracle/codemp/game/g_misc.c:3354-3375` | `JKAMP_GameLogic/g_misc.swift:794` | marker | `crates/mp/game/src/g_misc.rs:3426-3453` | `func G_ClientForShooter() -> Client?` |
+| `G_FreeClientForShooter` | `oracle/codemp/game/g_misc.c:3377-3389` | `JKAMP_GameLogic/g_misc.swift:800` | marker | `crates/mp/game/src/g_misc.rs:3458-3467` | `func G_FreeClientForShooter(_ cl: Client)` |
+| `misc_weapon_shooter_fire` | `oracle/codemp/game/g_misc.c:3391-3399` | `JKAMP_GameLogic/g_misc.swift:806` | marker | `crates/mp/game/src/g_misc.rs:3472-3484` | `func misc_weapon_shooter_fire(_ `self`: Entity)` |
+| `misc_weapon_shooter_use` | `oracle/codemp/game/g_misc.c:3401-3415` | `JKAMP_GameLogic/g_misc.swift:812` | marker | `crates/mp/game/src/g_misc.rs:3489-3507` | `func misc_weapon_shooter_use(_ `self`: Entity, _ other: Entity, _ activator: Entity)` |
+| `misc_weapon_shooter_aim` | `oracle/codemp/game/g_misc.c:3417-3438` | `JKAMP_GameLogic/g_misc.swift:818` | marker | `crates/mp/game/src/g_misc.rs:3512-3546` | `func misc_weapon_shooter_aim(_ `self`: Entity)` |
+| `SP_misc_weapon_shooter` | `oracle/codemp/game/g_misc.c:3444-3486` | `JKAMP_GameLogic/g_misc.swift:824` | marker | `crates/mp/game/src/g_misc.rs:3551-3613` | `func SP_misc_weapon_shooter(_ `self`: Entity)` |
+| `SP_misc_weather_zone` | `oracle/codemp/game/g_misc.c:3491-3494` | `JKAMP_GameLogic/g_misc.swift:836` | marker | `crates/mp/game/src/g_misc.rs:3618-3620` | `func SP_misc_weather_zone(_ ent: Entity)` |
 
 5 file-scope variables. The entry is the stub's line for the variable, by rule 3 and rule 6.
 
 | Variable | Oracle | Kind | Entry |
 |---|---|---|---|
-| `gEscaping` | `oracle/codemp/game/g_misc.c:2540` | state | `// Rule 3: a stored property of GameWorld with Raven's initializer, spelled world.gEscaping in a body.` |
-| `gEscapeTime` | `oracle/codemp/game/g_misc.c:2541` | state | `// Rule 3: a stored property of GameWorld with Raven's initializer, spelled world.gEscapeTime in a body.` |
-| `refTagOwnerMap` | `oracle/codemp/game/g_misc.c:2886` | storage | `// A struct table is C storage in Sources/CJKAMP, reached through a Slots constant.` |
-| `g_shooterClients` | `oracle/codemp/game/g_misc.c:3351` | storage | `// A struct table is C storage in Sources/CJKAMP, reached through a Slots constant.` |
-| `g_shooterClientInit` | `oracle/codemp/game/g_misc.c:3352` | state | `// Rule 3: a stored property of GameWorld with Raven's initializer, spelled world.g_shooterClientInit in a body.` |
+| `gEscaping` | `oracle/codemp/game/g_misc.c:2540` | state | `}` |
+| `gEscapeTime` | `oracle/codemp/game/g_misc.c:2541` | state | `}` |
+| `refTagOwnerMap` | `oracle/codemp/game/g_misc.c:2886` | storage | `var refTagOwnerMap: Slots<TagOwner> { world.storage.refTagOwnerMap }` |
+| `g_shooterClients` | `oracle/codemp/game/g_misc.c:3351` | storage | `var g_shooterClients: Slots<ShooterClient> { world.storage.g_shooterClients }` |
+| `g_shooterClientInit` | `oracle/codemp/game/g_misc.c:3352` | state | `}` |

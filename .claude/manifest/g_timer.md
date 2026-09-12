@@ -7,23 +7,23 @@ The oracle range is the whole definition, from the return type to the closing br
 
 | Function | Oracle | Swift | State | jka-rust | Signature |
 |---|---|---|---|---|---|
-| `TIMER_Clear` | `oracle/codemp/game/g_timer.c:27-41` | `JKAMP_GameLogic/g_timer.swift:21` | marker | `crates/mp/game/src/g_timer.rs:43-54` | `func TIMER_Clear()` |
-| `TIMER_Clear2` | `oracle/codemp/game/g_timer.c:49-74` | `JKAMP_GameLogic/g_timer.swift:27` | marker | `crates/mp/game/src/g_timer.rs:59-93` | `func TIMER_Clear2(_ ent: Entity)` |
-| `TIMER_GetNew` | `oracle/codemp/game/g_timer.c:79-103` | `JKAMP_GameLogic/g_timer.swift:35` | marker | `crates/mp/game/src/g_timer.rs:99-125` | `func TIMER_GetNew(_ num: Int32, _ identifier: String) -> Gtimer?` |
-| `TIMER_GetExisting` | `oracle/codemp/game/g_timer.c:106-121` | `JKAMP_GameLogic/g_timer.swift:42` | marker | `crates/mp/game/src/g_timer.rs:131-151` | `func TIMER_GetExisting(_ num: Int32, _ identifier: String) -> Gtimer?` |
-| `TIMER_Set` | `oracle/codemp/game/g_timer.c:129-139` | `JKAMP_GameLogic/g_timer.swift:48` | marker | `crates/mp/game/src/g_timer.rs:156-179` | `func TIMER_Set(_ ent: Entity, _ identifier: String, _ duration: Int32)` |
-| `TIMER_Get` | `oracle/codemp/game/g_timer.c:147-157` | `JKAMP_GameLogic/g_timer.swift:54` | marker | `crates/mp/game/src/g_timer.rs:184-199` | `func TIMER_Get(_ ent: Entity, _ identifier: String) -> Int32` |
-| `TIMER_Done` | `oracle/codemp/game/g_timer.c:165-175` | `JKAMP_GameLogic/g_timer.swift:60` | marker | `crates/mp/game/src/g_timer.rs:204-227` | `func TIMER_Done(_ ent: Entity, _ identifier: String) -> Bool` |
-| `TIMER_RemoveHelper` | `oracle/codemp/game/g_timer.c:187-211` | `JKAMP_GameLogic/g_timer.swift:78` | marker | `crates/mp/game/src/g_timer.rs:236-267` | `func TIMER_RemoveHelper(_ num: Int32, _ timer: Gtimer)` |
-| `TIMER_Done2` | `oracle/codemp/game/g_timer.c:223-242` | `JKAMP_GameLogic/g_timer.swift:84` | marker | `crates/mp/game/src/g_timer.rs:275-306` | `func TIMER_Done2(_ ent: Entity, _ identifier: String, _ remove: Bool) -> Bool` |
-| `TIMER_Exists` | `oracle/codemp/game/g_timer.c:249-259` | `JKAMP_GameLogic/g_timer.swift:97` | marker | `crates/mp/game/src/g_timer.rs:311-330` | `func TIMER_Exists(_ ent: Entity, _ identifier: String) -> Bool` |
-| `TIMER_Remove` | `oracle/codemp/game/g_timer.c:267-278` | `JKAMP_GameLogic/g_timer.swift:111` | marker | `crates/mp/game/src/g_timer.rs:337-353` | `func TIMER_Remove(_ ent: Entity, _ identifier: String)` |
-| `TIMER_Start` | `oracle/codemp/game/g_timer.c:286-294` | `JKAMP_GameLogic/g_timer.swift:117` | marker | `crates/mp/game/src/g_timer.rs:358-370` | `func TIMER_Start(_ `self`: Entity, _ identifier: String, _ duration: Int32) -> Bool` |
+| `TIMER_Clear` | `oracle/codemp/game/g_timer.c:27-41` | `JKAMP_GameLogic/g_timer.swift:23` | marker | `crates/mp/game/src/g_timer.rs:43-54` | `func TIMER_Clear()` |
+| `TIMER_Clear2` | `oracle/codemp/game/g_timer.c:49-74` | `JKAMP_GameLogic/g_timer.swift:29` | marker | `crates/mp/game/src/g_timer.rs:59-93` | `func TIMER_Clear2(_ ent: Entity)` |
+| `TIMER_GetNew` | `oracle/codemp/game/g_timer.c:79-103` | `JKAMP_GameLogic/g_timer.swift:37` | marker | `crates/mp/game/src/g_timer.rs:99-125` | `func TIMER_GetNew(_ num: Int32, _ identifier: String) -> Gtimer?` |
+| `TIMER_GetExisting` | `oracle/codemp/game/g_timer.c:106-121` | `JKAMP_GameLogic/g_timer.swift:44` | marker | `crates/mp/game/src/g_timer.rs:131-151` | `func TIMER_GetExisting(_ num: Int32, _ identifier: String) -> Gtimer?` |
+| `TIMER_Set` | `oracle/codemp/game/g_timer.c:129-139` | `JKAMP_GameLogic/g_timer.swift:50` | marker | `crates/mp/game/src/g_timer.rs:156-179` | `func TIMER_Set(_ ent: Entity, _ identifier: String, _ duration: Int32)` |
+| `TIMER_Get` | `oracle/codemp/game/g_timer.c:147-157` | `JKAMP_GameLogic/g_timer.swift:56` | marker | `crates/mp/game/src/g_timer.rs:184-199` | `func TIMER_Get(_ ent: Entity, _ identifier: String) -> Int32` |
+| `TIMER_Done` | `oracle/codemp/game/g_timer.c:165-175` | `JKAMP_GameLogic/g_timer.swift:62` | marker | `crates/mp/game/src/g_timer.rs:204-227` | `func TIMER_Done(_ ent: Entity, _ identifier: String) -> Bool` |
+| `TIMER_RemoveHelper` | `oracle/codemp/game/g_timer.c:187-211` | `JKAMP_GameLogic/g_timer.swift:80` | marker | `crates/mp/game/src/g_timer.rs:236-267` | `func TIMER_RemoveHelper(_ num: Int32, _ timer: Gtimer)` |
+| `TIMER_Done2` | `oracle/codemp/game/g_timer.c:223-242` | `JKAMP_GameLogic/g_timer.swift:86` | marker | `crates/mp/game/src/g_timer.rs:275-306` | `func TIMER_Done2(_ ent: Entity, _ identifier: String, _ remove: Bool) -> Bool` |
+| `TIMER_Exists` | `oracle/codemp/game/g_timer.c:249-259` | `JKAMP_GameLogic/g_timer.swift:99` | marker | `crates/mp/game/src/g_timer.rs:311-330` | `func TIMER_Exists(_ ent: Entity, _ identifier: String) -> Bool` |
+| `TIMER_Remove` | `oracle/codemp/game/g_timer.c:267-278` | `JKAMP_GameLogic/g_timer.swift:113` | marker | `crates/mp/game/src/g_timer.rs:337-353` | `func TIMER_Remove(_ ent: Entity, _ identifier: String)` |
+| `TIMER_Start` | `oracle/codemp/game/g_timer.c:286-294` | `JKAMP_GameLogic/g_timer.swift:119` | marker | `crates/mp/game/src/g_timer.rs:358-370` | `func TIMER_Start(_ `self`: Entity, _ identifier: String, _ duration: Int32) -> Bool` |
 
 3 file-scope variables. The entry is the stub's line for the variable, by rule 3 and rule 6.
 
 | Variable | Oracle | Kind | Entry |
 |---|---|---|---|
-| `g_timerPool` | `oracle/codemp/game/g_timer.c:17` | storage | `// A struct table is C storage in Sources/CJKAMP, reached through a Slots constant.` |
+| `g_timerPool` | `oracle/codemp/game/g_timer.c:17` | storage | `var g_timerPool: Slots<Gtimer> { world.storage.g_timerPool }` |
 | `g_timers` | `oracle/codemp/game/g_timer.c:18` | pointer_table | `var g_timers: Slots<Gtimer?> { world.storage.g_timers }` |
-| `g_timerFreeList` | `oracle/codemp/game/g_timer.c:19` | state | `// Rule 3: a stored property of GameWorld with C's zero, since Raven wrote no initializer, spelled world.g_timerFreeList in a body.` |
+| `g_timerFreeList` | `oracle/codemp/game/g_timer.c:19` | state | `}` |

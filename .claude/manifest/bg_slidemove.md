@@ -7,8 +7,8 @@ The oracle range is the whole definition, from the return type to the closing br
 
 | Function | Oracle | Swift | State | jka-rust | Signature |
 |---|---|---|---|---|---|
-| `PM_VehicleImpact` | `oracle/codemp/game/bg_slidemove.c:49-557` | `JKAMP_BG/bg_slidemove.swift:7` | marker | `crates/mp/bg/src/bg_slidemove.rs:51-592` | `func PM_VehicleImpact(_ pEnt: JKAMP.BgEntity, _ trace: JKAMP.Trace)` |
-| `PM_GroundSlideOkay` | `oracle/codemp/game/bg_slidemove.c:559-580` | `JKAMP_BG/bg_slidemove.swift:13` | marker | `crates/mp/bg/src/bg_slidemove.rs:597-617` | `func PM_GroundSlideOkay(_ zNormal: Float) -> Bool` |
-| `PM_ClientImpact` | `oracle/codemp/game/bg_slidemove.c:590-623` | `JKAMP_BG/bg_slidemove.swift:19` | marker | `crates/mp/bg/src/bg_slidemove.rs:622-651` | `func PM_ClientImpact(_ trace: JKAMP.Trace) -> Bool` |
-| `PM_SlideMove` | `oracle/codemp/game/bg_slidemove.c:634-853` | `JKAMP_BG/bg_slidemove.swift:25` | marker | `crates/mp/bg/src/bg_slidemove.rs:656-929` | `func PM_SlideMove(_ gravity: Bool) -> Bool` |
-| `PM_StepSlideMove` | `oracle/codemp/game/bg_slidemove.c:861-1073` | `JKAMP_BG/bg_slidemove.swift:39` | marker | `crates/mp/bg/src/bg_slidemove.rs:934-1129` | `func PM_StepSlideMove(_ gravity: Bool)` |
+| `PM_VehicleImpact` | `oracle/codemp/game/bg_slidemove.c:49-557` | `JKAMP_BG/bg_slidemove.swift:13` | marker | `crates/mp/bg/src/bg_slidemove.rs:51-592` | `func PM_VehicleImpact(_ pEnt: JKAMP.BgEntity, _ trace: JKAMP.Trace)` |
+| `PM_GroundSlideOkay` | `oracle/codemp/game/bg_slidemove.c:559-580` | `JKAMP_BG/bg_slidemove.swift:19` | marker | `crates/mp/bg/src/bg_slidemove.rs:597-617` | `func PM_GroundSlideOkay(_ zNormal: Float) -> Bool` |
+| `PM_ClientImpact` | `oracle/codemp/game/bg_slidemove.c:590-623` | `JKAMP_BG/bg_slidemove.swift:25` | marker | `crates/mp/bg/src/bg_slidemove.rs:622-651` | `func PM_ClientImpact(_ trace: JKAMP.Trace) -> Bool` |
+| `PM_SlideMove` | `oracle/codemp/game/bg_slidemove.c:634-853` | `JKAMP_BG/bg_slidemove.swift:31` | marker | `crates/mp/bg/src/bg_slidemove.rs:656-929` | `func PM_SlideMove(_ gravity: Bool) -> Bool` |
+| `PM_StepSlideMove` | `oracle/codemp/game/bg_slidemove.c:861-1073` | `JKAMP_BG/bg_slidemove.swift:45` | marker | `crates/mp/bg/src/bg_slidemove.rs:934-1129` | `func PM_StepSlideMove(_ gravity: Bool)` |

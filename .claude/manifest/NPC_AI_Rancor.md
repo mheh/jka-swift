@@ -7,19 +7,19 @@ The oracle range is the whole definition, from the return type to the closing br
 
 | Function | Oracle | Swift | State | jka-rust | Signature |
 |---|---|---|---|---|---|
-| `Rancor_SetBolts` | `oracle/codemp/game/NPC_AI_Rancor.c:19-29` | `JKAMP_GameLogic/NPC_AI_Rancor.swift:8` | marker | `crates/mp/game/src/NPC_AI_Rancor.rs:28-47` | `func Rancor_SetBolts(_ `self`: Entity)` |
-| `NPC_Rancor_Precache` | `oracle/codemp/game/NPC_AI_Rancor.c:36-45` | `JKAMP_GameLogic/NPC_AI_Rancor.swift:21` | marker | `crates/mp/game/src/NPC_AI_Rancor.rs:52-58` | `func NPC_Rancor_Precache()` |
-| `Rancor_Idle` | `oracle/codemp/game/NPC_AI_Rancor.c:53-63` | `JKAMP_GameLogic/NPC_AI_Rancor.swift:34` | marker | `crates/mp/game/src/NPC_AI_Rancor.rs:63-77` | `func Rancor_Idle()` |
-| `Rancor_CheckRoar` | `oracle/codemp/game/NPC_AI_Rancor.c:66-77` | `JKAMP_GameLogic/NPC_AI_Rancor.swift:40` | marker | `crates/mp/game/src/NPC_AI_Rancor.rs:82-103` | `func Rancor_CheckRoar(_ `self`: Entity) -> Bool` |
-| `Rancor_Patrol` | `oracle/codemp/game/NPC_AI_Rancor.c:83-108` | `JKAMP_GameLogic/NPC_AI_Rancor.swift:53` | marker | `crates/mp/game/src/NPC_AI_Rancor.rs:108-143` | `func Rancor_Patrol()` |
-| `Rancor_Move` | `oracle/codemp/game/NPC_AI_Rancor.c:115-130` | `JKAMP_GameLogic/NPC_AI_Rancor.swift:66` | marker | `crates/mp/game/src/NPC_AI_Rancor.rs:148-165` | `func Rancor_Move(_ visible: Bool)` |
-| `Rancor_DropVictim` | `oracle/codemp/game/NPC_AI_Rancor.c:140-194` | `JKAMP_GameLogic/NPC_AI_Rancor.swift:72` | marker | `crates/mp/game/src/NPC_AI_Rancor.rs:170-228` | `func Rancor_DropVictim(_ `self`: Entity)` |
-| `Rancor_Swing` | `oracle/codemp/game/NPC_AI_Rancor.c:196-306` | `JKAMP_GameLogic/NPC_AI_Rancor.swift:78` | marker | `crates/mp/game/src/NPC_AI_Rancor.rs:233-384` | `func Rancor_Swing(_ tryGrab: Bool)` |
-| `Rancor_Smash` | `oracle/codemp/game/NPC_AI_Rancor.c:308-367` | `JKAMP_GameLogic/NPC_AI_Rancor.swift:84` | marker | `crates/mp/game/src/NPC_AI_Rancor.rs:389-472` | `func Rancor_Smash()` |
-| `Rancor_Bite` | `oracle/codemp/game/NPC_AI_Rancor.c:369-428` | `JKAMP_GameLogic/NPC_AI_Rancor.swift:90` | marker | `crates/mp/game/src/NPC_AI_Rancor.rs:477-585` | `func Rancor_Bite()` |
-| `Rancor_Attack` | `oracle/codemp/game/NPC_AI_Rancor.c:431-614` | `JKAMP_GameLogic/NPC_AI_Rancor.swift:96` | marker | `crates/mp/game/src/NPC_AI_Rancor.rs:590-960` | `func Rancor_Attack(_ distance: Float, _ doCharge: Bool)` |
-| `Rancor_Combat` | `oracle/codemp/game/NPC_AI_Rancor.c:617-695` | `JKAMP_GameLogic/NPC_AI_Rancor.swift:103` | marker | `crates/mp/game/src/NPC_AI_Rancor.rs:965-1060` | `func Rancor_Combat()` |
-| `NPC_Rancor_Pain` | `oracle/codemp/game/NPC_AI_Rancor.c:703-782` | `JKAMP_GameLogic/NPC_AI_Rancor.swift:117` | marker | `crates/mp/game/src/NPC_AI_Rancor.rs:1065-1222` | `func NPC_Rancor_Pain(_ `self`: Entity, _ attacker: Entity, _ damage: Int32)` |
-| `Rancor_CheckDropVictim` | `oracle/codemp/game/NPC_AI_Rancor.c:784-802` | `JKAMP_GameLogic/NPC_AI_Rancor.swift:123` | marker | `crates/mp/game/src/NPC_AI_Rancor.rs:1227-1254` | `func Rancor_CheckDropVictim()` |
-| `Rancor_Crush` | `oracle/codemp/game/NPC_AI_Rancor.c:805-821` | `JKAMP_GameLogic/NPC_AI_Rancor.swift:130` | marker | `crates/mp/game/src/NPC_AI_Rancor.rs:1259-1300` | `func Rancor_Crush()` |
-| `NPC_BSRancor_Default` | `oracle/codemp/game/NPC_AI_Rancor.c:828-955` | `JKAMP_GameLogic/NPC_AI_Rancor.swift:143` | marker | `crates/mp/game/src/NPC_AI_Rancor.rs:1305-1491` | `func NPC_BSRancor_Default()` |
+| `Rancor_SetBolts` | `oracle/codemp/game/NPC_AI_Rancor.c:19-29` | `JKAMP_GameLogic/NPC_AI_Rancor.swift:26` | marker | `crates/mp/game/src/NPC_AI_Rancor.rs:28-47` | `func Rancor_SetBolts(_ `self`: Entity)` |
+| `NPC_Rancor_Precache` | `oracle/codemp/game/NPC_AI_Rancor.c:36-45` | `JKAMP_GameLogic/NPC_AI_Rancor.swift:39` | marker | `crates/mp/game/src/NPC_AI_Rancor.rs:52-58` | `func NPC_Rancor_Precache()` |
+| `Rancor_Idle` | `oracle/codemp/game/NPC_AI_Rancor.c:53-63` | `JKAMP_GameLogic/NPC_AI_Rancor.swift:52` | marker | `crates/mp/game/src/NPC_AI_Rancor.rs:63-77` | `func Rancor_Idle()` |
+| `Rancor_CheckRoar` | `oracle/codemp/game/NPC_AI_Rancor.c:66-77` | `JKAMP_GameLogic/NPC_AI_Rancor.swift:58` | marker | `crates/mp/game/src/NPC_AI_Rancor.rs:82-103` | `func Rancor_CheckRoar(_ `self`: Entity) -> Bool` |
+| `Rancor_Patrol` | `oracle/codemp/game/NPC_AI_Rancor.c:83-108` | `JKAMP_GameLogic/NPC_AI_Rancor.swift:71` | marker | `crates/mp/game/src/NPC_AI_Rancor.rs:108-143` | `func Rancor_Patrol()` |
+| `Rancor_Move` | `oracle/codemp/game/NPC_AI_Rancor.c:115-130` | `JKAMP_GameLogic/NPC_AI_Rancor.swift:84` | marker | `crates/mp/game/src/NPC_AI_Rancor.rs:148-165` | `func Rancor_Move(_ visible: Bool)` |
+| `Rancor_DropVictim` | `oracle/codemp/game/NPC_AI_Rancor.c:140-194` | `JKAMP_GameLogic/NPC_AI_Rancor.swift:90` | marker | `crates/mp/game/src/NPC_AI_Rancor.rs:170-228` | `func Rancor_DropVictim(_ `self`: Entity)` |
+| `Rancor_Swing` | `oracle/codemp/game/NPC_AI_Rancor.c:196-306` | `JKAMP_GameLogic/NPC_AI_Rancor.swift:96` | marker | `crates/mp/game/src/NPC_AI_Rancor.rs:233-384` | `func Rancor_Swing(_ tryGrab: Bool)` |
+| `Rancor_Smash` | `oracle/codemp/game/NPC_AI_Rancor.c:308-367` | `JKAMP_GameLogic/NPC_AI_Rancor.swift:102` | marker | `crates/mp/game/src/NPC_AI_Rancor.rs:389-472` | `func Rancor_Smash()` |
+| `Rancor_Bite` | `oracle/codemp/game/NPC_AI_Rancor.c:369-428` | `JKAMP_GameLogic/NPC_AI_Rancor.swift:108` | marker | `crates/mp/game/src/NPC_AI_Rancor.rs:477-585` | `func Rancor_Bite()` |
+| `Rancor_Attack` | `oracle/codemp/game/NPC_AI_Rancor.c:431-614` | `JKAMP_GameLogic/NPC_AI_Rancor.swift:114` | marker | `crates/mp/game/src/NPC_AI_Rancor.rs:590-960` | `func Rancor_Attack(_ distance: Float, _ doCharge: Bool)` |
+| `Rancor_Combat` | `oracle/codemp/game/NPC_AI_Rancor.c:617-695` | `JKAMP_GameLogic/NPC_AI_Rancor.swift:121` | marker | `crates/mp/game/src/NPC_AI_Rancor.rs:965-1060` | `func Rancor_Combat()` |
+| `NPC_Rancor_Pain` | `oracle/codemp/game/NPC_AI_Rancor.c:703-782` | `JKAMP_GameLogic/NPC_AI_Rancor.swift:135` | marker | `crates/mp/game/src/NPC_AI_Rancor.rs:1065-1222` | `func NPC_Rancor_Pain(_ `self`: Entity, _ attacker: Entity, _ damage: Int32)` |
+| `Rancor_CheckDropVictim` | `oracle/codemp/game/NPC_AI_Rancor.c:784-802` | `JKAMP_GameLogic/NPC_AI_Rancor.swift:141` | marker | `crates/mp/game/src/NPC_AI_Rancor.rs:1227-1254` | `func Rancor_CheckDropVictim()` |
+| `Rancor_Crush` | `oracle/codemp/game/NPC_AI_Rancor.c:805-821` | `JKAMP_GameLogic/NPC_AI_Rancor.swift:148` | marker | `crates/mp/game/src/NPC_AI_Rancor.rs:1259-1300` | `func Rancor_Crush()` |
+| `NPC_BSRancor_Default` | `oracle/codemp/game/NPC_AI_Rancor.c:828-955` | `JKAMP_GameLogic/NPC_AI_Rancor.swift:161` | marker | `crates/mp/game/src/NPC_AI_Rancor.rs:1305-1491` | `func NPC_BSRancor_Default()` |

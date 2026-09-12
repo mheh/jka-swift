@@ -7,20 +7,20 @@ The oracle range is the whole definition, from the return type to the closing br
 
 | Function | Oracle | Swift | State | jka-rust | Signature |
 |---|---|---|---|---|---|
-| `Wampa_SetBolts` | `oracle/codemp/game/NPC_AI_Wampa.c:16-36` | `JKAMP_GameLogic/NPC_AI_Wampa.swift:13` | marker | `crates/mp/game/src/NPC_AI_Wampa.rs:44-64` | `func Wampa_SetBolts(_ `self`: Entity)` |
-| `NPC_Wampa_Precache` | `oracle/codemp/game/NPC_AI_Wampa.c:43-58` | `JKAMP_GameLogic/NPC_AI_Wampa.swift:26` | marker | `crates/mp/game/src/NPC_AI_Wampa.rs:71-75` | `func NPC_Wampa_Precache()` |
-| `Wampa_Idle` | `oracle/codemp/game/NPC_AI_Wampa.c:66-76` | `JKAMP_GameLogic/NPC_AI_Wampa.swift:39` | marker | `crates/mp/game/src/NPC_AI_Wampa.rs:80-94` | `func Wampa_Idle()` |
-| `Wampa_CheckRoar` | `oracle/codemp/game/NPC_AI_Wampa.c:78-88` | `JKAMP_GameLogic/NPC_AI_Wampa.swift:45` | marker | `crates/mp/game/src/NPC_AI_Wampa.rs:99-122` | `func Wampa_CheckRoar(_ `self`: Entity) -> Bool` |
-| `Wampa_Patrol` | `oracle/codemp/game/NPC_AI_Wampa.c:94-119` | `JKAMP_GameLogic/NPC_AI_Wampa.swift:58` | marker | `crates/mp/game/src/NPC_AI_Wampa.rs:127-162` | `func Wampa_Patrol()` |
-| `Wampa_Move` | `oracle/codemp/game/NPC_AI_Wampa.c:126-169` | `JKAMP_GameLogic/NPC_AI_Wampa.swift:71` | marker | `crates/mp/game/src/NPC_AI_Wampa.rs:167-220` | `func Wampa_Move(_ visible: Bool)` |
-| `Wampa_Slash` | `oracle/codemp/game/NPC_AI_Wampa.c:177-264` | `JKAMP_GameLogic/NPC_AI_Wampa.swift:77` | marker | `crates/mp/game/src/NPC_AI_Wampa.rs:225-389` | `func Wampa_Slash(_ boltIndex: Int32, _ backhand: Bool)` |
-| `Wampa_Attack` | `oracle/codemp/game/NPC_AI_Wampa.c:267-341` | `JKAMP_GameLogic/NPC_AI_Wampa.swift:84` | marker | `crates/mp/game/src/NPC_AI_Wampa.rs:394-502` | `func Wampa_Attack(_ distance: Float, _ doCharge: Bool)` |
-| `Wampa_Combat` | `oracle/codemp/game/NPC_AI_Wampa.c:344-425` | `JKAMP_GameLogic/NPC_AI_Wampa.swift:91` | marker | `crates/mp/game/src/NPC_AI_Wampa.rs:507-604` | `func Wampa_Combat()` |
-| `NPC_Wampa_Pain` | `oracle/codemp/game/NPC_AI_Wampa.c:433-499` | `JKAMP_GameLogic/NPC_AI_Wampa.swift:105` | marker | `crates/mp/game/src/NPC_AI_Wampa.rs:609-745` | `func NPC_Wampa_Pain(_ `self`: Entity, _ attacker: Entity, _ damage: Int32)` |
-| `NPC_BSWampa_Default` | `oracle/codemp/game/NPC_AI_Wampa.c:506-654` | `JKAMP_GameLogic/NPC_AI_Wampa.swift:118` | marker | `crates/mp/game/src/NPC_AI_Wampa.rs:750-974` | `func NPC_BSWampa_Default()` |
+| `Wampa_SetBolts` | `oracle/codemp/game/NPC_AI_Wampa.c:16-36` | `JKAMP_GameLogic/NPC_AI_Wampa.swift:32` | marker | `crates/mp/game/src/NPC_AI_Wampa.rs:44-64` | `func Wampa_SetBolts(_ `self`: Entity)` |
+| `NPC_Wampa_Precache` | `oracle/codemp/game/NPC_AI_Wampa.c:43-58` | `JKAMP_GameLogic/NPC_AI_Wampa.swift:45` | marker | `crates/mp/game/src/NPC_AI_Wampa.rs:71-75` | `func NPC_Wampa_Precache()` |
+| `Wampa_Idle` | `oracle/codemp/game/NPC_AI_Wampa.c:66-76` | `JKAMP_GameLogic/NPC_AI_Wampa.swift:58` | marker | `crates/mp/game/src/NPC_AI_Wampa.rs:80-94` | `func Wampa_Idle()` |
+| `Wampa_CheckRoar` | `oracle/codemp/game/NPC_AI_Wampa.c:78-88` | `JKAMP_GameLogic/NPC_AI_Wampa.swift:64` | marker | `crates/mp/game/src/NPC_AI_Wampa.rs:99-122` | `func Wampa_CheckRoar(_ `self`: Entity) -> Bool` |
+| `Wampa_Patrol` | `oracle/codemp/game/NPC_AI_Wampa.c:94-119` | `JKAMP_GameLogic/NPC_AI_Wampa.swift:77` | marker | `crates/mp/game/src/NPC_AI_Wampa.rs:127-162` | `func Wampa_Patrol()` |
+| `Wampa_Move` | `oracle/codemp/game/NPC_AI_Wampa.c:126-169` | `JKAMP_GameLogic/NPC_AI_Wampa.swift:90` | marker | `crates/mp/game/src/NPC_AI_Wampa.rs:167-220` | `func Wampa_Move(_ visible: Bool)` |
+| `Wampa_Slash` | `oracle/codemp/game/NPC_AI_Wampa.c:177-264` | `JKAMP_GameLogic/NPC_AI_Wampa.swift:96` | marker | `crates/mp/game/src/NPC_AI_Wampa.rs:225-389` | `func Wampa_Slash(_ boltIndex: Int32, _ backhand: Bool)` |
+| `Wampa_Attack` | `oracle/codemp/game/NPC_AI_Wampa.c:267-341` | `JKAMP_GameLogic/NPC_AI_Wampa.swift:103` | marker | `crates/mp/game/src/NPC_AI_Wampa.rs:394-502` | `func Wampa_Attack(_ distance: Float, _ doCharge: Bool)` |
+| `Wampa_Combat` | `oracle/codemp/game/NPC_AI_Wampa.c:344-425` | `JKAMP_GameLogic/NPC_AI_Wampa.swift:110` | marker | `crates/mp/game/src/NPC_AI_Wampa.rs:507-604` | `func Wampa_Combat()` |
+| `NPC_Wampa_Pain` | `oracle/codemp/game/NPC_AI_Wampa.c:433-499` | `JKAMP_GameLogic/NPC_AI_Wampa.swift:124` | marker | `crates/mp/game/src/NPC_AI_Wampa.rs:609-745` | `func NPC_Wampa_Pain(_ `self`: Entity, _ attacker: Entity, _ damage: Int32)` |
+| `NPC_BSWampa_Default` | `oracle/codemp/game/NPC_AI_Wampa.c:506-654` | `JKAMP_GameLogic/NPC_AI_Wampa.swift:137` | marker | `crates/mp/game/src/NPC_AI_Wampa.rs:750-974` | `func NPC_BSWampa_Default()` |
 
 1 file-scope variables. The entry is the stub's line for the variable, by rule 3 and rule 6.
 
 | Variable | Oracle | Kind | Entry |
 |---|---|---|---|
-| `enemyDist` | `oracle/codemp/game/NPC_AI_Wampa.c:14` | state | `// Rule 3: a stored property of GameWorld with C's zero, since Raven wrote no initializer, spelled world.enemyDist in a body.` |
+| `enemyDist` | `oracle/codemp/game/NPC_AI_Wampa.c:14` | state | `}` |

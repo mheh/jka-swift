@@ -7,81 +7,81 @@ The oracle range is the whole definition, from the return type to the closing br
 
 | Function | Oracle | Swift | State | jka-rust | Signature |
 |---|---|---|---|---|---|
-| `adjustRespawnTime` | `oracle/codemp/game/g_items.c:47-88` | `JKAMP_GameLogic/g_items.swift:39` | marker | `crates/mp/game/src/g_items.rs:144-192` | `func adjustRespawnTime(_ preRespawnTime: Float, _ itemType: Int32, _ itemTag: Int32) -> Int32` |
-| `ShieldRemove` | `oracle/codemp/game/g_items.c:108-119` | `JKAMP_GameLogic/g_items.swift:45` | marker | `crates/mp/game/src/g_items.rs:197-210` | `func ShieldRemove(_ `self`: Entity)` |
-| `ShieldThink` | `oracle/codemp/game/g_items.c:123-141` | `JKAMP_GameLogic/g_items.swift:52` | marker | `crates/mp/game/src/g_items.rs:215-231` | `func ShieldThink(_ `self`: Entity)` |
-| `ShieldDie` | `oracle/codemp/game/g_items.c:145-151` | `JKAMP_GameLogic/g_items.swift:59` | marker | `crates/mp/game/src/g_items.rs:236-253` | `func ShieldDie(_ `self`: Entity, _ inflictor: Entity, _ attacker: Entity, _ damage: Int32, _ mod: Int32)` |
-| `ShieldPain` | `oracle/codemp/game/g_items.c:155-167` | `JKAMP_GameLogic/g_items.swift:66` | marker | `crates/mp/game/src/g_items.rs:258-277` | `func ShieldPain(_ `self`: Entity, _ attacker: Entity, _ damage: Int32)` |
-| `ShieldGoSolid` | `oracle/codemp/game/g_items.c:171-207` | `JKAMP_GameLogic/g_items.swift:73` | marker | `crates/mp/game/src/g_items.rs:282-335` | `func ShieldGoSolid(_ `self`: Entity)` |
-| `ShieldGoNotSolid` | `oracle/codemp/game/g_items.c:211-226` | `JKAMP_GameLogic/g_items.swift:80` | marker | `crates/mp/game/src/g_items.rs:340-362` | `func ShieldGoNotSolid(_ `self`: Entity)` |
-| `ShieldTouch` | `oracle/codemp/game/g_items.c:230-250` | `JKAMP_GameLogic/g_items.swift:87` | marker | `crates/mp/game/src/g_items.rs:367-395` | `func ShieldTouch(_ `self`: Entity, _ other: Entity, _ trace: JKAMP.Trace)` |
-| `CreateShield` | `oracle/codemp/game/g_items.c:254-380` | `JKAMP_GameLogic/g_items.swift:94` | marker | `crates/mp/game/src/g_items.rs:400-578` | `func CreateShield(_ ent: Entity)` |
-| `PlaceShield` | `oracle/codemp/game/g_items.c:382-470` | `JKAMP_GameLogic/g_items.swift:100` | marker | `crates/mp/game/src/g_items.rs:583-716` | `func PlaceShield(_ playerent: Entity) -> Bool` |
-| `ItemUse_Binoculars` | `oracle/codemp/game/g_items.c:472-502` | `JKAMP_GameLogic/g_items.swift:106` | marker | `crates/mp/game/src/g_items.rs:721-748` | `func ItemUse_Binoculars(_ ent: Entity)` |
-| `ItemUse_Shield` | `oracle/codemp/game/g_items.c:504-507` | `JKAMP_GameLogic/g_items.swift:112` | marker | `crates/mp/game/src/g_items.rs:753-755` | `func ItemUse_Shield(_ ent: Entity)` |
-| `SentryTouch` | `oracle/codemp/game/g_items.c:515-518` | `JKAMP_GameLogic/g_items.swift:118` | marker | `crates/mp/game/src/g_items.rs:760-762` | `func SentryTouch(_ ent: Entity, _ other: Entity, _ trace: JKAMP.Trace)` |
-| `pas_fire` | `oracle/codemp/game/g_items.c:521-542` | `JKAMP_GameLogic/g_items.swift:125` | marker | `crates/mp/game/src/g_items.rs:767-805` | `func pas_fire(_ ent: Entity)` |
-| `pas_find_enemies` static | `oracle/codemp/game/g_items.c:547-639` | `JKAMP_GameLogic/g_items.swift:132` | marker | `crates/mp/game/src/g_items.rs:810-937` | `private func pas_find_enemies(_ `self`: Entity) -> Bool` |
-| `pas_adjust_enemy` | `oracle/codemp/game/g_items.c:642-695` | `JKAMP_GameLogic/g_items.swift:139` | marker | `crates/mp/game/src/g_items.rs:942-1009` | `func pas_adjust_enemy(_ ent: Entity)` |
-| `sentryExpire` | `oracle/codemp/game/g_items.c:702-705` | `JKAMP_GameLogic/g_items.swift:145` | marker | `crates/mp/game/src/g_items.rs:1014-1023` | `func sentryExpire(_ `self`: Entity)` |
-| `pas_think` | `oracle/codemp/game/g_items.c:708-937` | `JKAMP_GameLogic/g_items.swift:152` | marker | `crates/mp/game/src/g_items.rs:1028-1249` | `func pas_think(_ ent: Entity)` |
-| `turret_die` | `oracle/codemp/game/g_items.c:940-973` | `JKAMP_GameLogic/g_items.swift:159` | marker | `crates/mp/game/src/g_items.rs:1254-1310` | `func turret_die(_ `self`: Entity, _ inflictor: Entity, _ attacker: Entity, _ damage: Int32, _ mod: Int32)` |
-| `SP_PAS` | `oracle/codemp/game/g_items.c:978-1011` | `JKAMP_GameLogic/g_items.swift:166` | marker | `crates/mp/game/src/g_items.rs:1315-1348` | `func SP_PAS(_ base: Entity)` |
-| `ItemUse_Sentry` | `oracle/codemp/game/g_items.c:1014-1093` | `JKAMP_GameLogic/g_items.swift:173` | marker | `crates/mp/game/src/g_items.rs:1353-1438` | `func ItemUse_Sentry(_ ent: Entity)` |
-| `ItemUse_Seeker` | `oracle/codemp/game/g_items.c:1096-1125` | `JKAMP_GameLogic/g_items.swift:179` | marker | `crates/mp/game/src/g_items.rs:1443-1484` | `func ItemUse_Seeker(_ ent: Entity)` |
-| `MedPackGive` static | `oracle/codemp/game/g_items.c:1127-1152` | `JKAMP_GameLogic/g_items.swift:185` | marker | `crates/mp/game/src/g_items.rs:1489-1516` | `private func MedPackGive(_ ent: Entity, _ amount: Int32)` |
-| `ItemUse_MedPack_Big` | `oracle/codemp/game/g_items.c:1154-1157` | `JKAMP_GameLogic/g_items.swift:191` | marker | `crates/mp/game/src/g_items.rs:1521-1523` | `func ItemUse_MedPack_Big(_ ent: Entity)` |
-| `ItemUse_MedPack` | `oracle/codemp/game/g_items.c:1159-1162` | `JKAMP_GameLogic/g_items.swift:197` | marker | `crates/mp/game/src/g_items.rs:1528-1530` | `func ItemUse_MedPack(_ ent: Entity)` |
-| `Jetpack_Off` | `oracle/codemp/game/g_items.c:1165-1175` | `JKAMP_GameLogic/g_items.swift:203` | marker | `crates/mp/game/src/g_items.rs:1535-1548` | `func Jetpack_Off(_ ent: Entity)` |
-| `Jetpack_On` | `oracle/codemp/game/g_items.c:1177-1199` | `JKAMP_GameLogic/g_items.swift:209` | marker | `crates/mp/game/src/g_items.rs:1553-1582` | `func Jetpack_On(_ ent: Entity)` |
-| `ItemUse_Jetpack` | `oracle/codemp/game/g_items.c:1201-1234` | `JKAMP_GameLogic/g_items.swift:215` | marker | `crates/mp/game/src/g_items.rs:1587-1625` | `func ItemUse_Jetpack(_ ent: Entity)` |
-| `ItemUse_UseCloak` | `oracle/codemp/game/g_items.c:1239-1272` | `JKAMP_GameLogic/g_items.swift:221` | marker | `crates/mp/game/src/g_items.rs:1630-1670` | `func ItemUse_UseCloak(_ ent: Entity)` |
-| `SpecialItemThink` | `oracle/codemp/game/g_items.c:1277-1293` | `JKAMP_GameLogic/g_items.swift:227` | marker | `crates/mp/game/src/g_items.rs:1675-1699` | `func SpecialItemThink(_ ent: Entity)` |
-| `G_SpecialSpawnItem` | `oracle/codemp/game/g_items.c:1295-1331` | `JKAMP_GameLogic/g_items.swift:233` | marker | `crates/mp/game/src/g_items.rs:1704-1741` | `func G_SpecialSpawnItem(_ ent: Entity, _ item: JKAMP.Gitem)` |
-| `G_PrecacheDispensers` | `oracle/codemp/game/g_items.c:1336-1351` | `JKAMP_GameLogic/g_items.swift:239` | marker | `crates/mp/game/src/g_items.rs:1746-1754` | `func G_PrecacheDispensers()` |
-| `ItemUse_UseDisp` | `oracle/codemp/game/g_items.c:1353-1410` | `JKAMP_GameLogic/g_items.swift:245` | marker | `crates/mp/game/src/g_items.rs:1759-1820` | `func ItemUse_UseDisp(_ ent: Entity, _ type: Int32)` |
-| `EWebDisattach` | `oracle/codemp/game/g_items.c:1417-1431` | `JKAMP_GameLogic/g_items.swift:255` | marker | `crates/mp/game/src/g_items.rs:1825-1845` | `func EWebDisattach(_ owner: Entity, _ eweb: Entity)` |
-| `EWebPrecache` | `oracle/codemp/game/g_items.c:1434-1439` | `JKAMP_GameLogic/g_items.swift:262` | marker | `crates/mp/game/src/g_items.rs:1850-1854` | `func EWebPrecache()` |
-| `EWebDie` | `oracle/codemp/game/g_items.c:1449-1481` | `JKAMP_GameLogic/g_items.swift:268` | marker | `crates/mp/game/src/g_items.rs:1859-1916` | `func EWebDie(_ `self`: Entity, _ inflictor: Entity, _ attacker: Entity, _ damage: Int32, _ mod: Int32)` |
-| `EWebPain` | `oracle/codemp/game/g_items.c:1484-1496` | `JKAMP_GameLogic/g_items.swift:275` | marker | `crates/mp/game/src/g_items.rs:1921-1935` | `func EWebPain(_ `self`: Entity, _ attacker: Entity, _ damage: Int32)` |
-| `EWeb_SetBoneAngles` | `oracle/codemp/game/g_items.c:1499-1598` | `JKAMP_GameLogic/g_items.swift:282` | marker | `crates/mp/game/src/g_items.rs:1940-2025` | `func EWeb_SetBoneAngles(_ ent: Entity, _ bone: inout JKAShared.CharBuf, _ angles: inout JKAShared.vec3_t)` |
-| `EWeb_SetBoneAnim` | `oracle/codemp/game/g_items.c:1601-1620` | `JKAMP_GameLogic/g_items.swift:289` | marker | `crates/mp/game/src/g_items.rs:2030-2065` | `func EWeb_SetBoneAnim(_ eweb: Entity, _ startFrame: Int32, _ endFrame: Int32)` |
-| `EWebFire` | `oracle/codemp/game/g_items.c:1624-1664` | `JKAMP_GameLogic/g_items.swift:295` | marker | `crates/mp/game/src/g_items.rs:2070-2136` | `func EWebFire(_ owner: Entity, _ eweb: Entity)` |
-| `EWebPositionUser` | `oracle/codemp/game/g_items.c:1667-1732` | `JKAMP_GameLogic/g_items.swift:302` | marker | `crates/mp/game/src/g_items.rs:2141-2272` | `func EWebPositionUser(_ owner: Entity, _ eweb: Entity)` |
-| `EWebUpdateBoneAngles` | `oracle/codemp/game/g_items.c:1735-1769` | `JKAMP_GameLogic/g_items.swift:309` | marker | `crates/mp/game/src/g_items.rs:2277-2314` | `func EWebUpdateBoneAngles(_ owner: Entity, _ eweb: Entity)` |
-| `EWebThink` | `oracle/codemp/game/g_items.c:1776-1854` | `JKAMP_GameLogic/g_items.swift:315` | marker | `crates/mp/game/src/g_items.rs:2319-2423` | `func EWebThink(_ `self`: Entity)` |
-| `EWeb_Create` | `oracle/codemp/game/g_items.c:1859-1980` | `JKAMP_GameLogic/g_items.swift:322` | marker | `crates/mp/game/src/g_items.rs:2428-2613` | `func EWeb_Create(_ spawner: Entity) -> Entity?` |
-| `ItemUse_UseEWeb` | `oracle/codemp/game/g_items.c:1984-2018` | `JKAMP_GameLogic/g_items.swift:329` | marker | `crates/mp/game/src/g_items.rs:2618-2665` | `func ItemUse_UseEWeb(_ ent: Entity)` |
-| `Pickup_Powerup` | `oracle/codemp/game/g_items.c:2024-2100` | `JKAMP_GameLogic/g_items.swift:335` | marker | `crates/mp/game/src/g_items.rs:2670-2784` | `func Pickup_Powerup(_ ent: Entity, _ other: Entity) -> Int32` |
-| `Pickup_Holdable` | `oracle/codemp/game/g_items.c:2104-2113` | `JKAMP_GameLogic/g_items.swift:341` | marker | `crates/mp/game/src/g_items.rs:2789-2808` | `func Pickup_Holdable(_ ent: Entity, _ other: Entity) -> Int32` |
-| `Add_Ammo` | `oracle/codemp/game/g_items.c:2118-2128` | `JKAMP_GameLogic/g_items.swift:347` | marker | `crates/mp/game/src/g_items.rs:2813-2824` | `func Add_Ammo(_ ent: Entity, _ weapon: Int32, _ count: Int32)` |
-| `Pickup_Ammo` | `oracle/codemp/game/g_items.c:2130-2175` | `JKAMP_GameLogic/g_items.swift:353` | marker | `crates/mp/game/src/g_items.rs:2829-2885` | `func Pickup_Ammo(_ ent: Entity, _ other: Entity) -> Int32` |
-| `Pickup_Weapon` | `oracle/codemp/game/g_items.c:2180-2232` | `JKAMP_GameLogic/g_items.swift:359` | marker | `crates/mp/game/src/g_items.rs:2890-2944` | `func Pickup_Weapon(_ ent: Entity, _ other: Entity) -> Int32` |
-| `Pickup_Health` | `oracle/codemp/game/g_items.c:2237-2266` | `JKAMP_GameLogic/g_items.swift:365` | marker | `crates/mp/game/src/g_items.rs:2949-2988` | `func Pickup_Health(_ ent: Entity, _ other: Entity) -> Int32` |
-| `Pickup_Armor` | `oracle/codemp/game/g_items.c:2270-2279` | `JKAMP_GameLogic/g_items.swift:371` | marker | `crates/mp/game/src/g_items.rs:2993-3015` | `func Pickup_Armor(_ ent: Entity, _ other: Entity) -> Int32` |
-| `RespawnItem` | `oracle/codemp/game/g_items.c:2288-2334` | `JKAMP_GameLogic/g_items.swift:384` | marker | `crates/mp/game/src/g_items.rs:3020-3081` | `func RespawnItem(_ ent: Entity)` |
-| `CheckItemCanBePickedUpByNPC` | `oracle/codemp/game/g_items.c:2336-2355` | `JKAMP_GameLogic/g_items.swift:390` | marker | `crates/mp/game/src/g_items.rs:3086-3119` | `func CheckItemCanBePickedUpByNPC(_ item: Entity, _ pickerupper: Entity) -> Bool` |
-| `Touch_Item` | `oracle/codemp/game/g_items.c:2362-2646` | `JKAMP_GameLogic/g_items.swift:403` | marker | `crates/mp/game/src/g_items.rs:3124-3437` | `func Touch_Item(_ ent: Entity, _ other: Entity, _ trace: JKAMP.Trace)` |
-| `LaunchItem` | `oracle/codemp/game/g_items.c:2658-2733` | `JKAMP_GameLogic/g_items.swift:418` | marker | `crates/mp/game/src/g_items.rs:3442-3542` | `func LaunchItem(_ item: JKAMP.Gitem, _ origin: inout JKAShared.vec3_t, _ velocity: inout JKAShared.vec3_t) -> Entity?` |
-| `Drop_Item` | `oracle/codemp/game/g_items.c:2742-2755` | `JKAMP_GameLogic/g_items.swift:433` | marker | `crates/mp/game/src/g_items.rs:3547-3563` | `func Drop_Item(_ ent: Entity, _ item: JKAMP.Gitem, _ angle: Float) -> Entity?` |
-| `Use_Item` | `oracle/codemp/game/g_items.c:2765-2767` | `JKAMP_GameLogic/g_items.swift:448` | marker | `crates/mp/game/src/g_items.rs:3568-3575` | `func Use_Item(_ ent: Entity, _ other: Entity, _ activator: Entity)` |
-| `FinishSpawningItem` | `oracle/codemp/game/g_items.c:2779-2963` | `JKAMP_GameLogic/g_items.swift:464` | marker | `crates/mp/game/src/g_items.rs:3580-3733` | `func FinishSpawningItem(_ ent: Entity)` |
-| `G_CheckTeamItems` | `oracle/codemp/game/g_items.c:2973-2991` | `JKAMP_GameLogic/g_items.swift:477` | marker | `crates/mp/game/src/g_items.rs:3738-3758` | `func G_CheckTeamItems()` |
-| `ClearRegisteredItems` | `oracle/codemp/game/g_items.c:2998-3011` | `JKAMP_GameLogic/g_items.swift:490` | marker | `crates/mp/game/src/g_items.rs:3763-3776` | `func ClearRegisteredItems()` |
-| `RegisterItem` | `oracle/codemp/game/g_items.c:3020-3025` | `JKAMP_GameLogic/g_items.swift:505` | marker | `crates/mp/game/src/g_items.rs:3781-3785` | `func RegisterItem(_ item: JKAMP.Gitem)` |
-| `SaveRegisteredItems` | `oracle/codemp/game/g_items.c:3036-3054` | `JKAMP_GameLogic/g_items.swift:521` | marker | `crates/mp/game/src/g_items.rs:3790-3806` | `func SaveRegisteredItems()` |
-| `G_ItemDisabled` | `oracle/codemp/game/g_items.c:3061-3067` | `JKAMP_GameLogic/g_items.swift:534` | marker | `crates/mp/game/src/g_items.rs:3811-3814` | `func G_ItemDisabled(_ item: JKAMP.Gitem) -> Int32` |
-| `G_SpawnItem` | `oracle/codemp/game/g_items.c:3079-3121` | `JKAMP_GameLogic/g_items.swift:552` | marker | `crates/mp/game/src/g_items.rs:3819-3866` | `func G_SpawnItem(_ ent: Entity, _ item: JKAMP.Gitem)` |
-| `G_BounceItem` | `oracle/codemp/game/g_items.c:3130-3174` | `JKAMP_GameLogic/g_items.swift:566` | marker | `crates/mp/game/src/g_items.rs:3871-3953` | `func G_BounceItem(_ ent: Entity, _ trace: JKAMP.Trace)` |
-| `G_RunItem` | `oracle/codemp/game/g_items.c:3183-3242` | `JKAMP_GameLogic/g_items.swift:580` | marker | `crates/mp/game/src/g_items.rs:3958-4038` | `func G_RunItem(_ ent: Entity)` |
+| `adjustRespawnTime` | `oracle/codemp/game/g_items.c:47-88` | `JKAMP_GameLogic/g_items.swift:165` | marker | `crates/mp/game/src/g_items.rs:144-192` | `func adjustRespawnTime(_ preRespawnTime: Float, _ itemType: Int32, _ itemTag: Int32) -> Int32` |
+| `ShieldRemove` | `oracle/codemp/game/g_items.c:108-119` | `JKAMP_GameLogic/g_items.swift:171` | marker | `crates/mp/game/src/g_items.rs:197-210` | `func ShieldRemove(_ `self`: Entity)` |
+| `ShieldThink` | `oracle/codemp/game/g_items.c:123-141` | `JKAMP_GameLogic/g_items.swift:178` | marker | `crates/mp/game/src/g_items.rs:215-231` | `func ShieldThink(_ `self`: Entity)` |
+| `ShieldDie` | `oracle/codemp/game/g_items.c:145-151` | `JKAMP_GameLogic/g_items.swift:185` | marker | `crates/mp/game/src/g_items.rs:236-253` | `func ShieldDie(_ `self`: Entity, _ inflictor: Entity, _ attacker: Entity, _ damage: Int32, _ mod: Int32)` |
+| `ShieldPain` | `oracle/codemp/game/g_items.c:155-167` | `JKAMP_GameLogic/g_items.swift:192` | marker | `crates/mp/game/src/g_items.rs:258-277` | `func ShieldPain(_ `self`: Entity, _ attacker: Entity, _ damage: Int32)` |
+| `ShieldGoSolid` | `oracle/codemp/game/g_items.c:171-207` | `JKAMP_GameLogic/g_items.swift:199` | marker | `crates/mp/game/src/g_items.rs:282-335` | `func ShieldGoSolid(_ `self`: Entity)` |
+| `ShieldGoNotSolid` | `oracle/codemp/game/g_items.c:211-226` | `JKAMP_GameLogic/g_items.swift:206` | marker | `crates/mp/game/src/g_items.rs:340-362` | `func ShieldGoNotSolid(_ `self`: Entity)` |
+| `ShieldTouch` | `oracle/codemp/game/g_items.c:230-250` | `JKAMP_GameLogic/g_items.swift:213` | marker | `crates/mp/game/src/g_items.rs:367-395` | `func ShieldTouch(_ `self`: Entity, _ other: Entity, _ trace: JKAMP.Trace)` |
+| `CreateShield` | `oracle/codemp/game/g_items.c:254-380` | `JKAMP_GameLogic/g_items.swift:220` | marker | `crates/mp/game/src/g_items.rs:400-578` | `func CreateShield(_ ent: Entity)` |
+| `PlaceShield` | `oracle/codemp/game/g_items.c:382-470` | `JKAMP_GameLogic/g_items.swift:226` | marker | `crates/mp/game/src/g_items.rs:583-716` | `func PlaceShield(_ playerent: Entity) -> Bool` |
+| `ItemUse_Binoculars` | `oracle/codemp/game/g_items.c:472-502` | `JKAMP_GameLogic/g_items.swift:232` | marker | `crates/mp/game/src/g_items.rs:721-748` | `func ItemUse_Binoculars(_ ent: Entity)` |
+| `ItemUse_Shield` | `oracle/codemp/game/g_items.c:504-507` | `JKAMP_GameLogic/g_items.swift:238` | marker | `crates/mp/game/src/g_items.rs:753-755` | `func ItemUse_Shield(_ ent: Entity)` |
+| `SentryTouch` | `oracle/codemp/game/g_items.c:515-518` | `JKAMP_GameLogic/g_items.swift:244` | marker | `crates/mp/game/src/g_items.rs:760-762` | `func SentryTouch(_ ent: Entity, _ other: Entity, _ trace: JKAMP.Trace)` |
+| `pas_fire` | `oracle/codemp/game/g_items.c:521-542` | `JKAMP_GameLogic/g_items.swift:251` | marker | `crates/mp/game/src/g_items.rs:767-805` | `func pas_fire(_ ent: Entity)` |
+| `pas_find_enemies` static | `oracle/codemp/game/g_items.c:547-639` | `JKAMP_GameLogic/g_items.swift:258` | marker | `crates/mp/game/src/g_items.rs:810-937` | `private func pas_find_enemies(_ `self`: Entity) -> Bool` |
+| `pas_adjust_enemy` | `oracle/codemp/game/g_items.c:642-695` | `JKAMP_GameLogic/g_items.swift:265` | marker | `crates/mp/game/src/g_items.rs:942-1009` | `func pas_adjust_enemy(_ ent: Entity)` |
+| `sentryExpire` | `oracle/codemp/game/g_items.c:702-705` | `JKAMP_GameLogic/g_items.swift:271` | marker | `crates/mp/game/src/g_items.rs:1014-1023` | `func sentryExpire(_ `self`: Entity)` |
+| `pas_think` | `oracle/codemp/game/g_items.c:708-937` | `JKAMP_GameLogic/g_items.swift:278` | marker | `crates/mp/game/src/g_items.rs:1028-1249` | `func pas_think(_ ent: Entity)` |
+| `turret_die` | `oracle/codemp/game/g_items.c:940-973` | `JKAMP_GameLogic/g_items.swift:285` | marker | `crates/mp/game/src/g_items.rs:1254-1310` | `func turret_die(_ `self`: Entity, _ inflictor: Entity, _ attacker: Entity, _ damage: Int32, _ mod: Int32)` |
+| `SP_PAS` | `oracle/codemp/game/g_items.c:978-1011` | `JKAMP_GameLogic/g_items.swift:292` | marker | `crates/mp/game/src/g_items.rs:1315-1348` | `func SP_PAS(_ base: Entity)` |
+| `ItemUse_Sentry` | `oracle/codemp/game/g_items.c:1014-1093` | `JKAMP_GameLogic/g_items.swift:299` | marker | `crates/mp/game/src/g_items.rs:1353-1438` | `func ItemUse_Sentry(_ ent: Entity)` |
+| `ItemUse_Seeker` | `oracle/codemp/game/g_items.c:1096-1125` | `JKAMP_GameLogic/g_items.swift:305` | marker | `crates/mp/game/src/g_items.rs:1443-1484` | `func ItemUse_Seeker(_ ent: Entity)` |
+| `MedPackGive` static | `oracle/codemp/game/g_items.c:1127-1152` | `JKAMP_GameLogic/g_items.swift:311` | marker | `crates/mp/game/src/g_items.rs:1489-1516` | `private func MedPackGive(_ ent: Entity, _ amount: Int32)` |
+| `ItemUse_MedPack_Big` | `oracle/codemp/game/g_items.c:1154-1157` | `JKAMP_GameLogic/g_items.swift:317` | marker | `crates/mp/game/src/g_items.rs:1521-1523` | `func ItemUse_MedPack_Big(_ ent: Entity)` |
+| `ItemUse_MedPack` | `oracle/codemp/game/g_items.c:1159-1162` | `JKAMP_GameLogic/g_items.swift:323` | marker | `crates/mp/game/src/g_items.rs:1528-1530` | `func ItemUse_MedPack(_ ent: Entity)` |
+| `Jetpack_Off` | `oracle/codemp/game/g_items.c:1165-1175` | `JKAMP_GameLogic/g_items.swift:329` | marker | `crates/mp/game/src/g_items.rs:1535-1548` | `func Jetpack_Off(_ ent: Entity)` |
+| `Jetpack_On` | `oracle/codemp/game/g_items.c:1177-1199` | `JKAMP_GameLogic/g_items.swift:335` | marker | `crates/mp/game/src/g_items.rs:1553-1582` | `func Jetpack_On(_ ent: Entity)` |
+| `ItemUse_Jetpack` | `oracle/codemp/game/g_items.c:1201-1234` | `JKAMP_GameLogic/g_items.swift:341` | marker | `crates/mp/game/src/g_items.rs:1587-1625` | `func ItemUse_Jetpack(_ ent: Entity)` |
+| `ItemUse_UseCloak` | `oracle/codemp/game/g_items.c:1239-1272` | `JKAMP_GameLogic/g_items.swift:347` | marker | `crates/mp/game/src/g_items.rs:1630-1670` | `func ItemUse_UseCloak(_ ent: Entity)` |
+| `SpecialItemThink` | `oracle/codemp/game/g_items.c:1277-1293` | `JKAMP_GameLogic/g_items.swift:353` | marker | `crates/mp/game/src/g_items.rs:1675-1699` | `func SpecialItemThink(_ ent: Entity)` |
+| `G_SpecialSpawnItem` | `oracle/codemp/game/g_items.c:1295-1331` | `JKAMP_GameLogic/g_items.swift:359` | marker | `crates/mp/game/src/g_items.rs:1704-1741` | `func G_SpecialSpawnItem(_ ent: Entity, _ item: JKAMP.Gitem)` |
+| `G_PrecacheDispensers` | `oracle/codemp/game/g_items.c:1336-1351` | `JKAMP_GameLogic/g_items.swift:365` | marker | `crates/mp/game/src/g_items.rs:1746-1754` | `func G_PrecacheDispensers()` |
+| `ItemUse_UseDisp` | `oracle/codemp/game/g_items.c:1353-1410` | `JKAMP_GameLogic/g_items.swift:371` | marker | `crates/mp/game/src/g_items.rs:1759-1820` | `func ItemUse_UseDisp(_ ent: Entity, _ type: Int32)` |
+| `EWebDisattach` | `oracle/codemp/game/g_items.c:1417-1431` | `JKAMP_GameLogic/g_items.swift:381` | marker | `crates/mp/game/src/g_items.rs:1825-1845` | `func EWebDisattach(_ owner: Entity, _ eweb: Entity)` |
+| `EWebPrecache` | `oracle/codemp/game/g_items.c:1434-1439` | `JKAMP_GameLogic/g_items.swift:388` | marker | `crates/mp/game/src/g_items.rs:1850-1854` | `func EWebPrecache()` |
+| `EWebDie` | `oracle/codemp/game/g_items.c:1449-1481` | `JKAMP_GameLogic/g_items.swift:394` | marker | `crates/mp/game/src/g_items.rs:1859-1916` | `func EWebDie(_ `self`: Entity, _ inflictor: Entity, _ attacker: Entity, _ damage: Int32, _ mod: Int32)` |
+| `EWebPain` | `oracle/codemp/game/g_items.c:1484-1496` | `JKAMP_GameLogic/g_items.swift:401` | marker | `crates/mp/game/src/g_items.rs:1921-1935` | `func EWebPain(_ `self`: Entity, _ attacker: Entity, _ damage: Int32)` |
+| `EWeb_SetBoneAngles` | `oracle/codemp/game/g_items.c:1499-1598` | `JKAMP_GameLogic/g_items.swift:408` | marker | `crates/mp/game/src/g_items.rs:1940-2025` | `func EWeb_SetBoneAngles(_ ent: Entity, _ bone: inout JKAShared.CharBuf, _ angles: inout JKAShared.vec3_t)` |
+| `EWeb_SetBoneAnim` | `oracle/codemp/game/g_items.c:1601-1620` | `JKAMP_GameLogic/g_items.swift:415` | marker | `crates/mp/game/src/g_items.rs:2030-2065` | `func EWeb_SetBoneAnim(_ eweb: Entity, _ startFrame: Int32, _ endFrame: Int32)` |
+| `EWebFire` | `oracle/codemp/game/g_items.c:1624-1664` | `JKAMP_GameLogic/g_items.swift:421` | marker | `crates/mp/game/src/g_items.rs:2070-2136` | `func EWebFire(_ owner: Entity, _ eweb: Entity)` |
+| `EWebPositionUser` | `oracle/codemp/game/g_items.c:1667-1732` | `JKAMP_GameLogic/g_items.swift:428` | marker | `crates/mp/game/src/g_items.rs:2141-2272` | `func EWebPositionUser(_ owner: Entity, _ eweb: Entity)` |
+| `EWebUpdateBoneAngles` | `oracle/codemp/game/g_items.c:1735-1769` | `JKAMP_GameLogic/g_items.swift:435` | marker | `crates/mp/game/src/g_items.rs:2277-2314` | `func EWebUpdateBoneAngles(_ owner: Entity, _ eweb: Entity)` |
+| `EWebThink` | `oracle/codemp/game/g_items.c:1776-1854` | `JKAMP_GameLogic/g_items.swift:441` | marker | `crates/mp/game/src/g_items.rs:2319-2423` | `func EWebThink(_ `self`: Entity)` |
+| `EWeb_Create` | `oracle/codemp/game/g_items.c:1859-1980` | `JKAMP_GameLogic/g_items.swift:448` | marker | `crates/mp/game/src/g_items.rs:2428-2613` | `func EWeb_Create(_ spawner: Entity) -> Entity?` |
+| `ItemUse_UseEWeb` | `oracle/codemp/game/g_items.c:1984-2018` | `JKAMP_GameLogic/g_items.swift:455` | marker | `crates/mp/game/src/g_items.rs:2618-2665` | `func ItemUse_UseEWeb(_ ent: Entity)` |
+| `Pickup_Powerup` | `oracle/codemp/game/g_items.c:2024-2100` | `JKAMP_GameLogic/g_items.swift:461` | marker | `crates/mp/game/src/g_items.rs:2670-2784` | `func Pickup_Powerup(_ ent: Entity, _ other: Entity) -> Int32` |
+| `Pickup_Holdable` | `oracle/codemp/game/g_items.c:2104-2113` | `JKAMP_GameLogic/g_items.swift:467` | marker | `crates/mp/game/src/g_items.rs:2789-2808` | `func Pickup_Holdable(_ ent: Entity, _ other: Entity) -> Int32` |
+| `Add_Ammo` | `oracle/codemp/game/g_items.c:2118-2128` | `JKAMP_GameLogic/g_items.swift:473` | marker | `crates/mp/game/src/g_items.rs:2813-2824` | `func Add_Ammo(_ ent: Entity, _ weapon: Int32, _ count: Int32)` |
+| `Pickup_Ammo` | `oracle/codemp/game/g_items.c:2130-2175` | `JKAMP_GameLogic/g_items.swift:479` | marker | `crates/mp/game/src/g_items.rs:2829-2885` | `func Pickup_Ammo(_ ent: Entity, _ other: Entity) -> Int32` |
+| `Pickup_Weapon` | `oracle/codemp/game/g_items.c:2180-2232` | `JKAMP_GameLogic/g_items.swift:485` | marker | `crates/mp/game/src/g_items.rs:2890-2944` | `func Pickup_Weapon(_ ent: Entity, _ other: Entity) -> Int32` |
+| `Pickup_Health` | `oracle/codemp/game/g_items.c:2237-2266` | `JKAMP_GameLogic/g_items.swift:491` | marker | `crates/mp/game/src/g_items.rs:2949-2988` | `func Pickup_Health(_ ent: Entity, _ other: Entity) -> Int32` |
+| `Pickup_Armor` | `oracle/codemp/game/g_items.c:2270-2279` | `JKAMP_GameLogic/g_items.swift:497` | marker | `crates/mp/game/src/g_items.rs:2993-3015` | `func Pickup_Armor(_ ent: Entity, _ other: Entity) -> Int32` |
+| `RespawnItem` | `oracle/codemp/game/g_items.c:2288-2334` | `JKAMP_GameLogic/g_items.swift:510` | marker | `crates/mp/game/src/g_items.rs:3020-3081` | `func RespawnItem(_ ent: Entity)` |
+| `CheckItemCanBePickedUpByNPC` | `oracle/codemp/game/g_items.c:2336-2355` | `JKAMP_GameLogic/g_items.swift:516` | marker | `crates/mp/game/src/g_items.rs:3086-3119` | `func CheckItemCanBePickedUpByNPC(_ item: Entity, _ pickerupper: Entity) -> Bool` |
+| `Touch_Item` | `oracle/codemp/game/g_items.c:2362-2646` | `JKAMP_GameLogic/g_items.swift:529` | marker | `crates/mp/game/src/g_items.rs:3124-3437` | `func Touch_Item(_ ent: Entity, _ other: Entity, _ trace: JKAMP.Trace)` |
+| `LaunchItem` | `oracle/codemp/game/g_items.c:2658-2733` | `JKAMP_GameLogic/g_items.swift:544` | marker | `crates/mp/game/src/g_items.rs:3442-3542` | `func LaunchItem(_ item: JKAMP.Gitem, _ origin: inout JKAShared.vec3_t, _ velocity: inout JKAShared.vec3_t) -> Entity?` |
+| `Drop_Item` | `oracle/codemp/game/g_items.c:2742-2755` | `JKAMP_GameLogic/g_items.swift:559` | marker | `crates/mp/game/src/g_items.rs:3547-3563` | `func Drop_Item(_ ent: Entity, _ item: JKAMP.Gitem, _ angle: Float) -> Entity?` |
+| `Use_Item` | `oracle/codemp/game/g_items.c:2765-2767` | `JKAMP_GameLogic/g_items.swift:574` | marker | `crates/mp/game/src/g_items.rs:3568-3575` | `func Use_Item(_ ent: Entity, _ other: Entity, _ activator: Entity)` |
+| `FinishSpawningItem` | `oracle/codemp/game/g_items.c:2779-2963` | `JKAMP_GameLogic/g_items.swift:590` | marker | `crates/mp/game/src/g_items.rs:3580-3733` | `func FinishSpawningItem(_ ent: Entity)` |
+| `G_CheckTeamItems` | `oracle/codemp/game/g_items.c:2973-2991` | `JKAMP_GameLogic/g_items.swift:603` | marker | `crates/mp/game/src/g_items.rs:3738-3758` | `func G_CheckTeamItems()` |
+| `ClearRegisteredItems` | `oracle/codemp/game/g_items.c:2998-3011` | `JKAMP_GameLogic/g_items.swift:616` | marker | `crates/mp/game/src/g_items.rs:3763-3776` | `func ClearRegisteredItems()` |
+| `RegisterItem` | `oracle/codemp/game/g_items.c:3020-3025` | `JKAMP_GameLogic/g_items.swift:631` | marker | `crates/mp/game/src/g_items.rs:3781-3785` | `func RegisterItem(_ item: JKAMP.Gitem)` |
+| `SaveRegisteredItems` | `oracle/codemp/game/g_items.c:3036-3054` | `JKAMP_GameLogic/g_items.swift:647` | marker | `crates/mp/game/src/g_items.rs:3790-3806` | `func SaveRegisteredItems()` |
+| `G_ItemDisabled` | `oracle/codemp/game/g_items.c:3061-3067` | `JKAMP_GameLogic/g_items.swift:660` | marker | `crates/mp/game/src/g_items.rs:3811-3814` | `func G_ItemDisabled(_ item: JKAMP.Gitem) -> Int32` |
+| `G_SpawnItem` | `oracle/codemp/game/g_items.c:3079-3121` | `JKAMP_GameLogic/g_items.swift:678` | marker | `crates/mp/game/src/g_items.rs:3819-3866` | `func G_SpawnItem(_ ent: Entity, _ item: JKAMP.Gitem)` |
+| `G_BounceItem` | `oracle/codemp/game/g_items.c:3130-3174` | `JKAMP_GameLogic/g_items.swift:692` | marker | `crates/mp/game/src/g_items.rs:3871-3953` | `func G_BounceItem(_ ent: Entity, _ trace: JKAMP.Trace)` |
+| `G_RunItem` | `oracle/codemp/game/g_items.c:3183-3242` | `JKAMP_GameLogic/g_items.swift:706` | marker | `crates/mp/game/src/g_items.rs:3958-4038` | `func G_RunItem(_ ent: Entity)` |
 
 6 file-scope variables. The entry is the stub's line for the variable, by rule 3 and rule 6.
 
 | Variable | Oracle | Kind | Entry |
 |---|---|---|---|
-| `shieldLoopSound` | `oracle/codemp/game/g_items.c:101` | state | `// Rule 3: a stored property of GameWorld with Raven's initializer, spelled world.shieldLoopSound in a body.` |
-| `shieldAttachSound` | `oracle/codemp/game/g_items.c:102` | state | `// Rule 3: a stored property of GameWorld with Raven's initializer, spelled world.shieldAttachSound in a body.` |
-| `shieldActivateSound` | `oracle/codemp/game/g_items.c:103` | state | `// Rule 3: a stored property of GameWorld with Raven's initializer, spelled world.shieldActivateSound in a body.` |
-| `shieldDeactivateSound` | `oracle/codemp/game/g_items.c:104` | state | `// Rule 3: a stored property of GameWorld with Raven's initializer, spelled world.shieldDeactivateSound in a body.` |
-| `shieldDamageSound` | `oracle/codemp/game/g_items.c:105` | state | `// Rule 3: a stored property of GameWorld with Raven's initializer, spelled world.shieldDamageSound in a body.` |
-| `itemRegistered` | `oracle/codemp/game/g_items.c:2966` | state | `// Rule 3: a stored property of GameWorld with C's zero, since Raven wrote no initializer, spelled world.itemRegistered in a body.` |
+| `shieldLoopSound` | `oracle/codemp/game/g_items.c:101` | state | `}` |
+| `shieldAttachSound` | `oracle/codemp/game/g_items.c:102` | state | `}` |
+| `shieldActivateSound` | `oracle/codemp/game/g_items.c:103` | state | `}` |
+| `shieldDeactivateSound` | `oracle/codemp/game/g_items.c:104` | state | `}` |
+| `shieldDamageSound` | `oracle/codemp/game/g_items.c:105` | state | `}` |
+| `itemRegistered` | `oracle/codemp/game/g_items.c:2966` | state | `}` |

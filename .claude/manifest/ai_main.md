@@ -7,148 +7,148 @@ The oracle range is the whole definition, from the return type to the closing br
 
 | Function | Oracle | Swift | State | jka-rust | Signature |
 |---|---|---|---|---|---|
-| `BotStraightTPOrderCheck` | `oracle/codemp/game/ai_main.c:128-155` | `JKAMP_GameLogic/ai_main.swift:159` | marker | `crates/mp/game/src/ai_main.rs:124-153` | `func BotStraightTPOrderCheck(_ ent: Entity, _ ordernum: Int32, _ bs: BotState)` |
-| `BotSelectWeapon` | `oracle/codemp/game/ai_main.c:157-165` | `JKAMP_GameLogic/ai_main.swift:165` | marker | `crates/mp/game/src/ai_main.rs:158-165` | `func BotSelectWeapon(_ client: Int32, _ weapon: Int32)` |
-| `BotReportStatus` | `oracle/codemp/game/ai_main.c:167-181` | `JKAMP_GameLogic/ai_main.swift:171` | marker | `crates/mp/game/src/ai_main.rs:170-184` | `func BotReportStatus(_ bs: BotState)` |
-| `BotOrder` | `oracle/codemp/game/ai_main.c:184-276` | `JKAMP_GameLogic/ai_main.swift:178` | marker | `crates/mp/game/src/ai_main.rs:189-284` | `func BotOrder(_ ent: Entity, _ clientnum: Int32, _ ordernum: Int32)` |
-| `BotMindTricked` | `oracle/codemp/game/ai_main.c:279-325` | `JKAMP_GameLogic/ai_main.swift:185` | marker | `crates/mp/game/src/ai_main.rs:289-315` | `func BotMindTricked(_ botClient: Int32, _ enemyClient: Int32) -> Int32` |
-| `BotAI_Print` | `oracle/codemp/game/ai_main.c:332-332` | `JKAMP_GameLogic/ai_main.swift:191` | marker | `crates/mp/game/src/ai_main.rs:320-327` | `func BotAI_Print(_ type: Int32, _ fmt: inout JKAShared.CharBuf, _ args: any JKAShared.FormatArg...)` |
-| `IsTeamplay` | `oracle/codemp/game/ai_main.c:336-344` | `JKAMP_GameLogic/ai_main.swift:197` | marker | `crates/mp/game/src/ai_main.rs:332-337` | `func IsTeamplay() -> Int32` |
-| `BotAI_GetClientState` | `oracle/codemp/game/ai_main.c:351-364` | `JKAMP_GameLogic/ai_main.swift:210` | marker | `crates/mp/game/src/ai_main.rs:342-358` | `func BotAI_GetClientState(_ clientNum: Int32, _ state: JKAMP.PlayerState) -> Int32` |
-| `BotAI_GetEntityState` | `oracle/codemp/game/ai_main.c:371-381` | `JKAMP_GameLogic/ai_main.swift:223` | marker | `crates/mp/game/src/ai_main.rs:363-383` | `func BotAI_GetEntityState(_ entityNum: Int32, _ state: JKAMP.EntityState) -> Int32` |
-| `BotAI_GetSnapshotEntity` | `oracle/codemp/game/ai_main.c:388-400` | `JKAMP_GameLogic/ai_main.swift:236` | marker | `crates/mp/game/src/ai_main.rs:388-406` | `func BotAI_GetSnapshotEntity(_ clientNum: Int32, _ sequence: Int32, _ state: JKAMP.EntityState) -> Int32` |
-| `BotEntityInfo` | `oracle/codemp/game/ai_main.c:407-409` | `JKAMP_GameLogic/ai_main.swift:252` | marker | `crates/mp/game/src/ai_main.rs:411-416` | `func BotEntityInfo() -> Never` TODO: Port signature. No table row for `aas_entityinfo_t * info`. |
-| `NumBots` | `oracle/codemp/game/ai_main.c:416-418` | `JKAMP_GameLogic/ai_main.swift:265` | marker | `crates/mp/game/src/ai_main.rs:421-423` | `func NumBots() -> Int32` |
-| `AngleDifference` | `oracle/codemp/game/ai_main.c:425-436` | `JKAMP_GameLogic/ai_main.swift:278` | marker | none | `func AngleDifference(_ ang1: Float, _ ang2: Float) -> Float` |
-| `BotChangeViewAngle` | `oracle/codemp/game/ai_main.c:443-463` | `JKAMP_GameLogic/ai_main.swift:291` | marker | `crates/mp/game/src/ai_main.rs:428-443` | `func BotChangeViewAngle(_ angle: Float, _ ideal_angle: Float, _ speed: Float) -> Float` |
-| `BotChangeViewAngles` | `oracle/codemp/game/ai_main.c:470-530` | `JKAMP_GameLogic/ai_main.swift:304` | marker | `crates/mp/game/src/ai_main.rs:448-511` | `func BotChangeViewAngles(_ bs: BotState, _ thinktime: Float)` |
-| `BotInputToUserCommand` | `oracle/codemp/game/ai_main.c:537-626` | `JKAMP_GameLogic/ai_main.swift:320` | marker | `crates/mp/game/src/ai_main.rs:516-623` | `func BotInputToUserCommand() -> Never` TODO: Port signature. No table row for `bot_input_t * bi`. |
-| `BotUpdateInput` | `oracle/codemp/game/ai_main.c:633-655` | `JKAMP_GameLogic/ai_main.swift:333` | marker | `crates/mp/game/src/ai_main.rs:628-676` | `func BotUpdateInput(_ bs: BotState, _ time: Int32, _ elapsed_time: Int32)` |
-| `BotAIRegularUpdate` | `oracle/codemp/game/ai_main.c:662-667` | `JKAMP_GameLogic/ai_main.swift:346` | marker | `crates/mp/game/src/ai_main.rs:690-695` | `func BotAIRegularUpdate()` |
-| `RemoveColorEscapeSequences` | `oracle/codemp/game/ai_main.c:674-688` | `JKAMP_GameLogic/ai_main.swift:359` | marker | `crates/mp/game/src/ai_main.rs:700-729` | `func RemoveColorEscapeSequences(_ text: inout JKAShared.CharBuf)` |
-| `BotAI` | `oracle/codemp/game/ai_main.c:696-771` | `JKAMP_GameLogic/ai_main.swift:372` | marker | `crates/mp/game/src/ai_main.rs:734-784` | `func BotAI(_ client: Int32, _ thinktime: Float) -> Int32` |
-| `BotScheduleBotThink` | `oracle/codemp/game/ai_main.c:778-791` | `JKAMP_GameLogic/ai_main.swift:385` | marker | `crates/mp/game/src/ai_main.rs:789-802` | `func BotScheduleBotThink()` |
-| `PlayersInGame` | `oracle/codemp/game/ai_main.c:793-812` | `JKAMP_GameLogic/ai_main.swift:391` | marker | `crates/mp/game/src/ai_main.rs:807-820` | `func PlayersInGame() -> Int32` |
-| `BotAISetupClient` | `oracle/codemp/game/ai_main.c:819-884` | `JKAMP_GameLogic/ai_main.swift:404` | marker | `crates/mp/game/src/ai_main.rs:825-917` | `func BotAISetupClient(_ client: Int32, _ settings: BotSettings, _ restart: Bool) -> Int32` |
-| `BotAIShutdownClient` | `oracle/codemp/game/ai_main.c:891-914` | `JKAMP_GameLogic/ai_main.swift:417` | marker | `crates/mp/game/src/ai_main.rs:922-951` | `func BotAIShutdownClient(_ client: Int32, _ restart: Bool) -> Int32` |
-| `BotResetState` | `oracle/codemp/game/ai_main.c:924-959` | `JKAMP_GameLogic/ai_main.swift:433` | marker | `crates/mp/game/src/ai_main.rs:960-1003` | `func BotResetState(_ bs: BotState)` |
-| `BotAILoadMap` | `oracle/codemp/game/ai_main.c:966-977` | `JKAMP_GameLogic/ai_main.swift:446` | marker | `crates/mp/game/src/ai_main.rs:1008-1019` | `func BotAILoadMap(_ restart: Int32) -> Int32` |
-| `OrgVisible` | `oracle/codemp/game/ai_main.c:982-994` | `JKAMP_GameLogic/ai_main.swift:453` | marker | `crates/mp/game/src/ai_main.rs:1027-1047` | `func OrgVisible(_ org1: inout JKAShared.vec3_t, _ org2: inout JKAShared.vec3_t, _ ignore: Int32) -> Int32` |
-| `WPOrgVisible` | `oracle/codemp/game/ai_main.c:997-1026` | `JKAMP_GameLogic/ai_main.swift:460` | marker | `crates/mp/game/src/ai_main.rs:1052-1115` | `func WPOrgVisible(_ bot: Entity, _ org1: inout JKAShared.vec3_t, _ org2: inout JKAShared.vec3_t, _ ignore: Int32) -> Int32` |
-| `OrgVisibleBox` | `oracle/codemp/game/ai_main.c:1029-1048` | `JKAMP_GameLogic/ai_main.swift:467` | marker | `crates/mp/game/src/ai_main.rs:1120-1154` | `func OrgVisibleBox(_ org1: inout JKAShared.vec3_t, _ mins: inout JKAShared.vec3_t, _ maxs: inout JKAShared.vec3_t, _ org2: inout JKAShared.vec3_t, _ ignore: Int32) -> Int32` |
-| `CheckForFunc` | `oracle/codemp/game/ai_main.c:1053-1083` | `JKAMP_GameLogic/ai_main.swift:476` | marker | `crates/mp/game/src/ai_main.rs:1159-1192` | `func CheckForFunc(_ org: inout JKAShared.vec3_t, _ ignore: Int32) -> Int32` |
-| `BotPVSCheck` | `oracle/codemp/game/ai_main.c:1086-1101` | `JKAMP_GameLogic/ai_main.swift:483` | marker | `crates/mp/game/src/ai_main.rs:1197-1209` | `func BotPVSCheck(_ p1: JKAShared.vec3_t, _ p2: JKAShared.vec3_t) -> Bool` |
-| `GetNearestVisibleWP` | `oracle/codemp/game/ai_main.c:1104-1149` | `JKAMP_GameLogic/ai_main.swift:490` | marker | `crates/mp/game/src/ai_main.rs:1214-1250` | `func GetNearestVisibleWP(_ org: inout JKAShared.vec3_t, _ ignore: Int32) -> Int32` |
-| `PassWayCheck` | `oracle/codemp/game/ai_main.c:1157-1190` | `JKAMP_GameLogic/ai_main.swift:498` | marker | `crates/mp/game/src/ai_main.rs:1255-1287` | `func PassWayCheck(_ bs: BotState, _ windex: Int32) -> Int32` |
-| `TotalTrailDistance` | `oracle/codemp/game/ai_main.c:1193-1259` | `JKAMP_GameLogic/ai_main.swift:505` | marker | `crates/mp/game/src/ai_main.rs:1292-1335` | `func TotalTrailDistance(_ start: Int32, _ end: Int32, _ bs: BotState) -> Float` |
-| `CheckForShorterRoutes` | `oracle/codemp/game/ai_main.c:1263-1349` | `JKAMP_GameLogic/ai_main.swift:513` | marker | `crates/mp/game/src/ai_main.rs:1340-1414` | `func CheckForShorterRoutes(_ bs: BotState, _ newwpindex: Int32)` |
-| `WPConstantRoutine` | `oracle/codemp/game/ai_main.c:1353-1429` | `JKAMP_GameLogic/ai_main.swift:521` | marker | `crates/mp/game/src/ai_main.rs:1419-1498` | `func WPConstantRoutine(_ bs: BotState)` |
-| `BotCTFGuardDuty` | `oracle/codemp/game/ai_main.c:1432-1446` | `JKAMP_GameLogic/ai_main.swift:528` | marker | `crates/mp/game/src/ai_main.rs:1503-1514` | `func BotCTFGuardDuty(_ bs: BotState) -> Bool` |
-| `WPTouchRoutine` | `oracle/codemp/game/ai_main.c:1452-1539` | `JKAMP_GameLogic/ai_main.swift:538` | marker | `crates/mp/game/src/ai_main.rs:1519-1599` | `func WPTouchRoutine(_ bs: BotState)` |
-| `MoveTowardIdealAngles` | `oracle/codemp/game/ai_main.c:1543-1546` | `JKAMP_GameLogic/ai_main.swift:546` | marker | `crates/mp/game/src/ai_main.rs:1604-1609` | `func MoveTowardIdealAngles(_ bs: BotState)` |
-| `BotTrace_Strafe` | `oracle/codemp/game/ai_main.c:1556-1633` | `JKAMP_GameLogic/ai_main.swift:554` | marker | `crates/mp/game/src/ai_main.rs:1614-1731` | `func BotTrace_Strafe(_ bs: BotState, _ traceto: inout JKAShared.vec3_t) -> Int32` |
-| `BotTrace_Jump` | `oracle/codemp/game/ai_main.c:1638-1699` | `JKAMP_GameLogic/ai_main.swift:562` | marker | `crates/mp/game/src/ai_main.rs:1736-1825` | `func BotTrace_Jump(_ bs: BotState, _ traceto: inout JKAShared.vec3_t) -> Int32` |
-| `BotTrace_Duck` | `oracle/codemp/game/ai_main.c:1702-1750` | `JKAMP_GameLogic/ai_main.swift:569` | marker | `crates/mp/game/src/ai_main.rs:1830-1896` | `func BotTrace_Duck(_ bs: BotState, _ traceto: inout JKAShared.vec3_t) -> Int32` |
-| `PassStandardEnemyChecks` | `oracle/codemp/game/ai_main.c:1753-1858` | `JKAMP_GameLogic/ai_main.swift:576` | marker | `crates/mp/game/src/ai_main.rs:1901-2023` | `func PassStandardEnemyChecks(_ bs: BotState, _ en: Entity) -> Int32` |
-| `BotDamageNotification` | `oracle/codemp/game/ai_main.c:1861-1941` | `JKAMP_GameLogic/ai_main.swift:583` | marker | `crates/mp/game/src/ai_main.rs:2028-2113` | `func BotDamageNotification(_ bot: Client, _ attacker: Entity)` |
-| `BotCanHear` | `oracle/codemp/game/ai_main.c:1945-2010` | `JKAMP_GameLogic/ai_main.swift:591` | marker | `crates/mp/game/src/ai_main.rs:2118-2193` | `func BotCanHear(_ bs: BotState, _ en: Entity, _ endist: Float) -> Int32` |
-| `UpdateEventTracker` | `oracle/codemp/game/ai_main.c:2013-2031` | `JKAMP_GameLogic/ai_main.swift:598` | marker | `crates/mp/game/src/ai_main.rs:2198-2218` | `func UpdateEventTracker()` |
-| `InFieldOfVision` | `oracle/codemp/game/ai_main.c:2034-2074` | `JKAMP_GameLogic/ai_main.swift:605` | marker | `crates/mp/game/src/ai_main.rs:2223-2238` | `func InFieldOfVision(_ viewangles: inout JKAShared.vec3_t, _ fov: Float, _ angles: inout JKAShared.vec3_t) -> Int32` |
-| `PassLovedOneCheck` | `oracle/codemp/game/ai_main.c:2078-2129` | `JKAMP_GameLogic/ai_main.swift:613` | marker | `crates/mp/game/src/ai_main.rs:2243-2309` | `func PassLovedOneCheck(_ bs: BotState, _ ent: Entity) -> Int32` |
-| `ScanForEnemies` | `oracle/codemp/game/ai_main.c:2134-2220` | `JKAMP_GameLogic/ai_main.swift:620` | marker | `crates/mp/game/src/ai_main.rs:2314-2403` | `func ScanForEnemies(_ bs: BotState) -> Int32` |
-| `WaitingForNow` | `oracle/codemp/game/ai_main.c:2222-2260` | `JKAMP_GameLogic/ai_main.swift:626` | marker | `crates/mp/game/src/ai_main.rs:2408-2447` | `func WaitingForNow(_ bs: BotState, _ goalpos: inout JKAShared.vec3_t) -> Int32` |
-| `BotGetWeaponRange` | `oracle/codemp/game/ai_main.c:2264-2298` | `JKAMP_GameLogic/ai_main.swift:634` | marker | `crates/mp/game/src/ai_main.rs:2452-2471` | `func BotGetWeaponRange(_ bs: BotState) -> Int32` |
-| `BotIsAChickenWuss` | `oracle/codemp/game/ai_main.c:2301-2391` | `JKAMP_GameLogic/ai_main.swift:641` | marker | `crates/mp/game/src/ai_main.rs:2476-2583` | `func BotIsAChickenWuss(_ bs: BotState) -> Int32` |
-| `GetNearestBadThing` | `oracle/codemp/game/ai_main.c:2395-2504` | `JKAMP_GameLogic/ai_main.swift:649` | marker | `crates/mp/game/src/ai_main.rs:2588-2719` | `func GetNearestBadThing(_ bs: BotState) -> Entity?` |
-| `BotDefendFlag` | `oracle/codemp/game/ai_main.c:2507-2538` | `JKAMP_GameLogic/ai_main.swift:656` | marker | `crates/mp/game/src/ai_main.rs:2724-2751` | `func BotDefendFlag(_ bs: BotState) -> Int32` |
-| `BotGetEnemyFlag` | `oracle/codemp/game/ai_main.c:2541-2572` | `JKAMP_GameLogic/ai_main.swift:663` | marker | `crates/mp/game/src/ai_main.rs:2756-2783` | `func BotGetEnemyFlag(_ bs: BotState) -> Int32` |
-| `BotGetFlagBack` | `oracle/codemp/game/ai_main.c:2575-2637` | `JKAMP_GameLogic/ai_main.swift:670` | marker | `crates/mp/game/src/ai_main.rs:2788-2849` | `func BotGetFlagBack(_ bs: BotState) -> Int32` |
-| `BotGuardFlagCarrier` | `oracle/codemp/game/ai_main.c:2641-2703` | `JKAMP_GameLogic/ai_main.swift:678` | marker | `crates/mp/game/src/ai_main.rs:2854-2916` | `func BotGuardFlagCarrier(_ bs: BotState) -> Int32` |
-| `BotGetFlagHome` | `oracle/codemp/game/ai_main.c:2706-2737` | `JKAMP_GameLogic/ai_main.swift:685` | marker | `crates/mp/game/src/ai_main.rs:2921-2947` | `func BotGetFlagHome(_ bs: BotState) -> Int32` |
-| `GetNewFlagPoint` | `oracle/codemp/game/ai_main.c:2739-2801` | `JKAMP_GameLogic/ai_main.swift:691` | marker | `crates/mp/game/src/ai_main.rs:2952-3041` | `func GetNewFlagPoint(_ wp: JKAMP.Wpobject, _ flagEnt: Entity, _ team: Int32)` |
-| `CTFTakesPriority` | `oracle/codemp/game/ai_main.c:2804-3034` | `JKAMP_GameLogic/ai_main.swift:698` | marker | `crates/mp/game/src/ai_main.rs:3050-3269` | `func CTFTakesPriority(_ bs: BotState) -> Int32` |
-| `EntityVisibleBox` | `oracle/codemp/game/ai_main.c:3036-3052` | `JKAMP_GameLogic/ai_main.swift:704` | marker | `crates/mp/game/src/ai_main.rs:3274-3296` | `func EntityVisibleBox(_ org1: inout JKAShared.vec3_t, _ mins: inout JKAShared.vec3_t, _ maxs: inout JKAShared.vec3_t, _ org2: inout JKAShared.vec3_t, _ ignore: Int32, _ ignore2: Int32) -> Int32` |
-| `Siege_TargetClosestObjective` | `oracle/codemp/game/ai_main.c:3055-3152` | `JKAMP_GameLogic/ai_main.swift:711` | marker | `crates/mp/game/src/ai_main.rs:3306-3425` | `func Siege_TargetClosestObjective(_ bs: BotState, _ flag: Int32) -> Int32` |
-| `Siege_DefendFromAttackers` | `oracle/codemp/game/ai_main.c:3154-3199` | `JKAMP_GameLogic/ai_main.swift:717` | marker | `crates/mp/game/src/ai_main.rs:3432-3487` | `func Siege_DefendFromAttackers(_ bs: BotState)` |
-| `Siege_CountDefenders` | `oracle/codemp/game/ai_main.c:3202-3227` | `JKAMP_GameLogic/ai_main.swift:724` | marker | `crates/mp/game/src/ai_main.rs:3492-3522` | `func Siege_CountDefenders(_ bs: BotState) -> Int32` |
-| `Siege_CountTeammates` | `oracle/codemp/game/ai_main.c:3230-3252` | `JKAMP_GameLogic/ai_main.swift:731` | marker | `crates/mp/game/src/ai_main.rs:3527-3546` | `func Siege_CountTeammates(_ bs: BotState) -> Int32` |
-| `SiegeTakesPriority` | `oracle/codemp/game/ai_main.c:3256-3420` | `JKAMP_GameLogic/ai_main.swift:739` | marker | `crates/mp/game/src/ai_main.rs:3551-3733` | `func SiegeTakesPriority(_ bs: BotState) -> Int32` |
-| `JMTakesPriority` | `oracle/codemp/game/ai_main.c:3424-3496` | `JKAMP_GameLogic/ai_main.swift:747` | marker | `crates/mp/game/src/ai_main.rs:3742-3809` | `func JMTakesPriority(_ bs: BotState) -> Int32` |
-| `BotHasAssociated` | `oracle/codemp/game/ai_main.c:3500-3554` | `JKAMP_GameLogic/ai_main.swift:755` | marker | `crates/mp/game/src/ai_main.rs:3814-3864` | `func BotHasAssociated(_ bs: BotState, _ wp: JKAMP.Wpobject) -> Int32` |
-| `GetBestIdleGoal` | `oracle/codemp/game/ai_main.c:3559-3621` | `JKAMP_GameLogic/ai_main.swift:764` | marker | `crates/mp/game/src/ai_main.rs:3869-3927` | `func GetBestIdleGoal(_ bs: BotState) -> Int32` |
-| `GetIdealDestination` | `oracle/codemp/game/ai_main.c:3625-3907` | `JKAMP_GameLogic/ai_main.swift:772` | marker | `crates/mp/game/src/ai_main.rs:3937-4218` | `func GetIdealDestination(_ bs: BotState)` |
-| `CommanderBotCTFAI` | `oracle/codemp/game/ai_main.c:3911-4074` | `JKAMP_GameLogic/ai_main.swift:780` | marker | `crates/mp/game/src/ai_main.rs:4223-4390` | `func CommanderBotCTFAI(_ bs: BotState)` |
-| `CommanderBotSiegeAI` | `oracle/codemp/game/ai_main.c:4077-4140` | `JKAMP_GameLogic/ai_main.swift:787` | marker | `crates/mp/game/src/ai_main.rs:4396-4467` | `func CommanderBotSiegeAI(_ bs: BotState)` |
-| `BotDoTeamplayAI` | `oracle/codemp/game/ai_main.c:4143-4155` | `JKAMP_GameLogic/ai_main.swift:794` | marker | `crates/mp/game/src/ai_main.rs:4472-4485` | `func BotDoTeamplayAI(_ bs: BotState)` |
-| `CommanderBotTeamplayAI` | `oracle/codemp/game/ai_main.c:4158-4249` | `JKAMP_GameLogic/ai_main.swift:801` | marker | `crates/mp/game/src/ai_main.rs:4490-4597` | `func CommanderBotTeamplayAI(_ bs: BotState)` |
-| `CommanderBotAI` | `oracle/codemp/game/ai_main.c:4252-4266` | `JKAMP_GameLogic/ai_main.swift:808` | marker | `crates/mp/game/src/ai_main.rs:4602-4612` | `func CommanderBotAI(_ bs: BotState)` |
-| `MeleeCombatHandling` | `oracle/codemp/game/ai_main.c:4269-4351` | `JKAMP_GameLogic/ai_main.swift:815` | marker | `crates/mp/game/src/ai_main.rs:4617-4715` | `func MeleeCombatHandling(_ bs: BotState)` |
-| `SaberCombatHandling` | `oracle/codemp/game/ai_main.c:4354-4566` | `JKAMP_GameLogic/ai_main.swift:822` | marker | `crates/mp/game/src/ai_main.rs:4722-4946` | `func SaberCombatHandling(_ bs: BotState)` |
-| `BotWeaponCanLead` | `oracle/codemp/game/ai_main.c:4570-4604` | `JKAMP_GameLogic/ai_main.swift:830` | marker | `crates/mp/game/src/ai_main.rs:4951-4975` | `func BotWeaponCanLead(_ bs: BotState) -> Float` |
-| `BotAimLeading` | `oracle/codemp/game/ai_main.c:4607-4684` | `JKAMP_GameLogic/ai_main.swift:837` | marker | `crates/mp/game/src/ai_main.rs:4980-5048` | `func BotAimLeading(_ bs: BotState, _ headlevel: inout JKAShared.vec3_t, _ leadAmount: Float)` |
-| `BotAimOffsetGoalAngles` | `oracle/codemp/game/ai_main.c:4687-4801` | `JKAMP_GameLogic/ai_main.swift:844` | marker | `crates/mp/game/src/ai_main.rs:5053-5162` | `func BotAimOffsetGoalAngles(_ bs: BotState)` |
-| `ShouldSecondaryFire` | `oracle/codemp/game/ai_main.c:4804-4882` | `JKAMP_GameLogic/ai_main.swift:851` | marker | `crates/mp/game/src/ai_main.rs:5167-5233` | `func ShouldSecondaryFire(_ bs: BotState) -> Int32` |
-| `CombatBotAI` | `oracle/codemp/game/ai_main.c:4885-5023` | `JKAMP_GameLogic/ai_main.swift:858` | marker | `crates/mp/game/src/ai_main.rs:5238-5354` | `func CombatBotAI(_ bs: BotState, _ thinktime: Float) -> Int32` |
-| `BotFallbackNavigation` | `oracle/codemp/game/ai_main.c:5029-5070` | `JKAMP_GameLogic/ai_main.swift:868` | marker | `crates/mp/game/src/ai_main.rs:5359-5412` | `func BotFallbackNavigation(_ bs: BotState) -> Int32` |
-| `BotTryAnotherWeapon` | `oracle/codemp/game/ai_main.c:5072-5103` | `JKAMP_GameLogic/ai_main.swift:874` | marker | `crates/mp/game/src/ai_main.rs:5418-5444` | `func BotTryAnotherWeapon(_ bs: BotState) -> Int32` |
-| `BotWeaponSelectable` | `oracle/codemp/game/ai_main.c:5106-5120` | `JKAMP_GameLogic/ai_main.swift:881` | marker | `crates/mp/game/src/ai_main.rs:5449-5465` | `func BotWeaponSelectable(_ bs: BotState, _ weapon: Int32) -> Bool` |
-| `BotSelectIdealWeapon` | `oracle/codemp/game/ai_main.c:5123-5213` | `JKAMP_GameLogic/ai_main.swift:888` | marker | `crates/mp/game/src/ai_main.rs:5470-5557` | `func BotSelectIdealWeapon(_ bs: BotState) -> Int32` |
-| `BotSelectChoiceWeapon` | `oracle/codemp/game/ai_main.c:5216-5251` | `JKAMP_GameLogic/ai_main.swift:895` | marker | `crates/mp/game/src/ai_main.rs:5563-5604` | `func BotSelectChoiceWeapon(_ bs: BotState, _ weapon: Int32, _ doselection: Int32) -> Int32` |
-| `BotSelectMelee` | `oracle/codemp/game/ai_main.c:5254-5266` | `JKAMP_GameLogic/ai_main.swift:902` | marker | `crates/mp/game/src/ai_main.rs:5609-5619` | `func BotSelectMelee(_ bs: BotState) -> Int32` |
-| `GetLoveLevel` | `oracle/codemp/game/ai_main.c:5269-5312` | `JKAMP_GameLogic/ai_main.swift:909` | marker | `crates/mp/game/src/ai_main.rs:5624-5665` | `func GetLoveLevel(_ bs: BotState, _ love: BotState) -> Int32` |
-| `BotLovedOneDied` | `oracle/codemp/game/ai_main.c:5315-5388` | `JKAMP_GameLogic/ai_main.swift:916` | marker | `crates/mp/game/src/ai_main.rs:5670-5759` | `func BotLovedOneDied(_ bs: BotState, _ loved: BotState, _ lovelevel: Int32)` |
-| `BotDeathNotify` | `oracle/codemp/game/ai_main.c:5390-5414` | `JKAMP_GameLogic/ai_main.swift:922` | marker | `crates/mp/game/src/ai_main.rs:5766-5791` | `func BotDeathNotify(_ bs: BotState)` |
-| `StrafeTracing` | `oracle/codemp/game/ai_main.c:5417-5463` | `JKAMP_GameLogic/ai_main.swift:929` | marker | `crates/mp/game/src/ai_main.rs:5796-5866` | `func StrafeTracing(_ bs: BotState)` |
-| `PrimFiring` | `oracle/codemp/game/ai_main.c:5466-5481` | `JKAMP_GameLogic/ai_main.swift:936` | marker | `crates/mp/game/src/ai_main.rs:5871-5883` | `func PrimFiring(_ bs: BotState) -> Int32` |
-| `KeepPrimFromFiring` | `oracle/codemp/game/ai_main.c:5484-5499` | `JKAMP_GameLogic/ai_main.swift:943` | marker | `crates/mp/game/src/ai_main.rs:5888-5900` | `func KeepPrimFromFiring(_ bs: BotState) -> Int32` |
-| `AltFiring` | `oracle/codemp/game/ai_main.c:5502-5517` | `JKAMP_GameLogic/ai_main.swift:950` | marker | `crates/mp/game/src/ai_main.rs:5905-5921` | `func AltFiring(_ bs: BotState) -> Int32` |
-| `KeepAltFromFiring` | `oracle/codemp/game/ai_main.c:5520-5535` | `JKAMP_GameLogic/ai_main.swift:957` | marker | `crates/mp/game/src/ai_main.rs:5926-5942` | `func KeepAltFromFiring(_ bs: BotState) -> Int32` |
-| `CheckForFriendInLOF` | `oracle/codemp/game/ai_main.c:5538-5583` | `JKAMP_GameLogic/ai_main.swift:964` | marker | `crates/mp/game/src/ai_main.rs:5947-6009` | `func CheckForFriendInLOF(_ bs: BotState) -> Entity?` |
-| `BotScanForLeader` | `oracle/codemp/game/ai_main.c:5585-5615` | `JKAMP_GameLogic/ai_main.swift:970` | marker | `crates/mp/game/src/ai_main.rs:6017-6055` | `func BotScanForLeader(_ bs: BotState)` |
-| `BotReplyGreetings` | `oracle/codemp/game/ai_main.c:5618-5644` | `JKAMP_GameLogic/ai_main.swift:977` | marker | `crates/mp/game/src/ai_main.rs:6060-6086` | `func BotReplyGreetings(_ bs: BotState)` |
-| `CTFFlagMovement` | `oracle/codemp/game/ai_main.c:5647-5723` | `JKAMP_GameLogic/ai_main.swift:984` | marker | `crates/mp/game/src/ai_main.rs:6091-6191` | `func CTFFlagMovement(_ bs: BotState)` |
-| `BotCheckDetPacks` | `oracle/codemp/game/ai_main.c:5726-5777` | `JKAMP_GameLogic/ai_main.swift:991` | marker | `crates/mp/game/src/ai_main.rs:6196-6270` | `func BotCheckDetPacks(_ bs: BotState)` |
-| `BotUseInventoryItem` | `oracle/codemp/game/ai_main.c:5780-5830` | `JKAMP_GameLogic/ai_main.swift:998` | marker | `crates/mp/game/src/ai_main.rs:6275-6346` | `func BotUseInventoryItem(_ bs: BotState) -> Int32` |
-| `BotSurfaceNear` | `oracle/codemp/game/ai_main.c:5833-5852` | `JKAMP_GameLogic/ai_main.swift:1005` | marker | `crates/mp/game/src/ai_main.rs:6351-6381` | `func BotSurfaceNear(_ bs: BotState) -> Int32` |
-| `BotWeaponBlockable` | `oracle/codemp/game/ai_main.c:5855-5877` | `JKAMP_GameLogic/ai_main.swift:1012` | marker | `crates/mp/game/src/ai_main.rs:6386-6397` | `func BotWeaponBlockable(_ weapon: Int32) -> Int32` |
-| `Bot_SetForcedMovement` | `oracle/codemp/game/ai_main.c:5883-5927` | `JKAMP_GameLogic/ai_main.swift:1019` | marker | `crates/mp/game/src/ai_main.rs:6402-6439` | `func Bot_SetForcedMovement(_ bot: Int32, _ forward: Int32, _ right: Int32, _ up: Int32)` |
-| `StandardBotAI` | `oracle/codemp/game/ai_main.c:5931-7483` | `JKAMP_GameLogic/ai_main.swift:1027` | marker | `crates/mp/game/src/ai_main.rs:6447-8038` | `func StandardBotAI(_ bs: BotState, _ thinktime: Float)` |
-| `BotAIStartFrame` | `oracle/codemp/game/ai_main.c:7492-7568` | `JKAMP_GameLogic/ai_main.swift:1040` | marker | `crates/mp/game/src/ai_main.rs:8045-8136` | `func BotAIStartFrame(_ time: Int32) -> Int32` |
-| `BotAISetup` | `oracle/codemp/game/ai_main.c:7575-7616` | `JKAMP_GameLogic/ai_main.swift:1053` | marker | `crates/mp/game/src/ai_main.rs:8143-8250` | `func BotAISetup(_ restart: Int32) -> Int32` |
-| `BotAIShutdown` | `oracle/codemp/game/ai_main.c:7623-7641` | `JKAMP_GameLogic/ai_main.swift:1066` | marker | `crates/mp/game/src/ai_main.rs:8255-8274` | `func BotAIShutdown(_ restart: Int32) -> Int32` |
+| `BotStraightTPOrderCheck` | `oracle/codemp/game/ai_main.c:128-155` | `JKAMP_GameLogic/ai_main.swift:160` | marker | `crates/mp/game/src/ai_main.rs:124-153` | `func BotStraightTPOrderCheck(_ ent: Entity, _ ordernum: Int32, _ bs: BotState)` |
+| `BotSelectWeapon` | `oracle/codemp/game/ai_main.c:157-165` | `JKAMP_GameLogic/ai_main.swift:166` | marker | `crates/mp/game/src/ai_main.rs:158-165` | `func BotSelectWeapon(_ client: Int32, _ weapon: Int32)` |
+| `BotReportStatus` | `oracle/codemp/game/ai_main.c:167-181` | `JKAMP_GameLogic/ai_main.swift:172` | marker | `crates/mp/game/src/ai_main.rs:170-184` | `func BotReportStatus(_ bs: BotState)` |
+| `BotOrder` | `oracle/codemp/game/ai_main.c:184-276` | `JKAMP_GameLogic/ai_main.swift:179` | marker | `crates/mp/game/src/ai_main.rs:189-284` | `func BotOrder(_ ent: Entity, _ clientnum: Int32, _ ordernum: Int32)` |
+| `BotMindTricked` | `oracle/codemp/game/ai_main.c:279-325` | `JKAMP_GameLogic/ai_main.swift:186` | marker | `crates/mp/game/src/ai_main.rs:289-315` | `func BotMindTricked(_ botClient: Int32, _ enemyClient: Int32) -> Int32` |
+| `BotAI_Print` | `oracle/codemp/game/ai_main.c:332-332` | `JKAMP_GameLogic/ai_main.swift:192` | marker | `crates/mp/game/src/ai_main.rs:320-327` | `func BotAI_Print(_ type: Int32, _ fmt: inout JKAShared.CharBuf, _ args: any JKAShared.FormatArg...)` |
+| `IsTeamplay` | `oracle/codemp/game/ai_main.c:336-344` | `JKAMP_GameLogic/ai_main.swift:198` | marker | `crates/mp/game/src/ai_main.rs:332-337` | `func IsTeamplay() -> Int32` |
+| `BotAI_GetClientState` | `oracle/codemp/game/ai_main.c:351-364` | `JKAMP_GameLogic/ai_main.swift:211` | marker | `crates/mp/game/src/ai_main.rs:342-358` | `func BotAI_GetClientState(_ clientNum: Int32, _ state: JKAMP.PlayerState) -> Int32` |
+| `BotAI_GetEntityState` | `oracle/codemp/game/ai_main.c:371-381` | `JKAMP_GameLogic/ai_main.swift:224` | marker | `crates/mp/game/src/ai_main.rs:363-383` | `func BotAI_GetEntityState(_ entityNum: Int32, _ state: JKAMP.EntityState) -> Int32` |
+| `BotAI_GetSnapshotEntity` | `oracle/codemp/game/ai_main.c:388-400` | `JKAMP_GameLogic/ai_main.swift:237` | marker | `crates/mp/game/src/ai_main.rs:388-406` | `func BotAI_GetSnapshotEntity(_ clientNum: Int32, _ sequence: Int32, _ state: JKAMP.EntityState) -> Int32` |
+| `BotEntityInfo` | `oracle/codemp/game/ai_main.c:407-409` | missing | marker | `crates/mp/game/src/ai_main.rs:411-416` | `func BotEntityInfo() -> Never` TODO: Port signature. No table row for `aas_entityinfo_t * info`. |
+| `NumBots` | `oracle/codemp/game/ai_main.c:416-418` | `JKAMP_GameLogic/ai_main.swift:261` | marker | `crates/mp/game/src/ai_main.rs:421-423` | `func NumBots() -> Int32` |
+| `AngleDifference` | `oracle/codemp/game/ai_main.c:425-436` | `JKAMP_GameLogic/ai_main.swift:274` | marker | none | `func AngleDifference(_ ang1: Float, _ ang2: Float) -> Float` |
+| `BotChangeViewAngle` | `oracle/codemp/game/ai_main.c:443-463` | `JKAMP_GameLogic/ai_main.swift:287` | marker | `crates/mp/game/src/ai_main.rs:428-443` | `func BotChangeViewAngle(_ angle: Float, _ ideal_angle: Float, _ speed: Float) -> Float` |
+| `BotChangeViewAngles` | `oracle/codemp/game/ai_main.c:470-530` | `JKAMP_GameLogic/ai_main.swift:300` | marker | `crates/mp/game/src/ai_main.rs:448-511` | `func BotChangeViewAngles(_ bs: BotState, _ thinktime: Float)` |
+| `BotInputToUserCommand` | `oracle/codemp/game/ai_main.c:537-626` | `JKAMP_GameLogic/ai_main.swift:313` | marker | `crates/mp/game/src/ai_main.rs:516-623` | `func BotInputToUserCommand(_ bi: BotInput, _ ucmd: JKAMP.Usercmd, _ delta_angles: [Int32], _ time: Int32, _ useTime: Int32)` |
+| `BotUpdateInput` | `oracle/codemp/game/ai_main.c:633-655` | `JKAMP_GameLogic/ai_main.swift:326` | marker | `crates/mp/game/src/ai_main.rs:628-676` | `func BotUpdateInput(_ bs: BotState, _ time: Int32, _ elapsed_time: Int32)` |
+| `BotAIRegularUpdate` | `oracle/codemp/game/ai_main.c:662-667` | `JKAMP_GameLogic/ai_main.swift:339` | marker | `crates/mp/game/src/ai_main.rs:690-695` | `func BotAIRegularUpdate()` |
+| `RemoveColorEscapeSequences` | `oracle/codemp/game/ai_main.c:674-688` | `JKAMP_GameLogic/ai_main.swift:352` | marker | `crates/mp/game/src/ai_main.rs:700-729` | `func RemoveColorEscapeSequences(_ text: inout JKAShared.CharBuf)` |
+| `BotAI` | `oracle/codemp/game/ai_main.c:696-771` | `JKAMP_GameLogic/ai_main.swift:365` | marker | `crates/mp/game/src/ai_main.rs:734-784` | `func BotAI(_ client: Int32, _ thinktime: Float) -> Int32` |
+| `BotScheduleBotThink` | `oracle/codemp/game/ai_main.c:778-791` | `JKAMP_GameLogic/ai_main.swift:378` | marker | `crates/mp/game/src/ai_main.rs:789-802` | `func BotScheduleBotThink()` |
+| `PlayersInGame` | `oracle/codemp/game/ai_main.c:793-812` | `JKAMP_GameLogic/ai_main.swift:384` | marker | `crates/mp/game/src/ai_main.rs:807-820` | `func PlayersInGame() -> Int32` |
+| `BotAISetupClient` | `oracle/codemp/game/ai_main.c:819-884` | `JKAMP_GameLogic/ai_main.swift:397` | marker | `crates/mp/game/src/ai_main.rs:825-917` | `func BotAISetupClient(_ client: Int32, _ settings: BotSettings, _ restart: Bool) -> Int32` |
+| `BotAIShutdownClient` | `oracle/codemp/game/ai_main.c:891-914` | `JKAMP_GameLogic/ai_main.swift:410` | marker | `crates/mp/game/src/ai_main.rs:922-951` | `func BotAIShutdownClient(_ client: Int32, _ restart: Bool) -> Int32` |
+| `BotResetState` | `oracle/codemp/game/ai_main.c:924-959` | `JKAMP_GameLogic/ai_main.swift:426` | marker | `crates/mp/game/src/ai_main.rs:960-1003` | `func BotResetState(_ bs: BotState)` |
+| `BotAILoadMap` | `oracle/codemp/game/ai_main.c:966-977` | `JKAMP_GameLogic/ai_main.swift:439` | marker | `crates/mp/game/src/ai_main.rs:1008-1019` | `func BotAILoadMap(_ restart: Int32) -> Int32` |
+| `OrgVisible` | `oracle/codemp/game/ai_main.c:982-994` | `JKAMP_GameLogic/ai_main.swift:446` | marker | `crates/mp/game/src/ai_main.rs:1027-1047` | `func OrgVisible(_ org1: inout JKAShared.vec3_t, _ org2: inout JKAShared.vec3_t, _ ignore: Int32) -> Int32` |
+| `WPOrgVisible` | `oracle/codemp/game/ai_main.c:997-1026` | `JKAMP_GameLogic/ai_main.swift:453` | marker | `crates/mp/game/src/ai_main.rs:1052-1115` | `func WPOrgVisible(_ bot: Entity, _ org1: inout JKAShared.vec3_t, _ org2: inout JKAShared.vec3_t, _ ignore: Int32) -> Int32` |
+| `OrgVisibleBox` | `oracle/codemp/game/ai_main.c:1029-1048` | `JKAMP_GameLogic/ai_main.swift:460` | marker | `crates/mp/game/src/ai_main.rs:1120-1154` | `func OrgVisibleBox(_ org1: inout JKAShared.vec3_t, _ mins: inout JKAShared.vec3_t, _ maxs: inout JKAShared.vec3_t, _ org2: inout JKAShared.vec3_t, _ ignore: Int32) -> Int32` |
+| `CheckForFunc` | `oracle/codemp/game/ai_main.c:1053-1083` | `JKAMP_GameLogic/ai_main.swift:469` | marker | `crates/mp/game/src/ai_main.rs:1159-1192` | `func CheckForFunc(_ org: inout JKAShared.vec3_t, _ ignore: Int32) -> Int32` |
+| `BotPVSCheck` | `oracle/codemp/game/ai_main.c:1086-1101` | `JKAMP_GameLogic/ai_main.swift:476` | marker | `crates/mp/game/src/ai_main.rs:1197-1209` | `func BotPVSCheck(_ p1: JKAShared.vec3_t, _ p2: JKAShared.vec3_t) -> Bool` |
+| `GetNearestVisibleWP` | `oracle/codemp/game/ai_main.c:1104-1149` | `JKAMP_GameLogic/ai_main.swift:483` | marker | `crates/mp/game/src/ai_main.rs:1214-1250` | `func GetNearestVisibleWP(_ org: inout JKAShared.vec3_t, _ ignore: Int32) -> Int32` |
+| `PassWayCheck` | `oracle/codemp/game/ai_main.c:1157-1190` | `JKAMP_GameLogic/ai_main.swift:491` | marker | `crates/mp/game/src/ai_main.rs:1255-1287` | `func PassWayCheck(_ bs: BotState, _ windex: Int32) -> Int32` |
+| `TotalTrailDistance` | `oracle/codemp/game/ai_main.c:1193-1259` | `JKAMP_GameLogic/ai_main.swift:498` | marker | `crates/mp/game/src/ai_main.rs:1292-1335` | `func TotalTrailDistance(_ start: Int32, _ end: Int32, _ bs: BotState) -> Float` |
+| `CheckForShorterRoutes` | `oracle/codemp/game/ai_main.c:1263-1349` | `JKAMP_GameLogic/ai_main.swift:506` | marker | `crates/mp/game/src/ai_main.rs:1340-1414` | `func CheckForShorterRoutes(_ bs: BotState, _ newwpindex: Int32)` |
+| `WPConstantRoutine` | `oracle/codemp/game/ai_main.c:1353-1429` | `JKAMP_GameLogic/ai_main.swift:514` | marker | `crates/mp/game/src/ai_main.rs:1419-1498` | `func WPConstantRoutine(_ bs: BotState)` |
+| `BotCTFGuardDuty` | `oracle/codemp/game/ai_main.c:1432-1446` | `JKAMP_GameLogic/ai_main.swift:521` | marker | `crates/mp/game/src/ai_main.rs:1503-1514` | `func BotCTFGuardDuty(_ bs: BotState) -> Bool` |
+| `WPTouchRoutine` | `oracle/codemp/game/ai_main.c:1452-1539` | `JKAMP_GameLogic/ai_main.swift:531` | marker | `crates/mp/game/src/ai_main.rs:1519-1599` | `func WPTouchRoutine(_ bs: BotState)` |
+| `MoveTowardIdealAngles` | `oracle/codemp/game/ai_main.c:1543-1546` | `JKAMP_GameLogic/ai_main.swift:539` | marker | `crates/mp/game/src/ai_main.rs:1604-1609` | `func MoveTowardIdealAngles(_ bs: BotState)` |
+| `BotTrace_Strafe` | `oracle/codemp/game/ai_main.c:1556-1633` | `JKAMP_GameLogic/ai_main.swift:547` | marker | `crates/mp/game/src/ai_main.rs:1614-1731` | `func BotTrace_Strafe(_ bs: BotState, _ traceto: inout JKAShared.vec3_t) -> Int32` |
+| `BotTrace_Jump` | `oracle/codemp/game/ai_main.c:1638-1699` | `JKAMP_GameLogic/ai_main.swift:555` | marker | `crates/mp/game/src/ai_main.rs:1736-1825` | `func BotTrace_Jump(_ bs: BotState, _ traceto: inout JKAShared.vec3_t) -> Int32` |
+| `BotTrace_Duck` | `oracle/codemp/game/ai_main.c:1702-1750` | `JKAMP_GameLogic/ai_main.swift:562` | marker | `crates/mp/game/src/ai_main.rs:1830-1896` | `func BotTrace_Duck(_ bs: BotState, _ traceto: inout JKAShared.vec3_t) -> Int32` |
+| `PassStandardEnemyChecks` | `oracle/codemp/game/ai_main.c:1753-1858` | `JKAMP_GameLogic/ai_main.swift:569` | marker | `crates/mp/game/src/ai_main.rs:1901-2023` | `func PassStandardEnemyChecks(_ bs: BotState, _ en: Entity) -> Int32` |
+| `BotDamageNotification` | `oracle/codemp/game/ai_main.c:1861-1941` | `JKAMP_GameLogic/ai_main.swift:576` | marker | `crates/mp/game/src/ai_main.rs:2028-2113` | `func BotDamageNotification(_ bot: Client, _ attacker: Entity)` |
+| `BotCanHear` | `oracle/codemp/game/ai_main.c:1945-2010` | `JKAMP_GameLogic/ai_main.swift:584` | marker | `crates/mp/game/src/ai_main.rs:2118-2193` | `func BotCanHear(_ bs: BotState, _ en: Entity, _ endist: Float) -> Int32` |
+| `UpdateEventTracker` | `oracle/codemp/game/ai_main.c:2013-2031` | `JKAMP_GameLogic/ai_main.swift:591` | marker | `crates/mp/game/src/ai_main.rs:2198-2218` | `func UpdateEventTracker()` |
+| `InFieldOfVision` | `oracle/codemp/game/ai_main.c:2034-2074` | `JKAMP_GameLogic/ai_main.swift:598` | marker | `crates/mp/game/src/ai_main.rs:2223-2238` | `func InFieldOfVision(_ viewangles: inout JKAShared.vec3_t, _ fov: Float, _ angles: inout JKAShared.vec3_t) -> Int32` |
+| `PassLovedOneCheck` | `oracle/codemp/game/ai_main.c:2078-2129` | `JKAMP_GameLogic/ai_main.swift:606` | marker | `crates/mp/game/src/ai_main.rs:2243-2309` | `func PassLovedOneCheck(_ bs: BotState, _ ent: Entity) -> Int32` |
+| `ScanForEnemies` | `oracle/codemp/game/ai_main.c:2134-2220` | `JKAMP_GameLogic/ai_main.swift:613` | marker | `crates/mp/game/src/ai_main.rs:2314-2403` | `func ScanForEnemies(_ bs: BotState) -> Int32` |
+| `WaitingForNow` | `oracle/codemp/game/ai_main.c:2222-2260` | `JKAMP_GameLogic/ai_main.swift:619` | marker | `crates/mp/game/src/ai_main.rs:2408-2447` | `func WaitingForNow(_ bs: BotState, _ goalpos: inout JKAShared.vec3_t) -> Int32` |
+| `BotGetWeaponRange` | `oracle/codemp/game/ai_main.c:2264-2298` | `JKAMP_GameLogic/ai_main.swift:627` | marker | `crates/mp/game/src/ai_main.rs:2452-2471` | `func BotGetWeaponRange(_ bs: BotState) -> Int32` |
+| `BotIsAChickenWuss` | `oracle/codemp/game/ai_main.c:2301-2391` | `JKAMP_GameLogic/ai_main.swift:634` | marker | `crates/mp/game/src/ai_main.rs:2476-2583` | `func BotIsAChickenWuss(_ bs: BotState) -> Int32` |
+| `GetNearestBadThing` | `oracle/codemp/game/ai_main.c:2395-2504` | `JKAMP_GameLogic/ai_main.swift:642` | marker | `crates/mp/game/src/ai_main.rs:2588-2719` | `func GetNearestBadThing(_ bs: BotState) -> Entity?` |
+| `BotDefendFlag` | `oracle/codemp/game/ai_main.c:2507-2538` | `JKAMP_GameLogic/ai_main.swift:649` | marker | `crates/mp/game/src/ai_main.rs:2724-2751` | `func BotDefendFlag(_ bs: BotState) -> Int32` |
+| `BotGetEnemyFlag` | `oracle/codemp/game/ai_main.c:2541-2572` | `JKAMP_GameLogic/ai_main.swift:656` | marker | `crates/mp/game/src/ai_main.rs:2756-2783` | `func BotGetEnemyFlag(_ bs: BotState) -> Int32` |
+| `BotGetFlagBack` | `oracle/codemp/game/ai_main.c:2575-2637` | `JKAMP_GameLogic/ai_main.swift:663` | marker | `crates/mp/game/src/ai_main.rs:2788-2849` | `func BotGetFlagBack(_ bs: BotState) -> Int32` |
+| `BotGuardFlagCarrier` | `oracle/codemp/game/ai_main.c:2641-2703` | `JKAMP_GameLogic/ai_main.swift:671` | marker | `crates/mp/game/src/ai_main.rs:2854-2916` | `func BotGuardFlagCarrier(_ bs: BotState) -> Int32` |
+| `BotGetFlagHome` | `oracle/codemp/game/ai_main.c:2706-2737` | `JKAMP_GameLogic/ai_main.swift:678` | marker | `crates/mp/game/src/ai_main.rs:2921-2947` | `func BotGetFlagHome(_ bs: BotState) -> Int32` |
+| `GetNewFlagPoint` | `oracle/codemp/game/ai_main.c:2739-2801` | `JKAMP_GameLogic/ai_main.swift:684` | marker | `crates/mp/game/src/ai_main.rs:2952-3041` | `func GetNewFlagPoint(_ wp: JKAMP.Wpobject, _ flagEnt: Entity, _ team: Int32)` |
+| `CTFTakesPriority` | `oracle/codemp/game/ai_main.c:2804-3034` | `JKAMP_GameLogic/ai_main.swift:691` | marker | `crates/mp/game/src/ai_main.rs:3050-3269` | `func CTFTakesPriority(_ bs: BotState) -> Int32` |
+| `EntityVisibleBox` | `oracle/codemp/game/ai_main.c:3036-3052` | `JKAMP_GameLogic/ai_main.swift:697` | marker | `crates/mp/game/src/ai_main.rs:3274-3296` | `func EntityVisibleBox(_ org1: inout JKAShared.vec3_t, _ mins: inout JKAShared.vec3_t, _ maxs: inout JKAShared.vec3_t, _ org2: inout JKAShared.vec3_t, _ ignore: Int32, _ ignore2: Int32) -> Int32` |
+| `Siege_TargetClosestObjective` | `oracle/codemp/game/ai_main.c:3055-3152` | `JKAMP_GameLogic/ai_main.swift:704` | marker | `crates/mp/game/src/ai_main.rs:3306-3425` | `func Siege_TargetClosestObjective(_ bs: BotState, _ flag: Int32) -> Int32` |
+| `Siege_DefendFromAttackers` | `oracle/codemp/game/ai_main.c:3154-3199` | `JKAMP_GameLogic/ai_main.swift:710` | marker | `crates/mp/game/src/ai_main.rs:3432-3487` | `func Siege_DefendFromAttackers(_ bs: BotState)` |
+| `Siege_CountDefenders` | `oracle/codemp/game/ai_main.c:3202-3227` | `JKAMP_GameLogic/ai_main.swift:717` | marker | `crates/mp/game/src/ai_main.rs:3492-3522` | `func Siege_CountDefenders(_ bs: BotState) -> Int32` |
+| `Siege_CountTeammates` | `oracle/codemp/game/ai_main.c:3230-3252` | `JKAMP_GameLogic/ai_main.swift:724` | marker | `crates/mp/game/src/ai_main.rs:3527-3546` | `func Siege_CountTeammates(_ bs: BotState) -> Int32` |
+| `SiegeTakesPriority` | `oracle/codemp/game/ai_main.c:3256-3420` | `JKAMP_GameLogic/ai_main.swift:732` | marker | `crates/mp/game/src/ai_main.rs:3551-3733` | `func SiegeTakesPriority(_ bs: BotState) -> Int32` |
+| `JMTakesPriority` | `oracle/codemp/game/ai_main.c:3424-3496` | `JKAMP_GameLogic/ai_main.swift:740` | marker | `crates/mp/game/src/ai_main.rs:3742-3809` | `func JMTakesPriority(_ bs: BotState) -> Int32` |
+| `BotHasAssociated` | `oracle/codemp/game/ai_main.c:3500-3554` | `JKAMP_GameLogic/ai_main.swift:748` | marker | `crates/mp/game/src/ai_main.rs:3814-3864` | `func BotHasAssociated(_ bs: BotState, _ wp: JKAMP.Wpobject) -> Int32` |
+| `GetBestIdleGoal` | `oracle/codemp/game/ai_main.c:3559-3621` | `JKAMP_GameLogic/ai_main.swift:757` | marker | `crates/mp/game/src/ai_main.rs:3869-3927` | `func GetBestIdleGoal(_ bs: BotState) -> Int32` |
+| `GetIdealDestination` | `oracle/codemp/game/ai_main.c:3625-3907` | `JKAMP_GameLogic/ai_main.swift:765` | marker | `crates/mp/game/src/ai_main.rs:3937-4218` | `func GetIdealDestination(_ bs: BotState)` |
+| `CommanderBotCTFAI` | `oracle/codemp/game/ai_main.c:3911-4074` | `JKAMP_GameLogic/ai_main.swift:773` | marker | `crates/mp/game/src/ai_main.rs:4223-4390` | `func CommanderBotCTFAI(_ bs: BotState)` |
+| `CommanderBotSiegeAI` | `oracle/codemp/game/ai_main.c:4077-4140` | `JKAMP_GameLogic/ai_main.swift:780` | marker | `crates/mp/game/src/ai_main.rs:4396-4467` | `func CommanderBotSiegeAI(_ bs: BotState)` |
+| `BotDoTeamplayAI` | `oracle/codemp/game/ai_main.c:4143-4155` | `JKAMP_GameLogic/ai_main.swift:787` | marker | `crates/mp/game/src/ai_main.rs:4472-4485` | `func BotDoTeamplayAI(_ bs: BotState)` |
+| `CommanderBotTeamplayAI` | `oracle/codemp/game/ai_main.c:4158-4249` | `JKAMP_GameLogic/ai_main.swift:794` | marker | `crates/mp/game/src/ai_main.rs:4490-4597` | `func CommanderBotTeamplayAI(_ bs: BotState)` |
+| `CommanderBotAI` | `oracle/codemp/game/ai_main.c:4252-4266` | `JKAMP_GameLogic/ai_main.swift:801` | marker | `crates/mp/game/src/ai_main.rs:4602-4612` | `func CommanderBotAI(_ bs: BotState)` |
+| `MeleeCombatHandling` | `oracle/codemp/game/ai_main.c:4269-4351` | `JKAMP_GameLogic/ai_main.swift:808` | marker | `crates/mp/game/src/ai_main.rs:4617-4715` | `func MeleeCombatHandling(_ bs: BotState)` |
+| `SaberCombatHandling` | `oracle/codemp/game/ai_main.c:4354-4566` | `JKAMP_GameLogic/ai_main.swift:815` | marker | `crates/mp/game/src/ai_main.rs:4722-4946` | `func SaberCombatHandling(_ bs: BotState)` |
+| `BotWeaponCanLead` | `oracle/codemp/game/ai_main.c:4570-4604` | `JKAMP_GameLogic/ai_main.swift:823` | marker | `crates/mp/game/src/ai_main.rs:4951-4975` | `func BotWeaponCanLead(_ bs: BotState) -> Float` |
+| `BotAimLeading` | `oracle/codemp/game/ai_main.c:4607-4684` | `JKAMP_GameLogic/ai_main.swift:830` | marker | `crates/mp/game/src/ai_main.rs:4980-5048` | `func BotAimLeading(_ bs: BotState, _ headlevel: inout JKAShared.vec3_t, _ leadAmount: Float)` |
+| `BotAimOffsetGoalAngles` | `oracle/codemp/game/ai_main.c:4687-4801` | `JKAMP_GameLogic/ai_main.swift:837` | marker | `crates/mp/game/src/ai_main.rs:5053-5162` | `func BotAimOffsetGoalAngles(_ bs: BotState)` |
+| `ShouldSecondaryFire` | `oracle/codemp/game/ai_main.c:4804-4882` | `JKAMP_GameLogic/ai_main.swift:844` | marker | `crates/mp/game/src/ai_main.rs:5167-5233` | `func ShouldSecondaryFire(_ bs: BotState) -> Int32` |
+| `CombatBotAI` | `oracle/codemp/game/ai_main.c:4885-5023` | `JKAMP_GameLogic/ai_main.swift:851` | marker | `crates/mp/game/src/ai_main.rs:5238-5354` | `func CombatBotAI(_ bs: BotState, _ thinktime: Float) -> Int32` |
+| `BotFallbackNavigation` | `oracle/codemp/game/ai_main.c:5029-5070` | `JKAMP_GameLogic/ai_main.swift:861` | marker | `crates/mp/game/src/ai_main.rs:5359-5412` | `func BotFallbackNavigation(_ bs: BotState) -> Int32` |
+| `BotTryAnotherWeapon` | `oracle/codemp/game/ai_main.c:5072-5103` | `JKAMP_GameLogic/ai_main.swift:867` | marker | `crates/mp/game/src/ai_main.rs:5418-5444` | `func BotTryAnotherWeapon(_ bs: BotState) -> Int32` |
+| `BotWeaponSelectable` | `oracle/codemp/game/ai_main.c:5106-5120` | `JKAMP_GameLogic/ai_main.swift:874` | marker | `crates/mp/game/src/ai_main.rs:5449-5465` | `func BotWeaponSelectable(_ bs: BotState, _ weapon: Int32) -> Bool` |
+| `BotSelectIdealWeapon` | `oracle/codemp/game/ai_main.c:5123-5213` | `JKAMP_GameLogic/ai_main.swift:881` | marker | `crates/mp/game/src/ai_main.rs:5470-5557` | `func BotSelectIdealWeapon(_ bs: BotState) -> Int32` |
+| `BotSelectChoiceWeapon` | `oracle/codemp/game/ai_main.c:5216-5251` | `JKAMP_GameLogic/ai_main.swift:888` | marker | `crates/mp/game/src/ai_main.rs:5563-5604` | `func BotSelectChoiceWeapon(_ bs: BotState, _ weapon: Int32, _ doselection: Int32) -> Int32` |
+| `BotSelectMelee` | `oracle/codemp/game/ai_main.c:5254-5266` | `JKAMP_GameLogic/ai_main.swift:895` | marker | `crates/mp/game/src/ai_main.rs:5609-5619` | `func BotSelectMelee(_ bs: BotState) -> Int32` |
+| `GetLoveLevel` | `oracle/codemp/game/ai_main.c:5269-5312` | `JKAMP_GameLogic/ai_main.swift:902` | marker | `crates/mp/game/src/ai_main.rs:5624-5665` | `func GetLoveLevel(_ bs: BotState, _ love: BotState) -> Int32` |
+| `BotLovedOneDied` | `oracle/codemp/game/ai_main.c:5315-5388` | `JKAMP_GameLogic/ai_main.swift:909` | marker | `crates/mp/game/src/ai_main.rs:5670-5759` | `func BotLovedOneDied(_ bs: BotState, _ loved: BotState, _ lovelevel: Int32)` |
+| `BotDeathNotify` | `oracle/codemp/game/ai_main.c:5390-5414` | `JKAMP_GameLogic/ai_main.swift:915` | marker | `crates/mp/game/src/ai_main.rs:5766-5791` | `func BotDeathNotify(_ bs: BotState)` |
+| `StrafeTracing` | `oracle/codemp/game/ai_main.c:5417-5463` | `JKAMP_GameLogic/ai_main.swift:922` | marker | `crates/mp/game/src/ai_main.rs:5796-5866` | `func StrafeTracing(_ bs: BotState)` |
+| `PrimFiring` | `oracle/codemp/game/ai_main.c:5466-5481` | `JKAMP_GameLogic/ai_main.swift:929` | marker | `crates/mp/game/src/ai_main.rs:5871-5883` | `func PrimFiring(_ bs: BotState) -> Int32` |
+| `KeepPrimFromFiring` | `oracle/codemp/game/ai_main.c:5484-5499` | `JKAMP_GameLogic/ai_main.swift:936` | marker | `crates/mp/game/src/ai_main.rs:5888-5900` | `func KeepPrimFromFiring(_ bs: BotState) -> Int32` |
+| `AltFiring` | `oracle/codemp/game/ai_main.c:5502-5517` | `JKAMP_GameLogic/ai_main.swift:943` | marker | `crates/mp/game/src/ai_main.rs:5905-5921` | `func AltFiring(_ bs: BotState) -> Int32` |
+| `KeepAltFromFiring` | `oracle/codemp/game/ai_main.c:5520-5535` | `JKAMP_GameLogic/ai_main.swift:950` | marker | `crates/mp/game/src/ai_main.rs:5926-5942` | `func KeepAltFromFiring(_ bs: BotState) -> Int32` |
+| `CheckForFriendInLOF` | `oracle/codemp/game/ai_main.c:5538-5583` | `JKAMP_GameLogic/ai_main.swift:957` | marker | `crates/mp/game/src/ai_main.rs:5947-6009` | `func CheckForFriendInLOF(_ bs: BotState) -> Entity?` |
+| `BotScanForLeader` | `oracle/codemp/game/ai_main.c:5585-5615` | `JKAMP_GameLogic/ai_main.swift:963` | marker | `crates/mp/game/src/ai_main.rs:6017-6055` | `func BotScanForLeader(_ bs: BotState)` |
+| `BotReplyGreetings` | `oracle/codemp/game/ai_main.c:5618-5644` | `JKAMP_GameLogic/ai_main.swift:970` | marker | `crates/mp/game/src/ai_main.rs:6060-6086` | `func BotReplyGreetings(_ bs: BotState)` |
+| `CTFFlagMovement` | `oracle/codemp/game/ai_main.c:5647-5723` | `JKAMP_GameLogic/ai_main.swift:977` | marker | `crates/mp/game/src/ai_main.rs:6091-6191` | `func CTFFlagMovement(_ bs: BotState)` |
+| `BotCheckDetPacks` | `oracle/codemp/game/ai_main.c:5726-5777` | `JKAMP_GameLogic/ai_main.swift:984` | marker | `crates/mp/game/src/ai_main.rs:6196-6270` | `func BotCheckDetPacks(_ bs: BotState)` |
+| `BotUseInventoryItem` | `oracle/codemp/game/ai_main.c:5780-5830` | `JKAMP_GameLogic/ai_main.swift:991` | marker | `crates/mp/game/src/ai_main.rs:6275-6346` | `func BotUseInventoryItem(_ bs: BotState) -> Int32` |
+| `BotSurfaceNear` | `oracle/codemp/game/ai_main.c:5833-5852` | `JKAMP_GameLogic/ai_main.swift:998` | marker | `crates/mp/game/src/ai_main.rs:6351-6381` | `func BotSurfaceNear(_ bs: BotState) -> Int32` |
+| `BotWeaponBlockable` | `oracle/codemp/game/ai_main.c:5855-5877` | `JKAMP_GameLogic/ai_main.swift:1005` | marker | `crates/mp/game/src/ai_main.rs:6386-6397` | `func BotWeaponBlockable(_ weapon: Int32) -> Int32` |
+| `Bot_SetForcedMovement` | `oracle/codemp/game/ai_main.c:5883-5927` | `JKAMP_GameLogic/ai_main.swift:1012` | marker | `crates/mp/game/src/ai_main.rs:6402-6439` | `func Bot_SetForcedMovement(_ bot: Int32, _ forward: Int32, _ right: Int32, _ up: Int32)` |
+| `StandardBotAI` | `oracle/codemp/game/ai_main.c:5931-7483` | `JKAMP_GameLogic/ai_main.swift:1020` | marker | `crates/mp/game/src/ai_main.rs:6447-8038` | `func StandardBotAI(_ bs: BotState, _ thinktime: Float)` |
+| `BotAIStartFrame` | `oracle/codemp/game/ai_main.c:7492-7568` | `JKAMP_GameLogic/ai_main.swift:1033` | marker | `crates/mp/game/src/ai_main.rs:8045-8136` | `func BotAIStartFrame(_ time: Int32) -> Int32` |
+| `BotAISetup` | `oracle/codemp/game/ai_main.c:7575-7616` | `JKAMP_GameLogic/ai_main.swift:1046` | marker | `crates/mp/game/src/ai_main.rs:8143-8250` | `func BotAISetup(_ restart: Int32) -> Int32` |
+| `BotAIShutdown` | `oracle/codemp/game/ai_main.c:7623-7641` | `JKAMP_GameLogic/ai_main.swift:1059` | marker | `crates/mp/game/src/ai_main.rs:8255-8274` | `func BotAIShutdown(_ restart: Int32) -> Int32` |
 
 31 file-scope variables. The entry is the stub's line for the variable, by rule 3 and rule 6.
 
 | Variable | Oracle | Kind | Entry |
 |---|---|---|---|
 | `botstates` | `oracle/codemp/game/ai_main.c:46` | pointer_table | `var botstates: Slots<BotState?> { world.storage.botstates }` |
-| `numbots` | `oracle/codemp/game/ai_main.c:48` | state | `// Rule 3: a stored property of GameWorld with C's zero, since Raven wrote no initializer, spelled world.numbots in a body.` |
+| `numbots` | `oracle/codemp/game/ai_main.c:48` | state | `}` |
 | `floattime` | `oracle/codemp/game/ai_main.c:50` | let | `let floattime: Float = 0` |
-| `regularupdate_time` | `oracle/codemp/game/ai_main.c:52` | state | `// Rule 3: a stored property of GameWorld with C's zero, since Raven wrote no initializer, spelled world.regularupdate_time in a body.` |
-| `gBotEventTracker` | `oracle/codemp/game/ai_main.c:59` | storage | `// A struct table is C storage in Sources/CJKAMP, reached through a Slots constant.` |
-| `bot_forcepowers` | `oracle/codemp/game/ai_main.c:62` | storage | `// A struct table is C storage in Sources/CJKAMP, reached through a Slots constant.` |
-| `bot_forgimmick` | `oracle/codemp/game/ai_main.c:63` | storage | `// A struct table is C storage in Sources/CJKAMP, reached through a Slots constant.` |
-| `bot_honorableduelacceptance` | `oracle/codemp/game/ai_main.c:64` | storage | `// A struct table is C storage in Sources/CJKAMP, reached through a Slots constant.` |
-| `bot_pvstype` | `oracle/codemp/game/ai_main.c:65` | storage | `// A struct table is C storage in Sources/CJKAMP, reached through a Slots constant.` |
-| `bot_normgpath` | `oracle/codemp/game/ai_main.c:66` | storage | `// A struct table is C storage in Sources/CJKAMP, reached through a Slots constant.` |
-| `bot_getinthecarrr` | `oracle/codemp/game/ai_main.c:68` | storage | `// A struct table is C storage in Sources/CJKAMP, reached through a Slots constant.` |
-| `bot_attachments` | `oracle/codemp/game/ai_main.c:76` | storage | `// A struct table is C storage in Sources/CJKAMP, reached through a Slots constant.` |
-| `bot_camp` | `oracle/codemp/game/ai_main.c:77` | storage | `// A struct table is C storage in Sources/CJKAMP, reached through a Slots constant.` |
-| `bot_wp_info` | `oracle/codemp/game/ai_main.c:79` | storage | `// A struct table is C storage in Sources/CJKAMP, reached through a Slots constant.` |
-| `bot_wp_edit` | `oracle/codemp/game/ai_main.c:80` | storage | `// A struct table is C storage in Sources/CJKAMP, reached through a Slots constant.` |
-| `bot_wp_clearweight` | `oracle/codemp/game/ai_main.c:81` | storage | `// A struct table is C storage in Sources/CJKAMP, reached through a Slots constant.` |
-| `bot_wp_distconnect` | `oracle/codemp/game/ai_main.c:82` | storage | `// A struct table is C storage in Sources/CJKAMP, reached through a Slots constant.` |
-| `bot_wp_visconnect` | `oracle/codemp/game/ai_main.c:83` | storage | `// A struct table is C storage in Sources/CJKAMP, reached through a Slots constant.` |
-| `flagRed` | `oracle/codemp/game/ai_main.c:86` | state | `// Rule 3: a stored property of GameWorld with C's zero, since Raven wrote no initializer, spelled world.flagRed in a body.` |
-| `oFlagRed` | `oracle/codemp/game/ai_main.c:87` | state | `// Rule 3: a stored property of GameWorld with C's zero, since Raven wrote no initializer, spelled world.oFlagRed in a body.` |
-| `flagBlue` | `oracle/codemp/game/ai_main.c:88` | state | `// Rule 3: a stored property of GameWorld with C's zero, since Raven wrote no initializer, spelled world.flagBlue in a body.` |
-| `oFlagBlue` | `oracle/codemp/game/ai_main.c:89` | state | `// Rule 3: a stored property of GameWorld with C's zero, since Raven wrote no initializer, spelled world.oFlagBlue in a body.` |
-| `eFlagRed` | `oracle/codemp/game/ai_main.c:91` | state | `// Rule 3: a stored property of GameWorld with C's zero, since Raven wrote no initializer, spelled world.eFlagRed in a body.` |
-| `droppedRedFlag` | `oracle/codemp/game/ai_main.c:92` | state | `// Rule 3: a stored property of GameWorld with C's zero, since Raven wrote no initializer, spelled world.droppedRedFlag in a body.` |
-| `eFlagBlue` | `oracle/codemp/game/ai_main.c:93` | state | `// Rule 3: a stored property of GameWorld with C's zero, since Raven wrote no initializer, spelled world.eFlagBlue in a body.` |
-| `droppedBlueFlag` | `oracle/codemp/game/ai_main.c:94` | state | `// Rule 3: a stored property of GameWorld with C's zero, since Raven wrote no initializer, spelled world.droppedBlueFlag in a body.` |
+| `regularupdate_time` | `oracle/codemp/game/ai_main.c:52` | state | `}` |
+| `gBotEventTracker` | `oracle/codemp/game/ai_main.c:59` | storage | `var gBotEventTracker: Slots<Boteventtracker> { world.storage.gBotEventTracker }` |
+| `bot_forcepowers` | `oracle/codemp/game/ai_main.c:62` | storage | `var bot_forcepowers: JKAMP.VmCvar { world.storage.bot_forcepowers }` |
+| `bot_forgimmick` | `oracle/codemp/game/ai_main.c:63` | storage | `var bot_forgimmick: JKAMP.VmCvar { world.storage.bot_forgimmick }` |
+| `bot_honorableduelacceptance` | `oracle/codemp/game/ai_main.c:64` | storage | `var bot_honorableduelacceptance: JKAMP.VmCvar { world.storage.bot_honorableduelacceptance }` |
+| `bot_pvstype` | `oracle/codemp/game/ai_main.c:65` | storage | `var bot_pvstype: JKAMP.VmCvar { world.storage.bot_pvstype }` |
+| `bot_normgpath` | `oracle/codemp/game/ai_main.c:66` | storage | `var bot_normgpath: JKAMP.VmCvar { world.storage.bot_normgpath }` |
+| `bot_getinthecarrr` | `oracle/codemp/game/ai_main.c:68` | storage | `var bot_getinthecarrr: JKAMP.VmCvar { world.storage.bot_getinthecarrr }` |
+| `bot_attachments` | `oracle/codemp/game/ai_main.c:76` | storage | `var bot_attachments: JKAMP.VmCvar { world.storage.bot_attachments }` |
+| `bot_camp` | `oracle/codemp/game/ai_main.c:77` | storage | `var bot_camp: JKAMP.VmCvar { world.storage.bot_camp }` |
+| `bot_wp_info` | `oracle/codemp/game/ai_main.c:79` | storage | `var bot_wp_info: JKAMP.VmCvar { world.storage.bot_wp_info }` |
+| `bot_wp_edit` | `oracle/codemp/game/ai_main.c:80` | storage | `var bot_wp_edit: JKAMP.VmCvar { world.storage.bot_wp_edit }` |
+| `bot_wp_clearweight` | `oracle/codemp/game/ai_main.c:81` | storage | `var bot_wp_clearweight: JKAMP.VmCvar { world.storage.bot_wp_clearweight }` |
+| `bot_wp_distconnect` | `oracle/codemp/game/ai_main.c:82` | storage | `var bot_wp_distconnect: JKAMP.VmCvar { world.storage.bot_wp_distconnect }` |
+| `bot_wp_visconnect` | `oracle/codemp/game/ai_main.c:83` | storage | `var bot_wp_visconnect: JKAMP.VmCvar { world.storage.bot_wp_visconnect }` |
+| `flagRed` | `oracle/codemp/game/ai_main.c:86` | state | `}` |
+| `oFlagRed` | `oracle/codemp/game/ai_main.c:87` | state | `}` |
+| `flagBlue` | `oracle/codemp/game/ai_main.c:88` | state | `}` |
+| `oFlagBlue` | `oracle/codemp/game/ai_main.c:89` | state | `}` |
+| `eFlagRed` | `oracle/codemp/game/ai_main.c:91` | state | `}` |
+| `droppedRedFlag` | `oracle/codemp/game/ai_main.c:92` | state | `}` |
+| `eFlagBlue` | `oracle/codemp/game/ai_main.c:93` | state | `}` |
+| `droppedBlueFlag` | `oracle/codemp/game/ai_main.c:94` | state | `}` |
 | `ctfStateNames` | `oracle/codemp/game/ai_main.c:96` | let | `let ctfStateNames: [String] = { () -> [String] in portMissing("ctfStateNames", source: "oracle/codemp/game/ai_main.c:96") }()` |
-| `ctfStateDescriptions` | `oracle/codemp/game/ai_main.c:106` | state | `// Rule 3: a stored property of GameWorld with Raven's initializer, spelled world.ctfStateDescriptions in a body.` |
-| `siegeStateDescriptions` | `oracle/codemp/game/ai_main.c:115` | state | `// Rule 3: a stored property of GameWorld with Raven's initializer, spelled world.siegeStateDescriptions in a body.` |
-| `teamplayStateDescriptions` | `oracle/codemp/game/ai_main.c:121` | state | `// Rule 3: a stored property of GameWorld with Raven's initializer, spelled world.teamplayStateDescriptions in a body.` |
-| `gUpdateVars` | `oracle/codemp/game/ai_main.c:7485` | state | `// Rule 3: a stored property of GameWorld with Raven's initializer, spelled world.gUpdateVars in a body.` |
+| `ctfStateDescriptions` | `oracle/codemp/game/ai_main.c:106` | state_data | `}` |
+| `siegeStateDescriptions` | `oracle/codemp/game/ai_main.c:115` | state_data | `}` |
+| `teamplayStateDescriptions` | `oracle/codemp/game/ai_main.c:121` | state_data | `}` |
+| `gUpdateVars` | `oracle/codemp/game/ai_main.c:7485` | state | `}` |

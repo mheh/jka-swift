@@ -7,59 +7,59 @@ The oracle range is the whole definition, from the return type to the closing br
 
 | Function | Oracle | Swift | State | jka-rust | Signature |
 |---|---|---|---|---|---|
-| `BG_FileExists` | `oracle/codemp/game/bg_misc.c:319-333` | `JKAMP_BG/bg_misc.swift:91` | ported | `crates/mp/bg/src/bg_misc.rs:235-249` | `func BG_FileExists(_ fileName: String) -> Bool` |
-| `BG_ParseField` | `oracle/codemp/game/bg_misc.c:358-423` | `JKAMP_BG/bg_misc.swift:116` | ported | `crates/mp/bg/src/bg_misc.rs:257-347` | `func BG_ParseField(_ l_fields: Slots<JKAMP.BgField>, _ key: String, _ value: String, _ ent: UnsafeMutableRawPointer)` |
-| `BG_LegalizedForcePowers` | `oracle/codemp/game/bg_misc.c:439-732` | `JKAMP_BG/bg_misc.swift:186` | ported | `crates/mp/bg/src/bg_misc.rs:359-583` | `func BG_LegalizedForcePowers(_ powerOut: inout JKAShared.CharBuf, _ maxRank: Int32, _ freeSaber: Bool, _ teamForce: Int32, _ gametype: Int32, _ fpDisabled: Int32) -> Bool` |
-| `vectoyaw` | `oracle/codemp/game/bg_misc.c:1773-1792` | `JKAMP_BG/bg_misc.swift:441` | ported | none | `func vectoyaw(_ vec: JKAShared.vec3_t) -> Float` |
-| `BG_HasYsalamiri` | `oracle/codemp/game/bg_misc.c:1794-1808` | `JKAMP_BG/bg_misc.swift:464` | ported | `crates/mp/bg/src/bg_misc.rs:592-605` | `func BG_HasYsalamiri(_ gametype: Int32, _ ps: JKAMP.PlayerState) -> Bool` |
-| `BG_CanUseFPNow` | `oracle/codemp/game/bg_misc.c:1810-1874` | `JKAMP_BG/bg_misc.swift:477` | ported | `crates/mp/bg/src/bg_misc.rs:610-671` | `func BG_CanUseFPNow(_ gametype: Int32, _ ps: JKAMP.PlayerState, _ time: Int32, _ power: JKAMP.forcePowers_t) -> Bool` |
-| `BG_FindItemForPowerup` | `oracle/codemp/game/bg_misc.c:1881-1893` | `JKAMP_BG/bg_misc.swift:537` | ported | `crates/mp/bg/src/bg_misc.rs:676-681` | `func BG_FindItemForPowerup(_ pw: JKAMP.powerup_t) -> JKAMP.Gitem?` |
-| `BG_FindItemForHoldable` | `oracle/codemp/game/bg_misc.c:1901-1913` | `JKAMP_BG/bg_misc.swift:560` | ported | `crates/mp/bg/src/bg_misc.rs:686-692` | `func BG_FindItemForHoldable(_ pw: JKAMP.holdable_t) -> JKAMP.Gitem?` |
-| `BG_FindItemForWeapon` | `oracle/codemp/game/bg_misc.c:1922-1933` | `JKAMP_BG/bg_misc.swift:584` | ported | `crates/mp/bg/src/bg_misc.rs:697-705` | `func BG_FindItemForWeapon(_ weapon: JKAMP.weapon_t) -> JKAMP.Gitem?` |
-| `BG_FindItemForAmmo` | `oracle/codemp/game/bg_misc.c:1941-1952` | `JKAMP_BG/bg_misc.swift:608` | ported | `crates/mp/bg/src/bg_misc.rs:710-717` | `func BG_FindItemForAmmo(_ ammo: JKAMP.ammo_t) -> JKAMP.Gitem?` |
-| `BG_FindItem` | `oracle/codemp/game/bg_misc.c:1960-1969` | `JKAMP_BG/bg_misc.swift:631` | ported | `crates/mp/bg/src/bg_misc.rs:723-728` | `func BG_FindItem(_ classname: String) -> JKAMP.Gitem?` |
-| `BG_PlayerTouchesItem` | `oracle/codemp/game/bg_misc.c:1979-1995` | `JKAMP_BG/bg_misc.swift:654` | ported | `crates/mp/bg/src/bg_misc.rs:736-758` | `func BG_PlayerTouchesItem(_ ps: JKAMP.PlayerState, _ item: JKAMP.EntityState, _ atTime: Int32) -> Bool` |
-| `BG_ProperForceIndex` | `oracle/codemp/game/bg_misc.c:1997-2012` | `JKAMP_BG/bg_misc.swift:673` | ported | `crates/mp/bg/src/bg_misc.rs:763-770` | `func BG_ProperForceIndex(_ power: Int32) -> Int32` |
-| `BG_CycleForce` | `oracle/codemp/game/bg_misc.c:2014-2090` | `JKAMP_BG/bg_misc.swift:688` | ported | `crates/mp/bg/src/bg_misc.rs:775-844` | `func BG_CycleForce(_ ps: JKAMP.PlayerState, _ direction: Int32)` |
-| `BG_GetItemIndexByTag` | `oracle/codemp/game/bg_misc.c:2092-2108` | `JKAMP_BG/bg_misc.swift:764` | ported | `crates/mp/bg/src/bg_misc.rs:850-856` | `func BG_GetItemIndexByTag(_ tag: Int32, _ type: Int32) -> Int32` |
-| `BG_IsItemSelectable` | `oracle/codemp/game/bg_misc.c:2111-2119` | `JKAMP_BG/bg_misc.swift:781` | ported | `crates/mp/bg/src/bg_misc.rs:874-879` | `func BG_IsItemSelectable(_ ps: JKAMP.PlayerState, _ item: Int32) -> Bool` |
-| `BG_CycleInven` | `oracle/codemp/game/bg_misc.c:2121-2182` | `JKAMP_BG/bg_misc.swift:789` | ported | `crates/mp/bg/src/bg_misc.rs:884-924` | `func BG_CycleInven(_ ps: JKAMP.PlayerState, _ direction: Int32)` |
-| `BG_CanItemBeGrabbed` | `oracle/codemp/game/bg_misc.c:2192-2343` | `JKAMP_BG/bg_misc.swift:856` | ported | `crates/mp/bg/src/bg_misc.rs:932-1075` | `func BG_CanItemBeGrabbed(_ gametype: Int32, _ ent: JKAMP.EntityState, _ ps: JKAMP.PlayerState) -> Bool` |
-| `BG_EvaluateTrajectory` | `oracle/codemp/game/bg_misc.c:2353-2410` | `JKAMP_BG/bg_misc.swift:1004` | ported | `crates/mp/bg/src/bg_misc.rs:1080-1157` | `func BG_EvaluateTrajectory(_ tr: JKAShared.Trajectory, _ atTime: Int32, _ result: inout JKAShared.vec3_t)` |
-| `BG_EvaluateTrajectoryDelta` | `oracle/codemp/game/bg_misc.c:2419-2462` | `JKAMP_BG/bg_misc.swift:1068` | ported | `crates/mp/bg/src/bg_misc.rs:1163-1232` | `func BG_EvaluateTrajectoryDelta(_ tr: JKAShared.Trajectory, _ atTime: Int32, _ result: inout JKAShared.vec3_t)` |
-| `BG_AddPredictableEventToPlayerstate` | `oracle/codemp/game/bg_misc.c:2635-2660` | `JKAMP_BG/bg_misc.swift:1110` | ported | `crates/mp/bg/src/bg_misc.rs:1243-1253` | `func BG_AddPredictableEventToPlayerstate(_ newEvent: Int32, _ eventParm: Int32, _ ps: JKAMP.PlayerState)` |
-| `BG_TouchJumpPad` | `oracle/codemp/game/bg_misc.c:2667-2694` | `JKAMP_BG/bg_misc.swift:1124` | ported | `crates/mp/bg/src/bg_misc.rs:1258-1288` | `func BG_TouchJumpPad(_ ps: JKAMP.PlayerState, _ jumppad: JKAMP.EntityState)` |
-| `BG_EmplacedView` | `oracle/codemp/game/bg_misc.c:2703-2740` | `JKAMP_BG/bg_misc.swift:1156` | ported | `crates/mp/bg/src/bg_misc.rs:1294-1329` | `func BG_EmplacedView(_ baseAngles: inout JKAShared.vec3_t, _ angles: inout JKAShared.vec3_t, _ newYaw: inout Float, _ constraint: Float) -> Int32` |
-| `BG_IsValidCharacterModel` | `oracle/codemp/game/bg_misc.c:2744-2766` | `JKAMP_BG/bg_misc.swift:1189` | ported | `crates/mp/bg/src/bg_misc.rs:1338-1353` | `func BG_IsValidCharacterModel(_ modelName: String, _ skinName: String) -> Bool` |
-| `BG_ValidateSkinForTeam` | `oracle/codemp/game/bg_misc.c:2768-2877` | `JKAMP_BG/bg_misc.swift:1205` | ported | `crates/mp/bg/src/bg_misc.rs:1372-1471` | `func BG_ValidateSkinForTeam(_ modelName: String, _ skinName: inout JKAShared.CharBuf, _ team: Int32, _ colors: inout JKAShared.vec3_t) -> Bool` |
-| `BG_PlayerStateToEntityState` | `oracle/codemp/game/bg_misc.c:2887-3027` | `JKAMP_BG/bg_misc.swift:1306` | ported | `crates/mp/bg/src/bg_misc.rs:1493-1620` | `func BG_PlayerStateToEntityState(_ ps: JKAMP.PlayerState, _ s: JKAMP.EntityState, _ snap: Bool)` |
-| `BG_PlayerStateToEntityStateExtraPolate` | `oracle/codemp/game/bg_misc.c:3037-3179` | `JKAMP_BG/bg_misc.swift:1456` | ported | `crates/mp/bg/src/bg_misc.rs:1627-1760` | `func BG_PlayerStateToEntityStateExtraPolate(_ ps: JKAMP.PlayerState, _ s: JKAMP.EntityState, _ time: Int32, _ snap: Bool)` |
-| `BG_ModelCache` | `oracle/codemp/game/bg_misc.c:3200-3224` | `JKAMP_BG/bg_misc.swift:1600` | ported | `crates/mp/bg/src/bg_misc.rs:1765-1796` | `func BG_ModelCache(_ modelName: String, _ skinName: String) -> Int32` |
-| `BG_Alloc` | `oracle/codemp/game/bg_misc.c:3328-3341` | `JKAMP_BG/bg_misc.swift:1625` | ported | `crates/mp/bg/src/bg_misc.rs:1801-1817` | `func BG_Alloc(_ size: Int32) -> UnsafeMutableRawPointer` |
-| `BG_AllocUnaligned` | `oracle/codemp/game/bg_misc.c:3343-3354` | `JKAMP_BG/bg_misc.swift:1640` | ported | `crates/mp/bg/src/bg_misc.rs:1848-1862` | `func BG_AllocUnaligned(_ size: Int32) -> UnsafeMutableRawPointer` |
-| `BG_TempAlloc` | `oracle/codemp/game/bg_misc.c:3356-3369` | `JKAMP_BG/bg_misc.swift:1652` | ported | `crates/mp/bg/src/bg_misc.rs:1867-1879` | `func BG_TempAlloc(_ size: Int32) -> UnsafeMutableRawPointer` |
-| `BG_TempFree` | `oracle/codemp/game/bg_misc.c:3371-3381` | `JKAMP_BG/bg_misc.swift:1668` | ported | `crates/mp/bg/src/bg_misc.rs:1899-1913` | `func BG_TempFree(_ size: Int32)` |
-| `BG_StringAlloc` | `oracle/codemp/game/bg_misc.c:3383-3390` | `JKAMP_BG/bg_misc.swift:1681` | ported | `crates/mp/bg/src/bg_misc.rs:1918-1928` | `func BG_StringAlloc(_ source: String) -> PooledString` |
-| `BG_OutOfMemory` | `oracle/codemp/game/bg_misc.c:3392-3395` | `JKAMP_BG/bg_misc.swift:1690` | ported | `crates/mp/bg/src/bg_misc.rs:1933-1940` | `func BG_OutOfMemory() -> Bool` |
+| `BG_FileExists` | `oracle/codemp/game/bg_misc.c:319-333` | `JKAMP_BG/bg_misc.swift:126` | ported | `crates/mp/bg/src/bg_misc.rs:235-249` | `func BG_FileExists(_ fileName: String) -> Bool` |
+| `BG_ParseField` | `oracle/codemp/game/bg_misc.c:358-423` | `JKAMP_BG/bg_misc.swift:151` | ported | `crates/mp/bg/src/bg_misc.rs:257-347` | `func BG_ParseField(_ l_fields: Slots<JKAMP.BgField>, _ key: String, _ value: String, _ ent: UnsafeMutableRawPointer)` |
+| `BG_LegalizedForcePowers` | `oracle/codemp/game/bg_misc.c:439-732` | `JKAMP_BG/bg_misc.swift:221` | ported | `crates/mp/bg/src/bg_misc.rs:359-583` | `func BG_LegalizedForcePowers(_ powerOut: inout JKAShared.CharBuf, _ maxRank: Int32, _ freeSaber: Bool, _ teamForce: Int32, _ gametype: Int32, _ fpDisabled: Int32) -> Bool` |
+| `vectoyaw` | `oracle/codemp/game/bg_misc.c:1773-1792` | `JKAMP_BG/bg_misc.swift:481` | ported | none | `func vectoyaw(_ vec: JKAShared.vec3_t) -> Float` |
+| `BG_HasYsalamiri` | `oracle/codemp/game/bg_misc.c:1794-1808` | `JKAMP_BG/bg_misc.swift:504` | ported | `crates/mp/bg/src/bg_misc.rs:592-605` | `func BG_HasYsalamiri(_ gametype: Int32, _ ps: JKAMP.PlayerState) -> Bool` |
+| `BG_CanUseFPNow` | `oracle/codemp/game/bg_misc.c:1810-1874` | `JKAMP_BG/bg_misc.swift:517` | ported | `crates/mp/bg/src/bg_misc.rs:610-671` | `func BG_CanUseFPNow(_ gametype: Int32, _ ps: JKAMP.PlayerState, _ time: Int32, _ power: JKAMP.forcePowers_t) -> Bool` |
+| `BG_FindItemForPowerup` | `oracle/codemp/game/bg_misc.c:1881-1893` | `JKAMP_BG/bg_misc.swift:577` | ported | `crates/mp/bg/src/bg_misc.rs:676-681` | `func BG_FindItemForPowerup(_ pw: JKAMP.powerup_t) -> JKAMP.Gitem?` |
+| `BG_FindItemForHoldable` | `oracle/codemp/game/bg_misc.c:1901-1913` | `JKAMP_BG/bg_misc.swift:600` | ported | `crates/mp/bg/src/bg_misc.rs:686-692` | `func BG_FindItemForHoldable(_ pw: JKAMP.holdable_t) -> JKAMP.Gitem?` |
+| `BG_FindItemForWeapon` | `oracle/codemp/game/bg_misc.c:1922-1933` | `JKAMP_BG/bg_misc.swift:624` | ported | `crates/mp/bg/src/bg_misc.rs:697-705` | `func BG_FindItemForWeapon(_ weapon: JKAMP.weapon_t) -> JKAMP.Gitem?` |
+| `BG_FindItemForAmmo` | `oracle/codemp/game/bg_misc.c:1941-1952` | `JKAMP_BG/bg_misc.swift:648` | ported | `crates/mp/bg/src/bg_misc.rs:710-717` | `func BG_FindItemForAmmo(_ ammo: JKAMP.ammo_t) -> JKAMP.Gitem?` |
+| `BG_FindItem` | `oracle/codemp/game/bg_misc.c:1960-1969` | `JKAMP_BG/bg_misc.swift:671` | ported | `crates/mp/bg/src/bg_misc.rs:723-728` | `func BG_FindItem(_ classname: String) -> JKAMP.Gitem?` |
+| `BG_PlayerTouchesItem` | `oracle/codemp/game/bg_misc.c:1979-1995` | `JKAMP_BG/bg_misc.swift:694` | ported | `crates/mp/bg/src/bg_misc.rs:736-758` | `func BG_PlayerTouchesItem(_ ps: JKAMP.PlayerState, _ item: JKAMP.EntityState, _ atTime: Int32) -> Bool` |
+| `BG_ProperForceIndex` | `oracle/codemp/game/bg_misc.c:1997-2012` | `JKAMP_BG/bg_misc.swift:713` | ported | `crates/mp/bg/src/bg_misc.rs:763-770` | `func BG_ProperForceIndex(_ power: Int32) -> Int32` |
+| `BG_CycleForce` | `oracle/codemp/game/bg_misc.c:2014-2090` | `JKAMP_BG/bg_misc.swift:728` | ported | `crates/mp/bg/src/bg_misc.rs:775-844` | `func BG_CycleForce(_ ps: JKAMP.PlayerState, _ direction: Int32)` |
+| `BG_GetItemIndexByTag` | `oracle/codemp/game/bg_misc.c:2092-2108` | `JKAMP_BG/bg_misc.swift:804` | ported | `crates/mp/bg/src/bg_misc.rs:850-856` | `func BG_GetItemIndexByTag(_ tag: Int32, _ type: Int32) -> Int32` |
+| `BG_IsItemSelectable` | `oracle/codemp/game/bg_misc.c:2111-2119` | `JKAMP_BG/bg_misc.swift:821` | ported | `crates/mp/bg/src/bg_misc.rs:874-879` | `func BG_IsItemSelectable(_ ps: JKAMP.PlayerState, _ item: Int32) -> Bool` |
+| `BG_CycleInven` | `oracle/codemp/game/bg_misc.c:2121-2182` | `JKAMP_BG/bg_misc.swift:829` | ported | `crates/mp/bg/src/bg_misc.rs:884-924` | `func BG_CycleInven(_ ps: JKAMP.PlayerState, _ direction: Int32)` |
+| `BG_CanItemBeGrabbed` | `oracle/codemp/game/bg_misc.c:2192-2343` | `JKAMP_BG/bg_misc.swift:896` | ported | `crates/mp/bg/src/bg_misc.rs:932-1075` | `func BG_CanItemBeGrabbed(_ gametype: Int32, _ ent: JKAMP.EntityState, _ ps: JKAMP.PlayerState) -> Bool` |
+| `BG_EvaluateTrajectory` | `oracle/codemp/game/bg_misc.c:2353-2410` | `JKAMP_BG/bg_misc.swift:1044` | ported | `crates/mp/bg/src/bg_misc.rs:1080-1157` | `func BG_EvaluateTrajectory(_ tr: JKAShared.Trajectory, _ atTime: Int32, _ result: inout JKAShared.vec3_t)` |
+| `BG_EvaluateTrajectoryDelta` | `oracle/codemp/game/bg_misc.c:2419-2462` | `JKAMP_BG/bg_misc.swift:1108` | ported | `crates/mp/bg/src/bg_misc.rs:1163-1232` | `func BG_EvaluateTrajectoryDelta(_ tr: JKAShared.Trajectory, _ atTime: Int32, _ result: inout JKAShared.vec3_t)` |
+| `BG_AddPredictableEventToPlayerstate` | `oracle/codemp/game/bg_misc.c:2635-2660` | `JKAMP_BG/bg_misc.swift:1150` | ported | `crates/mp/bg/src/bg_misc.rs:1243-1253` | `func BG_AddPredictableEventToPlayerstate(_ newEvent: Int32, _ eventParm: Int32, _ ps: JKAMP.PlayerState)` |
+| `BG_TouchJumpPad` | `oracle/codemp/game/bg_misc.c:2667-2694` | `JKAMP_BG/bg_misc.swift:1164` | ported | `crates/mp/bg/src/bg_misc.rs:1258-1288` | `func BG_TouchJumpPad(_ ps: JKAMP.PlayerState, _ jumppad: JKAMP.EntityState)` |
+| `BG_EmplacedView` | `oracle/codemp/game/bg_misc.c:2703-2740` | `JKAMP_BG/bg_misc.swift:1196` | ported | `crates/mp/bg/src/bg_misc.rs:1294-1329` | `func BG_EmplacedView(_ baseAngles: inout JKAShared.vec3_t, _ angles: inout JKAShared.vec3_t, _ newYaw: inout Float, _ constraint: Float) -> Int32` |
+| `BG_IsValidCharacterModel` | `oracle/codemp/game/bg_misc.c:2744-2766` | `JKAMP_BG/bg_misc.swift:1229` | ported | `crates/mp/bg/src/bg_misc.rs:1338-1353` | `func BG_IsValidCharacterModel(_ modelName: String, _ skinName: String) -> Bool` |
+| `BG_ValidateSkinForTeam` | `oracle/codemp/game/bg_misc.c:2768-2877` | `JKAMP_BG/bg_misc.swift:1245` | ported | `crates/mp/bg/src/bg_misc.rs:1372-1471` | `func BG_ValidateSkinForTeam(_ modelName: String, _ skinName: inout JKAShared.CharBuf, _ team: Int32, _ colors: inout JKAShared.vec3_t) -> Bool` |
+| `BG_PlayerStateToEntityState` | `oracle/codemp/game/bg_misc.c:2887-3027` | `JKAMP_BG/bg_misc.swift:1346` | ported | `crates/mp/bg/src/bg_misc.rs:1493-1620` | `func BG_PlayerStateToEntityState(_ ps: JKAMP.PlayerState, _ s: JKAMP.EntityState, _ snap: Bool)` |
+| `BG_PlayerStateToEntityStateExtraPolate` | `oracle/codemp/game/bg_misc.c:3037-3179` | `JKAMP_BG/bg_misc.swift:1496` | ported | `crates/mp/bg/src/bg_misc.rs:1627-1760` | `func BG_PlayerStateToEntityStateExtraPolate(_ ps: JKAMP.PlayerState, _ s: JKAMP.EntityState, _ time: Int32, _ snap: Bool)` |
+| `BG_ModelCache` | `oracle/codemp/game/bg_misc.c:3200-3224` | `JKAMP_BG/bg_misc.swift:1640` | ported | `crates/mp/bg/src/bg_misc.rs:1765-1796` | `func BG_ModelCache(_ modelName: String, _ skinName: String) -> Int32` |
+| `BG_Alloc` | `oracle/codemp/game/bg_misc.c:3328-3341` | `JKAMP_BG/bg_misc.swift:1684` | ported | `crates/mp/bg/src/bg_misc.rs:1801-1817` | `func BG_Alloc(_ size: Int32) -> UnsafeMutableRawPointer` |
+| `BG_AllocUnaligned` | `oracle/codemp/game/bg_misc.c:3343-3354` | `JKAMP_BG/bg_misc.swift:1699` | ported | `crates/mp/bg/src/bg_misc.rs:1848-1862` | `func BG_AllocUnaligned(_ size: Int32) -> UnsafeMutableRawPointer` |
+| `BG_TempAlloc` | `oracle/codemp/game/bg_misc.c:3356-3369` | `JKAMP_BG/bg_misc.swift:1711` | ported | `crates/mp/bg/src/bg_misc.rs:1867-1879` | `func BG_TempAlloc(_ size: Int32) -> UnsafeMutableRawPointer` |
+| `BG_TempFree` | `oracle/codemp/game/bg_misc.c:3371-3381` | `JKAMP_BG/bg_misc.swift:1727` | ported | `crates/mp/bg/src/bg_misc.rs:1899-1913` | `func BG_TempFree(_ size: Int32)` |
+| `BG_StringAlloc` | `oracle/codemp/game/bg_misc.c:3383-3390` | `JKAMP_BG/bg_misc.swift:1740` | ported | `crates/mp/bg/src/bg_misc.rs:1918-1928` | `func BG_StringAlloc(_ source: String) -> PooledString` |
+| `BG_OutOfMemory` | `oracle/codemp/game/bg_misc.c:3392-3395` | `JKAMP_BG/bg_misc.swift:1749` | ported | `crates/mp/bg/src/bg_misc.rs:1933-1940` | `func BG_OutOfMemory() -> Bool` |
 
 17 file-scope variables. The entry is the stub's line for the variable, by rule 3 and rule 6.
 
 | Variable | Oracle | Kind | Entry |
 |---|---|---|---|
-| `bgToggleableSurfaces` | `oracle/codemp/game/bg_misc.c:34` | state | `// Rule 3: a stored property of BgState with Raven's initializer, spelled bg.bgToggleableSurfaces in a body.` |
+| `bgToggleableSurfaces` | `oracle/codemp/game/bg_misc.c:34` | state_data | `}` |
 | `bgToggleableSurfaceDebris` | `oracle/codemp/game/bg_misc.c:78` | let | `let bgToggleableSurfaceDebris: [Int32] = { () -> [Int32] in portMissing("bgToggleableSurfaceDebris", source: "oracle/codemp/game/bg_misc.c:78") }()` |
-| `bg_customSiegeSoundNames` | `oracle/codemp/game/bg_misc.c:113` | state | `// Rule 3: a stored property of BgState with Raven's initializer, spelled bg.bg_customSiegeSoundNames in a body.` |
+| `bg_customSiegeSoundNames` | `oracle/codemp/game/bg_misc.c:113` | state_data | `}` |
 | `forceMasteryLevels` | `oracle/codemp/game/bg_misc.c:150` | let | `let forceMasteryLevels: [String] = { () -> [String] in portMissing("forceMasteryLevels", source: "oracle/codemp/game/bg_misc.c:150") }()` |
 | `forceMasteryPoints` | `oracle/codemp/game/bg_misc.c:162` | let | `let forceMasteryPoints: [Int32] = { () -> [Int32] in portMissing("forceMasteryPoints", source: "oracle/codemp/game/bg_misc.c:162") }()` |
 | `bgForcePowerCost` | `oracle/codemp/game/bg_misc.c:174` | let | `let bgForcePowerCost: [[Int32]] = { () -> [[Int32]] in portMissing("bgForcePowerCost", source: "oracle/codemp/game/bg_misc.c:174") }()` |
 | `forcePowerSorted` | `oracle/codemp/game/bg_misc.c:197` | let | `let forcePowerSorted: [Int32] = { () -> [Int32] in portMissing("forcePowerSorted", source: "oracle/codemp/game/bg_misc.c:197") }()` |
 | `forcePowerDarkLight` | `oracle/codemp/game/bg_misc.c:219` | let | `let forcePowerDarkLight: [Int32] = { () -> [Int32] in portMissing("forcePowerDarkLight", source: "oracle/codemp/game/bg_misc.c:219") }()` |
-| `WeaponReadyAnim` | `oracle/codemp/game/bg_misc.c:242` | state | `// Rule 3: a stored property of BgState with Raven's initializer, spelled bg.WeaponReadyAnim in a body.` |
-| `WeaponReadyLegsAnim` | `oracle/codemp/game/bg_misc.c:268` | state | `// Rule 3: a stored property of BgState with Raven's initializer, spelled bg.WeaponReadyLegsAnim in a body.` |
-| `WeaponAttackAnim` | `oracle/codemp/game/bg_misc.c:294` | state | `// Rule 3: a stored property of BgState with Raven's initializer, spelled bg.WeaponAttackAnim in a body.` |
-| `bg_itemlist` | `oracle/codemp/game/bg_misc.c:795` | storage | `// A struct table is C storage in Sources/CJKAMP, reached through a Slots constant.` |
+| `WeaponReadyAnim` | `oracle/codemp/game/bg_misc.c:242` | state_data | `}` |
+| `WeaponReadyLegsAnim` | `oracle/codemp/game/bg_misc.c:268` | state_data | `}` |
+| `WeaponAttackAnim` | `oracle/codemp/game/bg_misc.c:294` | state_data | `}` |
+| `bg_itemlist` | `oracle/codemp/game/bg_misc.c:795` | storage_data | `// Raven's data table is C storage by hand in the C target, with his initializer as written, reached as a Slots over the C array, the bg_tables.c shape.` |
 | `bg_numItems` | `oracle/codemp/game/bg_misc.c:1771` | let | `let bg_numItems: Int32 = { () -> Int32 in portMissing("bg_numItems", source: "oracle/codemp/game/bg_misc.c:1771") }()` |
 | `eventnames` | `oracle/codemp/game/bg_misc.c:2464` | let | `let eventnames: [String] = { () -> [String] in portMissing("eventnames", source: "oracle/codemp/game/bg_misc.c:2464") }()` |
-| `bg_pool` | `oracle/codemp/game/bg_misc.c:3324` | state | `// Rule 3: a stored property of BgState with C's zero, since Raven wrote no initializer, spelled bg.bg_pool in a body.` |
-| `bg_poolSize` | `oracle/codemp/game/bg_misc.c:3325` | state | `// Rule 3: a stored property of BgState with Raven's initializer, spelled bg.bg_poolSize in a body.` |
-| `bg_poolTail` | `oracle/codemp/game/bg_misc.c:3326` | state | `// Rule 3: a stored property of BgState with Raven's initializer, spelled bg.bg_poolTail in a body.` |
+| `bg_pool` | `oracle/codemp/game/bg_misc.c:3324` | hand | `// A hand property of the state object, `bg.pool`, by the HAND_VARS ruling.` |
+| `bg_poolSize` | `oracle/codemp/game/bg_misc.c:3325` | state | `}` |
+| `bg_poolTail` | `oracle/codemp/game/bg_misc.c:3326` | state | `}` |

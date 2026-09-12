@@ -7,29 +7,29 @@ The oracle range is the whole definition, from the return type to the closing br
 
 | Function | Oracle | Swift | State | jka-rust | Signature |
 |---|---|---|---|---|---|
-| `Q3_TaskIDClear` | `oracle/codemp/game/g_ICARUScb.c:270-273` | `JKAMP_GameLogic/g_ICARUScb.swift:36` | marker | `crates/mp/game/src/g_ICARUScb.rs:52-56` | `func Q3_TaskIDClear(_ taskID: inout Int32)` |
-| `G_DebugPrint` | `oracle/codemp/game/g_ICARUScb.c:275-324` | `JKAMP_GameLogic/g_ICARUScb.swift:42` | marker | `crates/mp/game/src/g_ICARUScb.rs:61-113` | `func G_DebugPrint(_ level: Int32, _ format: String, _ args: any JKAShared.FormatArg...)` |
-| `Q3_GetAnimLower` static | `oracle/codemp/game/g_ICARUScb.c:331-344` | `JKAMP_GameLogic/g_ICARUScb.swift:55` | marker | `crates/mp/game/src/g_ICARUScb.rs:118-134` | `private func Q3_GetAnimLower(_ ent: Entity) -> String?` |
-| `Q3_GetAnimUpper` static | `oracle/codemp/game/g_ICARUScb.c:351-364` | `JKAMP_GameLogic/g_ICARUScb.swift:68` | marker | `crates/mp/game/src/g_ICARUScb.rs:139-155` | `private func Q3_GetAnimUpper(_ ent: Entity) -> String?` |
-| `Q3_GetAnimBoth` static | `oracle/codemp/game/g_ICARUScb.c:371-398` | `JKAMP_GameLogic/g_ICARUScb.swift:81` | marker | `crates/mp/game/src/g_ICARUScb.rs:160-187` | `private func Q3_GetAnimBoth(_ ent: Entity) -> String?` |
-| `Q3_PlaySound` | `oracle/codemp/game/g_ICARUScb.c:400-520` | `JKAMP_GameLogic/g_ICARUScb.swift:87` | marker | `crates/mp/game/src/g_ICARUScb.rs:194-262` | `func Q3_PlaySound(_ taskID: Int32, _ entID: Int32, _ name: String, _ channel: String) -> Int32` |
-| `Q3_Play` | `oracle/codemp/game/g_ICARUScb.c:527-560` | `JKAMP_GameLogic/g_ICARUScb.swift:100` | marker | `crates/mp/game/src/g_ICARUScb.rs:267-307` | `func Q3_Play(_ taskID: Int32, _ entID: Int32, _ type: String, _ name: String)` |
-| `anglerCallback` | `oracle/codemp/game/g_ICARUScb.c:569-591` | `JKAMP_GameLogic/g_ICARUScb.swift:115` | marker | `crates/mp/game/src/g_ICARUScb.rs:313-351` | `func anglerCallback(_ ent: Entity)` |
-| `moverCallback` | `oracle/codemp/game/g_ICARUScb.c:603-633` | `JKAMP_GameLogic/g_ICARUScb.swift:130` | marker | `crates/mp/game/src/g_ICARUScb.rs:357-386` | `func moverCallback(_ ent: Entity)` |
-| `Blocked_Mover` | `oracle/codemp/game/g_ICARUScb.c:635-658` | `JKAMP_GameLogic/g_ICARUScb.swift:136` | marker | `crates/mp/game/src/g_ICARUScb.rs:391-432` | `func Blocked_Mover(_ ent: Entity, _ other: Entity)` |
-| `moveAndRotateCallback` | `oracle/codemp/game/g_ICARUScb.c:667-673` | `JKAMP_GameLogic/g_ICARUScb.swift:151` | marker | `crates/mp/game/src/g_ICARUScb.rs:438-443` | `func moveAndRotateCallback(_ ent: Entity)` |
-| `Q3_Lerp2Start` | `oracle/codemp/game/g_ICARUScb.c:682-721` | `JKAMP_GameLogic/g_ICARUScb.swift:166` | marker | `crates/mp/game/src/g_ICARUScb.rs:448-497` | `func Q3_Lerp2Start(_ entID: Int32, _ taskID: Int32, _ duration: Float)` |
-| `Q3_Lerp2End` | `oracle/codemp/game/g_ICARUScb.c:730-769` | `JKAMP_GameLogic/g_ICARUScb.swift:181` | marker | `crates/mp/game/src/g_ICARUScb.rs:502-551` | `func Q3_Lerp2End(_ entID: Int32, _ taskID: Int32, _ duration: Float)` |
-| `Q3_Lerp2Pos` | `oracle/codemp/game/g_ICARUScb.c:781-883` | `JKAMP_GameLogic/g_ICARUScb.swift:197` | marker | `crates/mp/game/src/g_ICARUScb.rs:556-669` | `func Q3_Lerp2Pos(_ taskID: Int32, _ entID: Int32, _ origin: inout JKAShared.vec3_t, _ angles: inout JKAShared.vec3_t, _ duration: Float)` |
-| `Q3_Lerp2Angles` | `oracle/codemp/game/g_ICARUScb.c:892-939` | `JKAMP_GameLogic/g_ICARUScb.swift:212` | marker | `crates/mp/game/src/g_ICARUScb.rs:676-726` | `func Q3_Lerp2Angles(_ taskID: Int32, _ entID: Int32, _ angles: inout JKAShared.vec3_t, _ duration: Float)` |
-| `Q3_GetTag` | `oracle/codemp/game/g_ICARUScb.c:948-970` | `JKAMP_GameLogic/g_ICARUScb.swift:227` | marker | `crates/mp/game/src/g_ICARUScb.rs:743-767` | `func Q3_GetTag(_ entID: Int32, _ name: String, _ lookup: Int32, _ info: inout JKAShared.vec3_t) -> Int32` |
-| `Q3_Use` | `oracle/codemp/game/g_ICARUScb.c:981-998` | `JKAMP_GameLogic/g_ICARUScb.swift:242` | marker | `crates/mp/game/src/g_ICARUScb.rs:772-782` | `func Q3_Use(_ entID: Int32, _ target: String)` |
-| `Q3_Kill` | `oracle/codemp/game/g_ICARUScb.c:1009-1052` | `JKAMP_GameLogic/g_ICARUScb.swift:259` | marker | `crates/mp/game/src/g_ICARUScb.rs:787-825` | `func Q3_Kill(_ entID: Int32, _ name: String)` |
-| `Q3_RemoveEnt` | `oracle/codemp/game/g_ICARUScb.c:1062-1116` | `JKAMP_GameLogic/g_ICARUScb.swift:275` | marker | `crates/mp/game/src/g_ICARUScb.rs:830-862` | `func Q3_RemoveEnt(_ victim: Entity)` |
-| `Q3_Remove` | `oracle/codemp/game/g_ICARUScb.c:1128-1168` | `JKAMP_GameLogic/g_ICARUScb.swift:292` | marker | `crates/mp/game/src/g_ICARUScb.rs:867-901` | `func Q3_Remove(_ entID: Int32, _ name: String)` |
-| `Q3_GetFloat` | `oracle/codemp/game/g_ICARUScb.c:1189-1559` | `JKAMP_GameLogic/g_ICARUScb.swift:311` | marker | `crates/mp/game/src/g_ICARUScb.rs:906-1203` | `func Q3_GetFloat(_ entID: Int32, _ type: Int32, _ name: String, _ value: inout Float) -> Int32` |
-| `Q3_GetVector` | `oracle/codemp/game/g_ICARUScb.c:1573-1629` | `JKAMP_GameLogic/g_ICARUScb.swift:330` | marker | `crates/mp/game/src/g_ICARUScb.rs:1208-1270` | `func Q3_GetVector(_ entID: Int32, _ type: Int32, _ name: String, _ value: inout JKAShared.vec3_t) -> Int32` |
-| `Q3_GetString` | `oracle/codemp/game/g_ICARUScb.c:1642-1854` | `JKAMP_GameLogic/g_ICARUScb.swift:352` | marker | `crates/mp/game/src/g_ICARUScb.rs:1275-1533` | `func Q3_GetString() -> Never` TODO: Port signature. No table row for `char ** value`. |
+| `Q3_TaskIDClear` | `oracle/codemp/game/g_ICARUScb.c:270-273` | `JKAMP_GameLogic/g_ICARUScb.swift:39` | marker | `crates/mp/game/src/g_ICARUScb.rs:52-56` | `func Q3_TaskIDClear(_ taskID: inout Int32)` |
+| `G_DebugPrint` | `oracle/codemp/game/g_ICARUScb.c:275-324` | `JKAMP_GameLogic/g_ICARUScb.swift:45` | marker | `crates/mp/game/src/g_ICARUScb.rs:61-113` | `func G_DebugPrint(_ level: Int32, _ format: String, _ args: any JKAShared.FormatArg...)` |
+| `Q3_GetAnimLower` static | `oracle/codemp/game/g_ICARUScb.c:331-344` | `JKAMP_GameLogic/g_ICARUScb.swift:58` | marker | `crates/mp/game/src/g_ICARUScb.rs:118-134` | `private func Q3_GetAnimLower(_ ent: Entity) -> String?` |
+| `Q3_GetAnimUpper` static | `oracle/codemp/game/g_ICARUScb.c:351-364` | `JKAMP_GameLogic/g_ICARUScb.swift:71` | marker | `crates/mp/game/src/g_ICARUScb.rs:139-155` | `private func Q3_GetAnimUpper(_ ent: Entity) -> String?` |
+| `Q3_GetAnimBoth` static | `oracle/codemp/game/g_ICARUScb.c:371-398` | `JKAMP_GameLogic/g_ICARUScb.swift:84` | marker | `crates/mp/game/src/g_ICARUScb.rs:160-187` | `private func Q3_GetAnimBoth(_ ent: Entity) -> String?` |
+| `Q3_PlaySound` | `oracle/codemp/game/g_ICARUScb.c:400-520` | `JKAMP_GameLogic/g_ICARUScb.swift:90` | marker | `crates/mp/game/src/g_ICARUScb.rs:194-262` | `func Q3_PlaySound(_ taskID: Int32, _ entID: Int32, _ name: String, _ channel: String) -> Int32` |
+| `Q3_Play` | `oracle/codemp/game/g_ICARUScb.c:527-560` | `JKAMP_GameLogic/g_ICARUScb.swift:103` | marker | `crates/mp/game/src/g_ICARUScb.rs:267-307` | `func Q3_Play(_ taskID: Int32, _ entID: Int32, _ type: String, _ name: String)` |
+| `anglerCallback` | `oracle/codemp/game/g_ICARUScb.c:569-591` | `JKAMP_GameLogic/g_ICARUScb.swift:118` | marker | `crates/mp/game/src/g_ICARUScb.rs:313-351` | `func anglerCallback(_ ent: Entity)` |
+| `moverCallback` | `oracle/codemp/game/g_ICARUScb.c:603-633` | `JKAMP_GameLogic/g_ICARUScb.swift:133` | marker | `crates/mp/game/src/g_ICARUScb.rs:357-386` | `func moverCallback(_ ent: Entity)` |
+| `Blocked_Mover` | `oracle/codemp/game/g_ICARUScb.c:635-658` | `JKAMP_GameLogic/g_ICARUScb.swift:139` | marker | `crates/mp/game/src/g_ICARUScb.rs:391-432` | `func Blocked_Mover(_ ent: Entity, _ other: Entity)` |
+| `moveAndRotateCallback` | `oracle/codemp/game/g_ICARUScb.c:667-673` | `JKAMP_GameLogic/g_ICARUScb.swift:154` | marker | `crates/mp/game/src/g_ICARUScb.rs:438-443` | `func moveAndRotateCallback(_ ent: Entity)` |
+| `Q3_Lerp2Start` | `oracle/codemp/game/g_ICARUScb.c:682-721` | `JKAMP_GameLogic/g_ICARUScb.swift:169` | marker | `crates/mp/game/src/g_ICARUScb.rs:448-497` | `func Q3_Lerp2Start(_ entID: Int32, _ taskID: Int32, _ duration: Float)` |
+| `Q3_Lerp2End` | `oracle/codemp/game/g_ICARUScb.c:730-769` | `JKAMP_GameLogic/g_ICARUScb.swift:184` | marker | `crates/mp/game/src/g_ICARUScb.rs:502-551` | `func Q3_Lerp2End(_ entID: Int32, _ taskID: Int32, _ duration: Float)` |
+| `Q3_Lerp2Pos` | `oracle/codemp/game/g_ICARUScb.c:781-883` | `JKAMP_GameLogic/g_ICARUScb.swift:200` | marker | `crates/mp/game/src/g_ICARUScb.rs:556-669` | `func Q3_Lerp2Pos(_ taskID: Int32, _ entID: Int32, _ origin: inout JKAShared.vec3_t, _ angles: inout JKAShared.vec3_t, _ duration: Float)` |
+| `Q3_Lerp2Angles` | `oracle/codemp/game/g_ICARUScb.c:892-939` | `JKAMP_GameLogic/g_ICARUScb.swift:215` | marker | `crates/mp/game/src/g_ICARUScb.rs:676-726` | `func Q3_Lerp2Angles(_ taskID: Int32, _ entID: Int32, _ angles: inout JKAShared.vec3_t, _ duration: Float)` |
+| `Q3_GetTag` | `oracle/codemp/game/g_ICARUScb.c:948-970` | `JKAMP_GameLogic/g_ICARUScb.swift:230` | marker | `crates/mp/game/src/g_ICARUScb.rs:743-767` | `func Q3_GetTag(_ entID: Int32, _ name: String, _ lookup: Int32, _ info: inout JKAShared.vec3_t) -> Int32` |
+| `Q3_Use` | `oracle/codemp/game/g_ICARUScb.c:981-998` | `JKAMP_GameLogic/g_ICARUScb.swift:245` | marker | `crates/mp/game/src/g_ICARUScb.rs:772-782` | `func Q3_Use(_ entID: Int32, _ target: String)` |
+| `Q3_Kill` | `oracle/codemp/game/g_ICARUScb.c:1009-1052` | `JKAMP_GameLogic/g_ICARUScb.swift:262` | marker | `crates/mp/game/src/g_ICARUScb.rs:787-825` | `func Q3_Kill(_ entID: Int32, _ name: String)` |
+| `Q3_RemoveEnt` | `oracle/codemp/game/g_ICARUScb.c:1062-1116` | `JKAMP_GameLogic/g_ICARUScb.swift:278` | marker | `crates/mp/game/src/g_ICARUScb.rs:830-862` | `func Q3_RemoveEnt(_ victim: Entity)` |
+| `Q3_Remove` | `oracle/codemp/game/g_ICARUScb.c:1128-1168` | `JKAMP_GameLogic/g_ICARUScb.swift:295` | marker | `crates/mp/game/src/g_ICARUScb.rs:867-901` | `func Q3_Remove(_ entID: Int32, _ name: String)` |
+| `Q3_GetFloat` | `oracle/codemp/game/g_ICARUScb.c:1189-1559` | `JKAMP_GameLogic/g_ICARUScb.swift:314` | marker | `crates/mp/game/src/g_ICARUScb.rs:906-1203` | `func Q3_GetFloat(_ entID: Int32, _ type: Int32, _ name: String, _ value: inout Float) -> Int32` |
+| `Q3_GetVector` | `oracle/codemp/game/g_ICARUScb.c:1573-1629` | `JKAMP_GameLogic/g_ICARUScb.swift:333` | marker | `crates/mp/game/src/g_ICARUScb.rs:1208-1270` | `func Q3_GetVector(_ entID: Int32, _ type: Int32, _ name: String, _ value: inout JKAShared.vec3_t) -> Int32` |
+| `Q3_GetString` | `oracle/codemp/game/g_ICARUScb.c:1642-1854` | `JKAMP_GameLogic/g_ICARUScb.swift:352` | marker | `crates/mp/game/src/g_ICARUScb.rs:1275-1533` | `func Q3_GetString(_ entID: Int32, _ type: Int32, _ name: String, _ value: inout String) -> Int32` |
 | `MoveOwner` | `oracle/codemp/game/g_ICARUScb.c:1865-1886` | `JKAMP_GameLogic/g_ICARUScb.swift:358` | marker | `crates/mp/game/src/g_ICARUScb.rs:1538-1567` | `func MoveOwner(_ `self`: Entity)` |
 | `Q3_SetTeleportDest` static | `oracle/codemp/game/g_ICARUScb.c:1895-1920` | `JKAMP_GameLogic/g_ICARUScb.swift:373` | marker | `crates/mp/game/src/g_ICARUScb.rs:1573-1592` | `private func Q3_SetTeleportDest(_ entID: Int32, _ org: inout JKAShared.vec3_t) -> Bool` |
 | `Q3_SetOrigin` static | `oracle/codemp/game/g_ICARUScb.c:1929-1961` | `JKAMP_GameLogic/g_ICARUScb.swift:388` | marker | `crates/mp/game/src/g_ICARUScb.rs:1597-1627` | `private func Q3_SetOrigin(_ entID: Int32, _ origin: inout JKAShared.vec3_t)` |
@@ -173,9 +173,9 @@ The oracle range is the whole definition, from the return type to the closing br
 
 | Variable | Oracle | Kind | Entry |
 |---|---|---|---|
-| `setTable` | `oracle/codemp/game/g_ICARUScb.c:52` | storage | `// A struct table is C storage in Sources/CJKAMP, reached through a Slots constant.` |
-| `cinematicSkipScript` | `oracle/codemp/game/g_ICARUScb.c:3895` | let | `let cinematicSkipScript: [CChar] = [CChar](repeating: 0, count: 1024)` |
+| `setTable` | `oracle/codemp/game/g_ICARUScb.c:52` | storage_data | `// Raven's data table is C storage by hand in the C target, with his initializer as written, reached as a Slots over the C array, the bg_tables.c shape.` |
+| `cinematicSkipScript` | `oracle/codemp/game/g_ICARUScb.c:3895` | let | `nonisolated(unsafe) let cinematicSkipScript: JKAShared.CharBuf = JKAShared.CharBuf(1024)` |
 | `player_locked` | `oracle/codemp/game/g_ICARUScb.c:4575` | let | `let player_locked: Bool = { () -> Bool in portMissing("player_locked", source: "oracle/codemp/game/g_ICARUScb.c:4575") }()` |
-| `textcolor_caption` | `oracle/codemp/game/g_ICARUScb.c:4933` | state | `// Rule 3: a stored property of GameWorld with C's zero, since Raven wrote no initializer, spelled world.textcolor_caption in a body.` |
-| `textcolor_center` | `oracle/codemp/game/g_ICARUScb.c:4934` | state | `// Rule 3: a stored property of GameWorld with C's zero, since Raven wrote no initializer, spelled world.textcolor_center in a body.` |
-| `textcolor_scroll` | `oracle/codemp/game/g_ICARUScb.c:4935` | state | `// Rule 3: a stored property of GameWorld with C's zero, since Raven wrote no initializer, spelled world.textcolor_scroll in a body.` |
+| `textcolor_caption` | `oracle/codemp/game/g_ICARUScb.c:4933` | state | `}` |
+| `textcolor_center` | `oracle/codemp/game/g_ICARUScb.c:4934` | state | `}` |
+| `textcolor_scroll` | `oracle/codemp/game/g_ICARUScb.c:4935` | state | `}` |

@@ -7,46 +7,46 @@ The oracle range is the whole definition, from the return type to the closing br
 
 | Function | Oracle | Swift | State | jka-rust | Signature |
 |---|---|---|---|---|---|
-| `Team_InitGame` | `oracle/codemp/game/g_team.c:22-35` | `JKAMP_GameLogic/g_team.swift:17` | marker | `crates/mp/game/src/g_team.rs:81-91` | `func Team_InitGame()` |
-| `OtherTeam` | `oracle/codemp/game/g_team.c:37-43` | `JKAMP_GameLogic/g_team.swift:23` | marker | `crates/mp/game/src/g_team.rs:96-104` | `func OtherTeam(_ team: Int32) -> Int32` |
-| `TeamName` | `oracle/codemp/game/g_team.c:45-53` | `JKAMP_GameLogic/g_team.swift:29` | marker | `crates/mp/game/src/g_team.rs:109-119` | `func TeamName(_ team: Int32) -> String` |
-| `OtherTeamName` | `oracle/codemp/game/g_team.c:55-63` | `JKAMP_GameLogic/g_team.swift:35` | marker | `crates/mp/game/src/g_team.rs:124-134` | `func OtherTeamName(_ team: Int32) -> String` |
-| `TeamColorString` | `oracle/codemp/game/g_team.c:65-73` | `JKAMP_GameLogic/g_team.swift:41` | marker | `crates/mp/game/src/g_team.rs:139-149` | `func TeamColorString(_ team: Int32) -> String` |
-| `PrintCTFMessage` | `oracle/codemp/game/g_team.c:100-132` | `JKAMP_GameLogic/g_team.swift:49` | marker | `crates/mp/game/src/g_team.rs:156-175` | `func PrintCTFMessage(_ plIndex: Int32, _ teamIndex: Int32, _ ctfMessage: Int32)` |
-| `AddTeamScore` | `oracle/codemp/game/g_team.c:142-179` | `JKAMP_GameLogic/g_team.swift:65` | marker | `crates/mp/game/src/g_team.rs:180-208` | `func AddTeamScore(_ origin: inout JKAShared.vec3_t, _ team: Int32, _ score: Int32)` |
-| `OnSameTeam` | `oracle/codemp/game/g_team.c:187-276` | `JKAMP_GameLogic/g_team.swift:71` | marker | `crates/mp/game/src/g_team.rs:213-314` | `func OnSameTeam(_ ent1: Entity, _ ent2: Entity) -> Bool` |
-| `Team_SetFlagStatus` | `oracle/codemp/game/g_team.c:281-318` | `JKAMP_GameLogic/g_team.swift:77` | marker | `crates/mp/game/src/g_team.rs:319-364` | `func Team_SetFlagStatus(_ team: Int32, _ status: JKAMP.flagStatus_t)` |
-| `Team_CheckDroppedItem` | `oracle/codemp/game/g_team.c:320-330` | `JKAMP_GameLogic/g_team.swift:83` | marker | `crates/mp/game/src/g_team.rs:369-382` | `func Team_CheckDroppedItem(_ dropped: Entity)` |
-| `Team_ForceGesture` | `oracle/codemp/game/g_team.c:337-352` | `JKAMP_GameLogic/g_team.swift:96` | marker | `crates/mp/game/src/g_team.rs:387-407` | `func Team_ForceGesture(_ team: Int32)` |
-| `Team_FragBonuses` | `oracle/codemp/game/g_team.c:363-534` | `JKAMP_GameLogic/g_team.swift:113` | marker | `crates/mp/game/src/g_team.rs:412-675` | `func Team_FragBonuses(_ targ: Entity, _ inflictor: Entity, _ attacker: Entity)` |
-| `Team_CheckHurtCarrier` | `oracle/codemp/game/g_team.c:544-565` | `JKAMP_GameLogic/g_team.swift:129` | marker | `crates/mp/game/src/g_team.rs:680-719` | `func Team_CheckHurtCarrier(_ targ: Entity, _ attacker: Entity)` |
-| `Team_ResetFlag` | `oracle/codemp/game/g_team.c:568-599` | `JKAMP_GameLogic/g_team.swift:135` | marker | `crates/mp/game/src/g_team.rs:724-755` | `func Team_ResetFlag(_ team: Int32) -> Entity?` |
-| `Team_ResetFlags` | `oracle/codemp/game/g_team.c:601-606` | `JKAMP_GameLogic/g_team.swift:141` | marker | `crates/mp/game/src/g_team.rs:760-767` | `func Team_ResetFlags()` |
-| `Team_ReturnFlagSound` | `oracle/codemp/game/g_team.c:608-624` | `JKAMP_GameLogic/g_team.swift:147` | marker | `crates/mp/game/src/g_team.rs:772-788` | `func Team_ReturnFlagSound(_ ent: Entity, _ team: Int32)` |
-| `Team_TakeFlagSound` | `oracle/codemp/game/g_team.c:626-662` | `JKAMP_GameLogic/g_team.swift:153` | marker | `crates/mp/game/src/g_team.rs:793-830` | `func Team_TakeFlagSound(_ ent: Entity, _ team: Int32)` |
-| `Team_CaptureFlagSound` | `oracle/codemp/game/g_team.c:664-680` | `JKAMP_GameLogic/g_team.swift:159` | marker | `crates/mp/game/src/g_team.rs:835-850` | `func Team_CaptureFlagSound(_ ent: Entity, _ team: Int32)` |
-| `Team_ReturnFlag` | `oracle/codemp/game/g_team.c:682-691` | `JKAMP_GameLogic/g_team.swift:165` | marker | `crates/mp/game/src/g_team.rs:855-867` | `func Team_ReturnFlag(_ team: Int32)` |
-| `Team_FreeEntity` | `oracle/codemp/game/g_team.c:693-703` | `JKAMP_GameLogic/g_team.swift:171` | marker | `crates/mp/game/src/g_team.rs:872-885` | `func Team_FreeEntity(_ ent: Entity)` |
-| `Team_DroppedFlagThink` | `oracle/codemp/game/g_team.c:714-729` | `JKAMP_GameLogic/g_team.swift:188` | marker | `crates/mp/game/src/g_team.rs:895-912` | `func Team_DroppedFlagThink(_ ent: Entity)` |
-| `Team_TouchOurFlag` | `oracle/codemp/game/g_team.c:737-825` | `JKAMP_GameLogic/g_team.swift:201` | marker | `crates/mp/game/src/g_team.rs:917-1030` | `func Team_TouchOurFlag(_ ent: Entity, _ other: Entity, _ team: Int32) -> Int32` |
-| `Team_TouchEnemyFlag` | `oracle/codemp/game/g_team.c:827-846` | `JKAMP_GameLogic/g_team.swift:207` | marker | `crates/mp/game/src/g_team.rs:1035-1071` | `func Team_TouchEnemyFlag(_ ent: Entity, _ other: Entity, _ team: Int32) -> Int32` |
-| `Pickup_Team` | `oracle/codemp/game/g_team.c:848-871` | `JKAMP_GameLogic/g_team.swift:213` | marker | `crates/mp/game/src/g_team.rs:1076-1099` | `func Pickup_Team(_ ent: Entity, _ other: Entity) -> Int32` |
-| `Team_GetLocation` | `oracle/codemp/game/g_team.c:880-909` | `JKAMP_GameLogic/g_team.swift:228` | marker | `crates/mp/game/src/g_team.rs:1104-1142` | `func Team_GetLocation(_ ent: Entity) -> Entity?` |
-| `Team_GetLocationMsg` | `oracle/codemp/game/g_team.c:919-938` | `JKAMP_GameLogic/g_team.swift:243` | marker | `crates/mp/game/src/g_team.rs:1147-1181` | `func Team_GetLocationMsg(_ ent: Entity, _ loc: inout JKAShared.CharBuf, _ loclen: Int32) -> Bool` |
-| `SelectRandomTeamSpawnPoint` | `oracle/codemp/game/g_team.c:951-1040` | `JKAMP_GameLogic/g_team.swift:249` | marker | `crates/mp/game/src/g_team.rs:1186-1287` | `func SelectRandomTeamSpawnPoint(_ teamstate: Int32, _ team: JKAMP.team_t, _ siegeClass: Int32) -> Entity?` |
-| `SelectCTFSpawnPoint` | `oracle/codemp/game/g_team.c:1049-1063` | `JKAMP_GameLogic/g_team.swift:263` | marker | `crates/mp/game/src/g_team.rs:1292-1312` | `func SelectCTFSpawnPoint(_ team: JKAMP.team_t, _ teamstate: Int32, _ origin: inout JKAShared.vec3_t, _ angles: inout JKAShared.vec3_t) -> Entity?` |
-| `SelectSiegeSpawnPoint` | `oracle/codemp/game/g_team.c:1071-1085` | `JKAMP_GameLogic/g_team.swift:277` | marker | `crates/mp/game/src/g_team.rs:1317-1338` | `func SelectSiegeSpawnPoint(_ siegeClass: Int32, _ team: JKAMP.team_t, _ teamstate: Int32, _ origin: inout JKAShared.vec3_t, _ angles: inout JKAShared.vec3_t) -> Entity?` |
-| `SortClients` static | `oracle/codemp/game/g_team.c:1089-1091` | `JKAMP_GameLogic/g_team.swift:283` | marker | `crates/mp/game/src/g_team.rs:1343-1345` | `private func SortClients(_ a: OpaquePointer?, _ b: OpaquePointer?) -> Int32` |
-| `TeamplayInfoMessage` | `oracle/codemp/game/g_team.c:1103-1159` | `JKAMP_GameLogic/g_team.swift:300` | marker | `crates/mp/game/src/g_team.rs:1350-1424` | `func TeamplayInfoMessage(_ ent: Entity)` |
-| `CheckTeamStatus` | `oracle/codemp/game/g_team.c:1161-1202` | `JKAMP_GameLogic/g_team.swift:306` | marker | `crates/mp/game/src/g_team.rs:1429-1480` | `func CheckTeamStatus()` |
-| `SP_team_CTF_redplayer` | `oracle/codemp/game/g_team.c:1209-1210` | `JKAMP_GameLogic/g_team.swift:318` | marker | `crates/mp/game/src/g_team.rs:1488-1488` | `func SP_team_CTF_redplayer(_ ent: Entity)` |
-| `SP_team_CTF_blueplayer` | `oracle/codemp/game/g_team.c:1216-1217` | `JKAMP_GameLogic/g_team.swift:330` | marker | `crates/mp/game/src/g_team.rs:1495-1495` | `func SP_team_CTF_blueplayer(_ ent: Entity)` |
-| `SP_team_CTF_redspawn` | `oracle/codemp/game/g_team.c:1224-1225` | `JKAMP_GameLogic/g_team.swift:343` | marker | `crates/mp/game/src/g_team.rs:1502-1502` | `func SP_team_CTF_redspawn(_ ent: Entity)` |
-| `SP_team_CTF_bluespawn` | `oracle/codemp/game/g_team.c:1231-1232` | `JKAMP_GameLogic/g_team.swift:356` | marker | `crates/mp/game/src/g_team.rs:1509-1509` | `func SP_team_CTF_bluespawn(_ ent: Entity)` |
+| `Team_InitGame` | `oracle/codemp/game/g_team.c:22-35` | `JKAMP_GameLogic/g_team.swift:18` | marker | `crates/mp/game/src/g_team.rs:81-91` | `func Team_InitGame()` |
+| `OtherTeam` | `oracle/codemp/game/g_team.c:37-43` | `JKAMP_GameLogic/g_team.swift:24` | marker | `crates/mp/game/src/g_team.rs:96-104` | `func OtherTeam(_ team: Int32) -> Int32` |
+| `TeamName` | `oracle/codemp/game/g_team.c:45-53` | `JKAMP_GameLogic/g_team.swift:30` | marker | `crates/mp/game/src/g_team.rs:109-119` | `func TeamName(_ team: Int32) -> String` |
+| `OtherTeamName` | `oracle/codemp/game/g_team.c:55-63` | `JKAMP_GameLogic/g_team.swift:36` | marker | `crates/mp/game/src/g_team.rs:124-134` | `func OtherTeamName(_ team: Int32) -> String` |
+| `TeamColorString` | `oracle/codemp/game/g_team.c:65-73` | `JKAMP_GameLogic/g_team.swift:42` | marker | `crates/mp/game/src/g_team.rs:139-149` | `func TeamColorString(_ team: Int32) -> String` |
+| `PrintCTFMessage` | `oracle/codemp/game/g_team.c:100-132` | `JKAMP_GameLogic/g_team.swift:50` | marker | `crates/mp/game/src/g_team.rs:156-175` | `func PrintCTFMessage(_ plIndex: Int32, _ teamIndex: Int32, _ ctfMessage: Int32)` |
+| `AddTeamScore` | `oracle/codemp/game/g_team.c:142-179` | `JKAMP_GameLogic/g_team.swift:66` | marker | `crates/mp/game/src/g_team.rs:180-208` | `func AddTeamScore(_ origin: inout JKAShared.vec3_t, _ team: Int32, _ score: Int32)` |
+| `OnSameTeam` | `oracle/codemp/game/g_team.c:187-276` | `JKAMP_GameLogic/g_team.swift:72` | marker | `crates/mp/game/src/g_team.rs:213-314` | `func OnSameTeam(_ ent1: Entity, _ ent2: Entity) -> Bool` |
+| `Team_SetFlagStatus` | `oracle/codemp/game/g_team.c:281-318` | `JKAMP_GameLogic/g_team.swift:78` | marker | `crates/mp/game/src/g_team.rs:319-364` | `func Team_SetFlagStatus(_ team: Int32, _ status: JKAMP.flagStatus_t)` |
+| `Team_CheckDroppedItem` | `oracle/codemp/game/g_team.c:320-330` | `JKAMP_GameLogic/g_team.swift:84` | marker | `crates/mp/game/src/g_team.rs:369-382` | `func Team_CheckDroppedItem(_ dropped: Entity)` |
+| `Team_ForceGesture` | `oracle/codemp/game/g_team.c:337-352` | `JKAMP_GameLogic/g_team.swift:97` | marker | `crates/mp/game/src/g_team.rs:387-407` | `func Team_ForceGesture(_ team: Int32)` |
+| `Team_FragBonuses` | `oracle/codemp/game/g_team.c:363-534` | `JKAMP_GameLogic/g_team.swift:114` | marker | `crates/mp/game/src/g_team.rs:412-675` | `func Team_FragBonuses(_ targ: Entity, _ inflictor: Entity, _ attacker: Entity)` |
+| `Team_CheckHurtCarrier` | `oracle/codemp/game/g_team.c:544-565` | `JKAMP_GameLogic/g_team.swift:130` | marker | `crates/mp/game/src/g_team.rs:680-719` | `func Team_CheckHurtCarrier(_ targ: Entity, _ attacker: Entity)` |
+| `Team_ResetFlag` | `oracle/codemp/game/g_team.c:568-599` | `JKAMP_GameLogic/g_team.swift:136` | marker | `crates/mp/game/src/g_team.rs:724-755` | `func Team_ResetFlag(_ team: Int32) -> Entity?` |
+| `Team_ResetFlags` | `oracle/codemp/game/g_team.c:601-606` | `JKAMP_GameLogic/g_team.swift:142` | marker | `crates/mp/game/src/g_team.rs:760-767` | `func Team_ResetFlags()` |
+| `Team_ReturnFlagSound` | `oracle/codemp/game/g_team.c:608-624` | `JKAMP_GameLogic/g_team.swift:148` | marker | `crates/mp/game/src/g_team.rs:772-788` | `func Team_ReturnFlagSound(_ ent: Entity, _ team: Int32)` |
+| `Team_TakeFlagSound` | `oracle/codemp/game/g_team.c:626-662` | `JKAMP_GameLogic/g_team.swift:154` | marker | `crates/mp/game/src/g_team.rs:793-830` | `func Team_TakeFlagSound(_ ent: Entity, _ team: Int32)` |
+| `Team_CaptureFlagSound` | `oracle/codemp/game/g_team.c:664-680` | `JKAMP_GameLogic/g_team.swift:160` | marker | `crates/mp/game/src/g_team.rs:835-850` | `func Team_CaptureFlagSound(_ ent: Entity, _ team: Int32)` |
+| `Team_ReturnFlag` | `oracle/codemp/game/g_team.c:682-691` | `JKAMP_GameLogic/g_team.swift:166` | marker | `crates/mp/game/src/g_team.rs:855-867` | `func Team_ReturnFlag(_ team: Int32)` |
+| `Team_FreeEntity` | `oracle/codemp/game/g_team.c:693-703` | `JKAMP_GameLogic/g_team.swift:172` | marker | `crates/mp/game/src/g_team.rs:872-885` | `func Team_FreeEntity(_ ent: Entity)` |
+| `Team_DroppedFlagThink` | `oracle/codemp/game/g_team.c:714-729` | `JKAMP_GameLogic/g_team.swift:189` | marker | `crates/mp/game/src/g_team.rs:895-912` | `func Team_DroppedFlagThink(_ ent: Entity)` |
+| `Team_TouchOurFlag` | `oracle/codemp/game/g_team.c:737-825` | `JKAMP_GameLogic/g_team.swift:202` | marker | `crates/mp/game/src/g_team.rs:917-1030` | `func Team_TouchOurFlag(_ ent: Entity, _ other: Entity, _ team: Int32) -> Int32` |
+| `Team_TouchEnemyFlag` | `oracle/codemp/game/g_team.c:827-846` | `JKAMP_GameLogic/g_team.swift:208` | marker | `crates/mp/game/src/g_team.rs:1035-1071` | `func Team_TouchEnemyFlag(_ ent: Entity, _ other: Entity, _ team: Int32) -> Int32` |
+| `Pickup_Team` | `oracle/codemp/game/g_team.c:848-871` | `JKAMP_GameLogic/g_team.swift:214` | marker | `crates/mp/game/src/g_team.rs:1076-1099` | `func Pickup_Team(_ ent: Entity, _ other: Entity) -> Int32` |
+| `Team_GetLocation` | `oracle/codemp/game/g_team.c:880-909` | `JKAMP_GameLogic/g_team.swift:229` | marker | `crates/mp/game/src/g_team.rs:1104-1142` | `func Team_GetLocation(_ ent: Entity) -> Entity?` |
+| `Team_GetLocationMsg` | `oracle/codemp/game/g_team.c:919-938` | `JKAMP_GameLogic/g_team.swift:244` | marker | `crates/mp/game/src/g_team.rs:1147-1181` | `func Team_GetLocationMsg(_ ent: Entity, _ loc: inout JKAShared.CharBuf, _ loclen: Int32) -> Bool` |
+| `SelectRandomTeamSpawnPoint` | `oracle/codemp/game/g_team.c:951-1040` | `JKAMP_GameLogic/g_team.swift:250` | marker | `crates/mp/game/src/g_team.rs:1186-1287` | `func SelectRandomTeamSpawnPoint(_ teamstate: Int32, _ team: JKAMP.team_t, _ siegeClass: Int32) -> Entity?` |
+| `SelectCTFSpawnPoint` | `oracle/codemp/game/g_team.c:1049-1063` | `JKAMP_GameLogic/g_team.swift:264` | marker | `crates/mp/game/src/g_team.rs:1292-1312` | `func SelectCTFSpawnPoint(_ team: JKAMP.team_t, _ teamstate: Int32, _ origin: inout JKAShared.vec3_t, _ angles: inout JKAShared.vec3_t) -> Entity?` |
+| `SelectSiegeSpawnPoint` | `oracle/codemp/game/g_team.c:1071-1085` | `JKAMP_GameLogic/g_team.swift:278` | marker | `crates/mp/game/src/g_team.rs:1317-1338` | `func SelectSiegeSpawnPoint(_ siegeClass: Int32, _ team: JKAMP.team_t, _ teamstate: Int32, _ origin: inout JKAShared.vec3_t, _ angles: inout JKAShared.vec3_t) -> Entity?` |
+| `SortClients` static | `oracle/codemp/game/g_team.c:1089-1091` | `JKAMP_GameLogic/g_team.swift:284` | marker | `crates/mp/game/src/g_team.rs:1343-1345` | `private func SortClients(_ a: OpaquePointer?, _ b: OpaquePointer?) -> Int32` |
+| `TeamplayInfoMessage` | `oracle/codemp/game/g_team.c:1103-1159` | `JKAMP_GameLogic/g_team.swift:301` | marker | `crates/mp/game/src/g_team.rs:1350-1424` | `func TeamplayInfoMessage(_ ent: Entity)` |
+| `CheckTeamStatus` | `oracle/codemp/game/g_team.c:1161-1202` | `JKAMP_GameLogic/g_team.swift:307` | marker | `crates/mp/game/src/g_team.rs:1429-1480` | `func CheckTeamStatus()` |
+| `SP_team_CTF_redplayer` | `oracle/codemp/game/g_team.c:1209-1210` | `JKAMP_GameLogic/g_team.swift:319` | marker | `crates/mp/game/src/g_team.rs:1488-1488` | `func SP_team_CTF_redplayer(_ ent: Entity)` |
+| `SP_team_CTF_blueplayer` | `oracle/codemp/game/g_team.c:1216-1217` | `JKAMP_GameLogic/g_team.swift:331` | marker | `crates/mp/game/src/g_team.rs:1495-1495` | `func SP_team_CTF_blueplayer(_ ent: Entity)` |
+| `SP_team_CTF_redspawn` | `oracle/codemp/game/g_team.c:1224-1225` | `JKAMP_GameLogic/g_team.swift:344` | marker | `crates/mp/game/src/g_team.rs:1502-1502` | `func SP_team_CTF_redspawn(_ ent: Entity)` |
+| `SP_team_CTF_bluespawn` | `oracle/codemp/game/g_team.c:1231-1232` | `JKAMP_GameLogic/g_team.swift:357` | marker | `crates/mp/game/src/g_team.rs:1509-1509` | `func SP_team_CTF_bluespawn(_ ent: Entity)` |
 
 2 file-scope variables. The entry is the stub's line for the variable, by rule 3 and rule 6.
 
 | Variable | Oracle | Kind | Entry |
 |---|---|---|---|
-| `teamgame` | `oracle/codemp/game/g_team.c:18` | storage | `// A struct table is C storage in Sources/CJKAMP, reached through a Slots constant.` |
-| `ctfFlagStatusRemap` | `oracle/codemp/game/g_team.c:279` | let | `let ctfFlagStatusRemap: [CChar] = { () -> [CChar] in portMissing("ctfFlagStatusRemap", source: "oracle/codemp/game/g_team.c:279") }()` |
+| `teamgame` | `oracle/codemp/game/g_team.c:18` | storage | `var teamgame: Teamgame { world.storage.teamgame }` |
+| `ctfFlagStatusRemap` | `oracle/codemp/game/g_team.c:279` | let | `nonisolated(unsafe) let ctfFlagStatusRemap: JKAShared.CharBuf = { () -> JKAShared.CharBuf in portMissing("ctfFlagStatusRemap", source: "oracle/codemp/game/g_team.c:279") }()` |

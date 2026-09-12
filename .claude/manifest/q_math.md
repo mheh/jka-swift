@@ -71,7 +71,7 @@ The oracle range is the whole definition, from the return type to the closing br
 
 | Variable | Oracle | Kind | Entry |
 |---|---|---|---|
-| `vec3_origin` | `oracle/codemp/game/q_math.c:7` | state | `// Rule 3: a stored property of GameWorld with Raven's initializer, spelled world.vec3_origin in a body.` |
+| `vec3_origin` | `oracle/codemp/game/q_math.c:7` | state_data | `// Rule 3: a stored property of the shared module's owner with Raven's initializer.` |
 | `axisDefault` | `oracle/codemp/game/q_math.c:8` | let | `let axisDefault: [JKAShared.vec3_t] = { () -> [JKAShared.vec3_t] in portMissing("axisDefault", source: "oracle/codemp/game/q_math.c:8") }()` |
 | `colorBlack` | `oracle/codemp/game/q_math.c:11` | let | `let colorBlack: [Float] = { () -> [Float] in portMissing("colorBlack", source: "oracle/codemp/game/q_math.c:11") }()` |
 | `colorRed` | `oracle/codemp/game/q_math.c:12` | let | `let colorRed: [Float] = { () -> [Float] in portMissing("colorRed", source: "oracle/codemp/game/q_math.c:12") }()` |
@@ -88,4 +88,4 @@ The oracle range is the whole definition, from the return type to the closing br
 | `colorDkBlue` | `oracle/codemp/game/q_math.c:24` | let | `let colorDkBlue: [Float] = { () -> [Float] in portMissing("colorDkBlue", source: "oracle/codemp/game/q_math.c:24") }()` |
 | `g_color_table` | `oracle/codemp/game/q_math.c:26` | let | `let g_color_table: [[Float]] = { () -> [[Float]] in portMissing("g_color_table", source: "oracle/codemp/game/q_math.c:26") }()` |
 | `bytedirs` | `oracle/codemp/game/q_math.c:39` | let | `let bytedirs: [JKAShared.vec3_t] = { () -> [JKAShared.vec3_t] in portMissing("bytedirs", source: "oracle/codemp/game/q_math.c:39") }()` |
-| `holdrand` | `oracle/codemp/game/q_math.c:1432` | state | `// Rule 3: a stored property of GameWorld with Raven's initializer, spelled world.holdrand in a body.` |
+| `holdrand` | `oracle/codemp/game/q_math.c:1432` | state | `// Rule 3: a stored property of the shared module's owner with Raven's initializer.` |

@@ -7,29 +7,29 @@ The oracle range is the whole definition, from the return type to the closing br
 
 | Function | Oracle | Swift | State | jka-rust | Signature |
 |---|---|---|---|---|---|
-| `Sniper_ClearTimers` | `oracle/codemp/game/NPC_AI_Sniper.c:44-58` | `JKAMP_GameLogic/NPC_AI_Sniper.swift:38` | marker | `crates/mp/game/src/NPC_AI_Sniper.rs:73-87` | `func Sniper_ClearTimers(_ ent: Entity)` |
-| `NPC_Sniper_PlayConfusionSound` | `oracle/codemp/game/NPC_AI_Sniper.c:60-76` | `JKAMP_GameLogic/NPC_AI_Sniper.swift:44` | marker | `crates/mp/game/src/NPC_AI_Sniper.rs:92-118` | `func NPC_Sniper_PlayConfusionSound(_ `self`: Entity)` |
-| `NPC_Sniper_Pain` | `oracle/codemp/game/NPC_AI_Sniper.c:85-98` | `JKAMP_GameLogic/NPC_AI_Sniper.swift:50` | marker | `crates/mp/game/src/NPC_AI_Sniper.rs:123-149` | `func NPC_Sniper_Pain(_ `self`: Entity, _ attacker: Entity, _ damage: Int32)` |
-| `Sniper_HoldPosition` static | `oracle/codemp/game/NPC_AI_Sniper.c:106-116` | `JKAMP_GameLogic/NPC_AI_Sniper.swift:56` | marker | `crates/mp/game/src/NPC_AI_Sniper.rs:154-162` | `private func Sniper_HoldPosition()` |
-| `Sniper_Move` static | `oracle/codemp/game/NPC_AI_Sniper.c:124-177` | `JKAMP_GameLogic/NPC_AI_Sniper.swift:62` | marker | `crates/mp/game/src/NPC_AI_Sniper.rs:167-245` | `private func Sniper_Move() -> Bool` |
-| `NPC_BSSniper_Patrol` | `oracle/codemp/game/NPC_AI_Sniper.c:185-275` | `JKAMP_GameLogic/NPC_AI_Sniper.swift:68` | marker | `crates/mp/game/src/NPC_AI_Sniper.rs:250-366` | `func NPC_BSSniper_Patrol()` |
-| `Sniper_CheckMoveState` static | `oracle/codemp/game/NPC_AI_Sniper.c:308-381` | `JKAMP_GameLogic/NPC_AI_Sniper.swift:74` | marker | `crates/mp/game/src/NPC_AI_Sniper.rs:371-464` | `private func Sniper_CheckMoveState()` |
-| `Sniper_ResolveBlockedShot` static | `oracle/codemp/game/NPC_AI_Sniper.c:383-434` | `JKAMP_GameLogic/NPC_AI_Sniper.swift:80` | marker | `crates/mp/game/src/NPC_AI_Sniper.rs:469-537` | `private func Sniper_ResolveBlockedShot()` |
-| `Sniper_CheckFireState` static | `oracle/codemp/game/NPC_AI_Sniper.c:442-486` | `JKAMP_GameLogic/NPC_AI_Sniper.swift:86` | marker | `crates/mp/game/src/NPC_AI_Sniper.rs:542-608` | `private func Sniper_CheckFireState()` |
-| `Sniper_EvaluateShot` | `oracle/codemp/game/NPC_AI_Sniper.c:488-506` | `JKAMP_GameLogic/NPC_AI_Sniper.swift:92` | marker | `crates/mp/game/src/NPC_AI_Sniper.rs:613-646` | `func Sniper_EvaluateShot(_ hit: Int32) -> Bool` |
-| `Sniper_FaceEnemy` | `oracle/codemp/game/NPC_AI_Sniper.c:508-603` | `JKAMP_GameLogic/NPC_AI_Sniper.swift:98` | marker | `crates/mp/game/src/NPC_AI_Sniper.rs:651-790` | `func Sniper_FaceEnemy()` |
-| `Sniper_UpdateEnemyPos` | `oracle/codemp/game/NPC_AI_Sniper.c:605-623` | `JKAMP_GameLogic/NPC_AI_Sniper.swift:104` | marker | `crates/mp/game/src/NPC_AI_Sniper.rs:795-821` | `func Sniper_UpdateEnemyPos()` |
-| `Sniper_StartHide` | `oracle/codemp/game/NPC_AI_Sniper.c:631-638` | `JKAMP_GameLogic/NPC_AI_Sniper.swift:110` | marker | `crates/mp/game/src/NPC_AI_Sniper.rs:826-835` | `func Sniper_StartHide()` |
-| `NPC_BSSniper_Attack` | `oracle/codemp/game/NPC_AI_Sniper.c:640-852` | `JKAMP_GameLogic/NPC_AI_Sniper.swift:116` | marker | `crates/mp/game/src/NPC_AI_Sniper.rs:840-1104` | `func NPC_BSSniper_Attack()` |
-| `NPC_BSSniper_Default` | `oracle/codemp/game/NPC_AI_Sniper.c:854-864` | `JKAMP_GameLogic/NPC_AI_Sniper.swift:122` | marker | `crates/mp/game/src/NPC_AI_Sniper.rs:1109-1120` | `func NPC_BSSniper_Default()` |
+| `Sniper_ClearTimers` | `oracle/codemp/game/NPC_AI_Sniper.c:44-58` | `JKAMP_GameLogic/NPC_AI_Sniper.swift:80` | marker | `crates/mp/game/src/NPC_AI_Sniper.rs:73-87` | `func Sniper_ClearTimers(_ ent: Entity)` |
+| `NPC_Sniper_PlayConfusionSound` | `oracle/codemp/game/NPC_AI_Sniper.c:60-76` | `JKAMP_GameLogic/NPC_AI_Sniper.swift:86` | marker | `crates/mp/game/src/NPC_AI_Sniper.rs:92-118` | `func NPC_Sniper_PlayConfusionSound(_ `self`: Entity)` |
+| `NPC_Sniper_Pain` | `oracle/codemp/game/NPC_AI_Sniper.c:85-98` | `JKAMP_GameLogic/NPC_AI_Sniper.swift:92` | marker | `crates/mp/game/src/NPC_AI_Sniper.rs:123-149` | `func NPC_Sniper_Pain(_ `self`: Entity, _ attacker: Entity, _ damage: Int32)` |
+| `Sniper_HoldPosition` static | `oracle/codemp/game/NPC_AI_Sniper.c:106-116` | `JKAMP_GameLogic/NPC_AI_Sniper.swift:98` | marker | `crates/mp/game/src/NPC_AI_Sniper.rs:154-162` | `private func Sniper_HoldPosition()` |
+| `Sniper_Move` static | `oracle/codemp/game/NPC_AI_Sniper.c:124-177` | `JKAMP_GameLogic/NPC_AI_Sniper.swift:104` | marker | `crates/mp/game/src/NPC_AI_Sniper.rs:167-245` | `private func Sniper_Move() -> Bool` |
+| `NPC_BSSniper_Patrol` | `oracle/codemp/game/NPC_AI_Sniper.c:185-275` | `JKAMP_GameLogic/NPC_AI_Sniper.swift:110` | marker | `crates/mp/game/src/NPC_AI_Sniper.rs:250-366` | `func NPC_BSSniper_Patrol()` |
+| `Sniper_CheckMoveState` static | `oracle/codemp/game/NPC_AI_Sniper.c:308-381` | `JKAMP_GameLogic/NPC_AI_Sniper.swift:116` | marker | `crates/mp/game/src/NPC_AI_Sniper.rs:371-464` | `private func Sniper_CheckMoveState()` |
+| `Sniper_ResolveBlockedShot` static | `oracle/codemp/game/NPC_AI_Sniper.c:383-434` | `JKAMP_GameLogic/NPC_AI_Sniper.swift:122` | marker | `crates/mp/game/src/NPC_AI_Sniper.rs:469-537` | `private func Sniper_ResolveBlockedShot()` |
+| `Sniper_CheckFireState` static | `oracle/codemp/game/NPC_AI_Sniper.c:442-486` | `JKAMP_GameLogic/NPC_AI_Sniper.swift:128` | marker | `crates/mp/game/src/NPC_AI_Sniper.rs:542-608` | `private func Sniper_CheckFireState()` |
+| `Sniper_EvaluateShot` | `oracle/codemp/game/NPC_AI_Sniper.c:488-506` | `JKAMP_GameLogic/NPC_AI_Sniper.swift:134` | marker | `crates/mp/game/src/NPC_AI_Sniper.rs:613-646` | `func Sniper_EvaluateShot(_ hit: Int32) -> Bool` |
+| `Sniper_FaceEnemy` | `oracle/codemp/game/NPC_AI_Sniper.c:508-603` | `JKAMP_GameLogic/NPC_AI_Sniper.swift:140` | marker | `crates/mp/game/src/NPC_AI_Sniper.rs:651-790` | `func Sniper_FaceEnemy()` |
+| `Sniper_UpdateEnemyPos` | `oracle/codemp/game/NPC_AI_Sniper.c:605-623` | `JKAMP_GameLogic/NPC_AI_Sniper.swift:146` | marker | `crates/mp/game/src/NPC_AI_Sniper.rs:795-821` | `func Sniper_UpdateEnemyPos()` |
+| `Sniper_StartHide` | `oracle/codemp/game/NPC_AI_Sniper.c:631-638` | `JKAMP_GameLogic/NPC_AI_Sniper.swift:152` | marker | `crates/mp/game/src/NPC_AI_Sniper.rs:826-835` | `func Sniper_StartHide()` |
+| `NPC_BSSniper_Attack` | `oracle/codemp/game/NPC_AI_Sniper.c:640-852` | `JKAMP_GameLogic/NPC_AI_Sniper.swift:158` | marker | `crates/mp/game/src/NPC_AI_Sniper.rs:840-1104` | `func NPC_BSSniper_Attack()` |
+| `NPC_BSSniper_Default` | `oracle/codemp/game/NPC_AI_Sniper.c:854-864` | `JKAMP_GameLogic/NPC_AI_Sniper.swift:164` | marker | `crates/mp/game/src/NPC_AI_Sniper.rs:1109-1120` | `func NPC_BSSniper_Default()` |
 
 6 file-scope variables. The entry is the stub's line for the variable, by rule 3 and rule 6.
 
 | Variable | Oracle | Kind | Entry |
 |---|---|---|---|
-| `enemyLOS2` | `oracle/codemp/game/NPC_AI_Sniper.c:29` | state | `// Rule 3: a stored property of GameWorld with C's zero, since Raven wrote no initializer, spelled world.enemyLOS2 in a body.` |
-| `enemyCS2` | `oracle/codemp/game/NPC_AI_Sniper.c:30` | state | `// Rule 3: a stored property of GameWorld with C's zero, since Raven wrote no initializer, spelled world.enemyCS2 in a body.` |
-| `faceEnemy2` | `oracle/codemp/game/NPC_AI_Sniper.c:31` | state | `// Rule 3: a stored property of GameWorld with C's zero, since Raven wrote no initializer, spelled world.faceEnemy2 in a body.` |
-| `move2` | `oracle/codemp/game/NPC_AI_Sniper.c:32` | state | `// Rule 3: a stored property of GameWorld with C's zero, since Raven wrote no initializer, spelled world.move2 in a body.` |
-| `shoot2` | `oracle/codemp/game/NPC_AI_Sniper.c:33` | state | `// Rule 3: a stored property of GameWorld with C's zero, since Raven wrote no initializer, spelled world.shoot2 in a body.` |
-| `enemyDist2` | `oracle/codemp/game/NPC_AI_Sniper.c:34` | state | `// Rule 3: a stored property of GameWorld with C's zero, since Raven wrote no initializer, spelled world.enemyDist2 in a body.` |
+| `enemyLOS2` | `oracle/codemp/game/NPC_AI_Sniper.c:29` | state | `}` |
+| `enemyCS2` | `oracle/codemp/game/NPC_AI_Sniper.c:30` | state | `}` |
+| `faceEnemy2` | `oracle/codemp/game/NPC_AI_Sniper.c:31` | state | `}` |
+| `move2` | `oracle/codemp/game/NPC_AI_Sniper.c:32` | state | `}` |
+| `shoot2` | `oracle/codemp/game/NPC_AI_Sniper.c:33` | state | `}` |
+| `enemyDist2` | `oracle/codemp/game/NPC_AI_Sniper.c:34` | state | `}` |

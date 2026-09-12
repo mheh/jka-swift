@@ -7,64 +7,64 @@ The oracle range is the whole definition, from the return type to the closing br
 
 | Function | Oracle | Swift | State | jka-rust | Signature |
 |---|---|---|---|---|---|
-| `CorpsePhysics` | `oracle/codemp/game/NPC.c:46-103` | `JKAMP_GameLogic/NPC.swift:71` | marker | `crates/mp/game/src/npc_c.rs:51-133` | `func CorpsePhysics(_ `self`: Entity)` |
-| `NPC_RemoveBody` | `oracle/codemp/game/NPC.c:115-223` | `JKAMP_GameLogic/NPC.swift:77` | marker | `crates/mp/game/src/npc_c.rs:138-277` | `func NPC_RemoveBody(_ `self`: Entity)` |
-| `BodyRemovalPadTime` | `oracle/codemp/game/NPC.c:233-312` | `JKAMP_GameLogic/NPC.swift:83` | marker | `crates/mp/game/src/npc_c.rs:283-310` | `func BodyRemovalPadTime(_ ent: Entity) -> Int32` |
-| `NPC_RemoveBodyEffect` static | `oracle/codemp/game/NPC.c:323-378` | `JKAMP_GameLogic/NPC.swift:89` | marker | `crates/mp/game/src/npc_c.rs:315-330` | `private func NPC_RemoveBodyEffect()` |
-| `pitch_roll_for_slope` | `oracle/codemp/game/NPC.c:395-470` | `JKAMP_GameLogic/NPC.swift:95` | marker | `crates/mp/game/src/npc_c.rs:339-466` | `func pitch_roll_for_slope(_ forwhom: Entity, _ pass_slope: inout JKAShared.vec3_t)` |
-| `DeadThink` static | `oracle/codemp/game/NPC.c:478-607` | `JKAMP_GameLogic/NPC.swift:108` | marker | `crates/mp/game/src/npc_c.rs:471-661` | `private func DeadThink()` |
-| `SetNPCGlobals` | `oracle/codemp/game/NPC.c:617-623` | `JKAMP_GameLogic/NPC.swift:123` | marker | `crates/mp/game/src/npc_c.rs:666-676` | `func SetNPCGlobals(_ ent: Entity)` |
-| `SaveNPCGlobals` | `oracle/codemp/game/NPC.c:630-636` | `JKAMP_GameLogic/NPC.swift:129` | marker | `crates/mp/game/src/npc_c.rs:681-686` | `func SaveNPCGlobals()` |
-| `RestoreNPCGlobals` | `oracle/codemp/game/NPC.c:638-644` | `JKAMP_GameLogic/NPC.swift:135` | marker | `crates/mp/game/src/npc_c.rs:691-696` | `func RestoreNPCGlobals()` |
-| `ClearNPCGlobals` | `oracle/codemp/game/NPC.c:647-652` | `JKAMP_GameLogic/NPC.swift:142` | marker | `crates/mp/game/src/npc_c.rs:702-706` | `func ClearNPCGlobals()` |
-| `NPC_ShowDebugInfo` | `oracle/codemp/game/NPC.c:664-681` | `JKAMP_GameLogic/NPC.swift:148` | marker | `crates/mp/game/src/npc_c.rs:711-751` | `func NPC_ShowDebugInfo()` |
-| `NPC_ApplyScriptFlags` | `oracle/codemp/game/NPC.c:683-735` | `JKAMP_GameLogic/NPC.swift:154` | marker | `crates/mp/game/src/npc_c.rs:756-811` | `func NPC_ApplyScriptFlags()` |
-| `NPC_HandleAIFlags` | `oracle/codemp/game/NPC.c:738-833` | `JKAMP_GameLogic/NPC.swift:160` | marker | `crates/mp/game/src/npc_c.rs:816-871` | `func NPC_HandleAIFlags()` |
-| `NPC_AvoidWallsAndCliffs` | `oracle/codemp/game/NPC.c:835-838` | `JKAMP_GameLogic/NPC.swift:166` | marker | `crates/mp/game/src/npc_c.rs:878-878` | `func NPC_AvoidWallsAndCliffs()` |
-| `NPC_CheckAttackScript` | `oracle/codemp/game/NPC.c:840-848` | `JKAMP_GameLogic/NPC.swift:172` | marker | `crates/mp/game/src/npc_c.rs:883-891` | `func NPC_CheckAttackScript()` |
-| `NPC_CheckAttackHold` | `oracle/codemp/game/NPC.c:851-913` | `JKAMP_GameLogic/NPC.swift:178` | marker | `crates/mp/game/src/npc_c.rs:896-937` | `func NPC_CheckAttackHold()` |
-| `NPC_KeepCurrentFacing` | `oracle/codemp/game/NPC.c:920-931` | `JKAMP_GameLogic/NPC.swift:191` | marker | `crates/mp/game/src/npc_c.rs:942-961` | `func NPC_KeepCurrentFacing()` |
-| `NPC_BehaviorSet_Charmed` | `oracle/codemp/game/NPC.c:939-963` | `JKAMP_GameLogic/NPC.swift:197` | marker | `crates/mp/game/src/npc_c.rs:966-975` | `func NPC_BehaviorSet_Charmed(_ bState: Int32)` |
-| `NPC_BehaviorSet_Default` | `oracle/codemp/game/NPC.c:970-1012` | `JKAMP_GameLogic/NPC.swift:203` | marker | `crates/mp/game/src/npc_c.rs:980-995` | `func NPC_BehaviorSet_Default(_ bState: Int32)` |
-| `NPC_BehaviorSet_Interrogator` | `oracle/codemp/game/NPC.c:1019-1034` | `JKAMP_GameLogic/NPC.swift:216` | marker | `crates/mp/game/src/npc_c.rs:1000-1012` | `func NPC_BehaviorSet_Interrogator(_ bState: Int32)` |
-| `NPC_BehaviorSet_ImperialProbe` | `oracle/codemp/game/NPC.c:1045-1060` | `JKAMP_GameLogic/NPC.swift:229` | marker | `crates/mp/game/src/npc_c.rs:1017-1029` | `func NPC_BehaviorSet_ImperialProbe(_ bState: Int32)` |
-| `NPC_BehaviorSet_Seeker` | `oracle/codemp/game/NPC.c:1070-1085` | `JKAMP_GameLogic/NPC.swift:242` | marker | `crates/mp/game/src/npc_c.rs:1034-1046` | `func NPC_BehaviorSet_Seeker(_ bState: Int32)` |
-| `NPC_BehaviorSet_Remote` | `oracle/codemp/game/NPC.c:1094-1097` | `JKAMP_GameLogic/NPC.swift:255` | marker | `crates/mp/game/src/npc_c.rs:1051-1053` | `func NPC_BehaviorSet_Remote(_ bState: Int32)` |
-| `NPC_BehaviorSet_Sentry` | `oracle/codemp/game/NPC.c:1106-1121` | `JKAMP_GameLogic/NPC.swift:268` | marker | `crates/mp/game/src/npc_c.rs:1058-1070` | `func NPC_BehaviorSet_Sentry(_ bState: Int32)` |
-| `NPC_BehaviorSet_Grenadier` | `oracle/codemp/game/NPC.c:1128-1144` | `JKAMP_GameLogic/NPC.swift:281` | marker | `crates/mp/game/src/npc_c.rs:1075-1087` | `func NPC_BehaviorSet_Grenadier(_ bState: Int32)` |
-| `NPC_BehaviorSet_Sniper` | `oracle/codemp/game/NPC.c:1150-1166` | `JKAMP_GameLogic/NPC.swift:294` | marker | `crates/mp/game/src/npc_c.rs:1092-1104` | `func NPC_BehaviorSet_Sniper(_ bState: Int32)` |
-| `NPC_BehaviorSet_Stormtrooper` | `oracle/codemp/game/NPC.c:1173-1197` | `JKAMP_GameLogic/NPC.swift:300` | marker | `crates/mp/game/src/npc_c.rs:1109-1123` | `func NPC_BehaviorSet_Stormtrooper(_ bState: Int32)` |
-| `NPC_BehaviorSet_Jedi` | `oracle/codemp/game/NPC.c:1205-1225` | `JKAMP_GameLogic/NPC.swift:306` | marker | `crates/mp/game/src/npc_c.rs:1128-1141` | `func NPC_BehaviorSet_Jedi(_ bState: Int32)` |
-| `NPC_BehaviorSet_Droid` | `oracle/codemp/game/NPC.c:1232-1245` | `JKAMP_GameLogic/NPC.swift:319` | marker | `crates/mp/game/src/npc_c.rs:1146-1156` | `func NPC_BehaviorSet_Droid(_ bState: Int32)` |
-| `NPC_BehaviorSet_Mark1` | `oracle/codemp/game/NPC.c:1252-1265` | `JKAMP_GameLogic/NPC.swift:332` | marker | `crates/mp/game/src/npc_c.rs:1161-1171` | `func NPC_BehaviorSet_Mark1(_ bState: Int32)` |
-| `NPC_BehaviorSet_Mark2` | `oracle/codemp/game/NPC.c:1272-1286` | `JKAMP_GameLogic/NPC.swift:345` | marker | `crates/mp/game/src/npc_c.rs:1176-1187` | `func NPC_BehaviorSet_Mark2(_ bState: Int32)` |
-| `NPC_BehaviorSet_ATST` | `oracle/codemp/game/NPC.c:1293-1307` | `JKAMP_GameLogic/NPC.swift:358` | marker | `crates/mp/game/src/npc_c.rs:1192-1203` | `func NPC_BehaviorSet_ATST(_ bState: Int32)` |
-| `NPC_BehaviorSet_MineMonster` | `oracle/codemp/game/NPC.c:1314-1329` | `JKAMP_GameLogic/NPC.swift:371` | marker | `crates/mp/game/src/npc_c.rs:1208-1220` | `func NPC_BehaviorSet_MineMonster(_ bState: Int32)` |
-| `NPC_BehaviorSet_Howler` | `oracle/codemp/game/NPC.c:1336-1351` | `JKAMP_GameLogic/NPC.swift:384` | marker | `crates/mp/game/src/npc_c.rs:1225-1237` | `func NPC_BehaviorSet_Howler(_ bState: Int32)` |
-| `NPC_BehaviorSet_Rancor` | `oracle/codemp/game/NPC.c:1358-1373` | `JKAMP_GameLogic/NPC.swift:397` | marker | `crates/mp/game/src/npc_c.rs:1242-1254` | `func NPC_BehaviorSet_Rancor(_ bState: Int32)` |
-| `NPC_RunBehavior` | `oracle/codemp/game/NPC.c:1384-1564` | `JKAMP_GameLogic/NPC.swift:403` | marker | `crates/mp/game/src/npc_c.rs:1259-1426` | `func NPC_RunBehavior(_ team: Int32, _ bState: Int32)` |
-| `NPC_ExecuteBState` | `oracle/codemp/game/NPC.c:1576-1762` | `JKAMP_GameLogic/NPC.swift:421` | marker | `crates/mp/game/src/npc_c.rs:1431-1592` | `func NPC_ExecuteBState(_ `self`: Entity)` |
-| `NPC_CheckInSolid` | `oracle/codemp/game/NPC.c:1764-1785` | `JKAMP_GameLogic/NPC.swift:427` | marker | `crates/mp/game/src/npc_c.rs:1597-1637` | `func NPC_CheckInSolid()` |
-| `G_DroidSounds` | `oracle/codemp/game/NPC.c:1787-1814` | `JKAMP_GameLogic/NPC.swift:433` | marker | `crates/mp/game/src/npc_c.rs:1642-1690` | `func G_DroidSounds(_ `self`: Entity)` |
-| `NPC_Think` | `oracle/codemp/game/NPC.c:1826-1979` | `JKAMP_GameLogic/NPC.swift:439` | marker | `crates/mp/game/src/npc_c.rs:1695-1855` | `func NPC_Think(_ `self`: Entity)` |
-| `NPC_InitAI` | `oracle/codemp/game/NPC.c:1981-2009` | `JKAMP_GameLogic/NPC.swift:445` | marker | `crates/mp/game/src/npc_c.rs:1862-1862` | `func NPC_InitAI()` |
-| `NPC_InitGame` | `oracle/codemp/game/NPC.c:2041-2056` | `JKAMP_GameLogic/NPC.swift:451` | marker | `crates/mp/game/src/npc_c.rs:1867-1870` | `func NPC_InitGame()` |
-| `NPC_SetAnim` | `oracle/codemp/game/NPC.c:2058-2110` | `JKAMP_GameLogic/NPC.swift:457` | marker | `crates/mp/game/src/npc_c.rs:1877-1893` | `func NPC_SetAnim(_ ent: Entity, _ setAnimParts: Int32, _ anim: Int32, _ setAnimFlags: Int32)` |
+| `CorpsePhysics` | `oracle/codemp/game/NPC.c:46-103` | `JKAMP_GameLogic/NPC.swift:84` | marker | `crates/mp/game/src/npc_c.rs:51-133` | `func CorpsePhysics(_ `self`: Entity)` |
+| `NPC_RemoveBody` | `oracle/codemp/game/NPC.c:115-223` | `JKAMP_GameLogic/NPC.swift:90` | marker | `crates/mp/game/src/npc_c.rs:138-277` | `func NPC_RemoveBody(_ `self`: Entity)` |
+| `BodyRemovalPadTime` | `oracle/codemp/game/NPC.c:233-312` | `JKAMP_GameLogic/NPC.swift:96` | marker | `crates/mp/game/src/npc_c.rs:283-310` | `func BodyRemovalPadTime(_ ent: Entity) -> Int32` |
+| `NPC_RemoveBodyEffect` static | `oracle/codemp/game/NPC.c:323-378` | `JKAMP_GameLogic/NPC.swift:102` | marker | `crates/mp/game/src/npc_c.rs:315-330` | `private func NPC_RemoveBodyEffect()` |
+| `pitch_roll_for_slope` | `oracle/codemp/game/NPC.c:395-470` | `JKAMP_GameLogic/NPC.swift:108` | marker | `crates/mp/game/src/npc_c.rs:339-466` | `func pitch_roll_for_slope(_ forwhom: Entity, _ pass_slope: inout JKAShared.vec3_t)` |
+| `DeadThink` static | `oracle/codemp/game/NPC.c:478-607` | `JKAMP_GameLogic/NPC.swift:121` | marker | `crates/mp/game/src/npc_c.rs:471-661` | `private func DeadThink()` |
+| `SetNPCGlobals` | `oracle/codemp/game/NPC.c:617-623` | `JKAMP_GameLogic/NPC.swift:136` | marker | `crates/mp/game/src/npc_c.rs:666-676` | `func SetNPCGlobals(_ ent: Entity)` |
+| `SaveNPCGlobals` | `oracle/codemp/game/NPC.c:630-636` | `JKAMP_GameLogic/NPC.swift:142` | marker | `crates/mp/game/src/npc_c.rs:681-686` | `func SaveNPCGlobals()` |
+| `RestoreNPCGlobals` | `oracle/codemp/game/NPC.c:638-644` | `JKAMP_GameLogic/NPC.swift:148` | marker | `crates/mp/game/src/npc_c.rs:691-696` | `func RestoreNPCGlobals()` |
+| `ClearNPCGlobals` | `oracle/codemp/game/NPC.c:647-652` | `JKAMP_GameLogic/NPC.swift:155` | marker | `crates/mp/game/src/npc_c.rs:702-706` | `func ClearNPCGlobals()` |
+| `NPC_ShowDebugInfo` | `oracle/codemp/game/NPC.c:664-681` | `JKAMP_GameLogic/NPC.swift:161` | marker | `crates/mp/game/src/npc_c.rs:711-751` | `func NPC_ShowDebugInfo()` |
+| `NPC_ApplyScriptFlags` | `oracle/codemp/game/NPC.c:683-735` | `JKAMP_GameLogic/NPC.swift:167` | marker | `crates/mp/game/src/npc_c.rs:756-811` | `func NPC_ApplyScriptFlags()` |
+| `NPC_HandleAIFlags` | `oracle/codemp/game/NPC.c:738-833` | `JKAMP_GameLogic/NPC.swift:173` | marker | `crates/mp/game/src/npc_c.rs:816-871` | `func NPC_HandleAIFlags()` |
+| `NPC_AvoidWallsAndCliffs` | `oracle/codemp/game/NPC.c:835-838` | `JKAMP_GameLogic/NPC.swift:179` | marker | `crates/mp/game/src/npc_c.rs:878-878` | `func NPC_AvoidWallsAndCliffs()` |
+| `NPC_CheckAttackScript` | `oracle/codemp/game/NPC.c:840-848` | `JKAMP_GameLogic/NPC.swift:185` | marker | `crates/mp/game/src/npc_c.rs:883-891` | `func NPC_CheckAttackScript()` |
+| `NPC_CheckAttackHold` | `oracle/codemp/game/NPC.c:851-913` | `JKAMP_GameLogic/NPC.swift:191` | marker | `crates/mp/game/src/npc_c.rs:896-937` | `func NPC_CheckAttackHold()` |
+| `NPC_KeepCurrentFacing` | `oracle/codemp/game/NPC.c:920-931` | `JKAMP_GameLogic/NPC.swift:204` | marker | `crates/mp/game/src/npc_c.rs:942-961` | `func NPC_KeepCurrentFacing()` |
+| `NPC_BehaviorSet_Charmed` | `oracle/codemp/game/NPC.c:939-963` | `JKAMP_GameLogic/NPC.swift:210` | marker | `crates/mp/game/src/npc_c.rs:966-975` | `func NPC_BehaviorSet_Charmed(_ bState: Int32)` |
+| `NPC_BehaviorSet_Default` | `oracle/codemp/game/NPC.c:970-1012` | `JKAMP_GameLogic/NPC.swift:216` | marker | `crates/mp/game/src/npc_c.rs:980-995` | `func NPC_BehaviorSet_Default(_ bState: Int32)` |
+| `NPC_BehaviorSet_Interrogator` | `oracle/codemp/game/NPC.c:1019-1034` | `JKAMP_GameLogic/NPC.swift:229` | marker | `crates/mp/game/src/npc_c.rs:1000-1012` | `func NPC_BehaviorSet_Interrogator(_ bState: Int32)` |
+| `NPC_BehaviorSet_ImperialProbe` | `oracle/codemp/game/NPC.c:1045-1060` | `JKAMP_GameLogic/NPC.swift:242` | marker | `crates/mp/game/src/npc_c.rs:1017-1029` | `func NPC_BehaviorSet_ImperialProbe(_ bState: Int32)` |
+| `NPC_BehaviorSet_Seeker` | `oracle/codemp/game/NPC.c:1070-1085` | `JKAMP_GameLogic/NPC.swift:255` | marker | `crates/mp/game/src/npc_c.rs:1034-1046` | `func NPC_BehaviorSet_Seeker(_ bState: Int32)` |
+| `NPC_BehaviorSet_Remote` | `oracle/codemp/game/NPC.c:1094-1097` | `JKAMP_GameLogic/NPC.swift:268` | marker | `crates/mp/game/src/npc_c.rs:1051-1053` | `func NPC_BehaviorSet_Remote(_ bState: Int32)` |
+| `NPC_BehaviorSet_Sentry` | `oracle/codemp/game/NPC.c:1106-1121` | `JKAMP_GameLogic/NPC.swift:281` | marker | `crates/mp/game/src/npc_c.rs:1058-1070` | `func NPC_BehaviorSet_Sentry(_ bState: Int32)` |
+| `NPC_BehaviorSet_Grenadier` | `oracle/codemp/game/NPC.c:1128-1144` | `JKAMP_GameLogic/NPC.swift:294` | marker | `crates/mp/game/src/npc_c.rs:1075-1087` | `func NPC_BehaviorSet_Grenadier(_ bState: Int32)` |
+| `NPC_BehaviorSet_Sniper` | `oracle/codemp/game/NPC.c:1150-1166` | `JKAMP_GameLogic/NPC.swift:307` | marker | `crates/mp/game/src/npc_c.rs:1092-1104` | `func NPC_BehaviorSet_Sniper(_ bState: Int32)` |
+| `NPC_BehaviorSet_Stormtrooper` | `oracle/codemp/game/NPC.c:1173-1197` | `JKAMP_GameLogic/NPC.swift:313` | marker | `crates/mp/game/src/npc_c.rs:1109-1123` | `func NPC_BehaviorSet_Stormtrooper(_ bState: Int32)` |
+| `NPC_BehaviorSet_Jedi` | `oracle/codemp/game/NPC.c:1205-1225` | `JKAMP_GameLogic/NPC.swift:319` | marker | `crates/mp/game/src/npc_c.rs:1128-1141` | `func NPC_BehaviorSet_Jedi(_ bState: Int32)` |
+| `NPC_BehaviorSet_Droid` | `oracle/codemp/game/NPC.c:1232-1245` | `JKAMP_GameLogic/NPC.swift:332` | marker | `crates/mp/game/src/npc_c.rs:1146-1156` | `func NPC_BehaviorSet_Droid(_ bState: Int32)` |
+| `NPC_BehaviorSet_Mark1` | `oracle/codemp/game/NPC.c:1252-1265` | `JKAMP_GameLogic/NPC.swift:345` | marker | `crates/mp/game/src/npc_c.rs:1161-1171` | `func NPC_BehaviorSet_Mark1(_ bState: Int32)` |
+| `NPC_BehaviorSet_Mark2` | `oracle/codemp/game/NPC.c:1272-1286` | `JKAMP_GameLogic/NPC.swift:358` | marker | `crates/mp/game/src/npc_c.rs:1176-1187` | `func NPC_BehaviorSet_Mark2(_ bState: Int32)` |
+| `NPC_BehaviorSet_ATST` | `oracle/codemp/game/NPC.c:1293-1307` | `JKAMP_GameLogic/NPC.swift:371` | marker | `crates/mp/game/src/npc_c.rs:1192-1203` | `func NPC_BehaviorSet_ATST(_ bState: Int32)` |
+| `NPC_BehaviorSet_MineMonster` | `oracle/codemp/game/NPC.c:1314-1329` | `JKAMP_GameLogic/NPC.swift:384` | marker | `crates/mp/game/src/npc_c.rs:1208-1220` | `func NPC_BehaviorSet_MineMonster(_ bState: Int32)` |
+| `NPC_BehaviorSet_Howler` | `oracle/codemp/game/NPC.c:1336-1351` | `JKAMP_GameLogic/NPC.swift:397` | marker | `crates/mp/game/src/npc_c.rs:1225-1237` | `func NPC_BehaviorSet_Howler(_ bState: Int32)` |
+| `NPC_BehaviorSet_Rancor` | `oracle/codemp/game/NPC.c:1358-1373` | `JKAMP_GameLogic/NPC.swift:410` | marker | `crates/mp/game/src/npc_c.rs:1242-1254` | `func NPC_BehaviorSet_Rancor(_ bState: Int32)` |
+| `NPC_RunBehavior` | `oracle/codemp/game/NPC.c:1384-1564` | `JKAMP_GameLogic/NPC.swift:416` | marker | `crates/mp/game/src/npc_c.rs:1259-1426` | `func NPC_RunBehavior(_ team: Int32, _ bState: Int32)` |
+| `NPC_ExecuteBState` | `oracle/codemp/game/NPC.c:1576-1762` | `JKAMP_GameLogic/NPC.swift:434` | marker | `crates/mp/game/src/npc_c.rs:1431-1592` | `func NPC_ExecuteBState(_ `self`: Entity)` |
+| `NPC_CheckInSolid` | `oracle/codemp/game/NPC.c:1764-1785` | `JKAMP_GameLogic/NPC.swift:440` | marker | `crates/mp/game/src/npc_c.rs:1597-1637` | `func NPC_CheckInSolid()` |
+| `G_DroidSounds` | `oracle/codemp/game/NPC.c:1787-1814` | `JKAMP_GameLogic/NPC.swift:446` | marker | `crates/mp/game/src/npc_c.rs:1642-1690` | `func G_DroidSounds(_ `self`: Entity)` |
+| `NPC_Think` | `oracle/codemp/game/NPC.c:1826-1979` | `JKAMP_GameLogic/NPC.swift:452` | marker | `crates/mp/game/src/npc_c.rs:1695-1855` | `func NPC_Think(_ `self`: Entity)` |
+| `NPC_InitAI` | `oracle/codemp/game/NPC.c:1981-2009` | `JKAMP_GameLogic/NPC.swift:458` | marker | `crates/mp/game/src/npc_c.rs:1862-1862` | `func NPC_InitAI()` |
+| `NPC_InitGame` | `oracle/codemp/game/NPC.c:2041-2056` | `JKAMP_GameLogic/NPC.swift:464` | marker | `crates/mp/game/src/npc_c.rs:1867-1870` | `func NPC_InitGame()` |
+| `NPC_SetAnim` | `oracle/codemp/game/NPC.c:2058-2110` | `JKAMP_GameLogic/NPC.swift:470` | marker | `crates/mp/game/src/npc_c.rs:1877-1893` | `func NPC_SetAnim(_ ent: Entity, _ setAnimParts: Int32, _ anim: Int32, _ setAnimFlags: Int32)` |
 
 13 file-scope variables. The entry is the stub's line for the variable, by rule 3 and rule 6.
 
 | Variable | Oracle | Kind | Entry |
 |---|---|---|---|
-| `NPC` | `oracle/codemp/game/NPC.c:34` | state | `// Rule 3: a stored property of GameWorld with C's zero, since Raven wrote no initializer, spelled world.NPC in a body.` |
-| `NPCInfo` | `oracle/codemp/game/NPC.c:35` | state | `// Rule 3: a stored property of GameWorld with C's zero, since Raven wrote no initializer, spelled world.NPCInfo in a body.` |
-| `client` | `oracle/codemp/game/NPC.c:36` | state | `// Rule 3: a stored property of GameWorld with C's zero, since Raven wrote no initializer, spelled world.client in a body.` |
-| `ucmd` | `oracle/codemp/game/NPC.c:37` | storage | `// A struct table is C storage in Sources/CJKAMP, reached through a Slots constant.` |
-| `enemyVisibility` | `oracle/codemp/game/NPC.c:38` | state | `// Rule 3: a stored property of GameWorld with C's zero, since Raven wrote no initializer, spelled world.enemyVisibility in a body.` |
-| `_saved_NPC` | `oracle/codemp/game/NPC.c:625` | state | `// Rule 3: a stored property of GameWorld with C's zero, since Raven wrote no initializer, spelled world._saved_NPC in a body.` |
-| `_saved_NPCInfo` | `oracle/codemp/game/NPC.c:626` | state | `// Rule 3: a stored property of GameWorld with C's zero, since Raven wrote no initializer, spelled world._saved_NPCInfo in a body.` |
-| `_saved_client` | `oracle/codemp/game/NPC.c:627` | state | `// Rule 3: a stored property of GameWorld with C's zero, since Raven wrote no initializer, spelled world._saved_client in a body.` |
-| `_saved_ucmd` | `oracle/codemp/game/NPC.c:628` | storage | `// A struct table is C storage in Sources/CJKAMP, reached through a Slots constant.` |
-| `NPCDEBUG_RED` | `oracle/codemp/game/NPC.c:656` | state | `// Rule 3: a stored property of GameWorld with Raven's initializer, spelled world.NPCDEBUG_RED in a body.` |
+| `NPC` | `oracle/codemp/game/NPC.c:34` | state | `}` |
+| `NPCInfo` | `oracle/codemp/game/NPC.c:35` | state | `}` |
+| `client` | `oracle/codemp/game/NPC.c:36` | state | `}` |
+| `ucmd` | `oracle/codemp/game/NPC.c:37` | storage | `var ucmd: JKAMP.Usercmd { world.storage.ucmd }` |
+| `enemyVisibility` | `oracle/codemp/game/NPC.c:38` | state | `}` |
+| `_saved_NPC` | `oracle/codemp/game/NPC.c:625` | state | `}` |
+| `_saved_NPCInfo` | `oracle/codemp/game/NPC.c:626` | state | `}` |
+| `_saved_client` | `oracle/codemp/game/NPC.c:627` | state | `}` |
+| `_saved_ucmd` | `oracle/codemp/game/NPC.c:628` | storage | `var _saved_ucmd: JKAMP.Usercmd { world.storage._saved_ucmd }` |
+| `NPCDEBUG_RED` | `oracle/codemp/game/NPC.c:656` | state_data | `}` |
 | `NPCDEBUG_GREEN` | `oracle/codemp/game/NPC.c:657` | let | `let NPCDEBUG_GREEN: JKAShared.vec3_t = { () -> JKAShared.vec3_t in portMissing("NPCDEBUG_GREEN", source: "oracle/codemp/game/NPC.c:657") }()` |
-| `NPCDEBUG_BLUE` | `oracle/codemp/game/NPC.c:658` | state | `// Rule 3: a stored property of GameWorld with Raven's initializer, spelled world.NPCDEBUG_BLUE in a body.` |
+| `NPCDEBUG_BLUE` | `oracle/codemp/game/NPC.c:658` | state_data | `}` |
 | `NPCDEBUG_LIGHT_BLUE` | `oracle/codemp/game/NPC.c:659` | let | `let NPCDEBUG_LIGHT_BLUE: JKAShared.vec3_t = { () -> JKAShared.vec3_t in portMissing("NPCDEBUG_LIGHT_BLUE", source: "oracle/codemp/game/NPC.c:659") }()` |

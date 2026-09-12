@@ -7,13 +7,13 @@ The oracle range is the whole definition, from the return type to the closing br
 
 | Function | Oracle | Swift | State | jka-rust | Signature |
 |---|---|---|---|---|---|
-| `NPC_Mark2_Precache` | `oracle/codemp/game/NPC_AI_Mark2.c:27-43` | `JKAMP_GameLogic/NPC_AI_Mark2.swift:8` | marker | `crates/mp/game/src/NPC_AI_Mark2.rs:42-57` | `func NPC_Mark2_Precache()` |
-| `NPC_Mark2_Part_Explode` | `oracle/codemp/game/NPC_AI_Mark2.c:50-72` | `JKAMP_GameLogic/NPC_AI_Mark2.swift:21` | marker | `crates/mp/game/src/NPC_AI_Mark2.rs:62-106` | `func NPC_Mark2_Part_Explode(_ `self`: Entity, _ bolt: Int32)` |
-| `NPC_Mark2_Pain` | `oracle/codemp/game/NPC_AI_Mark2.c:80-111` | `JKAMP_GameLogic/NPC_AI_Mark2.swift:35` | marker | `crates/mp/game/src/NPC_AI_Mark2.rs:111-155` | `func NPC_Mark2_Pain(_ `self`: Entity, _ attacker: Entity, _ damage: Int32)` |
-| `Mark2_Hunt` | `oracle/codemp/game/NPC_AI_Mark2.c:118-130` | `JKAMP_GameLogic/NPC_AI_Mark2.swift:48` | marker | `crates/mp/game/src/NPC_AI_Mark2.rs:160-181` | `func Mark2_Hunt()` |
-| `Mark2_FireBlaster` | `oracle/codemp/game/NPC_AI_Mark2.c:137-179` | `JKAMP_GameLogic/NPC_AI_Mark2.swift:61` | marker | `crates/mp/game/src/NPC_AI_Mark2.rs:186-267` | `func Mark2_FireBlaster(_ advance: Bool)` |
-| `Mark2_BlasterAttack` | `oracle/codemp/game/NPC_AI_Mark2.c:186-205` | `JKAMP_GameLogic/NPC_AI_Mark2.swift:74` | marker | `crates/mp/game/src/NPC_AI_Mark2.rs:272-306` | `func Mark2_BlasterAttack(_ advance: Bool)` |
-| `Mark2_AttackDecision` | `oracle/codemp/game/NPC_AI_Mark2.c:212-295` | `JKAMP_GameLogic/NPC_AI_Mark2.swift:87` | marker | `crates/mp/game/src/NPC_AI_Mark2.rs:311-444` | `func Mark2_AttackDecision()` |
-| `Mark2_Patrol` | `oracle/codemp/game/NPC_AI_Mark2.c:303-330` | `JKAMP_GameLogic/NPC_AI_Mark2.swift:100` | marker | `crates/mp/game/src/NPC_AI_Mark2.rs:449-480` | `func Mark2_Patrol()` |
-| `Mark2_Idle` | `oracle/codemp/game/NPC_AI_Mark2.c:337-340` | `JKAMP_GameLogic/NPC_AI_Mark2.swift:113` | marker | `crates/mp/game/src/NPC_AI_Mark2.rs:485-487` | `func Mark2_Idle()` |
-| `NPC_BSMark2_Default` | `oracle/codemp/game/NPC_AI_Mark2.c:347-362` | `JKAMP_GameLogic/NPC_AI_Mark2.swift:126` | marker | `crates/mp/game/src/NPC_AI_Mark2.rs:492-510` | `func NPC_BSMark2_Default()` |
+| `NPC_Mark2_Precache` | `oracle/codemp/game/NPC_AI_Mark2.c:27-43` | `JKAMP_GameLogic/NPC_AI_Mark2.swift:29` | marker | `crates/mp/game/src/NPC_AI_Mark2.rs:42-57` | `func NPC_Mark2_Precache()` |
+| `NPC_Mark2_Part_Explode` | `oracle/codemp/game/NPC_AI_Mark2.c:50-72` | `JKAMP_GameLogic/NPC_AI_Mark2.swift:42` | marker | `crates/mp/game/src/NPC_AI_Mark2.rs:62-106` | `func NPC_Mark2_Part_Explode(_ `self`: Entity, _ bolt: Int32)` |
+| `NPC_Mark2_Pain` | `oracle/codemp/game/NPC_AI_Mark2.c:80-111` | `JKAMP_GameLogic/NPC_AI_Mark2.swift:56` | marker | `crates/mp/game/src/NPC_AI_Mark2.rs:111-155` | `func NPC_Mark2_Pain(_ `self`: Entity, _ attacker: Entity, _ damage: Int32)` |
+| `Mark2_Hunt` | `oracle/codemp/game/NPC_AI_Mark2.c:118-130` | `JKAMP_GameLogic/NPC_AI_Mark2.swift:69` | marker | `crates/mp/game/src/NPC_AI_Mark2.rs:160-181` | `func Mark2_Hunt()` |
+| `Mark2_FireBlaster` | `oracle/codemp/game/NPC_AI_Mark2.c:137-179` | `JKAMP_GameLogic/NPC_AI_Mark2.swift:82` | marker | `crates/mp/game/src/NPC_AI_Mark2.rs:186-267` | `func Mark2_FireBlaster(_ advance: Bool)` |
+| `Mark2_BlasterAttack` | `oracle/codemp/game/NPC_AI_Mark2.c:186-205` | `JKAMP_GameLogic/NPC_AI_Mark2.swift:95` | marker | `crates/mp/game/src/NPC_AI_Mark2.rs:272-306` | `func Mark2_BlasterAttack(_ advance: Bool)` |
+| `Mark2_AttackDecision` | `oracle/codemp/game/NPC_AI_Mark2.c:212-295` | `JKAMP_GameLogic/NPC_AI_Mark2.swift:108` | marker | `crates/mp/game/src/NPC_AI_Mark2.rs:311-444` | `func Mark2_AttackDecision()` |
+| `Mark2_Patrol` | `oracle/codemp/game/NPC_AI_Mark2.c:303-330` | `JKAMP_GameLogic/NPC_AI_Mark2.swift:121` | marker | `crates/mp/game/src/NPC_AI_Mark2.rs:449-480` | `func Mark2_Patrol()` |
+| `Mark2_Idle` | `oracle/codemp/game/NPC_AI_Mark2.c:337-340` | `JKAMP_GameLogic/NPC_AI_Mark2.swift:134` | marker | `crates/mp/game/src/NPC_AI_Mark2.rs:485-487` | `func Mark2_Idle()` |
+| `NPC_BSMark2_Default` | `oracle/codemp/game/NPC_AI_Mark2.c:347-362` | `JKAMP_GameLogic/NPC_AI_Mark2.swift:147` | marker | `crates/mp/game/src/NPC_AI_Mark2.rs:492-510` | `func NPC_BSMark2_Default()` |

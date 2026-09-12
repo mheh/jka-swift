@@ -1,6 +1,6 @@
 # jka-swift
 
-A Swift port of Star Wars Jedi Knight: Jedi Academy, modeled on [jka-rust](../jka-rust). The MP game module comes first, as the dynamic library `jampgame` the `jamp` engine loads, and the other modules follow it. The target is a drop-in replacement for each binary Raven shipped.
+A Swift port of Star Wars Jedi Knight: Jedi Academy, modeled on [jka-rust](jka-rust), a git submodule at its `master` branch. The MP game module comes first, as the dynamic library `jampgame` the `jamp` engine loads, and the other modules follow it. The target is a drop-in replacement for each binary Raven shipped.
 
 ## The oracle (`oracle/`)
 

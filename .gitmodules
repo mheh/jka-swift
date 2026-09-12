@@ -1,3 +1,7 @@
 [submodule "oracle"]
 	path = oracle
 	url = https://github.com/mheh/jediacademy
+[submodule "jka-rust"]
+	path = jka-rust
+	url = https://github.com/mheh/jka-rust.git
+	branch = master

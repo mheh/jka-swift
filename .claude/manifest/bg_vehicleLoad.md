@@ -7,33 +7,33 @@ The oracle range is the whole definition, from the return type to the closing br
 
 | Function | Oracle | Swift | State | jka-rust | Signature |
 |---|---|---|---|---|---|
-| `BG_ClearVehicleParseParms` | `oracle/codemp/game/bg_vehicleLoad.c:79-84` | `JKAMP_BG/bg_vehicleLoad.swift:52` | marker | `crates/mp/bg/src/bg_vehicleLoad.rs:27-30` | `func BG_ClearVehicleParseParms()` |
-| `BG_ParseVehWeaponParm` static | `oracle/codemp/game/bg_vehicleLoad.c:167-307` | `JKAMP_BG/bg_vehicleLoad.swift:58` | marker | `crates/mp/bg/src/bg_vehicleLoad.rs:38-162` | `private func BG_ParseVehWeaponParm(_ vehWeapon: JKAMP.VehWeaponInfo, _ parmName: inout JKAShared.CharBuf, _ pValue: inout JKAShared.CharBuf) -> Bool` |
-| `VEH_LoadVehWeapon` | `oracle/codemp/game/bg_vehicleLoad.c:309-411` | `JKAMP_BG/bg_vehicleLoad.swift:64` | marker | `crates/mp/bg/src/bg_vehicleLoad.rs:167-276` | `func VEH_LoadVehWeapon(_ vehWeaponName: String) -> Int32` |
-| `VEH_VehWeaponIndexForName` | `oracle/codemp/game/bg_vehicleLoad.c:413-443` | `JKAMP_BG/bg_vehicleLoad.swift:70` | marker | `crates/mp/bg/src/bg_vehicleLoad.rs:281-325` | `func VEH_VehWeaponIndexForName(_ vehWeaponName: String) -> Int32` |
-| `BG_SetSharedVehicleFunctions` | `oracle/codemp/game/bg_vehicleLoad.c:683-707` | `JKAMP_BG/bg_vehicleLoad.swift:77` | marker | `crates/mp/bg/src/bg_vehicleLoad.rs:338-338` | `func BG_SetSharedVehicleFunctions(_ pVehInfo: JKAMP.VehicleInfo)` |
-| `BG_VehicleSetDefaults` | `oracle/codemp/game/bg_vehicleLoad.c:709-810` | `JKAMP_BG/bg_vehicleLoad.swift:83` | marker | `crates/mp/bg/src/bg_vehicleLoad.rs:348-352` | `func BG_VehicleSetDefaults(_ vehicle: JKAMP.VehicleInfo)` |
-| `BG_VehicleClampData` | `oracle/codemp/game/bg_vehicleLoad.c:812-837` | `JKAMP_BG/bg_vehicleLoad.swift:89` | marker | `crates/mp/bg/src/bg_vehicleLoad.rs:359-376` | `func BG_VehicleClampData(_ vehicle: JKAMP.VehicleInfo)` |
-| `BG_ParseVehicleParm` static | `oracle/codemp/game/bg_vehicleLoad.c:839-981` | `JKAMP_BG/bg_vehicleLoad.swift:95` | marker | `crates/mp/bg/src/bg_vehicleLoad.rs:384-519` | `private func BG_ParseVehicleParm(_ vehicle: JKAMP.VehicleInfo, _ parmName: inout JKAShared.CharBuf, _ pValue: inout JKAShared.CharBuf) -> Bool` |
-| `VEH_LoadVehicle` | `oracle/codemp/game/bg_vehicleLoad.c:983-1362` | `JKAMP_BG/bg_vehicleLoad.swift:101` | marker | `crates/mp/bg/src/bg_vehicleLoad.rs:524-768` | `func VEH_LoadVehicle(_ vehicleName: String) -> Int32` |
-| `VEH_VehicleIndexForName` | `oracle/codemp/game/bg_vehicleLoad.c:1364-1394` | `JKAMP_BG/bg_vehicleLoad.swift:107` | marker | `crates/mp/bg/src/bg_vehicleLoad.rs:773-816` | `func VEH_VehicleIndexForName(_ vehicleName: String) -> Int32` |
-| `BG_VehWeaponLoadParms` | `oracle/codemp/game/bg_vehicleLoad.c:1396-1485` | `JKAMP_BG/bg_vehicleLoad.swift:113` | marker | `crates/mp/bg/src/bg_vehicleLoad.rs:823-877` | `func BG_VehWeaponLoadParms()` |
-| `BG_VehicleLoadParms` | `oracle/codemp/game/bg_vehicleLoad.c:1487-1588` | `JKAMP_BG/bg_vehicleLoad.swift:119` | marker | `crates/mp/bg/src/bg_vehicleLoad.rs:886-942` | `func BG_VehicleLoadParms()` |
-| `BG_VehicleGetIndex` | `oracle/codemp/game/bg_vehicleLoad.c:1590-1593` | `JKAMP_BG/bg_vehicleLoad.swift:125` | marker | `crates/mp/bg/src/bg_vehicleLoad.rs:948-957` | `func BG_VehicleGetIndex(_ vehicleName: String) -> Int32` |
-| `BG_GetVehicleModelName` | `oracle/codemp/game/bg_vehicleLoad.c:1599-1611` | `JKAMP_BG/bg_vehicleLoad.swift:135` | marker | `crates/mp/bg/src/bg_vehicleLoad.rs:966-993` | `func BG_GetVehicleModelName(_ modelname: inout JKAShared.CharBuf)` |
-| `BG_GetVehicleSkinName` | `oracle/codemp/game/bg_vehicleLoad.c:1613-1633` | `JKAMP_BG/bg_vehicleLoad.swift:141` | marker | `crates/mp/bg/src/bg_vehicleLoad.rs:998-1029` | `func BG_GetVehicleSkinName(_ skinname: inout JKAShared.CharBuf)` |
-| `AttachRidersGeneric` | `oracle/codemp/game/bg_vehicleLoad.c:1643-1664` | `JKAMP_BG/bg_vehicleLoad.swift:147` | marker | `crates/mp/bg/src/bg_vehicleLoad.rs:1034-1072` | `func AttachRidersGeneric(_ pVeh: JKAMP.Vehicle)` |
+| `BG_ClearVehicleParseParms` | `oracle/codemp/game/bg_vehicleLoad.c:79-84` | `JKAMP_BG/bg_vehicleLoad.swift:58` | marker | `crates/mp/bg/src/bg_vehicleLoad.rs:27-30` | `func BG_ClearVehicleParseParms()` |
+| `BG_ParseVehWeaponParm` static | `oracle/codemp/game/bg_vehicleLoad.c:167-307` | `JKAMP_BG/bg_vehicleLoad.swift:64` | marker | `crates/mp/bg/src/bg_vehicleLoad.rs:38-162` | `private func BG_ParseVehWeaponParm(_ vehWeapon: JKAMP.VehWeaponInfo, _ parmName: inout JKAShared.CharBuf, _ pValue: inout JKAShared.CharBuf) -> Bool` |
+| `VEH_LoadVehWeapon` | `oracle/codemp/game/bg_vehicleLoad.c:309-411` | `JKAMP_BG/bg_vehicleLoad.swift:70` | marker | `crates/mp/bg/src/bg_vehicleLoad.rs:167-276` | `func VEH_LoadVehWeapon(_ vehWeaponName: String) -> Int32` |
+| `VEH_VehWeaponIndexForName` | `oracle/codemp/game/bg_vehicleLoad.c:413-443` | `JKAMP_BG/bg_vehicleLoad.swift:76` | marker | `crates/mp/bg/src/bg_vehicleLoad.rs:281-325` | `func VEH_VehWeaponIndexForName(_ vehWeaponName: String) -> Int32` |
+| `BG_SetSharedVehicleFunctions` | `oracle/codemp/game/bg_vehicleLoad.c:683-707` | `JKAMP_BG/bg_vehicleLoad.swift:83` | marker | `crates/mp/bg/src/bg_vehicleLoad.rs:338-338` | `func BG_SetSharedVehicleFunctions(_ pVehInfo: JKAMP.VehicleInfo)` |
+| `BG_VehicleSetDefaults` | `oracle/codemp/game/bg_vehicleLoad.c:709-810` | `JKAMP_BG/bg_vehicleLoad.swift:89` | marker | `crates/mp/bg/src/bg_vehicleLoad.rs:348-352` | `func BG_VehicleSetDefaults(_ vehicle: JKAMP.VehicleInfo)` |
+| `BG_VehicleClampData` | `oracle/codemp/game/bg_vehicleLoad.c:812-837` | `JKAMP_BG/bg_vehicleLoad.swift:95` | marker | `crates/mp/bg/src/bg_vehicleLoad.rs:359-376` | `func BG_VehicleClampData(_ vehicle: JKAMP.VehicleInfo)` |
+| `BG_ParseVehicleParm` static | `oracle/codemp/game/bg_vehicleLoad.c:839-981` | `JKAMP_BG/bg_vehicleLoad.swift:101` | marker | `crates/mp/bg/src/bg_vehicleLoad.rs:384-519` | `private func BG_ParseVehicleParm(_ vehicle: JKAMP.VehicleInfo, _ parmName: inout JKAShared.CharBuf, _ pValue: inout JKAShared.CharBuf) -> Bool` |
+| `VEH_LoadVehicle` | `oracle/codemp/game/bg_vehicleLoad.c:983-1362` | `JKAMP_BG/bg_vehicleLoad.swift:107` | marker | `crates/mp/bg/src/bg_vehicleLoad.rs:524-768` | `func VEH_LoadVehicle(_ vehicleName: String) -> Int32` |
+| `VEH_VehicleIndexForName` | `oracle/codemp/game/bg_vehicleLoad.c:1364-1394` | `JKAMP_BG/bg_vehicleLoad.swift:113` | marker | `crates/mp/bg/src/bg_vehicleLoad.rs:773-816` | `func VEH_VehicleIndexForName(_ vehicleName: String) -> Int32` |
+| `BG_VehWeaponLoadParms` | `oracle/codemp/game/bg_vehicleLoad.c:1396-1485` | `JKAMP_BG/bg_vehicleLoad.swift:119` | marker | `crates/mp/bg/src/bg_vehicleLoad.rs:823-877` | `func BG_VehWeaponLoadParms()` |
+| `BG_VehicleLoadParms` | `oracle/codemp/game/bg_vehicleLoad.c:1487-1588` | `JKAMP_BG/bg_vehicleLoad.swift:125` | marker | `crates/mp/bg/src/bg_vehicleLoad.rs:886-942` | `func BG_VehicleLoadParms()` |
+| `BG_VehicleGetIndex` | `oracle/codemp/game/bg_vehicleLoad.c:1590-1593` | `JKAMP_BG/bg_vehicleLoad.swift:131` | marker | `crates/mp/bg/src/bg_vehicleLoad.rs:948-957` | `func BG_VehicleGetIndex(_ vehicleName: String) -> Int32` |
+| `BG_GetVehicleModelName` | `oracle/codemp/game/bg_vehicleLoad.c:1599-1611` | `JKAMP_BG/bg_vehicleLoad.swift:141` | marker | `crates/mp/bg/src/bg_vehicleLoad.rs:966-993` | `func BG_GetVehicleModelName(_ modelname: inout JKAShared.CharBuf)` |
+| `BG_GetVehicleSkinName` | `oracle/codemp/game/bg_vehicleLoad.c:1613-1633` | `JKAMP_BG/bg_vehicleLoad.swift:147` | marker | `crates/mp/bg/src/bg_vehicleLoad.rs:998-1029` | `func BG_GetVehicleSkinName(_ skinname: inout JKAShared.CharBuf)` |
+| `AttachRidersGeneric` | `oracle/codemp/game/bg_vehicleLoad.c:1643-1664` | `JKAMP_BG/bg_vehicleLoad.swift:153` | marker | `crates/mp/bg/src/bg_vehicleLoad.rs:1034-1072` | `func AttachRidersGeneric(_ pVeh: JKAMP.Vehicle)` |
 
 9 file-scope variables. The entry is the stub's line for the variable, by rule 3 and rule 6.
 
 | Variable | Oracle | Kind | Entry |
 |---|---|---|---|
-| `VehWeaponParms` | `oracle/codemp/game/bg_vehicleLoad.c:76` | state | `// Rule 3: a stored property of BgState with C's zero, since Raven wrote no initializer, spelled bg.VehWeaponParms in a body.` |
-| `VehicleParms` | `oracle/codemp/game/bg_vehicleLoad.c:77` | state | `// Rule 3: a stored property of BgState with C's zero, since Raven wrote no initializer, spelled bg.VehicleParms in a body.` |
-| `g_vehWeaponInfo` | `oracle/codemp/game/bg_vehicleLoad.c:103` | storage | `// A struct table is C storage in Sources/CJKAMP, reached through a Slots constant.` |
-| `numVehicleWeapons` | `oracle/codemp/game/bg_vehicleLoad.c:104` | state | `// Rule 3: a stored property of BgState with Raven's initializer, spelled bg.numVehicleWeapons in a body.` |
-| `g_vehicleInfo` | `oracle/codemp/game/bg_vehicleLoad.c:106` | storage | `// A struct table is C storage in Sources/CJKAMP, reached through a Slots constant.` |
-| `numVehicles` | `oracle/codemp/game/bg_vehicleLoad.c:107` | state | `// Rule 3: a stored property of BgState with Raven's initializer, spelled bg.numVehicles in a body.` |
-| `vehWeaponFields` | `oracle/codemp/game/bg_vehicleLoad.c:138` | storage | `// A struct table is C storage in Sources/CJKAMP, reached through a Slots constant.` |
-| `vehicleFields` | `oracle/codemp/game/bg_vehicleLoad.c:445` | storage | `// A struct table is C storage in Sources/CJKAMP, reached through a Slots constant.` |
-| `VehicleTable` | `oracle/codemp/game/bg_vehicleLoad.c:671` | storage | `// A struct table is C storage in Sources/CJKAMP, reached through a Slots constant.` |
+| `VehWeaponParms` | `oracle/codemp/game/bg_vehicleLoad.c:76` | state | `}` |
+| `VehicleParms` | `oracle/codemp/game/bg_vehicleLoad.c:77` | state | `}` |
+| `g_vehWeaponInfo` | `oracle/codemp/game/bg_vehicleLoad.c:103` | storage | `var g_vehWeaponInfo: Slots<JKAMP.VehWeaponInfo> { bg.storage.g_vehWeaponInfo }` |
+| `numVehicleWeapons` | `oracle/codemp/game/bg_vehicleLoad.c:104` | state | `}` |
+| `g_vehicleInfo` | `oracle/codemp/game/bg_vehicleLoad.c:106` | storage | `var g_vehicleInfo: Slots<JKAMP.VehicleInfo> { bg.storage.g_vehicleInfo }` |
+| `numVehicles` | `oracle/codemp/game/bg_vehicleLoad.c:107` | state | `}` |
+| `vehWeaponFields` | `oracle/codemp/game/bg_vehicleLoad.c:138` | storage_data | `// Raven's data table is C storage by hand in the C target, with his initializer as written, reached as a Slots over the C array, the bg_tables.c shape.` |
+| `vehicleFields` | `oracle/codemp/game/bg_vehicleLoad.c:445` | storage_data | `// Raven's data table is C storage by hand in the C target, with his initializer as written, reached as a Slots over the C array, the bg_tables.c shape.` |
+| `VehicleTable` | `oracle/codemp/game/bg_vehicleLoad.c:671` | storage_data | `// Raven's data table is C storage by hand in the C target, with his initializer as written, reached as a Slots over the C array, the bg_tables.c shape.` |
