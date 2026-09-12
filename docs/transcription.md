@@ -98,6 +98,10 @@ A struct Raven defines inside a `.c` file has its definition copied as Raven wro
 | a function-pointer return, such as `PAIN_FUNC *NPC_PainFunc` | the view's callback typealias, optional, such as `EntityPain?`. |
 | a `vec3_t *` parameter of a trap with a count beside it | `[JKAShared.vec3_t]` by value. |
 | a `float *` return out of a static ring of temporaries, such as `tv` | `JKAShared.vec3_t` by value, RETURNS kind `vec3`. |
+| a pointer to a table of records the body indexes, such as `stringID_table_t *table` | `Slots<View>`, PARAMS kind `table`, and a caller passes the table by name. |
+| a non-const `char **` the function sets once to a string it owns, such as `G_SpawnString` | `inout String`, PARAMS kind `out_string`, and the text a body assigns is a copy. |
+| a C array of struct pointers the function fills, such as `gentity_t *ent_list[MAX_GENTITIES]` | `inout [View?]`, and the caller declares `var entity_list = [Entity?](repeating: nil, count: Int(MAX_GENTITIES))` where Raven declared the local. |
+| a C array of strings the function fills from a caller's `&array[i]`, such as `char *infos[]` | `inout ArraySlice<String>`, the caller passes `&g_arenaInfos[Int(g_numArenas)...]`, and the body writes `infos[infos.startIndex + count]`, because a slice keeps the parent's indices. |
 
 Three RETURNS kinds cover the `char *` return cases beyond a plain `String`.
 `in_place` marks a function that rewrites its argument and returns it, such as `Q_strlwr`, `Q_strupr`, and `Q_CleanStr`.

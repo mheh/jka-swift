@@ -229,14 +229,17 @@ class Table:
         if canonical.kind == TypeKind.CONSTANTARRAY and "vec3_t" in t.spelling:
             # `vec3_t name[3]` is an axis, the type the ported q_math axis functions take.
             return None if traps else Param(name, "inout [JKAShared.vec3_t]", "vec3_axis")
-        if canonical.kind == TypeKind.CONSTANTARRAY and not traps:
+        if canonical.kind in (TypeKind.CONSTANTARRAY, TypeKind.INCOMPLETEARRAY) and not traps:
             # A C array of struct pointers the function fills, `gentity_t *ent_list[MAX_GENTITIES]`, is the caller's array of optional views.
             element = canonical.element_type.get_canonical()
             if element.kind == TypeKind.POINTER:
                 record = self.views.record_name(element.get_pointee())
                 if record and record in self.views.views:
                     return Param(name, f"inout [{self.views.qualified_view(record, TARGET)}?]", "view_array")
-        if canonical.kind in (TypeKind.RECORD, TypeKind.CONSTANTARRAY):
+                if element.get_pointee().get_canonical().kind == TypeKind.CHAR_S:
+                    # A C array of strings the function fills from a caller's `&array[i]`, `char *infos[]`, is the caller's slice from `i` on.
+                    return Param(name, "inout ArraySlice<String>", "string_slice")
+        if canonical.kind in (TypeKind.RECORD, TypeKind.CONSTANTARRAY, TypeKind.INCOMPLETEARRAY):
             return None
         swift = self.views.scalar(t, TARGET)
         if swift is None or not self.known(swift):

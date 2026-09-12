@@ -48,10 +48,7 @@ G_ParseInfos
 ```
 */
 /// Source: oracle/codemp/game/g_bot.c:50
-// TODO: Port signature
-// Raven wrote: int G_ParseInfos( char *buf, int max, char *infos[] )
-// No table row for `char *[] infos`.
-func G_ParseInfos() -> Never {
+func G_ParseInfos(_ buf: inout JKAShared.CharBuf, _ max: Int32, _ infos: inout ArraySlice<String>) -> Int32 {
     // TODO: Port G_ParseInfos
     portMissing("G_ParseInfos", source: "oracle/codemp/game/g_bot.c:50")
 }
