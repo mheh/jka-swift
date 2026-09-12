@@ -437,11 +437,27 @@ public func Q_strlwr(_ s1: inout JKAShared.CharBuf) {
     portMissing("Q_strlwr", source: "oracle/codemp/game/q_shared.c:905")
 }
 
+/// The value form of `Q_strlwr`, for a view's `char` array or a pooled string, where no `CharBuf` sits behind the text.
+/// A view field writes back through its setter, `tagOwner.name = Q_strlwr(tagOwner.name)`, and a pooled string takes it before the pool.
+public func Q_strlwr(_ s1: String) -> String {
+    var buf = CharBuf(s1)
+    Q_strlwr(&buf)
+    return String(buf)
+}
+
 /// Source: oracle/codemp/game/q_shared.c:916
 // Raven returns the argument, which the caller already holds.
 public func Q_strupr(_ s1: inout JKAShared.CharBuf) {
     // TODO: Port Q_strupr
     portMissing("Q_strupr", source: "oracle/codemp/game/q_shared.c:916")
+}
+
+/// The value form of `Q_strupr`, for a view's `char` array or a pooled string, where no `CharBuf` sits behind the text.
+/// A view field writes back through its setter, `tagOwner.name = Q_strupr(tagOwner.name)`, and a pooled string takes it before the pool.
+public func Q_strupr(_ s1: String) -> String {
+    var buf = CharBuf(s1)
+    Q_strupr(&buf)
+    return String(buf)
 }
 
 // never goes past bounds or leaves without a terminating 0
@@ -462,6 +478,14 @@ public func Q_PrintStrlen(_ string: String) -> Int32 {
 public func Q_CleanStr(_ string: inout JKAShared.CharBuf) {
     // TODO: Port Q_CleanStr
     portMissing("Q_CleanStr", source: "oracle/codemp/game/q_shared.c:963")
+}
+
+/// The value form of `Q_CleanStr`, for a view's `char` array or a pooled string, where no `CharBuf` sits behind the text.
+/// A view field writes back through its setter, `tagOwner.name = Q_CleanStr(tagOwner.name)`, and a pooled string takes it before the pool.
+public func Q_CleanStr(_ string: String) -> String {
+    var buf = CharBuf(string)
+    Q_CleanStr(&buf)
+    return String(buf)
 }
 
 /// Source: oracle/codemp/game/q_shared.c:985

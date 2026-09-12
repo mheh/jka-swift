@@ -324,6 +324,9 @@ Raven's `...` is `_ args: any JKAShared.FormatArg...`, and `Sources/JKAShared/Fo
 A specifier outside the subset is a precondition failure, so a new shape surfaces at once.
 `sscanf` lives in `Sources/JKAShared/Scan.swift`, one overload per target shape in use, `inout vec3_t` for `"%f %f %f"`, `inout Float` for `"%f"`, and `inout Int32` for `"%d"`, each returning the count read as C does.
 Swift has no `inout` variadic, so `sscanf(value, "%f %f %f", &vec)` is Raven's call with the three addresses as the one vector, and each overload checks its format.
+`Q_strlwr`, `Q_strupr`, and `Q_CleanStr` rewrite a local buffer in place, `Q_CleanStr(&netname)`, and each has a value form, `String` to `String`, for the two shapes with no `CharBuf` behind them.
+A view's `char` array writes back through its setter, `tagOwner.name = Q_strlwr(tagOwner.name)`, into the same bytes.
+A pooled string takes the value form before the pool, `ent.NPC_type = G_NewString(Q_strlwr(ent.NPC_type.string))`, because the pool holds one copy per text and a rewrite in place would change every holder. Raven lowercased after his copy, and the result is the same string.
 
 ### Engine and print calls
 
