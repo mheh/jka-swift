@@ -89,9 +89,7 @@ var numStoredWaypoints: Int32 {
 }
 
 /// Source: oracle/codemp/game/g_nav.c:1660
-// TODO: Port global tempWaypointList
-// Raven wrote: static waypointData_t tempWaypointList[MAX_STORED_WAYPOINTS]
-// No view for `waypointData_t`, a struct Raven defines inside a .c file.
+var tempWaypointList: Slots<WaypointData> { world.storage.tempWaypointList }
 
 //For debug graphics
 //rwwFIXMEFIXME: Write these at some point for the sake of being able to debug visually

@@ -38,6 +38,17 @@ ROOTS = {
     "sharedIKMoveParams_t": ("SharedIKMoveParams", "CJKAMP"),
     "sharedSetBoneIKStateParams_t": ("SharedSetBoneIKStateParams", "CJKAMP"),
     "stringID_table_t": ("StringIDTable", "CJKAMP"),
+    # A trap fills these two through a pointer parameter.
+    "qtime_t": ("Qtime", "CJKAMP"),
+    "pc_token_t": ("PcToken", "CJKAMP"),
+    # A stub parameter names this one.
+    "bot_input_t": ("BotInput", "CJKAMP_Game"),
+    # A file-scope table names these, and no root field points at them.
+    "bgLoadedAnim_t": ("BgLoadedAnim", "CJKAMP"),
+    "saberMoveData_t": ("SaberMoveData", "CJKAMP"),
+    "boteventtracker_t": ("Boteventtracker", "CJKAMP_Game"),
+    "nodeobject_t": ("Nodeobject", "CJKAMP_Game"),
+    "waypointData_t": ("WaypointData", "CJKAMP_Game"),
     "wpobject_t": ("Wpobject", "CJKAMP"),
     "siegePers_t": ("SiegePers", "CJKAMP"),
     "bot_state_t": ("BotState", "CJKAMP_Game"),

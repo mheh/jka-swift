@@ -13,9 +13,7 @@ var BGPAFtextLoaded: Bool {
 var bgHumanoidAnimations: Slots<JKAMP.Animation> { bg.storage.bgHumanoidAnimations }
 
 /// Source: oracle/codemp/game/bg_panimate.c:1702
-// TODO: Port global bgAllAnims
-// Raven wrote: bgLoadedAnim_t bgAllAnims[MAX_ANIM_FILES]
-// No view for `bgLoadedAnim_t`, a struct Raven defines inside a .c file.
+var bgAllAnims: Slots<JKAMP.BgLoadedAnim> { bg.storage.bgAllAnims }
 
 /// Source: oracle/codemp/game/bg_panimate.c:1703
 var bgNumAllAnims: Int32 {

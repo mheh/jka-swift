@@ -24,9 +24,7 @@ var regularupdate_time: Float {
 }
 
 /// Source: oracle/codemp/game/ai_main.c:59
-// TODO: Port global gBotEventTracker
-// Raven wrote: boteventtracker_t gBotEventTracker[MAX_CLIENTS]
-// No view for `struct boteventtracker_s`, a struct Raven defines inside a .c file.
+var gBotEventTracker: Slots<Boteventtracker> { world.storage.gBotEventTracker }
 
 /// Source: oracle/codemp/game/ai_main.c:62
 var bot_forcepowers: JKAMP.VmCvar { world.storage.bot_forcepowers }
@@ -307,7 +305,7 @@ BotInputToUserCommand
 /// Source: oracle/codemp/game/ai_main.c:537
 // TODO: Port signature
 // Raven wrote: void BotInputToUserCommand(bot_input_t *bi, usercmd_t *ucmd, int delta_angles[3], int time, int useTime)
-// No table row for `bot_input_t * bi`.
+// No table row for `int[3] delta_angles`.
 func BotInputToUserCommand() -> Never {
     // TODO: Port BotInputToUserCommand
     portMissing("BotInputToUserCommand", source: "oracle/codemp/game/ai_main.c:537")

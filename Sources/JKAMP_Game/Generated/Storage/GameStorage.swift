@@ -26,6 +26,10 @@ public final class GameStorage {
     /// Source: oracle/codemp/game/ai_main.c:46
     public let botstates: Slots<BotState?>
 
+    /// Raven's `boteventtracker_t gBotEventTracker[MAX_CLIENTS]` of `ai_main.c`.
+    /// Source: oracle/codemp/game/ai_main.c:59
+    public let gBotEventTracker: Slots<Boteventtracker>
+
     /// Raven's `vmCvar_t bot_forcepowers` of `ai_main.c`.
     /// Source: oracle/codemp/game/ai_main.c:62
     public let bot_forcepowers: JKAMP.VmCvar
@@ -81,6 +85,10 @@ public final class GameStorage {
     /// Raven's `wpobject_t *gWPArray[MAX_WPARRAY_SIZE]` of `ai_wpnav.c`.
     /// Source: oracle/codemp/game/ai_wpnav.c:12
     public let gWPArray: Slots<JKAMP.Wpobject?>
+
+    /// Raven's `nodeobject_t nodetable[MAX_NODETABLE_SIZE]` of `ai_wpnav.c`.
+    /// Source: oracle/codemp/game/ai_wpnav.c:19
+    public let nodetable: Slots<Nodeobject>
 
     /// Raven's `gentity_t *gSpawnPoints[MAX_SPAWNPOINT_ARRAY]` of `ai_wpnav.c`.
     /// Source: oracle/codemp/game/ai_wpnav.c:2507
@@ -670,6 +678,10 @@ public final class GameStorage {
     /// Source: oracle/codemp/game/g_misc.c:2886
     public let refTagOwnerMap: Slots<TagOwner>
 
+    /// Raven's `waypointData_t tempWaypointList[MAX_STORED_WAYPOINTS]` of `g_nav.c`.
+    /// Source: oracle/codemp/game/g_nav.c:1660
+    public let tempWaypointList: Slots<WaypointData>
+
     /// Raven's `gtimer_t g_timerPool[ MAX_GTIMERS ]` of `g_timer.c`.
     /// Source: oracle/codemp/game/g_timer.c:17
     public let g_timerPool: Slots<Gtimer>
@@ -696,6 +708,7 @@ public final class GameStorage {
         self.frameNavInfo = GameStorage.record(of: NavInfo.self)
         self.gNPCPtrs = GameStorage.table(count: Int(JKAShared.MAX_GENTITIES), of: GNPC.self)
         self.botstates = GameStorage.table(count: Int(JKAMP.MAX_CLIENTS), of: BotState.self)
+        self.gBotEventTracker = GameStorage.records(count: Int(JKAMP.MAX_CLIENTS), of: Boteventtracker.self)
         self.bot_forcepowers = GameStorage.record(of: JKAMP.VmCvar.self)
         self.bot_forgimmick = GameStorage.record(of: JKAMP.VmCvar.self)
         self.bot_honorableduelacceptance = GameStorage.record(of: JKAMP.VmCvar.self)
@@ -710,6 +723,7 @@ public final class GameStorage {
         self.bot_wp_distconnect = GameStorage.record(of: JKAMP.VmCvar.self)
         self.bot_wp_visconnect = GameStorage.record(of: JKAMP.VmCvar.self)
         self.gWPArray = GameStorage.table(count: Int(JKAMP.MAX_WPARRAY_SIZE), of: JKAMP.Wpobject.self)
+        self.nodetable = GameStorage.records(count: Int(JKAMP_Game.MAX_NODETABLE_SIZE), of: Nodeobject.self)
         self.gSpawnPoints = GameStorage.table(count: Int(JKAMP_Game.MAX_SPAWNPOINT_ARRAY), of: Entity.self)
         self.bot_minplayers = GameStorage.record(of: JKAMP.VmCvar.self)
         self.Client_Force = GameStorage.records(count: Int(JKAMP.MAX_CLIENTS), of: JKAMP.Forcedata.self)
@@ -857,6 +871,7 @@ public final class GameStorage {
         self.g_powerDuelEndHealth = GameStorage.record(of: JKAMP.VmCvar.self)
         self.g_showDuelHealths = GameStorage.record(of: JKAMP.VmCvar.self)
         self.refTagOwnerMap = GameStorage.records(count: Int(JKAMP_Game.MAX_TAG_OWNERS), of: TagOwner.self)
+        self.tempWaypointList = GameStorage.records(count: 512, of: WaypointData.self)
         self.g_timerPool = GameStorage.records(count: Int(JKAMP_Game.MAX_GTIMERS), of: Gtimer.self)
         self.g_timers = GameStorage.table(count: Int(JKAShared.MAX_GENTITIES), of: Gtimer.self)
         self.g_vehiclePool = GameStorage.records(count: Int(JKAMP_Game.MAX_VEHICLES_AT_A_TIME), of: JKAMP.Vehicle.self)
@@ -870,6 +885,7 @@ public final class GameStorage {
         UnsafeMutableRawPointer(self.frameNavInfo.handle).deallocate()
         self.gNPCPtrs.base.deallocate()
         self.botstates.base.deallocate()
+        self.gBotEventTracker.base.deallocate()
         UnsafeMutableRawPointer(self.bot_forcepowers.handle).deallocate()
         UnsafeMutableRawPointer(self.bot_forgimmick.handle).deallocate()
         UnsafeMutableRawPointer(self.bot_honorableduelacceptance.handle).deallocate()
@@ -884,6 +900,7 @@ public final class GameStorage {
         UnsafeMutableRawPointer(self.bot_wp_distconnect.handle).deallocate()
         UnsafeMutableRawPointer(self.bot_wp_visconnect.handle).deallocate()
         self.gWPArray.base.deallocate()
+        self.nodetable.base.deallocate()
         self.gSpawnPoints.base.deallocate()
         UnsafeMutableRawPointer(self.bot_minplayers.handle).deallocate()
         self.Client_Force.base.deallocate()
@@ -1031,6 +1048,7 @@ public final class GameStorage {
         UnsafeMutableRawPointer(self.g_powerDuelEndHealth.handle).deallocate()
         UnsafeMutableRawPointer(self.g_showDuelHealths.handle).deallocate()
         self.refTagOwnerMap.base.deallocate()
+        self.tempWaypointList.base.deallocate()
         self.g_timerPool.base.deallocate()
         self.g_timers.base.deallocate()
         self.g_vehiclePool.base.deallocate()

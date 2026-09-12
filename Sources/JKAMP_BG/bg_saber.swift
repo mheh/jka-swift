@@ -6,7 +6,7 @@ import JKAShared
 /// Source: oracle/codemp/game/bg_saber.c:120
 // TODO: Port global saberMoveData
 // Raven wrote: saberMoveData_t saberMoveData[LS_MOVE_MAX]
-// No view for `saberMoveData_t`, a struct Raven defines inside a .c file.
+// Raven's data table is C storage by hand in the C target, with his initializer as written, reached as a Slots over the C array, the bg_tables.c shape.
 
 /// Source: oracle/codemp/game/bg_saber.c:324
 // Raven wrote: int transitionMove[Q_NUM_QUADS][Q_NUM_QUADS]

@@ -385,12 +385,10 @@ public func trap_DebugPolygonDelete(_ id: Int32) {
 }
 
 /// Source: oracle/codemp/game/g_syscalls.c:231
-// TODO: Port signature
-// Raven wrote: int trap_RealTime( qtime_t *qtime )
-// No table row for `qtime_t * qtime`.
-public func trap_RealTime() -> Never {
-    // TODO: Port trap_RealTime
-    portMissing("trap_RealTime", source: "oracle/codemp/game/g_syscalls.c:231")
+@discardableResult
+public func trap_RealTime(_ qtime: JKAMP.Qtime) -> Int32 {
+let word = Syscall.call(G_REAL_TIME, qtime)
+    return Int32(truncatingIfNeeded: word)
 }
 
 /// Source: oracle/codemp/game/g_syscalls.c:235
@@ -1936,12 +1934,10 @@ let word = Syscall.call(BOTLIB_PC_FREE_SOURCE, handle)
 }
 
 /// Source: oracle/codemp/game/g_syscalls.c:1167
-// TODO: Port signature
-// Raven wrote: int trap_PC_ReadToken( int handle, pc_token_t *pc_token )
-// No table row for `pc_token_t * pc_token`.
-public func trap_PC_ReadToken() -> Never {
-    // TODO: Port trap_PC_ReadToken
-    portMissing("trap_PC_ReadToken", source: "oracle/codemp/game/g_syscalls.c:1167")
+@discardableResult
+public func trap_PC_ReadToken(_ handle: Int32, _ pc_token: JKAMP.PcToken) -> Int32 {
+let word = Syscall.call(BOTLIB_PC_READ_TOKEN, handle, pc_token)
+    return Int32(truncatingIfNeeded: word)
 }
 
 /// Source: oracle/codemp/game/g_syscalls.c:1171
