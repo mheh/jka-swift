@@ -275,10 +275,7 @@ func CP_FindCombatPointWaypoints() {
 }
 
 /// Source: oracle/codemp/game/NPC_combat.c:2575
-// TODO: Port signature
-// Raven wrote: static int NPC_CollectCombatPoints( const vec3_t origin, const float radius, combatPt_t *points, const int flags )
-// No table row for `combatPt_t * points`.
-private func NPC_CollectCombatPoints() -> Never {
+private func NPC_CollectCombatPoints(_ origin: JKAShared.vec3_t, _ radius: Float, _ points: CombatPt, _ flags: Int32) -> Int32 {
     // TODO: Port NPC_CollectCombatPoints
     portMissing("NPC_CollectCombatPoints", source: "oracle/codemp/game/NPC_combat.c:2575")
 }

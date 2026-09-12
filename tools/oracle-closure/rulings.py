@@ -61,6 +61,17 @@ ROOTS = {
     "gtimer_t": ("Gtimer", "CJKAMP_Game"),
     "tagOwner_t": ("TagOwner", "CJKAMP_Game"),
     "saberFace_t": ("SaberFace", "CJKAMP_Game"),
+    "ipFilter_t": ("IpFilter", "CJKAMP_Game"),
+    "cvarTable_t": ("CvarTable", "CJKAMP_Game"),
+    "pushed_t": ("Pushed", "CJKAMP_Game"),
+    "spawn_t": ("Spawn", "CJKAMP_Game"),
+    "botSpawnQueue_t": ("BotSpawnQueue", "CJKAMP_Game"),
+    "shaderRemap_t": ("ShaderRemap", "CJKAMP_Game"),
+    "shooterClient_t": ("ShooterClient", "CJKAMP_Game"),
+    "teamgame_t": ("Teamgame", "CJKAMP_Game"),
+    "combatPt_t": ("CombatPt", "CJKAMP_Game"),
+    # bg_vehicleLoad.c defines this one, copied into bg_tables.h.
+    "vehField_t": ("VehField", "CJKAMP"),
 }
 
 # (struct, field) pairs whose pointer Raven's callers always set. The field is non-optional, and its getter traps with the

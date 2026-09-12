@@ -5,14 +5,13 @@ import JKAShared
 import JKAMP_Game
 
 /// Source: oracle/codemp/game/g_mover.c:24
-// TODO: Port global pushed
-// Raven wrote: pushed_t pushed[MAX_GENTITIES], *pushed_p
-// No view for `pushed_t`, a struct Raven defines inside a .c file.
+var pushed: Slots<Pushed> { world.storage.pushed }
 
 /// Source: oracle/codemp/game/g_mover.c:24
-// TODO: Port global pushed_p
-// Raven wrote: pushed_t pushed[MAX_GENTITIES], *pushed_p
-// No table row for `pushed_t *`.
+var pushed_p: Pushed? {
+    get { world.variables.pushed_p }
+    set { world.variables.pushed_p = newValue }
+}
 
 /// Source: oracle/codemp/game/g_mover.c:35
 // Raven wrote: int BMS_START = 0

@@ -29,9 +29,7 @@ var g_arenaInfos: [String] {
 }
 
 /// Source: oracle/codemp/game/g_bot.c:27
-// TODO: Port global botSpawnQueue
-// Raven wrote: static botSpawnQueue_t botSpawnQueue[BOT_SPAWN_QUEUE_DEPTH]
-// No view for `botSpawnQueue_t`, a struct Raven defines inside a .c file.
+var botSpawnQueue: Slots<BotSpawnQueue> { world.storage.botSpawnQueue }
 
 /// Source: oracle/codemp/game/g_bot.c:29
 var bot_minplayers: JKAMP.VmCvar { world.storage.bot_minplayers }

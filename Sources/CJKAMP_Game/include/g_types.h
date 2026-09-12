@@ -29,4 +29,74 @@ typedef struct saberFace_s
 	vec3_t v3;
 } saberFace_t;
 
+// Source: oracle/codemp/game/g_svcmds.c:41
+typedef struct ipFilter_s
+{
+	unsigned	mask;
+	unsigned	compare;
+} ipFilter_t;
+
+// Source: oracle/codemp/game/g_main.c:17
+typedef struct {
+	vmCvar_t	*vmCvar;
+	char		*cvarName;
+	char		*defaultString;
+	int			cvarFlags;
+	int			modificationCount;  // for tracking changes
+	qboolean	trackChange;	    // track this variable, and announce if changed
+  qboolean teamShader;        // track and if changed, update shader state
+} cvarTable_t;
+
+// Source: oracle/codemp/game/g_mover.c:18
+typedef struct {
+	gentity_t	*ent;
+	vec3_t	origin;
+	vec3_t	angles;
+	float	deltayaw;
+} pushed_t;
+
+// Source: oracle/codemp/game/g_spawn.c:153
+typedef struct {
+	char	*name;
+	void	(*spawn)(gentity_t *ent);
+} spawn_t;
+
+// Source: oracle/codemp/game/g_bot.c:21
+typedef struct {
+	int		clientNum;
+	int		spawnTime;
+} botSpawnQueue_t;
+
+// Source: oracle/codemp/game/g_utils.c:9
+typedef struct {
+  char oldShader[MAX_QPATH];
+  char newShader[MAX_QPATH];
+  float timeOffset;
+} shaderRemap_t;
+
+// Source: oracle/codemp/game/g_misc.c:3346
+typedef struct shooterClient_s
+{
+	gclient_t		cl;
+	qboolean		inuse;
+} shooterClient_t;
+
+// Source: oracle/codemp/game/g_team.c:8
+typedef struct teamgame_s {
+	float			last_flag_capture;
+	int				last_capture_team;
+	flagStatus_t	redStatus;	// CTF
+	flagStatus_t	blueStatus;	// CTF
+	flagStatus_t	flagStatus;	// One Flag CTF
+	int				redTakenTime;
+	int				blueTakenTime;
+} teamgame_t;
+
+// Source: oracle/codemp/game/NPC_combat.c:2570
+typedef struct
+{
+	float dist;
+	int index;
+} combatPt_t;
+
 #endif

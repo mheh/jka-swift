@@ -474,6 +474,10 @@ public struct GameVariables {
     /// Source: oracle/codemp/game/g_misc.c:3352
     public var g_shooterClientInit: Bool = false
 
+    /// Raven's `pushed_t pushed[MAX_GENTITIES], *pushed_p` of `g_mover.c`.
+    /// Source: oracle/codemp/game/g_mover.c:24
+    public var pushed_p: Pushed? = nil
+
     /// Raven's `qboolean navCalculatePaths` of `g_nav.c`.
     /// Source: oracle/codemp/game/g_nav.c:1597
     public var navCalculatePaths: Bool = false

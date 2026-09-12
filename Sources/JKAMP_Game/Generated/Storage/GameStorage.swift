@@ -94,6 +94,10 @@ public final class GameStorage {
     /// Source: oracle/codemp/game/ai_wpnav.c:2507
     public let gSpawnPoints: Slots<Entity?>
 
+    /// Raven's `botSpawnQueue_t botSpawnQueue[BOT_SPAWN_QUEUE_DEPTH]` of `g_bot.c`.
+    /// Source: oracle/codemp/game/g_bot.c:27
+    public let botSpawnQueue: Slots<BotSpawnQueue>
+
     /// Raven's `vmCvar_t bot_minplayers` of `g_bot.c`.
     /// Source: oracle/codemp/game/g_bot.c:29
     public let bot_minplayers: JKAMP.VmCvar
@@ -678,9 +682,25 @@ public final class GameStorage {
     /// Source: oracle/codemp/game/g_misc.c:2886
     public let refTagOwnerMap: Slots<TagOwner>
 
+    /// Raven's `shooterClient_t g_shooterClients[MAX_SHOOTERS]` of `g_misc.c`.
+    /// Source: oracle/codemp/game/g_misc.c:3351
+    public let g_shooterClients: Slots<ShooterClient>
+
+    /// Raven's `pushed_t pushed[MAX_GENTITIES], *pushed_p` of `g_mover.c`.
+    /// Source: oracle/codemp/game/g_mover.c:24
+    public let pushed: Slots<Pushed>
+
     /// Raven's `waypointData_t tempWaypointList[MAX_STORED_WAYPOINTS]` of `g_nav.c`.
     /// Source: oracle/codemp/game/g_nav.c:1660
     public let tempWaypointList: Slots<WaypointData>
+
+    /// Raven's `ipFilter_t ipFilters[MAX_IPFILTERS]` of `g_svcmds.c`.
+    /// Source: oracle/codemp/game/g_svcmds.c:54
+    public let ipFilters: Slots<IpFilter>
+
+    /// Raven's `teamgame_t teamgame` of `g_team.c`.
+    /// Source: oracle/codemp/game/g_team.c:18
+    public let teamgame: Teamgame
 
     /// Raven's `gtimer_t g_timerPool[ MAX_GTIMERS ]` of `g_timer.c`.
     /// Source: oracle/codemp/game/g_timer.c:17
@@ -689,6 +709,10 @@ public final class GameStorage {
     /// Raven's `gtimer_t *g_timers[ MAX_GENTITIES ]` of `g_timer.c`.
     /// Source: oracle/codemp/game/g_timer.c:18
     public let g_timers: Slots<Gtimer?>
+
+    /// Raven's `shaderRemap_t remappedShaders[MAX_SHADER_REMAPS]` of `g_utils.c`.
+    /// Source: oracle/codemp/game/g_utils.c:18
+    public let remappedShaders: Slots<ShaderRemap>
 
     /// Raven's `Vehicle_t g_vehiclePool[MAX_VEHICLES_AT_A_TIME]` of `g_utils.c`.
     /// Source: oracle/codemp/game/g_utils.c:385
@@ -725,6 +749,7 @@ public final class GameStorage {
         self.gWPArray = GameStorage.table(count: Int(JKAMP.MAX_WPARRAY_SIZE), of: JKAMP.Wpobject.self)
         self.nodetable = GameStorage.records(count: Int(JKAMP_Game.MAX_NODETABLE_SIZE), of: Nodeobject.self)
         self.gSpawnPoints = GameStorage.table(count: Int(JKAMP_Game.MAX_SPAWNPOINT_ARRAY), of: Entity.self)
+        self.botSpawnQueue = GameStorage.records(count: Int(JKAMP_Game.BOT_SPAWN_QUEUE_DEPTH), of: BotSpawnQueue.self)
         self.bot_minplayers = GameStorage.record(of: JKAMP.VmCvar.self)
         self.Client_Force = GameStorage.records(count: Int(JKAMP.MAX_CLIENTS), of: JKAMP.Forcedata.self)
         self.level = GameStorage.record(of: Level.self)
@@ -871,9 +896,14 @@ public final class GameStorage {
         self.g_powerDuelEndHealth = GameStorage.record(of: JKAMP.VmCvar.self)
         self.g_showDuelHealths = GameStorage.record(of: JKAMP.VmCvar.self)
         self.refTagOwnerMap = GameStorage.records(count: Int(JKAMP_Game.MAX_TAG_OWNERS), of: TagOwner.self)
+        self.g_shooterClients = GameStorage.records(count: Int(JKAMP_Game.MAX_SHOOTERS), of: ShooterClient.self)
+        self.pushed = GameStorage.records(count: Int(JKAShared.MAX_GENTITIES), of: Pushed.self)
         self.tempWaypointList = GameStorage.records(count: 512, of: WaypointData.self)
+        self.ipFilters = GameStorage.records(count: Int(JKAMP_Game.MAX_IPFILTERS), of: IpFilter.self)
+        self.teamgame = GameStorage.record(of: Teamgame.self)
         self.g_timerPool = GameStorage.records(count: Int(JKAMP_Game.MAX_GTIMERS), of: Gtimer.self)
         self.g_timers = GameStorage.table(count: Int(JKAShared.MAX_GENTITIES), of: Gtimer.self)
+        self.remappedShaders = GameStorage.records(count: Int(JKAMP_Game.MAX_SHADER_REMAPS), of: ShaderRemap.self)
         self.g_vehiclePool = GameStorage.records(count: Int(JKAMP_Game.MAX_VEHICLES_AT_A_TIME), of: JKAMP.Vehicle.self)
         self.gClPtrs = GameStorage.table(count: Int(JKAShared.MAX_GENTITIES), of: Client.self)
         self.ent_list = GameStorage.table(count: Int(JKAShared.MAX_GENTITIES), of: Entity.self)
@@ -902,6 +932,7 @@ public final class GameStorage {
         self.gWPArray.base.deallocate()
         self.nodetable.base.deallocate()
         self.gSpawnPoints.base.deallocate()
+        self.botSpawnQueue.base.deallocate()
         UnsafeMutableRawPointer(self.bot_minplayers.handle).deallocate()
         self.Client_Force.base.deallocate()
         UnsafeMutableRawPointer(self.level.handle).deallocate()
@@ -1048,9 +1079,14 @@ public final class GameStorage {
         UnsafeMutableRawPointer(self.g_powerDuelEndHealth.handle).deallocate()
         UnsafeMutableRawPointer(self.g_showDuelHealths.handle).deallocate()
         self.refTagOwnerMap.base.deallocate()
+        self.g_shooterClients.base.deallocate()
+        self.pushed.base.deallocate()
         self.tempWaypointList.base.deallocate()
+        self.ipFilters.base.deallocate()
+        UnsafeMutableRawPointer(self.teamgame.handle).deallocate()
         self.g_timerPool.base.deallocate()
         self.g_timers.base.deallocate()
+        self.remappedShaders.base.deallocate()
         self.g_vehiclePool.base.deallocate()
         self.gClPtrs.base.deallocate()
         self.ent_list.base.deallocate()

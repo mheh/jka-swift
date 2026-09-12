@@ -5,9 +5,7 @@ import JKAShared
 import JKAMP_Game
 
 /// Source: oracle/codemp/game/g_svcmds.c:54
-// TODO: Port global ipFilters
-// Raven wrote: static ipFilter_t ipFilters[MAX_IPFILTERS]
-// No view for `struct ipFilter_s`, a struct Raven defines inside a .c file.
+var ipFilters: Slots<IpFilter> { world.storage.ipFilters }
 
 /// Source: oracle/codemp/game/g_svcmds.c:55
 var numIPFilters: Int32 {
@@ -23,10 +21,7 @@ StringToFilter
 ```
 */
 /// Source: oracle/codemp/game/g_svcmds.c:62
-// TODO: Port signature
-// Raven wrote: static qboolean StringToFilter (char *s, ipFilter_t *f)
-// No table row for `ipFilter_t * f`.
-private func StringToFilter() -> Never {
+private func StringToFilter(_ s: inout JKAShared.CharBuf, _ f: IpFilter) -> Bool {
     // TODO: Port StringToFilter
     portMissing("StringToFilter", source: "oracle/codemp/game/g_svcmds.c:62")
 }

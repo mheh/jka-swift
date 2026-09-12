@@ -11,9 +11,7 @@ var remapCount: Int32 {
 }
 
 /// Source: oracle/codemp/game/g_utils.c:18
-// TODO: Port global remappedShaders
-// Raven wrote: shaderRemap_t remappedShaders[MAX_SHADER_REMAPS]
-// No view for `shaderRemap_t`, a struct Raven defines inside a .c file.
+var remappedShaders: Slots<ShaderRemap> { world.storage.remappedShaders }
 
 /// Source: oracle/codemp/game/g_utils.c:385
 var g_vehiclePool: Slots<JKAMP.Vehicle> { world.storage.g_vehiclePool }

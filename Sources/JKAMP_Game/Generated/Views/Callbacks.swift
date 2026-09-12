@@ -19,6 +19,8 @@ public typealias EntityTouch = @convention(c) (OpaquePointer?, OpaquePointer?, O
 
 public typealias EntityUse = @convention(c) (OpaquePointer?, OpaquePointer?, OpaquePointer?) -> Void
 
+public typealias SpawnSpawn = @convention(c) (OpaquePointer?) -> Void
+
 private struct EntityDieBits { var function: EntityDie? }
 
 public func == (lhs: EntityDie?, rhs: EntityDie?) -> Bool {

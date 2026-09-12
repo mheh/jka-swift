@@ -5,9 +5,7 @@ import JKAShared
 import JKAMP_Game
 
 /// Source: oracle/codemp/game/g_team.c:18
-// TODO: Port global teamgame
-// Raven wrote: teamgame_t teamgame
-// No view for `struct teamgame_s`, a struct Raven defines inside a .c file.
+var teamgame: Teamgame { world.storage.teamgame }
 
 /// Source: oracle/codemp/game/g_team.c:279
 // Raven wrote: static char ctfFlagStatusRemap[] = { '0', '1', '*', '*', '2' }

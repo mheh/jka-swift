@@ -20,9 +20,7 @@ var gEscapeTime: Int32 {
 var refTagOwnerMap: Slots<TagOwner> { world.storage.refTagOwnerMap }
 
 /// Source: oracle/codemp/game/g_misc.c:3351
-// TODO: Port global g_shooterClients
-// Raven wrote: static shooterClient_t g_shooterClients[MAX_SHOOTERS]
-// No view for `struct shooterClient_s`, a struct Raven defines inside a .c file.
+var g_shooterClients: Slots<ShooterClient> { world.storage.g_shooterClients }
 
 /// Source: oracle/codemp/game/g_misc.c:3352
 var g_shooterClientInit: Bool {
