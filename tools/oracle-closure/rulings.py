@@ -169,6 +169,7 @@ PARAMS = {
     # A pointer to a table of records the body indexes, `table[i]`, crosses as the Slots over the table.
     ("GetIDForString", "table"): "table",
     ("GetStringForID", "table"): "table",
+    ("BG_SiegeTranslateGenericTable", "table"): "table",
 }
 
 # Functions of the oracle the port leaves out. The stub carries the cite, Raven's line, and the reason, and no function.
