@@ -99,4 +99,18 @@ typedef struct
 	int index;
 } combatPt_t;
 
+// Source: oracle/codemp/game/w_saber.c:1075
+typedef enum
+{
+	LOCK_FIRST = 0,
+	LOCK_TOP = LOCK_FIRST,
+	LOCK_DIAG_TR,
+	LOCK_DIAG_TL,
+	LOCK_DIAG_BR,
+	LOCK_DIAG_BL,
+	LOCK_R,
+	LOCK_L,
+	LOCK_RANDOM
+} sabersLockMode_t;
+
 #endif

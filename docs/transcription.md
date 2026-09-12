@@ -75,7 +75,7 @@ A shape rule is code in `table.py`.
 A function or parameter whose C type alone does not say its Swift shape has an entry in one of the `rulings.py` tables.
 
 A struct a header declares that no root reaches joins `ROOTS` in `rulings.py`, so it gets a view.
-A struct Raven defines inside a `.c` file has its definition copied as Raven wrote it, with a `// Source:` cite, into a hand header the target's umbrella includes.
+A struct or an enum Raven defines inside a `.c` file has its definition copied as Raven wrote it, with a `// Source:` cite, into a hand header the target's umbrella includes.
 `Sources/CJKAMP_Game/include/g_types.h` is this hand header for the game target, so a view can bind over the struct.
 
 | Raven | Swift |

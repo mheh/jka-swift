@@ -189,3 +189,15 @@ public let EVASION_FJUMP: evasionType_t = Int32(truncatingIfNeeded: CJKAMP_Game.
 public let EVASION_CARTWHEEL: evasionType_t = Int32(truncatingIfNeeded: CJKAMP_Game.EVASION_CARTWHEEL.rawValue)
 public let EVASION_OTHER: evasionType_t = Int32(truncatingIfNeeded: CJKAMP_Game.EVASION_OTHER.rawValue)
 public let NUM_EVASION_TYPES: evasionType_t = Int32(truncatingIfNeeded: CJKAMP_Game.NUM_EVASION_TYPES.rawValue)
+
+/// Source: oracle/codemp/game/w_saber.c:1075
+public typealias sabersLockMode_t = Int32
+public let LOCK_FIRST: sabersLockMode_t = Int32(truncatingIfNeeded: CJKAMP_Game.LOCK_FIRST.rawValue)
+public let LOCK_TOP: sabersLockMode_t = Int32(truncatingIfNeeded: CJKAMP_Game.LOCK_TOP.rawValue)
+public let LOCK_DIAG_TR: sabersLockMode_t = Int32(truncatingIfNeeded: CJKAMP_Game.LOCK_DIAG_TR.rawValue)
+public let LOCK_DIAG_TL: sabersLockMode_t = Int32(truncatingIfNeeded: CJKAMP_Game.LOCK_DIAG_TL.rawValue)
+public let LOCK_DIAG_BR: sabersLockMode_t = Int32(truncatingIfNeeded: CJKAMP_Game.LOCK_DIAG_BR.rawValue)
+public let LOCK_DIAG_BL: sabersLockMode_t = Int32(truncatingIfNeeded: CJKAMP_Game.LOCK_DIAG_BL.rawValue)
+public let LOCK_R: sabersLockMode_t = Int32(truncatingIfNeeded: CJKAMP_Game.LOCK_R.rawValue)
+public let LOCK_L: sabersLockMode_t = Int32(truncatingIfNeeded: CJKAMP_Game.LOCK_L.rawValue)
+public let LOCK_RANDOM: sabersLockMode_t = Int32(truncatingIfNeeded: CJKAMP_Game.LOCK_RANDOM.rawValue)

@@ -194,10 +194,7 @@ func G_SaberLockAnim(_ attackerSaberStyle: Int32, _ defenderSaberStyle: Int32, _
 }
 
 /// Source: oracle/codemp/game/w_saber.c:1218
-// TODO: Port signature
-// Raven wrote: static GAME_INLINE qboolean WP_SabersCheckLock2( gentity_t *attacker, gentity_t *defender, sabersLockMode_t lockMode )
-// No table row for `sabersLockMode_t lockMode`.
-private func WP_SabersCheckLock2() -> Never {
+private func WP_SabersCheckLock2(_ attacker: Entity, _ defender: Entity, _ lockMode: sabersLockMode_t) -> Bool {
     // TODO: Port WP_SabersCheckLock2
     portMissing("WP_SabersCheckLock2", source: "oracle/codemp/game/w_saber.c:1218")
 }
