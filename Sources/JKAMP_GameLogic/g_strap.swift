@@ -28,8 +28,8 @@ func strap_G2API_SetBoneAnim(_ ghoul2: OpaquePointer?, _ modelIndex: Int32, _ bo
 }
 
 /// Source: oracle/codemp/game/g_strap.c:37
-func strap_G2API_GetBoneAnim(_ ghoul2: OpaquePointer?, _ boneName: String, _ currentTime: Int32, _ currentFrame: inout Float, _ startFrame: inout Int32, _ endFrame: inout Int32, _ flags: inout Int32, _ animSpeed: inout Float, _ modelList: inout Int32, _ modelIndex: Int32) -> Bool {
-    return trap_G2API_GetBoneAnim(ghoul2, boneName, currentTime, &currentFrame, &startFrame, &endFrame, &flags, &animSpeed, &modelList, modelIndex)
+func strap_G2API_GetBoneAnim(_ ghoul2: OpaquePointer?, _ boneName: String, _ currentTime: Int32, _ currentFrame: inout Float, _ startFrame: inout Int32, _ endFrame: inout Int32, _ flags: inout Int32, _ animSpeed: inout Float, _ modelList: UnsafeMutablePointer<Int32>?, _ modelIndex: Int32) -> Bool {
+    return trap_G2API_GetBoneAnim(ghoul2, boneName, currentTime, &currentFrame, &startFrame, &endFrame, &flags, &animSpeed, modelList, modelIndex)
 }
 
 /// Source: oracle/codemp/game/g_strap.c:43
@@ -43,7 +43,7 @@ func strap_G2API_AnimateG2Models(_ ghoul2: OpaquePointer?, _ time: Int32, _ para
 }
 
 /// Source: oracle/codemp/game/g_strap.c:53
-func strap_G2API_SetBoneIKState(_ ghoul2: OpaquePointer?, _ time: Int32, _ boneName: String, _ ikState: Int32, _ params: JKAMP.SharedSetBoneIKStateParams) -> Bool {
+func strap_G2API_SetBoneIKState(_ ghoul2: OpaquePointer?, _ time: Int32, _ boneName: String?, _ ikState: Int32, _ params: JKAMP.SharedSetBoneIKStateParams?) -> Bool {
     return trap_G2API_SetBoneIKState(ghoul2, time, boneName, ikState, params)
 }
 

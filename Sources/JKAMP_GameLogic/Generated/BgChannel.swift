@@ -23,7 +23,7 @@ public func installBgChannel() {
         strap_G2API_SetBoneAnim(ghoul2, modelIndex, boneName, startFrame, endFrame, flags, animSpeed, currentTime, setFrame, blendTime)
     }
     bg.straps.strap_G2API_GetBoneAnim = { ghoul2, boneName, currentTime, currentFrame, startFrame, endFrame, flags, animSpeed, modelList, modelIndex in
-        strap_G2API_GetBoneAnim(ghoul2, boneName, currentTime, &currentFrame, &startFrame, &endFrame, &flags, &animSpeed, &modelList, modelIndex)
+        strap_G2API_GetBoneAnim(ghoul2, boneName, currentTime, &currentFrame, &startFrame, &endFrame, &flags, &animSpeed, modelList, modelIndex)
     }
     bg.straps.strap_G2API_SetRagDoll = { ghoul2, params in
         strap_G2API_SetRagDoll(ghoul2, params)

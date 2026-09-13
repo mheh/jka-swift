@@ -22,7 +22,7 @@ public struct BgStraps {
     public var strap_G2API_SetBoneAnim: (OpaquePointer?, Int32, String, Int32, Int32, Int32, Float, Int32, Float, Int32) -> Bool = { _, _, _, _, _, _, _, _, _, _ in portMissing("strap_G2API_SetBoneAnim", source: "oracle/codemp/game/bg_strap.h:20") }
 
     /// Source: oracle/codemp/game/bg_strap.h:23
-    public var strap_G2API_GetBoneAnim: (OpaquePointer?, String, Int32, inout Float, inout Int32, inout Int32, inout Int32, inout Float, inout Int32, Int32) -> Bool = { _, _, _, _, _, _, _, _, _, _ in portMissing("strap_G2API_GetBoneAnim", source: "oracle/codemp/game/bg_strap.h:23") }
+    public var strap_G2API_GetBoneAnim: (OpaquePointer?, String, Int32, inout Float, inout Int32, inout Int32, inout Int32, inout Float, UnsafeMutablePointer<Int32>?, Int32) -> Bool = { _, _, _, _, _, _, _, _, _, _ in portMissing("strap_G2API_GetBoneAnim", source: "oracle/codemp/game/bg_strap.h:23") }
 
     /// Source: oracle/codemp/game/bg_strap.h:26
     public var strap_G2API_SetRagDoll: (OpaquePointer?, JKAMP.SharedRagDollParams) -> Void = { _, _ in portMissing("strap_G2API_SetRagDoll", source: "oracle/codemp/game/bg_strap.h:26") }
@@ -31,7 +31,7 @@ public struct BgStraps {
     public var strap_G2API_AnimateG2Models: (OpaquePointer?, Int32, JKAMP.SharedRagDollUpdateParams) -> Void = { _, _, _ in portMissing("strap_G2API_AnimateG2Models", source: "oracle/codemp/game/bg_strap.h:28") }
 
     /// Source: oracle/codemp/game/bg_strap.h:30
-    public var strap_G2API_SetBoneIKState: (OpaquePointer?, Int32, String, Int32, JKAMP.SharedSetBoneIKStateParams) -> Bool = { _, _, _, _, _ in portMissing("strap_G2API_SetBoneIKState", source: "oracle/codemp/game/bg_strap.h:30") }
+    public var strap_G2API_SetBoneIKState: (OpaquePointer?, Int32, String?, Int32, JKAMP.SharedSetBoneIKStateParams?) -> Bool = { _, _, _, _, _ in portMissing("strap_G2API_SetBoneIKState", source: "oracle/codemp/game/bg_strap.h:30") }
 
     /// Source: oracle/codemp/game/bg_strap.h:32
     public var strap_G2API_IKMove: (OpaquePointer?, Int32, JKAMP.SharedIKMoveParams) -> Bool = { _, _, _ in portMissing("strap_G2API_IKMove", source: "oracle/codemp/game/bg_strap.h:32") }
@@ -131,8 +131,8 @@ func strap_G2API_SetBoneAnim(_ ghoul2: OpaquePointer?, _ modelIndex: Int32, _ bo
 
 /// Source: oracle/codemp/game/bg_strap.h:23
 @discardableResult
-func strap_G2API_GetBoneAnim(_ ghoul2: OpaquePointer?, _ boneName: String, _ currentTime: Int32, _ currentFrame: inout Float, _ startFrame: inout Int32, _ endFrame: inout Int32, _ flags: inout Int32, _ animSpeed: inout Float, _ modelList: inout Int32, _ modelIndex: Int32) -> Bool {
-    bg.straps.strap_G2API_GetBoneAnim(ghoul2, boneName, currentTime, &currentFrame, &startFrame, &endFrame, &flags, &animSpeed, &modelList, modelIndex)
+func strap_G2API_GetBoneAnim(_ ghoul2: OpaquePointer?, _ boneName: String, _ currentTime: Int32, _ currentFrame: inout Float, _ startFrame: inout Int32, _ endFrame: inout Int32, _ flags: inout Int32, _ animSpeed: inout Float, _ modelList: UnsafeMutablePointer<Int32>?, _ modelIndex: Int32) -> Bool {
+    bg.straps.strap_G2API_GetBoneAnim(ghoul2, boneName, currentTime, &currentFrame, &startFrame, &endFrame, &flags, &animSpeed, modelList, modelIndex)
 }
 
 /// Source: oracle/codemp/game/bg_strap.h:26
@@ -147,7 +147,7 @@ func strap_G2API_AnimateG2Models(_ ghoul2: OpaquePointer?, _ time: Int32, _ para
 
 /// Source: oracle/codemp/game/bg_strap.h:30
 @discardableResult
-func strap_G2API_SetBoneIKState(_ ghoul2: OpaquePointer?, _ time: Int32, _ boneName: String, _ ikState: Int32, _ params: JKAMP.SharedSetBoneIKStateParams) -> Bool {
+func strap_G2API_SetBoneIKState(_ ghoul2: OpaquePointer?, _ time: Int32, _ boneName: String?, _ ikState: Int32, _ params: JKAMP.SharedSetBoneIKStateParams?) -> Bool {
     bg.straps.strap_G2API_SetBoneIKState(ghoul2, time, boneName, ikState, params)
 }
 

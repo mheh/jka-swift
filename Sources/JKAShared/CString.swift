@@ -372,3 +372,10 @@ public func strstr(_ s: CharBuf, _ needle: CharBuf) -> Int32? {
 public func strstr(_ s: CharBuf, _ needle: String) -> Int32? {
     strstr(s, CharBuf(needle))
 }
+
+/// This runs the body over the C string of an optional Swift string, and over NULL when the string is nil.
+/// A trap calls it for a parameter Raven's callers pass NULL to, so the engine sees the NULL as C did.
+public func withCString<R>(_ string: String?, _ body: (UnsafePointer<CChar>?) -> R) -> R {
+    guard let string else { return body(nil) }
+    return string.withCString { body($0) }
+}

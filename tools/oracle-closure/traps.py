@@ -49,6 +49,7 @@ class Traps:
     def __init__(self) -> None:
         self.table = Table()
         self.tu = C.parse_tu("mp-game", None, unity=True)
+        self.table.sweep_nulls(self.tu, (C.ORACLE / SOURCE).resolve().parent)
         self.path = C.ORACLE / SOURCE
         self.source = SourceFile(self.path)
         self.counts: Counter[str] = Counter()
@@ -159,6 +160,8 @@ class Traps:
         for p in mapped.values():
             if p.kind == "cstring":
                 layers.append(f"{p.name}.withCString {{ {p.name} in")
+            elif p.kind == "cstring_opt":
+                layers.append(f"withCString({p.name}) {{ {p.name} in")
             elif p.kind == "vec3_const":
                 layers.append(f"withUnsafePointer(to: {p.name}) {{ {p.name} in")
             elif p.kind == "vec3_mut":

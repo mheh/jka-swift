@@ -1326,6 +1326,9 @@ class Drafter:
         text = self.expr(inner)
         if param is not None and not param[1].endswith("?") and not inout and self.optional_base(inner):
             text += "!"
+        if param is not None and param[1].startswith("UnsafeMutablePointer<"):
+            # A wrapper takes a skipped output as the pointer itself, and Swift passes a local's address as `&x` for the call.
+            return f"&{text}"
         return f"&{text}" if inout else text
 
     def is_callback(self, cur: ci.Cursor) -> bool:

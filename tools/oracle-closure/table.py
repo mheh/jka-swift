@@ -52,6 +52,8 @@ class Param:
             return f"{self.name.strip('`')}Flat.baseAddress!"
         if self.kind == "slots":
             return f"{self.name}.base"
+        if self.kind == "view_opt":
+            return f"{self.name}?.handle"
         return self.name
 
 
@@ -121,6 +123,30 @@ class SourceFile:
 class Table:
     def __init__(self) -> None:
         self.views = Generator(None)
+        # The (function, parameter) pairs a bg body passes NULL or 0 to, so the wrapper takes the parameter as optional.
+        self.nullable: set[tuple[str, str]] = set()
+
+    def sweep_nulls(self, tu: ci.TranslationUnit, folder: Path) -> None:
+        """The NULL sweep of the hole walk's row 2: every pointer parameter a bg body passes NULL or 0 to, by the callee's name.
+        A `strap_` callee names its `trap_` twin too, because the game's strap forwards the argument to the trap as it is."""
+        for cur in tu.cursor.get_children():
+            if cur.kind != CursorKind.FUNCTION_DECL or not cur.is_definition() or not cur.location.file:
+                continue
+            path = Path(cur.location.file.name).resolve()
+            if path.parent != folder or not path.stem.startswith("bg_"):
+                continue
+            data = path.read_bytes()
+            for node in cur.walk_preorder():
+                if node.kind != CursorKind.CALL_EXPR or node.referenced is None or node.referenced.kind != CursorKind.FUNCTION_DECL:
+                    continue
+                params = list(node.referenced.get_arguments())
+                for i, arg in enumerate(list(node.get_children())[1:]):
+                    text = data[arg.extent.start.offset:arg.extent.end.offset].decode("utf-8", "replace").strip()
+                    if text in ("NULL", "0") and i < len(params) and params[i].type.get_canonical().kind == TypeKind.POINTER:
+                        callee = node.referenced.spelling
+                        self.nullable.add((callee, params[i].spelling))
+                        if callee.startswith("strap_"):
+                            self.nullable.add(("trap_" + callee[len("strap_"):], params[i].spelling))
 
 
     def marker_reason(self, cur: ci.Cursor, owner: str | None = None) -> str:
@@ -180,6 +206,8 @@ class Table:
                     if PARAMS.get((owner, name)) == "text_cursor":
                         # A cursor Raven passes by value and returns advanced, the SkipWhitespace shape.
                         return Param(name, "JKAShared.TextCursor", "text_cursor")
+                    if (owner, name) in self.nullable:
+                        return Param(name, "String?", "cstring_opt")
                     return Param(name, "String", "cstring")
                 if traps and following is not None and following.type.get_canonical().kind in INT_KINDS and SIZE_NAME.search(following.spelling):
                     return Param(name, None, "out_string", size=following.spelling)
@@ -198,6 +226,8 @@ class Table:
                     return Param(name, f"Slots<{self.views.qualified_view(record, TARGET)}>", "slots")
                 if owner == "BG_ParseField":
                     return Param(name, f"Slots<{self.views.qualified_view(record, TARGET)}>", "bare")
+                if (owner, name) in self.nullable:
+                    return Param(name, f"{self.views.qualified_view(record, TARGET)}?", "view_opt")
                 return Param(name, self.views.qualified_view(record, TARGET), "view")
             if inner.kind == TypeKind.VOID:
                 return Param(name, "OpaquePointer?", "bare")
@@ -225,6 +255,9 @@ class Table:
             # A pointer to one scalar is an out-param, `inout`. A body that finds Raven walks it as an array writes a Port-note.
             if not pointee.is_const_qualified() and (inner.kind in INT_KINDS or inner.kind in (TypeKind.FLOAT, TypeKind.ENUM)):
                 swift = self.views.scalar(pointee, TARGET)
+                if swift is not None and self.known(swift) and (owner, name) in self.nullable:
+                    # An output a caller skips with NULL crosses as the pointer itself, in the wrapper alone, so `nil` has a seat.
+                    return Param(name, f"UnsafeMutablePointer<{swift}>?", "bare")
                 if swift is not None and self.known(swift):
                     return Param(name, f"inout {swift}", "out_scalar")
             return None

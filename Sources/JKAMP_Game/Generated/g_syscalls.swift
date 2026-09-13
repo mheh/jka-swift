@@ -2078,16 +2078,14 @@ public func trap_G2API_SetBoneAnim(_ ghoul2: OpaquePointer?, _ modelIndex: Int32
 
 /// Source: oracle/codemp/game/g_syscalls.c:1262
 @discardableResult
-public func trap_G2API_GetBoneAnim(_ ghoul2: OpaquePointer?, _ boneName: String, _ currentTime: Int32, _ currentFrame: inout Float, _ startFrame: inout Int32, _ endFrame: inout Int32, _ flags: inout Int32, _ animSpeed: inout Float, _ modelList: inout Int32, _ modelIndex: Int32) -> Bool {
+public func trap_G2API_GetBoneAnim(_ ghoul2: OpaquePointer?, _ boneName: String, _ currentTime: Int32, _ currentFrame: inout Float, _ startFrame: inout Int32, _ endFrame: inout Int32, _ flags: inout Int32, _ animSpeed: inout Float, _ modelList: UnsafeMutablePointer<Int32>?, _ modelIndex: Int32) -> Bool {
     let word = boneName.withCString { boneName in
         withUnsafeMutablePointer(to: &currentFrame) { currentFrame in
             withUnsafeMutablePointer(to: &startFrame) { startFrame in
                 withUnsafeMutablePointer(to: &endFrame) { endFrame in
                     withUnsafeMutablePointer(to: &flags) { flags in
                         withUnsafeMutablePointer(to: &animSpeed) { animSpeed in
-                            withUnsafeMutablePointer(to: &modelList) { modelList in
-                                Syscall.call(G_G2_GETBONEANIM, ghoul2, boneName, currentTime, currentFrame, startFrame, endFrame, flags, animSpeed, modelList, modelIndex)
-                            }
+                            Syscall.call(G_G2_GETBONEANIM, ghoul2, boneName, currentTime, currentFrame, startFrame, endFrame, flags, animSpeed, modelList, modelIndex)
                         }
                     }
                 }
@@ -2326,9 +2324,9 @@ let word = Syscall.call(G_G2_RAGFORCESOLVE, ghoul2, force)
 
 /// Source: oracle/codemp/game/g_syscalls.c:1424
 @discardableResult
-public func trap_G2API_SetBoneIKState(_ ghoul2: OpaquePointer?, _ time: Int32, _ boneName: String, _ ikState: Int32, _ params: JKAMP.SharedSetBoneIKStateParams) -> Bool {
-    let word = boneName.withCString { boneName in
-        Syscall.call(G_G2_SETBONEIKSTATE, ghoul2, time, boneName, ikState, params)
+public func trap_G2API_SetBoneIKState(_ ghoul2: OpaquePointer?, _ time: Int32, _ boneName: String?, _ ikState: Int32, _ params: JKAMP.SharedSetBoneIKStateParams?) -> Bool {
+    let word = withCString(boneName) { boneName in
+        Syscall.call(G_G2_SETBONEIKSTATE, ghoul2, time, boneName, ikState, params?.handle)
     }
     return word != 0
 }
