@@ -120,11 +120,155 @@ class SourceFile:
         return " ".join(text[:text.index("{")].split())
 
 
+# The fields of bgEntity_t, the head of gentity_t and centity_t alike, which a bg body reads through its own view.
+BG_FIELDS = {"s", "playerState", "m_pVehicle", "ghoul2", "localAnimIndex", "modelScale"}
+ASSIGN_OPS = {"=", "+=", "-=", "*=", "/=", "%=", "&=", "|=", "^=", "<<=", ">>="}
+
+
+def capitalized(word: str) -> str:
+    return word[:1].upper() + word[1:]
+
+
+class Read:
+    """One game field a bg body reaches: the root kind, the field path, the Swift type, and whether the body writes it.
+    The channel writes one callback per read, and the draft calls it, by the hole walk's row 1."""
+
+    def __init__(self, root: str, path: tuple[str, ...], swift: str, write: bool, cite: str) -> None:
+        self.root = root
+        self.path = path
+        self.swift = swift
+        self.write = write
+        self.cite = cite
+        self.name = self.short_name()
+
+    @property
+    def key(self) -> tuple[str, tuple[str, ...], bool]:
+        return (self.root, self.path, self.write)
+
+    @property
+    def entity(self) -> bool:
+        return self.root == "entity"
+
+    def short_name(self) -> str:
+        if self.root == "entity":
+            stem = ("Client" if self.path[0] == "client" else "Entity") + capitalized(self.path[-1])
+        elif self.root == "level":
+            stem = "Level" + capitalized(self.path[-1])
+        else:
+            stem = capitalized(self.root.removeprefix("cvar:").removeprefix("g_")) + capitalized(self.path[-1])
+        return ("bgSet" if self.write else "bg") + stem
+
+    def long_name(self) -> str:
+        head = {"entity": "Entity", "level": "Level"}.get(self.root, capitalized(self.root.removeprefix("cvar:").removeprefix("g_")))
+        return ("bgSet" if self.write else "bg") + head + "".join(capitalized(f) for f in self.path)
+
+    @property
+    def install(self) -> str:
+        """The game's expression for the read, over its own views, which the install closure runs."""
+        if self.root == "entity":
+            text = "Entity(handle: ent.handle)." + ".".join("client!" if f == "client" else f for f in self.path)
+        elif self.root == "level":
+            text = "level." + ".".join(self.path)
+        else:
+            text = self.root.removeprefix("cvar:") + "." + ".".join(self.path)
+        return f"{text} = value" if self.write else text
+
+
 class Table:
     def __init__(self) -> None:
         self.views = Generator(None)
         # The (function, parameter) pairs a bg body passes NULL or 0 to, so the wrapper takes the parameter as optional.
         self.nullable: set[tuple[str, str]] = set()
+
+    def sweep_reads(self, tu: ci.TranslationUnit, folder: Path) -> list[Read]:
+        """Every game field a bg body reaches through a gentity_t, the level, or a cvar, as the reads the channel carries.
+        A bgEntity_t field, the bare `client` pointer, and `client->ps` are the bg view's own, so they are not reads."""
+        reads: dict[tuple[str, tuple[str, ...], bool], Read] = {}
+        for cur in tu.cursor.get_children():
+            if cur.kind != CursorKind.FUNCTION_DECL or not cur.is_definition() or not cur.location.file:
+                continue
+            path = Path(cur.location.file.name).resolve()
+            if path.parent != folder or not path.stem.startswith("bg_"):
+                continue
+            data = path.read_bytes()
+            consumed: set[tuple[int, int]] = set()
+            writes: set[tuple[int, int]] = set()
+            for node in cur.walk_preorder():
+                kids = list(node.get_children())
+                if node.kind in (CursorKind.BINARY_OPERATOR, CursorKind.COMPOUND_ASSIGNMENT_OPERATOR) and len(kids) == 2:
+                    between = data[kids[0].extent.end.offset:kids[1].extent.start.offset].decode("utf-8", "replace").strip()
+                    if between in ASSIGN_OPS:
+                        left = self.unwrapped(kids[0])
+                        writes.add((left.extent.start.offset, left.extent.end.offset))
+                if node.kind != CursorKind.MEMBER_REF_EXPR:
+                    continue
+                span = (node.extent.start.offset, node.extent.end.offset)
+                if span in consumed:
+                    continue
+                fields, root = self.chain(node, consumed)
+                if root is None or self.own_field(root, fields):
+                    continue
+                swift = self.views.scalar(node.type, TARGET)
+                if swift is None:
+                    # A record the views cover crosses as its view, `&client->pers.cmd` as the Usercmd over the game's memory.
+                    record = self.views.record_name(node.type.get_canonical())
+                    if not record or record not in self.views.views:
+                        continue
+                    swift = self.views.qualified_view(record, TARGET)
+                write = span in writes
+                key = (root, tuple(fields), write)
+                if key not in reads:
+                    reads[key] = Read(root, tuple(fields), swift, write, f"oracle/codemp/game/{path.stem}.c:{node.location.line}")
+        # Two reads with one short name take their long names, so each callback names one path.
+        by_name: dict[str, list[Read]] = {}
+        for read in reads.values():
+            by_name.setdefault(read.name, []).append(read)
+        for group in by_name.values():
+            if len(group) > 1:
+                for read in group:
+                    read.name = read.long_name()
+        return sorted(reads.values(), key=lambda r: r.name)
+
+    @staticmethod
+    def unwrapped(cur: ci.Cursor) -> ci.Cursor:
+        while cur.kind in (CursorKind.PAREN_EXPR, CursorKind.UNEXPOSED_EXPR):
+            kids = list(cur.get_children())
+            if len(kids) != 1:
+                break
+            cur = kids[0]
+        return cur
+
+    def chain(self, node: ci.Cursor, consumed: set[tuple[int, int]]) -> tuple[list[str], str | None]:
+        """The field path of a member chain, outermost last, and the kind of its root: an entity, the level, a cvar, or None."""
+        fields: list[str] = []
+        cur = node
+        while cur.kind == CursorKind.MEMBER_REF_EXPR:
+            fields.insert(0, cur.spelling)
+            base = self.unwrapped(list(cur.get_children())[0])
+            if base.kind == CursorKind.MEMBER_REF_EXPR:
+                consumed.add((base.extent.start.offset, base.extent.end.offset))
+            cur = base
+        t = cur.type.get_canonical()
+        if t.kind == TypeKind.POINTER:
+            t = t.get_pointee().get_canonical()
+        record = self.views.record_name(t)
+        if record == "gentity_t":
+            return fields, "entity"
+        if cur.kind == CursorKind.DECL_REF_EXPR and cur.referenced is not None and cur.referenced.semantic_parent is not None \
+                and cur.referenced.semantic_parent.kind == CursorKind.TRANSLATION_UNIT:
+            if record == "level_locals_t":
+                return fields, "level"
+            if record == "vmCvar_t":
+                return fields, f"cvar:{cur.spelling}"
+        return fields, None
+
+    @staticmethod
+    def own_fields() -> set[str]:
+        return BG_FIELDS
+
+    @staticmethod
+    def own_field(root: str, fields: list[str]) -> bool:
+        return root == "entity" and (fields[0] in BG_FIELDS or fields == ["client"] or fields[:2] == ["client", "ps"])
 
     def sweep_nulls(self, tu: ci.TranslationUnit, folder: Path) -> None:
         """The NULL sweep of the hole walk's row 2: every pointer parameter a bg body passes NULL or 0 to, by the callee's name.

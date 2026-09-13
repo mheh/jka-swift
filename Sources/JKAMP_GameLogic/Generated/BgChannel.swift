@@ -154,4 +154,52 @@ public func installBgChannel() {
     bg.callbacks.WP_GetVehicleCamPos = { ent, pilot, camPos in
         WP_GetVehicleCamPos(Entity(handle: ent.handle), Entity(handle: pilot.handle), &camPos)
     }
+    bg.callbacks.bgBg_fighterAltControlInteger = {
+        bg_fighterAltControl.integer
+    }
+    bg.callbacks.bgClientCmd = { ent in
+        Entity(handle: ent.handle).client!.pers.cmd
+    }
+    bg.callbacks.bgClientSessionTeam = { ent in
+        Entity(handle: ent.handle).client!.sess.sessionTeam
+    }
+    bg.callbacks.bgEntityAlliedTeam = { ent in
+        Entity(handle: ent.handle).alliedTeam
+    }
+    bg.callbacks.bgEntityBmodel = { ent in
+        Entity(handle: ent.handle).r.bmodel
+    }
+    bg.callbacks.bgEntityContents = { ent in
+        Entity(handle: ent.handle).r.contents
+    }
+    bg.callbacks.bgEntityInuse = { ent in
+        Entity(handle: ent.handle).inuse
+    }
+    bg.callbacks.bgEntityOwnerNum = { ent in
+        Entity(handle: ent.handle).r.ownerNum
+    }
+    bg.callbacks.bgEntitySpawnflags = { ent in
+        Entity(handle: ent.handle).spawnflags
+    }
+    bg.callbacks.bgEntityTakedamage = { ent in
+        Entity(handle: ent.handle).takedamage
+    }
+    bg.callbacks.bgGametypeInteger = {
+        g_gametype.integer
+    }
+    bg.callbacks.bgLevelTime = {
+        level.time
+    }
+    bg.callbacks.bgSetClientOtherKillerMOD = { ent, value in
+        Entity(handle: ent.handle).client!.otherKillerMOD = value
+    }
+    bg.callbacks.bgSetClientOtherKillerVehWeapon = { ent, value in
+        Entity(handle: ent.handle).client!.otherKillerVehWeapon = value
+    }
+    bg.callbacks.bgSetClientOtherKillerWeaponType = { ent, value in
+        Entity(handle: ent.handle).client!.otherKillerWeaponType = value
+    }
+    bg.callbacks.bgSetClientSolidHack = { ent, value in
+        Entity(handle: ent.handle).client!.solidHack = value
+    }
 }

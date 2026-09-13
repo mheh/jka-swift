@@ -146,6 +146,10 @@ class Drafter:
         self.leaf_wrap: str | None = None
         # The scratch closures open around the statement being drafted, innermost last: None, "flag", or "value".
         self.scratch_modes: list[str | None] = []
+        # The game fields a bg body reaches, by root kind, field path, and write, each with the callback the channel carries.
+        self.reads = {r.key: r for r in sk.table.sweep_reads(sk.tu, (C.ORACLE / ORACLE_DIR).resolve())}
+        # The locals of the function being drafted that Raven typed `gentity_t *` and the draft holds as `JKAMP.BgEntity`.
+        self.game_entities: set[str] = set()
 
     # MARK: - One function
 
@@ -163,11 +167,16 @@ class Drafter:
         self.goto_forms: dict[str, str] = {}
         # The vector each pointer-to-float local of the function stands for, by Raven's name.
         self.aliases: dict[str, ci.Cursor] = {}
+        self.game_entities = set()
+        # The slot text each copy stands for inside the one call being drafted, `fxAxis[2]` for `fxAxis2`.
+        self.slot_copies: dict[str, str] = {}
         self.lets = self.single_writes(fn.cur)
         if any(self.record_local(c) is not None for c in fn.cur.walk_preorder()):
             # A closure cannot initialize a let of the enclosing body, so a body with a scratch record keeps every local a var.
             self.lets = set()
         self.written = self.written_names(fn.cur)
+        self.addressed = self.addressed_names(fn.cur)
+        self.has_scratch = any(self.record_local(c) is not None for c in fn.cur.walk_preorder())
         self.inout_locals = {c.spelling for c, p in zip(fn.cur.get_arguments(), fn.params) if (p.swift or "").startswith("inout ")}
         # Raven assigns a parameter of his own. A Swift parameter is immutable, so the body opens with a mutable copy, after the declarations.
         self.param_copies = [p.name for c, p in zip(fn.cur.get_arguments(), fn.params) if c.spelling in self.written and c.spelling not in self.inout_locals]
@@ -279,11 +288,16 @@ class Drafter:
         if self.escapes(rest):
             raise Hole("Raven's block leaves a loop outside the record's scope, and the closure cannot.")
         mode = None
-        if returns:
+        if returns and self.fn.returns is not None and self.always_returns(rest):
+            mode = "direct"
+        elif returns:
             mode = "flag" if self.fn.returns is None else "value"
         result = "earlyOut" if not self.scratch_modes else f"earlyOut{len(self.scratch_modes) + 1}"
         out = [f"{pad}// Raven's record lives to the end of his block, so the block is the closure."]
-        if mode == "flag":
+        if mode == "direct":
+            out.append(f"{pad}// Every path of Raven's block returns, so the closure's value is the function's.")
+            out.append(f"{pad}return {opener} {{ {name} -> {self.fn.returns} in")
+        elif mode == "flag":
             out.append(f"{pad}// The closure gives true where Raven returns from the function.")
             out.append(f"{pad}let {result} = {opener} {{ {name} -> Bool in")
         elif mode == "value":
@@ -309,6 +323,37 @@ class Drafter:
         elif mode == "value":
             out += [f"{pad}if let {result} {{", f"{INDENT * (depth + 1)}return {result}", f"{pad}}}"]
         return out
+
+    def always_returns(self, stmts: list[ci.Cursor]) -> bool:
+        """True when no path through the statements reaches their end: the last is a return, an if whose arms both do, or a
+        switch with a default whose every case ends in a return."""
+        if not stmts:
+            return False
+        last = stmts[-1]
+        if last.kind == CursorKind.RETURN_STMT:
+            return True
+        if last.kind == CursorKind.COMPOUND_STMT:
+            return self.always_returns(list(last.get_children()))
+        if last.kind == CursorKind.IF_STMT:
+            kids = list(last.get_children())
+            return len(kids) == 3 and self.always_returns([kids[1]]) and self.always_returns([kids[2]])
+        if last.kind == CursorKind.SWITCH_STMT:
+            body = list(last.get_children())[-1]
+            groups: list[list[ci.Cursor]] = []
+            default = False
+            for child in body.get_children():
+                stmt = child
+                labelled = False
+                while stmt.kind in (CursorKind.CASE_STMT, CursorKind.DEFAULT_STMT):
+                    labelled = True
+                    default = default or stmt.kind == CursorKind.DEFAULT_STMT
+                    stmt = list(stmt.get_children())[-1]
+                if labelled:
+                    groups.append([])
+                if groups and stmt.kind not in (CursorKind.CASE_STMT, CursorKind.DEFAULT_STMT):
+                    groups[-1].append(stmt)
+            return default and all(self.always_returns(g) for g in groups)
+        return False
 
     def record_store(self, cur: ci.Cursor, var: ci.Cursor) -> bool:
         """True when the statement stores a whole record into the named local, `cmd = pm->cmd;`."""
@@ -436,6 +481,17 @@ class Drafter:
                 before = self.bytes[cur.extent.start.offset:kids[0].extent.start.offset].decode("utf-8", "replace").strip()
                 after = self.bytes[kids[0].extent.end.offset:cur.extent.end.offset].decode("utf-8", "replace").strip()
                 if before in ("++", "--", "&") or after in ("++", "--"):
+                    out.add(self.written_root(kids[0]))
+        return out
+
+    def addressed_names(self, fn: ci.Cursor) -> set[str]:
+        """Every local a statement takes the address of, an output a callee fills."""
+        out: set[str] = set()
+        for cur in fn.walk_preorder():
+            kids = list(cur.get_children())
+            if cur.kind == CursorKind.UNARY_OPERATOR and kids:
+                before = self.bytes[cur.extent.start.offset:kids[0].extent.start.offset].decode("utf-8", "replace").strip()
+                if before == "&":
                     out.add(self.written_root(kids[0]))
         return out
 
@@ -575,6 +631,14 @@ class Drafter:
                     # The store that names the alias has no effect of its own, and the comment beside it stays.
                     rest = self.trailing(cur).strip()
                     return [f"{pad}{rest}"] if rest else []
+                if self.unwrap(left).kind == CursorKind.MEMBER_REF_EXPR:
+                    fields, root, base_cur = self.game_chain(self.unwrap(left))
+                    if root is not None and not self.sk.table.own_field(root, fields):
+                        write = self.reads.get((root, tuple(fields), True))
+                        if write is None or op != "=":
+                            raise Hole(f"Raven writes the game's `{'.'.join(fields)}` here, and the channel has no set for it.")
+                        head = (self.expr(base_cur) + ("!" if self.optional_base(base_cur) else "") + ", ") if root == "entity" else ""
+                        return [f"{pad}{write.name}({head}{self.converted(right, write.swift)})" + self.trailing(cur)]
                 if self.float_field(self.strip(left)) and self.is_pointer(right):
                     raven = self.bytes[cur.extent.start.offset:cur.extent.end.offset].decode("utf-8", "replace")
                     raise Hole(f"Raven stores a pointer into the `float *` field with `{raven}`, and rule 11 keeps a pointer out of a logic target.")
@@ -594,8 +658,11 @@ class Drafter:
                     return lines
                 if self.strip(left).type.get_canonical().kind == TypeKind.RECORD:
                     if op == "=" and self.is_record(left.type) and self.is_record(right.type):
-                        # Raven's `a = b` on two records is a byte copy, and the view's `copy(from:)` is that copy.
-                        return [f"{pad}{self.expr(left)}.copy(from: {self.expr(right)})" + self.trailing(cur)]
+                        # Raven's `a = b` on two records is a byte copy, and the view's `copy(from:)` is that copy. His `*p` is the view p holds.
+                        source = self.unwrap(right)
+                        if source.kind == CursorKind.UNARY_OPERATOR and self.unary_parts(source)[0] == "*":
+                            source = self.unary_parts(source)[2]
+                        return [f"{pad}{self.expr(left)}.copy(from: {self.base(source)})" + self.trailing(cur)]
                     raise Hole("A whole-record store, which a view has no operator for.")
                 lhs_kind = self.swift_type_of(left)
                 unsigned = self.unsigned_of(left)
@@ -618,6 +685,18 @@ class Drafter:
             rest = self.trailing(cur).strip()
             return [f"{pad}{rest}"] if rest else []
         if self.is_call(cur):
+            copies = self.overlapping_slots(cur)
+            if copies:
+                # Swift refuses two inout slots of one array in one call, so each slot goes through a copy and comes back after.
+                self.slot_copies = {text: local for text, local in copies}
+                try:
+                    call = self.expr(cur)
+                finally:
+                    self.slot_copies = {}
+                inner_pad = INDENT * (depth + 1)
+                before = [f"{inner_pad}var {local} = {text}" for text, local in copies]
+                after = [f"{inner_pad}{text} = {local}" for text, local in copies]
+                return [f"{pad}do {{"] + before + [f"{inner_pad}{call}" + self.trailing(cur)] + after + [f"{pad}}}"]
             return [f"{pad}{self.expr(cur)}" + self.trailing(cur)]
         if kind.is_expression():
             raise Hole("An expression statement with no effect the draft knows.")
@@ -816,6 +895,12 @@ class Drafter:
             return ""
         if t.get_canonical().kind == TypeKind.POINTER:
             record = self.views.record_name(t.get_canonical().get_pointee())
+            if record == "gentity_t" and target_of(self.fn.stem) == BG:
+                # Raven's `gentity_t *` local in a bg file is the bg entity it came from, and the game's fields go through the channel.
+                if not init:
+                    raise Hole(f"A game entity local `{var.spelling}` with no initializer.")
+                self.game_entities.add(var.spelling)
+                return f"{keyword} {name}: JKAMP.BgEntity = {self.game_entity(init[0])}"
             if record and record in self.views.views:
                 self.reachable(record)
                 view = self.views.qualified_view(record, TARGET)
@@ -830,7 +915,56 @@ class Drafter:
             swift = "Int32"
         if init:
             return f"{keyword} {name}: {swift} = {self.converted(init[0], swift)}"
+        if self.has_scratch or var.spelling in self.addressed:
+            # Swift refuses a closure capture or an inout pass of a local with no value, where C reads whatever the stack held,
+            # so the local starts at zero. The zero is the divergence rule 19 allows.
+            return f"{keyword} {name}: {swift} = {'false' if swift == 'Bool' else '0'}"
         return f"{keyword} {name}: {swift}"
+
+    def game_entity(self, cur: ci.Cursor) -> str:
+        """The bg entity behind Raven's `(gentity_t *)bgEnt` or his `&g_entities[num]`, by the hole walk's row 1."""
+        inner = self.unwrap(cur)
+        if inner.kind == CursorKind.CSTYLE_CAST_EXPR:
+            operand = [k for k in inner.get_children() if k.kind.is_expression()][-1]
+            return self.expr(operand) + ("!" if self.optional_base(operand) else "")
+        if inner.kind == CursorKind.UNARY_OPERATOR and self.unary_parts(inner)[0] == "&":
+            slot = self.unwrap(self.unary_parts(inner)[2])
+            if slot.kind == CursorKind.ARRAY_SUBSCRIPT_EXPR:
+                base, index = list(slot.get_children())
+                if self.unwrap(base).spelling == "g_entities":
+                    # The game's entity table at an index is the pmove's stride walk, the same slot.
+                    return f"pm.entity(at: {self.converted(index, 'Int32')})"
+        raise Hole("A game entity from an expression that is not a cast of a bg entity or a slot of `g_entities`.")
+
+    def game_chain(self, cur: ci.Cursor) -> tuple[list[str], str | None, ci.Cursor]:
+        """The field path of a member chain in a bg body, its root kind when the root is the game's, and the root expression."""
+        fields, root = self.sk.table.chain(cur, set())
+        base = cur
+        while base.kind == CursorKind.MEMBER_REF_EXPR:
+            base = self.unwrap(list(base.get_children())[0])
+        return fields, root if target_of(self.fn.stem) == BG else None, base
+
+    def game_read(self, cur: ci.Cursor, fields: list[str], root: str, base: ci.Cursor) -> str:
+        """A read of a game field from a bg body: the bg view's own field, or the channel's callback for it."""
+        kids = list(cur.get_children())
+        if root == "entity":
+            head = self.expr(base) + ("!" if self.optional_base(base) else "")
+            if fields[0] in self.sk.table.own_fields():
+                return f"{self.base(kids[0])}.{swift_name(cur.spelling)}"
+            if fields == ["client"]:
+                # Raven's `client` on a bg entity is the player state the bg view holds, set for every client.
+                return f"{head}.playerState"
+            if fields == ["client", "ps"]:
+                return f"{head}.playerState!"
+            if fields[:2] == ["client", "ps"]:
+                return f"{self.base(kids[0])}.{swift_name(cur.spelling)}"
+            args = head
+        else:
+            args = ""
+        read = self.reads.get((root, tuple(fields), False))
+        if read is None:
+            raise Hole(f"Raven reaches the game's `{'.'.join(fields)}` here, and the channel has no read for it.")
+        return f"{read.name}({args})"
 
     def array_declaration(self, var: ci.Cursor, init: list[ci.Cursor]) -> str:
         """A local array of scalars, `static int movementOffsets[8] = { ... }`, as a Swift array. A static array nothing writes is
@@ -1068,7 +1202,10 @@ class Drafter:
                 index_text = self.expr(index)
             finally:
                 self.leaf_wrap = outer
-            return self.leaf(cur, f"{base_text}[{index_text}]")
+            text = f"{base_text}[{index_text}]"
+            if text in self.slot_copies:
+                return self.leaf(cur, self.slot_copies[text])
+            return self.leaf(cur, text)
         if kind == CursorKind.CALL_EXPR:
             outer = self.leaf_wrap
             self.leaf_wrap = None
@@ -1200,7 +1337,7 @@ class Drafter:
             return False
         if inner.kind == CursorKind.DECL_REF_EXPR:
             ref = inner.referenced
-            if inner.spelling in self.names or inner.spelling in NEVER_NULL_VARS:
+            if inner.spelling in self.names or inner.spelling in NEVER_NULL_VARS or inner.spelling in self.game_entities:
                 return False
             if inner.spelling in self.aliases and ref is not None and ref.kind == CursorKind.VAR_DECL:
                 return self.optional_base(self.aliases[inner.spelling])
@@ -1213,6 +1350,9 @@ class Drafter:
             return field is not None and not self.views.never_null(field)
         if inner.kind == CursorKind.CALL_EXPR:
             return True
+        if inner.kind == CursorKind.ARRAY_SUBSCRIPT_EXPR:
+            # A slot of an array of struct pointers is a `Slots<View?>` element, so it is optional.
+            return self.views.record_name(inner.type.get_canonical().get_pointee()) is not None
         return False
 
     def base(self, cur: ci.Cursor) -> str:
@@ -1224,6 +1364,9 @@ class Drafter:
         if not kids:
             raise Hole("A member reference with no base.")
         field = cur.referenced
+        fields, root, base_cur = self.game_chain(cur)
+        if root is not None:
+            return self.game_read(cur, fields, root, base_cur)
         if self.float_field(cur):
             # Raven reads a `float *` field as the vector it points at, and the view's vector accessor is that read, by the hole walk's row 2.
             return f"{self.base(kids[0])}.{swift_name(cur.spelling)}Vector"
@@ -1269,6 +1412,34 @@ class Drafter:
                 return f"{self.expr(callee)}?({', '.join(words)})"
             return f"{self.expr(callee)}({', '.join(words)})"
         raise Hole("A call with no callee.")
+
+    def overlapping_slots(self, cur: ci.Cursor) -> list[tuple[str, str]]:
+        """The `&a[i]` arguments of one call that share an array, each as its Swift text and the copy that stands in for it."""
+        kids = list(self.strip(cur).get_children()) if cur.kind == CursorKind.UNEXPOSED_EXPR else list(cur.get_children())
+        callee = self.strip(kids[0]) if kids else None
+        if callee is None or callee.kind != CursorKind.DECL_REF_EXPR:
+            return []
+        name = callee.spelling
+        # Two inout slots of one array conflict. A by-value slot beside an inout one does not, because Swift copies it before the call.
+        positions = {i for i in range(len(kids) - 1) if f"&{{{i}}}" in MACROS[name][0]} if name in MACROS else self.inout_positions(name)
+        slots: list[tuple[str, str, str]] = []
+        for i, arg in enumerate(kids[1:]):
+            inner = self.strip(arg)
+            if i not in positions:
+                continue
+            # Raven writes `&a[i]` for a scalar slot and a bare `axis[i]` for a vector slot, which decays to its address.
+            if inner.kind == CursorKind.UNARY_OPERATOR and self.unary_parts(inner)[0] == "&":
+                inner = self.unary_parts(inner)[2]
+            slot = self.unwrap(inner)
+            if slot.kind != CursorKind.ARRAY_SUBSCRIPT_EXPR:
+                continue
+            base, index = list(slot.get_children())
+            root = self.unwrap(base)
+            if root.kind != CursorKind.DECL_REF_EXPR:
+                continue
+            slots.append((root.spelling, self.expr(slot), f"{swift_name(root.spelling)}{self.expr(index)}"))
+        shared = {root for root in (r for r, _, _ in slots) if sum(1 for r, _, _ in slots if r == root) > 1}
+        return [(text, local) for root, text, local in slots if root in shared]
 
     def macro_call(self, name: str, args: list[ci.Cursor]) -> str:
         """Raven's `VectorCopy(a, b)` as the table's Swift, each argument a node of the overlay's call."""
@@ -1384,6 +1555,9 @@ class Drafter:
             stride = self.stride_walk(operand)
             if stride is not None:
                 return stride
+            if target_of(self.fn.stem) == BG and self.views.record_name(canonical.get_pointee()) == "gentity_t":
+                # The game converts by handle at the channel, so the cast to the game's entity drops, by the hole walk's row 1.
+                return self.expr(operand)
             record = self.views.record_name(canonical.get_pointee())
             if record and record in self.views.views:
                 self.reachable(record)

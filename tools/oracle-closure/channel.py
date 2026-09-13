@@ -55,6 +55,8 @@ class Hook:
         # A hook the cgame parse found takes its shape and its cite from the cgame definition.
         self.foreign = foreign or cite is not None
         self._cite = cite
+        # A read hook carries the game's expression for its install closure, and no function stands behind it.
+        self.install: str | None = None
         # A trap hook takes the trap's own shape, the one traps.py wrote in g_syscalls.swift, so a filled buffer is a returned String.
         self.trap = name.startswith("trap_")
 
@@ -111,7 +113,7 @@ class Channel:
         self.sources: dict[Path, SourceFile] = {}
         self.counts: Counter[str] = Counter()
         self.straps = self.collect_straps()
-        self.callbacks = self.collect_callbacks()
+        self.callbacks = self.collect_callbacks() + self.collect_reads()
 
     def source(self, path: Path) -> SourceFile:
         if path not in self.sources:
@@ -235,6 +237,23 @@ class Channel:
             hooks.append(hook)
         return hooks
 
+    def collect_reads(self) -> list[Hook]:
+        """One callback per game field a bg body reaches, from the table's read sweep, by the hole walk's row 1.
+        The game's install reads or writes the field through its own views, so the bg module keeps no view of the game."""
+        hooks = []
+        for read in self.table.sweep_reads(self.tu, self.game):
+            hook = Hook(None, read.name, cite=read.cite)
+            hook.foreign = False
+            hook.install = read.install
+            if read.entity:
+                hook.params.append(Param("ent", "JKAMP.BgEntity", "view"))
+            if read.write:
+                hook.params.append(Param("value", read.swift, "bare"))
+            else:
+                hook.returns = read.swift
+            hooks.append(hook)
+        return hooks
+
     # MARK: - The bg side
 
     def bg_file(self, hooks: list[Hook], struct: str, store: str, source: str, doc: str) -> list[str]:
@@ -291,6 +310,10 @@ class Channel:
                 if not hook.mapped or hook.foreign:
                     continue
                 names = ", ".join(p.name for p in hook.crossing) or ""
+                if hook.install is not None:
+                    head = f"    bg.{store}.{hook.name} = {{ {names} in" if names else f"    bg.{store}.{hook.name} = {{"
+                    lines += [head, f"        {hook.install}", "    }"]
+                    continue
                 args = []
                 for p, t in zip(hook.crossing, hook.bg_types()):
                     if t == "JKAMP.BgEntity":

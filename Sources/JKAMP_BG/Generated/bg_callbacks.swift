@@ -87,6 +87,54 @@ public struct BgCallbacks {
     /// Source: oracle/codemp/game/g_weapon.c:3961
     public var WP_GetVehicleCamPos: (JKAMP.BgEntity, JKAMP.BgEntity, inout JKAShared.vec3_t) -> Void = { _, _, _ in portMissing("WP_GetVehicleCamPos", source: "oracle/codemp/game/g_weapon.c:3961") }
 
+    /// Source: oracle/codemp/game/bg_pmove.c:7786
+    public var bgBg_fighterAltControlInteger: () -> Int32 = { portMissing("bgBg_fighterAltControlInteger", source: "oracle/codemp/game/bg_pmove.c:7786") }
+
+    /// Source: oracle/codemp/game/bg_pmove.c:10957
+    public var bgClientCmd: (JKAMP.BgEntity) -> JKAMP.Usercmd = { _ in portMissing("bgClientCmd", source: "oracle/codemp/game/bg_pmove.c:10957") }
+
+    /// Source: oracle/codemp/game/bg_pmove.c:4256
+    public var bgClientSessionTeam: (JKAMP.BgEntity) -> JKAMP.team_t = { _ in portMissing("bgClientSessionTeam", source: "oracle/codemp/game/bg_pmove.c:4256") }
+
+    /// Source: oracle/codemp/game/bg_pmove.c:4255
+    public var bgEntityAlliedTeam: (JKAMP.BgEntity) -> Int32 = { _ in portMissing("bgEntityAlliedTeam", source: "oracle/codemp/game/bg_pmove.c:4255") }
+
+    /// Source: oracle/codemp/game/bg_slidemove.c:77
+    public var bgEntityBmodel: (JKAMP.BgEntity) -> Bool = { _ in portMissing("bgEntityBmodel", source: "oracle/codemp/game/bg_slidemove.c:77") }
+
+    /// Source: oracle/codemp/game/bg_slidemove.c:617
+    public var bgEntityContents: (JKAMP.BgEntity) -> Int32 = { _ in portMissing("bgEntityContents", source: "oracle/codemp/game/bg_slidemove.c:617") }
+
+    /// Source: oracle/codemp/game/bg_pmove.c:4243
+    public var bgEntityInuse: (JKAMP.BgEntity) -> Bool = { _ in portMissing("bgEntityInuse", source: "oracle/codemp/game/bg_pmove.c:4243") }
+
+    /// Source: oracle/codemp/game/bg_slidemove.c:61
+    public var bgEntityOwnerNum: (JKAMP.BgEntity) -> Int32 = { _ in portMissing("bgEntityOwnerNum", source: "oracle/codemp/game/bg_slidemove.c:61") }
+
+    /// Source: oracle/codemp/game/bg_pmove.c:10895
+    public var bgEntitySpawnflags: (JKAMP.BgEntity) -> Int32 = { _ in portMissing("bgEntitySpawnflags", source: "oracle/codemp/game/bg_pmove.c:10895") }
+
+    /// Source: oracle/codemp/game/bg_slidemove.c:429
+    public var bgEntityTakedamage: (JKAMP.BgEntity) -> Bool = { _ in portMissing("bgEntityTakedamage", source: "oracle/codemp/game/bg_slidemove.c:429") }
+
+    /// Source: oracle/codemp/game/bg_pmove.c:4254
+    public var bgGametypeInteger: () -> Int32 = { portMissing("bgGametypeInteger", source: "oracle/codemp/game/bg_pmove.c:4254") }
+
+    /// Source: oracle/codemp/game/bg_pmove.c:4453
+    public var bgLevelTime: () -> Int32 = { portMissing("bgLevelTime", source: "oracle/codemp/game/bg_pmove.c:4453") }
+
+    /// Source: oracle/codemp/game/bg_slidemove.c:512
+    public var bgSetClientOtherKillerMOD: (JKAMP.BgEntity, Int32) -> Void = { _, _ in portMissing("bgSetClientOtherKillerMOD", source: "oracle/codemp/game/bg_slidemove.c:512") }
+
+    /// Source: oracle/codemp/game/bg_slidemove.c:513
+    public var bgSetClientOtherKillerVehWeapon: (JKAMP.BgEntity, Int32) -> Void = { _, _ in portMissing("bgSetClientOtherKillerVehWeapon", source: "oracle/codemp/game/bg_slidemove.c:513") }
+
+    /// Source: oracle/codemp/game/bg_slidemove.c:514
+    public var bgSetClientOtherKillerWeaponType: (JKAMP.BgEntity, Int32) -> Void = { _, _ in portMissing("bgSetClientOtherKillerWeaponType", source: "oracle/codemp/game/bg_slidemove.c:514") }
+
+    /// Source: oracle/codemp/game/bg_pmove.c:4453
+    public var bgSetClientSolidHack: (JKAMP.BgEntity, Int32) -> Void = { _, _ in portMissing("bgSetClientSolidHack", source: "oracle/codemp/game/bg_pmove.c:4453") }
+
     public init() {}
 }
 
@@ -235,4 +283,96 @@ func TryGrapple(_ ent: JKAMP.BgEntity) -> Bool {
 /// Source: oracle/codemp/game/g_weapon.c:3961
 func WP_GetVehicleCamPos(_ ent: JKAMP.BgEntity, _ pilot: JKAMP.BgEntity, _ camPos: inout JKAShared.vec3_t) {
     bg.callbacks.WP_GetVehicleCamPos(ent, pilot, &camPos)
+}
+
+/// Source: oracle/codemp/game/bg_pmove.c:7786
+@discardableResult
+func bgBg_fighterAltControlInteger() -> Int32 {
+    bg.callbacks.bgBg_fighterAltControlInteger()
+}
+
+/// Source: oracle/codemp/game/bg_pmove.c:10957
+@discardableResult
+func bgClientCmd(_ ent: JKAMP.BgEntity) -> JKAMP.Usercmd {
+    bg.callbacks.bgClientCmd(ent)
+}
+
+/// Source: oracle/codemp/game/bg_pmove.c:4256
+@discardableResult
+func bgClientSessionTeam(_ ent: JKAMP.BgEntity) -> JKAMP.team_t {
+    bg.callbacks.bgClientSessionTeam(ent)
+}
+
+/// Source: oracle/codemp/game/bg_pmove.c:4255
+@discardableResult
+func bgEntityAlliedTeam(_ ent: JKAMP.BgEntity) -> Int32 {
+    bg.callbacks.bgEntityAlliedTeam(ent)
+}
+
+/// Source: oracle/codemp/game/bg_slidemove.c:77
+@discardableResult
+func bgEntityBmodel(_ ent: JKAMP.BgEntity) -> Bool {
+    bg.callbacks.bgEntityBmodel(ent)
+}
+
+/// Source: oracle/codemp/game/bg_slidemove.c:617
+@discardableResult
+func bgEntityContents(_ ent: JKAMP.BgEntity) -> Int32 {
+    bg.callbacks.bgEntityContents(ent)
+}
+
+/// Source: oracle/codemp/game/bg_pmove.c:4243
+@discardableResult
+func bgEntityInuse(_ ent: JKAMP.BgEntity) -> Bool {
+    bg.callbacks.bgEntityInuse(ent)
+}
+
+/// Source: oracle/codemp/game/bg_slidemove.c:61
+@discardableResult
+func bgEntityOwnerNum(_ ent: JKAMP.BgEntity) -> Int32 {
+    bg.callbacks.bgEntityOwnerNum(ent)
+}
+
+/// Source: oracle/codemp/game/bg_pmove.c:10895
+@discardableResult
+func bgEntitySpawnflags(_ ent: JKAMP.BgEntity) -> Int32 {
+    bg.callbacks.bgEntitySpawnflags(ent)
+}
+
+/// Source: oracle/codemp/game/bg_slidemove.c:429
+@discardableResult
+func bgEntityTakedamage(_ ent: JKAMP.BgEntity) -> Bool {
+    bg.callbacks.bgEntityTakedamage(ent)
+}
+
+/// Source: oracle/codemp/game/bg_pmove.c:4254
+@discardableResult
+func bgGametypeInteger() -> Int32 {
+    bg.callbacks.bgGametypeInteger()
+}
+
+/// Source: oracle/codemp/game/bg_pmove.c:4453
+@discardableResult
+func bgLevelTime() -> Int32 {
+    bg.callbacks.bgLevelTime()
+}
+
+/// Source: oracle/codemp/game/bg_slidemove.c:512
+func bgSetClientOtherKillerMOD(_ ent: JKAMP.BgEntity, _ value: Int32) {
+    bg.callbacks.bgSetClientOtherKillerMOD(ent, value)
+}
+
+/// Source: oracle/codemp/game/bg_slidemove.c:513
+func bgSetClientOtherKillerVehWeapon(_ ent: JKAMP.BgEntity, _ value: Int32) {
+    bg.callbacks.bgSetClientOtherKillerVehWeapon(ent, value)
+}
+
+/// Source: oracle/codemp/game/bg_slidemove.c:514
+func bgSetClientOtherKillerWeaponType(_ ent: JKAMP.BgEntity, _ value: Int32) {
+    bg.callbacks.bgSetClientOtherKillerWeaponType(ent, value)
+}
+
+/// Source: oracle/codemp/game/bg_pmove.c:4453
+func bgSetClientSolidHack(_ ent: JKAMP.BgEntity, _ value: Int32) {
+    bg.callbacks.bgSetClientSolidHack(ent, value)
 }
