@@ -213,11 +213,8 @@ class Drafter:
             return self.labeled(children, labels[0], first_line, last_line, depth)
         for i, child in enumerate(children):
             record = self.record_local(child)
-            if depth == 1 and self.param_copies and (child.kind != CursorKind.DECL_STMT or record is not None):
-                for name in self.param_copies:
-                    out.append(f"{INDENT}// Raven assigns his own `{name}` parameter. A Swift parameter is immutable, so the body takes a mutable copy of it.")
-                    out.append(f"{INDENT}var {name} = {name}")
-                self.param_copies = []
+            if child.kind != CursorKind.DECL_STMT or record is not None:
+                out += self.param_copy_lines(depth)
             out += self.gap(previous_line, child.extent.start.line, depth)
             if record is not None:
                 out += self.scratch(child, record, children[i + 1:], last_line, depth)
@@ -226,6 +223,18 @@ class Drafter:
             self.after_com_error = self.is_call(child) and self.callee_name(child) == "Com_Error"
             previous_line = child.extent.end.line
         out += self.gap(previous_line, last_line, depth)
+        return out
+
+    def param_copy_lines(self, depth: int) -> list[str]:
+        """The mutable copy of each parameter Raven assigns, at the head of the function's own block.
+        A deeper block gives no seat, because a copy there hides the parameter from the statements outside it."""
+        if depth != 1 or not self.param_copies:
+            return []
+        out: list[str] = []
+        for name in self.param_copies:
+            out.append(f"{INDENT}// Raven assigns his own `{name}` parameter. A Swift parameter is immutable, so the body takes a mutable copy of it.")
+            out.append(f"{INDENT}var {name} = {name}")
+        self.param_copies = []
         return out
 
     def labeled(self, children: list[ci.Cursor], i: int, previous_line: int, last_line: int, depth: int) -> list[str]:
@@ -250,6 +259,7 @@ class Drafter:
                 lead += 1
             self.goto_forms[name] = f"break {name}"
             out += self.statements(region[:lead], previous_line, region[lead].extent.start.line if lead < len(region) else label.extent.start.line, depth)
+            out += self.param_copy_lines(depth)
             out.append(f"{pad}{name}: do {{")
             out += self.statements(region[lead:], region[lead].extent.start.line - 1 if lead < len(region) else label.extent.start.line - 1, label.extent.start.line, depth + 1)
             out.append(f"{pad}}}")
@@ -260,6 +270,7 @@ class Drafter:
                 raise Hole(f"A break or a continue after Raven's `{name}:` targets a loop outside it, and the transcriptor restructures the flow.")
             self.goto_forms[name] = f"continue {name}"
             out += self.statements(children[:i], previous_line, label.extent.start.line, depth)
+            out += self.param_copy_lines(depth)
             out.append(f"{pad}{name}: while true {{")
             out += self.statements(rest, label.extent.start.line, last_line, depth + 1)
             out.append(f"{INDENT * (depth + 1)}break")
@@ -541,6 +552,10 @@ class Drafter:
             return f"Int32(MemoryLayout<{swift}>.size)"
         raise Hole(f"A sizeof of `{t.spelling}` the draft cannot size.")
 
+    def is_sizeof(self, cur: ci.Cursor) -> bool:
+        """True for Raven's `sizeof`, which C types unsigned and the draft reads as an Int32."""
+        return self.unwrap(cur).kind == CursorKind.CXX_UNARY_EXPR
+
     def vector_member(self, cur: ci.Cursor) -> str | None:
         """The Swift name of the vector under Raven's `&v[i]`, or None."""
         inner = self.strip(cur)
@@ -581,6 +596,22 @@ class Drafter:
         if not self.is_raw(base):
             return None
         return self.expr(base), label, self.converted(ofs, "Int32"), index
+
+    def record_walk(self, cur: ci.Cursor) -> bool:
+        """True for a parameter or a local Raven walks as an array of records, `animations[anim]`.
+        The view over it holds one record, so the walk has no Swift form."""
+        if cur.kind != CursorKind.DECL_REF_EXPR or self.is_raw(cur):
+            return False
+        ref = cur.referenced
+        if ref is None or ref.kind not in (CursorKind.PARM_DECL, CursorKind.VAR_DECL):
+            return False
+        if ref.kind == CursorKind.VAR_DECL and ref.semantic_parent is not None and ref.semantic_parent.kind == CursorKind.TRANSLATION_UNIT:
+            return False
+        t = cur.type.get_canonical()
+        if t.kind != TypeKind.POINTER:
+            return False
+        record = self.views.record_name(t.get_pointee())
+        return bool(record) and record in self.views.views
 
     def view_operand(self, cur: ci.Cursor) -> bool:
         """True when the expression is a pointer to a record the views cover."""
@@ -920,6 +951,9 @@ class Drafter:
                         return [f"{pad}{self.member(buffer)} = \"\"" + self.trailing(cur)]
                     raven = self.bytes[cur.extent.start.offset:cur.extent.end.offset].decode("utf-8", "replace")
                     raise Hole(f"Raven writes `{raven}` into a character buffer the view holds as a String.")
+                if op == "=" and self.view_operand(left) and not self.optional_base(left) and self.optional_base(right):
+                    raven = self.bytes[cur.extent.start.offset:cur.extent.end.offset].decode("utf-8", "replace")
+                    raise Hole(f"Raven stores `{raven}`, and the view holds the source as an optional where the target takes a value. A never-null ruling is due.")
                 target = self.expr(left)
                 inner = self.strip(right)
                 if op == "=" and inner.kind == CursorKind.BINARY_OPERATOR and not self.macro_span(inner) and self.binary_op(inner) == "=":
@@ -1107,11 +1141,13 @@ class Drafter:
         if groups:
             # Raven's comment between the switch's brace and his first case, `//case WP_NONE:`, stays above the first case.
             out += [line for line in self.gap(body.extent.start.line, groups[0][2], depth) if line.strip()]
+        # Each group is one arm, so Raven's `default:` before his other cases moves to the end of the switch as a whole arm.
+        arms: list[list[str]] = []
+        default_at = next((i for i, (labels, _, _) in enumerate(groups) if "default" in labels), None)
         for i, (labels, stmts, label_line) in enumerate(groups):
             label = "default" if labels == ["default"] else "case " + ", ".join(l for l in labels if l != "default")
             if "default" in labels and len(labels) > 1:
                 label = "default"
-            out.append(f"{pad}{label}:")
             ends_in_break = bool(stmts) and stmts[-1].kind == CursorKind.BREAK_STMT
             ends_in_exit = bool(stmts) and stmts[-1].kind in (CursorKind.RETURN_STMT, CursorKind.CONTINUE_STMT)
             inner_stmts = stmts[:-1] if ends_in_break else stmts
@@ -1135,10 +1171,18 @@ class Drafter:
             if not any(line.strip() and not line.strip().startswith("//") for line in lines):
                 # A case with comments alone still needs its break.
                 lines.append(f"{INDENT * (depth + 1)}break")
-            out += lines
-            if i + 1 < len(groups):
+            arms.append([f"{pad}{label}:"] + lines)
+        if default_at is not None and default_at + 1 < len(arms):
+            # Swift takes no case after the default block. A fall-through beside the default has no order that keeps it, so it stays a hole.
+            neighbors = [arms[default_at]] + ([arms[default_at - 1]] if default_at else [])
+            if any(line.strip() == "fallthrough" for arm in neighbors for line in arm):
+                raise Hole("Raven's `default:` comes before his other cases, and a case falls through beside it.")
+            arms.append(arms.pop(default_at))
+        for i, arm in enumerate(arms):
+            out += arm
+            if i + 1 < len(arms):
                 out.append("")
-        if not any("default" in labels for labels, _, _ in groups):
+        if default_at is None:
             out += ["", f"{pad}default:", f"{INDENT * (depth + 1)}break"]
         out.append(f"{pad}}}")
         return out
@@ -1624,6 +1668,9 @@ class Drafter:
             if inner_base.kind == CursorKind.MEMBER_REF_EXPR and inner_base.type.get_canonical().kind == TypeKind.POINTER and not self.float_field(inner_base):
                 raven = self.bytes[cur.extent.start.offset:cur.extent.end.offset].decode("utf-8", "replace")
                 raise Hole(f"Raven reads `{raven}` through a `{inner_base.type.spelling}` field. The generated field is an `OpaquePointer?`, and rule 11 keeps a pointer out of a logic target.")
+            if self.record_walk(inner_base):
+                raven = self.bytes[cur.extent.start.offset:cur.extent.end.offset].decode("utf-8", "replace")
+                raise Hole(f"Raven walks `{raven}` as an array through a `{inner_base.type.spelling}` parameter, and the view holds one record. A Slots ruling is due.")
             base_text = self.base(base)
             outer = self.leaf_wrap
             self.leaf_wrap = None
@@ -1704,7 +1751,7 @@ class Drafter:
             if op not in COMPARISONS | LOGICAL and (self.is_bool(left) or self.is_bool(right)):
                 # Raven's `!x & mask` is arithmetic on the 0 or 1 of the test, so the Bool converts as C does.
                 return f"{self.converted(left, 'Int32')} {op} {self.converted(right, 'Int32')}"
-            if op not in COMPARISONS | LOGICAL and self.leaf_wrap is None:
+            if op not in COMPARISONS | LOGICAL and self.leaf_wrap is None and not self.is_sizeof(left) and not self.is_sizeof(right):
                 lu, ru = self.unsigned_of(left), self.unsigned_of(right)
                 if lu is not None and ru is None and not self.is_literal(right):
                     return f"{self.expr(left)} {op} {self.wrapped(right, lu)}"
