@@ -7,7 +7,7 @@
 
 /// One `holdrand` state and the five draws Raven built on it.
 /// Raven compiles `q_math.c` once per target, so game, cgame, ui, and the engine each hold a private seed.
-/// An owner embeds one instance, and rule 3 keeps the seed out of a Swift global.
+/// The `rng` global of `q_math.swift` is the product's one instance, and the five bare functions there draw from it.
 ///
 /// Source: oracle/codemp/game/q_math.c:1432
 public struct Rng: Hashable, Sendable {

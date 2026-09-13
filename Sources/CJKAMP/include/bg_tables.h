@@ -11,6 +11,8 @@ extern int bg_numItems;
 extern weaponData_t weaponData[WP_NUM_WEAPONS];
 // Source: oracle/codemp/game/bg_weapons.c:358
 extern ammoData_t ammoData[AMMO_MAX];
+// Source: oracle/codemp/game/bg_saber.c:120
+extern saberMoveData_t saberMoveData[LS_MOVE_MAX];
 
 // Raven's field descriptor of the vehicle parsers, and the enum it names, defined inside bg_vehicleLoad.c.
 // Source: oracle/codemp/game/bg_vehicleLoad.c:111

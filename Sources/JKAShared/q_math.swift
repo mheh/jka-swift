@@ -1094,6 +1094,38 @@ public func NormalToLatLong(_ normal: vec3_t, _ bytes: inout (byte, byte)) {
     }
 }
 
+// MARK: - The holdrand draws
+
+/// Raven's `static unsigned long holdrand` of `q_math.c`, one seed per compiled library, so each product holds one copy.
+/// bg and game logic of one product draw from it alike. A test assigns a fresh one.
+/// Source: oracle/codemp/game/q_math.c:1432
+public nonisolated(unsafe) var rng = Rng()
+
+/// Source: oracle/codemp/game/q_math.c:1434
+public func Rand_Init(_ seed: Int32) {
+    rng.Rand_Init(seed)
+}
+
+/// Source: oracle/codemp/game/q_math.c:1441
+public func flrand(_ min: Float, _ max: Float) -> Float {
+    rng.flrand(min, max)
+}
+
+/// Source: oracle/codemp/game/q_math.c:1451
+public func Q_flrand(_ min: Float, _ max: Float) -> Float {
+    rng.Q_flrand(min, max)
+}
+
+/// Source: oracle/codemp/game/q_math.c:1458
+public func irand(_ min: Int32, _ max: Int32) -> Int32 {
+    rng.irand(min, max)
+}
+
+/// Source: oracle/codemp/game/q_math.c:1471
+public func Q_irand(_ value1: Int32, _ value2: Int32) -> Int32 {
+    rng.Q_irand(value1, value2)
+}
+
 /// Source: oracle/codemp/game/q_math.c:1476
 public func powf(_ x: Float, _ y: Int32) -> Float {
     var r = x

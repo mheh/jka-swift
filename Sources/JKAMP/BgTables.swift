@@ -17,6 +17,10 @@ public nonisolated(unsafe) let weaponData: Slots<WeaponData> = makeWeaponData()
 /// Source: oracle/codemp/game/bg_weapons.c:358
 public nonisolated(unsafe) let ammoData: Slots<AmmoData> = makeAmmoData()
 
+/// Raven's saber move table, over the C storage of `Sources/CJKAMP/bg_tables.c`.
+/// Source: oracle/codemp/game/bg_saber.c:120
+public nonisolated(unsafe) let saberMoveData: Slots<SaberMoveData> = makeSaberMoveData()
+
 // MARK: - The bind over each C array
 
 /// The compiler crashes if a global initializer takes the address inline, so each table binds in a function.
@@ -36,4 +40,10 @@ private func makeAmmoData() -> Slots<AmmoData> {
     let base = withUnsafeMutablePointer(to: &CJKAMP.ammoData) { UnsafeMutableRawPointer($0) }
     let count = MemoryLayout.size(ofValue: CJKAMP.ammoData) / AmmoData.stride
     return Slots(views: base, count: count, stride: AmmoData.stride)
+}
+
+private func makeSaberMoveData() -> Slots<SaberMoveData> {
+    let base = withUnsafeMutablePointer(to: &CJKAMP.saberMoveData) { UnsafeMutableRawPointer($0) }
+    let count = MemoryLayout.size(ofValue: CJKAMP.saberMoveData) / SaberMoveData.stride
+    return Slots(views: base, count: count, stride: SaberMoveData.stride)
 }
