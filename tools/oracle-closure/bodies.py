@@ -30,6 +30,9 @@ from reexport import SOURCES
 from rulings import HAND_VARS, NEVER_NULL_VARS
 import closure as C
 from skeleton import BG, LOGIC, ORACLE_DIR, Function, Skeleton, target_of
+
+# The Swift targets a bg body never sees, by the bg/game boundary.
+GAME_SIDE = {LOGIC, "JKAMP_Game"}
 from table import Param, TARGET, swift_name
 
 INDENT = "    "
@@ -1429,6 +1432,9 @@ class Drafter:
             return f"({text} ? 1 : 0)"
         if swift in ("Float", "Int32") and have is not None and have != swift and not self.is_literal(cur):
             return f"{swift}({self.expr(cur)})"
+        if swift == "Int32" and self.unsigned_of(cur) is not None and self.unwrap(cur).kind in self.NAMED_LEAVES:
+            # C passes an unsigned int where an int is due, and the bits stay the same.
+            return f"Int32(bitPattern: {self.expr(cur)})" if self.unsigned_of(cur) == "UInt32" else f"Int32(truncatingIfNeeded: {self.expr(cur)})"
         return self.coerced(cur, swift)
 
     def empty_test(self, cur: ci.Cursor) -> str | None:
@@ -1537,6 +1543,7 @@ class Drafter:
         return text
 
     UNSIGNED = {"UInt", "UInt8", "UInt16", "UInt32", "UInt64"}
+    NAMED_LEAVES = (CursorKind.DECL_REF_EXPR, CursorKind.MEMBER_REF_EXPR, CursorKind.ARRAY_SUBSCRIPT_EXPR)
 
     def has_double_literal(self, cur: ci.Cursor) -> bool:
         """True when Raven's expression holds a floating literal with no f suffix, which C computes in double."""
@@ -1548,9 +1555,10 @@ class Drafter:
         return False
 
     def unsigned_of(self, cur: ci.Cursor) -> str | None:
-        """The unsigned Swift type of the expression, when the views spell its C type unsigned."""
+        """The unsigned Swift type of the expression, when the views spell its C type unsigned.
+        A view widens a byte or a short to Int32, so a narrow unsigned reads as signed arithmetic, as C's promotion does."""
         swift = self.views.scalar(self.strip(cur).type, TARGET)
-        return swift if swift in self.UNSIGNED else None
+        return swift if swift in self.UNSIGNED and swift not in ("UInt8", "UInt16") else None
 
     def wrapped(self, cur: ci.Cursor, wrap: str) -> str:
         """The expression with `wrap(...)` on each numeric leaf that is not a literal."""
@@ -1578,7 +1586,10 @@ class Drafter:
             # A node whose whole text is one name is a macro use, `ENTITYNUM_WORLD`, and the name is what Raven wrote.
             text = self.source.slice(cur.extent).strip()
             if IDENTIFIER.fullmatch(text):
-                return "nil" if text == "NULL" else self.leaf(cur, swift_name(text))
+                if text == "NULL":
+                    return "nil"
+                self.reach(text, "macro")
+                return self.leaf(cur, swift_name(text))
         if kind == CursorKind.UNEXPOSED_EXPR:
             if self.is_call(cur):
                 return self.call(cur)
@@ -1774,7 +1785,7 @@ class Drafter:
         if target_of(self.fn.stem) != BG:
             return
         homes = self.registry.homes.get(swift_name(name), set())
-        if homes == {LOGIC}:
+        if homes and homes <= GAME_SIDE:
             raise Hole(f"Raven reaches the game's `{name}` here, and the bg module has no view of it.")
         if not homes and what == "variable":
             raise Hole(f"Raven reaches `{name}` here, and no Swift file holds it yet.")
@@ -2133,6 +2144,9 @@ class Drafter:
             raise Hole(f"A cast to `{target.spelling}` the table has no type for.")
         if self.views.narrow(target) is not None:
             swift = "Int32"
+        if swift in ("Int32", "Float") and self.is_bool(operand):
+            # Raven's `(int)` on a qboolean is the Bool as a number.
+            return self.converted(operand, swift)
         return f"{swift}({self.expr(operand)})"
 
     def stride_walk(self, operand: ci.Cursor) -> str | None:
