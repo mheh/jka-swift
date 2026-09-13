@@ -134,6 +134,8 @@ class Drafter:
         self.holes = 0
         # The locals a hole declares, so a later error on one of them counts as a cascade of the hole, not a new defect.
         self.hole_names: set[str] = set()
+        # The same names of the function being drafted alone, because another function is free to hold a local of that name.
+        self.local_holes: set[str] = set()
         # Lines an expression asks to go above its statement: a Port-note, or a scratch local for a NULL output argument.
         self.pending: list[str] = []
         # The parameters and the local declarations of the function being drafted, by name, for the let and the guard rules.
@@ -147,6 +149,8 @@ class Drafter:
         self.reads = {r.key: r for r in sk.table.sweep_reads(sk.tu, (C.ORACLE / ORACLE_DIR).resolve())}
         # The locals of the function being drafted that Raven typed `gentity_t *` and the draft holds as `JKAMP.BgEntity`.
         self.game_entities: set[str] = set()
+        # The text kind of each argument of the call being drafted, by position, so one overload takes the whole call.
+        self.call_kinds: dict[int, str] = {}
 
     # MARK: - One function
 
@@ -165,13 +169,14 @@ class Drafter:
         # The vector each pointer-to-float local of the function stands for, by Raven's name.
         self.aliases: dict[str, ci.Cursor] = {}
         self.game_entities = set()
+        self.local_holes = set()
         self.optional_entities: set[str] = set()
         self.after_com_error = False
         self.charbuf_locals: set[str] = set()
         # Raven's `byte *b` and `char *dest` locals that only ever hold a raw allocation, which Swift holds as UnsafeMutableRawPointer.
         self.raw_locals = self.raw_local_names(fn.cur)
         # Raven's `const char *token` that only holds parsed text is a String, and his `char *p` over a buffer is a TextCursor.
-        self.text_locals, self.cursor_locals = self.text_local_names(fn.cur)
+        self.text_locals, self.optional_texts, self.cursor_locals = self.text_local_names(fn.cur)
         # Raven's `for (it = table + 1; it->name; it++)` walks a table by pointer, and the draft walks it by index, `table[itIndex]`.
         self.table_cursors = self.table_cursor_names(fn.cur)
         # The slot text each copy stands for inside the one call being drafted, `fxAxis[2]` for `fxAxis2`.
@@ -637,9 +642,10 @@ class Drafter:
             return self.registry.returns.get(self.callee_name(inner) or "") == "UnsafeMutableRawPointer"
         return False
 
-    def text_local_names(self, fn: ci.Cursor) -> tuple[set[str], dict[str, str]]:
-        """The char pointer locals of the function by their stores: every store a String-returning call names a text local,
-        and every store a buffer names a cursor local, with the Swift text of the buffer it walks."""
+    def text_local_names(self, fn: ci.Cursor) -> tuple[set[str], set[str], dict[str, str]]:
+        """The char pointer locals of the function by their stores: every store a String-returning call or a `char name[N]` field
+        names a text local, and every store a buffer names a cursor local, with the Swift text of the buffer it walks.
+        The second set holds the text locals Raven also stores his NULL into, which Swift holds as a `String?`."""
         stores: dict[str, list[str]] = {}
         buffers: dict[str, str] = {}
         for var in fn.walk_preorder():
@@ -666,8 +672,10 @@ class Drafter:
             if left.kind == CursorKind.DECL_REF_EXPR and left.spelling in stores:
                 stores[left.spelling].append(self.text_store_kind(kids[1], left.spelling, buffers))
         texts = {name for name, kinds in stores.items() if "text" in kinds and all(k in ("text", "null") for k in kinds)}
+        # Raven stores his NULL into some of them, and Swift holds that local as an optional text.
+        optionals = {name for name in texts if "null" in stores[name]}
         cursors = {name: buffers[name] for name, kinds in stores.items() if "buffer" in kinds and all(k in ("buffer", "null") for k in kinds)}
-        return texts, cursors
+        return texts, optionals, cursors
 
     def text_store_kind(self, cur: ci.Cursor, name: str, buffers: dict[str, str]) -> str:
         inner = self.unwrap(cur)
@@ -676,6 +684,8 @@ class Drafter:
         if inner.kind == CursorKind.CALL_EXPR and self.registry.returns.get(self.callee_name(inner) or "") == "String":
             return "text"
         if inner.kind == CursorKind.STRING_LITERAL:
+            return "text"
+        if self.field_slot(inner) is not None:
             return "text"
         if inner.kind == CursorKind.DECL_REF_EXPR:
             t = inner.type.get_canonical()
@@ -764,6 +774,7 @@ class Drafter:
     def hole(self, cur: ci.Cursor, depth: int, reason: str) -> list[str]:
         self.holes += 1
         self.hole_names |= {c.spelling for c in cur.walk_preorder() if c.kind == CursorKind.VAR_DECL}
+        self.local_holes |= {c.spelling for c in cur.walk_preorder() if c.kind == CursorKind.VAR_DECL}
         pad = INDENT * depth
         raven = " ".join(self.source.slice(cur.extent).split())
         return [
@@ -900,8 +911,10 @@ class Drafter:
                 if op == "=" and self.unwrap(left).kind == CursorKind.DECL_REF_EXPR and self.unwrap(left).spelling in self.cursor_locals:
                     source = "JKAShared.TextCursor()" if self.is_null(right) else f"JKAShared.TextCursor({self.expr(right)})"
                     return [f"{pad}{self.expr(left)} = {source}" + self.trailing(cur)]
-                if op == "=" and self.unwrap(left).kind == CursorKind.DECL_REF_EXPR and self.unwrap(left).spelling in self.text_locals and self.is_null(right):
-                    return [f"{pad}{self.expr(left)} = \"\"" + self.trailing(cur)]
+                if op == "=" and self.unwrap(left).kind == CursorKind.DECL_REF_EXPR and self.unwrap(left).spelling in self.text_locals \
+                        and (self.is_null(right) or self.field_slot(right) is not None):
+                    optional = self.unwrap(left).spelling in self.optional_texts
+                    return [f"{pad}{self.expr(left)} = {self.text_value(right, optional)}" + self.trailing(cur)]
                 if self.unwrap(left).kind == CursorKind.DECL_REF_EXPR and self.unwrap(left).spelling in self.hole_names:
                     raise Hole(f"A store into `{self.unwrap(left).spelling}`, a local the draft left as a hole.")
                 if op == "=" and self.unwrap(left).kind == CursorKind.ARRAY_SUBSCRIPT_EXPR and self.is_raw(list(self.unwrap(left).get_children())[0]):
@@ -1199,6 +1212,7 @@ class Drafter:
             except Hole as hole:
                 self.holes += 1
                 self.hole_names.add(var.spelling)
+                self.local_holes.add(var.spelling)
                 raven = " ".join(self.bytes[var.extent.start.offset:var.extent.end.offset].decode("utf-8", "replace").split())
                 out += [f"// Port-note: {hole}", f"// Raven wrote: {raven};", f'portMissing("{self.fn.name}", source: "{self.fn.cite}")']
         return out
@@ -1255,9 +1269,13 @@ class Drafter:
         if var.spelling in self.raw_locals:
             return f"{keyword} {name}: UnsafeMutableRawPointer" + (f" = {self.expr(init[0])}" if init else "")
         if var.spelling in self.text_locals:
-            # Raven's NULL on a text local is the empty text, because the parser never hands NULL back.
-            value = ('""' if self.is_null(init[0]) else self.expr(init[0])) if init else None
-            return f"{keyword} {name}: String" + (f" = {value}" if value is not None else "")
+            # A text local Raven stores his NULL into is an optional text, and `nil` is that NULL.
+            # His NULL into any other one is the empty text, because the parser never hands NULL back.
+            optional = var.spelling in self.optional_texts
+            value = self.text_value(init[0], optional) if init else ("nil" if optional else None)
+            swift = "String?" if optional else "String"
+            keyword = "var" if optional else keyword
+            return f"{keyword} {name}: {swift}" + (f" = {value}" if value is not None else "")
         if var.spelling in self.cursor_locals:
             # A cursor starts NULL until a store points it at a buffer, so the buffer's own declaration can come later.
             if init and not self.is_null(init[0]):
@@ -1300,6 +1318,33 @@ class Drafter:
             # so the local starts at zero. The zero is the divergence rule 19 allows.
             return f"{keyword} {name}: {swift} = {'false' if swift == 'Bool' else '0'}"
         return f"{keyword} {name}: {swift}"
+
+    def field_slot(self, cur: ci.Cursor) -> tuple[ci.Cursor, ci.Cursor | None] | None:
+        """Raven's `x->name` or his `&x->name[n]` on a `char name[N]` field, as the field and the byte its text starts at, or None."""
+        inner = self.unwrap(cur)
+        if self.string_field(inner):
+            return inner, None
+        if inner.kind != CursorKind.UNARY_OPERATOR or self.unary_parts(inner)[0] != "&":
+            return None
+        slot = self.unwrap(self.unary_parts(inner)[2])
+        if slot.kind != CursorKind.ARRAY_SUBSCRIPT_EXPR:
+            return None
+        base, index = list(slot.get_children())
+        base = self.unwrap(base)
+        return (base, index) if self.string_field(base) else None
+
+    def text_value(self, cur: ci.Cursor, optional: bool) -> str:
+        """Raven's source for a String local: his NULL, the text of a `char name[N]` field, or the expression as it is."""
+        inner = self.unwrap(cur)
+        if self.is_null(inner):
+            return "nil" if optional else '""'
+        slot = self.field_slot(inner)
+        if slot is None:
+            return self.expr(inner)
+        field, index = slot
+        if index is None or self.is_null(index):
+            return self.expr(field)
+        return f"String({self.expr(field)}.dropFirst(Int({self.converted(index, 'Int32')})))"
 
     def text_tail(self, cur: ci.Cursor) -> str | None:
         """Raven's `&token[n]` on a String, the text from the nth byte, or None."""
@@ -1497,7 +1542,7 @@ class Drafter:
         if base.kind != CursorKind.DECL_REF_EXPR:
             return None
         if base.spelling in self.text_locals:
-            return self.expr(base)
+            return self.expr(base) + ("!" if base.spelling in self.optional_texts else "")
         param = self.params_by_name.get(base.spelling)
         return self.names[base.spelling] if param is not None and param.kind == "cstring" else None
 
@@ -1551,7 +1596,7 @@ class Drafter:
         inner = self.unwrap(cur)
         if inner.kind == CursorKind.UNARY_OPERATOR and self.unary_parts(inner)[0] == "&":
             return self.bytes[inner.extent.start.offset:inner.extent.end.offset].decode("utf-8", "replace")
-        if inner.kind == CursorKind.DECL_REF_EXPR and inner.spelling in self.text_locals:
+        if inner.kind == CursorKind.DECL_REF_EXPR and inner.spelling in self.text_locals and inner.spelling not in self.optional_texts:
             return inner.spelling
         if inner.kind == CursorKind.DECL_REF_EXPR and inner.spelling in self.params_by_name:
             kind = self.params_by_name[inner.spelling].kind
@@ -1807,6 +1852,9 @@ class Drafter:
             return "nil"
         if name in self.names:
             return self.names[name]
+        if name in self.local_holes and ref is not None and ref.kind == CursorKind.VAR_DECL:
+            # The declaration is a hole, so the local has no Swift name, and a read of it is the same hole one statement later.
+            raise Hole(f"A read of `{name}`, a local the draft left as a hole.")
         if name in self.aliases and ref is not None and ref.kind == CursorKind.VAR_DECL:
             return self.expr(self.aliases[name])
         if name in self.table_cursors and ref is not None and ref.kind == CursorKind.VAR_DECL:
@@ -1857,6 +1905,8 @@ class Drafter:
                 return False
             if inner.spelling in self.charbuf_locals or inner.spelling in self.table_cursors or inner.spelling in self.raw_locals:
                 return False
+            if inner.spelling in self.optional_texts:
+                return True
             if inner.spelling in self.text_locals or inner.spelling in self.cursor_locals:
                 return False
             if inner.spelling in self.aliases and ref is not None and ref.kind == CursorKind.VAR_DECL:
@@ -1942,7 +1992,12 @@ class Drafter:
                     return f"sscanf({self.argument(args[0], False, ('s', 'String'), name, 0)}, {self.expr(args[1])}, &{roots[0]})"
             self.reach(name, "function", callee.referenced)
             params = self.callee_params(name)
-            words = [self.argument(a, i < len(params) and params[i][1].startswith("inout "), params[i] if i < len(params) else None, name, i) for i, a in enumerate(args)]
+            outer = self.call_kinds
+            self.call_kinds = self.argument_kinds(args)
+            try:
+                words = [self.argument(a, i < len(params) and params[i][1].startswith("inout "), params[i] if i < len(params) else None, name, i) for i, a in enumerate(args)]
+            finally:
+                self.call_kinds = outer
             return f"{swift_name(name)}({', '.join(words)})"
         if callee is not None and callee.kind == CursorKind.MEMBER_REF_EXPR:
             # A stored function on a view runs through the view's method, `pm.runTrace(...)`, which views.py writes per field.
@@ -1950,7 +2005,12 @@ class Drafter:
             field = callee.spelling
             method = f"run{field[0].upper()}{field[1:]}"
             params = self.registry.params.get(method, [])
-            words = [self.argument(a, i < len(params) and params[i][1].startswith("inout "), params[i] if i < len(params) else None, method, i) for i, a in enumerate(args)]
+            outer = self.call_kinds
+            self.call_kinds = self.argument_kinds(args)
+            try:
+                words = [self.argument(a, i < len(params) and params[i][1].startswith("inout "), params[i] if i < len(params) else None, method, i) for i, a in enumerate(args)]
+            finally:
+                self.call_kinds = outer
             return f"{self.base(kids_[0])}.{method}({', '.join(words)})"
         if callee is not None:
             words = [self.argument(a, False) for a in args]
@@ -2078,6 +2138,9 @@ class Drafter:
             # A stored function on a view goes where the callee takes a closure as the view's run method, bound to the view.
             field = inner.spelling
             return f"{self.base(list(inner.get_children())[0])}.run{field[0].upper()}{field[1:]}"
+        if param is not None and param[1].replace("JKAShared.", "") == "inout CharBuf" and callee in self.sk.by_name and self.immutable_text(inner):
+            raven = " ".join(self.bytes[cur.extent.start.offset:cur.extent.end.offset].decode("utf-8", "replace").split())
+            raise Hole(f"Raven passes `{raven}` to `{callee}`, whose `char *` parameter the stub holds as an inout CharBuf. Docket row 5 is due.")
         text = self.expr(inner)
         if param is not None and param[1] in TEXT_TYPES and inner.kind == CursorKind.DECL_REF_EXPR and inner.spelling in self.cursor_locals:
             raise Hole(f"Raven passes the cursor `{inner.spelling}` as text, and the TextCursor has no text form yet.")
@@ -2104,6 +2167,21 @@ class Drafter:
             return f"&{text}"
         return f"&{text}" if inout else text
 
+    def immutable_text(self, cur: ci.Cursor) -> bool:
+        """True for text Swift holds as a value the callee cannot write into.
+        Raven's literal, a String local, a String parameter, and a `char name[N]` field are all of that kind."""
+        inner = self.unwrap(cur)
+        if inner.kind == CursorKind.STRING_LITERAL:
+            return True
+        if self.string_field(inner):
+            return True
+        if inner.kind != CursorKind.DECL_REF_EXPR:
+            return False
+        param = self.params_by_name.get(inner.spelling)
+        if param is not None:
+            return param.kind == "cstring"
+        return inner.spelling in self.text_locals
+
     def is_callback(self, cur: ci.Cursor) -> bool:
         """True for a member reference to a field that stores a function pointer."""
         t = cur.type.get_canonical()
@@ -2123,13 +2201,62 @@ class Drafter:
         return None
 
     def overload_takes(self, callee: str | None, position: int, swift: str) -> bool:
-        """True when some Swift overload of the callee takes the named type at the position, so the argument passes as it is."""
+        """True when some Swift overload of the callee takes the named type at the position and every other text argument as it is.
+        Swift picks one overload for the whole call, so an overload that takes this argument and rejects a later one is no match."""
         if callee is None:
             return False
         for params in self.registry.overloads.get(callee, []):
-            if position < len(params) and params[position][1].replace("JKAShared.", "") == swift:
+            if position < len(params) and self.param_type(params, position) == swift and self.overload_fits(params, position):
                 return True
         return False
+
+    def param_type(self, params: list[tuple[str, str]], position: int) -> str:
+        """The Swift type of one parameter, without its module and without its `inout`."""
+        return params[position][1].replace("JKAShared.", "").replace("inout ", "")
+
+    def overload_fits(self, params: list[tuple[str, str]], position: int) -> bool:
+        """True when the overload takes every other text argument of the call as it is.
+        An argument the draft has no text kind for fits any overload, and so does a parameter that is not text."""
+        for i, kind in self.call_kinds.items():
+            if i == position or i >= len(params):
+                continue
+            swift = self.param_type(params, i)
+            if swift in TEXT_TYPES and swift != kind:
+                return False
+        return True
+
+    def text_kind(self, cur: ci.Cursor) -> str | None:
+        """The Swift text type the draft passes an argument as: String, CharBuf, or PooledString, and None for the rest."""
+        inner = self.strip(cur)
+        if inner.kind == CursorKind.UNARY_OPERATOR and self.unary_parts(inner)[0] == "&":
+            inner = self.unwrap(self.unary_parts(inner)[2])
+        if inner.kind == CursorKind.STRING_LITERAL:
+            # A literal fits a String parameter and a CharBuf one alike, so it holds no overload back.
+            return None
+        if self.string_field(inner):
+            return "String"
+        if self.pooled_field(inner):
+            return "PooledString"
+        if self.is_charbuf(inner):
+            return "CharBuf"
+        if inner.kind != CursorKind.DECL_REF_EXPR:
+            return None
+        param = self.params_by_name.get(inner.spelling)
+        if param is not None:
+            return "String" if param.kind == "cstring" else None
+        return "String" if inner.spelling in self.text_locals else None
+
+    def argument_kinds(self, args: list[ci.Cursor]) -> dict[int, str]:
+        """The text kind of each argument of one call, by position, for the overload choice."""
+        out: dict[int, str] = {}
+        for i, arg in enumerate(args):
+            try:
+                kind = self.text_kind(arg)
+            except Hole:
+                kind = None
+            if kind is not None:
+                out[i] = kind
+        return out
 
     def is_null(self, cur: ci.Cursor) -> bool:
         inner = self.unwrap(cur)
