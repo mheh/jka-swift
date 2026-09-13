@@ -161,6 +161,8 @@ class Drafter:
         self.scratch_names: dict[str, int] = {}
         # The Swift statement each of Raven's labels gives its gotos, `break rest` or `continue backAgain`.
         self.goto_forms: dict[str, str] = {}
+        # The vector each pointer-to-float local of the function stands for, by Raven's name.
+        self.aliases: dict[str, ci.Cursor] = {}
         self.lets = self.single_writes(fn.cur)
         if any(self.record_local(c) is not None for c in fn.cur.walk_preorder()):
             # A closure cannot initialize a let of the enclosing body, so a body with a scratch record keeps every local a var.
@@ -569,6 +571,10 @@ class Drafter:
             op = self.binary_op(cur)
             if op in ASSIGNS:
                 left, right = list(cur.get_children())
+                if op == "=" and self.unwrap(left).kind == CursorKind.DECL_REF_EXPR and self.unwrap(left).spelling in self.aliases:
+                    # The store that names the alias has no effect of its own, and the comment beside it stays.
+                    rest = self.trailing(cur).strip()
+                    return [f"{pad}{rest}"] if rest else []
                 buffer = self.char_buffer(left)
                 if buffer is not None:
                     # Raven's `name[0] = 0` empties a character buffer the view holds as a String.
@@ -774,7 +780,9 @@ class Drafter:
             if var.kind != CursorKind.VAR_DECL:
                 raise Hole(f"A {var.kind.name} inside a declaration.")
             try:
-                out.append(self.declaration(var))
+                line = self.declaration(var)
+                if line:
+                    out.append(line)
             except Hole as hole:
                 self.holes += 1
                 self.hole_names.add(var.spelling)
@@ -797,6 +805,12 @@ class Drafter:
             if init:
                 raise Hole("An array of vectors with an initializer.")
             return f"var {name}: [JKAShared.vec3_t] = [{', '.join(['JKAShared.vec3_t(0, 0, 0)'] * count)}]"
+        if t.get_canonical().kind == TypeKind.CONSTANTARRAY:
+            return self.array_declaration(var, init)
+        if t.get_canonical().kind == TypeKind.POINTER and self.alias_target(var) is not None:
+            # Raven's `float *vel = pm->ps->velocity` names a vector, so every read of `vel` goes to the vector and the local drops.
+            self.aliases[var.spelling] = self.alias_target(var)
+            return ""
         if t.get_canonical().kind == TypeKind.POINTER:
             record = self.views.record_name(t.get_canonical().get_pointee())
             if record and record in self.views.views:
@@ -814,6 +828,51 @@ class Drafter:
         if init:
             return f"{keyword} {name}: {swift} = {self.converted(init[0], swift)}"
         return f"{keyword} {name}: {swift}"
+
+    def array_declaration(self, var: ci.Cursor, init: list[ci.Cursor]) -> str:
+        """A local array of scalars, `static int movementOffsets[8] = { ... }`, as a Swift array. A static array nothing writes is
+        a constant table, the same value on every call, and a static array a statement writes is storage that outlives the call."""
+        name = swift_name(var.spelling)
+        t = var.type.get_canonical()
+        element = self.views.scalar(t.element_type, TARGET)
+        if element is None:
+            raise Hole(f"A local `{var.type.spelling} {var.spelling}` the table has no type for.")
+        if self.views.narrow(t.element_type) is not None:
+            element = "Int32"
+        written = var.spelling in self.written
+        if var.storage_class == ci.StorageClass.STATIC and written:
+            raise Hole(f"A static local `{var.spelling}` a statement writes, storage that outlives the call.")
+        keyword = "var" if written else "let"
+        if not init:
+            zero = "false" if element == "Bool" else "0"
+            return f"var {name}: [{element}] = [{element}](repeating: {zero}, count: {t.element_count})"
+        inner = self.unwrap(init[0])
+        if inner.kind != CursorKind.INIT_LIST_EXPR:
+            raise Hole("An array local with an initializer that is not a list.")
+        words = [self.converted(k, element) for k in inner.get_children()]
+        words += ["0"] * (t.element_count - len(words))
+        return f"{keyword} {name}: [{element}] = [{', '.join(words)}]"
+
+    def alias_target(self, var: ci.Cursor) -> ci.Cursor | None:
+        """The one vector a pointer-to-float local stands for: its only store is a `vec3_t`, and no statement takes its address."""
+        t = var.type.get_canonical()
+        if t.kind != TypeKind.POINTER or t.get_pointee().get_canonical().kind != TypeKind.FLOAT:
+            return None
+        init = [c for c in var.get_children() if c.kind.is_expression() and b"=" in self.bytes[var.extent.start.offset:c.extent.start.offset]]
+        stores = [self.unwrap(init[0])] if init else []
+        for cur in self.fn.cur.walk_preorder():
+            kids = list(cur.get_children())
+            if cur.kind == CursorKind.BINARY_OPERATOR and len(kids) == 2 and not self.collapsed(cur) and self.binary_op(cur) == "=":
+                left = self.unwrap(kids[0])
+                if left.kind == CursorKind.DECL_REF_EXPR and left.referenced is not None and left.referenced == var:
+                    stores.append(self.unwrap(kids[1]))
+            if cur.kind == CursorKind.UNARY_OPERATOR and kids and self.unary_parts(cur)[0] == "&":
+                inner = self.unwrap(kids[0])
+                if inner.kind == CursorKind.DECL_REF_EXPR and inner.referenced is not None and inner.referenced == var:
+                    return None
+        if len(stores) != 1 or not self.views.is_vec3(stores[0].type):
+            return None
+        return stores[0]
 
     def vector_literal(self, cur: ci.Cursor) -> str:
         """Raven's `{ 0, 0, 0 }` or `{0}` as the vector, with the members he left out at zero."""
@@ -1105,6 +1164,8 @@ class Drafter:
             return "nil"
         if name in self.names:
             return self.names[name]
+        if name in self.aliases and ref is not None and ref.kind == CursorKind.VAR_DECL:
+            return self.expr(self.aliases[name])
         if ref is not None and ref.kind == CursorKind.ENUM_CONSTANT_DECL:
             return name
         if name in HAND_VARS:
@@ -1138,6 +1199,8 @@ class Drafter:
             ref = inner.referenced
             if inner.spelling in self.names or inner.spelling in NEVER_NULL_VARS:
                 return False
+            if inner.spelling in self.aliases and ref is not None and ref.kind == CursorKind.VAR_DECL:
+                return self.optional_base(self.aliases[inner.spelling])
             return ref is not None and ref.kind == CursorKind.VAR_DECL
         if inner.kind == CursorKind.MEMBER_REF_EXPR:
             field = inner.referenced
