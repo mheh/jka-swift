@@ -548,6 +548,20 @@ class Generator:
                 "        self.raw.pointee = other.raw.pointee",
                 "    }",
             ]
+            if c_name == "pmove_t":
+                # Raven's `(bgEntity_t *)((byte *)pm->baseEnt + pm->entSize*(num))` in PM_BGEntForNum: bg code runs in three modules
+                # with three entity sizes, so the pmove record carries the first entity and the stride, and the walk stays in the view.
+                lines += [
+                    "",
+                    "    /// Raven's `(byte *)baseEnt + entSize * num`, the entity at an index by the stride the host module set.",
+                    "    /// A NULL `baseEnt` or a zero `entSize` traps, as Raven's asserts do.",
+                    "    public func entity(at num: Int32) -> BgEntity {",
+                    "        precondition(self.raw.pointee.baseEnt != nil, \"baseEnt is NULL\")",
+                    "        precondition(self.raw.pointee.entSize != 0, \"entSize is 0\")",
+                    "        let bytes = UnsafeMutableRawPointer(self.raw.pointee.baseEnt!) + Int(self.raw.pointee.entSize) * Int(num)",
+                    "        return BgEntity(handle: OpaquePointer(bytes))",
+                    "    }",
+                ]
             for field in record.get_children():
                 if field.kind != CursorKind.FIELD_DECL:
                     continue

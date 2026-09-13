@@ -51,6 +51,15 @@ public struct Pmove: Hashable, HandleView {
         self.raw.pointee = other.raw.pointee
     }
 
+    /// Raven's `(byte *)baseEnt + entSize * num`, the entity at an index by the stride the host module set.
+    /// A NULL `baseEnt` or a zero `entSize` traps, as Raven's asserts do.
+    public func entity(at num: Int32) -> BgEntity {
+        precondition(self.raw.pointee.baseEnt != nil, "baseEnt is NULL")
+        precondition(self.raw.pointee.entSize != 0, "entSize is 0")
+        let bytes = UnsafeMutableRawPointer(self.raw.pointee.baseEnt!) + Int(self.raw.pointee.entSize) * Int(num)
+        return BgEntity(handle: OpaquePointer(bytes))
+    }
+
     /// Source: oracle/codemp/game/bg_public.h:437
     /// Raven's callers always set `ps`, so a body reads it with no bind. A NULL here traps with the field's name.
     public var ps: PlayerState {

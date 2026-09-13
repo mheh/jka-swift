@@ -1378,6 +1378,9 @@ class Drafter:
         target = cur.type
         canonical = target.get_canonical()
         if canonical.kind == TypeKind.POINTER:
+            stride = self.stride_walk(operand)
+            if stride is not None:
+                return stride
             record = self.views.record_name(canonical.get_pointee())
             if record and record in self.views.views:
                 self.reachable(record)
@@ -1392,6 +1395,28 @@ class Drafter:
         if self.views.narrow(target) is not None:
             swift = "Int32"
         return f"{swift}({self.expr(operand)})"
+
+    def stride_walk(self, operand: ci.Cursor) -> str | None:
+        """Raven's `(byte *)pm->baseEnt + pm->entSize*(num)` as the pmove view's `entity(at:)`, by the hole walk's row 4. Any other
+        byte walk is None, and the cast that holds it stays a hole."""
+        inner = self.unwrap(operand)
+        if inner.kind != CursorKind.BINARY_OPERATOR or self.collapsed(inner) or self.binary_op(inner) != "+":
+            return None
+        left, right = list(inner.get_children())
+        base = self.unwrap(left)
+        if base.kind != CursorKind.CSTYLE_CAST_EXPR:
+            return None
+        base = self.unwrap([k for k in base.get_children() if k.kind.is_expression()][-1])
+        step = self.unwrap(right)
+        if base.kind != CursorKind.MEMBER_REF_EXPR or base.spelling != "baseEnt" or step.kind != CursorKind.BINARY_OPERATOR or self.binary_op(step) != "*":
+            return None
+        size, count = [self.unwrap(k) for k in step.get_children()]
+        if size.kind != CursorKind.MEMBER_REF_EXPR or size.spelling != "entSize":
+            return None
+        owner = self.base(list(base.get_children())[0])
+        if owner != self.base(list(size.get_children())[0]):
+            return None
+        return f"{owner}.entity(at: {self.converted(count, 'Int32')})"
 
     # MARK: - Operators from tokens
 
