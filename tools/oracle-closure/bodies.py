@@ -46,6 +46,7 @@ IDENTIFIER = re.compile(r"[A-Za-z_]\w*")
 from overlay import DROPPED, MACROS, MACRO_RETURNS, OVERLAY, RECORD_CALLS, UNDEFINED
 
 FUNC_LINE = re.compile(r"func\s+`?(\w+)`?\s*\((.*)\)")
+FUNC_HEAD = re.compile(r"func\s+`?(\w+)`?\s*\(")
 # A file-scope `var`, `let`, or `func` of a Swift file: at column 0, after its modifiers. A method sits indented under its type.
 MODIFIERS = r"(?:(?:public|package|internal|private|fileprivate|nonisolated\(unsafe\)|@\w+(?:\([^)]*\))?)\s+)*"
 VAR_LINE = re.compile(MODIFIERS + r"(?:var|let)\s+`?(\w+)`?")
@@ -89,19 +90,33 @@ class Registry:
                 v = VAR_LINE.match(line)
                 if v is not None:
                     self.homes.setdefault(v.group(1), set()).add(target)
-                m = FUNC_LINE.search(line)
+                m = FUNC_HEAD.search(line)
                 if m is None or "func " not in line.split("//")[0]:
                     continue
+                # The parameter list ends at the parenthesis that balances the first, so a tuple return stays outside it.
+                depth = 0
+                end = None
+                for i in range(m.end() - 1, len(line)):
+                    if line[i] == "(":
+                        depth += 1
+                    elif line[i] == ")":
+                        depth -= 1
+                        if depth == 0:
+                            end = i
+                            break
+                if end is None:
+                    continue
+                name = m.group(1)
                 params = []
-                for p in split_params(m.group(2)):
+                for p in split_params(line[m.end():end]):
                     label, _, swift = p.partition(":")
                     params.append((label.split()[-1].strip("`"), swift.strip()))
-                self.params.setdefault(m.group(1), params)
-                self.overloads.setdefault(m.group(1), []).append(params)
-                r = re.search(r"->\s*(.+?)\s*\{?\s*$", line[m.end():])
-                self.returns.setdefault(m.group(1), r.group(1) if r else "Void")
+                self.params.setdefault(name, params)
+                self.overloads.setdefault(name, []).append(params)
+                r = re.search(r"->\s*(.+?)\s*\{?\s*$", line[end + 1:])
+                self.returns.setdefault(name, r.group(1) if r else "Void")
                 if FILE_FUNC.match(line):
-                    self.homes.setdefault(m.group(1), set()).add(target)
+                    self.homes.setdefault(name, set()).add(target)
 
 
 class Hole(Exception):
@@ -152,6 +167,8 @@ class Drafter:
         self.charbuf_locals: set[str] = set()
         # Raven's `byte *b` and `char *dest` locals that only ever hold a raw allocation, which Swift holds as UnsafeMutableRawPointer.
         self.raw_locals = self.raw_local_names(fn.cur)
+        # Raven's `const char *token` that only holds parsed text is a String, and his `char *p` over a buffer is a TextCursor.
+        self.text_locals, self.cursor_locals = self.text_local_names(fn.cur)
         # Raven's `for (it = table + 1; it->name; it++)` walks a table by pointer, and the draft walks it by index, `table[itIndex]`.
         self.table_cursors = self.table_cursor_names(fn.cur)
         # The slot text each copy stands for inside the one call being drafted, `fxAxis[2]` for `fxAxis2`.
@@ -472,6 +489,55 @@ class Drafter:
                     out.add(self.written_root(kids[0]))
         return out
 
+    def tuple_call(self, cur: ci.Cursor) -> tuple[str, str] | None:
+        """A call to a trap whose Swift form returns `(Int32, String)`: the call without Raven's buffer and size arguments,
+        and the Swift text of the buffer Raven passed, which takes the returned text."""
+        inner = self.strip(cur)
+        if not self.is_call(inner):
+            return None
+        name = self.callee_name(inner)
+        if not name or not self.registry.returns.get(name, "").startswith("(Int32, String)"):
+            return None
+        params = self.callee_params(name)
+        args = list(inner.get_children())[1:]
+        buffer = next((a for a in args if self.is_charbuf(a)), None)
+        if buffer is None:
+            return None
+        # Only the buffer leaves the call. Raven's size argument stays, because the Swift trap still takes the capacity.
+        kept = [a for a in args if a is not buffer][:len(params)]
+        words = [self.argument(a, params[i][1].startswith("inout "), params[i], name, i) for i, a in enumerate(kept)]
+        return f"{swift_name(name)}({', '.join(words)})", self.expr(buffer)
+
+    def sizeof(self, cur: ci.Cursor) -> str:
+        """Raven's `sizeof`: a buffer's count, a record view's byte count, or a scalar's layout size."""
+        kids = list(cur.get_children())
+        operand = next((k for k in kids if k.kind.is_expression()), None)
+        if operand is not None and self.is_charbuf(operand):
+            return f"Int32({self.expr(operand)}.count)"
+        t = operand.type if operand is not None else None
+        if t is None:
+            text = self.source.slice(cur.extent).strip()
+            m = re.fullmatch(r"sizeof\s*\(\s*(.+?)\s*\)", text)
+            if m is None:
+                raise Hole("A sizeof the draft cannot size.")
+            spelled = m.group(1)
+            t = next((k.type for k in kids if k.kind == CursorKind.TYPE_REF), None)
+            if t is None:
+                record = spelled.replace("struct ", "").strip()
+                if record in self.views.views:
+                    return f"{self.views.qualified_view(record, TARGET)}.byteCount"
+                raise Hole(f"A sizeof of `{spelled}` the draft cannot size.")
+        canonical = t.get_canonical()
+        if canonical.kind == TypeKind.CONSTANTARRAY and canonical.element_type.get_canonical().kind == TypeKind.CHAR_S:
+            return str(canonical.element_count)
+        record = self.views.record_name(canonical)
+        if record and record in self.views.views:
+            return f"{self.views.qualified_view(record, TARGET)}.byteCount"
+        swift = self.views.scalar(t, TARGET)
+        if swift is not None:
+            return f"Int32(MemoryLayout<{swift}>.size)"
+        raise Hole(f"A sizeof of `{t.spelling}` the draft cannot size.")
+
     def vector_member(self, cur: ci.Cursor) -> str | None:
         """The Swift name of the vector under Raven's `&v[i]`, or None."""
         inner = self.strip(cur)
@@ -513,11 +579,21 @@ class Drafter:
             return None
         return self.expr(base), label, self.converted(ofs, "Int32"), index
 
+    def view_operand(self, cur: ci.Cursor) -> bool:
+        """True when the expression is a pointer to a record the views cover."""
+        t = self.unwrap(cur).type.get_canonical()
+        return t.kind == TypeKind.POINTER and self.is_record(t.get_pointee())
+
     def is_raw(self, cur: ci.Cursor) -> bool:
-        """True for an expression Swift holds as UnsafeMutableRawPointer: a raw parameter, a raw local, or a call that returns one."""
+        """True for an expression Swift holds as UnsafeMutableRawPointer: a raw parameter, a raw local, a call that returns one,
+        or a view cast to bytes."""
         inner = self.unwrap(cur)
         if inner.kind == CursorKind.CSTYLE_CAST_EXPR:
-            return self.is_raw([k for k in inner.get_children() if k.kind.is_expression()][-1])
+            operand = [k for k in inner.get_children() if k.kind.is_expression()][-1]
+            pointee = inner.type.get_canonical().get_pointee().get_canonical() if inner.type.get_canonical().kind == TypeKind.POINTER else None
+            if pointee is not None and pointee.kind in (TypeKind.CHAR_S, TypeKind.UCHAR, TypeKind.CHAR_U, TypeKind.SCHAR) and self.view_operand(operand):
+                return True
+            return self.is_raw(operand)
         if inner.kind == CursorKind.DECL_REF_EXPR:
             param = self.params_by_name.get(inner.spelling)
             if param is not None:
@@ -526,6 +602,53 @@ class Drafter:
         if inner.kind == CursorKind.CALL_EXPR:
             return self.registry.returns.get(self.callee_name(inner) or "") == "UnsafeMutableRawPointer"
         return False
+
+    def text_local_names(self, fn: ci.Cursor) -> tuple[set[str], dict[str, str]]:
+        """The char pointer locals of the function by their stores: every store a String-returning call names a text local,
+        and every store a buffer names a cursor local, with the Swift text of the buffer it walks."""
+        stores: dict[str, list[str]] = {}
+        buffers: dict[str, str] = {}
+        for var in fn.walk_preorder():
+            if var.kind != CursorKind.VAR_DECL:
+                continue
+            t = var.type.get_canonical()
+            if t.kind != TypeKind.POINTER or t.get_pointee().get_canonical().kind != TypeKind.CHAR_S:
+                continue
+            init = [c for c in var.get_children() if c.kind.is_expression() and b"=" in self.bytes[var.extent.start.offset:c.extent.start.offset]]
+            stores.setdefault(var.spelling, [])
+            if init:
+                stores[var.spelling].append(self.text_store_kind(init[0], var.spelling, buffers))
+        for cur in fn.walk_preorder():
+            kids = list(cur.get_children())
+            if cur.kind == CursorKind.COMPOUND_ASSIGNMENT_OPERATOR and kids and self.unwrap(kids[0]).kind == CursorKind.DECL_REF_EXPR \
+                    and self.unwrap(kids[0]).spelling in stores:
+                stores[self.unwrap(kids[0]).spelling].append("other")
+            if cur.kind == CursorKind.UNARY_OPERATOR and kids and self.unwrap(kids[0]).kind == CursorKind.DECL_REF_EXPR \
+                    and self.unwrap(kids[0]).spelling in stores and self.unary_parts(cur)[0] in ("++", "--"):
+                stores[self.unwrap(kids[0]).spelling].append("other")
+            if cur.kind != CursorKind.BINARY_OPERATOR or len(kids) != 2 or self.collapsed(cur) or self.operator_or_none(cur) != "=":
+                continue
+            left = self.unwrap(kids[0])
+            if left.kind == CursorKind.DECL_REF_EXPR and left.spelling in stores:
+                stores[left.spelling].append(self.text_store_kind(kids[1], left.spelling, buffers))
+        texts = {name for name, kinds in stores.items() if "text" in kinds and all(k in ("text", "null") for k in kinds)}
+        cursors = {name: buffers[name] for name, kinds in stores.items() if "buffer" in kinds and all(k in ("buffer", "null") for k in kinds)}
+        return texts, cursors
+
+    def text_store_kind(self, cur: ci.Cursor, name: str, buffers: dict[str, str]) -> str:
+        inner = self.unwrap(cur)
+        if self.is_null(inner):
+            return "null"
+        if inner.kind == CursorKind.CALL_EXPR and self.registry.returns.get(self.callee_name(inner) or "") == "String":
+            return "text"
+        if inner.kind == CursorKind.STRING_LITERAL:
+            return "text"
+        if inner.kind == CursorKind.DECL_REF_EXPR:
+            t = inner.type.get_canonical()
+            if t.kind == TypeKind.CONSTANTARRAY and t.element_type.get_canonical().kind == TypeKind.CHAR_S:
+                buffers[name] = self.expr_name(inner.spelling)
+                return "buffer"
+        return "other"
 
     def raw_local_names(self, fn: ci.Cursor) -> set[str]:
         """Every pointer-to-byte local whose every store is a raw pointer, by the stores of the function."""
@@ -562,6 +685,7 @@ class Drafter:
                 continue
             ref = table.referenced
             if ref.kind == CursorKind.VAR_DECL and ref.type.get_canonical().kind == TypeKind.CONSTANTARRAY \
+                    and ref.type.get_canonical().element_type.get_canonical().kind == TypeKind.RECORD \
                     and ref.semantic_parent is not None and ref.semantic_parent.kind == CursorKind.TRANSLATION_UNIT:
                 out[left.spelling] = (swift_name(table.spelling), f"{swift_name(left.spelling)}Index")
             elif ref.kind == CursorKind.PARM_DECL and table.spelling in self.params_by_name and (self.params_by_name[table.spelling].swift or "").startswith("Slots<"):
@@ -624,7 +748,8 @@ class Drafter:
         for arg in args[: 2 if name == "memcpy" else 1]:
             if arg.kind == CursorKind.UNARY_OPERATOR and self.unary_parts(arg)[0] == "&":
                 arg = self.strip(self.unary_parts(arg)[2])
-            if not self.is_record(arg.type):
+            pointee = arg.type.get_canonical().get_pointee() if arg.type.get_canonical().kind == TypeKind.POINTER else None
+            if not self.is_record(arg.type) and not (pointee is not None and self.is_record(pointee)):
                 raven = self.bytes[cur.extent.start.offset:cur.extent.end.offset].decode("utf-8", "replace")
                 raise Hole(f"Raven's `{raven}` runs over bytes that are not one record with a view.")
             targets.append(arg)
@@ -688,6 +813,12 @@ class Drafter:
                 if self.after_com_error:
                     return [f"{pad}// Raven writes `return 0` after this call, which `Com_Error` never reaches."]
                 raise Hole(f"Raven returns NULL, and the function returns a `{self.fn.returns}`.")
+            post = self.unwrap(kids[0])
+            if post.kind == CursorKind.UNARY_OPERATOR and self.unary_parts(post)[0] in ("++", "--") and not self.unary_parts(post)[1]:
+                # Raven returns the value and then steps it, and `defer` steps it after the return reads it.
+                stepped = self.unary_parts(post)[2]
+                return [f"{pad}defer {{ {self.expr(stepped)} {self.unary_parts(post)[0][0]}= 1 }}",
+                        f"{pad}return {self.converted(stepped, self.fn.returns)}" + self.trailing(cur)]
             if self.fn.returns == "PooledString" and self.is_raw(kids[0]):
                 # Raven returns the raw allocation he filled, and the pool string is the view over it.
                 return [f"{pad}return PooledString({self.expr(kids[0])})" + self.trailing(cur)]
@@ -730,6 +861,23 @@ class Drafter:
                 left, right = list(cur.get_children())
                 if op == "=" and self.unwrap(left).kind == CursorKind.DECL_REF_EXPR and self.unwrap(left).spelling in self.game_entities | self.optional_entities:
                     return [f"{pad}{self.expr(left)} = {self.entity_or_nil(right)}" + self.trailing(cur)]
+                if op == "=" and self.unwrap(left).kind == CursorKind.DECL_REF_EXPR and self.unwrap(left).spelling in self.cursor_locals:
+                    source = "JKAShared.TextCursor()" if self.is_null(right) else f"JKAShared.TextCursor({self.expr(right)})"
+                    return [f"{pad}{self.expr(left)} = {source}" + self.trailing(cur)]
+                if op == "=" and self.unwrap(left).kind == CursorKind.DECL_REF_EXPR and self.unwrap(left).spelling in self.text_locals and self.is_null(right):
+                    return [f"{pad}{self.expr(left)} = \"\"" + self.trailing(cur)]
+                if self.unwrap(left).kind == CursorKind.DECL_REF_EXPR and self.unwrap(left).spelling in self.hole_names:
+                    raise Hole(f"A store into `{self.unwrap(left).spelling}`, a local the draft left as a hole.")
+                if op == "=" and self.unwrap(left).kind == CursorKind.ARRAY_SUBSCRIPT_EXPR and self.is_raw(list(self.unwrap(left).get_children())[0]):
+                    raise Hole("A byte store through a raw allocation, which RawField.swift has no subscript for.")
+                # 4. A byte store into a buffer takes the value as an Int32, which the CharBuf setter narrows.
+                if op == "=" and self.unwrap(left).kind == CursorKind.ARRAY_SUBSCRIPT_EXPR and self.is_charbuf(list(self.unwrap(left).get_children())[0]):
+                    return [f"{pad}{self.expr(left)} = {self.converted(right, 'Int32')}" + self.trailing(cur)]
+                # 5. A trap that fills a buffer returns the count and the text, and the buffer takes the text.
+                tuple_call = self.tuple_call(right)
+                if op == "=" and tuple_call is not None:
+                    call, buffer = tuple_call
+                    return [f"{pad}let filled = {call}", f"{pad}{self.expr(left)} = filled.0", f"{pad}{buffer} = JKAShared.CharBuf(filled.1)"]
                 if op == "=" and self.unwrap(left).kind == CursorKind.DECL_REF_EXPR and self.unwrap(left).spelling in self.table_cursors:
                     table, index = self.table_cursors[self.unwrap(left).spelling]
                     source = self.unwrap(right)
@@ -1026,6 +1174,9 @@ class Drafter:
             count = t.get_canonical().element_count
             if init and self.unwrap(init[0]).kind == CursorKind.STRING_LITERAL:
                 return f"var {name} = JKAShared.CharBuf({self.literal(self.unwrap(init[0]))})"
+            if init and self.unwrap(init[0]).kind == CursorKind.INIT_LIST_EXPR and all(self.is_null(k) for k in self.unwrap(init[0]).get_children()):
+                # Raven's `{ 0 }` zeroes the buffer, which a fresh CharBuf is.
+                return f"var {name} = JKAShared.CharBuf({count})"
             if init:
                 raise Hole("A char array local with an initializer that is not a string.")
             return f"var {name} = JKAShared.CharBuf({count})"
@@ -1054,6 +1205,15 @@ class Drafter:
             return f"var {index}: Int32 = 0"
         if var.spelling in self.raw_locals:
             return f"{keyword} {name}: UnsafeMutableRawPointer" + (f" = {self.expr(init[0])}" if init else "")
+        if var.spelling in self.text_locals:
+            # Raven's NULL on a text local is the empty text, because the parser never hands NULL back.
+            value = ('""' if self.is_null(init[0]) else self.expr(init[0])) if init else None
+            return f"{keyword} {name}: String" + (f" = {value}" if value is not None else "")
+        if var.spelling in self.cursor_locals:
+            # A cursor starts NULL until a store points it at a buffer, so the buffer's own declaration can come later.
+            if init and not self.is_null(init[0]):
+                return f"var {name} = JKAShared.TextCursor({self.expr(self.unwrap(init[0]))})"
+            return f"var {name} = JKAShared.TextCursor()"
         if t.get_canonical().kind == TypeKind.POINTER:
             record = self.views.record_name(t.get_canonical().get_pointee())
             if record == "gentity_t" and target_of(self.fn.stem) == BG:
@@ -1259,8 +1419,14 @@ class Drafter:
             return None
         base, index = list(inner.get_children())
         base = self.unwrap(base)
-        if base.kind != CursorKind.DECL_REF_EXPR or not self.is_null(index):
+        if not self.is_null(index):
             return None
+        if base.kind == CursorKind.MEMBER_REF_EXPR and self.pooled_field(base):
+            return f"{self.expr(base)}!.string"
+        if base.kind != CursorKind.DECL_REF_EXPR:
+            return None
+        if base.spelling in self.text_locals:
+            return self.expr(base)
         param = self.params_by_name.get(base.spelling)
         return self.names[base.spelling] if param is not None and param.kind == "cstring" else None
 
@@ -1299,6 +1465,9 @@ class Drafter:
         """A C truth test as a Swift Bool: a Bool as it is, a pointer against nil, a number against 0."""
         if self.empty_test(cur) is not None:
             return f"!{self.empty_test(cur)}.isEmpty"
+        inner = self.unwrap(cur)
+        if inner.kind == CursorKind.DECL_REF_EXPR and inner.spelling in self.cursor_locals:
+            return f"!{self.expr(inner)}.isNull"
         return self.coerced(cur, "Bool")
 
     def always_set(self, cur: ci.Cursor) -> str | None:
@@ -1306,6 +1475,8 @@ class Drafter:
         inner = self.unwrap(cur)
         if inner.kind == CursorKind.UNARY_OPERATOR and self.unary_parts(inner)[0] == "&":
             return self.bytes[inner.extent.start.offset:inner.extent.end.offset].decode("utf-8", "replace")
+        if inner.kind == CursorKind.DECL_REF_EXPR and inner.spelling in self.text_locals:
+            return inner.spelling
         if inner.kind == CursorKind.DECL_REF_EXPR and inner.spelling in self.params_by_name:
             kind = self.params_by_name[inner.spelling].kind
             swift = self.params_by_name[inner.spelling].swift or ""
@@ -1404,7 +1575,7 @@ class Drafter:
                 raise Hole("A character literal with an escape.")
             return f"Int32(ascii: {text.replace(chr(39), chr(34))})"
         if kind == CursorKind.STRING_LITERAL:
-            return self.source.slice(cur.extent)
+            return self.joined_literal(self.source.slice(cur.extent))
         if kind == CursorKind.DECL_REF_EXPR:
             word = self.reference(cur)
             return word if word in ("true", "false", "nil") else self.leaf(cur, word)
@@ -1447,6 +1618,8 @@ class Drafter:
                     return f"!{self.operand(operand)}"
                 if self.empty_test(operand) is not None:
                     return f"{self.empty_test(operand)}.isEmpty"
+                if inner.kind == CursorKind.DECL_REF_EXPR and inner.spelling in self.cursor_locals:
+                    return f"{self.expr(inner)}.isNull"
                 if inner.kind == CursorKind.PAREN_EXPR:
                     return f"!({self.condition(inner)})"
                 if self.is_pointer(operand):
@@ -1512,7 +1685,7 @@ class Drafter:
         if kind == CursorKind.CSTYLE_CAST_EXPR:
             return self.cast(cur)
         if kind == CursorKind.CXX_UNARY_EXPR:
-            raise Hole("A sizeof the draft cannot size.")
+            return self.sizeof(cur)
         raise Hole(f"No rule for a {kind.name} expression.")
 
     def unwrap(self, cur: ci.Cursor) -> ci.Cursor:
@@ -1522,6 +1695,11 @@ class Drafter:
                 break
             cur = kids[0]
         return cur
+
+    def joined_literal(self, text: str) -> str:
+        """Raven's `S_COLOR_RED"text"` and `"a" "b"`, which C concatenates, as a Swift `+` chain."""
+        parts = re.findall(r'"(?:[^"\\]|\\.)*"|[A-Za-z_]\w*', text)
+        return " + ".join(parts) if len(parts) > 1 else text
 
     def literal(self, cur: ci.Cursor) -> str:
         """Raven's spelling, which keeps a macro name where he wrote one, with the C suffixes dropped."""
@@ -1590,6 +1768,8 @@ class Drafter:
             if inner.spelling in self.names or inner.spelling in NEVER_NULL_VARS or inner.spelling in self.game_entities:
                 return False
             if inner.spelling in self.charbuf_locals or inner.spelling in self.table_cursors or inner.spelling in self.raw_locals:
+                return False
+            if inner.spelling in self.text_locals or inner.spelling in self.cursor_locals:
                 return False
             if inner.spelling in self.aliases and ref is not None and ref.kind == CursorKind.VAR_DECL:
                 return self.optional_base(self.aliases[inner.spelling])
@@ -1801,6 +1981,11 @@ class Drafter:
             field = inner.spelling
             return f"{self.base(list(inner.get_children())[0])}.run{field[0].upper()}{field[1:]}"
         text = self.expr(inner)
+        if param is not None and param[1] == "OpaquePointer?" and self.is_raw(inner):
+            # The engine takes the raw allocation as a handle.
+            return f"OpaquePointer({self.expr(inner)})"
+        if param is not None and param[1] == "OpaquePointer?" and self.is_charbuf(inner):
+            raise Hole(f"Raven passes the buffer `{text}` to the engine as a handle, and the trap takes an OpaquePointer.")
         if param is not None and param[1] in TEXT_TYPES and self.is_charbuf(inner) and not self.overload_takes(callee, position, "CharBuf"):
             # A buffer into a String parameter crosses as the text it holds.
             return f"String({text})"
@@ -1888,6 +2073,9 @@ class Drafter:
                     return f"JKAMP.BgEntity({self.expr(operand)})"
                 return self.expr(operand)
             if canonical.get_pointee().get_canonical().kind in (TypeKind.CHAR_S, TypeKind.UCHAR, TypeKind.CHAR_U, TypeKind.SCHAR):
+                if self.view_operand(operand):
+                    # Raven's `(byte *)vehicle` walks the record's bytes, and the raw pointer over the view's slot is that walk.
+                    return f"UnsafeMutableRawPointer({self.base(operand)}.handle)"
                 # A cast to a byte or character pointer changes nothing Swift can see: a String stays a String, a raw pointer stays raw.
                 return self.expr(operand)
             record = self.views.record_name(canonical.get_pointee())
