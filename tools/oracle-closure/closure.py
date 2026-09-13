@@ -117,6 +117,16 @@ _SHIM_PATCHES = {
 }
 
 
+def parsed_bytes(path) -> bytes:
+    """The bytes the parser saw for one file: the shim text for a file the shims shadow, else the file on disk.
+    A shim comes from a text read, so its line ends are LF where the disk has CRLF, and the cursor offsets follow the shim."""
+    resolved = str(Path(path).resolve())
+    for shim_path, text in backslash_include_shims():
+        if str(Path(shim_path).resolve()) == resolved:
+            return text.encode("utf-8")
+    return Path(path).read_bytes()
+
+
 def backslash_include_shims():
     """Windows-style `#include "..\\game\\x.h"` fails on POSIX. Shadow the few
     offending files (9 in the oracle) via unsaved_files with slashes fixed —

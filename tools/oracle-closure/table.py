@@ -15,6 +15,7 @@ from clang.cindex import TypeKind
 
 from clang.cindex import CursorKind
 
+import closure as C
 from reexport import SCALARS
 from rulings import PARAMS, RETURNS, TYPES
 from views import Generator
@@ -190,7 +191,7 @@ class Table:
             path = Path(cur.location.file.name).resolve()
             if path.parent != folder or not path.stem.startswith("bg_"):
                 continue
-            data = path.read_bytes()
+            data = C.parsed_bytes(path)
             consumed: set[tuple[int, int]] = set()
             writes: set[tuple[int, int]] = set()
             for node in cur.walk_preorder():
@@ -209,7 +210,12 @@ class Table:
                 if root is None or self.own_field(root, fields):
                     continue
                 swift = self.views.scalar(node.type, TARGET)
-                if swift is None:
+                if swift is None and self.views.is_vec3(node.type):
+                    swift = "JKAShared.vec3_t"
+                elif swift is None and node.type.get_canonical().kind == TypeKind.POINTER \
+                        and node.type.get_canonical().get_pointee().get_canonical().kind == TypeKind.CHAR_S:
+                    swift = "JKAShared.PooledString?"
+                elif swift is None:
                     # A record the views cover crosses as its view, `&client->pers.cmd` as the Usercmd over the game's memory.
                     record = self.views.record_name(node.type.get_canonical())
                     if not record or record not in self.views.views:
@@ -279,7 +285,7 @@ class Table:
             path = Path(cur.location.file.name).resolve()
             if path.parent != folder or not path.stem.startswith("bg_"):
                 continue
-            data = path.read_bytes()
+            data = C.parsed_bytes(path)
             for node in cur.walk_preorder():
                 if node.kind != CursorKind.CALL_EXPR or node.referenced is None or node.referenced.kind != CursorKind.FUNCTION_DECL:
                     continue

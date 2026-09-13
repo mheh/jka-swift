@@ -87,6 +87,10 @@ def main() -> None:
         subprocess.run(["rsync", "-a", "--delete", str(REPO / tree) + "/", str(MIRROR / tree) + "/"], check=True)
     subprocess.run(["rsync", "-a", str(REPO / "Package.swift"), str(MIRROR / "Package.swift")], check=True)
     target = MIRROR / path.relative_to(REPO)
+    if "import Foundation" not in spliced:
+        # A stub written before Foundation joined the stub imports gets it in the mirror, so libc math resolves.
+        first = next((i for i, line in enumerate(spliced) if line.startswith("import ")), 0)
+        spliced.insert(first, "import Foundation")
     target.write_text("\n".join(spliced) + "\n")
     build = subprocess.run(["swift", "build", "--package-path", str(MIRROR), "--scratch-path", str(SCRATCH), "--product", "jampgame"],
                            capture_output=True, text=True)

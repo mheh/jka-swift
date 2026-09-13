@@ -32,6 +32,7 @@ from clang.cindex import CursorKind
 import closure as C
 from reexport import REPO, SOURCES
 from rulings import EXTRA_HOOKS, OWN_HOOKS, SHARED_STEMS
+from overlay import OVERLAY
 from table import Param, SourceFile, Table
 
 ORACLE_DIR = "codemp/game"
@@ -103,10 +104,11 @@ class Hook:
 class Channel:
     def __init__(self) -> None:
         self.table = Table()
-        self.tu = C.parse_tu("mp-game", None, unity=True)
+        # Both parses take the overlay bodies.py drafts against, so a read inside Raven's vector macros has its own nodes.
+        self.tu = C.parse_tu("mp-game", None, unity=True, overlay=OVERLAY)
         self.game = (C.ORACLE / ORACLE_DIR).resolve()
         # The cgame parse compiles the bg files under CGAME, so the calls on Raven's `#else` arms exist in it.
-        self.cgame_tu = C.parse_tu("mp-cgame", None, unity=True)
+        self.cgame_tu = C.parse_tu("mp-cgame", None, unity=True, overlay=OVERLAY)
         self.cgame = (C.ORACLE / CGAME_DIR).resolve()
         self.table.sweep_nulls(self.tu, self.game)
         self.table.sweep_nulls(self.cgame_tu, self.game)
