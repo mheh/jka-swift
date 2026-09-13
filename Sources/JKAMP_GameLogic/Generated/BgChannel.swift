@@ -169,8 +169,14 @@ public func installBgChannel() {
     bg.callbacks.bgEntityBmodel = { ent in
         Entity(handle: ent.handle).r.bmodel
     }
+    bg.callbacks.bgEntityClassname = { ent in
+        Entity(handle: ent.handle).classname
+    }
     bg.callbacks.bgEntityContents = { ent in
         Entity(handle: ent.handle).r.contents
+    }
+    bg.callbacks.bgEntityCurrentOrigin = { ent in
+        Entity(handle: ent.handle).r.currentOrigin
     }
     bg.callbacks.bgEntityInuse = { ent in
         Entity(handle: ent.handle).inuse

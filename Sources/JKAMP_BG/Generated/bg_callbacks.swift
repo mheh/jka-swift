@@ -102,8 +102,14 @@ public struct BgCallbacks {
     /// Source: oracle/codemp/game/bg_slidemove.c:77
     public var bgEntityBmodel: (JKAMP.BgEntity) -> Bool = { _ in portMissing("bgEntityBmodel", source: "oracle/codemp/game/bg_slidemove.c:77") }
 
+    /// Source: oracle/codemp/game/bg_slidemove.c:97
+    public var bgEntityClassname: (JKAMP.BgEntity) -> JKAShared.PooledString? = { _ in portMissing("bgEntityClassname", source: "oracle/codemp/game/bg_slidemove.c:97") }
+
     /// Source: oracle/codemp/game/bg_slidemove.c:617
     public var bgEntityContents: (JKAMP.BgEntity) -> Int32 = { _ in portMissing("bgEntityContents", source: "oracle/codemp/game/bg_slidemove.c:617") }
+
+    /// Source: oracle/codemp/game/bg_slidemove.c:200
+    public var bgEntityCurrentOrigin: (JKAMP.BgEntity) -> JKAShared.vec3_t = { _ in portMissing("bgEntityCurrentOrigin", source: "oracle/codemp/game/bg_slidemove.c:200") }
 
     /// Source: oracle/codemp/game/bg_pmove.c:4243
     public var bgEntityInuse: (JKAMP.BgEntity) -> Bool = { _ in portMissing("bgEntityInuse", source: "oracle/codemp/game/bg_pmove.c:4243") }
@@ -315,10 +321,22 @@ func bgEntityBmodel(_ ent: JKAMP.BgEntity) -> Bool {
     bg.callbacks.bgEntityBmodel(ent)
 }
 
+/// Source: oracle/codemp/game/bg_slidemove.c:97
+@discardableResult
+func bgEntityClassname(_ ent: JKAMP.BgEntity) -> JKAShared.PooledString? {
+    bg.callbacks.bgEntityClassname(ent)
+}
+
 /// Source: oracle/codemp/game/bg_slidemove.c:617
 @discardableResult
 func bgEntityContents(_ ent: JKAMP.BgEntity) -> Int32 {
     bg.callbacks.bgEntityContents(ent)
+}
+
+/// Source: oracle/codemp/game/bg_slidemove.c:200
+@discardableResult
+func bgEntityCurrentOrigin(_ ent: JKAMP.BgEntity) -> JKAShared.vec3_t {
+    bg.callbacks.bgEntityCurrentOrigin(ent)
 }
 
 /// Source: oracle/codemp/game/bg_pmove.c:4243

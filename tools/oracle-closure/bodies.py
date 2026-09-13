@@ -525,14 +525,14 @@ class Drafter:
             if t is None:
                 record = spelled.replace("struct ", "").strip()
                 if record in self.views.views:
-                    return f"{self.views.qualified_view(record, TARGET)}.byteCount"
+                    return f"Int32({self.views.qualified_view(record, TARGET)}.byteCount)"
                 raise Hole(f"A sizeof of `{spelled}` the draft cannot size.")
         canonical = t.get_canonical()
         if canonical.kind == TypeKind.CONSTANTARRAY and canonical.element_type.get_canonical().kind == TypeKind.CHAR_S:
             return str(canonical.element_count)
         record = self.views.record_name(canonical)
         if record and record in self.views.views:
-            return f"{self.views.qualified_view(record, TARGET)}.byteCount"
+            return f"Int32({self.views.qualified_view(record, TARGET)}.byteCount)"
         swift = self.views.scalar(t, TARGET)
         if swift is not None:
             return f"Int32(MemoryLayout<{swift}>.size)"
@@ -809,6 +809,8 @@ class Drafter:
                 return [f"{pad}return true" + self.trailing(cur)]
             if not kids:
                 return [f"{pad}return" + self.trailing(cur)]
+            if self.is_null(kids[0]) and self.fn.returns and self.fn.returns.endswith("?"):
+                return [f"{pad}return nil" + self.trailing(cur)]
             if self.is_null(kids[0]) and self.fn.returns and not self.fn.returns.endswith("?") and self.fn.returns not in ("Int32", "Float", "Bool"):
                 if self.after_com_error:
                     return [f"{pad}// Raven writes `return 0` after this call, which `Com_Error` never reaches."]
@@ -1252,6 +1254,23 @@ class Drafter:
             return f"{keyword} {name}: {swift} = {'false' if swift == 'Bool' else '0'}"
         return f"{keyword} {name}: {swift}"
 
+    def text_tail(self, cur: ci.Cursor) -> str | None:
+        """Raven's `&token[n]` on a String, the text from the nth byte, or None."""
+        inner = self.unwrap(cur)
+        if inner.kind != CursorKind.UNARY_OPERATOR or self.unary_parts(inner)[0] != "&":
+            return None
+        slot = self.unwrap(self.unary_parts(inner)[2])
+        if slot.kind != CursorKind.ARRAY_SUBSCRIPT_EXPR:
+            return None
+        base, index = list(slot.get_children())
+        base = self.unwrap(base)
+        if base.kind != CursorKind.DECL_REF_EXPR:
+            return None
+        param = self.params_by_name.get(base.spelling)
+        if base.spelling in self.text_locals or (param is not None and param.kind == "cstring"):
+            return f"String({self.expr(base)}.dropFirst(Int({self.converted(index, 'Int32')})))"
+        return None
+
     def entity_or_nil(self, cur: ci.Cursor) -> str:
         return "nil" if self.is_null(cur) else self.game_entity(cur)
 
@@ -1423,6 +1442,8 @@ class Drafter:
             return None
         if base.kind == CursorKind.MEMBER_REF_EXPR and self.pooled_field(base):
             return f"{self.expr(base)}!.string"
+        if base.kind == CursorKind.MEMBER_REF_EXPR and self.string_field(base):
+            return self.expr(base)
         if base.kind != CursorKind.DECL_REF_EXPR:
             return None
         if base.spelling in self.text_locals:
@@ -1456,6 +1477,8 @@ class Drafter:
             return True
         if cur.kind == CursorKind.DECL_REF_EXPR and cur.spelling in ("qtrue", "qfalse"):
             return True
+        if cur.kind == CursorKind.CALL_EXPR and self.registry.returns.get(self.callee_name(cur) or "") == "Bool":
+            return True
         return cur.type.spelling.replace("const ", "") == "qboolean"
 
     def is_pointer(self, cur: ci.Cursor) -> bool:
@@ -1468,6 +1491,9 @@ class Drafter:
         inner = self.unwrap(cur)
         if inner.kind == CursorKind.DECL_REF_EXPR and inner.spelling in self.cursor_locals:
             return f"!{self.expr(inner)}.isNull"
+        if self.string_field(inner):
+            # Raven's truth test on a char array is a test on its first byte, and the String's emptiness is that test.
+            return f"!{self.expr(inner)}.isEmpty"
         return self.coerced(cur, "Bool")
 
     def always_set(self, cur: ci.Cursor) -> str | None:
@@ -1620,6 +1646,8 @@ class Drafter:
                     return f"{self.empty_test(operand)}.isEmpty"
                 if inner.kind == CursorKind.DECL_REF_EXPR and inner.spelling in self.cursor_locals:
                     return f"{self.expr(inner)}.isNull"
+                if self.string_field(inner):
+                    return f"{self.expr(inner)}.isEmpty"
                 if inner.kind == CursorKind.PAREN_EXPR:
                     return f"!({self.condition(inner)})"
                 if self.is_pointer(operand):
@@ -1671,6 +1699,8 @@ class Drafter:
                     return f"{self.expr(left)} {op} {self.wrapped(right, lu)}"
                 if ru is not None and lu is None and not self.is_literal(left):
                     return f"{self.wrapped(left, ru)} {op} {self.expr(right)}"
+            if op in ("==", "!=") and self.string_field(left) and self.is_null(right):
+                return f"{self.expr(left)}.isEmpty" if op == "==" else f"!{self.expr(left)}.isEmpty"
             if op in ("==", "!=") and self.empty_test(left) is not None and self.is_literal(right) and self.is_null(right):
                 # Raven's `s[0]` on a C string is its first byte, and `s[0] == 0` is the empty string.
                 return f"{self.empty_test(left)}.isEmpty" if op == "==" else f"!{self.empty_test(left)}.isEmpty"
@@ -1814,6 +1844,14 @@ class Drafter:
                 raise Hole(f"Raven reads `{text}`, a `{field.type.spelling}` field. The generated field is an `OpaquePointer?`, and rule 11 keeps a pointer out of a logic target.")
         return f"{self.base(kids[0])}.{swift_name(cur.spelling)}"
 
+    def string_field(self, cur: ci.Cursor) -> bool:
+        """True for a member reference to a `char name[N]` field, which the view holds as a String."""
+        inner = self.unwrap(cur)
+        if inner.kind != CursorKind.MEMBER_REF_EXPR:
+            return False
+        t = inner.type.get_canonical()
+        return t.kind == TypeKind.CONSTANTARRAY and t.element_type.get_canonical().kind == TypeKind.CHAR_S
+
     def pooled_field(self, cur: ci.Cursor) -> bool:
         """True for a member reference to a `char *` field, which the view holds as a PooledString?."""
         inner = self.unwrap(cur)
@@ -1950,6 +1988,8 @@ class Drafter:
         inner = self.strip(cur)
         if position in self.aliased_positions and callee is not None:
             return f"&{self.aliased_positions[position]}"
+        if self.text_tail(inner) is not None:
+            return self.text_tail(inner)
         if target_of(self.fn.stem) == BG and self.entity_slot(inner) is not None:
             return self.entity_slot(inner)
         if inner.kind == CursorKind.UNARY_OPERATOR and self.unary_parts(inner)[0] == "&":
@@ -1981,6 +2021,8 @@ class Drafter:
             field = inner.spelling
             return f"{self.base(list(inner.get_children())[0])}.run{field[0].upper()}{field[1:]}"
         text = self.expr(inner)
+        if param is not None and param[1] in TEXT_TYPES and inner.kind == CursorKind.DECL_REF_EXPR and inner.spelling in self.cursor_locals:
+            raise Hole(f"Raven passes the cursor `{inner.spelling}` as text, and the TextCursor has no text form yet.")
         if param is not None and param[1] == "OpaquePointer?" and self.is_raw(inner):
             # The engine takes the raw allocation as a handle.
             return f"OpaquePointer({self.expr(inner)})"
