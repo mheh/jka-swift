@@ -575,6 +575,9 @@ class Drafter:
                     # The store that names the alias has no effect of its own, and the comment beside it stays.
                     rest = self.trailing(cur).strip()
                     return [f"{pad}{rest}"] if rest else []
+                if self.float_field(self.strip(left)) and self.is_pointer(right):
+                    raven = self.bytes[cur.extent.start.offset:cur.extent.end.offset].decode("utf-8", "replace")
+                    raise Hole(f"Raven stores a pointer into the `float *` field with `{raven}`, and rule 11 keeps a pointer out of a logic target.")
                 buffer = self.char_buffer(left)
                 if buffer is not None:
                     # Raven's `name[0] = 0` empties a character buffer the view holds as a String.
@@ -1055,7 +1058,7 @@ class Drafter:
         if kind == CursorKind.ARRAY_SUBSCRIPT_EXPR:
             base, index = list(cur.get_children())
             inner_base = self.strip(base)
-            if inner_base.kind == CursorKind.MEMBER_REF_EXPR and inner_base.type.get_canonical().kind == TypeKind.POINTER:
+            if inner_base.kind == CursorKind.MEMBER_REF_EXPR and inner_base.type.get_canonical().kind == TypeKind.POINTER and not self.float_field(inner_base):
                 raven = self.bytes[cur.extent.start.offset:cur.extent.end.offset].decode("utf-8", "replace")
                 raise Hole(f"Raven reads `{raven}` through a `{inner_base.type.spelling}` field. The generated field is an `OpaquePointer?`, and rule 11 keeps a pointer out of a logic target.")
             base_text = self.base(base)
@@ -1203,6 +1206,9 @@ class Drafter:
                 return self.optional_base(self.aliases[inner.spelling])
             return ref is not None and ref.kind == CursorKind.VAR_DECL
         if inner.kind == CursorKind.MEMBER_REF_EXPR:
+            if self.float_field(inner):
+                # The vector accessor traps on NULL itself, so the read takes no bind.
+                return False
             field = inner.referenced
             return field is not None and not self.views.never_null(field)
         if inner.kind == CursorKind.CALL_EXPR:
@@ -1218,12 +1224,23 @@ class Drafter:
         if not kids:
             raise Hole("A member reference with no base.")
         field = cur.referenced
+        if self.float_field(cur):
+            # Raven reads a `float *` field as the vector it points at, and the view's vector accessor is that read, by the hole walk's row 2.
+            return f"{self.base(kids[0])}.{swift_name(cur.spelling)}Vector"
         if field is not None and field.kind == CursorKind.FIELD_DECL:
             t = field.type.get_canonical()
             if t.kind == TypeKind.POINTER and self.views.scalar(t.get_pointee(), TARGET) is not None:
                 text = self.bytes[cur.extent.start.offset:cur.extent.end.offset].decode("utf-8", "replace")
                 raise Hole(f"Raven reads `{text}`, a `{field.type.spelling}` field. The generated field is an `OpaquePointer?`, and rule 11 keeps a pointer out of a logic target.")
         return f"{self.base(kids[0])}.{swift_name(cur.spelling)}"
+
+    def float_field(self, cur: ci.Cursor) -> bool:
+        """True for a member reference to a `float *` field, which the view also holds as a vector."""
+        field = cur.referenced
+        if field is None or field.kind != CursorKind.FIELD_DECL:
+            return False
+        t = field.type.get_canonical()
+        return t.kind == TypeKind.POINTER and t.get_pointee().get_canonical().kind == TypeKind.FLOAT
 
     def call(self, cur: ci.Cursor) -> str:
         kids = list(cur.get_children())

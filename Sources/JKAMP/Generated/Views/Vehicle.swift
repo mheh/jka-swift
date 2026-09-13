@@ -210,6 +210,20 @@ public struct Vehicle: Hashable, HandleView {
         nonmutating set { self.raw.pointee.m_vOrientation = UnsafeMutablePointer(newValue) }
     }
 
+    /// Raven's `m_vOrientation[i]`, the vector the pointer holds. A NULL pointer traps with the field's name.
+    public var m_vOrientationVector: JKAShared.vec3_t {
+        get {
+            precondition(self.raw.pointee.m_vOrientation != nil, "m_vOrientation is NULL")
+            return JKAShared.vec3_t(self.raw.pointee.m_vOrientation![0], self.raw.pointee.m_vOrientation![1], self.raw.pointee.m_vOrientation![2])
+        }
+        nonmutating set {
+            precondition(self.raw.pointee.m_vOrientation != nil, "m_vOrientation is NULL")
+            self.raw.pointee.m_vOrientation![0] = newValue.x
+            self.raw.pointee.m_vOrientation![1] = newValue.y
+            self.raw.pointee.m_vOrientation![2] = newValue.z
+        }
+    }
+
     /// Source: oracle/codemp/game/bg_vehicles.h:557
     public var m_fStrafeTime: Int32 {
         get { self.raw.pointee.m_fStrafeTime }

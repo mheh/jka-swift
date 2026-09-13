@@ -262,7 +262,27 @@ class Generator:
                     return self.trapping(name, view, get, f"{pointee} = UnsafeMutablePointer(newValue.handle)")
                 return self.property(name, f"{view}?", f"{pointee}.map {{ {view}(handle: OpaquePointer($0)) }}", f"{pointee} = UnsafeMutablePointer(newValue?.handle)")
             back = "UnsafeMutableRawPointer" if inner.get_canonical().kind == TypeKind.VOID else "UnsafeMutablePointer"
-            return self.property(name, "OpaquePointer?", f"OpaquePointer({pointee})", f"{pointee} = {back}(newValue)")
+            lines = self.property(name, "OpaquePointer?", f"OpaquePointer({pointee})", f"{pointee} = {back}(newValue)")
+            if inner.get_canonical().kind == TypeKind.FLOAT:
+                # Raven reads a `float *` field as the vector it points at, so the view reads and writes three floats through the pointer.
+                # The pointer never leaves the view, by rule 11. A NULL pointer traps with the field's name.
+                lines += [
+                    "",
+                    f"    /// Raven's `{name}[i]`, the vector the pointer holds. A NULL pointer traps with the field's name.",
+                    f"    public var {name}Vector: JKAShared.vec3_t {{",
+                    "        get {",
+                    f"            precondition({pointee} != nil, \"{name} is NULL\")",
+                    f"            return JKAShared.vec3_t({pointee}![0], {pointee}![1], {pointee}![2])",
+                    "        }",
+                    "        nonmutating set {",
+                    f"            precondition({pointee} != nil, \"{name} is NULL\")",
+                    f"            {pointee}![0] = newValue.x",
+                    f"            {pointee}![1] = newValue.y",
+                    f"            {pointee}![2] = newValue.z",
+                    "        }",
+                    "    }",
+                ]
+            return lines
         if canonical.kind == TypeKind.CONSTANTARRAY:
             count = canonical.element_count
             address = f"UnsafeMutableRawPointer(self.raw.pointer(to: \\.{name})!)"
