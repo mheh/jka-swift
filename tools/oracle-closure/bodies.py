@@ -666,6 +666,10 @@ class Drafter:
             if cur.kind == CursorKind.UNARY_OPERATOR and kids and self.unwrap(kids[0]).kind == CursorKind.DECL_REF_EXPR \
                     and self.unwrap(kids[0]).spelling in stores and self.unary_parts(cur)[0] in ("++", "--"):
                 stores[self.unwrap(kids[0]).spelling].append("other")
+            if cur.kind == CursorKind.CALL_EXPR:
+                # Raven's `&value` to an `inout String` parameter, `COM_ParseString(&p, &value)`, fills the local with text.
+                for position, kind in self.out_text_stores(cur, stores).items():
+                    stores[position].append(kind)
             if cur.kind != CursorKind.BINARY_OPERATOR or len(kids) != 2 or self.collapsed(cur) or self.operator_or_none(cur) != "=":
                 continue
             left = self.unwrap(kids[0])
@@ -676,6 +680,32 @@ class Drafter:
         optionals = {name for name in texts if "null" in stores[name]}
         cursors = {name: buffers[name] for name, kinds in stores.items() if "buffer" in kinds and all(k in ("buffer", "null") for k in kinds)}
         return texts, optionals, cursors
+
+    def out_text_stores(self, call: ci.Cursor, stores: dict[str, list[str]]) -> dict[str, str]:
+        """The char pointer locals a call fills by address, by the callee's `inout String` parameters, as name to store kind."""
+        kids = list(call.get_children())
+        name = self.callee_name(call)
+        if name is None:
+            return {}
+        params = self.callee_params(name)
+        out: dict[str, str] = {}
+        for i, arg in enumerate(kids[1:]):
+            inner = self.unwrap(arg)
+            if inner.kind != CursorKind.UNARY_OPERATOR or self.operator_or_none_unary(inner) != "&":
+                continue
+            target = self.unwrap(self.unary_parts(inner)[2])
+            if target.kind != CursorKind.DECL_REF_EXPR or target.spelling not in stores or i >= len(params):
+                continue
+            swift = params[i][1].replace("JKAShared.", "")
+            out[target.spelling] = "text" if swift == "inout String" else "other"
+        return out
+
+    def operator_or_none_unary(self, cur: ci.Cursor) -> str | None:
+        """The prefix operator of a unary node, or None when a macro holds it."""
+        try:
+            return self.unary_parts(cur)[0]
+        except Hole:
+            return None
 
     def text_store_kind(self, cur: ci.Cursor, name: str, buffers: dict[str, str]) -> str:
         inner = self.unwrap(cur)
@@ -2171,6 +2201,9 @@ class Drafter:
         """True for text Swift holds as a value the callee cannot write into.
         Raven's literal, a String local, a String parameter, and a `char name[N]` field are all of that kind."""
         inner = self.unwrap(cur)
+        if inner.kind == CursorKind.CSTYLE_CAST_EXPR and self.char_pointer_cast(inner):
+            # Raven's `(char *)value` casts the const away, and the text under it is the same text.
+            inner = self.unwrap([k for k in inner.get_children() if k.kind.is_expression()][-1])
         if inner.kind == CursorKind.STRING_LITERAL:
             return True
         if self.string_field(inner):
@@ -2181,6 +2214,13 @@ class Drafter:
         if param is not None:
             return param.kind == "cstring"
         return inner.spelling in self.text_locals
+
+    def char_pointer_cast(self, cur: ci.Cursor) -> bool:
+        """True when a C-style cast targets a char pointer."""
+        t = cur.type.get_canonical()
+        if t.kind != TypeKind.POINTER:
+            return False
+        return t.get_pointee().get_canonical().kind in (TypeKind.CHAR_S, TypeKind.UCHAR, TypeKind.CHAR_U, TypeKind.SCHAR)
 
     def is_callback(self, cur: ci.Cursor) -> bool:
         """True for a member reference to a field that stores a function pointer."""
