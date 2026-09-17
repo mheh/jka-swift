@@ -198,6 +198,7 @@ A function-like macro that a body uses is a hand Swift function of the same name
 | `ColorIndex` | `Sources/JKAShared/q_shared.h.swift` |
 | `PlaneTypeForNormal` | `Sources/JKAShared/q_math.swift` |
 | `ANGLE2SHORT` and `SHORT2ANGLE` | `Sources/JKAShared/q_math.swift` |
+| `BG_GiveMeVectorFromMatrix`, a `static ID_INLINE` function of bg_public.h, which is a macro to the port | `Sources/JKAMP_BG/bg_public.h.swift` |
 
 `VALID(a)` is `a != nil`.
 `FOFS`, `VFOFS`, `VWFOFS`, and `ENUM2STRING` appear only inside data tables, which are hand C storage.
