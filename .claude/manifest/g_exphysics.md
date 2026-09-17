@@ -7,4 +7,4 @@ The oracle range is the whole definition, from the return type to the closing br
 
 | Function | Oracle | Swift | State | jka-rust | Signature |
 |---|---|---|---|---|---|
-| `G_RunExPhys` | `oracle/codemp/game/g_exphysics.c:21-232` | `JKAMP_GameLogic/g_exphysics.swift:14` | marker | `crates/mp/game/src/g_exphysics.rs:21-295` | `func G_RunExPhys(_ ent: Entity, _ gravity: Float, _ mass: Float, _ bounce: Float, _ autoKill: Bool, _ g2Bolts: inout Int32, _ numG2Bolts: Int32)` |
+| `G_RunExPhys` | `oracle/codemp/game/g_exphysics.c:21-232` | `JKAMP_GameLogic/g_exphysics.swift:15` | marker | `crates/mp/game/src/g_exphysics.rs:21-295` | `func G_RunExPhys(_ ent: Entity, _ gravity: Float, _ mass: Float, _ bounce: Float, _ autoKill: Bool, _ g2Bolts: inout Int32, _ numG2Bolts: Int32)` |

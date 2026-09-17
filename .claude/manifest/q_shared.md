@@ -8,7 +8,7 @@ The oracle range is the whole definition, from the return type to the closing br
 | Function | Oracle | Swift | State | jka-rust | Signature |
 |---|---|---|---|---|---|
 | `GetIDForString` | `oracle/codemp/game/q_shared.c:13-27` | `JKAShared/q_shared.c.swift:17` | marker | `crates/mp/qshared/src/shared/q_string.rs:514-529` | `public func GetIDForString(_ table: Slots<JKAShared.StringIDTable>, _ string: String) -> Int32` |
-| `GetStringForID` | `oracle/codemp/game/q_shared.c:35-49` | `JKAShared/q_shared.c.swift:23` | marker | `crates/mp/game/src/q_shared.rs:54-69` | `public func GetStringForID(_ table: Slots<JKAShared.StringIDTable>, _ id: Int32) -> String` |
+| `GetStringForID` | `oracle/codemp/game/q_shared.c:35-49` | `JKAShared/q_shared.c.swift:23` | marker | `crates/mp/game/src/q_shared.rs:54-69` | `public func GetStringForID(_ table: Slots<JKAShared.StringIDTable>, _ id: Int32) -> String?` |
 | `Com_Clampi` | `oracle/codemp/game/q_shared.c:51-62` | `JKAShared/q_shared.c.swift:29` | marker | none | `public func Com_Clampi(_ min: Int32, _ max: Int32, _ value: Int32) -> Int32` |
 | `Com_Clamp` | `oracle/codemp/game/q_shared.c:64-72` | `JKAShared/q_shared.c.swift:35` | marker | none | `public func Com_Clamp(_ min: Float, _ max: Float, _ value: Float) -> Float` |
 | `COM_SkipPath` | `oracle/codemp/game/q_shared.c:80-92` | `JKAShared/q_shared.c.swift:48` | marker | `crates/mp/game/src/q_shared.rs:74-86` | `public func COM_SkipPath(_ pathname: inout JKAShared.CharBuf) -> Int32` |
@@ -34,7 +34,7 @@ The oracle range is the whole definition, from the return type to the closing br
 | `COM_ParseInt` | `oracle/codemp/game/q_shared.c:605-618` | `JKAShared/q_shared.c.swift:210` | marker | `crates/mp/game/src/q_shared.rs:350-359` | `public func COM_ParseInt(_ data: inout JKAShared.TextCursor, _ i: inout Int32) -> Bool` |
 | `COM_ParseFloat` | `oracle/codemp/game/q_shared.c:625-638` | `JKAShared/q_shared.c.swift:223` | marker | `crates/mp/game/src/q_shared.rs:364-373` | `public func COM_ParseFloat(_ data: inout JKAShared.TextCursor, _ f: inout Float) -> Bool` |
 | `COM_ParseVec4` | `oracle/codemp/game/q_shared.c:645-659` | `JKAShared/q_shared.c.swift:236` | marker | `crates/mp/game/src/q_shared.rs:378-391` | `public func COM_ParseVec4(_ buffer: inout JKAShared.TextCursor, _ c: inout JKAShared.vec4_t) -> Bool` |
-| `COM_MatchToken` | `oracle/codemp/game/q_shared.c:666-673` | `JKAShared/q_shared.c.swift:249` | marker | `crates/mp/game/src/q_shared.rs:396-403` | `public func COM_MatchToken(_ buf_p: inout JKAShared.TextCursor, _ match: inout JKAShared.CharBuf)` |
+| `COM_MatchToken` | `oracle/codemp/game/q_shared.c:666-673` | `JKAShared/q_shared.c.swift:249` | marker | `crates/mp/game/src/q_shared.rs:396-403` | `public func COM_MatchToken(_ buf_p: inout JKAShared.TextCursor, _ match: String)` |
 | `SkipBracedSection` | `oracle/codemp/game/q_shared.c:685-701` | `JKAShared/q_shared.c.swift:266` | marker | `crates/mp/qshared/src/shared/com_parse.rs:246-267` | `public func SkipBracedSection(_ program: inout JKAShared.TextCursor)` |
 | `SkipRestOfLine` | `oracle/codemp/game/q_shared.c:708-721` | `JKAShared/q_shared.c.swift:279` | marker | `crates/mp/qshared/src/shared/com_parse.rs:277-296` | `public func SkipRestOfLine(_ data: inout JKAShared.TextCursor)` |
 | `Parse1DMatrix` | `oracle/codemp/game/q_shared.c:724-736` | `JKAShared/q_shared.c.swift:285` | marker | `crates/mp/game/src/q_shared.rs:408-418` | `public func Parse1DMatrix(_ buf_p: inout JKAShared.TextCursor, _ x: Int32, _ m: inout [Float])` |

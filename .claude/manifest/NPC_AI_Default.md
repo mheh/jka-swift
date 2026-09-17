@@ -7,18 +7,18 @@ The oracle range is the whole definition, from the return type to the closing br
 
 | Function | Oracle | Swift | State | jka-rust | Signature |
 |---|---|---|---|---|---|
-| `NPC_LostEnemyDecideChase` | `oracle/codemp/game/NPC_AI_Default.c:18-35` | `JKAMP_GameLogic/NPC_AI_Default.swift:8` | marker | `crates/mp/game/src/NPC_AI_Default.rs:13-33` | `func NPC_LostEnemyDecideChase()` |
-| `NPC_StandIdle` | `oracle/codemp/game/NPC_AI_Default.c:42-85` | `JKAMP_GameLogic/NPC_AI_Default.swift:14` | marker | `crates/mp/game/src/NPC_AI_Default.rs:38-41` | `func NPC_StandIdle()` |
-| `NPC_StandTrackAndShoot` | `oracle/codemp/game/NPC_AI_Default.c:87-158` | `JKAMP_GameLogic/NPC_AI_Default.swift:20` | marker | `crates/mp/game/src/NPC_AI_Default.rs:46-100` | `func NPC_StandTrackAndShoot(_ NPC: Entity, _ canDuck: Bool) -> Bool` |
-| `NPC_BSIdle` | `oracle/codemp/game/NPC_AI_Default.c:161-177` | `JKAMP_GameLogic/NPC_AI_Default.swift:26` | marker | `crates/mp/game/src/NPC_AI_Default.rs:105-119` | `func NPC_BSIdle()` |
-| `NPC_BSRun` | `oracle/codemp/game/NPC_AI_Default.c:179-189` | `JKAMP_GameLogic/NPC_AI_Default.swift:32` | marker | `crates/mp/game/src/NPC_AI_Default.rs:124-130` | `func NPC_BSRun()` |
-| `NPC_BSStandGuard` | `oracle/codemp/game/NPC_AI_Default.c:191-224` | `JKAMP_GameLogic/NPC_AI_Default.swift:38` | marker | `crates/mp/game/src/NPC_AI_Default.rs:135-174` | `func NPC_BSStandGuard()` |
-| `NPC_BSHuntAndKill` | `oracle/codemp/game/NPC_AI_Default.c:232-304` | `JKAMP_GameLogic/NPC_AI_Default.swift:44` | marker | `crates/mp/game/src/NPC_AI_Default.rs:179-262` | `func NPC_BSHuntAndKill()` |
-| `NPC_BSStandAndShoot` | `oracle/codemp/game/NPC_AI_Default.c:306-392` | `JKAMP_GameLogic/NPC_AI_Default.swift:50` | marker | `crates/mp/game/src/NPC_AI_Default.rs:267-304` | `func NPC_BSStandAndShoot()` |
-| `NPC_BSRunAndShoot` | `oracle/codemp/game/NPC_AI_Default.c:394-487` | `JKAMP_GameLogic/NPC_AI_Default.swift:56` | marker | `crates/mp/game/src/NPC_AI_Default.rs:309-368` | `func NPC_BSRunAndShoot()` |
-| `NPC_BSFace` | `oracle/codemp/game/NPC_AI_Default.c:490-503` | `JKAMP_GameLogic/NPC_AI_Default.swift:63` | marker | `crates/mp/game/src/NPC_AI_Default.rs:373-393` | `func NPC_BSFace()` |
-| `NPC_BSPointShoot` | `oracle/codemp/game/NPC_AI_Default.c:505-610` | `JKAMP_GameLogic/NPC_AI_Default.swift:69` | marker | `crates/mp/game/src/NPC_AI_Default.rs:398-496` | `func NPC_BSPointShoot(_ shoot: Bool)` |
-| `NPC_BSMove` | `oracle/codemp/game/NPC_AI_Default.c:616-637` | `JKAMP_GameLogic/NPC_AI_Default.swift:81` | marker | `crates/mp/game/src/NPC_AI_Default.rs:501-514` | `func NPC_BSMove()` |
-| `NPC_BSShoot` | `oracle/codemp/game/NPC_AI_Default.c:644-656` | `JKAMP_GameLogic/NPC_AI_Default.swift:87` | marker | `crates/mp/game/src/NPC_AI_Default.rs:519-531` | `func NPC_BSShoot()` |
-| `NPC_BSPatrol` | `oracle/codemp/game/NPC_AI_Default.c:664-703` | `JKAMP_GameLogic/NPC_AI_Default.swift:101` | marker | `crates/mp/game/src/NPC_AI_Default.rs:536-562` | `func NPC_BSPatrol()` |
-| `NPC_BSDefault` | `oracle/codemp/game/NPC_AI_Default.c:712-957` | `JKAMP_GameLogic/NPC_AI_Default.swift:107` | marker | `crates/mp/game/src/NPC_AI_Default.rs:567-704` | `func NPC_BSDefault()` |
+| `NPC_LostEnemyDecideChase` | `oracle/codemp/game/NPC_AI_Default.c:18-35` | `JKAMP_GameLogic/NPC_AI_Default.swift:9` | marker | `crates/mp/game/src/NPC_AI_Default.rs:13-33` | `func NPC_LostEnemyDecideChase()` |
+| `NPC_StandIdle` | `oracle/codemp/game/NPC_AI_Default.c:42-85` | `JKAMP_GameLogic/NPC_AI_Default.swift:15` | marker | `crates/mp/game/src/NPC_AI_Default.rs:38-41` | `func NPC_StandIdle()` |
+| `NPC_StandTrackAndShoot` | `oracle/codemp/game/NPC_AI_Default.c:87-158` | `JKAMP_GameLogic/NPC_AI_Default.swift:21` | marker | `crates/mp/game/src/NPC_AI_Default.rs:46-100` | `func NPC_StandTrackAndShoot(_ NPC: Entity, _ canDuck: Bool) -> Bool` |
+| `NPC_BSIdle` | `oracle/codemp/game/NPC_AI_Default.c:161-177` | `JKAMP_GameLogic/NPC_AI_Default.swift:27` | marker | `crates/mp/game/src/NPC_AI_Default.rs:105-119` | `func NPC_BSIdle()` |
+| `NPC_BSRun` | `oracle/codemp/game/NPC_AI_Default.c:179-189` | `JKAMP_GameLogic/NPC_AI_Default.swift:33` | marker | `crates/mp/game/src/NPC_AI_Default.rs:124-130` | `func NPC_BSRun()` |
+| `NPC_BSStandGuard` | `oracle/codemp/game/NPC_AI_Default.c:191-224` | `JKAMP_GameLogic/NPC_AI_Default.swift:39` | marker | `crates/mp/game/src/NPC_AI_Default.rs:135-174` | `func NPC_BSStandGuard()` |
+| `NPC_BSHuntAndKill` | `oracle/codemp/game/NPC_AI_Default.c:232-304` | `JKAMP_GameLogic/NPC_AI_Default.swift:45` | marker | `crates/mp/game/src/NPC_AI_Default.rs:179-262` | `func NPC_BSHuntAndKill()` |
+| `NPC_BSStandAndShoot` | `oracle/codemp/game/NPC_AI_Default.c:306-392` | `JKAMP_GameLogic/NPC_AI_Default.swift:51` | marker | `crates/mp/game/src/NPC_AI_Default.rs:267-304` | `func NPC_BSStandAndShoot()` |
+| `NPC_BSRunAndShoot` | `oracle/codemp/game/NPC_AI_Default.c:394-487` | `JKAMP_GameLogic/NPC_AI_Default.swift:57` | marker | `crates/mp/game/src/NPC_AI_Default.rs:309-368` | `func NPC_BSRunAndShoot()` |
+| `NPC_BSFace` | `oracle/codemp/game/NPC_AI_Default.c:490-503` | `JKAMP_GameLogic/NPC_AI_Default.swift:64` | marker | `crates/mp/game/src/NPC_AI_Default.rs:373-393` | `func NPC_BSFace()` |
+| `NPC_BSPointShoot` | `oracle/codemp/game/NPC_AI_Default.c:505-610` | `JKAMP_GameLogic/NPC_AI_Default.swift:70` | marker | `crates/mp/game/src/NPC_AI_Default.rs:398-496` | `func NPC_BSPointShoot(_ shoot: Bool)` |
+| `NPC_BSMove` | `oracle/codemp/game/NPC_AI_Default.c:616-637` | `JKAMP_GameLogic/NPC_AI_Default.swift:82` | marker | `crates/mp/game/src/NPC_AI_Default.rs:501-514` | `func NPC_BSMove()` |
+| `NPC_BSShoot` | `oracle/codemp/game/NPC_AI_Default.c:644-656` | `JKAMP_GameLogic/NPC_AI_Default.swift:88` | marker | `crates/mp/game/src/NPC_AI_Default.rs:519-531` | `func NPC_BSShoot()` |
+| `NPC_BSPatrol` | `oracle/codemp/game/NPC_AI_Default.c:664-703` | `JKAMP_GameLogic/NPC_AI_Default.swift:102` | marker | `crates/mp/game/src/NPC_AI_Default.rs:536-562` | `func NPC_BSPatrol()` |
+| `NPC_BSDefault` | `oracle/codemp/game/NPC_AI_Default.c:712-957` | `JKAMP_GameLogic/NPC_AI_Default.swift:108` | marker | `crates/mp/game/src/NPC_AI_Default.rs:567-704` | `func NPC_BSDefault()` |

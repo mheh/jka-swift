@@ -124,6 +124,21 @@ class SourceFile:
 # The fields of bgEntity_t, the head of gentity_t and centity_t alike, which a bg body reads through its own view.
 BG_FIELDS = {"s", "playerState", "m_pVehicle", "ghoul2", "localAnimIndex", "modelScale"}
 ASSIGN_OPS = {"=", "+=", "-=", "*=", "/=", "%=", "&=", "|=", "^=", "<<=", ">>="}
+# The read set of the text sweep: every use of a non-const `char *` parameter the sweep knows to be a read, and the whole of it.
+# A parameter whose every use is one of these crosses as a String, and any other use keeps it the `inout CharBuf` of rule 11,
+# because a use the sweep cannot read is a use that may write the bytes.
+#   1. A pass to a callee position the callee declared `const`, which no callee writes through.
+#   2. A pass to a function of TEXT_READERS, and a pass past the last declared parameter, which is a format argument.
+#   3. A pass to another function's own non-const `char *`, which the sweep follows to that parameter and back.
+#   4. An operand of one of TEXT_TESTS, and an operand of `!`, which are Raven's NULL tests and his comparisons.
+#   5. The whole condition of an `if`, a `while`, a `do`, or a `?:`, which is a NULL test again.
+# A read at an index, a dereference, a cast, an address-of, pointer arithmetic, `++`, a store into the parameter,
+# a return of it, and a pass to a function with no body are none of these, so each one keeps the CharBuf.
+TEXT_READERS = {"Q_stricmp", "Q_stricmpn", "Q_strncmp", "strlen", "strcmp", "strncmp", "atoi", "atof", "Com_Printf"}
+TEXT_TESTS = {"==", "!=", "<", ">", "<=", ">=", "&&", "||"}
+# The Swift return of a `char *` the caller reads and nothing else, and of one Raven sets to NULL on a path.
+TEXT_RESULT = ("String", "cString(at: UnsafeMutableRawPointer(bitPattern: word)!)")
+OPTIONAL_TEXT_RESULT = ("String?", "UnsafeMutableRawPointer(bitPattern: word).map { cString(at: $0) }")
 
 
 def capitalized(word: str) -> str:
@@ -180,6 +195,10 @@ class Table:
         self.views = Generator(None)
         # The (function, parameter) pairs a bg body passes NULL or 0 to, so the wrapper takes the parameter as optional.
         self.nullable: set[tuple[str, str]] = set()
+        # The (function, parameter) pairs whose body never writes through the `char *`, so the parameter is a String.
+        self.readonly_text: set[tuple[str, str]] = set()
+        # The functions that hand NULL back from a `char *` return, so the return is a String?.
+        self.null_returns: set[str] = set()
 
     def sweep_reads(self, tu: ci.TranslationUnit, folder: Path) -> list[Read]:
         """Every game field a bg body reaches through a gentity_t, the level, or a cvar, as the reads the channel carries.
@@ -298,6 +317,160 @@ class Table:
                         if callee.startswith("strap_"):
                             self.nullable.add(("trap_" + callee[len("strap_"):], params[i].spelling))
 
+    # MARK: - The text sweep
+
+    @staticmethod
+    def mutable_text(t: ci.Type) -> bool:
+        """True for a `char *` Raven wrote without `const`."""
+        canonical = t.get_canonical()
+        if canonical.kind != TypeKind.POINTER:
+            return False
+        pointee = canonical.get_pointee()
+        return pointee.get_canonical().kind == TypeKind.CHAR_S and not pointee.is_const_qualified()
+
+    def text_uses(self, cur: ci.Cursor, targets: set[str]) -> list[tuple[ci.Cursor, list[ci.Cursor]]]:
+        """Every reference to one of the named parameters in the body, each with the nodes above it, innermost first."""
+        out: list[tuple[ci.Cursor, list[ci.Cursor]]] = []
+        stack: list[tuple[ci.Cursor, list[ci.Cursor]]] = [(cur, [])]
+        while stack:
+            node, chain = stack.pop()
+            if node.kind == CursorKind.DECL_REF_EXPR and node.spelling in targets \
+                    and node.referenced is not None and node.referenced.kind == CursorKind.PARM_DECL:
+                out.append((node, chain))
+            for kid in node.get_children():
+                stack.append((kid, [node] + chain))
+        return out
+
+    def text_use(self, node: ci.Cursor, chain: list[ci.Cursor], data: bytes) -> tuple[str, tuple[str, int] | None]:
+        """One use of a `char *` parameter as the sweep reads it: "read", "pass" with the callee and the position, or "unknown"."""
+        inner = node
+        depth = 0
+        while depth < len(chain) and chain[depth].kind in (CursorKind.PAREN_EXPR, CursorKind.UNEXPOSED_EXPR):
+            inner = chain[depth]
+            depth += 1
+        if depth >= len(chain):
+            return ("unknown", None)
+        parent = chain[depth]
+        kids = list(parent.get_children())
+        if parent.kind == CursorKind.CALL_EXPR:
+            return self.text_argument(parent, inner, kids)
+        if parent.kind == CursorKind.BINARY_OPERATOR and len(kids) == 2:
+            between = data[kids[0].extent.end.offset:kids[1].extent.start.offset].decode("utf-8", "replace").strip()
+            return ("read", None) if between in TEXT_TESTS else ("unknown", None)
+        if parent.kind == CursorKind.UNARY_OPERATOR and data[parent.extent.start.offset:parent.extent.start.offset + 1] == b"!":
+            return ("read", None)
+        if parent.kind in (CursorKind.IF_STMT, CursorKind.WHILE_STMT, CursorKind.DO_STMT):
+            # Raven's `if (p)` and `while (p)` are NULL tests.
+            return ("read", None)
+        if parent.kind == CursorKind.CONDITIONAL_OPERATOR and kids and self.same_extent(kids[0], inner):
+            return ("read", None)
+        return ("unknown", None)
+
+    @staticmethod
+    def same_extent(one: ci.Cursor, other: ci.Cursor) -> bool:
+        return one.extent.start.offset == other.extent.start.offset and one.extent.end.offset == other.extent.end.offset
+
+    def text_argument(self, call: ci.Cursor, inner: ci.Cursor, kids: list[ci.Cursor]) -> tuple[str, tuple[str, int] | None]:
+        """One `char *` parameter as an argument of a call: a read, a pass the sweep follows, or an unknown use."""
+        args = kids[1:]
+        position = next((i for i, a in enumerate(args) if self.same_extent(a, inner)), None)
+        callee = call.referenced
+        if position is None or callee is None or callee.kind != CursorKind.FUNCTION_DECL:
+            return ("unknown", None)
+        name = callee.spelling
+        params = list(callee.get_arguments())
+        if name in TEXT_READERS or position >= len(params):
+            # A format argument list and the compare and length functions read the bytes and write none of them.
+            return ("read", None)
+        t = params[position].type.get_canonical()
+        if t.kind != TypeKind.POINTER:
+            return ("unknown", None)
+        if t.get_pointee().is_const_qualified():
+            return ("read", None)
+        if t.get_pointee().get_canonical().kind == TypeKind.CHAR_S:
+            return ("pass", (name, position))
+        return ("unknown", None)
+
+    def sweep_text(self, tu: ci.TranslationUnit, folder: Path) -> None:
+        """The text sweep of the stop walk's row 2: a non-const `char *` parameter crosses as a String when every use of it reads.
+
+        The default is the `inout CharBuf` of rule 11, because a pointer the port cannot read is a pointer Raven may write through.
+        A parameter joins the String set only when the sweep knows every one of its uses, and TEXT_READS names the uses it knows.
+        A pass to another function's own non-const `char *` follows that parameter, and the set iterates to a fixpoint."""
+        candidates: set[tuple[str, str]] = set()
+        forwards: dict[tuple[str, str], set[tuple[str, int]]] = {}
+        # The name of each swept `char *` parameter by its function and its position, so a pass finds the callee's row.
+        by_position: dict[tuple[str, int], str] = {}
+        for cur in tu.cursor.get_children():
+            if cur.kind != CursorKind.FUNCTION_DECL or not cur.is_definition() or not cur.location.file:
+                continue
+            path = Path(cur.location.file.name).resolve()
+            if path.parent != folder or path.suffix != ".c":
+                continue
+            owner = cur.spelling
+            params = list(cur.get_arguments())
+            targets = {p.spelling for p in params if self.mutable_text(p.type)}
+            for i, p in enumerate(params):
+                if p.spelling in targets:
+                    by_position[(owner, i)] = p.spelling
+            if not targets:
+                continue
+            data = C.parsed_bytes(path)
+            uses: dict[str, list[tuple[str, tuple[str, int] | None]]] = {name: [] for name in targets}
+            for node, chain in self.text_uses(cur, targets):
+                uses[node.spelling].append(self.text_use(node, chain, data))
+            for name, kinds in uses.items():
+                if any(kind == "unknown" for kind, _ in kinds):
+                    continue
+                candidates.add((owner, name))
+                forwards[(owner, name)] = {site for kind, site in kinds if kind == "pass" and site is not None}
+        changed = True
+        while changed:
+            changed = False
+            for pair in list(candidates):
+                for callee, position in forwards.get(pair, set()):
+                    name = by_position.get((callee, position))
+                    if name is None or (callee, name) not in candidates:
+                        # The callee has no body here, or its own parameter takes the bytes, so this one takes them too.
+                        candidates.discard(pair)
+                        changed = True
+                        break
+        self.readonly_text |= candidates
+
+    def sweep_returns(self, tu: ci.TranslationUnit, folder: Path) -> None:
+        """The NULL sweep over returns: a function that returns `char *` and hands NULL back at any site returns a String?."""
+        for cur in tu.cursor.get_children():
+            if cur.kind != CursorKind.FUNCTION_DECL or not cur.is_definition() or not cur.location.file:
+                continue
+            path = Path(cur.location.file.name).resolve()
+            if path.parent != folder or path.suffix != ".c":
+                continue
+            result = cur.result_type.get_canonical()
+            if result.kind != TypeKind.POINTER or result.get_pointee().get_canonical().kind != TypeKind.CHAR_S:
+                continue
+            data = C.parsed_bytes(path)
+            for node in cur.walk_preorder():
+                if node.kind != CursorKind.RETURN_STMT:
+                    continue
+                kids = list(node.get_children())
+                if not kids:
+                    continue
+                value = self.unwrapped(kids[0])
+                text = data[value.extent.start.offset:value.extent.end.offset].decode("utf-8", "replace").strip()
+                if text in ("NULL", "0"):
+                    self.null_returns.add(cur.spelling)
+
+    def sweep(self, tu: ci.TranslationUnit, folder: Path, other: ci.TranslationUnit | None = None) -> None:
+        """Every sweep a signature of the module needs, in the order the table reads them.
+
+        The NULL sweep walks the bg .c files of the folder alone, because a bg body is the one caller the port has read so far,
+        and it walks the second unit the same way when the caller hands one over, so a call on Raven's cgame arm counts too.
+        The text sweep and the return sweep walk every .c file of the folder, because the body of the callee decides both."""
+        self.sweep_nulls(tu, folder)
+        if other is not None:
+            self.sweep_nulls(other, folder)
+        self.sweep_text(tu, folder)
+        self.sweep_returns(tu, folder)
 
     def marker_reason(self, cur: ci.Cursor, owner: str | None = None) -> str:
         """The marker line for a parameter the table cannot shape: a PARAMS hold names its kind and the ruling it waits on,
@@ -367,6 +540,11 @@ class Table:
                 if traps:
                     # A `char *` Raven wrote without `const` into a trap is an input the engine reads, a String like `const char *`.
                     return Param(name, "String", "cstring")
+                if ruled is None and (owner, name) in self.readonly_text:
+                    # The body only reads the text, so the parameter is a String, the spelling a `const char *` already has.
+                    # A PARAMS row names the kind itself, so it wins over the sweep.
+                    return Param(name, "String?" if (owner, name) in self.nullable else "String",
+                                 "cstring_opt" if (owner, name) in self.nullable else "cstring")
                 # A body reads and rewrites the caller's buffer in place, so the caller's CharBuf crosses with `&`.
                 return Param(name, "inout JKAShared.CharBuf", "inout_charbuf")
             record = self.views.record_name(pointee)
@@ -472,7 +650,7 @@ class Table:
         if ruled == "pooled_string":
             return ("PooledString", "")
         if ruled == "optional_string":
-            return ("String?", "UnsafeMutableRawPointer(bitPattern: word).map { cString(at: $0) }")
+            return OPTIONAL_TEXT_RESULT
         if ruled == "in_place":
             # Raven returns the argument it rewrote in place, which the caller already holds.
             return (None, "")
@@ -482,7 +660,11 @@ class Table:
             return ("Int32", "")
         if ruled == "vec3":
             return ("JKAShared.vec3_t", "")
-        return self.result_type(cur.result_type)
+        result = self.result_type(cur.result_type)
+        if result is not None and result[0] == "String" and cur.spelling in self.null_returns:
+            # The body hands NULL back at one site, so the text is optional and `return nil` is that site.
+            return OPTIONAL_TEXT_RESULT
+        return result
 
     def result_type(self, t: ci.Type) -> tuple[str | None, str] | None:
         canonical = t.get_canonical()
@@ -501,7 +683,7 @@ class Table:
             if pointee.get_canonical().kind == TypeKind.CHAR_S:
                 # Text the caller reads and nothing else, so it crosses as a String. A function that returns NULL, rewrites its
                 # argument in place, or returns a pointer into its argument has a RETURNS entry instead.
-                return ("String", "cString(at: UnsafeMutableRawPointer(bitPattern: word)!)")
+                return TEXT_RESULT
             # Raven returns NULL for no entity, so a returned view is optional.
             record = self.views.record_name(pointee)
             if record and record in self.views.views:

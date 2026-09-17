@@ -7,12 +7,12 @@ The oracle range is the whole definition, from the return type to the closing br
 
 | Function | Oracle | Swift | State | jka-rust | Signature |
 |---|---|---|---|---|---|
-| `NPC_Howler_Precache` | `oracle/codemp/game/NPC_AI_Howler.c:18-20` | `JKAMP_GameLogic/NPC_AI_Howler.swift:33` | marker | `crates/mp/game/src/NPC_AI_Howler.rs:33-34` | `func NPC_Howler_Precache()` |
-| `Howler_Idle` | `oracle/codemp/game/NPC_AI_Howler.c:28-30` | `JKAMP_GameLogic/NPC_AI_Howler.swift:46` | marker | `crates/mp/game/src/NPC_AI_Howler.rs:41-42` | `func Howler_Idle()` |
-| `Howler_Patrol` | `oracle/codemp/game/NPC_AI_Howler.c:38-71` | `JKAMP_GameLogic/NPC_AI_Howler.swift:59` | marker | `crates/mp/game/src/NPC_AI_Howler.rs:47-85` | `func Howler_Patrol()` |
-| `Howler_Move` | `oracle/codemp/game/NPC_AI_Howler.c:78-86` | `JKAMP_GameLogic/NPC_AI_Howler.swift:72` | marker | `crates/mp/game/src/NPC_AI_Howler.rs:90-103` | `func Howler_Move(_ visible: Bool)` |
-| `Howler_TryDamage` | `oracle/codemp/game/NPC_AI_Howler.c:89-109` | `JKAMP_GameLogic/NPC_AI_Howler.swift:79` | marker | `crates/mp/game/src/NPC_AI_Howler.rs:108-157` | `func Howler_TryDamage(_ enemy: Entity, _ damage: Int32)` |
-| `Howler_Attack` | `oracle/codemp/game/NPC_AI_Howler.c:112-131` | `JKAMP_GameLogic/NPC_AI_Howler.swift:86` | marker | `crates/mp/game/src/NPC_AI_Howler.rs:162-189` | `func Howler_Attack()` |
-| `Howler_Combat` | `oracle/codemp/game/NPC_AI_Howler.c:134-171` | `JKAMP_GameLogic/NPC_AI_Howler.swift:93` | marker | `crates/mp/game/src/NPC_AI_Howler.rs:194-243` | `func Howler_Combat()` |
-| `NPC_Howler_Pain` | `oracle/codemp/game/NPC_AI_Howler.c:178-194` | `JKAMP_GameLogic/NPC_AI_Howler.swift:106` | marker | `crates/mp/game/src/NPC_AI_Howler.rs:250-284` | `func NPC_Howler_Pain(_ `self`: Entity, _ attacker: Entity, _ damage: Int32)` |
-| `NPC_BSHowler_Default` | `oracle/codemp/game/NPC_AI_Howler.c:202-218` | `JKAMP_GameLogic/NPC_AI_Howler.swift:119` | marker | `crates/mp/game/src/NPC_AI_Howler.rs:291-306` | `func NPC_BSHowler_Default()` |
+| `NPC_Howler_Precache` | `oracle/codemp/game/NPC_AI_Howler.c:18-20` | `JKAMP_GameLogic/NPC_AI_Howler.swift:34` | marker | `crates/mp/game/src/NPC_AI_Howler.rs:33-34` | `func NPC_Howler_Precache()` |
+| `Howler_Idle` | `oracle/codemp/game/NPC_AI_Howler.c:28-30` | `JKAMP_GameLogic/NPC_AI_Howler.swift:47` | marker | `crates/mp/game/src/NPC_AI_Howler.rs:41-42` | `func Howler_Idle()` |
+| `Howler_Patrol` | `oracle/codemp/game/NPC_AI_Howler.c:38-71` | `JKAMP_GameLogic/NPC_AI_Howler.swift:60` | marker | `crates/mp/game/src/NPC_AI_Howler.rs:47-85` | `func Howler_Patrol()` |
+| `Howler_Move` | `oracle/codemp/game/NPC_AI_Howler.c:78-86` | `JKAMP_GameLogic/NPC_AI_Howler.swift:73` | marker | `crates/mp/game/src/NPC_AI_Howler.rs:90-103` | `func Howler_Move(_ visible: Bool)` |
+| `Howler_TryDamage` | `oracle/codemp/game/NPC_AI_Howler.c:89-109` | `JKAMP_GameLogic/NPC_AI_Howler.swift:80` | marker | `crates/mp/game/src/NPC_AI_Howler.rs:108-157` | `func Howler_TryDamage(_ enemy: Entity, _ damage: Int32)` |
+| `Howler_Attack` | `oracle/codemp/game/NPC_AI_Howler.c:112-131` | `JKAMP_GameLogic/NPC_AI_Howler.swift:87` | marker | `crates/mp/game/src/NPC_AI_Howler.rs:162-189` | `func Howler_Attack()` |
+| `Howler_Combat` | `oracle/codemp/game/NPC_AI_Howler.c:134-171` | `JKAMP_GameLogic/NPC_AI_Howler.swift:94` | marker | `crates/mp/game/src/NPC_AI_Howler.rs:194-243` | `func Howler_Combat()` |
+| `NPC_Howler_Pain` | `oracle/codemp/game/NPC_AI_Howler.c:178-194` | `JKAMP_GameLogic/NPC_AI_Howler.swift:107` | marker | `crates/mp/game/src/NPC_AI_Howler.rs:250-284` | `func NPC_Howler_Pain(_ `self`: Entity, _ attacker: Entity, _ damage: Int32)` |
+| `NPC_BSHowler_Default` | `oracle/codemp/game/NPC_AI_Howler.c:202-218` | `JKAMP_GameLogic/NPC_AI_Howler.swift:120` | marker | `crates/mp/game/src/NPC_AI_Howler.rs:291-306` | `func NPC_BSHowler_Default()` |

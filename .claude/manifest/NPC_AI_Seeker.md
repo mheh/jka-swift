@@ -7,14 +7,14 @@ The oracle range is the whole definition, from the return type to the closing br
 
 | Function | Oracle | Swift | State | jka-rust | Signature |
 |---|---|---|---|---|---|
-| `NPC_Seeker_Precache` | `oracle/codemp/game/NPC_AI_Seeker.c:26-31` | `JKAMP_GameLogic/NPC_AI_Seeker.swift:42` | marker | `crates/mp/game/src/NPC_AI_Seeker.rs:62-66` | `func NPC_Seeker_Precache()` |
-| `NPC_Seeker_Pain` | `oracle/codemp/game/NPC_AI_Seeker.c:34-46` | `JKAMP_GameLogic/NPC_AI_Seeker.swift:49` | marker | `crates/mp/game/src/NPC_AI_Seeker.rs:71-102` | `func NPC_Seeker_Pain(_ `self`: Entity, _ attacker: Entity, _ damage: Int32)` |
-| `Seeker_MaintainHeight` | `oracle/codemp/game/NPC_AI_Seeker.c:49-148` | `JKAMP_GameLogic/NPC_AI_Seeker.swift:56` | marker | `crates/mp/game/src/NPC_AI_Seeker.rs:107-221` | `func Seeker_MaintainHeight()` |
-| `Seeker_Strafe` | `oracle/codemp/game/NPC_AI_Seeker.c:151-239` | `JKAMP_GameLogic/NPC_AI_Seeker.swift:63` | marker | `crates/mp/game/src/NPC_AI_Seeker.rs:226-394` | `func Seeker_Strafe()` |
-| `Seeker_Hunt` | `oracle/codemp/game/NPC_AI_Seeker.c:242-287` | `JKAMP_GameLogic/NPC_AI_Seeker.swift:70` | marker | `crates/mp/game/src/NPC_AI_Seeker.rs:399-465` | `func Seeker_Hunt(_ visible: Bool, _ advance: Bool)` |
-| `Seeker_Fire` | `oracle/codemp/game/NPC_AI_Seeker.c:290-317` | `JKAMP_GameLogic/NPC_AI_Seeker.swift:77` | marker | `crates/mp/game/src/NPC_AI_Seeker.rs:470-512` | `func Seeker_Fire()` |
-| `Seeker_Ranged` | `oracle/codemp/game/NPC_AI_Seeker.c:320-347` | `JKAMP_GameLogic/NPC_AI_Seeker.swift:84` | marker | `crates/mp/game/src/NPC_AI_Seeker.rs:517-552` | `func Seeker_Ranged(_ visible: Bool, _ advance: Bool)` |
-| `Seeker_Attack` | `oracle/codemp/game/NPC_AI_Seeker.c:350-380` | `JKAMP_GameLogic/NPC_AI_Seeker.swift:91` | marker | `crates/mp/game/src/NPC_AI_Seeker.rs:557-598` | `func Seeker_Attack()` |
-| `Seeker_FindEnemy` | `oracle/codemp/game/NPC_AI_Seeker.c:383-436` | `JKAMP_GameLogic/NPC_AI_Seeker.swift:98` | marker | `crates/mp/game/src/NPC_AI_Seeker.rs:603-670` | `func Seeker_FindEnemy()` |
-| `Seeker_FollowOwner` | `oracle/codemp/game/NPC_AI_Seeker.c:439-520` | `JKAMP_GameLogic/NPC_AI_Seeker.swift:105` | marker | `crates/mp/game/src/NPC_AI_Seeker.rs:675-785` | `func Seeker_FollowOwner()` |
-| `NPC_BSSeeker_Default` | `oracle/codemp/game/NPC_AI_Seeker.c:523-574` | `JKAMP_GameLogic/NPC_AI_Seeker.swift:112` | marker | `crates/mp/game/src/NPC_AI_Seeker.rs:790-857` | `func NPC_BSSeeker_Default()` |
+| `NPC_Seeker_Precache` | `oracle/codemp/game/NPC_AI_Seeker.c:26-31` | `JKAMP_GameLogic/NPC_AI_Seeker.swift:43` | marker | `crates/mp/game/src/NPC_AI_Seeker.rs:62-66` | `func NPC_Seeker_Precache()` |
+| `NPC_Seeker_Pain` | `oracle/codemp/game/NPC_AI_Seeker.c:34-46` | `JKAMP_GameLogic/NPC_AI_Seeker.swift:50` | marker | `crates/mp/game/src/NPC_AI_Seeker.rs:71-102` | `func NPC_Seeker_Pain(_ `self`: Entity, _ attacker: Entity, _ damage: Int32)` |
+| `Seeker_MaintainHeight` | `oracle/codemp/game/NPC_AI_Seeker.c:49-148` | `JKAMP_GameLogic/NPC_AI_Seeker.swift:57` | marker | `crates/mp/game/src/NPC_AI_Seeker.rs:107-221` | `func Seeker_MaintainHeight()` |
+| `Seeker_Strafe` | `oracle/codemp/game/NPC_AI_Seeker.c:151-239` | `JKAMP_GameLogic/NPC_AI_Seeker.swift:64` | marker | `crates/mp/game/src/NPC_AI_Seeker.rs:226-394` | `func Seeker_Strafe()` |
+| `Seeker_Hunt` | `oracle/codemp/game/NPC_AI_Seeker.c:242-287` | `JKAMP_GameLogic/NPC_AI_Seeker.swift:71` | marker | `crates/mp/game/src/NPC_AI_Seeker.rs:399-465` | `func Seeker_Hunt(_ visible: Bool, _ advance: Bool)` |
+| `Seeker_Fire` | `oracle/codemp/game/NPC_AI_Seeker.c:290-317` | `JKAMP_GameLogic/NPC_AI_Seeker.swift:78` | marker | `crates/mp/game/src/NPC_AI_Seeker.rs:470-512` | `func Seeker_Fire()` |
+| `Seeker_Ranged` | `oracle/codemp/game/NPC_AI_Seeker.c:320-347` | `JKAMP_GameLogic/NPC_AI_Seeker.swift:85` | marker | `crates/mp/game/src/NPC_AI_Seeker.rs:517-552` | `func Seeker_Ranged(_ visible: Bool, _ advance: Bool)` |
+| `Seeker_Attack` | `oracle/codemp/game/NPC_AI_Seeker.c:350-380` | `JKAMP_GameLogic/NPC_AI_Seeker.swift:92` | marker | `crates/mp/game/src/NPC_AI_Seeker.rs:557-598` | `func Seeker_Attack()` |
+| `Seeker_FindEnemy` | `oracle/codemp/game/NPC_AI_Seeker.c:383-436` | `JKAMP_GameLogic/NPC_AI_Seeker.swift:99` | marker | `crates/mp/game/src/NPC_AI_Seeker.rs:603-670` | `func Seeker_FindEnemy()` |
+| `Seeker_FollowOwner` | `oracle/codemp/game/NPC_AI_Seeker.c:439-520` | `JKAMP_GameLogic/NPC_AI_Seeker.swift:106` | marker | `crates/mp/game/src/NPC_AI_Seeker.rs:675-785` | `func Seeker_FollowOwner()` |
+| `NPC_BSSeeker_Default` | `oracle/codemp/game/NPC_AI_Seeker.c:523-574` | `JKAMP_GameLogic/NPC_AI_Seeker.swift:113` | marker | `crates/mp/game/src/NPC_AI_Seeker.rs:790-857` | `func NPC_BSSeeker_Default()` |

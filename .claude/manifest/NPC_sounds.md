@@ -7,5 +7,5 @@ The oracle range is the whole definition, from the return type to the closing br
 
 | Function | Oracle | Swift | State | jka-rust | Signature |
 |---|---|---|---|---|---|
-| `G_AddVoiceEvent` | `oracle/codemp/game/NPC_sounds.c:23-64` | `JKAMP_GameLogic/NPC_sounds.swift:8` | marker | `crates/mp/game/src/NPC_sounds.rs:20-78` | `func G_AddVoiceEvent(_ `self`: Entity, _ event: Int32, _ speakDebounceTime: Int32)` |
-| `NPC_PlayConfusionSound` | `oracle/codemp/game/NPC_sounds.c:66-93` | `JKAMP_GameLogic/NPC_sounds.swift:14` | marker | `crates/mp/game/src/NPC_sounds.rs:83-124` | `func NPC_PlayConfusionSound(_ `self`: Entity)` |
+| `G_AddVoiceEvent` | `oracle/codemp/game/NPC_sounds.c:23-64` | `JKAMP_GameLogic/NPC_sounds.swift:9` | marker | `crates/mp/game/src/NPC_sounds.rs:20-78` | `func G_AddVoiceEvent(_ `self`: Entity, _ event: Int32, _ speakDebounceTime: Int32)` |
+| `NPC_PlayConfusionSound` | `oracle/codemp/game/NPC_sounds.c:66-93` | `JKAMP_GameLogic/NPC_sounds.swift:15` | marker | `crates/mp/game/src/NPC_sounds.rs:83-124` | `func NPC_PlayConfusionSound(_ `self`: Entity)` |

@@ -110,8 +110,7 @@ class Channel:
         # The cgame parse compiles the bg files under CGAME, so the calls on Raven's `#else` arms exist in it.
         self.cgame_tu = C.parse_tu("mp-cgame", None, unity=True, overlay=OVERLAY)
         self.cgame = (C.ORACLE / CGAME_DIR).resolve()
-        self.table.sweep_nulls(self.tu, self.game)
-        self.table.sweep_nulls(self.cgame_tu, self.game)
+        self.table.sweep(self.tu, self.game, other=self.cgame_tu)
         self.sources: dict[Path, SourceFile] = {}
         self.counts: Counter[str] = Counter()
         self.straps = self.collect_straps()

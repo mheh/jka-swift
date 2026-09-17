@@ -723,7 +723,7 @@ class Drafter:
         inner = self.unwrap(cur)
         if self.is_null(inner):
             return "null"
-        if inner.kind == CursorKind.CALL_EXPR and self.registry.returns.get(self.callee_name(inner) or "") == "String":
+        if inner.kind == CursorKind.CALL_EXPR and self.registry.returns.get(self.callee_name(inner) or "") in ("String", "String?"):
             return "text"
         if inner.kind == CursorKind.STRING_LITERAL:
             return "text"
@@ -954,7 +954,7 @@ class Drafter:
                     source = "JKAShared.TextCursor()" if self.is_null(right) else f"JKAShared.TextCursor({self.expr(right)})"
                     return [f"{pad}{self.expr(left)} = {source}" + self.trailing(cur)]
                 if op == "=" and self.unwrap(left).kind == CursorKind.DECL_REF_EXPR and self.unwrap(left).spelling in self.text_locals \
-                        and (self.is_null(right) or self.field_slot(right) is not None):
+                        and (self.is_null(right) or self.field_slot(right) is not None or self.optional_text_call(right)):
                     optional = self.unwrap(left).spelling in self.optional_texts
                     return [f"{pad}{self.expr(left)} = {self.text_value(right, optional)}" + self.trailing(cur)]
                 if self.unwrap(left).kind == CursorKind.DECL_REF_EXPR and self.unwrap(left).spelling in self.local_holes:
@@ -1378,11 +1378,22 @@ class Drafter:
         base = self.unwrap(base)
         return (base, index) if self.string_field(base) else None
 
+    def optional_text_call(self, cur: ci.Cursor) -> bool:
+        """True when the expression is a call that hands an optional text back, the shape of a `char *` return Raven sets to NULL."""
+        inner = self.strip(cur)
+        if not self.is_call(inner):
+            return False
+        return self.registry.returns.get(self.callee_name(inner) or "") == "String?"
+
     def text_value(self, cur: ci.Cursor, optional: bool) -> str:
         """Raven's source for a String local: his NULL, the text of a `char name[N]` field, or the expression as it is."""
         inner = self.unwrap(cur)
         if self.is_null(inner):
             return "nil" if optional else '""'
+        if not optional and self.optional_text_call(inner):
+            raven = " ".join(self.bytes[cur.extent.start.offset:cur.extent.end.offset].decode("utf-8", "replace").split())
+            raise Hole(f"Raven stores `{raven}`, and the callee hands an optional text back where the target takes a value. "
+                       "A never-null ruling is due.")
         slot = self.field_slot(inner)
         if slot is None:
             return self.expr(inner)
@@ -1589,7 +1600,14 @@ class Drafter:
         if base.spelling in self.text_locals:
             return self.expr(base) + ("!" if base.spelling in self.optional_texts else "")
         param = self.params_by_name.get(base.spelling)
-        return self.names[base.spelling] if param is not None and param.kind == "cstring" else None
+        if param is None:
+            return None
+        if param.kind == "cstring":
+            return self.names[base.spelling]
+        if param.kind != "cstring_opt":
+            return None
+        # An optional text reads its bytes under the NULL test Raven wrote beside this one.
+        return self.names[base.spelling] + "!"
 
     def is_charbuf(self, cur: ci.Cursor) -> bool:
         """True for a local or parameter Swift holds as a CharBuf: Raven's `char name[N]` or a `char *` he rewrites in place."""
@@ -1946,6 +1964,9 @@ class Drafter:
             ref = inner.referenced
             if inner.spelling in self.optional_entities:
                 return True
+            if self.optional_text_name(inner):
+                # A caller passes NULL for the text, so a read of it takes the bind under Raven's own NULL test.
+                return True
             if inner.spelling in self.names or inner.spelling in NEVER_NULL_VARS or inner.spelling in self.game_entities:
                 return False
             if inner.spelling in self.charbuf_locals or inner.spelling in self.table_cursors or inner.spelling in self.raw_locals:
@@ -2214,7 +2235,21 @@ class Drafter:
             if own is not None and (own.swift or "").startswith("UnsafeMutablePointer<"):
                 return text
             return f"&{text}"
+        if (param is None or param[1].endswith("...")) and not inout and self.optional_text_name(inner):
+            # Raven's format argument list takes the text itself, and an optional text takes the bind under his own NULL test.
+            return f"{text}!"
         return f"&{text}" if inout else text
+
+    def optional_text_name(self, cur: ci.Cursor) -> bool:
+        """True for a read of a name Swift holds as an optional text.
+        A parameter a caller passes NULL for and a local Raven stores his NULL into are both of that kind."""
+        inner = self.unwrap(cur)
+        if inner.kind != CursorKind.DECL_REF_EXPR:
+            return False
+        param = self.params_by_name.get(inner.spelling)
+        if param is not None:
+            return param.kind == "cstring_opt"
+        return inner.spelling in self.optional_texts
 
     def immutable_text(self, cur: ci.Cursor) -> bool:
         """True for text Swift holds as a value the callee cannot write into.
@@ -2231,7 +2266,7 @@ class Drafter:
             return False
         param = self.params_by_name.get(inner.spelling)
         if param is not None:
-            return param.kind == "cstring"
+            return param.kind in ("cstring", "cstring_opt")
         return inner.spelling in self.text_locals
 
     def char_pointer_cast(self, cur: ci.Cursor) -> bool:

@@ -160,6 +160,7 @@ class Skeleton:
     def __init__(self, overlay: str | None = None) -> None:
         self.table = Table()
         self.tu = C.parse_tu("mp-game", None, unity=True, overlay=overlay)
+        self.table.sweep(self.tu, (C.ORACLE / ORACLE_DIR).resolve())
         self.sources: dict[str, SourceFile] = {}
         self.files: dict[str, list[Function]] = defaultdict(list)
         self.by_name: dict[str, Function] = {}

@@ -7,5 +7,5 @@ The oracle range is the whole definition, from the return type to the closing br
 
 | Function | Oracle | Swift | State | jka-rust | Signature |
 |---|---|---|---|---|---|
-| `Debug_Printf` | `oracle/codemp/game/NPC_misc.c:10-35` | `JKAMP_GameLogic/NPC_misc.swift:13` | marker | `crates/mp/game/src/NPC_misc.rs:22-52` | `func Debug_Printf(_ cv: JKAMP.VmCvar, _ debugLevel: Int32, _ fmt: inout JKAShared.CharBuf, _ args: any JKAShared.FormatArg...)` |
-| `Debug_NPCPrintf` | `oracle/codemp/game/NPC_misc.c:41-73` | `JKAMP_GameLogic/NPC_misc.swift:24` | marker | `crates/mp/game/src/NPC_misc.rs:60-94` | `func Debug_NPCPrintf(_ printNPC: Entity, _ cv: JKAMP.VmCvar, _ debugLevel: Int32, _ fmt: inout JKAShared.CharBuf, _ args: any JKAShared.FormatArg...)` |
+| `Debug_Printf` | `oracle/codemp/game/NPC_misc.c:10-35` | `JKAMP_GameLogic/NPC_misc.swift:14` | marker | `crates/mp/game/src/NPC_misc.rs:22-52` | `func Debug_Printf(_ cv: JKAMP.VmCvar, _ debugLevel: Int32, _ fmt: inout JKAShared.CharBuf, _ args: any JKAShared.FormatArg...)` |
+| `Debug_NPCPrintf` | `oracle/codemp/game/NPC_misc.c:41-73` | `JKAMP_GameLogic/NPC_misc.swift:25` | marker | `crates/mp/game/src/NPC_misc.rs:60-94` | `func Debug_NPCPrintf(_ printNPC: Entity, _ cv: JKAMP.VmCvar, _ debugLevel: Int32, _ fmt: inout JKAShared.CharBuf, _ args: any JKAShared.FormatArg...)` |
