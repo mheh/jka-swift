@@ -681,6 +681,15 @@ class Drafter:
         cursors = {name: buffers[name] for name, kinds in stores.items() if "buffer" in kinds and all(k in ("buffer", "null") for k in kinds)}
         return texts, optionals, cursors
 
+    def filled_by_address(self, name: str) -> bool:
+        """True when any call of the function passes `&name` to an `inout String` parameter."""
+        for cur in self.fn.cur.walk_preorder():
+            if cur.kind != CursorKind.CALL_EXPR:
+                continue
+            if self.out_text_stores(cur, {name: []}).get(name) == "text":
+                return True
+        return False
+
     def out_text_stores(self, call: ci.Cursor, stores: dict[str, list[str]]) -> dict[str, str]:
         """The char pointer locals a call fills by address, by the callee's `inout String` parameters, as name to store kind."""
         kids = list(call.get_children())
@@ -697,6 +706,9 @@ class Drafter:
             if target.kind != CursorKind.DECL_REF_EXPR or target.spelling not in stores or i >= len(params):
                 continue
             swift = params[i][1].replace("JKAShared.", "")
+            if swift == "inout TextCursor":
+                # The callee steps the cursor and stores no new base, so the local stays a cursor.
+                continue
             out[target.spelling] = "text" if swift == "inout String" else "other"
         return out
 
@@ -1303,6 +1315,9 @@ class Drafter:
             # His NULL into any other one is the empty text, because the parser never hands NULL back.
             optional = var.spelling in self.optional_texts
             value = self.text_value(init[0], optional) if init else ("nil" if optional else None)
+            if value is None and self.filled_by_address(var.spelling):
+                # Raven leaves the pointer unset until a parser fills it by address, and an inout pass needs a first value.
+                value = '""'
             swift = "String?" if optional else "String"
             keyword = "var" if optional else keyword
             return f"{keyword} {name}: {swift}" + (f" = {value}" if value is not None else "")
