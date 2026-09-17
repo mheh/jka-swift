@@ -2036,6 +2036,10 @@ class Drafter:
                     # Raven scans three floats into the three members of one vector, and the port's sscanf takes the vector.
                     return f"sscanf({self.argument(args[0], False, ('s', 'String'), name, 0)}, {self.expr(args[1])}, &{roots[0]})"
             self.reach(name, "function", callee.referenced)
+            aliased = self.aliased_inouts(cur)
+            if aliased and not self.aliased_positions:
+                # The statement rule copies the earlier ones into locals, and a call inside a test has no line of its own for them.
+                raise Hole(f"Raven passes `{aliased[0][1]}` more than once to `{name}` inside a test, and Swift refuses one variable twice inout.")
             params = self.callee_params(name)
             outer = self.call_kinds
             self.call_kinds = self.argument_kinds(args)
