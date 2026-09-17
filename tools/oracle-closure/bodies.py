@@ -945,7 +945,7 @@ class Drafter:
                         and (self.is_null(right) or self.field_slot(right) is not None):
                     optional = self.unwrap(left).spelling in self.optional_texts
                     return [f"{pad}{self.expr(left)} = {self.text_value(right, optional)}" + self.trailing(cur)]
-                if self.unwrap(left).kind == CursorKind.DECL_REF_EXPR and self.unwrap(left).spelling in self.hole_names:
+                if self.unwrap(left).kind == CursorKind.DECL_REF_EXPR and self.unwrap(left).spelling in self.local_holes:
                     raise Hole(f"A store into `{self.unwrap(left).spelling}`, a local the draft left as a hole.")
                 if op == "=" and self.unwrap(left).kind == CursorKind.ARRAY_SUBSCRIPT_EXPR and self.is_raw(list(self.unwrap(left).get_children())[0]):
                     raise Hole("A byte store through a raw allocation, which RawField.swift has no subscript for.")
