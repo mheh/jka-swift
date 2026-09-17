@@ -26,6 +26,8 @@ SCRATCH = REPO / ".build-draft" / "scratch"
 LOG = REPO / ".build-draft" / "build.log"
 SOURCE_LINE = re.compile(r"/// Source: oracle/codemp/game/\w+\.c:(\d+)$")
 ERROR = re.compile(r"^/.*\.swift:(\d+):\d+: error: (.*)$")
+# swiftc colours its diagnostics when it sees a terminal, and the escape sits before `error:`, so the count strips it first.
+ANSI = re.compile(r"\x1b\[[0-9;]*m")
 MISSING = re.compile(r"cannot find '(\w+)' in scope")
 
 
@@ -97,19 +99,22 @@ def main() -> None:
     LOG.write_text(build.stdout + build.stderr)
     cascades = 0
     defects: list[str] = []
+    summaries: list[str] = []
     # The compiler reports one error under more than one job at times, so each error line counts once.
-    for line in dict.fromkeys((build.stdout + build.stderr).splitlines()):
+    for line in dict.fromkeys(ANSI.sub("", raw) for raw in (build.stdout + build.stderr).splitlines()):
         m = ERROR.match(line)
         if m is None:
             if line.startswith("error:"):
-                # An error outside a Swift file is the build's own, and it stands as a defect so a broken mirror never reads clean.
-                defects.append(line)
+                summaries.append(line)
             continue
         name = MISSING.search(m.group(2))
         if name and name.group(1) in drafter.hole_names:
             cascades += 1
         else:
             defects.append(f"{target.name}:{m.group(1)}: {m.group(2)}")
+    if summaries and not defects and not cascades:
+        # An error outside a Swift file is the build's own, and it stands as a defect so a broken mirror never reads clean.
+        defects += summaries
     print(f"{args.stem}: {replaced} of {len(functions(hand))} hand functions replaced, {drafter.holes} holes, {cascades} cascade errors, {len(defects)} defects")
     for line in defects:
         print(f"  {line}")
