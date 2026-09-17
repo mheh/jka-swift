@@ -6,7 +6,7 @@ import JKAShared
 import JKAMP_Game
 
 /// Source: oracle/codemp/game/NPC_goal.c:10
-func SetGoal(_ goal: Entity, _ rating: Float) {
+func SetGoal(_ goal: Entity?, _ rating: Float) {
     // TODO: Port SetGoal
     portMissing("SetGoal", source: "oracle/codemp/game/NPC_goal.c:10")
 }

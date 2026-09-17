@@ -958,7 +958,7 @@ private func WP_FireEmplaced(_ ent: Entity, _ altFire: Bool) {
 }
 
 /// Source: oracle/codemp/game/g_weapon.c:4691
-func emplaced_gun_use(_ `self`: Entity, _ other: Entity, _ trace: JKAMP.Trace) {
+func emplaced_gun_use(_ `self`: Entity, _ other: Entity, _ trace: JKAMP.Trace?) {
     // TODO: Port emplaced_gun_use
     portMissing("emplaced_gun_use", source: "oracle/codemp/game/g_weapon.c:4691")
 }

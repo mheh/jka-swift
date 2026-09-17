@@ -350,7 +350,7 @@ private func SiegeItemRespawnEffect(_ ent: Entity, _ newOrg: inout JKAShared.vec
 }
 
 /// Source: oracle/codemp/game/g_saga.c:1372
-private func SiegeItemRespawnOnOriginalSpot(_ ent: Entity, _ carrier: Entity) {
+private func SiegeItemRespawnOnOriginalSpot(_ ent: Entity, _ carrier: Entity?) {
     // TODO: Port SiegeItemRespawnOnOriginalSpot
     portMissing("SiegeItemRespawnOnOriginalSpot", source: "oracle/codemp/game/g_saga.c:1372")
 }

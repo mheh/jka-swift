@@ -12,7 +12,7 @@ let MAX_GRAVITY_PULL = 512 as Int32
 //state value. Origin smoothing on the client is expected to compensate for choppy
 //movement.
 /// Source: oracle/codemp/game/g_exphysics.c:21
-func G_RunExPhys(_ ent: Entity, _ gravity: Float, _ mass: Float, _ bounce: Float, _ autoKill: Bool, _ g2Bolts: inout Int32, _ numG2Bolts: Int32) {
+func G_RunExPhys(_ ent: Entity, _ gravity: Float, _ mass: Float, _ bounce: Float, _ autoKill: Bool, _ g2Bolts: UnsafeMutablePointer<Int32>?, _ numG2Bolts: Int32) {
     // TODO: Port G_RunExPhys
     portMissing("G_RunExPhys", source: "oracle/codemp/game/g_exphysics.c:21")
 }

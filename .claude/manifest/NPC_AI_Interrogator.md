@@ -7,7 +7,7 @@ The oracle range is the whole definition, from the return type to the closing br
 
 | Function | Oracle | Swift | State | jka-rust | Signature |
 |---|---|---|---|---|---|
-| `NPC_Interrogator_Precache` | `oracle/codemp/game/NPC_AI_Interrogator.c:20-28` | `JKAMP_GameLogic/NPC_AI_Interrogator.swift:37` | marker | `crates/mp/game/src/NPC_AI_Interrogator.rs:68-76` | `func NPC_Interrogator_Precache(_ `self`: Entity)` |
+| `NPC_Interrogator_Precache` | `oracle/codemp/game/NPC_AI_Interrogator.c:20-28` | `JKAMP_GameLogic/NPC_AI_Interrogator.swift:37` | marker | `crates/mp/game/src/NPC_AI_Interrogator.rs:68-76` | `func NPC_Interrogator_Precache(_ `self`: Entity?)` |
 | `Interrogator_die` | `oracle/codemp/game/NPC_AI_Interrogator.c:34-57` | `JKAMP_GameLogic/NPC_AI_Interrogator.swift:50` | marker | `crates/mp/game/src/NPC_AI_Interrogator.rs:82-114` | `func Interrogator_die(_ `self`: Entity, _ inflictor: Entity, _ attacker: Entity, _ damage: Int32, _ mod: Int32, _ dFlags: Int32, _ hitLoc: Int32)` |
 | `Interrogator_PartsMove` | `oracle/codemp/game/NPC_AI_Interrogator.c:64-127` | `JKAMP_GameLogic/NPC_AI_Interrogator.swift:63` | marker | `crates/mp/game/src/NPC_AI_Interrogator.rs:120-190` | `func Interrogator_PartsMove()` |
 | `Interrogator_MaintainHeight` | `oracle/codemp/game/NPC_AI_Interrogator.c:137-229` | `JKAMP_GameLogic/NPC_AI_Interrogator.swift:76` | marker | `crates/mp/game/src/NPC_AI_Interrogator.rs:196-294` | `func Interrogator_MaintainHeight()` |

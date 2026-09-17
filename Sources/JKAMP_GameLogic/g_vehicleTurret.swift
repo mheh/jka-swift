@@ -20,7 +20,7 @@ func VEH_TurretAnglesToEnemy(_ pVeh: JKAMP.Vehicle, _ curMuzzle: Int32, _ fSpeed
 
 //-----------------------------------------------------
 /// Source: oracle/codemp/game/g_vehicleTurret.c:89
-func VEH_TurretAim(_ pVeh: JKAMP.Vehicle, _ parent: Entity, _ turretEnemy: Entity, _ turretStats: JKAMP.TurretStats, _ vehWeapon: JKAMP.VehWeaponInfo, _ turretNum: Int32, _ curMuzzle: Int32, _ desiredAngles: inout JKAShared.vec3_t) -> Bool {
+func VEH_TurretAim(_ pVeh: JKAMP.Vehicle, _ parent: Entity, _ turretEnemy: Entity?, _ turretStats: JKAMP.TurretStats, _ vehWeapon: JKAMP.VehWeaponInfo, _ turretNum: Int32, _ curMuzzle: Int32, _ desiredAngles: inout JKAShared.vec3_t) -> Bool {
     // TODO: Port VEH_TurretAim
     portMissing("VEH_TurretAim", source: "oracle/codemp/game/g_vehicleTurret.c:89")
 }

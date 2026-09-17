@@ -1637,12 +1637,11 @@ func BG_PlayerStateToEntityStateExtraPolate(_ ps: JKAMP.PlayerState, _ s: JKAMP.
 }
 
 /// Source: oracle/codemp/game/bg_misc.c:3200
-func BG_ModelCache(_ modelName: String, _ skinName: String) -> Int32 {
+func BG_ModelCache(_ modelName: String, _ skinName: String?) -> Int32 {
     if bg.consumer == .game {
         var g2: OpaquePointer? = nil
 
-        // Raven also tests `skinName` for NULL here. A String is never NULL, so that half of the guard has no Swift form.
-        if !skinName.isEmpty {
+        if let skinName, !skinName.isEmpty {
             trap_R_RegisterSkin(skinName)
         }
 
@@ -1653,7 +1652,7 @@ func BG_ModelCache(_ modelName: String, _ skinName: String) -> Int32 {
         }
         return 0
     } else {
-        if !skinName.isEmpty {
+        if let skinName, !skinName.isEmpty {
             trap_R_RegisterSkin(skinName)
         }
         return trap_R_RegisterModel(modelName)

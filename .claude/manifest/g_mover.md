@@ -41,7 +41,7 @@ The oracle range is the whole definition, from the return type to the closing br
 | `Touch_PlatCenterTrigger` | `oracle/codemp/game/g_mover.c:1507-1515` | `JKAMP_GameLogic/g_mover.swift:438` | marker | `crates/mp/game/src/g_mover.rs:1892-1919` | `func Touch_PlatCenterTrigger(_ ent: Entity, _ other: Entity, _ trace: JKAMP.Trace)` |
 | `SpawnPlatTrigger` | `oracle/codemp/game/g_mover.c:1527-1559` | `JKAMP_GameLogic/g_mover.swift:455` | marker | `crates/mp/game/src/g_mover.rs:1927-1962` | `func SpawnPlatTrigger(_ ent: Entity)` |
 | `SP_func_plat` | `oracle/codemp/game/g_mover.c:1576-1617` | `JKAMP_GameLogic/g_mover.swift:478` | marker | `crates/mp/game/src/g_mover.rs:1967-2033` | `func SP_func_plat(_ ent: Entity)` |
-| `Touch_Button` | `oracle/codemp/game/g_mover.c:1633-1641` | `JKAMP_GameLogic/g_mover.swift:492` | marker | `crates/mp/game/src/g_mover.rs:2038-2061` | `func Touch_Button(_ ent: Entity, _ other: Entity, _ trace: JKAMP.Trace)` |
+| `Touch_Button` | `oracle/codemp/game/g_mover.c:1633-1641` | `JKAMP_GameLogic/g_mover.swift:492` | marker | `crates/mp/game/src/g_mover.rs:2038-2061` | `func Touch_Button(_ ent: Entity, _ other: Entity, _ trace: JKAMP.Trace?)` |
 | `SP_func_button` | `oracle/codemp/game/g_mover.c:1660-1702` | `JKAMP_GameLogic/g_mover.swift:517` | marker | `crates/mp/game/src/g_mover.rs:2066-2115` | `func SP_func_button(_ ent: Entity)` |
 | `Think_BeginMoving` | `oracle/codemp/game/g_mover.c:1727-1732` | `JKAMP_GameLogic/g_mover.swift:532` | marker | `crates/mp/game/src/g_mover.rs:2120-2126` | `func Think_BeginMoving(_ ent: Entity)` |
 | `Reached_Train` | `oracle/codemp/game/g_mover.c:1739-1793` | `JKAMP_GameLogic/g_mover.swift:545` | marker | `crates/mp/game/src/g_mover.rs:2131-2197` | `func Reached_Train(_ ent: Entity)` |

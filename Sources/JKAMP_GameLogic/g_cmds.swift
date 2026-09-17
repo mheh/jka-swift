@@ -375,7 +375,7 @@ private func G_SayTo(_ ent: Entity, _ other: Entity, _ mode: Int32, _ color: Int
 }
 
 /// Source: oracle/codemp/game/g_cmds.c:1618
-func G_Say(_ ent: Entity, _ target: Entity, _ mode: Int32, _ chatText: String) {
+func G_Say(_ ent: Entity, _ target: Entity?, _ mode: Int32, _ chatText: String) {
     // TODO: Port G_Say
     portMissing("G_Say", source: "oracle/codemp/game/g_cmds.c:1618")
 }

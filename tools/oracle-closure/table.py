@@ -195,6 +195,10 @@ class Table:
         self.views = Generator(None)
         # The (function, parameter) pairs a bg body passes NULL or 0 to, so the wrapper takes the parameter as optional.
         self.nullable: set[tuple[str, str]] = set()
+        # The functions the NULL sweep saw a call to, so a parameter outside `nullable` is proven never NULL only for these.
+        self.called: set[str] = set()
+        # The (function, parameter) pairs whose body writes through the pointer, so the output keeps its `inout` spelling.
+        self.stores_through: set[tuple[str, str]] = set()
         # The (function, parameter) pairs whose body never writes through the `char *`, so the parameter is a String.
         self.readonly_text: set[tuple[str, str]] = set()
         # The functions that hand NULL back from a `char *` return, so the return is a String?.
@@ -295,27 +299,96 @@ class Table:
     def own_field(root: str, fields: list[str]) -> bool:
         return root == "entity" and (fields[0] in BG_FIELDS or fields == ["client"] or fields[:2] == ["client", "ps"])
 
-    def sweep_nulls(self, tu: ci.TranslationUnit, folder: Path) -> None:
-        """The NULL sweep of the hole walk's row 2: every pointer parameter a bg body passes NULL or 0 to, by the callee's name.
-        A `strap_` callee names its `trap_` twin too, because the game's strap forwards the argument to the trap as it is."""
+    def sweep_nulls(self, tu: ci.TranslationUnit, *folders: Path) -> None:
+        """The NULL sweep of the hole walk's row 2: every pointer parameter a body of the folders passes NULL or 0 to, by the callee's name.
+        A `strap_` callee names its `trap_` twin too, because the game's strap forwards the argument to the trap as it is.
+
+        The sweep walks every `.c` file of the folders, not the bg files alone, because one NULL at any call site makes the parameter optional.
+        `called` holds the callees it reached, and a parameter of a function in that set and outside `nullable` is proven never NULL.
+        The proof covers the game module and the cgame module, which are the two units the port parses.
+        The ui module has no parse yet, so a ui call site is outside the proof.
+        A function only ui reaches is a known gap, and it stays one until the ui module parse lands."""
         for cur in tu.cursor.get_children():
             if cur.kind != CursorKind.FUNCTION_DECL or not cur.is_definition() or not cur.location.file:
                 continue
             path = Path(cur.location.file.name).resolve()
-            if path.parent != folder or not path.stem.startswith("bg_"):
+            if path.parent not in folders or path.suffix != ".c":
                 continue
             data = C.parsed_bytes(path)
             for node in cur.walk_preorder():
                 if node.kind != CursorKind.CALL_EXPR or node.referenced is None or node.referenced.kind != CursorKind.FUNCTION_DECL:
                     continue
                 params = list(node.referenced.get_arguments())
+                self.called.add(node.referenced.spelling)
+                if node.referenced.spelling.startswith("strap_"):
+                    self.called.add("trap_" + node.referenced.spelling[len("strap_"):])
                 for i, arg in enumerate(list(node.get_children())[1:]):
                     text = data[arg.extent.start.offset:arg.extent.end.offset].decode("utf-8", "replace").strip()
-                    if text in ("NULL", "0") and i < len(params) and params[i].type.get_canonical().kind == TypeKind.POINTER:
+                    if text in ("NULL", "0") and i < len(params) and self.takes_null(params[i].type):
                         callee = node.referenced.spelling
                         self.nullable.add((callee, params[i].spelling))
                         if callee.startswith("strap_"):
                             self.nullable.add(("trap_" + callee[len("strap_"):], params[i].spelling))
+
+    @staticmethod
+    def takes_null(t: ci.Type) -> bool:
+        """True for a parameter type NULL fits: a pointer, and an array too, because C decays an array parameter to a pointer."""
+        return t.get_canonical().kind in (TypeKind.POINTER, TypeKind.CONSTANTARRAY, TypeKind.INCOMPLETEARRAY)
+
+    def sweep_stores(self, tu: ci.TranslationUnit, folder: Path) -> None:
+        """Every pointer parameter a body of the folder writes through, `*p = x` or `p[i] = x`, by the function's name.
+
+        The table reads it beside `nullable`: a scalar output the body always writes keeps the `inout` spelling, and the caller's NULL
+        takes a scratch local at the call site instead. A parameter the body only reads has no such seat, so a NULL there stays optional."""
+        for cur in tu.cursor.get_children():
+            if cur.kind != CursorKind.FUNCTION_DECL or not cur.is_definition() or not cur.location.file:
+                continue
+            path = Path(cur.location.file.name).resolve()
+            if path.parent != folder or path.suffix != ".c":
+                continue
+            data = C.parsed_bytes(path)
+            names = {p.spelling for p in cur.get_arguments()}
+            if not names:
+                continue
+            for node in cur.walk_preorder():
+                if node.kind not in (CursorKind.BINARY_OPERATOR, CursorKind.COMPOUND_ASSIGNMENT_OPERATOR):
+                    continue
+                kids = list(node.get_children())
+                if len(kids) != 2:
+                    continue
+                between = data[kids[0].extent.end.offset:kids[1].extent.start.offset].decode("utf-8", "replace").strip()
+                if between not in ASSIGN_OPS:
+                    continue
+                target = self.store_target(self.unwrapped(kids[0]), data)
+                if target in names:
+                    self.stores_through.add((cur.spelling, target))
+
+    def store_target(self, cur: ci.Cursor, data: bytes) -> str | None:
+        """The parameter name a store writes through, for `*p` and for `p[i]`, or None for any other left side."""
+        if cur.kind == CursorKind.UNARY_OPERATOR:
+            kids = list(cur.get_children())
+            if not kids:
+                return None
+            prefix = data[cur.extent.start.offset:kids[0].extent.start.offset].decode("utf-8", "replace")
+            if "*" not in prefix:
+                return None
+            inner = self.unwrapped(kids[0])
+            if inner.kind == CursorKind.DECL_REF_EXPR and inner.referenced is not None \
+                    and inner.referenced.kind == CursorKind.PARM_DECL:
+                return inner.spelling
+            return None
+        if cur.kind == CursorKind.ARRAY_SUBSCRIPT_EXPR:
+            base = self.unwrapped(list(cur.get_children())[0])
+            if base.kind == CursorKind.DECL_REF_EXPR and base.referenced is not None \
+                    and base.referenced.kind == CursorKind.PARM_DECL:
+                return base.spelling
+        return None
+
+    def never_null(self, owner: str | None, name: str) -> bool:
+        """True when the NULL sweep proves this parameter is never NULL: the sweep read a call to the function, and no call passed NULL.
+
+        A function no call reached is unknown, because the port has read no caller of it yet, and unknown is not a proof."""
+        return owner is not None and owner in self.called and (owner, name) not in self.nullable
 
     # MARK: - The text sweep
 
@@ -460,15 +533,18 @@ class Table:
                 if text in ("NULL", "0"):
                     self.null_returns.add(cur.spelling)
 
-    def sweep(self, tu: ci.TranslationUnit, folder: Path, other: ci.TranslationUnit | None = None) -> None:
+    def sweep(self, tu: ci.TranslationUnit, folder: Path, other: ci.TranslationUnit | None = None,
+              other_folder: Path | None = None) -> None:
         """Every sweep a signature of the module needs, in the order the table reads them.
 
-        The NULL sweep walks the bg .c files of the folder alone, because a bg body is the one caller the port has read so far,
-        and it walks the second unit the same way when the caller hands one over, so a call on Raven's cgame arm counts too.
-        The text sweep and the return sweep walk every .c file of the folder, because the body of the callee decides both."""
+        The NULL sweep walks every .c file of the folder, because a proof that a parameter is never NULL needs every caller the port parses.
+        It walks the second unit over both folders when the caller hands one over, so a call on Raven's cgame arm of a bg file counts,
+        and so does a call from the cgame's own .c files.
+        The store sweep, the text sweep, and the return sweep walk every .c file of the folder, because the body of the callee decides all three."""
         self.sweep_nulls(tu, folder)
         if other is not None:
-            self.sweep_nulls(other, folder)
+            self.sweep_nulls(other, folder, *([other_folder] if other_folder is not None else []))
+        self.sweep_stores(tu, folder)
         self.sweep_text(tu, folder)
         self.sweep_returns(tu, folder)
 
@@ -583,8 +659,10 @@ class Table:
             # A pointer to one scalar is an out-param, `inout`. A body that finds Raven walks it as an array writes a Port-note.
             if not pointee.is_const_qualified() and (inner.kind in INT_KINDS or inner.kind in (TypeKind.FLOAT, TypeKind.ENUM)):
                 swift = self.views.scalar(pointee, TARGET)
-                if swift is not None and self.known(swift) and (owner, name) in self.nullable:
+                if swift is not None and self.known(swift) and (owner, name) in self.nullable \
+                        and (owner, name) not in self.stores_through:
                     # An output a caller skips with NULL crosses as the pointer itself, in the wrapper alone, so `nil` has a seat.
+                    # A body that writes through the pointer keeps the `inout` spelling, and the caller's NULL takes a scratch local.
                     return Param(name, f"UnsafeMutablePointer<{swift}>?", "bare")
                 if swift is not None and self.known(swift):
                     return Param(name, f"inout {swift}", "out_scalar")

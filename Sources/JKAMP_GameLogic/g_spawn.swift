@@ -37,7 +37,7 @@ var g_cullDistance: Float {
 }
 
 /// Source: oracle/codemp/game/g_spawn.c:6
-func G_SpawnString(_ key: String, _ defaultString: String, _ out: inout String) -> Bool {
+func G_SpawnString(_ key: String, _ defaultString: String?, _ out: inout String) -> Bool {
     // TODO: Port G_SpawnString
     portMissing("G_SpawnString", source: "oracle/codemp/game/g_spawn.c:6")
 }

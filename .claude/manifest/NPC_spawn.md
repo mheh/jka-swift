@@ -7,7 +7,7 @@ The oracle range is the whole definition, from the return type to the closing br
 
 | Function | Oracle | Swift | State | jka-rust | Signature |
 |---|---|---|---|---|---|
-| `WP_SetSaberModel` | `oracle/codemp/game/NPC_spawn.c:90-94` | `JKAMP_GameLogic/NPC_spawn.swift:30` | marker | `crates/mp/game/src/NPC_spawn.rs:69-74` | `func WP_SetSaberModel(_ client: Client, _ npcClass: JKAMP.class_t) -> Int32` |
+| `WP_SetSaberModel` | `oracle/codemp/game/NPC_spawn.c:90-94` | `JKAMP_GameLogic/NPC_spawn.swift:30` | marker | `crates/mp/game/src/NPC_spawn.rs:69-74` | `func WP_SetSaberModel(_ client: Client?, _ npcClass: JKAMP.class_t) -> Int32` |
 | `NPC_PainFunc` | `oracle/codemp/game/NPC_spawn.c:103-189` | `JKAMP_GameLogic/NPC_spawn.swift:36` | marker | `crates/mp/game/src/NPC_spawn.rs:79-109` | `func NPC_PainFunc(_ ent: Entity) -> EntityPain?` |
 | `NPC_TouchFunc` | `oracle/codemp/game/NPC_spawn.c:199-206` | `JKAMP_GameLogic/NPC_spawn.swift:42` | marker | `crates/mp/game/src/NPC_spawn.rs:114-117` | `func NPC_TouchFunc(_ ent: Entity) -> EntityTouch?` |
 | `NPC_SetMiscDefaultData` | `oracle/codemp/game/NPC_spawn.c:215-501` | `JKAMP_GameLogic/NPC_spawn.swift:48` | marker | `crates/mp/game/src/NPC_spawn.rs:122-298` | `func NPC_SetMiscDefaultData(_ ent: Entity)` |
@@ -92,7 +92,7 @@ The oracle range is the whole definition, from the return type to the closing br
 | `SP_NPC_Droid_R2D2` | `oracle/codemp/game/NPC_spawn.c:3798-3812` | `JKAMP_GameLogic/NPC_spawn.swift:1346` | marker | `crates/mp/game/src/NPC_spawn.rs:2615-2624` | `func SP_NPC_Droid_R2D2(_ `self`: Entity)` |
 | `SP_NPC_Droid_R5D2` | `oracle/codemp/game/NPC_spawn.c:3826-3840` | `JKAMP_GameLogic/NPC_spawn.swift:1367` | marker | `crates/mp/game/src/NPC_spawn.rs:2629-2638` | `func SP_NPC_Droid_R5D2(_ `self`: Entity)` |
 | `SP_NPC_Droid_Protocol` | `oracle/codemp/game/NPC_spawn.c:3851-3864` | `JKAMP_GameLogic/NPC_spawn.swift:1385` | marker | `crates/mp/game/src/NPC_spawn.rs:2643-2652` | `func SP_NPC_Droid_Protocol(_ `self`: Entity)` |
-| `NPC_SpawnType` | `oracle/codemp/game/NPC_spawn.c:3872-4018` | `JKAMP_GameLogic/NPC_spawn.swift:1391` | marker | `crates/mp/game/src/NPC_spawn.rs:2657-2814` | `func NPC_SpawnType(_ ent: Entity, _ npc_type: inout JKAShared.CharBuf, _ targetname: String, _ isVehicle: Bool) -> Entity?` |
+| `NPC_SpawnType` | `oracle/codemp/game/NPC_spawn.c:3872-4018` | `JKAMP_GameLogic/NPC_spawn.swift:1391` | marker | `crates/mp/game/src/NPC_spawn.rs:2657-2814` | `func NPC_SpawnType(_ ent: Entity, _ npc_type: inout JKAShared.CharBuf, _ targetname: String?, _ isVehicle: Bool) -> Entity?` |
 | `NPC_Spawn_f` | `oracle/codemp/game/NPC_spawn.c:4020-4039` | `JKAMP_GameLogic/NPC_spawn.swift:1397` | marker | `crates/mp/game/src/NPC_spawn.rs:2819-2845` | `func NPC_Spawn_f(_ ent: Entity)` |
 | `NPC_Kill_f` | `oracle/codemp/game/NPC_spawn.c:4045-4170` | `JKAMP_GameLogic/NPC_spawn.swift:1403` | marker | `crates/mp/game/src/NPC_spawn.rs:2850-2999` | `func NPC_Kill_f()` |
 | `NPC_PrintScore` | `oracle/codemp/game/NPC_spawn.c:4172-4175` | `JKAMP_GameLogic/NPC_spawn.swift:1409` | marker | `crates/mp/game/src/NPC_spawn.rs:3004-3010` | `func NPC_PrintScore(_ ent: Entity)` |

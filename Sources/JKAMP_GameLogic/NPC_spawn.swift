@@ -27,7 +27,7 @@ var showBBoxes: Bool {
 }
 
 /// Source: oracle/codemp/game/NPC_spawn.c:90
-func WP_SetSaberModel(_ client: Client, _ npcClass: JKAMP.class_t) -> Int32 {
+func WP_SetSaberModel(_ client: Client?, _ npcClass: JKAMP.class_t) -> Int32 {
     // TODO: Port WP_SetSaberModel
     portMissing("WP_SetSaberModel", source: "oracle/codemp/game/NPC_spawn.c:90")
 }
@@ -1388,7 +1388,7 @@ func SP_NPC_Droid_Protocol(_ `self`: Entity) {
 }
 
 /// Source: oracle/codemp/game/NPC_spawn.c:3872
-func NPC_SpawnType(_ ent: Entity, _ npc_type: inout JKAShared.CharBuf, _ targetname: String, _ isVehicle: Bool) -> Entity? {
+func NPC_SpawnType(_ ent: Entity, _ npc_type: inout JKAShared.CharBuf, _ targetname: String?, _ isVehicle: Bool) -> Entity? {
     // TODO: Port NPC_SpawnType
     portMissing("NPC_SpawnType", source: "oracle/codemp/game/NPC_spawn.c:3872")
 }

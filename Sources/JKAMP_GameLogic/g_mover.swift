@@ -489,7 +489,7 @@ Touch_Button
 ```
 */
 /// Source: oracle/codemp/game/g_mover.c:1633
-func Touch_Button(_ ent: Entity, _ other: Entity, _ trace: JKAMP.Trace) {
+func Touch_Button(_ ent: Entity, _ other: Entity, _ trace: JKAMP.Trace?) {
     // TODO: Port Touch_Button
     portMissing("Touch_Button", source: "oracle/codemp/game/g_mover.c:1633")
 }

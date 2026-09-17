@@ -349,7 +349,7 @@ A new command has arrived from the client
 ```
 */
 /// Source: oracle/codemp/game/g_active.c:3649
-func ClientThink(_ clientNum: Int32, _ ucmd: JKAMP.Usercmd) {
+func ClientThink(_ clientNum: Int32, _ ucmd: JKAMP.Usercmd?) {
     // TODO: Port ClientThink
     portMissing("ClientThink", source: "oracle/codemp/game/g_active.c:3649")
 }

@@ -178,7 +178,7 @@ NULL will be returned if the end of the list is reached.
 ```
 */
 /// Source: oracle/codemp/game/g_utils.c:222
-func G_Find(_ from: Entity, _ fieldofs: Int32, _ match: String) -> Entity? {
+func G_Find(_ from: Entity?, _ fieldofs: Int32, _ match: String) -> Entity? {
     // TODO: Port G_Find
     portMissing("G_Find", source: "oracle/codemp/game/g_utils.c:222")
 }
@@ -240,7 +240,7 @@ func G_CleanAllFakeClients() {
 }
 
 /// Source: oracle/codemp/game/g_utils.c:479
-func G_SetAnim(_ ent: Entity, _ ucmd: JKAMP.Usercmd, _ setAnimParts: Int32, _ anim: Int32, _ setAnimFlags: Int32, _ blendTime: Int32) {
+func G_SetAnim(_ ent: Entity, _ ucmd: JKAMP.Usercmd?, _ setAnimParts: Int32, _ anim: Int32, _ setAnimFlags: Int32, _ blendTime: Int32) {
     // TODO: Port G_SetAnim
     portMissing("G_SetAnim", source: "oracle/codemp/game/g_utils.c:479")
 }
@@ -277,7 +277,7 @@ match (string)self.target and call their .use function
 ```
 */
 /// Source: oracle/codemp/game/g_utils.c:609
-func G_UseTargets(_ ent: Entity, _ activator: Entity) {
+func G_UseTargets(_ ent: Entity, _ activator: Entity?) {
     // TODO: Port G_UseTargets
     portMissing("G_UseTargets", source: "oracle/codemp/game/g_utils.c:609")
 }
@@ -529,7 +529,7 @@ G_ScreenShake
 ```
 */
 /// Source: oracle/codemp/game/g_utils.c:1291
-func G_ScreenShake(_ org: inout JKAShared.vec3_t, _ target: Entity, _ intensity: Float, _ duration: Int32, _ global: Bool) -> Entity? {
+func G_ScreenShake(_ org: inout JKAShared.vec3_t, _ target: Entity?, _ intensity: Float, _ duration: Int32, _ global: Bool) -> Entity? {
     // TODO: Port G_ScreenShake
     portMissing("G_ScreenShake", source: "oracle/codemp/game/g_utils.c:1291")
 }

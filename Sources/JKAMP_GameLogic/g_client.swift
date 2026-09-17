@@ -249,7 +249,7 @@ func SP_info_player_intermission_blue(_ ent: Entity) {
 }
 
 /// Source: oracle/codemp/game/g_client.c:258
-func ThrowSaberToAttacker(_ `self`: Entity, _ attacker: Entity) {
+func ThrowSaberToAttacker(_ `self`: Entity, _ attacker: Entity?) {
     // TODO: Port ThrowSaberToAttacker
     portMissing("ThrowSaberToAttacker", source: "oracle/codemp/game/g_client.c:258")
 }

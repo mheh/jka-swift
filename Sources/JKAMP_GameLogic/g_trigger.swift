@@ -388,7 +388,7 @@ func SP_trigger_space(_ `self`: Entity) {
 }
 
 /// Source: oracle/codemp/game/g_trigger.c:1494
-func shipboundary_touch(_ `self`: Entity, _ other: Entity, _ trace: JKAMP.Trace) {
+func shipboundary_touch(_ `self`: Entity, _ other: Entity, _ trace: JKAMP.Trace?) {
     // TODO: Port shipboundary_touch
     portMissing("shipboundary_touch", source: "oracle/codemp/game/g_trigger.c:1494")
 }

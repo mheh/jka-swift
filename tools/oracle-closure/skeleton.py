@@ -38,6 +38,7 @@ from rulings import HAND_MACROS, HAND_VARS, LIBC_FUNCTIONS, NEVER_NULL_VARS, NOT
 from table import Param, SourceFile, Table, swift_name
 
 ORACLE_DIR = "codemp/game"
+CGAME_DIR = "codemp/cgame"
 SKIP = {"g_syscalls.c"}
 FIELDS = ["think", "use", "touch", "die", "pain", "reached", "blocked"]
 LOGIC = "JKAMP_GameLogic"
@@ -160,7 +161,10 @@ class Skeleton:
     def __init__(self, overlay: str | None = None) -> None:
         self.table = Table()
         self.tu = C.parse_tu("mp-game", None, unity=True, overlay=overlay)
-        self.table.sweep(self.tu, (C.ORACLE / ORACLE_DIR).resolve())
+        # The NULL sweep needs every caller the port parses, so the cgame unit joins the game unit, as channel.py reads them.
+        self.cgame_tu = C.parse_tu("mp-cgame", None, unity=True, overlay=overlay)
+        self.table.sweep(self.tu, (C.ORACLE / ORACLE_DIR).resolve(),
+                         other=self.cgame_tu, other_folder=(C.ORACLE / CGAME_DIR).resolve())
         self.sources: dict[str, SourceFile] = {}
         self.files: dict[str, list[Function]] = defaultdict(list)
         self.by_name: dict[str, Function] = {}

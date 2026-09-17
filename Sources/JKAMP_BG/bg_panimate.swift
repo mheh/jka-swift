@@ -445,7 +445,7 @@ models/players/visor/animation.cfg, etc
 ```
 */
 /// Source: oracle/codemp/game/bg_panimate.c:2339
-func BG_ParseAnimationFile(_ filename: String, _ animset: JKAMP.Animation, _ isHumanoid: Bool) -> Int32 {
+func BG_ParseAnimationFile(_ filename: String, _ animset: JKAMP.Animation?, _ isHumanoid: Bool) -> Int32 {
     // TODO: Port BG_ParseAnimationFile
     portMissing("BG_ParseAnimationFile", source: "oracle/codemp/game/bg_panimate.c:2339")
 }

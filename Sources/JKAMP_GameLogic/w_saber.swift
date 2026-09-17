@@ -561,7 +561,7 @@ func saberBackToOwner(_ saberent: Entity) {
 }
 
 /// Source: oracle/codemp/game/w_saber.c:7080
-func thrownSaberTouch(_ saberent: Entity, _ other: Entity, _ trace: JKAMP.Trace) {
+func thrownSaberTouch(_ saberent: Entity, _ other: Entity, _ trace: JKAMP.Trace?) {
     // TODO: Port thrownSaberTouch
     portMissing("thrownSaberTouch", source: "oracle/codemp/game/w_saber.c:7080")
 }

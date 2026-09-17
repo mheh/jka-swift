@@ -149,7 +149,7 @@ func NPC_Blocked(_ `self`: Entity, _ blocker: Entity) {
 }
 
 /// Source: oracle/codemp/game/g_nav.c:112
-func NPC_SetMoveGoal(_ ent: Entity, _ point: inout JKAShared.vec3_t, _ radius: Int32, _ isNavGoal: Bool, _ combatPoint: Int32, _ targetEnt: Entity) {
+func NPC_SetMoveGoal(_ ent: Entity, _ point: inout JKAShared.vec3_t, _ radius: Int32, _ isNavGoal: Bool, _ combatPoint: Int32, _ targetEnt: Entity?) {
     // TODO: Port NPC_SetMoveGoal
     portMissing("NPC_SetMoveGoal", source: "oracle/codemp/game/g_nav.c:112")
 }

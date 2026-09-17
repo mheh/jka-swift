@@ -7,7 +7,7 @@ The oracle range is the whole definition, from the return type to the closing br
 
 | Function | Oracle | Swift | State | jka-rust | Signature |
 |---|---|---|---|---|---|
-| `G_SpawnString` | `oracle/codemp/game/g_spawn.c:6-23` | `JKAMP_GameLogic/g_spawn.swift:40` | marker | `crates/mp/game/src/g_spawn.rs:93-103` | `func G_SpawnString(_ key: String, _ defaultString: String, _ out: inout String) -> Bool` |
+| `G_SpawnString` | `oracle/codemp/game/g_spawn.c:6-23` | `JKAMP_GameLogic/g_spawn.swift:40` | marker | `crates/mp/game/src/g_spawn.rs:93-103` | `func G_SpawnString(_ key: String, _ defaultString: String?, _ out: inout String) -> Bool` |
 | `G_SpawnFloat` | `oracle/codemp/game/g_spawn.c:25-32` | `JKAMP_GameLogic/g_spawn.swift:46` | marker | `crates/mp/game/src/g_spawn.rs:108-119` | `func G_SpawnFloat(_ key: String, _ defaultString: String, _ out: inout Float) -> Bool` |
 | `G_SpawnInt` | `oracle/codemp/game/g_spawn.c:34-41` | `JKAMP_GameLogic/g_spawn.swift:52` | marker | `crates/mp/game/src/g_spawn.rs:124-135` | `func G_SpawnInt(_ key: String, _ defaultString: String, _ out: inout Int32) -> Bool` |
 | `G_SpawnVector` | `oracle/codemp/game/g_spawn.c:43-50` | `JKAMP_GameLogic/g_spawn.swift:58` | marker | `crates/mp/game/src/g_spawn.rs:140-157` | `func G_SpawnVector(_ key: String, _ defaultString: String, _ out: inout Float) -> Bool` |

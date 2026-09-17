@@ -373,13 +373,13 @@ func G_CheckVehicleNPCTeamDamage(_ ent: Entity) -> Bool {
 }
 
 /// Source: oracle/codemp/game/g_combat.c:4577
-func G_Damage(_ targ: Entity, _ inflictor: Entity, _ attacker: Entity, _ dir: inout JKAShared.vec3_t, _ point: inout JKAShared.vec3_t, _ damage: Int32, _ dflags: Int32, _ mod: Int32) {
+func G_Damage(_ targ: Entity, _ inflictor: Entity?, _ attacker: Entity?, _ dir: inout JKAShared.vec3_t, _ point: inout JKAShared.vec3_t, _ damage: Int32, _ dflags: Int32, _ mod: Int32) {
     // TODO: Port G_Damage
     portMissing("G_Damage", source: "oracle/codemp/game/g_combat.c:4577")
 }
 
 /// Source: oracle/codemp/game/g_combat.c:5717
-func G_DamageFromKiller(_ pEnt: Entity, _ pVehEnt: Entity, _ attacker: Entity, _ org: inout JKAShared.vec3_t, _ damage: Int32, _ dflags: Int32, _ mod: Int32) {
+func G_DamageFromKiller(_ pEnt: Entity, _ pVehEnt: Entity, _ attacker: Entity?, _ org: inout JKAShared.vec3_t, _ damage: Int32, _ dflags: Int32, _ mod: Int32) {
     // TODO: Port G_DamageFromKiller
     portMissing("G_DamageFromKiller", source: "oracle/codemp/game/g_combat.c:5717")
 }
@@ -408,7 +408,7 @@ G_RadiusDamage
 ```
 */
 /// Source: oracle/codemp/game/g_combat.c:5823
-func G_RadiusDamage(_ origin: inout JKAShared.vec3_t, _ attacker: Entity, _ damage: Float, _ radius: Float, _ ignore: Entity, _ missile: Entity, _ mod: Int32) -> Bool {
+func G_RadiusDamage(_ origin: inout JKAShared.vec3_t, _ attacker: Entity, _ damage: Float, _ radius: Float, _ ignore: Entity?, _ missile: Entity?, _ mod: Int32) -> Bool {
     // TODO: Port G_RadiusDamage
     portMissing("G_RadiusDamage", source: "oracle/codemp/game/g_combat.c:5823")
 }

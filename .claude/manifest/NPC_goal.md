@@ -7,7 +7,7 @@ The oracle range is the whole definition, from the return type to the closing br
 
 | Function | Oracle | Swift | State | jka-rust | Signature |
 |---|---|---|---|---|---|
-| `SetGoal` | `oracle/codemp/game/NPC_goal.c:10-24` | `JKAMP_GameLogic/NPC_goal.swift:9` | marker | `crates/mp/game/src/NPC_goal.rs:16-26` | `func SetGoal(_ goal: Entity, _ rating: Float)` |
+| `SetGoal` | `oracle/codemp/game/NPC_goal.c:10-24` | `JKAMP_GameLogic/NPC_goal.swift:9` | marker | `crates/mp/game/src/NPC_goal.rs:16-26` | `func SetGoal(_ goal: Entity?, _ rating: Float)` |
 | `NPC_SetGoal` | `oracle/codemp/game/NPC_goal.c:31-58` | `JKAMP_GameLogic/NPC_goal.swift:15` | marker | `crates/mp/game/src/NPC_goal.rs:31-54` | `func NPC_SetGoal(_ goal: Entity, _ rating: Float)` |
 | `NPC_ClearGoal` | `oracle/codemp/game/NPC_goal.c:65-86` | `JKAMP_GameLogic/NPC_goal.swift:21` | marker | `crates/mp/game/src/NPC_goal.rs:59-83` | `func NPC_ClearGoal()` |
 | `G_BoundsOverlap` | `oracle/codemp/game/NPC_goal.c:94-115` | `JKAMP_GameLogic/NPC_goal.swift:27` | marker | `crates/mp/game/src/NPC_goal.rs:91-113` | `func G_BoundsOverlap(_ mins1: JKAShared.vec3_t, _ maxs1: JKAShared.vec3_t, _ mins2: JKAShared.vec3_t, _ maxs2: JKAShared.vec3_t) -> Bool` |

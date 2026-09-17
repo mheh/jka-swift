@@ -34,7 +34,7 @@ NPC_Interrogator_Precache
 ```
 */
 /// Source: oracle/codemp/game/NPC_AI_Interrogator.c:20
-func NPC_Interrogator_Precache(_ `self`: Entity) {
+func NPC_Interrogator_Precache(_ `self`: Entity?) {
     // TODO: Port NPC_Interrogator_Precache
     portMissing("NPC_Interrogator_Precache", source: "oracle/codemp/game/NPC_AI_Interrogator.c:20")
 }

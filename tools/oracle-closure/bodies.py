@@ -43,6 +43,8 @@ BINARY_OPS = COMPARISONS | LOGICAL | ASSIGNS | {"+", "-", "*", "/", "%", "&", "|
 UNARY_PREFIX = {"-", "+", "!", "~", "*", "&", "++", "--"}
 WRAPPERS = {CursorKind.UNEXPOSED_EXPR, CursorKind.PAREN_EXPR}
 TEXT_TYPES = {"String", "CharBuf", "JKAShared.CharBuf", "PooledString", "JKAShared.PooledString"}
+# The declaration tail of the scratch local each `inout` output a caller skips with NULL takes, by the parameter's Swift spelling.
+SCRATCH_ZEROS = {"inout vec3_t": "= JKAShared.vec3_t(0, 0, 0)", "inout Int32": ": Int32 = 0", "inout Float": ": Float = 0"}
 COMMENT = re.compile(r"//[^\n]*|/\*.*?\*/", re.S)
 NUMBER = re.compile(r"-?\s*((\d+(\.\d*)?|\.\d+)([eE][-+]?\d+)?[fFuUlL]*|0[xX][0-9a-fA-F]+[uUlL]*)")
 IDENTIFIER = re.compile(r"[A-Za-z_]\w*")
@@ -53,6 +55,8 @@ FUNC_HEAD = re.compile(r"func\s+`?(\w+)`?\s*\(")
 # A file-scope `var`, `let`, or `func` of a Swift file: at column 0, after its modifiers. A method sits indented under its type.
 MODIFIERS = r"(?:(?:public|package|internal|private|fileprivate|nonisolated\(unsafe\)|@\w+(?:\([^)]*\))?)\s+)*"
 VAR_LINE = re.compile(MODIFIERS + r"(?:var|let)\s+`?(\w+)`?")
+# The type annotation of a file-scope variable, up to its initializer or its computed body.
+VAR_TYPE = re.compile(r"\s*:\s*([^={]+)")
 FILE_FUNC = re.compile(MODIFIERS + r"func\s")
 
 
@@ -87,12 +91,17 @@ class Registry:
         self.overloads: dict[str, list[list[tuple[str, str]]]] = {}
         # The Swift targets that hold each file-scope function and variable, so a bg body that reaches a game-only name keeps a hole.
         self.homes: dict[str, set[str]] = {}
+        # The Swift type of each file-scope variable that spells one, so a store reads whether the source is a Slots.
+        self.var_types: dict[str, str] = {}
         for path in SOURCES.rglob("*.swift"):
             target = path.relative_to(SOURCES).parts[0]
             for line in path.read_text().splitlines():
                 v = VAR_LINE.match(line)
                 if v is not None:
                     self.homes.setdefault(v.group(1), set()).add(target)
+                    spelled = VAR_TYPE.match(line[v.end():])
+                    if spelled is not None:
+                        self.var_types.setdefault(v.group(1), spelled.group(1).strip())
                 m = FUNC_HEAD.search(line)
                 if m is None or "func " not in line.split("//")[0]:
                     continue
@@ -1009,6 +1018,9 @@ class Drafter:
                 if op == "=" and self.view_operand(left) and not self.optional_base(left) and self.optional_base(right):
                     raven = self.bytes[cur.extent.start.offset:cur.extent.end.offset].decode("utf-8", "replace")
                     raise Hole(f"Raven stores `{raven}`, and the view holds the source as an optional where the target takes a value. A never-null ruling is due.")
+                if op == "=" and self.slots_source(right):
+                    raven = self.bytes[cur.extent.start.offset:cur.extent.end.offset].decode("utf-8", "replace")
+                    raise Hole(f"Raven stores `{raven}`, and Swift holds the source as a Slots where the target takes one record. A Slots ruling is due.")
                 target = self.expr(left)
                 inner = self.strip(right)
                 if op == "=" and inner.kind == CursorKind.BINARY_OPERATOR and not self.macro_span(inner) and self.binary_op(inner) == "=":
@@ -1670,6 +1682,29 @@ class Drafter:
             return inner.spelling
         return None
 
+    def proven_never_null(self, cur: ci.Cursor) -> bool:
+        """True when the sweeps prove the name under Raven's NULL test is never NULL, so the fold needs no Port-note.
+
+        The two proved shapes are a text local the text-local rule already made non-optional, and a parameter the NULL sweep cleared.
+        Any other shape is unknown, and the fold keeps its Port-note."""
+        inner = self.unwrap(cur)
+        if inner.kind != CursorKind.DECL_REF_EXPR:
+            return False
+        if inner.spelling in self.text_locals:
+            return inner.spelling not in self.optional_texts
+        if inner.spelling in self.params_by_name:
+            return self.sk.table.never_null(self.fn.cur.spelling, inner.spelling)
+        return False
+
+    def null_fold_note(self, cur: ci.Cursor, name: str, port_note: str) -> str:
+        """The line the fold of a NULL test leaves above the statement.
+
+        A name the sweeps prove takes a plain comment, because the fold is then the whole answer and no transcriptor has work here.
+        A name they cannot prove keeps the Port-note the caller hands over, so the hole stands until a caller of the function is read."""
+        if self.proven_never_null(cur):
+            return f"// Raven's NULL test on {name} has no form here, and the arm it guards is gone."
+        return port_note
+
     def coerced(self, cur: ci.Cursor, swift: str | None) -> str:
         if swift != "Bool":
             return self.expr(cur)
@@ -1680,7 +1715,8 @@ class Drafter:
             return self.coerced(list(inner.get_children())[0], "Bool")
         name = self.always_set(cur)
         if name is not None:
-            self.pending.append(f"// Port-note: Raven tests `{name}` for NULL here. Swift holds it as a value, so the test has no form and reads true.")
+            note = f"// Port-note: Raven tests `{name}` for NULL here. Swift holds it as a value, so the test has no form and reads true."
+            self.pending.append(self.null_fold_note(cur, name, note))
             return "true"
         if self.is_pointer(cur):
             return f"{self.expr(cur)} != nil"
@@ -1804,7 +1840,8 @@ class Drafter:
                 inner = self.strip(operand)
                 name = self.always_set(operand)
                 if name is not None:
-                    self.pending.append(f"// Port-note: Raven guards a NULL `{name}` here. Swift holds it as a value, so the guard has no form and reads false.")
+                    note = f"// Port-note: Raven guards a NULL `{name}` here. Swift holds it as a value, so the guard has no form and reads false."
+                    self.pending.append(self.null_fold_note(operand, name, note))
                     return "false"
                 if self.is_bool(operand):
                     return f"!{self.operand(operand)}"
@@ -2186,14 +2223,15 @@ class Drafter:
             # A raw pointer passes as it is to the overload that takes one, `strcpy(dest, source)`.
             return self.expr(inner)
         if inout and self.is_null(inner):
-            if param is None or param[1].replace("JKAShared.", "") != "inout vec3_t":
-                raise Hole("NULL for an inout parameter that is not a vector.")
+            tail = SCRATCH_ZEROS.get(param[1].replace("JKAShared.", "")) if param is not None else None
+            if param is None or tail is None:
+                raise Hole("NULL for an inout parameter the draft has no scratch shape for.")
             scratch = f"scratch{param[0][0].upper()}{param[0][1:]}"
             self.scratch_names[scratch] = self.scratch_names.get(scratch, 0) + 1
             if self.scratch_names[scratch] > 1:
                 scratch += str(self.scratch_names[scratch])
-            self.pending.append(f"// Raven passes NULL for the `{param[0]}` output. The ported function takes it by reference, so the body passes a scratch vector it never reads.")
-            self.pending.append(f"var {scratch} = JKAShared.vec3_t(0, 0, 0)")
+            self.pending.append(f"// Raven passes NULL for the `{param[0]}` output. The ported function takes it by reference, so the body passes a scratch local it never reads.")
+            self.pending.append(f"var {scratch} {tail}")
             return f"&{scratch}"
         if param is not None and param[1] in ("Float", "Int32", "Bool"):
             return self.converted(inner, param[1])
@@ -2225,6 +2263,9 @@ class Drafter:
         if param is not None and param[1] in TEXT_TYPES and self.pooled_field(inner) and not self.overload_takes(callee, position, "PooledString"):
             # A `char *` field is a PooledString?, and its text goes into a String parameter. Raven's callers never pass a NULL one here.
             return f"{text}!.string"
+        if param is not None and not param[1].endswith("?") and not inout \
+                and not self.optional_base(inner) and self.optional_view_name(inner):
+            raise Hole(f"Raven passes the optional `{inner.spelling}` to `{callee}`, whose `{param[0]}` parameter takes a value. A never-null ruling is due.")
         if param is not None and not param[1].endswith("?") and not inout and self.optional_base(inner):
             # A bind on a conditional binds the whole choice, so the choice takes parentheses first.
             text = f"({text})!" if self.unwrap(inner).kind == CursorKind.CONDITIONAL_OPERATOR else f"{text}!"
@@ -2239,6 +2280,26 @@ class Drafter:
             # Raven's format argument list takes the text itself, and an optional text takes the bind under his own NULL test.
             return f"{text}!"
         return f"&{text}" if inout else text
+
+    def slots_source(self, cur: ci.Cursor) -> bool:
+        """True when Swift holds the expression as a `Slots<...>`: a file-scope table of records, or a parameter the table gave that kind.
+
+        A store of a whole table into one record name has no Swift form, so the store keeps its hole until the Slots accessor lands."""
+        inner = self.unwrap(cur)
+        if inner.kind != CursorKind.DECL_REF_EXPR:
+            return False
+        param = self.params_by_name.get(inner.spelling)
+        if param is not None:
+            return (param.swift or "").startswith("Slots<")
+        return self.registry.var_types.get(swift_name(inner.spelling), "").startswith("Slots<")
+
+    def optional_view_name(self, cur: ci.Cursor) -> bool:
+        """True for a read of a parameter the NULL sweep made an optional view, which no bind of the draft's own covers."""
+        inner = self.unwrap(cur)
+        if inner.kind != CursorKind.DECL_REF_EXPR:
+            return False
+        param = self.params_by_name.get(inner.spelling)
+        return param is not None and param.kind == "view_opt"
 
     def optional_text_name(self, cur: ci.Cursor) -> bool:
         """True for a read of a name Swift holds as an optional text.

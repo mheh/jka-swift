@@ -744,7 +744,7 @@ func TAG_Find(_ owner: String, _ name: String) -> ReferenceTag? {
 }
 
 /// Source: oracle/codemp/game/g_misc.c:3036
-func TAG_Add(_ name: String, _ owner: String, _ origin: inout JKAShared.vec3_t, _ angles: inout JKAShared.vec3_t, _ radius: Int32, _ flags: Int32) -> ReferenceTag? {
+func TAG_Add(_ name: String, _ owner: String?, _ origin: inout JKAShared.vec3_t, _ angles: inout JKAShared.vec3_t, _ radius: Int32, _ flags: Int32) -> ReferenceTag? {
     // TODO: Port TAG_Add
     portMissing("TAG_Add", source: "oracle/codemp/game/g_misc.c:3036")
 }
@@ -756,7 +756,7 @@ func TAG_GetOrigin(_ owner: String, _ name: String, _ origin: inout JKAShared.ve
 }
 
 /// Source: oracle/codemp/game/g_misc.c:3134
-func TAG_GetOrigin2(_ owner: String, _ name: String, _ origin: inout JKAShared.vec3_t) -> Int32 {
+func TAG_GetOrigin2(_ owner: String?, _ name: String, _ origin: inout JKAShared.vec3_t) -> Int32 {
     // TODO: Port TAG_GetOrigin2
     portMissing("TAG_GetOrigin2", source: "oracle/codemp/game/g_misc.c:3134")
 }
@@ -768,7 +768,7 @@ func TAG_GetAngles(_ owner: String, _ name: String, _ angles: inout JKAShared.ve
 }
 
 /// Source: oracle/codemp/game/g_misc.c:3174
-func TAG_GetRadius(_ owner: String, _ name: String) -> Int32 {
+func TAG_GetRadius(_ owner: String?, _ name: String) -> Int32 {
     // TODO: Port TAG_GetRadius
     portMissing("TAG_GetRadius", source: "oracle/codemp/game/g_misc.c:3174")
 }
