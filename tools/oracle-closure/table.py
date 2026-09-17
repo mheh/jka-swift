@@ -191,8 +191,8 @@ class Read:
 
 
 class Table:
-    def __init__(self) -> None:
-        self.views = Generator(None)
+    def __init__(self, views: Generator | None = None) -> None:
+        self.views = views if views is not None else Generator(None)
         # The (function, parameter) pairs a bg body passes NULL or 0 to, so the wrapper takes the parameter as optional.
         self.nullable: set[tuple[str, str]] = set()
         # The functions the NULL sweep saw a call to, so a parameter outside `nullable` is proven never NULL only for these.
@@ -203,6 +203,10 @@ class Table:
         self.readonly_text: set[tuple[str, str]] = set()
         # The functions that hand NULL back from a `char *` return, so the return is a String?.
         self.null_returns: set[str] = set()
+        # The (function, parameter) pairs a body indexes, `animations[anim]`, so the parameter crosses as the Slots over the records.
+        self.indexed_params: set[tuple[str, str]] = set()
+        # The (struct, field) pairs a body indexes through the pointer, `pm->animations[anim]`, so the view gets the second accessor.
+        self.indexed_fields: set[tuple[str, str]] = set()
 
     def sweep_reads(self, tu: ci.TranslationUnit, folder: Path) -> list[Read]:
         """Every game field a bg body reaches through a gentity_t, the level, or a cvar, as the reads the channel carries.
@@ -510,6 +514,56 @@ class Table:
                         break
         self.readonly_text |= candidates
 
+    # MARK: - The subscript sweep
+
+    def record_pointer(self, t: ci.Type) -> bool:
+        """True for a pointer to a struct a view covers, which is the shape a `Slots` stands over."""
+        canonical = t.get_canonical()
+        if canonical.kind != TypeKind.POINTER:
+            return False
+        record = self.views.record_name(canonical.get_pointee())
+        return bool(record) and record in self.views.views
+
+    def sweep_subscripts(self, tu: ci.TranslationUnit, *folders: Path) -> None:
+        """The subscript sweep of the stop walk's row 1: every struct pointer a body indexes, `animations[anim]`.
+
+        A parameter any site of its body indexes crosses as the `Slots` over the records, and a one-record read of it spells `[0]`.
+        A field any site indexes gets the `<name>Slots` accessor on its view, beside the pointer the field already gives.
+        The sweep reads the game unit and the cgame unit, which are the two units the port parses, because one bg body stands in
+        both with a different arm. A shape the sweep does not read keeps the one-record spelling it has today."""
+        for cur in tu.cursor.get_children():
+            if cur.kind != CursorKind.FUNCTION_DECL or not cur.is_definition() or not cur.location.file:
+                continue
+            path = Path(cur.location.file.name).resolve()
+            if path.parent not in folders or path.suffix != ".c":
+                continue
+            for node in cur.walk_preorder():
+                if node.kind != CursorKind.ARRAY_SUBSCRIPT_EXPR:
+                    continue
+                kids = list(node.get_children())
+                if not kids:
+                    continue
+                base = self.unwrapped(kids[0])
+                if not self.record_pointer(base.type):
+                    continue
+                if base.kind == CursorKind.DECL_REF_EXPR and base.referenced is not None \
+                        and base.referenced.kind == CursorKind.PARM_DECL:
+                    self.indexed_params.add((cur.spelling, base.spelling))
+                elif base.kind == CursorKind.MEMBER_REF_EXPR and base.referenced is not None \
+                        and base.referenced.semantic_parent is not None:
+                    owner = base.referenced.semantic_parent
+                    self.indexed_fields.add((self.record_name_of(owner), base.spelling))
+
+    def record_name_of(self, owner: ci.Cursor) -> str:
+        """The name a NEVER_NULL row and an indexed field row key on: Raven's typedef name, or the tag where he gave none."""
+        return self.views.record_name(owner.type) or owner.spelling
+
+    def indexed_field(self, field: ci.Cursor) -> bool:
+        """True when the subscript sweep read a body that indexes this field through its pointer."""
+        if field is None or field.semantic_parent is None:
+            return False
+        return (self.record_name_of(field.semantic_parent), field.spelling) in self.indexed_fields
+
     def sweep_returns(self, tu: ci.TranslationUnit, folder: Path) -> None:
         """The NULL sweep over returns: a function that returns `char *` and hands NULL back at any site returns a String?."""
         for cur in tu.cursor.get_children():
@@ -540,10 +594,13 @@ class Table:
         The NULL sweep walks every .c file of the folder, because a proof that a parameter is never NULL needs every caller the port parses.
         It walks the second unit over both folders when the caller hands one over, so a call on Raven's cgame arm of a bg file counts,
         and so does a call from the cgame's own .c files.
-        The store sweep, the text sweep, and the return sweep walk every .c file of the folder, because the body of the callee decides all three."""
+        The store sweep, the text sweep, and the return sweep walk every .c file of the folder, because the body of the callee decides all three.
+        The subscript sweep walks both units the same way the NULL sweep does, because a body has one arm in each of them."""
         self.sweep_nulls(tu, folder)
+        self.sweep_subscripts(tu, folder)
         if other is not None:
             self.sweep_nulls(other, folder, *([other_folder] if other_folder is not None else []))
+            self.sweep_subscripts(other, folder, *([other_folder] if other_folder is not None else []))
         self.sweep_stores(tu, folder)
         self.sweep_text(tu, folder)
         self.sweep_returns(tu, folder)
@@ -628,6 +685,12 @@ class Table:
                 if ruled == "table":
                     # Raven indexes the table through the pointer, so the Slots over it crosses, and its base is the word.
                     return Param(name, f"Slots<{self.views.qualified_view(record, TARGET)}>", "slots")
+                if (owner, name) in self.indexed_params:
+                    # Raven indexes the parameter, `animations[anim]`, so the Slots over the records crosses, and a one-record read spells `[0]`.
+                    view = self.views.qualified_view(record, TARGET)
+                    if (owner, name) in self.nullable:
+                        return Param(name, f"Slots<{view}>?", "slots_opt")
+                    return Param(name, f"Slots<{view}>", "slots")
                 if owner == "BG_ParseField":
                     return Param(name, f"Slots<{self.views.qualified_view(record, TARGET)}>", "bare")
                 if (owner, name) in self.nullable:

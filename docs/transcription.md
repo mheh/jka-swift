@@ -99,6 +99,7 @@ A struct or an enum Raven defines inside a `.c` file has its definition copied a
 | a `vec3_t *` parameter of a trap with a count beside it | `[JKAShared.vec3_t]` by value. |
 | a `float *` return out of a static ring of temporaries, such as `tv` | `JKAShared.vec3_t` by value, RETURNS kind `vec3`. |
 | a pointer to a table of records the body indexes, such as `stringID_table_t *table` | `Slots<View>`, PARAMS kind `table`, and a caller passes the table by name. |
+| a struct pointer parameter the body indexes, such as `animation_t *animations` where Raven writes `animations[anim]` | `Slots<View>`, by the subscript sweep of `table.py`, and `Slots<View>?` where the NULL sweep makes it optional. A one-record read of the same parameter, `sabers->x`, spells `sabers[0].x`. |
 | a non-const `char **` the function sets once to a string it owns, such as `G_SpawnString` | `inout String`, PARAMS kind `out_string`, and the text a body assigns is a copy. |
 | a C array of struct pointers the function fills, such as `gentity_t *ent_list[MAX_GENTITIES]` | `inout [View?]`, and the caller declares `var entity_list = [Entity?](repeating: nil, count: Int(MAX_GENTITIES))` where Raven declared the local. |
 | a C array of strings the function fills from a caller's `&array[i]`, such as `char *infos[]` | `inout ArraySlice<String>`, the caller passes `&g_arenaInfos[Int(g_numArenas)...]`, and the body writes `infos[infos.startIndex + count]`, because a slice keeps the parent's indices. |
@@ -111,6 +112,12 @@ It returns nothing, and the skeleton writes the comment `// Raven returns the ar
 `text_offset_nonnull` marks the same shape with no `NULL` case, such as `COM_SkipPath`, and it returns `Int32`.
 `SkipWhitespace` takes the cursor by value and returns it advanced.
 It has PARAMS kind `text_cursor` and RETURNS kind `text_cursor`.
+
+The subscript sweep reads the game unit and the cgame unit, the two units the port parses, because one bg body has an arm in each of them.
+A parameter no site of its body indexes keeps the one-record spelling, because a pointer the sweep cannot read is one record.
+A PARAMS row wins over the sweep, so `table` still names the shape where a row names it.
+A caller of a `Slots` parameter passes the `Slots` it holds, or the storage table under Raven's name.
+A caller that holds one record's view has no `Slots` over that one record, and that call site keeps a hole which names the shape.
 
 A trap's array of struct pointers is a storage table's base, and it keeps its marker under the PARAMS kind `pointer_array`.
 A trap's `char *` parameter with a size beside it is already the returned `String` the engine filled.
@@ -219,6 +226,10 @@ Every generated view has, beside `init(handle:)`, `public init(_ raw: UnsafeMuta
 A body writes `View(x)` where and only where Raven wrote an explicit cast to that struct's pointer, from a raw pointer or from another struct's pointer, so `((gentity_t *)(ent))->s.number` reads `BgEntity(ent).s.number` in bg, and `(gentity_t *)bgEnt` is `Entity(bgEnt)` in the game.
 A cast to a view the body already holds, such as a bg body that passes its `BgEntity` to a bg channel function, is dropped without a note.
 The `handle:` form stays inside generated code under rule 11, and a signature keeps the plain view type Raven's parameter had, never a generic or protocol parameter that absorbs the cast.
+A struct pointer field a body indexes, such as `animations` of `pmove_t` where Raven writes `pm->animations[anim]`, carries a second accessor, `<name>Slots: Slots<View>`, the way a `float *` field carries its `<name>Vector` accessor.
+The same subscript sweep of `table.py` names the fields that get it, and `views.py` reads that set.
+The getter traps with the field's name when the pointer is NULL, as a NEVER_NULL field does, and the setter stores the base of the `Slots` back into the pointer.
+C gives the pointer no bound, so the `Slots` takes the widest count and Raven's own index is the one that reads.
 `views.py` has a `NEVER_NULL` table beside `ROOTS`, keyed by struct and field, for a pointer field Raven's callers always set.
 A field in the table is generated non-optional, and its getter traps with the field's name when the pointer is NULL, the one divergence rule 19 allows.
 `pmove_t.ps`, `pmove_t.trace`, and `pmove_t.pointcontents` are in it, so a body reads `pm.ps.velocity` for `pm->ps->velocity` with no bind. A field joins the table only by a ruling, never by a transcriptor's guess.

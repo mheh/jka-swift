@@ -445,7 +445,7 @@ models/players/visor/animation.cfg, etc
 ```
 */
 /// Source: oracle/codemp/game/bg_panimate.c:2339
-func BG_ParseAnimationFile(_ filename: String, _ animset: JKAMP.Animation?, _ isHumanoid: Bool) -> Int32 {
+func BG_ParseAnimationFile(_ filename: String, _ animset: Slots<JKAMP.Animation>?, _ isHumanoid: Bool) -> Int32 {
     // TODO: Port BG_ParseAnimationFile
     portMissing("BG_ParseAnimationFile", source: "oracle/codemp/game/bg_panimate.c:2339")
 }
@@ -541,7 +541,7 @@ func BG_SaberStartTransAnim(_ clientNum: Int32, _ saberAnimLevel: Int32, _ weapo
 }
 
 /// Source: oracle/codemp/game/bg_panimate.c:2800
-func BG_SetAnimFinal(_ ps: JKAMP.PlayerState, _ animations: JKAMP.Animation, _ setAnimParts: Int32, _ anim: Int32, _ setAnimFlags: Int32, _ blendTime: Int32) {
+func BG_SetAnimFinal(_ ps: JKAMP.PlayerState, _ animations: Slots<JKAMP.Animation>, _ setAnimParts: Int32, _ anim: Int32, _ setAnimFlags: Int32, _ blendTime: Int32) {
     // TODO: Port BG_SetAnimFinal
     portMissing("BG_SetAnimFinal", source: "oracle/codemp/game/bg_panimate.c:2800")
 }
@@ -569,7 +569,7 @@ func BG_PickAnim(_ animIndex: Int32, _ minAnim: Int32, _ maxAnim: Int32) -> Int3
 //Please do not reference pm in this function or any functions that it calls,
 //or I will cry. -rww
 /// Source: oracle/codemp/game/bg_panimate.c:2981
-func BG_SetAnim(_ ps: JKAMP.PlayerState, _ animations: JKAMP.Animation, _ setAnimParts: Int32, _ anim: Int32, _ setAnimFlags: Int32, _ blendTime: Int32) {
+func BG_SetAnim(_ ps: JKAMP.PlayerState, _ animations: Slots<JKAMP.Animation>, _ setAnimParts: Int32, _ anim: Int32, _ setAnimFlags: Int32, _ blendTime: Int32) {
     // TODO: Port BG_SetAnim
     portMissing("BG_SetAnim", source: "oracle/codemp/game/bg_panimate.c:2981")
 }

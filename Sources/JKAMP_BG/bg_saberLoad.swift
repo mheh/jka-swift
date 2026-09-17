@@ -110,19 +110,19 @@ func WP_SaberValidForPlayerInMP(_ saberName: String) -> Bool {
 }
 
 /// Source: oracle/codemp/game/bg_saberLoad.c:2664
-func WP_RemoveSaber(_ sabers: JKAMP.SaberInfo, _ saberNum: Int32) {
+func WP_RemoveSaber(_ sabers: Slots<JKAMP.SaberInfo>, _ saberNum: Int32) {
     // TODO: Port WP_RemoveSaber
     portMissing("WP_RemoveSaber", source: "oracle/codemp/game/bg_saberLoad.c:2664")
 }
 
 /// Source: oracle/codemp/game/bg_saberLoad.c:2690
-func WP_SetSaber(_ entNum: Int32, _ sabers: JKAMP.SaberInfo, _ saberNum: Int32, _ saberName: String) {
+func WP_SetSaber(_ entNum: Int32, _ sabers: Slots<JKAMP.SaberInfo>, _ saberNum: Int32, _ saberName: String) {
     // TODO: Port WP_SetSaber
     portMissing("WP_SetSaber", source: "oracle/codemp/game/bg_saberLoad.c:2690")
 }
 
 /// Source: oracle/codemp/game/bg_saberLoad.c:2727
-func WP_SaberSetColor(_ sabers: JKAMP.SaberInfo, _ saberNum: Int32, _ bladeNum: Int32, _ colorName: String) {
+func WP_SaberSetColor(_ sabers: Slots<JKAMP.SaberInfo>, _ saberNum: Int32, _ bladeNum: Int32, _ colorName: String) {
     // TODO: Port WP_SaberSetColor
     portMissing("WP_SaberSetColor", source: "oracle/codemp/game/bg_saberLoad.c:2727")
 }

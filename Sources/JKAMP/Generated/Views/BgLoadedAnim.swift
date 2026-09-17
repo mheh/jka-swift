@@ -62,4 +62,13 @@ public struct BgLoadedAnim: Hashable, HandleView {
         get { self.raw.pointee.anims.map { Animation(handle: OpaquePointer($0)) } }
         nonmutating set { self.raw.pointee.anims = UnsafeMutablePointer(newValue?.handle) }
     }
+
+    /// Raven's `anims[i]`, the records the pointer holds. A NULL pointer traps with the field's name.
+    public var animsSlots: Slots<Animation> {
+        get {
+            precondition(self.raw.pointee.anims != nil, "anims is NULL")
+            return Slots(views: UnsafeMutableRawPointer(self.raw.pointee.anims!), count: Int.max, stride: Animation.stride)
+        }
+        nonmutating set { self.raw.pointee.anims = newValue.base.assumingMemoryBound(to: animation_t.self) }
+    }
 }

@@ -202,6 +202,15 @@ public struct Pmove: Hashable, HandleView {
         nonmutating set { self.raw.pointee.animations = UnsafeMutablePointer(newValue?.handle) }
     }
 
+    /// Raven's `animations[i]`, the records the pointer holds. A NULL pointer traps with the field's name.
+    public var animationsSlots: Slots<Animation> {
+        get {
+            precondition(self.raw.pointee.animations != nil, "animations is NULL")
+            return Slots(views: UnsafeMutableRawPointer(self.raw.pointee.animations!), count: Int.max, stride: Animation.stride)
+        }
+        nonmutating set { self.raw.pointee.animations = newValue.base.assumingMemoryBound(to: animation_t.self) }
+    }
+
     /// Source: oracle/codemp/game/bg_public.h:476
     public var xyspeed: Float {
         get { self.raw.pointee.xyspeed }

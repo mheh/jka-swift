@@ -58,6 +58,15 @@ public struct Level: Hashable, HandleView {
         nonmutating set { self.raw.pointee.clients = UnsafeMutablePointer(newValue?.handle) }
     }
 
+    /// Raven's `clients[i]`, the records the pointer holds. A NULL pointer traps with the field's name.
+    public var clientsSlots: Slots<Client> {
+        get {
+            precondition(self.raw.pointee.clients != nil, "clients is NULL")
+            return Slots(views: UnsafeMutableRawPointer(self.raw.pointee.clients!), count: Int.max, stride: Client.stride)
+        }
+        nonmutating set { self.raw.pointee.clients = newValue.base.assumingMemoryBound(to: gclient_t.self) }
+    }
+
     /// Source: oracle/codemp/game/g_local.h:823
     public var gentities: Entity? {
         get { self.raw.pointee.gentities.map { Entity(handle: OpaquePointer($0)) } }

@@ -191,6 +191,8 @@ class Drafter:
         # The slot text each copy stands for inside the one call being drafted, `fxAxis[2]` for `fxAxis2`.
         self.slot_copies: dict[str, str] = {}
         self.aliased_positions: dict[int, str] = {}
+        # Raven's `animation_t *animations` local that only ever holds a table of records, which Swift holds as the Slots over it.
+        self.slots_locals = self.slots_local_names(fn.cur)
         self.lets = self.single_writes(fn.cur)
         if any(self.record_local(c) is not None for c in fn.cur.walk_preorder()):
             # A closure cannot initialize a let of the enclosing body, so a body with a scratch record keeps every local a var.
@@ -1015,6 +1017,15 @@ class Drafter:
                         return [f"{pad}{self.member(buffer)} = \"\"" + self.trailing(cur)]
                     raven = self.bytes[cur.extent.start.offset:cur.extent.end.offset].decode("utf-8", "replace")
                     raise Hole(f"Raven writes `{raven}` into a character buffer the view holds as a String.")
+                if op == "=" and self.slots_target(left):
+                    source = self.slots_expression(right)
+                    if source is None:
+                        raven = self.bytes[cur.extent.start.offset:cur.extent.end.offset].decode("utf-8", "replace")
+                        raise Hole(f"Raven stores `{raven}`, and Swift holds the target as the Slots over the records where the source is one record.")
+                    return [f"{pad}{self.expr(left)} = {source}" + self.trailing(cur)]
+                if op == "=" and self.slots_expression(right) is not None and self.slots_member(left) is not None:
+                    # Raven stores the table back into the field he indexes, and the field's Slots accessor takes it.
+                    return [f"{pad}{self.slots_member(left)} = {self.slots_expression(right)}" + self.trailing(cur)]
                 if op == "=" and self.view_operand(left) and not self.optional_base(left) and self.optional_base(right):
                     raven = self.bytes[cur.extent.start.offset:cur.extent.end.offset].decode("utf-8", "replace")
                     raise Hole(f"Raven stores `{raven}`, and the view holds the source as an optional where the target takes a value. A never-null ruling is due.")
@@ -1359,6 +1370,11 @@ class Drafter:
             if record and record in self.views.views:
                 self.reachable(record)
                 view = self.views.qualified_view(record, TARGET)
+                if var.spelling in self.slots_locals:
+                    # Every store into the local holds a table of records, so the local is the Slots over it.
+                    if init:
+                        return f"{keyword} {name}: Slots<{view}> = {self.slots_expression(init[0])}"
+                    return f"var {name}: Slots<{view}>"
                 if init:
                     return f"{keyword} {name}: {view}? = {self.expr(init[0])}"
                 return f"var {name}: {view}?"
@@ -1809,13 +1825,16 @@ class Drafter:
         if kind == CursorKind.ARRAY_SUBSCRIPT_EXPR:
             base, index = list(cur.get_children())
             inner_base = self.strip(base)
-            if inner_base.kind == CursorKind.MEMBER_REF_EXPR and inner_base.type.get_canonical().kind == TypeKind.POINTER and not self.float_field(inner_base):
-                raven = self.bytes[cur.extent.start.offset:cur.extent.end.offset].decode("utf-8", "replace")
-                raise Hole(f"Raven reads `{raven}` through a `{inner_base.type.spelling}` field. The generated field is an `OpaquePointer?`, and rule 11 keeps a pointer out of a logic target.")
-            if self.record_walk(inner_base):
-                raven = self.bytes[cur.extent.start.offset:cur.extent.end.offset].decode("utf-8", "replace")
-                raise Hole(f"Raven walks `{raven}` as an array through a `{inner_base.type.spelling}` parameter, and the view holds one record. A Slots ruling is due.")
-            base_text = self.base(base)
+            # Raven's index over a table of records reads through the Slots the sweep gave the field, the parameter, or the local.
+            slots = self.slots_expression(base)
+            if slots is None:
+                if inner_base.kind == CursorKind.MEMBER_REF_EXPR and inner_base.type.get_canonical().kind == TypeKind.POINTER and not self.float_field(inner_base):
+                    raven = self.bytes[cur.extent.start.offset:cur.extent.end.offset].decode("utf-8", "replace")
+                    raise Hole(f"Raven reads `{raven}` through a `{inner_base.type.spelling}` field. The generated field is an `OpaquePointer?`, and rule 11 keeps a pointer out of a logic target.")
+                if self.record_walk(inner_base):
+                    raven = self.bytes[cur.extent.start.offset:cur.extent.end.offset].decode("utf-8", "replace")
+                    raise Hole(f"Raven walks `{raven}` as an array through a `{inner_base.type.spelling}` parameter, and the view holds one record. A Slots ruling is due.")
+            base_text = slots if slots is not None else self.base(base)
             outer = self.leaf_wrap
             self.leaf_wrap = None
             try:
@@ -2035,6 +2054,9 @@ class Drafter:
 
     def base(self, cur: ci.Cursor) -> str:
         text = self.expr(cur)
+        if self.slots_source(cur) and self.unwrap(cur).kind == CursorKind.DECL_REF_EXPR:
+            # Raven reads one record through a pointer Swift holds as the Slots over the records, so the read takes the first slot.
+            return f"{text}![0]" if self.optional_slots_name(cur) else f"{text}[0]"
         return f"{text}!" if self.optional_base(cur) else text
 
     def member(self, cur: ci.Cursor) -> str:
@@ -2219,6 +2241,11 @@ class Drafter:
             return self.entity_slot(inner)
         if inner.kind == CursorKind.UNARY_OPERATOR and self.unary_parts(inner)[0] == "&":
             inner = self.unary_parts(inner)[2]
+        if param is not None and param[1].startswith("Slots<"):
+            # The parameter takes the Slots over the records, and the caller hands the table it holds.
+            slots = self.slots_expression(inner)
+            if slots is not None:
+                return slots
         if self.is_raw(inner) and self.overload_takes(callee, position, "UnsafeMutableRawPointer"):
             # A raw pointer passes as it is to the overload that takes one, `strcpy(dest, source)`.
             return self.expr(inner)
@@ -2250,6 +2277,14 @@ class Drafter:
             raven = " ".join(self.bytes[cur.extent.start.offset:cur.extent.end.offset].decode("utf-8", "replace").split())
             raise Hole(f"Raven passes `{raven}` to `{callee}`, whose `char *` parameter the stub holds as an inout CharBuf. Docket row 5 is due.")
         text = self.expr(inner)
+        if param is not None and param[1].startswith("Slots<"):
+            raven = " ".join(self.bytes[cur.extent.start.offset:cur.extent.end.offset].decode("utf-8", "replace").split())
+            raise Hole(f"Raven passes `{raven}` to `{callee}`, whose `{param[0]}` parameter takes the Slots over the records, "
+                       "and Swift holds one record here. A Slots over one record has no form yet.")
+        if param is not None and self.view_parameter(param[1]) and self.slots_expression(inner) is not None:
+            raven = " ".join(self.bytes[cur.extent.start.offset:cur.extent.end.offset].decode("utf-8", "replace").split())
+            raise Hole(f"Raven passes `{raven}` to `{callee}`, whose `{param[0]}` parameter takes one record, "
+                       "and Swift holds the argument as the Slots over the records.")
         if param is not None and param[1] in TEXT_TYPES and inner.kind == CursorKind.DECL_REF_EXPR and inner.spelling in self.cursor_locals:
             raise Hole(f"Raven passes the cursor `{inner.spelling}` as text, and the TextCursor has no text form yet.")
         if param is not None and param[1] == "OpaquePointer?" and self.is_raw(inner):
@@ -2282,10 +2317,103 @@ class Drafter:
         return f"&{text}" if inout else text
 
     def slots_source(self, cur: ci.Cursor) -> bool:
-        """True when Swift holds the expression as a `Slots<...>`: a file-scope table of records, or a parameter the table gave that kind.
-
-        A store of a whole table into one record name has no Swift form, so the store keeps its hole until the Slots accessor lands."""
+        """True when Swift holds the name as a `Slots<...>`: a file-scope table of records, a parameter the table gave that kind,
+        or a local whose every store holds a table."""
         inner = self.unwrap(cur)
+        if inner.kind != CursorKind.DECL_REF_EXPR:
+            return False
+        if inner.spelling in self.slots_locals:
+            return True
+        param = self.params_by_name.get(inner.spelling)
+        if param is not None:
+            return (param.swift or "").startswith("Slots<")
+        return self.registry.var_types.get(swift_name(inner.spelling), "").startswith("Slots<")
+
+    def optional_slots_name(self, cur: ci.Cursor) -> bool:
+        """True for a read of a parameter the NULL sweep made an optional Slots, which takes the bind at every use."""
+        inner = self.unwrap(cur)
+        if inner.kind != CursorKind.DECL_REF_EXPR:
+            return False
+        param = self.params_by_name.get(inner.spelling)
+        return param is not None and param.kind == "slots_opt"
+
+    def slots_member(self, cur: ci.Cursor) -> str | None:
+        """The `<name>Slots` accessor of a struct pointer field a body indexes, `pm->animations`, or None for any other expression."""
+        inner = self.strip(cur)
+        if inner.kind != CursorKind.MEMBER_REF_EXPR or inner.referenced is None:
+            return None
+        field = inner.referenced
+        if field.kind != CursorKind.FIELD_DECL or not self.sk.table.indexed_field(field):
+            return None
+        return f"{self.base(list(inner.get_children())[0])}.{swift_name(inner.spelling)}Slots"
+
+    def slots_expression(self, cur: ci.Cursor) -> str | None:
+        """The Slots spelling of a read Swift holds as one: the second accessor of an indexed field, or a name of that kind."""
+        member = self.slots_member(cur)
+        if member is not None:
+            return member
+        inner = self.unwrap(cur)
+        if inner.kind == CursorKind.DECL_REF_EXPR and self.slots_source(inner):
+            return self.expr(inner) + ("!" if self.optional_slots_name(inner) else "")
+        return None
+
+    def slots_target(self, cur: ci.Cursor) -> bool:
+        """True for the left side of a store Swift holds as a Slots: a parameter of that kind, or a local of that kind."""
+        inner = self.unwrap(cur)
+        if inner.kind != CursorKind.DECL_REF_EXPR:
+            return False
+        if inner.spelling in self.slots_locals:
+            return True
+        param = self.params_by_name.get(inner.spelling)
+        return param is not None and (param.swift or "").startswith("Slots<")
+
+    def view_parameter(self, swift: str) -> bool:
+        """True for a Swift parameter that takes one view, the shape a Slots does not fit."""
+        base = swift.removeprefix("inout ").removesuffix("?").split(".")[-1]
+        return base in {view for view, _ in self.views.views.values()}
+
+    def slots_local_names(self, fn: ci.Cursor) -> set[str]:
+        """Raven's pointer locals every store fills with a table of records, which Swift holds as the Slots over it.
+
+        A local with no such store keeps the one-record spelling, because a pointer the scan cannot read is one record."""
+        sources: dict[str, list[bool]] = {}
+        for cur in fn.walk_preorder():
+            if cur.kind == CursorKind.VAR_DECL and self.record_pointer_local(cur):
+                sources.setdefault(cur.spelling, [])
+                init = [c for c in cur.get_children() if c.kind.is_expression()]
+                if init:
+                    sources[cur.spelling].append(self.table_expression(init[0]))
+            if cur.kind != CursorKind.BINARY_OPERATOR or self.operator_or_none(cur) != "=":
+                continue
+            kids = list(cur.get_children())
+            if len(kids) != 2:
+                continue
+            left = self.unwrap(kids[0])
+            if left.kind != CursorKind.DECL_REF_EXPR or left.referenced is None or left.referenced.kind != CursorKind.VAR_DECL:
+                continue
+            if not self.record_pointer_local(left.referenced):
+                continue
+            sources.setdefault(left.spelling, []).append(self.table_expression(kids[1]))
+        # A cursor Raven walks with `f++` already reads the table by index, so it keeps its own form.
+        return {name for name, kinds in sources.items() if kinds and all(kinds) and name not in self.table_cursors}
+
+    def record_pointer_local(self, var: ci.Cursor) -> bool:
+        """True for a local Raven typed as a pointer to a struct a view covers."""
+        if var.semantic_parent is not None and var.semantic_parent.kind == CursorKind.TRANSLATION_UNIT:
+            return False
+        t = var.type.get_canonical()
+        if t.kind != TypeKind.POINTER:
+            return False
+        record = self.views.record_name(t.get_pointee())
+        return bool(record) and record in self.views.views
+
+    def table_expression(self, cur: ci.Cursor) -> bool:
+        """True for a source Swift holds as a table of records: an indexed field, or a name of that kind.
+        The scan reads the C alone, because it runs before the draft of any statement."""
+        inner = self.strip(cur)
+        if inner.kind == CursorKind.MEMBER_REF_EXPR and inner.referenced is not None \
+                and inner.referenced.kind == CursorKind.FIELD_DECL and self.sk.table.indexed_field(inner.referenced):
+            return True
         if inner.kind != CursorKind.DECL_REF_EXPR:
             return False
         param = self.params_by_name.get(inner.spelling)

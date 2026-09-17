@@ -159,7 +159,7 @@ func BG_GetClassOnBaseClass(_ team: Int32, _ classIndex: Int32, _ cntIndex: Int3
 }
 
 /// Source: oracle/codemp/game/bg_saga.c:1181
-func BG_SiegeLoadClasses(_ descBuffer: JKAMP.SiegeClassDesc?) {
+func BG_SiegeLoadClasses(_ descBuffer: Slots<JKAMP.SiegeClassDesc>?) {
     // TODO: Port BG_SiegeLoadClasses
     portMissing("BG_SiegeLoadClasses", source: "oracle/codemp/game/bg_saga.c:1181")
 }
