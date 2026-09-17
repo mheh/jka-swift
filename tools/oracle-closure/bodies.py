@@ -842,6 +842,13 @@ class Drafter:
         pad = INDENT * depth
         name = self.callee_name(cur)
         args = [self.strip(a) for a in list(cur.get_children())[1:]]
+        if name == "memset":
+            # Raven's `memset(&table, 0, sizeof(table))` over a whole storage table, which Swift holds as the Slots over it.
+            whole = args[0]
+            if whole.kind == CursorKind.UNARY_OPERATOR and self.unary_parts(whole)[0] == "&":
+                whole = self.strip(self.unary_parts(whole)[2])
+            if self.slots_source(whole):
+                return [f"{pad}{self.expr(whole)}.zero()" + self.trailing(cur)]
         targets = []
         for arg in args[: 2 if name == "memcpy" else 1]:
             if arg.kind == CursorKind.UNARY_OPERATOR and self.unary_parts(arg)[0] == "&":
@@ -2239,7 +2246,8 @@ class Drafter:
             return self.text_tail(inner)
         if target_of(self.fn.stem) == BG and self.entity_slot(inner) is not None:
             return self.entity_slot(inner)
-        if inner.kind == CursorKind.UNARY_OPERATOR and self.unary_parts(inner)[0] == "&":
+        addressed = inner.kind == CursorKind.UNARY_OPERATOR and self.unary_parts(inner)[0] == "&"
+        if addressed:
             inner = self.unary_parts(inner)[2]
         if param is not None and param[1].startswith("Slots<"):
             # The parameter takes the Slots over the records, and the caller hands the table it holds.
@@ -2314,6 +2322,9 @@ class Drafter:
         if (param is None or param[1].endswith("...")) and not inout and self.optional_text_name(inner):
             # Raven's format argument list takes the text itself, and an optional text takes the bind under his own NULL test.
             return f"{text}!"
+        if (param is None or param[1].endswith("...")) and not inout and not addressed and self.is_record(inner.type):
+            raven = " ".join(self.bytes[cur.extent.start.offset:cur.extent.end.offset].decode("utf-8", "replace").split())
+            raise Hole(f"Raven passes the record `{raven}` in a format argument list, and a view is no FormatArg.")
         return f"&{text}" if inout else text
 
     def slots_source(self, cur: ci.Cursor) -> bool:

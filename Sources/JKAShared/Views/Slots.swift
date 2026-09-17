@@ -37,6 +37,11 @@ public struct Slots<Element>: RandomAccessCollection {
             self.write(self.base + i * self.stride, newValue)
         }
     }
+
+    /// Raven's `memset(table, 0, sizeof(table))`, every byte of every slot to zero.
+    public func zero() {
+        self.base.initializeMemory(as: UInt8.self, repeating: 0, count: self.count * self.stride)
+    }
 }
 
 // MARK: - The array shapes of the conversion table

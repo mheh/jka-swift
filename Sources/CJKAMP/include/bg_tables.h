@@ -13,6 +13,24 @@ extern weaponData_t weaponData[WP_NUM_WEAPONS];
 extern ammoData_t ammoData[AMMO_MAX];
 // Source: oracle/codemp/game/bg_saber.c:120
 extern saberMoveData_t saberMoveData[LS_MOVE_MAX];
+// Source: oracle/codemp/cgame/animtable.h:9
+extern stringID_table_t animTable[MAX_ANIMATIONS+1];
+// Source: oracle/codemp/game/bg_saberLoad.c:46
+extern stringID_table_t SaberTable[13];
+// Source: oracle/codemp/game/bg_saberLoad.c:63
+extern stringID_table_t SaberMoveTable[60];
+// Source: oracle/codemp/game/bg_saga.c:45
+extern stringID_table_t bgSiegeClassFlagNames[9];
+// Source: oracle/codemp/game/bg_saga.c:59
+extern stringID_table_t StanceTable[9];
+// Source: oracle/codemp/game/bg_saga.c:73
+extern stringID_table_t WPTable[22];
+// Source: oracle/codemp/game/bg_saga.c:100
+extern stringID_table_t FPTable[19];
+// Source: oracle/codemp/game/bg_saga.c:123
+extern stringID_table_t HoldableTable[13];
+// Source: oracle/codemp/game/bg_saga.c:142
+extern stringID_table_t PowerupTable[17];
 
 // Raven's field descriptor of the vehicle parsers, and the enum it names, defined inside bg_vehicleLoad.c.
 // Source: oracle/codemp/game/bg_vehicleLoad.c:111
@@ -43,5 +61,10 @@ typedef struct
 	int		ofs;
 	vehFieldType_t	type;
 } vehField_t;
+
+// Source: oracle/codemp/game/bg_vehicleLoad.c:138
+extern vehField_t vehWeaponFields[NUM_VWEAP_PARMS];
+// Source: oracle/codemp/game/bg_vehicleLoad.c:445
+extern vehField_t vehicleFields[175];
 
 #endif // JKA_BG_TABLES_H
