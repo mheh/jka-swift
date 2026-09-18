@@ -8,8 +8,10 @@ import JKAShared
 let MAX_SABER_DATA_SIZE = 0x80000 as Int32
 
 /// Source: oracle/codemp/game/bg_saberLoad.c:44
-// Raven wrote: static char SaberParms[MAX_SABER_DATA_SIZE]
-nonisolated(unsafe) let SaberParms: JKAShared.CharBuf = JKAShared.CharBuf(524288)
+var SaberParms: JKAShared.CharBuf {
+    get { bg.variables.SaberParms }
+    set { bg.variables.SaberParms = newValue }
+}
 
 /// Source: oracle/codemp/game/bg_saberLoad.c:46
 // TODO: Port global SaberTable

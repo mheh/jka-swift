@@ -33,7 +33,7 @@ from skeleton import BG, LOGIC, ORACLE_DIR, Function, Skeleton, target_of
 
 # The Swift targets a bg body never sees, by the bg/game boundary.
 GAME_SIDE = {LOGIC, "JKAMP_Game"}
-from table import Param, TARGET, swift_name
+from table import Cursor, Param, TARGET, swift_name
 
 INDENT = "    "
 COMPARISONS = {"==", "!=", "<", ">", "<=", ">="}
@@ -184,8 +184,10 @@ class Drafter:
         self.charbuf_locals: set[str] = set()
         # Raven's `byte *b` and `char *dest` locals that only ever hold a raw allocation, which Swift holds as UnsafeMutableRawPointer.
         self.raw_locals = self.raw_local_names(fn.cur)
-        # Raven's `const char *token` that only holds parsed text is a String, and his `char *p` over a buffer is a TextCursor.
-        self.text_locals, self.optional_texts, self.cursor_locals = self.text_local_names(fn.cur)
+        # Raven's `const char *token` that only holds parsed text is a String.
+        self.text_locals, self.optional_texts = self.text_local_names(fn.cur)
+        # His `char *p` over a named buffer is a read cursor, a TextCursor, or a write cursor, the byte offset of row 47.
+        self.cursor_locals, self.offset_cursors = self.cursor_names(fn)
         # Raven's `for (it = table + 1; it->name; it++)` walks a table by pointer, and the draft walks it by index, `table[itIndex]`.
         self.table_cursors = self.table_cursor_names(fn.cur)
         # The slot text each copy stands for inside the one call being drafted, `fxAxis[2]` for `fxAxis2`.
@@ -653,9 +655,67 @@ class Drafter:
             return self.registry.returns.get(self.callee_name(inner) or "") == "UnsafeMutableRawPointer"
         return False
 
-    def text_local_names(self, fn: ci.Cursor) -> tuple[set[str], set[str], dict[str, str]]:
-        """The char pointer locals of the function by their stores: every store a String-returning call or a `char name[N]` field
-        names a text local, and every store a buffer names a cursor local, with the Swift text of the buffer it walks.
+    def cursor_names(self, fn: Function) -> tuple[dict[str, Cursor], dict[str, Cursor]]:
+        """The read cursors and the write cursors of one body, by the cursor sweep of the table, each under Raven's own name."""
+        reads: dict[str, Cursor] = {}
+        writes: dict[str, Cursor] = {}
+        for (stem, owner, name), cursor in self.sk.table.cursors.items():
+            if stem == fn.stem and owner == fn.cur.spelling:
+                (writes if cursor.write else reads)[name] = cursor
+        return reads, writes
+
+    def cursor_buffer(self, name: str) -> str:
+        """The Swift text of the buffer a cursor local walks. A file-scope buffer goes through the module's own reach rule."""
+        cursor = self.cursor_locals.get(name) or self.offset_cursors[name]
+        if cursor.is_global:
+            self.reach(cursor.buffer, "variable")
+        return self.expr_name(cursor.buffer)
+
+    def text_cursor(self, cur: ci.Cursor) -> str:
+        """Raven's `p = buf` and his `p = buf + offset` as the TextCursor over that buffer."""
+        inner = self.unwrap(cur)
+        if inner.kind == CursorKind.BINARY_OPERATOR and self.operator_or_none(inner) == "+":
+            base, offset = list(inner.get_children())
+            return f"JKAShared.TextCursor({self.expr(base)}, at: {self.converted(offset, 'Int32')})"
+        return f"JKAShared.TextCursor({self.expr(inner)})"
+
+    def cursor_offset(self, cur: ci.Cursor) -> str:
+        """The byte offset a store gives a write cursor: the offset Raven added to the buffer, and 0 for the buffer itself."""
+        inner = self.unwrap(cur)
+        if inner.kind == CursorKind.BINARY_OPERATOR and self.operator_or_none(inner) == "+":
+            return self.converted(list(inner.get_children())[1], "Int32")
+        return "0"
+
+    def cursor_deref(self, cur: ci.Cursor) -> str | None:
+        """Raven's `*p` and `*(p + n)` through a cursor local, or None when the expression is neither.
+
+        A read cursor gives the byte under it and the byte at a relative offset. A write cursor is an offset into the buffer,
+        so the read is the buffer's own byte at that index."""
+        inner = self.unwrap(cur)
+        step = op = None
+        if inner.kind == CursorKind.BINARY_OPERATOR and self.operator_or_none(inner) in ("+", "-"):
+            base, offset = list(inner.get_children())
+            if self.unwrap(base).kind != CursorKind.DECL_REF_EXPR:
+                return None
+            op = self.operator_or_none(inner)
+            step = self.converted(offset, "Int32")
+            inner = self.unwrap(base)
+        if inner.kind != CursorKind.DECL_REF_EXPR:
+            return None
+        name = inner.spelling
+        if name in self.offset_cursors:
+            index = self.expr(inner) if step is None else f"{self.expr(inner)} {op} {step}"
+            return f"{self.cursor_buffer(name)}[{index}]"
+        if name in self.cursor_locals:
+            if step is None:
+                return f"{self.expr(inner)}.byte"
+            if op == "+":
+                return f"{self.expr(inner)}[{step}]"
+        return None
+
+    def text_local_names(self, fn: ci.Cursor) -> tuple[set[str], set[str]]:
+        """The char pointer locals of the function by their stores: a local every store fills from a String-returning call or from a
+        `char name[N]` field is a text local.
         The second set holds the text locals Raven also stores his NULL into, which Swift holds as a `String?`."""
         stores: dict[str, list[str]] = {}
         buffers: dict[str, str] = {}
@@ -689,8 +749,7 @@ class Drafter:
         texts = {name for name, kinds in stores.items() if "text" in kinds and all(k in ("text", "null") for k in kinds)}
         # Raven stores his NULL into some of them, and Swift holds that local as an optional text.
         optionals = {name for name in texts if "null" in stores[name]}
-        cursors = {name: buffers[name] for name, kinds in stores.items() if "buffer" in kinds and all(k in ("buffer", "null") for k in kinds)}
-        return texts, optionals, cursors
+        return texts, optionals
 
     def filled_by_address(self, name: str) -> bool:
         """True when any call of the function passes `&name` to an `inout String` parameter."""
@@ -961,16 +1020,39 @@ class Drafter:
             if op in ("++", "--"):
                 if self.unwrap(operand).kind == CursorKind.DECL_REF_EXPR and self.unwrap(operand).spelling in self.table_cursors:
                     return [f"{pad}{self.table_cursors[self.unwrap(operand).spelling][1]} {op[0]}= 1" + self.trailing(cur)]
+                if self.unwrap(operand).kind == CursorKind.DECL_REF_EXPR and self.unwrap(operand).spelling in self.cursor_locals:
+                    if op == "--":
+                        raise Hole(f"Raven steps the cursor `{self.unwrap(operand).spelling}` back, and the TextCursor has no backward step.")
+                    return [f"{pad}{self.expr(operand)}.advance()" + self.trailing(cur)]
                 return [f"{pad}{self.expr(operand)} {op[0]}= 1" + self.trailing(cur)]
         if kind in (CursorKind.BINARY_OPERATOR, CursorKind.COMPOUND_ASSIGNMENT_OPERATOR):
             op = self.binary_op(cur)
+            if op == ",":
+                # C's comma operator runs the left side, then the right, which is two Swift statements, `i++, holdChar += len + 1`.
+                left, right = list(cur.get_children())
+                return self.statement(left, depth) + self.statement(right, depth)
             if op in ASSIGNS:
                 left, right = list(cur.get_children())
                 if op == "=" and self.unwrap(left).kind == CursorKind.DECL_REF_EXPR and self.unwrap(left).spelling in self.game_entities | self.optional_entities:
                     return [f"{pad}{self.expr(left)} = {self.entity_or_nil(right)}" + self.trailing(cur)]
-                if op == "=" and self.unwrap(left).kind == CursorKind.DECL_REF_EXPR and self.unwrap(left).spelling in self.cursor_locals:
-                    source = "JKAShared.TextCursor()" if self.is_null(right) else f"JKAShared.TextCursor({self.expr(right)})"
-                    return [f"{pad}{self.expr(left)} = {source}" + self.trailing(cur)]
+                if self.unwrap(left).kind == CursorKind.DECL_REF_EXPR and self.unwrap(left).spelling in self.cursor_locals:
+                    if op == "=":
+                        source = "JKAShared.TextCursor()" if self.is_null(right) else self.text_cursor(right)
+                        return [f"{pad}{self.expr(left)} = {source}" + self.trailing(cur)]
+                    if op == "+=":
+                        return [f"{pad}{self.expr(left)}.advance(by: {self.converted(right, 'Int32')})" + self.trailing(cur)]
+                    raise Hole(f"Raven steps the cursor `{self.unwrap(left).spelling}` with `{op}`, and the TextCursor has no such step.")
+                if self.unwrap(left).kind == CursorKind.DECL_REF_EXPR and self.unwrap(left).spelling in self.offset_cursors:
+                    if op == "=" and self.is_null(right):
+                        raise Hole(f"Raven stores NULL into `{self.unwrap(left).spelling}`, and a byte offset has no NULL.")
+                    value = self.cursor_offset(right) if op == "=" else self.converted(right, "Int32")
+                    return [f"{pad}{self.expr(left)} {op} {value}" + self.trailing(cur)]
+                if op == "=" and self.unwrap(left).kind == CursorKind.UNARY_OPERATOR \
+                        and self.operator_or_none_unary(self.unwrap(left)) == "*":
+                    # A byte store through a cursor takes the value as an Int32, which the CharBuf setter narrows.
+                    slot = self.cursor_deref(self.unary_parts(self.unwrap(left))[2])
+                    if slot is not None:
+                        return [f"{pad}{slot} = {self.converted(right, 'Int32')}" + self.trailing(cur)]
                 if op == "=" and self.unwrap(left).kind == CursorKind.DECL_REF_EXPR and self.unwrap(left).spelling in self.text_locals \
                         and (self.is_null(right) or self.field_slot(right) is not None or self.optional_text_call(right)):
                     optional = self.unwrap(left).spelling in self.optional_texts
@@ -1354,8 +1436,11 @@ class Drafter:
         if var.spelling in self.cursor_locals:
             # A cursor starts NULL until a store points it at a buffer, so the buffer's own declaration can come later.
             if init and not self.is_null(init[0]):
-                return f"var {name} = JKAShared.TextCursor({self.expr(self.unwrap(init[0]))})"
+                return f"var {name} = {self.text_cursor(init[0])}"
             return f"var {name} = JKAShared.TextCursor()"
+        if var.spelling in self.offset_cursors:
+            # A write cursor is the byte offset of row 47, because a write through a TextCursor would never reach Raven's buffer.
+            return f"var {name}: Int32 = {self.cursor_offset(init[0]) if init else '0'}"
         if t.get_canonical().kind == TypeKind.POINTER:
             record = self.views.record_name(t.get_canonical().get_pointee())
             if record == "gentity_t" and target_of(self.fn.stem) == BG:
@@ -1832,6 +1917,12 @@ class Drafter:
         if kind == CursorKind.ARRAY_SUBSCRIPT_EXPR:
             base, index = list(cur.get_children())
             inner_base = self.strip(base)
+            if inner_base.kind == CursorKind.DECL_REF_EXPR and inner_base.spelling in self.offset_cursors:
+                # A write cursor is a byte offset, so Raven's `p[i]` is the buffer's byte that far past it.
+                slot = f"{self.cursor_buffer(inner_base.spelling)}[{self.expr(inner_base)} + {self.converted(index, 'Int32')}]"
+                return self.leaf(cur, slot)
+            if inner_base.kind == CursorKind.DECL_REF_EXPR and inner_base.spelling in self.cursor_locals:
+                return self.leaf(cur, f"{self.expr(inner_base)}[{self.converted(index, 'Int32')}]")
             # Raven's index over a table of records reads through the Slots the sweep gave the field, the parameter, or the local.
             slots = self.slots_expression(base)
             if slots is None:
@@ -1900,6 +1991,9 @@ class Drafter:
                 if inner.kind == CursorKind.DECL_REF_EXPR and inner.spelling in self.inout_locals:
                     # A Swift inout parameter is the value Raven reaches through the pointer.
                     return self.names[inner.spelling]
+                through_cursor = self.cursor_deref(operand)
+                if through_cursor is not None:
+                    return through_cursor
                 raise Hole("A pointer dereference the draft cannot place.")
             raise Hole(f"A {op} inside an expression.")
         if kind == CursorKind.BINARY_OPERATOR:
@@ -2034,6 +2128,8 @@ class Drafter:
                 return False
             if inner.spelling in self.charbuf_locals or inner.spelling in self.table_cursors or inner.spelling in self.raw_locals:
                 return False
+            if inner.spelling in self.offset_cursors:
+                return False
             if inner.spelling in self.optional_texts:
                 return True
             if inner.spelling in self.text_locals or inner.spelling in self.cursor_locals:
@@ -2128,12 +2224,17 @@ class Drafter:
                 # The statement rule copies the earlier ones into locals, and a call inside a test has no line of its own for them.
                 raise Hole(f"Raven passes `{aliased[0][1]}` more than once to `{name}` inside a test, and Swift refuses one variable twice inout.")
             params = self.callee_params(name)
+            at = self.copy_target(args, params)
             outer = self.call_kinds
             self.call_kinds = self.argument_kinds(args)
             try:
-                words = [self.argument(a, i < len(params) and params[i][1].startswith("inout "), params[i] if i < len(params) else None, name, i) for i, a in enumerate(args)]
+                words = [f"&{at[1]}" if at is not None and i == at[0]
+                         else self.argument(a, i < len(params) and params[i][1].startswith("inout "), params[i] if i < len(params) else None, name, i)
+                         for i, a in enumerate(args)]
             finally:
                 self.call_kinds = outer
+            if at is not None:
+                words.append(f"at: {at[2]}")
             return f"{swift_name(name)}({', '.join(words)})"
         if callee is not None and callee.kind == CursorKind.MEMBER_REF_EXPR:
             # A stored function on a view runs through the view's method, `pm.runTrace(...)`, which views.py writes per field.
@@ -2249,6 +2350,9 @@ class Drafter:
         addressed = inner.kind == CursorKind.UNARY_OPERATOR and self.unary_parts(inner)[0] == "&"
         if addressed:
             inner = self.unary_parts(inner)[2]
+        if self.unwrap(inner).kind == CursorKind.DECL_REF_EXPR and self.unwrap(inner).spelling in self.offset_cursors:
+            raise Hole(f"Raven passes the write cursor `{self.unwrap(inner).spelling}` where the callee takes no buffer beside it, "
+                       "and a byte offset has no form there.")
         if param is not None and param[1].startswith("Slots<"):
             # The parameter takes the Slots over the records, and the caller hands the table it holds.
             slots = self.slots_expression(inner)
@@ -2293,8 +2397,10 @@ class Drafter:
             raven = " ".join(self.bytes[cur.extent.start.offset:cur.extent.end.offset].decode("utf-8", "replace").split())
             raise Hole(f"Raven passes `{raven}` to `{callee}`, whose `{param[0]}` parameter takes one record, "
                        "and Swift holds the argument as the Slots over the records.")
-        if param is not None and param[1] in TEXT_TYPES and inner.kind == CursorKind.DECL_REF_EXPR and inner.spelling in self.cursor_locals:
-            raise Hole(f"Raven passes the cursor `{inner.spelling}` as text, and the TextCursor has no text form yet.")
+        if inner.kind == CursorKind.DECL_REF_EXPR and inner.spelling in self.cursor_locals and not addressed \
+                and (param is None or param[1] in TEXT_TYPES or param[1].endswith("...")):
+            # Raven passes the cursor where the callee reads text, and the cursor's text is the bytes from it to the NUL.
+            return f"{self.expr(inner)}.text"
         if param is not None and param[1] == "OpaquePointer?" and self.is_raw(inner):
             # The engine takes the raw allocation as a handle.
             return f"OpaquePointer({self.expr(inner)})"
@@ -2519,8 +2625,33 @@ class Drafter:
                 return False
         return True
 
+    def copy_target(self, args: list[ci.Cursor], params: list[tuple[str, str]]) -> tuple[int, str, str] | None:
+        """The write cursor a call copies into, as its position, the buffer it walks, and the offset into that buffer.
+
+        Raven's `Q_strcat(marker, size, text)` copies at the cursor, and the port hands the buffer over with the offset beside it,
+        `Q_strcat(&SaberParms, size, text, at: marker)`, by row 47."""
+        for i, arg in enumerate(args):
+            inner = self.unwrap(arg)
+            if inner.kind != CursorKind.DECL_REF_EXPR or inner.spelling not in self.offset_cursors:
+                continue
+            if i >= len(params) or params[i][1].replace("JKAShared.", "") != "inout CharBuf":
+                continue
+            return (i, self.cursor_buffer(inner.spelling), self.expr(inner))
+        return None
+
+    def cursor_address(self, cur: ci.Cursor) -> bool:
+        """True for Raven's `&p` on a read cursor, the address the COM_Parse family steps."""
+        inner = self.unwrap(cur)
+        if inner.kind != CursorKind.UNARY_OPERATOR or self.operator_or_none_unary(inner) != "&":
+            return False
+        target = self.unwrap(self.unary_parts(inner)[2])
+        return target.kind == CursorKind.DECL_REF_EXPR and target.spelling in self.cursor_locals
+
     def text_kind(self, cur: ci.Cursor) -> str | None:
         """The Swift text type the draft passes an argument as: String, CharBuf, or PooledString, and None for the rest."""
+        if self.cursor_address(cur):
+            # Raven hands the cursor's address over, and the callee takes the cursor itself, which is no text argument.
+            return None
         inner = self.strip(cur)
         if inner.kind == CursorKind.UNARY_OPERATOR and self.unary_parts(inner)[0] == "&":
             inner = self.unwrap(self.unary_parts(inner)[2])
@@ -2538,6 +2669,9 @@ class Drafter:
         param = self.params_by_name.get(inner.spelling)
         if param is not None:
             return "String" if param.kind == "cstring" else None
+        if inner.spelling in self.cursor_locals:
+            # A read cursor crosses as its text, so an overload that takes a String at this position is the match.
+            return "String"
         return "String" if inner.spelling in self.text_locals else None
 
     def argument_kinds(self, args: list[ci.Cursor]) -> dict[int, str]:
@@ -2599,6 +2733,10 @@ class Drafter:
                     return f"UnsafeMutableRawPointer({self.base(operand)}.handle)"
                 # A cast to a byte or character pointer changes nothing Swift can see: a String stays a String, a raw pointer stays raw.
                 return self.expr(operand)
+            if self.cursor_address(operand) and canonical.get_pointee().get_canonical().kind == TypeKind.POINTER \
+                    and canonical.get_pointee().get_canonical().get_pointee().get_canonical().kind == TypeKind.CHAR_S:
+                # Raven's `(const char **)&p` is the address of a cursor, which the plain `&p` shape already passes.
+                return self.expr(self.unwrap(operand))
             record = self.views.record_name(canonical.get_pointee())
             if record and record in self.views.views:
                 self.reachable(record)

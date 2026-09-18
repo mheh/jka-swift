@@ -383,16 +383,24 @@ A read through it is the suffix subscript, `Q_strncmp("red", skinName[start...],
 ### The text cursor
 
 `Sources/JKAShared/TextCursor.swift` is Raven's `const char *p` into a text buffer, a `CharBuf` and a byte offset `Int32?`, where `nil` is his `NULL`.
-`isNull`, `byte`, and `advance()` are the reads and the step.
-`token = COM_ParseExt(&p, true)` reads as Raven wrote it.
+`isNull`, `byte`, `text`, and the subscript are the reads, and `advance()` and `advance(by:)` are the steps.
+`text` is the bytes from the cursor to the first NUL, so `strlen(holdChar)` reads `strlen(holdChar.text)` and `va("%s", holdChar)` passes `holdChar.text`.
+`TextCursor(parseBuf, at: titleLength - arrayTitleLength)` is Raven's `holdBuf = parseBuf + (titleLength - arrayTitleLength)`, and `p[1]` is his `*(p+1)`.
+`token = COM_ParseExt(&p, true)` reads as Raven wrote it, and the `(const char **)` cast he wrote around the address drops.
+
+Raven's `char *` over a named buffer is a read cursor when no use of it writes bytes, and a write cursor when one does.
+A `TextCursor` holds a copy-on-write value, so a write through it would never reach Raven's own buffer.
+A write cursor is the byte offset of the pointer rule instead, an `Int32` over the named buffer.
+`marker = totallen` is Raven's `marker = SaberParms+totallen`, `SaberParms[marker] = 0` is his `*marker = 0`, `VehicleParms[marker - 1]` is his `*(marker-1)`, and `Q_strcat(&SaberParms, size, text, at: marker)` is his `Q_strcat(marker, size, text)`.
 
 ### C string functions
 
 `Q_stricmp`, `Com_sprintf`, `strcpy`, and the rest call the ported `q_shared` functions where a port exists.
 Where no port exists, the transcriptor adds a Port-note, because the exact C semantics are not proven.
 `q_shared.c` is compiled into every module the same as `q_math.c`, so its port is `Sources/JKAShared/q_shared.c.swift`, named with the `.c` because the re-export of `q_shared.h` already holds the stem in that module. A body reaches `Q_stricmp`, `Q_stricmpn`, and `Q_strncmp` there, and each of the three has a `CharBuf` overload.
-`Sources/JKAShared/CString.swift` holds the libc names Raven calls, `atoi`, `atof`, `strcpy`, `strncpy`, `strlen`, `strcmp`, `strchr`, and `strstr`, with C semantics.
+`Sources/JKAShared/CString.swift` holds the libc names Raven calls, `atoi`, `atof`, `strcpy`, `strncpy`, `strcat`, `strlen`, `strcmp`, `strchr`, and `strstr`, with C semantics.
 Each one works over `CharBuf` and `String`, `strcpy` also takes a raw destination, and `strlen` returns `Int32`, narrowed once inside it.
+`strcpy` and `strcat` take an `at:` offset too, for Raven's copy through a pointer into the buffer, and `strcat` appends at the first NUL from that byte.
 `PooledString` has `init(_ raw: UnsafeMutableRawPointer)`, so `BG_StringAlloc` reads `strcpy(dest, source)` then `return PooledString(dest)`.
 Raven's `...` is `_ args: any JKAShared.FormatArg...`, and `Sources/JKAShared/Format.swift` formats it with the `printf` subset the game uses, `%i`, `%d`, `%s`, and `%f` with a width, a precision, and the left-align flag.
 `va` returns that text, so `strcpy(&powerOut, va("%i-", maxRank))` is Raven's line, and `Com_Printf`, `G_Printf`, and `Com_Error` format the same way.

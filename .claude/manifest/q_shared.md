@@ -52,17 +52,17 @@ The oracle range is the whole definition, from the return type to the closing br
 | `Q_strlwr` | `oracle/codemp/game/q_shared.c:905-914` | `JKAShared/q_shared.c.swift:444` | marker | `crates/mp/game/src/q_shared.rs:735-744` | `public func Q_strlwr(_ s1: inout JKAShared.CharBuf)` |
 | `Q_strupr` | `oracle/codemp/game/q_shared.c:916-925` | `JKAShared/q_shared.c.swift:459` | marker | `crates/mp/game/src/q_shared.rs:749-758` | `public func Q_strupr(_ s1: inout JKAShared.CharBuf)` |
 | `Q_strcat` | `oracle/codemp/game/q_shared.c:929-937` | `JKAShared/q_shared.c.swift:474` | marker | `crates/mp/game/src/q_shared.rs:763-771` | `public func Q_strcat(_ dest: inout JKAShared.CharBuf, _ size: Int32, _ src: String)` |
-| `Q_PrintStrlen` | `oracle/codemp/game/q_shared.c:940-960` | `JKAShared/q_shared.c.swift:480` | marker | `crates/mp/game/src/q_shared.rs:780-806` | `public func Q_PrintStrlen(_ string: String) -> Int32` |
-| `Q_CleanStr` | `oracle/codemp/game/q_shared.c:963-982` | `JKAShared/q_shared.c.swift:487` | marker | `crates/mp/game/src/q_shared.rs:811-840` | `public func Q_CleanStr(_ string: inout JKAShared.CharBuf)` |
-| `Com_sprintf` | `oracle/codemp/game/q_shared.c:985-1005` | `JKAShared/q_shared.c.swift:501` | marker | `crates/mp/game/src/q_shared.rs:847-866` | `public func Com_sprintf(_ dest: inout JKAShared.CharBuf, _ size: Int32, _ fmt: String, _ args: any JKAShared.FormatArg...)` |
-| `va` | `oracle/codemp/game/q_shared.c:1017-1031` | `JKAShared/q_shared.c.swift:518` | ported | `crates/mp/game/src/q_shared.rs:874-887` | `public func va(_ format: String, _ args: any JKAShared.FormatArg...) -> String` |
-| `Info_ValueForKey` | `oracle/codemp/game/q_shared.c:1051-1098` | `JKAShared/q_shared.c.swift:535` | marker | none | `public func Info_ValueForKey(_ s: String, _ key: String) -> String` |
-| `Info_NextPair` | `oracle/codemp/game/q_shared.c:1108-1139` | `JKAShared/q_shared.c.swift:550` | marker | none | `public func Info_NextPair(_ head: inout JKAShared.TextCursor, _ key: inout JKAShared.CharBuf, _ value: inout JKAShared.CharBuf)` |
-| `Info_RemoveKey` | `oracle/codemp/game/q_shared.c:1147-1195` | `JKAShared/q_shared.c.swift:563` | marker | none | `public func Info_RemoveKey(_ s: inout JKAShared.CharBuf, _ key: String)` |
-| `Info_RemoveKey_Big` | `oracle/codemp/game/q_shared.c:1202-1250` | `JKAShared/q_shared.c.swift:576` | marker | none | `public func Info_RemoveKey_Big(_ s: inout JKAShared.CharBuf, _ key: String)` |
-| `Info_Validate` | `oracle/codemp/game/q_shared.c:1263-1271` | `JKAShared/q_shared.c.swift:592` | marker | none | `public func Info_Validate(_ s: String) -> Bool` |
-| `Info_SetValueForKey` | `oracle/codemp/game/q_shared.c:1280-1319` | `JKAShared/q_shared.c.swift:607` | marker | `crates/mp/game/src/q_shared.rs:895-898` | `public func Info_SetValueForKey(_ s: inout JKAShared.CharBuf, _ key: String, _ value: String)` |
-| `Info_SetValueForKey_Big` | `oracle/codemp/game/q_shared.c:1328-1366` | `JKAShared/q_shared.c.swift:622` | marker | `crates/mp/game/src/q_shared.rs:906-909` | `public func Info_SetValueForKey_Big(_ s: inout JKAShared.CharBuf, _ key: String, _ value: String)` |
+| `Q_PrintStrlen` | `oracle/codemp/game/q_shared.c:940-960` | `JKAShared/q_shared.c.swift:491` | marker | `crates/mp/game/src/q_shared.rs:780-806` | `public func Q_PrintStrlen(_ string: String) -> Int32` |
+| `Q_CleanStr` | `oracle/codemp/game/q_shared.c:963-982` | `JKAShared/q_shared.c.swift:498` | marker | `crates/mp/game/src/q_shared.rs:811-840` | `public func Q_CleanStr(_ string: inout JKAShared.CharBuf)` |
+| `Com_sprintf` | `oracle/codemp/game/q_shared.c:985-1005` | `JKAShared/q_shared.c.swift:512` | marker | `crates/mp/game/src/q_shared.rs:847-866` | `public func Com_sprintf(_ dest: inout JKAShared.CharBuf, _ size: Int32, _ fmt: String, _ args: any JKAShared.FormatArg...)` |
+| `va` | `oracle/codemp/game/q_shared.c:1017-1031` | `JKAShared/q_shared.c.swift:529` | ported | `crates/mp/game/src/q_shared.rs:874-887` | `public func va(_ format: String, _ args: any JKAShared.FormatArg...) -> String` |
+| `Info_ValueForKey` | `oracle/codemp/game/q_shared.c:1051-1098` | `JKAShared/q_shared.c.swift:546` | marker | none | `public func Info_ValueForKey(_ s: String, _ key: String) -> String` |
+| `Info_NextPair` | `oracle/codemp/game/q_shared.c:1108-1139` | `JKAShared/q_shared.c.swift:561` | marker | none | `public func Info_NextPair(_ head: inout JKAShared.TextCursor, _ key: inout JKAShared.CharBuf, _ value: inout JKAShared.CharBuf)` |
+| `Info_RemoveKey` | `oracle/codemp/game/q_shared.c:1147-1195` | `JKAShared/q_shared.c.swift:574` | marker | none | `public func Info_RemoveKey(_ s: inout JKAShared.CharBuf, _ key: String)` |
+| `Info_RemoveKey_Big` | `oracle/codemp/game/q_shared.c:1202-1250` | `JKAShared/q_shared.c.swift:587` | marker | none | `public func Info_RemoveKey_Big(_ s: inout JKAShared.CharBuf, _ key: String)` |
+| `Info_Validate` | `oracle/codemp/game/q_shared.c:1263-1271` | `JKAShared/q_shared.c.swift:603` | marker | none | `public func Info_Validate(_ s: String) -> Bool` |
+| `Info_SetValueForKey` | `oracle/codemp/game/q_shared.c:1280-1319` | `JKAShared/q_shared.c.swift:618` | marker | `crates/mp/game/src/q_shared.rs:895-898` | `public func Info_SetValueForKey(_ s: inout JKAShared.CharBuf, _ key: String, _ value: String)` |
+| `Info_SetValueForKey_Big` | `oracle/codemp/game/q_shared.c:1328-1366` | `JKAShared/q_shared.c.swift:633` | marker | `crates/mp/game/src/q_shared.rs:906-909` | `public func Info_SetValueForKey_Big(_ s: inout JKAShared.CharBuf, _ key: String, _ value: String)` |
 
 3 file-scope variables. The entry is the stub's line for the variable, by rule 3 and rule 6.
 

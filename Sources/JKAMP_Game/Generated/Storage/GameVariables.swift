@@ -166,6 +166,10 @@ public struct GameVariables {
     /// Source: oracle/codemp/game/NPC_spawn.c:4182
     public var showBBoxes: Bool = false
 
+    /// Raven's `char NPCParms[MAX_NPC_DATA_SIZE]` of `NPC_stats.c`.
+    /// Source: oracle/codemp/game/NPC_stats.c:237
+    public var NPCParms: JKAShared.CharBuf = JKAShared.CharBuf(131072)
+
     /// Raven's `char NPCFile[MAX_QPATH]` of `NPC_stats.c`.
     /// Source: oracle/codemp/game/NPC_stats.c:238
     public var NPCFile: JKAShared.CharBuf = JKAShared.CharBuf(Int(JKAShared.MAX_QPATH))

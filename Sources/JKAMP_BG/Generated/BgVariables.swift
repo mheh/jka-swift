@@ -55,6 +55,10 @@ public struct BgVariables {
     /// Source: oracle/codemp/game/bg_pmove.c:445
     public var pm_flying: Int32 = FLY_NONE
 
+    /// Raven's `char SaberParms[MAX_SABER_DATA_SIZE]` of `bg_saberLoad.c`.
+    /// Source: oracle/codemp/game/bg_saberLoad.c:44
+    public var SaberParms: JKAShared.CharBuf = JKAShared.CharBuf(524288)
+
     /// Raven's `char bgSaberParseTBuffer[MAX_SABER_DATA_SIZE]` of `bg_saberLoad.c`.
     /// Source: oracle/codemp/game/bg_saberLoad.c:2736
     public var bgSaberParseTBuffer: JKAShared.CharBuf = JKAShared.CharBuf(524288)

@@ -274,6 +274,13 @@ class Skeleton:
             if cur.kind == CursorKind.FUNCTION_DECL and cur.is_definition():
                 written(cur)
 
+        # Raven writes a buffer through an alias too, `marker = SaberParms + totallen` and then `*marker = 0`,
+        # and the cursor sweep of the table names the buffers a write cursor points into.
+        for name in self.table.alias_writes:
+            for var in by_name.get(name, []):
+                if not var.cur.type.is_const_qualified():
+                    var.written = True
+
     def collect_macros(self) -> None:
         """Every object-like macro of the module's .c files, first per name and file. A name two files define is private in each."""
         game = (C.ORACLE / ORACLE_DIR).resolve()

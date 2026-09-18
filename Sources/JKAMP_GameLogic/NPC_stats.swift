@@ -40,8 +40,10 @@ let ClassNames: [String] = { () -> [String] in portMissing("ClassNames", source:
 let MAX_NPC_DATA_SIZE = 0x20000 as Int32
 
 /// Source: oracle/codemp/game/NPC_stats.c:237
-// Raven wrote: char NPCParms[MAX_NPC_DATA_SIZE]
-nonisolated(unsafe) let NPCParms: JKAShared.CharBuf = JKAShared.CharBuf(131072)
+var NPCParms: JKAShared.CharBuf {
+    get { world.variables.NPCParms }
+    set { world.variables.NPCParms = newValue }
+}
 
 /// Source: oracle/codemp/game/NPC_stats.c:238
 var NPCFile: JKAShared.CharBuf {

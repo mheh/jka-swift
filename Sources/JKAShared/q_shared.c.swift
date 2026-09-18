@@ -476,6 +476,17 @@ public func Q_strcat(_ dest: inout CharBuf, _ size: Int32, _ src: String) {
     portMissing("Q_strcat", source: "oracle/codemp/game/q_shared.c:929")
 }
 
+/// Raven's `Q_strcat(marker, size, src)` through a pointer into the buffer, which is the same rule over the bytes from `offset` on.
+/// The suffix is a copy, so the call writes it back into `dest` at that byte.
+public func Q_strcat(_ dest: inout CharBuf, _ size: Int32, _ src: String, at offset: some BinaryInteger) {
+    let start = Int32(offset)
+    var suffix = dest[start...]
+    Q_strcat(&suffix, size, src)
+    for i in 0 ..< Int32(suffix.count) {
+        dest[start + i] = suffix[i] as Int8
+    }
+}
+
 /// Source: oracle/codemp/game/q_shared.c:940
 public func Q_PrintStrlen(_ string: String) -> Int32 {
     // TODO: Port Q_PrintStrlen

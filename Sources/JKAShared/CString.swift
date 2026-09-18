@@ -1,4 +1,4 @@
-/// This file holds the libc names Raven calls: `atoi`, `atof`, `strlen`, `strcpy`, `strncpy`, `strcmp`, `strchr`, and `strstr`.
+/// This file holds the libc names Raven calls: `atoi`, `atof`, `strlen`, `strcpy`, `strncpy`, `strcat`, `strcmp`, `strchr`, and `strstr`.
 /// A ported body spells the call as Raven wrote it, over `CharBuf`, `String`, or `PooledString`.
 /// Each function works over raw bytes, with C semantics, and narrows to `Int32` or `Float` once inside.
 
@@ -234,6 +234,65 @@ public func strcpy(_ dest: UnsafeMutableRawPointer, _ source: PooledString) {
     }
 }
 
+// MARK: - strcat
+
+/// This appends `bytes` and a NUL at the first NUL of `dest` from `start` on, which is the whole of C's `strcat`.
+/// It traps when the result does not fit in `dest`, C overruns there and that is the one divergence.
+private func strcatBytes(_ dest: inout CharBuf, _ bytes: [UInt8], from start: Int) {
+    precondition(start >= 0 && start <= dest.count, "strcat: the offset is past the end of dest")
+    var end = start
+    dest.withBytes { destBytes in
+        while end < destBytes.count, destBytes[end] != 0 {
+            end += 1
+        }
+    }
+    precondition(end + bytes.count + 1 <= dest.count, "strcat: source does not fit in dest")
+    dest.withMutableBytes { destBytes in
+        for i in 0..<bytes.count {
+            destBytes[end + i] = bytes[i]
+        }
+        destBytes[end + bytes.count] = 0
+    }
+}
+
+/// This reads a buffer's bytes up to its first NUL, for the `strcat` source.
+private func sourceBytes(_ source: CharBuf) -> [UInt8] {
+    let length = Int(strlen(source))
+    return source.withBytes { bytes in (0..<length).map { bytes[$0] } }
+}
+
+/// This reads a raw C string's bytes up to its NUL, for the `strcat` source the engine filled.
+private func rawBytes(_ source: UnsafeMutableRawPointer) -> [UInt8] {
+    let raw = source.assumingMemoryBound(to: CChar.self)
+    return (0..<cLength(of: raw)).map { UInt8(bitPattern: raw[$0]) }
+}
+
+/// This appends a Swift string's bytes plus a trailing NUL at the first NUL of `dest`, Raven's `strcat(dest, source)`.
+public func strcat(_ dest: inout CharBuf, _ source: String) {
+    strcatBytes(&dest, Array(source.utf8), from: 0)
+}
+
+/// This appends a Swift string's bytes at the first NUL from byte `offset` on, Raven's `strcat(marker, source)` through a pointer into the buffer.
+public func strcat(_ dest: inout CharBuf, _ source: String, at offset: some BinaryInteger) {
+    strcatBytes(&dest, Array(source.utf8), from: Int(offset))
+}
+
+/// This appends a buffer's bytes up to its NUL, plus a trailing NUL, at the first NUL of `dest`, Raven's `strcat(dest, source)`.
+public func strcat(_ dest: inout CharBuf, _ source: CharBuf) {
+    strcatBytes(&dest, sourceBytes(source), from: 0)
+}
+
+/// This appends a buffer's bytes at the first NUL from byte `offset` on, Raven's `strcat(marker, source)`.
+public func strcat(_ dest: inout CharBuf, _ source: CharBuf, at offset: some BinaryInteger) {
+    strcatBytes(&dest, sourceBytes(source), from: Int(offset))
+}
+
+/// This appends a raw allocation's bytes at the first NUL from byte `offset` on, Raven's `strcat(marker, tempReadBuffer)`.
+/// The caller owns the allocation and answers for its NUL, which is the pool's contract.
+public func strcat(_ dest: inout CharBuf, _ source: UnsafeMutableRawPointer, at offset: some BinaryInteger) {
+    strcatBytes(&dest, rawBytes(source), from: Int(offset))
+}
+
 // MARK: - strncpy
 
 /// This copies at most `n` bytes from `source` and pads with NUL up to `n` when `source` is shorter.
@@ -302,6 +361,11 @@ public func strcmp(_ a: CharBuf, _ b: String) -> Int32 {
 /// This compares a Swift string's text against a buffer, Raven's `strcmp(a, b)`.
 public func strcmp(_ a: String, _ b: CharBuf) -> Int32 {
     strcmp(CharBuf(a), b)
+}
+
+/// This compares two Swift strings' text, Raven's `strcmp(a, b)`.
+public func strcmp(_ a: String, _ b: String) -> Int32 {
+    strcmp(CharBuf(a), CharBuf(b))
 }
 
 // MARK: - strchr

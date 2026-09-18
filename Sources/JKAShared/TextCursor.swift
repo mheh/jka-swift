@@ -13,6 +13,12 @@ public struct TextCursor {
         self.offset = 0
     }
 
+    /// Raven's `p = buf + offset`, a cursor at that byte of the text.
+    public init(_ buf: CharBuf, at offset: Int32) {
+        self.buf = buf
+        self.offset = offset
+    }
+
     /// Raven's `p = NULL`.
     public init() {
         self.buf = CharBuf(1)
@@ -28,8 +34,27 @@ public struct TextCursor {
         return self.buf[offset]
     }
 
+    /// The text the cursor stands at, the bytes from it to the first NUL, and "" on a NULL cursor.
+    /// Raven passes the cursor itself where a callee reads text, `strlen(holdChar)` and `va("%s", holdChar)`.
+    public var text: String {
+        guard let offset = self.offset, offset >= 0, offset <= Int32(self.buf.count) else { return "" }
+        return String(self.buf[offset...])
+    }
+
     /// Raven's `p++`.
     public mutating func advance() {
-        if let offset = self.offset { self.offset = offset + 1 }
+        self.advance(by: 1)
+    }
+
+    /// Raven's `p += n`.
+    public mutating func advance(by count: some BinaryInteger) {
+        if let offset = self.offset { self.offset = offset + Int32(count) }
+    }
+
+    /// Raven's `p[i]` and his `*(p + i)`, the byte that far past the cursor, widened as a `CharBuf` read is.
+    /// It reads 0 past the end of the buffer and on a NULL cursor, the same as `byte`.
+    public subscript(i: Int32) -> Int32 {
+        guard let offset = self.offset, offset + i >= 0, offset + i < Int32(self.buf.count) else { return 0 }
+        return self.buf[offset + i]
     }
 }

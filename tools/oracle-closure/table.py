@@ -190,6 +190,23 @@ class Read:
         return f"{text} = value" if self.write else text
 
 
+class Cursor:
+    """One `char *` local that walks a named buffer, as the cursor sweep reads it.
+
+    `kind` is `read` for a local no use writes through, which Swift holds as a `TextCursor`, and `write` for one a use does write
+    through, which Swift holds as the byte offset of row 47. `buffer` is Raven's name for the buffer, and `is_global` says the
+    buffer is a file-scope one, so a body reaches it under the module's own rules."""
+
+    def __init__(self, kind: str, buffer: str, is_global: bool) -> None:
+        self.kind = kind
+        self.buffer = buffer
+        self.is_global = is_global
+
+    @property
+    def write(self) -> bool:
+        return self.kind == "write"
+
+
 class Table:
     def __init__(self, views: Generator | None = None) -> None:
         self.views = views if views is not None else Generator(None)
@@ -207,6 +224,10 @@ class Table:
         self.indexed_params: set[tuple[str, str]] = set()
         # The (struct, field) pairs a body indexes through the pointer, `pm->animations[anim]`, so the view gets the second accessor.
         self.indexed_fields: set[tuple[str, str]] = set()
+        # The `char *` locals that walk a named buffer, by file stem, function, and name, each as its kind and the buffer it walks.
+        self.cursors: dict[tuple[str, str, str], Cursor] = {}
+        # The file-scope buffers a write cursor points into, so the write sweep of the skeleton sees the write through the alias.
+        self.alias_writes: set[str] = set()
 
     def sweep_reads(self, tu: ci.TranslationUnit, folder: Path) -> list[Read]:
         """Every game field a bg body reaches through a gentity_t, the level, or a cvar, as the reads the channel carries.
@@ -514,6 +535,168 @@ class Table:
                         break
         self.readonly_text |= candidates
 
+    # MARK: - The cursor sweep
+
+    def sweep_cursors(self, tu: ci.TranslationUnit, folder: Path) -> None:
+        """Every `char *` local that walks a named buffer, with the kind that picks its Swift shape.
+
+        A read cursor is the `TextCursor` over the buffer, because no use of the local writes bytes through it.
+        A write cursor is the byte offset of row 47, because a `TextCursor` holds a copy-on-write value and a write through it
+        would never reach Raven's own buffer.
+        Every store into the local must be the buffer or the buffer plus an offset. A local with a store of any other shape has
+        no row here, and the draft keeps the hole it carries today.
+        The sweep also names the file-scope buffers a write cursor points into, which is Raven's write through an alias."""
+        for cur in tu.cursor.get_children():
+            if cur.kind != CursorKind.FUNCTION_DECL or not cur.is_definition() or not cur.location.file:
+                continue
+            path = Path(cur.location.file.name).resolve()
+            if path.parent != folder or path.suffix != ".c":
+                continue
+            data = C.parsed_bytes(path)
+            buffers = self.cursor_buffers(cur, data)
+            if not buffers:
+                continue
+            written = self.cursor_writes(cur, data, set(buffers))
+            for name, (buffer, is_global) in buffers.items():
+                kind = "write" if name in written else "read"
+                self.cursors[(path.stem, cur.spelling, name)] = Cursor(kind, buffer, is_global)
+                if kind == "write" and is_global:
+                    self.alias_writes.add(buffer)
+
+    def cursor_buffers(self, fn: ci.Cursor, data: bytes) -> dict[str, tuple[str, bool]]:
+        """The named buffer each `char *` local of the body walks, by the stores into it, with True for a file-scope buffer.
+
+        A local with no store of a buffer has no entry, and neither has one Raven points at two buffers or at anything else."""
+        stores: dict[str, list[tuple[str, bool] | None]] = {}
+        for node in fn.walk_preorder():
+            if node.kind == CursorKind.VAR_DECL:
+                if not self.char_pointer(node.type):
+                    continue
+                init = [k for k in node.get_children() if k.kind.is_expression()
+                        and b"=" in data[node.extent.start.offset:k.extent.start.offset]]
+                stores.setdefault(node.spelling, [])
+                if init:
+                    stores[node.spelling].append(self.cursor_store(init[0], data))
+                continue
+            if node.kind not in (CursorKind.BINARY_OPERATOR, CursorKind.COMPOUND_ASSIGNMENT_OPERATOR):
+                continue
+            kids = list(node.get_children())
+            if len(kids) != 2:
+                continue
+            between = data[kids[0].extent.end.offset:kids[1].extent.start.offset].decode("utf-8", "replace").strip()
+            if between != "=":
+                continue
+            left = self.unwrapped(kids[0])
+            if left.kind != CursorKind.DECL_REF_EXPR or left.referenced is None or left.referenced.kind != CursorKind.VAR_DECL:
+                continue
+            if not self.char_pointer(left.type):
+                continue
+            stores.setdefault(left.spelling, []).append(self.cursor_store(kids[1], data))
+        out: dict[str, tuple[str, bool]] = {}
+        for name, seen in stores.items():
+            if not seen or any(s is None for s in seen):
+                continue
+            named = {s for s in seen if s != "null"}
+            if len(named) != 1:
+                continue
+            out[name] = next(iter(named))
+        return out
+
+    def cursor_store(self, cur: ci.Cursor, data: bytes) -> tuple[str, bool] | str | None:
+        """The buffer a store points a `char *` local at, as Raven's name and whether it is file-scope.
+
+        The three shapes are `p = buf`, `p = buf + offset`, and Raven's NULL, which names no buffer of its own.
+        Any other store gives None, and the local then has no cursor row."""
+        inner = self.unwrapped(cur)
+        if data[inner.extent.start.offset:inner.extent.end.offset].decode("utf-8", "replace").strip() in ("NULL", "0"):
+            return "null"
+        if inner.kind == CursorKind.BINARY_OPERATOR:
+            kids = list(inner.get_children())
+            if len(kids) != 2:
+                return None
+            between = data[kids[0].extent.end.offset:kids[1].extent.start.offset].decode("utf-8", "replace").strip()
+            if between != "+":
+                return None
+            inner = self.unwrapped(kids[0])
+        if inner.kind != CursorKind.DECL_REF_EXPR or inner.referenced is None:
+            return None
+        ref = inner.referenced
+        t = ref.type.get_canonical()
+        if ref.kind != CursorKind.VAR_DECL or t.kind != TypeKind.CONSTANTARRAY \
+                or t.element_type.get_canonical().kind != TypeKind.CHAR_S:
+            return None
+        # A local buffer has no linkage, and Raven's file-scope buffer has internal or external linkage under his `static`.
+        return (inner.spelling, ref.linkage != ci.LinkageKind.NO_LINKAGE)
+
+    def cursor_writes(self, fn: ci.Cursor, data: bytes, names: set[str]) -> set[str]:
+        """The named locals the body writes bytes through: a store at the pointer, and a pass to a parameter the callee writes.
+
+        A step, `p++` and `p += n`, moves the pointer and writes nothing. A pass to a `const char *` parameter, to a variadic
+        argument, and to a parameter the text sweep proved read-only is a read. Any other pass is a write, which is the default
+        of rule 11, and a callee the parse cannot name is a write too."""
+        out: set[str] = set()
+        for node in fn.walk_preorder():
+            if node.kind in (CursorKind.BINARY_OPERATOR, CursorKind.COMPOUND_ASSIGNMENT_OPERATOR):
+                kids = list(node.get_children())
+                if len(kids) != 2:
+                    continue
+                between = data[kids[0].extent.end.offset:kids[1].extent.start.offset].decode("utf-8", "replace").strip()
+                if between not in ASSIGN_OPS:
+                    continue
+                target = self.local_store_target(self.unwrapped(kids[0]))
+                if target in names:
+                    out.add(target)
+            elif node.kind == CursorKind.CALL_EXPR:
+                out |= self.written_arguments(node, names)
+        return out
+
+    def local_store_target(self, cur: ci.Cursor) -> str | None:
+        """The local name a store writes bytes through, for `*p` and for `p[i]`, or None for any other left side."""
+        if cur.kind == CursorKind.UNARY_OPERATOR:
+            kids = list(cur.get_children())
+            inner = self.unwrapped(kids[0]) if kids else None
+        elif cur.kind == CursorKind.ARRAY_SUBSCRIPT_EXPR:
+            inner = self.unwrapped(list(cur.get_children())[0])
+        else:
+            return None
+        if inner is None or inner.kind != CursorKind.DECL_REF_EXPR or inner.referenced is None:
+            return None
+        return inner.spelling if inner.referenced.kind == CursorKind.VAR_DECL else None
+
+    def written_arguments(self, call: ci.Cursor, names: set[str]) -> set[str]:
+        """The named locals one call writes bytes through, by the callee's own parameter at each position."""
+        kids = list(call.get_children())
+        if not kids:
+            return set()
+        callee = self.unwrapped(kids[0])
+        passed = {i: self.unwrapped(a).spelling for i, a in enumerate(kids[1:])
+                  if self.unwrapped(a).kind == CursorKind.DECL_REF_EXPR and self.unwrapped(a).spelling in names}
+        if not passed:
+            return set()
+        decl = callee.referenced if callee.kind == CursorKind.DECL_REF_EXPR else None
+        if decl is None or decl.kind != CursorKind.FUNCTION_DECL:
+            # The parse cannot name the callee, so every pass may write, which is the default of rule 11.
+            return set(passed.values())
+        params = list(decl.get_arguments())
+        out: set[str] = set()
+        for i, name in passed.items():
+            if i >= len(params):
+                # A variadic argument is the text a format reads.
+                continue
+            t = params[i].type.get_canonical()
+            if t.kind != TypeKind.POINTER or t.get_pointee().is_const_qualified():
+                continue
+            if (decl.spelling, params[i].spelling) in self.readonly_text:
+                continue
+            out.add(name)
+        return out
+
+    @staticmethod
+    def char_pointer(t: ci.Type) -> bool:
+        """True for Raven's `char *`, with or without his `const`."""
+        canonical = t.get_canonical()
+        return canonical.kind == TypeKind.POINTER and canonical.get_pointee().get_canonical().kind == TypeKind.CHAR_S
+
     # MARK: - The subscript sweep
 
     def record_pointer(self, t: ci.Type) -> bool:
@@ -595,6 +778,7 @@ class Table:
         It walks the second unit over both folders when the caller hands one over, so a call on Raven's cgame arm of a bg file counts,
         and so does a call from the cgame's own .c files.
         The store sweep, the text sweep, and the return sweep walk every .c file of the folder, because the body of the callee decides all three.
+        The cursor sweep follows the text sweep, because a local's kind reads which callee writes through its own `char *` parameter.
         The subscript sweep walks both units the same way the NULL sweep does, because a body has one arm in each of them."""
         self.sweep_nulls(tu, folder)
         self.sweep_subscripts(tu, folder)
@@ -603,6 +787,7 @@ class Table:
             self.sweep_subscripts(other, folder, *([other_folder] if other_folder is not None else []))
         self.sweep_stores(tu, folder)
         self.sweep_text(tu, folder)
+        self.sweep_cursors(tu, folder)
         self.sweep_returns(tu, folder)
 
     def marker_reason(self, cur: ci.Cursor, owner: str | None = None) -> str:
