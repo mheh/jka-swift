@@ -30,6 +30,8 @@ SIZE_NAME = re.compile(r"size|len|max", re.I)
 # The unsigned Swift spellings. A view widens a byte and a short to Int32, so those two read as signed arithmetic.
 UNSIGNED = {"UInt", "UInt8", "UInt16", "UInt32", "UInt64"}
 ROLES = ("field", "parameter", "return", "local", "expression")
+# The head of the Swift spelling that stands over a table of records, the one place the word is written.
+SLOTS = "Slots<"
 
 
 @dataclass(frozen=True)
@@ -168,6 +170,11 @@ class Types:
 
     def is_pointer(self, t: ci.Type) -> bool:
         return t.get_canonical().kind == TypeKind.POINTER
+
+    def is_slots(self, swift: str | None) -> bool:
+        """True for a Swift spelling that stands over a table of records, which a body reads by index.
+        The optional Slots of an unproven parameter answers True too, because the table behind it is the same table."""
+        return (swift or "").startswith(SLOTS)
 
     def is_char_array(self, t: ci.Type) -> bool:
         """True for Raven's `char name[N]`, the array Swift holds as a CharBuf."""

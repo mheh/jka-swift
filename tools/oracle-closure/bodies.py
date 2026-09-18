@@ -33,19 +33,17 @@ from skeleton import BG, LOGIC, ORACLE_DIR, Function, Skeleton, target_of
 
 # The Swift targets a bg body never sees, by the bg/game boundary.
 GAME_SIDE = {LOGIC, "JKAMP_Game"}
-from table import Cursor, Param, TARGET, swift_name
+from table import ASSIGN_OPS, COMMENT, Cursor, Param, TARGET, swift_name
 
 INDENT = "    "
 COMPARISONS = {"==", "!=", "<", ">", "<=", ">="}
 LOGICAL = {"&&", "||"}
-ASSIGNS = {"=", "+=", "-=", "*=", "/=", "%=", "&=", "|=", "^=", "<<=", ">>="}
-BINARY_OPS = COMPARISONS | LOGICAL | ASSIGNS | {"+", "-", "*", "/", "%", "&", "|", "^", "<<", ">>", ","}
+BINARY_OPS = COMPARISONS | LOGICAL | ASSIGN_OPS | {"+", "-", "*", "/", "%", "&", "|", "^", "<<", ">>", ","}
 UNARY_PREFIX = {"-", "+", "!", "~", "*", "&", "++", "--"}
 WRAPPERS = {CursorKind.UNEXPOSED_EXPR, CursorKind.PAREN_EXPR}
 TEXT_TYPES = {"String", "CharBuf", "JKAShared.CharBuf", "PooledString", "JKAShared.PooledString"}
 # The declaration tail of the scratch local each `inout` output a caller skips with NULL takes, by the parameter's Swift spelling.
 SCRATCH_ZEROS = {"inout vec3_t": "= JKAShared.vec3_t(0, 0, 0)", "inout Int32": ": Int32 = 0", "inout Float": ": Float = 0"}
-COMMENT = re.compile(r"//[^\n]*|/\*.*?\*/", re.S)
 NUMBER = re.compile(r"-?\s*((\d+(\.\d*)?|\.\d+)([eE][-+]?\d+)?[fFuUlL]*|0[xX][0-9a-fA-F]+[uUlL]*)")
 IDENTIFIER = re.compile(r"[A-Za-z_]\w*")
 from overlay import DROPPED, MACROS, MACRO_RETURNS, RECORD_CALLS, UNDEFINED, address_arguments
@@ -189,20 +187,20 @@ class Drafter:
         # Raven's `const char *token` that only holds parsed text is a String.
         self.text_locals, self.optional_texts = self.text_local_names(fn.cur)
         # His `char *p` over a named buffer is a read cursor, a TextCursor, or a write cursor, the byte offset of row 47.
-        self.cursor_locals, self.offset_cursors = self.cursor_names(fn)
         # Raven's `for (it = table + 1; it->name; it++)` walks a table by pointer, and the draft walks it by index, `table[itIndex]`.
-        self.table_cursors = self.table_cursor_names(fn.cur)
+        self.cursor_locals, self.offset_cursors, self.table_cursors = self.local_facts(fn)
         # The slot text each copy stands for inside the one call being drafted, `fxAxis[2]` for `fxAxis2`.
         self.slot_copies: dict[str, str] = {}
         self.aliased_positions: dict[int, str] = {}
         # Raven's `animation_t *animations` local that only ever holds a table of records, which Swift holds as the Slots over it.
         self.slots_locals = self.slots_local_names(fn.cur)
-        self.lets = self.single_writes(fn.cur)
+        key = (fn.stem, fn.cur.spelling)
+        self.lets = self.sk.table.single_writes.get(key, set())
         if any(self.record_local(c) is not None for c in fn.cur.walk_preorder()):
             # A closure cannot initialize a let of the enclosing body, so a body with a scratch record keeps every local a var.
             self.lets = set()
-        self.written = self.written_names(fn.cur)
-        self.addressed = self.addressed_names(fn.cur)
+        self.written = self.sk.table.written_names.get(key, set())
+        self.addressed = self.sk.table.addressed_names.get(key, set())
         self.has_scratch = any(self.record_local(c) is not None for c in fn.cur.walk_preorder())
         self.inout_locals = {c.spelling for c, p in zip(fn.cur.get_arguments(), fn.params) if (p.swift or "").startswith("inout ")}
         # Raven assigns a parameter of his own. A Swift parameter is immutable, so the body opens with a mutable copy, after the declarations.
@@ -460,69 +458,6 @@ class Drafter:
         self.pending = outer
         return lines
 
-    def single_writes(self, fn: ci.Cursor) -> set[str]:
-        """The locals Swift can hold in a `let`: written once outside a loop, or once in each arm of one if, and never by `&`."""
-        writes: dict[str, list[tuple[bool, tuple[ci.Cursor, int] | None]]] = {}
-        loops = {CursorKind.FOR_STMT, CursorKind.WHILE_STMT, CursorKind.DO_STMT}
-
-        def root(cur: ci.Cursor) -> str | None:
-            cur = self.unwrap(cur)
-            if cur.kind == CursorKind.DECL_REF_EXPR:
-                ref = cur.referenced
-                return cur.spelling if ref is not None and ref.kind == CursorKind.VAR_DECL else None
-            if cur.kind in (CursorKind.ARRAY_SUBSCRIPT_EXPR, CursorKind.MEMBER_REF_EXPR):
-                kids = list(cur.get_children())
-                return root(kids[0]) if kids and cur.kind == CursorKind.ARRAY_SUBSCRIPT_EXPR else None
-            return None
-
-        def walk(cur: ci.Cursor, in_loop: bool, arm: tuple[ci.Cursor, int] | None) -> None:
-            kids = list(cur.get_children())
-            if cur.kind in (CursorKind.BINARY_OPERATOR, CursorKind.COMPOUND_ASSIGNMENT_OPERATOR) and len(kids) == 2:
-                between = self.bytes[kids[0].extent.end.offset:kids[1].extent.start.offset].decode("utf-8", "replace")
-                if COMMENT.sub("", between).strip() in ASSIGNS or kids[0].extent.start.offset == kids[1].extent.start.offset:
-                    name = root(kids[0])
-                    if name is not None:
-                        writes.setdefault(name, []).append((in_loop, arm))
-            if cur.kind == CursorKind.UNARY_OPERATOR and kids:
-                before = self.bytes[cur.extent.start.offset:kids[0].extent.start.offset].decode("utf-8", "replace").strip()
-                after = self.bytes[kids[0].extent.end.offset:cur.extent.end.offset].decode("utf-8", "replace").strip()
-                name = root(kids[0])
-                if name is not None and (before in ("++", "--", "&") or after in ("++", "--")):
-                    writes.setdefault(name, []).append((True, None))
-            if cur.kind == CursorKind.IF_STMT and len(kids) == 3:
-                walk(kids[0], in_loop, arm)
-                walk(kids[1], in_loop, (cur, 1))
-                walk(kids[2], in_loop, (cur, 2))
-                return
-            for k in kids:
-                walk(k, in_loop or cur.kind in loops, arm)
-
-        walk(fn, False, None)
-        out = set()
-        for name, sites in writes.items():
-            if len(sites) == 1 and not sites[0][0]:
-                out.add(name)
-            if len(sites) == 2 and not sites[0][0] and not sites[1][0] and sites[0][1] is not None and sites[1][1] is not None \
-                    and sites[0][1][0] == sites[1][1][0] and sites[0][1][1] != sites[1][1][1]:
-                out.add(name)
-        return out
-
-    def written_names(self, fn: ci.Cursor) -> set[str]:
-        """Every local a statement writes after its declaration, by any operator."""
-        out: set[str] = set()
-        for cur in fn.walk_preorder():
-            kids = list(cur.get_children())
-            if cur.kind in (CursorKind.BINARY_OPERATOR, CursorKind.COMPOUND_ASSIGNMENT_OPERATOR) and len(kids) == 2:
-                between = COMMENT.sub("", self.bytes[kids[0].extent.end.offset:kids[1].extent.start.offset].decode("utf-8", "replace")).strip()
-                if between in ASSIGNS or kids[0].extent.start.offset == kids[1].extent.start.offset:
-                    out.add(self.written_root(kids[0]))
-            if cur.kind == CursorKind.UNARY_OPERATOR and kids:
-                before = self.bytes[cur.extent.start.offset:kids[0].extent.start.offset].decode("utf-8", "replace").strip()
-                after = self.bytes[kids[0].extent.end.offset:cur.extent.end.offset].decode("utf-8", "replace").strip()
-                if before in ("++", "--", "&") or after in ("++", "--"):
-                    out.add(self.written_root(kids[0]))
-        return out
-
     def tuple_call(self, cur: ci.Cursor) -> tuple[str, str] | None:
         """A call to a trap whose Swift form returns `(Int32, String)`: the call without Raven's buffer and size arguments,
         and the Swift text of the buffer Raven passed, which takes the returned text."""
@@ -668,14 +603,19 @@ class Drafter:
             return raw is not None and raw[1] == "pointer"
         return False
 
-    def cursor_names(self, fn: Function) -> tuple[dict[str, Cursor], dict[str, Cursor]]:
-        """The read cursors and the write cursors of one body, by the cursor sweep of the table, each under Raven's own name."""
+    def local_facts(self, fn: Function) -> tuple[dict[str, Cursor], dict[str, Cursor], dict[str, tuple[str, str]]]:
+        """The read cursors, the write cursors, and the table walks of one body, by the local sweep of the table, each under Raven's own name."""
         reads: dict[str, Cursor] = {}
         writes: dict[str, Cursor] = {}
-        for (stem, owner, name), cursor in self.sk.table.cursors.items():
-            if stem == fn.stem and owner == fn.cur.spelling:
-                (writes if cursor.write else reads)[name] = cursor
-        return reads, writes
+        walks: dict[str, tuple[str, str]] = {}
+        for (stem, owner, name), row in self.sk.table.locals.items():
+            if stem != fn.stem or owner != fn.cur.spelling:
+                continue
+            if row.cursor is not None:
+                (writes if row.cursor.write else reads)[name] = row.cursor
+            if row.table is not None:
+                walks[name] = row.table
+        return reads, writes, walks
 
     def cursor_buffer(self, name: str) -> str:
         """The Swift text of the buffer a cursor local walks. A file-scope buffer goes through the module's own reach rule."""
@@ -849,32 +789,6 @@ class Drafter:
             stores.setdefault(left.spelling, []).append(self.is_raw(kids[1]))
         return {name for name, raws in stores.items() if raws and all(raws)}
 
-    def table_cursor_names(self, fn: ci.Cursor) -> dict[str, tuple[str, str]]:
-        """Every pointer local a statement sets to a file-scope table or a slot past its start, `it = bg_itemlist + 1`,
-        with the table's Swift name and the index local that stands in for the pointer."""
-        out: dict[str, tuple[str, str]] = {}
-        for cur in fn.walk_preorder():
-            kids = list(cur.get_children())
-            if cur.kind != CursorKind.BINARY_OPERATOR or len(kids) != 2 or self.collapsed(cur) or self.operator_or_none(cur) != "=":
-                continue
-            left, right = self.unwrap(kids[0]), self.unwrap(kids[1])
-            if left.kind != CursorKind.DECL_REF_EXPR or left.referenced is None or left.referenced.kind != CursorKind.VAR_DECL:
-                continue
-            table = right
-            if right.kind == CursorKind.BINARY_OPERATOR and self.operator_or_none(right) == "+":
-                table = self.unwrap(list(right.get_children())[0])
-            if table.kind != CursorKind.DECL_REF_EXPR or table.referenced is None:
-                continue
-            ref = table.referenced
-            if ref.kind == CursorKind.VAR_DECL and ref.type.get_canonical().kind == TypeKind.CONSTANTARRAY \
-                    and ref.type.get_canonical().element_type.get_canonical().kind == TypeKind.RECORD \
-                    and ref.semantic_parent is not None and ref.semantic_parent.kind == CursorKind.TRANSLATION_UNIT:
-                out[left.spelling] = (swift_name(table.spelling), f"{swift_name(left.spelling)}Index")
-            elif ref.kind == CursorKind.PARM_DECL and table.spelling in self.params_by_name and (self.params_by_name[table.spelling].swift or "").startswith("Slots<"):
-                # A table parameter is a Slots, and the cursor walks it by index the same way.
-                out[left.spelling] = (self.params_by_name[table.spelling].name, f"{swift_name(left.spelling)}Index")
-        return out
-
     def operator_or_none(self, cur: ci.Cursor) -> str | None:
         """The operator of a binary node, or None where its text is not readable, for a pre-scan that must not raise."""
         try:
@@ -882,32 +796,12 @@ class Drafter:
         except Hole:
             return None
 
-    def addressed_names(self, fn: ci.Cursor) -> set[str]:
-        """Every local a statement takes the address of, an output a callee fills."""
-        out: set[str] = set()
-        for cur in fn.walk_preorder():
-            kids = list(cur.get_children())
-            if cur.kind == CursorKind.UNARY_OPERATOR and kids:
-                before = self.bytes[cur.extent.start.offset:kids[0].extent.start.offset].decode("utf-8", "replace").strip()
-                if before == "&":
-                    out.add(self.written_root(kids[0]))
-        return out
-
-    def written_root(self, cur: ci.Cursor) -> str:
-        cur = self.unwrap(cur)
-        while cur.kind == CursorKind.ARRAY_SUBSCRIPT_EXPR:
-            cur = self.unwrap(list(cur.get_children())[0])
-        return cur.spelling if cur.kind == CursorKind.DECL_REF_EXPR else ""
-
     def keyword(self, var: ci.Cursor, init: bool) -> str:
+        """The Swift keyword a declaration takes. A declaration with an initializer reads the write set, and one without it reads the single-write set."""
         name = var.spelling
         if init:
-            return "let" if name not in self.single_writes_cache() else "var"
+            return "let" if name not in self.written else "var"
         return "let" if name in self.lets else "var"
-
-    def single_writes_cache(self) -> set[str]:
-        return self.written
-
 
     def hole(self, cur: ci.Cursor, depth: int, reason: str) -> list[str]:
         self.holes += 1
@@ -1057,7 +951,7 @@ class Drafter:
                 # C's comma operator runs the left side, then the right, which is two Swift statements, `i++, holdChar += len + 1`.
                 left, right = list(cur.get_children())
                 return self.statement(left, depth) + self.statement(right, depth)
-            if op in ASSIGNS:
+            if op in ASSIGN_OPS:
                 left, right = list(cur.get_children())
                 if op == "=" and self.unwrap(left).kind == CursorKind.DECL_REF_EXPR and self.unwrap(left).spelling in self.game_entities | self.optional_entities:
                     return [f"{pad}{self.expr(left)} = {self.entity_or_nil(right)}" + self.trailing(cur)]
@@ -2068,7 +1962,7 @@ class Drafter:
                 if op == "&&" and b == "true":
                     return a
                 return f"{a} {op} {b}"
-            if op in ASSIGNS:
+            if op in ASSIGN_OPS:
                 raise Hole("An assignment inside an expression.")
             if op not in COMPARISONS | LOGICAL and (self.is_bool(left) or self.is_bool(right)):
                 # Raven's `!x & mask` is arithmetic on the 0 or 1 of the test, so the Bool converts as C does.
@@ -2415,7 +2309,7 @@ class Drafter:
         if self.unwrap(inner).kind == CursorKind.DECL_REF_EXPR and self.unwrap(inner).spelling in self.offset_cursors:
             raise Hole(f"Raven passes the write cursor `{self.unwrap(inner).spelling}` where the callee takes no buffer beside it, "
                        "and a byte offset has no form there.")
-        if param is not None and param[1].startswith("Slots<"):
+        if param is not None and self.types.is_slots(param[1]):
             # The parameter takes the Slots over the records, and the caller hands the table it holds.
             slots = self.slots_expression(inner)
             if slots is not None:
@@ -2455,7 +2349,7 @@ class Drafter:
             raven = " ".join(self.bytes[cur.extent.start.offset:cur.extent.end.offset].decode("utf-8", "replace").split())
             raise Hole(f"Raven passes `{raven}` to `{callee}`, whose `char *` parameter the stub holds as an inout CharBuf. Docket row 5 is due.")
         text = self.expr(inner)
-        if param is not None and param[1].startswith("Slots<"):
+        if param is not None and self.types.is_slots(param[1]):
             raven = " ".join(self.bytes[cur.extent.start.offset:cur.extent.end.offset].decode("utf-8", "replace").split())
             raise Hole(f"Raven passes `{raven}` to `{callee}`, whose `{param[0]}` parameter takes the Slots over the records, "
                        "and Swift holds one record here. A Slots over one record has no form yet.")
@@ -2512,8 +2406,8 @@ class Drafter:
             return True
         param = self.params_by_name.get(inner.spelling)
         if param is not None:
-            return (param.swift or "").startswith("Slots<")
-        return self.registry.var_types.get(swift_name(inner.spelling), "").startswith("Slots<")
+            return self.types.is_slots(param.swift)
+        return self.types.is_slots(self.registry.var_types.get(swift_name(inner.spelling), ""))
 
     def optional_slots_name(self, cur: ci.Cursor) -> bool:
         """True for a read of a parameter the NULL sweep made an optional Slots, which takes the bind at every use."""
@@ -2551,7 +2445,7 @@ class Drafter:
         if inner.spelling in self.slots_locals:
             return True
         param = self.params_by_name.get(inner.spelling)
-        return param is not None and (param.swift or "").startswith("Slots<")
+        return param is not None and self.types.is_slots(param.swift)
 
     def view_parameter(self, swift: str) -> bool:
         """True for a Swift parameter that takes one view, the shape a Slots does not fit."""
@@ -2604,8 +2498,8 @@ class Drafter:
             return False
         param = self.params_by_name.get(inner.spelling)
         if param is not None:
-            return (param.swift or "").startswith("Slots<")
-        return self.registry.var_types.get(swift_name(inner.spelling), "").startswith("Slots<")
+            return self.types.is_slots(param.swift)
+        return self.types.is_slots(self.registry.var_types.get(swift_name(inner.spelling), ""))
 
     def optional_view_name(self, cur: ci.Cursor) -> bool:
         """True for a read of a parameter the NULL sweep made an optional view, which no bind of the draft's own covers."""

@@ -8,6 +8,7 @@ answer into the `Param` its callers read.
 
 from __future__ import annotations
 
+import re
 from pathlib import Path
 
 import clang.cindex as ci
@@ -133,10 +134,24 @@ ASSIGN_OPS = {"=", "+=", "-=", "*=", "/=", "%=", "&=", "|=", "^=", "<<=", ">>="}
 # a return of it, and a pass to a function with no body are none of these, so each one keeps the CharBuf.
 TEXT_READERS = {"Q_stricmp", "Q_stricmpn", "Q_strncmp", "strlen", "strcmp", "strncmp", "atoi", "atof", "Com_Printf"}
 TEXT_TESTS = {"==", "!=", "<", ">", "<=", ">=", "&&", "||"}
+# A C comment of either form, which a reader of the source text between two nodes drops before it reads the operator there.
+COMMENT = re.compile(r"//[^\n]*|/\*.*?\*/", re.S)
+# The loop statements, under which a write is one of many, so the name it writes cannot be a Swift `let`.
+LOOPS = {CursorKind.FOR_STMT, CursorKind.WHILE_STMT, CursorKind.DO_STMT}
 
 
 def capitalized(word: str) -> str:
     return word[:1].upper() + word[1:]
+
+
+def collapsed(cur: ci.Cursor) -> bool:
+    """True when a child spans the same bytes as the node, the mark of a macro expansion, whose nodes keep no text of their own."""
+    return any(k.extent.start.offset == cur.extent.start.offset and k.extent.end.offset == cur.extent.end.offset for k in cur.get_children())
+
+
+def between(data: bytes, left: ci.Cursor, right: ci.Cursor) -> str:
+    """The source text between two nodes, with any comment Raven wrote there dropped, which carries the operator of a binary node."""
+    return COMMENT.sub("", data[left.extent.end.offset:right.extent.start.offset].decode("utf-8", "replace")).strip()
 
 
 class Read:
@@ -216,6 +231,17 @@ class Cursor:
         return self.kind == "write"
 
 
+class Local:
+    """One local of a function the local sweep gives a shape, so a reader takes the facts of that local in one lookup.
+
+    `cursor` is the cursor sweep's row for a `char *` local that walks a named buffer, and None for a local of any other shape.
+    `table` names a pointer local Raven walks over a table of records, `it = bg_itemlist + 1`, as the table's Swift name and the index local that stands for the pointer."""
+
+    def __init__(self, cursor: Cursor | None = None, table: tuple[str, str] | None = None) -> None:
+        self.cursor = cursor
+        self.table = table
+
+
 class Table:
     def __init__(self, parse: C.Parse, views: Generator | None = None) -> None:
         self.parse = parse
@@ -245,6 +271,14 @@ class Table:
         self.buffer_traps: set[tuple[str, str]] = set()
         # The game fields a bg body reaches, by the key of each read, which the channel carries and the draft calls.
         self.reads: dict[tuple[str, tuple[str, ...], bool], Read] = {}
+        # Every local the local sweep gives a shape, by file stem, function, and name, the key the cursor sweep uses.
+        self.locals: dict[tuple[str, str, str], Local] = {}
+        # The names each body writes after their declaration, by file stem and function.
+        self.written_names: dict[tuple[str, str], set[str]] = {}
+        # The names one write outside a loop covers, or one write in each arm of one `if`, which Swift holds in a `let`.
+        self.single_writes: dict[tuple[str, str], set[str]] = {}
+        # The names a body takes the address of, each one an output a callee fills.
+        self.addressed_names: dict[tuple[str, str], set[str]] = {}
 
     def sweep_reads(self, tu: ci.TranslationUnit, folder: Path) -> list[Read]:
         """Every game field a bg body reaches through a gentity_t, the level, or a cvar, as the reads the channel carries.
@@ -762,6 +796,145 @@ class Table:
         canonical = t.get_canonical()
         return canonical.kind == TypeKind.POINTER and canonical.get_pointee().get_canonical().kind == TypeKind.CHAR_S
 
+    # MARK: - The local sweep
+
+    def sweep_locals(self, tu: ci.TranslationUnit, folder: Path) -> None:
+        """The facts about the locals of every function, computed once here, which a drafter reads instead of a walk of its own.
+
+        A `char *` local over a named buffer keeps the row the cursor sweep already wrote, so no walk reads those stores twice.
+        A pointer local Raven sets to a file-scope table of records, or to a parameter spelled as a `Slots`, walks that table,
+        and a reader of the fact walks it by index instead.
+        The three name sets hold every name the body writes, every name one write covers, and every name the body takes the address of."""
+        by_function: dict[tuple[str, str], dict[str, Local]] = {}
+        for (stem, owner, name), cursor in self.cursors.items():
+            by_function.setdefault((stem, owner), {})[name] = Local(cursor=cursor)
+        for cur in tu.cursor.get_children():
+            if cur.kind != CursorKind.FUNCTION_DECL or not cur.is_definition() or not cur.location.file:
+                continue
+            path = Path(cur.location.file.name).resolve()
+            if path.parent != folder or path.suffix != ".c":
+                continue
+            data = C.parsed_bytes(path)
+            key = (path.stem, cur.spelling)
+            walks, written, addressed = self.body_walk(cur, data)
+            rows = by_function.get(key, {})
+            for name, walk in walks.items():
+                rows.setdefault(name, Local()).table = walk
+            for name, row in rows.items():
+                self.locals[(key[0], key[1], name)] = row
+            self.written_names[key] = written
+            self.addressed_names[key] = addressed
+            self.single_writes[key] = self.single_written(cur, data)
+
+    def body_walk(self, fn: ci.Cursor, data: bytes) -> tuple[dict[str, tuple[str, str]], set[str], set[str]]:
+        """One walk of the body for the three facts each node carries: the table walks, the written names, and the addressed names.
+
+        A table walk is a pointer local a statement sets to a file-scope table or a slot past its start, `it = bg_itemlist + 1`,
+        given as the table's Swift name and the index local that stands in for the pointer.
+        A written name is any name a statement writes after its declaration, and an addressed name is any name a statement takes the address of."""
+        params = {p.spelling: p for p in fn.get_arguments()}
+        out: dict[str, tuple[str, str]] = {}
+        written: set[str] = set()
+        addressed: set[str] = set()
+        for cur in fn.walk_preorder():
+            kids = list(cur.get_children())
+            if cur.kind == CursorKind.UNARY_OPERATOR and kids:
+                if self.steps_or_addresses(cur, kids[0], data):
+                    written.add(self.written_root(kids[0]))
+                if data[cur.extent.start.offset:kids[0].extent.start.offset].decode("utf-8", "replace").strip() == "&":
+                    addressed.add(self.written_root(kids[0]))
+                continue
+            if cur.kind not in (CursorKind.BINARY_OPERATOR, CursorKind.COMPOUND_ASSIGNMENT_OPERATOR) or len(kids) != 2:
+                continue
+            operator = between(data, kids[0], kids[1])
+            if operator in ASSIGN_OPS or kids[0].extent.start.offset == kids[1].extent.start.offset:
+                written.add(self.written_root(kids[0]))
+            if cur.kind != CursorKind.BINARY_OPERATOR or collapsed(cur) or operator != "=":
+                continue
+            left, right = self.unwrapped(kids[0]), self.unwrapped(kids[1])
+            if left.kind != CursorKind.DECL_REF_EXPR or left.referenced is None or left.referenced.kind != CursorKind.VAR_DECL:
+                continue
+            table = right
+            if right.kind == CursorKind.BINARY_OPERATOR and len(list(right.get_children())) == 2 and not collapsed(right) \
+                    and between(data, *list(right.get_children())) == "+":
+                table = self.unwrapped(list(right.get_children())[0])
+            if table.kind != CursorKind.DECL_REF_EXPR or table.referenced is None:
+                continue
+            ref = table.referenced
+            if ref.kind == CursorKind.VAR_DECL and ref.type.get_canonical().kind == TypeKind.CONSTANTARRAY \
+                    and ref.type.get_canonical().element_type.get_canonical().kind == TypeKind.RECORD \
+                    and ref.semantic_parent is not None and ref.semantic_parent.kind == CursorKind.TRANSLATION_UNIT:
+                out[left.spelling] = (swift_name(table.spelling), f"{swift_name(left.spelling)}Index")
+            elif ref.kind == CursorKind.PARM_DECL and table.spelling in params and self.slots_parameter(fn, params[table.spelling]):
+                # A table parameter is a Slots, and the walk reads it by index the same way.
+                out[left.spelling] = (swift_name(table.spelling), f"{swift_name(left.spelling)}Index")
+        return out, written, addressed
+
+    def slots_parameter(self, fn: ci.Cursor, cur: ci.Cursor) -> bool:
+        """True when the table spells this parameter as a `Slots` over a table of records. spelling.py owns the spelling and the test."""
+        params = list(fn.get_arguments())
+        position = [p.spelling for p in params].index(cur.spelling)
+        following = params[position + 1] if position + 1 < len(params) else None
+        param = self.param(cur, following, traps=False, owner=fn.spelling)
+        return param is not None and self.types.is_slots(param.swift)
+
+    def single_written(self, fn: ci.Cursor, data: bytes) -> set[str]:
+        """The locals Swift can hold in a `let`: written once outside a loop, or once in each arm of one `if`, and never by `&`."""
+        writes: dict[str, list[tuple[bool, tuple[ci.Cursor, int] | None]]] = {}
+
+        def root(cur: ci.Cursor) -> str | None:
+            cur = self.unwrapped(cur)
+            if cur.kind == CursorKind.DECL_REF_EXPR:
+                ref = cur.referenced
+                return cur.spelling if ref is not None and ref.kind == CursorKind.VAR_DECL else None
+            if cur.kind in (CursorKind.ARRAY_SUBSCRIPT_EXPR, CursorKind.MEMBER_REF_EXPR):
+                kids = list(cur.get_children())
+                return root(kids[0]) if kids and cur.kind == CursorKind.ARRAY_SUBSCRIPT_EXPR else None
+            return None
+
+        def walk(cur: ci.Cursor, in_loop: bool, arm: tuple[ci.Cursor, int] | None) -> None:
+            kids = list(cur.get_children())
+            if cur.kind in (CursorKind.BINARY_OPERATOR, CursorKind.COMPOUND_ASSIGNMENT_OPERATOR) and len(kids) == 2:
+                if between(data, kids[0], kids[1]) in ASSIGN_OPS or kids[0].extent.start.offset == kids[1].extent.start.offset:
+                    name = root(kids[0])
+                    if name is not None:
+                        writes.setdefault(name, []).append((in_loop, arm))
+            if cur.kind == CursorKind.UNARY_OPERATOR and kids:
+                name = root(kids[0])
+                if name is not None and self.steps_or_addresses(cur, kids[0], data):
+                    writes.setdefault(name, []).append((True, None))
+            if cur.kind == CursorKind.IF_STMT and len(kids) == 3:
+                walk(kids[0], in_loop, arm)
+                walk(kids[1], in_loop, (cur, 1))
+                walk(kids[2], in_loop, (cur, 2))
+                return
+            for k in kids:
+                walk(k, in_loop or cur.kind in LOOPS, arm)
+
+        walk(fn, False, None)
+        out = set()
+        for name, sites in writes.items():
+            if len(sites) == 1 and not sites[0][0]:
+                out.add(name)
+            if len(sites) == 2 and not sites[0][0] and not sites[1][0] and sites[0][1] is not None and sites[1][1] is not None \
+                    and sites[0][1][0] == sites[1][1][0] and sites[0][1][1] != sites[1][1][1]:
+                out.add(name)
+        return out
+
+    @staticmethod
+    def steps_or_addresses(cur: ci.Cursor, operand: ci.Cursor, data: bytes) -> bool:
+        """True for Raven's `++`, his `--`, and his `&` on the operand, the three unary forms that write the name or hand it over."""
+        before = data[cur.extent.start.offset:operand.extent.start.offset].decode("utf-8", "replace").strip()
+        after = data[operand.extent.end.offset:cur.extent.end.offset].decode("utf-8", "replace").strip()
+        return before in ("++", "--", "&") or after in ("++", "--")
+
+    def written_root(self, cur: ci.Cursor) -> str:
+        """The name a store writes into, through any number of index steps, and the empty name for a left side that is no name."""
+        cur = self.unwrapped(cur)
+        while cur.kind == CursorKind.ARRAY_SUBSCRIPT_EXPR:
+            cur = self.unwrapped(list(cur.get_children())[0])
+        return cur.spelling if cur.kind == CursorKind.DECL_REF_EXPR else ""
+
     # MARK: - The subscript sweep
 
     def record_pointer(self, t: ci.Type) -> bool:
@@ -885,6 +1058,7 @@ class Table:
         and so does a call from the cgame's own .c files.
         The store sweep, the text sweep, and the return sweep walk every .c file of the game folder, because the body of the callee decides all three.
         The cursor sweep follows the text sweep, because a local's kind reads which callee writes through its own `char *` parameter.
+        The local sweep follows the cursor sweep, because it carries every cursor row forward instead of reading those stores again.
         The subscript sweep and the buffer sweep walk both units the same way the NULL sweep does, because a body has one arm in each of them.
         The read sweep closes the walk, and every generator that carries a game field reads its result from the table."""
         tu, folder = self.parse.game, self.parse.game_folder
@@ -898,6 +1072,7 @@ class Table:
         self.sweep_stores(tu, folder)
         self.sweep_text(tu, folder)
         self.sweep_cursors(tu, folder)
+        self.sweep_locals(tu, folder)
         self.sweep_returns(tu, folder)
         self.reads = {read.key: read for read in self.sweep_reads(tu, folder)}
 
