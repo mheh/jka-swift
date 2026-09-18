@@ -121,9 +121,25 @@ public func trap_FS_Read(_ buffer: OpaquePointer?, _ len: Int32, _ f: JKAShared.
     Syscall.call(G_FS_READ, buffer, len, f)
 }
 
+/// Source: oracle/codemp/game/g_syscalls.c:89
+/// Raven's `buffer` takes a `char buf[N]` at his own call sites, and this overload hands the engine that buffer's base.
+public func trap_FS_Read(_ buffer: inout JKAShared.CharBuf, _ len: Int32, _ f: JKAShared.fileHandle_t) {
+    buffer.withUnsafeMutableRawPointer { base in
+        trap_FS_Read(OpaquePointer(base), len, f)
+    }
+}
+
 /// Source: oracle/codemp/game/g_syscalls.c:93
 public func trap_FS_Write(_ buffer: OpaquePointer?, _ len: Int32, _ f: JKAShared.fileHandle_t) {
     Syscall.call(G_FS_WRITE, buffer, len, f)
+}
+
+/// Source: oracle/codemp/game/g_syscalls.c:93
+/// Raven's `buffer` takes a `char buf[N]` at his own call sites, and this overload hands the engine that buffer's base.
+public func trap_FS_Write(_ buffer: inout JKAShared.CharBuf, _ len: Int32, _ f: JKAShared.fileHandle_t) {
+    buffer.withUnsafeMutableRawPointer { base in
+        trap_FS_Write(OpaquePointer(base), len, f)
+    }
 }
 
 /// Source: oracle/codemp/game/g_syscalls.c:97

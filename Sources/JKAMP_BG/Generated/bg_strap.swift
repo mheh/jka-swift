@@ -189,6 +189,14 @@ func trap_FS_Read(_ buffer: OpaquePointer?, _ len: Int32, _ f: JKAShared.fileHan
     bg.straps.trap_FS_Read(buffer, len, f)
 }
 
+/// Source: oracle/codemp/game/g_syscalls.c:89
+/// Raven's `buffer` takes a `char buf[N]` at his own call sites, and this overload hands the engine that buffer's base.
+func trap_FS_Read(_ buffer: inout JKAShared.CharBuf, _ len: Int32, _ f: JKAShared.fileHandle_t) {
+    buffer.withUnsafeMutableRawPointer { base in
+        bg.straps.trap_FS_Read(OpaquePointer(base), len, f)
+    }
+}
+
 /// Source: oracle/codemp/cgame/cg_syscalls.c:637
 func trap_FX_PlayEffectID(_ id: Int32, _ org: inout JKAShared.vec3_t, _ fwd: inout JKAShared.vec3_t, _ vol: Int32, _ rad: Int32) {
     bg.straps.trap_FX_PlayEffectID(id, &org, &fwd, vol, rad)

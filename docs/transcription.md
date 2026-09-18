@@ -124,6 +124,8 @@ A trap's `char *` parameter with a size beside it is already the returned `Strin
 A buffer the engine fills with no size beside it has a PARAMS entry `("fill_buffer", capacity)`, with the capacity Raven's callers declare for it, and the trap returns the `String` the same way a sized buffer does.
 A trap no file of the module calls, such as `trap_UnifyWhiteSpaces` and `trap_AAS_TraceAreas`, is a NOT_PORTED entry with that reason, and its shape is ruled when a module that calls it is generated.
 A raw block the engine keeps, such as `trap_SV_RegisterSharedMemory`, has a PARAMS entry `raw` and is `UnsafeMutableRawPointer`.
+A trap's `void *` parameter is an `OpaquePointer?`, and it gains a second overload that takes `inout CharBuf` when Raven's own callers fill it with a `char buf[N]`.
+The overload hands the engine the buffer's base inside the generated file, so a body writes `trap_FS_Read(&BGPAFtext, len, f)` and a caller that holds a raw allocation keeps the first overload.
 
 Raven's struct of eight bytes exists because the compilers of the time had no portable 64-bit integer.
 Only the byte-swap pair touches `qint64`, and a body swaps with `byteSwapped`.
@@ -427,7 +429,11 @@ A new comment the transcriptor writes follows the house style: STE prose, one se
 
 `Sources/JKAShared/Views/RawField.swift` extends `UnsafeMutableRawPointer` with one labeled subscript per C type Raven casts to at an offset, each taking any integer offset.
 `b[int: f.ofs]` stores an `Int32`, `b[float: f.ofs]` a `Float`, `b[float: f.ofs, 1]` the second float after the offset, and `b[string: f.ofs]` the raw pointer of a `PooledString`.
+`b[pointer: f.ofs]` is the `UnsafeMutableRawPointer?` a `char *` field holds, so `*(char **)(b+ofs)` reads `b[pointer: ofs]` and Raven's `!*(char **)(b+ofs)` reads `b[pointer: ofs] == nil`.
+`b[byte: len]` is one byte at an offset, which sign-extends and truncates as `CharBuf` does, so `tempReadBuffer[len] = 0` through a raw allocation reads `tempReadBuffer[byte: len] = 0`.
+Raven's `qboolean` and his `vehicleType_t` are enums of four bytes, so `*(qboolean *)(b+ofs)` and `*(vehicleType_t *)(b+ofs)` both take the `int` slot.
 `BG_ParseField` reads `b[int: f.ofs] = atoi(value)` for Raven's `*(int *)(b+f->ofs) = atoi(value)`, and a body never writes `storeBytes` or `MemoryLayout`.
+A `byte *` local whose one store is the cast of a view, Raven's `byte *b = (byte *)vehWeapon`, is the raw pointer over the view's own slot, `let b = UnsafeMutableRawPointer(vehWeapon.handle)`, with the one-line comment that names rule 11.
 The same file defines `+` and `-` between a raw pointer and any integer, so `BG_Alloc` reads `return bg.pool + (bg.poolSize - size)` for Raven's `&bg_pool[bg_poolSize-size]`.
 
 ### No `Unsafe` type

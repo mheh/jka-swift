@@ -297,7 +297,41 @@ class Channel:
                 "}",
                 "",
             ]
+            lines += self.buffer_overload(hook, store)
         return lines
+
+    def buffer_overload(self, hook: Hook, store: str) -> list[str]:
+        """The second overload of docket row 7, for a `void *` parameter Raven's own callers fill with a `char buf[N]`.
+
+        The buffer hands the engine its base inside one unsafe scope here, so a bg body passes the buffer bare and no `Unsafe`
+        type reaches a logic target. The first overload stays for a caller that holds a raw allocation."""
+        fills = [p for p in hook.crossing if p.swift == "OpaquePointer?" and self.table.fills_buffer(hook.name, p.name)]
+        if len(fills) != 1:
+            return []
+        buffer = fills[0]
+        signature = ", ".join(f"_ {p.name}: " + ("inout JKAShared.CharBuf" if p is buffer else t)
+                              for p, t in zip(hook.crossing, hook.bg_types()))
+        words = []
+        for p, t in zip(hook.crossing, hook.bg_types()):
+            if p is buffer:
+                words.append("OpaquePointer(base)")
+            elif t.startswith("inout "):
+                words.append(f"&{p.name}")
+            else:
+                words.append(p.name)
+        returns = f" -> {hook.bg_returns()}" if hook.bg_returns() else ""
+        self.counts["buffer overloads"] += 1
+        return [
+            f"/// Source: {hook.cite}",
+            f"/// Raven's `{buffer.name}` takes a `char buf[N]` at his own call sites, and this overload hands the engine that buffer's base.",
+        ] + (["@discardableResult"] if returns else []) + [
+            f"func {hook.name}({signature}){returns} {{",
+            f"    {'return ' if returns else ''}{buffer.name}.withUnsafeMutableRawPointer {{ base in",
+            f"        bg.{store}.{hook.name}({', '.join(words)})",
+            "    }",
+            "}",
+            "",
+        ]
 
     # MARK: - The game side
 

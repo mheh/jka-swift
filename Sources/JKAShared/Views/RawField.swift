@@ -32,6 +32,23 @@ extension UnsafeMutableRawPointer {
         }
     }
 
+    /// One byte at a byte offset, Raven's `b[i]` through a `char *` the pool or the engine owns.
+    /// The getter sign-extends the byte as C does for a signed `char`, and the setter truncates, as `CharBuf` does.
+    public subscript<I: BinaryInteger, T: BinaryInteger>(byte ofs: I) -> T {
+        get { T(truncatingIfNeeded: (self + ofs).loadUnaligned(as: Int8.self)) }
+        nonmutating set { (self + ofs).storeBytes(of: UInt8(truncatingIfNeeded: newValue), as: UInt8.self) }
+    }
+
+    /// The raw pointer a `char *` field holds at a byte offset, Raven's `*(char **)(b+ofs)`, and `nil` for a null field.
+    public subscript<I: BinaryInteger>(pointer ofs: I) -> UnsafeMutableRawPointer? {
+        get {
+            (self + ofs).loadUnaligned(as: UnsafeMutableRawPointer?.self)
+        }
+        nonmutating set {
+            (self + ofs).storeBytes(of: newValue, as: UnsafeMutableRawPointer?.self)
+        }
+    }
+
     /// The `PooledString` a `char *` field holds at a byte offset, `nil` for a null field.
     public subscript<I: BinaryInteger>(string ofs: I) -> PooledString? {
         get {

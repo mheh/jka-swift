@@ -599,12 +599,13 @@ class Drafter:
         if cast.kind != CursorKind.CSTYLE_CAST_EXPR:
             return None
         pointee = cast.type.get_canonical().get_pointee().get_canonical()
-        if pointee.kind in INT_KINDS and pointee.kind not in (TypeKind.CHAR_S, TypeKind.UCHAR):
+        # Raven's `qboolean` and his `vehicleType_t` are enums of four bytes, which Swift holds as the Int32 the `int` slot stores.
+        if pointee.kind == TypeKind.ENUM or (pointee.kind in INT_KINDS and pointee.kind not in (TypeKind.CHAR_S, TypeKind.UCHAR)):
             label = "int"
         elif pointee.kind == TypeKind.FLOAT:
             label = "float"
         elif pointee.kind == TypeKind.POINTER and pointee.get_pointee().get_canonical().kind == TypeKind.CHAR_S:
-            label = "string"
+            label = "pointer"
         else:
             return None
         sum_ = self.unwrap([k for k in cast.get_children() if k.kind.is_expression()][-1])
@@ -614,6 +615,12 @@ class Drafter:
         if not self.is_raw(base):
             return None
         return self.expr(base), label, self.converted(ofs, "Int32"), index
+
+    def raw_slot(self, raw: tuple[str, str, str, str | None], label: str | None = None) -> str:
+        """The labeled subscript of `RawField.swift` a raw store or a raw read spells, `b[int: f.ofs]` and `b[float: f.ofs, 1]`."""
+        base_text, own, ofs, index = raw
+        label = label or own
+        return f"{base_text}[{label}: {ofs}, {index}]" if index is not None else f"{base_text}[{label}: {ofs}]"
 
     def record_walk(self, cur: ci.Cursor) -> bool:
         """True for a parameter or a local Raven walks as an array of records, `animations[anim]`.
@@ -653,6 +660,10 @@ class Drafter:
             return inner.spelling in self.raw_locals
         if inner.kind == CursorKind.CALL_EXPR:
             return self.registry.returns.get(self.callee_name(inner) or "") == "UnsafeMutableRawPointer"
+        if inner.kind == CursorKind.UNARY_OPERATOR and self.operator_or_none_unary(inner) == "*":
+            # Raven's `*(char **)(b+ofs)` is the raw pointer the slot at that byte offset holds.
+            raw = self.raw_store(inner)
+            return raw is not None and raw[1] == "pointer"
         return False
 
     def cursor_names(self, fn: Function) -> tuple[dict[str, Cursor], dict[str, Cursor]]:
@@ -807,8 +818,21 @@ class Drafter:
         return "other"
 
     def raw_local_names(self, fn: ci.Cursor) -> set[str]:
-        """Every pointer-to-byte local whose every store is a raw pointer, by the stores of the function."""
+        """Every pointer-to-byte local whose every store is a raw pointer, by the stores of the function.
+
+        A declaration's own initializer is a store, so Raven's `byte *b = (byte *)vehWeapon` names the record's bytes."""
         stores: dict[str, list[bool]] = {}
+        for var in fn.walk_preorder():
+            if var.kind != CursorKind.VAR_DECL:
+                continue
+            t = var.type.get_canonical()
+            if t.kind != TypeKind.POINTER or t.get_pointee().get_canonical().kind not in (TypeKind.CHAR_S, TypeKind.UCHAR, TypeKind.CHAR_U, TypeKind.SCHAR):
+                continue
+            init = [c for c in var.get_children() if c.kind.is_expression() and b"=" in self.bytes[var.extent.start.offset:c.extent.start.offset]]
+            if not init:
+                continue
+            self.raw_locals = set()
+            stores.setdefault(var.spelling, []).append(self.is_raw(init[0]))
         for cur in fn.walk_preorder():
             kids = list(cur.get_children())
             if cur.kind != CursorKind.BINARY_OPERATOR or len(kids) != 2 or self.collapsed(cur) or self.operator_or_none(cur) != "=":
@@ -1060,7 +1084,9 @@ class Drafter:
                 if self.unwrap(left).kind == CursorKind.DECL_REF_EXPR and self.unwrap(left).spelling in self.local_holes:
                     raise Hole(f"A store into `{self.unwrap(left).spelling}`, a local the draft left as a hole.")
                 if op == "=" and self.unwrap(left).kind == CursorKind.ARRAY_SUBSCRIPT_EXPR and self.is_raw(list(self.unwrap(left).get_children())[0]):
-                    raise Hole("A byte store through a raw allocation, which RawField.swift has no subscript for.")
+                    # Raven's `tempReadBuffer[len] = 0` writes one byte of a raw allocation, which the `byte` slot of RawField.swift stores.
+                    base, index = list(self.unwrap(left).get_children())
+                    return [f"{pad}{self.expr(base)}[byte: {self.converted(index, 'Int32')}] = {self.converted(right, 'Int32')}" + self.trailing(cur)]
                 # 4. A byte store into a buffer takes the value as an Int32, which the CharBuf setter narrows.
                 if op == "=" and self.unwrap(left).kind == CursorKind.ARRAY_SUBSCRIPT_EXPR and self.is_charbuf(list(self.unwrap(left).get_children())[0]):
                     return [f"{pad}{self.expr(left)} = {self.converted(right, 'Int32')}" + self.trailing(cur)]
@@ -1083,11 +1109,13 @@ class Drafter:
                 raw = self.raw_store(left)
                 if raw is not None:
                     # Raven's `*(int *)(b+f->ofs) = v` is the labeled subscript of the raw pointer, one per C type, by RawField.swift.
-                    base_text, label, ofs, index = raw
+                    label = raw[1]
+                    if label == "pointer" and not self.is_raw(right):
+                        # Raven's `char *` field takes the pooled text the game hands back, which the `string` slot holds.
+                        label = "string"
                     swift = {"int": "Int32", "float": "Float"}.get(label)
                     value = self.converted(right, swift) if swift else self.expr(right)
-                    slot = f"{base_text}[{label}: {ofs}, {index}]" if index is not None else f"{base_text}[{label}: {ofs}]"
-                    return [f"{pad}{slot} {op} {value}" + self.trailing(cur)]
+                    return [f"{pad}{self.raw_slot(raw, label)} {op} {value}" + self.trailing(cur)]
                 if self.unwrap(left).kind == CursorKind.MEMBER_REF_EXPR:
                     fields, root, base_cur = self.game_chain(self.unwrap(left))
                     if root is not None and not self.sk.table.own_field(root, fields):
@@ -1421,6 +1449,9 @@ class Drafter:
             table, index = self.table_cursors[var.spelling]
             return f"var {index}: Int32 = 0"
         if var.spelling in self.raw_locals:
+            if init and self.view_bytes(init[0]):
+                self.pending.append(f"// Raven walks the record's bytes through `{name}`, "
+                                    "and the raw pointer over the view's slot is that walk, under rule 11.")
             return f"{keyword} {name}: UnsafeMutableRawPointer" + (f" = {self.expr(init[0])}" if init else "")
         if var.spelling in self.text_locals:
             # A text local Raven stores his NULL into is an optional text, and `nil` is that NULL.
@@ -1483,6 +1514,14 @@ class Drafter:
             # so the local starts at zero. The zero is the divergence rule 19 allows.
             return f"{keyword} {name}: {swift} = {'false' if swift == 'Bool' else '0'}"
         return f"{keyword} {name}: {swift}"
+
+    def view_bytes(self, cur: ci.Cursor) -> bool:
+        """True for Raven's `(byte *)vehWeapon`, the cast that walks one record's bytes through a view the port holds."""
+        inner = self.unwrap(cur)
+        if inner.kind != CursorKind.CSTYLE_CAST_EXPR:
+            return False
+        kids = [k for k in inner.get_children() if k.kind.is_expression()]
+        return bool(kids) and self.view_operand(kids[-1])
 
     def field_slot(self, cur: ci.Cursor) -> tuple[ci.Cursor, ci.Cursor | None] | None:
         """Raven's `x->name` or his `&x->name[n]` on a `char name[N]` field, as the field and the byte its text starts at, or None."""
@@ -1994,6 +2033,10 @@ class Drafter:
                 through_cursor = self.cursor_deref(operand)
                 if through_cursor is not None:
                     return through_cursor
+                raw = self.raw_store(cur)
+                if raw is not None:
+                    # Raven's `*(char **)(b+ofs)` reads the slot at that byte offset, the same subscript his store writes.
+                    return self.raw_slot(raw)
                 raise Hole("A pointer dereference the draft cannot place.")
             raise Hole(f"A {op} inside an expression.")
         if kind == CursorKind.BINARY_OPERATOR:
@@ -2360,6 +2403,10 @@ class Drafter:
                 return slots
         if self.is_raw(inner) and self.overload_takes(callee, position, "UnsafeMutableRawPointer"):
             # A raw pointer passes as it is to the overload that takes one, `strcpy(dest, source)`.
+            slot = self.raw_store(inner)
+            if slot is not None and slot[1] == "pointer":
+                # The slot at the byte offset is an optional raw pointer, and Raven's guard above it proved it is set.
+                return f"{self.raw_slot(slot)}!"
             return self.expr(inner)
         if inout and self.is_null(inner):
             tail = SCRATCH_ZEROS.get(param[1].replace("JKAShared.", "")) if param is not None else None
@@ -2405,6 +2452,9 @@ class Drafter:
             # The engine takes the raw allocation as a handle.
             return f"OpaquePointer({self.expr(inner)})"
         if param is not None and param[1] == "OpaquePointer?" and self.is_charbuf(inner):
+            if self.overload_takes(callee, position, "CharBuf"):
+                # The buffer goes to the overload of docket row 7, which hands the engine its base inside one unsafe scope.
+                return f"&{text}"
             raise Hole(f"Raven passes the buffer `{text}` to the engine as a handle, and the trap takes an OpaquePointer.")
         if param is not None and param[1] in TEXT_TYPES and self.is_charbuf(inner) and not self.overload_takes(callee, position, "CharBuf"):
             # A buffer into a String parameter crosses as the text it holds.

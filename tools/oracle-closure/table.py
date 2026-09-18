@@ -228,6 +228,9 @@ class Table:
         self.cursors: dict[tuple[str, str, str], Cursor] = {}
         # The file-scope buffers a write cursor points into, so the write sweep of the skeleton sees the write through the alias.
         self.alias_writes: set[str] = set()
+        # The (trap, parameter) pairs a caller fills with a `char[N]` buffer through Raven's `void *`, so the wrapper gets a
+        # second overload that takes the buffer itself.
+        self.buffer_traps: set[tuple[str, str]] = set()
 
     def sweep_reads(self, tu: ci.TranslationUnit, folder: Path) -> list[Read]:
         """Every game field a bg body reaches through a gentity_t, the level, or a cvar, as the reads the channel carries.
@@ -747,6 +750,48 @@ class Table:
             return False
         return (self.record_name_of(field.semantic_parent), field.spelling) in self.indexed_fields
 
+    # MARK: - The buffer sweep
+
+    def sweep_buffer_traps(self, tu: ci.TranslationUnit, *folders: Path) -> None:
+        """The call-site sweep of docket row 7: every trap parameter Raven declared `void *` that a caller fills with a `char[N]` buffer.
+
+        The wrapper keeps its `OpaquePointer?` parameter, because a raw caller passes a raw allocation there. It gains a second
+        overload that takes the buffer, so a body writes `trap_FS_Read(&BGPAFtext, len, f)` and no `Unsafe` type reaches a logic target.
+        The sweep reads the game unit and the cgame unit, the two units the port parses, because one bg body stands in both with
+        a different arm. A parameter no caller fills that way keeps the one spelling it has today."""
+        for cur in tu.cursor.get_children():
+            if cur.kind != CursorKind.FUNCTION_DECL or not cur.is_definition() or not cur.location.file:
+                continue
+            path = Path(cur.location.file.name).resolve()
+            if path.parent not in folders or path.suffix != ".c":
+                continue
+            for node in cur.walk_preorder():
+                if node.kind != CursorKind.CALL_EXPR:
+                    continue
+                callee = node.referenced
+                if callee is None or not callee.spelling.startswith("trap_"):
+                    continue
+                params = list(callee.get_arguments())
+                for i, arg in enumerate(node.get_arguments()):
+                    if i >= len(params):
+                        break
+                    declared = params[i].type.get_canonical()
+                    if declared.kind != TypeKind.POINTER or declared.get_pointee().get_canonical().kind != TypeKind.VOID:
+                        continue
+                    if self.char_buffer_argument(arg):
+                        self.buffer_traps.add((callee.spelling, params[i].spelling))
+
+    def char_buffer_argument(self, cur: ci.Cursor) -> bool:
+        """True for Raven's `char buf[N]` passed bare, the argument Swift holds as a `CharBuf`."""
+        element = self.unwrapped(cur).type.get_canonical()
+        if element.kind != TypeKind.CONSTANTARRAY:
+            return False
+        return element.element_type.get_canonical().kind in (TypeKind.CHAR_S, TypeKind.UCHAR, TypeKind.CHAR_U, TypeKind.SCHAR)
+
+    def fills_buffer(self, owner: str, name: str) -> bool:
+        """True when the buffer sweep saw a `char[N]` buffer go into this `void *` trap parameter."""
+        return (owner, name) in self.buffer_traps
+
     def sweep_returns(self, tu: ci.TranslationUnit, folder: Path) -> None:
         """The NULL sweep over returns: a function that returns `char *` and hands NULL back at any site returns a String?."""
         for cur in tu.cursor.get_children():
@@ -779,12 +824,14 @@ class Table:
         and so does a call from the cgame's own .c files.
         The store sweep, the text sweep, and the return sweep walk every .c file of the folder, because the body of the callee decides all three.
         The cursor sweep follows the text sweep, because a local's kind reads which callee writes through its own `char *` parameter.
-        The subscript sweep walks both units the same way the NULL sweep does, because a body has one arm in each of them."""
+        The subscript sweep and the buffer sweep walk both units the same way the NULL sweep does, because a body has one arm in each of them."""
         self.sweep_nulls(tu, folder)
         self.sweep_subscripts(tu, folder)
+        self.sweep_buffer_traps(tu, folder)
         if other is not None:
             self.sweep_nulls(other, folder, *([other_folder] if other_folder is not None else []))
             self.sweep_subscripts(other, folder, *([other_folder] if other_folder is not None else []))
+            self.sweep_buffer_traps(other, folder, *([other_folder] if other_folder is not None else []))
         self.sweep_stores(tu, folder)
         self.sweep_text(tu, folder)
         self.sweep_cursors(tu, folder)
