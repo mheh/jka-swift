@@ -295,13 +295,13 @@ private func Jedi_Strafe(_ strafeTimeMin: Int32, _ strafeTimeMax: Int32, _ nextS
 }
 
 /// Source: oracle/codemp/game/NPC_AI_Jedi.c:1969
-func Jedi_CheckFlipEvasions(_ `self`: Entity, _ rightdot: Float, _ zdiff: Float) -> evasionType_t {
+func Jedi_CheckFlipEvasions(_ `self`: Entity, _ rightdot: Float, _ zdiff: Float) -> JKAMP.evasionType_t {
     // TODO: Port Jedi_CheckFlipEvasions
     portMissing("Jedi_CheckFlipEvasions", source: "oracle/codemp/game/NPC_AI_Jedi.c:1969")
 }
 
 /// Source: oracle/codemp/game/NPC_AI_Jedi.c:2305
-func Jedi_ReCalcParryTime(_ `self`: Entity, _ evasionType: evasionType_t) -> Int32 {
+func Jedi_ReCalcParryTime(_ `self`: Entity, _ evasionType: JKAMP.evasionType_t) -> Int32 {
     // TODO: Port Jedi_ReCalcParryTime
     portMissing("Jedi_ReCalcParryTime", source: "oracle/codemp/game/NPC_AI_Jedi.c:2305")
 }
@@ -319,7 +319,7 @@ func Jedi_SaberBusy(_ `self`: Entity) -> Bool {
 }
 
 /// Source: oracle/codemp/game/NPC_AI_Jedi.c:2485
-func Jedi_SaberBlockGo(_ `self`: Entity, _ cmd: JKAMP.Usercmd, _ pHitloc: inout JKAShared.vec3_t, _ phitDir: inout JKAShared.vec3_t, _ incoming: Entity?, _ dist: Float) -> evasionType_t {
+func Jedi_SaberBlockGo(_ `self`: Entity, _ cmd: JKAMP.Usercmd, _ pHitloc: inout JKAShared.vec3_t, _ phitDir: inout JKAShared.vec3_t, _ incoming: Entity?, _ dist: Float) -> JKAMP.evasionType_t {
     // TODO: Port Jedi_SaberBlockGo
     portMissing("Jedi_SaberBlockGo", source: "oracle/codemp/game/NPC_AI_Jedi.c:2485")
 }

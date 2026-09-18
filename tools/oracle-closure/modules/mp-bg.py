@@ -2,10 +2,12 @@
 # so tier-named callers (crate mp_bg) resolve without knowing that.
 
 # The bg .c files include ghoul2/G2.h, which no module header reaches, so the entry lists it too.
+# bg_saber.c includes w_saber.h, and a bg body reads its constants, so the entry lists that header too. Two modules then emit it,
+# and merge.py places it at tree level, where the bg view target reaches its names.
 SPEC = dict(
     name="mp-bg",
     lang="c", entry=["codemp/game/q_shared.h", "codemp/game/bg_public.h", "codemp/game/bg_local.h",
-                     "codemp/game/bg_saga.h", "codemp/ghoul2/G2.h"],
+                     "codemp/game/bg_saga.h", "codemp/game/w_saber.h", "codemp/ghoul2/G2.h"],
     includes=["codemp/game"],
     defines=["NDEBUG", "MISSIONPACK", "QAGAME", "_JK2"],
     srcglob=["codemp/game/bg_*.c"],

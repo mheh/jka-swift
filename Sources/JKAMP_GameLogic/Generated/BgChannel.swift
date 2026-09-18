@@ -160,6 +160,9 @@ public func installBgChannel() {
     bg.callbacks.bgClientCmd = { ent in
         Entity(handle: ent.handle).client!.pers.cmd
     }
+    bg.callbacks.bgClientSaber = { entityNum, index in
+        g_entities[Int(entityNum)].client.map { $0.saber[Int(index)] }
+    }
     bg.callbacks.bgClientSessionTeam = { ent in
         Entity(handle: ent.handle).client!.sess.sessionTeam
     }
@@ -181,6 +184,9 @@ public func installBgChannel() {
     bg.callbacks.bgEntityInuse = { ent in
         Entity(handle: ent.handle).inuse
     }
+    bg.callbacks.bgEntityLegsAnim = { entityNum in
+        g_entities[Int(entityNum)].s.legsAnim
+    }
     bg.callbacks.bgEntityOwnerNum = { ent in
         Entity(handle: ent.handle).r.ownerNum
     }
@@ -189,6 +195,9 @@ public func installBgChannel() {
     }
     bg.callbacks.bgEntityTakedamage = { ent in
         Entity(handle: ent.handle).takedamage
+    }
+    bg.callbacks.bgEntityTorsoAnim = { entityNum in
+        g_entities[Int(entityNum)].s.torsoAnim
     }
     bg.callbacks.bgGametypeInteger = {
         g_gametype.integer

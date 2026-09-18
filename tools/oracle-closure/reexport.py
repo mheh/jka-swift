@@ -52,6 +52,8 @@ SCALARS = {
 # these is Int32 in Swift, and the view's setter stores the truncation C performs. The storage type stays what Raven wrote.
 NARROW = {TypeKind.SHORT, TypeKind.USHORT, TypeKind.SCHAR, TypeKind.UCHAR}
 
+ANSI = re.compile(r"\x1b\[[0-9;]*m")
+
 OPERATORS = {"(", "+", "-", "*", "/", "%", "|", "&", "^", "~", "<<", ">>", "!", "?", ":", "<", ">", "<=", ">=", "==", "!="}
 CLOSE = {")"}
 
@@ -284,8 +286,10 @@ def write(target: str, files: dict[str, list[str]]) -> int:
 def probe() -> set[str]:
     """The names of the generated declarations a build rejects, whatever the error, read from the failing lines."""
     run = subprocess.run(["swift", "build"], cwd=REPO, capture_output=True, text=True)
+    # The compiler colours `error:` even with no terminal, and the escapes sit between the location and the word.
+    log = ANSI.sub("", run.stdout + run.stderr)
     names: set[str] = set()
-    for path, line in re.findall(r"^(/\S+/Generated/\w+\.swift):(\d+):\d+: error:", run.stdout + run.stderr, re.M):
+    for path, line in re.findall(r"^(/\S+/Generated/\w+\.swift):(\d+):\d+: error:", log, re.M):
         text = Path(path).read_text().splitlines()[int(line) - 1]
         m = re.search(r"public let (\w+)", text)
         if m:

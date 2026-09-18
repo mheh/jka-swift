@@ -3,7 +3,7 @@
 #ifndef JKA_CODEMP_GAME_W_SABER_ENUM_FJ_FORWARD_H
 #define JKA_CODEMP_GAME_W_SABER_ENUM_FJ_FORWARD_H
 
-#include "CJKAMP_Game_forward.h"
+#include "CJKAMP_forward.h"
 
 // Source: oracle/codemp/game/w_saber.h:35
 typedef enum

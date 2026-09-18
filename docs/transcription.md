@@ -312,6 +312,10 @@ Its entry cites the cgame definition, and `installBgChannel()` skips it, because
 The same generator writes `Sources/JKAMP_BG/Generated/bg_callbacks.swift`, which holds one bare function per game function a bg body calls by name, each forwarding to a closure on `bg.callbacks`, the `BgCallbacks` struct, in the same shape.
 It also writes `Sources/JKAMP_GameLogic/Generated/BgChannel.swift`, whose `installBgChannel()` points every closure at the game function of the same name. A bg body spells `strap_G2API_SetBoneAngles(...)` and `G_NewString(...)` as Raven wrote them.
 The bg side of the channel names `JKAMP.BgEntity` where the game function takes an `Entity`, because the `Entity` view lives in the game target that bg cannot import. `installBgChannel()` turns the one into the other by its handle under rule 11.
+A game field a bg body reaches is on the channel as one read callback, and `installBgChannel()` reads that field through the game's own views.
+A read Raven wrote through the game's entity table takes his index, `bgEntityLegsAnim(of: ps.clientNum)`, because the bg side holds no entity for the slot.
+A read of one record of a table the game's entity owns takes the entity index and the record index, and hands back the view over that record, `bgClientSaber(of: clientNum, at: saberNum)`. The view is optional, because the game's `client` is NULL on an entity that holds no player.
+An object-like macro of a game header that a bg body reads is a constant of the shared module. `w_saber.h` is on the bg module's entry list for that reason, so `merge.py` places its macros in `CJKAMP`, and a bg body spells `SEF_LOCK_WON` bare.
 `vmCvar_t` has the view `VmCvar`, and `bg_fighterAltControl` is `var bg_fighterAltControl: VmCvar { bg.fighterAltControl }` in `bg_local.swift`, a view over the game's cvar memory, so a body reads `bg_fighterAltControl.integer`. Until the game's cvar storage exists, the default is a view over one zeroed `vmCvar_t` the state allocates, so `.integer` reads 0, Raven's default.
 
 ### A `char *` at runtime

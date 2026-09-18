@@ -48,6 +48,25 @@ struct BgChannelTests {
         bg = BgState()
     }
 
+    @Test("A read callback that hands back a view reaches the installed closure with both indexes")
+    func viewReadCallbackReachesClosure() {
+        let storage = UnsafeMutablePointer<UInt8>.allocate(capacity: 4096)
+        defer { storage.deallocate() }
+        let saber = JKAMP.SaberInfo(handle: OpaquePointer(storage))
+        var received: (Int32, Int32)?
+        bg.callbacks.bgClientSaber = { entityNum, index in
+            received = (entityNum, index)
+            return saber
+        }
+
+        let answer = bgClientSaber(of: 5, at: 1)
+
+        #expect(answer == saber)
+        #expect(received?.0 == 5)
+        #expect(received?.1 == 1)
+        bg = BgState()
+    }
+
     @Test("A call with nothing installed ends the process")
     func defaultClosureEndsTheProcess() async {
         await #expect(processExitsWith: .failure) {

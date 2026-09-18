@@ -91,7 +91,7 @@ class Hook:
         return ENTITY.sub("JKAMP.BgEntity", returns) if returns else None
 
     def signature(self) -> str:
-        return ", ".join(f"_ {p.name}: {t}" for p, t in zip(self.crossing, self.bg_types()))
+        return ", ".join(f"{p.label or '_'} {p.name}: {t}" for p, t in zip(self.crossing, self.bg_types()))
 
     def closure_type(self) -> str:
         return f"({', '.join(self.bg_types())}) -> {self.bg_returns() or 'Void'}"
@@ -248,6 +248,11 @@ class Channel:
             hook.install = read.install
             if read.entity:
                 hook.params.append(Param("ent", "JKAMP.BgEntity", "view"))
+            elif read.indexed:
+                # The game's entity table at an index, so the callback takes that index and the bg side holds no entity for it.
+                hook.params.append(Param("entityNum", "Int32", "bare", label="of"))
+                if read.at:
+                    hook.params.append(Param("index", "Int32", "bare", label="at"))
             if read.write:
                 hook.params.append(Param("value", read.swift, "bare"))
             else:

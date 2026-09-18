@@ -1631,12 +1631,34 @@ class Drafter:
             if fields[:2] == ["client", "ps"]:
                 return f"{self.base(kids[0])}.{swift_name(cur.spelling)}"
             args = head
+        elif root == "entities":
+            args = f"of: {self.entity_index_text(base)}"
         else:
             args = ""
         read = self.reads.get((root, tuple(fields), False))
         if read is None:
             raise Hole(f"Raven reaches the game's `{'.'.join(fields)}` here, and the channel has no read for it.")
+        if read.at:
+            raise Hole(f"Raven reaches the game's `{'.'.join(fields)}` here outside the index the read takes.")
         return f"{read.name}({args})"
+
+    def indexed_view_read(self, base: ci.Cursor) -> object | None:
+        """The read behind Raven's index into a game field of records, `ent->client->saber[n]`, or None for any other base."""
+        if base.kind != CursorKind.MEMBER_REF_EXPR:
+            return None
+        fields, root, _ = self.game_chain(base)
+        if root not in ("entity", "entities"):
+            return None
+        # The sweep roots a view-returning read at the entity index, whatever the entity expression Raven wrote.
+        read = self.reads.get(("entities", tuple(fields), False))
+        return read if read is not None and read.at else None
+
+    def entity_index_text(self, base: ci.Cursor) -> str:
+        """Raven's index into `g_entities`, at the slot or through the local he set to it, as the callback's `of:` argument."""
+        index = self.sk.table.entity_index(base)
+        if index is None:
+            raise Hole("Raven reaches the game's entity table here, and the draft cannot spell the index.")
+        return self.converted(index, "Int32")
 
     def array_declaration(self, var: ci.Cursor, init: list[ci.Cursor]) -> str:
         """A local array of scalars, `static int movementOffsets[8] = { ... }`, as a Swift array. A static array nothing writes is
@@ -1956,6 +1978,11 @@ class Drafter:
         if kind == CursorKind.ARRAY_SUBSCRIPT_EXPR:
             base, index = list(cur.get_children())
             inner_base = self.strip(base)
+            indexed = self.indexed_view_read(inner_base)
+            if indexed is not None:
+                # Raven's `ent->client->saber[n]` is one record of the game's table, and the callback takes both indexes.
+                args = f"of: {self.entity_index_text(self.game_chain(inner_base)[2])}, at: {self.converted(index, 'Int32')}"
+                return self.leaf(cur, f"{indexed.name}({args})")
             if inner_base.kind == CursorKind.DECL_REF_EXPR and inner_base.spelling in self.offset_cursors:
                 # A write cursor is a byte offset, so Raven's `p[i]` is the buffer's byte that far past it.
                 slot = f"{self.cursor_buffer(inner_base.spelling)}[{self.expr(inner_base)} + {self.converted(index, 'Int32')}]"
@@ -2158,6 +2185,11 @@ class Drafter:
         if inner.kind == CursorKind.CSTYLE_CAST_EXPR:
             kids = [k for k in inner.get_children() if k.kind.is_expression()]
             return bool(kids) and self.optional_base(kids[-1])
+        if inner.kind == CursorKind.ARRAY_SUBSCRIPT_EXPR:
+            kids = list(inner.get_children())
+            if kids and self.indexed_view_read(self.strip(kids[0])) is not None:
+                # The callback hands back the game's record, and the game's client is NULL on an entity that holds no player.
+                return True
         if not self.is_pointer(inner):
             return False
         if inner.kind == CursorKind.DECL_REF_EXPR:

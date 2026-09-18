@@ -17,6 +17,7 @@
 #include "codemp/game/bg_weapons/constants.h"
 #include "codemp/game/q_shared/constants.h"
 #include "codemp/game/surfaceflags/constants.h"
+#include "codemp/game/w_saber/constants.h"
 #include "codemp/ghoul2/G2/constants.h"
 #include "codemp/cgame/tr_types/color4ub_t.h"
 #include "codemp/cgame/tr_types/enum_STEREO_CENTER.h"
@@ -156,6 +157,8 @@
 #include "codemp/game/teams/class_t.h"
 #include "codemp/game/teams/enum_NPCTEAM_FREE.h"
 #include "codemp/game/teams/npcteam_t.h"
+#include "codemp/game/w_saber/enum_FJ_FORWARD.h"
+#include "codemp/game/w_saber/evasionType_t.h"
 #include "bg_tables.h"
 
 #endif // JKA_CJKAMP_H

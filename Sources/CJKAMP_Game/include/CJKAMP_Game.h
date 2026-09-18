@@ -75,7 +75,6 @@
 #include "codemp/game/g_weapon_c/constants.h"
 #include "codemp/game/tri_coll_test_c/constants.h"
 #include "codemp/game/w_force_c/constants.h"
-#include "codemp/game/w_saber/constants.h"
 #include "codemp/game/w_saber_c/constants.h"
 #include "codemp/game/ai/AIGroupInfo_t.h"
 #include "codemp/game/ai/AIGroupMember_t.h"
@@ -157,8 +156,6 @@
 #include "codemp/game/g_public/sharedEntity_t.h"
 #include "codemp/game/g_public/taskID_t.h"
 #include "codemp/game/say/saying_t.h"
-#include "codemp/game/w_saber/enum_FJ_FORWARD.h"
-#include "codemp/game/w_saber/evasionType_t.h"
 #include "g_types.h"
 
 #endif // JKA_CJKAMP_GAME_H

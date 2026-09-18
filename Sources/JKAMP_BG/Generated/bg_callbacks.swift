@@ -93,6 +93,9 @@ public struct BgCallbacks {
     /// Source: oracle/codemp/game/bg_pmove.c:10957
     public var bgClientCmd: (JKAMP.BgEntity) -> JKAMP.Usercmd = { _ in portMissing("bgClientCmd", source: "oracle/codemp/game/bg_pmove.c:10957") }
 
+    /// Source: oracle/codemp/game/bg_saber.c:4107
+    public var bgClientSaber: (Int32, Int32) -> JKAMP.SaberInfo? = { _, _ in portMissing("bgClientSaber", source: "oracle/codemp/game/bg_saber.c:4107") }
+
     /// Source: oracle/codemp/game/bg_pmove.c:4256
     public var bgClientSessionTeam: (JKAMP.BgEntity) -> JKAMP.team_t = { _ in portMissing("bgClientSessionTeam", source: "oracle/codemp/game/bg_pmove.c:4256") }
 
@@ -114,6 +117,9 @@ public struct BgCallbacks {
     /// Source: oracle/codemp/game/bg_pmove.c:4243
     public var bgEntityInuse: (JKAMP.BgEntity) -> Bool = { _ in portMissing("bgEntityInuse", source: "oracle/codemp/game/bg_pmove.c:4243") }
 
+    /// Source: oracle/codemp/game/bg_panimate.c:2611
+    public var bgEntityLegsAnim: (Int32) -> Int32 = { _ in portMissing("bgEntityLegsAnim", source: "oracle/codemp/game/bg_panimate.c:2611") }
+
     /// Source: oracle/codemp/game/bg_slidemove.c:61
     public var bgEntityOwnerNum: (JKAMP.BgEntity) -> Int32 = { _ in portMissing("bgEntityOwnerNum", source: "oracle/codemp/game/bg_slidemove.c:61") }
 
@@ -122,6 +128,9 @@ public struct BgCallbacks {
 
     /// Source: oracle/codemp/game/bg_slidemove.c:429
     public var bgEntityTakedamage: (JKAMP.BgEntity) -> Bool = { _ in portMissing("bgEntityTakedamage", source: "oracle/codemp/game/bg_slidemove.c:429") }
+
+    /// Source: oracle/codemp/game/bg_panimate.c:2678
+    public var bgEntityTorsoAnim: (Int32) -> Int32 = { _ in portMissing("bgEntityTorsoAnim", source: "oracle/codemp/game/bg_panimate.c:2678") }
 
     /// Source: oracle/codemp/game/bg_pmove.c:4254
     public var bgGametypeInteger: () -> Int32 = { portMissing("bgGametypeInteger", source: "oracle/codemp/game/bg_pmove.c:4254") }
@@ -303,6 +312,12 @@ func bgClientCmd(_ ent: JKAMP.BgEntity) -> JKAMP.Usercmd {
     bg.callbacks.bgClientCmd(ent)
 }
 
+/// Source: oracle/codemp/game/bg_saber.c:4107
+@discardableResult
+func bgClientSaber(of entityNum: Int32, at index: Int32) -> JKAMP.SaberInfo? {
+    bg.callbacks.bgClientSaber(entityNum, index)
+}
+
 /// Source: oracle/codemp/game/bg_pmove.c:4256
 @discardableResult
 func bgClientSessionTeam(_ ent: JKAMP.BgEntity) -> JKAMP.team_t {
@@ -345,6 +360,12 @@ func bgEntityInuse(_ ent: JKAMP.BgEntity) -> Bool {
     bg.callbacks.bgEntityInuse(ent)
 }
 
+/// Source: oracle/codemp/game/bg_panimate.c:2611
+@discardableResult
+func bgEntityLegsAnim(of entityNum: Int32) -> Int32 {
+    bg.callbacks.bgEntityLegsAnim(entityNum)
+}
+
 /// Source: oracle/codemp/game/bg_slidemove.c:61
 @discardableResult
 func bgEntityOwnerNum(_ ent: JKAMP.BgEntity) -> Int32 {
@@ -361,6 +382,12 @@ func bgEntitySpawnflags(_ ent: JKAMP.BgEntity) -> Int32 {
 @discardableResult
 func bgEntityTakedamage(_ ent: JKAMP.BgEntity) -> Bool {
     bg.callbacks.bgEntityTakedamage(ent)
+}
+
+/// Source: oracle/codemp/game/bg_panimate.c:2678
+@discardableResult
+func bgEntityTorsoAnim(of entityNum: Int32) -> Int32 {
+    bg.callbacks.bgEntityTorsoAnim(entityNum)
 }
 
 /// Source: oracle/codemp/game/bg_pmove.c:4254

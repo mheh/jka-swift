@@ -40,11 +40,13 @@ def swift_name(name: str) -> str:
 class Param:
     """One parameter as the table maps it. `kind` picks the emission, `swift` is the type in the signature."""
 
-    def __init__(self, name: str, swift: str | None, kind: str, size: str | None = None) -> None:
+    def __init__(self, name: str, swift: str | None, kind: str, size: str | None = None, label: str | None = None) -> None:
         self.name = swift_name(name)
         self.swift = swift
         self.kind = kind
         self.size = size
+        # The argument label a generated signature writes before the name. A parameter with none takes Raven's bare call shape.
+        self.label = label
 
     def word(self) -> str:
         if self.kind == "out_string":
@@ -149,12 +151,14 @@ class Read:
     """One game field a bg body reaches: the root kind, the field path, the Swift type, and whether the body writes it.
     The channel writes one callback per read, and the draft calls it, by the hole walk's row 1."""
 
-    def __init__(self, root: str, path: tuple[str, ...], swift: str, write: bool, cite: str) -> None:
+    def __init__(self, root: str, path: tuple[str, ...], swift: str, write: bool, cite: str, at: bool = False) -> None:
         self.root = root
         self.path = path
         self.swift = swift
         self.write = write
         self.cite = cite
+        # True when the field is an array of records and the read hands back the one record at a second index.
+        self.at = at
         self.name = self.short_name()
 
     @property
@@ -165,8 +169,13 @@ class Read:
     def entity(self) -> bool:
         return self.root == "entity"
 
+    @property
+    def indexed(self) -> bool:
+        """True when the root is the game's entity table at an index, so the callback takes that index and no view."""
+        return self.root == "entities"
+
     def short_name(self) -> str:
-        if self.root == "entity":
+        if self.root in ("entity", "entities"):
             stem = ("Client" if self.path[0] == "client" else "Entity") + capitalized(self.path[-1])
         elif self.root == "level":
             stem = "Level" + capitalized(self.path[-1])
@@ -175,7 +184,8 @@ class Read:
         return ("bgSet" if self.write else "bg") + stem
 
     def long_name(self) -> str:
-        head = {"entity": "Entity", "level": "Level"}.get(self.root, capitalized(self.root.removeprefix("cvar:").removeprefix("g_")))
+        head = {"entity": "Entity", "entities": "EntityAt", "level": "Level"}.get(
+            self.root, capitalized(self.root.removeprefix("cvar:").removeprefix("g_")))
         return ("bgSet" if self.write else "bg") + head + "".join(capitalized(f) for f in self.path)
 
     @property
@@ -183,6 +193,13 @@ class Read:
         """The game's expression for the read, over its own views, which the install closure runs."""
         if self.root == "entity":
             text = "Entity(handle: ent.handle)." + ".".join("client!" if f == "client" else f for f in self.path)
+        elif self.root == "entities" and self.at and self.path[0] == "client":
+            # The game's client is NULL on an entity that holds no player, so the record at the index comes back optional.
+            return f"g_entities[Int(entityNum)].client.map {{ $0.{'.'.join(self.path[1:])}[Int(index)] }}"
+        elif self.root == "entities" and self.at:
+            text = f"g_entities[Int(entityNum)].{'.'.join(self.path)}[Int(index)]"
+        elif self.root == "entities":
+            text = "g_entities[Int(entityNum)]." + ".".join("client!" if f == "client" else f for f in self.path)
         elif self.root == "level":
             text = "level." + ".".join(self.path)
         else:
@@ -260,12 +277,25 @@ class Table:
                 fields, root = self.chain(node, consumed)
                 if root is None or self.own_field(root, fields):
                     continue
+                at = False
                 swift = self.views.scalar(node.type, TARGET)
                 if swift is None and self.views.is_vec3(node.type):
                     swift = "JKAShared.vec3_t"
                 elif swift is None and node.type.get_canonical().kind == TypeKind.POINTER \
                         and node.type.get_canonical().get_pointee().get_canonical().kind == TypeKind.CHAR_S:
                     swift = "JKAShared.PooledString?"
+                elif swift is None and node.type.get_canonical().kind == TypeKind.CONSTANTARRAY:
+                    # Raven reads one record of an array of records, `ent->client->saber[n]`, so the read takes that index too and
+                    # hands back the view over the game's record. Such a read reaches the entity by Raven's own index, because the
+                    # bg side holds no entity of its own for the record, and the game's client is NULL, so the view is optional.
+                    record = self.views.record_name(node.type.get_canonical().get_array_element_type().get_canonical())
+                    if not record or record not in self.views.views:
+                        continue
+                    if root == "entity" and self.entity_index(self.root_of(node)) is None:
+                        continue
+                    root = "entities"
+                    swift = self.views.qualified_view(record, TARGET) + "?"
+                    at = True
                 elif swift is None:
                     # A record the views cover crosses as its view, `&client->pers.cmd` as the Usercmd over the game's memory.
                     record = self.views.record_name(node.type.get_canonical())
@@ -275,7 +305,7 @@ class Table:
                 write = span in writes
                 key = (root, tuple(fields), write)
                 if key not in reads:
-                    reads[key] = Read(root, tuple(fields), swift, write, f"oracle/codemp/game/{path.stem}.c:{node.location.line}")
+                    reads[key] = Read(root, tuple(fields), swift, write, f"oracle/codemp/game/{path.stem}.c:{node.location.line}", at=at)
         # Two reads with one short name take their long names, so each callback names one path.
         by_name: dict[str, list[Read]] = {}
         for read in reads.values():
@@ -295,8 +325,43 @@ class Table:
             cur = kids[0]
         return cur
 
+    @classmethod
+    def entity_slot_index(cls, cur: ci.Cursor) -> ci.Cursor | None:
+        """The index expression of `g_entities[n]`, the game's entity table at a slot, or None for any other expression."""
+        if cur.kind != CursorKind.ARRAY_SUBSCRIPT_EXPR:
+            return None
+        kids = list(cur.get_children())
+        return kids[1] if len(kids) == 2 and cls.unwrapped(kids[0]).spelling == "g_entities" else None
+
+    @classmethod
+    def entity_index(cls, cur: ci.Cursor) -> ci.Cursor | None:
+        """The index of `g_entities[n]` behind an expression: the slot itself, or a local Raven set to `&g_entities[n]`."""
+        slot = cls.entity_slot_index(cur)
+        if slot is not None:
+            return slot
+        if cur.kind != CursorKind.DECL_REF_EXPR or cur.referenced is None or cur.referenced.kind != CursorKind.VAR_DECL:
+            return None
+        init = [k for k in cur.referenced.get_children() if k.kind.is_expression()]
+        if not init:
+            return None
+        address = cls.unwrapped(init[-1])
+        if address.kind != CursorKind.UNARY_OPERATOR:
+            return None
+        operand = list(address.get_children())
+        return cls.entity_index(cls.unwrapped(operand[0])) if len(operand) == 1 else None
+
+    @classmethod
+    def root_of(cls, node: ci.Cursor) -> ci.Cursor:
+        """The expression a member chain stands on, `g_entities[n]` under `g_entities[n].s.legsAnim`."""
+        while node.kind == CursorKind.MEMBER_REF_EXPR:
+            node = cls.unwrapped(list(node.get_children())[0])
+        return node
+
     def chain(self, node: ci.Cursor, consumed: set[tuple[int, int]]) -> tuple[list[str], str | None]:
-        """The field path of a member chain, outermost last, and the kind of its root: an entity, the level, a cvar, or None."""
+        """The field path of a member chain, outermost last, and the kind of its root: an entity, the level, a cvar, or None.
+
+        A slot of the file-scope `g_entities` is the `entities` root, the second root of the read sweep, and its callback
+        takes Raven's index. Any other entity expression is the `entity` root, whose callback takes the bg entity itself."""
         fields: list[str] = []
         cur = node
         while cur.kind == CursorKind.MEMBER_REF_EXPR:
@@ -310,7 +375,7 @@ class Table:
             t = t.get_pointee().get_canonical()
         record = self.views.record_name(t)
         if record == "gentity_t":
-            return fields, "entity"
+            return fields, "entities" if self.entity_slot_index(cur) is not None else "entity"
         if cur.kind == CursorKind.DECL_REF_EXPR and cur.referenced is not None and cur.referenced.semantic_parent is not None \
                 and cur.referenced.semantic_parent.kind == CursorKind.TRANSLATION_UNIT:
             if record == "level_locals_t":
