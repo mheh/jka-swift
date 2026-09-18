@@ -33,6 +33,7 @@ from clang.cindex import CursorKind, TypeKind
 import closure as C
 import reexport
 from fnsweep import binop_assign_op, rhs_function, root_var
+from overlay import MACROS, written_arguments
 from reexport import REPO, SOURCES
 from rulings import HAND_MACROS, HAND_VARS, LIBC_FUNCTIONS, NEVER_NULL_VARS, NOT_PORTED, RETURNS
 from table import Param, SourceFile, Table, swift_name
@@ -239,9 +240,10 @@ class Skeleton:
                 else:
                     continue
             var = Variable(cur, path.stem)
-            self.map_variable(var)
             text = self.declaration_text(var)
+            # The map reads whether Raven wrote an initializer, so the flag is set before the map.
             var.data = "=" in text and "{" in text.split("=", 1)[1]
+            self.map_variable(var)
             self.variables[path.stem].append(var)
             by_name[var.name].append(var)
         owners: dict[str, set[str]] = defaultdict(set)
@@ -263,9 +265,16 @@ class Skeleton:
                     if kids:
                         self.note_write(kids[0], by_name)
             elif node.kind == CursorKind.CALL_EXPR:
-                # An array passed by name decays to a pointer the callee may write through.
-                for arg in list(node.get_children())[1:]:
-                    self.note_write(arg, by_name, arrays_only=True)
+                arguments = list(node.get_children())[1:]
+                if node.spelling in MACROS:
+                    # The overlay's template says which argument one of Raven's macros writes, so the source of a `VectorCopy` is a read.
+                    for i in written_arguments(node.spelling):
+                        if i < len(arguments):
+                            self.note_write(arguments[i], by_name, arrays_only=True)
+                else:
+                    # An array passed by name decays to a pointer the callee may write through.
+                    for arg in arguments:
+                        self.note_write(arg, by_name, arrays_only=True)
             for child in node.get_children():
                 written(child)
 
@@ -415,6 +424,14 @@ class Skeleton:
             var.swift = f"Slots<{var.view}>" if depth else var.view
             return
         if self.table.views.is_vec3(t) or (depth and "vec3_t" in t.spelling):
+            if depth and not self.table.views.is_vec3(t) and var.data and target_of(var.stem) != SHARED:
+                # Raven's table of vectors is data, so it takes the shape every data table of the module takes:
+                # C storage in the tree's C target with his initializer as written, read as a Slots over that array.
+                # The shared module holds its own tables by hand, because the tree's C target is not its own.
+                var.reason = "storage"
+                var.count = canonical.element_count
+                var.swift = "Slots<JKAShared.vec3_t>"
+                return
             var.swift = "JKAShared.vec3_t" if not depth or self.table.views.is_vec3(t) else "[JKAShared.vec3_t]"
             return
         if element.kind == TypeKind.POINTER:

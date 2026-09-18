@@ -7,6 +7,8 @@
 extern gitem_t bg_itemlist[52];
 // Source: oracle/codemp/game/bg_misc.c:1771
 extern int bg_numItems;
+// Source: oracle/codemp/game/bg_weapons.c:10
+extern vec3_t WP_MuzzlePoint[WP_NUM_WEAPONS];
 // Source: oracle/codemp/game/bg_weapons.c:31
 extern weaponData_t weaponData[WP_NUM_WEAPONS];
 // Source: oracle/codemp/game/bg_weapons.c:358

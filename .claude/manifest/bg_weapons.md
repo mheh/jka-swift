@@ -12,6 +12,6 @@ The oracle range is the whole definition, from the return type to the closing br
 
 | Variable | Oracle | Kind | Entry |
 |---|---|---|---|
-| `WP_MuzzlePoint` | `oracle/codemp/game/bg_weapons.c:10` | state_data | `}` |
+| `WP_MuzzlePoint` | `oracle/codemp/game/bg_weapons.c:10` | storage_data | `// Raven's data table is C storage by hand in the C target, with his initializer as written, reached as a Slots over the C array, the bg_tables.c shape.` |
 | `weaponData` | `oracle/codemp/game/bg_weapons.c:31` | storage_data | `// Raven's data table is C storage by hand in the C target, with his initializer as written, reached as a Slots over the C array, the bg_tables.c shape.` |
 | `ammoData` | `oracle/codemp/game/bg_weapons.c:358` | storage_data | `// Raven's data table is C storage by hand in the C target, with his initializer as written, reached as a Slots over the C array, the bg_tables.c shape.` |

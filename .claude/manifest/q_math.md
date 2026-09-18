@@ -87,5 +87,5 @@ The oracle range is the whole definition, from the return type to the closing br
 | `colorLtBlue` | `oracle/codemp/game/q_math.c:23` | let | `let colorLtBlue: [Float] = { () -> [Float] in portMissing("colorLtBlue", source: "oracle/codemp/game/q_math.c:23") }()` |
 | `colorDkBlue` | `oracle/codemp/game/q_math.c:24` | let | `let colorDkBlue: [Float] = { () -> [Float] in portMissing("colorDkBlue", source: "oracle/codemp/game/q_math.c:24") }()` |
 | `g_color_table` | `oracle/codemp/game/q_math.c:26` | let | `let g_color_table: [[Float]] = { () -> [[Float]] in portMissing("g_color_table", source: "oracle/codemp/game/q_math.c:26") }()` |
-| `bytedirs` | `oracle/codemp/game/q_math.c:39` | state_data | `// Rule 3: a stored property of the shared module's owner with Raven's initializer.` |
+| `bytedirs` | `oracle/codemp/game/q_math.c:39` | let | `let bytedirs: [JKAShared.vec3_t] = { () -> [JKAShared.vec3_t] in portMissing("bytedirs", source: "oracle/codemp/game/q_math.c:39") }()` |
 | `holdrand` | `oracle/codemp/game/q_math.c:1432` | state | `// Rule 3: a stored property of the shared module's owner with Raven's initializer.` |

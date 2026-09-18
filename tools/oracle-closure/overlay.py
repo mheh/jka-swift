@@ -25,6 +25,28 @@ MACROS = {
     "min": ("min({0}, {1})", ()),
     "max": ("max({0}, {1})", ()),
 }
+
+
+def address_arguments(name: str) -> set[int]:
+    """The argument positions the Swift form of a macro takes by address, the `&{3}` of `VectorMA`.
+    Two such positions over one array conflict, because Swift holds both as `inout`."""
+    template = MACROS[name][0]
+    return {i for i in range(template.count("{")) if f"&{{{i}}}" in template}
+
+
+def written_arguments(name: str) -> set[int]:
+    """The argument positions a macro writes: the destination of its assignment, and every position it takes by address.
+    `VectorCopy` is `{1} = {0}`, so it writes argument 1 and reads argument 0.
+    A caller that sees a write in any argument of a call reads this set first, so a source argument of a macro is not a write."""
+    template = MACROS[name][0]
+    written = address_arguments(name)
+    head, assignment, _ = template.partition("=")
+    destination = head.strip()
+    if assignment and destination.startswith("{") and destination.endswith("}"):
+        written.add(int(destination[1:-1]))
+    return written
+
+
 # The C return type each function takes in the overlay, so the use keeps the type Raven's expression had.
 MACRO_RETURNS = {"DotProduct": "float", "Q_fabs": "float", "DEG2RAD": "float", "RAD2DEG": "float", "ANGLE2SHORT": "int",
                  "SHORT2ANGLE": "float", "min": "float", "max": "float"}

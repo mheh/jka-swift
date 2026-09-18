@@ -983,6 +983,28 @@ Only in One Flag CTF games
 
 int		bg_numItems = sizeof(bg_itemlist) / sizeof(bg_itemlist[0]) - 1;
 
+// Source: oracle/codemp/game/bg_weapons.c:10-29
+vec3_t WP_MuzzlePoint[WP_NUM_WEAPONS] = 
+{//	Fwd,	right,	up.
+	{0,		0,		0	},	// WP_NONE,
+	{0	,	8,		0	},	// WP_STUN_BATON,
+	{0	,	8,		0	},	// WP_MELEE,
+	{8	,	16,		0	},	// WP_SABER,				 
+	{12,	6,		-6	},	// WP_BRYAR_PISTOL,
+	{12,	6,		-6	},	// WP_BLASTER,
+	{12,	6,		-6	},	// WP_DISRUPTOR,
+	{12,	2,		-6	},	// WP_BOWCASTER,
+	{12,	4.5,	-6	},	// WP_REPEATER,
+	{12,	6,		-6	},	// WP_DEMP2,
+	{12,	6,		-6	},	// WP_FLECHETTE,
+	{12,	8,		-4	},	// WP_ROCKET_LAUNCHER,
+	{12,	0,		-4	},	// WP_THERMAL,
+	{12,	0,		-10	},	// WP_TRIP_MINE,
+	{12,	0,		-4	},	// WP_DET_PACK,
+	{12,	6,		-6	},	// WP_CONCUSSION
+	{12,	6,		-6	},	// WP_BRYAR_OLD,
+};
+
 // Source: oracle/codemp/game/bg_weapons.c:31-356
 weaponData_t weaponData[WP_NUM_WEAPONS] = 
 {

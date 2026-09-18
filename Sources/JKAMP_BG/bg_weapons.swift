@@ -5,11 +5,9 @@ import JKAMP
 import JKAShared
 
 /// Source: oracle/codemp/game/bg_weapons.c:10
-/// Raven's data table, a hand property of `BgState`.
-var WP_MuzzlePoint: [JKAShared.vec3_t] {
-    get { bg.WP_MuzzlePoint }
-    set { bg.WP_MuzzlePoint = newValue }
-}
+// TODO: Port global WP_MuzzlePoint
+// Raven wrote: vec3_t WP_MuzzlePoint[WP_NUM_WEAPONS]
+// Raven's data table is C storage by hand in the C target, with his initializer as written, reached as a Slots over the C array, the bg_tables.c shape.
 
 /// Source: oracle/codemp/game/bg_weapons.c:31
 // TODO: Port global weaponData

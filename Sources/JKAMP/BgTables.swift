@@ -9,6 +9,11 @@ public nonisolated(unsafe) let bg_itemlist: Slots<Gitem> = makeItemList()
 /// Source: oracle/codemp/game/bg_misc.c:1771
 public let bg_numItems: Int32 = CJKAMP.bg_numItems
 
+/// Raven's muzzle offset table, over the C storage of `Sources/CJKAMP/bg_tables.c`.
+/// The three components of a row are forward, right, and up.
+/// Source: oracle/codemp/game/bg_weapons.c:10
+public nonisolated(unsafe) let WP_MuzzlePoint: Slots<JKAShared.vec3_t> = makeWPMuzzlePoint()
+
 /// Raven's per-weapon table, over the C storage of `Sources/CJKAMP/bg_tables.c`.
 /// Source: oracle/codemp/game/bg_weapons.c:31
 public nonisolated(unsafe) let weaponData: Slots<WeaponData> = makeWeaponData()
@@ -72,6 +77,12 @@ private func makeItemList() -> Slots<Gitem> {
     let base = withUnsafeMutablePointer(to: &CJKAMP.bg_itemlist) { UnsafeMutableRawPointer($0) }
     let count = MemoryLayout.size(ofValue: CJKAMP.bg_itemlist) / Gitem.stride
     return Slots(views: base, count: count, stride: Gitem.stride)
+}
+
+private func makeWPMuzzlePoint() -> Slots<JKAShared.vec3_t> {
+    let base = withUnsafeMutablePointer(to: &CJKAMP.WP_MuzzlePoint) { UnsafeMutableRawPointer($0) }
+    let count = MemoryLayout.size(ofValue: CJKAMP.WP_MuzzlePoint) / MemoryLayout<(Float, Float, Float)>.stride
+    return Slots(vectors: base, count: count)
 }
 
 private func makeWeaponData() -> Slots<WeaponData> {

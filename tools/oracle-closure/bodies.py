@@ -48,7 +48,7 @@ SCRATCH_ZEROS = {"inout vec3_t": "= JKAShared.vec3_t(0, 0, 0)", "inout Int32": "
 COMMENT = re.compile(r"//[^\n]*|/\*.*?\*/", re.S)
 NUMBER = re.compile(r"-?\s*((\d+(\.\d*)?|\.\d+)([eE][-+]?\d+)?[fFuUlL]*|0[xX][0-9a-fA-F]+[uUlL]*)")
 IDENTIFIER = re.compile(r"[A-Za-z_]\w*")
-from overlay import DROPPED, MACROS, MACRO_RETURNS, RECORD_CALLS, UNDEFINED
+from overlay import DROPPED, MACROS, MACRO_RETURNS, RECORD_CALLS, UNDEFINED, address_arguments
 
 FUNC_LINE = re.compile(r"func\s+`?(\w+)`?\s*\((.*)\)")
 FUNC_HEAD = re.compile(r"func\s+`?(\w+)`?\s*\(")
@@ -2340,7 +2340,7 @@ class Drafter:
             return []
         name = callee.spelling
         # Two inout slots of one array conflict. A by-value slot beside an inout one does not, because Swift copies it before the call.
-        positions = {i for i in range(len(kids) - 1) if f"&{{{i}}}" in MACROS[name][0]} if name in MACROS else self.inout_positions(name)
+        positions = address_arguments(name) if name in MACROS else self.inout_positions(name)
         slots: list[tuple[str, str, str]] = []
         for i, arg in enumerate(kids[1:]):
             inner = self.strip(arg)
