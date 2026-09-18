@@ -36,3 +36,13 @@ The one parse moved generated output, so three rows closed on 2026-09-18 during 
 **Row B.** trap_G2API_SetRagDoll takes its params parameter as optional. The NULL sweep proves over every caller the port parses, game and cgame, and a cgame caller passes NULL.
 
 **Row C.** The skeleton's write walk reads the overlay's macro templates. For a callee in the macro table, only a destination argument counts as a write. Any other callee keeps the conservative default, where an array argument is a write. WP_MuzzlePoint and bytedirs are VectorCopy sources, so they stay unwritten, and WP_MuzzlePoint takes the shape of every Raven data table of the module, C storage in bg_tables.c with a Slots bind, instead of state on BgState. Landed as 0c17ad2.
+
+## Rulings during the build of change 3
+
+Change 3 landed as 8738e1d. One row closed after it on 2026-09-18.
+
+| Row | Subject | Verdict |
+|---|---|---|
+| D | The local sweep on first read | replaced: in memory, no writing to disk |
+
+**Row D.** sweep_locals computes a function's local facts on the first read of that function and holds them in memory on the Table, so a generator that never reads them pays nothing and the drafter pays for one stem alone. Table stays the one owner and the one key. Nothing is written to disk.
