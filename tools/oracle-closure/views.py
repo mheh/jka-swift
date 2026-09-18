@@ -5,8 +5,8 @@ Rule 3: ABI-crossing state lives in C memory the world owns, and Swift reaches i
 nonmutating setters, one view type per file. Rule 13: the accessors are generated whole and regenerated whole.
 
 The roots are gentity_t, gclient_t, and level_locals_t in JKAMP_Game and playerState_t in JKAMP. Every struct a root reaches by
-value, by array, or by pointer gets a view in the target that owns its header. The conversion table of struct-views.md row 2 maps
-each C field shape to one Swift property type, with no per-field exception:
+value, by array, or by pointer gets a view in the target that owns its header. spelling.py maps each C field shape to one Swift
+property type by the conversion table of struct-views.md row 2, with no per-field exception, and this file writes the accessor over it:
 
   int, float, unsigned         Int32, Float, UInt32
   scalar typedef               the re-exported typealias
@@ -39,8 +39,9 @@ import clang.cindex as ci
 from clang.cindex import CursorKind, TypeKind
 
 import closure as C
-from reexport import DEPS, GAME_TARGET, NARROW, SCALARS, SOURCES, VIEW_OF, source_lines
+from reexport import DEPS, GAME_TARGET, SCALARS, SOURCES, VIEW_OF, source_lines
 from rulings import NEVER_NULL, ROOTS
+from spelling import Types
 
 # Every C target the game module's translation unit reaches, most specific first.
 TARGETS = [GAME_TARGET, "CJKAMP", "CJKAShared"]
@@ -57,6 +58,8 @@ class Generator:
         self.typedef_of: dict[str, str] = {}
         self.enums: set[str] = set()
         self.declared: dict[str, str] = self.scan_declared()
+        # The one owner of the type question. Every generator reaches it through the generator it already holds.
+        self.types = Types(parse, self)
         self.views: dict[str, tuple[str, str]] = {}
         self.callbacks: dict[tuple[str, str], str] = {}
         self.todo = 0
@@ -107,15 +110,8 @@ class Generator:
         return base[0].upper() + base[1:]
 
     def record_name(self, t: ci.Type) -> str | None:
-        """The typedef name of a struct type, or its tag when Raven gave it no typedef, or None for a non-struct."""
-        decl = t.get_canonical().get_declaration()
-        if decl.kind != CursorKind.STRUCT_DECL:
-            return None
-        if t.kind == TypeKind.ELABORATED:
-            t = t.get_named_type()
-        if t.kind == TypeKind.TYPEDEF:
-            return t.spelling
-        return self.typedef_of.get(decl.spelling, decl.spelling)
+        """The typedef name of a struct type, for skeleton.py, which reaches the answer through the table it holds. spelling.py owns it."""
+        return self.types.record_name(t)
 
     def reach(self, c_name: str, view: str, target: str) -> None:
         """Adds the view of one struct and walks its fields for the structs they reach."""
@@ -134,13 +130,13 @@ class Generator:
         canonical = t.get_canonical()
         if canonical.kind == TypeKind.POINTER:
             pointee = canonical.get_pointee()
-            name = self.record_name(pointee)
+            name = self.types.record_name(pointee)
             if name and name in self.records:
                 self.reach(name, self.view_name(name), self.target_of(self.records[name]))
         elif canonical.kind == TypeKind.CONSTANTARRAY:
             self.reach_type(canonical.element_type)
         elif canonical.kind == TypeKind.RECORD:
-            name = self.record_name(t)
+            name = self.types.record_name(t)
             if name and name in self.records:
                 self.reach(name, self.view_name(name), self.target_of(self.records[name]))
 
@@ -154,82 +150,50 @@ class Generator:
         return name
 
     def scalar(self, t: ci.Type, target: str) -> str | None:
-        """The Swift type of a scalar field: the re-exported typealias, the enum alias, or the builtin."""
-        if t.kind == TypeKind.ELABORATED:
-            t = t.get_named_type()
-        if t.kind == TypeKind.TYPEDEF:
-            name = t.spelling
-            if name == "qboolean":
-                return "Bool"
-            if name in self.enums or name in self.declared and self.declared[name] and name != "vec_t":
-                return self.qualified(name, target)
-            return self.scalar(t.get_declaration().underlying_typedef_type, target)
-        if t.kind == TypeKind.ENUM:
-            name = t.spelling.replace("enum ", "")
-            return "Bool" if name == "qboolean" else self.qualified(name, target)
-        return SCALARS.get(t.kind)
-
-    def narrow(self, t: ci.Type) -> str | None:
-        """The storage type of a C integer narrower than int, `Int16` for a `short`, or None for any other type."""
-        canonical = t.get_canonical()
-        return SCALARS[canonical.kind] if canonical.kind in NARROW else None
+        """The Swift type of a scalar field, for skeleton.py and rosetta.py, which reach the answer through the generator they hold.
+        spelling.py owns it."""
+        return self.types.scalar(t, target)
 
     def element(self, t: ci.Type, target: str, address: str, field: ci.Cursor | None = None) -> tuple[str, str] | None:
         """The Swift element type and the Slots initializer call for an array field whose elements sit at `address`, a raw pointer.
+        spelling.py answers the field role, and the kind of its answer picks the Slots the accessor writes.
         The field cursor, when given, lets a char array's inner bound keep the macro name Raven wrote."""
-        canonical = t.get_canonical()
-        if canonical.kind == TypeKind.POINTER:
-            pointee = canonical.get_pointee()
-            name = self.record_name(pointee)
-            if pointee.get_canonical().kind == TypeKind.CHAR_S:
-                return "PooledString?", f"Slots(strings: {address}, count: {{count}})"
-            if name and name in self.views:
-                return f"{self.qualified_view(name, target)}?", f"Slots(pointers: {address}, count: {{count}})"
-            return "OpaquePointer?", f"Slots(opaque: {address}, count: {{count}})"
-        if canonical.kind == TypeKind.RECORD:
-            name = self.record_name(t)
-            if name and name in self.views:
-                return self.qualified_view(name, target), f"Slots(views: {address}, count: {{count}}, stride: MemoryLayout<{name}>.stride)"
+        answer = self.types.answer("field", t, target=target)
+        if answer is None:
             return None
-        if canonical.kind == TypeKind.CONSTANTARRAY:
-            inner_count = canonical.element_count
+        if answer.kind == "strings":
+            return answer.swift, f"Slots(strings: {address}, count: {{count}})"
+        if answer.kind == "pointers":
+            return answer.swift, f"Slots(pointers: {address}, count: {{count}})"
+        if answer.kind == "opaque":
+            return answer.swift, f"Slots(opaque: {address}, count: {{count}})"
+        if answer.kind == "views":
+            name = self.types.record_name(t)
+            return answer.swift, f"Slots(views: {address}, count: {{count}}, stride: MemoryLayout<{name}>.stride)"
+        if answer.kind == "vectors":
+            return answer.swift, f"Slots(vectors: {address}, count: {{count}})"
+        if answer.kind == "cstrings":
+            inner_count = t.get_canonical().element_count
+            capacity = self.bound(field, target, 1, inner_count) if field is not None else str(inner_count)
+            return answer.swift, f"Slots(cStrings: {address}, count: {{count}}, capacity: {capacity})"
+        if answer.kind == "rows":
+            inner_count = t.get_canonical().element_count
             inner_c = self.element_type(t)
-            if inner_c.get_canonical().kind == TypeKind.CHAR_S:
-                capacity = self.bound(field, target, 1, inner_count) if field is not None else str(inner_count)
-                return "String", f"Slots(cStrings: {address}, count: {{count}}, capacity: {capacity})"
-            if self.is_vec3(inner_c):
-                return "JKAShared.vec3_t", f"Slots(vectors: {address}, count: {{count}})"
             inner = self.element(inner_c, target, "$0")
             if inner is None:
                 return None
             inner_type, inner_call = inner
             inner_call = inner_call.replace("{count}", str(inner_count))
-            stride = f"{inner_count} * MemoryLayout<{self.storage(inner_c, target)}>.stride"
+            stride = f"{inner_count} * MemoryLayout<{self.types.storage(inner_c, target)}>.stride"
             return f"Slots<{inner_type}>", f"Slots(rows: {address}, count: {{count}}, stride: {stride}) {{ {inner_call} }}"
-        if self.is_vec3(t):
-            return "JKAShared.vec3_t", f"Slots(vectors: {address}, count: {{count}})"
-        swift = self.scalar(t, target)
-        if swift is None:
-            return None
-        if swift == "Bool":
-            return "Bool", f"Slots(flags: {address}, count: {{count}})"
-        return swift, f"Slots<{swift}>(scalars: {address}, count: {{count}})"
+        if answer.kind == "flags":
+            return answer.swift, f"Slots(flags: {address}, count: {{count}})"
+        return answer.swift, f"Slots<{answer.swift}>(scalars: {address}, count: {{count}})"
 
     def element_type(self, t: ci.Type) -> ci.Type:
         """The element type of an array with its typedef kept, so a `vec3_t` element still reads as one."""
         named = t.get_named_type() if t.kind == TypeKind.ELABORATED else t
         return named.element_type if named.kind == TypeKind.CONSTANTARRAY else t.get_canonical().element_type
-
-    def storage(self, t: ci.Type, target: str) -> str:
-        """The Swift spelling of a C element's storage, for a MemoryLayout stride, so a row stride is right on every triple."""
-        canonical = t.get_canonical()
-        if canonical.kind == TypeKind.POINTER:
-            return "UnsafeRawPointer?"
-        if canonical.kind == TypeKind.RECORD:
-            return self.record_name(t) or canonical.spelling
-        if canonical.kind == TypeKind.ENUM:
-            return "Int32"
-        return SCALARS.get(canonical.kind, "Int32") if self.scalar(t, target) != "Bool" else "UInt32"
 
     def is_vec3(self, t: ci.Type) -> bool:
         named = t.get_named_type() if t.kind == TypeKind.ELABORATED else t
@@ -258,7 +222,7 @@ class Generator:
                     return self.property(name, "PooledString?", f"PooledString(raw: {pointee}.map {{ UnsafeMutablePointer(mutating: $0) }})",
                                          f"{pointee} = UnsafePointer(newValue?.raw)")
                 return self.property(name, "PooledString?", f"PooledString(raw: {pointee})", f"{pointee} = newValue?.raw")
-            record = self.record_name(inner)
+            record = self.types.record_name(inner)
             if record and record in self.views:
                 view = self.qualified_view(record, target)
                 if self.never_null(field):
@@ -302,17 +266,17 @@ class Generator:
             element_type, call = mapped
             return [f"    public var {name}: Slots<{element_type}> {{ {call.replace('{count}', str(count))} }}"]
         if canonical.kind == TypeKind.RECORD:
-            record = self.record_name(t)
+            record = self.types.record_name(t)
             if record and record in self.views:
                 view = self.qualified_view(record, target)
                 return [f"    public var {name}: {view} {{ {view}(handle: OpaquePointer(self.raw.pointer(to: \\.{name})!)) }}"]
             return None
-        swift = self.scalar(t, target)
+        swift = self.types.scalar(t, target)
         if swift is None:
             return None
         if swift == "Bool":
             return self.property(name, "Bool", f"{pointee} != qfalse", f"{pointee} = newValue ? qtrue : qfalse")
-        storage = self.narrow(t)
+        storage = self.types.narrow(t)
         if storage is not None:
             # C widens the field to int at every read, so the getter does, and the setter truncates as C's store does.
             return self.property(name, "Int32", f"Int32({pointee})", f"{pointee} = {storage}(truncatingIfNeeded: newValue)")
@@ -361,11 +325,11 @@ class Generator:
 
     def c_name_of(self, t: ci.Type) -> str:
         """The C spelling of a record type, the name a store through a pointer field binds the memory to."""
-        return self.record_name(t) or t.get_canonical().spelling
+        return self.types.record_name(t) or t.get_canonical().spelling
 
     def indexed(self, field: ci.Cursor) -> bool:
         """True when the subscript sweep of table.py read a body that indexes this field, `pm->animations[anim]`."""
-        owner = self.record_name(field.semantic_parent.type) or field.semantic_parent.spelling
+        owner = self.types.record_name(field.semantic_parent.type) or field.semantic_parent.spelling
         return (owner, field.spelling) in self.indexed_fields
 
     def slots(self, field: ci.Cursor, view: str, c_name: str) -> list[str]:
@@ -390,7 +354,7 @@ class Generator:
         ]
 
     def never_null(self, field: ci.Cursor) -> bool:
-        owner = self.record_name(field.semantic_parent.type) or field.semantic_parent.spelling
+        owner = self.types.record_name(field.semantic_parent.type) or field.semantic_parent.spelling
         return (owner, field.spelling) in NEVER_NULL
 
     def trapping(self, name: str, swift: str, get: str, set_: str) -> list[str]:
@@ -413,12 +377,12 @@ class Generator:
         for arg in proto.argument_types():
             if arg.get_canonical().kind == TypeKind.POINTER:
                 c_params.append("OpaquePointer?")
-            elif self.scalar(arg, target) == "Bool":
+            elif self.types.scalar(arg, target) == "Bool":
                 c_params.append("Int32")
             else:
-                c_params.append(self.scalar(arg, target) or "Int32")
+                c_params.append(self.types.scalar(arg, target) or "Int32")
         result = proto.get_result()
-        returns = self.scalar(result, target) if result.get_canonical().kind != TypeKind.VOID else None
+        returns = self.types.scalar(result, target) if result.get_canonical().kind != TypeKind.VOID else None
         c_result = "Int32" if returns == "Bool" else returns or "Void"
         return f"@convention(c) ({', '.join(c_params)}) -> {c_result}"
 
@@ -439,22 +403,22 @@ class Generator:
         """A stored function keeps the C type. The typealias per signature and the run method per field are collected for one file."""
         name = field.spelling
         proto = field.type.get_canonical().get_pointee()
-        view = self.views[self.record_name(field.semantic_parent.type) or field.semantic_parent.spelling][0]
+        view = self.views[self.types.record_name(field.semantic_parent.type) or field.semantic_parent.spelling][0]
         alias = f"{view}{name[0].upper()}{name[1:]}"
         names = [c.spelling or f"p{i}" for i, c in enumerate(c for c in field.get_children() if c.kind == CursorKind.PARM_DECL)]
         params: list[str] = []
         args: list[str] = []
         layers: list[str] = []
-        owner = self.record_name(field.semantic_parent.type) or field.semantic_parent.spelling
+        owner = self.types.record_name(field.semantic_parent.type) or field.semantic_parent.spelling
         arg_types = list(proto.argument_types())
-        first_record = self.record_name(arg_types[0].get_canonical().get_pointee()) if arg_types and arg_types[0].get_canonical().kind == TypeKind.POINTER else None
+        first_record = self.types.record_name(arg_types[0].get_canonical().get_pointee()) if arg_types and arg_types[0].get_canonical().kind == TypeKind.POINTER else None
         owner_first = first_record == owner
         for i, arg in enumerate(arg_types):
             canonical = arg.get_canonical()
             label = names[i] if i < len(names) else f"p{i}"
             if canonical.kind == TypeKind.POINTER:
                 pointee = canonical.get_pointee()
-                record = self.record_name(pointee)
+                record = self.types.record_name(pointee)
                 if record in self.views:
                     params.append(f"_ {label}: {self.qualified_view(record, target)}?")
                     args.append(f"{label}?.handle")
@@ -470,16 +434,16 @@ class Generator:
                 else:
                     params.append(f"_ {label}: OpaquePointer?")
                     args.append(label)
-            elif self.scalar(arg, target) == "Bool":
+            elif self.types.scalar(arg, target) == "Bool":
                 # Rule 7: qboolean is Bool at the surface, and its C shape is a four-byte enum, so Int32 in the thunk's signature.
                 params.append(f"_ {label}: Bool")
                 args.append(f"{label} ? 1 : 0")
             else:
-                swift = self.scalar(arg, target) or "Int32"
+                swift = self.types.scalar(arg, target) or "Int32"
                 params.append(f"_ {label}: {swift}")
                 args.append(label)
         result = proto.get_result()
-        returns = self.scalar(result, target) if result.get_canonical().kind != TypeKind.VOID else None
+        returns = self.types.scalar(result, target) if result.get_canonical().kind != TypeKind.VOID else None
         self.callbacks[(target, alias)] = self.c_signature(proto, target)
         # When Raven's first parameter is the owner, the run method passes this slot and takes the rest.
         # Otherwise every parameter is the caller's, as `pm->trace(&trace, start, ...)` is.

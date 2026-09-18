@@ -24,7 +24,7 @@ from pathlib import Path
 import clang.cindex as ci
 from clang.cindex import CursorKind, TypeKind
 
-from table import INT_KINDS
+from spelling import Facts, INT_KINDS, UNSIGNED
 
 from reexport import SOURCES
 from rulings import HAND_VARS, NEVER_NULL_VARS
@@ -139,6 +139,8 @@ class Drafter:
     def __init__(self, sk: Skeleton, registry: Registry) -> None:
         self.sk = sk
         self.views = sk.table.views
+        # The one owner of the type question, which the table holds.
+        self.types = sk.table.types
         self.registry = registry
         self.holes = 0
         # The locals a hole declares, so a later error on one of them counts as a cascade of the hole, not a new defect.
@@ -306,14 +308,14 @@ class Drafter:
         t = vars_[0].type.get_canonical()
         if t.kind != TypeKind.RECORD:
             return None
-        record = self.views.record_name(t)
+        record = self.types.record_name(t)
         return vars_[0] if record and record in self.views.views else None
 
     def scratch(self, decl: ci.Cursor, var: ci.Cursor, rest: list[ci.Cursor], last_line: int, depth: int) -> list[str]:
         """Raven's block from the record local on, as the closure of the view's scratch helper. A return inside the block is
         the closure's value, and the body acts on it after the closure, by "A scratch C struct on the stack"."""
         pad = INDENT * depth
-        view = self.views.qualified_view(self.views.record_name(var.type.get_canonical()), TARGET)
+        view = self.views.qualified_view(self.types.record_name(var.type.get_canonical()), TARGET)
         name = swift_name(var.spelling)
         init = [c for c in var.get_children() if c.kind.is_expression() and b"=" in self.bytes[var.extent.start.offset:c.extent.start.offset]]
         if not init and rest and self.record_store(rest[0], var):
@@ -562,10 +564,10 @@ class Drafter:
         canonical = t.get_canonical()
         if canonical.kind == TypeKind.CONSTANTARRAY and canonical.element_type.get_canonical().kind == TypeKind.CHAR_S:
             return str(canonical.element_count)
-        record = self.views.record_name(canonical)
+        record = self.types.record_name(canonical)
         if record and record in self.views.views:
             return f"Int32({self.views.qualified_view(record, TARGET)}.byteCount)"
-        swift = self.views.scalar(t, TARGET)
+        swift = self.types.scalar(t, TARGET)
         if swift is not None:
             return f"Int32(MemoryLayout<{swift}>.size)"
         raise Hole(f"A sizeof of `{t.spelling}` the draft cannot size.")
@@ -635,7 +637,7 @@ class Drafter:
         t = cur.type.get_canonical()
         if t.kind != TypeKind.POINTER:
             return False
-        record = self.views.record_name(t.get_pointee())
+        record = self.types.record_name(t.get_pointee())
         return bool(record) and record in self.views.views
 
     def view_operand(self, cur: ci.Cursor) -> bool:
@@ -953,7 +955,7 @@ class Drafter:
         canonical = t.get_canonical()
         if canonical.kind != TypeKind.RECORD:
             return False
-        record = self.views.record_name(canonical)
+        record = self.types.record_name(canonical)
         return bool(record) and record in self.views.views
 
     def is_call(self, cur: ci.Cursor) -> bool:
@@ -1171,7 +1173,7 @@ class Drafter:
                     return [f"{pad}{target} = Int32({self.wrapped(right, 'Double')})" + self.trailing(cur)]
                 if op != "=" and lhs_kind == "Int32" and self.has_double_literal(right):
                     return [f"{pad}{target} = Int32(Double({target}) {op[:-1]} {self.wrapped(right, 'Double')})" + self.trailing(cur)]
-                if op != "=" and lhs_kind == "Int32" and self.number_kind(self.strip(right).type) == "Float":
+                if op != "=" and lhs_kind == "Int32" and self.types.number_kind(self.strip(right).type) == "Float":
                     # C computes in float and truncates at the store.
                     return [f"{pad}{target} = Int32(Float({target}) {op[:-1]} {self.expr(right)})" + self.trailing(cur)]
                 if unsigned is not None and not self.is_literal(right):
@@ -1473,7 +1475,7 @@ class Drafter:
             # A write cursor is the byte offset of row 47, because a write through a TextCursor would never reach Raven's buffer.
             return f"var {name}: Int32 = {self.cursor_offset(init[0]) if init else '0'}"
         if t.get_canonical().kind == TypeKind.POINTER:
-            record = self.views.record_name(t.get_canonical().get_pointee())
+            record = self.types.record_name(t.get_canonical().get_pointee())
             if record == "gentity_t" and target_of(self.fn.stem) == BG:
                 # Raven's `gentity_t *` local in a bg file is the bg entity it came from, and the game's fields go through the channel.
                 if not init:
@@ -1502,10 +1504,10 @@ class Drafter:
                     return f"{keyword} {name}: {view}? = {self.expr(init[0])}"
                 return f"var {name}: {view}?"
             raise Hole(f"A pointer local `{t.spelling} {var.spelling}` with no view.")
-        swift = self.views.scalar(t, TARGET)
+        swift = self.types.scalar(t, TARGET)
         if swift is None:
             raise Hole(f"A local `{t.spelling} {var.spelling}` the table has no type for.")
-        if self.views.narrow(t) is not None:
+        if self.types.narrow(t) is not None:
             swift = "Int32"
         if init:
             return f"{keyword} {name}: {swift} = {self.converted(init[0], swift)}"
@@ -1665,10 +1667,10 @@ class Drafter:
         a constant table, the same value on every call, and a static array a statement writes is storage that outlives the call."""
         name = swift_name(var.spelling)
         t = var.type.get_canonical()
-        element = self.views.scalar(t.element_type, TARGET)
+        element = self.types.scalar(t.element_type, TARGET)
         if element is None:
             raise Hole(f"A local `{var.type.spelling} {var.spelling}` the table has no type for.")
-        if self.views.narrow(t.element_type) is not None:
+        if self.types.narrow(t.element_type) is not None:
             element = "Int32"
         written = var.spelling in self.written
         if var.storage_class == ci.StorageClass.STATIC and written:
@@ -1728,18 +1730,9 @@ class Drafter:
         return cur
 
     def swift_type_of(self, cur: ci.Cursor) -> str | None:
-        """`Bool` for a qboolean, `Float` or `Int32` for a number, so a store converts its right side as C does."""
-        if self.is_bool(cur):
-            return "Bool"
-        return self.number_kind(self.strip(cur).type)
-
-    def number_kind(self, t: ci.Type) -> str | None:
-        kind = t.get_canonical().kind
-        if kind in (TypeKind.FLOAT, TypeKind.DOUBLE):
-            return "Float"
-        if kind in INT_KINDS or kind in (TypeKind.ENUM, TypeKind.CHAR_S, TypeKind.SCHAR, TypeKind.UCHAR, TypeKind.CHAR_U):
-            return "Int32"
-        return None
+        """The Swift type of an expression, as spelling.py answers the expression role over the kind the body already knows."""
+        answer = self.types.answer("expression", self.strip(cur).type, Facts(is_bool=self.is_bool(cur)))
+        return None if answer is None else answer.swift
 
     def is_literal(self, cur: ci.Cursor) -> bool:
         """A number Raven spelled as digits, which Swift types by context. A macro name is a typed constant, not a literal."""
@@ -1748,20 +1741,18 @@ class Drafter:
         return NUMBER.fullmatch(text) is not None
 
     def converted(self, cur: ci.Cursor, swift: str) -> str:
-        """An expression stored where Swift wants `swift`: `Float(x)` for an integer into a float, `Int32(x)` the other way,
-        and a literal or a matching kind as it is."""
-        have = self.number_kind(self.strip(cur).type)
-        if swift in ("Float", "Int32") and self.is_bool(cur):
+        """An expression stored where Swift wants `swift`. spelling.py names the crossing, and the words under it are Raven's own."""
+        answer = self.types.crossing(self.strip(cur).type, swift,
+                                     Facts(is_bool=self.is_bool(cur), is_literal=self.is_literal(cur),
+                                           named_leaf=self.unwrap(cur).kind in self.NAMED_LEAVES))
+        if answer.kind == "bool_to_number":
             text = self.expr(cur)
             if text in ("true", "false"):
                 return "1" if text == "true" else "0"
             return f"({text} ? 1 : 0)"
-        if swift in ("Float", "Int32") and have is not None and have != swift and not self.is_literal(cur):
-            return f"{swift}({self.expr(cur)})"
-        if swift == "Int32" and self.unsigned_of(cur) is not None and self.unwrap(cur).kind in self.NAMED_LEAVES:
-            # C passes an unsigned int where an int is due, and the bits stay the same.
-            return f"Int32(bitPattern: {self.expr(cur)})" if self.unsigned_of(cur) == "UInt32" else f"Int32(truncatingIfNeeded: {self.expr(cur)})"
-        return self.coerced(cur, swift)
+        if answer.kind == "coerce":
+            return self.coerced(cur, swift)
+        return answer.crossing.format(text=self.expr(cur))
 
     def empty_test(self, cur: ci.Cursor) -> str | None:
         """The Swift name of a String parameter under Raven's `s[0]`, or None."""
@@ -1800,8 +1791,7 @@ class Drafter:
             return param.kind == "inout_charbuf"
         if inner.spelling in self.charbuf_locals:
             return True
-        t = inner.type.get_canonical()
-        return t.kind == TypeKind.CONSTANTARRAY and t.element_type.get_canonical().kind == TypeKind.CHAR_S
+        return self.types.is_char_array(inner.type)
 
     def is_bool(self, cur: ci.Cursor) -> bool:
         """True when the expression already is a Swift Bool: a comparison, a logical operator, a `!`, qtrue, qfalse, or a qboolean."""
@@ -1821,7 +1811,7 @@ class Drafter:
         return cur.type.spelling.replace("const ", "") == "qboolean"
 
     def is_pointer(self, cur: ci.Cursor) -> bool:
-        return self.strip(cur).type.get_canonical().kind == TypeKind.POINTER
+        return self.types.is_pointer(self.strip(cur).type)
 
     def condition(self, cur: ci.Cursor) -> str:
         """A C truth test as a Swift Bool: a Bool as it is, a pointer against nil, a number against 0."""
@@ -1899,7 +1889,6 @@ class Drafter:
             return f"({text})"
         return text
 
-    UNSIGNED = {"UInt", "UInt8", "UInt16", "UInt32", "UInt64"}
     NAMED_LEAVES = (CursorKind.DECL_REF_EXPR, CursorKind.MEMBER_REF_EXPR, CursorKind.ARRAY_SUBSCRIPT_EXPR)
 
     def has_double_literal(self, cur: ci.Cursor) -> bool:
@@ -1912,10 +1901,8 @@ class Drafter:
         return False
 
     def unsigned_of(self, cur: ci.Cursor) -> str | None:
-        """The unsigned Swift type of the expression, when the views spell its C type unsigned.
-        A view widens a byte or a short to Int32, so a narrow unsigned reads as signed arithmetic, as C's promotion does."""
-        swift = self.views.scalar(self.strip(cur).type, TARGET)
-        return swift if swift in self.UNSIGNED and swift not in ("UInt8", "UInt16") else None
+        """The unsigned Swift type of the expression, as spelling.py spells its C type."""
+        return self.types.unsigned(self.strip(cur).type, TARGET)
 
     def wrapped(self, cur: ci.Cursor, wrap: str) -> str:
         """The expression with `wrap(...)` on each numeric leaf that is not a literal."""
@@ -1928,11 +1915,11 @@ class Drafter:
 
     def leaf(self, cur: ci.Cursor, text: str) -> str:
         """A leaf of an expression, wrapped when a conversion is open and the leaf is a number Swift types on its own."""
-        if self.leaf_wrap is None or self.number_kind(cur.type) is None:
+        if self.leaf_wrap is None or self.types.number_kind(cur.type) is None:
             return text
-        if self.leaf_wrap in self.UNSIGNED and self.unsigned_of(cur) is not None:
+        if self.leaf_wrap in UNSIGNED and self.unsigned_of(cur) is not None:
             return text
-        if self.leaf_wrap in self.UNSIGNED and not self.is_literal(cur):
+        if self.leaf_wrap in UNSIGNED and not self.is_literal(cur):
             # A signed value into unsigned arithmetic keeps its bits, as C's conversion does.
             return f"{self.leaf_wrap}(bitPattern: Int({text}))" if self.leaf_wrap == "UInt" else f"{self.leaf_wrap}(bitPattern: {text})"
         return f"{self.leaf_wrap}({text})"
@@ -2227,7 +2214,7 @@ class Drafter:
             return returns is None or returns.endswith("?")
         if inner.kind == CursorKind.ARRAY_SUBSCRIPT_EXPR:
             # A slot of an array of struct pointers is a `Slots<View?>` element, so it is optional.
-            return self.views.record_name(inner.type.get_canonical().get_pointee()) is not None
+            return self.types.record_name(inner.type.get_canonical().get_pointee()) is not None
         return False
 
     def base(self, cur: ci.Cursor) -> str:
@@ -2250,7 +2237,7 @@ class Drafter:
             return f"{self.base(kids[0])}.{swift_name(cur.spelling)}Vector"
         if field is not None and field.kind == CursorKind.FIELD_DECL:
             t = field.type.get_canonical()
-            if t.kind == TypeKind.POINTER and self.views.scalar(t.get_pointee(), TARGET) is not None and t.get_pointee().get_canonical().kind != TypeKind.CHAR_S:
+            if t.kind == TypeKind.POINTER and self.types.scalar(t.get_pointee(), TARGET) is not None and t.get_pointee().get_canonical().kind != TypeKind.CHAR_S:
                 text = self.bytes[cur.extent.start.offset:cur.extent.end.offset].decode("utf-8", "replace")
                 raise Hole(f"Raven reads `{text}`, a `{field.type.spelling}` field. The generated field is an `OpaquePointer?`, and rule 11 keeps a pointer out of a logic target.")
         return f"{self.base(kids[0])}.{swift_name(cur.spelling)}"
@@ -2603,7 +2590,7 @@ class Drafter:
         t = var.type.get_canonical()
         if t.kind != TypeKind.POINTER:
             return False
-        record = self.views.record_name(t.get_pointee())
+        record = self.types.record_name(t.get_pointee())
         return bool(record) and record in self.views.views
 
     def table_expression(self, cur: ci.Cursor) -> bool:
@@ -2784,7 +2771,7 @@ class Drafter:
         t = ref.type.get_canonical()
         if t.kind != TypeKind.POINTER:
             return False
-        record = self.views.record_name(t.get_pointee())
+        record = self.types.record_name(t.get_pointee())
         return bool(record) and record in self.views.views
 
     def reachable(self, record: str) -> None:
@@ -2803,7 +2790,7 @@ class Drafter:
             stride = self.stride_walk(operand)
             if stride is not None:
                 return stride
-            if target_of(self.fn.stem) == BG and self.views.record_name(canonical.get_pointee()) == "gentity_t":
+            if target_of(self.fn.stem) == BG and self.types.record_name(canonical.get_pointee()) == "gentity_t":
                 # The game converts by handle at the channel, so the cast to the game's entity drops, by the hole walk's row 1.
                 if self.is_raw(operand):
                     # A raw allocation cast to the entity is the bg view over those bytes, the head every entity shares.
@@ -2819,18 +2806,18 @@ class Drafter:
                     and canonical.get_pointee().get_canonical().get_pointee().get_canonical().kind == TypeKind.CHAR_S:
                 # Raven's `(const char **)&p` is the address of a cursor, which the plain `&p` shape already passes.
                 return self.expr(self.unwrap(operand))
-            record = self.views.record_name(canonical.get_pointee())
+            record = self.types.record_name(canonical.get_pointee())
             if record and record in self.views.views:
                 self.reachable(record)
-                if self.views.record_name(self.strip(operand).type.get_canonical().get_pointee()) == record:
+                if self.types.record_name(self.strip(operand).type.get_canonical().get_pointee()) == record:
                     # A cast to the type the operand already has is Raven's habit, and the view is the same view.
                     return self.expr(operand)
                 return f"{self.views.qualified_view(record, TARGET)}({self.expr(operand)})"
             raise Hole(f"A cast to `{target.spelling}` the draft has no view for.")
-        swift = self.views.scalar(target, TARGET)
+        swift = self.types.scalar(target, TARGET)
         if swift is None:
             raise Hole(f"A cast to `{target.spelling}` the table has no type for.")
-        if self.views.narrow(target) is not None:
+        if self.types.narrow(target) is not None:
             swift = "Int32"
         if swift in ("Int32", "Float") and self.is_bool(operand):
             # Raven's `(int)` on a qboolean is the Bool as a number.
