@@ -16,11 +16,11 @@ from clang.cindex import TypeKind
 from clang.cindex import CursorKind
 
 import closure as C
-from reexport import SCALARS
+from reexport import GAME_TARGET, SCALARS
 from rulings import PARAMS, RETURNS, TYPES
 from views import Generator
 
-TARGET = "CJKAMP_Game"
+TARGET = GAME_TARGET
 BUILTINS = set(SCALARS.values()) | {"Bool", "Float", "Int32"}
 INT_KINDS = {TypeKind.INT, TypeKind.UINT, TypeKind.LONG, TypeKind.ULONG, TypeKind.SHORT, TypeKind.USHORT}
 # The vector typedefs JKAShared spells as SIMD types, so a parameter of one is the vector itself, never a pointer.
@@ -225,8 +225,9 @@ class Cursor:
 
 
 class Table:
-    def __init__(self, views: Generator | None = None) -> None:
-        self.views = views if views is not None else Generator(None)
+    def __init__(self, parse: C.Parse, views: Generator | None = None) -> None:
+        self.parse = parse
+        self.views = views if views is not None else Generator(parse, None)
         # The (function, parameter) pairs a bg body passes NULL or 0 to, so the wrapper takes the parameter as optional.
         self.nullable: set[tuple[str, str]] = set()
         # The functions the NULL sweep saw a call to, so a parameter outside `nullable` is proven never NULL only for these.
@@ -248,6 +249,8 @@ class Table:
         # The (trap, parameter) pairs a caller fills with a `char[N]` buffer through Raven's `void *`, so the wrapper gets a
         # second overload that takes the buffer itself.
         self.buffer_traps: set[tuple[str, str]] = set()
+        # The game fields a bg body reaches, by the key of each read, which the channel carries and the draft calls.
+        self.reads: dict[tuple[str, tuple[str, ...], bool], Read] = {}
 
     def sweep_reads(self, tu: ci.TranslationUnit, folder: Path) -> list[Read]:
         """Every game field a bg body reaches through a gentity_t, the level, or a cvar, as the reads the channel carries.
@@ -880,27 +883,29 @@ class Table:
                 if text in ("NULL", "0"):
                     self.null_returns.add(cur.spelling)
 
-    def sweep(self, tu: ci.TranslationUnit, folder: Path, other: ci.TranslationUnit | None = None,
-              other_folder: Path | None = None) -> None:
-        """Every sweep a signature of the module needs, in the order the table reads them.
+    def sweep(self) -> None:
+        """Every sweep a signature of the module needs, in the order the table reads them, over the one parse of the run.
 
-        The NULL sweep walks every .c file of the folder, because a proof that a parameter is never NULL needs every caller the port parses.
-        It walks the second unit over both folders when the caller hands one over, so a call on Raven's cgame arm of a bg file counts,
+        The NULL sweep walks every .c file of the game folder, because a proof that a parameter is never NULL needs every caller the port parses.
+        It walks the cgame unit over both folders, so a call on Raven's cgame arm of a bg file counts,
         and so does a call from the cgame's own .c files.
-        The store sweep, the text sweep, and the return sweep walk every .c file of the folder, because the body of the callee decides all three.
+        The store sweep, the text sweep, and the return sweep walk every .c file of the game folder, because the body of the callee decides all three.
         The cursor sweep follows the text sweep, because a local's kind reads which callee writes through its own `char *` parameter.
-        The subscript sweep and the buffer sweep walk both units the same way the NULL sweep does, because a body has one arm in each of them."""
+        The subscript sweep and the buffer sweep walk both units the same way the NULL sweep does, because a body has one arm in each of them.
+        The read sweep closes the walk, and every generator that carries a game field reads its result from the table."""
+        tu, folder = self.parse.game, self.parse.game_folder
+        other, other_folder = self.parse.cgame, self.parse.cgame_folder
         self.sweep_nulls(tu, folder)
         self.sweep_subscripts(tu, folder)
         self.sweep_buffer_traps(tu, folder)
-        if other is not None:
-            self.sweep_nulls(other, folder, *([other_folder] if other_folder is not None else []))
-            self.sweep_subscripts(other, folder, *([other_folder] if other_folder is not None else []))
-            self.sweep_buffer_traps(other, folder, *([other_folder] if other_folder is not None else []))
+        self.sweep_nulls(other, folder, other_folder)
+        self.sweep_subscripts(other, folder, other_folder)
+        self.sweep_buffer_traps(other, folder, other_folder)
         self.sweep_stores(tu, folder)
         self.sweep_text(tu, folder)
         self.sweep_cursors(tu, folder)
         self.sweep_returns(tu, folder)
+        self.reads = {read.key: read for read in self.sweep_reads(tu, folder)}
 
     def marker_reason(self, cur: ci.Cursor, owner: str | None = None) -> str:
         """The marker line for a parameter the table cannot shape: a PARAMS hold names its kind and the ruling it waits on,

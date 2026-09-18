@@ -23,6 +23,9 @@ from pathlib import Path
 import clang.cindex as ci
 from clang.cindex import CursorKind, TypeKind
 
+import reexport
+from overlay import OVERLAY
+
 REPO = Path(__file__).resolve().parents[2]
 ORACLE = REPO / "oracle"
 CRATES = REPO / "crates"
@@ -218,6 +221,30 @@ def parse_tu(module: str, extra_file: str | None, unity: bool = False, target: s
             print(f"  {d.location.file}:{d.location.line}: {d.spelling}",
                   file=sys.stderr)
     return tu
+
+
+# ------------------------------------------------------------- one parse per run
+# The oracle directories of the two modules a generator reads, which every sweep of the port walks.
+GAME_DIR = "codemp/game"
+CGAME_DIR = "codemp/cgame"
+
+
+class Parse:
+    """Every translation unit one run of the tool reads, parsed one time each.
+
+    A generator takes this value at construction and parses nothing of its own, so the game unit, the cgame unit,
+    and the view target's headers are parsed once however many generators a run builds.
+    Both unity parses carry the one overlay text of overlay.py, so every generator reads one parse shape."""
+
+    def __init__(self) -> None:
+        self.overlay = OVERLAY
+        self.game = parse_tu("mp-game", None, unity=True, overlay=self.overlay)
+        # A sweep proves a fact over every caller the port parses, so the cgame unit stands beside the game unit.
+        self.cgame = parse_tu("mp-cgame", None, unity=True, overlay=self.overlay)
+        # The view target's header umbrella, which the views and the re-exports read.
+        self.headers = reexport.parse(reexport.GAME_TARGET)
+        self.game_folder = (ORACLE / GAME_DIR).resolve()
+        self.cgame_folder = (ORACLE / CGAME_DIR).resolve()
 
 
 # ------------------------------------------------------------- ported scan

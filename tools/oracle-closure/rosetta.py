@@ -20,6 +20,7 @@ from pathlib import Path
 import clang.cindex as ci
 from clang.cindex import CursorKind, TypeKind
 
+import closure as C
 from reexport import REPO, VIEW_OF, source_lines
 from views import Generator
 
@@ -29,8 +30,8 @@ PROPERTY = re.compile(r"\s*public (?:var|func) (\w+)(?:\(([^)]*)\))?(?:: (.+?))?
 
 
 class Rosetta:
-    def __init__(self) -> None:
-        self.gen = Generator(None)
+    def __init__(self, parse: C.Parse) -> None:
+        self.gen = Generator(parse, None)
 
     # MARK: - One struct
 
@@ -169,7 +170,7 @@ def main() -> None:
     ap = argparse.ArgumentParser()
     ap.add_argument("--only", help="one C type name, printed to stdout, nothing written")
     args = ap.parse_args()
-    stone = Rosetta()
+    stone = Rosetta(C.Parse())
     if args.only:
         if args.only == "index":
             print("\n".join(stone.index()))

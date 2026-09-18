@@ -17,7 +17,8 @@ import re
 import subprocess
 import sys
 
-from bodies import OVERLAY, Drafter, Registry
+import closure as C
+from bodies import Drafter, Registry
 from reexport import REPO
 from skeleton import Skeleton, stub_path
 
@@ -74,7 +75,7 @@ def main() -> None:
     parser = argparse.ArgumentParser()
     parser.add_argument("--stem", required=True, help="the Raven file to draft and build, bg_pmove")
     args = parser.parse_args()
-    sk = Skeleton(overlay=OVERLAY)
+    sk = Skeleton(C.Parse())
     drafter = Drafter(sk, Registry())
     draft: list[str] = []
     for fn in sk.files[args.stem]:

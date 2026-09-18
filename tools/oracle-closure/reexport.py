@@ -35,6 +35,8 @@ HERE = Path(__file__).resolve().parent
 REPO = HERE.parent.parent
 SOURCES = REPO / "Sources"
 
+# The C target of the MP game module, whose header umbrella the table, the views, and the rosetta stones read.
+GAME_TARGET = "CJKAMP_Game"
 # C target -> Swift view target, and the C targets each view target's umbrella reaches.
 VIEW_OF = {"CJKAShared": "JKAShared", "CJKAMP": "JKAMP", "CJKAMP_Game": "JKAMP_Game"}
 DEPS = {"CJKAShared": [], "CJKAMP": ["CJKAShared"], "CJKAMP_Game": ["CJKAMP", "CJKAShared"]}

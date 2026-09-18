@@ -37,8 +37,8 @@ from reexport import REPO, SOURCES
 from rulings import HAND_MACROS, HAND_VARS, LIBC_FUNCTIONS, NEVER_NULL_VARS, NOT_PORTED, RETURNS
 from table import Param, SourceFile, Table, swift_name
 
-ORACLE_DIR = "codemp/game"
-CGAME_DIR = "codemp/cgame"
+ORACLE_DIR = C.GAME_DIR
+CGAME_DIR = C.CGAME_DIR
 SKIP = {"g_syscalls.c"}
 FIELDS = ["think", "use", "touch", "die", "pain", "reached", "blocked"]
 LOGIC = "JKAMP_GameLogic"
@@ -158,13 +158,12 @@ class Macro:
 
 
 class Skeleton:
-    def __init__(self, overlay: str | None = None) -> None:
-        self.table = Table()
-        self.tu = C.parse_tu("mp-game", None, unity=True, overlay=overlay)
-        # The NULL sweep needs every caller the port parses, so the cgame unit joins the game unit, as channel.py reads them.
-        self.cgame_tu = C.parse_tu("mp-cgame", None, unity=True, overlay=overlay)
-        self.table.sweep(self.tu, (C.ORACLE / ORACLE_DIR).resolve(),
-                         other=self.cgame_tu, other_folder=(C.ORACLE / CGAME_DIR).resolve())
+    def __init__(self, parse: C.Parse) -> None:
+        self.parse = parse
+        self.tu = parse.game
+        self.cgame_tu = parse.cgame
+        self.table = Table(parse)
+        self.table.sweep()
         self.sources: dict[str, SourceFile] = {}
         self.files: dict[str, list[Function]] = defaultdict(list)
         self.by_name: dict[str, Function] = {}
@@ -884,7 +883,7 @@ def main() -> None:
     ap = argparse.ArgumentParser()
     ap.add_argument("--only", help="one Raven file stem, printed to stdout, nothing written")
     args = ap.parse_args()
-    gen = Skeleton()
+    gen = Skeleton(C.Parse())
     if args.only:
         if args.only not in gen.files and args.only not in gen.variables:
             raise SystemExit(f"skeleton.py: no Raven file named {args.only}.c")

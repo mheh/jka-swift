@@ -2260,8 +2260,8 @@ public func trap_G2API_AbsurdSmoothing(_ ghoul2: OpaquePointer?, _ status: Bool)
 
 //rww - RAGDOLL_BEGIN
 /// Source: oracle/codemp/game/g_syscalls.c:1382
-public func trap_G2API_SetRagDoll(_ ghoul2: OpaquePointer?, _ params: JKAMP.SharedRagDollParams) {
-    Syscall.call(G_G2_SETRAGDOLL, ghoul2, params)
+public func trap_G2API_SetRagDoll(_ ghoul2: OpaquePointer?, _ params: JKAMP.SharedRagDollParams?) {
+    Syscall.call(G_G2_SETRAGDOLL, ghoul2, params?.handle)
 }
 
 /// Source: oracle/codemp/game/g_syscalls.c:1387

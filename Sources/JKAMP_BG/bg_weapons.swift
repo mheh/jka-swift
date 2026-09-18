@@ -5,8 +5,11 @@ import JKAMP
 import JKAShared
 
 /// Source: oracle/codemp/game/bg_weapons.c:10
-// Raven wrote: vec3_t WP_MuzzlePoint[WP_NUM_WEAPONS]
-let WP_MuzzlePoint: [JKAShared.vec3_t] = { () -> [JKAShared.vec3_t] in portMissing("WP_MuzzlePoint", source: "oracle/codemp/game/bg_weapons.c:10") }()
+/// Raven's data table, a hand property of `BgState`.
+var WP_MuzzlePoint: [JKAShared.vec3_t] {
+    get { bg.WP_MuzzlePoint }
+    set { bg.WP_MuzzlePoint = newValue }
+}
 
 /// Source: oracle/codemp/game/bg_weapons.c:31
 // TODO: Port global weaponData

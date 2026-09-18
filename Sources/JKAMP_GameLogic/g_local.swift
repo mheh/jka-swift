@@ -313,6 +313,10 @@ final class GameWorld {
     /// Source: oracle/codemp/game/w_saber.c:3795
     var saberClashPos: JKAShared.vec3_t = JKAShared.vec3_t(0, 0, 0)
 
+    /// Raven's `static vec3_t saberClashNorm = {0}` of `w_saber.c`.
+    /// Source: oracle/codemp/game/w_saber.c:3796
+    var saberClashNorm: JKAShared.vec3_t = JKAShared.vec3_t(0, 0, 0)
+
     // MARK: - g_client.c and g_utils.c
 
     /// Raven's `static vec3_t playerMins` of `g_client.c`, one of two files that keep this static.

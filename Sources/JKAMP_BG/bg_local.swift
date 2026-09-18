@@ -333,6 +333,35 @@ public final class BgState {
         "heavy_weapons",	// SPC_HEAVY_WEAPONS
     ]
 
+    // MARK: - bg_weapons.c
+
+    // Port-note: Raven writes 17 rows for a `WP_NUM_WEAPONS` array, so C zeroes the last two slots.
+    // The last two rows here are those zeros, and they keep the read at `WP_EMPLACED_GUN` and at `WP_TURRET` the same as the C.
+    /// Raven's `vec3_t WP_MuzzlePoint[WP_NUM_WEAPONS]` of `bg_weapons.c`, the muzzle offset of each weapon.
+    /// The three components are forward, right, and up.
+    /// Source: oracle/codemp/game/bg_weapons.c:10
+    var WP_MuzzlePoint: [JKAShared.vec3_t] = [
+        JKAShared.vec3_t(0, 0, 0),		// WP_NONE,
+        JKAShared.vec3_t(0, 8, 0),		// WP_STUN_BATON,
+        JKAShared.vec3_t(0, 8, 0),		// WP_MELEE,
+        JKAShared.vec3_t(8, 16, 0),		// WP_SABER,
+        JKAShared.vec3_t(12, 6, -6),	// WP_BRYAR_PISTOL,
+        JKAShared.vec3_t(12, 6, -6),	// WP_BLASTER,
+        JKAShared.vec3_t(12, 6, -6),	// WP_DISRUPTOR,
+        JKAShared.vec3_t(12, 2, -6),	// WP_BOWCASTER,
+        JKAShared.vec3_t(12, 4.5, -6),	// WP_REPEATER,
+        JKAShared.vec3_t(12, 6, -6),	// WP_DEMP2,
+        JKAShared.vec3_t(12, 6, -6),	// WP_FLECHETTE,
+        JKAShared.vec3_t(12, 8, -4),	// WP_ROCKET_LAUNCHER,
+        JKAShared.vec3_t(12, 0, -4),	// WP_THERMAL,
+        JKAShared.vec3_t(12, 0, -10),	// WP_TRIP_MINE,
+        JKAShared.vec3_t(12, 0, -4),	// WP_DET_PACK,
+        JKAShared.vec3_t(12, 6, -6),	// WP_CONCUSSION
+        JKAShared.vec3_t(12, 6, -6),	// WP_BRYAR_OLD,
+        JKAShared.vec3_t(0, 0, 0),		// WP_EMPLACED_GUN,
+        JKAShared.vec3_t(0, 0, 0),		// WP_TURRET,
+    ]
+
     /// The defaults are the game's, so a test builds a state with no argument.
     public init(consumer: BgConsumer = .game, maxPoolSize: Int32 = 3_000_000) {
         self.consumer = consumer

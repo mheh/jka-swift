@@ -44,8 +44,10 @@ var gPainHitLoc: Int32 {
 }
 
 /// Source: oracle/codemp/game/g_combat.c:4575
-// Raven wrote: vec3_t gPainPoint
-let gPainPoint: JKAShared.vec3_t = JKAShared.vec3_t(0, 0, 0)
+var gPainPoint: JKAShared.vec3_t {
+    get { world.variables.gPainPoint }
+    set { world.variables.gPainPoint = newValue }
+}
 
 /// Source: oracle/codemp/game/g_combat.c:22
 func ObjectDie(_ `self`: Entity, _ inflictor: Entity, _ attacker: Entity, _ damage: Int32, _ meansOfDeath: Int32) {

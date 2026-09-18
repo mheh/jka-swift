@@ -48,7 +48,7 @@ SCRATCH_ZEROS = {"inout vec3_t": "= JKAShared.vec3_t(0, 0, 0)", "inout Int32": "
 COMMENT = re.compile(r"//[^\n]*|/\*.*?\*/", re.S)
 NUMBER = re.compile(r"-?\s*((\d+(\.\d*)?|\.\d+)([eE][-+]?\d+)?[fFuUlL]*|0[xX][0-9a-fA-F]+[uUlL]*)")
 IDENTIFIER = re.compile(r"[A-Za-z_]\w*")
-from overlay import DROPPED, MACROS, MACRO_RETURNS, OVERLAY, RECORD_CALLS, UNDEFINED
+from overlay import DROPPED, MACROS, MACRO_RETURNS, RECORD_CALLS, UNDEFINED
 
 FUNC_LINE = re.compile(r"func\s+`?(\w+)`?\s*\((.*)\)")
 FUNC_HEAD = re.compile(r"func\s+`?(\w+)`?\s*\(")
@@ -155,7 +155,7 @@ class Drafter:
         # The scratch closures open around the statement being drafted, innermost last: None, "flag", or "value".
         self.scratch_modes: list[str | None] = []
         # The game fields a bg body reaches, by root kind, field path, and write, each with the callback the channel carries.
-        self.reads = {r.key: r for r in sk.table.sweep_reads(sk.tu, (C.ORACLE / ORACLE_DIR).resolve())}
+        self.reads = sk.table.reads
         # The locals of the function being drafted that Raven typed `gentity_t *` and the draft holds as `JKAMP.BgEntity`.
         self.game_entities: set[str] = set()
         # The text kind of each argument of the call being drafted, by position, so one overload takes the whole call.
@@ -2891,7 +2891,7 @@ def main() -> None:
     parser.add_argument("--only", help="comma-separated function names to print")
     parser.add_argument("--stem", help="print every draft of one .c file")
     args = parser.parse_args()
-    sk = Skeleton(overlay=OVERLAY)
+    sk = Skeleton(C.Parse())
     drafter = Drafter(sk, Registry())
     if args.only:
         fns = [sk.by_name[n] for n in args.only.split(",")]

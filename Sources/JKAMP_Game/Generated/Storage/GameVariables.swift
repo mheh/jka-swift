@@ -322,6 +322,10 @@ public struct GameVariables {
     /// Source: oracle/codemp/game/g_combat.c:4574
     public var gPainHitLoc: Int32 = -1
 
+    /// Raven's `vec3_t gPainPoint` of `g_combat.c`.
+    /// Source: oracle/codemp/game/g_combat.c:4575
+    public var gPainPoint: JKAShared.vec3_t = JKAShared.vec3_t(0, 0, 0)
+
     /// Raven's `qhandle_t shieldLoopSound` of `g_items.c`.
     /// Source: oracle/codemp/game/g_items.c:101
     public var shieldLoopSound: JKAShared.qhandle_t = 0

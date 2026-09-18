@@ -106,8 +106,11 @@ var saberClashPos: JKAShared.vec3_t {
 }
 
 /// Source: oracle/codemp/game/w_saber.c:3796
-// Raven wrote: static vec3_t saberClashNorm = {0}
-let saberClashNorm: JKAShared.vec3_t = { () -> JKAShared.vec3_t in portMissing("saberClashNorm", source: "oracle/codemp/game/w_saber.c:3796") }()
+/// Raven's data table, a hand property of `GameWorld`.
+var saberClashNorm: JKAShared.vec3_t {
+    get { world.saberClashNorm }
+    set { world.saberClashNorm = newValue }
+}
 
 /// Source: oracle/codemp/game/w_saber.c:3797
 var saberClashEventParm: Int32 {

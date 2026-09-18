@@ -19,6 +19,7 @@ import argparse
 import re
 from pathlib import Path
 
+import closure as C
 from reexport import REPO, SOURCES
 from skeleton import ORACLE_DIR, Function, Skeleton, Variable, stub_path, target_of
 
@@ -65,8 +66,8 @@ class RustIndex:
 
 
 class Manifest:
-    def __init__(self) -> None:
-        self.skeleton = Skeleton()
+    def __init__(self, parse: C.Parse) -> None:
+        self.skeleton = Skeleton(parse)
         self.rust = RustIndex()
 
     def swift_line(self, fn: Function) -> tuple[int | None, bool]:
@@ -150,7 +151,7 @@ def main() -> None:
     ap = argparse.ArgumentParser()
     ap.add_argument("--only", help="one stem, printed to stdout, nothing written")
     args = ap.parse_args()
-    manifest = Manifest()
+    manifest = Manifest(C.Parse())
     if args.only:
         if args.only not in manifest.skeleton.files and args.only not in manifest.skeleton.variables:
             raise SystemExit(f"manifest.py: no file named {args.only}.c")
