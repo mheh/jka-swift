@@ -20,3 +20,19 @@ This walk ruled on the form of the oracle-closure tool. The pipeline and the hol
 **Change 3.** Table owns the facts about a function's locals, the way it owns the facts about parameters. A `sweep_locals` in Table computes, once per function at sweep time, which locals are text, which are buffers, which are raw bytes, which walk a table, and which names are written or addressed. bodies.py reads those facts the way it reads cursors today, and its own store-tracking walks go. sweep_locals asks typing.py for the spelling of a local and holds no type branch of its own.
 
 **Change 4.** bodies.py splits into modules by concern, with the Drafter as the entry and the Registry beside it. The emit code moves into modules for statements, expressions, calls and arguments, declarations, and the view, Slots, and text classification. No method body changes in this round. The two largest methods, statement_lines and expr, move whole. A split of their dispatch is a second round.
+
+## Rulings during the build of change 1
+
+The one parse moved generated output, so three rows closed on 2026-09-18 during the build. Change 1 landed as deb7293.
+
+| Row | Subject | Verdict |
+|---|---|---|
+| A | The overlay facts | ratified as proposed |
+| B | The optional trap parameter | ratified as proposed |
+| C | The write walk and the macro templates | ratified as proposed |
+
+**Row A.** The port accepts the written globals the one overlay reveals. The overlay gives the skeleton's write walk call nodes for Raven's vector macros. gPainPoint lands as generated state. saberClashNorm and WP_MuzzlePoint land as hand properties on GameWorld and BgState, in the shape of the state beside them.
+
+**Row B.** trap_G2API_SetRagDoll takes its params parameter as optional. The NULL sweep proves over every caller the port parses, game and cgame, and a cgame caller passes NULL.
+
+**Row C.** The skeleton's write walk reads the overlay's macro templates. For a callee in the macro table, only a destination argument counts as a write. Any other callee keeps the conservative default, where an array argument is a write. WP_MuzzlePoint and bytedirs are VectorCopy sources, so they stay unwritten, and WP_MuzzlePoint lands as a `let` table with Raven's data instead of state on BgState. This lands as its own commit after change 1.
