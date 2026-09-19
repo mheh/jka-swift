@@ -130,6 +130,8 @@ The overload hands the engine the buffer's base inside the generated file, so a 
 A record's `char name[N]` field that Raven passes as a write target to a non-const `char *` parameter crosses as an `inout CharBuf` the same way.
 `views.py` writes a second accessor named `nameBuffer` beside the field's `String`, a `CharBuf` var whose getter copies the field's bytes out and whose setter puts them back, so a body writes `BG_SiegeGetPairedValue(&classInfo, "description", &descBuffer!.descBuffer)`.
 The `String` accessor stays for a read of the text, and `strcpy`, `Com_sprintf`, and the rest of the buffer writers take the `Buffer` spelling.
+Raven's `memset(ent->name, 0, sizeof(ent->name))` over that field is `ent.nameBuffer.zero()`, the `CharBuf` zero-fill, which the getter and the setter of the accessor carry back into C memory.
+The rule holds for a zero value and the size of the same field, and any other memset over bytes that are not one record keeps its Port-note.
 
 Raven's struct of eight bytes exists because the compilers of the time had no portable 64-bit integer.
 Only the byte-swap pair touches `qint64`, and a body swaps with `byteSwapped`.

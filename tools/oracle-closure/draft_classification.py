@@ -13,6 +13,7 @@ from rulings import NEVER_NULL_VARS
 import closure as C
 from skeleton import BG, Function, target_of
 from table import Cursor, swift_name
+from views import BUFFER_SUFFIX
 
 INDENT = "    "
 
@@ -541,6 +542,25 @@ class Classification:
             return False
         t = inner.type.get_canonical()
         return t.kind == TypeKind.CONSTANTARRAY and t.element_type.get_canonical().kind == TypeKind.CHAR_S
+
+    def buffer_expr(self, cur: ci.Cursor) -> str:
+        """The second accessor beside a `char name[N]` field, the view's `nameBuffer`, which is the CharBuf over the field's bytes.
+
+        A parameter the NULL sweep made an optional view carries no bind of its own, so the read through it takes one."""
+        field = self.unwrap(cur)
+        owner = list(field.get_children())[0]
+        bind = "!" if self.optional_view_name(owner) else ""
+        return f"{self.base(owner)}{bind}.{swift_name(field.spelling)}{BUFFER_SUFFIX}"
+
+    def zeroed_field(self, args: list[ci.Cursor]) -> bool:
+        """True for Raven's `memset(ent->name, 0, sizeof(ent->name))`: a record's `char name[N]` field, the value zero, and the size of that same field.
+        Any other value or any other size leaves the call to the rule for a record."""
+        if len(args) != 3 or not self.string_field(args[0]):
+            return False
+        field = " ".join(self.source.slice(self.unwrap(args[0]).extent).split())
+        value = " ".join(self.source.slice(self.unwrap(args[1]).extent).split())
+        size = " ".join(self.source.slice(self.unwrap(args[2]).extent).split())
+        return value == "0" and size.replace(" ", "") == f"sizeof({field})".replace(" ", "")
 
     def pooled_field(self, cur: ci.Cursor) -> bool:
         """True for a member reference to a `char *` field, which the view holds as a PooledString?."""

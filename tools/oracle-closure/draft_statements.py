@@ -181,7 +181,7 @@ class Statements:
 
     def record_bytes(self, cur: ci.Cursor, depth: int) -> list[str]:
         """Raven's `memset` and `memcpy` over a whole record, as the view's `clear()` and `copy(from:)`. A memset of a record local
-        drops, because the scratch slot is zero at entry."""
+        drops, because the scratch slot is zero at entry. A memset of zero over one `char name[N]` field is the buffer accessor's `zero()`."""
         pad = INDENT * depth
         name = self.callee_name(cur)
         args = [self.strip(a) for a in list(cur.get_children())[1:]]
@@ -192,6 +192,9 @@ class Statements:
                 whole = self.strip(self.unary_parts(whole)[2])
             if self.slots_source(whole):
                 return [f"{pad}{self.expr(whole)}.zero()" + self.trailing(cur)]
+            # Raven's `memset(ent->name, 0, sizeof(ent->name))` over a record's `char name[N]` field, which the view's buffer accessor zero-fills.
+            if self.zeroed_field(args):
+                return [f"{pad}{self.buffer_expr(args[0])}.zero()" + self.trailing(cur)]
         targets = []
         for arg in args[: 2 if name == "memcpy" else 1]:
             if arg.kind == CursorKind.UNARY_OPERATOR and self.unary_parts(arg)[0] == "&":
