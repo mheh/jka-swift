@@ -18,6 +18,7 @@ from clang.cindex import CursorKind
 
 import closure as C
 from reexport import GAME_TARGET
+from fnsweep import ASSIGN_OPS
 from rulings import PARAMS, RETURNS
 from views import Generator
 from spelling import Facts, OPTIONAL_TEXT_RESULT
@@ -121,7 +122,6 @@ class SourceFile:
 
 # The fields of bgEntity_t, the head of gentity_t and centity_t alike, which a bg body reads through its own view.
 BG_FIELDS = {"s", "playerState", "m_pVehicle", "ghoul2", "localAnimIndex", "modelScale"}
-ASSIGN_OPS = {"=", "+=", "-=", "*=", "/=", "%=", "&=", "|=", "^=", "<<=", ">>="}
 # The read set of the text sweep: every use of a non-const `char *` parameter the sweep knows to be a read, and the whole of it.
 # A parameter whose every use is one of these crosses as a String, and any other use keeps it the `inout CharBuf` of rule 11,
 # because a use the sweep cannot read is a use that may write the bytes.
