@@ -68,5 +68,7 @@ typedef struct
 extern vehField_t vehWeaponFields[NUM_VWEAP_PARMS];
 // Source: oracle/codemp/game/bg_vehicleLoad.c:445
 extern vehField_t vehicleFields[175];
+// Source: oracle/codemp/game/bg_vehicleLoad.c:671
+extern stringID_table_t VehicleTable[VH_NUM_VEHICLES+1];
 
 #endif // JKA_BG_TABLES_H

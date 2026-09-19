@@ -3846,5 +3846,17 @@ vehField_t vehicleFields[] =
 	{0, -1, VF_INT}
 };
 
-// The `_JK2MP` name belongs to Raven's bg_vehicleLoad.c alone, so it ends with the two vehicle tables.
+// The `_JK2MP` name belongs to Raven's bg_vehicleLoad.c alone, so it ends with the two vehicle field tables.
 #undef _JK2MP
+
+// Source: oracle/codemp/game/bg_vehicleLoad.c:671-680
+stringID_table_t VehicleTable[VH_NUM_VEHICLES+1] =
+{
+	ENUM2STRING(VH_NONE),
+	ENUM2STRING(VH_WALKER),		//something you ride inside of, it walks like you, like an AT-ST
+	ENUM2STRING(VH_FIGHTER),	//something you fly inside of, like an X-Wing or TIE fighter
+	ENUM2STRING(VH_SPEEDER),	//something you ride on that hovers, like a speeder or swoop
+	ENUM2STRING(VH_ANIMAL),		//animal you ride on top of that walks, like a tauntaun
+	ENUM2STRING(VH_FLIER),		//animal you ride on top of that flies, like a giant mynoc?
+	0,	-1
+};

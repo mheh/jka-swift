@@ -70,6 +70,10 @@ public nonisolated(unsafe) let vehWeaponFields: Slots<VehField> = makeVehWeaponF
 /// Source: oracle/codemp/game/bg_vehicleLoad.c:445
 public nonisolated(unsafe) let vehicleFields: Slots<VehField> = makeVehicleFields()
 
+/// Raven's vehicle type name table, over the C storage of `Sources/CJKAMP/bg_tables.c`.
+/// Source: oracle/codemp/game/bg_vehicleLoad.c:671
+public nonisolated(unsafe) let VehicleTable: Slots<StringIDTable> = makeVehicleTable()
+
 // MARK: - The bind over each C array
 
 /// The compiler crashes if a global initializer takes the address inline, so each table binds in a function.
@@ -167,4 +171,10 @@ private func makeVehicleFields() -> Slots<VehField> {
     let base = withUnsafeMutablePointer(to: &CJKAMP.vehicleFields) { UnsafeMutableRawPointer($0) }
     let count = MemoryLayout.size(ofValue: CJKAMP.vehicleFields) / VehField.stride
     return Slots(views: base, count: count, stride: VehField.stride)
+}
+
+private func makeVehicleTable() -> Slots<StringIDTable> {
+    let base = withUnsafeMutablePointer(to: &CJKAMP.VehicleTable) { UnsafeMutableRawPointer($0) }
+    let count = MemoryLayout.size(ofValue: CJKAMP.VehicleTable) / StringIDTable.stride
+    return Slots(views: base, count: count, stride: StringIDTable.stride)
 }
