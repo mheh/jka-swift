@@ -56,4 +56,10 @@ public struct SiegeClassDesc: Hashable, HandleView {
         get { cString(at: UnsafeMutableRawPointer(self.raw.pointer(to: \.desc)!)) }
         nonmutating set { store(newValue, at: UnsafeMutableRawPointer(self.raw.pointer(to: \.desc)!), capacity: Int(JKAMP.SIEGE_CLASS_DESC_LEN)) }
     }
+
+    /// Raven's `desc` as the buffer a callee writes into, for a `char *` parameter the port spells `inout CharBuf`.
+    public var descBuffer: JKAShared.CharBuf {
+        get { charBuf(at: UnsafeMutableRawPointer(self.raw.pointer(to: \.desc)!), capacity: Int(JKAMP.SIEGE_CLASS_DESC_LEN)) }
+        nonmutating set { store(newValue, at: UnsafeMutableRawPointer(self.raw.pointer(to: \.desc)!), capacity: Int(JKAMP.SIEGE_CLASS_DESC_LEN)) }
+    }
 }

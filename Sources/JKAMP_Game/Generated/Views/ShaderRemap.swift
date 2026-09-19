@@ -58,9 +58,21 @@ public struct ShaderRemap: Hashable, HandleView {
         nonmutating set { store(newValue, at: UnsafeMutableRawPointer(self.raw.pointer(to: \.oldShader)!), capacity: Int(JKAShared.MAX_QPATH)) }
     }
 
+    /// Raven's `oldShader` as the buffer a callee writes into, for a `char *` parameter the port spells `inout CharBuf`.
+    public var oldShaderBuffer: JKAShared.CharBuf {
+        get { charBuf(at: UnsafeMutableRawPointer(self.raw.pointer(to: \.oldShader)!), capacity: Int(JKAShared.MAX_QPATH)) }
+        nonmutating set { store(newValue, at: UnsafeMutableRawPointer(self.raw.pointer(to: \.oldShader)!), capacity: Int(JKAShared.MAX_QPATH)) }
+    }
+
     /// Source: oracle/codemp/game/g_utils.c:11
     public var newShader: String {
         get { cString(at: UnsafeMutableRawPointer(self.raw.pointer(to: \.newShader)!)) }
+        nonmutating set { store(newValue, at: UnsafeMutableRawPointer(self.raw.pointer(to: \.newShader)!), capacity: Int(JKAShared.MAX_QPATH)) }
+    }
+
+    /// Raven's `newShader` as the buffer a callee writes into, for a `char *` parameter the port spells `inout CharBuf`.
+    public var newShaderBuffer: JKAShared.CharBuf {
+        get { charBuf(at: UnsafeMutableRawPointer(self.raw.pointer(to: \.newShader)!), capacity: Int(JKAShared.MAX_QPATH)) }
         nonmutating set { store(newValue, at: UnsafeMutableRawPointer(self.raw.pointer(to: \.newShader)!), capacity: Int(JKAShared.MAX_QPATH)) }
     }
 

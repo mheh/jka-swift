@@ -124,15 +124,33 @@ public struct ClientSession: Hashable, HandleView {
         nonmutating set { store(newValue, at: UnsafeMutableRawPointer(self.raw.pointer(to: \.siegeClass)!), capacity: 64) }
     }
 
+    /// Raven's `siegeClass` as the buffer a callee writes into, for a `char *` parameter the port spells `inout CharBuf`.
+    public var siegeClassBuffer: JKAShared.CharBuf {
+        get { charBuf(at: UnsafeMutableRawPointer(self.raw.pointer(to: \.siegeClass)!), capacity: 64) }
+        nonmutating set { store(newValue, at: UnsafeMutableRawPointer(self.raw.pointer(to: \.siegeClass)!), capacity: 64) }
+    }
+
     /// Source: oracle/codemp/game/g_local.h:424
     public var saberType: String {
         get { cString(at: UnsafeMutableRawPointer(self.raw.pointer(to: \.saberType)!)) }
         nonmutating set { store(newValue, at: UnsafeMutableRawPointer(self.raw.pointer(to: \.saberType)!), capacity: 64) }
     }
 
+    /// Raven's `saberType` as the buffer a callee writes into, for a `char *` parameter the port spells `inout CharBuf`.
+    public var saberTypeBuffer: JKAShared.CharBuf {
+        get { charBuf(at: UnsafeMutableRawPointer(self.raw.pointer(to: \.saberType)!), capacity: 64) }
+        nonmutating set { store(newValue, at: UnsafeMutableRawPointer(self.raw.pointer(to: \.saberType)!), capacity: 64) }
+    }
+
     /// Source: oracle/codemp/game/g_local.h:425
     public var saber2Type: String {
         get { cString(at: UnsafeMutableRawPointer(self.raw.pointer(to: \.saber2Type)!)) }
+        nonmutating set { store(newValue, at: UnsafeMutableRawPointer(self.raw.pointer(to: \.saber2Type)!), capacity: 64) }
+    }
+
+    /// Raven's `saber2Type` as the buffer a callee writes into, for a `char *` parameter the port spells `inout CharBuf`.
+    public var saber2TypeBuffer: JKAShared.CharBuf {
+        get { charBuf(at: UnsafeMutableRawPointer(self.raw.pointer(to: \.saber2Type)!), capacity: 64) }
         nonmutating set { store(newValue, at: UnsafeMutableRawPointer(self.raw.pointer(to: \.saber2Type)!), capacity: 64) }
     }
 
@@ -163,6 +181,12 @@ public struct ClientSession: Hashable, HandleView {
     /// Source: oracle/codemp/game/g_local.h:430
     public var IPstring: String {
         get { cString(at: UnsafeMutableRawPointer(self.raw.pointer(to: \.IPstring)!)) }
+        nonmutating set { store(newValue, at: UnsafeMutableRawPointer(self.raw.pointer(to: \.IPstring)!), capacity: 32) }
+    }
+
+    /// Raven's `IPstring` as the buffer a callee writes into, for a `char *` parameter the port spells `inout CharBuf`.
+    public var IPstringBuffer: JKAShared.CharBuf {
+        get { charBuf(at: UnsafeMutableRawPointer(self.raw.pointer(to: \.IPstring)!), capacity: 32) }
         nonmutating set { store(newValue, at: UnsafeMutableRawPointer(self.raw.pointer(to: \.IPstring)!), capacity: 32) }
     }
 }

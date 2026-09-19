@@ -58,6 +58,12 @@ public struct TagOwner: Hashable, HandleView {
         nonmutating set { store(newValue, at: UnsafeMutableRawPointer(self.raw.pointer(to: \.name)!), capacity: Int(JKAShared.MAX_REFNAME)) }
     }
 
+    /// Raven's `name` as the buffer a callee writes into, for a `char *` parameter the port spells `inout CharBuf`.
+    public var nameBuffer: JKAShared.CharBuf {
+        get { charBuf(at: UnsafeMutableRawPointer(self.raw.pointer(to: \.name)!), capacity: Int(JKAShared.MAX_REFNAME)) }
+        nonmutating set { store(newValue, at: UnsafeMutableRawPointer(self.raw.pointer(to: \.name)!), capacity: Int(JKAShared.MAX_REFNAME)) }
+    }
+
     /// Source: oracle/codemp/game/g_misc.c:2882
     public var tags: Slots<ReferenceTag> { Slots(views: UnsafeMutableRawPointer(self.raw.pointer(to: \.tags)!), count: 256, stride: MemoryLayout<reference_tag_t>.stride) }
 

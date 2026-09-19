@@ -14,7 +14,7 @@ property type by the conversion table of struct-views.md row 2, with no per-fiel
   C enum                       the re-exported struct
   vec3_t                       JKAShared.vec3_t, a SIMD3<Float>
   T[N]                         Slots<T>, a view over the field's address and N
-  char[N]                      String
+  char[N]                      String, with a CharBuf accessor named nameBuffer beside it for a write target
   char *                       PooledString?
   struct S by value            the view over the field's address
   pointer to a copied struct   the optional view
@@ -257,7 +257,8 @@ class Generator:
             address = f"UnsafeMutableRawPointer(self.raw.pointer(to: \\.{name})!)"
             if canonical.element_type.get_canonical().kind == TypeKind.CHAR_S:
                 capacity = self.bound(field, target, 0, count)
-                return self.property(name, "String", f"cString(at: {address})", f"store(newValue, at: {address}, capacity: {capacity})")
+                return self.property(name, "String", f"cString(at: {address})", f"store(newValue, at: {address}, capacity: {capacity})") \
+                    + self.buffer(name, address, capacity)
             if self.is_vec3(t):
                 return self.property(name, "JKAShared.vec3_t", f"vec3(of: {pointee})", f"{pointee} = tuple(of: newValue)")
             mapped = self.element(self.element_type(t), target, address, field)
@@ -320,6 +321,21 @@ class Generator:
             f"    public var {name}: {swift} {{",
             f"        get {{ {get} }}",
             f"        nonmutating set {{ {set_} }}",
+            "    }",
+        ]
+
+    def buffer(self, name: str, address: str, capacity: str) -> list[str]:
+        """The second accessor of a `char name[N]` field, the buffer a callee writes into.
+
+        A non-const `char *` parameter takes an `inout CharBuf`, so a write target passes `&view.<name>Buffer`.
+        The getter copies the field's bytes out and the setter puts them back, so the callee's write lands in C memory.
+        The field keeps its `String` accessor beside this one, which is what a read of the text takes."""
+        return [
+            "",
+            f"    /// Raven's `{name}` as the buffer a callee writes into, for a `char *` parameter the port spells `inout CharBuf`.",
+            f"    public var {name}Buffer: JKAShared.CharBuf {{",
+            f"        get {{ charBuf(at: {address}, capacity: {capacity}) }}",
+            f"        nonmutating set {{ store(newValue, at: {address}, capacity: {capacity}) }}",
             "    }",
         ]
 

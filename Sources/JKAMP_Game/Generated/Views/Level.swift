@@ -217,9 +217,21 @@ public struct Level: Hashable, HandleView {
         nonmutating set { store(newValue, at: UnsafeMutableRawPointer(self.raw.pointer(to: \.voteString)!), capacity: Int(JKAShared.MAX_STRING_CHARS)) }
     }
 
+    /// Raven's `voteString` as the buffer a callee writes into, for a `char *` parameter the port spells `inout CharBuf`.
+    public var voteStringBuffer: JKAShared.CharBuf {
+        get { charBuf(at: UnsafeMutableRawPointer(self.raw.pointer(to: \.voteString)!), capacity: Int(JKAShared.MAX_STRING_CHARS)) }
+        nonmutating set { store(newValue, at: UnsafeMutableRawPointer(self.raw.pointer(to: \.voteString)!), capacity: Int(JKAShared.MAX_STRING_CHARS)) }
+    }
+
     /// Source: oracle/codemp/game/g_local.h:864
     public var voteDisplayString: String {
         get { cString(at: UnsafeMutableRawPointer(self.raw.pointer(to: \.voteDisplayString)!)) }
+        nonmutating set { store(newValue, at: UnsafeMutableRawPointer(self.raw.pointer(to: \.voteDisplayString)!), capacity: Int(JKAShared.MAX_STRING_CHARS)) }
+    }
+
+    /// Raven's `voteDisplayString` as the buffer a callee writes into, for a `char *` parameter the port spells `inout CharBuf`.
+    public var voteDisplayStringBuffer: JKAShared.CharBuf {
+        get { charBuf(at: UnsafeMutableRawPointer(self.raw.pointer(to: \.voteDisplayString)!), capacity: Int(JKAShared.MAX_STRING_CHARS)) }
         nonmutating set { store(newValue, at: UnsafeMutableRawPointer(self.raw.pointer(to: \.voteDisplayString)!), capacity: Int(JKAShared.MAX_STRING_CHARS)) }
     }
 
@@ -304,6 +316,12 @@ public struct Level: Hashable, HandleView {
     /// Source: oracle/codemp/game/g_local.h:886
     public var spawnVarChars: String {
         get { cString(at: UnsafeMutableRawPointer(self.raw.pointer(to: \.spawnVarChars)!)) }
+        nonmutating set { store(newValue, at: UnsafeMutableRawPointer(self.raw.pointer(to: \.spawnVarChars)!), capacity: Int(JKAMP.MAX_SPAWN_VARS_CHARS)) }
+    }
+
+    /// Raven's `spawnVarChars` as the buffer a callee writes into, for a `char *` parameter the port spells `inout CharBuf`.
+    public var spawnVarCharsBuffer: JKAShared.CharBuf {
+        get { charBuf(at: UnsafeMutableRawPointer(self.raw.pointer(to: \.spawnVarChars)!), capacity: Int(JKAMP.MAX_SPAWN_VARS_CHARS)) }
         nonmutating set { store(newValue, at: UnsafeMutableRawPointer(self.raw.pointer(to: \.spawnVarChars)!), capacity: Int(JKAMP.MAX_SPAWN_VARS_CHARS)) }
     }
 
@@ -445,6 +463,12 @@ public struct Level: Hashable, HandleView {
     /// Source: oracle/codemp/game/g_local.h:928
     public var mTeamFilter: String {
         get { cString(at: UnsafeMutableRawPointer(self.raw.pointer(to: \.mTeamFilter)!)) }
+        nonmutating set { store(newValue, at: UnsafeMutableRawPointer(self.raw.pointer(to: \.mTeamFilter)!), capacity: Int(JKAShared.MAX_QPATH)) }
+    }
+
+    /// Raven's `mTeamFilter` as the buffer a callee writes into, for a `char *` parameter the port spells `inout CharBuf`.
+    public var mTeamFilterBuffer: JKAShared.CharBuf {
+        get { charBuf(at: UnsafeMutableRawPointer(self.raw.pointer(to: \.mTeamFilter)!), capacity: Int(JKAShared.MAX_QPATH)) }
         nonmutating set { store(newValue, at: UnsafeMutableRawPointer(self.raw.pointer(to: \.mTeamFilter)!), capacity: Int(JKAShared.MAX_QPATH)) }
     }
 }

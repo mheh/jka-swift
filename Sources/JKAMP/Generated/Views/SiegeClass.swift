@@ -57,9 +57,21 @@ public struct SiegeClass: Hashable, HandleView {
         nonmutating set { store(newValue, at: UnsafeMutableRawPointer(self.raw.pointer(to: \.name)!), capacity: 512) }
     }
 
+    /// Raven's `name` as the buffer a callee writes into, for a `char *` parameter the port spells `inout CharBuf`.
+    public var nameBuffer: JKAShared.CharBuf {
+        get { charBuf(at: UnsafeMutableRawPointer(self.raw.pointer(to: \.name)!), capacity: 512) }
+        nonmutating set { store(newValue, at: UnsafeMutableRawPointer(self.raw.pointer(to: \.name)!), capacity: 512) }
+    }
+
     /// Source: oracle/codemp/game/bg_saga.h:57
     public var forcedModel: String {
         get { cString(at: UnsafeMutableRawPointer(self.raw.pointer(to: \.forcedModel)!)) }
+        nonmutating set { store(newValue, at: UnsafeMutableRawPointer(self.raw.pointer(to: \.forcedModel)!), capacity: 256) }
+    }
+
+    /// Raven's `forcedModel` as the buffer a callee writes into, for a `char *` parameter the port spells `inout CharBuf`.
+    public var forcedModelBuffer: JKAShared.CharBuf {
+        get { charBuf(at: UnsafeMutableRawPointer(self.raw.pointer(to: \.forcedModel)!), capacity: 256) }
         nonmutating set { store(newValue, at: UnsafeMutableRawPointer(self.raw.pointer(to: \.forcedModel)!), capacity: 256) }
     }
 
@@ -69,15 +81,33 @@ public struct SiegeClass: Hashable, HandleView {
         nonmutating set { store(newValue, at: UnsafeMutableRawPointer(self.raw.pointer(to: \.forcedSkin)!), capacity: 256) }
     }
 
+    /// Raven's `forcedSkin` as the buffer a callee writes into, for a `char *` parameter the port spells `inout CharBuf`.
+    public var forcedSkinBuffer: JKAShared.CharBuf {
+        get { charBuf(at: UnsafeMutableRawPointer(self.raw.pointer(to: \.forcedSkin)!), capacity: 256) }
+        nonmutating set { store(newValue, at: UnsafeMutableRawPointer(self.raw.pointer(to: \.forcedSkin)!), capacity: 256) }
+    }
+
     /// Source: oracle/codemp/game/bg_saga.h:59
     public var saber1: String {
         get { cString(at: UnsafeMutableRawPointer(self.raw.pointer(to: \.saber1)!)) }
         nonmutating set { store(newValue, at: UnsafeMutableRawPointer(self.raw.pointer(to: \.saber1)!), capacity: 64) }
     }
 
+    /// Raven's `saber1` as the buffer a callee writes into, for a `char *` parameter the port spells `inout CharBuf`.
+    public var saber1Buffer: JKAShared.CharBuf {
+        get { charBuf(at: UnsafeMutableRawPointer(self.raw.pointer(to: \.saber1)!), capacity: 64) }
+        nonmutating set { store(newValue, at: UnsafeMutableRawPointer(self.raw.pointer(to: \.saber1)!), capacity: 64) }
+    }
+
     /// Source: oracle/codemp/game/bg_saga.h:60
     public var saber2: String {
         get { cString(at: UnsafeMutableRawPointer(self.raw.pointer(to: \.saber2)!)) }
+        nonmutating set { store(newValue, at: UnsafeMutableRawPointer(self.raw.pointer(to: \.saber2)!), capacity: 64) }
+    }
+
+    /// Raven's `saber2` as the buffer a callee writes into, for a `char *` parameter the port spells `inout CharBuf`.
+    public var saber2Buffer: JKAShared.CharBuf {
+        get { charBuf(at: UnsafeMutableRawPointer(self.raw.pointer(to: \.saber2)!), capacity: 64) }
         nonmutating set { store(newValue, at: UnsafeMutableRawPointer(self.raw.pointer(to: \.saber2)!), capacity: 64) }
     }
 
@@ -177,6 +207,12 @@ public struct SiegeClass: Hashable, HandleView {
     /// Source: oracle/codemp/game/bg_saga.h:77
     public var uiPortrait: String {
         get { cString(at: UnsafeMutableRawPointer(self.raw.pointer(to: \.uiPortrait)!)) }
+        nonmutating set { store(newValue, at: UnsafeMutableRawPointer(self.raw.pointer(to: \.uiPortrait)!), capacity: 256) }
+    }
+
+    /// Raven's `uiPortrait` as the buffer a callee writes into, for a `char *` parameter the port spells `inout CharBuf`.
+    public var uiPortraitBuffer: JKAShared.CharBuf {
+        get { charBuf(at: UnsafeMutableRawPointer(self.raw.pointer(to: \.uiPortrait)!), capacity: 256) }
         nonmutating set { store(newValue, at: UnsafeMutableRawPointer(self.raw.pointer(to: \.uiPortrait)!), capacity: 256) }
     }
 

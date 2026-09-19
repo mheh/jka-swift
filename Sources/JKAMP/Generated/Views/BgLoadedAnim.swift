@@ -57,6 +57,12 @@ public struct BgLoadedAnim: Hashable, HandleView {
         nonmutating set { store(newValue, at: UnsafeMutableRawPointer(self.raw.pointer(to: \.filename)!), capacity: Int(JKAShared.MAX_QPATH)) }
     }
 
+    /// Raven's `filename` as the buffer a callee writes into, for a `char *` parameter the port spells `inout CharBuf`.
+    public var filenameBuffer: JKAShared.CharBuf {
+        get { charBuf(at: UnsafeMutableRawPointer(self.raw.pointer(to: \.filename)!), capacity: Int(JKAShared.MAX_QPATH)) }
+        nonmutating set { store(newValue, at: UnsafeMutableRawPointer(self.raw.pointer(to: \.filename)!), capacity: Int(JKAShared.MAX_QPATH)) }
+    }
+
     /// Source: oracle/codemp/game/bg_public.h:329
     public var anims: Animation? {
         get { self.raw.pointee.anims.map { Animation(handle: OpaquePointer($0)) } }

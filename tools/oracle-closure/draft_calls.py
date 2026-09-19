@@ -193,6 +193,13 @@ class Calls:
             # A stored function on a view goes where the callee takes a closure as the view's run method, bound to the view.
             field = inner.spelling
             return f"{self.base(list(inner.get_children())[0])}.run{field[0].upper()}{field[1:]}"
+        if inout and param is not None and param[1].replace("JKAShared.", "") == "inout CharBuf" and self.string_field(inner):
+            # The record's `char name[N]` field is a write target here, and the view's `nameBuffer` accessor beside it is the CharBuf the callee writes.
+            # A parameter the NULL sweep made an optional view carries no bind of its own, so the read through it takes one.
+            field = self.unwrap(inner)
+            owner = list(field.get_children())[0]
+            bind = "!" if self.optional_view_name(owner) else ""
+            return f"&{self.base(owner)}{bind}.{swift_name(field.spelling)}Buffer"
         if param is not None and param[1].replace("JKAShared.", "") == "inout CharBuf" and callee in self.sk.by_name and self.immutable_text(inner):
             raven = " ".join(self.bytes[cur.extent.start.offset:cur.extent.end.offset].decode("utf-8", "replace").split())
             raise Hole(f"Raven passes `{raven}` to `{callee}`, whose `char *` parameter the stub holds as an inout CharBuf. Docket row 5 is due.")

@@ -91,6 +91,12 @@ public struct ClientPersistant: Hashable, HandleView {
         nonmutating set { store(newValue, at: UnsafeMutableRawPointer(self.raw.pointer(to: \.netname)!), capacity: Int(JKAMP_Game.MAX_NETNAME)) }
     }
 
+    /// Raven's `netname` as the buffer a callee writes into, for a `char *` parameter the port spells `inout CharBuf`.
+    public var netnameBuffer: JKAShared.CharBuf {
+        get { charBuf(at: UnsafeMutableRawPointer(self.raw.pointer(to: \.netname)!), capacity: Int(JKAMP_Game.MAX_NETNAME)) }
+        nonmutating set { store(newValue, at: UnsafeMutableRawPointer(self.raw.pointer(to: \.netname)!), capacity: Int(JKAMP_Game.MAX_NETNAME)) }
+    }
+
     /// Source: oracle/codemp/game/g_local.h:451
     public var netnameTime: Int32 {
         get { self.raw.pointee.netnameTime }

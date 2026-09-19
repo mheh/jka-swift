@@ -523,6 +523,12 @@ public struct BotState: Hashable, HandleView {
         nonmutating set { store(newValue, at: UnsafeMutableRawPointer(self.raw.pointer(to: \.currentChat)!), capacity: Int(JKAMP_Game.MAX_CHAT_LINE_SIZE)) }
     }
 
+    /// Raven's `currentChat` as the buffer a callee writes into, for a `char *` parameter the port spells `inout CharBuf`.
+    public var currentChatBuffer: JKAShared.CharBuf {
+        get { charBuf(at: UnsafeMutableRawPointer(self.raw.pointer(to: \.currentChat)!), capacity: Int(JKAMP_Game.MAX_CHAT_LINE_SIZE)) }
+        nonmutating set { store(newValue, at: UnsafeMutableRawPointer(self.raw.pointer(to: \.currentChat)!), capacity: Int(JKAMP_Game.MAX_CHAT_LINE_SIZE)) }
+    }
+
     /// Source: oracle/codemp/game/ai_main.h:255
     public var chatTime: Float {
         get { self.raw.pointee.chatTime }
@@ -769,6 +775,12 @@ public struct BotState: Hashable, HandleView {
     /// Source: oracle/codemp/game/ai_main.h:323
     public var forceinfo: String {
         get { cString(at: UnsafeMutableRawPointer(self.raw.pointer(to: \.forceinfo)!)) }
+        nonmutating set { store(newValue, at: UnsafeMutableRawPointer(self.raw.pointer(to: \.forceinfo)!), capacity: Int(JKAMP_Game.MAX_FORCE_INFO_SIZE)) }
+    }
+
+    /// Raven's `forceinfo` as the buffer a callee writes into, for a `char *` parameter the port spells `inout CharBuf`.
+    public var forceinfoBuffer: JKAShared.CharBuf {
+        get { charBuf(at: UnsafeMutableRawPointer(self.raw.pointer(to: \.forceinfo)!), capacity: Int(JKAMP_Game.MAX_FORCE_INFO_SIZE)) }
         nonmutating set { store(newValue, at: UnsafeMutableRawPointer(self.raw.pointer(to: \.forceinfo)!), capacity: Int(JKAMP_Game.MAX_FORCE_INFO_SIZE)) }
     }
 

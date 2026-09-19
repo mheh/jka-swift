@@ -505,6 +505,12 @@ public struct Client: Hashable, HandleView {
         nonmutating set { store(newValue, at: UnsafeMutableRawPointer(self.raw.pointer(to: \.modelname)!), capacity: Int(JKAShared.MAX_QPATH)) }
     }
 
+    /// Raven's `modelname` as the buffer a callee writes into, for a `char *` parameter the port spells `inout CharBuf`.
+    public var modelnameBuffer: JKAShared.CharBuf {
+        get { charBuf(at: UnsafeMutableRawPointer(self.raw.pointer(to: \.modelname)!), capacity: Int(JKAShared.MAX_QPATH)) }
+        nonmutating set { store(newValue, at: UnsafeMutableRawPointer(self.raw.pointer(to: \.modelname)!), capacity: Int(JKAShared.MAX_QPATH)) }
+    }
+
     /// Source: oracle/codemp/game/g_local.h:670
     public var fjDidJump: Bool {
         get { self.raw.pointee.fjDidJump != qfalse }

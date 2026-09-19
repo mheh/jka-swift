@@ -58,9 +58,21 @@ public struct WaypointData: Hashable, HandleView {
         nonmutating set { store(newValue, at: UnsafeMutableRawPointer(self.raw.pointer(to: \.targetname)!), capacity: Int(JKAShared.MAX_QPATH)) }
     }
 
+    /// Raven's `targetname` as the buffer a callee writes into, for a `char *` parameter the port spells `inout CharBuf`.
+    public var targetnameBuffer: JKAShared.CharBuf {
+        get { charBuf(at: UnsafeMutableRawPointer(self.raw.pointer(to: \.targetname)!), capacity: Int(JKAShared.MAX_QPATH)) }
+        nonmutating set { store(newValue, at: UnsafeMutableRawPointer(self.raw.pointer(to: \.targetname)!), capacity: Int(JKAShared.MAX_QPATH)) }
+    }
+
     /// Source: oracle/codemp/game/g_local.h:813
     public var target: String {
         get { cString(at: UnsafeMutableRawPointer(self.raw.pointer(to: \.target)!)) }
+        nonmutating set { store(newValue, at: UnsafeMutableRawPointer(self.raw.pointer(to: \.target)!), capacity: Int(JKAShared.MAX_QPATH)) }
+    }
+
+    /// Raven's `target` as the buffer a callee writes into, for a `char *` parameter the port spells `inout CharBuf`.
+    public var targetBuffer: JKAShared.CharBuf {
+        get { charBuf(at: UnsafeMutableRawPointer(self.raw.pointer(to: \.target)!), capacity: Int(JKAShared.MAX_QPATH)) }
         nonmutating set { store(newValue, at: UnsafeMutableRawPointer(self.raw.pointer(to: \.target)!), capacity: Int(JKAShared.MAX_QPATH)) }
     }
 
@@ -70,15 +82,33 @@ public struct WaypointData: Hashable, HandleView {
         nonmutating set { store(newValue, at: UnsafeMutableRawPointer(self.raw.pointer(to: \.target2)!), capacity: Int(JKAShared.MAX_QPATH)) }
     }
 
+    /// Raven's `target2` as the buffer a callee writes into, for a `char *` parameter the port spells `inout CharBuf`.
+    public var target2Buffer: JKAShared.CharBuf {
+        get { charBuf(at: UnsafeMutableRawPointer(self.raw.pointer(to: \.target2)!), capacity: Int(JKAShared.MAX_QPATH)) }
+        nonmutating set { store(newValue, at: UnsafeMutableRawPointer(self.raw.pointer(to: \.target2)!), capacity: Int(JKAShared.MAX_QPATH)) }
+    }
+
     /// Source: oracle/codemp/game/g_local.h:815
     public var target3: String {
         get { cString(at: UnsafeMutableRawPointer(self.raw.pointer(to: \.target3)!)) }
         nonmutating set { store(newValue, at: UnsafeMutableRawPointer(self.raw.pointer(to: \.target3)!), capacity: Int(JKAShared.MAX_QPATH)) }
     }
 
+    /// Raven's `target3` as the buffer a callee writes into, for a `char *` parameter the port spells `inout CharBuf`.
+    public var target3Buffer: JKAShared.CharBuf {
+        get { charBuf(at: UnsafeMutableRawPointer(self.raw.pointer(to: \.target3)!), capacity: Int(JKAShared.MAX_QPATH)) }
+        nonmutating set { store(newValue, at: UnsafeMutableRawPointer(self.raw.pointer(to: \.target3)!), capacity: Int(JKAShared.MAX_QPATH)) }
+    }
+
     /// Source: oracle/codemp/game/g_local.h:816
     public var target4: String {
         get { cString(at: UnsafeMutableRawPointer(self.raw.pointer(to: \.target4)!)) }
+        nonmutating set { store(newValue, at: UnsafeMutableRawPointer(self.raw.pointer(to: \.target4)!), capacity: Int(JKAShared.MAX_QPATH)) }
+    }
+
+    /// Raven's `target4` as the buffer a callee writes into, for a `char *` parameter the port spells `inout CharBuf`.
+    public var target4Buffer: JKAShared.CharBuf {
+        get { charBuf(at: UnsafeMutableRawPointer(self.raw.pointer(to: \.target4)!), capacity: Int(JKAShared.MAX_QPATH)) }
         nonmutating set { store(newValue, at: UnsafeMutableRawPointer(self.raw.pointer(to: \.target4)!), capacity: Int(JKAShared.MAX_QPATH)) }
     }
 

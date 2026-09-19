@@ -58,6 +58,12 @@ public struct SharedIKMoveParams: Hashable, HandleView {
         nonmutating set { store(newValue, at: UnsafeMutableRawPointer(self.raw.pointer(to: \.boneName)!), capacity: 512) }
     }
 
+    /// Raven's `boneName` as the buffer a callee writes into, for a `char *` parameter the port spells `inout CharBuf`.
+    public var boneNameBuffer: JKAShared.CharBuf {
+        get { charBuf(at: UnsafeMutableRawPointer(self.raw.pointer(to: \.boneName)!), capacity: 512) }
+        nonmutating set { store(newValue, at: UnsafeMutableRawPointer(self.raw.pointer(to: \.boneName)!), capacity: 512) }
+    }
+
     /// Source: oracle/codemp/game/q_shared.h:939
     public var desiredOrigin: JKAShared.vec3_t {
         get { vec3(of: self.raw.pointee.desiredOrigin) }

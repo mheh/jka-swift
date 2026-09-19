@@ -63,4 +63,10 @@ public struct Botattachment: Hashable, HandleView {
         get { cString(at: UnsafeMutableRawPointer(self.raw.pointer(to: \.name)!)) }
         nonmutating set { store(newValue, at: UnsafeMutableRawPointer(self.raw.pointer(to: \.name)!), capacity: Int(JKAMP_Game.MAX_ATTACHMENT_NAME)) }
     }
+
+    /// Raven's `name` as the buffer a callee writes into, for a `char *` parameter the port spells `inout CharBuf`.
+    public var nameBuffer: JKAShared.CharBuf {
+        get { charBuf(at: UnsafeMutableRawPointer(self.raw.pointer(to: \.name)!), capacity: Int(JKAMP_Game.MAX_ATTACHMENT_NAME)) }
+        nonmutating set { store(newValue, at: UnsafeMutableRawPointer(self.raw.pointer(to: \.name)!), capacity: Int(JKAMP_Game.MAX_ATTACHMENT_NAME)) }
+    }
 }

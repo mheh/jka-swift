@@ -58,6 +58,12 @@ public struct BotSettings: Hashable, HandleView {
         nonmutating set { store(newValue, at: UnsafeMutableRawPointer(self.raw.pointer(to: \.personalityfile)!), capacity: Int(JKAMP_Game.MAX_FILEPATH)) }
     }
 
+    /// Raven's `personalityfile` as the buffer a callee writes into, for a `char *` parameter the port spells `inout CharBuf`.
+    public var personalityfileBuffer: JKAShared.CharBuf {
+        get { charBuf(at: UnsafeMutableRawPointer(self.raw.pointer(to: \.personalityfile)!), capacity: Int(JKAMP_Game.MAX_FILEPATH)) }
+        nonmutating set { store(newValue, at: UnsafeMutableRawPointer(self.raw.pointer(to: \.personalityfile)!), capacity: Int(JKAMP_Game.MAX_FILEPATH)) }
+    }
+
     /// Source: oracle/codemp/game/g_local.h:1494
     public var skill: Float {
         get { self.raw.pointee.skill }
@@ -67,6 +73,12 @@ public struct BotSettings: Hashable, HandleView {
     /// Source: oracle/codemp/game/g_local.h:1495
     public var team: String {
         get { cString(at: UnsafeMutableRawPointer(self.raw.pointer(to: \.team)!)) }
+        nonmutating set { store(newValue, at: UnsafeMutableRawPointer(self.raw.pointer(to: \.team)!), capacity: Int(JKAMP_Game.MAX_FILEPATH)) }
+    }
+
+    /// Raven's `team` as the buffer a callee writes into, for a `char *` parameter the port spells `inout CharBuf`.
+    public var teamBuffer: JKAShared.CharBuf {
+        get { charBuf(at: UnsafeMutableRawPointer(self.raw.pointer(to: \.team)!), capacity: Int(JKAMP_Game.MAX_FILEPATH)) }
         nonmutating set { store(newValue, at: UnsafeMutableRawPointer(self.raw.pointer(to: \.team)!), capacity: Int(JKAMP_Game.MAX_FILEPATH)) }
     }
 }

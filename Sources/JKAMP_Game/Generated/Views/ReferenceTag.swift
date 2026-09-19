@@ -58,6 +58,12 @@ public struct ReferenceTag: Hashable, HandleView {
         nonmutating set { store(newValue, at: UnsafeMutableRawPointer(self.raw.pointer(to: \.name)!), capacity: Int(JKAShared.MAX_REFNAME)) }
     }
 
+    /// Raven's `name` as the buffer a callee writes into, for a `char *` parameter the port spells `inout CharBuf`.
+    public var nameBuffer: JKAShared.CharBuf {
+        get { charBuf(at: UnsafeMutableRawPointer(self.raw.pointer(to: \.name)!), capacity: Int(JKAShared.MAX_REFNAME)) }
+        nonmutating set { store(newValue, at: UnsafeMutableRawPointer(self.raw.pointer(to: \.name)!), capacity: Int(JKAShared.MAX_REFNAME)) }
+    }
+
     /// Source: oracle/codemp/game/g_local.h:1243
     public var origin: JKAShared.vec3_t {
         get { vec3(of: self.raw.pointee.origin) }

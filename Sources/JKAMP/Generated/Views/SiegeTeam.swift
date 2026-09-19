@@ -57,6 +57,12 @@ public struct SiegeTeam: Hashable, HandleView {
         nonmutating set { store(newValue, at: UnsafeMutableRawPointer(self.raw.pointer(to: \.name)!), capacity: 512) }
     }
 
+    /// Raven's `name` as the buffer a callee writes into, for a `char *` parameter the port spells `inout CharBuf`.
+    public var nameBuffer: JKAShared.CharBuf {
+        get { charBuf(at: UnsafeMutableRawPointer(self.raw.pointer(to: \.name)!), capacity: 512) }
+        nonmutating set { store(newValue, at: UnsafeMutableRawPointer(self.raw.pointer(to: \.name)!), capacity: 512) }
+    }
+
     /// Source: oracle/codemp/game/bg_saga.h:85
     public var classes: Slots<SiegeClass?> { Slots(pointers: UnsafeMutableRawPointer(self.raw.pointer(to: \.classes)!), count: 16) }
 

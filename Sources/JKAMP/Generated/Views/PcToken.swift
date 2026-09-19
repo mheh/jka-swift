@@ -80,4 +80,10 @@ public struct PcToken: Hashable, HandleView {
         get { cString(at: UnsafeMutableRawPointer(self.raw.pointer(to: \.string)!)) }
         nonmutating set { store(newValue, at: UnsafeMutableRawPointer(self.raw.pointer(to: \.string)!), capacity: Int(JKAMP.MAX_TOKENLENGTH)) }
     }
+
+    /// Raven's `string` as the buffer a callee writes into, for a `char *` parameter the port spells `inout CharBuf`.
+    public var stringBuffer: JKAShared.CharBuf {
+        get { charBuf(at: UnsafeMutableRawPointer(self.raw.pointer(to: \.string)!), capacity: Int(JKAMP.MAX_TOKENLENGTH)) }
+        nonmutating set { store(newValue, at: UnsafeMutableRawPointer(self.raw.pointer(to: \.string)!), capacity: Int(JKAMP.MAX_TOKENLENGTH)) }
+    }
 }
