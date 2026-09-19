@@ -447,6 +447,9 @@ class Classification:
                 return inner.spelling
         if inner.kind == CursorKind.DECL_REF_EXPR and inner.spelling in NEVER_NULL_VARS:
             return inner.spelling
+        if inner.kind == CursorKind.DECL_REF_EXPR and inner.spelling in self.chosen_locals:
+            # The chosen local names a file-scope variable, and the draft crosses that variable, so the pointer itself is always set.
+            return inner.spelling
         return None
 
     def proven_never_null(self, cur: ci.Cursor) -> bool:
@@ -468,12 +471,18 @@ class Classification:
 
         A name the sweeps prove takes a plain comment, because the fold is then the whole answer and no transcriptor has work here.
         A name they cannot prove keeps the Port-note the caller hands over, so the hole stands until a caller of the function is read."""
+        inner = self.unwrap(cur)
+        if inner.kind == CursorKind.DECL_REF_EXPR and inner.spelling in self.chosen_locals:
+            return f"// Raven's NULL test on {name} has no form here, because the draft crosses the chosen variable itself."
         if self.proven_never_null(cur):
             return f"// Raven's NULL test on {name} has no form here, and the arm it guards is gone."
         return port_note
 
     def optional_base(self, cur: ci.Cursor) -> bool:
         """True when the expression is a pointer a Swift view holds as optional, so a member read through it takes `!`."""
+        if self.chosen_deref(cur) is not None:
+            # The chosen variable is an optional view, and Raven's `(*teamPtr)` reads it.
+            return True
         inner = self.strip(cur)
         if inner.kind == CursorKind.PAREN_EXPR:
             return self.optional_base(list(inner.get_children())[0])
@@ -722,6 +731,122 @@ class Classification:
         inner = self.unwrap(cur)
         text = self.bytes[inner.extent.start.offset:inner.extent.end.offset].decode("utf-8", "replace").strip()
         return text in ("NULL", "0")
+
+    def chosen_local_names(self, fn: ci.Cursor) -> dict[str, str]:
+        """Raven's `siegeTeam_t **teamPtr` local, by his name, with the record the pointee stands for.
+
+        The shape is a local of pointer-to-pointer-to-record type whose every store is the address of a file-scope variable of the pointee type.
+        The local holds no value of its own, because it names one of those variables, and the draft crosses that variable as an inout parameter."""
+        out: dict[str, str] = {}
+        for var in fn.walk_preorder():
+            if var.kind != CursorKind.VAR_DECL or var.semantic_parent is None or var.semantic_parent.kind == CursorKind.TRANSLATION_UNIT:
+                continue
+            t = var.type.get_canonical()
+            if t.kind != TypeKind.POINTER or t.get_pointee().get_canonical().kind != TypeKind.POINTER:
+                continue
+            record = self.types.record_name(t.get_pointee().get_canonical().get_pointee())
+            if not record or record not in self.views.views:
+                continue
+            init = [c for c in var.get_children() if c.kind.is_expression() and b"=" in self.bytes[var.extent.start.offset:c.extent.start.offset]]
+            if init and not self.is_null(init[0]):
+                continue
+            stores = self.chosen_stores(fn, var.spelling)
+            if stores and all(self.chosen_variable(s) is not None for s in stores):
+                out[var.spelling] = record
+        return out
+
+    def chosen_stores(self, fn: ci.Cursor, name: str) -> list[ci.Cursor]:
+        """Every store into the named local of the body, as the right side of each one."""
+        out: list[ci.Cursor] = []
+        for cur in fn.walk_preorder():
+            kids = list(cur.get_children())
+            if cur.kind != CursorKind.BINARY_OPERATOR or len(kids) != 2 or self.collapsed(cur) or self.operator_or_none(cur) != "=":
+                continue
+            left = self.unwrap(kids[0])
+            if left.kind == CursorKind.DECL_REF_EXPR and left.spelling == name and left.referenced is not None \
+                    and left.referenced.kind == CursorKind.VAR_DECL:
+                out.append(kids[1])
+        return out
+
+    def chosen_variable(self, cur: ci.Cursor) -> ci.Cursor | None:
+        """The file-scope variable under Raven's `&team1Theme`, or None for any other expression."""
+        inner = self.unwrap(cur)
+        if inner.kind != CursorKind.UNARY_OPERATOR or self.operator_or_none_unary(inner) != "&":
+            return None
+        target = self.unwrap(self.unary_parts(inner)[2])
+        if target.kind != CursorKind.DECL_REF_EXPR:
+            return None
+        ref = target.referenced
+        if ref is None or ref.kind != CursorKind.VAR_DECL or ref.semantic_parent is None or ref.semantic_parent.kind != CursorKind.TRANSLATION_UNIT:
+            return None
+        return target
+
+    def chosen_deref(self, cur: ci.Cursor) -> str | None:
+        """The Swift name behind Raven's `(*teamPtr)`, the inout parameter the chosen variable crosses as, or None."""
+        inner = self.unwrap(cur)
+        if inner.kind != CursorKind.UNARY_OPERATOR or self.operator_or_none_unary(inner) != "*":
+            return None
+        target = self.unwrap(self.unary_parts(inner)[2])
+        if target.kind == CursorKind.DECL_REF_EXPR and target.spelling in self.chosen_locals:
+            return swift_name(target.spelling)
+        return None
+
+    def chosen_helper(self, name: str) -> str:
+        """The Swift name of the nested function that holds Raven's statements after the choice."""
+        word = swift_name(name)
+        return f"with{word[0].upper()}{word[1:]}"
+
+    def chosen_choice(self, cur: ci.Cursor, rest: list[ci.Cursor]) -> str | None:
+        """The chosen local an `if` chain picks the variable for, or None where the statement is not that chain.
+
+        The chain holds every store of the local, and each of its arms either ends in one store or leaves the function.
+        The statements after the chain run over the chosen variable, so a function that returns a value needs a return on every path through them."""
+        if cur.kind != CursorKind.IF_STMT or not rest:
+            return None
+        if self.fn.returns is not None and not self.always_returns(rest):
+            return None
+        for name in self.chosen_locals:
+            if self.chain_chooses(cur, name):
+                return name
+        return None
+
+    def chain_chooses(self, cur: ci.Cursor, name: str) -> bool:
+        """True when the `if` chain is the one choice of the named local."""
+        stores = self.chosen_stores(self.fn.cur, name)
+        if not stores or not all(cur.extent.start.offset <= s.extent.start.offset < cur.extent.end.offset for s in stores):
+            return False
+        arms = self.chain_arms(cur)
+        if arms is None:
+            return False
+        for arm in arms:
+            stmts = list(arm.get_children()) if arm.kind == CursorKind.COMPOUND_STMT else [arm]
+            if self.always_returns(stmts):
+                continue
+            if not stmts or not self.stores_into(stmts[-1], name):
+                return False
+        return True
+
+    def chain_arms(self, cur: ci.Cursor) -> list[ci.Cursor] | None:
+        """Every arm of an `if` chain, or None where the chain has no final `else` and so falls through with no choice."""
+        kids = list(cur.get_children())
+        if len(kids) != 3:
+            return None
+        arms = [kids[1]]
+        if kids[2].kind == CursorKind.IF_STMT:
+            deeper = self.chain_arms(kids[2])
+            if deeper is None:
+                return None
+            return arms + deeper
+        return arms + [kids[2]]
+
+    def stores_into(self, cur: ci.Cursor, name: str) -> bool:
+        """True when the statement is a store into the named local."""
+        inner = self.strip(cur)
+        kids = list(inner.get_children())
+        if inner.kind != CursorKind.BINARY_OPERATOR or len(kids) != 2 or self.collapsed(inner) or self.operator_or_none(inner) != "=":
+            return False
+        left = self.unwrap(kids[0])
+        return left.kind == CursorKind.DECL_REF_EXPR and left.spelling == name
 
     def optional_local(self, cur: ci.Cursor) -> bool:
         """A local the draft declared as an optional view, `var pVeh: Vehicle?`."""

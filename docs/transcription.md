@@ -259,6 +259,33 @@ Two records in one scope nest two closures.
 A copy of another slot, `usercmd_t cmd = pm->cmd;`, is the `copying` form: `Usercmd.scratch(copying: pm.cmd) { cmd in ... }`.
 Every view carries both forms, written by `views.py`.
 
+### A pointer to a chosen file-scope variable
+
+Raven's `siegeTeam_t **teamPtr = NULL`, which he sets to `&team1Theme` or `&team2Theme` and then writes through, is an `inout View?` parameter the caller chooses.
+The shape is a local of pointer-to-pointer-to-record type whose every store is the address of a file-scope variable of the pointee type.
+The local itself has no Swift name, because it only names one of those variables.
+
+Raven's statements after the choice become a nested function that takes the chosen variable, and each arm of his `if` chain calls it with the variable of that arm:
+
+```swift
+func withTeamPtr(_ teamPtr: inout JKAMP.SiegeTeam?) -> Bool {
+    if teamPtr == nil {
+        return true
+    }
+    ...
+}
+if team == SIEGETEAM_TEAM1 {
+    return withTeamPtr(&team1Theme)
+} else if team == SIEGETEAM_TEAM2 {
+    return withTeamPtr(&team2Theme)
+}
+```
+
+The nested function sits between the local declarations and the chain, so it captures the locals Raven's statements read.
+His `(*teamPtr)` is the parameter, and his `!teamPtr` on the pointer itself has no form, because the caller always passes a variable.
+A function that returns a value needs a return on every path through the statements after the choice, and the arms that make no choice keep Raven's own exit.
+The shape holds only where the chain holds every store of the local, and where each arm either ends in one store or leaves the function.
+
 ### A file-scope static or a static local
 
 A Raven file-scope static, or a static local, becomes a stored property on `GameWorld` in `g_local.swift`, under rule 3.

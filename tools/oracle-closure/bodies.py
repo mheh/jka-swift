@@ -151,6 +151,8 @@ class Drafter(Statements, Expressions, Calls, Declarations, Classification):
         self.game_entities: set[str] = set()
         # The text kind of each argument of the call being drafted, by position, so one overload takes the whole call.
         self.call_kinds: dict[int, str] = {}
+        # Raven's `siegeTeam_t **teamPtr` locals of the function being drafted, by his name, with the record the pointee stands for.
+        self.chosen_locals: dict[str, str] = {}
 
     # MARK: - One function
 
@@ -185,6 +187,8 @@ class Drafter(Statements, Expressions, Calls, Declarations, Classification):
         self.aliased_positions: dict[int, str] = {}
         # Raven's `animation_t *animations` local that only ever holds a table of records, which Swift holds as the Slots over it.
         self.slots_locals = self.slots_local_names(fn.cur)
+        # Raven's `siegeTeam_t **teamPtr` that only holds the address of a file-scope variable he chooses between.
+        self.chosen_locals = self.chosen_local_names(fn.cur)
         facts = self.sk.table.locals_of(fn.stem, fn.cur.spelling)
         self.lets = facts.single_writes
         if any(self.record_local(c) is not None for c in fn.cur.walk_preorder()):

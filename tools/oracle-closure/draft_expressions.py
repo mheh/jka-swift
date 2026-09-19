@@ -274,6 +274,10 @@ class Expressions:
                     return "nil"
                 self.reach(text, "macro")
                 return self.leaf(cur, swift_name(text))
+        chosen = self.chosen_deref(cur)
+        if chosen is not None:
+            # Raven's `(*teamPtr)` is the file-scope variable the caller chose, which crosses as the inout parameter.
+            return self.leaf(cur, chosen)
         if kind == CursorKind.UNEXPOSED_EXPR:
             if self.is_call(cur):
                 return self.call(cur)
@@ -353,6 +357,9 @@ class Expressions:
                     note = f"// Port-note: Raven guards a NULL `{name}` here. Swift holds it as a value, so the guard has no form and reads false."
                     self.pending.append(self.null_fold_note(operand, name, note))
                     return "false"
+                if self.chosen_deref(operand) is not None:
+                    # Raven's `!(*teamPtr)` guards the chosen variable, which the inout parameter holds as an optional view.
+                    return f"{self.chosen_deref(operand)} == nil"
                 if self.is_bool(operand):
                     return f"!{self.operand(operand)}"
                 if self.empty_test(operand) is not None:

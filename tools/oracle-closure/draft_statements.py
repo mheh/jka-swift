@@ -10,7 +10,7 @@ import clang.cindex as ci
 from clang.cindex import CursorKind, TypeKind
 
 import closure as C
-from table import ASSIGN_OPS, swift_name
+from table import ASSIGN_OPS, TARGET, swift_name
 from overlay import DROPPED, MACROS, RECORD_CALLS, address_arguments
 
 from draft_classification import INDENT, Hole
@@ -43,6 +43,10 @@ class Statements:
             out += self.gap(previous_line, child.extent.start.line, depth)
             if record is not None:
                 out += self.scratch(child, record, children[i + 1:], last_line, depth)
+                return out
+            chosen = self.chosen_choice(child, children[i + 1:])
+            if chosen is not None:
+                out += self.choice(chosen, child, children[i + 1:], last_line, depth)
                 return out
             out += self.statement(child, depth)
             self.after_com_error = self.is_call(child) and self.callee_name(child) == "Com_Error"
@@ -90,6 +94,28 @@ class Statements:
             out.append(f"{pad}}}")
             return out
         raise Hole(f"Raven's `{name}:` takes a goto from both sides, and the transcriptor restructures the flow.")
+
+    def choice(self, name: str, chain: ci.Cursor, rest: list[ci.Cursor], last_line: int, depth: int) -> list[str]:
+        """Raven's choice between two file-scope variables, with his statements after it as a nested function over the one he chose.
+
+        The nested function takes the chosen variable as an inout parameter, and each arm of his chain calls it with the variable of that arm."""
+        pad = INDENT * depth
+        record = self.chosen_locals[name]
+        self.reachable(record)
+        view = self.views.qualified_view(record, TARGET)
+        returns = f" -> {self.fn.returns}" if self.fn.returns else ""
+        out = [f"{pad}// Raven points `{name}` at one of the file-scope variables, and the statements after his choice run over the one he chose.",
+               f"{pad}// The chosen variable crosses as an inout parameter, and each arm of the choice calls the nested function with its own variable.",
+               f"{pad}func {self.chosen_helper(name)}(_ {swift_name(name)}: inout {view}?){returns} {{"]
+        body = self.statements(rest, chain.extent.end.line, last_line, depth + 1)
+        while body and not body[0].strip():
+            body.pop(0)
+        while body and not body[-1].strip():
+            body.pop()
+        out += body
+        out.append(f"{pad}}}")
+        out += self.statement(chain, depth)
+        return out
 
     def gap(self, after: int, before: int, depth: int) -> list[str]:
         """Raven's comment and blank lines strictly between two statements, re-indented."""
@@ -271,6 +297,18 @@ class Statements:
                 left, right = list(cur.get_children())
                 if op == "=" and self.unwrap(left).kind == CursorKind.DECL_REF_EXPR and self.unwrap(left).spelling in self.game_entities | self.optional_entities:
                     return [f"{pad}{self.expr(left)} = {self.entity_or_nil(right)}" + self.trailing(cur)]
+                if self.unwrap(left).kind == CursorKind.DECL_REF_EXPR and self.unwrap(left).spelling in self.chosen_locals:
+                    # Raven's choice of the variable is the call of the nested function that holds his statements after the choice.
+                    variable = self.chosen_variable(right)
+                    if op != "=" or variable is None:
+                        raise Hole(f"Raven writes `{self.unwrap(left).spelling}` with something that is not the address of a file-scope variable.")
+                    word = "return " if self.fn.returns else ""
+                    return [f"{pad}{word}{self.chosen_helper(self.unwrap(left).spelling)}(&{self.expr(variable)})" + self.trailing(cur)]
+                chosen = self.chosen_deref(left)
+                if chosen is not None:
+                    if op != "=":
+                        raise Hole(f"Raven writes through `{chosen}` with `{op}`, and the inout parameter has no such step.")
+                    return [f"{pad}{chosen} = {self.expr(right)}" + self.trailing(cur)]
                 if self.unwrap(left).kind == CursorKind.DECL_REF_EXPR and self.unwrap(left).spelling in self.cursor_locals:
                     if op == "=":
                         source = "JKAShared.TextCursor()" if self.is_null(right) else self.text_cursor(right)

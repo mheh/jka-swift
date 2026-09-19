@@ -176,6 +176,9 @@ class Declarations:
         return out
 
     def declaration(self, var: ci.Cursor) -> str:
+        if var.spelling in self.chosen_locals:
+            # The local only names one of the file-scope variables, and the nested function's inout parameter is that name.
+            return ""
         name = swift_name(var.spelling)
         t = var.type
         init = [c for c in var.get_children() if c.kind.is_expression() and b"=" in self.bytes[var.extent.start.offset:c.extent.start.offset]]
