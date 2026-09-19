@@ -428,7 +428,7 @@ func BG_AnimsetAlloc() -> JKAMP.Animation? {
 }
 
 /// Source: oracle/codemp/game/bg_panimate.c:1737
-func BG_AnimsetFree(_ animset: JKAMP.Animation) {
+func BG_AnimsetFree(_ animset: Slots<JKAMP.Animation>) {
     // TODO: Port BG_AnimsetFree
     portMissing("BG_AnimsetFree", source: "oracle/codemp/game/bg_panimate.c:1737")
 }

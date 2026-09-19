@@ -69,6 +69,12 @@ extension Slots {
         )
     }
 
+    /// One C record where the port holds a table, the Slots of one record over it.
+    /// Raven hands one record to a pointer his callee walks, and the record is the first element of this `Slots`.
+    public init(record: Element) where Element: HandleView {
+        self.init(views: UnsafeMutableRawPointer(record.handle), count: 1, stride: Element.stride)
+    }
+
     /// A C array of a pointer to a copied struct, one optional view per slot.
     public init<V: HandleView>(pointers base: UnsafeMutableRawPointer, count: Int) where Element == V? {
         self.init(

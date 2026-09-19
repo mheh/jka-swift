@@ -349,6 +349,8 @@ class Statements:
                 if op == "=" and self.slots_target(left):
                     source = self.slots_expression(right)
                     if source is None:
+                        source = self.one_record_slots(right)
+                    if source is None:
                         raven = self.bytes[cur.extent.start.offset:cur.extent.end.offset].decode("utf-8", "replace")
                         raise Hole(f"Raven stores `{raven}`, and Swift holds the target as the Slots over the records where the source is one record.")
                     return [f"{pad}{self.expr(left)} = {source}" + self.trailing(cur)]

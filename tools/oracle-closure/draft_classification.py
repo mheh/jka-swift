@@ -578,6 +578,19 @@ class Classification:
             return self.expr(inner) + ("!" if self.optional_slots_name(inner) else "")
         return None
 
+    def one_record_slots(self, cur: ci.Cursor) -> str | None:
+        """The Slots of one record over a read Swift holds as one record, or None for every other read.
+
+        A store into a Slots target takes this shape: the record is the first element, and the count is one, because C gives one record no bound.
+        An optional record keeps Raven's own NULL test, so the map hands the Slots on and a NULL record leaves the target nil."""
+        inner = self.unwrap(cur)
+        if self.is_null(inner) or not self.view_operand(inner) or self.is_raw(inner):
+            return None
+        record = self.expr(cur)
+        if self.optional_base(inner):
+            return f"{record}.map {{ Slots(record: $0) }}"
+        return f"Slots(record: {record})"
+
     def slots_target(self, cur: ci.Cursor) -> bool:
         """True for the left side of a store Swift holds as a Slots: a parameter of that kind, or a local of that kind."""
         inner = self.unwrap(cur)

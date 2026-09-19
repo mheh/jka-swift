@@ -275,6 +275,8 @@ class Table:
         self.indexed_params: set[tuple[str, str]] = set()
         # The (struct, field) pairs a body indexes through the pointer, `pm->animations[anim]`, so the view gets the second accessor.
         self.indexed_fields: set[tuple[str, str]] = set()
+        # Every call that hands a table of records to a parameter, as the callee, the parameter, and the table the caller held.
+        self.handoffs: list[tuple[str, str, bool | tuple[str, str]]] = []
         # The `char *` locals that walk a named buffer, by file stem, function, and name, each as its kind and the buffer it walks.
         self.cursors: dict[tuple[str, str, str], Cursor] = {}
         # The file-scope buffers a write cursor points into, so the write sweep of the skeleton sees the write through the alias.
@@ -1000,6 +1002,64 @@ class Table:
                     owner = base.referenced.semantic_parent
                     self.indexed_fields.add((self.record_name_of(owner), base.spelling))
 
+    def sweep_handoffs(self, tu: ci.TranslationUnit, *folders: Path) -> None:
+        """The hand-off sweep of the Slots ruling: every call that hands a table of records to a parameter of the callee.
+
+        A caller holds a table in three shapes: a field with the Slots accessor, a file-scope array of records, and a parameter the subscript sweep read.
+        The callee of such a call takes the Slots over the same records, and a one-record read of that parameter in the callee spells `[0]`.
+        The sweep keeps the parameter shape as an edge, because the caller's own parameter can become a table in a later pass.
+        It reads the game unit and the cgame unit, the two units the port parses, the same way the NULL sweep does.
+        A hand-off of any other shape leaves the parameter with the one-record spelling it has today."""
+        for cur in tu.cursor.get_children():
+            if cur.kind != CursorKind.FUNCTION_DECL or not cur.is_definition() or not cur.location.file:
+                continue
+            path = Path(cur.location.file.name).resolve()
+            if path.parent not in folders or path.suffix != ".c":
+                continue
+            for node in cur.walk_preorder():
+                if node.kind != CursorKind.CALL_EXPR or node.referenced is None or node.referenced.kind != CursorKind.FUNCTION_DECL:
+                    continue
+                # The parameter names come from the definition, because a prototype of the header can name the same parameter differently.
+                callee = node.referenced.get_definition() or node.referenced
+                params = list(callee.get_arguments())
+                for i, arg in enumerate(list(node.get_children())[1:]):
+                    if i >= len(params) or not self.record_pointer(params[i].type):
+                        continue
+                    table = self.table_argument(self.unwrapped(arg), cur.spelling)
+                    if table is not None:
+                        self.handoffs.append((node.referenced.spelling, params[i].spelling, table))
+
+    def table_argument(self, arg: ci.Cursor, caller: str) -> bool | tuple[str, str] | None:
+        """The table one call argument holds: True for a table of its own, the caller's (function, parameter) pair for a parameter,
+        and None for every other argument."""
+        if arg.kind == CursorKind.MEMBER_REF_EXPR and arg.referenced is not None and self.indexed_field(arg.referenced):
+            return True
+        if arg.kind != CursorKind.DECL_REF_EXPR or arg.referenced is None:
+            return None
+        ref = arg.referenced
+        if ref.kind == CursorKind.PARM_DECL:
+            return (caller, arg.spelling)
+        if ref.kind == CursorKind.VAR_DECL and ref.semantic_parent is not None \
+                and ref.semantic_parent.kind == CursorKind.TRANSLATION_UNIT \
+                and ref.type.get_canonical().kind == TypeKind.CONSTANTARRAY \
+                and ref.type.get_canonical().element_type.get_canonical().kind == TypeKind.RECORD:
+            return True
+        return None
+
+    def resolve_handoffs(self) -> None:
+        """The hand-off edges as the parameters that take the Slots, read again until the set does not grow.
+        A parameter that takes a table hands the same table on, so one pass over the edges is not enough."""
+        while True:
+            grew = False
+            for callee, param, table in self.handoffs:
+                if (callee, param) in self.indexed_params:
+                    continue
+                if table is True or table in self.indexed_params:
+                    self.indexed_params.add((callee, param))
+                    grew = True
+            if not grew:
+                return
+
     def record_name_of(self, owner: ci.Cursor) -> str:
         """The name a NEVER_NULL row and an indexed field row key on: Raven's typedef name, or the tag where he gave none."""
         return self.types.record_name(owner.type) or owner.spelling
@@ -1085,14 +1145,19 @@ class Table:
         The cursor sweep follows the text sweep, because a local's kind reads which callee writes through its own `char *` parameter.
         The local facts are not swept here. The cursor sweep leaves the body of every function behind, and the first read of a function computes its locals from that body.
         The subscript sweep and the buffer sweep walk both units the same way the NULL sweep does, because a body has one arm in each of them.
+        The hand-off sweep follows the subscript sweep over both units, and its edges are read once both units are in.
+        A caller of one unit can hand the table to a callee the other unit indexes.
         The read sweep closes the walk, and every generator that carries a game field reads its result from the table."""
         tu, folder = self.parse.game, self.parse.game_folder
         other, other_folder = self.parse.cgame, self.parse.cgame_folder
         self.sweep_nulls(tu, folder)
         self.sweep_subscripts(tu, folder)
+        self.sweep_handoffs(tu, folder)
         self.sweep_buffer_traps(tu, folder)
         self.sweep_nulls(other, folder, other_folder)
         self.sweep_subscripts(other, folder, other_folder)
+        self.sweep_handoffs(other, folder, other_folder)
+        self.resolve_handoffs()
         self.sweep_buffer_traps(other, folder, other_folder)
         self.sweep_stores(tu, folder)
         self.sweep_text(tu, folder)
