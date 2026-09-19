@@ -1,13 +1,17 @@
 #!/usr/bin/env python3
-"""draftcheck.py: the compile gate of bodies.py, one Raven file at a time.
+"""draftcheck.py: the compile gate of bodies.py, over one Raven file or over many.
 
 The drafts of one file replace the hand bodies of its Swift file in a mirror of the package under .build-draft/, and the
 mirror builds the game product. No file of the working tree changes. The report separates three counts: the holes the
 draft left, the errors that follow from a hole, because a local the hole declared is missing, and the errors that stand
-on their own, which are the draft's defects. The build log stays at .build-draft/build.log.
+on their own, which are the draft's defects. One line reports each stem, and a total line closes the run. The build log
+stays at .build-draft/build.log and holds the log of the last stem. A run of several stems parses and sweeps once, and
+each stem after the first costs a draft and a build alone.
 
 Usage:
   .venv/bin/python draftcheck.py --stem bg_pmove
+  .venv/bin/python draftcheck.py --stem bg_pmove,bg_misc
+  .venv/bin/python draftcheck.py --all
 """
 
 from __future__ import annotations
@@ -20,7 +24,7 @@ import sys
 import closure as C
 from bodies import Drafter, Registry
 from reexport import REPO
-from skeleton import Skeleton, stub_path
+from skeleton import BG, Skeleton, stub_path, target_of
 
 MIRROR = REPO / ".build-draft" / "tree"
 SCRATCH = REPO / ".build-draft" / "scratch"
@@ -71,24 +75,27 @@ def splice(hand: list[str], draft: list[str]) -> tuple[list[str], int]:
     return out, replaced
 
 
-def main() -> None:
-    parser = argparse.ArgumentParser()
-    parser.add_argument("--stem", required=True, help="the Raven file to draft and build, bg_pmove")
-    args = parser.parse_args()
-    sk = Skeleton(C.Parse())
-    drafter = Drafter(sk, Registry())
-    draft: list[str] = []
-    for fn in sk.files[args.stem]:
-        draft += drafter.draft(fn)
-        draft.append("")
-    path = stub_path(args.stem)
-    hand = path.read_text().splitlines()
-    spliced, replaced = splice(hand, draft)
+def mirror() -> None:
+    """The package of .build-draft/tree, a copy of the working tree's Sources, Tests, and Package.swift."""
     MIRROR.mkdir(parents=True, exist_ok=True)
     # The manifest names the test targets too, so the mirror carries Tests, and the build stays on the one product.
     for tree in ("Sources", "Tests"):
         subprocess.run(["rsync", "-a", "--delete", str(REPO / tree) + "/", str(MIRROR / tree) + "/"], check=True)
     subprocess.run(["rsync", "-a", str(REPO / "Package.swift"), str(MIRROR / "Package.swift")], check=True)
+
+
+def gate(sk: Skeleton, registry: Registry, stem: str) -> tuple[int, int, int]:
+    """One stem drafted, spliced into the mirror, and built there. The stem's line and its defects go to stdout, and the three counts come back.
+    The mirror holds the hand text of the stub again at the end, so the draft of one stem never stands in the build of the next."""
+    # The drafter counts the holes of one draft, so each stem takes its own over the run's one skeleton and registry.
+    drafter = Drafter(sk, registry)
+    draft: list[str] = []
+    for fn in sk.files[stem]:
+        draft += drafter.draft(fn)
+        draft.append("")
+    path = stub_path(stem)
+    hand = path.read_text().splitlines()
+    spliced, replaced = splice(hand, draft)
     target = MIRROR / path.relative_to(REPO)
     if "import Foundation" not in spliced:
         # A stub written before Foundation joined the stub imports gets it in the mirror, so libc math resolves.
@@ -116,10 +123,37 @@ def main() -> None:
     if summaries and not defects and not cascades:
         # An error outside a Swift file is the build's own, and it stands as a defect so a broken mirror never reads clean.
         defects += summaries
-    print(f"{args.stem}: {replaced} of {len(functions(hand))} hand functions replaced, {drafter.holes} holes, {cascades} cascade errors, {len(defects)} defects")
+    print(f"{stem}: {replaced} of {len(functions(hand))} hand functions replaced, {drafter.holes} holes, {cascades} cascade errors, {len(defects)} defects")
     for line in defects:
         print(f"  {line}")
+    subprocess.run(["rsync", "-a", str(path), str(target)], check=True)
+    return drafter.holes, cascades, len(defects)
+
+
+def main() -> None:
+    parser = argparse.ArgumentParser()
+    parser.add_argument("--stem", action="append", default=[], help="the Raven files to draft and build, bg_pmove,bg_misc")
+    parser.add_argument("--all", action="store_true", help="every Raven file the skeleton holds under Sources/JKAMP_BG")
+    args = parser.parse_args()
+    if not args.stem and not args.all:
+        parser.error("give --stem or --all")
+    sk = Skeleton(C.Parse())
+    registry = Registry()
+    if args.all:
+        stems = sorted(stem for stem in sk.files if target_of(stem) == BG)
+    else:
+        stems = [stem for group in args.stem for stem in group.split(",")]
+    mirror()
+    holes = 0
+    cascades = 0
+    defects = 0
+    for stem in stems:
+        counts = gate(sk, registry, stem)
+        holes += counts[0]
+        cascades += counts[1]
+        defects += counts[2]
     print(f"build log: {LOG}")
+    print(f"total: {holes} holes, {cascades} cascade errors, {defects} defects")
     sys.exit(1 if defects else 0)
 
 
