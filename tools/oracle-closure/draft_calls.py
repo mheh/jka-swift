@@ -240,6 +240,12 @@ class Calls:
             # Raven's format argument list takes the text itself, and an optional text takes the bind under his own NULL test.
             return f"{text}!"
         if (param is None or param[1].endswith("...")) and not inout and not addressed and self.is_record(inner.type):
+            first = self.first_text_field(inner.type)
+            if first is not None:
+                # Raven passes the record's address, and the `%s` reads the text at that address, which is the record's first field. Rule 19.
+                self.pending.append("// Port-note: Raven passes the record's address to a `%s`, and the format reads the text at that address.")
+                self.pending.append("// Those bytes are the record's first field, and the port names that field.")
+                return f"{text}.{first[0]}!" if first[1] else f"{text}.{first[0]}"
             raven = " ".join(self.bytes[cur.extent.start.offset:cur.extent.end.offset].decode("utf-8", "replace").split())
             raise Hole(f"Raven passes the record `{raven}` in a format argument list, and a view is no FormatArg.")
         return f"&{text}" if inout else text

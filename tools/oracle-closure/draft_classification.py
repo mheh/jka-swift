@@ -299,6 +299,22 @@ class Classification:
         record = self.types.record_name(canonical)
         return bool(record) and record in self.views.views
 
+    def first_text_field(self, t: ci.Type) -> tuple[str, bool] | None:
+        """The first field of a record when it holds text, as the Swift name the view gives it and whether the view holds it as an optional.
+        A record whose first field holds no text has no answer."""
+        record = t.get_canonical().get_declaration()
+        fields = [f for f in record.get_children() if f.kind == CursorKind.FIELD_DECL]
+        if not fields:
+            return None
+        first = fields[0].type.get_canonical()
+        if first.kind == TypeKind.CONSTANTARRAY and first.element_type.get_canonical().kind == TypeKind.CHAR_S:
+            # A `char name[N]` field is a String on the view.
+            return swift_name(fields[0].spelling), False
+        if first.kind == TypeKind.POINTER and first.get_pointee().get_canonical().kind == TypeKind.CHAR_S:
+            # A `char *` field is a PooledString? on the view.
+            return swift_name(fields[0].spelling), True
+        return None
+
     def callee_name(self, cur: ci.Cursor) -> str | None:
         kids = list(cur.get_children())
         callee = self.strip(kids[0]) if kids else None
