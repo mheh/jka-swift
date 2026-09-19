@@ -29,7 +29,8 @@ This walk ruled on the ten candidate rows that the stop walk left at fb812fd. Th
 
 **Row 5.** A String field of a record passed as a write target to a `char *` parameter crosses as an inout CharBuf through the buffer trap overload, and the record's field is a var. This covers `descBuffer->desc` in bg_saga. One hole.
 
-**Row 6.** When Raven passes one buffer inout to two calls inside one condition, the draft splits the condition. The first call lands in its own statement with its result in a local, and the condition reads the local and the second call. This covers `teamInfo` in bg_saga. One hole.
+**Row 6.** When Raven passes one buffer inout twice to one call inside a test, the copy the statement rule makes lands in its own statement before the test, and the test reads the call with the copy at the earlier position. This covers `teamInfo` in bg_saga. One hole.
+Amended and ratified on 2026-09-18 at build time. The first text described two calls in one condition. The C at bg_saga.c:1279 is one call with the buffer at two inout positions, the shape the statement rule already copies, and the hole stood only because the call sits inside a test.
 
 **Row 7.** A memset with a 0 value over a view's CharBuf field becomes a zero-fill on the field, with the same form as Slots.zero(). The CharBuf surface gains the zero-fill and the drafter maps the memset to it. This covers uiPortrait in bg_saga. One hole.
 

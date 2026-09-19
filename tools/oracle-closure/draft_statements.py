@@ -5,6 +5,7 @@ A statement it has no rule for raises a Hole, and the draft keeps Raven's text u
 from __future__ import annotations
 
 import re
+from contextlib import contextmanager
 
 import clang.cindex as ci
 from clang.cindex import CursorKind, TypeKind
@@ -441,16 +442,10 @@ class Statements:
             return [f"{pad}{rest}"] if rest else []
         if self.is_call(cur) and self.aliased_inouts(cur):
             aliased = self.aliased_inouts(cur)
-            self.slot_copies = {f"{i}:{text}": local for i, text, local in aliased}
-            self.aliased_positions = {i: local for i, _, local in aliased}
-            try:
+            with self.aliased_reads(aliased):
                 call = self.expr(cur)
-            finally:
-                self.slot_copies = {}
-                self.aliased_positions = {}
             inner_pad = INDENT * (depth + 1)
-            note = f"{pad}// Raven passes `{aliased[0][1]}` more than once, and Swift refuses one variable twice inout, so the earlier ones read a copy."
-            before = [f"{inner_pad}var {local} = {text}" for _, text, local in aliased]
+            note, before = self.aliased_copies(aliased, pad, inner_pad)
             return [note, f"{pad}do {{"] + before + [f"{inner_pad}{call}" + self.trailing(cur), f"{pad}}}"]
         if self.is_call(cur):
             copies = self.overlapping_slots(cur)
@@ -476,11 +471,45 @@ class Statements:
             return self.block_body(cur, depth)
         return self.statement(cur, depth)
 
+    @contextmanager
+    def aliased_reads(self, aliased: list[tuple[int, str, str]]):
+        """The draft of one call with each earlier aliased argument read from the copy that stands in for it."""
+        self.slot_copies = {f"{i}:{text}": local for i, text, local in aliased}
+        self.aliased_positions = {i: local for i, _, local in aliased}
+        try:
+            yield
+        finally:
+            self.slot_copies = {}
+            self.aliased_positions = {}
+
+    def aliased_copies(self, aliased: list[tuple[int, str, str]], note_pad: str, copy_pad: str) -> tuple[str, list[str]]:
+        """The note the repeat earns and the declaration of each copy, each at its own pad."""
+        note = f"{note_pad}// Raven passes `{aliased[0][1]}` more than once, and Swift refuses one variable twice inout, so the earlier ones read a copy."
+        return note, [f"{copy_pad}var {local} = {text}" for _, text, local in aliased]
+
+    def aliased_in_test(self, cur: ci.Cursor) -> list[tuple[int, str, str]]:
+        """The earlier aliased arguments of the call under a test, empty when the test holds no call that names one variable twice inout."""
+        for node in cur.walk_preorder():
+            if self.is_call(node):
+                aliased = self.aliased_inouts(node)
+                if aliased:
+                    return aliased
+        return []
+
     def if_statement(self, cur: ci.Cursor, depth: int) -> list[str]:
         pad = INDENT * depth
         kids = list(cur.get_children())
         cond, then = kids[0], kids[1]
-        test = self.condition(cond)
+        aliased = self.aliased_in_test(cond)
+        head: list[str] = []
+        if aliased:
+            # The test has no line of its own for the copies, so they stand before the `if` and the test reads them.
+            note, copies = self.aliased_copies(aliased, pad, pad)
+            head = [note] + copies
+            with self.aliased_reads(aliased):
+                test = self.condition(cond)
+        else:
+            test = self.condition(cond)
         if test == "false":
             # The guard folded away, so its arm never runs, and only the else arm stays.
             self.pending.append("// Raven's arm under the guard has no path, and its text stays here:")
@@ -491,7 +520,7 @@ class Statements:
                 self.pending.append("// Raven's else arm has no path, and its text stays here:")
                 self.pending += self.commented(kids[2])
             return self.branch(then, depth)
-        out = [f"{pad}if {test} {{"] + self.branch(then, depth + 1)
+        out = head + [f"{pad}if {test} {{"] + self.branch(then, depth + 1)
         if len(kids) == 3:
             other = kids[2]
             # Raven's comment between the then arm's brace and his `else` has no seat there in Swift, so it opens the else arm.
