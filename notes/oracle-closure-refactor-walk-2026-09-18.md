@@ -46,3 +46,11 @@ Change 3 landed as 8738e1d. One row closed after it on 2026-09-18.
 | D | The local sweep on first read | replaced: in memory, no writing to disk |
 
 **Row D.** sweep_locals computes a function's local facts on the first read of that function and holds them in memory on the Table, so a generator that never reads them pays nothing and the drafter pays for one stem alone. Table stays the one owner and the one key. Nothing is written to disk.
+
+## Rulings after the walk
+
+| Row | Subject | Verdict |
+|---|---|---|
+| E | The gates in one process | dictated: aggregate the stems instead of one process per stem |
+
+**Row E.** draftcheck.py takes several stems in one invocation. It parses and sweeps once, then drafts, splices, builds, and reports each stem in turn, one line per stem, in the same form as today. The nine gates cost one parse and one sweep instead of nine. Nothing is written to disk beyond the mirror and the build log draftcheck already writes.
