@@ -242,6 +242,19 @@ class Local:
         self.table = table
 
 
+class LocalFacts:
+    """Every fact about the locals of one function, as the local read of the table hands them over in one value.
+
+    `rows` gives the shape of each local the sweep names, under Raven's own name.
+    `written`, `single_writes`, and `addressed` hold the names the body writes, the names one write covers, and the names the body takes the address of."""
+
+    def __init__(self, rows: dict[str, Local], written: set[str], single_writes: set[str], addressed: set[str]) -> None:
+        self.rows = rows
+        self.written = written
+        self.single_writes = single_writes
+        self.addressed = addressed
+
+
 class Table:
     def __init__(self, parse: C.Parse, views: Generator | None = None) -> None:
         self.parse = parse
@@ -271,6 +284,8 @@ class Table:
         self.buffer_traps: set[tuple[str, str]] = set()
         # The game fields a bg body reaches, by the key of each read, which the channel carries and the draft calls.
         self.reads: dict[tuple[str, tuple[str, ...], bool], Read] = {}
+        # The body of each function of the game unit, by file stem and name, which the cursor sweep fills so a local read reaches its body.
+        self.functions: dict[tuple[str, str], ci.Cursor] = {}
         # Every local the local sweep gives a shape, by file stem, function, and name, the key the cursor sweep uses.
         self.locals: dict[tuple[str, str, str], Local] = {}
         # The names each body writes after their declaration, by file stem and function.
@@ -644,13 +659,15 @@ class Table:
         would never reach Raven's own buffer.
         Every store into the local must be the buffer or the buffer plus an offset. A local with a store of any other shape has
         no row here, and the draft keeps the hole it carries today.
-        The sweep also names the file-scope buffers a write cursor points into, which is Raven's write through an alias."""
+        The sweep also names the file-scope buffers a write cursor points into, which is Raven's write through an alias.
+        It holds the body of every function it walks, which the local read of one function walks again on its first read."""
         for cur in tu.cursor.get_children():
             if cur.kind != CursorKind.FUNCTION_DECL or not cur.is_definition() or not cur.location.file:
                 continue
             path = Path(cur.location.file.name).resolve()
             if path.parent != folder or path.suffix != ".c":
                 continue
+            self.functions[(path.stem, cur.spelling)] = cur
             data = C.parsed_bytes(path)
             buffers = self.cursor_buffers(cur, data)
             if not buffers:
@@ -798,33 +815,41 @@ class Table:
 
     # MARK: - The local sweep
 
-    def sweep_locals(self, tu: ci.TranslationUnit, folder: Path) -> None:
-        """The facts about the locals of every function, computed once here, which a drafter reads instead of a walk of its own.
+    def locals_of(self, stem: str, function: str) -> LocalFacts:
+        """The facts about the locals of one function, which a drafter reads instead of a walk of its own.
+
+        The first read of a function computes them, and every later read takes them from the four stores of the table.
+        A generator that reads no body pays nothing, and a drafter of one stem pays for the functions of that stem alone.
+        A function outside the game unit has no body here, and its facts are empty."""
+        key = (stem, function)
+        if key not in self.written_names:
+            self.sweep_locals(key)
+        rows = {name: row for (owner_stem, owner, name), row in self.locals.items() if (owner_stem, owner) == key}
+        return LocalFacts(rows, self.written_names[key], self.single_writes[key], self.addressed_names[key])
+
+    def sweep_locals(self, key: tuple[str, str]) -> None:
+        """The one walk that fills the four stores of the table for one function, which the local read calls once per function.
 
         A `char *` local over a named buffer keeps the row the cursor sweep already wrote, so no walk reads those stores twice.
         A pointer local Raven sets to a file-scope table of records, or to a parameter spelled as a `Slots`, walks that table,
         and a reader of the fact walks it by index instead.
         The three name sets hold every name the body writes, every name one write covers, and every name the body takes the address of."""
-        by_function: dict[tuple[str, str], dict[str, Local]] = {}
-        for (stem, owner, name), cursor in self.cursors.items():
-            by_function.setdefault((stem, owner), {})[name] = Local(cursor=cursor)
-        for cur in tu.cursor.get_children():
-            if cur.kind != CursorKind.FUNCTION_DECL or not cur.is_definition() or not cur.location.file:
-                continue
-            path = Path(cur.location.file.name).resolve()
-            if path.parent != folder or path.suffix != ".c":
-                continue
-            data = C.parsed_bytes(path)
-            key = (path.stem, cur.spelling)
-            walks, written, addressed = self.body_walk(cur, data)
-            rows = by_function.get(key, {})
-            for name, walk in walks.items():
-                rows.setdefault(name, Local()).table = walk
-            for name, row in rows.items():
-                self.locals[(key[0], key[1], name)] = row
-            self.written_names[key] = written
-            self.addressed_names[key] = addressed
-            self.single_writes[key] = self.single_written(cur, data)
+        self.written_names[key] = set()
+        self.addressed_names[key] = set()
+        self.single_writes[key] = set()
+        cur = self.functions.get(key)
+        if cur is None:
+            return
+        data = C.parsed_bytes(Path(cur.location.file.name).resolve())
+        rows = {name: Local(cursor=cursor) for (stem, owner, name), cursor in self.cursors.items() if (stem, owner) == key}
+        walks, written, addressed = self.body_walk(cur, data)
+        for name, walk in walks.items():
+            rows.setdefault(name, Local()).table = walk
+        for name, row in rows.items():
+            self.locals[(key[0], key[1], name)] = row
+        self.written_names[key] = written
+        self.addressed_names[key] = addressed
+        self.single_writes[key] = self.single_written(cur, data)
 
     def body_walk(self, fn: ci.Cursor, data: bytes) -> tuple[dict[str, tuple[str, str]], set[str], set[str]]:
         """One walk of the body for the three facts each node carries: the table walks, the written names, and the addressed names.
@@ -1058,7 +1083,7 @@ class Table:
         and so does a call from the cgame's own .c files.
         The store sweep, the text sweep, and the return sweep walk every .c file of the game folder, because the body of the callee decides all three.
         The cursor sweep follows the text sweep, because a local's kind reads which callee writes through its own `char *` parameter.
-        The local sweep follows the cursor sweep, because it carries every cursor row forward instead of reading those stores again.
+        The local facts are not swept here. The cursor sweep leaves the body of every function behind, and the first read of a function computes its locals from that body.
         The subscript sweep and the buffer sweep walk both units the same way the NULL sweep does, because a body has one arm in each of them.
         The read sweep closes the walk, and every generator that carries a game field reads its result from the table."""
         tu, folder = self.parse.game, self.parse.game_folder
@@ -1072,7 +1097,6 @@ class Table:
         self.sweep_stores(tu, folder)
         self.sweep_text(tu, folder)
         self.sweep_cursors(tu, folder)
-        self.sweep_locals(tu, folder)
         self.sweep_returns(tu, folder)
         self.reads = {read.key: read for read in self.sweep_reads(tu, folder)}
 

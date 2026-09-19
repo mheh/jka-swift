@@ -194,13 +194,13 @@ class Drafter:
         self.aliased_positions: dict[int, str] = {}
         # Raven's `animation_t *animations` local that only ever holds a table of records, which Swift holds as the Slots over it.
         self.slots_locals = self.slots_local_names(fn.cur)
-        key = (fn.stem, fn.cur.spelling)
-        self.lets = self.sk.table.single_writes.get(key, set())
+        facts = self.sk.table.locals_of(fn.stem, fn.cur.spelling)
+        self.lets = facts.single_writes
         if any(self.record_local(c) is not None for c in fn.cur.walk_preorder()):
             # A closure cannot initialize a let of the enclosing body, so a body with a scratch record keeps every local a var.
             self.lets = set()
-        self.written = self.sk.table.written_names.get(key, set())
-        self.addressed = self.sk.table.addressed_names.get(key, set())
+        self.written = facts.written
+        self.addressed = facts.addressed
         self.has_scratch = any(self.record_local(c) is not None for c in fn.cur.walk_preorder())
         self.inout_locals = {c.spelling for c, p in zip(fn.cur.get_arguments(), fn.params) if (p.swift or "").startswith("inout ")}
         # Raven assigns a parameter of his own. A Swift parameter is immutable, so the body opens with a mutable copy, after the declarations.
@@ -604,13 +604,11 @@ class Drafter:
         return False
 
     def local_facts(self, fn: Function) -> tuple[dict[str, Cursor], dict[str, Cursor], dict[str, tuple[str, str]]]:
-        """The read cursors, the write cursors, and the table walks of one body, by the local sweep of the table, each under Raven's own name."""
+        """The read cursors, the write cursors, and the table walks of one body, by the local read of the table, each under Raven's own name."""
         reads: dict[str, Cursor] = {}
         writes: dict[str, Cursor] = {}
         walks: dict[str, tuple[str, str]] = {}
-        for (stem, owner, name), row in self.sk.table.locals.items():
-            if stem != fn.stem or owner != fn.cur.spelling:
-                continue
+        for name, row in self.sk.table.locals_of(fn.stem, fn.cur.spelling).rows.items():
             if row.cursor is not None:
                 (writes if row.cursor.write else reads)[name] = row.cursor
             if row.table is not None:
