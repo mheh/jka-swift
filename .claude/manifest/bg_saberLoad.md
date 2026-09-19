@@ -43,6 +43,6 @@ The oracle range is the whole definition, from the return type to the closing br
 | Variable | Oracle | Kind | Entry |
 |---|---|---|---|
 | `SaberParms` | `oracle/codemp/game/bg_saberLoad.c:44` | state | `}` |
-| `SaberTable` | `oracle/codemp/game/bg_saberLoad.c:46` | storage_data | `// Raven's data table is C storage by hand in the C target, with his initializer as written, reached as a Slots over the C array, the bg_tables.c shape.` |
-| `SaberMoveTable` | `oracle/codemp/game/bg_saberLoad.c:63` | storage_data | `// Raven's data table is C storage by hand in the C target, with his initializer as written, reached as a Slots over the C array, the bg_tables.c shape.` |
+| `SaberTable` | `oracle/codemp/game/bg_saberLoad.c:46` | storage_data | `// Raven's data table is C storage in the C target, with his initializer as written, reached as a Slots over the C array, the bg_tables.c shape that tables.py writes.` |
+| `SaberMoveTable` | `oracle/codemp/game/bg_saberLoad.c:63` | storage_data | `// Raven's data table is C storage in the C target, with his initializer as written, reached as a Slots over the C array, the bg_tables.c shape that tables.py writes.` |
 | `bgSaberParseTBuffer` | `oracle/codemp/game/bg_saberLoad.c:2736` | state | `}` |

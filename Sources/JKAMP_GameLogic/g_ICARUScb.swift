@@ -8,7 +8,7 @@ import JKAMP_Game
 /// Source: oracle/codemp/game/g_ICARUScb.c:52
 // TODO: Port global setTable
 // Raven wrote: stringID_table_t setTable[]
-// Raven's data table is C storage by hand in the C target, with his initializer as written, reached as a Slots over the C array, the bg_tables.c shape.
+// Raven's data table is C storage in the C target, with his initializer as written, reached as a Slots over the C array, the bg_tables.c shape that tables.py writes.
 
 /// Source: oracle/codemp/game/g_ICARUScb.c:3895
 // Raven wrote: char cinematicSkipScript[1024]

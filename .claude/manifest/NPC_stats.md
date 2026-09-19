@@ -20,10 +20,10 @@ The oracle range is the whole definition, from the return type to the closing br
 
 | Variable | Oracle | Kind | Entry |
 |---|---|---|---|
-| `TeamTable` | `oracle/codemp/game/NPC_stats.c:14` | storage_data | `// Raven's data table is C storage by hand in the C target, with his initializer as written, reached as a Slots over the C array, the bg_tables.c shape.` |
-| `ClassTable` | `oracle/codemp/game/NPC_stats.c:24` | storage_data | `// Raven's data table is C storage by hand in the C target, with his initializer as written, reached as a Slots over the C array, the bg_tables.c shape.` |
-| `BSTable` | `oracle/codemp/game/NPC_stats.c:88` | storage_data | `// Raven's data table is C storage by hand in the C target, with his initializer as written, reached as a Slots over the C array, the bg_tables.c shape.` |
-| `BSETTable` | `oracle/codemp/game/NPC_stats.c:106` | storage_data | `// Raven's data table is C storage by hand in the C target, with his initializer as written, reached as a Slots over the C array, the bg_tables.c shape.` |
+| `TeamTable` | `oracle/codemp/game/NPC_stats.c:14` | storage_data | `// Raven's data table is C storage in the C target, with his initializer as written, reached as a Slots over the C array, the bg_tables.c shape that tables.py writes.` |
+| `ClassTable` | `oracle/codemp/game/NPC_stats.c:24` | storage_data | `// Raven's data table is C storage in the C target, with his initializer as written, reached as a Slots over the C array, the bg_tables.c shape that tables.py writes.` |
+| `BSTable` | `oracle/codemp/game/NPC_stats.c:88` | storage_data | `// Raven's data table is C storage in the C target, with his initializer as written, reached as a Slots over the C array, the bg_tables.c shape that tables.py writes.` |
+| `BSETTable` | `oracle/codemp/game/NPC_stats.c:106` | storage_data | `// Raven's data table is C storage in the C target, with his initializer as written, reached as a Slots over the C array, the bg_tables.c shape that tables.py writes.` |
 | `TeamNames` | `oracle/codemp/game/NPC_stats.c:133` | state_data | `}` |
 | `ClassNames` | `oracle/codemp/game/NPC_stats.c:156` | let | `let ClassNames: [String] = { () -> [String] in portMissing("ClassNames", source: "oracle/codemp/game/NPC_stats.c:156") }()` |
 | `NPCParms` | `oracle/codemp/game/NPC_stats.c:237` | state | `}` |

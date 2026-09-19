@@ -34,6 +34,6 @@ The oracle range is the whole definition, from the return type to the closing br
 | `numVehicleWeapons` | `oracle/codemp/game/bg_vehicleLoad.c:104` | state | `}` |
 | `g_vehicleInfo` | `oracle/codemp/game/bg_vehicleLoad.c:106` | storage | `var g_vehicleInfo: Slots<JKAMP.VehicleInfo> { bg.storage.g_vehicleInfo }` |
 | `numVehicles` | `oracle/codemp/game/bg_vehicleLoad.c:107` | state | `}` |
-| `vehWeaponFields` | `oracle/codemp/game/bg_vehicleLoad.c:138` | storage_data | `// Raven's data table is C storage by hand in the C target, with his initializer as written, reached as a Slots over the C array, the bg_tables.c shape.` |
-| `vehicleFields` | `oracle/codemp/game/bg_vehicleLoad.c:445` | storage_data | `// Raven's data table is C storage by hand in the C target, with his initializer as written, reached as a Slots over the C array, the bg_tables.c shape.` |
-| `VehicleTable` | `oracle/codemp/game/bg_vehicleLoad.c:671` | storage_data | `// Raven's data table is C storage by hand in the C target, with his initializer as written, reached as a Slots over the C array, the bg_tables.c shape.` |
+| `vehWeaponFields` | `oracle/codemp/game/bg_vehicleLoad.c:138` | storage_data | `// Raven's data table is C storage in the C target, with his initializer as written, reached as a Slots over the C array, the bg_tables.c shape that tables.py writes.` |
+| `vehicleFields` | `oracle/codemp/game/bg_vehicleLoad.c:445` | storage_data | `// Raven's data table is C storage in the C target, with his initializer as written, reached as a Slots over the C array, the bg_tables.c shape that tables.py writes.` |
+| `VehicleTable` | `oracle/codemp/game/bg_vehicleLoad.c:671` | storage_data | `// Raven's data table is C storage in the C target, with his initializer as written, reached as a Slots over the C array, the bg_tables.c shape that tables.py writes.` |

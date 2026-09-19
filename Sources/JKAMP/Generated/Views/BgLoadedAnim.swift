@@ -70,10 +70,11 @@ public struct BgLoadedAnim: Hashable, HandleView {
     }
 
     /// Raven's `anims[i]`, the records the pointer holds. A NULL pointer traps with the field's name.
+    /// Raven's `MAX_ANIMATIONS` bounds the records behind the pointer.
     public var animsSlots: Slots<Animation> {
         get {
             precondition(self.raw.pointee.anims != nil, "anims is NULL")
-            return Slots(views: UnsafeMutableRawPointer(self.raw.pointee.anims!), count: Int.max, stride: Animation.stride)
+            return Slots(views: UnsafeMutableRawPointer(self.raw.pointee.anims!), count: Int(MAX_ANIMATIONS), stride: Animation.stride)
         }
         nonmutating set { self.raw.pointee.anims = newValue.base.assumingMemoryBound(to: animation_t.self) }
     }

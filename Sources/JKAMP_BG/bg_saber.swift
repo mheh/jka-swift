@@ -19,7 +19,7 @@ let AFLAG_FINISH = (JKAShared.SETANIM_FLAG_HOLD)
 /// Source: oracle/codemp/game/bg_saber.c:120
 // TODO: Port global saberMoveData
 // Raven wrote: saberMoveData_t saberMoveData[LS_MOVE_MAX]
-// Raven's data table is C storage by hand in the C target, with his initializer as written, reached as a Slots over the C array, the bg_tables.c shape.
+// Raven's data table is C storage in the C target, with his initializer as written, reached as a Slots over the C array, the bg_tables.c shape that tables.py writes.
 
 /// Source: oracle/codemp/game/bg_saber.c:324
 // Raven wrote: int transitionMove[Q_NUM_QUADS][Q_NUM_QUADS]

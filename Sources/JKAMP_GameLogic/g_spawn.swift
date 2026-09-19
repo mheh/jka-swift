@@ -8,12 +8,12 @@ import JKAMP_Game
 /// Source: oracle/codemp/game/g_spawn.c:54
 // TODO: Port global fields
 // Raven wrote: BG_field_t fields[]
-// Raven's data table is C storage by hand in the C target, with his initializer as written, reached as a Slots over the C array, the bg_tables.c shape.
+// Raven's data table is C storage in the C target, with his initializer as written, reached as a Slots over the C array, the bg_tables.c shape that tables.py writes.
 
 /// Source: oracle/codemp/game/g_spawn.c:435
 // TODO: Port global spawns
 // Raven wrote: spawn_t spawns[]
-// Raven's data table is C storage by hand in the C target, with his initializer as written, reached as a Slots over the C array, the bg_tables.c shape.
+// Raven's data table is C storage in the C target, with his initializer as written, reached as a Slots over the C array, the bg_tables.c shape that tables.py writes.
 
 /// Source: oracle/codemp/game/g_spawn.c:886
 let NOVALUE = "novalue"

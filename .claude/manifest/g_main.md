@@ -208,7 +208,7 @@ The oracle range is the whole definition, from the return type to the closing br
 | `g_powerDuelStartHealth` | `oracle/codemp/game/g_main.c:222` | storage | `var g_powerDuelStartHealth: JKAMP.VmCvar { world.storage.g_powerDuelStartHealth }` |
 | `g_powerDuelEndHealth` | `oracle/codemp/game/g_main.c:223` | storage | `var g_powerDuelEndHealth: JKAMP.VmCvar { world.storage.g_powerDuelEndHealth }` |
 | `g_showDuelHealths` | `oracle/codemp/game/g_main.c:227` | storage | `var g_showDuelHealths: JKAMP.VmCvar { world.storage.g_showDuelHealths }` |
-| `gameCvarTable` | `oracle/codemp/game/g_main.c:230` | storage_data | `// Raven's data table is C storage by hand in the C target, with his initializer as written, reached as a Slots over the C array, the bg_tables.c shape.` |
+| `gameCvarTable` | `oracle/codemp/game/g_main.c:230` | storage_data | `// Raven's data table is C storage in the C target, with his initializer as written, reached as a Slots over the C array, the bg_tables.c shape that tables.py writes.` |
 | `gameCvarTableSize` | `oracle/codemp/game/g_main.c:478` | let | `let gameCvarTableSize: Int32 = { () -> Int32 in portMissing("gameCvarTableSize", source: "oracle/codemp/game/g_main.c:478") }()` |
 | `gSharedBuffer` | `oracle/codemp/game/g_main.c:881` | state | `}` |
 | `g_duelAssigning` | `oracle/codemp/game/g_main.c:1345` | let | `let g_duelAssigning: Bool = { () -> Bool in portMissing("g_duelAssigning", source: "oracle/codemp/game/g_main.c:1345") }()` |

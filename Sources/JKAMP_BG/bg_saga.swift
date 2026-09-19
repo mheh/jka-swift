@@ -52,32 +52,32 @@ var bgNumSiegeTeams: Int32 {
 /// Source: oracle/codemp/game/bg_saga.c:45
 // TODO: Port global bgSiegeClassFlagNames
 // Raven wrote: stringID_table_t bgSiegeClassFlagNames[]
-// Raven's data table is C storage by hand in the C target, with his initializer as written, reached as a Slots over the C array, the bg_tables.c shape.
+// Raven's data table is C storage in the C target, with his initializer as written, reached as a Slots over the C array, the bg_tables.c shape that tables.py writes.
 
 /// Source: oracle/codemp/game/bg_saga.c:59
 // TODO: Port global StanceTable
 // Raven wrote: stringID_table_t StanceTable[]
-// Raven's data table is C storage by hand in the C target, with his initializer as written, reached as a Slots over the C array, the bg_tables.c shape.
+// Raven's data table is C storage in the C target, with his initializer as written, reached as a Slots over the C array, the bg_tables.c shape that tables.py writes.
 
 /// Source: oracle/codemp/game/bg_saga.c:73
 // TODO: Port global WPTable
 // Raven wrote: stringID_table_t WPTable[]
-// Raven's data table is C storage by hand in the C target, with his initializer as written, reached as a Slots over the C array, the bg_tables.c shape.
+// Raven's data table is C storage in the C target, with his initializer as written, reached as a Slots over the C array, the bg_tables.c shape that tables.py writes.
 
 /// Source: oracle/codemp/game/bg_saga.c:100
 // TODO: Port global FPTable
 // Raven wrote: stringID_table_t FPTable[]
-// Raven's data table is C storage by hand in the C target, with his initializer as written, reached as a Slots over the C array, the bg_tables.c shape.
+// Raven's data table is C storage in the C target, with his initializer as written, reached as a Slots over the C array, the bg_tables.c shape that tables.py writes.
 
 /// Source: oracle/codemp/game/bg_saga.c:123
 // TODO: Port global HoldableTable
 // Raven wrote: stringID_table_t HoldableTable[]
-// Raven's data table is C storage by hand in the C target, with his initializer as written, reached as a Slots over the C array, the bg_tables.c shape.
+// Raven's data table is C storage in the C target, with his initializer as written, reached as a Slots over the C array, the bg_tables.c shape that tables.py writes.
 
 /// Source: oracle/codemp/game/bg_saga.c:142
 // TODO: Port global PowerupTable
 // Raven wrote: stringID_table_t PowerupTable[]
-// Raven's data table is C storage by hand in the C target, with his initializer as written, reached as a Slots over the C array, the bg_tables.c shape.
+// Raven's data table is C storage in the C target, with his initializer as written, reached as a Slots over the C array, the bg_tables.c shape that tables.py writes.
 
 /// Source: oracle/codemp/game/bg_saga.c:748
 /// Raven's data table, a hand property of `BgState`.

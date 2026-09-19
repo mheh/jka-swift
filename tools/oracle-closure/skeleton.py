@@ -631,7 +631,7 @@ class Skeleton:
                      "}"]
         elif kind == "storage_data":
             lines.insert(1, f"// TODO: Port global {var.name}")
-            lines.append("// Raven's data table is C storage by hand in the C target, with his initializer as written, reached as a Slots over the C array, the bg_tables.c shape.")
+            lines.append("// Raven's data table is C storage in the C target, with his initializer as written, reached as a Slots over the C array, the bg_tables.c shape that tables.py writes.")
         elif kind in ("storage", "pointer_table"):
             # The allocation lives on the state object's generated storage class, and the stub carries the name at Raven's line.
             spelled = "bg" if target_of(var.stem) == BG else "world"

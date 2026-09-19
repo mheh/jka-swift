@@ -59,10 +59,11 @@ public struct Level: Hashable, HandleView {
     }
 
     /// Raven's `clients[i]`, the records the pointer holds. A NULL pointer traps with the field's name.
+    /// Raven's `MAX_CLIENTS` bounds the records behind the pointer.
     public var clientsSlots: Slots<Client> {
         get {
             precondition(self.raw.pointee.clients != nil, "clients is NULL")
-            return Slots(views: UnsafeMutableRawPointer(self.raw.pointee.clients!), count: Int.max, stride: Client.stride)
+            return Slots(views: UnsafeMutableRawPointer(self.raw.pointee.clients!), count: Int(JKAMP.MAX_CLIENTS), stride: Client.stride)
         }
         nonmutating set { self.raw.pointee.clients = newValue.base.assumingMemoryBound(to: gclient_t.self) }
     }

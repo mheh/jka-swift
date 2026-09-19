@@ -173,7 +173,7 @@ The oracle range is the whole definition, from the return type to the closing br
 
 | Variable | Oracle | Kind | Entry |
 |---|---|---|---|
-| `setTable` | `oracle/codemp/game/g_ICARUScb.c:52` | storage_data | `// Raven's data table is C storage by hand in the C target, with his initializer as written, reached as a Slots over the C array, the bg_tables.c shape.` |
+| `setTable` | `oracle/codemp/game/g_ICARUScb.c:52` | storage_data | `// Raven's data table is C storage in the C target, with his initializer as written, reached as a Slots over the C array, the bg_tables.c shape that tables.py writes.` |
 | `cinematicSkipScript` | `oracle/codemp/game/g_ICARUScb.c:3895` | let | `nonisolated(unsafe) let cinematicSkipScript: JKAShared.CharBuf = JKAShared.CharBuf(1024)` |
 | `player_locked` | `oracle/codemp/game/g_ICARUScb.c:4575` | let | `let player_locked: Bool = { () -> Bool in portMissing("player_locked", source: "oracle/codemp/game/g_ICARUScb.c:4575") }()` |
 | `textcolor_caption` | `oracle/codemp/game/g_ICARUScb.c:4933` | state | `}` |

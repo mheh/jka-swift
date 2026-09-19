@@ -40,10 +40,10 @@ The oracle range is the whole definition, from the return type to the closing br
 | `bgNumSiegeClasses` | `oracle/codemp/game/bg_saga.c:39` | state | `}` |
 | `bgSiegeTeams` | `oracle/codemp/game/bg_saga.c:41` | storage | `var bgSiegeTeams: Slots<JKAMP.SiegeTeam> { bg.storage.bgSiegeTeams }` |
 | `bgNumSiegeTeams` | `oracle/codemp/game/bg_saga.c:42` | state | `}` |
-| `bgSiegeClassFlagNames` | `oracle/codemp/game/bg_saga.c:45` | storage_data | `// Raven's data table is C storage by hand in the C target, with his initializer as written, reached as a Slots over the C array, the bg_tables.c shape.` |
-| `StanceTable` | `oracle/codemp/game/bg_saga.c:59` | storage_data | `// Raven's data table is C storage by hand in the C target, with his initializer as written, reached as a Slots over the C array, the bg_tables.c shape.` |
-| `WPTable` | `oracle/codemp/game/bg_saga.c:73` | storage_data | `// Raven's data table is C storage by hand in the C target, with his initializer as written, reached as a Slots over the C array, the bg_tables.c shape.` |
-| `FPTable` | `oracle/codemp/game/bg_saga.c:100` | storage_data | `// Raven's data table is C storage by hand in the C target, with his initializer as written, reached as a Slots over the C array, the bg_tables.c shape.` |
-| `HoldableTable` | `oracle/codemp/game/bg_saga.c:123` | storage_data | `// Raven's data table is C storage by hand in the C target, with his initializer as written, reached as a Slots over the C array, the bg_tables.c shape.` |
-| `PowerupTable` | `oracle/codemp/game/bg_saga.c:142` | storage_data | `// Raven's data table is C storage by hand in the C target, with his initializer as written, reached as a Slots over the C array, the bg_tables.c shape.` |
+| `bgSiegeClassFlagNames` | `oracle/codemp/game/bg_saga.c:45` | storage_data | `// Raven's data table is C storage in the C target, with his initializer as written, reached as a Slots over the C array, the bg_tables.c shape that tables.py writes.` |
+| `StanceTable` | `oracle/codemp/game/bg_saga.c:59` | storage_data | `// Raven's data table is C storage in the C target, with his initializer as written, reached as a Slots over the C array, the bg_tables.c shape that tables.py writes.` |
+| `WPTable` | `oracle/codemp/game/bg_saga.c:73` | storage_data | `// Raven's data table is C storage in the C target, with his initializer as written, reached as a Slots over the C array, the bg_tables.c shape that tables.py writes.` |
+| `FPTable` | `oracle/codemp/game/bg_saga.c:100` | storage_data | `// Raven's data table is C storage in the C target, with his initializer as written, reached as a Slots over the C array, the bg_tables.c shape that tables.py writes.` |
+| `HoldableTable` | `oracle/codemp/game/bg_saga.c:123` | storage_data | `// Raven's data table is C storage in the C target, with his initializer as written, reached as a Slots over the C array, the bg_tables.c shape that tables.py writes.` |
+| `PowerupTable` | `oracle/codemp/game/bg_saga.c:142` | storage_data | `// Raven's data table is C storage in the C target, with his initializer as written, reached as a Slots over the C array, the bg_tables.c shape that tables.py writes.` |
 | `classTitles` | `oracle/codemp/game/bg_saga.c:748` | state_data | `}` |

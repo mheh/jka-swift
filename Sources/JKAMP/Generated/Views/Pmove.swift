@@ -203,10 +203,11 @@ public struct Pmove: Hashable, HandleView {
     }
 
     /// Raven's `animations[i]`, the records the pointer holds. A NULL pointer traps with the field's name.
+    /// Raven's `MAX_ANIMATIONS` bounds the records behind the pointer.
     public var animationsSlots: Slots<Animation> {
         get {
             precondition(self.raw.pointee.animations != nil, "animations is NULL")
-            return Slots(views: UnsafeMutableRawPointer(self.raw.pointee.animations!), count: Int.max, stride: Animation.stride)
+            return Slots(views: UnsafeMutableRawPointer(self.raw.pointee.animations!), count: Int(MAX_ANIMATIONS), stride: Animation.stride)
         }
         nonmutating set { self.raw.pointee.animations = newValue.base.assumingMemoryBound(to: animation_t.self) }
     }

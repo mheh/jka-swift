@@ -40,7 +40,7 @@ from clang.cindex import CursorKind, TypeKind
 
 import closure as C
 from reexport import DEPS, GAME_TARGET, SCALARS, SOURCES, VIEW_OF, source_lines
-from rulings import NEVER_NULL, ROOTS
+from rulings import NEVER_NULL, ROOTS, SLOT_BOUNDS
 from spelling import Types
 
 # Every C target the game module's translation unit reaches, most specific first.
@@ -229,9 +229,9 @@ class Generator:
                 view = self.qualified_view(record, target)
                 if self.never_null(field):
                     get = f"{view}(handle: OpaquePointer({pointee}!))"
-                    return self.trapping(name, view, get, f"{pointee} = UnsafeMutablePointer(newValue.handle)") + self.slots(field, view, self.c_name_of(inner))
+                    return self.trapping(name, view, get, f"{pointee} = UnsafeMutablePointer(newValue.handle)") + self.slots(field, view, self.c_name_of(inner), target)
                 return self.property(name, f"{view}?", f"{pointee}.map {{ {view}(handle: OpaquePointer($0)) }}",
-                                     f"{pointee} = UnsafeMutablePointer(newValue?.handle)") + self.slots(field, view, self.c_name_of(inner))
+                                     f"{pointee} = UnsafeMutablePointer(newValue?.handle)") + self.slots(field, view, self.c_name_of(inner), target)
             back = "UnsafeMutableRawPointer" if inner.get_canonical().kind == TypeKind.VOID else "UnsafeMutablePointer"
             lines = self.property(name, "OpaquePointer?", f"OpaquePointer({pointee})", f"{pointee} = {back}(newValue)")
             if inner.get_canonical().kind == TypeKind.FLOAT:
@@ -350,22 +350,36 @@ class Generator:
         owner = self.types.record_name(field.semantic_parent.type) or field.semantic_parent.spelling
         return (owner, field.spelling) in self.indexed_fields
 
-    def slots(self, field: ci.Cursor, view: str, c_name: str) -> list[str]:
+    def slots_count(self, field: ci.Cursor, target: str) -> tuple[str, str]:
+        """The count of a pointer field's Slots, and the line that states where the count comes from.
+
+        SLOT_BOUNDS names Raven's own macro for a field a ruling has bounded, and the view spells it as its module exports it.
+        A field the rule does not name takes the widest count, and Raven's own index is the one that reads."""
+        owner = self.types.record_name(field.semantic_parent.type) or field.semantic_parent.spelling
+        macro = SLOT_BOUNDS.get((owner, field.spelling))
+        if macro is None:
+            return "Int.max", "C gives the pointer no bound, so the Slots takes the widest count."
+        exported = self.exported_names(target)
+        spelled = f"{exported[macro]}.{macro}" if macro in exported and exported[macro] != VIEW_OF[target] else macro
+        return f"Int({spelled})", f"Raven's `{macro}` bounds the records behind the pointer."
+
+    def slots(self, field: ci.Cursor, view: str, c_name: str, target: str) -> list[str]:
         """The second accessor of a struct pointer field a body indexes, the Slots over the records the pointer holds.
 
-        A `float *` field carries its vector accessor the same way. The pointer stays inside the view by rule 11.
-        C gives the pointer no bound, so the Slots takes the widest count and Raven's own index is the one that reads."""
+        A `float *` field carries its vector accessor the same way. The pointer stays inside the view by rule 11."""
         if not self.indexed(field):
             return []
         name = field.spelling
         pointee = f"self.raw.pointee.{name}"
+        count, reason = self.slots_count(field, target)
         return [
             "",
             f"    /// Raven's `{name}[i]`, the records the pointer holds. A NULL pointer traps with the field's name.",
+            f"    /// {reason}",
             f"    public var {name}Slots: Slots<{view}> {{",
             "        get {",
             f"            precondition({pointee} != nil, \"{name} is NULL\")",
-            f"            return Slots(views: UnsafeMutableRawPointer({pointee}!), count: Int.max, stride: {view}.stride)",
+            f"            return Slots(views: UnsafeMutableRawPointer({pointee}!), count: {count}, stride: {view}.stride)",
             "        }",
             f"        nonmutating set {{ {pointee} = newValue.base.assumingMemoryBound(to: {c_name}.self) }}",
             "    }",

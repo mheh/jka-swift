@@ -43,17 +43,17 @@ var numVehicles: Int32 {
 /// Source: oracle/codemp/game/bg_vehicleLoad.c:138
 // TODO: Port global vehWeaponFields
 // Raven wrote: vehField_t vehWeaponFields[NUM_VWEAP_PARMS]
-// Raven's data table is C storage by hand in the C target, with his initializer as written, reached as a Slots over the C array, the bg_tables.c shape.
+// Raven's data table is C storage in the C target, with his initializer as written, reached as a Slots over the C array, the bg_tables.c shape that tables.py writes.
 
 /// Source: oracle/codemp/game/bg_vehicleLoad.c:445
 // TODO: Port global vehicleFields
 // Raven wrote: vehField_t vehicleFields[]
-// Raven's data table is C storage by hand in the C target, with his initializer as written, reached as a Slots over the C array, the bg_tables.c shape.
+// Raven's data table is C storage in the C target, with his initializer as written, reached as a Slots over the C array, the bg_tables.c shape that tables.py writes.
 
 /// Source: oracle/codemp/game/bg_vehicleLoad.c:671
 // TODO: Port global VehicleTable
 // Raven wrote: stringID_table_t VehicleTable[VH_NUM_VEHICLES+1]
-// Raven's data table is C storage by hand in the C target, with his initializer as written, reached as a Slots over the C array, the bg_tables.c shape.
+// Raven's data table is C storage in the C target, with his initializer as written, reached as a Slots over the C array, the bg_tables.c shape that tables.py writes.
 
 /// Source: oracle/codemp/game/bg_vehicleLoad.c:79
 func BG_ClearVehicleParseParms() {

@@ -57,7 +57,7 @@ The oracle range is the whole definition, from the return type to the closing br
 | `WeaponReadyAnim` | `oracle/codemp/game/bg_misc.c:242` | state_data | `}` |
 | `WeaponReadyLegsAnim` | `oracle/codemp/game/bg_misc.c:268` | state_data | `}` |
 | `WeaponAttackAnim` | `oracle/codemp/game/bg_misc.c:294` | state_data | `}` |
-| `bg_itemlist` | `oracle/codemp/game/bg_misc.c:795` | storage_data | `// Raven's data table is C storage by hand in the C target, with his initializer as written, reached as a Slots over the C array, the bg_tables.c shape.` |
+| `bg_itemlist` | `oracle/codemp/game/bg_misc.c:795` | storage_data | `// Raven's data table is C storage in the C target, with his initializer as written, reached as a Slots over the C array, the bg_tables.c shape that tables.py writes.` |
 | `bg_numItems` | `oracle/codemp/game/bg_misc.c:1771` | let | `let bg_numItems: Int32 = { () -> Int32 in portMissing("bg_numItems", source: "oracle/codemp/game/bg_misc.c:1771") }()` |
 | `eventnames` | `oracle/codemp/game/bg_misc.c:2464` | let | `let eventnames: [String] = { () -> [String] in portMissing("eventnames", source: "oracle/codemp/game/bg_misc.c:2464") }()` |
 | `bg_pool` | `oracle/codemp/game/bg_misc.c:3324` | hand | `// A hand property of the state object, `bg.pool`, by the HAND_VARS ruling.` |

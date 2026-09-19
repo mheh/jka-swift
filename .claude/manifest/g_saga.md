@@ -52,7 +52,7 @@ The oracle range is the whole definition, from the return type to the closing br
 |---|---|---|---|
 | `team1` | `oracle/codemp/game/g_saga.c:17` | state | `}` |
 | `team2` | `oracle/codemp/game/g_saga.c:18` | state | `}` |
-| `g_siegePersistant` | `oracle/codemp/game/g_saga.c:20` | storage_data | `// Raven's data table is C storage by hand in the C target, with his initializer as written, reached as a Slots over the C array, the bg_tables.c shape.` |
+| `g_siegePersistant` | `oracle/codemp/game/g_saga.c:20` | storage_data | `// Raven's data table is C storage in the C target, with his initializer as written, reached as a Slots over the C array, the bg_tables.c shape that tables.py writes.` |
 | `imperial_goals_required` | `oracle/codemp/game/g_saga.c:22` | state | `}` |
 | `imperial_goals_completed` | `oracle/codemp/game/g_saga.c:23` | state | `}` |
 | `rebel_goals_required` | `oracle/codemp/game/g_saga.c:24` | state | `}` |

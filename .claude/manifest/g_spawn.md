@@ -29,8 +29,8 @@ The oracle range is the whole definition, from the return type to the closing br
 
 | Variable | Oracle | Kind | Entry |
 |---|---|---|---|
-| `fields` | `oracle/codemp/game/g_spawn.c:54` | storage_data | `// Raven's data table is C storage by hand in the C target, with his initializer as written, reached as a Slots over the C array, the bg_tables.c shape.` |
-| `spawns` | `oracle/codemp/game/g_spawn.c:435` | storage_data | `// Raven's data table is C storage by hand in the C target, with his initializer as written, reached as a Slots over the C array, the bg_tables.c shape.` |
+| `fields` | `oracle/codemp/game/g_spawn.c:54` | storage_data | `// Raven's data table is C storage in the C target, with his initializer as written, reached as a Slots over the C array, the bg_tables.c shape that tables.py writes.` |
+| `spawns` | `oracle/codemp/game/g_spawn.c:435` | storage_data | `// Raven's data table is C storage in the C target, with his initializer as written, reached as a Slots over the C array, the bg_tables.c shape that tables.py writes.` |
 | `defaultStyles` | `oracle/codemp/game/g_spawn.c:1070` | state_data | `}` |
 | `precachedKyle` | `oracle/codemp/game/g_spawn.c:1234` | marker | `// No table row for `void *`.` |
 | `g_cullDistance` | `oracle/codemp/game/g_spawn.c:1258` | state | `}` |

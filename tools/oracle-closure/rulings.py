@@ -83,6 +83,16 @@ NEVER_NULL = {
     ("pmove_t", "pointcontents"),
 }
 
+# (struct, field) pairs whose pointer a body indexes, with the C macro that bounds the records behind the pointer.
+# C gives a pointer no bound, and this names Raven's own, which the view spells as the module exports it.
+# A field the rule does not name keeps the widest count, because no ruling has given it a bound.
+# See docket row 8 of the bg walk of 2026-09-18.
+SLOT_BOUNDS = {
+    ("bgLoadedAnim_t", "anims"): "MAX_ANIMATIONS",
+    ("pmove_t", "animations"): "MAX_ANIMATIONS",
+    ("level_locals_t", "clients"): "MAX_CLIENTS",
+}
+
 # File-scope variables a body reads with no bind, because Raven's callers always set them before any body runs.
 # The stub forwards each one non-optional and traps on nil with the variable's name, as a view field in NEVER_NULL does.
 NEVER_NULL_VARS = {"pm"}
@@ -201,6 +211,7 @@ SHARED_STEMS = {"q_shared", "q_math", "g_syscalls", "g_strap"}
 
 # Hand-written headers a target's umbrella includes after the extracted ones, one per file of C storage under Sources/<Target>/.
 # See "Raven's tables as C storage". merge.py keeps these files across a rewrite of the target.
+# `bg_tables.c` is not among them: tables.py writes it, and it runs after the merge.
 # g_types.h holds the structs Raven defines inside a .c file, so a view can bind over them. See "A struct Raven defines inside a .c file".
 HAND_HEADERS = {"CJKAMP": ["bg_tables.h"], "CJKAMP_Game": ["g_types.h"]}
-HAND_FILES = {"CJKAMP": ["bg_tables.c", "include/bg_tables.h"], "CJKAMP_Game": ["include/g_types.h"]}
+HAND_FILES = {"CJKAMP": ["include/bg_tables.h"], "CJKAMP_Game": ["include/g_types.h"]}

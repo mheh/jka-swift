@@ -16,12 +16,12 @@ var SaberParms: JKAShared.CharBuf {
 /// Source: oracle/codemp/game/bg_saberLoad.c:46
 // TODO: Port global SaberTable
 // Raven wrote: stringID_table_t SaberTable[]
-// Raven's data table is C storage by hand in the C target, with his initializer as written, reached as a Slots over the C array, the bg_tables.c shape.
+// Raven's data table is C storage in the C target, with his initializer as written, reached as a Slots over the C array, the bg_tables.c shape that tables.py writes.
 
 /// Source: oracle/codemp/game/bg_saberLoad.c:63
 // TODO: Port global SaberMoveTable
 // Raven wrote: stringID_table_t SaberMoveTable[]
-// Raven's data table is C storage by hand in the C target, with his initializer as written, reached as a Slots over the C array, the bg_tables.c shape.
+// Raven's data table is C storage in the C target, with his initializer as written, reached as a Slots over the C array, the bg_tables.c shape that tables.py writes.
 
 /// Source: oracle/codemp/game/bg_saberLoad.c:615
 let DEFAULT_SABER = "Kyle"
