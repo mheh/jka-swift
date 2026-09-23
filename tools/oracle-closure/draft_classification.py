@@ -569,6 +569,37 @@ class Classification:
         size = " ".join(self.source.slice(self.unwrap(args[2]).extent).split())
         return value == "0" and size.replace(" ", "") == f"sizeof({field})".replace(" ", "")
 
+    def zeroed_local(self, args: list[ci.Cursor]) -> ci.Cursor | None:
+        """The local for Raven's `memset(buf, 0, sizeof(buf))` over a `char buf[N]` local, which Swift holds as a CharBuf of N bytes.
+        The size is sizeof of the same local, the capacity text of the declaration, or an integer literal of N.
+        Any other value or any other size leaves the call to the rule for a record."""
+        if len(args) != 3:
+            return None
+        target = self.unwrap(args[0])
+        if target.kind == CursorKind.CSTYLE_CAST_EXPR:
+            # Raven's `(char *)surfOff` names the same bytes as `surfOff`.
+            target = self.unwrap(list(target.get_children())[-1])
+        ref = target.referenced if target.kind == CursorKind.DECL_REF_EXPR else None
+        if ref is None or ref.kind != CursorKind.VAR_DECL or ref.semantic_parent is None \
+                or ref.semantic_parent.kind == CursorKind.TRANSLATION_UNIT:
+            return None
+        t = ref.type.get_canonical()
+        if t.kind != TypeKind.CONSTANTARRAY or t.element_type.get_canonical().kind != TypeKind.CHAR_S:
+            return None
+        value = " ".join(self.source.slice(self.unwrap(args[1]).extent).split())
+        size = self.source.slice(self.unwrap(args[2]).extent).replace(" ", "").replace("\t", "")
+        sizes = {f"sizeof({ref.spelling})", str(t.element_count), self.declared_capacity(ref)}
+        return target if value == "0" and size in sizes else None
+
+    def declared_capacity(self, var: ci.Cursor) -> str:
+        """The text between the brackets of Raven's `char name[N]` declaration, which keeps a macro name where he wrote one."""
+        tokens = [t.spelling for t in var.get_tokens()]
+        for i in range(len(tokens) - 1):
+            if tokens[i] == var.spelling and tokens[i + 1] == "[":
+                end = tokens.index("]", i + 2) if "]" in tokens[i + 2:] else i + 2
+                return "".join(tokens[i + 2:end])
+        return ""
+
     def pooled_field(self, cur: ci.Cursor) -> bool:
         """True for a member reference to a `char *` field, which the view holds as a PooledString?."""
         inner = self.unwrap(cur)
