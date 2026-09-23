@@ -440,6 +440,12 @@ A pointer into the buffer, Raven's `&skinName[len-3]` or the `char *slash` that 
 A read through it is the suffix subscript, `Q_strncmp("red", skinName[start...], 3)`, and a write through it is `strcpy(&GLAName, "/animation.cfg", at: slash)`.
 `strchr`, `strstr`, and `Q_strrchr` return that offset as `Int32?`, so `if let slash` is Raven's `if (slash)`.
 
+A truth test on a record's `char name[N]` field reads the field's `String`.
+So `!saber->model` and `!saber->model[0]` both draft as `saber.model.isEmpty`.
+When the two tests of one `||` or one `&&` draft as the same Swift text, the draft writes that text once, and two comment lines above the statement name Raven's two tests.
+The rule also holds for two tests side by side in a longer chain, such as `saber1Active && saber1->model && saber1->model[0]`, and for any other pair that drafts the same, such as `buf[i] && buf[i] != '\0'`.
+The rule applies only when neither test calls a function or stores a value, because a second call or store can change the result.
+
 ### The text cursor
 
 `Sources/JKAShared/TextCursor.swift` is Raven's `const char *p` into a text buffer, a `CharBuf` and a byte offset `Int32?`, where `nil` is his `NULL`.

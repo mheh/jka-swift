@@ -138,6 +138,8 @@ class Drafter(Statements, Expressions, Calls, Declarations, Classification):
         self.local_holes: set[str] = set()
         # Lines an expression asks to go above its statement: a Port-note, or a scratch local for a NULL output argument.
         self.pending: list[str] = []
+        # The last test of each logical operator already drafted, by its span, so a chain writes a repeated test once.
+        self.logical_tails: dict[tuple[str, int, int], tuple[str, ci.Cursor]] = {}
         # The parameters and the local declarations of the function being drafted, by name, for the let and the guard rules.
         self.params_by_name: dict[str, Param] = {}
         self.lets: set[str] = set()

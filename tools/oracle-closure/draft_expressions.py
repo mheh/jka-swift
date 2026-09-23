@@ -407,15 +407,23 @@ class Expressions:
             left, right = list(cur.get_children())
             if op in LOGICAL:
                 a, b = self.condition(left), self.condition(right)
+                span = (self.fn.stem, cur.extent.start.offset, cur.extent.end.offset)
                 # A folded guard drops out of the operator it sat in.
-                if op == "||" and a == "false":
+                if (op == "||" and a == "false") or (op == "&&" and a == "true"):
+                    self.logical_tails[span] = (b, right)
                     return b
-                if op == "||" and b == "false":
+                if (op == "||" and b == "false") or (op == "&&" and b == "true"):
+                    self.logical_tails[span] = self.logical_tail(left, op, a)
                     return a
-                if op == "&&" and a == "true":
-                    return b
-                if op == "&&" and b == "true":
+                tail, tail_cur = self.logical_tail(left, op, a)
+                if tail == b and self.pure_read(tail_cur) and self.pure_read(right):
+                    # Two reads side by side in one chain give one value, so the draft writes the test once.
+                    raven = [" ".join(self.source.slice(self.strip(c).extent).split()) for c in (tail_cur, right)]
+                    self.pending.append(f"// Raven tests `{raven[0]}` and `{raven[1]}`.")
+                    self.pending.append("// Both read as the same Swift test, so the draft writes it once.")
+                    self.logical_tails[span] = (tail, tail_cur)
                     return a
+                self.logical_tails[span] = (b, right)
                 return f"{a} {op} {b}"
             if op in ASSIGN_OPS:
                 raise Hole("An assignment inside an expression.")
@@ -622,6 +630,29 @@ class Expressions:
         if text in BINARY_OPS:
             return text
         raise Hole(f"No operator between the operands, the text there is `{text}`.")
+
+    def logical_tail(self, cur: ci.Cursor, op: str, text: str) -> tuple[str, ci.Cursor]:
+        """The last test of a chain of one logical operator, as its Swift text and Raven's operand.
+        C groups `a && b && c` from the left, so the last test of the left operand stands next to the right operand."""
+        inner = self.strip(cur)
+        span = (self.fn.stem, inner.extent.start.offset, inner.extent.end.offset)
+        if inner.kind == CursorKind.BINARY_OPERATOR and span in self.logical_tails and self.binary_op(inner) == op:
+            return self.logical_tails[span]
+        return text, cur
+
+    def pure_read(self, cur: ci.Cursor) -> bool:
+        """True when Raven's operand calls no function and stores nothing, so a second read of it gives the value of the first."""
+        for c in cur.walk_preorder():
+            if c.kind in (CursorKind.CALL_EXPR, CursorKind.COMPOUND_ASSIGNMENT_OPERATOR):
+                return False
+            try:
+                if c.kind == CursorKind.BINARY_OPERATOR and self.binary_op(c) == "=":
+                    return False
+                if c.kind == CursorKind.UNARY_OPERATOR and self.unary_parts(c)[0] in ("++", "--"):
+                    return False
+            except Hole:
+                return False
+        return True
 
     def unary_parts(self, cur: ci.Cursor) -> tuple[str, bool, ci.Cursor]:
         operand = list(cur.get_children())[0]
