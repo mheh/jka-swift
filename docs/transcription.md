@@ -143,6 +143,14 @@ Raven takes the address of a const scalar to reinterpret the bytes, and a body r
 
 A pointer to one vector, such as `vec4_t *c` of `COM_ParseVec4` where Raven writes `(*c)[i]`, is `inout` too.
 
+Raven passes one variable to two `inout` parameters of one call, as in `PM_ClipVelocity(v, n, v)`, and Swift refuses that call.
+The draft copies each earlier argument into a local, `var vIn0 = v`, and passes the copy, under a comment that names the variable.
+The callee reads the earlier arguments and writes the last.
+For a call inside an `if` test, the copy and its comment are statements before the `if`.
+A call inside a `while`, `do`-`while`, or `for` test keeps its hole, because one copy before the loop has a stale value from the second pass.
+The copy replaces only the argument it copies, which the draft finds by its extent in Raven's file and its position in the call.
+A different argument at that position in a nested or sibling call keeps its own text.
+
 The returned value of a function-pointer return goes nowhere but into the view's stored function, and `ent.pain = NPC_PainFunc(ent)` reads as Raven wrote it.
 
 A trap copies a `[JKAShared.vec3_t]` parameter into a flat `[Float]` of three per vector before the syscall, because `SIMD3<Float>` strides 16 bytes and Raven's `vec3_t` is 12.

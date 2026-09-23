@@ -77,8 +77,9 @@ class Calls:
                     return f"sscanf({self.argument(args[0], False, ('s', 'String'), name, 0)}, {self.expr(args[1])}, &{roots[0]})"
             self.reach(name, "function", callee.referenced)
             aliased = self.aliased_inouts(cur)
-            if aliased and not self.aliased_positions:
-                # The statement rule copies the earlier ones into locals, and a call inside a test has no line of its own for them.
+            if any(self.argument_key(args[i], i) not in self.aliased_positions for i, _, _ in aliased):
+                # The statement rule and the if rule copy the earlier ones into locals.
+                # A call they do not reach, such as one in a loop test, has no line of its own for the copies.
                 raise Hole(f"Raven passes `{aliased[0][1]}` more than once to `{name}` inside a test, and Swift refuses one variable twice inout.")
             params = self.callee_params(name)
             at = self.copy_target(args, params)
@@ -124,7 +125,7 @@ class Calls:
     def aliased_inouts(self, cur: ci.Cursor) -> list[tuple[int, str, str]]:
         """The inout arguments that name one plain variable more than once, all but the last, each as its position, its text,
         and the copy that stands in for it. Raven's callee reads the earlier ones and writes the last, `PM_ClipVelocity(v, n, v)`."""
-        kids = list(self.strip(cur).get_children()) if cur.kind == CursorKind.UNEXPOSED_EXPR else list(cur.get_children())
+        kids = self.call_children(cur)
         callee = self.strip(kids[0]) if kids else None
         if callee is None or callee.kind != CursorKind.DECL_REF_EXPR or callee.spelling in MACROS:
             return []
@@ -145,6 +146,16 @@ class Calls:
             if later:
                 out.append((i, self.expr_name(name), f"{swift_name(name)}In{i}"))
         return out
+
+    def call_children(self, cur: ci.Cursor) -> list[ci.Cursor]:
+        """The callee and the arguments of one call, through the implicit cast Raven's call can stand under."""
+        return list(self.strip(cur).get_children()) if cur.kind == CursorKind.UNEXPOSED_EXPR else list(cur.get_children())
+
+    def argument_key(self, arg: ci.Cursor, position: int) -> tuple[int, int, int]:
+        """The identity of one argument: its extent in Raven's file and its position in the call.
+        The copy swaps in for this argument alone, so a different argument at the same position in a nested or sibling call keeps its text."""
+        inner = self.strip(arg)
+        return inner.extent.start.offset, inner.extent.end.offset, position
 
     def macro_call(self, name: str, args: list[ci.Cursor]) -> str:
         """Raven's `VectorCopy(a, b)` as the table's Swift, each argument a node of the overlay's call."""
@@ -174,8 +185,8 @@ class Calls:
 
     def argument(self, cur: ci.Cursor, inout: bool, param: tuple[str, str] | None = None, callee: str | None = None, position: int = 0) -> str:
         inner = self.strip(cur)
-        if position in self.aliased_positions and callee is not None:
-            return f"&{self.aliased_positions[position]}"
+        if self.argument_key(cur, position) in self.aliased_positions:
+            return f"&{self.aliased_positions[self.argument_key(cur, position)]}"
         if self.text_tail(inner) is not None:
             return self.text_tail(inner)
         if target_of(self.fn.stem) == BG and self.entity_slot(inner) is not None:

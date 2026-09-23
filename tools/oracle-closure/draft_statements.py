@@ -446,7 +446,7 @@ class Statements:
             return [f"{pad}{rest}"] if rest else []
         if self.is_call(cur) and self.aliased_inouts(cur):
             aliased = self.aliased_inouts(cur)
-            with self.aliased_reads(aliased):
+            with self.aliased_reads(cur, aliased):
                 call = self.expr(cur)
             inner_pad = INDENT * (depth + 1)
             note, before = self.aliased_copies(aliased, pad, inner_pad)
@@ -476,14 +476,14 @@ class Statements:
         return self.statement(cur, depth)
 
     @contextmanager
-    def aliased_reads(self, aliased: list[tuple[int, str, str]]):
-        """The draft of one call with each earlier aliased argument read from the copy that stands in for it."""
-        self.slot_copies = {f"{i}:{text}": local for i, text, local in aliased}
-        self.aliased_positions = {i: local for i, _, local in aliased}
+    def aliased_reads(self, call: ci.Cursor, aliased: list[tuple[int, str, str]]):
+        """The draft of one call with each earlier aliased argument read from the copy that stands in for it.
+        The swap keys on the argument's extent and position, so no other call inside this one or beside it reads the copy."""
+        args = self.call_children(call)[1:]
+        self.aliased_positions = {self.argument_key(args[i], i): local for i, _, local in aliased}
         try:
             yield
         finally:
-            self.slot_copies = {}
             self.aliased_positions = {}
 
     def aliased_copies(self, aliased: list[tuple[int, str, str]], note_pad: str, copy_pad: str) -> tuple[str, list[str]]:
@@ -491,26 +491,27 @@ class Statements:
         note = f"{note_pad}// Raven passes `{aliased[0][1]}` more than once, and Swift refuses one variable twice inout, so the earlier ones read a copy."
         return note, [f"{copy_pad}var {local} = {text}" for _, text, local in aliased]
 
-    def aliased_in_test(self, cur: ci.Cursor) -> list[tuple[int, str, str]]:
-        """The earlier aliased arguments of the call under a test, empty when the test holds no call that names one variable twice inout."""
+    def aliased_in_test(self, cur: ci.Cursor) -> tuple[ci.Cursor, list[tuple[int, str, str]]] | None:
+        """The call under a test that names one variable twice inout, with its earlier aliased arguments, or None when the test holds no such call."""
         for node in cur.walk_preorder():
             if self.is_call(node):
                 aliased = self.aliased_inouts(node)
                 if aliased:
-                    return aliased
-        return []
+                    return node, aliased
+        return None
 
     def if_statement(self, cur: ci.Cursor, depth: int) -> list[str]:
         pad = INDENT * depth
         kids = list(cur.get_children())
         cond, then = kids[0], kids[1]
-        aliased = self.aliased_in_test(cond)
+        found = self.aliased_in_test(cond)
         head: list[str] = []
-        if aliased:
+        if found is not None:
             # The test has no line of its own for the copies, so they stand before the `if` and the test reads them.
+            call, aliased = found
             note, copies = self.aliased_copies(aliased, pad, pad)
             head = [note] + copies
-            with self.aliased_reads(aliased):
+            with self.aliased_reads(call, aliased):
                 test = self.condition(cond)
         else:
             test = self.condition(cond)

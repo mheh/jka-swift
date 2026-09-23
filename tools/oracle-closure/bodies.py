@@ -186,7 +186,8 @@ class Drafter(Statements, Expressions, Calls, Declarations, Classification):
         self.cursor_locals, self.offset_cursors, self.table_cursors = self.local_facts(fn)
         # The slot text each copy stands for inside the one call being drafted, `fxAxis[2]` for `fxAxis2`.
         self.slot_copies: dict[str, str] = {}
-        self.aliased_positions: dict[int, str] = {}
+        # The copy that stands in for each earlier aliased argument of the one call being drafted, keyed by the argument's extent and position.
+        self.aliased_positions: dict[tuple[int, int, int], str] = {}
         # Raven's `animation_t *animations` local that only ever holds a table of records, which Swift holds as the Slots over it.
         self.slots_locals = self.slots_local_names(fn.cur)
         # Raven's `siegeTeam_t **teamPtr` that only holds the address of a file-scope variable he chooses between.
