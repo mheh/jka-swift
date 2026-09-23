@@ -151,6 +151,8 @@ class Drafter(Statements, Expressions, Calls, Declarations, Classification):
         self.game_entities: set[str] = set()
         # The text kind of each argument of the call being drafted, by position, so one overload takes the whole call.
         self.call_kinds: dict[int, str] = {}
+        # The conversion letter each argument of the call being drafted feeds in the callee's format string, by position, with the argument.
+        self.call_format: dict[int, tuple[ci.Cursor, str]] = {}
         # Raven's `siegeTeam_t **teamPtr` locals of the function being drafted, by his name, with the record the pointee stands for.
         self.chosen_locals: dict[str, str] = {}
 

@@ -458,7 +458,10 @@ Raven passes a whole record to a `%s`, as `Com_Printf("OLD: %s\n", animTable[old
 The format reads the text at the record's address, and those bytes are the record's first field.
 The port names that field, `Com_Printf("OLD: %s\n", animTable[oldAnim].name!)`, and the site carries the note of rule 19 in two lines.
 A `char *` first field is a `PooledString?` on the view, so the argument takes the bind.
+The drafter reads the format string literal at the call site and counts its conversions, a `*` width or precision as one argument each.
+The port names the first field only when the conversion that the record feeds is `%s`.
 A record whose first field holds no text keeps a Port-note.
+A format string that is not a literal at the call site keeps a Port-note, and a conversion other than `%s` keeps a Port-note too.
 `sscanf` lives in `Sources/JKAShared/Scan.swift`, one overload per target shape in use, `inout vec3_t` for `"%f %f %f"`, `inout Float` for `"%f"`, and `inout Int32` for `"%d"`, each returning the count read as C does.
 Swift has no `inout` variadic, so `sscanf(value, "%f %f %f", &vec)` is Raven's call with the three addresses as the one vector, and each overload checks its format.
 `Q_strlwr`, `Q_strupr`, and `Q_CleanStr` rewrite a local buffer in place, `Q_CleanStr(&netname)`, and each has a value form, `String` to `String`, for the two shapes with no `CharBuf` behind them.

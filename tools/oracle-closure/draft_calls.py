@@ -4,6 +4,9 @@ It also holds the text kind of each argument of the call being drafted, so one o
 
 from __future__ import annotations
 
+import codecs
+import re
+
 import clang.cindex as ci
 from clang.cindex import CursorKind, TypeKind
 
@@ -18,6 +21,25 @@ from draft_classification import Hole
 TEXT_TYPES = {"String", "CharBuf", "JKAShared.CharBuf", "PooledString", "JKAShared.PooledString"}
 # The declaration tail of the scratch local each `inout` output a caller skips with NULL takes, by the parameter's Swift spelling.
 SCRATCH_ZEROS = {"inout vec3_t": "= JKAShared.vec3_t(0, 0, 0)", "inout Int32": ": Int32 = 0", "inout Float": ": Float = 0"}
+# One C conversion, `%%` or a `%` with its flags, width, precision, length, and conversion letter.
+CONVERSION = re.compile(r"%(?:%|[-+ #0]*(\*|\d+)?(?:\.(\*|\d*))?(?:hh|h|ll|l|j|z|t|L|I64|I32|I)?([diouxXeEfFgGaAcspn]))")
+
+
+def conversions(text: str) -> list[str] | None:
+    """The conversion letter each argument after a C format string feeds, in order, with `*` for a width or precision argument.
+    A `%` outside the C grammar gives no answer."""
+    out: list[str] = []
+    at = 0
+    while (start := text.find("%", at)) != -1:
+        match = CONVERSION.match(text, start)
+        if match is None:
+            return None
+        at = match.end()
+        if match.group(0) == "%%":
+            continue
+        out += ["*"] * [match.group(1), match.group(2)].count("*")
+        out.append(match.group(3))
+    return out
 
 
 class Calls:
@@ -60,14 +82,15 @@ class Calls:
                 raise Hole(f"Raven passes `{aliased[0][1]}` more than once to `{name}` inside a test, and Swift refuses one variable twice inout.")
             params = self.callee_params(name)
             at = self.copy_target(args, params)
-            outer = self.call_kinds
+            outer = self.call_kinds, self.call_format
             self.call_kinds = self.argument_kinds(args)
+            self.call_format = self.format_conversions(callee.referenced.type, args)
             try:
                 words = [f"&{at[1]}" if at is not None and i == at[0]
                          else self.argument(a, i < len(params) and params[i][1].startswith("inout "), params[i] if i < len(params) else None, name, i)
                          for i, a in enumerate(args)]
             finally:
-                self.call_kinds = outer
+                self.call_kinds, self.call_format = outer
             if at is not None:
                 words.append(f"at: {at[2]}")
             return f"{swift_name(name)}({', '.join(words)})"
@@ -77,15 +100,21 @@ class Calls:
             field = callee.spelling
             method = f"run{field[0].upper()}{field[1:]}"
             params = self.registry.params.get(method, [])
-            outer = self.call_kinds
+            outer = self.call_kinds, self.call_format
             self.call_kinds = self.argument_kinds(args)
+            self.call_format = self.format_conversions(callee.type, args)
             try:
                 words = [self.argument(a, i < len(params) and params[i][1].startswith("inout "), params[i] if i < len(params) else None, method, i) for i, a in enumerate(args)]
             finally:
-                self.call_kinds = outer
+                self.call_kinds, self.call_format = outer
             return f"{self.base(kids_[0])}.{method}({', '.join(words)})"
         if callee is not None:
-            words = [self.argument(a, False) for a in args]
+            outer_format = self.call_format
+            self.call_format = self.format_conversions(callee.type, args)
+            try:
+                words = [self.argument(a, False, None, None, i) for i, a in enumerate(args)]
+            finally:
+                self.call_format = outer_format
             if callee.kind == CursorKind.DECL_REF_EXPR and (self.params_by_name.get(callee.spelling, Param("", None, "")).swift or "").endswith(")?"):
                 # A callback parameter is an optional closure, and Raven calls it under his `if (localTrace)` guard.
                 return f"{self.expr(callee)}?({', '.join(words)})"
@@ -244,7 +273,8 @@ class Calls:
             return f"{text}!"
         if (param is None or param[1].endswith("...")) and not inout and not addressed and self.is_record(inner.type):
             first = self.first_text_field(inner.type)
-            if first is not None:
+            fed = self.call_format.get(position)
+            if first is not None and fed is not None and fed[0] == cur and fed[1] == "s":
                 # Raven passes the record's address, and the `%s` reads the text at that address, which is the record's first field. Rule 19.
                 self.pending.append("// Port-note: Raven passes the record's address to a `%s`, and the format reads the text at that address.")
                 self.pending.append("// Those bytes are the record's first field, and the port names that field.")
@@ -252,6 +282,31 @@ class Calls:
             raven = " ".join(self.bytes[cur.extent.start.offset:cur.extent.end.offset].decode("utf-8", "replace").split())
             raise Hole(f"Raven passes the record `{raven}` in a format argument list, and a view is no FormatArg.")
         return f"&{text}" if inout else text
+
+    def format_conversions(self, callee: ci.Type, args: list[ci.Cursor]) -> dict[int, tuple[ci.Cursor, str]]:
+        """The conversion letter each argument after a variadic callee's format string feeds, by position, with the argument itself.
+        The format string is the last fixed argument, and only a string literal there gives an answer."""
+        t = callee.get_canonical()
+        if t.kind == TypeKind.POINTER:
+            t = t.get_pointee().get_canonical()
+        if t.kind != TypeKind.FUNCTIONPROTO or not t.is_function_variadic():
+            return {}
+        fixed = len(list(t.argument_types()))
+        if fixed == 0 or len(args) <= fixed:
+            return {}
+        literal = self.unwrap(args[fixed - 1])
+        if literal.kind != CursorKind.STRING_LITERAL:
+            return {}
+        # Clang spells the literal as C joins it, macro text included, and the C escapes decode before the count.
+        body = literal.spelling[literal.spelling.find('"') + 1:-1]
+        try:
+            body = codecs.decode(body, "unicode_escape")
+        except UnicodeError:
+            pass
+        letters = conversions(body)
+        if letters is None:
+            return {}
+        return {fixed + i: (args[fixed + i], letter) for i, letter in enumerate(letters) if fixed + i < len(args)}
 
     def view_parameter(self, swift: str) -> bool:
         """True for a Swift parameter that takes one view, the shape a Slots does not fit."""
