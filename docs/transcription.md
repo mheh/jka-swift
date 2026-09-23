@@ -119,6 +119,10 @@ A PARAMS row wins over the sweep, so `table` still names the shape where a row n
 A caller of a `Slots` parameter passes the `Slots` it holds, or the storage table under Raven's name.
 A caller that holds one record's view has no `Slots` over that one record, and that call site keeps a hole which names the shape.
 
+A proof over callers covers the game unit and the cgame unit, the two units the port parses.
+The ui unit is outside every caller proof, because no ui parse exists, and no sweep guesses at a ui call site.
+The cgame parse compiles `ui_shared.c`, and every sweep skips it, because the file is in the ui folder.
+
 A trap's array of struct pointers is a storage table's base, and it keeps its marker under the PARAMS kind `pointer_array`.
 A trap's `char *` parameter with a size beside it is already the returned `String` the engine filled.
 A buffer the engine fills with no size beside it has a PARAMS entry `("fill_buffer", capacity)`, with the capacity Raven's callers declare for it, and the trap returns the `String` the same way a sized buffer does.
