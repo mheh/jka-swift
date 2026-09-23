@@ -201,6 +201,9 @@ class Drafter(Statements, Expressions, Calls, Declarations, Classification):
         # Raven assigns a parameter of his own. A Swift parameter is immutable, so the body opens with a mutable copy, after the declarations.
         self.param_copies = [p.name for c, p in zip(fn.cur.get_arguments(), fn.params) if c.spelling in self.written and c.spelling not in self.inout_locals]
         body = [c for c in fn.cur.get_children() if c.kind == CursorKind.COMPOUND_STMT][-1]
+        # A view read Raven names more than once is one local, by his text of the read, once the draft declares it.
+        self.hoisted: dict[str, str] = {}
+        self.hoists = self.shared_reads(body)
         lines = header[:-3]
         lines += self.block_body(body, 1)
         lines.append("}")

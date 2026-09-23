@@ -4,6 +4,8 @@ A local that stands for a record Swift holds by value opens a scratch closure, a
 
 from __future__ import annotations
 
+import re
+
 import clang.cindex as ci
 from clang.cindex import CursorKind, TypeKind
 
@@ -12,6 +14,11 @@ from skeleton import BG, target_of
 from table import TARGET, swift_name
 
 from draft_classification import INDENT, Hole
+
+
+def extent_key(cur: ci.Cursor) -> tuple[str, int, int]:
+    """One node's identity across two walks of the parse, which hand back new cursor objects."""
+    return cur.kind.name, cur.extent.start.offset, cur.extent.end.offset
 
 
 class Declarations:
@@ -157,6 +164,86 @@ class Declarations:
             if self.out_text_stores(cur, {name: []}).get(name) == "text":
                 return True
         return False
+
+    def shared_reads(self, body: ci.Cursor) -> dict[tuple[int, int], list[tuple[str, str, ci.Cursor]]]:
+        """The view reads Raven names more than once in a body, each keyed by the statement its one local stands before.
+
+        Each value lists Raven's text of the read, the name of the local, and the first use, whose draft is the local's initializer.
+        The local stands in the deepest block that holds every use, before the statement that holds the first use.
+        A read whose index or entity names a written or addressed variable keeps one call per use.
+        A first use that runs only on some paths of its statement, such as the right operand of `||`, also keeps one call per use."""
+        uses: dict[str, list[tuple[ci.Cursor, list[ci.Cursor]]]] = {}
+
+        def walk(cur: ci.Cursor, path: list[ci.Cursor]) -> None:
+            if cur.kind == CursorKind.ARRAY_SUBSCRIPT_EXPR and self.shared_read(cur):
+                uses.setdefault(self.shared_read_key(cur), []).append((cur, path))
+                return
+            for kid in cur.get_children():
+                walk(kid, path + [cur])
+
+        walk(body, [])
+        taken = {c.spelling for c in self.fn.cur.walk_preorder() if c.kind in (CursorKind.VAR_DECL, CursorKind.PARM_DECL)}
+        taken |= set(self.names.values())
+        out: dict[tuple[int, int], list[tuple[str, str, ci.Cursor]]] = {}
+        for key, found in uses.items():
+            if len(found) < 2:
+                continue
+            first, first_path = min(found, key=lambda use: use[0].extent.start.offset)
+            common = 0
+            while all(common < len(path) and extent_key(path[common]) == extent_key(first_path[common]) for _, path in found):
+                common += 1
+            blocks = [i for i in range(common) if first_path[i].kind == CursorKind.COMPOUND_STMT]
+            if not blocks:
+                continue
+            steps = first_path[blocks[-1] + 1:] + [first]
+            if not all(self.runs_first(parent, child) for parent, child in zip(steps, steps[1:])):
+                continue
+            field = swift_name(self.game_chain(self.strip(list(first.get_children())[0]))[0][-1])
+            local, n = field, 2
+            while local in taken:
+                local, n = f"{field}{n}", n + 1
+            taken.add(local)
+            out.setdefault(extent_key(steps[0]), []).append((key, local, first))
+        return out
+
+    def shared_read(self, cur: ci.Cursor) -> bool:
+        """True when the subscript is a view read of the game's records, and no name inside it changes during the body."""
+        try:
+            if self.indexed_view_read(self.strip(list(cur.get_children())[0])) is None:
+                return False
+        except Hole:
+            return False
+        names = {c.spelling for c in cur.walk_preorder() if c.kind == CursorKind.DECL_REF_EXPR}
+        return not names & (self.written | self.addressed)
+
+    def shared_read_key(self, cur: ci.Cursor) -> str:
+        """Raven's text of a read with its spaces removed, so two uses he spelled the same way share one key."""
+        return re.sub(r"\s+", "", self.bytes[cur.extent.start.offset:cur.extent.end.offset].decode("utf-8", "replace"))
+
+    def runs_first(self, parent: ci.Cursor, child: ci.Cursor) -> bool:
+        """True when the child runs every time its parent runs, before any other statement of the parent's block."""
+        first = extent_key(list(parent.get_children())[0]) == extent_key(child)
+        if parent.kind in (CursorKind.IF_STMT, CursorKind.CONDITIONAL_OPERATOR):
+            return first
+        if parent.kind == CursorKind.BINARY_OPERATOR:
+            return first or self.operator_or_none(parent) not in ("&&", "||", None)
+        return parent.kind in (CursorKind.RETURN_STMT, CursorKind.DECL_STMT, CursorKind.VAR_DECL, CursorKind.UNEXPOSED_EXPR,
+                               CursorKind.PAREN_EXPR, CursorKind.CALL_EXPR, CursorKind.MEMBER_REF_EXPR, CursorKind.ARRAY_SUBSCRIPT_EXPR,
+                               CursorKind.UNARY_OPERATOR, CursorKind.COMPOUND_ASSIGNMENT_OPERATOR, CursorKind.CSTYLE_CAST_EXPR)
+
+    def shared_read_lines(self, statement: ci.Cursor, depth: int) -> list[str]:
+        """The one local of each shared view read that stands before this statement, and the note Raven's repeat earns."""
+        out: list[str] = []
+        for key, local, first in self.hoists.get(extent_key(statement), []):
+            try:
+                read = self.expr(first)
+            except Hole:
+                continue
+            raven = " ".join(self.bytes[first.extent.start.offset:first.extent.end.offset].decode("utf-8", "replace").split())
+            out.append(f"{INDENT * depth}// Raven names `{raven}` more than once, and each Swift use calls the channel, so the draft reads it once.")
+            out.append(f"{INDENT * depth}let {local} = {read}")
+            self.hoisted[key] = local
+        return out
 
     def declarations(self, cur: ci.Cursor) -> list[str]:
         out: list[str] = []

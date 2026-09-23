@@ -42,6 +42,7 @@ class Statements:
             if child.kind != CursorKind.DECL_STMT or record is not None:
                 out += self.param_copy_lines(depth)
             out += self.gap(previous_line, child.extent.start.line, depth)
+            out += self.shared_read_lines(child, depth)
             if record is not None:
                 out += self.scratch(child, record, children[i + 1:], last_line, depth)
                 return out

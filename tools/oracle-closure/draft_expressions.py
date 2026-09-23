@@ -310,6 +310,8 @@ class Expressions:
             base, index = list(cur.get_children())
             inner_base = self.strip(base)
             indexed = self.indexed_view_read(inner_base)
+            if indexed is not None and self.shared_read_key(cur) in self.hoisted:
+                return self.leaf(cur, self.hoisted[self.shared_read_key(cur)])
             if indexed is not None:
                 # Raven's `ent->client->saber[n]` is one record of the game's table, and the callback takes both indexes.
                 args = f"of: {self.entity_index_text(self.game_chain(inner_base)[2])}, at: {self.converted(index, 'Int32')}"

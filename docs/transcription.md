@@ -350,6 +350,10 @@ The bg side of the channel names `JKAMP.BgEntity` where the game function takes 
 A game field a bg body reaches is on the channel as one read callback, and `installBgChannel()` reads that field through the game's own views.
 A read Raven wrote through the game's entity table takes his index, `bgEntityLegsAnim(of: ps.clientNum)`, because the bg side holds no entity for the slot.
 A read of one record of a table the game's entity owns takes the entity index and the record index, and hands back the view over that record, `bgClientSaber(of: clientNum, at: saberNum)`. The view is optional, because the game's `client` is NULL on an entity that holds no player.
+When Raven names one such record more than once in a body, as BG_MySaber does with `ent->client->saber[saberNum]`, the draft reads it once into a local named for the field, `let saber = bgClientSaber(of: clientNum, at: saberNum)`, and every use reads `saber`.
+The local stands in the deepest block that holds every use, before the statement that holds the first use.
+The rule holds when no variable inside the read is written or addressed in the body, and when the first use runs every time its statement runs.
+Any other repeat keeps one call per use.
 An object-like macro of a game header that a bg body reads is a constant of the shared module. `w_saber.h` is on the bg module's entry list for that reason, so `merge.py` places its macros in `CJKAMP`, and a bg body spells `SEF_LOCK_WON` bare.
 `vmCvar_t` has the view `VmCvar`, and `bg_fighterAltControl` is `var bg_fighterAltControl: VmCvar { bg.fighterAltControl }` in `bg_local.swift`, a view over the game's cvar memory, so a body reads `bg_fighterAltControl.integer`. Until the game's cvar storage exists, the default is a view over one zeroed `vmCvar_t` the state allocates, so `.integer` reads 0, Raven's default.
 
