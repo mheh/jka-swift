@@ -288,8 +288,6 @@ class Types:
                     if facts.nullable:
                         return Answer(f"Slots<{view}>?", "slots_opt")
                     return Answer(f"Slots<{view}>", "slots")
-                if facts.owner == "BG_ParseField":
-                    return Answer(f"Slots<{self.views.qualified_view(record, TARGET)}>", "bare")
                 if facts.nullable:
                     return Answer(f"{self.views.qualified_view(record, TARGET)}?", "view_opt")
                 return Answer(self.views.qualified_view(record, TARGET), "view")

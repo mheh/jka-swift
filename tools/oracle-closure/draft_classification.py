@@ -152,6 +152,13 @@ class Classification:
                 return f"{self.expr(inner)}[{step}]"
         return None
 
+    def is_step(self, cur: ci.Cursor) -> bool:
+        """True when the unary operator is `++` or `--`. An operator the text does not show beside the operand is not a step."""
+        try:
+            return self.unary_parts(cur)[0] in ("++", "--")
+        except Hole:
+            return False
+
     def text_local_names(self, fn: ci.Cursor) -> tuple[set[str], set[str]]:
         """The char pointer locals of the function by their stores: a local every store fills from a String-returning call or from a
         `char name[N]` field is a text local.
@@ -174,7 +181,7 @@ class Classification:
                     and self.unwrap(kids[0]).spelling in stores:
                 stores[self.unwrap(kids[0]).spelling].append("other")
             if cur.kind == CursorKind.UNARY_OPERATOR and kids and self.unwrap(kids[0]).kind == CursorKind.DECL_REF_EXPR \
-                    and self.unwrap(kids[0]).spelling in stores and self.unary_parts(cur)[0] in ("++", "--"):
+                    and self.unwrap(kids[0]).spelling in stores and self.is_step(cur):
                 stores[self.unwrap(kids[0]).spelling].append("other")
             if cur.kind == CursorKind.CALL_EXPR:
                 # Raven's `&value` to an `inout String` parameter, `COM_ParseString(&p, &value)`, fills the local with text.

@@ -913,7 +913,7 @@ def main() -> None:
     print(f"  macros: {c['macros']} in the stubs, {c['macros spelled at the site']} spelled at the site, "
           f"{c['macros that alias a field']} field aliases, {c['macros that alias a function']} function aliases")
     print(f"  variables: {c['variables, let']} let, {c['variables, state']} state, {c['variables, state_data']} data by hand, "
-          f"{c['variables, initializer by hand']} initializers by hand, {c['variables, storage']} storage, {c['variables, storage_data']} data tables by hand, {c['variables, marker']} markers")
+          f"{c['variables, initializer by hand']} initializers by hand, {c['variables, storage']} storage, {c['variables, storage_data']} data tables from tables.py, {c['variables, marker']} markers")
     if c["functions made private because another file defines the name"]:
         print(f"  {c['functions made private because another file defines the name']} functions made private, because another file defines the name")
     if c["static functions kept internal for a thunk"]:

@@ -447,8 +447,7 @@ class Table:
         The sweep walks every `.c` file of the folders, not the bg files alone, because one NULL at any call site makes the parameter optional.
         `called` holds the callees it reached, and a parameter of a function in that set and outside `nullable` is proven never NULL.
         The proof covers the game module and the cgame module, which are the two units the port parses.
-        The ui module has no parse yet, so a ui call site is outside the proof.
-        A function only ui reaches is a known gap, and it stays one until the ui module parse lands."""
+        No ui parse exists, so a ui call site is outside the proof, and a function only ui reaches is a known gap."""
         for cur in tu.cursor.get_children():
             if cur.kind != CursorKind.FUNCTION_DECL or not cur.is_definition() or not cur.location.file:
                 continue
