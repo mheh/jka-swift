@@ -101,7 +101,7 @@ public func installBgChannel() {
         G_CheapWeaponFire(entNum, ev)
     }
     bg.callbacks.G_Damage = { targ, inflictor, attacker, dir, point, damage, dflags, mod in
-        G_Damage(Entity(handle: targ.handle), inflictor.map { Entity(handle: $0.handle) }, attacker.map { Entity(handle: $0.handle) }, &dir, &point, damage, dflags, mod)
+        G_Damage(Entity(handle: targ.handle), inflictor.map { Entity(handle: $0.handle) }, attacker.map { Entity(handle: $0.handle) }, &dir, point, damage, dflags, mod)
     }
     bg.callbacks.G_DamageFromKiller = { pEnt, pVehEnt, attacker, org, damage, dflags, mod in
         G_DamageFromKiller(Entity(handle: pEnt.handle), Entity(handle: pVehEnt.handle), attacker.map { Entity(handle: $0.handle) }, &org, damage, dflags, mod)

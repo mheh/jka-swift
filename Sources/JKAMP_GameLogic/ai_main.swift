@@ -695,7 +695,7 @@ func CTFTakesPriority(_ bs: BotState) -> Int32 {
 }
 
 /// Source: oracle/codemp/game/ai_main.c:3036
-func EntityVisibleBox(_ org1: inout JKAShared.vec3_t, _ mins: inout JKAShared.vec3_t, _ maxs: inout JKAShared.vec3_t, _ org2: inout JKAShared.vec3_t, _ ignore: Int32, _ ignore2: Int32) -> Int32 {
+func EntityVisibleBox(_ org1: inout JKAShared.vec3_t, _ mins: JKAShared.vec3_t?, _ maxs: JKAShared.vec3_t?, _ org2: inout JKAShared.vec3_t, _ ignore: Int32, _ ignore2: Int32) -> Int32 {
     // TODO: Port EntityVisibleBox
     portMissing("EntityVisibleBox", source: "oracle/codemp/game/ai_main.c:3036")
 }

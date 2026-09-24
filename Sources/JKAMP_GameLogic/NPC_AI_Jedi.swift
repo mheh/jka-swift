@@ -319,7 +319,7 @@ func Jedi_SaberBusy(_ `self`: Entity) -> Bool {
 }
 
 /// Source: oracle/codemp/game/NPC_AI_Jedi.c:2485
-func Jedi_SaberBlockGo(_ `self`: Entity, _ cmd: JKAMP.Usercmd, _ pHitloc: inout JKAShared.vec3_t, _ phitDir: inout JKAShared.vec3_t, _ incoming: Entity?, _ dist: Float) -> JKAMP.evasionType_t {
+func Jedi_SaberBlockGo(_ `self`: Entity, _ cmd: JKAMP.Usercmd, _ pHitloc: JKAShared.vec3_t?, _ phitDir: JKAShared.vec3_t?, _ incoming: Entity?, _ dist: Float) -> JKAMP.evasionType_t {
     // TODO: Port Jedi_SaberBlockGo
     portMissing("Jedi_SaberBlockGo", source: "oracle/codemp/game/NPC_AI_Jedi.c:2485")
 }

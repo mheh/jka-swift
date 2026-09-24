@@ -62,7 +62,7 @@ func G_HeavyMelee(_ attacker: Entity) -> Bool {
 }
 
 /// Source: oracle/codemp/game/g_combat.c:46
-func G_GetHitLocation(_ target: Entity, _ ppoint: inout JKAShared.vec3_t) -> Int32 {
+func G_GetHitLocation(_ target: Entity, _ ppoint: JKAShared.vec3_t?) -> Int32 {
     // TODO: Port G_GetHitLocation
     portMissing("G_GetHitLocation", source: "oracle/codemp/game/g_combat.c:46")
 }
@@ -333,7 +333,7 @@ func G_GetHitQuad(_ `self`: Entity, _ hitloc: inout JKAShared.vec3_t) -> Int32 {
 }
 
 /// Source: oracle/codemp/game/g_combat.c:3757
-func G_GetHitLocFromSurfName(_ ent: Entity, _ surfName: String, _ hitLoc: inout Int32, _ point: inout JKAShared.vec3_t, _ dir: inout JKAShared.vec3_t, _ bladeDir: inout JKAShared.vec3_t, _ mod: Int32) -> Bool {
+func G_GetHitLocFromSurfName(_ ent: Entity, _ surfName: String, _ hitLoc: inout Int32, _ point: JKAShared.vec3_t?, _ dir: JKAShared.vec3_t?, _ bladeDir: inout JKAShared.vec3_t, _ mod: Int32) -> Bool {
     // TODO: Port G_GetHitLocFromSurfName
     portMissing("G_GetHitLocFromSurfName", source: "oracle/codemp/game/g_combat.c:3757")
 }
@@ -345,7 +345,7 @@ func G_CheckForDismemberment(_ ent: Entity, _ enemy: Entity, _ point: inout JKAS
 }
 
 /// Source: oracle/codemp/game/g_combat.c:4346
-func G_LocationBasedDamageModifier(_ ent: Entity, _ point: inout JKAShared.vec3_t, _ mod: Int32, _ dflags: Int32, _ damage: inout Int32) {
+func G_LocationBasedDamageModifier(_ ent: Entity, _ point: JKAShared.vec3_t?, _ mod: Int32, _ dflags: Int32, _ damage: inout Int32) {
     // TODO: Port G_LocationBasedDamageModifier
     portMissing("G_LocationBasedDamageModifier", source: "oracle/codemp/game/g_combat.c:4346")
 }
@@ -375,7 +375,7 @@ func G_CheckVehicleNPCTeamDamage(_ ent: Entity) -> Bool {
 }
 
 /// Source: oracle/codemp/game/g_combat.c:4577
-func G_Damage(_ targ: Entity, _ inflictor: Entity?, _ attacker: Entity?, _ dir: inout JKAShared.vec3_t, _ point: inout JKAShared.vec3_t, _ damage: Int32, _ dflags: Int32, _ mod: Int32) {
+func G_Damage(_ targ: Entity, _ inflictor: Entity?, _ attacker: Entity?, _ dir: inout JKAShared.vec3_t, _ point: JKAShared.vec3_t?, _ damage: Int32, _ dflags: Int32, _ mod: Int32) {
     // TODO: Port G_Damage
     portMissing("G_Damage", source: "oracle/codemp/game/g_combat.c:4577")
 }

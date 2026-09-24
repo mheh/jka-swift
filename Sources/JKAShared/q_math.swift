@@ -179,18 +179,21 @@ public func ClampShort(_ i: Int32) -> Int16 {
 }
 
 // this isn't a real cheap function to call!
-/// Raven guards a null `dir`, and a `vec3_t` value cannot be null, so that branch has no Swift form.
 /// Source: oracle/codemp/game/q_math.c:301
-public func DirToByte(_ dir: vec3_t) -> Int32 {
+public func DirToByte(_ dir: vec3_t?) -> Int32 {
     var best: Int32
     var d: Float
     var bestd: Float
+
+    if dir == nil {
+        return 0
+    }
 
     bestd = 0
     best = 0
     for i in 0 ..< Int(NUMVERTEXNORMALS) {
         // Raven's `DotProduct` is the header macro, so the sum keeps this scalar order.
-        d = dir[0] * bytedirs[i][0] + dir[1] * bytedirs[i][1] + dir[2] * bytedirs[i][2]
+        d = dir![0] * bytedirs[i][0] + dir![1] * bytedirs[i][1] + dir![2] * bytedirs[i][2]
         if d > bestd {
             bestd = d
             best = Int32(i)

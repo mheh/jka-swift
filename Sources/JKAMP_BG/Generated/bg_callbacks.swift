@@ -34,7 +34,7 @@ public struct BgCallbacks {
     public var G_CheapWeaponFire: (Int32, Int32) -> Void = { _, _ in portMissing("G_CheapWeaponFire", source: "oracle/codemp/game/g_active.c:857") }
 
     /// Source: oracle/codemp/game/g_combat.c:4577
-    public var G_Damage: (JKAMP.BgEntity, JKAMP.BgEntity?, JKAMP.BgEntity?, inout JKAShared.vec3_t, inout JKAShared.vec3_t, Int32, Int32, Int32) -> Void = { _, _, _, _, _, _, _, _ in portMissing("G_Damage", source: "oracle/codemp/game/g_combat.c:4577") }
+    public var G_Damage: (JKAMP.BgEntity, JKAMP.BgEntity?, JKAMP.BgEntity?, inout JKAShared.vec3_t, JKAShared.vec3_t?, Int32, Int32, Int32) -> Void = { _, _, _, _, _, _, _, _ in portMissing("G_Damage", source: "oracle/codemp/game/g_combat.c:4577") }
 
     /// Source: oracle/codemp/game/g_combat.c:5717
     public var G_DamageFromKiller: (JKAMP.BgEntity, JKAMP.BgEntity, JKAMP.BgEntity?, inout JKAShared.vec3_t, Int32, Int32, Int32) -> Void = { _, _, _, _, _, _, _ in portMissing("G_DamageFromKiller", source: "oracle/codemp/game/g_combat.c:5717") }
@@ -204,8 +204,8 @@ func G_CheapWeaponFire(_ entNum: Int32, _ ev: Int32) {
 }
 
 /// Source: oracle/codemp/game/g_combat.c:4577
-func G_Damage(_ targ: JKAMP.BgEntity, _ inflictor: JKAMP.BgEntity?, _ attacker: JKAMP.BgEntity?, _ dir: inout JKAShared.vec3_t, _ point: inout JKAShared.vec3_t, _ damage: Int32, _ dflags: Int32, _ mod: Int32) {
-    bg.callbacks.G_Damage(targ, inflictor, attacker, &dir, &point, damage, dflags, mod)
+func G_Damage(_ targ: JKAMP.BgEntity, _ inflictor: JKAMP.BgEntity?, _ attacker: JKAMP.BgEntity?, _ dir: inout JKAShared.vec3_t, _ point: JKAShared.vec3_t?, _ damage: Int32, _ dflags: Int32, _ mod: Int32) {
+    bg.callbacks.G_Damage(targ, inflictor, attacker, &dir, point, damage, dflags, mod)
 }
 
 /// Source: oracle/codemp/game/g_combat.c:5717

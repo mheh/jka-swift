@@ -256,7 +256,7 @@ func PM_DoSlowFall() -> Bool {
 }
 
 /// Source: oracle/codemp/game/bg_pmove.c:346
-func PM_pitch_roll_for_slope(_ forwhom: JKAMP.BgEntity, _ pass_slope: inout JKAShared.vec3_t, _ storeAngles: inout JKAShared.vec3_t) {
+func PM_pitch_roll_for_slope(_ forwhom: JKAMP.BgEntity, _ pass_slope: JKAShared.vec3_t?, _ storeAngles: inout JKAShared.vec3_t) {
     var slope = JKAShared.vec3_t(0, 0, 0)
     var nvf = JKAShared.vec3_t(0, 0, 0)
     var ovf = JKAShared.vec3_t(0, 0, 0)
@@ -270,8 +270,7 @@ func PM_pitch_roll_for_slope(_ forwhom: JKAMP.BgEntity, _ pass_slope: inout JKAS
     let ps = pm.ps
 
     //if we don't have a slope, get one
-    // Port-note: Raven guards a NULL `pass_slope` here. The parameter is `inout`, so the guard has no Swift form.
-    if VectorCompare(vec3_origin, pass_slope) != 0 {
+    if pass_slope == nil || VectorCompare(vec3_origin, pass_slope!) != 0 {
         // Raven's record lives to the end of his block, so the block is the closure.
         // The closure gives true where Raven returns from the function.
         let earlyOut = JKAMP.Trace.scratch { trace -> Bool in
@@ -300,7 +299,7 @@ func PM_pitch_roll_for_slope(_ forwhom: JKAMP.BgEntity, _ pass_slope: inout JKAS
             return
         }
     } else {
-        slope = pass_slope
+        slope = pass_slope!
     }
 
     if forwhom.s.NPC_class == CLASS_VEHICLE {
@@ -383,7 +382,7 @@ func PM_SetSpecialMoveValues() {
 }
 
 /// Source: oracle/codemp/game/bg_pmove.c:482
-private func PM_SetVehicleAngles(_ normal: inout JKAShared.vec3_t) {
+private func PM_SetVehicleAngles(_ normal: JKAShared.vec3_t?) {
     // Port-note: Raven reads and writes `pVeh->m_vOrientation[i]`. The generated field is an `OpaquePointer?` for Raven's `float *`, and rule 11 keeps a pointer out of a logic target.
     // TODO: Port PM_SetVehicleAngles
     portMissing("PM_SetVehicleAngles", source: "oracle/codemp/game/bg_pmove.c:482")

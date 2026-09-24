@@ -198,7 +198,7 @@ Lerps the origin and angles of an entity to the destination values
 ```
 */
 /// Source: oracle/codemp/game/g_ICARUScb.c:781
-func Q3_Lerp2Pos(_ taskID: Int32, _ entID: Int32, _ origin: inout JKAShared.vec3_t, _ angles: inout JKAShared.vec3_t, _ duration: Float) {
+func Q3_Lerp2Pos(_ taskID: Int32, _ entID: Int32, _ origin: inout JKAShared.vec3_t, _ angles: JKAShared.vec3_t?, _ duration: Float) {
     // TODO: Port Q3_Lerp2Pos
     portMissing("Q3_Lerp2Pos", source: "oracle/codemp/game/g_ICARUScb.c:781")
 }

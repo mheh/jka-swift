@@ -600,7 +600,7 @@ private func G_TossTheMofo(_ ent: Entity, _ tossDir: inout JKAShared.vec3_t, _ t
 }
 
 /// Source: oracle/codemp/game/w_saber.c:7527
-private func G_KickTrace(_ ent: Entity, _ kickDir: inout JKAShared.vec3_t, _ kickDist: Float, _ kickEnd: inout JKAShared.vec3_t, _ kickDamage: Int32, _ kickPush: Float) -> Entity? {
+private func G_KickTrace(_ ent: Entity, _ kickDir: inout JKAShared.vec3_t, _ kickDist: Float, _ kickEnd: JKAShared.vec3_t?, _ kickDamage: Int32, _ kickPush: Float) -> Entity? {
     // TODO: Port G_KickTrace
     portMissing("G_KickTrace", source: "oracle/codemp/game/w_saber.c:7527")
 }

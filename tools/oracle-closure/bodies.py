@@ -206,6 +206,8 @@ class Drafter(Statements, Expressions, Calls, Declarations, Classification):
         self.written = facts.written
         self.addressed = facts.addressed
         self.has_scratch = any(self.record_local(c) is not None for c in fn.cur.walk_preorder())
+        # Raven's vector parameters a caller passes NULL to and the body only reads, which cross as optional values.
+        self.optional_vectors = {c.spelling for c, p in zip(fn.cur.get_arguments(), fn.params) if p.kind in ("vec3_opt", "axis_opt")}
         self.inout_locals = {c.spelling for c, p in zip(fn.cur.get_arguments(), fn.params) if (p.swift or "").startswith("inout ")}
         # Raven assigns a parameter of his own. A Swift parameter is immutable, so the body opens with a mutable copy, after the declarations.
         self.param_copies = [p.name for c, p in zip(fn.cur.get_arguments(), fn.params) if c.spelling in self.written and c.spelling not in self.inout_locals]

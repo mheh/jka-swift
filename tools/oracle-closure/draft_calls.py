@@ -245,6 +245,9 @@ class Calls:
             return self.converted(inner, param[1])
         if param is not None and param[1].endswith("?") and self.is_null(inner):
             return "nil"
+        if param is not None and param[1].endswith("?") and inner.kind == CursorKind.DECL_REF_EXPR and inner.spelling in self.optional_vectors:
+            # The optional vector passes on as it is, NULL and all.
+            return self.names[inner.spelling]
         if param is not None and param[1].replace("JKAShared.", "") == "vec3_t" and self.is_null(inner):
             self.pending += self.noted_hole(f"// Port-note: Raven passes NULL for `{param[0]}`, and the callee reads NULL as the zero vector.")
             return "JKAShared.vec3_origin"

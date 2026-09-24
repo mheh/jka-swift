@@ -169,6 +169,10 @@ A body with an `inout CharBuf` parameter writes as Raven wrote, `powerOut[i] = r
 `BG_ParseField` takes `UnsafeMutableRawPointer` for `byte *ent` and `Slots<BgField>` for the field table, and writes through the labeled subscript of the section on typed access at a byte offset. The caller passes the entity's handle turned raw, with a one-line comment that names rule 11.
 A body with an `inout vec3_t` parameter such as `colors` drops the `&& colors` half of Raven's guard, and carries the null-guard Port-note this guide already describes.
 A caller that passed `NULL` for that parameter passes a scratch local instead, `var colors = vec3_t(0, 0, 0)`, and reads nothing from it.
+A vector or axis parameter the NULL sweep reaches and the body only reads crosses as an optional value, `JKAShared.vec3_t?`, and the caller passes `nil` for `NULL`.
+The body's NULL test keeps its form, `normal == nil`, and every other read of the parameter is the force unwrap, `normal!`.
+The sweep reaches a parameter at a direct `NULL`, through a local the caller sets to `NULL`, and through a parameter of the caller the sweep already reached.
+A body writes a vector parameter through a store, a vector macro's written position, or a callee that writes its own parameter, and that parameter keeps `inout` and the caller's scratch.
 The callee's NULL arm does not run for that call, so the call site carries a Port-note and a `portMissing` marker.
 A caller of a trap or strap function writes `nil` where Raven wrote `NULL` for a `qhandle_t *` parameter.
 The pointer stays inside generated code under rule 11, and no ported body indexes it.

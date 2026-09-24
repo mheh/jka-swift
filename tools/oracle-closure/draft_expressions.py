@@ -221,6 +221,8 @@ class Expressions:
         inner = self.strip(cur)
         if inner.kind == CursorKind.PAREN_EXPR:
             return self.coerced(list(inner.get_children())[0], "Bool")
+        if inner.kind == CursorKind.DECL_REF_EXPR and inner.spelling in self.optional_vectors:
+            return f"{self.names[inner.spelling]} != nil"
         name = self.always_set(cur)
         if name is not None:
             note = f"// Port-note: Raven tests `{name}` for NULL here. Swift holds it as a value, so the test has no form and reads true."
@@ -357,6 +359,8 @@ class Expressions:
             op, prefix, operand = self.unary_parts(cur)
             if op == "!":
                 inner = self.strip(operand)
+                if self.unwrap(operand).kind == CursorKind.DECL_REF_EXPR and self.unwrap(operand).spelling in self.optional_vectors:
+                    return f"{self.names[self.unwrap(operand).spelling]} == nil"
                 name = self.always_set(operand)
                 if name is not None:
                     note = f"// Port-note: Raven guards a NULL `{name}` here. Swift holds it as a value, so the guard has no form and reads false."
@@ -488,7 +492,8 @@ class Expressions:
         if name == "NULL":
             return "nil"
         if name in self.names:
-            return self.names[name]
+            # A read of an optional vector parameter is the force unwrap, where C read through the pointer with no guard.
+            return self.names[name] + ("!" if name in self.optional_vectors else "")
         if name in self.local_holes and ref is not None and ref.kind == CursorKind.VAR_DECL:
             # The declaration is a hole, so the local has no Swift name, and a read of it is the same hole one statement later.
             raise Hole(f"A read of `{name}`, a local the draft left as a hole.")

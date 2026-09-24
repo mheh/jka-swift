@@ -72,6 +72,8 @@ class Facts:
     readonly_text: bool = False
     indexed: bool = False
     stores_through: bool = False
+    # True when the NULL sweep, at a direct call or one hop on, reaches the parameter. The vector rules read this one.
+    nullable_vector: bool = False
     # The body already spells the expression as a Swift Bool, and the expression is a number Swift types by context.
     is_bool: bool = False
     is_literal: bool = False
@@ -233,6 +235,9 @@ class Types:
             return Answer(TYPES[t.spelling.replace("const ", "")], "bare")
         # A vector parameter is the array type itself, and Clang keeps the typedef name on the parameter.
         if t.spelling.split()[-1] in VECTORS:
+            if facts.nullable_vector and not facts.stores_through and not facts.traps:
+                # A caller passes NULL and the body only reads, so the vector crosses as an optional value and the NULL test keeps its form.
+                return Answer(f"JKAShared.{t.spelling.split()[-1]}?", "vec3_opt")
             if "const" in t.spelling:
                 return Answer(f"JKAShared.{t.spelling.split()[-1]}", "vec3_const")
             return Answer(f"inout JKAShared.{t.spelling.split()[-1]}", "vec3_mut")
@@ -255,7 +260,11 @@ class Types:
                 return None if facts.traps else Answer(None, "closure")
             if "vec3_t" in t.spelling:
                 # `vec3_t name[3]` is an axis, the type the ported q_math axis functions take.
-                return None if facts.traps else Answer("inout [JKAShared.vec3_t]", "vec3_axis")
+                if facts.traps:
+                    return None
+                if facts.nullable_vector and not facts.stores_through:
+                    return Answer("[JKAShared.vec3_t]?", "axis_opt")
+                return Answer("inout [JKAShared.vec3_t]", "vec3_axis")
             if inner.kind == TypeKind.CHAR_S:
                 if pointee.is_const_qualified():
                     if facts.ruled == "text_cursor":

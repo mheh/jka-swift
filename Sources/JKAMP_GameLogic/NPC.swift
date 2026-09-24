@@ -106,7 +106,7 @@ private func NPC_RemoveBodyEffect() {
 }
 
 /// Source: oracle/codemp/game/NPC.c:395
-func pitch_roll_for_slope(_ forwhom: Entity, _ pass_slope: inout JKAShared.vec3_t) {
+func pitch_roll_for_slope(_ forwhom: Entity, _ pass_slope: JKAShared.vec3_t?) {
     // TODO: Port pitch_roll_for_slope
     portMissing("pitch_roll_for_slope", source: "oracle/codemp/game/NPC.c:395")
 }

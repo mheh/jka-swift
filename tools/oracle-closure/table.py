@@ -19,6 +19,7 @@ from clang.cindex import CursorKind
 import closure as C
 from reexport import GAME_TARGET
 from fnsweep import ASSIGN_OPS
+from overlay import MACROS, written_arguments
 from rulings import PARAMS, RETURNS
 from views import Generator
 from spelling import Facts, OPTIONAL_TEXT_RESULT
@@ -263,6 +264,8 @@ class Table:
         self.types = self.views.types
         # The (function, parameter) pairs a bg body passes NULL or 0 to, so the wrapper takes the parameter as optional.
         self.nullable: set[tuple[str, str]] = set()
+        # The pairs the NULL sweep reaches one hop on, through a local or a passed-on parameter, which the vector rules read.
+        self.hopped: set[tuple[str, str]] = set()
         # The functions the NULL sweep saw a call to, so a parameter outside `nullable` is proven never NULL only for these.
         self.called: set[str] = set()
         # The (function, parameter) pairs whose body writes through the pointer, so the output keeps its `inout` spelling.
@@ -470,6 +473,52 @@ class Table:
                         if callee.startswith("strap_"):
                             self.nullable.add(("trap_" + callee[len("strap_"):], params[i].spelling))
 
+    def sweep_null_hops(self, tu: ci.TranslationUnit, *folders: Path) -> None:
+        """The NULL sweep one hop on: a callee's parameter that takes a local the caller sets to NULL, or a parameter of the caller
+        the sweep already marked nullable. The passed-on edges close to a fixed point, so NULL follows a parameter down a chain of calls."""
+        edges: list[tuple[tuple[str, str], tuple[str, str]]] = []
+        for cur in tu.cursor.get_children():
+            if cur.kind != CursorKind.FUNCTION_DECL or not cur.is_definition() or not cur.location.file:
+                continue
+            path = Path(cur.location.file.name).resolve()
+            if path.parent not in folders or path.suffix != ".c":
+                continue
+            data = C.parsed_bytes(path)
+            null_locals: set[str] = set()
+            for node in cur.walk_preorder():
+                if node.kind == CursorKind.VAR_DECL and self.takes_null(node.type):
+                    kids = [k for k in node.get_children() if k.kind.is_expression()]
+                    if kids and data[kids[-1].extent.start.offset:kids[-1].extent.end.offset].decode("utf-8", "replace").strip() in ("NULL", "0"):
+                        null_locals.add(node.spelling)
+                if node.kind == CursorKind.BINARY_OPERATOR:
+                    kids = list(node.get_children())
+                    if len(kids) == 2 and self.unwrapped(kids[0]).kind == CursorKind.DECL_REF_EXPR \
+                            and data[kids[0].extent.end.offset:kids[1].extent.start.offset].decode("utf-8", "replace").strip() == "=" \
+                            and data[kids[1].extent.start.offset:kids[1].extent.end.offset].decode("utf-8", "replace").strip() in ("NULL", "0") \
+                            and self.takes_null(kids[0].type):
+                        null_locals.add(self.unwrapped(kids[0]).spelling)
+            for node in cur.walk_preorder():
+                if node.kind != CursorKind.CALL_EXPR or node.referenced is None or node.referenced.kind != CursorKind.FUNCTION_DECL:
+                    continue
+                params = list(node.referenced.get_arguments())
+                callee = node.referenced.spelling
+                for i, arg in enumerate(list(node.get_children())[1:]):
+                    inner = self.unwrapped(arg)
+                    if inner.kind != CursorKind.DECL_REF_EXPR or i >= len(params) or not self.takes_null(params[i].type) or inner.referenced is None:
+                        continue
+                    pair = (callee, params[i].spelling)
+                    if inner.referenced.kind == CursorKind.VAR_DECL and inner.spelling in null_locals:
+                        self.hopped.add(pair)
+                    elif inner.referenced.kind == CursorKind.PARM_DECL:
+                        edges.append(((cur.spelling, inner.spelling), pair))
+        changed = True
+        while changed:
+            changed = False
+            for source, target in edges:
+                if (source in self.nullable or source in self.hopped) and target not in self.nullable and target not in self.hopped:
+                    self.hopped.add(target)
+                    changed = True
+
     @staticmethod
     def takes_null(t: ci.Type) -> bool:
         """True for a parameter type NULL fits: a pointer, and an array too, because C decays an array parameter to a pointer."""
@@ -477,20 +526,41 @@ class Table:
 
     def sweep_stores(self, tu: ci.TranslationUnit, folder: Path) -> None:
         """Every pointer parameter a body of the folder writes through, `*p = x` or `p[i] = x`, by the function's name.
+        A vector parameter handed to a vector macro's written position is written too, and one handed to a callee's non-const vector
+        parameter is written when the callee writes its own parameter, which the sweep closes to a fixed point over the folder.
+        A callee outside the folder writes every non-const vector it takes, because no proof of it exists.
 
         The table reads it beside `nullable`: a scalar output the body always writes keeps the `inout` spelling, and the caller's NULL
         takes a scratch local at the call site instead. A parameter the body only reads has no such seat, so a NULL there stays optional."""
+        edges: list[tuple[tuple[str, str], tuple[str, str]]] = []
+        defined: set[str] = set()
         for cur in tu.cursor.get_children():
             if cur.kind != CursorKind.FUNCTION_DECL or not cur.is_definition() or not cur.location.file:
                 continue
             path = Path(cur.location.file.name).resolve()
             if path.parent != folder or path.suffix != ".c":
                 continue
+            defined.add(cur.spelling)
             data = C.parsed_bytes(path)
             names = {p.spelling for p in cur.get_arguments()}
             if not names:
                 continue
             for node in cur.walk_preorder():
+                if node.kind == CursorKind.CALL_EXPR and node.referenced is not None and node.referenced.kind == CursorKind.FUNCTION_DECL:
+                    callee = node.referenced.spelling
+                    params = list(node.referenced.get_arguments())
+                    for i, arg in enumerate(list(node.get_children())[1:]):
+                        root = self.argument_root(self.unwrapped(arg))
+                        if root is None or root not in names:
+                            continue
+                        if callee in MACROS:
+                            if i in written_arguments(callee):
+                                self.stores_through.add((cur.spelling, root))
+                        elif i < len(params):
+                            spelled = params[i].type.spelling
+                            if "const" not in spelled and ("vec3_t" in spelled or "vec4_t" in spelled):
+                                edges.append(((cur.spelling, root), (callee, params[i].spelling)))
+                    continue
                 if node.kind not in (CursorKind.BINARY_OPERATOR, CursorKind.COMPOUND_ASSIGNMENT_OPERATOR):
                     continue
                 kids = list(node.get_children())
@@ -502,6 +572,31 @@ class Table:
                 target = self.store_target(self.unwrapped(kids[0]), data)
                 if target in names:
                     self.stores_through.add((cur.spelling, target))
+        changed = True
+        while changed:
+            changed = False
+            for source, target in edges:
+                if source in self.stores_through:
+                    continue
+                if target[0] not in defined or target in self.stores_through:
+                    self.stores_through.add(source)
+                    changed = True
+
+    def argument_root(self, cur: ci.Cursor) -> str | None:
+        """The name at the root of a call argument, `axis` for `axis`, `axis[0]`, and `&axis[0]`, or None for any other argument."""
+        node = cur
+        while True:
+            if node.kind == CursorKind.UNARY_OPERATOR:
+                kids = list(node.get_children())
+                if len(kids) != 1:
+                    return None
+                node = self.unwrapped(kids[0])
+            elif node.kind == CursorKind.ARRAY_SUBSCRIPT_EXPR:
+                node = self.unwrapped(list(node.get_children())[0])
+            elif node.kind == CursorKind.DECL_REF_EXPR:
+                return node.spelling
+            else:
+                return None
 
     def store_target(self, cur: ci.Cursor, data: bytes) -> str | None:
         """The parameter name a store writes through, for `*p` and for `p[i]`, or None for any other left side."""
@@ -1154,6 +1249,8 @@ class Table:
         self.sweep_handoffs(tu, folder)
         self.sweep_buffer_traps(tu, folder)
         self.sweep_nulls(other, folder, other_folder)
+        self.sweep_null_hops(tu, folder)
+        self.sweep_null_hops(other, folder, other_folder)
         self.sweep_subscripts(other, folder, other_folder)
         self.sweep_handoffs(other, folder, other_folder)
         self.resolve_handoffs()
@@ -1189,6 +1286,7 @@ class Table:
             traps=traps,
             following=following,
             nullable=(owner, name) in self.nullable,
+            nullable_vector=(owner, name) in self.nullable or (owner, name) in self.hopped,
             readonly_text=(owner, name) in self.readonly_text,
             indexed=(owner, name) in self.indexed_params,
             stores_through=(owner, name) in self.stores_through,
