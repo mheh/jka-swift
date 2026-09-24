@@ -147,6 +147,8 @@ class Drafter(Statements, Expressions, Calls, Declarations, Classification):
         self.leaf_wrap: str | None = None
         # The scratch closures open around the statement being drafted, innermost last: None, "flag", or "value".
         self.scratch_modes: list[str | None] = []
+        # The step clause of each loop open around the statement being drafted, innermost last, and None for a loop with no step.
+        self.loop_steps: list[ci.Cursor | None] = []
         # The game fields a bg body reaches, by root kind, field path, and write, each with the callback the channel carries.
         self.reads = sk.table.reads
         # The locals of the function being drafted that Raven typed `gentity_t *` and the draft holds as `JKAMP.BgEntity`.

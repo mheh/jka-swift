@@ -266,10 +266,10 @@ class Statements:
             return self.if_statement(cur, depth)
         if kind == CursorKind.WHILE_STMT:
             cond, body = list(cur.get_children())
-            return [f"{pad}while {self.condition(cond)} {{"] + self.branch(body, depth + 1) + [f"{pad}}}"]
+            return [f"{pad}while {self.condition(cond)} {{"] + self.loop_body(body, None, depth + 1) + [f"{pad}}}"]
         if kind == CursorKind.DO_STMT:
             body, cond = list(cur.get_children())
-            return [f"{pad}repeat {{"] + self.branch(body, depth + 1) + [f"{pad}}} while {self.condition(cond)}"]
+            return [f"{pad}repeat {{"] + self.loop_body(body, None, depth + 1) + [f"{pad}}} while {self.condition(cond)}"]
         if kind == CursorKind.FOR_STMT:
             return self.for_statement(cur, depth)
         if kind == CursorKind.SWITCH_STMT:
@@ -277,7 +277,10 @@ class Statements:
         if kind == CursorKind.BREAK_STMT:
             return [f"{pad}break" + self.trailing(cur)]
         if kind == CursorKind.CONTINUE_STMT:
-            return [f"{pad}continue" + self.trailing(cur)]
+            # The rewritten `for` puts its step at the block end, so a continue runs the step first, as Raven's loop does.
+            step = self.loop_steps[-1] if self.loop_steps else None
+            before = self.statement(step, depth) if step is not None else []
+            return before + [f"{pad}continue" + self.trailing(cur)]
         if kind == CursorKind.NULL_STMT:
             return []
         if kind == CursorKind.GOTO_STMT:
@@ -587,15 +590,24 @@ class Statements:
             out += self.statement(init, depth)
         test = self.condition(cond) if cond is not None else "true"
         out.append(f"{pad}while {test} {{")
-        inner = self.branch(body, depth + 1)
-        if any(line.strip() == "continue" or line.strip().startswith("continue ") for line in inner):
-            note = "// Port-note: Raven's loop has a continue, and the step below does not run for it. The transcriptor moves the step."
+        inner = self.loop_body(body, step, depth + 1)
+        if step is not None and any(re.match(r"continue \w", line.strip()) for line in inner):
+            # A goto that became a labeled continue leaves the loop from inside a nested one, and the step does not run for it.
+            note = "// Port-note: Raven's loop has a labeled continue, and the step below does not run for it. The transcriptor moves the step."
             out += [INDENT * (depth + 1) + line for line in self.noted_hole(note)]
         out += inner
         if step is not None:
             out += self.statement(step, depth + 1)
         out.append(f"{pad}}}")
         return out
+
+    def loop_body(self, body: ci.Cursor, step: ci.Cursor | None, depth: int) -> list[str]:
+        """The body of a loop, with its step clause on the stack so a `continue` inside it runs the step first."""
+        self.loop_steps.append(step)
+        try:
+            return self.branch(body, depth)
+        finally:
+            self.loop_steps.pop()
 
     def switch_statement(self, cur: ci.Cursor, depth: int) -> list[str]:
         """Raven's cases as Swift cases. A case with no break at its end falls through to the next case."""

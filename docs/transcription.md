@@ -424,6 +424,12 @@ A `#ifdef` takes the native build's branch. The other branch is not written, and
 A define with no body, `_JK2MP`, `MISSIONPACK`, `BOT_STRAFE_AVOIDANCE`, an include guard, is a switch of the build, fixed by the parse's defines in `tools/oracle-closure/modules/mp-game.py`, Raven's release configuration, and it is never a Swift name.
 Raven's `#ifdef QAGAME` in a bg body is the one exception, and it is `if bg.consumer == .game { ... } else { ... }`, with both arms on the page.
 
+### The `for` loop
+
+A `for` loop is `init; while test { body; step }`.
+A `continue` in the body runs the step first, on the line before it, as Raven's loop does.
+A `goto` that became a labeled `continue` of an outer loop skips that loop's step, so the loop keeps a Port-note and a `portMissing` marker.
+
 ### `goto`
 
 A `goto` is restructured with the smallest change that preserves Raven's control flow, per rule 10.
