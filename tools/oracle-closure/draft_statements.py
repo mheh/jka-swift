@@ -11,6 +11,7 @@ import clang.cindex as ci
 from clang.cindex import CursorKind, TypeKind
 
 import closure as C
+from rulings import WRAPPING_ARITHMETIC
 from table import ASSIGN_OPS, TARGET, swift_name
 from overlay import DROPPED, MACROS, RECORD_CALLS, address_arguments
 
@@ -212,11 +213,34 @@ class Statements:
                 raise Hole(f"Raven's `{raven}` runs over bytes that are not one record with a view.")
             targets.append(arg)
         if name == "memset":
+            raven = self.bytes[cur.extent.start.offset:cur.extent.end.offset].decode("utf-8", "replace")
+            if not self.is_null(args[1]):
+                raise Hole(f"Raven's `{raven}` fills the record with a value that is not zero, and a view's clear() writes zero.")
+            if not self.whole_record_size(args[2], targets[0]):
+                raise Hole(f"Raven's `{raven}` runs over a size that is not the record's own, and a view's clear() takes the whole record.")
             ref = targets[0].referenced if targets[0].kind == CursorKind.DECL_REF_EXPR else None
-            if ref is not None and ref.kind == CursorKind.VAR_DECL and ref.semantic_parent is not None and ref.semantic_parent.kind != CursorKind.TRANSLATION_UNIT:
+            scratch = ref is not None and ref.kind == CursorKind.VAR_DECL and ref.semantic_parent is not None \
+                and ref.semantic_parent.kind != CursorKind.TRANSLATION_UNIT and self.is_record(targets[0].type)
+            if scratch and not self.loop_steps:
+                # The record local itself, not a pointer to one, and outside every loop, so the slot is zero at this point.
                 return [f"{pad}// Raven clears the record with `memset` here. The scratch slot is zero at entry, so the body drops the call."]
             return [f"{pad}{self.expr(targets[0])}.clear()" + self.trailing(cur)]
         return [f"{pad}{self.expr(targets[0])}.copy(from: {self.expr(targets[1])})" + self.trailing(cur)]
+
+    def whole_record_size(self, size: ci.Cursor, target: ci.Cursor) -> bool:
+        """True when Raven's size argument is `sizeof` of the record itself, of the pointer's pointee, or of the record's type."""
+        text = " ".join(self.bytes[size.extent.start.offset:size.extent.end.offset].decode("utf-8", "replace").split())
+        m = re.fullmatch(r"sizeof\s*\(?\s*(.*?)\s*\)?", text)
+        if m is None:
+            return False
+        inner = m.group(1).replace(" ", "")
+        record = " ".join(self.bytes[target.extent.start.offset:target.extent.end.offset].decode("utf-8", "replace").split()).replace(" ", "")
+        t = target.type.get_canonical()
+        pointee = t.get_pointee() if t.kind == TypeKind.POINTER else None
+        names = {record, "*" + record, "(*" + record + ")", target.type.spelling.replace(" ", ""), t.spelling.replace(" ", "")}
+        if pointee is not None:
+            names |= {pointee.spelling.replace(" ", ""), pointee.get_canonical().spelling.replace(" ", "")}
+        return inner in names
 
     def is_call(self, cur: ci.Cursor) -> bool:
         """A call, which the parse sometimes leaves unexposed: the first child names a function, and the rest are the arguments."""
@@ -306,6 +330,9 @@ class Statements:
                 return [f"{pad}{self.expr(operand)} {op[0]}= 1" + self.trailing(cur)]
         if kind in (CursorKind.BINARY_OPERATOR, CursorKind.COMPOUND_ASSIGNMENT_OPERATOR):
             op = self.binary_op(cur)
+            if self.fn.name in WRAPPING_ARITHMETIC and op in ("+=", "-=", "*="):
+                # The generator's arithmetic wraps at 32 bits, as C's does.
+                op = "&" + op
             if op == ",":
                 # C's comma operator runs the left side, then the right, which is two Swift statements, `i++, holdChar += len + 1`.
                 left, right = list(cur.get_children())
@@ -445,11 +472,9 @@ class Statements:
                     raise Hole("A whole-record store, which a view has no operator for.")
                 lhs_kind = self.swift_type_of(left)
                 unsigned = self.unsigned_of(left)
-                if op == "=" and lhs_kind == "Int32" and self.has_double_literal(right):
-                    # C computes the double expression and truncates at the store, by "A double literal".
-                    return [f"{pad}{target} = Int32({self.wrapped(right, 'Double')})" + self.trailing(cur)]
-                if op != "=" and lhs_kind == "Int32" and self.has_double_literal(right):
-                    return [f"{pad}{target} = Int32(Double({target}) {op[:-1]} {self.wrapped(right, 'Double')})" + self.trailing(cur)]
+                if op != "=" and lhs_kind in ("Int32", "Float") and self.has_double_literal(right):
+                    # C computes the double expression and converts once at the store, by "A double literal".
+                    return [f"{pad}{target} = {lhs_kind}(Double({target}) {op[:-1]} {self.wrapped(right, 'Double')})" + self.trailing(cur)]
                 if op != "=" and lhs_kind == "Int32" and self.types.number_kind(self.strip(right).type) == "Float":
                     # C computes in float and truncates at the store.
                     return [f"{pad}{target} = Int32(Float({target}) {op[:-1]} {self.expr(right)})" + self.trailing(cur)]

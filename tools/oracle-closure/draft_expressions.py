@@ -12,7 +12,7 @@ from clang.cindex import CursorKind, TypeKind
 
 from spelling import Facts, UNSIGNED
 
-from rulings import HAND_VARS
+from rulings import HAND_VARS, WRAPPING_ARITHMETIC
 import closure as C
 from skeleton import BG, LOGIC, target_of
 from table import ASSIGN_OPS, COMMENT, TARGET, swift_name
@@ -142,6 +142,9 @@ class Expressions:
 
     def converted(self, cur: ci.Cursor, swift: str) -> str:
         """An expression stored where Swift wants `swift`. spelling.py names the crossing, and the words under it are Raven's own."""
+        if swift in ("Float", "Int32") and self.leaf_wrap is None and not self.is_literal(cur) and self.has_double_literal(cur):
+            # C computes the expression in double and converts once at the store, by "A double literal".
+            return f"{swift}({self.wrapped(cur, 'Double')})"
         answer = self.types.crossing(self.strip(cur).type, swift,
                                      Facts(is_bool=self.is_bool(cur), is_literal=self.is_literal(cur),
                                            named_leaf=self.unwrap(cur).kind in self.NAMED_LEAVES))
@@ -411,6 +414,9 @@ class Expressions:
             raise Hole(f"A {op} inside an expression.")
         if kind == CursorKind.BINARY_OPERATOR:
             op = self.binary_op(cur)
+            if self.fn.name in WRAPPING_ARITHMETIC and op in ("+", "-", "*"):
+                # The generator's arithmetic wraps at 32 bits, as C's does.
+                op = "&" + op
             left, right = list(cur.get_children())
             if op in LOGICAL:
                 a, b = self.condition(left), self.condition(right)
@@ -602,6 +608,15 @@ class Expressions:
         if swift in ("Int32", "Float") and self.is_bool(operand):
             # Raven's `(int)` on a qboolean is the Bool as a number.
             return self.converted(operand, swift)
+        if swift in ("Int32", "Float") and self.leaf_wrap == "Double":
+            # Raven's cast inside a double expression, `(float)pm->ps->speed * max / (127.0 * total)`, converts and then widens as C does.
+            outer = self.leaf_wrap
+            self.leaf_wrap = None
+            try:
+                inner = self.expr(operand)
+            finally:
+                self.leaf_wrap = outer
+            return f"Double({swift}({inner}))"
         return f"{swift}({self.expr(operand)})"
 
     def stride_walk(self, operand: ci.Cursor) -> str | None:

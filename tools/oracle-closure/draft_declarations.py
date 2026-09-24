@@ -9,6 +9,8 @@ import re
 import clang.cindex as ci
 from clang.cindex import CursorKind, TypeKind
 
+from overlay import MACROS, written_arguments
+
 import closure as C
 from skeleton import BG, target_of
 from table import TARGET, swift_name
@@ -274,7 +276,9 @@ class Declarations:
             if not init:
                 return f"var {name} = JKAShared.vec3_t(0, 0, 0)"
             return f"var {name} = {self.vector_literal(init[0])}"
-        if t.get_canonical().kind == TypeKind.CONSTANTARRAY and self.views.is_vec3(t.element_type):
+        # A typedef of an array, `vec2_t` or `G2Trace_t`, has no element type until the canonical type, and a plain array keeps its element's typedef name.
+        canonical = t.get_canonical()
+        if canonical.kind == TypeKind.CONSTANTARRAY and self.views.is_vec3(t.element_type if t.kind == TypeKind.CONSTANTARRAY else canonical.element_type):
             # `vec3_t axis[3]` is an array of vectors, each at zero.
             count = t.get_canonical().element_count
             if init:
@@ -371,6 +375,8 @@ class Declarations:
         swift = self.types.scalar(t, TARGET)
         if swift is None:
             raise Hole(f"A local `{t.spelling} {var.spelling}` the table has no type for.")
+        if var.storage_class == ci.StorageClass.STATIC and var.spelling in self.written and not self.written_first(var):
+            raise Hole(f"A static local `{var.spelling}` a statement reads before it writes, storage that outlives the call.")
         if init:
             return f"{keyword} {name}: {swift} = {self.converted(init[0], swift)}"
         if self.has_scratch or var.spelling in self.addressed:
@@ -386,6 +392,28 @@ class Declarations:
             return False
         kids = [k for k in inner.get_children() if k.kind.is_expression()]
         return bool(kids) and self.view_operand(kids[-1])
+
+    def written_first(self, var: ci.Cursor) -> bool:
+        """True when the first reference to the local in the body's order is a store into it, Raven's scratch static that every path writes before it reads.
+        The store is the left side of an assignment, or an address or a written macro position, `VectorCopy(x, v)`."""
+        body = self.fn.cur
+        for node in body.walk_preorder():
+            kids = list(node.get_children())
+            if node.kind == CursorKind.BINARY_OPERATOR and len(kids) == 2 \
+                    and self.unwrap(kids[0]).kind == CursorKind.DECL_REF_EXPR and self.unwrap(kids[0]).spelling == var.spelling:
+                # The operator scan fails inside a macro expansion, and that site is then no proof of a store.
+                try:
+                    return self.binary_op(node) == "="
+                except Hole:
+                    return False
+            if node.kind == CursorKind.CALL_EXPR and kids and self.strip(kids[0]).spelling in MACROS:
+                for i, arg in enumerate(kids[1:]):
+                    inner = self.unwrap(arg)
+                    if inner.kind == CursorKind.DECL_REF_EXPR and inner.spelling == var.spelling:
+                        return i in written_arguments(self.strip(kids[0]).spelling)
+            if node.kind == CursorKind.DECL_REF_EXPR and node.spelling == var.spelling and node.referenced is not None and node.referenced.kind == CursorKind.VAR_DECL:
+                return False
+        return False
 
     def narrow_local_names(self, fn: ci.Cursor) -> dict[str, str]:
         """Raven's scalar locals of a type narrower than int, by his name, with the Swift storage of each, `Int16` for a `short`.

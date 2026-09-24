@@ -141,6 +141,8 @@ The rule holds for a zero value and the size of the same field.
 Raven's `memset(buf, 0, sizeof(buf))` over a `char buf[N]` local is `buf.zero()`, because the local is a `CharBuf` of N bytes.
 The size can also be the capacity that the declaration spells, `AWARDS_MSG_LENGTH` for `char buf1[AWARDS_MSG_LENGTH]`, or an integer literal of N.
 Any other memset over bytes that are not one record keeps its Port-note.
+A memset of zero over a whole record local drops, because the scratch slot is zero at entry, only where the target is the record itself and not a pointer to one, the size is the record's own, and no loop encloses the call. Otherwise it is the view's `clear()`.
+A memset with a value that is not zero, or over a size that is not the record's own, keeps its Port-note.
 
 Raven's struct of eight bytes exists because the compilers of the time had no portable 64-bit integer.
 Only the byte-swap pair touches `qint64`, and a body swaps with `byteSwapped`.
@@ -225,6 +227,9 @@ The reexport carries the header macros and the enums, never a `.c` file's macros
 ### Function-like macros
 
 A function-like macro that a body uses is a hand Swift function of the same name, with a `/// Source:` cite to its `#define`.
+The parse declares every macro of the table, and `FOFS` and the macros of `tri_coll_test.c`, as functions in the overlay of `tools/oracle-closure/overlay.py`, so a use is a call with argument nodes, and a call to one with no Swift home is a hole by name.
+The overlay repeats after each file of the unity source, because a `.c` file defines a macro of its own after the overlay's undef.
+The overlay also declares the prototypes of the four functions a stale `extern` in `AnimalNPC.c` or `NPC_AI_Jedi.c` declares with the wrong parameters, so every call resolves to the definition's shape.
 
 | Macro | Home |
 |---|---|
@@ -361,6 +366,7 @@ A Raven static in a `bg_*.c` file lives on `final class BgState`, in the hand fi
 A scalar static is a property of the generated `BgVariables`, which `BgState` owns, and the stub forwards it under Raven's name, so a body writes `pm_flying = FLY_NONE`. A struct static such as `pml` is one zeroed allocation on the generated `BgStorage`, which `BgState` owns, and a body reads `pml.forward` through the forwarder.
 A pointer static such as `pm` is the view of the caller's memory, set per call, and a body reads `pm.ps` with no bind. A test resets state with `bg = BgState()`.
 A static local that every path of the body writes before it reads is scratch, Raven's habit of keeping vectors off the stack, and it is a local of the body, declared where Raven declared it with his initializer.
+A static local a statement writes is storage that outlives the call, and the draft keeps it as a hole until a storage ruling names its home.
 The 23 statics of `BG_UpdateLookAngles` and `BG_G2PlayerAngles` are this shape, and none of them sits on `BgState`.
 
 `bg_pool` is one raw allocation of `MAX_POOL_SIZE` bytes, `bg.pool`, made at the consumer's install and never freed. `bg_poolSize` and `bg_poolTail` are `BgVariables` properties, and `BgState.init` sets `bg_poolTail` to the consumer's `MAX_POOL_SIZE` by hand.
@@ -414,6 +420,7 @@ The view's getter widens and its setter stores the truncation C performs, and th
 A fixed array of a narrow type keeps its element type.
 A local of a narrow type keeps its storage, `var temp: Int16`, because the local is the one place C's truncation is a stored value.
 A store into it truncates, `temp = Int16(truncatingIfNeeded: cmd.angles[i] + ps.delta_angles[i])`, and a read of it widens, `Int32(temp)`, as C does.
+The arithmetic of a generator or a hash, `Q_rand`, `rand`, `irand`, `flrand`, and the others `WRAPPING_ARITHMETIC` of `rulings.py` names, wraps at 32 bits with `&+`, `&-`, and `&*`, as C's does.
 An array index is the C constant or variable Raven wrote, for example `vec[YAW]` and `ps.stats[STAT_HEALTH]`, never `Int(...)`. Every array in the port takes any C integer index.
 A C enum is an `Int32` typealias, and each case is a bare `Int32` constant with Raven's name.
 A body compares, stores, switches, and shifts it exactly as Raven wrote it. `.rawValue` and `EnumName(rawValue:)` never appear.
@@ -489,7 +496,7 @@ Where no port exists, the transcriptor adds a Port-note, because the exact C sem
 Each one works over `CharBuf` and `String`, `strcpy` also takes a raw destination, and `strlen` returns `Int32`, narrowed once inside it.
 `strcpy` and `strcat` take an `at:` offset too, for Raven's copy through a pointer into the buffer, and `strcat` appends at the first NUL from that byte.
 `PooledString` has `init(_ raw: UnsafeMutableRawPointer)`, so `BG_StringAlloc` reads `strcpy(dest, source)` then `return PooledString(dest)`.
-Raven's `...` is `_ args: any JKAShared.FormatArg...`, and `Sources/JKAShared/Format.swift` formats it with the `printf` subset the game uses, `%i`, `%d`, `%s`, and `%f` with a width, a precision, and the left-align flag.
+Raven's `...` is `_ args: any JKAShared.FormatArg...`, and `Sources/JKAShared/Format.swift` formats it with the `printf` subset the game uses, `%i`, `%d`, `%s`, `%c`, and `%f` with a width, a precision, and the left-align flag.
 `va` returns that text, so `strcpy(&powerOut, va("%i-", maxRank))` is Raven's line, and `Com_Printf`, `G_Printf`, and `Com_Error` format the same way.
 A specifier outside the subset is a precondition failure, so a new shape surfaces at once.
 Raven passes a whole record to a `%s`, as `Com_Printf("OLD: %s\n", animTable[oldAnim])` does.

@@ -170,7 +170,8 @@ PARAMS = {
     ("Parse2DMatrix", "m"): "float_array",
     ("Parse3DMatrix", "m"): "float_array",
     ("trap_SV_RegisterSharedMemory", "memory"): "raw",
-    # Raven's callers declare `char GLAName[1024]` and `char hitSurface[MAX_QPATH]`, the only sizes there are.
+    # Raven's callers declare `char GLAName[MAX_QPATH]` in g_client.c and `char GLAName[1024]` in NPC_spawn.c, and the trap takes the larger.
+    # `char hitSurface[MAX_QPATH]` is the one size for the surface name.
     ("trap_G2API_GetGLAName", "fillBuf"): ("fill_buffer", "1024"),
     ("trap_G2API_GetSurfaceName", "fillBuf"): ("fill_buffer", "JKAShared.MAX_QPATH"),
     # A pointer to a table of records the body indexes, `table[i]`, crosses as the Slots over the table.
@@ -205,6 +206,9 @@ OWN_HOOKS = {"Com_Error", "Com_Printf"}
 # signature it shares and the definition's cite. The game consumer installs nothing, so the trapping default names it at the first call.
 EXTRA_HOOKS = {"CG_NewString": ("G_NewString", "oracle/codemp/cgame/cg_main.c:3344")}
 # Files whose functions a bg body reaches directly, because they live in the shared module or in bg itself.
+# The functions whose integer arithmetic is a generator or a hash, where C wraps at 32 bits and Swift's plain operators trap.
+WRAPPING_ARITHMETIC = {"Q_rand", "Q_random", "Q_crandom", "rand", "srand", "irand", "flrand", "Q_irand", "Q_flrand", "Rand_Init", "Q_HashKey"}
+
 # The traps whose buffer holds a NUL-separated list, which a caller walks past the first NUL, so the trap returns every byte as a CharBuf.
 LIST_TRAPS = {"trap_FS_GetFileList"}
 

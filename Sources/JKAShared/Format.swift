@@ -133,6 +133,17 @@ public func format(_ fmt: String, _ args: [any FormatArg]) -> String {
                 leftAlign: leftAlign
             )
 
+        case "c":
+            guard case .integer(let number) = value else {
+                preconditionFailure("format: %c needs an integer argument")
+            }
+            let scalar = UnicodeScalar(UInt8(truncatingIfNeeded: number))
+            out += pad(
+                String(Character(scalar)),
+                width: width,
+                leftAlign: leftAlign
+            )
+
         case "f":
             guard case .floating(let number) = value else {
                 preconditionFailure("format: %f needs a floating argument")

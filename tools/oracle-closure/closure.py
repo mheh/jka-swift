@@ -205,7 +205,8 @@ def parse_tu(module: str, extra_file: str | None, unity: bool = False, target: s
         files = sorted(p for g in cfg["srcglob"] for p in SRC_ROOT.glob(g))
         src = str(entry.parent / "__closure_unity__.c")
         prelude = f'#include "q_shared.h"\n{overlay}\n' if overlay else ""
-        unsaved.append((src, prelude + "".join(f'#include "{p}"\n' for p in files)))
+        # The overlay repeats after each file, because a .c file defines a macro of its own after the overlay's undef.
+        unsaved.append((src, prelude + "".join(f'#include "{p}"\n' + (f"{overlay}\n" if overlay else "") for p in files)))
     elif len(entries) > 1 or entry.suffix == ".h":  # synthesize a TU around the header(s)
         src = str(entry.parent / "__closure_tu__.c")
         unsaved.append((src, "".join(f'#include "{e}"\n' for e in entries)))
