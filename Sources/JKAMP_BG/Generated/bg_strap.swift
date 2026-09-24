@@ -49,7 +49,7 @@ public struct BgStraps {
     public var trap_FS_FOpenFile: (String, inout Int32, JKAShared.fsMode_t) -> Int32 = { _, _, _ in portMissing("trap_FS_FOpenFile", source: "oracle/codemp/game/g_syscalls.c:85") }
 
     /// Source: oracle/codemp/game/g_syscalls.c:219
-    public var trap_FS_GetFileList: (String, String, Int32) -> (Int32, String) = { _, _, _ in portMissing("trap_FS_GetFileList", source: "oracle/codemp/game/g_syscalls.c:219") }
+    public var trap_FS_GetFileList: (String, String, Int32) -> (Int32, JKAShared.CharBuf) = { _, _, _ in portMissing("trap_FS_GetFileList", source: "oracle/codemp/game/g_syscalls.c:219") }
 
     /// Source: oracle/codemp/game/g_syscalls.c:89
     public var trap_FS_Read: (OpaquePointer?, Int32, JKAShared.fileHandle_t) -> Void = { _, _, _ in portMissing("trap_FS_Read", source: "oracle/codemp/game/g_syscalls.c:89") }
@@ -180,7 +180,7 @@ func trap_FS_FOpenFile(_ qpath: String, _ f: inout Int32, _ mode: JKAShared.fsMo
 
 /// Source: oracle/codemp/game/g_syscalls.c:219
 @discardableResult
-func trap_FS_GetFileList(_ path: String, _ `extension`: String, _ bufsize: Int32) -> (Int32, String) {
+func trap_FS_GetFileList(_ path: String, _ `extension`: String, _ bufsize: Int32) -> (Int32, JKAShared.CharBuf) {
     bg.straps.trap_FS_GetFileList(path, `extension`, bufsize)
 }
 

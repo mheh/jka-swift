@@ -25,6 +25,12 @@ public struct CharBuf: ExpressibleByStringLiteral {
         self.init(literal)
     }
 
+    /// This keeps every byte of a buffer the engine filled, so a NUL-separated list stays whole.
+    public init(bytes: [CChar]) {
+        self.count = bytes.count
+        self.bytes = bytes.map { UInt8(bitPattern: $0) }
+    }
+
     /// This reads the byte at `index`, sign-extended as C does for a signed `char`.
     private func signedByte(at index: Int) -> Int8 {
         precondition(index >= 0 && index < self.count, "CharBuf read past the end")

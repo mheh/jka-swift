@@ -13,6 +13,7 @@ The parameter table is abi-stubs.md row 2:
   float                        Float, bare, the word is PASSFLOAT's
   const char *                 String, withCString around the call
   char * with an int size      dropped, the trap returns String, a buffer of the size read after the call through String(nulTerminated:)
+                               a trap in LIST_TRAPS fills a NUL-separated list, and it returns the whole buffer as a CharBuf
   const vec3_t, vec3_t         vec3_t by value when const, inout vec3_t when not, a pointer scoped around the call
   int *, float *, qboolean *   inout of the scalar, withUnsafeMutablePointer around the call
   pointer to a viewed struct   the view, bare
@@ -36,7 +37,7 @@ from clang.cindex import CursorKind, TypeKind
 
 import closure as C
 from reexport import GAME_TARGET, REPO, SOURCES
-from rulings import NOT_PORTED
+from rulings import LIST_TRAPS, NOT_PORTED
 from table import Param, SourceFile, Table, swift_name
 
 TARGET = GAME_TARGET
@@ -137,13 +138,15 @@ class Traps:
         outs = [p for p in mapped.values() if p.kind == "out_string"]
         # The word is read only when Raven returned one. A filled buffer is read from the buffer.
         prefix = "    let word = " if returns else "    _ = "
+        text_type = "JKAShared.CharBuf" if name in LIST_TRAPS else "String"
+        text_read = f"JKAShared.CharBuf(bytes: {outs[0].name})" if outs and name in LIST_TRAPS else f"String(nulTerminated: {outs[0].name})" if outs else ""
         if outs and returns:
             # Raven filled the buffer and returned a count, so the trap returns both, per rule 7.
-            returns = f"({returns}, String)"
-            mapping = f"({mapping}, String(nulTerminated: {outs[0].name}))"
+            returns = f"({returns}, {text_type})"
+            mapping = f"({mapping}, {text_read})"
         elif outs:
-            returns = "String"
-            mapping = f"String(nulTerminated: {outs[0].name})"
+            returns = text_type
+            mapping = text_read
         # The engine never returns from G_ERROR, it longjmps to its main loop, ruling of 2026-09-09. Raven's C cannot say so.
         never = name == "trap_Error"
         head = f"public func {name}({signature})" + (" -> Never" if never else f" -> {returns}" if returns else "")

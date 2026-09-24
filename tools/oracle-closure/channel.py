@@ -31,7 +31,7 @@ from clang.cindex import CursorKind
 
 import closure as C
 from reexport import REPO, SOURCES
-from rulings import EXTRA_HOOKS, OWN_HOOKS, SHARED_STEMS
+from rulings import EXTRA_HOOKS, LIST_TRAPS, OWN_HOOKS, SHARED_STEMS
 from table import Param, SourceFile, Table
 
 ORACLE_DIR = C.GAME_DIR
@@ -83,10 +83,11 @@ class Hook:
         # A trap that fills a buffer returns the text, beside its word when Raven returned one, the shape traps.py writes.
         outs = [p for p in self.params if p.kind == "out_string"]
         returns = self.returns
+        text = "JKAShared.CharBuf" if self.name in LIST_TRAPS else "String"
         if outs and returns:
-            returns = f"({returns}, String)"
+            returns = f"({returns}, {text})"
         elif outs:
-            returns = "String"
+            returns = text
         return ENTITY.sub("JKAMP.BgEntity", returns) if returns else None
 
     def signature(self) -> str:

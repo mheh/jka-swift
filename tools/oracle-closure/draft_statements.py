@@ -168,7 +168,8 @@ class Statements:
         if not self.is_call(inner):
             return None
         name = self.callee_name(inner)
-        if not name or not self.registry.returns.get(name, "").startswith("(Int32, String)"):
+        returns = self.registry.returns.get(name, "")
+        if not name or not (returns.startswith("(Int32, String)") or returns.startswith("(Int32, JKAShared.CharBuf)")):
             return None
         params = self.callee_params(name)
         args = list(inner.get_children())[1:]
@@ -360,7 +361,10 @@ class Statements:
                 tuple_call = self.tuple_call(right)
                 if op == "=" and tuple_call is not None:
                     call, buffer = tuple_call
-                    return [f"{pad}let filled = {call}", f"{pad}{self.expr(left)} = filled.0", f"{pad}{buffer} = JKAShared.CharBuf(filled.1)"]
+                    # A list trap returns the whole buffer as a CharBuf, and any other returns the text to the first NUL.
+                    whole = self.registry.returns.get(self.callee_name(self.strip(right)), "").startswith("(Int32, JKAShared.CharBuf)")
+                    text = "filled.1" if whole else "JKAShared.CharBuf(filled.1)"
+                    return [f"{pad}let filled = {call}", f"{pad}{self.expr(left)} = filled.0", f"{pad}{buffer} = {text}"]
                 if op == "=" and self.unwrap(left).kind == CursorKind.DECL_REF_EXPR and self.unwrap(left).spelling in self.table_cursors:
                     table, index = self.table_cursors[self.unwrap(left).spelling]
                     source = self.unwrap(right)

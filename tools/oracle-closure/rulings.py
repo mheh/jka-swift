@@ -205,6 +205,9 @@ OWN_HOOKS = {"Com_Error", "Com_Printf"}
 # signature it shares and the definition's cite. The game consumer installs nothing, so the trapping default names it at the first call.
 EXTRA_HOOKS = {"CG_NewString": ("G_NewString", "oracle/codemp/cgame/cg_main.c:3344")}
 # Files whose functions a bg body reaches directly, because they live in the shared module or in bg itself.
+# The traps whose buffer holds a NUL-separated list, which a caller walks past the first NUL, so the trap returns every byte as a CharBuf.
+LIST_TRAPS = {"trap_FS_GetFileList"}
+
 SHARED_STEMS = {"q_shared", "q_math", "g_syscalls", "g_strap"}
 
 # MARK: - C storage beside the extracted headers

@@ -126,6 +126,7 @@ The cgame parse compiles `ui_shared.c`, and every sweep skips it, because the fi
 
 A trap's array of struct pointers is a storage table's base, and it keeps its marker under the PARAMS kind `pointer_array`.
 A trap's `char *` parameter with a size beside it is already the returned `String` the engine filled.
+A trap that fills a NUL-separated list, `trap_FS_GetFileList`, returns the whole buffer as a `CharBuf` in place of the `String`, and the body walks it with a `TextCursor` as Raven walked the bytes.
 A buffer the engine fills with no size beside it has a PARAMS entry `("fill_buffer", capacity)`, with the capacity Raven's callers declare for it, and the trap returns the `String` the same way a sized buffer does.
 A trap no file of the module calls, such as `trap_UnifyWhiteSpaces` and `trap_AAS_TraceAreas`, is a NOT_PORTED entry with that reason, and its shape is ruled when a module that calls it is generated.
 A raw block the engine keeps, such as `trap_SV_RegisterSharedMemory`, has a PARAMS entry `raw` and is `UnsafeMutableRawPointer`.

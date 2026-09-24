@@ -373,7 +373,7 @@ public func trap_SiegePersGet(_ pers: JKAMP.SiegePers) {
 
 /// Source: oracle/codemp/game/g_syscalls.c:219
 @discardableResult
-public func trap_FS_GetFileList(_ path: String, _ `extension`: String, _ bufsize: Int32) -> (Int32, String) {
+public func trap_FS_GetFileList(_ path: String, _ `extension`: String, _ bufsize: Int32) -> (Int32, JKAShared.CharBuf) {
     var listbuf = [CChar](repeating: 0, count: Int(bufsize))
     let word = path.withCString { path in
         `extension`.withCString { `extension` in
@@ -382,7 +382,7 @@ public func trap_FS_GetFileList(_ path: String, _ `extension`: String, _ bufsize
             }
         }
     }
-    return (Int32(truncatingIfNeeded: word), String(nulTerminated: listbuf))
+    return (Int32(truncatingIfNeeded: word), JKAShared.CharBuf(bytes: listbuf))
 }
 
 /// Source: oracle/codemp/game/g_syscalls.c:223
