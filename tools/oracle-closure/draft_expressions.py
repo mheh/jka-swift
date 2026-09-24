@@ -303,6 +303,9 @@ class Expressions:
             return self.joined_literal(self.source.slice(cur.extent))
         if kind == CursorKind.DECL_REF_EXPR:
             word = self.reference(cur)
+            if cur.spelling in self.narrow_locals and cur.referenced is not None and cur.referenced.kind == CursorKind.VAR_DECL:
+                # C widens the narrow local to int at every read.
+                word = f"Int32({word})"
             return word if word in ("true", "false", "nil") else self.leaf(cur, word)
         if kind == CursorKind.MEMBER_REF_EXPR:
             return self.leaf(cur, self.member(cur))

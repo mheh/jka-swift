@@ -299,6 +299,9 @@ class Statements:
                     if op == "--":
                         raise Hole(f"Raven steps the cursor `{self.unwrap(operand).spelling}` back, and the TextCursor has no backward step.")
                     return [f"{pad}{self.expr(operand)}.advance()" + self.trailing(cur)]
+                if self.unwrap(operand).kind == CursorKind.DECL_REF_EXPR and self.unwrap(operand).spelling in self.narrow_locals:
+                    # The narrow local wraps as C's truncation does.
+                    return [f"{pad}{swift_name(self.unwrap(operand).spelling)} &{op[0]}= 1" + self.trailing(cur)]
                 return [f"{pad}{self.expr(operand)} {op[0]}= 1" + self.trailing(cur)]
         if kind in (CursorKind.BINARY_OPERATOR, CursorKind.COMPOUND_ASSIGNMENT_OPERATOR):
             op = self.binary_op(cur)
@@ -414,6 +417,13 @@ class Statements:
                 if op == "=" and self.slots_source(right):
                     raven = self.bytes[cur.extent.start.offset:cur.extent.end.offset].decode("utf-8", "replace")
                     raise Hole(f"Raven stores `{raven}`, and Swift holds the source as a Slots where the target takes one record. A Slots ruling is due.")
+                if self.unwrap(left).kind == CursorKind.DECL_REF_EXPR and self.unwrap(left).spelling in self.narrow_locals:
+                    # C computes in int and truncates into the narrow local at the store.
+                    name = swift_name(self.unwrap(left).spelling)
+                    narrow = self.narrow_locals[self.unwrap(left).spelling]
+                    if op == "=":
+                        return [f"{pad}{name} = {self.converted(right, narrow)}" + self.trailing(cur)]
+                    return [f"{pad}{name} = {narrow}(truncatingIfNeeded: Int32({name}) {op[:-1]} {self.converted(right, 'Int32')})" + self.trailing(cur)]
                 target = self.expr(left)
                 inner = self.strip(right)
                 if op == "=" and inner.kind == CursorKind.BINARY_OPERATOR and not self.macro_span(inner) and self.binary_op(inner) == "=":

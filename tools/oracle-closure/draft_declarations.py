@@ -371,8 +371,6 @@ class Declarations:
         swift = self.types.scalar(t, TARGET)
         if swift is None:
             raise Hole(f"A local `{t.spelling} {var.spelling}` the table has no type for.")
-        if self.types.narrow(t) is not None:
-            swift = "Int32"
         if init:
             return f"{keyword} {name}: {swift} = {self.converted(init[0], swift)}"
         if self.has_scratch or var.spelling in self.addressed:
@@ -388,6 +386,18 @@ class Declarations:
             return False
         kids = [k for k in inner.get_children() if k.kind.is_expression()]
         return bool(kids) and self.view_operand(kids[-1])
+
+    def narrow_local_names(self, fn: ci.Cursor) -> dict[str, str]:
+        """Raven's scalar locals of a type narrower than int, by his name, with the Swift storage of each, `Int16` for a `short`.
+        A local is the one place C's truncation is a stored value and not a widened read, so the local keeps the narrow storage."""
+        out: dict[str, str] = {}
+        for c in fn.walk_preorder():
+            if c.kind != CursorKind.VAR_DECL:
+                continue
+            narrow = self.types.narrow(c.type)
+            if narrow is not None and c.type.get_canonical().kind != TypeKind.CONSTANTARRAY:
+                out[c.spelling] = narrow
+        return out
 
     def array_declaration(self, var: ci.Cursor, init: list[ci.Cursor]) -> str:
         """A local array of scalars, `static int movementOffsets[8] = { ... }`, as a Swift array. A static array nothing writes is

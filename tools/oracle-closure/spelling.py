@@ -22,6 +22,8 @@ from rulings import TYPES
 
 TARGET = GAME_TARGET
 BUILTINS = set(SCALARS.values()) | {"Bool", "Float", "Int32"}
+# The Swift storage of a C integer narrower than int, which a local keeps.
+NARROW_STORAGE = {SCALARS[k] for k in NARROW}
 INT_KINDS = {TypeKind.INT, TypeKind.UINT, TypeKind.LONG, TypeKind.ULONG, TypeKind.SHORT, TypeKind.USHORT}
 # The vector typedefs JKAShared spells as SIMD types, so a parameter of one is the vector itself, never a pointer.
 VECTORS = {"vec3_t", "vec4_t"}
@@ -410,6 +412,9 @@ class Types:
             return Answer(want, "bool_to_number")
         if want in ("Float", "Int32") and have is not None and have != want and not facts.is_literal:
             return Answer(want, "convert", crossing=want + "({text})")
+        if want in NARROW_STORAGE and have is not None and not facts.is_literal:
+            # C truncates the int it computed into the narrow local at the store.
+            return Answer(want, "convert", crossing=want + "(truncatingIfNeeded: {text})")
         if want == "Int32" and facts.named_leaf and self.unsigned(t) is not None:
             # C passes an unsigned int where an int is due, and the bits stay the same.
             bits = "bitPattern" if self.unsigned(t) == "UInt32" else "truncatingIfNeeded"

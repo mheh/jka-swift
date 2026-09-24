@@ -194,6 +194,8 @@ class Drafter(Statements, Expressions, Calls, Declarations, Classification):
         self.aliased_positions: dict[tuple[int, int, int], str] = {}
         # Raven's `animation_t *animations` local that only ever holds a table of records, which Swift holds as the Slots over it.
         self.slots_locals = self.slots_local_names(fn.cur)
+        # Raven's `short temp` locals, by his name, with the narrow storage Swift keeps for each, so a store truncates and a read widens.
+        self.narrow_locals = self.narrow_local_names(fn.cur)
         # Raven's `siegeTeam_t **teamPtr` that only holds the address of a file-scope variable he chooses between.
         self.chosen_locals = self.chosen_local_names(fn.cur)
         facts = self.sk.table.locals_of(fn.stem, fn.cur.spelling)
