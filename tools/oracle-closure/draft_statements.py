@@ -589,7 +589,8 @@ class Statements:
         out.append(f"{pad}while {test} {{")
         inner = self.branch(body, depth + 1)
         if any(line.strip() == "continue" or line.strip().startswith("continue ") for line in inner):
-            out.append(f"{INDENT * (depth + 1)}// Port-note: Raven's loop has a continue, and the step below does not run for it. The transcriptor moves the step.")
+            note = "// Port-note: Raven's loop has a continue, and the step below does not run for it. The transcriptor moves the step."
+            out += [INDENT * (depth + 1) + line for line in self.noted_hole(note)]
         out += inner
         if step is not None:
             out += self.statement(step, depth + 1)

@@ -217,7 +217,8 @@ class Calls:
             self.scratch_names[scratch] = self.scratch_names.get(scratch, 0) + 1
             if self.scratch_names[scratch] > 1:
                 scratch += str(self.scratch_names[scratch])
-            self.pending.append(f"// Raven passes NULL for the `{param[0]}` output. The ported function takes it by reference, so the body passes a scratch local it never reads.")
+            self.pending += self.noted_hole(f"// Port-note: Raven passes NULL for the `{param[0]}` output. "
+                                            "The ported function takes it by reference, so the body passes a scratch local it never reads.")
             self.pending.append(f"var {scratch} {tail}")
             return f"&{scratch}"
         if param is not None and param[1] in ("Float", "Int32", "Bool"):
@@ -225,7 +226,7 @@ class Calls:
         if param is not None and param[1].endswith("?") and self.is_null(inner):
             return "nil"
         if param is not None and param[1].replace("JKAShared.", "") == "vec3_t" and self.is_null(inner):
-            self.pending.append(f"// Port-note: Raven passes NULL for `{param[0]}`, and the callee reads NULL as the zero vector.")
+            self.pending += self.noted_hole(f"// Port-note: Raven passes NULL for `{param[0]}`, and the callee reads NULL as the zero vector.")
             return "JKAShared.vec3_origin"
         if param is not None and not param[1].endswith("?") and self.is_null(inner) and inner.type.get_canonical().kind not in INT_KINDS:
             raise Hole(f"NULL for `{param[0]}`, a {param[1]} parameter.")

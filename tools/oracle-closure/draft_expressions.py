@@ -224,7 +224,7 @@ class Expressions:
         name = self.always_set(cur)
         if name is not None:
             note = f"// Port-note: Raven tests `{name}` for NULL here. Swift holds it as a value, so the test has no form and reads true."
-            self.pending.append(self.null_fold_note(cur, name, note))
+            self.pending += self.null_fold_note(cur, name, note)
             return "true"
         if self.is_pointer(cur):
             return f"{self.expr(cur)} != nil"
@@ -357,7 +357,7 @@ class Expressions:
                 name = self.always_set(operand)
                 if name is not None:
                     note = f"// Port-note: Raven guards a NULL `{name}` here. Swift holds it as a value, so the guard has no form and reads false."
-                    self.pending.append(self.null_fold_note(operand, name, note))
+                    self.pending += self.null_fold_note(operand, name, note)
                     return "false"
                 if self.chosen_deref(operand) is not None:
                     # Raven's `!(*teamPtr)` guards the chosen variable, which the inout parameter holds as an optional view.

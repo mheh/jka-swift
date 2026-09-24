@@ -299,6 +299,12 @@ class Classification:
             f'{pad}portMissing("{self.fn.name}", source: "{self.fn.cite}")',
         ]
 
+    def noted_hole(self, note: str) -> list[str]:
+        """A Port-note that names a behaviour the draft does not reproduce, and the `portMissing` marker under it.
+        The drafted code after the marker keeps its form, and the note counts as a hole."""
+        self.holes += 1
+        return [note, f'portMissing("{self.fn.name}", source: "{self.fn.cite}")']
+
     def is_record(self, t: ci.Type) -> bool:
         """True for a C struct the views cover."""
         canonical = t.get_canonical()
@@ -474,17 +480,17 @@ class Classification:
             return self.sk.table.never_null(self.fn.cur.spelling, inner.spelling)
         return False
 
-    def null_fold_note(self, cur: ci.Cursor, name: str, port_note: str) -> str:
-        """The line the fold of a NULL test leaves above the statement.
+    def null_fold_note(self, cur: ci.Cursor, name: str, port_note: str) -> list[str]:
+        """The lines the fold of a NULL test leaves above the statement.
 
         A name the sweeps prove takes a plain comment, because the fold is then the whole answer and no transcriptor has work here.
-        A name they cannot prove keeps the Port-note the caller hands over, so the hole stands until a caller of the function is read."""
+        A name they cannot prove keeps the Port-note the caller hands over and a `portMissing` marker, so the hole stands until a caller of the function is read."""
         inner = self.unwrap(cur)
         if inner.kind == CursorKind.DECL_REF_EXPR and inner.spelling in self.chosen_locals:
-            return f"// Raven's NULL test on {name} has no form here, because the draft crosses the chosen variable itself."
+            return [f"// Raven's NULL test on {name} has no form here, because the draft crosses the chosen variable itself."]
         if self.proven_never_null(cur):
-            return f"// Raven's NULL test on {name} has no form here, and the arm it guards is gone."
-        return port_note
+            return [f"// Raven's NULL test on {name} has no form here, and the arm it guards is gone."]
+        return self.noted_hole(port_note)
 
     def optional_base(self, cur: ci.Cursor) -> bool:
         """True when the expression is a pointer a Swift view holds as optional, so a member read through it takes `!`."""

@@ -59,6 +59,7 @@ Place it above the function when the whole function is in doubt.
 
 A function the transcriptor cannot port keeps its `// TODO: Port` marker and its `portMissing` body, and gains a Port-note above them.
 A function ported with a doubt gets its real body and a Port-note.
+A Port-note that names a behavior the body does not reproduce has a `portMissing` call on the line under it, so a grep for `portMissing` finds it and the drafter counts it as a hole.
 
 `grep -rn "Port-note:" Sources/` is the docket. The user rules on it after a batch.
 No question files. No messages to the user mid-batch. No invention to close a gap.
@@ -164,6 +165,7 @@ A body with an `inout CharBuf` parameter writes as Raven wrote, `powerOut[i] = r
 `BG_ParseField` takes `UnsafeMutableRawPointer` for `byte *ent` and `Slots<BgField>` for the field table, and writes through the labeled subscript of the section on typed access at a byte offset. The caller passes the entity's handle turned raw, with a one-line comment that names rule 11.
 A body with an `inout vec3_t` parameter such as `colors` drops the `&& colors` half of Raven's guard, and carries the null-guard Port-note this guide already describes.
 A caller that passed `NULL` for that parameter passes a scratch local instead, `var colors = vec3_t(0, 0, 0)`, and reads nothing from it.
+The callee's NULL arm does not run for that call, so the call site carries a Port-note and a `portMissing` marker.
 A caller of a trap or strap function writes `nil` where Raven wrote `NULL` for a `qhandle_t *` parameter.
 The pointer stays inside generated code under rule 11, and no ported body indexes it.
 An `int *` or `float *` parameter whose pointee is `qhandle_t` is not an `inout` scalar.
@@ -256,7 +258,9 @@ C gives the pointer no bound, so the `Slots` takes the widest count and Raven's 
 `views.py` has a `NEVER_NULL` table beside `ROOTS`, keyed by struct and field, for a pointer field Raven's callers always set.
 A field in the table is generated non-optional, and its getter traps with the field's name when the pointer is NULL, the one divergence rule 19 allows.
 `pmove_t.ps`, `pmove_t.trace`, and `pmove_t.pointcontents` are in it, so a body reads `pm.ps.velocity` for `pm->ps->velocity` with no bind. A field joins the table only by a ruling, never by a transcriptor's guess.
-A view parameter is non-optional, so a body drops Raven's null guard on it and carries the Port-note `// Raven guards a NULL ps here. The view is non-optional, so the guard has no Swift form.`
+A view parameter is non-optional, so a body drops Raven's null guard on it.
+Where the sweeps prove that no caller passes NULL, a plain comment names the dropped guard.
+Otherwise the body carries the Port-note `// Raven guards a NULL ps here. The view is non-optional, so the guard has no Swift form.` and a `portMissing` marker under it, because the NULL arm does not run in Swift.
 A caller that holds an optional view unwraps it at the call site, in Raven's control shape: `guard let ... else { return }` where Raven wrote an early-out, and `if let ... { }` where Raven wrapped a block. A guard that does other work on the NULL path keeps a Port-note.
 A read Raven made through the pointer with no guard is a force unwrap, `saber!.model`, which traps where C would crash. A guard Raven wrote is the only source of a bind, so no guard is invented for him.
 
