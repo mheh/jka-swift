@@ -77,7 +77,7 @@ class Calls:
                     return f"sscanf({self.argument(args[0], False, ('s', 'String'), name, 0)}, {self.expr(args[1])}, &{roots[0]})"
             self.reach(name, "function", callee.referenced)
             aliased = self.aliased_inouts(cur)
-            if any(self.argument_key(args[i], i) not in self.aliased_positions for i, _, _ in aliased):
+            if any(self.argument_key(args[i], i) not in self.aliased_positions for i, _, _, _ in aliased):
                 # The statement rule and the if rule copy the earlier ones into locals.
                 # A call they do not reach, such as one in a loop test, has no line of its own for the copies.
                 raise Hole(f"Raven passes `{aliased[0][1]}` more than once to `{name}` inside a test, and Swift refuses one variable twice inout.")
@@ -122,15 +122,18 @@ class Calls:
             return f"{self.expr(callee)}({', '.join(words)})"
         raise Hole("A call with no callee.")
 
-    def aliased_inouts(self, cur: ci.Cursor) -> list[tuple[int, str, str]]:
-        """The inout arguments that name one plain variable more than once, all but the last, each as its position, its text,
-        and the copy that stands in for it. Raven's callee reads the earlier ones and writes the last, `PM_ClipVelocity(v, n, v)`."""
+    def aliased_inouts(self, cur: ci.Cursor) -> list[tuple[int, str, str, bool]]:
+        """The inout arguments that name one variable or one member path more than once, each as its position, its text,
+        the copy that stands in for it, and whether the copy writes back after the call.
+        Raven's callee reads the earlier ones and writes the last, `PM_ClipVelocity(v, n, v)`.
+        A plain variable passes as itself in the last place. A member path such as `pm->ps->velocity` goes through a view's setter,
+        and Swift writes the unchanged in-copy back last, so the last place takes an out copy that writes back after the call."""
         kids = self.call_children(cur)
         callee = self.strip(kids[0]) if kids else None
         if callee is None or callee.kind != CursorKind.DECL_REF_EXPR or callee.spelling in MACROS:
             return []
         positions = self.inout_positions(callee.spelling)
-        names: list[tuple[int, str]] = []
+        names: list[tuple[int, str, str, ci.Cursor]] = []
         for i, arg in enumerate(kids[1:]):
             inner = self.strip(arg)
             if i not in positions:
@@ -139,13 +142,30 @@ class Calls:
                 inner = self.unary_parts(inner)[2]
             inner = self.unwrap(inner)
             if inner.kind == CursorKind.DECL_REF_EXPR:
-                names.append((i, inner.spelling))
+                names.append((i, inner.spelling, inner.spelling, inner))
+            elif self.member_path_root(inner) is not None:
+                key = " ".join(self.bytes[inner.extent.start.offset:inner.extent.end.offset].decode("utf-8", "replace").split())
+                names.append((i, key, inner.spelling, inner))
         out = []
-        for i, name in names:
-            later = [j for j, other in names if other == name and j > i]
+        for i, key, leaf, node in names:
+            later = [j for j, other, _, _ in names if other == key and j > i]
+            earlier = [j for j, other, _, _ in names if other == key and j < i]
+            text = self.expr_name(leaf) if node.kind == CursorKind.DECL_REF_EXPR else self.expr(node)
             if later:
-                out.append((i, self.expr_name(name), f"{swift_name(name)}In{i}"))
+                out.append((i, text, f"{swift_name(leaf)}In{i}", False))
+            elif earlier and node.kind != CursorKind.DECL_REF_EXPR:
+                out.append((i, text, f"{swift_name(leaf)}Out{i}", True))
         return out
+
+    def member_path_root(self, cur: ci.Cursor) -> ci.Cursor | None:
+        """The variable at the root of a member path, `pm` for `pm->ps->velocity`, or None when the expression is not one."""
+        node = cur
+        while node.kind == CursorKind.MEMBER_REF_EXPR:
+            kids = list(node.get_children())
+            if not kids:
+                return None
+            node = self.unwrap(self.strip(kids[0]))
+        return node if node.kind == CursorKind.DECL_REF_EXPR and node is not cur else None
 
     def call_children(self, cur: ci.Cursor) -> list[ci.Cursor]:
         """The callee and the arguments of one call, through the implicit cast Raven's call can stand under."""

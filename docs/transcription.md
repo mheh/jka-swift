@@ -151,6 +151,9 @@ Raven passes one variable to two `inout` parameters of one call, as in `PM_ClipV
 The draft copies each earlier argument into a local, `var vIn0 = v`, and passes the copy, under a comment that names the variable.
 The callee reads the earlier arguments and writes the last.
 For a call inside an `if` test, the copy and its comment are statements before the `if`.
+A member path passed twice, `PM_ClipVelocity(pm->ps->velocity, n, pm->ps->velocity)`, goes through a view's setter, and Swift writes the unchanged in-copy back last.
+So the last argument also takes a copy, `var velocityOut2 = ps.velocity`, and `ps.velocity = velocityOut2` is the statement after the call.
+A member path passed twice inside a test keeps its hole, because the write-back has no line after the test.
 A call inside a `while`, `do`-`while`, or `for` test keeps its hole, because one copy before the loop has a stale value from the second pass.
 The copy replaces only the argument it copies, which the draft finds by its extent in Raven's file and its position in the call.
 A different argument at that position in a nested or sibling call keeps its own text.

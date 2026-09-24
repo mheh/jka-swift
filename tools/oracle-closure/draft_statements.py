@@ -458,7 +458,8 @@ class Statements:
                 call = self.expr(cur)
             inner_pad = INDENT * (depth + 1)
             note, before = self.aliased_copies(aliased, pad, inner_pad)
-            return [note, f"{pad}do {{"] + before + [f"{inner_pad}{call}" + self.trailing(cur), f"{pad}}}"]
+            after = [f"{inner_pad}{text} = {local}" for _, text, local, back in aliased if back]
+            return [note, f"{pad}do {{"] + before + [f"{inner_pad}{call}" + self.trailing(cur)] + after + [f"{pad}}}"]
         if self.is_call(cur):
             copies = self.overlapping_slots(cur)
             if copies:
@@ -484,26 +485,30 @@ class Statements:
         return self.statement(cur, depth)
 
     @contextmanager
-    def aliased_reads(self, call: ci.Cursor, aliased: list[tuple[int, str, str]]):
+    def aliased_reads(self, call: ci.Cursor, aliased: list[tuple[int, str, str, bool]]):
         """The draft of one call with each earlier aliased argument read from the copy that stands in for it.
         The swap keys on the argument's extent and position, so no other call inside this one or beside it reads the copy."""
         args = self.call_children(call)[1:]
-        self.aliased_positions = {self.argument_key(args[i], i): local for i, _, local in aliased}
+        self.aliased_positions = {self.argument_key(args[i], i): local for i, _, local, _ in aliased}
         try:
             yield
         finally:
             self.aliased_positions = {}
 
-    def aliased_copies(self, aliased: list[tuple[int, str, str]], note_pad: str, copy_pad: str) -> tuple[str, list[str]]:
+    def aliased_copies(self, aliased: list[tuple[int, str, str, bool]], note_pad: str, copy_pad: str) -> tuple[str, list[str]]:
         """The note the repeat earns and the declaration of each copy, each at its own pad."""
         note = f"{note_pad}// Raven passes `{aliased[0][1]}` more than once, and Swift refuses one variable twice inout, so the earlier ones read a copy."
-        return note, [f"{copy_pad}var {local} = {text}" for _, text, local in aliased]
+        if any(back for _, _, _, back in aliased):
+            note += " The last one writes back after the call, because a view's setter keeps the in-copy otherwise."
+        return note, [f"{copy_pad}var {local} = {text}" for _, text, local, _ in aliased]
 
-    def aliased_in_test(self, cur: ci.Cursor) -> tuple[ci.Cursor, list[tuple[int, str, str]]] | None:
+    def aliased_in_test(self, cur: ci.Cursor) -> tuple[ci.Cursor, list[tuple[int, str, str, bool]]] | None:
         """The call under a test that names one variable twice inout, with its earlier aliased arguments, or None when the test holds no such call."""
         for node in cur.walk_preorder():
             if self.is_call(node):
                 aliased = self.aliased_inouts(node)
+                if any(back for _, _, _, back in aliased):
+                    raise Hole("Raven passes one member path twice inout inside a test, and the write-back has no line after the test.")
                 if aliased:
                     return node, aliased
         return None
