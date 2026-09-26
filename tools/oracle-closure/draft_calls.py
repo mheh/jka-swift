@@ -20,7 +20,7 @@ from draft_classification import Hole
 
 TEXT_TYPES = {"String", "CharBuf", "JKAShared.CharBuf", "PooledString", "JKAShared.PooledString"}
 # The declaration tail of the scratch local each `inout` output a caller skips with NULL takes, by the parameter's Swift spelling.
-SCRATCH_ZEROS = {"inout vec3_t": "= JKAShared.vec3_t(0, 0, 0)", "inout Int32": ": Int32 = 0", "inout Float": ": Float = 0"}
+SCRATCH_ZEROS = {"inout vec3_t": "= vec3_t()", "inout Int32": ": Int32 = 0", "inout Float": ": Float = 0"}
 # One C conversion, `%%` or a `%` with its flags, width, precision, length, and conversion letter.
 CONVERSION = re.compile(r"%(?:%|[-+ #0]*(\*|\d+)?(?:\.(\*|\d*))?(?:hh|h|ll|l|j|z|t|L|I64|I32|I)?([diouxXeEfFgGaAcspn]))")
 

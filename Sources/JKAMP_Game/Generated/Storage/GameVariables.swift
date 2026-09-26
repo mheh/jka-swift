@@ -64,7 +64,7 @@ public struct GameVariables {
 
     /// Raven's `vec3_t impactPos4` of `NPC_AI_GalakMech.c`.
     /// Source: oracle/codemp/game/NPC_AI_GalakMech.c:40
-    public var impactPos4: JKAShared.vec3_t = JKAShared.vec3_t(0, 0, 0)
+    public var impactPos4: JKAShared.vec3_t = vec3_t()
 
     /// Raven's `qboolean enemyLOS3` of `NPC_AI_Grenadier.c`.
     /// Source: oracle/codemp/game/NPC_AI_Grenadier.c:34
@@ -152,7 +152,7 @@ public struct GameVariables {
 
     /// Raven's `vec3_t impactPos` of `NPC_AI_Stormtrooper.c`.
     /// Source: oracle/codemp/game/NPC_AI_Stormtrooper.c:48
-    public var impactPos: JKAShared.vec3_t = JKAShared.vec3_t(0, 0, 0)
+    public var impactPos: JKAShared.vec3_t = vec3_t()
 
     /// Raven's `int groupSpeechDebounceTime[TEAM_NUM_TEAMS]` of `NPC_AI_Stormtrooper.c`.
     /// Source: oracle/codemp/game/NPC_AI_Stormtrooper.c:50
@@ -324,7 +324,7 @@ public struct GameVariables {
 
     /// Raven's `vec3_t gPainPoint` of `g_combat.c`.
     /// Source: oracle/codemp/game/g_combat.c:4575
-    public var gPainPoint: JKAShared.vec3_t = JKAShared.vec3_t(0, 0, 0)
+    public var gPainPoint: JKAShared.vec3_t = vec3_t()
 
     /// Raven's `qhandle_t shieldLoopSound` of `g_items.c`.
     /// Source: oracle/codemp/game/g_items.c:101
@@ -664,19 +664,19 @@ public struct GameVariables {
 
     /// Raven's `vec3_t forward, vright, up` of `g_weapon.c`.
     /// Source: oracle/codemp/game/g_weapon.c:13
-    public var forward: JKAShared.vec3_t = JKAShared.vec3_t(0, 0, 0)
+    public var forward: JKAShared.vec3_t = vec3_t()
 
     /// Raven's `vec3_t forward, vright, up` of `g_weapon.c`.
     /// Source: oracle/codemp/game/g_weapon.c:13
-    public var vright: JKAShared.vec3_t = JKAShared.vec3_t(0, 0, 0)
+    public var vright: JKAShared.vec3_t = vec3_t()
 
     /// Raven's `vec3_t forward, vright, up` of `g_weapon.c`.
     /// Source: oracle/codemp/game/g_weapon.c:13
-    public var up: JKAShared.vec3_t = JKAShared.vec3_t(0, 0, 0)
+    public var up: JKAShared.vec3_t = vec3_t()
 
     /// Raven's `vec3_t muzzle` of `g_weapon.c`.
     /// Source: oracle/codemp/game/g_weapon.c:14
-    public var muzzle: JKAShared.vec3_t = JKAShared.vec3_t(0, 0, 0)
+    public var muzzle: JKAShared.vec3_t = vec3_t()
 
     /// Raven's `int speedLoopSound` of `w_force.c`.
     /// Source: oracle/codemp/game/w_force.c:24
@@ -720,11 +720,11 @@ public struct GameVariables {
 
     /// Raven's `vec3_t dmgDir[MAX_SABER_VICTIMS]` of `w_saber.c`.
     /// Source: oracle/codemp/game/w_saber.c:3507
-    public var dmgDir: [JKAShared.vec3_t] = [JKAShared.vec3_t](repeating: JKAShared.vec3_t(0, 0, 0), count: 16)
+    public var dmgDir: [JKAShared.vec3_t] = [JKAShared.vec3_t](repeating: vec3_t(), count: 16)
 
     /// Raven's `vec3_t dmgSpot[MAX_SABER_VICTIMS]` of `w_saber.c`.
     /// Source: oracle/codemp/game/w_saber.c:3508
-    public var dmgSpot: [JKAShared.vec3_t] = [JKAShared.vec3_t](repeating: JKAShared.vec3_t(0, 0, 0), count: 16)
+    public var dmgSpot: [JKAShared.vec3_t] = [JKAShared.vec3_t](repeating: vec3_t(), count: 16)
 
     /// Raven's `qboolean dismemberDmg[MAX_SABER_VICTIMS]` of `w_saber.c`.
     /// Source: oracle/codemp/game/w_saber.c:3509

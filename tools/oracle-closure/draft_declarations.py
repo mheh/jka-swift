@@ -23,6 +23,15 @@ def extent_key(cur: ci.Cursor) -> tuple[str, int, int]:
     return cur.kind.name, cur.extent.start.offset, cur.extent.end.offset
 
 
+# A module qualifier appears only to break a genuine ambiguity, the short-name rule of porting-rules.md, and no body line has one.
+QUALIFIER = re.compile(r"\b(JKAMP|JKAShared)\.(?=[A-Za-z_])")
+
+
+def short_named(line: str) -> str:
+    """A body line with every module qualifier dropped, so `var ent: BgEntity? = nil` reads as Raven wrote it."""
+    return QUALIFIER.sub("", line)
+
+
 class Declarations:
     """The declaration half of the drafter."""
 
@@ -274,7 +283,7 @@ class Declarations:
         keyword = self.keyword(var, bool(init))
         if t.get_canonical().kind == TypeKind.CONSTANTARRAY and self.views.is_vec3(t):
             if not init:
-                return f"var {name} = JKAShared.vec3_t(0, 0, 0)"
+                return f"var {name} = vec3_t()"
             return f"var {name} = {self.vector_literal(init[0])}"
         # A typedef of an array, `vec2_t` or `G2Trace_t`, has no element type until the canonical type, and a plain array keeps its element's typedef name.
         canonical = t.get_canonical()
@@ -283,7 +292,7 @@ class Declarations:
             count = t.get_canonical().element_count
             if init:
                 raise Hole("An array of vectors with an initializer.")
-            return f"var {name}: [JKAShared.vec3_t] = [{', '.join(['JKAShared.vec3_t(0, 0, 0)'] * count)}]"
+            return f"var {name} = [vec3_t](repeating: vec3_t(), count: {count})"
         if t.get_canonical().kind == TypeKind.CONSTANTARRAY and t.get_canonical().element_type.get_canonical().kind == TypeKind.CHAR_S:
             # Raven's `char name[N]` is a CharBuf of N bytes, and his string initializer fills it.
             count = t.get_canonical().element_count

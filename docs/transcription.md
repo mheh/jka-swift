@@ -70,6 +70,8 @@ No question files. No messages to the user mid-batch. No invention to close a ga
 
 The signature is kept as generated. Row 6 of step 2 already applied the pure-math case in `JKAShared`.
 A transcriptor does not rename a parameter, reorder one, or change a return type, even where the C source suggests a cleaner shape.
+The signature keeps the spelling of the tables below, `JKAShared.vec3_t`, and a body line reads every type by its short name, `vec3_t`, under the short-name rule of docs/porting-rules.md.
+The zero vector is `vec3_t()`, and a vector with values is `vec3_t(x, y, z)`.
 
 A name rule lives in `tools/oracle-closure/rulings.py`, in the tables `ROOTS`, `NEVER_NULL`, `TYPES`, `RETURNS`, and `PARAMS`.
 A shape rule is code in `table.py`.
@@ -170,7 +172,7 @@ The body of a `float *` return out of a static ring of temporaries is `vec3_t(x,
 A body with an `inout CharBuf` parameter writes as Raven wrote, `powerOut[i] = readBuf[0]`, and `Q_strncpyz(_ dest: inout CharBuf, _ src: String, _ destsize: Int32)` ports line for line.
 `BG_ParseField` takes `UnsafeMutableRawPointer` for `byte *ent` and `Slots<BgField>` for the field table, and writes through the labeled subscript of the section on typed access at a byte offset. The caller passes the entity's handle turned raw, with a one-line comment that names rule 11.
 A body with an `inout vec3_t` parameter such as `colors` drops the `&& colors` half of Raven's guard, and carries the null-guard Port-note this guide already describes.
-A caller that passed `NULL` for that parameter passes a scratch local instead, `var colors = vec3_t(0, 0, 0)`, and reads nothing from it.
+A caller that passed `NULL` for that parameter passes a scratch local instead, `var colors = vec3_t()`, and reads nothing from it.
 A vector or axis parameter the NULL sweep reaches and the body only reads crosses as an optional value, `JKAShared.vec3_t?`, and the caller passes `nil` for `NULL`.
 The body's NULL test keeps its form, `normal == nil`, and every other read of the parameter is the force unwrap, `normal!`.
 The sweep reaches a parameter at a direct `NULL`, through a local the caller sets to `NULL`, and through a parameter of the caller the sweep already reached.
@@ -195,7 +197,7 @@ Raven's vector macros become operators or the ported `q_math` functions in `Sour
 | `VectorCopy(a, b)` | `b = a` |
 | `VectorMA(a, s, b, c)` | `_VectorMA(a, s, b, &c)` |
 | `VectorNegate(a, b)` | `b = -a` |
-| `VectorClear(a)` | `a = vec3_t(0, 0, 0)` |
+| `VectorClear(a)` | `a = vec3_t()` |
 | `VectorSet(a, x, y, z)` | `a = vec3_t(x, y, z)` |
 | `DotProduct(a, b)` | `_DotProduct(a, b)` |
 

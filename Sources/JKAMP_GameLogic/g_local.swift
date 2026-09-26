@@ -311,11 +311,11 @@ final class GameWorld {
 
     /// Raven's `static vec3_t saberClashPos = {0}` of `w_saber.c`.
     /// Source: oracle/codemp/game/w_saber.c:3795
-    var saberClashPos: JKAShared.vec3_t = JKAShared.vec3_t(0, 0, 0)
+    var saberClashPos: JKAShared.vec3_t = vec3_t()
 
     /// Raven's `static vec3_t saberClashNorm = {0}` of `w_saber.c`.
     /// Source: oracle/codemp/game/w_saber.c:3796
-    var saberClashNorm: JKAShared.vec3_t = JKAShared.vec3_t(0, 0, 0)
+    var saberClashNorm: JKAShared.vec3_t = vec3_t()
 
     // MARK: - g_client.c and g_utils.c
 

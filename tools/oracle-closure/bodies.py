@@ -34,7 +34,7 @@ from table import Param
 from draft_calls import Calls
 # Hole stands under the Port-note the drafter writes, so it lives beside the classification that writes one.
 from draft_classification import Classification, Hole
-from draft_declarations import Declarations
+from draft_declarations import Declarations, short_named
 from draft_expressions import Expressions
 from draft_statements import Statements
 
@@ -216,7 +216,8 @@ class Drafter(Statements, Expressions, Calls, Declarations, Classification):
         self.hoisted: dict[str, str] = {}
         self.hoists = self.shared_reads(body)
         lines = header[:-3]
-        lines += self.block_body(body, 1)
+        # The signature keeps the spelling of the transcription tables, and every body line reads its types by their short names.
+        lines += [short_named(line) for line in self.block_body(body, 1)]
         lines.append("}")
         return lines
 

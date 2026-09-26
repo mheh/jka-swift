@@ -118,7 +118,7 @@ class Expressions:
         if len(words) > 3:
             raise Hole("A vector initializer with more than three members.")
         words += ["0"] * (3 - len(words))
-        return f"JKAShared.vec3_t({', '.join(words)})"
+        return f"vec3_t({', '.join(words)})"
 
     def strip(self, cur: ci.Cursor) -> ci.Cursor:
         """The expression under the implicit casts Clang wraps around it."""

@@ -894,7 +894,7 @@ This needs to be the same for client side prediction and server use.
 */
 /// Source: oracle/codemp/game/bg_misc.c:2192
 func BG_CanItemBeGrabbed(_ gametype: Int32, _ ent: JKAMP.EntityState, _ ps: JKAMP.PlayerState) -> Bool {
-    let item: JKAMP.Gitem
+    let item: Gitem
 
     if ent.modelindex < 1 || ent.modelindex >= bg_numItems {
         Com_Error(ERR_DROP, "BG_CanItemBeGrabbed: index out of range")
@@ -1111,7 +1111,7 @@ func BG_EvaluateTrajectoryDelta(_ tr: JKAShared.Trajectory, _ atTime: Int32, _ r
 
     switch tr.trType {
     case TR_STATIONARY, TR_INTERPOLATE:
-        result = vec3_t(0, 0, 0)
+        result = vec3_t()
     case TR_LINEAR:
         result = tr.trDelta
     case TR_SINE:
@@ -1122,13 +1122,13 @@ func BG_EvaluateTrajectoryDelta(_ tr: JKAShared.Trajectory, _ atTime: Int32, _ r
         _VectorScale(tr.trDelta, phase, &result)
     case TR_LINEAR_STOP:
         if atTime > tr.trTime + tr.trDuration {
-            result = vec3_t(0, 0, 0)
+            result = vec3_t()
             return
         }
         result = tr.trDelta
     case TR_NONLINEAR_STOP:
         if atTime - tr.trTime > tr.trDuration || atTime - tr.trTime <= 0 {
-            result = vec3_t(0, 0, 0)
+            result = vec3_t()
             return
         }
         // Raven's DEG2RAD multiplies by the double M_PI and cos is the double libm call, so the angle runs in double.

@@ -565,7 +565,7 @@ class Skeleton:
         elif inner == "String":
             literal = '""'
         elif inner == "JKAShared.vec3_t":
-            literal = "JKAShared.vec3_t(0, 0, 0)"
+            literal = "vec3_t()"
         elif inner == "JKAShared.CharBuf":
             literal = f"JKAShared.CharBuf({var.bound})"
         else:
