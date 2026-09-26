@@ -193,6 +193,9 @@ NOT_PORTED = {
 # C library functions a .c file aliases, `#define sqrtf sqrt`, with the Swift signature the forwarder takes.
 LIBC_FUNCTIONS = {"sqrt": ([("x", "Float")], "Float", "x.squareRoot()")}
 
+# The Swift name of a C library function whose Foundation name Swift deprecates, so a body writes `abs` where Raven wrote `fabs`.
+LIBC_SPELLINGS = {"fabs": "abs"}
+
 # Header macros the port leaves out, with the reason the reexport carries instead of a marker.
 NOT_PORTED_MACROS = {
     "MATERIALS": "a list of material names no body of the module names",

@@ -521,11 +521,11 @@ private func PM_SetVehicleAngles(_ normal: JKAShared.vec3_t?) {
         /*
         else if ( i == PITCH )
         {
-        curVehicleBankingSpeed = vehicleBankingSpeed*fabs(AngleNormalize180(AngleSubtract( vAngles[PITCH], pVeh->m_vOrientation[PITCH] )))/(g_vehicleInfo[pm->ps->vehicleIndex].pitchLimit/2.0f);
+        curVehicleBankingSpeed = vehicleBankingSpeed*abs(AngleNormalize180(AngleSubtract( vAngles[PITCH], pVeh->m_vOrientation[PITCH] )))/(g_vehicleInfo[pm->ps->vehicleIndex].pitchLimit/2.0f);
         }
         else if ( i == ROLL )
         {
-        curVehicleBankingSpeed = vehicleBankingSpeed*fabs(AngleNormalize180(AngleSubtract( vAngles[ROLL], pVeh->m_vOrientation[ROLL] )))/(g_vehicleInfo[pm->ps->vehicleIndex].rollLimit/2.0f);
+        curVehicleBankingSpeed = vehicleBankingSpeed*abs(AngleNormalize180(AngleSubtract( vAngles[ROLL], pVeh->m_vOrientation[ROLL] )))/(g_vehicleInfo[pm->ps->vehicleIndex].rollLimit/2.0f);
         }
 
         if ( curVehicleBankingSpeed )
@@ -560,7 +560,7 @@ func BG_ExternThisSoICanRecompileInDebug(_ pVeh: JKAMP.Vehicle, _ riderPS: JKAMP
 
 	pitchDelta = AngleSubtract(riderPS->viewangles[PITCH],pVeh->m_vPrevRiderViewAngles[PITCH]);
 	pitchDelta *= (2.0f*pVeh->m_fTimeModifier);
-	pitchSubtract = pitchDelta * (fabs(pVeh->m_vOrientation[ROLL])/90.0f);
+	pitchSubtract = pitchDelta * (abs(pVeh->m_vOrientation[ROLL])/90.0f);
 	pVeh->m_vOrientation[PITCH] += pitchDelta-pitchSubtract;
 	if ( pVeh->m_vOrientation[ROLL] > 0 )
 	{
@@ -641,7 +641,7 @@ func PM_HoverTrace() {
         //if ( pm->ps->waterheight < pm->ps->origin[2]+pm->maxs[2] )
         if pm.waterlevel <= 1 {
             //part of us is sticking out of water
-            if fabs(pm.ps.velocity[0]) + fabs(pm.ps.velocity[1]) > 100 {
+            if abs(pm.ps.velocity[0]) + abs(pm.ps.velocity[1]) > 100 {
                 //moving at a decent speed
                 if Q_irand(Int32(pml.frametime), 100) >= 50 {
                     //splash
@@ -696,8 +696,8 @@ func PM_HoverTrace() {
         pm.runTrace(trace, pm.ps.origin, pm.mins, pm.maxs, point, pm.ps.clientNum, traceContents)
         if trace!.plane.normal[0] > 0.5 || trace!.plane.normal[0] < -0.5 || trace!.plane.normal[1] > 0.5 || trace!.plane.normal[1] < -0.5 {
             //steep slanted hill, don't go up it.
-            var d: Float = fabs(trace!.plane.normal[0])
-            let e: Float = fabs(trace!.plane.normal[1])
+            var d: Float = abs(trace!.plane.normal[0])
+            let e: Float = abs(trace!.plane.normal[1])
             if e > d {
                 d = e
             }
@@ -714,7 +714,7 @@ func PM_HoverTrace() {
                 }
                 if (trace!.contents & (CONTENTS_WATER | CONTENTS_SLIME | CONTENTS_LAVA)) != 0 {
                     //hovering on water, make a spash if moving
-                    if fabs(pm.ps.velocity[0]) + fabs(pm.ps.velocity[1]) > 100 {
+                    if abs(pm.ps.velocity[0]) + abs(pm.ps.velocity[1]) > 100 {
                         //moving at a decent speed
                         if Q_irand(Int32(pml.frametime), 100) >= 50 {
                             //splash
@@ -8489,13 +8489,13 @@ func PM_VehFaceHyperspacePoint(_ veh: JKAMP.BgEntity) {
         i = 0
         while i < 3 {
             aDelta = AngleSubtract(veh.playerState!.hyperSpaceAngles[i], veh.m_pVehicle!.m_vOrientationVector[i])
-            if fabs(aDelta) < turnRate {
+            if abs(aDelta) < turnRate {
                 //all is good
                 pm.ps.viewangles[i] = veh.playerState!.hyperSpaceAngles[i]
                 matchedAxes += 1
             } else {
                 aDelta = AngleSubtract(veh.playerState!.hyperSpaceAngles[i], pm.ps.viewangles[i])
-                if fabs(aDelta) < turnRate {
+                if abs(aDelta) < turnRate {
                     pm.ps.viewangles[i] = veh.playerState!.hyperSpaceAngles[i]
                 } else if aDelta > 0 {
                     if i == YAW {

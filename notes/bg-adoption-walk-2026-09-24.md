@@ -21,9 +21,9 @@ bg_misc had no stubs. A data-table stub, `// TODO: Port global`, and the four pa
 
 | Row | Subject | Verdict | Commit |
 |---|---|---|---|
-| 1 | The zero vector spells as `vec3_t()`, a vector with values as `vec3_t(a, b, c)`, no module qualifier | ratified as proposed | this commit |
-| 2 | Every body line reads its types by their short names, and the signature keeps the tables' spelling | ratified as proposed | this commit |
-| 3 | `fabs` spells as `abs`, because Swift deprecates Foundation's `fabs` | parked | |
+| 1 | The zero vector spells as `vec3_t()`, a vector with values as `vec3_t(a, b, c)`, no module qualifier | ratified as proposed | 2740013 |
+| 2 | Every body line reads its types by their short names, and the signature keeps the tables' spelling | ratified as proposed | 2740013 |
+| 3 | `fabs` spells as `abs`, because Swift deprecates Foundation's `fabs` | parked, then ratified on "respell fabs abs" | the commit after 2740013 |
 
 Both rows rest on the short-name rule of docs/porting-rules.md: a symbol is never module-qualified in an expression.
 
@@ -35,8 +35,9 @@ Row 2 added `short_named()` to draft_declarations.py, which strips `JKAMP.` and 
 
 The drafts of the eight stems hold 88 holes after both rows, the same count as before them. The build reads 0 errors, and the tests read 1 of 1, 78 of 3 suites, 13 of 2, and 14 of 4, all passed. bg_pmove carries 27 warnings: 9 unused call results, 8 deprecated names, 5 never-mutated variables, 4 "will never be executed" under Raven's `if (0)` blocks at lines 151, 486, 6716, and 8950, and 1 written-but-never-read variable. Three bg_panimate warnings are faithful to Raven and stay unless ruled: the `skip` dead store, `wasLoaded` read only inside his commented block, and the `blendTime` parameter copy.
 
+Row 3 added `LIBC_SPELLINGS` to rulings.py, which draft_calls.py applies at the call, and the main session swept the 18 hand sites in bg_panimate, bg_pmove, and bg_slidemove.
+
 ## Open after the walk
 
-- Row 3, the `fabs` spelling.
 - A ruling on the 27 bg_pmove warnings, which the incremental build listed, and a full rebuild for the seven other files.
 - bg_lib, the ninth gate stem, which holds four stubs and is not adopted.

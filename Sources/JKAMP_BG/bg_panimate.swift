@@ -850,7 +850,7 @@ func BG_AnimLength(_ index: Int32, _ anim: JKAMP.animNumber_t) -> Int32 {
         return -1
     }
 
-    return Int32(bgAllAnims[index].animsSlots[anim].numFrames * fabs(Float((bgAllAnims[index].animsSlots[anim].frameLerp))))
+    return Int32(bgAllAnims[index].animsSlots[anim].numFrames * abs(Float((bgAllAnims[index].animsSlots[anim].frameLerp))))
 }
 
 //just use whatever pm->animations is
@@ -864,7 +864,7 @@ func PM_AnimLength(_ index: Int32, _ anim: JKAMP.animNumber_t) -> Int32 {
     if anim < 0 {
         Com_Error(ERR_DROP, "ERROR: anim %d < 0\n", anim)
     }
-    return Int32(pm.animationsSlots[anim].numFrames * fabs(Float((pm.animationsSlots[anim].frameLerp))))
+    return Int32(pm.animationsSlots[anim].numFrames * abs(Float((pm.animationsSlots[anim].frameLerp))))
 }
 
 /// Source: oracle/codemp/game/bg_panimate.c:1597
@@ -1447,16 +1447,16 @@ func BG_SetAnimFinal(_ ps: JKAMP.PlayerState, _ animations: Slots<JKAMP.Animatio
                     var dur: Int32
                     var speedDif: Int32
 
-                    dur = Int32((animations[anim].numFrames - 1) * fabs(Float((animations[anim].frameLerp))))
+                    dur = Int32((animations[anim].numFrames - 1) * abs(Float((animations[anim].frameLerp))))
                     speedDif = Int32(dur - (dur * editAnimSpeed))
                     dur += speedDif
                     if dur > 1 {
                         ps.torsoTimer = dur - 1
                     } else {
-                        ps.torsoTimer = Int32(fabs(Float((animations[anim].frameLerp))))
+                        ps.torsoTimer = Int32(abs(Float((animations[anim].frameLerp))))
                     }
                 } else {
-                    ps.torsoTimer = Int32(((animations[anim].numFrames) * fabs(Float((animations[anim].frameLerp)))))
+                    ps.torsoTimer = Int32(((animations[anim].numFrames) * abs(Float((animations[anim].frameLerp)))))
                 }
 
                 if (ps.fd.forcePowersActive & (1 << FP_RAGE)) != 0 {
@@ -1486,16 +1486,16 @@ func BG_SetAnimFinal(_ ps: JKAMP.PlayerState, _ animations: Slots<JKAMP.Animatio
                     var dur: Int32
                     var speedDif: Int32
 
-                    dur = Int32((animations[anim].numFrames - 1) * fabs(Float((animations[anim].frameLerp))))
+                    dur = Int32((animations[anim].numFrames - 1) * abs(Float((animations[anim].frameLerp))))
                     speedDif = Int32(dur - (dur * editAnimSpeed))
                     dur += speedDif
                     if dur > 1 {
                         ps.legsTimer = dur - 1
                     } else {
-                        ps.legsTimer = Int32(fabs(Float((animations[anim].frameLerp))))
+                        ps.legsTimer = Int32(abs(Float((animations[anim].frameLerp))))
                     }
                 } else {
-                    ps.legsTimer = Int32(((animations[anim].numFrames) * fabs(Float((animations[anim].frameLerp)))))
+                    ps.legsTimer = Int32(((animations[anim].numFrames) * abs(Float((animations[anim].frameLerp)))))
                 }
 
                 if PM_RunningAnim(anim) || PM_WalkingAnim(anim) {

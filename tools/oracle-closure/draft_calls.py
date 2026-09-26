@@ -15,6 +15,7 @@ from spelling import INT_KINDS
 from skeleton import BG, target_of
 from table import Param, swift_name
 from overlay import MACROS
+from rulings import LIBC_SPELLINGS
 
 from draft_classification import Hole
 
@@ -94,7 +95,7 @@ class Calls:
                 self.call_kinds, self.call_format = outer
             if at is not None:
                 words.append(f"at: {at[2]}")
-            return f"{swift_name(name)}({', '.join(words)})"
+            return f"{LIBC_SPELLINGS.get(name, swift_name(name))}({', '.join(words)})"
         if callee is not None and callee.kind == CursorKind.MEMBER_REF_EXPR:
             # A stored function on a view runs through the view's method, `pm.runTrace(...)`, which views.py writes per field.
             kids_ = list(callee.get_children())

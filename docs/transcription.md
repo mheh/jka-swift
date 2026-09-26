@@ -436,6 +436,7 @@ So a body writes `Double(x)` on each float operand of an expression that holds a
 This is the one place a body writes a conversion Raven did not write, and a Raven explicit cast inside it, `(float)pm->ps->speed`, stays as `Float(ps.speed)`.
 An `int` stored into a `float` with no operator between them takes `Float(...)` at the store, `ps.speed = Float(ps.basespeed)`, because Swift has no conversion on assignment and no operator reaches `=`.
 The same holds for an `int` in a float table, `Float(JUMP_VELOCITY)`. The site carries no Port-note.
+Raven's `fabs` is `abs`, because Swift deprecates Foundation's `fabs`, and `LIBC_SPELLINGS` of `rulings.py` holds this spelling.
 
 ### `#ifdef`
 

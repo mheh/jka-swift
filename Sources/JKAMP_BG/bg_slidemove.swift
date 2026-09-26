@@ -48,7 +48,7 @@ func PM_VehicleImpact(_ pEnt: JKAMP.BgEntity, _ trace: JKAMP.Trace) {
         //hit a func_rotating that is supposed to destroy anything it touches!
         //guarantee the hit will happen, thereby taking off a piece of the ship
         forceSurfDestruction = true
-    } else if (fabs(pm.ps.velocity[0]) + fabs(pm.ps.velocity[1])) < 100.0 && pm.ps.velocity[2] > -100.0 {
+    } else if (abs(pm.ps.velocity[0]) + abs(pm.ps.velocity[1])) < 100.0 && pm.ps.velocity[2] > -100.0 {
         //we're landing, we're cool
         //FIXME: some sort of landing "thump", not the impactFX
         /*

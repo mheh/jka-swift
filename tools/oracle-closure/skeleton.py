@@ -721,7 +721,7 @@ class Skeleton:
     def file(self, stem: str) -> list[str]:
         target = target_of(stem)
         # A file inside JKAShared imports nothing, because it is the module the others import.
-        # Foundation holds the libc math Raven calls, `fabs`, `sqrt`, `sin`, so every stub imports it.
+        # Foundation holds the libc math Raven calls, `sqrt`, `sin`, `abs` for his `fabs`, so every stub imports it.
         imports = [] if target == SHARED else ["import Foundation", "import JKAMP", "import JKAShared"] + (["import JKAMP_Game"] if target == LOGIC else [])
         lines = [NOTE.format(stem=stem), ""] + (imports + [""] if imports else [])
         entries = [(var.line, 0, var) for var in self.variables.get(stem, [])] + [(m.line, 1, m) for m in self.macros.get(stem, [])]
