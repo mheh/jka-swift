@@ -177,7 +177,9 @@ A vector or axis parameter the NULL sweep reaches and the body only reads crosse
 The body's NULL test keeps its form, `normal == nil`, and every other read of the parameter is the force unwrap, `normal!`.
 The sweep reaches a parameter at a direct `NULL`, through a local the caller sets to `NULL`, and through a parameter of the caller the sweep already reached.
 A body writes a vector parameter through a store, a vector macro's written position, or a callee that writes its own parameter, and that parameter keeps `inout` and the caller's scratch.
-The callee's NULL arm does not run for that call, so the call site carries a Port-note and a `portMissing` marker.
+When the callee's NULL arm only skips the write to that parameter, the call site carries a plain comment that names the NULL outputs, and no Port-note and no `portMissing` marker.
+When the NULL arm changes behavior, for example the NULL `dir` of `G_Damage`, the arm does not run for that call.
+That call site carries a Port-note and a `portMissing` marker.
 A caller of a trap or strap function writes `nil` where Raven wrote `NULL` for a `qhandle_t *` parameter.
 The pointer stays inside generated code under rule 11, and no ported body indexes it.
 An `int *` or `float *` parameter whose pointee is `qhandle_t` is not an `inout` scalar.

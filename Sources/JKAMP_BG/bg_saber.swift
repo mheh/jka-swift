@@ -280,11 +280,9 @@ func PM_CheckStabDown() -> JKAMP.saberMoveName_t {
         }
 
         facingAngles = vec3_t(0, pm.ps.viewangles[YAW], 0)
-        // Port-note: Raven passes NULL for the `right` output. The ported function takes it by reference, so the body passes a scratch local it never reads.
-        portMissing("PM_CheckStabDown", source: "oracle/codemp/game/bg_saber.c:584")
+        // Raven passes NULL for the second and third outputs of `AngleVectors`.
+        // The ported function takes them by reference, so the body passes scratch vectors it never reads.
         var scratchRight = vec3_t()
-        // Port-note: Raven passes NULL for the `up` output. The ported function takes it by reference, so the body passes a scratch local it never reads.
-        portMissing("PM_CheckStabDown", source: "oracle/codemp/game/bg_saber.c:584")
         var scratchUp = vec3_t()
         AngleVectors(facingAngles, &faceFwd, &scratchRight, &scratchUp)
 
@@ -1033,11 +1031,9 @@ func PM_CanBackstab() -> Bool {
         flatAng = pm.ps.viewangles
         flatAng[PITCH] = 0
 
-        // Port-note: Raven passes NULL for the `right` output. The ported function takes it by reference, so the body passes a scratch local it never reads.
-        portMissing("PM_CanBackstab", source: "oracle/codemp/game/bg_saber.c:1625")
+        // Raven passes NULL for the second and third outputs of `AngleVectors`.
+        // The ported function takes them by reference, so the body passes scratch vectors it never reads.
         var scratchRight = vec3_t()
-        // Port-note: Raven passes NULL for the `up` output. The ported function takes it by reference, so the body passes a scratch local it never reads.
-        portMissing("PM_CanBackstab", source: "oracle/codemp/game/bg_saber.c:1625")
         var scratchUp = vec3_t()
         AngleVectors(flatAng, &fwd, &scratchRight, &scratchUp)
 
@@ -1091,11 +1087,9 @@ func PM_SaberFlipOverAttackMove() -> JKAMP.saberMoveName_t {
     fwdAngles = pm.ps.viewangles
     fwdAngles[ROLL] = 0
     fwdAngles[PITCH] = fwdAngles[ROLL]
-    // Port-note: Raven passes NULL for the `right` output. The ported function takes it by reference, so the body passes a scratch local it never reads.
-    portMissing("PM_SaberFlipOverAttackMove", source: "oracle/codemp/game/bg_saber.c:1657")
+    // Raven passes NULL for the second and third outputs of `AngleVectors`.
+    // The ported function takes them by reference, so the body passes scratch vectors it never reads.
     var scratchRight = vec3_t()
-    // Port-note: Raven passes NULL for the `up` output. The ported function takes it by reference, so the body passes a scratch local it never reads.
-    portMissing("PM_SaberFlipOverAttackMove", source: "oracle/codemp/game/bg_saber.c:1657")
     var scratchUp = vec3_t()
     AngleVectors(fwdAngles, &jumpFwd, &scratchRight, &scratchUp)
     pm.ps.velocity = jumpFwd * 150 //was 50
@@ -1204,11 +1198,9 @@ func PM_SomeoneInFront(_ tr: JKAMP.Trace) -> Bool {
     flatAng = pm.ps.viewangles
     flatAng[PITCH] = 0
 
-    // Port-note: Raven passes NULL for the `right` output. The ported function takes it by reference, so the body passes a scratch local it never reads.
-    portMissing("PM_SomeoneInFront", source: "oracle/codemp/game/bg_saber.c:1804")
+    // Raven passes NULL for the second and third outputs of `AngleVectors`.
+    // The ported function takes them by reference, so the body passes scratch vectors it never reads.
     var scratchRight = vec3_t()
-    // Port-note: Raven passes NULL for the `up` output. The ported function takes it by reference, so the body passes a scratch local it never reads.
-    portMissing("PM_SomeoneInFront", source: "oracle/codemp/game/bg_saber.c:1804")
     var scratchUp = vec3_t()
     AngleVectors(flatAng, &fwd, &scratchRight, &scratchUp)
 
@@ -1259,11 +1251,9 @@ func PM_SaberLungeAttackMove(_ noSpecials: Bool) -> JKAMP.saberMoveName_t {
         fwdAngles[ROLL] = 0
         fwdAngles[PITCH] = fwdAngles[ROLL]
         //do the lunge
-        // Port-note: Raven passes NULL for the `right` output. The ported function takes it by reference, so the body passes a scratch local it never reads.
-        portMissing("PM_SaberLungeAttackMove", source: "oracle/codemp/game/bg_saber.c:1835")
+        // Raven passes NULL for the second and third outputs of `AngleVectors`.
+        // The ported function takes them by reference, so the body passes scratch vectors it never reads.
         var scratchRight = vec3_t()
-        // Port-note: Raven passes NULL for the `up` output. The ported function takes it by reference, so the body passes a scratch local it never reads.
-        portMissing("PM_SaberLungeAttackMove", source: "oracle/codemp/game/bg_saber.c:1835")
         var scratchUp = vec3_t()
         AngleVectors(fwdAngles, &jumpFwd, &scratchRight, &scratchUp)
         pm.ps.velocity = jumpFwd * 150
@@ -1349,11 +1339,9 @@ func PM_SaberJumpAttackMove() -> JKAMP.saberMoveName_t {
     fwdAngles = pm.ps.viewangles
     fwdAngles[ROLL] = 0
     fwdAngles[PITCH] = fwdAngles[ROLL]
-    // Port-note: Raven passes NULL for the `right` output. The ported function takes it by reference, so the body passes a scratch local it never reads.
-    portMissing("PM_SaberJumpAttackMove", source: "oracle/codemp/game/bg_saber.c:1947")
+    // Raven passes NULL for the second and third outputs of `AngleVectors`.
+    // The ported function takes them by reference, so the body passes scratch vectors it never reads.
     var scratchRight = vec3_t()
-    // Port-note: Raven passes NULL for the `up` output. The ported function takes it by reference, so the body passes a scratch local it never reads.
-    portMissing("PM_SaberJumpAttackMove", source: "oracle/codemp/game/bg_saber.c:1947")
     var scratchUp = vec3_t()
     AngleVectors(fwdAngles, &jumpFwd, &scratchRight, &scratchUp)
     pm.ps.velocity = jumpFwd * 300
@@ -1452,39 +1440,31 @@ private func PM_CheckEnemyPresence(_ dir: Int32, _ radius: Float) -> Bool {
 
         switch dir {
         case DIR_RIGHT:
-            // Port-note: Raven passes NULL for the `forward` output. The ported function takes it by reference, so the body passes a scratch local it never reads.
-            portMissing("PM_CheckEnemyPresence", source: "oracle/codemp/game/bg_saber.c:2058")
+            // Raven passes NULL for the first and third outputs of `AngleVectors`.
+            // The ported function takes them by reference, so the body passes scratch vectors it never reads.
             var scratchForward = vec3_t()
-            // Port-note: Raven passes NULL for the `up` output. The ported function takes it by reference, so the body passes a scratch local it never reads.
-            portMissing("PM_CheckEnemyPresence", source: "oracle/codemp/game/bg_saber.c:2058")
             var scratchUp = vec3_t()
             AngleVectors(angles, &scratchForward, &checkDir, &scratchUp)
 
         case DIR_LEFT:
-            // Port-note: Raven passes NULL for the `forward` output. The ported function takes it by reference, so the body passes a scratch local it never reads.
-            portMissing("PM_CheckEnemyPresence", source: "oracle/codemp/game/bg_saber.c:2058")
+            // Raven passes NULL for the first and third outputs of `AngleVectors`.
+            // The ported function takes them by reference, so the body passes scratch vectors it never reads.
             var scratchForward2 = vec3_t()
-            // Port-note: Raven passes NULL for the `up` output. The ported function takes it by reference, so the body passes a scratch local it never reads.
-            portMissing("PM_CheckEnemyPresence", source: "oracle/codemp/game/bg_saber.c:2058")
             var scratchUp2 = vec3_t()
             AngleVectors(angles, &scratchForward2, &checkDir, &scratchUp2)
             checkDir = checkDir * -1
 
         case DIR_FRONT:
-            // Port-note: Raven passes NULL for the `right` output. The ported function takes it by reference, so the body passes a scratch local it never reads.
-            portMissing("PM_CheckEnemyPresence", source: "oracle/codemp/game/bg_saber.c:2058")
+            // Raven passes NULL for the second and third outputs of `AngleVectors`.
+            // The ported function takes them by reference, so the body passes scratch vectors it never reads.
             var scratchRight = vec3_t()
-            // Port-note: Raven passes NULL for the `up` output. The ported function takes it by reference, so the body passes a scratch local it never reads.
-            portMissing("PM_CheckEnemyPresence", source: "oracle/codemp/game/bg_saber.c:2058")
             var scratchUp3 = vec3_t()
             AngleVectors(angles, &checkDir, &scratchRight, &scratchUp3)
 
         case DIR_BACK:
-            // Port-note: Raven passes NULL for the `right` output. The ported function takes it by reference, so the body passes a scratch local it never reads.
-            portMissing("PM_CheckEnemyPresence", source: "oracle/codemp/game/bg_saber.c:2058")
+            // Raven passes NULL for the second and third outputs of `AngleVectors`.
+            // The ported function takes them by reference, so the body passes scratch vectors it never reads.
             var scratchRight2 = vec3_t()
-            // Port-note: Raven passes NULL for the `up` output. The ported function takes it by reference, so the body passes a scratch local it never reads.
-            portMissing("PM_CheckEnemyPresence", source: "oracle/codemp/game/bg_saber.c:2058")
             var scratchUp4 = vec3_t()
             AngleVectors(angles, &checkDir, &scratchRight2, &scratchUp4)
             checkDir = checkDir * -1
@@ -1664,11 +1644,9 @@ func PM_SaberAttackForMovement(_ curmove: JKAMP.saberMoveName_t) -> JKAMP.saberM
 
                 fwdAngles = vec3_t(0.0, pm.ps.viewangles[YAW], 0.0)
 
-                // Port-note: Raven passes NULL for the `forward` output. The ported function takes it by reference, so the body passes a scratch local it never reads.
-                portMissing("PM_SaberAttackForMovement", source: "oracle/codemp/game/bg_saber.c:2241")
+                // Raven passes NULL for the first and third outputs of `AngleVectors`.
+                // The ported function takes them by reference, so the body passes scratch vectors it never reads.
                 var scratchForward = vec3_t()
-                // Port-note: Raven passes NULL for the `up` output. The ported function takes it by reference, so the body passes a scratch local it never reads.
-                portMissing("PM_SaberAttackForMovement", source: "oracle/codemp/game/bg_saber.c:2241")
                 var scratchUp = vec3_t()
                 AngleVectors(fwdAngles, &scratchForward, &right, &scratchUp)
                 pm.ps.velocity[1] = 0.0
@@ -1715,11 +1693,9 @@ func PM_SaberAttackForMovement(_ curmove: JKAMP.saberMoveName_t) -> JKAMP.saberM
                 var fwdAngles = vec3_t()
 
                 fwdAngles = vec3_t(0.0, pm.ps.viewangles[YAW], 0.0)
-                // Port-note: Raven passes NULL for the `forward` output. The ported function takes it by reference, so the body passes a scratch local it never reads.
-                portMissing("PM_SaberAttackForMovement", source: "oracle/codemp/game/bg_saber.c:2241")
+                // Raven passes NULL for the first and third outputs of `AngleVectors`.
+                // The ported function takes them by reference, so the body passes scratch vectors it never reads.
                 var scratchForward2 = vec3_t()
-                // Port-note: Raven passes NULL for the `up` output. The ported function takes it by reference, so the body passes a scratch local it never reads.
-                portMissing("PM_SaberAttackForMovement", source: "oracle/codemp/game/bg_saber.c:2241")
                 var scratchUp2 = vec3_t()
                 AngleVectors(fwdAngles, &scratchForward2, &right, &scratchUp2)
                 pm.ps.velocity[1] = 0.0
@@ -2180,11 +2156,9 @@ func PM_WeaponLightsaber() {
                     sabMins = vec3_t(SABERMINS_X, SABERMINS_Y, SABERMINS_Z)
                     sabMaxs = vec3_t(SABERMAXS_X, SABERMAXS_Y, SABERMAXS_Z)
 
-                    // Port-note: Raven passes NULL for the `right` output. The ported function takes it by reference, so the body passes a scratch local it never reads.
-                    portMissing("PM_WeaponLightsaber", source: "oracle/codemp/game/bg_saber.c:2836")
+                    // Raven passes NULL for the second and third outputs of `AngleVectors`.
+                    // The ported function takes them by reference, so the body passes scratch vectors it never reads.
                     var scratchRight = vec3_t()
-                    // Port-note: Raven passes NULL for the `up` output. The ported function takes it by reference, so the body passes a scratch local it never reads.
-                    portMissing("PM_WeaponLightsaber", source: "oracle/codemp/game/bg_saber.c:2836")
                     var scratchUp = vec3_t()
                     AngleVectors(pm.ps.viewangles, &fwd, &scratchRight, &scratchUp)
                     _VectorMA(pm.ps.origin, SABER_MIN_THROW_DIST, fwd, &minFwd)

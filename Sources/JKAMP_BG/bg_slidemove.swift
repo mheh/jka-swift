@@ -271,11 +271,9 @@ func PM_VehicleImpact(_ pEnt: JKAMP.BgEntity, _ trace: JKAMP.Trace) {
                 return
             }
 
-            // Port-note: Raven passes NULL for the `forward` output. The ported function takes it by reference, so the body passes a scratch local it never reads.
-            portMissing("PM_VehicleImpact", source: "oracle/codemp/game/bg_slidemove.c:49")
+            // Raven passes NULL for the first and second outputs of `AngleVectors`.
+            // The ported function takes them by reference, so the body passes scratch vectors it never reads.
             var scratchForward = vec3_t()
-            // Port-note: Raven passes NULL for the `right` output. The ported function takes it by reference, so the body passes a scratch local it never reads.
-            portMissing("PM_VehicleImpact", source: "oracle/codemp/game/bg_slidemove.c:49")
             var scratchRight = vec3_t()
             AngleVectors(pSelfVeh!.m_vOrientationVector, &scratchForward, &scratchRight, &vehUp)
             if pSelfVeh!.m_pVehicleInfo!.iImpactFX != 0 {

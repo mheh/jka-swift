@@ -328,7 +328,8 @@ func PM_pitch_roll_for_slope(_ forwhom: JKAMP.BgEntity, _ pass_slope: JKAShared.
         var scratchUp = vec3_t()
         AngleVectors(tempAngles, &ovf, &ovr, &scratchUp)
     } else {
-        // Raven passes NULL for the third output of `AngleVectors`. The ported function takes it by reference, so the body passes a scratch vector it never reads.
+        // Raven passes NULL for the third output of `AngleVectors`.
+        // The ported function takes it by reference, so the body passes a scratch vector it never reads.
         var scratchUp = vec3_t()
         AngleVectors(ps.viewangles, &ovf, &ovr, &scratchUp)
     }
@@ -484,11 +485,9 @@ private func PM_SetVehicleAngles(_ normal: JKAShared.vec3_t?) {
 
             tempVAngles = pVeh!.m_vOrientationVector
             tempVAngles[ROLL] = 0
-            // Port-note: Raven passes NULL for the `forward` output. The ported function takes it by reference, so the body passes a scratch local it never reads.
-            portMissing("PM_SetVehicleAngles", source: "oracle/codemp/game/bg_pmove.c:482")
+            // Raven passes NULL for the first and third outputs of `AngleVectors`.
+            // The ported function takes them by reference, so the body passes scratch vectors it never reads.
             var scratchForward = vec3_t()
-            // Port-note: Raven passes NULL for the `up` output. The ported function takes it by reference, so the body passes a scratch local it never reads.
-            portMissing("PM_SetVehicleAngles", source: "oracle/codemp/game/bg_pmove.c:482")
             var scratchUp = vec3_t()
             AngleVectors(tempVAngles, &scratchForward, &rt, &scratchUp)
             dp = _DotProduct(velocity, rt)
@@ -9005,11 +9004,9 @@ func PmoveSingle(_ pmove: JKAMP.Pmove) {
         var fwdAng = vec3_t()
         fwdAng = vec3_t(0.0, pm.ps.viewangles[YAW], 0.0)
 
-        // Port-note: Raven passes NULL for the `right` output. The ported function takes it by reference, so the body passes a scratch local it never reads.
-        portMissing("PmoveSingle", source: "oracle/codemp/game/bg_pmove.c:10174")
+        // Raven passes NULL for the second and third outputs of `AngleVectors`.
+        // The ported function takes them by reference, so the body passes scratch vectors it never reads.
         var scratchRight = vec3_t()
-        // Port-note: Raven passes NULL for the `up` output. The ported function takes it by reference, so the body passes a scratch local it never reads.
-        portMissing("PmoveSingle", source: "oracle/codemp/game/bg_pmove.c:10174")
         var scratchUp = vec3_t()
         AngleVectors(fwdAng, &vFwd, &scratchRight, &scratchUp)
         if pm.ps.groundEntityNum == ENTITYNUM_NONE {
