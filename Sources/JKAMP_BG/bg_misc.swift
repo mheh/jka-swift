@@ -184,7 +184,6 @@ func BG_ParseField(_ l_fields: Slots<JKAMP.BgField>, _ key: String, _ value: Str
             case F_PARM1, F_PARM2, F_PARM3, F_PARM4, F_PARM5, F_PARM6, F_PARM7, F_PARM8,
                 F_PARM9, F_PARM10, F_PARM11, F_PARM12, F_PARM13, F_PARM14, F_PARM15, F_PARM16:
                 if bg.consumer == .game {
-                    // Port-note: `bgEntity_t` carries the same leading `entityState_t`, so this view reads the same bytes.
                     Q3_SetParm(BgEntity(ent).s.number, f.type - F_PARM1, value)
                 } else {
                     // Raven compiles no `F_PARM` case for cgame, so the field falls to `F_IGNORE` and nothing happens.
