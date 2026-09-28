@@ -140,13 +140,8 @@ let FLY_HOVER = 3 as Int32
 func PM_BGEntForNum(_ num: Int32) -> JKAMP.BgEntity? {
     var ent: BgEntity?
 
-    // Port-note: Raven guards a NULL `pm` here. Swift holds it as a value, so the guard has no form and reads false.
-    portMissing("PM_BGEntForNum", source: "oracle/codemp/game/bg_pmove.c:172")
-    // Raven's arm under the guard has no path, and its text stays here:
-    // {
-    //         assert(!"You cannot call PM_BGEntForNum outside of pm functions!");
-    //         return NULL;
-    //     }
+    // Raven guards a NULL `pm` here.
+    // The `pm` forwarder is non-optional and traps on nil, so the body drops the guard.
 
     if pm.baseEnt == nil {
         return nil
@@ -322,8 +317,16 @@ func PM_pitch_roll_for_slope(_ forwhom: JKAMP.BgEntity, _ pass_slope: JKAShared.
 
     if forwhom.s.NPC_class == CLASS_VEHICLE {
         //special code for vehicles
-        // Port-note: Raven reads `pVeh->m_vOrientation[YAW]` in this arm. The generated field is an `OpaquePointer?` for Raven's `float *`, and rule 11 keeps a pointer out of a logic target, so the arm has no Swift form.
-        portMissing("PM_pitch_roll_for_slope: pVeh->m_vOrientation", source: "oracle/codemp/game/bg_pmove.c:387")
+        let pVeh = forwhom.m_pVehicle
+        var tempAngles = vec3_t()
+
+        tempAngles[ROLL] = 0
+        tempAngles[PITCH] = 0
+        tempAngles[YAW] = pVeh!.m_vOrientationVector[YAW]
+        // Raven passes NULL for the third output of `AngleVectors`.
+        // The ported function takes it by reference, so the body passes a scratch vector it never reads.
+        var scratchUp = vec3_t()
+        AngleVectors(tempAngles, &ovf, &ovr, &scratchUp)
     } else {
         // Raven passes NULL for the third output of `AngleVectors`. The ported function takes it by reference, so the body passes a scratch vector it never reads.
         var scratchUp = vec3_t()
@@ -2673,16 +2676,13 @@ private func PM_CheckWaterJump() -> Bool {
 
     _VectorMA(ps.origin, 30, flatforward, &spot)
     spot[2] += 4
-    // Port-note: Raven calls `pm->pointcontents` with no guard. The generated call gives nil when the stored pointer is nil, so the body binds the result, and the nil path traps.
-    let contBelow = pm.runPointcontents(spot, ps.clientNum)
-    cont = contBelow
+    cont = pm.runPointcontents(spot, ps.clientNum)
     if (cont & CONTENTS_SOLID) == 0 {
         return false
     }
 
     spot[2] += 16
-    let contAbove = pm.runPointcontents(spot, ps.clientNum)
-    cont = contAbove
+    cont = pm.runPointcontents(spot, ps.clientNum)
     if cont != 0 {
         return false
     }
@@ -2774,12 +2774,14 @@ private func PM_WaterMove() {
     if pml.groundPlane && _DotProduct(ps.velocity, pml.groundTrace.plane.normal) < 0 {
         vel = VectorLength(ps.velocity)
         // slide along the ground plane
-        // Port-note: Raven passes `pm->ps->velocity` as both the input and the output of `PM_ClipVelocity`. Swift forbids two overlapping `inout` arguments, so the body uses locals and writes the result back.
-        var clipIn = ps.velocity
-        var clipNormal = pml.groundTrace.plane.normal
-        var clipOut = ps.velocity
-        PM_ClipVelocity(&clipIn, &clipNormal, &clipOut, OVERCLIP)
-        ps.velocity = clipOut
+        // Raven passes `ps.velocity` more than once, and Swift refuses one variable twice inout, so the earlier ones read a copy.
+        // The last one writes back after the call, because a view's setter keeps the in-copy otherwise.
+        do {
+            var velocityIn0 = ps.velocity
+            var velocityOut2 = ps.velocity
+            PM_ClipVelocity(&velocityIn0, &pml.groundTrace.plane.normal, &velocityOut2, OVERCLIP)
+            ps.velocity = velocityOut2
+        }
 
         _ = VectorNormalize(&ps.velocity)
         ps.velocity = ps.velocity * vel
@@ -3041,12 +3043,14 @@ private func PM_AirMove() {
         if (ps.pm_flags & PMF_STUCK_TO_WALL) == 0 {
             //don't slide when stuck to a wall
             if PM_GroundSlideOkay(pml.groundTrace.plane.normal[2]) {
-                // Port-note: Raven passes `pm->ps->velocity` as both the input and the output of `PM_ClipVelocity`. Swift forbids two overlapping `inout` arguments, so the body uses locals and writes the result back.
-                var clipIn = ps.velocity
-                var clipNormal = pml.groundTrace.plane.normal
-                var clipOut = ps.velocity
-                PM_ClipVelocity(&clipIn, &clipNormal, &clipOut, OVERCLIP)
-                ps.velocity = clipOut
+                // Raven passes `ps.velocity` more than once, and Swift refuses one variable twice inout, so the earlier ones read a copy.
+                // The last one writes back after the call, because a view's setter keeps the in-copy otherwise.
+                do {
+                    var velocityIn0 = ps.velocity
+                    var velocityOut2 = ps.velocity
+                    PM_ClipVelocity(&velocityIn0, &pml.groundTrace.plane.normal, &velocityOut2, OVERCLIP)
+                    ps.velocity = velocityOut2
+                }
             }
         }
     }
@@ -3114,16 +3118,20 @@ private func PM_WalkMove() {
     pml.right[2] = 0
 
     // project the forward and right directions onto the ground plane
-    // Port-note: Raven passes one vector as both the input and the output of `PM_ClipVelocity`. Swift forbids two overlapping `inout` arguments, so the body uses locals and writes the result back.
-    var clipForwardIn = pml.forward
-    var clipGroundNormal = pml.groundTrace.plane.normal
-    var clipForwardOut = pml.forward
-    PM_ClipVelocity(&clipForwardIn, &clipGroundNormal, &clipForwardOut, OVERCLIP)
-    pml.forward = clipForwardOut
-    var clipRightIn = pml.right
-    var clipRightOut = pml.right
-    PM_ClipVelocity(&clipRightIn, &clipGroundNormal, &clipRightOut, OVERCLIP)
-    pml.right = clipRightOut
+    // Raven passes `pml.forward` and `pml.right` each more than once, and Swift refuses one variable twice inout, so the earlier ones read a copy.
+    // The last one writes back after the call, because a view's setter keeps the in-copy otherwise.
+    do {
+        var forwardIn0 = pml.forward
+        var forwardOut2 = pml.forward
+        PM_ClipVelocity(&forwardIn0, &pml.groundTrace.plane.normal, &forwardOut2, OVERCLIP)
+        pml.forward = forwardOut2
+    }
+    do {
+        var rightIn0 = pml.right
+        var rightOut2 = pml.right
+        PM_ClipVelocity(&rightIn0, &pml.groundTrace.plane.normal, &rightOut2, OVERCLIP)
+        pml.right = rightOut2
+    }
     //
     _ = VectorNormalize(&pml.forward)
     _ = VectorNormalize(&pml.right)
@@ -3233,7 +3241,7 @@ private func PM_WalkMove() {
     // slide along the ground plane
     var clipVelIn = ps.velocity
     var clipVelOut = ps.velocity
-    PM_ClipVelocity(&clipVelIn, &clipGroundNormal, &clipVelOut, OVERCLIP)
+    PM_ClipVelocity(&clipVelIn, &pml.groundTrace.plane.normal, &clipVelOut, OVERCLIP)
     ps.velocity = clipVelOut
 
     // don't decrease velocity when going up or down a slope
@@ -3346,10 +3354,7 @@ private func PM_NoclipMove() {
     PM_Accelerate(&wishdir, wishspeed, pm_accelerate)
 
     // move
-    // Port-note: Raven passes `pm->ps->origin` as both the first and the last argument of `VectorMA`. Swift forbids the overlapping `inout`, so the body uses a local and writes the result back.
-    var newOrigin = ps.origin
-    _VectorMA(ps.origin, pml.frametime, ps.velocity, &newOrigin)
-    ps.origin = newOrigin
+    _VectorMA(ps.origin, pml.frametime, ps.velocity, &ps.origin)
 }
 
 /**
@@ -3612,8 +3617,7 @@ private func PM_CrashLand() {
             if ps.weapon == WP_EMPLACED_GUN {
                 PM_StartTorsoAnim(BOTH_GUNSIT1)
             } else {
-                // Port-note: `WeaponReadyAnim` is a file-scope table of `bg_misc.c`, and rule 3 puts it on `BgState`. The transcriptor of that file adds the property.
-                PM_StartTorsoAnim(bg.WeaponReadyAnim[ps.weapon])
+                PM_StartTorsoAnim(WeaponReadyAnim[ps.weapon])
             }
         }
     }
@@ -4031,9 +4035,7 @@ private func PM_SetWaterLevel() {
     point[0] = ps.origin[0]
     point[1] = ps.origin[1]
     point[2] = ps.origin[2] + MINS_Z + 1
-    // Port-note: Raven calls `pm->pointcontents` with no guard. The generated call gives nil when the stored pointer is nil, so the body binds each result, and the nil path traps.
-    let cont0 = pm.runPointcontents(point, ps.clientNum)
-    cont = cont0
+    cont = pm.runPointcontents(point, ps.clientNum)
 
     if (cont & MASK_WATER) != 0 {
         sample2 = ps.viewheight - MINS_Z
@@ -4042,13 +4044,11 @@ private func PM_SetWaterLevel() {
         pm.watertype = cont
         pm.waterlevel = 1
         point[2] = ps.origin[2] + MINS_Z + sample1
-        let cont1 = pm.runPointcontents(point, ps.clientNum)
-        cont = cont1
+        cont = pm.runPointcontents(point, ps.clientNum)
         if (cont & MASK_WATER) != 0 {
             pm.waterlevel = 2
             point[2] = ps.origin[2] + MINS_Z + sample2
-            let cont2 = pm.runPointcontents(point, ps.clientNum)
-            cont = cont2
+            cont = pm.runPointcontents(point, ps.clientNum)
             if (cont & MASK_WATER) != 0 {
                 pm.waterlevel = 3
             }
@@ -5275,8 +5275,7 @@ PM_FinishWeaponChange
 func PM_FinishWeaponChange() {
     var weapon: Int32
     let ps = pm.ps
-    // Port-note: Raven writes `weapon = pm->cmd.weapon`, a plain assignment of a `byte` to an `int`. `Promotion.swift` gives operators only, so the read keeps `Int32(...)`.
-    weapon = Int32(pm.cmd.weapon)
+    weapon = pm.cmd.weapon
     if weapon < WP_NONE || weapon >= WP_NUM_WEAPONS {
         weapon = WP_NONE
     }
@@ -8551,8 +8550,69 @@ func BG_VehicleAdjustBBoxForOrientation(_ veh: JKAMP.Vehicle, _ origin: inout JK
         mins = vec3_t(m_pVehicleInfo.width / -2.0, m_pVehicleInfo.width / -2.0, Float(DEFAULT_MINS_2))
         return
     } else {
-        // Port-note: Raven opens this arm with `AnglesToAxis( veh->m_vOrientation, axis )`. The generated `m_vOrientation` is an `OpaquePointer?` for Raven's `float *`, and rule 11 keeps a pointer out of a logic target, so the rest of this arm has no Swift form.
-        portMissing("BG_VehicleAdjustBBoxForOrientation: veh->m_vOrientation", source: "oracle/codemp/game/bg_pmove.c:10020")
+        // Raven's record lives to the end of his block, so the block is the closure.
+        Trace.scratch { trace in
+            var axis = [vec3_t](repeating: vec3_t(), count: 3)
+            var point = [vec3_t](repeating: vec3_t(), count: 8)
+            var newMins = vec3_t()
+            var newMaxs = vec3_t()
+            var curAxis: Int32 = 0
+            var i: Int32
+
+            AnglesToAxis(veh.m_vOrientationVector, &axis)
+            _VectorMA(origin, m_pVehicleInfo.length / 2.0, axis[0], &point[0])
+            _VectorMA(origin, -m_pVehicleInfo.length / 2.0, axis[0], &point[1])
+            //extrapolate each side up and down
+            _VectorMA(point[0], m_pVehicleInfo.height / 2.0, axis[2], &point[0])
+            _VectorMA(point[0], -m_pVehicleInfo.height, axis[2], &point[2])
+            _VectorMA(point[1], m_pVehicleInfo.height / 2.0, axis[2], &point[1])
+            _VectorMA(point[1], -m_pVehicleInfo.height, axis[2], &point[3])
+
+            _VectorMA(origin, m_pVehicleInfo.width / 2.0, axis[1], &point[4])
+            _VectorMA(origin, -m_pVehicleInfo.width / 2.0, axis[1], &point[5])
+            //extrapolate each side up and down
+            _VectorMA(point[4], m_pVehicleInfo.height / 2.0, axis[2], &point[4])
+            _VectorMA(point[4], -m_pVehicleInfo.height, axis[2], &point[6])
+            _VectorMA(point[5], m_pVehicleInfo.height / 2.0, axis[2], &point[5])
+            _VectorMA(point[5], -m_pVehicleInfo.height, axis[2], &point[7])
+            /*
+            VectorMA( origin, veh->m_pVehicleInfo->height/2.0f, axis[2], point[4] );
+            VectorMA( origin, -veh->m_pVehicleInfo->height/2.0f, axis[2], point[5] );
+            */
+            //Now inflate a bbox around these points
+            newMins = origin
+            newMaxs = origin
+            curAxis = 0
+            while curAxis < 3 {
+                i = 0
+                while i < 8 {
+                    if point[i][curAxis] > newMaxs[curAxis] {
+                        newMaxs[curAxis] = point[i][curAxis]
+                    } else if point[i][curAxis] < newMins[curAxis] {
+                        newMins[curAxis] = point[i][curAxis]
+                    }
+                    i += 1
+                }
+                curAxis += 1
+            }
+            newMins = newMins - origin
+            newMaxs = newMaxs - origin
+            //now see if that's a valid way to be
+            if let localTrace {
+                localTrace(trace, origin, newMins, newMaxs, origin, clientNum, tracemask)
+            } else {
+                //don't care about solid stuff then
+                trace.allsolid = 0
+                trace.startsolid = 0
+            }
+            if trace.startsolid == 0 && trace.allsolid == 0 {
+                //let's use it!
+                mins = newMins
+                maxs = newMaxs
+            }
+            //else: just use the last one, I guess...?
+            //FIXME: make it as close as possible?  Or actually prevent the change in m_vOrientation?  Or push away from anything we hit?
+        }
     }
 }
 
