@@ -20,6 +20,18 @@ from draft_classification import INDENT, Hole
 from draft_expressions import NUMBER
 
 
+
+def flat_comment(text: str, opens: bool, closes: bool) -> str:
+    """One line of Raven's `/* */` comment, with each inner `/*` spelled `/ *` and each inner `*/` spelled `* /`.
+    C ends a block comment at the first `*/` and reads an inner `/*` as text, but Swift nests the pair, so an inner opener never closes.
+    `opens` keeps the leading `/*` of the line, and `closes` keeps the trailing `*/`."""
+    start = 2 if opens else 0
+    end = len(text) - 2 if closes else len(text)
+    body = text[start:end].replace("/*", "/ *").replace("*/", "* /")
+    if closes and body.endswith("/"):
+        body += " "
+    return text[:start] + body + text[end:]
+
 class Statements:
     """The statement half of the drafter."""
 
@@ -128,23 +140,37 @@ class Statements:
         for line in self.source.lines[after:before - 1]:
             text = line.strip()
             if block:
-                # A line inside Raven's `/* */` comment keeps its text, and the closing line ends the block.
-                out.append(INDENT * depth + text if text else "")
-                block = not text.endswith("*/")
+                # A line inside Raven's `/* */` comment keeps its text, and the first `*/` ends the block, as in C.
+                # Raven's code after the close on the same line, `}*/ else`, is syntax the statements already carry.
+                closes = "*/" in text
+                text = text[:text.index("*/") + 2] if closes else text
+                out.append(INDENT * depth + flat_comment(text, False, closes) if text else "")
+                block = not closes
             elif not text:
                 out.append("")
-            elif text.startswith("//") or (text.startswith("/*") and text.endswith("*/")):
+            elif text.startswith("//"):
                 out.append(INDENT * depth + text)
             elif text.startswith("/*"):
-                out.append(INDENT * depth + text)
-                block = True
+                closes = "*/" in text[2:]
+                text = text[:text.index("*/", 2) + 2] if closes else text
+                out.append(INDENT * depth + flat_comment(text, True, closes))
+                block = not closes
+        if block:
+            # Raven closes the comment on the line of the next statement, `else */if ( cpFlags & CP_FLANK )`, so the close ends the block here.
+            line = self.source.lines[before - 1]
+            if "*/" in line:
+                out.append(INDENT * depth + flat_comment(line[:line.index("*/") + 2].strip(), False, True))
         return out
 
     def opening(self, block: ci.Cursor, depth: int) -> list[str]:
         """Raven's comment on the line of the opening brace, `{ //lost it`, as the first line of the block."""
         line = self.source.lines[block.extent.start.line - 1]
         rest = line[block.extent.start.column:].strip()
-        return [INDENT * depth + rest] if rest.startswith("//") or (rest.startswith("/*") and rest.endswith("*/")) else []
+        if rest.startswith("//"):
+            return [INDENT * depth + rest]
+        if rest.startswith("/*") and rest.endswith("*/") and len(rest) >= 4:
+            return [INDENT * depth + flat_comment(rest, True, True)]
+        return []
 
     def trailing(self, cur: ci.Cursor) -> str:
         """Raven's comment on the last line of a statement, after the statement's text."""

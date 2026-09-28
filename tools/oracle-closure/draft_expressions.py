@@ -520,7 +520,10 @@ class Expressions:
         """Raven's spelling, which keeps a macro name where he wrote one, with the C suffixes dropped."""
         text = self.source.slice(cur.extent).strip()
         if cur.kind == CursorKind.FLOATING_LITERAL:
-            return re.sub(r"[fF]$", "", text)
+            # Swift needs a digit on both sides of the point, so Raven's `.5` reads `0.5` and his `5.` reads `5.0`.
+            text = re.sub(r"[fF]$", "", text)
+            text = re.sub(r"^\.(?=\d)", "0.", text)
+            return re.sub(r"^(\d+)\.(?=[eE]|$)", r"\1.0", text)
         return re.sub(r"[uUlL]+$", "", text)
 
     def reference(self, cur: ci.Cursor) -> str:

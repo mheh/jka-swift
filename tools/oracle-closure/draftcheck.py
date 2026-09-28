@@ -6,8 +6,7 @@ mirror builds the game product. No file of the working tree changes. The report 
 draft left, the errors that follow from a hole, because a local the hole declared is missing, and the errors that stand
 on their own, which are the draft's defects. One line reports each stem, and a total line closes the run. The build log
 stays at .build-draft/build.log and holds the log of the last stem. A run of several stems parses and sweeps once, and
-each stem after the first costs a draft and a build alone. An adopted stem has no generated header line, and the run skips it
-with a one-line note.
+each stem after the first costs a draft and a build alone.
 
 Usage:
   .venv/bin/python draftcheck.py --stem bg_pmove
@@ -27,7 +26,7 @@ import sys
 import closure as C
 from bodies import Drafter, Registry
 from reexport import REPO
-from skeleton import BG, LOGIC, NOTE, Skeleton, stub_path, target_of
+from skeleton import BG, LOGIC, Skeleton, stub_path, target_of
 
 MIRROR = REPO / ".build-draft" / "tree"
 SCRATCH = REPO / ".build-draft" / "scratch"
@@ -87,11 +86,6 @@ def mirror() -> None:
     for tree in ("Sources", "Tests"):
         subprocess.run(["rsync", "-a", "--delete", str(REPO / tree) + "/", str(MIRROR / tree) + "/"], check=True)
     subprocess.run(["rsync", "-a", str(REPO / "Package.swift"), str(MIRROR / "Package.swift")], check=True)
-
-
-def adopted(stem: str) -> bool:
-    """A stub file without the generated header line is adopted, the same test skeleton.py makes."""
-    return stub_path(stem).read_text().split("\n", 1)[0] != NOTE.format(stem=stem)
 
 
 def gate(sk: Skeleton, registry: Registry, stem: str) -> tuple[int, int, int]:
@@ -164,9 +158,6 @@ def main() -> None:
     cascades = 0
     defects = 0
     for stem in stems:
-        if adopted(stem):
-            print(f"{stem}: adopted, skipped")
-            continue
         counts = gate(sk, registry, stem)
         holes += counts[0]
         cascades += counts[1]

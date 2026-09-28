@@ -4,6 +4,8 @@ It holds the Hole exception and the Port-note line the drafter writes where a co
 
 from __future__ import annotations
 
+import re
+
 import clang.cindex as ci
 from clang.cindex import CursorKind, TypeKind
 
@@ -20,6 +22,12 @@ INDENT = "    "
 
 class Hole(Exception):
     """A construct the draft has no rule for. The message is the reason the Port-note carries."""
+
+
+def port_note(reason: str) -> str:
+    """The Port-note line of a hole, with each newline of the reason and the indentation after it as one space.
+    A reason can quote Raven's text across a line, for example an operator span over `#ifdef _JK2MP`, and a second line would fall outside the comment."""
+    return "// Port-note: " + re.sub(r"\s*\n\s*", " ", reason.strip())
 
 
 class Classification:
@@ -308,7 +316,7 @@ class Classification:
         pad = INDENT * depth
         raven = " ".join(self.source.slice(cur.extent).split())
         return [
-            f"{pad}// Port-note: {reason}",
+            f"{pad}{port_note(reason)}",
             f"{pad}// Raven wrote: {raven}",
             f'{pad}portMissing("{self.fn.name}", source: "{self.fn.cite}")',
         ]

@@ -15,7 +15,7 @@ import closure as C
 from skeleton import BG, target_of
 from table import TARGET, swift_name
 
-from draft_classification import INDENT, Hole
+from draft_classification import INDENT, Hole, port_note
 
 
 def extent_key(cur: ci.Cursor) -> tuple[str, int, int]:
@@ -274,7 +274,7 @@ class Declarations:
                 self.hole_names.add(var.spelling)
                 self.local_holes.add(var.spelling)
                 raven = " ".join(self.bytes[var.extent.start.offset:var.extent.end.offset].decode("utf-8", "replace").split())
-                out += [f"// Port-note: {hole}", f"// Raven wrote: {raven};", f'portMissing("{self.fn.name}", source: "{self.fn.cite}")']
+                out += [port_note(str(hole)), f"// Raven wrote: {raven};", f'portMissing("{self.fn.name}", source: "{self.fn.cite}")']
         return out
 
     def declaration(self, var: ci.Cursor) -> str:
