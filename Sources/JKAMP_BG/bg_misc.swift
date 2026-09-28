@@ -1171,7 +1171,7 @@ func BG_TouchJumpPad(_ ps: JKAMP.PlayerState, _ jumppad: JKAMP.EntityState) {
     if ps.jumppad_ent != jumppad.number {
         var angles = vec3_t()
         vectoangles(jumppad.origin2, &angles)
-        let p = fabsf(AngleNormalize180(angles[PITCH]))
+        let p = abs(AngleNormalize180(angles[PITCH]))
         // Port-note: `effectNum` was computed here in Raven's body and never used again, so it is dropped.
         _ = p < 45 ? 0 : 1
     }

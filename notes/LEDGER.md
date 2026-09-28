@@ -56,3 +56,5 @@ This file lists every ruling of every walk in date order. The walk file under no
 | 2026-09-24 | [bg-adoption-walk-2026-09-24.md](bg-adoption-walk-2026-09-24.md) | Row 2: body lines read types by their short names, signatures keep the tables' spelling | ratified as proposed |
 | 2026-09-24 | [bg-adoption-walk-2026-09-24.md](bg-adoption-walk-2026-09-24.md) | Row 3: fabs spells as abs, since Swift deprecates Foundation's fabs | ratified as proposed |
 | 2026-09-27 | no walk file, hole round of 2026-09-27 | Row 1: an AngleVectors NULL-write arm takes a scratch with no portMissing | ratified as proposed |
+| 2026-09-27 | no walk file, hole round of 2026-09-27 | Row 1: the warnings stand, and the gate reads errors only. No body line changes to silence a warning. | ratified as proposed |
+| 2026-09-27 | no walk file, hole round of 2026-09-27 | Row 2: fabsf spells as abs through LIBC_SPELLINGS, the same as fabs | ratified as proposed |
