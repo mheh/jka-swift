@@ -6,12 +6,15 @@ mirror builds the game product. No file of the working tree changes. The report 
 draft left, the errors that follow from a hole, because a local the hole declared is missing, and the errors that stand
 on their own, which are the draft's defects. One line reports each stem, and a total line closes the run. The build log
 stays at .build-draft/build.log and holds the log of the last stem. A run of several stems parses and sweeps once, and
-each stem after the first costs a draft and a build alone.
+each stem after the first costs a draft and a build alone. An adopted stem has no generated header line, and the run skips it
+with a one-line note.
 
 Usage:
   .venv/bin/python draftcheck.py --stem bg_pmove
   .venv/bin/python draftcheck.py --stem bg_pmove,bg_misc
-  .venv/bin/python draftcheck.py --all
+  .venv/bin/python draftcheck.py --all      # every bg stem
+  .venv/bin/python draftcheck.py --game     # every game stem under Sources/JKAMP_GameLogic
+  .venv/bin/python draftcheck.py --every    # the bg stems and the game stems
 """
 
 from __future__ import annotations
@@ -24,13 +27,15 @@ import sys
 import closure as C
 from bodies import Drafter, Registry
 from reexport import REPO
-from skeleton import BG, Skeleton, stub_path, target_of
+from skeleton import BG, LOGIC, NOTE, Skeleton, stub_path, target_of
 
 MIRROR = REPO / ".build-draft" / "tree"
 SCRATCH = REPO / ".build-draft" / "scratch"
 LOG = REPO / ".build-draft" / "build.log"
 SOURCE_LINE = re.compile(r"/// Source: oracle/codemp/game/\w+\.c:(\d+)$")
-ERROR = re.compile(r"^/.*\.swift:(\d+):\d+: error: (.*)$")
+# swiftc writes `path:line:col: error: message`.
+# The build system writes a parse error as `error: path:line:col message`, with a FixIt record after the message at times.
+ERROR = re.compile(r"^(?:/.*\.swift:(\d+):\d+: error: (.*)|error: /.*\.swift:(\d+):\d+ (.*?)(?:: FixIt\(.*)?)$")
 # swiftc colours its diagnostics when it sees a terminal, and the escape sits before `error:`, so the count strips it first.
 ANSI = re.compile(r"\x1b\[[0-9;]*m")
 MISSING = re.compile(r"cannot find '(\w+)' in scope")
@@ -84,6 +89,11 @@ def mirror() -> None:
     subprocess.run(["rsync", "-a", str(REPO / "Package.swift"), str(MIRROR / "Package.swift")], check=True)
 
 
+def adopted(stem: str) -> bool:
+    """A stub file without the generated header line is adopted, the same test skeleton.py makes."""
+    return stub_path(stem).read_text().split("\n", 1)[0] != NOTE.format(stem=stem)
+
+
 def gate(sk: Skeleton, registry: Registry, stem: str) -> tuple[int, int, int]:
     """One stem drafted, spliced into the mirror, and built there. The stem's line and its defects go to stdout, and the three counts come back.
     The mirror holds the hand text of the stub again at the end, so the draft of one stem never stands in the build of the next."""
@@ -115,11 +125,12 @@ def gate(sk: Skeleton, registry: Registry, stem: str) -> tuple[int, int, int]:
             if line.startswith("error:"):
                 summaries.append(line)
             continue
-        name = MISSING.search(m.group(2))
+        number, message = (m.group(1), m.group(2)) if m.group(1) else (m.group(3), m.group(4))
+        name = MISSING.search(message)
         if name and name.group(1) in drafter.hole_names:
             cascades += 1
         else:
-            defects.append(f"{target.name}:{m.group(1)}: {m.group(2)}")
+            defects.append(f"{target.name}:{number}: {message}")
     if summaries and not defects and not cascades:
         # An error outside a Swift file is the build's own, and it stands as a defect so a broken mirror never reads clean.
         defects += summaries
@@ -134,20 +145,28 @@ def main() -> None:
     parser = argparse.ArgumentParser()
     parser.add_argument("--stem", action="append", default=[], help="the Raven files to draft and build, bg_pmove,bg_misc")
     parser.add_argument("--all", action="store_true", help="every Raven file the skeleton holds under Sources/JKAMP_BG")
+    parser.add_argument("--game", action="store_true", help="every Raven file the skeleton holds under Sources/JKAMP_GameLogic")
+    parser.add_argument("--every", action="store_true", help="the files of --all and of --game")
     args = parser.parse_args()
-    if not args.stem and not args.all:
-        parser.error("give --stem or --all")
+    if not (args.stem or args.all or args.game or args.every):
+        parser.error("give --stem, --all, --game, or --every")
     sk = Skeleton(C.Parse())
     registry = Registry()
-    if args.all:
-        stems = sorted(stem for stem in sk.files if target_of(stem) == BG)
-    else:
-        stems = [stem for group in args.stem for stem in group.split(",")]
+    targets = set()
+    if args.all or args.every:
+        targets.add(BG)
+    if args.game or args.every:
+        targets.add(LOGIC)
+    stems = [stem for group in args.stem for stem in group.split(",")]
+    stems += sorted(stem for stem in sk.files if target_of(stem) in targets and stem not in stems)
     mirror()
     holes = 0
     cascades = 0
     defects = 0
     for stem in stems:
+        if adopted(stem):
+            print(f"{stem}: adopted, skipped")
+            continue
         counts = gate(sk, registry, stem)
         holes += counts[0]
         cascades += counts[1]
