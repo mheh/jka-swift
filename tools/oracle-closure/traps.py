@@ -37,7 +37,7 @@ from clang.cindex import CursorKind, TypeKind
 
 import closure as C
 from reexport import GAME_TARGET, REPO, SOURCES
-from rulings import LIST_TRAPS, NOT_PORTED
+from rulings import LIST_TRAPS, NIL_OVERLOADS, NOT_PORTED
 from table import Param, SourceFile, Table, swift_name
 
 TARGET = GAME_TARGET
@@ -191,8 +191,28 @@ class Traps:
             # A transport that returns is a test double, and the trap ends the process with Raven's text, as the engine would.
             lines.append(f'    fatalError("trap_Error returned: \\({mapped[params[0].spelling].name})")')
         lines.append("}")
+        lines += self.nil_overload(cur, name, mapped, returns, body)
         lines += self.buffer_overload(cur, name, mapped, returns, never)
         return lines
+
+    def nil_overload(self, cur: ci.Cursor, name: str, mapped: dict[str, Param], returns: str | None, body: list[str]) -> list[str]:
+        """The second overload of a NIL_OVERLOADS ruling, the same body with the named view parameter optional.
+        A nil view is the zero word, as Raven's NULL was, and a caller that holds a view still takes the first overload."""
+        nil = [p for p in mapped.values() if (name, p.name) in NIL_OVERLOADS]
+        if len(nil) != 1:
+            return []
+        self.counts["nil overloads"] += 1
+        signature = ", ".join(f"_ {p.name}: " + (f"{p.swift}?" if p is nil[0] else p.swift) for p in mapped.values() if p.swift)
+        head = f"public func {name}({signature})" + (f" -> {returns}" if returns else "")
+        if returns:
+            head = "@discardableResult\n" + head
+        return [
+            "",
+            f"/// Source: oracle/{SOURCE}:{cur.location.line}",
+            f"/// Raven hands `{nil[0].name}` a NULL from {NIL_OVERLOADS[(name, nil[0].name)]}.",
+            "/// This overload takes that nil.",
+            head + " {",
+        ] + body + ["}"]
 
     def buffer_overload(self, cur: ci.Cursor, name: str, mapped: dict[str, Param], returns: str | None, never: bool) -> list[str]:
         """The second overload of docket row 7, for a `void *` parameter Raven's own callers fill with a `char buf[N]`.
@@ -262,6 +282,7 @@ def main() -> None:
     c = gen.counts
     print(f"traps.py: {c['traps']} traps, {c['TODO: Port signature']} TODO: Port signature markers, {out.relative_to(REPO)}")
     print(f"  {'buffer':12} {c['buffer overloads']} inout CharBuf overloads")
+    print(f"  {'nil':12} {c['nil overloads']} overloads that take a nil view")
     for kind in ("bare", "cstring", "out_string", "out_scalar", "out_opaque", "vec3_const", "vec3_mut", "vec3_array", "slots", "view"):
         print(f"  {kind:12} {c[kind]}")
 

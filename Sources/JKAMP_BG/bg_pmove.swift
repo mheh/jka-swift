@@ -7,7 +7,7 @@ let MAX_WEAPON_CHARGE_TIME = 5000 as Int32
 
 /// Source: oracle/codemp/game/bg_pmove.c:30
 /// Raven's callers always set `pm`, so a body reads it with no bind. A NULL here traps with the name.
-var pm: JKAMP.Pmove {
+public var pm: JKAMP.Pmove {
     get {
         guard let pm = bg.variables.pm else { preconditionFailure("pm is NULL") }
         return pm
@@ -88,7 +88,7 @@ let forceSpeedLevels: [Float] = [
 
 /// Source: oracle/codemp/game/bg_pmove.c:67
 /// Raven's data table, a hand property of `BgState`.
-var forcePowerNeeded: [[Int32]] {
+public var forcePowerNeeded: [[Int32]] {
     get { bg.forcePowerNeeded }
     set { bg.forcePowerNeeded = newValue }
 }
@@ -102,7 +102,7 @@ let forceJumpHeight: [Float] = [
 ]
 
 /// Source: oracle/codemp/game/bg_pmove.c:163
-let forceJumpStrength: [Float] = [
+public let forceJumpStrength: [Float] = [
     Float(JUMP_VELOCITY),//normal jump
     420,
     590,
@@ -137,7 +137,7 @@ let FLY_HOVER = 3 as Int32
 
 //rww - Get a pointer to the bgEntity by the index
 /// Source: oracle/codemp/game/bg_pmove.c:172
-func PM_BGEntForNum(_ num: Int32) -> JKAMP.BgEntity? {
+public func PM_BGEntForNum(_ num: Int32) -> JKAMP.BgEntity? {
     var ent: BgEntity?
 
     // Raven guards a NULL `pm` here.
@@ -158,7 +158,7 @@ func PM_BGEntForNum(_ num: Int32) -> JKAMP.BgEntity? {
 }
 
 /// Source: oracle/codemp/game/bg_pmove.c:201
-func BG_SabersOff(_ ps: JKAMP.PlayerState) -> Bool {
+public func BG_SabersOff(_ ps: JKAMP.PlayerState) -> Bool {
     if ps.saberHolstered == 0 {
         return false
     }
@@ -172,7 +172,7 @@ func BG_SabersOff(_ ps: JKAMP.PlayerState) -> Bool {
 }
 
 /// Source: oracle/codemp/game/bg_pmove.c:218
-func BG_KnockDownable(_ ps: JKAMP.PlayerState) -> Bool {
+public func BG_KnockDownable(_ ps: JKAMP.PlayerState) -> Bool {
     // Port-note: Raven's `if (!ps)` safety check has no Swift form, because the signature takes a non-optional `PlayerState`.
     if ps.m_iVehicleNum != 0 {
         //riding a vehicle, don't knock me down
@@ -581,7 +581,7 @@ func BG_ExternThisSoICanRecompileInDebug(_ pVeh: JKAMP.Vehicle, _ riderPS: JKAMP
 }
 
 /// Source: oracle/codemp/game/bg_pmove.c:676
-func BG_VehicleTurnRateForSpeed(_ pVeh: JKAMP.Vehicle, _ speed: Float, _ mPitchOverride: inout Float, _ mYawOverride: inout Float) {
+public func BG_VehicleTurnRateForSpeed(_ pVeh: JKAMP.Vehicle, _ speed: Float, _ mPitchOverride: inout Float, _ mYawOverride: inout Float) {
     // Port-note: Raven guards a NULL `pVeh` here. The view is non-optional, so that half of the guard has no Swift form.
     if let m_pVehicleInfo = pVeh.m_pVehicleInfo {
         var speedFrac: Float = 1.0
@@ -4339,7 +4339,7 @@ func PM_SwimmingAnim(_ anim: Int32) -> Bool {
 }
 
 /// Source: oracle/codemp/game/bg_pmove.c:4635
-func PM_RollingAnim(_ anim: Int32) -> Bool {
+public func PM_RollingAnim(_ anim: Int32) -> Bool {
     switch anim {
     case BOTH_ROLL_F, //# Roll forward
          BOTH_ROLL_B, //# Roll backward
@@ -5218,7 +5218,7 @@ private func PM_WaterEvents() {
 }
 
 /// Source: oracle/codemp/game/bg_pmove.c:5750
-func BG_ClearRocketLock(_ ps: JKAMP.PlayerState) {
+public func BG_ClearRocketLock(_ ps: JKAMP.PlayerState) {
     // Port-note: Raven's `if (ps)` guard has no Swift form, because the signature takes a non-optional `PlayerState`.
     ps.rocketLockIndex = ENTITYNUM_NONE
     ps.rocketLastValidTime = 0
@@ -5298,7 +5298,7 @@ func PM_FinishWeaponChange() {
 private let MAX_XHAIR_DIST_ACCURACY = 20000.0 as Float
 
 /// Source: oracle/codemp/game/bg_pmove.c:5833
-func BG_VehTraceFromCamPos(_ camTrace: JKAMP.Trace, _ bgEnt: JKAMP.BgEntity, _ entOrg: JKAShared.vec3_t, _ shotStart: JKAShared.vec3_t, _ end: JKAShared.vec3_t, _ newEnd: inout JKAShared.vec3_t, _ shotDir: inout JKAShared.vec3_t, _ bestDist: Float) -> Int32 {
+public func BG_VehTraceFromCamPos(_ camTrace: JKAMP.Trace, _ bgEnt: JKAMP.BgEntity, _ entOrg: JKAShared.vec3_t, _ shotStart: JKAShared.vec3_t, _ end: JKAShared.vec3_t, _ newEnd: inout JKAShared.vec3_t, _ shotDir: inout JKAShared.vec3_t, _ bestDist: Float) -> Int32 {
     //NOTE: this MUST stay up to date with the method used in CG_ScanForCrosshairEntity (where it checks the doExtraVehTraceFromViewPos bool)
     var viewDir2End = vec3_t()
     var extraEnd = vec3_t()
@@ -6815,7 +6815,7 @@ private func PM_DropTimers() {
 }
 
 /// Source: oracle/codemp/game/bg_pmove.c:7784
-func BG_UnrestrainedPitchRoll(_ ps: JKAMP.PlayerState, _ pVeh: JKAMP.Vehicle) -> Bool {
+public func BG_UnrestrainedPitchRoll(_ ps: JKAMP.PlayerState, _ pVeh: JKAMP.Vehicle) -> Bool {
     // Port-note: Raven guards a NULL `pVeh` here. The view is non-optional, so that half of the guard has no Swift form.
     if bg_fighterAltControl.integer != 0
         && ps.clientNum < MAX_CLIENTS //real client
@@ -7291,7 +7291,7 @@ func BG_InRollAnim(_ cent: JKAMP.EntityState) -> Bool {
 }
 
 /// Source: oracle/codemp/game/bg_pmove.c:8525
-func BG_InKnockDown(_ anim: Int32) -> Bool {
+public func BG_InKnockDown(_ anim: Int32) -> Bool {
     switch (anim) {
     case BOTH_KNOCKDOWN1,
          BOTH_KNOCKDOWN2,
@@ -7341,7 +7341,7 @@ func BG_InRollES(_ ps: JKAMP.EntityState, _ anim: Int32) -> Bool {
 }
 
 /// Source: oracle/codemp/game/bg_pmove.c:8576
-func BG_IK_MoveArm(_ ghoul2: OpaquePointer?, _ lHandBolt: Int32, _ time: Int32, _ ent: JKAMP.EntityState, _ basePose: Int32, _ desiredPos: inout JKAShared.vec3_t, _ ikInProgress: inout Bool, _ origin: inout JKAShared.vec3_t, _ angles: inout JKAShared.vec3_t, _ scale: inout JKAShared.vec3_t, _ blendTime: Int32, _ forceHalt: Bool) {
+public func BG_IK_MoveArm(_ ghoul2: OpaquePointer?, _ lHandBolt: Int32, _ time: Int32, _ ent: JKAMP.EntityState, _ basePose: Int32, _ desiredPos: inout JKAShared.vec3_t, _ ikInProgress: inout Bool, _ origin: inout JKAShared.vec3_t, _ angles: inout JKAShared.vec3_t, _ scale: inout JKAShared.vec3_t, _ blendTime: Int32, _ forceHalt: Bool) {
     // Raven's record lives to the end of his block, so the block is the closure.
     // The closure gives true where Raven returns from the function.
     let earlyOut = MdxaBone.scratch { lHandMatrix -> Bool in
@@ -7787,7 +7787,7 @@ func BG_InRoll2(_ es: JKAMP.EntityState) -> Bool {
 }
 
 /// Source: oracle/codemp/game/bg_pmove.c:9082
-func BG_G2PlayerAngles(_ ghoul2: OpaquePointer?, _ motionBolt: Int32, _ cent: JKAMP.EntityState, _ time: Int32, _ cent_lerpOrigin: inout JKAShared.vec3_t, _ cent_lerpAngles: inout JKAShared.vec3_t, _ legs: inout [JKAShared.vec3_t], _ legsAngles: inout JKAShared.vec3_t, _ tYawing: inout Bool, _ tPitching: inout Bool, _ lYawing: inout Bool, _ tYawAngle: inout Float, _ tPitchAngle: inout Float, _ lYawAngle: inout Float, _ frametime: Int32, _ turAngles: inout JKAShared.vec3_t, _ modelScale: inout JKAShared.vec3_t, _ ciLegs: Int32, _ ciTorso: Int32, _ corrTime: inout Int32, _ lookAngles: inout JKAShared.vec3_t, _ lastHeadAngles: inout JKAShared.vec3_t, _ lookTime: Int32, _ emplaced: JKAMP.EntityState, _ crazySmoothFactor: inout Int32) {
+public func BG_G2PlayerAngles(_ ghoul2: OpaquePointer?, _ motionBolt: Int32, _ cent: JKAMP.EntityState, _ time: Int32, _ cent_lerpOrigin: inout JKAShared.vec3_t, _ cent_lerpAngles: inout JKAShared.vec3_t, _ legs: inout [JKAShared.vec3_t], _ legsAngles: inout JKAShared.vec3_t, _ tYawing: inout Bool, _ tPitching: inout Bool, _ lYawing: inout Bool, _ tYawAngle: inout Float, _ tPitchAngle: inout Float, _ lYawAngle: inout Float, _ frametime: Int32, _ turAngles: inout JKAShared.vec3_t, _ modelScale: inout JKAShared.vec3_t, _ ciLegs: Int32, _ ciTorso: Int32, _ corrTime: inout Int32, _ lookAngles: inout JKAShared.vec3_t, _ lastHeadAngles: inout JKAShared.vec3_t, _ lookTime: Int32, _ emplaced: JKAMP.EntityState, _ crazySmoothFactor: inout Int32) {
     var adddir: Int32 = 0
     var degrees_negative: Float = 0
     var degrees_positive: Float = 0
@@ -8117,7 +8117,7 @@ func BG_G2PlayerAngles(_ ghoul2: OpaquePointer?, _ motionBolt: Int32, _ cent: JK
 }
 
 /// Source: oracle/codemp/game/bg_pmove.c:9459
-func BG_G2ATSTAngles(_ ghoul2: OpaquePointer?, _ time: Int32, _ cent_lerpAngles: inout JKAShared.vec3_t) {
+public func BG_G2ATSTAngles(_ ghoul2: OpaquePointer?, _ time: Int32, _ cent_lerpAngles: inout JKAShared.vec3_t) {
     //																							up			right		fwd
     strap_G2API_SetBoneAngles(ghoul2, 0, "thoracic", cent_lerpAngles, BONE_ANGLES_POSTMULT, POSITIVE_X, NEGATIVE_Y, NEGATIVE_Z, nil, 0, time)
 }
@@ -9424,7 +9424,7 @@ Can be called by either the server or the client
 ```
 */
 /// Source: oracle/codemp/game/bg_pmove.c:11167
-func Pmove(_ pmove: JKAMP.Pmove) {
+public func Pmove(_ pmove: JKAMP.Pmove) {
     let finalTime: Int32
     let ps = pmove.ps
     finalTime = pmove.cmd.serverTime

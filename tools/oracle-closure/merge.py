@@ -138,7 +138,9 @@ def read_header(module: str, tree: str, root: Path, path: Path) -> Header:
 
 
 def split_macros(text: str) -> list[tuple[str, str, str]]:
-    """A constants file is a sequence of `// Source:` lines, each followed by one macro, possibly continued with backslashes."""
+    """A constants file is a sequence of `// Source:` lines, each followed by one macro, possibly continued with backslashes.
+    A .c file's constants file also holds the enums that file declares for itself. An enum runs to its closing brace, blank lines
+    inside it included, and its name is `enum` and its first enumerator, so it never matches a macro or a type of the tree."""
     out = []
     lines = text.splitlines()
     i = 0
@@ -147,6 +149,22 @@ def split_macros(text: str) -> list[tuple[str, str, str]]:
             source = lines[i]
             j = i + 1
             block = []
+            code = next((line for line in lines[j:] if line.strip() and not line.strip().startswith("//")), "")
+            if re.match(r"\s*(typedef\s+)?enum\b", code):
+                depth = 0
+                opened = False
+                while j < len(lines):
+                    block.append(lines[j])
+                    stripped = strip_comments(lines[j])
+                    depth += stripped.count("{") - stripped.count("}")
+                    opened = opened or "{" in stripped
+                    j += 1
+                    if opened and depth == 0 and ";" in stripped:
+                        break
+                first = re.search(r"\{\s*([A-Za-z_]\w*)", strip_comments("\n".join(block)))
+                out.append((f"enum {first.group(1) if first else source}", source, "\n".join(block)))
+                i = j
+                continue
             while j < len(lines) and lines[j].strip():
                 block.append(lines[j])
                 j += 1

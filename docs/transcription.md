@@ -78,7 +78,9 @@ A shape rule is code in `table.py`.
 A function or parameter whose C type alone does not say its Swift shape has an entry in one of the `rulings.py` tables.
 
 A struct a header declares that no root reaches joins `ROOTS` in `rulings.py`, so it gets a view.
-A struct or an enum Raven defines inside a `.c` file has its definition copied as Raven wrote it, with a `// Source:` cite, into a hand header the target's umbrella includes.
+A struct Raven defines inside a `.c` file has its definition copied as Raven wrote it, with a `// Source:` cite, into a hand header the target's umbrella includes.
+An enum Raven declares inside a `.c` file goes to the constants header of that `.c` file through `extract.py`, and `reexport.py` emits its enumerators.
+The enum stays in its `.c` file when a header, a hand header, or a `.c` macro names one of its names, or when another `.c` file declares one of them in a different enum, such as `LSTATE_NONE` of the NPC_AI files.
 `Sources/CJKAMP_Game/include/g_types.h` is this hand header for the game target, so a view can bind over the struct.
 
 | Raven | Swift |
@@ -135,6 +137,7 @@ A trap no file of the module calls, such as `trap_UnifyWhiteSpaces` and `trap_AA
 A raw block the engine keeps, such as `trap_SV_RegisterSharedMemory`, has a PARAMS entry `raw` and is `UnsafeMutableRawPointer`.
 A trap's `void *` parameter is an `OpaquePointer?`, and it gains a second overload that takes `inout CharBuf` when Raven's own callers fill it with a `char buf[N]`.
 The overload hands the engine the buffer's base inside the generated file, so a body writes `trap_FS_Read(&BGPAFtext, len, f)` and a caller that holds a raw allocation keeps the first overload.
+A `NIL_OVERLOADS` entry of `rulings.py` gives a trap a second overload that takes the named view as optional, so `trap_Cvar_Register` registers the three NULL rows of `gameCvarTable`.
 
 A record's `char name[N]` field that Raven passes as a write target to a non-const `char *` parameter crosses as an `inout CharBuf` the same way.
 `views.py` writes a second accessor named `nameBuffer` beside the field's `String`, a `CharBuf` var whose getter copies the field's bytes out and whose setter puts them back, so a body writes `BG_SiegeGetPairedValue(&classInfo, "description", &descBuffer!.descBuffer)`.
@@ -225,6 +228,7 @@ A literal Raven wrote with `f` is a `Float`, and one without is a `Double`, C's 
 A macro over the same file's names is a `let` over them, `let MAX_DISTANCE_SQR = (MAX_DISTANCE * MAX_DISTANCE)`.
 A macro whose text is not a constant over the file's names, such as `SLOPERECALCVAR` over `pm->ps`, has an entry that says so, and a body spells the expansion at the site with Raven's name in a one-line comment at the first use.
 A macro that aliases a keyword, `#define true qtrue`, writes nothing, and a name in `HAND_MACROS` of `rulings.py`, `MAX_POOL_SIZE`, is a hand value of the state object.
+The compiler's `__DATE__` is a `HAND_MACROS` name too, and a body writes `buildDate`, a hand string constant of `JKAMP_GameLogic`, because Swift has no compile-time date.
 An alias of one name, `#define legsAnimTimer legsTimer`, is a file-private declaration of the stub under Raven's name, so a body writes the alias as he wrote it: a `fileprivate` accessor in an extension on the view that owns a field, a private forwarding function for a function, and nothing for `bool`, where a body writes `Bool`.
 Where the module declares the alias's name too, `Q_flrand` beside `flrand`, Swift takes no second declaration, so the entry says a body writes the target's name.
 The reexport carries the header macros and the enums, never a `.c` file's macros.
@@ -300,6 +304,7 @@ The slot is a stack local of the `scratch` frame, zero at entry where Raven's wa
 A `return` inside Raven's block is the closure's value, and the body acts on that value after the closure.
 The closure returns a value read from the slot, never the view itself, because the slot is gone when `scratch` returns.
 Two records in one scope nest two closures.
+A record local before a `goto` label opens its closure around the labeled block and every statement after the label, so all of them see the locals, unless a `goto` comes before the record.
 A copy of another slot, `usercmd_t cmd = pm->cmd;`, is the `copying` form: `Usercmd.scratch(copying: pm.cmd) { cmd in ... }`.
 Every view carries both forms, written by `views.py`.
 
@@ -345,9 +350,15 @@ var rng = Rng()
 `tools/oracle-closure/tables.py` writes that file from one piece per table, each naming the oracle file and the first and last line of Raven's text, and it copies those bytes as they stand.
 The header `Sources/CJKAMP/include/bg_tables.h` stays hand work, and it declares each array with a written bound, because the Swift importer drops an array of unknown bound, and clang checks the bound against the initializer.
 Every other struct-typed table with Raven's data, such as `fields[]` of `g_spawn.c`, is C storage the same way, and its stub entry says so.
+A table of records that hold the address of a function or of a struct is not C storage, because C storage cannot hold the address of a Swift function or of a `GameStorage` record.
+Such a table is a hand array of `<View>Row` values on `GameWorld`, with Raven's rows in his order, and the stub forwards it under Raven's name.
+`spawns` of `g_spawn.c` is the hand `let spawns: [SpawnRow]`, one row per Raven name with a closure that calls the spawn function of that name, and the array's count takes the place of his `{0, 0}` row.
+`gameCvarTable` of `g_main.c` is the hand `var gameCvarTable: [CvarTableRow]` of 140 rows under the build defines of `closure.py`, and `gameCvarTableSize` is its count.
+Each cvar row holds a key path into `GameStorage` for the cvar, or nil for Raven's NULL, and G_RegisterCvars and G_UpdateCvars write its `modificationCount`.
 A table of `vec3_t` with Raven's data, `WP_MuzzlePoint` of `bg_weapons.c`, is C storage the same way, and `BgTables.swift` reaches it as a `Slots<JKAShared.vec3_t>` over the C array, with the 12-byte stride of Raven's `vec3_t`.
 A struct table or record Raven leaves zero, `g_entities`, `level`, `pml`, `g_timerPool`, and every `vmCvar_t` among them, is one zeroed allocation on the generated storage class, `GameStorage` in `Sources/JKAMP_Game/Generated/Storage/GameStorage.swift` or `BgStorage` in `Sources/JKAMP_BG/Generated/BgStorage.swift`, which the state object owns as `storage`.
 An array is a `Slots` of the view with the view's stride, a record is the view over one slot, and the stub forwards the name at Raven's line, `var level: Level { world.storage.level }`.
+A struct record whose initializer is all C's zero, `g_siegePersistant = {qfalse, 0, 0}` of `g_saga.c`, is this storage kind too, and a body reaches it as `world.storage.g_siegePersistant`.
 A struct Raven defines inside a `.c` file with no view yet keeps a marker that names the struct.
 The stub of a `.c` file carries one entry per file-scope variable, above its first function.
 A variable the module never assigns is a typed `let` with a `portMissing` initializer and a `// Raven wrote:` line, and the transcriptor replaces the initializer with Raven's data.
@@ -355,6 +366,7 @@ A variable the module assigns is a stored property of the generated variables st
 The property carries Raven's initializer when it is a number, `qtrue`, `qfalse`, `NULL`, a string, or a name a module exports, and C's zero otherwise, with a `// TODO: Port initializer` line that names the hand line in the state object's `init`.
 The stub forwards it under Raven's name at Raven's line, `var gWPNum: Int32 { get { world.variables.gWPNum } set { world.variables.gWPNum = newValue } }`, so a body writes `gWPNum = 0` as Raven wrote it.
 A name in `NEVER_NULL_VARS` of `rulings.py`, `pm` among them, forwards non-optional and traps on nil with the name, because Raven's callers set it before any body runs.
+A `void *` variable is an engine handle, an `OpaquePointer?` whose `NULL` or `0` initializer is nil, so a body hands `g2SaberInstance` to a Ghoul2 trap by value and `&g2SaberInstance` by address.
 A variable the module assigns and Raven gives a data initializer, a brace list, is a hand property of the state object with Raven's data, and the stub forwards it the same way.
 A name in `HAND_VARS` of `rulings.py` keeps its hand storage, `bg_pool` as `bg.pool`, and its stub entry says so.
 A C character array at file scope is a `CharBuf` of Raven's bound.

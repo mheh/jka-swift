@@ -37,7 +37,7 @@ func BG_SoundIndex(_ sound: String) -> Int32 {
 
 //Also used in npc code
 /// Source: oracle/codemp/game/bg_saberLoad.c:129
-func BG_ParseLiteral(_ data: inout JKAShared.TextCursor, _ string: String) -> Bool {
+public func BG_ParseLiteral(_ data: inout JKAShared.TextCursor, _ string: String) -> Bool {
     let token: String
 
     token = COM_ParseExt(&data, true)
@@ -55,7 +55,7 @@ func BG_ParseLiteral(_ data: inout JKAShared.TextCursor, _ string: String) -> Bo
 }
 
 /// Source: oracle/codemp/game/bg_saberLoad.c:149
-func TranslateSaberColor(_ name: String) -> JKAMP.saber_colors_t {
+public func TranslateSaberColor(_ name: String) -> JKAMP.saber_colors_t {
     if Q_stricmp(name, "red") == 0 {
         return SABER_RED
     }
@@ -107,7 +107,7 @@ func TranslateSaberStyle(_ name: String) -> JKAShared.saber_styles_t {
 }
 
 /// Source: oracle/codemp/game/bg_saberLoad.c:215
-func WP_SaberBladeUseSecondBladeStyle(_ saber: JKAMP.SaberInfo, _ bladeNum: Int32) -> Bool {
+public func WP_SaberBladeUseSecondBladeStyle(_ saber: JKAMP.SaberInfo, _ bladeNum: Int32) -> Bool {
     // Raven's NULL test on saber has no form here, and the arm it guards is gone.
     if saber.bladeStyle2Start > 0 {
         if bladeNum >= saber.bladeStyle2Start {
@@ -118,7 +118,7 @@ func WP_SaberBladeUseSecondBladeStyle(_ saber: JKAMP.SaberInfo, _ bladeNum: Int3
 }
 
 /// Source: oracle/codemp/game/bg_saberLoad.c:230
-func WP_SaberBladeDoTransitionDamage(_ saber: JKAMP.SaberInfo, _ bladeNum: Int32) -> Bool {
+public func WP_SaberBladeDoTransitionDamage(_ saber: JKAMP.SaberInfo, _ bladeNum: Int32) -> Bool {
     if !WP_SaberBladeUseSecondBladeStyle(saber, bladeNum) && (saber.saberFlags2 & SFL2_TRANSITION_DAMAGE) != 0 {
         //use first blade style for this blade
         return true
@@ -130,7 +130,7 @@ func WP_SaberBladeDoTransitionDamage(_ saber: JKAMP.SaberInfo, _ bladeNum: Int32
 }
 
 /// Source: oracle/codemp/game/bg_saberLoad.c:245
-func WP_UseFirstValidSaberStyle(_ saber1: JKAMP.SaberInfo, _ saber2: JKAMP.SaberInfo, _ saberHolstered: Int32, _ saberAnimLevel: inout Int32) -> Bool {
+public func WP_UseFirstValidSaberStyle(_ saber1: JKAMP.SaberInfo, _ saber2: JKAMP.SaberInfo, _ saberHolstered: Int32, _ saberAnimLevel: inout Int32) -> Bool {
     var styleInvalid: Bool = false
     var saber1Active: Bool
     var saber2Active: Bool
@@ -225,7 +225,7 @@ func WP_UseFirstValidSaberStyle(_ saber1: JKAMP.SaberInfo, _ saber2: JKAMP.Saber
 }
 
 /// Source: oracle/codemp/game/bg_saberLoad.c:353
-func WP_SaberStyleValidForSaber(_ saber1: JKAMP.SaberInfo, _ saber2: JKAMP.SaberInfo, _ saberHolstered: Int32, _ saberAnimLevel: Int32) -> Bool {
+public func WP_SaberStyleValidForSaber(_ saber1: JKAMP.SaberInfo, _ saber2: JKAMP.SaberInfo, _ saberHolstered: Int32, _ saberAnimLevel: Int32) -> Bool {
     var saber1Active: Bool
     var saber2Active: Bool
     var dualSabers: Bool = false
@@ -319,7 +319,7 @@ func WP_SaberStyleValidForSaber(_ saber1: JKAMP.SaberInfo, _ saber2: JKAMP.Saber
 }
 
 /// Source: oracle/codemp/game/bg_saberLoad.c:466
-func WP_SaberCanTurnOffSomeBlades(_ saber: JKAMP.SaberInfo) -> Bool {
+public func WP_SaberCanTurnOffSomeBlades(_ saber: JKAMP.SaberInfo) -> Bool {
     if saber.bladeStyle2Start > 0 && saber.numBlades > saber.bladeStyle2Start {
         if (saber.saberFlags2 & SFL2_NO_MANUAL_DEACTIVATE) != 0 && (saber.saberFlags2 & SFL2_NO_MANUAL_DEACTIVATE2) != 0 {
             //all blades are always on
@@ -464,7 +464,7 @@ func WP_SaberSetDefaults(_ saber: JKAMP.SaberInfo) {
 }
 
 /// Source: oracle/codemp/game/bg_saberLoad.c:617
-func WP_SaberParseParms(_ SaberName: String, _ saber: JKAMP.SaberInfo) -> Bool {
+public func WP_SaberParseParms(_ SaberName: String, _ saber: JKAMP.SaberInfo) -> Bool {
     var token: String
     var value: String = ""
     var p = TextCursor()
@@ -2081,7 +2081,7 @@ func WP_SaberValidForPlayerInMP(_ saberName: String) -> Bool {
 }
 
 /// Source: oracle/codemp/game/bg_saberLoad.c:2664
-func WP_RemoveSaber(_ sabers: Slots<JKAMP.SaberInfo>, _ saberNum: Int32) {
+public func WP_RemoveSaber(_ sabers: Slots<JKAMP.SaberInfo>, _ saberNum: Int32) {
     // Raven assigns his own `sabers` parameter. A Swift parameter is immutable, so the body takes a mutable copy of it.
     var sabers = sabers
     // Raven's NULL test on sabers has no form here, and the arm it guards is gone.
@@ -2110,7 +2110,7 @@ func WP_RemoveSaber(_ sabers: Slots<JKAMP.SaberInfo>, _ saberNum: Int32) {
 }
 
 /// Source: oracle/codemp/game/bg_saberLoad.c:2690
-func WP_SetSaber(_ entNum: Int32, _ sabers: Slots<JKAMP.SaberInfo>, _ saberNum: Int32, _ saberName: String) {
+public func WP_SetSaber(_ entNum: Int32, _ sabers: Slots<JKAMP.SaberInfo>, _ saberNum: Int32, _ saberName: String) {
     // Raven assigns his own `sabers` parameter. A Swift parameter is immutable, so the body takes a mutable copy of it.
     var sabers = sabers
     // Raven's NULL test on sabers has no form here, and the arm it guards is gone.
@@ -2154,7 +2154,7 @@ func WP_SaberSetColor(_ sabers: Slots<JKAMP.SaberInfo>, _ saberNum: Int32, _ bla
 }
 
 /// Source: oracle/codemp/game/bg_saberLoad.c:2738
-func WP_SaberLoadParms() {
+public func WP_SaberLoadParms() {
     var len: Int32
     var totallen: Int32
     var saberExtFNLen: Int32

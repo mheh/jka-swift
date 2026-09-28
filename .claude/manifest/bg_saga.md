@@ -36,7 +36,7 @@ The oracle range is the whole definition, from the return type to the closing br
 | `siege_valid` | `oracle/codemp/game/bg_saga.c:33` | state | `}` |
 | `team1Theme` | `oracle/codemp/game/bg_saga.c:35` | state | `}` |
 | `team2Theme` | `oracle/codemp/game/bg_saga.c:36` | state | `}` |
-| `bgSiegeClasses` | `oracle/codemp/game/bg_saga.c:38` | storage | `var bgSiegeClasses: Slots<JKAMP.SiegeClass> { bg.storage.bgSiegeClasses }` |
+| `bgSiegeClasses` | `oracle/codemp/game/bg_saga.c:38` | storage | `public var bgSiegeClasses: Slots<JKAMP.SiegeClass> { bg.storage.bgSiegeClasses }` |
 | `bgNumSiegeClasses` | `oracle/codemp/game/bg_saga.c:39` | state | `}` |
 | `bgSiegeTeams` | `oracle/codemp/game/bg_saga.c:41` | storage | `var bgSiegeTeams: Slots<JKAMP.SiegeTeam> { bg.storage.bgSiegeTeams }` |
 | `bgNumSiegeTeams` | `oracle/codemp/game/bg_saga.c:42` | state | `}` |

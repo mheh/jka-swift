@@ -1,6 +1,7 @@
 import JKAMP
 import JKAShared
 import JKAMP_Game
+import JKAMP_BG
 
 /// Source: oracle/codemp/game/g_main.c:9
 var level: Level { world.storage.level }
@@ -456,9 +457,15 @@ var g_powerDuelEndHealth: JKAMP.VmCvar { world.storage.g_powerDuelEndHealth }
 var g_showDuelHealths: JKAMP.VmCvar { world.storage.g_showDuelHealths }
 
 /// Source: oracle/codemp/game/g_main.c:230
-// TODO: Port global gameCvarTable
-// Raven wrote: static cvarTable_t gameCvarTable[]
-// No view for `cvarTable_t`, a struct Raven defines inside a .c file.
+/// Raven's data table, a hand property of `GameWorld`.
+var gameCvarTable: [CvarTableRow] {
+    get { world.gameCvarTable }
+    set { world.gameCvarTable = newValue }
+}
+
+/// Source: oracle/codemp/game/g_main.c:478
+/// Raven's count of `gameCvarTable`, which is the count of the hand array.
+var gameCvarTableSize: Int32 { Int32(world.gameCvarTable.count) }
 
 /// Source: oracle/codemp/game/g_main.c:881
 var gSharedBuffer: JKAShared.CharBuf {

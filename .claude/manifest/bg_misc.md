@@ -53,12 +53,12 @@ The oracle range is the whole definition, from the return type to the closing br
 | `forceMasteryPoints` | `oracle/codemp/game/bg_misc.c:162` | let | `let forceMasteryPoints: [Int32] = { () -> [Int32] in portMissing("forceMasteryPoints", source: "oracle/codemp/game/bg_misc.c:162") }()` |
 | `bgForcePowerCost` | `oracle/codemp/game/bg_misc.c:174` | let | `let bgForcePowerCost: [[Int32]] = { () -> [[Int32]] in portMissing("bgForcePowerCost", source: "oracle/codemp/game/bg_misc.c:174") }()` |
 | `forcePowerSorted` | `oracle/codemp/game/bg_misc.c:197` | let | `let forcePowerSorted: [Int32] = { () -> [Int32] in portMissing("forcePowerSorted", source: "oracle/codemp/game/bg_misc.c:197") }()` |
-| `forcePowerDarkLight` | `oracle/codemp/game/bg_misc.c:219` | let | `let forcePowerDarkLight: [Int32] = { () -> [Int32] in portMissing("forcePowerDarkLight", source: "oracle/codemp/game/bg_misc.c:219") }()` |
+| `forcePowerDarkLight` | `oracle/codemp/game/bg_misc.c:219` | let | `public let forcePowerDarkLight: [Int32] = { () -> [Int32] in portMissing("forcePowerDarkLight", source: "oracle/codemp/game/bg_misc.c:219") }()` |
 | `WeaponReadyAnim` | `oracle/codemp/game/bg_misc.c:242` | state_data | `}` |
 | `WeaponReadyLegsAnim` | `oracle/codemp/game/bg_misc.c:268` | state_data | `}` |
 | `WeaponAttackAnim` | `oracle/codemp/game/bg_misc.c:294` | state_data | `}` |
 | `bg_itemlist` | `oracle/codemp/game/bg_misc.c:795` | storage_data | `// Raven's data table is C storage in the C target, with his initializer as written, reached as a Slots over the C array, the bg_tables.c shape that tables.py writes.` |
-| `bg_numItems` | `oracle/codemp/game/bg_misc.c:1771` | let | `let bg_numItems: Int32 = { () -> Int32 in portMissing("bg_numItems", source: "oracle/codemp/game/bg_misc.c:1771") }()` |
+| `bg_numItems` | `oracle/codemp/game/bg_misc.c:1771` | let | `public let bg_numItems: Int32 = { () -> Int32 in portMissing("bg_numItems", source: "oracle/codemp/game/bg_misc.c:1771") }()` |
 | `eventnames` | `oracle/codemp/game/bg_misc.c:2464` | let | `let eventnames: [String] = { () -> [String] in portMissing("eventnames", source: "oracle/codemp/game/bg_misc.c:2464") }()` |
 | `bg_pool` | `oracle/codemp/game/bg_misc.c:3324` | hand | `// A hand property of the state object, `bg.pool`, by the HAND_VARS ruling.` |
 | `bg_poolSize` | `oracle/codemp/game/bg_misc.c:3325` | state | `}` |

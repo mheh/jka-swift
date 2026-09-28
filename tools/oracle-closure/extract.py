@@ -9,7 +9,7 @@ Inactive #if branches inside a slice are removed with the same macro set the par
 
 Output, flat in one directory:
   <TypeName>.h              one file per struct, union, enum, or typedef, named by the typedef where one exists
-  constants_<header>.h      the object-like macros of one Raven header, in Raven's order, and of one Raven .c file for the macros it defines for itself
+  constants_<header>.h      the object-like macros of one Raven header, in Raven's order, and of one Raven .c file for the macros and enums it defines for itself
   forward.h                 forward declarations and the typedefs that name a struct tag, so pointer fields never need an include
   all.h                     includes everything
   layout_asserts.h          sizeof and offsetof asserts for every record, the oracle's numbers
@@ -41,6 +41,7 @@ from pathlib import Path
 
 sys.path.insert(0, str(Path(__file__).resolve().parent))
 import closure as C
+from rulings import HAND_FILES
 from clang.cindex import CursorKind, TypeKind
 
 REPO = C.REPO
@@ -102,6 +103,29 @@ def macro_table(tu) -> dict[str, str | None]:
         tokens = [t.spelling for t in cur.get_tokens()]
         table[cur.spelling] = tokens[1] if len(tokens) == 2 else None
     return table
+
+
+def enumerators_of(cur) -> list[str]:
+    """The enumerator names of an enum definition, read from its tokens.
+    The unity parse gives a second enum of one name in a later .c file no constants, so the cursor's children do not serve."""
+    names: list[str] = []
+    braces = 0
+    parens = 0
+    expect = False
+    for token in (t.spelling for t in cur.get_tokens()):
+        if token == "{":
+            braces += 1
+            expect = braces == 1
+        elif token == "}":
+            braces -= 1
+        elif braces == 1 and token in ("(", ")"):
+            parens += 1 if token == "(" else -1
+        elif braces == 1 and parens == 0 and token == ",":
+            expect = True
+        elif braces == 1 and expect and re.fullmatch(r"[A-Za-z_]\w*", token):
+            names.append(token)
+            expect = False
+    return names
 
 
 def is_function_like(tokens) -> bool:
@@ -224,7 +248,8 @@ class Decl:
 
     @property
     def filename(self) -> str:
-        if self.kind == "macro":
+        # A .c file's own enum stands beside its own macros, in the constants file of that .c file.
+        if self.kind in ("macro", "c_enum"):
             return f"{self.reldir}/constants.h"
         if self.name:
             return f"{self.reldir}/{self.name}.h"
@@ -353,6 +378,23 @@ def sweep(tu) -> list[Decl]:
             DROPPED.append(f"{d.cite} {d.kind} {d.name or '(anonymous)'}: parse error at line {min(hit)}, {hit[min(hit)]}")
         else:
             clean.append(d)
+    # A declaration that names a name of a dropped one is dropped too, because its copy would name something no header declares.
+    # interpreter.h opens its ID_* enum at NUM_USER_TOKENS, an enumerator of the enum the parse could not read.
+    gone = {d.name for d in kept if d not in clean and d.name}
+    gone |= {c.spelling for d in kept if d not in clean for c in d.cur.get_children() if c.kind == CursorKind.ENUM_CONSTANT_DECL}
+    changed = True
+    while changed:
+        changed = False
+        for d in list(clean):
+            if d.kind == "macro":
+                continue
+            used = {t.spelling for t in d.cur.get_tokens()} & gone
+            if used:
+                clean.remove(d)
+                DROPPED.append(f"{d.cite} {d.kind} {d.name or '(anonymous)'}: names {', '.join(sorted(used))} of a dropped declaration")
+                gone |= {d.name} if d.name else set()
+                gone |= {c.spelling for c in d.cur.get_children() if c.kind == CursorKind.ENUM_CONSTANT_DECL}
+                changed = True
     kept = clean
 
     # `typedef struct X {...} X, *LPX;` declares two names in one statement. The first keeps the file, and the second aliases to it.
@@ -855,9 +897,18 @@ def emit(module: str, out_dir: Path, check: bool, triples: list[str]) -> int:
             if decl.kind != "macro":
                 header_identifiers |= set(re.findall(r"\b[A-Za-z_]\w*\b", slice_text(decl, resolver)))
         c_macros: dict[str, list[Decl]] = defaultdict(list)
+        c_enums: list[Decl] = []
         for cur in unity.cursor.get_children():
             loc = cur.location.file
-            if cur.kind != CursorKind.MACRO_DEFINITION or not in_oracle(loc and loc.name) or not loc.name.endswith(".c"):
+            if not in_oracle(loc and loc.name) or not loc.name.endswith(".c"):
+                continue
+            if cur.kind == CursorKind.ENUM_DECL and cur.is_definition():
+                names = enumerators_of(cur)
+                if names:
+                    tag = "" if cur.is_anonymous() or "(" in cur.spelling else cur.spelling
+                    c_enums.append(Decl(cur, "c_enum", tag or f"enum {names[0]}"))
+                continue
+            if cur.kind != CursorKind.MACRO_DEFINITION:
                 continue
             tokens = list(cur.get_tokens())
             if cur.spelling in MACRO_SKIP or cur.spelling.startswith("__") or len(tokens) < 2 or is_function_like(tokens) or cur.spelling in macro_names:
@@ -885,11 +936,45 @@ def emit(module: str, out_dir: Path, check: bool, triples: list[str]) -> int:
                 c_macros[file] = kept
             else:
                 del c_macros[file]
+        # An enum a .c file declares for itself, such as TAUNT_* in g_active.c, joins that file's macros, placed the same way.
+        # It stays in its .c file when a header or a hand header of a C target names one of its names, or when a .c macro has one,
+        # because the umbrella would then declare the name twice. The same holds for a name two .c files declare in two different
+        # enums, as the NPC_AI files do with LSTATE_NONE. An enum two files declare alike is copied once.
+        hand_identifiers: set[str] = set()
+        for target, paths in HAND_FILES.items():
+            for rel in paths:
+                path = C.REPO / "Sources" / target / rel
+                if path.exists():
+                    hand_identifiers |= set(re.findall(r"\b[A-Za-z_]\w*\b", strip_comments(path.read_text())))
+        kept_macro_names = {decl.name for macros in c_macros.values() for decl in macros}
+        enum_names = {id(decl): enumerators_of(decl.cur) + ([decl.name] if not decl.name.startswith("enum ") else []) for decl in c_enums}
+        enum_texts: dict[str, set[str]] = defaultdict(set)
+        for decl in c_enums:
+            text = " ".join(t.spelling for t in decl.cur.get_tokens())
+            for name in enum_names[id(decl)]:
+                enum_texts[name].add(text)
+        copied_enums: set[str] = set()
+        for decl in c_enums:
+            names = enum_names[id(decl)]
+            text = " ".join(t.spelling for t in decl.cur.get_tokens())
+            named = sorted(n for n in names if n in header_identifiers or n in macro_names)
+            handed = sorted(n for n in names if n in hand_identifiers)
+            clashing = sorted(n for n in names if n in kept_macro_names or len(enum_texts[n]) > 1)
+            if named:
+                NOTES.append(f"{decl.cite} {decl.name if decl.name.startswith('enum ') else 'enum ' + decl.name} stays in its .c file, because a header names {', '.join(named)}")
+            elif handed:
+                NOTES.append(f"{decl.cite} {decl.name if decl.name.startswith('enum ') else 'enum ' + decl.name} stays in its .c file, because a hand header names {', '.join(handed)}")
+            elif clashing:
+                NOTES.append(f"{decl.cite} {decl.name if decl.name.startswith('enum ') else 'enum ' + decl.name} stays in its .c file, because another .c file declares {', '.join(clashing)} differently")
+            elif text not in copied_enums:
+                copied_enums.add(text)
+                c_macros[decl.file].append(decl)
         for macros in c_macros.values():
+            macros.sort(key=lambda decl: decl.start.line)
             body: list[str] = []
             for decl in macros:
                 body += [f"// Source: {decl.cite}", slice_text(decl, unity_resolver), ""]
-                counts[decl.stem]["macro"] += 1
+                counts[decl.stem]["enum" if decl.kind == "c_enum" else "macro"] += 1
             filename = macros[0].filename
             files[filename] = wrap(filename, note, [], body)
             manifest["files"][filename] = {"source": oracle_relative(macros[0].file), "declarations": [d.name for d in macros]}

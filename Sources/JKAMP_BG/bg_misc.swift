@@ -4,14 +4,14 @@ import JKAShared
 
 /// Source: oracle/codemp/game/bg_misc.c:34
 /// Raven's data table, a hand property of `BgState`.
-var bgToggleableSurfaces: [String] {
+public var bgToggleableSurfaces: [String] {
     get { bg.bgToggleableSurfaces }
     set { bg.bgToggleableSurfaces = newValue }
 }
 
 /// Source: oracle/codemp/game/bg_misc.c:113
 /// Raven's data table, a hand property of `BgState`.
-var bg_customSiegeSoundNames: [String] {
+public var bg_customSiegeSoundNames: [String] {
     get { bg.bg_customSiegeSoundNames }
     set { bg.bg_customSiegeSoundNames = newValue }
 }
@@ -78,7 +78,7 @@ let forcePowerSorted: [Int32] = [
 
 /// Raven's `forcePowerDarkLight` of `bg_misc.c`, the side one power belongs to.
 /// Source: oracle/codemp/game/bg_misc.c:219
-let forcePowerDarkLight: [Int32] = [ //0 == neutral
+public let forcePowerDarkLight: [Int32] = [ //0 == neutral
     //nothing should be usable at rank 0..
     FORCE_LIGHTSIDE,//FP_HEAL,//instant
     0,//FP_LEVITATION,//hold/duration
@@ -103,7 +103,7 @@ let forcePowerDarkLight: [Int32] = [ //0 == neutral
 
 /// Source: oracle/codemp/game/bg_misc.c:242
 /// Raven's data table, a hand property of `BgState`.
-var WeaponReadyAnim: [Int32] {
+public var WeaponReadyAnim: [Int32] {
     get { bg.WeaponReadyAnim }
     set { bg.WeaponReadyAnim = newValue }
 }
@@ -148,7 +148,7 @@ in a gentity/centity/whatever the hell you want
 ```
 */
 /// Source: oracle/codemp/game/bg_misc.c:358
-func BG_ParseField(_ l_fields: Slots<JKAMP.BgField>, _ key: String, _ value: String, _ ent: UnsafeMutableRawPointer) {
+public func BG_ParseField(_ l_fields: Slots<JKAMP.BgField>, _ key: String, _ value: String, _ ent: UnsafeMutableRawPointer) {
     var v: Float
     var vec = vec3_t()
 
@@ -217,7 +217,7 @@ force power selection anyway when force powers are disabled on the server.
 // Port-note: Raven leaves `final_Powers` uninitialized, and a short string leaves the tail of it unread.
 // Swift needs a value, so the port starts every entry at 0.
 /// Source: oracle/codemp/game/bg_misc.c:439
-func BG_LegalizedForcePowers(_ powerOut: inout JKAShared.CharBuf, _ maxRank: Int32, _ freeSaber: Bool, _ teamForce: Int32, _ gametype: Int32, _ fpDisabled: Int32) -> Bool {
+public func BG_LegalizedForcePowers(_ powerOut: inout JKAShared.CharBuf, _ maxRank: Int32, _ freeSaber: Bool, _ teamForce: Int32, _ gametype: Int32, _ fpDisabled: Int32) -> Bool {
     var powerBuf = CharBuf(128)
     var readBuf = CharBuf(128)
     var maintainsValidity = true
@@ -477,7 +477,7 @@ func BG_LegalizedForcePowers(_ powerOut: inout JKAShared.CharBuf, _ maxRank: Int
 // Raven's data table is C storage by hand in the C target, with his initializer as written, reached as a Slots over the C array, the bg_tables.c shape.
 
 /// Source: oracle/codemp/game/bg_misc.c:1773
-func vectoyaw(_ vec: JKAShared.vec3_t) -> Float {
+public func vectoyaw(_ vec: JKAShared.vec3_t) -> Float {
     var yaw: Float
 
     if vec[YAW] == 0 && vec[PITCH] == 0 {
@@ -500,7 +500,7 @@ func vectoyaw(_ vec: JKAShared.vec3_t) -> Float {
 }
 
 /// Source: oracle/codemp/game/bg_misc.c:1794
-func BG_HasYsalamiri(_ gametype: Int32, _ ps: JKAMP.PlayerState) -> Bool {
+public func BG_HasYsalamiri(_ gametype: Int32, _ ps: JKAMP.PlayerState) -> Bool {
     if gametype == GT_CTY && (ps.powerups[PW_REDFLAG] != 0 || ps.powerups[PW_BLUEFLAG] != 0) {
         return true
     }
@@ -513,7 +513,7 @@ func BG_HasYsalamiri(_ gametype: Int32, _ ps: JKAMP.PlayerState) -> Bool {
 }
 
 /// Source: oracle/codemp/game/bg_misc.c:1810
-func BG_CanUseFPNow(_ gametype: Int32, _ ps: JKAMP.PlayerState, _ time: Int32, _ power: JKAMP.forcePowers_t) -> Bool {
+public func BG_CanUseFPNow(_ gametype: Int32, _ ps: JKAMP.PlayerState, _ time: Int32, _ power: JKAMP.forcePowers_t) -> Bool {
     if BG_HasYsalamiri(gametype, ps) {
         return false
     }
@@ -573,7 +573,7 @@ BG_FindItemForPowerup
 ```
 */
 /// Source: oracle/codemp/game/bg_misc.c:1881
-func BG_FindItemForPowerup(_ pw: JKAMP.powerup_t) -> JKAMP.Gitem? {
+public func BG_FindItemForPowerup(_ pw: JKAMP.powerup_t) -> JKAMP.Gitem? {
     var i: Int32
 
     i = 0
@@ -596,7 +596,7 @@ BG_FindItemForHoldable
 ```
 */
 /// Source: oracle/codemp/game/bg_misc.c:1901
-func BG_FindItemForHoldable(_ pw: JKAMP.holdable_t) -> JKAMP.Gitem? {
+public func BG_FindItemForHoldable(_ pw: JKAMP.holdable_t) -> JKAMP.Gitem? {
     var i: Int32
 
     i = 0
@@ -644,7 +644,7 @@ BG_FindItemForAmmo
 ```
 */
 /// Source: oracle/codemp/game/bg_misc.c:1941
-func BG_FindItemForAmmo(_ ammo: JKAMP.ammo_t) -> JKAMP.Gitem? {
+public func BG_FindItemForAmmo(_ ammo: JKAMP.ammo_t) -> JKAMP.Gitem? {
     var index: Int32 = 1
     while bg_itemlist[index].classname != nil {
         let it = bg_itemlist[index]
@@ -667,7 +667,7 @@ BG_FindItem
 ```
 */
 /// Source: oracle/codemp/game/bg_misc.c:1960
-func BG_FindItem(_ classname: String) -> JKAMP.Gitem? {
+public func BG_FindItem(_ classname: String) -> JKAMP.Gitem? {
     var index: Int32 = 1
     while let itemClassname = bg_itemlist[index].classname {
         if Q_stricmp(itemClassname.string, classname) == 0 {
@@ -690,7 +690,7 @@ grabbing them easier
 ```
 */
 /// Source: oracle/codemp/game/bg_misc.c:1979
-func BG_PlayerTouchesItem(_ ps: JKAMP.PlayerState, _ item: JKAMP.EntityState, _ atTime: Int32) -> Bool {
+public func BG_PlayerTouchesItem(_ ps: JKAMP.PlayerState, _ item: JKAMP.EntityState, _ atTime: Int32) -> Bool {
     var origin = vec3_t()
 
     BG_EvaluateTrajectory(item.pos, atTime, &origin)
@@ -800,7 +800,7 @@ func BG_CycleForce(_ ps: JKAMP.PlayerState, _ direction: Int32) {
 }
 
 /// Source: oracle/codemp/game/bg_misc.c:2092
-func BG_GetItemIndexByTag(_ tag: Int32, _ type: Int32) -> Int32 {
+public func BG_GetItemIndexByTag(_ tag: Int32, _ type: Int32) -> Int32 {
     //Get the itemlist index from the tag and type
     var i: Int32 = 0
 
@@ -817,7 +817,7 @@ func BG_GetItemIndexByTag(_ tag: Int32, _ type: Int32) -> Int32 {
 
 //yeah..
 /// Source: oracle/codemp/game/bg_misc.c:2111
-func BG_IsItemSelectable(_ ps: JKAMP.PlayerState, _ item: Int32) -> Bool {
+public func BG_IsItemSelectable(_ ps: JKAMP.PlayerState, _ item: Int32) -> Bool {
     if item == HI_HEALTHDISP || item == HI_AMMODISP || item == HI_JETPACK {
         return false
     }
@@ -825,7 +825,7 @@ func BG_IsItemSelectable(_ ps: JKAMP.PlayerState, _ item: Int32) -> Bool {
 }
 
 /// Source: oracle/codemp/game/bg_misc.c:2121
-func BG_CycleInven(_ ps: JKAMP.PlayerState, _ direction: Int32) {
+public func BG_CycleInven(_ ps: JKAMP.PlayerState, _ direction: Int32) {
     var i: Int32
     var dontFreeze: Int32 = 0
     var original: Int32
@@ -892,7 +892,7 @@ This needs to be the same for client side prediction and server use.
 ```
 */
 /// Source: oracle/codemp/game/bg_misc.c:2192
-func BG_CanItemBeGrabbed(_ gametype: Int32, _ ent: JKAMP.EntityState, _ ps: JKAMP.PlayerState) -> Bool {
+public func BG_CanItemBeGrabbed(_ gametype: Int32, _ ent: JKAMP.EntityState, _ ps: JKAMP.PlayerState) -> Bool {
     let item: Gitem
 
     if ent.modelindex < 1 || ent.modelindex >= bg_numItems {
@@ -1146,7 +1146,7 @@ public func BG_EvaluateTrajectoryDelta(_ tr: JKAShared.Trajectory, _ atTime: Int
 }
 
 /// Source: oracle/codemp/game/bg_misc.c:2635
-func BG_AddPredictableEventToPlayerstate(_ newEvent: Int32, _ eventParm: Int32, _ ps: JKAMP.PlayerState) {
+public func BG_AddPredictableEventToPlayerstate(_ newEvent: Int32, _ eventParm: Int32, _ ps: JKAMP.PlayerState) {
     ps.events[ps.eventSequence & (MAX_PS_EVENTS - 1)] = newEvent
     ps.eventParms[ps.eventSequence & (MAX_PS_EVENTS - 1)] = eventParm
     ps.eventSequence += 1
@@ -1160,7 +1160,7 @@ BG_TouchJumpPad
 ```
 */
 /// Source: oracle/codemp/game/bg_misc.c:2667
-func BG_TouchJumpPad(_ ps: JKAMP.PlayerState, _ jumppad: JKAMP.EntityState) {
+public func BG_TouchJumpPad(_ ps: JKAMP.PlayerState, _ jumppad: JKAMP.EntityState) {
     // spectators don't use jump pads
     if ps.pm_type != PM_NORMAL && ps.pm_type != PM_JETPACK && ps.pm_type != PM_FLOAT {
         return
@@ -1192,7 +1192,7 @@ Shared code for emplaced angle gun constriction
 ```
 */
 /// Source: oracle/codemp/game/bg_misc.c:2703
-func BG_EmplacedView(_ baseAngles: inout JKAShared.vec3_t, _ angles: inout JKAShared.vec3_t, _ newYaw: inout Float, _ constraint: Float) -> Int32 {
+public func BG_EmplacedView(_ baseAngles: inout JKAShared.vec3_t, _ angles: inout JKAShared.vec3_t, _ newYaw: inout Float, _ constraint: Float) -> Int32 {
     var dif = AngleSubtract(baseAngles[YAW], angles[YAW])
 
     if dif > constraint || dif < -constraint {
@@ -1225,7 +1225,7 @@ func BG_EmplacedView(_ baseAngles: inout JKAShared.vec3_t, _ angles: inout JKASh
 //To see if the client is trying to use one of the included skins not meant for MP.
 //I don't much care for hardcoded strings, but this seems the best way to go.
 /// Source: oracle/codemp/game/bg_misc.c:2744
-func BG_IsValidCharacterModel(_ modelName: String, _ skinName: String) -> Bool {
+public func BG_IsValidCharacterModel(_ modelName: String, _ skinName: String) -> Bool {
     if Q_stricmp(skinName, "menu") == 0 {
         return false
     } else if Q_stricmp(modelName, "kyle") == 0 {
@@ -1241,7 +1241,7 @@ func BG_IsValidCharacterModel(_ modelName: String, _ skinName: String) -> Bool {
 }
 
 /// Source: oracle/codemp/game/bg_misc.c:2768
-func BG_ValidateSkinForTeam(_ modelName: String, _ skinName: inout JKAShared.CharBuf, _ team: Int32, _ colors: inout JKAShared.vec3_t) -> Bool {
+public func BG_ValidateSkinForTeam(_ modelName: String, _ skinName: inout JKAShared.CharBuf, _ team: Int32, _ colors: inout JKAShared.vec3_t) -> Bool {
     if Q_stricmpn(modelName, "jedi_", 5) == 0 {
         //argh, it's a custom player skin!
         // Raven guards a NULL colors here. The parameter is an inout vector, so the guard has no Swift form.
@@ -1342,7 +1342,7 @@ and after local prediction on the client
 ```
 */
 /// Source: oracle/codemp/game/bg_misc.c:2887
-func BG_PlayerStateToEntityState(_ ps: JKAMP.PlayerState, _ s: JKAMP.EntityState, _ snap: Bool) {
+public func BG_PlayerStateToEntityState(_ ps: JKAMP.PlayerState, _ s: JKAMP.EntityState, _ snap: Bool) {
     if ps.pm_type == PM_INTERMISSION || ps.pm_type == PM_SPECTATOR {
         s.eType = ET_INVISIBLE
     } else if ps.stats[STAT_HEALTH] <= GIB_HEALTH {
@@ -1492,7 +1492,7 @@ and after local prediction on the client
 ```
 */
 /// Source: oracle/codemp/game/bg_misc.c:3037
-func BG_PlayerStateToEntityStateExtraPolate(_ ps: JKAMP.PlayerState, _ s: JKAMP.EntityState, _ time: Int32, _ snap: Bool) {
+public func BG_PlayerStateToEntityStateExtraPolate(_ ps: JKAMP.PlayerState, _ s: JKAMP.EntityState, _ time: Int32, _ snap: Bool) {
     if ps.pm_type == PM_INTERMISSION || ps.pm_type == PM_SPECTATOR {
         s.eType = ET_INVISIBLE
     } else if ps.stats[STAT_HEALTH] <= GIB_HEALTH {
@@ -1679,7 +1679,7 @@ var bg_poolTail: Int32 {
 }
 
 /// Source: oracle/codemp/game/bg_misc.c:3328
-func BG_Alloc(_ size: Int32) -> UnsafeMutableRawPointer {
+public func BG_Alloc(_ size: Int32) -> UnsafeMutableRawPointer {
     // Raven wrote `0xfffffffc`, the same bit pattern as `~0x0000_0003` on an `Int32`.
     bg_poolSize = ((bg_poolSize + 0x0000_0003) & ~0x0000_0003)
 
@@ -1706,7 +1706,7 @@ func BG_AllocUnaligned(_ size: Int32) -> UnsafeMutableRawPointer {
 }
 
 /// Source: oracle/codemp/game/bg_misc.c:3356
-func BG_TempAlloc(_ size: Int32) -> UnsafeMutableRawPointer {
+public func BG_TempAlloc(_ size: Int32) -> UnsafeMutableRawPointer {
     // Raven wrote `0xfffffffc`, the same bit pattern as `~0x0000_0003` on an `Int32`.
     var size = size
     size = ((size + 0x0000_0003) & ~0x0000_0003)
@@ -1722,7 +1722,7 @@ func BG_TempAlloc(_ size: Int32) -> UnsafeMutableRawPointer {
 }
 
 /// Source: oracle/codemp/game/bg_misc.c:3371
-func BG_TempFree(_ size: Int32) {
+public func BG_TempFree(_ size: Int32) {
     // Raven wrote `0xfffffffc`, the same bit pattern as `~0x0000_0003` on an `Int32`.
     var size = size
     size = ((size + 0x0000_0003) & ~0x0000_0003)

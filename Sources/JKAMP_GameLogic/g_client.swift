@@ -39,9 +39,10 @@ let MAX_SPAWN_POINTS = 128 as Int32
 let BODY_SINK_TIME = 30000 as Int32
 
 /// Source: oracle/codemp/game/g_client.c:1511
-// TODO: Port global g2SaberInstance
-// Raven wrote: void *g2SaberInstance = NULL
-// No table row for `void *`.
+var g2SaberInstance: OpaquePointer? {
+    get { world.variables.g2SaberInstance }
+    set { world.variables.g2SaberInstance = newValue }
+}
 
 /**
 ```

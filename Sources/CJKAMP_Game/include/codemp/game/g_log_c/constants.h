@@ -3,6 +3,33 @@
 #ifndef JKA_CODEMP_GAME_G_LOG_C_CONSTANTS_H
 #define JKA_CODEMP_GAME_G_LOG_C_CONSTANTS_H
 
+// Source: oracle/codemp/game/g_log.c:1426
+typedef enum {
+	AWARD_EFFICIENCY,		// Accuracy
+	AWARD_SHARPSHOOTER,		// Most compression rifle frags
+	AWARD_UNTOUCHABLE,		// Perfect (no deaths)
+	AWARD_LOGISTICS,		// Most pickups
+	AWARD_TACTICIAN,		// Kills with all weapons
+	AWARD_DEMOLITIONIST,	// Most explosive damage kills
+	AWARD_STREAK,			// Ace/Expert/Master/Champion
+	AWARD_TEAM,				// MVP/Defender/Warrior/Carrier/Interceptor/Bravery
+	AWARD_SECTION31,		// All-around god
+	AWARD_MAX
+} awardType_t;
+
+// Source: oracle/codemp/game/g_log.c:1439
+typedef enum
+{
+	TEAM_NONE = 0,			// ha ha! you suck!
+	TEAM_MVP,				// most overall points
+	TEAM_DEFENDER,			// killed the most baddies near your flag
+	TEAM_WARRIOR,			// most frags
+	TEAM_CARRIER,			// infected the most people with plague
+	TEAM_INTERCEPTOR,		// returned your own flag the most
+	TEAM_BRAVERY,			// Red Shirt Award (tm). you died more than anybody. 
+	TEAM_MAX
+} teamAward_e;
+
 // Source: oracle/codemp/game/g_log.c:1516
 #define AWARDS_MSG_LENGTH		256
 

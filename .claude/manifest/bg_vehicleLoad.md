@@ -30,9 +30,9 @@ The oracle range is the whole definition, from the return type to the closing br
 |---|---|---|---|
 | `VehWeaponParms` | `oracle/codemp/game/bg_vehicleLoad.c:76` | state | `}` |
 | `VehicleParms` | `oracle/codemp/game/bg_vehicleLoad.c:77` | state | `}` |
-| `g_vehWeaponInfo` | `oracle/codemp/game/bg_vehicleLoad.c:103` | storage | `var g_vehWeaponInfo: Slots<JKAMP.VehWeaponInfo> { bg.storage.g_vehWeaponInfo }` |
+| `g_vehWeaponInfo` | `oracle/codemp/game/bg_vehicleLoad.c:103` | storage | `public var g_vehWeaponInfo: Slots<JKAMP.VehWeaponInfo> { bg.storage.g_vehWeaponInfo }` |
 | `numVehicleWeapons` | `oracle/codemp/game/bg_vehicleLoad.c:104` | state | `}` |
-| `g_vehicleInfo` | `oracle/codemp/game/bg_vehicleLoad.c:106` | storage | `var g_vehicleInfo: Slots<JKAMP.VehicleInfo> { bg.storage.g_vehicleInfo }` |
+| `g_vehicleInfo` | `oracle/codemp/game/bg_vehicleLoad.c:106` | storage | `public var g_vehicleInfo: Slots<JKAMP.VehicleInfo> { bg.storage.g_vehicleInfo }` |
 | `numVehicles` | `oracle/codemp/game/bg_vehicleLoad.c:107` | state | `}` |
 | `vehWeaponFields` | `oracle/codemp/game/bg_vehicleLoad.c:138` | storage_data | `// Raven's data table is C storage in the C target, with his initializer as written, reached as a Slots over the C array, the bg_tables.c shape that tables.py writes.` |
 | `vehicleFields` | `oracle/codemp/game/bg_vehicleLoad.c:445` | storage_data | `// Raven's data table is C storage in the C target, with his initializer as written, reached as a Slots over the C array, the bg_tables.c shape that tables.py writes.` |

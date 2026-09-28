@@ -44,7 +44,7 @@ let SABER_ALT_ATTACK_POWER_FB = 25 as Int32
 
 /// Source: oracle/codemp/game/bg_saber.c:2777
 // Raven wrote: int bg_parryDebounce[NUM_FORCE_POWER_LEVELS]
-let bg_parryDebounce: [Int32] = { () -> [Int32] in portMissing("bg_parryDebounce", source: "oracle/codemp/game/bg_saber.c:2777") }()
+public let bg_parryDebounce: [Int32] = { () -> [Int32] in portMissing("bg_parryDebounce", source: "oracle/codemp/game/bg_saber.c:2777") }()
 
 /// Source: oracle/codemp/game/bg_saber.c:10
 func PM_irand_timesync(_ val1: Int32, _ val2: Int32) -> Int32 {
@@ -62,7 +62,7 @@ func PM_irand_timesync(_ val1: Int32, _ val2: Int32) -> Int32 {
 }
 
 /// Source: oracle/codemp/game/bg_saber.c:27
-func BG_ForcePowerDrain(_ ps: JKAMP.PlayerState, _ forcePower: JKAMP.forcePowers_t, _ overrideAmt: Int32) {
+public func BG_ForcePowerDrain(_ ps: JKAMP.PlayerState, _ forcePower: JKAMP.forcePowers_t, _ overrideAmt: Int32) {
     //take away the power
     var drain: Int32 = overrideAmt
 
@@ -352,7 +352,7 @@ func PM_SaberMoveQuadrantForMovement(_ ucmd: JKAMP.Usercmd) -> Int32 {
 
 //===================================================================
 /// Source: oracle/codemp/game/bg_saber.c:700
-func PM_SaberInBounce(_ move: Int32) -> Bool {
+public func PM_SaberInBounce(_ move: Int32) -> Bool {
     if move >= LS_B1_BR && move <= LS_B1_BL {
         return true
     }
@@ -805,7 +805,7 @@ func PM_SaberLockBreak(_ genemy: JKAMP.PlayerState, _ victory: Bool, _ strength:
 }
 
 /// Source: oracle/codemp/game/bg_saber.c:1342
-func BG_CheckIncrementLockAnim(_ anim: Int32, _ winOrLose: Int32) -> Bool {
+public func BG_CheckIncrementLockAnim(_ anim: Int32, _ winOrLose: Int32) -> Bool {
     var increment: Bool = false
     //RULE: if you are the first style in the lock anim, you advance from LOSING position to WINNING position
     //		if you are the second style in the lock anim, you advance from WINNING position to LOSING position
@@ -980,7 +980,7 @@ func PM_SaberLocked() {
 }
 
 /// Source: oracle/codemp/game/bg_saber.c:1583
-func PM_SaberInBrokenParry(_ move: Int32) -> Bool {
+public func PM_SaberInBrokenParry(_ move: Int32) -> Bool {
     if move >= LS_V1_BR && move <= LS_V1_B_ {
         return true
     }

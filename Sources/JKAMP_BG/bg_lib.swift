@@ -152,7 +152,7 @@ var randSeed: Int32 {
 }
 
 /// Source: oracle/codemp/game/bg_lib.c:765
-func srand(_ seed: UInt32) {
+public func srand(_ seed: UInt32) {
     randSeed = Int32(bitPattern: seed)
 }
 

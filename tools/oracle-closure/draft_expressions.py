@@ -12,7 +12,7 @@ from clang.cindex import CursorKind, TypeKind
 
 from spelling import Facts, UNSIGNED
 
-from rulings import HAND_VARS, WRAPPING_ARITHMETIC
+from rulings import HAND_MACROS, HAND_VARS, WRAPPING_ARITHMETIC
 import closure as C
 from skeleton import BG, LOGIC, target_of
 from table import ASSIGN_OPS, COMMENT, TARGET, swift_name
@@ -305,6 +305,9 @@ class Expressions:
                 if text == "NULL":
                     return "nil"
                 self.reach(text, "macro")
+                if text in HAND_MACROS:
+                    # A hand macro has the Swift spelling its ruling gives, `buildDate` for Raven's `__DATE__`.
+                    return self.leaf(cur, HAND_MACROS[text][0])
                 return self.leaf(cur, swift_name(text))
         chosen = self.chosen_deref(cur)
         if chosen is not None:
@@ -545,6 +548,9 @@ class Expressions:
             return self.expr(self.aliases[name])
         if name in self.table_cursors and ref is not None and ref.kind == CursorKind.VAR_DECL:
             table, index = self.table_cursors[name]
+            if any(v.name == table and v.reason == "hand_table" for vs in self.sk.variables.values() for v in vs):
+                # The hand table is a Swift array of rows with no view, so the view fields and the C pointer walk have no Swift twin.
+                raise Hole(f"Raven walks `{table}` by pointer, and the hand table is a Swift array of rows with no view. A walk over it has no form yet.")
             return f"{table}[{index}]"
         if ref is not None and ref.kind == CursorKind.ENUM_CONSTANT_DECL:
             return name

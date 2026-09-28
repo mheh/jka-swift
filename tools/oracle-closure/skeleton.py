@@ -15,9 +15,14 @@ address for the life of the module. A clear to 0 or NULL and a store whose value
 A stub file is replaced whole until its first hand edit. A file that no longer carries the generated header line
 is adopted, and the generator leaves it alone and says so.
 
+A bg function or file-scope variable that a game file names is public, because it crosses the module line. The writer leaves an
+adopted bg file alone, so --publish applies that rule to the adopted bg files: it puts `public` on each declaration the rule names
+and changes no other text.
+
 Usage:
   .venv/bin/python skeleton.py                 # writes every file and prints the counts
   .venv/bin/python skeleton.py --only g_mover  # prints one file to stdout, writes nothing
+  .venv/bin/python skeleton.py --publish       # the public rule on the adopted bg files, nothing else written
 """
 
 from __future__ import annotations
@@ -116,7 +121,8 @@ class Variable:
 
     @property
     def access(self) -> str:
-        """`private ` for a name another file declares too, the rule shared function names take, because Swift file-scope names share one module."""
+        """`private ` for a name another file declares too, the rule shared function names take, because Swift file-scope names share one module.
+        `Skeleton.variable_access` adds `public ` for a bg variable a game file names."""
         return "private " if self.shared else ""
 
     @property
@@ -125,11 +131,14 @@ class Variable:
 
     @property
     def kind(self) -> str:
-        """`storage` for a struct table in C memory, `state` for a written variable, `let` for a constant, `marker` for an unmapped type."""
+        """`storage` for a struct table in C memory, `state` for a written variable, `let` for a constant, `marker` for an unmapped type.
+        A data table of records that hold a pointer to a function or to a struct is `state_data`, a hand table on the state object."""
         if self.reason == "storage":
             return "storage_data" if self.data else "storage"
         if self.reason == "pointer_table":
             return self.reason
+        if self.reason == "hand_table":
+            return "state_data"
         if self.reason is not None:
             return "marker"
         if self.name in HAND_VARS:
@@ -324,7 +333,7 @@ class Skeleton:
             return lines
         if macro.name in HAND_MACROS:
             self.counts["macros by hand"] += 1
-            lines += [f"// Raven wrote: #define {text}", f"// A hand value: {HAND_MACROS[macro.name]}."]
+            lines += [f"// Raven wrote: #define {text}", f"// A hand value: {HAND_MACROS[macro.name][1]}."]
             return lines
         tokens = [t.spelling for t in macro.cur.get_tokens()][1:]
         if len(tokens) == 1 and re.fullmatch(r"[A-Za-z_]\w*", tokens[0]):
@@ -419,6 +428,15 @@ class Skeleton:
             if not record or record not in self.table.views.views:
                 var.reason = f"No view for `{' '.join(element.spelling.split())}`, a struct Raven defines inside a .c file."
                 return
+            if var.data and depth and self.holds_address(element):
+                # C storage cannot hold the address of a Swift function or of a record the state object owns,
+                # so Raven's table is a hand array on the state object, one `<View>Row` per row, with his rows in his order.
+                var.reason = "hand_table"
+                var.swift = f"[{self.table.views.views[record][0]}Row]"
+                return
+            if var.data and self.zero_initializer(var):
+                # Raven's `= {qfalse, 0, 0}` is C's zero, so the record is the zeroed allocation of the storage kind, not a data table.
+                var.data = False
             var.reason = "storage"
             var.view = self.table.views.qualified_view(record, "CJKAMP_Game")
             var.count = canonical.element_count if depth else 0
@@ -439,6 +457,9 @@ class Skeleton:
             pointee = element.get_pointee()
             if pointee.get_canonical().kind == TypeKind.CHAR_S:
                 inner = "String"
+            elif pointee.get_canonical().kind == TypeKind.VOID and not depth:
+                # Raven's `void *` global is an engine handle, the Ghoul2 instance of a trap, spelled as the traps spell it.
+                inner = "OpaquePointer?"
             else:
                 record = self.table.views.record_name(pointee)
                 if not record or record not in self.table.views.views:
@@ -494,6 +515,22 @@ class Skeleton:
             i += 1
         return text[start:]
 
+    def holds_address(self, record: ci.Type) -> bool:
+        """True when a field of the record is a pointer to a function or to a struct, which Raven's initializer fills with an address."""
+        for field in record.get_declaration().get_children():
+            if field.kind != CursorKind.FIELD_DECL:
+                continue
+            t = field.type.get_canonical()
+            if t.kind == TypeKind.POINTER and t.get_pointee().get_canonical().kind in (TypeKind.FUNCTIONPROTO, TypeKind.FUNCTIONNOPROTO, TypeKind.RECORD):
+                return True
+        return False
+
+    def zero_initializer(self, var: Variable) -> bool:
+        """True when every value of Raven's initializer is C's zero, `{qfalse, 0, 0}` or `{0}`."""
+        text = self.declaration_text(var)
+        values = [v.strip() for v in re.split(r"[{},]", text.split("=", 1)[1]) if v.strip()]
+        return bool(values) and all(re.fullmatch(r"0+|0*\.0*[fF]?|qfalse|NULL", v) for v in values)
+
     def exported(self, var: Variable) -> dict[str, str]:
         return self.table.views.exported_names("CJKAMP" if target_of(var.stem) == BG else "CJKAMP_Game")
 
@@ -519,7 +556,8 @@ class Skeleton:
         swift = var.swift or ""
         if swift == "Bool":
             return {"qtrue": "true", "qfalse": "false", "1": "true", "0": "false"}.get(raw)
-        if raw == "NULL":
+        if raw == "NULL" or (raw == "0" and swift.endswith("?")):
+            # Raven writes a null pointer as `NULL` and as `0`, and both are nil in an optional.
             return "nil" if swift.endswith("?") else ('""' if swift == "String" else None)
         if swift == "String" and raw.startswith('"') and raw.endswith('"'):
             return raw
@@ -576,12 +614,17 @@ class Skeleton:
             literal = f"[{element}](repeating: {literal}, count: {count})"
         return literal
 
-    @staticmethod
-    def let_prefix(var: Variable) -> str:
+    def variable_access(self, var: Variable) -> str:
+        """A bg variable a game file names crosses the module line, so it is public, the same as a bg function a game file calls."""
+        if not var.shared and target_of(var.stem) == BG and var.name in self.game_calls:
+            return "public "
+        return var.access
+
+    def let_prefix(self, var: Variable) -> str:
         """A view and a CharBuf are not Sendable, so their let says so, and a shared static is private to its file."""
         swift = var.swift or ""
         unsafe = "nonisolated(unsafe) " if "?" in swift or "CharBuf" in swift else ""
-        return var.access + unsafe
+        return self.variable_access(var) + unsafe
 
     def variable_entry(self, var: Variable) -> list[str]:
         text = self.declaration_text(var)
@@ -605,7 +648,7 @@ class Skeleton:
             if var.name in NEVER_NULL_VARS:
                 lines = [f"/// Source: {var.cite}",
                          f"/// Raven's callers always set `{var.name}`, so a body reads it with no bind. A NULL here traps with the name.",
-                         f"{var.access}var {var.name}: {var.swift.rstrip('?')} {{",
+                         f"{self.variable_access(var)}var {var.name}: {var.swift.rstrip('?')} {{",
                          "    get {",
                          f"        guard let {var.name} = {spelled}.variables.{var.field} else {{ preconditionFailure(\"{var.name} is NULL\") }}",
                          f"        return {var.name}",
@@ -614,7 +657,7 @@ class Skeleton:
                          "}"]
             else:
                 lines = [f"/// Source: {var.cite}",
-                         f"{var.access}var {var.name}: {var.swift} {{",
+                         f"{self.variable_access(var)}var {var.name}: {var.swift} {{",
                          f"    get {{ {spelled}.variables.{var.field} }}",
                          f"    set {{ {spelled}.variables.{var.field} = newValue }}",
                          "}"]
@@ -624,19 +667,22 @@ class Skeleton:
             # Raven's data is hand work on the state object, and the stub forwards it under Raven's name.
             home = "BgState" if target_of(var.stem) == BG else "GameWorld"
             spelled = "bg" if target_of(var.stem) == BG else "world"
-            lines = [f"/// Source: {var.cite}",
-                     f"/// Raven's data table, a hand property of `{home}`.",
-                     f"{var.access}var {var.name}: {var.swift} {{",
-                     f"    get {{ {spelled}.{var.field} }}",
-                     f"    set {{ {spelled}.{var.field} = newValue }}",
-                     "}"]
+            lines = [f"/// Source: {var.cite}", f"/// Raven's data table, a hand property of `{home}`."]
+            if var.written:
+                lines += [f"{self.variable_access(var)}var {var.name}: {var.swift} {{",
+                          f"    get {{ {spelled}.{var.field} }}",
+                          f"    set {{ {spelled}.{var.field} = newValue }}",
+                          "}"]
+            else:
+                # Raven never writes the table, so the hand property is a `let` and the forward has no setter.
+                lines.append(f"{self.variable_access(var)}var {var.name}: {var.swift} {{ {spelled}.{var.field} }}")
         elif kind == "storage_data":
             lines.insert(1, f"// TODO: Port global {var.name}")
             lines.append("// Raven's data table is C storage in the C target, with his initializer as written, reached as a Slots over the C array, the bg_tables.c shape that tables.py writes.")
         elif kind in ("storage", "pointer_table"):
             # The allocation lives on the state object's generated storage class, and the stub carries the name at Raven's line.
             spelled = "bg" if target_of(var.stem) == BG else "world"
-            lines = [f"/// Source: {var.cite}", f"{var.access}var {var.name}: {var.swift} {{ {spelled}.storage.{var.field} }}"]
+            lines = [f"/// Source: {var.cite}", f"{self.variable_access(var)}var {var.name}: {var.swift} {{ {spelled}.storage.{var.field} }}"]
         else:
             lines.insert(1, f"// TODO: Port global {var.name}")
             lines.append(f"// {var.reason}")
@@ -668,19 +714,65 @@ class Skeleton:
         return stores
 
     def collect_game_calls(self) -> set[str]:
-        """Every bg function a game file names, by Raven's name, so the bg stub is public for the game module that calls it.
-        A libc name the shared module already holds in public, `atof` of CString.swift, is the game's, so bg's copy stays internal."""
+        """Every bg function and bg file-scope variable a game file names, by Raven's name, so the bg declaration is public for the game module.
+        A libc name the shared module already holds in public, `atof` of CString.swift, is the game's, so bg's copy stays internal.
+        A variable counts only when the name resolves to a file-scope declaration, because a game body has its own locals named `pm`."""
         shared = {m.group(1) for path in (SOURCES / SHARED).rglob("*.swift") for m in re.finditer(r"^public func `?(\w+)", path.read_text(), re.M)}
         bg_names = {fn.name for stem, fns in self.files.items() if target_of(stem) == BG for fn in fns} - shared
+        bg_variables = {var.name for stem, variables in self.variables.items() if target_of(stem) == BG for var in variables}
         called: set[str] = set()
         for stem, fns in self.files.items():
             if target_of(stem) != LOGIC:
                 continue
             for fn in fns:
                 for node in fn.cur.walk_preorder():
-                    if node.kind == CursorKind.DECL_REF_EXPR and node.spelling in bg_names:
+                    if node.kind != CursorKind.DECL_REF_EXPR:
+                        continue
+                    if node.spelling in bg_names:
+                        called.add(node.spelling)
+                    elif node.spelling in bg_variables and node.referenced is not None and node.referenced.kind == CursorKind.VAR_DECL \
+                            and node.referenced.semantic_parent.kind == CursorKind.TRANSLATION_UNIT:
                         called.add(node.spelling)
         return called
+
+    def published(self) -> list[tuple[str, str]]:
+        """The bg declarations the public rule names, as (stem, Swift name): each function of `access` and each variable of `variable_access`
+        whose stub carries a declaration line."""
+        out: list[tuple[str, str]] = []
+        for stem in sorted(set(self.files) | set(self.variables)):
+            if target_of(stem) != BG:
+                continue
+            out += [(stem, swift_name(fn.name)) for fn in self.files.get(stem, []) if self.access(fn) == "public " and fn.raven_name not in NOT_PORTED]
+            out += [(stem, var.name) for var in self.variables.get(stem, [])
+                    if self.variable_access(var) == "public " and var.kind in ("let", "state", "state_data", "storage", "pointer_table")]
+        return out
+
+    def publish(self) -> tuple[int, list[str]]:
+        """The public rule applied to the adopted bg files, which the writer leaves alone.
+        Each declaration the rule names takes `public` in front of its line, and no other text of the file changes.
+        A name with no file-scope declaration line, or with an access keyword already, is reported and left as it is."""
+        changed = 0
+        report: list[str] = []
+        by_stem: dict[str, list[str]] = defaultdict(list)
+        for stem, name in self.published():
+            by_stem[stem].append(name)
+        for stem, names in sorted(by_stem.items()):
+            path = stub_path(stem)
+            if not path.exists() or path.read_text().split("\n", 1)[0] == NOTE.format(stem=stem):
+                continue
+            lines = path.read_text().split("\n")
+            for name in names:
+                pattern = re.compile(rf"^((?:nonisolated\(unsafe\) )?(?:func|var|let) {re.escape(name)}(?!\w))")
+                hits = [i for i, line in enumerate(lines) if pattern.match(line)]
+                if not hits:
+                    if not any(re.match(rf"^(public|private|fileprivate|internal) .*\b(func|var|let) {re.escape(name)}(?!\w)", line) for line in lines):
+                        report.append(f"{path.relative_to(REPO)}: no file-scope declaration of {name}")
+                    continue
+                for i in hits:
+                    lines[i] = "public " + lines[i]
+                    changed += 1
+            path.write_text("\n".join(lines))
+        return changed, report
 
     # MARK: - Emission
 
@@ -919,8 +1011,15 @@ class Skeleton:
 def main() -> None:
     ap = argparse.ArgumentParser()
     ap.add_argument("--only", help="one Raven file stem, printed to stdout, nothing written")
+    ap.add_argument("--publish", action="store_true", help="put `public` on the declarations the public rule names in the adopted bg files, nothing else")
     args = ap.parse_args()
     gen = Skeleton(C.Parse())
+    if args.publish:
+        changed, report = gen.publish()
+        print(f"skeleton.py --publish: {changed} declarations in the adopted bg files gained public")
+        for line in report:
+            print(f"  {line}")
+        return
     if args.only:
         if args.only not in gen.files and args.only not in gen.variables:
             raise SystemExit(f"skeleton.py: no Raven file named {args.only}.c")

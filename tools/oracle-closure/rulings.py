@@ -101,8 +101,14 @@ NEVER_NULL_VARS = {"pm"}
 # `bg_pool` is the raw allocation of rule 9 that `BG_Alloc` hands pointers into, `bg.pool`, sized by the consumer's `MAX_POOL_SIZE`.
 HAND_VARS = {"bg_pool": "bg.pool"}
 
-# .c macros whose value is hand work on the state object. `MAX_POOL_SIZE` is the consumer's value under rule 23, `bg.maxPoolSize`.
-HAND_MACROS = {"MAX_POOL_SIZE": "bg.maxPoolSize, the consumer's value under rule 23, which bg_local.swift forwards under Raven's name"}
+# Macros whose value is hand work, as (the Swift spelling a body writes, the reason the stub carries).
+# `MAX_POOL_SIZE` is the consumer's value under rule 23, `bg.maxPoolSize`.
+# `__DATE__` is the compiler's build date, and Swift has no compile-time date, so a body writes the hand constant `buildDate` of JKAMP_GameLogic.
+# See row 5 of the game globals walk.
+HAND_MACROS = {
+    "MAX_POOL_SIZE": ("MAX_POOL_SIZE", "bg.maxPoolSize, the consumer's value under rule 23, which bg_local.swift forwards under Raven's name"),
+    "__DATE__": ("buildDate", "buildDate, a hand string constant of JKAMP_GameLogic, because Swift has no compile-time date"),
+}
 
 # MARK: - Types
 
@@ -217,6 +223,13 @@ EXTRA_HOOKS = {"CG_NewString": ("G_NewString", "oracle/codemp/cgame/cg_main.c:33
 # Files whose functions a bg body reaches directly, because they live in the shared module or in bg itself.
 # The functions whose integer arithmetic is a generator or a hash, where C wraps at 32 bits and Swift's plain operators trap.
 WRAPPING_ARITHMETIC = {"Q_rand", "Q_random", "Q_crandom", "rand", "srand", "irand", "flrand", "Q_irand", "Q_flrand", "Rand_Init", "Q_HashKey"}
+
+# (trap, parameter) pairs of a view parameter that gets a second overload of the trap, which takes the view as optional.
+# Raven hands the trap a NULL through a table row, which the NULL sweep cannot see at the call site.
+# See row 4a of the game globals walk.
+NIL_OVERLOADS = {
+    ("trap_Cvar_Register", "cvar"): "the three rows of gameCvarTable in g_main.c with a NULL handle, gamename, gamedate, and sv_mapname",
+}
 
 # The traps whose buffer holds a NUL-separated list, which a caller walks past the first NUL, so the trap returns every byte as a CharBuf.
 LIST_TRAPS = {"trap_FS_GetFileList"}

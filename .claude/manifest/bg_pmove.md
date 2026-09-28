@@ -137,6 +137,6 @@ The oracle range is the whole definition, from the return type to the closing br
 | `forceSpeedLevels` | `oracle/codemp/game/bg_pmove.c:59` | let | `let forceSpeedLevels: [Float] = { () -> [Float] in portMissing("forceSpeedLevels", source: "oracle/codemp/game/bg_pmove.c:59") }()` |
 | `forcePowerNeeded` | `oracle/codemp/game/bg_pmove.c:67` | state_data | `}` |
 | `forceJumpHeight` | `oracle/codemp/game/bg_pmove.c:155` | let | `let forceJumpHeight: [Float] = { () -> [Float] in portMissing("forceJumpHeight", source: "oracle/codemp/game/bg_pmove.c:155") }()` |
-| `forceJumpStrength` | `oracle/codemp/game/bg_pmove.c:163` | let | `let forceJumpStrength: [Float] = { () -> [Float] in portMissing("forceJumpStrength", source: "oracle/codemp/game/bg_pmove.c:163") }()` |
+| `forceJumpStrength` | `oracle/codemp/game/bg_pmove.c:163` | let | `public let forceJumpStrength: [Float] = { () -> [Float] in portMissing("forceJumpStrength", source: "oracle/codemp/game/bg_pmove.c:163") }()` |
 | `pm_flying` | `oracle/codemp/game/bg_pmove.c:445` | state | `}` |
 | `forceJumpHeightMax` | `oracle/codemp/game/bg_pmove.c:1768` | let | `let forceJumpHeightMax: [Float] = { () -> [Float] in portMissing("forceJumpHeightMax", source: "oracle/codemp/game/bg_pmove.c:1768") }()` |

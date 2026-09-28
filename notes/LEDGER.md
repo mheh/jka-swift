@@ -62,3 +62,11 @@ This file lists every ruling of every walk in date order. The walk file under no
 | 2026-09-27 | no walk file, second walk of 2026-09-27 | Row 2: the qsort group of bg_lib joins NOT_PORTED, the hand port is generic | ratified as proposed |
 | 2026-09-27 | no walk file, second walk of 2026-09-27 | Row 3: reexport.py unlinks only the files that carry its own note | ratified as proposed |
 | 2026-09-27 | no walk file, second walk of 2026-09-27 | Row 4: three bg_slidemove lines regroup so the scalar computes first | ratified as proposed |
+| 2026-09-28 | [game-globals-walk-2026-09-28.md](game-globals-walk-2026-09-28.md) | Row 1: a bg declaration a game body names is public, globals too, through the rule and `--publish` | ratified as proposed |
+| 2026-09-28 | [game-globals-walk-2026-09-28.md](game-globals-walk-2026-09-28.md) | Row 2: a `void *` game global is `OpaquePointer?` state on the world | ratified as proposed |
+| 2026-09-28 | [game-globals-walk-2026-09-28.md](game-globals-walk-2026-09-28.md) | Row 3: g_siegePersistant and spawns as game tables.py pieces, spawns falls back to a hand GameWorld table | ratified as proposed, with delta |
+| 2026-09-28 | [game-globals-walk-2026-09-28.md](game-globals-walk-2026-09-28.md) | Row 4: gameCvarTable as a hand GameWorld array, gameCvarTableSize its count | ratified as proposed |
+| 2026-09-28 | [game-globals-walk-2026-09-28.md](game-globals-walk-2026-09-28.md) | Row 5: `__DATE__` spells as the hand constant buildDate through HAND_MACROS | ratified as proposed |
+| 2026-09-28 | [game-globals-walk-2026-09-28.md](game-globals-walk-2026-09-28.md) | Row 3a: g_siegePersistant is a storage record on GameStorage, spawns a hand `let` table on GameWorld keyed by name | ratified as amended |
+| 2026-09-28 | [game-globals-walk-2026-09-28.md](game-globals-walk-2026-09-28.md) | Row 4a: gameCvarTable a `var` of 140 rows with an optional key path and modificationCount, trap_Cvar_Register gains a nil-handle overload | ratified as amended |
+| 2026-09-28 | [game-globals-walk-2026-09-28.md](game-globals-walk-2026-09-28.md) | Row L1: a colliding .c enum is `private let` constants at the top of the file's stub, extract.py places nothing | ratified as proposed |

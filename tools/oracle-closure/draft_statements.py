@@ -82,6 +82,18 @@ class Statements:
         inner = list(label.get_children())
         rest = inner + children[i + 1:]
         out: list[str] = []
+        # A record local before the label lives to the end of Raven's block, so its closure holds the label and every statement after it.
+        # A goto before the record would leave the closure, so the record then stays in the labeled block.
+        first = next((k for k in range(i) if self.record_local(children[k]) is not None), None)
+        if first is not None and (before or after) and not any(g.extent.start.offset < children[first].extent.end.offset for g in before):
+            decl = children[first]
+            end = children[first - 1].extent.end.line if first else previous_line
+            out += self.statements(children[:first], previous_line, end, depth)
+            out += self.param_copy_lines(depth)
+            out += self.gap(end, decl.extent.start.line, depth)
+            out += self.shared_read_lines(decl, depth)
+            out += self.scratch(decl, self.record_local(decl), children[first + 1:], last_line, depth)
+            return out
         if before and not after:
             region = children[:i]
             if any(g.extent.start.offset < region[0].extent.start.offset for g in before) if region else before:

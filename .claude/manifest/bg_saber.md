@@ -58,4 +58,4 @@ The oracle range is the whole definition, from the return type to the closing br
 | `saberMoveData` | `oracle/codemp/game/bg_saber.c:120` | storage_data | `// Raven's data table is C storage in the C target, with his initializer as written, reached as a Slots over the C array, the bg_tables.c shape that tables.py writes.` |
 | `transitionMove` | `oracle/codemp/game/bg_saber.c:324` | let | `let transitionMove: [[Int32]] = { () -> [[Int32]] in portMissing("transitionMove", source: "oracle/codemp/game/bg_saber.c:324") }()` |
 | `saberMoveTransitionAngle` | `oracle/codemp/game/bg_saber.c:715` | let | `let saberMoveTransitionAngle: [[Int32]] = { () -> [[Int32]] in portMissing("saberMoveTransitionAngle", source: "oracle/codemp/game/bg_saber.c:715") }()` |
-| `bg_parryDebounce` | `oracle/codemp/game/bg_saber.c:2777` | let | `let bg_parryDebounce: [Int32] = { () -> [Int32] in portMissing("bg_parryDebounce", source: "oracle/codemp/game/bg_saber.c:2777") }()` |
+| `bg_parryDebounce` | `oracle/codemp/game/bg_saber.c:2777` | let | `public let bg_parryDebounce: [Int32] = { () -> [Int32] in portMissing("bg_parryDebounce", source: "oracle/codemp/game/bg_saber.c:2777") }()` |

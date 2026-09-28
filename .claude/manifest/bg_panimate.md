@@ -96,6 +96,6 @@ The oracle range is the whole definition, from the return type to the closing br
 | Variable | Oracle | Kind | Entry |
 |---|---|---|---|
 | `BGPAFtextLoaded` | `oracle/codemp/game/bg_panimate.c:1671` | state | `}` |
-| `bgHumanoidAnimations` | `oracle/codemp/game/bg_panimate.c:1672` | storage | `var bgHumanoidAnimations: Slots<JKAMP.Animation> { bg.storage.bgHumanoidAnimations }` |
-| `bgAllAnims` | `oracle/codemp/game/bg_panimate.c:1702` | storage | `var bgAllAnims: Slots<JKAMP.BgLoadedAnim> { bg.storage.bgAllAnims }` |
+| `bgHumanoidAnimations` | `oracle/codemp/game/bg_panimate.c:1672` | storage | `public var bgHumanoidAnimations: Slots<JKAMP.Animation> { bg.storage.bgHumanoidAnimations }` |
+| `bgAllAnims` | `oracle/codemp/game/bg_panimate.c:1702` | storage | `public var bgAllAnims: Slots<JKAMP.BgLoadedAnim> { bg.storage.bgAllAnims }` |
 | `bgNumAllAnims` | `oracle/codemp/game/bg_panimate.c:1703` | state | `}` |

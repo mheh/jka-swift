@@ -302,6 +302,10 @@ public struct GameVariables {
     /// Source: oracle/codemp/game/g_client.c:471
     public var gJMSaberEnt: Entity? = nil
 
+    /// Raven's `void *g2SaberInstance` of `g_client.c`.
+    /// Source: oracle/codemp/game/g_client.c:1511
+    public var g2SaberInstance: OpaquePointer? = nil
+
     /// Raven's `qboolean g_dontPenalizeTeam` of `g_cmds.c`.
     /// Source: oracle/codemp/game/g_cmds.c:750
     public var g_dontPenalizeTeam: Bool = false
@@ -617,6 +621,10 @@ public struct GameVariables {
     /// Raven's `char gObjectiveCfgStr[1024]` of `g_saga.c`.
     /// Source: oracle/codemp/game/g_saga.c:47
     public var gObjectiveCfgStr: JKAShared.CharBuf = JKAShared.CharBuf(1024)
+
+    /// Raven's `void *precachedKyle` of `g_spawn.c`.
+    /// Source: oracle/codemp/game/g_spawn.c:1234
+    public var precachedKyle: OpaquePointer? = nil
 
     /// Raven's `float g_cullDistance` of `g_spawn.c`.
     /// Source: oracle/codemp/game/g_spawn.c:1258

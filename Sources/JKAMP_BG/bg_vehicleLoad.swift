@@ -21,7 +21,7 @@ var VehicleParms: JKAShared.CharBuf {
 }
 
 /// Source: oracle/codemp/game/bg_vehicleLoad.c:103
-var g_vehWeaponInfo: Slots<JKAMP.VehWeaponInfo> { bg.storage.g_vehWeaponInfo }
+public var g_vehWeaponInfo: Slots<JKAMP.VehWeaponInfo> { bg.storage.g_vehWeaponInfo }
 
 /// Source: oracle/codemp/game/bg_vehicleLoad.c:104
 var numVehicleWeapons: Int32 {
@@ -30,7 +30,7 @@ var numVehicleWeapons: Int32 {
 }
 
 /// Source: oracle/codemp/game/bg_vehicleLoad.c:106
-var g_vehicleInfo: Slots<JKAMP.VehicleInfo> { bg.storage.g_vehicleInfo }
+public var g_vehicleInfo: Slots<JKAMP.VehicleInfo> { bg.storage.g_vehicleInfo }
 
 /// Source: oracle/codemp/game/bg_vehicleLoad.c:107
 var numVehicles: Int32 {
@@ -853,7 +853,7 @@ func BG_VehWeaponLoadParms() {
 }
 
 /// Source: oracle/codemp/game/bg_vehicleLoad.c:1487
-func BG_VehicleLoadParms() {
+public func BG_VehicleLoadParms() {
     //HMM... only do this if there's a vehicle on the level?
     var len: Int32
     var totallen: Int32
@@ -939,7 +939,7 @@ func BG_VehicleLoadParms() {
 }
 
 /// Source: oracle/codemp/game/bg_vehicleLoad.c:1590
-func BG_VehicleGetIndex(_ vehicleName: String) -> Int32 {
+public func BG_VehicleGetIndex(_ vehicleName: String) -> Int32 {
     return (VEH_VehicleIndexForName(vehicleName))
 }
 
@@ -948,7 +948,7 @@ func BG_VehicleGetIndex(_ vehicleName: String) -> Int32 {
 //we are expected to then get the model for the
 //vehicle and stomp over modelname with it.
 /// Source: oracle/codemp/game/bg_vehicleLoad.c:1599
-func BG_GetVehicleModelName(_ modelname: inout JKAShared.CharBuf) {
+public func BG_GetVehicleModelName(_ modelname: inout JKAShared.CharBuf) {
     let vehName: CharBuf = modelname[(1)...]
     let vIndex: Int32 = BG_VehicleGetIndex(String(vehName))
 
@@ -976,7 +976,7 @@ func BG_GetVehicleSkinName(_ skinname: inout JKAShared.CharBuf) {
 }
 
 /// Source: oracle/codemp/game/bg_vehicleLoad.c:1643
-func AttachRidersGeneric(_ pVeh: JKAMP.Vehicle) {
+public func AttachRidersGeneric(_ pVeh: JKAMP.Vehicle) {
     // If we have a pilot, attach him to the driver tag.
     if pVeh.m_pPilot != nil {
         // Raven's record lives to the end of his block, so the block is the closure.

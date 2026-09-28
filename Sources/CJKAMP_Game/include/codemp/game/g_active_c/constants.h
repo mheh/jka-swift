@@ -15,6 +15,16 @@
 // Source: oracle/codemp/game/g_active.c:1101
 #define MAX_SIGHT_FOV			100
 
+// Source: oracle/codemp/game/g_active.c:1653
+typedef enum
+{
+	TAUNT_TAUNT = 0,
+	TAUNT_BOW,
+	TAUNT_MEDITATE,
+	TAUNT_FLOURISH,
+	TAUNT_GLOAT
+};
+
 // Source: oracle/codemp/game/g_active.c:2203
 #define	SLOWDOWN_DIST	128.0f
 

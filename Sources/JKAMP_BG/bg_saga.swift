@@ -6,13 +6,13 @@ import JKAShared
 let SIEGECHAR_TAB = 9 as Int32
 
 /// Source: oracle/codemp/game/bg_saga.c:32
-var siege_info: JKAShared.CharBuf {
+public var siege_info: JKAShared.CharBuf {
     get { bg.variables.siege_info }
     set { bg.variables.siege_info = newValue }
 }
 
 /// Source: oracle/codemp/game/bg_saga.c:33
-var siege_valid: Int32 {
+public var siege_valid: Int32 {
     get { bg.variables.siege_valid }
     set { bg.variables.siege_valid = newValue }
 }
@@ -30,10 +30,10 @@ var team2Theme: JKAMP.SiegeTeam? {
 }
 
 /// Source: oracle/codemp/game/bg_saga.c:38
-var bgSiegeClasses: Slots<JKAMP.SiegeClass> { bg.storage.bgSiegeClasses }
+public var bgSiegeClasses: Slots<JKAMP.SiegeClass> { bg.storage.bgSiegeClasses }
 
 /// Source: oracle/codemp/game/bg_saga.c:39
-var bgNumSiegeClasses: Int32 {
+public var bgNumSiegeClasses: Int32 {
     get { bg.variables.bgNumSiegeClasses }
     set { bg.variables.bgNumSiegeClasses = newValue }
 }
@@ -42,7 +42,7 @@ var bgNumSiegeClasses: Int32 {
 var bgSiegeTeams: Slots<JKAMP.SiegeTeam> { bg.storage.bgSiegeTeams }
 
 /// Source: oracle/codemp/game/bg_saga.c:42
-var bgNumSiegeTeams: Int32 {
+public var bgNumSiegeTeams: Int32 {
     get { bg.variables.bgNumSiegeTeams }
     set { bg.variables.bgNumSiegeTeams = newValue }
 }
@@ -109,7 +109,7 @@ func BG_SiegeStripTabs(_ buf: inout JKAShared.CharBuf) {
 }
 
 /// Source: oracle/codemp/game/bg_saga.c:191
-func BG_SiegeGetValueGroup(_ buf: inout JKAShared.CharBuf, _ group: String, _ outbuf: inout JKAShared.CharBuf) -> Int32 {
+public func BG_SiegeGetValueGroup(_ buf: inout JKAShared.CharBuf, _ group: String, _ outbuf: inout JKAShared.CharBuf) -> Int32 {
     var i: Int32 = 0
     var j: Int32
     var checkGroup = CharBuf(4096)
@@ -296,7 +296,7 @@ func BG_SiegeGetValueGroup(_ buf: inout JKAShared.CharBuf, _ group: String, _ ou
 }
 
 /// Source: oracle/codemp/game/bg_saga.c:408
-func BG_SiegeGetPairedValue(_ buf: inout JKAShared.CharBuf, _ key: String, _ outbuf: inout JKAShared.CharBuf) -> Int32 {
+public func BG_SiegeGetPairedValue(_ buf: inout JKAShared.CharBuf, _ key: String, _ outbuf: inout JKAShared.CharBuf) -> Int32 {
     var i: Int32 = 0
     var j: Int32
     var k: Int32
@@ -940,7 +940,7 @@ func BG_GetClassOnBaseClass(_ team: Int32, _ classIndex: Int32, _ cntIndex: Int3
 }
 
 /// Source: oracle/codemp/game/bg_saga.c:1181
-func BG_SiegeLoadClasses(_ descBuffer: Slots<JKAMP.SiegeClassDesc>?) {
+public func BG_SiegeLoadClasses(_ descBuffer: Slots<JKAMP.SiegeClassDesc>?) {
     let numFiles: Int32
     var filelen: Int32
     var filelist = CharBuf(4096)
@@ -1058,7 +1058,7 @@ func BG_SiegeParseTeamFile(_ filename: String) {
 }
 
 /// Source: oracle/codemp/game/bg_saga.c:1314
-func BG_SiegeLoadTeams() {
+public func BG_SiegeLoadTeams() {
     let numFiles: Int32
     var filelen: Int32
     var filelist = CharBuf(4096)
@@ -1088,7 +1088,7 @@ func BG_SiegeLoadTeams() {
 //Misc/utility functions
 //======================================
 /// Source: oracle/codemp/game/bg_saga.c:1344
-func BG_SiegeFindThemeForTeam(_ team: Int32) -> JKAMP.SiegeTeam? {
+public func BG_SiegeFindThemeForTeam(_ team: Int32) -> JKAMP.SiegeTeam? {
     if team == SIEGETEAM_TEAM1 {
         return team1Theme
     } else if team == SIEGETEAM_TEAM2 {
@@ -1099,7 +1099,7 @@ func BG_SiegeFindThemeForTeam(_ team: Int32) -> JKAMP.SiegeTeam? {
 }
 
 /// Source: oracle/codemp/game/bg_saga.c:1363
-func BG_PrecacheSabersForSiegeTeam(_ team: Int32) {
+public func BG_PrecacheSabersForSiegeTeam(_ team: Int32) {
     var t: SiegeTeam?
     // Raven's record lives to the end of his block, so the block is the closure.
     SaberInfo.scratch { saber in
@@ -1146,7 +1146,7 @@ func BG_PrecacheSabersForSiegeTeam(_ team: Int32) {
 }
 
 /// Source: oracle/codemp/game/bg_saga.c:1416
-func BG_SiegeCheckClassLegality(_ team: Int32, _ classname: inout JKAShared.CharBuf) -> Bool {
+public func BG_SiegeCheckClassLegality(_ team: Int32, _ classname: inout JKAShared.CharBuf) -> Bool {
     var i: Int32 = 0
 
     // Raven points `teamPtr` at one of the file-scope variables, and the statements after his choice run over the one he chose.
@@ -1199,7 +1199,7 @@ func BG_SiegeFindTeamForTheme(_ themeName: String) -> JKAMP.SiegeTeam? {
 }
 
 /// Source: oracle/codemp/game/bg_saga.c:1473
-func BG_SiegeSetTeamTheme(_ team: Int32, _ themeName: String) {
+public func BG_SiegeSetTeamTheme(_ team: Int32, _ themeName: String) {
     // Raven points `teamPtr` at one of the file-scope variables, and the statements after his choice run over the one he chose.
     // The chosen variable crosses as an inout parameter, and each arm of the choice calls the nested function with its own variable.
     func withTeamPtr(_ teamPtr: inout SiegeTeam?) {
@@ -1213,7 +1213,7 @@ func BG_SiegeSetTeamTheme(_ team: Int32, _ themeName: String) {
 }
 
 /// Source: oracle/codemp/game/bg_saga.c:1489
-func BG_SiegeFindClassIndexByName(_ classname: String) -> Int32 {
+public func BG_SiegeFindClassIndexByName(_ classname: String) -> Int32 {
     var i: Int32 = 0
 
     while i < bgNumSiegeClasses {

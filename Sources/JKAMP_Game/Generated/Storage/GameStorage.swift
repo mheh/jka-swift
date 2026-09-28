@@ -694,6 +694,10 @@ public final class GameStorage {
     /// Source: oracle/codemp/game/g_nav.c:1660
     public let tempWaypointList: Slots<WaypointData>
 
+    /// Raven's `siegePers_t g_siegePersistant` of `g_saga.c`.
+    /// Source: oracle/codemp/game/g_saga.c:20
+    public let g_siegePersistant: JKAMP.SiegePers
+
     /// Raven's `ipFilter_t ipFilters[MAX_IPFILTERS]` of `g_svcmds.c`.
     /// Source: oracle/codemp/game/g_svcmds.c:54
     public let ipFilters: Slots<IpFilter>
@@ -899,6 +903,7 @@ public final class GameStorage {
         self.g_shooterClients = GameStorage.records(count: 16, of: ShooterClient.self)
         self.pushed = GameStorage.records(count: Int(JKAShared.MAX_GENTITIES), of: Pushed.self)
         self.tempWaypointList = GameStorage.records(count: Int(JKAMP_Game.MAX_STORED_WAYPOINTS), of: WaypointData.self)
+        self.g_siegePersistant = GameStorage.record(of: JKAMP.SiegePers.self)
         self.ipFilters = GameStorage.records(count: 1024, of: IpFilter.self)
         self.teamgame = GameStorage.record(of: Teamgame.self)
         self.g_timerPool = GameStorage.records(count: 16384, of: Gtimer.self)
@@ -1082,6 +1087,7 @@ public final class GameStorage {
         self.g_shooterClients.base.deallocate()
         self.pushed.base.deallocate()
         self.tempWaypointList.base.deallocate()
+        UnsafeMutableRawPointer(self.g_siegePersistant.handle).deallocate()
         self.ipFilters.base.deallocate()
         UnsafeMutableRawPointer(self.teamgame.handle).deallocate()
         self.g_timerPool.base.deallocate()

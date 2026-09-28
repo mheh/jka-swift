@@ -53,6 +53,17 @@ public func trap_Cvar_Register(_ cvar: JKAMP.VmCvar, _ var_name: String, _ value
     }
 }
 
+/// Source: oracle/codemp/game/g_syscalls.c:57
+/// Raven hands `cvar` a NULL from the three rows of gameCvarTable in g_main.c with a NULL handle, gamename, gamedate, and sv_mapname.
+/// This overload takes that nil.
+public func trap_Cvar_Register(_ cvar: JKAMP.VmCvar?, _ var_name: String, _ value: String, _ flags: Int32) {
+    _ = var_name.withCString { var_name in
+        value.withCString { value in
+            Syscall.call(G_CVAR_REGISTER, cvar, var_name, value, flags)
+        }
+    }
+}
+
 /// Source: oracle/codemp/game/g_syscalls.c:61
 public func trap_Cvar_Update(_ cvar: JKAMP.VmCvar) {
     Syscall.call(G_CVAR_UPDATE, cvar)

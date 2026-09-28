@@ -12,9 +12,8 @@ import JKAMP_BG
 // Raven's data table is C storage in the C target, with his initializer as written, reached as a Slots over the C array, the bg_tables.c shape that tables.py writes.
 
 /// Source: oracle/codemp/game/g_spawn.c:435
-// TODO: Port global spawns
-// Raven wrote: spawn_t spawns[]
-// Raven's data table is C storage in the C target, with his initializer as written, reached as a Slots over the C array, the bg_tables.c shape that tables.py writes.
+/// Raven's data table, a hand property of `GameWorld`.
+var spawns: [SpawnRow] { world.spawns }
 
 /// Source: oracle/codemp/game/g_spawn.c:886
 let NOVALUE = "novalue"
@@ -27,9 +26,10 @@ var defaultStyles: [[String]] {
 }
 
 /// Source: oracle/codemp/game/g_spawn.c:1234
-// TODO: Port global precachedKyle
-// Raven wrote: void *precachedKyle = 0
-// No table row for `void *`.
+var precachedKyle: OpaquePointer? {
+    get { world.variables.precachedKyle }
+    set { world.variables.precachedKyle = newValue }
+}
 
 /// Source: oracle/codemp/game/g_spawn.c:1258
 var g_cullDistance: Float {
