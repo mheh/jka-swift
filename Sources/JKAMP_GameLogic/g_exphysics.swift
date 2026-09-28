@@ -11,7 +11,7 @@ let MAX_GRAVITY_PULL = 512 as Int32
 //state value. Origin smoothing on the client is expected to compensate for choppy
 //movement.
 /// Source: oracle/codemp/game/g_exphysics.c:21
-func G_RunExPhys(_ ent: Entity, _ gravity: Float, _ mass: Float, _ bounce: Float, _ autoKill: Bool, _ g2Bolts: UnsafeMutablePointer<Int32>?, _ numG2Bolts: Int32) {
+func G_RunExPhys(_ ent: Entity, _ gravity: Float, _ mass: Float, _ bounce: Float, _ autoKill: Bool, _ g2Bolts: [Int32]?, _ numG2Bolts: Int32) {
     // Raven's record lives to the end of his block, so the block is the closure.
     // The closure gives true where Raven returns from the function.
     let earlyOut = Trace.scratch { tr -> Bool in
@@ -108,9 +108,7 @@ func G_RunExPhys(_ ent: Entity, _ gravity: Float, _ mass: Float, _ bounce: Float
 
                     while i < numG2Bolts {
                         //Get the position of the actual bolt for this frame
-                        // Port-note: Raven indexes `g2Bolts[i]` through the `int *` parameter, which crosses as a raw pointer under rule 11. A shape ruling is due.
-                        // Raven wrote: trap_G2API_GetBoltMatrix(ent->ghoul2, 0, g2Bolts[i], &matrix, gbmAngles, ent->r.currentOrigin, level.time, NULL, ent->modelScale)
-                        portMissing("G_RunExPhys", source: "oracle/codemp/game/g_exphysics.c:21")
+                        trap_G2API_GetBoltMatrix(ent.ghoul2, 0, g2Bolts![i], matrix, gbmAngles, ent.r.currentOrigin, level.time, nil, &ent.modelScale)
                         BG_GiveMeVectorFromMatrix(matrix, ORIGIN, &boneOrg)
 
                         //Now add the projected positional difference into the result

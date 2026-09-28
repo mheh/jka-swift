@@ -58,3 +58,7 @@ This file lists every ruling of every walk in date order. The walk file under no
 | 2026-09-27 | no walk file, hole round of 2026-09-27 | Row 1: an AngleVectors NULL-write arm takes a scratch with no portMissing | ratified as proposed |
 | 2026-09-27 | no walk file, hole round of 2026-09-27 | Row 1: the warnings stand, and the gate reads errors only. No body line changes to silence a warning. | ratified as proposed |
 | 2026-09-27 | no walk file, hole round of 2026-09-27 | Row 2: fabsf spells as abs through LIBC_SPELLINGS, the same as fabs | ratified as proposed |
+| 2026-09-27 | no walk file, second walk of 2026-09-27 | Row 1: int_array PARAMS kind, a read-only int pointer with a count crosses as [Int32]? | ratified as proposed |
+| 2026-09-27 | no walk file, second walk of 2026-09-27 | Row 2: the qsort group of bg_lib joins NOT_PORTED, the hand port is generic | ratified as proposed |
+| 2026-09-27 | no walk file, second walk of 2026-09-27 | Row 3: reexport.py unlinks only the files that carry its own note | ratified as proposed |
+| 2026-09-27 | no walk file, second walk of 2026-09-27 | Row 4: three bg_slidemove lines regroup so the scalar computes first | ratified as proposed |

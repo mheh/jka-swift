@@ -155,6 +155,7 @@ RETURNS = {
 #   fill_buffer  a `char *` a trap fills with no size beside it, given as ("fill_buffer", capacity) with the capacity Raven's
 #                callers declare for the buffer, and the trap returns the String the same way a sized buffer does
 #   float_array  an inout [Float] for a `float *` a body fills as a matrix of the counts beside it
+#   int_array  an [Int32]? by value for a read-only `int *` with a count beside it, and a caller's NULL is nil
 #   pointer_table  a Slots<View?> over a file-scope array of struct pointers, whose base a trap hands to the engine
 PARAMS = {
     ("COM_ParseString", "s"): "out_string",
@@ -169,6 +170,7 @@ PARAMS = {
     ("Parse1DMatrix", "m"): "float_array",
     ("Parse2DMatrix", "m"): "float_array",
     ("Parse3DMatrix", "m"): "float_array",
+    ("G_RunExPhys", "g2Bolts"): "int_array",
     ("trap_SV_RegisterSharedMemory", "memory"): "raw",
     # Raven's callers declare `char GLAName[MAX_QPATH]` in g_client.c and `char GLAName[1024]` in NPC_spawn.c, and the trap takes the larger.
     # `char hitSurface[MAX_QPATH]` is the one size for the surface name.
@@ -188,6 +190,10 @@ NOT_PORTED = {
     # A trap no file of the module calls gets its shape when a module that calls it is generated.
     "trap_UnifyWhiteSpaces": "no caller in the game module, and its `char *` rewritten in place is shaped when a module that calls it is generated",
     "trap_AAS_TraceAreas": "no caller in the game module, and its arrays the engine fills are shaped when a module that calls it is generated",
+    # bg_lib's qsort group, by the oracle names. The hand helpers `insertion` and `qsortSpan` hold parts of Raven's qsort body and have no oracle function.
+    "swapfunc": "Raven's byte-swap qsort has no view form, and the hand port is generic over the element type",
+    "med3": "Raven's byte-swap qsort has no view form, and the hand port is generic over the element type",
+    "qsort": "Raven's byte-swap qsort has no view form, and the hand port is generic over the element type",
 }
 
 # C library functions a .c file aliases, `#define sqrtf sqrt`, with the Swift signature the forwarder takes.

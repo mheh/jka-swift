@@ -236,6 +236,9 @@ class Types:
             return Answer("inout JKAShared.vec3_t", "vec3_mut")
         if facts.ruled == "float_array":
             return Answer("inout [Float]", "bare")
+        if facts.ruled == "int_array":
+            # The body only reads the values, and Raven's callers pass NULL with a count of zero, so the array crosses by value as an optional.
+            return Answer("[Int32]?", "int_array")
         if t.spelling.replace("const ", "") in TYPES:
             return Answer(TYPES[t.spelling.replace("const ", "")], "bare")
         # A vector parameter is the array type itself, and Clang keeps the typedef name on the parameter.

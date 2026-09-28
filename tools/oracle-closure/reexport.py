@@ -273,8 +273,12 @@ def write(target: str, files: dict[str, list[str]]) -> int:
     view = VIEW_OF[target]
     out = SOURCES / view / "Generated"
     if out.exists():
+        # Other generators write into this directory too, such as traps.py, so only a file that opens with this script's note goes.
         for old in out.glob("*.swift"):
-            old.unlink()
+            with old.open() as f:
+                first = f.readline().rstrip("\n")
+            if first == NOTE:
+                old.unlink()
     out.mkdir(parents=True, exist_ok=True)
     count = 0
     for stem, lines in sorted(files.items()):

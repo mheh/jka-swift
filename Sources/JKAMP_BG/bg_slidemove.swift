@@ -126,9 +126,9 @@ func PM_VehicleImpact(_ pEnt: JKAMP.BgEntity, _ trace: JKAMP.Trace) {
                     } else {
                         //hit another fighter
                         if hitEnt!.playerState != nil {
-                            pushDir = bounceDir * (pm.ps.speed + hitEnt!.playerState!.speed) * 0.5
+                            pushDir = bounceDir * ((pm.ps.speed + hitEnt!.playerState!.speed) * 0.5)
                         } else {
-                            pushDir = bounceDir * (pm.ps.speed + hitEnt!.s.speed) * 0.5
+                            pushDir = bounceDir * ((pm.ps.speed + hitEnt!.s.speed) * 0.5)
                         }
                         pushDir = pushDir * (l / pSelfVeh!.m_pVehicleInfo!.mass)
                         pushDir = pushDir * 0.1
@@ -203,7 +203,7 @@ func PM_VehicleImpact(_ pEnt: JKAMP.BgEntity, _ trace: JKAMP.Trace) {
                         //flip the bounceDir
                         bounceDir = bounceDir * -1
                         //do bounce
-                        pushDir = bounceDir * (pm.ps.speed + l) * 0.5
+                        pushDir = bounceDir * ((pm.ps.speed + l) * 0.5)
                         pushDir = pushDir * (l * 0.5 / hitEnt!.m_pVehicle!.m_pVehicleInfo!.mass)
                         VectorNormalize2(hitEnt!.playerState!.velocity, &moveDir)
                         bounceDot = _DotProduct(moveDir, bounceDir) * -1

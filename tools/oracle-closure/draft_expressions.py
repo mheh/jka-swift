@@ -358,6 +358,9 @@ class Expressions:
             if inner_base.kind == CursorKind.DECL_REF_EXPR and inner_base.spelling in self.cursor_locals:
                 return self.leaf(cur, f"{self.expr(inner_base)}[{self.converted(index, 'Int32')}]")
             pointer = self.params_by_name.get(inner_base.spelling) if inner_base.kind == CursorKind.DECL_REF_EXPR else None
+            if pointer is not None and pointer.kind == "int_array":
+                # The parameter is an optional array, and Raven's NULL guard stands above every index, so the read unwraps it.
+                return self.leaf(cur, f"{self.expr(inner_base)}![{self.expr(index)}]")
             if pointer is not None and (pointer.swift or "").startswith("UnsafeMutablePointer<"):
                 # Rule 11 keeps the pointer out of a logic target, so an index through it has no form until a ruling gives the parameter a shape.
                 raven = self.bytes[cur.extent.start.offset:cur.extent.end.offset].decode("utf-8", "replace")
