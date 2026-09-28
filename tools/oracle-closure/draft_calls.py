@@ -12,7 +12,7 @@ from clang.cindex import CursorKind, TypeKind
 
 from spelling import INT_KINDS
 
-from skeleton import BG, target_of
+from skeleton import BG, LOGIC, target_of
 from table import Param, swift_name
 from overlay import MACROS
 from rulings import LIBC_SPELLINGS
@@ -59,7 +59,7 @@ class Calls:
         if base.kind != CursorKind.DECL_REF_EXPR:
             return None
         param = self.params_by_name.get(base.spelling)
-        if base.spelling in self.text_locals or (param is not None and param.kind == "cstring"):
+        if base.spelling in self.text_locals or (param is not None and param.kind == "cstring" and base.spelling not in self.cursor_locals):
             return f"String({self.expr(base)}.dropFirst(Int({self.converted(index, 'Int32')})))"
         return None
 
@@ -95,13 +95,18 @@ class Calls:
                 self.call_kinds, self.call_format = outer
             if at is not None:
                 words.append(f"at: {at[2]}")
-            return f"{LIBC_SPELLINGS.get(name, swift_name(name))}({', '.join(words)})"
+            return f"{self.qualifier(name)}{LIBC_SPELLINGS.get(name, swift_name(name))}({', '.join(words)})"
         if callee is not None and callee.kind == CursorKind.MEMBER_REF_EXPR:
             # A stored function on a view runs through the view's method, `pm.runTrace(...)`, which views.py writes per field.
             kids_ = list(callee.get_children())
             field = callee.spelling
             method = f"run{field[0].upper()}{field[1:]}"
             params = self.registry.params.get(method, [])
+            if self.owner_first(callee) and args:
+                # The run method passes its own slot first, as views.py writes it, so Raven's first argument drops when it is the owner.
+                if self.expr(args[0]) != self.expr(kids_[0]):
+                    raise Hole(f"Raven passes another record first to the stored `{field}`, and the view's run method passes its own slot.")
+                args = args[1:]
             outer = self.call_kinds, self.call_format
             self.call_kinds = self.argument_kinds(args)
             self.call_format = self.format_conversions(callee.type, args)
@@ -183,13 +188,40 @@ class Calls:
         template, floats = MACROS[name]
         if template.count("{") != len(args):
             raise Hole(f"{name} takes {template.count('{')} arguments, and Raven gave {len(args)}.")
+        if template.startswith(f"{name}("):
+            template = self.qualifier(name) + template
         words = []
         for i, arg in enumerate(args):
             inner = self.strip(arg)
             if inner.kind == CursorKind.UNARY_OPERATOR and self.unary_parts(inner)[0] == "&":
                 inner = self.unary_parts(inner)[2]
-            words.append(self.converted(inner, "Float") if i in floats else self.expr(inner))
+            word = self.converted(inner, "Float") if i in floats else self.expr(inner)
+            if self.strip(inner).kind in (CursorKind.BINARY_OPERATOR, CursorKind.CONDITIONAL_OPERATOR) \
+                    and re.search(rf"[-+*/]\s*\{{{i}\}}|\{{{i}\}}\s*[-+*/]", template):
+                # The C macro binds its argument whole, so Raven's `1.0f-mass` stays one operand of the template's operator.
+                word = f"({word})"
+            words.append(word)
         return template.format(*words)
+
+    def qualifier(self, name: str) -> str:
+        """`JKAMP_BG.` for a game body's call to a bg function whose name the SDK also declares, `rand` and `random`, and nothing for any other call.
+        Foundation's declaration shadows the bg one in a game file, so the module name breaks the tie, and one comment line above says so."""
+        if target_of(self.fn.stem) == BG or name not in self.sdk_functions():
+            return ""
+        homes = self.registry.homes.get(swift_name(name), set())
+        if BG not in homes or homes & {LOGIC, "JKAMP_Game", "JKAShared"}:
+            return ""
+        note = f"// The SDK also declares `{name}`, so the call names the bg module."
+        if note not in self.pending:
+            self.pending.append(note)
+        return f"{BG}."
+
+    def sdk_functions(self) -> set[str]:
+        """The names of every function a header outside the oracle declares in the parse, the libc names Swift imports through Foundation."""
+        if not hasattr(self, "_sdk_functions"):
+            self._sdk_functions = {c.spelling for c in self.fn.cur.translation_unit.cursor.get_children()
+                                   if c.kind == CursorKind.FUNCTION_DECL and not self.oracle_declares(c)}
+        return self._sdk_functions
 
     def callee_params(self, name: str) -> list[tuple[str, str]]:
         """The callee's Swift parameters: the signature under Sources/ when one exists, because a hand port of q_math takes a
@@ -242,7 +274,7 @@ class Calls:
                                             "The ported function takes it by reference, so the body passes a scratch local it never reads.")
             self.pending.append(f"var {scratch} {tail}")
             return f"&{scratch}"
-        if param is not None and param[1] in ("Float", "Int32", "Bool"):
+        if param is not None and param[1] in ("Float", "Int32", "Double", "Bool"):
             return self.converted(inner, param[1])
         if param is not None and param[1].endswith("?") and self.is_null(inner):
             return "nil"
@@ -348,6 +380,18 @@ class Calls:
         """True for a Swift parameter that takes one view, the shape a Slots does not fit."""
         base = swift.removeprefix("inout ").removesuffix("?").split(".")[-1]
         return base in {view for view, _ in self.views.views.values()}
+
+    def owner_first(self, callee: ci.Cursor) -> bool:
+        """True when the stored function's first parameter points at the record that holds the field, Raven's `ent->think(ent)`."""
+        field = callee.referenced
+        if field is None or field.kind != CursorKind.FIELD_DECL:
+            return False
+        proto = field.type.get_canonical().get_pointee()
+        arg_types = list(proto.argument_types()) if proto.kind == TypeKind.FUNCTIONPROTO else []
+        if not arg_types or arg_types[0].get_canonical().kind != TypeKind.POINTER:
+            return False
+        owner = self.types.record_name(field.semantic_parent.type) or field.semantic_parent.spelling
+        return self.types.record_name(arg_types[0].get_canonical().get_pointee()) == owner
 
     def is_callback(self, cur: ci.Cursor) -> bool:
         """True for a member reference to a field that stores a function pointer."""

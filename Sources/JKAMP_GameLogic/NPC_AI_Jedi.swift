@@ -4,6 +4,7 @@ import Foundation
 import JKAMP
 import JKAShared
 import JKAMP_Game
+import JKAMP_BG
 
 /// Source: oracle/codemp/game/NPC_AI_Jedi.c:21
 private let MAX_VIEW_DIST = 2048 as Int32

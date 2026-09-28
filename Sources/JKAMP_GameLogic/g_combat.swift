@@ -4,6 +4,7 @@ import Foundation
 import JKAMP
 import JKAShared
 import JKAMP_Game
+import JKAMP_BG
 
 /// Source: oracle/codemp/game/g_combat.c:755
 /// Raven's data table, a hand property of `GameWorld`.

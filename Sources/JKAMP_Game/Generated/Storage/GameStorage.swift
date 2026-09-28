@@ -898,7 +898,7 @@ public final class GameStorage {
         self.refTagOwnerMap = GameStorage.records(count: 16, of: TagOwner.self)
         self.g_shooterClients = GameStorage.records(count: 16, of: ShooterClient.self)
         self.pushed = GameStorage.records(count: Int(JKAShared.MAX_GENTITIES), of: Pushed.self)
-        self.tempWaypointList = GameStorage.records(count: 512, of: WaypointData.self)
+        self.tempWaypointList = GameStorage.records(count: Int(JKAMP_Game.MAX_STORED_WAYPOINTS), of: WaypointData.self)
         self.ipFilters = GameStorage.records(count: 1024, of: IpFilter.self)
         self.teamgame = GameStorage.record(of: Teamgame.self)
         self.g_timerPool = GameStorage.records(count: 16384, of: Gtimer.self)

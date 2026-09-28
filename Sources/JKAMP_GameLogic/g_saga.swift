@@ -4,6 +4,7 @@ import Foundation
 import JKAMP
 import JKAShared
 import JKAMP_Game
+import JKAMP_BG
 
 /// Source: oracle/codemp/game/g_saga.c:15
 let SIEGEITEM_STARTOFFRADAR = 8 as Int32

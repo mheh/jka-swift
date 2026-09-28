@@ -4,6 +4,7 @@ import Foundation
 import JKAMP
 import JKAShared
 import JKAMP_Game
+import JKAMP_BG
 
 /// Source: oracle/codemp/game/ai_main.c:41
 let MAX_PATH = 144 as Int32

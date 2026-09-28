@@ -4,6 +4,7 @@ import Foundation
 import JKAMP
 import JKAShared
 import JKAMP_Game
+import JKAMP_BG
 
 /// Source: oracle/codemp/game/NPC_AI_Stormtrooper.c:20
 private let MAX_VIEW_DIST = 1024 as Int32

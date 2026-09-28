@@ -12,6 +12,7 @@ from clang.cindex import CursorKind, TypeKind
 
 import closure as C
 from rulings import WRAPPING_ARITHMETIC
+from skeleton import LOGIC, target_of
 from table import ASSIGN_OPS, TARGET, swift_name
 from overlay import DROPPED, MACROS, RECORD_CALLS, address_arguments
 
@@ -251,6 +252,10 @@ class Statements:
         kids = list(cur.get_children())
         if not kids:
             return False
+        decays = cur.type.get_canonical().kind == TypeKind.POINTER and cur.type.get_canonical().get_pointee().kind == TypeKind.FUNCTIONPROTO
+        if len(kids) == 1 and kids[0].kind == CursorKind.DECL_REF_EXPR and decays:
+            # Raven names a function as a value, `ent->think = G_RunObject`, and the node is C's decay to a pointer, not a call.
+            return False
         callee = self.strip(kids[0])
         ref = callee.referenced
         return callee.kind == CursorKind.DECL_REF_EXPR and ref is not None and ref.kind == CursorKind.FUNCTION_DECL
@@ -272,7 +277,7 @@ class Statements:
                 return [f"{pad}return" + self.trailing(cur)]
             if self.is_null(kids[0]) and self.fn.returns and self.fn.returns.endswith("?"):
                 return [f"{pad}return nil" + self.trailing(cur)]
-            if self.is_null(kids[0]) and self.fn.returns and not self.fn.returns.endswith("?") and self.fn.returns not in ("Int32", "Float", "Bool"):
+            if self.is_null(kids[0]) and self.fn.returns and not self.fn.returns.endswith("?") and self.fn.returns not in ("Int32", "Float", "Double", "Bool"):
                 if self.after_com_error:
                     return [f"{pad}// Raven writes `return 0` after this call, which `Com_Error` never reaches."]
                 raise Hole(f"Raven returns NULL, and the function returns a `{self.fn.returns}`.")
@@ -353,6 +358,11 @@ class Statements:
                     if op != "=":
                         raise Hole(f"Raven writes through `{chosen}` with `{op}`, and the inout parameter has no such step.")
                     return [f"{pad}{chosen} = {self.expr(right)}" + self.trailing(cur)]
+                walked = self.cursor_post_step(right) if op == "=" else None
+                if walked is not None and self.swift_type_of(left) == "Int32" and not (
+                        self.unwrap(left).kind == CursorKind.DECL_REF_EXPR and self.unwrap(left).spelling in self.narrow_locals):
+                    # Raven's `c = *p++` reads the byte under the cursor and then steps the cursor, two Swift statements in his order.
+                    return [f"{pad}{self.expr(left)} = {walked}.byte" + self.trailing(cur), f"{pad}{walked}.advance()"]
                 if self.unwrap(left).kind == CursorKind.DECL_REF_EXPR and self.unwrap(left).spelling in self.cursor_locals:
                     if op == "=":
                         source = "JKAShared.TextCursor()" if self.is_null(right) else self.text_cursor(right)
@@ -421,6 +431,10 @@ class Statements:
                             raise Hole(f"Raven writes the game's `{'.'.join(fields)}` here, and the channel has no set for it.")
                         head = (self.expr(base_cur) + ("!" if self.optional_base(base_cur) else "") + ", ") if root == "entity" else ""
                         return [f"{pad}{write.name}({head}{self.converted(right, write.swift)})" + self.trailing(cur)]
+                if op == "=" and self.pooled_field(left) and target_of(self.fn.stem) == LOGIC and not self.is_null(right) \
+                        and self.unwrap(right).kind != CursorKind.STRING_LITERAL and self.text_kind(right) == "String":
+                    # A `char *` field holds a pointer the engine may read at any time, so Raven's text goes into the world's string pool first.
+                    return [f"{pad}{self.expr(left)} = world.strings.intern({self.expr(right)})" + self.trailing(cur)]
                 if self.float_field(self.strip(left)) and self.is_pointer(right):
                     raven = self.bytes[cur.extent.start.offset:cur.extent.end.offset].decode("utf-8", "replace")
                     raise Hole(f"Raven stores a pointer into the `float *` field with `{raven}`, and rule 11 keeps a pointer out of a logic target.")
@@ -472,7 +486,8 @@ class Statements:
                     raise Hole("A whole-record store, which a view has no operator for.")
                 lhs_kind = self.swift_type_of(left)
                 unsigned = self.unsigned_of(left)
-                if op != "=" and lhs_kind in ("Int32", "Float") and self.has_double_literal(right):
+                if op != "=" and lhs_kind in ("Int32", "Float") \
+                        and (self.has_double_literal(right) or self.holds_double(right)):
                     # C computes the double expression and converts once at the store, by "A double literal".
                     return [f"{pad}{target} = {lhs_kind}(Double({target}) {op[:-1]} {self.wrapped(right, 'Double')})" + self.trailing(cur)]
                 if op != "=" and lhs_kind == "Int32" and self.types.number_kind(self.strip(right).type) == "Float":

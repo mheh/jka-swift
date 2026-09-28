@@ -4,6 +4,7 @@ import Foundation
 import JKAMP
 import JKAShared
 import JKAMP_Game
+import JKAMP_BG
 
 /// Source: oracle/codemp/game/NPC_AI_Rancor.c:10
 private let MIN_DISTANCE = 128 as Int32

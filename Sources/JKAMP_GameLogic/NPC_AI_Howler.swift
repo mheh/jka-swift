@@ -4,6 +4,7 @@ import Foundation
 import JKAMP
 import JKAShared
 import JKAMP_Game
+import JKAMP_BG
 
 /// Source: oracle/codemp/game/NPC_AI_Howler.c:4
 private let MIN_DISTANCE = 54 as Int32

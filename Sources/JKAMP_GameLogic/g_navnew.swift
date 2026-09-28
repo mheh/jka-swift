@@ -4,6 +4,7 @@ import Foundation
 import JKAMP
 import JKAShared
 import JKAMP_Game
+import JKAMP_BG
 
 /// Source: oracle/codemp/game/g_navnew.c:15
 func NAV_CheckNodeFailedForEnt(_ ent: Entity, _ nodeNum: Int32) -> Bool {

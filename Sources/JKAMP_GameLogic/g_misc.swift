@@ -4,6 +4,7 @@ import Foundation
 import JKAMP
 import JKAShared
 import JKAMP_Game
+import JKAMP_BG
 
 /// Source: oracle/codemp/game/g_misc.c:10
 let HOLOCRON_RESPAWN_TIME = 30000 as Int32

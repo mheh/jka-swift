@@ -620,7 +620,7 @@ BG_FindItemForWeapon
 ```
 */
 /// Source: oracle/codemp/game/bg_misc.c:1922
-func BG_FindItemForWeapon(_ weapon: JKAMP.weapon_t) -> JKAMP.Gitem? {
+public func BG_FindItemForWeapon(_ weapon: JKAMP.weapon_t) -> JKAMP.Gitem? {
     // Raven walks a `gitem_t *` from `bg_itemlist + 1` while `it->classname` is set. The port indexes the same slots.
     var index: Int32 = 1
     while bg_itemlist[index].classname != nil {
@@ -1040,7 +1040,7 @@ BG_EvaluateTrajectory
 ```
 */
 /// Source: oracle/codemp/game/bg_misc.c:2353
-func BG_EvaluateTrajectory(_ tr: JKAShared.Trajectory, _ atTime: Int32, _ result: inout JKAShared.vec3_t) {
+public func BG_EvaluateTrajectory(_ tr: JKAShared.Trajectory, _ atTime: Int32, _ result: inout JKAShared.vec3_t) {
     var atTime = atTime
     var deltaTime: Float
     var phase: Float
@@ -1104,7 +1104,7 @@ For determining velocity at a given time
 ```
 */
 /// Source: oracle/codemp/game/bg_misc.c:2419
-func BG_EvaluateTrajectoryDelta(_ tr: JKAShared.Trajectory, _ atTime: Int32, _ result: inout JKAShared.vec3_t) {
+public func BG_EvaluateTrajectoryDelta(_ tr: JKAShared.Trajectory, _ atTime: Int32, _ result: inout JKAShared.vec3_t) {
     var deltaTime: Float
     var phase: Float
 

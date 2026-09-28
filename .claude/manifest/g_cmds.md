@@ -7,60 +7,60 @@ The oracle range is the whole definition, from the return type to the closing br
 
 | Function | Oracle | Swift | State | jka-rust | Signature |
 |---|---|---|---|---|---|
-| `DeathmatchScoreboardMessage` | `oracle/codemp/game/g_cmds.c:25-88` | `JKAMP_GameLogic/g_cmds.swift:46` | marker | `crates/mp/game/src/g_cmds.rs:89-167` | `func DeathmatchScoreboardMessage(_ ent: Entity)` |
-| `Cmd_Score_f` | `oracle/codemp/game/g_cmds.c:98-100` | `JKAMP_GameLogic/g_cmds.swift:61` | marker | `crates/mp/game/src/g_cmds.rs:180-182` | `func Cmd_Score_f(_ ent: Entity)` |
-| `CheatsOk` | `oracle/codemp/game/g_cmds.c:109-119` | `JKAMP_GameLogic/g_cmds.swift:74` | marker | `crates/mp/game/src/g_cmds.rs:187-203` | `func CheatsOk(_ ent: Entity) -> Bool` |
-| `ConcatArgs` | `oracle/codemp/game/g_cmds.c:127-152` | `JKAMP_GameLogic/g_cmds.swift:87` | marker | `crates/mp/game/src/g_cmds.rs:208-230` | `func ConcatArgs(_ start: Int32) -> String` |
-| `SanitizeString` | `oracle/codemp/game/g_cmds.c:161-175` | `JKAMP_GameLogic/g_cmds.swift:102` | marker | `crates/mp/game/src/g_cmds.rs:237-261` | `func SanitizeString(_ `in`: inout JKAShared.CharBuf, _ out: inout JKAShared.CharBuf)` |
-| `ClientNumberFromString` | `oracle/codemp/game/g_cmds.c:185-221` | `JKAMP_GameLogic/g_cmds.swift:118` | marker | `crates/mp/game/src/g_cmds.rs:268-307` | `func ClientNumberFromString(_ to: Entity, _ s: inout JKAShared.CharBuf) -> Int32` |
-| `Cmd_Give_f` | `oracle/codemp/game/g_cmds.c:230-392` | `JKAMP_GameLogic/g_cmds.swift:133` | marker | `crates/mp/game/src/g_cmds.rs:314-468` | `func Cmd_Give_f(_ cmdent: Entity, _ baseArg: Int32)` |
-| `Cmd_God_f` | `oracle/codemp/game/g_cmds.c:403-418` | `JKAMP_GameLogic/g_cmds.swift:150` | marker | `crates/mp/game/src/g_cmds.rs:477-491` | `func Cmd_God_f(_ ent: Entity)` |
-| `Cmd_Notarget_f` | `oracle/codemp/game/g_cmds.c:430-444` | `JKAMP_GameLogic/g_cmds.swift:167` | marker | `crates/mp/game/src/g_cmds.rs:500-514` | `func Cmd_Notarget_f(_ ent: Entity)` |
-| `Cmd_Noclip_f` | `oracle/codemp/game/g_cmds.c:454-469` | `JKAMP_GameLogic/g_cmds.swift:182` | marker | `crates/mp/game/src/g_cmds.rs:521-536` | `func Cmd_Noclip_f(_ ent: Entity)` |
-| `Cmd_LevelShot_f` | `oracle/codemp/game/g_cmds.c:482-496` | `JKAMP_GameLogic/g_cmds.swift:200` | marker | `crates/mp/game/src/g_cmds.rs:545-562` | `func Cmd_LevelShot_f(_ ent: Entity)` |
-| `Cmd_TeamTask_f` | `oracle/codemp/game/g_cmds.c:506-522` | `JKAMP_GameLogic/g_cmds.swift:215` | marker | `crates/mp/game/src/g_cmds.rs:569-590` | `func Cmd_TeamTask_f(_ ent: Entity)` |
-| `G_CheckTKAutoKickBan` | `oracle/codemp/game/g_cmds.c:527-573` | `JKAMP_GameLogic/g_cmds.swift:221` | marker | `crates/mp/game/src/g_cmds.rs:595-655` | `func G_CheckTKAutoKickBan(_ ent: Entity)` |
-| `Cmd_Kill_f` | `oracle/codemp/game/g_cmds.c:583-643` | `JKAMP_GameLogic/g_cmds.swift:227` | marker | `crates/mp/game/src/g_cmds.rs:660-742` | `func Cmd_Kill_f(_ ent: Entity)` |
-| `G_GetDuelWinner` | `oracle/codemp/game/g_cmds.c:645-661` | `JKAMP_GameLogic/g_cmds.swift:233` | marker | `crates/mp/game/src/g_cmds.rs:747-764` | `func G_GetDuelWinner(_ client: Client) -> Entity?` |
-| `BroadcastTeamChange` | `oracle/codemp/game/g_cmds.c:670-718` | `JKAMP_GameLogic/g_cmds.swift:248` | marker | `crates/mp/game/src/g_cmds.rs:771-840` | `func BroadcastTeamChange(_ client: Client, _ oldTeam: Int32)` |
-| `G_PowerDuelCheckFail` | `oracle/codemp/game/g_cmds.c:720-743` | `JKAMP_GameLogic/g_cmds.swift:254` | marker | `crates/mp/game/src/g_cmds.rs:845-873` | `func G_PowerDuelCheckFail(_ ent: Entity) -> Bool` |
-| `SetTeam` | `oracle/codemp/game/g_cmds.c:752-1022` | `JKAMP_GameLogic/g_cmds.swift:260` | marker | `crates/mp/game/src/g_cmds.rs:878-1064` | `func SetTeam(_ ent: Entity, _ s: String)` |
-| `StopFollowing` | `oracle/codemp/game/g_cmds.c:1032-1051` | `JKAMP_GameLogic/g_cmds.swift:276` | marker | `crates/mp/game/src/g_cmds.rs:1072-1095` | `func StopFollowing(_ ent: Entity)` |
-| `Cmd_Team_f` | `oracle/codemp/game/g_cmds.c:1058-1112` | `JKAMP_GameLogic/g_cmds.swift:289` | marker | `crates/mp/game/src/g_cmds.rs:1100-1161` | `func Cmd_Team_f(_ ent: Entity)` |
-| `Cmd_DuelTeam_f` | `oracle/codemp/game/g_cmds.c:1119-1204` | `JKAMP_GameLogic/g_cmds.swift:302` | marker | `crates/mp/game/src/g_cmds.rs:1166-1246` | `func Cmd_DuelTeam_f(_ ent: Entity)` |
-| `G_TeamForSiegeClass` | `oracle/codemp/game/g_cmds.c:1206-1244` | `JKAMP_GameLogic/g_cmds.swift:308` | marker | `crates/mp/game/src/g_cmds.rs:1251-1292` | `func G_TeamForSiegeClass(_ clName: String) -> Int32` |
-| `Cmd_SiegeClass_f` | `oracle/codemp/game/g_cmds.c:1251-1348` | `JKAMP_GameLogic/g_cmds.swift:321` | marker | `crates/mp/game/src/g_cmds.rs:1297-1392` | `func Cmd_SiegeClass_f(_ ent: Entity)` |
-| `Cmd_ForceChanged_f` | `oracle/codemp/game/g_cmds.c:1355-1392` | `JKAMP_GameLogic/g_cmds.swift:334` | marker | `crates/mp/game/src/g_cmds.rs:1397-1435` | `func Cmd_ForceChanged_f(_ ent: Entity)` |
-| `G_SetSaber` | `oracle/codemp/game/g_cmds.c:1396-1455` | `JKAMP_GameLogic/g_cmds.swift:340` | marker | `crates/mp/game/src/g_cmds.rs:1440-1542` | `func G_SetSaber(_ ent: Entity, _ saberNum: Int32, _ saberName: inout JKAShared.CharBuf, _ siegeOverride: Bool) -> Bool` |
-| `Cmd_Follow_f` | `oracle/codemp/game/g_cmds.c:1462-1503` | `JKAMP_GameLogic/g_cmds.swift:353` | marker | `crates/mp/game/src/g_cmds.rs:1547-1594` | `func Cmd_Follow_f(_ ent: Entity)` |
-| `Cmd_FollowCycle_f` | `oracle/codemp/game/g_cmds.c:1510-1557` | `JKAMP_GameLogic/g_cmds.swift:366` | marker | `crates/mp/game/src/g_cmds.rs:1599-1651` | `func Cmd_FollowCycle_f(_ ent: Entity, _ dir: Int32)` |
-| `G_SayTo` static | `oracle/codemp/game/g_cmds.c:1566-1614` | `JKAMP_GameLogic/g_cmds.swift:372` | marker | `crates/mp/game/src/g_cmds.rs:1656-1725` | `private func G_SayTo(_ ent: Entity, _ other: Entity, _ mode: Int32, _ color: Int32, _ name: String, _ message: String, _ locMsg: String)` |
-| `G_Say` | `oracle/codemp/game/g_cmds.c:1618-1687` | `JKAMP_GameLogic/g_cmds.swift:378` | marker | `crates/mp/game/src/g_cmds.rs:1730-1870` | `func G_Say(_ ent: Entity, _ target: Entity?, _ mode: Int32, _ chatText: String)` |
-| `Cmd_Say_f` static | `oracle/codemp/game/g_cmds.c:1695-1712` | `JKAMP_GameLogic/g_cmds.swift:391` | marker | `crates/mp/game/src/g_cmds.rs:1875-1887` | `private func Cmd_Say_f(_ ent: Entity, _ mode: Int32, _ arg0: Bool)` |
-| `Cmd_Tell_f` static | `oracle/codemp/game/g_cmds.c:1719-1749` | `JKAMP_GameLogic/g_cmds.swift:404` | marker | `crates/mp/game/src/g_cmds.rs:1892-1924` | `private func Cmd_Tell_f(_ ent: Entity)` |
-| `Cmd_VoiceCommand_f` static | `oracle/codemp/game/g_cmds.c:1752-1809` | `JKAMP_GameLogic/g_cmds.swift:411` | marker | `crates/mp/game/src/g_cmds.rs:1931-1993` | `private func Cmd_VoiceCommand_f(_ ent: Entity)` |
-| `Cmd_GameCommand_f` | `oracle/codemp/game/g_cmds.c:1822-1840` | `JKAMP_GameLogic/g_cmds.swift:417` | marker | `crates/mp/game/src/g_cmds.rs:1998-2031` | `func Cmd_GameCommand_f(_ ent: Entity)` |
-| `Cmd_Where_f` | `oracle/codemp/game/g_cmds.c:1847-1849` | `JKAMP_GameLogic/g_cmds.swift:430` | marker | `crates/mp/game/src/g_cmds.rs:2036-2043` | `func Cmd_Where_f(_ ent: Entity)` |
-| `G_ClientNumberFromName` | `oracle/codemp/game/g_cmds.c:1871-1890` | `JKAMP_GameLogic/g_cmds.swift:445` | marker | `crates/mp/game/src/g_cmds.rs:2050-2065` | `func G_ClientNumberFromName(_ name: String) -> Int32` |
-| `SanitizeString2` | `oracle/codemp/game/g_cmds.c:1899-1937` | `JKAMP_GameLogic/g_cmds.swift:460` | marker | `crates/mp/game/src/g_cmds.rs:2072-2111` | `func SanitizeString2(_ `in`: inout JKAShared.CharBuf, _ out: inout JKAShared.CharBuf)` |
-| `G_ClientNumberFromStrippedName` | `oracle/codemp/game/g_cmds.c:1946-1965` | `JKAMP_GameLogic/g_cmds.swift:475` | marker | `crates/mp/game/src/g_cmds.rs:2119-2134` | `func G_ClientNumberFromStrippedName(_ name: String) -> Int32` |
-| `Cmd_CallVote_f` | `oracle/codemp/game/g_cmds.c:1974-2156` | `JKAMP_GameLogic/g_cmds.swift:481` | marker | `crates/mp/game/src/g_cmds.rs:2139-2396` | `func Cmd_CallVote_f(_ ent: Entity)` |
-| `Cmd_Vote_f` | `oracle/codemp/game/g_cmds.c:2163-2199` | `JKAMP_GameLogic/g_cmds.swift:494` | marker | `crates/mp/game/src/g_cmds.rs:2401-2460` | `func Cmd_Vote_f(_ ent: Entity)` |
-| `Cmd_CallTeamVote_f` | `oracle/codemp/game/g_cmds.c:2206-2363` | `JKAMP_GameLogic/g_cmds.swift:507` | marker | `crates/mp/game/src/g_cmds.rs:2465-2694` | `func Cmd_CallTeamVote_f(_ ent: Entity)` |
-| `Cmd_TeamVote_f` | `oracle/codemp/game/g_cmds.c:2370-2411` | `JKAMP_GameLogic/g_cmds.swift:520` | marker | `crates/mp/game/src/g_cmds.rs:2699-2760` | `func Cmd_TeamVote_f(_ ent: Entity)` |
-| `Cmd_SetViewpos_f` | `oracle/codemp/game/g_cmds.c:2419-2443` | `JKAMP_GameLogic/g_cmds.swift:533` | marker | `crates/mp/game/src/g_cmds.rs:2765-2795` | `func Cmd_SetViewpos_f(_ ent: Entity)` |
-| `Cmd_Stats_f` | `oracle/codemp/game/g_cmds.c:2452-2467` | `JKAMP_GameLogic/g_cmds.swift:546` | marker | `crates/mp/game/src/g_cmds.rs:2804-2804` | `func Cmd_Stats_f(_ ent: Entity)` |
-| `G_ItemUsable` | `oracle/codemp/game/g_cmds.c:2469-2591` | `JKAMP_GameLogic/g_cmds.swift:552` | marker | `crates/mp/game/src/g_cmds.rs:2809-2965` | `func G_ItemUsable(_ ps: JKAMP.PlayerState, _ forcedUse: Int32) -> Int32` |
-| `Cmd_ToggleSaber_f` | `oracle/codemp/game/g_cmds.c:2595-2670` | `JKAMP_GameLogic/g_cmds.swift:558` | marker | `crates/mp/game/src/g_cmds.rs:2970-3035` | `func Cmd_ToggleSaber_f(_ ent: Entity)` |
-| `Cmd_SaberAttackCycle_f` | `oracle/codemp/game/g_cmds.c:2675-2873` | `JKAMP_GameLogic/g_cmds.swift:564` | marker | `crates/mp/game/src/g_cmds.rs:3040-3234` | `func Cmd_SaberAttackCycle_f(_ ent: Entity)` |
-| `G_OtherPlayersDueling` | `oracle/codemp/game/g_cmds.c:2875-2892` | `JKAMP_GameLogic/g_cmds.swift:570` | marker | `crates/mp/game/src/g_cmds.rs:3239-3251` | `func G_OtherPlayersDueling() -> Bool` |
-| `Cmd_EngageDuel_f` | `oracle/codemp/game/g_cmds.c:2894-3042` | `JKAMP_GameLogic/g_cmds.swift:576` | marker | `crates/mp/game/src/g_cmds.rs:3256-3440` | `func Cmd_EngageDuel_f(_ ent: Entity)` |
-| `Cmd_DebugSetSaberMove_f` | `oracle/codemp/game/g_cmds.c:3047-3073` | `JKAMP_GameLogic/g_cmds.swift:582` | marker | `crates/mp/game/src/g_cmds.rs:3447-3481` | `func Cmd_DebugSetSaberMove_f(_ `self`: Entity)` |
-| `Cmd_DebugSetBodyAnim_f` | `oracle/codemp/game/g_cmds.c:3075-3111` | `JKAMP_GameLogic/g_cmds.swift:588` | marker | `crates/mp/game/src/g_cmds.rs:3488-3520` | `func Cmd_DebugSetBodyAnim_f(_ `self`: Entity, _ flags: Int32)` |
-| `StandardSetBodyAnim` | `oracle/codemp/game/g_cmds.c:3114-3117` | `JKAMP_GameLogic/g_cmds.swift:594` | marker | `crates/mp/game/src/g_cmds.rs:3525-3539` | `func StandardSetBodyAnim(_ `self`: Entity, _ anim: Int32, _ flags: Int32)` |
-| `G_ClientNumFromNetname` static | `oracle/codemp/game/g_cmds.c:3128-3146` | `JKAMP_GameLogic/g_cmds.swift:600` | marker | `crates/mp/game/src/g_cmds.rs:3544-3559` | `private func G_ClientNumFromNetname(_ name: String) -> Int32` |
-| `TryGrapple` | `oracle/codemp/game/g_cmds.c:3148-3191` | `JKAMP_GameLogic/g_cmds.swift:606` | marker | `crates/mp/game/src/g_cmds.rs:3564-3618` | `func TryGrapple(_ ent: Entity) -> Bool` |
-| `ClientCommand` | `oracle/codemp/game/g_cmds.c:3202-4083` | `JKAMP_GameLogic/g_cmds.swift:619` | marker | `crates/mp/game/src/g_cmds.rs:3623-4242` | `func ClientCommand(_ clientNum: Int32)` |
+| `DeathmatchScoreboardMessage` | `oracle/codemp/game/g_cmds.c:25-88` | `JKAMP_GameLogic/g_cmds.swift:47` | marker | `crates/mp/game/src/g_cmds.rs:89-167` | `func DeathmatchScoreboardMessage(_ ent: Entity)` |
+| `Cmd_Score_f` | `oracle/codemp/game/g_cmds.c:98-100` | `JKAMP_GameLogic/g_cmds.swift:62` | marker | `crates/mp/game/src/g_cmds.rs:180-182` | `func Cmd_Score_f(_ ent: Entity)` |
+| `CheatsOk` | `oracle/codemp/game/g_cmds.c:109-119` | `JKAMP_GameLogic/g_cmds.swift:75` | marker | `crates/mp/game/src/g_cmds.rs:187-203` | `func CheatsOk(_ ent: Entity) -> Bool` |
+| `ConcatArgs` | `oracle/codemp/game/g_cmds.c:127-152` | `JKAMP_GameLogic/g_cmds.swift:88` | marker | `crates/mp/game/src/g_cmds.rs:208-230` | `func ConcatArgs(_ start: Int32) -> String` |
+| `SanitizeString` | `oracle/codemp/game/g_cmds.c:161-175` | `JKAMP_GameLogic/g_cmds.swift:103` | marker | `crates/mp/game/src/g_cmds.rs:237-261` | `func SanitizeString(_ `in`: inout JKAShared.CharBuf, _ out: inout JKAShared.CharBuf)` |
+| `ClientNumberFromString` | `oracle/codemp/game/g_cmds.c:185-221` | `JKAMP_GameLogic/g_cmds.swift:119` | marker | `crates/mp/game/src/g_cmds.rs:268-307` | `func ClientNumberFromString(_ to: Entity, _ s: inout JKAShared.CharBuf) -> Int32` |
+| `Cmd_Give_f` | `oracle/codemp/game/g_cmds.c:230-392` | `JKAMP_GameLogic/g_cmds.swift:134` | marker | `crates/mp/game/src/g_cmds.rs:314-468` | `func Cmd_Give_f(_ cmdent: Entity, _ baseArg: Int32)` |
+| `Cmd_God_f` | `oracle/codemp/game/g_cmds.c:403-418` | `JKAMP_GameLogic/g_cmds.swift:151` | marker | `crates/mp/game/src/g_cmds.rs:477-491` | `func Cmd_God_f(_ ent: Entity)` |
+| `Cmd_Notarget_f` | `oracle/codemp/game/g_cmds.c:430-444` | `JKAMP_GameLogic/g_cmds.swift:168` | marker | `crates/mp/game/src/g_cmds.rs:500-514` | `func Cmd_Notarget_f(_ ent: Entity)` |
+| `Cmd_Noclip_f` | `oracle/codemp/game/g_cmds.c:454-469` | `JKAMP_GameLogic/g_cmds.swift:183` | marker | `crates/mp/game/src/g_cmds.rs:521-536` | `func Cmd_Noclip_f(_ ent: Entity)` |
+| `Cmd_LevelShot_f` | `oracle/codemp/game/g_cmds.c:482-496` | `JKAMP_GameLogic/g_cmds.swift:201` | marker | `crates/mp/game/src/g_cmds.rs:545-562` | `func Cmd_LevelShot_f(_ ent: Entity)` |
+| `Cmd_TeamTask_f` | `oracle/codemp/game/g_cmds.c:506-522` | `JKAMP_GameLogic/g_cmds.swift:216` | marker | `crates/mp/game/src/g_cmds.rs:569-590` | `func Cmd_TeamTask_f(_ ent: Entity)` |
+| `G_CheckTKAutoKickBan` | `oracle/codemp/game/g_cmds.c:527-573` | `JKAMP_GameLogic/g_cmds.swift:222` | marker | `crates/mp/game/src/g_cmds.rs:595-655` | `func G_CheckTKAutoKickBan(_ ent: Entity)` |
+| `Cmd_Kill_f` | `oracle/codemp/game/g_cmds.c:583-643` | `JKAMP_GameLogic/g_cmds.swift:228` | marker | `crates/mp/game/src/g_cmds.rs:660-742` | `func Cmd_Kill_f(_ ent: Entity)` |
+| `G_GetDuelWinner` | `oracle/codemp/game/g_cmds.c:645-661` | `JKAMP_GameLogic/g_cmds.swift:234` | marker | `crates/mp/game/src/g_cmds.rs:747-764` | `func G_GetDuelWinner(_ client: Client) -> Entity?` |
+| `BroadcastTeamChange` | `oracle/codemp/game/g_cmds.c:670-718` | `JKAMP_GameLogic/g_cmds.swift:249` | marker | `crates/mp/game/src/g_cmds.rs:771-840` | `func BroadcastTeamChange(_ client: Client, _ oldTeam: Int32)` |
+| `G_PowerDuelCheckFail` | `oracle/codemp/game/g_cmds.c:720-743` | `JKAMP_GameLogic/g_cmds.swift:255` | marker | `crates/mp/game/src/g_cmds.rs:845-873` | `func G_PowerDuelCheckFail(_ ent: Entity) -> Bool` |
+| `SetTeam` | `oracle/codemp/game/g_cmds.c:752-1022` | `JKAMP_GameLogic/g_cmds.swift:261` | marker | `crates/mp/game/src/g_cmds.rs:878-1064` | `func SetTeam(_ ent: Entity, _ s: String)` |
+| `StopFollowing` | `oracle/codemp/game/g_cmds.c:1032-1051` | `JKAMP_GameLogic/g_cmds.swift:277` | marker | `crates/mp/game/src/g_cmds.rs:1072-1095` | `func StopFollowing(_ ent: Entity)` |
+| `Cmd_Team_f` | `oracle/codemp/game/g_cmds.c:1058-1112` | `JKAMP_GameLogic/g_cmds.swift:290` | marker | `crates/mp/game/src/g_cmds.rs:1100-1161` | `func Cmd_Team_f(_ ent: Entity)` |
+| `Cmd_DuelTeam_f` | `oracle/codemp/game/g_cmds.c:1119-1204` | `JKAMP_GameLogic/g_cmds.swift:303` | marker | `crates/mp/game/src/g_cmds.rs:1166-1246` | `func Cmd_DuelTeam_f(_ ent: Entity)` |
+| `G_TeamForSiegeClass` | `oracle/codemp/game/g_cmds.c:1206-1244` | `JKAMP_GameLogic/g_cmds.swift:309` | marker | `crates/mp/game/src/g_cmds.rs:1251-1292` | `func G_TeamForSiegeClass(_ clName: String) -> Int32` |
+| `Cmd_SiegeClass_f` | `oracle/codemp/game/g_cmds.c:1251-1348` | `JKAMP_GameLogic/g_cmds.swift:322` | marker | `crates/mp/game/src/g_cmds.rs:1297-1392` | `func Cmd_SiegeClass_f(_ ent: Entity)` |
+| `Cmd_ForceChanged_f` | `oracle/codemp/game/g_cmds.c:1355-1392` | `JKAMP_GameLogic/g_cmds.swift:335` | marker | `crates/mp/game/src/g_cmds.rs:1397-1435` | `func Cmd_ForceChanged_f(_ ent: Entity)` |
+| `G_SetSaber` | `oracle/codemp/game/g_cmds.c:1396-1455` | `JKAMP_GameLogic/g_cmds.swift:341` | marker | `crates/mp/game/src/g_cmds.rs:1440-1542` | `func G_SetSaber(_ ent: Entity, _ saberNum: Int32, _ saberName: inout JKAShared.CharBuf, _ siegeOverride: Bool) -> Bool` |
+| `Cmd_Follow_f` | `oracle/codemp/game/g_cmds.c:1462-1503` | `JKAMP_GameLogic/g_cmds.swift:354` | marker | `crates/mp/game/src/g_cmds.rs:1547-1594` | `func Cmd_Follow_f(_ ent: Entity)` |
+| `Cmd_FollowCycle_f` | `oracle/codemp/game/g_cmds.c:1510-1557` | `JKAMP_GameLogic/g_cmds.swift:367` | marker | `crates/mp/game/src/g_cmds.rs:1599-1651` | `func Cmd_FollowCycle_f(_ ent: Entity, _ dir: Int32)` |
+| `G_SayTo` static | `oracle/codemp/game/g_cmds.c:1566-1614` | `JKAMP_GameLogic/g_cmds.swift:373` | marker | `crates/mp/game/src/g_cmds.rs:1656-1725` | `private func G_SayTo(_ ent: Entity, _ other: Entity, _ mode: Int32, _ color: Int32, _ name: String, _ message: String, _ locMsg: String)` |
+| `G_Say` | `oracle/codemp/game/g_cmds.c:1618-1687` | `JKAMP_GameLogic/g_cmds.swift:379` | marker | `crates/mp/game/src/g_cmds.rs:1730-1870` | `func G_Say(_ ent: Entity, _ target: Entity?, _ mode: Int32, _ chatText: String)` |
+| `Cmd_Say_f` static | `oracle/codemp/game/g_cmds.c:1695-1712` | `JKAMP_GameLogic/g_cmds.swift:392` | marker | `crates/mp/game/src/g_cmds.rs:1875-1887` | `private func Cmd_Say_f(_ ent: Entity, _ mode: Int32, _ arg0: Bool)` |
+| `Cmd_Tell_f` static | `oracle/codemp/game/g_cmds.c:1719-1749` | `JKAMP_GameLogic/g_cmds.swift:405` | marker | `crates/mp/game/src/g_cmds.rs:1892-1924` | `private func Cmd_Tell_f(_ ent: Entity)` |
+| `Cmd_VoiceCommand_f` static | `oracle/codemp/game/g_cmds.c:1752-1809` | `JKAMP_GameLogic/g_cmds.swift:412` | marker | `crates/mp/game/src/g_cmds.rs:1931-1993` | `private func Cmd_VoiceCommand_f(_ ent: Entity)` |
+| `Cmd_GameCommand_f` | `oracle/codemp/game/g_cmds.c:1822-1840` | `JKAMP_GameLogic/g_cmds.swift:418` | marker | `crates/mp/game/src/g_cmds.rs:1998-2031` | `func Cmd_GameCommand_f(_ ent: Entity)` |
+| `Cmd_Where_f` | `oracle/codemp/game/g_cmds.c:1847-1849` | `JKAMP_GameLogic/g_cmds.swift:431` | marker | `crates/mp/game/src/g_cmds.rs:2036-2043` | `func Cmd_Where_f(_ ent: Entity)` |
+| `G_ClientNumberFromName` | `oracle/codemp/game/g_cmds.c:1871-1890` | `JKAMP_GameLogic/g_cmds.swift:446` | marker | `crates/mp/game/src/g_cmds.rs:2050-2065` | `func G_ClientNumberFromName(_ name: String) -> Int32` |
+| `SanitizeString2` | `oracle/codemp/game/g_cmds.c:1899-1937` | `JKAMP_GameLogic/g_cmds.swift:461` | marker | `crates/mp/game/src/g_cmds.rs:2072-2111` | `func SanitizeString2(_ `in`: inout JKAShared.CharBuf, _ out: inout JKAShared.CharBuf)` |
+| `G_ClientNumberFromStrippedName` | `oracle/codemp/game/g_cmds.c:1946-1965` | `JKAMP_GameLogic/g_cmds.swift:476` | marker | `crates/mp/game/src/g_cmds.rs:2119-2134` | `func G_ClientNumberFromStrippedName(_ name: String) -> Int32` |
+| `Cmd_CallVote_f` | `oracle/codemp/game/g_cmds.c:1974-2156` | `JKAMP_GameLogic/g_cmds.swift:482` | marker | `crates/mp/game/src/g_cmds.rs:2139-2396` | `func Cmd_CallVote_f(_ ent: Entity)` |
+| `Cmd_Vote_f` | `oracle/codemp/game/g_cmds.c:2163-2199` | `JKAMP_GameLogic/g_cmds.swift:495` | marker | `crates/mp/game/src/g_cmds.rs:2401-2460` | `func Cmd_Vote_f(_ ent: Entity)` |
+| `Cmd_CallTeamVote_f` | `oracle/codemp/game/g_cmds.c:2206-2363` | `JKAMP_GameLogic/g_cmds.swift:508` | marker | `crates/mp/game/src/g_cmds.rs:2465-2694` | `func Cmd_CallTeamVote_f(_ ent: Entity)` |
+| `Cmd_TeamVote_f` | `oracle/codemp/game/g_cmds.c:2370-2411` | `JKAMP_GameLogic/g_cmds.swift:521` | marker | `crates/mp/game/src/g_cmds.rs:2699-2760` | `func Cmd_TeamVote_f(_ ent: Entity)` |
+| `Cmd_SetViewpos_f` | `oracle/codemp/game/g_cmds.c:2419-2443` | `JKAMP_GameLogic/g_cmds.swift:534` | marker | `crates/mp/game/src/g_cmds.rs:2765-2795` | `func Cmd_SetViewpos_f(_ ent: Entity)` |
+| `Cmd_Stats_f` | `oracle/codemp/game/g_cmds.c:2452-2467` | `JKAMP_GameLogic/g_cmds.swift:547` | marker | `crates/mp/game/src/g_cmds.rs:2804-2804` | `func Cmd_Stats_f(_ ent: Entity)` |
+| `G_ItemUsable` | `oracle/codemp/game/g_cmds.c:2469-2591` | `JKAMP_GameLogic/g_cmds.swift:553` | marker | `crates/mp/game/src/g_cmds.rs:2809-2965` | `func G_ItemUsable(_ ps: JKAMP.PlayerState, _ forcedUse: Int32) -> Int32` |
+| `Cmd_ToggleSaber_f` | `oracle/codemp/game/g_cmds.c:2595-2670` | `JKAMP_GameLogic/g_cmds.swift:559` | marker | `crates/mp/game/src/g_cmds.rs:2970-3035` | `func Cmd_ToggleSaber_f(_ ent: Entity)` |
+| `Cmd_SaberAttackCycle_f` | `oracle/codemp/game/g_cmds.c:2675-2873` | `JKAMP_GameLogic/g_cmds.swift:565` | marker | `crates/mp/game/src/g_cmds.rs:3040-3234` | `func Cmd_SaberAttackCycle_f(_ ent: Entity)` |
+| `G_OtherPlayersDueling` | `oracle/codemp/game/g_cmds.c:2875-2892` | `JKAMP_GameLogic/g_cmds.swift:571` | marker | `crates/mp/game/src/g_cmds.rs:3239-3251` | `func G_OtherPlayersDueling() -> Bool` |
+| `Cmd_EngageDuel_f` | `oracle/codemp/game/g_cmds.c:2894-3042` | `JKAMP_GameLogic/g_cmds.swift:577` | marker | `crates/mp/game/src/g_cmds.rs:3256-3440` | `func Cmd_EngageDuel_f(_ ent: Entity)` |
+| `Cmd_DebugSetSaberMove_f` | `oracle/codemp/game/g_cmds.c:3047-3073` | `JKAMP_GameLogic/g_cmds.swift:583` | marker | `crates/mp/game/src/g_cmds.rs:3447-3481` | `func Cmd_DebugSetSaberMove_f(_ `self`: Entity)` |
+| `Cmd_DebugSetBodyAnim_f` | `oracle/codemp/game/g_cmds.c:3075-3111` | `JKAMP_GameLogic/g_cmds.swift:589` | marker | `crates/mp/game/src/g_cmds.rs:3488-3520` | `func Cmd_DebugSetBodyAnim_f(_ `self`: Entity, _ flags: Int32)` |
+| `StandardSetBodyAnim` | `oracle/codemp/game/g_cmds.c:3114-3117` | `JKAMP_GameLogic/g_cmds.swift:595` | marker | `crates/mp/game/src/g_cmds.rs:3525-3539` | `func StandardSetBodyAnim(_ `self`: Entity, _ anim: Int32, _ flags: Int32)` |
+| `G_ClientNumFromNetname` static | `oracle/codemp/game/g_cmds.c:3128-3146` | `JKAMP_GameLogic/g_cmds.swift:601` | marker | `crates/mp/game/src/g_cmds.rs:3544-3559` | `private func G_ClientNumFromNetname(_ name: String) -> Int32` |
+| `TryGrapple` | `oracle/codemp/game/g_cmds.c:3148-3191` | `JKAMP_GameLogic/g_cmds.swift:607` | marker | `crates/mp/game/src/g_cmds.rs:3564-3618` | `func TryGrapple(_ ent: Entity) -> Bool` |
+| `ClientCommand` | `oracle/codemp/game/g_cmds.c:3202-4083` | `JKAMP_GameLogic/g_cmds.swift:620` | marker | `crates/mp/game/src/g_cmds.rs:3623-4242` | `func ClientCommand(_ clientNum: Int32)` |
 
 4 file-scope variables. The entry is the stub's line for the variable, by rule 3 and rule 6.
 

@@ -79,6 +79,8 @@ class Facts:
     is_literal: bool = False
     # The expression is one name, so an unsigned value crosses into Int32 with its bits kept.
     named_leaf: bool = False
+    # Swift holds the C `double` expression as a Float, because it is a C library call whose Foundation overload follows its float argument.
+    float_valued: bool = False
 
 
 NO_FACTS = Facts()
@@ -158,10 +160,13 @@ class Types:
         return SCALARS.get(canonical.kind, "Int32") if self.scalar(t, target) != "Bool" else "UInt32"
 
     def number_kind(self, t: ci.Type) -> str | None:
-        """`Float` or `Int32` for a C number, and None for every other type."""
+        """`Float`, `Double`, or `Int32` for a C number, and None for every other type.
+        Raven's `double` is a Swift `Double`, so C's arithmetic in double stays in double until a store narrows it."""
         kind = t.get_canonical().kind
-        if kind in (TypeKind.FLOAT, TypeKind.DOUBLE):
+        if kind == TypeKind.FLOAT:
             return "Float"
+        if kind == TypeKind.DOUBLE:
+            return "Double"
         if kind in INT_KINDS or kind in (TypeKind.ENUM, TypeKind.CHAR_S, TypeKind.SCHAR, TypeKind.UCHAR, TypeKind.CHAR_U):
             return "Int32"
         return None
@@ -405,7 +410,7 @@ class Types:
     # MARK: - The local and expression roles
 
     def value(self, t: ci.Type, facts: Facts) -> Answer | None:
-        """`Bool` for a test the body already spells as one, `Float` or `Int32` for a number, so a store converts its right side as C does."""
+        """`Bool` for a test the body already spells as one, `Float`, `Double`, or `Int32` for a number, so a store converts its right side as C does."""
         if facts.is_bool:
             return Answer("Bool", "bool")
         kind = self.number_kind(t)
@@ -417,9 +422,11 @@ class Types:
         The kind names what the emitter does with it: `bool_to_number` folds a Bool, `coerce` hands the expression back to the caller's own
         coercion, and `convert` writes the crossing around the text."""
         have = self.number_kind(t)
+        if have == "Double" and facts.float_valued:
+            have = "Float"
         if want in ("Float", "Int32") and facts.is_bool:
             return Answer(want, "bool_to_number")
-        if want in ("Float", "Int32") and have is not None and have != want and not facts.is_literal:
+        if want in ("Float", "Int32", "Double") and have is not None and have != want and not facts.is_literal:
             return Answer(want, "convert", crossing=want + "({text})")
         if want in NARROW_STORAGE and have is not None and not facts.is_literal:
             # C truncates the int it computed into the narrow local at the store.

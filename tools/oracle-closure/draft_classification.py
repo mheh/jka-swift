@@ -152,6 +152,20 @@ class Classification:
                 return f"{self.expr(inner)}[{step}]"
         return None
 
+    def cursor_post_step(self, cur: ci.Cursor) -> str | None:
+        """Raven's `*p++` through a read cursor, as the Swift text of the cursor, or None when the expression is not one."""
+        inner = self.unwrap(cur)
+        if inner.kind != CursorKind.UNARY_OPERATOR or self.operator_or_none_unary(inner) != "*":
+            return None
+        step = self.unwrap(self.unary_parts(inner)[2])
+        if step.kind != CursorKind.UNARY_OPERATOR or not self.is_step(step):
+            return None
+        op, prefix, operand = self.unary_parts(step)
+        operand = self.unwrap(operand)
+        if op != "++" or prefix or operand.kind != CursorKind.DECL_REF_EXPR or operand.spelling not in self.cursor_locals:
+            return None
+        return self.expr(operand)
+
     def is_step(self, cur: ci.Cursor) -> bool:
         """True when the unary operator is `++` or `--`. An operator the text does not show beside the operand is not a step."""
         try:

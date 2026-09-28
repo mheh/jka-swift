@@ -4,6 +4,7 @@ import Foundation
 import JKAMP
 import JKAShared
 import JKAMP_Game
+import JKAMP_BG
 
 /// Source: oracle/codemp/game/g_active.c:1097
 let MAX_JEDIMASTER_DISTANCE = 2500 as Int32

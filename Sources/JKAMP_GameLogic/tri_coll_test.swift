@@ -4,6 +4,7 @@ import Foundation
 import JKAMP
 import JKAShared
 import JKAMP_Game
+import JKAMP_BG
 
 /// Source: oracle/codemp/game/tri_coll_test.c:23
 let USE_EPSILON_TEST = 1 as Int32

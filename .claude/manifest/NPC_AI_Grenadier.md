@@ -7,17 +7,17 @@ The oracle range is the whole definition, from the return type to the closing br
 
 | Function | Oracle | Swift | State | jka-rust | Signature |
 |---|---|---|---|---|---|
-| `Grenadier_ClearTimers` | `oracle/codemp/game/NPC_AI_Grenadier.c:49-63` | `JKAMP_GameLogic/NPC_AI_Grenadier.swift:78` | marker | `crates/mp/game/src/NPC_AI_Grenadier.rs:49-68` | `func Grenadier_ClearTimers(_ ent: Entity)` |
-| `NPC_Grenadier_PlayConfusionSound` | `oracle/codemp/game/NPC_AI_Grenadier.c:65-81` | `JKAMP_GameLogic/NPC_AI_Grenadier.swift:84` | marker | `crates/mp/game/src/NPC_AI_Grenadier.rs:73-102` | `func NPC_Grenadier_PlayConfusionSound(_ `self`: Entity)` |
-| `NPC_Grenadier_Pain` | `oracle/codemp/game/NPC_AI_Grenadier.c:90-103` | `JKAMP_GameLogic/NPC_AI_Grenadier.swift:90` | marker | `crates/mp/game/src/NPC_AI_Grenadier.rs:107-134` | `func NPC_Grenadier_Pain(_ `self`: Entity, _ attacker: Entity, _ damage: Int32)` |
-| `Grenadier_HoldPosition` static | `oracle/codemp/game/NPC_AI_Grenadier.c:111-121` | `JKAMP_GameLogic/NPC_AI_Grenadier.swift:96` | marker | `crates/mp/game/src/NPC_AI_Grenadier.rs:139-151` | `private func Grenadier_HoldPosition()` |
-| `Grenadier_Move` static | `oracle/codemp/game/NPC_AI_Grenadier.c:129-182` | `JKAMP_GameLogic/NPC_AI_Grenadier.swift:102` | marker | `crates/mp/game/src/NPC_AI_Grenadier.rs:156-240` | `private func Grenadier_Move() -> Bool` |
-| `NPC_BSGrenadier_Patrol` | `oracle/codemp/game/NPC_AI_Grenadier.c:190-277` | `JKAMP_GameLogic/NPC_AI_Grenadier.swift:108` | marker | `crates/mp/game/src/NPC_AI_Grenadier.rs:245-385` | `func NPC_BSGrenadier_Patrol()` |
-| `Grenadier_CheckMoveState` static | `oracle/codemp/game/NPC_AI_Grenadier.c:307-391` | `JKAMP_GameLogic/NPC_AI_Grenadier.swift:114` | marker | `crates/mp/game/src/NPC_AI_Grenadier.rs:390-532` | `private func Grenadier_CheckMoveState()` |
-| `Grenadier_CheckFireState` static | `oracle/codemp/game/NPC_AI_Grenadier.c:399-439` | `JKAMP_GameLogic/NPC_AI_Grenadier.swift:120` | marker | `crates/mp/game/src/NPC_AI_Grenadier.rs:537-569` | `private func Grenadier_CheckFireState()` |
-| `Grenadier_EvaluateShot` | `oracle/codemp/game/NPC_AI_Grenadier.c:441-453` | `JKAMP_GameLogic/NPC_AI_Grenadier.swift:126` | marker | `crates/mp/game/src/NPC_AI_Grenadier.rs:574-603` | `func Grenadier_EvaluateShot(_ hit: Int32) -> Bool` |
-| `NPC_BSGrenadier_Attack` | `oracle/codemp/game/NPC_AI_Grenadier.c:461-662` | `JKAMP_GameLogic/NPC_AI_Grenadier.swift:132` | marker | `crates/mp/game/src/NPC_AI_Grenadier.rs:608-884` | `func NPC_BSGrenadier_Attack()` |
-| `NPC_BSGrenadier_Default` | `oracle/codemp/game/NPC_AI_Grenadier.c:664-679` | `JKAMP_GameLogic/NPC_AI_Grenadier.swift:138` | marker | `crates/mp/game/src/NPC_AI_Grenadier.rs:889-911` | `func NPC_BSGrenadier_Default()` |
+| `Grenadier_ClearTimers` | `oracle/codemp/game/NPC_AI_Grenadier.c:49-63` | `JKAMP_GameLogic/NPC_AI_Grenadier.swift:79` | marker | `crates/mp/game/src/NPC_AI_Grenadier.rs:49-68` | `func Grenadier_ClearTimers(_ ent: Entity)` |
+| `NPC_Grenadier_PlayConfusionSound` | `oracle/codemp/game/NPC_AI_Grenadier.c:65-81` | `JKAMP_GameLogic/NPC_AI_Grenadier.swift:85` | marker | `crates/mp/game/src/NPC_AI_Grenadier.rs:73-102` | `func NPC_Grenadier_PlayConfusionSound(_ `self`: Entity)` |
+| `NPC_Grenadier_Pain` | `oracle/codemp/game/NPC_AI_Grenadier.c:90-103` | `JKAMP_GameLogic/NPC_AI_Grenadier.swift:91` | marker | `crates/mp/game/src/NPC_AI_Grenadier.rs:107-134` | `func NPC_Grenadier_Pain(_ `self`: Entity, _ attacker: Entity, _ damage: Int32)` |
+| `Grenadier_HoldPosition` static | `oracle/codemp/game/NPC_AI_Grenadier.c:111-121` | `JKAMP_GameLogic/NPC_AI_Grenadier.swift:97` | marker | `crates/mp/game/src/NPC_AI_Grenadier.rs:139-151` | `private func Grenadier_HoldPosition()` |
+| `Grenadier_Move` static | `oracle/codemp/game/NPC_AI_Grenadier.c:129-182` | `JKAMP_GameLogic/NPC_AI_Grenadier.swift:103` | marker | `crates/mp/game/src/NPC_AI_Grenadier.rs:156-240` | `private func Grenadier_Move() -> Bool` |
+| `NPC_BSGrenadier_Patrol` | `oracle/codemp/game/NPC_AI_Grenadier.c:190-277` | `JKAMP_GameLogic/NPC_AI_Grenadier.swift:109` | marker | `crates/mp/game/src/NPC_AI_Grenadier.rs:245-385` | `func NPC_BSGrenadier_Patrol()` |
+| `Grenadier_CheckMoveState` static | `oracle/codemp/game/NPC_AI_Grenadier.c:307-391` | `JKAMP_GameLogic/NPC_AI_Grenadier.swift:115` | marker | `crates/mp/game/src/NPC_AI_Grenadier.rs:390-532` | `private func Grenadier_CheckMoveState()` |
+| `Grenadier_CheckFireState` static | `oracle/codemp/game/NPC_AI_Grenadier.c:399-439` | `JKAMP_GameLogic/NPC_AI_Grenadier.swift:121` | marker | `crates/mp/game/src/NPC_AI_Grenadier.rs:537-569` | `private func Grenadier_CheckFireState()` |
+| `Grenadier_EvaluateShot` | `oracle/codemp/game/NPC_AI_Grenadier.c:441-453` | `JKAMP_GameLogic/NPC_AI_Grenadier.swift:127` | marker | `crates/mp/game/src/NPC_AI_Grenadier.rs:574-603` | `func Grenadier_EvaluateShot(_ hit: Int32) -> Bool` |
+| `NPC_BSGrenadier_Attack` | `oracle/codemp/game/NPC_AI_Grenadier.c:461-662` | `JKAMP_GameLogic/NPC_AI_Grenadier.swift:133` | marker | `crates/mp/game/src/NPC_AI_Grenadier.rs:608-884` | `func NPC_BSGrenadier_Attack()` |
+| `NPC_BSGrenadier_Default` | `oracle/codemp/game/NPC_AI_Grenadier.c:664-679` | `JKAMP_GameLogic/NPC_AI_Grenadier.swift:139` | marker | `crates/mp/game/src/NPC_AI_Grenadier.rs:889-911` | `func NPC_BSGrenadier_Default()` |
 
 6 file-scope variables. The entry is the stub's line for the variable, by rule 3 and rule 6.
 

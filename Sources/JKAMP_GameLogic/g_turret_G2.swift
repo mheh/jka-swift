@@ -4,6 +4,7 @@ import Foundation
 import JKAMP
 import JKAShared
 import JKAMP_Game
+import JKAMP_BG
 
 /// Source: oracle/codemp/game/g_turret_G2.c:11
 let SPF_TURRETG2_CANRESPAWN = 4 as Int32

@@ -42,6 +42,10 @@ class Declarations:
             return []
         out: list[str] = []
         for name in self.param_copies:
+            if name in self.cursor_params:
+                out.append(f"{INDENT}// Raven steps his own `{name}` parameter through its bytes, so the body walks a TextCursor over a copy of them.")
+                out.append(f"{INDENT}var {name} = JKAShared.TextCursor(JKAShared.CharBuf({name}))")
+                continue
             out.append(f"{INDENT}// Raven assigns his own `{name}` parameter. A Swift parameter is immutable, so the body takes a mutable copy of it.")
             out.append(f"{INDENT}var {name} = {name}")
         self.param_copies = []

@@ -176,6 +176,7 @@ class Skeleton:
         self.collect_macros()
         self.stores = self.collect_stores()
         self.stored_names = {fn.name for pairs in self.stores.values() for _, fn in pairs}
+        self.game_calls = self.collect_game_calls()
         # SpeederNPC.c defines `Update` without static, and four other files define it with. Every copy of a shared name is private.
         owners: dict[str, set[str]] = defaultdict(set)
         for stem, fns in self.files.items():
@@ -666,6 +667,21 @@ class Skeleton:
                 walk(fn.cur)
         return stores
 
+    def collect_game_calls(self) -> set[str]:
+        """Every bg function a game file names, by Raven's name, so the bg stub is public for the game module that calls it.
+        A libc name the shared module already holds in public, `atof` of CString.swift, is the game's, so bg's copy stays internal."""
+        shared = {m.group(1) for path in (SOURCES / SHARED).rglob("*.swift") for m in re.finditer(r"^public func `?(\w+)", path.read_text(), re.M)}
+        bg_names = {fn.name for stem, fns in self.files.items() if target_of(stem) == BG for fn in fns} - shared
+        called: set[str] = set()
+        for stem, fns in self.files.items():
+            if target_of(stem) != LOGIC:
+                continue
+            for fn in fns:
+                for node in fn.cur.walk_preorder():
+                    if node.kind == CursorKind.DECL_REF_EXPR and node.spelling in bg_names:
+                        called.add(node.spelling)
+        return called
+
     # MARK: - Emission
 
     def access(self, fn: Function) -> str:
@@ -675,6 +691,9 @@ class Skeleton:
         if hidden and fn.name not in self.stored_names:
             return "private "
         # A function of the shared module is called from every other module, so it is public, the same as the hand-ported q_math.
+        # A bg function a game file calls crosses the module line the same way, so it is public too.
+        if target_of(fn.stem) == BG and fn.name in self.game_calls:
+            return "public "
         return "public " if target_of(fn.stem) == SHARED else ""
 
     def signature(self, fn: Function) -> str:
@@ -722,7 +741,8 @@ class Skeleton:
         target = target_of(stem)
         # A file inside JKAShared imports nothing, because it is the module the others import.
         # Foundation holds the libc math Raven calls, `sqrt`, `sin`, `abs` for his `fabs`, so every stub imports it.
-        imports = [] if target == SHARED else ["import Foundation", "import JKAMP", "import JKAShared"] + (["import JKAMP_Game"] if target == LOGIC else [])
+        # A game file also calls bg's functions, `BG_EvaluateTrajectory`, so it imports the bg module beside its view target.
+        imports = [] if target == SHARED else ["import Foundation", "import JKAMP", "import JKAShared"] + (["import JKAMP_Game", "import JKAMP_BG"] if target == LOGIC else [])
         lines = [NOTE.format(stem=stem), ""] + (imports + [""] if imports else [])
         entries = [(var.line, 0, var) for var in self.variables.get(stem, [])] + [(m.line, 1, m) for m in self.macros.get(stem, [])]
         for _, kind, entry in sorted(entries, key=lambda e: (e[0], e[1])):

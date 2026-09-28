@@ -7,12 +7,12 @@ The oracle range is the whole definition, from the return type to the closing br
 
 | Function | Oracle | Swift | State | jka-rust | Signature |
 |---|---|---|---|---|---|
-| `NPC_MineMonster_Precache` | `oracle/codemp/game/NPC_AI_MineMonster.c:18-27` | `JKAMP_GameLogic/NPC_AI_MineMonster.swift:34` | marker | `crates/mp/game/src/NPC_AI_MineMonster.rs:49-56` | `func NPC_MineMonster_Precache()` |
-| `MineMonster_Idle` | `oracle/codemp/game/NPC_AI_MineMonster.c:35-42` | `JKAMP_GameLogic/NPC_AI_MineMonster.swift:47` | marker | `crates/mp/game/src/NPC_AI_MineMonster.rs:61-66` | `func MineMonster_Idle()` |
-| `MineMonster_Patrol` | `oracle/codemp/game/NPC_AI_MineMonster.c:50-83` | `JKAMP_GameLogic/NPC_AI_MineMonster.swift:60` | marker | `crates/mp/game/src/NPC_AI_MineMonster.rs:71-105` | `func MineMonster_Patrol()` |
-| `MineMonster_Move` | `oracle/codemp/game/NPC_AI_MineMonster.c:90-98` | `JKAMP_GameLogic/NPC_AI_MineMonster.swift:73` | marker | `crates/mp/game/src/NPC_AI_MineMonster.rs:110-126` | `func MineMonster_Move(_ visible: Bool)` |
-| `MineMonster_TryDamage` | `oracle/codemp/game/NPC_AI_MineMonster.c:101-126` | `JKAMP_GameLogic/NPC_AI_MineMonster.swift:80` | marker | `crates/mp/game/src/NPC_AI_MineMonster.rs:131-191` | `func MineMonster_TryDamage(_ enemy: Entity, _ damage: Int32)` |
-| `MineMonster_Attack` | `oracle/codemp/game/NPC_AI_MineMonster.c:129-186` | `JKAMP_GameLogic/NPC_AI_MineMonster.swift:87` | marker | `crates/mp/game/src/NPC_AI_MineMonster.rs:196-274` | `func MineMonster_Attack()` |
-| `MineMonster_Combat` | `oracle/codemp/game/NPC_AI_MineMonster.c:189-227` | `JKAMP_GameLogic/NPC_AI_MineMonster.swift:94` | marker | `crates/mp/game/src/NPC_AI_MineMonster.rs:279-331` | `func MineMonster_Combat()` |
-| `NPC_MineMonster_Pain` | `oracle/codemp/game/NPC_AI_MineMonster.c:234-254` | `JKAMP_GameLogic/NPC_AI_MineMonster.swift:107` | marker | `crates/mp/game/src/NPC_AI_MineMonster.rs:337-377` | `func NPC_MineMonster_Pain(_ `self`: Entity, _ attacker: Entity, _ damage: Int32)` |
-| `NPC_BSMineMonster_Default` | `oracle/codemp/game/NPC_AI_MineMonster.c:262-278` | `JKAMP_GameLogic/NPC_AI_MineMonster.swift:120` | marker | `crates/mp/game/src/NPC_AI_MineMonster.rs:382-397` | `func NPC_BSMineMonster_Default()` |
+| `NPC_MineMonster_Precache` | `oracle/codemp/game/NPC_AI_MineMonster.c:18-27` | `JKAMP_GameLogic/NPC_AI_MineMonster.swift:35` | marker | `crates/mp/game/src/NPC_AI_MineMonster.rs:49-56` | `func NPC_MineMonster_Precache()` |
+| `MineMonster_Idle` | `oracle/codemp/game/NPC_AI_MineMonster.c:35-42` | `JKAMP_GameLogic/NPC_AI_MineMonster.swift:48` | marker | `crates/mp/game/src/NPC_AI_MineMonster.rs:61-66` | `func MineMonster_Idle()` |
+| `MineMonster_Patrol` | `oracle/codemp/game/NPC_AI_MineMonster.c:50-83` | `JKAMP_GameLogic/NPC_AI_MineMonster.swift:61` | marker | `crates/mp/game/src/NPC_AI_MineMonster.rs:71-105` | `func MineMonster_Patrol()` |
+| `MineMonster_Move` | `oracle/codemp/game/NPC_AI_MineMonster.c:90-98` | `JKAMP_GameLogic/NPC_AI_MineMonster.swift:74` | marker | `crates/mp/game/src/NPC_AI_MineMonster.rs:110-126` | `func MineMonster_Move(_ visible: Bool)` |
+| `MineMonster_TryDamage` | `oracle/codemp/game/NPC_AI_MineMonster.c:101-126` | `JKAMP_GameLogic/NPC_AI_MineMonster.swift:81` | marker | `crates/mp/game/src/NPC_AI_MineMonster.rs:131-191` | `func MineMonster_TryDamage(_ enemy: Entity, _ damage: Int32)` |
+| `MineMonster_Attack` | `oracle/codemp/game/NPC_AI_MineMonster.c:129-186` | `JKAMP_GameLogic/NPC_AI_MineMonster.swift:88` | marker | `crates/mp/game/src/NPC_AI_MineMonster.rs:196-274` | `func MineMonster_Attack()` |
+| `MineMonster_Combat` | `oracle/codemp/game/NPC_AI_MineMonster.c:189-227` | `JKAMP_GameLogic/NPC_AI_MineMonster.swift:95` | marker | `crates/mp/game/src/NPC_AI_MineMonster.rs:279-331` | `func MineMonster_Combat()` |
+| `NPC_MineMonster_Pain` | `oracle/codemp/game/NPC_AI_MineMonster.c:234-254` | `JKAMP_GameLogic/NPC_AI_MineMonster.swift:108` | marker | `crates/mp/game/src/NPC_AI_MineMonster.rs:337-377` | `func NPC_MineMonster_Pain(_ `self`: Entity, _ attacker: Entity, _ damage: Int32)` |
+| `NPC_BSMineMonster_Default` | `oracle/codemp/game/NPC_AI_MineMonster.c:262-278` | `JKAMP_GameLogic/NPC_AI_MineMonster.swift:121` | marker | `crates/mp/game/src/NPC_AI_MineMonster.rs:382-397` | `func NPC_BSMineMonster_Default()` |

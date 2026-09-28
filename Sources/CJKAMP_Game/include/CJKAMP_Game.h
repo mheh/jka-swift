@@ -60,6 +60,7 @@
 #include "codemp/game/g_misc_c/constants.h"
 #include "codemp/game/g_missile_c/constants.h"
 #include "codemp/game/g_mover_c/constants.h"
+#include "codemp/game/g_nav/constants.h"
 #include "codemp/game/g_public/constants.h"
 #include "codemp/game/g_saga_c/constants.h"
 #include "codemp/game/g_spawn_c/constants.h"

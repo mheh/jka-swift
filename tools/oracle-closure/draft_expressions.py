@@ -134,6 +134,24 @@ class Expressions:
         answer = self.types.answer("expression", self.strip(cur).type, Facts(is_bool=self.is_bool(cur)))
         return None if answer is None else answer.swift
 
+    def holds_double(self, cur: ci.Cursor) -> bool:
+        """True when Swift holds the expression, or an operand inside it, as a Double: a `double` name, field, or cast,
+        or a call to a port function that returns Raven's `double`.
+        A C library call is not one, because Foundation's overload follows its float argument, `tan(x)` for a float `x`."""
+        inner = self.unwrap(cur)
+        if inner.kind in (CursorKind.DECL_REF_EXPR, CursorKind.MEMBER_REF_EXPR, CursorKind.ARRAY_SUBSCRIPT_EXPR, CursorKind.CSTYLE_CAST_EXPR):
+            return self.types.number_kind(inner.type) == "Double"
+        if inner.kind == CursorKind.CALL_EXPR or self.is_call(inner):
+            kids = self.call_children(inner)
+            callee = self.strip(kids[0]) if kids else None
+            if callee is None or self.types.number_kind(inner.type) != "Double" or not self.oracle_declares(callee.referenced):
+                return False
+            # A body reaches a C library name Raven redefined, `atof`, through the shared module's port, which answers in Float.
+            return "JKAShared" not in self.registry.homes.get(swift_name(callee.spelling), set())
+        if inner.kind in (CursorKind.BINARY_OPERATOR, CursorKind.UNARY_OPERATOR, CursorKind.CONDITIONAL_OPERATOR, CursorKind.PAREN_EXPR):
+            return any(self.holds_double(k) for k in inner.get_children())
+        return False
+
     def is_literal(self, cur: ci.Cursor) -> bool:
         """A number Raven spelled as digits, which Swift types by context. A macro name is a typed constant, not a literal."""
         inner = self.unwrap(cur)
@@ -142,12 +160,17 @@ class Expressions:
 
     def converted(self, cur: ci.Cursor, swift: str) -> str:
         """An expression stored where Swift wants `swift`. spelling.py names the crossing, and the words under it are Raven's own."""
-        if swift in ("Float", "Int32") and self.leaf_wrap is None and not self.is_literal(cur) and self.has_double_literal(cur):
+        double = self.leaf_wrap is None and not self.is_literal(cur) and (self.has_double_literal(cur) or self.holds_double(cur))
+        if swift in ("Float", "Int32") and double:
             # C computes the expression in double and converts once at the store, by "A double literal".
             return f"{swift}({self.wrapped(cur, 'Double')})"
+        if swift == "Double" and double:
+            # A store into Raven's `double` keeps C's double arithmetic, and each float operand widens as C widens it.
+            return self.wrapped(cur, "Double")
         answer = self.types.crossing(self.strip(cur).type, swift,
                                      Facts(is_bool=self.is_bool(cur), is_literal=self.is_literal(cur),
-                                           named_leaf=self.unwrap(cur).kind in self.NAMED_LEAVES))
+                                           named_leaf=self.unwrap(cur).kind in self.NAMED_LEAVES,
+                                           float_valued=not self.holds_double(cur)))
         if answer.kind == "bool_to_number":
             text = self.expr(cur)
             if text in ("true", "false"):
@@ -175,7 +198,8 @@ class Expressions:
         if base.spelling in self.text_locals:
             return self.expr(base) + ("!" if base.spelling in self.optional_texts else "")
         param = self.params_by_name.get(base.spelling)
-        if param is None:
+        if param is None or base.spelling in self.cursor_locals:
+            # A parameter the body walks is a read cursor, and its subscript reads the byte.
             return None
         if param.kind == "cstring":
             return self.names[base.spelling]
@@ -262,6 +286,9 @@ class Expressions:
         """A leaf of an expression, wrapped when a conversion is open and the leaf is a number Swift types on its own."""
         if self.leaf_wrap is None or self.types.number_kind(cur.type) is None:
             return text
+        if self.leaf_wrap == "Double" and self.holds_double(cur):
+            # Raven's `double` operand is already a Double, so it takes no conversion.
+            return text
         if self.leaf_wrap in UNSIGNED and self.unsigned_of(cur) is not None:
             return text
         if self.leaf_wrap in UNSIGNED and not self.is_literal(cur):
@@ -330,6 +357,11 @@ class Expressions:
                 return self.leaf(cur, slot)
             if inner_base.kind == CursorKind.DECL_REF_EXPR and inner_base.spelling in self.cursor_locals:
                 return self.leaf(cur, f"{self.expr(inner_base)}[{self.converted(index, 'Int32')}]")
+            pointer = self.params_by_name.get(inner_base.spelling) if inner_base.kind == CursorKind.DECL_REF_EXPR else None
+            if pointer is not None and (pointer.swift or "").startswith("UnsafeMutablePointer<"):
+                # Rule 11 keeps the pointer out of a logic target, so an index through it has no form until a ruling gives the parameter a shape.
+                raven = self.bytes[cur.extent.start.offset:cur.extent.end.offset].decode("utf-8", "replace")
+                raise Hole(f"Raven indexes `{raven}` through the `{inner_base.type.spelling}` parameter, which crosses as a raw pointer under rule 11. A shape ruling is due.")
             # Raven's index over a table of records reads through the Slots the sweep gave the field, the parameter, or the local.
             slots = self.slots_expression(base)
             if slots is None:
@@ -510,6 +542,11 @@ class Expressions:
             return f"{table}[{index}]"
         if ref is not None and ref.kind == CursorKind.ENUM_CONSTANT_DECL:
             return name
+        if ref is not None and ref.kind == CursorKind.FUNCTION_DECL and target_of(self.fn.stem) != BG:
+            # Raven names a stored function as a value, and the thunk of its field's namespace is that value, by rule 3.
+            fields = [field for field, pairs in self.sk.stores.items() if any(stored == name for stored, _ in pairs)]
+            if len(fields) == 1:
+                return f"{fields[0][0].upper()}{fields[0][1:]}.{swift_name(name)}"
         if name in HAND_VARS:
             return HAND_VARS[name]
         if ref is not None and ref.kind == CursorKind.VAR_DECL and ref.semantic_parent is not None and ref.semantic_parent.kind == CursorKind.TRANSLATION_UNIT:

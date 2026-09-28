@@ -7,20 +7,20 @@ The oracle range is the whole definition, from the return type to the closing br
 
 | Function | Oracle | Swift | State | jka-rust | Signature |
 |---|---|---|---|---|---|
-| `NPC_GalakMech_Precache` | `oracle/codemp/game/NPC_AI_GalakMech.c:42-57` | `JKAMP_GameLogic/NPC_AI_GalakMech.swift:95` | marker | `crates/mp/game/src/NPC_AI_GalakMech.rs:81-95` | `func NPC_GalakMech_Precache()` |
-| `NPC_GalakMech_Init` | `oracle/codemp/game/NPC_AI_GalakMech.c:59-98` | `JKAMP_GameLogic/NPC_AI_GalakMech.swift:101` | marker | `crates/mp/game/src/NPC_AI_GalakMech.rs:100-142` | `func NPC_GalakMech_Init(_ ent: Entity)` |
-| `GM_CreateExplosion` static | `oracle/codemp/game/NPC_AI_GalakMech.c:101-125` | `JKAMP_GameLogic/NPC_AI_GalakMech.swift:108` | marker | `crates/mp/game/src/NPC_AI_GalakMech.rs:147-199` | `private func GM_CreateExplosion(_ `self`: Entity, _ boltID: Int32, _ doSmall: Bool)` |
-| `GM_Dying` | `oracle/codemp/game/NPC_AI_GalakMech.c:133-229` | `JKAMP_GameLogic/NPC_AI_GalakMech.swift:114` | marker | `crates/mp/game/src/NPC_AI_GalakMech.rs:204-313` | `func GM_Dying(_ `self`: Entity)` |
-| `NPC_GM_Pain` | `oracle/codemp/game/NPC_AI_GalakMech.c:238-354` | `JKAMP_GameLogic/NPC_AI_GalakMech.swift:120` | marker | `crates/mp/game/src/NPC_AI_GalakMech.rs:321-422` | `func NPC_GM_Pain(_ `self`: Entity, _ attacker: Entity, _ damage: Int32)` |
-| `GM_HoldPosition` static | `oracle/codemp/game/NPC_AI_GalakMech.c:362-369` | `JKAMP_GameLogic/NPC_AI_GalakMech.swift:126` | marker | `crates/mp/game/src/NPC_AI_GalakMech.rs:427-447` | `private func GM_HoldPosition()` |
-| `GM_Move` static | `oracle/codemp/game/NPC_AI_GalakMech.c:376-408` | `JKAMP_GameLogic/NPC_AI_GalakMech.swift:139` | marker | `crates/mp/game/src/NPC_AI_GalakMech.rs:452-495` | `private func GM_Move() -> Bool` |
-| `NPC_BSGM_Patrol` | `oracle/codemp/game/NPC_AI_GalakMech.c:416-432` | `JKAMP_GameLogic/NPC_AI_GalakMech.swift:145` | marker | `crates/mp/game/src/NPC_AI_GalakMech.rs:500-514` | `func NPC_BSGM_Patrol()` |
-| `GM_CheckMoveState` static | `oracle/codemp/game/NPC_AI_GalakMech.c:440-460` | `JKAMP_GameLogic/NPC_AI_GalakMech.swift:151` | marker | `crates/mp/game/src/NPC_AI_GalakMech.rs:519-579` | `private func GM_CheckMoveState()` |
-| `GM_CheckFireState` static | `oracle/codemp/game/NPC_AI_GalakMech.c:468-556` | `JKAMP_GameLogic/NPC_AI_GalakMech.swift:157` | marker | `crates/mp/game/src/NPC_AI_GalakMech.rs:584-699` | `private func GM_CheckFireState()` |
-| `NPC_GM_StartLaser` | `oracle/codemp/game/NPC_AI_GalakMech.c:558-573` | `JKAMP_GameLogic/NPC_AI_GalakMech.swift:163` | marker | `crates/mp/game/src/NPC_AI_GalakMech.rs:704-740` | `func NPC_GM_StartLaser()` |
-| `GM_StartGloat` | `oracle/codemp/game/NPC_AI_GalakMech.c:575-587` | `JKAMP_GameLogic/NPC_AI_GalakMech.swift:169` | marker | `crates/mp/game/src/NPC_AI_GalakMech.rs:745-768` | `func GM_StartGloat()` |
-| `NPC_BSGM_Attack` | `oracle/codemp/game/NPC_AI_GalakMech.c:594-1229` | `JKAMP_GameLogic/NPC_AI_GalakMech.swift:175` | marker | `crates/mp/game/src/NPC_AI_GalakMech.rs:773-1457` | `func NPC_BSGM_Attack()` |
-| `NPC_BSGM_Default` | `oracle/codemp/game/NPC_AI_GalakMech.c:1231-1297` | `JKAMP_GameLogic/NPC_AI_GalakMech.swift:181` | marker | `crates/mp/game/src/NPC_AI_GalakMech.rs:1462-1548` | `func NPC_BSGM_Default()` |
+| `NPC_GalakMech_Precache` | `oracle/codemp/game/NPC_AI_GalakMech.c:42-57` | `JKAMP_GameLogic/NPC_AI_GalakMech.swift:96` | marker | `crates/mp/game/src/NPC_AI_GalakMech.rs:81-95` | `func NPC_GalakMech_Precache()` |
+| `NPC_GalakMech_Init` | `oracle/codemp/game/NPC_AI_GalakMech.c:59-98` | `JKAMP_GameLogic/NPC_AI_GalakMech.swift:102` | marker | `crates/mp/game/src/NPC_AI_GalakMech.rs:100-142` | `func NPC_GalakMech_Init(_ ent: Entity)` |
+| `GM_CreateExplosion` static | `oracle/codemp/game/NPC_AI_GalakMech.c:101-125` | `JKAMP_GameLogic/NPC_AI_GalakMech.swift:109` | marker | `crates/mp/game/src/NPC_AI_GalakMech.rs:147-199` | `private func GM_CreateExplosion(_ `self`: Entity, _ boltID: Int32, _ doSmall: Bool)` |
+| `GM_Dying` | `oracle/codemp/game/NPC_AI_GalakMech.c:133-229` | `JKAMP_GameLogic/NPC_AI_GalakMech.swift:115` | marker | `crates/mp/game/src/NPC_AI_GalakMech.rs:204-313` | `func GM_Dying(_ `self`: Entity)` |
+| `NPC_GM_Pain` | `oracle/codemp/game/NPC_AI_GalakMech.c:238-354` | `JKAMP_GameLogic/NPC_AI_GalakMech.swift:121` | marker | `crates/mp/game/src/NPC_AI_GalakMech.rs:321-422` | `func NPC_GM_Pain(_ `self`: Entity, _ attacker: Entity, _ damage: Int32)` |
+| `GM_HoldPosition` static | `oracle/codemp/game/NPC_AI_GalakMech.c:362-369` | `JKAMP_GameLogic/NPC_AI_GalakMech.swift:127` | marker | `crates/mp/game/src/NPC_AI_GalakMech.rs:427-447` | `private func GM_HoldPosition()` |
+| `GM_Move` static | `oracle/codemp/game/NPC_AI_GalakMech.c:376-408` | `JKAMP_GameLogic/NPC_AI_GalakMech.swift:140` | marker | `crates/mp/game/src/NPC_AI_GalakMech.rs:452-495` | `private func GM_Move() -> Bool` |
+| `NPC_BSGM_Patrol` | `oracle/codemp/game/NPC_AI_GalakMech.c:416-432` | `JKAMP_GameLogic/NPC_AI_GalakMech.swift:146` | marker | `crates/mp/game/src/NPC_AI_GalakMech.rs:500-514` | `func NPC_BSGM_Patrol()` |
+| `GM_CheckMoveState` static | `oracle/codemp/game/NPC_AI_GalakMech.c:440-460` | `JKAMP_GameLogic/NPC_AI_GalakMech.swift:152` | marker | `crates/mp/game/src/NPC_AI_GalakMech.rs:519-579` | `private func GM_CheckMoveState()` |
+| `GM_CheckFireState` static | `oracle/codemp/game/NPC_AI_GalakMech.c:468-556` | `JKAMP_GameLogic/NPC_AI_GalakMech.swift:158` | marker | `crates/mp/game/src/NPC_AI_GalakMech.rs:584-699` | `private func GM_CheckFireState()` |
+| `NPC_GM_StartLaser` | `oracle/codemp/game/NPC_AI_GalakMech.c:558-573` | `JKAMP_GameLogic/NPC_AI_GalakMech.swift:164` | marker | `crates/mp/game/src/NPC_AI_GalakMech.rs:704-740` | `func NPC_GM_StartLaser()` |
+| `GM_StartGloat` | `oracle/codemp/game/NPC_AI_GalakMech.c:575-587` | `JKAMP_GameLogic/NPC_AI_GalakMech.swift:170` | marker | `crates/mp/game/src/NPC_AI_GalakMech.rs:745-768` | `func GM_StartGloat()` |
+| `NPC_BSGM_Attack` | `oracle/codemp/game/NPC_AI_GalakMech.c:594-1229` | `JKAMP_GameLogic/NPC_AI_GalakMech.swift:176` | marker | `crates/mp/game/src/NPC_AI_GalakMech.rs:773-1457` | `func NPC_BSGM_Attack()` |
+| `NPC_BSGM_Default` | `oracle/codemp/game/NPC_AI_GalakMech.c:1231-1297` | `JKAMP_GameLogic/NPC_AI_GalakMech.swift:182` | marker | `crates/mp/game/src/NPC_AI_GalakMech.rs:1462-1548` | `func NPC_BSGM_Default()` |
 
 10 file-scope variables. The entry is the stub's line for the variable, by rule 3 and rule 6.
 

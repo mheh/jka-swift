@@ -6,7 +6,7 @@ import JKAShared
 /// Raven defines this inline in the header, and the copy in bg_misc.c sits under a guard the port never takes.
 /// The flag names one axis of the bolt matrix, or its origin, and the vector takes that column.
 /// Source: oracle/codemp/game/bg_public.h:1524
-func BG_GiveMeVectorFromMatrix(_ boltMatrix: JKAMP.MdxaBone, _ flags: Int32, _ vec: inout JKAShared.vec3_t) {
+public func BG_GiveMeVectorFromMatrix(_ boltMatrix: JKAMP.MdxaBone, _ flags: Int32, _ vec: inout JKAShared.vec3_t) {
     switch flags {
     case ORIGIN:
         vec[0] = boltMatrix.matrix[0][3]

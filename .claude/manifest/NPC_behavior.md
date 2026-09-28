@@ -7,24 +7,24 @@ The oracle range is the whole definition, from the return type to the closing br
 
 | Function | Oracle | Swift | State | jka-rust | Signature |
 |---|---|---|---|---|---|
-| `NPC_BSAdvanceFight` | `oracle/codemp/game/NPC_behavior.c:29-183` | `JKAMP_GameLogic/NPC_behavior.swift:26` | marker | `crates/mp/game/src/NPC_behavior.rs:68-259` | `func NPC_BSAdvanceFight()` |
-| `Disappear` | `oracle/codemp/game/NPC_behavior.c:185-191` | `JKAMP_GameLogic/NPC_behavior.swift:32` | marker | `crates/mp/game/src/NPC_behavior.rs:264-269` | `func Disappear(_ `self`: Entity)` |
-| `BeamOut` | `oracle/codemp/game/NPC_behavior.c:194-211` | `JKAMP_GameLogic/NPC_behavior.swift:38` | marker | `crates/mp/game/src/NPC_behavior.rs:274-288` | `func BeamOut(_ `self`: Entity)` |
-| `NPC_BSCinematic` | `oracle/codemp/game/NPC_behavior.c:213-244` | `JKAMP_GameLogic/NPC_behavior.swift:44` | marker | `crates/mp/game/src/NPC_behavior.rs:293-330` | `func NPC_BSCinematic()` |
-| `NPC_BSWait` | `oracle/codemp/game/NPC_behavior.c:246-249` | `JKAMP_GameLogic/NPC_behavior.swift:50` | marker | `crates/mp/game/src/NPC_behavior.rs:335-337` | `func NPC_BSWait()` |
-| `NPC_BSInvestigate` | `oracle/codemp/game/NPC_behavior.c:252-407` | `JKAMP_GameLogic/NPC_behavior.swift:56` | marker | `crates/mp/game/src/NPC_behavior.rs:344-347` | `func NPC_BSInvestigate()` |
-| `NPC_CheckInvestigate` | `oracle/codemp/game/NPC_behavior.c:409-494` | `JKAMP_GameLogic/NPC_behavior.swift:62` | marker | `crates/mp/game/src/NPC_behavior.rs:352-444` | `func NPC_CheckInvestigate(_ alertEventNum: Int32) -> Bool` |
-| `NPC_BSSleep` | `oracle/codemp/game/NPC_behavior.c:500-521` | `JKAMP_GameLogic/NPC_behavior.swift:73` | marker | `crates/mp/game/src/NPC_behavior.rs:449-460` | `func NPC_BSSleep()` |
-| `NPC_BSFollowLeader` | `oracle/codemp/game/NPC_behavior.c:524-729` | `JKAMP_GameLogic/NPC_behavior.swift:79` | marker | `crates/mp/game/src/NPC_behavior.rs:465-720` | `func NPC_BSFollowLeader()` |
-| `NPC_BSJump` | `oracle/codemp/game/NPC_behavior.c:733-919` | `JKAMP_GameLogic/NPC_behavior.swift:85` | marker | `crates/mp/game/src/NPC_behavior.rs:725-895` | `func NPC_BSJump()` |
-| `NPC_BSRemove` | `oracle/codemp/game/NPC_behavior.c:921-937` | `JKAMP_GameLogic/NPC_behavior.swift:91` | marker | `crates/mp/game/src/NPC_behavior.rs:900-930` | `func NPC_BSRemove()` |
-| `NPC_BSSearch` | `oracle/codemp/game/NPC_behavior.c:939-1124` | `JKAMP_GameLogic/NPC_behavior.swift:97` | marker | `crates/mp/game/src/NPC_behavior.rs:935-1093` | `func NPC_BSSearch()` |
-| `NPC_BSSearchStart` | `oracle/codemp/game/NPC_behavior.c:1132-1150` | `JKAMP_GameLogic/NPC_behavior.swift:103` | marker | `crates/mp/game/src/NPC_behavior.rs:1098-1122` | `func NPC_BSSearchStart(_ homeWp: Int32, _ bState: bState_t)` |
-| `NPC_BSNoClip` | `oracle/codemp/game/NPC_behavior.c:1160-1191` | `JKAMP_GameLogic/NPC_behavior.swift:109` | marker | `crates/mp/game/src/NPC_behavior.rs:1127-1170` | `func NPC_BSNoClip()` |
-| `NPC_BSWander` | `oracle/codemp/game/NPC_behavior.c:1193-1286` | `JKAMP_GameLogic/NPC_behavior.swift:115` | marker | `crates/mp/game/src/NPC_behavior.rs:1175-1295` | `func NPC_BSWander()` |
-| `NPC_Surrender` | `oracle/codemp/game/NPC_behavior.c:1317-1339` | `JKAMP_GameLogic/NPC_behavior.swift:121` | marker | `crates/mp/game/src/NPC_behavior.rs:1300-1328` | `func NPC_Surrender()` |
-| `NPC_CheckSurrender` | `oracle/codemp/game/NPC_behavior.c:1341-1442` | `JKAMP_GameLogic/NPC_behavior.swift:127` | marker | `crates/mp/game/src/NPC_behavior.rs:1333-1395` | `func NPC_CheckSurrender() -> Bool` |
-| `NPC_BSFlee` | `oracle/codemp/game/NPC_behavior.c:1444-1558` | `JKAMP_GameLogic/NPC_behavior.swift:133` | marker | `crates/mp/game/src/NPC_behavior.rs:1400-1503` | `func NPC_BSFlee()` |
-| `NPC_StartFlee` | `oracle/codemp/game/NPC_behavior.c:1560-1634` | `JKAMP_GameLogic/NPC_behavior.swift:139` | marker | `crates/mp/game/src/NPC_behavior.rs:1508-1622` | `func NPC_StartFlee(_ enemy: Entity, _ dangerPoint: inout JKAShared.vec3_t, _ dangerLevel: Int32, _ fleeTimeMin: Int32, _ fleeTimeMax: Int32)` |
-| `G_StartFlee` | `oracle/codemp/game/NPC_behavior.c:1636-1648` | `JKAMP_GameLogic/NPC_behavior.swift:145` | marker | `crates/mp/game/src/NPC_behavior.rs:1627-1655` | `func G_StartFlee(_ `self`: Entity, _ enemy: Entity, _ dangerPoint: inout JKAShared.vec3_t, _ dangerLevel: Int32, _ fleeTimeMin: Int32, _ fleeTimeMax: Int32)` |
-| `NPC_BSEmplaced` | `oracle/codemp/game/NPC_behavior.c:1650-1748` | `JKAMP_GameLogic/NPC_behavior.swift:151` | marker | `crates/mp/game/src/NPC_behavior.rs:1660-1745` | `func NPC_BSEmplaced()` |
+| `NPC_BSAdvanceFight` | `oracle/codemp/game/NPC_behavior.c:29-183` | `JKAMP_GameLogic/NPC_behavior.swift:27` | marker | `crates/mp/game/src/NPC_behavior.rs:68-259` | `func NPC_BSAdvanceFight()` |
+| `Disappear` | `oracle/codemp/game/NPC_behavior.c:185-191` | `JKAMP_GameLogic/NPC_behavior.swift:33` | marker | `crates/mp/game/src/NPC_behavior.rs:264-269` | `func Disappear(_ `self`: Entity)` |
+| `BeamOut` | `oracle/codemp/game/NPC_behavior.c:194-211` | `JKAMP_GameLogic/NPC_behavior.swift:39` | marker | `crates/mp/game/src/NPC_behavior.rs:274-288` | `func BeamOut(_ `self`: Entity)` |
+| `NPC_BSCinematic` | `oracle/codemp/game/NPC_behavior.c:213-244` | `JKAMP_GameLogic/NPC_behavior.swift:45` | marker | `crates/mp/game/src/NPC_behavior.rs:293-330` | `func NPC_BSCinematic()` |
+| `NPC_BSWait` | `oracle/codemp/game/NPC_behavior.c:246-249` | `JKAMP_GameLogic/NPC_behavior.swift:51` | marker | `crates/mp/game/src/NPC_behavior.rs:335-337` | `func NPC_BSWait()` |
+| `NPC_BSInvestigate` | `oracle/codemp/game/NPC_behavior.c:252-407` | `JKAMP_GameLogic/NPC_behavior.swift:57` | marker | `crates/mp/game/src/NPC_behavior.rs:344-347` | `func NPC_BSInvestigate()` |
+| `NPC_CheckInvestigate` | `oracle/codemp/game/NPC_behavior.c:409-494` | `JKAMP_GameLogic/NPC_behavior.swift:63` | marker | `crates/mp/game/src/NPC_behavior.rs:352-444` | `func NPC_CheckInvestigate(_ alertEventNum: Int32) -> Bool` |
+| `NPC_BSSleep` | `oracle/codemp/game/NPC_behavior.c:500-521` | `JKAMP_GameLogic/NPC_behavior.swift:74` | marker | `crates/mp/game/src/NPC_behavior.rs:449-460` | `func NPC_BSSleep()` |
+| `NPC_BSFollowLeader` | `oracle/codemp/game/NPC_behavior.c:524-729` | `JKAMP_GameLogic/NPC_behavior.swift:80` | marker | `crates/mp/game/src/NPC_behavior.rs:465-720` | `func NPC_BSFollowLeader()` |
+| `NPC_BSJump` | `oracle/codemp/game/NPC_behavior.c:733-919` | `JKAMP_GameLogic/NPC_behavior.swift:86` | marker | `crates/mp/game/src/NPC_behavior.rs:725-895` | `func NPC_BSJump()` |
+| `NPC_BSRemove` | `oracle/codemp/game/NPC_behavior.c:921-937` | `JKAMP_GameLogic/NPC_behavior.swift:92` | marker | `crates/mp/game/src/NPC_behavior.rs:900-930` | `func NPC_BSRemove()` |
+| `NPC_BSSearch` | `oracle/codemp/game/NPC_behavior.c:939-1124` | `JKAMP_GameLogic/NPC_behavior.swift:98` | marker | `crates/mp/game/src/NPC_behavior.rs:935-1093` | `func NPC_BSSearch()` |
+| `NPC_BSSearchStart` | `oracle/codemp/game/NPC_behavior.c:1132-1150` | `JKAMP_GameLogic/NPC_behavior.swift:104` | marker | `crates/mp/game/src/NPC_behavior.rs:1098-1122` | `func NPC_BSSearchStart(_ homeWp: Int32, _ bState: bState_t)` |
+| `NPC_BSNoClip` | `oracle/codemp/game/NPC_behavior.c:1160-1191` | `JKAMP_GameLogic/NPC_behavior.swift:110` | marker | `crates/mp/game/src/NPC_behavior.rs:1127-1170` | `func NPC_BSNoClip()` |
+| `NPC_BSWander` | `oracle/codemp/game/NPC_behavior.c:1193-1286` | `JKAMP_GameLogic/NPC_behavior.swift:116` | marker | `crates/mp/game/src/NPC_behavior.rs:1175-1295` | `func NPC_BSWander()` |
+| `NPC_Surrender` | `oracle/codemp/game/NPC_behavior.c:1317-1339` | `JKAMP_GameLogic/NPC_behavior.swift:122` | marker | `crates/mp/game/src/NPC_behavior.rs:1300-1328` | `func NPC_Surrender()` |
+| `NPC_CheckSurrender` | `oracle/codemp/game/NPC_behavior.c:1341-1442` | `JKAMP_GameLogic/NPC_behavior.swift:128` | marker | `crates/mp/game/src/NPC_behavior.rs:1333-1395` | `func NPC_CheckSurrender() -> Bool` |
+| `NPC_BSFlee` | `oracle/codemp/game/NPC_behavior.c:1444-1558` | `JKAMP_GameLogic/NPC_behavior.swift:134` | marker | `crates/mp/game/src/NPC_behavior.rs:1400-1503` | `func NPC_BSFlee()` |
+| `NPC_StartFlee` | `oracle/codemp/game/NPC_behavior.c:1560-1634` | `JKAMP_GameLogic/NPC_behavior.swift:140` | marker | `crates/mp/game/src/NPC_behavior.rs:1508-1622` | `func NPC_StartFlee(_ enemy: Entity, _ dangerPoint: inout JKAShared.vec3_t, _ dangerLevel: Int32, _ fleeTimeMin: Int32, _ fleeTimeMax: Int32)` |
+| `G_StartFlee` | `oracle/codemp/game/NPC_behavior.c:1636-1648` | `JKAMP_GameLogic/NPC_behavior.swift:146` | marker | `crates/mp/game/src/NPC_behavior.rs:1627-1655` | `func G_StartFlee(_ `self`: Entity, _ enemy: Entity, _ dangerPoint: inout JKAShared.vec3_t, _ dangerLevel: Int32, _ fleeTimeMin: Int32, _ fleeTimeMax: Int32)` |
+| `NPC_BSEmplaced` | `oracle/codemp/game/NPC_behavior.c:1650-1748` | `JKAMP_GameLogic/NPC_behavior.swift:152` | marker | `crates/mp/game/src/NPC_behavior.rs:1660-1745` | `func NPC_BSEmplaced()` |

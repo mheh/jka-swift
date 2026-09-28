@@ -18,11 +18,11 @@ The oracle range is the whole definition, from the return type to the closing br
 | `VEH_LoadVehicle` | `oracle/codemp/game/bg_vehicleLoad.c:983-1362` | `JKAMP_BG/bg_vehicleLoad.swift:522` | ported | `crates/mp/bg/src/bg_vehicleLoad.rs:524-768` | `func VEH_LoadVehicle(_ vehicleName: String) -> Int32` |
 | `VEH_VehicleIndexForName` | `oracle/codemp/game/bg_vehicleLoad.c:1364-1394` | `JKAMP_BG/bg_vehicleLoad.swift:752` | ported | `crates/mp/bg/src/bg_vehicleLoad.rs:773-816` | `func VEH_VehicleIndexForName(_ vehicleName: String) -> Int32` |
 | `BG_VehWeaponLoadParms` | `oracle/codemp/game/bg_vehicleLoad.c:1396-1485` | `JKAMP_BG/bg_vehicleLoad.swift:783` | ported | `crates/mp/bg/src/bg_vehicleLoad.rs:823-877` | `func BG_VehWeaponLoadParms()` |
-| `BG_VehicleLoadParms` | `oracle/codemp/game/bg_vehicleLoad.c:1487-1588` | `JKAMP_BG/bg_vehicleLoad.swift:856` | ported | `crates/mp/bg/src/bg_vehicleLoad.rs:886-942` | `func BG_VehicleLoadParms()` |
-| `BG_VehicleGetIndex` | `oracle/codemp/game/bg_vehicleLoad.c:1590-1593` | `JKAMP_BG/bg_vehicleLoad.swift:942` | ported | `crates/mp/bg/src/bg_vehicleLoad.rs:948-957` | `func BG_VehicleGetIndex(_ vehicleName: String) -> Int32` |
-| `BG_GetVehicleModelName` | `oracle/codemp/game/bg_vehicleLoad.c:1599-1611` | `JKAMP_BG/bg_vehicleLoad.swift:951` | ported | `crates/mp/bg/src/bg_vehicleLoad.rs:966-993` | `func BG_GetVehicleModelName(_ modelname: inout JKAShared.CharBuf)` |
+| `BG_VehicleLoadParms` | `oracle/codemp/game/bg_vehicleLoad.c:1487-1588` | `JKAMP_BG/bg_vehicleLoad.swift:856` | ported | `crates/mp/bg/src/bg_vehicleLoad.rs:886-942` | `public func BG_VehicleLoadParms()` |
+| `BG_VehicleGetIndex` | `oracle/codemp/game/bg_vehicleLoad.c:1590-1593` | `JKAMP_BG/bg_vehicleLoad.swift:942` | ported | `crates/mp/bg/src/bg_vehicleLoad.rs:948-957` | `public func BG_VehicleGetIndex(_ vehicleName: String) -> Int32` |
+| `BG_GetVehicleModelName` | `oracle/codemp/game/bg_vehicleLoad.c:1599-1611` | `JKAMP_BG/bg_vehicleLoad.swift:951` | ported | `crates/mp/bg/src/bg_vehicleLoad.rs:966-993` | `public func BG_GetVehicleModelName(_ modelname: inout JKAShared.CharBuf)` |
 | `BG_GetVehicleSkinName` | `oracle/codemp/game/bg_vehicleLoad.c:1613-1633` | `JKAMP_BG/bg_vehicleLoad.swift:963` | ported | `crates/mp/bg/src/bg_vehicleLoad.rs:998-1029` | `func BG_GetVehicleSkinName(_ skinname: inout JKAShared.CharBuf)` |
-| `AttachRidersGeneric` | `oracle/codemp/game/bg_vehicleLoad.c:1643-1664` | `JKAMP_BG/bg_vehicleLoad.swift:979` | ported | `crates/mp/bg/src/bg_vehicleLoad.rs:1034-1072` | `func AttachRidersGeneric(_ pVeh: JKAMP.Vehicle)` |
+| `AttachRidersGeneric` | `oracle/codemp/game/bg_vehicleLoad.c:1643-1664` | `JKAMP_BG/bg_vehicleLoad.swift:979` | ported | `crates/mp/bg/src/bg_vehicleLoad.rs:1034-1072` | `public func AttachRidersGeneric(_ pVeh: JKAMP.Vehicle)` |
 
 9 file-scope variables. The entry is the stub's line for the variable, by rule 3 and rule 6.
 

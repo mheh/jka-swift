@@ -4,6 +4,7 @@ import Foundation
 import JKAMP
 import JKAShared
 import JKAMP_Game
+import JKAMP_BG
 
 /// Source: oracle/codemp/game/ai_util.c:12
 var gBotChatBuffer: [JKAShared.CharBuf] {

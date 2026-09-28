@@ -4,6 +4,7 @@ import Foundation
 import JKAMP
 import JKAShared
 import JKAMP_Game
+import JKAMP_BG
 
 /// Source: oracle/codemp/game/NPC_move.c:14
 var frameNavInfo: NavInfo { world.storage.frameNavInfo }

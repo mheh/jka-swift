@@ -7,11 +7,11 @@ The oracle range is the whole definition, from the return type to the closing br
 
 | Function | Oracle | Swift | State | jka-rust | Signature |
 |---|---|---|---|---|---|
-| `VEH_StartStrafeRam` | `oracle/codemp/game/SpeederNPC.c:140-143` | `JKAMP_GameLogic/SpeederNPC.swift:74` | marker | `crates/mp/bg/src/vehicles/speeder_npc.rs:25-27` | `func VEH_StartStrafeRam(_ pVeh: JKAMP.Vehicle, _ Right: Bool, _ Duration: Int32) -> Bool` |
-| `Update` | `oracle/codemp/game/SpeederNPC.c:149-268` | `JKAMP_GameLogic/SpeederNPC.swift:81` | marker | `crates/mp/game/src/AnimalNPC.rs:33-36` | `private func Update(_ pVeh: JKAMP.Vehicle, _ pUcmd: JKAMP.Usercmd) -> Bool` |
-| `ProcessMoveCommands` static | `oracle/codemp/game/SpeederNPC.c:278-490` | `JKAMP_GameLogic/SpeederNPC.swift:94` | marker | `crates/mp/bg/src/vehicles/animal_npc.rs:19-116` | `private func ProcessMoveCommands(_ pVeh: JKAMP.Vehicle)` |
-| `ProcessOrientCommands` | `oracle/codemp/game/SpeederNPC.c:505-600` | `JKAMP_GameLogic/SpeederNPC.swift:100` | marker | `crates/mp/bg/src/vehicles/animal_npc.rs:123-160` | `private func ProcessOrientCommands(_ pVeh: JKAMP.Vehicle)` |
-| `AnimateVehicle` | `oracle/codemp/game/SpeederNPC.c:608-610` | `JKAMP_GameLogic/SpeederNPC.swift:107` | marker | `crates/mp/game/src/AnimalNPC.rs:57-194` | `private func AnimateVehicle(_ pVeh: JKAMP.Vehicle)` |
-| `AnimateRiders` | `oracle/codemp/game/SpeederNPC.c:630-1038` | `JKAMP_GameLogic/SpeederNPC.swift:117` | marker | `crates/mp/game/src/AnimalNPC.rs:202-371` | `private func AnimateRiders(_ pVeh: JKAMP.Vehicle)` |
-| `G_SetSpeederVehicleFunctions` | `oracle/codemp/game/SpeederNPC.c:1044-1076` | `JKAMP_GameLogic/SpeederNPC.swift:123` | marker | none | `func G_SetSpeederVehicleFunctions(_ pVehInfo: JKAMP.VehicleInfo)` |
-| `G_CreateSpeederNPC` | `oracle/codemp/game/SpeederNPC.c:1092-1113` | `JKAMP_GameLogic/SpeederNPC.swift:130` | marker | `crates/mp/game/src/SpeederNPC.rs:122-150` | `func G_CreateSpeederNPC(_ pVeh: inout JKAMP.Vehicle?, _ strType: String)` |
+| `VEH_StartStrafeRam` | `oracle/codemp/game/SpeederNPC.c:140-143` | `JKAMP_GameLogic/SpeederNPC.swift:75` | marker | `crates/mp/bg/src/vehicles/speeder_npc.rs:25-27` | `func VEH_StartStrafeRam(_ pVeh: JKAMP.Vehicle, _ Right: Bool, _ Duration: Int32) -> Bool` |
+| `Update` | `oracle/codemp/game/SpeederNPC.c:149-268` | `JKAMP_GameLogic/SpeederNPC.swift:82` | marker | `crates/mp/game/src/AnimalNPC.rs:33-36` | `private func Update(_ pVeh: JKAMP.Vehicle, _ pUcmd: JKAMP.Usercmd) -> Bool` |
+| `ProcessMoveCommands` static | `oracle/codemp/game/SpeederNPC.c:278-490` | `JKAMP_GameLogic/SpeederNPC.swift:95` | marker | `crates/mp/bg/src/vehicles/animal_npc.rs:19-116` | `private func ProcessMoveCommands(_ pVeh: JKAMP.Vehicle)` |
+| `ProcessOrientCommands` | `oracle/codemp/game/SpeederNPC.c:505-600` | `JKAMP_GameLogic/SpeederNPC.swift:101` | marker | `crates/mp/bg/src/vehicles/animal_npc.rs:123-160` | `private func ProcessOrientCommands(_ pVeh: JKAMP.Vehicle)` |
+| `AnimateVehicle` | `oracle/codemp/game/SpeederNPC.c:608-610` | `JKAMP_GameLogic/SpeederNPC.swift:108` | marker | `crates/mp/game/src/AnimalNPC.rs:57-194` | `private func AnimateVehicle(_ pVeh: JKAMP.Vehicle)` |
+| `AnimateRiders` | `oracle/codemp/game/SpeederNPC.c:630-1038` | `JKAMP_GameLogic/SpeederNPC.swift:118` | marker | `crates/mp/game/src/AnimalNPC.rs:202-371` | `private func AnimateRiders(_ pVeh: JKAMP.Vehicle)` |
+| `G_SetSpeederVehicleFunctions` | `oracle/codemp/game/SpeederNPC.c:1044-1076` | `JKAMP_GameLogic/SpeederNPC.swift:124` | marker | none | `func G_SetSpeederVehicleFunctions(_ pVehInfo: JKAMP.VehicleInfo)` |
+| `G_CreateSpeederNPC` | `oracle/codemp/game/SpeederNPC.c:1092-1113` | `JKAMP_GameLogic/SpeederNPC.swift:131` | marker | `crates/mp/game/src/SpeederNPC.rs:122-150` | `func G_CreateSpeederNPC(_ pVeh: inout JKAMP.Vehicle?, _ strType: String)` |

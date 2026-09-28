@@ -153,14 +153,13 @@ var randSeed: Int32 {
 
 /// Source: oracle/codemp/game/bg_lib.c:765
 func srand(_ seed: UInt32) {
-    // TODO: Port srand
-    portMissing("srand", source: "oracle/codemp/game/bg_lib.c:765")
+    randSeed = Int32(bitPattern: seed)
 }
 
 /// Source: oracle/codemp/game/bg_lib.c:769
-func rand() -> Int32 {
-    // TODO: Port rand
-    portMissing("rand", source: "oracle/codemp/game/bg_lib.c:769")
+public func rand() -> Int32 {
+    randSeed = (69069 &* randSeed &+ 1)
+    return randSeed & 0x7fff
 }
 
 /// Source: oracle/codemp/game/q_shared.h:1591
@@ -176,12 +175,125 @@ public func crandom() -> Float {
 
 /// Source: oracle/codemp/game/bg_lib.c:774
 func atof(_ string: String) -> Double {
-    // TODO: Port atof
-    portMissing("atof", source: "oracle/codemp/game/bg_lib.c:774")
+    var sign: Float
+    var value: Float
+    var c: Int32
+    // Raven steps his own `string` parameter through its bytes, so the body walks a TextCursor over a copy of them.
+    var string = TextCursor(CharBuf(string))
+
+
+    // skip whitespace
+    while string.byte <= Int32(ascii: " ") {
+        if string.byte == 0 {
+            return 0
+        }
+        string.advance()
+    }
+
+    // check sign
+    switch string.byte {
+    case Int32(ascii: "+"):
+        string.advance()
+        sign = 1
+
+    case Int32(ascii: "-"):
+        string.advance()
+        sign = -1
+
+    default:
+        sign = 1
+    }
+
+    // read digits
+    value = 0
+    c = string[0]
+    if c != Int32(ascii: ".") {
+        repeat {
+            c = string.byte
+            string.advance()
+            if c < Int32(ascii: "0") || c > Int32(ascii: "9") {
+                break
+            }
+            c -= Int32(ascii: "0")
+            value = value * 10 + c
+        } while 1 != 0
+    } else {
+        string.advance()
+    }
+
+    // check for decimal point
+    if c == Int32(ascii: ".") {
+        var fraction: Double
+
+        fraction = 0.1
+        repeat {
+            c = string.byte
+            string.advance()
+            if c < Int32(ascii: "0") || c > Int32(ascii: "9") {
+                break
+            }
+            c -= Int32(ascii: "0")
+            value = Float(Double(value) + Double(c) * fraction)
+            fraction *= 0.1
+        } while 1 != 0
+    }
+
+    // not handling 10e10 notation...
+
+    return Double(value * sign)
 }
 
 /// Source: oracle/codemp/game/bg_lib.c:841
 func _atof(_ stringPtr: inout JKAShared.TextCursor) -> Double {
-    // TODO: Port _atof
+    // Port-note: A pointer local `const char * string` with no view.
+    // Raven wrote: const char *string;
     portMissing("_atof", source: "oracle/codemp/game/bg_lib.c:841")
+    var sign: Float
+    var value: Float
+    var c: Int32 = Int32(ascii: "0")
+
+    // Port-note: A store into `string`, a local the draft left as a hole.
+    // Raven wrote: string = *stringPtr
+    portMissing("_atof", source: "oracle/codemp/game/bg_lib.c:841")
+
+    // skip whitespace
+    // Port-note: A pointer dereference the draft cannot place.
+    // Raven wrote: while ( *string <= ' ' ) { if ( !*string ) { *stringPtr = string; return 0; } string++; }
+    portMissing("_atof", source: "oracle/codemp/game/bg_lib.c:841")
+
+    // check sign
+    // Port-note: A pointer dereference the draft cannot place.
+    // Raven wrote: switch ( *string ) { case '+': string++; sign = 1; break; case '-': string++; sign = -1; break; default: sign = 1; break; }
+    portMissing("_atof", source: "oracle/codemp/game/bg_lib.c:841")
+
+    // read digits
+    value = 0
+    // Port-note: A read of `string`, a local the draft left as a hole.
+    // Raven wrote: if ( string[0] != '.' ) { do { c = *string++; if ( c < '0' || c > '9' ) { break; } c -= '0'; value = value * 10 + c; } while ( 1 ); }
+    portMissing("_atof", source: "oracle/codemp/game/bg_lib.c:841")
+
+    // check for decimal point
+    if c == Int32(ascii: ".") {
+        var fraction: Double
+
+        fraction = 0.1
+        repeat {
+            // Port-note: A pointer dereference the draft cannot place.
+            // Raven wrote: c = *string++
+            portMissing("_atof", source: "oracle/codemp/game/bg_lib.c:841")
+            if c < Int32(ascii: "0") || c > Int32(ascii: "9") {
+                break
+            }
+            c -= Int32(ascii: "0")
+            value = Float(Double(value) + Double(c) * fraction)
+            fraction *= 0.1
+        } while 1 != 0
+    }
+
+    // not handling 10e10 notation...
+    // Port-note: A read of `string`, a local the draft left as a hole.
+    // Raven wrote: *stringPtr = string
+    portMissing("_atof", source: "oracle/codemp/game/bg_lib.c:841")
+
+    return Double(value * sign)
 }

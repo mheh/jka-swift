@@ -7,14 +7,14 @@ The oracle range is the whole definition, from the return type to the closing br
 
 | Function | Oracle | Swift | State | jka-rust | Signature |
 |---|---|---|---|---|---|
-| `NPC_Remote_Precache` | `oracle/codemp/game/NPC_AI_Remote.c:17-22` | `JKAMP_GameLogic/NPC_AI_Remote.swift:39` | marker | `crates/mp/game/src/NPC_AI_Remote.rs:37-41` | `func NPC_Remote_Precache()` |
-| `NPC_Remote_Pain` | `oracle/codemp/game/NPC_AI_Remote.c:29-37` | `JKAMP_GameLogic/NPC_AI_Remote.swift:52` | marker | `crates/mp/game/src/NPC_AI_Remote.rs:46-57` | `func NPC_Remote_Pain(_ `self`: Entity, _ attacker: Entity, _ damage: Int32)` |
-| `Remote_MaintainHeight` | `oracle/codemp/game/NPC_AI_Remote.c:44-128` | `JKAMP_GameLogic/NPC_AI_Remote.swift:65` | marker | `crates/mp/game/src/NPC_AI_Remote.rs:62-160` | `func Remote_MaintainHeight()` |
-| `Remote_Strafe` | `oracle/codemp/game/NPC_AI_Remote.c:139-168` | `JKAMP_GameLogic/NPC_AI_Remote.swift:78` | marker | `crates/mp/game/src/NPC_AI_Remote.rs:165-240` | `func Remote_Strafe()` |
-| `Remote_Hunt` | `oracle/codemp/game/NPC_AI_Remote.c:178-221` | `JKAMP_GameLogic/NPC_AI_Remote.swift:91` | marker | `crates/mp/game/src/NPC_AI_Remote.rs:245-314` | `func Remote_Hunt(_ visible: Bool, _ advance: Bool, _ retreat: Bool)` |
-| `Remote_Fire` | `oracle/codemp/game/NPC_AI_Remote.c:229-257` | `JKAMP_GameLogic/NPC_AI_Remote.swift:104` | marker | `crates/mp/game/src/NPC_AI_Remote.rs:319-375` | `func Remote_Fire()` |
-| `Remote_Ranged` | `oracle/codemp/game/NPC_AI_Remote.c:264-277` | `JKAMP_GameLogic/NPC_AI_Remote.swift:117` | marker | `crates/mp/game/src/NPC_AI_Remote.rs:380-401` | `func Remote_Ranged(_ visible: Bool, _ advance: Bool, _ retreat: Bool)` |
-| `Remote_Attack` | `oracle/codemp/game/NPC_AI_Remote.c:290-332` | `JKAMP_GameLogic/NPC_AI_Remote.swift:130` | marker | `crates/mp/game/src/NPC_AI_Remote.rs:406-479` | `func Remote_Attack()` |
-| `Remote_Idle` | `oracle/codemp/game/NPC_AI_Remote.c:339-344` | `JKAMP_GameLogic/NPC_AI_Remote.swift:143` | marker | `crates/mp/game/src/NPC_AI_Remote.rs:484-487` | `func Remote_Idle()` |
-| `Remote_Patrol` | `oracle/codemp/game/NPC_AI_Remote.c:351-367` | `JKAMP_GameLogic/NPC_AI_Remote.swift:156` | marker | `crates/mp/game/src/NPC_AI_Remote.rs:492-509` | `func Remote_Patrol()` |
-| `NPC_BSRemote_Default` | `oracle/codemp/game/NPC_AI_Remote.c:375-389` | `JKAMP_GameLogic/NPC_AI_Remote.swift:169` | marker | `crates/mp/game/src/NPC_AI_Remote.rs:514-526` | `func NPC_BSRemote_Default()` |
+| `NPC_Remote_Precache` | `oracle/codemp/game/NPC_AI_Remote.c:17-22` | `JKAMP_GameLogic/NPC_AI_Remote.swift:40` | marker | `crates/mp/game/src/NPC_AI_Remote.rs:37-41` | `func NPC_Remote_Precache()` |
+| `NPC_Remote_Pain` | `oracle/codemp/game/NPC_AI_Remote.c:29-37` | `JKAMP_GameLogic/NPC_AI_Remote.swift:53` | marker | `crates/mp/game/src/NPC_AI_Remote.rs:46-57` | `func NPC_Remote_Pain(_ `self`: Entity, _ attacker: Entity, _ damage: Int32)` |
+| `Remote_MaintainHeight` | `oracle/codemp/game/NPC_AI_Remote.c:44-128` | `JKAMP_GameLogic/NPC_AI_Remote.swift:66` | marker | `crates/mp/game/src/NPC_AI_Remote.rs:62-160` | `func Remote_MaintainHeight()` |
+| `Remote_Strafe` | `oracle/codemp/game/NPC_AI_Remote.c:139-168` | `JKAMP_GameLogic/NPC_AI_Remote.swift:79` | marker | `crates/mp/game/src/NPC_AI_Remote.rs:165-240` | `func Remote_Strafe()` |
+| `Remote_Hunt` | `oracle/codemp/game/NPC_AI_Remote.c:178-221` | `JKAMP_GameLogic/NPC_AI_Remote.swift:92` | marker | `crates/mp/game/src/NPC_AI_Remote.rs:245-314` | `func Remote_Hunt(_ visible: Bool, _ advance: Bool, _ retreat: Bool)` |
+| `Remote_Fire` | `oracle/codemp/game/NPC_AI_Remote.c:229-257` | `JKAMP_GameLogic/NPC_AI_Remote.swift:105` | marker | `crates/mp/game/src/NPC_AI_Remote.rs:319-375` | `func Remote_Fire()` |
+| `Remote_Ranged` | `oracle/codemp/game/NPC_AI_Remote.c:264-277` | `JKAMP_GameLogic/NPC_AI_Remote.swift:118` | marker | `crates/mp/game/src/NPC_AI_Remote.rs:380-401` | `func Remote_Ranged(_ visible: Bool, _ advance: Bool, _ retreat: Bool)` |
+| `Remote_Attack` | `oracle/codemp/game/NPC_AI_Remote.c:290-332` | `JKAMP_GameLogic/NPC_AI_Remote.swift:131` | marker | `crates/mp/game/src/NPC_AI_Remote.rs:406-479` | `func Remote_Attack()` |
+| `Remote_Idle` | `oracle/codemp/game/NPC_AI_Remote.c:339-344` | `JKAMP_GameLogic/NPC_AI_Remote.swift:144` | marker | `crates/mp/game/src/NPC_AI_Remote.rs:484-487` | `func Remote_Idle()` |
+| `Remote_Patrol` | `oracle/codemp/game/NPC_AI_Remote.c:351-367` | `JKAMP_GameLogic/NPC_AI_Remote.swift:157` | marker | `crates/mp/game/src/NPC_AI_Remote.rs:492-509` | `func Remote_Patrol()` |
+| `NPC_BSRemote_Default` | `oracle/codemp/game/NPC_AI_Remote.c:375-389` | `JKAMP_GameLogic/NPC_AI_Remote.swift:170` | marker | `crates/mp/game/src/NPC_AI_Remote.rs:514-526` | `func NPC_BSRemote_Default()` |

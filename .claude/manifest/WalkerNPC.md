@@ -7,11 +7,11 @@ The oracle range is the whole definition, from the return type to the closing br
 
 | Function | Oracle | Swift | State | jka-rust | Signature |
 |---|---|---|---|---|---|
-| `RegisterAssets` static | `oracle/codemp/game/WalkerNPC.c:84-95` | `JKAMP_GameLogic/WalkerNPC.swift:68` | marker | `crates/mp/game/src/WalkerNPC.rs:15-25` | `private func RegisterAssets(_ pVeh: JKAMP.Vehicle)` |
-| `Board` static | `oracle/codemp/game/WalkerNPC.c:106-115` | `JKAMP_GameLogic/WalkerNPC.swift:75` | marker | `crates/mp/game/src/FighterNPC.rs:36-48` | `private func Board(_ pVeh: JKAMP.Vehicle, _ pEnt: JKAMP.BgEntity) -> Bool` |
-| `ProcessMoveCommands` static | `oracle/codemp/game/WalkerNPC.c:129-251` | `JKAMP_GameLogic/WalkerNPC.swift:88` | marker | `crates/mp/bg/src/vehicles/animal_npc.rs:19-116` | `private func ProcessMoveCommands(_ pVeh: JKAMP.Vehicle)` |
-| `WalkerYawAdjust` | `oracle/codemp/game/WalkerNPC.c:254-278` | `JKAMP_GameLogic/WalkerNPC.swift:94` | marker | `crates/mp/bg/src/vehicles/walker_npc.rs:107-136` | `func WalkerYawAdjust(_ pVeh: JKAMP.Vehicle, _ riderPS: JKAMP.PlayerState, _ parentPS: JKAMP.PlayerState)` |
-| `ProcessOrientCommands` static | `oracle/codemp/game/WalkerNPC.c:316-411` | `JKAMP_GameLogic/WalkerNPC.swift:107` | marker | `crates/mp/bg/src/vehicles/animal_npc.rs:123-160` | `private func ProcessOrientCommands(_ pVeh: JKAMP.Vehicle)` |
-| `AnimateVehicle` static | `oracle/codemp/game/WalkerNPC.c:415-536` | `JKAMP_GameLogic/WalkerNPC.swift:114` | marker | `crates/mp/game/src/AnimalNPC.rs:57-194` | `private func AnimateVehicle(_ pVeh: JKAMP.Vehicle)` |
-| `G_SetWalkerVehicleFunctions` | `oracle/codemp/game/WalkerNPC.c:547-577` | `JKAMP_GameLogic/WalkerNPC.swift:121` | marker | none | `func G_SetWalkerVehicleFunctions(_ pVehInfo: JKAMP.VehicleInfo)` |
-| `G_CreateWalkerNPC` | `oracle/codemp/game/WalkerNPC.c:594-615` | `JKAMP_GameLogic/WalkerNPC.swift:129` | marker | `crates/mp/game/src/WalkerNPC.rs:139-172` | `func G_CreateWalkerNPC(_ pVeh: inout JKAMP.Vehicle?, _ strAnimalType: String)` |
+| `RegisterAssets` static | `oracle/codemp/game/WalkerNPC.c:84-95` | `JKAMP_GameLogic/WalkerNPC.swift:69` | marker | `crates/mp/game/src/WalkerNPC.rs:15-25` | `private func RegisterAssets(_ pVeh: JKAMP.Vehicle)` |
+| `Board` static | `oracle/codemp/game/WalkerNPC.c:106-115` | `JKAMP_GameLogic/WalkerNPC.swift:76` | marker | `crates/mp/game/src/FighterNPC.rs:36-48` | `private func Board(_ pVeh: JKAMP.Vehicle, _ pEnt: JKAMP.BgEntity) -> Bool` |
+| `ProcessMoveCommands` static | `oracle/codemp/game/WalkerNPC.c:129-251` | `JKAMP_GameLogic/WalkerNPC.swift:89` | marker | `crates/mp/bg/src/vehicles/animal_npc.rs:19-116` | `private func ProcessMoveCommands(_ pVeh: JKAMP.Vehicle)` |
+| `WalkerYawAdjust` | `oracle/codemp/game/WalkerNPC.c:254-278` | `JKAMP_GameLogic/WalkerNPC.swift:95` | marker | `crates/mp/bg/src/vehicles/walker_npc.rs:107-136` | `func WalkerYawAdjust(_ pVeh: JKAMP.Vehicle, _ riderPS: JKAMP.PlayerState, _ parentPS: JKAMP.PlayerState)` |
+| `ProcessOrientCommands` static | `oracle/codemp/game/WalkerNPC.c:316-411` | `JKAMP_GameLogic/WalkerNPC.swift:108` | marker | `crates/mp/bg/src/vehicles/animal_npc.rs:123-160` | `private func ProcessOrientCommands(_ pVeh: JKAMP.Vehicle)` |
+| `AnimateVehicle` static | `oracle/codemp/game/WalkerNPC.c:415-536` | `JKAMP_GameLogic/WalkerNPC.swift:115` | marker | `crates/mp/game/src/AnimalNPC.rs:57-194` | `private func AnimateVehicle(_ pVeh: JKAMP.Vehicle)` |
+| `G_SetWalkerVehicleFunctions` | `oracle/codemp/game/WalkerNPC.c:547-577` | `JKAMP_GameLogic/WalkerNPC.swift:122` | marker | none | `func G_SetWalkerVehicleFunctions(_ pVehInfo: JKAMP.VehicleInfo)` |
+| `G_CreateWalkerNPC` | `oracle/codemp/game/WalkerNPC.c:594-615` | `JKAMP_GameLogic/WalkerNPC.swift:130` | marker | `crates/mp/game/src/WalkerNPC.rs:139-172` | `func G_CreateWalkerNPC(_ pVeh: inout JKAMP.Vehicle?, _ strAnimalType: String)` |
