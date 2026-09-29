@@ -1,15 +1,14 @@
-# MP tree (codemp/) — plain C module.
+# MP tree (codemp/), a plain C module.
 
-# The bg .c files include ghoul2/G2.h, which no module header reaches, so the entry lists it too.
-# g_ICARUScb.c includes the three icarus headers itself, and no module header reaches them, so the entry lists them too.
+# The header parse reads the derived entry list of closure.py: each oracle header a game .c file includes, in order of first reach.
+# A header that another listed header reaches is left out, so a header with no include guard is parsed once.
 SPEC = dict(
     name="mp-game",
-    lang="c", entry=["codemp/game/b_local.h", "codemp/game/ai_main.h",
-                     "codemp/game/w_saber.h", "codemp/game/bg_local.h",
-                     "codemp/game/botlib.h", "codemp/ghoul2/G2.h",
-                     "codemp/game/g_nav.h", "codemp/icarus/Q3_Interface.h",
-                     "codemp/icarus/Q3_Registers.h", "codemp/icarus/interpreter.h"],
+    lang="c",
     includes=["codemp/game"],
     defines=["NDEBUG", "MISSIONPACK", "QAGAME", "_JK2"],
     srcglob=["codemp/game/*.c"],
+    # menudef.h defines CT_LTBLUE1 and three more names that q_shared.h's ct_table_t enum declares.
+    # A second module that emits it moves it to CJKAMP, where the umbrella puts every constants file before every type, and the enum breaks.
+    exclude=["ui/menudef.h"],
 )

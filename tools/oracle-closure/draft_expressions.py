@@ -223,6 +223,11 @@ class Expressions:
     def is_bool(self, cur: ci.Cursor) -> bool:
         """True when the expression already is a Swift Bool: a comparison, a logical operator, a `!`, qtrue, qfalse, or a qboolean."""
         cur = self.strip(cur)
+        text = self.source.slice(cur.extent).strip()
+        entry = HAND_MACROS.get(text) if IDENTIFIER.fullmatch(text) else None
+        if entry is not None and len(entry) > 2 and entry[2] == "Bool":
+            # A hand macro whose ruling gives a Bool spelling is a test already, `saberInvalid(...)` for Raven's `SABERINVALID`.
+            return True
         if self.collapsed(cur):
             return cur.type.spelling.replace("const ", "") == "qboolean"
         if cur.kind == CursorKind.PAREN_EXPR:

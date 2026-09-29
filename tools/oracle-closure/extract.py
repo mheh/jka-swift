@@ -758,9 +758,9 @@ def host_triple() -> str:
     return "arm64-apple-macosx" if platform.machine() == "arm64" else "x86_64-apple-macosx"
 
 
-def triple_asserts(module: str, triple: str) -> dict[str, list[str]]:
+def triple_asserts(module: str, triple: str, entries: list[str] | None = None) -> dict[str, list[str]]:
     """The asserts of every record in one module's parse for one triple, by record spelling. Runs in its own process."""
-    tu = C.parse_tu(module, None, target=triple)
+    tu = C.parse_tu(module, None, target=triple, entries=entries)
     decls = sweep(tu)
     name_records(decls)
     out: dict[str, list[str]] = {}
@@ -775,13 +775,13 @@ def triple_asserts(module: str, triple: str) -> dict[str, list[str]]:
     return out
 
 
-def assert_blocks(module: str, host: list[tuple[str, list[str]]], triples: list[str]) -> list[str]:
+def assert_blocks(module: str, host: list[tuple[str, list[str]]], triples: list[str], entries: list[str] | None = None) -> list[str]:
     """layout_asserts.h's body: one block per ABI, from the host's parse and a parse per foreign triple, after every triple of the ABI agrees."""
     foreign = [t for t in triples if t != host_triple()]
     by_triple: dict[str, dict[str, list[str]]] = {host_triple(): dict(host)}
     if foreign:
         with concurrent.futures.ProcessPoolExecutor(max_workers=len(foreign), mp_context=multiprocessing.get_context("spawn")) as pool:
-            for triple, result in zip(foreign, pool.map(triple_asserts, [module] * len(foreign), foreign)):
+            for triple, result in zip(foreign, pool.map(triple_asserts, [module] * len(foreign), foreign, [entries] * len(foreign))):
                 by_triple[triple] = result
     tables: dict[str, list[str]] = {}
     for abi in ABIS:
@@ -810,7 +810,9 @@ def assert_blocks(module: str, host: list[tuple[str, list[str]]], triples: list[
 
 
 def emit(module: str, out_dir: Path, check: bool, triples: list[str]) -> int:
-    tu = C.parse_tu(module, None)
+    # The entry list comes once, so the triple parses in the pool do not each derive it again from a unity parse.
+    entries = C.entry_list(module)
+    tu = C.parse_tu(module, None, entries=entries)
     spec = C.spec(module)
     resolver = IfResolver(macro_table(tu))
     decls = sweep(tu)
@@ -827,7 +829,7 @@ def emit(module: str, out_dir: Path, check: bool, triples: list[str]) -> int:
     macro_names = {d.name: d for d in decls if d.kind == "macro"}
     link(decls, macro_names)
     commit = oracle_commit()
-    entry = spec["entry"][0] if isinstance(spec["entry"], list) else spec["entry"]
+    entry = entries[0]
     note = HEADER_NOTE.format(tree=entry.split("/")[0], commit=commit)
 
     adopted_path = out_dir / "adopted.json"
@@ -1063,7 +1065,7 @@ def emit(module: str, out_dir: Path, check: bool, triples: list[str]) -> int:
             if filename in files and filename not in cxx_files:
                 ordered.append(filename)
     files["all.h"] = wrap("all.h", note, ordered, [])
-    files["layout_asserts.h"] = wrap("layout_asserts.h", note, [], ["#include <stddef.h>", '#include "all.h"', ""] + assert_blocks(module, asserted, triples) + [""])
+    files["layout_asserts.h"] = wrap("layout_asserts.h", note, [], ["#include <stddef.h>", '#include "all.h"', ""] + assert_blocks(module, asserted, triples, entries) + [""])
 
     written = 0
     for filename, content in files.items():

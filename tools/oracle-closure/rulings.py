@@ -101,13 +101,21 @@ NEVER_NULL_VARS = {"pm"}
 # `bg_pool` is the raw allocation of rule 9 that `BG_Alloc` hands pointers into, `bg.pool`, sized by the consumer's `MAX_POOL_SIZE`.
 HAND_VARS = {"bg_pool": "bg.pool"}
 
-# Macros whose value is hand work, as (the Swift spelling a body writes, the reason the stub carries).
+# Macros whose value is hand work, as (the Swift spelling a body writes, the reason the stub carries), with an optional third element.
+# The third element is the Swift type of the spelling, "Bool" for a test, so the drafter adds no `!= 0`, and an absent element means the C type.
 # `MAX_POOL_SIZE` is the consumer's value under rule 23, `bg.maxPoolSize`.
 # `__DATE__` is the compiler's build date, and Swift has no compile-time date, so a body writes the hand constant `buildDate` of JKAMP_GameLogic.
 # See row 5 of the game globals walk.
+# `SABERINVALID` is Raven's validity test in w_saber.c, and a body writes the hand function `saberInvalid` of JKAMP_GameLogic.
+# See row 2a of the walk of 2026-09-29.
 HAND_MACROS = {
     "MAX_POOL_SIZE": ("MAX_POOL_SIZE", "bg.maxPoolSize, the consumer's value under rule 23, which bg_local.swift forwards under Raven's name"),
     "__DATE__": ("buildDate", "buildDate, a hand string constant of JKAMP_GameLogic, because Swift has no compile-time date"),
+    "SABERINVALID": (
+        "saberInvalid(saberent, saberOwner, other)",
+        "saberInvalid, a hand Bool function of JKAMP_GameLogic, because the macro reads three parameters of its four callers and is not a constant",
+        "Bool",
+    ),
 }
 
 # MARK: - Types

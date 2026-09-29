@@ -701,6 +701,20 @@ struct CvarTableRow {
 /// Raven's `__DATE__`, which is `unknown` because Swift has no compile-time date.
 let buildDate = "unknown"
 
+/// Raven's `SABERINVALID` of w_saber.c, true when a saber, its owner, or the other entity cannot take a knockdown test.
+/// A saber lock that ended less than 100 ms ago also makes the test true.
+func saberInvalid(_ saberent: Entity, _ saberOwner: Entity, _ other: Entity) -> Bool {
+    // Raven tests the three entities for NULL first.
+    // Swift holds each one as a non-optional value, so these tests have no form.
+    return !saberent.inuse
+        || !saberOwner.inuse
+        || !other.inuse
+        || saberOwner.client == nil
+        || other.client == nil
+        || saberOwner.client!.ps.saberEntityNum == 0
+        || saberOwner.client!.ps.saberLockTime > (level.time - 100)
+}
+
 /// The one instance. `vmMain` has no context argument and the engine calls the module from one thread, so this is not isolated.
 nonisolated(unsafe) var world = GameWorld()
 

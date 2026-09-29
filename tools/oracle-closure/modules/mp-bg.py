@@ -1,14 +1,14 @@
 # bg_* compiles into game/cgame/ui; parse it through the game TU. Alias
 # so tier-named callers (crate mp_bg) resolve without knowing that.
 
-# The bg .c files include ghoul2/G2.h, which no module header reaches, so the entry lists it too.
-# bg_saber.c includes w_saber.h, and a bg body reads its constants, so the entry lists that header too. Two modules then emit it,
-# and merge.py places it at tree level, where the bg view target reaches its names.
+# The header parse reads the derived entry list of closure.py: each oracle header a bg .c file includes, in order of first reach.
+# A header that another listed header reaches is left out, and a header the exclude list names is left out too.
 SPEC = dict(
     name="mp-bg",
-    lang="c", entry=["codemp/game/q_shared.h", "codemp/game/bg_public.h", "codemp/game/bg_local.h",
-                     "codemp/game/bg_saga.h", "codemp/game/w_saber.h", "codemp/ghoul2/G2.h"],
+    lang="c",
     includes=["codemp/game"],
     defines=["NDEBUG", "MISSIONPACK", "QAGAME", "_JK2"],
     srcglob=["codemp/game/bg_*.c"],
+    # The bg .c files include g_local.h under QAGAME, and merge.py keeps game types out of the bg tree target, so the derived list drops it.
+    exclude=["codemp/game/g_local.h"],
 )

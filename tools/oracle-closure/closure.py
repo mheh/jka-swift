@@ -14,6 +14,7 @@ Modules supply the per-module compile flags (defines/includes/lang): the
 profile mirrors JACoders/OpenJK's CMakeLists. See NOTES.md for the verdict.
 """
 import argparse
+from collections import defaultdict
 import importlib.util
 import re
 import subprocess
@@ -154,11 +155,13 @@ def backslash_include_shims():
     return _SHIM_CACHE
 
 
-def parse_tu(module: str, extra_file: str | None, unity: bool = False, target: str | None = None, overlay: str | None = None):
+def parse_tu(module: str, extra_file: str | None, unity: bool = False, target: str | None = None, overlay: str | None = None,
+             entries: list[str] | None = None):
     """target is a triple such as i686-pc-windows-msvc. A foreign target reads the host SDK's C headers through -isystem,
     because -isysroot is not searched for a target the SDK does not serve, and the layouts do not depend on them.
     overlay is C text the unity source carries after q_shared.h and before the module's files, so a caller can undefine a
-    function-like macro and declare a function under its name, and every use parses as a call with its arguments as nodes."""
+    function-like macro and declare a function under its name, and every use parses as a call with its arguments as nodes.
+    entries is a list of oracle-relative headers for the header parse, and without it the parse reads `entry_list(module)`."""
     cfg = MODULES[module]
     args = [f"-x{'c++' if cfg['lang'] == 'c++' else 'c'}"]
     if target:
@@ -186,30 +189,28 @@ def parse_tu(module: str, extra_file: str | None, unity: bool = False, target: s
                              text=True).stdout.strip()
         if res:
             args.append(f"-resource-dir={res}")
-    # A profile entry may be a list of headers: one TU that includes each in
-    # order, so types in headers unreachable from the primary entry (ai_main.h,
-    # wp_saber.h, bg_local.h, ...) are still parsed/badged/packeted. The first
-    # header must pull the core includes (g_local.h etc.) the rest rely on.
-    cfg_entry = [extra_file] if extra_file else (
-        cfg["entry"] if isinstance(cfg["entry"], list) else [cfg["entry"]])
-    entries = [SRC_ROOT / e for e in cfg_entry]
-    for e in entries:
-        if not e.exists():
-            sys.exit(f"entry file not found: {e}")
-    entry = entries[0]
-    src = str(entry)
     unsaved = []
     if unity:  # one TU including every module source file, so callee bodies exist
         if "srcglob" not in cfg:
             sys.exit(f"module '{module}' has no srcglob — function trees need one")
         files = sorted(p for g in cfg["srcglob"] for p in SRC_ROOT.glob(g))
-        src = str(entry.parent / "__closure_unity__.c")
+        # The unity source sits beside the first hand entry, or beside the first source pattern for a derived list.
+        # The prelude's quoted include resolves in that folder first.
+        anchor = entry_list(module)[0] if "entry" in cfg else cfg["srcglob"][0]
+        src = str((SRC_ROOT / anchor).parent / "__closure_unity__.c")
         prelude = f'#include "q_shared.h"\n{overlay}\n' if overlay else ""
         # The overlay repeats after each file, because a .c file defines a macro of its own after the overlay's undef.
         unsaved.append((src, prelude + "".join(f'#include "{p}"\n' + (f"{overlay}\n" if overlay else "") for p in files)))
-    elif len(entries) > 1 or entry.suffix == ".h":  # synthesize a TU around the header(s)
-        src = str(entry.parent / "__closure_tu__.c")
-        unsaved.append((src, "".join(f'#include "{e}"\n' for e in entries)))
+    else:
+        # The header parse is one TU that includes each entry header in order, so a type in a header no other entry reaches is parsed too.
+        headers = [SRC_ROOT / e for e in ([extra_file] if extra_file else (entries if entries is not None else entry_list(module)))]
+        for header in headers:
+            if not header.exists():
+                sys.exit(f"entry file not found: {header}")
+        src = str(headers[0])
+        if len(headers) > 1 or headers[0].suffix == ".h":  # synthesize a TU around the header(s)
+            src = str(headers[0].parent / "__closure_tu__.c")
+            unsaved.append((src, "".join(f'#include "{e}"\n' for e in headers)))
     unsaved += backslash_include_shims()
     idx = ci.Index.create()
     tu = idx.parse(src, args=args, unsaved_files=unsaved,
@@ -222,6 +223,60 @@ def parse_tu(module: str, extra_file: str | None, unity: bool = False, target: s
             print(f"  {d.location.file}:{d.location.line}: {d.spelling}",
                   file=sys.stderr)
     return tu
+
+
+_ENTRIES: dict[str, list[str]] = {}
+
+
+def entry_list(module: str) -> list[str]:
+    """The headers the header parse of one module includes: the spec's hand `entry` where it has one, else the derived list.
+    A module with no `srcglob` has no include graph to derive from, so its spec keeps a hand list."""
+    cfg = MODULES[module]
+    if "entry" in cfg:
+        return cfg["entry"] if isinstance(cfg["entry"], list) else [cfg["entry"]]
+    if module not in _ENTRIES:
+        _ENTRIES[module] = derived_entries(module)
+    return _ENTRIES[module]
+
+
+def derived_entries(module: str) -> list[str]:
+    """The module's entry list as its unity parse reaches it: each oracle header a file of `srcglob` includes, in order of first reach.
+    A path the spec's `exclude` names stays out, and every path is resolved first, because a parse can spell `codemp/game/../ghoul2/G2.h`."""
+    cfg = MODULES[module]
+    root = SRC_ROOT.resolve()
+    sources = {p.resolve() for g in cfg["srcglob"] for p in SRC_ROOT.glob(g)}
+    excluded = {(SRC_ROOT / e).resolve() for e in cfg.get("exclude", [])}
+    tu = parse_tu(module, None, unity=True)
+    found: list[str] = []
+    graph: dict[str, set[str]] = defaultdict(set)
+    for inc in tu.get_includes():
+        if inc.source is None:
+            continue
+        source = Path(inc.source.name).resolve()
+        target = Path(inc.include.name).resolve()
+        if not target.is_relative_to(root):
+            continue
+        rel = str(target.relative_to(root))
+        if source.is_relative_to(root):
+            graph[str(source.relative_to(root))].add(rel)
+        if source in sources and target not in excluded and rel not in found:
+            found.append(rel)
+
+    def reach(start: str) -> set[str]:
+        seen: set[str] = set()
+        stack = [start]
+        while stack:
+            for nxt in graph[stack.pop()]:
+                if nxt not in seen:
+                    seen.add(nxt)
+                    stack.append(nxt)
+        return seen
+
+    # g_local.h and bg_saga.h have no include guard, so a list that names them beside b_local.h parses them twice.
+    # A header that another derived header reaches, and that does not reach that header back, is left to the header that reaches it.
+    reached = {header: reach(header) for header in found}
+    return [header for header in found
+            if not any(other != header and header in reached[other] and other not in reached[header] for other in found)]
 
 
 # ------------------------------------------------------------- one parse per run
@@ -626,7 +681,7 @@ def main():
         for prof, mods in PROFILES.items():
             print(f"[{prof}]")
             for m, cfg in mods.items():
-                print(f"  {m:12} {cfg['lang']:3} {cfg['entry']}  -D{' -D'.join(cfg['defines'])}")
+                print(f"  {m:12} {cfg['lang']:3} {cfg.get('entry', 'derived')}  -D{' -D'.join(cfg['defines'])}")
         return
     if args.module not in MODULES:
         sys.exit(f"module '{args.module}' not in profile '{args.source}' "

@@ -160,7 +160,7 @@ let SABER_RETRIEVE_DELAY = 3000 as Int32
 
 /// Source: oracle/codemp/game/w_saber.c:6587
 // Raven wrote: #define SABERINVALID ( ! saberent || ! saberOwner || ! other || ! saberent -> inuse || ! saberOwner -> inuse || ! other -> inuse || ! saberOwner -> client || ! other -> client || ! saberOwner -> client -> ps . saberEntityNum || saberOwner -> client -> ps . saberLockTime > ( level . time - 100 ) )
-// The macro's text is not a constant over this file's names, so a body spells its expansion at the site.
+// A hand value: saberInvalid, a hand Bool function of JKAMP_GameLogic, because the macro reads three parameters of its four callers and is not a constant.
 
 /// Source: oracle/codemp/game/w_saber.c:7115
 let SABER_MAX_THROW_DISTANCE = 700 as Int32
