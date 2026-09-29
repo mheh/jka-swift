@@ -6,6 +6,11 @@ import JKAShared
 import JKAMP_Game
 import JKAMP_BG
 
+/// Source: oracle/codemp/game/NPC_AI_Stormtrooper.c:53
+private let LSTATE_NONE: Int32 = 0
+private let LSTATE_UNDERFIRE: Int32 = 1
+private let LSTATE_INVESTIGATE: Int32 = 2
+
 /// Source: oracle/codemp/game/NPC_AI_Stormtrooper.c:20
 private let MAX_VIEW_DIST = 1024 as Int32
 

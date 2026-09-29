@@ -6,6 +6,13 @@ import JKAShared
 import JKAMP_Game
 import JKAMP_BG
 
+/// Source: oracle/codemp/game/NPC_AI_ImperialProbe.c:10
+private let LSTATE_NONE: Int32 = 0
+private let LSTATE_BACKINGUP: Int32 = 1
+private let LSTATE_SPINNING: Int32 = 2
+private let LSTATE_PAIN: Int32 = 3
+private let LSTATE_DROP: Int32 = 4
+
 /// Source: oracle/codemp/game/NPC_AI_ImperialProbe.c:47
 private let VELOCITY_DECAY = 0.85 as Float
 

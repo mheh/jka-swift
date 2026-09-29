@@ -551,6 +551,8 @@ class Expressions:
             if any(v.name == table and v.reason == "hand_table" for vs in self.sk.variables.values() for v in vs):
                 # The hand table is a Swift array of rows with no view, so the view fields and the C pointer walk have no Swift twin.
                 raise Hole(f"Raven walks `{table}` by pointer, and the hand table is a Swift array of rows with no view. A walk over it has no form yet.")
+            if ref.semantic_parent is not None and ref.semantic_parent.kind == CursorKind.TRANSLATION_UNIT:
+                raise Hole(f"Raven walks the file-scope pointer `{name}` over a table, and a file-scope walk has no index local yet.")
             return f"{table}[{index}]"
         if ref is not None and ref.kind == CursorKind.ENUM_CONSTANT_DECL:
             return name

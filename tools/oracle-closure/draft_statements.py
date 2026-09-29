@@ -298,6 +298,12 @@ class Statements:
         ref = callee.referenced
         return callee.kind == CursorKind.DECL_REF_EXPR and ref is not None and ref.kind == CursorKind.FUNCTION_DECL
 
+    def local_walk(self, ref: ci.Cursor) -> None:
+        """A table walk reads its index from a local, and a file-scope walk pointer has no local to hold it, so it is a hole."""
+        decl = ref.referenced
+        if decl is not None and decl.semantic_parent is not None and decl.semantic_parent.kind == CursorKind.TRANSLATION_UNIT:
+            raise Hole(f"Raven walks the file-scope pointer `{ref.spelling}` over a table, and a file-scope walk has no index local yet.")
+
     def statement_lines(self, cur: ci.Cursor, depth: int) -> list[str]:
         pad = INDENT * depth
         if cur.kind == CursorKind.UNEXPOSED_EXPR and len(list(cur.get_children())) == 1 and not self.is_call(cur):
@@ -362,6 +368,7 @@ class Statements:
             op, prefix, operand = self.unary_parts(cur)
             if op in ("++", "--"):
                 if self.unwrap(operand).kind == CursorKind.DECL_REF_EXPR and self.unwrap(operand).spelling in self.table_cursors:
+                    self.local_walk(self.unwrap(operand))
                     return [f"{pad}{self.table_cursors[self.unwrap(operand).spelling][1]} {op[0]}= 1" + self.trailing(cur)]
                 if self.unwrap(operand).kind == CursorKind.DECL_REF_EXPR and self.unwrap(operand).spelling in self.cursor_locals:
                     if op == "--":
@@ -441,6 +448,7 @@ class Statements:
                     text = "filled.1" if whole else "JKAShared.CharBuf(filled.1)"
                     return [f"{pad}let filled = {call}", f"{pad}{self.expr(left)} = filled.0", f"{pad}{buffer} = {text}"]
                 if op == "=" and self.unwrap(left).kind == CursorKind.DECL_REF_EXPR and self.unwrap(left).spelling in self.table_cursors:
+                    self.local_walk(self.unwrap(left))
                     table, index = self.table_cursors[self.unwrap(left).spelling]
                     source = self.unwrap(right)
                     offset = "0"

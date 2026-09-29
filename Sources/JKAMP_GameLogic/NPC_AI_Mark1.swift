@@ -6,6 +6,16 @@ import JKAShared
 import JKAMP_Game
 import JKAMP_BG
 
+/// Source: oracle/codemp/game/NPC_AI_Mark1.c:25
+private let LSTATE_NONE: Int32 = 0
+private let LSTATE_ASLEEP: Int32 = 1
+private let LSTATE_WAKEUP: Int32 = 2
+private let LSTATE_FIRED0: Int32 = 3
+private let LSTATE_FIRED1: Int32 = 4
+private let LSTATE_FIRED2: Int32 = 5
+private let LSTATE_FIRED3: Int32 = 6
+private let LSTATE_FIRED4: Int32 = 7
+
 /// Source: oracle/codemp/game/NPC_AI_Mark1.c:4
 private let MIN_MELEE_RANGE = 320 as Int32
 

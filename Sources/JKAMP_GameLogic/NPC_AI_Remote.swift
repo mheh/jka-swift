@@ -6,6 +6,9 @@ import JKAShared
 import JKAMP_Game
 import JKAMP_BG
 
+/// Source: oracle/codemp/game/NPC_AI_Remote.c:10
+private let LSTATE_NONE: Int32 = 0
+
 /// Source: oracle/codemp/game/NPC_AI_Remote.c:6
 private let VELOCITY_DECAY = 0.85 as Float
 

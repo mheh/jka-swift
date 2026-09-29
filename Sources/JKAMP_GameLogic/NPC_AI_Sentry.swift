@@ -6,6 +6,14 @@ import JKAShared
 import JKAMP_Game
 import JKAMP_BG
 
+/// Source: oracle/codemp/game/NPC_AI_Sentry.c:22
+private let LSTATE_NONE: Int32 = 0
+private let LSTATE_ASLEEP: Int32 = 1
+private let LSTATE_WAKEUP: Int32 = 2
+private let LSTATE_ACTIVE: Int32 = 3
+private let LSTATE_POWERING_UP: Int32 = 4
+private let LSTATE_ATTACKING: Int32 = 5
+
 /// Source: oracle/codemp/game/NPC_AI_Sentry.c:9
 private let MIN_DISTANCE = 256 as Int32
 

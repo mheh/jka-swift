@@ -6,6 +6,12 @@ import JKAShared
 import JKAMP_Game
 import JKAMP_BG
 
+/// Source: oracle/codemp/game/NPC_AI_Mark2.c:19
+private let LSTATE_NONE: Int32 = 0
+private let LSTATE_DROPPINGDOWN: Int32 = 1
+private let LSTATE_DOWN: Int32 = 2
+private let LSTATE_RISINGUP: Int32 = 3
+
 /// Source: oracle/codemp/game/NPC_AI_Mark2.c:5
 private let AMMO_POD_HEALTH = 1 as Int32
 

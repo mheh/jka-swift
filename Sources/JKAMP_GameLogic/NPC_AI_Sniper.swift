@@ -6,6 +6,11 @@ import JKAShared
 import JKAMP_Game
 import JKAMP_BG
 
+/// Source: oracle/codemp/game/NPC_AI_Sniper.c:37
+private let LSTATE_NONE: Int32 = 0
+private let LSTATE_UNDERFIRE: Int32 = 1
+private let LSTATE_INVESTIGATE: Int32 = 2
+
 /// Source: oracle/codemp/game/NPC_AI_Sniper.c:11
 let SPF_NO_HIDE = 2 as Int32
 

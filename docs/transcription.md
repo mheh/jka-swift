@@ -81,6 +81,7 @@ A struct a header declares that no root reaches joins `ROOTS` in `rulings.py`, s
 A struct Raven defines inside a `.c` file has its definition copied as Raven wrote it, with a `// Source:` cite, into a hand header the target's umbrella includes.
 An enum Raven declares inside a `.c` file goes to the constants header of that `.c` file through `extract.py`, and `reexport.py` emits its enumerators.
 The enum stays in its `.c` file when a header, a hand header, or a `.c` macro names one of its names, or when another `.c` file declares one of them in a different enum, such as `LSTATE_NONE` of the NPC_AI files.
+An enum of that last kind is `private let` constants of type `Int32` at the top of its stub, in Raven's order with Raven's values, under the enum's `/// Source:` line, and an enumerator with no initializer counts on from the one before, from 0 for the first.
 `Sources/CJKAMP_Game/include/g_types.h` is this hand header for the game target, so a view can bind over the struct.
 
 | Raven | Swift |
@@ -304,6 +305,7 @@ The slot is a stack local of the `scratch` frame, zero at entry where Raven's wa
 A `return` inside Raven's block is the closure's value, and the body acts on that value after the closure.
 The closure returns a value read from the slot, never the view itself, because the slot is gone when `scratch` returns.
 Two records in one scope nest two closures.
+A `return` of Raven's inside a nested flag closure is `return true` of each enclosing flag closure after the inner one, at every depth.
 A record local before a `goto` label opens its closure around the labeled block and every statement after the label, so all of them see the locals, unless a `goto` comes before the record.
 A copy of another slot, `usercmd_t cmd = pm->cmd;`, is the `copying` form: `Usercmd.scratch(copying: pm.cmd) { cmd in ... }`.
 Every view carries both forms, written by `views.py`.
@@ -354,6 +356,7 @@ A table of records that hold the address of a function or of a struct is not C s
 Such a table is a hand array of `<View>Row` values on `GameWorld`, with Raven's rows in his order, and the stub forwards it under Raven's name.
 `spawns` of `g_spawn.c` is the hand `let spawns: [SpawnRow]`, one row per Raven name with a closure that calls the spawn function of that name, and the array's count takes the place of his `{0, 0}` row.
 `gameCvarTable` of `g_main.c` is the hand `var gameCvarTable: [CvarTableRow]` of 140 rows under the build defines of `closure.py`, and `gameCvarTableSize` is its count.
+A pointer walk over a table of records is an index local, and a walk pointer at file scope, `pushed_p` of `g_mover.c`, has no index local and is a hole.
 Each cvar row holds a key path into `GameStorage` for the cvar, or nil for Raven's NULL, and G_RegisterCvars and G_UpdateCvars write its `modificationCount`.
 A table of `vec3_t` with Raven's data, `WP_MuzzlePoint` of `bg_weapons.c`, is C storage the same way, and `BgTables.swift` reaches it as a `Slots<JKAShared.vec3_t>` over the C array, with the 12-byte stride of Raven's `vec3_t`.
 A struct table or record Raven leaves zero, `g_entities`, `level`, `pml`, `g_timerPool`, and every `vmCvar_t` among them, is one zeroed allocation on the generated storage class, `GameStorage` in `Sources/JKAMP_Game/Generated/Storage/GameStorage.swift` or `BgStorage` in `Sources/JKAMP_BG/Generated/BgStorage.swift`, which the state object owns as `storage`.

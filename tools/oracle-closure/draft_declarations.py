@@ -111,7 +111,9 @@ class Declarations:
             out.append(f"{INDENT * (depth + 1)}return nil")
         out.append(f"{pad}}}")
         if mode == "flag":
-            out += [f"{pad}if {result} {{", f"{INDENT * (depth + 1)}return", f"{pad}}}"]
+            # Inside an enclosing flag closure, Raven's return from the function is that closure's true, at every depth.
+            leave = "return true" if self.scratch_modes and self.scratch_modes[-1] == "flag" else "return"
+            out += [f"{pad}if {result} {{", f"{INDENT * (depth + 1)}{leave}", f"{pad}}}"]
         elif mode == "value":
             out += [f"{pad}if let {result} {{", f"{INDENT * (depth + 1)}return {result}", f"{pad}}}"]
         return out

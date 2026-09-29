@@ -28,6 +28,7 @@ Usage:
 from __future__ import annotations
 
 import argparse
+import json
 import re
 from collections import Counter, defaultdict
 from pathlib import Path
@@ -183,6 +184,7 @@ class Skeleton:
         self.collect_variables()
         self.macros: dict[str, list[Macro]] = defaultdict(list)
         self.collect_macros()
+        self.file_enums = self.collect_file_enums()
         self.stores = self.collect_stores()
         self.stored_names = {fn.name for pairs in self.stores.values() for _, fn in pairs}
         self.game_calls = self.collect_game_calls()
@@ -321,6 +323,34 @@ class Skeleton:
         for stem, macros in self.macros.items():
             for macro in macros:
                 macro.shared = len(owners[macro.name]) > 1
+
+    def collect_file_enums(self) -> dict[str, list[tuple[int, list[str]]]]:
+        """The .c enums extract.py leaves in their .c file because another .c file declares their names differently, per stem.
+        extract.py writes the list into its manifest, and each one becomes private constants at the top of its stub."""
+        path = Path(__file__).resolve().parent / "out" / "extract" / "mp-game" / "extract.json"
+        found: dict[str, list[tuple[int, list[str]]]] = defaultdict(list)
+        if not path.exists():
+            return found
+        for row in json.loads(path.read_text()).get("file_enums", []):
+            source, line = row["source"].rsplit(":", 1)
+            source_path = Path(source)
+            if source_path.parent != Path("oracle") / ORACLE_DIR or source_path.name in SKIP:
+                continue
+            lines = [f"/// Source: {row['source']}"]
+            # An enumerator with no initializer counts on from the one before it, and the first one counts from 0.
+            base, offset = "0", -1
+            for name, text in row["enumerators"]:
+                if text is None:
+                    offset += 1
+                else:
+                    base, offset = text, 0
+                try:
+                    value = str(int(base, 0) + offset)
+                except ValueError:
+                    value = base if offset == 0 else f"({base}) + {offset}"
+                lines.append(f"private let {name}: Int32 = {value}")
+            found[source_path.stem].append((int(line), lines))
+        return found
 
     def macro_entry(self, macro: Macro) -> list[str]:
         """The stub's line for a .c macro: a let over its expression, or the reason a body spells it at the site."""
@@ -836,6 +866,9 @@ class Skeleton:
         # A game file also calls bg's functions, `BG_EvaluateTrajectory`, so it imports the bg module beside its view target.
         imports = [] if target == SHARED else ["import Foundation", "import JKAMP", "import JKAShared"] + (["import JKAMP_Game", "import JKAMP_BG"] if target == LOGIC else [])
         lines = [NOTE.format(stem=stem), ""] + (imports + [""] if imports else [])
+        # A .c enum whose names another .c file declares differently stands at the top, before the file's other constants.
+        for _, enum_lines in self.file_enums.get(stem, []):
+            lines += enum_lines + [""]
         entries = [(var.line, 0, var) for var in self.variables.get(stem, [])] + [(m.line, 1, m) for m in self.macros.get(stem, [])]
         for _, kind, entry in sorted(entries, key=lambda e: (e[0], e[1])):
             lines += self.variable_entry(entry) if kind == 0 else self.macro_entry(entry)

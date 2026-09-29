@@ -128,6 +128,34 @@ def enumerators_of(cur) -> list[str]:
     return names
 
 
+def enumerator_values(cur) -> list[list[str | None]]:
+    """The enumerators of an enum definition with the initializer text of each, None where Raven wrote no initializer."""
+    rows: list[list[str | None]] = []
+    braces = 0
+    parens = 0
+    expect = False
+    for token in (t.spelling for t in cur.get_tokens()):
+        if token == "{":
+            braces += 1
+            expect = braces == 1
+            continue
+        if token == "}":
+            braces -= 1
+            continue
+        if braces != 1:
+            continue
+        if token in ("(", ")"):
+            parens += 1 if token == "(" else -1
+        if parens == 0 and token == ",":
+            expect = True
+        elif expect and re.fullmatch(r"[A-Za-z_]\w*", token):
+            rows.append([token, None])
+            expect = False
+        elif rows and token != "=":
+            rows[-1][1] = token if rows[-1][1] is None else f"{rows[-1][1]} {token}"
+    return rows
+
+
 def is_function_like(tokens) -> bool:
     """A function-like macro has an open paren glued to its name, with no space between."""
     return len(tokens) > 1 and tokens[1].spelling == "(" and tokens[1].extent.start.offset == tokens[0].extent.end.offset
@@ -806,7 +834,7 @@ def emit(module: str, out_dir: Path, check: bool, triples: list[str]) -> int:
     adopted = set(json.loads(adopted_path.read_text())) if adopted_path.exists() else set()
 
     files: dict[str, str] = {}
-    manifest = {"module": module, "oracle": commit, "files": {}}
+    manifest = {"module": module, "oracle": commit, "files": {}, "file_enums": []}
     counts: dict[str, dict[str, int]] = defaultdict(lambda: defaultdict(int))
     not_c: list[str] = []
     asserted: list[tuple[str, list[str]]] = []
@@ -966,6 +994,8 @@ def emit(module: str, out_dir: Path, check: bool, triples: list[str]) -> int:
                 NOTES.append(f"{decl.cite} {decl.name if decl.name.startswith('enum ') else 'enum ' + decl.name} stays in its .c file, because a hand header names {', '.join(handed)}")
             elif clashing:
                 NOTES.append(f"{decl.cite} {decl.name if decl.name.startswith('enum ') else 'enum ' + decl.name} stays in its .c file, because another .c file declares {', '.join(clashing)} differently")
+                # skeleton.py reads this list and writes the enumerators as private constants at the top of the file's stub.
+                manifest["file_enums"].append({"source": decl.cite, "enumerators": enumerator_values(decl.cur)})
             elif text not in copied_enums:
                 copied_enums.add(text)
                 c_macros[decl.file].append(decl)
