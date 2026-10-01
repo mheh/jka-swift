@@ -132,12 +132,17 @@ The cgame parse compiles `ui_shared.c`, and every sweep skips it, because the fi
 
 A trap's array of struct pointers is a storage table's base, and it keeps its marker under the PARAMS kind `pointer_array`.
 A trap's `char *` parameter with a size beside it is already the returned `String` the engine filled.
+A body that hands that trap a `char buf[N]` copies the returned text into the buffer, `strcpy(&arg, trap_Argv(1, Int32(arg.count)))`, so the buffer keeps its N bytes.
+A test that is one call to a trap that returns `(Bool, String)`, `if (!trap_GetEntityToken(com_token, sizeof(com_token)))`, puts the call and the copy before the `if`, and the `if` tests the Bool.
+A trap's `int *` parameter with a count beside it is an `inout [Int32]` the engine fills, `trap_EntitiesInBox(mins, maxs, &entityList, MAX_GENTITIES)`.
+A function that hands its own `int *` parameter to that trap parameter takes an `inout [Int32]` too, such as `NPC_GetEntsNearBolt`.
 A trap that fills a NUL-separated list, `trap_FS_GetFileList`, returns the whole buffer as a `CharBuf` in place of the `String`, and the body walks it with a `TextCursor` as Raven walked the bytes.
 A buffer the engine fills with no size beside it has a PARAMS entry `("fill_buffer", capacity)`, with the capacity Raven's callers declare for it, and the trap returns the `String` the same way a sized buffer does.
 A trap no file of the module calls, such as `trap_UnifyWhiteSpaces` and `trap_AAS_TraceAreas`, is a NOT_PORTED entry with that reason, and its shape is ruled when a module that calls it is generated.
 A raw block the engine keeps, such as `trap_SV_RegisterSharedMemory`, has a PARAMS entry `raw` and is `UnsafeMutableRawPointer`.
 A trap's `void *` parameter is an `OpaquePointer?`, and it gains a second overload that takes `inout CharBuf` when Raven's own callers fill it with a `char buf[N]`.
 The overload hands the engine the buffer's base inside the generated file, so a body writes `trap_FS_Read(&BGPAFtext, len, f)` and a caller that holds a raw allocation keeps the first overload.
+A trap's `const void *` parameter gains an overload that takes a `String` when Raven's own callers hand it a `char *` text, so a body writes `trap_FS_Write(str, strlen(str), fh)`.
 A `NIL_OVERLOADS` entry of `rulings.py` gives a trap a second overload that takes the named view as optional, so `trap_Cvar_Register` registers the three NULL rows of `gameCvarTable`.
 
 A record's `char name[N]` field that Raven passes as a write target to a non-const `char *` parameter crosses as an `inout CharBuf` the same way.
@@ -356,7 +361,10 @@ A table of records that hold the address of a function or of a struct is not C s
 Such a table is a hand array of `<View>Row` values on `GameWorld`, with Raven's rows in his order, and the stub forwards it under Raven's name.
 `spawns` of `g_spawn.c` is the hand `let spawns: [SpawnRow]`, one row per Raven name with a closure that calls the spawn function of that name, and the array's count takes the place of his `{0, 0}` row.
 `gameCvarTable` of `g_main.c` is the hand `var gameCvarTable: [CvarTableRow]` of 140 rows under the build defines of `closure.py`, and `gameCvarTableSize` is its count.
-A pointer walk over a table of records is an index local, and a walk pointer at file scope, `pushed_p` of `g_mover.c`, has no index local and is a hole.
+A pointer walk over a table of records is an index local.
+A walk pointer at file scope, `pushed_p` of `g_mover.c`, is a file-scope `Int32` index with the name `pushed_pIndex`, and every body that names the pointer reads that index.
+A pointer set from another walk pointer, `p = pushed_p - 1`, walks the same table.
+Two pointers into one table compare as their indexes, so `pushed_p > &pushed[MAX_GENTITIES]` is `pushed_pIndex > MAX_GENTITIES`, and `(pushed_p-1)->origin` is `pushed[pushed_pIndex - 1].origin`.
 Each cvar row holds a key path into `GameStorage` for the cvar, or nil for Raven's NULL, and G_RegisterCvars and G_UpdateCvars write its `modificationCount`.
 A table of `vec3_t` with Raven's data, `WP_MuzzlePoint` of `bg_weapons.c`, is C storage the same way, and `BgTables.swift` reaches it as a `Slots<JKAShared.vec3_t>` over the C array, with the 12-byte stride of Raven's `vec3_t`.
 A struct table or record Raven leaves zero, `g_entities`, `level`, `pml`, `g_timerPool`, and every `vmCvar_t` among them, is one zeroed allocation on the generated storage class, `GameStorage` in `Sources/JKAMP_Game/Generated/Storage/GameStorage.swift` or `BgStorage` in `Sources/JKAMP_BG/Generated/BgStorage.swift`, which the state object owns as `storage`.

@@ -202,14 +202,14 @@ class Statements:
         return lines
 
     def tuple_call(self, cur: ci.Cursor) -> tuple[str, str] | None:
-        """A call to a trap whose Swift form returns `(Int32, String)`: the call without Raven's buffer and size arguments,
+        """A call to a trap whose Swift form returns `(Int32, String)` or `(Bool, String)`: the call without Raven's buffer and size arguments,
         and the Swift text of the buffer Raven passed, which takes the returned text."""
         inner = self.strip(cur)
         if not self.is_call(inner):
             return None
         name = self.callee_name(inner)
         returns = self.registry.returns.get(name, "")
-        if not name or not (returns.startswith("(Int32, String)") or returns.startswith("(Int32, JKAShared.CharBuf)")):
+        if not name or not any(returns.startswith(f"({first}, {text})") for first in ("Int32", "Bool") for text in ("String", "JKAShared.CharBuf")):
             return None
         params = self.callee_params(name)
         args = list(inner.get_children())[1:]
@@ -220,6 +220,26 @@ class Statements:
         kept = [a for a in args if a is not buffer][:len(params)]
         words = [self.argument(a, params[i][1].startswith("inout "), params[i], name, i) for i, a in enumerate(kept)]
         return f"{swift_name(name)}({', '.join(words)})", self.expr(buffer)
+
+    def filled_call(self, cur: ci.Cursor) -> tuple[str, str, bool] | None:
+        """A call to a trap whose Swift form drops Raven's buffer and returns its text, `trap_Argv(1, arg, sizeof(arg))`:
+        the call without the buffer, the Swift text of the buffer, and True for a list trap, which returns every byte as a CharBuf."""
+        inner = self.strip(cur)
+        if not self.is_call(inner):
+            return None
+        name = self.callee_name(inner)
+        returns = self.registry.returns.get(name, "") if name else ""
+        if returns not in ("String", "JKAShared.CharBuf"):
+            return None
+        params = self.callee_params(name)
+        args = list(inner.get_children())[1:]
+        buffer = next((a for a in args if self.is_charbuf(a)), None)
+        if buffer is None or len(args) != len(params) + 1:
+            return None
+        # Only the buffer leaves the call. Raven's size argument stays, because the Swift trap still takes the capacity.
+        kept = [a for a in args if a is not buffer]
+        words = [self.argument(a, params[i][1].startswith("inout "), params[i], name, i) for i, a in enumerate(kept)]
+        return f"{swift_name(name)}({', '.join(words)})", self.expr(buffer), returns == "JKAShared.CharBuf"
 
     def record_bytes(self, cur: ci.Cursor, depth: int) -> list[str]:
         """Raven's `memset` and `memcpy` over a whole record, as the view's `clear()` and `copy(from:)`. A memset of a record local
@@ -299,10 +319,11 @@ class Statements:
         return callee.kind == CursorKind.DECL_REF_EXPR and ref is not None and ref.kind == CursorKind.FUNCTION_DECL
 
     def local_walk(self, ref: ci.Cursor) -> None:
-        """A table walk reads its index from a local, and a file-scope walk pointer has no local to hold it, so it is a hole."""
+        """A table walk reads its index from a local or from the file-scope index the skeleton gives a file-scope walk pointer, and any other walk is a hole."""
         decl = ref.referenced
-        if decl is not None and decl.semantic_parent is not None and decl.semantic_parent.kind == CursorKind.TRANSLATION_UNIT:
-            raise Hole(f"Raven walks the file-scope pointer `{ref.spelling}` over a table, and a file-scope walk has no index local yet.")
+        if decl is not None and decl.semantic_parent is not None and decl.semantic_parent.kind == CursorKind.TRANSLATION_UNIT \
+                and ref.spelling not in self.sk.table.file_walks:
+            raise Hole(f"Raven walks the file-scope pointer `{ref.spelling}` over a table, and the skeleton gives it no file-scope index.")
 
     def statement_lines(self, cur: ci.Cursor, depth: int) -> list[str]:
         pad = INDENT * depth
@@ -451,8 +472,10 @@ class Statements:
                     self.local_walk(self.unwrap(left))
                     table, index = self.table_cursors[self.unwrap(left).spelling]
                     source = self.unwrap(right)
-                    offset = "0"
-                    if source.kind == CursorKind.BINARY_OPERATOR and self.binary_op(source) == "+":
+                    # The source is the table, a slot past its start, or another walk pointer stepped by a count, `p = pushed_p - 1`.
+                    position = self.table_position(source)
+                    offset = position[1] if position is not None else "0"
+                    if position is None and source.kind == CursorKind.BINARY_OPERATOR and self.binary_op(source) == "+":
                         offset = self.converted(list(source.get_children())[1], "Int32")
                     return [f"{pad}{index} = {offset}" + self.trailing(cur)]
                 if op == "=" and self.unwrap(left).kind == CursorKind.DECL_REF_EXPR and self.unwrap(left).spelling in self.aliases:
@@ -552,6 +575,13 @@ class Statements:
             # `assert` is `((void)0)` under Raven's NDEBUG build, so the body drops it, by "assert".
             rest = self.trailing(cur).strip()
             return [f"{pad}{rest}"] if rest else []
+        if self.is_call(cur) and self.filled_call(cur) is not None:
+            call, buffer, whole = self.filled_call(cur)
+            if whole:
+                # A list trap returns the whole buffer, so the buffer takes it as it is.
+                return [f"{pad}{buffer} = {call}" + self.trailing(cur)]
+            # The trap returns the text the engine wrote, and the copy keeps the buffer's own size, as the engine's write does.
+            return [f"{pad}strcpy(&{buffer}, {call})" + self.trailing(cur)]
         if self.is_call(cur) and self.aliased_inouts(cur):
             aliased = self.aliased_inouts(cur)
             with self.aliased_reads(cur, aliased):
@@ -613,6 +643,23 @@ class Statements:
                     return node, aliased
         return None
 
+    def filled_test(self, cur: ci.Cursor) -> tuple[str, str, bool, bool] | None:
+        """Raven's `if (!trap_GetEntityToken(com_token, sizeof(com_token)))`, a test that is one call to a trap whose Swift form returns
+        `(Bool, String)`: the call, the buffer, True for a list trap, and True when Raven negates the call. None for any other test."""
+        inner = self.unwrap(cur)
+        negated = False
+        if inner.kind == CursorKind.UNARY_OPERATOR and self.operator_or_none_unary(inner) == "!":
+            negated = True
+            inner = self.unwrap(self.unary_parts(inner)[2])
+        name = self.callee_name(self.strip(inner)) if self.is_call(self.strip(inner)) else None
+        returns = self.registry.returns.get(name, "") if name else ""
+        if not (returns.startswith("(Bool, String)") or returns.startswith("(Bool, JKAShared.CharBuf)")):
+            return None
+        filled = self.tuple_call(inner)
+        if filled is None:
+            return None
+        return filled[0], filled[1], returns.startswith("(Bool, JKAShared.CharBuf)"), negated
+
     def if_statement(self, cur: ci.Cursor, depth: int) -> list[str]:
         pad = INDENT * depth
         kids = list(cur.get_children())
@@ -626,6 +673,15 @@ class Statements:
             head = [note] + copies
             with self.aliased_reads(call, aliased):
                 test = self.condition(cond)
+        elif self.filled_test(cond) is not None:
+            # A trap that fills a buffer and returns its Bool stands before the `if`, the buffer takes the text, and the test reads the Bool.
+            call, buffer, whole, negated = self.filled_test(cond)
+            # A second test of this shape in one body takes a numbered name, so no two lets collide in one scope.
+            self.scratch_names["filledTest"] = self.scratch_names.get("filledTest", 0) + 1
+            filled = "filledTest" if self.scratch_names["filledTest"] == 1 else f"filledTest{self.scratch_names['filledTest']}"
+            fill = f"{buffer} = {filled}.1" if whole else f"strcpy(&{buffer}, {filled}.1)"
+            head = [f"{pad}let {filled} = {call}", f"{pad}{fill}"]
+            test = f"!{filled}.0" if negated else f"{filled}.0"
         else:
             test = self.condition(cond)
         if test == "false":

@@ -326,6 +326,9 @@ class Expressions:
                 return self.expr(kids[0])
             raise Hole(f"An unexposed expression with {len(kids)} children.")
         if kind == CursorKind.PAREN_EXPR:
+            slot = self.walk_slot(list(cur.get_children())[0])
+            if slot is not None:
+                return slot
             return f"({self.expr(list(cur.get_children())[0])})"
         if kind in (CursorKind.INTEGER_LITERAL, CursorKind.FLOATING_LITERAL):
             return self.literal(cur)
@@ -483,6 +486,14 @@ class Expressions:
                 return f"{a} {op} {b}"
             if op in ASSIGN_OPS:
                 raise Hole("An assignment inside an expression.")
+            if op in COMPARISONS:
+                positions = self.table_position(left), self.table_position(right)
+                if positions[0] is not None and positions[1] is not None and positions[0][0] == positions[1][0]:
+                    # Two pointers into one table compare as the indexes of their slots, `pushed_p > &pushed[MAX_GENTITIES]`.
+                    return f"{positions[0][1]} {op} {positions[1][1]}"
+            slot = self.walk_slot(cur)
+            if slot is not None:
+                return slot
             if op not in COMPARISONS | LOGICAL and (self.is_bool(left) or self.is_bool(right)):
                 # Raven's `!x & mask` is arithmetic on the 0 or 1 of the test, so the Bool converts as C does.
                 return f"{self.converted(left, 'Int32')} {op} {self.converted(right, 'Int32')}"
@@ -556,8 +567,8 @@ class Expressions:
             if any(v.name == table and v.reason == "hand_table" for vs in self.sk.variables.values() for v in vs):
                 # The hand table is a Swift array of rows with no view, so the view fields and the C pointer walk have no Swift twin.
                 raise Hole(f"Raven walks `{table}` by pointer, and the hand table is a Swift array of rows with no view. A walk over it has no form yet.")
-            if ref.semantic_parent is not None and ref.semantic_parent.kind == CursorKind.TRANSLATION_UNIT:
-                raise Hole(f"Raven walks the file-scope pointer `{name}` over a table, and a file-scope walk has no index local yet.")
+            if ref.semantic_parent is not None and ref.semantic_parent.kind == CursorKind.TRANSLATION_UNIT and name not in self.sk.table.file_walks:
+                raise Hole(f"Raven walks the file-scope pointer `{name}` over a table, and the skeleton gives it no file-scope index.")
             return f"{table}[{index}]"
         if ref is not None and ref.kind == CursorKind.ENUM_CONSTANT_DECL:
             return name
@@ -571,6 +582,44 @@ class Expressions:
         if ref is not None and ref.kind == CursorKind.VAR_DECL and ref.semantic_parent is not None and ref.semantic_parent.kind == CursorKind.TRANSLATION_UNIT:
             self.reach(name, "variable")
         return swift_name(name)
+
+    def table_position(self, cur: ci.Cursor) -> tuple[str, str] | None:
+        """A pointer into a table of records as the table's Swift name and the Int32 index of the slot it points at, or None.
+
+        A walk pointer is its index, the table itself is slot 0, `&table[i]` is slot `i`, and a walk pointer plus or minus a count is that many slots away."""
+        inner = self.unwrap(cur)
+        if inner.kind == CursorKind.DECL_REF_EXPR and inner.referenced is not None and inner.referenced.kind == CursorKind.VAR_DECL:
+            if inner.spelling in self.table_cursors:
+                table, index = self.table_cursors[inner.spelling]
+                if inner.referenced.semantic_parent.kind == CursorKind.TRANSLATION_UNIT and inner.spelling not in self.sk.table.file_walks:
+                    return None
+                return table, index
+            if self.sk.table.record_table(inner.referenced):
+                return swift_name(inner.spelling), "0"
+            return None
+        if inner.kind == CursorKind.UNARY_OPERATOR and self.unary_parts(inner)[0] == "&":
+            slot = self.unwrap(self.unary_parts(inner)[2])
+            if slot.kind == CursorKind.ARRAY_SUBSCRIPT_EXPR:
+                base, index = list(slot.get_children())
+                base = self.unwrap(base)
+                if base.kind == CursorKind.DECL_REF_EXPR and base.referenced is not None and self.sk.table.record_table(base.referenced):
+                    return swift_name(base.spelling), self.converted(index, "Int32")
+            return None
+        if inner.kind == CursorKind.BINARY_OPERATOR and not self.collapsed(inner) and self.binary_op(inner) in ("+", "-") \
+                and inner.type.get_canonical().kind == TypeKind.POINTER:
+            base, step = list(inner.get_children())
+            position = self.table_position(base)
+            if position is not None and position[1] in {i for _, i in self.table_cursors.values()}:
+                return position[0], f"{position[1]} {self.binary_op(inner)} {self.converted(step, 'Int32')}"
+        return None
+
+    def walk_slot(self, cur: ci.Cursor) -> str | None:
+        """Raven's `(pushed_p-1)`, a walk pointer stepped by a count, as the slot of the table it points at, or None."""
+        inner = self.unwrap(cur)
+        if inner.kind != CursorKind.BINARY_OPERATOR:
+            return None
+        position = self.table_position(inner)
+        return f"{position[0]}[{position[1]}]" if position is not None else None
 
     def oracle_declares(self, decl: ci.Cursor | None) -> bool:
         """True when Raven's own headers or files declare the function. A libc function comes from the SDK, and Foundation holds it."""

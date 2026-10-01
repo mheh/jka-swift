@@ -16,6 +16,7 @@ The parameter table is abi-stubs.md row 2:
                                a trap in LIST_TRAPS fills a NUL-separated list, and it returns the whole buffer as a CharBuf
   const vec3_t, vec3_t         vec3_t by value when const, inout vec3_t when not, a pointer scoped around the call
   int *, float *, qboolean *   inout of the scalar, withUnsafeMutablePointer around the call
+  int * with an int count      inout [Int32], an array the engine fills, withUnsafeMutableBufferPointer around the call
   pointer to a viewed struct   the view, bare
   void *                       OpaquePointer?, bare
   anything else                TODO: Port signature with Raven's C text, body portMissing
@@ -174,7 +175,7 @@ class Traps:
                 layers.append(f"withUnsafeMutablePointer(to: &{p.name}) {{ {p.name} in")
             elif p.kind == "vec3_array":
                 layers.append(f"{p.name}Flat.withUnsafeBufferPointer {{ {p.name}Flat in")
-            elif p.kind == "out_string":
+            elif p.kind in ("out_string", "out_array"):
                 layers.append(f"{p.name}.withUnsafeMutableBufferPointer {{ {p.name}Pointer in")
             elif p.kind in ("out_scalar", "out_opaque"):
                 layers.append(f"withUnsafeMutablePointer(to: &{p.name}) {{ {p.name} in")
@@ -193,6 +194,7 @@ class Traps:
         lines.append("}")
         lines += self.nil_overload(cur, name, mapped, returns, body)
         lines += self.buffer_overload(cur, name, mapped, returns, never)
+        lines += self.text_overload(cur, name, mapped, returns, never)
         return lines
 
     def nil_overload(self, cur: ci.Cursor, name: str, mapped: dict[str, Param], returns: str | None, body: list[str]) -> list[str]:
@@ -249,6 +251,40 @@ class Traps:
             "}",
         ]
 
+    def text_overload(self, cur: ci.Cursor, name: str, mapped: dict[str, Param], returns: str | None, never: bool) -> list[str]:
+        """The overload for a `const void *` parameter Raven's own callers hand a `char *` text, `trap_FS_Write(str, strlen(str), fh)`.
+
+        The text hands the engine its bytes inside one unsafe scope here, so a body passes the String bare and no `Unsafe` type reaches a logic target."""
+        reads = [p for p in mapped.values() if p.swift == "OpaquePointer?" and self.table.reads_text(name, p.name)]
+        if len(reads) != 1:
+            return []
+        text = reads[0]
+        crossing = [p for p in mapped.values() if p.swift]
+        signature = ", ".join(f"_ {p.name}: " + ("String" if p is text else p.swift) for p in crossing)
+        words = []
+        for p in crossing:
+            if p is text:
+                words.append("OpaquePointer(base)")
+            elif (p.swift or "").startswith("inout "):
+                words.append(f"&{p.name}")
+            else:
+                words.append(p.name)
+        self.counts["text overloads"] += 1
+        head = f"public func {name}({signature})" + (" -> Never" if never else f" -> {returns}" if returns else "")
+        if returns and not never:
+            head = "@discardableResult\n" + head
+        keyword = "return " if returns or never else ""
+        return [
+            "",
+            f"/// Source: oracle/{SOURCE}:{cur.location.line}",
+            f"/// Raven's `{text.name}` takes a `char *` text at his own call sites, and this overload hands the engine the text's bytes.",
+            head + " {",
+            f"    {keyword}{text.name}.withCString {{ base in",
+            f"        {name}({', '.join(words)})",
+            "    }",
+            "}",
+        ]
+
     def nest(self, layers: list[str], call: str, prefix: str) -> list[str]:
         out = [prefix + layers[0]]
         for depth, layer in enumerate(layers[1:], start=2):
@@ -283,7 +319,8 @@ def main() -> None:
     print(f"traps.py: {c['traps']} traps, {c['TODO: Port signature']} TODO: Port signature markers, {out.relative_to(REPO)}")
     print(f"  {'buffer':12} {c['buffer overloads']} inout CharBuf overloads")
     print(f"  {'nil':12} {c['nil overloads']} overloads that take a nil view")
-    for kind in ("bare", "cstring", "out_string", "out_scalar", "out_opaque", "vec3_const", "vec3_mut", "vec3_array", "slots", "view"):
+    print(f"  {'text':12} {c['text overloads']} String overloads")
+    for kind in ("bare", "cstring", "out_string", "out_scalar", "out_array", "out_opaque", "vec3_const", "vec3_mut", "vec3_array", "slots", "view"):
         print(f"  {kind:12} {c[kind]}")
 
 

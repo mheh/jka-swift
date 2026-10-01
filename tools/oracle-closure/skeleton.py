@@ -114,11 +114,18 @@ class Variable:
         # Raven's `static` keeps the name to his file. Two files that share a name keep two variables, and the struct's field carries the stem.
         self.static = cur.storage_class == ci.StorageClass.STATIC
         self.shared = False
+        # The table Raven walks the pointer over, for a file-scope walk pointer, which the port holds as the index of its slot.
+        self.walk: tuple[str, str] | None = None
+
+    @property
+    def spelled(self) -> str:
+        """The Swift name of the variable: Raven's name, or the index name of a file-scope walk pointer, `pushed_pIndex`."""
+        return self.walk[1] if self.walk is not None else self.name
 
     @property
     def field(self) -> str:
-        """The property name on the variables struct: Raven's name, or the stem and the name when another file declares the name too."""
-        return f"{self.stem}_{self.name}" if self.shared else self.name
+        """The property name on the variables struct: the Swift name, or the stem and that name when another file declares the name too."""
+        return f"{self.stem}_{self.spelled}" if self.shared else self.spelled
 
     @property
     def access(self) -> str:
@@ -483,6 +490,11 @@ class Skeleton:
                 return
             var.swift = "JKAShared.vec3_t" if not depth or self.table.views.is_vec3(t) else "[JKAShared.vec3_t]"
             return
+        if not depth and var.name in self.table.file_walks:
+            # Raven walks the pointer over a file-scope table of records, so the port holds the index of the slot it points at.
+            var.walk = self.table.file_walks[var.name]
+            var.swift = "Int32"
+            return
         if element.kind == TypeKind.POINTER:
             pointee = element.get_pointee()
             if pointee.get_canonical().kind == TypeKind.CHAR_S:
@@ -683,6 +695,13 @@ class Skeleton:
                          f"        guard let {var.name} = {spelled}.variables.{var.field} else {{ preconditionFailure(\"{var.name} is NULL\") }}",
                          f"        return {var.name}",
                          "    }",
+                         f"    set {{ {spelled}.variables.{var.field} = newValue }}",
+                         "}"]
+            elif var.walk is not None:
+                lines = [f"/// Source: {var.cite}",
+                         f"/// Raven walks `{var.name}` over `{var.walk[0]}`, so the port holds the index of the slot it points at.",
+                         f"{self.variable_access(var)}var {var.spelled}: {var.swift} {{",
+                         f"    get {{ {spelled}.variables.{var.field} }}",
                          f"    set {{ {spelled}.variables.{var.field} = newValue }}",
                          "}"]
             else:

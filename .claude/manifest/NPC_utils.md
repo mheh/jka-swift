@@ -41,7 +41,7 @@ The oracle range is the whole definition, from the return type to the closing br
 | `G_GetBoltPosition` | `oracle/codemp/game/NPC_utils.c:1707-1740` | `JKAMP_GameLogic/NPC_utils.swift:278` | marker | `crates/mp/game/src/NPC_utils.rs:1653-1710` | `func G_GetBoltPosition(_ `self`: Entity, _ boltIndex: Int32, _ pos: inout JKAShared.vec3_t, _ modelIndex: Int32)` |
 | `NPC_EntRangeFromBolt` | `oracle/codemp/game/NPC_utils.c:1742-1754` | `JKAMP_GameLogic/NPC_utils.swift:284` | marker | `crates/mp/game/src/NPC_utils.rs:1715-1731` | `func NPC_EntRangeFromBolt(_ targEnt: Entity, _ boltIndex: Int32) -> Float` |
 | `NPC_EnemyRangeFromBolt` | `oracle/codemp/game/NPC_utils.c:1756-1759` | `JKAMP_GameLogic/NPC_utils.swift:290` | marker | `crates/mp/game/src/NPC_utils.rs:1736-1747` | `func NPC_EnemyRangeFromBolt(_ boltIndex: Int32) -> Float` |
-| `NPC_GetEntsNearBolt` | `oracle/codemp/game/NPC_utils.c:1761-1782` | `JKAMP_GameLogic/NPC_utils.swift:296` | marker | `crates/mp/game/src/NPC_utils.rs:1754-1788` | `func NPC_GetEntsNearBolt(_ radiusEnts: inout Int32, _ radius: Float, _ boltIndex: Int32, _ boltOrg: inout JKAShared.vec3_t) -> Int32` |
+| `NPC_GetEntsNearBolt` | `oracle/codemp/game/NPC_utils.c:1761-1782` | `JKAMP_GameLogic/NPC_utils.swift:296` | marker | `crates/mp/game/src/NPC_utils.rs:1754-1788` | `func NPC_GetEntsNearBolt(_ radiusEnts: inout [Int32], _ radius: Float, _ boltIndex: Int32, _ boltOrg: inout JKAShared.vec3_t) -> Int32` |
 
 3 file-scope variables. The entry is the stub's line for the variable, by rule 3 and rule 6.
 

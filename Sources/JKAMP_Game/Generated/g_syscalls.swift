@@ -153,6 +153,14 @@ public func trap_FS_Write(_ buffer: inout JKAShared.CharBuf, _ len: Int32, _ f: 
     }
 }
 
+/// Source: oracle/codemp/game/g_syscalls.c:93
+/// Raven's `buffer` takes a `char *` text at his own call sites, and this overload hands the engine the text's bytes.
+public func trap_FS_Write(_ buffer: String, _ len: Int32, _ f: JKAShared.fileHandle_t) {
+    buffer.withCString { base in
+        trap_FS_Write(OpaquePointer(base), len, f)
+    }
+}
+
 /// Source: oracle/codemp/game/g_syscalls.c:97
 public func trap_FS_FCloseFile(_ f: JKAShared.fileHandle_t) {
     Syscall.call(G_FS_FCLOSE_FILE, f)
@@ -323,11 +331,11 @@ public func trap_UnlinkEntity(_ ent: Entity) {
 
 /// Source: oracle/codemp/game/g_syscalls.c:186
 @discardableResult
-public func trap_EntitiesInBox(_ mins: JKAShared.vec3_t, _ maxs: JKAShared.vec3_t, _ list: inout Int32, _ maxcount: Int32) -> Int32 {
+public func trap_EntitiesInBox(_ mins: JKAShared.vec3_t, _ maxs: JKAShared.vec3_t, _ list: inout [Int32], _ maxcount: Int32) -> Int32 {
     let word = withUnsafePointer(to: mins) { mins in
         withUnsafePointer(to: maxs) { maxs in
-            withUnsafeMutablePointer(to: &list) { list in
-                Syscall.call(G_ENTITIES_IN_BOX, mins, maxs, list, maxcount)
+            list.withUnsafeMutableBufferPointer { listPointer in
+                Syscall.call(G_ENTITIES_IN_BOX, mins, maxs, listPointer.baseAddress!, maxcount)
             }
         }
     }
@@ -1084,11 +1092,11 @@ public func trap_AAS_PointReachabilityAreaIndex(_ point: inout JKAShared.vec3_t)
 
 /// Source: oracle/codemp/game/g_syscalls.c:685
 @discardableResult
-public func trap_AAS_BBoxAreas(_ absmins: inout JKAShared.vec3_t, _ absmaxs: inout JKAShared.vec3_t, _ areas: inout Int32, _ maxareas: Int32) -> Int32 {
+public func trap_AAS_BBoxAreas(_ absmins: inout JKAShared.vec3_t, _ absmaxs: inout JKAShared.vec3_t, _ areas: inout [Int32], _ maxareas: Int32) -> Int32 {
     let word = withUnsafeMutablePointer(to: &absmins) { absmins in
         withUnsafeMutablePointer(to: &absmaxs) { absmaxs in
-            withUnsafeMutablePointer(to: &areas) { areas in
-                Syscall.call(BOTLIB_AAS_BBOX_AREAS, absmins, absmaxs, areas, maxareas)
+            areas.withUnsafeMutableBufferPointer { areasPointer in
+                Syscall.call(BOTLIB_AAS_BBOX_AREAS, absmins, absmaxs, areasPointer.baseAddress!, maxareas)
             }
         }
     }

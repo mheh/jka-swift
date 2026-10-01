@@ -10,9 +10,10 @@ import JKAMP_BG
 var pushed: Slots<Pushed> { world.storage.pushed }
 
 /// Source: oracle/codemp/game/g_mover.c:24
-var pushed_p: Pushed? {
-    get { world.variables.pushed_p }
-    set { world.variables.pushed_p = newValue }
+/// Raven walks `pushed_p` over `pushed`, so the port holds the index of the slot it points at.
+var pushed_pIndex: Int32 {
+    get { world.variables.pushed_pIndex }
+    set { world.variables.pushed_pIndex = newValue }
 }
 
 /// Source: oracle/codemp/game/g_mover.c:26

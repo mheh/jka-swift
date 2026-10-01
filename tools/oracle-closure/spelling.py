@@ -50,6 +50,15 @@ class Answer:
     size: str | None = None
 
 
+def engine_array(t: ci.Type, following: ci.Cursor | None) -> bool:
+    """True for a trap's `int *` with a count beside it, an array the engine fills, `trap_EntitiesInBox(mins, maxs, list, maxcount)`."""
+    canonical = t.get_canonical()
+    if canonical.kind != TypeKind.POINTER or canonical.get_pointee().is_const_qualified():
+        return False
+    return canonical.get_pointee().get_canonical().kind in INT_KINDS and following is not None \
+        and following.type.get_canonical().kind in INT_KINDS and SIZE_NAME.search(following.spelling) is not None
+
+
 @dataclass(frozen=True)
 class Facts:
     """What the sweeps and the rulings know about one cursor, which its C type alone does not say.
@@ -74,6 +83,8 @@ class Facts:
     stores_through: bool = False
     # True when the NULL sweep, at a direct call or one hop on, reaches the parameter. The vector rules read this one.
     nullable_vector: bool = False
+    # True when the body hands the `int *` on to an array a trap fills, so the parameter is that array too.
+    fills_array: bool = False
     # The body already spells the expression as a Swift Bool, and the expression is a number Swift types by context.
     is_bool: bool = False
     is_literal: bool = False
@@ -333,6 +344,12 @@ class Types:
             # An array of model handles the engine reads, and every caller passes NULL. The pointer stays in generated code.
             if t.get_pointee().spelling.replace("const ", "") == "qhandle_t":
                 return Answer("UnsafeMutablePointer<Int32>?", "bare")
+            if (facts.traps and engine_array(t, facts.following)) or (not facts.traps and facts.fills_array):
+                # An `int *` with a count beside it is an array the engine fills, `trap_EntitiesInBox(mins, maxs, list, maxcount)`.
+                # A function that hands its own `int *` on to that array takes the caller's array the same way.
+                swift = self.scalar(pointee, TARGET)
+                if swift is not None and self.known(swift):
+                    return Answer(f"inout [{swift}]", "out_array" if facts.traps else "bare")
             # A pointer to one scalar is an out-param, `inout`. A body that finds Raven walks it as an array writes a Port-note.
             if not pointee.is_const_qualified() and (inner.kind in INT_KINDS or inner.kind in (TypeKind.FLOAT, TypeKind.ENUM)):
                 swift = self.scalar(pointee, TARGET)

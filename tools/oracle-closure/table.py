@@ -22,7 +22,7 @@ from fnsweep import ASSIGN_OPS
 from overlay import MACROS, written_arguments
 from rulings import PARAMS, RETURNS
 from views import Generator
-from spelling import Facts, OPTIONAL_TEXT_RESULT
+from spelling import Facts, OPTIONAL_TEXT_RESULT, engine_array
 
 TARGET = GAME_TARGET
 # A Raven parameter name that is a Swift keyword is written in backticks.
@@ -47,7 +47,7 @@ class Param:
         self.label = label
 
     def word(self) -> str:
-        if self.kind == "out_string":
+        if self.kind in ("out_string", "out_array"):
             return f"{self.name.strip('`')}Pointer.baseAddress!"
         if self.kind == "vec3_array":
             return f"{self.name.strip('`')}Flat.baseAddress!"
@@ -287,6 +287,8 @@ class Table:
         # The (trap, parameter) pairs a caller fills with a `char[N]` buffer through Raven's `void *`, so the wrapper gets a
         # second overload that takes the buffer itself.
         self.buffer_traps: set[tuple[str, str]] = set()
+        # The (trap, parameter) pairs of a `const void *` a caller hands a `char *` text, so the wrapper gets an overload that takes the String.
+        self.text_traps: set[tuple[str, str]] = set()
         # The game fields a bg body reaches, by the key of each read, which the channel carries and the draft calls.
         self.reads: dict[tuple[str, tuple[str, ...], bool], Read] = {}
         # The body of each function of the game unit, by file stem and name, which the cursor sweep fills so a local read reaches its body.
@@ -299,6 +301,11 @@ class Table:
         self.single_writes: dict[tuple[str, str], set[str]] = {}
         # The names a body takes the address of, each one an output a callee fills.
         self.addressed_names: dict[tuple[str, str], set[str]] = {}
+        # The file-scope pointers a body sets to a file-scope table of records, `pushed_p = pushed`, each as the table's Swift name
+        # and the file-scope index that stands for the pointer in every body that names it.
+        self.file_walks: dict[str, tuple[str, str]] = {}
+        # The (function, parameter) pairs of an `int *` the body hands on to an array a trap fills, so the parameter is that array.
+        self.array_handoffs: set[tuple[str, str]] = set()
 
     def sweep_reads(self, tu: ci.TranslationUnit, folder: Path) -> list[Read]:
         """Every game field a bg body reaches through a gentity_t, the level, or a cvar, as the reads the channel carries.
@@ -941,11 +948,69 @@ class Table:
         walks, written, addressed = self.body_walk(cur, data)
         for name, walk in walks.items():
             rows.setdefault(name, Local()).table = walk
+        # A file-scope walk pointer is a walk in every body that names it, and the file-scope index stands for it there.
+        named = {node.spelling for node in cur.walk_preorder() if node.kind == CursorKind.DECL_REF_EXPR}
+        for name, walk in self.file_walks.items():
+            if name in named:
+                rows.setdefault(name, Local()).table = walk
         for name, row in rows.items():
             self.locals[(key[0], key[1], name)] = row
         self.written_names[key] = written
         self.addressed_names[key] = addressed
         self.single_writes[key] = self.single_written(cur, data)
+
+    @staticmethod
+    def record_table(ref: ci.Cursor) -> bool:
+        """True for a file-scope array of records, the table a pointer walk steps over."""
+        return ref.kind == CursorKind.VAR_DECL and ref.type.get_canonical().kind == TypeKind.CONSTANTARRAY \
+            and ref.type.get_canonical().element_type.get_canonical().kind == TypeKind.RECORD \
+            and ref.semantic_parent is not None and ref.semantic_parent.kind == CursorKind.TRANSLATION_UNIT
+
+    def sweep_array_handoffs(self) -> None:
+        """Every `int *` parameter a body passes as it is to a trap's array the engine fills, `trap_EntitiesInBox(mins, maxs, radiusEnts, 128)`.
+
+        The cursor sweep fills the bodies first."""
+        for (_, owner), fn in self.functions.items():
+            for node in fn.walk_preorder():
+                if node.kind != CursorKind.CALL_EXPR or not node.spelling.startswith("trap_") or node.referenced is None:
+                    continue
+                params = list(node.referenced.get_arguments())
+                for i, arg in enumerate(list(node.get_children())[1:]):
+                    arg = self.unwrapped(arg)
+                    if i >= len(params) or arg.kind != CursorKind.DECL_REF_EXPR or arg.referenced is None \
+                            or arg.referenced.kind != CursorKind.PARM_DECL:
+                        continue
+                    if engine_array(params[i].type, params[i + 1] if i + 1 < len(params) else None):
+                        self.array_handoffs.add((owner, arg.spelling))
+
+    def sweep_file_walks(self) -> None:
+        """Every file-scope pointer a body sets to a file-scope table of records, `pushed_p = pushed`, or a slot past its start.
+
+        The pointer has no local to hold its index, so the skeleton gives it a file-scope index, and every body that names the pointer reads that index.
+        The cursor sweep fills the bodies first."""
+        for fn in self.functions.values():
+            data = None
+            for cur in fn.walk_preorder():
+                if cur.kind != CursorKind.BINARY_OPERATOR or collapsed(cur):
+                    continue
+                kids = list(cur.get_children())
+                if len(kids) != 2:
+                    continue
+                left, right = self.unwrapped(kids[0]), self.unwrapped(kids[1])
+                ref = left.referenced if left.kind == CursorKind.DECL_REF_EXPR else None
+                if ref is None or ref.kind != CursorKind.VAR_DECL or ref.semantic_parent is None \
+                        or ref.semantic_parent.kind != CursorKind.TRANSLATION_UNIT or ref.type.get_canonical().kind != TypeKind.POINTER:
+                    continue
+                if data is None:
+                    data = C.parsed_bytes(Path(fn.location.file.name).resolve())
+                if between(data, kids[0], kids[1]) != "=":
+                    continue
+                table = right
+                if right.kind == CursorKind.BINARY_OPERATOR and len(list(right.get_children())) == 2 and not collapsed(right) \
+                        and between(data, *list(right.get_children())) == "+":
+                    table = self.unwrapped(list(right.get_children())[0])
+                if table.kind == CursorKind.DECL_REF_EXPR and table.referenced is not None and self.record_table(table.referenced):
+                    self.file_walks[left.spelling] = (swift_name(table.spelling), f"{swift_name(left.spelling)}Index")
 
     def body_walk(self, fn: ci.Cursor, data: bytes) -> tuple[dict[str, tuple[str, str]], set[str], set[str]]:
         """One walk of the body for the three facts each node carries: the table walks, the written names, and the addressed names.
@@ -977,14 +1042,16 @@ class Table:
                 continue
             table = right
             if right.kind == CursorKind.BINARY_OPERATOR and len(list(right.get_children())) == 2 and not collapsed(right) \
-                    and between(data, *list(right.get_children())) == "+":
+                    and between(data, *list(right.get_children())) in ("+", "-"):
                 table = self.unwrapped(list(right.get_children())[0])
             if table.kind != CursorKind.DECL_REF_EXPR or table.referenced is None:
                 continue
             ref = table.referenced
-            if ref.kind == CursorKind.VAR_DECL and ref.type.get_canonical().kind == TypeKind.CONSTANTARRAY \
-                    and ref.type.get_canonical().element_type.get_canonical().kind == TypeKind.RECORD \
-                    and ref.semantic_parent is not None and ref.semantic_parent.kind == CursorKind.TRANSLATION_UNIT:
+            # A pointer set from another walk pointer, `p = pushed_p - 1`, walks the same table.
+            walked = out.get(table.spelling) or self.file_walks.get(table.spelling)
+            if ref.kind == CursorKind.VAR_DECL and walked is not None:
+                out[left.spelling] = (walked[0], f"{swift_name(left.spelling)}Index")
+            elif self.record_table(ref):
                 out[left.spelling] = (swift_name(table.spelling), f"{swift_name(left.spelling)}Index")
             elif ref.kind == CursorKind.PARM_DECL and table.spelling in params and self.slots_parameter(fn, params[table.spelling]):
                 # A table parameter is a Slots, and the walk reads it by index the same way.
@@ -1172,7 +1239,8 @@ class Table:
         The wrapper keeps its `OpaquePointer?` parameter, because a raw caller passes a raw allocation there. It gains a second
         overload that takes the buffer, so a body writes `trap_FS_Read(&BGPAFtext, len, f)` and no `Unsafe` type reaches a logic target.
         The sweep reads the game unit and the cgame unit, the two units the port parses, because one bg body stands in both with
-        a different arm. A parameter no caller fills that way keeps the one spelling it has today."""
+        a different arm. A parameter no caller fills that way keeps the one spelling it has today.
+        A `const void *` parameter a caller hands a `char *` text, `trap_FS_Write(str, strlen(str), fh)`, gets an overload that takes the String."""
         for cur in tu.cursor.get_children():
             if cur.kind != CursorKind.FUNCTION_DECL or not cur.is_definition() or not cur.location.file:
                 continue
@@ -1194,6 +1262,8 @@ class Table:
                         continue
                     if self.char_buffer_argument(arg):
                         self.buffer_traps.add((callee.spelling, params[i].spelling))
+                    elif declared.get_pointee().is_const_qualified() and self.char_pointer(self.unwrapped(arg).type):
+                        self.text_traps.add((callee.spelling, params[i].spelling))
 
     def char_buffer_argument(self, cur: ci.Cursor) -> bool:
         """True for Raven's `char buf[N]` passed bare, the argument Swift holds as a `CharBuf`."""
@@ -1205,6 +1275,10 @@ class Table:
     def fills_buffer(self, owner: str, name: str) -> bool:
         """True when the buffer sweep saw a `char[N]` buffer go into this `void *` trap parameter."""
         return (owner, name) in self.buffer_traps
+
+    def reads_text(self, owner: str, name: str) -> bool:
+        """True when the buffer sweep saw a `char *` text go into this `const void *` trap parameter."""
+        return (owner, name) in self.text_traps
 
     def sweep_returns(self, tu: ci.TranslationUnit, folder: Path) -> None:
         """The NULL sweep over returns: a function that returns `char *` and hands NULL back at any site returns a String?."""
@@ -1237,6 +1311,7 @@ class Table:
         and so does a call from the cgame's own .c files.
         The store sweep, the text sweep, and the return sweep walk every .c file of the game folder, because the body of the callee decides all three.
         The cursor sweep follows the text sweep, because a local's kind reads which callee writes through its own `char *` parameter.
+        The file walk sweep and the array sweep follow the cursor sweep, because they read the bodies the cursor sweep leaves behind.
         The local facts are not swept here. The cursor sweep leaves the body of every function behind, and the first read of a function computes its locals from that body.
         The subscript sweep and the buffer sweep walk both units the same way the NULL sweep does, because a body has one arm in each of them.
         The hand-off sweep follows the subscript sweep over both units, and its edges are read once both units are in.
@@ -1258,6 +1333,8 @@ class Table:
         self.sweep_stores(tu, folder)
         self.sweep_text(tu, folder)
         self.sweep_cursors(tu, folder)
+        self.sweep_file_walks()
+        self.sweep_array_handoffs()
         self.sweep_returns(tu, folder)
         self.reads = {read.key: read for read in self.sweep_reads(tu, folder)}
 
@@ -1290,6 +1367,7 @@ class Table:
             readonly_text=(owner, name) in self.readonly_text,
             indexed=(owner, name) in self.indexed_params,
             stores_through=(owner, name) in self.stores_through,
+            fills_array=(owner, name) in self.array_handoffs,
         )
         answer = self.types.answer("parameter", cur.type, facts)
         if answer is None:

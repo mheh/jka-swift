@@ -488,7 +488,7 @@ public struct GameVariables {
 
     /// Raven's `pushed_t pushed[MAX_GENTITIES], *pushed_p` of `g_mover.c`.
     /// Source: oracle/codemp/game/g_mover.c:24
-    public var pushed_p: Pushed? = nil
+    public var pushed_pIndex: Int32 = 0
 
     /// Raven's `qboolean navCalculatePaths` of `g_nav.c`.
     /// Source: oracle/codemp/game/g_nav.c:1597
