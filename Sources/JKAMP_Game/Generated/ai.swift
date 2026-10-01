@@ -10,6 +10,17 @@ public let MAX_FRAME_GROUPS = CJKAMP_Game.MAX_FRAME_GROUPS
 /// Source: oracle/codemp/game/ai.h:95
 public let MAX_GROUP_MEMBERS = CJKAMP_Game.MAX_GROUP_MEMBERS
 
+/// Source: oracle/codemp/game/ai.h:31
+public typealias rank_t = Int32
+public let RANK_CIVILIAN: rank_t = Int32(truncatingIfNeeded: CJKAMP_Game.RANK_CIVILIAN.rawValue)
+public let RANK_CREWMAN: rank_t = Int32(truncatingIfNeeded: CJKAMP_Game.RANK_CREWMAN.rawValue)
+public let RANK_ENSIGN: rank_t = Int32(truncatingIfNeeded: CJKAMP_Game.RANK_ENSIGN.rawValue)
+public let RANK_LT_JG: rank_t = Int32(truncatingIfNeeded: CJKAMP_Game.RANK_LT_JG.rawValue)
+public let RANK_LT: rank_t = Int32(truncatingIfNeeded: CJKAMP_Game.RANK_LT.rawValue)
+public let RANK_LT_COMM: rank_t = Int32(truncatingIfNeeded: CJKAMP_Game.RANK_LT_COMM.rawValue)
+public let RANK_COMMANDER: rank_t = Int32(truncatingIfNeeded: CJKAMP_Game.RANK_COMMANDER.rawValue)
+public let RANK_CAPTAIN: rank_t = Int32(truncatingIfNeeded: CJKAMP_Game.RANK_CAPTAIN.rawValue)
+
 /// Source: oracle/codemp/game/ai.h:18
 public let SQUAD_IDLE: Int32 = Int32(truncatingIfNeeded: CJKAMP_Game.SQUAD_IDLE)
 
@@ -43,14 +54,3 @@ public let ATTACK_RANGE: attack_e = Int32(truncatingIfNeeded: CJKAMP_Game.ATTACK
 public typealias distance_e = Int32
 public let DIST_MELEE: distance_e = Int32(truncatingIfNeeded: CJKAMP_Game.DIST_MELEE.rawValue)
 public let DIST_LONG: distance_e = Int32(truncatingIfNeeded: CJKAMP_Game.DIST_LONG.rawValue)
-
-/// Source: oracle/codemp/game/ai.h:31
-public typealias rank_t = Int32
-public let RANK_CIVILIAN: rank_t = Int32(truncatingIfNeeded: CJKAMP_Game.RANK_CIVILIAN.rawValue)
-public let RANK_CREWMAN: rank_t = Int32(truncatingIfNeeded: CJKAMP_Game.RANK_CREWMAN.rawValue)
-public let RANK_ENSIGN: rank_t = Int32(truncatingIfNeeded: CJKAMP_Game.RANK_ENSIGN.rawValue)
-public let RANK_LT_JG: rank_t = Int32(truncatingIfNeeded: CJKAMP_Game.RANK_LT_JG.rawValue)
-public let RANK_LT: rank_t = Int32(truncatingIfNeeded: CJKAMP_Game.RANK_LT.rawValue)
-public let RANK_LT_COMM: rank_t = Int32(truncatingIfNeeded: CJKAMP_Game.RANK_LT_COMM.rawValue)
-public let RANK_COMMANDER: rank_t = Int32(truncatingIfNeeded: CJKAMP_Game.RANK_COMMANDER.rawValue)
-public let RANK_CAPTAIN: rank_t = Int32(truncatingIfNeeded: CJKAMP_Game.RANK_CAPTAIN.rawValue)

@@ -9,7 +9,6 @@
 #include "shared/game/q_shared/qhandle_t.h"
 #include "shared/game/q_shared/sfxHandle_t.h"
 #include "shared/game/q_shared/vec4_t.h"
-#include "shared/ui/ui_shared/constants.h"
 
 // Source: oracle/codemp/ui/ui_shared.h:338
 typedef struct {

@@ -13,6 +13,141 @@ public let MAX_STRING_SIZE = CJKAMP_Game.MAX_STRING_SIZE
 /// Source: oracle/codemp/icarus/interpreter.h:9
 public let MAX_VAR_NAME = CJKAMP_Game.MAX_VAR_NAME
 
+/// Source: oracle/codemp/icarus/interpreter.h:15
+public let TK_BLOCK_START: Int32 = Int32(truncatingIfNeeded: CJKAMP_Game.TK_BLOCK_START)
+
+/// Source: oracle/codemp/icarus/interpreter.h:15
+public let TK_BLOCK_END: Int32 = Int32(truncatingIfNeeded: CJKAMP_Game.TK_BLOCK_END)
+
+/// Source: oracle/codemp/icarus/interpreter.h:15
+public let TK_VECTOR_START: Int32 = Int32(truncatingIfNeeded: CJKAMP_Game.TK_VECTOR_START)
+
+/// Source: oracle/codemp/icarus/interpreter.h:15
+public let TK_VECTOR_END: Int32 = Int32(truncatingIfNeeded: CJKAMP_Game.TK_VECTOR_END)
+
+/// Source: oracle/codemp/icarus/interpreter.h:15
+public let TK_OPEN_PARENTHESIS: Int32 = Int32(truncatingIfNeeded: CJKAMP_Game.TK_OPEN_PARENTHESIS)
+
+/// Source: oracle/codemp/icarus/interpreter.h:15
+public let TK_CLOSED_PARENTHESIS: Int32 = Int32(truncatingIfNeeded: CJKAMP_Game.TK_CLOSED_PARENTHESIS)
+
+/// Source: oracle/codemp/icarus/interpreter.h:15
+public let TK_VECTOR: Int32 = Int32(truncatingIfNeeded: CJKAMP_Game.TK_VECTOR)
+
+/// Source: oracle/codemp/icarus/interpreter.h:15
+public let TK_GREATER_THAN: Int32 = Int32(truncatingIfNeeded: CJKAMP_Game.TK_GREATER_THAN)
+
+/// Source: oracle/codemp/icarus/interpreter.h:15
+public let TK_LESS_THAN: Int32 = Int32(truncatingIfNeeded: CJKAMP_Game.TK_LESS_THAN)
+
+/// Source: oracle/codemp/icarus/interpreter.h:15
+public let TK_EQUALS: Int32 = Int32(truncatingIfNeeded: CJKAMP_Game.TK_EQUALS)
+
+/// Source: oracle/codemp/icarus/interpreter.h:15
+public let TK_NOT: Int32 = Int32(truncatingIfNeeded: CJKAMP_Game.TK_NOT)
+
+/// Source: oracle/codemp/icarus/interpreter.h:15
+public let NUM_USER_TOKENS: Int32 = Int32(truncatingIfNeeded: CJKAMP_Game.NUM_USER_TOKENS)
+
+/// Source: oracle/codemp/icarus/interpreter.h:33
+public let ID_AFFECT: Int32 = Int32(truncatingIfNeeded: CJKAMP_Game.ID_AFFECT)
+
+/// Source: oracle/codemp/icarus/interpreter.h:33
+public let ID_SOUND: Int32 = Int32(truncatingIfNeeded: CJKAMP_Game.ID_SOUND)
+
+/// Source: oracle/codemp/icarus/interpreter.h:33
+public let ID_MOVE: Int32 = Int32(truncatingIfNeeded: CJKAMP_Game.ID_MOVE)
+
+/// Source: oracle/codemp/icarus/interpreter.h:33
+public let ID_ROTATE: Int32 = Int32(truncatingIfNeeded: CJKAMP_Game.ID_ROTATE)
+
+/// Source: oracle/codemp/icarus/interpreter.h:33
+public let ID_WAIT: Int32 = Int32(truncatingIfNeeded: CJKAMP_Game.ID_WAIT)
+
+/// Source: oracle/codemp/icarus/interpreter.h:33
+public let ID_BLOCK_START: Int32 = Int32(truncatingIfNeeded: CJKAMP_Game.ID_BLOCK_START)
+
+/// Source: oracle/codemp/icarus/interpreter.h:33
+public let ID_BLOCK_END: Int32 = Int32(truncatingIfNeeded: CJKAMP_Game.ID_BLOCK_END)
+
+/// Source: oracle/codemp/icarus/interpreter.h:33
+public let ID_SET: Int32 = Int32(truncatingIfNeeded: CJKAMP_Game.ID_SET)
+
+/// Source: oracle/codemp/icarus/interpreter.h:33
+public let ID_LOOP: Int32 = Int32(truncatingIfNeeded: CJKAMP_Game.ID_LOOP)
+
+/// Source: oracle/codemp/icarus/interpreter.h:33
+public let ID_LOOPEND: Int32 = Int32(truncatingIfNeeded: CJKAMP_Game.ID_LOOPEND)
+
+/// Source: oracle/codemp/icarus/interpreter.h:33
+public let ID_PRINT: Int32 = Int32(truncatingIfNeeded: CJKAMP_Game.ID_PRINT)
+
+/// Source: oracle/codemp/icarus/interpreter.h:33
+public let ID_USE: Int32 = Int32(truncatingIfNeeded: CJKAMP_Game.ID_USE)
+
+/// Source: oracle/codemp/icarus/interpreter.h:33
+public let ID_FLUSH: Int32 = Int32(truncatingIfNeeded: CJKAMP_Game.ID_FLUSH)
+
+/// Source: oracle/codemp/icarus/interpreter.h:33
+public let ID_RUN: Int32 = Int32(truncatingIfNeeded: CJKAMP_Game.ID_RUN)
+
+/// Source: oracle/codemp/icarus/interpreter.h:33
+public let ID_KILL: Int32 = Int32(truncatingIfNeeded: CJKAMP_Game.ID_KILL)
+
+/// Source: oracle/codemp/icarus/interpreter.h:33
+public let ID_REMOVE: Int32 = Int32(truncatingIfNeeded: CJKAMP_Game.ID_REMOVE)
+
+/// Source: oracle/codemp/icarus/interpreter.h:33
+public let ID_CAMERA: Int32 = Int32(truncatingIfNeeded: CJKAMP_Game.ID_CAMERA)
+
+/// Source: oracle/codemp/icarus/interpreter.h:33
+public let ID_GET: Int32 = Int32(truncatingIfNeeded: CJKAMP_Game.ID_GET)
+
+/// Source: oracle/codemp/icarus/interpreter.h:33
+public let ID_RANDOM: Int32 = Int32(truncatingIfNeeded: CJKAMP_Game.ID_RANDOM)
+
+/// Source: oracle/codemp/icarus/interpreter.h:33
+public let ID_IF: Int32 = Int32(truncatingIfNeeded: CJKAMP_Game.ID_IF)
+
+/// Source: oracle/codemp/icarus/interpreter.h:33
+public let ID_ELSE: Int32 = Int32(truncatingIfNeeded: CJKAMP_Game.ID_ELSE)
+
+/// Source: oracle/codemp/icarus/interpreter.h:33
+public let ID_REM: Int32 = Int32(truncatingIfNeeded: CJKAMP_Game.ID_REM)
+
+/// Source: oracle/codemp/icarus/interpreter.h:33
+public let ID_TASK: Int32 = Int32(truncatingIfNeeded: CJKAMP_Game.ID_TASK)
+
+/// Source: oracle/codemp/icarus/interpreter.h:33
+public let ID_DO: Int32 = Int32(truncatingIfNeeded: CJKAMP_Game.ID_DO)
+
+/// Source: oracle/codemp/icarus/interpreter.h:33
+public let ID_DECLARE: Int32 = Int32(truncatingIfNeeded: CJKAMP_Game.ID_DECLARE)
+
+/// Source: oracle/codemp/icarus/interpreter.h:33
+public let ID_FREE: Int32 = Int32(truncatingIfNeeded: CJKAMP_Game.ID_FREE)
+
+/// Source: oracle/codemp/icarus/interpreter.h:33
+public let ID_DOWAIT: Int32 = Int32(truncatingIfNeeded: CJKAMP_Game.ID_DOWAIT)
+
+/// Source: oracle/codemp/icarus/interpreter.h:33
+public let ID_SIGNAL: Int32 = Int32(truncatingIfNeeded: CJKAMP_Game.ID_SIGNAL)
+
+/// Source: oracle/codemp/icarus/interpreter.h:33
+public let ID_WAITSIGNAL: Int32 = Int32(truncatingIfNeeded: CJKAMP_Game.ID_WAITSIGNAL)
+
+/// Source: oracle/codemp/icarus/interpreter.h:33
+public let ID_PLAY: Int32 = Int32(truncatingIfNeeded: CJKAMP_Game.ID_PLAY)
+
+/// Source: oracle/codemp/icarus/interpreter.h:33
+public let ID_TAG: Int32 = Int32(truncatingIfNeeded: CJKAMP_Game.ID_TAG)
+
+/// Source: oracle/codemp/icarus/interpreter.h:33
+public let ID_EOF: Int32 = Int32(truncatingIfNeeded: CJKAMP_Game.ID_EOF)
+
+/// Source: oracle/codemp/icarus/interpreter.h:33
+public let NUM_IDS: Int32 = Int32(truncatingIfNeeded: CJKAMP_Game.NUM_IDS)
+
 /// Source: oracle/codemp/icarus/interpreter.h:107
 public let MSG_COMPLETED: Int32 = Int32(truncatingIfNeeded: CJKAMP_Game.MSG_COMPLETED)
 
@@ -21,3 +156,66 @@ public let MSG_EOF: Int32 = Int32(truncatingIfNeeded: CJKAMP_Game.MSG_EOF)
 
 /// Source: oracle/codemp/icarus/interpreter.h:107
 public let NUM_MESSAGES: Int32 = Int32(truncatingIfNeeded: CJKAMP_Game.NUM_MESSAGES)
+
+/// Source: oracle/codemp/icarus/interpreter.h:72
+public let TYPE_WAIT_COMPLETE: Int32 = Int32(truncatingIfNeeded: CJKAMP_Game.TYPE_WAIT_COMPLETE)
+
+/// Source: oracle/codemp/icarus/interpreter.h:72
+public let TYPE_WAIT_TRIGGERED: Int32 = Int32(truncatingIfNeeded: CJKAMP_Game.TYPE_WAIT_TRIGGERED)
+
+/// Source: oracle/codemp/icarus/interpreter.h:72
+public let TYPE_ANGLES: Int32 = Int32(truncatingIfNeeded: CJKAMP_Game.TYPE_ANGLES)
+
+/// Source: oracle/codemp/icarus/interpreter.h:72
+public let TYPE_ORIGIN: Int32 = Int32(truncatingIfNeeded: CJKAMP_Game.TYPE_ORIGIN)
+
+/// Source: oracle/codemp/icarus/interpreter.h:72
+public let TYPE_INSERT: Int32 = Int32(truncatingIfNeeded: CJKAMP_Game.TYPE_INSERT)
+
+/// Source: oracle/codemp/icarus/interpreter.h:72
+public let TYPE_FLUSH: Int32 = Int32(truncatingIfNeeded: CJKAMP_Game.TYPE_FLUSH)
+
+/// Source: oracle/codemp/icarus/interpreter.h:72
+public let TYPE_PAN: Int32 = Int32(truncatingIfNeeded: CJKAMP_Game.TYPE_PAN)
+
+/// Source: oracle/codemp/icarus/interpreter.h:72
+public let TYPE_ZOOM: Int32 = Int32(truncatingIfNeeded: CJKAMP_Game.TYPE_ZOOM)
+
+/// Source: oracle/codemp/icarus/interpreter.h:72
+public let TYPE_MOVE: Int32 = Int32(truncatingIfNeeded: CJKAMP_Game.TYPE_MOVE)
+
+/// Source: oracle/codemp/icarus/interpreter.h:72
+public let TYPE_FADE: Int32 = Int32(truncatingIfNeeded: CJKAMP_Game.TYPE_FADE)
+
+/// Source: oracle/codemp/icarus/interpreter.h:72
+public let TYPE_PATH: Int32 = Int32(truncatingIfNeeded: CJKAMP_Game.TYPE_PATH)
+
+/// Source: oracle/codemp/icarus/interpreter.h:72
+public let TYPE_ENABLE: Int32 = Int32(truncatingIfNeeded: CJKAMP_Game.TYPE_ENABLE)
+
+/// Source: oracle/codemp/icarus/interpreter.h:72
+public let TYPE_DISABLE: Int32 = Int32(truncatingIfNeeded: CJKAMP_Game.TYPE_DISABLE)
+
+/// Source: oracle/codemp/icarus/interpreter.h:72
+public let TYPE_SHAKE: Int32 = Int32(truncatingIfNeeded: CJKAMP_Game.TYPE_SHAKE)
+
+/// Source: oracle/codemp/icarus/interpreter.h:72
+public let TYPE_ROLL: Int32 = Int32(truncatingIfNeeded: CJKAMP_Game.TYPE_ROLL)
+
+/// Source: oracle/codemp/icarus/interpreter.h:72
+public let TYPE_TRACK: Int32 = Int32(truncatingIfNeeded: CJKAMP_Game.TYPE_TRACK)
+
+/// Source: oracle/codemp/icarus/interpreter.h:72
+public let TYPE_DISTANCE: Int32 = Int32(truncatingIfNeeded: CJKAMP_Game.TYPE_DISTANCE)
+
+/// Source: oracle/codemp/icarus/interpreter.h:72
+public let TYPE_FOLLOW: Int32 = Int32(truncatingIfNeeded: CJKAMP_Game.TYPE_FOLLOW)
+
+/// Source: oracle/codemp/icarus/interpreter.h:72
+public let TYPE_VARIABLE: Int32 = Int32(truncatingIfNeeded: CJKAMP_Game.TYPE_VARIABLE)
+
+/// Source: oracle/codemp/icarus/interpreter.h:72
+public let TYPE_EOF: Int32 = Int32(truncatingIfNeeded: CJKAMP_Game.TYPE_EOF)
+
+/// Source: oracle/codemp/icarus/interpreter.h:72
+public let NUM_TYPES: Int32 = Int32(truncatingIfNeeded: CJKAMP_Game.NUM_TYPES)

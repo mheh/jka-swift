@@ -24,6 +24,27 @@
 // Source: oracle/codemp/cgame/cg_marks.c:298
 #define GREY75		4
 
+// Source: oracle/codemp/cgame/cg_marks.c:340
+typedef enum
+{
+	P_NONE,
+	P_WEATHER,
+	P_FLAT,
+	P_SMOKE,
+	P_ROTATE,
+	P_WEATHER_TURBULENT,
+	P_ANIM,	// Ridah
+	P_BAT,
+	P_BLEED,
+	P_FLAT_SCALEUP,
+	P_FLAT_SCALEUP_FADE,
+	P_WEATHER_FLURRY,
+	P_SMOKE_IMPACT,
+	P_BUBBLE,
+	P_BUBBLE_TURBULENT,
+	P_SPRITE
+} particle_type_t;
+
 // Source: oracle/codemp/cgame/cg_marks.c:360
 #define	MAX_SHADER_ANIMS		32
 

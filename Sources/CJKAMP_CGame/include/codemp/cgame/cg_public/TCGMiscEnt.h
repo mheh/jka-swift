@@ -4,9 +4,9 @@
 #define JKA_CODEMP_CGAME_CG_PUBLIC_TCGMISCENT_H
 
 #include "CJKAMP_CGame_forward.h"
-#include "codemp/game/q_shared/constants.h"
-#include "shared/game/q_shared/constants.h"
+#include "codemp/qcommon/qfiles/constants.h"
 #include "shared/game/q_shared/vec3_t.h"
+#include "shared/qcommon/qfiles/constants.h"
 
 // Source: oracle/codemp/cgame/cg_public.h:522
 // CG_MISC_ENT

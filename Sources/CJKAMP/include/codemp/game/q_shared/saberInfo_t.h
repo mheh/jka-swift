@@ -6,10 +6,12 @@
 #include "CJKAMP_forward.h"
 #include "codemp/game/q_shared/bladeInfo_t.h"
 #include "codemp/game/q_shared/constants.h"
+#include "codemp/qcommon/qfiles/constants.h"
 #include "shared/game/q_shared/constants.h"
 #include "shared/game/q_shared/qhandle_t.h"
 #include "shared/game/q_shared/saberType_t.h"
 #include "shared/game/q_shared/saber_styles_t.h"
+#include "shared/qcommon/qfiles/constants.h"
 
 // Source: oracle/codemp/game/q_shared.h:735
 typedef struct

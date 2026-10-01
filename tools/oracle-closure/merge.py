@@ -254,6 +254,25 @@ def load_tree(tree: str, modules: list[str]) -> tuple[dict[str, dict[str, Header
     return headers, platform, asserts
 
 
+def header_rank(tree: str, modules: list[str], headers: dict[str, dict[str, Header]]) -> dict[str, int]:
+    """The oracle headers of one tree in umbrella order, as a rank per header, read from the all.h of each module.
+    A header takes its place from the first file of all.h that cites it, which is Raven's include order.
+    The first module gives the order, and a header a later module adds stands after the header before it in that module's all.h."""
+    order: list[str] = []
+    for module in modules:
+        all_h = EXTRACT / module / "all.h"
+        previous = None
+        for m in re.finditer(r'^#include "([^"]+)"', all_h.read_text() if all_h.exists() else "", re.M):
+            h = headers[module].get(identity_of(m.group(1), tree))
+            if h is None or not h.sources:
+                continue
+            source = source_header(h.sources[0])
+            if source not in order:
+                order.insert(order.index(previous) + 1 if previous else 0, source)
+            previous = source
+    return {source: rank for rank, source in enumerate(order)}
+
+
 def source_header(source_line: str) -> str:
     """The oracle header a `// Source: oracle/codemp/game/q_shared.h:2169` line names."""
     return source_line.split("Source:", 1)[1].strip().rsplit(":", 1)[0]
@@ -304,16 +323,24 @@ def check_seam_sizes(out: "Output", headers: dict[str, dict[str, Header]]) -> No
         sys.exit("merge.py: a seam type must have one size per pointer width, rule 12")
 
 
+SPLIT_MACROS: list[str] = []
+
+
+def disagreeing_macros(versions: dict[str, Header]) -> list[str]:
+    """The macros of one constants identity that two modules read with a different text, sorted by name."""
+    bodies: dict[str, set[str]] = defaultdict(set)
+    for h in versions.values():
+        for name, _, text in h.macros:
+            bodies[name].add(code_key(text))
+    return sorted(name for name, keys in bodies.items() if len(keys) > 1)
+
+
 def union_constants(tree: str, identity: str, versions: dict[str, Header]) -> Header:
-    """One constants header per Raven header, with every macro any module of the tree saw, in Raven's line order."""
-    bodies: dict[str, str] = {}
+    """One constants header per Raven header, with every macro any module of the tree saw, in Raven's line order.
+    The caller places a header with a disagreeing macro per module, so every macro here has one body."""
     macros: dict[str, tuple[str, str, str]] = {}
     for module, h in versions.items():
         for name, source, text in h.macros:
-            key = code_key(text)
-            if name in bodies and bodies[name] != key:
-                sys.exit(f"merge.py: {tree} {identity}: macro {name} has two bodies across modules, and no rule places it")
-            bodies[name] = key
             macros.setdefault(name, (name, source, text))
     carrier = replace(next(iter(versions.values())))
     carrier.macros = sorted(macros.values(), key=lambda m: int(m[1].rsplit(":", 1)[1]))
@@ -338,16 +365,23 @@ def partition_tree(tree: str, headers: dict[str, dict[str, Header]]) -> dict[str
         versions = {m: per[identity] for m, per in headers.items() if identity in per}
         if next(iter(versions.values())).is_constants:
             carrier = next(iter(versions.values()))
-            if carrier.sources and source_header(carrier.sources[0]).endswith(".c"):
-                # The macros a .c file defines for itself belong to each module that compiles it, with that module's defines,
-                # so bg_misc.c's MAX_POOL_SIZE is one value in the game and another in cgame. The bg parse is the game's, rule of
-                # ported-types.md row 1, so it carries no copy of its own.
+            # The macros a .c file defines for itself belong to each module that compiles it, with that module's defines,
+            # so bg_misc.c's MAX_POOL_SIZE is one value in the game and another in cgame.
+            # A header macro that two modules read with a different text puts the whole constants file of that header per module the same way.
+            # ui_shared.h defines STRING_POOL_SIZE under CGAME, so cgame reads 128*1024 and ui reads 384*1024.
+            # The file stays whole, so each module target holds one file per header, and an include of it finds the copy of its own module.
+            # The bg parse is the game's, rule of ported-types.md row 1, so it carries no copy of its own.
+            from_c = bool(carrier.sources) and source_header(carrier.sources[0]).endswith(".c")
+            split = [] if from_c else disagreeing_macros(versions)
+            if split:
+                SPLIT_MACROS.append(f"{tree} {identity}: {', '.join(split)}")
+            if split or from_c:
                 for m, h in versions.items():
                     if m not in ("mp-bg", "sp-bg"):
                         placed[f"{identity}@{m}"] = Placed(identity, TARGET_OF_MODULE[m], h, conflict=m)
                 continue
             # A constants file is a set of macros, not one declaration. Modules see different subsets because Raven guards some macros,
-            # so the tree carries the union. A macro with two bodies has no rule yet and stops the merge.
+            # so the tree carries the union.
             modules = list(versions)
             target = TARGET_OF_MODULE[modules[0]] if len(modules) == 1 else TREE_TARGET[tree]
             placed[identity] = Placed(identity, target, union_constants(tree, identity, versions))
@@ -374,11 +408,23 @@ def partition_tree(tree: str, headers: dict[str, dict[str, Header]]) -> dict[str
             for m, h in versions.items():
                 placed[f"{identity}@{m}"] = Placed(identity, TARGET_OF_MODULE[m], h, conflict=m)
     # Closure: a tree-level type that includes a module-private type moves to that module's target.
+    # A tree-level type that includes a file placed per module is placed per module too, one copy per module that emits it.
+    # The ui_shared.h types include the constants file of ui_shared.h, so a cgame copy and a ui copy each read their own module's file.
     changed = True
     while changed:
         changed = False
-        for p in list(placed.values()):
+        per_module = {p.identity for p in placed.values() if p.conflict is not None}
+        for key, p in list(placed.items()):
             if p.conflict is not None:
+                continue
+            if p.target == TREE_TARGET[tree] and any(inc in per_module and inc not in placed for inc in p.header.includes):
+                modules = [m for m, per in headers.items() if p.identity in per and m not in ("mp-bg", "sp-bg")]
+                if not modules:
+                    sys.exit(f"merge.py: {tree} {p.identity} includes a file placed per module, and only the bg parse emits it")
+                del placed[key]
+                for m in modules:
+                    placed[f"{p.identity}@{m}"] = Placed(p.identity, TARGET_OF_MODULE[m], headers[m][p.identity], conflict=m)
+                changed = True
                 continue
             for inc in p.header.includes:
                 dep = placed.get(inc)
@@ -521,6 +567,7 @@ class Output:
         self.asserts: dict[str, dict[str, list[str]]] = defaultdict(lambda: defaultdict(list))   # target -> abi -> lines
         self.tags: dict[str, list[str]] = defaultdict(list)
         self.order: dict[str, list[str]] = defaultdict(list)
+        self.source: dict[str, str] = {}                               # rel path -> the oracle header its first Source: line cites
         self.cxx: dict[str, list[str]] = defaultdict(list)
         self.units: dict[str, str] = {}                                # target -> the <Target>.c translation unit
 
@@ -547,6 +594,7 @@ def emit(out_dir: Path, mp_modules: list[str], sp_modules: list[str]) -> int:
     shared, shared_macros = partition_shared(mp, sp)
 
     out = Output(out_dir)
+    ranks = {"mp": header_rank("mp", mp_modules, mp_headers), "sp": header_rank("sp", sp_modules, sp_headers)}
 
     # Where everything lands, before any text is written, so includes can be rewritten.
     for identity in shared:
@@ -576,6 +624,7 @@ def emit(out_dir: Path, mp_modules: list[str], sp_modules: list[str]) -> int:
                     body += [s, t, ""]
                 out.files[p.target][rel] = wrap(rel, [], [], body)
                 out.order[p.target].append(rel)
+                out.source[rel] = source_header(p.header.sources[0])
             if tree == "mp" and shared_names and p.conflict is None:
                 rel = f"shared/{p.identity}"
                 sp_sources = {n: s for n, s, _ in sp[p.identity].header.macros}
@@ -585,6 +634,7 @@ def emit(out_dir: Path, mp_modules: list[str], sp_modules: list[str]) -> int:
                         body += [s, sp_sources[n], t, ""]
                 out.files[SHARED][rel] = wrap(rel, [], [], body)
                 out.order[SHARED].append(rel)
+                out.source[rel] = source_header(p.header.sources[0])
                 out.location[p.identity + "#shared"] = (SHARED, rel)
 
     # Types.
@@ -618,6 +668,8 @@ def emit(out_dir: Path, mp_modules: list[str], sp_modules: list[str]) -> int:
                 out.cxx[target].append(rel)
                 continue
             out.order[target].append(rel)
+            if h.sources:
+                out.source[rel] = source_header(h.sources[0])
             # Asserts follow the type. A shared type must agree in both parses.
             for name in h.names():
                 for abi, table in asserts[h.module].items():
@@ -657,7 +709,15 @@ def emit(out_dir: Path, mp_modules: list[str], sp_modules: list[str]) -> int:
             shared_defines = set.intersection(*(set(v) for v in mp_platform.values())) & set.intersection(*(set(v) for v in sp_platform.values()))
             defines = [d for d in defines if d not in shared_defines]
         out.files[target][f"{target}_platform.h"] = wrap(f"{target}_platform.h", [], [], ["// The spellings the parse supplied for the platform section Raven never wrote for this host."] + defines + [""])
-        ordered = [f"{target}_forward.h"] + [r for r in out.order[target] if r.endswith("/constants.h")] + [r for r in out.order[target] if not r.endswith("/constants.h")]
+        # The umbrella follows the all.h order of the tree's modules, header by header, the constants of a header before its types.
+        # A macro then lands after an enumerator of an earlier header that spells the same name, as menudef.h's CT_LTBLUE1 after q_shared.h's.
+        rank = ranks["sp" if tree == "sp" else "mp"]
+        position = {rel: i for i, rel in enumerate(out.order[target])}
+        ordered = [f"{target}_forward.h"] + sorted(out.order[target], key=lambda rel: (
+            rank.get(out.source.get(rel, ""), len(rank)),
+            0 if rel.endswith("/constants.h") else 1,
+            position[rel],
+        ))
         # A hand-written header beside the umbrella declares Raven's tables the target compiles as C storage, bg_tables.c for the MP tree.
         ordered += HAND_HEADERS.get(target, [])
         # The umbrella carries the target's name, because SwiftPM and the Swift importer read it as the module.
@@ -731,6 +791,10 @@ def emit(out_dir: Path, mp_modules: list[str], sp_modules: list[str]) -> int:
     conflicts = sorted({p.identity for p in placed_all if p.conflict and not p.identity.endswith("_c/constants.h")})
     if conflicts:
         print(f"{len(conflicts)} identities defined differently by two modules of one tree: {', '.join(conflicts)}")
+    if SPLIT_MACROS:
+        print(f"{len(SPLIT_MACROS)} header constants files placed per module, because two modules read a different text for a macro:")
+        for line in SPLIT_MACROS:
+            print(f"  {line}")
     c_constants = {p.identity for p in placed_all if p.identity.endswith("_c/constants.h")}
     if c_constants:
         print(f"{len(c_constants)} .c files' own macros placed per module")

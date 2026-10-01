@@ -5,7 +5,6 @@
 
 #include "CJKASP_UI_forward.h"
 #include "code/ui/ui_shared/constants.h"
-#include "shared/ui/ui_shared/constants.h"
 
 // Source: oracle/code/ui/ui_shared.h:461
 typedef struct textScrollDef_s 

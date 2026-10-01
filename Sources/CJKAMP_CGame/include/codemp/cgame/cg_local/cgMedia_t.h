@@ -4,13 +4,12 @@
 #define JKA_CODEMP_CGAME_CG_LOCAL_CGMEDIA_T_H
 
 #include "CJKAMP_CGame_forward.h"
-#include "codemp/cgame/cg_local/constants.h"
 #include "codemp/cgame/cg_local/enum_CHUNK_METAL1.h"
 #include "codemp/cgame/cg_local/footstep_t.h"
 #include "codemp/game/bg_public/enum_HI_NONE.h"
 #include "codemp/game/bg_weapons/enum_WP_NONE.h"
 #include "codemp/game/q_shared/enum_FP_FIRST.h"
-#include "shared/cgame/cg_local/constants.h"
+#include "codemp/ui/ui_shared/constants.h"
 #include "shared/game/q_shared/qhandle_t.h"
 #include "shared/game/q_shared/sfxHandle_t.h"
 

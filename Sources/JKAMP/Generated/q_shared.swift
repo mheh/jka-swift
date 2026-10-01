@@ -240,66 +240,6 @@ public let CDKEY_LEN = CJKAMP.CDKEY_LEN
 /// Source: oracle/codemp/game/q_shared.h:3069
 public let CDCHKSUM_LEN = CJKAMP.CDCHKSUM_LEN
 
-/// Source: oracle/codemp/game/q_shared.h:590
-public let FP_FIRST: Int32 = Int32(truncatingIfNeeded: CJKAMP.FP_FIRST)
-
-/// Source: oracle/codemp/game/q_shared.h:590
-public let FP_HEAL: Int32 = Int32(truncatingIfNeeded: CJKAMP.FP_HEAL)
-
-/// Source: oracle/codemp/game/q_shared.h:590
-public let FP_LEVITATION: Int32 = Int32(truncatingIfNeeded: CJKAMP.FP_LEVITATION)
-
-/// Source: oracle/codemp/game/q_shared.h:590
-public let FP_SPEED: Int32 = Int32(truncatingIfNeeded: CJKAMP.FP_SPEED)
-
-/// Source: oracle/codemp/game/q_shared.h:590
-public let FP_PUSH: Int32 = Int32(truncatingIfNeeded: CJKAMP.FP_PUSH)
-
-/// Source: oracle/codemp/game/q_shared.h:590
-public let FP_PULL: Int32 = Int32(truncatingIfNeeded: CJKAMP.FP_PULL)
-
-/// Source: oracle/codemp/game/q_shared.h:590
-public let FP_TELEPATHY: Int32 = Int32(truncatingIfNeeded: CJKAMP.FP_TELEPATHY)
-
-/// Source: oracle/codemp/game/q_shared.h:590
-public let FP_GRIP: Int32 = Int32(truncatingIfNeeded: CJKAMP.FP_GRIP)
-
-/// Source: oracle/codemp/game/q_shared.h:590
-public let FP_LIGHTNING: Int32 = Int32(truncatingIfNeeded: CJKAMP.FP_LIGHTNING)
-
-/// Source: oracle/codemp/game/q_shared.h:590
-public let FP_RAGE: Int32 = Int32(truncatingIfNeeded: CJKAMP.FP_RAGE)
-
-/// Source: oracle/codemp/game/q_shared.h:590
-public let FP_PROTECT: Int32 = Int32(truncatingIfNeeded: CJKAMP.FP_PROTECT)
-
-/// Source: oracle/codemp/game/q_shared.h:590
-public let FP_ABSORB: Int32 = Int32(truncatingIfNeeded: CJKAMP.FP_ABSORB)
-
-/// Source: oracle/codemp/game/q_shared.h:590
-public let FP_TEAM_HEAL: Int32 = Int32(truncatingIfNeeded: CJKAMP.FP_TEAM_HEAL)
-
-/// Source: oracle/codemp/game/q_shared.h:590
-public let FP_TEAM_FORCE: Int32 = Int32(truncatingIfNeeded: CJKAMP.FP_TEAM_FORCE)
-
-/// Source: oracle/codemp/game/q_shared.h:590
-public let FP_DRAIN: Int32 = Int32(truncatingIfNeeded: CJKAMP.FP_DRAIN)
-
-/// Source: oracle/codemp/game/q_shared.h:590
-public let FP_SEE: Int32 = Int32(truncatingIfNeeded: CJKAMP.FP_SEE)
-
-/// Source: oracle/codemp/game/q_shared.h:590
-public let FP_SABER_OFFENSE: Int32 = Int32(truncatingIfNeeded: CJKAMP.FP_SABER_OFFENSE)
-
-/// Source: oracle/codemp/game/q_shared.h:590
-public let FP_SABER_DEFENSE: Int32 = Int32(truncatingIfNeeded: CJKAMP.FP_SABER_DEFENSE)
-
-/// Source: oracle/codemp/game/q_shared.h:590
-public let FP_SABERTHROW: Int32 = Int32(truncatingIfNeeded: CJKAMP.FP_SABERTHROW)
-
-/// Source: oracle/codemp/game/q_shared.h:590
-public let NUM_FORCE_POWERS: Int32 = Int32(truncatingIfNeeded: CJKAMP.NUM_FORCE_POWERS)
-
 /// Source: oracle/codemp/game/q_shared.h:3086
 public typealias Eorientations = Int32
 public let ORIGIN: Eorientations = Int32(truncatingIfNeeded: CJKAMP.ORIGIN.rawValue)
@@ -513,6 +453,66 @@ public let FORCE_LEVEL_3: Int32 = Int32(truncatingIfNeeded: CJKAMP.FORCE_LEVEL_3
 
 /// Source: oracle/codemp/game/q_shared.h:843
 public let NUM_FORCE_POWER_LEVELS: Int32 = Int32(truncatingIfNeeded: CJKAMP.NUM_FORCE_POWER_LEVELS)
+
+/// Source: oracle/codemp/game/q_shared.h:590
+public let FP_FIRST: Int32 = Int32(truncatingIfNeeded: CJKAMP.FP_FIRST)
+
+/// Source: oracle/codemp/game/q_shared.h:590
+public let FP_HEAL: Int32 = Int32(truncatingIfNeeded: CJKAMP.FP_HEAL)
+
+/// Source: oracle/codemp/game/q_shared.h:590
+public let FP_LEVITATION: Int32 = Int32(truncatingIfNeeded: CJKAMP.FP_LEVITATION)
+
+/// Source: oracle/codemp/game/q_shared.h:590
+public let FP_SPEED: Int32 = Int32(truncatingIfNeeded: CJKAMP.FP_SPEED)
+
+/// Source: oracle/codemp/game/q_shared.h:590
+public let FP_PUSH: Int32 = Int32(truncatingIfNeeded: CJKAMP.FP_PUSH)
+
+/// Source: oracle/codemp/game/q_shared.h:590
+public let FP_PULL: Int32 = Int32(truncatingIfNeeded: CJKAMP.FP_PULL)
+
+/// Source: oracle/codemp/game/q_shared.h:590
+public let FP_TELEPATHY: Int32 = Int32(truncatingIfNeeded: CJKAMP.FP_TELEPATHY)
+
+/// Source: oracle/codemp/game/q_shared.h:590
+public let FP_GRIP: Int32 = Int32(truncatingIfNeeded: CJKAMP.FP_GRIP)
+
+/// Source: oracle/codemp/game/q_shared.h:590
+public let FP_LIGHTNING: Int32 = Int32(truncatingIfNeeded: CJKAMP.FP_LIGHTNING)
+
+/// Source: oracle/codemp/game/q_shared.h:590
+public let FP_RAGE: Int32 = Int32(truncatingIfNeeded: CJKAMP.FP_RAGE)
+
+/// Source: oracle/codemp/game/q_shared.h:590
+public let FP_PROTECT: Int32 = Int32(truncatingIfNeeded: CJKAMP.FP_PROTECT)
+
+/// Source: oracle/codemp/game/q_shared.h:590
+public let FP_ABSORB: Int32 = Int32(truncatingIfNeeded: CJKAMP.FP_ABSORB)
+
+/// Source: oracle/codemp/game/q_shared.h:590
+public let FP_TEAM_HEAL: Int32 = Int32(truncatingIfNeeded: CJKAMP.FP_TEAM_HEAL)
+
+/// Source: oracle/codemp/game/q_shared.h:590
+public let FP_TEAM_FORCE: Int32 = Int32(truncatingIfNeeded: CJKAMP.FP_TEAM_FORCE)
+
+/// Source: oracle/codemp/game/q_shared.h:590
+public let FP_DRAIN: Int32 = Int32(truncatingIfNeeded: CJKAMP.FP_DRAIN)
+
+/// Source: oracle/codemp/game/q_shared.h:590
+public let FP_SEE: Int32 = Int32(truncatingIfNeeded: CJKAMP.FP_SEE)
+
+/// Source: oracle/codemp/game/q_shared.h:590
+public let FP_SABER_OFFENSE: Int32 = Int32(truncatingIfNeeded: CJKAMP.FP_SABER_OFFENSE)
+
+/// Source: oracle/codemp/game/q_shared.h:590
+public let FP_SABER_DEFENSE: Int32 = Int32(truncatingIfNeeded: CJKAMP.FP_SABER_DEFENSE)
+
+/// Source: oracle/codemp/game/q_shared.h:590
+public let FP_SABERTHROW: Int32 = Int32(truncatingIfNeeded: CJKAMP.FP_SABERTHROW)
+
+/// Source: oracle/codemp/game/q_shared.h:590
+public let NUM_FORCE_POWERS: Int32 = Int32(truncatingIfNeeded: CJKAMP.NUM_FORCE_POWERS)
 
 /// Source: oracle/codemp/game/q_shared.h:967
 public let MAT_METAL: Int32 = Int32(truncatingIfNeeded: CJKAMP.MAT_METAL)

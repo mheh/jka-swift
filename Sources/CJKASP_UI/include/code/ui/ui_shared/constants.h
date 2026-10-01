@@ -6,6 +6,15 @@
 // Source: oracle/code/ui/ui_shared.h:4
 #define MAX_TOKENLENGTH		1024
 
+// Source: oracle/code/ui/ui_shared.h:5
+#define MAX_OPEN_MENUS 16
+
+// Source: oracle/code/ui/ui_shared.h:6
+#define	MAX_TEXTSCROLL_LINES		256
+
+// Source: oracle/code/ui/ui_shared.h:8
+#define MAX_EDITFIELD 256
+
 // Source: oracle/code/ui/ui_shared.h:12
 #define TT_STRING					1			// string
 
@@ -24,22 +33,151 @@
 // Source: oracle/code/ui/ui_shared.h:19
 #define SLIDER_WIDTH 128.0
 
+// Source: oracle/code/ui/ui_shared.h:20
+#define SLIDER_HEIGHT 16.0
+
+// Source: oracle/code/ui/ui_shared.h:21
+#define SLIDER_THUMB_WIDTH 12.0
+
 // Source: oracle/code/ui/ui_shared.h:22
 #define SLIDER_THUMB_HEIGHT 16.0
+
+// Source: oracle/code/ui/ui_shared.h:23
+#define SCROLLBAR_SIZE 16.0
+
+// Source: oracle/code/ui/ui_shared.h:46
+#define MAX_LB_COLUMNS 16
 
 // Source: oracle/code/ui/ui_shared.h:81
 #define MAX_MULTI_CVARS 64//32
 
+// Source: oracle/code/ui/ui_shared.h:91
+#define CVAR_ENABLE		0x00000001
+
+// Source: oracle/code/ui/ui_shared.h:92
+#define CVAR_DISABLE	0x00000002
+
+// Source: oracle/code/ui/ui_shared.h:93
+#define CVAR_SHOW		0x00000004
+
+// Source: oracle/code/ui/ui_shared.h:94
+#define CVAR_HIDE		0x00000008
+
 // Source: oracle/code/ui/ui_shared.h:95
 #define CVAR_SUBSTRING	0x00000010	//when using enable or disable, just check for strstr instead of ==
+
+// Source: oracle/code/ui/ui_shared.h:107
+#define STRING_POOL_SIZE 384*1024
+
+// Source: oracle/code/ui/ui_shared.h:111
+#define	NUM_CROSSHAIRS			9
+
+// Source: oracle/code/ui/ui_shared.h:270
+#define MAX_COLOR_RANGES	10
 
 // Source: oracle/code/ui/ui_shared.h:271
 #define MAX_MENUITEMS		150
 
+// Source: oracle/code/ui/ui_shared.h:272
+#define MAX_MENUS			64
+
+// Source: oracle/code/ui/ui_shared.h:276
+#define WINDOW_MOUSEOVER		0x00000001	// mouse is over it, non exclusive
+
+// Source: oracle/code/ui/ui_shared.h:277
+#define WINDOW_HASFOCUS			0x00000002	// has cursor focus, exclusive
+
+// Source: oracle/code/ui/ui_shared.h:278
+#define WINDOW_VISIBLE			0x00000004	// is visible
+
+// Source: oracle/code/ui/ui_shared.h:279
+#define WINDOW_INACTIVE			0x00000008	// is visible but grey ( non-active )
+
+// Source: oracle/code/ui/ui_shared.h:280
+#define WINDOW_DECORATION		0x00000010	// for decoration only, no mouse, keyboard, etc.. 
+
+// Source: oracle/code/ui/ui_shared.h:281
+#define WINDOW_FADINGOUT		0x00000020	// fading out, non-active
+
+// Source: oracle/code/ui/ui_shared.h:282
+#define WINDOW_FADINGIN			0x00000040	// fading in
+
+// Source: oracle/code/ui/ui_shared.h:283
+#define WINDOW_MOUSEOVERTEXT	0x00000080	// mouse is over it, non exclusive
+
+// Source: oracle/code/ui/ui_shared.h:284
+#define WINDOW_INTRANSITION		0x00000100	// window is in transition
+
+// Source: oracle/code/ui/ui_shared.h:285
+#define WINDOW_FORECOLORSET		0x00000200	// forecolor was explicitly set ( used to color alpha images or not )
+
+// Source: oracle/code/ui/ui_shared.h:286
+#define WINDOW_HORIZONTAL		0x00000400	// for list boxes and sliders, vertical is default this is set of horizontal
+
+// Source: oracle/code/ui/ui_shared.h:287
+#define WINDOW_LB_LEFTARROW		0x00000800	// mouse is over left/up arrow
+
+// Source: oracle/code/ui/ui_shared.h:288
+#define WINDOW_LB_RIGHTARROW	0x00001000	// mouse is over right/down arrow
+
+// Source: oracle/code/ui/ui_shared.h:289
+#define WINDOW_LB_THUMB			0x00002000	// mouse is over thumb
+
+// Source: oracle/code/ui/ui_shared.h:290
+#define WINDOW_LB_PGUP			0x00004000	// mouse is over page up
+
+// Source: oracle/code/ui/ui_shared.h:291
+#define WINDOW_LB_PGDN			0x00008000	// mouse is over page down
+
+// Source: oracle/code/ui/ui_shared.h:292
+#define WINDOW_ORBITING			0x00010000	// item is in orbit
+
+// Source: oracle/code/ui/ui_shared.h:293
+#define WINDOW_OOB_CLICK		0x00020000	// close on out of bounds click
+
+// Source: oracle/code/ui/ui_shared.h:294
+#define WINDOW_WRAPPED			0x00040000	// manually wrap text
+
+// Source: oracle/code/ui/ui_shared.h:295
+#define WINDOW_AUTOWRAPPED		0x00080000	// auto wrap text
+
+// Source: oracle/code/ui/ui_shared.h:296
+#define WINDOW_FORCED			0x00100000	// forced open
+
+// Source: oracle/code/ui/ui_shared.h:297
+#define WINDOW_POPUP			0x00200000	// popup
+
+// Source: oracle/code/ui/ui_shared.h:298
+#define WINDOW_BACKCOLORSET		0x00400000	// backcolor was explicitly set 
+
+// Source: oracle/code/ui/ui_shared.h:299
+#define WINDOW_TIMEDVISIBLE		0x00800000	// visibility timing ( NOT implemented )
+
+// Source: oracle/code/ui/ui_shared.h:300
+#define WINDOW_PLAYERCOLOR		0x01000000	// hack the forecolor to match ui_char_color_*
+
 // Source: oracle/code/ui/ui_shared.h:301
 #define WINDOW_SCRIPTWAITING	0x02000000	// delayed script waiting to run
 
+// Source: oracle/code/ui/ui_shared.h:303
+#define WINDOW_INTRANSITIONMODEL	0x04000000	// delayed script waiting to run
+
 // Source: oracle/code/ui/ui_shared.h:304
 #define WINDOW_IGNORE_ESCAPE	0x08000000	// ignore normal closeall menus escape functionality
+
+// Source: oracle/code/ui/ui_shared.h:367
+#define ITF_G2VALID			0x0001					// indicates whether or not g2 instance is valid.
+
+// Source: oracle/code/ui/ui_shared.h:368
+#define ITF_ISCHARACTER		0x0002					// a character item, uses customRGBA
+
+// Source: oracle/code/ui/ui_shared.h:369
+#define ITF_ISSABER			0x0004					// first saber item, draws blade
+
+// Source: oracle/code/ui/ui_shared.h:370
+#define ITF_ISSABER2		0x0008					// second saber item, draws blade
+
+// Source: oracle/code/ui/ui_shared.h:372
+#define ITF_ISANYSABER		(ITF_ISSABER|ITF_ISSABER2)	//either saber
 
 #endif // JKA_CODE_UI_UI_SHARED_CONSTANTS_H

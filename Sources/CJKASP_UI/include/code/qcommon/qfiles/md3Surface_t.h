@@ -5,6 +5,7 @@
 
 #include "CJKASP_UI_forward.h"
 #include "code/qcommon/qfiles/constants.h"
+#include "shared/qcommon/qfiles/constants.h"
 
 // Source: oracle/code/qcommon/qfiles.h:129
 /*

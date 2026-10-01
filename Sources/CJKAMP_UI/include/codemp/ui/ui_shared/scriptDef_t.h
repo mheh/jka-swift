@@ -5,7 +5,6 @@
 
 #include "CJKAMP_UI_forward.h"
 #include "codemp/ui/ui_shared/constants.h"
-#include "shared/ui/ui_shared/constants.h"
 
 // Source: oracle/codemp/ui/ui_shared.h:106
 typedef struct {

@@ -6,6 +6,7 @@
 #include "CJKASP_UI_forward.h"
 #include "code/qcommon/qfiles/constants.h"
 #include "shared/game/q_shared/vec3_t.h"
+#include "shared/qcommon/qfiles/constants.h"
 
 // Source: oracle/code/qcommon/qfiles.h:113
 typedef struct md3Tag_s {

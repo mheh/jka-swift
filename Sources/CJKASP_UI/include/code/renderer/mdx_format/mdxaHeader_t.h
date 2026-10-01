@@ -7,6 +7,7 @@
 #include "code/game/q_shared/constants.h"
 #include "code/qcommon/qfiles/constants.h"
 #include "shared/game/q_shared/constants.h"
+#include "shared/qcommon/qfiles/constants.h"
 
 // Source: oracle/code/renderer/mdx_format.h:351
 // mdxaHeader_t  - this contains the header for the file, with sanity checking and version checking, plus number of lod's to be expected

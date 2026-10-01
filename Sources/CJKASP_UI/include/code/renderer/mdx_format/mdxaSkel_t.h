@@ -8,6 +8,7 @@
 #include "code/qcommon/qfiles/constants.h"
 #include "code/renderer/mdx_format/mdxaBone_t.h"
 #include "shared/game/q_shared/constants.h"
+#include "shared/qcommon/qfiles/constants.h"
 
 // Source: oracle/code/renderer/mdx_format.h:388
 // for each bone...	 (mdxaHeader_t->numBones)       

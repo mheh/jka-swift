@@ -6,6 +6,7 @@
 #include "CJKASP_UI_forward.h"
 #include "code/qcommon/qfiles/constants.h"
 #include "code/qcommon/qfiles/glyphInfo_t.h"
+#include "shared/qcommon/qfiles/constants.h"
 
 // Source: oracle/code/qcommon/qfiles.h:617
 // this file corresponds 1:1 with the "*.fontdat" files, so don't change it unless you're going to

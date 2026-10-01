@@ -206,6 +206,11 @@ def emit(target: str, unimportable: set[str], narrowed: set[str], unexpressible:
             tokens = [t.spelling for t in cur.get_tokens()][1:]
             if is_function_like(cur) or name in seen or name in SKIP or not tokens or set(tokens) <= KEYWORD_MACROS:
                 continue
+            # A macro that repeats the name of an enumerator of the target yields to the enumerator, which the enum emits.
+            # menudef.h spells CT_LTBLUE1 and three more colors of q_shared.h's ct_table_t as three numbers for the menu scripts.
+            # That text is not a C value.
+            if name in enum_of:
+                continue
             seen.add(name)
             sources = source_lines(cur)
             block = doc(sources)

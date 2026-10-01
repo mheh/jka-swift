@@ -7,6 +7,7 @@
 #include "code/game/q_shared/constants.h"
 #include "code/qcommon/qfiles/constants.h"
 #include "shared/game/q_shared/constants.h"
+#include "shared/qcommon/qfiles/constants.h"
 
 // Source: oracle/code/game/q_shared.h:2656
 typedef struct parseData_s

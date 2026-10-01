@@ -6,6 +6,7 @@
 #include "CJKASP_UI_forward.h"
 #include "code/qcommon/qfiles/constants.h"
 #include "code/qcommon/qfiles/lump_t.h"
+#include "shared/qcommon/qfiles/constants.h"
 
 // Source: oracle/code/qcommon/qfiles.h:444
 typedef struct {

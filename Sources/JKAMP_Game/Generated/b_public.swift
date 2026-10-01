@@ -7,6 +7,11 @@ import JKAShared
 /// Source: oracle/codemp/game/b_public.h:24
 public let NPCAI_CUSTOM_GRAVITY = CJKAMP_Game.NPCAI_CUSTOM_GRAVITY
 
+/// Source: oracle/codemp/game/b_public.h:71
+public typealias lookMode_t = Int32
+public let LM_ENT: lookMode_t = Int32(truncatingIfNeeded: CJKAMP_Game.LM_ENT.rawValue)
+public let LM_INTEREST: lookMode_t = Int32(truncatingIfNeeded: CJKAMP_Game.LM_INTEREST.rawValue)
+
 /// Source: oracle/codemp/game/b_public.h:77
 public typealias jumpState_t = Int32
 public let JS_WAITING: jumpState_t = Int32(truncatingIfNeeded: CJKAMP_Game.JS_WAITING.rawValue)
@@ -23,11 +28,6 @@ public let VIS_PVS: visibility_t = Int32(truncatingIfNeeded: CJKAMP_Game.VIS_PVS
 public let VIS_360: visibility_t = Int32(truncatingIfNeeded: CJKAMP_Game.VIS_360.rawValue)
 public let VIS_FOV: visibility_t = Int32(truncatingIfNeeded: CJKAMP_Game.VIS_FOV.rawValue)
 public let VIS_SHOOT: visibility_t = Int32(truncatingIfNeeded: CJKAMP_Game.VIS_SHOOT.rawValue)
-
-/// Source: oracle/codemp/game/b_public.h:71
-public typealias lookMode_t = Int32
-public let LM_ENT: lookMode_t = Int32(truncatingIfNeeded: CJKAMP_Game.LM_ENT.rawValue)
-public let LM_INTEREST: lookMode_t = Int32(truncatingIfNeeded: CJKAMP_Game.LM_INTEREST.rawValue)
 
 /// Source: oracle/codemp/game/b_public.h:69
 public typealias spot_t = Int32

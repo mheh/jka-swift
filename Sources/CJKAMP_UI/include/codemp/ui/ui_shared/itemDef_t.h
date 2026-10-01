@@ -11,7 +11,6 @@
 #include "codemp/ui/ui_shared/constants.h"
 #include "shared/game/q_shared/qhandle_t.h"
 #include "shared/game/q_shared/sfxHandle_t.h"
-#include "shared/ui/ui_shared/constants.h"
 
 // Source: oracle/codemp/ui/ui_shared.h:258
 typedef struct itemDef_s {

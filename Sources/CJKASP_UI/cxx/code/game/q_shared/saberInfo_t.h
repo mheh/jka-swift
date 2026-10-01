@@ -12,6 +12,7 @@
 #include "shared/game/q_shared/qhandle_t.h"
 #include "shared/game/q_shared/saberType_t.h"
 #include "shared/game/q_shared/saber_styles_t.h"
+#include "shared/qcommon/qfiles/constants.h"
 
 #include <assert.h>
 #include <math.h>

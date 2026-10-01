@@ -8,7 +8,6 @@
 #include "codemp/ui/ui_shared/Window.h"
 #include "codemp/ui/ui_shared/constants.h"
 #include "shared/game/q_shared/vec4_t.h"
-#include "shared/ui/ui_shared/constants.h"
 
 // Source: oracle/codemp/ui/ui_shared.h:307
 typedef struct {

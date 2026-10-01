@@ -12,11 +12,13 @@
 #include "codemp/game/q_shared/constants.h"
 #include "codemp/game/q_shared/gameState_t.h"
 #include "codemp/game/q_shared/qboolean.h"
+#include "codemp/qcommon/qfiles/constants.h"
 #include "shared/game/q_shared/constants.h"
 #include "shared/game/q_shared/fxHandle_t.h"
 #include "shared/game/q_shared/qhandle_t.h"
 #include "shared/game/q_shared/sfxHandle_t.h"
 #include "shared/game/q_shared/vec3_t.h"
+#include "shared/qcommon/qfiles/constants.h"
 
 // Source: oracle/codemp/cgame/cg_local.h:1516
 // The client game static (cgs) structure hold everything

@@ -9,6 +9,8 @@ The kinds a PARAMS entry may name are the ones table.py knows how to cross. A ne
 
 from __future__ import annotations
 
+from dataclasses import dataclass
+
 # MARK: - Views
 
 # Root struct -> (view name, C target). Every other view takes Raven's typedef name with _t dropped and the first letter raised.
@@ -101,20 +103,28 @@ NEVER_NULL_VARS = {"pm"}
 # `bg_pool` is the raw allocation of rule 9 that `BG_Alloc` hands pointers into, `bg.pool`, sized by the consumer's `MAX_POOL_SIZE`.
 HAND_VARS = {"bg_pool": "bg.pool"}
 
-# Macros whose value is hand work, as (the Swift spelling a body writes, the reason the stub carries), with an optional third element.
-# The third element is the Swift type of the spelling, "Bool" for a test, so the drafter adds no `!= 0`, and an absent element means the C type.
+@dataclass(frozen=True)
+class HandMacro:
+    """One macro whose value is hand work: the Swift spelling a body writes, and the reason the stub carries.
+    `swift` is the Swift type of the spelling, "Bool" for a test, so the drafter adds no `!= 0`, and None means the C type."""
+    spelling: str
+    reason: str
+    swift: str | None = None
+
+
+# Macros whose value is hand work.
 # `MAX_POOL_SIZE` is the consumer's value under rule 23, `bg.maxPoolSize`.
 # `__DATE__` is the compiler's build date, and Swift has no compile-time date, so a body writes the hand constant `buildDate` of JKAMP_GameLogic.
 # See row 5 of the game globals walk.
 # `SABERINVALID` is Raven's validity test in w_saber.c, and a body writes the hand function `saberInvalid` of JKAMP_GameLogic.
 # See row 2a of the walk of 2026-09-29.
 HAND_MACROS = {
-    "MAX_POOL_SIZE": ("MAX_POOL_SIZE", "bg.maxPoolSize, the consumer's value under rule 23, which bg_local.swift forwards under Raven's name"),
-    "__DATE__": ("buildDate", "buildDate, a hand string constant of JKAMP_GameLogic, because Swift has no compile-time date"),
-    "SABERINVALID": (
+    "MAX_POOL_SIZE": HandMacro("MAX_POOL_SIZE", "bg.maxPoolSize, the consumer's value under rule 23, which bg_local.swift forwards under Raven's name"),
+    "__DATE__": HandMacro("buildDate", "buildDate, a hand string constant of JKAMP_GameLogic, because Swift has no compile-time date"),
+    "SABERINVALID": HandMacro(
         "saberInvalid(saberent, saberOwner, other)",
         "saberInvalid, a hand Bool function of JKAMP_GameLogic, because the macro reads three parameters of its four callers and is not a constant",
-        "Bool",
+        swift="Bool",
     ),
 }
 
@@ -252,3 +262,14 @@ SHARED_STEMS = {"q_shared", "q_math", "g_syscalls", "g_strap"}
 # g_types.h holds the structs Raven defines inside a .c file, so a view can bind over them. See "A struct Raven defines inside a .c file".
 HAND_HEADERS = {"CJKAMP": ["bg_tables.h"], "CJKAMP_Game": ["g_types.h"]}
 HAND_FILES = {"CJKAMP": ["include/bg_tables.h"], "CJKAMP_Game": ["include/g_types.h"]}
+
+# MARK: - Header preludes
+
+# Oracle header -> (the .c file, first line, last line) of the text a header needs before it, which the .c file writes before its include.
+# The header parse writes that slice into its synthetic translation unit before the header's include.
+# The .c enum test then keeps the enum of the slice in the constants file of its .c file.
+# interpreter.h opens its token enum at `TK_USERDEF`, which only the enum at g_ICARUScb.c:31-44 declares, as Raven's comment at interpreter.h:13 says.
+# The slice starts at the enum and not at the comment on line 20, because the `#ifndef` pair around the enum closes on lines 45 and 46.
+HEADER_PRELUDES = {
+    "codemp/icarus/interpreter.h": ("codemp/game/g_ICARUScb.c", 31, 44),
+}

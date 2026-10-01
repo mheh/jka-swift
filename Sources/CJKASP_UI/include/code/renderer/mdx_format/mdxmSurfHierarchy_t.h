@@ -7,6 +7,7 @@
 #include "code/game/q_shared/constants.h"
 #include "code/qcommon/qfiles/constants.h"
 #include "shared/game/q_shared/constants.h"
+#include "shared/qcommon/qfiles/constants.h"
 
 // Source: oracle/code/renderer/mdx_format.h:187
 // for each surface...	(mdxmHeader_t->numSurfaces)

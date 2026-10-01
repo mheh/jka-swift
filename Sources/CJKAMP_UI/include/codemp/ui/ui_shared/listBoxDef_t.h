@@ -7,7 +7,6 @@
 #include "codemp/game/q_shared/qboolean.h"
 #include "codemp/ui/ui_shared/columnInfo_t.h"
 #include "codemp/ui/ui_shared/constants.h"
-#include "shared/ui/ui_shared/constants.h"
 
 // Source: oracle/codemp/ui/ui_shared.h:172
 typedef struct listBoxDef_s {

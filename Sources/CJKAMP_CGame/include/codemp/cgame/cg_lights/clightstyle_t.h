@@ -5,8 +5,8 @@
 
 #include "CJKAMP_CGame_forward.h"
 #include "codemp/cgame/tr_types/color4ub_t.h"
-#include "codemp/game/q_shared/constants.h"
-#include "shared/game/q_shared/constants.h"
+#include "codemp/qcommon/qfiles/constants.h"
+#include "shared/qcommon/qfiles/constants.h"
 
 // Source: oracle/codemp/cgame/cg_lights.h:5
 typedef struct

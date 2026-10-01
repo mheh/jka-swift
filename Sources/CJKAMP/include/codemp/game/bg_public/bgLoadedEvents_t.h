@@ -8,8 +8,10 @@
 #include "codemp/game/bg_public/constants.h"
 #include "codemp/game/q_shared/constants.h"
 #include "codemp/game/q_shared/qboolean.h"
+#include "codemp/qcommon/qfiles/constants.h"
 #include "shared/game/bg_public/constants.h"
 #include "shared/game/q_shared/constants.h"
+#include "shared/qcommon/qfiles/constants.h"
 
 // Source: oracle/codemp/game/bg_public.h:335
 typedef struct

@@ -34,15 +34,7 @@ struct camera_s;
 typedef struct camera_s camera_t;
 struct HUDMenuItem_s;
 typedef struct HUDMenuItem_s HUDMenuItem_t;
-struct _TargaHeader;
-typedef struct _TargaHeader TargaHeader;
-struct md3Frame_s;
-typedef struct md3Frame_s md3Frame_t;
-struct md3Tag_s;
-typedef struct md3Tag_s md3Tag_t;
 struct dshader_s;
 typedef struct dshader_s dshader_t;
-struct dfontdat_s;
-typedef struct dfontdat_s dfontdat_t;
 
 #endif // JKA_CJKASP_FORWARD_H

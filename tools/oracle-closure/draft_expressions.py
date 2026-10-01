@@ -225,7 +225,7 @@ class Expressions:
         cur = self.strip(cur)
         text = self.source.slice(cur.extent).strip()
         entry = HAND_MACROS.get(text) if IDENTIFIER.fullmatch(text) else None
-        if entry is not None and len(entry) > 2 and entry[2] == "Bool":
+        if entry is not None and entry.swift == "Bool":
             # A hand macro whose ruling gives a Bool spelling is a test already, `saberInvalid(...)` for Raven's `SABERINVALID`.
             return True
         if self.collapsed(cur):
@@ -312,7 +312,7 @@ class Expressions:
                 self.reach(text, "macro")
                 if text in HAND_MACROS:
                     # A hand macro has the Swift spelling its ruling gives, `buildDate` for Raven's `__DATE__`.
-                    return self.leaf(cur, HAND_MACROS[text][0])
+                    return self.leaf(cur, HAND_MACROS[text].spelling)
                 return self.leaf(cur, swift_name(text))
         chosen = self.chosen_deref(cur)
         if chosen is not None:

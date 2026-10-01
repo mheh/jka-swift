@@ -21,6 +21,15 @@
 // Source: oracle/codemp/cgame/cg_draw.c:1871
 #define MAX_VHUD_AMMO_TICS 5
 
+// Source: oracle/codemp/cgame/cg_draw.c:2410
+enum
+{
+	VEH_DAMAGE_FRONT=0,
+	VEH_DAMAGE_BACK,
+	VEH_DAMAGE_LEFT,
+	VEH_DAMAGE_RIGHT,
+};
+
 // Source: oracle/codemp/cgame/cg_draw.c:3070
 #define	FPS_FRAMES	16
 

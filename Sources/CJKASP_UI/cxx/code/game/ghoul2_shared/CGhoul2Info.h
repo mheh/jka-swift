@@ -13,6 +13,7 @@
 #include "code/renderer/mdx_format/mdxaHeader_t.h"
 #include "shared/game/q_shared/constants.h"
 #include "shared/game/q_shared/qhandle_t.h"
+#include "shared/qcommon/qfiles/constants.h"
 
 #include <vector>
 #include <map>

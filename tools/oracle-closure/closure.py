@@ -26,6 +26,7 @@ from clang.cindex import CursorKind, TypeKind
 
 import reexport
 from overlay import OVERLAY
+from rulings import HEADER_PRELUDES
 
 REPO = Path(__file__).resolve().parents[2]
 ORACLE = REPO / "oracle"
@@ -210,7 +211,14 @@ def parse_tu(module: str, extra_file: str | None, unity: bool = False, target: s
         src = str(headers[0])
         if len(headers) > 1 or headers[0].suffix == ".h":  # synthesize a TU around the header(s)
             src = str(headers[0].parent / "__closure_tu__.c")
-            unsaved.append((src, "".join(f'#include "{e}"\n' for e in headers)))
+            text = ""
+            for header in headers:
+                prelude = prelude_file(header)
+                if prelude:
+                    unsaved.append(prelude)
+                    text += f'#include "{prelude[0]}"\n'
+                text += f'#include "{header}"\n'
+            unsaved.append((src, text))
     unsaved += backslash_include_shims()
     idx = ci.Index.create()
     tu = idx.parse(src, args=args, unsaved_files=unsaved,
@@ -225,6 +233,20 @@ def parse_tu(module: str, extra_file: str | None, unity: bool = False, target: s
     return tu
 
 
+def prelude_file(header: Path) -> tuple[str, str] | None:
+    """The prelude of one header under HEADER_PRELUDES, as an unsaved file outside the oracle, or None.
+    The file stands outside the oracle, so the sweep of extract.py copies no declaration of it into a tree."""
+    if SRC_ROOT != ORACLE:
+        return None
+    rel = str(header.resolve().relative_to(ORACLE.resolve())) if header.resolve().is_relative_to(ORACLE.resolve()) else None
+    if rel not in HEADER_PRELUDES:
+        return None
+    source, first, last = HEADER_PRELUDES[rel]
+    lines = (ORACLE / source).read_text(errors="replace").splitlines()[first - 1:last]
+    path = REPO / "tools" / "oracle-closure" / "__prelude__" / f"{Path(rel).stem}.h"
+    return str(path), f"// {source}:{first}-{last}, the text {rel} needs before it.\n" + "\n".join(lines) + "\n"
+
+
 _ENTRIES: dict[str, list[str]] = {}
 
 
@@ -235,25 +257,42 @@ def entry_list(module: str) -> list[str]:
     if "entry" in cfg:
         return cfg["entry"] if isinstance(cfg["entry"], list) else [cfg["entry"]]
     if module not in _ENTRIES:
-        _ENTRIES[module] = derived_entries(module)
+        _ENTRIES[module] = derived_entries(module)[0]
     return _ENTRIES[module]
 
 
-def derived_entries(module: str) -> list[str]:
-    """The module's entry list as its unity parse reaches it: each oracle header a file of `srcglob` includes, in order of first reach.
-    A path the spec's `exclude` names stays out, and every path is resolved first, because a parse can spell `codemp/game/../ghoul2/G2.h`."""
+def derived_entries(module: str, tu=None) -> tuple[list[str], list[str]]:
+    """The module's entry list as its unity parse reaches it, and beside it the list before the root filter.
+    The second list holds each oracle header a file of `srcglob` includes, in order of first reach, and the first keeps its roots.
+    A path the spec's `exclude` names stays out, and every path is resolved first, because a parse can spell `codemp/game/../ghoul2/G2.h`.
+    Every path then takes the case of its name on disk, because cg_ents.c includes `..\\ghoul2\\g2.h` and `Path.resolve()` keeps that case on macOS.
+    A caller that holds the module's unity parse hands it over as `tu`, and without it the function parses the unit itself."""
     cfg = MODULES[module]
     root = SRC_ROOT.resolve()
     sources = {p.resolve() for g in cfg["srcglob"] for p in SRC_ROOT.glob(g)}
     excluded = {(SRC_ROOT / e).resolve() for e in cfg.get("exclude", [])}
-    tu = parse_tu(module, None, unity=True)
+    if tu is None:
+        tu = parse_tu(module, None, unity=True)
+    listings: dict[Path, dict[str, str]] = {}
+
+    def on_disk(path: Path) -> Path:
+        # The directory listing gives each name the case Raven gave it, so `g2.h` and `G2.h` name one header.
+        if not path.is_relative_to(root):
+            return path
+        spelled = root
+        for part in path.relative_to(root).parts:
+            if spelled not in listings:
+                listings[spelled] = {entry.name.lower(): entry.name for entry in spelled.iterdir()} if spelled.is_dir() else {}
+            spelled = spelled / listings[spelled].get(part.lower(), part)
+        return spelled
+
     found: list[str] = []
     graph: dict[str, set[str]] = defaultdict(set)
     for inc in tu.get_includes():
         if inc.source is None:
             continue
-        source = Path(inc.source.name).resolve()
-        target = Path(inc.include.name).resolve()
+        source = on_disk(Path(inc.source.name).resolve())
+        target = on_disk(Path(inc.include.name).resolve())
         if not target.is_relative_to(root):
             continue
         rel = str(target.relative_to(root))
@@ -275,8 +314,9 @@ def derived_entries(module: str) -> list[str]:
     # g_local.h and bg_saga.h have no include guard, so a list that names them beside b_local.h parses them twice.
     # A header that another derived header reaches, and that does not reach that header back, is left to the header that reaches it.
     reached = {header: reach(header) for header in found}
-    return [header for header in found
-            if not any(other != header and header in reached[other] and other not in reached[header] for other in found)]
+    roots = [header for header in found
+             if not any(other != header and header in reached[other] and other not in reached[header] for other in found)]
+    return roots, found
 
 
 # ------------------------------------------------------------- one parse per run

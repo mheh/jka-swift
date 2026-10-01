@@ -3,6 +3,29 @@
 #ifndef JKA_CODEMP_UI_UI_MAIN_C_CONSTANTS_H
 #define JKA_CODEMP_UI_UI_MAIN_C_CONSTANTS_H
 
+// Source: oracle/codemp/ui/ui_main.c:362
+// Movedata Sounds
+typedef enum
+{
+	MDS_NONE = 0,
+	MDS_FORCE_JUMP,
+	MDS_ROLL,
+	MDS_SABER,
+	MDS_MOVE_SOUNDS_MAX
+};
+
+// Source: oracle/codemp/ui/ui_main.c:371
+typedef enum
+{
+	MD_ACROBATICS = 0,
+	MD_SINGLE_FAST,
+	MD_SINGLE_MEDIUM,
+	MD_SINGLE_STRONG,
+	MD_DUAL_SABERS,
+	MD_SABER_STAFF,
+	MD_MOVE_TITLE_MAX
+};
+
 // Source: oracle/codemp/ui/ui_main.c:404
 #define MAX_MOVES 16
 

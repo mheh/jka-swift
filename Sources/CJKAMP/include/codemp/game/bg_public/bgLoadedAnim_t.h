@@ -5,7 +5,9 @@
 
 #include "CJKAMP_forward.h"
 #include "codemp/game/q_shared/constants.h"
+#include "codemp/qcommon/qfiles/constants.h"
 #include "shared/game/q_shared/constants.h"
+#include "shared/qcommon/qfiles/constants.h"
 
 // Source: oracle/codemp/game/bg_public.h:326
 typedef struct

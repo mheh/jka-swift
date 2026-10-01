@@ -15,11 +15,13 @@
 #include "codemp/game/q_shared/constants.h"
 #include "codemp/game/q_shared/playerState_t.h"
 #include "codemp/game/q_shared/qboolean.h"
+#include "codemp/qcommon/qfiles/constants.h"
 #include "shared/cgame/cg_local/constants.h"
 #include "shared/cgame/cg_public/constants.h"
 #include "shared/game/q_shared/constants.h"
 #include "shared/game/q_shared/qhandle_t.h"
 #include "shared/game/q_shared/vec3_t.h"
+#include "shared/qcommon/qfiles/constants.h"
 
 // Source: oracle/codemp/cgame/cg_local.h:755
 typedef struct {

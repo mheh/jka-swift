@@ -363,7 +363,7 @@ class Skeleton:
             return lines
         if macro.name in HAND_MACROS:
             self.counts["macros by hand"] += 1
-            lines += [f"// Raven wrote: #define {text}", f"// A hand value: {HAND_MACROS[macro.name][1]}."]
+            lines += [f"// Raven wrote: #define {text}", f"// A hand value: {HAND_MACROS[macro.name].reason}."]
             return lines
         tokens = [t.spelling for t in macro.cur.get_tokens()][1:]
         if len(tokens) == 1 and re.fullmatch(r"[A-Za-z_]\w*", tokens[0]):

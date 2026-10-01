@@ -41,7 +41,7 @@ from pathlib import Path
 
 sys.path.insert(0, str(Path(__file__).resolve().parent))
 import closure as C
-from rulings import HAND_FILES
+from rulings import HAND_FILES, HEADER_PRELUDES
 from clang.cindex import CursorKind, TypeKind
 
 REPO = C.REPO
@@ -709,9 +709,11 @@ def guard(filename: str) -> str:
     return "JKA_" + re.sub(r"\W", "_", filename).upper()
 
 
-def wrap(filename: str, note: str, includes: list[str], body: list[str]) -> str:
+def wrap(filename: str, note: str, includes: list[str], body: list[str], ordered: bool = False) -> str:
+    """One emitted header: the note, the guard, the includes, and the body.
+    The includes are sorted, and an `ordered` file such as all.h keeps them in the order the caller gives."""
     parts = [note, f"#ifndef {guard(filename)}", f"#define {guard(filename)}", ""]
-    parts += [f'#include "{inc}"' for inc in sorted(includes)]
+    parts += [f'#include "{inc}"' for inc in (includes if ordered else sorted(includes))]
     if includes:
         parts.append("")
     parts += body
@@ -810,12 +812,24 @@ def assert_blocks(module: str, host: list[tuple[str, list[str]]], triples: list[
 
 
 def emit(module: str, out_dir: Path, check: bool, triples: list[str]) -> int:
-    # The entry list comes once, so the triple parses in the pool do not each derive it again from a unity parse.
-    entries = C.entry_list(module)
-    tu = C.parse_tu(module, None, entries=entries)
     spec = C.spec(module)
+    # The unity parse runs once, and both the derived entry list and the constants of the .c files read it.
+    unity = C.parse_tu(module, None, unity=True) if spec.get("srcglob") and (spec["lang"] == "c" or "entry" not in spec) else None
+    # The entry list comes once, so the triple parses in the pool do not each derive it again from a unity parse.
+    if "entry" in spec:
+        entries, reached = C.entry_list(module), []
+    else:
+        entries, reached = C.derived_entries(module, unity)
+    tu = C.parse_tu(module, None, entries=entries)
     resolver = IfResolver(macro_table(tu))
     decls = sweep(tu)
+    # The root filter leaves a header to the header that reaches it, so the header parse must reach every header of the unfiltered list.
+    # A header a .c file reaches only under a define of its own, as g_ICARUScb.c does for interpreter.h, fails this check.
+    # The check reads the includes of the parse beside FILE_ORDER, because a header with no declaration under C, such as g_headers.h, has no cursor.
+    parsed = {Path(path).resolve() for path in FILE_ORDER} | {Path(inc.include.name).resolve() for inc in tu.get_includes()}
+    missing = [header for header in reached if (C.SRC_ROOT / header).resolve() not in parsed]
+    if missing:
+        sys.exit(f"extract.py: the header parse of {module} does not reach {', '.join(missing)}, which its .c files include")
     name_records(decls)
     type_names = {d.name for d in decls if d.kind != "macro" and d.name}
     shadowing = [d for d in decls if d.kind == "macro" and d.name in type_names]
@@ -914,11 +928,13 @@ def emit(module: str, out_dir: Path, check: bool, triples: list[str]) -> int:
         files[filename] = wrap(filename, note, [], body)
         manifest["files"][filename] = {"source": oracle_relative(macros[0].file), "declarations": [d.name for d in macros]}
 
+    # The constants file of each .c file, by the .c file's resolved path, which all.h places.
+    c_constants: dict[Path, str] = {}
+
     # constants.h of a .c file: the object-like macros a source file defines for itself, such as MOVER_LOCKED in g_mover.c.
     # struct-views.md row 2: a spawn flag OptionSet reads the re-exported C macro, so the macro must reach a header.
     # The parse is the module's unity build, so a macro one .c file defines is visible to the next, as the function closure already accepts.
     if spec.get("srcglob") and spec["lang"] == "c":
-        unity = C.parse_tu(module, None, unity=True)
         unity_resolver = IfResolver(macro_table(unity))
         # A macro whose name is an identifier in a header would rewrite that header once the umbrella defines it, as Raven's
         # `#define currentOrigin r.currentOrigin` in the vehicle files would rewrite entityShared_t, so it stays in its .c file.
@@ -983,11 +999,17 @@ def emit(module: str, out_dir: Path, check: bool, triples: list[str]) -> int:
             text = " ".join(t.spelling for t in decl.cur.get_tokens())
             for name in enum_names[id(decl)]:
                 enum_texts[name].add(text)
+        # A header names the enumerators of its prelude, and the header parse reads them from the prelude, so they still go to the constants file.
+        prelude_names: set[str] = set()
+        for source, first, last in HEADER_PRELUDES.values():
+            for decl in c_enums:
+                if Path(decl.file).resolve() == (ORACLE / source).resolve() and first <= decl.start.line and decl.end.line <= last:
+                    prelude_names |= set(enum_names[id(decl)])
         copied_enums: set[str] = set()
         for decl in c_enums:
             names = enum_names[id(decl)]
             text = " ".join(t.spelling for t in decl.cur.get_tokens())
-            named = sorted(n for n in names if n in header_identifiers or n in macro_names)
+            named = sorted(n for n in names if (n in header_identifiers or n in macro_names) and n not in prelude_names)
             handed = sorted(n for n in names if n in hand_identifiers)
             clashing = sorted(n for n in names if n in kept_macro_names or len(enum_texts[n]) > 1)
             if named:
@@ -1010,6 +1032,7 @@ def emit(module: str, out_dir: Path, check: bool, triples: list[str]) -> int:
             filename = macros[0].filename
             files[filename] = wrap(filename, note, [], body)
             manifest["files"][filename] = {"source": oracle_relative(macros[0].file), "declarations": [d.name for d in macros]}
+            c_constants[Path(macros[0].file).resolve()] = filename
 
     # A name declared twice, such as `byte` in q_shared.h and in the icarus tokenizer, keeps its first file. Includes follow it.
     alias: dict[str, str] = {}
@@ -1056,15 +1079,23 @@ def emit(module: str, out_dir: Path, check: bool, triples: list[str]) -> int:
     # all.h and layout_asserts.h
     # all.h follows Raven's include order, header by header, constants first within a header and then its types in source order.
     # That is the order Raven's translation unit saw, so a macro such as menudef.h's CT_LTBLUE1 lands after q_shared.h's ct_table_t enum.
+    # merge.py orders each target's umbrella by the headers of this file, so the order holds in the package too.
+    # The constants file of a .c file that a prelude slices stands before the header of that prelude, as the .c file puts it.
+    # Every other .c constants file stands after the headers, because its .c file includes them first.
+    prelude_of = {(ORACLE / header).resolve(): (ORACLE / source).resolve() for header, (source, _, _) in HEADER_PRELUDES.items()}
     ordered = ["forward.h"]
     for path in FILE_ORDER:
+        source = prelude_of.get(Path(path).resolve())
+        if source in c_constants and c_constants[source] not in ordered:
+            ordered.append(c_constants[source])
         stem_decls = [d for d in decls if d.file == path and not d.forward_only]
         for filename in dict.fromkeys(d.filename for d in stem_decls if d.kind == "macro"):
             ordered.append(filename)
         for filename in dict.fromkeys(d.filename for d in stem_decls if d.kind != "macro"):
             if filename in files and filename not in cxx_files:
                 ordered.append(filename)
-    files["all.h"] = wrap("all.h", note, ordered, [])
+    ordered += [filename for filename in c_constants.values() if filename not in ordered]
+    files["all.h"] = wrap("all.h", note, ordered, [], ordered=True)
     files["layout_asserts.h"] = wrap("layout_asserts.h", note, [], ["#include <stddef.h>", '#include "all.h"', ""] + assert_blocks(module, asserted, triples, entries) + [""])
 
     written = 0
