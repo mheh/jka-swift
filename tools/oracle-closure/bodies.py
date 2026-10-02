@@ -176,6 +176,14 @@ class Drafter(Statements, Expressions, Calls, Declarations, Classification):
         self.names = {c.spelling: p.name for c, p in zip(fn.cur.get_arguments(), fn.params)}
         self.params_by_name = {c.spelling: p for c, p in zip(fn.cur.get_arguments(), fn.params)}
         self.scratch_names: dict[str, int] = {}
+        # The spans of Raven's `a - b` that stand as an array index, where the Slots index form, an Int, has a seat.
+        self.index_spans: set[tuple[int, int]] = set()
+        for node in fn.cur.walk_preorder():
+            kids = list(node.get_children()) if node.kind == CursorKind.ARRAY_SUBSCRIPT_EXPR else []
+            difference = self.unwrap(kids[1]) if len(kids) == 2 else None
+            if difference is not None and difference.kind == CursorKind.BINARY_OPERATOR and len(list(difference.get_children())) == 2:
+                parts = list(difference.get_children())
+                self.index_spans.add((self.unwrap(parts[0]).extent.start.offset, self.unwrap(parts[1]).extent.end.offset))
         # The Swift statement each of Raven's labels gives its gotos, `break rest` or `continue backAgain`.
         self.goto_forms: dict[str, str] = {}
         # The vector each pointer-to-float local of the function stands for, by Raven's name.

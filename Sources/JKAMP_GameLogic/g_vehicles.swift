@@ -298,3 +298,61 @@ func G_SetSharedVehicleFunctions(_ pVehInfo: JKAMP.VehicleInfo) {
     // TODO: Port G_SetSharedVehicleFunctions
     portMissing("G_SetSharedVehicleFunctions", source: "oracle/codemp/game/g_vehicles.c:3290")
 }
+
+/// One static per function this file stores in a `VehicleInfo` callback field, so each has one address for the life of the module.
+/// The thunks stand in this file, because the functions they call are private to it.
+private enum VehicleInfoThunks {
+    /// Source: oracle/codemp/game/g_vehicles.c:3283
+    static let AddPassenger: VehicleInfoAddPassenger = { JKAMP_GameLogic.AddPassenger(JKAMP.Vehicle(handle: $0!)) ? 1 : 0 }
+
+    /// Source: oracle/codemp/game/g_vehicles.c:481
+    static let Animate: VehicleInfoAnimate = { JKAMP_GameLogic.Animate(JKAMP.Vehicle(handle: $0!)) }
+
+    /// Source: oracle/codemp/game/g_vehicles.c:2598
+    static let AttachRiders: VehicleInfoAttachRiders = { JKAMP_GameLogic.AttachRiders(JKAMP.Vehicle(handle: $0!)) }
+
+    /// Source: oracle/codemp/game/g_vehicles.c:630
+    static let Board: VehicleInfoBoard = { JKAMP_GameLogic.Board(JKAMP.Vehicle(handle: $0!), JKAMP.BgEntity(handle: $1!)) ? 1 : 0 }
+
+    /// Source: oracle/codemp/game/g_vehicles.c:1485
+    static let DeathUpdate: VehicleInfoDeathUpdate = { JKAMP_GameLogic.DeathUpdate(JKAMP.Vehicle(handle: $0!)) }
+
+    /// Source: oracle/codemp/game/g_vehicles.c:1019
+    static let Eject: VehicleInfoEject = { JKAMP_GameLogic.Eject(JKAMP.Vehicle(handle: $0!), JKAMP.BgEntity(handle: $1!), $2 != 0) ? 1 : 0 }
+
+    /// Source: oracle/codemp/game/g_vehicles.c:1377
+    static let EjectAll: VehicleInfoEjectAll = { JKAMP_GameLogic.EjectAll(JKAMP.Vehicle(handle: $0!)) ? 1 : 0 }
+
+    /// Source: oracle/codemp/game/g_vehicles.c:2734
+    static let Ghost: VehicleInfoGhost = { JKAMP_GameLogic.Ghost(JKAMP.Vehicle(handle: $0!), JKAMP.BgEntity(handle: $1!)) }
+
+    /// Source: oracle/codemp/game/g_vehicles.c:3286
+    static let Inhabited: VehicleInfoInhabited = { JKAMP_GameLogic.Inhabited(JKAMP.Vehicle(handle: $0!)) ? 1 : 0 }
+
+    /// Source: oracle/codemp/game/g_vehicles.c:1626
+    static let Initialize: VehicleInfoInitialize = { JKAMP_GameLogic.Initialize(JKAMP.Vehicle(handle: $0!)) ? 1 : 0 }
+
+    /// Source: oracle/codemp/game/g_vehicles.c:1619
+    static let RegisterAssets: VehicleInfoRegisterAssets = { JKAMP_GameLogic.RegisterAssets(JKAMP.Vehicle(handle: $0!)) }
+
+    /// Source: oracle/codemp/game/g_vehicles.c:3277
+    static let SetParent: VehicleInfoSetParent = { JKAMP_GameLogic.SetParent(JKAMP.Vehicle(handle: $0!), JKAMP.BgEntity(handle: $1!)) }
+
+    /// Source: oracle/codemp/game/g_vehicles.c:3280
+    static let SetPilot: VehicleInfoSetPilot = { JKAMP_GameLogic.SetPilot(JKAMP.Vehicle(handle: $0!), JKAMP.BgEntity(handle: $1!)) }
+
+    /// Source: oracle/codemp/game/g_vehicles.c:1451
+    static let StartDeathDelay: VehicleInfoStartDeathDelay = { JKAMP_GameLogic.StartDeathDelay(JKAMP.Vehicle(handle: $0!), $1) }
+
+    /// Source: oracle/codemp/game/g_vehicles.c:2759
+    static let UnGhost: VehicleInfoUnGhost = { JKAMP_GameLogic.UnGhost(JKAMP.Vehicle(handle: $0!), JKAMP.BgEntity(handle: $1!)) }
+
+    /// Source: oracle/codemp/game/g_vehicles.c:1763
+    static let Update: VehicleInfoUpdate = { JKAMP_GameLogic.Update(JKAMP.Vehicle(handle: $0!), JKAMP.Usercmd(handle: $1!)) ? 1 : 0 }
+
+    /// Source: oracle/codemp/game/g_vehicles.c:2338
+    static let UpdateRider: VehicleInfoUpdateRider = { JKAMP_GameLogic.UpdateRider(JKAMP.Vehicle(handle: $0!), JKAMP.BgEntity(handle: $1!), JKAMP.Usercmd(handle: $2!)) ? 1 : 0 }
+
+    /// Source: oracle/codemp/game/g_vehicles.c:496
+    static let ValidateBoard: VehicleInfoValidateBoard = { JKAMP_GameLogic.ValidateBoard(JKAMP.Vehicle(handle: $0!), JKAMP.BgEntity(handle: $1!)) ? 1 : 0 }
+}

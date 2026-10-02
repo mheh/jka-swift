@@ -17,7 +17,7 @@ from table import ASSIGN_OPS, TARGET, swift_name
 from overlay import DROPPED, MACROS, RECORD_CALLS, address_arguments
 
 from draft_classification import INDENT, Hole
-from draft_expressions import NUMBER
+from draft_expressions import IDENTIFIER, NUMBER
 
 
 
@@ -510,6 +510,10 @@ class Statements:
                             raise Hole(f"Raven writes the game's `{'.'.join(fields)}` here, and the channel has no set for it.")
                         head = (self.expr(base_cur) + ("!" if self.optional_base(base_cur) else "") + ", ") if root == "entity" else ""
                         return [f"{pad}{write.name}({head}{self.converted(right, write.swift)})" + self.trailing(cur)]
+                field = self.strip(left).type.get_canonical()
+                if op == "=" and self.is_null(right) and field.kind == TypeKind.POINTER and field.get_pointee().kind == TypeKind.FUNCTIONPROTO:
+                    # Raven clears a callback field with 0 or NULL, and the optional closure field takes nil.
+                    return [f"{pad}{self.expr(left)} = nil" + self.trailing(cur)]
                 if op == "=" and self.pooled_field(left) and target_of(self.fn.stem) == LOGIC and not self.is_null(right) \
                         and self.unwrap(right).kind != CursorKind.STRING_LITERAL and self.text_kind(right) == "String":
                     # A `char *` field holds a pointer the engine may read at any time, so Raven's text goes into the world's string pool first.
@@ -565,7 +569,7 @@ class Statements:
                     raise Hole("A whole-record store, which a view has no operator for.")
                 lhs_kind = self.swift_type_of(left)
                 unsigned = self.unsigned_of(left)
-                if op != "=" and lhs_kind in ("Int32", "Float") \
+                if op != "=" and lhs_kind in ("Int32", "Float") and self.strip(right).type.get_canonical().kind == TypeKind.DOUBLE \
                         and (self.has_double_literal(right) or self.holds_double(right)):
                     # C computes the double expression and converts once at the store, by "A double literal".
                     return [f"{pad}{target} = {lhs_kind}(Double({target}) {op[:-1]} {self.wrapped(right, 'Double')})" + self.trailing(cur)]
@@ -870,11 +874,14 @@ class Statements:
         return self.coerced(cur, "Bool")
 
     def has_double_literal(self, cur: ci.Cursor) -> bool:
-        """True when Raven's expression holds a floating literal with no f suffix, which C computes in double."""
+        """True when Raven's expression holds a floating literal with no f suffix, which C computes in double.
+        A macro constant that expands to one, `M_PI` or `ARMOR_PROTECTION`, is a double literal too."""
         for c in cur.walk_preorder():
             if c.kind == CursorKind.FLOATING_LITERAL:
                 text = self.bytes[c.extent.start.offset:c.extent.end.offset].decode("utf-8", "replace").strip()
                 if NUMBER.fullmatch(text) and not text.endswith(("f", "F")):
+                    return True
+                if IDENTIFIER.fullmatch(text) and c.type.get_canonical().kind == TypeKind.DOUBLE:
                     return True
         return False
 

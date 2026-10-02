@@ -220,3 +220,28 @@ func G_CreateFighterNPC(_ pVeh: inout JKAMP.Vehicle?, _ strType: String) {
     // TODO: Port G_CreateFighterNPC
     portMissing("G_CreateFighterNPC", source: "oracle/codemp/game/FighterNPC.c:1994")
 }
+
+/// One static per function this file stores in a `VehicleInfo` callback field, so each has one address for the life of the module.
+/// The thunks stand in this file, because the functions they call are private to it.
+private enum VehicleInfoThunks {
+    /// Source: oracle/codemp/game/FighterNPC.c:1938
+    static let AnimateRiders: VehicleInfoAnimateRiders = { JKAMP_GameLogic.AnimateRiders(JKAMP.Vehicle(handle: $0!)) }
+
+    /// Source: oracle/codemp/game/FighterNPC.c:1836
+    static let AnimateVehicle: VehicleInfoAnimateVehicle = { JKAMP_GameLogic.AnimateVehicle(JKAMP.Vehicle(handle: $0!)) }
+
+    /// Source: oracle/codemp/game/FighterNPC.c:212
+    static let Board: VehicleInfoBoard = { JKAMP_GameLogic.Board(JKAMP.Vehicle(handle: $0!), JKAMP.BgEntity(handle: $1!)) ? 1 : 0 }
+
+    /// Source: oracle/codemp/game/FighterNPC.c:224
+    static let Eject: VehicleInfoEject = { JKAMP_GameLogic.Eject(JKAMP.Vehicle(handle: $0!), JKAMP.BgEntity(handle: $1!), $2 != 0) ? 1 : 0 }
+
+    /// Source: oracle/codemp/game/FighterNPC.c:370
+    static let ProcessMoveCommands: VehicleInfoProcessMoveCommands = { JKAMP_GameLogic.ProcessMoveCommands(JKAMP.Vehicle(handle: $0!)) }
+
+    /// Source: oracle/codemp/game/FighterNPC.c:1381
+    static let ProcessOrientCommands: VehicleInfoProcessOrientCommands = { JKAMP_GameLogic.ProcessOrientCommands(JKAMP.Vehicle(handle: $0!)) }
+
+    /// Source: oracle/codemp/game/FighterNPC.c:188
+    static let Update: VehicleInfoUpdate = { JKAMP_GameLogic.Update(JKAMP.Vehicle(handle: $0!), JKAMP.Usercmd(handle: $1!)) ? 1 : 0 }
+}

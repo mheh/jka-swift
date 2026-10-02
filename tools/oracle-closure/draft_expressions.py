@@ -141,6 +141,10 @@ class Expressions:
         inner = self.unwrap(cur)
         if inner.kind in (CursorKind.DECL_REF_EXPR, CursorKind.MEMBER_REF_EXPR, CursorKind.ARRAY_SUBSCRIPT_EXPR, CursorKind.CSTYLE_CAST_EXPR):
             return self.types.number_kind(inner.type) == "Double"
+        if inner.kind == CursorKind.FLOATING_LITERAL:
+            # A macro constant that expands to a double literal, `M_PI`, is a Swift Double, and a literal Raven spelled is typed by context.
+            text = self.bytes[inner.extent.start.offset:inner.extent.end.offset].decode("utf-8", "replace").strip()
+            return IDENTIFIER.fullmatch(text) is not None and inner.type.get_canonical().kind == TypeKind.DOUBLE
         if inner.kind == CursorKind.CALL_EXPR or self.is_call(inner):
             kids = self.call_children(inner)
             callee = self.strip(kids[0]) if kids else None
@@ -160,7 +164,9 @@ class Expressions:
 
     def converted(self, cur: ci.Cursor, swift: str) -> str:
         """An expression stored where Swift wants `swift`. spelling.py names the crossing, and the words under it are Raven's own."""
-        double = self.leaf_wrap is None and not self.is_literal(cur) and (self.has_double_literal(cur) or self.holds_double(cur))
+        # C computes in double only where the expression's own type is double, and a double literal inside a call's argument stays in that argument.
+        double = self.leaf_wrap is None and not self.is_literal(cur) and (self.has_double_literal(cur) or self.holds_double(cur)) \
+            and self.strip(cur).type.get_canonical().kind == TypeKind.DOUBLE
         if swift in ("Float", "Int32") and double:
             # C computes the expression in double and converts once at the store, by "A double literal".
             return f"{swift}({self.wrapped(cur, 'Double')})"
@@ -309,11 +315,24 @@ class Expressions:
             if IDENTIFIER.fullmatch(text):
                 if text == "NULL":
                     return "nil"
+                if self.record_thunk(text) is not None:
+                    # The unity parse leaves a second file's `static` of the same name unresolved, and the name is a stored function.
+                    return self.record_thunk(text)
                 self.reach(text, "macro")
                 if text in HAND_MACROS:
                     # A hand macro has the Swift spelling its ruling gives, `buildDate` for Raven's `__DATE__`.
                     return self.leaf(cur, HAND_MACROS[text].spelling)
                 return self.leaf(cur, swift_name(text))
+        if self.leaf_wrap == "Double":
+            computed = self.unwrap(cur)
+            if computed.kind in (CursorKind.BINARY_OPERATOR, CursorKind.CONDITIONAL_OPERATOR) and self.types.number_kind(computed.type) in ("Float", "Int32") \
+                    and (computed.kind == CursorKind.CONDITIONAL_OPERATOR or self.operator_or_none(computed) not in COMPARISONS | LOGICAL | {None}):
+                # C computes this operand in its own type and widens it where it meets the double operand, `(150 + pml.frametime) * 0.003`.
+                self.leaf_wrap = None
+                try:
+                    return f"Double({self.expr(computed)})"
+                finally:
+                    self.leaf_wrap = "Double"
         chosen = self.chosen_deref(cur)
         if chosen is not None:
             # Raven's `(*teamPtr)` is the file-scope variable the caller chose, which crosses as the inout parameter.
@@ -490,11 +509,19 @@ class Expressions:
                 return f"{a} {op} {b}"
             if op in ASSIGN_OPS:
                 raise Hole("An assignment inside an expression.")
+            if op in COMPARISONS and self.leaf_wrap is None and (self.has_double_literal(cur) or self.holds_double(cur)) \
+                    and TypeKind.DOUBLE in (left.type.get_canonical().kind, right.type.get_canonical().kind):
+                # C compares in double where one operand is double, so the comparison is the operator that meets the double operand.
+                return f"{self.wrapped(left, 'Double')} {op} {self.wrapped(right, 'Double')}"
             if op in COMPARISONS:
                 positions = self.table_position(left), self.table_position(right)
                 if positions[0] is not None and positions[1] is not None and positions[0][0] == positions[1][0]:
                     # Two pointers into one table compare as the indexes of their slots, `pushed_p > &pushed[MAX_GENTITIES]`.
                     return f"{positions[0][1]} {op} {positions[1][1]}"
+            if op == "-":
+                index = self.table_index(left, right)
+                if index is not None:
+                    return index
             slot = self.walk_slot(cur)
             if slot is not None:
                 return slot
@@ -580,6 +607,8 @@ class Expressions:
             return f"{table}[{index}]"
         if ref is not None and ref.kind == CursorKind.ENUM_CONSTANT_DECL:
             return name
+        if ref is not None and ref.kind == CursorKind.FUNCTION_DECL and self.record_thunk(name) is not None:
+            return self.record_thunk(name)
         if ref is not None and ref.kind == CursorKind.FUNCTION_DECL and target_of(self.fn.stem) != BG:
             # Raven names a stored function as a value, and the thunk of its field's namespace is that value, by rule 3.
             fields = [field for field, pairs in self.sk.stores.items() if any(stored == name for stored, _ in pairs)]
@@ -631,6 +660,68 @@ class Expressions:
             return None
         position = self.table_position(inner)
         return f"{position[0]}[{position[1]}]" if position is not None else None
+
+    def record_thunk(self, name: str) -> str | None:
+        """A function this file stores in a callback field of a record other than gentity_t, as the private thunk of this file,
+        `VehicleInfoThunks.Update`, or None."""
+        if target_of(self.fn.stem) == BG:
+            return None
+        views = sorted({view for view, _, stored in self.sk.record_stores.get(self.fn.stem, []) if stored.name == name})
+        return f"{self.sk.record_thunks_name(views[0])}.{swift_name(name)}" if len(views) == 1 else None
+
+    def table_index(self, left: ci.Cursor, right: ci.Cursor) -> str | None:
+        """Raven's `ent - g_entities`, a pointer minus its own table, as the index of the slot it points at, or None.
+
+        A walk pointer is its index local. An entity is its number, `ent.s.number`, the index Raven keeps in the record.
+        A store of that index into the entity's own number has no Swift form, because the number is the value the store writes.
+        A record of another table is the Slots index form, `bg_itemlist.firstIndex(of: item)!`, where an array index takes it."""
+        table = self.unwrap(right)
+        if table.kind != CursorKind.DECL_REF_EXPR or table.referenced is None or table.referenced.kind != CursorKind.VAR_DECL:
+            return None
+        canonical = table.referenced.type.get_canonical()
+        if canonical.kind not in (TypeKind.CONSTANTARRAY, TypeKind.INCOMPLETEARRAY) or table.referenced.semantic_parent is None \
+                or table.referenced.semantic_parent.kind != CursorKind.TRANSLATION_UNIT:
+            return None
+        element = canonical.element_type.get_canonical()
+        pointer = self.strip(left).type.get_canonical()
+        if element.kind != TypeKind.RECORD or pointer.kind != TypeKind.POINTER or pointer.get_pointee().get_canonical() != element:
+            return None
+        position = self.table_position(left)
+        if position is not None and position[0] == swift_name(table.spelling):
+            # A walk pointer over the same table already is its index.
+            return position[1]
+        raven = " ".join(self.source.slice(self.unwrap(left).extent).split())
+        optional = self.optional_base(left)
+        if self.types.record_name(element) == "gentity_t":
+            if self.stores_own_number(left, right):
+                raise Hole(f"Raven sets the entity number of `{raven}` from its slot address. "
+                           "The Swift entity number is the value this store writes, and the Slots index form is an Int, which needs a cast.")
+            return f"{self.operand(left)}{'!' if optional else ''}.s.number"
+        key = (self.unwrap(left).extent.start.offset, self.unwrap(right).extent.end.offset)
+        if key in self.index_spans:
+            return f"{swift_name(table.spelling)}.firstIndex(of: {self.operand(left)}{'!' if optional else ''})!"
+        raise Hole(f"Raven takes the slot index of `{raven}` in `{table.spelling}` here. "
+                   "The Slots index form is an Int, and this site takes an Int32, which needs a cast.")
+
+    def stores_own_number(self, left: ci.Cursor, right: ci.Cursor) -> bool:
+        """True when Raven's `ent - g_entities` is the value of a store into `ent->s.number`, the store that sets the number."""
+        span = (self.unwrap(left).extent.start.offset, self.unwrap(right).extent.end.offset)
+        name = " ".join(self.source.slice(self.unwrap(left).extent).split())
+        for node in self.fn.cur.walk_preorder():
+            if node.kind != CursorKind.BINARY_OPERATOR:
+                continue
+            kids = list(node.get_children())
+            if len(kids) != 2:
+                continue
+            value = self.unwrap(kids[1])
+            if value.kind != CursorKind.BINARY_OPERATOR:
+                continue
+            parts = list(value.get_children())
+            if len(parts) != 2 or (self.unwrap(parts[0]).extent.start.offset, self.unwrap(parts[1]).extent.end.offset) != span:
+                continue
+            target = " ".join(self.source.slice(self.unwrap(kids[0]).extent).split())
+            return target.replace(" ", "") in (f"{name}->s.number", f"{name}.s.number")
+        return False
 
     def oracle_declares(self, decl: ci.Cursor | None) -> bool:
         """True when Raven's own headers or files declare the function. A libc function comes from the SDK, and Foundation holds it."""
@@ -728,6 +819,11 @@ class Expressions:
         if swift in ("Int32", "Float") and self.is_bool(operand):
             # Raven's `(int)` on a qboolean is the Bool as a number.
             return self.converted(operand, swift)
+        if swift in ("Int32", "Float") and self.strip(operand).type.get_canonical().kind == TypeKind.DOUBLE \
+                and (self.has_double_literal(operand) or self.holds_double(operand)):
+            # Raven's cast of a double expression, `(int)(save*ARMOR_REDUCTION_FACTOR)`, converts what C computed in double.
+            inner = self.wrapped(operand, "Double")
+            return f"Double({swift}({inner}))" if self.leaf_wrap == "Double" else f"{swift}({inner})"
         if swift in ("Int32", "Float") and self.leaf_wrap == "Double":
             # Raven's cast inside a double expression, `(float)pm->ps->speed * max / (127.0 * total)`, converts and then widens as C does.
             outer = self.leaf_wrap

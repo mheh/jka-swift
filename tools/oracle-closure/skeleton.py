@@ -11,6 +11,8 @@ already hides the function and the thunks below must reach it. A signature the t
 The second output is Sources/JKAMP_GameLogic/Generated/Callbacks.swift: one enum per callback field of gentity_t,
 one static thunk per function the oracle stores in that field, named as the function, so each function has one
 address for the life of the module. A clear to 0 or NULL and a store whose value is a call are not stores of a name.
+A store into a callback field of another record, `pVehInfo->Update = Update`, gets a private thunk enum at the end of the stub of its file,
+`VehicleInfoThunks`, because five vehicle files each define a private function of one name.
 
 A stub file is replaced whole until its first hand edit. A file that no longer carries the generated header line
 is adopted, and the generator leaves it alone and says so.
@@ -194,6 +196,7 @@ class Skeleton:
         self.file_enums = self.collect_file_enums()
         self.stores = self.collect_stores()
         self.stored_names = {fn.name for pairs in self.stores.values() for _, fn in pairs}
+        self.record_stores = self.collect_record_stores()
         self.game_calls = self.collect_game_calls()
         self.outside_calls = self.collect_outside_calls()
         self.never_names = self.collect_never()
@@ -764,6 +767,69 @@ class Skeleton:
                 walk(fn.cur)
         return stores
 
+    def collect_record_stores(self) -> dict[str, list[tuple[str, ci.Cursor, Function]]]:
+        """Every store of a function into a callback field of a record other than gentity_t, `pVehInfo->Update = Update`, by game file.
+        Each entry is the view of the record, the field, and the stored function of that file, or the function of another module.
+        Five vehicle files each define a private `Update`, so the thunk of such a store stands in the file of the store."""
+        stores: dict[str, list[tuple[str, ci.Cursor, Function]]] = defaultdict(list)
+        for stem, fns in self.files.items():
+            if target_of(stem) != LOGIC:
+                continue
+            seen: set[tuple[str, str]] = set()
+            own = {fn.name: fn for fn in fns}
+            for fn in fns:
+                for node in fn.cur.walk_preorder():
+                    if node.kind != CursorKind.BINARY_OPERATOR or binop_assign_op(node) != "=":
+                        continue
+                    lhs, rhs = list(node.get_children())
+                    field = lhs.referenced
+                    if lhs.kind != CursorKind.MEMBER_REF_EXPR or field is None or field.kind != CursorKind.FIELD_DECL:
+                        continue
+                    owner = field.type.get_canonical()
+                    if owner.kind != TypeKind.POINTER or owner.get_pointee().kind != TypeKind.FUNCTIONPROTO:
+                        continue
+                    record = self.table.views.record_name(field.semantic_parent.type) or field.semantic_parent.spelling
+                    if record == "gentity_t" or record not in self.table.views.views:
+                        continue
+                    # The unity parse leaves a second file's `static` of the same name unresolved, so the name is read from Raven's text.
+                    name = rhs_function(rhs) or self.source(stem).slice(rhs.extent).strip()
+                    stored = own.get(name) if name else None
+                    if stored is None and name in self.by_name and target_of(self.by_name[name].stem) != LOGIC:
+                        stored = self.by_name[name]
+                    if stored is None or (field.spelling, name) in seen:
+                        continue
+                    seen.add((field.spelling, name))
+                    stores[stem].append((self.table.views.views[record][0], field, stored))
+        return stores
+
+    def record_thunks_name(self, view: str) -> str:
+        """The private namespace of a file's thunks for one record's callback fields, `VehicleInfoThunks`."""
+        return f"{view}Thunks"
+
+    def record_thunks(self, stem: str) -> list[str]:
+        """The private thunks of one game file for the callback fields of a record other than gentity_t, one static per stored function."""
+        lines: list[str] = []
+        by_view: dict[str, list[tuple[ci.Cursor, Function]]] = defaultdict(list)
+        for view, field, fn in self.record_stores.get(stem, []):
+            by_view[view].append((field, fn))
+        for view in sorted(by_view):
+            lines += [
+                f"/// One static per function this file stores in a `{view}` callback field, so each has one address for the life of the module.",
+                "/// The thunks stand in this file, because the functions they call are private to it.",
+                f"private enum {self.record_thunks_name(view)} {{",
+            ]
+            named: set[str] = set()
+            for field, fn in sorted(by_view[view], key=lambda pair: pair[1].name):
+                if fn.name in named:
+                    continue
+                named.add(fn.name)
+                alias = f"{view}{field.spelling[0].upper()}{field.spelling[1:]}"
+                lines += self.thunk_lines(alias, field.type.get_canonical().get_pointee(), fn)
+                lines.append("")
+            lines.pop()
+            lines += ["}", ""]
+        return lines
+
     def collect_game_calls(self) -> set[str]:
         """Every bg function and bg file-scope variable a game file names, by Raven's name, so the bg declaration is public for the game module.
         A libc name the shared module already holds in public, `atof` of CString.swift, is the game's, so bg's copy stays internal.
@@ -946,6 +1012,7 @@ class Skeleton:
         for fn in self.files[stem]:
             lines += self.stub(fn)
             lines.append("")
+        lines += self.record_thunks(stem)
         return lines
 
     def thunk(self, field: str, fn: Function) -> list[str]:
@@ -957,7 +1024,11 @@ class Skeleton:
                     if f.kind == CursorKind.FIELD_DECL and f.spelling == field:
                         proto = f.type.get_canonical().get_pointee()
         assert proto is not None, field
-        alias = f"Entity{field[0].upper()}{field[1:]}"
+        return self.thunk_lines(f"Entity{field[0].upper()}{field[1:]}", proto, fn)
+
+    def thunk_lines(self, alias: str, proto: ci.Type, fn: Function) -> list[str]:
+        """The static of one stored function under the callback typealias of its field.
+        A view argument is the view over the handle, a qboolean is the test against 0, and a Bool return is C's 1 or 0."""
         lines = [f"    /// Source: {fn.cite}"]
         if not fn.mapped:
             self.counts["thunks over an unmapped signature"] += 1
@@ -979,6 +1050,8 @@ class Skeleton:
                 args.append(f"${i}")
         # A closure that names only some of its parameters names none, so every argument is positional.
         call = f"{target_of(fn.stem)}.{swift_name(fn.name)}({', '.join(args)})"
+        if fn.returns == "Bool":
+            call = f"{call} ? 1 : 0"
         lines.append(f"    static let {swift_name(fn.name)}: {alias} = {{ {call} }}")
         self.counts["thunks"] += 1
         return lines

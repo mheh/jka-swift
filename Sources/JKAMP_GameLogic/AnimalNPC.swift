@@ -140,3 +140,25 @@ func G_CreateAnimalNPC(_ pVeh: inout JKAMP.Vehicle?, _ strAnimalType: String) {
     // TODO: Port G_CreateAnimalNPC
     portMissing("G_CreateAnimalNPC", source: "oracle/codemp/game/AnimalNPC.c:904")
 }
+
+/// One static per function this file stores in a `VehicleInfo` callback field, so each has one address for the life of the module.
+/// The thunks stand in this file, because the functions they call are private to it.
+private enum VehicleInfoThunks {
+    /// Source: oracle/codemp/game/AnimalNPC.c:620
+    static let AnimateRiders: VehicleInfoAnimateRiders = { JKAMP_GameLogic.AnimateRiders(JKAMP.Vehicle(handle: $0!)) }
+
+    /// Source: oracle/codemp/game/AnimalNPC.c:474
+    static let AnimateVehicle: VehicleInfoAnimateVehicle = { JKAMP_GameLogic.AnimateVehicle(JKAMP.Vehicle(handle: $0!)) }
+
+    /// Source: oracle/codemp/game/AnimalNPC.c:97
+    static let DeathUpdate: VehicleInfoDeathUpdate = { JKAMP_GameLogic.DeathUpdate(JKAMP.Vehicle(handle: $0!)) }
+
+    /// Source: oracle/codemp/game/AnimalNPC.c:168
+    static let ProcessMoveCommands: VehicleInfoProcessMoveCommands = { JKAMP_GameLogic.ProcessMoveCommands(JKAMP.Vehicle(handle: $0!)) }
+
+    /// Source: oracle/codemp/game/AnimalNPC.c:338
+    static let ProcessOrientCommands: VehicleInfoProcessOrientCommands = { JKAMP_GameLogic.ProcessOrientCommands(JKAMP.Vehicle(handle: $0!)) }
+
+    /// Source: oracle/codemp/game/AnimalNPC.c:151
+    static let Update: VehicleInfoUpdate = { JKAMP_GameLogic.Update(JKAMP.Vehicle(handle: $0!), JKAMP.Usercmd(handle: $1!)) ? 1 : 0 }
+}

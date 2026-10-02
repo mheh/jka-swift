@@ -373,6 +373,8 @@ A record pointer parameter that the body sets to a slot of a table and steps, `f
 Raven's `if (!from) from = g_entities; else from++;` is `fromIndex = 0` and `fromIndex = from!.s.number + 1`, and every read of the parameter after a store or a step reaches it is `g_entities[fromIndex]`.
 A record pointer local that the body sets only to slots of one table, `e = &g_entities[MAX_CLIENTS]`, and steps is an index local the same way, `eIndex = MAX_CLIENTS`.
 Two pointers into one table compare as their indexes, so `pushed_p > &pushed[MAX_GENTITIES]` is `pushed_pIndex > MAX_GENTITIES`, and `(pushed_p-1)->origin` is `pushed[pushed_pIndex - 1].origin`.
+A pointer minus its own table is the index of its slot: a walk pointer is its index local, an entity is its number, `ent.s.number`, and a record of another table is the Slots index form, `bg_itemlist.firstIndex(of: item)!`, where an array index takes it.
+The store that sets an entity's number from its slot address, and a record's index where the site takes an `Int32`, stay holes, because the index form is an `Int`.
 Each cvar row holds a key path into `GameStorage` for the cvar, or nil for Raven's NULL, and G_RegisterCvars and G_UpdateCvars write its `modificationCount`.
 A table of `vec3_t` with Raven's data, `WP_MuzzlePoint` of `bg_weapons.c`, is C storage the same way, and `BgTables.swift` reaches it as a `Slots<JKAShared.vec3_t>` over the C array, with the 12-byte stride of Raven's `vec3_t`.
 A struct table or record Raven leaves zero, `g_entities`, `level`, `pml`, `g_timerPool`, and every `vmCvar_t` among them, is one zeroed allocation on the generated storage class, `GameStorage` in `Sources/JKAMP_Game/Generated/Storage/GameStorage.swift` or `BgStorage` in `Sources/JKAMP_BG/Generated/BgStorage.swift`, which the state object owns as `storage`.
@@ -402,6 +404,7 @@ A Raven static in a `bg_*.c` file lives on `final class BgState`, in the hand fi
 A scalar static is a property of the generated `BgVariables`, which `BgState` owns, and the stub forwards it under Raven's name, so a body writes `pm_flying = FLY_NONE`. A struct static such as `pml` is one zeroed allocation on the generated `BgStorage`, which `BgState` owns, and a body reads `pml.forward` through the forwarder.
 A pointer static such as `pm` is the view of the caller's memory, set per call, and a body reads `pm.ps` with no bind. A test resets state with `bg = BgState()`.
 A static local that every path of the body writes before it reads is scratch, Raven's habit of keeping vectors off the stack, and it is a local of the body, declared where Raven declared it with his initializer.
+The address of the local passed to an out parameter is a store, so `garbage` of `SP_NPC_spawner`, whose first use is `G_SpawnInt("noBasicSounds", "0", &garbage)`, is scratch.
 A static local a statement writes is storage that outlives the call, and the draft keeps it as a hole until a storage ruling names its home.
 A static local that a statement reads before one writes it, or that the function returns, such as the `char buff[]` of `BuildShaderStateConfig`, is a hole of the same kind, whatever its type.
 The 23 statics of `BG_UpdateLookAngles` and `BG_G2PlayerAngles` are this shape, and none of them sits on `BgState`.
@@ -438,6 +441,8 @@ A `PooledString` compares by pointer, as Raven's `char *` compare did, so `ent.c
 
 A Raven store such as `ent->think = Name` uses the generated thunk in `Callbacks.swift`, for example `ent.think = Think.G_FreeEntity`.
 The thunk carries the one address that lives for the module's life. The transcriptor never writes a closure into a callback field by hand.
+A store into a callback field of another record, `pVehInfo->Update = Update`, uses the private thunk at the end of the stub of the store, `pVehInfo.Update = VehicleInfoThunks.Update`, because five vehicle files each define a private function of one name.
+Raven's clear of a callback field with `0` or `NULL` is `nil`, `ent.think = nil`.
 
 ### The five `holdrand` draws
 
@@ -467,7 +472,8 @@ A cast Raven wrote explicitly stays on the page, so `(int)v[0]` is `Int32(v[0])`
 `Sources/JKAShared/Promotion.swift` defines the arithmetic and comparison operators between `Int32` and `Float`, both orders, and the compound assignments, and each one promotes the integer as C does.
 So `ps.velocity[2] -= ps.gravity * bg.pml.frametime` and `ps.origin[2] + MINS_Z + 1` are Raven's lines.
 Swift reads `0.1` beside a `Float` as a `Float`, which changes the bits Raven's double math sets.
-So a body writes `Double(x)` on each float operand of an expression that holds a double literal, and `Float(...)` once at the store, `drop += Float(Double(speed) * 0.1 * Double(bg.pml.frametime))`.
+So a body writes `Double(...)` on each operand at the operator where it meets the double operand, and `Float(...)` once at the store, `drop += Float(Double(speed) * 0.1 * Double(bg.pml.frametime))`, and `(150 + pml.frametime) * 0.003` is `Double(150 + pml.frametime) * 0.003`, because C adds in float.
+A macro constant that expands to a double literal, `M_PI` or `ARMOR_PROTECTION`, is a double literal, and a comparison or a cast whose operand C computes in double takes the same widening, `abs(Double(du0)) < EPSILON`.
 A C library call that takes and returns `double` inside that expression takes its arguments in `Double` too, `Int32(ceil(Double(dropTime) * 1000.0))`, so the `Double` overload answers as C's call does.
 This is the one place a body writes a conversion Raven did not write, and a Raven explicit cast inside it, `(float)pm->ps->speed`, stays as `Float(ps.speed)`.
 An `int` stored into a `float` with no operator between them takes `Float(...)` at the store, `ps.speed = Float(ps.basespeed)`, because Swift has no conversion on assignment and no operator reaches `=`.

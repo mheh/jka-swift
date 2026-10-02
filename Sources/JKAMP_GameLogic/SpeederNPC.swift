@@ -132,3 +132,22 @@ func G_CreateSpeederNPC(_ pVeh: inout JKAMP.Vehicle?, _ strType: String) {
     // TODO: Port G_CreateSpeederNPC
     portMissing("G_CreateSpeederNPC", source: "oracle/codemp/game/SpeederNPC.c:1092")
 }
+
+/// One static per function this file stores in a `VehicleInfo` callback field, so each has one address for the life of the module.
+/// The thunks stand in this file, because the functions they call are private to it.
+private enum VehicleInfoThunks {
+    /// Source: oracle/codemp/game/SpeederNPC.c:630
+    static let AnimateRiders: VehicleInfoAnimateRiders = { JKAMP_GameLogic.AnimateRiders(JKAMP.Vehicle(handle: $0!)) }
+
+    /// Source: oracle/codemp/game/SpeederNPC.c:608
+    static let AnimateVehicle: VehicleInfoAnimateVehicle = { JKAMP_GameLogic.AnimateVehicle(JKAMP.Vehicle(handle: $0!)) }
+
+    /// Source: oracle/codemp/game/SpeederNPC.c:278
+    static let ProcessMoveCommands: VehicleInfoProcessMoveCommands = { JKAMP_GameLogic.ProcessMoveCommands(JKAMP.Vehicle(handle: $0!)) }
+
+    /// Source: oracle/codemp/game/SpeederNPC.c:505
+    static let ProcessOrientCommands: VehicleInfoProcessOrientCommands = { JKAMP_GameLogic.ProcessOrientCommands(JKAMP.Vehicle(handle: $0!)) }
+
+    /// Source: oracle/codemp/game/SpeederNPC.c:149
+    static let Update: VehicleInfoUpdate = { JKAMP_GameLogic.Update(JKAMP.Vehicle(handle: $0!), JKAMP.Usercmd(handle: $1!)) ? 1 : 0 }
+}

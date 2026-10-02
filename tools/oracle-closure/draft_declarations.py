@@ -459,8 +459,26 @@ class Declarations:
                     inner = self.unwrap(arg)
                     if inner.kind == CursorKind.DECL_REF_EXPR and inner.spelling == var.spelling:
                         return i in written_arguments(self.strip(kids[0]).spelling)
+            if node.kind == CursorKind.CALL_EXPR and kids and self.out_argument(node, var):
+                # An address passed to an out parameter is a store, `G_SpawnInt("noBasicSounds", "0", &garbage)`.
+                return True
             if node.kind == CursorKind.DECL_REF_EXPR and node.spelling == var.spelling and node.referenced is not None and node.referenced.kind == CursorKind.VAR_DECL:
                 return False
+        return False
+
+    def out_argument(self, call: ci.Cursor, var: ci.Cursor) -> bool:
+        """True when the call passes `&var` to a parameter the table maps as an out scalar, which the callee writes."""
+        kids = list(call.get_children())
+        callee = self.sk.by_name.get(self.strip(kids[0]).spelling)
+        if callee is None or not callee.mapped:
+            return False
+        for i, arg in enumerate(kids[1:]):
+            inner = self.unwrap(arg)
+            if inner.kind != CursorKind.UNARY_OPERATOR or self.operator_or_none_unary(inner) != "&":
+                continue
+            target = self.unwrap(self.unary_parts(inner)[2])
+            if target.kind == CursorKind.DECL_REF_EXPR and target.spelling == var.spelling:
+                return i < len(callee.params) and callee.params[i].kind == "out_scalar"
         return False
 
     def narrow_local_names(self, fn: ci.Cursor) -> dict[str, str]:

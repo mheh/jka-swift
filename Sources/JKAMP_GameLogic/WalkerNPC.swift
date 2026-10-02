@@ -131,3 +131,22 @@ func G_CreateWalkerNPC(_ pVeh: inout JKAMP.Vehicle?, _ strAnimalType: String) {
     // TODO: Port G_CreateWalkerNPC
     portMissing("G_CreateWalkerNPC", source: "oracle/codemp/game/WalkerNPC.c:594")
 }
+
+/// One static per function this file stores in a `VehicleInfo` callback field, so each has one address for the life of the module.
+/// The thunks stand in this file, because the functions they call are private to it.
+private enum VehicleInfoThunks {
+    /// Source: oracle/codemp/game/WalkerNPC.c:415
+    static let AnimateVehicle: VehicleInfoAnimateVehicle = { JKAMP_GameLogic.AnimateVehicle(JKAMP.Vehicle(handle: $0!)) }
+
+    /// Source: oracle/codemp/game/WalkerNPC.c:106
+    static let Board: VehicleInfoBoard = { JKAMP_GameLogic.Board(JKAMP.Vehicle(handle: $0!), JKAMP.BgEntity(handle: $1!)) ? 1 : 0 }
+
+    /// Source: oracle/codemp/game/WalkerNPC.c:129
+    static let ProcessMoveCommands: VehicleInfoProcessMoveCommands = { JKAMP_GameLogic.ProcessMoveCommands(JKAMP.Vehicle(handle: $0!)) }
+
+    /// Source: oracle/codemp/game/WalkerNPC.c:316
+    static let ProcessOrientCommands: VehicleInfoProcessOrientCommands = { JKAMP_GameLogic.ProcessOrientCommands(JKAMP.Vehicle(handle: $0!)) }
+
+    /// Source: oracle/codemp/game/WalkerNPC.c:84
+    static let RegisterAssets: VehicleInfoRegisterAssets = { JKAMP_GameLogic.RegisterAssets(JKAMP.Vehicle(handle: $0!)) }
+}
