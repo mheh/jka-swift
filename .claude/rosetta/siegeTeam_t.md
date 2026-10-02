@@ -7,7 +7,7 @@ A field reads and writes through the C struct, so `ent.r.absmin` is Raven's `ent
 
 | C field | Swift | Note |
 |---|---|---|
-| `char[512] name` | `name: String` | Array of 512. |
+| `char[512] name` | `name: String`, `nameBuffer: JKAShared.CharBuf` | Array of 512. |
 | `siegeClass_t *[16] classes` | `classes: Slots<SiegeClass?>` | Array of 16. |
 | `int numClasses` | `numClasses: Int32` |  |
 | `int friendlyShader` | `friendlyShader: Int32` |  |

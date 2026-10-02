@@ -9,15 +9,15 @@ The oracle range is the whole definition, from the return type to the closing br
 |---|---|---|---|---|---|
 | `vmMain` | `oracle/codemp/game/g_main.c:515-696` | `JKAMP_GameLogic/g_main.swift:549` | marker | none | `func vmMain(_ command: Int32, _ arg0: Int32, _ arg1: Int32, _ arg2: Int32, _ arg3: Int32, _ arg4: Int32, _ arg5: Int32, _ arg6: Int32, _ arg7: Int32, _ arg8: Int32, _ arg9: Int32, _ arg10: Int32, _ arg11: Int32) -> Int32` |
 | `G_Printf` | `oracle/codemp/game/g_main.c:703-712` | `JKAMP_GameLogic/g_main.swift:555` | ported | `crates/mp/game/src/g_main.rs:64-66` | `func G_Printf(_ fmt: String, _ args: any JKAShared.FormatArg...)` |
-| `G_Error` | `oracle/codemp/game/g_main.c:714-723` | `JKAMP_GameLogic/g_main.swift:560` | ported | `crates/mp/game/src/g_main.rs:71-73` | `func G_Error(_ fmt: String, _ args: any JKAShared.FormatArg...)` |
+| `G_Error` | `oracle/codemp/game/g_main.c:714-723` | `JKAMP_GameLogic/g_main.swift:560` | ported | `crates/mp/game/src/g_main.rs:71-73` | `func G_Error(_ fmt: String, _ args: any JKAShared.FormatArg...) -> Never` |
 | `G_FindTeams` | `oracle/codemp/game/g_main.c:736-781` | `JKAMP_GameLogic/g_main.swift:578` | marker | `crates/mp/game/src/g_main.rs:78-125` | `func G_FindTeams()` |
 | `G_RemapTeamShaders` | `oracle/codemp/game/g_main.c:783-795` | `JKAMP_GameLogic/g_main.swift:584` | marker | `crates/mp/game/src/g_main.rs:134-134` | `func G_RemapTeamShaders()` |
 | `G_RegisterCvars` | `oracle/codemp/game/g_main.c:803-845` | `JKAMP_GameLogic/g_main.swift:597` | marker | `crates/mp/game/src/g_main.rs:321-379` | `func G_RegisterCvars()` |
 | `G_UpdateCvars` | `oracle/codemp/game/g_main.c:852-879` | `JKAMP_GameLogic/g_main.swift:610` | marker | `crates/mp/game/src/g_main.rs:384-429` | `func G_UpdateCvars()` |
 | `G_InitGame` | `oracle/codemp/game/g_main.c:897-1118` | `JKAMP_GameLogic/g_main.swift:616` | marker | none | `func G_InitGame(_ levelTime: Int32, _ randomSeed: Int32, _ restart: Int32)` |
 | `G_ShutdownGame` | `oracle/codemp/game/g_main.c:1128-1199` | `JKAMP_GameLogic/g_main.swift:622` | marker | none | `func G_ShutdownGame(_ restart: Int32)` |
-| `Com_Error` | `oracle/codemp/game/g_main.c:1208-1217` | `JKAMP_GameLogic/g_main.swift:628` | ported | `crates/mp/game/src/g_main.rs:434-449` | `func Com_Error(_ level: Int32, _ error: String, _ args: any JKAShared.FormatArg...)` |
-| `Com_Printf` | `oracle/codemp/game/g_main.c:1219-1228` | `JKAMP_GameLogic/g_main.swift:634` | ported | `crates/mp/game/src/g_main.rs:454-463` | `func Com_Printf(_ msg: String, _ args: any JKAShared.FormatArg...)` |
+| `Com_Error` | `oracle/codemp/game/g_main.c:1208-1217` | `JKAMP_GameLogic/g_main.swift:628` | ported | `crates/mp/game/src/g_main.rs:434-449` | `public func Com_Error(_ level: Int32, _ error: String, _ args: any JKAShared.FormatArg...) -> Never` |
+| `Com_Printf` | `oracle/codemp/game/g_main.c:1219-1228` | `JKAMP_GameLogic/g_main.swift:634` | ported | `crates/mp/game/src/g_main.rs:454-463` | `public func Com_Printf(_ msg: String, _ args: any JKAShared.FormatArg...)` |
 | `AddTournamentPlayer` | `oracle/codemp/game/g_main.c:1248-1295` | `JKAMP_GameLogic/g_main.swift:649` | marker | `crates/mp/game/src/g_main.rs:468-523` | `func AddTournamentPlayer()` |
 | `RemoveTournamentLoser` | `oracle/codemp/game/g_main.c:1304-1319` | `JKAMP_GameLogic/g_main.swift:664` | marker | `crates/mp/game/src/g_main.rs:528-541` | `func RemoveTournamentLoser()` |
 | `G_PowerDuelCount` | `oracle/codemp/game/g_main.c:1321-1343` | `JKAMP_GameLogic/g_main.swift:670` | marker | `crates/mp/game/src/g_main.rs:546-576` | `func G_PowerDuelCount(_ loners: inout Int32, _ doubles: inout Int32, _ countSpec: Bool)` |

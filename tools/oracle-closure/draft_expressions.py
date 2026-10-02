@@ -554,6 +554,10 @@ class Expressions:
             return "false"
         if name == "NULL":
             return "nil"
+        if name in self.param_walks and ref is not None and ref.kind == CursorKind.PARM_DECL and self.walk_live(name, cur):
+            # The walk has started, so the parameter stands for the slot at the index.
+            table, index = self.table_cursors[name]
+            return f"{table}[{index}]"
         if name in self.names:
             # A read of an optional vector parameter is the force unwrap, where C read through the pointer with no guard.
             return self.names[name] + ("!" if name in self.optional_vectors else "")
@@ -588,6 +592,9 @@ class Expressions:
 
         A walk pointer is its index, the table itself is slot 0, `&table[i]` is slot `i`, and a walk pointer plus or minus a count is that many slots away."""
         inner = self.unwrap(cur)
+        if inner.kind == CursorKind.DECL_REF_EXPR and inner.referenced is not None and inner.referenced.kind == CursorKind.PARM_DECL \
+                and inner.spelling in self.param_walks and self.walk_live(inner.spelling, inner):
+            return self.table_cursors[inner.spelling]
         if inner.kind == CursorKind.DECL_REF_EXPR and inner.referenced is not None and inner.referenced.kind == CursorKind.VAR_DECL:
             if inner.spelling in self.table_cursors:
                 table, index = self.table_cursors[inner.spelling]

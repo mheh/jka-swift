@@ -22,6 +22,7 @@ import argparse
 import re
 import subprocess
 import sys
+from pathlib import Path
 
 import closure as C
 from bodies import Drafter, Registry
@@ -34,7 +35,8 @@ LOG = REPO / ".build-draft" / "build.log"
 SOURCE_LINE = re.compile(r"/// Source: oracle/codemp/game/\w+\.c:(\d+)$")
 # swiftc writes `path:line:col: error: message`.
 # The build system writes a parse error as `error: path:line:col message`, with a FixIt record after the message at times.
-ERROR = re.compile(r"^(?:/.*\.swift:(\d+):\d+: error: (.*)|error: /.*\.swift:(\d+):\d+ (.*?)(?:: FixIt\(.*)?)$")
+# Each form keeps the path, so an error in a hand file, jampgame.swift, reads under that file and not under the stem's.
+ERROR = re.compile(r"^(?:(/[^:]*\.swift):(\d+):\d+: error: (.*)|error: (/[^:]*\.swift):(\d+):\d+ (.*?)(?:: FixIt\(.*)?)$")
 # swiftc colours its diagnostics when it sees a terminal, and the escape sits before `error:`, so the count strips it first.
 ANSI = re.compile(r"\x1b\[[0-9;]*m")
 MISSING = re.compile(r"cannot find '(\w+)' in scope")
@@ -119,12 +121,12 @@ def gate(sk: Skeleton, registry: Registry, stem: str) -> tuple[int, int, int]:
             if line.startswith("error:"):
                 summaries.append(line)
             continue
-        number, message = (m.group(1), m.group(2)) if m.group(1) else (m.group(3), m.group(4))
+        source, number, message = m.group(1, 2, 3) if m.group(1) else m.group(4, 5, 6)
         name = MISSING.search(message)
         if name and name.group(1) in drafter.hole_names:
             cascades += 1
         else:
-            defects.append(f"{target.name}:{number}: {message}")
+            defects.append(f"{Path(source).name}:{number}: {message}")
     if summaries and not defects and not cascades:
         # An error outside a Swift file is the build's own, and it stands as a defect so a broken mirror never reads clean.
         defects += summaries

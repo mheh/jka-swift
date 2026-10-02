@@ -171,6 +171,10 @@ RETURNS = {
     "tv": "vec3",
 }
 
+# Allocators whose `char *` result a body holds as a CharBuf of the constant size Raven asks for, when every store into the local is that call.
+# The allocation call and its free stay on the page, so the pool keeps Raven's count. See row 1 of the walk of 2026-10-01.
+CHARBUF_ALLOCS = {"B_TempAlloc"}
+
 # (function, parameter) -> the kind of the parameter, where the C type alone does not say.
 #   raw       an UnsafeMutableRawPointer a body writes at a byte offset, see "Typed access at a byte offset"
 #   vec3_mut  an inout vec3_t for a `float *` Raven fills as three floats, see "A pointer out-param Raven indexes"

@@ -7,7 +7,7 @@ A field reads and writes through the C struct, so `ent.r.absmin` is Raven's `ent
 
 | C field | Swift | Note |
 |---|---|---|
-| `unsigned short firstFrame` | `firstFrame: UInt16` |  |
-| `unsigned short numFrames` | `numFrames: UInt16` |  |
-| `short frameLerp` | `frameLerp: Int16` |  |
-| `signed char loopFrames` | `loopFrames: Int8` |  |
+| `unsigned short firstFrame` | `firstFrame: Int32` |  |
+| `unsigned short numFrames` | `numFrames: Int32` |  |
+| `short frameLerp` | `frameLerp: Int32` |  |
+| `signed char loopFrames` | `loopFrames: Int32` |  |

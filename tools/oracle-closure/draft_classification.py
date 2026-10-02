@@ -11,7 +11,7 @@ from clang.cindex import CursorKind, TypeKind
 
 from spelling import INT_KINDS
 
-from rulings import NEVER_NULL_VARS
+from rulings import CHARBUF_ALLOCS, NEVER_NULL_VARS
 import closure as C
 from skeleton import BG, Function, target_of
 from table import Cursor, swift_name
@@ -264,6 +264,96 @@ class Classification:
                 buffers[name] = self.expr_name(inner.spelling)
                 return "buffer"
         return "other"
+
+    def charbuf_alloc(self, cur: ci.Cursor) -> ci.Cursor | None:
+        """The size argument of Raven's `(char *)B_TempAlloc(1024)`, a call to a CHARBUF_ALLOCS function at a constant size, or None."""
+        inner = self.uncast(cur)
+        if inner.kind != CursorKind.CALL_EXPR or self.callee_name(inner) not in CHARBUF_ALLOCS:
+            return None
+        args = list(inner.get_children())[1:]
+        if len(args) != 1:
+            return None
+        size = self.unwrap(args[0])
+        # A macro size, `MAX_CHAT_BUFFER_SIZE`, reaches the parse as its integer literal.
+        return args[0] if size.kind == CursorKind.INTEGER_LITERAL else None
+
+    def parameter_walk_writes(self, fn: ci.Cursor) -> dict[str, list[tuple[int, int, list[tuple[int, int, int]]]]]:
+        """Each record pointer parameter the walk sweep gives a table, by Raven's name, with every store and step of it.
+        A write is its start and end offsets and the `if` arms around it, each as the arm's start and end and the end of its `if`."""
+        names = {c.spelling for c in fn.get_arguments() if c.spelling in self.table_cursors}
+        writes: dict[str, list[tuple[int, int, list[tuple[int, int, int]]]]] = {name: [] for name in names}
+        if not names:
+            return writes
+
+        def walk(node: ci.Cursor, arms: list[tuple[int, int, int]]) -> None:
+            kids = list(node.get_children())
+            target = None
+            if node.kind == CursorKind.BINARY_OPERATOR and len(kids) == 2 and self.operator_or_none(node) == "=":
+                target = self.unwrap(kids[0])
+            elif node.kind == CursorKind.UNARY_OPERATOR and kids and self.sk.table.steps_or_addresses(node, kids[0], self.bytes):
+                target = self.unwrap(kids[0])
+            elif node.kind == CursorKind.COMPOUND_ASSIGNMENT_OPERATOR and len(kids) == 2:
+                target = self.unwrap(kids[0])
+            if target is not None and target.kind == CursorKind.DECL_REF_EXPR and target.spelling in names \
+                    and target.referenced is not None and target.referenced.kind == CursorKind.PARM_DECL:
+                writes[target.spelling].append((node.extent.start.offset, node.extent.end.offset, arms))
+            if node.kind == CursorKind.IF_STMT:
+                end = node.extent.end.offset
+                for i, kid in enumerate(kids):
+                    walk(kid, arms if i == 0 else arms + [(kid.extent.start.offset, kid.extent.end.offset, end)])
+                return
+            for kid in kids:
+                walk(kid, arms)
+
+        walk(fn, [])
+        return writes
+
+    def walk_live(self, name: str, cur: ci.Cursor) -> bool:
+        """True when a store or a step of the walked parameter reaches this node, so the node reads the table at the index.
+        A write in one arm of an `if` reaches only that arm and the code after the `if`, so the `else` of G_Find still reads the parameter."""
+        start = cur.extent.start.offset
+        return any(end <= start and all(a <= start < b or start >= after for a, b, after in arms)
+                   for _, end, arms in self.param_walks.get(name, []))
+
+    def uncast(self, cur: ci.Cursor) -> ci.Cursor:
+        """The expression under Raven's casts and parentheses, the call of `(char *)B_TempAlloc(1024)`."""
+        inner = self.unwrap(cur)
+        while inner.kind == CursorKind.CSTYLE_CAST_EXPR:
+            inner = self.unwrap([k for k in inner.get_children() if k.kind.is_expression()][-1])
+        return inner
+
+    def charbuf_alloc_names(self, fn: ci.Cursor) -> dict[str, ci.Cursor]:
+        """Every `char *` local whose every store is one CHARBUF_ALLOCS call at one constant size, by Raven's name, with the size argument.
+        The local is a CharBuf of that size, and the call stays on the page for the pool's count."""
+        stores: dict[str, list[ci.Cursor | None]] = {}
+        for var in fn.walk_preorder():
+            if var.kind != CursorKind.VAR_DECL:
+                continue
+            t = var.type.get_canonical()
+            if t.kind != TypeKind.POINTER or t.get_pointee().get_canonical().kind != TypeKind.CHAR_S:
+                continue
+            init = [c for c in var.get_children() if c.kind.is_expression() and b"=" in self.bytes[var.extent.start.offset:c.extent.start.offset]]
+            if init:
+                stores.setdefault(var.spelling, []).append(self.charbuf_alloc(init[0]))
+        for cur in fn.walk_preorder():
+            kids = list(cur.get_children())
+            if cur.kind != CursorKind.BINARY_OPERATOR or len(kids) != 2 or self.collapsed(cur) or self.operator_or_none(cur) != "=":
+                continue
+            left = self.unwrap(kids[0])
+            if left.kind != CursorKind.DECL_REF_EXPR or left.referenced is None or left.referenced.kind != CursorKind.VAR_DECL:
+                continue
+            t = left.type.get_canonical()
+            if t.kind != TypeKind.POINTER or t.get_pointee().get_canonical().kind != TypeKind.CHAR_S:
+                continue
+            stores.setdefault(left.spelling, []).append(self.charbuf_alloc(kids[1]))
+        out: dict[str, ci.Cursor] = {}
+        for name, sizes in stores.items():
+            if not sizes or any(size is None for size in sizes):
+                continue
+            # Every store asks for the same size, so the CharBuf has one count.
+            if len({self.source.slice(size.extent).strip() for size in sizes}) == 1:
+                out[name] = sizes[0]
+        return out
 
     def raw_local_names(self, fn: ci.Cursor) -> set[str]:
         """Every pointer-to-byte local whose every store is a raw pointer, by the stores of the function.

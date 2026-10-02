@@ -159,6 +159,10 @@ class Drafter(Statements, Expressions, Calls, Declarations, Classification):
         self.call_format: dict[int, tuple[ci.Cursor, str]] = {}
         # Raven's `siegeTeam_t **teamPtr` locals of the function being drafted, by his name, with the record the pointee stands for.
         self.chosen_locals: dict[str, str] = {}
+        # Raven's `char *` locals from a CHARBUF_ALLOCS call, and his walked record pointer parameters with their stores and steps.
+        self.charbuf_allocs: dict[str, ci.Cursor] = {}
+        self.param_walks: dict[str, list[tuple[int, int, list[tuple[int, int, int]]]]] = {}
+        self.param_walk_heads: list[str] = []
 
     # MARK: - One function
 
@@ -180,9 +184,11 @@ class Drafter(Statements, Expressions, Calls, Declarations, Classification):
         self.local_holes = set()
         self.optional_entities: set[str] = set()
         self.after_com_error = False
-        self.charbuf_locals: set[str] = set()
+        # Raven's `char *buf` locals that only ever hold a CHARBUF_ALLOCS call at one constant size, which Swift holds as a CharBuf of that size.
+        self.charbuf_allocs = self.charbuf_alloc_names(fn.cur)
+        self.charbuf_locals: set[str] = set(self.charbuf_allocs)
         # Raven's `byte *b` and `char *dest` locals that only ever hold a raw allocation, which Swift holds as UnsafeMutableRawPointer.
-        self.raw_locals = self.raw_local_names(fn.cur)
+        self.raw_locals = self.raw_local_names(fn.cur) - self.charbuf_locals
         # Raven's `const char *token` that only holds parsed text is a String.
         self.text_locals, self.optional_texts = self.text_local_names(fn.cur)
         # His `char *p` over a named buffer is a read cursor, a TextCursor, or a write cursor, the byte offset of row 47.
@@ -210,7 +216,11 @@ class Drafter(Statements, Expressions, Calls, Declarations, Classification):
         self.optional_vectors = {c.spelling for c, p in zip(fn.cur.get_arguments(), fn.params) if p.kind in ("vec3_opt", "axis_opt")}
         self.inout_locals = {c.spelling for c, p in zip(fn.cur.get_arguments(), fn.params) if (p.swift or "").startswith("inout ")}
         # Raven assigns a parameter of his own. A Swift parameter is immutable, so the body opens with a mutable copy, after the declarations.
-        self.param_copies = [p.name for c, p in zip(fn.cur.get_arguments(), fn.params) if c.spelling in self.written and c.spelling not in self.inout_locals]
+        # Raven walks his own record pointer parameter over a table, `from` of G_Find, and an index stands for it once a store or a step reaches it.
+        self.param_walks = self.parameter_walk_writes(fn.cur)
+        self.param_walk_heads = list(self.param_walks)
+        self.param_copies = [p.name for c, p in zip(fn.cur.get_arguments(), fn.params)
+                             if c.spelling in self.written and c.spelling not in self.inout_locals and c.spelling not in self.param_walks]
         # Raven steps his own `const char *` parameter through its bytes, so the mutable copy is a read cursor over the String's bytes.
         walked = [(c.spelling, p.name) for c, p in zip(fn.cur.get_arguments(), fn.params) if p.kind == "cstring" and c.spelling in self.written]
         self.cursor_params = {name for _, name in walked}

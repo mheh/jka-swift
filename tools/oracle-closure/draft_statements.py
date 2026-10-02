@@ -388,6 +388,12 @@ class Statements:
         if kind == CursorKind.UNARY_OPERATOR:
             op, prefix, operand = self.unary_parts(cur)
             if op in ("++", "--"):
+                walked = self.unwrap(operand)
+                if walked.kind == CursorKind.DECL_REF_EXPR and walked.spelling in self.param_walks and not self.walk_live(walked.spelling, cur):
+                    # The first step of a walked parameter starts the walk at the slot after the record the caller handed in.
+                    param = self.params_by_name[walked.spelling]
+                    record = self.names[walked.spelling] + ("!" if param.swift.endswith("?") else "")
+                    return [f"{pad}{self.table_cursors[walked.spelling][1]} = {record}.s.number {op[0]} 1" + self.trailing(cur)]
                 if self.unwrap(operand).kind == CursorKind.DECL_REF_EXPR and self.unwrap(operand).spelling in self.table_cursors:
                     self.local_walk(self.unwrap(operand))
                     return [f"{pad}{self.table_cursors[self.unwrap(operand).spelling][1]} {op[0]}= 1" + self.trailing(cur)]
@@ -410,6 +416,9 @@ class Statements:
                 return self.statement(left, depth) + self.statement(right, depth)
             if op in ASSIGN_OPS:
                 left, right = list(cur.get_children())
+                if op == "=" and self.unwrap(left).kind == CursorKind.DECL_REF_EXPR and self.unwrap(left).spelling in self.charbuf_allocs:
+                    # The local is already a CharBuf of the size, so the store keeps only the call, for the pool's count.
+                    return [f"{pad}_ = {self.expr(self.uncast(right))}" + self.trailing(cur)]
                 if op == "=" and self.unwrap(left).kind == CursorKind.DECL_REF_EXPR and self.unwrap(left).spelling in self.game_entities | self.optional_entities:
                     return [f"{pad}{self.expr(left)} = {self.entity_or_nil(right)}" + self.trailing(cur)]
                 if self.unwrap(left).kind == CursorKind.DECL_REF_EXPR and self.unwrap(left).spelling in self.chosen_locals:
@@ -464,10 +473,11 @@ class Statements:
                 tuple_call = self.tuple_call(right)
                 if op == "=" and tuple_call is not None:
                     call, buffer = tuple_call
-                    # A list trap returns the whole buffer as a CharBuf, and any other returns the text to the first NUL.
+                    # A list trap returns the whole buffer as a CharBuf, and the buffer takes it as it is.
+                    # Any other trap returns the text to the first NUL, and the copy keeps the buffer's declared size, as the engine's write does.
                     whole = self.registry.returns.get(self.callee_name(self.strip(right)), "").startswith("(Int32, JKAShared.CharBuf)")
-                    text = "filled.1" if whole else "JKAShared.CharBuf(filled.1)"
-                    return [f"{pad}let filled = {call}", f"{pad}{self.expr(left)} = filled.0", f"{pad}{buffer} = {text}"]
+                    fill = f"{buffer} = filled.1" if whole else f"strcpy(&{buffer}, filled.1)"
+                    return [f"{pad}let filled = {call}", f"{pad}{self.expr(left)} = filled.0", f"{pad}{fill}"]
                 if op == "=" and self.unwrap(left).kind == CursorKind.DECL_REF_EXPR and self.unwrap(left).spelling in self.table_cursors:
                     self.local_walk(self.unwrap(left))
                     table, index = self.table_cursors[self.unwrap(left).spelling]

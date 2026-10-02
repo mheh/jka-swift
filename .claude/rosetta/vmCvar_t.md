@@ -11,4 +11,4 @@ A field reads and writes through the C struct, so `ent.r.absmin` is Raven's `ent
 | `int modificationCount` | `modificationCount: Int32` |  |
 | `float value` | `value: Float` |  |
 | `int integer` | `integer: Int32` |  |
-| `char[256] string` | `string: String` | Array of 256. |
+| `char[256] string` | `string: String`, `stringBuffer: JKAShared.CharBuf` | Array of 256. |

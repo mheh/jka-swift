@@ -17,15 +17,21 @@ One file per viewed struct sits beside this index. The tables below give the Swi
 | `ammoData_t` | `AmmoData` | `JKAMP` | `.claude/rosetta/ammoData_t.md` |
 | `animation_t` | `Animation` | `JKAMP` | `.claude/rosetta/animation_t.md` |
 | `bgEntity_t` | `BgEntity` | `JKAMP` | `.claude/rosetta/bgEntity_t.md` |
+| `bgLoadedAnim_t` | `BgLoadedAnim` | `JKAMP` | `.claude/rosetta/bgLoadedAnim_t.md` |
 | `bladeInfo_t` | `BladeInfo` | `JKAMP` | `.claude/rosetta/bladeInfo_t.md` |
+| `botSpawnQueue_t` | `BotSpawnQueue` | `JKAMP_Game` | `.claude/rosetta/botSpawnQueue_t.md` |
+| `bot_input_t` | `BotInput` | `JKAMP_Game` | `.claude/rosetta/bot_input_t.md` |
 | `bot_settings_t` | `BotSettings` | `JKAMP_Game` | `.claude/rosetta/bot_settings_t.md` |
 | `bot_state_t` | `BotState` | `JKAMP_Game` | `.claude/rosetta/bot_state_t.md` |
 | `botattachment_t` | `Botattachment` | `JKAMP_Game` | `.claude/rosetta/botattachment_t.md` |
+| `boteventtracker_t` | `Boteventtracker` | `JKAMP_Game` | `.claude/rosetta/boteventtracker_t.md` |
 | `botskills_t` | `Botskills` | `JKAMP_Game` | `.claude/rosetta/botskills_t.md` |
 | `clientPersistant_t` | `ClientPersistant` | `JKAMP_Game` | `.claude/rosetta/clientPersistant_t.md` |
 | `clientSession_t` | `ClientSession` | `JKAMP_Game` | `.claude/rosetta/clientSession_t.md` |
 | `combatPoint_t` | `CombatPoint` | `JKAMP_Game` | `.claude/rosetta/combatPoint_t.md` |
+| `combatPt_t` | `CombatPt` | `JKAMP_Game` | `.claude/rosetta/combatPt_t.md` |
 | `cplane_t` | `Cplane` | `JKAShared` | `.claude/rosetta/cplane_t.md` |
+| `cvarTable_t` | `CvarTable` | `JKAMP_Game` | `.claude/rosetta/cvarTable_t.md` |
 | `entityShared_t` | `EntityShared` | `JKAMP_Game` | `.claude/rosetta/entityShared_t.md` |
 | `entityState_t` | `EntityState` | `JKAMP` | `.claude/rosetta/entityState_t.md` |
 | `failedEdge_t` | `FailedEdge` | `JKAMP_Game` | `.claude/rosetta/failedEdge_t.md` |
@@ -37,39 +43,51 @@ One file per viewed struct sits beside this index. The tables below give the Swi
 | `gitem_t` | `Gitem` | `JKAMP` | `.claude/rosetta/gitem_t.md` |
 | `gtimer_t` | `Gtimer` | `JKAMP_Game` | `.claude/rosetta/gtimer_t.md` |
 | `interestPoint_t` | `InterestPoint` | `JKAMP_Game` | `.claude/rosetta/interestPoint_t.md` |
+| `ipFilter_t` | `IpFilter` | `JKAMP_Game` | `.claude/rosetta/ipFilter_t.md` |
 | `level_locals_t` | `Level` | `JKAMP_Game` | `.claude/rosetta/level_locals_t.md` |
 | `mdxaBone_t` | `MdxaBone` | `JKAMP` | `.claude/rosetta/mdxaBone_t.md` |
 | `navInfo_t` | `NavInfo` | `JKAMP_Game` | `.claude/rosetta/navInfo_t.md` |
+| `nodeobject_t` | `Nodeobject` | `JKAMP_Game` | `.claude/rosetta/nodeobject_t.md` |
 | `parms_t` | `Parms` | `JKAMP_Game` | `.claude/rosetta/parms_t.md` |
+| `pc_token_t` | `PcToken` | `JKAMP` | `.claude/rosetta/pc_token_t.md` |
 | `playerState_t` | `PlayerState` | `JKAMP` | `.claude/rosetta/playerState_t.md` |
 | `playerTeamState_t` | `PlayerTeamState` | `JKAMP_Game` | `.claude/rosetta/playerTeamState_t.md` |
 | `pml_t` | `Pml` | `JKAMP` | `.claude/rosetta/pml_t.md` |
 | `pmove_t` | `Pmove` | `JKAMP` | `.claude/rosetta/pmove_t.md` |
+| `pushed_t` | `Pushed` | `JKAMP_Game` | `.claude/rosetta/pushed_t.md` |
+| `qtime_t` | `Qtime` | `JKAMP` | `.claude/rosetta/qtime_t.md` |
 | `reference_tag_t` | `ReferenceTag` | `JKAMP_Game` | `.claude/rosetta/reference_tag_t.md` |
 | `renderInfo_t` | `RenderInfo` | `JKAMP_Game` | `.claude/rosetta/renderInfo_t.md` |
 | `saberFace_t` | `SaberFace` | `JKAMP_Game` | `.claude/rosetta/saberFace_t.md` |
 | `saberInfo_t` | `SaberInfo` | `JKAMP` | `.claude/rosetta/saberInfo_t.md` |
+| `saberMoveData_t` | `SaberMoveData` | `JKAMP` | `.claude/rosetta/saberMoveData_t.md` |
 | `saberTrail_t` | `SaberTrail` | `JKAMP` | `.claude/rosetta/saberTrail_t.md` |
+| `shaderRemap_t` | `ShaderRemap` | `JKAMP_Game` | `.claude/rosetta/shaderRemap_t.md` |
 | `sharedIKMoveParams_t` | `SharedIKMoveParams` | `JKAMP` | `.claude/rosetta/sharedIKMoveParams_t.md` |
 | `sharedRagDollParams_t` | `SharedRagDollParams` | `JKAMP` | `.claude/rosetta/sharedRagDollParams_t.md` |
 | `sharedRagDollUpdateParams_t` | `SharedRagDollUpdateParams` | `JKAMP` | `.claude/rosetta/sharedRagDollUpdateParams_t.md` |
 | `sharedSetBoneIKStateParams_t` | `SharedSetBoneIKStateParams` | `JKAMP` | `.claude/rosetta/sharedSetBoneIKStateParams_t.md` |
+| `shooterClient_t` | `ShooterClient` | `JKAMP_Game` | `.claude/rosetta/shooterClient_t.md` |
 | `siegeClassDesc_t` | `SiegeClassDesc` | `JKAMP` | `.claude/rosetta/siegeClassDesc_t.md` |
 | `siegeClass_t` | `SiegeClass` | `JKAMP` | `.claude/rosetta/siegeClass_t.md` |
 | `siegePers_t` | `SiegePers` | `JKAMP` | `.claude/rosetta/siegePers_t.md` |
 | `siegeTeam_t` | `SiegeTeam` | `JKAMP` | `.claude/rosetta/siegeTeam_t.md` |
-| `stringID_table_t` | `StringIDTable` | `JKAMP` | `.claude/rosetta/stringID_table_t.md` |
+| `spawn_t` | `Spawn` | `JKAMP_Game` | `.claude/rosetta/spawn_t.md` |
+| `stringID_table_t` | `StringIDTable` | `JKAShared` | `.claude/rosetta/stringID_table_t.md` |
 | `tagOwner_t` | `TagOwner` | `JKAMP_Game` | `.claude/rosetta/tagOwner_t.md` |
+| `teamgame_t` | `Teamgame` | `JKAMP_Game` | `.claude/rosetta/teamgame_t.md` |
 | `trace_t` | `Trace` | `JKAMP` | `.claude/rosetta/trace_t.md` |
 | `trajectory_t` | `Trajectory` | `JKAShared` | `.claude/rosetta/trajectory_t.md` |
 | `turretStats_t` | `TurretStats` | `JKAMP` | `.claude/rosetta/turretStats_t.md` |
 | `usercmd_t` | `Usercmd` | `JKAMP` | `.claude/rosetta/usercmd_t.md` |
+| `vehField_t` | `VehField` | `JKAMP` | `.claude/rosetta/vehField_t.md` |
 | `vehTurretStatus_t` | `VehTurretStatus` | `JKAMP` | `.claude/rosetta/vehTurretStatus_t.md` |
 | `vehWeaponInfo_t` | `VehWeaponInfo` | `JKAMP` | `.claude/rosetta/vehWeaponInfo_t.md` |
 | `vehWeaponStats_t` | `VehWeaponStats` | `JKAMP` | `.claude/rosetta/vehWeaponStats_t.md` |
 | `vehWeaponStatus_t` | `VehWeaponStatus` | `JKAMP` | `.claude/rosetta/vehWeaponStatus_t.md` |
 | `vehicleInfo_t` | `VehicleInfo` | `JKAMP` | `.claude/rosetta/vehicleInfo_t.md` |
 | `vmCvar_t` | `VmCvar` | `JKAMP` | `.claude/rosetta/vmCvar_t.md` |
+| `waypointData_t` | `WaypointData` | `JKAMP_Game` | `.claude/rosetta/waypointData_t.md` |
 | `weaponData_t` | `WeaponData` | `JKAMP` | `.claude/rosetta/weaponData_t.md` |
 | `wpneighbor_t` | `Wpneighbor` | `JKAMP` | `.claude/rosetta/wpneighbor_t.md` |
 | `wpobject_t` | `Wpobject` | `JKAMP` | `.claude/rosetta/wpobject_t.md` |
@@ -78,9 +96,6 @@ One file per viewed struct sits beside this index. The tables below give the Swi
 
 | C type | Swift |
 |---|---|
-| `animEventType_t` | `JKAShared.animEventType_t` |
-| `footstepType_t` | `JKAShared.footstepType_t` |
-| `weaponstate_t` | `JKAShared.weaponstate_t` |
 | `byte` | `JKAShared.byte` |
 | `cbufExec_t` | `JKAShared.cbufExec_t` |
 | `clipHandle_t` | `JKAShared.clipHandle_t` |
@@ -105,10 +120,35 @@ One file per viewed struct sits beside this index. The tables below give the Swi
 | `trType_t` | `JKAShared.trType_t` |
 | `ulong` | `JKAShared.ulong` |
 | `word` | `JKAShared.word` |
+| `animEventType_t` | `JKAShared.animEventType_t` |
+| `footstepType_t` | `JKAShared.footstepType_t` |
+| `weaponstate_t` | `JKAShared.weaponstate_t` |
+| `Eorientations` | `JKAMP.Eorientations` |
+| `ForceReload_e` | `JKAMP.ForceReload_e` |
+| `WL_e` | `JKAMP.WL_e` |
+| `_flag_status` | `JKAMP._flag_status` |
+| `saber_colors_t` | `JKAMP.saber_colors_t` |
+| `connstate_t` | `JKAMP.connstate_t` |
+| `ct_table_t` | `JKAMP.ct_table_t` |
+| `e_status` | `JKAMP.e_status` |
+| `errorParm_t` | `JKAMP.errorParm_t` |
+| `flagStatus_t` | `JKAMP.flagStatus_t` |
+| `forcePowers_t` | `JKAMP.forcePowers_t` |
+| `trackchan_t` | `JKAMP.trackchan_t` |
+| `genCmds_t` | `JKAMP.genCmds_t` |
+| `ha_pref` | `JKAMP.ha_pref` |
+| `itemUseFail_t` | `JKAMP.itemUseFail_t` |
+| `material_t` | `JKAMP.material_t` |
+| `saberBlockType_t` | `JKAMP.saberBlockType_t` |
+| `saberBlockedType_t` | `JKAMP.saberBlockedType_t` |
+| `sharedERagEffector` | `JKAMP.sharedERagEffector` |
+| `sharedERagPhase` | `JKAMP.sharedERagPhase` |
+| `soundChannel_t` | `JKAMP.soundChannel_t` |
+| `class_t` | `JKAMP.class_t` |
+| `npcteam_t` | `JKAMP.npcteam_t` |
 | `textureCompression_t` | `JKAMP.textureCompression_t` |
 | `refEntityType_t` | `JKAMP.refEntityType_t` |
 | `stereoFrame_t` | `JKAMP.stereoFrame_t` |
-| `animNumber_t` | `JKAMP.animNumber_t` |
 | `fieldtype_t` | `JKAMP.fieldtype_t` |
 | `brokenLimb_t` | `JKAMP.brokenLimb_t` |
 | `ctfMsg_t` | `JKAMP.ctfMsg_t` |
@@ -133,59 +173,48 @@ One file per viewed struct sits beside this index. The tables below give the Swi
 | `statIndex_t` | `JKAMP.statIndex_t` |
 | `team_t` | `JKAMP.team_t` |
 | `teamtask_t` | `JKAMP.teamtask_t` |
-| `siegeClassFlags_t` | `JKAMP.siegeClassFlags_t` |
-| `siegePlayerClassFlags_t` | `JKAMP.siegePlayerClassFlags_t` |
+| `ammo_t` | `JKAMP.ammo_t` |
+| `weapon_t` | `JKAMP.weapon_t` |
+| `animNumber_t` | `JKAMP.animNumber_t` |
 | `EWeaponPose` | `JKAMP.EWeaponPose` |
 | `vehicleType_t` | `JKAMP.vehicleType_t` |
 | `vehFlags_t` | `JKAMP.vehFlags_t` |
-| `ammo_t` | `JKAMP.ammo_t` |
-| `weapon_t` | `JKAMP.weapon_t` |
-| `Eorientations` | `JKAMP.Eorientations` |
-| `ForceReload_e` | `JKAMP.ForceReload_e` |
-| `WL_e` | `JKAMP.WL_e` |
-| `_flag_status` | `JKAMP._flag_status` |
-| `saber_colors_t` | `JKAMP.saber_colors_t` |
-| `connstate_t` | `JKAMP.connstate_t` |
-| `ct_table_t` | `JKAMP.ct_table_t` |
-| `e_status` | `JKAMP.e_status` |
-| `errorParm_t` | `JKAMP.errorParm_t` |
-| `flagStatus_t` | `JKAMP.flagStatus_t` |
-| `forcePowers_t` | `JKAMP.forcePowers_t` |
-| `trackchan_t` | `JKAMP.trackchan_t` |
-| `genCmds_t` | `JKAMP.genCmds_t` |
-| `ha_pref` | `JKAMP.ha_pref` |
-| `itemUseFail_t` | `JKAMP.itemUseFail_t` |
-| `material_t` | `JKAMP.material_t` |
-| `saberBlockType_t` | `JKAMP.saberBlockType_t` |
-| `saberBlockedType_t` | `JKAMP.saberBlockedType_t` |
-| `sharedERagEffector` | `JKAMP.sharedERagEffector` |
-| `sharedERagPhase` | `JKAMP.sharedERagPhase` |
-| `soundChannel_t` | `JKAMP.soundChannel_t` |
-| `class_t` | `JKAMP.class_t` |
-| `npcteam_t` | `JKAMP.npcteam_t` |
-| `attack_e` | `attack_e` |
-| `distance_e` | `distance_e` |
-| `rank_t` | `rank_t` |
-| `bot_ctf_state_t` | `bot_ctf_state_t` |
-| `bot_siege_state_t` | `bot_siege_state_t` |
-| `bot_teamplay_state_t` | `bot_teamplay_state_t` |
-| `jumpState_t` | `jumpState_t` |
-| `visibility_t` | `visibility_t` |
-| `bState_t` | `bState_t` |
-| `lookMode_t` | `lookMode_t` |
-| `spot_t` | `spot_t` |
+| `fakeAscii_t` | `JKAMP.fakeAscii_t` |
+| `evasionType_t` | `JKAMP.evasionType_t` |
+| `siegeClassFlags_t` | `JKAMP.siegeClassFlags_t` |
+| `siegePlayerClassFlags_t` | `JKAMP.siegePlayerClassFlags_t` |
+| `uiExport_t` | `JKAMP.uiExport_t` |
+| `uiImport_t` | `JKAMP.uiImport_t` |
+| `uiMenuCommand_t` | `JKAMP.uiMenuCommand_t` |
+| `mapSurfaceType_t` | `JKAMP.mapSurfaceType_t` |
+| `vehFieldType_t` | `JKAMP.vehFieldType_t` |
 | `alertEventLevel_e` | `alertEventLevel_e` |
 | `alertEventType_e` | `alertEventType_e` |
 | `clientConnected_t` | `clientConnected_t` |
 | `playerTeamStateState_t` | `playerTeamStateState_t` |
 | `spectatorState_t` | `spectatorState_t` |
+| `lookMode_t` | `lookMode_t` |
+| `rank_t` | `rank_t` |
+| `jumpState_t` | `jumpState_t` |
+| `visibility_t` | `visibility_t` |
+| `bState_t` | `bState_t` |
 | `moverState_t` | `moverState_t` |
 | `bSet_t` | `bSet_t` |
 | `taskID_t` | `taskID_t` |
 | `gameExport_t` | `gameExport_t` |
 | `gameImport_t` | `gameImport_t` |
+| `spot_t` | `spot_t` |
+| `attack_e` | `attack_e` |
+| `distance_e` | `distance_e` |
 | `saying_t` | `saying_t` |
-| `evasionType_t` | `evasionType_t` |
+| `setType_t` | `setType_t` |
+| `solid_t` | `solid_t` |
+| `bot_ctf_state_t` | `bot_ctf_state_t` |
+| `bot_siege_state_t` | `bot_siege_state_t` |
+| `bot_teamplay_state_t` | `bot_teamplay_state_t` |
+| `awardType_t` | `awardType_t` |
+| `teamAward_e` | `teamAward_e` |
+| `sabersLockMode_t` | `sabersLockMode_t` |
 
 ## Enums
 
@@ -204,6 +233,7 @@ A C enum is an `Int32` alias, and each case is a bare `Int32` constant with Rave
 | `animEventType_t` | `JKAShared.animEventType_t` |
 | `animNumber_t` | `JKAMP.animNumber_t` |
 | `attack_e` | `attack_e` |
+| `awardType_t` | `awardType_t` |
 | `bSet_t` | `bSet_t` |
 | `bState_t` | `bState_t` |
 | `bot_ctf_state_t` | `bot_ctf_state_t` |
@@ -221,7 +251,8 @@ A C enum is an `Int32` alias, and each case is a bare `Int32` constant with Rave
 | `entityType_t` | `JKAMP.entityType_t` |
 | `entity_event_t` | `JKAMP.entity_event_t` |
 | `errorParm_t` | `JKAMP.errorParm_t` |
-| `evasionType_t` | `evasionType_t` |
+| `evasionType_t` | `JKAMP.evasionType_t` |
+| `fakeAscii_t` | `JKAMP.fakeAscii_t` |
 | `fieldtype_t` | `JKAMP.fieldtype_t` |
 | `footstepType_t` | `JKAShared.footstepType_t` |
 | `forceHandAnims_t` | `JKAMP.forceHandAnims_t` |
@@ -237,6 +268,7 @@ A C enum is an `Int32` alias, and each case is a bare `Int32` constant with Rave
 | `itemUseFail_t` | `JKAMP.itemUseFail_t` |
 | `jumpState_t` | `jumpState_t` |
 | `lookMode_t` | `lookMode_t` |
+| `mapSurfaceType_t` | `JKAMP.mapSurfaceType_t` |
 | `meansOfDeath_t` | `JKAMP.meansOfDeath_t` |
 | `moverState_t` | `moverState_t` |
 | `pdSounds_t` | `JKAMP.pdSounds_t` |
@@ -251,20 +283,27 @@ A C enum is an `Int32` alias, and each case is a bare `Int32` constant with Rave
 | `saberQuadrant_t` | `JKAMP.saberQuadrant_t` |
 | `saberType_t` | `JKAShared.saberType_t` |
 | `saber_styles_t` | `JKAShared.saber_styles_t` |
+| `sabersLockMode_t` | `sabersLockMode_t` |
 | `saying_t` | `saying_t` |
+| `setType_t` | `setType_t` |
 | `sharedEIKMoveState` | `JKAShared.sharedEIKMoveState` |
 | `sharedERagEffector` | `JKAMP.sharedERagEffector` |
 | `sharedERagPhase` | `JKAMP.sharedERagPhase` |
 | `siegeClassFlags_t` | `JKAMP.siegeClassFlags_t` |
 | `siegePlayerClassFlags_t` | `JKAMP.siegePlayerClassFlags_t` |
+| `solid_t` | `solid_t` |
 | `spectatorState_t` | `spectatorState_t` |
 | `spot_t` | `spot_t` |
 | `statIndex_t` | `JKAMP.statIndex_t` |
 | `taskID_t` | `taskID_t` |
+| `teamAward_e` | `teamAward_e` |
 | `teamtask_t` | `JKAMP.teamtask_t` |
 | `textureCompression_t` | `JKAMP.textureCompression_t` |
 | `trType_t` | `JKAShared.trType_t` |
 | `trackchan_t` | `JKAMP.trackchan_t` |
+| `uiExport_t` | `JKAMP.uiExport_t` |
+| `uiImport_t` | `JKAMP.uiImport_t` |
+| `vehFieldType_t` | `JKAMP.vehFieldType_t` |
 | `vehFlags_t` | `JKAMP.vehFlags_t` |
 | `vehicleType_t` | `JKAMP.vehicleType_t` |
 | `visibility_t` | `visibility_t` |

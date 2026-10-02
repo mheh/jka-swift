@@ -10,10 +10,10 @@ A field reads and writes through the C struct, so `ent.r.absmin` is Raven's `ent
 | `int serverTime` | `serverTime: Int32` |  |
 | `int[3] angles` | `angles: Slots<Int32>` | Array of 3. |
 | `int buttons` | `buttons: Int32` |  |
-| `byte weapon` | `weapon: JKAShared.byte` |  |
-| `byte forcesel` | `forcesel: JKAShared.byte` |  |
-| `byte invensel` | `invensel: JKAShared.byte` |  |
-| `byte generic_cmd` | `generic_cmd: JKAShared.byte` |  |
-| `signed char forwardmove` | `forwardmove: Int8` |  |
-| `signed char rightmove` | `rightmove: Int8` |  |
-| `signed char upmove` | `upmove: Int8` |  |
+| `byte weapon` | `weapon: Int32` |  |
+| `byte forcesel` | `forcesel: Int32` |  |
+| `byte invensel` | `invensel: Int32` |  |
+| `byte generic_cmd` | `generic_cmd: Int32` |  |
+| `signed char forwardmove` | `forwardmove: Int32` |  |
+| `signed char rightmove` | `rightmove: Int32` |  |
+| `signed char upmove` | `upmove: Int32` |  |

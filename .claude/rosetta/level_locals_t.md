@@ -33,8 +33,8 @@ A field reads and writes through the C struct, so `ent.r.absmin` is Raven's `ent
 | `int snd_medHealed` | `snd_medHealed: Int32` |  |
 | `int snd_medSupplied` | `snd_medSupplied: Int32` |  |
 | `int warmupModificationCount` | `warmupModificationCount: Int32` |  |
-| `char[1024] voteString` | `voteString: String` | Array of 1024. |
-| `char[1024] voteDisplayString` | `voteDisplayString: String` | Array of 1024. |
+| `char[1024] voteString` | `voteString: String`, `voteStringBuffer: JKAShared.CharBuf` | Array of 1024. |
+| `char[1024] voteDisplayString` | `voteDisplayString: String`, `voteDisplayStringBuffer: JKAShared.CharBuf` | Array of 1024. |
 | `int voteTime` | `voteTime: Int32` |  |
 | `int voteExecuteTime` | `voteExecuteTime: Int32` |  |
 | `int voteYes` | `voteYes: Int32` |  |
@@ -51,7 +51,7 @@ A field reads and writes through the C struct, so `ent.r.absmin` is Raven's `ent
 | `int numSpawnVars` | `numSpawnVars: Int32` |  |
 | `char *[64][2] spawnVars` | `spawnVars: Slots<Slots<PooledString?>>` | Array of 64. |
 | `int numSpawnVarChars` | `numSpawnVarChars: Int32` |  |
-| `char[4096] spawnVarChars` | `spawnVarChars: String` | Array of 4096. |
+| `char[4096] spawnVarChars` | `spawnVarChars: String`, `spawnVarCharsBuffer: JKAShared.CharBuf` | Array of 4096. |
 | `int intermissionQueued` | `intermissionQueued: Int32` |  |
 | `int intermissiontime` | `intermissiontime: Int32` |  |
 | `char * changemap` | `changemap: PooledString?` | Optional, nil for a NULL pointer. |
@@ -77,4 +77,4 @@ A field reads and writes through the C struct, so `ent.r.absmin` is Raven's `ent
 | `vec3_t mOriginAdjust` | `mOriginAdjust: JKAShared.vec3_t` |  |
 | `float mRotationAdjust` | `mRotationAdjust: Float` |  |
 | `char * mTargetAdjust` | `mTargetAdjust: PooledString?` | Optional, nil for a NULL pointer. |
-| `char[64] mTeamFilter` | `mTeamFilter: String` | Array of 64. |
+| `char[64] mTeamFilter` | `mTeamFilter: String`, `mTeamFilterBuffer: JKAShared.CharBuf` | Array of 64. |

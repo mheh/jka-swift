@@ -13,7 +13,7 @@ A field reads and writes through the C struct, so `ent.r.absmin` is Raven's `ent
 | `qboolean initialSpawn` | `initialSpawn: Bool` |  |
 | `qboolean predictItemPickup` | `predictItemPickup: Bool` |  |
 | `qboolean pmoveFixed` | `pmoveFixed: Bool` |  |
-| `char[36] netname` | `netname: String` | Array of 36. |
+| `char[36] netname` | `netname: String`, `netnameBuffer: JKAShared.CharBuf` | Array of 36. |
 | `int netnameTime` | `netnameTime: Int32` |  |
 | `int maxHealth` | `maxHealth: Int32` |  |
 | `int enterTime` | `enterTime: Int32` |  |

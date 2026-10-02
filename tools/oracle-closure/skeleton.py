@@ -195,6 +195,8 @@ class Skeleton:
         self.stores = self.collect_stores()
         self.stored_names = {fn.name for pairs in self.stores.values() for _, fn in pairs}
         self.game_calls = self.collect_game_calls()
+        self.outside_calls = self.collect_outside_calls()
+        self.never_names = self.collect_never()
         # SpeederNPC.c defines `Update` without static, and four other files define it with. Every copy of a shared name is private.
         owners: dict[str, set[str]] = defaultdict(set)
         for stem, fns in self.files.items():
@@ -784,6 +786,51 @@ class Skeleton:
                         called.add(node.spelling)
         return called
 
+    def collect_outside_calls(self) -> set[str]:
+        """Every game function a Swift file of another source target calls, by Raven's name, so the game declaration is public for that target.
+        The shell's `bg.error` closure calls `Com_Error` of g_main, and the hand port gives it `public` for that call.
+        A test target imports the game with `@testable`, so it reaches an internal function, and the scan reads the source targets alone."""
+        game_names = {fn.name for stem, fns in self.files.items() if target_of(stem) == LOGIC for fn in fns}
+        called: set[str] = set()
+        for path in SOURCES.rglob("*.swift"):
+            if path.relative_to(SOURCES).parts[0] == LOGIC:
+                continue
+            text = path.read_text()
+            if not re.search(rf"^import {LOGIC}$", text, re.M):
+                continue
+            # A comment and a string literal name a function without a call, `portMissing("G_RunFrame", ...)`.
+            code = re.sub(r'//[^\n]*|"(?:[^"\\\n]|\\.)*"', "", text)
+            called |= {m.group(1) for m in re.finditer(r"(?<!func )\b(\w+)\(", code)} & game_names
+        return called
+
+    def collect_never(self) -> set[str]:
+        """Every Raven function that never returns, by Raven's name, so its declaration returns `Never` as a Swift caller expects.
+        The seed is each `-> Never` function the game and shared targets declare, `trap_Error`.
+        A void function with no return statement whose last statement calls such a function joins the set, `G_Error` and then `Com_Error` of g_main.
+        The shell's `bg.error` closure returns `Never`, so the game's `Com_Error` must say so."""
+        never = {m.group(1) for target in ("JKAMP_Game", SHARED) for path in (SOURCES / target).rglob("*.swift")
+                 for m in re.finditer(r"^public func `?(\w+)`?\(.*\) -> Never \{$", path.read_text(), re.M)}
+
+        def ends_in_never(fn: Function) -> bool:
+            body = next((c for c in fn.cur.get_children() if c.kind == CursorKind.COMPOUND_STMT), None)
+            if body is None or any(node.kind == CursorKind.RETURN_STMT for node in body.walk_preorder()):
+                return False
+            statements = list(body.get_children())
+            last = statements[-1] if statements else None
+            while last is not None and last.kind == CursorKind.UNEXPOSED_EXPR:
+                last = next(last.get_children(), None)
+            return last is not None and last.kind == CursorKind.CALL_EXPR and last.spelling in never
+
+        grew = True
+        while grew:
+            grew = False
+            for fns in self.files.values():
+                for fn in fns:
+                    if fn.mapped and fn.returns is None and fn.name not in never and ends_in_never(fn):
+                        never.add(fn.name)
+                        grew = True
+        return never
+
     def published(self) -> list[tuple[str, str]]:
         """The bg declarations the public rule names, as (stem, Swift name): each function of `access` and each variable of `variable_access`
         whose stub carries a declaration line."""
@@ -835,6 +882,9 @@ class Skeleton:
         # A bg function a game file calls crosses the module line the same way, so it is public too.
         if target_of(fn.stem) == BG and fn.name in self.game_calls:
             return "public "
+        # A game function a Swift file of another source target calls crosses the module line too, `Com_Error` from the shell.
+        if target_of(fn.stem) == LOGIC and fn.name in self.outside_calls:
+            return "public "
         return "public " if target_of(fn.stem) == SHARED else ""
 
     def signature(self, fn: Function) -> str:
@@ -843,7 +893,8 @@ class Skeleton:
         if not fn.mapped:
             return f"{self.access(fn)}func {name}() -> Never"
         params = ", ".join(f"_ {p.name}: {p.swift}" for p in fn.params)
-        return f"{self.access(fn)}func {name}({params})" + (f" -> {fn.returns}" if fn.returns else "")
+        returns = "Never" if fn.name in self.never_names and fn.returns is None else fn.returns
+        return f"{self.access(fn)}func {name}({params})" + (f" -> {returns}" if returns else "")
 
     def stub(self, fn: Function) -> list[str]:
         source = self.source(fn.stem)

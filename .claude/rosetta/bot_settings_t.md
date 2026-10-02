@@ -7,6 +7,6 @@ A field reads and writes through the C struct, so `ent.r.absmin` is Raven's `ent
 
 | C field | Swift | Note |
 |---|---|---|
-| `char[144] personalityfile` | `personalityfile: String` | Array of 144. |
+| `char[144] personalityfile` | `personalityfile: String`, `personalityfileBuffer: JKAShared.CharBuf` | Array of 144. |
 | `float skill` | `skill: Float` |  |
-| `char[144] team` | `team: String` | Array of 144. |
+| `char[144] team` | `team: String`, `teamBuffer: JKAShared.CharBuf` | Array of 144. |

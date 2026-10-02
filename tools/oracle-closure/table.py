@@ -1017,16 +1017,20 @@ class Table:
 
         A table walk is a pointer local a statement sets to a file-scope table or a slot past its start, `it = bg_itemlist + 1`,
         given as the table's Swift name and the index local that stands in for the pointer.
+        A record pointer parameter the body sets to a slot of such a table and steps, `from = g_entities` and `from++` of G_Find, walks the table too.
         A written name is any name a statement writes after its declaration, and an addressed name is any name a statement takes the address of."""
         params = {p.spelling: p for p in fn.get_arguments()}
         out: dict[str, tuple[str, str]] = {}
         written: set[str] = set()
         addressed: set[str] = set()
+        stepped: set[str] = set()
+        parameter_walks: dict[str, tuple[str, str]] = {}
         for cur in fn.walk_preorder():
             kids = list(cur.get_children())
             if cur.kind == CursorKind.UNARY_OPERATOR and kids:
                 if self.steps_or_addresses(cur, kids[0], data):
                     written.add(self.written_root(kids[0]))
+                    stepped.add(self.written_root(kids[0]))
                 if data[cur.extent.start.offset:kids[0].extent.start.offset].decode("utf-8", "replace").strip() == "&":
                     addressed.add(self.written_root(kids[0]))
                 continue
@@ -1035,9 +1039,17 @@ class Table:
             operator = between(data, kids[0], kids[1])
             if operator in ASSIGN_OPS or kids[0].extent.start.offset == kids[1].extent.start.offset:
                 written.add(self.written_root(kids[0]))
+            if operator in ("+=", "-="):
+                stepped.add(self.written_root(kids[0]))
             if cur.kind != CursorKind.BINARY_OPERATOR or collapsed(cur) or operator != "=":
                 continue
             left, right = self.unwrapped(kids[0]), self.unwrapped(kids[1])
+            if left.kind == CursorKind.DECL_REF_EXPR and left.referenced is not None and left.referenced.kind == CursorKind.PARM_DECL \
+                    and self.record_pointer(left.referenced.type):
+                slot = self.table_slot(right, data)
+                if slot is not None:
+                    parameter_walks[left.spelling] = (slot, f"{swift_name(left.spelling)}Index")
+                continue
             if left.kind != CursorKind.DECL_REF_EXPR or left.referenced is None or left.referenced.kind != CursorKind.VAR_DECL:
                 continue
             table = right
@@ -1056,7 +1068,24 @@ class Table:
             elif ref.kind == CursorKind.PARM_DECL and table.spelling in params and self.slots_parameter(fn, params[table.spelling]):
                 # A table parameter is a Slots, and the walk reads it by index the same way.
                 out[left.spelling] = (swift_name(table.spelling), f"{swift_name(left.spelling)}Index")
+        # A parameter that is set to a slot and never stepped only names one record, `attacker = &g_entities[ENTITYNUM_WORLD]` of G_Damage.
+        out |= {name: walk for name, walk in parameter_walks.items() if name in stepped}
         return out, written, addressed
+
+    def table_slot(self, cur: ci.Cursor, data: bytes) -> str | None:
+        """The Swift name of the file-scope table of records that Raven's `g_entities`, `g_entities + n`, or `&g_entities[n]` points into, or None."""
+        cur = self.unwrapped(cur)
+        if cur.kind == CursorKind.BINARY_OPERATOR and len(list(cur.get_children())) == 2 and not collapsed(cur) \
+                and between(data, *list(cur.get_children())) in ("+", "-"):
+            cur = self.unwrapped(list(cur.get_children())[0])
+        elif cur.kind == CursorKind.UNARY_OPERATOR and data[cur.extent.start.offset:cur.extent.end.offset].decode("utf-8", "replace").lstrip().startswith("&"):
+            slot = self.unwrapped(list(cur.get_children())[0])
+            if slot.kind != CursorKind.ARRAY_SUBSCRIPT_EXPR:
+                return None
+            cur = self.unwrapped(list(slot.get_children())[0])
+        if cur.kind == CursorKind.DECL_REF_EXPR and cur.referenced is not None and self.record_table(cur.referenced):
+            return swift_name(cur.spelling)
+        return None
 
     def slots_parameter(self, fn: ci.Cursor, cur: ci.Cursor) -> bool:
         """True when the table spells this parameter as a `Slots` over a table of records. spelling.py owns the spelling and the test."""

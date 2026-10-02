@@ -38,9 +38,14 @@ class Declarations:
     def param_copy_lines(self, depth: int) -> list[str]:
         """The mutable copy of each parameter Raven assigns, at the head of the function's own block.
         A deeper block gives no seat, because a copy there hides the parameter from the statements outside it."""
-        if depth != 1 or not self.param_copies:
+        if depth != 1 or not (self.param_copies or self.param_walk_heads):
             return []
         out: list[str] = []
+        for raven in self.param_walk_heads:
+            table, index = self.table_cursors[raven]
+            out.append(f"{INDENT}// Raven walks his own `{raven}` parameter over `{table}`, so the body walks the index of its slot, as for a walked local.")
+            out.append(f"{INDENT}var {index}: Int32 = 0")
+        self.param_walk_heads = []
         for name in self.param_copies:
             if name in self.cursor_params:
                 out.append(f"{INDENT}// Raven steps his own `{name}` parameter through its bytes, so the body walks a TextCursor over a copy of them.")
@@ -270,7 +275,8 @@ class Declarations:
             try:
                 line = self.declaration(var)
                 if line:
-                    out.append(line)
+                    # A declaration that keeps Raven's call on the page beside it gives two lines.
+                    out += line.split("\n")
             except Hole as hole:
                 self.holes += 1
                 self.hole_names.add(var.spelling)
@@ -312,6 +318,11 @@ class Declarations:
             return f"var {name} = JKAShared.CharBuf({count})"
         if t.get_canonical().kind == TypeKind.CONSTANTARRAY:
             return self.array_declaration(var, init)
+        if var.spelling in self.charbuf_allocs:
+            # Raven's `char *buf = (char *)B_TempAlloc(1024)` is a CharBuf of the size he asks for.
+            # The call stays on the page with its result dropped, so the pool keeps his count for the free that follows.
+            declared = f"var {name} = JKAShared.CharBuf({self.expr(self.charbuf_allocs[var.spelling])})"
+            return declared + (f"\n_ = {self.expr(self.uncast(init[0]))}" if init else "")
         if t.get_canonical().kind == TypeKind.POINTER and t.get_canonical().get_pointee().get_canonical().kind == TypeKind.CHAR_S and init:
             source = self.unwrap(init[0])
             if source.kind == CursorKind.UNARY_OPERATOR and self.unary_parts(source)[0] == "&":

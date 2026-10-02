@@ -7,6 +7,6 @@ A field reads and writes through the C struct, so `ent.r.absmin` is Raven's `ent
 
 | C field | Swift | Note |
 |---|---|---|
-| `char[32] name` | `name: String` | Array of 32. |
+| `char[32] name` | `name: String`, `nameBuffer: JKAShared.CharBuf` | Array of 32. |
 | `reference_tag_t[256] tags` | `tags: Slots<ReferenceTag>` | Array of 256. |
 | `qboolean inuse` | `inuse: Bool` |  |

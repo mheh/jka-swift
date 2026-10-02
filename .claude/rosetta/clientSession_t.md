@@ -18,11 +18,11 @@ A field reads and writes through the C struct, so `ent.r.absmin` is Raven's `ent
 | `qboolean setForce` | `setForce: Bool` |  |
 | `int updateUITime` | `updateUITime: Int32` |  |
 | `qboolean teamLeader` | `teamLeader: Bool` |  |
-| `char[64] siegeClass` | `siegeClass: String` | Array of 64. |
-| `char[64] saberType` | `saberType: String` | Array of 64. |
-| `char[64] saber2Type` | `saber2Type: String` | Array of 64. |
+| `char[64] siegeClass` | `siegeClass: String`, `siegeClassBuffer: JKAShared.CharBuf` | Array of 64. |
+| `char[64] saberType` | `saberType: String`, `saberTypeBuffer: JKAShared.CharBuf` | Array of 64. |
+| `char[64] saber2Type` | `saber2Type: String`, `saber2TypeBuffer: JKAShared.CharBuf` | Array of 64. |
 | `int duelTeam` | `duelTeam: Int32` |  |
 | `int siegeDesiredTeam` | `siegeDesiredTeam: Int32` |  |
 | `int killCount` | `killCount: Int32` |  |
 | `int TKCount` | `TKCount: Int32` |  |
-| `char[32] IPstring` | `IPstring: String` | Array of 32. |
+| `char[32] IPstring` | `IPstring: String`, `IPstringBuffer: JKAShared.CharBuf` | Array of 32. |

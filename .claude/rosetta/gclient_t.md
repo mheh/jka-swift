@@ -84,7 +84,7 @@ A field reads and writes through the C struct, so `ent.r.absmin` is Raven's `ent
 | `int idleHealth` | `idleHealth: Int32` |  |
 | `vec3_t idleViewAngles` | `idleViewAngles: JKAShared.vec3_t` |  |
 | `int forcePowerSoundDebounce` | `forcePowerSoundDebounce: Int32` |  |
-| `char[64] modelname` | `modelname: String` | Array of 64. |
+| `char[64] modelname` | `modelname: String`, `modelnameBuffer: JKAShared.CharBuf` | Array of 64. |
 | `qboolean fjDidJump` | `fjDidJump: Bool` |  |
 | `qboolean ikStatus` | `ikStatus: Bool` |  |
 | `int throwingIndex` | `throwingIndex: Int32` |  |

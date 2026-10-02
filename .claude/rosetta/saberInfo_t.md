@@ -7,10 +7,10 @@ A field reads and writes through the C struct, so `ent.r.absmin` is Raven's `ent
 
 | C field | Swift | Note |
 |---|---|---|
-| `char[64] name` | `name: String` | Array of 64. |
-| `char[64] fullName` | `fullName: String` | Array of 64. |
+| `char[64] name` | `name: String`, `nameBuffer: JKAShared.CharBuf` | Array of 64. |
+| `char[64] fullName` | `fullName: String`, `fullNameBuffer: JKAShared.CharBuf` | Array of 64. |
 | `saberType_t type` | `type: JKAShared.saberType_t` |  |
-| `char[64] model` | `model: String` | Array of 64. |
+| `char[64] model` | `model: String`, `modelBuffer: JKAShared.CharBuf` | Array of 64. |
 | `qhandle_t skin` | `skin: JKAShared.qhandle_t` |  |
 | `int soundOn` | `soundOn: Int32` |  |
 | `int soundLoop` | `soundLoop: Int32` |  |

@@ -134,6 +134,7 @@ A trap's array of struct pointers is a storage table's base, and it keeps its ma
 A trap's `char *` parameter with a size beside it is already the returned `String` the engine filled.
 A body that hands that trap a `char buf[N]` copies the returned text into the buffer, `strcpy(&arg, trap_Argv(1, Int32(arg.count)))`, so the buffer keeps its N bytes.
 A test that is one call to a trap that returns `(Bool, String)`, `if (!trap_GetEntityToken(com_token, sizeof(com_token)))`, puts the call and the copy before the `if`, and the `if` tests the Bool.
+An assignment from a trap that returns `(Int32, String)` takes the count from the first value and copies the text into the buffer with `strcpy`, so the buffer keeps its N bytes too.
 A trap's `int *` parameter with a count beside it is an `inout [Int32]` the engine fills, `trap_EntitiesInBox(mins, maxs, &entityList, MAX_GENTITIES)`.
 A function that hands its own `int *` parameter to that trap parameter takes an `inout [Int32]` too, such as `NPC_GetEntsNearBolt`.
 A trap that fills a NUL-separated list, `trap_FS_GetFileList`, returns the whole buffer as a `CharBuf` in place of the `String`, and the body walks it with a `TextCursor` as Raven walked the bytes.
@@ -364,6 +365,8 @@ Such a table is a hand array of `<View>Row` values on `GameWorld`, with Raven's 
 A pointer walk over a table of records is an index local.
 A walk pointer at file scope, `pushed_p` of `g_mover.c`, is a file-scope `Int32` index with the name `pushed_pIndex`, and every body that names the pointer reads that index.
 A pointer set from another walk pointer, `p = pushed_p - 1`, walks the same table.
+A record pointer parameter that the body sets to a slot of a table and steps, `from` of `G_Find`, keeps its `Entity?` signature, and the body takes an `Int32` index local `fromIndex` at the top.
+Raven's `if (!from) from = g_entities; else from++;` is `fromIndex = 0` and `fromIndex = from!.s.number + 1`, and every read of the parameter after a store or a step reaches it is `g_entities[fromIndex]`.
 Two pointers into one table compare as their indexes, so `pushed_p > &pushed[MAX_GENTITIES]` is `pushed_pIndex > MAX_GENTITIES`, and `(pushed_p-1)->origin` is `pushed[pushed_pIndex - 1].origin`.
 Each cvar row holds a key path into `GameStorage` for the cvar, or nil for Raven's NULL, and G_RegisterCvars and G_UpdateCvars write its `modificationCount`.
 A table of `vec3_t` with Raven's data, `WP_MuzzlePoint` of `bg_weapons.c`, is C storage the same way, and `BgTables.swift` reaches it as a `Slots<JKAShared.vec3_t>` over the C array, with the 12-byte stride of Raven's `vec3_t`.
@@ -563,6 +566,8 @@ A new comment the transcriptor writes follows the house style: STE prose, one se
 Raven's `qboolean` and his `vehicleType_t` are enums of four bytes, so `*(qboolean *)(b+ofs)` and `*(vehicleType_t *)(b+ofs)` both take the `int` slot.
 `BG_ParseField` reads `b[int: f.ofs] = atoi(value)` for Raven's `*(int *)(b+f->ofs) = atoi(value)`, and a body never writes `storeBytes` or `MemoryLayout`.
 A `byte *` local whose one store is the cast of a view, Raven's `byte *b = (byte *)vehWeapon`, is the raw pointer over the view's own slot, `let b = UnsafeMutableRawPointer(vehWeapon.handle)`, with the one-line comment that names rule 11.
+A `char *` local whose every store is a call to a `CHARBUF_ALLOCS` allocator of `rulings.py` at one constant size is a `CharBuf` of that size, `var buf = CharBuf(131072)` for Raven's `buf = (char *)B_TempAlloc(131072)`.
+The call stays on the page with its result dropped, `_ = B_TempAlloc(131072)`, and the free stays too, so the pool keeps Raven's count.
 The same file defines `+` and `-` between a raw pointer and any integer, so `BG_Alloc` reads `return bg.pool + (bg.poolSize - size)` for Raven's `&bg_pool[bg_poolSize-size]`.
 
 ### No `Unsafe` type

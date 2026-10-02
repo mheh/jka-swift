@@ -37,7 +37,7 @@ A field reads and writes through the C struct, so `ent.r.absmin` is Raven's `ent
 | `int m_EjectDir` | `m_EjectDir: Int32` |  |
 | `unsigned long m_ulFlags` | `m_ulFlags: UInt` |  |
 | `int m_iVehicleTypeID` | `m_iVehicleTypeID: Int32` |  |
-| `float * m_vOrientation` | `m_vOrientation: OpaquePointer?` | Optional, nil for a NULL pointer. |
+| `float * m_vOrientation` | `m_vOrientation: OpaquePointer?`, `m_vOrientationVector: JKAShared.vec3_t` | Optional, nil for a NULL pointer. |
 | `int m_fStrafeTime` | `m_fStrafeTime: Int32` |  |
 | `vec3_t m_vPrevOrientation` | `m_vPrevOrientation: JKAShared.vec3_t` |  |
 | `vec3_t m_vPrevRiderViewAngles` | `m_vPrevRiderViewAngles: JKAShared.vec3_t` |  |

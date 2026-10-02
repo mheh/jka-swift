@@ -7,9 +7,9 @@ A field reads and writes through the C struct, so `ent.r.absmin` is Raven's `ent
 
 | C field | Swift | Note |
 |---|---|---|
-| `byte allsolid` | `allsolid: JKAShared.byte` |  |
-| `byte startsolid` | `startsolid: JKAShared.byte` |  |
-| `short entityNum` | `entityNum: Int16` |  |
+| `byte allsolid` | `allsolid: Int32` |  |
+| `byte startsolid` | `startsolid: Int32` |  |
+| `short entityNum` | `entityNum: Int32` |  |
 | `float fraction` | `fraction: Float` |  |
 | `vec3_t endpos` | `endpos: JKAShared.vec3_t` |  |
 | `cplane_t plane` | `plane: JKAShared.Cplane` |  |

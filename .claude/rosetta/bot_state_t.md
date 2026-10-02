@@ -86,7 +86,7 @@ A field reads and writes through the C struct, so `ent.r.absmin` is Raven's `ent
 | `int saberSpecialist` | `saberSpecialist: Int32` |  |
 | `int canChat` | `canChat: Int32` |  |
 | `int chatFrequency` | `chatFrequency: Int32` |  |
-| `char[128] currentChat` | `currentChat: String` | Array of 128. |
+| `char[128] currentChat` | `currentChat: String`, `currentChatBuffer: JKAShared.CharBuf` | Array of 128. |
 | `float chatTime` | `chatTime: Float` |  |
 | `float chatTime_stored` | `chatTime_stored: Float` |  |
 | `int doChat` | `doChat: Int32` |  |
@@ -129,7 +129,7 @@ A field reads and writes through the C struct, so `ent.r.absmin` is Raven's `ent
 | `qboolean saberPower` | `saberPower: Bool` |  |
 | `int saberPowerTime` | `saberPowerTime: Int32` |  |
 | `int botChallengingTime` | `botChallengingTime: Int32` |  |
-| `char[2048] forceinfo` | `forceinfo: String` | Array of 2048. |
+| `char[2048] forceinfo` | `forceinfo: String`, `forceinfoBuffer: JKAShared.CharBuf` | Array of 2048. |
 | `int forceJumpChargeTime` | `forceJumpChargeTime: Int32` |  |
 | `int doForcePush` | `doForcePush: Int32` |  |
 | `int noUseTime` | `noUseTime: Int32` |  |

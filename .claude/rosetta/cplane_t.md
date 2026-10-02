@@ -9,6 +9,6 @@ A field reads and writes through the C struct, so `ent.r.absmin` is Raven's `ent
 |---|---|---|
 | `vec3_t normal` | `normal: JKAShared.vec3_t` |  |
 | `float dist` | `dist: Float` |  |
-| `byte type` | `type: byte` |  |
-| `byte signbits` | `signbits: byte` |  |
+| `byte type` | `type: Int32` |  |
+| `byte signbits` | `signbits: Int32` |  |
 | `byte[2] pad` | `pad: Slots<byte>` | Array of 2. |

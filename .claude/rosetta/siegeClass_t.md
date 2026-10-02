@@ -7,11 +7,11 @@ A field reads and writes through the C struct, so `ent.r.absmin` is Raven's `ent
 
 | C field | Swift | Note |
 |---|---|---|
-| `char[512] name` | `name: String` | Array of 512. |
-| `char[256] forcedModel` | `forcedModel: String` | Array of 256. |
-| `char[256] forcedSkin` | `forcedSkin: String` | Array of 256. |
-| `char[64] saber1` | `saber1: String` | Array of 64. |
-| `char[64] saber2` | `saber2: String` | Array of 64. |
+| `char[512] name` | `name: String`, `nameBuffer: JKAShared.CharBuf` | Array of 512. |
+| `char[256] forcedModel` | `forcedModel: String`, `forcedModelBuffer: JKAShared.CharBuf` | Array of 256. |
+| `char[256] forcedSkin` | `forcedSkin: String`, `forcedSkinBuffer: JKAShared.CharBuf` | Array of 256. |
+| `char[64] saber1` | `saber1: String`, `saber1Buffer: JKAShared.CharBuf` | Array of 64. |
+| `char[64] saber2` | `saber2: String`, `saber2Buffer: JKAShared.CharBuf` | Array of 64. |
 | `int saberStance` | `saberStance: Int32` |  |
 | `int weapons` | `weapons: Int32` |  |
 | `int[18] forcePowerLevels` | `forcePowerLevels: Slots<Int32>` | Array of 18. |
@@ -28,6 +28,6 @@ A field reads and writes through the C struct, so `ent.r.absmin` is Raven's `ent
 | `int invenItems` | `invenItems: Int32` |  |
 | `int powerups` | `powerups: Int32` |  |
 | `int uiPortraitShader` | `uiPortraitShader: Int32` |  |
-| `char[256] uiPortrait` | `uiPortrait: String` | Array of 256. |
+| `char[256] uiPortrait` | `uiPortrait: String`, `uiPortraitBuffer: JKAShared.CharBuf` | Array of 256. |
 | `int classShader` | `classShader: Int32` |  |
-| `short playerClass` | `playerClass: Int16` |  |
+| `short playerClass` | `playerClass: Int32` |  |
