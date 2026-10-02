@@ -49,3 +49,19 @@ Gate: build 0 errors, 106 tests in four binaries, bg 103 holes with 0 defects, g
 | R7 | 19 Bool? lines are calls through the function pointer fields of vehicleInfo_t, `pVeh.m_pVehicleInfo!.runEject(...)`. Clearing them needs a never-null fact about those fields, a name rule in rulings.py | ratified as a docketed open row |
 | R8 | A false hole from row 5b. `garbage` of SP_NPC_spawner is scratch. Its first use passes its address to G_SpawnInt, and the written-first test does not count an address pass as a store. Proposed: an address passed to an out parameter counts as a store | ratified as a docketed open row |
 | R9 | Two gaps in the Double rule. The rule widens every float leaf, so `(150 + pml.frametime) * 0.003` adds in double where C adds in float. A double macro constant such as `M_PI` does not trigger the rule, because the test reads the literal's own text. Proposed: widen at the operator that meets the double operand, and read a macro constant as a double literal | ratified as a docketed open row |
+| R10 | The composition of the next round, from the class table at ddd42e8 in game-gate-ddd42e8.md. Proposed: row A, a pointer minus its own table is the slot index, 52 lines. Row B, a game function assigned to a callback field reads the thunk in the generated Callbacks.swift, 85 lines. Then R9, then R8. R7 stays open as a name rule | ratified as proposed |
+
+## The round at 649163e
+
+Row A built: a pointer minus its own table is the slot index. The 50 Entity and 2 Gitem lines go to 0. Six holes stay, four g_items sites that need an Int32 from the Int collection search and two stores of an entity's own number, ruled R11 below. Row B built: a callback store reads its thunk, and the 85 lines go to 5, with the 5 left outside the shape. 39 lines were a clear of the callback to 0, ruled R12. The vehicle info thunks live in a per-stub enum, ruled R13. Five vehicle stubs gained the enum. Row R9 built: the 8 Float against Double lines go to 0 and 217 drafted lines change, ruled R14. Row R8 built: the scratch local in SP_NPC_spawner and two in w_saber are no longer holes.
+
+Gate: build 0 errors, 106 tests in four binaries, bg 103 holes with 0 defects, game 1638 holes with 0 cascade errors and 467 defects. One defect in g_client became visible when row A removed the error that hid it.
+
+### Rulings on the round
+
+| Row | Question | Verdict |
+|---|---|---|
+| R11 | Slots has no index form of its own. The collection search returns Int, so four g_items sites that need an Int32 and two stores of an entity's own number stay holes. Proposed: a Slots index form that returns Int32 in Sources/JKAShared, a hand change to the views | ratified as a docketed open row |
+| R12 | A rule for row B not in the ratified text. A 0 or NULL store into a callback field writes nil. 39 of the 85 lines | ratified as proposed |
+| R13 | The vehicle info thunks cannot live in Callbacks.swift, because five vehicle files define private functions of the same name. The skeleton writes a private enum VehicleInfoThunks at the end of each vehicle stub, the view name plus Thunks, derived from the stores in the stem | ratified as proposed |
+| R14 | The reading of "the operator that meets the double operand". The wide reading covers comparisons and explicit casts as well as arithmetic, and limits the store conversion to expressions whose C type is double. About 167 comparison lines that compiled before now compare in Double, as C does | ratified as proposed |
