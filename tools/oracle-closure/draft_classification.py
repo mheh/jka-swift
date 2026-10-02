@@ -629,6 +629,10 @@ class Classification:
             if self.optional_text_name(inner):
                 # A caller passes NULL for the text, so a read of it takes the bind under Raven's own NULL test.
                 return True
+            if self.optional_view_name(inner) and inner.spelling not in self.table_cursors:
+                # A caller passes NULL for the record, so a read through it takes the bind under Raven's own NULL test.
+                # A walked parameter reads the table at its index, which is a value.
+                return True
             if inner.spelling in self.names or inner.spelling in NEVER_NULL_VARS or inner.spelling in self.game_entities:
                 return False
             if inner.spelling in self.charbuf_locals or inner.spelling in self.table_cursors or inner.spelling in self.raw_locals:
@@ -671,11 +675,10 @@ class Classification:
     def buffer_expr(self, cur: ci.Cursor) -> str:
         """The second accessor beside a `char name[N]` field, the view's `nameBuffer`, which is the CharBuf over the field's bytes.
 
-        A parameter the NULL sweep made an optional view carries no bind of its own, so the read through it takes one."""
+        A parameter the NULL sweep made an optional view takes the bind of any optional base."""
         field = self.unwrap(cur)
         owner = list(field.get_children())[0]
-        bind = "!" if self.optional_view_name(owner) else ""
-        return f"{self.base(owner)}{bind}.{swift_name(field.spelling)}{BUFFER_SUFFIX}"
+        return f"{self.base(owner)}.{swift_name(field.spelling)}{BUFFER_SUFFIX}"
 
     def zeroed_field(self, args: list[ci.Cursor]) -> bool:
         """True for Raven's `memset(ent->name, 0, sizeof(ent->name))`: a record's `char name[N]` field, the value zero, and the size of that same field.

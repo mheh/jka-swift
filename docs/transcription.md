@@ -187,6 +187,7 @@ A caller that passed `NULL` for that parameter passes a scratch local instead, `
 A vector or axis parameter the NULL sweep reaches and the body only reads crosses as an optional value, `JKAShared.vec3_t?`, and the caller passes `nil` for `NULL`.
 The body's NULL test keeps its form, `normal == nil`, and every other read of the parameter is the force unwrap, `normal!`.
 The sweep reaches a parameter at a direct `NULL`, through a local the caller sets to `NULL`, and through a parameter of the caller the sweep already reached.
+A scalar output that the sweep reaches by the same three paths, and that the body never writes through, crosses as the pointer, `UnsafeMutablePointer<Int32>?`.
 A body writes a vector parameter through a store, a vector macro's written position, or a callee that writes its own parameter, and that parameter keeps `inout` and the caller's scratch.
 When the callee's NULL arm only skips the write to that parameter, the call site carries a plain comment that names the NULL outputs, and no Port-note and no `portMissing` marker.
 When the NULL arm changes behavior, for example the NULL `dir` of `G_Damage`, the arm does not run for that call.
@@ -279,6 +280,7 @@ It also carries `public static let stride`, the distance between two slots of a 
 Every generated view has, beside `init(handle:)`, `public init(_ raw: UnsafeMutableRawPointer)` and `public init(_ other: some HandleView)`.
 A body writes `View(x)` where and only where Raven wrote an explicit cast to that struct's pointer, from a raw pointer or from another struct's pointer, so `((gentity_t *)(ent))->s.number` reads `BgEntity(ent).s.number` in bg, and `(gentity_t *)bgEnt` is `Entity(bgEnt)` in the game.
 A cast to a view the body already holds, such as a bg body that passes its `BgEntity` to a bg channel function, is dropped without a note.
+A cast of a pointer that can be NULL maps over the optional, `pVeh.m_pPilot.map { Entity($0) }`, so NULL stays nil.
 The `handle:` form stays inside generated code under rule 11, and a signature keeps the plain view type Raven's parameter had, never a generic or protocol parameter that absorbs the cast.
 A struct pointer field a body indexes, such as `animations` of `pmove_t` where Raven writes `pm->animations[anim]`, carries a second accessor, `<name>Slots: Slots<View>`, the way a `float *` field carries its `<name>Vector` accessor.
 The same subscript sweep of `table.py` names the fields that get it, and `views.py` reads that set.
@@ -289,9 +291,11 @@ A field in the table is generated non-optional, and its getter traps with the fi
 `pmove_t.ps`, `pmove_t.trace`, and `pmove_t.pointcontents` are in it, so a body reads `pm.ps.velocity` for `pm->ps->velocity` with no bind. A field joins the table only by a ruling, never by a transcriptor's guess.
 A view parameter is non-optional, so a body drops Raven's null guard on it.
 Where the sweeps prove that no caller passes NULL, a plain comment names the dropped guard.
+The proof fails for a parameter that NULL reaches through a local the caller sets to NULL, or through a parameter of the caller that NULL reaches, so that guard keeps its Port-note.
 Otherwise the body carries the Port-note `// Raven guards a NULL ps here. The view is non-optional, so the guard has no Swift form.` and a `portMissing` marker under it, because the NULL arm does not run in Swift.
 A caller that holds an optional view unwraps it at the call site, in Raven's control shape: `guard let ... else { return }` where Raven wrote an early-out, and `if let ... { }` where Raven wrapped a block. A guard that does other work on the NULL path keeps a Port-note.
 A read Raven made through the pointer with no guard is a force unwrap, `saber!.model`, which traps where C would crash. A guard Raven wrote is the only source of a bind, so no guard is invented for him.
+A view parameter that a caller passes NULL to is optional, and every read through it takes the same force unwrap, `attacker!.client`.
 
 ### A scratch C struct on the stack
 
@@ -367,6 +371,7 @@ A walk pointer at file scope, `pushed_p` of `g_mover.c`, is a file-scope `Int32`
 A pointer set from another walk pointer, `p = pushed_p - 1`, walks the same table.
 A record pointer parameter that the body sets to a slot of a table and steps, `from` of `G_Find`, keeps its `Entity?` signature, and the body takes an `Int32` index local `fromIndex` at the top.
 Raven's `if (!from) from = g_entities; else from++;` is `fromIndex = 0` and `fromIndex = from!.s.number + 1`, and every read of the parameter after a store or a step reaches it is `g_entities[fromIndex]`.
+A record pointer local that the body sets only to slots of one table, `e = &g_entities[MAX_CLIENTS]`, and steps is an index local the same way, `eIndex = MAX_CLIENTS`.
 Two pointers into one table compare as their indexes, so `pushed_p > &pushed[MAX_GENTITIES]` is `pushed_pIndex > MAX_GENTITIES`, and `(pushed_p-1)->origin` is `pushed[pushed_pIndex - 1].origin`.
 Each cvar row holds a key path into `GameStorage` for the cvar, or nil for Raven's NULL, and G_RegisterCvars and G_UpdateCvars write its `modificationCount`.
 A table of `vec3_t` with Raven's data, `WP_MuzzlePoint` of `bg_weapons.c`, is C storage the same way, and `BgTables.swift` reaches it as a `Slots<JKAShared.vec3_t>` over the C array, with the 12-byte stride of Raven's `vec3_t`.
@@ -398,6 +403,7 @@ A scalar static is a property of the generated `BgVariables`, which `BgState` ow
 A pointer static such as `pm` is the view of the caller's memory, set per call, and a body reads `pm.ps` with no bind. A test resets state with `bg = BgState()`.
 A static local that every path of the body writes before it reads is scratch, Raven's habit of keeping vectors off the stack, and it is a local of the body, declared where Raven declared it with his initializer.
 A static local a statement writes is storage that outlives the call, and the draft keeps it as a hole until a storage ruling names its home.
+A static local that a statement reads before one writes it, or that the function returns, such as the `char buff[]` of `BuildShaderStateConfig`, is a hole of the same kind, whatever its type.
 The 23 statics of `BG_UpdateLookAngles` and `BG_G2PlayerAngles` are this shape, and none of them sits on `BgState`.
 
 `bg_pool` is one raw allocation of `MAX_POOL_SIZE` bytes, `bg.pool`, made at the consumer's install and never freed. `bg_poolSize` and `bg_poolTail` are `BgVariables` properties, and `BgState.init` sets `bg_poolTail` to the consumer's `MAX_POOL_SIZE` by hand.
@@ -462,6 +468,7 @@ A cast Raven wrote explicitly stays on the page, so `(int)v[0]` is `Int32(v[0])`
 So `ps.velocity[2] -= ps.gravity * bg.pml.frametime` and `ps.origin[2] + MINS_Z + 1` are Raven's lines.
 Swift reads `0.1` beside a `Float` as a `Float`, which changes the bits Raven's double math sets.
 So a body writes `Double(x)` on each float operand of an expression that holds a double literal, and `Float(...)` once at the store, `drop += Float(Double(speed) * 0.1 * Double(bg.pml.frametime))`.
+A C library call that takes and returns `double` inside that expression takes its arguments in `Double` too, `Int32(ceil(Double(dropTime) * 1000.0))`, so the `Double` overload answers as C's call does.
 This is the one place a body writes a conversion Raven did not write, and a Raven explicit cast inside it, `(float)pm->ps->speed`, stays as `Float(ps.speed)`.
 An `int` stored into a `float` with no operator between them takes `Float(...)` at the store, `ps.speed = Float(ps.basespeed)`, because Swift has no conversion on assignment and no operator reaches `=`.
 The same holds for an `int` in a float table, `Float(JUMP_VELOCITY)`. The site carries no Port-note.

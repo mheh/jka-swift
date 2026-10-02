@@ -81,8 +81,8 @@ class Facts:
     readonly_text: bool = False
     indexed: bool = False
     stores_through: bool = False
-    # True when the NULL sweep, at a direct call or one hop on, reaches the parameter. The vector rules read this one.
-    nullable_vector: bool = False
+    # True when the NULL sweep, at a direct call or one hop on, reaches the parameter. The vector, axis, and out-scalar rules read this one.
+    null_reaches: bool = False
     # True when the body hands the `int *` on to an array a trap fills, so the parameter is that array too.
     fills_array: bool = False
     # The body already spells the expression as a Swift Bool, and the expression is a number Swift types by context.
@@ -254,7 +254,7 @@ class Types:
             return Answer(TYPES[t.spelling.replace("const ", "")], "bare")
         # A vector parameter is the array type itself, and Clang keeps the typedef name on the parameter.
         if t.spelling.split()[-1] in VECTORS:
-            if facts.nullable_vector and not facts.stores_through and not facts.traps:
+            if facts.null_reaches and not facts.stores_through and not facts.traps:
                 # A caller passes NULL and the body only reads, so the vector crosses as an optional value and the NULL test keeps its form.
                 return Answer(f"JKAShared.{t.spelling.split()[-1]}?", "vec3_opt")
             if "const" in t.spelling:
@@ -281,7 +281,7 @@ class Types:
                 # `vec3_t name[3]` is an axis, the type the ported q_math axis functions take.
                 if facts.traps:
                     return None
-                if facts.nullable_vector and not facts.stores_through:
+                if facts.null_reaches and not facts.stores_through:
                     return Answer("[JKAShared.vec3_t]?", "axis_opt")
                 return Answer("inout [JKAShared.vec3_t]", "vec3_axis")
             if inner.kind == TypeKind.CHAR_S:
@@ -353,8 +353,8 @@ class Types:
             # A pointer to one scalar is an out-param, `inout`. A body that finds Raven walks it as an array writes a Port-note.
             if not pointee.is_const_qualified() and (inner.kind in INT_KINDS or inner.kind in (TypeKind.FLOAT, TypeKind.ENUM)):
                 swift = self.scalar(pointee, TARGET)
-                if swift is not None and self.known(swift) and facts.nullable and not facts.stores_through:
-                    # An output a caller skips with NULL crosses as the pointer itself, in the wrapper alone, so `nil` has a seat.
+                if swift is not None and self.known(swift) and facts.null_reaches and not facts.stores_through:
+                    # An output a caller skips with NULL, at a direct call or one hop on, crosses as the pointer itself, in the wrapper alone, so `nil` has a seat.
                     # A body that writes through the pointer keeps the `inout` spelling, and the caller's NULL takes a scratch local.
                     return Answer(f"UnsafeMutablePointer<{swift}>?", "bare")
                 if swift is not None and self.known(swift):

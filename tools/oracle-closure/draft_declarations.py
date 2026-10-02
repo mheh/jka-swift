@@ -289,6 +289,9 @@ class Declarations:
         if var.spelling in self.chosen_locals:
             # The local only names one of the file-scope variables, and the nested function's inout parameter is that name.
             return ""
+        storage = self.static_storage(var)
+        if storage is not None:
+            raise Hole(storage)
         name = swift_name(var.spelling)
         t = var.type
         init = [c for c in var.get_children() if c.kind.is_expression() and b"=" in self.bytes[var.extent.start.offset:c.extent.start.offset]]
@@ -401,8 +404,6 @@ class Declarations:
         swift = self.types.scalar(t, TARGET)
         if swift is None:
             raise Hole(f"A local `{t.spelling} {var.spelling}` the table has no type for.")
-        if var.storage_class == ci.StorageClass.STATIC and var.spelling in self.written and not self.written_first(var):
-            raise Hole(f"A static local `{var.spelling}` a statement reads before it writes, storage that outlives the call.")
         if init:
             return f"{keyword} {name}: {swift} = {self.converted(init[0], swift)}"
         if self.has_scratch or var.spelling in self.addressed:
@@ -419,14 +420,35 @@ class Declarations:
         kids = [k for k in inner.get_children() if k.kind.is_expression()]
         return bool(kids) and self.view_operand(kids[-1])
 
+    def static_storage(self, var: ci.Cursor) -> str | None:
+        """The reason a static local is storage that outlives the call, or None for a local of the body.
+
+        A static that a statement reads before one writes it keeps its value from the call before.
+        A static the function returns hands the caller its storage.
+        Either one is a hole until a storage rule names its home, and any other static is Raven's scratch habit."""
+        if var.storage_class != ci.StorageClass.STATIC:
+            return None
+        if var.spelling in self.written and not self.written_first(var):
+            return f"A static local `{var.spelling}` a statement reads before it writes, storage that outlives the call."
+        for node in self.fn.cur.walk_preorder():
+            if node.kind != CursorKind.RETURN_STMT:
+                continue
+            kids = [k for k in node.get_children() if k.kind.is_expression()]
+            if kids and self.unwrap(kids[0]).kind == CursorKind.DECL_REF_EXPR and self.unwrap(kids[0]).referenced == var:
+                return f"A static local `{var.spelling}` the function returns, storage that outlives the call."
+        return None
+
     def written_first(self, var: ci.Cursor) -> bool:
         """True when the first reference to the local in the body's order is a store into it, Raven's scratch static that every path writes before it reads.
-        The store is the left side of an assignment, or an address or a written macro position, `VectorCopy(x, v)`."""
+        The store is the left side of an assignment, an element of it there, `velPos[0] = x`, or a written macro position, `VectorCopy(x, v)`."""
         body = self.fn.cur
         for node in body.walk_preorder():
             kids = list(node.get_children())
+            left = self.unwrap(kids[0]) if kids else None
+            if left is not None and left.kind == CursorKind.ARRAY_SUBSCRIPT_EXPR:
+                left = self.unwrap(list(left.get_children())[0])
             if node.kind == CursorKind.BINARY_OPERATOR and len(kids) == 2 \
-                    and self.unwrap(kids[0]).kind == CursorKind.DECL_REF_EXPR and self.unwrap(kids[0]).spelling == var.spelling:
+                    and left.kind == CursorKind.DECL_REF_EXPR and left.spelling == var.spelling:
                 # The operator scan fails inside a macro expansion, and that site is then no proof of a store.
                 try:
                     return self.binary_op(node) == "="

@@ -628,9 +628,10 @@ class Table:
 
     def never_null(self, owner: str | None, name: str) -> bool:
         """True when the NULL sweep proves this parameter is never NULL: the sweep read a call to the function, and no call passed NULL.
+        A NULL one hop on counts too: a local the caller sets to NULL, or a parameter of the caller that NULL reaches, passed on.
 
         A function no call reached is unknown, because the port has read no caller of it yet, and unknown is not a proof."""
-        return owner is not None and owner in self.called and (owner, name) not in self.nullable
+        return owner is not None and owner in self.called and (owner, name) not in self.nullable and (owner, name) not in self.hopped
 
     # MARK: - The text sweep
 
@@ -1018,6 +1019,7 @@ class Table:
         A table walk is a pointer local a statement sets to a file-scope table or a slot past its start, `it = bg_itemlist + 1`,
         given as the table's Swift name and the index local that stands in for the pointer.
         A record pointer parameter the body sets to a slot of such a table and steps, `from = g_entities` and `from++` of G_Find, walks the table too.
+        A record pointer local the body sets only to slots of one table, `e = &g_entities[MAX_CLIENTS]`, and steps walks that table too.
         A written name is any name a statement writes after its declaration, and an addressed name is any name a statement takes the address of."""
         params = {p.spelling: p for p in fn.get_arguments()}
         out: dict[str, tuple[str, str]] = {}
@@ -1025,6 +1027,8 @@ class Table:
         addressed: set[str] = set()
         stepped: set[str] = set()
         parameter_walks: dict[str, tuple[str, str]] = {}
+        slot_walks: dict[str, tuple[str, str]] = {}
+        other_stores: set[str] = set()
         for cur in fn.walk_preorder():
             kids = list(cur.get_children())
             if cur.kind == CursorKind.UNARY_OPERATOR and kids:
@@ -1052,6 +1056,13 @@ class Table:
                 continue
             if left.kind != CursorKind.DECL_REF_EXPR or left.referenced is None or left.referenced.kind != CursorKind.VAR_DECL:
                 continue
+            if self.record_pointer(left.referenced.type) and left.referenced.semantic_parent is not None \
+                    and left.referenced.semantic_parent.kind != CursorKind.TRANSLATION_UNIT:
+                slot = self.table_slot(right, data)
+                if slot is not None and slot_walks.get(left.spelling, (slot,))[0] == slot:
+                    slot_walks[left.spelling] = (slot, f"{swift_name(left.spelling)}Index")
+                else:
+                    other_stores.add(left.spelling)
             table = right
             if right.kind == CursorKind.BINARY_OPERATOR and len(list(right.get_children())) == 2 and not collapsed(right) \
                     and between(data, *list(right.get_children())) in ("+", "-"):
@@ -1070,6 +1081,10 @@ class Table:
                 out[left.spelling] = (swift_name(table.spelling), f"{swift_name(left.spelling)}Index")
         # A parameter that is set to a slot and never stepped only names one record, `attacker = &g_entities[ENTITYNUM_WORLD]` of G_Damage.
         out |= {name: walk for name, walk in parameter_walks.items() if name in stepped}
+        # A local that starts at a slot, `e = &g_entities[MAX_CLIENTS]`, and that the body steps walks the table from there.
+        # Every store into it must point into the one table, and no statement takes its address.
+        # A local the body never steps only names one record.
+        out |= {name: walk for name, walk in slot_walks.items() if name in stepped and name not in addressed and name not in other_stores and name not in out}
         return out, written, addressed
 
     def table_slot(self, cur: ci.Cursor, data: bytes) -> str | None:
@@ -1392,7 +1407,7 @@ class Table:
             traps=traps,
             following=following,
             nullable=(owner, name) in self.nullable,
-            nullable_vector=(owner, name) in self.nullable or (owner, name) in self.hopped,
+            null_reaches=(owner, name) in self.nullable or (owner, name) in self.hopped,
             readonly_text=(owner, name) in self.readonly_text,
             indexed=(owner, name) in self.indexed_params,
             stores_through=(owner, name) in self.stores_through,

@@ -397,6 +397,10 @@ class Expressions:
                 return self.leaf(cur, self.slot_copies[text])
             return self.leaf(cur, text)
         if kind == CursorKind.CALL_EXPR:
+            if self.leaf_wrap == "Double":
+                widened = self.double_library_call(cur)
+                if widened is not None:
+                    return widened
             outer = self.leaf_wrap
             self.leaf_wrap = None
             try:
@@ -710,7 +714,11 @@ class Expressions:
                 if self.types.record_name(self.strip(operand).type.get_canonical().get_pointee()) == record:
                     # A cast to the type the operand already has is Raven's habit, and the view is the same view.
                     return self.expr(operand)
-                return f"{self.views.qualified_view(record, TARGET)}({self.expr(operand)})"
+                view = self.views.qualified_view(record, TARGET)
+                if self.optional_base(operand):
+                    # Raven casts a pointer that can be NULL, so the view of the other record maps over the optional, and NULL stays nil.
+                    return f"{self.expr(operand)}.map {{ {view}($0) }}"
+                return f"{view}({self.expr(operand)})"
             raise Hole(f"A cast to `{target.spelling}` the draft has no view for.")
         swift = self.types.scalar(target, TARGET)
         if swift is None:

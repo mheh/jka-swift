@@ -63,6 +63,22 @@ class Calls:
             return f"String({self.expr(base)}.dropFirst(Int({self.converted(index, 'Int32')})))"
         return None
 
+    def double_library_call(self, cur: ci.Cursor) -> str | None:
+        """Raven's call of a C library function that takes and returns `double`, `sin( deltaTime * M_PI * 2 )`, inside an expression the Double rule widens.
+        C converts each argument to double and computes in double, so each argument widens and the Double overload answers.
+        Any other call is None."""
+        kids = list(cur.get_children())
+        callee = self.strip(kids[0]) if kids else None
+        if callee is None or callee.kind != CursorKind.DECL_REF_EXPR or callee.referenced is None \
+                or callee.referenced.kind != CursorKind.FUNCTION_DECL or self.oracle_declares(callee.referenced):
+            return None
+        params = list(callee.referenced.get_arguments())
+        if callee.referenced.result_type.get_canonical().kind != TypeKind.DOUBLE or not params or len(params) != len(kids) - 1 \
+                or any(p.type.get_canonical().kind != TypeKind.DOUBLE for p in params):
+            return None
+        words = [self.wrapped(a, "Double") for a in kids[1:]]
+        return f"{LIBC_SPELLINGS.get(callee.spelling, swift_name(callee.spelling))}({', '.join(words)})"
+
     def call(self, cur: ci.Cursor) -> str:
         kids = list(cur.get_children())
         callee = self.strip(kids[0]) if kids else None
@@ -323,8 +339,7 @@ class Calls:
         if param is not None and param[1] in TEXT_TYPES and self.pooled_field(inner) and not self.overload_takes(callee, position, "PooledString"):
             # A `char *` field is a PooledString?, and its text goes into a String parameter. Raven's callers never pass a NULL one here.
             return f"{text}!.string"
-        if param is not None and not param[1].endswith("?") and not inout \
-                and not self.optional_base(inner) and self.optional_view_name(inner):
+        if param is not None and not param[1].endswith("?") and not inout and self.optional_view_name(inner):
             raise Hole(f"Raven passes the optional `{inner.spelling}` to `{callee}`, whose `{param[0]}` parameter takes a value. A never-null ruling is due.")
         if param is not None and not param[1].endswith("?") and not inout and self.optional_base(inner):
             # A bind on a conditional binds the whole choice, so the choice takes parentheses first.
