@@ -32,3 +32,20 @@ Gate: build 0 errors, 106 tests in four binaries, bg 97 holes with 0 defects, ga
 | R1 | The Never rule. A void function with no return statement whose last statement calls a Never function also returns Never. It catches G_Error and Com_Error and matches the hand port. Not in the ratified text of row 2 | ratified as proposed |
 | R2 | The 15 Entity to Int lines row 4 does not reach are local walks that start at a slot address, `&g_entities[N]`: e in G_Spawn and G_EntitiesFree, ent in G_RunFrame. The walk sweep reads a bare table and a table plus an offset as a walk start, not a slot address. Proposed: a local that starts at `&table[n]` and that the body steps is a walk over that table | ratified as a docketed open row, not built |
 | R3 | The rosetta stones were stale since 03c875d. The generator run brought 22 stones and the index up to date and added 18 stones. Proposed: the catch-up goes in this commit | ratified as proposed |
+| R4 | The composition of the next round, from the class table at 476626c in game-gate-476626c.md. Proposed: row 5a first, then R2, then 5b, then 5c. Row 5a targets the two optional unwrapping classes, 231 lines. R2 targets the 15 Entity to Int lines in g_utils and g_main | ratified as proposed |
+
+## The round at ddd42e8
+
+Row 5a built: the never-null proof and the out-scalar rule read the one-hop reach. The two optional unwrapping classes go from 231 lines to 78, g_combat from 61 to 1 and g_vehicles from 62 to 10. Two added shape rules cleared most of them, ruled R5 below. The reach adds 50 game holes and 6 bg holes. The 78 lines left are a pooled string field as a format argument, 31, the Bool? callback helpers, 19, and a tail of optional views. Row R2 built: the Entity to Int lines go from 15 to 3, g_main from 48 to 38 defects. G_Spawn keeps 3 lines, because Raven writes NULL into the local before the walk. Row 5b built: four static buffer returns become holes, in g_utils, g_cmds, g_client, and g_main, 12 more holes with their reads and stores. Row 5c built: a C library call inside a widened expression takes Double, 13 draft lines move and no defect moves.
+
+Gate: build 0 errors, 106 tests in four binaries, bg 103 holes with 0 defects, game 1638 holes with 0 cascade errors and 625 defects. No defect class grew in any stem. The generators wrote no change.
+
+### Rulings on the round
+
+| Row | Question | Verdict |
+|---|---|---|
+| R5 | Two shape rules for row 5a not in the ratified text. A member read through an optional view parameter takes the bind, `attacker!.client`, about 50 lines. Raven's cast between views over a pointer that can be NULL maps over the optional, `pVeh.m_pPilot.map { Entity($0) }`, about 75 lines | ratified as proposed |
+| R6 | A rule for row 5b beyond the read-before-write wording. A static that the function returns is also a hole. Without it the four static buffer defects stay defects | ratified as proposed |
+| R7 | 19 Bool? lines are calls through the function pointer fields of vehicleInfo_t, `pVeh.m_pVehicleInfo!.runEject(...)`. Clearing them needs a never-null fact about those fields, a name rule in rulings.py | ratified as a docketed open row |
+| R8 | A false hole from row 5b. `garbage` of SP_NPC_spawner is scratch. Its first use passes its address to G_SpawnInt, and the written-first test does not count an address pass as a store. Proposed: an address passed to an out parameter counts as a store | ratified as a docketed open row |
+| R9 | Two gaps in the Double rule. The rule widens every float leaf, so `(150 + pml.frametime) * 0.003` adds in double where C adds in float. A double macro constant such as `M_PI` does not trigger the rule, because the test reads the literal's own text. Proposed: widen at the operator that meets the double operand, and read a macro constant as a double literal | ratified as a docketed open row |
