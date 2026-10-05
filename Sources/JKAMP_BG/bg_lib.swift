@@ -245,32 +245,49 @@ func atof(_ string: String) -> Double {
 
 /// Source: oracle/codemp/game/bg_lib.c:841
 func _atof(_ stringPtr: inout JKAShared.TextCursor) -> Double {
-    // Port-note: A pointer local `const char * string` with no view.
-    // Raven wrote: const char *string;
-    portMissing("_atof", source: "oracle/codemp/game/bg_lib.c:841")
+    var string: TextCursor
     var sign: Float
     var value: Float
-    var c: Int32 = Int32(ascii: "0")
+    var c: Int32 = Int32(ascii: "0") // bk001211 - uninitialized use possible
 
-    // Port-note: A store into `string`, a local the draft left as a hole.
-    // Raven wrote: string = *stringPtr
-    portMissing("_atof", source: "oracle/codemp/game/bg_lib.c:841")
+    string = stringPtr
 
     // skip whitespace
-    // Port-note: A pointer dereference the draft cannot place.
-    // Raven wrote: while ( *string <= ' ' ) { if ( !*string ) { *stringPtr = string; return 0; } string++; }
-    portMissing("_atof", source: "oracle/codemp/game/bg_lib.c:841")
+    while string.byte <= Int32(ascii: " ") {
+        if string.byte == 0 {
+            stringPtr = string
+            return 0
+        }
+        string.advance()
+    }
 
     // check sign
-    // Port-note: A pointer dereference the draft cannot place.
-    // Raven wrote: switch ( *string ) { case '+': string++; sign = 1; break; case '-': string++; sign = -1; break; default: sign = 1; break; }
-    portMissing("_atof", source: "oracle/codemp/game/bg_lib.c:841")
+    switch string.byte {
+    case Int32(ascii: "+"):
+        string.advance()
+        sign = 1
+
+    case Int32(ascii: "-"):
+        string.advance()
+        sign = -1
+
+    default:
+        sign = 1
+    }
 
     // read digits
     value = 0
-    // Port-note: A read of `string`, a local the draft left as a hole.
-    // Raven wrote: if ( string[0] != '.' ) { do { c = *string++; if ( c < '0' || c > '9' ) { break; } c -= '0'; value = value * 10 + c; } while ( 1 ); }
-    portMissing("_atof", source: "oracle/codemp/game/bg_lib.c:841")
+    if string[0] != Int32(ascii: ".") {
+        repeat {
+            c = string.byte
+            string.advance()
+            if c < Int32(ascii: "0") || c > Int32(ascii: "9") {
+                break
+            }
+            c -= Int32(ascii: "0")
+            value = value * 10 + c
+        } while 1 != 0
+    }
 
     // check for decimal point
     if c == Int32(ascii: ".") {
@@ -278,9 +295,8 @@ func _atof(_ stringPtr: inout JKAShared.TextCursor) -> Double {
 
         fraction = 0.1
         repeat {
-            // Port-note: A pointer dereference the draft cannot place.
-            // Raven wrote: c = *string++
-            portMissing("_atof", source: "oracle/codemp/game/bg_lib.c:841")
+            c = string.byte
+            string.advance()
             if c < Int32(ascii: "0") || c > Int32(ascii: "9") {
                 break
             }
@@ -288,12 +304,11 @@ func _atof(_ stringPtr: inout JKAShared.TextCursor) -> Double {
             value = Float(Double(value) + Double(c) * fraction)
             fraction *= 0.1
         } while 1 != 0
+
     }
 
     // not handling 10e10 notation...
-    // Port-note: A read of `string`, a local the draft left as a hole.
-    // Raven wrote: *stringPtr = string
-    portMissing("_atof", source: "oracle/codemp/game/bg_lib.c:841")
+    stringPtr = string
 
     return Double(value * sign)
 }

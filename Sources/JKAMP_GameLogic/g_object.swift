@@ -161,7 +161,6 @@ func G_RunObject(_ ent: Entity) {
             }
         }
 
-        // Raven's NULL test on ent has no form here, and the arm it guards is gone.
         if (ent.takedamage && ent.health <= 0) {
             //been destroyed by impact
             //chunks?

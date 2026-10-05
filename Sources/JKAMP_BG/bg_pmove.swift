@@ -173,7 +173,6 @@ public func BG_SabersOff(_ ps: JKAMP.PlayerState) -> Bool {
 
 /// Source: oracle/codemp/game/bg_pmove.c:218
 public func BG_KnockDownable(_ ps: JKAMP.PlayerState) -> Bool {
-    // Port-note: Raven's `if (!ps)` safety check has no Swift form, because the signature takes a non-optional `PlayerState`.
     if ps.m_iVehicleNum != 0 {
         //riding a vehicle, don't knock me down
         return false
@@ -299,8 +298,6 @@ func PM_pitch_roll_for_slope(_ forwhom: JKAMP.BgEntity, _ pass_slope: JKAShared.
                 return true
             }
 
-            // Port-note: Raven tests the address of `trace.plane`, which C never gives as NULL. The view is non-optional, so the test has no Swift form.
-
             if VectorCompare(vec3_origin, trace.plane.normal) != 0 {
                 return true
             }
@@ -353,7 +350,6 @@ func PM_pitch_roll_for_slope(_ forwhom: JKAMP.BgEntity, _ pass_slope: JKAShared.
 
     dot = _DotProduct(nvf, ovf)
 
-    // Port-note: Raven guards a NULL `storeAngles` here. The parameter is `inout`, so the guard has no Swift form, and no path reaches Raven's else arm, which writes `pm->ps->viewangles` and `pm->mins[2]`.
     storeAngles[PITCH] = dot * pitch
     storeAngles[ROLL] = ((1 - Q_fabs(dot)) * pitch * mod)
     /*
@@ -391,13 +387,10 @@ func PM_SetSpecialMoveValues() {
         if (ps.eFlags2 & EF2_FLYING) != 0 {// pm->gent->client->moveType == MT_FLYSWIM )
             pm_flying = FLY_NORMAL
         } else if pEnt.s.NPC_class == CLASS_VEHICLE {
-            // Port-note: Raven walks `pEnt->m_pVehicle->m_pVehicleInfo` with no guard. Both generated fields are optional, so the body binds them, and the nil path takes neither arm.
-            if let pVehicleInfo = pEnt.m_pVehicle?.m_pVehicleInfo {
-                if pVehicleInfo.type == VH_FIGHTER {
-                    pm_flying = FLY_VEHICLE
-                } else if pVehicleInfo.hoverHeight > 0 {
-                    pm_flying = FLY_HOVER
-                }
+            if pEnt.m_pVehicle!.m_pVehicleInfo!.type == VH_FIGHTER {
+                pm_flying = FLY_VEHICLE
+            } else if pEnt.m_pVehicle!.m_pVehicleInfo!.hoverHeight > 0 {
+                pm_flying = FLY_HOVER
             }
         }
     }
@@ -582,7 +575,6 @@ func BG_ExternThisSoICanRecompileInDebug(_ pVeh: JKAMP.Vehicle, _ riderPS: JKAMP
 
 /// Source: oracle/codemp/game/bg_pmove.c:676
 public func BG_VehicleTurnRateForSpeed(_ pVeh: JKAMP.Vehicle, _ speed: Float, _ mPitchOverride: inout Float, _ mYawOverride: inout Float) {
-    // Port-note: Raven guards a NULL `pVeh` here. The view is non-optional, so that half of the guard has no Swift form.
     if let m_pVehicleInfo = pVeh.m_pVehicleInfo {
         var speedFrac: Float = 1.0
         if m_pVehicleInfo.speedDependantTurning {
@@ -921,16 +913,14 @@ private func PM_Friction() {
     }
 
     // apply ground friction, even if on ladder
-    // Port-note: Raven guards `pEnt->m_pVehicle` and then walks `m_pVehicleInfo` with no guard. Both generated fields are optional, so the body binds both.
     if pm_flying != FLY_VEHICLE,
         let pEnt,
         pEnt.s.NPC_class == CLASS_VEHICLE,
         let m_pVehicle = pEnt.m_pVehicle,
-        let m_pVehicleInfo = m_pVehicle.m_pVehicleInfo,
-        m_pVehicleInfo.type != VH_ANIMAL,
-        m_pVehicleInfo.type != VH_WALKER,
-        m_pVehicleInfo.friction != 0 {
-        let friction = m_pVehicleInfo.friction
+        m_pVehicle.m_pVehicleInfo!.type != VH_ANIMAL,
+        m_pVehicle.m_pVehicleInfo!.type != VH_WALKER,
+        m_pVehicle.m_pVehicleInfo!.friction != 0 {
+        let friction = m_pVehicle.m_pVehicleInfo!.friction
         if (ps.pm_flags & PMF_TIME_KNOCKBACK) == 0 /*&& !(pm->ps->pm_flags & PMF_TIME_NOFRICTION)*/ {
             control = speed < pm_stopspeed ? pm_stopspeed : speed
             drop += control * friction * pml.frametime
@@ -1710,10 +1700,8 @@ private func PM_CheckJump() -> Bool {
     if ps.clientNum >= MAX_CLIENTS {
         let pEnt: BgEntity? = pm_entSelf
 
-        // Port-note: Raven reads `pEnt` with no NULL guard. The generated view is optional, so the body binds it.
-        if let pEnt,
-            pEnt.s.eType == ET_NPC,
-            pEnt.s.NPC_class == CLASS_VEHICLE {
+        if pEnt!.s.eType == ET_NPC
+            && pEnt!.s.NPC_class == CLASS_VEHICLE {
             //no!
             return false
         }
@@ -2284,15 +2272,12 @@ private func PM_CheckJump() -> Bool {
                 var scratchUp = vec3_t()
                 AngleVectors(fwdAngles, &fwd, &scratchRight, &scratchUp)
 
-                assert(pm_entSelf != nil) //null pm_entSelf would be a Bad Thing<tm>
-                // Port-note: Raven reads `pm_entSelf` right after his assert. The generated view is optional, so the body binds it, and the nil path leaves `anim` at -1.
-                if let pm_entSelf = pm_entSelf {
-                    animLen = Float(BG_AnimLength(pm_entSelf.localAnimIndex, BOTH_FORCEWALLRUNFLIP_START))
-                    if ps.legsTimer < animLen - 400 {
-                        //not at start of anim
-                        _VectorMA(ps.origin, 16, fwd, &traceto)
-                        anim = BOTH_FORCEWALLRUNFLIP_END
-                    }
+                //null pm_entSelf would be a Bad Thing<tm>
+                animLen = Float(BG_AnimLength(pm_entSelf!.localAnimIndex, BOTH_FORCEWALLRUNFLIP_START))
+                if ps.legsTimer < animLen - 400 {
+                    //not at start of anim
+                    _VectorMA(ps.origin, 16, fwd, &traceto)
+                    anim = BOTH_FORCEWALLRUNFLIP_END
                 }
                 if anim != -1 {
                     Trace.scratch { trace in
@@ -2421,16 +2406,10 @@ private func PM_CheckJump() -> Bool {
                             _ = VectorNormalize(&idealNormal)
                             traceEnt = PM_BGEntForNum(trace.entityNum)
 
-                            // Port-note: Raven tests `traceEnt` inside one `&&` chain. The generated view is optional, so the body binds it into a flag first.
-                            var hitPushableEnt = false
-                            if trace.entityNum < ENTITYNUM_WORLD,
-                                let traceEnt,
-                                traceEnt.s.solid != SOLID_BMODEL {
-                                hitPushableEnt = true
-                            }
                             // C computes the dot-product compare in double, because 0.7 is a double literal.
                             if trace.fraction < 1.0
-                                && (hitPushableEnt || Double(_DotProduct(trace.plane.normal, idealNormal)) > 0.7) {
+                                && ((trace.entityNum < ENTITYNUM_WORLD && traceEnt != nil && traceEnt!.s.solid != SOLID_BMODEL)
+                                    || Double(_DotProduct(trace.plane.normal, idealNormal)) > 0.7) {
                                 //there is a wall there
                                 ps.velocity[0] = 0
                                 ps.velocity[1] = 0
@@ -2529,17 +2508,11 @@ private func PM_CheckJump() -> Bool {
                             _VectorSubtract(ps.origin, traceto, &idealNormal)
                             _ = VectorNormalize(&idealNormal)
                             traceEnt = PM_BGEntForNum(trace.entityNum)
-                            // Port-note: Raven tests `traceEnt` inside one `&&` chain. The generated view is optional, so the body binds it into a flag first.
-                            var hitPushableEnt = false
-                            if trace.entityNum < ENTITYNUM_WORLD,
-                                let traceEnt,
-                                traceEnt.s.solid != SOLID_BMODEL {
-                                hitPushableEnt = true
-                            }
                             // C computes the dot-product compare in double, because 0.7 is a double literal.
                             if trace.fraction < 1.0
                                 && Q_fabs(trace.plane.normal[2]) <= 0.2/*MAX_WALL_GRAB_SLOPE*/
-                                && (hitPushableEnt || Double(_DotProduct(trace.plane.normal, idealNormal)) > 0.7) {
+                                && ((trace.entityNum < ENTITYNUM_WORLD && traceEnt != nil && traceEnt!.s.solid != SOLID_BMODEL)
+                                    || Double(_DotProduct(trace.plane.normal, idealNormal)) > 0.7) {
                                 //there is a wall there
                                 let dot = _DotProduct(ps.velocity, trace.plane.normal)
                                 if dot < 1.0 {
@@ -2982,8 +2955,7 @@ private func PM_AirMove() {
     _ = VectorNormalize(&pml.forward)
     _ = VectorNormalize(&pml.right)
 
-    // Port-note: Raven walks `pVeh->m_pVehicleInfo` with no guard. The generated field is optional, so the body binds it here and at the acceleration test below.
-    if let m_pVehicleInfo = pVeh?.m_pVehicleInfo, m_pVehicleInfo.hoverHeight > 0 {
+    if pVeh != nil && pVeh!.m_pVehicleInfo!.hoverHeight > 0 {
         //in a hovering vehicle, have air control
         if true {
             wishspeed = ps.speed
@@ -3023,10 +2995,10 @@ private func PM_AirMove() {
     wishspeed *= scale
 
     accelerate = pm_airaccelerate
-    if let m_pVehicleInfo = pVeh?.m_pVehicleInfo, m_pVehicleInfo.type == VH_SPEEDER {
+    if pVeh != nil && pVeh!.m_pVehicleInfo!.type == VH_SPEEDER {
         //speeders have more control in air
         //in mid-air
-        accelerate = m_pVehicleInfo.traction
+        accelerate = pVeh!.m_pVehicleInfo!.traction
         if pml.groundPlane {
             //on a slope of some kind, shouldn't have much control and should slide a lot
             accelerate *= 0.5
@@ -3460,7 +3432,7 @@ private func PM_TryRoll() -> Int32 {
 
 /// Source: oracle/codemp/game/bg_pmove.c:3684
 private func PM_CrashLandEffect() {
-    // Port-note: Raven compiles this whole function only for the game module, under `#ifdef QAGAME`. Rule 23 gives no per-function form for that, so the body is here for every consumer, and its one call site takes the game arm.
+    // Port-note: Raven compiles this whole function only for the game module, under `#ifdef QAGAME`. Rule 23 gives no per-function form for that, so the body is here for every consumer, and its one call site takes the game arm. A ruling for a function that Raven compiles only under `QAGAME` is missing.
     var delta: Float
     let ps = pm.ps
     if pm.waterlevel != 0 {
@@ -3906,11 +3878,8 @@ private func PM_GroundTrace() {
     if ps.clientNum >= MAX_CLIENTS {
         let pEnt = pm_entSelf
 
-        // Port-note: Raven walks `pEnt->m_pVehicle->m_pVehicleInfo` with no guard. Both generated fields are optional, so the body binds both.
-        if let pEnt, pEnt.s.NPC_class == CLASS_VEHICLE,
-            let m_pVehicle = pEnt.m_pVehicle,
-            let m_pVehicleInfo = m_pVehicle.m_pVehicleInfo {
-            minNormal = m_pVehicleInfo.maxSlope
+        if let pEnt, pEnt.s.NPC_class == CLASS_VEHICLE {
+            minNormal = pEnt.m_pVehicle!.m_pVehicleInfo!.maxSlope
         }
     }
 
@@ -3922,7 +3891,8 @@ private func PM_GroundTrace() {
     // Raven's record lives to the end of the function, so the rest of the body is the closure, and each of his early-outs returns from it.
     Trace.scratch { trace in
         pm.runTrace(trace, ps.origin, pm.mins, pm.maxs, point, ps.clientNum, pm.tracemask)
-        // Port-note: Raven copies the whole record with `pml.groundTrace = trace`. The `Trace` view of `pml.groundTrace` is read-only, so the record copy has no Swift form.
+        // Port-note: Raven copies the whole record with `pml.groundTrace = trace`. The `Trace` view of `pml.groundTrace` is read-only, so the record copy has no Swift form. A form that copies a whole record into an existing view slot is missing.
+        portMissing("PM_GroundTrace", source: "oracle/codemp/game/bg_pmove.c:4141")
 
         // do something corrective if the trace starts in a solid...
         if trace.allsolid != 0 {
@@ -3994,7 +3964,7 @@ private func PM_GroundTrace() {
 
             PM_CrashLand()
 
-            // Port-note: The game arm of Raven's `#ifdef QAGAME` reads `g_entities` and casts a `bgEntity_t *` to `gentity_t *` to board a vehicle. The `Entity` view lives in the game target, which the bg target cannot import.
+            // Port-note: The game arm of Raven's `#ifdef QAGAME` reads `g_entities` and casts a `bgEntity_t *` to `gentity_t *` to board a vehicle. The `Entity` view lives in the game target, which the bg target cannot import. A bg channel callback for this vehicle boarding is missing.
 
             // don't do landing time if we were just going down a slope
             if pml.previous_velocity[2] < -200 {
@@ -4167,11 +4137,9 @@ private func PM_CheckDuck() {
             if ps.clientNum >= MAX_CLIENTS {
                 return
             }
-            // Port-note: Raven walks `pm_entVeh->m_pVehicle->m_pVehicleInfo` with no guard on the last field. The generated field is optional, so the body binds it.
             if let pm_entVeh = pm_entVeh, let m_pVehicle = pm_entVeh.m_pVehicle,
-                let m_pVehicleInfo = m_pVehicle.m_pVehicleInfo,
-                (m_pVehicleInfo.type == VH_SPEEDER
-                 || m_pVehicleInfo.type == VH_ANIMAL) {
+                (m_pVehicle.m_pVehicleInfo!.type == VH_SPEEDER
+                 || m_pVehicle.m_pVehicleInfo!.type == VH_ANIMAL) {
                 pm.mins[0] = -16
                 pm.mins[1] = -16
                 pm.mins[2] = Float(MINS_Z)
@@ -4187,7 +4155,7 @@ private func PM_CheckDuck() {
                         //whoops, can't fit here. Down to 0!
                         pm.mins = vec3_t()
                         pm.maxs = vec3_t()
-                        // Port-note: The game arm of Raven's `#ifdef QAGAME` reads `g_entities` and `level.time` through a `gentity_t *`. The `Entity` view and the level state live in the game target, which the bg target cannot import.
+                        // Port-note: The game arm of Raven's `#ifdef QAGAME` reads `g_entities` and `level.time` through a `gentity_t *`. The `Entity` view and the level state live in the game target, which the bg target cannot import. A bg channel callback that sets `solidHack` on the game client is missing.
                     }
                 }
             }
@@ -4444,7 +4412,6 @@ func PM_FootSlopeTrace(_ pDiff: inout Float, _ pInterval: inout Float) {
 
     diff = footLBot[2] - footRBot[2]
 
-    // Port-note: Raven guards a NULL `pDiff` and a NULL `pInterval` here. Each generated parameter is a plain `inout Float`, so neither guard has a Swift form.
     pDiff = diff
     pInterval = interval
 }
@@ -5219,7 +5186,6 @@ private func PM_WaterEvents() {
 
 /// Source: oracle/codemp/game/bg_pmove.c:5750
 public func BG_ClearRocketLock(_ ps: JKAMP.PlayerState) {
-    // Port-note: Raven's `if (ps)` guard has no Swift form, because the signature takes a non-optional `PlayerState`.
     ps.rocketLockIndex = ENTITYNUM_NONE
     ps.rocketLastValidTime = 0
     ps.rocketLockTime = -1
@@ -5305,17 +5271,12 @@ public func BG_VehTraceFromCamPos(_ camTrace: JKAMP.Trace, _ bgEnt: JKAMP.BgEnti
     var camPos = vec3_t()
 
     if bg.consumer == .game {
-        // Port-note: Raven walks `bgEnt->m_pVehicle->m_pPilot` with no guard. Both generated fields are optional, so the body binds them, and the nil path makes no call.
-        if let m_pVehicle = bgEnt.m_pVehicle, let m_pPilot = m_pVehicle.m_pPilot {
-            WP_GetVehicleCamPos(bgEnt, m_pPilot, &camPos)
-        }
+        WP_GetVehicleCamPos(bgEnt, bgEnt.m_pVehicle!.m_pPilot!, &camPos)
     } else {
         CG_GetVehicleCamPos(&camPos)
     }
 
-    // Port-note: Raven walks `bgEnt->m_pVehicle->m_pVehicleInfo` with no guard. Both generated fields are optional, so the body binds them, and the nil path returns 0, the value of Raven's miss path.
-    guard let m_pVehicleInfo = bgEnt.m_pVehicle?.m_pVehicleInfo else { return 0 }
-    let minAutoAimDist = Distance(entOrg, camPos) + (m_pVehicleInfo.length / 2.0) + 200.0
+    let minAutoAimDist = Distance(entOrg, camPos) + (bgEnt.m_pVehicle!.m_pVehicleInfo!.length / 2.0) + 200.0
 
     newEnd = end
     _VectorSubtract(end, camPos, &viewDir2End)
@@ -5388,10 +5349,8 @@ func PM_RocketLock(_ lockDist: Float, _ vehicleLock: Bool) {
                 Trace.scratch { camTrace in
                     var newEnd = vec3_t()
                     var shotDir = vec3_t()
-                    // Port-note: Raven hands `PM_BGEntForNum` straight to the call with no guard. The generated return is optional, so the body binds it.
-                    if let bgEnt = PM_BGEntForNum(ps.clientNum),
-                        BG_VehTraceFromCamPos(camTrace, bgEnt, ps.origin, muzzlePoint, tr.endpos, &newEnd, &shotDir, (tr.fraction * lockDist)) != 0 {
-                        // Port-note: Raven copies the whole record with `memcpy( &tr, &camTrace, sizeof(tr) )`. The `Trace` view carries no copy into an existing slot, so the record copy has no Swift form.
+                    if BG_VehTraceFromCamPos(camTrace, PM_BGEntForNum(ps.clientNum)!, ps.origin, muzzlePoint, tr.endpos, &newEnd, &shotDir, (tr.fraction * lockDist)) != 0 {
+                        // Port-note: Raven copies the whole record with `memcpy( &tr, &camTrace, sizeof(tr) )`. The `Trace` view carries no copy into an existing slot, so the record copy has no Swift form. A form that copies a whole record into an existing view slot is missing.
                         portMissing("PM_RocketLock: memcpy of trace_t", source: "oracle/codemp/game/bg_pmove.c:5917")
                     }
                 }
@@ -5447,7 +5406,6 @@ private func PM_DoChargedWeapons(_ vehicleRocketLock: Bool, _ veh: JKAMP.BgEntit
         if vehicleRocketLock {
             if (pm.cmd.buttons & (BUTTON_ATTACK | BUTTON_ALT_ATTACK)) != 0 {
                 //actually charging
-                // Raven's NULL test on veh has no form here, and the arm it guards is gone.
                 if veh.m_pVehicle != nil {
                     //just make sure we have this veh info
                     if ((pm.cmd.buttons & BUTTON_ATTACK) != 0 && g_vehWeaponInfo[veh.m_pVehicle!.m_pVehicleInfo!.weapon[0].ID].fHoming != 0 && pm.ps.ammo[0] >= g_vehWeaponInfo[veh.m_pVehicle!.m_pVehicleInfo!.weapon[0].ID].iAmmoPerShot) || ((pm.cmd.buttons & BUTTON_ALT_ATTACK) != 0 && g_vehWeaponInfo[veh.m_pVehicle!.m_pVehicleInfo!.weapon[1].ID].fHoming != 0 && pm.ps.ammo[1] >= g_vehWeaponInfo[veh.m_pVehicle!.m_pVehicleInfo!.weapon[1].ID].iAmmoPerShot) {
@@ -5554,7 +5512,6 @@ private func PM_DoChargedWeapons(_ vehicleRocketLock: Bool, _ veh: JKAMP.BgEntit
 
                 if vehicleRocketLock {
                     //check vehicle ammo
-                    // Raven's NULL test on veh has no form here, and the arm it guards is gone.
                     if pm.ps.ammo[1] < g_vehWeaponInfo[veh.m_pVehicle!.m_pVehicleInfo!.weapon[1].ID].iAmmoPerShot {
                         pm.ps.weaponstate = WEAPON_CHARGING_ALT
                         break rest
@@ -5580,7 +5537,6 @@ private func PM_DoChargedWeapons(_ vehicleRocketLock: Bool, _ veh: JKAMP.BgEntit
                 }
 
                 if vehicleRocketLock {
-                    // Raven's NULL test on veh has no form here, and the arm it guards is gone.
                     if pm.ps.ammo[0] < g_vehWeaponInfo[veh.m_pVehicle!.m_pVehicleInfo!.weapon[0].ID].iAmmoPerShot {
                         //check vehicle ammo
                         pm.ps.weaponstate = WEAPON_CHARGING
@@ -5799,13 +5755,8 @@ func PM_VehicleWeaponAnimate() {
 
     let pVeh = m_pVehicle
 
-    // Port-note: Raven walks `pVeh->m_pVehicleInfo` with no guard. The generated field is optional, so the body binds it once here.
-    guard let m_pVehicleInfo = pVeh.m_pVehicleInfo else {
-        portMissing("PM_VehicleWeaponAnimate: pVeh->m_pVehicleInfo is NULL", source: "oracle/codemp/game/bg_pmove.c:6381")
-    }
-
-    if m_pVehicleInfo.type == VH_WALKER
-        || m_pVehicleInfo.type == VH_FIGHTER {
+    if pVeh.m_pVehicleInfo!.type == VH_WALKER
+        || pVeh.m_pVehicleInfo!.type == VH_FIGHTER {
         //slightly hacky I guess, but whatever.
         return
     }
@@ -5880,12 +5831,12 @@ func PM_VehicleWeaponAnimate() {
                 Anim = BOTH_VS_IDLE
             }
         } else if let vehPS = veh.playerState, vehPS.speed < 0,
-            m_pVehicleInfo.type == VH_ANIMAL {
+            pVeh.m_pVehicleInfo!.type == VH_ANIMAL {
             //tauntaun is going backwards
             Anim = BOTH_VT_WALK_REV
             iBlend = 600
         } else if let vehPS = veh.playerState, vehPS.speed < 0,
-            m_pVehicleInfo.type == VH_SPEEDER {
+            pVeh.m_pVehicleInfo!.type == VH_SPEEDER {
             //speeder is going backwards
             Anim = BOTH_VS_REV
             iBlend = 600
@@ -5910,7 +5861,7 @@ func PM_VehicleWeaponAnimate() {
                 // Crashing.
                 //else if ( pVeh->m_ulFlags & VEH_CRASHING )
                 else if false {
-                    // Port-note: `m_ulFlags` is an `unsigned long` and `VEH_CRASHING` is an `int` case, so the mask needs a widening Raven did not write.
+                    // Port-note: `m_ulFlags` is an `unsigned long` and `VEH_CRASHING` is an `int` case, so the mask needs a widening Raven did not write. An operator or a ruling for an `unsigned long` field masked by an `int` enum case is missing.
                     pVeh.m_ulFlags &= ~UInt(VEH_CRASHING) // Remove the flag, we are doing the animation.
                     iBlend = 800
                     Anim = BOTH_VS_LAND_SR
@@ -5947,12 +5898,12 @@ func PM_VehicleWeaponAnimate() {
 
     if Anim != -1 {
         //override it
-        if m_pVehicleInfo.type == VH_ANIMAL {
+        if pVeh.m_pVehicleInfo!.type == VH_ANIMAL {
             //agh.. remap anims for the tauntaun
             switch Anim {
             case BOTH_VS_IDLE:
                 if let vehPS = veh.playerState, vehPS.speed > 0 {
-                    if vehPS.speed > m_pVehicleInfo.speedMax {
+                    if vehPS.speed > pVeh.m_pVehicleInfo!.speedMax {
                         //turbo
                         Anim = BOTH_VT_TURBO
                     } else {
@@ -6816,7 +6767,6 @@ private func PM_DropTimers() {
 
 /// Source: oracle/codemp/game/bg_pmove.c:7784
 public func BG_UnrestrainedPitchRoll(_ ps: JKAMP.PlayerState, _ pVeh: JKAMP.Vehicle) -> Bool {
-    // Port-note: Raven guards a NULL `pVeh` here. The view is non-optional, so that half of the guard has no Swift form.
     if bg_fighterAltControl.integer != 0
         && ps.clientNum < MAX_CLIENTS //real client
         && ps.m_iVehicleNum != 0//in a vehicle
@@ -6858,7 +6808,7 @@ func PM_UpdateViewAngles(_ ps: JKAMP.PlayerState, _ cmd: JKAMP.Usercmd) {
     while i < 3 {
         // C truncates the `int` sum into the `short`, so the port does the same.
         temp = Int16(truncatingIfNeeded: cmd.angles[i] + ps.delta_angles[i])
-        // Port-note: Raven passes a possibly NULL `m_pVehicle` to `BG_UnrestrainedPitchRoll`, which answers false for NULL. The generated field is optional, so the body binds it, and the nil path takes the same arm.
+        // Port-note: Raven passes a possibly NULL `m_pVehicle` to `BG_UnrestrainedPitchRoll`, which answers false for NULL. The generated field is optional, so the body binds it, and the nil path takes the same arm. A never-null ruling for `m_pVehicle`, or an optional `pVeh` parameter, is missing.
         if let pm_entVeh = pm_entVeh, let m_pVehicle = pm_entVeh.m_pVehicle,
             BG_UnrestrainedPitchRoll(ps, m_pVehicle) {
             //in a fighter
@@ -6892,16 +6842,12 @@ func PM_UpdateViewAngles(_ ps: JKAMP.PlayerState, _ cmd: JKAMP.Usercmd) {
 func PM_AdjustAttackStates(_ pm: JKAMP.Pmove) {
     var amount: Int32
     let ps = pm.ps
-    // Port-note: Raven reads `pm_entSelf->s.NPC_class` with no guard. The state property is optional, so the body binds it, and the nil path takes the same arm.
-    if let pm_entSelf = pm_entSelf, pm_entSelf.s.NPC_class != CLASS_VEHICLE,
-        ps.m_iVehicleNum != 0 {
+    if pm_entSelf!.s.NPC_class != CLASS_VEHICLE
+        && ps.m_iVehicleNum != 0 {
         //riding a vehicle
         let veh: BgEntity? = pm_entVeh
-        // Port-note: Raven reads `m_pVehicleInfo->type` with no guard, so the body binds the optional field, and the nil path skips the early return.
-        if let veh,
-            let m_pVehicle = veh.m_pVehicle,
-            let m_pVehicleInfo = m_pVehicle.m_pVehicleInfo,
-            (m_pVehicleInfo.type == VH_WALKER || m_pVehicleInfo.type == VH_FIGHTER) {
+        if veh != nil
+            && (veh!.m_pVehicle != nil && (veh!.m_pVehicle!.m_pVehicleInfo!.type == VH_WALKER || veh!.m_pVehicle != nil && veh!.m_pVehicle!.m_pVehicleInfo!.type == VH_FIGHTER)) {
             //riding a walker/fighter
             //not firing, ever
             ps.eFlags &= ~(EF_FIRING | EF_ALT_FIRING)
@@ -7931,7 +7877,6 @@ public func BG_G2PlayerAngles(_ ghoul2: OpaquePointer?, _ motionBolt: Int32, _ c
 
     if cent.groundEntityNum == ENTITYNUM_NONE
         || cent.forceFrame != 0
-        // Port-note: Raven guards a NULL `emplaced` here. The view is non-optional, so that half of the guard has no Swift form.
         || cent.weapon == WP_EMPLACED_GUN {
         //off the ground, no direction-based leg angles (same if in saberlock)
         velPos = cent_lerpOrigin
@@ -8027,7 +7972,6 @@ public func BG_G2PlayerAngles(_ ghoul2: OpaquePointer?, _ motionBolt: Int32, _ c
         angles[0] = -30
     }
 
-    // Port-note: Raven guards a NULL `emplaced` here. The view is non-optional, so that half of the guard has no Swift form.
     if cent.weapon == WP_EMPLACED_GUN {
         //if using an emplaced gun, then we want to make sure we're angled to "hold" it right
         var facingAngles = vec3_t()
@@ -8054,7 +7998,6 @@ public func BG_G2PlayerAngles(_ ghoul2: OpaquePointer?, _ motionBolt: Int32, _ c
 
             if cent.legsAnim == BOTH_STRAFE_LEFT1 || cent.legsAnim == BOTH_STRAFE_RIGHT1 {
                 //try to adjust so it doesn't look wrong
-                // Port-note: Raven guards a NULL `crazySmoothFactor` here. The generated parameter is a plain `inout Int32`, so the guard has no Swift form.
                 crazySmoothFactor = time + 1000
 
                 BG_G2ClientSpineAngles(ghoul2, motionBolt, &cent_lerpOrigin, &cent_lerpAngles, cent, time,
@@ -8293,20 +8236,19 @@ private func PM_CmdForSaberMoves(_ ucmd: JKAMP.Usercmd) {
 /// Source: oracle/codemp/game/bg_pmove.c:9642
 func PM_VehicleViewAngles(_ ps: JKAMP.PlayerState, _ veh: JKAMP.BgEntity, _ ucmd: JKAMP.Usercmd) {
     // Port-note: Raven leaves `clampMin` and `clampMax` uninitialized on the turret path, so this port zeroes them, rule 19.
-    // Port-note: Raven dereferences `veh->m_pVehicle` and `m_pVehicleInfo` with no guard. The generated fields are optional, so this port returns on nil, rule 19.
-    guard let pVeh = veh.m_pVehicle, let pVehInfo = pVeh.m_pVehicleInfo else { return }
+    let pVeh = veh.m_pVehicle
     var setAngles = true
     var clampMin = vec3_t(0, 0, 0)
     var clampMax = vec3_t(0, 0, 0)
 
-    if let pilot = veh.m_pVehicle?.m_pPilot,
-        pilot.s.number == ps.clientNum {
+    if veh.m_pVehicle!.m_pPilot != nil
+        && veh.m_pVehicle!.m_pPilot!.s.number == ps.clientNum {
         //set the pilot's viewangles to the vehicle's viewangles
-        if !BG_UnrestrainedPitchRoll(ps, pVeh) {
+        if !BG_UnrestrainedPitchRoll(ps, veh.m_pVehicle!) {
             //only if not if doing special free-roll/pitch control
             setAngles = true
-            clampMin[PITCH] = -pVehInfo.lookPitch
-            clampMax[PITCH] = pVehInfo.lookPitch
+            clampMin[PITCH] = -pVeh!.m_pVehicleInfo!.lookPitch
+            clampMax[PITCH] = pVeh!.m_pVehicleInfo!.lookPitch
             clampMin[YAW] = 0
             clampMax[YAW] = 0
             clampMin[ROLL] = -1
@@ -8314,8 +8256,8 @@ func PM_VehicleViewAngles(_ ps: JKAMP.PlayerState, _ veh: JKAMP.BgEntity, _ ucmd
         }
     } else {
         //NOTE: passengers can look around freely, UNLESS they're controlling a turret!
-        for i in 0..<Int(MAX_VEHICLE_TURRETS) {
-            if pVehInfo.turret[i].passengerNum == ps.generic1 {
+        for i in 0..<MAX_VEHICLE_TURRETS {
+            if veh.m_pVehicle!.m_pVehicleInfo!.turret[i].passengerNum == ps.generic1 {
                 //this turret is my station
                 //nevermind, don't clamp
                 return
@@ -8427,12 +8369,8 @@ func PM_VehForcedTurning(_ veh: JKAMP.BgEntity) {
     var pitchD: Float, yawD: Float
     var dir = vec3_t()
     let ps = pm.ps
-    // Port-note: Raven reads `veh->playerState->vehTurnaroundIndex` before his own NULL checks. The generated field is optional, so the body binds it, and the nil path returns.
-    guard let vehPS = veh.playerState else { return }
+    let dst = PM_BGEntForNum(veh.playerState!.vehTurnaroundIndex)
 
-    let dst = PM_BGEntForNum(vehPS.vehTurnaroundIndex)
-
-    // Port-note: Raven guards a NULL `veh` here. The view is non-optional, so that half of the guard has no Swift form.
     guard let m_pVehicle = veh.m_pVehicle else {
         return
     }
@@ -8449,7 +8387,7 @@ func PM_VehForcedTurning(_ veh: JKAMP.BgEntity) {
     m_pVehicle.m_ucmd.rightmove = 0
     pm.cmd.rightmove = 0
 
-    dir = dst.s.origin - vehPS.origin
+    dir = dst.s.origin - veh.playerState!.origin
     vectoangles(dir, &dir)
 
     yawD = AngleSubtract(ps.viewangles[YAW], dir[YAW])
@@ -8466,7 +8404,6 @@ func PM_VehForcedTurning(_ veh: JKAMP.BgEntity) {
 
 /// Source: oracle/codemp/game/bg_pmove.c:9916
 func PM_VehFaceHyperspacePoint(_ veh: JKAMP.BgEntity) {
-    // Raven's NULL test on veh has no form here, and the arm it guards is gone.
     if veh.m_pVehicle == nil {
         return
     } else {
@@ -8530,23 +8467,18 @@ func PM_VehFaceHyperspacePoint(_ veh: JKAMP.BgEntity) {
 
 /// Source: oracle/codemp/game/bg_pmove.c:9993
 func BG_VehicleAdjustBBoxForOrientation(_ veh: JKAMP.Vehicle, _ origin: inout JKAShared.vec3_t, _ mins: inout JKAShared.vec3_t, _ maxs: inout JKAShared.vec3_t, _ clientNum: Int32, _ tracemask: Int32, _ localTrace: ((JKAMP.Trace, JKAShared.vec3_t, JKAShared.vec3_t, JKAShared.vec3_t, JKAShared.vec3_t, Int32, Int32) -> Void)?) {
-    // Port-note: Raven guards a NULL `veh` here. The view is non-optional, so that half of the guard has no Swift form.
-    // Port-note: Raven walks `veh->m_pVehicleInfo` with no guard. The generated field is optional, so the body binds it and takes Raven's early return where it is NULL.
-    guard let m_pVehicleInfo = veh.m_pVehicleInfo else {
-        return
-    }
-    if m_pVehicleInfo.length == 0
-        || m_pVehicleInfo.width == 0
-        || m_pVehicleInfo.height == 0
+    if veh.m_pVehicleInfo!.length == 0
+        || veh.m_pVehicleInfo!.width == 0
+        || veh.m_pVehicleInfo!.height == 0
         //|| veh->m_LandTrace.fraction < 1.0f )
     {
         return
-    } else if m_pVehicleInfo.type != VH_FIGHTER
+    } else if veh.m_pVehicleInfo!.type != VH_FIGHTER
         //&& veh->m_pVehicleInfo->type != VH_SPEEDER
-        && m_pVehicleInfo.type != VH_FLIER {
+        && veh.m_pVehicleInfo!.type != VH_FLIER {
         //only those types of vehicles have dynamic bboxes, the rest just use a static bbox
-        maxs = vec3_t(m_pVehicleInfo.width / 2.0, m_pVehicleInfo.width / 2.0, m_pVehicleInfo.height + DEFAULT_MINS_2)
-        mins = vec3_t(m_pVehicleInfo.width / -2.0, m_pVehicleInfo.width / -2.0, Float(DEFAULT_MINS_2))
+        maxs = vec3_t(veh.m_pVehicleInfo!.width / 2.0, veh.m_pVehicleInfo!.width / 2.0, veh.m_pVehicleInfo!.height + DEFAULT_MINS_2)
+        mins = vec3_t(veh.m_pVehicleInfo!.width / -2.0, veh.m_pVehicleInfo!.width / -2.0, Float(DEFAULT_MINS_2))
         return
     } else {
         // Raven's record lives to the end of his block, so the block is the closure.
@@ -8559,21 +8491,21 @@ func BG_VehicleAdjustBBoxForOrientation(_ veh: JKAMP.Vehicle, _ origin: inout JK
             var i: Int32
 
             AnglesToAxis(veh.m_vOrientationVector, &axis)
-            _VectorMA(origin, m_pVehicleInfo.length / 2.0, axis[0], &point[0])
-            _VectorMA(origin, -m_pVehicleInfo.length / 2.0, axis[0], &point[1])
+            _VectorMA(origin, veh.m_pVehicleInfo!.length / 2.0, axis[0], &point[0])
+            _VectorMA(origin, -veh.m_pVehicleInfo!.length / 2.0, axis[0], &point[1])
             //extrapolate each side up and down
-            _VectorMA(point[0], m_pVehicleInfo.height / 2.0, axis[2], &point[0])
-            _VectorMA(point[0], -m_pVehicleInfo.height, axis[2], &point[2])
-            _VectorMA(point[1], m_pVehicleInfo.height / 2.0, axis[2], &point[1])
-            _VectorMA(point[1], -m_pVehicleInfo.height, axis[2], &point[3])
+            _VectorMA(point[0], veh.m_pVehicleInfo!.height / 2.0, axis[2], &point[0])
+            _VectorMA(point[0], -veh.m_pVehicleInfo!.height, axis[2], &point[2])
+            _VectorMA(point[1], veh.m_pVehicleInfo!.height / 2.0, axis[2], &point[1])
+            _VectorMA(point[1], -veh.m_pVehicleInfo!.height, axis[2], &point[3])
 
-            _VectorMA(origin, m_pVehicleInfo.width / 2.0, axis[1], &point[4])
-            _VectorMA(origin, -m_pVehicleInfo.width / 2.0, axis[1], &point[5])
+            _VectorMA(origin, veh.m_pVehicleInfo!.width / 2.0, axis[1], &point[4])
+            _VectorMA(origin, -veh.m_pVehicleInfo!.width / 2.0, axis[1], &point[5])
             //extrapolate each side up and down
-            _VectorMA(point[4], m_pVehicleInfo.height / 2.0, axis[2], &point[4])
-            _VectorMA(point[4], -m_pVehicleInfo.height, axis[2], &point[6])
-            _VectorMA(point[5], m_pVehicleInfo.height / 2.0, axis[2], &point[5])
-            _VectorMA(point[5], -m_pVehicleInfo.height, axis[2], &point[7])
+            _VectorMA(point[4], veh.m_pVehicleInfo!.height / 2.0, axis[2], &point[4])
+            _VectorMA(point[4], -veh.m_pVehicleInfo!.height, axis[2], &point[6])
+            _VectorMA(point[5], veh.m_pVehicleInfo!.height / 2.0, axis[2], &point[5])
+            _VectorMA(point[5], -veh.m_pVehicleInfo!.height, axis[2], &point[7])
             /*
             VectorMA( origin, veh->m_pVehicleInfo->height/2.0f, axis[2], point[4] );
             VectorMA( origin, -veh->m_pVehicleInfo->height/2.0f, axis[2], point[5] );

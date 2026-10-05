@@ -1152,7 +1152,6 @@ public func BG_SiegeCheckClassLegality(_ team: Int32, _ classname: inout JKAShar
     // Raven points `teamPtr` at one of the file-scope variables, and the statements after his choice run over the one he chose.
     // The chosen variable crosses as an inout parameter, and each arm of the choice calls the nested function with its own variable.
     func withTeamPtr(_ teamPtr: inout SiegeTeam?) -> Bool {
-        // Raven's NULL test on teamPtr has no form here, because the draft crosses the chosen variable itself.
         if teamPtr == nil {
             //Well, guess the class is ok, seeing as there is no team theme to begin with.
             return true

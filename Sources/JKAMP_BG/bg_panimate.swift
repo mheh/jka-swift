@@ -1096,7 +1096,6 @@ public func BG_ParseAnimationFile(_ filename: String, _ animset: Slots<JKAMP.Ani
     while 1 != 0 {
         token = COM_Parse(&text_p)
 
-        // Raven's NULL test on token has no form here, and the arm it guards is gone.
         if token.isEmpty {
             break
         }
@@ -1108,7 +1107,6 @@ public func BG_ParseAnimationFile(_ filename: String, _ animset: Slots<JKAMP.Ani
         }
 
         token = COM_Parse(&text_p)
-        // Raven's NULL test on token has no form here, and the arm it guards is gone.
         // Raven's arm under the guard has no path, and its text stays here:
         // {
         //             break;
@@ -1116,7 +1114,6 @@ public func BG_ParseAnimationFile(_ filename: String, _ animset: Slots<JKAMP.Ani
         animset![animNum].firstFrame = atoi(token)
 
         token = COM_Parse(&text_p)
-        // Raven's NULL test on token has no form here, and the arm it guards is gone.
         // Raven's arm under the guard has no path, and its text stays here:
         // {
         //             break;
@@ -1124,7 +1121,6 @@ public func BG_ParseAnimationFile(_ filename: String, _ animset: Slots<JKAMP.Ani
         animset![animNum].numFrames = atoi(token)
 
         token = COM_Parse(&text_p)
-        // Raven's NULL test on token has no form here, and the arm it guards is gone.
         // Raven's arm under the guard has no path, and its text stays here:
         // {
         //             break;
@@ -1132,7 +1128,6 @@ public func BG_ParseAnimationFile(_ filename: String, _ animset: Slots<JKAMP.Ani
         animset![animNum].loopFrames = atoi(token)
 
         token = COM_Parse(&text_p)
-        // Raven's NULL test on token has no form here, and the arm it guards is gone.
         // Raven's arm under the guard has no path, and its text stays here:
         // {
         //             break;
@@ -1416,7 +1411,6 @@ func BG_SetAnimFinal(_ ps: JKAMP.PlayerState, _ animations: Slots<JKAMP.Animatio
     // Raven assigns his own `blendTime` parameter. A Swift parameter is immutable, so the body takes a mutable copy of it.
     var blendTime = blendTime
     setAnimLegs: do {
-        // Raven's NULL test on animations has no form here, and the arm it guards is gone.
         // Raven's arm under the guard has no path, and its text stays here:
         // {
         //         return;
@@ -1575,7 +1569,6 @@ public func BG_SetAnim(_ ps: JKAMP.PlayerState, _ animations: Slots<JKAMP.Animat
     var animations = animations
     // Raven assigns his own `anim` parameter. A Swift parameter is immutable, so the body takes a mutable copy of it.
     var anim = anim
-    // Raven's NULL test on animations has no form here, and the arm it guards is gone.
     // Raven's arm under the guard has no path, and its text stays here:
     // {
     //         animations = bgAllAnims[0].anims;

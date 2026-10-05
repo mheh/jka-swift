@@ -40,7 +40,6 @@ func TIMER_Clear() {
 /// Source: oracle/codemp/game/g_timer.c:49
 func TIMER_Clear2(_ ent: Entity) {
     // rudimentary safety checks, might be other things to check?
-    // Raven's NULL test on ent has no form here, and the arm it guards is gone.
     if ent.s.number > 0 && ent.s.number < MAX_GENTITIES {
         var p: Gtimer? = g_timers[ent.s.number]
 

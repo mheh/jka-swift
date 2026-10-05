@@ -108,7 +108,6 @@ func TranslateSaberStyle(_ name: String) -> JKAShared.saber_styles_t {
 
 /// Source: oracle/codemp/game/bg_saberLoad.c:215
 public func WP_SaberBladeUseSecondBladeStyle(_ saber: JKAMP.SaberInfo, _ bladeNum: Int32) -> Bool {
-    // Raven's NULL test on saber has no form here, and the arm it guards is gone.
     if saber.bladeStyle2Start > 0 {
         if bladeNum >= saber.bladeStyle2Start {
             return true
@@ -138,7 +137,6 @@ public func WP_UseFirstValidSaberStyle(_ saber1: JKAMP.SaberInfo, _ saber2: JKAM
     var validStyles: Int32 = 0
     var styleNum: Int32
 
-    // Raven's NULL test on saber2 has no form here, and the arm it guards is gone.
     // Raven tests `saber2->model` and `saber2->model[0]`.
     // Both read as the same Swift test, so the draft writes it once.
     if !saber2.model.isEmpty {
@@ -159,7 +157,6 @@ public func WP_UseFirstValidSaberStyle(_ saber1: JKAMP.SaberInfo, _ saber2: JKAM
         }
     } else {
         saber2Active = false
-        // Raven's NULL test on saber1 has no form here, and the arm it guards is gone.
         // Raven tests `!saber1->model` and `!saber1->model[0]`.
         // Both read as the same Swift test, so the draft writes it once.
         if saber1.model.isEmpty {
@@ -188,7 +185,6 @@ public func WP_UseFirstValidSaberStyle(_ saber1: JKAMP.SaberInfo, _ saber2: JKAM
         styleNum += 1
     }
 
-    // Raven's NULL test on saber1 has no form here, and the arm it guards is gone.
     // Raven tests `saber1->model` and `saber1->model[0]`.
     // Both read as the same Swift test, so the draft writes it once.
     if saber1Active && !saber1.model.isEmpty && saber1.stylesForbidden != 0 {
@@ -230,7 +226,6 @@ public func WP_SaberStyleValidForSaber(_ saber1: JKAMP.SaberInfo, _ saber2: JKAM
     var saber2Active: Bool
     var dualSabers: Bool = false
 
-    // Raven's NULL test on saber2 has no form here, and the arm it guards is gone.
     // Raven tests `saber2->model` and `saber2->model[0]`.
     // Both read as the same Swift test, so the draft writes it once.
     if !saber2.model.isEmpty {
@@ -251,7 +246,6 @@ public func WP_SaberStyleValidForSaber(_ saber1: JKAMP.SaberInfo, _ saber2: JKAM
         }
     } else {
         saber2Active = false
-        // Raven's NULL test on saber1 has no form here, and the arm it guards is gone.
         // Raven tests `!saber1->model` and `!saber1->model[0]`.
         // Both read as the same Swift test, so the draft writes it once.
         if saber1.model.isEmpty {
@@ -273,7 +267,6 @@ public func WP_SaberStyleValidForSaber(_ saber1: JKAMP.SaberInfo, _ saber2: JKAM
         }
     }
 
-    // Raven's NULL test on saber1 has no form here, and the arm it guards is gone.
     // Raven tests `saber1->model` and `saber1->model[0]`.
     // Both read as the same Swift test, so the draft writes it once.
     if saber1Active && !saber1.model.isEmpty && saber1.stylesForbidden != 0 {
@@ -282,7 +275,6 @@ public func WP_SaberStyleValidForSaber(_ saber1: JKAMP.SaberInfo, _ saber2: JKAM
             return false
         }
     }
-    // Raven's NULL test on saber2 has no form here, and the arm it guards is gone.
     // Raven tests `saber2->model` and `saber2->model[0]`.
     // Both read as the same Swift test, so the draft writes it once.
     if dualSabers && saber2Active && !saber2.model.isEmpty {
@@ -301,7 +293,6 @@ public func WP_SaberStyleValidForSaber(_ saber1: JKAMP.SaberInfo, _ saber2: JKAM
                 return false
             } else {
                 //see if "tavion" style is okay
-                // Raven's NULL test on saber1 has no form here, and the arm it guards is gone.
                 // Raven tests `saber1->model` and `saber1->model[0]`.
                 // Both read as the same Swift test, so the draft writes it once.
                 if saber1Active && !saber1.model.isEmpty && (saber1.stylesLearned & (1 << SS_TAVION)) != 0 {
@@ -475,7 +466,6 @@ public func WP_SaberParseParms(_ SaberName: String, _ saber: JKAMP.SaberInfo) ->
     var saberMove: Int32 = LS_INVALID
     var anim: Int32 = -1
 
-    // Raven's NULL test on saber has no form here, and the arm it guards is gone.
     // Raven's arm under the guard has no path, and its text stays here:
     // {
     //         return qfalse;
@@ -484,7 +474,6 @@ public func WP_SaberParseParms(_ SaberName: String, _ saber: JKAMP.SaberInfo) ->
     //Set defaults so that, if it fails, there's at least something there
     WP_SaberSetDefaults(saber)
 
-    // Raven's NULL test on SaberName has no form here, and the arm it guards is gone.
     if SaberName.isEmpty {
         strcpy(&useSaber, DEFAULT_SABER) //default
         triedDefault = true
@@ -2007,7 +1996,6 @@ func WP_SaberParseParm(_ saberName: String, _ parmname: String, _ saberData: ino
     var value: String = ""
     var p = TextCursor()
 
-    // Raven's NULL test on saberName has no form here, and the arm it guards is gone.
     if saberName.isEmpty {
         return false
     }
@@ -2084,7 +2072,6 @@ func WP_SaberValidForPlayerInMP(_ saberName: String) -> Bool {
 public func WP_RemoveSaber(_ sabers: Slots<JKAMP.SaberInfo>, _ saberNum: Int32) {
     // Raven assigns his own `sabers` parameter. A Swift parameter is immutable, so the body takes a mutable copy of it.
     var sabers = sabers
-    // Raven's NULL test on sabers has no form here, and the arm it guards is gone.
     // Raven's arm under the guard has no path, and its text stays here:
     // {
     //         return;
@@ -2113,7 +2100,6 @@ public func WP_RemoveSaber(_ sabers: Slots<JKAMP.SaberInfo>, _ saberNum: Int32) 
 public func WP_SetSaber(_ entNum: Int32, _ sabers: Slots<JKAMP.SaberInfo>, _ saberNum: Int32, _ saberName: String) {
     // Raven assigns his own `sabers` parameter. A Swift parameter is immutable, so the body takes a mutable copy of it.
     var sabers = sabers
-    // Raven's NULL test on sabers has no form here, and the arm it guards is gone.
     // Raven's arm under the guard has no path, and its text stays here:
     // {
     //         return;
@@ -2144,12 +2130,6 @@ public func WP_SetSaber(_ entNum: Int32, _ sabers: Slots<JKAMP.SaberInfo>, _ sab
 
 /// Source: oracle/codemp/game/bg_saberLoad.c:2727
 func WP_SaberSetColor(_ sabers: Slots<JKAMP.SaberInfo>, _ saberNum: Int32, _ bladeNum: Int32, _ colorName: String) {
-    // Port-note: Raven guards a NULL `sabers` here. Swift holds it as a value, so the guard has no form and reads false.
-    portMissing("WP_SaberSetColor", source: "oracle/codemp/game/bg_saberLoad.c:2727")
-    // Raven's arm under the guard has no path, and its text stays here:
-    // {
-    //         return;
-    //     }
     sabers[saberNum].blade[bladeNum].color = TranslateSaberColor(colorName)
 }
 

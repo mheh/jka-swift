@@ -23,29 +23,7 @@ public func BG_AttachToRancor(_ ghoul2: OpaquePointer?, _ rancYaw: Float, _ ranc
         rancAngles = vec3_t(0, rancYaw, 0)
         trap_G2API_GetBoltMatrix(ghoul2, 0, boltIndex, boltMatrix, rancAngles, rancOrigin, time, modelList, &modelScale)
         // Storing ent position, bolt position, and bolt axis
-        // Raven's NULL test on out_origin has no form here, and the arm it guards is gone.
         BG_GiveMeVectorFromMatrix(boltMatrix, ORIGIN, &out_origin)
-        // Port-note: Raven tests `out_axis` for NULL here. Swift holds it as a value, so the test has no form and reads true.
-        portMissing("BG_AttachToRancor", source: "oracle/codemp/game/bg_g2_utils.c:25")
-        // Raven's else arm has no path, and its text stays here:
-        // if ( out_angles )
-        //     {
-        //         vec3_t temp_axis[3];
-        //         if ( inMouth )
-        //         {//in mouth
-        //             BG_GiveMeVectorFromMatrix( &boltMatrix, POSITIVE_Z, temp_axis[0] );
-        //             BG_GiveMeVectorFromMatrix( &boltMatrix, NEGATIVE_X, temp_axis[2] );
-        //         }
-        //         else
-        //         {//in hand
-        //             BG_GiveMeVectorFromMatrix( &boltMatrix, NEGATIVE_Y, temp_axis[0] );
-        //             BG_GiveMeVectorFromMatrix( &boltMatrix, POSITIVE_Z, temp_axis[2] );
-        //         }
-        //         //FIXME: this is messing up our axis and turning us inside-out?
-        //         vectoangles( temp_axis[0], out_angles );
-        //         vectoangles( temp_axis[2], temp_angles );
-        //         out_angles[ROLL] = -temp_angles[PITCH];
-        //     }
         if inMouth {
             //in mouth
             BG_GiveMeVectorFromMatrix(boltMatrix, POSITIVE_Z, &out_axis[0])
@@ -58,7 +36,6 @@ public func BG_AttachToRancor(_ ghoul2: OpaquePointer?, _ rancYaw: Float, _ ranc
             BG_GiveMeVectorFromMatrix(boltMatrix, POSITIVE_Z, &out_axis[2])
         }
         //FIXME: this is messing up our axis and turning us inside-out?
-        // Raven's NULL test on out_angles has no form here, and the arm it guards is gone.
         vectoangles(out_axis[0], &out_angles)
         vectoangles(out_axis[2], &temp_angles)
         out_angles[ROLL] = -temp_angles[PITCH]

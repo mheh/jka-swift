@@ -217,7 +217,6 @@ func VEH_LoadVehWeapon(_ vehWeaponName: String) -> Int32 {
         }
         Q_strncpyz(&parmName, token, Int32((parmName).count))
         value = COM_ParseExt(&p, true)
-        // Raven's NULL test on value has no form here, and the arm it guards is gone.
         if value.isEmpty {
             Com_Printf(S_COLOR_RED + "ERROR: Vehicle Weapon token '%s' has no value!\n", parmName)
         } else {
@@ -239,7 +238,6 @@ func VEH_LoadVehWeapon(_ vehWeaponName: String) -> Int32 {
 /// Source: oracle/codemp/game/bg_vehicleLoad.c:413
 func VEH_VehWeaponIndexForName(_ vehWeaponName: String) -> Int32 {
     var vw: Int32
-    // Raven's NULL test on vehWeaponName has no form here, and the arm it guards is gone.
     if vehWeaponName.isEmpty {
         Com_Printf(S_COLOR_RED + "ERROR: Trying to read Vehicle Weapon with no name!\n")
         return VEH_WEAPON_NONE
@@ -751,7 +749,6 @@ func VEH_LoadVehicle(_ vehicleName: String) -> Int32 {
 /// Source: oracle/codemp/game/bg_vehicleLoad.c:1364
 func VEH_VehicleIndexForName(_ vehicleName: String) -> Int32 {
     var v: Int32
-    // Raven's NULL test on vehicleName has no form here, and the arm it guards is gone.
     if vehicleName.isEmpty {
         Com_Printf(S_COLOR_RED + "ERROR: Trying to read Vehicle with no name!\n")
         return VEHICLE_NONE

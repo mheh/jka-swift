@@ -78,7 +78,6 @@ func PM_VehicleImpact(_ pEnt: JKAMP.BgEntity, _ trace: JKAMP.Trace) {
             var vehUp = vec3_t()
             var noDamage: Bool = false
 
-            // Raven's NULL test on trace has no form here, and the arm it guards is gone.
             if pSelfVeh!.m_iRemovedSurfaces == 0 && !forceSurfDestruction {
                 var turnFromImpact: Bool = false
                 var turnHitEnt: Bool = false

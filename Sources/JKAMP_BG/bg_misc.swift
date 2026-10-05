@@ -901,8 +901,6 @@ public func BG_CanItemBeGrabbed(_ gametype: Int32, _ ent: JKAMP.EntityState, _ p
 
     item = bg_itemlist[ent.modelindex]
 
-    // Raven guards a NULL ps here. The view is non-optional, so the guard has no Swift form.
-    // Port-note: Raven's NULL path returns qfalse with the comment "safety return since below code assumes a non-null ps".
     if ps.trueJedi {
         //force powers and saber only
         if item.giType != IT_TEAM //not a flag
@@ -920,7 +918,6 @@ public func BG_CanItemBeGrabbed(_ gametype: Int32, _ ent: JKAMP.EntityState, _ p
             return false
         }
     }
-    // Port-note: Raven also tests `item` for NULL here. The view is non-optional, so that half of the guard has no Swift form.
     if ps.isJediMaster && (item.giType == IT_WEAPON || item.giType == IT_AMMO) {
         //jedi master cannot pick up weapons
         return false
@@ -1161,6 +1158,8 @@ BG_TouchJumpPad
 */
 /// Source: oracle/codemp/game/bg_misc.c:2667
 public func BG_TouchJumpPad(_ ps: JKAMP.PlayerState, _ jumppad: JKAMP.EntityState) {
+    var effectNum: Int32
+
     // spectators don't use jump pads
     if ps.pm_type != PM_NORMAL && ps.pm_type != PM_JETPACK && ps.pm_type != PM_FLOAT {
         return
@@ -1172,8 +1171,11 @@ public func BG_TouchJumpPad(_ ps: JKAMP.PlayerState, _ jumppad: JKAMP.EntityStat
         var angles = vec3_t()
         vectoangles(jumppad.origin2, &angles)
         let p = abs(AngleNormalize180(angles[PITCH]))
-        // Port-note: `effectNum` was computed here in Raven's body and never used again, so it is dropped.
-        _ = p < 45 ? 0 : 1
+        if p < 45 {
+            effectNum = 0
+        } else {
+            effectNum = 1
+        }
     }
     // remember hitting this jumppad this frame
     ps.jumppad_ent = jumppad.number
