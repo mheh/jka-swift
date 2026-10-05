@@ -358,9 +358,7 @@ func BotAI_GetEntityState(_ entityNum: Int32, _ state: JKAMP.EntityState) -> Int
     var ent: Entity?
 
     ent = g_entities[entityNum]
-    // Port-note: Raven's `memset( state, 0, sizeof(entityState_t) )` runs over a size that is not the record's own, and a view's clear() takes the whole record.
-    // Raven wrote: memset( state, 0, sizeof(entityState_t) )
-    portMissing("BotAI_GetEntityState", source: "oracle/codemp/game/ai_main.c:371")
+    state.clear()
     if !ent!.inuse {
         return 0
     }
@@ -387,9 +385,7 @@ func BotAI_GetSnapshotEntity(_ clientNum: Int32, _ sequence: Int32, _ state: JKA
 
     entNum = trap_BotGetSnapshotEntity(clientNum, sequence)
     if entNum == -1 {
-        // Port-note: Raven's `memset(state, 0, sizeof(entityState_t))` runs over a size that is not the record's own, and a view's clear() takes the whole record.
-        // Raven wrote: memset(state, 0, sizeof(entityState_t))
-        portMissing("BotAI_GetSnapshotEntity", source: "oracle/codemp/game/ai_main.c:388")
+        state.clear()
         return -1
     }
 
@@ -579,9 +575,7 @@ func BotInputToUserCommand(_ bi: BotInput, _ ucmd: JKAMP.Usercmd, _ delta_angles
     var j: Int32
 
     //clear the whole structure
-    // Port-note: Raven's `memset(ucmd, 0, sizeof(usercmd_t))` runs over a size that is not the record's own, and a view's clear() takes the whole record.
-    // Raven wrote: memset(ucmd, 0, sizeof(usercmd_t))
-    portMissing("BotInputToUserCommand", source: "oracle/codemp/game/ai_main.c:537")
+    ucmd.clear()
     //
     //Com_Printf("dir = %f %f %f speed = %f\n", bi->dir[0], bi->dir[1], bi->dir[2], bi->speed);
     //the duration for the user command in milli seconds
@@ -653,8 +647,7 @@ func BotInputToUserCommand(_ bi: BotInput, _ ucmd: JKAMP.Usercmd, _ delta_angles
     }
     angles[YAW] = bi.viewangles[YAW]
     angles[ROLL] = 0
-    // Port-note: Raven passes NULL for the `up` output. The ported function takes it by reference, so the body passes a scratch local it never reads.
-    portMissing("BotInputToUserCommand", source: "oracle/codemp/game/ai_main.c:537")
+    // Raven passes NULL for the `up` output, and AngleVectors skips the write for a NULL output.
     var scratchUp = vec3_t()
     AngleVectors(angles, &forward, &right, &scratchUp)
     //bot input speed is in the range [0, 400]
@@ -721,9 +714,7 @@ func BotUpdateInput(_ bs: BotState, _ time: Int32, _ elapsed_time: Int32) {
             }
         }
         //convert the bot input to a usercmd
-        // Port-note: The draft of this statement did not compile, and the compiler wrote "cannot convert value of type 'Slots<Int32>' to expected argument type '[Int32]'".
-        // Raven wrote: BotInputToUserCommand(&bi, &bs->lastucmd, bs->cur_ps.delta_angles, time, bs->noUseTime)
-        portMissing("BotUpdateInput", source: "oracle/codemp/game/ai_main.c:633")
+        BotInputToUserCommand(bi, bs.lastucmd, Array(bs.cur_ps.delta_angles), time, bs.noUseTime)
         //subtract the delta angles
         j = 0
         while j < 3 {
@@ -763,16 +754,17 @@ func RemoveColorEscapeSequences(_ text: inout JKAShared.CharBuf) {
     l = 0
     i = 0
     while text[i] != 0 {
-        // Port-note: No operator between the operands, the text there is ``.
-        // Raven wrote: if (Q_IsColorString(&text[i])) { i++; continue; }
-        portMissing("RemoveColorEscapeSequences", source: "oracle/codemp/game/ai_main.c:674")
+        if Q_IsColorString(text, at: Int(i)) {
+            i += 1
+            i += 1
+            continue
+        }
         if text[i] > 0x7E {
             i += 1
             continue
         }
-        // Port-note: A ++ inside an expression.
-        // Raven wrote: text[l++] = text[i]
-        portMissing("RemoveColorEscapeSequences", source: "oracle/codemp/game/ai_main.c:674")
+        text[l] = text[i]
+        l += 1
         i += 1
     }
     text[l] = 0
@@ -902,9 +894,7 @@ func BotAISetupClient(_ client: Int32, _ settings: BotSettings, _ restart: Bool)
     }
     //rww - G_Alloc bad! B_Alloc good.
 
-    // Port-note: Raven's `memset(botstates[client], 0, sizeof(bot_state_t))` runs over a size that is not the record's own, and a view's clear() takes the whole record.
-    // Raven wrote: memset(botstates[client], 0, sizeof(bot_state_t))
-    portMissing("BotAISetupClient", source: "oracle/codemp/game/ai_main.c:819")
+    botstates[client]!.clear()
 
     bs = botstates[client]
 
@@ -988,9 +978,7 @@ func BotAIShutdownClient(_ client: Int32, _ restart: Bool) -> Int32 {
     trap_BotFreeWeaponState(bs!.ws)
     //
     //clear the bot state
-    // Port-note: Raven's `memset(bs, 0, sizeof(bot_state_t))` runs over a size that is not the record's own, and a view's clear() takes the whole record.
-    // Raven wrote: memset(bs, 0, sizeof(bot_state_t))
-    portMissing("BotAIShutdownClient", source: "oracle/codemp/game/ai_main.c:891")
+    bs!.clear()
     //set the inuse flag to qfalse
     bs!.inuse = 0
     //there's one bot less
@@ -1034,9 +1022,7 @@ func BotResetState(_ bs: BotState) {
             weaponstate = bs.ws
             entergame_time = bs.entergame_time
             //reset the whole state
-            // Port-note: Raven's `memset(bs, 0, sizeof(bot_state_t))` runs over a size that is not the record's own, and a view's clear() takes the whole record.
-            // Raven wrote: memset(bs, 0, sizeof(bot_state_t))
-            portMissing("BotResetState", source: "oracle/codemp/game/ai_main.c:924")
+            bs.clear()
             //copy back some state stuff that should not be reset
             bs.ms = movestate
             bs.gs = goalstate
@@ -1609,11 +1595,8 @@ func BotTrace_Strafe(_ bs: BotState, _ traceto: JKAShared.vec3_t) -> Int32 {
         VectorNormalize(&dirDif)
         vectoangles(dirDif, &dirDif)
 
-        // Port-note: Raven passes NULL for the `right` output. The ported function takes it by reference, so the body passes a scratch local it never reads.
-        portMissing("BotTrace_Strafe", source: "oracle/codemp/game/ai_main.c:1556")
+        // Raven passes NULL for the `right` and `up` outputs, and AngleVectors skips the write for a NULL output.
         var scratchRight = vec3_t()
-        // Port-note: Raven passes NULL for the `up` output. The ported function takes it by reference, so the body passes a scratch local it never reads.
-        portMissing("BotTrace_Strafe", source: "oracle/codemp/game/ai_main.c:1556")
         var scratchUp = vec3_t()
         AngleVectors(dirDif, &forward, &scratchRight, &scratchUp)
 
@@ -1627,11 +1610,8 @@ func BotTrace_Strafe(_ bs: BotState, _ traceto: JKAShared.vec3_t) -> Int32 {
             return 0
         }
 
-        // Port-note: Raven passes NULL for the `forward` output. The ported function takes it by reference, so the body passes a scratch local it never reads.
-        portMissing("BotTrace_Strafe", source: "oracle/codemp/game/ai_main.c:1556")
+        // Raven passes NULL for the `forward` and `up` outputs, and AngleVectors skips the write for a NULL output.
         var scratchForward = vec3_t()
-        // Port-note: Raven passes NULL for the `up` output. The ported function takes it by reference, so the body passes a scratch local it never reads.
-        portMissing("BotTrace_Strafe", source: "oracle/codemp/game/ai_main.c:1556")
         var scratchUp2 = vec3_t()
         AngleVectors(dirAng, &scratchForward, &right, &scratchUp2)
 
@@ -1685,11 +1665,8 @@ func BotTrace_Jump(_ bs: BotState, _ traceto: JKAShared.vec3_t) -> Int32 {
         a = traceto - bs.origin
         vectoangles(a, &a)
 
-        // Port-note: Raven passes NULL for the `right` output. The ported function takes it by reference, so the body passes a scratch local it never reads.
-        portMissing("BotTrace_Jump", source: "oracle/codemp/game/ai_main.c:1638")
+        // Raven passes NULL for the `right` and `up` outputs, and AngleVectors skips the write for a NULL output.
         var scratchRight = vec3_t()
-        // Port-note: Raven passes NULL for the `up` output. The ported function takes it by reference, so the body passes a scratch local it never reads.
-        portMissing("BotTrace_Jump", source: "oracle/codemp/game/ai_main.c:1638")
         var scratchUp = vec3_t()
         AngleVectors(a, &fwd, &scratchRight, &scratchUp)
 
@@ -1758,11 +1735,8 @@ func BotTrace_Duck(_ bs: BotState, _ traceto: JKAShared.vec3_t) -> Int32 {
         a = traceto - bs.origin
         vectoangles(a, &a)
 
-        // Port-note: Raven passes NULL for the `right` output. The ported function takes it by reference, so the body passes a scratch local it never reads.
-        portMissing("BotTrace_Duck", source: "oracle/codemp/game/ai_main.c:1702")
+        // Raven passes NULL for the `right` and `up` outputs, and AngleVectors skips the write for a NULL output.
         var scratchRight = vec3_t()
-        // Port-note: Raven passes NULL for the `up` output. The ported function takes it by reference, so the body passes a scratch local it never reads.
-        portMissing("BotTrace_Duck", source: "oracle/codemp/game/ai_main.c:1702")
         var scratchUp = vec3_t()
         AngleVectors(a, &fwd, &scratchRight, &scratchUp)
 
@@ -3609,9 +3583,7 @@ func CommanderBotCTFAI(_ bs: BotState) {
     var i: Int32 = 0
     var ent: Entity?
     var squadmates: Int32 = 0
-    // Port-note: A local `gentity_t *[32] squad` the table has no type for.
-    // Raven wrote: gentity_t *squad[MAX_CLIENTS];
-    portMissing("CommanderBotCTFAI", source: "oracle/codemp/game/ai_main.c:3911")
+    var squad = [Entity?](repeating: nil, count: Int(MAX_CLIENTS))
     var defendAttackPriority: Int32 = 0
     var guardDefendPriority: Int32 = 0
     var attackRetrievePriority: Int32 = 0
@@ -3672,18 +3644,14 @@ func CommanderBotCTFAI(_ bs: BotState) {
         ent = g_entities[i]
 
         if ent != nil && ent!.client != nil && botstates[i] != nil && botstates[i]!.squadLeader != nil && botstates[i]!.squadLeader!.s.number == bs.client && i != bs.client {
-            // Port-note: A read of `squad`, a local the draft left as a hole.
-            // Raven wrote: squad[squadmates] = ent
-            portMissing("CommanderBotCTFAI", source: "oracle/codemp/game/ai_main.c:3911")
+            squad[squadmates] = ent
             squadmates += 1
         }
 
         i += 1
     }
 
-    // Port-note: A read of `squad`, a local the draft left as a hole.
-    // Raven wrote: squad[squadmates] = &g_entities[bs->client]
-    portMissing("CommanderBotCTFAI", source: "oracle/codemp/game/ai_main.c:3911")
+    squad[squadmates] = g_entities[bs.client]
     squadmates += 1
 
     i = 0
@@ -3695,9 +3663,41 @@ func CommanderBotCTFAI(_ bs: BotState) {
     }
 
     while i < squadmates {
-        // Port-note: A read of `squad`, a local the draft left as a hole.
-        // Raven wrote: if (squad[i] && squad[i]->client && botstates[squad[i]->s.number]) { if (botstates[squad[i]->s.number]->ctfState != CTFSTATE_GETFLAGHOME) { //never tell a bot to stop trying to bring the flag to the base if (defendAttackPriority) { if (weHaveEnemyFlag) { if (guardDefendPriority) { botstates[squad[i]->s.number]->ctfState = CTFSTATE_GUARDCARRIER; guardDefendPriority = 0; } else { botstates[squad[i]->s.number]->ctfState = CTFSTATE_DEFENDER; guardDefendPriority = 1; } } else { botstates[squad[i]->s.number]->ctfState = CTFSTATE_DEFENDER; } defendAttackPriority = 0; } else { if (enemyHasOurFlag) { if (attackRetrievePriority) { botstates[squad[i]->s.number]->ctfState = CTFSTATE_ATTACKER; attackRetrievePriority = 0; } else { botstates[squad[i]->s.number]->ctfState = CTFSTATE_RETRIEVAL; attackRetrievePriority = 1; } } else { botstates[squad[i]->s.number]->ctfState = CTFSTATE_ATTACKER; } defendAttackPriority = 1; } } else if ((numOnMyTeam < 2 || !numAttackers) && enemyHasOurFlag) { //I'm the only one on my team who will attack and the enemy has my flag, I have to go after him botstates[squad[i]->s.number]->ctfState = CTFSTATE_RETRIEVAL; } }
-        portMissing("CommanderBotCTFAI", source: "oracle/codemp/game/ai_main.c:3911")
+        if squad[i] != nil && squad[i]!.client != nil && botstates[squad[i]!.s.number] != nil {
+            if botstates[squad[i]!.s.number]!.ctfState != CTFSTATE_GETFLAGHOME {
+                //never tell a bot to stop trying to bring the flag to the base
+                if defendAttackPriority != 0 {
+                    if weHaveEnemyFlag != 0 {
+                        if guardDefendPriority != 0 {
+                            botstates[squad[i]!.s.number]!.ctfState = CTFSTATE_GUARDCARRIER
+                            guardDefendPriority = 0
+                        } else {
+                            botstates[squad[i]!.s.number]!.ctfState = CTFSTATE_DEFENDER
+                            guardDefendPriority = 1
+                        }
+                    } else {
+                        botstates[squad[i]!.s.number]!.ctfState = CTFSTATE_DEFENDER
+                    }
+                    defendAttackPriority = 0
+                } else {
+                    if enemyHasOurFlag != 0 {
+                        if attackRetrievePriority != 0 {
+                            botstates[squad[i]!.s.number]!.ctfState = CTFSTATE_ATTACKER
+                            attackRetrievePriority = 0
+                        } else {
+                            botstates[squad[i]!.s.number]!.ctfState = CTFSTATE_RETRIEVAL
+                            attackRetrievePriority = 1
+                        }
+                    } else {
+                        botstates[squad[i]!.s.number]!.ctfState = CTFSTATE_ATTACKER
+                    }
+                    defendAttackPriority = 1
+                }
+            } else if (numOnMyTeam < 2 || numAttackers == 0) && enemyHasOurFlag != 0 {
+                //I'm the only one on my team who will attack and the enemy has my flag, I have to go after him
+                botstates[squad[i]!.s.number]!.ctfState = CTFSTATE_RETRIEVAL
+            }
+        }
 
         i += 1
     }
@@ -3710,9 +3710,7 @@ func CommanderBotSiegeAI(_ bs: BotState) {
     var squadmates: Int32 = 0
     var commanded: Int32 = 0
     var teammates: Int32 = 0
-    // Port-note: A local `gentity_t *[32] squad` the table has no type for.
-    // Raven wrote: gentity_t *squad[MAX_CLIENTS];
-    portMissing("CommanderBotSiegeAI", source: "oracle/codemp/game/ai_main.c:4077")
+    var squad = [Entity?](repeating: nil, count: Int(MAX_CLIENTS))
     var ent: Entity?
     var bst: BotState?
 
@@ -3723,9 +3721,7 @@ func CommanderBotSiegeAI(_ bs: BotState) {
             bst = botstates[ent!.s.number]
 
             if bst != nil && bst!.isSquadLeader == 0 && bst!.state_Forced == 0 {
-                // Port-note: A read of `squad`, a local the draft left as a hole.
-                // Raven wrote: squad[squadmates] = ent
-                portMissing("CommanderBotSiegeAI", source: "oracle/codemp/game/ai_main.c:4077")
+                squad[squadmates] = ent
                 squadmates += 1
             } else if bst != nil && bst!.isSquadLeader == 0 && bst!.state_Forced != 0 {
                 //count them as commanded
@@ -3747,9 +3743,21 @@ func CommanderBotSiegeAI(_ bs: BotState) {
     //tell squad mates to do what I'm doing, up to half of team, let the other half make their own decisions
     i = 0
 
-    // Port-note: A read of `squad`, a local the draft left as a hole.
-    // Raven wrote: while (i < squadmates && squad[i]) { bst = botstates[squad[i]->s.number]; if (commanded > teammates/2) { break; } if (bst) { bst->state_Forced = bs->siegeState; bst->siegeState = bs->siegeState; commanded++; } i++; }
-    portMissing("CommanderBotSiegeAI", source: "oracle/codemp/game/ai_main.c:4077")
+    while i < squadmates && squad[i] != nil {
+        bst = botstates[squad[i]!.s.number]
+
+        if commanded > teammates / 2 {
+            break
+        }
+
+        if bst != nil {
+            bst!.state_Forced = bs.siegeState
+            bst!.siegeState = bs.siegeState
+            commanded += 1
+        }
+
+        i += 1
+    }
 }
 
 //teamplay ffa squad ai
@@ -3776,9 +3784,7 @@ func CommanderBotTeamplayAI(_ bs: BotState) {
     var teammate_helped: Int32 = 0
     var foundsquadleader: Int32 = 0
     var worsthealth: Int32 = 50
-    // Port-note: A local `gentity_t *[32] squad` the table has no type for.
-    // Raven wrote: gentity_t *squad[MAX_CLIENTS];
-    portMissing("CommanderBotTeamplayAI", source: "oracle/codemp/game/ai_main.c:4158")
+    var squad = [Entity?](repeating: nil, count: Int(MAX_CLIENTS))
     var ent: Entity?
     var bst: BotState?
 
@@ -3794,9 +3800,7 @@ func CommanderBotTeamplayAI(_ bs: BotState) {
             }
 
             if bst != nil && bst!.isSquadLeader == 0 {
-                // Port-note: A read of `squad`, a local the draft left as a hole.
-                // Raven wrote: squad[squadmates] = ent
-                portMissing("CommanderBotTeamplayAI", source: "oracle/codemp/game/ai_main.c:4158")
+                squad[squadmates] = ent
                 squadmates += 1
             } else if bst != nil {
                 foundsquadleader = 1
@@ -3821,9 +3825,36 @@ func CommanderBotTeamplayAI(_ bs: BotState) {
 
     i = 0
 
-    // Port-note: A read of `squad`, a local the draft left as a hole.
-    // Raven wrote: while (i < squadmates && squad[i]) { bst = botstates[squad[i]->s.number]; if (bst && !bst->state_Forced) { //only order if this guy is not being ordered directly by the real player team leader if (teammate_indanger >= 0 && !teammate_helped) { //send someone out to help whoever needs help most at the moment bst->teamplayState = TEAMPLAYSTATE_ASSISTING; bst->squadLeader = &g_entities[teammate_indanger]; teammate_helped = 1; } else if ((teammate_indanger == -1 || teammate_helped) && bst->teamplayState == TEAMPLAYSTATE_ASSISTING) { //no teammates need help badly, but this guy is trying to help them anyway, so stop bst->teamplayState = TEAMPLAYSTATE_FOLLOWING; bst->squadLeader = &g_entities[bs->client]; } if (bs->squadRegroupInterval < level.time && Q_irand(1, 10) < 5) { //every so often tell the squad to regroup for the sake of variation if (bst->teamplayState == TEAMPLAYSTATE_FOLLOWING) { bst->teamplayState = TEAMPLAYSTATE_REGROUP; } bs->isSquadLeader = 0; bs->squadCannotLead = level.time + 500; bs->squadRegroupInterval = level.time + Q_irand(45000, 65000); } } i++; }
-    portMissing("CommanderBotTeamplayAI", source: "oracle/codemp/game/ai_main.c:4158")
+    while i < squadmates && squad[i] != nil {
+        bst = botstates[squad[i]!.s.number]
+
+        if bst != nil && bst!.state_Forced == 0 {
+            //only order if this guy is not being ordered directly by the real player team leader
+            if teammate_indanger >= 0 && teammate_helped == 0 {
+                //send someone out to help whoever needs help most at the moment
+                bst!.teamplayState = TEAMPLAYSTATE_ASSISTING
+                bst!.squadLeader = g_entities[teammate_indanger]
+                teammate_helped = 1
+            } else if (teammate_indanger == -1 || teammate_helped != 0) && bst!.teamplayState == TEAMPLAYSTATE_ASSISTING {
+                //no teammates need help badly, but this guy is trying to help them anyway, so stop
+                bst!.teamplayState = TEAMPLAYSTATE_FOLLOWING
+                bst!.squadLeader = g_entities[bs.client]
+            }
+
+            if bs.squadRegroupInterval < level.time && Q_irand(1, 10) < 5 {
+                //every so often tell the squad to regroup for the sake of variation
+                if bst!.teamplayState == TEAMPLAYSTATE_FOLLOWING {
+                    bst!.teamplayState = TEAMPLAYSTATE_REGROUP
+                }
+
+                bs.isSquadLeader = 0
+                bs.squadCannotLead = level.time + 500
+                bs.squadRegroupInterval = level.time + Q_irand(45000, 65000)
+            }
+        }
+
+        i += 1
+    }
 }
 
 //pick which commander ai to use based on gametype
@@ -3898,11 +3929,8 @@ func MeleeCombatHandling(_ bs: BotState) {
 
         a = usethisvec - bs.origin
         vectoangles(a, &a)
-        // Port-note: Raven passes NULL for the `right` output. The ported function takes it by reference, so the body passes a scratch local it never reads.
-        portMissing("MeleeCombatHandling", source: "oracle/codemp/game/ai_main.c:4269")
+        // Raven passes NULL for the `right` and `up` outputs, and AngleVectors skips the write for a NULL output.
         var scratchRight = vec3_t()
-        // Port-note: Raven passes NULL for the `up` output. The ported function takes it by reference, so the body passes a scratch local it never reads.
-        portMissing("MeleeCombatHandling", source: "oracle/codemp/game/ai_main.c:4269")
         var scratchUp = vec3_t()
         AngleVectors(a, &fwd, &scratchRight, &scratchUp)
 
@@ -3997,11 +4025,8 @@ func SaberCombatHandling(_ bs: BotState) {
 
         a = usethisvec - bs.origin
         vectoangles(a, &a)
-        // Port-note: Raven passes NULL for the `right` output. The ported function takes it by reference, so the body passes a scratch local it never reads.
-        portMissing("SaberCombatHandling", source: "oracle/codemp/game/ai_main.c:4354")
+        // Raven passes NULL for the `right` and `up` outputs, and AngleVectors skips the write for a NULL output.
         var scratchRight = vec3_t()
-        // Port-note: Raven passes NULL for the `up` output. The ported function takes it by reference, so the body passes a scratch local it never reads.
-        portMissing("SaberCombatHandling", source: "oracle/codemp/game/ai_main.c:4354")
         var scratchUp = vec3_t()
         AngleVectors(a, &fwd, &scratchRight, &scratchUp)
 
@@ -4504,11 +4529,8 @@ func BotFallbackNavigation(_ bs: BotState) -> Int32 {
 
         b_angle = bs.goalAngles
 
-        // Port-note: Raven passes NULL for the `right` output. The ported function takes it by reference, so the body passes a scratch local it never reads.
-        portMissing("BotFallbackNavigation", source: "oracle/codemp/game/ai_main.c:5029")
+        // Raven passes NULL for the `right` and `up` outputs, and AngleVectors skips the write for a NULL output.
         var scratchRight = vec3_t()
-        // Port-note: Raven passes NULL for the `up` output. The ported function takes it by reference, so the body passes a scratch local it never reads.
-        portMissing("BotFallbackNavigation", source: "oracle/codemp/game/ai_main.c:5029")
         var scratchUp = vec3_t()
         AngleVectors(b_angle, &fwd, &scratchRight, &scratchUp)
 
@@ -4838,11 +4860,8 @@ func StrafeTracing(_ bs: BotState) {
         maxs[1] = 15
         maxs[2] = 32
 
-        // Port-note: Raven passes NULL for the `forward` output. The ported function takes it by reference, so the body passes a scratch local it never reads.
-        portMissing("StrafeTracing", source: "oracle/codemp/game/ai_main.c:5417")
+        // Raven passes NULL for the `forward` and `up` outputs, and AngleVectors skips the write for a NULL output.
         var scratchForward = vec3_t()
-        // Port-note: Raven passes NULL for the `up` output. The ported function takes it by reference, so the body passes a scratch local it never reads.
-        portMissing("StrafeTracing", source: "oracle/codemp/game/ai_main.c:5417")
         var scratchUp = vec3_t()
         AngleVectors(bs.viewangles, &scratchForward, &right, &scratchUp)
 
@@ -4956,11 +4975,8 @@ func CheckForFriendInLOF(_ bs: BotState) -> Entity? {
         maxs[1] = 3
         maxs[2] = 3
 
-        // Port-note: Raven passes NULL for the `right` output. The ported function takes it by reference, so the body passes a scratch local it never reads.
-        portMissing("CheckForFriendInLOF", source: "oracle/codemp/game/ai_main.c:5538")
+        // Raven passes NULL for the `right` and `up` outputs, and AngleVectors skips the write for a NULL output.
         var scratchRight = vec3_t()
-        // Port-note: Raven passes NULL for the `up` output. The ported function takes it by reference, so the body passes a scratch local it never reads.
-        portMissing("CheckForFriendInLOF", source: "oracle/codemp/game/ai_main.c:5538")
         var scratchUp = vec3_t()
         AngleVectors(bs.viewangles, &fwd, &scratchRight, &scratchUp)
 
@@ -5212,11 +5228,8 @@ func BotSurfaceNear(_ bs: BotState) -> Int32 {
     return Trace.scratch { tr -> Int32 in
         var fwd = vec3_t()
 
-        // Port-note: Raven passes NULL for the `right` output. The ported function takes it by reference, so the body passes a scratch local it never reads.
-        portMissing("BotSurfaceNear", source: "oracle/codemp/game/ai_main.c:5833")
+        // Raven passes NULL for the `right` and `up` outputs, and AngleVectors skips the write for a NULL output.
         var scratchRight = vec3_t()
-        // Port-note: Raven passes NULL for the `up` output. The ported function takes it by reference, so the body passes a scratch local it never reads.
-        portMissing("BotSurfaceNear", source: "oracle/codemp/game/ai_main.c:5833")
         var scratchUp = vec3_t()
         AngleVectors(bs.viewangles, &fwd, &scratchRight, &scratchUp)
 
@@ -5327,9 +5340,7 @@ func StandardBotAI(_ bs: BotState, _ thinktime: Float) {
     var useTheForce: Int32 = 0
     var forceHostile: Int32 = 0
     var cBAI: Int32 = 0
-    // Port-note: The draft of this statement did not compile, and the compiler wrote "cannot convert value of type 'Int' to specified type 'Entity'".
-    // Raven wrote: gentity_t *friendInLOF = 0;
-    portMissing("StandardBotAI", source: "oracle/codemp/game/ai_main.c:5931")
+    var friendInLOF: Entity? = nil
     let mLen: Float
     var visResult: Int32 = 0
     var selResult: Int32 = 0
@@ -6391,22 +6402,47 @@ func StandardBotAI(_ bs: BotState, _ thinktime: Float) {
     }
 
     if PrimFiring(bs) != 0 || AltFiring(bs) != 0 {
-        // Port-note: A store into `friendInLOF`, a local the draft left as a hole.
-        // Raven wrote: friendInLOF = CheckForFriendInLOF(bs)
-        portMissing("StandardBotAI", source: "oracle/codemp/game/ai_main.c:5931")
+        friendInLOF = CheckForFriendInLOF(bs)
 
-        // Port-note: A read of `friendInLOF`, a local the draft left as a hole.
-        // Raven wrote: if (friendInLOF) { if (PrimFiring(bs)) { KeepPrimFromFiring(bs); } if (AltFiring(bs)) { KeepAltFromFiring(bs); } if (useTheForce && forceHostile) { useTheForce = 0; } if (!useTheForce && friendInLOF->client) { //we have a friend here and are not currently using force powers, see if we can help them out if (friendInLOF->health <= 50 && level.clients[bs->client].ps.fd.forcePower > forcePowerNeeded[level.clients[bs->client].ps.fd.forcePowerLevel[FP_TEAM_HEAL]][FP_TEAM_HEAL]) { level.clients[bs->client].ps.fd.forcePowerSelected = FP_TEAM_HEAL; useTheForce = 1; forceHostile = 0; } else if (friendInLOF->client->ps.fd.forcePower <= 50 && level.clients[bs->client].ps.fd.forcePower > forcePowerNeeded[level.clients[bs->client].ps.fd.forcePowerLevel[FP_TEAM_FORCE]][FP_TEAM_FORCE]) { level.clients[bs->client].ps.fd.forcePowerSelected = FP_TEAM_FORCE; useTheForce = 1; forceHostile = 0; } } }
-        portMissing("StandardBotAI", source: "oracle/codemp/game/ai_main.c:5931")
+        if friendInLOF != nil {
+            if PrimFiring(bs) != 0 {
+                KeepPrimFromFiring(bs)
+            }
+            if AltFiring(bs) != 0 {
+                KeepAltFromFiring(bs)
+            }
+            if useTheForce != 0 && forceHostile != 0 {
+                useTheForce = 0
+            }
+
+            if useTheForce == 0 && friendInLOF!.client != nil {
+                //we have a friend here and are not currently using force powers, see if we can help them out
+                if friendInLOF!.health <= 50 && level.clientsSlots[bs.client].ps.fd.forcePower > forcePowerNeeded[level.clientsSlots[bs.client].ps.fd.forcePowerLevel[FP_TEAM_HEAL]][FP_TEAM_HEAL] {
+                    level.clientsSlots[bs.client].ps.fd.forcePowerSelected = FP_TEAM_HEAL
+                    useTheForce = 1
+                    forceHostile = 0
+                } else if friendInLOF!.client!.ps.fd.forcePower <= 50 && level.clientsSlots[bs.client].ps.fd.forcePower > forcePowerNeeded[level.clientsSlots[bs.client].ps.fd.forcePowerLevel[FP_TEAM_FORCE]][FP_TEAM_FORCE] {
+                    level.clientsSlots[bs.client].ps.fd.forcePowerSelected = FP_TEAM_FORCE
+                    useTheForce = 1
+                    forceHostile = 0
+                }
+            }
+        }
     } else if g_gametype.integer >= GT_TEAM {
         //still check for anyone to help..
-        // Port-note: A store into `friendInLOF`, a local the draft left as a hole.
-        // Raven wrote: friendInLOF = CheckForFriendInLOF(bs)
-        portMissing("StandardBotAI", source: "oracle/codemp/game/ai_main.c:5931")
+        friendInLOF = CheckForFriendInLOF(bs)
 
-        // Port-note: A read of `friendInLOF`, a local the draft left as a hole.
-        // Raven wrote: if (!useTheForce && friendInLOF) { if (friendInLOF->health <= 50 && level.clients[bs->client].ps.fd.forcePower > forcePowerNeeded[level.clients[bs->client].ps.fd.forcePowerLevel[FP_TEAM_HEAL]][FP_TEAM_HEAL]) { level.clients[bs->client].ps.fd.forcePowerSelected = FP_TEAM_HEAL; useTheForce = 1; forceHostile = 0; } else if (friendInLOF->client->ps.fd.forcePower <= 50 && level.clients[bs->client].ps.fd.forcePower > forcePowerNeeded[level.clients[bs->client].ps.fd.forcePowerLevel[FP_TEAM_FORCE]][FP_TEAM_FORCE]) { level.clients[bs->client].ps.fd.forcePowerSelected = FP_TEAM_FORCE; useTheForce = 1; forceHostile = 0; } }
-        portMissing("StandardBotAI", source: "oracle/codemp/game/ai_main.c:5931")
+        if useTheForce == 0 && friendInLOF != nil {
+            if friendInLOF!.health <= 50 && level.clientsSlots[bs.client].ps.fd.forcePower > forcePowerNeeded[level.clientsSlots[bs.client].ps.fd.forcePowerLevel[FP_TEAM_HEAL]][FP_TEAM_HEAL] {
+                level.clientsSlots[bs.client].ps.fd.forcePowerSelected = FP_TEAM_HEAL
+                useTheForce = 1
+                forceHostile = 0
+            } else if friendInLOF!.client!.ps.fd.forcePower <= 50 && level.clientsSlots[bs.client].ps.fd.forcePower > forcePowerNeeded[level.clientsSlots[bs.client].ps.fd.forcePowerLevel[FP_TEAM_FORCE]][FP_TEAM_FORCE] {
+                level.clientsSlots[bs.client].ps.fd.forcePowerSelected = FP_TEAM_FORCE
+                useTheForce = 1
+                forceHostile = 0
+            }
+        }
     }
 
     if bs.doAttack != 0 && bs.cur_ps.weapon == WP_DET_PACK && bs.cur_ps.hasDetPackPlanted {

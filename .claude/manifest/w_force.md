@@ -7,7 +7,7 @@ The oracle range is the whole definition, from the return type to the closing br
 
 | Function | Oracle | Swift | State | jka-rust | Signature |
 |---|---|---|---|---|---|
-| `G_PreDefSound` | `oracle/codemp/game/w_force.c:40-49` | `JKAMP_GameLogic/w_force.swift:62` | ported | `crates/mp/game/src/w_force.rs:102-108` | `func G_PreDefSound(_ org: inout JKAShared.vec3_t, _ pdSound: Int32) -> Entity?` |
+| `G_PreDefSound` | `oracle/codemp/game/w_force.c:40-49` | `JKAMP_GameLogic/w_force.swift:62` | ported | `crates/mp/game/src/w_force.rs:102-108` | `func G_PreDefSound(_ org: JKAShared.vec3_t, _ pdSound: Int32) -> Entity?` |
 | `WP_InitForcePowers` | `oracle/codemp/game/w_force.c:147-572` | `JKAMP_GameLogic/w_force.swift:73` | ported | `crates/mp/game/src/w_force.rs:113-514` | `func WP_InitForcePowers(_ ent: Entity)` |
 | `WP_SpawnInitForcePowers` | `oracle/codemp/game/w_force.c:574-691` | `JKAMP_GameLogic/w_force.swift:397` | ported | `crates/mp/game/src/w_force.rs:519-609` | `func WP_SpawnInitForcePowers(_ ent: Entity)` |
 | `ForcePowerUsableOn` | `oracle/codemp/game/w_force.c:697-772` | `JKAMP_GameLogic/w_force.swift:501` | ported | `crates/mp/game/src/w_force.rs:614-709` | `func ForcePowerUsableOn(_ attacker: Entity, _ other: Entity, _ forcePower: JKAMP.forcePowers_t) -> Int32` |
@@ -28,10 +28,10 @@ The oracle range is the whole definition, from the return type to the closing br
 | `ForceAbsorb` | `oracle/codemp/game/w_force.c:1694-1728` | `JKAMP_GameLogic/w_force.swift:1336` | ported | `crates/mp/game/src/w_force.rs:1704-1741` | `func ForceAbsorb(_ `self`: Entity)` |
 | `ForceRage` | `oracle/codemp/game/w_force.c:1730-1775` | `JKAMP_GameLogic/w_force.swift:1366` | ported | `crates/mp/game/src/w_force.rs:1746-1793` | `func ForceRage(_ `self`: Entity)` |
 | `ForceLightning` | `oracle/codemp/game/w_force.c:1777-1810` | `JKAMP_GameLogic/w_force.swift:1405` | ported | `crates/mp/game/src/w_force.rs:1798-1834` | `func ForceLightning(_ `self`: Entity)` |
-| `ForceLightningDamage` | `oracle/codemp/game/w_force.c:1812-1900` | `JKAMP_GameLogic/w_force.swift:1436` | ported | `crates/mp/game/src/w_force.rs:1839-1956` | `func ForceLightningDamage(_ `self`: Entity, _ traceEnt: Entity, _ dir: inout JKAShared.vec3_t, _ impactPoint: inout JKAShared.vec3_t)` |
+| `ForceLightningDamage` | `oracle/codemp/game/w_force.c:1812-1900` | `JKAMP_GameLogic/w_force.swift:1436` | ported | `crates/mp/game/src/w_force.rs:1839-1956` | `func ForceLightningDamage(_ `self`: Entity, _ traceEnt: Entity, _ dir: inout JKAShared.vec3_t, _ impactPoint: JKAShared.vec3_t)` |
 | `ForceShootLightning` | `oracle/codemp/game/w_force.c:1902-2020` | `JKAMP_GameLogic/w_force.swift:1511` | ported | `crates/mp/game/src/w_force.rs:1961-2145` | `func ForceShootLightning(_ `self`: Entity)` |
 | `ForceDrain` | `oracle/codemp/game/w_force.c:2022-2056` | `JKAMP_GameLogic/w_force.swift:1674` | ported | `crates/mp/game/src/w_force.rs:2150-2185` | `func ForceDrain(_ `self`: Entity)` |
-| `ForceDrainDamage` | `oracle/codemp/game/w_force.c:2058-2182` | `JKAMP_GameLogic/w_force.swift:1706` | ported | `crates/mp/game/src/w_force.rs:2190-2295` | `func ForceDrainDamage(_ `self`: Entity, _ traceEnt: Entity, _ dir: inout JKAShared.vec3_t, _ impactPoint: inout JKAShared.vec3_t)` |
+| `ForceDrainDamage` | `oracle/codemp/game/w_force.c:2058-2182` | `JKAMP_GameLogic/w_force.swift:1706` | ported | `crates/mp/game/src/w_force.rs:2190-2295` | `func ForceDrainDamage(_ `self`: Entity, _ traceEnt: Entity, _ dir: JKAShared.vec3_t, _ impactPoint: JKAShared.vec3_t)` |
 | `ForceShootDrain` | `oracle/codemp/game/w_force.c:2184-2315` | `JKAMP_GameLogic/w_force.swift:1811` | ported | `crates/mp/game/src/w_force.rs:2300-2490` | `func ForceShootDrain(_ `self`: Entity) -> Int32` |
 | `ForceJumpCharge` | `oracle/codemp/game/w_force.c:2317-2375` | `JKAMP_GameLogic/w_force.swift:1985` | ported | `crates/mp/game/src/w_force.rs:2495-2575` | `func ForceJumpCharge(_ `self`: Entity, _ ucmd: JKAMP.Usercmd)` |
 | `WP_GetVelocityForForceJump` | `oracle/codemp/game/w_force.c:2377-2460` | `JKAMP_GameLogic/w_force.swift:2038` | ported | `crates/mp/game/src/w_force.rs:2582-2662` | `func WP_GetVelocityForForceJump(_ `self`: Entity, _ jumpVel: inout JKAShared.vec3_t, _ ucmd: JKAMP.Usercmd) -> Int32` |

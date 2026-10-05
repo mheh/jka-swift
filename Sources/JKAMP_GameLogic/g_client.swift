@@ -460,9 +460,7 @@ func JMSaberTouch(_ `self`: Entity, _ other: Entity, _ trace: JKAMP.Trace) {
         other.client!.invulnerableTimer = level.time + g_spawnInvulnerability.integer
     }
 
-    // Port-note: Raven passes `"MP_SVGAME"` to `G_GetStringEdString`, whose `char *` parameter the stub holds as an inout CharBuf. Docket row 5 is due.
-    // Raven wrote: trap_SendServerCommand( -1, va("cp \"%s %s\n\"", other->client->pers.netname, G_GetStringEdString("MP_SVGAME", "BECOMEJM")) )
-    portMissing("JMSaberTouch", source: "oracle/codemp/game/g_client.c:385")
+    trap_SendServerCommand(-1, va("cp \"%s %s\n\"", other.client!.pers.netname, G_GetStringEdString("MP_SVGAME", "BECOMEJM")))
 
     other.client!.ps.isJediMaster = true
     other.client!.ps.saberIndex = `self`.s.number
@@ -637,9 +635,7 @@ func SelectRandomDeathmatchSpawnPoint() -> Entity? {
     var spot: Entity?
     var count: Int32
     let selection: Int32
-    // Port-note: A local `gentity_t *[128] spots` the table has no type for.
-    // Raven wrote: gentity_t *spots[MAX_SPAWN_POINTS];
-    portMissing("SelectRandomDeathmatchSpawnPoint", source: "oracle/codemp/game/g_client.c:622")
+    var spots = [Entity?](repeating: nil, count: Int(MAX_SPAWN_POINTS))
 
     count = 0
     spot = nil
@@ -657,9 +653,7 @@ func SelectRandomDeathmatchSpawnPoint() -> Entity? {
 
     // The SDK also declares `rand`, so the call names the bg module.
     selection = JKAMP_BG.rand() % count
-    // Port-note: A read of `spots`, a local the draft left as a hole.
-    // Raven wrote: return spots[ selection ]
-    portMissing("SelectRandomDeathmatchSpawnPoint", source: "oracle/codemp/game/g_client.c:622")
+    return spots[selection]
 }
 
 /**
@@ -677,9 +671,7 @@ func SelectRandomFurthestSpawnPoint(_ avoidPoint: JKAShared.vec3_t, _ origin: in
     var delta = vec3_t()
     var dist: Float
     var list_dist: [Float] = [Float](repeating: 0, count: 64)
-    // Port-note: A local `gentity_t *[64] list_spot` the table has no type for.
-    // Raven wrote: gentity_t *list_spot[64];
-    portMissing("SelectRandomFurthestSpawnPoint", source: "oracle/codemp/game/g_client.c:654")
+    var list_spot = [Entity?](repeating: nil, count: 64)
     var numSpots: Int32
     let rnd: Int32
     var i: Int32
@@ -724,17 +716,11 @@ func SelectRandomFurthestSpawnPoint(_ avoidPoint: JKAShared.vec3_t, _ origin: in
     // The SDK also declares `random`, so the call names the bg module.
     rnd = Int32(JKAMP_BG.random() * (numSpots / 2))
 
-    // Port-note: A read of `list_spot`, a local the draft left as a hole.
-    // Raven wrote: VectorCopy (list_spot[rnd]->s.origin, origin)
-    portMissing("SelectRandomFurthestSpawnPoint", source: "oracle/codemp/game/g_client.c:654")
+    origin = list_spot[rnd]!.s.origin
     origin[2] += 9
-    // Port-note: A read of `list_spot`, a local the draft left as a hole.
-    // Raven wrote: VectorCopy (list_spot[rnd]->s.angles, angles)
-    portMissing("SelectRandomFurthestSpawnPoint", source: "oracle/codemp/game/g_client.c:654")
+    angles = list_spot[rnd]!.s.angles
 
-    // Port-note: A read of `list_spot`, a local the draft left as a hole.
-    // Raven wrote: return list_spot[rnd]
-    portMissing("SelectRandomFurthestSpawnPoint", source: "oracle/codemp/game/g_client.c:654")
+    return list_spot[rnd]
 }
 
 /// Source: oracle/codemp/game/g_client.c:760
@@ -743,9 +729,7 @@ func SelectDuelSpawnPoint(_ team: Int32, _ avoidPoint: JKAShared.vec3_t, _ origi
     var delta = vec3_t()
     var dist: Float
     var list_dist: [Float] = [Float](repeating: 0, count: 64)
-    // Port-note: A local `gentity_t *[64] list_spot` the table has no type for.
-    // Raven wrote: gentity_t *list_spot[64];
-    portMissing("SelectDuelSpawnPoint", source: "oracle/codemp/game/g_client.c:760")
+    var list_spot = [Entity?](repeating: nil, count: 64)
     var numSpots: Int32
     let rnd: Int32
     var i: Int32
@@ -793,18 +777,11 @@ func SelectDuelSpawnPoint(_ team: Int32, _ avoidPoint: JKAShared.vec3_t, _ origi
         // The SDK also declares `random`, so the call names the bg module.
         rnd = Int32(JKAMP_BG.random() * (numSpots / 2))
 
-        // Port-note: A read of `list_spot`, a local the draft left as a hole.
-        // Raven wrote: VectorCopy (list_spot[rnd]->s.origin, origin)
-        portMissing("SelectDuelSpawnPoint", source: "oracle/codemp/game/g_client.c:760")
+        origin = list_spot[rnd]!.s.origin
         origin[2] += 9
-        // Port-note: A read of `list_spot`, a local the draft left as a hole.
-        // Raven wrote: VectorCopy (list_spot[rnd]->s.angles, angles)
-        portMissing("SelectDuelSpawnPoint", source: "oracle/codemp/game/g_client.c:760")
+        angles = list_spot[rnd]!.s.angles
 
-        // Port-note: A read of `list_spot`, a local the draft left as a hole.
-        // Raven wrote: return list_spot[rnd]
-        portMissing("SelectDuelSpawnPoint", source: "oracle/codemp/game/g_client.c:760")
-        break
+        return list_spot[rnd]
     }
 }
 
@@ -1280,40 +1257,36 @@ private func ClientCleanName(_ `in`: String, _ out: inout JKAShared.CharBuf, _ o
     var len: Int32
     var colorlessLen: Int32
     var ch: CChar
-    // Port-note: A pointer local `char * p` with no view.
-    // Raven wrote: char *p;
-    portMissing("ClientCleanName", source: "oracle/codemp/game/g_client.c:1335")
+    // Raven's `p` is a pointer into `out`, so it is a byte offset.
+    var p: Int32
     var spaces: Int32
     // Raven steps his own ``in`` parameter through its bytes, so the body walks a TextCursor over a copy of them.
     var `in` = TextCursor(CharBuf(`in`))
     // Raven assigns his own `outSize` parameter. A Swift parameter is immutable, so the body takes a mutable copy of it.
     var outSize = outSize
+    // Raven steps his own `out` parameter through its bytes, so the body holds the byte offset of his pointer.
+    var outIndex: Int32 = 0
 
     //save room for trailing null byte
     outSize -= 1
 
     len = 0
     colorlessLen = 0
-    // Port-note: A store into `p`, a local the draft left as a hole.
-    // Raven wrote: p = out
-    portMissing("ClientCleanName", source: "oracle/codemp/game/g_client.c:1335")
-    // Port-note: A pointer dereference the draft cannot place.
-    // Raven wrote: *p = 0
-    portMissing("ClientCleanName", source: "oracle/codemp/game/g_client.c:1335")
+    p = outIndex
+    out[p] = 0
     spaces = 0
 
     while 1 != 0 {
-        // Port-note: The draft of this statement did not compile, and the compiler wrote "cannot assign value of type 'Int32' to type 'CChar' (aka 'Int8')".
-        // Raven wrote: ch = *in++
-        portMissing("ClientCleanName", source: "oracle/codemp/game/g_client.c:1335")
+        ch = CChar(truncatingIfNeeded: `in`.byte)
+        `in`.advance()
         if ch == 0 {
             break
         }
 
         // don't allow leading spaces
-        // Port-note: A pointer dereference the draft cannot place.
-        // Raven wrote: if( !*p && ch == ' ' ) { continue; }
-        portMissing("ClientCleanName", source: "oracle/codemp/game/g_client.c:1335")
+        if out[p] == 0 && ch == Int32(ascii: " ") {
+            continue
+        }
 
         // check colors
         if ch == Q_COLOR_ESCAPE {
@@ -1323,21 +1296,23 @@ private func ClientCleanName(_ `in`: String, _ out: inout JKAShared.CharBuf, _ o
             }
 
             // don't allow black in a name, period
-            // Port-note: No operator between the operands, the text there is ``.
-            // Raven wrote: if( ColorIndex(*in) == 0 ) { in++; continue; }
+            // Port-note: The draft of this statement did not compile, and the compiler wrote "cannot convert value of type 'Int32' to expected argument type 'CChar' (aka 'Int8')"
             portMissing("ClientCleanName", source: "oracle/codemp/game/g_client.c:1335")
+            // if ColorIndex(`in`.byte) == 0 {
+            //     `in`.advance()
+            //     continue
+            // }
 
             // make sure room in dest for both chars
             if len > outSize - 2 {
                 break
             }
 
-            // Port-note: A pointer dereference the draft cannot place.
-            // Raven wrote: *out++ = ch
-            portMissing("ClientCleanName", source: "oracle/codemp/game/g_client.c:1335")
-            // Port-note: A pointer dereference the draft cannot place.
-            // Raven wrote: *out++ = *in++
-            portMissing("ClientCleanName", source: "oracle/codemp/game/g_client.c:1335")
+            out[outIndex] = ch
+            outIndex += 1
+            out[outIndex] = `in`.byte
+            outIndex += 1
+            `in`.advance()
             len += 2
             continue
         }
@@ -1356,20 +1331,18 @@ private func ClientCleanName(_ `in`: String, _ out: inout JKAShared.CharBuf, _ o
             break
         }
 
-        // Port-note: A pointer dereference the draft cannot place.
-        // Raven wrote: *out++ = ch
-        portMissing("ClientCleanName", source: "oracle/codemp/game/g_client.c:1335")
+        out[outIndex] = ch
+        outIndex += 1
         colorlessLen += 1
         len += 1
     }
-    // Port-note: The draft of this statement did not compile, and the compiler wrote "cannot assign value of type 'Int' to type 'CharBuf'".
-    // Raven wrote: *out = 0
-    portMissing("ClientCleanName", source: "oracle/codemp/game/g_client.c:1335")
+    out[outIndex] = 0
 
     // don't allow empty names
-    // Port-note: A pointer dereference the draft cannot place.
-    // Raven wrote: if( *p == 0 || colorlessLen == 0 ) { Q_strncpyz( p, "Padawan", outSize ); }
-    portMissing("ClientCleanName", source: "oracle/codemp/game/g_client.c:1335")
+    if out[p] == 0 || colorlessLen == 0 {
+        // Raven's `p` holds offset 0 of `out`, so the copy writes the whole buffer.
+        Q_strncpyz(&out, "Padawan", outSize)
+    }
 }
 
 /// Source: oracle/codemp/game/g_client.c:1423
@@ -1472,9 +1445,8 @@ func SetupGameGhoul2Model(_ ent: Entity, _ modelname: inout JKAShared.CharBuf, _
             var vehicleName = CharBuf(64)
             var skinHandle: Int32 = 0
             var i: Int32 = 0
-            // Port-note: A pointer local `char * p` with no view.
-            // Raven wrote: char *p;
-            portMissing("SetupGameGhoul2Model", source: "oracle/codemp/game/g_client.c:1519")
+            // Raven's `p` is a pointer into `truncModelName`, so it is a byte offset, and nil is his NULL.
+            var p: Int32?
 
             // If this is a vehicle, get it's model name.
             if ent.client!.NPC_class == CLASS_VEHICLE {
@@ -1495,13 +1467,20 @@ func SetupGameGhoul2Model(_ ent: Entity, _ modelname: inout JKAShared.CharBuf, _
                     strcpy(&skin, "default")
 
                     strcpy(&truncModelName, modelname)
-                    // Port-note: A store into `p`, a local the draft left as a hole.
-                    // Raven wrote: p = Q_strrchr(truncModelName, '/')
-                    portMissing("SetupGameGhoul2Model", source: "oracle/codemp/game/g_client.c:1519")
+                    p = Q_strrchr(String(truncModelName), Int32(ascii: "/"))
 
-                    // Port-note: A read of `p`, a local the draft left as a hole.
-                    // Raven wrote: if (p) { *p = 0; p++; while (p && *p) { skin[i] = *p; i++; p++; } skin[i] = 0; i = 0; }
-                    portMissing("SetupGameGhoul2Model", source: "oracle/codemp/game/g_client.c:1519")
+                    if p != nil {
+                        truncModelName[p!] = 0
+                        p! += 1
+
+                        while p != nil && truncModelName[p!] != 0 {
+                            skin[i] = truncModelName[p!]
+                            i += 1
+                            p! += 1
+                        }
+                        skin[i] = 0
+                        i = 0
+                    }
 
                     if !BG_IsValidCharacterModel(String(truncModelName), String(skin)) {
                         strcpy(&truncModelName, "kyle")
@@ -1509,8 +1488,7 @@ func SetupGameGhoul2Model(_ ent: Entity, _ modelname: inout JKAShared.CharBuf, _
                     }
 
                     if g_gametype.integer >= GT_TEAM && g_gametype.integer != GT_SIEGE && g_trueJedi.integer == 0 {
-                        // Port-note: Raven passes NULL for the `colors` output. The ported function takes it by reference, so the body passes a scratch local it never reads.
-                        portMissing("SetupGameGhoul2Model", source: "oracle/codemp/game/g_client.c:1519")
+                        // Raven passes NULL for the `colors` output, so the body passes a scratch local it never reads.
                         var scratchColors = vec3_t()
                         BG_ValidateSkinForTeam(String(truncModelName), &skin, ent.client!.sess.sessionTeam, &scratchColors)
                     } else if g_gametype.integer == GT_SIEGE {
@@ -1608,12 +1586,11 @@ func SetupGameGhoul2Model(_ ent: Entity, _ modelname: inout JKAShared.CharBuf, _
 
         if GLAName[0] != 0 && strstr(GLAName, "players/_humanoid/") == nil {
             //it doesn't use humanoid anims.
-            // Port-note: A pointer local `char * slash` with no view.
-            // Raven wrote: char *slash = Q_strrchr( GLAName, '/' );
-            portMissing("SetupGameGhoul2Model", source: "oracle/codemp/game/g_client.c:1519")
-            // Port-note: A read of `slash`, a local the draft left as a hole.
-            // Raven wrote: if ( slash ) { strcpy(slash, "/animation.cfg"); ent->localAnimIndex = BG_ParseAnimationFile(GLAName, NULL, qfalse); }
-            portMissing("SetupGameGhoul2Model", source: "oracle/codemp/game/g_client.c:1519")
+            if let slash = Q_strrchr(String(GLAName), Int32(ascii: "/")) {
+                strcpy(&GLAName, "/animation.cfg", at: slash)
+
+                ent.localAnimIndex = BG_ParseAnimationFile(String(GLAName), nil, false)
+            }
         } else {
             //humanoid index.
             if strstr(GLAName, "players/rockettrooper/") != nil {
@@ -1789,9 +1766,7 @@ func ClientUserinfoChanged(_ clientNum: Int32) {
     if client!.pers.connected == CON_CONNECTED {
         if strcmp(oldname, client!.pers.netname) != 0 {
             if client!.pers.netnameTime > level.time {
-                // Port-note: Raven passes `"MP_SVGAME"` to `G_GetStringEdString`, whose `char *` parameter the stub holds as an inout CharBuf. Docket row 5 is due.
-                // Raven wrote: trap_SendServerCommand( clientNum, va("print \"%s\n\"", G_GetStringEdString("MP_SVGAME", "NONAMECHANGE")) )
-                portMissing("ClientUserinfoChanged", source: "oracle/codemp/game/g_client.c:1888")
+                trap_SendServerCommand(clientNum, va("print \"%s\n\"", G_GetStringEdString("MP_SVGAME", "NONAMECHANGE")))
 
                 Info_SetValueForKey(&userinfo, "name", String(oldname))
                 trap_SetUserinfo(clientNum, String(userinfo))
@@ -1972,9 +1947,11 @@ func ClientUserinfoChanged(_ clientNum: Int32) {
         client!.pers.teamInfo = true
     } else {
         s = Info_ValueForKey(String(userinfo), "teamoverlay")
-        // Port-note: A pointer dereference the draft cannot place.
-        // Raven wrote: if ( ! *s || atoi( s ) != 0 ) { client->pers.teamInfo = qtrue; } else { client->pers.teamInfo = qfalse; }
-        portMissing("ClientUserinfoChanged", source: "oracle/codemp/game/g_client.c:1888")
+        if s.isEmpty || atoi(s) != 0 {
+            client!.pers.teamInfo = true
+        } else {
+            client!.pers.teamInfo = false
+        }
     }
     /*
     s = Info_ValueForKey( userinfo, "cg_pmove_fixed" );
@@ -2097,9 +2074,7 @@ func ClientConnect(_ clientNum: Int32, _ firstTime: Bool, _ isBot: Bool) -> Stri
     }
 
     // they can connect
-    // Port-note: The draft of this statement did not compile, and the compiler wrote "binary operator '+' cannot be applied to operands of type 'Client?' and 'Int32'".
-    // Raven wrote: ent->client = level.clients + clientNum
-    portMissing("ClientConnect", source: "oracle/codemp/game/g_client.c:2258")
+    ent!.client = level.clientsSlots[clientNum]
     client = ent!.client
 
     //assign the pointer for bg entity access
@@ -2107,9 +2082,7 @@ func ClientConnect(_ clientNum: Int32, _ firstTime: Bool, _ isBot: Bool) -> Stri
 
     //	areabits = client->areabits;
 
-    // Port-note: The draft of this statement did not compile, and the compiler wrote "value of optional type 'Client?' must be unwrapped to refer to member 'clear' of wrapped base type 'Client'".
-    // Raven wrote: memset( client, 0, sizeof(*client) )
-    portMissing("ClientConnect", source: "oracle/codemp/game/g_client.c:2258")
+    client!.clear()
 
     client!.pers.connected = CON_CONNECTING
 
@@ -2228,9 +2201,7 @@ func ClientBegin(_ clientNum: Int32, _ allowTeamReset: Bool) {
         }
     }
 
-    // Port-note: The draft of this statement did not compile, and the compiler wrote "binary operator '+' cannot be applied to operands of type 'Client?' and 'Int32'".
-    // Raven wrote: client = level.clients + clientNum
-    portMissing("ClientBegin", source: "oracle/codemp/game/g_client.c:2393")
+    client = level.clientsSlots[clientNum]
 
     if g_entities[entIndex].r.linked {
         trap_UnlinkEntity(g_entities[entIndex])
@@ -2610,9 +2581,7 @@ func ClientSpawn(_ ent: Entity) {
                 // Raven wrote: saberInfo_t saberSaved[MAX_SABERS];
                 portMissing("ClientSpawn", source: "oracle/codemp/game/g_client.c:2938")
                 var l: Int32 = 0
-                // Port-note: A local `void *[2] g2WeaponPtrs` the table has no type for.
-                // Raven wrote: void *g2WeaponPtrs[MAX_SABERS];
-                portMissing("ClientSpawn", source: "oracle/codemp/game/g_client.c:2938")
+                var g2WeaponPtrs = [OpaquePointer?](repeating: nil, count: Int(MAX_SABERS))
                 var value: String
                 var saber: String? = nil
                 var changedSaber: Bool = false
@@ -2810,9 +2779,7 @@ func ClientSpawn(_ ent: Entity) {
                     // Port-note: A read of `saberSaved`, a local the draft left as a hole.
                     // Raven wrote: saberSaved[l] = client->saber[l]
                     portMissing("ClientSpawn", source: "oracle/codemp/game/g_client.c:2938")
-                    // Port-note: A read of `g2WeaponPtrs`, a local the draft left as a hole.
-                    // Raven wrote: g2WeaponPtrs[l] = client->weaponGhoul2[l]
-                    portMissing("ClientSpawn", source: "oracle/codemp/game/g_client.c:2938")
+                    g2WeaponPtrs[l] = client!.weaponGhoul2[l]
                     l += 1
                 }
 
@@ -2822,9 +2789,7 @@ func ClientSpawn(_ ent: Entity) {
                     i += 1
                 }
 
-                // Port-note: The draft of this statement did not compile, and the compiler wrote "value of optional type 'Client?' must be unwrapped to refer to member 'clear' of wrapped base type 'Client'".
-                // Raven wrote: memset (client, 0, sizeof(*client))
-                portMissing("ClientSpawn", source: "oracle/codemp/game/g_client.c:2938")
+                client!.clear()
                 client!.bodyGrabIndex = ENTITYNUM_NONE
 
                 //Get the skin RGB based on his userinfo
@@ -2853,9 +2818,7 @@ func ClientSpawn(_ ent: Entity) {
                     // Port-note: A read of `saberSaved`, a local the draft left as a hole.
                     // Raven wrote: client->saber[l] = saberSaved[l]
                     portMissing("ClientSpawn", source: "oracle/codemp/game/g_client.c:2938")
-                    // Port-note: A read of `g2WeaponPtrs`, a local the draft left as a hole.
-                    // Raven wrote: client->weaponGhoul2[l] = g2WeaponPtrs[l]
-                    portMissing("ClientSpawn", source: "oracle/codemp/game/g_client.c:2938")
+                    client!.weaponGhoul2[l] = g2WeaponPtrs[l]
                     l += 1
                 }
 

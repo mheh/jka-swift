@@ -622,11 +622,9 @@ private func WP_FireBlaster(_ ent: Entity, _ altFire: Bool) {
         angs[YAW] += crandom() * BLASTER_SPREAD
     }
 
-    // Port-note: Raven passes NULL for the `right` output. The ported function takes it by reference, so the body passes a scratch local it never reads.
-    portMissing("WP_FireBlaster", source: "oracle/codemp/game/g_weapon.c:451")
+    // Raven passes NULL for the `right` output, and AngleVectors only skips that write.
     var scratchRight = vec3_t()
-    // Port-note: Raven passes NULL for the `up` output. The ported function takes it by reference, so the body passes a scratch local it never reads.
-    portMissing("WP_FireBlaster", source: "oracle/codemp/game/g_weapon.c:451")
+    // Raven passes NULL for the `up` output, and AngleVectors only skips that write.
     var scratchUp = vec3_t()
     AngleVectors(angs, &dir, &scratchRight, &scratchUp)
 
@@ -1124,11 +1122,9 @@ private func WP_BowcasterMainFire(_ ent: Entity) {
         angs[PITCH] += crandom() * BOWCASTER_ALT_SPREAD * 0.2
         angs[YAW] += ((i + 0.5) * BOWCASTER_ALT_SPREAD - count * 0.5 * BOWCASTER_ALT_SPREAD)
 
-        // Port-note: Raven passes NULL for the `right` output. The ported function takes it by reference, so the body passes a scratch local it never reads.
-        portMissing("WP_BowcasterMainFire", source: "oracle/codemp/game/g_weapon.c:945")
+        // Raven passes NULL for the `right` output, and AngleVectors only skips that write.
         var scratchRight = vec3_t()
-        // Port-note: Raven passes NULL for the `up` output. The ported function takes it by reference, so the body passes a scratch local it never reads.
-        portMissing("WP_BowcasterMainFire", source: "oracle/codemp/game/g_weapon.c:945")
+        // Raven passes NULL for the `up` output, and AngleVectors only skips that write.
         var scratchUp = vec3_t()
         AngleVectors(angs, &dir, &scratchRight, &scratchUp)
 
@@ -1225,11 +1221,9 @@ private func WP_FireRepeater(_ ent: Entity, _ altFire: Bool) {
         angs[PITCH] += crandom() * REPEATER_SPREAD
         angs[YAW] += crandom() * REPEATER_SPREAD
 
-        // Port-note: Raven passes NULL for the `right` output. The ported function takes it by reference, so the body passes a scratch local it never reads.
-        portMissing("WP_FireRepeater", source: "oracle/codemp/game/g_weapon.c:1110")
+        // Raven passes NULL for the `right` output, and AngleVectors only skips that write.
         var scratchRight = vec3_t()
-        // Port-note: Raven passes NULL for the `up` output. The ported function takes it by reference, so the body passes a scratch local it never reads.
-        portMissing("WP_FireRepeater", source: "oracle/codemp/game/g_weapon.c:1110")
+        // Raven passes NULL for the `up` output, and AngleVectors only skips that write.
         var scratchUp = vec3_t()
         AngleVectors(angs, &dir, &scratchRight, &scratchUp)
 
@@ -1265,9 +1259,7 @@ func DEMP2_AltRadiusDamage(_ ent: Entity) {
     var fact: Float
     var gent: Entity?
     var iEntityList: [Int32] = [Int32](repeating: 0, count: 1024)
-    // Port-note: A local `gentity_t *[1024] entityList` the table has no type for.
-    // Raven wrote: gentity_t *entityList[MAX_GENTITIES];
-    portMissing("DEMP2_AltRadiusDamage", source: "oracle/codemp/game/g_weapon.c:1164")
+    var entityList = [Entity?](repeating: nil, count: Int(MAX_GENTITIES))
     var myOwner: Entity? = nil
     let numListedEntities: Int32
     var i: Int32
@@ -1310,17 +1302,13 @@ func DEMP2_AltRadiusDamage(_ ent: Entity) {
 
     i = 0
     while i < numListedEntities {
-        // Port-note: A read of `entityList`, a local the draft left as a hole.
-        // Raven wrote: entityList[i] = &g_entities[iEntityList[i]]
-        portMissing("DEMP2_AltRadiusDamage", source: "oracle/codemp/game/g_weapon.c:1164")
+        entityList[i] = g_entities[iEntityList[i]]
         i += 1
     }
 
     e = 0
     while e < numListedEntities {
-        // Port-note: A read of `entityList`, a local the draft left as a hole.
-        // Raven wrote: gent = entityList[ e ]
-        portMissing("DEMP2_AltRadiusDamage", source: "oracle/codemp/game/g_weapon.c:1164")
+        gent = entityList[e]
 
         if gent == nil || !gent!.takedamage || gent!.r.contents == 0 {
             e += 1
@@ -1526,11 +1514,9 @@ private func WP_FlechetteMainFire(_ ent: Entity) {
             angs[YAW] += crandom() * FLECHETTE_SPREAD
         }
 
-        // Port-note: Raven passes NULL for the `right` output. The ported function takes it by reference, so the body passes a scratch local it never reads.
-        portMissing("WP_FlechetteMainFire", source: "oracle/codemp/game/g_weapon.c:1430")
+        // Raven passes NULL for the `right` output, and AngleVectors only skips that write.
         var scratchRight = vec3_t()
-        // Port-note: Raven passes NULL for the `up` output. The ported function takes it by reference, so the body passes a scratch local it never reads.
-        portMissing("WP_FlechetteMainFire", source: "oracle/codemp/game/g_weapon.c:1430")
+        // Raven passes NULL for the `up` output, and AngleVectors only skips that write.
         var scratchUp = vec3_t()
         AngleVectors(angs, &fwd, &scratchRight, &scratchUp)
 
@@ -1705,11 +1691,9 @@ private func WP_FlechetteAltFire(_ `self`: Entity) {
         // The SDK also declares `random`, so the call names the bg module.
         dir[PITCH] -= JKAMP_BG.random() * 4 + 8 // make it fly upwards
         dir[YAW] += crandom() * 2
-        // Port-note: Raven passes NULL for the `right` output. The ported function takes it by reference, so the body passes a scratch local it never reads.
-        portMissing("WP_FlechetteAltFire", source: "oracle/codemp/game/g_weapon.c:1602")
+        // Raven passes NULL for the `right` output, and AngleVectors only skips that write.
         var scratchRight = vec3_t()
-        // Port-note: Raven passes NULL for the `up` output. The ported function takes it by reference, so the body passes a scratch local it never reads.
-        portMissing("WP_FlechetteAltFire", source: "oracle/codemp/game/g_weapon.c:1602")
+        // Raven passes NULL for the `up` output, and AngleVectors only skips that write.
         var scratchUp = vec3_t()
         AngleVectors(dir, &fwd, &scratchRight, &scratchUp)
 
@@ -1741,9 +1725,7 @@ func rocketThink(_ ent: Entity) {
     let dot2: Float
     let dis: Float
     var i: Int32
-    // Port-note: The draft of this statement did not compile, and the compiler wrote "cannot convert value of type 'Int32' to specified type 'Float'".
-    // Raven wrote: float vel = (ent->spawnflags&1)?ent->speed:ROCKET_VELOCITY;
-    portMissing("rocketThink", source: "oracle/codemp/game/g_weapon.c:1651")
+    var vel: Float = (ent.spawnflags & 1) != 0 ? ent.speed : Float(ROCKET_VELOCITY)
 
     if ent.genericValue1 != 0 && ent.genericValue1 < level.time {
         //time's up, we're done, remove us
@@ -1770,9 +1752,9 @@ func rocketThink(_ ent: Entity) {
         //vehicle rocket
         if ent.enemy!.client != nil && ent.enemy!.client!.NPC_class == CLASS_VEHICLE {
             //tracking another vehicle
-            // Port-note: A read of `vel`, a local the draft left as a hole.
-            // Raven wrote: if ( ent->enemy->client->ps.speed+4000 > vel ) { vel = ent->enemy->client->ps.speed+4000; }
-            portMissing("rocketThink", source: "oracle/codemp/game/g_weapon.c:1651")
+            if ent.enemy!.client!.ps.speed + 4000 > vel {
+                vel = ent.enemy!.client!.ps.speed + 4000
+            }
         }
     }
 
@@ -1839,9 +1821,7 @@ func rocketThink(_ ent: Entity) {
             newdir[2] = Float(Double((targetdir[2] * newDirMult) + (ent.movedir[2] * oldDirMult)) * 0.5)
 
             // let's also slow down a lot
-            // Port-note: A store into `vel`, a local the draft left as a hole.
-            // Raven wrote: vel *= 0.5f
-            portMissing("rocketThink", source: "oracle/codemp/game/g_weapon.c:1651")
+            vel *= 0.5
         } else if dot < 0.70 {
             // Still a bit off, so we turn a bit softer
             _VectorMA(ent.movedir, 0.5 * newDirMult, targetdir, &newdir)
@@ -1873,9 +1853,7 @@ func rocketThink(_ ent: Entity) {
 
         VectorNormalize(&newdir)
 
-        // Port-note: A read of `vel`, a local the draft left as a hole.
-        // Raven wrote: VectorScale( newdir, vel * 0.5f, ent->s.pos.trDelta )
-        portMissing("rocketThink", source: "oracle/codemp/game/g_weapon.c:1651")
+        ent.s.pos.trDelta = newdir * (vel * 0.5)
         ent.movedir = newdir
         SnapVector(&ent.s.pos.trDelta) // save net bandwidth
         ent.s.pos.trBase = ent.r.currentOrigin
@@ -3504,9 +3482,7 @@ func CalcMuzzlePointOrigin(_ ent: Entity, _ origin: JKAShared.vec3_t, _ forward:
 func WP_TouchVehMissile(_ ent: Entity, _ other: Entity, _ trace: JKAMP.Trace) {
     // Raven's record lives to the end of his block, so the block is the closure.
     Trace.scratch { myTrace in
-        // Port-note: Raven's `memcpy( (void *)&myTrace, (void *)trace, sizeof(myTrace) )` runs over bytes that are not one record with a view.
-        // Raven wrote: memcpy( (void *)&myTrace, (void *)trace, sizeof(myTrace) )
-        portMissing("WP_TouchVehMissile", source: "oracle/codemp/game/g_weapon.c:3569")
+        myTrace.copy(from: trace)
         myTrace.entityNum = other.s.number
         G_MissileImpact(ent, myTrace)
     }
@@ -3828,8 +3804,7 @@ func G_EstimateCamPos(_ viewAngles: JKAShared.vec3_t, _ cameraFocusLoc: inout JK
                 cameraFocusAngles[PITCH] = -80.0
             }
         }
-        // Port-note: Raven passes NULL for the `right` output. The ported function takes it by reference, so the body passes a scratch local it never reads.
-        portMissing("G_EstimateCamPos", source: "oracle/codemp/game/g_weapon.c:3883")
+        // Raven passes NULL for the `right` output, and AngleVectors only skips that write.
         var scratchRight = vec3_t()
         AngleVectors(cameraFocusAngles, &camerafwd, &scratchRight, &cameraup)
 
@@ -3961,11 +3936,9 @@ func WP_VehCheckTraceFromCamPos(_ ent: Entity, _ shotStart: JKAShared.vec3_t, _ 
             var end = vec3_t()
             if ent.m_pVehicle!.m_pVehicleInfo!.type == VH_WALKER {
                 //for some reason, the walker always draws the crosshair out from from the first muzzle point
-                // Port-note: Raven passes NULL for the `right` output. The ported function takes it by reference, so the body passes a scratch local it never reads.
-                portMissing("WP_VehCheckTraceFromCamPos", source: "oracle/codemp/game/g_weapon.c:4052")
+                // Raven passes NULL for the `right` output, and AngleVectors only skips that write.
                 var scratchRight = vec3_t()
-                // Port-note: Raven passes NULL for the `up` output. The ported function takes it by reference, so the body passes a scratch local it never reads.
-                portMissing("WP_VehCheckTraceFromCamPos", source: "oracle/codemp/game/g_weapon.c:4052")
+                // Raven passes NULL for the `up` output, and AngleVectors only skips that write.
                 var scratchUp = vec3_t()
                 AngleVectors(ent.client!.ps.viewangles, &dir, &scratchRight, &scratchUp)
                 start = ent.r.currentOrigin
@@ -3977,11 +3950,9 @@ func WP_VehCheckTraceFromCamPos(_ ent: Entity, _ shotStart: JKAShared.vec3_t, _ 
                 } else {
                     ang = ent.m_pVehicle!.m_vOrientationVector
                 }
-                // Port-note: Raven passes NULL for the `right` output. The ported function takes it by reference, so the body passes a scratch local it never reads.
-                portMissing("WP_VehCheckTraceFromCamPos", source: "oracle/codemp/game/g_weapon.c:4052")
+                // Raven passes NULL for the `right` output, and AngleVectors only skips that write.
                 var scratchRight2 = vec3_t()
-                // Port-note: Raven passes NULL for the `up` output. The ported function takes it by reference, so the body passes a scratch local it never reads.
-                portMissing("WP_VehCheckTraceFromCamPos", source: "oracle/codemp/game/g_weapon.c:4052")
+                // Raven passes NULL for the `up` output, and AngleVectors only skips that write.
                 var scratchUp2 = vec3_t()
                 AngleVectors(ang, &dir, &scratchRight2, &scratchUp2)
                 start = ent.r.currentOrigin
@@ -4210,11 +4181,9 @@ func FireVehicleWeapon(_ ent: Entity, _ alt_fire: Bool) {
                                     } else {
                                         ang = pVeh!.m_vOrientationVector
                                     }
-                                    // Port-note: Raven passes NULL for the `right` output. The ported function takes it by reference, so the body passes a scratch local it never reads.
-                                    portMissing("FireVehicleWeapon", source: "oracle/codemp/game/g_weapon.c:4116")
+                                    // Raven passes NULL for the `right` output, and AngleVectors only skips that write.
                                     var scratchRight = vec3_t()
-                                    // Port-note: Raven passes NULL for the `up` output. The ported function takes it by reference, so the body passes a scratch local it never reads.
-                                    portMissing("FireVehicleWeapon", source: "oracle/codemp/game/g_weapon.c:4116")
+                                    // Raven passes NULL for the `up` output, and AngleVectors only skips that write.
                                     var scratchUp = vec3_t()
                                     AngleVectors(ang, &fixedDir, &scratchRight, &scratchUp)
                                     _VectorMA(ent.r.currentOrigin, 32768, fixedDir, &end)
@@ -4497,11 +4466,9 @@ private func WP_FireEmplaced(_ ent: Entity, _ altFire: Bool) {
     gunpoint = gun!.s.origin
     gunpoint[2] += 46
 
-    // Port-note: Raven passes NULL for the `forward` output. The ported function takes it by reference, so the body passes a scratch local it never reads.
-    portMissing("WP_FireEmplaced", source: "oracle/codemp/game/g_weapon.c:4611")
+    // Raven passes NULL for the `forward` output, and AngleVectors only skips that write.
     var scratchForward = vec3_t()
-    // Port-note: Raven passes NULL for the `up` output. The ported function takes it by reference, so the body passes a scratch local it never reads.
-    portMissing("WP_FireEmplaced", source: "oracle/codemp/game/g_weapon.c:4611")
+    // Raven passes NULL for the `up` output, and AngleVectors only skips that write.
     var scratchUp = vec3_t()
     AngleVectors(ent.client!.ps.viewangles, &scratchForward, &right, &scratchUp)
 
@@ -4520,11 +4487,9 @@ private func WP_FireEmplaced(_ ent: Entity, _ altFire: Bool) {
 
     vectoangles(forward, &angs)
 
-    // Port-note: Raven passes NULL for the `right` output. The ported function takes it by reference, so the body passes a scratch local it never reads.
-    portMissing("WP_FireEmplaced", source: "oracle/codemp/game/g_weapon.c:4611")
+    // Raven passes NULL for the `right` output, and AngleVectors only skips that write.
     var scratchRight = vec3_t()
-    // Port-note: Raven passes NULL for the `up` output. The ported function takes it by reference, so the body passes a scratch local it never reads.
-    portMissing("WP_FireEmplaced", source: "oracle/codemp/game/g_weapon.c:4611")
+    // Raven passes NULL for the `up` output, and AngleVectors only skips that write.
     var scratchUp2 = vec3_t()
     AngleVectors(angs, &dir, &scratchRight, &scratchUp2)
 
@@ -4592,20 +4557,16 @@ func emplaced_gun_use(_ `self`: Entity, _ other: Entity, _ trace: JKAMP.Trace?) 
         }
 
         // Let's get some direction vectors for the user
-        // Port-note: Raven passes NULL for the `right` output. The ported function takes it by reference, so the body passes a scratch local it never reads.
-        portMissing("emplaced_gun_use", source: "oracle/codemp/game/g_weapon.c:4691")
+        // Raven passes NULL for the `right` output, and AngleVectors only skips that write.
         var scratchRight = vec3_t()
-        // Port-note: Raven passes NULL for the `up` output. The ported function takes it by reference, so the body passes a scratch local it never reads.
-        portMissing("emplaced_gun_use", source: "oracle/codemp/game/g_weapon.c:4691")
+        // Raven passes NULL for the `up` output, and AngleVectors only skips that write.
         var scratchUp = vec3_t()
         AngleVectors(activator!.client!.ps.viewangles, &fwd1, &scratchRight, &scratchUp)
 
         // Get the guns direction vector
-        // Port-note: Raven passes NULL for the `right` output. The ported function takes it by reference, so the body passes a scratch local it never reads.
-        portMissing("emplaced_gun_use", source: "oracle/codemp/game/g_weapon.c:4691")
+        // Raven passes NULL for the `right` output, and AngleVectors only skips that write.
         var scratchRight2 = vec3_t()
-        // Port-note: Raven passes NULL for the `up` output. The ported function takes it by reference, so the body passes a scratch local it never reads.
-        portMissing("emplaced_gun_use", source: "oracle/codemp/game/g_weapon.c:4691")
+        // Raven passes NULL for the `up` output, and AngleVectors only skips that write.
         var scratchUp2 = vec3_t()
         AngleVectors(`self`.pos1, &fwd2, &scratchRight2, &scratchUp2)
 

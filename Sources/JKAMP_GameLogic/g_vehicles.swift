@@ -246,11 +246,8 @@ func ValidateBoard(_ pVeh: JKAMP.Vehicle, _ pEnt: JKAMP.BgEntity) -> Bool {
     VectorNormalize(&vVehToEnt)
 
     // Get the right vector.
-    // Port-note: Raven passes NULL for the `forward` output. The ported function takes it by reference, so the body passes a scratch local it never reads.
-    portMissing("ValidateBoard", source: "oracle/codemp/game/g_vehicles.c:496")
+    // Raven passes NULL for the `forward` and `up` outputs.
     var scratchForward = vec3_t()
-    // Port-note: Raven passes NULL for the `up` output. The ported function takes it by reference, so the body passes a scratch local it never reads.
-    portMissing("ValidateBoard", source: "oracle/codemp/game/g_vehicles.c:496")
     var scratchUp = vec3_t()
     AngleVectors(vVehAngles, &scratchForward, &vVehDir, &scratchUp)
     VectorNormalize(&vVehDir)
@@ -300,9 +297,10 @@ private func Board(_ pVeh: JKAMP.Vehicle, _ pEnt: JKAMP.BgEntity) -> Bool {
     // If it's not a valid entity, OR if the vehicle is blowing up (it's dead), OR it's not
     // empty, OR we're already being boarded, OR the person trying to get on us is already
     // in a vehicle (that was a fun bug :-), leave!
-    // Port-note: No operator between the operands, the text there is `|| #ifdef _JK2MP`.
-    // Raven wrote: if ( !ent || parent->health <= 0 /*|| !( parent->client->ps.eFlags & EF_EMPTY_VEHICLE )*/ || (pVeh->m_iBoarding > 0) || #ifdef _JK2MP ( ent->client->ps.m_iVehicleNum ) ) #else ( ent->s.m_iVehicleNum != 0 ) ) #endif return false
-    portMissing("Board", source: "oracle/codemp/game/g_vehicles.c:630")
+    if ent == nil || parent!.health <= 0 /*|| !( parent->client->ps.eFlags & EF_EMPTY_VEHICLE )*/ || (pVeh.m_iBoarding > 0) ||
+        (ent!.client!.ps.m_iVehicleNum != 0) {
+        return false
+    }
 
     // Bucking so we can't do anything (NOTE: Should probably be a better name since fighters don't buck...).
     if (pVeh.m_ulFlags & UInt(bitPattern: Int(VEH_BUCKING))) != 0 {
@@ -477,11 +475,8 @@ func VEH_TryEject(_ pVeh: JKAMP.Vehicle, _ parent: Entity, _ ent: Entity, _ ejec
         switch ejectDir {
         // Left.
         case VEH_EJECT_LEFT:
-            // Port-note: Raven passes NULL for the `forward` output. The ported function takes it by reference, so the body passes a scratch local it never reads.
-            portMissing("VEH_TryEject", source: "oracle/codemp/game/g_vehicles.c:874")
+            // Raven passes NULL for the `forward` and `up` outputs.
             var scratchForward = vec3_t()
-            // Port-note: Raven passes NULL for the `up` output. The ported function takes it by reference, so the body passes a scratch local it never reads.
-            portMissing("VEH_TryEject", source: "oracle/codemp/game/g_vehicles.c:874")
             var scratchUp = vec3_t()
             AngleVectors(vVehAngles, &scratchForward, &vVehLeaveDir, &scratchUp)
             vVehLeaveDir[0] = -vVehLeaveDir[0]
@@ -490,31 +485,22 @@ func VEH_TryEject(_ pVeh: JKAMP.Vehicle, _ parent: Entity, _ ent: Entity, _ ejec
             // Right.
 
         case VEH_EJECT_RIGHT:
-            // Port-note: Raven passes NULL for the `forward` output. The ported function takes it by reference, so the body passes a scratch local it never reads.
-            portMissing("VEH_TryEject", source: "oracle/codemp/game/g_vehicles.c:874")
+            // Raven passes NULL for the `forward` and `up` outputs.
             var scratchForward2 = vec3_t()
-            // Port-note: Raven passes NULL for the `up` output. The ported function takes it by reference, so the body passes a scratch local it never reads.
-            portMissing("VEH_TryEject", source: "oracle/codemp/game/g_vehicles.c:874")
             var scratchUp2 = vec3_t()
             AngleVectors(vVehAngles, &scratchForward2, &vVehLeaveDir, &scratchUp2)
             // Front.
 
         case VEH_EJECT_FRONT:
-            // Port-note: Raven passes NULL for the `right` output. The ported function takes it by reference, so the body passes a scratch local it never reads.
-            portMissing("VEH_TryEject", source: "oracle/codemp/game/g_vehicles.c:874")
+            // Raven passes NULL for the `right` and `up` outputs.
             var scratchRight = vec3_t()
-            // Port-note: Raven passes NULL for the `up` output. The ported function takes it by reference, so the body passes a scratch local it never reads.
-            portMissing("VEH_TryEject", source: "oracle/codemp/game/g_vehicles.c:874")
             var scratchUp3 = vec3_t()
             AngleVectors(vVehAngles, &vVehLeaveDir, &scratchRight, &scratchUp3)
             // Rear.
 
         case VEH_EJECT_REAR:
-            // Port-note: Raven passes NULL for the `right` output. The ported function takes it by reference, so the body passes a scratch local it never reads.
-            portMissing("VEH_TryEject", source: "oracle/codemp/game/g_vehicles.c:874")
+            // Raven passes NULL for the `right` and `up` outputs.
             var scratchRight2 = vec3_t()
-            // Port-note: Raven passes NULL for the `up` output. The ported function takes it by reference, so the body passes a scratch local it never reads.
-            portMissing("VEH_TryEject", source: "oracle/codemp/game/g_vehicles.c:874")
             var scratchUp4 = vec3_t()
             AngleVectors(vVehAngles, &vVehLeaveDir, &scratchRight2, &scratchUp4)
             vVehLeaveDir[0] = -vVehLeaveDir[0]
@@ -523,11 +509,8 @@ func VEH_TryEject(_ pVeh: JKAMP.Vehicle, _ parent: Entity, _ ent: Entity, _ ejec
             // Top.
 
         case VEH_EJECT_TOP:
-            // Port-note: Raven passes NULL for the `forward` output. The ported function takes it by reference, so the body passes a scratch local it never reads.
-            portMissing("VEH_TryEject", source: "oracle/codemp/game/g_vehicles.c:874")
+            // Raven passes NULL for the `forward` and `right` outputs.
             var scratchForward3 = vec3_t()
-            // Port-note: Raven passes NULL for the `right` output. The ported function takes it by reference, so the body passes a scratch local it never reads.
-            portMissing("VEH_TryEject", source: "oracle/codemp/game/g_vehicles.c:874")
             var scratchRight3 = vec3_t()
             AngleVectors(vVehAngles, &scratchForward3, &scratchRight3, &vVehLeaveDir)
             // Bottom?.
@@ -750,9 +733,7 @@ private func Eject(_ pVeh: JKAMP.Vehicle, _ pEnt: JKAMP.BgEntity, _ forceEject: 
             j += 1
         }
     } else if ent == pVeh.m_pOldPilot.map { Entity($0) } {
-        // Port-note: The draft of this statement did not compile, and the compiler wrote "cannot assign value of type 'Int' to type 'BgEntity'".
-        // Raven wrote: pVeh->m_pOldPilot = 0
-        portMissing("Eject", source: "oracle/codemp/game/g_vehicles.c:1019")
+        pVeh.m_pOldPilot = nil
     } else {
         var i: Int32
         // Look for this guy in the passenger list.
@@ -1202,20 +1183,14 @@ private func Update(_ pVeh: JKAMP.Vehicle, _ pUmcd: JKAMP.Usercmd) -> Bool {
 
             // Setup the move direction.
             if pVeh.m_pVehicleInfo!.type == VH_FIGHTER {
-                // Port-note: Raven passes NULL for the `right` output. The ported function takes it by reference, so the body passes a scratch local it never reads.
-                portMissing("Update", source: "oracle/codemp/game/g_vehicles.c:1763")
+                // Raven passes NULL for the `right` and `up` outputs.
                 var scratchRight = vec3_t()
-                // Port-note: Raven passes NULL for the `up` output. The ported function takes it by reference, so the body passes a scratch local it never reads.
-                portMissing("Update", source: "oracle/codemp/game/g_vehicles.c:1763")
                 var scratchUp = vec3_t()
                 AngleVectors(pVeh.m_vOrientationVector, &parent!.client!.ps.moveDir, &scratchRight, &scratchUp)
             } else {
                 vVehAngles = vec3_t(0, pVeh.m_vOrientationVector[YAW], 0)
-                // Port-note: Raven passes NULL for the `right` output. The ported function takes it by reference, so the body passes a scratch local it never reads.
-                portMissing("Update", source: "oracle/codemp/game/g_vehicles.c:1763")
+                // Raven passes NULL for the `right` and `up` outputs.
                 var scratchRight2 = vec3_t()
-                // Port-note: Raven passes NULL for the `up` output. The ported function takes it by reference, so the body passes a scratch local it never reads.
-                portMissing("Update", source: "oracle/codemp/game/g_vehicles.c:1763")
                 var scratchUp2 = vec3_t()
                 AngleVectors(vVehAngles, &parent!.client!.ps.moveDir, &scratchRight2, &scratchUp2)
             }
@@ -1481,20 +1456,14 @@ private func Update(_ pVeh: JKAMP.Vehicle, _ pUmcd: JKAMP.Usercmd) -> Bool {
 
     // Setup the move direction.
     if pVeh.m_pVehicleInfo!.type == VH_FIGHTER {
-        // Port-note: Raven passes NULL for the `right` output. The ported function takes it by reference, so the body passes a scratch local it never reads.
-        portMissing("Update", source: "oracle/codemp/game/g_vehicles.c:1763")
+        // Raven passes NULL for the `right` and `up` outputs.
         var scratchRight3 = vec3_t()
-        // Port-note: Raven passes NULL for the `up` output. The ported function takes it by reference, so the body passes a scratch local it never reads.
-        portMissing("Update", source: "oracle/codemp/game/g_vehicles.c:1763")
         var scratchUp3 = vec3_t()
         AngleVectors(pVeh.m_vOrientationVector, &parent!.client!.ps.moveDir, &scratchRight3, &scratchUp3)
     } else {
         vVehAngles = vec3_t(0, pVeh.m_vOrientationVector[YAW], 0)
-        // Port-note: Raven passes NULL for the `right` output. The ported function takes it by reference, so the body passes a scratch local it never reads.
-        portMissing("Update", source: "oracle/codemp/game/g_vehicles.c:1763")
+        // Raven passes NULL for the `right` and `up` outputs.
         var scratchRight4 = vec3_t()
-        // Port-note: Raven passes NULL for the `up` output. The ported function takes it by reference, so the body passes a scratch local it never reads.
-        portMissing("Update", source: "oracle/codemp/game/g_vehicles.c:1763")
         var scratchUp4 = vec3_t()
         AngleVectors(vVehAngles, &parent!.client!.ps.moveDir, &scratchRight4, &scratchUp4)
     }
@@ -1568,14 +1537,10 @@ private func UpdateRider(_ pVeh: JKAMP.Vehicle, _ pRider: JKAMP.BgEntity, _ pUmc
                 let iFlags: Int32 = SETANIM_FLAG_OVERRIDE | SETANIM_FLAG_HOLD
                 let iBlend: Int32 = 500
                 if pUmcd.rightmove > 0 {
-                    // Port-note: A store into `Anim`, a local the draft left as a hole.
-                    // Raven wrote: Anim = BOTH_VS_DISMOUNT_R
-                    portMissing("UpdateRider", source: "oracle/codemp/game/g_vehicles.c:2338")
+                    Anim = BOTH_VS_DISMOUNT_R
                     pVeh.m_EjectDir = VEH_EJECT_RIGHT
                 } else {
-                    // Port-note: A store into `Anim`, a local the draft left as a hole.
-                    // Raven wrote: Anim = BOTH_VS_DISMOUNT_L
-                    portMissing("UpdateRider", source: "oracle/codemp/game/g_vehicles.c:2338")
+                    Anim = BOTH_VS_DISMOUNT_L
                     pVeh.m_EjectDir = VEH_EJECT_LEFT
                 }
 
@@ -1583,9 +1548,7 @@ private func UpdateRider(_ pVeh: JKAMP.Vehicle, _ pRider: JKAMP.BgEntity, _ pUmc
                     let iAnimLen: Int32
                     // NOTE: I know I shouldn't reuse pVeh->m_iBoarding so many times for so many different
                     // purposes, but it's not used anywhere else right here so why waste memory???
-                    // Port-note: A read of `Anim`, a local the draft left as a hole.
-                    // Raven wrote: iAnimLen = BG_AnimLength( rider->localAnimIndex, Anim )
-                    portMissing("UpdateRider", source: "oracle/codemp/game/g_vehicles.c:2338")
+                    iAnimLen = BG_AnimLength(rider!.localAnimIndex, Anim)
                     pVeh.m_iBoarding = level.time + iAnimLen
                     // Weird huh? Well I wanted to reuse flags and this should never be set in an
                     // entity, so what the heck.
@@ -1597,9 +1560,7 @@ private func UpdateRider(_ pVeh: JKAMP.Vehicle, _ pRider: JKAMP.BgEntity, _ pUmc
 
                 rider!.client!.ps.velocity = parent!.client!.ps.velocity * 0.25
 
-                // Port-note: A read of `Anim`, a local the draft left as a hole.
-                // Raven wrote: Vehicle_SetAnim( rider, SETANIM_BOTH, Anim, iFlags, iBlend )
-                portMissing("UpdateRider", source: "oracle/codemp/game/g_vehicles.c:2338")
+                Vehicle_SetAnim(rider!, SETANIM_BOTH, Anim, iFlags, iBlend)
             }
         } else {
             // Flying, so just fall off.
@@ -1649,24 +1610,16 @@ private func UpdateRider(_ pVeh: JKAMP.Vehicle, _ pRider: JKAMP.BgEntity, _ pUmc
             var Anim: animNumber_t = BOTH_ROLL_B
             pVeh.m_EjectDir = VEH_EJECT_REAR
             if pUmcd.rightmove > 0 {
-                // Port-note: A store into `Anim`, a local the draft left as a hole.
-                // Raven wrote: Anim = BOTH_ROLL_R
-                portMissing("UpdateRider", source: "oracle/codemp/game/g_vehicles.c:2338")
+                Anim = BOTH_ROLL_R
                 pVeh.m_EjectDir = VEH_EJECT_RIGHT
             } else if pUmcd.rightmove < 0 {
-                // Port-note: A store into `Anim`, a local the draft left as a hole.
-                // Raven wrote: Anim = BOTH_ROLL_L
-                portMissing("UpdateRider", source: "oracle/codemp/game/g_vehicles.c:2338")
+                Anim = BOTH_ROLL_L
                 pVeh.m_EjectDir = VEH_EJECT_LEFT
             } else if pUmcd.forwardmove < 0 {
-                // Port-note: A store into `Anim`, a local the draft left as a hole.
-                // Raven wrote: Anim = BOTH_ROLL_B
-                portMissing("UpdateRider", source: "oracle/codemp/game/g_vehicles.c:2338")
+                Anim = BOTH_ROLL_B
                 pVeh.m_EjectDir = VEH_EJECT_REAR
             } else if pUmcd.forwardmove > 0 {
-                // Port-note: A store into `Anim`, a local the draft left as a hole.
-                // Raven wrote: Anim = BOTH_ROLL_F
-                portMissing("UpdateRider", source: "oracle/codemp/game/g_vehicles.c:2338")
+                Anim = BOTH_ROLL_F
                 pVeh.m_EjectDir = VEH_EJECT_FRONT
             }
 
@@ -1897,8 +1850,7 @@ func G_FlyVehicleImpactDir(_ veh: Entity, _ trace: JKAMP.Trace) -> Int32 {
             return -1
         }
 
-        // Port-note: Raven passes NULL for the `up` output. The ported function takes it by reference, so the body passes a scratch local it never reads.
-        portMissing("G_FlyVehicleImpactDir", source: "oracle/codemp/game/g_vehicles.c:2843")
+        // Raven passes NULL for the `up` output.
         var scratchUp = vec3_t()
         AngleVectors(veh.client!.ps.viewangles, &fwd, &right, &scratchUp)
         testMins = vec3_t(-24.0, -24.0, -24.0)
@@ -2218,7 +2170,7 @@ func G_FlyVehicleDestroySurface(_ veh: Entity, _ surface: Int32) -> Bool {
 /// Source: oracle/codemp/game/g_vehicles.c:3190
 func G_FlyVehicleSurfaceDestruction(_ veh: Entity, _ trace: JKAMP.Trace, _ magnitude: Int32, _ force: Bool) {
     var impactDir: Int32
-    let secondImpact: Int32
+    var secondImpact: Int32
     var deathPoint: Int32 = -1
     var alreadyRebroken: Bool = false
 
@@ -2272,9 +2224,7 @@ func G_FlyVehicleSurfaceDestruction(_ veh: Entity, _ trace: JKAMP.Trace, _ magni
         }
 
         if !alreadyRebroken {
-            // Port-note: The draft of this statement did not compile, and the compiler wrote "immutable value 'secondImpact' may only be initialized once".
-            // Raven wrote: secondImpact = G_FlyVehicleImpactDir(veh, trace)
-            portMissing("G_FlyVehicleSurfaceDestruction", source: "oracle/codemp/game/g_vehicles.c:3190")
+            secondImpact = G_FlyVehicleImpactDir(veh, trace)
             if impactDir != secondImpact {
                 //can break off another piece in this same impact.. but only break off up to 2 at once
                 alreadyRebroken = true
@@ -2319,9 +2269,7 @@ func AddPassenger(_ pVeh: JKAMP.Vehicle) -> Bool {
 // Whether this vehicle is currently inhabited (by anyone) or not.
 /// Source: oracle/codemp/game/g_vehicles.c:3286
 func Inhabited(_ pVeh: JKAMP.Vehicle) -> Bool {
-    // Port-note: The draft of this statement did not compile, and the compiler wrote "cannot convert value of type 'Bool' to expected argument type 'Int'".
-    // Raven wrote: return ( pVeh->m_pPilot || pVeh->m_iNumPassengers ) ? true : false
-    portMissing("Inhabited", source: "oracle/codemp/game/g_vehicles.c:3286")
+    return (pVeh.m_pPilot != nil || pVeh.m_iNumPassengers != 0) ? true : false
 }
 
 // Setup the shared functions (one's that all vehicles would generally use).

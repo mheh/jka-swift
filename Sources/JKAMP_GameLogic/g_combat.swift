@@ -240,11 +240,8 @@ func ExplodeDeath(_ `self`: Entity) {
     `self`.s.pos.trBase = `self`.r.currentOrigin
 
     //	tent = G_TempEntity( self->s.origin, EV_FX_EXPLOSION );
-    // Port-note: Raven passes NULL for the `right` output. The ported function takes it by reference, so the body passes a scratch local it never reads.
-    portMissing("ExplodeDeath", source: "oracle/codemp/game/g_combat.c:369")
+    // Raven passes NULL for the `right` and `up` outputs.
     var scratchRight = vec3_t()
-    // Port-note: Raven passes NULL for the `up` output. The ported function takes it by reference, so the body passes a scratch local it never reads.
-    portMissing("ExplodeDeath", source: "oracle/codemp/game/g_combat.c:369")
     var scratchUp = vec3_t()
     AngleVectors(`self`.s.angles, &forward, &scratchRight, &scratchUp)
 
@@ -683,11 +680,8 @@ private func G_CheckSpecialDeathAnim(_ `self`: Entity, _ point: JKAShared.vec3_t
                 var fwd = vec3_t()
                 var thrown: Float = 0
 
-                // Port-note: Raven passes NULL for the `right` output. The ported function takes it by reference, so the body passes a scratch local it never reads.
-                portMissing("G_CheckSpecialDeathAnim", source: "oracle/codemp/game/g_combat.c:882")
+                // Raven passes NULL for the `right` and `up` outputs.
                 var scratchRight = vec3_t()
-                // Port-note: Raven passes NULL for the `up` output. The ported function takes it by reference, so the body passes a scratch local it never reads.
-                portMissing("G_CheckSpecialDeathAnim", source: "oracle/codemp/game/g_combat.c:882")
                 var scratchUp = vec3_t()
                 AngleVectors(`self`.client!.ps.viewangles, &fwd, &scratchRight, &scratchUp)
                 thrown = _DotProduct(fwd, `self`.client!.ps.velocity)
@@ -713,11 +707,8 @@ private func G_CheckSpecialDeathAnim(_ `self`: Entity, _ point: JKAShared.vec3_t
                 var fwd = vec3_t()
                 var thrown: Float = 0
 
-                // Port-note: Raven passes NULL for the `right` output. The ported function takes it by reference, so the body passes a scratch local it never reads.
-                portMissing("G_CheckSpecialDeathAnim", source: "oracle/codemp/game/g_combat.c:882")
+                // Raven passes NULL for the `right` and `up` outputs.
                 var scratchRight2 = vec3_t()
-                // Port-note: Raven passes NULL for the `up` output. The ported function takes it by reference, so the body passes a scratch local it never reads.
-                portMissing("G_CheckSpecialDeathAnim", source: "oracle/codemp/game/g_combat.c:882")
                 var scratchUp2 = vec3_t()
                 AngleVectors(`self`.client!.ps.viewangles, &fwd, &scratchRight2, &scratchUp2)
                 thrown = _DotProduct(fwd, `self`.client!.ps.velocity)
@@ -745,11 +736,8 @@ private func G_CheckSpecialDeathAnim(_ `self`: Entity, _ point: JKAShared.vec3_t
                 var fwd = vec3_t()
                 var thrown: Float = 0
 
-                // Port-note: Raven passes NULL for the `right` output. The ported function takes it by reference, so the body passes a scratch local it never reads.
-                portMissing("G_CheckSpecialDeathAnim", source: "oracle/codemp/game/g_combat.c:882")
+                // Raven passes NULL for the `right` and `up` outputs.
                 var scratchRight3 = vec3_t()
-                // Port-note: Raven passes NULL for the `up` output. The ported function takes it by reference, so the body passes a scratch local it never reads.
-                portMissing("G_CheckSpecialDeathAnim", source: "oracle/codemp/game/g_combat.c:882")
                 var scratchUp3 = vec3_t()
                 AngleVectors(`self`.client!.ps.viewangles, &fwd, &scratchRight3, &scratchUp3)
                 thrown = _DotProduct(fwd, `self`.client!.ps.velocity)
@@ -777,11 +765,8 @@ private func G_CheckSpecialDeathAnim(_ `self`: Entity, _ point: JKAShared.vec3_t
                 //crouching
                 var fwd = vec3_t()
                 var thrown: Float = 0
-                // Port-note: Raven passes NULL for the `right` output. The ported function takes it by reference, so the body passes a scratch local it never reads.
-                portMissing("G_CheckSpecialDeathAnim", source: "oracle/codemp/game/g_combat.c:882")
+                // Raven passes NULL for the `right` and `up` outputs.
                 var scratchRight4 = vec3_t()
-                // Port-note: Raven passes NULL for the `up` output. The ported function takes it by reference, so the body passes a scratch local it never reads.
-                portMissing("G_CheckSpecialDeathAnim", source: "oracle/codemp/game/g_combat.c:882")
                 var scratchUp4 = vec3_t()
                 AngleVectors(`self`.client!.ps.viewangles, &fwd, &scratchRight4, &scratchUp4)
                 thrown = _DotProduct(fwd, `self`.client!.ps.velocity)
@@ -810,11 +795,8 @@ private func G_CheckSpecialDeathAnim(_ `self`: Entity, _ point: JKAShared.vec3_t
                 var fwd = vec3_t()
                 var thrown: Float = 0
 
-                // Port-note: Raven passes NULL for the `right` output. The ported function takes it by reference, so the body passes a scratch local it never reads.
-                portMissing("G_CheckSpecialDeathAnim", source: "oracle/codemp/game/g_combat.c:882")
+                // Raven passes NULL for the `right` and `up` outputs.
                 var scratchRight5 = vec3_t()
-                // Port-note: Raven passes NULL for the `up` output. The ported function takes it by reference, so the body passes a scratch local it never reads.
-                portMissing("G_CheckSpecialDeathAnim", source: "oracle/codemp/game/g_combat.c:882")
                 var scratchUp5 = vec3_t()
                 AngleVectors(`self`.client!.ps.viewangles, &fwd, &scratchRight5, &scratchUp5)
                 thrown = _DotProduct(fwd, `self`.client!.ps.velocity)
@@ -853,11 +835,8 @@ private func G_CheckSpecialDeathAnim(_ `self`: Entity, _ point: JKAShared.vec3_t
                 var fwd = vec3_t()
                 var thrown: Float = 0
 
-                // Port-note: Raven passes NULL for the `right` output. The ported function takes it by reference, so the body passes a scratch local it never reads.
-                portMissing("G_CheckSpecialDeathAnim", source: "oracle/codemp/game/g_combat.c:882")
+                // Raven passes NULL for the `right` and `up` outputs.
                 var scratchRight6 = vec3_t()
-                // Port-note: Raven passes NULL for the `up` output. The ported function takes it by reference, so the body passes a scratch local it never reads.
-                portMissing("G_CheckSpecialDeathAnim", source: "oracle/codemp/game/g_combat.c:882")
                 var scratchUp6 = vec3_t()
                 AngleVectors(`self`.client!.ps.viewangles, &fwd, &scratchRight6, &scratchUp6)
                 thrown = _DotProduct(fwd, `self`.client!.ps.velocity)
@@ -884,11 +863,8 @@ private func G_CheckSpecialDeathAnim(_ `self`: Entity, _ point: JKAShared.vec3_t
                 var fwd = vec3_t()
                 var thrown: Float = 0
 
-                // Port-note: Raven passes NULL for the `right` output. The ported function takes it by reference, so the body passes a scratch local it never reads.
-                portMissing("G_CheckSpecialDeathAnim", source: "oracle/codemp/game/g_combat.c:882")
+                // Raven passes NULL for the `right` and `up` outputs.
                 var scratchRight7 = vec3_t()
-                // Port-note: Raven passes NULL for the `up` output. The ported function takes it by reference, so the body passes a scratch local it never reads.
-                portMissing("G_CheckSpecialDeathAnim", source: "oracle/codemp/game/g_combat.c:882")
                 var scratchUp7 = vec3_t()
                 AngleVectors(`self`.client!.ps.viewangles, &fwd, &scratchRight7, &scratchUp7)
                 thrown = _DotProduct(fwd, `self`.client!.ps.velocity)
@@ -920,11 +896,8 @@ private func G_CheckSpecialDeathAnim(_ `self`: Entity, _ point: JKAShared.vec3_t
                 var fwd = vec3_t()
                 var thrown: Float = 0
 
-                // Port-note: Raven passes NULL for the `right` output. The ported function takes it by reference, so the body passes a scratch local it never reads.
-                portMissing("G_CheckSpecialDeathAnim", source: "oracle/codemp/game/g_combat.c:882")
+                // Raven passes NULL for the `right` and `up` outputs.
                 var scratchRight8 = vec3_t()
-                // Port-note: Raven passes NULL for the `up` output. The ported function takes it by reference, so the body passes a scratch local it never reads.
-                portMissing("G_CheckSpecialDeathAnim", source: "oracle/codemp/game/g_combat.c:882")
                 var scratchUp8 = vec3_t()
                 AngleVectors(`self`.client!.ps.viewangles, &fwd, &scratchRight8, &scratchUp8)
                 thrown = _DotProduct(fwd, `self`.client!.ps.velocity)
@@ -956,11 +929,8 @@ private func G_CheckSpecialDeathAnim(_ `self`: Entity, _ point: JKAShared.vec3_t
                 var fwd = vec3_t()
                 var thrown: Float = 0
 
-                // Port-note: Raven passes NULL for the `right` output. The ported function takes it by reference, so the body passes a scratch local it never reads.
-                portMissing("G_CheckSpecialDeathAnim", source: "oracle/codemp/game/g_combat.c:882")
+                // Raven passes NULL for the `right` and `up` outputs.
                 var scratchRight9 = vec3_t()
-                // Port-note: Raven passes NULL for the `up` output. The ported function takes it by reference, so the body passes a scratch local it never reads.
-                portMissing("G_CheckSpecialDeathAnim", source: "oracle/codemp/game/g_combat.c:882")
                 var scratchUp9 = vec3_t()
                 AngleVectors(`self`.client!.ps.viewangles, &fwd, &scratchRight9, &scratchUp9)
                 thrown = _DotProduct(fwd, `self`.client!.ps.velocity)
@@ -1027,11 +997,8 @@ private func G_CheckSpecialDeathAnim(_ `self`: Entity, _ point: JKAShared.vec3_t
                 var fwd = vec3_t()
                 var thrown: Float = 0
 
-                // Port-note: Raven passes NULL for the `right` output. The ported function takes it by reference, so the body passes a scratch local it never reads.
-                portMissing("G_CheckSpecialDeathAnim", source: "oracle/codemp/game/g_combat.c:882")
+                // Raven passes NULL for the `right` and `up` outputs.
                 var scratchRight10 = vec3_t()
-                // Port-note: Raven passes NULL for the `up` output. The ported function takes it by reference, so the body passes a scratch local it never reads.
-                portMissing("G_CheckSpecialDeathAnim", source: "oracle/codemp/game/g_combat.c:882")
                 var scratchUp10 = vec3_t()
                 AngleVectors(`self`.client!.ps.viewangles, &fwd, &scratchRight10, &scratchUp10)
                 thrown = _DotProduct(fwd, `self`.client!.ps.velocity)
@@ -1490,11 +1457,8 @@ func DeathFX(_ ent: Entity) {
         G_PlayEffectID(G_EffectIndex("explosions/probeexplosion1"), effectPos, defaultDir)
 
     case CLASS_ATST:
-        // Port-note: Raven passes NULL for the `forward` output. The ported function takes it by reference, so the body passes a scratch local it never reads.
-        portMissing("DeathFX", source: "oracle/codemp/game/g_combat.c:1883")
+        // Raven passes NULL for the `forward` and `up` outputs.
         var scratchForward = vec3_t()
-        // Port-note: Raven passes NULL for the `up` output. The ported function takes it by reference, so the body passes a scratch local it never reads.
-        portMissing("DeathFX", source: "oracle/codemp/game/g_combat.c:1883")
         var scratchUp = vec3_t()
         AngleVectors(ent.r.currentAngles, &scratchForward, &right, &scratchUp)
         _VectorMA(ent.r.currentOrigin, 20, right, &effectPos)
@@ -1539,11 +1503,8 @@ func DeathFX(_ ent: Entity) {
         G_Sound(ent, CHAN_AUTO, G_SoundIndex("sound/chars/interrogator/misc/int_droid_explo"))
 
     case CLASS_MARK1:
-        // Port-note: Raven passes NULL for the `forward` output. The ported function takes it by reference, so the body passes a scratch local it never reads.
-        portMissing("DeathFX", source: "oracle/codemp/game/g_combat.c:1883")
+        // Raven passes NULL for the `forward` and `up` outputs.
         var scratchForward2 = vec3_t()
-        // Port-note: Raven passes NULL for the `up` output. The ported function takes it by reference, so the body passes a scratch local it never reads.
-        portMissing("DeathFX", source: "oracle/codemp/game/g_combat.c:1883")
         var scratchUp2 = vec3_t()
         AngleVectors(ent.r.currentAngles, &scratchForward2, &right, &scratchUp2)
         _VectorMA(ent.r.currentOrigin, 10, right, &effectPos)
@@ -1845,11 +1806,8 @@ func player_die(_ `self`: Entity, _ inflictor: Entity, _ attacker: Entity, _ dam
         case CLASS_R2D2:
             if trap_G2API_GetSurfaceRenderStatus(`self`.ghoul2, 0, "head") == 0 {
                 var up = vec3_t()
-                // Port-note: Raven passes NULL for the `forward` output. The ported function takes it by reference, so the body passes a scratch local it never reads.
-                portMissing("player_die", source: "oracle/codemp/game/g_combat.c:2123")
+                // Raven passes NULL for the `forward` and `right` outputs.
                 var scratchForward = vec3_t()
-                // Port-note: Raven passes NULL for the `right` output. The ported function takes it by reference, so the body passes a scratch local it never reads.
-                portMissing("player_die", source: "oracle/codemp/game/g_combat.c:2123")
                 var scratchRight = vec3_t()
                 AngleVectors(`self`.r.currentAngles, &scratchForward, &scratchRight, &up)
                 G_PlayEffectID(G_EffectIndex("chunks/r2d2head_veh"), `self`.r.currentOrigin, up)
@@ -1858,11 +1816,8 @@ func player_die(_ `self`: Entity, _ inflictor: Entity, _ attacker: Entity, _ dam
         case CLASS_R5D2:
             if trap_G2API_GetSurfaceRenderStatus(`self`.ghoul2, 0, "head") == 0 {
                 var up = vec3_t()
-                // Port-note: Raven passes NULL for the `forward` output. The ported function takes it by reference, so the body passes a scratch local it never reads.
-                portMissing("player_die", source: "oracle/codemp/game/g_combat.c:2123")
+                // Raven passes NULL for the `forward` and `right` outputs.
                 var scratchForward2 = vec3_t()
-                // Port-note: Raven passes NULL for the `right` output. The ported function takes it by reference, so the body passes a scratch local it never reads.
-                portMissing("player_die", source: "oracle/codemp/game/g_combat.c:2123")
                 var scratchRight2 = vec3_t()
                 AngleVectors(`self`.r.currentAngles, &scratchForward2, &scratchRight2, &up)
                 G_PlayEffectID(G_EffectIndex("chunks/r5d2head_veh"), `self`.r.currentOrigin, up)
@@ -2235,9 +2190,7 @@ func player_die(_ `self`: Entity, _ inflictor: Entity, _ attacker: Entity, _ dam
             continue
         }
         if client!.sess.spectatorClient == `self`.s.number {
-            // Port-note: The draft of this statement did not compile, and the compiler wrote "binary operator '+' cannot be applied to operands of type 'Slots<Entity>' and 'Int32'".
-            // Raven wrote: Cmd_Score_f( g_entities + i )
-            portMissing("player_die", source: "oracle/codemp/game/g_combat.c:2123")
+            Cmd_Score_f(g_entities[i])
         }
         i += 1
     }
@@ -3031,11 +2984,8 @@ func G_GetHitQuad(_ `self`: Entity, _ hitloc: JKAShared.vec3_t) -> Int32 {
         fwdangles[1] = `self`.s.apos.trBase[1]
     }
     // Ultimately we might care if the shot was ahead or behind, but for now, just quadrant is fine.
-    // Port-note: Raven passes NULL for the `forward` output. The ported function takes it by reference, so the body passes a scratch local it never reads.
-    portMissing("G_GetHitQuad", source: "oracle/codemp/game/g_combat.c:3671")
+    // Raven passes NULL for the `forward` and `up` outputs.
     var scratchForward = vec3_t()
-    // Port-note: Raven passes NULL for the `up` output. The ported function takes it by reference, so the body passes a scratch local it never reads.
-    portMissing("G_GetHitQuad", source: "oracle/codemp/game/g_combat.c:3671")
     var scratchUp = vec3_t()
     AngleVectors(fwdangles, &scratchForward, &right, &scratchUp)
 
@@ -4126,9 +4076,7 @@ func G_Damage(_ targ: Entity, _ inflictor: Entity?, _ attacker: Entity?, _ dir: 
                     strcpy(&hitSurface, trap_G2API_GetSurfaceName(targ.ghoul2, targ.client!.g2LastSurfaceHit, 0))
 
                     if hitSurface[0] != 0 {
-                        // Port-note: The draft of this statement did not compile, and the compiler wrote "cannot convert value of type 'Int8' to expected argument type 'String'".
-                        // Raven wrote: surface = G_ShipSurfaceForSurfName( &hitSurface[0] )
-                        portMissing("G_Damage", source: "oracle/codemp/game/g_combat.c:4577")
+                        surface = G_ShipSurfaceForSurfName(String(hitSurface))
 
                         if take != 0 && surface > 0 {
                             //hit a certain part of the ship
@@ -4198,11 +4146,8 @@ func G_Damage(_ targ: Entity, _ inflictor: Entity?, _ attacker: Entity?, _ dir: 
                         impactStrength = 10.0
                     }
                     //pitch or roll us based on where we were hit
-                    // Port-note: Raven passes NULL for the `forward` output. The ported function takes it by reference, so the body passes a scratch local it never reads.
-                    portMissing("G_Damage", source: "oracle/codemp/game/g_combat.c:4577")
+                    // Raven passes NULL for the `forward` and `right` outputs.
                     var scratchForward = vec3_t()
-                    // Port-note: Raven passes NULL for the `right` output. The ported function takes it by reference, so the body passes a scratch local it never reads.
-                    portMissing("G_Damage", source: "oracle/codemp/game/g_combat.c:4577")
                     var scratchRight = vec3_t()
                     AngleVectors(targ.m_pVehicle!.m_vOrientationVector, &scratchForward, &scratchRight, &vUp)
                     impactDir = point! - targ.r.currentOrigin

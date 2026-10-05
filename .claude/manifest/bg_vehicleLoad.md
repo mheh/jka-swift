@@ -16,13 +16,13 @@ The oracle range is the whole definition, from the return type to the closing br
 | `BG_VehicleClampData` | `oracle/codemp/game/bg_vehicleLoad.c:812-837` | `JKAMP_BG/bg_vehicleLoad.swift:396` | ported | `crates/mp/bg/src/bg_vehicleLoad.rs:359-376` | `func BG_VehicleClampData(_ vehicle: JKAMP.VehicleInfo)` |
 | `BG_ParseVehicleParm` static | `oracle/codemp/game/bg_vehicleLoad.c:839-981` | `JKAMP_BG/bg_vehicleLoad.swift:419` | ported | `crates/mp/bg/src/bg_vehicleLoad.rs:384-519` | `private func BG_ParseVehicleParm(_ vehicle: JKAMP.VehicleInfo, _ parmName: String, _ pValue: String) -> Bool` |
 | `VEH_LoadVehicle` | `oracle/codemp/game/bg_vehicleLoad.c:983-1362` | `JKAMP_BG/bg_vehicleLoad.swift:520` | ported | `crates/mp/bg/src/bg_vehicleLoad.rs:524-768` | `func VEH_LoadVehicle(_ vehicleName: String) -> Int32` |
-| `VEH_VehicleIndexForName` | `oracle/codemp/game/bg_vehicleLoad.c:1364-1394` | `JKAMP_BG/bg_vehicleLoad.swift:750` | ported | `crates/mp/bg/src/bg_vehicleLoad.rs:773-816` | `func VEH_VehicleIndexForName(_ vehicleName: String) -> Int32` |
-| `BG_VehWeaponLoadParms` | `oracle/codemp/game/bg_vehicleLoad.c:1396-1485` | `JKAMP_BG/bg_vehicleLoad.swift:780` | ported | `crates/mp/bg/src/bg_vehicleLoad.rs:823-877` | `func BG_VehWeaponLoadParms()` |
-| `BG_VehicleLoadParms` | `oracle/codemp/game/bg_vehicleLoad.c:1487-1588` | `JKAMP_BG/bg_vehicleLoad.swift:853` | ported | `crates/mp/bg/src/bg_vehicleLoad.rs:886-942` | `public func BG_VehicleLoadParms()` |
-| `BG_VehicleGetIndex` | `oracle/codemp/game/bg_vehicleLoad.c:1590-1593` | `JKAMP_BG/bg_vehicleLoad.swift:939` | ported | `crates/mp/bg/src/bg_vehicleLoad.rs:948-957` | `public func BG_VehicleGetIndex(_ vehicleName: String) -> Int32` |
-| `BG_GetVehicleModelName` | `oracle/codemp/game/bg_vehicleLoad.c:1599-1611` | `JKAMP_BG/bg_vehicleLoad.swift:948` | ported | `crates/mp/bg/src/bg_vehicleLoad.rs:966-993` | `public func BG_GetVehicleModelName(_ modelname: inout JKAShared.CharBuf)` |
-| `BG_GetVehicleSkinName` | `oracle/codemp/game/bg_vehicleLoad.c:1613-1633` | `JKAMP_BG/bg_vehicleLoad.swift:960` | ported | `crates/mp/bg/src/bg_vehicleLoad.rs:998-1029` | `func BG_GetVehicleSkinName(_ skinname: inout JKAShared.CharBuf)` |
-| `AttachRidersGeneric` | `oracle/codemp/game/bg_vehicleLoad.c:1643-1664` | `JKAMP_BG/bg_vehicleLoad.swift:976` | ported | `crates/mp/bg/src/bg_vehicleLoad.rs:1034-1072` | `public func AttachRidersGeneric(_ pVeh: JKAMP.Vehicle)` |
+| `VEH_VehicleIndexForName` | `oracle/codemp/game/bg_vehicleLoad.c:1364-1394` | `JKAMP_BG/bg_vehicleLoad.swift:751` | ported | `crates/mp/bg/src/bg_vehicleLoad.rs:773-816` | `func VEH_VehicleIndexForName(_ vehicleName: String) -> Int32` |
+| `BG_VehWeaponLoadParms` | `oracle/codemp/game/bg_vehicleLoad.c:1396-1485` | `JKAMP_BG/bg_vehicleLoad.swift:781` | ported | `crates/mp/bg/src/bg_vehicleLoad.rs:823-877` | `func BG_VehWeaponLoadParms()` |
+| `BG_VehicleLoadParms` | `oracle/codemp/game/bg_vehicleLoad.c:1487-1588` | `JKAMP_BG/bg_vehicleLoad.swift:854` | ported | `crates/mp/bg/src/bg_vehicleLoad.rs:886-942` | `public func BG_VehicleLoadParms()` |
+| `BG_VehicleGetIndex` | `oracle/codemp/game/bg_vehicleLoad.c:1590-1593` | `JKAMP_BG/bg_vehicleLoad.swift:940` | ported | `crates/mp/bg/src/bg_vehicleLoad.rs:948-957` | `public func BG_VehicleGetIndex(_ vehicleName: String) -> Int32` |
+| `BG_GetVehicleModelName` | `oracle/codemp/game/bg_vehicleLoad.c:1599-1611` | `JKAMP_BG/bg_vehicleLoad.swift:949` | ported | `crates/mp/bg/src/bg_vehicleLoad.rs:966-993` | `public func BG_GetVehicleModelName(_ modelname: inout JKAShared.CharBuf)` |
+| `BG_GetVehicleSkinName` | `oracle/codemp/game/bg_vehicleLoad.c:1613-1633` | `JKAMP_BG/bg_vehicleLoad.swift:961` | ported | `crates/mp/bg/src/bg_vehicleLoad.rs:998-1029` | `func BG_GetVehicleSkinName(_ skinname: inout JKAShared.CharBuf)` |
+| `AttachRidersGeneric` | `oracle/codemp/game/bg_vehicleLoad.c:1643-1664` | `JKAMP_BG/bg_vehicleLoad.swift:977` | ported | `crates/mp/bg/src/bg_vehicleLoad.rs:1034-1072` | `public func AttachRidersGeneric(_ pVeh: JKAMP.Vehicle)` |
 
 9 file-scope variables. The entry is the stub's line for the variable, by rule 3 and rule 6.
 

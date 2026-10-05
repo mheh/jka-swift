@@ -935,7 +935,7 @@ PrintTeam
 ```
 */
 /// Source: oracle/codemp/game/g_main.c:3333
-func PrintTeam(_ team: Int32, _ message: inout JKAShared.CharBuf) {
+func PrintTeam(_ team: Int32, _ message: String) {
     // TODO: Port PrintTeam
     portMissing("PrintTeam", source: "oracle/codemp/game/g_main.c:3333")
 }
@@ -1038,7 +1038,7 @@ let CLOAK_DEFUEL_RATE = 200 as Int32
 let CLOAK_REFUEL_RATE = 150 as Int32
 
 /// Source: oracle/codemp/game/g_main.c:4104
-func G_GetStringEdString(_ refSection: inout JKAShared.CharBuf, _ refName: inout JKAShared.CharBuf) -> String {
+func G_GetStringEdString(_ refSection: String, _ refName: String) -> String {
     // TODO: Port G_GetStringEdString
     portMissing("G_GetStringEdString", source: "oracle/codemp/game/g_main.c:4104")
 }

@@ -116,11 +116,8 @@ func G_AttackDelay(_ `self`: Entity, _ enemy: Entity) {
 
         dir = `self`.client!.renderInfo.eyePoint - enemy.r.currentOrigin //purposely backwards
         VectorNormalize(&dir)
-        // Port-note: Raven passes NULL for the `right` output. The ported function takes it by reference, so the body passes a scratch local it never reads.
-        portMissing("G_AttackDelay", source: "oracle/codemp/game/NPC_combat.c:117")
+        // Raven passes NULL for the `right` and `up` outputs, and the callee skips the write to each.
         var scratchRight = vec3_t()
-        // Port-note: Raven passes NULL for the `up` output. The ported function takes it by reference, so the body passes a scratch local it never reads.
-        portMissing("G_AttackDelay", source: "oracle/codemp/game/NPC_combat.c:117")
         var scratchUp = vec3_t()
         AngleVectors(`self`.client!.renderInfo.eyeAngles, &fwd, &scratchRight, &scratchUp)
         //dir[2] = fwd[2] = 0;//ignore z diff?
@@ -1358,14 +1355,12 @@ func NPC_PickEnemy(_ closestTo: Entity, _ enemyTeam: Int32, _ checkVis: Bool, _ 
                                     } else if !NPC_EnemyTooFar(newenemy!, 0, false) {
                                         if checkVis {
                                             if NPC_CheckVisibility(newenemy!, CHECK_360 | CHECK_FOV | CHECK_VISRANGE) == VIS_FOV {
-                                                // Port-note: A ++ inside an expression.
-                                                // Raven wrote: choice[num_choices++] = newenemy->s.number
-                                                portMissing("NPC_PickEnemy", source: "oracle/codemp/game/NPC_combat.c:1505")
+                                                choice[num_choices] = newenemy!.s.number
+                                                num_choices += 1
                                             }
                                         } else {
-                                            // Port-note: A ++ inside an expression.
-                                            // Raven wrote: choice[num_choices++] = newenemy->s.number
-                                            portMissing("NPC_PickEnemy", source: "oracle/codemp/game/NPC_combat.c:1505")
+                                            choice[num_choices] = newenemy!.s.number
+                                            num_choices += 1
                                         }
                                     }
                                 }
@@ -1382,9 +1377,7 @@ func NPC_PickEnemy(_ closestTo: Entity, _ enemyTeam: Int32, _ checkVis: Bool, _ 
     }
 
     if num_choices != 0 {
-        // Port-note: The draft of this statement did not compile, and the compiler wrote "division by zero".
-        // Raven wrote: return &g_entities[ choice[rand() % num_choices] ]
-        portMissing("NPC_PickEnemy", source: "oracle/codemp/game/NPC_combat.c:1505")
+        return g_entities[choice[rand() % num_choices]]
     }
 
     /*
@@ -1487,14 +1480,12 @@ func NPC_PickEnemy(_ closestTo: Entity, _ enemyTeam: Int32, _ checkVis: Bool, _ 
                             if checkVis {
                                 //if( NPC_CheckVisibility ( newenemy, CHECK_360|CHECK_FOV|CHECK_VISRANGE ) == VIS_FOV )
                                 if NPC_CheckVisibility(newenemy!, CHECK_360 | CHECK_VISRANGE) >= VIS_360 {
-                                    // Port-note: A ++ inside an expression.
-                                    // Raven wrote: choice[num_choices++] = newenemy->s.number
-                                    portMissing("NPC_PickEnemy", source: "oracle/codemp/game/NPC_combat.c:1505")
+                                    choice[num_choices] = newenemy!.s.number
+                                    num_choices += 1
                                 }
                             } else {
-                                // Port-note: A ++ inside an expression.
-                                // Raven wrote: choice[num_choices++] = newenemy->s.number
-                                portMissing("NPC_PickEnemy", source: "oracle/codemp/game/NPC_combat.c:1505")
+                                choice[num_choices] = newenemy!.s.number
+                                num_choices += 1
                             }
                         }
                     }
@@ -1514,9 +1505,7 @@ func NPC_PickEnemy(_ closestTo: Entity, _ enemyTeam: Int32, _ checkVis: Bool, _ 
         return nil
     }
 
-    // Port-note: The draft of this statement did not compile, and the compiler wrote "division by zero".
-    // Raven wrote: return &g_entities[ choice[rand() % num_choices] ]
-    portMissing("NPC_PickEnemy", source: "oracle/codemp/game/NPC_combat.c:1505")
+    return g_entities[choice[rand() % num_choices]]
 }
 
 /// Source: oracle/codemp/game/NPC_combat.c:1804
@@ -1569,11 +1558,8 @@ func NPC_PickAlly(_ facingEachOther: Bool, _ range: Float, _ ignoreGroup: Bool, 
                             var vf = vec3_t()
                             var dot: Float
 
-                            // Port-note: Raven passes NULL for the `right` output. The ported function takes it by reference, so the body passes a scratch local it never reads.
-                            portMissing("NPC_PickAlly", source: "oracle/codemp/game/NPC_combat.c:1804")
+                            // Raven passes NULL for the `right` and `up` outputs, and the callee skips the write to each.
                             var scratchRight = vec3_t()
-                            // Port-note: Raven passes NULL for the `up` output. The ported function takes it by reference, so the body passes a scratch local it never reads.
-                            portMissing("NPC_PickAlly", source: "oracle/codemp/game/NPC_combat.c:1804")
                             var scratchUp = vec3_t()
                             AngleVectors(ally!.client!.ps.viewangles, &vf, &scratchRight, &scratchUp)
                             VectorNormalize(&vf)
@@ -1585,11 +1571,8 @@ func NPC_PickAlly(_ facingEachOther: Bool, _ range: Float, _ ignoreGroup: Bool, 
                                 continue
                             }
                             //He's facing me, am I facing him?
-                            // Port-note: Raven passes NULL for the `right` output. The ported function takes it by reference, so the body passes a scratch local it never reads.
-                            portMissing("NPC_PickAlly", source: "oracle/codemp/game/NPC_combat.c:1804")
+                            // Raven passes NULL for the `right` and `up` outputs, and the callee skips the write to each.
                             var scratchRight2 = vec3_t()
-                            // Port-note: Raven passes NULL for the `up` output. The ported function takes it by reference, so the body passes a scratch local it never reads.
-                            portMissing("NPC_PickAlly", source: "oracle/codemp/game/NPC_combat.c:1804")
                             var scratchUp2 = vec3_t()
                             AngleVectors(NPC!.client!.ps.viewangles, &vf, &scratchRight2, &scratchUp2)
                             VectorNormalize(&vf)
@@ -1862,11 +1845,8 @@ func NPC_ShotEntity(_ ent: Entity, _ impactPos: inout JKAShared.vec3_t) -> Int32
 
             CalcEntitySpot(NPC!, SPOT_HEAD, &muzzle)
             angles = vec3_t(0, NPC!.client!.ps.viewangles[1], 0)
-            // Port-note: Raven passes NULL for the `right` output. The ported function takes it by reference, so the body passes a scratch local it never reads.
-            portMissing("NPC_ShotEntity", source: "oracle/codemp/game/NPC_combat.c:2152")
+            // Raven passes NULL for the `right` and `up` outputs, and the callee skips the write to each.
             var scratchRight = vec3_t()
-            // Port-note: Raven passes NULL for the `up` output. The ported function takes it by reference, so the body passes a scratch local it never reads.
-            portMissing("NPC_ShotEntity", source: "oracle/codemp/game/NPC_combat.c:2152")
             var scratchUp = vec3_t()
             AngleVectors(angles, &forward, &scratchRight, &scratchUp)
             _VectorMA(muzzle, 8, forward, &end)
@@ -2042,11 +2022,8 @@ func NPC_CheckCanAttack(_ attack_scale: Float, _ stationary: Bool) -> Bool {
             if attack_ok {
                 //are we gonna hit him
                 //NEW: use actual forward facing
-                // Port-note: Raven passes NULL for the `right` output. The ported function takes it by reference, so the body passes a scratch local it never reads.
-                portMissing("NPC_CheckCanAttack", source: "oracle/codemp/game/NPC_combat.c:2263")
+                // Raven passes NULL for the `right` and `up` outputs, and the callee skips the write to each.
                 var scratchRight = vec3_t()
-                // Port-note: Raven passes NULL for the `up` output. The ported function takes it by reference, so the body passes a scratch local it never reads.
-                portMissing("NPC_CheckCanAttack", source: "oracle/codemp/game/NPC_combat.c:2263")
                 var scratchUp = vec3_t()
                 AngleVectors(client!.ps.viewangles, &forward, &scratchRight, &scratchUp)
                 _VectorMA(muzzle, distanceToEnemy, forward, &hitspot)
@@ -2122,11 +2099,8 @@ func NPC_CheckCanAttack(_ attack_scale: Float, _ stationary: Bool) -> Bool {
                             }
                         }
                     } else {
-                        // Port-note: Raven passes NULL for the `right` output. The ported function takes it by reference, so the body passes a scratch local it never reads.
-                        portMissing("NPC_CheckCanAttack", source: "oracle/codemp/game/NPC_combat.c:2263")
+                        // Raven passes NULL for the `right` and `up` outputs, and the callee skips the write to each.
                         var scratchRight2 = vec3_t()
-                        // Port-note: Raven passes NULL for the `up` output. The ported function takes it by reference, so the body passes a scratch local it never reads.
-                        portMissing("NPC_CheckCanAttack", source: "oracle/codemp/game/NPC_combat.c:2263")
                         var scratchUp2 = vec3_t()
                         AngleVectors(client!.ps.viewangles, &forward, &scratchRight2, &scratchUp2)
                         _VectorMA(muzzle, distanceToEnemy, forward, &hitspot)
@@ -2635,9 +2609,8 @@ func NPC_SetCombatPoint(_ combatPointID: Int32) -> Bool {
 
 /// Source: oracle/codemp/game/NPC_combat.c:2988
 func NPC_SearchForWeapons() -> Entity? {
-    // Port-note: The draft of this statement did not compile, and the compiler wrote "cannot convert value of type 'Slots<Entity>' to specified type 'Entity'".
-    // Raven wrote: gentity_t *found = g_entities, *bestFound = NULL;
-    portMissing("NPC_SearchForWeapons", source: "oracle/codemp/game/NPC_combat.c:2988")
+    var foundIndex: Int32 = 0
+    var bestFound: Entity? = nil
     var dist: Float
     var bestDist: Float = Float(Q3_INFINITE)
     var i: Int32
@@ -2653,29 +2626,47 @@ func NPC_SearchForWeapons() -> Entity? {
             continue
         }
 
-        // Port-note: A store into `found`, a local the draft left as a hole.
-        // Raven wrote: found=&g_entities[i]
-        portMissing("NPC_SearchForWeapons", source: "oracle/codemp/game/NPC_combat.c:2988")
+        foundIndex = i
 
         //FIXME: Also look for ammo_racks that have weapons on them?
-        // Port-note: A read of `found`, a local the draft left as a hole.
-        // Raven wrote: if ( found->s.eType != ET_ITEM ) { continue; }
-        portMissing("NPC_SearchForWeapons", source: "oracle/codemp/game/NPC_combat.c:2988")
-        // Port-note: A read of `found`, a local the draft left as a hole.
-        // Raven wrote: if ( found->item->giType != IT_WEAPON ) { continue; }
-        portMissing("NPC_SearchForWeapons", source: "oracle/codemp/game/NPC_combat.c:2988")
-        // Port-note: A read of `found`, a local the draft left as a hole.
-        // Raven wrote: if ( found->s.eFlags & EF_NODRAW ) { continue; }
-        portMissing("NPC_SearchForWeapons", source: "oracle/codemp/game/NPC_combat.c:2988")
-        // Port-note: A read of `found`, a local the draft left as a hole.
-        // Raven wrote: if ( CheckItemCanBePickedUpByNPC( found, NPC ) ) { if ( trap_InPVS( found->r.currentOrigin, NPC->r.currentOrigin ) ) { dist = DistanceSquared( found->r.currentOrigin, NPC->r.currentOrigin ); if ( dist < bestDist ) { if ( !trap_Nav_GetBestPathBetweenEnts( NPC, found, NF_CLEAR_PATH ) || trap_Nav_GetBestNodeAltRoute2( NPC->waypoint, found->waypoint, NODE_NONE ) == WAYPOINT_NONE ) {//can't possibly have a route to any OR can't possibly have a route to this one OR don't have a route to this one if ( NAV_ClearPathToPoint( NPC, NPC->r.mins, NPC->r.maxs, found->r.currentOrigin, NPC->clipmask, ENTITYNUM_NONE ) ) {//have a clear straight path to this one bestDist = dist; bestFound = found; } } else {//can nav to it bestDist = dist; bestFound = found; } } } }
-        portMissing("NPC_SearchForWeapons", source: "oracle/codemp/game/NPC_combat.c:2988")
+        if g_entities[foundIndex].s.eType != ET_ITEM {
+            i += 1
+            continue
+        }
+        if g_entities[foundIndex].item!.giType != IT_WEAPON {
+            i += 1
+            continue
+        }
+        if (g_entities[foundIndex].s.eFlags & EF_NODRAW) != 0 {
+            i += 1
+            continue
+        }
+        if CheckItemCanBePickedUpByNPC(g_entities[foundIndex], NPC!) {
+            if trap_InPVS(g_entities[foundIndex].r.currentOrigin, NPC!.r.currentOrigin) {
+                dist = DistanceSquared(g_entities[foundIndex].r.currentOrigin, NPC!.r.currentOrigin)
+                if dist < bestDist {
+                    // Port-note: The draft of this statement did not compile, and the compiler wrote "type 'Int32' cannot be used as a boolean; test for '== 0' instead"
+                    portMissing("NPC_SearchForWeapons", source: "oracle/codemp/game/NPC_combat.c:2988")
+                    // if !trap_Nav_GetBestPathBetweenEnts(NPC!, g_entities[foundIndex], NF_CLEAR_PATH)
+                    //     || trap_Nav_GetBestNodeAltRoute2(NPC!.waypoint, g_entities[foundIndex].waypoint, NODE_NONE) == WAYPOINT_NONE {
+                    //     //can't possibly have a route to any OR can't possibly have a route to this one OR don't have a route to this one
+                    //     if NAV_ClearPathToPoint(NPC!, NPC!.r.mins, NPC!.r.maxs, g_entities[foundIndex].r.currentOrigin, NPC!.clipmask, ENTITYNUM_NONE) {
+                    //         //have a clear straight path to this one
+                    //         bestDist = dist
+                    //         bestFound = g_entities[foundIndex]
+                    //     }
+                    // } else {
+                    //     //can nav to it
+                    //     bestDist = dist
+                    //     bestFound = g_entities[foundIndex]
+                    // }
+                }
+            }
+        }
         i += 1
     }
 
-    // Port-note: A read of `bestFound`, a local the draft left as a hole.
-    // Raven wrote: return bestFound
-    portMissing("NPC_SearchForWeapons", source: "oracle/codemp/game/NPC_combat.c:2988")
+    return bestFound
 }
 
 /// Source: oracle/codemp/game/NPC_combat.c:3047

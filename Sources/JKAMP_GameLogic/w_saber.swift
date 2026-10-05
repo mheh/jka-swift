@@ -1813,19 +1813,13 @@ private func WP_GetSaberDeflectionAngle(_ attacker: Entity, _ defender: Entity, 
 
         temp = attacker.client!.lastSaberBase_Always
 
-        // Port-note: Raven passes NULL for the `right` output. The ported function takes it by reference, so the body passes a scratch local it never reads.
-        portMissing("WP_GetSaberDeflectionAngle", source: "oracle/codemp/game/w_saber.c:1938")
+        // Raven passes NULL for the `right` and `up` outputs.
         var scratchRight = vec3_t()
-        // Port-note: Raven passes NULL for the `up` output. The ported function takes it by reference, so the body passes a scratch local it never reads.
-        portMissing("WP_GetSaberDeflectionAngle", source: "oracle/codemp/game/w_saber.c:1938")
         var scratchUp = vec3_t()
         AngleVectors(attacker.client!.lastSaberDir_Always, &att_HitDir, &scratchRight, &scratchUp)
 
-        // Port-note: Raven passes NULL for the `right` output. The ported function takes it by reference, so the body passes a scratch local it never reads.
-        portMissing("WP_GetSaberDeflectionAngle", source: "oracle/codemp/game/w_saber.c:1938")
+        // Raven passes NULL for the `right` and `up` outputs.
         var scratchRight2 = vec3_t()
-        // Port-note: Raven passes NULL for the `up` output. The ported function takes it by reference, so the body passes a scratch local it never reads.
-        portMissing("WP_GetSaberDeflectionAngle", source: "oracle/codemp/game/w_saber.c:1938")
         var scratchUp2 = vec3_t()
         AngleVectors(defender.client!.lastSaberDir_Always, &def_BladeDir, &scratchRight2, &scratchUp2)
 
@@ -1855,8 +1849,7 @@ private func WP_GetSaberDeflectionAngle(_ attacker: Entity, _ defender: Entity, 
 
             //need to know the direction of the deflectoin relative to the attacker's facing
             temp = vec3_t(0, attacker.client!.ps.viewangles[YAW], 0) //presumes no pitch!
-            // Port-note: Raven passes NULL for the `forward` output. The ported function takes it by reference, so the body passes a scratch local it never reads.
-            portMissing("WP_GetSaberDeflectionAngle", source: "oracle/codemp/game/w_saber.c:1938")
+            // Raven passes NULL for the `forward` output.
             var scratchForward = vec3_t()
             AngleVectors(temp, &scratchForward, &att_Right, &att_Up)
             swingRDot = _DotProduct(att_Right, att_DeflectionDir)
@@ -2431,8 +2424,7 @@ private func G_SaberCollide(_ atk: Entity, _ def: Entity, _ atkStart: JKAShared.
                     //Now get relative angles between the points
                     v = tip - base
                     vectoangles(v, &v)
-                    // Port-note: Raven passes NULL for the `forward` output. The ported function takes it by reference, so the body passes a scratch local it never reads.
-                    portMissing("G_SaberCollide", source: "oracle/codemp/game/w_saber.c:2700")
+                    // Raven passes NULL for the `forward` output.
                     var scratchForward = vec3_t()
                     AngleVectors(v, &scratchForward, &right, &fwd)
 
@@ -3168,9 +3160,8 @@ func WP_SaberDamageAdd(_ trVictimEntityNum: Int32, _ trDmgDir: JKAShared.vec3_t,
             }
             //add a new victim to the list
             curVictim = numVictims
-            // Port-note: A ++ inside an expression.
-            // Raven wrote: victimEntityNum[numVictims++] = trVictimEntityNum
-            portMissing("WP_SaberDamageAdd", source: "oracle/codemp/game/w_saber.c:3528")
+            victimEntityNum[numVictims] = trVictimEntityNum
+            numVictims += 1
         }
 
         totalDmg[curVictim] += trDmg
@@ -4053,11 +4044,8 @@ func G_SPSaberDamageTraceLerped(_ `self`: Entity, _ saberNum: Int32, _ bladeNum:
                 md2ang[xx] = LerpAngle(ma1[xx], ma2[xx], saberHitFraction)
                 xx += 1
             }
-            // Port-note: Raven passes NULL for the `right` output. The ported function takes it by reference, so the body passes a scratch local it never reads.
-            portMissing("G_SPSaberDamageTraceLerped", source: "oracle/codemp/game/w_saber.c:5285")
+            // Raven passes NULL for the `right` and `up` outputs.
             var scratchRight = vec3_t()
-            // Port-note: Raven passes NULL for the `up` output. The ported function takes it by reference, so the body passes a scratch local it never reads.
-            portMissing("G_SPSaberDamageTraceLerped", source: "oracle/codemp/game/w_saber.c:5285")
             var scratchUp = vec3_t()
             AngleVectors(md2ang, &md2, &scratchRight, &scratchUp)
             //shorten the base pos
@@ -4102,11 +4090,8 @@ func G_SPSaberDamageTraceLerped(_ `self`: Entity, _ saberNum: Int32, _ bladeNum:
                     md2ang[xx] = LerpAngle(ma1[xx], ma2[xx], curDirFrac)
                     xx += 1
                 }
-                // Port-note: Raven passes NULL for the `right` output. The ported function takes it by reference, so the body passes a scratch local it never reads.
-                portMissing("G_SPSaberDamageTraceLerped", source: "oracle/codemp/game/w_saber.c:5285")
+                // Raven passes NULL for the `right` and `up` outputs.
                 var scratchRight2 = vec3_t()
-                // Port-note: Raven passes NULL for the `up` output. The ported function takes it by reference, so the body passes a scratch local it never reads.
-                portMissing("G_SPSaberDamageTraceLerped", source: "oracle/codemp/game/w_saber.c:5285")
                 var scratchUp2 = vec3_t()
                 AngleVectors(md2ang, &curMD2, &scratchRight2, &scratchUp2)
                 //VectorMA( md1, curDirFrac, mdDiff, curMD2 );
@@ -4149,11 +4134,8 @@ func G_SPSaberDamageTraceLerped(_ `self`: Entity, _ saberNum: Int32, _ bladeNum:
                         md2ang[xx] = LerpAngle(curMA1[xx], curMA2[xx], saberHitFraction)
                         xx += 1
                     }
-                    // Port-note: Raven passes NULL for the `right` output. The ported function takes it by reference, so the body passes a scratch local it never reads.
-                    portMissing("G_SPSaberDamageTraceLerped", source: "oracle/codemp/game/w_saber.c:5285")
+                    // Raven passes NULL for the `right` and `up` outputs.
                     var scratchRight3 = vec3_t()
-                    // Port-note: Raven passes NULL for the `up` output. The ported function takes it by reference, so the body passes a scratch local it never reads.
-                    portMissing("G_SPSaberDamageTraceLerped", source: "oracle/codemp/game/w_saber.c:5285")
                     var scratchUp3 = vec3_t()
                     AngleVectors(md2ang, &curMD2, &scratchRight3, &scratchUp3)
                     saberHitSaber = true
@@ -4286,11 +4268,8 @@ func WP_SaberStartMissileBlockCheck(_ `self`: Entity, _ ucmd: JKAMP.Usercmd) {
         }
 
         fwdangles[1] = `self`.client!.ps.viewangles[1]
-        // Port-note: Raven passes NULL for the `right` output. The ported function takes it by reference, so the body passes a scratch local it never reads.
-        portMissing("WP_SaberStartMissileBlockCheck", source: "oracle/codemp/game/w_saber.c:5492")
+        // Raven passes NULL for the `right` and `up` outputs.
         var scratchRight = vec3_t()
-        // Port-note: Raven passes NULL for the `up` output. The ported function takes it by reference, so the body passes a scratch local it never reads.
-        portMissing("WP_SaberStartMissileBlockCheck", source: "oracle/codemp/game/w_saber.c:5492")
         var scratchUp = vec3_t()
         AngleVectors(fwdangles, &forward, &scratchRight, &scratchUp)
 
@@ -4431,11 +4410,8 @@ func WP_SaberStartMissileBlockCheck(_ `self`: Entity, _ ucmd: JKAMP.Usercmd) {
                                 ent!.s.eType = ET_MISSILE
                                 ent!.s.eFlags &= ~EF_MISSILE_STICK
                                 ent!.flags |= FL_BOUNCE_HALF
-                                // Port-note: Raven passes NULL for the `right` output. The ported function takes it by reference, so the body passes a scratch local it never reads.
-                                portMissing("WP_SaberStartMissileBlockCheck", source: "oracle/codemp/game/w_saber.c:5492")
+                                // Raven passes NULL for the `right` and `up` outputs.
                                 var scratchRight2 = vec3_t()
-                                // Port-note: Raven passes NULL for the `up` output. The ported function takes it by reference, so the body passes a scratch local it never reads.
-                                portMissing("WP_SaberStartMissileBlockCheck", source: "oracle/codemp/game/w_saber.c:5492")
                                 var scratchUp2 = vec3_t()
                                 AngleVectors(ent!.r.currentAngles, &throwDir, &scratchRight2, &scratchUp2)
                                 _VectorMA(ent!.r.currentOrigin, ent!.r.maxs[0] + 4, throwDir, &ent!.r.currentOrigin)
@@ -4469,9 +4445,11 @@ func WP_SaberStartMissileBlockCheck(_ `self`: Entity, _ ucmd: JKAMP.Usercmd) {
 
             if ent!.s.weapon != WP_SABER {
                 //only block shots coming from behind
-                // Port-note: An assignment inside an expression.
-                // Raven wrote: if ( (dot1 = DotProduct( dir, forward )) < SABER_REFLECT_MISSILE_CONE ) continue
-                portMissing("WP_SaberStartMissileBlockCheck", source: "oracle/codemp/game/w_saber.c:5492")
+                dot1 = _DotProduct(dir, forward)
+                if dot1 < SABER_REFLECT_MISSILE_CONE {
+                    e += 1
+                    continue
+                }
             } else if `self`.s.eType == ET_PLAYER {
                 //player never auto-blocks thrown sabers
                 e += 1
@@ -4481,9 +4459,11 @@ func WP_SaberStartMissileBlockCheck(_ `self`: Entity, _ ucmd: JKAMP.Usercmd) {
             //see if they're heading towards me
             missile_dir = ent!.s.pos.trDelta
             VectorNormalize(&missile_dir)
-            // Port-note: An assignment inside an expression.
-            // Raven wrote: if ( (dot2 = DotProduct( dir, missile_dir )) > 0 ) continue
-            portMissing("WP_SaberStartMissileBlockCheck", source: "oracle/codemp/game/w_saber.c:5492")
+            dot2 = _DotProduct(dir, missile_dir)
+            if dot2 > 0 {
+                e += 1
+                continue
+            }
 
             //FIXME: must have a clear trace to me, too...
             if dist < closestDist {
@@ -5188,11 +5168,8 @@ func saberKnockDown(_ saberent: Entity, _ saberOwner: Entity, _ other: Entity) {
             var otherFwd = vec3_t()
             let deflectSpeed: Float = 200
 
-            // Port-note: Raven passes NULL for the `right` output. The ported function takes it by reference, so the body passes a scratch local it never reads.
-            portMissing("saberKnockDown", source: "oracle/codemp/game/w_saber.c:6512")
+            // Raven passes NULL for the `right` and `up` outputs.
             var scratchRight = vec3_t()
-            // Port-note: Raven passes NULL for the `up` output. The ported function takes it by reference, so the body passes a scratch local it never reads.
-            portMissing("saberKnockDown", source: "oracle/codemp/game/w_saber.c:6512")
             var scratchUp = vec3_t()
             AngleVectors(other.client!.ps.viewangles, &otherFwd, &scratchRight, &scratchUp)
 
@@ -5357,9 +5334,8 @@ func saberCheckKnockdown_DuelLoss(_ saberent: Entity, _ saberOwner: Entity, _ ot
         // Raven tests `other->client->saber[1].model` and `other->client->saber[1].model[0]`.
         // Both read as the same Swift test, so the draft writes it once.
         if !other.client!.saber[1].model.isEmpty && other.client!.ps.saberHolstered == 0 {
-            // Port-note: An expression statement with no effect the draft knows.
-            // Raven wrote: other->client->saber[1].disarmBonus
-            portMissing("saberCheckKnockdown_DuelLoss", source: "oracle/codemp/game/w_saber.c:6681")
+            // Raven reads the field and drops the value.
+            _ = other.client!.saber[1].disarmBonus
         }
     }
     if Q_irand(0, disarmChance) != 0 {
@@ -5435,9 +5411,8 @@ func saberCheckKnockdown_BrokenParry(_ saberent: Entity, _ saberOwner: Entity, _
             // Raven tests `other->client->saber[1].model` and `other->client->saber[1].model[0]`.
             // Both read as the same Swift test, so the draft writes it once.
             if !other.client!.saber[1].model.isEmpty && other.client!.ps.saberHolstered == 0 {
-                // Port-note: An expression statement with no effect the draft knows.
-                // Raven wrote: other->client->saber[1].disarmBonus
-                portMissing("saberCheckKnockdown_BrokenParry", source: "oracle/codemp/game/w_saber.c:6765")
+                // Raven reads the field and drops the value.
+                _ = other.client!.saber[1].disarmBonus
             }
         }
         if Q_irand(0, disarmChance) != 0 {
@@ -5760,11 +5735,8 @@ func saberFirstThrown(_ saberent: Entity) {
             // Raven's record lives to the end of his block, so the block is the closure.
             Trace.scratch { tr in
 
-                // Port-note: Raven passes NULL for the `right` output. The ported function takes it by reference, so the body passes a scratch local it never reads.
-                portMissing("saberFirstThrown", source: "oracle/codemp/game/w_saber.c:7117")
+                // Raven passes NULL for the `right` and `up` outputs.
                 var scratchRight = vec3_t()
-                // Port-note: Raven passes NULL for the `up` output. The ported function takes it by reference, so the body passes a scratch local it never reads.
-                portMissing("saberFirstThrown", source: "oracle/codemp/game/w_saber.c:7117")
                 var scratchUp = vec3_t()
                 AngleVectors(saberOwn!.client!.ps.viewangles, &fwd, &scratchRight, &scratchUp)
 
@@ -6000,11 +5972,8 @@ func UpdateClientRenderinfo(_ `self`: Entity, _ renderOrigin: JKAShared.vec3_t, 
         ri!.muzzlePointOld = ri!.muzzlePoint
         ri!.muzzlePoint = `self`.client!.ps.origin
         ri!.muzzleDirOld = ri!.muzzleDir
-        // Port-note: Raven passes NULL for the `right` output. The ported function takes it by reference, so the body passes a scratch local it never reads.
-        portMissing("UpdateClientRenderinfo", source: "oracle/codemp/game/w_saber.c:7322")
+        // Raven passes NULL for the `right` and `up` outputs.
         var scratchRight = vec3_t()
-        // Port-note: Raven passes NULL for the `up` output. The ported function takes it by reference, so the body passes a scratch local it never reads.
-        portMissing("UpdateClientRenderinfo", source: "oracle/codemp/game/w_saber.c:7322")
         var scratchUp = vec3_t()
         AngleVectors(`self`.client!.ps.viewangles, &ri!.muzzleDir, &scratchRight, &scratchUp)
         ri!.mPCalcTime = level.time
@@ -6192,11 +6161,8 @@ private func G_KickSomeMofos(_ ent: Entity) {
                 VectorNormalize(&kickDir)
             } else {
                 //guess
-                // Port-note: Raven passes NULL for the `right` output. The ported function takes it by reference, so the body passes a scratch local it never reads.
-                portMissing("G_KickSomeMofos", source: "oracle/codemp/game/w_saber.c:7644")
+                // Raven passes NULL for the `right` and `up` outputs.
                 var scratchRight = vec3_t()
-                // Port-note: Raven passes NULL for the `up` output. The ported function takes it by reference, so the body passes a scratch local it never reads.
-                portMissing("G_KickSomeMofos", source: "oracle/codemp/game/w_saber.c:7644")
                 var scratchUp = vec3_t()
                 AngleVectors(fwdAngs, &kickDir, &scratchRight, &scratchUp)
             }
@@ -6215,11 +6181,8 @@ private func G_KickSomeMofos(_ ent: Entity) {
                     VectorNormalize(&kickDir)
                 } else {
                     //guess
-                    // Port-note: Raven passes NULL for the `right` output. The ported function takes it by reference, so the body passes a scratch local it never reads.
-                    portMissing("G_KickSomeMofos", source: "oracle/codemp/game/w_saber.c:7644")
+                    // Raven passes NULL for the `right` and `up` outputs.
                     var scratchRight2 = vec3_t()
-                    // Port-note: Raven passes NULL for the `up` output. The ported function takes it by reference, so the body passes a scratch local it never reads.
-                    portMissing("G_KickSomeMofos", source: "oracle/codemp/game/w_saber.c:7644")
                     var scratchUp2 = vec3_t()
                     AngleVectors(fwdAngs, &kickDir, &scratchRight2, &scratchUp2)
                 }
@@ -6237,11 +6200,8 @@ private func G_KickSomeMofos(_ ent: Entity) {
                     VectorNormalize(&kickDir)
                 } else {
                     //guess
-                    // Port-note: Raven passes NULL for the `right` output. The ported function takes it by reference, so the body passes a scratch local it never reads.
-                    portMissing("G_KickSomeMofos", source: "oracle/codemp/game/w_saber.c:7644")
+                    // Raven passes NULL for the `right` and `up` outputs.
                     var scratchRight3 = vec3_t()
-                    // Port-note: Raven passes NULL for the `up` output. The ported function takes it by reference, so the body passes a scratch local it never reads.
-                    portMissing("G_KickSomeMofos", source: "oracle/codemp/game/w_saber.c:7644")
                     var scratchUp3 = vec3_t()
                     AngleVectors(fwdAngs, &kickDir, &scratchRight3, &scratchUp3)
                 }
@@ -6260,11 +6220,8 @@ private func G_KickSomeMofos(_ ent: Entity) {
                     VectorNormalize(&kickDir)
                 } else {
                     //guess
-                    // Port-note: Raven passes NULL for the `right` output. The ported function takes it by reference, so the body passes a scratch local it never reads.
-                    portMissing("G_KickSomeMofos", source: "oracle/codemp/game/w_saber.c:7644")
+                    // Raven passes NULL for the `right` and `up` outputs.
                     var scratchRight4 = vec3_t()
-                    // Port-note: Raven passes NULL for the `up` output. The ported function takes it by reference, so the body passes a scratch local it never reads.
-                    portMissing("G_KickSomeMofos", source: "oracle/codemp/game/w_saber.c:7644")
                     var scratchUp4 = vec3_t()
                     AngleVectors(fwdAngs, &kickDir, &scratchRight4, &scratchUp4)
                 }
@@ -6283,11 +6240,8 @@ private func G_KickSomeMofos(_ ent: Entity) {
                     VectorNormalize(&kickDir)
                 } else {
                     //guess
-                    // Port-note: Raven passes NULL for the `right` output. The ported function takes it by reference, so the body passes a scratch local it never reads.
-                    portMissing("G_KickSomeMofos", source: "oracle/codemp/game/w_saber.c:7644")
+                    // Raven passes NULL for the `right` and `up` outputs.
                     var scratchRight5 = vec3_t()
-                    // Port-note: Raven passes NULL for the `up` output. The ported function takes it by reference, so the body passes a scratch local it never reads.
-                    portMissing("G_KickSomeMofos", source: "oracle/codemp/game/w_saber.c:7644")
                     var scratchUp5 = vec3_t()
                     AngleVectors(fwdAngs, &kickDir, &scratchRight5, &scratchUp5)
                     kickDir = kickDir * -1
@@ -6307,11 +6261,8 @@ private func G_KickSomeMofos(_ ent: Entity) {
                     VectorNormalize(&kickDir)
                 } else {
                     //guess
-                    // Port-note: Raven passes NULL for the `forward` output. The ported function takes it by reference, so the body passes a scratch local it never reads.
-                    portMissing("G_KickSomeMofos", source: "oracle/codemp/game/w_saber.c:7644")
+                    // Raven passes NULL for the `forward` and `up` outputs.
                     var scratchForward = vec3_t()
-                    // Port-note: Raven passes NULL for the `up` output. The ported function takes it by reference, so the body passes a scratch local it never reads.
-                    portMissing("G_KickSomeMofos", source: "oracle/codemp/game/w_saber.c:7644")
                     var scratchUp6 = vec3_t()
                     AngleVectors(fwdAngs, &scratchForward, &kickDir, &scratchUp6)
                 }
@@ -6330,11 +6281,8 @@ private func G_KickSomeMofos(_ ent: Entity) {
                     VectorNormalize(&kickDir)
                 } else {
                     //guess
-                    // Port-note: Raven passes NULL for the `forward` output. The ported function takes it by reference, so the body passes a scratch local it never reads.
-                    portMissing("G_KickSomeMofos", source: "oracle/codemp/game/w_saber.c:7644")
+                    // Raven passes NULL for the `forward` and `up` outputs.
                     var scratchForward2 = vec3_t()
-                    // Port-note: Raven passes NULL for the `up` output. The ported function takes it by reference, so the body passes a scratch local it never reads.
-                    portMissing("G_KickSomeMofos", source: "oracle/codemp/game/w_saber.c:7644")
                     var scratchUp7 = vec3_t()
                     AngleVectors(fwdAngs, &scratchForward2, &kickDir, &scratchUp7)
                     kickDir = kickDir * -1
@@ -6359,53 +6307,38 @@ private func G_KickSomeMofos(_ ent: Entity) {
                 if elapsedTime >= 400 && elapsedTime < 500 {
                     //front
                     doKick = true
-                    // Port-note: Raven passes NULL for the `right` output. The ported function takes it by reference, so the body passes a scratch local it never reads.
-                    portMissing("G_KickSomeMofos", source: "oracle/codemp/game/w_saber.c:7644")
+                    // Raven passes NULL for the `right` and `up` outputs.
                     var scratchRight6 = vec3_t()
-                    // Port-note: Raven passes NULL for the `up` output. The ported function takes it by reference, so the body passes a scratch local it never reads.
-                    portMissing("G_KickSomeMofos", source: "oracle/codemp/game/w_saber.c:7644")
                     var scratchUp8 = vec3_t()
                     AngleVectors(fwdAngs, &kickDir, &scratchRight6, &scratchUp8)
                 } else if elapsedTime >= 500 && elapsedTime < 600 {
                     //front-right?
                     doKick = true
                     fwdAngs[YAW] += 45
-                    // Port-note: Raven passes NULL for the `right` output. The ported function takes it by reference, so the body passes a scratch local it never reads.
-                    portMissing("G_KickSomeMofos", source: "oracle/codemp/game/w_saber.c:7644")
+                    // Raven passes NULL for the `right` and `up` outputs.
                     var scratchRight7 = vec3_t()
-                    // Port-note: Raven passes NULL for the `up` output. The ported function takes it by reference, so the body passes a scratch local it never reads.
-                    portMissing("G_KickSomeMofos", source: "oracle/codemp/game/w_saber.c:7644")
                     var scratchUp9 = vec3_t()
                     AngleVectors(fwdAngs, &kickDir, &scratchRight7, &scratchUp9)
                 } else if elapsedTime >= 600 && elapsedTime < 700 {
                     //right
                     doKick = true
-                    // Port-note: Raven passes NULL for the `forward` output. The ported function takes it by reference, so the body passes a scratch local it never reads.
-                    portMissing("G_KickSomeMofos", source: "oracle/codemp/game/w_saber.c:7644")
+                    // Raven passes NULL for the `forward` and `up` outputs.
                     var scratchForward3 = vec3_t()
-                    // Port-note: Raven passes NULL for the `up` output. The ported function takes it by reference, so the body passes a scratch local it never reads.
-                    portMissing("G_KickSomeMofos", source: "oracle/codemp/game/w_saber.c:7644")
                     var scratchUp10 = vec3_t()
                     AngleVectors(fwdAngs, &scratchForward3, &kickDir, &scratchUp10)
                 } else if elapsedTime >= 700 && elapsedTime < 800 {
                     //back-right?
                     doKick = true
                     fwdAngs[YAW] += 45
-                    // Port-note: Raven passes NULL for the `forward` output. The ported function takes it by reference, so the body passes a scratch local it never reads.
-                    portMissing("G_KickSomeMofos", source: "oracle/codemp/game/w_saber.c:7644")
+                    // Raven passes NULL for the `forward` and `up` outputs.
                     var scratchForward4 = vec3_t()
-                    // Port-note: Raven passes NULL for the `up` output. The ported function takes it by reference, so the body passes a scratch local it never reads.
-                    portMissing("G_KickSomeMofos", source: "oracle/codemp/game/w_saber.c:7644")
                     var scratchUp11 = vec3_t()
                     AngleVectors(fwdAngs, &scratchForward4, &kickDir, &scratchUp11)
                 } else if elapsedTime >= 800 && elapsedTime < 900 {
                     //back
                     doKick = true
-                    // Port-note: Raven passes NULL for the `right` output. The ported function takes it by reference, so the body passes a scratch local it never reads.
-                    portMissing("G_KickSomeMofos", source: "oracle/codemp/game/w_saber.c:7644")
+                    // Raven passes NULL for the `right` and `up` outputs.
                     var scratchRight8 = vec3_t()
-                    // Port-note: Raven passes NULL for the `up` output. The ported function takes it by reference, so the body passes a scratch local it never reads.
-                    portMissing("G_KickSomeMofos", source: "oracle/codemp/game/w_saber.c:7644")
                     var scratchUp12 = vec3_t()
                     AngleVectors(fwdAngs, &kickDir, &scratchRight8, &scratchUp12)
                     kickDir = kickDir * -1
@@ -6413,21 +6346,15 @@ private func G_KickSomeMofos(_ ent: Entity) {
                     //back-left?
                     doKick = true
                     fwdAngs[YAW] += 45
-                    // Port-note: Raven passes NULL for the `right` output. The ported function takes it by reference, so the body passes a scratch local it never reads.
-                    portMissing("G_KickSomeMofos", source: "oracle/codemp/game/w_saber.c:7644")
+                    // Raven passes NULL for the `right` and `up` outputs.
                     var scratchRight9 = vec3_t()
-                    // Port-note: Raven passes NULL for the `up` output. The ported function takes it by reference, so the body passes a scratch local it never reads.
-                    portMissing("G_KickSomeMofos", source: "oracle/codemp/game/w_saber.c:7644")
                     var scratchUp13 = vec3_t()
                     AngleVectors(fwdAngs, &kickDir, &scratchRight9, &scratchUp13)
                 } else if elapsedTime >= 1000 && elapsedTime < 1100 {
                     //left
                     doKick = true
-                    // Port-note: Raven passes NULL for the `forward` output. The ported function takes it by reference, so the body passes a scratch local it never reads.
-                    portMissing("G_KickSomeMofos", source: "oracle/codemp/game/w_saber.c:7644")
+                    // Raven passes NULL for the `forward` and `up` outputs.
                     var scratchForward5 = vec3_t()
-                    // Port-note: Raven passes NULL for the `up` output. The ported function takes it by reference, so the body passes a scratch local it never reads.
-                    portMissing("G_KickSomeMofos", source: "oracle/codemp/game/w_saber.c:7644")
                     var scratchUp14 = vec3_t()
                     AngleVectors(fwdAngs, &scratchForward5, &kickDir, &scratchUp14)
                     kickDir = kickDir * -1
@@ -6435,11 +6362,8 @@ private func G_KickSomeMofos(_ ent: Entity) {
                     //front-left?
                     doKick = true
                     fwdAngs[YAW] += 45
-                    // Port-note: Raven passes NULL for the `forward` output. The ported function takes it by reference, so the body passes a scratch local it never reads.
-                    portMissing("G_KickSomeMofos", source: "oracle/codemp/game/w_saber.c:7644")
+                    // Raven passes NULL for the `forward` and `up` outputs.
                     var scratchForward6 = vec3_t()
-                    // Port-note: Raven passes NULL for the `up` output. The ported function takes it by reference, so the body passes a scratch local it never reads.
-                    portMissing("G_KickSomeMofos", source: "oracle/codemp/game/w_saber.c:7644")
                     var scratchUp15 = vec3_t()
                     AngleVectors(fwdAngs, &scratchForward6, &kickDir, &scratchUp15)
                     kickDir = kickDir * -1
@@ -6472,21 +6396,15 @@ private func G_KickSomeMofos(_ ent: Entity) {
                 if elapsedTime >= 250 && elapsedTime < 350 {
                     //front
                     doKick = true
-                    // Port-note: Raven passes NULL for the `right` output. The ported function takes it by reference, so the body passes a scratch local it never reads.
-                    portMissing("G_KickSomeMofos", source: "oracle/codemp/game/w_saber.c:7644")
+                    // Raven passes NULL for the `right` and `up` outputs.
                     var scratchRight10 = vec3_t()
-                    // Port-note: Raven passes NULL for the `up` output. The ported function takes it by reference, so the body passes a scratch local it never reads.
-                    portMissing("G_KickSomeMofos", source: "oracle/codemp/game/w_saber.c:7644")
                     var scratchUp16 = vec3_t()
                     AngleVectors(fwdAngs, &kickDir, &scratchRight10, &scratchUp16)
                 } else if elapsedTime >= 350 && elapsedTime < 450 {
                     //back
                     doKick = true
-                    // Port-note: Raven passes NULL for the `right` output. The ported function takes it by reference, so the body passes a scratch local it never reads.
-                    portMissing("G_KickSomeMofos", source: "oracle/codemp/game/w_saber.c:7644")
+                    // Raven passes NULL for the `right` and `up` outputs.
                     var scratchRight11 = vec3_t()
-                    // Port-note: Raven passes NULL for the `up` output. The ported function takes it by reference, so the body passes a scratch local it never reads.
-                    portMissing("G_KickSomeMofos", source: "oracle/codemp/game/w_saber.c:7644")
                     var scratchUp17 = vec3_t()
                     AngleVectors(fwdAngs, &kickDir, &scratchRight11, &scratchUp17)
                     kickDir = kickDir * -1
@@ -6515,11 +6433,8 @@ private func G_KickSomeMofos(_ ent: Entity) {
                     _VectorMA(kickEnd, 8, kickDir, &kickEnd)
                 } else {
                     //guess
-                    // Port-note: Raven passes NULL for the `forward` output. The ported function takes it by reference, so the body passes a scratch local it never reads.
-                    portMissing("G_KickSomeMofos", source: "oracle/codemp/game/w_saber.c:7644")
+                    // Raven passes NULL for the `forward` and `up` outputs.
                     var scratchForward7 = vec3_t()
-                    // Port-note: Raven passes NULL for the `up` output. The ported function takes it by reference, so the body passes a scratch local it never reads.
-                    portMissing("G_KickSomeMofos", source: "oracle/codemp/game/w_saber.c:7644")
                     var scratchUp18 = vec3_t()
                     AngleVectors(fwdAngs, &scratchForward7, &kickDir, &scratchUp18)
                 }
@@ -6537,11 +6452,8 @@ private func G_KickSomeMofos(_ ent: Entity) {
                     _VectorMA(kickEnd, 8, kickDir, &kickEnd)
                 } else {
                     //guess
-                    // Port-note: Raven passes NULL for the `forward` output. The ported function takes it by reference, so the body passes a scratch local it never reads.
-                    portMissing("G_KickSomeMofos", source: "oracle/codemp/game/w_saber.c:7644")
+                    // Raven passes NULL for the `forward` and `up` outputs.
                     var scratchForward8 = vec3_t()
-                    // Port-note: Raven passes NULL for the `up` output. The ported function takes it by reference, so the body passes a scratch local it never reads.
-                    portMissing("G_KickSomeMofos", source: "oracle/codemp/game/w_saber.c:7644")
                     var scratchUp19 = vec3_t()
                     AngleVectors(fwdAngs, &scratchForward8, &kickDir, &scratchUp19)
                     kickDir = kickDir * -1
@@ -6785,11 +6697,8 @@ func WP_SaberPositionUpdate(_ `self`: Entity, _ ucmd: JKAMP.Usercmd) {
                                     idealDist = 34.0
                                 }
 
-                                // Port-note: Raven passes NULL for the `right` output. The ported function takes it by reference, so the body passes a scratch local it never reads.
-                                portMissing("WP_SaberPositionUpdate", source: "oracle/codemp/game/w_saber.c:8084")
+                                // Raven passes NULL for the `right` and `up` outputs.
                                 var scratchRight = vec3_t()
-                                // Port-note: Raven passes NULL for the `up` output. The ported function takes it by reference, so the body passes a scratch local it never reads.
-                                portMissing("WP_SaberPositionUpdate", source: "oracle/codemp/game/w_saber.c:8084")
                                 var scratchUp = vec3_t()
                                 AngleVectors(grappler!.client!.ps.viewangles, &gFwd, &scratchRight, &scratchUp)
                                 _VectorMA(grappler!.client!.ps.origin, idealDist, gFwd, &idealSpot)
@@ -7193,11 +7102,8 @@ func WP_SaberPositionUpdate(_ `self`: Entity, _ ucmd: JKAMP.Usercmd) {
                         `self`.client!.ps.saberEntityState = 1
 
                         //Projectile stuff:
-                        // Port-note: Raven passes NULL for the `right` output. The ported function takes it by reference, so the body passes a scratch local it never reads.
-                        portMissing("WP_SaberPositionUpdate", source: "oracle/codemp/game/w_saber.c:8084")
+                        // Raven passes NULL for the `right` and `up` outputs.
                         var scratchRight2 = vec3_t()
-                        // Port-note: Raven passes NULL for the `up` output. The ported function takes it by reference, so the body passes a scratch local it never reads.
-                        portMissing("WP_SaberPositionUpdate", source: "oracle/codemp/game/w_saber.c:8084")
                         var scratchUp2 = vec3_t()
                         AngleVectors(`self`.client!.ps.viewangles, &dir, &scratchRight2, &scratchUp2)
 
@@ -7499,11 +7405,8 @@ func WP_SaberPositionUpdate(_ `self`: Entity, _ ucmd: JKAMP.Usercmd) {
                                                 saberMidPoint[1] = Float(Double(boltOrigin[1]) + (Double(saberSubBase[1]) * 0.5))
                                                 saberMidPoint[2] = Float(Double(boltOrigin[2]) + (Double(saberSubBase[2]) * 0.5))
 
-                                                // Port-note: Raven passes NULL for the `right` output. The ported function takes it by reference, so the body passes a scratch local it never reads.
-                                                portMissing("WP_SaberPositionUpdate", source: "oracle/codemp/game/w_saber.c:8084")
+                                                // Raven passes NULL for the `right` and `up` outputs.
                                                 var scratchRight3 = vec3_t()
-                                                // Port-note: Raven passes NULL for the `up` output. The ported function takes it by reference, so the body passes a scratch local it never reads.
-                                                portMissing("WP_SaberPositionUpdate", source: "oracle/codemp/game/w_saber.c:8084")
                                                 var scratchUp3 = vec3_t()
                                                 AngleVectors(saberMidAngle, &saberMidDir, &scratchRight3, &scratchUp3)
                                                 saberMidEnd[0] = saberMidPoint[0] + saberMidDir[0] * `self`.client!.saber[rSaberNum].blade[rBladeNum].lengthMax
@@ -7641,11 +7544,8 @@ func WP_SaberBlockNonRandom(_ `self`: Entity, _ hitloc: JKAShared.vec3_t, _ miss
 
     fwdangles[1] = `self`.client!.ps.viewangles[1]
     // Ultimately we might care if the shot was ahead or behind, but for now, just quadrant is fine.
-    // Port-note: Raven passes NULL for the `forward` output. The ported function takes it by reference, so the body passes a scratch local it never reads.
-    portMissing("WP_SaberBlockNonRandom", source: "oracle/codemp/game/w_saber.c:9127")
+    // Raven passes NULL for the `forward` and `up` outputs.
     var scratchForward = vec3_t()
-    // Port-note: Raven passes NULL for the `up` output. The ported function takes it by reference, so the body passes a scratch local it never reads.
-    portMissing("WP_SaberBlockNonRandom", source: "oracle/codemp/game/w_saber.c:9127")
     var scratchUp = vec3_t()
     AngleVectors(fwdangles, &scratchForward, &right, &scratchUp)
 
@@ -7697,11 +7597,8 @@ func WP_SaberBlock(_ playerent: Entity, _ hitloc: JKAShared.vec3_t, _ missileBlo
 
     fwdangles[1] = playerent.client!.ps.viewangles[1]
     // Ultimately we might care if the shot was ahead or behind, but for now, just quadrant is fine.
-    // Port-note: Raven passes NULL for the `forward` output. The ported function takes it by reference, so the body passes a scratch local it never reads.
-    portMissing("WP_SaberBlock", source: "oracle/codemp/game/w_saber.c:9200")
+    // Raven passes NULL for the `forward` and `up` outputs.
     var scratchForward = vec3_t()
-    // Port-note: Raven passes NULL for the `up` output. The ported function takes it by reference, so the body passes a scratch local it never reads.
-    portMissing("WP_SaberBlock", source: "oracle/codemp/game/w_saber.c:9200")
     var scratchUp = vec3_t()
     AngleVectors(fwdangles, &scratchForward, &right, &scratchUp)
 

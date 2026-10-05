@@ -26,18 +26,18 @@ The oracle range is the whole definition, from the return type to the closing br
 | `AxisCopy` | `oracle/codemp/game/q_math.c:550-554` | `JKAShared/q_math.swift:469` | ported | none | `public func AxisCopy(_ `in`: inout [JKAShared.vec3_t], _ out: inout [JKAShared.vec3_t])` |
 | `ProjectPointOnPlane` | `oracle/codemp/game/q_math.c:556-577` | `JKAShared/q_math.swift:476` | ported | none | `public func ProjectPointOnPlane(_ dst: inout JKAShared.vec3_t, _ p: JKAShared.vec3_t, _ normal: JKAShared.vec3_t)` |
 | `MakeNormalVectors` | `oracle/codemp/game/q_math.c:587-600` | `JKAShared/q_math.swift:507` | ported | none | `public func MakeNormalVectors(_ forward: JKAShared.vec3_t, _ right: inout JKAShared.vec3_t, _ up: inout JKAShared.vec3_t)` |
-| `VectorRotate` | `oracle/codemp/game/q_math.c:603-608` | `JKAShared/q_math.swift:526` | ported | none | `public func VectorRotate(_ `in`: inout JKAShared.vec3_t, _ matrix: inout [JKAShared.vec3_t], _ out: inout JKAShared.vec3_t)` |
+| `VectorRotate` | `oracle/codemp/game/q_math.c:603-608` | `JKAShared/q_math.swift:526` | ported | none | `public func VectorRotate(_ `in`: JKAShared.vec3_t, _ matrix: inout [JKAShared.vec3_t], _ out: inout JKAShared.vec3_t)` |
 | `Q_rsqrt` | `oracle/codemp/game/q_math.c:616-636` | `JKAShared/q_math.swift:542` | ported | none | `public func Q_rsqrt(_ number: Float) -> Float` |
 | `Q_fabs` | `oracle/codemp/game/q_math.c:638-642` | `JKAShared/q_math.swift:560` | ported | none | `public func Q_fabs(_ f: Float) -> Float` |
 | `LerpAngle` | `oracle/codemp/game/q_math.c:653-665` | `JKAShared/q_math.swift:577` | ported | none | `public func LerpAngle(_ from: Float, _ to: Float, _ frac: Float) -> Float` |
 | `AngleSubtract` | `oracle/codemp/game/q_math.c:675-687` | `JKAShared/q_math.swift:602` | ported | none | `public func AngleSubtract(_ a1: Float, _ a2: Float) -> Float` |
-| `AnglesSubtract` | `oracle/codemp/game/q_math.c:690-694` | `JKAShared/q_math.swift:617` | ported | none | `public func AnglesSubtract(_ v1: inout JKAShared.vec3_t, _ v2: inout JKAShared.vec3_t, _ v3: inout JKAShared.vec3_t)` |
+| `AnglesSubtract` | `oracle/codemp/game/q_math.c:690-694` | `JKAShared/q_math.swift:617` | ported | none | `public func AnglesSubtract(_ v1: JKAShared.vec3_t, _ v2: JKAShared.vec3_t, _ v3: inout JKAShared.vec3_t)` |
 | `AngleMod` | `oracle/codemp/game/q_math.c:697-700` | `JKAShared/q_math.swift:625` | ported | none | `public func AngleMod(_ a: Float) -> Float` |
 | `AngleNormalize360` | `oracle/codemp/game/q_math.c:710-712` | `JKAShared/q_math.swift:641` | ported | none | `public func AngleNormalize360(_ angle: Float) -> Float` |
 | `AngleNormalize180` | `oracle/codemp/game/q_math.c:722-728` | `JKAShared/q_math.swift:656` | ported | none | `public func AngleNormalize180(_ angle: Float) -> Float` |
 | `AngleDelta` | `oracle/codemp/game/q_math.c:738-740` | `JKAShared/q_math.swift:674` | ported | none | `public func AngleDelta(_ angle1: Float, _ angle2: Float) -> Float` |
 | `SetPlaneSignbits` | `oracle/codemp/game/q_math.c:751-762` | `JKAShared/q_math.swift:688` | ported | `crates/mp/qshared/src/shared/q_math.rs:38-48` | `public func SetPlaneSignbits(_ out: JKAShared.Cplane)` |
-| `BoxOnPlaneSide` | `oracle/codemp/game/q_math.c:809-871` | `JKAShared/q_math.swift:711` | ported | `crates/mp/qshared/src/shared/q_math.rs:56-116` | `public func BoxOnPlaneSide(_ emins: inout JKAShared.vec3_t, _ emaxs: inout JKAShared.vec3_t, _ p: JKAShared.Cplane) -> Int32` |
+| `BoxOnPlaneSide` | `oracle/codemp/game/q_math.c:809-871` | `JKAShared/q_math.swift:711` | ported | `crates/mp/qshared/src/shared/q_math.rs:56-116` | `public func BoxOnPlaneSide(_ emins: JKAShared.vec3_t, _ emaxs: JKAShared.vec3_t, _ p: JKAShared.Cplane) -> Int32` |
 | `RadiusFromBounds` | `oracle/codemp/game/q_math.c:1114-1126` | `JKAShared/q_math.swift:785` | ported | none | `public func RadiusFromBounds(_ mins: JKAShared.vec3_t, _ maxs: JKAShared.vec3_t) -> Float` |
 | `ClearBounds` | `oracle/codemp/game/q_math.c:1129-1132` | `JKAShared/q_math.swift:800` | ported | none | `public func ClearBounds(_ mins: inout JKAShared.vec3_t, _ maxs: inout JKAShared.vec3_t)` |
 | `DistanceHorizontal` | `oracle/codemp/game/q_math.c:1134-1139` | `JKAShared/q_math.swift:810` | ported | none | `public func DistanceHorizontal(_ p1: JKAShared.vec3_t, _ p2: JKAShared.vec3_t) -> Float` |

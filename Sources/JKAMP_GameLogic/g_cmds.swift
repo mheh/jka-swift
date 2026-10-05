@@ -124,15 +124,11 @@ CheatsOk
 /// Source: oracle/codemp/game/g_cmds.c:109
 func CheatsOk(_ ent: Entity) -> Bool {
     if g_cheats.integer == 0 {
-        // Port-note: Raven passes `"MP_SVGAME"` to `G_GetStringEdString`, whose `char *` parameter the stub holds as an inout CharBuf. Docket row 5 is due.
-        // Raven wrote: trap_SendServerCommand( ent-g_entities, va("print \"%s\n\"", G_GetStringEdString("MP_SVGAME", "NOCHEATS")))
-        portMissing("CheatsOk", source: "oracle/codemp/game/g_cmds.c:109")
+        trap_SendServerCommand(ent.s.number, va("print \"%s\n\"", G_GetStringEdString("MP_SVGAME", "NOCHEATS")))
         return false
     }
     if ent.health <= 0 {
-        // Port-note: Raven passes `"MP_SVGAME"` to `G_GetStringEdString`, whose `char *` parameter the stub holds as an inout CharBuf. Docket row 5 is due.
-        // Raven wrote: trap_SendServerCommand( ent-g_entities, va("print \"%s\n\"", G_GetStringEdString("MP_SVGAME", "MUSTBEALIVE")))
-        portMissing("CheatsOk", source: "oracle/codemp/game/g_cmds.c:109")
+        trap_SendServerCommand(ent.s.number, va("print \"%s\n\"", G_GetStringEdString("MP_SVGAME", "MUSTBEALIVE")))
         return false
     }
     return true
@@ -219,7 +215,7 @@ Returns -1 if invalid
 */
 /// Source: oracle/codemp/game/g_cmds.c:185
 func ClientNumberFromString(_ to: Entity, _ s: inout JKAShared.CharBuf) -> Int32 {
-    var cl: Client?
+    var clIndex: Int32
     var idnum: Int32
     var s2 = CharBuf(1024)
     var n2 = CharBuf(1024)
@@ -232,8 +228,8 @@ func ClientNumberFromString(_ to: Entity, _ s: inout JKAShared.CharBuf) -> Int32
             return -1
         }
 
-        cl = level.clientsSlots[idnum]
-        if cl!.pers.connected != CON_CONNECTED {
+        clIndex = idnum
+        if level.clientsSlots[clIndex].pers.connected != CON_CONNECTED {
             trap_SendServerCommand(to.s.number, va("print \"Client %i is not active\n\"", idnum))
             return -1
         }
@@ -243,23 +239,19 @@ func ClientNumberFromString(_ to: Entity, _ s: inout JKAShared.CharBuf) -> Int32
     // check for a name match
     SanitizeString(&s, &s2)
     idnum = 0
-    cl = level.clients
+    clIndex = 0
     while idnum < level.maxclients {
-        if cl!.pers.connected != CON_CONNECTED {
+        if level.clientsSlots[clIndex].pers.connected != CON_CONNECTED {
             idnum += 1
-            // Port-note: The draft of this statement did not compile, and the compiler wrote "cannot convert value of type 'Client?' to expected argument type 'Int'".
-            // Raven wrote: cl++
-            portMissing("ClientNumberFromString", source: "oracle/codemp/game/g_cmds.c:185")
+            clIndex += 1
             continue
         }
-        SanitizeString(&cl!.pers.netnameBuffer, &n2)
+        SanitizeString(&level.clientsSlots[clIndex].pers.netnameBuffer, &n2)
         if strcmp(n2, s2) == 0 {
             return idnum
         }
         idnum += 1
-        // Port-note: The draft of this statement did not compile, and the compiler wrote "cannot convert value of type 'Client?' to expected argument type 'Int'".
-        // Raven wrote: cl++
-        portMissing("ClientNumberFromString", source: "oracle/codemp/game/g_cmds.c:185")
+        clIndex += 1
     }
 
     trap_SendServerCommand(to.s.number, va("print \"User %s is not on the server\n\"", s))
@@ -602,9 +594,7 @@ func G_CheckTKAutoKickBan(_ ent: Entity) {
                 AddIP(&ent.client!.sess.IPstringBuffer)
             }
 
-            // Port-note: Raven passes `"MP_SVGAME_ADMIN"` to `G_GetStringEdString`, whose `char *` parameter the stub holds as an inout CharBuf. Docket row 5 is due.
-            // Raven wrote: trap_SendServerCommand( -1, va("print \"%s %s\n\"", ent->client->pers.netname, G_GetStringEdString("MP_SVGAME_ADMIN", "TKBAN")) )
-            portMissing("G_CheckTKAutoKickBan", source: "oracle/codemp/game/g_cmds.c:527")
+            trap_SendServerCommand(-1, va("print \"%s %s\n\"", ent.client!.pers.netname, G_GetStringEdString("MP_SVGAME_ADMIN", "TKBAN")))
             //Com_sprintf ( level.voteString, sizeof(level.voteString ), "clientkick %d", ent->s.number );
             //Com_sprintf ( level.voteDisplayString, sizeof(level.voteDisplayString), "kick %s", ent->client->pers.netname );
             //trap_SendConsoleCommand( EXEC_INSERT, va( "banClient %d\n", ent->s.number ) );
@@ -612,9 +602,7 @@ func G_CheckTKAutoKickBan(_ ent: Entity) {
             return
         }
         if g_autoKickTKSpammers.integer > 0 && ent.client!.sess.TKCount >= g_autoKickTKSpammers.integer {
-            // Port-note: Raven passes `"MP_SVGAME_ADMIN"` to `G_GetStringEdString`, whose `char *` parameter the stub holds as an inout CharBuf. Docket row 5 is due.
-            // Raven wrote: trap_SendServerCommand( -1, va("print \"%s %s\n\"", ent->client->pers.netname, G_GetStringEdString("MP_SVGAME_ADMIN", "TKKICK")) )
-            portMissing("G_CheckTKAutoKickBan", source: "oracle/codemp/game/g_cmds.c:527")
+            trap_SendServerCommand(-1, va("print \"%s %s\n\"", ent.client!.pers.netname, G_GetStringEdString("MP_SVGAME_ADMIN", "TKKICK")))
             //Com_sprintf ( level.voteString, sizeof(level.voteString ), "clientkick %d", ent->s.number );
             //Com_sprintf ( level.voteDisplayString, sizeof(level.voteDisplayString), "kick \"%s\"\n", ent->client->pers.netname );
             trap_SendConsoleCommand(EXEC_INSERT, va("clientkick %d\n", ent.s.number))
@@ -623,14 +611,10 @@ func G_CheckTKAutoKickBan(_ ent: Entity) {
         //okay, not gone (yet), but warn them...
         if g_autoBanTKSpammers.integer > 0 && (g_autoKickTKSpammers.integer <= 0 || g_autoBanTKSpammers.integer < g_autoKickTKSpammers.integer) {
             //warn about ban
-            // Port-note: Raven passes `"MP_SVGAME_ADMIN"` to `G_GetStringEdString`, whose `char *` parameter the stub holds as an inout CharBuf. Docket row 5 is due.
-            // Raven wrote: trap_SendServerCommand( ent-g_entities, va("print \"%s\n\"", G_GetStringEdString("MP_SVGAME_ADMIN", "WARNINGTKBAN")) )
-            portMissing("G_CheckTKAutoKickBan", source: "oracle/codemp/game/g_cmds.c:527")
+            trap_SendServerCommand(ent.s.number, va("print \"%s\n\"", G_GetStringEdString("MP_SVGAME_ADMIN", "WARNINGTKBAN")))
         } else if g_autoKickTKSpammers.integer > 0 {
             //warn about kick
-            // Port-note: Raven passes `"MP_SVGAME_ADMIN"` to `G_GetStringEdString`, whose `char *` parameter the stub holds as an inout CharBuf. Docket row 5 is due.
-            // Raven wrote: trap_SendServerCommand( ent-g_entities, va("print \"%s\n\"", G_GetStringEdString("MP_SVGAME_ADMIN", "WARNINGTKKICK")) )
-            portMissing("G_CheckTKAutoKickBan", source: "oracle/codemp/game/g_cmds.c:527")
+            trap_SendServerCommand(ent.s.number, va("print \"%s\n\"", G_GetStringEdString("MP_SVGAME_ADMIN", "WARNINGTKKICK")))
         }
     }
 }
@@ -646,9 +630,7 @@ func Cmd_Kill_f(_ ent: Entity) {
 
     if (g_gametype.integer == GT_DUEL || g_gametype.integer == GT_POWERDUEL) && level.numPlayingClients > 1 && level.warmupTime == 0 {
         if g_allowDuelSuicide.integer == 0 {
-            // Port-note: Raven passes `"MP_SVGAME"` to `G_GetStringEdString`, whose `char *` parameter the stub holds as an inout CharBuf. Docket row 5 is due.
-            // Raven wrote: trap_SendServerCommand( ent-g_entities, va("print \"%s\n\"", G_GetStringEdString("MP_SVGAME", "ATTEMPTDUELKILL")) )
-            portMissing("Cmd_Kill_f", source: "oracle/codemp/game/g_cmds.c:583")
+            trap_SendServerCommand(ent.s.number, va("print \"%s\n\"", G_GetStringEdString("MP_SVGAME", "ATTEMPTDUELKILL")))
             return
         }
     }
@@ -661,9 +643,7 @@ func Cmd_Kill_f(_ ent: Entity) {
                 AddIP(&ent.client!.sess.IPstringBuffer)
             }
 
-            // Port-note: Raven passes `"MP_SVGAME_ADMIN"` to `G_GetStringEdString`, whose `char *` parameter the stub holds as an inout CharBuf. Docket row 5 is due.
-            // Raven wrote: trap_SendServerCommand( -1, va("print \"%s %s\n\"", ent->client->pers.netname, G_GetStringEdString("MP_SVGAME_ADMIN", "SUICIDEBAN")) )
-            portMissing("Cmd_Kill_f", source: "oracle/codemp/game/g_cmds.c:583")
+            trap_SendServerCommand(-1, va("print \"%s %s\n\"", ent.client!.pers.netname, G_GetStringEdString("MP_SVGAME_ADMIN", "SUICIDEBAN")))
             //Com_sprintf ( level.voteString, sizeof(level.voteString ), "clientkick %d", ent->s.number );
             //Com_sprintf ( level.voteDisplayString, sizeof(level.voteDisplayString), "kick %s", ent->client->pers.netname );
             //trap_SendConsoleCommand( EXEC_INSERT, va( "banClient %d\n", ent->s.number ) );
@@ -671,9 +651,7 @@ func Cmd_Kill_f(_ ent: Entity) {
             return
         }
         if g_autoKickKillSpammers.integer > 0 && ent.client!.sess.killCount >= g_autoKickKillSpammers.integer {
-            // Port-note: Raven passes `"MP_SVGAME_ADMIN"` to `G_GetStringEdString`, whose `char *` parameter the stub holds as an inout CharBuf. Docket row 5 is due.
-            // Raven wrote: trap_SendServerCommand( -1, va("print \"%s %s\n\"", ent->client->pers.netname, G_GetStringEdString("MP_SVGAME_ADMIN", "SUICIDEKICK")) )
-            portMissing("Cmd_Kill_f", source: "oracle/codemp/game/g_cmds.c:583")
+            trap_SendServerCommand(-1, va("print \"%s %s\n\"", ent.client!.pers.netname, G_GetStringEdString("MP_SVGAME_ADMIN", "SUICIDEKICK")))
             //Com_sprintf ( level.voteString, sizeof(level.voteString ), "clientkick %d", ent->s.number );
             //Com_sprintf ( level.voteDisplayString, sizeof(level.voteDisplayString), "kick %s", ent->client->pers.netname );
             trap_SendConsoleCommand(EXEC_INSERT, va("clientkick %d\n", ent.s.number))
@@ -682,14 +660,10 @@ func Cmd_Kill_f(_ ent: Entity) {
         //okay, not gone (yet), but warn them...
         if g_autoBanKillSpammers.integer > 0 && (g_autoKickKillSpammers.integer <= 0 || g_autoBanKillSpammers.integer < g_autoKickKillSpammers.integer) {
             //warn about ban
-            // Port-note: Raven passes `"MP_SVGAME_ADMIN"` to `G_GetStringEdString`, whose `char *` parameter the stub holds as an inout CharBuf. Docket row 5 is due.
-            // Raven wrote: trap_SendServerCommand( ent-g_entities, va("print \"%s\n\"", G_GetStringEdString("MP_SVGAME_ADMIN", "WARNINGSUICIDEBAN")) )
-            portMissing("Cmd_Kill_f", source: "oracle/codemp/game/g_cmds.c:583")
+            trap_SendServerCommand(ent.s.number, va("print \"%s\n\"", G_GetStringEdString("MP_SVGAME_ADMIN", "WARNINGSUICIDEBAN")))
         } else if g_autoKickKillSpammers.integer > 0 {
             //warn about kick
-            // Port-note: Raven passes `"MP_SVGAME_ADMIN"` to `G_GetStringEdString`, whose `char *` parameter the stub holds as an inout CharBuf. Docket row 5 is due.
-            // Raven wrote: trap_SendServerCommand( ent-g_entities, va("print \"%s\n\"", G_GetStringEdString("MP_SVGAME_ADMIN", "WARNINGSUICIDEKICK")) )
-            portMissing("Cmd_Kill_f", source: "oracle/codemp/game/g_cmds.c:583")
+            trap_SendServerCommand(ent.s.number, va("print \"%s\n\"", G_GetStringEdString("MP_SVGAME_ADMIN", "WARNINGSUICIDEKICK")))
         }
     }
     ent.flags &= ~FL_GODMODE
@@ -735,17 +709,11 @@ func BroadcastTeamChange(_ client: Client, _ oldTeam: Int32) {
     }
 
     if client.sess.sessionTeam == TEAM_RED {
-        // Port-note: Raven passes `"MP_SVGAME"` to `G_GetStringEdString`, whose `char *` parameter the stub holds as an inout CharBuf. Docket row 5 is due.
-        // Raven wrote: trap_SendServerCommand( -1, va("cp \"%s" S_COLOR_WHITE " %s\n\"", client->pers.netname, G_GetStringEdString("MP_SVGAME", "JOINEDTHEREDTEAM")) )
-        portMissing("BroadcastTeamChange", source: "oracle/codemp/game/g_cmds.c:670")
+        trap_SendServerCommand(-1, va("cp \"%s" + S_COLOR_WHITE + " %s\n\"", client.pers.netname, G_GetStringEdString("MP_SVGAME", "JOINEDTHEREDTEAM")))
     } else if client.sess.sessionTeam == TEAM_BLUE {
-        // Port-note: Raven passes `"MP_SVGAME"` to `G_GetStringEdString`, whose `char *` parameter the stub holds as an inout CharBuf. Docket row 5 is due.
-        // Raven wrote: trap_SendServerCommand( -1, va("cp \"%s" S_COLOR_WHITE " %s\n\"", client->pers.netname, G_GetStringEdString("MP_SVGAME", "JOINEDTHEBLUETEAM")))
-        portMissing("BroadcastTeamChange", source: "oracle/codemp/game/g_cmds.c:670")
+        trap_SendServerCommand(-1, va("cp \"%s" + S_COLOR_WHITE + " %s\n\"", client.pers.netname, G_GetStringEdString("MP_SVGAME", "JOINEDTHEBLUETEAM")))
     } else if client.sess.sessionTeam == TEAM_SPECTATOR && oldTeam != TEAM_SPECTATOR {
-        // Port-note: Raven passes `"MP_SVGAME"` to `G_GetStringEdString`, whose `char *` parameter the stub holds as an inout CharBuf. Docket row 5 is due.
-        // Raven wrote: trap_SendServerCommand( -1, va("cp \"%s" S_COLOR_WHITE " %s\n\"", client->pers.netname, G_GetStringEdString("MP_SVGAME", "JOINEDTHESPECTATORS")))
-        portMissing("BroadcastTeamChange", source: "oracle/codemp/game/g_cmds.c:670")
+        trap_SendServerCommand(-1, va("cp \"%s" + S_COLOR_WHITE + " %s\n\"", client.pers.netname, G_GetStringEdString("MP_SVGAME", "JOINEDTHESPECTATORS")))
     } else if client.sess.sessionTeam == TEAM_FREE {
         if g_gametype.integer == GT_DUEL || g_gametype.integer == GT_POWERDUEL {
             /*
@@ -764,9 +732,7 @@ func BroadcastTeamChange(_ client: Client, _ oldTeam: Int32) {
             */
             //NOTE: Just doing a vs. once it counts two players up
         } else {
-            // Port-note: Raven passes `"MP_SVGAME"` to `G_GetStringEdString`, whose `char *` parameter the stub holds as an inout CharBuf. Docket row 5 is due.
-            // Raven wrote: trap_SendServerCommand( -1, va("cp \"%s" S_COLOR_WHITE " %s\n\"", client->pers.netname, G_GetStringEdString("MP_SVGAME", "JOINEDTHEBATTLE")))
-            portMissing("BroadcastTeamChange", source: "oracle/codemp/game/g_cmds.c:670")
+            trap_SendServerCommand(-1, va("cp \"%s" + S_COLOR_WHITE + " %s\n\"", client.pers.netname, G_GetStringEdString("MP_SVGAME", "JOINEDTHEBATTLE")))
         }
     }
 
@@ -878,9 +844,7 @@ func SetTeam(_ ent: Entity, _ s: String) {
                 else
                 */
                 do {
-                    // Port-note: Raven passes `"MP_SVGAME"` to `G_GetStringEdString`, whose `char *` parameter the stub holds as an inout CharBuf. Docket row 5 is due.
-                    // Raven wrote: trap_SendServerCommand( ent->client->ps.clientNum, va("print \"%s\n\"", G_GetStringEdString("MP_SVGAME", "TOOMANYRED")) )
-                    portMissing("SetTeam", source: "oracle/codemp/game/g_cmds.c:752")
+                    trap_SendServerCommand(ent.client!.ps.clientNum, va("print \"%s\n\"", G_GetStringEdString("MP_SVGAME", "TOOMANYRED")))
                 }
                 return // ignore the request
             }
@@ -895,9 +859,7 @@ func SetTeam(_ ent: Entity, _ s: String) {
                 else
                 */
                 do {
-                    // Port-note: Raven passes `"MP_SVGAME"` to `G_GetStringEdString`, whose `char *` parameter the stub holds as an inout CharBuf. Docket row 5 is due.
-                    // Raven wrote: trap_SendServerCommand( ent->client->ps.clientNum, va("print \"%s\n\"", G_GetStringEdString("MP_SVGAME", "TOOMANYBLUE")) )
-                    portMissing("SetTeam", source: "oracle/codemp/game/g_cmds.c:752")
+                    trap_SendServerCommand(ent.client!.ps.clientNum, va("print \"%s\n\"", G_GetStringEdString("MP_SVGAME", "TOOMANYBLUE")))
                 }
                 return // ignore the request
             }
@@ -1105,24 +1067,16 @@ func Cmd_Team_f(_ ent: Entity) {
         oldTeam = ent.client!.sess.sessionTeam
         switch oldTeam {
         case TEAM_BLUE:
-            // Port-note: Raven passes `"MP_SVGAME"` to `G_GetStringEdString`, whose `char *` parameter the stub holds as an inout CharBuf. Docket row 5 is due.
-            // Raven wrote: trap_SendServerCommand( ent-g_entities, va("print \"%s\n\"", G_GetStringEdString("MP_SVGAME", "PRINTBLUETEAM")) )
-            portMissing("Cmd_Team_f", source: "oracle/codemp/game/g_cmds.c:1058")
+            trap_SendServerCommand(ent.s.number, va("print \"%s\n\"", G_GetStringEdString("MP_SVGAME", "PRINTBLUETEAM")))
 
         case TEAM_RED:
-            // Port-note: Raven passes `"MP_SVGAME"` to `G_GetStringEdString`, whose `char *` parameter the stub holds as an inout CharBuf. Docket row 5 is due.
-            // Raven wrote: trap_SendServerCommand( ent-g_entities, va("print \"%s\n\"", G_GetStringEdString("MP_SVGAME", "PRINTREDTEAM")) )
-            portMissing("Cmd_Team_f", source: "oracle/codemp/game/g_cmds.c:1058")
+            trap_SendServerCommand(ent.s.number, va("print \"%s\n\"", G_GetStringEdString("MP_SVGAME", "PRINTREDTEAM")))
 
         case TEAM_FREE:
-            // Port-note: Raven passes `"MP_SVGAME"` to `G_GetStringEdString`, whose `char *` parameter the stub holds as an inout CharBuf. Docket row 5 is due.
-            // Raven wrote: trap_SendServerCommand( ent-g_entities, va("print \"%s\n\"", G_GetStringEdString("MP_SVGAME", "PRINTFREETEAM")) )
-            portMissing("Cmd_Team_f", source: "oracle/codemp/game/g_cmds.c:1058")
+            trap_SendServerCommand(ent.s.number, va("print \"%s\n\"", G_GetStringEdString("MP_SVGAME", "PRINTFREETEAM")))
 
         case TEAM_SPECTATOR:
-            // Port-note: Raven passes `"MP_SVGAME"` to `G_GetStringEdString`, whose `char *` parameter the stub holds as an inout CharBuf. Docket row 5 is due.
-            // Raven wrote: trap_SendServerCommand( ent-g_entities, va("print \"%s\n\"", G_GetStringEdString("MP_SVGAME", "PRINTSPECTEAM")) )
-            portMissing("Cmd_Team_f", source: "oracle/codemp/game/g_cmds.c:1058")
+            trap_SendServerCommand(ent.s.number, va("print \"%s\n\"", G_GetStringEdString("MP_SVGAME", "PRINTSPECTEAM")))
 
         default:
             break
@@ -1131,9 +1085,7 @@ func Cmd_Team_f(_ ent: Entity) {
     }
 
     if ent.client!.switchTeamTime > level.time {
-        // Port-note: Raven passes `"MP_SVGAME"` to `G_GetStringEdString`, whose `char *` parameter the stub holds as an inout CharBuf. Docket row 5 is due.
-        // Raven wrote: trap_SendServerCommand( ent-g_entities, va("print \"%s\n\"", G_GetStringEdString("MP_SVGAME", "NOSWITCH")) )
-        portMissing("Cmd_Team_f", source: "oracle/codemp/game/g_cmds.c:1058")
+        trap_SendServerCommand(ent.s.number, va("print \"%s\n\"", G_GetStringEdString("MP_SVGAME", "NOSWITCH")))
         return
     }
 
@@ -1210,9 +1162,7 @@ func Cmd_DuelTeam_f(_ ent: Entity) {
 
     if ent.client!.switchDuelTeamTime > level.time {
         //debounce for changing
-        // Port-note: Raven passes `"MP_SVGAME"` to `G_GetStringEdString`, whose `char *` parameter the stub holds as an inout CharBuf. Docket row 5 is due.
-        // Raven wrote: trap_SendServerCommand( ent-g_entities, va("print \"%s\n\"", G_GetStringEdString("MP_SVGAME", "NOSWITCH")) )
-        portMissing("Cmd_DuelTeam_f", source: "oracle/codemp/game/g_cmds.c:1119")
+        trap_SendServerCommand(ent.s.number, va("print \"%s\n\"", G_GetStringEdString("MP_SVGAME", "NOSWITCH")))
         return
     }
 
@@ -1317,9 +1267,7 @@ func Cmd_SiegeClass_f(_ ent: Entity) {
     }
 
     if ent.client!.switchClassTime > level.time {
-        // Port-note: Raven passes `"MP_SVGAME"` to `G_GetStringEdString`, whose `char *` parameter the stub holds as an inout CharBuf. Docket row 5 is due.
-        // Raven wrote: trap_SendServerCommand( ent-g_entities, va("print \"%s\n\"", G_GetStringEdString("MP_SVGAME", "NOCLASSSWITCH")) )
-        portMissing("Cmd_SiegeClass_f", source: "oracle/codemp/game/g_cmds.c:1251")
+        trap_SendServerCommand(ent.s.number, va("print \"%s\n\"", G_GetStringEdString("MP_SVGAME", "NOCLASSSWITCH")))
         return
     }
 
@@ -1349,9 +1297,7 @@ func Cmd_SiegeClass_f(_ ent: Entity) {
         if ent.client!.sess.sessionTeam != team {
             //failed, oh well
             if ent.client!.sess.sessionTeam != TEAM_SPECTATOR || ent.client!.sess.siegeDesiredTeam != team {
-                // Port-note: Raven passes `"MP_SVGAME"` to `G_GetStringEdString`, whose `char *` parameter the stub holds as an inout CharBuf. Docket row 5 is due.
-                // Raven wrote: trap_SendServerCommand( ent-g_entities, va("print \"%s\n\"", G_GetStringEdString("MP_SVGAME", "NOCLASSTEAM")) )
-                portMissing("Cmd_SiegeClass_f", source: "oracle/codemp/game/g_cmds.c:1251")
+                trap_SendServerCommand(ent.s.number, va("print \"%s\n\"", G_GetStringEdString("MP_SVGAME", "NOCLASSTEAM")))
                 return
             }
         }
@@ -1410,9 +1356,7 @@ func Cmd_ForceChanged_f(_ ent: Entity) {
             break argCheck
         }
 
-        // Port-note: Raven passes `"MP_SVGAME"` to `G_GetStringEdString`, whose `char *` parameter the stub holds as an inout CharBuf. Docket row 5 is due.
-        // Raven wrote: buf = G_GetStringEdString("MP_SVGAME", "FORCEPOWERCHANGED")
-        portMissing("Cmd_ForceChanged_f", source: "oracle/codemp/game/g_cmds.c:1355")
+        buf = G_GetStringEdString("MP_SVGAME", "FORCEPOWERCHANGED")
 
         strcpy(&fpChStr, buf)
 
@@ -1430,9 +1374,10 @@ func Cmd_ForceChanged_f(_ ent: Entity) {
 
         strcpy(&arg, trap_Argv(1, Int32((arg).count)))
 
-        // Port-note: The draft of this statement did not compile, and the compiler wrote "referencing operator function '!=' on 'BinaryInteger' requires that 'CharBuf' conform to 'BinaryInteger'".
-        // Raven wrote: if (arg && arg[0]) { //if there's an arg, assume it's a combo team command from the UI. Cmd_Team_f(ent); }
-        portMissing("Cmd_ForceChanged_f", source: "oracle/codemp/game/g_cmds.c:1355")
+        if arg[0] != 0 {
+            //if there's an arg, assume it's a combo team command from the UI.
+            Cmd_Team_f(ent)
+        }
     }
 }
 
@@ -1669,10 +1614,11 @@ func G_Say(_ ent: Entity, _ target: Entity?, _ mode: Int32, _ chatText: String) 
 
     Q_strncpyz(&text, chatText, Int32((text).count))
 
-    if target != nil {
-        // Port-note: Raven passes the optional `target` to `G_SayTo`, whose `other` parameter takes a value. A never-null ruling is due.
-        // Raven wrote: G_SayTo( ent, target, mode, color, name, text, locMsg )
+    if let target {
+        // Port-note: Raven passes a NULL `locMsg` when the sender has no location, and `G_SayTo` then sends the `chat` or `tchat` form.
+        // The `locMsg` parameter of `G_SayTo` is a `String` with no NULL, so this call does not reproduce that arm.
         portMissing("G_Say", source: "oracle/codemp/game/g_cmds.c:1618")
+        G_SayTo(ent, target, mode, color, String(name), String(text), locMsg.text)
         return
     }
 
@@ -1685,6 +1631,9 @@ func G_Say(_ ent: Entity, _ target: Entity?, _ mode: Int32, _ chatText: String) 
     j = 0
     while j < level.maxclients {
         other = g_entities[j]
+        // Port-note: Raven passes a NULL `locMsg` when the sender has no location, and `G_SayTo` then sends the `chat` or `tchat` form.
+        // The `locMsg` parameter of `G_SayTo` is a `String` with no NULL, so this call does not reproduce that arm.
+        portMissing("G_Say", source: "oracle/codemp/game/g_cmds.c:1618")
         G_SayTo(ent, other!, mode, color, String(name), String(text), locMsg.text)
         j += 1
     }
@@ -1771,9 +1720,7 @@ private func Cmd_VoiceCommand_f(_ ent: Entity) {
     }
 
     if ent.client!.sess.sessionTeam == TEAM_SPECTATOR || ent.client!.tempSpectate >= level.time {
-        // Port-note: Raven passes `"MP_SVGAME"` to `G_GetStringEdString`, whose `char *` parameter the stub holds as an inout CharBuf. Docket row 5 is due.
-        // Raven wrote: trap_SendServerCommand( ent-g_entities, va("print \"%s\n\"", G_GetStringEdString("MP_SVGAME", "NOVOICECHATASSPEC")) )
-        portMissing("Cmd_VoiceCommand_f", source: "oracle/codemp/game/g_cmds.c:1752")
+        trap_SendServerCommand(ent.s.number, va("print \"%s\n\"", G_GetStringEdString("MP_SVGAME", "NOVOICECHATASSPEC")))
         return
     }
 
@@ -1857,23 +1804,21 @@ func G_ClientNumberFromName(_ name: String) -> Int32 {
     var s2 = CharBuf(1024)
     var n2 = CharBuf(1024)
     var i: Int32
-    var cl: Slots<Client>
+    var clIndex: Int32
 
     // check for a name match
     // Port-note: Raven passes `(char*)name` to `SanitizeString`, whose `char *` parameter the stub holds as an inout CharBuf. Docket row 5 is due.
     // Raven wrote: SanitizeString( (char*)name, s2 )
     portMissing("G_ClientNumberFromName", source: "oracle/codemp/game/g_cmds.c:1871")
     i = 0
-    cl = level.clientsSlots
+    clIndex = 0
     while i < level.numConnectedClients {
-        SanitizeString(&cl[0].pers.netnameBuffer, &n2)
+        SanitizeString(&level.clientsSlots[clIndex].pers.netnameBuffer, &n2)
         if strcmp(n2, s2) == 0 {
             return i
         }
         i += 1
-        // Port-note: The draft of this statement did not compile, and the compiler wrote "binary operator '+=' cannot be applied to operands of type 'Slots<Client>' and 'Int'".
-        // Raven wrote: cl++
-        portMissing("G_ClientNumberFromName", source: "oracle/codemp/game/g_cmds.c:1871")
+        clIndex += 1
     }
 
     return -1
@@ -1937,23 +1882,21 @@ func G_ClientNumberFromStrippedName(_ name: String) -> Int32 {
     var s2 = CharBuf(1024)
     var n2 = CharBuf(1024)
     var i: Int32
-    var cl: Slots<Client>
+    var clIndex: Int32
 
     // check for a name match
     // Port-note: Raven passes `(char*)name` to `SanitizeString2`, whose `char *` parameter the stub holds as an inout CharBuf. Docket row 5 is due.
     // Raven wrote: SanitizeString2( (char*)name, s2 )
     portMissing("G_ClientNumberFromStrippedName", source: "oracle/codemp/game/g_cmds.c:1946")
     i = 0
-    cl = level.clientsSlots
+    clIndex = 0
     while i < level.numConnectedClients {
-        SanitizeString2(&cl[0].pers.netnameBuffer, &n2)
+        SanitizeString2(&level.clientsSlots[clIndex].pers.netnameBuffer, &n2)
         if strcmp(n2, s2) == 0 {
             return i
         }
         i += 1
-        // Port-note: The draft of this statement did not compile, and the compiler wrote "binary operator '+=' cannot be applied to operands of type 'Slots<Client>' and 'Int'".
-        // Raven wrote: cl++
-        portMissing("G_ClientNumberFromStrippedName", source: "oracle/codemp/game/g_cmds.c:1946")
+        clIndex += 1
     }
 
     return -1
@@ -1970,30 +1913,22 @@ func Cmd_CallVote_f(_ ent: Entity) {
     let arenaInfo: String
 
     if g_allowVote.integer == 0 {
-        // Port-note: Raven passes `"MP_SVGAME"` to `G_GetStringEdString`, whose `char *` parameter the stub holds as an inout CharBuf. Docket row 5 is due.
-        // Raven wrote: trap_SendServerCommand( ent-g_entities, va("print \"%s\n\"", G_GetStringEdString("MP_SVGAME", "NOVOTE")) )
-        portMissing("Cmd_CallVote_f", source: "oracle/codemp/game/g_cmds.c:1974")
+        trap_SendServerCommand(ent.s.number, va("print \"%s\n\"", G_GetStringEdString("MP_SVGAME", "NOVOTE")))
         return
     }
 
     if level.voteTime != 0 || level.voteExecuteTime >= level.time {
-        // Port-note: Raven passes `"MP_SVGAME"` to `G_GetStringEdString`, whose `char *` parameter the stub holds as an inout CharBuf. Docket row 5 is due.
-        // Raven wrote: trap_SendServerCommand( ent-g_entities, va("print \"%s\n\"", G_GetStringEdString("MP_SVGAME", "VOTEINPROGRESS")) )
-        portMissing("Cmd_CallVote_f", source: "oracle/codemp/game/g_cmds.c:1974")
+        trap_SendServerCommand(ent.s.number, va("print \"%s\n\"", G_GetStringEdString("MP_SVGAME", "VOTEINPROGRESS")))
         return
     }
     if ent.client!.pers.voteCount >= MAX_VOTE_COUNT {
-        // Port-note: Raven passes `"MP_SVGAME"` to `G_GetStringEdString`, whose `char *` parameter the stub holds as an inout CharBuf. Docket row 5 is due.
-        // Raven wrote: trap_SendServerCommand( ent-g_entities, va("print \"%s\n\"", G_GetStringEdString("MP_SVGAME", "MAXVOTES")) )
-        portMissing("Cmd_CallVote_f", source: "oracle/codemp/game/g_cmds.c:1974")
+        trap_SendServerCommand(ent.s.number, va("print \"%s\n\"", G_GetStringEdString("MP_SVGAME", "MAXVOTES")))
         return
     }
 
     if g_gametype.integer != GT_DUEL && g_gametype.integer != GT_POWERDUEL {
         if ent.client!.sess.sessionTeam == TEAM_SPECTATOR {
-            // Port-note: Raven passes `"MP_SVGAME"` to `G_GetStringEdString`, whose `char *` parameter the stub holds as an inout CharBuf. Docket row 5 is due.
-            // Raven wrote: trap_SendServerCommand( ent-g_entities, va("print \"%s\n\"", G_GetStringEdString("MP_SVGAME", "NOSPECVOTE")) )
-            portMissing("Cmd_CallVote_f", source: "oracle/codemp/game/g_cmds.c:1974")
+            trap_SendServerCommand(ent.s.number, va("print \"%s\n\"", G_GetStringEdString("MP_SVGAME", "NOSPECVOTE")))
             return
         }
     }
@@ -2048,16 +1983,16 @@ func Cmd_CallVote_f(_ ent: Entity) {
 
         if !G_DoesMapSupportGametype(String(arg2), trap_Cvar_VariableIntegerValue("g_gametype")) {
             //trap_SendServerCommand( ent-g_entities, "print \"You can't vote for this map, it isn't supported by the current gametype.\n\"" );
-            // Port-note: Raven passes `"MP_SVGAME"` to `G_GetStringEdString`, whose `char *` parameter the stub holds as an inout CharBuf. Docket row 5 is due.
-            // Raven wrote: trap_SendServerCommand( ent-g_entities, va("print \"%s\n\"", G_GetStringEdString("MP_SVGAME", "NOVOTE_MAPNOTSUPPORTEDBYGAME")) )
-            portMissing("Cmd_CallVote_f", source: "oracle/codemp/game/g_cmds.c:1974")
+            trap_SendServerCommand(ent.s.number, va("print \"%s\n\"", G_GetStringEdString("MP_SVGAME", "NOVOTE_MAPNOTSUPPORTEDBYGAME")))
             return
         }
 
         strcpy(&s, trap_Cvar_VariableStringBuffer("nextmap", Int32((s).count)))
-        // Port-note: A pointer dereference the draft cannot place.
-        // Raven wrote: if (*s) { Com_sprintf( level.voteString, sizeof( level.voteString ), "%s %s; set nextmap \"%s\"", arg1, arg2, s ); } else { Com_sprintf( level.voteString, sizeof( level.voteString ), "%s %s", arg1, arg2 ); }
-        portMissing("Cmd_CallVote_f", source: "oracle/codemp/game/g_cmds.c:1974")
+        if s[0] != 0 {
+            Com_sprintf(&level.voteStringBuffer, 1024, "%s %s; set nextmap \"%s\"", arg1, arg2, s)
+        } else {
+            Com_sprintf(&level.voteStringBuffer, 1024, "%s %s", arg1, arg2)
+        }
 
         // Port-note: Raven stores `G_GetArenaInfoByMap(arg2)`, and the callee hands an optional text back where the target takes a value. A never-null ruling is due.
         // Raven wrote: arenaInfo = G_GetArenaInfoByMap(arg2)
@@ -2104,9 +2039,10 @@ func Cmd_CallVote_f(_ ent: Entity) {
         var s = CharBuf(1024)
 
         strcpy(&s, trap_Cvar_VariableStringBuffer("nextmap", Int32((s).count)))
-        // Port-note: A pointer dereference the draft cannot place.
-        // Raven wrote: if (!*s) { trap_SendServerCommand( ent-g_entities, "print \"nextmap not set.\n\"" ); return; }
-        portMissing("Cmd_CallVote_f", source: "oracle/codemp/game/g_cmds.c:1974")
+        if s[0] == 0 {
+            trap_SendServerCommand(ent.s.number, "print \"nextmap not set.\n\"")
+            return
+        }
         SiegeClearSwitchData()
         Com_sprintf(&level.voteStringBuffer, 1024, "vstr nextmap")
         Com_sprintf(&level.voteDisplayStringBuffer, 1024, "%s", level.voteString)
@@ -2115,9 +2051,7 @@ func Cmd_CallVote_f(_ ent: Entity) {
         Com_sprintf(&level.voteDisplayStringBuffer, 1024, "%s", level.voteString)
     }
 
-    // Port-note: Raven passes `"MP_SVGAME"` to `G_GetStringEdString`, whose `char *` parameter the stub holds as an inout CharBuf. Docket row 5 is due.
-    // Raven wrote: trap_SendServerCommand( -1, va("print \"%s^7 %s\n\"", ent->client->pers.netname, G_GetStringEdString("MP_SVGAME", "PLCALLEDVOTE") ) )
-    portMissing("Cmd_CallVote_f", source: "oracle/codemp/game/g_cmds.c:1974")
+    trap_SendServerCommand(-1, va("print \"%s^7 %s\n\"", ent.client!.pers.netname, G_GetStringEdString("MP_SVGAME", "PLCALLEDVOTE")))
 
     // start the voting, the caller autoamtically votes yes
     level.voteTime = level.time
@@ -2149,29 +2083,21 @@ func Cmd_Vote_f(_ ent: Entity) {
     var msg = CharBuf(64)
 
     if level.voteTime == 0 {
-        // Port-note: Raven passes `"MP_SVGAME"` to `G_GetStringEdString`, whose `char *` parameter the stub holds as an inout CharBuf. Docket row 5 is due.
-        // Raven wrote: trap_SendServerCommand( ent-g_entities, va("print \"%s\n\"", G_GetStringEdString("MP_SVGAME", "NOVOTEINPROG")) )
-        portMissing("Cmd_Vote_f", source: "oracle/codemp/game/g_cmds.c:2163")
+        trap_SendServerCommand(ent.s.number, va("print \"%s\n\"", G_GetStringEdString("MP_SVGAME", "NOVOTEINPROG")))
         return
     }
     if (ent.client!.mGameFlags & UInt32(bitPattern: PSG_VOTED)) != 0 {
-        // Port-note: Raven passes `"MP_SVGAME"` to `G_GetStringEdString`, whose `char *` parameter the stub holds as an inout CharBuf. Docket row 5 is due.
-        // Raven wrote: trap_SendServerCommand( ent-g_entities, va("print \"%s\n\"", G_GetStringEdString("MP_SVGAME", "VOTEALREADY")) )
-        portMissing("Cmd_Vote_f", source: "oracle/codemp/game/g_cmds.c:2163")
+        trap_SendServerCommand(ent.s.number, va("print \"%s\n\"", G_GetStringEdString("MP_SVGAME", "VOTEALREADY")))
         return
     }
     if g_gametype.integer != GT_DUEL && g_gametype.integer != GT_POWERDUEL {
         if ent.client!.sess.sessionTeam == TEAM_SPECTATOR {
-            // Port-note: Raven passes `"MP_SVGAME"` to `G_GetStringEdString`, whose `char *` parameter the stub holds as an inout CharBuf. Docket row 5 is due.
-            // Raven wrote: trap_SendServerCommand( ent-g_entities, va("print \"%s\n\"", G_GetStringEdString("MP_SVGAME", "NOVOTEASSPEC")) )
-            portMissing("Cmd_Vote_f", source: "oracle/codemp/game/g_cmds.c:2163")
+            trap_SendServerCommand(ent.s.number, va("print \"%s\n\"", G_GetStringEdString("MP_SVGAME", "NOVOTEASSPEC")))
             return
         }
     }
 
-    // Port-note: Raven passes `"MP_SVGAME"` to `G_GetStringEdString`, whose `char *` parameter the stub holds as an inout CharBuf. Docket row 5 is due.
-    // Raven wrote: trap_SendServerCommand( ent-g_entities, va("print \"%s\n\"", G_GetStringEdString("MP_SVGAME", "PLVOTECAST")) )
-    portMissing("Cmd_Vote_f", source: "oracle/codemp/game/g_cmds.c:2163")
+    trap_SendServerCommand(ent.s.number, va("print \"%s\n\"", G_GetStringEdString("MP_SVGAME", "PLVOTECAST")))
 
     ent.client!.mGameFlags |= UInt32(bitPattern: PSG_VOTED)
 
@@ -2220,28 +2146,20 @@ func Cmd_CallTeamVote_f(_ ent: Entity) {
     }
 
     if g_allowTeamVote.integer == 0 {
-        // Port-note: Raven passes `"MP_SVGAME"` to `G_GetStringEdString`, whose `char *` parameter the stub holds as an inout CharBuf. Docket row 5 is due.
-        // Raven wrote: trap_SendServerCommand( ent-g_entities, va("print \"%s\n\"", G_GetStringEdString("MP_SVGAME", "NOVOTE")) )
-        portMissing("Cmd_CallTeamVote_f", source: "oracle/codemp/game/g_cmds.c:2206")
+        trap_SendServerCommand(ent.s.number, va("print \"%s\n\"", G_GetStringEdString("MP_SVGAME", "NOVOTE")))
         return
     }
 
     if level.teamVoteTime[cs_offset] != 0 {
-        // Port-note: Raven passes `"MP_SVGAME"` to `G_GetStringEdString`, whose `char *` parameter the stub holds as an inout CharBuf. Docket row 5 is due.
-        // Raven wrote: trap_SendServerCommand( ent-g_entities, va("print \"%s\n\"", G_GetStringEdString("MP_SVGAME", "TEAMVOTEALREADY")) )
-        portMissing("Cmd_CallTeamVote_f", source: "oracle/codemp/game/g_cmds.c:2206")
+        trap_SendServerCommand(ent.s.number, va("print \"%s\n\"", G_GetStringEdString("MP_SVGAME", "TEAMVOTEALREADY")))
         return
     }
     if ent.client!.pers.teamVoteCount >= MAX_VOTE_COUNT {
-        // Port-note: Raven passes `"MP_SVGAME"` to `G_GetStringEdString`, whose `char *` parameter the stub holds as an inout CharBuf. Docket row 5 is due.
-        // Raven wrote: trap_SendServerCommand( ent-g_entities, va("print \"%s\n\"", G_GetStringEdString("MP_SVGAME", "MAXTEAMVOTES")) )
-        portMissing("Cmd_CallTeamVote_f", source: "oracle/codemp/game/g_cmds.c:2206")
+        trap_SendServerCommand(ent.s.number, va("print \"%s\n\"", G_GetStringEdString("MP_SVGAME", "MAXTEAMVOTES")))
         return
     }
     if ent.client!.sess.sessionTeam == TEAM_SPECTATOR {
-        // Port-note: Raven passes `"MP_SVGAME"` to `G_GetStringEdString`, whose `char *` parameter the stub holds as an inout CharBuf. Docket row 5 is due.
-        // Raven wrote: trap_SendServerCommand( ent-g_entities, va("print \"%s\n\"", G_GetStringEdString("MP_SVGAME", "NOSPECVOTE")) )
-        portMissing("Cmd_CallTeamVote_f", source: "oracle/codemp/game/g_cmds.c:2206")
+        trap_SendServerCommand(ent.s.number, va("print \"%s\n\"", G_GetStringEdString("MP_SVGAME", "NOSPECVOTE")))
         return
     }
 
@@ -2410,27 +2328,19 @@ func Cmd_TeamVote_f(_ ent: Entity) {
     }
 
     if level.teamVoteTime[cs_offset] == 0 {
-        // Port-note: Raven passes `"MP_SVGAME"` to `G_GetStringEdString`, whose `char *` parameter the stub holds as an inout CharBuf. Docket row 5 is due.
-        // Raven wrote: trap_SendServerCommand( ent-g_entities, va("print \"%s\n\"", G_GetStringEdString("MP_SVGAME", "NOTEAMVOTEINPROG")) )
-        portMissing("Cmd_TeamVote_f", source: "oracle/codemp/game/g_cmds.c:2370")
+        trap_SendServerCommand(ent.s.number, va("print \"%s\n\"", G_GetStringEdString("MP_SVGAME", "NOTEAMVOTEINPROG")))
         return
     }
     if (ent.client!.mGameFlags & UInt32(bitPattern: PSG_TEAMVOTED)) != 0 {
-        // Port-note: Raven passes `"MP_SVGAME"` to `G_GetStringEdString`, whose `char *` parameter the stub holds as an inout CharBuf. Docket row 5 is due.
-        // Raven wrote: trap_SendServerCommand( ent-g_entities, va("print \"%s\n\"", G_GetStringEdString("MP_SVGAME", "TEAMVOTEALREADYCAST")) )
-        portMissing("Cmd_TeamVote_f", source: "oracle/codemp/game/g_cmds.c:2370")
+        trap_SendServerCommand(ent.s.number, va("print \"%s\n\"", G_GetStringEdString("MP_SVGAME", "TEAMVOTEALREADYCAST")))
         return
     }
     if ent.client!.sess.sessionTeam == TEAM_SPECTATOR {
-        // Port-note: Raven passes `"MP_SVGAME"` to `G_GetStringEdString`, whose `char *` parameter the stub holds as an inout CharBuf. Docket row 5 is due.
-        // Raven wrote: trap_SendServerCommand( ent-g_entities, va("print \"%s\n\"", G_GetStringEdString("MP_SVGAME", "NOVOTEASSPEC")) )
-        portMissing("Cmd_TeamVote_f", source: "oracle/codemp/game/g_cmds.c:2370")
+        trap_SendServerCommand(ent.s.number, va("print \"%s\n\"", G_GetStringEdString("MP_SVGAME", "NOVOTEASSPEC")))
         return
     }
 
-    // Port-note: Raven passes `"MP_SVGAME"` to `G_GetStringEdString`, whose `char *` parameter the stub holds as an inout CharBuf. Docket row 5 is due.
-    // Raven wrote: trap_SendServerCommand( ent-g_entities, va("print \"%s\n\"", G_GetStringEdString("MP_SVGAME", "PLTEAMVOTECAST")) )
-    portMissing("Cmd_TeamVote_f", source: "oracle/codemp/game/g_cmds.c:2370")
+    trap_SendServerCommand(ent.s.number, va("print \"%s\n\"", G_GetStringEdString("MP_SVGAME", "PLTEAMVOTECAST")))
 
     ent.client!.mGameFlags |= UInt32(bitPattern: PSG_TEAMVOTED)
 
@@ -2463,9 +2373,7 @@ func Cmd_SetViewpos_f(_ ent: Entity) {
     var i: Int32
 
     if g_cheats.integer == 0 {
-        // Port-note: Raven passes `"MP_SVGAME"` to `G_GetStringEdString`, whose `char *` parameter the stub holds as an inout CharBuf. Docket row 5 is due.
-        // Raven wrote: trap_SendServerCommand( ent-g_entities, va("print \"%s\n\"", G_GetStringEdString("MP_SVGAME", "NOCHEATS")))
-        portMissing("Cmd_SetViewpos_f", source: "oracle/codemp/game/g_cmds.c:2419")
+        trap_SendServerCommand(ent.s.number, va("print \"%s\n\"", G_GetStringEdString("MP_SVGAME", "NOCHEATS")))
         return
     }
     if trap_Argc() != 5 {
@@ -2578,11 +2486,8 @@ func G_ItemUsable(_ ps: JKAMP.PlayerState, _ forcedUse: Int32) -> Int32 {
             mins = vec3_t(-8, -8, 0)
             maxs = vec3_t(8, 8, 24)
 
-            // Port-note: Raven passes NULL for the `right` output. The ported function takes it by reference, so the body passes a scratch local it never reads.
-            portMissing("G_ItemUsable", source: "oracle/codemp/game/g_cmds.c:2469")
+            // Raven passes NULL for the `right` and `up` outputs, and the scratch locals take the writes.
             var scratchRight = vec3_t()
-            // Port-note: Raven passes NULL for the `up` output. The ported function takes it by reference, so the body passes a scratch local it never reads.
-            portMissing("G_ItemUsable", source: "oracle/codemp/game/g_cmds.c:2469")
             var scratchUp = vec3_t()
             AngleVectors(yawonly, &fwd, &scratchRight, &scratchUp)
 
@@ -2612,11 +2517,8 @@ func G_ItemUsable(_ ps: JKAMP.PlayerState, _ forcedUse: Int32) -> Int32 {
             maxs[1] = 8
             maxs[2] = 8
 
-            // Port-note: Raven passes NULL for the `right` output. The ported function takes it by reference, so the body passes a scratch local it never reads.
-            portMissing("G_ItemUsable", source: "oracle/codemp/game/g_cmds.c:2469")
+            // Raven passes NULL for the `right` and `up` outputs, and the scratch locals take the writes.
             var scratchRight2 = vec3_t()
-            // Port-note: Raven passes NULL for the `up` output. The ported function takes it by reference, so the body passes a scratch local it never reads.
-            portMissing("G_ItemUsable", source: "oracle/codemp/game/g_cmds.c:2469")
             var scratchUp2 = vec3_t()
             AngleVectors(ps.viewangles, &fwd, &scratchRight2, &scratchUp2)
             fwd[2] = 0
@@ -2919,18 +2821,14 @@ func Cmd_EngageDuel_f(_ ent: Entity) {
 
         if g_gametype.integer == GT_DUEL || g_gametype.integer == GT_POWERDUEL {
             //rather pointless in this mode..
-            // Port-note: Raven passes `"MP_SVGAME"` to `G_GetStringEdString`, whose `char *` parameter the stub holds as an inout CharBuf. Docket row 5 is due.
-            // Raven wrote: trap_SendServerCommand( ent-g_entities, va("print \"%s\n\"", G_GetStringEdString("MP_SVGAME", "NODUEL_GAMETYPE")) )
-            portMissing("Cmd_EngageDuel_f", source: "oracle/codemp/game/g_cmds.c:2894")
+            trap_SendServerCommand(ent.s.number, va("print \"%s\n\"", G_GetStringEdString("MP_SVGAME", "NODUEL_GAMETYPE")))
             return true
         }
 
         //if (g_gametype.integer >= GT_TEAM && g_gametype.integer != GT_SIEGE)
         if g_gametype.integer >= GT_TEAM {
             //no private dueling in team modes
-            // Port-note: Raven passes `"MP_SVGAME"` to `G_GetStringEdString`, whose `char *` parameter the stub holds as an inout CharBuf. Docket row 5 is due.
-            // Raven wrote: trap_SendServerCommand( ent-g_entities, va("print \"%s\n\"", G_GetStringEdString("MP_SVGAME", "NODUEL_GAMETYPE")) )
-            portMissing("Cmd_EngageDuel_f", source: "oracle/codemp/game/g_cmds.c:2894")
+            trap_SendServerCommand(ent.s.number, va("print \"%s\n\"", G_GetStringEdString("MP_SVGAME", "NODUEL_GAMETYPE")))
             return true
         }
 
@@ -2960,24 +2858,17 @@ func Cmd_EngageDuel_f(_ ent: Entity) {
 
         //New: Don't let a player duel if he just did and hasn't waited 10 seconds yet (note: If someone challenges him, his duel timer will reset so he can accept)
         if ent.client!.ps.fd.privateDuelTime > level.time {
-            // Port-note: Raven passes `"MP_SVGAME"` to `G_GetStringEdString`, whose `char *` parameter the stub holds as an inout CharBuf. Docket row 5 is due.
-            // Raven wrote: trap_SendServerCommand( ent-g_entities, va("print \"%s\n\"", G_GetStringEdString("MP_SVGAME", "CANTDUEL_JUSTDID")) )
-            portMissing("Cmd_EngageDuel_f", source: "oracle/codemp/game/g_cmds.c:2894")
+            trap_SendServerCommand(ent.s.number, va("print \"%s\n\"", G_GetStringEdString("MP_SVGAME", "CANTDUEL_JUSTDID")))
             return true
         }
 
         if G_OtherPlayersDueling() {
-            // Port-note: Raven passes `"MP_SVGAME"` to `G_GetStringEdString`, whose `char *` parameter the stub holds as an inout CharBuf. Docket row 5 is due.
-            // Raven wrote: trap_SendServerCommand( ent-g_entities, va("print \"%s\n\"", G_GetStringEdString("MP_SVGAME", "CANTDUEL_BUSY")) )
-            portMissing("Cmd_EngageDuel_f", source: "oracle/codemp/game/g_cmds.c:2894")
+            trap_SendServerCommand(ent.s.number, va("print \"%s\n\"", G_GetStringEdString("MP_SVGAME", "CANTDUEL_BUSY")))
             return true
         }
 
-        // Port-note: Raven passes NULL for the `right` output. The ported function takes it by reference, so the body passes a scratch local it never reads.
-        portMissing("Cmd_EngageDuel_f", source: "oracle/codemp/game/g_cmds.c:2894")
+        // Raven passes NULL for the `right` and `up` outputs, and the scratch locals take the writes.
         var scratchRight = vec3_t()
-        // Port-note: Raven passes NULL for the `up` output. The ported function takes it by reference, so the body passes a scratch local it never reads.
-        portMissing("Cmd_EngageDuel_f", source: "oracle/codemp/game/g_cmds.c:2894")
         var scratchUp = vec3_t()
         AngleVectors(ent.client!.ps.viewangles, &forward, &scratchRight, &scratchUp)
 
@@ -3003,9 +2894,7 @@ func Cmd_EngageDuel_f(_ ent: Entity) {
             }
 
             if challenged!.client!.ps.duelIndex == ent.s.number && challenged!.client!.ps.duelTime >= level.time {
-                // Port-note: Raven passes `"MP_SVGAME"` to `G_GetStringEdString`, whose `char *` parameter the stub holds as an inout CharBuf. Docket row 5 is due.
-                // Raven wrote: trap_SendServerCommand( /*challenged-g_entities*/-1, va("print \"%s %s %s!\n\"", challenged->client->pers.netname, G_GetStringEdString("MP_SVGAME", "PLDUELACCEPT"), ent->client->pers.netname) )
-                portMissing("Cmd_EngageDuel_f", source: "oracle/codemp/game/g_cmds.c:2894")
+                trap_SendServerCommand(/*challenged-g_entities*/ -1, va("print \"%s %s %s!\n\"", challenged!.client!.pers.netname, G_GetStringEdString("MP_SVGAME", "PLDUELACCEPT"), ent.client!.pers.netname))
 
                 ent.client!.ps.duelInProgress = true
                 challenged!.client!.ps.duelInProgress = true
@@ -3040,12 +2929,8 @@ func Cmd_EngageDuel_f(_ ent: Entity) {
                 }
             } else {
                 //Print the message that a player has been challenged in private, only announce the actual duel initiation in private
-                // Port-note: Raven passes `"MP_SVGAME"` to `G_GetStringEdString`, whose `char *` parameter the stub holds as an inout CharBuf. Docket row 5 is due.
-                // Raven wrote: trap_SendServerCommand( challenged-g_entities, va("cp \"%s %s\n\"", ent->client->pers.netname, G_GetStringEdString("MP_SVGAME", "PLDUELCHALLENGE")) )
-                portMissing("Cmd_EngageDuel_f", source: "oracle/codemp/game/g_cmds.c:2894")
-                // Port-note: Raven passes `"MP_SVGAME"` to `G_GetStringEdString`, whose `char *` parameter the stub holds as an inout CharBuf. Docket row 5 is due.
-                // Raven wrote: trap_SendServerCommand( ent-g_entities, va("cp \"%s %s\n\"", G_GetStringEdString("MP_SVGAME", "PLDUELCHALLENGED"), challenged->client->pers.netname) )
-                portMissing("Cmd_EngageDuel_f", source: "oracle/codemp/game/g_cmds.c:2894")
+                trap_SendServerCommand(challenged!.s.number, va("cp \"%s %s\n\"", ent.client!.pers.netname, G_GetStringEdString("MP_SVGAME", "PLDUELCHALLENGE")))
+                trap_SendServerCommand(ent.s.number, va("cp \"%s %s\n\"", G_GetStringEdString("MP_SVGAME", "PLDUELCHALLENGED"), challenged!.client!.pers.netname))
             }
 
             challenged!.client!.ps.fd.privateDuelTime = 0 //reset the timer in case this player just got out of a duel. He should still be able to accept the challenge.
@@ -3297,9 +3182,7 @@ func ClientCommand(_ clientNum: Int32) {
         }
 
         if giveError {
-            // Port-note: Raven passes `"MP_SVGAME"` to `G_GetStringEdString`, whose `char *` parameter the stub holds as an inout CharBuf. Docket row 5 is due.
-            // Raven wrote: trap_SendServerCommand( clientNum, va("print \"%s (%s) \n\"", G_GetStringEdString("MP_SVGAME", "CANNOT_TASK_INTERMISSION"), cmd ) )
-            portMissing("ClientCommand", source: "oracle/codemp/game/g_cmds.c:3202")
+            trap_SendServerCommand(clientNum, va("print \"%s (%s) \n\"", G_GetStringEdString("MP_SVGAME", "CANNOT_TASK_INTERMISSION"), cmd))
         } else {
             Cmd_Say_f(g_entities[entIndex], 0, true)
         }
@@ -3581,11 +3464,8 @@ func ClientCommand(_ clientNum: Int32) {
                 return true
             }
 
-            // Port-note: Raven passes NULL for the `right` output. The ported function takes it by reference, so the body passes a scratch local it never reads.
-            portMissing("ClientCommand", source: "oracle/codemp/game/g_cmds.c:3202")
+            // Raven passes NULL for the `right` and `up` outputs, and the scratch locals take the writes.
             var scratchRight = vec3_t()
-            // Port-note: Raven passes NULL for the `up` output. The ported function takes it by reference, so the body passes a scratch local it never reads.
-            portMissing("ClientCommand", source: "oracle/codemp/game/g_cmds.c:3202")
             var scratchUp = vec3_t()
             AngleVectors(g_entities[entIndex].client!.ps.viewangles, &fwd, &scratchRight, &scratchUp)
             tTo[0] = g_entities[entIndex].client!.ps.origin[0] + fwd[0] * 32
@@ -3654,8 +3534,7 @@ func ClientCommand(_ clientNum: Int32) {
                             tAngles = vec3_t()
                             tAngles[YAW] = g_entities[entIndex].client!.ps.viewangles[YAW]
                             pBoltOrg = g_entities[entIndex].client!.ps.origin
-                            // Port-note: Raven passes NULL for the `up` output. The ported function takes it by reference, so the body passes a scratch local it never reads.
-                            portMissing("ClientCommand", source: "oracle/codemp/game/g_cmds.c:3202")
+                            // Raven passes NULL for the `up` output, and the scratch local takes the write.
                             var scratchUp2 = vec3_t()
                             AngleVectors(tAngles, &fwd, &right, &scratchUp2)
                             boltOrg[0] = pBoltOrg[0] + fwd[0] * 8 + right[0] * pDif
@@ -3726,9 +3605,7 @@ func ClientCommand(_ clientNum: Int32) {
         if Q_stricmp(cmd, "addbot") == 0 {
             //because addbot isn't a recognized command unless you're the server, but it is in the menus regardless
             //			trap_SendServerCommand( clientNum, va("print \"You can only add bots as the server.\n\"" ) );
-            // Port-note: Raven passes `"MP_SVGAME"` to `G_GetStringEdString`, whose `char *` parameter the stub holds as an inout CharBuf. Docket row 5 is due.
-            // Raven wrote: trap_SendServerCommand( clientNum, va("print \"%s.\n\"", G_GetStringEdString("MP_SVGAME", "ONLY_ADD_BOTS_AS_SERVER")))
-            portMissing("ClientCommand", source: "oracle/codemp/game/g_cmds.c:3202")
+            trap_SendServerCommand(clientNum, va("print \"%s.\n\"", G_GetStringEdString("MP_SVGAME", "ONLY_ADD_BOTS_AS_SERVER")))
         } else {
             trap_SendServerCommand(clientNum, va("print \"unknown cmd %s\n\"", cmd))
         }

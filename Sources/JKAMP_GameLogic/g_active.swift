@@ -679,87 +679,74 @@ SpectatorThink
 */
 /// Source: oracle/codemp/game/g_active.c:678
 func SpectatorThink(_ ent: Entity, _ ucmd: JKAMP.Usercmd) {
-    // Port-note: The draft of this statement did not compile, and the compiler wrote "value of type '@Sendable (Pmove) -> ()' has no member 'scratch'".
-    // Raven wrote: pmove_t pm;
-    portMissing("SpectatorThink", source: "oracle/codemp/game/g_active.c:678")
-    var client: Client?
+    // Pmove names both the view and the function, so the module name selects the view.
+    // Raven's record lives to the end of the function, so the rest of the body is the closure.
+    JKAMP.Pmove.scratch { pm in
+        var client: Client?
 
-    client = ent.client
+        client = ent.client
 
-    if client!.sess.spectatorState != SPECTATOR_FOLLOW {
-        client!.ps.pm_type = PM_SPECTATOR
-        client!.ps.speed = 400 // faster than normal
-        client!.ps.basespeed = 400
+        if client!.sess.spectatorState != SPECTATOR_FOLLOW {
+            client!.ps.pm_type = PM_SPECTATOR
+            client!.ps.speed = 400 // faster than normal
+            client!.ps.basespeed = 400
 
-        //hmm, shouldn't have an anim if you're a spectator, make sure
-        //it gets cleared.
-        client!.ps.legsAnim = 0
-        client!.ps.legsTimer = 0
-        client!.ps.torsoAnim = 0
-        client!.ps.torsoTimer = 0
+            //hmm, shouldn't have an anim if you're a spectator, make sure
+            //it gets cleared.
+            client!.ps.legsAnim = 0
+            client!.ps.legsTimer = 0
+            client!.ps.torsoAnim = 0
+            client!.ps.torsoTimer = 0
 
-        // set up for pmove
-        // Raven clears the record with `memset` here. The scratch slot is zero at entry, so the body drops the call.
-        // Port-note: A read of `pm`, a local the draft left as a hole.
-        // Raven wrote: pm.ps = &client->ps
-        portMissing("SpectatorThink", source: "oracle/codemp/game/g_active.c:678")
-        // Port-note: A read of `pm`, a local the draft left as a hole.
-        // Raven wrote: pm.cmd = *ucmd
-        portMissing("SpectatorThink", source: "oracle/codemp/game/g_active.c:678")
-        // Port-note: A read of `pm`, a local the draft left as a hole.
-        // Raven wrote: pm.tracemask = MASK_PLAYERSOLID & ~CONTENTS_BODY
-        portMissing("SpectatorThink", source: "oracle/codemp/game/g_active.c:678")
-        // Port-note: A read of `pm`, a local the draft left as a hole.
-        // Raven wrote: pm.trace = trap_Trace
-        portMissing("SpectatorThink", source: "oracle/codemp/game/g_active.c:678")
-        // Port-note: A read of `pm`, a local the draft left as a hole.
-        // Raven wrote: pm.pointcontents = trap_PointContents
-        portMissing("SpectatorThink", source: "oracle/codemp/game/g_active.c:678")
+            // set up for pmove
+            // Raven clears the record with `memset` here. The scratch slot is zero at entry, so the body drops the call.
+            pm.ps = client!.ps
+            pm.cmd = ucmd
+            pm.tracemask = MASK_PLAYERSOLID & ~CONTENTS_BODY // spectators can fly through bodies
+            // Port-note: A read of `pm`, a local the draft left as a hole.
+            // Raven wrote: pm.trace = trap_Trace
+            portMissing("SpectatorThink", source: "oracle/codemp/game/g_active.c:678")
+            // Port-note: A read of `pm`, a local the draft left as a hole.
+            // Raven wrote: pm.pointcontents = trap_PointContents
+            portMissing("SpectatorThink", source: "oracle/codemp/game/g_active.c:678")
 
-        // Port-note: A read of `pm`, a local the draft left as a hole.
-        // Raven wrote: pm.noSpecMove = g_noSpecMove.integer
-        portMissing("SpectatorThink", source: "oracle/codemp/game/g_active.c:678")
+            pm.noSpecMove = g_noSpecMove.integer
 
-        // Port-note: A read of `pm`, a local the draft left as a hole.
-        // Raven wrote: pm.animations = NULL
-        portMissing("SpectatorThink", source: "oracle/codemp/game/g_active.c:678")
-        // Port-note: A read of `pm`, a local the draft left as a hole.
-        // Raven wrote: pm.nonHumanoid = qfalse
-        portMissing("SpectatorThink", source: "oracle/codemp/game/g_active.c:678")
+            pm.animations = nil
+            pm.nonHumanoid = false
 
-        //Set up bg entity data
-        // Port-note: A read of `pm`, a local the draft left as a hole.
-        // Raven wrote: pm.baseEnt = (bgEntity_t *)g_entities
-        portMissing("SpectatorThink", source: "oracle/codemp/game/g_active.c:678")
-        // Port-note: A read of `pm`, a local the draft left as a hole.
-        // Raven wrote: pm.entSize = sizeof(gentity_t)
-        portMissing("SpectatorThink", source: "oracle/codemp/game/g_active.c:678")
+            //Set up bg entity data
+            // Port-note: A read of `pm`, a local the draft left as a hole.
+            // Raven wrote: pm.baseEnt = (bgEntity_t *)g_entities
+            portMissing("SpectatorThink", source: "oracle/codemp/game/g_active.c:678")
+            // Port-note: A read of `pm`, a local the draft left as a hole.
+            // Raven wrote: pm.entSize = sizeof(gentity_t)
+            portMissing("SpectatorThink", source: "oracle/codemp/game/g_active.c:678")
 
-        // perform a pmove
-        // Port-note: A read of `pm`, a local the draft left as a hole.
-        // Raven wrote: Pmove (&pm)
-        portMissing("SpectatorThink", source: "oracle/codemp/game/g_active.c:678")
-        // save results of pmove
-        ent.s.origin = client!.ps.origin
+            // perform a pmove
+            Pmove(pm)
+            // save results of pmove
+            ent.s.origin = client!.ps.origin
 
-        if ent.client!.tempSpectate < level.time {
-            G_TouchTriggers(ent)
-        }
-        trap_UnlinkEntity(ent)
-    }
-
-    client!.oldbuttons = client!.buttons
-    client!.buttons = ucmd.buttons
-
-    if client!.tempSpectate < level.time {
-        // attack button cycles through spectators
-        if (client!.buttons & BUTTON_ATTACK) != 0 && !((client!.oldbuttons & BUTTON_ATTACK) != 0) {
-            Cmd_FollowCycle_f(ent, 1)
+            if ent.client!.tempSpectate < level.time {
+                G_TouchTriggers(ent)
+            }
+            trap_UnlinkEntity(ent)
         }
 
-        if client!.sess.spectatorState == SPECTATOR_FOLLOW && (ucmd.upmove > 0) {
-            //jump now removes you from follow mode
-            StopFollowing(ent)
+        client!.oldbuttons = client!.buttons
+        client!.buttons = ucmd.buttons
+
+        if client!.tempSpectate < level.time {
+            // attack button cycles through spectators
+            if (client!.buttons & BUTTON_ATTACK) != 0 && !((client!.oldbuttons & BUTTON_ATTACK) != 0) {
+                Cmd_FollowCycle_f(ent, 1)
+            }
+
+            if client!.sess.spectatorState == SPECTATOR_FOLLOW && (ucmd.upmove > 0) {
+                //jump now removes you from follow mode
+                StopFollowing(ent)
+            }
         }
     }
 }
@@ -1223,8 +1210,7 @@ func G_AddPushVecToUcmd(_ `self`: Entity, _ ucmd: JKAMP.Usercmd) {
         return
     }
 
-    // Port-note: Raven passes NULL for the `up` output. The ported function takes it by reference, so the body passes a scratch local it never reads.
-    portMissing("G_AddPushVecToUcmd", source: "oracle/codemp/game/g_active.c:1211")
+    // Raven passes NULL for the `up` output, and AngleVectors only skips that write.
     var scratchUp = vec3_t()
     AngleVectors(`self`.client!.ps.viewangles, &forward, &right, &scratchUp)
     moveDir = forward * (ucmd.forwardmove / 127.0 * `self`.client!.ps.speed)
@@ -1536,15 +1522,9 @@ func G_HeldByMonster(_ ent: Entity, _ ucmd: inout JKAMP.Usercmd?) {
         }
     }
     // don't allow movement, weapon switching, and most kinds of button presses
-    // Port-note: The draft of this statement did not compile, and the compiler wrote "value of optional type 'Usercmd?' must be unwrapped to refer to member 'forwardmove' of wrapped base type 'Usercmd'".
-    // Raven wrote: (*ucmd)->forwardmove = 0
-    portMissing("G_HeldByMonster", source: "oracle/codemp/game/g_active.c:1616")
-    // Port-note: The draft of this statement did not compile, and the compiler wrote "value of optional type 'Usercmd?' must be unwrapped to refer to member 'rightmove' of wrapped base type 'Usercmd'".
-    // Raven wrote: (*ucmd)->rightmove = 0
-    portMissing("G_HeldByMonster", source: "oracle/codemp/game/g_active.c:1616")
-    // Port-note: The draft of this statement did not compile, and the compiler wrote "value of optional type 'Usercmd?' must be unwrapped to refer to member 'upmove' of wrapped base type 'Usercmd'".
-    // Raven wrote: (*ucmd)->upmove = 0
-    portMissing("G_HeldByMonster", source: "oracle/codemp/game/g_active.c:1616")
+    ucmd!.forwardmove = 0
+    ucmd!.rightmove = 0
+    ucmd!.upmove = 0
 }
 
 /// Source: oracle/codemp/game/g_active.c:1662
@@ -1781,1260 +1761,1406 @@ once for each server frame, which makes for smooth demo recording.
 /// Source: oracle/codemp/game/g_active.c:1939
 func ClientThink_real(_ ent: Entity) {
     var client: Client?
-    // Port-note: The draft of this statement did not compile, and the compiler wrote "value of type '@Sendable (Pmove) -> ()' has no member 'scratch'".
-    // Raven wrote: pmove_t pm;
-    portMissing("ClientThink_real", source: "oracle/codemp/game/g_active.c:1939")
-    var oldEventSequence: Int32 = 0
-    var msec: Int32 = 0
-    var ucmd: Usercmd?
-    var isNPC: Bool = false
-    let controlledByPlayer: Bool = false
-    var killJetFlags: Bool = true
+    // Pmove names both the view and the function, so the module name selects the view.
+    // Raven's record lives to the end of the function, so the rest of the body is the closure.
+    JKAMP.Pmove.scratch { pm in
+        var oldEventSequence: Int32 = 0
+        var msec: Int32 = 0
+        var ucmd: Usercmd?
+        var isNPC: Bool = false
+        let controlledByPlayer: Bool = false
+        var killJetFlags: Bool = true
 
-    client = ent.client
+        client = ent.client
 
-    if ent.s.eType == ET_NPC {
-        isNPC = true
-    }
+        if ent.s.eType == ET_NPC {
+            isNPC = true
+        }
 
-    // don't think if the client is not yet connected (and thus not yet spawned in)
-    if client!.pers.connected != CON_CONNECTED && !isNPC {
-        return
-    }
+        // don't think if the client is not yet connected (and thus not yet spawned in)
+        if client!.pers.connected != CON_CONNECTED && !isNPC {
+            return
+        }
 
-    // This code was moved here from clientThink to fix a problem with g_synchronousClients
-    // being set to 1 when in vehicles.
-    if ent.s.number < MAX_CLIENTS && ent.client!.ps.m_iVehicleNum != 0 {
-        //driving a vehicle
-        if g_entities[ent.client!.ps.m_iVehicleNum].client != nil {
-            let veh: Entity? = g_entities[ent.client!.ps.m_iVehicleNum]
+        // This code was moved here from clientThink to fix a problem with g_synchronousClients
+        // being set to 1 when in vehicles.
+        if ent.s.number < MAX_CLIENTS && ent.client!.ps.m_iVehicleNum != 0 {
+            //driving a vehicle
+            if g_entities[ent.client!.ps.m_iVehicleNum].client != nil {
+                let veh: Entity? = g_entities[ent.client!.ps.m_iVehicleNum]
 
-            if veh!.m_pVehicle != nil && veh!.m_pVehicle!.m_pPilot == BgEntity(ent) {
-                //only take input from the pilot...
-                veh!.client!.ps.commandTime = ent.client!.ps.commandTime
-                veh!.m_pVehicle!.m_ucmd.copy(from: ent.client!.pers.cmd)
-                if (veh!.m_pVehicle!.m_ucmd.buttons & BUTTON_TALK) != 0 {
-                    //forced input if "chat bubble" is up
-                    veh!.m_pVehicle!.m_ucmd.buttons = BUTTON_TALK
-                    veh!.m_pVehicle!.m_ucmd.forwardmove = 0
-                    veh!.m_pVehicle!.m_ucmd.rightmove = 0
-                    veh!.m_pVehicle!.m_ucmd.upmove = 0
+                if veh!.m_pVehicle != nil && veh!.m_pVehicle!.m_pPilot == BgEntity(ent) {
+                    //only take input from the pilot...
+                    veh!.client!.ps.commandTime = ent.client!.ps.commandTime
+                    veh!.m_pVehicle!.m_ucmd.copy(from: ent.client!.pers.cmd)
+                    if (veh!.m_pVehicle!.m_ucmd.buttons & BUTTON_TALK) != 0 {
+                        //forced input if "chat bubble" is up
+                        veh!.m_pVehicle!.m_ucmd.buttons = BUTTON_TALK
+                        veh!.m_pVehicle!.m_ucmd.forwardmove = 0
+                        veh!.m_pVehicle!.m_ucmd.rightmove = 0
+                        veh!.m_pVehicle!.m_ucmd.upmove = 0
+                    }
                 }
             }
         }
-    }
 
-    if !((client!.ps.pm_flags & PMF_FOLLOW) != 0) {
-        if g_gametype.integer == GT_SIEGE && client!.siegeClass != -1 && bgSiegeClasses[client!.siegeClass].saberStance != 0 {
-            //the class says we have to use this stance set.
-            if !((bgSiegeClasses[client!.siegeClass].saberStance & (1 << client!.ps.fd.saberAnimLevel)) != 0) {
-                //the current stance is not in the bitmask, so find the first one that is.
-                var i: Int32 = SS_FAST
+        if !((client!.ps.pm_flags & PMF_FOLLOW) != 0) {
+            if g_gametype.integer == GT_SIEGE && client!.siegeClass != -1 && bgSiegeClasses[client!.siegeClass].saberStance != 0 {
+                //the class says we have to use this stance set.
+                if !((bgSiegeClasses[client!.siegeClass].saberStance & (1 << client!.ps.fd.saberAnimLevel)) != 0) {
+                    //the current stance is not in the bitmask, so find the first one that is.
+                    var i: Int32 = SS_FAST
 
-                while i < SS_NUM_SABER_STYLES {
-                    if (bgSiegeClasses[client!.siegeClass].saberStance & (1 << i)) != 0 {
-                        if i == SS_DUAL && client!.ps.saberHolstered == 1 {
-                            //one saber should be off, adjust saberAnimLevel accordinly
-                            client!.ps.fd.saberAnimLevelBase = i
-                            client!.ps.fd.saberAnimLevel = SS_FAST
-                            client!.ps.fd.saberDrawAnimLevel = client!.ps.fd.saberAnimLevel
-                        } else if i == SS_STAFF && client!.ps.saberHolstered == 1 && client!.saber[0].singleBladeStyle != SS_NONE {
-                            //one saber or blade should be off, adjust saberAnimLevel accordinly
-                            client!.ps.fd.saberAnimLevelBase = i
-                            client!.ps.fd.saberAnimLevel = client!.saber[0].singleBladeStyle
-                            client!.ps.fd.saberDrawAnimLevel = client!.ps.fd.saberAnimLevel
-                        } else {
-                            client!.ps.fd.saberAnimLevel = i
-                            client!.ps.fd.saberAnimLevelBase = client!.ps.fd.saberAnimLevel
-                            client!.ps.fd.saberDrawAnimLevel = i
+                    while i < SS_NUM_SABER_STYLES {
+                        if (bgSiegeClasses[client!.siegeClass].saberStance & (1 << i)) != 0 {
+                            if i == SS_DUAL && client!.ps.saberHolstered == 1 {
+                                //one saber should be off, adjust saberAnimLevel accordinly
+                                client!.ps.fd.saberAnimLevelBase = i
+                                client!.ps.fd.saberAnimLevel = SS_FAST
+                                client!.ps.fd.saberDrawAnimLevel = client!.ps.fd.saberAnimLevel
+                            } else if i == SS_STAFF && client!.ps.saberHolstered == 1 && client!.saber[0].singleBladeStyle != SS_NONE {
+                                //one saber or blade should be off, adjust saberAnimLevel accordinly
+                                client!.ps.fd.saberAnimLevelBase = i
+                                client!.ps.fd.saberAnimLevel = client!.saber[0].singleBladeStyle
+                                client!.ps.fd.saberDrawAnimLevel = client!.ps.fd.saberAnimLevel
+                            } else {
+                                client!.ps.fd.saberAnimLevel = i
+                                client!.ps.fd.saberAnimLevelBase = client!.ps.fd.saberAnimLevel
+                                client!.ps.fd.saberDrawAnimLevel = i
+                            }
+                            break
                         }
-                        break
-                    }
 
-                    i += 1
+                        i += 1
+                    }
                 }
-            }
-        } else if !client!.saber[0].model.isEmpty && !client!.saber[1].model.isEmpty {
-            //with two sabs always use akimbo style
-            if client!.ps.saberHolstered == 1 {
-                //one saber should be off, adjust saberAnimLevel accordinly
-                client!.ps.fd.saberAnimLevelBase = SS_DUAL
-                client!.ps.fd.saberAnimLevel = SS_FAST
-                client!.ps.fd.saberDrawAnimLevel = client!.ps.fd.saberAnimLevel
-            } else {
-                if !WP_SaberStyleValidForSaber(client!.saber[0], client!.saber[1], client!.ps.saberHolstered, client!.ps.fd.saberAnimLevel) {
-                    //only use dual style if the style we're trying to use isn't valid
-                    client!.ps.fd.saberAnimLevel = SS_DUAL
-                    client!.ps.fd.saberAnimLevelBase = client!.ps.fd.saberAnimLevel
-                }
-                client!.ps.fd.saberDrawAnimLevel = client!.ps.fd.saberAnimLevel
-            }
-        } else {
-            if client!.saber[0].stylesLearned == (1 << SS_STAFF) {
-                //then *always* use the staff style
-                client!.ps.fd.saberAnimLevelBase = SS_STAFF
-            }
-            if client!.ps.fd.saberAnimLevelBase == SS_STAFF {
-                //using staff style
-                if client!.ps.saberHolstered == 1 && client!.saber[0].singleBladeStyle != SS_NONE {
-                    //one blade should be off, adjust saberAnimLevel accordinly
-                    client!.ps.fd.saberAnimLevel = client!.saber[0].singleBladeStyle
+            } else if !client!.saber[0].model.isEmpty && !client!.saber[1].model.isEmpty {
+                //with two sabs always use akimbo style
+                if client!.ps.saberHolstered == 1 {
+                    //one saber should be off, adjust saberAnimLevel accordinly
+                    client!.ps.fd.saberAnimLevelBase = SS_DUAL
+                    client!.ps.fd.saberAnimLevel = SS_FAST
                     client!.ps.fd.saberDrawAnimLevel = client!.ps.fd.saberAnimLevel
                 } else {
-                    client!.ps.fd.saberAnimLevel = SS_STAFF
+                    if !WP_SaberStyleValidForSaber(client!.saber[0], client!.saber[1], client!.ps.saberHolstered, client!.ps.fd.saberAnimLevel) {
+                        //only use dual style if the style we're trying to use isn't valid
+                        client!.ps.fd.saberAnimLevel = SS_DUAL
+                        client!.ps.fd.saberAnimLevelBase = client!.ps.fd.saberAnimLevel
+                    }
                     client!.ps.fd.saberDrawAnimLevel = client!.ps.fd.saberAnimLevel
                 }
-            }
-        }
-    }
-
-    // mark the time, so the connection sprite can be removed
-    ucmd = ent.client!.pers.cmd
-
-    if client != nil && (client!.ps.eFlags2 & EF2_HELD_BY_MONSTER) != 0 {
-        G_HeldByMonster(ent, &ucmd)
-    }
-
-    // sanity check the command time to prevent speedup cheating
-    if ucmd!.serverTime > level.time + 200 {
-        ucmd!.serverTime = level.time + 200
-        //		G_Printf("serverTime <<<<<\n" );
-    }
-    if ucmd!.serverTime < level.time - 1000 {
-        ucmd!.serverTime = level.time - 1000
-        //		G_Printf("serverTime >>>>>\n" );
-    }
-
-    if isNPC && (ucmd!.serverTime - client!.ps.commandTime) < 1 {
-        ucmd!.serverTime = client!.ps.commandTime + 100
-    }
-
-    msec = ucmd!.serverTime - client!.ps.commandTime
-    // following others may result in bad times, but we still want
-    // to check for follow toggles
-    if msec < 1 && client!.sess.spectatorState != SPECTATOR_FOLLOW {
-        return
-    }
-
-    if msec > 200 {
-        msec = 200
-    }
-
-    if pmove_msec.integer < 8 {
-        trap_Cvar_Set("pmove_msec", "8")
-    } else if pmove_msec.integer > 33 {
-        trap_Cvar_Set("pmove_msec", "33")
-    }
-
-    if pmove_fixed.integer != 0 || client!.pers.pmoveFixed {
-        ucmd!.serverTime = ((ucmd!.serverTime + pmove_msec.integer - 1) / pmove_msec.integer) * pmove_msec.integer
-        //if (ucmd->serverTime - client->ps.commandTime <= 0)
-        //	return;
-    }
-
-    //
-    // check for exiting intermission
-    //
-    if level.intermissiontime != 0 {
-        if ent.s.number < MAX_CLIENTS || client!.NPC_class == CLASS_VEHICLE {
-            //players and vehicles do nothing in intermissions
-            ClientIntermissionThink(client!)
-            return
-        }
-    }
-
-    // spectators don't do much
-    if client!.sess.sessionTeam == TEAM_SPECTATOR || client!.tempSpectate > level.time {
-        if client!.sess.spectatorState == SPECTATOR_SCOREBOARD {
-            return
-        }
-        SpectatorThink(ent, ucmd!)
-        return
-    }
-
-    if ent.client != nil && (ent.client!.ps.eFlags & EF_INVULNERABLE) != 0 {
-        if ent.client!.invulnerableTimer <= level.time {
-            ent.client!.ps.eFlags &= ~EF_INVULNERABLE
-        }
-    }
-
-    if ent.s.eType != ET_NPC {
-        // check for inactivity timer, but never drop the local client of a non-dedicated server
-        if !ClientInactivityTimer(client!) {
-            return
-        }
-    }
-
-    //Check if we should have a fullbody push effect around the player
-    if client!.pushEffectTime > level.time {
-        client!.ps.eFlags |= EF_BODYPUSH
-    } else if client!.pushEffectTime != 0 {
-        client!.pushEffectTime = 0
-        client!.ps.eFlags &= ~EF_BODYPUSH
-    }
-
-    if (client!.ps.stats[STAT_HOLDABLE_ITEMS] & (1 << HI_JETPACK)) != 0 {
-        client!.ps.eFlags |= EF_JETPACK
-    } else {
-        client!.ps.eFlags &= ~EF_JETPACK
-    }
-
-    if client!.noclip {
-        client!.ps.pm_type = PM_NOCLIP
-    } else if (client!.ps.eFlags & EF_DISINTEGRATION) != 0 {
-        client!.ps.pm_type = PM_NOCLIP
-    } else if client!.ps.stats[STAT_HEALTH] <= 0 {
-        client!.ps.pm_type = PM_DEAD
-    } else {
-        if client!.ps.forceGripChangeMovetype != 0 {
-            client!.ps.pm_type = client!.ps.forceGripChangeMovetype
-        } else {
-            if client!.jetPackOn {
-                client!.ps.pm_type = PM_JETPACK
-                client!.ps.eFlags |= EF_JETPACK_ACTIVE
-                killJetFlags = false
             } else {
-                client!.ps.pm_type = PM_NORMAL
+                if client!.saber[0].stylesLearned == (1 << SS_STAFF) {
+                    //then *always* use the staff style
+                    client!.ps.fd.saberAnimLevelBase = SS_STAFF
+                }
+                if client!.ps.fd.saberAnimLevelBase == SS_STAFF {
+                    //using staff style
+                    if client!.ps.saberHolstered == 1 && client!.saber[0].singleBladeStyle != SS_NONE {
+                        //one blade should be off, adjust saberAnimLevel accordinly
+                        client!.ps.fd.saberAnimLevel = client!.saber[0].singleBladeStyle
+                        client!.ps.fd.saberDrawAnimLevel = client!.ps.fd.saberAnimLevel
+                    } else {
+                        client!.ps.fd.saberAnimLevel = SS_STAFF
+                        client!.ps.fd.saberDrawAnimLevel = client!.ps.fd.saberAnimLevel
+                    }
+                }
             }
         }
-    }
 
-    if killJetFlags {
-        client!.ps.eFlags &= ~EF_JETPACK_ACTIVE
-        client!.ps.eFlags &= ~EF_JETPACK_FLAMING
-    }
+        // mark the time, so the connection sprite can be removed
+        ucmd = ent.client!.pers.cmd
 
+        if client != nil && (client!.ps.eFlags2 & EF2_HELD_BY_MONSTER) != 0 {
+            G_HeldByMonster(ent, &ucmd)
+        }
 
-    if client!.bodyGrabIndex != ENTITYNUM_NONE {
-        let grabbed: Entity? = g_entities[client!.bodyGrabIndex]
+        // sanity check the command time to prevent speedup cheating
+        if ucmd!.serverTime > level.time + 200 {
+            ucmd!.serverTime = level.time + 200
+            //		G_Printf("serverTime <<<<<\n" );
+        }
+        if ucmd!.serverTime < level.time - 1000 {
+            ucmd!.serverTime = level.time - 1000
+            //		G_Printf("serverTime >>>>>\n" );
+        }
 
-        if !grabbed!.inuse || grabbed!.s.eType != ET_BODY || (grabbed!.s.eFlags & EF_DISINTEGRATION) != 0 || (grabbed!.s.eFlags & EF_NODRAW) != 0 {
-            if grabbed!.inuse && grabbed!.s.eType == ET_BODY {
-                grabbed!.s.ragAttach = 0
+        if isNPC && (ucmd!.serverTime - client!.ps.commandTime) < 1 {
+            ucmd!.serverTime = client!.ps.commandTime + 100
+        }
+
+        msec = ucmd!.serverTime - client!.ps.commandTime
+        // following others may result in bad times, but we still want
+        // to check for follow toggles
+        if msec < 1 && client!.sess.spectatorState != SPECTATOR_FOLLOW {
+            return
+        }
+
+        if msec > 200 {
+            msec = 200
+        }
+
+        if pmove_msec.integer < 8 {
+            trap_Cvar_Set("pmove_msec", "8")
+        } else if pmove_msec.integer > 33 {
+            trap_Cvar_Set("pmove_msec", "33")
+        }
+
+        if pmove_fixed.integer != 0 || client!.pers.pmoveFixed {
+            ucmd!.serverTime = ((ucmd!.serverTime + pmove_msec.integer - 1) / pmove_msec.integer) * pmove_msec.integer
+            //if (ucmd->serverTime - client->ps.commandTime <= 0)
+            //	return;
+        }
+
+        //
+        // check for exiting intermission
+        //
+        if level.intermissiontime != 0 {
+            if ent.s.number < MAX_CLIENTS || client!.NPC_class == CLASS_VEHICLE {
+                //players and vehicles do nothing in intermissions
+                ClientIntermissionThink(client!)
+                return
             }
-            client!.bodyGrabIndex = ENTITYNUM_NONE
+        }
+
+        // spectators don't do much
+        if client!.sess.sessionTeam == TEAM_SPECTATOR || client!.tempSpectate > level.time {
+            if client!.sess.spectatorState == SPECTATOR_SCOREBOARD {
+                return
+            }
+            SpectatorThink(ent, ucmd!)
+            return
+        }
+
+        if ent.client != nil && (ent.client!.ps.eFlags & EF_INVULNERABLE) != 0 {
+            if ent.client!.invulnerableTimer <= level.time {
+                ent.client!.ps.eFlags &= ~EF_INVULNERABLE
+            }
+        }
+
+        if ent.s.eType != ET_NPC {
+            // check for inactivity timer, but never drop the local client of a non-dedicated server
+            if !ClientInactivityTimer(client!) {
+                return
+            }
+        }
+
+        //Check if we should have a fullbody push effect around the player
+        if client!.pushEffectTime > level.time {
+            client!.ps.eFlags |= EF_BODYPUSH
+        } else if client!.pushEffectTime != 0 {
+            client!.pushEffectTime = 0
+            client!.ps.eFlags &= ~EF_BODYPUSH
+        }
+
+        if (client!.ps.stats[STAT_HOLDABLE_ITEMS] & (1 << HI_JETPACK)) != 0 {
+            client!.ps.eFlags |= EF_JETPACK
         } else {
-            // Raven's record lives to the end of his block, so the block is the closure.
-            MdxaBone.scratch { rhMat in
-                var rhOrg = vec3_t()
-                var tAng = vec3_t()
-                var bodyDir = vec3_t()
-                var bodyDist: Float = 0
+            client!.ps.eFlags &= ~EF_JETPACK
+        }
 
-                ent.client!.ps.forceHandExtend = HANDEXTEND_DRAGGING
-
-                if ent.client!.ps.forceHandExtendTime < level.time + 500 {
-                    ent.client!.ps.forceHandExtendTime = level.time + 1000
-                }
-
-                tAng = vec3_t(0, ent.client!.ps.viewangles[YAW], 0)
-                trap_G2API_GetBoltMatrix(ent.ghoul2, 0, 0, rhMat, tAng, ent.client!.ps.origin, level.time, nil, &ent.modelScale) //0 is always going to be right hand bolt
-                BG_GiveMeVectorFromMatrix(rhMat, ORIGIN, &rhOrg)
-
-                bodyDir = rhOrg - grabbed!.r.currentOrigin
-                bodyDist = VectorLength(bodyDir)
-
-                if bodyDist > 40.0 {
-                    //can no longer reach
-                    grabbed!.s.ragAttach = 0
-                    client!.bodyGrabIndex = ENTITYNUM_NONE
-                } else if bodyDist > 24.0 {
-                    bodyDir[2] = 0 //don't want it floating
-                    //VectorScale(bodyDir, 0.1f, bodyDir);
-                    grabbed!.epVelocity = grabbed!.epVelocity + bodyDir
-                    G_Sound(grabbed!, CHAN_AUTO, G_SoundIndex("sound/player/roll1.wav"))
+        if client!.noclip {
+            client!.ps.pm_type = PM_NOCLIP
+        } else if (client!.ps.eFlags & EF_DISINTEGRATION) != 0 {
+            client!.ps.pm_type = PM_NOCLIP
+        } else if client!.ps.stats[STAT_HEALTH] <= 0 {
+            client!.ps.pm_type = PM_DEAD
+        } else {
+            if client!.ps.forceGripChangeMovetype != 0 {
+                client!.ps.pm_type = client!.ps.forceGripChangeMovetype
+            } else {
+                if client!.jetPackOn {
+                    client!.ps.pm_type = PM_JETPACK
+                    client!.ps.eFlags |= EF_JETPACK_ACTIVE
+                    killJetFlags = false
+                } else {
+                    client!.ps.pm_type = PM_NORMAL
                 }
             }
         }
-    } else if ent.client!.ps.forceHandExtend == HANDEXTEND_DRAGGING {
-        ent.client!.ps.forceHandExtend = HANDEXTEND_WEAPONREADY
-    }
 
-    if ent.NPC != nil && ent.s.NPC_class != CLASS_VEHICLE {
-        //FIXME: swoop should keep turning (and moving forward?) for a little bit?
-        if ent.NPC!.combatMove == false {
-            //if ( !(ucmd->buttons & BUTTON_USE) )
-            if 1 != 0 {
-                //Not leaning
-                let Flying: Bool = (ucmd!.upmove != 0 && (ent.client!.ps.eFlags2 & EF2_FLYING) != 0)
-                let Climbing: Bool = (ucmd!.upmove != 0 && (ent.watertype & CONTENTS_LADDER) != 0)
+        if killJetFlags {
+            client!.ps.eFlags &= ~EF_JETPACK_ACTIVE
+            client!.ps.eFlags &= ~EF_JETPACK_FLAMING
+        }
 
-                //client->ps.friction = 6;
 
-                if ucmd!.forwardmove != 0 || ucmd!.rightmove != 0 || Flying {
-                    //if ( ent->NPC->behaviorState != BS_FORMATION )
-                    do {
-                        //In - Formation NPCs set thier desiredSpeed themselves
-                        if (ucmd!.buttons & BUTTON_WALKING) != 0 {
-                            ent.NPC!.desiredSpeed = NPC_GetWalkSpeed(ent) //ent->NPC->stats.walkSpeed;
-                        } else {
-                            ent.NPC!.desiredSpeed = NPC_GetRunSpeed(ent) //ent->NPC->stats.runSpeed;
-                        }
+        if client!.bodyGrabIndex != ENTITYNUM_NONE {
+            let grabbed: Entity? = g_entities[client!.bodyGrabIndex]
 
-                        if ent.NPC!.currentSpeed >= 80 && !controlledByPlayer {
-                            //At higher speeds, need to slow down close to stuff
-                            //Slow down as you approach your goal
-                            //	if ( ent->NPC->distToGoal < SLOWDOWN_DIST && client->race != RACE_BORG && !(ent->NPC->aiFlags&NPCAI_NO_SLOWDOWN) )//128
-                            if ent.NPC!.distToGoal < SLOWDOWN_DIST && !((ent.NPC!.aiFlags & NPCAI_NO_SLOWDOWN) != 0) {
-                                if ent.NPC!.desiredSpeed > MIN_NPC_SPEED {
-                                    let slowdownSpeed: Float = (Float(ent.NPC!.desiredSpeed)) * ent.NPC!.distToGoal / SLOWDOWN_DIST
+            if !grabbed!.inuse || grabbed!.s.eType != ET_BODY || (grabbed!.s.eFlags & EF_DISINTEGRATION) != 0 || (grabbed!.s.eFlags & EF_NODRAW) != 0 {
+                if grabbed!.inuse && grabbed!.s.eType == ET_BODY {
+                    grabbed!.s.ragAttach = 0
+                }
+                client!.bodyGrabIndex = ENTITYNUM_NONE
+            } else {
+                // Raven's record lives to the end of his block, so the block is the closure.
+                MdxaBone.scratch { rhMat in
+                    var rhOrg = vec3_t()
+                    var tAng = vec3_t()
+                    var bodyDir = vec3_t()
+                    var bodyDist: Float = 0
 
-                                    ent.NPC!.desiredSpeed = Int32(ceil(slowdownSpeed))
-                                    if ent.NPC!.desiredSpeed < MIN_NPC_SPEED {
-                                        //don't slow down too much
-                                        ent.NPC!.desiredSpeed = Int32(MIN_NPC_SPEED)
+                    ent.client!.ps.forceHandExtend = HANDEXTEND_DRAGGING
+
+                    if ent.client!.ps.forceHandExtendTime < level.time + 500 {
+                        ent.client!.ps.forceHandExtendTime = level.time + 1000
+                    }
+
+                    tAng = vec3_t(0, ent.client!.ps.viewangles[YAW], 0)
+                    trap_G2API_GetBoltMatrix(ent.ghoul2, 0, 0, rhMat, tAng, ent.client!.ps.origin, level.time, nil, &ent.modelScale) //0 is always going to be right hand bolt
+                    BG_GiveMeVectorFromMatrix(rhMat, ORIGIN, &rhOrg)
+
+                    bodyDir = rhOrg - grabbed!.r.currentOrigin
+                    bodyDist = VectorLength(bodyDir)
+
+                    if bodyDist > 40.0 {
+                        //can no longer reach
+                        grabbed!.s.ragAttach = 0
+                        client!.bodyGrabIndex = ENTITYNUM_NONE
+                    } else if bodyDist > 24.0 {
+                        bodyDir[2] = 0 //don't want it floating
+                        //VectorScale(bodyDir, 0.1f, bodyDir);
+                        grabbed!.epVelocity = grabbed!.epVelocity + bodyDir
+                        G_Sound(grabbed!, CHAN_AUTO, G_SoundIndex("sound/player/roll1.wav"))
+                    }
+                }
+            }
+        } else if ent.client!.ps.forceHandExtend == HANDEXTEND_DRAGGING {
+            ent.client!.ps.forceHandExtend = HANDEXTEND_WEAPONREADY
+        }
+
+        if ent.NPC != nil && ent.s.NPC_class != CLASS_VEHICLE {
+            //FIXME: swoop should keep turning (and moving forward?) for a little bit?
+            if ent.NPC!.combatMove == false {
+                //if ( !(ucmd->buttons & BUTTON_USE) )
+                if 1 != 0 {
+                    //Not leaning
+                    let Flying: Bool = (ucmd!.upmove != 0 && (ent.client!.ps.eFlags2 & EF2_FLYING) != 0)
+                    let Climbing: Bool = (ucmd!.upmove != 0 && (ent.watertype & CONTENTS_LADDER) != 0)
+
+                    //client->ps.friction = 6;
+
+                    if ucmd!.forwardmove != 0 || ucmd!.rightmove != 0 || Flying {
+                        //if ( ent->NPC->behaviorState != BS_FORMATION )
+                        do {
+                            //In - Formation NPCs set thier desiredSpeed themselves
+                            if (ucmd!.buttons & BUTTON_WALKING) != 0 {
+                                ent.NPC!.desiredSpeed = NPC_GetWalkSpeed(ent) //ent->NPC->stats.walkSpeed;
+                            } else {
+                                ent.NPC!.desiredSpeed = NPC_GetRunSpeed(ent) //ent->NPC->stats.runSpeed;
+                            }
+
+                            if ent.NPC!.currentSpeed >= 80 && !controlledByPlayer {
+                                //At higher speeds, need to slow down close to stuff
+                                //Slow down as you approach your goal
+                                //	if ( ent->NPC->distToGoal < SLOWDOWN_DIST && client->race != RACE_BORG && !(ent->NPC->aiFlags&NPCAI_NO_SLOWDOWN) )//128
+                                if ent.NPC!.distToGoal < SLOWDOWN_DIST && !((ent.NPC!.aiFlags & NPCAI_NO_SLOWDOWN) != 0) {
+                                    if ent.NPC!.desiredSpeed > MIN_NPC_SPEED {
+                                        let slowdownSpeed: Float = (Float(ent.NPC!.desiredSpeed)) * ent.NPC!.distToGoal / SLOWDOWN_DIST
+
+                                        ent.NPC!.desiredSpeed = Int32(ceil(slowdownSpeed))
+                                        if ent.NPC!.desiredSpeed < MIN_NPC_SPEED {
+                                            //don't slow down too much
+                                            ent.NPC!.desiredSpeed = Int32(MIN_NPC_SPEED)
+                                        }
                                     }
                                 }
                             }
                         }
-                    }
-                } else if Climbing {
-                    ent.NPC!.desiredSpeed = ent.NPC!.stats.walkSpeed
-                } else {
-                    //We want to stop
-                    ent.NPC!.desiredSpeed = 0
-                }
-
-                NPC_Accelerate(ent, false, false)
-
-                if ent.NPC!.currentSpeed <= 24 && ent.NPC!.desiredSpeed < ent.NPC!.currentSpeed {
-                    //No-one walks this slow
-                    ent.NPC!.currentSpeed = 0 //Full stop
-                    client!.ps.speed = Float(ent.NPC!.currentSpeed) //Full stop
-                    ucmd!.forwardmove = 0
-                    ucmd!.rightmove = 0
-                } else {
-                    if ent.NPC!.currentSpeed <= ent.NPC!.stats.walkSpeed {
-                        //Play the walkanim
-                        ucmd!.buttons |= BUTTON_WALKING
+                    } else if Climbing {
+                        ent.NPC!.desiredSpeed = ent.NPC!.stats.walkSpeed
                     } else {
-                        ucmd!.buttons &= ~BUTTON_WALKING
+                        //We want to stop
+                        ent.NPC!.desiredSpeed = 0
                     }
 
-                    if ent.NPC!.currentSpeed > 0 {
-                        //We should be moving
-                        if Climbing || Flying {
-                            if ucmd!.upmove == 0 {
-                                //We need to force them to take a couple more steps until stopped
-                                ucmd!.upmove = ent.NPC!.last_ucmd.upmove //was last_upmove;
-                            }
-                        } else if ucmd!.forwardmove == 0 && ucmd!.rightmove == 0 {
-                            //We need to force them to take a couple more steps until stopped
-                            ucmd!.forwardmove = ent.NPC!.last_ucmd.forwardmove //was last_forwardmove;
-                            ucmd!.rightmove = ent.NPC!.last_ucmd.rightmove //was last_rightmove;
-                        }
-                    }
+                    NPC_Accelerate(ent, false, false)
 
-                    client!.ps.speed = Float(ent.NPC!.currentSpeed)
-                    //	if ( player && player->client && player->client->ps.viewEntity == ent->s.number )
-                    //	{
-                    //	}
-                    //	else
-                    //rwwFIXMEFIXME: do this and also check for all real client
-                    if 1 != 0 {
-                        //Slow down on turns - don't orbit!!!
-                        var turndelta: Float = 0
-                        // if the NPC is locked into a Yaw, we want to check the lockedDesiredYaw...otherwise the NPC can't walk backwards, because it always thinks it trying to turn according to desiredYaw
-                        //if( client->renderInfo.renderFlags & RF_LOCKEDANGLE ) // yeah I know the RF_ flag is a pretty ugly hack...
-                        if 0 != 0 {
-                            turndelta = (180 - abs(AngleDelta(ent.r.currentAngles[YAW], ent.NPC!.lockedDesiredYaw))) / 180
+                    if ent.NPC!.currentSpeed <= 24 && ent.NPC!.desiredSpeed < ent.NPC!.currentSpeed {
+                        //No-one walks this slow
+                        ent.NPC!.currentSpeed = 0 //Full stop
+                        client!.ps.speed = Float(ent.NPC!.currentSpeed) //Full stop
+                        ucmd!.forwardmove = 0
+                        ucmd!.rightmove = 0
+                    } else {
+                        if ent.NPC!.currentSpeed <= ent.NPC!.stats.walkSpeed {
+                            //Play the walkanim
+                            ucmd!.buttons |= BUTTON_WALKING
                         } else {
-                            turndelta = (180 - abs(AngleDelta(ent.r.currentAngles[YAW], ent.NPC!.desiredYaw))) / 180
+                            ucmd!.buttons &= ~BUTTON_WALKING
                         }
 
-                        if turndelta < 0.75 {
-                            client!.ps.speed = 0
-                        } else if ent.NPC!.distToGoal < 100 && Double(turndelta) < 1.0 {
-                            //Turn is greater than 45 degrees or closer than 100 to goal
-                            client!.ps.speed = floor((Float((client!.ps.speed))) * turndelta)
+                        if ent.NPC!.currentSpeed > 0 {
+                            //We should be moving
+                            if Climbing || Flying {
+                                if ucmd!.upmove == 0 {
+                                    //We need to force them to take a couple more steps until stopped
+                                    ucmd!.upmove = ent.NPC!.last_ucmd.upmove //was last_upmove;
+                                }
+                            } else if ucmd!.forwardmove == 0 && ucmd!.rightmove == 0 {
+                                //We need to force them to take a couple more steps until stopped
+                                ucmd!.forwardmove = ent.NPC!.last_ucmd.forwardmove //was last_forwardmove;
+                                ucmd!.rightmove = ent.NPC!.last_ucmd.rightmove //was last_rightmove;
+                            }
+                        }
+
+                        client!.ps.speed = Float(ent.NPC!.currentSpeed)
+                        //	if ( player && player->client && player->client->ps.viewEntity == ent->s.number )
+                        //	{
+                        //	}
+                        //	else
+                        //rwwFIXMEFIXME: do this and also check for all real client
+                        if 1 != 0 {
+                            //Slow down on turns - don't orbit!!!
+                            var turndelta: Float = 0
+                            // if the NPC is locked into a Yaw, we want to check the lockedDesiredYaw...otherwise the NPC can't walk backwards, because it always thinks it trying to turn according to desiredYaw
+                            //if( client->renderInfo.renderFlags & RF_LOCKEDANGLE ) // yeah I know the RF_ flag is a pretty ugly hack...
+                            if 0 != 0 {
+                                turndelta = (180 - abs(AngleDelta(ent.r.currentAngles[YAW], ent.NPC!.lockedDesiredYaw))) / 180
+                            } else {
+                                turndelta = (180 - abs(AngleDelta(ent.r.currentAngles[YAW], ent.NPC!.desiredYaw))) / 180
+                            }
+
+                            if turndelta < 0.75 {
+                                client!.ps.speed = 0
+                            } else if ent.NPC!.distToGoal < 100 && Double(turndelta) < 1.0 {
+                                //Turn is greater than 45 degrees or closer than 100 to goal
+                                client!.ps.speed = floor((Float((client!.ps.speed))) * turndelta)
+                            }
                         }
                     }
-                }
-            }
-        } else {
-            ent.NPC!.desiredSpeed = (ucmd!.buttons & BUTTON_WALKING) != 0 ? NPC_GetWalkSpeed(ent) : NPC_GetRunSpeed(ent)
-
-            client!.ps.speed = Float(ent.NPC!.desiredSpeed)
-        }
-
-        if (ucmd!.buttons & BUTTON_WALKING) != 0 {
-            //sort of a hack I guess since MP handles walking differently from SP (has some proxy cheat prevention methods)
-            /*
-            if (ent->client->ps.speed > 64)
-            {
-            ent->client->ps.speed = 64;
-            }
-            */
-
-            if ucmd!.forwardmove > 64 {
-                ucmd!.forwardmove = 64
-            } else if ucmd!.forwardmove < -64 {
-                ucmd!.forwardmove = -64
-            }
-
-            if ucmd!.rightmove > 64 {
-                ucmd!.rightmove = 64
-            } else if ucmd!.rightmove < -64 {
-                ucmd!.rightmove = -64
-            }
-
-            //ent->client->ps.speed = ent->client->ps.basespeed = NPC_GetRunSpeed( ent );
-        }
-        client!.ps.basespeed = Int32(client!.ps.speed)
-    } else if client!.ps.m_iVehicleNum == 0 && (ent.NPC == nil || ent.s.NPC_class != CLASS_VEHICLE) {
-        // set speed
-        client!.ps.speed = g_speed.value
-
-        //Check for a siege class speed multiplier
-        if g_gametype.integer == GT_SIEGE && client!.siegeClass != -1 {
-            client!.ps.speed *= bgSiegeClasses[client!.siegeClass].speed
-        }
-
-        if client!.bodyGrabIndex != ENTITYNUM_NONE {
-            //can't go nearly as fast when dragging a body around
-            client!.ps.speed *= 0.2
-        }
-
-        client!.ps.basespeed = Int32(client!.ps.speed)
-    }
-
-    if ent.NPC == nil || !((ent.NPC!.aiFlags & NPCAI_CUSTOM_GRAVITY) != 0) {
-        //use global gravity
-        if ent.NPC != nil && ent.s.NPC_class == CLASS_VEHICLE && ent.m_pVehicle != nil && ent.m_pVehicle!.m_pVehicleInfo!.gravity != 0 {
-            //use custom veh gravity
-            client!.ps.gravity = ent.m_pVehicle!.m_pVehicleInfo!.gravity
-        } else {
-            if ent.client!.inSpaceIndex != 0 && ent.client!.inSpaceIndex != ENTITYNUM_NONE {
-                //in space, so no gravity...
-                // Port-note: The draft of this statement did not compile, and the compiler wrote "cannot assign value of type 'Double' to type 'Int32'".
-                // Raven wrote: client->ps.gravity = 1.0f
-                portMissing("ClientThink_real", source: "oracle/codemp/game/g_active.c:1939")
-                if ent.s.number < MAX_CLIENTS {
-                    client!.ps.velocity = client!.ps.velocity * 0.8
                 }
             } else {
-                if (client!.ps.eFlags2 & EF2_SHIP_DEATH) != 0 {
-                    //float there
-                    client!.ps.velocity = vec3_t()
+                ent.NPC!.desiredSpeed = (ucmd!.buttons & BUTTON_WALKING) != 0 ? NPC_GetWalkSpeed(ent) : NPC_GetRunSpeed(ent)
+
+                client!.ps.speed = Float(ent.NPC!.desiredSpeed)
+            }
+
+            if (ucmd!.buttons & BUTTON_WALKING) != 0 {
+                //sort of a hack I guess since MP handles walking differently from SP (has some proxy cheat prevention methods)
+                /*
+                if (ent->client->ps.speed > 64)
+                {
+                ent->client->ps.speed = 64;
+                }
+                */
+
+                if ucmd!.forwardmove > 64 {
+                    ucmd!.forwardmove = 64
+                } else if ucmd!.forwardmove < -64 {
+                    ucmd!.forwardmove = -64
+                }
+
+                if ucmd!.rightmove > 64 {
+                    ucmd!.rightmove = 64
+                } else if ucmd!.rightmove < -64 {
+                    ucmd!.rightmove = -64
+                }
+
+                //ent->client->ps.speed = ent->client->ps.basespeed = NPC_GetRunSpeed( ent );
+            }
+            client!.ps.basespeed = Int32(client!.ps.speed)
+        } else if client!.ps.m_iVehicleNum == 0 && (ent.NPC == nil || ent.s.NPC_class != CLASS_VEHICLE) {
+            // set speed
+            client!.ps.speed = g_speed.value
+
+            //Check for a siege class speed multiplier
+            if g_gametype.integer == GT_SIEGE && client!.siegeClass != -1 {
+                client!.ps.speed *= bgSiegeClasses[client!.siegeClass].speed
+            }
+
+            if client!.bodyGrabIndex != ENTITYNUM_NONE {
+                //can't go nearly as fast when dragging a body around
+                client!.ps.speed *= 0.2
+            }
+
+            client!.ps.basespeed = Int32(client!.ps.speed)
+        }
+
+        if ent.NPC == nil || !((ent.NPC!.aiFlags & NPCAI_CUSTOM_GRAVITY) != 0) {
+            //use global gravity
+            if ent.NPC != nil && ent.s.NPC_class == CLASS_VEHICLE && ent.m_pVehicle != nil && ent.m_pVehicle!.m_pVehicleInfo!.gravity != 0 {
+                //use custom veh gravity
+                client!.ps.gravity = ent.m_pVehicle!.m_pVehicleInfo!.gravity
+            } else {
+                if ent.client!.inSpaceIndex != 0 && ent.client!.inSpaceIndex != ENTITYNUM_NONE {
+                    //in space, so no gravity...
                     // Port-note: The draft of this statement did not compile, and the compiler wrote "cannot assign value of type 'Double' to type 'Int32'".
                     // Raven wrote: client->ps.gravity = 1.0f
                     portMissing("ClientThink_real", source: "oracle/codemp/game/g_active.c:1939")
+                    if ent.s.number < MAX_CLIENTS {
+                        client!.ps.velocity = client!.ps.velocity * 0.8
+                    }
                 } else {
-                    client!.ps.gravity = Int32(g_gravity.value)
+                    if (client!.ps.eFlags2 & EF2_SHIP_DEATH) != 0 {
+                        //float there
+                        client!.ps.velocity = vec3_t()
+                        // Port-note: The draft of this statement did not compile, and the compiler wrote "cannot assign value of type 'Double' to type 'Int32'".
+                        // Raven wrote: client->ps.gravity = 1.0f
+                        portMissing("ClientThink_real", source: "oracle/codemp/game/g_active.c:1939")
+                    } else {
+                        client!.ps.gravity = Int32(g_gravity.value)
+                    }
                 }
             }
         }
-    }
 
-    if ent.client!.ps.duelInProgress {
-        let duelAgainst: Entity? = g_entities[ent.client!.ps.duelIndex]
+        if ent.client!.ps.duelInProgress {
+            let duelAgainst: Entity? = g_entities[ent.client!.ps.duelIndex]
 
-        //Keep the time updated, so once this duel ends this player can't engage in a duel for another
-        //10 seconds. This will give other people a chance to engage in duels in case this player wants
-        //to engage again right after he's done fighting and someone else is waiting.
-        ent.client!.ps.fd.privateDuelTime = level.time + 10000
+            //Keep the time updated, so once this duel ends this player can't engage in a duel for another
+            //10 seconds. This will give other people a chance to engage in duels in case this player wants
+            //to engage again right after he's done fighting and someone else is waiting.
+            ent.client!.ps.fd.privateDuelTime = level.time + 10000
 
-        if ent.client!.ps.duelTime < level.time {
-            //Bring out the sabers
-            if ent.client!.ps.weapon == WP_SABER && ent.client!.ps.saberHolstered != 0 && ent.client!.ps.duelTime != 0 {
-                ent.client!.ps.saberHolstered = 0
+            if ent.client!.ps.duelTime < level.time {
+                //Bring out the sabers
+                if ent.client!.ps.weapon == WP_SABER && ent.client!.ps.saberHolstered != 0 && ent.client!.ps.duelTime != 0 {
+                    ent.client!.ps.saberHolstered = 0
 
-                if ent.client!.saber[0].soundOn != 0 {
-                    G_Sound(ent, CHAN_AUTO, ent.client!.saber[0].soundOn)
-                }
-                if ent.client!.saber[1].soundOn != 0 {
-                    G_Sound(ent, CHAN_AUTO, ent.client!.saber[1].soundOn)
-                }
+                    if ent.client!.saber[0].soundOn != 0 {
+                        G_Sound(ent, CHAN_AUTO, ent.client!.saber[0].soundOn)
+                    }
+                    if ent.client!.saber[1].soundOn != 0 {
+                        G_Sound(ent, CHAN_AUTO, ent.client!.saber[1].soundOn)
+                    }
 
-                G_AddEvent(ent, EV_PRIVATE_DUEL, 2)
+                    G_AddEvent(ent, EV_PRIVATE_DUEL, 2)
 
-                ent.client!.ps.duelTime = 0
-            }
-
-            if duelAgainst != nil && duelAgainst!.client != nil && duelAgainst!.inuse && duelAgainst!.client!.ps.weapon == WP_SABER && duelAgainst!.client!.ps.saberHolstered != 0 && duelAgainst!.client!.ps.duelTime != 0 {
-                duelAgainst!.client!.ps.saberHolstered = 0
-
-                if duelAgainst!.client!.saber[0].soundOn != 0 {
-                    G_Sound(duelAgainst!, CHAN_AUTO, duelAgainst!.client!.saber[0].soundOn)
-                }
-                if duelAgainst!.client!.saber[1].soundOn != 0 {
-                    G_Sound(duelAgainst!, CHAN_AUTO, duelAgainst!.client!.saber[1].soundOn)
+                    ent.client!.ps.duelTime = 0
                 }
 
-                G_AddEvent(duelAgainst!, EV_PRIVATE_DUEL, 2)
+                if duelAgainst != nil && duelAgainst!.client != nil && duelAgainst!.inuse && duelAgainst!.client!.ps.weapon == WP_SABER && duelAgainst!.client!.ps.saberHolstered != 0 && duelAgainst!.client!.ps.duelTime != 0 {
+                    duelAgainst!.client!.ps.saberHolstered = 0
 
-                duelAgainst!.client!.ps.duelTime = 0
-            }
-        } else {
-            client!.ps.speed = 0
-            client!.ps.basespeed = 0
-            ucmd!.forwardmove = 0
-            ucmd!.rightmove = 0
-            ucmd!.upmove = 0
-        }
+                    if duelAgainst!.client!.saber[0].soundOn != 0 {
+                        G_Sound(duelAgainst!, CHAN_AUTO, duelAgainst!.client!.saber[0].soundOn)
+                    }
+                    if duelAgainst!.client!.saber[1].soundOn != 0 {
+                        G_Sound(duelAgainst!, CHAN_AUTO, duelAgainst!.client!.saber[1].soundOn)
+                    }
 
-        if duelAgainst == nil || duelAgainst!.client == nil || !duelAgainst!.inuse || duelAgainst!.client!.ps.duelIndex != ent.s.number {
-            ent.client!.ps.duelInProgress = 0 != 0
-            G_AddEvent(ent, EV_PRIVATE_DUEL, 0)
-        } else if duelAgainst!.health < 1 || duelAgainst!.client!.ps.stats[STAT_HEALTH] < 1 {
-            ent.client!.ps.duelInProgress = 0 != 0
-            duelAgainst!.client!.ps.duelInProgress = 0 != 0
+                    G_AddEvent(duelAgainst!, EV_PRIVATE_DUEL, 2)
 
-            G_AddEvent(ent, EV_PRIVATE_DUEL, 0)
-            G_AddEvent(duelAgainst!, EV_PRIVATE_DUEL, 0)
-
-            //Winner gets full health.. providing he's still alive
-            if ent.health > 0 && ent.client!.ps.stats[STAT_HEALTH] > 0 {
-                if ent.health < ent.client!.ps.stats[STAT_MAX_HEALTH] {
-                    ent.health = ent.client!.ps.stats[STAT_MAX_HEALTH]
-                    ent.client!.ps.stats[STAT_HEALTH] = ent.health
+                    duelAgainst!.client!.ps.duelTime = 0
                 }
-
-                if g_spawnInvulnerability.integer != 0 {
-                    ent.client!.ps.eFlags |= EF_INVULNERABLE
-                    ent.client!.invulnerableTimer = level.time + g_spawnInvulnerability.integer
-                }
-            }
-
-            /*
-            trap_SendServerCommand( ent-g_entities, va("print \"%s %s\n\"", ent->client->pers.netname, G_GetStringEdString("MP_SVGAME", "PLDUELWINNER")) );
-            trap_SendServerCommand( duelAgainst-g_entities, va("print \"%s %s\n\"", ent->client->pers.netname, G_GetStringEdString("MP_SVGAME", "PLDUELWINNER")) );
-            */
-            //Private duel announcements are now made globally because we only want one duel at a time.
-            if ent.health > 0 && ent.client!.ps.stats[STAT_HEALTH] > 0 {
-                // Port-note: Raven passes `"MP_SVGAME"` to `G_GetStringEdString`, whose `char *` parameter the stub holds as an inout CharBuf. Docket row 5 is due.
-                // Raven wrote: trap_SendServerCommand( -1, va("cp \"%s %s %s!\n\"", ent->client->pers.netname, G_GetStringEdString("MP_SVGAME", "PLDUELWINNER"), duelAgainst->client->pers.netname) )
-                portMissing("ClientThink_real", source: "oracle/codemp/game/g_active.c:1939")
             } else {
-                //it was a draw, because we both managed to die in the same frame
-                // Port-note: Raven passes `"MP_SVGAME"` to `G_GetStringEdString`, whose `char *` parameter the stub holds as an inout CharBuf. Docket row 5 is due.
-                // Raven wrote: trap_SendServerCommand( -1, va("cp \"%s\n\"", G_GetStringEdString("MP_SVGAME", "PLDUELTIE")) )
-                portMissing("ClientThink_real", source: "oracle/codemp/game/g_active.c:1939")
+                client!.ps.speed = 0
+                client!.ps.basespeed = 0
+                ucmd!.forwardmove = 0
+                ucmd!.rightmove = 0
+                ucmd!.upmove = 0
             }
-        } else {
-            var vSub = vec3_t()
-            var subLen: Float = 0
 
-            vSub = ent.client!.ps.origin - duelAgainst!.client!.ps.origin
-            subLen = VectorLength(vSub)
-
-            if subLen >= 1024 {
+            if duelAgainst == nil || duelAgainst!.client == nil || !duelAgainst!.inuse || duelAgainst!.client!.ps.duelIndex != ent.s.number {
+                ent.client!.ps.duelInProgress = 0 != 0
+                G_AddEvent(ent, EV_PRIVATE_DUEL, 0)
+            } else if duelAgainst!.health < 1 || duelAgainst!.client!.ps.stats[STAT_HEALTH] < 1 {
                 ent.client!.ps.duelInProgress = 0 != 0
                 duelAgainst!.client!.ps.duelInProgress = 0 != 0
 
                 G_AddEvent(ent, EV_PRIVATE_DUEL, 0)
                 G_AddEvent(duelAgainst!, EV_PRIVATE_DUEL, 0)
 
-                // Port-note: Raven passes `"MP_SVGAME"` to `G_GetStringEdString`, whose `char *` parameter the stub holds as an inout CharBuf. Docket row 5 is due.
-                // Raven wrote: trap_SendServerCommand( -1, va("print \"%s\n\"", G_GetStringEdString("MP_SVGAME", "PLDUELSTOP")) )
-                portMissing("ClientThink_real", source: "oracle/codemp/game/g_active.c:1939")
-            }
-        }
-    }
+                //Winner gets full health.. providing he's still alive
+                if ent.health > 0 && ent.client!.ps.stats[STAT_HEALTH] > 0 {
+                    if ent.health < ent.client!.ps.stats[STAT_MAX_HEALTH] {
+                        ent.health = ent.client!.ps.stats[STAT_MAX_HEALTH]
+                        ent.client!.ps.stats[STAT_HEALTH] = ent.health
+                    }
 
-    if ent.client!.doingThrow > level.time {
-        let throwee: Entity? = g_entities[ent.client!.throwingIndex]
+                    if g_spawnInvulnerability.integer != 0 {
+                        ent.client!.ps.eFlags |= EF_INVULNERABLE
+                        ent.client!.invulnerableTimer = level.time + g_spawnInvulnerability.integer
+                    }
+                }
 
-        if !throwee!.inuse || throwee!.client == nil || throwee!.health < 1 || throwee!.client!.sess.sessionTeam == TEAM_SPECTATOR || (throwee!.client!.ps.pm_flags & PMF_FOLLOW) != 0 || throwee!.client!.throwingIndex != ent.s.number {
-            ent.client!.doingThrow = 0
-            ent.client!.ps.forceHandExtend = HANDEXTEND_NONE
+                /*
+                trap_SendServerCommand( ent-g_entities, va("print \"%s %s\n\"", ent->client->pers.netname, G_GetStringEdString("MP_SVGAME", "PLDUELWINNER")) );
+                trap_SendServerCommand( duelAgainst-g_entities, va("print \"%s %s\n\"", ent->client->pers.netname, G_GetStringEdString("MP_SVGAME", "PLDUELWINNER")) );
+                */
+                //Private duel announcements are now made globally because we only want one duel at a time.
+                if ent.health > 0 && ent.client!.ps.stats[STAT_HEALTH] > 0 {
+                    // Port-note: Raven passes `"MP_SVGAME"` to `G_GetStringEdString`, whose `char *` parameter the stub holds as an inout CharBuf. Docket row 5 is due.
+                    // Raven wrote: trap_SendServerCommand( -1, va("cp \"%s %s %s!\n\"", ent->client->pers.netname, G_GetStringEdString("MP_SVGAME", "PLDUELWINNER"), duelAgainst->client->pers.netname) )
+                    portMissing("ClientThink_real", source: "oracle/codemp/game/g_active.c:1939")
+                } else {
+                    //it was a draw, because we both managed to die in the same frame
+                    // Port-note: Raven passes `"MP_SVGAME"` to `G_GetStringEdString`, whose `char *` parameter the stub holds as an inout CharBuf. Docket row 5 is due.
+                    // Raven wrote: trap_SendServerCommand( -1, va("cp \"%s\n\"", G_GetStringEdString("MP_SVGAME", "PLDUELTIE")) )
+                    portMissing("ClientThink_real", source: "oracle/codemp/game/g_active.c:1939")
+                }
+            } else {
+                var vSub = vec3_t()
+                var subLen: Float = 0
 
-            if throwee!.inuse && throwee!.client != nil {
-                throwee!.client!.ps.heldByClient = 0
-                throwee!.client!.beingThrown = 0
+                vSub = ent.client!.ps.origin - duelAgainst!.client!.ps.origin
+                subLen = VectorLength(vSub)
 
-                if throwee!.client!.ps.forceHandExtend != HANDEXTEND_POSTTHROWN {
-                    throwee!.client!.ps.forceHandExtend = HANDEXTEND_NONE
+                if subLen >= 1024 {
+                    ent.client!.ps.duelInProgress = 0 != 0
+                    duelAgainst!.client!.ps.duelInProgress = 0 != 0
+
+                    G_AddEvent(ent, EV_PRIVATE_DUEL, 0)
+                    G_AddEvent(duelAgainst!, EV_PRIVATE_DUEL, 0)
+
+                    // Port-note: Raven passes `"MP_SVGAME"` to `G_GetStringEdString`, whose `char *` parameter the stub holds as an inout CharBuf. Docket row 5 is due.
+                    // Raven wrote: trap_SendServerCommand( -1, va("print \"%s\n\"", G_GetStringEdString("MP_SVGAME", "PLDUELSTOP")) )
+                    portMissing("ClientThink_real", source: "oracle/codemp/game/g_active.c:1939")
                 }
             }
         }
-    }
 
-    if ent.client!.beingThrown > level.time {
-        let thrower: Entity? = g_entities[ent.client!.throwingIndex]
+        if ent.client!.doingThrow > level.time {
+            let throwee: Entity? = g_entities[ent.client!.throwingIndex]
 
-        if !thrower!.inuse || thrower!.client == nil || thrower!.health < 1 || thrower!.client!.sess.sessionTeam == TEAM_SPECTATOR || (thrower!.client!.ps.pm_flags & PMF_FOLLOW) != 0 || thrower!.client!.throwingIndex != ent.s.number {
-            ent.client!.ps.heldByClient = 0
-            ent.client!.beingThrown = 0
-
-            if ent.client!.ps.forceHandExtend != HANDEXTEND_POSTTHROWN {
+            if !throwee!.inuse || throwee!.client == nil || throwee!.health < 1 || throwee!.client!.sess.sessionTeam == TEAM_SPECTATOR || (throwee!.client!.ps.pm_flags & PMF_FOLLOW) != 0 || throwee!.client!.throwingIndex != ent.s.number {
+                ent.client!.doingThrow = 0
                 ent.client!.ps.forceHandExtend = HANDEXTEND_NONE
+
+                if throwee!.inuse && throwee!.client != nil {
+                    throwee!.client!.ps.heldByClient = 0
+                    throwee!.client!.beingThrown = 0
+
+                    if throwee!.client!.ps.forceHandExtend != HANDEXTEND_POSTTHROWN {
+                        throwee!.client!.ps.forceHandExtend = HANDEXTEND_NONE
+                    }
+                }
             }
+        }
 
-            if thrower!.inuse && thrower!.client != nil {
-                thrower!.client!.doingThrow = 0
-                thrower!.client!.ps.forceHandExtend = HANDEXTEND_NONE
-            }
-        } else if thrower!.inuse && thrower!.client != nil && thrower!.ghoul2 != nil && trap_G2_HaveWeGhoul2Models(thrower!.ghoul2) {
-            do {
-                let pDif: Float = 40.0
-                var boltOrg = vec3_t()
-                var pBoltOrg = vec3_t()
-                var tAngles = vec3_t()
-                var vDif = vec3_t()
-                var entDir = vec3_t()
-                var otherAngles = vec3_t()
-                var fwd = vec3_t()
-                var right = vec3_t()
+        if ent.client!.beingThrown > level.time {
+            let thrower: Entity? = g_entities[ent.client!.throwingIndex]
 
-                //Always look at the thrower.
-                entDir = thrower!.client!.ps.origin - ent.client!.ps.origin
-                otherAngles = ent.client!.ps.viewangles
-                otherAngles[YAW] = vectoyaw(entDir)
-                SetClientViewAngle(ent, otherAngles)
+            if !thrower!.inuse || thrower!.client == nil || thrower!.health < 1 || thrower!.client!.sess.sessionTeam == TEAM_SPECTATOR || (thrower!.client!.ps.pm_flags & PMF_FOLLOW) != 0 || thrower!.client!.throwingIndex != ent.s.number {
+                ent.client!.ps.heldByClient = 0
+                ent.client!.beingThrown = 0
 
-                tAngles = thrower!.client!.ps.viewangles
-                tAngles[ROLL] = 0
-                tAngles[PITCH] = tAngles[ROLL]
+                if ent.client!.ps.forceHandExtend != HANDEXTEND_POSTTHROWN {
+                    ent.client!.ps.forceHandExtend = HANDEXTEND_NONE
+                }
 
-                //Get the direction between the pelvis and position of the hand
-
-
-                pBoltOrg = thrower!.client!.ps.origin
-                // Port-note: Raven passes NULL for the `up` output. The ported function takes it by reference, so the body passes a scratch local it never reads.
-                portMissing("ClientThink_real", source: "oracle/codemp/game/g_active.c:1939")
-                var scratchUp = vec3_t()
-                AngleVectors(tAngles, &fwd, &right, &scratchUp)
-                boltOrg[0] = pBoltOrg[0] + fwd[0] * 8 + right[0] * pDif
-                boltOrg[1] = pBoltOrg[1] + fwd[1] * 8 + right[1] * pDif
-                boltOrg[2] = pBoltOrg[2]
-                //G_TestLine(boltOrg, pBoltOrg, 0x0000ff, 50);
-
-                vDif = ent.client!.ps.origin - boltOrg
-                if VectorLength(vDif) > 32.0 && (thrower!.client!.doingThrow - level.time) < 4500 {
-                    //the hand is too far away, and can no longer hold onto us, so escape.
-                    ent.client!.ps.heldByClient = 0
-                    ent.client!.beingThrown = 0
+                if thrower!.inuse && thrower!.client != nil {
                     thrower!.client!.doingThrow = 0
-
                     thrower!.client!.ps.forceHandExtend = HANDEXTEND_NONE
-                    G_EntitySound(thrower!, CHAN_VOICE, G_SoundIndex("*pain25.wav"))
+                }
+            } else if thrower!.inuse && thrower!.client != nil && thrower!.ghoul2 != nil && trap_G2_HaveWeGhoul2Models(thrower!.ghoul2) {
+                do {
+                    let pDif: Float = 40.0
+                    var boltOrg = vec3_t()
+                    var pBoltOrg = vec3_t()
+                    var tAngles = vec3_t()
+                    var vDif = vec3_t()
+                    var entDir = vec3_t()
+                    var otherAngles = vec3_t()
+                    var fwd = vec3_t()
+                    var right = vec3_t()
 
-                    ent.client!.ps.forceDodgeAnim = 2
-                    ent.client!.ps.forceHandExtend = HANDEXTEND_KNOCKDOWN
-                    ent.client!.ps.forceHandExtendTime = level.time + 500
-                    ent.client!.ps.velocity[2] = 400
-                    G_PreDefSound(ent.client!.ps.origin, PDSOUND_FORCEJUMP)
-                } else if (client!.beingThrown - level.time) < 4000 {
-                    //step into the next part of the throw, and go flying back
-                    let vScale: Float = 400.0
-                    ent.client!.ps.forceHandExtend = HANDEXTEND_POSTTHROWN
-                    ent.client!.ps.forceHandExtendTime = level.time + 1200
-                    ent.client!.ps.forceDodgeAnim = 0
+                    //Always look at the thrower.
+                    entDir = thrower!.client!.ps.origin - ent.client!.ps.origin
+                    otherAngles = ent.client!.ps.viewangles
+                    otherAngles[YAW] = vectoyaw(entDir)
+                    SetClientViewAngle(ent, otherAngles)
 
-                    thrower!.client!.ps.forceHandExtend = HANDEXTEND_POSTTHROW
-                    thrower!.client!.ps.forceHandExtendTime = level.time + 200
+                    tAngles = thrower!.client!.ps.viewangles
+                    tAngles[ROLL] = 0
+                    tAngles[PITCH] = tAngles[ROLL]
 
-                    ent.client!.ps.heldByClient = 0
+                    //Get the direction between the pelvis and position of the hand
 
-                    ent.client!.ps.heldByClient = 0
-                    ent.client!.beingThrown = 0
-                    thrower!.client!.doingThrow = 0
 
-                    // Port-note: Raven passes NULL for the `right` output. The ported function takes it by reference, so the body passes a scratch local it never reads.
-                    portMissing("ClientThink_real", source: "oracle/codemp/game/g_active.c:1939")
-                    var scratchRight = vec3_t()
-                    // Port-note: Raven passes NULL for the `up` output. The ported function takes it by reference, so the body passes a scratch local it never reads.
-                    portMissing("ClientThink_real", source: "oracle/codemp/game/g_active.c:1939")
-                    var scratchUp2 = vec3_t()
-                    AngleVectors(thrower!.client!.ps.viewangles, &vDif, &scratchRight, &scratchUp2)
-                    ent.client!.ps.velocity[0] = vDif[0] * vScale
-                    ent.client!.ps.velocity[1] = vDif[1] * vScale
-                    ent.client!.ps.velocity[2] = 400
+                    pBoltOrg = thrower!.client!.ps.origin
+                    // Raven passes NULL for the `up` output, and AngleVectors only skips that write.
+                    var scratchUp = vec3_t()
+                    AngleVectors(tAngles, &fwd, &right, &scratchUp)
+                    boltOrg[0] = pBoltOrg[0] + fwd[0] * 8 + right[0] * pDif
+                    boltOrg[1] = pBoltOrg[1] + fwd[1] * 8 + right[1] * pDif
+                    boltOrg[2] = pBoltOrg[2]
+                    //G_TestLine(boltOrg, pBoltOrg, 0x0000ff, 50);
 
-                    G_EntitySound(ent, CHAN_VOICE, G_SoundIndex("*pain100.wav"))
-                    G_EntitySound(thrower!, CHAN_VOICE, G_SoundIndex("*jump1.wav"))
+                    vDif = ent.client!.ps.origin - boltOrg
+                    if VectorLength(vDif) > 32.0 && (thrower!.client!.doingThrow - level.time) < 4500 {
+                        //the hand is too far away, and can no longer hold onto us, so escape.
+                        ent.client!.ps.heldByClient = 0
+                        ent.client!.beingThrown = 0
+                        thrower!.client!.doingThrow = 0
 
-                    //Set the thrower as the "other killer", so if we die from fall/impact damage he is credited.
-                    ent.client!.ps.otherKiller = thrower!.s.number
-                    ent.client!.ps.otherKillerTime = level.time + 8000
-                    ent.client!.ps.otherKillerDebounceTime = level.time + 100
-                    ent.client!.otherKillerMOD = MOD_FALLING
-                    ent.client!.otherKillerVehWeapon = 0
-                    ent.client!.otherKillerWeaponType = WP_NONE
-                } else {
-                    //see if we can move to be next to the hand.. if it's not clear, break the throw.
-                    var intendedOrigin = vec3_t()
-                    // Raven's record lives to the end of his block, so the block is the closure.
-                    Trace.scratch { tr in
+                        thrower!.client!.ps.forceHandExtend = HANDEXTEND_NONE
+                        G_EntitySound(thrower!, CHAN_VOICE, G_SoundIndex("*pain25.wav"))
+
+                        ent.client!.ps.forceDodgeAnim = 2
+                        ent.client!.ps.forceHandExtend = HANDEXTEND_KNOCKDOWN
+                        ent.client!.ps.forceHandExtendTime = level.time + 500
+                        ent.client!.ps.velocity[2] = 400
+                        G_PreDefSound(ent.client!.ps.origin, PDSOUND_FORCEJUMP)
+                    } else if (client!.beingThrown - level.time) < 4000 {
+                        //step into the next part of the throw, and go flying back
+                        let vScale: Float = 400.0
+                        ent.client!.ps.forceHandExtend = HANDEXTEND_POSTTHROWN
+                        ent.client!.ps.forceHandExtendTime = level.time + 1200
+                        ent.client!.ps.forceDodgeAnim = 0
+
+                        thrower!.client!.ps.forceHandExtend = HANDEXTEND_POSTTHROW
+                        thrower!.client!.ps.forceHandExtendTime = level.time + 200
+
+                        ent.client!.ps.heldByClient = 0
+
+                        ent.client!.ps.heldByClient = 0
+                        ent.client!.beingThrown = 0
+                        thrower!.client!.doingThrow = 0
+
+                        // Raven passes NULL for the `right` output, and AngleVectors only skips that write.
+                        var scratchRight = vec3_t()
+                        // Raven passes NULL for the `up` output, and AngleVectors only skips that write.
+                        var scratchUp2 = vec3_t()
+                        AngleVectors(thrower!.client!.ps.viewangles, &vDif, &scratchRight, &scratchUp2)
+                        ent.client!.ps.velocity[0] = vDif[0] * vScale
+                        ent.client!.ps.velocity[1] = vDif[1] * vScale
+                        ent.client!.ps.velocity[2] = 400
+
+                        G_EntitySound(ent, CHAN_VOICE, G_SoundIndex("*pain100.wav"))
+                        G_EntitySound(thrower!, CHAN_VOICE, G_SoundIndex("*jump1.wav"))
+
+                        //Set the thrower as the "other killer", so if we die from fall/impact damage he is credited.
+                        ent.client!.ps.otherKiller = thrower!.s.number
+                        ent.client!.ps.otherKillerTime = level.time + 8000
+                        ent.client!.ps.otherKillerDebounceTime = level.time + 100
+                        ent.client!.otherKillerMOD = MOD_FALLING
+                        ent.client!.otherKillerVehWeapon = 0
+                        ent.client!.otherKillerWeaponType = WP_NONE
+                    } else {
+                        //see if we can move to be next to the hand.. if it's not clear, break the throw.
+                        var intendedOrigin = vec3_t()
                         // Raven's record lives to the end of his block, so the block is the closure.
-                        Trace.scratch { tr2 in
+                        Trace.scratch { tr in
+                            // Raven's record lives to the end of his block, so the block is the closure.
+                            Trace.scratch { tr2 in
 
-                            vDif = boltOrg - pBoltOrg
-                            VectorNormalize(&vDif)
+                                vDif = boltOrg - pBoltOrg
+                                VectorNormalize(&vDif)
 
-                            ent.client!.ps.velocity = vec3_t()
-                            intendedOrigin[0] = pBoltOrg[0] + vDif[0] * pDif
-                            intendedOrigin[1] = pBoltOrg[1] + vDif[1] * pDif
-                            intendedOrigin[2] = thrower!.client!.ps.origin[2]
+                                ent.client!.ps.velocity = vec3_t()
+                                intendedOrigin[0] = pBoltOrg[0] + vDif[0] * pDif
+                                intendedOrigin[1] = pBoltOrg[1] + vDif[1] * pDif
+                                intendedOrigin[2] = thrower!.client!.ps.origin[2]
 
-                            trap_Trace(tr, intendedOrigin, ent.r.mins, ent.r.maxs, intendedOrigin, ent.s.number, ent.clipmask)
-                            trap_Trace(tr2, ent.client!.ps.origin, ent.r.mins, ent.r.maxs, intendedOrigin, ent.s.number, CONTENTS_SOLID)
+                                trap_Trace(tr, intendedOrigin, ent.r.mins, ent.r.maxs, intendedOrigin, ent.s.number, ent.clipmask)
+                                trap_Trace(tr2, ent.client!.ps.origin, ent.r.mins, ent.r.maxs, intendedOrigin, ent.s.number, CONTENTS_SOLID)
 
-                            if Double(tr.fraction) == 1.0 && tr.startsolid == 0 && Double(tr2.fraction) == 1.0 && tr2.startsolid == 0 {
-                                ent.client!.ps.origin = intendedOrigin
+                                if Double(tr.fraction) == 1.0 && tr.startsolid == 0 && Double(tr2.fraction) == 1.0 && tr2.startsolid == 0 {
+                                    ent.client!.ps.origin = intendedOrigin
 
-                                if (client!.beingThrown - level.time) < 4800 {
-                                    ent.client!.ps.heldByClient = thrower!.s.number + 1
+                                    if (client!.beingThrown - level.time) < 4800 {
+                                        ent.client!.ps.heldByClient = thrower!.s.number + 1
+                                    }
+                                } else {
+                                    //if the guy can't be put here then it's time to break the throw off.
+                                    ent.client!.ps.heldByClient = 0
+                                    ent.client!.beingThrown = 0
+                                    thrower!.client!.doingThrow = 0
+
+                                    thrower!.client!.ps.forceHandExtend = HANDEXTEND_NONE
+                                    G_EntitySound(thrower!, CHAN_VOICE, G_SoundIndex("*pain25.wav"))
+
+                                    ent.client!.ps.forceDodgeAnim = 2
+                                    ent.client!.ps.forceHandExtend = HANDEXTEND_KNOCKDOWN
+                                    ent.client!.ps.forceHandExtendTime = level.time + 500
+                                    ent.client!.ps.velocity[2] = 400
+                                    G_PreDefSound(ent.client!.ps.origin, PDSOUND_FORCEJUMP)
                                 }
-                            } else {
-                                //if the guy can't be put here then it's time to break the throw off.
-                                ent.client!.ps.heldByClient = 0
-                                ent.client!.beingThrown = 0
-                                thrower!.client!.doingThrow = 0
-
-                                thrower!.client!.ps.forceHandExtend = HANDEXTEND_NONE
-                                G_EntitySound(thrower!, CHAN_VOICE, G_SoundIndex("*pain25.wav"))
-
-                                ent.client!.ps.forceDodgeAnim = 2
-                                ent.client!.ps.forceHandExtend = HANDEXTEND_KNOCKDOWN
-                                ent.client!.ps.forceHandExtendTime = level.time + 500
-                                ent.client!.ps.velocity[2] = 400
-                                G_PreDefSound(ent.client!.ps.origin, PDSOUND_FORCEJUMP)
                             }
                         }
                     }
                 }
             }
+        } else if ent.client!.ps.heldByClient != 0 {
+            ent.client!.ps.heldByClient = 0
         }
-    } else if ent.client!.ps.heldByClient != 0 {
-        ent.client!.ps.heldByClient = 0
-    }
 
-    /*
-    if ( client->ps.powerups[PW_HASTE] ) {
-    client->ps.speed *= 1.3;
-    }
-    */
+        /*
+        if ( client->ps.powerups[PW_HASTE] ) {
+        client->ps.speed *= 1.3;
+        }
+        */
 
-    //Will probably never need this again, since we have g2 properly serverside now.
-    //But just in case.
-    /*
-    if (client->ps.usingATST && ent->health > 0)
-    { //we have special shot clip boxes as an ATST
-    ent->r.contents |= CONTENTS_NOSHOT;
-    ATST_ManageDamageBoxes(ent);
-    }
-    else
-    {
-    ent->r.contents &= ~CONTENTS_NOSHOT;
-    client->damageBoxHandle_Head = 0;
-    client->damageBoxHandle_RLeg = 0;
-    client->damageBoxHandle_LLeg = 0;
-    }
-    */
+        //Will probably never need this again, since we have g2 properly serverside now.
+        //But just in case.
+        /*
+        if (client->ps.usingATST && ent->health > 0)
+        { //we have special shot clip boxes as an ATST
+        ent->r.contents |= CONTENTS_NOSHOT;
+        ATST_ManageDamageBoxes(ent);
+        }
+        else
+        {
+        ent->r.contents &= ~CONTENTS_NOSHOT;
+        client->damageBoxHandle_Head = 0;
+        client->damageBoxHandle_RLeg = 0;
+        client->damageBoxHandle_LLeg = 0;
+        }
+        */
 
-    //rww - moved this stuff into the pmove code so that it's predicted properly
-    //BG_AdjustClientSpeed(&client->ps, &client->pers.cmd, level.time);
+        //rww - moved this stuff into the pmove code so that it's predicted properly
+        //BG_AdjustClientSpeed(&client->ps, &client->pers.cmd, level.time);
 
-    // set up for pmove
-    oldEventSequence = client!.ps.eventSequence
+        // set up for pmove
+        oldEventSequence = client!.ps.eventSequence
 
-    // Raven clears the record with `memset` here. The scratch slot is zero at entry, so the body drops the call.
+        // Raven clears the record with `memset` here. The scratch slot is zero at entry, so the body drops the call.
 
-    if (ent.flags & FL_FORCE_GESTURE) != 0 {
-        ent.flags &= ~FL_FORCE_GESTURE
-        ent.client!.pers.cmd.buttons |= BUTTON_GESTURE
-    }
+        if (ent.flags & FL_FORCE_GESTURE) != 0 {
+            ent.flags &= ~FL_FORCE_GESTURE
+            ent.client!.pers.cmd.buttons |= BUTTON_GESTURE
+        }
 
-    if ent.client != nil && ent.client!.ps.fallingToDeath != 0 && (level.time - FALL_FADE_TIME) > ent.client!.ps.fallingToDeath {
-        //die!
-        if ent.health > 0 {
-            var otherKiller: Entity? = ent
-            if ent.client!.ps.otherKillerTime > level.time && ent.client!.ps.otherKiller != ENTITYNUM_NONE {
-                otherKiller = g_entities[ent.client!.ps.otherKiller]
+        if ent.client != nil && ent.client!.ps.fallingToDeath != 0 && (level.time - FALL_FADE_TIME) > ent.client!.ps.fallingToDeath {
+            //die!
+            if ent.health > 0 {
+                var otherKiller: Entity? = ent
+                if ent.client!.ps.otherKillerTime > level.time && ent.client!.ps.otherKiller != ENTITYNUM_NONE {
+                    otherKiller = g_entities[ent.client!.ps.otherKiller]
 
-                if !otherKiller!.inuse {
-                    otherKiller = ent
+                    if !otherKiller!.inuse {
+                        otherKiller = ent
+                    }
+                }
+                // Port-note: Raven passes NULL for the `dir` output. The ported function takes it by reference, so the body passes a scratch local it never reads.
+                portMissing("ClientThink_real", source: "oracle/codemp/game/g_active.c:1939")
+                var scratchDir = vec3_t()
+                G_Damage(ent, otherKiller, otherKiller, &scratchDir, ent.client!.ps.origin, 9999, DAMAGE_NO_PROTECTION, MOD_FALLING)
+                //player_die(ent, ent, ent, 100000, MOD_FALLING);
+                //		if (!ent->NPC)
+                //		{
+                //			respawn(ent);
+                //		}
+                //		ent->client->ps.fallingToDeath = 0;
+
+                G_MuteSound(ent.s.number, CHAN_VOICE) //stop screaming, because you are dead!
+            }
+        }
+
+        if ent.client!.ps.otherKillerTime > level.time && ent.client!.ps.groundEntityNum != ENTITYNUM_NONE && ent.client!.ps.otherKillerDebounceTime < level.time {
+            ent.client!.ps.otherKillerTime = 0
+            ent.client!.ps.otherKiller = ENTITYNUM_NONE
+        } else if ent.client!.ps.otherKillerTime > level.time && ent.client!.ps.groundEntityNum == ENTITYNUM_NONE {
+            if ent.client!.ps.otherKillerDebounceTime < (level.time + 100) {
+                ent.client!.ps.otherKillerDebounceTime = level.time + 100
+            }
+        }
+
+        //	WP_ForcePowersUpdate( ent, msec, ucmd); //update any active force powers
+        //	WP_SaberPositionUpdate(ent, ucmd); //check the server-side saber point, do apprioriate server-side actions (effects are cs-only)
+
+        //NOTE: can't put USE here *before* PMove!!
+        if ent.client!.ps.useDelay > level.time && ent.client!.ps.m_iVehicleNum != 0 {
+            //when in a vehicle, debounce the use...
+            ucmd!.buttons &= ~BUTTON_USE
+        }
+
+        //FIXME: need to do this before check to avoid walls and cliffs (or just cliffs?)
+        G_AddPushVecToUcmd(ent, ucmd!)
+
+        //play/stop any looping sounds tied to controlled movement
+        G_CheckMovingLoopingSounds(ent, ucmd!)
+
+        pm.ps = client!.ps
+        pm.cmd = ucmd!
+        if pm.ps.pm_type == PM_DEAD {
+            pm.tracemask = MASK_PLAYERSOLID & ~CONTENTS_BODY
+        } else if (ent.r.svFlags & SVF_BOT) != 0 {
+            pm.tracemask = MASK_PLAYERSOLID | CONTENTS_MONSTERCLIP
+        } else {
+            pm.tracemask = MASK_PLAYERSOLID
+        }
+        // Port-note: A read of `pm`, a local the draft left as a hole.
+        // Raven wrote: pm.trace = trap_Trace
+        portMissing("ClientThink_real", source: "oracle/codemp/game/g_active.c:1939")
+        // Port-note: A read of `pm`, a local the draft left as a hole.
+        // Raven wrote: pm.pointcontents = trap_PointContents
+        portMissing("ClientThink_real", source: "oracle/codemp/game/g_active.c:1939")
+        pm.debugLevel = g_debugMove.integer
+        pm.noFootsteps = (g_dmflags.integer & DF_NO_FOOTSTEPS) > 0
+
+        // Port-note: A read of `pm`, a local the draft left as a hole.
+        // Raven wrote: pm.pmove_fixed = pmove_fixed.integer | client->pers.pmoveFixed
+        portMissing("ClientThink_real", source: "oracle/codemp/game/g_active.c:1939")
+        pm.pmove_msec = pmove_msec.integer
+
+        pm.animations = bgAllAnims[ent.localAnimIndex].anims //NULL;
+
+        //rww - bgghoul2
+        pm.ghoul2 = nil
+
+
+        if ent.ghoul2 != nil {
+            if ent.localAnimIndex > 1 {
+                //if it isn't humanoid then we will be having none of this.
+                pm.ghoul2 = nil
+            } else {
+                pm.ghoul2 = ent.ghoul2
+                pm.g2Bolts_LFoot = trap_G2API_AddBolt(ent.ghoul2, 0, "*l_leg_foot")
+                pm.g2Bolts_RFoot = trap_G2API_AddBolt(ent.ghoul2, 0, "*r_leg_foot")
+            }
+        }
+
+        //point the saber data to the right place
+
+        //I'll just do this every frame in case the scale changes in realtime (don't need to update the g2 inst for that)
+        pm.modelScale = ent.modelScale
+        //rww end bgghoul2
+
+        pm.gametype = g_gametype.integer
+        pm.debugMelee = g_debugMelee.integer
+        pm.stepSlideFix = g_stepSlideFix.integer
+
+        pm.noSpecMove = g_noSpecMove.integer
+
+        pm.nonHumanoid = (ent.localAnimIndex > 0)
+
+        client!.oldOrigin = client!.ps.origin
+
+        /*
+        if (level.intermissionQueued != 0 && g_singlePlayer.integer) {
+        if ( level.time - level.intermissionQueued >= 1000  ) {
+        pm.cmd.buttons = 0;
+        pm.cmd.forwardmove = 0;
+        pm.cmd.rightmove = 0;
+        pm.cmd.upmove = 0;
+        if ( level.time - level.intermissionQueued >= 2000 && level.time - level.intermissionQueued <= 2500 ) {
+        trap_SendConsoleCommand( EXEC_APPEND, "centerview\n");
+        }
+        ent->client->ps.pm_type = PM_SPINTERMISSION;
+        }
+        }
+        */
+
+        //Set up bg entity data
+        // Port-note: A read of `pm`, a local the draft left as a hole.
+        // Raven wrote: pm.baseEnt = (bgEntity_t *)g_entities
+        portMissing("ClientThink_real", source: "oracle/codemp/game/g_active.c:1939")
+        // Port-note: A read of `pm`, a local the draft left as a hole.
+        // Raven wrote: pm.entSize = sizeof(gentity_t)
+        portMissing("ClientThink_real", source: "oracle/codemp/game/g_active.c:1939")
+
+        if ent.client!.ps.saberLockTime > level.time {
+            let blockOpp: Entity? = g_entities[ent.client!.ps.saberLockEnemy]
+
+            if blockOpp != nil && blockOpp!.inuse && blockOpp!.client != nil {
+                var lockDir = vec3_t()
+                var lockAng = vec3_t()
+
+                //VectorClear( ent->client->ps.velocity );
+                lockDir = blockOpp!.r.currentOrigin - ent.r.currentOrigin
+                //lockAng[YAW] = vectoyaw( defDir );
+                vectoangles(lockDir, &lockAng)
+                SetClientViewAngle(ent, lockAng)
+            }
+
+            if ent.client!.ps.saberLockHitCheckTime < level.time {
+                //have moved to next frame since last lock push
+                ent.client!.ps.saberLockHitCheckTime = level.time //so we don't push more than once per server frame
+                if (ent.client!.buttons & BUTTON_ATTACK) != 0 && !((ent.client!.oldbuttons & BUTTON_ATTACK) != 0) {
+                    if ent.client!.ps.saberLockHitIncrementTime < level.time {
+                        //have moved to next frame since last saberlock attack button press
+                        var lockHits: Int32 = 0
+                        ent.client!.ps.saberLockHitIncrementTime = level.time //so we don't register an attack key press more than once per server frame
+                        //NOTE: FP_SABER_OFFENSE level already taken into account in PM_SaberLocked
+                        if (ent.client!.ps.fd.forcePowersActive & (1 << FP_RAGE)) != 0 {
+                            //raging: push harder
+                            lockHits = 1 + ent.client!.ps.fd.forcePowerLevel[FP_RAGE]
+                        } else {
+                            //normal attack
+                            switch ent.client!.ps.fd.saberAnimLevel {
+                            case SS_FAST:
+                                lockHits = 1
+
+                            case SS_MEDIUM, SS_TAVION, SS_DUAL, SS_STAFF:
+                                lockHits = 2
+
+                            case SS_STRONG, SS_DESANN:
+                                lockHits = 3
+
+                            default:
+                                break
+                            }
+                        }
+                        if ent.client!.ps.fd.forceRageRecoveryTime > level.time && Q_irand(0, 1) != 0 {
+                            //finished raging: weak
+                            lockHits -= 1
+                        }
+                        lockHits += ent.client!.saber[0].lockBonus
+                        // Raven tests `ent->client->saber[1].model` and `ent->client->saber[1].model[0]`.
+                        // Both read as the same Swift test, so the draft writes it once.
+                        if !ent.client!.saber[1].model.isEmpty && ent.client!.ps.saberHolstered == 0 {
+                            lockHits += ent.client!.saber[1].lockBonus
+                        }
+                        ent.client!.ps.saberLockHits += lockHits
+                        if g_saberLockRandomNess.integer != 0 {
+                            ent.client!.ps.saberLockHits += Q_irand(0, g_saberLockRandomNess.integer)
+                            if ent.client!.ps.saberLockHits < 0 {
+                                ent.client!.ps.saberLockHits = 0
+                            }
+                        }
+                    }
+                }
+                if ent.client!.ps.saberLockHits > 0 {
+                    if !ent.client!.ps.saberLockAdvance {
+                        ent.client!.ps.saberLockHits -= 1
+                    }
+                    ent.client!.ps.saberLockAdvance = true
                 }
             }
-            // Port-note: Raven passes NULL for the `dir` output. The ported function takes it by reference, so the body passes a scratch local it never reads.
-            portMissing("ClientThink_real", source: "oracle/codemp/game/g_active.c:1939")
-            var scratchDir = vec3_t()
-            G_Damage(ent, otherKiller, otherKiller, &scratchDir, ent.client!.ps.origin, 9999, DAMAGE_NO_PROTECTION, MOD_FALLING)
-            //player_die(ent, ent, ent, 100000, MOD_FALLING);
-            //		if (!ent->NPC)
-            //		{
-            //			respawn(ent);
-            //		}
-            //		ent->client->ps.fallingToDeath = 0;
-
-            G_MuteSound(ent.s.number, CHAN_VOICE) //stop screaming, because you are dead!
-        }
-    }
-
-    if ent.client!.ps.otherKillerTime > level.time && ent.client!.ps.groundEntityNum != ENTITYNUM_NONE && ent.client!.ps.otherKillerDebounceTime < level.time {
-        ent.client!.ps.otherKillerTime = 0
-        ent.client!.ps.otherKiller = ENTITYNUM_NONE
-    } else if ent.client!.ps.otherKillerTime > level.time && ent.client!.ps.groundEntityNum == ENTITYNUM_NONE {
-        if ent.client!.ps.otherKillerDebounceTime < (level.time + 100) {
-            ent.client!.ps.otherKillerDebounceTime = level.time + 100
-        }
-    }
-
-    //	WP_ForcePowersUpdate( ent, msec, ucmd); //update any active force powers
-    //	WP_SaberPositionUpdate(ent, ucmd); //check the server-side saber point, do apprioriate server-side actions (effects are cs-only)
-
-    //NOTE: can't put USE here *before* PMove!!
-    if ent.client!.ps.useDelay > level.time && ent.client!.ps.m_iVehicleNum != 0 {
-        //when in a vehicle, debounce the use...
-        ucmd!.buttons &= ~BUTTON_USE
-    }
-
-    //FIXME: need to do this before check to avoid walls and cliffs (or just cliffs?)
-    G_AddPushVecToUcmd(ent, ucmd!)
-
-    //play/stop any looping sounds tied to controlled movement
-    G_CheckMovingLoopingSounds(ent, ucmd!)
-
-    // Port-note: A read of `pm`, a local the draft left as a hole.
-    // Raven wrote: pm.ps = &client->ps
-    portMissing("ClientThink_real", source: "oracle/codemp/game/g_active.c:1939")
-    // Port-note: A read of `pm`, a local the draft left as a hole.
-    // Raven wrote: pm.cmd = *ucmd
-    portMissing("ClientThink_real", source: "oracle/codemp/game/g_active.c:1939")
-    // Port-note: A read of `pm`, a local the draft left as a hole.
-    // Raven wrote: if ( pm.ps->pm_type == PM_DEAD ) { pm.tracemask = MASK_PLAYERSOLID & ~CONTENTS_BODY; } else if ( ent->r.svFlags & SVF_BOT ) { pm.tracemask = MASK_PLAYERSOLID | CONTENTS_MONSTERCLIP; } else { pm.tracemask = MASK_PLAYERSOLID; }
-    portMissing("ClientThink_real", source: "oracle/codemp/game/g_active.c:1939")
-    // Port-note: A read of `pm`, a local the draft left as a hole.
-    // Raven wrote: pm.trace = trap_Trace
-    portMissing("ClientThink_real", source: "oracle/codemp/game/g_active.c:1939")
-    // Port-note: A read of `pm`, a local the draft left as a hole.
-    // Raven wrote: pm.pointcontents = trap_PointContents
-    portMissing("ClientThink_real", source: "oracle/codemp/game/g_active.c:1939")
-    // Port-note: A read of `pm`, a local the draft left as a hole.
-    // Raven wrote: pm.debugLevel = g_debugMove.integer
-    portMissing("ClientThink_real", source: "oracle/codemp/game/g_active.c:1939")
-    // Port-note: A read of `pm`, a local the draft left as a hole.
-    // Raven wrote: pm.noFootsteps = ( g_dmflags.integer & DF_NO_FOOTSTEPS ) > 0
-    portMissing("ClientThink_real", source: "oracle/codemp/game/g_active.c:1939")
-
-    // Port-note: A read of `pm`, a local the draft left as a hole.
-    // Raven wrote: pm.pmove_fixed = pmove_fixed.integer | client->pers.pmoveFixed
-    portMissing("ClientThink_real", source: "oracle/codemp/game/g_active.c:1939")
-    // Port-note: A read of `pm`, a local the draft left as a hole.
-    // Raven wrote: pm.pmove_msec = pmove_msec.integer
-    portMissing("ClientThink_real", source: "oracle/codemp/game/g_active.c:1939")
-
-    // Port-note: A read of `pm`, a local the draft left as a hole.
-    // Raven wrote: pm.animations = bgAllAnims[ent->localAnimIndex].anims
-    portMissing("ClientThink_real", source: "oracle/codemp/game/g_active.c:1939")
-
-    //rww - bgghoul2
-    // Port-note: A read of `pm`, a local the draft left as a hole.
-    // Raven wrote: pm.ghoul2 = NULL
-    portMissing("ClientThink_real", source: "oracle/codemp/game/g_active.c:1939")
-
-
-    if ent.ghoul2 != nil {
-        if ent.localAnimIndex > 1 {
-            //if it isn't humanoid then we will be having none of this.
-            // Port-note: A read of `pm`, a local the draft left as a hole.
-            // Raven wrote: pm.ghoul2 = NULL
-            portMissing("ClientThink_real", source: "oracle/codemp/game/g_active.c:1939")
         } else {
-            // Port-note: A read of `pm`, a local the draft left as a hole.
-            // Raven wrote: pm.ghoul2 = ent->ghoul2
-            portMissing("ClientThink_real", source: "oracle/codemp/game/g_active.c:1939")
-            // Port-note: A read of `pm`, a local the draft left as a hole.
-            // Raven wrote: pm.g2Bolts_LFoot = trap_G2API_AddBolt(ent->ghoul2, 0, "*l_leg_foot")
-            portMissing("ClientThink_real", source: "oracle/codemp/game/g_active.c:1939")
-            // Port-note: A read of `pm`, a local the draft left as a hole.
-            // Raven wrote: pm.g2Bolts_RFoot = trap_G2API_AddBolt(ent->ghoul2, 0, "*r_leg_foot")
-            portMissing("ClientThink_real", source: "oracle/codemp/game/g_active.c:1939")
-        }
-    }
-
-    //point the saber data to the right place
-
-    //I'll just do this every frame in case the scale changes in realtime (don't need to update the g2 inst for that)
-    // Port-note: A read of `pm`, a local the draft left as a hole.
-    // Raven wrote: VectorCopy(ent->modelScale, pm.modelScale)
-    portMissing("ClientThink_real", source: "oracle/codemp/game/g_active.c:1939")
-    //rww end bgghoul2
-
-    // Port-note: A read of `pm`, a local the draft left as a hole.
-    // Raven wrote: pm.gametype = g_gametype.integer
-    portMissing("ClientThink_real", source: "oracle/codemp/game/g_active.c:1939")
-    // Port-note: A read of `pm`, a local the draft left as a hole.
-    // Raven wrote: pm.debugMelee = g_debugMelee.integer
-    portMissing("ClientThink_real", source: "oracle/codemp/game/g_active.c:1939")
-    // Port-note: A read of `pm`, a local the draft left as a hole.
-    // Raven wrote: pm.stepSlideFix = g_stepSlideFix.integer
-    portMissing("ClientThink_real", source: "oracle/codemp/game/g_active.c:1939")
-
-    // Port-note: A read of `pm`, a local the draft left as a hole.
-    // Raven wrote: pm.noSpecMove = g_noSpecMove.integer
-    portMissing("ClientThink_real", source: "oracle/codemp/game/g_active.c:1939")
-
-    // Port-note: A read of `pm`, a local the draft left as a hole.
-    // Raven wrote: pm.nonHumanoid = (ent->localAnimIndex > 0)
-    portMissing("ClientThink_real", source: "oracle/codemp/game/g_active.c:1939")
-
-    client!.oldOrigin = client!.ps.origin
-
-    /*
-    if (level.intermissionQueued != 0 && g_singlePlayer.integer) {
-    if ( level.time - level.intermissionQueued >= 1000  ) {
-    pm.cmd.buttons = 0;
-    pm.cmd.forwardmove = 0;
-    pm.cmd.rightmove = 0;
-    pm.cmd.upmove = 0;
-    if ( level.time - level.intermissionQueued >= 2000 && level.time - level.intermissionQueued <= 2500 ) {
-    trap_SendConsoleCommand( EXEC_APPEND, "centerview\n");
-    }
-    ent->client->ps.pm_type = PM_SPINTERMISSION;
-    }
-    }
-    */
-
-    //Set up bg entity data
-    // Port-note: A read of `pm`, a local the draft left as a hole.
-    // Raven wrote: pm.baseEnt = (bgEntity_t *)g_entities
-    portMissing("ClientThink_real", source: "oracle/codemp/game/g_active.c:1939")
-    // Port-note: A read of `pm`, a local the draft left as a hole.
-    // Raven wrote: pm.entSize = sizeof(gentity_t)
-    portMissing("ClientThink_real", source: "oracle/codemp/game/g_active.c:1939")
-
-    if ent.client!.ps.saberLockTime > level.time {
-        let blockOpp: Entity? = g_entities[ent.client!.ps.saberLockEnemy]
-
-        if blockOpp != nil && blockOpp!.inuse && blockOpp!.client != nil {
-            var lockDir = vec3_t()
-            var lockAng = vec3_t()
-
-            //VectorClear( ent->client->ps.velocity );
-            lockDir = blockOpp!.r.currentOrigin - ent.r.currentOrigin
-            //lockAng[YAW] = vectoyaw( defDir );
-            vectoangles(lockDir, &lockAng)
-            SetClientViewAngle(ent, lockAng)
+            ent.client!.ps.saberLockFrame = 0
+            //check for taunt
+            if (pm.cmd.generic_cmd == GENCMD_ENGAGE_DUEL) && (g_gametype.integer == GT_DUEL || g_gametype.integer == GT_POWERDUEL) {
+                //already in a duel, make it a taunt command
+                pm.cmd.buttons |= BUTTON_GESTURE
+            }
         }
 
-        if ent.client!.ps.saberLockHitCheckTime < level.time {
-            //have moved to next frame since last lock push
-            ent.client!.ps.saberLockHitCheckTime = level.time //so we don't push more than once per server frame
-            if (ent.client!.buttons & BUTTON_ATTACK) != 0 && !((ent.client!.oldbuttons & BUTTON_ATTACK) != 0) {
-                if ent.client!.ps.saberLockHitIncrementTime < level.time {
-                    //have moved to next frame since last saberlock attack button press
-                    var lockHits: Int32 = 0
-                    ent.client!.ps.saberLockHitIncrementTime = level.time //so we don't register an attack key press more than once per server frame
-                    //NOTE: FP_SABER_OFFENSE level already taken into account in PM_SaberLocked
-                    if (ent.client!.ps.fd.forcePowersActive & (1 << FP_RAGE)) != 0 {
-                        //raging: push harder
-                        lockHits = 1 + ent.client!.ps.fd.forcePowerLevel[FP_RAGE]
+        if ent.s.number >= MAX_CLIENTS {
+            pm.mins = ent.r.mins
+            pm.maxs = ent.r.maxs
+            if ent.s.NPC_class == CLASS_VEHICLE && ent.m_pVehicle != nil {
+                if ent.m_pVehicle!.m_pPilot != nil {
+                    //vehicles want to use their last pilot ucmd I guess
+                    if (level.time - ent.m_pVehicle!.m_ucmd.serverTime) > 2000 {
+                        //Previous owner disconnected, maybe
+                        ent.m_pVehicle!.m_ucmd.serverTime = level.time
+                        ent.client!.ps.commandTime = level.time - 100
+                        msec = 100
+                    }
+
+                    pm.cmd = ent.m_pVehicle!.m_ucmd
+
+                    //no veh can strafe
+                    pm.cmd.rightmove = 0
+                    //no crouching or jumping!
+                    pm.cmd.upmove = 0
+
+                    //NOTE: button presses were getting lost!
+                    pm.cmd.buttons = (g_entities[ent.m_pVehicle!.m_pPilot!.s.number].client!.pers.cmd.buttons & (BUTTON_ATTACK | BUTTON_ALT_ATTACK))
+                }
+                if ent.m_pVehicle!.m_pVehicleInfo!.type == VH_WALKER {
+                    if ent.client!.ps.groundEntityNum != ENTITYNUM_NONE {
+                        //ATST crushes anything underneath it
+                        let under: Entity? = g_entities[ent.client!.ps.groundEntityNum]
+                        if under != nil && under!.health != 0 && under!.takedamage {
+                            var down = vec3_t(0, 0, -1)
+                            //FIXME: we'll be doing traces down from each foot, so we'll have a real impact origin
+                            G_Damage(under!, ent, ent, &down, under!.r.currentOrigin, 100, 0, MOD_CRUSH)
+                        }
+                    }
+                }
+            }
+        }
+
+        Pmove(pm)
+
+        if ent.client!.solidHack != 0 {
+            if ent.client!.solidHack > level.time {
+                //whee!
+                ent.r.contents = 0
+            } else {
+                ent.r.contents = CONTENTS_BODY
+                ent.client!.solidHack = 0
+            }
+        }
+
+        if ent.NPC != nil {
+            ent.r.currentAngles = ent.client!.ps.viewangles
+        }
+
+        if pm.checkDuelLoss != 0 {
+            if pm.checkDuelLoss > 0 && (pm.checkDuelLoss <= MAX_CLIENTS || (pm.checkDuelLoss < (MAX_GENTITIES - 1) && g_entities[pm.checkDuelLoss - 1].s.eType == ET_NPC)) {
+                let clientLost: Entity? = g_entities[pm.checkDuelLoss - 1]
+
+                if clientLost != nil && clientLost!.inuse && clientLost!.client != nil && Q_irand(0, 40) > clientLost!.health {
+                    var attDir = vec3_t()
+                    attDir = ent.client!.ps.origin - clientLost!.client!.ps.origin
+                    VectorNormalize(&attDir)
+
+                    clientLost!.client!.ps.velocity = vec3_t()
+                    clientLost!.client!.ps.forceHandExtend = HANDEXTEND_NONE
+                    clientLost!.client!.ps.forceHandExtendTime = 0
+
+                    gGAvoidDismember = 1
+                    G_Damage(clientLost!, ent, ent, &attDir, clientLost!.client!.ps.origin, 9999, DAMAGE_NO_PROTECTION, MOD_SABER)
+
+                    if clientLost!.health < 1 {
+                        gGAvoidDismember = 2
+                        G_CheckForDismemberment(clientLost!, ent, clientLost!.client!.ps.origin, 999, (clientLost!.client!.ps.legsAnim), false)
+                    }
+
+                    gGAvoidDismember = 0
+                } else if clientLost != nil && clientLost!.inuse && clientLost!.client != nil && clientLost!.client!.ps.forceHandExtend != HANDEXTEND_KNOCKDOWN && clientLost!.client!.ps.saberEntityNum != 0 {
+                    //if we didn't knock down it was a circle lock. So as punishment, make them lose their saber and go into a proper anim
+                    saberCheckKnockdown_DuelLoss(g_entities[clientLost!.client!.ps.saberEntityNum], clientLost!, ent)
+                }
+            }
+
+            pm.checkDuelLoss = 0
+        }
+
+        if ent.client!.ps.groundEntityNum < ENTITYNUM_WORLD {
+            //standing on an ent
+            let groundEnt: Entity? = g_entities[ent.client!.ps.groundEntityNum]
+            if groundEnt != nil && groundEnt!.s.eType == ET_NPC && groundEnt!.s.NPC_class == CLASS_VEHICLE && groundEnt!.inuse && groundEnt!.health > 0 && groundEnt!.m_pVehicle != nil {
+                //standing on a valid, living vehicle
+                if groundEnt!.client!.ps.speed == 0 && groundEnt!.m_pVehicle!.m_ucmd.upmove > 0 {
+                    //a vehicle that's trying to take off!
+                    //just kill me
+                    var up = vec3_t(0, 0, 1)
+                    G_Damage(ent, nil, nil, &up, ent.r.currentOrigin, 9999999, DAMAGE_NO_PROTECTION, MOD_CRUSH)
+                    return
+                }
+            }
+        }
+
+        if pm.cmd.generic_cmd != 0 && (pm.cmd.generic_cmd != ent.client!.lastGenCmd || ent.client!.lastGenCmdTime < level.time) {
+            ent.client!.lastGenCmd = pm.cmd.generic_cmd
+            if pm.cmd.generic_cmd != GENCMD_FORCE_THROW && pm.cmd.generic_cmd != GENCMD_FORCE_PULL {
+                //these are the only two where you wouldn't care about a delay between
+                ent.client!.lastGenCmdTime = level.time + 300 //default 100ms debounce between issuing the same command.
+            }
+
+            switch pm.cmd.generic_cmd {
+            case 0:
+                break
+
+            case GENCMD_SABERSWITCH:
+                Cmd_ToggleSaber_f(ent)
+
+            case GENCMD_ENGAGE_DUEL:
+                if g_gametype.integer == GT_DUEL || g_gametype.integer == GT_POWERDUEL {
+                    //already in a duel, made it a taunt command
+                } else {
+                    Cmd_EngageDuel_f(ent)
+                }
+
+            case GENCMD_FORCE_HEAL:
+                ForceHeal(ent)
+
+            case GENCMD_FORCE_SPEED:
+                ForceSpeed(ent, 0)
+
+            case GENCMD_FORCE_THROW:
+                ForceThrow(ent, false)
+
+            case GENCMD_FORCE_PULL:
+                ForceThrow(ent, true)
+
+            case GENCMD_FORCE_DISTRACT:
+                ForceTelepathy(ent)
+
+            case GENCMD_FORCE_RAGE:
+                ForceRage(ent)
+
+            case GENCMD_FORCE_PROTECT:
+                ForceProtect(ent)
+
+            case GENCMD_FORCE_ABSORB:
+                ForceAbsorb(ent)
+
+            case GENCMD_FORCE_HEALOTHER:
+                ForceTeamHeal(ent)
+
+            case GENCMD_FORCE_FORCEPOWEROTHER:
+                ForceTeamForceReplenish(ent)
+
+            case GENCMD_FORCE_SEEING:
+                ForceSeeing(ent)
+
+            case GENCMD_USE_SEEKER:
+                if (ent.client!.ps.stats[STAT_HOLDABLE_ITEMS] & (1 << HI_SEEKER)) != 0 && G_ItemUsable(ent.client!.ps, HI_SEEKER) != 0 {
+                    ItemUse_Seeker(ent)
+                    G_AddEvent(ent, EV_USE_ITEM0 + HI_SEEKER, 0)
+                    ent.client!.ps.stats[STAT_HOLDABLE_ITEMS] &= ~(1 << HI_SEEKER)
+                }
+
+            case GENCMD_USE_FIELD:
+                if (ent.client!.ps.stats[STAT_HOLDABLE_ITEMS] & (1 << HI_SHIELD)) != 0 && G_ItemUsable(ent.client!.ps, HI_SHIELD) != 0 {
+                    ItemUse_Shield(ent)
+                    G_AddEvent(ent, EV_USE_ITEM0 + HI_SHIELD, 0)
+                    ent.client!.ps.stats[STAT_HOLDABLE_ITEMS] &= ~(1 << HI_SHIELD)
+                }
+
+            case GENCMD_USE_BACTA:
+                if (ent.client!.ps.stats[STAT_HOLDABLE_ITEMS] & (1 << HI_MEDPAC)) != 0 && G_ItemUsable(ent.client!.ps, HI_MEDPAC) != 0 {
+                    ItemUse_MedPack(ent)
+                    G_AddEvent(ent, EV_USE_ITEM0 + HI_MEDPAC, 0)
+                    ent.client!.ps.stats[STAT_HOLDABLE_ITEMS] &= ~(1 << HI_MEDPAC)
+                }
+
+            case GENCMD_USE_BACTABIG:
+                if (ent.client!.ps.stats[STAT_HOLDABLE_ITEMS] & (1 << HI_MEDPAC_BIG)) != 0 && G_ItemUsable(ent.client!.ps, HI_MEDPAC_BIG) != 0 {
+                    ItemUse_MedPack_Big(ent)
+                    G_AddEvent(ent, EV_USE_ITEM0 + HI_MEDPAC_BIG, 0)
+                    ent.client!.ps.stats[STAT_HOLDABLE_ITEMS] &= ~(1 << HI_MEDPAC_BIG)
+                }
+
+            case GENCMD_USE_ELECTROBINOCULARS:
+                if (ent.client!.ps.stats[STAT_HOLDABLE_ITEMS] & (1 << HI_BINOCULARS)) != 0 && G_ItemUsable(ent.client!.ps, HI_BINOCULARS) != 0 {
+                    ItemUse_Binoculars(ent)
+                    if ent.client!.ps.zoomMode == 0 {
+                        G_AddEvent(ent, EV_USE_ITEM0 + HI_BINOCULARS, 1)
                     } else {
-                        //normal attack
-                        switch ent.client!.ps.fd.saberAnimLevel {
-                        case SS_FAST:
-                            lockHits = 1
-
-                        case SS_MEDIUM, SS_TAVION, SS_DUAL, SS_STAFF:
-                            lockHits = 2
-
-                        case SS_STRONG, SS_DESANN:
-                            lockHits = 3
-
-                        default:
-                            break
-                        }
-                    }
-                    if ent.client!.ps.fd.forceRageRecoveryTime > level.time && Q_irand(0, 1) != 0 {
-                        //finished raging: weak
-                        lockHits -= 1
-                    }
-                    lockHits += ent.client!.saber[0].lockBonus
-                    // Raven tests `ent->client->saber[1].model` and `ent->client->saber[1].model[0]`.
-                    // Both read as the same Swift test, so the draft writes it once.
-                    if !ent.client!.saber[1].model.isEmpty && ent.client!.ps.saberHolstered == 0 {
-                        lockHits += ent.client!.saber[1].lockBonus
-                    }
-                    ent.client!.ps.saberLockHits += lockHits
-                    if g_saberLockRandomNess.integer != 0 {
-                        ent.client!.ps.saberLockHits += Q_irand(0, g_saberLockRandomNess.integer)
-                        if ent.client!.ps.saberLockHits < 0 {
-                            ent.client!.ps.saberLockHits = 0
-                        }
+                        G_AddEvent(ent, EV_USE_ITEM0 + HI_BINOCULARS, 2)
                     }
                 }
-            }
-            if ent.client!.ps.saberLockHits > 0 {
-                if !ent.client!.ps.saberLockAdvance {
-                    ent.client!.ps.saberLockHits -= 1
-                }
-                ent.client!.ps.saberLockAdvance = true
-            }
-        }
-    } else {
-        ent.client!.ps.saberLockFrame = 0
-        //check for taunt
-        // Port-note: A read of `pm`, a local the draft left as a hole.
-        // Raven wrote: if ( (pm.cmd.generic_cmd == GENCMD_ENGAGE_DUEL) && (g_gametype.integer == GT_DUEL || g_gametype.integer == GT_POWERDUEL) ) {//already in a duel, make it a taunt command pm.cmd.buttons |= BUTTON_GESTURE; }
-        portMissing("ClientThink_real", source: "oracle/codemp/game/g_active.c:1939")
-    }
 
-    if ent.s.number >= MAX_CLIENTS {
-        // Port-note: A read of `pm`, a local the draft left as a hole.
-        // Raven wrote: VectorCopy(ent->r.mins, pm.mins)
-        portMissing("ClientThink_real", source: "oracle/codemp/game/g_active.c:1939")
-        // Port-note: A read of `pm`, a local the draft left as a hole.
-        // Raven wrote: VectorCopy(ent->r.maxs, pm.maxs)
-        portMissing("ClientThink_real", source: "oracle/codemp/game/g_active.c:1939")
-        if ent.s.NPC_class == CLASS_VEHICLE && ent.m_pVehicle != nil {
-            if ent.m_pVehicle!.m_pPilot != nil {
-                //vehicles want to use their last pilot ucmd I guess
-                if (level.time - ent.m_pVehicle!.m_ucmd.serverTime) > 2000 {
-                    //Previous owner disconnected, maybe
-                    ent.m_pVehicle!.m_ucmd.serverTime = level.time
-                    ent.client!.ps.commandTime = level.time - 100
-                    msec = 100
-                }
-
-                // Port-note: A read of `pm`, a local the draft left as a hole.
-                // Raven wrote: memcpy(&pm.cmd, &ent->m_pVehicle->m_ucmd, sizeof(usercmd_t))
-                portMissing("ClientThink_real", source: "oracle/codemp/game/g_active.c:1939")
-
-                //no veh can strafe
-                // Port-note: A read of `pm`, a local the draft left as a hole.
-                // Raven wrote: pm.cmd.rightmove = 0
-                portMissing("ClientThink_real", source: "oracle/codemp/game/g_active.c:1939")
-                //no crouching or jumping!
-                // Port-note: A read of `pm`, a local the draft left as a hole.
-                // Raven wrote: pm.cmd.upmove = 0
-                portMissing("ClientThink_real", source: "oracle/codemp/game/g_active.c:1939")
-
-                //NOTE: button presses were getting lost!
-                // Port-note: A read of `pm`, a local the draft left as a hole.
-                // Raven wrote: pm.cmd.buttons = (g_entities[ent->m_pVehicle->m_pPilot->s.number].client->pers.cmd.buttons&(BUTTON_ATTACK|BUTTON_ALT_ATTACK))
-                portMissing("ClientThink_real", source: "oracle/codemp/game/g_active.c:1939")
-            }
-            if ent.m_pVehicle!.m_pVehicleInfo!.type == VH_WALKER {
-                if ent.client!.ps.groundEntityNum != ENTITYNUM_NONE {
-                    //ATST crushes anything underneath it
-                    let under: Entity? = g_entities[ent.client!.ps.groundEntityNum]
-                    if under != nil && under!.health != 0 && under!.takedamage {
-                        var down = vec3_t(0, 0, -1)
-                        //FIXME: we'll be doing traces down from each foot, so we'll have a real impact origin
-                        G_Damage(under!, ent, ent, &down, under!.r.currentOrigin, 100, 0, MOD_CRUSH)
+            case GENCMD_ZOOM:
+                if (ent.client!.ps.stats[STAT_HOLDABLE_ITEMS] & (1 << HI_BINOCULARS)) != 0 && G_ItemUsable(ent.client!.ps, HI_BINOCULARS) != 0 {
+                    ItemUse_Binoculars(ent)
+                    if ent.client!.ps.zoomMode == 0 {
+                        G_AddEvent(ent, EV_USE_ITEM0 + HI_BINOCULARS, 1)
+                    } else {
+                        G_AddEvent(ent, EV_USE_ITEM0 + HI_BINOCULARS, 2)
                     }
                 }
+
+            case GENCMD_USE_SENTRY:
+                if (ent.client!.ps.stats[STAT_HOLDABLE_ITEMS] & (1 << HI_SENTRY_GUN)) != 0 && G_ItemUsable(ent.client!.ps, HI_SENTRY_GUN) != 0 {
+                    ItemUse_Sentry(ent)
+                    G_AddEvent(ent, EV_USE_ITEM0 + HI_SENTRY_GUN, 0)
+                    ent.client!.ps.stats[STAT_HOLDABLE_ITEMS] &= ~(1 << HI_SENTRY_GUN)
+                }
+
+            case GENCMD_USE_JETPACK:
+                if (ent.client!.ps.stats[STAT_HOLDABLE_ITEMS] & (1 << HI_JETPACK)) != 0 && G_ItemUsable(ent.client!.ps, HI_JETPACK) != 0 {
+                    ItemUse_Jetpack(ent)
+                    G_AddEvent(ent, EV_USE_ITEM0 + HI_JETPACK, 0)
+                    /*
+                    if (ent->client->ps.zoomMode == 0)
+                    {
+                    G_AddEvent(ent, EV_USE_ITEM0+HI_BINOCULARS, 1);
+                    }
+                    else
+                    {
+                    G_AddEvent(ent, EV_USE_ITEM0+HI_BINOCULARS, 2);
+                    }
+                    */
+                }
+
+            case GENCMD_USE_HEALTHDISP:
+                if (ent.client!.ps.stats[STAT_HOLDABLE_ITEMS] & (1 << HI_HEALTHDISP)) != 0 && G_ItemUsable(ent.client!.ps, HI_HEALTHDISP) != 0 {
+                    //ItemUse_UseDisp(ent, HI_HEALTHDISP);
+                    G_AddEvent(ent, EV_USE_ITEM0 + HI_HEALTHDISP, 0)
+                }
+
+            case GENCMD_USE_AMMODISP:
+                if (ent.client!.ps.stats[STAT_HOLDABLE_ITEMS] & (1 << HI_AMMODISP)) != 0 && G_ItemUsable(ent.client!.ps, HI_AMMODISP) != 0 {
+                    //ItemUse_UseDisp(ent, HI_AMMODISP);
+                    G_AddEvent(ent, EV_USE_ITEM0 + HI_AMMODISP, 0)
+                }
+
+            case GENCMD_USE_EWEB:
+                if (ent.client!.ps.stats[STAT_HOLDABLE_ITEMS] & (1 << HI_EWEB)) != 0 && G_ItemUsable(ent.client!.ps, HI_EWEB) != 0 {
+                    ItemUse_UseEWeb(ent)
+                    G_AddEvent(ent, EV_USE_ITEM0 + HI_EWEB, 0)
+                }
+
+            case GENCMD_USE_CLOAK:
+                if (ent.client!.ps.stats[STAT_HOLDABLE_ITEMS] & (1 << HI_CLOAK)) != 0 && G_ItemUsable(ent.client!.ps, HI_CLOAK) != 0 {
+                    if ent.client!.ps.powerups[PW_CLOAKED] != 0 {
+                        //decloak
+                        Jedi_Decloak(ent)
+                    } else {
+                        //cloak
+                        Jedi_Cloak(ent)
+                    }
+                }
+
+            case GENCMD_SABERATTACKCYCLE:
+                Cmd_SaberAttackCycle_f(ent)
+
+            case GENCMD_TAUNT:
+                G_SetTauntAnim(ent, TAUNT_TAUNT)
+
+            case GENCMD_BOW:
+                G_SetTauntAnim(ent, TAUNT_BOW)
+
+            case GENCMD_MEDITATE:
+                G_SetTauntAnim(ent, TAUNT_MEDITATE)
+
+            case GENCMD_FLOURISH:
+                G_SetTauntAnim(ent, TAUNT_FLOURISH)
+
+            case GENCMD_GLOAT:
+                G_SetTauntAnim(ent, TAUNT_GLOAT)
+
+            default:
+                break
             }
         }
-    }
 
-    // Port-note: A read of `pm`, a local the draft left as a hole.
-    // Raven wrote: Pmove (&pm)
-    portMissing("ClientThink_real", source: "oracle/codemp/game/g_active.c:1939")
-
-    if ent.client!.solidHack != 0 {
-        if ent.client!.solidHack > level.time {
-            //whee!
-            ent.r.contents = 0
+        // save results of pmove
+        if ent.client!.ps.eventSequence != oldEventSequence {
+            ent.eventTime = level.time
+        }
+        if g_smoothClients.integer != 0 {
+            BG_PlayerStateToEntityStateExtraPolate(ent.client!.ps, ent.s, ent.client!.ps.commandTime, false)
+            //rww - 12-03-02 - Don't snap the origin of players! It screws prediction all up.
         } else {
-            ent.r.contents = CONTENTS_BODY
-            ent.client!.solidHack = 0
+            BG_PlayerStateToEntityState(ent.client!.ps, ent.s, false)
         }
-    }
 
-    if ent.NPC != nil {
-        ent.r.currentAngles = ent.client!.ps.viewangles
-    }
-
-    // Port-note: A read of `pm`, a local the draft left as a hole.
-    // Raven wrote: if (pm.checkDuelLoss) { if (pm.checkDuelLoss > 0 && (pm.checkDuelLoss <= MAX_CLIENTS || (pm.checkDuelLoss < (MAX_GENTITIES-1) && g_entities[pm.checkDuelLoss-1].s.eType == ET_NPC) ) ) { gentity_t *clientLost = &g_entities[pm.checkDuelLoss-1]; if (clientLost && clientLost->inuse && clientLost->client && Q_irand(0, 40) > clientLost->health) { vec3_t attDir; VectorSubtract(ent->client->ps.origin, clientLost->client->ps.origin, attDir); VectorNormalize(attDir); VectorClear(clientLost->client->ps.velocity); clientLost->client->ps.forceHandExtend = HANDEXTEND_NONE; clientLost->client->ps.forceHandExtendTime = 0; gGAvoidDismember = 1; G_Damage(clientLost, ent, ent, attDir, clientLost->client->ps.origin, 9999, DAMAGE_NO_PROTECTION, MOD_SABER); if (clientLost->health < 1) { gGAvoidDismember = 2; G_CheckForDismemberment(clientLost, ent, clientLost->client->ps.origin, 999, (clientLost->client->ps.legsAnim), qfalse); } gGAvoidDismember = 0; } else if (clientLost && clientLost->inuse && clientLost->client && clientLost->client->ps.forceHandExtend != HANDEXTEND_KNOCKDOWN && clientLost->client->ps.saberEntityNum) { //if we didn't knock down it was a circle lock. So as punishment, make them lose their saber and go into a proper anim saberCheckKnockdown_DuelLoss(&g_entities[clientLost->client->ps.saberEntityNum], clientLost, ent); } } pm.checkDuelLoss = 0; }
-    portMissing("ClientThink_real", source: "oracle/codemp/game/g_active.c:1939")
-
-    if ent.client!.ps.groundEntityNum < ENTITYNUM_WORLD {
-        //standing on an ent
-        let groundEnt: Entity? = g_entities[ent.client!.ps.groundEntityNum]
-        if groundEnt != nil && groundEnt!.s.eType == ET_NPC && groundEnt!.s.NPC_class == CLASS_VEHICLE && groundEnt!.inuse && groundEnt!.health > 0 && groundEnt!.m_pVehicle != nil {
-            //standing on a valid, living vehicle
-            if groundEnt!.client!.ps.speed == 0 && groundEnt!.m_pVehicle!.m_ucmd.upmove > 0 {
-                //a vehicle that's trying to take off!
-                //just kill me
-                var up = vec3_t(0, 0, 1)
-                G_Damage(ent, nil, nil, &up, ent.r.currentOrigin, 9999999, DAMAGE_NO_PROTECTION, MOD_CRUSH)
-                return
-            }
+        if isNPC {
+            ent.s.eType = ET_NPC
         }
-    }
 
-    // Port-note: A read of `pm`, a local the draft left as a hole.
-    // Raven wrote: if (pm.cmd.generic_cmd && (pm.cmd.generic_cmd != ent->client->lastGenCmd || ent->client->lastGenCmdTime < level.time)) { ent->client->lastGenCmd = pm.cmd.generic_cmd; if (pm.cmd.generic_cmd != GENCMD_FORCE_THROW && pm.cmd.generic_cmd != GENCMD_FORCE_PULL) { //these are the only two where you wouldn't care about a delay between ent->client->lastGenCmdTime = level.time + 300; //default 100ms debounce between issuing the same command. } switch(pm.cmd.generic_cmd) { case 0: break; case GENCMD_SABERSWITCH: Cmd_ToggleSaber_f(ent); break; case GENCMD_ENGAGE_DUEL: if ( g_gametype.integer == GT_DUEL || g_gametype.integer == GT_POWERDUEL ) {//already in a duel, made it a taunt command } else { Cmd_EngageDuel_f(ent); } break; case GENCMD_FORCE_HEAL: ForceHeal(ent); break; case GENCMD_FORCE_SPEED: ForceSpeed(ent, 0); break; case GENCMD_FORCE_THROW: ForceThrow(ent, qfalse); break; case GENCMD_FORCE_PULL: ForceThrow(ent, qtrue); break; case GENCMD_FORCE_DISTRACT: ForceTelepathy(ent); break; case GENCMD_FORCE_RAGE: ForceRage(ent); break; case GENCMD_FORCE_PROTECT: ForceProtect(ent); break; case GENCMD_FORCE_ABSORB: ForceAbsorb(ent); break; case GENCMD_FORCE_HEALOTHER: ForceTeamHeal(ent); break; case GENCMD_FORCE_FORCEPOWEROTHER: ForceTeamForceReplenish(ent); break; case GENCMD_FORCE_SEEING: ForceSeeing(ent); break; case GENCMD_USE_SEEKER: if ( (ent->client->ps.stats[STAT_HOLDABLE_ITEMS] & (1 << HI_SEEKER)) && G_ItemUsable(&ent->client->ps, HI_SEEKER) ) { ItemUse_Seeker(ent); G_AddEvent(ent, EV_USE_ITEM0+HI_SEEKER, 0); ent->client->ps.stats[STAT_HOLDABLE_ITEMS] &= ~(1 << HI_SEEKER); } break; case GENCMD_USE_FIELD: if ( (ent->client->ps.stats[STAT_HOLDABLE_ITEMS] & (1 << HI_SHIELD)) && G_ItemUsable(&ent->client->ps, HI_SHIELD) ) { ItemUse_Shield(ent); G_AddEvent(ent, EV_USE_ITEM0+HI_SHIELD, 0); ent->client->ps.stats[STAT_HOLDABLE_ITEMS] &= ~(1 << HI_SHIELD); } break; case GENCMD_USE_BACTA: if ( (ent->client->ps.stats[STAT_HOLDABLE_ITEMS] & (1 << HI_MEDPAC)) && G_ItemUsable(&ent->client->ps, HI_MEDPAC) ) { ItemUse_MedPack(ent); G_AddEvent(ent, EV_USE_ITEM0+HI_MEDPAC, 0); ent->client->ps.stats[STAT_HOLDABLE_ITEMS] &= ~(1 << HI_MEDPAC); } break; case GENCMD_USE_BACTABIG: if ( (ent->client->ps.stats[STAT_HOLDABLE_ITEMS] & (1 << HI_MEDPAC_BIG)) && G_ItemUsable(&ent->client->ps, HI_MEDPAC_BIG) ) { ItemUse_MedPack_Big(ent); G_AddEvent(ent, EV_USE_ITEM0+HI_MEDPAC_BIG, 0); ent->client->ps.stats[STAT_HOLDABLE_ITEMS] &= ~(1 << HI_MEDPAC_BIG); } break; case GENCMD_USE_ELECTROBINOCULARS: if ( (ent->client->ps.stats[STAT_HOLDABLE_ITEMS] & (1 << HI_BINOCULARS)) && G_ItemUsable(&ent->client->ps, HI_BINOCULARS) ) { ItemUse_Binoculars(ent); if (ent->client->ps.zoomMode == 0) { G_AddEvent(ent, EV_USE_ITEM0+HI_BINOCULARS, 1); } else { G_AddEvent(ent, EV_USE_ITEM0+HI_BINOCULARS, 2); } } break; case GENCMD_ZOOM: if ( (ent->client->ps.stats[STAT_HOLDABLE_ITEMS] & (1 << HI_BINOCULARS)) && G_ItemUsable(&ent->client->ps, HI_BINOCULARS) ) { ItemUse_Binoculars(ent); if (ent->client->ps.zoomMode == 0) { G_AddEvent(ent, EV_USE_ITEM0+HI_BINOCULARS, 1); } else { G_AddEvent(ent, EV_USE_ITEM0+HI_BINOCULARS, 2); } } break; case GENCMD_USE_SENTRY: if ( (ent->client->ps.stats[STAT_HOLDABLE_ITEMS] & (1 << HI_SENTRY_GUN)) && G_ItemUsable(&ent->client->ps, HI_SENTRY_GUN) ) { ItemUse_Sentry(ent); G_AddEvent(ent, EV_USE_ITEM0+HI_SENTRY_GUN, 0); ent->client->ps.stats[STAT_HOLDABLE_ITEMS] &= ~(1 << HI_SENTRY_GUN); } break; case GENCMD_USE_JETPACK: if ( (ent->client->ps.stats[STAT_HOLDABLE_ITEMS] & (1 << HI_JETPACK)) && G_ItemUsable(&ent->client->ps, HI_JETPACK) ) { ItemUse_Jetpack(ent); G_AddEvent(ent, EV_USE_ITEM0+HI_JETPACK, 0); /* if (ent->client->ps.zoomMode == 0) { G_AddEvent(ent, EV_USE_ITEM0+HI_BINOCULARS, 1); } else { G_AddEvent(ent, EV_USE_ITEM0+HI_BINOCULARS, 2); } */ } break; case GENCMD_USE_HEALTHDISP: if ( (ent->client->ps.stats[STAT_HOLDABLE_ITEMS] & (1 << HI_HEALTHDISP)) && G_ItemUsable(&ent->client->ps, HI_HEALTHDISP) ) { //ItemUse_UseDisp(ent, HI_HEALTHDISP); G_AddEvent(ent, EV_USE_ITEM0+HI_HEALTHDISP, 0); } break; case GENCMD_USE_AMMODISP: if ( (ent->client->ps.stats[STAT_HOLDABLE_ITEMS] & (1 << HI_AMMODISP)) && G_ItemUsable(&ent->client->ps, HI_AMMODISP) ) { //ItemUse_UseDisp(ent, HI_AMMODISP); G_AddEvent(ent, EV_USE_ITEM0+HI_AMMODISP, 0); } break; case GENCMD_USE_EWEB: if ( (ent->client->ps.stats[STAT_HOLDABLE_ITEMS] & (1 << HI_EWEB)) && G_ItemUsable(&ent->client->ps, HI_EWEB) ) { ItemUse_UseEWeb(ent); G_AddEvent(ent, EV_USE_ITEM0+HI_EWEB, 0); } break; case GENCMD_USE_CLOAK: if ( (ent->client->ps.stats[STAT_HOLDABLE_ITEMS] & (1 << HI_CLOAK)) && G_ItemUsable(&ent->client->ps, HI_CLOAK) ) { if ( ent->client->ps.powerups[PW_CLOAKED] ) {//decloak Jedi_Decloak( ent ); } else {//cloak Jedi_Cloak( ent ); } } break; case GENCMD_SABERATTACKCYCLE: Cmd_SaberAttackCycle_f(ent); break; case GENCMD_TAUNT: G_SetTauntAnim( ent, TAUNT_TAUNT ); break; case GENCMD_BOW: G_SetTauntAnim( ent, TAUNT_BOW ); break; case GENCMD_MEDITATE: G_SetTauntAnim( ent, TAUNT_MEDITATE ); break; case GENCMD_FLOURISH: G_SetTauntAnim( ent, TAUNT_FLOURISH ); break; case GENCMD_GLOAT: G_SetTauntAnim( ent, TAUNT_GLOAT ); break; default: break; } }
-    portMissing("ClientThink_real", source: "oracle/codemp/game/g_active.c:1939")
+        SendPendingPredictableEvents(ent.client!.ps)
 
-    // save results of pmove
-    if ent.client!.ps.eventSequence != oldEventSequence {
-        ent.eventTime = level.time
-    }
-    if g_smoothClients.integer != 0 {
-        BG_PlayerStateToEntityStateExtraPolate(ent.client!.ps, ent.s, ent.client!.ps.commandTime, false)
-        //rww - 12-03-02 - Don't snap the origin of players! It screws prediction all up.
-    } else {
-        BG_PlayerStateToEntityState(ent.client!.ps, ent.s, false)
-    }
+        if !((ent.client!.ps.eFlags & EF_FIRING) != 0) {
+            client!.fireHeld = false // for grapple
+        }
 
-    if isNPC {
-        ent.s.eType = ET_NPC
-    }
+        // use the snapped origin for linking so it matches client predicted versions
+        ent.r.currentOrigin = ent.s.pos.trBase
 
-    SendPendingPredictableEvents(ent.client!.ps)
+        if ent.s.eType != ET_NPC || ent.s.NPC_class != CLASS_VEHICLE || ent.m_pVehicle == nil || ent.m_pVehicle!.m_iRemovedSurfaces == 0 {
+            //let vehicles that are getting broken apart do their own crazy sizing stuff
+            ent.r.mins = pm.mins
+            ent.r.maxs = pm.maxs
+        }
 
-    if !((ent.client!.ps.eFlags & EF_FIRING) != 0) {
-        client!.fireHeld = false // for grapple
-    }
+        ent.waterlevel = pm.waterlevel
+        ent.watertype = pm.watertype
 
-    // use the snapped origin for linking so it matches client predicted versions
-    ent.r.currentOrigin = ent.s.pos.trBase
+        // execute client events
+        ClientEvents(ent, oldEventSequence)
 
-    if ent.s.eType != ET_NPC || ent.s.NPC_class != CLASS_VEHICLE || ent.m_pVehicle == nil || ent.m_pVehicle!.m_iRemovedSurfaces == 0 {
-        //let vehicles that are getting broken apart do their own crazy sizing stuff
-        // Port-note: A read of `pm`, a local the draft left as a hole.
-        // Raven wrote: VectorCopy (pm.mins, ent->r.mins)
-        portMissing("ClientThink_real", source: "oracle/codemp/game/g_active.c:1939")
-        // Port-note: A read of `pm`, a local the draft left as a hole.
-        // Raven wrote: VectorCopy (pm.maxs, ent->r.maxs)
-        portMissing("ClientThink_real", source: "oracle/codemp/game/g_active.c:1939")
-    }
+        if pm.useEvent != 0 {
+            //TODO: Use
+            //		TryUse( ent );
+        }
+        if (ent.client!.pers.cmd.buttons & BUTTON_USE) != 0 && ent.client!.ps.useDelay < level.time {
+            TryUse(ent)
+            ent.client!.ps.useDelay = level.time + 100
+        }
 
-    // Port-note: A read of `pm`, a local the draft left as a hole.
-    // Raven wrote: ent->waterlevel = pm.waterlevel
-    portMissing("ClientThink_real", source: "oracle/codemp/game/g_active.c:1939")
-    // Port-note: A read of `pm`, a local the draft left as a hole.
-    // Raven wrote: ent->watertype = pm.watertype
-    portMissing("ClientThink_real", source: "oracle/codemp/game/g_active.c:1939")
+        // link entity now, after any personal teleporters have been used
+        trap_LinkEntity(ent)
+        if !ent.client!.noclip {
+            G_TouchTriggers(ent)
+        }
 
-    // execute client events
-    ClientEvents(ent, oldEventSequence)
+        // NOTE: now copy the exact origin over otherwise clients can be snapped into solid
+        ent.r.currentOrigin = ent.client!.ps.origin
 
-    // Port-note: A read of `pm`, a local the draft left as a hole.
-    // Raven wrote: if ( pm.useEvent ) { //TODO: Use // TryUse( ent ); }
-    portMissing("ClientThink_real", source: "oracle/codemp/game/g_active.c:1939")
-    if (ent.client!.pers.cmd.buttons & BUTTON_USE) != 0 && ent.client!.ps.useDelay < level.time {
-        TryUse(ent)
-        ent.client!.ps.useDelay = level.time + 100
-    }
+        //test for solid areas in the AAS file
+        //	BotTestAAS(ent->r.currentOrigin);
 
-    // link entity now, after any personal teleporters have been used
-    trap_LinkEntity(ent)
-    if !ent.client!.noclip {
-        G_TouchTriggers(ent)
-    }
+        // touch other objects
+        ClientImpacts(ent, pm)
 
-    // NOTE: now copy the exact origin over otherwise clients can be snapped into solid
-    ent.r.currentOrigin = ent.client!.ps.origin
+        // save results of triggers and client events
+        if ent.client!.ps.eventSequence != oldEventSequence {
+            ent.eventTime = level.time
+        }
 
-    //test for solid areas in the AAS file
-    //	BotTestAAS(ent->r.currentOrigin);
+        // swap and latch button actions
+        client!.oldbuttons = client!.buttons
+        client!.buttons = ucmd!.buttons
+        client!.latched_buttons |= client!.buttons & ~client!.oldbuttons
 
-    // touch other objects
-    // Port-note: A read of `pm`, a local the draft left as a hole.
-    // Raven wrote: ClientImpacts( ent, &pm )
-    portMissing("ClientThink_real", source: "oracle/codemp/game/g_active.c:1939")
+        //	G_VehicleAttachDroidUnit( ent );
 
-    // save results of triggers and client events
-    if ent.client!.ps.eventSequence != oldEventSequence {
-        ent.eventTime = level.time
-    }
+        // Did we kick someone in our pmove sequence?
+        if client!.ps.forceKickFlip != 0 {
+            let faceKicked: Entity? = g_entities[client!.ps.forceKickFlip - 1]
 
-    // swap and latch button actions
-    client!.oldbuttons = client!.buttons
-    client!.buttons = ucmd!.buttons
-    client!.latched_buttons |= client!.buttons & ~client!.oldbuttons
+            if faceKicked != nil && faceKicked!.client != nil && (!OnSameTeam(ent, faceKicked!) || g_friendlyFire.integer != 0) && (!faceKicked!.client!.ps.duelInProgress || faceKicked!.client!.ps.duelIndex == ent.s.number) && (!ent.client!.ps.duelInProgress || ent.client!.ps.duelIndex == faceKicked!.s.number) {
+                if faceKicked != nil && faceKicked!.client != nil && faceKicked!.health != 0 && faceKicked!.takedamage {
+                    //push them away and do pain
+                    var oppDir = vec3_t()
+                    var strength: Int32 = Int32(VectorNormalize2(client!.ps.velocity, &oppDir))
 
-    //	G_VehicleAttachDroidUnit( ent );
+                    strength = Int32(Double(strength) * 0.05)
 
-    // Did we kick someone in our pmove sequence?
-    if client!.ps.forceKickFlip != 0 {
-        let faceKicked: Entity? = g_entities[client!.ps.forceKickFlip - 1]
+                    oppDir = oppDir * -1
 
-        if faceKicked != nil && faceKicked!.client != nil && (!OnSameTeam(ent, faceKicked!) || g_friendlyFire.integer != 0) && (!faceKicked!.client!.ps.duelInProgress || faceKicked!.client!.ps.duelIndex == ent.s.number) && (!ent.client!.ps.duelInProgress || ent.client!.ps.duelIndex == faceKicked!.s.number) {
-            if faceKicked != nil && faceKicked!.client != nil && faceKicked!.health != 0 && faceKicked!.takedamage {
-                //push them away and do pain
-                var oppDir = vec3_t()
-                var strength: Int32 = Int32(VectorNormalize2(client!.ps.velocity, &oppDir))
+                    G_Damage(faceKicked!, ent, ent, &oppDir, client!.ps.origin, strength, DAMAGE_NO_ARMOR, MOD_MELEE)
 
-                strength = Int32(Double(strength) * 0.05)
+                    if faceKicked!.client!.ps.weapon != WP_SABER || faceKicked!.client!.ps.fd.saberAnimLevel != FORCE_LEVEL_3 || (!BG_SaberInAttack(faceKicked!.client!.ps.saberMove) && !PM_SaberInStart(faceKicked!.client!.ps.saberMove) && !PM_SaberInReturn(faceKicked!.client!.ps.saberMove) && !PM_SaberInTransition(faceKicked!.client!.ps.saberMove)) {
+                        if faceKicked!.health > 0 && faceKicked!.client!.ps.stats[STAT_HEALTH] > 0 && faceKicked!.client!.ps.forceHandExtend != HANDEXTEND_KNOCKDOWN {
+                            if BG_KnockDownable(faceKicked!.client!.ps) && Q_irand(1, 10) <= 3 {
+                                //only actually knock over sometimes, but always do velocity hit
+                                faceKicked!.client!.ps.forceHandExtend = HANDEXTEND_KNOCKDOWN
+                                faceKicked!.client!.ps.forceHandExtendTime = level.time + 1100
+                                faceKicked!.client!.ps.forceDodgeAnim = 0 //this toggles between 1 and 0, when it's 1 we should play the get up anim
+                            }
 
-                oppDir = oppDir * -1
+                            faceKicked!.client!.ps.otherKiller = ent.s.number
+                            faceKicked!.client!.ps.otherKillerTime = level.time + 5000
+                            faceKicked!.client!.ps.otherKillerDebounceTime = level.time + 100
+                            faceKicked!.client!.otherKillerMOD = MOD_MELEE
+                            faceKicked!.client!.otherKillerVehWeapon = 0
+                            faceKicked!.client!.otherKillerWeaponType = WP_NONE
 
-                G_Damage(faceKicked!, ent, ent, &oppDir, client!.ps.origin, strength, DAMAGE_NO_ARMOR, MOD_MELEE)
-
-                if faceKicked!.client!.ps.weapon != WP_SABER || faceKicked!.client!.ps.fd.saberAnimLevel != FORCE_LEVEL_3 || (!BG_SaberInAttack(faceKicked!.client!.ps.saberMove) && !PM_SaberInStart(faceKicked!.client!.ps.saberMove) && !PM_SaberInReturn(faceKicked!.client!.ps.saberMove) && !PM_SaberInTransition(faceKicked!.client!.ps.saberMove)) {
-                    if faceKicked!.health > 0 && faceKicked!.client!.ps.stats[STAT_HEALTH] > 0 && faceKicked!.client!.ps.forceHandExtend != HANDEXTEND_KNOCKDOWN {
-                        if BG_KnockDownable(faceKicked!.client!.ps) && Q_irand(1, 10) <= 3 {
-                            //only actually knock over sometimes, but always do velocity hit
-                            faceKicked!.client!.ps.forceHandExtend = HANDEXTEND_KNOCKDOWN
-                            faceKicked!.client!.ps.forceHandExtendTime = level.time + 1100
-                            faceKicked!.client!.ps.forceDodgeAnim = 0 //this toggles between 1 and 0, when it's 1 we should play the get up anim
+                            faceKicked!.client!.ps.velocity[0] = oppDir[0] * (strength * 40)
+                            faceKicked!.client!.ps.velocity[1] = oppDir[1] * (strength * 40)
+                            faceKicked!.client!.ps.velocity[2] = 200
                         }
-
-                        faceKicked!.client!.ps.otherKiller = ent.s.number
-                        faceKicked!.client!.ps.otherKillerTime = level.time + 5000
-                        faceKicked!.client!.ps.otherKillerDebounceTime = level.time + 100
-                        faceKicked!.client!.otherKillerMOD = MOD_MELEE
-                        faceKicked!.client!.otherKillerVehWeapon = 0
-                        faceKicked!.client!.otherKillerWeaponType = WP_NONE
-
-                        faceKicked!.client!.ps.velocity[0] = oppDir[0] * (strength * 40)
-                        faceKicked!.client!.ps.velocity[1] = oppDir[1] * (strength * 40)
-                        faceKicked!.client!.ps.velocity[2] = 200
                     }
+
+                    G_Sound(faceKicked!, CHAN_AUTO, G_SoundIndex(va("sound/weapons/melee/punch%d", Q_irand(1, 4))))
+                }
+            }
+
+            client!.ps.forceKickFlip = 0
+        }
+
+        // check for respawning
+        if client!.ps.stats[STAT_HEALTH] <= 0 && !((client!.ps.eFlags2 & EF2_HELD_BY_MONSTER) != 0) && ent.s.eType != ET_NPC {
+            // wait for the attack button to be pressed
+            if level.time > client!.respawnTime && !gDoSlowMoDuel {
+                // forcerespawn is to prevent users from waiting out powerups
+                var forceRes: Int32 = g_forcerespawn.integer
+
+                if g_gametype.integer == GT_POWERDUEL {
+                    forceRes = 1
+                } else if g_gametype.integer == GT_SIEGE && g_siegeRespawn.integer != 0 {
+                    //wave respawning on
+                    forceRes = 1
                 }
 
-                G_Sound(faceKicked!, CHAN_AUTO, G_SoundIndex(va("sound/weapons/melee/punch%d", Q_irand(1, 4))))
+                if forceRes > 0 && (level.time - client!.respawnTime) > forceRes * 1000 {
+                    respawn(ent)
+                    return
+                }
+
+                // pressing attack or use is the normal respawn method
+                if (ucmd!.buttons & (BUTTON_ATTACK | BUTTON_USE_HOLDABLE)) != 0 {
+                    respawn(ent)
+                }
+            } else if gDoSlowMoDuel {
+                client!.respawnTime = level.time + 1000
             }
+            return
         }
 
-        client!.ps.forceKickFlip = 0
-    }
+        // perform once-a-second actions
+        ClientTimerActions(ent, msec)
 
-    // check for respawning
-    if client!.ps.stats[STAT_HEALTH] <= 0 && !((client!.ps.eFlags2 & EF2_HELD_BY_MONSTER) != 0) && ent.s.eType != ET_NPC {
-        // wait for the attack button to be pressed
-        if level.time > client!.respawnTime && !gDoSlowMoDuel {
-            // forcerespawn is to prevent users from waiting out powerups
-            var forceRes: Int32 = g_forcerespawn.integer
+        G_UpdateClientBroadcasts(ent)
 
-            if g_gametype.integer == GT_POWERDUEL {
-                forceRes = 1
-            } else if g_gametype.integer == GT_SIEGE && g_siegeRespawn.integer != 0 {
-                //wave respawning on
-                forceRes = 1
+        //try some idle anims on ent if getting no input and not moving for some time
+        G_CheckClientIdle(ent, ucmd!)
+
+        // This code was moved here from clientThink to fix a problem with g_synchronousClients
+        // being set to 1 when in vehicles.
+        if ent.s.number < MAX_CLIENTS && ent.client!.ps.m_iVehicleNum != 0 {
+            //driving a vehicle
+            //run it
+            if g_entities[ent.client!.ps.m_iVehicleNum].inuse && g_entities[ent.client!.ps.m_iVehicleNum].client != nil {
+                ClientThink(ent.client!.ps.m_iVehicleNum, g_entities[ent.client!.ps.m_iVehicleNum].m_pVehicle!.m_ucmd)
+            } else {
+                //vehicle no longer valid?
+                ent.client!.ps.m_iVehicleNum = 0
             }
-
-            if forceRes > 0 && (level.time - client!.respawnTime) > forceRes * 1000 {
-                respawn(ent)
-                return
-            }
-
-            // pressing attack or use is the normal respawn method
-            if (ucmd!.buttons & (BUTTON_ATTACK | BUTTON_USE_HOLDABLE)) != 0 {
-                respawn(ent)
-            }
-        } else if gDoSlowMoDuel {
-            client!.respawnTime = level.time + 1000
-        }
-        return
-    }
-
-    // perform once-a-second actions
-    ClientTimerActions(ent, msec)
-
-    G_UpdateClientBroadcasts(ent)
-
-    //try some idle anims on ent if getting no input and not moving for some time
-    G_CheckClientIdle(ent, ucmd!)
-
-    // This code was moved here from clientThink to fix a problem with g_synchronousClients
-    // being set to 1 when in vehicles.
-    if ent.s.number < MAX_CLIENTS && ent.client!.ps.m_iVehicleNum != 0 {
-        //driving a vehicle
-        //run it
-        if g_entities[ent.client!.ps.m_iVehicleNum].inuse && g_entities[ent.client!.ps.m_iVehicleNum].client != nil {
-            ClientThink(ent.client!.ps.m_iVehicleNum, g_entities[ent.client!.ps.m_iVehicleNum].m_pVehicle!.m_ucmd)
-        } else {
-            //vehicle no longer valid?
-            ent.client!.ps.m_iVehicleNum = 0
         }
     }
 }
