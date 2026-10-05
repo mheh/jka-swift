@@ -27,3 +27,25 @@ Gate: build 0 errors, 106 tests in four binaries, bg 103 holes with 0 defects, g
 | R22 | Row D binds a `char *` field at each `%s` position and at a `char **` output store. Raven's printf prints "(null)" for a NULL there, and the bind traps. Proposed: ratify, with the trap as the rule 19 divergence, the R5 form | ratified as proposed |
 | R23 | Row E needed shape rules beyond its text: `arith_kind` with the overlay return type for `random()` and `crandom()` against the SDK's long, Float vector initializer members, the conversion of the chained store value, the float compound store for a library call Swift holds in Float. It also leaves out a conversion where the kinds agree. Proposed: ratify | ratified as proposed |
 | R24 | The R11 form is named `slot(of:)`. It reads the pointer distance, not a search, and it traps outside the table. The Int sites keep `firstIndex(of:)!`. The name is in the drafter code, not in rulings.py, as `firstIndex` was. Proposed: ratify the name and the form | ratified as proposed |
+
+## The class table at 9a756c8
+
+The table is in game-gate-9a756c8.md beside this file. It reads 1632 holes, 0 cascade errors, and 341 defects in 36 classes.
+
+| Row | Question | Verdict |
+|---|---|---|
+| R25 | The composition of the next round, from the class table at 9a756c8. Proposed: row F first, R2 built with the pointer difference added. A table plus an offset is a slot address, and a pointer minus a pointer over the same table is an index difference, 41 lines. Then row G, the comparison shapes: a C int tested against a Bool result takes the test as C reads it, a char compared with an integer compares the character's code, and a CharBuf compared with an integer compares its first character, 36 lines. Then row H, R20, the scratch copy under a Port-note, 11 lines. The subscript shapes get a classification pass inside the round with ruling candidates, not a rule. R7 stays open, and the Bool? helpers wait for a signature ruling | replaced 2026-10-04: a defect-to-hole pass in draftcheck. Every defect line the gate reports is emitted again as a hole, with a Port-note that says the draft did not compile and Raven's C on the line. Rows F, G, H and the subscript shapes join the hole docket. The gate goes to zero defects, R7 stays open, and bg bodies start in parallel |
+| R26 | The gate cadence inside a round. Proposed: while a row iterates, the agent gates only the stems the row's defect lines name, and the full gate runs once at the end of the round | not ratified, a full game gate runs after each row |
+
+## The round at 225dc42
+
+Row R25 built as replaced: a statement whose draft the compile gate rejects is a hole on the next pass. draftcheck marks each drafted line with its statement, maps every compiler error back, and drafts the stem again with that statement as a hole, up to a cap of passes. The 341 defects become 249 compile holes, no stem hit the cap, and the longest stem took five passes. The two legibility fixes the user ordered after R25 built in the same tree: a `char *` field is a `String?` on the view with the setter interning in the shared pool, and a folded NULL test on a value the signature holds emits nothing. The two fixes cleared about 90 of the old defects outright and 13 bg holes that were NULL guard markers. The last pass's draft of each stem stays under .build-draft/drafts/ as the text a transcriptor reads.
+
+Gate: build 0 errors, 106 tests in four binaries, bg 90 holes with 0 defects, game 1833 holes of which 249 are compile holes, 0 cascade errors, 0 defects. The game side is at zero defects for the first time. The table is in game-gate-225dc42.md beside this file.
+
+### Rulings on the round
+
+| Row | Question | Verdict |
+|---|---|---|
+| R27 | The string pool is a module-level global in JKAShared, `StringPool.shared`, declared as the other three globals are. The views in JKAMP and JKAMP_Game cannot reach the game's world, and the `String?` setter must intern. Rule 3 of porting-rules reads against a module global. Proposed: the pool is the text ABI boundary, not module state, and `StringPool.shared` is the one allowed global of JKAShared beside `rng` and the syscall transport. Rule 3 names it | ratified as amended, a docketed open row: StringPool and PooledString go away. g_mem.c is transcribed as Raven wrote it into JKAShared, a static arena of 4 MB as OpenJK sized it, G_Alloc, and G_InitMemory reset at level init. The view's `String?` setter copies the text through G_Alloc. G_NewString unescapes and returns a String, and the store copies it. Rule 3 names the arena as Raven's own file static. The comparison: Raven and OpenJK keep one bump arena reset at level init, jka-rust boxes each text for the module's life and no body uses it |
+| R28 | A folded NULL guard drops the arm under it with no comment and no commented C. The arm has no path by the Swift signature, and a caller that passes an optional meets the hole at the call. Proposed: ratify the silent drop as the form | ratified as proposed |
