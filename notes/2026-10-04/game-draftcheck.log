@@ -1,0 +1,602 @@
+[warn] 6628 parse errors (layouts may be partial); first:
+  /Users/milohehmsoth/Developer/Milo/jka-swift/oracle/codemp/game/q_shared.h:1242: conflicting types for 'powf'
+  /Users/milohehmsoth/Developer/Milo/jka-swift/oracle/codemp/game/q_shared.h:1414: expected 'volatile', 'inline', 'goto', or '('
+  /Users/milohehmsoth/Developer/Milo/jka-swift/oracle/codemp/game/q_shared.h:1415: expected 'volatile', 'inline', 'goto', or '('
+[warn] 5442 parse errors (layouts may be partial); first:
+  /Users/milohehmsoth/Developer/Milo/jka-swift/oracle/codemp/game/q_shared.h:1242: conflicting types for 'powf'
+  /Users/milohehmsoth/Developer/Milo/jka-swift/oracle/codemp/game/q_shared.h:1414: expected 'volatile', 'inline', 'goto', or '('
+  /Users/milohehmsoth/Developer/Milo/jka-swift/oracle/codemp/game/q_shared.h:1415: expected 'volatile', 'inline', 'goto', or '('
+AnimalNPC: 9 of 12 hand functions replaced, 1 holes, 0 cascade errors, 7 defects
+  AnimalNPC.swift:73: value of optional type 'Bool?' must be unwrapped to a value of type 'Bool'
+  AnimalNPC.swift:121: value of optional type 'Bool?' must be unwrapped to a value of type 'Bool'
+  AnimalNPC.swift:362: cannot assign value of type 'Int' to type 'PlayerState'
+  AnimalNPC.swift:362: result values in '? :' expression have mismatching types 'PlayerState?' and 'Int'
+  AnimalNPC.swift:496: unary operators must not be juxtaposed; parenthesize inner expression
+  AnimalNPC.swift:496: cannot convert value of type '_' to expected argument type 'Bool'
+  AnimalNPC.swift:674: value of optional type 'Vehicle?' must be unwrapped to refer to member 'm_pVehicleInfo' of wrapped base type 'Vehicle'
+FighterNPC: 23 of 26 hand functions replaced, 4 holes, 0 cascade errors, 12 defects
+  FighterNPC.swift:142: value of optional type 'Bool?' must be unwrapped to a value of type 'Bool'
+  FighterNPC.swift:152: value of optional type 'Bool?' must be unwrapped to a value of type 'Bool'
+  FighterNPC.swift:165: value of optional type 'Bool?' must be unwrapped to a value of type 'Bool'
+  FighterNPC.swift:424: value of optional type 'Bool?' must be unwrapped to a value of type 'Bool'
+  FighterNPC.swift:567: cannot assign value of type 'Double' to type 'Int32'
+  FighterNPC.swift:571: cannot assign value of type 'Double' to type 'Int32'
+  FighterNPC.swift:576: cannot assign value of type 'Double' to type 'Int32'
+  FighterNPC.swift:715: value of optional type 'Entity?' must be unwrapped to a value of type 'Entity'
+  FighterNPC.swift:715: value of optional type 'Entity?' must be unwrapped to a value of type 'Entity'
+  FighterNPC.swift:715: value of optional type 'Entity?' must be unwrapped to refer to member 'client' of wrapped base type 'Entity'
+  FighterNPC.swift:1068: value of optional type 'Bool?' must be unwrapped to a value of type 'Bool'
+  FighterNPC.swift:1231: value of optional type 'Vehicle?' must be unwrapped to refer to member 'm_pVehicleInfo' of wrapped base type 'Vehicle'
+NPC: 43 of 43 hand functions replaced, 8 holes, 0 cascade errors, 0 defects
+NPC_AI_Atst: 9 of 9 hand functions replaced, 0 holes, 0 cascade errors, 0 defects
+NPC_AI_Default: 15 of 15 hand functions replaced, 0 holes, 0 cascade errors, 0 defects
+NPC_AI_Droid: 14 of 14 hand functions replaced, 4 holes, 0 cascade errors, 4 defects
+  NPC_AI_Droid.swift:274: cannot pass immutable value as inout argument: 'vec3_origin' is a 'let' constant
+  NPC_AI_Droid.swift:275: cannot pass immutable value as inout argument: 'vec3_origin' is a 'let' constant
+  NPC_AI_Droid.swift:337: cannot pass immutable value as inout argument: 'vec3_origin' is a 'let' constant
+  NPC_AI_Droid.swift:338: cannot pass immutable value as inout argument: 'vec3_origin' is a 'let' constant
+NPC_AI_GalakMech: 14 of 14 hand functions replaced, 4 holes, 0 cascade errors, 10 defects
+  NPC_AI_GalakMech.swift:254: cannot pass immutable value as inout argument: 'vec3_origin' is a 'let' constant
+  NPC_AI_GalakMech.swift:298: binary operator '!=' cannot be applied to operands of type 'vec3_t' (aka 'SIMD3<Float>') and 'Int'
+  NPC_AI_GalakMech.swift:551: cannot pass immutable value as inout argument: 'vec3_origin' is a 'let' constant
+  NPC_AI_GalakMech.swift:656: cannot pass immutable value as inout argument: 'vec3_origin' is a 'let' constant
+  NPC_AI_GalakMech.swift:878: cannot convert value of type 'Int32' to expected argument type 'Float'
+  NPC_AI_GalakMech.swift:878: cannot convert value of type 'Int32' to expected argument type 'Float'
+  NPC_AI_GalakMech.swift:878: cannot convert value of type 'Int32' to expected argument type 'Float'
+  NPC_AI_GalakMech.swift:879: cannot convert value of type 'Int32' to expected argument type 'Float'
+  NPC_AI_GalakMech.swift:879: cannot convert value of type 'Int32' to expected argument type 'Float'
+  NPC_AI_GalakMech.swift:879: cannot convert value of type 'Int32' to expected argument type 'Float'
+NPC_AI_Grenadier: 11 of 11 hand functions replaced, 1 holes, 0 cascade errors, 0 defects
+NPC_AI_Howler: 9 of 9 hand functions replaced, 2 holes, 0 cascade errors, 2 defects
+  NPC_AI_Howler.swift:144: cannot convert value of type 'Float' to expected argument type 'Int32'
+  NPC_AI_Howler.swift:144: cannot convert value of type 'Float' to expected argument type 'Int32'
+NPC_AI_ImperialProbe: 12 of 12 hand functions replaced, 9 holes, 0 cascade errors, 2 defects
+  NPC_AI_ImperialProbe.swift:208: cannot assign value of type 'Float' to type 'Int32'
+  NPC_AI_ImperialProbe.swift:283: cannot pass immutable value as inout argument: 'vec3_origin' is a 'let' constant
+NPC_AI_Interrogator: 10 of 10 hand functions replaced, 5 holes, 0 cascade errors, 1 defects
+  NPC_AI_Interrogator.swift:274: cannot assign value of type 'Float' to type 'Int32'
+NPC_AI_Jedi: 68 of 68 hand functions replaced, 29 holes, 0 cascade errors, 4 defects
+  NPC_AI_Jedi.swift:321: no exact matches in call to initializer 
+  NPC_AI_Jedi.swift:2011: assigning a variable to itself
+  NPC_AI_Jedi.swift:3092: cannot convert value of type 'Float' to expected argument type 'Double'
+  NPC_AI_Jedi.swift:3134: no exact matches in call to initializer 
+NPC_AI_Mark1: 16 of 16 hand functions replaced, 1 holes, 0 cascade errors, 0 defects
+build log: /Users/milohehmsoth/Developer/Milo/jka-swift/.build-draft/build.log
+total: 68 holes, 0 cascade errors, 42 defects
+[warn] 6628 parse errors (layouts may be partial); first:
+  /Users/milohehmsoth/Developer/Milo/jka-swift/oracle/codemp/game/q_shared.h:1242: conflicting types for 'powf'
+  /Users/milohehmsoth/Developer/Milo/jka-swift/oracle/codemp/game/q_shared.h:1414: expected 'volatile', 'inline', 'goto', or '('
+  /Users/milohehmsoth/Developer/Milo/jka-swift/oracle/codemp/game/q_shared.h:1415: expected 'volatile', 'inline', 'goto', or '('
+[warn] 5442 parse errors (layouts may be partial); first:
+  /Users/milohehmsoth/Developer/Milo/jka-swift/oracle/codemp/game/q_shared.h:1242: conflicting types for 'powf'
+  /Users/milohehmsoth/Developer/Milo/jka-swift/oracle/codemp/game/q_shared.h:1414: expected 'volatile', 'inline', 'goto', or '('
+  /Users/milohehmsoth/Developer/Milo/jka-swift/oracle/codemp/game/q_shared.h:1415: expected 'volatile', 'inline', 'goto', or '('
+NPC_AI_Mark2: 10 of 10 hand functions replaced, 1 holes, 0 cascade errors, 0 defects
+NPC_AI_MineMonster: 9 of 9 hand functions replaced, 2 holes, 0 cascade errors, 2 defects
+  NPC_AI_MineMonster.swift:162: cannot convert value of type 'Float' to expected argument type 'Int32'
+  NPC_AI_MineMonster.swift:162: cannot convert value of type 'Float' to expected argument type 'Int32'
+NPC_AI_Rancor: 16 of 16 hand functions replaced, 7 holes, 0 cascade errors, 8 defects
+  NPC_AI_Rancor.swift:275: cannot pass immutable value as inout argument: 'vec3_origin' is a 'let' constant
+  NPC_AI_Rancor.swift:334: cannot pass immutable value as inout argument: 'vec3_origin' is a 'let' constant
+  NPC_AI_Rancor.swift:385: cannot pass immutable value as inout argument: 'vec3_origin' is a 'let' constant
+  NPC_AI_Rancor.swift:462: cannot convert value of type 'Float' to expected argument type 'Int32'
+  NPC_AI_Rancor.swift:462: cannot convert value of type 'Float' to expected argument type 'Int32'
+  NPC_AI_Rancor.swift:481: cannot pass immutable value as inout argument: 'vec3_origin' is a 'let' constant
+  NPC_AI_Rancor.swift:508: cannot pass immutable value as inout argument: 'vec3_origin' is a 'let' constant
+  NPC_AI_Rancor.swift:548: cannot pass immutable value as inout argument: 'vec3_origin' is a 'let' constant
+NPC_AI_Remote: 11 of 11 hand functions replaced, 4 holes, 0 cascade errors, 1 defects
+  NPC_AI_Remote.swift:189: cannot assign value of type 'Float' to type 'Int32'
+NPC_AI_Seeker: 11 of 11 hand functions replaced, 10 holes, 0 cascade errors, 3 defects
+  NPC_AI_Seeker.swift:195: cannot assign value of type 'Float' to type 'Int32'
+  NPC_AI_Seeker.swift:489: cannot convert value of type 'Float' to expected argument type 'Int32'
+  NPC_AI_Seeker.swift:489: cannot convert value of type 'Float' to expected argument type 'Int32'
+NPC_AI_Sentry: 12 of 12 hand functions replaced, 4 holes, 0 cascade errors, 1 defects
+  NPC_AI_Sentry.swift:370: cannot assign value of type 'Float' to type 'Int32'
+NPC_AI_Sniper: 15 of 15 hand functions replaced, 2 holes, 0 cascade errors, 2 defects
+  NPC_AI_Sniper.swift:528: cannot assign value of type 'Slots<Float>' to type 'vec3_t' (aka 'SIMD3<Float>')
+  NPC_AI_Sniper.swift:552: failed to produce diagnostic for expression; please submit a bug report (https://swift.org/contributing/#reporting-bugs)
+NPC_AI_Stormtrooper: 31 of 31 hand functions replaced, 7 holes, 0 cascade errors, 1 defects
+  NPC_AI_Stormtrooper.swift:1417: cannot convert value of type 'Bool' to expected argument type 'Int'
+NPC_AI_Utils: 24 of 24 hand functions replaced, 6 holes, 0 cascade errors, 0 defects
+NPC_AI_Wampa: 11 of 11 hand functions replaced, 12 holes, 0 cascade errors, 3 defects
+  NPC_AI_Wampa.swift:217: cannot pass immutable value as inout argument: 'vec3_origin' is a 'let' constant
+  NPC_AI_Wampa.swift:308: cannot convert value of type 'Float' to expected argument type 'Int32'
+  NPC_AI_Wampa.swift:308: cannot convert value of type 'Float' to expected argument type 'Int32'
+NPC_behavior: 21 of 21 hand functions replaced, 7 holes, 0 cascade errors, 0 defects
+NPC_combat: 43 of 43 hand functions replaced, 54 holes, 0 cascade errors, 5 defects
+  NPC_combat.swift:139: cannot convert value of type 'Float' to expected argument type 'Int32'
+  NPC_combat.swift:2269: binary operator '==' cannot be applied to operands of type 'Bool' and 'Int'
+  NPC_combat.swift:2293: binary operator '==' cannot be applied to operands of type 'Int32' and 'Bool'
+  NPC_combat.swift:2562: binary operator '==' cannot be applied to operands of type 'Int32' and 'Bool'
+  NPC_combat.swift:2648: cannot convert value of type 'Slots<Entity>' to specified type 'Entity'
+NPC_goal: 7 of 7 hand functions replaced, 1 holes, 0 cascade errors, 0 defects
+build log: /Users/milohehmsoth/Developer/Milo/jka-swift/.build-draft/build.log
+total: 117 holes, 0 cascade errors, 26 defects
+[warn] 6628 parse errors (layouts may be partial); first:
+  /Users/milohehmsoth/Developer/Milo/jka-swift/oracle/codemp/game/q_shared.h:1242: conflicting types for 'powf'
+  /Users/milohehmsoth/Developer/Milo/jka-swift/oracle/codemp/game/q_shared.h:1414: expected 'volatile', 'inline', 'goto', or '('
+  /Users/milohehmsoth/Developer/Milo/jka-swift/oracle/codemp/game/q_shared.h:1415: expected 'volatile', 'inline', 'goto', or '('
+[warn] 5442 parse errors (layouts may be partial); first:
+  /Users/milohehmsoth/Developer/Milo/jka-swift/oracle/codemp/game/q_shared.h:1242: conflicting types for 'powf'
+  /Users/milohehmsoth/Developer/Milo/jka-swift/oracle/codemp/game/q_shared.h:1414: expected 'volatile', 'inline', 'goto', or '('
+  /Users/milohehmsoth/Developer/Milo/jka-swift/oracle/codemp/game/q_shared.h:1415: expected 'volatile', 'inline', 'goto', or '('
+NPC_misc: 2 of 2 hand functions replaced, 8 holes, 0 cascade errors, 1 defects
+  NPC_misc.swift:95: value of optional type 'PooledString?' must be unwrapped to a value of type 'PooledString'
+NPC_move: 11 of 11 hand functions replaced, 2 holes, 0 cascade errors, 0 defects
+NPC_reactions: 12 of 12 hand functions replaced, 2 holes, 0 cascade errors, 0 defects
+NPC_senses: 28 of 28 hand functions replaced, 18 holes, 0 cascade errors, 6 defects
+  NPC_senses.swift:682: cannot convert value of type 'AlertEvent' to expected argument type 'UnsafeMutableRawPointer'
+  NPC_senses.swift:682: cannot convert value of type 'AlertEvent' to expected argument type 'UnsafeRawPointer'
+  NPC_senses.swift:682: cannot convert value of type 'Int32' to expected argument type 'Int'
+  NPC_senses.swift:721: cannot convert value of type 'AlertEvent' to expected argument type 'UnsafeMutableRawPointer'
+  NPC_senses.swift:721: cannot convert value of type 'AlertEvent' to expected argument type 'UnsafeRawPointer'
+  NPC_senses.swift:721: cannot convert value of type 'Int32' to expected argument type 'Int'
+NPC_sounds: 2 of 2 hand functions replaced, 0 holes, 0 cascade errors, 0 defects
+NPC_spawn: 90 of 90 hand functions replaced, 42 holes, 0 cascade errors, 18 defects
+  NPC_spawn.swift:700: value of optional type 'PooledString?' must be unwrapped to a value of type 'PooledString'
+  NPC_spawn.swift:1034: value of optional type 'GNPC?' must be unwrapped to refer to member 'clear' of wrapped base type 'GNPC'
+  NPC_spawn.swift:1181: value of optional type 'Client?' must be unwrapped to refer to member 'clear' of wrapped base type 'Client'
+  NPC_spawn.swift:1191: no exact matches in call to global function 'Q_strlwr'
+  NPC_spawn.swift:1191: cannot pass immutable value as inout argument: 'G_NewString' returns immutable value
+  NPC_spawn.swift:1191: no 'Q_strlwr' candidates produce the expected contextual result type 'PooledString?'
+  NPC_spawn.swift:1383: cannot convert value of type 'String' to expected argument type 'Int'
+  NPC_spawn.swift:1383: cannot convert value of type 'Character' to expected argument type 'Int'
+  NPC_spawn.swift:1517: cannot assign value of type 'CharBuf' to type 'PooledString'
+  NPC_spawn.swift:1664: value of optional type 'PooledString?' must be unwrapped to a value of type 'PooledString'
+  NPC_spawn.swift:3456: cannot convert value of type 'CharBuf' to expected argument type 'String'
+  NPC_spawn.swift:3526: value of optional type 'PooledString?' must be unwrapped to a value of type 'PooledString'
+  NPC_spawn.swift:3535: value of optional type 'PooledString?' must be unwrapped to a value of type 'PooledString'
+  NPC_spawn.swift:3543: value of optional type 'PooledString?' must be unwrapped to a value of type 'PooledString'
+  NPC_spawn.swift:3550: value of optional type 'PooledString?' must be unwrapped to a value of type 'PooledString'
+  NPC_spawn.swift:3595: binary operator '!=' cannot be applied to operands of type 'Bool' and 'Int'
+  NPC_spawn.swift:3611: value of optional type 'Entity?' must be unwrapped to refer to member 'client' of wrapped base type 'Entity'
+  NPC_spawn.swift:3615: value of optional type 'Entity?' must be unwrapped to a value of type 'Entity'
+NPC_stats: 8 of 8 hand functions replaced, 23 holes, 0 cascade errors, 7 defects
+  NPC_stats.swift:1344: cannot assign value of type 'Int32' to subscript of type 'Float'
+  NPC_stats.swift:1365: cannot assign value of type 'Int32' to subscript of type 'Float'
+  NPC_stats.swift:1663: cannot convert value of type 'UnsafeMutableRawPointer' to expected argument type 'String'
+  NPC_stats.swift:1664: argument type 'UnsafeMutableRawPointer' does not conform to expected type 'FormatArg'
+  NPC_stats.swift:1681: cannot convert value of type 'UnsafeMutableRawPointer' to expected argument type 'String'
+  NPC_stats.swift:1689: argument type 'UnsafeMutableRawPointer' does not conform to expected type 'FormatArg'
+  NPC_stats.swift:2363: cannot assign value of type 'TextCursor' to type 'PooledString'
+NPC_utils: 35 of 35 hand functions replaced, 15 holes, 0 cascade errors, 0 defects
+SpeederNPC: 8 of 11 hand functions replaced, 2 holes, 0 cascade errors, 4 defects
+  SpeederNPC.swift:82: value of optional type 'Bool?' must be unwrapped to a value of type 'Bool'
+  SpeederNPC.swift:408: unary operators must not be juxtaposed; parenthesize inner expression
+  SpeederNPC.swift:408: cannot convert value of type '_' to expected argument type 'Bool'
+  SpeederNPC.swift:689: value of optional type 'Vehicle?' must be unwrapped to refer to member 'm_pVehicleInfo' of wrapped base type 'Vehicle'
+WalkerNPC: 8 of 11 hand functions replaced, 1 holes, 0 cascade errors, 2 defects
+  WalkerNPC.swift:81: value of optional type 'Bool?' must be unwrapped to a value of type 'Bool'
+  WalkerNPC.swift:435: value of optional type 'Vehicle?' must be unwrapped to refer to member 'm_pVehicleInfo' of wrapped base type 'Vehicle'
+ai_main: 108 of 108 hand functions replaced, 79 holes, 0 cascade errors, 6 defects
+  ai_main.swift:718: cannot convert value of type 'BotInput' to expected argument type 'OpaquePointer'
+  ai_main.swift:809: extra argument in call
+  ai_main.swift:809: cannot convert value of type 'CharBuf' to expected argument type 'Int32'
+  ai_main.swift:809: binary operator '!=' cannot be applied to operands of type '(Int32, String)' and 'Int'
+  ai_main.swift:1600: cannot convert value of type 'Int32' to expected argument type 'Float'
+  ai_main.swift:5370: cannot convert value of type 'Int' to specified type 'Entity'
+ai_util: 12 of 12 hand functions replaced, 27 holes, 0 cascade errors, 3 defects
+  ai_util.swift:356: no exact matches in call to subscript 
+  ai_util.swift:356: binary operator '!=' cannot be applied to operands of type 'Character' and 'Int'
+  ai_util.swift:382: cannot convert value of type 'UInt' to expected argument type 'Int'
+ai_wpnav: 45 of 45 hand functions replaced, 31 holes, 0 cascade errors, 7 defects
+  ai_wpnav.swift:244: cannot convert return expression of type 'CharBuf' to return type 'String'
+  ai_wpnav.swift:477: value of optional type 'Wpobject?' must be unwrapped to refer to member 'clear' of wrapped base type 'Wpobject'
+  ai_wpnav.swift:533: value of optional type 'Wpobject?' must be unwrapped to refer to member 'clear' of wrapped base type 'Wpobject'
+  ai_wpnav.swift:543: value of optional type 'Wpobject?' must be unwrapped to refer to member 'clear' of wrapped base type 'Wpobject'
+  ai_wpnav.swift:2612: cannot pass immutable value as inout argument: 'vec3_origin' is a 'let' constant
+  ai_wpnav.swift:2904: no exact matches in call to subscript 
+  ai_wpnav.swift:2904: binary operator '!=' cannot be applied to operands of type 'Character' and 'Int'
+build log: /Users/milohehmsoth/Developer/Milo/jka-swift/.build-draft/build.log
+total: 250 holes, 0 cascade errors, 54 defects
+[warn] 6628 parse errors (layouts may be partial); first:
+  /Users/milohehmsoth/Developer/Milo/jka-swift/oracle/codemp/game/q_shared.h:1242: conflicting types for 'powf'
+  /Users/milohehmsoth/Developer/Milo/jka-swift/oracle/codemp/game/q_shared.h:1414: expected 'volatile', 'inline', 'goto', or '('
+  /Users/milohehmsoth/Developer/Milo/jka-swift/oracle/codemp/game/q_shared.h:1415: expected 'volatile', 'inline', 'goto', or '('
+[warn] 5442 parse errors (layouts may be partial); first:
+  /Users/milohehmsoth/Developer/Milo/jka-swift/oracle/codemp/game/q_shared.h:1242: conflicting types for 'powf'
+  /Users/milohehmsoth/Developer/Milo/jka-swift/oracle/codemp/game/q_shared.h:1414: expected 'volatile', 'inline', 'goto', or '('
+  /Users/milohehmsoth/Developer/Milo/jka-swift/oracle/codemp/game/q_shared.h:1415: expected 'volatile', 'inline', 'goto', or '('
+g_ICARUScb: 161 of 161 hand functions replaced, 25 holes, 0 cascade errors, 38 defects
+  g_ICARUScb.swift:129: cannot convert return expression of type 'PooledString?' to return type 'String?'
+  g_ICARUScb.swift:150: cannot convert return expression of type 'PooledString?' to return type 'String?'
+  g_ICARUScb.swift:203: cannot convert value of type 'CharBuf' to expected argument type 'String'
+  g_ICARUScb.swift:205: cannot convert value of type 'CharBuf' to expected argument type 'String'
+  g_ICARUScb.swift:280: cannot convert value of type 'CharBuf' to expected argument type 'String'
+  g_ICARUScb.swift:945: value of optional type 'PooledString?' must be unwrapped to a value of type 'PooledString'
+  g_ICARUScb.swift:1332: value of optional type 'String?' must be unwrapped to a value of type 'String'
+  g_ICARUScb.swift:1335: 'subscript(_:)' is unavailable: cannot subscript String with an Int, use a String.Index instead.
+  g_ICARUScb.swift:1348: cannot assign value of type 'PooledString?' to type 'String'
+  g_ICARUScb.swift:1355: cannot assign value of type 'PooledString?' to type 'String'
+  g_ICARUScb.swift:1358: cannot assign value of type 'PooledString?' to type 'String'
+  g_ICARUScb.swift:1361: cannot assign value of type 'PooledString?' to type 'String'
+  g_ICARUScb.swift:1364: cannot assign value of type 'PooledString?' to type 'String'
+  g_ICARUScb.swift:1367: cannot assign value of type 'PooledString?' to type 'String'
+  g_ICARUScb.swift:1370: cannot assign value of type 'PooledString?' to type 'String'
+  g_ICARUScb.swift:1373: cannot assign value of type 'PooledString?' to type 'String'
+  g_ICARUScb.swift:1376: cannot assign value of type 'PooledString?' to type 'String'
+  g_ICARUScb.swift:1379: cannot assign value of type 'PooledString?' to type 'String'
+  g_ICARUScb.swift:1382: cannot assign value of type 'PooledString?' to type 'String'
+  g_ICARUScb.swift:1385: cannot assign value of type 'PooledString?' to type 'String'
+  g_ICARUScb.swift:1388: cannot assign value of type 'PooledString?' to type 'String'
+  g_ICARUScb.swift:1391: cannot assign value of type 'PooledString?' to type 'String'
+  g_ICARUScb.swift:1394: cannot assign value of type 'PooledString?' to type 'String'
+  g_ICARUScb.swift:1407: cannot assign value of type 'PooledString?' to type 'String'
+  g_ICARUScb.swift:1493: cannot assign value of type 'PooledString?' to type 'String'
+  g_ICARUScb.swift:1864: value of optional type 'PooledString?' must be unwrapped to a value of type 'PooledString'
+  g_ICARUScb.swift:1868: value of optional type 'PooledString?' must be unwrapped to a value of type 'PooledString'
+  g_ICARUScb.swift:1872: value of optional type 'PooledString?' must be unwrapped to a value of type 'PooledString'
+  g_ICARUScb.swift:1876: value of optional type 'PooledString?' must be unwrapped to a value of type 'PooledString'
+  g_ICARUScb.swift:1885: binary operator '==' cannot be applied to operands of type 'Int32' and 'Bool'
+  g_ICARUScb.swift:2731: cannot assign value of type 'Float' to type 'Int32'
+  g_ICARUScb.swift:2735: cannot assign value of type 'Float' to type 'Int32'
+  g_ICARUScb.swift:2765: cannot assign value of type 'Float' to type 'Int32'
+  g_ICARUScb.swift:2769: cannot assign value of type 'Float' to type 'Int32'
+  g_ICARUScb.swift:3243: value of optional type 'Parms?' must be unwrapped to refer to member 'clear' of wrapped base type 'Parms'
+  g_ICARUScb.swift:4575: cannot convert value of type '[Float]' to expected argument type 'vec4_t' (aka 'SIMD4<Float>')
+  g_ICARUScb.swift:4589: cannot convert value of type '[Float]' to expected argument type 'vec4_t' (aka 'SIMD4<Float>')
+  g_ICARUScb.swift:4603: cannot convert value of type '[Float]' to expected argument type 'vec4_t' (aka 'SIMD4<Float>')
+g_active: 36 of 36 hand functions replaced, 16 holes, 0 cascade errors, 11 defects
+  g_active.swift:539: type '@convention(c) (Optional<OpaquePointer>, Optional<OpaquePointer>, Optional<OpaquePointer>) -> ()' cannot conform to 'Equatable' [#]8;;https://docs.swift.org/compiler/documentation/diagnostics/protocol-type-non-conformance\ProtocolTypeNonConformance]8;;\]
+  g_active.swift:688: value of type '@Sendable (Pmove) -> ()' has no member 'scratch'
+  g_active.swift:771: value of optional type 'Client?' must be unwrapped to a value of type 'Client'
+  g_active.swift:771: referencing operator function '-' on 'Strideable' requires that 'Client' conform to '_Pointer'
+  g_active.swift:776: value of optional type 'Client?' must be unwrapped to a value of type 'Client'
+  g_active.swift:776: referencing operator function '-' on 'Strideable' requires that 'Client' conform to '_Pointer'
+  g_active.swift:1522: value of optional type 'Usercmd?' must be unwrapped to refer to member 'forwardmove' of wrapped base type 'Usercmd'
+  g_active.swift:1523: value of optional type 'Usercmd?' must be unwrapped to refer to member 'rightmove' of wrapped base type 'Usercmd'
+  g_active.swift:1524: value of optional type 'Usercmd?' must be unwrapped to refer to member 'upmove' of wrapped base type 'Usercmd'
+  g_active.swift:2081: cannot assign value of type 'Int32' to type 'Float'
+  g_active.swift:3317: binary operator '-' cannot be applied to two 'Client?' operands
+g_arenas: 1 of 1 hand functions replaced, 0 holes, 0 cascade errors, 0 defects
+g_bot: 25 of 25 hand functions replaced, 27 holes, 0 cascade errors, 20 defects
+  g_bot.swift:112: no exact matches in call to subscript 
+  g_bot.swift:112: no 'G_Alloc' candidates produce the expected contextual result type 'String'
+  g_bot.swift:113: cannot convert value of type 'Int32' to expected argument type 'Int'
+  g_bot.swift:114: no exact matches in call to subscript 
+  g_bot.swift:149: cannot convert value of type 'Int32' to expected argument type 'Range<Int>'
+  g_bot.swift:156: referencing operator function '!=' on 'BinaryInteger' requires that 'CharBuf' conform to 'BinaryInteger'
+  g_bot.swift:306: cannot force unwrap value of non-optional type 'String'
+  g_bot.swift:350: failed to produce diagnostic for expression; please submit a bug report (https://swift.org/contributing/#reporting-bugs)
+  g_bot.swift:404: binary operator '+' cannot be applied to operands of type 'Client?' and 'Int32'
+  g_bot.swift:404: no '+' candidates produce the expected contextual result type 'Client?'
+  g_bot.swift:435: cannot assign value of type 'Float' to type 'Int32'
+  g_bot.swift:442: binary operator '+' cannot be applied to operands of type 'Client?' and 'Int32'
+  g_bot.swift:442: no '+' candidates produce the expected contextual result type 'Client?'
+  g_bot.swift:504: binary operator '+' cannot be applied to operands of type 'Client?' and 'Int32'
+  g_bot.swift:504: no '+' candidates produce the expected contextual result type 'Client?'
+  g_bot.swift:549: binary operator '+' cannot be applied to operands of type 'Client?' and 'Int32'
+  g_bot.swift:549: no '+' candidates produce the expected contextual result type 'Client?'
+  g_bot.swift:585: binary operator '+' cannot be applied to operands of type 'Client?' and 'Int32'
+  g_bot.swift:585: no '+' candidates produce the expected contextual result type 'Client?'
+  g_bot.swift:1233: cannot convert value of type 'Int32' to expected argument type 'Range<Int>'
+g_client: 46 of 46 hand functions replaced, 63 holes, 0 cascade errors, 13 defects
+  g_client.swift:729: cannot assign value of type 'Float' to type 'Int32'
+  g_client.swift:798: cannot assign value of type 'Float' to type 'Int32'
+  g_client.swift:877: cannot pass immutable value as inout argument: 'vec3_origin' is a 'let' constant
+  g_client.swift:1312: cannot assign value of type 'Int32' to type 'CChar' (aka 'Int8')
+  g_client.swift:1370: cannot assign value of type 'Int' to type 'CharBuf'
+  g_client.swift:1489: value of optional type 'PooledString?' must be unwrapped to a value of type 'PooledString'
+  g_client.swift:2120: binary operator '+' cannot be applied to operands of type 'Client?' and 'Int32'
+  g_client.swift:2120: no '+' candidates produce the expected contextual result type 'Client?'
+  g_client.swift:2128: value of optional type 'Client?' must be unwrapped to refer to member 'clear' of wrapped base type 'Client'
+  g_client.swift:2188: cannot pass immutable value as inout argument: 'vec3_origin' is a 'let' constant
+  g_client.swift:2247: binary operator '+' cannot be applied to operands of type 'Client?' and 'Int32'
+  g_client.swift:2247: no '+' candidates produce the expected contextual result type 'Client?'
+  g_client.swift:2841: value of optional type 'Client?' must be unwrapped to refer to member 'clear' of wrapped base type 'Client'
+g_cmds: 54 of 54 hand functions replaced, 87 holes, 0 cascade errors, 20 defects
+  g_cmds.swift:203: referencing operator function '!=' on 'BinaryInteger' requires that 'CharBuf' conform to 'BinaryInteger'
+  g_cmds.swift:204: referencing operator function '==' on 'BinaryInteger' requires that 'CharBuf' conform to 'BinaryInteger'
+  g_cmds.swift:205: binary operator '+=' cannot be applied to operands of type 'CharBuf' and 'Int'
+  g_cmds.swift:208: referencing operator function '<' on 'BinaryInteger' requires that 'CharBuf' conform to 'BinaryInteger'
+  g_cmds.swift:209: binary operator '+=' cannot be applied to operands of type 'CharBuf' and 'Int'
+  g_cmds.swift:217: cannot assign value of type 'Int' to type 'CharBuf'
+  g_cmds.swift:260: cannot convert value of type 'Client?' to expected argument type 'Int'
+  g_cmds.swift:268: cannot convert value of type 'Client?' to expected argument type 'Int'
+  g_cmds.swift:575: binary operator '-' cannot be applied to two 'Client?' operands
+  g_cmds.swift:772: referencing operator function '-' on 'Strideable' requires that 'Client' conform to '_Pointer'
+  g_cmds.swift:812: binary operator '-' cannot be applied to two 'Client?' operands
+  g_cmds.swift:1428: referencing operator function '!=' on 'BinaryInteger' requires that 'CharBuf' conform to 'BinaryInteger'
+  g_cmds.swift:1817: cannot pass immutable value as inout argument: 'vec3_origin' is a 'let' constant
+  g_cmds.swift:1884: binary operator '+=' cannot be applied to operands of type 'Slots<Client>' and 'Int'
+  g_cmds.swift:1962: binary operator '+=' cannot be applied to operands of type 'Slots<Client>' and 'Int'
+  g_cmds.swift:2078: cannot force unwrap value of non-optional type 'String'
+  g_cmds.swift:2261: extra argument in call
+  g_cmds.swift:2343: failed to produce diagnostic for expression; please submit a bug report (https://swift.org/contributing/#reporting-bugs)
+  g_cmds.swift:2346: failed to produce diagnostic for expression; please submit a bug report (https://swift.org/contributing/#reporting-bugs)
+  g_cmds.swift:3479: cannot pass immutable value as inout argument: 'vec3_origin' is a 'let' constant
+g_combat: 47 of 47 hand functions replaced, 77 holes, 0 cascade errors, 12 defects
+  g_combat.swift:463: cannot pass immutable value as inout argument: 'vec3_origin' is a 'let' constant
+  g_combat.swift:1853: referencing operator function '-' on 'SIMD' requires that 'VehicleInfo' conform to 'SIMD'
+  g_combat.swift:1853: cannot assign value of type 'VehicleInfo' to type 'Int32'
+  g_combat.swift:2068: value of optional type 'PooledString?' must be unwrapped to a value of type 'PooledString'
+  g_combat.swift:2272: binary operator '+' cannot be applied to operands of type 'Slots<Entity>' and 'Int32'
+  g_combat.swift:2877: referencing operator function '!=' on 'BinaryInteger' requires that 'CharBuf' conform to 'BinaryInteger'
+  g_combat.swift:2984: referencing operator function '!=' on 'BinaryInteger' requires that 'CharBuf' conform to 'BinaryInteger'
+  g_combat.swift:2984: referencing operator function '!=' on 'BinaryInteger' requires that 'CharBuf' conform to 'BinaryInteger'
+  g_combat.swift:3518: cannot pass immutable value as inout argument: 'vec3_origin' is a 'let' constant
+  g_combat.swift:3611: cannot pass immutable value as inout argument: 'vec3_origin' is a 'let' constant
+  g_combat.swift:4202: cannot convert value of type 'Int8' to expected argument type 'String'
+  g_combat.swift:4576: cannot pass immutable value as inout argument: 'vec3_origin' is a 'let' constant
+g_exphysics: 1 of 1 hand functions replaced, 0 holes, 0 cascade errors, 0 defects
+g_items: 67 of 67 hand functions replaced, 44 holes, 0 cascade errors, 7 defects
+  g_items.swift:428: cannot convert value of type 'Bool' to expected argument type 'Int32'
+  g_items.swift:428: type 'UInt32' cannot be used as a boolean; test for '!= 0' instead
+  g_items.swift:732: cannot assign value of type 'Float' to type 'Int32'
+  g_items.swift:791: cannot assign value of type 'Float' to type 'Int32'
+  g_items.swift:1102: cannot assign value of type 'Double' to type 'Int32'
+  g_items.swift:1885: cannot pass immutable value as inout argument: 'vec3_origin' is a 'let' constant
+  g_items.swift:2325: value of optional type 'PooledString?' must be unwrapped to a value of type 'PooledString'
+g_log: 33 of 33 hand functions replaced, 45 holes, 0 cascade errors, 0 defects
+g_main: 49 of 49 hand functions replaced, 96 holes, 0 cascade errors, 37 defects
+  g_main.swift:561: no exact matches in call to initializer 
+  g_main.swift:594: cannot convert value of type 'Int32' to expected argument type 'String'
+  g_main.swift:1084: cannot convert value of type 'CharBuf' to expected argument type 'UnsafeMutableRawPointer'
+  g_main.swift:1449: binary operator '-' cannot be applied to two 'Client?' operands
+  g_main.swift:1576: binary operator '-' cannot be applied to two 'Client?' operands
+  g_main.swift:1959: cannot convert value of type 'Slots<Int32>' to expected argument type 'UnsafeMutableRawPointer'
+  g_main.swift:1959: cannot convert value of type 'Int32' to expected argument type 'Int'
+  g_main.swift:1959: cannot convert value of type 'Int32' to expected argument type 'Int'
+  g_main.swift:1959: cannot convert value of type '@Sendable (OpaquePointer?, OpaquePointer?) -> Int32' to expected argument type '@convention(c) (UnsafeRawPointer?, UnsafeRawPointer?) -> Int32'
+  g_main.swift:2055: binary operator '+' cannot be applied to operands of type 'Slots<Entity>' and 'Int32'
+  g_main.swift:2108: binary operator '==' cannot be applied to operands of type 'Bool' and 'Int32'
+  g_main.swift:2115: binary operator '==' cannot be applied to operands of type 'Bool' and 'Int32'
+  g_main.swift:2131: cannot pass immutable value as inout argument: 'vec3_origin' is a 'let' constant
+  g_main.swift:2217: binary operator '+' cannot be applied to operands of type 'Client?' and 'Int32'
+  g_main.swift:2217: no '+' candidates produce the expected contextual result type 'Client?'
+  g_main.swift:2239: binary operator '+' cannot be applied to operands of type 'Client?' and 'Int32'
+  g_main.swift:2239: no '+' candidates produce the expected contextual result type 'Client?'
+  g_main.swift:2292: binary operator '+' cannot be applied to operands of type 'Client?' and 'Int32'
+  g_main.swift:2292: no '+' candidates produce the expected contextual result type 'Client?'
+  g_main.swift:2354: cannot convert value of type 'CharBuf' to expected argument type 'Int'
+  g_main.swift:2460: binary operator '+' cannot be applied to operands of type 'Client?' and 'Int32'
+  g_main.swift:2460: no '+' candidates produce the expected contextual result type 'Client?'
+  g_main.swift:2572: binary operator '+' cannot be applied to operands of type 'Client?' and 'Int32'
+  g_main.swift:2572: no '+' candidates produce the expected contextual result type 'Client?'
+  g_main.swift:2587: binary operator '+' cannot be applied to operands of type 'Client?' and 'Int32'
+  g_main.swift:2587: no '+' candidates produce the expected contextual result type 'Client?'
+  g_main.swift:2910: binary operator '+' cannot be applied to operands of type 'Client?' and 'Int32'
+  g_main.swift:2910: no '+' candidates produce the expected contextual result type 'Client?'
+  g_main.swift:3077: cannot pass immutable value as inout argument: 'vec3_origin' is a 'let' constant
+  g_main.swift:3111: cannot pass immutable value as inout argument: 'vec3_origin' is a 'let' constant
+  g_main.swift:3197: binary operator '+' cannot be applied to operands of type 'Client?' and 'Int32'
+  g_main.swift:3197: no '+' candidates produce the expected contextual result type 'Client?'
+  g_main.swift:3338: '&' used with non-inout argument of type 'String'
+  g_main.swift:3338: cannot pass immutable value as inout argument: 'va' returns immutable value
+  g_main.swift:3342: '&' used with non-inout argument of type 'String'
+  g_main.swift:3342: cannot pass immutable value as inout argument: 'va' returns immutable value
+  g_main.swift:3960: value of optional type 'PooledString?' must be unwrapped to a value of type 'PooledString'
+g_mem: 3 of 3 hand functions replaced, 4 holes, 0 cascade errors, 0 defects
+g_misc: 80 of 80 hand functions replaced, 26 holes, 0 cascade errors, 7 defects
+  g_misc.swift:455: cannot assign value of type 'CharBuf' to type 'PooledString'
+  g_misc.swift:721: cannot convert value of type 'Bool' to expected argument type 'Int32'
+  g_misc.swift:721: cannot convert value of type 'vec3_t' (aka 'SIMD3<Float>') to expected argument type 'Float'
+  g_misc.swift:722: cannot convert value of type 'Bool' to expected argument type 'Int32'
+  g_misc.swift:723: cannot convert value of type 'Bool' to expected argument type 'Int32'
+  g_misc.swift:1667: cannot convert value of type 'Double' to specified type 'Int32'
+  g_misc.swift:2765: cannot convert value of type 'PooledString?' to expected argument type 'String?'
+build log: /Users/milohehmsoth/Developer/Milo/jka-swift/.build-draft/build.log
+total: 510 holes, 0 cascade errors, 165 defects
+[warn] 6628 parse errors (layouts may be partial); first:
+  /Users/milohehmsoth/Developer/Milo/jka-swift/oracle/codemp/game/q_shared.h:1242: conflicting types for 'powf'
+  /Users/milohehmsoth/Developer/Milo/jka-swift/oracle/codemp/game/q_shared.h:1414: expected 'volatile', 'inline', 'goto', or '('
+  /Users/milohehmsoth/Developer/Milo/jka-swift/oracle/codemp/game/q_shared.h:1415: expected 'volatile', 'inline', 'goto', or '('
+[warn] 5442 parse errors (layouts may be partial); first:
+  /Users/milohehmsoth/Developer/Milo/jka-swift/oracle/codemp/game/q_shared.h:1242: conflicting types for 'powf'
+  /Users/milohehmsoth/Developer/Milo/jka-swift/oracle/codemp/game/q_shared.h:1414: expected 'volatile', 'inline', 'goto', or '('
+  /Users/milohehmsoth/Developer/Milo/jka-swift/oracle/codemp/game/q_shared.h:1415: expected 'volatile', 'inline', 'goto', or '('
+g_missile: 10 of 10 hand functions replaced, 12 holes, 0 cascade errors, 0 defects
+g_mover: 72 of 72 hand functions replaced, 16 holes, 0 cascade errors, 6 defects
+  g_mover.swift:283: cannot pass immutable value as inout argument: 'vec3_origin' is a 'let' constant
+  g_mover.swift:983: cannot convert value of type 'vec3_t' (aka 'SIMD3<Float>') to expected argument type 'Float'
+  g_mover.swift:2047: cannot convert value of type 'vec3_t' (aka 'SIMD3<Float>') to expected argument type 'Float'
+  g_mover.swift:2287: cannot assign value of type 'Float' to type 'Int32'
+  g_mover.swift:2459: cannot convert value of type 'vec3_t' (aka 'SIMD3<Float>') to expected argument type 'Float'
+  g_mover.swift:2572: value of optional type 'String?' must be unwrapped to a value of type 'String'
+g_nav: 50 of 50 hand functions replaced, 17 holes, 0 cascade errors, 19 defects
+  g_nav.swift:168: cannot assign value of type 'Float' to type 'Int32'
+  g_nav.swift:350: binary operator '==' cannot be applied to operands of type 'Int32' and 'Bool'
+  g_nav.swift:350: binary operator '==' cannot be applied to operands of type 'Int32' and 'Bool'
+  g_nav.swift:527: binary operator '==' cannot be applied to operands of type 'Int32' and 'Bool'
+  g_nav.swift:527: binary operator '==' cannot be applied to operands of type 'Int32' and 'Bool'
+  g_nav.swift:803: binary operator '==' cannot be applied to operands of type 'Int32' and 'Bool'
+  g_nav.swift:803: binary operator '==' cannot be applied to operands of type 'Int32' and 'Bool'
+  g_nav.swift:988: binary operator '==' cannot be applied to operands of type 'Int32' and 'Bool'
+  g_nav.swift:988: binary operator '==' cannot be applied to operands of type 'Int32' and 'Bool'
+  g_nav.swift:1175: cannot convert value of type 'Int32' to specified type 'UInt32'
+  g_nav.swift:1484: value of optional type 'PooledString?' must be unwrapped to a value of type 'PooledString'
+  g_nav.swift:1489: value of optional type 'PooledString?' must be unwrapped to a value of type 'PooledString'
+  g_nav.swift:1492: referencing operator function '-' on 'SIMD' requires that 'CharBuf' conform to 'SIMD'
+  g_nav.swift:1492: referencing operator function '>=' on 'BinaryInteger' requires that 'CharBuf' conform to 'BinaryInteger'
+  g_nav.swift:1496: cannot convert value of type 'String' to expected argument type 'CharBuf'
+  g_nav.swift:1497: cannot convert value of type 'Int32' to expected argument type 'String'
+  g_nav.swift:1552: referencing operator function '==' on 'BinaryInteger' requires that 'Slots<WaypointData>' conform to 'BinaryInteger'
+  g_nav.swift:1572: referencing operator function '==' on 'BinaryInteger' requires that 'Slots<WaypointData>' conform to 'BinaryInteger'
+  g_nav.swift:1579: cannot assign value of type 'Int8' to type 'String'
+g_navnew: 13 of 13 hand functions replaced, 10 holes, 0 cascade errors, 1 defects
+  g_navnew.swift:50: cannot assign value of type 'Float' to type 'Int32'
+g_object: 4 of 4 hand functions replaced, 0 holes, 0 cascade errors, 0 defects
+g_saga: 38 of 38 hand functions replaced, 19 holes, 0 cascade errors, 3 defects
+  g_saga.swift:220: referencing operator function '==' on 'BinaryInteger' requires that 'CharBuf' conform to 'BinaryInteger'
+  g_saga.swift:1633: cannot convert value of type 'vec3_t' (aka 'SIMD3<Float>') to expected argument type 'Float'
+  g_saga.swift:1634: cannot convert value of type 'vec3_t' (aka 'SIMD3<Float>') to expected argument type 'Float'
+g_session: 5 of 5 hand functions replaced, 3 holes, 0 cascade errors, 26 defects
+  g_session.swift:66: argument type 'Bool' does not conform to expected type 'FormatArg'
+  g_session.swift:66: argument type 'Bool' does not conform to expected type 'FormatArg'
+  g_session.swift:68: referencing operator function '-' on 'Strideable' requires that 'Client' conform to '_Pointer'
+  g_session.swift:68: value of optional type 'Client?' must be unwrapped to a value of type 'Client'
+  g_session.swift:93: referencing operator function '-' on 'Strideable' requires that 'Client' conform to '_Pointer'
+  g_session.swift:93: value of optional type 'Client?' must be unwrapped to a value of type 'Client'
+  g_session.swift:96: cannot convert value of type 'CharBuf' to expected argument type 'UnsafePointer<CChar>' (aka 'UnsafePointer<Int8>')
+  g_session.swift:96: '&' used with non-inout argument of type 'Any'
+  g_session.swift:98: binary operator '!=' cannot be applied to operands of type 'Character' and 'Int'
+  g_session.swift:98: no exact matches in call to subscript 
+  g_session.swift:100: no exact matches in call to subscript 
+  g_session.swift:100: binary operator '==' cannot be applied to operands of type 'Character' and 'Int'
+  g_session.swift:111: binary operator '!=' cannot be applied to operands of type 'Character' and 'Int'
+  g_session.swift:111: no exact matches in call to subscript 
+  g_session.swift:112: no exact matches in call to subscript 
+  g_session.swift:112: binary operator '==' cannot be applied to operands of type 'Character' and 'Int'
+  g_session.swift:122: binary operator '!=' cannot be applied to operands of type 'Character' and 'Int'
+  g_session.swift:122: no exact matches in call to subscript 
+  g_session.swift:123: no exact matches in call to subscript 
+  g_session.swift:123: binary operator '==' cannot be applied to operands of type 'Character' and 'Int'
+  g_session.swift:135: no exact matches in call to initializer 
+  g_session.swift:172: binary operator '==' cannot be applied to operands of type 'Character' and 'Int32'
+  g_session.swift:172: binary operator '==' cannot be applied to operands of type 'Character' and 'Int32'
+  g_session.swift:174: binary operator '==' cannot be applied to operands of type 'Character' and 'Int32'
+  g_session.swift:174: binary operator '==' cannot be applied to operands of type 'Character' and 'Int32'
+  g_session.swift:184: binary operator '==' cannot be applied to operands of type 'Character' and 'Int32'
+g_spawn: 17 of 17 hand functions replaced, 18 holes, 0 cascade errors, 21 defects
+  g_spawn.swift:45: value of optional type 'String?' must be unwrapped to a value of type 'String'
+  g_spawn.swift:51: cannot convert value of type 'PooledString?' to expected argument type 'String'
+  g_spawn.swift:52: cannot assign value of type 'PooledString?' to type 'String'
+  g_spawn.swift:58: value of optional type 'String?' must be unwrapped to a value of type 'String'
+  g_spawn.swift:88: '&' used with non-inout argument of type 'Any'
+  g_spawn.swift:88: value of type 'Float' has no subscripts
+  g_spawn.swift:88: value of type 'Float' has no subscripts
+  g_spawn.swift:88: value of type 'Float' has no subscripts
+  g_spawn.swift:209: no exact matches in call to subscript 
+  g_spawn.swift:209: binary operator '==' cannot be applied to operands of type 'Character' and 'Int32'
+  g_spawn.swift:211: binary operator '==' cannot be applied to operands of type 'Character' and 'Int32'
+  g_spawn.swift:211: no exact matches in call to subscript 
+  g_spawn.swift:362: cannot convert value of type 'PooledString?' to expected argument type 'String'
+  g_spawn.swift:363: cannot assign value of type 'String' to subscript of type 'PooledString'
+  g_spawn.swift:369: cannot assign value of type 'String' to subscript of type 'PooledString'
+  g_spawn.swift:370: cannot assign value of type 'String' to subscript of type 'PooledString'
+  g_spawn.swift:538: cannot assign value of type 'String' to subscript of type 'PooledString'
+  g_spawn.swift:539: cannot assign value of type 'String' to subscript of type 'PooledString'
+  g_spawn.swift:571: cannot convert value of type 'PooledString?' to expected argument type 'String'
+  g_spawn.swift:743: binary operator '!=' cannot be applied to operands of type 'PooledString?' and 'Int'
+  g_spawn.swift:743: no exact matches in call to subscript 
+g_strap: 12 of 12 hand functions replaced, 0 holes, 0 cascade errors, 0 defects
+g_svcmds: 14 of 14 hand functions replaced, 16 holes, 0 cascade errors, 13 defects
+  g_svcmds.swift:45: referencing operator function '<' on 'BinaryInteger' requires that 'CharBuf' conform to 'BinaryInteger'
+  g_svcmds.swift:45: referencing operator function '>' on 'BinaryInteger' requires that 'CharBuf' conform to 'BinaryInteger'
+  g_svcmds.swift:51: referencing operator function '>=' on 'BinaryInteger' requires that 'CharBuf' conform to 'BinaryInteger'
+  g_svcmds.swift:51: referencing operator function '<=' on 'BinaryInteger' requires that 'CharBuf' conform to 'BinaryInteger'
+  g_svcmds.swift:62: referencing operator function '==' on 'BinaryInteger' requires that 'CharBuf' conform to 'BinaryInteger'
+  g_svcmds.swift:65: binary operator '+=' cannot be applied to operands of type 'CharBuf' and 'Int'
+  g_svcmds.swift:105: cannot convert value of type 'UnsafeMutableRawPointer' to expected argument type 'CharBuf'
+  g_svcmds.swift:183: cannot assign value of type 'Int32' to type 'UInt32'
+  g_svcmds.swift:263: cannot assign value of type 'Int32' to type 'UInt32'
+  g_svcmds.swift:374: cannot assign value of type 'Int32' to type 'UInt32'
+  g_svcmds.swift:462: cannot convert value of type 'Character' to expected argument type 'Int32'
+  g_svcmds.swift:462: cannot convert value of type 'Character' to expected argument type 'Int32'
+  g_svcmds.swift:519: binary operator '-' cannot be applied to two 'Client?' operands
+g_target: 44 of 44 hand functions replaced, 23 holes, 0 cascade errors, 7 defects
+  g_target.swift:319: binary operator '==' cannot be applied to operands of type 'Character' and 'Int32'
+  g_target.swift:430: value of optional type 'PooledString?' must be unwrapped to a value of type 'PooledString'
+  g_target.swift:652: value of optional type 'PooledString?' must be unwrapped to a value of type 'PooledString'
+  g_target.swift:790: value of optional type 'PooledString?' must be unwrapped to a value of type 'PooledString'
+  g_target.swift:790: value of optional type 'PooledString?' must be unwrapped to a value of type 'PooledString'
+  g_target.swift:792: value of optional type 'PooledString?' must be unwrapped to a value of type 'PooledString'
+  g_target.swift:795: value of optional type 'PooledString?' must be unwrapped to a value of type 'PooledString'
+g_team: 36 of 36 hand functions replaced, 11 holes, 0 cascade errors, 8 defects
+  g_team.swift:98: cannot pass immutable value as inout argument: 'vec3_origin' is a 'let' constant
+  g_team.swift:907: value of optional type 'PooledString?' must be unwrapped to a value of type 'PooledString'
+  g_team.swift:1015: cannot pass immutable value as inout argument: 'vec3_origin' is a 'let' constant
+  g_team.swift:1040: cannot pass immutable value as inout argument: 'vec3_origin' is a 'let' constant
+  g_team.swift:1101: cannot convert value of type '[Int32]' to expected argument type 'UnsafeMutableRawPointer'
+  g_team.swift:1101: cannot convert value of type 'Int32' to expected argument type 'Int'
+  g_team.swift:1101: cannot convert value of type 'Int32' to expected argument type 'Int'
+  g_team.swift:1101: cannot convert value of type '@Sendable (OpaquePointer?, OpaquePointer?) -> Int32' to expected argument type '@convention(c) (UnsafeRawPointer?, UnsafeRawPointer?) -> Int32'
+g_timer: 12 of 12 hand functions replaced, 0 holes, 0 cascade errors, 0 defects
+build log: /Users/milohehmsoth/Developer/Milo/jka-swift/.build-draft/build.log
+total: 145 holes, 0 cascade errors, 104 defects
+[warn] 6628 parse errors (layouts may be partial); first:
+  /Users/milohehmsoth/Developer/Milo/jka-swift/oracle/codemp/game/q_shared.h:1242: conflicting types for 'powf'
+  /Users/milohehmsoth/Developer/Milo/jka-swift/oracle/codemp/game/q_shared.h:1414: expected 'volatile', 'inline', 'goto', or '('
+  /Users/milohehmsoth/Developer/Milo/jka-swift/oracle/codemp/game/q_shared.h:1415: expected 'volatile', 'inline', 'goto', or '('
+[warn] 5442 parse errors (layouts may be partial); first:
+  /Users/milohehmsoth/Developer/Milo/jka-swift/oracle/codemp/game/q_shared.h:1242: conflicting types for 'powf'
+  /Users/milohehmsoth/Developer/Milo/jka-swift/oracle/codemp/game/q_shared.h:1414: expected 'volatile', 'inline', 'goto', or '('
+  /Users/milohehmsoth/Developer/Milo/jka-swift/oracle/codemp/game/q_shared.h:1415: expected 'volatile', 'inline', 'goto', or '('
+g_trigger: 42 of 42 hand functions replaced, 23 holes, 0 cascade errors, 0 defects
+g_turret: 14 of 14 hand functions replaced, 10 holes, 0 cascade errors, 3 defects
+  g_turret.swift:24: cannot assign value of type 'Float' to type 'Int32'
+  g_turret.swift:551: cannot assign value of type 'Float' to type 'Int32'
+  g_turret.swift:698: cannot assign value of type 'Float' to type 'Int32'
+g_turret_G2: 15 of 15 hand functions replaced, 18 holes, 0 cascade errors, 4 defects
+  g_turret_G2.swift:139: cannot pass immutable value as inout argument: 'vec3_origin' is a 'let' constant
+  g_turret_G2.swift:143: cannot pass immutable value as inout argument: 'vec3_origin' is a 'let' constant
+  g_turret_G2.swift:161: cannot assign value of type 'Float' to type 'Int32'
+  g_turret_G2.swift:706: cannot assign value of type 'Float' to type 'Int32'
+g_utils: 66 of 66 hand functions replaced, 38 holes, 0 cascade errors, 14 defects
+  g_utils.swift:290: value of optional type 'UnsafeMutableRawPointer?' must be unwrapped to a value of type 'UnsafeMutableRawPointer'
+  g_utils.swift:295: cannot convert value of type 'UnsafeMutableRawPointer' to expected argument type 'String'
+  g_utils.swift:829: cannot convert value of type 'Entity?' to expected argument type 'Int'
+  g_utils.swift:837: cannot convert value of type 'Entity?' to expected argument type 'Int'
+  g_utils.swift:845: cannot convert value of type 'Entity?' to expected argument type 'Int'
+  g_utils.swift:1339: cannot pass immutable value as inout argument: 'vec3_origin' is a 'let' constant
+  g_utils.swift:1972: no exact matches in call to subscript 
+  g_utils.swift:1972: no exact matches in call to subscript 
+  g_utils.swift:1972: binary operator '!=' cannot be applied to operands of type 'Character' and 'Int32'
+  g_utils.swift:1972: binary operator '!=' cannot be applied to operands of type 'Character' and 'Int'
+  g_utils.swift:1973: no exact matches in call to subscript 
+  g_utils.swift:1973: no 'subscript' candidates produce the expected contextual result type 'Int8'
+  g_utils.swift:1983: no exact matches in call to subscript 
+  g_utils.swift:1983: binary operator '==' cannot be applied to operands of type 'Character' and 'Int32'
+g_vehicleTurret: 6 of 6 hand functions replaced, 6 holes, 0 cascade errors, 8 defects
+  g_vehicleTurret.swift:37: failed to produce diagnostic for expression; please submit a bug report (https://swift.org/contributing/#reporting-bugs)
+  g_vehicleTurret.swift:65: binary operator '-' cannot be applied to operands of type 'vec3_t' (aka 'SIMD3<Float>') and 'Slots<Float>'
+  g_vehicleTurret.swift:76: binary operator '-' cannot be applied to operands of type 'vec3_t' (aka 'SIMD3<Float>') and 'Slots<Float>'
+  g_vehicleTurret.swift:93: cannot convert value of type 'Slots<Float>' to expected argument type 'vec3_t' (aka 'SIMD3<Float>')
+  g_vehicleTurret.swift:187: cannot assign value of type 'Slots<Float>' to type 'vec3_t' (aka 'SIMD3<Float>')
+  g_vehicleTurret.swift:293: binary operator '-' cannot be applied to operands of type 'vec3_t' (aka 'SIMD3<Float>') and 'Slots<Float>'
+  g_vehicleTurret.swift:298: cannot convert value of type 'Slots<Float>' to expected argument type 'vec3_t' (aka 'SIMD3<Float>')
+  g_vehicleTurret.swift:304: cannot assign value of type 'Slots<Float>' to type 'SIMD3<Float>'
+g_vehicles: 35 of 38 hand functions replaced, 52 holes, 0 cascade errors, 12 defects
+  g_vehicles.swift:321: value of optional type 'Bool?' must be unwrapped to a value of type 'Bool'
+  g_vehicles.swift:761: cannot assign value of type 'Int' to type 'BgEntity'
+  g_vehicles.swift:977: value of optional type 'Bool?' must be unwrapped to a value of type 'Bool'
+  g_vehicles.swift:979: value of optional type 'Bool?' must be unwrapped to a value of type 'Bool'
+  g_vehicles.swift:1006: value of optional type 'Bool?' must be unwrapped to a value of type 'Bool'
+  g_vehicles.swift:1628: value of optional type 'Bool?' must be unwrapped to a value of type 'Bool'
+  g_vehicles.swift:1634: value of optional type 'Bool?' must be unwrapped to a value of type 'Bool'
+  g_vehicles.swift:1687: value of optional type 'Bool?' must be unwrapped to a value of type 'Bool'
+  g_vehicles.swift:1697: value of optional type 'Bool?' must be unwrapped to a value of type 'Bool'
+  g_vehicles.swift:1722: value of optional type 'Bool?' must be unwrapped to a value of type 'Bool'
+  g_vehicles.swift:1755: value of optional type 'Bool?' must be unwrapped to a value of type 'Bool'
+  g_vehicles.swift:2426: cannot convert value of type 'Bool' to expected argument type 'Int'
+g_weapon: 85 of 85 hand functions replaced, 55 holes, 0 cascade errors, 12 defects
+  g_weapon.swift:1574: cannot convert value of type 'Slots<Entity?>' to expected argument type '[Entity?]'
+  g_weapon.swift:1574: cannot pass immutable value as inout argument: 'ent_list' is a get-only property
+  g_weapon.swift:1654: cannot convert value of type 'Float' to expected argument type 'Int32'
+  g_weapon.swift:1654: cannot convert value of type 'Float' to expected argument type 'Int32'
+  g_weapon.swift:1707: cannot pass immutable value as inout argument: 'vec3_origin' is a 'let' constant
+  g_weapon.swift:1753: cannot convert value of type 'Int32' to specified type 'Float'
+  g_weapon.swift:2995: cannot pass immutable value as inout argument: 'vec3_origin' is a 'let' constant
+  g_weapon.swift:3221: cannot pass immutable value as inout argument: 'vec3_origin' is a 'let' constant
+  g_weapon.swift:3552: failed to produce diagnostic for expression; please submit a bug report (https://swift.org/contributing/#reporting-bugs)
+  g_weapon.swift:3720: referencing operator function '-' on 'Strideable' requires that 'VehWeaponInfo' conform to '_Pointer'
+  g_weapon.swift:4237: cannot assign value of type 'Slots<Float>' to type 'vec3_t' (aka 'SIMD3<Float>')
+  g_weapon.swift:4238: cannot assign value of type 'Slots<Float>' to type 'vec3_t' (aka 'SIMD3<Float>')
+tri_coll_test: 2 of 2 hand functions replaced, 128 holes, 0 cascade errors, 0 defects
+w_force: 52 of 52 hand functions replaced, 53 holes, 0 cascade errors, 4 defects
+  w_force.swift:293: cannot pass immutable value as inout argument: 'vec3_origin' is a 'let' constant
+  w_force.swift:297: cannot pass immutable value as inout argument: 'vec3_origin' is a 'let' constant
+  w_force.swift:303: cannot pass immutable value as inout argument: 'vec3_origin' is a 'let' constant
+  w_force.swift:307: cannot pass immutable value as inout argument: 'vec3_origin' is a 'let' constant
+w_saber: 79 of 79 hand functions replaced, 165 holes, 0 cascade errors, 19 defects
+  w_saber.swift:877: binary operator '==' cannot be applied to operands of type 'Int32' and 'Bool'
+  w_saber.swift:1021: cannot pass immutable value as inout argument: 'vec3_origin' is a 'let' constant
+  w_saber.swift:1763: value of optional type 'PooledString?' must be unwrapped to a value of type 'PooledString'
+  w_saber.swift:1763: value of optional type 'PooledString?' must be unwrapped to a value of type 'PooledString'
+  w_saber.swift:1800: value of optional type 'PooledString?' must be unwrapped to a value of type 'PooledString'
+  w_saber.swift:1800: value of optional type 'PooledString?' must be unwrapped to a value of type 'PooledString'
+  w_saber.swift:1809: value of optional type 'PooledString?' must be unwrapped to a value of type 'PooledString'
+  w_saber.swift:1809: value of optional type 'PooledString?' must be unwrapped to a value of type 'PooledString'
+  w_saber.swift:2322: value of type 'Float' has no subscripts
+  w_saber.swift:2323: value of type 'Float' has no subscripts
+  w_saber.swift:2324: value of type 'Float' has no subscripts
+  w_saber.swift:2325: the compiler is unable to type-check this expression in reasonable time; try breaking up the expression into distinct sub-expressions
+  w_saber.swift:2331: value of type 'Float' has no subscripts
+  w_saber.swift:2331: value of type 'Float' has no subscripts
+  w_saber.swift:2331: value of type 'Float' has no subscripts
+  w_saber.swift:2331: value of type 'Float' has no subscripts
+  w_saber.swift:2374: binary operator '+=' cannot be applied to operands of type 'SaberFace' and 'Int'
+  w_saber.swift:3339: cannot pass immutable value as inout argument: 'vec3_origin' is a 'let' constant
+  w_saber.swift:3358: cannot pass immutable value as inout argument: 'vec3_origin' is a 'let' constant
+build log: /Users/milohehmsoth/Developer/Milo/jka-swift/.build-draft/build.log
+total: 548 holes, 0 cascade errors, 76 defects
