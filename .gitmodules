@@ -5,3 +5,7 @@
 	path = jka-rust
 	url = https://github.com/mheh/jka-rust.git
 	branch = master
+[submodule "openjk"]
+	path = openjk
+	url = https://github.com/mheh/OpenJK.git
+	branch = referee
