@@ -76,10 +76,16 @@ public struct EntityState: Hashable, HandleView {
     }
 
     /// Source: oracle/codemp/game/q_shared.h:2676
-    public var pos: JKAShared.Trajectory { JKAShared.Trajectory(handle: OpaquePointer(self.raw.pointer(to: \.pos)!)) }
+    public var pos: JKAShared.Trajectory {
+        get { JKAShared.Trajectory(handle: OpaquePointer(self.raw.pointer(to: \.pos)!)) }
+        nonmutating set { self.raw.pointee.pos = UnsafeMutablePointer(newValue.handle).pointee }
+    }
 
     /// Source: oracle/codemp/game/q_shared.h:2677
-    public var apos: JKAShared.Trajectory { JKAShared.Trajectory(handle: OpaquePointer(self.raw.pointer(to: \.apos)!)) }
+    public var apos: JKAShared.Trajectory {
+        get { JKAShared.Trajectory(handle: OpaquePointer(self.raw.pointer(to: \.apos)!)) }
+        nonmutating set { self.raw.pointee.apos = UnsafeMutablePointer(newValue.handle).pointee }
+    }
 
     /// Source: oracle/codemp/game/q_shared.h:2679
     public var time: Int32 {

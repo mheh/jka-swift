@@ -77,7 +77,10 @@ public struct NavInfo: Hashable, HandleView {
     }
 
     /// Source: oracle/codemp/game/b_local.h:320
-    public var trace: JKAMP.Trace { JKAMP.Trace(handle: OpaquePointer(self.raw.pointer(to: \.trace)!)) }
+    public var trace: JKAMP.Trace {
+        get { JKAMP.Trace(handle: OpaquePointer(self.raw.pointer(to: \.trace)!)) }
+        nonmutating set { self.raw.pointee.trace = UnsafeMutablePointer(newValue.handle).pointee }
+    }
 
     /// Source: oracle/codemp/game/b_local.h:321
     public var flags: Int32 {

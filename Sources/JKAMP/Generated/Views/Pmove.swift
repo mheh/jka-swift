@@ -101,7 +101,10 @@ public struct Pmove: Hashable, HandleView {
     }
 
     /// Source: oracle/codemp/game/bg_public.h:449
-    public var cmd: Usercmd { Usercmd(handle: OpaquePointer(self.raw.pointer(to: \.cmd)!)) }
+    public var cmd: Usercmd {
+        get { Usercmd(handle: OpaquePointer(self.raw.pointer(to: \.cmd)!)) }
+        nonmutating set { self.raw.pointee.cmd = UnsafeMutablePointer(newValue.handle).pointee }
+    }
 
     /// Source: oracle/codemp/game/bg_public.h:450
     public var tracemask: Int32 {

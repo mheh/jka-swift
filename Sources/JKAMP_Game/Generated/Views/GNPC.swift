@@ -419,7 +419,10 @@ public struct GNPC: Hashable, HandleView {
     }
 
     /// Source: oracle/codemp/game/b_public.h:198
-    public var stats: GNPCstats { GNPCstats(handle: OpaquePointer(self.raw.pointer(to: \.stats)!)) }
+    public var stats: GNPCstats {
+        get { GNPCstats(handle: OpaquePointer(self.raw.pointer(to: \.stats)!)) }
+        nonmutating set { self.raw.pointee.stats = UnsafeMutablePointer(newValue.handle).pointee }
+    }
 
     /// Source: oracle/codemp/game/b_public.h:199
     public var aimErrorDebounceTime: Int32 {
@@ -548,7 +551,10 @@ public struct GNPC: Hashable, HandleView {
     }
 
     /// Source: oracle/codemp/game/b_public.h:228
-    public var last_ucmd: JKAMP.Usercmd { JKAMP.Usercmd(handle: OpaquePointer(self.raw.pointer(to: \.last_ucmd)!)) }
+    public var last_ucmd: JKAMP.Usercmd {
+        get { JKAMP.Usercmd(handle: OpaquePointer(self.raw.pointer(to: \.last_ucmd)!)) }
+        nonmutating set { self.raw.pointee.last_ucmd = UnsafeMutablePointer(newValue.handle).pointee }
+    }
 
     /// Source: oracle/codemp/game/b_public.h:233
     public var combatMove: Bool {

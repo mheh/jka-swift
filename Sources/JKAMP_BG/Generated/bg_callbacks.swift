@@ -7,7 +7,7 @@ import JKAShared
 /// A default traps as a marker, so a consumer that installs nothing fails at the first call and names it.
 public struct BgCallbacks {
     /// Source: oracle/codemp/game/FighterNPC.c:99
-    public var BG_FighterUpdate: (JKAMP.Vehicle, JKAMP.Usercmd, inout JKAShared.vec3_t, inout JKAShared.vec3_t, Float, ((JKAMP.Trace, JKAShared.vec3_t, JKAShared.vec3_t, JKAShared.vec3_t, JKAShared.vec3_t, Int32, Int32) -> Void)?) -> Bool = { _, _, _, _, _, _ in portMissing("BG_FighterUpdate", source: "oracle/codemp/game/FighterNPC.c:99") }
+    public var BG_FighterUpdate: (JKAMP.Vehicle, JKAMP.Usercmd, JKAShared.vec3_t, JKAShared.vec3_t, Float, ((JKAMP.Trace, JKAShared.vec3_t, JKAShared.vec3_t, JKAShared.vec3_t, JKAShared.vec3_t, Int32, Int32) -> Void)?) -> Bool = { _, _, _, _, _, _ in portMissing("BG_FighterUpdate", source: "oracle/codemp/game/FighterNPC.c:99") }
 
     /// Source: oracle/codemp/game/g_main.c:3559
     public var BG_GetTime: () -> Int32 = { portMissing("BG_GetTime", source: "oracle/codemp/game/g_main.c:3559") }
@@ -37,7 +37,7 @@ public struct BgCallbacks {
     public var G_Damage: (JKAMP.BgEntity, JKAMP.BgEntity?, JKAMP.BgEntity?, inout JKAShared.vec3_t, JKAShared.vec3_t?, Int32, Int32, Int32) -> Void = { _, _, _, _, _, _, _, _ in portMissing("G_Damage", source: "oracle/codemp/game/g_combat.c:4577") }
 
     /// Source: oracle/codemp/game/g_combat.c:5717
-    public var G_DamageFromKiller: (JKAMP.BgEntity, JKAMP.BgEntity, JKAMP.BgEntity?, inout JKAShared.vec3_t, Int32, Int32, Int32) -> Void = { _, _, _, _, _, _, _ in portMissing("G_DamageFromKiller", source: "oracle/codemp/game/g_combat.c:5717") }
+    public var G_DamageFromKiller: (JKAMP.BgEntity, JKAMP.BgEntity, JKAMP.BgEntity?, JKAShared.vec3_t, Int32, Int32, Int32) -> Void = { _, _, _, _, _, _, _ in portMissing("G_DamageFromKiller", source: "oracle/codemp/game/g_combat.c:5717") }
 
     /// Source: oracle/codemp/game/g_utils.c:148
     public var G_EffectIndex: (String) -> Int32 = { _ in portMissing("G_EffectIndex", source: "oracle/codemp/game/g_utils.c:148") }
@@ -52,10 +52,10 @@ public struct BgCallbacks {
     public var G_NewString: (String) -> String = { _ in portMissing("G_NewString", source: "oracle/codemp/game/g_spawn.c:724") }
 
     /// Source: oracle/codemp/game/g_utils.c:1250
-    public var G_PlayEffect: (Int32, inout JKAShared.vec3_t, inout JKAShared.vec3_t) -> JKAMP.BgEntity? = { _, _, _ in portMissing("G_PlayEffect", source: "oracle/codemp/game/g_utils.c:1250") }
+    public var G_PlayEffect: (Int32, JKAShared.vec3_t, JKAShared.vec3_t) -> JKAMP.BgEntity? = { _, _, _ in portMissing("G_PlayEffect", source: "oracle/codemp/game/g_utils.c:1250") }
 
     /// Source: oracle/codemp/game/g_utils.c:1267
-    public var G_PlayEffectID: (Int32, inout JKAShared.vec3_t, inout JKAShared.vec3_t) -> JKAMP.BgEntity? = { _, _, _ in portMissing("G_PlayEffectID", source: "oracle/codemp/game/g_utils.c:1267") }
+    public var G_PlayEffectID: (Int32, JKAShared.vec3_t, JKAShared.vec3_t) -> JKAMP.BgEntity? = { _, _, _ in portMissing("G_PlayEffectID", source: "oracle/codemp/game/g_utils.c:1267") }
 
     /// Source: oracle/codemp/game/AnimalNPC.c:857
     public var G_SetAnimalVehicleFunctions: (JKAMP.VehicleInfo) -> Void = { _ in portMissing("G_SetAnimalVehicleFunctions", source: "oracle/codemp/game/AnimalNPC.c:857") }
@@ -86,6 +86,15 @@ public struct BgCallbacks {
 
     /// Source: oracle/codemp/game/g_weapon.c:3961
     public var WP_GetVehicleCamPos: (JKAMP.BgEntity, JKAMP.BgEntity, inout JKAShared.vec3_t) -> Void = { _, _, _ in portMissing("WP_GetVehicleCamPos", source: "oracle/codemp/game/g_weapon.c:3961") }
+
+    /// Source: oracle/codemp/game/bg_pmove.c:4234
+    public var bgLandOnVehicle: (Int32) -> Void = { _ in portMissing("bgLandOnVehicle", source: "oracle/codemp/game/bg_pmove.c:4234") }
+
+    /// Source: oracle/codemp/game/bg_pmove.c:4448
+    public var bgSetSolidHack: (Int32) -> Void = { _ in portMissing("bgSetSolidHack", source: "oracle/codemp/game/bg_pmove.c:4448") }
+
+    /// Source: oracle/codemp/game/bg_pmove.c:3684
+    public var PM_CrashLandEffect: () -> Void = { portMissing("PM_CrashLandEffect", source: "oracle/codemp/game/bg_pmove.c:3684") }
 
     /// Source: oracle/codemp/game/bg_pmove.c:7786
     public var bgBg_fighterAltControlInteger: () -> Int32 = { portMissing("bgBg_fighterAltControlInteger", source: "oracle/codemp/game/bg_pmove.c:7786") }
@@ -155,8 +164,8 @@ public struct BgCallbacks {
 
 /// Source: oracle/codemp/game/FighterNPC.c:99
 @discardableResult
-func BG_FighterUpdate(_ pVeh: JKAMP.Vehicle, _ pUcmd: JKAMP.Usercmd, _ trMins: inout JKAShared.vec3_t, _ trMaxs: inout JKAShared.vec3_t, _ gravity: Float, _ traceFunc: ((JKAMP.Trace, JKAShared.vec3_t, JKAShared.vec3_t, JKAShared.vec3_t, JKAShared.vec3_t, Int32, Int32) -> Void)?) -> Bool {
-    bg.callbacks.BG_FighterUpdate(pVeh, pUcmd, &trMins, &trMaxs, gravity, traceFunc)
+func BG_FighterUpdate(_ pVeh: JKAMP.Vehicle, _ pUcmd: JKAMP.Usercmd, _ trMins: JKAShared.vec3_t, _ trMaxs: JKAShared.vec3_t, _ gravity: Float, _ traceFunc: ((JKAMP.Trace, JKAShared.vec3_t, JKAShared.vec3_t, JKAShared.vec3_t, JKAShared.vec3_t, Int32, Int32) -> Void)?) -> Bool {
+    bg.callbacks.BG_FighterUpdate(pVeh, pUcmd, trMins, trMaxs, gravity, traceFunc)
 }
 
 /// Source: oracle/codemp/game/g_main.c:3559
@@ -209,8 +218,8 @@ func G_Damage(_ targ: JKAMP.BgEntity, _ inflictor: JKAMP.BgEntity?, _ attacker: 
 }
 
 /// Source: oracle/codemp/game/g_combat.c:5717
-func G_DamageFromKiller(_ pEnt: JKAMP.BgEntity, _ pVehEnt: JKAMP.BgEntity, _ attacker: JKAMP.BgEntity?, _ org: inout JKAShared.vec3_t, _ damage: Int32, _ dflags: Int32, _ mod: Int32) {
-    bg.callbacks.G_DamageFromKiller(pEnt, pVehEnt, attacker, &org, damage, dflags, mod)
+func G_DamageFromKiller(_ pEnt: JKAMP.BgEntity, _ pVehEnt: JKAMP.BgEntity, _ attacker: JKAMP.BgEntity?, _ org: JKAShared.vec3_t, _ damage: Int32, _ dflags: Int32, _ mod: Int32) {
+    bg.callbacks.G_DamageFromKiller(pEnt, pVehEnt, attacker, org, damage, dflags, mod)
 }
 
 /// Source: oracle/codemp/game/g_utils.c:148
@@ -238,14 +247,14 @@ func G_NewString(_ string: String) -> String {
 
 /// Source: oracle/codemp/game/g_utils.c:1250
 @discardableResult
-func G_PlayEffect(_ fxID: Int32, _ org: inout JKAShared.vec3_t, _ ang: inout JKAShared.vec3_t) -> JKAMP.BgEntity? {
-    bg.callbacks.G_PlayEffect(fxID, &org, &ang)
+func G_PlayEffect(_ fxID: Int32, _ org: JKAShared.vec3_t, _ ang: JKAShared.vec3_t) -> JKAMP.BgEntity? {
+    bg.callbacks.G_PlayEffect(fxID, org, ang)
 }
 
 /// Source: oracle/codemp/game/g_utils.c:1267
 @discardableResult
-func G_PlayEffectID(_ fxID: Int32, _ org: inout JKAShared.vec3_t, _ ang: inout JKAShared.vec3_t) -> JKAMP.BgEntity? {
-    bg.callbacks.G_PlayEffectID(fxID, &org, &ang)
+func G_PlayEffectID(_ fxID: Int32, _ org: JKAShared.vec3_t, _ ang: JKAShared.vec3_t) -> JKAMP.BgEntity? {
+    bg.callbacks.G_PlayEffectID(fxID, org, ang)
 }
 
 /// Source: oracle/codemp/game/AnimalNPC.c:857
@@ -298,6 +307,21 @@ func TryGrapple(_ ent: JKAMP.BgEntity) -> Bool {
 /// Source: oracle/codemp/game/g_weapon.c:3961
 func WP_GetVehicleCamPos(_ ent: JKAMP.BgEntity, _ pilot: JKAMP.BgEntity, _ camPos: inout JKAShared.vec3_t) {
     bg.callbacks.WP_GetVehicleCamPos(ent, pilot, &camPos)
+}
+
+/// Source: oracle/codemp/game/bg_pmove.c:4234
+func bgLandOnVehicle(_ entityNum: Int32) {
+    bg.callbacks.bgLandOnVehicle(entityNum)
+}
+
+/// Source: oracle/codemp/game/bg_pmove.c:4448
+func bgSetSolidHack(_ clientNum: Int32) {
+    bg.callbacks.bgSetSolidHack(clientNum)
+}
+
+/// Source: oracle/codemp/game/bg_pmove.c:3684
+func PM_CrashLandEffect() {
+    bg.callbacks.PM_CrashLandEffect()
 }
 
 /// Source: oracle/codemp/game/bg_pmove.c:7786

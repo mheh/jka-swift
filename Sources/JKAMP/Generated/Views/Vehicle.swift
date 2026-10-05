@@ -184,7 +184,10 @@ public struct Vehicle: Hashable, HandleView {
     public var m_iMuzzleWait: Slots<Int32> { Slots<Int32>(scalars: UnsafeMutableRawPointer(self.raw.pointer(to: \.m_iMuzzleWait)!), count: 12) }
 
     /// Source: oracle/codemp/game/bg_vehicles.h:537
-    public var m_ucmd: Usercmd { Usercmd(handle: OpaquePointer(self.raw.pointer(to: \.m_ucmd)!)) }
+    public var m_ucmd: Usercmd {
+        get { Usercmd(handle: OpaquePointer(self.raw.pointer(to: \.m_ucmd)!)) }
+        nonmutating set { self.raw.pointee.m_ucmd = UnsafeMutablePointer(newValue.handle).pointee }
+    }
 
     /// Source: oracle/codemp/game/bg_vehicles.h:540
     public var m_EjectDir: Int32 {
@@ -291,7 +294,10 @@ public struct Vehicle: Hashable, HandleView {
     }
 
     /// Source: oracle/codemp/game/bg_vehicles.h:589
-    public var m_LandTrace: Trace { Trace(handle: OpaquePointer(self.raw.pointer(to: \.m_LandTrace)!)) }
+    public var m_LandTrace: Trace {
+        get { Trace(handle: OpaquePointer(self.raw.pointer(to: \.m_LandTrace)!)) }
+        nonmutating set { self.raw.pointee.m_LandTrace = UnsafeMutablePointer(newValue.handle).pointee }
+    }
 
     /// Source: oracle/codemp/game/bg_vehicles.h:592
     public var m_vWingAngles: JKAShared.vec3_t {

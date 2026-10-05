@@ -82,7 +82,10 @@ public struct Trace: Hashable, HandleView {
     }
 
     /// Source: oracle/codemp/game/q_shared.h:1901
-    public var plane: JKAShared.Cplane { JKAShared.Cplane(handle: OpaquePointer(self.raw.pointer(to: \.plane)!)) }
+    public var plane: JKAShared.Cplane {
+        get { JKAShared.Cplane(handle: OpaquePointer(self.raw.pointer(to: \.plane)!)) }
+        nonmutating set { self.raw.pointee.plane = UnsafeMutablePointer(newValue.handle).pointee }
+    }
 
     /// Source: oracle/codemp/game/q_shared.h:1902
     public var surfaceFlags: Int32 {

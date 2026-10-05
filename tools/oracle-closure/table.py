@@ -21,7 +21,7 @@ import closure as C
 from reexport import GAME_TARGET
 from fnsweep import ASSIGN_OPS
 from overlay import MACROS, written_arguments
-from rulings import PARAMS, RETURNS
+from rulings import NULLABLE, PARAMS, RETURNS
 from views import Generator
 from spelling import Facts, OPTIONAL_TEXT_RESULT, engine_array
 
@@ -264,7 +264,8 @@ class Table:
         # The one owner of the type question, which the view generator holds.
         self.types = self.views.types
         # The (function, parameter) pairs a bg body passes NULL or 0 to, so the wrapper takes the parameter as optional.
-        self.nullable: set[tuple[str, str]] = set()
+        # The ruled pairs of NULLABLE seed it, for a NULL the sweep cannot see.
+        self.nullable: set[tuple[str, str]] = set(NULLABLE)
         # The pairs the NULL sweep reaches one hop on, through a local or a passed-on parameter, which the vector rules read.
         self.hopped: set[tuple[str, str]] = set()
         # The functions the NULL sweep saw a call to, so a parameter outside `nullable` is proven never NULL only for these.
@@ -555,9 +556,11 @@ class Table:
                 spelled = p.type.spelling
                 held = PARAMS.get((cur.spelling, p.spelling)) == "vec3_mut"
                 reached = (cur.spelling, p.spelling) in self.nullable or (cur.spelling, p.spelling) in self.hopped
-                if held or ("const" not in spelled and spelled.split()[-1] in ("vec3_t", "vec4_t") and not reached and self.adopted(path.stem)):
-                    # A PARAMS hold and an adopted stub take the vector inout, so the vector counts as written,
+                bg_hand = path.stem.startswith("bg_") and self.adopted(path.stem)
+                if held or ("const" not in spelled and spelled.split()[-1] in ("vec3_t", "vec4_t") and not reached and bg_hand):
+                    # A PARAMS hold and an adopted bg stub take the vector inout, so the vector counts as written,
                     # and a caller's own vector stays inout too.
+                    # An adopted game stub keeps the drafter's signature, which takes a vector the body never writes by value.
                     # A vector a caller passes NULL to is an optional value in the adopted stub, and the NULL rule keeps it.
                     self.stores_through.add((cur.spelling, p.spelling))
             data = C.parsed_bytes(path)

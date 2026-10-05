@@ -118,7 +118,10 @@ public struct BladeInfo: Hashable, HandleView {
     }
 
     /// Source: oracle/codemp/game/q_shared.h:665
-    public var trail: SaberTrail { SaberTrail(handle: OpaquePointer(self.raw.pointer(to: \.trail)!)) }
+    public var trail: SaberTrail {
+        get { SaberTrail(handle: OpaquePointer(self.raw.pointer(to: \.trail)!)) }
+        nonmutating set { self.raw.pointee.trail = UnsafeMutablePointer(newValue.handle).pointee }
+    }
 
     /// Source: oracle/codemp/game/q_shared.h:666
     public var hitWallDebounceTime: Int32 {

@@ -682,7 +682,10 @@ public struct PlayerState: Hashable, HandleView {
     }
 
     /// Source: oracle/codemp/game/q_shared.h:2321
-    public var fd: Forcedata { Forcedata(handle: OpaquePointer(self.raw.pointer(to: \.fd)!)) }
+    public var fd: Forcedata {
+        get { Forcedata(handle: OpaquePointer(self.raw.pointer(to: \.fd)!)) }
+        nonmutating set { self.raw.pointee.fd = UnsafeMutablePointer(newValue.handle).pointee }
+    }
 
     /// Source: oracle/codemp/game/q_shared.h:2322
     public var forceJumpFlip: Bool {

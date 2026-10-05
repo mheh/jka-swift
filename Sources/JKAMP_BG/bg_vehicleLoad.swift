@@ -577,7 +577,8 @@ func VEH_LoadVehicle(_ vehicleName: String) -> Int32 {
         return VEHICLE_NONE
     }
 
-    BG_VehicleSetDefaults(vehicle!)
+    let vehicleInfo = vehicle!
+    BG_VehicleSetDefaults(vehicleInfo)
     // parse the vehicle info block
     while 1 != 0 {
         SkipRestOfLine(&p)
@@ -631,89 +632,89 @@ func VEH_LoadVehicle(_ vehicleName: String) -> Int32 {
             //hmm, store this off because we don't want to call another one of these text parsing routines while we're in the middle of one...
             Q_strncpyz(&weapMuzzle10, value!, Int32((weapMuzzle10).count))
         } else {
-            if !BG_ParseVehicleParm(vehicle!, String(parmName), value!) {
+            if !BG_ParseVehicleParm(vehicleInfo, String(parmName), value!) {
                 Com_Printf(S_COLOR_RED + "ERROR: Unknown Vehicle key/value pair '%s', '%s'!\n", parmName, value!)
             }
         }
     }
     //NOW: if we have any weapons, go ahead and load them
     if weap1[0] != 0 {
-        if !BG_ParseVehicleParm(vehicle!, "weap1", String(weap1)) {
+        if !BG_ParseVehicleParm(vehicleInfo, "weap1", String(weap1)) {
             Com_Printf(S_COLOR_RED + "ERROR: Unknown Vehicle key/value pair 'weap1', '%s'!\n", weap1)
         }
     }
     if weap2[0] != 0 {
-        if !BG_ParseVehicleParm(vehicle!, "weap2", String(weap2)) {
+        if !BG_ParseVehicleParm(vehicleInfo, "weap2", String(weap2)) {
             Com_Printf(S_COLOR_RED + "ERROR: Unknown Vehicle key/value pair 'weap2', '%s'!\n", weap2)
         }
     }
     if weapMuzzle1[0] != 0 {
-        if !BG_ParseVehicleParm(vehicle!, "weapMuzzle1", String(weapMuzzle1)) {
+        if !BG_ParseVehicleParm(vehicleInfo, "weapMuzzle1", String(weapMuzzle1)) {
             Com_Printf(S_COLOR_RED + "ERROR: Unknown Vehicle key/value pair 'weapMuzzle1', '%s'!\n", weapMuzzle1)
         }
     }
     if weapMuzzle2[0] != 0 {
-        if !BG_ParseVehicleParm(vehicle!, "weapMuzzle2", String(weapMuzzle2)) {
+        if !BG_ParseVehicleParm(vehicleInfo, "weapMuzzle2", String(weapMuzzle2)) {
             Com_Printf(S_COLOR_RED + "ERROR: Unknown Vehicle key/value pair 'weapMuzzle2', '%s'!\n", weapMuzzle2)
         }
     }
     if weapMuzzle3[0] != 0 {
-        if !BG_ParseVehicleParm(vehicle!, "weapMuzzle3", String(weapMuzzle3)) {
+        if !BG_ParseVehicleParm(vehicleInfo, "weapMuzzle3", String(weapMuzzle3)) {
             Com_Printf(S_COLOR_RED + "ERROR: Unknown Vehicle key/value pair 'weapMuzzle3', '%s'!\n", weapMuzzle3)
         }
     }
     if weapMuzzle4[0] != 0 {
-        if !BG_ParseVehicleParm(vehicle!, "weapMuzzle4", String(weapMuzzle4)) {
+        if !BG_ParseVehicleParm(vehicleInfo, "weapMuzzle4", String(weapMuzzle4)) {
             Com_Printf(S_COLOR_RED + "ERROR: Unknown Vehicle key/value pair 'weapMuzzle4', '%s'!\n", weapMuzzle4)
         }
     }
     if weapMuzzle5[0] != 0 {
-        if !BG_ParseVehicleParm(vehicle!, "weapMuzzle5", String(weapMuzzle5)) {
+        if !BG_ParseVehicleParm(vehicleInfo, "weapMuzzle5", String(weapMuzzle5)) {
             Com_Printf(S_COLOR_RED + "ERROR: Unknown Vehicle key/value pair 'weapMuzzle5', '%s'!\n", weapMuzzle5)
         }
     }
     if weapMuzzle6[0] != 0 {
-        if !BG_ParseVehicleParm(vehicle!, "weapMuzzle6", String(weapMuzzle6)) {
+        if !BG_ParseVehicleParm(vehicleInfo, "weapMuzzle6", String(weapMuzzle6)) {
             Com_Printf(S_COLOR_RED + "ERROR: Unknown Vehicle key/value pair 'weapMuzzle6', '%s'!\n", weapMuzzle6)
         }
     }
     if weapMuzzle7[0] != 0 {
-        if !BG_ParseVehicleParm(vehicle!, "weapMuzzle7", String(weapMuzzle7)) {
+        if !BG_ParseVehicleParm(vehicleInfo, "weapMuzzle7", String(weapMuzzle7)) {
             Com_Printf(S_COLOR_RED + "ERROR: Unknown Vehicle key/value pair 'weapMuzzle7', '%s'!\n", weapMuzzle7)
         }
     }
     if weapMuzzle8[0] != 0 {
-        if !BG_ParseVehicleParm(vehicle!, "weapMuzzle8", String(weapMuzzle8)) {
+        if !BG_ParseVehicleParm(vehicleInfo, "weapMuzzle8", String(weapMuzzle8)) {
             Com_Printf(S_COLOR_RED + "ERROR: Unknown Vehicle key/value pair 'weapMuzzle8', '%s'!\n", weapMuzzle8)
         }
     }
     if weapMuzzle9[0] != 0 {
-        if !BG_ParseVehicleParm(vehicle!, "weapMuzzle9", String(weapMuzzle9)) {
+        if !BG_ParseVehicleParm(vehicleInfo, "weapMuzzle9", String(weapMuzzle9)) {
             Com_Printf(S_COLOR_RED + "ERROR: Unknown Vehicle key/value pair 'weapMuzzle9', '%s'!\n", weapMuzzle9)
         }
     }
     if weapMuzzle10[0] != 0 {
-        if !BG_ParseVehicleParm(vehicle!, "weapMuzzle10", String(weapMuzzle10)) {
+        if !BG_ParseVehicleParm(vehicleInfo, "weapMuzzle10", String(weapMuzzle10)) {
             Com_Printf(S_COLOR_RED + "ERROR: Unknown Vehicle key/value pair 'weapMuzzle10', '%s'!\n", weapMuzzle10)
         }
     }
 
     //let's give these guys some defaults
-    if vehicle!.health_front == 0 {
-        vehicle!.health_front = vehicle!.armor / 4
+    if vehicleInfo.health_front == 0 {
+        vehicleInfo.health_front = vehicleInfo.armor / 4
     }
-    if vehicle!.health_back == 0 {
-        vehicle!.health_back = vehicle!.armor / 4
+    if vehicleInfo.health_back == 0 {
+        vehicleInfo.health_back = vehicleInfo.armor / 4
     }
-    if vehicle!.health_right == 0 {
-        vehicle!.health_right = vehicle!.armor / 4
+    if vehicleInfo.health_right == 0 {
+        vehicleInfo.health_right = vehicleInfo.armor / 4
     }
-    if vehicle!.health_left == 0 {
-        vehicle!.health_left = vehicle!.armor / 4
+    if vehicleInfo.health_left == 0 {
+        vehicleInfo.health_left = vehicleInfo.armor / 4
     }
 
-    if vehicle!.model != nil {
-        vehicle!.modelIndex = G_ModelIndex(va("models/players/%s/model.glm", vehicle!.model!))
+    if vehicleInfo.model != nil {
+        vehicleInfo.modelIndex = G_ModelIndex(va("models/players/%s/model.glm", vehicleInfo.model!))
     }
 
     //SP
@@ -722,18 +723,18 @@ func VEH_LoadVehicle(_ vehicleName: String) -> Int32 {
     //this will just turn off surfs if there is a *off shader on a surf, the skin will actually get thrown away when cgame starts
     //this is for the server-side call, it will propgate down to cgame with configstrings and register it at the same time as all the other skins for ghoul2 models
     //sanity check and clamp the vehicle's data
-    BG_VehicleClampData(vehicle!)
+    BG_VehicleClampData(vehicleInfo)
     // Setup the shared function pointers.
-    BG_SetSharedVehicleFunctions(vehicle!)
+    BG_SetSharedVehicleFunctions(vehicleInfo)
     //misc effects... FIXME: not even used in MP, are they?
-    if vehicle!.explosionDamage != 0 {
+    if vehicleInfo.explosionDamage != 0 {
         G_EffectIndex("ships/ship_explosion_mark")
     }
-    if vehicle!.flammable {
+    if vehicleInfo.flammable {
         G_SoundIndex("sound/vehicles/common/fire_lp.wav")
     }
 
-    if vehicle!.hoverHeight > 0 {
+    if vehicleInfo.hoverHeight > 0 {
         G_EffectIndex("ships/swoop_dust")
     }
 
@@ -981,13 +982,14 @@ public func AttachRidersGeneric(_ pVeh: JKAMP.Vehicle) {
             var yawOnlyAngles = vec3_t()
             let parent: BgEntity? = pVeh.m_pParentEntity
             let pilot: BgEntity? = pVeh.m_pPilot
-            let crotchBolt: Int32 = trap_G2API_AddBolt(parent!.ghoul2, 0, "*driver")
+            let parentEntity = parent!
+            let crotchBolt: Int32 = trap_G2API_AddBolt(parentEntity.ghoul2, 0, "*driver")
 
 
-            yawOnlyAngles = vec3_t(0, parent!.playerState!.viewangles[YAW], 0)
+            yawOnlyAngles = vec3_t(0, parentEntity.playerState!.viewangles[YAW], 0)
 
             // Get the driver tag.
-            trap_G2API_GetBoltMatrix(parent!.ghoul2, 0, crotchBolt, boltMatrix, yawOnlyAngles, parent!.playerState!.origin, BG_GetTime(), nil, &parent!.modelScale)
+            trap_G2API_GetBoltMatrix(parentEntity.ghoul2, 0, crotchBolt, boltMatrix, yawOnlyAngles, parentEntity.playerState!.origin, BG_GetTime(), nil, &parentEntity.modelScale)
             BG_GiveMeVectorFromMatrix(boltMatrix, ORIGIN, &pilot!.playerState!.origin)
         }
     }

@@ -24,9 +24,9 @@ The oracle range is the whole definition, from the return type to the closing br
 | `BG_SiegeFindThemeForTeam` | `oracle/codemp/game/bg_saga.c:1344-1356` | `JKAMP_BG/bg_saga.swift:1091` | ported | `crates/mp/bg/src/bg_saga.rs:1726-1736` | `public func BG_SiegeFindThemeForTeam(_ team: Int32) -> JKAMP.SiegeTeam?` |
 | `BG_PrecacheSabersForSiegeTeam` | `oracle/codemp/game/bg_saga.c:1363-1413` | `JKAMP_BG/bg_saga.swift:1102` | ported | `crates/mp/bg/src/bg_saga.rs:1742-1783` | `public func BG_PrecacheSabersForSiegeTeam(_ team: Int32)` |
 | `BG_SiegeCheckClassLegality` | `oracle/codemp/game/bg_saga.c:1416-1453` | `JKAMP_BG/bg_saga.swift:1149` | ported | `crates/mp/bg/src/bg_saga.rs:1788-1816` | `public func BG_SiegeCheckClassLegality(_ team: Int32, _ classname: inout JKAShared.CharBuf) -> Bool` |
-| `BG_SiegeFindTeamForTheme` | `oracle/codemp/game/bg_saga.c:1455-1471` | `JKAMP_BG/bg_saga.swift:1186` | ported | `crates/mp/bg/src/bg_saga.rs:1821-1837` | `func BG_SiegeFindTeamForTheme(_ themeName: String) -> JKAMP.SiegeTeam?` |
-| `BG_SiegeSetTeamTheme` | `oracle/codemp/game/bg_saga.c:1473-1487` | `JKAMP_BG/bg_saga.swift:1202` | ported | `crates/mp/bg/src/bg_saga.rs:1842-1854` | `public func BG_SiegeSetTeamTheme(_ team: Int32, _ themeName: String)` |
-| `BG_SiegeFindClassIndexByName` | `oracle/codemp/game/bg_saga.c:1489-1503` | `JKAMP_BG/bg_saga.swift:1216` | ported | `crates/mp/bg/src/bg_saga.rs:1859-1873` | `public func BG_SiegeFindClassIndexByName(_ classname: String) -> Int32` |
+| `BG_SiegeFindTeamForTheme` | `oracle/codemp/game/bg_saga.c:1455-1471` | `JKAMP_BG/bg_saga.swift:1185` | ported | `crates/mp/bg/src/bg_saga.rs:1821-1837` | `func BG_SiegeFindTeamForTheme(_ themeName: String) -> JKAMP.SiegeTeam?` |
+| `BG_SiegeSetTeamTheme` | `oracle/codemp/game/bg_saga.c:1473-1487` | `JKAMP_BG/bg_saga.swift:1201` | ported | `crates/mp/bg/src/bg_saga.rs:1842-1854` | `public func BG_SiegeSetTeamTheme(_ team: Int32, _ themeName: String)` |
+| `BG_SiegeFindClassIndexByName` | `oracle/codemp/game/bg_saga.c:1489-1503` | `JKAMP_BG/bg_saga.swift:1215` | ported | `crates/mp/bg/src/bg_saga.rs:1859-1873` | `public func BG_SiegeFindClassIndexByName(_ classname: String) -> Int32` |
 
 15 file-scope variables. The entry is the stub's line for the variable, by rule 3 and rule 6.
 

@@ -154,6 +154,15 @@ public func installBgChannel() {
     bg.callbacks.WP_GetVehicleCamPos = { ent, pilot, camPos in
         WP_GetVehicleCamPos(Entity(handle: ent.handle), Entity(handle: pilot.handle), &camPos)
     }
+    bg.callbacks.bgLandOnVehicle = { entityNum in
+        bgLandOnVehicle(entityNum)
+    }
+    bg.callbacks.bgSetSolidHack = { clientNum in
+        bgSetSolidHack(clientNum)
+    }
+    bg.callbacks.PM_CrashLandEffect = {
+        PM_CrashLandEffect()
+    }
     bg.callbacks.bgBg_fighterAltControlInteger = {
         bg_fighterAltControl.integer
     }

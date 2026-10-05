@@ -31,7 +31,7 @@ from clang.cindex import CursorKind
 
 import closure as C
 from reexport import REPO, SOURCES
-from rulings import EXTRA_HOOKS, LIST_TRAPS, OWN_HOOKS, SHARED_STEMS
+from rulings import ARM_HOOKS, EXTRA_HOOKS, LIST_TRAPS, OWN_HOOKS, QAGAME_ONLY, SHARED_STEMS
 from table import Param, SourceFile, Table
 
 ORACLE_DIR = C.GAME_DIR
@@ -59,9 +59,6 @@ class Hook:
         self.install: str | None = None
         # A trap hook takes the trap's own shape, the one traps.py wrote in g_syscalls.swift, so a filled buffer is a returned String.
         self.trap = name.startswith("trap_")
-        # The vector parameters the game function takes by value because its body never writes them.
-        # The bg surface keeps them inout, because the adopted bg callers pass `&`, and the install passes the value on.
-        self.by_value: set[str] = set()
 
     @property
     def cite(self) -> str:
@@ -132,9 +129,8 @@ class Channel:
             if m is None or (m.swift is None and m.kind != "out_string"):
                 hook.reason = self.table.marker_reason(p, hook.name)
                 return
-            if not hook.trap and m.kind == "vec3_const" and "const" not in p.type.spelling:
-                hook.by_value.add(m.name)
-                m = Param(p.spelling, f"inout {m.swift}", "vec3_mut", size=m.size, label=m.label)
+            # A vector the game function takes by value crosses the whole channel by value, R35 of the walk of 2026-10-05.
+            # The callback type, the bare function, the install, and the bg callers pass the plain value, and only a vector the body writes is inout.
             hook.params.append(m)
         result = self.table.result(hook.cur)
         if result is None:
@@ -241,6 +237,16 @@ class Channel:
         for name in sorted(called):
             hook = Hook(called[name], name, EXTRA_HOOKS[name][1] if name in EXTRA_HOOKS else None, foreign=name in foreign)
             self.map(hook)
+            hooks.append(hook)
+        # A game arm under `#ifdef QAGAME` and a function Raven compiles only there are game functions the game defines by hand.
+        for name, (cite, params) in ARM_HOOKS.items():
+            hook = Hook(None, name, cite=cite)
+            hook.foreign = False
+            hook.params = [Param(p, t, "bare") for p, t in params]
+            hooks.append(hook)
+        for name, cite in QAGAME_ONLY.items():
+            hook = Hook(None, name, cite=cite)
+            hook.foreign = False
             hooks.append(hook)
         return hooks
 
@@ -366,7 +372,7 @@ class Channel:
                         args.append(f"Entity(handle: {p.name}.handle)")
                     elif t == "JKAMP.BgEntity?":
                         args.append(f"{p.name}.map {{ Entity(handle: $0.handle) }}")
-                    elif t.startswith("inout ") and p.name not in hook.by_value:
+                    elif t.startswith("inout "):
                         args.append(f"&{p.name}")
                     else:
                         args.append(p.name)

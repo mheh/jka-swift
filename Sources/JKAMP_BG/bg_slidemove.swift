@@ -12,23 +12,26 @@ let MAX_CLIP_PLANES = 5 as Int32
 func PM_VehicleImpact(_ pEnt: JKAMP.BgEntity, _ trace: JKAMP.Trace) {
     // See if the vehicle has crashed into the ground.
     let pSelfVeh: Vehicle? = pEnt.m_pVehicle
-    var magnitude: Float = VectorLength(pm.ps.velocity) * pSelfVeh!.m_pVehicleInfo!.mass / 50.0
+    let selfVehicle = pSelfVeh!
+    let vehicleInfo = selfVehicle.m_pVehicleInfo!
+    var magnitude: Float = VectorLength(pm.ps.velocity) * vehicleInfo.mass / 50.0
     var forceSurfDestruction: Bool = false
     let hitEnt: BgEntity? = trace != nil ? pm.entity(at: trace.entityNum) : nil
 
-    if hitEnt == nil || (pSelfVeh != nil && pSelfVeh!.m_pPilot != nil && hitEnt != nil && hitEnt!.s.eType == ET_MISSILE && bgEntityInuse(hitEnt!) && bgEntityOwnerNum(hitEnt!) == pSelfVeh!.m_pPilot!.s.number) {
+    if hitEnt == nil || (pSelfVeh != nil && selfVehicle.m_pPilot != nil && hitEnt != nil && hitEnt!.s.eType == ET_MISSILE && bgEntityInuse(hitEnt!) && bgEntityOwnerNum(hitEnt!) == selfVehicle.m_pPilot!.s.number) {
         //don't hit it
         return
     }
+    let hitEntity = hitEnt!
 
-    if pSelfVeh != nil && pSelfVeh!.m_iRemovedSurfaces != 0 {
+    if pSelfVeh != nil && selfVehicle.m_iRemovedSurfaces != 0 {
         //spiralling to our deaths, explode on any solid impact
-        if hitEnt!.s.NPC_class == CLASS_VEHICLE {
+        if hitEntity.s.NPC_class == CLASS_VEHICLE {
             //hit another vehicle, explode!
             //Give credit to whoever got me into this death spiral state
-            G_DamageFromKiller(pEnt, pSelfVeh!.m_pParentEntity!, hitEnt, &pm.ps.origin, 999999, DAMAGE_NO_ARMOR, MOD_COLLISION)
+            G_DamageFromKiller(pEnt, selfVehicle.m_pParentEntity!, hitEnt, pm.ps.origin, 999999, DAMAGE_NO_ARMOR, MOD_COLLISION)
             return
-        } else if VectorCompare(trace.plane.normal, vec3_origin) == 0 && (trace.entityNum == ENTITYNUM_WORLD || bgEntityBmodel(hitEnt!)) {
+        } else if VectorCompare(trace.plane.normal, vec3_origin) == 0 && (trace.entityNum == ENTITYNUM_WORLD || bgEntityBmodel(hitEntity)) {
             //have a valid hit plane and we hit a solid brush
             var moveDir = vec3_t()
             let impactDot: Float
@@ -38,13 +41,13 @@ func PM_VehicleImpact(_ pEnt: JKAMP.BgEntity, _ trace: JKAMP.Trace) {
             if impactDot <= -0.7 {
                 // Just DIE now
                 //Give credit to whoever got me into this death spiral state
-                G_DamageFromKiller(pEnt, pSelfVeh!.m_pParentEntity!, hitEnt, &pm.ps.origin, 999999, DAMAGE_NO_ARMOR, MOD_FALLING)
+                G_DamageFromKiller(pEnt, selfVehicle.m_pParentEntity!, hitEnt, pm.ps.origin, 999999, DAMAGE_NO_ARMOR, MOD_FALLING)
                 return
             }
         }
     }
 
-    if trace.entityNum < ENTITYNUM_WORLD && hitEnt!.s.eType == ET_MOVER && hitEnt!.s.apos.trType != TR_STATIONARY && (bgEntitySpawnflags(hitEnt!) & 16) != 0 && Q_stricmp("func_rotating", bgEntityClassname(hitEnt!)!) == 0 {
+    if trace.entityNum < ENTITYNUM_WORLD && hitEntity.s.eType == ET_MOVER && hitEntity.s.apos.trType != TR_STATIONARY && (bgEntitySpawnflags(hitEntity) & 16) != 0 && Q_stricmp("func_rotating", bgEntityClassname(hitEntity)!) == 0 {
         //hit a func_rotating that is supposed to destroy anything it touches!
         //guarantee the hit will happen, thereby taking off a piece of the ship
         forceSurfDestruction = true
@@ -64,13 +67,13 @@ func PM_VehicleImpact(_ pEnt: JKAMP.BgEntity, _ trace: JKAMP.Trace) {
         */
         //this was annoying me -rww
         //FIXME: this shouldn't even be getting called when the vehicle is at rest!
-        if hitEnt != nil && (hitEnt!.s.eType == ET_PLAYER || hitEnt!.s.eType == ET_NPC) && pSelfVeh!.m_pVehicleInfo!.type == VH_FIGHTER {
+        if hitEnt != nil && (hitEntity.s.eType == ET_PLAYER || hitEntity.s.eType == ET_NPC) && vehicleInfo.type == VH_FIGHTER {
             //always smack players
         } else {
             return
         }
     }
-    if pSelfVeh != nil && (pSelfVeh!.m_pVehicleInfo!.type == VH_SPEEDER || pSelfVeh!.m_pVehicleInfo!.type == VH_FIGHTER) && (magnitude >= 100 || forceSurfDestruction) {
+    if pSelfVeh != nil && (vehicleInfo.type == VH_SPEEDER || vehicleInfo.type == VH_FIGHTER) && (magnitude >= 100 || forceSurfDestruction) {
         if pEnt.m_pVehicle!.m_iHitDebounce < pm.cmd.serverTime || forceSurfDestruction {
             //a bit of a hack, may conflict with getting shot, but...
             //FIXME: impact sound and effect should be gotten from g_vehicleInfo...?
@@ -78,32 +81,32 @@ func PM_VehicleImpact(_ pEnt: JKAMP.BgEntity, _ trace: JKAMP.Trace) {
             var vehUp = vec3_t()
             var noDamage: Bool = false
 
-            if pSelfVeh!.m_iRemovedSurfaces == 0 && !forceSurfDestruction {
+            if selfVehicle.m_iRemovedSurfaces == 0 && !forceSurfDestruction {
                 var turnFromImpact: Bool = false
                 var turnHitEnt: Bool = false
                 var l: Float = pm.ps.speed * 0.5
                 var bounceDir = vec3_t()
-                if (trace.entityNum == ENTITYNUM_WORLD || hitEnt!.s.solid == SOLID_BMODEL) && VectorCompare(trace.plane.normal, vec3_origin) == 0 {
+                if (trace.entityNum == ENTITYNUM_WORLD || hitEntity.s.solid == SOLID_BMODEL) && VectorCompare(trace.plane.normal, vec3_origin) == 0 {
                     //bounce off in the opposite direction of the impact
-                    if pSelfVeh!.m_pVehicleInfo!.type == VH_SPEEDER {
+                    if vehicleInfo.type == VH_SPEEDER {
                         pm.ps.speed *= pml.frametime
                         bounceDir = trace.plane.normal
-                    } else if trace.plane.normal[2] >= MIN_LANDING_SLOPE && pSelfVeh!.m_LandTrace.fraction < 1.0 && pm.ps.speed <= MIN_LANDING_SPEED {
+                    } else if trace.plane.normal[2] >= MIN_LANDING_SLOPE && selfVehicle.m_LandTrace.fraction < 1.0 && pm.ps.speed <= MIN_LANDING_SPEED {
                         //could land here, don't bounce off, in fact, return altogether!
                         return
                     } else {
-                        if pSelfVeh!.m_pVehicleInfo!.type == VH_FIGHTER {
+                        if vehicleInfo.type == VH_FIGHTER {
                             turnFromImpact = true
                         }
                         bounceDir = trace.plane.normal
                     }
-                } else if pSelfVeh!.m_pVehicleInfo!.type == VH_FIGHTER {
+                } else if vehicleInfo.type == VH_FIGHTER {
                     //check for impact with another fighter
-                    if hitEnt!.s.NPC_class == CLASS_VEHICLE && hitEnt!.m_pVehicle != nil && hitEnt!.m_pVehicle!.m_pVehicleInfo != nil && hitEnt!.m_pVehicle!.m_pVehicleInfo!.type == VH_FIGHTER {
+                    if hitEntity.s.NPC_class == CLASS_VEHICLE && hitEntity.m_pVehicle != nil && hitEntity.m_pVehicle!.m_pVehicleInfo != nil && hitEntity.m_pVehicle!.m_pVehicleInfo!.type == VH_FIGHTER {
                         //two vehicles hit each other, turn away from the impact
                         turnFromImpact = true
                         turnHitEnt = true
-                        bounceDir = pm.ps.origin - bgEntityCurrentOrigin(hitEnt!)
+                        bounceDir = pm.ps.origin - bgEntityCurrentOrigin(hitEntity)
                         VectorNormalize(&bounceDir)
                     }
                 }
@@ -121,15 +124,15 @@ func PM_VehicleImpact(_ pEnt: JKAMP.BgEntity, _ trace: JKAMP.Trace) {
                     //bounce
                     if !turnHitEnt {
                         //hit wall
-                        pushDir = bounceDir * (pm.ps.speed * 0.25 / pSelfVeh!.m_pVehicleInfo!.mass)
+                        pushDir = bounceDir * (pm.ps.speed * 0.25 / vehicleInfo.mass)
                     } else {
                         //hit another fighter
-                        if hitEnt!.playerState != nil {
-                            pushDir = bounceDir * ((pm.ps.speed + hitEnt!.playerState!.speed) * 0.5)
+                        if hitEntity.playerState != nil {
+                            pushDir = bounceDir * ((pm.ps.speed + hitEntity.playerState!.speed) * 0.5)
                         } else {
-                            pushDir = bounceDir * ((pm.ps.speed + hitEnt!.s.speed) * 0.5)
+                            pushDir = bounceDir * ((pm.ps.speed + hitEntity.s.speed) * 0.5)
                         }
-                        pushDir = pushDir * (l / pSelfVeh!.m_pVehicleInfo!.mass)
+                        pushDir = pushDir * (l / vehicleInfo.mass)
                         pushDir = pushDir * 0.1
                     }
                     VectorNormalize2(pm.ps.velocity, &moveDir)
@@ -140,7 +143,7 @@ func PM_VehicleImpact(_ pEnt: JKAMP.BgEntity, _ trace: JKAMP.Trace) {
                     pushDir = pushDir * bounceDot
                     pm.ps.velocity = pm.ps.velocity + pushDir
                     //turn
-                    turnDivider = (pSelfVeh!.m_pVehicleInfo!.mass / 400.0)
+                    turnDivider = (vehicleInfo.mass / 400.0)
                     if turnHitEnt {
                         //don't turn as much when hit another ship
                         turnDivider *= 4.0
@@ -157,7 +160,7 @@ func PM_VehicleImpact(_ pEnt: JKAMP.BgEntity, _ trace: JKAMP.Trace) {
                     //get the angles we are going to turn towards
                     vectoangles(bounceDir, &turnAwayAngles)
                     //get the delta from our current angles to those new angles
-                    AnglesSubtract(turnAwayAngles, pSelfVeh!.m_vOrientationVector, &turnDelta)
+                    AnglesSubtract(turnAwayAngles, selfVehicle.m_vOrientationVector, &turnDelta)
                     //now do pitch
                     if bounceDir[2] == 0 {
                         //shouldn't be any pitch
@@ -169,7 +172,7 @@ func PM_VehicleImpact(_ pEnt: JKAMP.BgEntity, _ trace: JKAMP.Trace) {
                             pitchTurnStrength = -MAX_IMPACT_TURN_ANGLE
                         }
                         //pSelfVeh->m_vOrientation[PITCH] = AngleNormalize180(pSelfVeh->m_vOrientation[PITCH]+pitchTurnStrength/turnDivider*pSelfVeh->m_fTimeModifier);
-                        pSelfVeh!.m_vFullAngleVelocity[PITCH] = AngleNormalize180(pSelfVeh!.m_vOrientationVector[PITCH] + pitchTurnStrength / turnDivider * pSelfVeh!.m_fTimeModifier)
+                        selfVehicle.m_vFullAngleVelocity[PITCH] = AngleNormalize180(selfVehicle.m_vOrientationVector[PITCH] + pitchTurnStrength / turnDivider * selfVehicle.m_fTimeModifier)
                     }
                     //now do yaw
                     if bounceDir[0] == 0 && bounceDir[1] == 0 {
@@ -182,7 +185,7 @@ func PM_VehicleImpact(_ pEnt: JKAMP.BgEntity, _ trace: JKAMP.Trace) {
                             yawTurnStrength = -MAX_IMPACT_TURN_ANGLE
                         }
                         //pSelfVeh->m_vOrientation[ROLL] = AngleNormalize180(pSelfVeh->m_vOrientation[ROLL]-yawTurnStrength/turnDivider*pSelfVeh->m_fTimeModifier);
-                        pSelfVeh!.m_vFullAngleVelocity[ROLL] = AngleNormalize180(pSelfVeh!.m_vOrientationVector[ROLL] - yawTurnStrength / turnDivider * pSelfVeh!.m_fTimeModifier)
+                        selfVehicle.m_vFullAngleVelocity[ROLL] = AngleNormalize180(selfVehicle.m_vOrientationVector[ROLL] - yawTurnStrength / turnDivider * selfVehicle.m_fTimeModifier)
                     }
                     /*
                     PM_SetPMViewAngle(pm->ps, pSelfVeh->m_vOrientation, &pSelfVeh->m_ucmd);
@@ -196,23 +199,25 @@ func PM_VehicleImpact(_ pEnt: JKAMP.BgEntity, _ trace: JKAMP.Trace) {
                     }
                     }
                     */
-                    if turnHitEnt && hitEnt!.playerState != nil && !FighterIsLanded(hitEnt!.m_pVehicle!, hitEnt!.playerState!) && !((bgEntitySpawnflags(hitEnt!) & 2) != 0) {
-                        l = hitEnt!.playerState!.speed
+                    if turnHitEnt && hitEntity.playerState != nil && !FighterIsLanded(hitEntity.m_pVehicle!, hitEntity.playerState!) && !((bgEntitySpawnflags(hitEntity) & 2) != 0) {
+                        let hitVehicle = hitEntity.m_pVehicle!
+                        let hitPlayerState = hitEntity.playerState!
+                        l = hitPlayerState.speed
                         //now bounce *them* away and turn them
                         //flip the bounceDir
                         bounceDir = bounceDir * -1
                         //do bounce
                         pushDir = bounceDir * ((pm.ps.speed + l) * 0.5)
-                        pushDir = pushDir * (l * 0.5 / hitEnt!.m_pVehicle!.m_pVehicleInfo!.mass)
-                        VectorNormalize2(hitEnt!.playerState!.velocity, &moveDir)
+                        pushDir = pushDir * (l * 0.5 / hitVehicle.m_pVehicleInfo!.mass)
+                        VectorNormalize2(hitPlayerState.velocity, &moveDir)
                         bounceDot = _DotProduct(moveDir, bounceDir) * -1
                         if bounceDot < 0.1 {
                             bounceDot = 0.1
                         }
                         pushDir = pushDir * bounceDot
-                        hitEnt!.playerState!.velocity = hitEnt!.playerState!.velocity + pushDir
+                        hitPlayerState.velocity = hitPlayerState.velocity + pushDir
                         //turn
-                        turnDivider = (hitEnt!.m_pVehicle!.m_pVehicleInfo!.mass / 400.0)
+                        turnDivider = (hitVehicle.m_pVehicleInfo!.mass / 400.0)
                         if turnHitEnt {
                             //don't turn as much when hit another ship
                             turnDivider *= 4.0
@@ -223,7 +228,7 @@ func PM_VehicleImpact(_ pEnt: JKAMP.BgEntity, _ trace: JKAMP.Trace) {
                         //get the angles we are going to turn towards
                         vectoangles(bounceDir, &turnAwayAngles)
                         //get the delta from our current angles to those new angles
-                        AnglesSubtract(turnAwayAngles, hitEnt!.m_pVehicle!.m_vOrientationVector, &turnDelta)
+                        AnglesSubtract(turnAwayAngles, hitVehicle.m_vOrientationVector, &turnDelta)
                         //now do pitch
                         if bounceDir[2] == 0 {
                             //shouldn't be any pitch
@@ -235,7 +240,7 @@ func PM_VehicleImpact(_ pEnt: JKAMP.BgEntity, _ trace: JKAMP.Trace) {
                                 pitchTurnStrength = -MAX_IMPACT_TURN_ANGLE
                             }
                             //hitEnt->m_pVehicle->m_vOrientation[PITCH] = AngleNormalize180(hitEnt->m_pVehicle->m_vOrientation[PITCH]+pitchTurnStrength/turnDivider*pSelfVeh->m_fTimeModifier);
-                            hitEnt!.m_pVehicle!.m_vFullAngleVelocity[PITCH] = AngleNormalize180(hitEnt!.m_pVehicle!.m_vOrientationVector[PITCH] + pitchTurnStrength / turnDivider * pSelfVeh!.m_fTimeModifier)
+                            hitVehicle.m_vFullAngleVelocity[PITCH] = AngleNormalize180(hitVehicle.m_vOrientationVector[PITCH] + pitchTurnStrength / turnDivider * selfVehicle.m_fTimeModifier)
                         }
                         //now do yaw
                         if bounceDir[0] == 0 && bounceDir[1] == 0 {
@@ -248,7 +253,7 @@ func PM_VehicleImpact(_ pEnt: JKAMP.BgEntity, _ trace: JKAMP.Trace) {
                                 yawTurnStrength = -MAX_IMPACT_TURN_ANGLE
                             }
                             //hitEnt->m_pVehicle->m_vOrientation[ROLL] = AngleNormalize180(hitEnt->m_pVehicle->m_vOrientation[ROLL]-yawTurnStrength/turnDivider*pSelfVeh->m_fTimeModifier);
-                            hitEnt!.m_pVehicle!.m_vFullAngleVelocity[ROLL] = AngleNormalize180(hitEnt!.m_pVehicle!.m_vOrientationVector[ROLL] - yawTurnStrength / turnDivider * pSelfVeh!.m_fTimeModifier)
+                            hitVehicle.m_vFullAngleVelocity[ROLL] = AngleNormalize180(hitVehicle.m_vOrientationVector[ROLL] - yawTurnStrength / turnDivider * selfVehicle.m_fTimeModifier)
                         }
                         //NOTE: will these angle changes stick or will they be stomped
                         //		when the vehicle goes through its own update and re-grabs
@@ -274,28 +279,28 @@ func PM_VehicleImpact(_ pEnt: JKAMP.BgEntity, _ trace: JKAMP.Trace) {
             // The ported function takes them by reference, so the body passes scratch vectors it never reads.
             var scratchForward = vec3_t()
             var scratchRight = vec3_t()
-            AngleVectors(pSelfVeh!.m_vOrientationVector, &scratchForward, &scratchRight, &vehUp)
-            if pSelfVeh!.m_pVehicleInfo!.iImpactFX != 0 {
+            AngleVectors(selfVehicle.m_vOrientationVector, &scratchForward, &scratchRight, &vehUp)
+            if vehicleInfo.iImpactFX != 0 {
                 //G_PlayEffectID( pSelfVeh->m_pVehicleInfo->iImpactFX, pm->ps->origin, vehUp );
                 //tempent use bad!
-                G_AddEvent(pEnt, EV_PLAY_EFFECT_ID, pSelfVeh!.m_pVehicleInfo!.iImpactFX)
+                G_AddEvent(pEnt, EV_PLAY_EFFECT_ID, vehicleInfo.iImpactFX)
             }
             pEnt.m_pVehicle!.m_iHitDebounce = pm.cmd.serverTime + 200
-            magnitude /= pSelfVeh!.m_pVehicleInfo!.toughness * 50.0
+            magnitude /= vehicleInfo.toughness * 50.0
 
-            if hitEnt != nil && (hitEnt!.s.eType != ET_TERRAIN || !((bgEntitySpawnflags(hitEnt!) & 1) != 0) || pSelfVeh!.m_pVehicleInfo!.type == VH_FIGHTER) {
+            if hitEnt != nil && (hitEntity.s.eType != ET_TERRAIN || !((bgEntitySpawnflags(hitEntity) & 1) != 0) || vehicleInfo.type == VH_FIGHTER) {
                 //don't damage the vehicle from terrain that doesn't want to damage vehicles
                 var killer: BgEntity? = nil
-                if pSelfVeh!.m_pVehicleInfo!.type == VH_FIGHTER {
+                if vehicleInfo.type == VH_FIGHTER {
                     //increase the damage...
-                    var mult: Float = (pSelfVeh!.m_vOrientationVector[PITCH] * 0.1)
+                    var mult: Float = (selfVehicle.m_vOrientationVector[PITCH] * 0.1)
                     if mult < 1.0 {
                         mult = 1.0
                     }
-                    if bgEntityInuse(hitEnt!) && bgEntityTakedamage(hitEnt!) {
+                    if bgEntityInuse(hitEntity) && bgEntityTakedamage(hitEntity) {
                         //if the other guy takes damage, don't hurt us a lot for ramming him
                         //unless it's a vehicle, then we get 1.5 times damage
-                        if hitEnt!.s.eType == ET_NPC && hitEnt!.s.NPC_class == CLASS_VEHICLE && hitEnt!.m_pVehicle != nil {
+                        if hitEntity.s.eType == ET_NPC && hitEntity.s.NPC_class == CLASS_VEHICLE && hitEntity.m_pVehicle != nil {
                             mult = 1.5
                         } else {
                             mult = 0.5
@@ -304,13 +309,13 @@ func PM_VehicleImpact(_ pEnt: JKAMP.BgEntity, _ trace: JKAMP.Trace) {
 
                     magnitude *= mult
                 }
-                pSelfVeh!.m_iLastImpactDmg = Int32(magnitude)
+                selfVehicle.m_iLastImpactDmg = Int32(magnitude)
                 //FIXME: what about proper death credit to the guy who shot you down?
                 //FIXME: actually damage part of the ship that impacted?
-                if hitEnt!.s.eType == ET_MISSILE {
+                if hitEntity.s.eType == ET_MISSILE {
                     //FIX: NEVER do or take impact damage from a missile...
                     noDamage = true
-                    if (hitEnt!.s.eFlags & EF_JETPACK_ACTIVE) != 0 && bgEntityOwnerNum(hitEnt!) < MAX_CLIENTS {
+                    if (hitEntity.s.eFlags & EF_JETPACK_ACTIVE) != 0 && bgEntityOwnerNum(hitEntity) < MAX_CLIENTS {
                         //I ran into a missile and died because of the impact, give credit to the missile's owner (PROBLEM: might this ever accidently give improper credit to client 0?)
                         /*
                         if ( ((gentity_t *)hitEnt)->r.ownerNum == pEnt->s.number )
@@ -318,62 +323,63 @@ func PM_VehicleImpact(_ pEnt: JKAMP.BgEntity, _ trace: JKAMP.Trace) {
                         noDamage = qtrue;
                         }
                         */
-                        killer = pm.entity(at: bgEntityOwnerNum(hitEnt!))
+                        killer = pm.entity(at: bgEntityOwnerNum(hitEntity))
                     }
                 }
                 if !noDamage {
                     // Port-note: Raven passes NULL for the `dir` output. The ported function takes it by reference, so the body passes a scratch local it never reads.
                     portMissing("PM_VehicleImpact", source: "oracle/codemp/game/bg_slidemove.c:49")
                     var scratchDir = vec3_t()
-                    G_Damage(pEnt, (hitEnt), killer != nil ? killer : (hitEnt), &scratchDir, pm.ps.origin, Int32(magnitude * 5), DAMAGE_NO_ARMOR, (hitEnt!.s.NPC_class == CLASS_VEHICLE ? MOD_COLLISION : MOD_FALLING)) //FIXME: MOD_IMPACT
+                    G_Damage(pEnt, (hitEnt), killer != nil ? killer : (hitEnt), &scratchDir, pm.ps.origin, Int32(magnitude * 5), DAMAGE_NO_ARMOR, (hitEntity.s.NPC_class == CLASS_VEHICLE ? MOD_COLLISION : MOD_FALLING)) //FIXME: MOD_IMPACT
                 }
 
-                if pSelfVeh!.m_pVehicleInfo!.surfDestruction != 0 {
+                if vehicleInfo.surfDestruction != 0 {
                     G_FlyVehicleSurfaceDestruction(pEnt, trace, Int32(magnitude), forceSurfDestruction)
                 }
 
-                pSelfVeh!.m_ulFlags |= UInt(bitPattern: Int(VEH_CRASHING))
+                selfVehicle.m_ulFlags |= UInt(bitPattern: Int(VEH_CRASHING))
             }
 
-            if hitEnt != nil && bgEntityInuse(hitEnt!) && bgEntityTakedamage(hitEnt!) {
+            if hitEnt != nil && bgEntityInuse(hitEntity) && bgEntityTakedamage(hitEntity) {
                 //damage this guy because we hit him
                 var pmult: Float = 1.0
                 var finalD: Int32
                 var attackEnt: BgEntity?
 
-                if (hitEnt!.s.eType == ET_PLAYER && hitEnt!.s.number < MAX_CLIENTS) || (hitEnt!.s.eType == ET_NPC && hitEnt!.s.NPC_class != CLASS_VEHICLE) {
+                if (hitEntity.s.eType == ET_PLAYER && hitEntity.s.number < MAX_CLIENTS) || (hitEntity.s.eType == ET_NPC && hitEntity.s.NPC_class != CLASS_VEHICLE) {
                     //probably a humanoid, or something
-                    if pSelfVeh!.m_pVehicleInfo!.type == VH_FIGHTER {
+                    if vehicleInfo.type == VH_FIGHTER {
                         //player die good.. if me fighter
                         pmult = 2000.0
                     } else {
                         pmult = 40.0
                     }
 
-                    if hitEnt!.playerState != nil && BG_KnockDownable(hitEnt!.playerState!) && G_CanBeEnemy(pEnt, hitEnt!) {
+                    if hitEntity.playerState != nil && BG_KnockDownable(hitEntity.playerState!) && G_CanBeEnemy(pEnt, hitEntity) {
                         //smash!
-                        if hitEnt!.playerState!.forceHandExtend != HANDEXTEND_KNOCKDOWN {
-                            hitEnt!.playerState!.forceHandExtend = HANDEXTEND_KNOCKDOWN
-                            hitEnt!.playerState!.forceHandExtendTime = pm.cmd.serverTime + 1100
-                            hitEnt!.playerState!.forceDodgeAnim = 0 //this toggles between 1 and 0, when it's 1 we should play the get up anim
+                        let hitPlayerState = hitEntity.playerState!
+                        if hitPlayerState.forceHandExtend != HANDEXTEND_KNOCKDOWN {
+                            hitPlayerState.forceHandExtend = HANDEXTEND_KNOCKDOWN
+                            hitPlayerState.forceHandExtendTime = pm.cmd.serverTime + 1100
+                            hitPlayerState.forceDodgeAnim = 0 //this toggles between 1 and 0, when it's 1 we should play the get up anim
                         }
 
-                        hitEnt!.playerState!.otherKiller = pEnt.s.number
-                        hitEnt!.playerState!.otherKillerTime = pm.cmd.serverTime + 5000
-                        hitEnt!.playerState!.otherKillerDebounceTime = pm.cmd.serverTime + 100
-                        bgSetClientOtherKillerMOD(hitEnt!, MOD_COLLISION)
-                        bgSetClientOtherKillerVehWeapon(hitEnt!, 0)
-                        bgSetClientOtherKillerWeaponType(hitEnt!, WP_NONE)
+                        hitPlayerState.otherKiller = pEnt.s.number
+                        hitPlayerState.otherKillerTime = pm.cmd.serverTime + 5000
+                        hitPlayerState.otherKillerDebounceTime = pm.cmd.serverTime + 100
+                        bgSetClientOtherKillerMOD(hitEntity, MOD_COLLISION)
+                        bgSetClientOtherKillerVehWeapon(hitEntity, 0)
+                        bgSetClientOtherKillerWeaponType(hitEntity, WP_NONE)
 
                         //add my velocity into his to force him along in the correct direction from impact
-                        hitEnt!.playerState!.velocity = hitEnt!.playerState!.velocity + pm.ps.velocity
+                        hitPlayerState.velocity = hitPlayerState.velocity + pm.ps.velocity
                         //upward thrust
-                        hitEnt!.playerState!.velocity[2] += 200.0
+                        hitPlayerState.velocity[2] += 200.0
                     }
                 }
 
-                if pSelfVeh!.m_pPilot != nil {
-                    attackEnt = pSelfVeh!.m_pPilot!
+                if selfVehicle.m_pPilot != nil {
+                    attackEnt = selfVehicle.m_pPilot!
                 } else {
                     attackEnt = pEnt
                 }
@@ -386,7 +392,7 @@ func PM_VehicleImpact(_ pEnt: JKAMP.BgEntity, _ trace: JKAMP.Trace) {
                     // Port-note: Raven passes NULL for the `dir` output. The ported function takes it by reference, so the body passes a scratch local it never reads.
                     portMissing("PM_VehicleImpact", source: "oracle/codemp/game/bg_slidemove.c:49")
                     var scratchDir2 = vec3_t()
-                    G_Damage(hitEnt!, attackEnt, attackEnt, &scratchDir2, pm.ps.origin, finalD, 0, (hitEnt!.s.NPC_class == CLASS_VEHICLE ? MOD_COLLISION : MOD_FALLING)) //FIXME: MOD_IMPACT
+                    G_Damage(hitEntity, attackEnt, attackEnt, &scratchDir2, pm.ps.origin, finalD, 0, (hitEntity.s.NPC_class == CLASS_VEHICLE ? MOD_COLLISION : MOD_FALLING)) //FIXME: MOD_IMPACT
                 }
             }
             //it doesn't look bad though. could just use predicted events, but I'm too lazy.

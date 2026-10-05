@@ -94,7 +94,10 @@ public struct Pml: Hashable, HandleView {
     }
 
     /// Source: oracle/codemp/game/bg_local.h:24
-    public var groundTrace: Trace { Trace(handle: OpaquePointer(self.raw.pointer(to: \.groundTrace)!)) }
+    public var groundTrace: Trace {
+        get { Trace(handle: OpaquePointer(self.raw.pointer(to: \.groundTrace)!)) }
+        nonmutating set { self.raw.pointee.groundTrace = UnsafeMutablePointer(newValue.handle).pointee }
+    }
 
     /// Source: oracle/codemp/game/bg_local.h:26
     public var impactSpeed: Float {

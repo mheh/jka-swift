@@ -59,7 +59,10 @@ public struct ClientPersistant: Hashable, HandleView {
     }
 
     /// Source: oracle/codemp/game/g_local.h:445
-    public var cmd: JKAMP.Usercmd { JKAMP.Usercmd(handle: OpaquePointer(self.raw.pointer(to: \.cmd)!)) }
+    public var cmd: JKAMP.Usercmd {
+        get { JKAMP.Usercmd(handle: OpaquePointer(self.raw.pointer(to: \.cmd)!)) }
+        nonmutating set { self.raw.pointee.cmd = UnsafeMutablePointer(newValue.handle).pointee }
+    }
 
     /// Source: oracle/codemp/game/g_local.h:446
     public var localClient: Bool {
@@ -116,7 +119,10 @@ public struct ClientPersistant: Hashable, HandleView {
     }
 
     /// Source: oracle/codemp/game/g_local.h:454
-    public var teamState: PlayerTeamState { PlayerTeamState(handle: OpaquePointer(self.raw.pointer(to: \.teamState)!)) }
+    public var teamState: PlayerTeamState {
+        get { PlayerTeamState(handle: OpaquePointer(self.raw.pointer(to: \.teamState)!)) }
+        nonmutating set { self.raw.pointee.teamState = UnsafeMutablePointer(newValue.handle).pointee }
+    }
 
     /// Source: oracle/codemp/game/g_local.h:455
     public var voteCount: Int32 {

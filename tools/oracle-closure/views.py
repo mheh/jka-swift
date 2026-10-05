@@ -273,7 +273,9 @@ class Generator:
             record = self.types.record_name(t)
             if record and record in self.views:
                 view = self.qualified_view(record, target)
-                return [f"    public var {name}: {view} {{ {view}(handle: OpaquePointer(self.raw.pointer(to: \\.{name})!)) }}"]
+                # Raven's `a.field = b` on two records is a byte copy, so the setter copies the record behind the assigned view into the slot.
+                return self.property(name, view, f"{view}(handle: OpaquePointer(self.raw.pointer(to: \\.{name})!))",
+                                     f"{pointee} = UnsafeMutablePointer(newValue.handle).pointee")
             return None
         swift = self.types.scalar(t, target)
         if swift is None:

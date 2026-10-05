@@ -52,7 +52,10 @@ public struct BgEntity: Hashable, HandleView {
     }
 
     /// Source: oracle/codemp/game/bg_public.h:425
-    public var s: EntityState { EntityState(handle: OpaquePointer(self.raw.pointer(to: \.s)!)) }
+    public var s: EntityState {
+        get { EntityState(handle: OpaquePointer(self.raw.pointer(to: \.s)!)) }
+        nonmutating set { self.raw.pointee.s = UnsafeMutablePointer(newValue.handle).pointee }
+    }
 
     /// Source: oracle/codemp/game/bg_public.h:426
     public var playerState: PlayerState? {

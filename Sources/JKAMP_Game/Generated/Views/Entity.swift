@@ -53,7 +53,10 @@ public struct Entity: Hashable, HandleView {
     }
 
     /// Source: oracle/codemp/game/g_local.h:135
-    public var s: JKAMP.EntityState { JKAMP.EntityState(handle: OpaquePointer(self.raw.pointer(to: \.s)!)) }
+    public var s: JKAMP.EntityState {
+        get { JKAMP.EntityState(handle: OpaquePointer(self.raw.pointer(to: \.s)!)) }
+        nonmutating set { self.raw.pointee.s = UnsafeMutablePointer(newValue.handle).pointee }
+    }
 
     /// Source: oracle/codemp/game/g_local.h:136
     public var playerState: JKAMP.PlayerState? {
@@ -86,7 +89,10 @@ public struct Entity: Hashable, HandleView {
     }
 
     /// Source: oracle/codemp/game/g_local.h:144
-    public var r: EntityShared { EntityShared(handle: OpaquePointer(self.raw.pointer(to: \.r)!)) }
+    public var r: EntityShared {
+        get { EntityShared(handle: OpaquePointer(self.raw.pointer(to: \.r)!)) }
+        nonmutating set { self.raw.pointee.r = UnsafeMutablePointer(newValue.handle).pointee }
+    }
 
     /// Source: oracle/codemp/game/g_local.h:147
     public var taskID: Slots<Int32> { Slots<Int32>(scalars: UnsafeMutableRawPointer(self.raw.pointer(to: \.taskID)!), count: 10) }

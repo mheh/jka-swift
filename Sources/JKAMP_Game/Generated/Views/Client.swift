@@ -53,13 +53,22 @@ public struct Client: Hashable, HandleView {
     }
 
     /// Source: oracle/codemp/game/g_local.h:538
-    public var ps: JKAMP.PlayerState { JKAMP.PlayerState(handle: OpaquePointer(self.raw.pointer(to: \.ps)!)) }
+    public var ps: JKAMP.PlayerState {
+        get { JKAMP.PlayerState(handle: OpaquePointer(self.raw.pointer(to: \.ps)!)) }
+        nonmutating set { self.raw.pointee.ps = UnsafeMutablePointer(newValue.handle).pointee }
+    }
 
     /// Source: oracle/codemp/game/g_local.h:541
-    public var pers: ClientPersistant { ClientPersistant(handle: OpaquePointer(self.raw.pointer(to: \.pers)!)) }
+    public var pers: ClientPersistant {
+        get { ClientPersistant(handle: OpaquePointer(self.raw.pointer(to: \.pers)!)) }
+        nonmutating set { self.raw.pointee.pers = UnsafeMutablePointer(newValue.handle).pointee }
+    }
 
     /// Source: oracle/codemp/game/g_local.h:542
-    public var sess: ClientSession { ClientSession(handle: OpaquePointer(self.raw.pointer(to: \.sess)!)) }
+    public var sess: ClientSession {
+        get { ClientSession(handle: OpaquePointer(self.raw.pointer(to: \.sess)!)) }
+        nonmutating set { self.raw.pointee.sess = UnsafeMutablePointer(newValue.handle).pointee }
+    }
 
     /// Source: oracle/codemp/game/g_local.h:544
     public var saber: Slots<JKAMP.SaberInfo> { Slots(views: UnsafeMutableRawPointer(self.raw.pointer(to: \.saber)!), count: 2, stride: MemoryLayout<saberInfo_t>.stride) }
@@ -554,7 +563,10 @@ public struct Client: Hashable, HandleView {
     }
 
     /// Source: oracle/codemp/game/g_local.h:681
-    public var renderInfo: RenderInfo { RenderInfo(handle: OpaquePointer(self.raw.pointer(to: \.renderInfo)!)) }
+    public var renderInfo: RenderInfo {
+        get { RenderInfo(handle: OpaquePointer(self.raw.pointer(to: \.renderInfo)!)) }
+        nonmutating set { self.raw.pointee.renderInfo = UnsafeMutablePointer(newValue.handle).pointee }
+    }
 
     /// Source: oracle/codemp/game/g_local.h:684
     public var playerTeam: JKAMP.npcteam_t {

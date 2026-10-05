@@ -199,6 +199,10 @@ PARAMS = {
     # g_exphysics.swift passes `&tr.endpos` to G_SetOrigin, and g_object.swift passes `&oldOrg` to G_MoverTouchPushTriggers.
     ("G_SetOrigin", "origin"): "vec3_mut",
     ("G_MoverTouchPushTriggers", "oldOrg"): "vec3_mut",
+    # g_strap.swift is a hand file, and its three bolt-matrix wrappers take the scale inout.
+    ("strap_G2API_GetBoltMatrix", "scale"): "vec3_mut",
+    ("strap_G2API_GetBoltMatrix_NoReconstruct", "scale"): "vec3_mut",
+    ("strap_G2API_GetBoltMatrix_NoRecNoRot", "scale"): "vec3_mut",
     ("Parse1DMatrix", "m"): "float_array",
     ("Parse2DMatrix", "m"): "float_array",
     ("Parse3DMatrix", "m"): "float_array",
@@ -246,6 +250,18 @@ OWN_HOOKS = {"Com_Error", "Com_Printf"}
 # A function bg calls that another consumer defines, so no game definition can shape it. The entry names the game function whose
 # signature it shares and the definition's cite. The game consumer installs nothing, so the trapping default names it at the first call.
 EXTRA_HOOKS = {"CG_NewString": ("G_NewString", "oracle/codemp/cgame/cg_main.c:3344")}
+# A game arm of a bg body under `#ifdef QAGAME` that reads the game's tables is one callback, R30 of the walk of 2026-10-05.
+# The game defines the function by hand in Sources/JKAMP_GameLogic/bg_pmove_game.swift, and installBgChannel points the closure at it.
+# name -> (the cite of Raven's arm, the parameters as (name, Swift type) pairs)
+ARM_HOOKS = {
+    "bgLandOnVehicle": ("oracle/codemp/game/bg_pmove.c:4234", [("entityNum", "Int32")]),
+    "bgSetSolidHack": ("oracle/codemp/game/bg_pmove.c:4448", [("clientNum", "Int32")]),
+}
+# A function Raven compiles only under `#ifdef QAGAME` is a game function, R31. The game defines it by hand beside the arm hooks,
+# and the bg body reaches it through the channel. name -> the cite of Raven's definition
+QAGAME_ONLY = {"PM_CrashLandEffect": "oracle/codemp/game/bg_pmove.c:3684"}
+# (function, parameter) pairs a ruling makes optional, because a caller passes a NULL the sweep cannot see. R33.
+NULLABLE = {("BG_UnrestrainedPitchRoll", "pVeh")}
 # Files whose functions a bg body reaches directly, because they live in the shared module or in bg itself.
 # The functions whose integer arithmetic is a generator or a hash, where C wraps at 32 bits and Swift's plain operators trap.
 WRAPPING_ARITHMETIC = {"Q_rand", "Q_random", "Q_crandom", "rand", "srand", "irand", "flrand", "Q_irand", "Q_flrand", "Rand_Init", "Q_HashKey"}

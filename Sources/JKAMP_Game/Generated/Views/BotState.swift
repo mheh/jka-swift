@@ -77,13 +77,22 @@ public struct BotState: Hashable, HandleView {
     }
 
     /// Source: oracle/codemp/game/ai_main.h:154
-    public var cur_ps: JKAMP.PlayerState { JKAMP.PlayerState(handle: OpaquePointer(self.raw.pointer(to: \.cur_ps)!)) }
+    public var cur_ps: JKAMP.PlayerState {
+        get { JKAMP.PlayerState(handle: OpaquePointer(self.raw.pointer(to: \.cur_ps)!)) }
+        nonmutating set { self.raw.pointee.cur_ps = UnsafeMutablePointer(newValue.handle).pointee }
+    }
 
     /// Source: oracle/codemp/game/ai_main.h:155
-    public var lastucmd: JKAMP.Usercmd { JKAMP.Usercmd(handle: OpaquePointer(self.raw.pointer(to: \.lastucmd)!)) }
+    public var lastucmd: JKAMP.Usercmd {
+        get { JKAMP.Usercmd(handle: OpaquePointer(self.raw.pointer(to: \.lastucmd)!)) }
+        nonmutating set { self.raw.pointee.lastucmd = UnsafeMutablePointer(newValue.handle).pointee }
+    }
 
     /// Source: oracle/codemp/game/ai_main.h:156
-    public var settings: BotSettings { BotSettings(handle: OpaquePointer(self.raw.pointer(to: \.settings)!)) }
+    public var settings: BotSettings {
+        get { BotSettings(handle: OpaquePointer(self.raw.pointer(to: \.settings)!)) }
+        nonmutating set { self.raw.pointee.settings = UnsafeMutablePointer(newValue.handle).pointee }
+    }
 
     /// Source: oracle/codemp/game/ai_main.h:157
     public var thinktime: Float {
@@ -662,7 +671,10 @@ public struct BotState: Hashable, HandleView {
     }
 
     /// Source: oracle/codemp/game/ai_main.h:290
-    public var skills: Botskills { Botskills(handle: OpaquePointer(self.raw.pointer(to: \.skills)!)) }
+    public var skills: Botskills {
+        get { Botskills(handle: OpaquePointer(self.raw.pointer(to: \.skills)!)) }
+        nonmutating set { self.raw.pointee.skills = UnsafeMutablePointer(newValue.handle).pointee }
+    }
 
     /// Source: oracle/codemp/game/ai_main.h:292
     public var loved: Slots<Botattachment> { Slots(views: UnsafeMutableRawPointer(self.raw.pointer(to: \.loved)!), count: 4, stride: MemoryLayout<botattachment_t>.stride) }

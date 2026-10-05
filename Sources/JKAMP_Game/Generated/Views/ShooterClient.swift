@@ -53,7 +53,10 @@ public struct ShooterClient: Hashable, HandleView {
     }
 
     /// Source: oracle/codemp/game/g_misc.c:3348
-    public var cl: Client { Client(handle: OpaquePointer(self.raw.pointer(to: \.cl)!)) }
+    public var cl: Client {
+        get { Client(handle: OpaquePointer(self.raw.pointer(to: \.cl)!)) }
+        nonmutating set { self.raw.pointee.cl = UnsafeMutablePointer(newValue.handle).pointee }
+    }
 
     /// Source: oracle/codemp/game/g_misc.c:3349
     public var inuse: Bool {

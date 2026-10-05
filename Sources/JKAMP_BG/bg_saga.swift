@@ -867,14 +867,15 @@ func BG_GetUIPortraitFile(_ team: Int32, _ classIndex: Int32, _ cntIndex: Int32)
     if stm == nil {
         return nil
     }
+    let siegeTeam = stm!
 
     // Loop through all the classes for this team
     i = 0
-    while i < stm!.numClasses {
+    while i < siegeTeam.numClasses {
         // does it match the base class?
-        if stm!.classes[i]!.playerClass == classIndex {
+        if siegeTeam.classes[i]!.playerClass == classIndex {
             if count == cntIndex {
-                return (stm!.classes[i]!.uiPortrait)
+                return (siegeTeam.classes[i]!.uiPortrait)
             }
             count += 1
         }
@@ -894,14 +895,15 @@ func BG_GetUIPortrait(_ team: Int32, _ classIndex: Int32, _ cntIndex: Int32) -> 
     if stm == nil {
         return (0)
     }
+    let siegeTeam = stm!
 
     // Loop through all the classes for this team
     i = 0
-    while i < stm!.numClasses {
+    while i < siegeTeam.numClasses {
         // does it match the base class?
-        if stm!.classes[i]!.playerClass == classIndex {
+        if siegeTeam.classes[i]!.playerClass == classIndex {
             if count == cntIndex {
-                return (stm!.classes[i]!.uiPortraitShader)
+                return (siegeTeam.classes[i]!.uiPortraitShader)
             }
             count += 1
         }
@@ -922,14 +924,15 @@ func BG_GetClassOnBaseClass(_ team: Int32, _ classIndex: Int32, _ cntIndex: Int3
     if stm == nil {
         return nil
     }
+    let siegeTeam = stm!
 
     // Loop through all the classes for this team
     i = 0
-    while i < stm!.numClasses {
+    while i < siegeTeam.numClasses {
         // does it match the base class?
-        if stm!.classes[i]!.playerClass == classIndex {
+        if siegeTeam.classes[i]!.playerClass == classIndex {
             if count == cntIndex {
-                return (stm!.classes[i])
+                return (siegeTeam.classes[i])
             }
             count += 1
         }
@@ -1109,18 +1112,19 @@ public func BG_PrecacheSabersForSiegeTeam(_ team: Int32) {
         t = BG_SiegeFindThemeForTeam(team)
 
         if t != nil {
+            let siegeTeam = t!
             var i: Int32 = 0
 
-            while i < t!.numClasses {
+            while i < siegeTeam.numClasses {
                 sNum = 0
 
                 while sNum < MAX_SABERS {
                     switch sNum {
                     case 0:
-                        saberName = t!.classes[i]!.saber1
+                        saberName = siegeTeam.classes[i]!.saber1
 
                     case 1:
-                        saberName = t!.classes[i]!.saber2
+                        saberName = siegeTeam.classes[i]!.saber2
 
                     default:
                         saberName = nil
@@ -1156,10 +1160,11 @@ public func BG_SiegeCheckClassLegality(_ team: Int32, _ classname: inout JKAShar
             //Well, guess the class is ok, seeing as there is no team theme to begin with.
             return true
         }
+        let siegeTeam = teamPtr!
 
         //See if the class is listed on the team
-        while i < teamPtr!.numClasses {
-            if Q_stricmp(String(classname), teamPtr!.classes[i]!.name) == 0 {
+        while i < siegeTeam.numClasses {
+            if Q_stricmp(String(classname), siegeTeam.classes[i]!.name) == 0 {
                 //found it, so it's alright
                 return true
             }
@@ -1167,7 +1172,7 @@ public func BG_SiegeCheckClassLegality(_ team: Int32, _ classname: inout JKAShar
         }
 
         //Didn't find it, so copy the name of the first valid class over it.
-        strcpy(&classname, teamPtr!.classes[0]!.name)
+        strcpy(&classname, siegeTeam.classes[0]!.name)
 
         return false
     }

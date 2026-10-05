@@ -847,6 +847,7 @@ func PM_SaberLocked() {
     if genemy == nil {
         return
     }
+    let enemy = genemy!
     /*if ( ( (pm->ps->torsoAnim) == BOTH_BF2LOCK ||
     (pm->ps->torsoAnim) == BOTH_BF1LOCK ||
     (pm->ps->torsoAnim) == BOTH_CWCIRCLELOCK ||
@@ -857,18 +858,18 @@ func PM_SaberLocked() {
     (genemy->torsoAnim) == BOTH_CCWCIRCLELOCK )
     )
     */ //yeah..
-    if pm.ps.saberLockFrame != 0 && genemy!.saberLockFrame != 0 && BG_InSaberLock(pm.ps.torsoAnim) && BG_InSaberLock(genemy!.torsoAnim) {
+    if pm.ps.saberLockFrame != 0 && enemy.saberLockFrame != 0 && BG_InSaberLock(pm.ps.torsoAnim) && BG_InSaberLock(enemy.torsoAnim) {
         var dist: Float = 0
 
         pm.ps.torsoTimer = 0
         pm.ps.weaponTime = 0
-        genemy!.torsoTimer = 0
-        genemy!.weaponTime = 0
+        enemy.torsoTimer = 0
+        enemy.weaponTime = 0
 
-        dist = DistanceSquared(pm.ps.origin, genemy!.origin)
+        dist = DistanceSquared(pm.ps.origin, enemy.origin)
         if dist < 64 || dist > 6400 {
             //between 8 and 80 from each other
-            PM_SaberLockBreak(genemy!, false, 0)
+            PM_SaberLockBreak(enemy, false, 0)
             return
         }
         /*
@@ -902,7 +903,7 @@ func PM_SaberLocked() {
                     //drop my frame one
                     if curFrame <= anim!.firstFrame {
                         //I won!  Break out
-                        PM_SaberLockBreak(genemy!, true, strength)
+                        PM_SaberLockBreak(enemy, true, strength)
                         return
                     } else {
                         PM_SetAnimFrame(pm.ps, curFrame, true, true)
@@ -913,7 +914,7 @@ func PM_SaberLocked() {
                     //advance my frame one
                     if curFrame >= anim!.firstFrame + anim!.numFrames {
                         //I won!  Break out
-                        PM_SaberLockBreak(genemy!, true, strength)
+                        PM_SaberLockBreak(enemy, true, strength)
                         return
                     } else {
                         PM_SetAnimFrame(pm.ps, curFrame, true, true)
@@ -927,7 +928,7 @@ func PM_SaberLocked() {
                     //advance my frame one
                     if curFrame >= anim!.firstFrame + anim!.numFrames {
                         //I won!  Break out
-                        PM_SaberLockBreak(genemy!, true, strength)
+                        PM_SaberLockBreak(enemy, true, strength)
                         return
                     } else {
                         PM_SetAnimFrame(pm.ps, curFrame, true, true)
@@ -938,7 +939,7 @@ func PM_SaberLocked() {
                     //drop my frame one
                     if curFrame <= anim!.firstFrame {
                         //I won!  Break out
-                        PM_SaberLockBreak(genemy!, true, strength)
+                        PM_SaberLockBreak(enemy, true, strength)
                         return
                     } else {
                         PM_SetAnimFrame(pm.ps, curFrame, true, true)
@@ -950,32 +951,32 @@ func PM_SaberLocked() {
                 PM_AddEvent(EV_JUMP)
             }
             //advance/decrement enemy frame number
-            anim = pm.animationsSlots[(genemy!.torsoAnim)]
+            anim = pm.animationsSlots[(enemy.torsoAnim)]
 
-            if BG_InSaberLockOld(genemy!.torsoAnim) {
-                if (genemy!.torsoAnim) == BOTH_CWCIRCLELOCK || (genemy!.torsoAnim) == BOTH_BF1LOCK {
+            if BG_InSaberLockOld(enemy.torsoAnim) {
+                if (enemy.torsoAnim) == BOTH_CWCIRCLELOCK || (enemy.torsoAnim) == BOTH_BF1LOCK {
                     if PM_irand_timesync(0, 2) == 0 {
-                        BG_AddPredictableEventToPlayerstate(EV_PAIN, Int32(floor(Float(80) / 100 * 100.0)), genemy!)
+                        BG_AddPredictableEventToPlayerstate(EV_PAIN, Int32(floor(Float(80) / 100 * 100.0)), enemy)
                     }
-                    PM_SetAnimFrame(genemy!, anim!.firstFrame + remaining, true, true)
+                    PM_SetAnimFrame(enemy, anim!.firstFrame + remaining, true, true)
                 } else {
-                    PM_SetAnimFrame(genemy!, anim!.firstFrame + anim!.numFrames - remaining, true, true)
+                    PM_SetAnimFrame(enemy, anim!.firstFrame + anim!.numFrames - remaining, true, true)
                 }
             } else {
                 //new locks
-                if BG_CheckIncrementLockAnim(genemy!.torsoAnim, SABERLOCK_LOSE) {
+                if BG_CheckIncrementLockAnim(enemy.torsoAnim, SABERLOCK_LOSE) {
                     if PM_irand_timesync(0, 2) == 0 {
-                        BG_AddPredictableEventToPlayerstate(EV_PAIN, Int32(floor(Float(80) / 100 * 100.0)), genemy!)
+                        BG_AddPredictableEventToPlayerstate(EV_PAIN, Int32(floor(Float(80) / 100 * 100.0)), enemy)
                     }
-                    PM_SetAnimFrame(genemy!, anim!.firstFrame + anim!.numFrames - remaining, true, true)
+                    PM_SetAnimFrame(enemy, anim!.firstFrame + anim!.numFrames - remaining, true, true)
                 } else {
-                    PM_SetAnimFrame(genemy!, anim!.firstFrame + remaining, true, true)
+                    PM_SetAnimFrame(enemy, anim!.firstFrame + remaining, true, true)
                 }
             }
         }
     } else {
         //something broke us out of it
-        PM_SaberLockBreak(genemy!, false, 0)
+        PM_SaberLockBreak(enemy, false, 0)
     }
 }
 

@@ -16,10 +16,10 @@ public var pm: JKAMP.Pmove {
 }
 
 /// Source: oracle/codemp/game/bg_pmove.c:31
-var pml: JKAMP.Pml { bg.storage.pml }
+public var pml: JKAMP.Pml { bg.storage.pml }
 
 /// Source: oracle/codemp/game/bg_pmove.c:33
-var pm_entSelf: JKAMP.BgEntity? {
+public var pm_entSelf: JKAMP.BgEntity? {
     get { bg.variables.pm_entSelf }
     set { bg.variables.pm_entSelf = newValue }
 }
@@ -412,9 +412,11 @@ private func PM_SetVehicleAngles(_ normal: JKAShared.vec3_t?) {
     pVeh = pEnt!.m_pVehicle
 
     //float	curVehicleBankingSpeed;
-    vehicleBankingSpeed = (pVeh!.m_pVehicleInfo!.bankingSpeed * 32.0) * pml.frametime //0.25f
+    let vehicle = pVeh!
+    let vehicleInfo = vehicle.m_pVehicleInfo!
+    vehicleBankingSpeed = (vehicleInfo.bankingSpeed * 32.0) * pml.frametime //0.25f
 
-    if vehicleBankingSpeed <= 0 || (pVeh!.m_pVehicleInfo!.pitchLimit == 0 && pVeh!.m_pVehicleInfo!.rollLimit == 0) {
+    if vehicleBankingSpeed <= 0 || (vehicleInfo.pitchLimit == 0 && vehicleInfo.rollLimit == 0) {
         //don't bother, this vehicle doesn't bank
         return
     }
@@ -422,12 +424,12 @@ private func PM_SetVehicleAngles(_ normal: JKAShared.vec3_t?) {
     //pitch_roll_for_slope( pm->gent, normal, vAngles );
     //FIXME: maybe have some pitch control in water and/or air?
 
-    if pVeh!.m_pVehicleInfo!.type == VH_FIGHTER {
+    if vehicleInfo.type == VH_FIGHTER {
         pitchBias = 0.0
     } else {
         //FIXME: gravity does not matter in SPACE!!!
         //center of gravity affects pitch in air/water (FIXME: what about roll?)
-        pitchBias = 90.0 * pVeh!.m_pVehicleInfo!.centerOfGravity[0] //if centerOfGravity is all the way back (-1.0f), vehicle pitches up 90 degrees when in air
+        pitchBias = 90.0 * vehicleInfo.centerOfGravity[0] //if centerOfGravity is all the way back (-1.0f), vehicle pitches up 90 degrees when in air
     }
 
     vAngles = vec3_t()
@@ -454,7 +456,7 @@ private func PM_SetVehicleAngles(_ normal: JKAShared.vec3_t?) {
     }
     //NOTE: if angles are flat and we're moving through air (not on ground),
     //		then pitch/bank?
-    if pVeh!.m_pVehicleInfo!.rollLimit > 0 {
+    if vehicleInfo.rollLimit > 0 {
         //roll when banking
         var velocity = vec3_t()
         var speed: Float
@@ -476,7 +478,7 @@ private func PM_SetVehicleAngles(_ normal: JKAShared.vec3_t?) {
                 speed = 60
             }
 
-            tempVAngles = pVeh!.m_vOrientationVector
+            tempVAngles = vehicle.m_vOrientationVector
             tempVAngles[ROLL] = 0
             // Raven passes NULL for the first and third outputs of `AngleVectors`.
             // The ported function takes them by reference, so the body passes scratch vectors it never reads.
@@ -490,18 +492,18 @@ private func PM_SetVehicleAngles(_ normal: JKAShared.vec3_t?) {
     }
 
     //cap
-    if pVeh!.m_pVehicleInfo!.pitchLimit != -1 {
-        if vAngles[PITCH] > pVeh!.m_pVehicleInfo!.pitchLimit {
-            vAngles[PITCH] = pVeh!.m_pVehicleInfo!.pitchLimit
-        } else if vAngles[PITCH] < -pVeh!.m_pVehicleInfo!.pitchLimit {
-            vAngles[PITCH] = -pVeh!.m_pVehicleInfo!.pitchLimit
+    if vehicleInfo.pitchLimit != -1 {
+        if vAngles[PITCH] > vehicleInfo.pitchLimit {
+            vAngles[PITCH] = vehicleInfo.pitchLimit
+        } else if vAngles[PITCH] < -vehicleInfo.pitchLimit {
+            vAngles[PITCH] = -vehicleInfo.pitchLimit
         }
     }
 
-    if vAngles[ROLL] > pVeh!.m_pVehicleInfo!.rollLimit {
-        vAngles[ROLL] = pVeh!.m_pVehicleInfo!.rollLimit
-    } else if vAngles[ROLL] < -pVeh!.m_pVehicleInfo!.rollLimit {
-        vAngles[ROLL] = -pVeh!.m_pVehicleInfo!.rollLimit
+    if vAngles[ROLL] > vehicleInfo.rollLimit {
+        vAngles[ROLL] = vehicleInfo.rollLimit
+    } else if vAngles[ROLL] < -vehicleInfo.rollLimit {
+        vAngles[ROLL] = -vehicleInfo.rollLimit
     }
 
     //do it
@@ -526,12 +528,12 @@ private func PM_SetVehicleAngles(_ normal: JKAShared.vec3_t?) {
         if ( curVehicleBankingSpeed )
         */
         do {
-            if pVeh!.m_vOrientationVector[i] >= vAngles[i] + vehicleBankingSpeed {
-                pVeh!.m_vOrientationVector[i] -= vehicleBankingSpeed
-            } else if pVeh!.m_vOrientationVector[i] <= vAngles[i] - vehicleBankingSpeed {
-                pVeh!.m_vOrientationVector[i] += vehicleBankingSpeed
+            if vehicle.m_vOrientationVector[i] >= vAngles[i] + vehicleBankingSpeed {
+                vehicle.m_vOrientationVector[i] -= vehicleBankingSpeed
+            } else if vehicle.m_vOrientationVector[i] <= vAngles[i] - vehicleBankingSpeed {
+                vehicle.m_vOrientationVector[i] += vehicleBankingSpeed
             } else {
-                pVeh!.m_vOrientationVector[i] = vAngles[i]
+                vehicle.m_vOrientationVector[i] = vAngles[i]
             }
         }
         i += 1
@@ -613,7 +615,9 @@ func PM_HoverTrace() {
     }
 
     pVeh = pEnt!.m_pVehicle
-    hoverHeight = pVeh!.m_pVehicleInfo!.hoverHeight
+    let vehicle = pVeh!
+    let vehicleInfo = vehicle.m_pVehicleInfo!
+    hoverHeight = vehicleInfo.hoverHeight
     trace = pml.groundTrace
 
     pml.groundPlane = false
@@ -622,14 +626,14 @@ func PM_HoverTrace() {
     relativeWaterLevel = Float(pm.waterlevel) //I.. guess this works
     if pm.waterlevel != 0 && relativeWaterLevel >= 0 {
         //in water
-        if pVeh!.m_pVehicleInfo!.bouyancy <= 0.0 {
+        if vehicleInfo.bouyancy <= 0.0 {
             //sink like a rock
         } else {
             //rise up
-            let floatHeight: Float = (pVeh!.m_pVehicleInfo!.bouyancy * ((pm.maxs[2] - pm.mins[2]) * 0.5)) - (hoverHeight * 0.5)
+            let floatHeight: Float = (vehicleInfo.bouyancy * ((pm.maxs[2] - pm.mins[2]) * 0.5)) - (hoverHeight * 0.5)
             if relativeWaterLevel > floatHeight {
                 //too low, should rise up
-                pm.ps.velocity[2] += (relativeWaterLevel - floatHeight) * pVeh!.m_fTimeModifier
+                pm.ps.velocity[2] += (relativeWaterLevel - floatHeight) * vehicle.m_fTimeModifier
             }
         }
         //if ( pm->ps->waterheight < pm->ps->origin[2]+pm->maxs[2] )
@@ -643,7 +647,7 @@ func PM_HoverTrace() {
 
                     vAng[ROLL] = 0
                     vAng[PITCH] = vAng[ROLL]
-                    vAng[YAW] = pVeh!.m_vOrientationVector[YAW]
+                    vAng[YAW] = vehicle.m_vOrientationVector[YAW]
                     do {
                         var fxAxis2 = fxAxis[2]
                         var fxAxis1 = fxAxis[1]
@@ -660,10 +664,10 @@ func PM_HoverTrace() {
                     } else {
                         wakeOrg[2] = pm.ps.origin[2]
                     }
-                    if pVeh!.m_pVehicleInfo!.iWakeFX != 0 {
+                    if vehicleInfo.iWakeFX != 0 {
                         //G_PlayEffectID( pVeh->m_pVehicleInfo->iWakeFX, wakeOrg, fxAxis[0] );
                         //tempent use bad!
-                        G_AddEvent(pEnt!, EV_PLAY_EFFECT_ID, pVeh!.m_pVehicleInfo!.iWakeFX)
+                        G_AddEvent(pEnt!, EV_PLAY_EFFECT_ID, vehicleInfo.iWakeFX)
                     }
                 }
             }
@@ -671,7 +675,7 @@ func PM_HoverTrace() {
     } else {
         var traceContents: Int32
         var minNormal: Float = Float(MIN_WALK_NORMAL)
-        minNormal = pVeh!.m_pVehicleInfo!.maxSlope
+        minNormal = vehicleInfo.maxSlope
 
         point[0] = pm.ps.origin[0]
         point[1] = pm.ps.origin[1]
@@ -683,30 +687,31 @@ func PM_HoverTrace() {
         //NOTE: if bouyancy is 2.0f or higher, you float over water like it's solid ground.
         //		if it's 1.0f, you sink halfway into water.  If it's 0, you sink...
         traceContents = pm.tracemask
-        if pVeh!.m_pVehicleInfo!.bouyancy >= 2.0 {
+        if vehicleInfo.bouyancy >= 2.0 {
             //sit on water
             traceContents |= (CONTENTS_WATER | CONTENTS_SLIME | CONTENTS_LAVA)
         }
         pm.runTrace(trace, pm.ps.origin, pm.mins, pm.maxs, point, pm.ps.clientNum, traceContents)
-        if trace!.plane.normal[0] > 0.5 || trace!.plane.normal[0] < -0.5 || trace!.plane.normal[1] > 0.5 || trace!.plane.normal[1] < -0.5 {
+        let groundTrace = trace!
+        if groundTrace.plane.normal[0] > 0.5 || groundTrace.plane.normal[0] < -0.5 || groundTrace.plane.normal[1] > 0.5 || groundTrace.plane.normal[1] < -0.5 {
             //steep slanted hill, don't go up it.
-            var d: Float = abs(trace!.plane.normal[0])
-            let e: Float = abs(trace!.plane.normal[1])
+            var d: Float = abs(groundTrace.plane.normal[0])
+            let e: Float = abs(groundTrace.plane.normal[1])
             if e > d {
                 d = e
             }
             pm.ps.velocity[2] = -300.0 * d
-        } else if trace!.plane.normal[2] >= minNormal {
+        } else if groundTrace.plane.normal[2] >= minNormal {
             //not a steep slope, so push us up
-            if trace!.fraction < 1.0 {
+            if groundTrace.fraction < 1.0 {
                 //push up off ground
-                let hoverForce: Float = pVeh!.m_pVehicleInfo!.hoverStrength
-                if trace!.fraction > 0.5 {
-                    pm.ps.velocity[2] += (1.0 - trace!.fraction) * hoverForce * pVeh!.m_fTimeModifier
+                let hoverForce: Float = vehicleInfo.hoverStrength
+                if groundTrace.fraction > 0.5 {
+                    pm.ps.velocity[2] += (1.0 - groundTrace.fraction) * hoverForce * vehicle.m_fTimeModifier
                 } else {
-                    pm.ps.velocity[2] += (0.5 - (trace!.fraction * trace!.fraction)) * hoverForce * 2.0 * pVeh!.m_fTimeModifier
+                    pm.ps.velocity[2] += (0.5 - (groundTrace.fraction * groundTrace.fraction)) * hoverForce * 2.0 * vehicle.m_fTimeModifier
                 }
-                if (trace!.contents & (CONTENTS_WATER | CONTENTS_SLIME | CONTENTS_LAVA)) != 0 {
+                if (groundTrace.contents & (CONTENTS_WATER | CONTENTS_SLIME | CONTENTS_LAVA)) != 0 {
                     //hovering on water, make a spash if moving
                     if abs(pm.ps.velocity[0]) + abs(pm.ps.velocity[1]) > 100 {
                         //moving at a decent speed
@@ -714,7 +719,7 @@ func PM_HoverTrace() {
                             //splash
                             vAng[ROLL] = 0
                             vAng[PITCH] = vAng[ROLL]
-                            vAng[YAW] = pVeh!.m_vOrientationVector[YAW]
+                            vAng[YAW] = vehicle.m_vOrientationVector[YAW]
                             do {
                                 var fxAxis2 = fxAxis[2]
                                 var fxAxis1 = fxAxis[1]
@@ -724,8 +729,8 @@ func PM_HoverTrace() {
                                 fxAxis[1] = fxAxis1
                                 fxAxis[0] = fxAxis0
                             }
-                            if pVeh!.m_pVehicleInfo!.iWakeFX != 0 {
-                                G_PlayEffectID(pVeh!.m_pVehicleInfo!.iWakeFX, &trace!.endpos, &fxAxis[0])
+                            if vehicleInfo.iWakeFX != 0 {
+                                G_PlayEffectID(vehicleInfo.iWakeFX, groundTrace.endpos, fxAxis[0])
                             }
                         }
                     }
@@ -737,34 +742,34 @@ func PM_HoverTrace() {
     if pml.groundPlane {
         PM_SetVehicleAngles(pml.groundTrace.plane.normal)
         // We're on the ground.
-        pVeh!.m_ulFlags &= ~UInt(bitPattern: Int(VEH_FLYING))
+        vehicle.m_ulFlags &= ~UInt(bitPattern: Int(VEH_FLYING))
 
-        pVeh!.m_vAngularVelocity = 0.0
+        vehicle.m_vAngularVelocity = 0.0
     } else {
         PM_SetVehicleAngles(nil)
         // We're flying in the air.
-        pVeh!.m_ulFlags |= UInt(bitPattern: Int(VEH_FLYING))
+        vehicle.m_ulFlags |= UInt(bitPattern: Int(VEH_FLYING))
         //groundTrace
 
-        if pVeh!.m_vAngularVelocity == 0.0 {
-            pVeh!.m_vAngularVelocity = pVeh!.m_vOrientationVector[YAW] - pVeh!.m_vPrevOrientation[YAW]
-            if pVeh!.m_vAngularVelocity < -15.0 {
-                pVeh!.m_vAngularVelocity = -15.0
+        if vehicle.m_vAngularVelocity == 0.0 {
+            vehicle.m_vAngularVelocity = vehicle.m_vOrientationVector[YAW] - vehicle.m_vPrevOrientation[YAW]
+            if vehicle.m_vAngularVelocity < -15.0 {
+                vehicle.m_vAngularVelocity = -15.0
             }
-            if pVeh!.m_vAngularVelocity > 15.0 {
-                pVeh!.m_vAngularVelocity = 15.0
+            if vehicle.m_vAngularVelocity > 15.0 {
+                vehicle.m_vAngularVelocity = 15.0
             }
         }
         //pVeh->m_vAngularVelocity *= 0.95f;		// Angular Velocity Decays Over Time
-        if pVeh!.m_vAngularVelocity > 0.0 {
-            pVeh!.m_vAngularVelocity -= pml.frametime
-            if pVeh!.m_vAngularVelocity < 0.0 {
-                pVeh!.m_vAngularVelocity = 0.0
+        if vehicle.m_vAngularVelocity > 0.0 {
+            vehicle.m_vAngularVelocity -= pml.frametime
+            if vehicle.m_vAngularVelocity < 0.0 {
+                vehicle.m_vAngularVelocity = 0.0
             }
-        } else if pVeh!.m_vAngularVelocity < 0.0 {
-            pVeh!.m_vAngularVelocity += pml.frametime
-            if pVeh!.m_vAngularVelocity > 0.0 {
-                pVeh!.m_vAngularVelocity = 0.0
+        } else if vehicle.m_vAngularVelocity < 0.0 {
+            vehicle.m_vAngularVelocity += pml.frametime
+            if vehicle.m_vAngularVelocity > 0.0 {
+                vehicle.m_vAngularVelocity = 0.0
             }
         }
     }
@@ -3430,47 +3435,6 @@ private func PM_TryRoll() -> Int32 {
     return 0
 }
 
-/// Source: oracle/codemp/game/bg_pmove.c:3684
-private func PM_CrashLandEffect() {
-    // Port-note: Raven compiles this whole function only for the game module, under `#ifdef QAGAME`. Rule 23 gives no per-function form for that, so the body is here for every consumer, and its one call site takes the game arm. A ruling for a function that Raven compiles only under `QAGAME` is missing.
-    var delta: Float
-    let ps = pm.ps
-    if pm.waterlevel != 0 {
-        return
-    }
-    delta = Q_fabs(pml.previous_velocity[2]) / 10 //VectorLength( pml.previous_velocity );?
-    if delta >= 30 {
-        var bottom = vec3_t()
-        var effectID: Int32 = -1
-        let material = (pml.groundTrace.surfaceFlags & MATERIAL_MASK)
-        bottom = vec3_t(ps.origin[0], ps.origin[1], ps.origin[2] + pm.mins[2] + 1)
-        switch material {
-        case MATERIAL_MUD:
-            effectID = EFFECT_LANDING_MUD
-
-        case MATERIAL_SAND:
-            effectID = EFFECT_LANDING_SAND
-
-        case MATERIAL_DIRT:
-            effectID = EFFECT_LANDING_DIRT
-
-        case MATERIAL_SNOW:
-            effectID = EFFECT_LANDING_SNOW
-
-        case MATERIAL_GRAVEL:
-            effectID = EFFECT_LANDING_GRAVEL
-
-        default:
-            break
-        }
-
-        if effectID != -1 {
-            var groundNormal = pml.groundTrace.plane.normal
-            _ = G_PlayEffect(effectID, &bottom, &groundNormal)
-        }
-    }
-}
-
 /**
 ```
 =================
@@ -3891,8 +3855,7 @@ private func PM_GroundTrace() {
     // Raven's record lives to the end of the function, so the rest of the body is the closure, and each of his early-outs returns from it.
     Trace.scratch { trace in
         pm.runTrace(trace, ps.origin, pm.mins, pm.maxs, point, ps.clientNum, pm.tracemask)
-        // Port-note: Raven copies the whole record with `pml.groundTrace = trace`. The `Trace` view of `pml.groundTrace` is read-only, so the record copy has no Swift form. A form that copies a whole record into an existing view slot is missing.
-        portMissing("PM_GroundTrace", source: "oracle/codemp/game/bg_pmove.c:4141")
+        pml.groundTrace = trace
 
         // do something corrective if the trace starts in a solid...
         if trace.allsolid != 0 {
@@ -3964,7 +3927,17 @@ private func PM_GroundTrace() {
 
             PM_CrashLand()
 
-            // Port-note: The game arm of Raven's `#ifdef QAGAME` reads `g_entities` and casts a `bgEntity_t *` to `gentity_t *` to board a vehicle. The `Entity` view lives in the game target, which the bg target cannot import. A bg channel callback for this vehicle boarding is missing.
+            if bg.consumer == .game {
+                if ps.clientNum < MAX_CLIENTS
+                    && ps.m_iVehicleNum == 0
+                    && trace.entityNum < ENTITYNUM_WORLD
+                    && trace.entityNum >= MAX_CLIENTS
+                    && ps.zoomMode == 0
+                    && pm_entSelf != nil {
+                    //check if we landed on a vehicle
+                    bgLandOnVehicle(trace.entityNum)
+                }
+            }
 
             // don't do landing time if we were just going down a slope
             if pml.previous_velocity[2] < -200 {
@@ -4155,7 +4128,9 @@ private func PM_CheckDuck() {
                         //whoops, can't fit here. Down to 0!
                         pm.mins = vec3_t()
                         pm.maxs = vec3_t()
-                        // Port-note: The game arm of Raven's `#ifdef QAGAME` reads `g_entities` and `level.time` through a `gentity_t *`. The `Entity` view and the level state live in the game target, which the bg target cannot import. A bg channel callback that sets `solidHack` on the game client is missing.
+                        if bg.consumer == .game {
+                            bgSetSolidHack(ps.clientNum)
+                        }
                     }
                 }
             }
@@ -5158,11 +5133,11 @@ private func PM_WaterEvents() {
 
                 if tr.fraction < 1.0 {
                     if (tr.contents & CONTENTS_LAVA) != 0 {
-                        G_PlayEffect(EFFECT_LAVA_SPLASH, &tr.endpos, &tr.plane.normal)
+                        G_PlayEffect(EFFECT_LAVA_SPLASH, tr.endpos, tr.plane.normal)
                     } else if (tr.contents & CONTENTS_SLIME) != 0 {
-                        G_PlayEffect(EFFECT_ACID_SPLASH, &tr.endpos, &tr.plane.normal)
+                        G_PlayEffect(EFFECT_ACID_SPLASH, tr.endpos, tr.plane.normal)
                     } else { //must be water
-                        G_PlayEffect(EFFECT_WATER_SPLASH, &tr.endpos, &tr.plane.normal)
+                        G_PlayEffect(EFFECT_WATER_SPLASH, tr.endpos, tr.plane.normal)
                     }
                 }
             }
@@ -5350,8 +5325,7 @@ func PM_RocketLock(_ lockDist: Float, _ vehicleLock: Bool) {
                     var newEnd = vec3_t()
                     var shotDir = vec3_t()
                     if BG_VehTraceFromCamPos(camTrace, PM_BGEntForNum(ps.clientNum)!, ps.origin, muzzlePoint, tr.endpos, &newEnd, &shotDir, (tr.fraction * lockDist)) != 0 {
-                        // Port-note: Raven copies the whole record with `memcpy( &tr, &camTrace, sizeof(tr) )`. The `Trace` view carries no copy into an existing slot, so the record copy has no Swift form. A form that copies a whole record into an existing view slot is missing.
-                        portMissing("PM_RocketLock: memcpy of trace_t", source: "oracle/codemp/game/bg_pmove.c:5917")
+                        tr.copy(from: camTrace)
                     }
                 }
             }
@@ -5755,8 +5729,9 @@ func PM_VehicleWeaponAnimate() {
 
     let pVeh = m_pVehicle
 
-    if pVeh.m_pVehicleInfo!.type == VH_WALKER
-        || pVeh.m_pVehicleInfo!.type == VH_FIGHTER {
+    let vehicleInfo = pVeh.m_pVehicleInfo!
+    if vehicleInfo.type == VH_WALKER
+        || vehicleInfo.type == VH_FIGHTER {
         //slightly hacky I guess, but whatever.
         return
     }
@@ -5831,12 +5806,12 @@ func PM_VehicleWeaponAnimate() {
                 Anim = BOTH_VS_IDLE
             }
         } else if let vehPS = veh.playerState, vehPS.speed < 0,
-            pVeh.m_pVehicleInfo!.type == VH_ANIMAL {
+            vehicleInfo.type == VH_ANIMAL {
             //tauntaun is going backwards
             Anim = BOTH_VT_WALK_REV
             iBlend = 600
         } else if let vehPS = veh.playerState, vehPS.speed < 0,
-            pVeh.m_pVehicleInfo!.type == VH_SPEEDER {
+            vehicleInfo.type == VH_SPEEDER {
             //speeder is going backwards
             Anim = BOTH_VS_REV
             iBlend = 600
@@ -5861,8 +5836,7 @@ func PM_VehicleWeaponAnimate() {
                 // Crashing.
                 //else if ( pVeh->m_ulFlags & VEH_CRASHING )
                 else if false {
-                    // Port-note: `m_ulFlags` is an `unsigned long` and `VEH_CRASHING` is an `int` case, so the mask needs a widening Raven did not write. An operator or a ruling for an `unsigned long` field masked by an `int` enum case is missing.
-                    pVeh.m_ulFlags &= ~UInt(VEH_CRASHING) // Remove the flag, we are doing the animation.
+                    pVeh.m_ulFlags &= ~UInt(bitPattern: Int(VEH_CRASHING)) // Remove the flag, we are doing the animation.
                     iBlend = 800
                     Anim = BOTH_VS_LAND_SR
                     iFlags = SETANIM_FLAG_OVERRIDE | SETANIM_FLAG_HOLD
@@ -5881,7 +5855,7 @@ func PM_VehicleWeaponAnimate() {
                 // Crashing.
                 //else if ( pVeh->m_ulFlags & VEH_CRASHING )
                 else if false {
-                    pVeh.m_ulFlags &= ~UInt(VEH_CRASHING) // Remove the flag, we are doing the animation.
+                    pVeh.m_ulFlags &= ~UInt(bitPattern: Int(VEH_CRASHING)) // Remove the flag, we are doing the animation.
                     iBlend = 800
                     Anim = BOTH_VS_LAND_G
                     iFlags = SETANIM_FLAG_OVERRIDE | SETANIM_FLAG_HOLD
@@ -5898,12 +5872,12 @@ func PM_VehicleWeaponAnimate() {
 
     if Anim != -1 {
         //override it
-        if pVeh.m_pVehicleInfo!.type == VH_ANIMAL {
+        if vehicleInfo.type == VH_ANIMAL {
             //agh.. remap anims for the tauntaun
             switch Anim {
             case BOTH_VS_IDLE:
                 if let vehPS = veh.playerState, vehPS.speed > 0 {
-                    if vehPS.speed > pVeh.m_pVehicleInfo!.speedMax {
+                    if vehPS.speed > vehicleInfo.speedMax {
                         //turbo
                         Anim = BOTH_VT_TURBO
                     } else {
@@ -5990,7 +5964,8 @@ private func PM_Weapon() {
         }
     }
 
-    if pm_entSelf!.s.NPC_class != CLASS_VEHICLE && pm.ps.m_iVehicleNum != 0 {
+    let selfEntity = pm_entSelf!
+    if selfEntity.s.NPC_class != CLASS_VEHICLE && pm.ps.m_iVehicleNum != 0 {
         //riding a vehicle
         veh = pm_entVeh
         if veh != nil && (veh!.m_pVehicle != nil && veh!.m_pVehicle!.m_pVehicleInfo!.type == VH_WALKER || veh!.m_pVehicle != nil && veh!.m_pVehicle!.m_pVehicleInfo!.type == VH_FIGHTER) {
@@ -6262,7 +6237,7 @@ private func PM_Weapon() {
     // check for item using
     if (pm.cmd.buttons & BUTTON_USE_HOLDABLE) != 0 {
         if !((pm.ps.pm_flags & PMF_USE_ITEM_HELD) != 0) {
-            if pm_entSelf!.s.NPC_class != CLASS_VEHICLE && pm.ps.m_iVehicleNum != 0 {
+            if selfEntity.s.NPC_class != CLASS_VEHICLE && pm.ps.m_iVehicleNum != 0 {
                 //riding a vehicle, can't use holdable items, this button operates as the weapon link/unlink toggle
                 return
             }
@@ -6464,7 +6439,7 @@ private func PM_Weapon() {
         PM_StartTorsoAnim(TORSO_WEAPONREADY4)
     }
 
-    if pm.ps.clientNum >= MAX_CLIENTS && pm_entSelf != nil && pm_entSelf!.s.NPC_class == CLASS_VEHICLE {
+    if pm.ps.clientNum >= MAX_CLIENTS && pm_entSelf != nil && selfEntity.s.NPC_class == CLASS_VEHICLE {
         //we are a vehicle
         veh = pm_entSelf
     }
@@ -6477,7 +6452,7 @@ private func PM_Weapon() {
 
     if !vehicleRocketLock {
         if pm.ps.weapon != WP_ROCKET_LAUNCHER {
-            if pm_entSelf!.s.NPC_class != CLASS_VEHICLE && pm.ps.m_iVehicleNum != 0 {
+            if selfEntity.s.NPC_class != CLASS_VEHICLE && pm.ps.m_iVehicleNum != 0 {
                 //riding a vehicle, the vehicle will tell me my rocketlock stuff...
             } else {
                 pm.ps.rocketLockIndex = ENTITYNUM_NONE
@@ -6508,7 +6483,7 @@ private func PM_Weapon() {
             PM_AddEvent(EV_FIRE_WEAPON)
         }
         return
-    } else if pm.ps.m_iVehicleNum != 0 && pm_entSelf!.s.NPC_class == CLASS_VEHICLE {
+    } else if pm.ps.m_iVehicleNum != 0 && selfEntity.s.NPC_class == CLASS_VEHICLE {
         //a vehicle NPC that has a pilot
         pm.ps.weaponstate = WEAPON_FIRING
         pm.ps.weaponTime += 100
@@ -6553,7 +6528,7 @@ private func PM_Weapon() {
 
                 //G_SetAnim(ent, &ent->client->pers.cmd, SETANIM_BOTH, BOTH_KYLE_GRAB, SETANIM_FLAG_OVERRIDE|SETANIM_FLAG_HOLD, 0);
                 if pm_entSelf != nil {
-                    if TryGrapple(pm_entSelf!) {
+                    if TryGrapple(selfEntity) {
                         return
                     }
                 }
@@ -6766,12 +6741,13 @@ private func PM_DropTimers() {
 }
 
 /// Source: oracle/codemp/game/bg_pmove.c:7784
-public func BG_UnrestrainedPitchRoll(_ ps: JKAMP.PlayerState, _ pVeh: JKAMP.Vehicle) -> Bool {
+public func BG_UnrestrainedPitchRoll(_ ps: JKAMP.PlayerState, _ pVeh: JKAMP.Vehicle?) -> Bool {
     if bg_fighterAltControl.integer != 0
         && ps.clientNum < MAX_CLIENTS //real client
         && ps.m_iVehicleNum != 0//in a vehicle
-        && pVeh.m_pVehicleInfo != nil//valid vehicle info
-        && pVeh.m_pVehicleInfo?.type == VH_FIGHTER {//fighter
+        && pVeh != nil //valid vehicle data pointer
+        && pVeh!.m_pVehicleInfo != nil//valid vehicle info
+        && pVeh!.m_pVehicleInfo!.type == VH_FIGHTER {//fighter
         //FIXME: specify per vehicle instead of assuming true for all fighters
         //FIXME: map/server setting?
         //can roll and pitch without limitation!
@@ -6808,9 +6784,7 @@ func PM_UpdateViewAngles(_ ps: JKAMP.PlayerState, _ cmd: JKAMP.Usercmd) {
     while i < 3 {
         // C truncates the `int` sum into the `short`, so the port does the same.
         temp = Int16(truncatingIfNeeded: cmd.angles[i] + ps.delta_angles[i])
-        // Port-note: Raven passes a possibly NULL `m_pVehicle` to `BG_UnrestrainedPitchRoll`, which answers false for NULL. The generated field is optional, so the body binds it, and the nil path takes the same arm. A never-null ruling for `m_pVehicle`, or an optional `pVeh` parameter, is missing.
-        if let pm_entVeh = pm_entVeh, let m_pVehicle = pm_entVeh.m_pVehicle,
-            BG_UnrestrainedPitchRoll(ps, m_pVehicle) {
+        if pm_entVeh != nil && BG_UnrestrainedPitchRoll(ps, pm_entVeh!.m_pVehicle) {
             //in a fighter
             /*
             if ( i == ROLL )
@@ -8244,7 +8218,7 @@ func PM_VehicleViewAngles(_ ps: JKAMP.PlayerState, _ veh: JKAMP.BgEntity, _ ucmd
     if veh.m_pVehicle!.m_pPilot != nil
         && veh.m_pVehicle!.m_pPilot!.s.number == ps.clientNum {
         //set the pilot's viewangles to the vehicle's viewangles
-        if !BG_UnrestrainedPitchRoll(ps, veh.m_pVehicle!) {
+        if !BG_UnrestrainedPitchRoll(ps, veh.m_pVehicle) {
             //only if not if doing special free-roll/pitch control
             setAngles = true
             clampMin[PITCH] = -pVeh!.m_pVehicleInfo!.lookPitch
@@ -8407,31 +8381,33 @@ func PM_VehFaceHyperspacePoint(_ veh: JKAMP.BgEntity) {
     if veh.m_pVehicle == nil {
         return
     } else {
-        let timeFrac: Float = (Float((pm.cmd.serverTime - veh.playerState!.hyperSpaceTime))) / HYPERSPACE_TIME
+        let vehicle = veh.m_pVehicle!
+        let playerState = veh.playerState!
+        let timeFrac: Float = (Float((pm.cmd.serverTime - playerState.hyperSpaceTime))) / HYPERSPACE_TIME
         let turnRate: Float
         var aDelta: Float
         var i: Int32
         var matchedAxes: Int32 = 0
 
-        veh.m_pVehicle!.m_ucmd.upmove = 127
-        pm.cmd.upmove = veh.m_pVehicle!.m_ucmd.upmove
-        veh.m_pVehicle!.m_ucmd.forwardmove = 0
-        pm.cmd.forwardmove = veh.m_pVehicle!.m_ucmd.forwardmove
-        veh.m_pVehicle!.m_ucmd.rightmove = 0
-        pm.cmd.rightmove = veh.m_pVehicle!.m_ucmd.rightmove
+        vehicle.m_ucmd.upmove = 127
+        pm.cmd.upmove = vehicle.m_ucmd.upmove
+        vehicle.m_ucmd.forwardmove = 0
+        pm.cmd.forwardmove = vehicle.m_ucmd.forwardmove
+        vehicle.m_ucmd.rightmove = 0
+        pm.cmd.rightmove = vehicle.m_ucmd.rightmove
 
         turnRate = (90.0 * pml.frametime)
         i = 0
         while i < 3 {
-            aDelta = AngleSubtract(veh.playerState!.hyperSpaceAngles[i], veh.m_pVehicle!.m_vOrientationVector[i])
+            aDelta = AngleSubtract(playerState.hyperSpaceAngles[i], vehicle.m_vOrientationVector[i])
             if abs(aDelta) < turnRate {
                 //all is good
-                pm.ps.viewangles[i] = veh.playerState!.hyperSpaceAngles[i]
+                pm.ps.viewangles[i] = playerState.hyperSpaceAngles[i]
                 matchedAxes += 1
             } else {
-                aDelta = AngleSubtract(veh.playerState!.hyperSpaceAngles[i], pm.ps.viewangles[i])
+                aDelta = AngleSubtract(playerState.hyperSpaceAngles[i], pm.ps.viewangles[i])
                 if abs(aDelta) < turnRate {
-                    pm.ps.viewangles[i] = veh.playerState!.hyperSpaceAngles[i]
+                    pm.ps.viewangles[i] = playerState.hyperSpaceAngles[i]
                 } else if aDelta > 0 {
                     if i == YAW {
                         pm.ps.viewangles[i] = AngleNormalize360(pm.ps.viewangles[i] + turnRate)
@@ -8456,10 +8432,10 @@ func PM_VehFaceHyperspacePoint(_ veh: JKAMP.BgEntity) {
             if matchedAxes < 3 {
                 //not facing the right dir yet
                 //keep hyperspace time up to date
-                veh.playerState!.hyperSpaceTime += pml.msec
-            } else if !((veh.playerState!.eFlags2 & EF2_HYPERSPACE) != 0) {
+                playerState.hyperSpaceTime += pml.msec
+            } else if !((playerState.eFlags2 & EF2_HYPERSPACE) != 0) {
                 //flag us as ready to hyperspace!
-                veh.playerState!.eFlags2 |= EF2_HYPERSPACE
+                playerState.eFlags2 |= EF2_HYPERSPACE
             }
         }
     }
@@ -8467,18 +8443,19 @@ func PM_VehFaceHyperspacePoint(_ veh: JKAMP.BgEntity) {
 
 /// Source: oracle/codemp/game/bg_pmove.c:9993
 func BG_VehicleAdjustBBoxForOrientation(_ veh: JKAMP.Vehicle, _ origin: inout JKAShared.vec3_t, _ mins: inout JKAShared.vec3_t, _ maxs: inout JKAShared.vec3_t, _ clientNum: Int32, _ tracemask: Int32, _ localTrace: ((JKAMP.Trace, JKAShared.vec3_t, JKAShared.vec3_t, JKAShared.vec3_t, JKAShared.vec3_t, Int32, Int32) -> Void)?) {
-    if veh.m_pVehicleInfo!.length == 0
-        || veh.m_pVehicleInfo!.width == 0
-        || veh.m_pVehicleInfo!.height == 0
+    let vehicleInfo = veh.m_pVehicleInfo!
+    if vehicleInfo.length == 0
+        || vehicleInfo.width == 0
+        || vehicleInfo.height == 0
         //|| veh->m_LandTrace.fraction < 1.0f )
     {
         return
-    } else if veh.m_pVehicleInfo!.type != VH_FIGHTER
+    } else if vehicleInfo.type != VH_FIGHTER
         //&& veh->m_pVehicleInfo->type != VH_SPEEDER
-        && veh.m_pVehicleInfo!.type != VH_FLIER {
+        && vehicleInfo.type != VH_FLIER {
         //only those types of vehicles have dynamic bboxes, the rest just use a static bbox
-        maxs = vec3_t(veh.m_pVehicleInfo!.width / 2.0, veh.m_pVehicleInfo!.width / 2.0, veh.m_pVehicleInfo!.height + DEFAULT_MINS_2)
-        mins = vec3_t(veh.m_pVehicleInfo!.width / -2.0, veh.m_pVehicleInfo!.width / -2.0, Float(DEFAULT_MINS_2))
+        maxs = vec3_t(vehicleInfo.width / 2.0, vehicleInfo.width / 2.0, vehicleInfo.height + DEFAULT_MINS_2)
+        mins = vec3_t(vehicleInfo.width / -2.0, vehicleInfo.width / -2.0, Float(DEFAULT_MINS_2))
         return
     } else {
         // Raven's record lives to the end of his block, so the block is the closure.
@@ -8491,21 +8468,21 @@ func BG_VehicleAdjustBBoxForOrientation(_ veh: JKAMP.Vehicle, _ origin: inout JK
             var i: Int32
 
             AnglesToAxis(veh.m_vOrientationVector, &axis)
-            _VectorMA(origin, veh.m_pVehicleInfo!.length / 2.0, axis[0], &point[0])
-            _VectorMA(origin, -veh.m_pVehicleInfo!.length / 2.0, axis[0], &point[1])
+            _VectorMA(origin, vehicleInfo.length / 2.0, axis[0], &point[0])
+            _VectorMA(origin, -vehicleInfo.length / 2.0, axis[0], &point[1])
             //extrapolate each side up and down
-            _VectorMA(point[0], veh.m_pVehicleInfo!.height / 2.0, axis[2], &point[0])
-            _VectorMA(point[0], -veh.m_pVehicleInfo!.height, axis[2], &point[2])
-            _VectorMA(point[1], veh.m_pVehicleInfo!.height / 2.0, axis[2], &point[1])
-            _VectorMA(point[1], -veh.m_pVehicleInfo!.height, axis[2], &point[3])
+            _VectorMA(point[0], vehicleInfo.height / 2.0, axis[2], &point[0])
+            _VectorMA(point[0], -vehicleInfo.height, axis[2], &point[2])
+            _VectorMA(point[1], vehicleInfo.height / 2.0, axis[2], &point[1])
+            _VectorMA(point[1], -vehicleInfo.height, axis[2], &point[3])
 
-            _VectorMA(origin, veh.m_pVehicleInfo!.width / 2.0, axis[1], &point[4])
-            _VectorMA(origin, -veh.m_pVehicleInfo!.width / 2.0, axis[1], &point[5])
+            _VectorMA(origin, vehicleInfo.width / 2.0, axis[1], &point[4])
+            _VectorMA(origin, -vehicleInfo.width / 2.0, axis[1], &point[5])
             //extrapolate each side up and down
-            _VectorMA(point[4], veh.m_pVehicleInfo!.height / 2.0, axis[2], &point[4])
-            _VectorMA(point[4], -veh.m_pVehicleInfo!.height, axis[2], &point[6])
-            _VectorMA(point[5], veh.m_pVehicleInfo!.height / 2.0, axis[2], &point[5])
-            _VectorMA(point[5], -veh.m_pVehicleInfo!.height, axis[2], &point[7])
+            _VectorMA(point[4], vehicleInfo.height / 2.0, axis[2], &point[4])
+            _VectorMA(point[4], -vehicleInfo.height, axis[2], &point[6])
+            _VectorMA(point[5], vehicleInfo.height / 2.0, axis[2], &point[5])
+            _VectorMA(point[5], -vehicleInfo.height, axis[2], &point[7])
             /*
             VectorMA( origin, veh->m_pVehicleInfo->height/2.0f, axis[2], point[4] );
             VectorMA( origin, -veh->m_pVehicleInfo->height/2.0f, axis[2], point[5] );
@@ -9182,39 +9159,41 @@ func PmoveSingle(_ pmove: JKAMP.Pmove) {
         var veh: BgEntity? = pm_entSelf
 
 
-        if veh!.m_pVehicle!.m_pVehicleInfo!.type != VH_FIGHTER {
+        let vehicle = veh!.m_pVehicle!
+        let vehicleInfo = vehicle.m_pVehicleInfo!
+        if vehicleInfo.type != VH_FIGHTER {
             //kind of hacky, don't want to do this for flying vehicles
-            veh!.m_pVehicle!.m_vOrientationVector[PITCH] = pm.ps.viewangles[PITCH]
+            vehicle.m_vOrientationVector[PITCH] = pm.ps.viewangles[PITCH]
         }
 
         if pm.ps.m_iVehicleNum == 0 {
             //no one is driving, just update and get out
-            veh!.m_pVehicle!.m_pVehicleInfo!.runUpdate(veh!.m_pVehicle, pm.cmd)
-            veh!.m_pVehicle!.m_pVehicleInfo!.runAnimate(veh!.m_pVehicle)
+            vehicleInfo.runUpdate(vehicle, pm.cmd)
+            vehicleInfo.runAnimate(vehicle)
         } else {
             let `self`: BgEntity? = pm_entVeh
             var i: Int32 = 0
 
 
-            if pm.ps.pm_type == PM_DEAD && (veh!.m_pVehicle!.m_ulFlags & UInt(bitPattern: Int(VEH_CRASHING))) != 0 {
-                veh!.m_pVehicle!.m_ulFlags &= ~UInt(bitPattern: Int(VEH_CRASHING))
+            if pm.ps.pm_type == PM_DEAD && (vehicle.m_ulFlags & UInt(bitPattern: Int(VEH_CRASHING))) != 0 {
+                vehicle.m_ulFlags &= ~UInt(bitPattern: Int(VEH_CRASHING))
             }
 
             if `self`!.playerState!.m_iVehicleNum != 0 {
                 //only do it if they still have a vehicle (didn't get ejected this update or something)
-                PM_VehicleViewAngles(`self`!.playerState!, veh!, veh!.m_pVehicle!.m_ucmd)
+                PM_VehicleViewAngles(`self`!.playerState!, veh!, vehicle.m_ucmd)
             }
 
-            veh!.m_pVehicle!.m_pVehicleInfo!.runUpdate(veh!.m_pVehicle, veh!.m_pVehicle!.m_ucmd)
-            veh!.m_pVehicle!.m_pVehicleInfo!.runAnimate(veh!.m_pVehicle)
+            vehicleInfo.runUpdate(vehicle, vehicle.m_ucmd)
+            vehicleInfo.runAnimate(vehicle)
 
-            veh!.m_pVehicle!.m_pVehicleInfo!.runUpdateRider(veh!.m_pVehicle, `self`, veh!.m_pVehicle!.m_ucmd)
+            vehicleInfo.runUpdateRider(vehicle, `self`, vehicle.m_ucmd)
             //update the passengers
-            while i < veh!.m_pVehicle!.m_iNumPassengers {
-                if veh!.m_pVehicle!.m_ppPassengers[i] != nil {
-                    let thePassenger: BgEntity = veh!.m_pVehicle!.m_ppPassengers[i]!
+            while i < vehicle.m_iNumPassengers {
+                if vehicle.m_ppPassengers[i] != nil {
+                    let thePassenger: BgEntity = vehicle.m_ppPassengers[i]!
                     if bgEntityInuse(thePassenger) && thePassenger.playerState != nil {
-                        veh!.m_pVehicle!.m_pVehicleInfo!.runUpdateRider(veh!.m_pVehicle, veh!.m_pVehicle!.m_ppPassengers[i], bgClientCmd(thePassenger))
+                        vehicleInfo.runUpdateRider(vehicle, vehicle.m_ppPassengers[i], bgClientCmd(thePassenger))
                     }
                 }
                 i += 1
@@ -9331,12 +9310,13 @@ func PmoveSingle(_ pmove: JKAMP.Pmove) {
         var veh: BgEntity?
 
         veh = pm_entSelf
+        let vehicle = veh!
 
 
         //this could be kind of "inefficient" because it's called after every passenger pmove too.
         //Maybe instead of AttachRiders we should have each rider call attach for himself?
-        if veh!.m_pVehicle != nil && veh!.ghoul2 != nil {
-            veh!.m_pVehicle!.m_pVehicleInfo!.runAttachRiders(veh!.m_pVehicle)
+        if vehicle.m_pVehicle != nil && vehicle.ghoul2 != nil {
+            vehicle.m_pVehicle!.m_pVehicleInfo!.runAttachRiders(vehicle.m_pVehicle)
         }
     }
 

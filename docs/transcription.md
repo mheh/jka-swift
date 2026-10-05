@@ -294,6 +294,8 @@ The Swift signature holds the value, so no NULL reaches the body, and the arm un
 A caller that holds an optional and passes it where a value is due meets the hole at the call, where the never-null ruling is due.
 A caller that holds an optional view unwraps it at the call site, in Raven's control shape: `guard let ... else { return }` where Raven wrote an early-out, and `if let ... { }` where Raven wrapped a block. A guard that does other work on the NULL path keeps a Port-note.
 A read Raven made through the pointer with no guard is a force unwrap, `saber!.model`, which traps where C would crash. A guard Raven wrote is the only source of a bind, so no guard is invented for him.
+A chain a body reads three or more times with no store to it in between binds once at its first read, `let vehicleInfo = veh.m_pVehicleInfo!`, and the later reads use the local. A local alias is not a guard. The trap moves to the first read, where C would first crash. Never an if-let.
+Raven's `a = b` on two records reads `a = b` when `a` is a field, because the view's setter copies the record, and `a.copy(from: b)` when `a` is a scratch slot. His `memcpy( &a, &b, sizeof(a) )` is the same copy.
 A view parameter that a caller passes NULL to is optional, and every read through it takes the same force unwrap, `attacker!.client`.
 
 ### A scratch C struct on the stack
@@ -420,6 +422,8 @@ Its entry cites the cgame definition, and `installBgChannel()` skips it, because
 The same generator writes `Sources/JKAMP_BG/Generated/bg_callbacks.swift`, which holds one bare function per game function a bg body calls by name, each forwarding to a closure on `bg.callbacks`, the `BgCallbacks` struct, in the same shape.
 It also writes `Sources/JKAMP_GameLogic/Generated/BgChannel.swift`, whose `installBgChannel()` points every closure at the game function of the same name. A bg body spells `strap_G2API_SetBoneAngles(...)` and `G_NewString(...)` as Raven wrote them.
 The bg side of the channel names `JKAMP.BgEntity` where the game function takes an `Entity`, because the `Entity` view lives in the game target that bg cannot import. `installBgChannel()` turns the one into the other by its handle under rule 11.
+A game arm of a bg body under `#ifdef QAGAME` that reads the game's tables is one callback, named in `ARM_HOOKS` of `rulings.py`, and the game defines the function by hand in `Sources/JKAMP_GameLogic/bg_pmove_game.swift`. The bg body keeps the part of Raven's condition it can read and calls the callback under `bg.consumer == .game`, `bgLandOnVehicle(trace.entityNum)`.
+A function Raven compiles only under `#ifdef QAGAME` is a game function, named in `QAGAME_ONLY`. The game defines it by hand beside the arm hooks, and the bg body reaches it through the channel.
 A game field a bg body reaches is on the channel as one read callback, and `installBgChannel()` reads that field through the game's own views.
 A read Raven wrote through the game's entity table takes his index, `bgEntityLegsAnim(of: ps.clientNum)`, because the bg side holds no entity for the slot.
 A read of one record of a table the game's entity owns takes the entity index and the record index, and hands back the view over that record, `bgClientSaber(of: clientNum, at: saberNum)`. The view is optional, because the game's `client` is NULL on an entity that holds no player.
