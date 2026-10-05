@@ -730,6 +730,33 @@ class Classification:
         t = field.type.get_canonical()
         return t.kind == TypeKind.POINTER and t.get_pointee().get_canonical().kind == TypeKind.CHAR_S
 
+    def optional_pooled(self, cur: ci.Cursor) -> bool:
+        """True for a read Swift holds as a PooledString?: a `char *` field outside the never-null rulings, or a slot of a `char *` array field."""
+        inner = self.unwrap(cur)
+        if inner.kind == CursorKind.CSTYLE_CAST_EXPR and self.char_pointer_cast(inner):
+            # Raven's `(char *)ent->target` casts the const away, and the read under it is the same read.
+            inner = self.unwrap([k for k in inner.get_children() if k.kind.is_expression()][-1])
+        if self.pooled_field(inner):
+            return self.optional_base(inner)
+        if inner.kind != CursorKind.ARRAY_SUBSCRIPT_EXPR:
+            return False
+        t = inner.type.get_canonical()
+        if t.kind != TypeKind.POINTER or t.get_pointee().get_canonical().kind != TypeKind.CHAR_S:
+            return False
+        root = inner
+        while root.kind == CursorKind.ARRAY_SUBSCRIPT_EXPR:
+            root = self.unwrap(list(root.get_children())[0])
+        return root.kind == CursorKind.MEMBER_REF_EXPR and root.referenced is not None and root.referenced.kind == CursorKind.FIELD_DECL
+
+    def text_out_target(self, cur: ci.Cursor) -> bool:
+        """True for Raven's `*out`, where `out` is a `char **` parameter the table holds as an inout String."""
+        inner = self.unwrap(cur)
+        if inner.kind != CursorKind.UNARY_OPERATOR or self.unary_parts(inner)[0] != "*":
+            return False
+        operand = self.unwrap(self.unary_parts(inner)[2])
+        param = self.params_by_name.get(operand.spelling) if operand.kind == CursorKind.DECL_REF_EXPR else None
+        return param is not None and param.kind == "out_string_ref"
+
     def float_field(self, cur: ci.Cursor) -> bool:
         """True for a member reference to a `float *` field, which the view also holds as a vector."""
         field = cur.referenced

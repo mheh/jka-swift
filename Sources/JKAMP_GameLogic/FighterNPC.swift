@@ -70,7 +70,7 @@ let FIGHTER_MIN_TAKEOFF_FRACTION = 0.7 as Float
 
 //this stuff has got to be predicted, so..
 /// Source: oracle/codemp/game/FighterNPC.c:99
-func BG_FighterUpdate(_ pVeh: JKAMP.Vehicle, _ pUcmd: JKAMP.Usercmd, _ trMins: inout JKAShared.vec3_t, _ trMaxs: inout JKAShared.vec3_t, _ gravity: Float, _ traceFunc: ((JKAMP.Trace, JKAShared.vec3_t, JKAShared.vec3_t, JKAShared.vec3_t, JKAShared.vec3_t, Int32, Int32) -> Void)?) -> Bool {
+func BG_FighterUpdate(_ pVeh: JKAMP.Vehicle, _ pUcmd: JKAMP.Usercmd, _ trMins: JKAShared.vec3_t, _ trMaxs: JKAShared.vec3_t, _ gravity: Float, _ traceFunc: ((JKAMP.Trace, JKAShared.vec3_t, JKAShared.vec3_t, JKAShared.vec3_t, JKAShared.vec3_t, Int32, Int32) -> Void)?) -> Bool {
     // TODO: Port BG_FighterUpdate
     portMissing("BG_FighterUpdate", source: "oracle/codemp/game/FighterNPC.c:99")
 }

@@ -96,37 +96,37 @@ var tempWaypointList: Slots<WaypointData> { world.storage.tempWaypointList }
 //For debug graphics
 //rwwFIXMEFIXME: Write these at some point for the sake of being able to debug visually
 /// Source: oracle/codemp/game/g_nav.c:11
-func G_Line(_ start: inout JKAShared.vec3_t, _ end: inout JKAShared.vec3_t, _ color: inout JKAShared.vec3_t, _ alpha: Float) {
+func G_Line(_ start: JKAShared.vec3_t, _ end: JKAShared.vec3_t, _ color: JKAShared.vec3_t, _ alpha: Float) {
     // TODO: Port G_Line
     portMissing("G_Line", source: "oracle/codemp/game/g_nav.c:11")
 }
 
 /// Source: oracle/codemp/game/g_nav.c:16
-func G_Cube(_ mins: inout JKAShared.vec3_t, _ maxs: inout JKAShared.vec3_t, _ color: inout JKAShared.vec3_t, _ alpha: Float) {
+func G_Cube(_ mins: JKAShared.vec3_t, _ maxs: JKAShared.vec3_t, _ color: JKAShared.vec3_t, _ alpha: Float) {
     // TODO: Port G_Cube
     portMissing("G_Cube", source: "oracle/codemp/game/g_nav.c:16")
 }
 
 /// Source: oracle/codemp/game/g_nav.c:21
-func G_CubeOutline(_ mins: inout JKAShared.vec3_t, _ maxs: inout JKAShared.vec3_t, _ time: Int32, _ color: UInt32, _ alpha: Float) {
+func G_CubeOutline(_ mins: JKAShared.vec3_t, _ maxs: JKAShared.vec3_t, _ time: Int32, _ color: UInt32, _ alpha: Float) {
     // TODO: Port G_CubeOutline
     portMissing("G_CubeOutline", source: "oracle/codemp/game/g_nav.c:21")
 }
 
 /// Source: oracle/codemp/game/g_nav.c:26
-func G_DrawEdge(_ start: inout JKAShared.vec3_t, _ end: inout JKAShared.vec3_t, _ type: Int32) {
+func G_DrawEdge(_ start: JKAShared.vec3_t, _ end: JKAShared.vec3_t, _ type: Int32) {
     // TODO: Port G_DrawEdge
     portMissing("G_DrawEdge", source: "oracle/codemp/game/g_nav.c:26")
 }
 
 /// Source: oracle/codemp/game/g_nav.c:31
-func G_DrawNode(_ origin: inout JKAShared.vec3_t, _ type: Int32) {
+func G_DrawNode(_ origin: JKAShared.vec3_t, _ type: Int32) {
     // TODO: Port G_DrawNode
     portMissing("G_DrawNode", source: "oracle/codemp/game/g_nav.c:31")
 }
 
 /// Source: oracle/codemp/game/g_nav.c:36
-func G_DrawCombatPoint(_ origin: inout JKAShared.vec3_t, _ type: Int32) {
+func G_DrawCombatPoint(_ origin: JKAShared.vec3_t, _ type: Int32) {
     // TODO: Port G_DrawCombatPoint
     portMissing("G_DrawCombatPoint", source: "oracle/codemp/game/g_nav.c:36")
 }
@@ -150,19 +150,19 @@ func NPC_Blocked(_ `self`: Entity, _ blocker: Entity) {
 }
 
 /// Source: oracle/codemp/game/g_nav.c:112
-func NPC_SetMoveGoal(_ ent: Entity, _ point: inout JKAShared.vec3_t, _ radius: Int32, _ isNavGoal: Bool, _ combatPoint: Int32, _ targetEnt: Entity?) {
+func NPC_SetMoveGoal(_ ent: Entity, _ point: JKAShared.vec3_t, _ radius: Int32, _ isNavGoal: Bool, _ combatPoint: Int32, _ targetEnt: Entity?) {
     // TODO: Port NPC_SetMoveGoal
     portMissing("NPC_SetMoveGoal", source: "oracle/codemp/game/g_nav.c:112")
 }
 
 /// Source: oracle/codemp/game/g_nav.c:167
-func NAV_HitNavGoal(_ point: inout JKAShared.vec3_t, _ mins: inout JKAShared.vec3_t, _ maxs: inout JKAShared.vec3_t, _ dest: inout JKAShared.vec3_t, _ radius: Int32, _ flying: Bool) -> Bool {
+func NAV_HitNavGoal(_ point: JKAShared.vec3_t, _ mins: JKAShared.vec3_t, _ maxs: JKAShared.vec3_t, _ dest: JKAShared.vec3_t, _ radius: Int32, _ flying: Bool) -> Bool {
     // TODO: Port NAV_HitNavGoal
     portMissing("NAV_HitNavGoal", source: "oracle/codemp/game/g_nav.c:167")
 }
 
 /// Source: oracle/codemp/game/g_nav.c:222
-func NAV_ClearPathToPoint(_ `self`: Entity, _ pmins: inout JKAShared.vec3_t, _ pmaxs: inout JKAShared.vec3_t, _ point: inout JKAShared.vec3_t, _ clipmask: Int32, _ okToHitEntNum: Int32) -> Bool {
+func NAV_ClearPathToPoint(_ `self`: Entity, _ pmins: JKAShared.vec3_t, _ pmaxs: JKAShared.vec3_t, _ point: JKAShared.vec3_t, _ clipmask: Int32, _ okToHitEntNum: Int32) -> Bool {
     // TODO: Port NAV_ClearPathToPoint
     portMissing("NAV_ClearPathToPoint", source: "oracle/codemp/game/g_nav.c:222")
 }
@@ -198,13 +198,13 @@ func NAV_SetBlockedInfo(_ `self`: Entity, _ entId: Int32) {
 }
 
 /// Source: oracle/codemp/game/g_nav.c:440
-func NAV_Steer(_ `self`: Entity, _ dir: inout JKAShared.vec3_t, _ distance: Float) -> Int32 {
+func NAV_Steer(_ `self`: Entity, _ dir: JKAShared.vec3_t, _ distance: Float) -> Int32 {
     // TODO: Port NAV_Steer
     portMissing("NAV_Steer", source: "oracle/codemp/game/g_nav.c:440")
 }
 
 /// Source: oracle/codemp/game/g_nav.c:494
-func NAV_CheckAhead(_ `self`: Entity, _ end: inout JKAShared.vec3_t, _ trace: JKAMP.Trace, _ clipmask: Int32) -> Bool {
+func NAV_CheckAhead(_ `self`: Entity, _ end: JKAShared.vec3_t, _ trace: JKAMP.Trace, _ clipmask: Int32) -> Bool {
     // TODO: Port NAV_CheckAhead
     portMissing("NAV_CheckAhead", source: "oracle/codemp/game/g_nav.c:494")
 }
@@ -216,37 +216,37 @@ private func NAV_TestBypass(_ `self`: Entity, _ yaw: Float, _ blocked_dist: Floa
 }
 
 /// Source: oracle/codemp/game/g_nav.c:589
-func NAV_Bypass(_ `self`: Entity, _ blocker: Entity, _ blocked_dir: inout JKAShared.vec3_t, _ blocked_dist: Float, _ movedir: inout JKAShared.vec3_t) -> Bool {
+func NAV_Bypass(_ `self`: Entity, _ blocker: Entity, _ blocked_dir: JKAShared.vec3_t, _ blocked_dist: Float, _ movedir: inout JKAShared.vec3_t) -> Bool {
     // TODO: Port NAV_Bypass
     portMissing("NAV_Bypass", source: "oracle/codemp/game/g_nav.c:589")
 }
 
 /// Source: oracle/codemp/game/g_nav.c:669
-func NAV_MoveBlocker(_ `self`: Entity, _ shove_dir: inout JKAShared.vec3_t) -> Bool {
+func NAV_MoveBlocker(_ `self`: Entity, _ shove_dir: JKAShared.vec3_t) -> Bool {
     // TODO: Port NAV_MoveBlocker
     portMissing("NAV_MoveBlocker", source: "oracle/codemp/game/g_nav.c:669")
 }
 
 /// Source: oracle/codemp/game/g_nav.c:696
-func NAV_ResolveBlock(_ `self`: Entity, _ blocker: Entity, _ blocked_dir: inout JKAShared.vec3_t) -> Bool {
+func NAV_ResolveBlock(_ `self`: Entity, _ blocker: Entity, _ blocked_dir: JKAShared.vec3_t) -> Bool {
     // TODO: Port NAV_ResolveBlock
     portMissing("NAV_ResolveBlock", source: "oracle/codemp/game/g_nav.c:696")
 }
 
 /// Source: oracle/codemp/game/g_nav.c:715
-func NAV_TrueCollision(_ `self`: Entity, _ blocker: Entity, _ movedir: inout JKAShared.vec3_t, _ blocked_dir: inout JKAShared.vec3_t) -> Bool {
+func NAV_TrueCollision(_ `self`: Entity, _ blocker: Entity, _ movedir: JKAShared.vec3_t, _ blocked_dir: inout JKAShared.vec3_t) -> Bool {
     // TODO: Port NAV_TrueCollision
     portMissing("NAV_TrueCollision", source: "oracle/codemp/game/g_nav.c:715")
 }
 
 /// Source: oracle/codemp/game/g_nav.c:758
-func NAV_StackedCanyon(_ `self`: Entity, _ blocker: Entity, _ pathDir: inout JKAShared.vec3_t) -> Bool {
+func NAV_StackedCanyon(_ `self`: Entity, _ blocker: Entity, _ pathDir: JKAShared.vec3_t) -> Bool {
     // TODO: Port NAV_StackedCanyon
     portMissing("NAV_StackedCanyon", source: "oracle/codemp/game/g_nav.c:758")
 }
 
 /// Source: oracle/codemp/game/g_nav.c:824
-func NAV_ResolveEntityCollision(_ `self`: Entity, _ blocker: Entity, _ movedir: inout JKAShared.vec3_t, _ pathDir: inout JKAShared.vec3_t) -> Bool {
+func NAV_ResolveEntityCollision(_ `self`: Entity, _ blocker: Entity, _ movedir: inout JKAShared.vec3_t, _ pathDir: JKAShared.vec3_t) -> Bool {
     // TODO: Port NAV_ResolveEntityCollision
     portMissing("NAV_ResolveEntityCollision", source: "oracle/codemp/game/g_nav.c:824")
 }
@@ -276,7 +276,7 @@ func NAV_GetNearestNode(_ `self`: Entity, _ lastNode: Int32) -> Int32 {
 }
 
 /// Source: oracle/codemp/game/g_nav.c:1094
-func NAV_MicroError(_ start: inout JKAShared.vec3_t, _ end: inout JKAShared.vec3_t) -> Bool {
+func NAV_MicroError(_ start: JKAShared.vec3_t, _ end: JKAShared.vec3_t) -> Bool {
     // TODO: Port NAV_MicroError
     portMissing("NAV_MicroError", source: "oracle/codemp/game/g_nav.c:1094")
 }
@@ -288,7 +288,7 @@ func NAV_MoveToGoal(_ `self`: Entity, _ info: NavInfo) -> Int32 {
 }
 
 /// Source: oracle/codemp/game/g_nav.c:1220
-func waypoint_testDirection(_ origin: inout JKAShared.vec3_t, _ yaw: Float, _ minDist: UInt32) -> UInt32 {
+func waypoint_testDirection(_ origin: JKAShared.vec3_t, _ yaw: Float, _ minDist: UInt32) -> UInt32 {
     // TODO: Port waypoint_testDirection
     portMissing("waypoint_testDirection", source: "oracle/codemp/game/g_nav.c:1220")
 }

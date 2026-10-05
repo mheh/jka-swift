@@ -40,19 +40,19 @@ func CanSee(_ ent: Entity) -> Bool {
 }
 
 /// Source: oracle/codemp/game/NPC_senses.c:82
-func InFront(_ spot: inout JKAShared.vec3_t, _ from: inout JKAShared.vec3_t, _ fromAngles: inout JKAShared.vec3_t, _ threshHold: Float) -> Bool {
+func InFront(_ spot: JKAShared.vec3_t, _ from: JKAShared.vec3_t, _ fromAngles: JKAShared.vec3_t, _ threshHold: Float) -> Bool {
     // TODO: Port InFront
     portMissing("InFront", source: "oracle/codemp/game/NPC_senses.c:82")
 }
 
 /// Source: oracle/codemp/game/NPC_senses.c:109
-func InFOV3(_ spot: inout JKAShared.vec3_t, _ from: inout JKAShared.vec3_t, _ fromAngles: inout JKAShared.vec3_t, _ hFOV: Int32, _ vFOV: Int32) -> Bool {
+func InFOV3(_ spot: JKAShared.vec3_t, _ from: JKAShared.vec3_t, _ fromAngles: JKAShared.vec3_t, _ hFOV: Int32, _ vFOV: Int32) -> Bool {
     // TODO: Port InFOV3
     portMissing("InFOV3", source: "oracle/codemp/game/NPC_senses.c:109")
 }
 
 /// Source: oracle/codemp/game/NPC_senses.c:129
-func InFOV2(_ origin: inout JKAShared.vec3_t, _ from: Entity, _ hFOV: Int32, _ vFOV: Int32) -> Bool {
+func InFOV2(_ origin: JKAShared.vec3_t, _ from: Entity, _ hFOV: Int32, _ vFOV: Int32) -> Bool {
     // TODO: Port InFOV2
     portMissing("InFOV2", source: "oracle/codemp/game/NPC_senses.c:129")
 }
@@ -89,7 +89,7 @@ private func G_CheckSoundEvents(_ `self`: Entity, _ maxHearDist: Float, _ ignore
 }
 
 /// Source: oracle/codemp/game/NPC_senses.c:388
-func G_GetLightLevel(_ pos: inout JKAShared.vec3_t, _ fromDir: inout JKAShared.vec3_t) -> Float {
+func G_GetLightLevel(_ pos: JKAShared.vec3_t, _ fromDir: JKAShared.vec3_t) -> Float {
     // TODO: Port G_GetLightLevel
     portMissing("G_GetLightLevel", source: "oracle/codemp/game/NPC_senses.c:388")
 }
@@ -132,13 +132,13 @@ func NPC_CheckForDanger(_ alertEvent: Int32) -> Bool {
 }
 
 /// Source: oracle/codemp/game/NPC_senses.c:579
-func AddSoundEvent(_ owner: Entity, _ position: inout JKAShared.vec3_t, _ radius: Float, _ alertLevel: alertEventLevel_e, _ needLOS: Bool) {
+func AddSoundEvent(_ owner: Entity, _ position: JKAShared.vec3_t, _ radius: Float, _ alertLevel: alertEventLevel_e, _ needLOS: Bool) {
     // TODO: Port AddSoundEvent
     portMissing("AddSoundEvent", source: "oracle/codemp/game/NPC_senses.c:579")
 }
 
 /// Source: oracle/codemp/game/NPC_senses.c:623
-func AddSightEvent(_ owner: Entity, _ position: inout JKAShared.vec3_t, _ radius: Float, _ alertLevel: alertEventLevel_e, _ addLight: Float) {
+func AddSightEvent(_ owner: Entity, _ position: JKAShared.vec3_t, _ radius: Float, _ alertLevel: alertEventLevel_e, _ addLight: Float) {
     // TODO: Port AddSightEvent
     portMissing("AddSightEvent", source: "oracle/codemp/game/NPC_senses.c:623")
 }
@@ -191,13 +191,13 @@ func G_ClearLOS5(_ `self`: Entity, _ end: JKAShared.vec3_t) -> Bool {
 }
 
 /// Source: oracle/codemp/game/NPC_senses.c:824
-func NPC_GetHFOVPercentage(_ spot: inout JKAShared.vec3_t, _ from: inout JKAShared.vec3_t, _ facing: inout JKAShared.vec3_t, _ hFOV: Float) -> Float {
+func NPC_GetHFOVPercentage(_ spot: JKAShared.vec3_t, _ from: JKAShared.vec3_t, _ facing: JKAShared.vec3_t, _ hFOV: Float) -> Float {
     // TODO: Port NPC_GetHFOVPercentage
     portMissing("NPC_GetHFOVPercentage", source: "oracle/codemp/game/NPC_senses.c:824")
 }
 
 /// Source: oracle/codemp/game/NPC_senses.c:847
-func NPC_GetVFOVPercentage(_ spot: inout JKAShared.vec3_t, _ from: inout JKAShared.vec3_t, _ facing: inout JKAShared.vec3_t, _ vFOV: Float) -> Float {
+func NPC_GetVFOVPercentage(_ spot: JKAShared.vec3_t, _ from: JKAShared.vec3_t, _ facing: JKAShared.vec3_t, _ vFOV: Float) -> Float {
     // TODO: Port NPC_GetVFOVPercentage
     portMissing("NPC_GetVFOVPercentage", source: "oracle/codemp/game/NPC_senses.c:847")
 }

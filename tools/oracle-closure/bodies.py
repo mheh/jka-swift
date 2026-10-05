@@ -75,6 +75,9 @@ class Registry:
 
     def __init__(self) -> None:
         self.params: dict[str, list[tuple[str, str]]] = {}
+        # The parameters of each function by the Swift target that holds it,
+        # so a bg body calls the channel's forward and a game body calls the game function.
+        self.target_params: dict[tuple[str, str], list[tuple[str, str]]] = {}
         # The Swift return type of each function, so a call to one that returns a value takes no bind.
         self.returns: dict[str, str] = {}
         # Every overload's parameters, so an argument converts only when no overload takes it as it is.
@@ -114,6 +117,7 @@ class Registry:
                     label, _, swift = p.partition(":")
                     params.append((label.split()[-1].strip("`"), swift.strip()))
                 self.params.setdefault(name, params)
+                self.target_params.setdefault((target, name), params)
                 self.overloads.setdefault(name, []).append(params)
                 r = re.search(r"->\s*(.+?)\s*\{?\s*$", line[end + 1:])
                 self.returns.setdefault(name, r.group(1) if r else "Void")

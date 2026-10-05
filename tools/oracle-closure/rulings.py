@@ -195,6 +195,10 @@ PARAMS = {
     ("BG_ParseField", "ent"): "raw",
     ("BG_ValidateSkinForTeam", "colors"): "vec3_mut",
     ("trap_SnapVector", "v"): "vec3_mut",
+    # These bodies never write the vector, and an adopted file passes `&` there, so the parameter keeps inout.
+    # g_exphysics.swift passes `&tr.endpos` to G_SetOrigin, and g_object.swift passes `&oldOrg` to G_MoverTouchPushTriggers.
+    ("G_SetOrigin", "origin"): "vec3_mut",
+    ("G_MoverTouchPushTriggers", "oldOrg"): "vec3_mut",
     ("Parse1DMatrix", "m"): "float_array",
     ("Parse2DMatrix", "m"): "float_array",
     ("Parse3DMatrix", "m"): "float_array",

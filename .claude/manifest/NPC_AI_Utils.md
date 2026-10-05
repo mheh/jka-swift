@@ -7,7 +7,7 @@ The oracle range is the whole definition, from the return type to the closing br
 
 | Function | Oracle | Swift | State | jka-rust | Signature |
 |---|---|---|---|---|---|
-| `AI_GetGroupSize` | `oracle/codemp/game/NPC_AI_Utils.c:23-67` | `JKAMP_GameLogic/NPC_AI_Utils.swift:16` | marker | `crates/mp/game/src/NPC_AI_Utils.rs:49-96` | `func AI_GetGroupSize(_ origin: inout JKAShared.vec3_t, _ radius: Int32, _ playerTeam: JKAMP.team_t, _ avoid: Entity) -> Int32` |
+| `AI_GetGroupSize` | `oracle/codemp/game/NPC_AI_Utils.c:23-67` | `JKAMP_GameLogic/NPC_AI_Utils.swift:16` | marker | `crates/mp/game/src/NPC_AI_Utils.rs:49-96` | `func AI_GetGroupSize(_ origin: JKAShared.vec3_t, _ radius: Int32, _ playerTeam: JKAMP.team_t, _ avoid: Entity) -> Int32` |
 | `AI_GetGroupSize2` | `oracle/codemp/game/NPC_AI_Utils.c:71-77` | `JKAMP_GameLogic/NPC_AI_Utils.swift:22` | marker | `crates/mp/game/src/NPC_AI_Utils.rs:101-113` | `func AI_GetGroupSize2(_ ent: Entity, _ radius: Int32) -> Int32` |
 | `AI_ClosestGroupEntityNumToPoint` | `oracle/codemp/game/NPC_AI_Utils.c:80-110` | `JKAMP_GameLogic/NPC_AI_Utils.swift:28` | marker | `crates/mp/game/src/NPC_AI_Utils.rs:118-156` | `func AI_ClosestGroupEntityNumToPoint(_ group: AIGroupInfo, _ point: inout JKAShared.vec3_t) -> Int32` |
 | `AI_SetClosestBuddy` | `oracle/codemp/game/NPC_AI_Utils.c:112-132` | `JKAMP_GameLogic/NPC_AI_Utils.swift:34` | marker | `crates/mp/game/src/NPC_AI_Utils.rs:161-183` | `func AI_SetClosestBuddy(_ group: AIGroupInfo)` |
@@ -23,7 +23,7 @@ The oracle range is the whole definition, from the return type to the closing br
 | `AI_DeleteGroupMember` | `oracle/codemp/game/NPC_AI_Utils.c:570-600` | `JKAMP_GameLogic/NPC_AI_Utils.swift:102` | marker | `crates/mp/game/src/NPC_AI_Utils.rs:717-750` | `func AI_DeleteGroupMember(_ group: AIGroupInfo, _ memberNum: Int32)` |
 | `AI_DeleteSelfFromGroup` | `oracle/codemp/game/NPC_AI_Utils.c:602-615` | `JKAMP_GameLogic/NPC_AI_Utils.swift:108` | marker | `crates/mp/game/src/NPC_AI_Utils.rs:755-769` | `func AI_DeleteSelfFromGroup(_ `self`: Entity)` |
 | `AI_GroupMemberKilled` | `oracle/codemp/game/NPC_AI_Utils.c:620-697` | `JKAMP_GameLogic/NPC_AI_Utils.swift:114` | marker | `crates/mp/game/src/NPC_AI_Utils.rs:774-890` | `func AI_GroupMemberKilled(_ `self`: Entity)` |
-| `AI_GroupUpdateEnemyLastSeen` | `oracle/codemp/game/NPC_AI_Utils.c:699-707` | `JKAMP_GameLogic/NPC_AI_Utils.swift:120` | marker | `crates/mp/game/src/NPC_AI_Utils.rs:895-903` | `func AI_GroupUpdateEnemyLastSeen(_ group: AIGroupInfo, _ spot: inout JKAShared.vec3_t)` |
+| `AI_GroupUpdateEnemyLastSeen` | `oracle/codemp/game/NPC_AI_Utils.c:699-707` | `JKAMP_GameLogic/NPC_AI_Utils.swift:120` | marker | `crates/mp/game/src/NPC_AI_Utils.rs:895-903` | `func AI_GroupUpdateEnemyLastSeen(_ group: AIGroupInfo, _ spot: JKAShared.vec3_t)` |
 | `AI_GroupUpdateClearShotTime` | `oracle/codemp/game/NPC_AI_Utils.c:709-716` | `JKAMP_GameLogic/NPC_AI_Utils.swift:126` | marker | `crates/mp/game/src/NPC_AI_Utils.rs:908-915` | `func AI_GroupUpdateClearShotTime(_ group: AIGroupInfo)` |
 | `AI_GroupUpdateSquadstates` | `oracle/codemp/game/NPC_AI_Utils.c:718-738` | `JKAMP_GameLogic/NPC_AI_Utils.swift:132` | marker | `crates/mp/game/src/NPC_AI_Utils.rs:920-944` | `func AI_GroupUpdateSquadstates(_ group: AIGroupInfo, _ member: Entity, _ newSquadState: Int32)` |
 | `AI_RefreshGroup` | `oracle/codemp/game/NPC_AI_Utils.c:740-962` | `JKAMP_GameLogic/NPC_AI_Utils.swift:138` | marker | `crates/mp/game/src/NPC_AI_Utils.rs:949-1109` | `func AI_RefreshGroup(_ group: AIGroupInfo) -> Bool` |

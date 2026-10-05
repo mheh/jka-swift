@@ -158,3 +158,18 @@ extension Slots {
         )
     }
 }
+
+// MARK: - The slot index
+
+extension Slots where Element: HandleView {
+    /// Raven's `item - bg_itemlist`, the slot number of a record in this table, from the distance between the two addresses.
+    /// A record outside the table traps, where Raven's subtraction gives a number past the end.
+    public func slot(of record: Element) -> Int32 {
+        let offset = self.base.distance(to: UnsafeMutableRawPointer(record.handle))
+        precondition(
+            offset >= 0 && offset % self.stride == 0 && offset / self.stride < self.count,
+            "The record at byte offset \(offset) is not a slot of this table"
+        )
+        return Int32(offset / self.stride)
+    }
+}

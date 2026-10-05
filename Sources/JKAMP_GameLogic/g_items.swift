@@ -407,7 +407,7 @@ func EWebPain(_ `self`: Entity, _ attacker: Entity, _ damage: Int32) {
 
 //special routine for tracking angles between client and server
 /// Source: oracle/codemp/game/g_items.c:1499
-func EWeb_SetBoneAngles(_ ent: Entity, _ bone: String, _ angles: inout JKAShared.vec3_t) {
+func EWeb_SetBoneAngles(_ ent: Entity, _ bone: String, _ angles: JKAShared.vec3_t) {
     // TODO: Port EWeb_SetBoneAngles
     portMissing("EWeb_SetBoneAngles", source: "oracle/codemp/game/g_items.c:1499")
 }
@@ -543,7 +543,7 @@ Spawns an item and tosses it forward
 ```
 */
 /// Source: oracle/codemp/game/g_items.c:2658
-func LaunchItem(_ item: JKAMP.Gitem, _ origin: inout JKAShared.vec3_t, _ velocity: inout JKAShared.vec3_t) -> Entity? {
+func LaunchItem(_ item: JKAMP.Gitem, _ origin: inout JKAShared.vec3_t, _ velocity: JKAShared.vec3_t) -> Entity? {
     // TODO: Port LaunchItem
     portMissing("LaunchItem", source: "oracle/codemp/game/g_items.c:2658")
 }

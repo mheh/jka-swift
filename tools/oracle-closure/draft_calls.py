@@ -242,6 +242,10 @@ class Calls:
     def callee_params(self, name: str) -> list[tuple[str, str]]:
         """The callee's Swift parameters: the signature under Sources/ when one exists, because a hand port of q_math takes a
         vector by value where the table would say inout, and the table's row for a function not yet written."""
+        own = self.registry.target_params.get((target_of(self.fn.stem), name))
+        if own is not None:
+            # The channel's forward in bg and the game function in the game can differ in a vector the game body never writes.
+            return own
         if name in self.registry.params:
             return self.registry.params[name]
         fn = self.sk.by_name.get(name)
@@ -339,6 +343,9 @@ class Calls:
         if param is not None and param[1] in TEXT_TYPES and self.pooled_field(inner) and not self.overload_takes(callee, position, "PooledString"):
             # A `char *` field is a PooledString?, and its text goes into a String parameter. Raven's callers never pass a NULL one here.
             return f"{text}!.string"
+        if (param is None or param[1].endswith("...")) and not inout and position in self.call_format and self.optional_pooled(inner):
+            # A `char *` field is a PooledString?, and Raven's format argument list takes the text itself, so the read takes the bind.
+            return f"{text}!"
         if param is not None and not param[1].endswith("?") and not inout and self.optional_view_name(inner):
             raise Hole(f"Raven passes the optional `{inner.spelling}` to `{callee}`, whose `{param[0]}` parameter takes a value. A never-null ruling is due.")
         if param is not None and not param[1].endswith("?") and not inout and self.optional_base(inner):

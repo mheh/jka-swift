@@ -87,7 +87,7 @@ func NPC_UpdateFiringAngles(_ doPitch: Bool, _ doYaw: Bool) -> Bool {
 }
 
 /// Source: oracle/codemp/game/NPC_utils.c:740
-func NPC_UpdateShootAngles(_ angles: inout JKAShared.vec3_t, _ doPitch: Bool, _ doYaw: Bool) {
+func NPC_UpdateShootAngles(_ angles: JKAShared.vec3_t, _ doPitch: Bool, _ doYaw: Bool) {
     // TODO: Port NPC_UpdateShootAngles
     portMissing("NPC_UpdateShootAngles", source: "oracle/codemp/game/NPC_utils.c:740")
 }
@@ -116,7 +116,7 @@ func G_ActivateBehavior(_ `self`: Entity, _ bset: Int32) -> Bool {
 
 //rww - special system for sync'ing bone angles between client and server.
 /// Source: oracle/codemp/game/NPC_utils.c:906
-func NPC_SetBoneAngles(_ ent: Entity, _ bone: String, _ angles: inout JKAShared.vec3_t) {
+func NPC_SetBoneAngles(_ ent: Entity, _ bone: String, _ angles: JKAShared.vec3_t) {
     // TODO: Port NPC_SetBoneAngles
     portMissing("NPC_SetBoneAngles", source: "oracle/codemp/game/NPC_utils.c:906")
 }
@@ -213,7 +213,7 @@ func NPC_CheckEnemyExt(_ checkAlerts: Bool) -> Bool {
 }
 
 /// Source: oracle/codemp/game/NPC_utils.c:1491
-func NPC_FacePosition(_ position: inout JKAShared.vec3_t, _ doPitch: Bool) -> Bool {
+func NPC_FacePosition(_ position: JKAShared.vec3_t, _ doPitch: Bool) -> Bool {
     // TODO: Port NPC_FacePosition
     portMissing("NPC_FacePosition", source: "oracle/codemp/game/NPC_utils.c:1491")
 }

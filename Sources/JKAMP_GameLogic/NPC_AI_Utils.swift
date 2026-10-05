@@ -13,7 +13,7 @@ private let MAX_RADIUS_ENTS = 128 as Int32
 let DEFAULT_RADIUS = 45 as Int32
 
 /// Source: oracle/codemp/game/NPC_AI_Utils.c:23
-func AI_GetGroupSize(_ origin: inout JKAShared.vec3_t, _ radius: Int32, _ playerTeam: JKAMP.team_t, _ avoid: Entity) -> Int32 {
+func AI_GetGroupSize(_ origin: JKAShared.vec3_t, _ radius: Int32, _ playerTeam: JKAMP.team_t, _ avoid: Entity) -> Int32 {
     // TODO: Port AI_GetGroupSize
     portMissing("AI_GetGroupSize", source: "oracle/codemp/game/NPC_AI_Utils.c:23")
 }
@@ -117,7 +117,7 @@ func AI_GroupMemberKilled(_ `self`: Entity) {
 }
 
 /// Source: oracle/codemp/game/NPC_AI_Utils.c:699
-func AI_GroupUpdateEnemyLastSeen(_ group: AIGroupInfo, _ spot: inout JKAShared.vec3_t) {
+func AI_GroupUpdateEnemyLastSeen(_ group: AIGroupInfo, _ spot: JKAShared.vec3_t) {
     // TODO: Port AI_GroupUpdateEnemyLastSeen
     portMissing("AI_GroupUpdateEnemyLastSeen", source: "oracle/codemp/game/NPC_AI_Utils.c:699")
 }

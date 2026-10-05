@@ -10,13 +10,13 @@ import JKAMP_BG
 let MISSILE_PRESTEP_TIME = 50 as Int32
 
 /// Source: oracle/codemp/game/g_missile.c:24
-func G_ReflectMissile(_ ent: Entity, _ missile: Entity, _ forward: inout JKAShared.vec3_t) {
+func G_ReflectMissile(_ ent: Entity, _ missile: Entity, _ forward: JKAShared.vec3_t) {
     // TODO: Port G_ReflectMissile
     portMissing("G_ReflectMissile", source: "oracle/codemp/game/g_missile.c:24")
 }
 
 /// Source: oracle/codemp/game/g_missile.c:91
-func G_DeflectMissile(_ ent: Entity, _ missile: Entity, _ forward: inout JKAShared.vec3_t) {
+func G_DeflectMissile(_ ent: Entity, _ missile: Entity, _ forward: JKAShared.vec3_t) {
     // TODO: Port G_DeflectMissile
     portMissing("G_DeflectMissile", source: "oracle/codemp/game/g_missile.c:91")
 }
@@ -64,20 +64,20 @@ G_BounceProjectile
 ```
 */
 /// Source: oracle/codemp/game/g_missile.c:284
-func G_BounceProjectile(_ start: inout JKAShared.vec3_t, _ impact: inout JKAShared.vec3_t, _ dir: inout JKAShared.vec3_t, _ endout: inout JKAShared.vec3_t) {
+func G_BounceProjectile(_ start: JKAShared.vec3_t, _ impact: JKAShared.vec3_t, _ dir: JKAShared.vec3_t, _ endout: inout JKAShared.vec3_t) {
     // TODO: Port G_BounceProjectile
     portMissing("G_BounceProjectile", source: "oracle/codemp/game/g_missile.c:284")
 }
 
 //-----------------------------------------------------------------------------
 /// Source: oracle/codemp/game/g_missile.c:298
-func CreateMissile(_ org: inout JKAShared.vec3_t, _ dir: inout JKAShared.vec3_t, _ vel: Float, _ life: Int32, _ owner: Entity, _ altFire: Bool) -> Entity? {
+func CreateMissile(_ org: inout JKAShared.vec3_t, _ dir: JKAShared.vec3_t, _ vel: Float, _ life: Int32, _ owner: Entity, _ altFire: Bool) -> Entity? {
     // TODO: Port CreateMissile
     portMissing("CreateMissile", source: "oracle/codemp/game/g_missile.c:298")
 }
 
 /// Source: oracle/codemp/game/g_missile.c:331
-func G_MissileBounceEffect(_ ent: Entity, _ org: inout JKAShared.vec3_t, _ dir: inout JKAShared.vec3_t) {
+func G_MissileBounceEffect(_ ent: Entity, _ org: JKAShared.vec3_t, _ dir: JKAShared.vec3_t) {
     // TODO: Port G_MissileBounceEffect
     portMissing("G_MissileBounceEffect", source: "oracle/codemp/game/g_missile.c:331")
 }

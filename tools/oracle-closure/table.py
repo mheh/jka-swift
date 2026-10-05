@@ -8,6 +8,7 @@ answer into the `Param` its callers read.
 
 from __future__ import annotations
 
+import functools
 import re
 from pathlib import Path
 
@@ -270,6 +271,8 @@ class Table:
         self.called: set[str] = set()
         # The (function, parameter) pairs whose body writes through the pointer, so the output keeps its `inout` spelling.
         self.stores_through: set[tuple[str, str]] = set()
+        # The functions whose bodies the store sweep walked, so a parameter outside `stores_through` is proven read-only only for these.
+        self.store_swept: set[str] = set()
         # The (function, parameter) pairs whose body never writes through the `char *`, so the parameter is a String.
         self.readonly_text: set[tuple[str, str]] = set()
         # The functions that hand NULL back from a `char *` return, so the return is a String?.
@@ -548,6 +551,15 @@ class Table:
             if path.parent != folder or path.suffix != ".c":
                 continue
             defined.add(cur.spelling)
+            for p in cur.get_arguments():
+                spelled = p.type.spelling
+                held = PARAMS.get((cur.spelling, p.spelling)) == "vec3_mut"
+                reached = (cur.spelling, p.spelling) in self.nullable or (cur.spelling, p.spelling) in self.hopped
+                if held or ("const" not in spelled and spelled.split()[-1] in ("vec3_t", "vec4_t") and not reached and self.adopted(path.stem)):
+                    # A PARAMS hold and an adopted stub take the vector inout, so the vector counts as written,
+                    # and a caller's own vector stays inout too.
+                    # A vector a caller passes NULL to is an optional value in the adopted stub, and the NULL rule keeps it.
+                    self.stores_through.add((cur.spelling, p.spelling))
             data = C.parsed_bytes(path)
             names = {p.spelling for p in cur.get_arguments()}
             if not names:
@@ -588,6 +600,15 @@ class Table:
                 if target[0] not in defined or target in self.stores_through:
                     self.stores_through.add(source)
                     changed = True
+        self.store_swept = defined
+
+    @staticmethod
+    @functools.cache
+    def adopted(stem: str) -> bool:
+        """True when the stub of a Raven .c file is adopted, so its hand signature stands and the skeleton writes it no more."""
+        from skeleton import NOTE, stub_path
+        out = stub_path(stem)
+        return out.exists() and out.read_text().split("\n", 1)[0] != NOTE.format(stem=stem)
 
     def argument_root(self, cur: ci.Cursor) -> str | None:
         """The name at the root of a call argument, `axis` for `axis`, `axis[0]`, and `&axis[0]`, or None for any other argument."""
@@ -1411,6 +1432,7 @@ class Table:
             readonly_text=(owner, name) in self.readonly_text,
             indexed=(owner, name) in self.indexed_params,
             stores_through=(owner, name) in self.stores_through,
+            store_swept=owner in self.store_swept,
             fills_array=(owner, name) in self.array_handoffs,
         )
         answer = self.types.answer("parameter", cur.type, facts)

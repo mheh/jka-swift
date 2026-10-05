@@ -295,13 +295,13 @@ func SpotWouldTelefrag(_ spot: Entity) -> Bool {
 }
 
 /// Source: oracle/codemp/game/g_client.c:554
-func SpotWouldTelefrag2(_ mover: Entity, _ dest: inout JKAShared.vec3_t) -> Bool {
+func SpotWouldTelefrag2(_ mover: Entity, _ dest: JKAShared.vec3_t) -> Bool {
     // TODO: Port SpotWouldTelefrag2
     portMissing("SpotWouldTelefrag2", source: "oracle/codemp/game/g_client.c:554")
 }
 
 /// Source: oracle/codemp/game/g_client.c:590
-func SelectNearestDeathmatchSpawnPoint(_ from: inout JKAShared.vec3_t) -> Entity? {
+func SelectNearestDeathmatchSpawnPoint(_ from: JKAShared.vec3_t) -> Entity? {
     // TODO: Port SelectNearestDeathmatchSpawnPoint
     portMissing("SelectNearestDeathmatchSpawnPoint", source: "oracle/codemp/game/g_client.c:590")
 }
@@ -322,13 +322,13 @@ Chooses a player start, deathmatch start, etc
 ```
 */
 /// Source: oracle/codemp/game/g_client.c:654
-func SelectRandomFurthestSpawnPoint(_ avoidPoint: inout JKAShared.vec3_t, _ origin: inout JKAShared.vec3_t, _ angles: inout JKAShared.vec3_t, _ team: JKAMP.team_t) -> Entity? {
+func SelectRandomFurthestSpawnPoint(_ avoidPoint: JKAShared.vec3_t, _ origin: inout JKAShared.vec3_t, _ angles: inout JKAShared.vec3_t, _ team: JKAMP.team_t) -> Entity? {
     // TODO: Port SelectRandomFurthestSpawnPoint
     portMissing("SelectRandomFurthestSpawnPoint", source: "oracle/codemp/game/g_client.c:654")
 }
 
 /// Source: oracle/codemp/game/g_client.c:760
-func SelectDuelSpawnPoint(_ team: Int32, _ avoidPoint: inout JKAShared.vec3_t, _ origin: inout JKAShared.vec3_t, _ angles: inout JKAShared.vec3_t) -> Entity? {
+func SelectDuelSpawnPoint(_ team: Int32, _ avoidPoint: JKAShared.vec3_t, _ origin: inout JKAShared.vec3_t, _ angles: inout JKAShared.vec3_t) -> Entity? {
     // TODO: Port SelectDuelSpawnPoint
     portMissing("SelectDuelSpawnPoint", source: "oracle/codemp/game/g_client.c:760")
 }
@@ -343,7 +343,7 @@ Chooses a player start, deathmatch start, etc
 ```
 */
 /// Source: oracle/codemp/game/g_client.c:854
-func SelectSpawnPoint(_ avoidPoint: inout JKAShared.vec3_t, _ origin: inout JKAShared.vec3_t, _ angles: inout JKAShared.vec3_t, _ team: JKAMP.team_t) -> Entity? {
+func SelectSpawnPoint(_ avoidPoint: JKAShared.vec3_t, _ origin: inout JKAShared.vec3_t, _ angles: inout JKAShared.vec3_t, _ team: JKAMP.team_t) -> Entity? {
     // TODO: Port SelectSpawnPoint
     portMissing("SelectSpawnPoint", source: "oracle/codemp/game/g_client.c:854")
 }
@@ -431,7 +431,7 @@ SetClientViewAngle
 ```
 */
 /// Source: oracle/codemp/game/g_client.c:1116
-func SetClientViewAngle(_ ent: Entity, _ angle: inout JKAShared.vec3_t) {
+func SetClientViewAngle(_ ent: Entity, _ angle: JKAShared.vec3_t) {
     // TODO: Port SetClientViewAngle
     portMissing("SetClientViewAngle", source: "oracle/codemp/game/g_client.c:1116")
 }

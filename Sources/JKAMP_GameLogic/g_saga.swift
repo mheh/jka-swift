@@ -343,7 +343,7 @@ func SiegeItemRemoveOwner(_ ent: Entity, _ carrier: Entity) {
 }
 
 /// Source: oracle/codemp/game/g_saga.c:1351
-private func SiegeItemRespawnEffect(_ ent: Entity, _ newOrg: inout JKAShared.vec3_t) {
+private func SiegeItemRespawnEffect(_ ent: Entity, _ newOrg: JKAShared.vec3_t) {
     // TODO: Port SiegeItemRespawnEffect
     portMissing("SiegeItemRespawnEffect", source: "oracle/codemp/game/g_saga.c:1351")
 }

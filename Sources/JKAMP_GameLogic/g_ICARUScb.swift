@@ -199,7 +199,7 @@ Lerps the origin and angles of an entity to the destination values
 ```
 */
 /// Source: oracle/codemp/game/g_ICARUScb.c:781
-func Q3_Lerp2Pos(_ taskID: Int32, _ entID: Int32, _ origin: inout JKAShared.vec3_t, _ angles: JKAShared.vec3_t?, _ duration: Float) {
+func Q3_Lerp2Pos(_ taskID: Int32, _ entID: Int32, _ origin: JKAShared.vec3_t, _ angles: JKAShared.vec3_t?, _ duration: Float) {
     // TODO: Port Q3_Lerp2Pos
     portMissing("Q3_Lerp2Pos", source: "oracle/codemp/game/g_ICARUScb.c:781")
 }
@@ -214,7 +214,7 @@ Lerps the angles to the destination value
 ```
 */
 /// Source: oracle/codemp/game/g_ICARUScb.c:892
-func Q3_Lerp2Angles(_ taskID: Int32, _ entID: Int32, _ angles: inout JKAShared.vec3_t, _ duration: Float) {
+func Q3_Lerp2Angles(_ taskID: Int32, _ entID: Int32, _ angles: JKAShared.vec3_t, _ duration: Float) {
     // TODO: Port Q3_Lerp2Angles
     portMissing("Q3_Lerp2Angles", source: "oracle/codemp/game/g_ICARUScb.c:892")
 }
@@ -432,7 +432,7 @@ Sets the angles of an entity directly
 ```
 */
 /// Source: oracle/codemp/game/g_ICARUScb.c:2022
-private func Q3_SetAngles(_ entID: Int32, _ angles: inout JKAShared.vec3_t) {
+private func Q3_SetAngles(_ entID: Int32, _ angles: JKAShared.vec3_t) {
     // TODO: Port Q3_SetAngles
     portMissing("Q3_SetAngles", source: "oracle/codemp/game/g_ICARUScb.c:2022")
 }
@@ -447,7 +447,7 @@ Lerps the origin to the destination value
 ```
 */
 /// Source: oracle/codemp/game/g_ICARUScb.c:2051
-func Q3_Lerp2Origin(_ taskID: Int32, _ entID: Int32, _ origin: inout JKAShared.vec3_t, _ duration: Float) {
+func Q3_Lerp2Origin(_ taskID: Int32, _ entID: Int32, _ origin: JKAShared.vec3_t, _ duration: Float) {
     // TODO: Port Q3_Lerp2Origin
     portMissing("Q3_Lerp2Origin", source: "oracle/codemp/game/g_ICARUScb.c:2051")
 }
@@ -2359,7 +2359,7 @@ SetTextColor
 ```
 */
 /// Source: oracle/codemp/game/g_ICARUScb.c:4942
-private func SetTextColor(_ textcolor: inout JKAShared.vec4_t, _ color: String) {
+private func SetTextColor(_ textcolor: JKAShared.vec4_t, _ color: String) {
     // TODO: Port SetTextColor
     portMissing("SetTextColor", source: "oracle/codemp/game/g_ICARUScb.c:4942")
 }

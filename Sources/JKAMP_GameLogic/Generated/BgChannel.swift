@@ -80,7 +80,7 @@ public func installBgChannel() {
         trap_Trace(results, start, mins, maxs, end, passEntityNum, contentmask)
     }
     bg.callbacks.BG_FighterUpdate = { pVeh, pUcmd, trMins, trMaxs, gravity, traceFunc in
-        BG_FighterUpdate(pVeh, pUcmd, &trMins, &trMaxs, gravity, traceFunc)
+        BG_FighterUpdate(pVeh, pUcmd, trMins, trMaxs, gravity, traceFunc)
     }
     bg.callbacks.BG_GetTime = {
         BG_GetTime()
@@ -104,7 +104,7 @@ public func installBgChannel() {
         G_Damage(Entity(handle: targ.handle), inflictor.map { Entity(handle: $0.handle) }, attacker.map { Entity(handle: $0.handle) }, &dir, point, damage, dflags, mod)
     }
     bg.callbacks.G_DamageFromKiller = { pEnt, pVehEnt, attacker, org, damage, dflags, mod in
-        G_DamageFromKiller(Entity(handle: pEnt.handle), Entity(handle: pVehEnt.handle), attacker.map { Entity(handle: $0.handle) }, &org, damage, dflags, mod)
+        G_DamageFromKiller(Entity(handle: pEnt.handle), Entity(handle: pVehEnt.handle), attacker.map { Entity(handle: $0.handle) }, org, damage, dflags, mod)
     }
     bg.callbacks.G_EffectIndex = { name in
         G_EffectIndex(name)
@@ -119,10 +119,10 @@ public func installBgChannel() {
         G_NewString(string)
     }
     bg.callbacks.G_PlayEffect = { fxID, org, ang in
-        G_PlayEffect(fxID, &org, &ang).map { JKAMP.BgEntity(handle: $0.handle) }
+        G_PlayEffect(fxID, org, ang).map { JKAMP.BgEntity(handle: $0.handle) }
     }
     bg.callbacks.G_PlayEffectID = { fxID, org, ang in
-        G_PlayEffectID(fxID, &org, &ang).map { JKAMP.BgEntity(handle: $0.handle) }
+        G_PlayEffectID(fxID, org, ang).map { JKAMP.BgEntity(handle: $0.handle) }
     }
     bg.callbacks.G_SetAnimalVehicleFunctions = { pVehInfo in
         G_SetAnimalVehicleFunctions(pVehInfo)

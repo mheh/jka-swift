@@ -81,6 +81,8 @@ class Facts:
     readonly_text: bool = False
     indexed: bool = False
     stores_through: bool = False
+    # True when the store sweep walked the owner's body, so a parameter outside the written set is proven read-only.
+    store_swept: bool = False
     # True when the NULL sweep, at a direct call or one hop on, reaches the parameter. The vector, axis, and out-scalar rules read this one.
     null_reaches: bool = False
     # True when the body hands the `int *` on to an array a trap fills, so the parameter is that array too.
@@ -258,6 +260,9 @@ class Types:
                 # A caller passes NULL and the body only reads, so the vector crosses as an optional value and the NULL test keeps its form.
                 return Answer(f"JKAShared.{t.spelling.split()[-1]}?", "vec3_opt")
             if "const" in t.spelling:
+                return Answer(f"JKAShared.{t.spelling.split()[-1]}", "vec3_const")
+            if facts.store_swept and not facts.stores_through and not facts.traps:
+                # The body never writes the vector, so it crosses by value as a const one does, and a caller passes a `let` vector as it is.
                 return Answer(f"JKAShared.{t.spelling.split()[-1]}", "vec3_const")
             return Answer(f"inout JKAShared.{t.spelling.split()[-1]}", "vec3_mut")
         if canonical.kind == TypeKind.POINTER:

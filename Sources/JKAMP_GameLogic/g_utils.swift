@@ -192,14 +192,14 @@ G_RadiusList - given an origin and a radius, return all entities that are in use
 ```
 */
 /// Source: oracle/codemp/game/g_utils.c:252
-func G_RadiusList(_ origin: inout JKAShared.vec3_t, _ radius: Float, _ ignore: Entity, _ takeDamage: Bool, _ ent_list: inout [Entity?]) -> Int32 {
+func G_RadiusList(_ origin: JKAShared.vec3_t, _ radius: Float, _ ignore: Entity, _ takeDamage: Bool, _ ent_list: inout [Entity?]) -> Int32 {
     // TODO: Port G_RadiusList
     portMissing("G_RadiusList", source: "oracle/codemp/game/g_utils.c:252")
 }
 
 //----------------------------------------------------------
 /// Source: oracle/codemp/game/g_utils.c:315
-func G_Throw(_ targ: Entity, _ newDir: inout JKAShared.vec3_t, _ push: Float) {
+func G_Throw(_ targ: Entity, _ newDir: JKAShared.vec3_t, _ push: Float) {
     // TODO: Port G_Throw
     portMissing("G_Throw", source: "oracle/codemp/game/g_utils.c:315")
 }
@@ -421,7 +421,7 @@ must be taken if the origin is right on a surface (snap towards start vector fir
 ```
 */
 /// Source: oracle/codemp/game/g_utils.c:1054
-func G_TempEntity(_ origin: inout JKAShared.vec3_t, _ event: Int32) -> Entity? {
+func G_TempEntity(_ origin: JKAShared.vec3_t, _ event: Int32) -> Entity? {
     // TODO: Port G_TempEntity
     portMissing("G_TempEntity", source: "oracle/codemp/game/g_utils.c:1054")
 }
@@ -436,7 +436,7 @@ Special event entity that keeps sound trackers in mind
 ```
 */
 /// Source: oracle/codemp/game/g_utils.c:1087
-func G_SoundTempEntity(_ origin: inout JKAShared.vec3_t, _ event: Int32, _ channel: Int32) -> Entity? {
+func G_SoundTempEntity(_ origin: JKAShared.vec3_t, _ event: Int32, _ channel: Int32) -> Entity? {
     // TODO: Port G_SoundTempEntity
     portMissing("G_SoundTempEntity", source: "oracle/codemp/game/g_utils.c:1087")
 }
@@ -504,7 +504,7 @@ G_PlayEffect
 ```
 */
 /// Source: oracle/codemp/game/g_utils.c:1250
-func G_PlayEffect(_ fxID: Int32, _ org: inout JKAShared.vec3_t, _ ang: inout JKAShared.vec3_t) -> Entity? {
+func G_PlayEffect(_ fxID: Int32, _ org: JKAShared.vec3_t, _ ang: JKAShared.vec3_t) -> Entity? {
     // TODO: Port G_PlayEffect
     portMissing("G_PlayEffect", source: "oracle/codemp/game/g_utils.c:1250")
 }
@@ -517,7 +517,7 @@ G_PlayEffectID
 ```
 */
 /// Source: oracle/codemp/game/g_utils.c:1267
-func G_PlayEffectID(_ fxID: Int32, _ org: inout JKAShared.vec3_t, _ ang: inout JKAShared.vec3_t) -> Entity? {
+func G_PlayEffectID(_ fxID: Int32, _ org: JKAShared.vec3_t, _ ang: JKAShared.vec3_t) -> Entity? {
     // TODO: Port G_PlayEffectID
     portMissing("G_PlayEffectID", source: "oracle/codemp/game/g_utils.c:1267")
 }
@@ -530,7 +530,7 @@ G_ScreenShake
 ```
 */
 /// Source: oracle/codemp/game/g_utils.c:1291
-func G_ScreenShake(_ org: inout JKAShared.vec3_t, _ target: Entity?, _ intensity: Float, _ duration: Int32, _ global: Bool) -> Entity? {
+func G_ScreenShake(_ org: JKAShared.vec3_t, _ target: Entity?, _ intensity: Float, _ duration: Int32, _ global: Bool) -> Entity? {
     // TODO: Port G_ScreenShake
     portMissing("G_ScreenShake", source: "oracle/codemp/game/g_utils.c:1291")
 }
@@ -569,7 +569,7 @@ G_SoundAtLoc
 ```
 */
 /// Source: oracle/codemp/game/g_utils.c:1379
-func G_SoundAtLoc(_ loc: inout JKAShared.vec3_t, _ channel: Int32, _ soundIndex: Int32) {
+func G_SoundAtLoc(_ loc: JKAShared.vec3_t, _ channel: Int32, _ soundIndex: Int32) {
     // TODO: Port G_SoundAtLoc
     portMissing("G_SoundAtLoc", source: "oracle/codemp/game/g_utils.c:1379")
 }
@@ -636,25 +636,25 @@ func TryUse(_ ent: Entity) {
 }
 
 /// Source: oracle/codemp/game/g_utils.c:1877
-func G_PointInBounds(_ point: inout JKAShared.vec3_t, _ mins: inout JKAShared.vec3_t, _ maxs: inout JKAShared.vec3_t) -> Bool {
+func G_PointInBounds(_ point: JKAShared.vec3_t, _ mins: JKAShared.vec3_t, _ maxs: JKAShared.vec3_t) -> Bool {
     // TODO: Port G_PointInBounds
     portMissing("G_PointInBounds", source: "oracle/codemp/game/g_utils.c:1877")
 }
 
 /// Source: oracle/codemp/game/g_utils.c:1896
-func G_BoxInBounds(_ point: inout JKAShared.vec3_t, _ mins: inout JKAShared.vec3_t, _ maxs: inout JKAShared.vec3_t, _ boundsMins: inout JKAShared.vec3_t, _ boundsMaxs: inout JKAShared.vec3_t) -> Bool {
+func G_BoxInBounds(_ point: JKAShared.vec3_t, _ mins: JKAShared.vec3_t, _ maxs: JKAShared.vec3_t, _ boundsMins: JKAShared.vec3_t, _ boundsMaxs: JKAShared.vec3_t) -> Bool {
     // TODO: Port G_BoxInBounds
     portMissing("G_BoxInBounds", source: "oracle/codemp/game/g_utils.c:1896")
 }
 
 /// Source: oracle/codemp/game/g_utils.c:1927
-func G_SetAngles(_ ent: Entity, _ angles: inout JKAShared.vec3_t) {
+func G_SetAngles(_ ent: Entity, _ angles: JKAShared.vec3_t) {
     // TODO: Port G_SetAngles
     portMissing("G_SetAngles", source: "oracle/codemp/game/g_utils.c:1927")
 }
 
 /// Source: oracle/codemp/game/g_utils.c:1934
-func G_ClearTrace(_ start: inout JKAShared.vec3_t, _ mins: inout JKAShared.vec3_t, _ maxs: inout JKAShared.vec3_t, _ end: inout JKAShared.vec3_t, _ ignore: Int32, _ clipmask: Int32) -> Bool {
+func G_ClearTrace(_ start: JKAShared.vec3_t, _ mins: JKAShared.vec3_t, _ maxs: JKAShared.vec3_t, _ end: JKAShared.vec3_t, _ ignore: Int32, _ clipmask: Int32) -> Bool {
     // TODO: Port G_ClearTrace
     portMissing("G_ClearTrace", source: "oracle/codemp/game/g_utils.c:1934")
 }
@@ -691,7 +691,7 @@ DebugLine
 ```
 */
 /// Source: oracle/codemp/game/g_utils.c:2011
-func DebugLine(_ start: inout JKAShared.vec3_t, _ end: inout JKAShared.vec3_t, _ color: Int32) -> Int32 {
+func DebugLine(_ start: JKAShared.vec3_t, _ end: JKAShared.vec3_t, _ color: Int32) -> Int32 {
     // TODO: Port DebugLine
     portMissing("DebugLine", source: "oracle/codemp/game/g_utils.c:2011")
 }
@@ -715,7 +715,7 @@ func G_ExpandPointToBBox(_ point: inout JKAShared.vec3_t, _ mins: JKAShared.vec3
 }
 
 /// Source: oracle/codemp/game/g_utils.c:2131
-func ShortestLineSegBewteen2LineSegs(_ start1: inout JKAShared.vec3_t, _ end1: inout JKAShared.vec3_t, _ start2: inout JKAShared.vec3_t, _ end2: inout JKAShared.vec3_t, _ close_pnt1: inout JKAShared.vec3_t, _ close_pnt2: inout JKAShared.vec3_t) -> Float {
+func ShortestLineSegBewteen2LineSegs(_ start1: JKAShared.vec3_t, _ end1: JKAShared.vec3_t, _ start2: JKAShared.vec3_t, _ end2: JKAShared.vec3_t, _ close_pnt1: inout JKAShared.vec3_t, _ close_pnt2: inout JKAShared.vec3_t) -> Float {
     // TODO: Port ShortestLineSegBewteen2LineSegs
     portMissing("ShortestLineSegBewteen2LineSegs", source: "oracle/codemp/game/g_utils.c:2131")
 }

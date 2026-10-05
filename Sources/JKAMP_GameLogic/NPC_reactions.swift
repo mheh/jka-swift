@@ -28,7 +28,7 @@ func NPC_GetPainChance(_ `self`: Entity, _ damage: Int32) -> Float {
 }
 
 /// Source: oracle/codemp/game/NPC_reactions.c:207
-func NPC_ChoosePainAnimation(_ `self`: Entity, _ other: Entity, _ point: inout JKAShared.vec3_t, _ damage: Int32, _ mod: Int32, _ hitLoc: Int32, _ voiceEvent: Int32) {
+func NPC_ChoosePainAnimation(_ `self`: Entity, _ other: Entity, _ point: JKAShared.vec3_t, _ damage: Int32, _ mod: Int32, _ hitLoc: Int32, _ voiceEvent: Int32) {
     // TODO: Port NPC_ChoosePainAnimation
     portMissing("NPC_ChoosePainAnimation", source: "oracle/codemp/game/NPC_reactions.c:207")
 }

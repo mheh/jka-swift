@@ -13,6 +13,7 @@ from clang.cindex import CursorKind, TypeKind
 from spelling import Facts, UNSIGNED
 
 from rulings import HAND_MACROS, HAND_VARS, WRAPPING_ARITHMETIC
+from overlay import MACRO_RETURNS, MACROS
 import closure as C
 from skeleton import BG, LOGIC, target_of
 from table import ASSIGN_OPS, COMMENT, TARGET, swift_name
@@ -114,7 +115,8 @@ class Expressions:
         cur = self.unwrap(cur)
         if cur.kind != CursorKind.INIT_LIST_EXPR:
             raise Hole("A vector local with an initializer that is not a list.")
-        words = [self.expr(k) for k in cur.get_children()]
+        # Each member is a float, and C converts an int member at the initializer.
+        words = [self.converted(k, "Float") for k in cur.get_children()]
         if len(words) > 3:
             raise Hole("A vector initializer with more than three members.")
         words += ["0"] * (3 - len(words))
@@ -156,6 +158,36 @@ class Expressions:
             return any(self.holds_double(k) for k in inner.get_children())
         return False
 
+    def arith_kind(self, cur: ci.Cursor) -> str | None:
+        """The number kind C computes the expression in, `Float`, `Double`, or `Int32`, with the overlay's own return type for Raven's macros.
+        The parse types `random()` by the SDK's `long random(void)`, which stands before the overlay, and Raven's macro computes in float."""
+        inner = self.unwrap(cur)
+        if inner.kind == CursorKind.CALL_EXPR:
+            name = self.callee_name(inner)
+            if name in MACROS and name in MACRO_RETURNS:
+                return {"float": "Float", "int": "Int32"}.get(MACRO_RETURNS[name])
+        parts: list[ci.Cursor] = []
+        if inner.kind == CursorKind.BINARY_OPERATOR and not self.macro_span(inner):
+            try:
+                op = self.binary_op(inner)
+            except Hole:
+                op = None
+            if op in ("+", "-", "*", "/"):
+                parts = list(inner.get_children())
+        elif inner.kind == CursorKind.CONDITIONAL_OPERATOR:
+            parts = list(inner.get_children())[1:]
+        elif inner.kind == CursorKind.UNARY_OPERATOR and self.operator_or_none_unary(inner) in ("-", "+"):
+            parts = [self.unary_parts(inner)[2]]
+        if not parts:
+            return self.types.number_kind(inner.type)
+        kinds = [self.arith_kind(k) for k in parts]
+        if None in kinds:
+            return self.types.number_kind(inner.type)
+        for kind in ("Double", "Float"):
+            if kind in kinds:
+                return kind
+        return "Int32"
+
     def is_literal(self, cur: ci.Cursor) -> bool:
         """A number Raven spelled as digits, which Swift types by context. A macro name is a typed constant, not a literal."""
         inner = self.unwrap(cur)
@@ -173,6 +205,11 @@ class Expressions:
         if swift == "Double" and double:
             # A store into Raven's `double` keeps C's double arithmetic, and each float operand widens as C widens it.
             return self.wrapped(cur, "Double")
+        kind = self.arith_kind(cur)
+        if swift in ("Float", "Int32") and kind in ("Float", "Int32") and kind != self.types.number_kind(self.strip(cur).type) \
+                and not self.is_literal(cur) and not self.is_bool(cur):
+            # The parse types Raven's macro by the SDK's function of the same name, and C's own kind decides the conversion at the slot.
+            return self.expr(cur) if kind == swift else f"{swift}({self.expr(cur)})"
         answer = self.types.crossing(self.strip(cur).type, swift,
                                      Facts(is_bool=self.is_bool(cur), is_literal=self.is_literal(cur),
                                            named_leaf=self.unwrap(cur).kind in self.NAMED_LEAVES,
@@ -673,8 +710,10 @@ class Expressions:
         """Raven's `ent - g_entities`, a pointer minus its own table, as the index of the slot it points at, or None.
 
         A walk pointer is its index local. An entity is its number, `ent.s.number`, the index Raven keeps in the record.
-        A store of that index into the entity's own number has no Swift form, because the number is the value the store writes.
-        A record of another table is the Slots index form, `bg_itemlist.firstIndex(of: item)!`, where an array index takes it."""
+        A store of that index into the entity's own number reads the Slots slot form, `g_entities.slot(of: ent)`,
+        because the number is the value the store writes.
+        A record of another table is the collection search, `bg_itemlist.firstIndex(of: item)!`, where an array index takes it,
+        and the Slots slot form, `bg_itemlist.slot(of: item)`, where the site takes an Int32."""
         table = self.unwrap(right)
         if table.kind != CursorKind.DECL_REF_EXPR or table.referenced is None or table.referenced.kind != CursorKind.VAR_DECL:
             return None
@@ -690,18 +729,15 @@ class Expressions:
         if position is not None and position[0] == swift_name(table.spelling):
             # A walk pointer over the same table already is its index.
             return position[1]
-        raven = " ".join(self.source.slice(self.unwrap(left).extent).split())
         optional = self.optional_base(left)
         if self.types.record_name(element) == "gentity_t":
             if self.stores_own_number(left, right):
-                raise Hole(f"Raven sets the entity number of `{raven}` from its slot address. "
-                           "The Swift entity number is the value this store writes, and the Slots index form is an Int, which needs a cast.")
+                return f"{swift_name(table.spelling)}.slot(of: {self.operand(left)}{'!' if optional else ''})"
             return f"{self.operand(left)}{'!' if optional else ''}.s.number"
         key = (self.unwrap(left).extent.start.offset, self.unwrap(right).extent.end.offset)
         if key in self.index_spans:
             return f"{swift_name(table.spelling)}.firstIndex(of: {self.operand(left)}{'!' if optional else ''})!"
-        raise Hole(f"Raven takes the slot index of `{raven}` in `{table.spelling}` here. "
-                   "The Slots index form is an Int, and this site takes an Int32, which needs a cast.")
+        return f"{swift_name(table.spelling)}.slot(of: {self.operand(left)}{'!' if optional else ''})"
 
     def stores_own_number(self, left: ci.Cursor, right: ci.Cursor) -> bool:
         """True when Raven's `ent - g_entities` is the value of a store into `ent->s.number`, the store that sets the number."""

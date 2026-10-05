@@ -445,21 +445,21 @@ func BotAILoadMap(_ restart: Int32) -> Int32 {
 
 //standard visibility check
 /// Source: oracle/codemp/game/ai_main.c:982
-func OrgVisible(_ org1: inout JKAShared.vec3_t, _ org2: inout JKAShared.vec3_t, _ ignore: Int32) -> Int32 {
+func OrgVisible(_ org1: JKAShared.vec3_t, _ org2: JKAShared.vec3_t, _ ignore: Int32) -> Int32 {
     // TODO: Port OrgVisible
     portMissing("OrgVisible", source: "oracle/codemp/game/ai_main.c:982")
 }
 
 //special waypoint visibility check
 /// Source: oracle/codemp/game/ai_main.c:997
-func WPOrgVisible(_ bot: Entity, _ org1: inout JKAShared.vec3_t, _ org2: inout JKAShared.vec3_t, _ ignore: Int32) -> Int32 {
+func WPOrgVisible(_ bot: Entity, _ org1: JKAShared.vec3_t, _ org2: JKAShared.vec3_t, _ ignore: Int32) -> Int32 {
     // TODO: Port WPOrgVisible
     portMissing("WPOrgVisible", source: "oracle/codemp/game/ai_main.c:997")
 }
 
 //visibility check with hull trace
 /// Source: oracle/codemp/game/ai_main.c:1029
-func OrgVisibleBox(_ org1: inout JKAShared.vec3_t, _ mins: inout JKAShared.vec3_t, _ maxs: inout JKAShared.vec3_t, _ org2: inout JKAShared.vec3_t, _ ignore: Int32) -> Int32 {
+func OrgVisibleBox(_ org1: JKAShared.vec3_t, _ mins: JKAShared.vec3_t, _ maxs: JKAShared.vec3_t, _ org2: JKAShared.vec3_t, _ ignore: Int32) -> Int32 {
     // TODO: Port OrgVisibleBox
     portMissing("OrgVisibleBox", source: "oracle/codemp/game/ai_main.c:1029")
 }
@@ -468,7 +468,7 @@ func OrgVisibleBox(_ org1: inout JKAShared.vec3_t, _ mins: inout JKAShared.vec3_
 //kind of badly done, but this shouldn't happen
 //often.
 /// Source: oracle/codemp/game/ai_main.c:1053
-func CheckForFunc(_ org: inout JKAShared.vec3_t, _ ignore: Int32) -> Int32 {
+func CheckForFunc(_ org: JKAShared.vec3_t, _ ignore: Int32) -> Int32 {
     // TODO: Port CheckForFunc
     portMissing("CheckForFunc", source: "oracle/codemp/game/ai_main.c:1053")
 }
@@ -482,7 +482,7 @@ func BotPVSCheck(_ p1: JKAShared.vec3_t, _ p2: JKAShared.vec3_t) -> Bool {
 
 //get the index to the nearest visible waypoint in the global trail
 /// Source: oracle/codemp/game/ai_main.c:1104
-func GetNearestVisibleWP(_ org: inout JKAShared.vec3_t, _ ignore: Int32) -> Int32 {
+func GetNearestVisibleWP(_ org: JKAShared.vec3_t, _ ignore: Int32) -> Int32 {
     // TODO: Port GetNearestVisibleWP
     portMissing("GetNearestVisibleWP", source: "oracle/codemp/game/ai_main.c:1104")
 }
@@ -546,7 +546,7 @@ func MoveTowardIdealAngles(_ bs: BotState) {
 //do some trace checks for strafing to get an idea of where we
 //are and if we should move to avoid obstacles.
 /// Source: oracle/codemp/game/ai_main.c:1556
-func BotTrace_Strafe(_ bs: BotState, _ traceto: inout JKAShared.vec3_t) -> Int32 {
+func BotTrace_Strafe(_ bs: BotState, _ traceto: JKAShared.vec3_t) -> Int32 {
     // TODO: Port BotTrace_Strafe
     portMissing("BotTrace_Strafe", source: "oracle/codemp/game/ai_main.c:1556")
 }
@@ -554,14 +554,14 @@ func BotTrace_Strafe(_ bs: BotState, _ traceto: inout JKAShared.vec3_t) -> Int32
 //Similar to the trace check, but we want to trace to see
 //if there's anything we can jump over.
 /// Source: oracle/codemp/game/ai_main.c:1638
-func BotTrace_Jump(_ bs: BotState, _ traceto: inout JKAShared.vec3_t) -> Int32 {
+func BotTrace_Jump(_ bs: BotState, _ traceto: JKAShared.vec3_t) -> Int32 {
     // TODO: Port BotTrace_Jump
     portMissing("BotTrace_Jump", source: "oracle/codemp/game/ai_main.c:1638")
 }
 
 //And yet another check to duck under any obstacles.
 /// Source: oracle/codemp/game/ai_main.c:1702
-func BotTrace_Duck(_ bs: BotState, _ traceto: inout JKAShared.vec3_t) -> Int32 {
+func BotTrace_Duck(_ bs: BotState, _ traceto: JKAShared.vec3_t) -> Int32 {
     // TODO: Port BotTrace_Duck
     portMissing("BotTrace_Duck", source: "oracle/codemp/game/ai_main.c:1702")
 }
@@ -597,7 +597,7 @@ func UpdateEventTracker() {
 
 //check if said angles are within our fov
 /// Source: oracle/codemp/game/ai_main.c:2034
-func InFieldOfVision(_ viewangles: inout JKAShared.vec3_t, _ fov: Float, _ angles: inout JKAShared.vec3_t) -> Int32 {
+func InFieldOfVision(_ viewangles: JKAShared.vec3_t, _ fov: Float, _ angles: inout JKAShared.vec3_t) -> Int32 {
     // TODO: Port InFieldOfVision
     portMissing("InFieldOfVision", source: "oracle/codemp/game/ai_main.c:2034")
 }
@@ -618,7 +618,7 @@ func ScanForEnemies(_ bs: BotState) -> Int32 {
 }
 
 /// Source: oracle/codemp/game/ai_main.c:2222
-func WaitingForNow(_ bs: BotState, _ goalpos: inout JKAShared.vec3_t) -> Int32 {
+func WaitingForNow(_ bs: BotState, _ goalpos: JKAShared.vec3_t) -> Int32 {
     // TODO: Port WaitingForNow
     portMissing("WaitingForNow", source: "oracle/codemp/game/ai_main.c:2222")
 }
@@ -696,7 +696,7 @@ func CTFTakesPriority(_ bs: BotState) -> Int32 {
 }
 
 /// Source: oracle/codemp/game/ai_main.c:3036
-func EntityVisibleBox(_ org1: inout JKAShared.vec3_t, _ mins: JKAShared.vec3_t?, _ maxs: JKAShared.vec3_t?, _ org2: inout JKAShared.vec3_t, _ ignore: Int32, _ ignore2: Int32) -> Int32 {
+func EntityVisibleBox(_ org1: JKAShared.vec3_t, _ mins: JKAShared.vec3_t?, _ maxs: JKAShared.vec3_t?, _ org2: JKAShared.vec3_t, _ ignore: Int32, _ ignore2: Int32) -> Int32 {
     // TODO: Port EntityVisibleBox
     portMissing("EntityVisibleBox", source: "oracle/codemp/game/ai_main.c:3036")
 }
@@ -829,7 +829,7 @@ func BotWeaponCanLead(_ bs: BotState) -> Float {
 
 //offset the desired view angles with aim leading in mind
 /// Source: oracle/codemp/game/ai_main.c:4607
-func BotAimLeading(_ bs: BotState, _ headlevel: inout JKAShared.vec3_t, _ leadAmount: Float) {
+func BotAimLeading(_ bs: BotState, _ headlevel: JKAShared.vec3_t, _ leadAmount: Float) {
     // TODO: Port BotAimLeading
     portMissing("BotAimLeading", source: "oracle/codemp/game/ai_main.c:4607")
 }

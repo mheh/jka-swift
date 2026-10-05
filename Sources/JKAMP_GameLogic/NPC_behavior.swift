@@ -137,13 +137,13 @@ func NPC_BSFlee() {
 }
 
 /// Source: oracle/codemp/game/NPC_behavior.c:1560
-func NPC_StartFlee(_ enemy: Entity, _ dangerPoint: inout JKAShared.vec3_t, _ dangerLevel: Int32, _ fleeTimeMin: Int32, _ fleeTimeMax: Int32) {
+func NPC_StartFlee(_ enemy: Entity, _ dangerPoint: JKAShared.vec3_t, _ dangerLevel: Int32, _ fleeTimeMin: Int32, _ fleeTimeMax: Int32) {
     // TODO: Port NPC_StartFlee
     portMissing("NPC_StartFlee", source: "oracle/codemp/game/NPC_behavior.c:1560")
 }
 
 /// Source: oracle/codemp/game/NPC_behavior.c:1636
-func G_StartFlee(_ `self`: Entity, _ enemy: Entity, _ dangerPoint: inout JKAShared.vec3_t, _ dangerLevel: Int32, _ fleeTimeMin: Int32, _ fleeTimeMax: Int32) {
+func G_StartFlee(_ `self`: Entity, _ enemy: Entity, _ dangerPoint: JKAShared.vec3_t, _ dangerLevel: Int32, _ fleeTimeMin: Int32, _ fleeTimeMax: Int32) {
     // TODO: Port G_StartFlee
     portMissing("G_StartFlee", source: "oracle/codemp/game/NPC_behavior.c:1636")
 }

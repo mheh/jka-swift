@@ -59,6 +59,9 @@ class Hook:
         self.install: str | None = None
         # A trap hook takes the trap's own shape, the one traps.py wrote in g_syscalls.swift, so a filled buffer is a returned String.
         self.trap = name.startswith("trap_")
+        # The vector parameters the game function takes by value because its body never writes them.
+        # The bg surface keeps them inout, because the adopted bg callers pass `&`, and the install passes the value on.
+        self.by_value: set[str] = set()
 
     @property
     def cite(self) -> str:
@@ -129,6 +132,9 @@ class Channel:
             if m is None or (m.swift is None and m.kind != "out_string"):
                 hook.reason = self.table.marker_reason(p, hook.name)
                 return
+            if not hook.trap and m.kind == "vec3_const" and "const" not in p.type.spelling:
+                hook.by_value.add(m.name)
+                m = Param(p.spelling, f"inout {m.swift}", "vec3_mut", size=m.size, label=m.label)
             hook.params.append(m)
         result = self.table.result(hook.cur)
         if result is None:
@@ -360,7 +366,7 @@ class Channel:
                         args.append(f"Entity(handle: {p.name}.handle)")
                     elif t == "JKAMP.BgEntity?":
                         args.append(f"{p.name}.map {{ Entity(handle: $0.handle) }}")
-                    elif t.startswith("inout "):
+                    elif t.startswith("inout ") and p.name not in hook.by_value:
                         args.append(f"&{p.name}")
                     else:
                         args.append(p.name)

@@ -7,9 +7,9 @@ The oracle range is the whole definition, from the return type to the closing br
 
 | Function | Oracle | Swift | State | jka-rust | Signature |
 |---|---|---|---|---|---|
-| `NPC_ClearPathToGoal` | `oracle/codemp/game/NPC_move.c:27-70` | `JKAMP_GameLogic/NPC_move.swift:13` | marker | `crates/mp/game/src/NPC_move.rs:23-94` | `func NPC_ClearPathToGoal(_ dir: inout JKAShared.vec3_t, _ goal: Entity) -> Bool` |
+| `NPC_ClearPathToGoal` | `oracle/codemp/game/NPC_move.c:27-70` | `JKAMP_GameLogic/NPC_move.swift:13` | marker | `crates/mp/game/src/NPC_move.rs:23-94` | `func NPC_ClearPathToGoal(_ dir: JKAShared.vec3_t, _ goal: Entity) -> Bool` |
 | `NPC_CheckCombatMove` | `oracle/codemp/game/NPC_move.c:78-95` | `JKAMP_GameLogic/NPC_move.swift:19` | marker | `crates/mp/game/src/NPC_move.rs:99-123` | `func NPC_CheckCombatMove() -> Bool` |
-| `NPC_LadderMove` static | `oracle/codemp/game/NPC_move.c:103-118` | `JKAMP_GameLogic/NPC_move.swift:25` | marker | `crates/mp/game/src/NPC_move.rs:128-145` | `private func NPC_LadderMove(_ dir: inout JKAShared.vec3_t)` |
+| `NPC_LadderMove` static | `oracle/codemp/game/NPC_move.c:103-118` | `JKAMP_GameLogic/NPC_move.swift:25` | marker | `crates/mp/game/src/NPC_move.rs:128-145` | `private func NPC_LadderMove(_ dir: JKAShared.vec3_t)` |
 | `NPC_GetMoveInformation` | `oracle/codemp/game/NPC_move.c:126-141` | `JKAMP_GameLogic/NPC_move.swift:31` | marker | `crates/mp/game/src/NPC_move.rs:150-177` | `func NPC_GetMoveInformation(_ dir: inout JKAShared.vec3_t, _ distance: inout Float) -> Bool` |
 | `NAV_GetLastMove` | `oracle/codemp/game/NPC_move.c:149-152` | `JKAMP_GameLogic/NPC_move.swift:37` | marker | `crates/mp/game/src/NPC_move.rs:185-189` | `func NAV_GetLastMove(_ info: NavInfo)` |
 | `NPC_GetMoveDirection` | `oracle/codemp/game/NPC_move.c:160-230` | `JKAMP_GameLogic/NPC_move.swift:43` | marker | `crates/mp/game/src/NPC_move.rs:194-274` | `func NPC_GetMoveDirection(_ out: inout JKAShared.vec3_t, _ distance: inout Float) -> Bool` |

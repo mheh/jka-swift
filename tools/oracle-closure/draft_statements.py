@@ -557,7 +557,11 @@ class Statements:
                 if op == "=" and inner.kind == CursorKind.BINARY_OPERATOR and not self.macro_span(inner) and self.binary_op(inner) == "=":
                     # Raven's `a = b = 0` sets b, then a from b, so the draft writes the two stores in that order.
                     lines = self.statement_lines(inner, depth)
-                    lines.append(f"{pad}{target} = {self.expr(list(inner.get_children())[0])}" + self.trailing(cur))
+                    middle = list(inner.get_children())[0]
+                    # The value of `b = 0` is b after its store, and C converts it again into a.
+                    outer = self.swift_type_of(left)
+                    value = self.converted(middle, outer) if outer in ("Float", "Int32") else self.expr(middle)
+                    lines.append(f"{pad}{target} = {value}" + self.trailing(cur))
                     return lines
                 if self.strip(left).type.get_canonical().kind == TypeKind.RECORD:
                     if op == "=" and self.is_record(left.type) and self.is_record(right.type):
@@ -573,14 +577,20 @@ class Statements:
                         and (self.has_double_literal(right) or self.holds_double(right)):
                     # C computes the double expression and converts once at the store, by "A double literal".
                     return [f"{pad}{target} = {lhs_kind}(Double({target}) {op[:-1]} {self.wrapped(right, 'Double')})" + self.trailing(cur)]
-                if op != "=" and lhs_kind == "Int32" and self.types.number_kind(self.strip(right).type) == "Float":
+                held_float = self.arith_kind(right) == "Float" or (self.arith_kind(right) == "Double" and not self.holds_double(right)
+                                                                    and not self.has_double_literal(right))
+                if op != "=" and lhs_kind == "Int32" and held_float:
                     # C computes in float and truncates at the store.
+                    # A C library call Swift holds in Float, `floor(x)` for a float `x`, is a float here too.
                     return [f"{pad}{target} = Int32(Float({target}) {op[:-1]} {self.expr(right)})" + self.trailing(cur)]
                 if unsigned is not None and not self.is_literal(right):
                     return [f"{pad}{target} {op} {self.wrapped(right, unsigned)}" + self.trailing(cur)]
                 if op == "=" and lhs_kind == "Int32" and self.unsigned_of(right) == "UInt32":
                     # C computes in unsigned and stores the bit pattern, `(size + 3) & 0xfffffffc`.
                     return [f"{pad}{target} = Int32(bitPattern: {self.wrapped(right, 'UInt32')})" + self.trailing(cur)]
+                if op == "=" and self.text_out_target(left) and self.optional_pooled(right):
+                    # A `char *` field is a PooledString?, and the String output takes its text, so the read takes the bind.
+                    return [f"{pad}{target} = {self.expr(right)}!.string" + self.trailing(cur)]
                 value = self.converted(right, lhs_kind) if op == "=" else self.expr(right)
                 return [f"{pad}{target} {op} {value}" + self.trailing(cur)]
         if self.is_call(cur) and self.callee_name(cur) in RECORD_CALLS:

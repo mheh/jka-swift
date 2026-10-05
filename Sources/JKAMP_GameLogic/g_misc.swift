@@ -148,7 +148,7 @@ func SP_light(_ `self`: Entity) {
 }
 
 /// Source: oracle/codemp/game/g_misc.c:177
-func TeleportPlayer(_ player: Entity, _ origin: inout JKAShared.vec3_t, _ angles: inout JKAShared.vec3_t) {
+func TeleportPlayer(_ player: Entity, _ origin: JKAShared.vec3_t, _ angles: JKAShared.vec3_t) {
     // TODO: Port TeleportPlayer
     portMissing("TeleportPlayer", source: "oracle/codemp/game/g_misc.c:177")
 }
@@ -745,7 +745,7 @@ func TAG_Find(_ owner: String, _ name: String) -> ReferenceTag? {
 }
 
 /// Source: oracle/codemp/game/g_misc.c:3036
-func TAG_Add(_ name: String, _ owner: String?, _ origin: inout JKAShared.vec3_t, _ angles: inout JKAShared.vec3_t, _ radius: Int32, _ flags: Int32) -> ReferenceTag? {
+func TAG_Add(_ name: String, _ owner: String?, _ origin: JKAShared.vec3_t, _ angles: JKAShared.vec3_t, _ radius: Int32, _ flags: Int32) -> ReferenceTag? {
     // TODO: Port TAG_Add
     portMissing("TAG_Add", source: "oracle/codemp/game/g_misc.c:3036")
 }

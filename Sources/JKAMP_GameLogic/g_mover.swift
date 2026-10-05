@@ -98,7 +98,7 @@ G_CreateRotationMatrix
 ```
 */
 /// Source: oracle/codemp/game/g_mover.c:118
-func G_CreateRotationMatrix(_ angles: inout JKAShared.vec3_t, _ matrix: inout [JKAShared.vec3_t]) {
+func G_CreateRotationMatrix(_ angles: JKAShared.vec3_t, _ matrix: inout [JKAShared.vec3_t]) {
     // TODO: Port G_CreateRotationMatrix
     portMissing("G_CreateRotationMatrix", source: "oracle/codemp/game/g_mover.c:118")
 }
@@ -130,7 +130,7 @@ func G_RotatePoint(_ point: inout JKAShared.vec3_t, _ matrix: inout [JKAShared.v
 }
 
 /// Source: oracle/codemp/game/g_mover.c:159
-func G_TryPushingEntity(_ check: Entity, _ pusher: Entity, _ move: inout JKAShared.vec3_t, _ amove: inout JKAShared.vec3_t) -> Bool {
+func G_TryPushingEntity(_ check: Entity, _ pusher: Entity, _ move: JKAShared.vec3_t, _ amove: JKAShared.vec3_t) -> Bool {
     // TODO: Port G_TryPushingEntity
     portMissing("G_TryPushingEntity", source: "oracle/codemp/game/g_mover.c:159")
 }
@@ -147,7 +147,7 @@ If qfalse is returned, *obstacle will be the blocking entity
 ```
 */
 /// Source: oracle/codemp/game/g_mover.c:283
-func G_MoverPush(_ pusher: Entity, _ move: inout JKAShared.vec3_t, _ amove: inout JKAShared.vec3_t, _ obstacle: inout Entity?) -> Bool {
+func G_MoverPush(_ pusher: Entity, _ move: JKAShared.vec3_t, _ amove: JKAShared.vec3_t, _ obstacle: inout Entity?) -> Bool {
     // TODO: Port G_MoverPush
     portMissing("G_MoverPush", source: "oracle/codemp/game/g_mover.c:283")
 }
@@ -702,13 +702,13 @@ private func CacheChunkEffects(_ material: JKAMP.material_t) {
 }
 
 /// Source: oracle/codemp/game/g_mover.c:2363
-func G_MiscModelExplosion(_ mins: inout JKAShared.vec3_t, _ maxs: inout JKAShared.vec3_t, _ size: Int32, _ chunkType: JKAMP.material_t) {
+func G_MiscModelExplosion(_ mins: JKAShared.vec3_t, _ maxs: JKAShared.vec3_t, _ size: Int32, _ chunkType: JKAMP.material_t) {
     // TODO: Port G_MiscModelExplosion
     portMissing("G_MiscModelExplosion", source: "oracle/codemp/game/g_mover.c:2363")
 }
 
 /// Source: oracle/codemp/game/g_mover.c:2379
-func G_Chunks(_ owner: Int32, _ origin: inout JKAShared.vec3_t, _ normal: JKAShared.vec3_t, _ mins: JKAShared.vec3_t, _ maxs: JKAShared.vec3_t, _ speed: Float, _ numChunks: Int32, _ chunkType: JKAMP.material_t, _ customChunk: Int32, _ baseScale: Float) {
+func G_Chunks(_ owner: Int32, _ origin: JKAShared.vec3_t, _ normal: JKAShared.vec3_t, _ mins: JKAShared.vec3_t, _ maxs: JKAShared.vec3_t, _ speed: Float, _ numChunks: Int32, _ chunkType: JKAMP.material_t, _ customChunk: Int32, _ baseScale: Float) {
     // TODO: Port G_Chunks
     portMissing("G_Chunks", source: "oracle/codemp/game/g_mover.c:2379")
 }

@@ -10,7 +10,7 @@ import JKAMP_BG
 var frameNavInfo: NavInfo { world.storage.frameNavInfo }
 
 /// Source: oracle/codemp/game/NPC_move.c:27
-func NPC_ClearPathToGoal(_ dir: inout JKAShared.vec3_t, _ goal: Entity) -> Bool {
+func NPC_ClearPathToGoal(_ dir: JKAShared.vec3_t, _ goal: Entity) -> Bool {
     // TODO: Port NPC_ClearPathToGoal
     portMissing("NPC_ClearPathToGoal", source: "oracle/codemp/game/NPC_move.c:27")
 }
@@ -22,7 +22,7 @@ func NPC_CheckCombatMove() -> Bool {
 }
 
 /// Source: oracle/codemp/game/NPC_move.c:103
-private func NPC_LadderMove(_ dir: inout JKAShared.vec3_t) {
+private func NPC_LadderMove(_ dir: JKAShared.vec3_t) {
     // TODO: Port NPC_LadderMove
     portMissing("NPC_LadderMove", source: "oracle/codemp/game/NPC_move.c:103")
 }

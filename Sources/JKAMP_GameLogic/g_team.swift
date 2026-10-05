@@ -65,7 +65,7 @@ AddTeamScore
 ```
 */
 /// Source: oracle/codemp/game/g_team.c:142
-func AddTeamScore(_ origin: inout JKAShared.vec3_t, _ team: Int32, _ score: Int32) {
+func AddTeamScore(_ origin: JKAShared.vec3_t, _ team: Int32, _ score: Int32) {
     // TODO: Port AddTeamScore
     portMissing("AddTeamScore", source: "oracle/codemp/game/g_team.c:142")
 }
