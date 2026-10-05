@@ -306,7 +306,7 @@ public struct Level: Hashable, HandleView {
     }
 
     /// Source: oracle/codemp/game/g_local.h:884
-    public var spawnVars: Slots<Slots<PooledString?>> { Slots(rows: UnsafeMutableRawPointer(self.raw.pointer(to: \.spawnVars)!), count: 64, stride: 2 * MemoryLayout<UnsafeRawPointer?>.stride) { Slots(strings: $0, count: 2) } }
+    public var spawnVars: Slots<Slots<String?>> { Slots(rows: UnsafeMutableRawPointer(self.raw.pointer(to: \.spawnVars)!), count: 64, stride: 2 * MemoryLayout<UnsafeRawPointer?>.stride) { Slots(strings: $0, count: 2) } }
 
     /// Source: oracle/codemp/game/g_local.h:885
     public var numSpawnVarChars: Int32 {
@@ -339,9 +339,9 @@ public struct Level: Hashable, HandleView {
     }
 
     /// Source: oracle/codemp/game/g_local.h:895
-    public var changemap: PooledString? {
-        get { PooledString(raw: self.raw.pointee.changemap) }
-        nonmutating set { self.raw.pointee.changemap = newValue?.raw }
+    public var changemap: String? {
+        get { self.raw.pointee.changemap.map { String(cString: $0) } }
+        nonmutating set { self.raw.pointee.changemap = StringPool.shared.pointer(for: newValue) }
     }
 
     /// Source: oracle/codemp/game/g_local.h:896
@@ -456,9 +456,9 @@ public struct Level: Hashable, HandleView {
     }
 
     /// Source: oracle/codemp/game/g_local.h:926
-    public var mTargetAdjust: PooledString? {
-        get { PooledString(raw: self.raw.pointee.mTargetAdjust) }
-        nonmutating set { self.raw.pointee.mTargetAdjust = newValue?.raw }
+    public var mTargetAdjust: String? {
+        get { self.raw.pointee.mTargetAdjust.map { String(cString: $0) } }
+        nonmutating set { self.raw.pointee.mTargetAdjust = StringPool.shared.pointer(for: newValue) }
     }
 
     /// Source: oracle/codemp/game/g_local.h:928

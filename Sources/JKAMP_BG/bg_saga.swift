@@ -509,8 +509,8 @@ func BG_SiegeTranslateForcePowers(_ buf: inout JKAShared.CharBuf, _ siegeClass: 
                     strcpy(&checkPower, "FP_LEVITATION")
                 }
 
-                while FPTable[k].id != -1 && !FPTable[k].name!.string.isEmpty {
-                    if Q_stricmp(String(checkPower), FPTable[k].name!.string) == 0 {
+                while FPTable[k].id != -1 && !FPTable[k].name!.isEmpty {
+                    if Q_stricmp(String(checkPower), FPTable[k].name!) == 0 {
                         //found it, add the weapon into the weapons value
                         siegeClass.forcePowerLevels[k] = parsedLevel
                         break
@@ -559,9 +559,9 @@ func BG_SiegeTranslateGenericTable(_ buf: inout JKAShared.CharBuf, _ table: Slot
             if checkItem[0] != 0 {
                 k = 0
 
-                while table[k].name != nil && !table[k].name!.string.isEmpty {
+                while table[k].name != nil && !table[k].name!.isEmpty {
                     //go through the list and check the parsed flag name against the hardcoded names
-                    if Q_stricmp(String(checkItem), table[k].name!.string) == 0 {
+                    if Q_stricmp(String(checkItem), table[k].name!) == 0 {
                         //Got it, so add the value into our items value.
                         if bitflag {
                             items |= (1 << table[k].id)

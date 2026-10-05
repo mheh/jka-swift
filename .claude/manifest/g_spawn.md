@@ -14,7 +14,7 @@ The oracle range is the whole definition, from the return type to the closing br
 | `SP_item_botroam` | `oracle/codemp/game/g_spawn.c:368-370` | `JKAMP_GameLogic/g_spawn.swift:65` | marker | `crates/mp/game/src/g_spawn.rs:186-186` | `func SP_item_botroam(_ ent: Entity)` |
 | `SP_gametype_item` | `oracle/codemp/game/g_spawn.c:372-431` | `JKAMP_GameLogic/g_spawn.swift:71` | marker | `crates/mp/game/src/g_spawn.rs:191-240` | `func SP_gametype_item(_ ent: Entity)` |
 | `G_CallSpawn` | `oracle/codemp/game/g_spawn.c:683-714` | `JKAMP_GameLogic/g_spawn.swift:87` | marker | `crates/mp/game/src/g_spawn.rs:248-285` | `func G_CallSpawn(_ ent: Entity) -> Bool` |
-| `G_NewString` | `oracle/codemp/game/g_spawn.c:724-749` | `JKAMP_GameLogic/g_spawn.swift:103` | marker | none | `func G_NewString(_ string: String) -> PooledString` |
+| `G_NewString` | `oracle/codemp/game/g_spawn.c:724-749` | `JKAMP_GameLogic/g_spawn.swift:103` | marker | none | `func G_NewString(_ string: String) -> String` |
 | `G_SpawnGEntityFromSpawnVars` | `oracle/codemp/game/g_spawn.c:766-842` | `JKAMP_GameLogic/g_spawn.swift:109` | marker | `crates/mp/game/src/g_spawn.rs:702-809` | `func G_SpawnGEntityFromSpawnVars(_ inSubBSP: Bool)` |
 | `G_AddSpawnVarToken` | `oracle/codemp/game/g_spawn.c:851-866` | `JKAMP_GameLogic/g_spawn.swift:122` | marker | none | `func G_AddSpawnVarToken(_ string: String) -> String` |
 | `AddSpawnField` | `oracle/codemp/game/g_spawn.c:868-884` | `JKAMP_GameLogic/g_spawn.swift:128` | marker | `crates/mp/game/src/g_spawn.rs:819-830` | `func AddSpawnField(_ field: String, _ value: String)` |

@@ -8,8 +8,8 @@ A field reads and writes through the C struct, so `ent.r.absmin` is Raven's `ent
 | C field | Swift | Note |
 |---|---|---|
 | `vmCvar_t * vmCvar` | `vmCvar: JKAMP.VmCvar?` | Optional, nil for a NULL pointer. |
-| `char * cvarName` | `cvarName: PooledString?` | Optional, nil for a NULL pointer. |
-| `char * defaultString` | `defaultString: PooledString?` | Optional, nil for a NULL pointer. |
+| `char * cvarName` | `cvarName: String?` | Optional, nil for a NULL pointer. |
+| `char * defaultString` | `defaultString: String?` | Optional, nil for a NULL pointer. |
 | `int cvarFlags` | `cvarFlags: Int32` |  |
 | `int modificationCount` | `modificationCount: Int32` |  |
 | `qboolean trackChange` | `trackChange: Bool` |  |

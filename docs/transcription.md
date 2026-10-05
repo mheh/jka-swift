@@ -90,7 +90,7 @@ An enum of that last kind is `private let` constants of type `Int32` at the top 
 | a `vec3_t name[3]` parameter | `inout [vec3_t]`, the type `AnglesToAxis`, `AxisClear`, and `AxisCopy` take in `q_math.swift` |
 | a non-const `char *` parameter of a function that is not a trap, with or without a size parameter beside it | `inout CharBuf`, and the caller passes its own buffer with `&`. A `const char *` stays `String`. |
 | a function-pointer parameter | an optional Swift closure, whose parameters go through these same rows |
-| a `void *` return | `UnsafeMutableRawPointer` for `BG_Alloc`, `BG_AllocUnaligned`, and `BG_TempAlloc`, and also for `B_Alloc`, `B_TempAlloc`, and `G_Alloc`. `BG_StringAlloc` and `G_NewString` return `PooledString`. |
+| a `void *` return | `UnsafeMutableRawPointer` for `BG_Alloc`, `BG_AllocUnaligned`, and `BG_TempAlloc`, and also for `B_Alloc`, `B_TempAlloc`, and `G_Alloc`. `BG_StringAlloc` and `G_NewString` return `String`, the text a `char *` field takes. |
 | a pointer parameter Raven fills as a fixed set of floats, such as `float *colors` of `BG_ValidateSkinForTeam` | `inout vec3_t` |
 | a `qhandle_t *` parameter of a trap or strap function | `UnsafeMutablePointer<Int32>?` |
 | a `const char *` return | `String`, or `String?` where the RETURNS kind `optional_string` marks a function that returns `NULL` on one path. |
@@ -182,7 +182,7 @@ The body of a `float *` return out of a static ring of temporaries is `vec3_t(x,
 
 A body with an `inout CharBuf` parameter writes as Raven wrote, `powerOut[i] = readBuf[0]`, and `Q_strncpyz(_ dest: inout CharBuf, _ src: String, _ destsize: Int32)` ports line for line.
 `BG_ParseField` takes `UnsafeMutableRawPointer` for `byte *ent` and `Slots<BgField>` for the field table, and writes through the labeled subscript of the section on typed access at a byte offset. The caller passes the entity's handle turned raw, with a one-line comment that names rule 11.
-A body with an `inout vec3_t` parameter such as `colors` drops the `&& colors` half of Raven's guard, and carries the null-guard Port-note this guide already describes.
+A body with an `inout vec3_t` parameter such as `colors` drops the `&& colors` half of Raven's guard, with no comment and no marker.
 A caller that passed `NULL` for that parameter passes a scratch local instead, `var colors = vec3_t()`, and reads nothing from it.
 A vector or axis parameter the NULL sweep reaches and the body only reads crosses as an optional value, `JKAShared.vec3_t?`, and the caller passes `nil` for `NULL`.
 The body's NULL test keeps its form, `normal == nil`, and every other read of the parameter is the force unwrap, `normal!`.
@@ -255,7 +255,7 @@ The overlay also declares the prototypes of the four functions a stale `extern` 
 | `DEG2RAD` | `Sources/JKAShared/q_shared.h.swift` |
 | `RAD2DEG` | `Sources/JKAShared/q_shared.h.swift` |
 | `M_PI` | `Sources/JKAShared/q_shared.h.swift` |
-| `VALIDSTRING` | `Sources/JKAShared/q_shared.h.swift`, one overload for `String` and one for `PooledString?` |
+| `VALIDSTRING` | `Sources/JKAShared/q_shared.h.swift`, one overload for `String` and one for `String?` |
 | `Q_IsColorString` | `Sources/JKAShared/q_shared.h.swift`, as `Q_IsColorString(buf, at: i)` for Raven's `Q_IsColorString(&text[i])` |
 | `ColorIndex` | `Sources/JKAShared/q_shared.h.swift` |
 | `PlaneTypeForNormal` | `Sources/JKAShared/q_math.swift` |
@@ -289,10 +289,9 @@ C gives the pointer no bound, so the `Slots` takes the widest count and Raven's 
 `views.py` has a `NEVER_NULL` table beside `ROOTS`, keyed by struct and field, for a pointer field Raven's callers always set.
 A field in the table is generated non-optional, and its getter traps with the field's name when the pointer is NULL, the one divergence rule 19 allows.
 `pmove_t.ps`, `pmove_t.trace`, and `pmove_t.pointcontents` are in it, so a body reads `pm.ps.velocity` for `pm->ps->velocity` with no bind. A field joins the table only by a ruling, never by a transcriptor's guess.
-A view parameter is non-optional, so a body drops Raven's null guard on it.
-Where the sweeps prove that no caller passes NULL, a plain comment names the dropped guard.
-The proof fails for a parameter that NULL reaches through a local the caller sets to NULL, or through a parameter of the caller that NULL reaches, so that guard keeps its Port-note.
-Otherwise the body carries the Port-note `// Raven guards a NULL ps here. The view is non-optional, so the guard has no Swift form.` and a `portMissing` marker under it, because the NULL arm does not run in Swift.
+A view parameter is non-optional, so a body drops Raven's null guard on it, with no comment and no marker.
+The Swift signature holds the value, so no NULL reaches the body, and the arm under the guard has no path. The same holds for an `inout` parameter, a text local the text-local rule made non-optional, and a never-null variable.
+A caller that holds an optional and passes it where a value is due meets the hole at the call, where the never-null ruling is due.
 A caller that holds an optional view unwraps it at the call site, in Raven's control shape: `guard let ... else { return }` where Raven wrote an early-out, and `if let ... { }` where Raven wrapped a block. A guard that does other work on the NULL path keeps a Port-note.
 A read Raven made through the pointer with no guard is a force unwrap, `saber!.model`, which traps where C would crash. A guard Raven wrote is the only source of a bind, so no guard is invented for him.
 A view parameter that a caller passes NULL to is optional, and every read through it takes the same force unwrap, `attacker!.client`.
@@ -433,9 +432,10 @@ An object-like macro of a game header that a bg body reads is a constant of the 
 
 ### A `char *` at runtime
 
-A `char *` at runtime comes from the world's string pool of rule 9, `Sources/JKAShared/Views/StringPool.swift`.
-`world.strings.intern("text")` returns a `PooledString`, the pointer type a `char *` field takes.
-A `PooledString` compares by pointer, as Raven's `char *` compare did, so `ent.classname == "noclass"` reads as Raven's `strcmp` did.
+A `char *` field is a `String?` on the view. A read gives the text behind the pointer, and `nil` is Raven's NULL.
+A store, `ent.classname = "noclass"`, interns the text in the module's string pool of rule 9, `Sources/JKAShared/Views/StringPool.swift`, so the engine reads a pointer that lives for the module's life.
+The pool copies each distinct text once, so a copy from one field to another, `ent.target = other.target`, stores the same pointer Raven's copy stored.
+A compare, `ent.classname == "noclass"`, compares the text, as Raven's `strcmp` did. Raven compares two `char *` fields by pointer nowhere a body reads.
 
 ### A callback store
 
@@ -540,14 +540,14 @@ Where no port exists, the transcriptor adds a Port-note, because the exact C sem
 `Sources/JKAShared/CString.swift` holds the libc names Raven calls, `atoi`, `atof`, `strcpy`, `strncpy`, `strcat`, `strlen`, `strcmp`, `strchr`, and `strstr`, with C semantics.
 Each one works over `CharBuf` and `String`, `strcpy` also takes a raw destination, and `strlen` returns `Int32`, narrowed once inside it.
 `strcpy` and `strcat` take an `at:` offset too, for Raven's copy through a pointer into the buffer, and `strcat` appends at the first NUL from that byte.
-`PooledString` has `init(_ raw: UnsafeMutableRawPointer)`, so `BG_StringAlloc` reads `strcpy(dest, source)` then `return PooledString(dest)`.
+`BG_StringAlloc` returns its text, because the `char *` field setter interns it under rule 9, and the bg pool holds no copy.
 Raven's `...` is `_ args: any JKAShared.FormatArg...`, and `Sources/JKAShared/Format.swift` formats it with the `printf` subset the game uses, `%i`, `%d`, `%s`, `%c`, and `%f` with a width, a precision, and the left-align flag.
 `va` returns that text, so `strcpy(&powerOut, va("%i-", maxRank))` is Raven's line, and `Com_Printf`, `G_Printf`, and `Com_Error` format the same way.
 A specifier outside the subset is a precondition failure, so a new shape surfaces at once.
 Raven passes a whole record to a `%s`, as `Com_Printf("OLD: %s\n", animTable[oldAnim])` does.
 The format reads the text at the record's address, and those bytes are the record's first field.
 The port names that field, `Com_Printf("OLD: %s\n", animTable[oldAnim].name!)`, and the site carries the note of rule 19 in two lines.
-A `char *` first field is a `PooledString?` on the view, so the argument takes the bind.
+A `char *` first field is a `String?` on the view, so the argument takes the bind.
 The drafter reads the format string literal at the call site and counts its conversions, a `*` width or precision as one argument each.
 The port names the first field only when the conversion that the record feeds is `%s`.
 A record whose first field holds no text keeps a Port-note.
@@ -573,7 +573,7 @@ A new comment the transcriptor writes follows the house style: STE prose, one se
 ### Typed access at a byte offset
 
 `Sources/JKAShared/Views/RawField.swift` extends `UnsafeMutableRawPointer` with one labeled subscript per C type Raven casts to at an offset, each taking any integer offset.
-`b[int: f.ofs]` stores an `Int32`, `b[float: f.ofs]` a `Float`, `b[float: f.ofs, 1]` the second float after the offset, and `b[string: f.ofs]` the raw pointer of a `PooledString`.
+`b[int: f.ofs]` stores an `Int32`, `b[float: f.ofs]` a `Float`, `b[float: f.ofs, 1]` the second float after the offset, and `b[string: f.ofs]` the text of a `char *` field, which the store interns in the pool.
 `b[pointer: f.ofs]` is the `UnsafeMutableRawPointer?` a `char *` field holds, so `*(char **)(b+ofs)` reads `b[pointer: ofs]` and Raven's `!*(char **)(b+ofs)` reads `b[pointer: ofs] == nil`.
 `b[byte: len]` is one byte at an offset, which sign-extends and truncates as `CharBuf` does, so `tempReadBuffer[len] = 0` through a raw allocation reads `tempReadBuffer[byte: len] = 0`.
 Raven's `qboolean` and his `vehicleType_t` are enums of four bytes, so `*(qboolean *)(b+ofs)` and `*(vehicleType_t *)(b+ofs)` both take the `int` slot.

@@ -100,7 +100,7 @@ so message texts can be multi-line
 ```
 */
 /// Source: oracle/codemp/game/g_spawn.c:724
-func G_NewString(_ string: String) -> PooledString {
+func G_NewString(_ string: String) -> String {
     // TODO: Port G_NewString
     portMissing("G_NewString", source: "oracle/codemp/game/g_spawn.c:724")
 }

@@ -140,7 +140,7 @@ TYPES = {
 
 # Function -> the kind of its return, where the C type alone does not say. See "The bg pool" and "C string functions".
 #   raw            an UnsafeMutableRawPointer into the pool, the only Swift type a view can bind over
-#   pooled_string  a PooledString, the type a `char *` field carries
+#   pooled_string  a String, the text a `char *` field takes, which the field's setter interns in the pool
 #   text_cursor    a TextCursor, a pointer into the caller's text that the function returns advanced
 #   optional_string  a String?, for a `char *` return Raven sets to NULL on one path
 #   in_place       Void, for a function that rewrites its `char *` argument and returns it

@@ -7,14 +7,14 @@ A field reads and writes through the C struct, so `ent.r.absmin` is Raven's `ent
 
 | C field | Swift | Note |
 |---|---|---|
-| `char * classname` | `classname: PooledString?` | Optional, nil for a NULL pointer. |
-| `char * pickup_sound` | `pickup_sound: PooledString?` | Optional, nil for a NULL pointer. |
-| `char *[4] world_model` | `world_model: Slots<PooledString?>` | Array of 4. |
-| `char * view_model` | `view_model: PooledString?` | Optional, nil for a NULL pointer. |
-| `char * icon` | `icon: PooledString?` | Optional, nil for a NULL pointer. |
+| `char * classname` | `classname: String?` | Optional, nil for a NULL pointer. |
+| `char * pickup_sound` | `pickup_sound: String?` | Optional, nil for a NULL pointer. |
+| `char *[4] world_model` | `world_model: Slots<String?>` | Array of 4. |
+| `char * view_model` | `view_model: String?` | Optional, nil for a NULL pointer. |
+| `char * icon` | `icon: String?` | Optional, nil for a NULL pointer. |
 | `int quantity` | `quantity: Int32` |  |
 | `itemType_t giType` | `giType: itemType_t` |  |
 | `int giTag` | `giTag: Int32` |  |
-| `char * precaches` | `precaches: PooledString?` | Optional, nil for a NULL pointer. |
-| `char * sounds` | `sounds: PooledString?` | Optional, nil for a NULL pointer. |
-| `char * description` | `description: PooledString?` | Optional, nil for a NULL pointer. |
+| `char * precaches` | `precaches: String?` | Optional, nil for a NULL pointer. |
+| `char * sounds` | `sounds: String?` | Optional, nil for a NULL pointer. |
+| `char * description` | `description: String?` | Optional, nil for a NULL pointer. |

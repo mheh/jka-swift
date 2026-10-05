@@ -108,14 +108,14 @@ extension Slots {
         )
     }
 
-    /// A C array of `char *`.
-    public init(strings base: UnsafeMutableRawPointer, count: Int) where Element == PooledString? {
+    /// A C array of `char *`, one text per slot. A store interns the text in the shared pool.
+    public init(strings base: UnsafeMutableRawPointer, count: Int) where Element == String? {
         self.init(
             base: base,
             count: count,
             stride: MemoryLayout<UnsafeMutablePointer<CChar>?>.stride,
-            read: { PooledString(raw: $0.load(as: UnsafeMutablePointer<CChar>?.self)) },
-            write: { $0.storeBytes(of: $1?.raw, as: UnsafeMutablePointer<CChar>?.self) }
+            read: { $0.load(as: UnsafeMutablePointer<CChar>?.self).map { String(cString: $0) } },
+            write: { $0.storeBytes(of: StringPool.shared.pointer(for: $1), as: UnsafeMutablePointer<CChar>?.self) }
         )
     }
 

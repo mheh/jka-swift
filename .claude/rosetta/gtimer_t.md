@@ -7,6 +7,6 @@ A field reads and writes through the C struct, so `ent.r.absmin` is Raven's `ent
 
 | C field | Swift | Note |
 |---|---|---|
-| `const char * name` | `name: PooledString?` | Optional, nil for a NULL pointer. |
+| `const char * name` | `name: String?` | Optional, nil for a NULL pointer. |
 | `int time` | `time: Int32` |  |
 | `struct gtimer_s * next` | `next: Gtimer?` | Optional, nil for a NULL pointer. |

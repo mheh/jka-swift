@@ -14,7 +14,7 @@ struct BgTablesTests {
     @Test("The first item is the small instant shield Raven wrote")
     func firstItem() {
         // Source: oracle/codemp/game/bg_misc.c:822
-        #expect(bg_itemlist[1].classname?.string == "item_shield_sm_instant")
+        #expect(bg_itemlist[1].classname == "item_shield_sm_instant")
         // Source: oracle/codemp/game/bg_misc.c:829
         #expect(bg_itemlist[1].quantity == 25)
     }

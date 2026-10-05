@@ -52,9 +52,9 @@ public struct StringIDTable: Hashable, HandleView {
     }
 
     /// Source: oracle/codemp/game/q_shared.h:3156
-    public var name: PooledString? {
-        get { PooledString(raw: self.raw.pointee.name) }
-        nonmutating set { self.raw.pointee.name = newValue?.raw }
+    public var name: String? {
+        get { self.raw.pointee.name.map { String(cString: $0) } }
+        nonmutating set { self.raw.pointee.name = StringPool.shared.pointer(for: newValue) }
     }
 
     /// Source: oracle/codemp/game/q_shared.h:3157

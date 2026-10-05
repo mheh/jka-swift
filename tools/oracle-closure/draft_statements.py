@@ -16,7 +16,8 @@ from skeleton import LOGIC, target_of
 from table import ASSIGN_OPS, TARGET, swift_name
 from overlay import DROPPED, MACROS, RECORD_CALLS, address_arguments
 
-from draft_classification import INDENT, Hole
+from draft_classification import COMPILE_NOTE, INDENT, Hole, marked
+from draft_declarations import extent_key
 from draft_expressions import IDENTIFIER, NUMBER
 
 
@@ -57,12 +58,13 @@ class Statements:
                 out += self.param_copy_lines(depth)
             out += self.gap(previous_line, child.extent.start.line, depth)
             out += self.shared_read_lines(child, depth)
-            if record is not None:
-                out += self.scratch(child, record, children[i + 1:], last_line, depth)
+            # A record or a choice whose statement the compile gate rejected is a hole, and the statements after it draft at this depth.
+            if record is not None and self.statement_key(child) not in self.compile_due:
+                out += marked(self.scratch(child, record, children[i + 1:], last_line, depth), self.statement_number(child))
                 return out
             chosen = self.chosen_choice(child, children[i + 1:])
-            if chosen is not None:
-                out += self.choice(chosen, child, children[i + 1:], last_line, depth)
+            if chosen is not None and self.statement_key(child) not in self.compile_due:
+                out += marked(self.choice(chosen, child, children[i + 1:], last_line, depth), self.statement_number(child))
                 return out
             out += self.statement(child, depth)
             self.after_com_error = self.is_call(child) and self.callee_name(child) == "Com_Error"
@@ -193,13 +195,35 @@ class Statements:
     def statement(self, cur: ci.Cursor, depth: int) -> list[str]:
         outer = self.pending
         self.pending = []
-        try:
-            lines = self.statement_lines(cur, depth)
-        except Hole as hole:
-            lines = self.hole(cur, depth, str(hole))
+        lines = self.compile_hole(cur, depth)
+        if lines is None:
+            try:
+                lines = self.statement_lines(cur, depth)
+            except Hole as hole:
+                lines = self.hole(cur, depth, str(hole))
         lines = [INDENT * depth + line for line in self.pending] + lines
         self.pending = outer
-        return lines
+        return marked(lines, self.statement_number(cur))
+
+    def statement_key(self, cur: ci.Cursor) -> tuple[str, str, int, int]:
+        """One statement's identity across two drafts of the same function, by the function and the statement's extent."""
+        return (self.fn.cur.spelling,) + extent_key(cur)
+
+    def statement_number(self, cur: ci.Cursor) -> int:
+        """The number of a statement's mark, which the drafter reads back as the statement's key."""
+        key = self.statement_key(cur)
+        if key not in self.statement_numbers:
+            self.statement_numbers[key] = len(self.statement_keys)
+            self.statement_keys.append(key)
+        return self.statement_numbers[key]
+
+    def compile_hole(self, cur: ci.Cursor, depth: int) -> list[str] | None:
+        """The hole of a statement whose draft the compile gate rejected on an earlier pass, or None for a statement it accepted."""
+        message = self.compile_due.get(self.statement_key(cur))
+        if message is None:
+            return None
+        self.compile_holes += 1
+        return self.hole(cur, depth, COMPILE_NOTE.format(message))
 
     def tuple_call(self, cur: ci.Cursor) -> tuple[str, str] | None:
         """A call to a trap whose Swift form returns `(Int32, String)` or `(Bool, String)`: the call without Raven's buffer and size arguments,
@@ -352,9 +376,9 @@ class Statements:
                 stepped = self.unary_parts(post)[2]
                 return [f"{pad}defer {{ {self.expr(stepped)} {self.unary_parts(post)[0][0]}= 1 }}",
                         f"{pad}return {self.converted(stepped, self.fn.returns)}" + self.trailing(cur)]
-            if self.fn.returns == "PooledString" and self.is_raw(kids[0]):
-                # Raven returns the raw allocation he filled, and the pool string is the view over it.
-                return [f"{pad}return PooledString({self.expr(kids[0])})" + self.trailing(cur)]
+            if self.fn.returns == "String" and self.is_raw(kids[0]):
+                # Raven returns the raw allocation he filled, and the result is the text in it.
+                return [f"{pad}return String(cString: {self.expr(kids[0])}.assumingMemoryBound(to: CChar.self))" + self.trailing(cur)]
             value = self.converted(kids[0], self.fn.returns)
             return [f"{pad}return {value}" + self.trailing(cur)]
         if kind == CursorKind.IF_STMT:
@@ -514,10 +538,9 @@ class Statements:
                 if op == "=" and self.is_null(right) and field.kind == TypeKind.POINTER and field.get_pointee().kind == TypeKind.FUNCTIONPROTO:
                     # Raven clears a callback field with 0 or NULL, and the optional closure field takes nil.
                     return [f"{pad}{self.expr(left)} = nil" + self.trailing(cur)]
-                if op == "=" and self.pooled_field(left) and target_of(self.fn.stem) == LOGIC and not self.is_null(right) \
-                        and self.unwrap(right).kind != CursorKind.STRING_LITERAL and self.text_kind(right) == "String":
-                    # A `char *` field holds a pointer the engine may read at any time, so Raven's text goes into the world's string pool first.
-                    return [f"{pad}{self.expr(left)} = world.strings.intern({self.expr(right)})" + self.trailing(cur)]
+                if op == "=" and self.pooled_field(left) and self.text_kind(right) == "CharBuf":
+                    # A `char *` field takes a String, and the field's setter interns it, so a buffer crosses as its text.
+                    return [f"{pad}{self.expr(left)} = String({self.expr(right)})" + self.trailing(cur)]
                 if self.float_field(self.strip(left)) and self.is_pointer(right):
                     raven = self.bytes[cur.extent.start.offset:cur.extent.end.offset].decode("utf-8", "replace")
                     raise Hole(f"Raven stores a pointer into the `float *` field with `{raven}`, and rule 11 keeps a pointer out of a logic target.")
@@ -589,8 +612,8 @@ class Statements:
                     # C computes in unsigned and stores the bit pattern, `(size + 3) & 0xfffffffc`.
                     return [f"{pad}{target} = Int32(bitPattern: {self.wrapped(right, 'UInt32')})" + self.trailing(cur)]
                 if op == "=" and self.text_out_target(left) and self.optional_pooled(right):
-                    # A `char *` field is a PooledString?, and the String output takes its text, so the read takes the bind.
-                    return [f"{pad}{target} = {self.expr(right)}!.string" + self.trailing(cur)]
+                    # A `char *` field is a String?, and the String output takes its text, so the read takes the bind.
+                    return [f"{pad}{target} = {self.expr(right)}!" + self.trailing(cur)]
                 value = self.converted(right, lhs_kind) if op == "=" else self.expr(right)
                 return [f"{pad}{target} {op} {value}" + self.trailing(cur)]
         if self.is_call(cur) and self.callee_name(cur) in RECORD_CALLS:
@@ -709,14 +732,10 @@ class Statements:
         else:
             test = self.condition(cond)
         if test == "false":
-            # The guard folded away, so its arm never runs, and only the else arm stays.
-            self.pending.append("// Raven's arm under the guard has no path, and its text stays here:")
-            self.pending += self.commented(then)
+            # The guard folded away, because the Swift signature holds the value, so its arm has no path and only the else arm stays.
             return self.branch(kids[2], depth) if len(kids) == 3 else []
         if test == "true":
-            if len(kids) == 3:
-                self.pending.append("// Raven's else arm has no path, and its text stays here:")
-                self.pending += self.commented(kids[2])
+            # The test folded away, so the else arm has no path and only the then arm stays.
             return self.branch(then, depth)
         out = head + [f"{pad}if {test} {{"] + self.branch(then, depth + 1)
         if len(kids) == 3:
@@ -724,7 +743,9 @@ class Statements:
             # Raven's comment between the then arm's brace and his `else` has no seat there in Swift, so it opens the else arm.
             between = [line for line in self.gap(then.extent.end.line, other.extent.start.line, depth + 1) if line.strip()]
             if other.kind == CursorKind.IF_STMT:
-                nested = self.if_statement(other, depth)
+                # Raven's else-if is a statement of its own, so the compile gate maps an error in it to it and not to the whole chain.
+                nested = self.compile_hole(other, depth)
+                nested = marked(self.if_statement(other, depth) if nested is None else nested, self.statement_number(other))
                 if nested and nested[0].strip().startswith("if "):
                     out.append(f"{pad}}} else {nested[0].strip()}")
                     out += between + nested[1:]

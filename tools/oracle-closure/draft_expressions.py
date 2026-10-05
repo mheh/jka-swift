@@ -233,7 +233,7 @@ class Expressions:
         if not self.is_null(index):
             return None
         if base.kind == CursorKind.MEMBER_REF_EXPR and self.pooled_field(base):
-            return f"{self.expr(base)}!.string"
+            return f"{self.expr(base)}!"
         if base.kind == CursorKind.MEMBER_REF_EXPR and self.string_field(base):
             return self.expr(base)
         if base.kind != CursorKind.DECL_REF_EXPR:

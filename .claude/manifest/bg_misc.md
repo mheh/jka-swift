@@ -39,8 +39,8 @@ The oracle range is the whole definition, from the return type to the closing br
 | `BG_AllocUnaligned` | `oracle/codemp/game/bg_misc.c:3343-3354` | `JKAMP_BG/bg_misc.swift:1697` | ported | `crates/mp/bg/src/bg_misc.rs:1848-1862` | `func BG_AllocUnaligned(_ size: Int32) -> UnsafeMutableRawPointer` |
 | `BG_TempAlloc` | `oracle/codemp/game/bg_misc.c:3356-3369` | `JKAMP_BG/bg_misc.swift:1709` | ported | `crates/mp/bg/src/bg_misc.rs:1867-1879` | `public func BG_TempAlloc(_ size: Int32) -> UnsafeMutableRawPointer` |
 | `BG_TempFree` | `oracle/codemp/game/bg_misc.c:3371-3381` | `JKAMP_BG/bg_misc.swift:1725` | ported | `crates/mp/bg/src/bg_misc.rs:1899-1913` | `public func BG_TempFree(_ size: Int32)` |
-| `BG_StringAlloc` | `oracle/codemp/game/bg_misc.c:3383-3390` | `JKAMP_BG/bg_misc.swift:1738` | ported | `crates/mp/bg/src/bg_misc.rs:1918-1928` | `func BG_StringAlloc(_ source: String) -> PooledString` |
-| `BG_OutOfMemory` | `oracle/codemp/game/bg_misc.c:3392-3395` | `JKAMP_BG/bg_misc.swift:1747` | ported | `crates/mp/bg/src/bg_misc.rs:1933-1940` | `func BG_OutOfMemory() -> Bool` |
+| `BG_StringAlloc` | `oracle/codemp/game/bg_misc.c:3383-3390` | `JKAMP_BG/bg_misc.swift:1738` | ported | `crates/mp/bg/src/bg_misc.rs:1918-1928` | `func BG_StringAlloc(_ source: String) -> String` |
+| `BG_OutOfMemory` | `oracle/codemp/game/bg_misc.c:3392-3395` | `JKAMP_BG/bg_misc.swift:1744` | ported | `crates/mp/bg/src/bg_misc.rs:1933-1940` | `func BG_OutOfMemory() -> Bool` |
 
 17 file-scope variables. The entry is the stub's line for the variable, by rule 3 and rule 6.
 

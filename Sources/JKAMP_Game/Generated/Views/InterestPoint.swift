@@ -59,8 +59,8 @@ public struct InterestPoint: Hashable, HandleView {
     }
 
     /// Source: oracle/codemp/game/g_local.h:757
-    public var target: PooledString? {
-        get { PooledString(raw: self.raw.pointee.target) }
-        nonmutating set { self.raw.pointee.target = newValue?.raw }
+    public var target: String? {
+        get { self.raw.pointee.target.map { String(cString: $0) } }
+        nonmutating set { self.raw.pointee.target = StringPool.shared.pointer(for: newValue) }
     }
 }

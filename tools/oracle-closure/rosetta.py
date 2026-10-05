@@ -147,7 +147,7 @@ class Rosetta:
             "| `short` | `Int16` |",
             "| `float` | `Float` |",
             "| `double` | `Double` |",
-            "| `char` in a string | `String` through the view, or `PooledString?` for a `char *` field |",
+            "| `char` in a string | `String` through the view, or `String?` for a `char *` field |",
             "| `qboolean` | `Bool` |",
             "| `void *` | `OpaquePointer?`, only inside a view or a trap |",
         ]

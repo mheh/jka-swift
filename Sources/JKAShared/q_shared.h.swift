@@ -20,8 +20,8 @@ public func VALIDSTRING(_ a: String) -> Bool {
 
 /// Raven's macro tests the pointer and the first byte, so a null `char *` is false here too.
 /// Source: oracle/codemp/game/q_shared.h:30
-public func VALIDSTRING(_ a: PooledString?) -> Bool {
-    a?.string.isEmpty == false
+public func VALIDSTRING(_ a: String?) -> Bool {
+    a?.isEmpty == false
 }
 
 /// Raven wrote `Q_IsColorString(&text[i])`, so the buffer and the offset come in as two arguments.

@@ -7,5 +7,5 @@ A field reads and writes through the C struct, so `ent.r.absmin` is Raven's `ent
 
 | C field | Swift | Note |
 |---|---|---|
-| `char * name` | `name: PooledString?` | Optional, nil for a NULL pointer. |
+| `char * name` | `name: String?` | Optional, nil for a NULL pointer. |
 | `int id` | `id: Int32` |  |

@@ -70,7 +70,7 @@ func TIMER_GetNew(_ num: Int32, _ identifier: String) -> Gtimer? {
 
     // Search for an existing timer with this name
     while p != nil {
-        if Q_stricmp(p!.name!.string, identifier) == 0 {
+        if Q_stricmp(p!.name!, identifier) == 0 {
             // Found it
             return p
         }
@@ -96,7 +96,7 @@ func TIMER_GetExisting(_ num: Int32, _ identifier: String) -> Gtimer? {
     var p: Gtimer? = g_timers[num]
 
     while p != nil {
-        if Q_stricmp(p!.name!.string, identifier) == 0 {
+        if Q_stricmp(p!.name!, identifier) == 0 {
             // Found it
             return p
         }
@@ -114,7 +114,7 @@ func TIMER_Set(_ ent: Entity, _ identifier: String, _ duration: Int32) {
     if timer == nil {
         return
     }
-    timer!.name = world.strings.intern(identifier)
+    timer!.name = identifier
     timer!.time = level.time + duration
 }
 

@@ -16,12 +16,12 @@ A field reads and writes through the C struct, so `ent.r.absmin` is Raven's `ent
 | `entityShared_t r` | `r: EntityShared` |  |
 | `int[10] taskID` | `taskID: Slots<Int32>` | Array of 10. |
 | `parms_t * parms` | `parms: Parms?` | Optional, nil for a NULL pointer. |
-| `char *[17] behaviorSet` | `behaviorSet: Slots<PooledString?>` | Array of 17. |
-| `char * script_targetname` | `script_targetname: PooledString?` | Optional, nil for a NULL pointer. |
+| `char *[17] behaviorSet` | `behaviorSet: Slots<String?>` | Array of 17. |
+| `char * script_targetname` | `script_targetname: String?` | Optional, nil for a NULL pointer. |
 | `int delayScriptTime` | `delayScriptTime: Int32` |  |
-| `char * fullName` | `fullName: PooledString?` | Optional, nil for a NULL pointer. |
-| `char * targetname` | `targetname: PooledString?` | Optional, nil for a NULL pointer. |
-| `char * classname` | `classname: PooledString?` | Optional, nil for a NULL pointer. |
+| `char * fullName` | `fullName: String?` | Optional, nil for a NULL pointer. |
+| `char * targetname` | `targetname: String?` | Optional, nil for a NULL pointer. |
+| `char * classname` | `classname: String?` | Optional, nil for a NULL pointer. |
 | `int waypoint` | `waypoint: Int32` |  |
 | `int lastWaypoint` | `lastWaypoint: Int32` |  |
 | `int lastValidWaypoint` | `lastValidWaypoint: Int32` |  |
@@ -38,13 +38,13 @@ A field reads and writes through the C struct, so `ent.r.absmin` is Raven's `ent
 | `int lockCount` | `lockCount: Int32` |  |
 | `int spawnflags` | `spawnflags: Int32` |  |
 | `int teamnodmg` | `teamnodmg: Int32` |  |
-| `char * roffname` | `roffname: PooledString?` | Optional, nil for a NULL pointer. |
-| `char * rofftarget` | `rofftarget: PooledString?` | Optional, nil for a NULL pointer. |
-| `char * healingclass` | `healingclass: PooledString?` | Optional, nil for a NULL pointer. |
-| `char * healingsound` | `healingsound: PooledString?` | Optional, nil for a NULL pointer. |
+| `char * roffname` | `roffname: String?` | Optional, nil for a NULL pointer. |
+| `char * rofftarget` | `rofftarget: String?` | Optional, nil for a NULL pointer. |
+| `char * healingclass` | `healingclass: String?` | Optional, nil for a NULL pointer. |
+| `char * healingsound` | `healingsound: String?` | Optional, nil for a NULL pointer. |
 | `int healingrate` | `healingrate: Int32` |  |
 | `int healingDebounce` | `healingDebounce: Int32` |  |
-| `char * ownername` | `ownername: PooledString?` | Optional, nil for a NULL pointer. |
+| `char * ownername` | `ownername: String?` | Optional, nil for a NULL pointer. |
 | `int objective` | `objective: Int32` |  |
 | `int side` | `side: Int32` |  |
 | `int passThroughNum` | `passThroughNum: Int32` |  |
@@ -55,8 +55,8 @@ A field reads and writes through the C struct, so `ent.r.absmin` is Raven's `ent
 | `int roffid` | `roffid: Int32` |  |
 | `qboolean neverFree` | `neverFree: Bool` |  |
 | `int flags` | `flags: Int32` |  |
-| `char * model` | `model: PooledString?` | Optional, nil for a NULL pointer. |
-| `char * model2` | `model2: PooledString?` | Optional, nil for a NULL pointer. |
+| `char * model` | `model: String?` | Optional, nil for a NULL pointer. |
+| `char * model2` | `model2: String?` | Optional, nil for a NULL pointer. |
 | `int freetime` | `freetime: Int32` |  |
 | `int eventTime` | `eventTime: Int32` |  |
 | `qboolean freeAfterEvent` | `freeAfterEvent: Bool` |  |
@@ -64,9 +64,9 @@ A field reads and writes through the C struct, so `ent.r.absmin` is Raven's `ent
 | `qboolean physicsObject` | `physicsObject: Bool` |  |
 | `float physicsBounce` | `physicsBounce: Float` |  |
 | `int clipmask` | `clipmask: Int32` |  |
-| `char * NPC_type` | `NPC_type: PooledString?` | Optional, nil for a NULL pointer. |
-| `char * NPC_targetname` | `NPC_targetname: PooledString?` | Optional, nil for a NULL pointer. |
-| `char * NPC_target` | `NPC_target: PooledString?` | Optional, nil for a NULL pointer. |
+| `char * NPC_type` | `NPC_type: String?` | Optional, nil for a NULL pointer. |
+| `char * NPC_targetname` | `NPC_targetname: String?` | Optional, nil for a NULL pointer. |
+| `char * NPC_target` | `NPC_target: String?` | Optional, nil for a NULL pointer. |
 | `moverState_t moverState` | `moverState: moverState_t` |  |
 | `int soundPos1` | `soundPos1: Int32` |  |
 | `int sound1to2` | `sound1to2: Int32` |  |
@@ -79,24 +79,24 @@ A field reads and writes through the C struct, so `ent.r.absmin` is Raven's `ent
 | `vec3_t pos1` | `pos1: JKAShared.vec3_t` |  |
 | `vec3_t pos2` | `pos2: JKAShared.vec3_t` |  |
 | `vec3_t pos3` | `pos3: JKAShared.vec3_t` |  |
-| `char * message` | `message: PooledString?` | Optional, nil for a NULL pointer. |
+| `char * message` | `message: String?` | Optional, nil for a NULL pointer. |
 | `int timestamp` | `timestamp: Int32` |  |
 | `float angle` | `angle: Float` |  |
-| `char * target` | `target: PooledString?` | Optional, nil for a NULL pointer. |
-| `char * target2` | `target2: PooledString?` | Optional, nil for a NULL pointer. |
-| `char * target3` | `target3: PooledString?` | Optional, nil for a NULL pointer. |
-| `char * target4` | `target4: PooledString?` | Optional, nil for a NULL pointer. |
-| `char * target5` | `target5: PooledString?` | Optional, nil for a NULL pointer. |
-| `char * target6` | `target6: PooledString?` | Optional, nil for a NULL pointer. |
-| `char * team` | `team: PooledString?` | Optional, nil for a NULL pointer. |
-| `char * targetShaderName` | `targetShaderName: PooledString?` | Optional, nil for a NULL pointer. |
-| `char * targetShaderNewName` | `targetShaderNewName: PooledString?` | Optional, nil for a NULL pointer. |
+| `char * target` | `target: String?` | Optional, nil for a NULL pointer. |
+| `char * target2` | `target2: String?` | Optional, nil for a NULL pointer. |
+| `char * target3` | `target3: String?` | Optional, nil for a NULL pointer. |
+| `char * target4` | `target4: String?` | Optional, nil for a NULL pointer. |
+| `char * target5` | `target5: String?` | Optional, nil for a NULL pointer. |
+| `char * target6` | `target6: String?` | Optional, nil for a NULL pointer. |
+| `char * team` | `team: String?` | Optional, nil for a NULL pointer. |
+| `char * targetShaderName` | `targetShaderName: String?` | Optional, nil for a NULL pointer. |
+| `char * targetShaderNewName` | `targetShaderNewName: String?` | Optional, nil for a NULL pointer. |
 | `gentity_t * target_ent` | `target_ent: Entity?` | Optional, nil for a NULL pointer. |
-| `char * closetarget` | `closetarget: PooledString?` | Optional, nil for a NULL pointer. |
-| `char * opentarget` | `opentarget: PooledString?` | Optional, nil for a NULL pointer. |
-| `char * paintarget` | `paintarget: PooledString?` | Optional, nil for a NULL pointer. |
-| `char * goaltarget` | `goaltarget: PooledString?` | Optional, nil for a NULL pointer. |
-| `char * idealclass` | `idealclass: PooledString?` | Optional, nil for a NULL pointer. |
+| `char * closetarget` | `closetarget: String?` | Optional, nil for a NULL pointer. |
+| `char * opentarget` | `opentarget: String?` | Optional, nil for a NULL pointer. |
+| `char * paintarget` | `paintarget: String?` | Optional, nil for a NULL pointer. |
+| `char * goaltarget` | `goaltarget: String?` | Optional, nil for a NULL pointer. |
+| `char * idealclass` | `idealclass: String?` | Optional, nil for a NULL pointer. |
 | `float radius` | `radius: Float` |  |
 | `int maxHealth` | `maxHealth: Int32` |  |
 | `float speed` | `speed: Float` |  |
@@ -154,7 +154,7 @@ A field reads and writes through the C struct, so `ent.r.absmin` is Raven's `ent
 | `int genericValue13` | `genericValue13: Int32` |  |
 | `int genericValue14` | `genericValue14: Int32` |  |
 | `int genericValue15` | `genericValue15: Int32` |  |
-| `char * soundSet` | `soundSet: PooledString?` | Optional, nil for a NULL pointer. |
+| `char * soundSet` | `soundSet: String?` | Optional, nil for a NULL pointer. |
 | `qboolean isSaberEntity` | `isSaberEntity: Bool` |  |
 | `int damageRedirect` | `damageRedirect: Int32` |  |
 | `int damageRedirectTo` | `damageRedirectTo: Int32` |  |

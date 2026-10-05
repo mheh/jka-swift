@@ -11,8 +11,8 @@ A field reads and writes through the C struct, so `ent.r.absmin` is Raven's `ent
 | `int iDelay` | `iDelay: Int32` |  |
 | `int iAmmoMax` | `iAmmoMax: Int32` |  |
 | `int iAmmoRechargeMS` | `iAmmoRechargeMS: Int32` |  |
-| `char * yawBone` | `yawBone: PooledString?` | Optional, nil for a NULL pointer. |
-| `char * pitchBone` | `pitchBone: PooledString?` | Optional, nil for a NULL pointer. |
+| `char * yawBone` | `yawBone: String?` | Optional, nil for a NULL pointer. |
+| `char * pitchBone` | `pitchBone: String?` | Optional, nil for a NULL pointer. |
 | `int yawAxis` | `yawAxis: Int32` |  |
 | `int pitchAxis` | `pitchAxis: Int32` |  |
 | `float yawClampLeft` | `yawClampLeft: Float` |  |
@@ -20,7 +20,7 @@ A field reads and writes through the C struct, so `ent.r.absmin` is Raven's `ent
 | `float pitchClampUp` | `pitchClampUp: Float` |  |
 | `float pitchClampDown` | `pitchClampDown: Float` |  |
 | `int[2] iMuzzle` | `iMuzzle: Slots<Int32>` | Array of 2. |
-| `char * gunnerViewTag` | `gunnerViewTag: PooledString?` | Optional, nil for a NULL pointer. |
+| `char * gunnerViewTag` | `gunnerViewTag: String?` | Optional, nil for a NULL pointer. |
 | `float fTurnSpeed` | `fTurnSpeed: Float` |  |
 | `qboolean bAI` | `bAI: Bool` |  |
 | `qboolean bAILead` | `bAILead: Bool` |  |

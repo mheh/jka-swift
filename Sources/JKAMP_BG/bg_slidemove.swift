@@ -44,7 +44,7 @@ func PM_VehicleImpact(_ pEnt: JKAMP.BgEntity, _ trace: JKAMP.Trace) {
         }
     }
 
-    if trace.entityNum < ENTITYNUM_WORLD && hitEnt!.s.eType == ET_MOVER && hitEnt!.s.apos.trType != TR_STATIONARY && (bgEntitySpawnflags(hitEnt!) & 16) != 0 && Q_stricmp("func_rotating", bgEntityClassname(hitEnt!)!.string) == 0 {
+    if trace.entityNum < ENTITYNUM_WORLD && hitEnt!.s.eType == ET_MOVER && hitEnt!.s.apos.trType != TR_STATIONARY && (bgEntitySpawnflags(hitEnt!) & 16) != 0 && Q_stricmp("func_rotating", bgEntityClassname(hitEnt!)!) == 0 {
         //hit a func_rotating that is supposed to destroy anything it touches!
         //guarantee the hit will happen, thereby taking off a piece of the ship
         forceSurfDestruction = true

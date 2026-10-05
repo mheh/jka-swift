@@ -59,15 +59,15 @@ public struct CvarTable: Hashable, HandleView {
     }
 
     /// Source: oracle/codemp/game/g_main.c:19
-    public var cvarName: PooledString? {
-        get { PooledString(raw: self.raw.pointee.cvarName) }
-        nonmutating set { self.raw.pointee.cvarName = newValue?.raw }
+    public var cvarName: String? {
+        get { self.raw.pointee.cvarName.map { String(cString: $0) } }
+        nonmutating set { self.raw.pointee.cvarName = StringPool.shared.pointer(for: newValue) }
     }
 
     /// Source: oracle/codemp/game/g_main.c:20
-    public var defaultString: PooledString? {
-        get { PooledString(raw: self.raw.pointee.defaultString) }
-        nonmutating set { self.raw.pointee.defaultString = newValue?.raw }
+    public var defaultString: String? {
+        get { self.raw.pointee.defaultString.map { String(cString: $0) } }
+        nonmutating set { self.raw.pointee.defaultString = StringPool.shared.pointer(for: newValue) }
     }
 
     /// Source: oracle/codemp/game/g_main.c:21

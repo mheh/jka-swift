@@ -52,9 +52,9 @@ public struct VehicleInfo: Hashable, HandleView {
     }
 
     /// Source: oracle/codemp/game/bg_vehicles.h:134
-    public var name: PooledString? {
-        get { PooledString(raw: self.raw.pointee.name) }
-        nonmutating set { self.raw.pointee.name = newValue?.raw }
+    public var name: String? {
+        get { self.raw.pointee.name.map { String(cString: $0) } }
+        nonmutating set { self.raw.pointee.name = StringPool.shared.pointer(for: newValue) }
     }
 
     /// Source: oracle/codemp/game/bg_vehicles.h:137
@@ -298,15 +298,15 @@ public struct VehicleInfo: Hashable, HandleView {
     }
 
     /// Source: oracle/codemp/game/bg_vehicles.h:187
-    public var model: PooledString? {
-        get { PooledString(raw: self.raw.pointee.model) }
-        nonmutating set { self.raw.pointee.model = newValue?.raw }
+    public var model: String? {
+        get { self.raw.pointee.model.map { String(cString: $0) } }
+        nonmutating set { self.raw.pointee.model = StringPool.shared.pointer(for: newValue) }
     }
 
     /// Source: oracle/codemp/game/bg_vehicles.h:188
-    public var skin: PooledString? {
-        get { PooledString(raw: self.raw.pointee.skin) }
-        nonmutating set { self.raw.pointee.skin = newValue?.raw }
+    public var skin: String? {
+        get { self.raw.pointee.skin.map { String(cString: $0) } }
+        nonmutating set { self.raw.pointee.skin = StringPool.shared.pointer(for: newValue) }
     }
 
     /// Source: oracle/codemp/game/bg_vehicles.h:189
@@ -382,9 +382,9 @@ public struct VehicleInfo: Hashable, HandleView {
     }
 
     /// Source: oracle/codemp/game/bg_vehicles.h:201
-    public var droidNPC: PooledString? {
-        get { PooledString(raw: self.raw.pointee.droidNPC) }
-        nonmutating set { self.raw.pointee.droidNPC = newValue?.raw }
+    public var droidNPC: String? {
+        get { self.raw.pointee.droidNPC.map { String(cString: $0) } }
+        nonmutating set { self.raw.pointee.droidNPC = StringPool.shared.pointer(for: newValue) }
     }
 
     /// Source: oracle/codemp/game/bg_vehicles.h:203

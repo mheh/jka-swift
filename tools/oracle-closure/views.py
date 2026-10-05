@@ -15,7 +15,7 @@ property type by the conversion table of struct-views.md row 2, with no per-fiel
   vec3_t                       JKAShared.vec3_t, a SIMD3<Float>
   T[N]                         Slots<T>, a view over the field's address and N
   char[N]                      String, with a CharBuf accessor named nameBuffer beside it for a write target
-  char *                       PooledString?
+  char *                       String?, the setter interns the text in the shared StringPool
   struct S by value            the view over the field's address
   pointer to a copied struct   the optional view
   void *                       OpaquePointer?
@@ -219,11 +219,12 @@ class Generator:
             if inner.kind == TypeKind.FUNCTIONPROTO:
                 return self.callback(field, target)
             if inner.get_canonical().kind == TypeKind.CHAR_S:
+                # A `char *` field reads as its text, and a store interns the text in the shared pool, so the engine reads a pointer that lives on.
+                get = f"{pointee}.map {{ String(cString: $0) }}"
                 if inner.is_const_qualified():
-                    # A `const char *` field holds the same text. The view drops the const on the way out and puts it back on the way in.
-                    return self.property(name, "PooledString?", f"PooledString(raw: {pointee}.map {{ UnsafeMutablePointer(mutating: $0) }})",
-                                         f"{pointee} = UnsafePointer(newValue?.raw)")
-                return self.property(name, "PooledString?", f"PooledString(raw: {pointee})", f"{pointee} = newValue?.raw")
+                    # A `const char *` field holds the same text. The view puts the const back on the way in.
+                    return self.property(name, "String?", get, f"{pointee} = UnsafePointer(StringPool.shared.pointer(for: newValue))")
+                return self.property(name, "String?", get, f"{pointee} = StringPool.shared.pointer(for: newValue)")
             record = self.types.record_name(inner)
             if record and record in self.views:
                 view = self.qualified_view(record, target)

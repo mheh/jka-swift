@@ -16,7 +16,7 @@ public struct BgCallbacks {
     public var CG_GetVehicleCamPos: (inout JKAShared.vec3_t) -> Void = { _ in portMissing("CG_GetVehicleCamPos", source: "oracle/codemp/cgame/cg_view.c:797") }
 
     /// Source: oracle/codemp/cgame/cg_main.c:3344
-    public var CG_NewString: (String) -> PooledString = { _ in portMissing("CG_NewString", source: "oracle/codemp/cgame/cg_main.c:3344") }
+    public var CG_NewString: (String) -> String = { _ in portMissing("CG_NewString", source: "oracle/codemp/cgame/cg_main.c:3344") }
 
     /// Source: oracle/codemp/game/g_active.c:407
     public var Client_CheckImpactBBrush: (JKAMP.BgEntity, JKAMP.BgEntity) -> Void = { _, _ in portMissing("Client_CheckImpactBBrush", source: "oracle/codemp/game/g_active.c:407") }
@@ -49,7 +49,7 @@ public struct BgCallbacks {
     public var G_ModelIndex: (String) -> Int32 = { _ in portMissing("G_ModelIndex", source: "oracle/codemp/game/g_utils.c:108") }
 
     /// Source: oracle/codemp/game/g_spawn.c:724
-    public var G_NewString: (String) -> PooledString = { _ in portMissing("G_NewString", source: "oracle/codemp/game/g_spawn.c:724") }
+    public var G_NewString: (String) -> String = { _ in portMissing("G_NewString", source: "oracle/codemp/game/g_spawn.c:724") }
 
     /// Source: oracle/codemp/game/g_utils.c:1250
     public var G_PlayEffect: (Int32, inout JKAShared.vec3_t, inout JKAShared.vec3_t) -> JKAMP.BgEntity? = { _, _, _ in portMissing("G_PlayEffect", source: "oracle/codemp/game/g_utils.c:1250") }
@@ -106,7 +106,7 @@ public struct BgCallbacks {
     public var bgEntityBmodel: (JKAMP.BgEntity) -> Bool = { _ in portMissing("bgEntityBmodel", source: "oracle/codemp/game/bg_slidemove.c:77") }
 
     /// Source: oracle/codemp/game/bg_slidemove.c:97
-    public var bgEntityClassname: (JKAMP.BgEntity) -> JKAShared.PooledString? = { _ in portMissing("bgEntityClassname", source: "oracle/codemp/game/bg_slidemove.c:97") }
+    public var bgEntityClassname: (JKAMP.BgEntity) -> String? = { _ in portMissing("bgEntityClassname", source: "oracle/codemp/game/bg_slidemove.c:97") }
 
     /// Source: oracle/codemp/game/bg_slidemove.c:617
     public var bgEntityContents: (JKAMP.BgEntity) -> Int32 = { _ in portMissing("bgEntityContents", source: "oracle/codemp/game/bg_slidemove.c:617") }
@@ -172,7 +172,7 @@ func CG_GetVehicleCamPos(_ camPos: inout JKAShared.vec3_t) {
 
 /// Source: oracle/codemp/cgame/cg_main.c:3344
 @discardableResult
-func CG_NewString(_ string: String) -> PooledString {
+func CG_NewString(_ string: String) -> String {
     bg.callbacks.CG_NewString(string)
 }
 
@@ -232,7 +232,7 @@ func G_ModelIndex(_ name: String) -> Int32 {
 
 /// Source: oracle/codemp/game/g_spawn.c:724
 @discardableResult
-func G_NewString(_ string: String) -> PooledString {
+func G_NewString(_ string: String) -> String {
     bg.callbacks.G_NewString(string)
 }
 
@@ -338,7 +338,7 @@ func bgEntityBmodel(_ ent: JKAMP.BgEntity) -> Bool {
 
 /// Source: oracle/codemp/game/bg_slidemove.c:97
 @discardableResult
-func bgEntityClassname(_ ent: JKAMP.BgEntity) -> JKAShared.PooledString? {
+func bgEntityClassname(_ ent: JKAMP.BgEntity) -> String? {
     bg.callbacks.bgEntityClassname(ent)
 }
 

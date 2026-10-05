@@ -156,7 +156,7 @@ public func BG_ParseField(_ l_fields: Slots<JKAMP.BgField>, _ key: String, _ val
     var index: Int32 = 0
     while let name = l_fields[index].name {
         let f = l_fields[index]
-        if Q_stricmp(name.string, key) == 0 {
+        if Q_stricmp(name, key) == 0 {
             // found it
             let b = ent
 
@@ -670,7 +670,7 @@ BG_FindItem
 public func BG_FindItem(_ classname: String) -> JKAMP.Gitem? {
     var index: Int32 = 1
     while let itemClassname = bg_itemlist[index].classname {
-        if Q_stricmp(itemClassname.string, classname) == 0 {
+        if Q_stricmp(itemClassname, classname) == 0 {
             return bg_itemlist[index]
         }
         index += 1
@@ -1735,12 +1735,9 @@ public func BG_TempFree(_ size: Int32) {
 }
 
 /// Source: oracle/codemp/game/bg_misc.c:3383
-func BG_StringAlloc(_ source: String) -> PooledString {
-    let dest: UnsafeMutableRawPointer
-
-    dest = BG_Alloc(strlen(source) + 1)
-    strcpy(dest, source)
-    return PooledString(dest)
+func BG_StringAlloc(_ source: String) -> String {
+    // Raven copies the text into the bg pool. A `char *` field setter interns the text under rule 9, so the text itself is the result.
+    return source
 }
 
 /// Source: oracle/codemp/game/bg_misc.c:3392

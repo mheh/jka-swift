@@ -7,7 +7,7 @@ A field reads and writes through the C struct, so `ent.r.absmin` is Raven's `ent
 
 | C field | Swift | Note |
 |---|---|---|
-| `char * name` | `name: PooledString?` | Optional, nil for a NULL pointer. |
+| `char * name` | `name: String?` | Optional, nil for a NULL pointer. |
 | `vehicleType_t type` | `type: vehicleType_t` |  |
 | `int numHands` | `numHands: Int32` |  |
 | `float lookPitch` | `lookPitch: Float` |  |
@@ -48,8 +48,8 @@ A field reads and writes through the C struct, so `ent.r.absmin` is Raven's `ent
 | `int health_back` | `health_back: Int32` |  |
 | `int health_right` | `health_right: Int32` |  |
 | `int health_left` | `health_left: Int32` |  |
-| `char * model` | `model: PooledString?` | Optional, nil for a NULL pointer. |
-| `char * skin` | `skin: PooledString?` | Optional, nil for a NULL pointer. |
+| `char * model` | `model: String?` | Optional, nil for a NULL pointer. |
+| `char * skin` | `skin: String?` | Optional, nil for a NULL pointer. |
 | `int g2radius` | `g2radius: Int32` |  |
 | `int riderAnim` | `riderAnim: Int32` |  |
 | `int radarIconHandle` | `radarIconHandle: Int32` |  |
@@ -62,7 +62,7 @@ A field reads and writes through the C struct, so `ent.r.absmin` is Raven's `ent
 | `int iconLeftHandle` | `iconLeftHandle: Int32` |  |
 | `int crosshairShaderHandle` | `crosshairShaderHandle: Int32` |  |
 | `int shieldShaderHandle` | `shieldShaderHandle: Int32` |  |
-| `char * droidNPC` | `droidNPC: PooledString?` | Optional, nil for a NULL pointer. |
+| `char * droidNPC` | `droidNPC: String?` | Optional, nil for a NULL pointer. |
 | `int soundOn` | `soundOn: Int32` |  |
 | `int soundTakeOff` | `soundTakeOff: Int32` |  |
 | `int soundEngineStart` | `soundEngineStart: Int32` |  |

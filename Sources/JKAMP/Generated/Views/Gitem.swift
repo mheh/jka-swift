@@ -52,30 +52,30 @@ public struct Gitem: Hashable, HandleView {
     }
 
     /// Source: oracle/codemp/game/bg_public.h:1123
-    public var classname: PooledString? {
-        get { PooledString(raw: self.raw.pointee.classname) }
-        nonmutating set { self.raw.pointee.classname = newValue?.raw }
+    public var classname: String? {
+        get { self.raw.pointee.classname.map { String(cString: $0) } }
+        nonmutating set { self.raw.pointee.classname = StringPool.shared.pointer(for: newValue) }
     }
 
     /// Source: oracle/codemp/game/bg_public.h:1124
-    public var pickup_sound: PooledString? {
-        get { PooledString(raw: self.raw.pointee.pickup_sound) }
-        nonmutating set { self.raw.pointee.pickup_sound = newValue?.raw }
+    public var pickup_sound: String? {
+        get { self.raw.pointee.pickup_sound.map { String(cString: $0) } }
+        nonmutating set { self.raw.pointee.pickup_sound = StringPool.shared.pointer(for: newValue) }
     }
 
     /// Source: oracle/codemp/game/bg_public.h:1125
-    public var world_model: Slots<PooledString?> { Slots(strings: UnsafeMutableRawPointer(self.raw.pointer(to: \.world_model)!), count: 4) }
+    public var world_model: Slots<String?> { Slots(strings: UnsafeMutableRawPointer(self.raw.pointer(to: \.world_model)!), count: 4) }
 
     /// Source: oracle/codemp/game/bg_public.h:1126
-    public var view_model: PooledString? {
-        get { PooledString(raw: self.raw.pointee.view_model) }
-        nonmutating set { self.raw.pointee.view_model = newValue?.raw }
+    public var view_model: String? {
+        get { self.raw.pointee.view_model.map { String(cString: $0) } }
+        nonmutating set { self.raw.pointee.view_model = StringPool.shared.pointer(for: newValue) }
     }
 
     /// Source: oracle/codemp/game/bg_public.h:1127
-    public var icon: PooledString? {
-        get { PooledString(raw: self.raw.pointee.icon) }
-        nonmutating set { self.raw.pointee.icon = newValue?.raw }
+    public var icon: String? {
+        get { self.raw.pointee.icon.map { String(cString: $0) } }
+        nonmutating set { self.raw.pointee.icon = StringPool.shared.pointer(for: newValue) }
     }
 
     /// Source: oracle/codemp/game/bg_public.h:1130
@@ -97,20 +97,20 @@ public struct Gitem: Hashable, HandleView {
     }
 
     /// Source: oracle/codemp/game/bg_public.h:1135
-    public var precaches: PooledString? {
-        get { PooledString(raw: self.raw.pointee.precaches) }
-        nonmutating set { self.raw.pointee.precaches = newValue?.raw }
+    public var precaches: String? {
+        get { self.raw.pointee.precaches.map { String(cString: $0) } }
+        nonmutating set { self.raw.pointee.precaches = StringPool.shared.pointer(for: newValue) }
     }
 
     /// Source: oracle/codemp/game/bg_public.h:1136
-    public var sounds: PooledString? {
-        get { PooledString(raw: self.raw.pointee.sounds) }
-        nonmutating set { self.raw.pointee.sounds = newValue?.raw }
+    public var sounds: String? {
+        get { self.raw.pointee.sounds.map { String(cString: $0) } }
+        nonmutating set { self.raw.pointee.sounds = StringPool.shared.pointer(for: newValue) }
     }
 
     /// Source: oracle/codemp/game/bg_public.h:1137
-    public var description: PooledString? {
-        get { PooledString(raw: self.raw.pointee.description) }
-        nonmutating set { self.raw.pointee.description = newValue?.raw }
+    public var description: String? {
+        get { self.raw.pointee.description.map { String(cString: $0) } }
+        nonmutating set { self.raw.pointee.description = StringPool.shared.pointer(for: newValue) }
     }
 }

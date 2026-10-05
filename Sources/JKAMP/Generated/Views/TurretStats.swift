@@ -76,15 +76,15 @@ public struct TurretStats: Hashable, HandleView {
     }
 
     /// Source: oracle/codemp/game/bg_vehicles.h:95
-    public var yawBone: PooledString? {
-        get { PooledString(raw: self.raw.pointee.yawBone) }
-        nonmutating set { self.raw.pointee.yawBone = newValue?.raw }
+    public var yawBone: String? {
+        get { self.raw.pointee.yawBone.map { String(cString: $0) } }
+        nonmutating set { self.raw.pointee.yawBone = StringPool.shared.pointer(for: newValue) }
     }
 
     /// Source: oracle/codemp/game/bg_vehicles.h:96
-    public var pitchBone: PooledString? {
-        get { PooledString(raw: self.raw.pointee.pitchBone) }
-        nonmutating set { self.raw.pointee.pitchBone = newValue?.raw }
+    public var pitchBone: String? {
+        get { self.raw.pointee.pitchBone.map { String(cString: $0) } }
+        nonmutating set { self.raw.pointee.pitchBone = StringPool.shared.pointer(for: newValue) }
     }
 
     /// Source: oracle/codemp/game/bg_vehicles.h:97
@@ -127,9 +127,9 @@ public struct TurretStats: Hashable, HandleView {
     public var iMuzzle: Slots<Int32> { Slots<Int32>(scalars: UnsafeMutableRawPointer(self.raw.pointer(to: \.iMuzzle)!), count: 2) }
 
     /// Source: oracle/codemp/game/bg_vehicles.h:104
-    public var gunnerViewTag: PooledString? {
-        get { PooledString(raw: self.raw.pointee.gunnerViewTag) }
-        nonmutating set { self.raw.pointee.gunnerViewTag = newValue?.raw }
+    public var gunnerViewTag: String? {
+        get { self.raw.pointee.gunnerViewTag.map { String(cString: $0) } }
+        nonmutating set { self.raw.pointee.gunnerViewTag = StringPool.shared.pointer(for: newValue) }
     }
 
     /// Source: oracle/codemp/game/bg_vehicles.h:105

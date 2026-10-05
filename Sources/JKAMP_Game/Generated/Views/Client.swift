@@ -326,9 +326,9 @@ public struct Client: Hashable, HandleView {
     }
 
     /// Source: oracle/codemp/game/g_local.h:621
-    public var areabits: PooledString? {
-        get { PooledString(raw: self.raw.pointee.areabits) }
-        nonmutating set { self.raw.pointee.areabits = newValue?.raw }
+    public var areabits: String? {
+        get { self.raw.pointee.areabits.map { String(cString: $0) } }
+        nonmutating set { self.raw.pointee.areabits = StringPool.shared.pointer(for: newValue) }
     }
 
     /// Source: oracle/codemp/game/g_local.h:623
@@ -569,9 +569,9 @@ public struct Client: Hashable, HandleView {
     }
 
     /// Source: oracle/codemp/game/g_local.h:686
-    public var squadname: PooledString? {
-        get { PooledString(raw: self.raw.pointee.squadname) }
-        nonmutating set { self.raw.pointee.squadname = newValue?.raw }
+    public var squadname: String? {
+        get { self.raw.pointee.squadname.map { String(cString: $0) } }
+        nonmutating set { self.raw.pointee.squadname = StringPool.shared.pointer(for: newValue) }
     }
 
     /// Source: oracle/codemp/game/g_local.h:687

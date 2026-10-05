@@ -211,7 +211,7 @@ class Types:
         if canonical.kind == TypeKind.POINTER:
             pointee = canonical.get_pointee()
             if pointee.get_canonical().kind == TypeKind.CHAR_S:
-                return Answer("PooledString?", "strings")
+                return Answer("String?", "strings")
             name = self.record_name(pointee)
             if name and name in self.views.views:
                 return Answer(f"{self.views.qualified_view(name, target)}?", "pointers")

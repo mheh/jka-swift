@@ -49,12 +49,12 @@ A field reads and writes through the C struct, so `ent.r.absmin` is Raven's `ent
 | `int[2] numteamVotingClients` | `numteamVotingClients: Slots<Int32>` | Array of 2. |
 | `qboolean spawning` | `spawning: Bool` |  |
 | `int numSpawnVars` | `numSpawnVars: Int32` |  |
-| `char *[64][2] spawnVars` | `spawnVars: Slots<Slots<PooledString?>>` | Array of 64. |
+| `char *[64][2] spawnVars` | `spawnVars: Slots<Slots<String?>>` | Array of 64. |
 | `int numSpawnVarChars` | `numSpawnVarChars: Int32` |  |
 | `char[4096] spawnVarChars` | `spawnVarChars: String`, `spawnVarCharsBuffer: JKAShared.CharBuf` | Array of 4096. |
 | `int intermissionQueued` | `intermissionQueued: Int32` |  |
 | `int intermissiontime` | `intermissiontime: Int32` |  |
-| `char * changemap` | `changemap: PooledString?` | Optional, nil for a NULL pointer. |
+| `char * changemap` | `changemap: String?` | Optional, nil for a NULL pointer. |
 | `qboolean readyToExit` | `readyToExit: Bool` |  |
 | `int exitTime` | `exitTime: Int32` |  |
 | `vec3_t intermission_origin` | `intermission_origin: JKAShared.vec3_t` |  |
@@ -76,5 +76,5 @@ A field reads and writes through the C struct, so `ent.r.absmin` is Raven's `ent
 | `int mBSPInstanceDepth` | `mBSPInstanceDepth: Int32` |  |
 | `vec3_t mOriginAdjust` | `mOriginAdjust: JKAShared.vec3_t` |  |
 | `float mRotationAdjust` | `mRotationAdjust: Float` |  |
-| `char * mTargetAdjust` | `mTargetAdjust: PooledString?` | Optional, nil for a NULL pointer. |
+| `char * mTargetAdjust` | `mTargetAdjust: String?` | Optional, nil for a NULL pointer. |
 | `char[64] mTeamFilter` | `mTeamFilter: String`, `mTeamFilterBuffer: JKAShared.CharBuf` | Array of 64. |

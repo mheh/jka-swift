@@ -344,7 +344,7 @@ class Table:
                     swift = "JKAShared.vec3_t"
                 elif swift is None and node.type.get_canonical().kind == TypeKind.POINTER \
                         and node.type.get_canonical().get_pointee().get_canonical().kind == TypeKind.CHAR_S:
-                    swift = "JKAShared.PooledString?"
+                    swift = "String?"
                 elif swift is None and node.type.get_canonical().kind == TypeKind.CONSTANTARRAY:
                     # Raven reads one record of an array of records, `ent->client->saber[n]`, so the read takes that index too and
                     # hands back the view over the game's record. Such a read reaches the entity by Raven's own index, because the
@@ -1472,7 +1472,7 @@ class Table:
         if ruled == "raw":
             return ("UnsafeMutableRawPointer", "")
         if ruled == "pooled_string":
-            return ("PooledString", "")
+            return ("String", "")
         if ruled == "optional_string":
             return (OPTIONAL_TEXT_RESULT.swift, OPTIONAL_TEXT_RESULT.crossing)
         if ruled == "in_place":

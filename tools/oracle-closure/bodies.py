@@ -33,7 +33,7 @@ from table import Cursor, Param
 
 from draft_calls import Calls
 # Hole stands under the Port-note the drafter writes, so it lives beside the classification that writes one.
-from draft_classification import Classification, Hole
+from draft_classification import STATEMENT_MARK, Classification, Hole
 from draft_declarations import Declarations, short_named
 from draft_expressions import Expressions
 from draft_statements import Statements
@@ -129,7 +129,7 @@ class Registry:
 class Drafter(Statements, Expressions, Calls, Declarations, Classification):
     """The one drafter of a function body. The state of a draft lives here, and each concern module gives the class its methods."""
 
-    def __init__(self, sk: Skeleton, registry: Registry) -> None:
+    def __init__(self, sk: Skeleton, registry: Registry, compile_due: dict[tuple[str, str, int, int], str] | None = None) -> None:
         self.sk = sk
         self.views = sk.table.views
         # The one owner of the type question, which the table holds.
@@ -167,12 +167,21 @@ class Drafter(Statements, Expressions, Calls, Declarations, Classification):
         self.charbuf_allocs: dict[str, ci.Cursor] = {}
         self.param_walks: dict[str, list[tuple[int, int, list[tuple[int, int, int]]]]] = {}
         self.param_walk_heads: list[str] = []
+        # The statements the compile gate rejected on an earlier pass, by their key, each with the compiler's message for its hole.
+        self.compile_due: dict[tuple[str, str, int, int], str] = compile_due or {}
+        self.compile_holes = 0
+        # The key of each statement mark, by its number, and the number of each key, for the statements this drafter drafted.
+        self.statement_keys: list[tuple[str, str, int, int]] = []
+        self.statement_numbers: dict[tuple[str, str, int, int], int] = {}
+        # The key of the statement that drafted each line of the last draft, or None for a line no statement drafted.
+        self.line_keys: list[tuple[str, str, int, int] | None] = []
 
     # MARK: - One function
 
     def draft(self, fn: Function) -> list[str]:
         header = self.sk.stub(fn)
         if not fn.mapped or not header[-1].startswith("}"):
+            self.line_keys = [None] * len(header)
             return header
         self.fn = fn
         self.source = self.sk.source(fn.stem)
@@ -246,7 +255,16 @@ class Drafter(Statements, Expressions, Calls, Declarations, Classification):
         # The signature keeps the spelling of the transcription tables, and every body line reads its types by their short names.
         lines += [short_named(line) for line in self.block_body(body, 1)]
         lines.append("}")
-        return lines
+        # Each line gives up its statement mark here, and line_keys keeps the statement beside the line for the compile gate.
+        clean: list[str] = []
+        self.line_keys = []
+        for line in lines:
+            mark = STATEMENT_MARK.search(line)
+            key = self.statement_keys[int(mark.group(1))] if mark else None
+            for part in STATEMENT_MARK.sub("", line).split("\n"):
+                clean.append(part)
+                self.line_keys.append(key)
+        return clean
 
 
 def main() -> None:

@@ -318,6 +318,6 @@ A C enum is an `Int32` alias, and each case is a bare `Int32` constant with Rave
 | `short` | `Int16` |
 | `float` | `Float` |
 | `double` | `Double` |
-| `char` in a string | `String` through the view, or `PooledString?` for a `char *` field |
+| `char` in a string | `String` through the view, or `String?` for a `char *` field |
 | `qboolean` | `Bool` |
 | `void *` | `OpaquePointer?`, only inside a view or a trap |

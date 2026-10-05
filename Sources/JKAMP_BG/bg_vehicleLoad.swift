@@ -75,7 +75,7 @@ private func BG_ParseVehWeaponParm(_ vehWeapon: JKAMP.VehWeaponInfo, _ parmName:
     // Loop through possible parameters
     i = 0
     while i < NUM_VWEAP_PARMS {
-        if vehWeaponFields[i].name != nil && Q_stricmp(vehWeaponFields[i].name!.string, parmName) == 0 {
+        if vehWeaponFields[i].name != nil && Q_stricmp(vehWeaponFields[i].name!, parmName) == 0 {
             // found it
             switch vehWeaponFields[i].type {
             case VF_INT:
@@ -246,7 +246,7 @@ func VEH_VehWeaponIndexForName(_ vehWeaponName: String) -> Int32 {
     }
     vw = VEH_WEAPON_BASE
     while vw < numVehicleWeapons {
-        if g_vehWeaponInfo[vw].name != nil && Q_stricmp(g_vehWeaponInfo[vw].name!.string, vehWeaponName) == 0 {
+        if g_vehWeaponInfo[vw].name != nil && Q_stricmp(g_vehWeaponInfo[vw].name!, vehWeaponName) == 0 {
             //already loaded this one
             return vw
         }
@@ -432,7 +432,7 @@ private func BG_ParseVehicleParm(_ vehicle: JKAMP.VehicleInfo, _ parmName: Strin
     // Loop through possible parameters
     i = 0
     while vehicleFields[i].ofs != -1 {
-        if Q_stricmp(vehicleFields[i].name!.string, parmName) == 0 {
+        if Q_stricmp(vehicleFields[i].name!, parmName) == 0 {
             // found it
             switch vehicleFields[i].type {
             case VF_IGNORE:
@@ -758,7 +758,7 @@ func VEH_VehicleIndexForName(_ vehicleName: String) -> Int32 {
     }
     v = VEHICLE_BASE
     while v < numVehicles {
-        if g_vehicleInfo[v].name != nil && Q_stricmp(g_vehicleInfo[v].name!.string, vehicleName) == 0 {
+        if g_vehicleInfo[v].name != nil && Q_stricmp(g_vehicleInfo[v].name!, vehicleName) == 0 {
             //already loaded this one
             return v
         }
@@ -968,7 +968,7 @@ func BG_GetVehicleSkinName(_ skinname: inout JKAShared.CharBuf) {
         Com_Error(ERR_DROP, "BG_GetVehicleSkinName:  couldn't find vehicle %s", vehName)
     }
 
-    if g_vehicleInfo[vIndex].skin == nil || g_vehicleInfo[vIndex].skin!.string.isEmpty {
+    if g_vehicleInfo[vIndex].skin == nil || g_vehicleInfo[vIndex].skin!.isEmpty {
         skinname[0] = 0
     } else {
         strcpy(&skinname, g_vehicleInfo[vIndex].skin!)

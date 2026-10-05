@@ -24,10 +24,10 @@ func validStringTestsTheFirstByte() {
 
 @Test("VALIDSTRING is false for a null pooled string")
 func validStringTestsThePooledPointer() {
-    let none: PooledString? = nil
+    let none: String? = nil
     #expect(VALIDSTRING(none) == false)
-    #expect(VALIDSTRING(PooledString("")) == false)
-    #expect(VALIDSTRING(PooledString("red")) == true)
+    #expect(VALIDSTRING("" as String?) == false)
+    #expect(VALIDSTRING("red" as String?) == true)
 }
 
 @Test("Q_IsColorString accepts a color escape and a digit")

@@ -49,13 +49,13 @@ extension UnsafeMutableRawPointer {
         }
     }
 
-    /// The `PooledString` a `char *` field holds at a byte offset, `nil` for a null field.
-    public subscript<I: BinaryInteger>(string ofs: I) -> PooledString? {
+    /// The text a `char *` field holds at a byte offset, `nil` for a null field. A store interns the text in the shared pool.
+    public subscript<I: BinaryInteger>(string ofs: I) -> String? {
         get {
-            PooledString(raw: (self + ofs).loadUnaligned(as: UnsafeMutablePointer<CChar>?.self))
+            (self + ofs).loadUnaligned(as: UnsafeMutablePointer<CChar>?.self).map { String(cString: $0) }
         }
         nonmutating set {
-            (self + ofs).storeBytes(of: newValue?.raw, as: UnsafeMutablePointer<CChar>?.self)
+            (self + ofs).storeBytes(of: StringPool.shared.pointer(for: newValue), as: UnsafeMutablePointer<CChar>?.self)
         }
     }
 }

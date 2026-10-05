@@ -98,12 +98,12 @@ public struct Entity: Hashable, HandleView {
     }
 
     /// Source: oracle/codemp/game/g_local.h:149
-    public var behaviorSet: Slots<PooledString?> { Slots(strings: UnsafeMutableRawPointer(self.raw.pointer(to: \.behaviorSet)!), count: 17) }
+    public var behaviorSet: Slots<String?> { Slots(strings: UnsafeMutableRawPointer(self.raw.pointer(to: \.behaviorSet)!), count: 17) }
 
     /// Source: oracle/codemp/game/g_local.h:150
-    public var script_targetname: PooledString? {
-        get { PooledString(raw: self.raw.pointee.script_targetname) }
-        nonmutating set { self.raw.pointee.script_targetname = newValue?.raw }
+    public var script_targetname: String? {
+        get { self.raw.pointee.script_targetname.map { String(cString: $0) } }
+        nonmutating set { self.raw.pointee.script_targetname = StringPool.shared.pointer(for: newValue) }
     }
 
     /// Source: oracle/codemp/game/g_local.h:151
@@ -113,21 +113,21 @@ public struct Entity: Hashable, HandleView {
     }
 
     /// Source: oracle/codemp/game/g_local.h:152
-    public var fullName: PooledString? {
-        get { PooledString(raw: self.raw.pointee.fullName) }
-        nonmutating set { self.raw.pointee.fullName = newValue?.raw }
+    public var fullName: String? {
+        get { self.raw.pointee.fullName.map { String(cString: $0) } }
+        nonmutating set { self.raw.pointee.fullName = StringPool.shared.pointer(for: newValue) }
     }
 
     /// Source: oracle/codemp/game/g_local.h:155
-    public var targetname: PooledString? {
-        get { PooledString(raw: self.raw.pointee.targetname) }
-        nonmutating set { self.raw.pointee.targetname = newValue?.raw }
+    public var targetname: String? {
+        get { self.raw.pointee.targetname.map { String(cString: $0) } }
+        nonmutating set { self.raw.pointee.targetname = StringPool.shared.pointer(for: newValue) }
     }
 
     /// Source: oracle/codemp/game/g_local.h:156
-    public var classname: PooledString? {
-        get { PooledString(raw: self.raw.pointee.classname) }
-        nonmutating set { self.raw.pointee.classname = newValue?.raw }
+    public var classname: String? {
+        get { self.raw.pointee.classname.map { String(cString: $0) } }
+        nonmutating set { self.raw.pointee.classname = StringPool.shared.pointer(for: newValue) }
     }
 
     /// Source: oracle/codemp/game/g_local.h:159
@@ -224,27 +224,27 @@ public struct Entity: Hashable, HandleView {
     }
 
     /// Source: oracle/codemp/game/g_local.h:188
-    public var roffname: PooledString? {
-        get { PooledString(raw: self.raw.pointee.roffname) }
-        nonmutating set { self.raw.pointee.roffname = newValue?.raw }
+    public var roffname: String? {
+        get { self.raw.pointee.roffname.map { String(cString: $0) } }
+        nonmutating set { self.raw.pointee.roffname = StringPool.shared.pointer(for: newValue) }
     }
 
     /// Source: oracle/codemp/game/g_local.h:189
-    public var rofftarget: PooledString? {
-        get { PooledString(raw: self.raw.pointee.rofftarget) }
-        nonmutating set { self.raw.pointee.rofftarget = newValue?.raw }
+    public var rofftarget: String? {
+        get { self.raw.pointee.rofftarget.map { String(cString: $0) } }
+        nonmutating set { self.raw.pointee.rofftarget = StringPool.shared.pointer(for: newValue) }
     }
 
     /// Source: oracle/codemp/game/g_local.h:191
-    public var healingclass: PooledString? {
-        get { PooledString(raw: self.raw.pointee.healingclass) }
-        nonmutating set { self.raw.pointee.healingclass = newValue?.raw }
+    public var healingclass: String? {
+        get { self.raw.pointee.healingclass.map { String(cString: $0) } }
+        nonmutating set { self.raw.pointee.healingclass = StringPool.shared.pointer(for: newValue) }
     }
 
     /// Source: oracle/codemp/game/g_local.h:192
-    public var healingsound: PooledString? {
-        get { PooledString(raw: self.raw.pointee.healingsound) }
-        nonmutating set { self.raw.pointee.healingsound = newValue?.raw }
+    public var healingsound: String? {
+        get { self.raw.pointee.healingsound.map { String(cString: $0) } }
+        nonmutating set { self.raw.pointee.healingsound = StringPool.shared.pointer(for: newValue) }
     }
 
     /// Source: oracle/codemp/game/g_local.h:193
@@ -260,9 +260,9 @@ public struct Entity: Hashable, HandleView {
     }
 
     /// Source: oracle/codemp/game/g_local.h:196
-    public var ownername: PooledString? {
-        get { PooledString(raw: self.raw.pointee.ownername) }
-        nonmutating set { self.raw.pointee.ownername = newValue?.raw }
+    public var ownername: String? {
+        get { self.raw.pointee.ownername.map { String(cString: $0) } }
+        nonmutating set { self.raw.pointee.ownername = StringPool.shared.pointer(for: newValue) }
     }
 
     /// Source: oracle/codemp/game/g_local.h:198
@@ -326,15 +326,15 @@ public struct Entity: Hashable, HandleView {
     }
 
     /// Source: oracle/codemp/game/g_local.h:215
-    public var model: PooledString? {
-        get { PooledString(raw: self.raw.pointee.model) }
-        nonmutating set { self.raw.pointee.model = newValue?.raw }
+    public var model: String? {
+        get { self.raw.pointee.model.map { String(cString: $0) } }
+        nonmutating set { self.raw.pointee.model = StringPool.shared.pointer(for: newValue) }
     }
 
     /// Source: oracle/codemp/game/g_local.h:216
-    public var model2: PooledString? {
-        get { PooledString(raw: self.raw.pointee.model2) }
-        nonmutating set { self.raw.pointee.model2 = newValue?.raw }
+    public var model2: String? {
+        get { self.raw.pointee.model2.map { String(cString: $0) } }
+        nonmutating set { self.raw.pointee.model2 = StringPool.shared.pointer(for: newValue) }
     }
 
     /// Source: oracle/codemp/game/g_local.h:217
@@ -380,21 +380,21 @@ public struct Entity: Hashable, HandleView {
     }
 
     /// Source: oracle/codemp/game/g_local.h:231
-    public var NPC_type: PooledString? {
-        get { PooledString(raw: self.raw.pointee.NPC_type) }
-        nonmutating set { self.raw.pointee.NPC_type = newValue?.raw }
+    public var NPC_type: String? {
+        get { self.raw.pointee.NPC_type.map { String(cString: $0) } }
+        nonmutating set { self.raw.pointee.NPC_type = StringPool.shared.pointer(for: newValue) }
     }
 
     /// Source: oracle/codemp/game/g_local.h:232
-    public var NPC_targetname: PooledString? {
-        get { PooledString(raw: self.raw.pointee.NPC_targetname) }
-        nonmutating set { self.raw.pointee.NPC_targetname = newValue?.raw }
+    public var NPC_targetname: String? {
+        get { self.raw.pointee.NPC_targetname.map { String(cString: $0) } }
+        nonmutating set { self.raw.pointee.NPC_targetname = StringPool.shared.pointer(for: newValue) }
     }
 
     /// Source: oracle/codemp/game/g_local.h:233
-    public var NPC_target: PooledString? {
-        get { PooledString(raw: self.raw.pointee.NPC_target) }
-        nonmutating set { self.raw.pointee.NPC_target = newValue?.raw }
+    public var NPC_target: String? {
+        get { self.raw.pointee.NPC_target.map { String(cString: $0) } }
+        nonmutating set { self.raw.pointee.NPC_target = StringPool.shared.pointer(for: newValue) }
     }
 
     /// Source: oracle/codemp/game/g_local.h:236
@@ -470,9 +470,9 @@ public struct Entity: Hashable, HandleView {
     }
 
     /// Source: oracle/codemp/game/g_local.h:250
-    public var message: PooledString? {
-        get { PooledString(raw: self.raw.pointee.message) }
-        nonmutating set { self.raw.pointee.message = newValue?.raw }
+    public var message: String? {
+        get { self.raw.pointee.message.map { String(cString: $0) } }
+        nonmutating set { self.raw.pointee.message = StringPool.shared.pointer(for: newValue) }
     }
 
     /// Source: oracle/codemp/game/g_local.h:252
@@ -488,57 +488,57 @@ public struct Entity: Hashable, HandleView {
     }
 
     /// Source: oracle/codemp/game/g_local.h:255
-    public var target: PooledString? {
-        get { PooledString(raw: self.raw.pointee.target) }
-        nonmutating set { self.raw.pointee.target = newValue?.raw }
+    public var target: String? {
+        get { self.raw.pointee.target.map { String(cString: $0) } }
+        nonmutating set { self.raw.pointee.target = StringPool.shared.pointer(for: newValue) }
     }
 
     /// Source: oracle/codemp/game/g_local.h:256
-    public var target2: PooledString? {
-        get { PooledString(raw: self.raw.pointee.target2) }
-        nonmutating set { self.raw.pointee.target2 = newValue?.raw }
+    public var target2: String? {
+        get { self.raw.pointee.target2.map { String(cString: $0) } }
+        nonmutating set { self.raw.pointee.target2 = StringPool.shared.pointer(for: newValue) }
     }
 
     /// Source: oracle/codemp/game/g_local.h:257
-    public var target3: PooledString? {
-        get { PooledString(raw: self.raw.pointee.target3) }
-        nonmutating set { self.raw.pointee.target3 = newValue?.raw }
+    public var target3: String? {
+        get { self.raw.pointee.target3.map { String(cString: $0) } }
+        nonmutating set { self.raw.pointee.target3 = StringPool.shared.pointer(for: newValue) }
     }
 
     /// Source: oracle/codemp/game/g_local.h:258
-    public var target4: PooledString? {
-        get { PooledString(raw: self.raw.pointee.target4) }
-        nonmutating set { self.raw.pointee.target4 = newValue?.raw }
+    public var target4: String? {
+        get { self.raw.pointee.target4.map { String(cString: $0) } }
+        nonmutating set { self.raw.pointee.target4 = StringPool.shared.pointer(for: newValue) }
     }
 
     /// Source: oracle/codemp/game/g_local.h:259
-    public var target5: PooledString? {
-        get { PooledString(raw: self.raw.pointee.target5) }
-        nonmutating set { self.raw.pointee.target5 = newValue?.raw }
+    public var target5: String? {
+        get { self.raw.pointee.target5.map { String(cString: $0) } }
+        nonmutating set { self.raw.pointee.target5 = StringPool.shared.pointer(for: newValue) }
     }
 
     /// Source: oracle/codemp/game/g_local.h:260
-    public var target6: PooledString? {
-        get { PooledString(raw: self.raw.pointee.target6) }
-        nonmutating set { self.raw.pointee.target6 = newValue?.raw }
+    public var target6: String? {
+        get { self.raw.pointee.target6.map { String(cString: $0) } }
+        nonmutating set { self.raw.pointee.target6 = StringPool.shared.pointer(for: newValue) }
     }
 
     /// Source: oracle/codemp/game/g_local.h:262
-    public var team: PooledString? {
-        get { PooledString(raw: self.raw.pointee.team) }
-        nonmutating set { self.raw.pointee.team = newValue?.raw }
+    public var team: String? {
+        get { self.raw.pointee.team.map { String(cString: $0) } }
+        nonmutating set { self.raw.pointee.team = StringPool.shared.pointer(for: newValue) }
     }
 
     /// Source: oracle/codemp/game/g_local.h:263
-    public var targetShaderName: PooledString? {
-        get { PooledString(raw: self.raw.pointee.targetShaderName) }
-        nonmutating set { self.raw.pointee.targetShaderName = newValue?.raw }
+    public var targetShaderName: String? {
+        get { self.raw.pointee.targetShaderName.map { String(cString: $0) } }
+        nonmutating set { self.raw.pointee.targetShaderName = StringPool.shared.pointer(for: newValue) }
     }
 
     /// Source: oracle/codemp/game/g_local.h:264
-    public var targetShaderNewName: PooledString? {
-        get { PooledString(raw: self.raw.pointee.targetShaderNewName) }
-        nonmutating set { self.raw.pointee.targetShaderNewName = newValue?.raw }
+    public var targetShaderNewName: String? {
+        get { self.raw.pointee.targetShaderNewName.map { String(cString: $0) } }
+        nonmutating set { self.raw.pointee.targetShaderNewName = StringPool.shared.pointer(for: newValue) }
     }
 
     /// Source: oracle/codemp/game/g_local.h:265
@@ -548,33 +548,33 @@ public struct Entity: Hashable, HandleView {
     }
 
     /// Source: oracle/codemp/game/g_local.h:267
-    public var closetarget: PooledString? {
-        get { PooledString(raw: self.raw.pointee.closetarget) }
-        nonmutating set { self.raw.pointee.closetarget = newValue?.raw }
+    public var closetarget: String? {
+        get { self.raw.pointee.closetarget.map { String(cString: $0) } }
+        nonmutating set { self.raw.pointee.closetarget = StringPool.shared.pointer(for: newValue) }
     }
 
     /// Source: oracle/codemp/game/g_local.h:268
-    public var opentarget: PooledString? {
-        get { PooledString(raw: self.raw.pointee.opentarget) }
-        nonmutating set { self.raw.pointee.opentarget = newValue?.raw }
+    public var opentarget: String? {
+        get { self.raw.pointee.opentarget.map { String(cString: $0) } }
+        nonmutating set { self.raw.pointee.opentarget = StringPool.shared.pointer(for: newValue) }
     }
 
     /// Source: oracle/codemp/game/g_local.h:269
-    public var paintarget: PooledString? {
-        get { PooledString(raw: self.raw.pointee.paintarget) }
-        nonmutating set { self.raw.pointee.paintarget = newValue?.raw }
+    public var paintarget: String? {
+        get { self.raw.pointee.paintarget.map { String(cString: $0) } }
+        nonmutating set { self.raw.pointee.paintarget = StringPool.shared.pointer(for: newValue) }
     }
 
     /// Source: oracle/codemp/game/g_local.h:271
-    public var goaltarget: PooledString? {
-        get { PooledString(raw: self.raw.pointee.goaltarget) }
-        nonmutating set { self.raw.pointee.goaltarget = newValue?.raw }
+    public var goaltarget: String? {
+        get { self.raw.pointee.goaltarget.map { String(cString: $0) } }
+        nonmutating set { self.raw.pointee.goaltarget = StringPool.shared.pointer(for: newValue) }
     }
 
     /// Source: oracle/codemp/game/g_local.h:272
-    public var idealclass: PooledString? {
-        get { PooledString(raw: self.raw.pointee.idealclass) }
-        nonmutating set { self.raw.pointee.idealclass = newValue?.raw }
+    public var idealclass: String? {
+        get { self.raw.pointee.idealclass.map { String(cString: $0) } }
+        nonmutating set { self.raw.pointee.idealclass = StringPool.shared.pointer(for: newValue) }
     }
 
     /// Source: oracle/codemp/game/g_local.h:274
@@ -952,9 +952,9 @@ public struct Entity: Hashable, HandleView {
     }
 
     /// Source: oracle/codemp/game/g_local.h:349
-    public var soundSet: PooledString? {
-        get { PooledString(raw: self.raw.pointee.soundSet) }
-        nonmutating set { self.raw.pointee.soundSet = newValue?.raw }
+    public var soundSet: String? {
+        get { self.raw.pointee.soundSet.map { String(cString: $0) } }
+        nonmutating set { self.raw.pointee.soundSet = StringPool.shared.pointer(for: newValue) }
     }
 
     /// Source: oracle/codemp/game/g_local.h:351

@@ -24,6 +24,19 @@ class Hole(Exception):
     """A construct the draft has no rule for. The message is the reason the Port-note carries."""
 
 
+# The reason of a hole at a statement whose draft the compile gate rejected, with the compiler's message of the first error on it.
+COMPILE_NOTE = "The draft of this statement did not compile, and the compiler wrote \"{}\"."
+
+# The mark of the statement that drafted a line, `\x00` and its number and `\x01`, which the drafter strips once the function is whole.
+# A line takes the mark of the innermost statement that drafted it, so a compile error on the line maps back to that statement.
+STATEMENT_MARK = re.compile(r"\x00(\d+)\x01")
+
+
+def marked(lines: list[str], number: int) -> list[str]:
+    """The lines with the mark of one statement on each line that holds text and no mark yet."""
+    return [line if not line.strip() or STATEMENT_MARK.search(line) else f"{line}\x00{number}\x01" for line in lines]
+
+
 def port_note(reason: str) -> str:
     """The Port-note line of a hole, with each newline of the reason and the indentation after it as one space.
     A reason can quote Raven's text across a line, for example an operator span over `#ifdef _JK2MP`, and a second line would fall outside the comment."""
@@ -437,7 +450,7 @@ class Classification:
             # A `char name[N]` field is a String on the view.
             return swift_name(fields[0].spelling), False
         if first.kind == TypeKind.POINTER and first.get_pointee().get_canonical().kind == TypeKind.CHAR_S:
-            # A `char *` field is a PooledString? on the view.
+            # A `char *` field is a String? on the view.
             return swift_name(fields[0].spelling), True
         return None
 
@@ -593,16 +606,11 @@ class Classification:
         return False
 
     def null_fold_note(self, cur: ci.Cursor, name: str, port_note: str) -> list[str]:
-        """The lines the fold of a NULL test leaves above the statement.
+        """The lines the fold of a NULL test leaves above the statement, which are none.
 
-        A name the sweeps prove takes a plain comment, because the fold is then the whole answer and no transcriptor has work here.
-        A name they cannot prove keeps the Port-note the caller hands over and a `portMissing` marker, so the hole stands until a caller of the function is read."""
-        inner = self.unwrap(cur)
-        if inner.kind == CursorKind.DECL_REF_EXPR and inner.spelling in self.chosen_locals:
-            return [f"// Raven's NULL test on {name} has no form here, because the draft crosses the chosen variable itself."]
-        if self.proven_never_null(cur):
-            return [f"// Raven's NULL test on {name} has no form here, and the arm it guards is gone."]
-        return self.noted_hole(port_note)
+        The Swift signature holds the name as a value, so no NULL reaches the body and the fold is the whole answer.
+        A caller that hands over an optional meets the hole at the call, where the never-null ruling is due."""
+        return []
 
     def optional_base(self, cur: ci.Cursor) -> bool:
         """True when the expression is a pointer a Swift view holds as optional, so a member read through it takes `!`."""
@@ -722,7 +730,7 @@ class Classification:
         return ""
 
     def pooled_field(self, cur: ci.Cursor) -> bool:
-        """True for a member reference to a `char *` field, which the view holds as a PooledString?."""
+        """True for a member reference to a `char *` field, which the view holds as a String?."""
         inner = self.unwrap(cur)
         field = inner.referenced if inner.kind == CursorKind.MEMBER_REF_EXPR else None
         if field is None or field.kind != CursorKind.FIELD_DECL:
@@ -731,7 +739,7 @@ class Classification:
         return t.kind == TypeKind.POINTER and t.get_pointee().get_canonical().kind == TypeKind.CHAR_S
 
     def optional_pooled(self, cur: ci.Cursor) -> bool:
-        """True for a read Swift holds as a PooledString?: a `char *` field outside the never-null rulings, or a slot of a `char *` array field."""
+        """True for a read Swift holds as a String?: a `char *` field outside the never-null rulings, or a slot of a `char *` array field."""
         inner = self.unwrap(cur)
         if inner.kind == CursorKind.CSTYLE_CAST_EXPR and self.char_pointer_cast(inner):
             # Raven's `(char *)ent->target` casts the const away, and the read under it is the same read.

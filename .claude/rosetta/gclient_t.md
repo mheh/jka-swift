@@ -55,7 +55,7 @@ A field reads and writes through the C struct, so `ent.r.absmin` is Raven's `ent
 | `int switchDuelTeamTime` | `switchDuelTeamTime: Int32` |  |
 | `int switchClassTime` | `switchClassTime: Int32` |  |
 | `int timeResidual` | `timeResidual: Int32` |  |
-| `char * areabits` | `areabits: PooledString?` | Optional, nil for a NULL pointer. |
+| `char * areabits` | `areabits: String?` | Optional, nil for a NULL pointer. |
 | `int g2LastSurfaceHit` | `g2LastSurfaceHit: Int32` |  |
 | `int g2LastSurfaceTime` | `g2LastSurfaceTime: Int32` |  |
 | `int corrTime` | `corrTime: Int32` |  |
@@ -95,7 +95,7 @@ A field reads and writes through the C struct, so `ent.r.absmin` is Raven's `ent
 | `renderInfo_t renderInfo` | `renderInfo: RenderInfo` |  |
 | `npcteam_t playerTeam` | `playerTeam: JKAMP.npcteam_t` |  |
 | `npcteam_t enemyTeam` | `enemyTeam: JKAMP.npcteam_t` |  |
-| `char * squadname` | `squadname: PooledString?` | Optional, nil for a NULL pointer. |
+| `char * squadname` | `squadname: String?` | Optional, nil for a NULL pointer. |
 | `gentity_t * team_leader` | `team_leader: Entity?` | Optional, nil for a NULL pointer. |
 | `gentity_t * leader` | `leader: Entity?` | Optional, nil for a NULL pointer. |
 | `gentity_t * follower` | `follower: Entity?` | Optional, nil for a NULL pointer. |

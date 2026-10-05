@@ -340,11 +340,11 @@ class Calls:
         if param is not None and param[1] in TEXT_TYPES and self.is_charbuf(inner) and not self.overload_takes(callee, position, "CharBuf"):
             # A buffer into a String parameter crosses as the text it holds.
             return f"String({text})"
-        if param is not None and param[1] in TEXT_TYPES and self.pooled_field(inner) and not self.overload_takes(callee, position, "PooledString"):
-            # A `char *` field is a PooledString?, and its text goes into a String parameter. Raven's callers never pass a NULL one here.
-            return f"{text}!.string"
+        if param is not None and param[1] in TEXT_TYPES and self.pooled_field(inner) and not param[1].endswith("?"):
+            # A `char *` field is a String?, and its text goes into a String parameter. Raven's callers never pass a NULL one here.
+            return f"{text}!"
         if (param is None or param[1].endswith("...")) and not inout and position in self.call_format and self.optional_pooled(inner):
-            # A `char *` field is a PooledString?, and Raven's format argument list takes the text itself, so the read takes the bind.
+            # A `char *` field is a String?, and Raven's format argument list takes the text itself, so the read takes the bind.
             return f"{text}!"
         if param is not None and not param[1].endswith("?") and not inout and self.optional_view_name(inner):
             raise Hole(f"Raven passes the optional `{inner.spelling}` to `{callee}`, whose `{param[0]}` parameter takes a value. A never-null ruling is due.")
@@ -460,7 +460,7 @@ class Calls:
         return None
 
     def text_kind(self, cur: ci.Cursor) -> str | None:
-        """The Swift text type the draft passes an argument as: String, CharBuf, or PooledString, and None for the rest."""
+        """The Swift text type the draft passes an argument as: String or CharBuf, and None for the rest."""
         if self.cursor_address(cur):
             # Raven hands the cursor's address over, and the callee takes the cursor itself, which is no text argument.
             return None
@@ -473,7 +473,7 @@ class Calls:
         if self.string_field(inner):
             return "String"
         if self.pooled_field(inner):
-            return "PooledString"
+            return "String"
         if self.is_charbuf(inner):
             return "CharBuf"
         if inner.kind != CursorKind.DECL_REF_EXPR:

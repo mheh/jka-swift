@@ -8,4 +8,4 @@ A field reads and writes through the C struct, so `ent.r.absmin` is Raven's `ent
 | C field | Swift | Note |
 |---|---|---|
 | `vec3_t origin` | `origin: JKAShared.vec3_t` |  |
-| `char * target` | `target: PooledString?` | Optional, nil for a NULL pointer. |
+| `char * target` | `target: String?` | Optional, nil for a NULL pointer. |
