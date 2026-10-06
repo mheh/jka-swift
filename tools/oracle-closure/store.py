@@ -25,7 +25,7 @@ CREATE TABLE IF NOT EXISTS handoffs (fact TEXT NOT NULL, seq INTEGER NOT NULL, c
 CREATE TABLE IF NOT EXISTS cursors (fact TEXT NOT NULL, seq INTEGER NOT NULL, file TEXT NOT NULL, function TEXT NOT NULL, name TEXT NOT NULL,
     kind TEXT NOT NULL, buffer TEXT NOT NULL, is_global INTEGER NOT NULL);
 CREATE TABLE IF NOT EXISTS alias_writes (fact TEXT NOT NULL, buffer TEXT NOT NULL);
-CREATE TABLE IF NOT EXISTS trap_overloads (fact TEXT NOT NULL, trap TEXT NOT NULL, parameter TEXT NOT NULL);
+CREATE TABLE IF NOT EXISTS boundary_overloads (fact TEXT NOT NULL, function TEXT NOT NULL, parameter TEXT NOT NULL);
 CREATE TABLE IF NOT EXISTS reads (fact TEXT NOT NULL, seq INTEGER NOT NULL, root TEXT NOT NULL, path TEXT NOT NULL, written INTEGER NOT NULL,
     value_type TEXT NOT NULL, cite TEXT NOT NULL, at INTEGER NOT NULL, name TEXT NOT NULL);
 CREATE TABLE IF NOT EXISTS rulings (fact TEXT NOT NULL, ruling TEXT NOT NULL, function TEXT NOT NULL, parameter TEXT NOT NULL);
@@ -121,7 +121,7 @@ KINDS: dict[str, Kind] = {
     "rulings": Kind("rulings", ("ruling", "function", "parameter"), lambda value: list(value), lambda rows: {tuple(row) for row in rows}),
     "reads": Kind("reads", ("seq", "root", "path", "written", "value_type", "cite", "at", "name"),
                   lambda value: [read_row(i, read) for i, read in enumerate(value.values())], reads, order="seq"),
-    **{kind: pairs("trap_overloads", ("trap", "parameter")) for kind in ("buffer_traps", "text_traps")},
+    **{kind: pairs("boundary_overloads", ("function", "parameter")) for kind in ("buffer_traps", "text_traps")},
     "file_walks": Kind("file_walks", ("seq", "pointer", "walked", "index_name"),
                        lambda value: [(i, pointer) + walk for i, (pointer, walk) in enumerate(value.items())],
                        lambda rows: {pointer: (walked, index) for _, pointer, walked, index in rows}, order="seq"),
@@ -176,6 +176,15 @@ class Store:
         self.db.execute("PRAGMA journal_mode=WAL")
         self.db.execute("PRAGMA synchronous=NORMAL")
         self.db.executescript(SCHEMA)
+
+    def close(self) -> None:
+        self.db.close()
+
+    def __enter__(self) -> Store:
+        return self
+
+    def __exit__(self, *exc) -> None:
+        self.close()
 
     def key(self, generation: str) -> str | None:
         """The key the saved rows of a generation stand under, or None when the store holds no such generation."""

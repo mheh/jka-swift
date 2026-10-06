@@ -2,6 +2,7 @@
 
 from __future__ import annotations
 
+import sqlite3
 import sys
 import tempfile
 import unittest
@@ -107,8 +108,8 @@ class RoundTrip(unittest.TestCase):
         # then the store gives back the same map
         self.assertEqual(self.round_trip("base", facts), facts)
 
-    def test_trap_overloads(self) -> None:
-        # given the trap parameters a caller fills with a buffer and the ones a caller hands a text
+    def test_boundary_overloads(self) -> None:
+        # given the boundary function parameters a caller fills with a buffer and the ones a caller hands a text
         facts = {
             "buffer_traps": {("trap_FS_Read", "buffer"), ("trap_Cvar_VariableStringBuffer", "buffer")},
             "text_traps": {("trap_FS_Write", "buffer")},
@@ -157,6 +158,25 @@ class RoundTrip(unittest.TestCase):
         store = Store(self.path)
         self.assertEqual(plain(store.load_locals("key-1", "g_utils", "G_Find")), plain(full))
         self.assertEqual(plain(store.load_locals("key-1", "g_main", "G_InitGame")), plain(empty))
+
+
+class Schema(unittest.TestCase):
+    def test_the_schema_names_no_project_word(self) -> None:
+        # given a new store file
+        with tempfile.TemporaryDirectory() as folder:
+            path = Path(folder) / "table.sqlite"
+            Store(path).close()
+
+            # when the file is read with sqlite3 alone
+            db = sqlite3.connect(path)
+            tables = [name for (name,) in db.execute("SELECT name FROM sqlite_master WHERE type = 'table'")]
+            words = tables + [column[1] for table in tables for column in db.execute(f"PRAGMA table_info({table})")]
+            db.close()
+
+        # then no table and no column carries a word of the project, its source, or its target language
+        for word in words:
+            for project_word in ("trap", "swift", "oracle", "raven", "jka", "game", "entity", "clang"):
+                self.assertNotIn(project_word, word.lower(), word)
 
 
 if __name__ == "__main__":
