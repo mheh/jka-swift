@@ -28,6 +28,9 @@ CREATE TABLE IF NOT EXISTS trap_overloads (fact TEXT NOT NULL, trap TEXT NOT NUL
 CREATE TABLE IF NOT EXISTS reads (fact TEXT NOT NULL, seq INTEGER NOT NULL, root TEXT NOT NULL, path TEXT NOT NULL, written INTEGER NOT NULL,
     value_type TEXT NOT NULL, cite TEXT NOT NULL, at INTEGER NOT NULL, name TEXT NOT NULL);
 CREATE TABLE IF NOT EXISTS rulings (fact TEXT NOT NULL, ruling TEXT NOT NULL, function TEXT NOT NULL, parameter TEXT NOT NULL);
+CREATE TABLE IF NOT EXISTS locals (key TEXT NOT NULL, file TEXT NOT NULL, function TEXT NOT NULL, fact TEXT NOT NULL, name TEXT NOT NULL,
+    cursor_kind TEXT, cursor_buffer TEXT, cursor_is_global INTEGER, walked TEXT, index_name TEXT);
+CREATE INDEX IF NOT EXISTS locals_by_function ON locals (file, function);
 CREATE TABLE IF NOT EXISTS file_walks (fact TEXT NOT NULL, seq INTEGER NOT NULL, pointer TEXT NOT NULL, walked TEXT NOT NULL, index_name TEXT NOT NULL);
 """
 
@@ -150,6 +153,41 @@ class Store:
             self.db.executemany("INSERT INTO files VALUES (?, ?, ?)", [(generation, path, digest) for path, digest in files.items()])
             self.db.execute("INSERT OR REPLACE INTO meta VALUES (?, ?)", (f"kinds:{generation}", ",".join(facts)))
             self.db.execute("INSERT OR REPLACE INTO meta VALUES (?, ?)", (f"key:{generation}", key))
+
+    # MARK: - The local facts of one function
+
+    def load_locals(self, key: str, file: str, function: str):
+        """The local facts of one function as a LocalFacts, or None when the store holds none for it under this key."""
+        from table import Cursor, Local, LocalFacts
+
+        rows = self.db.execute("SELECT fact, name, cursor_kind, cursor_buffer, cursor_is_global, walked, index_name FROM locals "
+                               "WHERE key = ? AND file = ? AND function = ? ORDER BY rowid", (key, file, function)).fetchall()
+        if not rows:
+            return None
+        facts = LocalFacts(rows={}, written=set(), single_writes=set(), addressed=set())
+        sets = {"written": facts.written, "single": facts.single_writes, "addressed": facts.addressed}
+        for fact, name, kind, buffer, is_global, walked, index in rows:
+            if fact == "row":
+                cursor = Cursor(kind, buffer, bool(is_global)) if kind is not None else None
+                facts.rows[name] = Local(cursor=cursor, table=(walked, index) if walked is not None else None)
+            elif fact in sets:
+                sets[fact].add(name)
+        return facts
+
+    def save_locals(self, key: str, file: str, function: str, facts) -> None:
+        """Replace the local facts of one function. A `swept` row marks a function whose facts are all empty."""
+        rows = [("swept", "", None, None, None, None, None)]
+        for name, local in facts.rows.items():
+            cursor = local.cursor
+            walk = local.table or (None, None)
+            rows.append(("row", name, cursor and cursor.kind, cursor and cursor.buffer,
+                         None if cursor is None else int(cursor.is_global)) + tuple(walk))
+        rows += [("written", name) + (None,) * 5 for name in facts.written]
+        rows += [("single", name) + (None,) * 5 for name in facts.single_writes]
+        rows += [("addressed", name) + (None,) * 5 for name in facts.addressed]
+        with self.db:
+            self.db.execute("DELETE FROM locals WHERE file = ? AND function = ?", (file, function))
+            self.db.executemany("INSERT INTO locals VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)", [(key, file, function) + row for row in rows])
 
     def meta(self, name: str) -> str | None:
         row = self.db.execute("SELECT value FROM meta WHERE name = ?", (name,)).fetchone()

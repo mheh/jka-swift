@@ -11,7 +11,7 @@ HERE = Path(__file__).resolve().parents[1]
 sys.path.insert(0, str(HERE))
 
 from store import Store  # noqa: E402
-from table import Cursor, Read  # noqa: E402
+from table import Cursor, Local, LocalFacts, Read  # noqa: E402
 
 
 def plain(value):
@@ -135,6 +135,27 @@ class RoundTrip(unittest.TestCase):
 
         # then the store gives back the same set
         self.assertEqual(self.round_trip("base", facts), facts)
+
+    def test_locals(self) -> None:
+        # given the local facts of one function with every row shape, and of one function with no facts at all
+        full = LocalFacts(
+            rows={
+                "p": Local(cursor=Cursor("read", "text", False)),
+                "it": Local(table=("bg_itemlist", "itIndex")),
+                "s": Local(cursor=Cursor("write", "str", True), table=("pushed", "sIndex")),
+            },
+            written={"p", "it", "count"},
+            single_writes={"count"},
+            addressed={"trace"},
+        )
+        empty = LocalFacts(rows={}, written=set(), single_writes=set(), addressed=set())
+        Store(self.path).save_locals("key-1", "g_utils", "G_Find", full)
+        Store(self.path).save_locals("key-1", "g_main", "G_InitGame", empty)
+
+        # then the store gives back the same facts for each function
+        store = Store(self.path)
+        self.assertEqual(plain(store.load_locals("key-1", "g_utils", "G_Find")), plain(full))
+        self.assertEqual(plain(store.load_locals("key-1", "g_main", "G_InitGame")), plain(empty))
 
 
 if __name__ == "__main__":
