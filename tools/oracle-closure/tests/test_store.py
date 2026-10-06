@@ -204,6 +204,28 @@ class Recovery(unittest.TestCase):
         with Store(self.path) as store:
             self.assertEqual(store.load("base", "key-1"), {"called": {"G_Find"}})
 
+    def test_a_store_of_an_older_schema_is_made_again(self) -> None:
+        # given a store whose meta holds an older schema version
+        with Store(self.path) as store:
+            store.save("base", "key-1", {}, {"called": {"G_Find"}})
+        db = sqlite3.connect(self.path)
+        with db:
+            db.execute("UPDATE meta SET value = '0' WHERE name = 'schema'")
+        db.close()
+
+        # when the store opens it
+        err = io.StringIO()
+        with contextlib.redirect_stderr(err), Store(self.path) as store:
+            loaded = store.load("base", "key-1")
+
+        # then it says so on one line and holds no facts, and the next open says nothing
+        self.assertEqual(len(err.getvalue().splitlines()), 1)
+        self.assertIsNone(loaded)
+        err = io.StringIO()
+        with contextlib.redirect_stderr(err), Store(self.path):
+            pass
+        self.assertEqual(err.getvalue(), "")
+
 
 if __name__ == "__main__":
     unittest.main()

@@ -15,6 +15,9 @@ from dataclasses import dataclass
 from pathlib import Path
 from typing import Any, Callable, Iterable
 
+# The version of SCHEMA. A change to a table or a column takes the next number, and a store of another version is made again.
+SCHEMA_VERSION = 2
+
 SCHEMA = """
 CREATE TABLE IF NOT EXISTS meta (name TEXT PRIMARY KEY, value TEXT NOT NULL);
 CREATE TABLE IF NOT EXISTS files (generation TEXT NOT NULL, path TEXT NOT NULL, hash TEXT NOT NULL, PRIMARY KEY (generation, path));
@@ -181,6 +184,15 @@ class Store:
             print(f"store.py: {self.path} is corrupt ({error}), so it is deleted and made again", file=sys.stderr)
             self.delete()
             self.db = self.open()
+        version = self.meta("schema")
+        fresh = self.db.execute("SELECT COUNT(*) FROM meta").fetchone()[0] == 0
+        if version != str(SCHEMA_VERSION) and not fresh:
+            print(f"store.py: {self.path} holds schema version {version}, not {SCHEMA_VERSION}, so it is deleted and made again", file=sys.stderr)
+            self.db.close()
+            self.delete()
+            self.db = self.open()
+        with self.db:
+            self.db.execute("INSERT OR REPLACE INTO meta VALUES ('schema', ?)", (str(SCHEMA_VERSION),))
 
     def open(self) -> sqlite3.Connection:
         db = sqlite3.connect(self.path)
