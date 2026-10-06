@@ -7,6 +7,7 @@ The schema names facts about functions, parameters, fields, and locals, and no p
 
 from __future__ import annotations
 
+import json
 import sqlite3
 from dataclasses import dataclass
 from pathlib import Path
@@ -24,6 +25,8 @@ CREATE TABLE IF NOT EXISTS cursors (fact TEXT NOT NULL, seq INTEGER NOT NULL, fi
     kind TEXT NOT NULL, buffer TEXT NOT NULL, is_global INTEGER NOT NULL);
 CREATE TABLE IF NOT EXISTS alias_writes (fact TEXT NOT NULL, buffer TEXT NOT NULL);
 CREATE TABLE IF NOT EXISTS trap_overloads (fact TEXT NOT NULL, trap TEXT NOT NULL, parameter TEXT NOT NULL);
+CREATE TABLE IF NOT EXISTS reads (fact TEXT NOT NULL, seq INTEGER NOT NULL, root TEXT NOT NULL, path TEXT NOT NULL, written INTEGER NOT NULL,
+    value_type TEXT NOT NULL, cite TEXT NOT NULL, at INTEGER NOT NULL, name TEXT NOT NULL);
 CREATE TABLE IF NOT EXISTS file_walks (fact TEXT NOT NULL, seq INTEGER NOT NULL, pointer TEXT NOT NULL, walked TEXT NOT NULL, index_name TEXT NOT NULL);
 """
 
@@ -75,6 +78,22 @@ def cursors(rows: list[tuple]) -> dict:
     return {(f, function, name): Cursor(kind, buffer, bool(is_global)) for _, f, function, name, kind, buffer, is_global in rows}
 
 
+def read_row(i: int, read) -> tuple:
+    """One read as a row. The path is a JSON list, and the name is the one the read carries, short or long."""
+    return (i, read.root, json.dumps(list(read.path)), int(read.write), read.swift, read.cite, int(read.at), read.name)
+
+
+def reads(rows: list[tuple]) -> dict:
+    from table import Read
+
+    out = {}
+    for _, root, path, written, value_type, cite, at, name in rows:
+        read = Read(root, tuple(json.loads(path)), value_type, bool(written), cite, at=bool(at))
+        read.name = name
+        out[read.key] = read
+    return out
+
+
 # The fact kinds by name, each the name of the Table attribute it holds.
 KINDS: dict[str, Kind] = {
     **{kind: pairs("parameters", ("function", "parameter"))
@@ -90,6 +109,8 @@ KINDS: dict[str, Kind] = {
                     lambda value: [(i,) + key + (c.kind, c.buffer, int(c.is_global)) for i, (key, c) in enumerate(value.items())],
                     cursors, order="seq"),
     "alias_writes": names("alias_writes", "buffer"),
+    "reads": Kind("reads", ("seq", "root", "path", "written", "value_type", "cite", "at", "name"),
+                  lambda value: [read_row(i, read) for i, read in enumerate(value.values())], reads, order="seq"),
     **{kind: pairs("trap_overloads", ("trap", "parameter")) for kind in ("buffer_traps", "text_traps")},
     "file_walks": Kind("file_walks", ("seq", "pointer", "walked", "index_name"),
                        lambda value: [(i, pointer) + walk for i, (pointer, walk) in enumerate(value.items())],

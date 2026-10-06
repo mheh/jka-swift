@@ -11,7 +11,7 @@ HERE = Path(__file__).resolve().parents[1]
 sys.path.insert(0, str(HERE))
 
 from store import Store  # noqa: E402
-from table import Cursor  # noqa: E402
+from table import Cursor, Read  # noqa: E402
 
 
 def plain(value):
@@ -115,6 +115,19 @@ class RoundTrip(unittest.TestCase):
 
         # then the store gives back the same sets
         self.assertEqual(self.round_trip("base", facts), facts)
+
+    def test_reads(self) -> None:
+        # given a read with its short name, a write, and an indexed read that took its long name
+        renamed = Read("entities", ("client", "saber"), "JKAMP_Game.SaberInfo?", False, "oracle/codemp/game/bg_saber.c:120", at=True)
+        renamed.name = "bgEntityAtClientSaber"
+        facts = {"reads": {
+            ("level", ("time",), False): Read("level", ("time",), "Int32", False, "oracle/codemp/game/bg_pmove.c:88"),
+            ("entity", ("client", "pers", "cmd"), True): Read("entity", ("client", "pers", "cmd"), "JKAMP.Usercmd", True, "oracle/codemp/game/bg_misc.c:7"),
+            ("entities", ("client", "saber"), False): renamed,
+        }}
+
+        # then the store gives back reads with the same root, path, type, write, cite, index, and name
+        self.assertEqual(plain(self.round_trip("base", facts)), plain(facts))
 
 
 if __name__ == "__main__":
