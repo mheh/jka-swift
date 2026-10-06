@@ -133,6 +133,10 @@ KINDS: dict[str, Kind] = {
 }
 
 
+# The generation of the signature rows. Its key covers the input key and the hash of every destination file the rows read.
+SIGNATURES = "signatures"
+
+
 # MARK: - The key
 
 @dataclass(frozen=True)
@@ -152,6 +156,11 @@ def digest(data: bytes) -> str:
     return hashlib.sha256(data).hexdigest()
 
 
+def file_hash(path: Path) -> str:
+    """The hash of a file's bytes, and the empty name for a file that does not exist, so its creation changes the hash."""
+    return digest(path.read_bytes()) if path.exists() else ""
+
+
 def named(path: Path, root: Path) -> str:
     """The name the store keeps for a file: relative to the root inside it, and absolute outside it."""
     path = path.resolve()
@@ -166,7 +175,7 @@ def keys(inputs: Iterable[Path], tools: Iterable[Path], stubs: Iterable[Path], r
          values: dict[str, str] | None = None) -> Keys:
     """The keys of one input set. A file that does not exist hashes as the empty name, so its creation changes the key.
     `values` are named inputs that are no file, and the base key covers each one beside the files, under its own name."""
-    files = {named(path, root): digest(path.read_bytes()) if path.exists() else "" for path in [*inputs, *tools]}
+    files = {named(path, root): file_hash(path) for path in [*inputs, *tools]}
     files |= {name: digest(text.encode()) for name, text in (values or {}).items()}
     lines = {named(path, root): digest(path.read_bytes().split(b"\n", 1)[0]) if path.exists() else "" for path in stubs}
     base = combined(files)
@@ -255,8 +264,17 @@ class Store:
 
     def changed(self, generation: str, files: dict[str, str]) -> list[str]:
         """The names of the files whose hash differs from the one the generation was saved with, a new file and a gone file too, in name order."""
-        saved = dict(self.db.execute("SELECT path, hash FROM files WHERE generation = ?", (generation,)).fetchall())
+        saved = self.files(generation)
         return sorted(name for name in set(saved) | set(files) if saved.get(name) != files.get(name))
+
+    def files(self, generation: str) -> dict[str, str]:
+        """The hash of each file a generation was saved with, by the file's name."""
+        return dict(self.db.execute("SELECT path, hash FROM files WHERE generation = ?", (generation,)).fetchall())
+
+    def rehashed(self, generation: str, root: Path) -> list[str]:
+        """The names of the saved files of a generation whose bytes on disk differ from the saved hash, a gone file too, in name order.
+        A reader that cannot compute the key of the generation checks this part of it, with no parse."""
+        return self.changed(generation, {name: file_hash(Path(root) / name) for name in self.files(generation)})
 
     # MARK: - The local facts of one function
 
@@ -297,18 +315,21 @@ class Store:
 
     SIGNATURE_COLUMNS = ("file", "name", "kind", "target", "text", "forward", "reason", "source", "destination", "state", "peer")
 
-    def save_signatures(self, key: str, rows: list[dict]) -> None:
-        """Replace every signature row, in the order given, under the key of the files the rows describe."""
+    def save_signatures(self, key: str, files: dict[str, str], rows: list[dict]) -> None:
+        """Replace every signature row, in the order given, with the generation's key and the hash of each file the rows were read from."""
         with self.db:
             self.db.execute("DELETE FROM signatures")
             self.db.executemany(f"INSERT INTO signatures VALUES (?, {', '.join('?' for _ in self.SIGNATURE_COLUMNS)})",
                                 [(i,) + tuple(row[c] for c in self.SIGNATURE_COLUMNS) for i, row in enumerate(rows)])
-            self.db.execute("INSERT OR REPLACE INTO meta VALUES (?, ?)", ("key:signatures", key))
+            self.db.execute("DELETE FROM files WHERE generation = ?", (SIGNATURES,))
+            self.db.executemany("INSERT INTO files VALUES (?, ?, ?)", [(SIGNATURES, path, hashed) for path, hashed in files.items()])
+            self.db.execute("INSERT OR REPLACE INTO meta VALUES (?, ?)", (f"key:{SIGNATURES}", key))
 
-    def signatures(self, key: str, name: str) -> list[dict] | None:
-        """The signature rows of one name in saved order, or None when the store holds the rows under another key or not at all."""
+    def signatures(self, name: str) -> list[dict] | None:
+        """The signature rows of one name in saved order, or None when the store holds no signature rows.
+        The caller checks the saved file hashes with `rehashed` before it trusts the rows."""
         with self.snapshot():
-            if self.key("signatures") != key:
+            if self.key(SIGNATURES) is None:
                 return None
             rows = self.db.execute(f"SELECT {', '.join(self.SIGNATURE_COLUMNS)} FROM signatures WHERE name = ? ORDER BY seq", (name,)).fetchall()
         return [dict(zip(self.SIGNATURE_COLUMNS, row)) for row in rows]

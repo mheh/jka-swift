@@ -15,7 +15,7 @@ from unittest import mock
 HERE = Path(__file__).resolve().parents[1]
 sys.path.insert(0, str(HERE))
 
-from store import Store  # noqa: E402
+from store import Store, digest  # noqa: E402
 from table import Cursor, Local, LocalFacts, Read  # noqa: E402
 
 
@@ -269,7 +269,7 @@ class Snapshot(unittest.TestCase):
         row = {"file": "g_utils.c", "name": "G_Find", "kind": "function", "target": "Game", "text": "func G_Find()", "forward": None,
                "reason": None, "source": "g_utils.c:1-9", "destination": "g_utils.swift:4", "state": "ported", "peer": ""}
         with Store(self.path) as store:
-            store.save_signatures("key-1", [row])
+            store.save_signatures("key-1", {}, [row])
 
         # when a second store saves other rows under another key after the key check
         reader = Store(self.path)
@@ -279,14 +279,45 @@ class Snapshot(unittest.TestCase):
         def key_then_write(generation: str):
             value = key(generation)
             with Store(self.path) as writer:
-                writer.save_signatures("key-2", [row | {"text": "func G_Find(_ from: Entity?)"}])
+                writer.save_signatures("key-2", {}, [row | {"text": "func G_Find(_ from: Entity?)"}])
             return value
 
         with mock.patch.object(reader, "key", key_then_write):
-            rows = reader.signatures("key-1", "G_Find")
+            rows = reader.signatures("G_Find")
 
         # then the read gives the rows of the key it checked
         self.assertEqual(rows, [row])
+
+
+class Rehash(unittest.TestCase):
+    def setUp(self) -> None:
+        self.folder = tempfile.TemporaryDirectory()
+        self.root = Path(self.folder.name)
+
+    def tearDown(self) -> None:
+        self.folder.cleanup()
+
+    def test_the_store_names_each_saved_file_whose_bytes_changed_or_that_is_gone(self) -> None:
+        # given a generation saved with the hashes of three files, one inside the root and two outside it
+        inside = self.root / "src/g_main.swift"
+        inside.parent.mkdir()
+        outside = tempfile.TemporaryDirectory()
+        self.addCleanup(outside.cleanup)
+        kept, gone = Path(outside.name) / "kept.swift", Path(outside.name) / "gone.swift"
+        for path in (inside, kept, gone):
+            path.write_text(f"func {path.stem}() {{}}\n")
+        files = {"src/g_main.swift": digest(inside.read_bytes()), str(kept): digest(kept.read_bytes()), str(gone): digest(gone.read_bytes())}
+        store = Store(self.root / "table.sqlite")
+        self.addCleanup(store.close)
+        store.save_signatures("key-1", files, [])
+        self.assertEqual(store.rehashed("signatures", self.root), [])
+
+        # when one file changes and another is deleted
+        inside.write_text("func g_main() { level = 0 }\n")
+        gone.unlink()
+
+        # then the store names both, with no parse and no key
+        self.assertEqual(store.rehashed("signatures", self.root), sorted([str(gone), "src/g_main.swift"]))
 
 
 if __name__ == "__main__":

@@ -17,6 +17,10 @@ A store into a callback field of another record, `pVehInfo->Update = Update`, ge
 A stub file is replaced whole until its first hand edit. A file that no longer carries the generated header line
 is adopted, and the generator leaves it alone and says so.
 
+A run that writes the stubs also writes the signature row of every function and file-scope variable into the table store,
+the rows that manifest.py prints and lookup.py reads.
+The generation of the rows stands under the input key of the table and the hash of every stub the rows read.
+
 A bg function or file-scope variable that a game file names is public, because it crosses the module line. The writer leaves an
 adopted bg file alone, so --publish applies that rule to the adopted bg files: it puts `public` on each declaration the rule names
 and changes no other text.
@@ -33,6 +37,7 @@ import argparse
 import json
 import re
 from collections import Counter, defaultdict
+from functools import cached_property
 from pathlib import Path
 
 import clang.cindex as ci
@@ -44,9 +49,11 @@ from fnsweep import binop_assign_op, rhs_function, root_var
 from overlay import MACROS, written_arguments
 from reexport import REPO, SOURCES
 from rulings import HAND_MACROS, HAND_VARS, LIBC_FUNCTIONS, NEVER_NULL_VARS, NOT_PORTED, RETURNS
+from store import Store, combined, file_hash, named
 from table import Param, SourceFile, Table, swift_name
 
 ORACLE_DIR = C.GAME_DIR
+RUST = REPO / "jka-rust" / "crates" / "mp"
 CGAME_DIR = C.CGAME_DIR
 SKIP = {"g_syscalls.c"}
 FIELDS = ["think", "use", "touch", "die", "pain", "reached", "blocked"]
@@ -177,6 +184,43 @@ class Macro:
     @property
     def access(self) -> str:
         return "private " if self.shared else ""
+
+
+class RustIndex:
+    """Every `fn Name(` of the jka-rust game and bg crates, with the line the body ends on."""
+
+    def __init__(self) -> None:
+        self.spans: dict[str, tuple[Path, int, int]] = {}
+        for root in (RUST / "game" / "src", RUST / "bg" / "src", RUST / "qshared" / "src"):
+            for path in sorted(root.rglob("*.rs")):
+                self.index(path)
+
+    def index(self, path: Path) -> None:
+        lines = path.read_text(errors="replace").split("\n")
+        for i, line in enumerate(lines, start=1):
+            m = re.match(r"\s*(?:pub(?:\([^)]*\))?\s+)?(?:unsafe\s+)?fn\s+(\w+)\s*[(<]", line)
+            if not m:
+                continue
+            name = m.group(1)
+            end = self.body_end(lines, i - 1)
+            self.spans.setdefault(name, (path, i, end))
+
+    @staticmethod
+    def body_end(lines: list[str], start: int) -> int:
+        depth = 0
+        opened = False
+        for j in range(start, len(lines)):
+            for ch in lines[j]:
+                if ch == "{":
+                    depth += 1
+                    opened = True
+                elif ch == "}":
+                    depth -= 1
+            if opened and depth == 0:
+                return j + 1
+            if not opened and lines[j].rstrip().endswith(";"):
+                return j + 1
+        return start + 1
 
 
 class Skeleton:
@@ -1111,6 +1155,75 @@ class Skeleton:
             lines += ["}", ""]
         return lines
 
+    # MARK: - The signature rows
+
+    @cached_property
+    def rust(self) -> RustIndex:
+        return RustIndex()
+
+    def swift_line(self, fn: Function) -> tuple[int | None, bool]:
+        """The line of the Swift declaration and whether a marker still sits under it."""
+        path = stub_path(fn.stem)
+        if not path.exists():
+            return None, True
+        lines = path.read_text().split("\n")
+        pattern = re.compile(rf"\bfunc {re.escape(fn.name)}\s*[(<]")
+        for i, line in enumerate(lines, start=1):
+            if pattern.search(line):
+                window = "\n".join(lines[i : i + 3])
+                return i, "TODO: Port" in window or "portMissing(" in window
+        return None, True
+
+    def function_signature(self, fn: Function) -> dict[str, str | None]:
+        """The signature row of one function, as the store keeps it and the manifest prints it."""
+        first = fn.cur.extent.start.line
+        last = fn.cur.extent.end.line
+        swift, marker = self.swift_line(fn)
+        span = self.rust.spans.get(fn.name)
+        peer = ""
+        if span:
+            path, a, b = span
+            peer = f"{path.relative_to(RUST.parent.parent)}:{a}-{b}"
+        return {
+            "file": f"{fn.stem}.c",
+            "name": fn.name,
+            "kind": "static function" if fn.static else "function",
+            "target": target_of(fn.stem),
+            "text": self.signature(fn),
+            "forward": self.forward_signature(fn),
+            "reason": fn.reason,
+            "source": f"oracle/{ORACLE_DIR}/{fn.stem}.c:{first}-{last}",
+            "destination": f"{stub_path(fn.stem).relative_to(SOURCES)}:{swift}" if swift else "",
+            "state": "marker" if marker else "ported",
+            "peer": peer,
+        }
+
+    def variable_signature(self, var: Variable) -> dict[str, str | None]:
+        """The signature row of one file-scope variable. Its text is the stub's last line for the variable:
+        the `let`, the rule 3 line, the storage line, or the reason."""
+        entry = self.variable_entry(var)
+        return {"file": f"{var.stem}.c", "name": var.name, "kind": "variable", "target": target_of(var.stem), "text": entry[-1],
+                "forward": None, "reason": None, "source": f"oracle/{ORACLE_DIR}/{var.stem}.c:{var.line}", "destination": "", "state": var.kind, "peer": ""}
+
+    def signature_rows(self, stem: str) -> tuple[list[dict[str, str | None]], list[dict[str, str | None]]]:
+        """The signature rows of one Raven file, its functions and then its file-scope variables, read once per run.
+        A row reads the stub on disk, so a run that writes the stubs asks for the rows after the write."""
+        if not hasattr(self, "_rows"):
+            self._rows: dict[str, tuple[list[dict[str, str | None]], list[dict[str, str | None]]]] = {}
+        if stem not in self._rows:
+            self._rows[stem] = ([self.function_signature(fn) for fn in self.files.get(stem, [])],
+                                [self.variable_signature(var) for var in self.variables.get(stem, [])])
+        return self._rows[stem]
+
+    def save_signatures(self, path: Path | None = None) -> None:
+        """Write the signature rows of every Raven file into the store of the table, in manifest order.
+        The key covers the input key of the table and the hash of every stub the rows read, and the files table keeps those hashes for lookup.py."""
+        stems = sorted(set(self.files) | set(self.variables))
+        rows = [row for stem in stems for part in self.signature_rows(stem) for row in part]
+        files = {named(stub_path(stem), REPO): file_hash(stub_path(stem)) for stem in stems}
+        with Store(path if path is not None else self.table.store_path) as store:
+            store.save_signatures(combined(files, self.table.keys.adoption), files, rows)
+
     # MARK: - Writing
 
     def write(self) -> tuple[int, list[str]]:
@@ -1235,6 +1348,7 @@ def main() -> None:
     gen = Skeleton(C.Parse())
     if args.publish:
         changed, report = gen.publish()
+        gen.save_signatures()
         print(f"skeleton.py --publish: {changed} declarations in the adopted bg files gained public")
         for line in report:
             print(f"  {line}")
@@ -1245,6 +1359,7 @@ def main() -> None:
         print("\n".join(gen.file(args.only)))
         return
     written, adopted = gen.write()
+    gen.save_signatures()
     c = gen.counts
     print(f"skeleton.py: {written} files, {c['stubs']} stubs, {c['TODO: Port signature']} TODO: Port signature markers, "
           f"{c['thunks']} thunks in {len(FIELDS)} namespaces, {c['thunks over an unmapped signature']} thunks over an unmapped signature")

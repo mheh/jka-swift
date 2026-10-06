@@ -2,8 +2,9 @@
 """lookup.py: the one question a blind transcriptor may ask about a type or a function.
 
 Reads the generated stones under .claude/rosetta and the manifests under .claude/manifest, no libclang, so an answer
-is instant. A `fn` or `sig` answer comes from the signatures in the table store while the store holds them under the key of the
-manifests on disk, and from the manifests otherwise. Prints the Swift spelling of a C type, one field of a viewed struct, or the manifest row of a function.
+is instant. A `fn` or `sig` answer comes from the signature rows that skeleton.py writes into the table store,
+while every Swift stub the rows were read from has the hash the store saved, and from the manifests otherwise.
+A stale stub is named on standard error. Prints the Swift spelling of a C type, one field of a viewed struct, or the manifest row of a function.
 
 Usage:
   python3 tools/oracle-closure/lookup.py gentity_t              # the view and every field
@@ -22,7 +23,7 @@ import sys
 import tomllib
 from pathlib import Path
 
-from store import Store, combined, digest
+from store import SIGNATURES, Store
 
 HERE = Path(__file__).resolve().parent
 REPO = HERE.parents[1]
@@ -83,17 +84,19 @@ def manifest_rows(name: str) -> list[tuple[Path, str]]:
     return [(path, line) for path in sorted(MANIFEST.glob("*.md")) for line in rows(path) if cell(line, 0).startswith(f"`{name}`")]
 
 
-def manifest_key() -> str:
-    """The key of the manifests on disk, which the signatures in the store stand under."""
-    return combined({path.name: digest(path.read_bytes()) for path in sorted(MANIFEST.glob("*.md"))})
-
-
 def stored(name: str) -> list[dict] | None:
-    """The signature rows of a name from the store, or None when no store exists or its rows describe other manifests."""
+    """The signature rows of a name from the store, or None when no store exists or a Swift stub changed after the rows were saved.
+    The input part of the key needs a parse, so a generator run checks it and this reader does not."""
     if not STORE.exists():
         return None
     with Store(STORE) as store:
-        return store.signatures(manifest_key(), name)
+        stale = store.rehashed(SIGNATURES, REPO)
+        if stale:
+            shown = ", ".join(stale[:5]) + (f", and {len(stale) - 5} more" if len(stale) > 5 else "")
+            print(f"lookup.py: the signature rows in the store are stale, {len(stale)} Swift stubs changed: {shown}. "
+                  f"Run skeleton.py to write them again.", file=sys.stderr)
+            return None
+        return store.signatures(name)
 
 
 def signature_cell(row: dict) -> str:
