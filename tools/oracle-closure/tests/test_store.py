@@ -47,6 +47,7 @@ class RoundTrip(unittest.TestCase):
             "readonly_text": {("G_Find", "match")},
             "indexed_params": {("BG_AnimLength", "animations")},
             "array_handoffs": {("G_RadiusList", "ent_list")},
+            "null_arms": {("G_Damage", "dir"), ("G_RadiusDamage", "ignore")},
         }
 
         # then the store gives back the same sets

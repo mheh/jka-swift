@@ -88,6 +88,22 @@ class Key(unittest.TestCase):
         self.assertNotEqual(after.base, before.base)
         self.assertNotEqual(after.adoption, before.adoption)
 
+    def test_a_named_value_is_an_input_of_the_base_key(self) -> None:
+        # given a store that holds the facts of the input set with one named value
+        def compute(views: str):
+            return keys(inputs=[self.root / "src/g_main.c"], tools=[], stubs=[], root=self.root, values={"(the view set)": views})
+
+        before = compute("Entity\nPlayerState")
+        store = Store(self.root / "table.sqlite")
+        store.save("base", before.base, before.files, {"called": {"G_InitGame"}})
+
+        # when the value changes
+        after = compute("Entity")
+
+        # then the base key changes and the store names the value
+        self.assertNotEqual(after.base, before.base)
+        self.assertEqual(store.changed("base", after.files), ["(the view set)"])
+
 
 if __name__ == "__main__":
     unittest.main()

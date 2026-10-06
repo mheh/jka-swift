@@ -153,8 +153,12 @@ class Manifest:
 
 def main() -> None:
     ap = argparse.ArgumentParser()
+    ap.add_argument("--rebuild", action="store_true", help="sweep every fact of the table again and write the store anew")
     ap.add_argument("--only", help="one stem, printed to stdout, nothing written")
     args = ap.parse_args()
+    import table
+
+    table.REBUILD = args.rebuild
     manifest = Manifest(C.Parse())
     if args.only:
         if args.only not in manifest.skeleton.files and args.only not in manifest.skeleton.variables:

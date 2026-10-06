@@ -433,8 +433,12 @@ class Channel:
 
 def main() -> None:
     ap = argparse.ArgumentParser()
+    ap.add_argument("--rebuild", action="store_true", help="sweep every fact of the table again and write the store anew")
     ap.add_argument("--only", choices=["bg", "game"], help="print to stdout, write nothing")
     args = ap.parse_args()
+    import table
+
+    table.REBUILD = args.rebuild
     channel = Channel(C.Parse())
     if args.only == "bg":
         print("\n".join(channel.strap_file()))

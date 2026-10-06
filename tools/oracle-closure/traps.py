@@ -304,8 +304,12 @@ class Traps:
 
 def main() -> None:
     ap = argparse.ArgumentParser()
+    ap.add_argument("--rebuild", action="store_true", help="sweep every fact of the table again and write the store anew")
     ap.add_argument("--only", help="one trap name, printed to stdout, nothing written")
     args = ap.parse_args()
+    import table
+
+    table.REBUILD = args.rebuild
     gen = Traps(C.Parse())
     if args.only:
         for cur in gen.functions:

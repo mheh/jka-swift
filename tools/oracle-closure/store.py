@@ -102,7 +102,7 @@ def reads(rows: list[tuple]) -> dict:
 # The fact kinds by name, each the name of the Table attribute it holds.
 KINDS: dict[str, Kind] = {
     **{kind: pairs("parameters", ("function", "parameter"))
-       for kind in ("nullable", "hopped", "readonly_text", "indexed_params", "array_handoffs", "stores_through")},
+       for kind in ("nullable", "hopped", "readonly_text", "indexed_params", "array_handoffs", "stores_through", "null_arms")},
     **{kind: names("functions", "name", blanks=("seq", "file")) for kind in ("called", "store_swept", "null_returns")},
     # The bodies of the swept unit keep the order of the parse.
     "functions": sequence("functions", ("file", "name")),
@@ -154,9 +154,12 @@ def combined(hashes: dict[str, str], *extra: str) -> str:
     return digest("\n".join([f"{name} {value}" for name, value in sorted(hashes.items())] + list(extra)).encode())
 
 
-def keys(inputs: Iterable[Path], tools: Iterable[Path], stubs: Iterable[Path], root: Path, salt: str = "") -> Keys:
-    """The keys of one input set. A file that does not exist hashes as the empty name, so its creation changes the key."""
+def keys(inputs: Iterable[Path], tools: Iterable[Path], stubs: Iterable[Path], root: Path, salt: str = "",
+         values: dict[str, str] | None = None) -> Keys:
+    """The keys of one input set. A file that does not exist hashes as the empty name, so its creation changes the key.
+    `values` are named inputs that are no file, and the base key covers each one beside the files, under its own name."""
     files = {named(path, root): digest(path.read_bytes()) if path.exists() else "" for path in [*inputs, *tools]}
+    files |= {name: digest(text.encode()) for name, text in (values or {}).items()}
     lines = {named(path, root): digest(path.read_bytes().split(b"\n", 1)[0]) if path.exists() else "" for path in stubs}
     base = combined(files)
     return Keys(base=base, adoption=combined(lines, base, salt), files=files, stubs=lines)
@@ -231,6 +234,11 @@ class Store:
         with self.db:
             self.db.execute("DELETE FROM locals WHERE file = ? AND function = ?", (file, function))
             self.db.executemany("INSERT INTO locals VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)", [(key, file, function) + row for row in rows])
+
+    def drop_locals(self) -> None:
+        """Delete the local facts of every function, because the generation they stand on was swept again."""
+        with self.db:
+            self.db.execute("DELETE FROM locals")
 
     def meta(self, name: str) -> str | None:
         row = self.db.execute("SELECT value FROM meta WHERE name = ?", (name,)).fetchone()

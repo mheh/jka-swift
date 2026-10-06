@@ -1225,9 +1225,13 @@ class Skeleton:
 
 def main() -> None:
     ap = argparse.ArgumentParser()
+    ap.add_argument("--rebuild", action="store_true", help="sweep every fact of the table again and write the store anew")
     ap.add_argument("--only", help="one Raven file stem, printed to stdout, nothing written")
     ap.add_argument("--publish", action="store_true", help="put `public` on the declarations the public rule names in the adopted bg files, nothing else")
     args = ap.parse_args()
+    import table
+
+    table.REBUILD = args.rebuild
     gen = Skeleton(C.Parse())
     if args.publish:
         changed, report = gen.publish()

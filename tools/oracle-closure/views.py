@@ -693,8 +693,12 @@ def indexed_fields(gen: Generator) -> set[tuple[str, str]]:
 
 def main() -> None:
     ap = argparse.ArgumentParser()
+    ap.add_argument("--rebuild", action="store_true", help="sweep every fact of the table again and write the store anew")
     ap.add_argument("--only", help="one root struct, for a look at its closure alone")
     args = ap.parse_args()
+    import table
+
+    table.REBUILD = args.rebuild
     gen = Generator(C.Parse(), args.only)
     gen.indexed_fields = indexed_fields(gen)
     files = gen.emit()

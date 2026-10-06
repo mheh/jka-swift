@@ -10,6 +10,7 @@ from __future__ import annotations
 
 import functools
 import re
+import sys
 from pathlib import Path
 
 import clang.cindex as ci
@@ -18,6 +19,7 @@ from clang.cindex import TypeKind
 from clang.cindex import CursorKind
 
 import closure as C
+import store as S
 from reexport import GAME_TARGET
 from fnsweep import ASSIGN_OPS
 from overlay import MACROS, written_arguments
@@ -26,6 +28,19 @@ from views import Generator
 from spelling import Facts, OPTIONAL_TEXT_RESULT, engine_array
 
 TARGET = GAME_TARGET
+HERE = Path(__file__).resolve().parent
+# The store file of the sweeps, and the output folders whose files the key reads, from the project file.
+STORE = C.REPO / C.PROJECT["store"]["path"]
+OUTPUT = C.REPO / C.PROJECT["output"]["root"]
+# True when a generator runs with --rebuild, so the next sweep of the run resweeps every generation and writes it again.
+REBUILD = False
+# The fact stores of each generation, by their attribute names.
+# The store sweep reads the adoption of the bg stubs, so its facts stand under the adoption key, and so do the local facts that read them.
+# The swept part of `nullable` stands beside the rows of NULLABLE it started from, which the `rulings` kind holds.
+BASE_FACTS = ("nullable", "hopped", "called", "readonly_text", "null_returns", "indexed_params", "indexed_fields", "handoffs",
+              "cursors", "alias_writes", "buffer_traps", "text_traps", "reads", "file_walks", "array_handoffs",
+              "null_arms")
+ADOPTION_FACTS = ("stores_through", "store_swept")
 # A Raven parameter name that is a Swift keyword is written in backticks.
 KEYWORDS = {"extension", "in", "func", "class", "struct", "enum", "protocol", "default", "operator", "repeat", "where",
             "import", "self", "init", "var", "let", "return", "case", "switch", "if", "else", "for", "while", "do", "is", "as",
@@ -263,8 +278,14 @@ class LocalFacts:
 
 
 class Table:
-    def __init__(self, parse: C.Parse, views: Generator | None = None) -> None:
+    def __init__(self, parse: C.Parse, views: Generator | None = None, store: Path | None = None) -> None:
         self.parse = parse
+        # The store file the sweep loads its facts from and writes them to.
+        self.store_path = store if store is not None else STORE
+        self.store: S.Store | None = None
+        self.keys: S.Keys | None = None
+        # The generations the last sweep computed again, because the store held no facts under their keys.
+        self.swept: set[str] = set()
         self.views = views if views is not None else Generator(parse, None)
         # The one owner of the type question, which the view generator holds.
         self.types = self.views.types
@@ -1155,7 +1176,19 @@ class Table:
         A function outside the game unit has no body here, and its facts are empty."""
         key = (stem, function)
         if key not in self.written_names:
-            self.sweep_locals(key)
+            loaded = self.store.load_locals(self.keys.adoption, stem, function) if self.store is not None else None
+            if loaded is not None:
+                for name, row in loaded.rows.items():
+                    self.locals[(stem, function, name)] = row
+                self.written_names[key] = loaded.written
+                self.single_writes[key] = loaded.single_writes
+                self.addressed_names[key] = loaded.addressed
+            else:
+                self.sweep_locals(key)
+                if self.store is not None:
+                    rows = {name: row for (owner_stem, owner, name), row in self.locals.items() if (owner_stem, owner) == key}
+                    self.store.save_locals(self.keys.adoption, stem, function,
+                                           LocalFacts(rows, self.written_names[key], self.single_writes[key], self.addressed_names[key]))
         rows = {name: row for (owner_stem, owner, name), row in self.locals.items() if (owner_stem, owner) == key}
         return LocalFacts(rows, self.written_names[key], self.single_writes[key], self.addressed_names[key])
 
@@ -1588,7 +1621,35 @@ class Table:
         The subscript sweep and the buffer sweep walk both units the same way the NULL sweep does, because a body has one arm in each of them.
         The hand-off sweep follows the subscript sweep over both units, and its edges are read once both units are in.
         A caller of one unit can hand the table to a callee the other unit indexes.
-        The read sweep closes the walk, and every generator that carries a game field reads its result from the table."""
+        The read sweep closes the walk, and every generator that carries a game field reads its result from the table.
+
+        The facts stand in the store under the key of their generation, and a sweep loads the facts whose key matches.
+        It runs only the sweeps of a generation the store holds no facts for, and writes their facts in one transaction.
+        The store sweep reads none of the other facts' results back, so it runs after them in its own generation."""
+        global REBUILD
+        self.keys = self.input_keys()
+        self.store = S.Store(self.store_path)
+        self.swept = set()
+        base = None if REBUILD else self.store.load("base", self.keys.base)
+        if base is None or not self.load_base(base):
+            self.stale("base", self.keys.files)
+            self.sweep_base()
+            self.store.save("base", self.keys.base, self.keys.files, self.base_facts())
+            self.swept.add("base")
+        adoption = None if REBUILD else self.store.load("adoption", self.keys.adoption)
+        if adoption is None:
+            self.stale("adoption", self.keys.stubs)
+            self.sweep_stores(self.parse.game, self.parse.game_folder)
+            self.store.save("adoption", self.keys.adoption, self.keys.stubs, {name: getattr(self, name) for name in ADOPTION_FACTS})
+            self.store.drop_locals()
+            self.swept.add("adoption")
+        else:
+            for name in ADOPTION_FACTS:
+                setattr(self, name, adoption[name])
+        REBUILD = False
+
+    def sweep_base(self) -> None:
+        """Every sweep of the base generation, in the order the table reads them."""
         tu, folder = self.parse.game, self.parse.game_folder
         other, other_folder = self.parse.cgame, self.parse.cgame_folder
         self.sweep_nulls(tu, folder)
@@ -1602,7 +1663,6 @@ class Table:
         self.sweep_handoffs(other, folder, other_folder)
         self.resolve_handoffs()
         self.sweep_buffer_traps(other, folder, other_folder)
-        self.sweep_stores(tu, folder)
         self.sweep_null_arms(tu, folder)
         self.sweep_text(tu, folder)
         self.sweep_cursors(tu, folder)
@@ -1610,6 +1670,64 @@ class Table:
         self.sweep_array_handoffs()
         self.sweep_returns(tu, folder)
         self.reads = {read.key: read for read in self.sweep_reads(tu, folder)}
+
+    # MARK: - The store
+
+    def input_keys(self) -> S.Keys:
+        """The keys of this run's inputs: every file the three parses read, the generated declarations the views read,
+        the tool modules of the project file, and the first line of every stub, salted with the line of a generated stub."""
+        from skeleton import NOTE
+
+        inputs: set[Path] = set()
+        for tu in (self.parse.game, self.parse.cgame, self.parse.headers):
+            # The main file of a unity parse is text in memory, and the header umbrella is a file on disk.
+            if Path(tu.spelling).exists():
+                inputs.add(Path(tu.spelling))
+            inputs |= {Path(inc.include.name) for inc in tu.get_includes()}
+        for pattern in C.PROJECT["output"]["declarations"]:
+            inputs |= set(OUTPUT.glob(pattern))
+        tools = [HERE / name for name in C.PROJECT["store"]["modules"]]
+        stubs = sorted(path for folder in C.PROJECT["output"]["stubs"] for path in (OUTPUT / folder).glob("*.swift"))
+        # The sweeps read which records have a view, and a view generator of one root has fewer of them, so the view set is an input too.
+        views = {"(the view set)": "\n".join(sorted(self.views.views))}
+        return S.keys(sorted(inputs), tools, stubs, C.REPO, salt=NOTE, values=views)
+
+    def stale(self, generation: str, files: dict[str, str]) -> None:
+        """Say on standard error which files made a generation stale, so a slow run names its cause."""
+        if REBUILD:
+            print(f"table.py: --rebuild, the {generation} facts are swept again", file=sys.stderr)
+            return
+        if self.store.key(generation) is None:
+            print(f"table.py: the store holds no {generation} facts, so the sweep writes them", file=sys.stderr)
+            return
+        changed = self.store.changed(generation, files)
+        shown = ", ".join(changed[:5]) + (f", and {len(changed) - 5} more" if len(changed) > 5 else "")
+        print(f"table.py: the {generation} facts are stale, {len(changed)} files changed: {shown}", file=sys.stderr)
+
+    def base_facts(self) -> dict:
+        facts = {name: getattr(self, name) for name in BASE_FACTS}
+        facts["nullable"] = self.nullable - NULLABLE
+        facts["rulings"] = {("NULLABLE", function, parameter) for function, parameter in NULLABLE}
+        facts["functions"] = list(self.functions)
+        return facts
+
+    def load_base(self, facts: dict) -> bool:
+        """Take the base facts from the store, and the body of each function from this run's parse.
+        False when the parse has another set of bodies than the store, and then no fact is taken, so the caller sweeps again."""
+        bodies: dict[tuple[str, str], ci.Cursor] = {}
+        for cur in self.parse.game.cursor.get_children():
+            if cur.kind != CursorKind.FUNCTION_DECL or not cur.is_definition() or not cur.location.file:
+                continue
+            path = Path(cur.location.file.name).resolve()
+            if path.parent == self.parse.game_folder and path.suffix == ".c":
+                bodies[(path.stem, cur.spelling)] = cur
+        if list(bodies) != facts["functions"]:
+            return False
+        self.functions = bodies
+        for name in BASE_FACTS:
+            setattr(self, name, facts[name])
+        self.nullable = facts["nullable"] | {(function, parameter) for _, function, parameter in facts["rulings"]}
+        return True
 
     def marker_reason(self, cur: ci.Cursor, owner: str | None = None) -> str:
         """The marker line for a parameter the table cannot shape: a PARAMS hold names its kind and the ruling it waits on,
