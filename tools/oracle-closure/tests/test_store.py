@@ -38,6 +38,18 @@ class RoundTrip(unittest.TestCase):
         # then the store gives back the same sets
         self.assertEqual(self.round_trip("base", facts), facts)
 
+    def test_function_facts(self) -> None:
+        # given the bodies in file order and the sets of function names
+        facts = {
+            "functions": [("g_utils", "G_Find"), ("bg_misc", "BG_CanItemBeGrabbed"), ("g_utils", "G_Spawn")],
+            "called": {"G_Find", "trap_Trace", "Q_strncpyz"},
+            "store_swept": {"G_Find", "G_Spawn"},
+            "null_returns": {"G_NewString"},
+        }
+
+        # then the store gives back the bodies in the same order and the same sets
+        self.assertEqual(self.round_trip("base", facts), facts)
+
 
 if __name__ == "__main__":
     unittest.main()

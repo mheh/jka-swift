@@ -14,10 +14,15 @@ SCHEMA = """
 CREATE TABLE IF NOT EXISTS meta (name TEXT PRIMARY KEY, value TEXT NOT NULL);
 CREATE TABLE IF NOT EXISTS files (generation TEXT NOT NULL, path TEXT NOT NULL, hash TEXT NOT NULL, PRIMARY KEY (generation, path));
 CREATE TABLE IF NOT EXISTS parameters (fact TEXT NOT NULL, function TEXT NOT NULL, parameter TEXT NOT NULL);
+CREATE TABLE IF NOT EXISTS functions (fact TEXT NOT NULL, seq INTEGER NOT NULL, file TEXT NOT NULL, name TEXT NOT NULL);
 """
 
 # The fact kinds that name one parameter of one function, each a set of (function, parameter) pairs.
 PARAMETER_FACTS = ("nullable", "hopped", "readonly_text", "indexed_params", "array_handoffs", "stores_through")
+# The fact kinds that name a function alone, each a set of names.
+FUNCTION_FACTS = ("called", "store_swept", "null_returns")
+# The table of each fact kind, where one table holds more than one kind under its `fact` column.
+TABLES = {kind: "parameters" for kind in PARAMETER_FACTS} | {kind: "functions" for kind in FUNCTION_FACTS} | {"functions": "functions"}
 
 
 class Store:
@@ -56,18 +61,26 @@ class Store:
     # MARK: - The rows of each kind
 
     def clear(self, kind: str) -> None:
-        if kind in PARAMETER_FACTS:
-            self.db.execute("DELETE FROM parameters WHERE fact = ?", (kind,))
-            return
-        raise KeyError(f"store.py: no fact kind {kind}")
+        if kind not in TABLES:
+            raise KeyError(f"store.py: no fact kind {kind}")
+        self.db.execute(f"DELETE FROM {TABLES[kind]} WHERE fact = ?", (kind,))
 
     def write(self, kind: str, value) -> None:
         if kind in PARAMETER_FACTS:
             self.db.executemany("INSERT INTO parameters VALUES (?, ?, ?)", [(kind, f, p) for f, p in value])
-            return
-        raise KeyError(f"store.py: no fact kind {kind}")
+        elif kind in FUNCTION_FACTS:
+            self.db.executemany("INSERT INTO functions VALUES (?, 0, '', ?)", [(kind, name) for name in value])
+        elif kind == "functions":
+            # The bodies keep their order, which is the order of the parse.
+            self.db.executemany("INSERT INTO functions VALUES (?, ?, ?, ?)", [(kind, i, f, name) for i, (f, name) in enumerate(value)])
+        else:
+            raise KeyError(f"store.py: no fact kind {kind}")
 
     def read(self, kind: str):
         if kind in PARAMETER_FACTS:
             return {(f, p) for f, p in self.db.execute("SELECT function, parameter FROM parameters WHERE fact = ?", (kind,))}
+        if kind in FUNCTION_FACTS:
+            return {name for (name,) in self.db.execute("SELECT name FROM functions WHERE fact = ?", (kind,))}
+        if kind == "functions":
+            return [(f, name) for f, name in self.db.execute("SELECT file, name FROM functions WHERE fact = ? ORDER BY seq", (kind,))]
         raise KeyError(f"store.py: no fact kind {kind}")
