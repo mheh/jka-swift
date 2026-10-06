@@ -106,6 +106,16 @@ class RoundTrip(unittest.TestCase):
         # then the store gives back the same map
         self.assertEqual(self.round_trip("base", facts), facts)
 
+    def test_trap_overloads(self) -> None:
+        # given the trap parameters a caller fills with a buffer and the ones a caller hands a text
+        facts = {
+            "buffer_traps": {("trap_FS_Read", "buffer"), ("trap_Cvar_VariableStringBuffer", "buffer")},
+            "text_traps": {("trap_FS_Write", "buffer")},
+        }
+
+        # then the store gives back the same sets
+        self.assertEqual(self.round_trip("base", facts), facts)
+
 
 if __name__ == "__main__":
     unittest.main()
