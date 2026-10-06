@@ -99,6 +99,13 @@ class RoundTrip(unittest.TestCase):
         # then the store gives back the same set
         self.assertEqual(self.round_trip("base", facts), facts)
 
+    def test_file_walks(self) -> None:
+        # given the file-scope pointers a body sets to a file-scope table, each with the table and the index that stands for it
+        facts = {"file_walks": {"pushed_p": ("pushed", "pushed_pIndex"), "trace_p": ("traces", "trace_pIndex")}}
+
+        # then the store gives back the same map
+        self.assertEqual(self.round_trip("base", facts), facts)
+
 
 if __name__ == "__main__":
     unittest.main()

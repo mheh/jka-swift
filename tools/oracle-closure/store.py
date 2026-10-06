@@ -23,6 +23,7 @@ CREATE TABLE IF NOT EXISTS handoffs (fact TEXT NOT NULL, seq INTEGER NOT NULL, c
 CREATE TABLE IF NOT EXISTS cursors (fact TEXT NOT NULL, seq INTEGER NOT NULL, file TEXT NOT NULL, function TEXT NOT NULL, name TEXT NOT NULL,
     kind TEXT NOT NULL, buffer TEXT NOT NULL, is_global INTEGER NOT NULL);
 CREATE TABLE IF NOT EXISTS alias_writes (fact TEXT NOT NULL, buffer TEXT NOT NULL);
+CREATE TABLE IF NOT EXISTS file_walks (fact TEXT NOT NULL, seq INTEGER NOT NULL, pointer TEXT NOT NULL, walked TEXT NOT NULL, index_name TEXT NOT NULL);
 """
 
 
@@ -88,6 +89,9 @@ KINDS: dict[str, Kind] = {
                     lambda value: [(i,) + key + (c.kind, c.buffer, int(c.is_global)) for i, (key, c) in enumerate(value.items())],
                     cursors, order="seq"),
     "alias_writes": names("alias_writes", "buffer"),
+    "file_walks": Kind("file_walks", ("seq", "pointer", "walked", "index_name"),
+                       lambda value: [(i, pointer) + walk for i, (pointer, walk) in enumerate(value.items())],
+                       lambda rows: {pointer: (walked, index) for _, pointer, walked, index in rows}, order="seq"),
 }
 
 
