@@ -61,6 +61,33 @@ class Key(unittest.TestCase):
         self.assertIsNone(store.load("base", after.base))
         self.assertEqual(store.changed("base", after.files), ["src/g_local.h"])
 
+    def test_a_stub_first_line_changes_the_adoption_generation_alone(self) -> None:
+        # given the keys of the input set
+        before = self.compute()
+
+        # when a body line of a stub changes, the keys stay
+        (self.root / "out/g_main.swift").write_text("// Generated stub\nfunc G_InitGame() { level = 0 }\n")
+        body = self.compute()
+        self.assertEqual((body.base, body.adoption), (before.base, before.adoption))
+
+        # when the first line of a stub changes, the adoption key changes and the base key stays
+        (self.root / "out/g_main.swift").write_text("// Adopted by hand\nfunc G_InitGame() { level = 0 }\n")
+        adopted = self.compute()
+        self.assertEqual(adopted.base, before.base)
+        self.assertNotEqual(adopted.adoption, before.adoption)
+
+    def test_a_tool_module_change_changes_both_generations(self) -> None:
+        # given the keys of the input set
+        before = self.compute()
+
+        # when a listed tool module changes
+        (self.root / "tool/table.py").write_text("RULE = 2\n")
+        after = self.compute()
+
+        # then both keys change
+        self.assertNotEqual(after.base, before.base)
+        self.assertNotEqual(after.adoption, before.adoption)
+
 
 if __name__ == "__main__":
     unittest.main()
