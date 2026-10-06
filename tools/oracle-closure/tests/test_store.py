@@ -10,6 +10,7 @@ import sys
 import tempfile
 import unittest
 from pathlib import Path
+from unittest import mock
 
 HERE = Path(__file__).resolve().parents[1]
 sys.path.insert(0, str(HERE))
@@ -228,6 +229,64 @@ class Recovery(unittest.TestCase):
         with contextlib.redirect_stderr(err), Store(self.path):
             pass
         self.assertEqual(err.getvalue(), "")
+
+
+class Snapshot(unittest.TestCase):
+    def setUp(self) -> None:
+        self.folder = tempfile.TemporaryDirectory()
+        self.path = Path(self.folder.name) / "table.sqlite"
+
+    def tearDown(self) -> None:
+        self.folder.cleanup()
+
+    def test_a_load_reads_one_generation_while_a_writer_saves_another(self) -> None:
+        # given a store that holds two kinds of one generation under one key
+        with Store(self.path) as store:
+            store.save("base", "key-1", {}, {"called": {"G_Find"}, "store_swept": {"G_Spawn"}})
+
+        # when a second store saves the generation again under another key between the reads of the two kinds
+        reader = Store(self.path)
+        self.addCleanup(reader.close)
+        read = reader.read
+
+        def read_then_write(kind: str):
+            value = read(kind)
+            if kind == "called":
+                with Store(self.path) as writer:
+                    writer.save("base", "key-2", {}, {"called": {"trap_Trace"}, "store_swept": {"trap_FS_Read"}})
+            return value
+
+        with mock.patch.object(reader, "read", read_then_write):
+            loaded = reader.load("base", "key-1")
+
+        # then the load gives both kinds as the first save left them, and the next load sees the second save
+        self.assertEqual(loaded, {"called": {"G_Find"}, "store_swept": {"G_Spawn"}})
+        self.assertIsNone(reader.load("base", "key-1"))
+        self.assertEqual(reader.load("base", "key-2"), {"called": {"trap_Trace"}, "store_swept": {"trap_FS_Read"}})
+
+    def test_a_signature_read_sees_the_rows_of_the_key_it_checked(self) -> None:
+        # given a store that holds the signature rows of one set of manifests
+        row = {"file": "g_utils.c", "name": "G_Find", "kind": "function", "target": "Game", "text": "func G_Find()", "forward": None,
+               "reason": None, "source": "g_utils.c:1-9", "destination": "g_utils.swift:4", "state": "ported", "peer": ""}
+        with Store(self.path) as store:
+            store.save_signatures("key-1", [row])
+
+        # when a second store saves other rows under another key after the key check
+        reader = Store(self.path)
+        self.addCleanup(reader.close)
+        key = reader.key
+
+        def key_then_write(generation: str):
+            value = key(generation)
+            with Store(self.path) as writer:
+                writer.save_signatures("key-2", [row | {"text": "func G_Find(_ from: Entity?)"}])
+            return value
+
+        with mock.patch.object(reader, "key", key_then_write):
+            rows = reader.signatures("key-1", "G_Find")
+
+        # then the read gives the rows of the key it checked
+        self.assertEqual(rows, [row])
 
 
 if __name__ == "__main__":

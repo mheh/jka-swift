@@ -7,13 +7,14 @@ The schema names facts about functions, parameters, fields, and locals, and no p
 
 from __future__ import annotations
 
+import contextlib
 import hashlib
 import json
 import sqlite3
 import sys
 from dataclasses import dataclass
 from pathlib import Path
-from typing import Any, Callable, Iterable
+from typing import Any, Callable, Iterable, Iterator
 
 # The version of SCHEMA. A change to a table or a column takes the next number, and a store of another version is made again.
 SCHEMA_VERSION = 2
@@ -173,7 +174,7 @@ def keys(inputs: Iterable[Path], tools: Iterable[Path], stubs: Iterable[Path], r
 
 
 class Store:
-    """One open store file. A save is one transaction.
+    """One open store file. A save is one transaction, and a load is one read transaction.
     Every open writes the schema version to meta and deletes a store of another version, so a reader such as lookup.py does this too."""
 
     def __init__(self, path: Path) -> None:
@@ -226,10 +227,21 @@ class Store:
 
     def load(self, generation: str, key: str) -> dict | None:
         """The facts of a generation by kind, or None when the store holds them under another key or not at all."""
-        if self.key(generation) != key:
-            return None
-        kinds = self.meta(f"kinds:{generation}") or ""
-        return {kind: self.read(kind) for kind in kinds.split(",") if kind}
+        with self.snapshot():
+            if self.key(generation) != key:
+                return None
+            kinds = self.meta(f"kinds:{generation}") or ""
+            facts = {kind: self.read(kind) for kind in kinds.split(",") if kind}
+        return facts
+
+    @contextlib.contextmanager
+    def snapshot(self) -> Iterator[None]:
+        """One read transaction, so every read inside it sees the rows of one save, whatever another process saves meanwhile."""
+        self.db.execute("BEGIN")
+        try:
+            yield
+        finally:
+            self.db.commit()
 
     def save(self, generation: str, key: str, files: dict[str, str], facts: dict) -> None:
         """Replace the rows of every kind in `facts`, the file hashes, and the key of the generation, in one transaction."""
@@ -295,9 +307,10 @@ class Store:
 
     def signatures(self, key: str, name: str) -> list[dict] | None:
         """The signature rows of one name in saved order, or None when the store holds the rows under another key or not at all."""
-        if self.key("signatures") != key:
-            return None
-        rows = self.db.execute(f"SELECT {', '.join(self.SIGNATURE_COLUMNS)} FROM signatures WHERE name = ? ORDER BY seq", (name,))
+        with self.snapshot():
+            if self.key("signatures") != key:
+                return None
+            rows = self.db.execute(f"SELECT {', '.join(self.SIGNATURE_COLUMNS)} FROM signatures WHERE name = ? ORDER BY seq", (name,)).fetchall()
         return [dict(zip(self.SIGNATURE_COLUMNS, row)) for row in rows]
 
     def drop_locals(self) -> None:
