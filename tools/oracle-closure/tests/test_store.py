@@ -181,7 +181,7 @@ class Schema(unittest.TestCase):
 
         # then no table and no column carries a word of the project, its source, or its target language
         for word in words:
-            for project_word in ("trap", "swift", "oracle", "raven", "jka", "game", "entity", "clang"):
+            for project_word in ("trap", "swift", "oracle", "raven", "jka", "game", "entity", "clang", "bg", "codemp", "rust", "vec3", "quake"):
                 self.assertNotIn(project_word, word.lower(), word)
 
 
