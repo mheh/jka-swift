@@ -1618,6 +1618,13 @@ func G_BroadcastObit(_ `self`: Entity, _ inflictor: Entity, _ attacker: Entity, 
     }
 }
 
+/// Source: oracle/codemp/game/g_combat.c:2858
+/// Raven's `static int i` of `player_die`, a property of `GameWorld`.
+var i_player_die: Int32 {
+    get { world.i_player_die }
+    set { world.i_player_die = newValue }
+}
+
 /// Source: oracle/codemp/game/g_combat.c:2123
 func player_die(_ `self`: Entity, _ inflictor: Entity, _ attacker: Entity, _ damage: Int32, _ meansOfDeath: Int32) {
     let anim: Int32
@@ -1719,10 +1726,8 @@ func player_die(_ `self`: Entity, _ inflictor: Entity, _ attacker: Entity, _ dam
             //pilot is *inside* me, so kill him, too
             killEnt = `self`.m_pVehicle!.m_pPilot.map { Entity($0) }
             if killEnt != nil && killEnt!.inuse && killEnt!.client != nil {
-                // Port-note: Raven passes NULL for the `dir` output. The ported function takes it by reference, so the body passes a scratch local it never reads.
-                portMissing("player_die", source: "oracle/codemp/game/g_combat.c:2123")
-                var scratchDir = vec3_t()
-                G_Damage(killEnt!, tempInflictorEnt, murderer, &scratchDir, killEnt!.client!.ps.origin, 99999, DAMAGE_NO_PROTECTION, actualMOD)
+                var dir: vec3_t? = nil
+                G_Damage(killEnt!, tempInflictorEnt, murderer, &dir, killEnt!.client!.ps.origin, 99999, DAMAGE_NO_PROTECTION, actualMOD)
             }
             if `self`.m_pVehicle!.m_pVehicleInfo != nil {
                 let numPass: Int32 = `self`.m_pVehicle!.m_iNumPassengers
@@ -1733,10 +1738,8 @@ func player_die(_ `self`: Entity, _ inflictor: Entity, _ attacker: Entity, _ dam
                     if killEnt != nil {
                         `self`.m_pVehicle!.m_pVehicleInfo!.runEject(`self`.m_pVehicle, killEnt.map { BgEntity($0) }, true)
                         if killEnt!.inuse && killEnt!.client != nil {
-                            // Port-note: Raven passes NULL for the `dir` output. The ported function takes it by reference, so the body passes a scratch local it never reads.
-                            portMissing("player_die", source: "oracle/codemp/game/g_combat.c:2123")
-                            var scratchDir2 = vec3_t()
-                            G_Damage(killEnt!, tempInflictorEnt, murderer, &scratchDir2, killEnt!.client!.ps.origin, 99999, DAMAGE_NO_PROTECTION, actualMOD)
+                            var dir: vec3_t? = nil
+                            G_Damage(killEnt!, tempInflictorEnt, murderer, &dir, killEnt!.client!.ps.origin, 99999, DAMAGE_NO_PROTECTION, actualMOD)
                         }
                     }
                     i += 1
@@ -1746,10 +1749,8 @@ func player_die(_ `self`: Entity, _ inflictor: Entity, _ attacker: Entity, _ dam
         killEnt = `self`.m_pVehicle!.m_pDroidUnit.map { Entity($0) }
         if killEnt != nil && killEnt!.inuse && killEnt!.client != nil {
             killEnt!.flags &= ~FL_UNDYING
-            // Port-note: Raven passes NULL for the `dir` output. The ported function takes it by reference, so the body passes a scratch local it never reads.
-            portMissing("player_die", source: "oracle/codemp/game/g_combat.c:2123")
-            var scratchDir3 = vec3_t()
-            G_Damage(killEnt!, tempInflictorEnt, murderer, &scratchDir3, killEnt!.client!.ps.origin, 99999, DAMAGE_NO_PROTECTION, actualMOD)
+            var dir: vec3_t? = nil
+            G_Damage(killEnt!, tempInflictorEnt, murderer, &dir, killEnt!.client!.ps.origin, 99999, DAMAGE_NO_PROTECTION, actualMOD)
         }
         if tempInflictor {
             G_FreeEntity(tempInflictorEnt!)
@@ -1787,9 +1788,7 @@ func player_die(_ `self`: Entity, _ inflictor: Entity, _ attacker: Entity, _ dam
 
         if veh!.inuse && veh!.client != nil && veh!.m_pVehicle != nil {
             //remember it for obit
-            // Port-note: The draft of this statement did not compile, and the compiler wrote "cannot assign value of type 'VehicleInfo' to type 'Int32'".
-            // Raven wrote: wasInVehicle = (veh->m_pVehicle->m_pVehicleInfo-&g_vehicleInfo[0])
-            portMissing("player_die", source: "oracle/codemp/game/g_combat.c:2123")
+            wasInVehicle = g_vehicleInfo.index(of: veh!.m_pVehicle!.m_pVehicleInfo!)
             veh!.m_pVehicle!.m_pVehicleInfo!.runEject(veh!.m_pVehicle, BgEntity(`self`), true)
 
             if veh!.m_pVehicle!.m_pVehicleInfo!.type == VH_FIGHTER {
@@ -1919,9 +1918,7 @@ func player_die(_ `self`: Entity, _ inflictor: Entity, _ attacker: Entity, _ dam
     `self`.client!.ps.hackingTime = 0
 
     if inflictor.activator != nil && inflictor.client == nil && attacker.client == nil && inflictor.activator!.client != nil && inflictor.activator!.inuse && inflictor.s.weapon == WP_TURRET {
-        // Port-note: Raven stores `attacker = inflictor->activator`, and the view holds the source as an optional where the target takes a value. A never-null ruling is due.
-        // Raven wrote: attacker = inflictor->activator
-        portMissing("player_die", source: "oracle/codemp/game/g_combat.c:2123")
+        attacker = inflictor.activator!
     }
 
     if `self`.client != nil && `self`.client!.ps.isJediMaster {
@@ -2227,9 +2224,7 @@ func player_die(_ `self`: Entity, _ inflictor: Entity, _ attacker: Entity, _ dam
     `self`.client!.respawnTime = level.time + 1700
 
     // remove powerups
-    // Port-note: Raven's `memset( self->client->ps.powerups, 0, sizeof(self->client->ps.powerups) )` runs over bytes that are not one record with a view.
-    // Raven wrote: memset( self->client->ps.powerups, 0, sizeof(self->client->ps.powerups) )
-    portMissing("player_die", source: "oracle/codemp/game/g_combat.c:2123")
+    `self`.client!.ps.powerups.fill(0)
 
     // NOTENOTE No gib deaths right now, this is star wars.
     /*
@@ -2244,7 +2239,7 @@ func player_die(_ `self`: Entity, _ inflictor: Entity, _ attacker: Entity, _ dam
     do {
         // normal death
 
-        var i: Int32
+        // Raven's static local `i` is `i_player_die`, a property of `GameWorld`.
 
         anim = G_PickDeathAnim(`self`, `self`.pos1, damage, meansOfDeath, HL_NONE)
 
@@ -2288,9 +2283,9 @@ func player_die(_ `self`: Entity, _ inflictor: Entity, _ attacker: Entity, _ dam
 
         //G_AddEvent( self, EV_DEATH1 + i, killer );
         if wasJediMaster {
-            G_AddEvent(`self`, EV_DEATH1 + i, 1)
+            G_AddEvent(`self`, EV_DEATH1 + i_player_die, 1)
         } else {
-            G_AddEvent(`self`, EV_DEATH1 + i, 0)
+            G_AddEvent(`self`, EV_DEATH1 + i_player_die, 0)
         }
 
         if `self` != attacker {
@@ -2308,7 +2303,7 @@ func player_die(_ `self`: Entity, _ inflictor: Entity, _ attacker: Entity, _ dam
         `self`.takedamage = true
 
         // globally cycle through the different death animations
-        i = (i + 1) % 3
+        i_player_die = (i_player_die + 1) % 3
     }
 
     if `self`.NPC != nil {
@@ -3652,7 +3647,7 @@ func G_CheckVehicleNPCTeamDamage(_ ent: Entity) -> Bool {
 }
 
 /// Source: oracle/codemp/game/g_combat.c:4577
-func G_Damage(_ targ: Entity, _ inflictor: Entity?, _ attacker: Entity?, _ dir: inout JKAShared.vec3_t, _ point: JKAShared.vec3_t?, _ damage: Int32, _ dflags: Int32, _ mod: Int32) {
+func G_Damage(_ targ: Entity, _ inflictor: Entity?, _ attacker: Entity?, _ dir: inout JKAShared.vec3_t?, _ point: JKAShared.vec3_t?, _ damage: Int32, _ dflags: Int32, _ mod: Int32) {
     var client: Client?
     var take: Int32
     let save: Int32
@@ -3727,18 +3722,20 @@ func G_Damage(_ targ: Entity, _ inflictor: Entity?, _ attacker: Entity?, _ dir: 
     if (targ.flags & FL_DMG_BY_HEAVY_WEAP_ONLY) != 0 {
         //only take damage from explosives and such
         if mod != MOD_REPEATER_ALT && mod != MOD_ROCKET && mod != MOD_FLECHETTE_ALT_SPLASH && mod != MOD_ROCKET_HOMING && mod != MOD_THERMAL && mod != MOD_THERMAL_SPLASH && mod != MOD_TRIP_MINE_SPLASH && mod != MOD_TIMED_MINE_SPLASH && mod != MOD_DET_PACK_SPLASH && mod != MOD_VEHICLE && mod != MOD_CONC && mod != MOD_CONC_ALT && mod != MOD_SABER && mod != MOD_TURBLAST && mod != MOD_TARGET_LASER && mod != MOD_SUICIDE && mod != MOD_FALLING && mod != MOD_CRUSH && mod != MOD_TELEFRAG && mod != MOD_COLLISION && mod != MOD_VEH_EXPLOSION && mod != MOD_TRIGGER_HURT {
-            // Port-note: Raven passes the optional `attacker` to `G_HeavyMelee`, whose `attacker` parameter takes a value. A never-null ruling is due.
-            // Raven wrote: if ( mod != MOD_MELEE || !G_HeavyMelee( attacker ) ) { //let classes with heavy melee ability damage heavy wpn dmg doors with fists return; }
-            portMissing("G_Damage", source: "oracle/codemp/game/g_combat.c:4577")
+            if mod != MOD_MELEE || !G_HeavyMelee(attacker!) {
+                //let classes with heavy melee ability damage heavy wpn dmg doors with fists
+                return
+            }
         }
     }
 
     if (targ.flags & FL_BBRUSH) != 0 {
         if mod == MOD_DEMP2 || mod == MOD_DEMP2_ALT || mod == MOD_BRYAR_PISTOL || mod == MOD_BRYAR_PISTOL_ALT || mod == MOD_MELEE {
             //these don't damage bbrushes.. ever
-            // Port-note: Raven passes the optional `attacker` to `G_HeavyMelee`, whose `attacker` parameter takes a value. A never-null ruling is due.
-            // Raven wrote: if ( mod != MOD_MELEE || !G_HeavyMelee( attacker ) ) { //let classes with heavy melee ability damage breakable brushes with fists return; }
-            portMissing("G_Damage", source: "oracle/codemp/game/g_combat.c:4577")
+            if mod != MOD_MELEE || !G_HeavyMelee(attacker!) {
+                //let classes with heavy melee ability damage breakable brushes with fists
+                return
+            }
         }
     }
 
@@ -3781,9 +3778,7 @@ func G_Damage(_ targ: Entity, _ inflictor: Entity?, _ attacker: Entity?, _ dir: 
     //if genericValue4 == 1 then it's glass or a breakable and those do have health
     if targ.s.eType == ET_MOVER && targ.genericValue4 != 1 {
         if targ.use != nil && targ.moverState == MOVER_POS1 {
-            // Port-note: Raven passes the optional `inflictor` to `GlobalUse`, whose `other` parameter takes a value. A never-null ruling is due.
-            // Raven wrote: GlobalUse( targ, inflictor, attacker )
-            portMissing("G_Damage", source: "oracle/codemp/game/g_combat.c:4577")
+            GlobalUse(targ, inflictor!, attacker!)
         }
         return
     }
@@ -3820,7 +3815,11 @@ func G_Damage(_ targ: Entity, _ inflictor: Entity?, _ attacker: Entity?, _ dir: 
         }
     }
 
-    VectorNormalize(&dir)
+    if dir == nil {
+        dflags |= DAMAGE_NO_KNOCKBACK
+    } else {
+        VectorNormalize(&dir!)
+    }
 
     knockback = damage
     if knockback > 200 {
@@ -3870,9 +3869,9 @@ func G_Damage(_ targ: Entity, _ inflictor: Entity?, _ attacker: Entity?, _ dir: 
                     }
                 }
             }
-            kvel = dir * ((g_knockback.value * Float(knockback) / mass) * saberKnockbackScale)
+            kvel = dir! * ((g_knockback.value * Float(knockback) / mass) * saberKnockbackScale)
         } else {
-            kvel = dir * (g_knockback.value * Float(knockback) / mass)
+            kvel = dir! * (g_knockback.value * Float(knockback) / mass)
         }
         targ.client!.ps.velocity = targ.client!.ps.velocity + kvel
 
@@ -3926,9 +3925,21 @@ func G_Damage(_ targ: Entity, _ inflictor: Entity?, _ attacker: Entity?, _ dir: 
         // if TF_NO_FRIENDLY_FIRE is set, don't do damage to the target
         // if the attacker was on the same team
         if targ != attacker {
-            // Port-note: Raven passes the optional `attacker` to `OnSameTeam`, whose `ent2` parameter takes a value. A never-null ruling is due.
-            // Raven wrote: if (OnSameTeam (targ, attacker)) { if ( !g_friendlyFire.integer ) { return; } } else if (attacker && attacker->inuse && !attacker->client && attacker->activator && targ != attacker->activator && attacker->activator->inuse && attacker->activator->client) { //emplaced guns don't hurt teammates of user if (OnSameTeam (targ, attacker->activator)) { if ( !g_friendlyFire.integer ) { return; } } } else if (targ->inuse && targ->client && g_gametype.integer >= GT_TEAM && attacker->s.number >= MAX_CLIENTS && attacker->alliedTeam && targ->client->sess.sessionTeam == attacker->alliedTeam && !g_friendlyFire.integer) { //things allied with my team should't hurt me.. I guess return; }
-            portMissing("G_Damage", source: "oracle/codemp/game/g_combat.c:4577")
+            if OnSameTeam(targ, attacker!) {
+                if g_friendlyFire.integer == 0 {
+                    return
+                }
+            } else if attacker != nil && attacker!.inuse && attacker!.client == nil && attacker!.activator != nil && targ != attacker!.activator && attacker!.activator!.inuse && attacker!.activator!.client != nil {
+                //emplaced guns don't hurt teammates of user
+                if OnSameTeam(targ, attacker!.activator!) {
+                    if g_friendlyFire.integer == 0 {
+                        return
+                    }
+                }
+            } else if targ.inuse && targ.client != nil && g_gametype.integer >= GT_TEAM && attacker!.s.number >= MAX_CLIENTS && attacker!.alliedTeam != 0 && targ.client!.sess.sessionTeam == attacker!.alliedTeam && g_friendlyFire.integer == 0 {
+                //things allied with my team should't hurt me.. I guess
+                return
+            }
         }
 
         if g_gametype.integer == GT_JEDIMASTER && g_friendlyFire.integer == 0 && targ.client != nil && attacker != nil && attacker!.client != nil && targ != attacker && !targ.client!.ps.isJediMaster && !attacker!.client!.ps.isJediMaster && G_ThereIsAMaster() {
@@ -3938,9 +3949,11 @@ func G_Damage(_ targ: Entity, _ inflictor: Entity?, _ attacker: Entity?, _ dir: 
         if targ.s.number >= MAX_CLIENTS && targ.client != nil && targ.s.shouldtarget && targ.s.teamowner != 0 && attacker != nil && attacker!.inuse && attacker!.client != nil && targ.s.owner >= 0 && targ.s.owner < MAX_CLIENTS {
             let targown: Entity? = g_entities[targ.s.owner]
 
-            // Port-note: Raven passes the optional `attacker` to `OnSameTeam`, whose `ent2` parameter takes a value. A never-null ruling is due.
-            // Raven wrote: if (targown && targown->inuse && targown->client && OnSameTeam(targown, attacker)) { if (!g_friendlyFire.integer) { return; } }
-            portMissing("G_Damage", source: "oracle/codemp/game/g_combat.c:4577")
+            if targown != nil && targown!.inuse && targown!.client != nil && OnSameTeam(targown!, attacker!) {
+                if g_friendlyFire.integer == 0 {
+                    return
+                }
+            }
         }
 
         // check for godmode
@@ -3997,9 +4010,11 @@ func G_Damage(_ targ: Entity, _ inflictor: Entity?, _ attacker: Entity?, _ dir: 
 
     // add to the attacker's hit counter (if the target isn't a general entity like a prox mine)
     if attacker!.client != nil && targ != attacker && targ.health > 0 && targ.s.eType != ET_MISSILE && targ.s.eType != ET_GENERAL && client != nil {
-        // Port-note: Raven passes the optional `attacker` to `OnSameTeam`, whose `ent2` parameter takes a value. A never-null ruling is due.
-        // Raven wrote: if ( OnSameTeam( targ, attacker ) ) { attacker->client->ps.persistant[PERS_HITS]--; } else { attacker->client->ps.persistant[PERS_HITS]++; }
-        portMissing("G_Damage", source: "oracle/codemp/game/g_combat.c:4577")
+        if OnSameTeam(targ, attacker!) {
+            attacker!.client!.ps.persistant[PERS_HITS] -= 1
+        } else {
+            attacker!.client!.ps.persistant[PERS_HITS] += 1
+        }
         attacker!.client!.ps.persistant[PERS_ATTACKEE_ARMOR] = (targ.health << 8) | (client!.ps.stats[STAT_ARMOR])
     }
 
@@ -4021,9 +4036,7 @@ func G_Damage(_ targ: Entity, _ inflictor: Entity?, _ attacker: Entity?, _ dir: 
     if targ.client != nil && attacker != nil && attacker != targ {
         if targ.s.eType == ET_NPC && targ.s.NPC_class == CLASS_VEHICLE {
             //vehicle
-            // Port-note: Raven passes the optional `inflictor` to `G_ApplyVehicleOtherKiller`, whose `inflictor` parameter takes a value. A never-null ruling is due.
-            // Raven wrote: G_ApplyVehicleOtherKiller( targ, inflictor, attacker, mod, qfalse )
-            portMissing("G_Damage", source: "oracle/codemp/game/g_combat.c:4577")
+            G_ApplyVehicleOtherKiller(targ, inflictor!, attacker!, mod, false)
         } else {
             //other client
             targ.client!.ps.otherKiller = attacker!.s.number
@@ -4113,9 +4126,7 @@ func G_Damage(_ targ: Entity, _ inflictor: Entity?, _ attacker: Entity?, _ dir: 
                                             //always take credit for kill if they were healthy before
                                             targ.client!.ps.otherKillerDebounceTime = 0
                                         }
-                                        // Port-note: Raven passes the optional `inflictor` to `G_ApplyVehicleOtherKiller`, whose `inflictor` parameter takes a value. A never-null ruling is due.
-                                        // Raven wrote: G_ApplyVehicleOtherKiller( targ, inflictor, attacker, mod, qtrue )
-                                        portMissing("G_Damage", source: "oracle/codemp/game/g_combat.c:4577")
+                                        G_ApplyVehicleOtherKiller(targ, inflictor!, attacker!, mod, true)
                                     }
                                 } else {
                                     G_VehicleSetDamageLocFlags(targ, surface, deathPoint)
@@ -4259,25 +4270,24 @@ func G_Damage(_ targ: Entity, _ inflictor: Entity?, _ attacker: Entity?, _ dir: 
         client!.damage_armor += asave
         client!.damage_blood += take
         client!.damage_knockback += knockback
-        client!.damage_from = dir
-        client!.damage_fromWorld = false
+        if dir != nil {
+            client!.damage_from = dir!
+            client!.damage_fromWorld = false
+        } else {
+            client!.damage_from = targ.r.currentOrigin
+            client!.damage_fromWorld = true
+        }
 
         if attacker != nil && attacker!.client != nil {
-            // Port-note: Raven passes the optional `attacker` to `BotDamageNotification`, whose `attacker` parameter takes a value. A never-null ruling is due.
-            // Raven wrote: BotDamageNotification(client, attacker)
-            portMissing("G_Damage", source: "oracle/codemp/game/g_combat.c:4577")
+            BotDamageNotification(client!, attacker!)
         } else if inflictor != nil && inflictor!.client != nil {
-            // Port-note: Raven passes the optional `inflictor` to `BotDamageNotification`, whose `attacker` parameter takes a value. A never-null ruling is due.
-            // Raven wrote: BotDamageNotification(client, inflictor)
-            portMissing("G_Damage", source: "oracle/codemp/game/g_combat.c:4577")
+            BotDamageNotification(client!, inflictor!)
         }
     }
 
     // See if it's the player hurting the emeny flag carrier
     if g_gametype.integer == GT_CTF || g_gametype.integer == GT_CTY {
-        // Port-note: Raven passes the optional `attacker` to `Team_CheckHurtCarrier`, whose `attacker` parameter takes a value. A never-null ruling is due.
-        // Raven wrote: Team_CheckHurtCarrier(targ, attacker)
-        portMissing("G_Damage", source: "oracle/codemp/game/g_combat.c:4577")
+        Team_CheckHurtCarrier(targ, attacker!)
     }
 
     if targ.client != nil {
@@ -4487,14 +4497,19 @@ func G_Damage(_ targ: Entity, _ inflictor: Entity?, _ attacker: Entity?, _ dir: 
             // If we are a breaking glass brush, store the damage point so we can do cool things with it.
             if (targ.r.svFlags & SVF_GLASS_BRUSH) != 0 {
                 targ.pos1 = point!
-                targ.pos2 = dir
+                if dir != nil {
+                    targ.pos2 = dir!
+                } else {
+                    targ.pos2 = vec3_t()
+                }
             }
 
             if targ.s.eType == ET_NPC && targ.client != nil && (targ.s.eFlags & EF_DEAD) != 0 {
                 //an NPC that's already dead. Maybe we can cut some more limbs off!
-                // Port-note: Raven passes the optional `attacker` to `G_HeavyMelee`, whose `attacker` parameter takes a value. A never-null ruling is due.
-                // Raven wrote: if ( (mod == MOD_SABER || (mod == MOD_MELEE && G_HeavyMelee( attacker )) )//saber or heavy melee (claws) && take > 2 && !(dflags&DAMAGE_NO_DISMEMBER) ) { G_CheckForDismemberment(targ, attacker, targ->pos1, take, targ->client->ps.torsoAnim, qtrue); }
-                portMissing("G_Damage", source: "oracle/codemp/game/g_combat.c:4577")
+                //saber or heavy melee (claws)
+                if (mod == MOD_SABER || (mod == MOD_MELEE && G_HeavyMelee(attacker!))) && take > 2 && (dflags & DAMAGE_NO_DISMEMBER) == 0 {
+                    G_CheckForDismemberment(targ, attacker!, targ.pos1, take, targ.client!.ps.torsoAnim, true)
+                }
             }
 
             targ.enemy = attacker
@@ -4524,6 +4539,14 @@ func G_Damage(_ targ: Entity, _ inflictor: Entity?, _ attacker: Entity?, _ dir: 
 
         G_LogWeaponDamage(attacker!.s.number, mod, take)
     }
+}
+
+/// A caller that passes a vector for `dir` reaches `G_Damage` through this forward, and a NULL caller passes the optional.
+/// Source: oracle/codemp/game/g_combat.c:4577
+func G_Damage(_ targ: Entity, _ inflictor: Entity?, _ attacker: Entity?, _ dir: inout JKAShared.vec3_t, _ point: JKAShared.vec3_t?, _ damage: Int32, _ dflags: Int32, _ mod: Int32) {
+    var optionalDir: JKAShared.vec3_t? = dir
+    defer { dir = optionalDir! }
+    G_Damage(targ, inflictor, attacker, &optionalDir, point, damage, dflags, mod)
 }
 
 /// Source: oracle/codemp/game/g_combat.c:5717
@@ -4560,10 +4583,8 @@ func G_DamageFromKiller(_ pEnt: Entity, _ pVehEnt: Entity, _ attacker: Entity?, 
     if killer != nil && killer!.s.eType == ET_NPC && killer!.s.NPC_class == CLASS_VEHICLE && killer!.m_pVehicle != nil && killer!.m_pVehicle!.m_pPilot != nil {
         killer = killer!.m_pVehicle!.m_pPilot.map { Entity($0) }
     }
-    // Port-note: Raven passes NULL for the `dir` output. The ported function takes it by reference, so the body passes a scratch local it never reads.
-    portMissing("G_DamageFromKiller", source: "oracle/codemp/game/g_combat.c:5717")
-    var scratchDir = vec3_t()
-    G_Damage(pEnt, inflictor, killer, &scratchDir, org, damage, dflags, mod)
+    var dir: vec3_t? = nil
+    G_Damage(pEnt, inflictor, killer, &dir, org, damage, dflags, mod)
     if tempInflictor {
         G_FreeEntity(inflictor!)
     }

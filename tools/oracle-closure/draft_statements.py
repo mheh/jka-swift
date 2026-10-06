@@ -286,6 +286,11 @@ class Statements:
             local = self.zeroed_local(args)
             if local is not None:
                 return [f"{pad}{self.expr(local)}.zero()" + self.trailing(cur)]
+            # Raven's memset over a whole array of scalars or vectors is one value into every element, `totalDmg.fill(0)`.
+            filled = self.filled_array(args)
+            if filled is not None:
+                target, value = filled
+                return [f"{pad}{target}.fill({value})" + self.trailing(cur)]
         targets = []
         for arg in args[: 2 if name == "memcpy" else 1]:
             if arg.kind == CursorKind.UNARY_OPERATOR and self.unary_parts(arg)[0] == "&":
@@ -310,12 +315,79 @@ class Statements:
             return [f"{pad}{self.expr(targets[0])}.clear()" + self.trailing(cur)]
         return [f"{pad}{self.expr(targets[0])}.copy(from: {self.expr(targets[1])})" + self.trailing(cur)]
 
+    def filled_array(self, args: list[ci.Cursor]) -> tuple[str, str] | None:
+        """The Swift array and the value for Raven's memset over a whole array of scalars or vectors, or None.
+        The size is `sizeof` of the array, or `sizeof` of one element times the bound Raven declared, in either order.
+        The value is zero for any element, and -1 for an integer element, whose every byte 0xff is -1 again."""
+        if len(args) != 3:
+            return None
+        target = self.strip(args[0])
+        if target.kind == CursorKind.UNARY_OPERATOR and self.unary_parts(target)[0] == "&":
+            target = self.strip(self.unary_parts(target)[2])
+        t = self.unwrap(target).type.get_canonical()
+        if t.kind != TypeKind.CONSTANTARRAY:
+            return None
+        element = t.element_type.get_canonical()
+        inner = element
+        while inner.kind == TypeKind.CONSTANTARRAY and not self.vector_type(inner):
+            inner = inner.element_type.get_canonical()
+        value = " ".join(self.source.slice(self.unwrap(args[1]).extent).split())
+        if self.vector_type(inner):
+            if value != "0":
+                return None
+            word = "vec3_t()"
+        elif inner.kind in (TypeKind.FLOAT, TypeKind.DOUBLE):
+            if value != "0":
+                return None
+            word = "0"
+        elif inner.kind == TypeKind.ENUM and "qboolean" in self.unwrap(target).type.spelling:
+            if value != "0":
+                return None
+            word = "false"
+        elif inner.kind in (TypeKind.INT, TypeKind.UINT, TypeKind.SHORT, TypeKind.USHORT, TypeKind.ENUM):
+            if value not in ("0", "-1"):
+                return None
+            word = value
+        else:
+            return None
+        if element.kind == TypeKind.CONSTANTARRAY and not self.vector_type(element) and \
+                (element.element_type.get_canonical().kind == TypeKind.CONSTANTARRAY):
+            # Three dimensions have no fill.
+            return None
+        name = " ".join(self.source.slice(self.unwrap(target).extent).split()).replace(" ", "")
+        size = self.source.slice(self.unwrap(args[2]).extent).replace(" ", "").replace("\t", "")
+        ref = self.unwrap(target).referenced
+        bound = self.declared_capacity(ref) if ref is not None else ""
+        counts = {str(t.element_count)} | ({bound} if bound else set())
+        units = {f"sizeof({name}[0])", f"sizeof(*{name})", f"sizeof({element.spelling.replace(' ', '')})"}
+        if ref is not None:
+            units |= {f"sizeof({ref.type.get_canonical().element_type.spelling.replace(' ', '')})"}
+            spelled = [tok.spelling for tok in ref.get_tokens()]
+            if spelled:
+                units.add(f"sizeof({spelled[0]})")
+        wholes = {f"sizeof({name})", f"sizeof{name}"} | {f"{u}*{c}" for u in units for c in counts} | {f"{c}*{u}" for u in units for c in counts}
+        if size not in wholes:
+            return None
+        return self.expr(target), word
+
+    def vector_type(self, t: ci.Type) -> bool:
+        """True for Raven's `vec3_t`, an array of three floats."""
+        canonical = t.get_canonical()
+        return canonical.kind == TypeKind.CONSTANTARRAY and canonical.element_count == 3 \
+            and canonical.element_type.get_canonical().kind == TypeKind.FLOAT
+
     def whole_record_size(self, size: ci.Cursor, target: ci.Cursor) -> bool:
-        """True when Raven's size argument is `sizeof` of the record itself, of the pointer's pointee, or of the record's type."""
+        """True when Raven's size argument is `sizeof` of the record itself, of the pointer's pointee, or of the record's type,
+        `sizeof(Vehicle_t)` through a `Vehicle_t *`, which names the pointee's type by any typedef of it."""
         text = " ".join(self.bytes[size.extent.start.offset:size.extent.end.offset].decode("utf-8", "replace").split())
         m = re.fullmatch(r"sizeof\s*\(?\s*(.*?)\s*\)?", text)
         if m is None:
             return False
+        t = target.type.get_canonical()
+        record_type = t.get_pointee().get_canonical() if t.kind == TypeKind.POINTER else t
+        for node in size.walk_preorder():
+            if node.kind == CursorKind.TYPE_REF and node.referenced is not None and node.referenced.type.get_canonical() == record_type:
+                return True
         inner = m.group(1).replace(" ", "")
         record = " ".join(self.bytes[target.extent.start.offset:target.extent.end.offset].decode("utf-8", "replace").split()).replace(" ", "")
         t = target.type.get_canonical()
@@ -385,10 +457,13 @@ class Statements:
             return self.if_statement(cur, depth)
         if kind == CursorKind.WHILE_STMT:
             cond, body = list(cur.get_children())
+            if self.holds_store(cond):
+                return self.store_while(cond, body, depth)
             return [f"{pad}while {self.condition(cond)} {{"] + self.loop_body(body, None, depth + 1) + [f"{pad}}}"]
         if kind == CursorKind.DO_STMT:
             body, cond = list(cur.get_children())
-            return [f"{pad}repeat {{"] + self.loop_body(body, None, depth + 1) + [f"{pad}}} while {self.condition(cond)}"]
+            lines = self.loop_body(body, None, depth + 1)
+            return [f"{pad}repeat {{"] + lines + [f"{pad}}} while {self.blocked_condition(cond)}"]
         if kind == CursorKind.FOR_STMT:
             return self.for_statement(cur, depth)
         if kind == CursorKind.SWITCH_STMT:
@@ -563,8 +638,10 @@ class Statements:
                     # Raven stores the table back into the field he indexes, and the field's Slots accessor takes it.
                     return [f"{pad}{self.slots_member(left)} = {self.slots_expression(right)}" + self.trailing(cur)]
                 if op == "=" and self.view_operand(left) and not self.optional_base(left) and self.optional_base(right):
-                    raven = self.bytes[cur.extent.start.offset:cur.extent.end.offset].decode("utf-8", "replace")
-                    raise Hole(f"Raven stores `{raven}`, and the view holds the source as an optional where the target takes a value. A never-null ruling is due.")
+                    # The target takes a value, and the force unwrap traps where Raven's later read would dereference NULL.
+                    source = self.expr(right)
+                    source = f"({source})!" if self.unwrap(right).kind == CursorKind.CONDITIONAL_OPERATOR else f"{source}!"
+                    return [f"{pad}{self.expr(left)} = {source}" + self.trailing(cur)]
                 if op == "=" and self.slots_source(right):
                     raven = self.bytes[cur.extent.start.offset:cur.extent.end.offset].decode("utf-8", "replace")
                     raise Hole(f"Raven stores `{raven}`, and Swift holds the source as a Slots where the target takes one record. A Slots ruling is due.")
@@ -744,8 +821,22 @@ class Statements:
             between = [line for line in self.gap(then.extent.end.line, other.extent.start.line, depth + 1) if line.strip()]
             if other.kind == CursorKind.IF_STMT:
                 # Raven's else-if is a statement of its own, so the compile gate maps an error in it to it and not to the whole chain.
-                nested = self.compile_hole(other, depth)
-                nested = marked(self.if_statement(other, depth) if nested is None else nested, self.statement_number(other))
+                outer = self.pending
+                self.pending = []
+                try:
+                    nested = self.compile_hole(other, depth)
+                    nested = marked(self.if_statement(other, depth) if nested is None else nested, self.statement_number(other))
+                    before = self.pending
+                finally:
+                    self.pending = outer
+                if any(not line.lstrip().startswith("//") for line in before):
+                    # A store lifted out of the else-if test runs only when the first test fails, so it opens the else block.
+                    out.append(f"{pad}}} else {{")
+                    out += between + [INDENT * (depth + 1) + line for line in before]
+                    out += [INDENT + line if line.strip() else line for line in nested]
+                    out.append(f"{pad}}}")
+                    return out
+                self.pending += before
                 if nested and nested[0].strip().startswith("if "):
                     out.append(f"{pad}}} else {nested[0].strip()}")
                     out += between + nested[1:]
@@ -794,7 +885,7 @@ class Statements:
         out: list[str] = []
         if init is not None:
             out += self.statement(init, depth)
-        test = self.condition(cond) if cond is not None else "true"
+        test = self.blocked_condition(cond) if cond is not None else "true"
         out.append(f"{pad}while {test} {{")
         inner = self.loop_body(body, step, depth + 1)
         if step is not None and any(re.match(r"continue \w", line.strip()) for line in inner):
@@ -806,6 +897,60 @@ class Statements:
             out += self.statement(step, depth + 1)
         out.append(f"{pad}}}")
         return out
+
+    def blocked_condition(self, cond: ci.Cursor) -> str:
+        """A loop test that runs on every pass, where a store inside it has no line of its own before the loop."""
+        self.lift_blocked += 1
+        try:
+            return self.condition(cond)
+        finally:
+            self.lift_blocked -= 1
+
+    def holds_store(self, cur: ci.Cursor) -> bool:
+        """True when Raven's expression holds an assignment, `(spot = G_Find(...)) != NULL`."""
+        for node in cur.walk_preorder():
+            if node.kind == CursorKind.COMPOUND_ASSIGNMENT_OPERATOR:
+                return True
+            if node.kind == CursorKind.BINARY_OPERATOR and not self.collapsed(node) and self.operator_or_none(node) == "=":
+                return True
+        return False
+
+    def store_while(self, cond: ci.Cursor, body: ci.Cursor, depth: int) -> list[str]:
+        """Raven's `while` whose test stores a value. An optional value under his NULL test is `while let next = ...`,
+        with the store as the first line of the body. Any other test is `while true`, the lifted store, and the test as a break."""
+        pad = INDENT * depth
+        inner_pad = INDENT * (depth + 1)
+        test = self.strip(cond)
+        store = None
+        if test.kind == CursorKind.BINARY_OPERATOR and self.operator_or_none(test) == "!=":
+            left, right = list(test.get_children())
+            if self.is_null(right):
+                store = self.strip(left)
+        elif test.kind == CursorKind.BINARY_OPERATOR and self.operator_or_none(test) == "=":
+            store = test
+        if store is not None and store.kind == CursorKind.BINARY_OPERATOR and self.operator_or_none(store) == "=":
+            target, value = list(store.get_children())
+            if self.unwrap(target).kind == CursorKind.DECL_REF_EXPR and self.optional_base(value):
+                outer = self.pending
+                self.pending = []
+                try:
+                    source = self.expr(value)
+                    before = self.pending
+                finally:
+                    self.pending = outer
+                if all(line.lstrip().startswith("//") for line in before):
+                    self.pending += before
+                    return [f"{pad}while let next = {source} {{", f"{inner_pad}{self.expr(target)} = next"] \
+                        + self.loop_body(body, None, depth + 1) + [f"{pad}}}"]
+        outer = self.pending
+        self.pending = []
+        try:
+            check = self.condition(cond)
+            lifted = self.pending
+        finally:
+            self.pending = outer
+        return [f"{pad}while true {{"] + [inner_pad + line for line in lifted] + [f"{inner_pad}if !({check}) {{ break }}"] \
+            + self.loop_body(body, None, depth + 1) + [f"{pad}}}"]
 
     def loop_body(self, body: ci.Cursor, step: ci.Cursor | None, depth: int) -> list[str]:
         """The body of a loop, with its step clause on the stack so a `continue` inside it runs the step first."""

@@ -35,6 +35,15 @@ public struct Forcedata: Hashable, HandleView {
         return try withUnsafeMutablePointer(to: &slot) { try body(Forcedata(raw: $0)) }
     }
 
+    /// Raven's `forcedata_t forcedata[N];` on the stack, a local array of records.
+    /// The slots are zero at entry, live for the closure, and the closure's value is the result.
+    public static func scratch<Result>(count: Int, _ body: (Slots<Forcedata>) throws -> Result) rethrows -> Result {
+        let base = UnsafeMutableRawPointer.allocate(byteCount: count * Forcedata.stride, alignment: MemoryLayout<forcedata_t>.alignment)
+        defer { base.deallocate() }
+        base.initializeMemory(as: UInt8.self, repeating: 0, count: count * Forcedata.stride)
+        return try body(Slots(views: base, count: count, stride: Forcedata.stride))
+    }
+
     /// Raven's `forcedata_t forcedata = *other;`, a copy of another slot on the stack.
     public static func scratch<Result>(copying other: Forcedata, _ body: (Forcedata) throws -> Result) rethrows -> Result {
         var slot = other.raw.pointee

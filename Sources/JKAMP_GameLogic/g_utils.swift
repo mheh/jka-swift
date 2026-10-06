@@ -94,11 +94,15 @@ func AddRemap(_ oldShader: String, _ newShader: String, _ timeOffset: Float) {
     }
 }
 
+/// Raven's `static char buff[MAX_STRING_CHARS*4]` of `BuildShaderStateConfig`.
+/// Source: oracle/codemp/game/g_utils.c:40
+var buff: CharBuf {
+    get { world.buff }
+    set { world.buff = newValue }
+}
+
 /// Source: oracle/codemp/game/g_utils.c:39
 func BuildShaderStateConfig() -> String {
-    // Port-note: A static local `buff` the function returns, storage that outlives the call.
-    // Raven wrote: static char buff[MAX_STRING_CHARS*4];
-    portMissing("BuildShaderStateConfig", source: "oracle/codemp/game/g_utils.c:39")
     var out = CharBuf(133)
     var i: Int32
 
@@ -108,14 +112,10 @@ func BuildShaderStateConfig() -> String {
     i = 0
     while i < remapCount {
         Com_sprintf(&out, (MAX_QPATH * 2) + 5, "%s=%s:%5.2f@", remappedShaders[i].oldShader, remappedShaders[i].newShader, remappedShaders[i].timeOffset)
-        // Port-note: A read of `buff`, a local the draft left as a hole.
-        // Raven wrote: Q_strcat( buff, sizeof( buff ), out)
-        portMissing("BuildShaderStateConfig", source: "oracle/codemp/game/g_utils.c:39")
+        Q_strcat(&buff, Int32(buff.count), String(out))
         i += 1
     }
-    // Port-note: A read of `buff`, a local the draft left as a hole.
-    // Raven wrote: return buff
-    portMissing("BuildShaderStateConfig", source: "oracle/codemp/game/g_utils.c:39")
+    return String(buff)
 }
 
 /**
@@ -267,8 +267,8 @@ NULL will be returned if the end of the list is reached.
 ```
 */
 /// Source: oracle/codemp/game/g_utils.c:222
-func G_Find(_ from: Entity?, _ fieldofs: Int32, _ match: String) -> Entity? {
-    var s: UnsafeMutableRawPointer
+func G_Find(_ from: Entity?, _ fieldofs: KeyPath<Entity, String?>, _ match: String) -> Entity? {
+    var s: String?
     // Raven walks his own `from` parameter over `g_entities`, so the body walks the index of its slot, as for a walked local.
     var fromIndex: Int32 = 0
 
@@ -283,16 +283,14 @@ func G_Find(_ from: Entity?, _ fieldofs: Int32, _ match: String) -> Entity? {
             fromIndex += 1
             continue
         }
-        // Port-note: The draft of this statement did not compile, and the compiler wrote "value of optional type 'UnsafeMutableRawPointer?' must be unwrapped to a value of type 'UnsafeMutableRawPointer'".
-        // Raven wrote: s = *(char **) ((byte *)from + fieldofs)
-        portMissing("G_Find", source: "oracle/codemp/game/g_utils.c:222")
+        s = g_entities[fromIndex][keyPath: fieldofs]
         if s == nil {
             fromIndex += 1
             continue
         }
-        // Port-note: The draft of this statement did not compile, and the compiler wrote "cannot convert value of type 'UnsafeMutableRawPointer' to expected argument type 'String'".
-        // Raven wrote: if (!Q_stricmp (s, match)) return from
-        portMissing("G_Find", source: "oracle/codemp/game/g_utils.c:222")
+        if Q_stricmp(s!, match) == 0 {
+            return g_entities[fromIndex]
+        }
         fromIndex += 1
     }
 
@@ -434,9 +432,7 @@ func G_AllocateVehicleObject(_ pVeh: inout JKAMP.Vehicle?) {
 
     if !g_vehiclePoolInit {
         g_vehiclePoolInit = true
-        // Port-note: Raven's `memset(g_vehiclePoolOccupied, 0, sizeof(g_vehiclePoolOccupied))` runs over bytes that are not one record with a view.
-        // Raven wrote: memset(g_vehiclePoolOccupied, 0, sizeof(g_vehiclePoolOccupied))
-        portMissing("G_AllocateVehicleObject", source: "oracle/codemp/game/g_utils.c:388")
+        g_vehiclePoolOccupied.fill(false)
     }
 
     while i < MAX_VEHICLES_AT_A_TIME {
@@ -472,9 +468,7 @@ func G_CreateFakeClient(_ entNum: Int32, _ cl: inout Client?) {
     if gClPtrs[entNum] == nil {
         gClPtrs[entNum] = Client(BG_Alloc(Int32(Client.byteCount)))
     }
-    // Port-note: Raven stores `*cl = gClPtrs[entNum]`, and the view holds the source as an optional where the target takes a value. A never-null ruling is due.
-    // Raven wrote: *cl = gClPtrs[entNum]
-    portMissing("G_CreateFakeClient", source: "oracle/codemp/game/g_utils.c:430")
+    cl = gClPtrs[entNum]
 }
 
 //call this on game shutdown to run through and get rid of all the lingering client pointers.
@@ -509,9 +503,7 @@ func G_PickTarget(_ targetname: String) -> Entity? {
 
 
     while 1 != 0 {
-        // Port-note: No operator beside the operand, the text there is ``.
-        // Raven wrote: ent = G_Find (ent, FOFS(targetname), targetname)
-        portMissing("G_PickTarget", source: "oracle/codemp/game/g_utils.c:521")
+        ent = G_Find(ent, \.targetname, targetname)
         if ent == nil {
             break
         }
@@ -534,7 +526,7 @@ func G_PickTarget(_ targetname: String) -> Entity? {
 }
 
 /// Source: oracle/codemp/game/g_utils.c:552
-func GlobalUse(_ `self`: Entity, _ other: Entity, _ activator: Entity) {
+func GlobalUse(_ `self`: Entity, _ other: Entity, _ activator: Entity?) {
     if (`self`.flags & FL_INACTIVE) != 0 {
         return
     }
@@ -546,7 +538,7 @@ func GlobalUse(_ `self`: Entity, _ other: Entity, _ activator: Entity) {
 }
 
 /// Source: oracle/codemp/game/g_utils.c:566
-func G_UseTargets2(_ ent: Entity, _ activator: Entity, _ string: String) {
+func G_UseTargets2(_ ent: Entity, _ activator: Entity?, _ string: String?) {
     var t: Entity?
 
 
@@ -556,14 +548,25 @@ func G_UseTargets2(_ ent: Entity, _ activator: Entity, _ string: String) {
         trap_SetConfigstring(CS_SHADERSTATE, BuildShaderStateConfig())
     }
 
-    if string.isEmpty {
+    if string == nil || string!.isEmpty {
         return
     }
 
     t = nil
-    // Port-note: An assignment inside an expression.
-    // Raven wrote: while ( (t = G_Find (t, FOFS(targetname), string)) != NULL ) { if ( t == ent ) { G_Printf ("WARNING: Entity used itself.\n"); } else { if ( t->use ) { GlobalUse(t, ent, activator); } } if ( !ent->inuse ) { G_Printf("entity was removed while using targets\n"); return; } }
-    portMissing("G_UseTargets2", source: "oracle/codemp/game/g_utils.c:566")
+    while let next = G_Find(t, \.targetname, string!) {
+        t = next
+        if t == ent {
+            G_Printf("WARNING: Entity used itself.\n")
+        } else {
+            if t!.use != nil {
+                GlobalUse(t!, ent, activator)
+            }
+        }
+        if !ent.inuse {
+            G_Printf("entity was removed while using targets\n")
+            return
+        }
+    }
 }
 
 /**
@@ -581,9 +584,7 @@ match (string)self.target and call their .use function
 */
 /// Source: oracle/codemp/game/g_utils.c:609
 func G_UseTargets(_ ent: Entity, _ activator: Entity?) {
-    // Port-note: Raven passes the optional `activator` to `G_UseTargets2`, whose `activator` parameter takes a value. A never-null ruling is due.
-    // Raven wrote: G_UseTargets2(ent, activator, ent->target)
-    portMissing("G_UseTargets", source: "oracle/codemp/game/g_utils.c:609")
+    G_UseTargets2(ent, activator, ent.target)
 }
 
 /**
@@ -598,30 +599,14 @@ for making temporary vectors for function calls
 */
 /// Source: oracle/codemp/game/g_utils.c:627
 func tv(_ x: Float, _ y: Float, _ z: Float) -> JKAShared.vec3_t {
-    // Port-note: A static local `index` a statement reads before it writes, storage that outlives the call.
-    // Raven wrote: static int index;
-    portMissing("tv", source: "oracle/codemp/game/g_utils.c:627")
-    var vecs = [vec3_t](repeating: vec3_t(), count: 8)
+    vec3_t(x, y, z)
+}
 
-    // use an array so that multiple tempvectors won't collide
-    // for a while
-    // Port-note: A store into `index`, a local the draft left as a hole.
-    // Raven wrote: index = (index + 1)&7
-    portMissing("tv", source: "oracle/codemp/game/g_utils.c:627")
-
-    // Port-note: A read of `index`, a local the draft left as a hole.
-    // Raven wrote: v[0] = x
-    portMissing("tv", source: "oracle/codemp/game/g_utils.c:627")
-    // Port-note: A read of `index`, a local the draft left as a hole.
-    // Raven wrote: v[1] = y
-    portMissing("tv", source: "oracle/codemp/game/g_utils.c:627")
-    // Port-note: A read of `index`, a local the draft left as a hole.
-    // Raven wrote: v[2] = z
-    portMissing("tv", source: "oracle/codemp/game/g_utils.c:627")
-
-    // Port-note: A read of `index`, a local the draft left as a hole.
-    // Raven wrote: return v
-    portMissing("tv", source: "oracle/codemp/game/g_utils.c:627")
+/// Raven's `static int index` of `vtos`.
+/// Source: oracle/codemp/game/g_utils.c:654
+var index_vtos: Int32 {
+    get { world.index_vtos }
+    set { world.index_vtos = newValue }
 }
 
 /**
@@ -636,9 +621,7 @@ for printing vectors
 */
 /// Source: oracle/codemp/game/g_utils.c:653
 func vtos(_ v: JKAShared.vec3_t) -> String {
-    // Port-note: A static local `index` a statement reads before it writes, storage that outlives the call.
-    // Raven wrote: static int index;
-    portMissing("vtos", source: "oracle/codemp/game/g_utils.c:653")
+    // Raven's static local `index` is `index_vtos`, because `tv` and `vtos` both declare an `index`.
     // Port-note: A local `char[8][32] str` the table has no type for.
     // Raven wrote: static char str[8][32];
     portMissing("vtos", source: "oracle/codemp/game/g_utils.c:653")
@@ -650,9 +633,7 @@ func vtos(_ v: JKAShared.vec3_t) -> String {
     // Port-note: A store into `s`, a local the draft left as a hole.
     // Raven wrote: s = str[index]
     portMissing("vtos", source: "oracle/codemp/game/g_utils.c:653")
-    // Port-note: A store into `index`, a local the draft left as a hole.
-    // Raven wrote: index = (index + 1)&7
-    portMissing("vtos", source: "oracle/codemp/game/g_utils.c:653")
+    index_vtos = (index_vtos + 1) & 7
 
     // Port-note: A read of `s`, a local the draft left as a hole.
     // Raven wrote: Com_sprintf (s, 32, "(%i %i %i)", (int)v[0], (int)v[1], (int)v[2])
@@ -687,11 +668,8 @@ func G_SetMovedir(_ angles: inout JKAShared.vec3_t, _ movedir: inout JKAShared.v
     } else if VectorCompare(angles, VEC_DOWN) != 0 {
         movedir = MOVEDIR_DOWN
     } else {
-        // Port-note: Raven passes NULL for the `right` output. The ported function takes it by reference, so the body passes a scratch local it never reads.
-        portMissing("G_SetMovedir", source: "oracle/codemp/game/g_utils.c:678")
+        // Raven passes NULL for the `right` and `up` outputs, and the scratch locals take the writes.
         var scratchRight = vec3_t()
-        // Port-note: Raven passes NULL for the `up` output. The ported function takes it by reference, so the body passes a scratch local it never reads.
-        portMissing("G_SetMovedir", source: "oracle/codemp/game/g_utils.c:678")
         var scratchUp = vec3_t()
         AngleVectors(angles, &movedir, &scratchRight, &scratchUp)
     }
@@ -702,7 +680,7 @@ func G_SetMovedir(_ angles: inout JKAShared.vec3_t, _ movedir: inout JKAShared.v
 func G_InitGentity(_ e: Entity) {
     e.inuse = true
     e.classname = "noclass"
-    e.s.number = g_entities.slot(of: e)
+    e.s.number = g_entities.index(of: e)
     e.r.ownerNum = ENTITYNUM_NONE
     e.s.modelGhoul2 = 0 //assume not
 
@@ -788,42 +766,36 @@ angles and bad trails.
 func G_Spawn() -> Entity? {
     var i: Int32
     var force: Int32
-    var e: Entity?
+    var eIndex: Int32 = 0
 
-    e = nil // shut up warning
+    eIndex = 0 // shut up warning
     i = 0 // shut up warning
     force = 0
     while force < 2 {
         // if we go through all entities and can't find one to free,
         // override the normal minimum times before use
-        e = g_entities[MAX_CLIENTS]
+        eIndex = MAX_CLIENTS
         i = MAX_CLIENTS
         while i < level.num_entities {
-            if e!.inuse {
+            if g_entities[eIndex].inuse {
                 i += 1
-                // Port-note: The draft of this statement did not compile, and the compiler wrote "cannot convert value of type 'Entity?' to expected argument type 'Int'".
-                // Raven wrote: e++
-                portMissing("G_Spawn", source: "oracle/codemp/game/g_utils.c:804")
+                eIndex += 1
                 continue
             }
 
             // the first couple seconds of server time can involve a lot of
             // freeing and allocating, so relax the replacement policy
-            if force == 0 && e!.freetime > level.startTime + 2000 && level.time - e!.freetime < 1000 {
+            if force == 0 && g_entities[eIndex].freetime > level.startTime + 2000 && level.time - g_entities[eIndex].freetime < 1000 {
                 i += 1
-                // Port-note: The draft of this statement did not compile, and the compiler wrote "cannot convert value of type 'Entity?' to expected argument type 'Int'".
-                // Raven wrote: e++
-                portMissing("G_Spawn", source: "oracle/codemp/game/g_utils.c:804")
+                eIndex += 1
                 continue
             }
 
             // reuse this slot
-            G_InitGentity(e!)
-            return e
+            G_InitGentity(g_entities[eIndex])
+            return g_entities[eIndex]
             i += 1
-            // Port-note: The draft of this statement did not compile, and the compiler wrote "cannot convert value of type 'Entity?' to expected argument type 'Int'".
-            // Raven wrote: e++
-            portMissing("G_Spawn", source: "oracle/codemp/game/g_utils.c:804")
+            eIndex += 1
         }
         if i != MAX_GENTITIES {
             break
@@ -846,8 +818,8 @@ func G_Spawn() -> Entity? {
     // let the server system know that there are more entities
     trap_LocateGameData(level.gentities!, level.num_entities, Int32(Entity.byteCount), level.clientsSlots[0].ps, Int32(Client.byteCount))
 
-    G_InitGentity(e!)
-    return e
+    G_InitGentity(g_entities[eIndex])
+    return g_entities[eIndex]
 }
 
 /**
@@ -1171,10 +1143,8 @@ func G_KillBox(_ ent: Entity) {
         }
 
         // nail it
-        // Port-note: Raven passes NULL for the `dir` output. The ported function takes it by reference, so the body passes a scratch local it never reads.
-        portMissing("G_KillBox", source: "oracle/codemp/game/g_utils.c:1162")
-        var scratchDir = vec3_t()
-        G_Damage(hit!, ent, ent, &scratchDir, nil, 100000, DAMAGE_NO_PROTECTION, MOD_TELEFRAG)
+        var dir: vec3_t? = nil
+        G_Damage(hit!, ent, ent, &dir, nil, 100000, DAMAGE_NO_PROTECTION, MOD_TELEFRAG)
         i += 1
     }
 }
@@ -1613,11 +1583,8 @@ func TryUse(_ ent: Entity) {
             viewspot[2] += ent.client!.ps.viewheight
 
             src = viewspot
-            // Port-note: Raven passes NULL for the `right` output. The ported function takes it by reference, so the body passes a scratch local it never reads.
-            portMissing("TryUse", source: "oracle/codemp/game/g_utils.c:1618")
+            // Raven passes NULL for the `right` and `up` outputs, and the scratch locals take the writes.
             var scratchRight = vec3_t()
-            // Port-note: Raven passes NULL for the `up` output. The ported function takes it by reference, so the body passes a scratch local it never reads.
-            portMissing("TryUse", source: "oracle/codemp/game/g_utils.c:1618")
             var scratchUp = vec3_t()
             AngleVectors(ent.client!.ps.viewangles, &vf, &scratchRight, &scratchUp)
 
@@ -1725,11 +1692,8 @@ func TryUse(_ ent: Entity) {
                 var fwd = vec3_t()
 
                 fAng = vec3_t(0.0, ent.client!.ps.viewangles[YAW], 0.0)
-                // Port-note: Raven passes NULL for the `right` output. The ported function takes it by reference, so the body passes a scratch local it never reads.
-                portMissing("TryUse", source: "oracle/codemp/game/g_utils.c:1618")
+                // Raven passes NULL for the `right` and `up` outputs, and the scratch locals take the writes.
                 var scratchRight2 = vec3_t()
-                // Port-note: Raven passes NULL for the `up` output. The ported function takes it by reference, so the body passes a scratch local it never reads.
-                portMissing("TryUse", source: "oracle/codemp/game/g_utils.c:1618")
                 var scratchUp2 = vec3_t()
                 AngleVectors(fAng, &fwd, &scratchRight2, &scratchUp2)
 
@@ -1938,11 +1902,12 @@ func G_ROFF_NotetrackCallback(_ cent: Entity, _ notetrack: String) {
     var type = CharBuf(256)
     var i: Int32 = 0
     var addlArg: Int32 = 0
+    let notetrack = CharBuf(notetrack)
 
-
-    // Port-note: The draft of this statement did not compile, and the compiler wrote "binary operator '!=' cannot be applied to operands of type 'Character' and 'Int'".
-    // Raven wrote: while (notetrack[i] && notetrack[i] != ' ') { type[i] = notetrack[i]; i++; }
-    portMissing("G_ROFF_NotetrackCallback", source: "oracle/codemp/game/g_utils.c:2039")
+    while notetrack[i] != 0 && notetrack[i] != Int32(ascii: " ") {
+        type[i] = notetrack[i]
+        i += 1
+    }
 
     type[i] = 0
 
@@ -1950,12 +1915,12 @@ func G_ROFF_NotetrackCallback(_ cent: Entity, _ notetrack: String) {
         return
     }
 
-    // Port-note: The draft of this statement did not compile, and the compiler wrote "binary operator '==' cannot be applied to operands of type 'Character' and 'Int32'".
-    // Raven wrote: if (notetrack[i] == ' ') { addlArg = 1; }
-    portMissing("G_ROFF_NotetrackCallback", source: "oracle/codemp/game/g_utils.c:2039")
+    if notetrack[i] == Int32(ascii: " ") {
+        addlArg = 1
+    }
 
     if strcmp(type, "loop") == 0 {
-        if addlArg != 0 {
+        if addlArg != 0 { //including an additional argument means reset to original position before loop
             cent.s.pos.trBase = cent.s.origin2
             cent.r.currentOrigin = cent.s.origin2
             cent.s.apos.trBase = cent.s.angles2

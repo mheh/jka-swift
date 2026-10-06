@@ -377,7 +377,8 @@ func BotDoChat(_ bs: BotState, _ section: String, _ always: Int32) -> Int32 {
 }
 
 /// Source: oracle/codemp/game/ai_util.c:517
-func ParseEmotionalAttachments(_ bs: BotState, _ buf: inout JKAShared.CharBuf) {
+func ParseEmotionalAttachments(_ bs: BotState, _ buf: String) {
+    let buf = CharBuf(buf)
     var i: Int32 = 0
     var i_c: Int32 = 0
     var tbuf = CharBuf(16)
@@ -664,7 +665,7 @@ func BotUtilizePersonality(_ bs: BotState) {
     bs.lovednum = 0
 
     if GetValueGroup(&buf, "EmotionalAttachments", &group) != 0 {
-        ParseEmotionalAttachments(bs, &group)
+        ParseEmotionalAttachments(bs, String(group))
     }
 
     B_TempFree(131072) //buf

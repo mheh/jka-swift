@@ -32,6 +32,7 @@ from clang.cindex import CursorKind
 import closure as C
 from reexport import REPO, SOURCES
 from rulings import ARM_HOOKS, EXTRA_HOOKS, LIST_TRAPS, OWN_HOOKS, QAGAME_ONLY, SHARED_STEMS
+from skeleton import OPTIONAL_INOUTS
 from table import Param, SourceFile, Table
 
 ORACLE_DIR = C.GAME_DIR
@@ -315,7 +316,33 @@ class Channel:
                 "",
             ]
             lines += self.buffer_overload(hook, store)
+            lines += self.optional_forward(hook)
         return lines
+
+    def optional_forward(self, hook: Hook) -> list[str]:
+        """The forward under Raven's name for a hook with an optional inout vector, for the bg callers that pass a vector.
+        It wraps each vector in an optional, calls the hook, and writes the vector back, the same forward the skeleton writes in the game."""
+        opts = [p for p in hook.crossing if p.kind in OPTIONAL_INOUTS]
+        if not opts:
+            return []
+        signature = ", ".join(f"{p.label or '_'} {p.name}: {t[:-1] if p in opts else t}" for p, t in zip(hook.crossing, hook.bg_types()))
+        returns = f" -> {hook.bg_returns()}" if hook.bg_returns() else ""
+        named = ", ".join(f"`{p.name.strip('`')}`" for p in opts)
+        lines = [f"/// A caller that passes a vector for {named} reaches `{hook.name}` through this forward, and a NULL caller passes the optional.",
+                 f"/// Source: {hook.cite}"]
+        lines += (["@discardableResult"] if returns else []) + [f"func {hook.name}({signature}){returns} {{"]
+        words: list[str] = []
+        for p, t in zip(hook.crossing, hook.bg_types()):
+            local = "optional" + p.name.strip("`")[:1].upper() + p.name.strip("`")[1:]
+            if p in opts:
+                lines += [f"    var {local}: {t.removeprefix('inout ')} = {p.name}", f"    defer {{ {p.name} = {local}! }}"]
+                words.append(f"&{local}")
+            elif t.startswith("inout "):
+                words.append(f"&{p.name}")
+            else:
+                words.append(p.name)
+        self.counts["optional forwards"] += 1
+        return lines + [f"    {'return ' if returns else ''}{hook.name}({', '.join(words)})", "}", ""]
 
     def buffer_overload(self, hook: Hook, store: str) -> list[str]:
         """The second overload of docket row 7, for a `void *` parameter Raven's own callers fill with a `char buf[N]`.

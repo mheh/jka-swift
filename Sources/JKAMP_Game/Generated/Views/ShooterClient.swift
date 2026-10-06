@@ -36,6 +36,15 @@ public struct ShooterClient: Hashable, HandleView {
         return try withUnsafeMutablePointer(to: &slot) { try body(ShooterClient(raw: $0)) }
     }
 
+    /// Raven's `shooterClient_t shooterClient[N];` on the stack, a local array of records.
+    /// The slots are zero at entry, live for the closure, and the closure's value is the result.
+    public static func scratch<Result>(count: Int, _ body: (Slots<ShooterClient>) throws -> Result) rethrows -> Result {
+        let base = UnsafeMutableRawPointer.allocate(byteCount: count * ShooterClient.stride, alignment: MemoryLayout<shooterClient_t>.alignment)
+        defer { base.deallocate() }
+        base.initializeMemory(as: UInt8.self, repeating: 0, count: count * ShooterClient.stride)
+        return try body(Slots(views: base, count: count, stride: ShooterClient.stride))
+    }
+
     /// Raven's `shooterClient_t shooterClient = *other;`, a copy of another slot on the stack.
     public static func scratch<Result>(copying other: ShooterClient, _ body: (ShooterClient) throws -> Result) rethrows -> Result {
         var slot = other.raw.pointee

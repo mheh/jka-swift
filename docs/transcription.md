@@ -38,6 +38,8 @@ The lookup tool is `tools/oracle-closure/lookup.py`, the only command a transcri
 
 Unknown types become Port-notes.
 A reviewer reads the same set, plus the jka-rust range from the manifest.
+That range names a file of the submodule `jka-rust/` at the repository root, pinned at the commit whose `crates/mp/game/src` layout the manifest cites.
+The reviewer reads that range in the submodule and never in the sibling clone `../jka-rust`, whose later layout holds the game functions as stubs.
 
 Neither role greps across `Sources/`.
 When a needed fact sits outside the read set, the agent writes a Port-note and moves on.
@@ -88,7 +90,7 @@ An enum of that last kind is `private let` constants of type `Int32` at the top 
 |---|---|
 | a non-const `vec3_t` parameter | `inout JKAShared.vec3_t`, and a call site writes `&v`. A `const vec3_t` stays by value. A non-const `vec4_t` parameter is `inout JKAShared.vec4_t` by the same rule, and a `const vec4_t` also stays by value. |
 | a `vec3_t name[3]` parameter | `inout [vec3_t]`, the type `AnglesToAxis`, `AxisClear`, and `AxisCopy` take in `q_math.swift` |
-| a non-const `char *` parameter of a function that is not a trap, with or without a size parameter beside it | `inout CharBuf`, and the caller passes its own buffer with `&`. A `const char *` stays `String`. |
+| a non-const `char *` parameter of a function that is not a trap, with or without a size parameter beside it | `String` when the text sweep reads every use, `String?` when the NULL sweep also reaches it, and `inout CharBuf` otherwise, where the caller passes its own buffer with `&`. A `const char *` stays `String`. |
 | a function-pointer parameter | an optional Swift closure, whose parameters go through these same rows |
 | a `void *` return | `UnsafeMutableRawPointer` for `BG_Alloc`, `BG_AllocUnaligned`, and `BG_TempAlloc`, and also for `B_Alloc`, `B_TempAlloc`, and `G_Alloc`. `BG_StringAlloc` and `G_NewString` return `String`, the text a `char *` field takes. |
 | a pointer parameter Raven fills as a fixed set of floats, such as `float *colors` of `BG_ValidateSkinForTeam` | `inout vec3_t` |
@@ -151,11 +153,16 @@ A record's `char name[N]` field that Raven passes as a write target to a non-con
 The `String` accessor stays for a read of the text, and `strcpy`, `Com_sprintf`, and the rest of the buffer writers take the `Buffer` spelling.
 Raven's `memset(ent->name, 0, sizeof(ent->name))` over that field is `ent.nameBuffer.zero()`, the `CharBuf` zero-fill, which the getter and the setter of the accessor carry back into C memory.
 The rule holds for a zero value and the size of the same field.
-Raven's `memset(buf, 0, sizeof(buf))` over a `char buf[N]` local is `buf.zero()`, because the local is a `CharBuf` of N bytes.
-The size can also be the capacity that the declaration spells, `AWARDS_MSG_LENGTH` for `char buf1[AWARDS_MSG_LENGTH]`, or an integer literal of N.
-Any other memset over bytes that are not one record keeps its Port-note.
+Raven's `memset(buf, 0, sizeof(buf))` over a `char buf[N]` local or file-scope buffer is `buf.zero()`, because the buffer is a `CharBuf` of N bytes.
+The size can also be the bound constant that the declaration spells, `AWARDS_MSG_LENGTH` for `char buf1[AWARDS_MSG_LENGTH]`, or an integer literal of N.
+A memset over a whole array of scalars or vectors is `fill(_:)` on the `Slots` or the `Array` that holds it, one value into every element: `totalDmg.fill(0)`, `dmgDir.fill(vec3_t())`, `pVeh.m_iExhaustTag.fill(-1)`.
+The size is `sizeof` of the array, or `sizeof` of one element times the declared bound, `sizeof( int ) * MAX_VEHICLE_EXHAUSTS`.
+The value is zero for any element, `false` for a `qboolean` element, and -1 for an integer element, because every byte 0xff of an `int` is -1 again.
+A two-dimensional array of scalars takes the same call, `G_WeaponLogPickups.fill(0)`, which fills every row.
 A memset of zero over a whole record local drops, because the scratch slot is zero at entry, only where the target is the record itself and not a pointer to one, the size is the record's own, and no loop encloses the call. Otherwise it is the view's `clear()`.
-A memset with a value that is not zero, or over a size that is not the record's own, keeps its Port-note.
+The record's own size is `sizeof` of the record, of the pointee, or of the pointee's type name under any typedef, so `memset(*pVeh, 0, sizeof(Vehicle_t))` through a `Vehicle_t *` is `pVeh.clear()`.
+A memset over a partial size keeps its Port-note, `memset(buff, 0, MAX_STRING_CHARS)` over the `char buff[MAX_STRING_CHARS*4]` of `BuildShaderStateConfig` among them.
+A memset with a value the rules above do not give, or over a record with no view, keeps its Port-note too.
 
 Raven's struct of eight bytes exists because the compilers of the time had no portable 64-bit integer.
 Only the byte-swap pair touches `qint64`, and a body swaps with `byteSwapped`.
@@ -180,6 +187,14 @@ A trap copies a `[JKAShared.vec3_t]` parameter into a flat `[Float]` of three pe
 
 The body of a `float *` return out of a static ring of temporaries is `vec3_t(x, y, z)`.
 
+The text sweep reads a non-const `char *` parameter as a `String` when every use is a read.
+A read is a pass to a `const` position, to a function of `TEXT_READERS`, or past the last declared parameter as a format argument.
+A pass to a function whose body the sweep has and whose matching parameter the sweep reads as a `String` is a read too.
+So are a comparison or a NULL test, the whole condition of an `if`, a `while`, a `do`, or a `?:`, and an indexed read or a dereference used as a value and not as a store target, `saberName[0]` or `*from`.
+A pointer local set from the parameter, `p = from`, reads when each of its own uses reads, and a step of that local, `p++`, moves the local and writes no byte.
+A parameter the body writes, steps, casts, or passes to a function with no body keeps the `inout CharBuf`.
+A caller with a `String` for that parameter passes `var buf = CharBuf(name)` and `&buf`, and reads `String(buf)` after the call where Raven reads the result.
+A `char *` parameter the NULL sweep reaches, at a direct `NULL` or one hop on, crosses as a `String?`, the caller passes `nil` for `NULL`, and the body keeps Raven's test with both arms, `if locMsg != nil { ... } else { ... }` of `G_SayTo`.
 A body with an `inout CharBuf` parameter writes as Raven wrote, `powerOut[i] = readBuf[0]`, and `Q_strncpyz(_ dest: inout CharBuf, _ src: String, _ destsize: Int32)` ports line for line.
 `BG_ParseField` takes `UnsafeMutableRawPointer` for `byte *ent` and `Slots<BgField>` for the field table, and writes through the labeled subscript of the section on typed access at a byte offset. The caller passes the entity's handle turned raw, with a one-line comment that names rule 11.
 A body with an `inout vec3_t` parameter such as `colors` drops the `&& colors` half of Raven's guard, with no comment and no marker.
@@ -187,11 +202,18 @@ A caller that passed `NULL` for that parameter passes a scratch local instead, `
 A vector or axis parameter the NULL sweep reaches and the body only reads crosses as an optional value, `JKAShared.vec3_t?`, and the caller passes `nil` for `NULL`.
 The body's NULL test keeps its form, `normal == nil`, and every other read of the parameter is the force unwrap, `normal!`.
 The sweep reaches a parameter at a direct `NULL`, through a local the caller sets to `NULL`, and through a parameter of the caller the sweep already reached.
-A scalar output that the sweep reaches by the same three paths, and that the body never writes through, crosses as the pointer, `UnsafeMutablePointer<Int32>?`.
+A scalar output that the sweep reaches by the same three paths crosses as the pointer, `UnsafeMutablePointer<Int32>?`, and a body that writes through it keeps Raven's NULL test, as `crazySmoothFactor` of `BG_G2PlayerAngles` does.
 A body writes a vector parameter through a store, a vector macro's written position, or a callee that writes its own parameter, and that parameter keeps `inout` and the caller's scratch.
 When the callee's NULL arm only skips the write to that parameter, the call site carries a plain comment that names the NULL outputs, and no Port-note and no `portMissing` marker.
-When the NULL arm changes behavior, for example the NULL `dir` of `G_Damage`, the arm does not run for that call.
-That call site carries a Port-note and a `portMissing` marker.
+When a NULL test of the parameter does more than skip that write, for example the two tests of the NULL `dir` in `G_Damage`, the written vector crosses as an optional inout, `inout JKAShared.vec3_t?`, and a written axis as `inout [JKAShared.vec3_t]?`, `out_axis` of `BG_AttachToRancor`.
+The body keeps Raven's test as `dir == nil` and writes through `dir!`.
+The generator writes a forward under Raven's name beside the function, with the plain `inout JKAShared.vec3_t`, which wraps the vector in an optional, calls the function, and writes the vector back, so a caller that passes a vector keeps `&v`.
+In an adopted file, the transcriptor writes that forward beside the function, in the form `lookup.py sig` gives after the word `Forward:`.
+A caller that passes `NULL` declares `var dir: vec3_t? = nil` before the call and passes `&dir`.
+A caller that holds a `let` vector and passes it to a parameter the callee writes passes a scratch copy of the vector, under a Port-note and a `portMissing` marker until that callee's write is read.
+Where the callee is `G_Damage`, the copy carries a one-line comment and no note and no marker, because `VectorNormalize` skips a zero-length vector and the body's other reads of `dir` scale by it.
+A `NULL` `mins` or `maxs` into `trap_Trace` or `trap_G2Trace` is `vec3_origin`, with no comment, because the engine substitutes it, at oracle/code/server/sv_world.cpp:859 and cm_trace.cpp:987 and 1125.
+An optional vector parameter that reaches a trace `mins` or `maxs` takes `?? vec3_origin` at the call, with no note, for the same reason.
 A caller of a trap or strap function writes `nil` where Raven wrote `NULL` for a `qhandle_t *` parameter.
 The pointer stays inside generated code under rule 11, and no ported body indexes it.
 An `int *` or `float *` parameter whose pointee is `qhandle_t` is not an `inout` scalar.
@@ -261,9 +283,14 @@ The overlay also declares the prototypes of the four functions a stale `extern` 
 | `PlaneTypeForNormal` | `Sources/JKAShared/q_math.swift` |
 | `ANGLE2SHORT` and `SHORT2ANGLE` | `Sources/JKAShared/q_math.swift` |
 | `BG_GiveMeVectorFromMatrix`, a `static ID_INLINE` function of bg_public.h, which is a macro to the port | `Sources/JKAMP_BG/bg_public.h.swift` |
+| `CROSS`, `DOT`, `SUB`, `SORT`, `ISECT`, `COMPUTE_INTERVALS`, `EDGE_EDGE_TEST`, `EDGE_AGAINST_TRI_EDGES`, and `POINT_IN_TRI` of tri_coll_test.c | `Sources/JKAMP_GameLogic/tri_coll_test.swift`, as private hand functions, each with its source cite |
 
+A macro of tri_coll_test.c whose text returns 1 out of the enclosing function returns a `Bool` as a function, `true` where Raven's text returns, and the call site reads `if EDGE_EDGE_TEST(...) { return 1 }`.
+A macro whose text returns a computed value out of the enclosing function returns the optional of that function's return type, `nil` where the macro falls through, and the call site reads `if let r = NAME(...) { return r }`.
+A hand function whose written values are two elements of one array at the call site takes that array as one `inout [Float]` parameter and indexes it inside, because Swift rejects two `inout` elements of one array in one call, so `COMPUTE_INTERVALS`, `ISECT`, and `SORT` take `isect: inout [Float]`.
 `VALID(a)` is `a != nil`.
-`FOFS`, `VFOFS`, `VWFOFS`, and `ENUM2STRING` appear only inside data tables, which are hand C storage.
+`VFOFS`, `VWFOFS`, and `ENUM2STRING` appear only inside data tables, which are hand C storage, and so does `FOFS` outside a call to `G_Find`.
+`G_Find` takes its `fieldofs` as `KeyPath<Entity, String?>`, so a call site spells `FOFS(classname)` as `\.classname`, and the body reads `g_entities[fromIndex][keyPath: field]`.
 `assert` is `((void)0)` under Raven's NDEBUG build, so a body drops it.
 `va_start` and `va_end` go with the variadic form.
 `min` and `max` are Swift's.
@@ -291,7 +318,10 @@ A field in the table is generated non-optional, and its getter traps with the fi
 `pmove_t.ps`, `pmove_t.trace`, and `pmove_t.pointcontents` are in it, so a body reads `pm.ps.velocity` for `pm->ps->velocity` with no bind. A field joins the table only by a ruling, never by a transcriptor's guess.
 A view parameter is non-optional, so a body drops Raven's null guard on it, with no comment and no marker.
 The Swift signature holds the value, so no NULL reaches the body, and the arm under the guard has no path. The same holds for an `inout` parameter, a text local the text-local rule made non-optional, and a never-null variable.
-A caller that holds an optional and passes it where a value is due meets the hole at the call, where the never-null ruling is due.
+A caller that holds an optional and passes it where a value is due writes the force unwrap with no comment, `OnSameTeam(targ, attacker!)`, and a store from an optional into a value reads `ent = master!`, because the unwrap traps where Raven's callee would dereference NULL.
+A `String?` that a format call such as `Debug_Printf` reads only under a runtime test takes `?? ""` in place of the force unwrap.
+The C read happens inside the callee and only on that path, but Swift evaluates the argument before the test and the unwrap would trap there.
+A text local that a body sets from a callee whose return is an optional text is a `String?`, Raven's NULL test keeps its form, and a later read unwraps it.
 A caller that holds an optional view unwraps it at the call site, in Raven's control shape: `guard let ... else { return }` where Raven wrote an early-out, and `if let ... { }` where Raven wrapped a block. A guard that does other work on the NULL path keeps a Port-note.
 A read Raven made through the pointer with no guard is a force unwrap, `saber!.model`, which traps where C would crash. A guard Raven wrote is the only source of a bind, so no guard is invented for him.
 A chain a body reads three or more times with no store to it in between binds once at its first read, `let vehicleInfo = veh.m_pVehicleInfo!`, and the later reads use the local. A local alias is not a guard. The trap moves to the first read, where C would first crash. Never an if-let.
@@ -319,7 +349,8 @@ Two records in one scope nest two closures.
 A `return` of Raven's inside a nested flag closure is `return true` of each enclosing flag closure after the inner one, at every depth.
 A record local before a `goto` label opens its closure around the labeled block and every statement after the label, so all of them see the locals, unless a `goto` comes before the record.
 A copy of another slot, `usercmd_t cmd = pm->cmd;`, is the `copying` form: `Usercmd.scratch(copying: pm.cmd) { cmd in ... }`.
-Every view carries both forms, written by `views.py`.
+A local array of records, `trace_t traces[3];`, is the `count` form, `Trace.scratch(count: 3) { traces in ... }`, a `Slots` over N zeroed slots that live for the closure.
+Every view carries the three forms, written by `views.py`.
 
 ### A pointer to a chosen file-scope variable
 
@@ -359,6 +390,11 @@ Ported bodies reach it through the `world` global. The transcriptor adds the pro
 var rng = Rng()
 ```
 
+A static local takes the same shape: a stored property on `GameWorld` with Raven's name and a `/// Source:` line, and a forward at global scope under Raven's name in the function's own file, with the getter and the setter through `world`, `var faces: [Int32] { get { world.faces } set { world.faces = newValue } }`.
+A body reads and writes the static local by Raven's name through the forward.
+Where two functions share a static-local name, `text` and `string` in the game oracle, the property and the forward take the function name as a suffix, `text_ConcatArgs`, and the function carries a one-line comment that names Raven's local.
+In a Port-note round, the transcriptor adds that property and that forward.
+
 `bg_itemlist`, `weaponData`, and `ammoData` are C storage in `Sources/CJKAMP/bg_tables.c`, with Raven's initializers as written, and `Sources/JKAMP/BgTables.swift` reaches each one as a `Slots` over the C array, with the view's `stride`, because the view target is the one Swift module that imports the C target and can take the address of the C array, and `bg_numItems` reads the C global, so a body reads `bg_itemlist[i].giTag`.
 `tools/oracle-closure/tables.py` writes that file from one piece per table, each naming the oracle file and the first and last line of Raven's text, and it copies those bytes as they stand.
 The header `Sources/CJKAMP/include/bg_tables.h` stays hand work, and it declares each array with a written bound, because the Swift importer drops an array of unknown bound, and clang checks the bound against the initializer.
@@ -375,7 +411,7 @@ Raven's `if (!from) from = g_entities; else from++;` is `fromIndex = 0` and `fro
 A record pointer local that the body sets only to slots of one table, `e = &g_entities[MAX_CLIENTS]`, and steps is an index local the same way, `eIndex = MAX_CLIENTS`.
 Two pointers into one table compare as their indexes, so `pushed_p > &pushed[MAX_GENTITIES]` is `pushed_pIndex > MAX_GENTITIES`, and `(pushed_p-1)->origin` is `pushed[pushed_pIndex - 1].origin`.
 A pointer minus its own table is the index of its slot: a walk pointer is its index local, an entity is its number, `ent.s.number`, and a record of another table is the Slots index form, `bg_itemlist.firstIndex(of: item)!`, where an array index takes it.
-The store that sets an entity's number from its slot address, and a record's index where the site takes an `Int32`, stay holes, because the index form is an `Int`.
+Where the site takes an `Int32`, a pointer minus its own table is the `Slots` index form, `index(of:)`, which returns an `Int32`: the store that sets an entity's number from its slot address reads `e.s.number = g_entities.index(of: e)`, a record of another table reads `bg_itemlist.index(of: item)`, and a pointer field Raven indexes reads its `Slots` accessor, `level.clientsSlots.index(of: client)`.
 Each cvar row holds a key path into `GameStorage` for the cvar, or nil for Raven's NULL, and G_RegisterCvars and G_UpdateCvars write its `modificationCount`.
 A table of `vec3_t` with Raven's data, `WP_MuzzlePoint` of `bg_weapons.c`, is C storage the same way, and `BgTables.swift` reaches it as a `Slots<JKAShared.vec3_t>` over the C array, with the 12-byte stride of Raven's `vec3_t`.
 A struct table or record Raven leaves zero, `g_entities`, `level`, `pml`, `g_timerPool`, and every `vmCvar_t` among them, is one zeroed allocation on the generated storage class, `GameStorage` in `Sources/JKAMP_Game/Generated/Storage/GameStorage.swift` or `BgStorage` in `Sources/JKAMP_BG/Generated/BgStorage.swift`, which the state object owns as `storage`.
@@ -447,6 +483,8 @@ A Raven store such as `ent->think = Name` uses the generated thunk in `Callbacks
 The thunk carries the one address that lives for the module's life. The transcriptor never writes a closure into a callback field by hand.
 A store into a callback field of another record, `pVehInfo->Update = Update`, uses the private thunk at the end of the stub of the store, `pVehInfo.Update = VehicleInfoThunks.Update`, because five vehicle files each define a private function of one name.
 Raven's clear of a callback field with `0` or `NULL` is `nil`, `ent.think = nil`.
+A call through a stored function of a view, `pVeh->m_pVehicleInfo->ValidateBoard(pVeh, ent)`, is the view's `run` method, `info.runValidateBoard(pVeh, ent)`, which returns the plain value and traps with the field's name on a NULL pointer, as the getter of a NEVER_NULL field does.
+Where Raven tests the pointer before the call, the body keeps his test on the field, `if info.AnimateRiders != nil`.
 
 ### The five `holdrand` draws
 
@@ -480,6 +518,7 @@ So a body writes `Double(...)` on each operand at the operator where it meets th
 A macro constant that expands to a double literal, `M_PI` or `ARMOR_PROTECTION`, is a double literal, and a comparison or a cast whose operand C computes in double takes the same widening, `abs(Double(du0)) < EPSILON`.
 A C library call that takes and returns `double` inside that expression takes its arguments in `Double` too, `Int32(ceil(Double(dropTime) * 1000.0))`, so the `Double` overload answers as C's call does.
 This is the one place a body writes a conversion Raven did not write, and a Raven explicit cast inside it, `(float)pm->ps->speed`, stays as `Float(ps.speed)`.
+A `float` stored into an `int` takes `Int32(...)` at the store, the mirror of the next rule, so `ps.gravity = 1.0f` reads `ps.gravity = Int32(1.0)`.
 An `int` stored into a `float` with no operator between them takes `Float(...)` at the store, `ps.speed = Float(ps.basespeed)`, because Swift has no conversion on assignment and no operator reaches `=`.
 The same holds for an `int` in a float table, `Float(JUMP_VELOCITY)`. The site carries no Port-note.
 Raven's `fabs` and `fabsf` are both `abs`, because Swift deprecates Foundation's `fabs` and `fabsf`, and `LIBC_SPELLINGS` of `rulings.py` holds this spelling.
@@ -489,6 +528,39 @@ Raven's `fabs` and `fabsf` are both `abs`, because Swift deprecates Foundation's
 A `#ifdef` takes the native build's branch. The other branch is not written, and it gets no Port-note, because it is dead by the build's own choice.
 A define with no body, `_JK2MP`, `MISSIONPACK`, `BOT_STRAFE_AVOIDANCE`, an include guard, is a switch of the build, fixed by the parse's defines in `tools/oracle-closure/modules/mp-game.py`, Raven's release configuration, and it is never a Swift name.
 Raven's `#ifdef QAGAME` in a bg body is the one exception, and it is `if bg.consumer == .game { ... } else { ... }`, with both arms on the page.
+
+### An assignment inside an expression
+
+Raven's assignment inside an expression lifts to its own statement before the enclosing statement, and the expression reads the variable.
+So `if ((ent = G_Spawn()) != NULL)` reads `ent = G_Spawn()` and then `if ent != nil`.
+A compound store lifts the inner store first, then the outer one.
+A store inside an else-if test opens the else block, because it runs only when the first test fails.
+Inside a `while` test, when the stored value is optional and the test is Raven's NULL test, the loop is `while let next = <value>`, the first body line is the store, and a read where Raven dereferenced is the force unwrap:
+
+```swift
+while let next = G_Find(spot, \.classname, "info_player_deathmatch") {
+    spot = next
+    ...
+}
+```
+
+When a statement after the loop reads the loop variable, the line `spot = nil` follows the loop with no comment, because C leaves the variable NULL when the loop ends and `while let` does not.
+When nothing after the loop reads the variable, no line follows the loop.
+A loop with a `break` and a later read of the loop variable takes the step at the bottom instead, because the two exits leave the variable in different states.
+The search starts before the loop, the loop tests the variable itself, and the step is the last statement of the body:
+
+```swift
+spot = G_Find(nil, \.classname, "info_player_deathmatch")
+while let s = spot {
+    if (s.spawnflags & 1) != 0 { break }
+    spot = G_Find(s, \.classname, "info_player_deathmatch")
+}
+```
+
+On the `break`, the variable is the found entity, and on exhaustion it is `nil`, so no line follows the loop.
+
+Any other `while` test with a store is `while true`, the lifted store, and the test as a break at the top, `if !(<test>) { break }`.
+A store inside a `for` test or a `do`-`while` test, inside the right side of `&&` or `||`, or inside an arm of `?:` keeps its hole, because a line before the statement runs at the wrong time there.
 
 ### The `for` loop
 

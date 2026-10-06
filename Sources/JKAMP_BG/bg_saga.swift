@@ -109,7 +109,8 @@ func BG_SiegeStripTabs(_ buf: inout JKAShared.CharBuf) {
 }
 
 /// Source: oracle/codemp/game/bg_saga.c:191
-public func BG_SiegeGetValueGroup(_ buf: inout JKAShared.CharBuf, _ group: String, _ outbuf: inout JKAShared.CharBuf) -> Int32 {
+public func BG_SiegeGetValueGroup(_ buf: String, _ group: String, _ outbuf: inout JKAShared.CharBuf) -> Int32 {
+    let buf = CharBuf(buf)
     var i: Int32 = 0
     var j: Int32
     var checkGroup = CharBuf(4096)
@@ -296,7 +297,8 @@ public func BG_SiegeGetValueGroup(_ buf: inout JKAShared.CharBuf, _ group: Strin
 }
 
 /// Source: oracle/codemp/game/bg_saga.c:408
-public func BG_SiegeGetPairedValue(_ buf: inout JKAShared.CharBuf, _ key: String, _ outbuf: inout JKAShared.CharBuf) -> Int32 {
+public func BG_SiegeGetPairedValue(_ buf: String, _ key: String, _ outbuf: inout JKAShared.CharBuf) -> Int32 {
+    let buf = CharBuf(buf)
     var i: Int32 = 0
     var j: Int32
     var k: Int32
@@ -427,7 +429,8 @@ public func BG_SiegeGetPairedValue(_ buf: inout JKAShared.CharBuf, _ key: String
 //Class loading functions
 //======================================
 /// Source: oracle/codemp/game/bg_saga.c:571
-func BG_SiegeTranslateForcePowers(_ buf: inout JKAShared.CharBuf, _ siegeClass: JKAMP.SiegeClass) {
+func BG_SiegeTranslateForcePowers(_ buf: String, _ siegeClass: JKAMP.SiegeClass) {
+    let buf = CharBuf(buf)
     var checkPower = CharBuf(1024)
     var checkLevel = CharBuf(256)
     var l: Int32 = 0
@@ -532,7 +535,8 @@ func BG_SiegeTranslateForcePowers(_ buf: inout JKAShared.CharBuf, _ siegeClass: 
 //values are accumulated into a bitflag. If bitflag is qfalse then the first value
 //is returned as a directly corresponding id and no further parsing is done.
 /// Source: oracle/codemp/game/bg_saga.c:688
-func BG_SiegeTranslateGenericTable(_ buf: inout JKAShared.CharBuf, _ table: Slots<JKAShared.StringIDTable>, _ bitflag: Bool) -> Int32 {
+func BG_SiegeTranslateGenericTable(_ buf: String, _ table: Slots<JKAShared.StringIDTable>, _ bitflag: Bool) -> Int32 {
+    let buf = CharBuf(buf)
     var items: Int32 = 0
     var checkItem = CharBuf(1024)
     var i: Int32 = 0
@@ -607,7 +611,7 @@ func BG_SiegeParseClassFile(_ filename: String, _ descBuffer: JKAMP.SiegeClassDe
 
     //first get the description if we have a buffer for it
     if descBuffer != nil {
-        if BG_SiegeGetPairedValue(&classInfo, "description", &descBuffer!.descBuffer) == 0 {
+        if BG_SiegeGetPairedValue(String(classInfo), "description", &descBuffer!.descBuffer) == 0 {
             strcpy(&descBuffer!.descBuffer, "DESCRIPTION UNAVAILABLE")
         }
 
@@ -615,21 +619,17 @@ func BG_SiegeParseClassFile(_ filename: String, _ descBuffer: JKAMP.SiegeClassDe
         //SIEGE_CLASS_DESC_LEN.
     }
 
-    // Raven passes `classInfo` more than once, and Swift refuses one variable twice inout, so the earlier ones read a copy.
-    do {
-        var classInfoIn0 = classInfo
-        BG_SiegeGetValueGroup(&classInfoIn0, "ClassInfo", &classInfo)
-    }
+    BG_SiegeGetValueGroup(String(classInfo), "ClassInfo", &classInfo)
 
     //Parse name
-    if BG_SiegeGetPairedValue(&classInfo, "name", &parseBuf) != 0 {
+    if BG_SiegeGetPairedValue(String(classInfo), "name", &parseBuf) != 0 {
         strcpy(&bgSiegeClasses[bgNumSiegeClasses].nameBuffer, parseBuf)
     } else {
         Com_Error(ERR_DROP, "Siege class without name entry")
     }
 
     //Parse forced model
-    if BG_SiegeGetPairedValue(&classInfo, "model", &parseBuf) != 0 {
+    if BG_SiegeGetPairedValue(String(classInfo), "model", &parseBuf) != 0 {
         strcpy(&bgSiegeClasses[bgNumSiegeClasses].forcedModelBuffer, parseBuf)
     } else {
         //It's ok if there isn't one, it's optional.
@@ -637,7 +637,7 @@ func BG_SiegeParseClassFile(_ filename: String, _ descBuffer: JKAMP.SiegeClassDe
     }
 
     //Parse forced skin
-    if BG_SiegeGetPairedValue(&classInfo, "skin", &parseBuf) != 0 {
+    if BG_SiegeGetPairedValue(String(classInfo), "skin", &parseBuf) != 0 {
         strcpy(&bgSiegeClasses[bgNumSiegeClasses].forcedSkinBuffer, parseBuf)
     } else {
         //It's ok if there isn't one, it's optional.
@@ -645,7 +645,7 @@ func BG_SiegeParseClassFile(_ filename: String, _ descBuffer: JKAMP.SiegeClassDe
     }
 
     //Parse first saber
-    if BG_SiegeGetPairedValue(&classInfo, "saber1", &parseBuf) != 0 {
+    if BG_SiegeGetPairedValue(String(classInfo), "saber1", &parseBuf) != 0 {
         strcpy(&bgSiegeClasses[bgNumSiegeClasses].saber1Buffer, parseBuf)
     } else {
         //It's ok if there isn't one, it's optional.
@@ -653,7 +653,7 @@ func BG_SiegeParseClassFile(_ filename: String, _ descBuffer: JKAMP.SiegeClassDe
     }
 
     //Parse second saber
-    if BG_SiegeGetPairedValue(&classInfo, "saber2", &parseBuf) != 0 {
+    if BG_SiegeGetPairedValue(String(classInfo), "saber2", &parseBuf) != 0 {
         strcpy(&bgSiegeClasses[bgNumSiegeClasses].saber2Buffer, parseBuf)
     } else {
         //It's ok if there isn't one, it's optional.
@@ -661,15 +661,15 @@ func BG_SiegeParseClassFile(_ filename: String, _ descBuffer: JKAMP.SiegeClassDe
     }
 
     //Parse forced saber stance
-    if BG_SiegeGetPairedValue(&classInfo, "saberstyle", &parseBuf) != 0 {
-        bgSiegeClasses[bgNumSiegeClasses].saberStance = BG_SiegeTranslateGenericTable(&parseBuf, StanceTable, true)
+    if BG_SiegeGetPairedValue(String(classInfo), "saberstyle", &parseBuf) != 0 {
+        bgSiegeClasses[bgNumSiegeClasses].saberStance = BG_SiegeTranslateGenericTable(String(parseBuf), StanceTable, true)
     } else {
         //It's ok if there isn't one, it's optional.
         bgSiegeClasses[bgNumSiegeClasses].saberStance = 0
     }
 
     //Parse forced saber color
-    if BG_SiegeGetPairedValue(&classInfo, "sabercolor", &parseBuf) != 0 {
+    if BG_SiegeGetPairedValue(String(classInfo), "sabercolor", &parseBuf) != 0 {
         bgSiegeClasses[bgNumSiegeClasses].forcedSaberColor = atoi(parseBuf)
         bgSiegeClasses[bgNumSiegeClasses].hasForcedSaberColor = true
     } else {
@@ -678,7 +678,7 @@ func BG_SiegeParseClassFile(_ filename: String, _ descBuffer: JKAMP.SiegeClassDe
     }
 
     //Parse forced saber2 color
-    if BG_SiegeGetPairedValue(&classInfo, "saber2color", &parseBuf) != 0 {
+    if BG_SiegeGetPairedValue(String(classInfo), "saber2color", &parseBuf) != 0 {
         bgSiegeClasses[bgNumSiegeClasses].forcedSaber2Color = atoi(parseBuf)
         bgSiegeClasses[bgNumSiegeClasses].hasForcedSaber2Color = true
     } else {
@@ -687,8 +687,8 @@ func BG_SiegeParseClassFile(_ filename: String, _ descBuffer: JKAMP.SiegeClassDe
     }
 
     //Parse weapons
-    if BG_SiegeGetPairedValue(&classInfo, "weapons", &parseBuf) != 0 {
-        bgSiegeClasses[bgNumSiegeClasses].weapons = BG_SiegeTranslateGenericTable(&parseBuf, WPTable, true)
+    if BG_SiegeGetPairedValue(String(classInfo), "weapons", &parseBuf) != 0 {
+        bgSiegeClasses[bgNumSiegeClasses].weapons = BG_SiegeTranslateGenericTable(String(parseBuf), WPTable, true)
     } else {
         Com_Error(ERR_DROP, "Siege class without weapons entry")
     }
@@ -702,8 +702,8 @@ func BG_SiegeParseClassFile(_ filename: String, _ descBuffer: JKAMP.SiegeClassDe
     }
 
     //Parse forcepowers
-    if BG_SiegeGetPairedValue(&classInfo, "forcepowers", &parseBuf) != 0 {
-        BG_SiegeTranslateForcePowers(&parseBuf, bgSiegeClasses[bgNumSiegeClasses])
+    if BG_SiegeGetPairedValue(String(classInfo), "forcepowers", &parseBuf) != 0 {
+        BG_SiegeTranslateForcePowers(String(parseBuf), bgSiegeClasses[bgNumSiegeClasses])
     } else {
         //fine, clear out the powers.
         i = 0
@@ -714,15 +714,15 @@ func BG_SiegeParseClassFile(_ filename: String, _ descBuffer: JKAMP.SiegeClassDe
     }
 
     //Parse classflags
-    if BG_SiegeGetPairedValue(&classInfo, "classflags", &parseBuf) != 0 {
-        bgSiegeClasses[bgNumSiegeClasses].classflags = BG_SiegeTranslateGenericTable(&parseBuf, bgSiegeClassFlagNames, true)
+    if BG_SiegeGetPairedValue(String(classInfo), "classflags", &parseBuf) != 0 {
+        bgSiegeClasses[bgNumSiegeClasses].classflags = BG_SiegeTranslateGenericTable(String(parseBuf), bgSiegeClassFlagNames, true)
     } else {
         //fine, we'll 0 it.
         bgSiegeClasses[bgNumSiegeClasses].classflags = 0
     }
 
     //Parse maxhealth
-    if BG_SiegeGetPairedValue(&classInfo, "maxhealth", &parseBuf) != 0 {
+    if BG_SiegeGetPairedValue(String(classInfo), "maxhealth", &parseBuf) != 0 {
         bgSiegeClasses[bgNumSiegeClasses].maxhealth = atoi(parseBuf)
     } else {
         //It's alright, just default to 100 then.
@@ -730,7 +730,7 @@ func BG_SiegeParseClassFile(_ filename: String, _ descBuffer: JKAMP.SiegeClassDe
     }
 
     //Parse starthealth
-    if BG_SiegeGetPairedValue(&classInfo, "starthealth", &parseBuf) != 0 {
+    if BG_SiegeGetPairedValue(String(classInfo), "starthealth", &parseBuf) != 0 {
         bgSiegeClasses[bgNumSiegeClasses].starthealth = atoi(parseBuf)
     } else {
         //It's alright, just default to 100 then.
@@ -739,7 +739,7 @@ func BG_SiegeParseClassFile(_ filename: String, _ descBuffer: JKAMP.SiegeClassDe
 
 
     //Parse startarmor
-    if BG_SiegeGetPairedValue(&classInfo, "maxarmor", &parseBuf) != 0 {
+    if BG_SiegeGetPairedValue(String(classInfo), "maxarmor", &parseBuf) != 0 {
         bgSiegeClasses[bgNumSiegeClasses].maxarmor = atoi(parseBuf)
     } else {
         //It's alright, just default to 0 then.
@@ -747,7 +747,7 @@ func BG_SiegeParseClassFile(_ filename: String, _ descBuffer: JKAMP.SiegeClassDe
     }
 
     //Parse startarmor
-    if BG_SiegeGetPairedValue(&classInfo, "startarmor", &parseBuf) != 0 {
+    if BG_SiegeGetPairedValue(String(classInfo), "startarmor", &parseBuf) != 0 {
         bgSiegeClasses[bgNumSiegeClasses].startarmor = atoi(parseBuf)
         if bgSiegeClasses[bgNumSiegeClasses].maxarmor == 0 {
             //if they didn't specify a damn max armor then use this.
@@ -759,7 +759,7 @@ func BG_SiegeParseClassFile(_ filename: String, _ descBuffer: JKAMP.SiegeClassDe
     }
 
     //Parse speed (this is a multiplier value)
-    if BG_SiegeGetPairedValue(&classInfo, "speed", &parseBuf) != 0 {
+    if BG_SiegeGetPairedValue(String(classInfo), "speed", &parseBuf) != 0 {
         bgSiegeClasses[bgNumSiegeClasses].speed = atof(parseBuf)
     } else {
         //It's alright, just default to 1 then.
@@ -767,7 +767,7 @@ func BG_SiegeParseClassFile(_ filename: String, _ descBuffer: JKAMP.SiegeClassDe
     }
 
     //Parse shader for ui to use
-    if BG_SiegeGetPairedValue(&classInfo, "uishader", &parseBuf) != 0 {
+    if BG_SiegeGetPairedValue(String(classInfo), "uishader", &parseBuf) != 0 {
         bgSiegeClasses[bgNumSiegeClasses].uiPortraitShader = 0
         bgSiegeClasses[bgNumSiegeClasses].uiPortraitBuffer.zero()
     } else {
@@ -776,7 +776,7 @@ func BG_SiegeParseClassFile(_ filename: String, _ descBuffer: JKAMP.SiegeClassDe
     }
 
     //Parse shader for ui to use
-    if BG_SiegeGetPairedValue(&classInfo, "class_shader", &parseBuf) != 0 {
+    if BG_SiegeGetPairedValue(String(classInfo), "class_shader", &parseBuf) != 0 {
         bgSiegeClasses[bgNumSiegeClasses].classShader = 0
         //Com_Error( ERR_DROP, "ERROR: could not find class_shader %s for class %s\n", parseBuf, bgSiegeClasses[bgNumSiegeClasses].name );
         // A very hacky way to determine class . . .
@@ -816,16 +816,16 @@ func BG_SiegeParseClassFile(_ filename: String, _ descBuffer: JKAMP.SiegeClassDe
     }
 
     //Parse holdable items to use
-    if BG_SiegeGetPairedValue(&classInfo, "holdables", &parseBuf) != 0 {
-        bgSiegeClasses[bgNumSiegeClasses].invenItems = BG_SiegeTranslateGenericTable(&parseBuf, HoldableTable, true)
+    if BG_SiegeGetPairedValue(String(classInfo), "holdables", &parseBuf) != 0 {
+        bgSiegeClasses[bgNumSiegeClasses].invenItems = BG_SiegeTranslateGenericTable(String(parseBuf), HoldableTable, true)
     } else {
         //Just don't start out with any then.
         bgSiegeClasses[bgNumSiegeClasses].invenItems = 0
     }
 
     //Parse powerups to use
-    if BG_SiegeGetPairedValue(&classInfo, "powerups", &parseBuf) != 0 {
-        bgSiegeClasses[bgNumSiegeClasses].powerups = BG_SiegeTranslateGenericTable(&parseBuf, PowerupTable, true)
+    if BG_SiegeGetPairedValue(String(classInfo), "powerups", &parseBuf) != 0 {
+        bgSiegeClasses[bgNumSiegeClasses].powerups = BG_SiegeTranslateGenericTable(String(parseBuf), PowerupTable, true)
     } else {
         //Just don't start out with any then.
         bgSiegeClasses[bgNumSiegeClasses].powerups = 0
@@ -1016,7 +1016,7 @@ func BG_SiegeParseTeamFile(_ filename: String) {
 
     teamInfo[len] = 0
 
-    if BG_SiegeGetPairedValue(&teamInfo, "name", &parseBuf) != 0 {
+    if BG_SiegeGetPairedValue(String(teamInfo), "name", &parseBuf) != 0 {
         strcpy(&bgSiegeTeams[bgNumSiegeTeams].nameBuffer, parseBuf)
     } else {
         Com_Error(ERR_DROP, "Siege team with no name definition")
@@ -1027,14 +1027,12 @@ func BG_SiegeParseTeamFile(_ filename: String) {
 
     bgSiegeTeams[bgNumSiegeTeams].numClasses = 0
 
-    // Raven passes `teamInfo` more than once, and Swift refuses one variable twice inout, so the earlier ones read a copy.
-    var teamInfoIn0 = teamInfo
-    if BG_SiegeGetValueGroup(&teamInfoIn0, "Classes", &teamInfo) != 0 {
+    if BG_SiegeGetValueGroup(String(teamInfo), "Classes", &teamInfo) != 0 {
         while success && i < MAX_SIEGE_CLASSES {
             //keep checking for group values named class# up to MAX_SIEGE_CLASSES until we can't find one.
             strcpy(&lookString, va("class%i", i))
 
-            success = BG_SiegeGetPairedValue(&teamInfo, String(lookString), &parseBuf) != 0
+            success = BG_SiegeGetPairedValue(String(teamInfo), String(lookString), &parseBuf) != 0
 
             if !success {
                 break

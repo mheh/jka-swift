@@ -308,9 +308,9 @@ private func Board(_ pVeh: JKAMP.Vehicle, _ pEnt: JKAMP.BgEntity) -> Bool {
     }
 
     // Validate the entity's ability to board this vehicle.
-    // Port-note: The draft of this statement did not compile, and the compiler wrote "value of optional type 'Bool?' must be unwrapped to a value of type 'Bool'".
-    // Raven wrote: if ( !pVeh->m_pVehicleInfo->ValidateBoard( pVeh, pEnt ) ) return false
-    portMissing("Board", source: "oracle/codemp/game/g_vehicles.c:630")
+    if !pVeh.m_pVehicleInfo!.runValidateBoard(pVeh, pEnt) {
+        return false
+    }
 
     // FIXME FIXME!!! Ask Mike monday where ent->client->ps.eFlags might be getting changed!!! It is always 0 (when it should
     // be 1024) so a person riding a vehicle is able to ride another vehicle!!!!!!!!
@@ -593,10 +593,8 @@ func G_EjectDroidUnit(_ pVeh: JKAMP.Vehicle, _ kill: Bool) {
             //Kill them, too
             //FIXME: proper origin, MOD and attacker (for credit/death message)?  Get from vehicle?
             G_MuteSound(droidEnt!.s.number, CHAN_VOICE)
-            // Port-note: Raven passes NULL for the `dir` output. The ported function takes it by reference, so the body passes a scratch local it never reads.
-            portMissing("G_EjectDroidUnit", source: "oracle/codemp/game/g_vehicles.c:989")
-            var scratchDir = vec3_t()
-            G_Damage(droidEnt!, nil, nil, &scratchDir, droidEnt!.s.origin, 10000, 0, MOD_SUICIDE) //FIXME: proper MOD?  Get from vehicle?
+            var dir: vec3_t? = nil
+            G_Damage(droidEnt!, nil, nil, &dir, droidEnt!.s.origin, 10000, 0, MOD_SUICIDE) //FIXME: proper MOD?  Get from vehicle?
         }
     }
     pVeh.m_pDroidUnit = nil
@@ -874,10 +872,8 @@ func EjectAll(_ pVeh: JKAMP.Vehicle) -> Bool {
             //Kill them, too
             //FIXME: proper origin, MOD and attacker (for credit/death message)?  Get from vehicle?
             G_MuteSound(pilot!.s.number, CHAN_VOICE)
-            // Port-note: Raven passes NULL for the `dir` output. The ported function takes it by reference, so the body passes a scratch local it never reads.
-            portMissing("EjectAll", source: "oracle/codemp/game/g_vehicles.c:1377")
-            var scratchDir = vec3_t()
-            G_Damage(pilot!, nil, nil, &scratchDir, pilot!.s.origin, 10000, 0, MOD_SUICIDE)
+            var dir: vec3_t? = nil
+            G_Damage(pilot!, nil, nil, &dir, pilot!.s.origin, 10000, 0, MOD_SUICIDE)
         }
     }
     if pVeh.m_pOldPilot != nil {
@@ -887,10 +883,8 @@ func EjectAll(_ pVeh: JKAMP.Vehicle) -> Bool {
             //Kill them, too
             //FIXME: proper origin, MOD and attacker (for credit/death message)?  Get from vehicle?
             G_MuteSound(pilot!.s.number, CHAN_VOICE)
-            // Port-note: Raven passes NULL for the `dir` output. The ported function takes it by reference, so the body passes a scratch local it never reads.
-            portMissing("EjectAll", source: "oracle/codemp/game/g_vehicles.c:1377")
-            var scratchDir2 = vec3_t()
-            G_Damage(pilot!, nil, nil, &scratchDir2, pilot!.s.origin, 10000, 0, MOD_SUICIDE)
+            var dir: vec3_t? = nil
+            G_Damage(pilot!, nil, nil, &dir, pilot!.s.origin, 10000, 0, MOD_SUICIDE)
         }
     }
     if pVeh.m_iNumPassengers != 0 {
@@ -905,10 +899,8 @@ func EjectAll(_ pVeh: JKAMP.Vehicle) -> Bool {
                     //Kill them, too
                     //FIXME: proper origin, MOD and attacker (for credit/death message)?  Get from vehicle?
                     G_MuteSound(rider!.s.number, CHAN_VOICE)
-                    // Port-note: Raven passes NULL for the `dir` output. The ported function takes it by reference, so the body passes a scratch local it never reads.
-                    portMissing("EjectAll", source: "oracle/codemp/game/g_vehicles.c:1377")
-                    var scratchDir3 = vec3_t()
-                    G_Damage(rider!, nil, nil, &scratchDir3, rider!.s.origin, 10000, 0, MOD_SUICIDE) //FIXME: proper MOD?  Get from vehicle?
+                    var dir: vec3_t? = nil
+                    G_Damage(rider!, nil, nil, &dir, rider!.s.origin, 10000, 0, MOD_SUICIDE) //FIXME: proper MOD?  Get from vehicle?
                 }
             }
             i += 1
@@ -948,14 +940,68 @@ private func DeathUpdate(_ pVeh: JKAMP.Vehicle) {
     let parent: Entity? = pVeh.m_pParentEntity.map { Entity($0) }
 
     if level.time >= pVeh.m_iDieTime {
+        let vehicleInfo = pVeh.m_pVehicleInfo!
         // If the vehicle is not empty.
-        // Port-note: The draft of this statement did not compile, and the compiler wrote "value of optional type 'Bool?' must be unwrapped to a value of type 'Bool'".
-        // Raven wrote: if ( pVeh->m_pVehicleInfo->Inhabited( pVeh ) ) { #ifndef _JK2MP if (pVeh->m_pPilot) { pVeh->m_pPilot->client->noRagTime = -1; // no ragdoll for you } #endif pVeh->m_pVehicleInfo->EjectAll( pVeh ); #ifdef _JK2MP if ( pVeh->m_pVehicleInfo->Inhabited( pVeh ) ) { //if we've still got people in us, just kill the bastards if ( pVeh->m_pPilot ) { //FIXME: does this give proper credit to the enemy who shot you down? G_Damage((gentity_t *)pVeh->m_pPilot, (gentity_t *)pVeh->m_pParentEntity, (gentity_t *)pVeh->m_pParentEntity, NULL, pVeh->m_pParentEntity->playerState->origin, 999, DAMAGE_NO_PROTECTION, MOD_EXPLOSIVE); } if ( pVeh->m_iNumPassengers ) { int i; for ( i = 0; i < pVeh->m_pVehicleInfo->maxPassengers; i++ ) { if ( pVeh->m_ppPassengers[i] ) { //FIXME: does this give proper credit to the enemy who shot you down? G_Damage((gentity_t *)pVeh->m_ppPassengers[i], (gentity_t *)pVeh->m_pParentEntity, (gentity_t *)pVeh->m_pParentEntity, NULL, pVeh->m_pParentEntity->playerState->origin, 999, DAMAGE_NO_PROTECTION, MOD_EXPLOSIVE); } } } } #endif }
-        portMissing("DeathUpdate", source: "oracle/codemp/game/g_vehicles.c:1485")
+        if vehicleInfo.runInhabited(pVeh) {
+            vehicleInfo.runEjectAll(pVeh)
+            if vehicleInfo.runInhabited(pVeh) {
+                //if we've still got people in us, just kill the bastards
+                if pVeh.m_pPilot != nil {
+                    //FIXME: does this give proper credit to the enemy who shot you down?
+                    var dir: vec3_t? = nil
+                    G_Damage(Entity(pVeh.m_pPilot!), pVeh.m_pParentEntity.map { Entity($0) }, pVeh.m_pParentEntity.map { Entity($0) }, &dir, pVeh.m_pParentEntity!.playerState!.origin, 999, DAMAGE_NO_PROTECTION, MOD_EXPLOSIVE)
+                }
+                if pVeh.m_iNumPassengers != 0 {
+                    var i: Int32
 
-        // Port-note: The draft of this statement did not compile, and the compiler wrote "value of optional type 'Bool?' must be unwrapped to a value of type 'Bool'".
-        // Raven wrote: if ( !pVeh->m_pVehicleInfo->Inhabited( pVeh ) ) { //explode now as long as we managed to kick everyone out vec3_t lMins, lMaxs, bottom; trace_t trace; #ifndef _JK2MP // Kill All Client Side Looping Effects //-------------------------------------- if (pVeh->m_pVehicleInfo->iExhaustFX) { for (int i=0; (i<MAX_VEHICLE_EXHAUSTS && pVeh->m_iExhaustTag[i]!=-1); i++) { G_StopEffect(pVeh->m_pVehicleInfo->iExhaustFX, parent->playerModel, pVeh->m_iExhaustTag[i], parent->s.number); } } if (pVeh->m_pVehicleInfo->iArmorLowFX) { G_StopEffect(pVeh->m_pVehicleInfo->iArmorLowFX, parent->playerModel, parent->crotchBolt, parent->s.number); } if (pVeh->m_pVehicleInfo->iArmorGoneFX) { G_StopEffect(pVeh->m_pVehicleInfo->iArmorGoneFX, parent->playerModel, parent->crotchBolt, parent->s.number); } //-------------------------------------- #endif if ( pVeh->m_pVehicleInfo->iExplodeFX ) { #ifdef _JK2MP vec3_t fxAng; VectorSet(fxAng, -90.0f, 0.0f, 0.0f); G_PlayEffectID( pVeh->m_pVehicleInfo->iExplodeFX, parent->currentOrigin, fxAng ); #else G_PlayEffect( pVeh->m_pVehicleInfo->iExplodeFX, parent->currentOrigin, vec3_origin ); #endif //trace down and place mark VectorCopy( parent->currentOrigin, bottom ); bottom[2] -= 80; G_VehicleTrace( &trace, parent->currentOrigin, vec3_origin, vec3_origin, bottom, parent->s.number, CONTENTS_SOLID ); if ( trace.fraction < 1.0f ) { VectorCopy( trace.endpos, bottom ); bottom[2] += 2; #ifdef _JK2MP VectorSet(fxAng, -90.0f, 0.0f, 0.0f); G_PlayEffectID( G_EffectIndex("ships/ship_explosion_mark"), trace.endpos, fxAng ); #else G_PlayEffect( "ships/ship_explosion_mark", trace.endpos ); #endif } } parent->takedamage = qfalse;//so we don't recursively damage ourselves if ( pVeh->m_pVehicleInfo->explosionRadius > 0 && pVeh->m_pVehicleInfo->explosionDamage > 0 ) { VectorCopy( parent->mins, lMins ); lMins[2] = -4;//to keep it off the ground a *little* VectorCopy( parent->maxs, lMaxs ); VectorCopy( parent->currentOrigin, bottom ); bottom[2] += parent->mins[2] - 32; G_VehicleTrace( &trace, parent->currentOrigin, lMins, lMaxs, bottom, parent->s.number, CONTENTS_SOLID ); #ifdef _JK2MP G_RadiusDamage( trace.endpos, parent, pVeh->m_pVehicleInfo->explosionDamage, pVeh->m_pVehicleInfo->explosionRadius, NULL, NULL, MOD_VEH_EXPLOSION );//FIXME: extern damage and radius or base on fuel #else G_RadiusDamage( trace.endpos, NULL, pVeh->m_pVehicleInfo->explosionDamage, pVeh->m_pVehicleInfo->explosionRadius, NULL, MOD_EXPLOSIVE );//FIXME: extern damage and radius or base on fuel #endif } #ifdef _JK2MP parent->think = G_FreeEntity; #else parent->e_ThinkFunc = thinkF_G_FreeEntity; #endif parent->nextthink = level.time + FRAMETIME; }
-        portMissing("DeathUpdate", source: "oracle/codemp/game/g_vehicles.c:1485")
+                    i = 0
+                    while i < vehicleInfo.maxPassengers {
+                        if pVeh.m_ppPassengers[i] != nil {
+                            //FIXME: does this give proper credit to the enemy who shot you down?
+                            var dir: vec3_t? = nil
+                            G_Damage(Entity(pVeh.m_ppPassengers[i]!), pVeh.m_pParentEntity.map { Entity($0) }, pVeh.m_pParentEntity.map { Entity($0) }, &dir, pVeh.m_pParentEntity!.playerState!.origin, 999, DAMAGE_NO_PROTECTION, MOD_EXPLOSIVE)
+                        }
+                        i += 1
+                    }
+                }
+            }
+        }
+
+        if !vehicleInfo.runInhabited(pVeh) {
+            //explode now as long as we managed to kick everyone out
+            var lMins = vec3_t()
+            var lMaxs = vec3_t()
+            var bottom = vec3_t()
+            Trace.scratch { trace in
+                if vehicleInfo.iExplodeFX != 0 {
+                    var fxAng = vec3_t()
+                    fxAng = vec3_t(-90.0, 0.0, 0.0)
+                    G_PlayEffectID(vehicleInfo.iExplodeFX, parent!.r.currentOrigin, fxAng)
+                    //trace down and place mark
+                    bottom = parent!.r.currentOrigin
+                    bottom[2] -= 80
+                    G_VehicleTrace(trace, parent!.r.currentOrigin, vec3_origin, vec3_origin, bottom, parent!.s.number, CONTENTS_SOLID)
+                    if trace.fraction < 1.0 {
+                        bottom = trace.endpos
+                        bottom[2] += 2
+                        fxAng = vec3_t(-90.0, 0.0, 0.0)
+                        G_PlayEffectID(G_EffectIndex("ships/ship_explosion_mark"), trace.endpos, fxAng)
+                    }
+                }
+                parent!.takedamage = false//so we don't recursively damage ourselves
+                if vehicleInfo.explosionRadius > 0 && vehicleInfo.explosionDamage > 0 {
+                    lMins = parent!.r.mins
+                    lMins[2] = -4//to keep it off the ground a *little*
+                    lMaxs = parent!.r.maxs
+                    bottom = parent!.r.currentOrigin
+                    bottom[2] += parent!.r.mins[2] - 32
+                    G_VehicleTrace(trace, parent!.r.currentOrigin, lMins, lMaxs, bottom, parent!.s.number, CONTENTS_SOLID)
+                    G_RadiusDamage(trace.endpos, parent!, Float(vehicleInfo.explosionDamage), vehicleInfo.explosionRadius, nil, nil, MOD_VEH_EXPLOSION)//FIXME: extern damage and radius or base on fuel
+                }
+                parent!.think = Think.G_FreeEntity
+                parent!.nextthink = level.time + FRAMETIME
+            }
+        }
     }
 }
 
@@ -1060,12 +1106,8 @@ func Initialize(_ pVeh: JKAMP.Vehicle) -> Bool {
     //pVeh->m_iGun1Bone = -1;
     //pVeh->m_iLeftWingBone = -1;
     //pVeh->m_iRightWingBone = -1;
-    // Port-note: Raven's `memset( pVeh->m_iExhaustTag, -1, sizeof( int ) * MAX_VEHICLE_EXHAUSTS )` runs over bytes that are not one record with a view.
-    // Raven wrote: memset( pVeh->m_iExhaustTag, -1, sizeof( int ) * MAX_VEHICLE_EXHAUSTS )
-    portMissing("Initialize", source: "oracle/codemp/game/g_vehicles.c:1626")
-    // Port-note: Raven's `memset( pVeh->m_iMuzzleTag, -1, sizeof( int ) * MAX_VEHICLE_MUZZLES )` runs over bytes that are not one record with a view.
-    // Raven wrote: memset( pVeh->m_iMuzzleTag, -1, sizeof( int ) * MAX_VEHICLE_MUZZLES )
-    portMissing("Initialize", source: "oracle/codemp/game/g_vehicles.c:1626")
+    pVeh.m_iExhaustTag.fill(-1)
+    pVeh.m_iMuzzleTag.fill(-1)
     // FIXME! Use external values read from the vehicle data file!
     pVeh.m_iDroidUnitTag = -1
 
@@ -1222,10 +1264,8 @@ private func Update(_ pVeh: JKAMP.Vehicle, _ pUmcd: JKAMP.Usercmd) -> Bool {
 
                 if !oldPilot!.inuse || oldPilot!.client == nil || oldPilot!.client!.pers.connected != CON_CONNECTED {
                     //no longer in the game?
-                    // Port-note: Raven passes NULL for the `dir` output. The ported function takes it by reference, so the body passes a scratch local it never reads.
-                    portMissing("Update", source: "oracle/codemp/game/g_vehicles.c:1763")
-                    var scratchDir = vec3_t()
-                    G_Damage(parent!, parent, parent, &scratchDir, parent!.client!.ps.origin, 99999, DAMAGE_NO_PROTECTION, MOD_SUICIDE)
+                    var dir: vec3_t? = nil
+                    G_Damage(parent!, parent, parent, &dir, parent!.client!.ps.origin, 99999, DAMAGE_NO_PROTECTION, MOD_SUICIDE)
                 } else {
                     var v = vec3_t()
                     v = parent!.client!.ps.origin - oldPilot!.client!.ps.origin
@@ -1235,10 +1275,8 @@ private func Update(_ pVeh: JKAMP.Vehicle, _ pUmcd: JKAMP.Usercmd) -> Bool {
                         pVeh.m_iPilotTime = level.time + parent!.damage
                     } else if pVeh.m_iPilotTime < level.time {
                         //dying time
-                        // Port-note: Raven passes NULL for the `dir` output. The ported function takes it by reference, so the body passes a scratch local it never reads.
-                        portMissing("Update", source: "oracle/codemp/game/g_vehicles.c:1763")
-                        var scratchDir2 = vec3_t()
-                        G_Damage(parent!, parent, parent, &scratchDir2, parent!.client!.ps.origin, 99999, DAMAGE_NO_PROTECTION, MOD_SUICIDE)
+                        var dir: vec3_t? = nil
+                        G_Damage(parent!, parent, parent, &dir, parent!.client!.ps.origin, 99999, DAMAGE_NO_PROTECTION, MOD_SUICIDE)
                     }
                 }
             }
@@ -1522,15 +1560,29 @@ private func UpdateRider(_ pVeh: JKAMP.Vehicle, _ pRider: JKAMP.BgEntity, _ pUmc
         if pVeh.m_pVehicleInfo!.type == VH_WALKER {
             //just get the fuck out
             pVeh.m_EjectDir = VEH_EJECT_REAR
-            // Port-note: The draft of this statement did not compile, and the compiler wrote "value of optional type 'Bool?' must be unwrapped to a value of type 'Bool'".
-            // Raven wrote: if ( pVeh->m_pVehicleInfo->Eject( pVeh, pRider, qfalse ) ) return false
-            portMissing("UpdateRider", source: "oracle/codemp/game/g_vehicles.c:2338")
+            if pVeh.m_pVehicleInfo!.runEject(pVeh, pRider, false) {
+                return false
+            }
         } else if !((pVeh.m_ulFlags & UInt(bitPattern: Int(VEH_FLYING))) != 0) {
             // If going too fast, roll off.
             if (parent!.client!.ps.speed <= 600) && pUmcd.rightmove != 0 {
-                // Port-note: The draft of this statement did not compile, and the compiler wrote "value of optional type 'Bool?' must be unwrapped to a value of type 'Bool'".
-                // Raven wrote: if ( pVeh->m_pVehicleInfo->Eject( pVeh, pRider, qfalse ) ) { animNumber_t Anim; int iFlags = SETANIM_FLAG_OVERRIDE | SETANIM_FLAG_HOLD | SETANIM_FLAG_HOLDLESS, iBlend = 300; if ( pUmcd->rightmove > 0 ) { Anim = BOTH_ROLL_R; pVeh->m_EjectDir = VEH_EJECT_RIGHT; } else { Anim = BOTH_ROLL_L; pVeh->m_EjectDir = VEH_EJECT_LEFT; } VectorScale( parent->client->ps.velocity, 0.25f, rider->client->ps.velocity ); #if 1 Vehicle_SetAnim( rider, SETANIM_BOTH, Anim, iFlags, iBlend ); #else #endif //PM_SetAnim(pm,SETANIM_BOTH,anim,SETANIM_FLAG_OVERRIDE|SETANIM_FLAG_HOLD|SETANIM_FLAG_HOLDLESS); rider->client->ps.weaponTime = rider->client->ps.torsoAnimTimer - 200;//just to make sure it's cleared when roll is done G_AddEvent( rider, EV_ROLL, 0 ); return false; }
-                portMissing("UpdateRider", source: "oracle/codemp/game/g_vehicles.c:2338")
+                if pVeh.m_pVehicleInfo!.runEject(pVeh, pRider, false) {
+                    var Anim: animNumber_t
+                    let iFlags: Int32 = SETANIM_FLAG_OVERRIDE | SETANIM_FLAG_HOLD | SETANIM_FLAG_HOLDLESS, iBlend: Int32 = 300
+                    if pUmcd.rightmove > 0 {
+                        Anim = BOTH_ROLL_R
+                        pVeh.m_EjectDir = VEH_EJECT_RIGHT
+                    } else {
+                        Anim = BOTH_ROLL_L
+                        pVeh.m_EjectDir = VEH_EJECT_LEFT
+                    }
+                    rider!.client!.ps.velocity = parent!.client!.ps.velocity * 0.25
+                    Vehicle_SetAnim(rider!, SETANIM_BOTH, Anim, iFlags, iBlend)
+                    //PM_SetAnim(pm,SETANIM_BOTH,anim,SETANIM_FLAG_OVERRIDE|SETANIM_FLAG_HOLD|SETANIM_FLAG_HOLDLESS);
+                    rider!.client!.ps.weaponTime = rider!.client!.ps.torsoAnimTimer - 200//just to make sure it's cleared when roll is done
+                    G_AddEvent(rider!, EV_ROLL, 0)
+                    return false
+                }
             } else {
                 // FIXME: Check trace to see if we should start playing the animation.
                 var Anim: animNumber_t
@@ -1565,9 +1617,9 @@ private func UpdateRider(_ pVeh: JKAMP.Vehicle, _ pRider: JKAMP.BgEntity, _ pUmc
         } else {
             // Flying, so just fall off.
             pVeh.m_EjectDir = VEH_EJECT_LEFT
-            // Port-note: The draft of this statement did not compile, and the compiler wrote "value of optional type 'Bool?' must be unwrapped to a value of type 'Bool'".
-            // Raven wrote: if ( pVeh->m_pVehicleInfo->Eject( pVeh, pRider, qfalse ) ) return false
-            portMissing("UpdateRider", source: "oracle/codemp/game/g_vehicles.c:2338")
+            if pVeh.m_pVehicleInfo!.runEject(pVeh, pRider, false) {
+                return false
+            }
         }
     }
 
@@ -1575,9 +1627,9 @@ private func UpdateRider(_ pVeh: JKAMP.Vehicle, _ pRider: JKAMP.BgEntity, _ pUmc
     if pVeh.m_iBoarding < level.time && (rider!.flags & FL_VEH_BOARDING) != 0 {
         rider!.flags &= ~FL_VEH_BOARDING
         // Eject this guy now.
-        // Port-note: The draft of this statement did not compile, and the compiler wrote "value of optional type 'Bool?' must be unwrapped to a value of type 'Bool'".
-        // Raven wrote: if ( pVeh->m_pVehicleInfo->Eject( pVeh, pRider, qfalse ) ) { return false; }
-        portMissing("UpdateRider", source: "oracle/codemp/game/g_vehicles.c:2338")
+        if pVeh.m_pVehicleInfo!.runEject(pVeh, pRider, false) {
+            return false
+        }
     }
 
     if pVeh.m_pVehicleInfo!.type != VH_FIGHTER && pVeh.m_pVehicleInfo!.type != VH_WALKER {
@@ -1600,9 +1652,17 @@ private func UpdateRider(_ pVeh: JKAMP.Vehicle, _ pRider: JKAMP.BgEntity, _ pUmc
             // Don't Jump Off If Holding Strafe Key and Moving Fast
             //===================================================================
 
-            // Port-note: The draft of this statement did not compile, and the compiler wrote "value of optional type 'Bool?' must be unwrapped to a value of type 'Bool'".
-            // Raven wrote: if ( pVeh->m_pVehicleInfo->Eject( pVeh, pRider, qfalse ) ) { // Allow them to force jump off. VectorScale( parent->client->ps.velocity, 0.5f, rider->client->ps.velocity ); rider->client->ps.velocity[2] += JUMP_VELOCITY; #ifdef _JK2MP rider->client->ps.fd.forceJumpZStart = rider->client->ps.origin[2]; if (!trap_ICARUS_TaskIDPending(rider, TID_CHAN_VOICE)) #else rider->client->ps.pm_flags |= ( PMF_JUMPING | PMF_JUMP_HELD ); rider->client->ps.forceJumpZStart = rider->client->ps.origin[2]; if ( !Q3_TaskIDPending( rider, TID_CHAN_VOICE ) ) #endif { G_AddEvent( rider, EV_JUMP, 0 ); } #if 1 Vehicle_SetAnim( rider, SETANIM_BOTH, BOTH_JUMP1, SETANIM_FLAG_OVERRIDE | SETANIM_FLAG_HOLD, 300 ); #else #endif return false; }
-            portMissing("UpdateRider", source: "oracle/codemp/game/g_vehicles.c:2338")
+            if pVeh.m_pVehicleInfo!.runEject(pVeh, pRider, false) {
+                // Allow them to force jump off.
+                rider!.client!.ps.velocity = parent!.client!.ps.velocity * 0.5
+                rider!.client!.ps.velocity[2] += JUMP_VELOCITY
+                rider!.client!.ps.fd.forceJumpZStart = rider!.client!.ps.origin[2]
+                if !trap_ICARUS_TaskIDPending(rider!, TID_CHAN_VOICE) {
+                    G_AddEvent(rider!, EV_JUMP, 0)
+                }
+                Vehicle_SetAnim(rider!, SETANIM_BOTH, BOTH_JUMP1, SETANIM_FLAG_OVERRIDE | SETANIM_FLAG_HOLD, 300)
+                return false
+            }
         }
 
         // Roll off.
@@ -1623,9 +1683,16 @@ private func UpdateRider(_ pVeh: JKAMP.Vehicle, _ pRider: JKAMP.BgEntity, _ pUmc
                 pVeh.m_EjectDir = VEH_EJECT_FRONT
             }
 
-            // Port-note: The draft of this statement did not compile, and the compiler wrote "value of optional type 'Bool?' must be unwrapped to a value of type 'Bool'".
-            // Raven wrote: if ( pVeh->m_pVehicleInfo->Eject( pVeh, pRider, qfalse ) ) { if ( !(pVeh->m_ulFlags & VEH_FLYING) ) { VectorScale( parent->client->ps.velocity, 0.25f, rider->client->ps.velocity ); #if 1 Vehicle_SetAnim( rider, SETANIM_BOTH, Anim, SETANIM_FLAG_OVERRIDE | SETANIM_FLAG_HOLD | SETANIM_FLAG_HOLDLESS, 300 ); #else #endif //PM_SetAnim(pm,SETANIM_BOTH,anim,SETANIM_FLAG_OVERRIDE|SETANIM_FLAG_HOLD|SETANIM_FLAG_HOLDLESS); rider->client->ps.weaponTime = rider->client->ps.torsoAnimTimer - 200;//just to make sure it's cleared when roll is done G_AddEvent( rider, EV_ROLL, 0 ); } return false; }
-            portMissing("UpdateRider", source: "oracle/codemp/game/g_vehicles.c:2338")
+            if pVeh.m_pVehicleInfo!.runEject(pVeh, pRider, false) {
+                if !((pVeh.m_ulFlags & UInt(bitPattern: Int(VEH_FLYING))) != 0) {
+                    rider!.client!.ps.velocity = parent!.client!.ps.velocity * 0.25
+                    Vehicle_SetAnim(rider!, SETANIM_BOTH, Anim, SETANIM_FLAG_OVERRIDE | SETANIM_FLAG_HOLD | SETANIM_FLAG_HOLDLESS, 300)
+                    //PM_SetAnim(pm,SETANIM_BOTH,anim,SETANIM_FLAG_OVERRIDE|SETANIM_FLAG_HOLD|SETANIM_FLAG_HOLDLESS);
+                    rider!.client!.ps.weaponTime = rider!.client!.ps.torsoAnimTimer - 200//just to make sure it's cleared when roll is done
+                    G_AddEvent(rider!, EV_ROLL, 0)
+                }
+                return false
+            }
         }
     }
 
@@ -1816,10 +1883,8 @@ func G_VehicleDamageBoxSizing(_ pVeh: JKAMP.Vehicle) {
         } else {
             //oh well, DIE!
             //FIXME: does this give proper credit to the enemy who shot you down?
-            // Port-note: Raven passes NULL for the `dir` output. The ported function takes it by reference, so the body passes a scratch local it never reads.
-            portMissing("G_VehicleDamageBoxSizing", source: "oracle/codemp/game/g_vehicles.c:2785")
-            var scratchDir = vec3_t()
-            G_Damage(parent!, parent, parent, &scratchDir, parent!.client!.ps.origin, 9999, DAMAGE_NO_PROTECTION, MOD_SUICIDE)
+            var dir: vec3_t? = nil
+            G_Damage(parent!, parent, parent, &dir, parent!.client!.ps.origin, 9999, DAMAGE_NO_PROTECTION, MOD_SUICIDE)
         }
         return false
     }
@@ -1952,10 +2017,8 @@ func G_SetVehDamageFlags(_ veh: Entity, _ shipSurf: Int32, _ damageLevel: Int32)
                     //make it vulnerable
                     droidEnt!.flags &= ~FL_UNDYING
                     //blow it up
-                    // Port-note: Raven passes NULL for the `dir` output. The ported function takes it by reference, so the body passes a scratch local it never reads.
-                    portMissing("G_SetVehDamageFlags", source: "oracle/codemp/game/g_vehicles.c:2961")
-                    var scratchDir = vec3_t()
-                    G_Damage(droidEnt!, veh.enemy, veh.enemy, &scratchDir, nil, 99999, 0, MOD_UNKNOWN)
+                    var dir: vec3_t? = nil
+                    G_Damage(droidEnt!, veh.enemy, veh.enemy, &dir, nil, 99999, 0, MOD_UNKNOWN)
                 }
             }
         }

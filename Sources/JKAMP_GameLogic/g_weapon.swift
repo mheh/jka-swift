@@ -673,16 +673,8 @@ private func WP_DisruptorMainFire(_ ent: Entity) {
         while traces < 10 {
             //need to loop this in case we hit a Jedi who dodges the shot
             if d_projectileGhoul2Collision.integer != 0 {
-                // Port-note: Raven passes NULL for `mins`, and the callee reads NULL as the zero vector.
-                portMissing("WP_DisruptorMainFire", source: "oracle/codemp/game/g_weapon.c:483")
-                // Port-note: Raven passes NULL for `maxs`, and the callee reads NULL as the zero vector.
-                portMissing("WP_DisruptorMainFire", source: "oracle/codemp/game/g_weapon.c:483")
                 trap_G2Trace(tr, start, vec3_origin, vec3_origin, end, ignore, MASK_SHOT, G2TRFLAG_DOGHOULTRACE | G2TRFLAG_GETSURFINDEX | G2TRFLAG_THICK | G2TRFLAG_HITCORPSES, g_g2TraceLod.integer)
             } else {
-                // Port-note: Raven passes NULL for `mins`, and the callee reads NULL as the zero vector.
-                portMissing("WP_DisruptorMainFire", source: "oracle/codemp/game/g_weapon.c:483")
-                // Port-note: Raven passes NULL for `maxs`, and the callee reads NULL as the zero vector.
-                portMissing("WP_DisruptorMainFire", source: "oracle/codemp/game/g_weapon.c:483")
                 trap_Trace(tr, start, vec3_origin, vec3_origin, end, ignore, MASK_SHOT)
             }
 
@@ -864,16 +856,8 @@ func WP_DisruptorAltFire(_ ent: Entity) {
             _VectorMA(start, shotRange, forward, &end)
 
             if d_projectileGhoul2Collision.integer != 0 {
-                // Port-note: Raven passes NULL for `mins`, and the callee reads NULL as the zero vector.
-                portMissing("WP_DisruptorAltFire", source: "oracle/codemp/game/g_weapon.c:642")
-                // Port-note: Raven passes NULL for `maxs`, and the callee reads NULL as the zero vector.
-                portMissing("WP_DisruptorAltFire", source: "oracle/codemp/game/g_weapon.c:642")
                 trap_G2Trace(tr, start, vec3_origin, vec3_origin, end, skip, MASK_SHOT, G2TRFLAG_DOGHOULTRACE | G2TRFLAG_GETSURFINDEX | G2TRFLAG_THICK | G2TRFLAG_HITCORPSES, g_g2TraceLod.integer)
             } else {
-                // Port-note: Raven passes NULL for `mins`, and the callee reads NULL as the zero vector.
-                portMissing("WP_DisruptorAltFire", source: "oracle/codemp/game/g_weapon.c:642")
-                // Port-note: Raven passes NULL for `maxs`, and the callee reads NULL as the zero vector.
-                portMissing("WP_DisruptorAltFire", source: "oracle/codemp/game/g_weapon.c:642")
                 trap_Trace(tr, start, vec3_origin, vec3_origin, end, skip, MASK_SHOT)
             }
 
@@ -1449,10 +1433,6 @@ private func WP_DEMP2_AltFire(_ ent: Entity) {
             damage = 1
         }
 
-        // Port-note: Raven passes NULL for `mins`, and the callee reads NULL as the zero vector.
-        portMissing("WP_DEMP2_AltFire", source: "oracle/codemp/game/g_weapon.c:1336")
-        // Port-note: Raven passes NULL for `maxs`, and the callee reads NULL as the zero vector.
-        portMissing("WP_DEMP2_AltFire", source: "oracle/codemp/game/g_weapon.c:1336")
         trap_Trace(tr, start, vec3_origin, vec3_origin, end, ent.s.number, MASK_SHOT)
 
         missile = G_Spawn()
@@ -2363,10 +2343,6 @@ func laserTrapThink(_ ent: Entity) {
 
         // Find the main impact point
         _VectorMA(ent.s.pos.trBase, 1024, ent.movedir, &end)
-        // Port-note: Raven passes NULL for `mins`, and the callee reads NULL as the zero vector.
-        portMissing("laserTrapThink", source: "oracle/codemp/game/g_weapon.c:2367")
-        // Port-note: Raven passes NULL for `maxs`, and the callee reads NULL as the zero vector.
-        portMissing("laserTrapThink", source: "oracle/codemp/game/g_weapon.c:2367")
         trap_Trace(tr, ent.r.currentOrigin, vec3_origin, vec3_origin, end, ent.s.number, MASK_SHOT)
 
         traceEnt = g_entities[tr.entityNum]
@@ -2538,9 +2514,14 @@ func WP_PlaceLaserTrap(_ ent: Entity, _ alt_fire: Bool) {
 
     //limit to 10 placed at any one time
     //see how many there are now
-    // Port-note: An assignment inside an expression.
-    // Raven wrote: while ( (found = G_Find( found, FOFS(classname), "laserTrap" )) != NULL ) { if ( found->parent != ent ) { continue; } foundLaserTraps[trapcount++] = found->s.number; }
-    portMissing("WP_PlaceLaserTrap", source: "oracle/codemp/game/g_weapon.c:2533")
+    while let next = G_Find(found, \.classname, "laserTrap") {
+        found = next
+        if found!.parent != ent {
+            continue
+        }
+        foundLaserTraps[trapcount] = found!.s.number
+        trapcount += 1
+    }
     //now remove first ones we find until there are only 9 left
     found = nil
     trapcount_org = trapcount
@@ -2829,9 +2810,16 @@ func BlowDetpacks(_ ent: Entity) {
     var found: Entity? = nil
 
     if ent.client!.ps.hasDetPackPlanted {
-        // Port-note: An assignment inside an expression.
-        // Raven wrote: while ( (found = G_Find( found, FOFS(classname), "detpack") ) != NULL ) {//loop through all ents and blow the crap out of them! if ( found->parent == ent ) { VectorCopy( found->r.currentOrigin, found->s.origin ); found->think = DetPackBlow; found->nextthink = level.time + 100 + random() * 200; G_Sound( found, CHAN_BODY, G_SoundIndex("sound/weapons/detpack/warning.wav") ); } }
-        portMissing("BlowDetpacks", source: "oracle/codemp/game/g_weapon.c:2851")
+        while let next = G_Find(found, \.classname, "detpack") {
+            found = next
+            //loop through all ents and blow the crap out of them!
+            if found!.parent == ent {
+                found!.s.origin = found!.r.currentOrigin
+                found!.think = Think.DetPackBlow
+                found!.nextthink = Int32(level.time + 100 + JKAMP_BG.random() * 200)
+                G_Sound(found!, CHAN_BODY, G_SoundIndex("sound/weapons/detpack/warning.wav"))
+            }
+        }
         ent.client!.ps.hasDetPackPlanted = false
     }
 }
@@ -2860,9 +2848,14 @@ func WP_DropDetPack(_ ent: Entity, _ alt_fire: Bool) {
 
     //limit to 10 placed at any one time
     //see how many there are now
-    // Port-note: An assignment inside an expression.
-    // Raven wrote: while ( (found = G_Find( found, FOFS(classname), "detpack" )) != NULL ) { if ( found->parent != ent ) { continue; } foundDetPacks[trapcount++] = found->s.number; }
-    portMissing("WP_DropDetPack", source: "oracle/codemp/game/g_weapon.c:2880")
+    while let next = G_Find(found, \.classname, "detpack") {
+        found = next
+        if found!.parent != ent {
+            continue
+        }
+        foundDetPacks[trapcount] = found!.s.number
+        trapcount += 1
+    }
     //now remove first ones we find until there are only 9 left
     found = nil
     trapcount_org = trapcount
@@ -3656,9 +3649,7 @@ func WP_FireVehicleWeapon(_ ent: Entity, _ start: inout JKAShared.vec3_t, _ dir:
             }
             missile!.nextthink = level.time + vehWeapon.iLifeTime
         }
-        // Port-note: The draft of this statement did not compile, and the compiler wrote "referencing operator function '-' on 'Strideable' requires that 'VehWeaponInfo' conform to '_Pointer'".
-        // Raven wrote: missile->s.otherEntityNum2 = (vehWeapon-&g_vehWeaponInfo[0])
-        portMissing("WP_FireVehicleWeapon", source: "oracle/codemp/game/g_weapon.c:3628")
+        missile!.s.otherEntityNum2 = g_vehWeaponInfo.index(of: vehWeapon)
         missile!.s.eFlags |= EF_JETPACK_ACTIVE
         //homing
         if vehWeapon.fHoming != 0 {

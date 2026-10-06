@@ -103,7 +103,8 @@ func multi_trigger_run(_ ent: Entity) {
 
 //determine if the class given is listed in the string using the | formatting
 /// Source: oracle/codemp/game/g_trigger.c:97
-func G_NameInTriggerClassList(_ list: inout JKAShared.CharBuf, _ str: String) -> Bool {
+func G_NameInTriggerClassList(_ list: String, _ str: String) -> Bool {
+    let list = CharBuf(list)
     var cmp = CharBuf(1024)
     var i: Int32 = 0
     var j: Int32
@@ -157,7 +158,7 @@ func multi_trigger(_ ent: Entity, _ activator: Entity) {
             return
         }
 
-        if !G_NameInTriggerClassList(&bgSiegeClasses[activator.client!.siegeClass].nameBuffer, ent.idealclass!) {
+        if !G_NameInTriggerClassList(bgSiegeClasses[activator.client!.siegeClass].name, ent.idealclass!) {
             //wasn't in the list
             return
         }
@@ -397,7 +398,7 @@ func Touch_Multi(_ `self`: Entity, _ other: Entity, _ trace: JKAMP.Trace) {
                     return
                 }
 
-                if !G_NameInTriggerClassList(&bgSiegeClasses[other.client!.siegeClass].nameBuffer, `self`.idealclass!) {
+                if !G_NameInTriggerClassList(bgSiegeClasses[other.client!.siegeClass].name, `self`.idealclass!) {
                     //wasn't in the list
                     return
                 }

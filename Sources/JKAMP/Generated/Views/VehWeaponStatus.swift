@@ -35,6 +35,15 @@ public struct VehWeaponStatus: Hashable, HandleView {
         return try withUnsafeMutablePointer(to: &slot) { try body(VehWeaponStatus(raw: $0)) }
     }
 
+    /// Raven's `vehWeaponStatus_t vehWeaponStatus[N];` on the stack, a local array of records.
+    /// The slots are zero at entry, live for the closure, and the closure's value is the result.
+    public static func scratch<Result>(count: Int, _ body: (Slots<VehWeaponStatus>) throws -> Result) rethrows -> Result {
+        let base = UnsafeMutableRawPointer.allocate(byteCount: count * VehWeaponStatus.stride, alignment: MemoryLayout<vehWeaponStatus_t>.alignment)
+        defer { base.deallocate() }
+        base.initializeMemory(as: UInt8.self, repeating: 0, count: count * VehWeaponStatus.stride)
+        return try body(Slots(views: base, count: count, stride: VehWeaponStatus.stride))
+    }
+
     /// Raven's `vehWeaponStatus_t vehWeaponStatus = *other;`, a copy of another slot on the stack.
     public static func scratch<Result>(copying other: VehWeaponStatus, _ body: (VehWeaponStatus) throws -> Result) rethrows -> Result {
         var slot = other.raw.pointee

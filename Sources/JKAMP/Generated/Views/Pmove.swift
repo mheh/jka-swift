@@ -35,6 +35,15 @@ public struct Pmove: Hashable, HandleView {
         return try withUnsafeMutablePointer(to: &slot) { try body(Pmove(raw: $0)) }
     }
 
+    /// Raven's `pmove_t pmove[N];` on the stack, a local array of records.
+    /// The slots are zero at entry, live for the closure, and the closure's value is the result.
+    public static func scratch<Result>(count: Int, _ body: (Slots<Pmove>) throws -> Result) rethrows -> Result {
+        let base = UnsafeMutableRawPointer.allocate(byteCount: count * Pmove.stride, alignment: MemoryLayout<pmove_t>.alignment)
+        defer { base.deallocate() }
+        base.initializeMemory(as: UInt8.self, repeating: 0, count: count * Pmove.stride)
+        return try body(Slots(views: base, count: count, stride: Pmove.stride))
+    }
+
     /// Raven's `pmove_t pmove = *other;`, a copy of another slot on the stack.
     public static func scratch<Result>(copying other: Pmove, _ body: (Pmove) throws -> Result) rethrows -> Result {
         var slot = other.raw.pointee
@@ -267,6 +276,7 @@ public struct Pmove: Hashable, HandleView {
     }
 
     /// Calls the stored `pointcontents` function through the C pointer, with the caller's arguments, as Raven's `pm->pointcontents(...)` did.
+    @discardableResult
     public func runPointcontents(_ point: JKAShared.vec3_t, _ passEntityNum: Int32) -> Int32 {
         withUnsafePointer(to: point) { point in
             self.pointcontents(OpaquePointer(point), passEntityNum)

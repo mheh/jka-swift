@@ -36,6 +36,15 @@ public struct SaberFace: Hashable, HandleView {
         return try withUnsafeMutablePointer(to: &slot) { try body(SaberFace(raw: $0)) }
     }
 
+    /// Raven's `saberFace_t saberFace[N];` on the stack, a local array of records.
+    /// The slots are zero at entry, live for the closure, and the closure's value is the result.
+    public static func scratch<Result>(count: Int, _ body: (Slots<SaberFace>) throws -> Result) rethrows -> Result {
+        let base = UnsafeMutableRawPointer.allocate(byteCount: count * SaberFace.stride, alignment: MemoryLayout<saberFace_t>.alignment)
+        defer { base.deallocate() }
+        base.initializeMemory(as: UInt8.self, repeating: 0, count: count * SaberFace.stride)
+        return try body(Slots(views: base, count: count, stride: SaberFace.stride))
+    }
+
     /// Raven's `saberFace_t saberFace = *other;`, a copy of another slot on the stack.
     public static func scratch<Result>(copying other: SaberFace, _ body: (SaberFace) throws -> Result) rethrows -> Result {
         var slot = other.raw.pointee

@@ -151,12 +151,44 @@ private func G_LoadArenasFromFile(_ filename: String) {
 }
 
 /// Source: oracle/codemp/game/g_bot.c:129
-func G_GetMapTypeBits(_ type: inout JKAShared.CharBuf) -> Int32 {
+func G_GetMapTypeBits(_ type: String?) -> Int32 {
+    let type = CharBuf(type!)
     var typeBits: Int32 = 0
 
-    // Port-note: The draft of this statement did not compile, and the compiler wrote "referencing operator function '!=' on 'BinaryInteger' requires that 'CharBuf' conform to 'BinaryInteger'".
-    // Raven wrote: if( *type ) { if( strstr( type, "ffa" ) ) { typeBits |= (1 << GT_FFA); typeBits |= (1 << GT_TEAM); } if( strstr( type, "team" ) ) { typeBits |= (1 << GT_TEAM); } if( strstr( type, "holocron" ) ) { typeBits |= (1 << GT_HOLOCRON); } if( strstr( type, "jedimaster" ) ) { typeBits |= (1 << GT_JEDIMASTER); } if( strstr( type, "duel" ) ) { typeBits |= (1 << GT_DUEL); typeBits |= (1 << GT_POWERDUEL); } if( strstr( type, "powerduel" ) ) { typeBits |= (1 << GT_DUEL); typeBits |= (1 << GT_POWERDUEL); } if( strstr( type, "siege" ) ) { typeBits |= (1 << GT_SIEGE); } if( strstr( type, "ctf" ) ) { typeBits |= (1 << GT_CTF); } if( strstr( type, "cty" ) ) { typeBits |= (1 << GT_CTY); } } else { typeBits |= (1 << GT_FFA); }
-    portMissing("G_GetMapTypeBits", source: "oracle/codemp/game/g_bot.c:129")
+    if type[0] != 0 {
+        if strstr(type, "ffa") != nil {
+            typeBits |= (1 << GT_FFA)
+            typeBits |= (1 << GT_TEAM)
+        }
+        if strstr(type, "team") != nil {
+            typeBits |= (1 << GT_TEAM)
+        }
+        if strstr(type, "holocron") != nil {
+            typeBits |= (1 << GT_HOLOCRON)
+        }
+        if strstr(type, "jedimaster") != nil {
+            typeBits |= (1 << GT_JEDIMASTER)
+        }
+        if strstr(type, "duel") != nil {
+            typeBits |= (1 << GT_DUEL)
+            typeBits |= (1 << GT_POWERDUEL)
+        }
+        if strstr(type, "powerduel") != nil {
+            typeBits |= (1 << GT_DUEL)
+            typeBits |= (1 << GT_POWERDUEL)
+        }
+        if strstr(type, "siege") != nil {
+            typeBits |= (1 << GT_SIEGE)
+        }
+        if strstr(type, "ctf") != nil {
+            typeBits |= (1 << GT_CTF)
+        }
+        if strstr(type, "cty") != nil {
+            typeBits |= (1 << GT_CTY)
+        }
+    } else {
+        typeBits |= (1 << GT_FFA)
+    }
 
     return typeBits
 }
@@ -193,9 +225,7 @@ func G_DoesMapSupportGametype(_ mapname: String, _ gametype: Int32) -> Bool {
 
     type = Info_ValueForKey(g_arenaInfos[thisLevel], "type")
 
-    // Port-note: Raven passes `type` to `G_GetMapTypeBits`, whose `char *` parameter the stub holds as an inout CharBuf. Docket row 5 is due.
-    // Raven wrote: typeBits = G_GetMapTypeBits(type)
-    portMissing("G_DoesMapSupportGametype", source: "oracle/codemp/game/g_bot.c:171")
+    typeBits = G_GetMapTypeBits(type)
     if (typeBits & (1 << gametype)) != 0 {
         //the map in question supports the gametype in question, so..
         return true
@@ -254,9 +284,7 @@ func G_RefreshNextMap(_ gametype: Int32, _ forced: Bool) -> String? {
 
             type = Info_ValueForKey(g_arenaInfos[n], "type")
 
-            // Port-note: Raven passes `type` to `G_GetMapTypeBits`, whose `char *` parameter the stub holds as an inout CharBuf. Docket row 5 is due.
-            // Raven wrote: typeBits = G_GetMapTypeBits(type)
-            portMissing("G_RefreshNextMap", source: "oracle/codemp/game/g_bot.c:216")
+            typeBits = G_GetMapTypeBits(type)
             if (typeBits & (1 << gametype)) != 0 {
                 desiredMap = n
                 break
@@ -860,7 +888,8 @@ G_AddBot
 ```
 */
 /// Source: oracle/codemp/game/g_bot.c:792
-private func G_AddBot(_ name: String, _ skill: Float, _ team: String, _ delay: Int32, _ altname: inout JKAShared.CharBuf) {
+private func G_AddBot(_ name: String, _ skill: Float, _ team: String, _ delay: Int32, _ altname: String) {
+    let altname = CharBuf(altname)
     let clientNum: Int32
     let botinfo: String
     var bot: Entity?
@@ -1129,7 +1158,7 @@ func Svcmd_AddBot_f() {
     // alternative name
     strcpy(&altname, trap_Argv(5, Int32((altname).count)))
 
-    G_AddBot(String(name), skill, String(team), delay, &altname)
+    G_AddBot(String(name), skill, String(team), delay, String(altname))
 
     // if this was issued during gameplay and we are playing locally,
     // go ahead and load the bot's media immediately

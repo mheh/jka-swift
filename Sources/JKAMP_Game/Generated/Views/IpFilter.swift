@@ -36,6 +36,15 @@ public struct IpFilter: Hashable, HandleView {
         return try withUnsafeMutablePointer(to: &slot) { try body(IpFilter(raw: $0)) }
     }
 
+    /// Raven's `ipFilter_t ipFilter[N];` on the stack, a local array of records.
+    /// The slots are zero at entry, live for the closure, and the closure's value is the result.
+    public static func scratch<Result>(count: Int, _ body: (Slots<IpFilter>) throws -> Result) rethrows -> Result {
+        let base = UnsafeMutableRawPointer.allocate(byteCount: count * IpFilter.stride, alignment: MemoryLayout<ipFilter_t>.alignment)
+        defer { base.deallocate() }
+        base.initializeMemory(as: UInt8.self, repeating: 0, count: count * IpFilter.stride)
+        return try body(Slots(views: base, count: count, stride: IpFilter.stride))
+    }
+
     /// Raven's `ipFilter_t ipFilter = *other;`, a copy of another slot on the stack.
     public static func scratch<Result>(copying other: IpFilter, _ body: (IpFilter) throws -> Result) rethrows -> Result {
         var slot = other.raw.pointee

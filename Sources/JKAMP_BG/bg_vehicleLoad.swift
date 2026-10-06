@@ -416,7 +416,7 @@ func BG_VehicleClampData(_ vehicle: JKAMP.VehicleInfo) {
 }
 
 /// Source: oracle/codemp/game/bg_vehicleLoad.c:839
-private func BG_ParseVehicleParm(_ vehicle: JKAMP.VehicleInfo, _ parmName: String, _ pValue: String) -> Bool {
+private func BG_ParseVehicleParm(_ vehicle: JKAMP.VehicleInfo, _ parmName: String, _ pValue: String?) -> Bool {
     var i: Int32
     var vec = vec3_t()
     // Raven walks the record's bytes through `b`, and the raw pointer over the view's slot is that walk, under rule 11.
@@ -425,7 +425,7 @@ private func BG_ParseVehicleParm(_ vehicle: JKAMP.VehicleInfo, _ parmName: Strin
     var vehType: vehicleType_t
     var value = CharBuf(1024)
 
-    Q_strncpyz(&value, pValue, Int32((value).count))
+    Q_strncpyz(&value, pValue!, Int32((value).count))
 
     // Loop through possible parameters
     i = 0
@@ -632,7 +632,7 @@ func VEH_LoadVehicle(_ vehicleName: String) -> Int32 {
             //hmm, store this off because we don't want to call another one of these text parsing routines while we're in the middle of one...
             Q_strncpyz(&weapMuzzle10, value!, Int32((weapMuzzle10).count))
         } else {
-            if !BG_ParseVehicleParm(vehicleInfo, String(parmName), value!) {
+            if !BG_ParseVehicleParm(vehicleInfo, String(parmName), value) {
                 Com_Printf(S_COLOR_RED + "ERROR: Unknown Vehicle key/value pair '%s', '%s'!\n", parmName, value!)
             }
         }

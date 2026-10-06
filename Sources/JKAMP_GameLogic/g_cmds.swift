@@ -19,6 +19,13 @@ var g_preventTeamBegin: Bool {
 /// Source: oracle/codemp/game/g_cmds.c:1616
 let EC = "\u{19}"
 
+/// Raven's `static char line[MAX_STRING_CHARS]` of `ConcatArgs`, a property of `GameWorld`.
+/// Source: oracle/codemp/game/g_cmds.c:129
+var line: CharBuf {
+    get { world.line }
+    set { world.line = newValue }
+}
+
 /// Source: oracle/codemp/game/g_cmds.c:1812
 /// Raven's data table, a hand property of `GameWorld`.
 var gc_orders: [String] {
@@ -146,9 +153,6 @@ func ConcatArgs(_ start: Int32) -> String {
     var i: Int32
     let c: Int32
     var tlen: Int32
-    // Port-note: A static local `line` a statement reads before it writes, storage that outlives the call.
-    // Raven wrote: static char line[MAX_STRING_CHARS];
-    portMissing("ConcatArgs", source: "oracle/codemp/game/g_cmds.c:127")
     var len: Int32
     var arg = CharBuf(1024)
 
@@ -166,21 +170,15 @@ func ConcatArgs(_ start: Int32) -> String {
         portMissing("ConcatArgs", source: "oracle/codemp/game/g_cmds.c:127")
         len += tlen
         if i != c - 1 {
-            // Port-note: A read of `line`, a local the draft left as a hole.
-            // Raven wrote: line[len] = ' '
-            portMissing("ConcatArgs", source: "oracle/codemp/game/g_cmds.c:127")
+            line[len] = Int32(ascii: " ")
             len += 1
         }
         i += 1
     }
 
-    // Port-note: A read of `line`, a local the draft left as a hole.
-    // Raven wrote: line[len] = 0
-    portMissing("ConcatArgs", source: "oracle/codemp/game/g_cmds.c:127")
+    line[len] = 0
 
-    // Port-note: A read of `line`, a local the draft left as a hole.
-    // Raven wrote: return line
-    portMissing("ConcatArgs", source: "oracle/codemp/game/g_cmds.c:127")
+    return String(line)
 }
 
 /**
@@ -558,9 +556,7 @@ func Cmd_TeamTask_f(_ ent: Entity) {
     var userinfo = CharBuf(1024)
     var arg = CharBuf(1024)
     let task: Int32
-    // Port-note: The draft of this statement did not compile, and the compiler wrote "binary operator '-' cannot be applied to two 'Client?' operands".
-    // Raven wrote: int client = ent->client - level.clients;
-    portMissing("Cmd_TeamTask_f", source: "oracle/codemp/game/g_cmds.c:506")
+    let client = level.clientsSlots.index(of: ent.client!)
 
     if trap_Argc() != 2 {
         return
@@ -568,16 +564,10 @@ func Cmd_TeamTask_f(_ ent: Entity) {
     strcpy(&arg, trap_Argv(1, Int32((arg).count)))
     task = atoi(arg)
 
-    // Port-note: A read of `client`, a local the draft left as a hole.
-    // Raven wrote: trap_GetUserinfo(client, userinfo, sizeof(userinfo))
-    portMissing("Cmd_TeamTask_f", source: "oracle/codemp/game/g_cmds.c:506")
+    strcpy(&userinfo, trap_GetUserinfo(client, Int32((userinfo).count)))
     Info_SetValueForKey(&userinfo, "teamtask", va("%d", task))
-    // Port-note: A read of `client`, a local the draft left as a hole.
-    // Raven wrote: trap_SetUserinfo(client, userinfo)
-    portMissing("Cmd_TeamTask_f", source: "oracle/codemp/game/g_cmds.c:506")
-    // Port-note: A read of `client`, a local the draft left as a hole.
-    // Raven wrote: ClientUserinfoChanged(client)
-    portMissing("Cmd_TeamTask_f", source: "oracle/codemp/game/g_cmds.c:506")
+    trap_SetUserinfo(client, String(userinfo))
+    ClientUserinfoChanged(client)
 }
 
 /// Source: oracle/codemp/game/g_cmds.c:527
@@ -736,9 +726,7 @@ func BroadcastTeamChange(_ client: Client, _ oldTeam: Int32) {
         }
     }
 
-    // Port-note: The draft of this statement did not compile, and the compiler wrote "referencing operator function '-' on 'Strideable' requires that 'Client' conform to '_Pointer'".
-    // Raven wrote: G_LogPrintf ( "setteam: %i %s %s\n", client - &level.clients[0], TeamName ( oldTeam ), TeamName ( client->sess.sessionTeam ) )
-    portMissing("BroadcastTeamChange", source: "oracle/codemp/game/g_cmds.c:670")
+    G_LogPrintf("setteam:  %i %s %s\n", level.clientsSlots.index(of: client), TeamName(oldTeam), TeamName(client.sess.sessionTeam))
 }
 
 /// Source: oracle/codemp/game/g_cmds.c:720
@@ -778,9 +766,7 @@ func SetTeam(_ ent: Entity, _ s: String) {
     //
     client = ent.client
 
-    // Port-note: The draft of this statement did not compile, and the compiler wrote "binary operator '-' cannot be applied to two 'Client?' operands".
-    // Raven wrote: clientNum = client - level.clients
-    portMissing("SetTeam", source: "oracle/codemp/game/g_cmds.c:752")
+    clientNum = level.clientsSlots.index(of: client!)
     specClient = 0
     specState = SPECTATOR_NOT
     if Q_stricmp(s, "scoreboard") == 0 || Q_stricmp(s, "score") == 0 {
@@ -1189,10 +1175,8 @@ func Cmd_DuelTeam_f(_ ent: Entity) {
         //ok..die
         let curTeam: Int32 = ent.client!.sess.duelTeam
         ent.client!.sess.duelTeam = oldTeam
-        // Port-note: Raven passes NULL for the `dir` output. The ported function takes it by reference, so the body passes a scratch local it never reads.
-        portMissing("Cmd_DuelTeam_f", source: "oracle/codemp/game/g_cmds.c:1119")
-        var scratchDir = vec3_t()
-        G_Damage(ent, ent, ent, &scratchDir, ent.client!.ps.origin, 99999, DAMAGE_NO_PROTECTION, MOD_SUICIDE)
+        var dir: vec3_t? = nil
+        G_Damage(ent, ent, ent, &dir, ent.client!.ps.origin, 99999, DAMAGE_NO_PROTECTION, MOD_SUICIDE)
         ent.client!.sess.duelTeam = curTeam
     }
     //reset wins and losses
@@ -1382,7 +1366,8 @@ func Cmd_ForceChanged_f(_ ent: Entity) {
 }
 
 /// Source: oracle/codemp/game/g_cmds.c:1396
-func G_SetSaber(_ ent: Entity, _ saberNum: Int32, _ saberName: inout JKAShared.CharBuf, _ siegeOverride: Bool) -> Bool {
+func G_SetSaber(_ ent: Entity, _ saberNum: Int32, _ saberName: String, _ siegeOverride: Bool) -> Bool {
+    let saberName = CharBuf(saberName)
     var truncSaberName = CharBuf(64)
     var i: Int32 = 0
 
@@ -1537,7 +1522,7 @@ func Cmd_FollowCycle_f(_ ent: Entity, _ dir: Int32) {
 }
 
 /// Source: oracle/codemp/game/g_cmds.c:1566
-private func G_SayTo(_ ent: Entity, _ other: Entity, _ mode: Int32, _ color: Int32, _ name: String, _ message: String, _ locMsg: String) {
+private func G_SayTo(_ ent: Entity, _ other: Entity, _ mode: Int32, _ color: Int32, _ name: String, _ message: String, _ locMsg: String?) {
     if !other.inuse {
         return
     }
@@ -1566,7 +1551,11 @@ private func G_SayTo(_ ent: Entity, _ other: Entity, _ mode: Int32, _ color: Int
         return
     }
 
-    trap_SendServerCommand(other.s.number, va("%s \"%s\" \"%s\" \"%c\" \"%s\"", mode == SAY_TEAM ? "ltchat" : "lchat", name, locMsg, color, message))
+    if locMsg != nil {
+        trap_SendServerCommand(other.s.number, va("%s \"%s\" \"%s\" \"%c\" \"%s\"", mode == SAY_TEAM ? "ltchat" : "lchat", name, locMsg!, color, message))
+    } else {
+        trap_SendServerCommand(other.s.number, va("%s \"%s%c%c%s\"", mode == SAY_TEAM ? "tchat" : "chat", name, Q_COLOR_ESCAPE, color, message))
+    }
 }
 
 /// Source: oracle/codemp/game/g_cmds.c:1618
@@ -1615,10 +1604,7 @@ func G_Say(_ ent: Entity, _ target: Entity?, _ mode: Int32, _ chatText: String) 
     Q_strncpyz(&text, chatText, Int32((text).count))
 
     if let target {
-        // Port-note: Raven passes a NULL `locMsg` when the sender has no location, and `G_SayTo` then sends the `chat` or `tchat` form.
-        // The `locMsg` parameter of `G_SayTo` is a `String` with no NULL, so this call does not reproduce that arm.
-        portMissing("G_Say", source: "oracle/codemp/game/g_cmds.c:1618")
-        G_SayTo(ent, target, mode, color, String(name), String(text), locMsg.text)
+        G_SayTo(ent, target, mode, color, String(name), String(text), locMsg.isNull ? nil : locMsg.text)
         return
     }
 
@@ -1631,10 +1617,7 @@ func G_Say(_ ent: Entity, _ target: Entity?, _ mode: Int32, _ chatText: String) 
     j = 0
     while j < level.maxclients {
         other = g_entities[j]
-        // Port-note: Raven passes a NULL `locMsg` when the sender has no location, and `G_SayTo` then sends the `chat` or `tchat` form.
-        // The `locMsg` parameter of `G_SayTo` is a `String` with no NULL, so this call does not reproduce that arm.
-        portMissing("G_Say", source: "oracle/codemp/game/g_cmds.c:1618")
-        G_SayTo(ent, other!, mode, color, String(name), String(text), locMsg.text)
+        G_SayTo(ent, other!, mode, color, String(name), String(text), locMsg.isNull ? nil : locMsg.text)
         j += 1
     }
 }
@@ -1807,9 +1790,8 @@ func G_ClientNumberFromName(_ name: String) -> Int32 {
     var clIndex: Int32
 
     // check for a name match
-    // Port-note: Raven passes `(char*)name` to `SanitizeString`, whose `char *` parameter the stub holds as an inout CharBuf. Docket row 5 is due.
-    // Raven wrote: SanitizeString( (char*)name, s2 )
-    portMissing("G_ClientNumberFromName", source: "oracle/codemp/game/g_cmds.c:1871")
+    var buf = CharBuf(name)
+    SanitizeString(&buf, &s2)
     i = 0
     clIndex = 0
     while i < level.numConnectedClients {
@@ -1834,7 +1816,8 @@ Rich's revised version of SanitizeString
 ```
 */
 /// Source: oracle/codemp/game/g_cmds.c:1899
-func SanitizeString2(_ `in`: inout JKAShared.CharBuf, _ out: inout JKAShared.CharBuf) {
+func SanitizeString2(_ `in`: String, _ out: inout JKAShared.CharBuf) {
+    let `in` = CharBuf(`in`)
     var i: Int32 = 0
     var r: Int32 = 0
 
@@ -1885,13 +1868,11 @@ func G_ClientNumberFromStrippedName(_ name: String) -> Int32 {
     var clIndex: Int32
 
     // check for a name match
-    // Port-note: Raven passes `(char*)name` to `SanitizeString2`, whose `char *` parameter the stub holds as an inout CharBuf. Docket row 5 is due.
-    // Raven wrote: SanitizeString2( (char*)name, s2 )
-    portMissing("G_ClientNumberFromStrippedName", source: "oracle/codemp/game/g_cmds.c:1946")
+    SanitizeString2(name, &s2)
     i = 0
     clIndex = 0
     while i < level.numConnectedClients {
-        SanitizeString2(&level.clientsSlots[clIndex].pers.netnameBuffer, &n2)
+        SanitizeString2(level.clientsSlots[clIndex].pers.netname, &n2)
         if strcmp(n2, s2) == 0 {
             return i
         }
@@ -1910,7 +1891,7 @@ func Cmd_CallVote_f(_ ent: Entity) {
     //	int		n = 0;
     //	char*	type = NULL;
     var mapName: String? = nil
-    let arenaInfo: String
+    let arenaInfo: String?
 
     if g_allowVote.integer == 0 {
         trap_SendServerCommand(ent.s.number, va("print \"%s\n\"", G_GetStringEdString("MP_SVGAME", "NOVOTE")))
@@ -1994,18 +1975,16 @@ func Cmd_CallVote_f(_ ent: Entity) {
             Com_sprintf(&level.voteStringBuffer, 1024, "%s %s", arg1, arg2)
         }
 
-        // Port-note: Raven stores `G_GetArenaInfoByMap(arg2)`, and the callee hands an optional text back where the target takes a value. A never-null ruling is due.
-        // Raven wrote: arenaInfo = G_GetArenaInfoByMap(arg2)
-        portMissing("Cmd_CallVote_f", source: "oracle/codemp/game/g_cmds.c:1974")
-        mapName = Info_ValueForKey(arenaInfo, "longname")
+        arenaInfo = G_GetArenaInfoByMap(String(arg2))
+        if arenaInfo != nil {
+            mapName = Info_ValueForKey(arenaInfo!, "longname")
+        }
 
         if mapName == nil || mapName!.isEmpty {
             mapName = "ERROR"
         }
 
-        // Port-note: The draft of this statement did not compile, and the compiler wrote "cannot force unwrap value of non-optional type 'String'".
-        // Raven wrote: Com_sprintf( level.voteDisplayString, sizeof( level.voteDisplayString ), "map %s", mapName)
-        portMissing("Cmd_CallVote_f", source: "oracle/codemp/game/g_cmds.c:1974")
+        Com_sprintf(&level.voteDisplayStringBuffer, 1024, "map %s", mapName!)
     } else if Q_stricmp(arg1, "clientkick") == 0 {
         let n: Int32 = atoi(arg2)
 
@@ -2876,10 +2855,6 @@ func Cmd_EngageDuel_f(_ ent: Entity) {
         fwdOrg[1] = ent.client!.ps.origin[1] + forward[1] * 256
         fwdOrg[2] = (ent.client!.ps.origin[2] + ent.client!.ps.viewheight) + forward[2] * 256
 
-        // Port-note: Raven passes NULL for `mins`, and the callee reads NULL as the zero vector.
-        portMissing("Cmd_EngageDuel_f", source: "oracle/codemp/game/g_cmds.c:2894")
-        // Port-note: Raven passes NULL for `maxs`, and the callee reads NULL as the zero vector.
-        portMissing("Cmd_EngageDuel_f", source: "oracle/codemp/game/g_cmds.c:2894")
         trap_Trace(tr, ent.client!.ps.origin, vec3_origin, vec3_origin, fwdOrg, ent.s.number, MASK_PLAYERSOLID)
 
         if tr.fraction != 1 && tr.entityNum < MAX_CLIENTS {
@@ -3201,17 +3176,13 @@ func ClientCommand(_ clientNum: Int32) {
             var targ: Entity?
 
             strcpy(&sArg, trap_Argv(1, Int32((sArg).count)))
-            // Port-note: No operator beside the operand, the text there is ``.
-            // Raven wrote: targ = G_Find( NULL, FOFS(targetname), sArg )
-            portMissing("ClientCommand", source: "oracle/codemp/game/g_cmds.c:3202")
+            targ = G_Find(nil, \.targetname, String(sArg))
 
             while targ != nil {
                 if targ!.use != nil {
                     targ!.runUse(g_entities[entIndex], g_entities[entIndex])
                 }
-                // Port-note: No operator beside the operand, the text there is ``.
-                // Raven wrote: targ = G_Find( targ, FOFS(targetname), sArg )
-                portMissing("ClientCommand", source: "oracle/codemp/game/g_cmds.c:3202")
+                targ = G_Find(targ, \.targetname, String(sArg))
             }
         }
     } else if Q_stricmp(cmd, "god") == 0 {
@@ -3472,10 +3443,6 @@ func ClientCommand(_ clientNum: Int32) {
             tTo[1] = g_entities[entIndex].client!.ps.origin[1] + fwd[1] * 32
             tTo[2] = g_entities[entIndex].client!.ps.origin[2] + fwd[2] * 32
 
-            // Port-note: Raven passes NULL for `mins`, and the callee reads NULL as the zero vector.
-            portMissing("ClientCommand", source: "oracle/codemp/game/g_cmds.c:3202")
-            // Port-note: Raven passes NULL for `maxs`, and the callee reads NULL as the zero vector.
-            portMissing("ClientCommand", source: "oracle/codemp/game/g_cmds.c:3202")
             trap_Trace(tr, g_entities[entIndex].client!.ps.origin, vec3_origin, vec3_origin, tTo, g_entities[entIndex].s.number, MASK_PLAYERSOLID)
 
             if tr.fraction != 1 {

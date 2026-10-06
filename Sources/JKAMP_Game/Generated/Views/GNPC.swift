@@ -36,6 +36,15 @@ public struct GNPC: Hashable, HandleView {
         return try withUnsafeMutablePointer(to: &slot) { try body(GNPC(raw: $0)) }
     }
 
+    /// Raven's `gNPC_t gNPC[N];` on the stack, a local array of records.
+    /// The slots are zero at entry, live for the closure, and the closure's value is the result.
+    public static func scratch<Result>(count: Int, _ body: (Slots<GNPC>) throws -> Result) rethrows -> Result {
+        let base = UnsafeMutableRawPointer.allocate(byteCount: count * GNPC.stride, alignment: MemoryLayout<gNPC_t>.alignment)
+        defer { base.deallocate() }
+        base.initializeMemory(as: UInt8.self, repeating: 0, count: count * GNPC.stride)
+        return try body(Slots(views: base, count: count, stride: GNPC.stride))
+    }
+
     /// Raven's `gNPC_t gNPC = *other;`, a copy of another slot on the stack.
     public static func scratch<Result>(copying other: GNPC, _ body: (GNPC) throws -> Result) rethrows -> Result {
         var slot = other.raw.pointee

@@ -36,6 +36,15 @@ public struct SharedIKMoveParams: Hashable, HandleView {
         return try withUnsafeMutablePointer(to: &slot) { try body(SharedIKMoveParams(raw: $0)) }
     }
 
+    /// Raven's `sharedIKMoveParams_t sharedIKMoveParams[N];` on the stack, a local array of records.
+    /// The slots are zero at entry, live for the closure, and the closure's value is the result.
+    public static func scratch<Result>(count: Int, _ body: (Slots<SharedIKMoveParams>) throws -> Result) rethrows -> Result {
+        let base = UnsafeMutableRawPointer.allocate(byteCount: count * SharedIKMoveParams.stride, alignment: MemoryLayout<sharedIKMoveParams_t>.alignment)
+        defer { base.deallocate() }
+        base.initializeMemory(as: UInt8.self, repeating: 0, count: count * SharedIKMoveParams.stride)
+        return try body(Slots(views: base, count: count, stride: SharedIKMoveParams.stride))
+    }
+
     /// Raven's `sharedIKMoveParams_t sharedIKMoveParams = *other;`, a copy of another slot on the stack.
     public static func scratch<Result>(copying other: SharedIKMoveParams, _ body: (SharedIKMoveParams) throws -> Result) rethrows -> Result {
         var slot = other.raw.pointee

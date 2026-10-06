@@ -40,6 +40,8 @@ LOG = REPO / ".build-draft" / "build.log"
 # The last pass's draft of each stem, the text a transcriptor reads, with every hole the passes made.
 DRAFTS = REPO / ".build-draft" / "drafts"
 SOURCE_LINE = re.compile(r"/// Source: oracle/codemp/game/\w+\.c:(\d+)$")
+# skeleton.py writes this doc line above the /// Source: line of a forward, and the forward shares the Source line of the hand body.
+FORWARD_DOC = re.compile(r"^/// A caller that passes .* reaches `\w+` through this forward, and a NULL caller passes the optional\.$")
 # swiftc writes `path:line:col: error: message`.
 # The build system writes a parse error as `error: path:line:col message`, with a FixIt record after the message at times.
 # Each form keeps the path, so an error in a hand file, jampgame.swift, reads under that file and not under the stem's.
@@ -58,6 +60,9 @@ def functions(lines: list[str]) -> dict[int, tuple[int, int]]:
     i = 0
     while i < len(lines):
         m = SOURCE_LINE.match(lines[i])
+        # A forward stays in place, so the draft replaces the hand body only.
+        if m and i > 0 and FORWARD_DOC.match(lines[i - 1]):
+            m = None
         if m and i + 1 < len(lines) and not lines[i + 1].startswith("/// Source"):
             j = i + 1
             while j < len(lines) and lines[j] != "}":

@@ -36,6 +36,15 @@ public struct Boteventtracker: Hashable, HandleView {
         return try withUnsafeMutablePointer(to: &slot) { try body(Boteventtracker(raw: $0)) }
     }
 
+    /// Raven's `boteventtracker_t boteventtracker[N];` on the stack, a local array of records.
+    /// The slots are zero at entry, live for the closure, and the closure's value is the result.
+    public static func scratch<Result>(count: Int, _ body: (Slots<Boteventtracker>) throws -> Result) rethrows -> Result {
+        let base = UnsafeMutableRawPointer.allocate(byteCount: count * Boteventtracker.stride, alignment: MemoryLayout<boteventtracker_t>.alignment)
+        defer { base.deallocate() }
+        base.initializeMemory(as: UInt8.self, repeating: 0, count: count * Boteventtracker.stride)
+        return try body(Slots(views: base, count: count, stride: Boteventtracker.stride))
+    }
+
     /// Raven's `boteventtracker_t boteventtracker = *other;`, a copy of another slot on the stack.
     public static func scratch<Result>(copying other: Boteventtracker, _ body: (Boteventtracker) throws -> Result) rethrows -> Result {
         var slot = other.raw.pointee

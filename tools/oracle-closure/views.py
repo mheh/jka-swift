@@ -500,23 +500,32 @@ class Generator:
         else:
             lines = self.property(name, f"{alias}?", f"unsafeBitCast({pointee}, to: {alias}?.self)",
                                   f"{pointee} = unsafeBitCast(newValue, to: Swift.type(of: {pointee}))")
-            call = f"self.{name}?({', '.join(args)})"
+            # Raven calls through the pointer with no NULL test, so the run method traps with the field's name where C would crash.
+            # A site where Raven tests the pointer first keeps his test on the field itself.
+            call = f"self.{name}!({', '.join(args)})"
             if returns == "Bool":
-                call = f"({call}).map {{ $0 != 0 }}"
+                call = f"{call} != 0"
+            doc += f"\n    /// A NULL `{name}` traps with the field's name, as Raven's call through the pointer would crash."
         body: list[str] = []
+        if not always:
+            body.append(f"        precondition({pointee} != nil, \"{name} is NULL\")")
+        head = "return " if returns and not always else ""
         if layers:
-            body.append("        " + layers[0])
+            body.append("        " + head + layers[0])
             for depth, layer in enumerate(layers[1:], start=3):
                 body.append("    " * depth + layer)
             body.append("    " * (len(layers) + 2) + call)
             for depth in range(len(layers) + 1, 1, -1):
                 body.append("    " * depth + "}")
         else:
-            body.append(f"        {call}")
+            body.append(f"        {head}{call}")
+        # A callback's return is `@discardableResult`, because Raven drops it at most sites and C never warned.
+        if returns:
+            doc += "\n    @discardableResult"
         lines += [
             "",
             doc,
-            f"    public func run{name[0].upper()}{name[1:]}({', '.join(rest)}){f' -> {returns}{'' if always else '?'}' if returns else ''} {{",
+            f"    public func run{name[0].upper()}{name[1:]}({', '.join(rest)}){f' -> {returns}' if returns else ''} {{",
             *body,
             "    }",
         ]
@@ -564,6 +573,15 @@ class Generator:
                 f"    public static func scratch<Result>(_ body: ({view}) throws -> Result) rethrows -> Result {{",
                 f"        var slot = {c_name}()",
                 f"        return try withUnsafeMutablePointer(to: &slot) {{ try body({view}(raw: $0)) }}",
+                "    }",
+                "",
+                f"    /// Raven's `{c_name} {local}[N];` on the stack, a local array of records.",
+                "    /// The slots are zero at entry, live for the closure, and the closure's value is the result.",
+                f"    public static func scratch<Result>(count: Int, _ body: (Slots<{view}>) throws -> Result) rethrows -> Result {{",
+                f"        let base = UnsafeMutableRawPointer.allocate(byteCount: count * {view}.stride, alignment: MemoryLayout<{c_name}>.alignment)",
+                "        defer { base.deallocate() }",
+                f"        base.initializeMemory(as: UInt8.self, repeating: 0, count: count * {view}.stride)",
+                f"        return try body(Slots(views: base, count: count, stride: {view}.stride))",
                 "    }",
                 "",
                 f"    /// Raven's `{c_name} {local} = *other;`, a copy of another slot on the stack.",

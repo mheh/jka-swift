@@ -234,7 +234,13 @@ class Drafter(Statements, Expressions, Calls, Declarations, Classification):
         self.addressed = facts.addressed
         self.has_scratch = any(self.record_local(c) is not None for c in fn.cur.walk_preorder())
         # Raven's vector parameters a caller passes NULL to and the body only reads, which cross as optional values.
-        self.optional_vectors = {c.spelling for c, p in zip(fn.cur.get_arguments(), fn.params) if p.kind in ("vec3_opt", "axis_opt")}
+        self.optional_vectors = {c.spelling for c, p in zip(fn.cur.get_arguments(), fn.params)
+                                 if p.kind in ("vec3_opt", "axis_opt", "vec3_mut_opt", "axis_mut_opt")}
+        # A store inside an expression lifts to its own line before the statement, except where the line would run at the wrong time:
+        # a loop test, the right side of `&&` or `||`, an arm of `?:`. The count holds how many of those enclose the expression.
+        self.lift_blocked = 0
+        # The stores already lifted, by their extent, so a second draft of one expression lifts no store twice.
+        self.lifted: set[tuple[int, int]] = set()
         self.inout_locals = {c.spelling for c, p in zip(fn.cur.get_arguments(), fn.params) if (p.swift or "").startswith("inout ")}
         # Raven assigns a parameter of his own. A Swift parameter is immutable, so the body opens with a mutable copy, after the declarations.
         # Raven walks his own record pointer parameter over a table, `from` of G_Find, and an index stands for it once a store or a step reaches it.

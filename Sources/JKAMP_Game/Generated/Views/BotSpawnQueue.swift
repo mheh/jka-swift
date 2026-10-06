@@ -36,6 +36,15 @@ public struct BotSpawnQueue: Hashable, HandleView {
         return try withUnsafeMutablePointer(to: &slot) { try body(BotSpawnQueue(raw: $0)) }
     }
 
+    /// Raven's `botSpawnQueue_t botSpawnQueue[N];` on the stack, a local array of records.
+    /// The slots are zero at entry, live for the closure, and the closure's value is the result.
+    public static func scratch<Result>(count: Int, _ body: (Slots<BotSpawnQueue>) throws -> Result) rethrows -> Result {
+        let base = UnsafeMutableRawPointer.allocate(byteCount: count * BotSpawnQueue.stride, alignment: MemoryLayout<botSpawnQueue_t>.alignment)
+        defer { base.deallocate() }
+        base.initializeMemory(as: UInt8.self, repeating: 0, count: count * BotSpawnQueue.stride)
+        return try body(Slots(views: base, count: count, stride: BotSpawnQueue.stride))
+    }
+
     /// Raven's `botSpawnQueue_t botSpawnQueue = *other;`, a copy of another slot on the stack.
     public static func scratch<Result>(copying other: BotSpawnQueue, _ body: (BotSpawnQueue) throws -> Result) rethrows -> Result {
         var slot = other.raw.pointee

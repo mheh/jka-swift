@@ -35,6 +35,15 @@ public struct BgLoadedAnim: Hashable, HandleView {
         return try withUnsafeMutablePointer(to: &slot) { try body(BgLoadedAnim(raw: $0)) }
     }
 
+    /// Raven's `bgLoadedAnim_t bgLoadedAnim[N];` on the stack, a local array of records.
+    /// The slots are zero at entry, live for the closure, and the closure's value is the result.
+    public static func scratch<Result>(count: Int, _ body: (Slots<BgLoadedAnim>) throws -> Result) rethrows -> Result {
+        let base = UnsafeMutableRawPointer.allocate(byteCount: count * BgLoadedAnim.stride, alignment: MemoryLayout<bgLoadedAnim_t>.alignment)
+        defer { base.deallocate() }
+        base.initializeMemory(as: UInt8.self, repeating: 0, count: count * BgLoadedAnim.stride)
+        return try body(Slots(views: base, count: count, stride: BgLoadedAnim.stride))
+    }
+
     /// Raven's `bgLoadedAnim_t bgLoadedAnim = *other;`, a copy of another slot on the stack.
     public static func scratch<Result>(copying other: BgLoadedAnim, _ body: (BgLoadedAnim) throws -> Result) rethrows -> Result {
         var slot = other.raw.pointee

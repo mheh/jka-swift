@@ -960,10 +960,7 @@ private func G_G2PlayerAngles(_ ent: Entity, _ legs: inout [JKAShared.vec3_t], _
             emplaced = g_entities[ent.client!.ps.emplacedIndex].s
         }
 
-        // Port-note: Raven passes NULL for the `crazySmoothFactor` output. The ported function takes it by reference, so the body passes a scratch local it never reads.
-        portMissing("G_G2PlayerAngles", source: "oracle/codemp/game/w_saber.c:881")
-        var scratchCrazySmoothFactor : Int32 = 0
-        BG_G2PlayerAngles(ent.ghoul2, ent.client!.renderInfo.motionBolt, ent.s, level.time, &lerpOrg, &lerpAng, &legs, &legsAngles, &tYawing, &tPitching, &lYawing, &tYawAngle, &tPitchAngle, &lYawAngle, FRAMETIME, &turAngles, &ent.modelScale, ciLegs, ciTorso, &ent.client!.corrTime, &lookAngles, &ent.client!.lastHeadAngles, ent.client!.lookTime, emplaced!, &scratchCrazySmoothFactor)
+        BG_G2PlayerAngles(ent.ghoul2, ent.client!.renderInfo.motionBolt, ent.s, level.time, &lerpOrg, &lerpAng, &legs, &legsAngles, &tYawing, &tPitching, &lYawing, &tYawAngle, &tPitchAngle, &lYawAngle, FRAMETIME, &turAngles, &ent.modelScale, ciLegs, ciTorso, &ent.client!.corrTime, &lookAngles, &ent.client!.lastHeadAngles, ent.client!.lookTime, emplaced, nil)
 
         if ent.client!.ps.heldByClient != 0 && ent.client!.ps.heldByClient <= MAX_CLIENTS {
             //then put our arm in this client's hand
@@ -1010,9 +1007,10 @@ private func G_G2PlayerAngles(_ ent: Entity, _ legs: inout [JKAShared.vec3_t], _
             }
 
             if lHandBolt != 0 {
-                // Port-note: The draft of this statement did not compile, and the compiler wrote "cannot pass immutable value as inout argument: 'vec3_origin' is a 'let' constant".
-                // Raven wrote: BG_IK_MoveArm(ent->ghoul2, lHandBolt, level.time, &ent->s, ent->client->ps.torsoAnim/*BOTH_DEAD1*/, vec3_origin, &ent->client->ikStatus, ent->client->ps.origin, ent->client->ps.viewangles, ent->modelScale, 500, qtrue)
+                // Port-note: Raven passes the `let` vector `vec3_origin` to `desiredPos`, which BG_IK_MoveArm takes by reference, so the body passes a scratch copy until a ruling reads that write.
                 portMissing("G_G2PlayerAngles", source: "oracle/codemp/game/w_saber.c:881")
+                var originPos = vec3_origin
+                BG_IK_MoveArm(ent.ghoul2, lHandBolt, level.time, ent.s, ent.client!.ps.torsoAnim/*BOTH_DEAD1*/, &originPos, &ent.client!.ikStatus, &ent.client!.ps.origin, &ent.client!.ps.viewangles, &ent.modelScale, 500, true)
             }
         }
     } else if ent.m_pVehicle != nil && ent.m_pVehicle!.m_pVehicleInfo!.type == VH_WALKER {
@@ -2090,12 +2088,16 @@ private func G_SaberInBackAttack(_ move: Int32) -> Bool {
     return false
 }
 
+/// Raven's `static saberFace_t faces[12]` of `G_BuildSaberFaces`, which the world keeps between calls.
+/// Source: oracle/codemp/game/w_saber.c:2457
+var faces: Slots<SaberFace> {
+    get { world.faces }
+    set { world.faces = newValue }
+}
+
 //build faces around blade for collision checking -rww
 /// Source: oracle/codemp/game/w_saber.c:2454
 private func G_BuildSaberFaces(_ base: JKAShared.vec3_t, _ tip: JKAShared.vec3_t, _ radius: Float, _ fwd: JKAShared.vec3_t, _ right: JKAShared.vec3_t, _ fNum: inout Int32, _ fList: inout SaberFace?) {
-    // Port-note: A static local `faces` a statement reads before it writes, storage that outlives the call.
-    // Raven wrote: static saberFace_t faces[12];
-    portMissing("G_BuildSaberFaces", source: "oracle/codemp/game/w_saber.c:2454")
     var i: Int32 = 0
     // Port-note: A pointer local `float * d1` with no view.
     // Raven wrote: float *d1 = NULL;
@@ -2155,21 +2157,21 @@ private func G_BuildSaberFaces(_ base: JKAShared.vec3_t, _ tip: JKAShared.vec3_t
         // Port-note: A read of `d1`, a local the draft left as a hole.
         // Raven wrote: VectorMA(base, radius/2.0f, d1, faces[i].v1)
         portMissing("G_BuildSaberFaces", source: "oracle/codemp/game/w_saber.c:2454")
-        // Port-note: A read of `faces`, a local the draft left as a hole.
+        // Port-note: A read of `d2`, a local the draft left as a hole.
         // Raven wrote: VectorMA(faces[i].v1, radius/2.0f, d2, faces[i].v1)
         portMissing("G_BuildSaberFaces", source: "oracle/codemp/game/w_saber.c:2454")
 
         // Port-note: A read of `d1`, a local the draft left as a hole.
         // Raven wrote: VectorMA(tip, radius/2.0f, d1, faces[i].v2)
         portMissing("G_BuildSaberFaces", source: "oracle/codemp/game/w_saber.c:2454")
-        // Port-note: A read of `faces`, a local the draft left as a hole.
+        // Port-note: A read of `d2`, a local the draft left as a hole.
         // Raven wrote: VectorMA(faces[i].v2, radius/2.0f, d2, faces[i].v2)
         portMissing("G_BuildSaberFaces", source: "oracle/codemp/game/w_saber.c:2454")
 
         // Port-note: A read of `d1`, a local the draft left as a hole.
         // Raven wrote: VectorMA(tip, -radius/2.0f, d1, faces[i].v3)
         portMissing("G_BuildSaberFaces", source: "oracle/codemp/game/w_saber.c:2454")
-        // Port-note: A read of `faces`, a local the draft left as a hole.
+        // Port-note: A read of `d2`, a local the draft left as a hole.
         // Raven wrote: VectorMA(faces[i].v3, radius/2.0f, d2, faces[i].v3)
         portMissing("G_BuildSaberFaces", source: "oracle/codemp/game/w_saber.c:2454")
 
@@ -2179,21 +2181,21 @@ private func G_BuildSaberFaces(_ base: JKAShared.vec3_t, _ tip: JKAShared.vec3_t
         // Port-note: A read of `d1`, a local the draft left as a hole.
         // Raven wrote: VectorMA(tip, -radius/2.0f, d1, faces[i].v1)
         portMissing("G_BuildSaberFaces", source: "oracle/codemp/game/w_saber.c:2454")
-        // Port-note: A read of `faces`, a local the draft left as a hole.
+        // Port-note: A read of `d2`, a local the draft left as a hole.
         // Raven wrote: VectorMA(faces[i].v1, radius/2.0f, d2, faces[i].v1)
         portMissing("G_BuildSaberFaces", source: "oracle/codemp/game/w_saber.c:2454")
 
         // Port-note: A read of `d1`, a local the draft left as a hole.
         // Raven wrote: VectorMA(base, radius/2.0f, d1, faces[i].v2)
         portMissing("G_BuildSaberFaces", source: "oracle/codemp/game/w_saber.c:2454")
-        // Port-note: A read of `faces`, a local the draft left as a hole.
+        // Port-note: A read of `d2`, a local the draft left as a hole.
         // Raven wrote: VectorMA(faces[i].v2, radius/2.0f, d2, faces[i].v2)
         portMissing("G_BuildSaberFaces", source: "oracle/codemp/game/w_saber.c:2454")
 
         // Port-note: A read of `d1`, a local the draft left as a hole.
         // Raven wrote: VectorMA(base, -radius/2.0f, d1, faces[i].v3)
         portMissing("G_BuildSaberFaces", source: "oracle/codemp/game/w_saber.c:2454")
-        // Port-note: A read of `faces`, a local the draft left as a hole.
+        // Port-note: A read of `d2`, a local the draft left as a hole.
         // Raven wrote: VectorMA(faces[i].v3, radius/2.0f, d2, faces[i].v3)
         portMissing("G_BuildSaberFaces", source: "oracle/codemp/game/w_saber.c:2454")
 
@@ -2202,132 +2204,76 @@ private func G_BuildSaberFaces(_ base: JKAShared.vec3_t, _ tip: JKAShared.vec3_t
 
     //top surface
     //face 1
-    // Port-note: A read of `faces`, a local the draft left as a hole.
-    // Raven wrote: VectorMA(tip, radius/2.0f, fwd, faces[i].v1)
-    portMissing("G_BuildSaberFaces", source: "oracle/codemp/game/w_saber.c:2454")
-    // Port-note: A read of `faces`, a local the draft left as a hole.
-    // Raven wrote: VectorMA(faces[i].v1, -radius/2.0f, right, faces[i].v1)
-    portMissing("G_BuildSaberFaces", source: "oracle/codemp/game/w_saber.c:2454")
+    _VectorMA(tip, radius / 2.0, fwd, &faces[i].v1)
+    _VectorMA(faces[i].v1, -radius / 2.0, right, &faces[i].v1)
 
-    // Port-note: A read of `faces`, a local the draft left as a hole.
-    // Raven wrote: VectorMA(tip, radius/2.0f, fwd, faces[i].v2)
-    portMissing("G_BuildSaberFaces", source: "oracle/codemp/game/w_saber.c:2454")
-    // Port-note: A read of `faces`, a local the draft left as a hole.
-    // Raven wrote: VectorMA(faces[i].v2, radius/2.0f, right, faces[i].v2)
-    portMissing("G_BuildSaberFaces", source: "oracle/codemp/game/w_saber.c:2454")
+    _VectorMA(tip, radius / 2.0, fwd, &faces[i].v2)
+    _VectorMA(faces[i].v2, radius / 2.0, right, &faces[i].v2)
 
-    // Port-note: A read of `faces`, a local the draft left as a hole.
-    // Raven wrote: VectorMA(tip, -radius/2.0f, fwd, faces[i].v3)
-    portMissing("G_BuildSaberFaces", source: "oracle/codemp/game/w_saber.c:2454")
-    // Port-note: A read of `faces`, a local the draft left as a hole.
-    // Raven wrote: VectorMA(faces[i].v3, -radius/2.0f, right, faces[i].v3)
-    portMissing("G_BuildSaberFaces", source: "oracle/codemp/game/w_saber.c:2454")
+    _VectorMA(tip, -radius / 2.0, fwd, &faces[i].v3)
+    _VectorMA(faces[i].v3, -radius / 2.0, right, &faces[i].v3)
 
     i += 1
 
     //face 2
-    // Port-note: A read of `faces`, a local the draft left as a hole.
-    // Raven wrote: VectorMA(tip, radius/2.0f, fwd, faces[i].v1)
-    portMissing("G_BuildSaberFaces", source: "oracle/codemp/game/w_saber.c:2454")
-    // Port-note: A read of `faces`, a local the draft left as a hole.
-    // Raven wrote: VectorMA(faces[i].v1, radius/2.0f, right, faces[i].v1)
-    portMissing("G_BuildSaberFaces", source: "oracle/codemp/game/w_saber.c:2454")
+    _VectorMA(tip, radius / 2.0, fwd, &faces[i].v1)
+    _VectorMA(faces[i].v1, radius / 2.0, right, &faces[i].v1)
 
-    // Port-note: A read of `faces`, a local the draft left as a hole.
-    // Raven wrote: VectorMA(tip, -radius/2.0f, fwd, faces[i].v2)
-    portMissing("G_BuildSaberFaces", source: "oracle/codemp/game/w_saber.c:2454")
-    // Port-note: A read of `faces`, a local the draft left as a hole.
-    // Raven wrote: VectorMA(faces[i].v2, -radius/2.0f, right, faces[i].v2)
-    portMissing("G_BuildSaberFaces", source: "oracle/codemp/game/w_saber.c:2454")
+    _VectorMA(tip, -radius / 2.0, fwd, &faces[i].v2)
+    _VectorMA(faces[i].v2, -radius / 2.0, right, &faces[i].v2)
 
-    // Port-note: A read of `faces`, a local the draft left as a hole.
-    // Raven wrote: VectorMA(tip, -radius/2.0f, fwd, faces[i].v3)
-    portMissing("G_BuildSaberFaces", source: "oracle/codemp/game/w_saber.c:2454")
-    // Port-note: A read of `faces`, a local the draft left as a hole.
-    // Raven wrote: VectorMA(faces[i].v3, radius/2.0f, right, faces[i].v3)
-    portMissing("G_BuildSaberFaces", source: "oracle/codemp/game/w_saber.c:2454")
+    _VectorMA(tip, -radius / 2.0, fwd, &faces[i].v3)
+    _VectorMA(faces[i].v3, radius / 2.0, right, &faces[i].v3)
 
     i += 1
 
     //bottom surface
     //face 1
-    // Port-note: A read of `faces`, a local the draft left as a hole.
-    // Raven wrote: VectorMA(base, radius/2.0f, fwd, faces[i].v1)
-    portMissing("G_BuildSaberFaces", source: "oracle/codemp/game/w_saber.c:2454")
-    // Port-note: A read of `faces`, a local the draft left as a hole.
-    // Raven wrote: VectorMA(faces[i].v1, -radius/2.0f, right, faces[i].v1)
-    portMissing("G_BuildSaberFaces", source: "oracle/codemp/game/w_saber.c:2454")
+    _VectorMA(base, radius / 2.0, fwd, &faces[i].v1)
+    _VectorMA(faces[i].v1, -radius / 2.0, right, &faces[i].v1)
 
-    // Port-note: A read of `faces`, a local the draft left as a hole.
-    // Raven wrote: VectorMA(base, radius/2.0f, fwd, faces[i].v2)
-    portMissing("G_BuildSaberFaces", source: "oracle/codemp/game/w_saber.c:2454")
-    // Port-note: A read of `faces`, a local the draft left as a hole.
-    // Raven wrote: VectorMA(faces[i].v2, radius/2.0f, right, faces[i].v2)
-    portMissing("G_BuildSaberFaces", source: "oracle/codemp/game/w_saber.c:2454")
+    _VectorMA(base, radius / 2.0, fwd, &faces[i].v2)
+    _VectorMA(faces[i].v2, radius / 2.0, right, &faces[i].v2)
 
-    // Port-note: A read of `faces`, a local the draft left as a hole.
-    // Raven wrote: VectorMA(base, -radius/2.0f, fwd, faces[i].v3)
-    portMissing("G_BuildSaberFaces", source: "oracle/codemp/game/w_saber.c:2454")
-    // Port-note: A read of `faces`, a local the draft left as a hole.
-    // Raven wrote: VectorMA(faces[i].v3, -radius/2.0f, right, faces[i].v3)
-    portMissing("G_BuildSaberFaces", source: "oracle/codemp/game/w_saber.c:2454")
+    _VectorMA(base, -radius / 2.0, fwd, &faces[i].v3)
+    _VectorMA(faces[i].v3, -radius / 2.0, right, &faces[i].v3)
 
     i += 1
 
     //face 2
-    // Port-note: A read of `faces`, a local the draft left as a hole.
-    // Raven wrote: VectorMA(base, radius/2.0f, fwd, faces[i].v1)
-    portMissing("G_BuildSaberFaces", source: "oracle/codemp/game/w_saber.c:2454")
-    // Port-note: A read of `faces`, a local the draft left as a hole.
-    // Raven wrote: VectorMA(faces[i].v1, radius/2.0f, right, faces[i].v1)
-    portMissing("G_BuildSaberFaces", source: "oracle/codemp/game/w_saber.c:2454")
+    _VectorMA(base, radius / 2.0, fwd, &faces[i].v1)
+    _VectorMA(faces[i].v1, radius / 2.0, right, &faces[i].v1)
 
-    // Port-note: A read of `faces`, a local the draft left as a hole.
-    // Raven wrote: VectorMA(base, -radius/2.0f, fwd, faces[i].v2)
-    portMissing("G_BuildSaberFaces", source: "oracle/codemp/game/w_saber.c:2454")
-    // Port-note: A read of `faces`, a local the draft left as a hole.
-    // Raven wrote: VectorMA(faces[i].v2, -radius/2.0f, right, faces[i].v2)
-    portMissing("G_BuildSaberFaces", source: "oracle/codemp/game/w_saber.c:2454")
+    _VectorMA(base, -radius / 2.0, fwd, &faces[i].v2)
+    _VectorMA(faces[i].v2, -radius / 2.0, right, &faces[i].v2)
 
-    // Port-note: A read of `faces`, a local the draft left as a hole.
-    // Raven wrote: VectorMA(base, -radius/2.0f, fwd, faces[i].v3)
-    portMissing("G_BuildSaberFaces", source: "oracle/codemp/game/w_saber.c:2454")
-    // Port-note: A read of `faces`, a local the draft left as a hole.
-    // Raven wrote: VectorMA(faces[i].v3, radius/2.0f, right, faces[i].v3)
-    portMissing("G_BuildSaberFaces", source: "oracle/codemp/game/w_saber.c:2454")
+    _VectorMA(base, -radius / 2.0, fwd, &faces[i].v3)
+    _VectorMA(faces[i].v3, radius / 2.0, right, &faces[i].v3)
 
     i += 1
 
     //yeah.. always going to be 12 I suppose.
     fNum = i
-    // Port-note: A read of `faces`, a local the draft left as a hole.
-    // Raven wrote: *fList = &faces[0]
-    portMissing("G_BuildSaberFaces", source: "oracle/codemp/game/w_saber.c:2454")
+    fList = faces[0]
 }
 
 //collision utility function -rww
 /// Source: oracle/codemp/game/w_saber.c:2573
-private func G_SabCol_CalcPlaneEq(_ x: JKAShared.vec3_t, _ y: JKAShared.vec3_t, _ z: JKAShared.vec3_t, _ planeEq: inout Float) {
-    // Port-note: The draft of this statement did not compile, and the compiler wrote "value of type 'Float' has no subscripts".
-    // Raven wrote: planeEq[0] = x[1]*(y[2]-z[2]) + y[1]*(z[2]-x[2]) + z[1]*(x[2]-y[2])
-    portMissing("G_SabCol_CalcPlaneEq", source: "oracle/codemp/game/w_saber.c:2573")
-    // Port-note: The draft of this statement did not compile, and the compiler wrote "value of type 'Float' has no subscripts".
-    // Raven wrote: planeEq[1] = x[2]*(y[0]-z[0]) + y[2]*(z[0]-x[0]) + z[2]*(x[0]-y[0])
-    portMissing("G_SabCol_CalcPlaneEq", source: "oracle/codemp/game/w_saber.c:2573")
-    // Port-note: The draft of this statement did not compile, and the compiler wrote "value of type 'Float' has no subscripts".
-    // Raven wrote: planeEq[2] = x[0]*(y[1]-z[1]) + y[0]*(z[1]-x[1]) + z[0]*(x[1]-y[1])
-    portMissing("G_SabCol_CalcPlaneEq", source: "oracle/codemp/game/w_saber.c:2573")
-    // Port-note: The draft of this statement did not compile, and the compiler wrote "the compiler is unable to type-check this expression in reasonable time; try breaking up the expression into distinct sub-expressions".
-    // Raven wrote: planeEq[3] = -(x[0]*(y[1]*z[2] - z[1]*y[2]) + y[0]*(z[1]*x[2] - x[1]*z[2]) + z[0]*(x[1]*y[2] - y[1]*x[2]) )
-    portMissing("G_SabCol_CalcPlaneEq", source: "oracle/codemp/game/w_saber.c:2573")
+private func G_SabCol_CalcPlaneEq(_ x: JKAShared.vec3_t, _ y: JKAShared.vec3_t, _ z: JKAShared.vec3_t, _ planeEq: inout [Float]) {
+    planeEq[0] = x[1] * (y[2] - z[2]) + y[1] * (z[2] - x[2]) + z[1] * (x[2] - y[2])
+    planeEq[1] = x[2] * (y[0] - z[0]) + y[2] * (z[0] - x[0]) + z[2] * (x[0] - y[0])
+    planeEq[2] = x[0] * (y[1] - z[1]) + y[0] * (z[1] - x[1]) + z[0] * (x[1] - y[1])
+    // Raven's one expression is three terms here, because the compiler cannot type-check it whole in reasonable time.
+    let termX: Float = x[0] * (y[1] * z[2] - z[1] * y[2])
+    let termY: Float = y[0] * (z[1] * x[2] - x[1] * z[2])
+    let termZ: Float = z[0] * (x[1] * y[2] - y[1] * x[2])
+    planeEq[3] = -(termX + termY + termZ)
 }
 
 //collision utility function -rww
 /// Source: oracle/codemp/game/w_saber.c:2582
-private func G_SabCol_PointRelativeToPlane(_ pos: JKAShared.vec3_t, _ side: inout Float, _ planeEq: inout Float) -> Int32 {
-    // Port-note: The draft of this statement did not compile, and the compiler wrote "value of type 'Float' has no subscripts".
-    // Raven wrote: *side = planeEq[0]*pos[0] + planeEq[1]*pos[1] + planeEq[2]*pos[2] + planeEq[3]
-    portMissing("G_SabCol_PointRelativeToPlane", source: "oracle/codemp/game/w_saber.c:2582")
+private func G_SabCol_PointRelativeToPlane(_ pos: JKAShared.vec3_t, _ side: inout Float, _ planeEq: inout [Float]) -> Int32 {
+    side = planeEq[0] * pos[0] + planeEq[1] * pos[1] + planeEq[2] * pos[2] + planeEq[3]
 
     if side > 0.0 {
         return 1
@@ -2338,12 +2284,16 @@ private func G_SabCol_PointRelativeToPlane(_ pos: JKAShared.vec3_t, _ side: inou
     return 0
 }
 
+/// Raven's `static float planeEq[4]` of `G_SaberFaceCollisionCheck`, which the world keeps between calls.
+/// Source: oracle/codemp/game/w_saber.c:2602
+var planeEq: [Float] {
+    get { world.planeEq }
+    set { world.planeEq = newValue }
+}
+
 //do actual collision check using generated saber "faces"
 /// Source: oracle/codemp/game/w_saber.c:2599
 private func G_SaberFaceCollisionCheck(_ fNum: Int32, _ fList: SaberFace, _ atkStart: JKAShared.vec3_t, _ atkEnd: JKAShared.vec3_t, _ atkMins: inout JKAShared.vec3_t, _ atkMaxs: inout JKAShared.vec3_t, _ impactPoint: inout JKAShared.vec3_t) -> Bool {
-    // Port-note: A static local `planeEq` a statement reads before it writes, storage that outlives the call.
-    // Raven wrote: static float planeEq[4];
-    portMissing("G_SaberFaceCollisionCheck", source: "oracle/codemp/game/w_saber.c:2599")
     var side: Float = 0
     var side2: Float = 0
     var dist: Float
@@ -2361,13 +2311,75 @@ private func G_SaberFaceCollisionCheck(_ fNum: Int32, _ fList: SaberFace, _ atkS
     dir = atkEnd - atkStart
 
     while i < fNum {
-        // Port-note: A read of `planeEq`, a local the draft left as a hole.
-        // Raven wrote: G_SabCol_CalcPlaneEq(fList->v1, fList->v2, fList->v3, planeEq)
-        portMissing("G_SaberFaceCollisionCheck", source: "oracle/codemp/game/w_saber.c:2599")
+        G_SabCol_CalcPlaneEq(fList.v1, fList.v2, fList.v3, &planeEq)
 
-        // Port-note: A read of `planeEq`, a local the draft left as a hole.
-        // Raven wrote: if (G_SabCol_PointRelativeToPlane(atkStart, &side, planeEq) != G_SabCol_PointRelativeToPlane(atkEnd, &side2, planeEq)) { //start/end points intersect with the plane static vec3_t extruded; static vec3_t minPoint, maxPoint; static vec3_t planeNormal; static int facing; VectorCopy(&planeEq[0], planeNormal); side2 = planeNormal[0]*dir[0] + planeNormal[1]*dir[1] + planeNormal[2]*dir[2]; dist = side/side2; VectorMA(atkStart, -dist, dir, point); VectorAdd(point, atkMins, minPoint); VectorAdd(point, atkMaxs, maxPoint); //point is now the point at which we intersect on the plane. //see if that point is within the edges of the face. VectorMA(fList->v1, -2.0f, planeNormal, extruded); G_SabCol_CalcPlaneEq(fList->v1, fList->v2, extruded, planeEq); facing = G_SabCol_PointRelativeToPlane(point, &side, planeEq); if (facing < 0) { //not intersecting.. let's try with the mins/maxs and see if they interesect on the edge plane facing = G_SabCol_PointRelativeToPlane(minPoint, &side, planeEq); if (facing < 0) { facing = G_SabCol_PointRelativeToPlane(maxPoint, &side, planeEq); } } if (facing >= 0) { //first edge is facing... VectorMA(fList->v2, -2.0f, planeNormal, extruded); G_SabCol_CalcPlaneEq(fList->v2, fList->v3, extruded, planeEq); facing = G_SabCol_PointRelativeToPlane(point, &side, planeEq); if (facing < 0) { //not intersecting.. let's try with the mins/maxs and see if they interesect on the edge plane facing = G_SabCol_PointRelativeToPlane(minPoint, &side, planeEq); if (facing < 0) { facing = G_SabCol_PointRelativeToPlane(maxPoint, &side, planeEq); } } if (facing >= 0) { //second edge is facing... VectorMA(fList->v3, -2.0f, planeNormal, extruded); G_SabCol_CalcPlaneEq(fList->v3, fList->v1, extruded, planeEq); facing = G_SabCol_PointRelativeToPlane(point, &side, planeEq); if (facing < 0) { //not intersecting.. let's try with the mins/maxs and see if they interesect on the edge plane facing = G_SabCol_PointRelativeToPlane(minPoint, &side, planeEq); if (facing < 0) { facing = G_SabCol_PointRelativeToPlane(maxPoint, &side, planeEq); } } if (facing >= 0) { //third edge is facing.. success VectorCopy(point, impactPoint); return qtrue; } } } }
-        portMissing("G_SaberFaceCollisionCheck", source: "oracle/codemp/game/w_saber.c:2599")
+        if G_SabCol_PointRelativeToPlane(atkStart, &side, &planeEq) != G_SabCol_PointRelativeToPlane(atkEnd, &side2, &planeEq) {
+            //start/end points intersect with the plane
+            var extruded = vec3_t()
+            var minPoint = vec3_t()
+            var maxPoint = vec3_t()
+            var planeNormal = vec3_t()
+            var facing: Int32 = 0
+
+            planeNormal = vec3_t(planeEq[0], planeEq[1], planeEq[2])
+            side2 = planeNormal[0] * dir[0] + planeNormal[1] * dir[1] + planeNormal[2] * dir[2]
+
+            dist = side / side2
+            _VectorMA(atkStart, -dist, dir, &point)
+
+            minPoint = point + atkMins
+            maxPoint = point + atkMaxs
+
+            //point is now the point at which we intersect on the plane.
+            //see if that point is within the edges of the face.
+            _VectorMA(fList.v1, -2.0, planeNormal, &extruded)
+            G_SabCol_CalcPlaneEq(fList.v1, fList.v2, extruded, &planeEq)
+            facing = G_SabCol_PointRelativeToPlane(point, &side, &planeEq)
+
+            if facing < 0 {
+                //not intersecting.. let's try with the mins/maxs and see if they interesect on the edge plane
+                facing = G_SabCol_PointRelativeToPlane(minPoint, &side, &planeEq)
+                if facing < 0 {
+                    facing = G_SabCol_PointRelativeToPlane(maxPoint, &side, &planeEq)
+                }
+            }
+
+            if facing >= 0 {
+                //first edge is facing...
+                _VectorMA(fList.v2, -2.0, planeNormal, &extruded)
+                G_SabCol_CalcPlaneEq(fList.v2, fList.v3, extruded, &planeEq)
+                facing = G_SabCol_PointRelativeToPlane(point, &side, &planeEq)
+
+                if facing < 0 {
+                    //not intersecting.. let's try with the mins/maxs and see if they interesect on the edge plane
+                    facing = G_SabCol_PointRelativeToPlane(minPoint, &side, &planeEq)
+                    if facing < 0 {
+                        facing = G_SabCol_PointRelativeToPlane(maxPoint, &side, &planeEq)
+                    }
+                }
+
+                if facing >= 0 {
+                    //second edge is facing...
+                    _VectorMA(fList.v3, -2.0, planeNormal, &extruded)
+                    G_SabCol_CalcPlaneEq(fList.v3, fList.v1, extruded, &planeEq)
+                    facing = G_SabCol_PointRelativeToPlane(point, &side, &planeEq)
+
+                    if facing < 0 {
+                        //not intersecting.. let's try with the mins/maxs and see if they interesect on the edge plane
+                        facing = G_SabCol_PointRelativeToPlane(minPoint, &side, &planeEq)
+                        if facing < 0 {
+                            facing = G_SabCol_PointRelativeToPlane(maxPoint, &side, &planeEq)
+                        }
+                    }
+
+                    if facing >= 0 {
+                        //third edge is facing.. success
+                        impactPoint = point
+                        return true
+                    }
+                }
+            }
+        }
 
         i += 1
         // Port-note: The draft of this statement did not compile, and the compiler wrote "binary operator '+=' cannot be applied to operands of type 'SaberFace' and 'Int'".
@@ -3111,24 +3123,12 @@ func WP_SaberClearDamage() {
         victimEntityNum[ven] = ENTITYNUM_NONE
         ven += 1
     }
-    // Port-note: Raven's `memset( victimHitEffectDone, 0, sizeof( victimHitEffectDone ) )` runs over bytes that are not one record with a view.
-    // Raven wrote: memset( victimHitEffectDone, 0, sizeof( victimHitEffectDone ) )
-    portMissing("WP_SaberClearDamage", source: "oracle/codemp/game/w_saber.c:3512")
-    // Port-note: Raven's `memset( totalDmg, 0, sizeof( totalDmg ) )` runs over bytes that are not one record with a view.
-    // Raven wrote: memset( totalDmg, 0, sizeof( totalDmg ) )
-    portMissing("WP_SaberClearDamage", source: "oracle/codemp/game/w_saber.c:3512")
-    // Port-note: Raven's `memset( dmgDir, 0, sizeof( dmgDir ) )` runs over bytes that are not one record with a view.
-    // Raven wrote: memset( dmgDir, 0, sizeof( dmgDir ) )
-    portMissing("WP_SaberClearDamage", source: "oracle/codemp/game/w_saber.c:3512")
-    // Port-note: Raven's `memset( dmgSpot, 0, sizeof( dmgSpot ) )` runs over bytes that are not one record with a view.
-    // Raven wrote: memset( dmgSpot, 0, sizeof( dmgSpot ) )
-    portMissing("WP_SaberClearDamage", source: "oracle/codemp/game/w_saber.c:3512")
-    // Port-note: Raven's `memset( dismemberDmg, 0, sizeof( dismemberDmg ) )` runs over bytes that are not one record with a view.
-    // Raven wrote: memset( dismemberDmg, 0, sizeof( dismemberDmg ) )
-    portMissing("WP_SaberClearDamage", source: "oracle/codemp/game/w_saber.c:3512")
-    // Port-note: Raven's `memset( saberKnockbackFlags, 0, sizeof( saberKnockbackFlags ) )` runs over bytes that are not one record with a view.
-    // Raven wrote: memset( saberKnockbackFlags, 0, sizeof( saberKnockbackFlags ) )
-    portMissing("WP_SaberClearDamage", source: "oracle/codemp/game/w_saber.c:3512")
+    victimHitEffectDone.fill(false)
+    totalDmg.fill(0)
+    dmgDir.fill(vec3_t())
+    dmgSpot.fill(vec3_t())
+    dismemberDmg.fill(false)
+    saberKnockbackFlags.fill(0)
     numVictims = 0
 }
 
@@ -3325,9 +3325,9 @@ func WP_SaberRadiusDamage(_ ent: Entity, _ point: JKAShared.vec3_t, _ radius: Fl
                 //must be a client
                 if G_EntIsBreakable(radiusEnt!.s.number) {
                     //damage breakables within range, but not as much
-                    // Port-note: The draft of this statement did not compile, and the compiler wrote "cannot pass immutable value as inout argument: 'vec3_origin' is a 'let' constant".
-                    // Raven wrote: G_Damage( radiusEnt, ent, ent, vec3_origin, radiusEnt->r.currentOrigin, 10, 0, MOD_MELEE )
-                    portMissing("WP_SaberRadiusDamage", source: "oracle/codemp/game/w_saber.c:3701")
+                    // G_Damage writes `dir`, so we pass a copy of `vec3_origin`.
+                    var originDir = vec3_origin
+                    G_Damage(radiusEnt!, ent, ent, &originDir, radiusEnt!.r.currentOrigin, 10, 0, MOD_MELEE)
                 }
                 i += 1
                 continue
@@ -3346,9 +3346,9 @@ func WP_SaberRadiusDamage(_ ent: Entity, _ point: JKAShared.vec3_t, _ radius: Fl
                 if damage > 0 {
                     //do damage
                     let points: Int32 = Int32(ceil(Float(damage) * dist / radius))
-                    // Port-note: The draft of this statement did not compile, and the compiler wrote "cannot pass immutable value as inout argument: 'vec3_origin' is a 'let' constant".
-                    // Raven wrote: G_Damage( radiusEnt, ent, ent, vec3_origin, radiusEnt->r.currentOrigin, points, DAMAGE_NO_KNOCKBACK, MOD_MELEE )
-                    portMissing("WP_SaberRadiusDamage", source: "oracle/codemp/game/w_saber.c:3701")
+                    // G_Damage writes `dir`, so we pass a copy of `vec3_origin`.
+                    var originDir2 = vec3_origin
+                    G_Damage(radiusEnt!, ent, ent, &originDir2, radiusEnt!.r.currentOrigin, points, DAMAGE_NO_KNOCKBACK, MOD_MELEE)
                 }
                 if knockBack > 0 {
                     //do knockback
@@ -4310,10 +4310,6 @@ func WP_SaberStartMissileBlockCheck(_ `self`: Entity, _ ucmd: JKAMP.Usercmd) {
                         myEyes = `self`.client!.ps.origin
                         myEyes[2] += `self`.client!.ps.viewheight
 
-                        // Port-note: Raven passes NULL for `mins`, and the callee reads NULL as the zero vector.
-                        portMissing("WP_SaberStartMissileBlockCheck", source: "oracle/codemp/game/w_saber.c:5492")
-                        // Port-note: Raven passes NULL for `maxs`, and the callee reads NULL as the zero vector.
-                        portMissing("WP_SaberStartMissileBlockCheck", source: "oracle/codemp/game/w_saber.c:5492")
                         trap_Trace(tr, myEyes, vec3_origin, vec3_origin, ent!.client!.ps.origin, `self`.s.number, MASK_PLAYERSOLID)
 
                         if tr.fraction == 1.0 || tr.entityNum == ent!.s.number {
@@ -4589,10 +4585,6 @@ private func CheckThrownSaberDamaged(_ saberent: Entity, _ saberOwner: Entity, _
             // The closure gives nil where Raven's block falls through to its end.
             let earlyOut = Trace.scratch { tr -> Bool? in
 
-                // Port-note: Raven passes NULL for `mins`, and the callee reads NULL as the zero vector.
-                portMissing("CheckThrownSaberDamaged", source: "oracle/codemp/game/w_saber.c:5894")
-                // Port-note: Raven passes NULL for `maxs`, and the callee reads NULL as the zero vector.
-                portMissing("CheckThrownSaberDamaged", source: "oracle/codemp/game/w_saber.c:5894")
                 trap_Trace(tr, saberent.r.currentOrigin, vec3_origin, vec3_origin, ent.client!.ps.origin, saberent.s.number, MASK_SHOT)
 
                 if tr.fraction == 1 || tr.entityNum == ent.s.number {
@@ -4701,10 +4693,6 @@ private func CheckThrownSaberDamaged(_ saberent: Entity, _ saberOwner: Entity, _
                     entOrigin = ent.r.currentOrigin
                 }
 
-                // Port-note: Raven passes NULL for `mins`, and the callee reads NULL as the zero vector.
-                portMissing("CheckThrownSaberDamaged", source: "oracle/codemp/game/w_saber.c:5894")
-                // Port-note: Raven passes NULL for `maxs`, and the callee reads NULL as the zero vector.
-                portMissing("CheckThrownSaberDamaged", source: "oracle/codemp/game/w_saber.c:5894")
                 trap_Trace(tr, saberent.r.currentOrigin, vec3_origin, vec3_origin, entOrigin, saberent.s.number, MASK_SHOT)
 
                 if tr.fraction == 1 || tr.entityNum == ent.s.number {
@@ -5753,16 +5741,8 @@ func saberFirstThrown(_ saberent: Entity) {
 
                 if saberOwn!.client!.ps.fd.forcePowerLevel[FP_SABERTHROW] >= FORCE_LEVEL_3 {
                     //if highest saber throw rank, we can direct the saber toward players directly by looking at them
-                    // Port-note: Raven passes NULL for `mins`, and the callee reads NULL as the zero vector.
-                    portMissing("saberFirstThrown", source: "oracle/codemp/game/w_saber.c:7117")
-                    // Port-note: Raven passes NULL for `maxs`, and the callee reads NULL as the zero vector.
-                    portMissing("saberFirstThrown", source: "oracle/codemp/game/w_saber.c:7117")
                     trap_Trace(tr, traceFrom, vec3_origin, vec3_origin, traceTo, saberOwn!.s.number, MASK_PLAYERSOLID)
                 } else {
-                    // Port-note: Raven passes NULL for `mins`, and the callee reads NULL as the zero vector.
-                    portMissing("saberFirstThrown", source: "oracle/codemp/game/w_saber.c:7117")
-                    // Port-note: Raven passes NULL for `maxs`, and the callee reads NULL as the zero vector.
-                    portMissing("saberFirstThrown", source: "oracle/codemp/game/w_saber.c:7117")
                     trap_Trace(tr, traceFrom, vec3_origin, vec3_origin, traceTo, saberOwn!.s.number, MASK_SOLID)
                 }
 
@@ -6734,10 +6714,8 @@ func WP_SaberPositionUpdate(_ `self`: Entity, _ ucmd: JKAMP.Usercmd) {
                                         let grapplerAnim: Int32 = grappler!.client!.ps.torsoAnim
                                         let grapplerTime: Int32 = grappler!.client!.ps.torsoTimer
 
-                                        // Port-note: Raven passes NULL for the `dir` output. The ported function takes it by reference, so the body passes a scratch local it never reads.
-                                        portMissing("WP_SaberPositionUpdate", source: "oracle/codemp/game/w_saber.c:8084")
-                                        var scratchDir = vec3_t()
-                                        G_Damage(grappler!, `self`, `self`, &scratchDir, `self`.client!.ps.origin, 10, 0, MOD_MELEE)
+                                        var dir: vec3_t? = nil
+                                        G_Damage(grappler!, `self`, `self`, &dir, `self`.client!.ps.origin, 10, 0, MOD_MELEE)
                                         //G_Sound( grappler, CHAN_AUTO, G_SoundIndex( va( "sound/weapons/melee/punch%d", Q_irand( 1, 4 ) ) ) );
 
                                         //it might try to put them into a pain anim or something, so override it back again
@@ -6756,10 +6734,8 @@ func WP_SaberPositionUpdate(_ `self`: Entity, _ ucmd: JKAMP.Usercmd) {
                                         let grapplerAnim: Int32 = grappler!.client!.ps.torsoAnim
                                         let grapplerTime: Int32 = grappler!.client!.ps.torsoTimer
 
-                                        // Port-note: Raven passes NULL for the `dir` output. The ported function takes it by reference, so the body passes a scratch local it never reads.
-                                        portMissing("WP_SaberPositionUpdate", source: "oracle/codemp/game/w_saber.c:8084")
-                                        var scratchDir2 = vec3_t()
-                                        G_Damage(grappler!, `self`, `self`, &scratchDir2, `self`.client!.ps.origin, 10, 0, MOD_MELEE)
+                                        var dir: vec3_t? = nil
+                                        G_Damage(grappler!, `self`, `self`, &dir, `self`.client!.ps.origin, 10, 0, MOD_MELEE)
                                         //G_Sound( grappler, CHAN_AUTO, G_SoundIndex( va( "sound/weapons/melee/punch%d", Q_irand( 1, 4 ) ) ) );
 
                                         //it might try to put them into a pain anim or something, so override it back again
@@ -6777,10 +6753,8 @@ func WP_SaberPositionUpdate(_ `self`: Entity, _ ucmd: JKAMP.Usercmd) {
                                     if `self`.client!.ps.torsoTimer < 1300 {
                                         var tossDir = vec3_t()
 
-                                        // Port-note: Raven passes NULL for the `dir` output. The ported function takes it by reference, so the body passes a scratch local it never reads.
-                                        portMissing("WP_SaberPositionUpdate", source: "oracle/codemp/game/w_saber.c:8084")
-                                        var scratchDir3 = vec3_t()
-                                        G_Damage(grappler!, `self`, `self`, &scratchDir3, `self`.client!.ps.origin, 30, 0, MOD_MELEE)
+                                        var dir: vec3_t? = nil
+                                        G_Damage(grappler!, `self`, `self`, &dir, `self`.client!.ps.origin, 30, 0, MOD_MELEE)
                                         //G_Sound( grappler, CHAN_AUTO, G_SoundIndex( va( "sound/weapons/melee/punch%d", Q_irand( 1, 4 ) ) ) );
 
                                         `self`.client!.grappleState = 0
@@ -6807,10 +6781,8 @@ func WP_SaberPositionUpdate(_ `self`: Entity, _ ucmd: JKAMP.Usercmd) {
                                         let grapplerAnim: Int32 = grappler!.client!.ps.torsoAnim
                                         let grapplerTime: Int32 = grappler!.client!.ps.torsoTimer
 
-                                        // Port-note: Raven passes NULL for the `dir` output. The ported function takes it by reference, so the body passes a scratch local it never reads.
-                                        portMissing("WP_SaberPositionUpdate", source: "oracle/codemp/game/w_saber.c:8084")
-                                        var scratchDir4 = vec3_t()
-                                        G_Damage(grappler!, `self`, `self`, &scratchDir4, `self`.client!.ps.origin, 20, 0, MOD_MELEE)
+                                        var dir: vec3_t? = nil
+                                        G_Damage(grappler!, `self`, `self`, &dir, `self`.client!.ps.origin, 20, 0, MOD_MELEE)
                                         //G_Sound( grappler, CHAN_AUTO, G_SoundIndex( va( "sound/weapons/melee/punch%d", Q_irand( 1, 4 ) ) ) );
 
                                         //it might try to put them into a pain anim or something, so override it back again
@@ -6835,10 +6807,8 @@ func WP_SaberPositionUpdate(_ `self`: Entity, _ ucmd: JKAMP.Usercmd) {
                                 } else {
                                     //and another smash
                                     if `self`.client!.ps.torsoTimer < 1000 {
-                                        // Port-note: Raven passes NULL for the `dir` output. The ported function takes it by reference, so the body passes a scratch local it never reads.
-                                        portMissing("WP_SaberPositionUpdate", source: "oracle/codemp/game/w_saber.c:8084")
-                                        var scratchDir5 = vec3_t()
-                                        G_Damage(grappler!, `self`, `self`, &scratchDir5, `self`.client!.ps.origin, 30, 0, MOD_MELEE)
+                                        var dir: vec3_t? = nil
+                                        G_Damage(grappler!, `self`, `self`, &dir, `self`.client!.ps.origin, 30, 0, MOD_MELEE)
                                         //G_Sound( grappler, CHAN_AUTO, G_SoundIndex( va( "sound/weapons/melee/punch%d", Q_irand( 1, 4 ) ) ) );
 
                                         //it might try to put them into a pain anim or something, so override it back again

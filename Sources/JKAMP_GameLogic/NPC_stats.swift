@@ -2361,7 +2361,7 @@ func NPC_ParseParms(_ NPCName: String, _ NPC: Entity) -> Bool {
             //we put the $ in front to indicate a name and not a model
             strcpy(&playerModel, va("$%s", NPCName.text))
         }
-        SetupGameGhoul2Model(NPC, &playerModel, &customSkin)
+        SetupGameGhoul2Model(NPC, &playerModel, String(customSkin))
 
         if NPC.NPC_type == nil {
             //just do this for now so NPC_Precache can see the name.

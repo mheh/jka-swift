@@ -173,10 +173,8 @@ func P_WorldEffects(_ ent: Entity) {
                 // don't play a normal pain sound
                 ent.pain_debounce_time = level.time + 200
 
-                // Port-note: Raven passes NULL for the `dir` output. The ported function takes it by reference, so the body passes a scratch local it never reads.
-                portMissing("P_WorldEffects", source: "oracle/codemp/game/g_active.c:129")
-                var scratchDir = vec3_t()
-                G_Damage(ent, nil, nil, &scratchDir, nil, ent.damage, DAMAGE_NO_ARMOR, MOD_WATER)
+                var dir: vec3_t? = nil
+                G_Damage(ent, nil, nil, &dir, nil, ent.damage, DAMAGE_NO_ARMOR, MOD_WATER)
             }
         }
     } else {
@@ -193,17 +191,13 @@ func P_WorldEffects(_ ent: Entity) {
                 G_AddEvent(ent, EV_POWERUP_BATTLESUIT, 0)
             } else {
                 if (ent.watertype & CONTENTS_LAVA) != 0 {
-                    // Port-note: Raven passes NULL for the `dir` output. The ported function takes it by reference, so the body passes a scratch local it never reads.
-                    portMissing("P_WorldEffects", source: "oracle/codemp/game/g_active.c:129")
-                    var scratchDir2 = vec3_t()
-                    G_Damage(ent, nil, nil, &scratchDir2, nil, 30 * waterlevel, 0, MOD_LAVA)
+                    var dir: vec3_t? = nil
+                    G_Damage(ent, nil, nil, &dir, nil, 30 * waterlevel, 0, MOD_LAVA)
                 }
 
                 if (ent.watertype & CONTENTS_SLIME) != 0 {
-                    // Port-note: Raven passes NULL for the `dir` output. The ported function takes it by reference, so the body passes a scratch local it never reads.
-                    portMissing("P_WorldEffects", source: "oracle/codemp/game/g_active.c:129")
-                    var scratchDir3 = vec3_t()
-                    G_Damage(ent, nil, nil, &scratchDir3, nil, 10 * waterlevel, 0, MOD_SLIME)
+                    var dir: vec3_t? = nil
+                    G_Damage(ent, nil, nil, &dir, nil, 10 * waterlevel, 0, MOD_SLIME)
                 }
             }
         }
@@ -357,10 +351,8 @@ func DoImpact(_ `self`: Entity, _ other: Entity, _ damageSelf: Bool) {
                     if ( self.classname=="player_sheep "&& self.flags&FL_ONGROUND && self.velocity_z > -50 )
                     return;
                     */
-                    // Port-note: Raven passes NULL for the `dir` output. The ported function takes it by reference, so the body passes a scratch local it never reads.
-                    portMissing("DoImpact", source: "oracle/codemp/game/g_active.c:213")
-                    var scratchDir = vec3_t()
-                    G_Damage(`self`, nil, nil, &scratchDir, `self`.r.currentOrigin, Int32(magnitude / 2), DAMAGE_NO_ARMOR, MOD_FALLING) //FIXME: MOD_IMPACT
+                    var dir: vec3_t? = nil
+                    G_Damage(`self`, nil, nil, &dir, `self`.r.currentOrigin, Int32(magnitude / 2), DAMAGE_NO_ARMOR, MOD_FALLING) //FIXME: MOD_IMPACT
                 }
             }
         }
@@ -476,6 +468,10 @@ func ClientImpacts(_ ent: Entity, _ pm: JKAMP.Pmove) {
     }
 }
 
+/// The forward of Raven's static local `range` of `G_TouchTriggers`, which lives on `GameWorld`.
+/// Source: oracle/codemp/game/g_active.c:522
+var range: JKAShared.vec3_t { get { world.range } set { world.range = newValue } }
+
 /**
 ```
 ============
@@ -497,7 +493,6 @@ func G_TouchTriggers(_ ent: Entity) {
     let earlyOut = Trace.scratch { trace -> Bool in
         var mins = vec3_t()
         var maxs = vec3_t()
-        var range = vec3_t(40, 40, 52)
 
         if ent.client == nil {
             return true
@@ -772,16 +767,12 @@ func ClientInactivityTimer(_ client: Client) -> Bool {
         client.inactivityWarning = false
     } else if !client.pers.localClient {
         if level.time > client.inactivityTime {
-            // Port-note: The draft of this statement did not compile, and the compiler wrote "referencing operator function '-' on 'Strideable' requires that 'Client' conform to '_Pointer'".
-            // Raven wrote: trap_DropClient( client - level.clients, "Dropped due to inactivity" )
-            portMissing("ClientInactivityTimer", source: "oracle/codemp/game/g_active.c:751")
+            trap_DropClient(level.clientsSlots.index(of: client), "Dropped due to inactivity")
             return false
         }
         if level.time > client.inactivityTime - 10000 && !client.inactivityWarning {
             client.inactivityWarning = true
-            // Port-note: The draft of this statement did not compile, and the compiler wrote "referencing operator function '-' on 'Strideable' requires that 'Client' conform to '_Pointer'".
-            // Raven wrote: trap_SendServerCommand( client - level.clients, "cp \"Ten seconds until inactivity drop!\n\"" )
-            portMissing("ClientInactivityTimer", source: "oracle/codemp/game/g_active.c:751")
+            trap_SendServerCommand(level.clientsSlots.index(of: client), "cp \"Ten seconds until inactivity drop!\n\"")
         }
     }
     return true
@@ -973,10 +964,9 @@ func ClientEvents(_ ent: Entity, _ oldEventSequence: Int32) {
 
                 dir = vec3_t(0, 0, 1)
                 ent.pain_debounce_time = level.time + 200 // no normal pain sound
-                // Port-note: Raven passes NULL for the `dir` output. The ported function takes it by reference, so the body passes a scratch local it never reads.
-                portMissing("ClientEvents", source: "oracle/codemp/game/g_active.c:909")
-                var scratchDir = vec3_t()
-                G_Damage(ent, nil, nil, &scratchDir, nil, damage, DAMAGE_NO_ARMOR, MOD_FALLING)
+                // Raven passes NULL for `dir` here, and the name `dir` already holds his local.
+                var nullDir: vec3_t? = nil
+                G_Damage(ent, nil, nil, &nullDir, nil, damage, DAMAGE_NO_ARMOR, MOD_FALLING)
 
                 if ent.health < 1 {
                     G_Sound(ent, CHAN_AUTO, G_SoundIndex("sound/player/fallsplat.wav"))
@@ -1181,9 +1171,7 @@ private func G_UpdateJediMasterBroadcasts(_ `self`: Entity) {
 /// Source: oracle/codemp/game/g_active.c:1199
 func G_UpdateClientBroadcasts(_ `self`: Entity) {
     // Clear all the broadcast bits for this client
-    // Port-note: Raven's `memset ( self->r.broadcastClients, 0, sizeof ( self->r.broadcastClients ) )` runs over bytes that are not one record with a view.
-    // Raven wrote: memset ( self->r.broadcastClients, 0, sizeof ( self->r.broadcastClients ) )
-    portMissing("G_UpdateClientBroadcasts", source: "oracle/codemp/game/g_active.c:1199")
+    `self`.r.broadcastClients.fill(0)
 
     // The jedi master is broadcast to everyone in range
     G_UpdateJediMasterBroadcasts(`self`)
@@ -1510,9 +1498,19 @@ func G_HeldByMonster(_ ent: Entity, _ ucmd: inout JKAMP.Usercmd?) {
             ent.waypoint = monster!.waypoint
             if monster!.s.NPC_class == CLASS_RANCOR {
                 //only possibility right now, may add Wampa and Sand Creature later
-                // Port-note: NULL for an inout parameter the draft has no scratch shape for.
-                // Raven wrote: BG_AttachToRancor( monster->ghoul2, //ghoul2 info monster->r.currentAngles[YAW], monster->r.currentOrigin, level.time, NULL, monster->modelScale, (monster->client->ps.eFlags2&EF2_GENERIC_NPC_FLAG), ent->client->ps.origin, ent->client->ps.viewangles, NULL )
-                portMissing("G_HeldByMonster", source: "oracle/codemp/game/g_active.c:1616")
+                var out_axis: [vec3_t]? = nil
+                BG_AttachToRancor(
+                    monster!.ghoul2, //ghoul2 info
+                    monster!.r.currentAngles[YAW],
+                    &monster!.r.currentOrigin,
+                    level.time,
+                    nil,
+                    &monster!.modelScale,
+                    (monster!.client!.ps.eFlags2 & EF2_GENERIC_NPC_FLAG) != 0,
+                    &ent.client!.ps.origin,
+                    &ent.client!.ps.viewangles,
+                    &out_axis
+                )
             }
             ent.client!.ps.velocity = vec3_t()
             G_SetOrigin(ent, &ent.client!.ps.origin)
@@ -2186,9 +2184,7 @@ func ClientThink_real(_ ent: Entity) {
             } else {
                 if ent.client!.inSpaceIndex != 0 && ent.client!.inSpaceIndex != ENTITYNUM_NONE {
                     //in space, so no gravity...
-                    // Port-note: The draft of this statement did not compile, and the compiler wrote "cannot assign value of type 'Double' to type 'Int32'".
-                    // Raven wrote: client->ps.gravity = 1.0f
-                    portMissing("ClientThink_real", source: "oracle/codemp/game/g_active.c:1939")
+                    client!.ps.gravity = Int32(1.0)
                     if ent.s.number < MAX_CLIENTS {
                         client!.ps.velocity = client!.ps.velocity * 0.8
                     }
@@ -2196,9 +2192,7 @@ func ClientThink_real(_ ent: Entity) {
                     if (client!.ps.eFlags2 & EF2_SHIP_DEATH) != 0 {
                         //float there
                         client!.ps.velocity = vec3_t()
-                        // Port-note: The draft of this statement did not compile, and the compiler wrote "cannot assign value of type 'Double' to type 'Int32'".
-                        // Raven wrote: client->ps.gravity = 1.0f
-                        portMissing("ClientThink_real", source: "oracle/codemp/game/g_active.c:1939")
+                        client!.ps.gravity = Int32(1.0)
                     } else {
                         client!.ps.gravity = Int32(g_gravity.value)
                     }
@@ -2282,14 +2276,10 @@ func ClientThink_real(_ ent: Entity) {
                 */
                 //Private duel announcements are now made globally because we only want one duel at a time.
                 if ent.health > 0 && ent.client!.ps.stats[STAT_HEALTH] > 0 {
-                    // Port-note: Raven passes `"MP_SVGAME"` to `G_GetStringEdString`, whose `char *` parameter the stub holds as an inout CharBuf. Docket row 5 is due.
-                    // Raven wrote: trap_SendServerCommand( -1, va("cp \"%s %s %s!\n\"", ent->client->pers.netname, G_GetStringEdString("MP_SVGAME", "PLDUELWINNER"), duelAgainst->client->pers.netname) )
-                    portMissing("ClientThink_real", source: "oracle/codemp/game/g_active.c:1939")
+                    trap_SendServerCommand(-1, va("cp \"%s %s %s!\n\"", ent.client!.pers.netname, G_GetStringEdString("MP_SVGAME", "PLDUELWINNER"), duelAgainst!.client!.pers.netname))
                 } else {
                     //it was a draw, because we both managed to die in the same frame
-                    // Port-note: Raven passes `"MP_SVGAME"` to `G_GetStringEdString`, whose `char *` parameter the stub holds as an inout CharBuf. Docket row 5 is due.
-                    // Raven wrote: trap_SendServerCommand( -1, va("cp \"%s\n\"", G_GetStringEdString("MP_SVGAME", "PLDUELTIE")) )
-                    portMissing("ClientThink_real", source: "oracle/codemp/game/g_active.c:1939")
+                    trap_SendServerCommand(-1, va("cp \"%s\n\"", G_GetStringEdString("MP_SVGAME", "PLDUELTIE")))
                 }
             } else {
                 var vSub = vec3_t()
@@ -2305,9 +2295,7 @@ func ClientThink_real(_ ent: Entity) {
                     G_AddEvent(ent, EV_PRIVATE_DUEL, 0)
                     G_AddEvent(duelAgainst!, EV_PRIVATE_DUEL, 0)
 
-                    // Port-note: Raven passes `"MP_SVGAME"` to `G_GetStringEdString`, whose `char *` parameter the stub holds as an inout CharBuf. Docket row 5 is due.
-                    // Raven wrote: trap_SendServerCommand( -1, va("print \"%s\n\"", G_GetStringEdString("MP_SVGAME", "PLDUELSTOP")) )
-                    portMissing("ClientThink_real", source: "oracle/codemp/game/g_active.c:1939")
+                    trap_SendServerCommand(-1, va("print \"%s\n\"", G_GetStringEdString("MP_SVGAME", "PLDUELSTOP")))
                 }
             }
         }
@@ -2525,10 +2513,8 @@ func ClientThink_real(_ ent: Entity) {
                         otherKiller = ent
                     }
                 }
-                // Port-note: Raven passes NULL for the `dir` output. The ported function takes it by reference, so the body passes a scratch local it never reads.
-                portMissing("ClientThink_real", source: "oracle/codemp/game/g_active.c:1939")
-                var scratchDir = vec3_t()
-                G_Damage(ent, otherKiller, otherKiller, &scratchDir, ent.client!.ps.origin, 9999, DAMAGE_NO_PROTECTION, MOD_FALLING)
+                var dir: vec3_t? = nil
+                G_Damage(ent, otherKiller, otherKiller, &dir, ent.client!.ps.origin, 9999, DAMAGE_NO_PROTECTION, MOD_FALLING)
                 //player_die(ent, ent, ent, 100000, MOD_FALLING);
                 //		if (!ent->NPC)
                 //		{
@@ -3323,9 +3309,7 @@ func SpectatorClientEndFrame(_ ent: Entity) {
                 // drop them to free spectators unless they are dedicated camera followers
                 if ent.client!.sess.spectatorClient >= 0 {
                     ent.client!.sess.spectatorState = SPECTATOR_FREE
-                    // Port-note: The draft of this statement did not compile, and the compiler wrote "binary operator '-' cannot be applied to two 'Client?' operands".
-                    // Raven wrote: ClientBegin( ent->client - level.clients, qtrue )
-                    portMissing("SpectatorClientEndFrame", source: "oracle/codemp/game/g_active.c:3738")
+                    ClientBegin(level.clientsSlots.index(of: ent.client!), true)
                 }
             }
         }

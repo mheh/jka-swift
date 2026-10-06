@@ -227,9 +227,10 @@ class Classification:
             left = self.unwrap(kids[0])
             if left.kind == CursorKind.DECL_REF_EXPR and left.spelling in stores:
                 stores[left.spelling].append(self.text_store_kind(kids[1], left.spelling, buffers))
-        texts = {name for name, kinds in stores.items() if "text" in kinds and all(k in ("text", "null") for k in kinds)}
-        # Raven stores his NULL into some of them, and Swift holds that local as an optional text.
-        optionals = {name for name in texts if "null" in stores[name]}
+        texts = {name for name, kinds in stores.items()
+                 if ("text" in kinds or "optional" in kinds) and all(k in ("text", "null", "optional") for k in kinds)}
+        # Raven stores his NULL into some of them, or a callee hands an optional text back, and Swift holds that local as an optional text.
+        optionals = {name for name in texts if "null" in stores[name] or "optional" in stores[name]}
         return texts, optionals
 
     def out_text_stores(self, call: ci.Cursor, stores: dict[str, list[str]]) -> dict[str, str]:
@@ -265,7 +266,10 @@ class Classification:
         inner = self.unwrap(cur)
         if self.is_null(inner):
             return "null"
-        if inner.kind == CursorKind.CALL_EXPR and self.registry.returns.get(self.callee_name(inner) or "") in ("String", "String?"):
+        if inner.kind == CursorKind.CALL_EXPR and self.registry.returns.get(self.callee_name(inner) or "") == "String?":
+            # The callee hands an optional text back, so the local is a String? and Raven's NULL test keeps its form.
+            return "optional"
+        if inner.kind == CursorKind.CALL_EXPR and self.registry.returns.get(self.callee_name(inner) or "") == "String":
             return "text"
         if inner.kind == CursorKind.STRING_LITERAL:
             return "text"
@@ -699,7 +703,7 @@ class Classification:
         return value == "0" and size.replace(" ", "") == f"sizeof({field})".replace(" ", "")
 
     def zeroed_local(self, args: list[ci.Cursor]) -> ci.Cursor | None:
-        """The local for Raven's `memset(buf, 0, sizeof(buf))` over a `char buf[N]` local, which Swift holds as a CharBuf of N bytes.
+        """The buffer for Raven's `memset(buf, 0, sizeof(buf))` over a `char buf[N]` local or file-scope buffer, which Swift holds as a CharBuf of N bytes.
         The size is sizeof of the same local, the capacity text of the declaration, or an integer literal of N.
         Any other value or any other size leaves the call to the rule for a record."""
         if len(args) != 3:
@@ -709,8 +713,8 @@ class Classification:
             # Raven's `(char *)surfOff` names the same bytes as `surfOff`.
             target = self.unwrap(list(target.get_children())[-1])
         ref = target.referenced if target.kind == CursorKind.DECL_REF_EXPR else None
-        if ref is None or ref.kind != CursorKind.VAR_DECL or ref.semantic_parent is None \
-                or ref.semantic_parent.kind == CursorKind.TRANSLATION_UNIT:
+        # A file-scope `char buf[N]` is a CharBuf of N bytes too, under its forward.
+        if ref is None or ref.kind != CursorKind.VAR_DECL:
             return None
         t = ref.type.get_canonical()
         if t.kind != TypeKind.CONSTANTARRAY or t.element_type.get_canonical().kind != TypeKind.CHAR_S:

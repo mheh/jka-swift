@@ -35,6 +35,15 @@ public struct PcToken: Hashable, HandleView {
         return try withUnsafeMutablePointer(to: &slot) { try body(PcToken(raw: $0)) }
     }
 
+    /// Raven's `pc_token_t pc_token[N];` on the stack, a local array of records.
+    /// The slots are zero at entry, live for the closure, and the closure's value is the result.
+    public static func scratch<Result>(count: Int, _ body: (Slots<PcToken>) throws -> Result) rethrows -> Result {
+        let base = UnsafeMutableRawPointer.allocate(byteCount: count * PcToken.stride, alignment: MemoryLayout<pc_token_t>.alignment)
+        defer { base.deallocate() }
+        base.initializeMemory(as: UInt8.self, repeating: 0, count: count * PcToken.stride)
+        return try body(Slots(views: base, count: count, stride: PcToken.stride))
+    }
+
     /// Raven's `pc_token_t pc_token = *other;`, a copy of another slot on the stack.
     public static func scratch<Result>(copying other: PcToken, _ body: (PcToken) throws -> Result) rethrows -> Result {
         var slot = other.raw.pointee

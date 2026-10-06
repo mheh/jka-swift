@@ -182,9 +182,10 @@ CHARBUF_ALLOCS = {"B_TempAlloc"}
 #   text_cursor  a TextCursor by value, for a `const char *` Raven passes as a cursor and returns advanced
 #   fill_buffer  a `char *` a trap fills with no size beside it, given as ("fill_buffer", capacity) with the capacity Raven's
 #                callers declare for the buffer, and the trap returns the String the same way a sized buffer does
-#   float_array  an inout [Float] for a `float *` a body fills as a matrix of the counts beside it
+#   float_array  an inout [Float] for a `float *` a body fills as a matrix of the counts beside it, or as a fixed count of floats
 #   int_array  an [Int32]? by value for a read-only `int *` with a count beside it, and a caller's NULL is nil
 #   pointer_table  a Slots<View?> over a file-scope array of struct pointers, whose base a trap hands to the engine
+#   key_path  a KeyPath<Entity, String?> for an `int` field offset Raven takes from `FOFS(field)`, which a call site spells `\.field`
 PARAMS = {
     ("COM_ParseString", "s"): "out_string",
     # A `char **` the function sets once to a string it owns, never walked, the same shape as the const one.
@@ -206,6 +207,9 @@ PARAMS = {
     ("Parse1DMatrix", "m"): "float_array",
     ("Parse2DMatrix", "m"): "float_array",
     ("Parse3DMatrix", "m"): "float_array",
+    # Raven passes the four floats of the plane equation, `static float planeEq[4]` of G_SaberFaceCollisionCheck, ruled 2026-10-05.
+    ("G_SabCol_CalcPlaneEq", "planeEq"): "float_array",
+    ("G_SabCol_PointRelativeToPlane", "planeEq"): "float_array",
     ("G_RunExPhys", "g2Bolts"): "int_array",
     ("trap_SV_RegisterSharedMemory", "memory"): "raw",
     # Raven's callers declare `char GLAName[MAX_QPATH]` in g_client.c and `char GLAName[1024]` in NPC_spawn.c, and the trap takes the larger.
@@ -216,6 +220,8 @@ PARAMS = {
     ("GetIDForString", "table"): "table",
     ("GetStringForID", "table"): "table",
     ("BG_SiegeTranslateGenericTable", "table"): "table",
+    # Raven's callers pass `FOFS(classname)`, `FOFS(targetname)`, `FOFS(target)`, and `FOFS(script_targetname)`, each a `char *` field.
+    ("G_Find", "fieldofs"): "key_path",
 }
 
 # Functions of the oracle the port leaves out. The stub carries the cite, Raven's line, and the reason, and no function.
@@ -261,7 +267,16 @@ ARM_HOOKS = {
 # and the bg body reaches it through the channel. name -> the cite of Raven's definition
 QAGAME_ONLY = {"PM_CrashLandEffect": "oracle/codemp/game/bg_pmove.c:3684"}
 # (function, parameter) pairs a ruling makes optional, because a caller passes a NULL the sweep cannot see. R33.
-NULLABLE = {("BG_UnrestrainedPitchRoll", "pVeh")}
+NULLABLE = {
+    ("BG_UnrestrainedPitchRoll", "pVeh"),
+    # G_UseTargets passes its optional activator, which g_mover.c:1752 passes as NULL, and `ent->target`, which Raven tests with `!string || !string[0]`.
+    ("G_UseTargets2", "activator"),
+    ("G_UseTargets2", "string"),
+    # G_UseTargets2 passes its optional activator, and GlobalUse passes it on to the use callback, whose runUse helper takes an optional.
+    ("GlobalUse", "activator"),
+    # G_G2PlayerAngles of w_saber.c sets emplaced only when ps.emplacedIndex is non-zero and passes NULL otherwise, and the body tests it at bg_pmove.c:9235 and 9354.
+    ("BG_G2PlayerAngles", "emplaced"),
+}
 # Files whose functions a bg body reaches directly, because they live in the shared module or in bg itself.
 # The functions whose integer arithmetic is a generator or a hash, where C wraps at 32 bits and Swift's plain operators trap.
 WRAPPING_ARITHMETIC = {"Q_rand", "Q_random", "Q_crandom", "rand", "srand", "irand", "flrand", "Q_irand", "Q_flrand", "Rand_Init", "Q_HashKey"}

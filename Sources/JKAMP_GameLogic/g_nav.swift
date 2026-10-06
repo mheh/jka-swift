@@ -1549,16 +1549,16 @@ func NAV_StoreWaypoint(_ ent: Entity) {
 }
 
 /// Source: oracle/codemp/game/g_nav.c:1713
-func NAV_GetStoredWaypoint(_ targetname: inout JKAShared.CharBuf) -> Int32 {
+func NAV_GetStoredWaypoint(_ targetname: String) -> Int32 {
     var i: Int32
 
-    // Port-note: The draft of this statement did not compile, and the compiler wrote "referencing operator function '==' on 'BinaryInteger' requires that 'Slots<WaypointData>' conform to 'BinaryInteger'".
-    // Raven wrote: if ( !tempWaypointList || !targetname || !targetname[0] ) { return -1; }
-    portMissing("NAV_GetStoredWaypoint", source: "oracle/codemp/game/g_nav.c:1713")
+    if targetname.isEmpty {
+        return -1
+    }
     i = 0
     while i < numStoredWaypoints {
         if !tempWaypointList[i].targetname.isEmpty {
-            if Q_stricmp(String(targetname), tempWaypointList[i].targetname) == 0 {
+            if Q_stricmp(targetname, tempWaypointList[i].targetname) == 0 {
                 return i
             }
         }
@@ -1587,7 +1587,7 @@ func NAV_CalculatePaths(_ filename: String, _ checksum: Int32) {
     i = 0
     while i < numStoredWaypoints {
         //Find the first connection
-        target = NAV_GetStoredWaypoint(&tempWaypointList[i].targetBuffer)
+        target = NAV_GetStoredWaypoint(tempWaypointList[i].target)
 
         if target != -1 {
             //			if ( !NAV_WaypointsTooFar( ent, target ) )
@@ -1597,7 +1597,7 @@ func NAV_CalculatePaths(_ filename: String, _ checksum: Int32) {
         }
 
         //Find a possible second connection
-        target = NAV_GetStoredWaypoint(&tempWaypointList[i].target2Buffer)
+        target = NAV_GetStoredWaypoint(tempWaypointList[i].target2)
 
         if target != -1 {
             //			if ( !NAV_WaypointsTooFar( ent, target ) )
@@ -1607,7 +1607,7 @@ func NAV_CalculatePaths(_ filename: String, _ checksum: Int32) {
         }
 
         //Find a possible third connection
-        target = NAV_GetStoredWaypoint(&tempWaypointList[i].target3Buffer)
+        target = NAV_GetStoredWaypoint(tempWaypointList[i].target3)
 
         if target != -1 {
             //			if ( !NAV_WaypointsTooFar( ent, target ) )
@@ -1617,7 +1617,7 @@ func NAV_CalculatePaths(_ filename: String, _ checksum: Int32) {
         }
 
         //Find a possible fourth connection
-        target = NAV_GetStoredWaypoint(&tempWaypointList[i].target4Buffer)
+        target = NAV_GetStoredWaypoint(tempWaypointList[i].target4)
 
         if target != -1 {
             //			if ( !NAV_WaypointsTooFar( ent, target ) )

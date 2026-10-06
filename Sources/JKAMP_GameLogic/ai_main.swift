@@ -1083,10 +1083,6 @@ func OrgVisible(_ org1: JKAShared.vec3_t, _ org2: JKAShared.vec3_t, _ ignore: In
     // Every path of Raven's block returns, so the closure's value is the function's.
     return Trace.scratch { tr -> Int32 in
 
-        // Port-note: Raven passes NULL for `mins`, and the callee reads NULL as the zero vector.
-        portMissing("OrgVisible", source: "oracle/codemp/game/ai_main.c:982")
-        // Port-note: Raven passes NULL for `maxs`, and the callee reads NULL as the zero vector.
-        portMissing("OrgVisible", source: "oracle/codemp/game/ai_main.c:982")
         trap_Trace(tr, org1, vec3_origin, vec3_origin, org2, ignore, MASK_SOLID)
 
         if tr.fraction == 1 {
@@ -1105,17 +1101,9 @@ func WPOrgVisible(_ bot: Entity, _ org1: JKAShared.vec3_t, _ org2: JKAShared.vec
     return Trace.scratch { tr -> Int32 in
         var ownent: Entity?
 
-        // Port-note: Raven passes NULL for `mins`, and the callee reads NULL as the zero vector.
-        portMissing("WPOrgVisible", source: "oracle/codemp/game/ai_main.c:997")
-        // Port-note: Raven passes NULL for `maxs`, and the callee reads NULL as the zero vector.
-        portMissing("WPOrgVisible", source: "oracle/codemp/game/ai_main.c:997")
         trap_Trace(tr, org1, vec3_origin, vec3_origin, org2, ignore, MASK_SOLID)
 
         if tr.fraction == 1 {
-            // Port-note: Raven passes NULL for `mins`, and the callee reads NULL as the zero vector.
-            portMissing("WPOrgVisible", source: "oracle/codemp/game/ai_main.c:997")
-            // Port-note: Raven passes NULL for `maxs`, and the callee reads NULL as the zero vector.
-            portMissing("WPOrgVisible", source: "oracle/codemp/game/ai_main.c:997")
             trap_Trace(tr, org1, vec3_origin, vec3_origin, org2, ignore, MASK_PLAYERSOLID)
 
             if tr.fraction != 1 && tr.entityNum != ENTITYNUM_NONE && g_entities[tr.entityNum].s.eType == ET_SPECIAL {
@@ -1144,10 +1132,6 @@ func OrgVisibleBox(_ org1: JKAShared.vec3_t, _ mins: JKAShared.vec3_t, _ maxs: J
     return Trace.scratch { tr -> Int32 in
 
         if g_RMG.integer != 0 {
-            // Port-note: Raven passes NULL for `mins`, and the callee reads NULL as the zero vector.
-            portMissing("OrgVisibleBox", source: "oracle/codemp/game/ai_main.c:1029")
-            // Port-note: Raven passes NULL for `maxs`, and the callee reads NULL as the zero vector.
-            portMissing("OrgVisibleBox", source: "oracle/codemp/game/ai_main.c:1029")
             trap_Trace(tr, org1, vec3_origin, vec3_origin, org2, ignore, MASK_SOLID)
         } else {
             trap_Trace(tr, org1, mins, maxs, org2, ignore, MASK_SOLID)
@@ -1176,10 +1160,6 @@ func CheckForFunc(_ org: JKAShared.vec3_t, _ ignore: Int32) -> Int32 {
 
         under[2] -= 64
 
-        // Port-note: Raven passes NULL for `mins`, and the callee reads NULL as the zero vector.
-        portMissing("CheckForFunc", source: "oracle/codemp/game/ai_main.c:1053")
-        // Port-note: Raven passes NULL for `maxs`, and the callee reads NULL as the zero vector.
-        portMissing("CheckForFunc", source: "oracle/codemp/game/ai_main.c:1053")
         trap_Trace(tr, org, vec3_origin, vec3_origin, under, ignore, MASK_SOLID)
 
         if tr.fraction == 1 {
@@ -2395,10 +2375,6 @@ func GetNearestBadThing(_ bs: BotState) -> Entity? {
                 }
 
                 if glen < bestdist * factor && BotPVSCheck(bs.origin, ent!.s.pos.trBase) {
-                    // Port-note: Raven passes NULL for `mins`, and the callee reads NULL as the zero vector.
-                    portMissing("GetNearestBadThing", source: "oracle/codemp/game/ai_main.c:2395")
-                    // Port-note: Raven passes NULL for `maxs`, and the callee reads NULL as the zero vector.
-                    portMissing("GetNearestBadThing", source: "oracle/codemp/game/ai_main.c:2395")
                     trap_Trace(tr, bs.origin, vec3_origin, vec3_origin, ent!.s.pos.trBase, bs.client, MASK_SOLID)
 
                     if tr.fraction == 1 || tr.entityNum == ent!.s.number {
@@ -2867,7 +2843,7 @@ func EntityVisibleBox(_ org1: JKAShared.vec3_t, _ mins: JKAShared.vec3_t?, _ max
     // Every path of Raven's block returns, so the closure's value is the function's.
     return Trace.scratch { tr -> Int32 in
 
-        trap_Trace(tr, org1, mins!, maxs!, org2, ignore, MASK_SOLID)
+        trap_Trace(tr, org1, mins ?? vec3_origin, maxs ?? vec3_origin, org2, ignore, MASK_SOLID)
 
         if tr.fraction == 1 && tr.startsolid == 0 && tr.allsolid == 0 {
             return 1
@@ -3135,10 +3111,6 @@ func SiegeTakesPriority(_ bs: BotState) -> Int32 {
                     if !BotPVSCheck(bs.origin, dif) {
                         bs.shootGoal = nil
                     } else {
-                        // Port-note: Raven passes NULL for `mins`, and the callee reads NULL as the zero vector.
-                        portMissing("SiegeTakesPriority", source: "oracle/codemp/game/ai_main.c:3256")
-                        // Port-note: Raven passes NULL for `maxs`, and the callee reads NULL as the zero vector.
-                        portMissing("SiegeTakesPriority", source: "oracle/codemp/game/ai_main.c:3256")
                         trap_Trace(tr, bs.origin, vec3_origin, vec3_origin, dif, bs.client, MASK_SOLID)
 
                         if tr.fraction != 1 && tr.entityNum != bs.shootGoal!.s.number {
@@ -3157,10 +3129,6 @@ func SiegeTakesPriority(_ bs: BotState) -> Int32 {
                 if !BotPVSCheck(bs.origin, dif) {
                     bs.shootGoal = nil
                 } else {
-                    // Port-note: Raven passes NULL for `mins`, and the callee reads NULL as the zero vector.
-                    portMissing("SiegeTakesPriority", source: "oracle/codemp/game/ai_main.c:3256")
-                    // Port-note: Raven passes NULL for `maxs`, and the callee reads NULL as the zero vector.
-                    portMissing("SiegeTakesPriority", source: "oracle/codemp/game/ai_main.c:3256")
                     trap_Trace(tr, bs.origin, vec3_origin, vec3_origin, dif, bs.client, MASK_SOLID)
 
                     if tr.fraction != 1 && tr.entityNum != bs.shootGoal!.s.number {
@@ -3179,10 +3147,6 @@ func SiegeTakesPriority(_ bs: BotState) -> Int32 {
                 if !BotPVSCheck(bs.origin, dif) {
                     bs.shootGoal = nil
                 } else {
-                    // Port-note: Raven passes NULL for `mins`, and the callee reads NULL as the zero vector.
-                    portMissing("SiegeTakesPriority", source: "oracle/codemp/game/ai_main.c:3256")
-                    // Port-note: Raven passes NULL for `maxs`, and the callee reads NULL as the zero vector.
-                    portMissing("SiegeTakesPriority", source: "oracle/codemp/game/ai_main.c:3256")
                     trap_Trace(tr, bs.origin, vec3_origin, vec3_origin, dif, bs.client, MASK_SOLID)
 
                     if tr.fraction != 1 && tr.entityNum != bs.shootGoal!.s.number {
@@ -4102,10 +4066,6 @@ func SaberCombatHandling(_ bs: BotState) {
 
                         groundcheck[2] -= 64
 
-                        // Port-note: Raven passes NULL for `mins`, and the callee reads NULL as the zero vector.
-                        portMissing("SaberCombatHandling", source: "oracle/codemp/game/ai_main.c:4354")
-                        // Port-note: Raven passes NULL for `maxs`, and the callee reads NULL as the zero vector.
-                        portMissing("SaberCombatHandling", source: "oracle/codemp/game/ai_main.c:4354")
                         trap_Trace(tr, bs.goalPosition, vec3_origin, vec3_origin, groundcheck, bs.client, MASK_SOLID)
 
                         if tr.fraction == 1.0 {
@@ -4885,10 +4845,6 @@ func StrafeTracing(_ bs: BotState) {
 
         drorg[2] -= 32
 
-        // Port-note: Raven passes NULL for `mins`, and the callee reads NULL as the zero vector.
-        portMissing("StrafeTracing", source: "oracle/codemp/game/ai_main.c:5417")
-        // Port-note: Raven passes NULL for `maxs`, and the callee reads NULL as the zero vector.
-        portMissing("StrafeTracing", source: "oracle/codemp/game/ai_main.c:5417")
         trap_Trace(tr, rorg, vec3_origin, vec3_origin, drorg, bs.client, MASK_SOLID)
 
         if tr.fraction == 1 {
@@ -5138,9 +5094,13 @@ func BotCheckDetPacks(_ bs: BotState) {
     let myLen: Float
 
     stillmadeit: do {
-        // Port-note: An assignment inside an expression.
-        // Raven wrote: while ( (dp = G_Find( dp, FOFS(classname), "detpack") ) != NULL ) { if (dp && dp->parent && dp->parent->s.number == bs->client) { myDet = dp; break; } }
-        portMissing("BotCheckDetPacks", source: "oracle/codemp/game/ai_main.c:5726")
+        while let next = G_Find(dp, \.classname, "detpack") {
+            dp = next
+            if dp != nil && dp!.parent != nil && dp!.parent!.s.number == bs.client {
+                myDet = dp
+                break
+            }
+        }
 
         if myDet == nil {
             return
@@ -5237,10 +5197,6 @@ func BotSurfaceNear(_ bs: BotState) -> Int32 {
         fwd[1] = bs.origin[1] + (fwd[1] * 64)
         fwd[2] = bs.origin[2] + (fwd[2] * 64)
 
-        // Port-note: Raven passes NULL for `mins`, and the callee reads NULL as the zero vector.
-        portMissing("BotSurfaceNear", source: "oracle/codemp/game/ai_main.c:5833")
-        // Port-note: Raven passes NULL for `maxs`, and the callee reads NULL as the zero vector.
-        portMissing("BotSurfaceNear", source: "oracle/codemp/game/ai_main.c:5833")
         trap_Trace(tr, bs.origin, vec3_origin, vec3_origin, fwd, bs.client, MASK_SOLID)
 
         if tr.fraction != 1 {
@@ -6498,6 +6454,14 @@ func StandardBotAI(_ bs: BotState, _ thinktime: Float) {
     MoveTowardIdealAngles(bs)
 }
 
+/// Raven's `static int local_time` of `BotAIStartFrame`, a property of `GameWorld`.
+/// Source: oracle/codemp/game/ai_main.c:7495
+var local_time: Int32 { get { world.local_time } set { world.local_time = newValue } }
+
+/// Raven's `static int lastbotthink_time` of `BotAIStartFrame`, a property of `GameWorld`.
+/// Source: oracle/codemp/game/ai_main.c:7497
+var lastbotthink_time: Int32 { get { world.lastbotthink_time } set { world.lastbotthink_time = newValue } }
+
 /**
 ```
 ==================
@@ -6510,13 +6474,7 @@ func BotAIStartFrame(_ time: Int32) -> Int32 {
     var i: Int32
     let elapsed_time: Int32
     let thinktime: Int32
-    // Port-note: A static local `local_time` a statement reads before it writes, storage that outlives the call.
-    // Raven wrote: static int local_time;
-    portMissing("BotAIStartFrame", source: "oracle/codemp/game/ai_main.c:7492")
     var botlib_residual: Int32
-    // Port-note: A static local `lastbotthink_time` a statement reads before it writes, storage that outlives the call.
-    // Raven wrote: static int lastbotthink_time;
-    portMissing("BotAIStartFrame", source: "oracle/codemp/game/ai_main.c:7492")
 
     if gUpdateVars < level.time {
         trap_Cvar_Update(bot_pvstype)
@@ -6541,16 +6499,13 @@ func BotAIStartFrame(_ time: Int32) -> Int32 {
 
     //cap the bot think time
     //if the bot think time changed we should reschedule the bots
-    // Port-note: A read of `lastbotthink_time`, a local the draft left as a hole.
-    // Raven wrote: if (BOT_THINK_TIME != lastbotthink_time) { lastbotthink_time = BOT_THINK_TIME; BotScheduleBotThink(); }
-    portMissing("BotAIStartFrame", source: "oracle/codemp/game/ai_main.c:7492")
+    if BOT_THINK_TIME != lastbotthink_time {
+        lastbotthink_time = BOT_THINK_TIME
+        BotScheduleBotThink()
+    }
 
-    // Port-note: A read of `local_time`, a local the draft left as a hole.
-    // Raven wrote: elapsed_time = time - local_time
-    portMissing("BotAIStartFrame", source: "oracle/codemp/game/ai_main.c:7492")
-    // Port-note: A store into `local_time`, a local the draft left as a hole.
-    // Raven wrote: local_time = time
-    portMissing("BotAIStartFrame", source: "oracle/codemp/game/ai_main.c:7492")
+    elapsed_time = time - local_time
+    local_time = time
 
     if elapsed_time > BOT_THINK_TIME {
         thinktime = elapsed_time

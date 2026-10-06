@@ -232,19 +232,19 @@ func InitSiegeMode() {
             siege_valid = 1
 
             //See if players should be specs or ingame preround
-            if BG_SiegeGetPairedValue(&siege_info, "preround_state", &teams) != 0 {
+            if BG_SiegeGetPairedValue(String(siege_info), "preround_state", &teams) != 0 {
                 if teams[0] != 0 {
                     g_preroundState = atoi(teams)
                 }
             }
 
-            if BG_SiegeGetValueGroup(&siege_info, "Teams", &teams) != 0 {
+            if BG_SiegeGetValueGroup(String(siege_info), "Teams", &teams) != 0 {
                 if !g_siegeTeam1.string.isEmpty && Q_stricmp(g_siegeTeam1.string, "none") != 0 {
                     //check for override
                     strcpy(&team1, g_siegeTeam1.string)
                 } else {
                     //otherwise use level default
-                    BG_SiegeGetPairedValue(&teams, "team1", &team1)
+                    BG_SiegeGetPairedValue(String(teams), "team1", &team1)
                 }
 
                 if !g_siegeTeam2.string.isEmpty && Q_stricmp(g_siegeTeam2.string, "none") != 0 {
@@ -252,21 +252,21 @@ func InitSiegeMode() {
                     strcpy(&team2, g_siegeTeam2.string)
                 } else {
                     //otherwise use level default
-                    BG_SiegeGetPairedValue(&teams, "team2", &team2)
+                    BG_SiegeGetPairedValue(String(teams), "team2", &team2)
                 }
             } else {
                 G_Error("Siege teams not defined")
             }
 
-            if BG_SiegeGetValueGroup(&siege_info, String(team2), &gParseObjectives) != 0 {
-                if BG_SiegeGetPairedValue(&gParseObjectives, "TeamIcon", &teamIcon) != 0 {
+            if BG_SiegeGetValueGroup(String(siege_info), String(team2), &gParseObjectives) != 0 {
+                if BG_SiegeGetPairedValue(String(gParseObjectives), "TeamIcon", &teamIcon) != 0 {
                     trap_Cvar_Set("team2_icon", String(teamIcon))
                 }
 
-                if BG_SiegeGetPairedValue(&gParseObjectives, "RequiredObjectives", &goalreq) != 0 {
+                if BG_SiegeGetPairedValue(String(gParseObjectives), "RequiredObjectives", &goalreq) != 0 {
                     rebel_goals_required = atoi(goalreq)
                 }
-                if BG_SiegeGetPairedValue(&gParseObjectives, "Timed", &goalreq) != 0 {
+                if BG_SiegeGetPairedValue(String(gParseObjectives), "Timed", &goalreq) != 0 {
                     rebel_time_limit = atoi(goalreq) * 1000
                     if g_siegeTeamSwitch.integer != 0 && g_siegePersistant.beatingTime {
                         gRebelCountdown = level.time + g_siegePersistant.lastTime
@@ -274,20 +274,20 @@ func InitSiegeMode() {
                         gRebelCountdown = level.time + rebel_time_limit
                     }
                 }
-                if BG_SiegeGetPairedValue(&gParseObjectives, "attackers", &goalreq) != 0 {
+                if BG_SiegeGetPairedValue(String(gParseObjectives), "attackers", &goalreq) != 0 {
                     rebel_attackers = atoi(goalreq)
                 }
             }
 
-            if BG_SiegeGetValueGroup(&siege_info, String(team1), &gParseObjectives) != 0 {
-                if BG_SiegeGetPairedValue(&gParseObjectives, "TeamIcon", &teamIcon) != 0 {
+            if BG_SiegeGetValueGroup(String(siege_info), String(team1), &gParseObjectives) != 0 {
+                if BG_SiegeGetPairedValue(String(gParseObjectives), "TeamIcon", &teamIcon) != 0 {
                     trap_Cvar_Set("team1_icon", String(teamIcon))
                 }
 
-                if BG_SiegeGetPairedValue(&gParseObjectives, "RequiredObjectives", &goalreq) != 0 {
+                if BG_SiegeGetPairedValue(String(gParseObjectives), "RequiredObjectives", &goalreq) != 0 {
                     imperial_goals_required = atoi(goalreq)
                 }
-                if BG_SiegeGetPairedValue(&gParseObjectives, "Timed", &goalreq) != 0 {
+                if BG_SiegeGetPairedValue(String(gParseObjectives), "Timed", &goalreq) != 0 {
                     if rebel_time_limit != 0 {
                         Com_Printf("Tried to set imperial time limit, but there's already a rebel time limit!\nOnly one team can have a time limit.\n")
                     } else {
@@ -299,7 +299,7 @@ func InitSiegeMode() {
                         }
                     }
                 }
-                if BG_SiegeGetPairedValue(&gParseObjectives, "attackers", &goalreq) != 0 {
+                if BG_SiegeGetPairedValue(String(gParseObjectives), "attackers", &goalreq) != 0 {
                     imperial_attackers = atoi(goalreq)
                 }
             }
@@ -348,29 +348,29 @@ func InitSiegeMode() {
 
             //Get and set the team themes for each team. This will control which classes can be
             //used on each team.
-            if BG_SiegeGetValueGroup(&siege_info, String(team1), &gParseObjectives) != 0 {
-                if BG_SiegeGetPairedValue(&gParseObjectives, "UseTeam", &goalreq) != 0 {
+            if BG_SiegeGetValueGroup(String(siege_info), String(team1), &gParseObjectives) != 0 {
+                if BG_SiegeGetPairedValue(String(gParseObjectives), "UseTeam", &goalreq) != 0 {
                     BG_SiegeSetTeamTheme(SIEGETEAM_TEAM1, String(goalreq))
                 }
 
                 //Now count up the objectives for this team.
                 i = 1
                 strcpy(&objecStr, va("Objective%i", i))
-                while BG_SiegeGetValueGroup(&gParseObjectives, String(objecStr), &objective) != 0 {
+                while BG_SiegeGetValueGroup(String(gParseObjectives), String(objecStr), &objective) != 0 {
                     objectiveNumTeam1 += 1
                     i += 1
                     strcpy(&objecStr, va("Objective%i", i))
                 }
             }
-            if BG_SiegeGetValueGroup(&siege_info, String(team2), &gParseObjectives) != 0 {
-                if BG_SiegeGetPairedValue(&gParseObjectives, "UseTeam", &goalreq) != 0 {
+            if BG_SiegeGetValueGroup(String(siege_info), String(team2), &gParseObjectives) != 0 {
+                if BG_SiegeGetPairedValue(String(gParseObjectives), "UseTeam", &goalreq) != 0 {
                     BG_SiegeSetTeamTheme(SIEGETEAM_TEAM2, String(goalreq))
                 }
 
                 //Now count up the objectives for this team.
                 i = 1
                 strcpy(&objecStr, va("Objective%i", i))
-                while BG_SiegeGetValueGroup(&gParseObjectives, String(objecStr), &objective) != 0 {
+                while BG_SiegeGetValueGroup(String(gParseObjectives), String(objecStr), &objective) != 0 {
                     objectiveNumTeam2 += 1
                     i += 1
                     strcpy(&objecStr, va("Objective%i", i))
@@ -641,8 +641,8 @@ func SiegeRoundComplete(_ winningteam: Int32, _ winningclient: Int32) {
     gSiegeRoundEnded = true
     gSiegeRoundWinningTeam = winningteam != 0
 
-    if BG_SiegeGetValueGroup(&siege_info, String(teamstr), &gParseObjectives) != 0 {
-        if BG_SiegeGetPairedValue(&gParseObjectives, "roundover_target", &teamstr) == 0 {
+    if BG_SiegeGetValueGroup(String(siege_info), String(teamstr), &gParseObjectives) != 0 {
+        if BG_SiegeGetPairedValue(String(gParseObjectives), "roundover_target", &teamstr) == 0 {
             //didn't find the name of the thing to target upon win, just logexit now then.
             LogExit("Objectives completed")
             return
@@ -814,7 +814,7 @@ func SiegeBeginRound(_ entNum: Int32) {
     }
 
     //Now check if there's something to fire off at the round start, if so do it.
-    if BG_SiegeGetPairedValue(&siege_info, "roundbegin_target", &targname) != 0 {
+    if BG_SiegeGetPairedValue(String(siege_info), "roundbegin_target", &targname) != 0 {
         if targname[0] != 0 {
             G_UseTargets2(g_entities[entNum], g_entities[entNum], String(targname))
         }
@@ -975,15 +975,15 @@ func siegeTriggerUse(_ ent: Entity, _ other: Entity, _ activator: Entity) {
         Com_sprintf(&teamstr, Int32((teamstr).count), String(team2))
     }
 
-    if BG_SiegeGetValueGroup(&siege_info, String(teamstr), &gParseObjectives) != 0 {
+    if BG_SiegeGetValueGroup(String(siege_info), String(teamstr), &gParseObjectives) != 0 {
         Com_sprintf(&objectivestr, Int32((objectivestr).count), "Objective%i", ent.objective)
 
-        if BG_SiegeGetValueGroup(&gParseObjectives, String(objectivestr), &desiredobjective) != 0 {
-            if BG_SiegeGetPairedValue(&desiredobjective, "final", &teamstr) != 0 {
+        if BG_SiegeGetValueGroup(String(gParseObjectives), String(objectivestr), &desiredobjective) != 0 {
+            if BG_SiegeGetPairedValue(String(desiredobjective), "final", &teamstr) != 0 {
                 final = atoi(teamstr)
             }
 
-            if BG_SiegeGetPairedValue(&desiredobjective, "target", &teamstr) != 0 {
+            if BG_SiegeGetPairedValue(String(desiredobjective), "target", &teamstr) != 0 {
                 while teamstr[i] != 0 {
                     if teamstr[i] == Int32(ascii: "\r") || teamstr[i] == Int32(ascii: "\n") {
                         teamstr[i] = 0
@@ -1135,11 +1135,11 @@ func decompTriggerUse(_ ent: Entity, _ other: Entity, _ activator: Entity) {
         Com_sprintf(&teamstr, Int32((teamstr).count), String(team2))
     }
 
-    if BG_SiegeGetValueGroup(&siege_info, String(teamstr), &gParseObjectives) != 0 {
+    if BG_SiegeGetValueGroup(String(siege_info), String(teamstr), &gParseObjectives) != 0 {
         Com_sprintf(&objectivestr, Int32((objectivestr).count), "Objective%i", ent.objective)
 
-        if BG_SiegeGetValueGroup(&gParseObjectives, String(objectivestr), &desiredobjective) != 0 {
-            if BG_SiegeGetPairedValue(&desiredobjective, "final", &teamstr) != 0 {
+        if BG_SiegeGetValueGroup(String(gParseObjectives), String(objectivestr), &desiredobjective) != 0 {
+            if BG_SiegeGetPairedValue(String(desiredobjective), "final", &teamstr) != 0 {
                 final = atoi(teamstr)
             }
         }

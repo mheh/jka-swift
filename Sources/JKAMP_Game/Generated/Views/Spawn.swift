@@ -36,6 +36,15 @@ public struct Spawn: Hashable, HandleView {
         return try withUnsafeMutablePointer(to: &slot) { try body(Spawn(raw: $0)) }
     }
 
+    /// Raven's `spawn_t spawn[N];` on the stack, a local array of records.
+    /// The slots are zero at entry, live for the closure, and the closure's value is the result.
+    public static func scratch<Result>(count: Int, _ body: (Slots<Spawn>) throws -> Result) rethrows -> Result {
+        let base = UnsafeMutableRawPointer.allocate(byteCount: count * Spawn.stride, alignment: MemoryLayout<spawn_t>.alignment)
+        defer { base.deallocate() }
+        base.initializeMemory(as: UInt8.self, repeating: 0, count: count * Spawn.stride)
+        return try body(Slots(views: base, count: count, stride: Spawn.stride))
+    }
+
     /// Raven's `spawn_t spawn = *other;`, a copy of another slot on the stack.
     public static func scratch<Result>(copying other: Spawn, _ body: (Spawn) throws -> Result) rethrows -> Result {
         var slot = other.raw.pointee
@@ -65,7 +74,9 @@ public struct Spawn: Hashable, HandleView {
     }
 
     /// Calls the stored `spawn` function through the C pointer, with the caller's arguments, as Raven's `pm->spawn(...)` did.
+    /// A NULL `spawn` traps with the field's name, as Raven's call through the pointer would crash.
     public func runSpawn(_ ent: Entity?) {
-        self.spawn?(ent?.handle)
+        precondition(self.raw.pointee.spawn != nil, "spawn is NULL")
+        self.spawn!(ent?.handle)
     }
 }

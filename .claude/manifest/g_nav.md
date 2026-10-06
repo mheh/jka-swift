@@ -52,7 +52,7 @@ The oracle range is the whole definition, from the return type to the closing br
 | `NAV_WaypointsTooFar` | `oracle/codemp/game/g_nav.c:1618-1655` | `JKAMP_GameLogic/g_nav.swift:1477` | ported | `crates/mp/game/src/g_nav.rs:2123-2182` | `func NAV_WaypointsTooFar(_ wp1: Entity, _ wp2: Entity) -> Bool` |
 | `NAV_ClearStoredWaypoints` | `oracle/codemp/game/g_nav.c:1663-1666` | `JKAMP_GameLogic/g_nav.swift:1509` | ported | `crates/mp/game/src/g_nav.rs:2187-2189` | `func NAV_ClearStoredWaypoints()` |
 | `NAV_StoreWaypoint` | `oracle/codemp/game/g_nav.c:1669-1711` | `JKAMP_GameLogic/g_nav.swift:1514` | ported | `crates/mp/game/src/g_nav.rs:2194-2236` | `func NAV_StoreWaypoint(_ ent: Entity)` |
-| `NAV_GetStoredWaypoint` | `oracle/codemp/game/g_nav.c:1713-1732` | `JKAMP_GameLogic/g_nav.swift:1552` | ported | `crates/mp/game/src/g_nav.rs:2241-2255` | `func NAV_GetStoredWaypoint(_ targetname: inout JKAShared.CharBuf) -> Int32` |
+| `NAV_GetStoredWaypoint` | `oracle/codemp/game/g_nav.c:1713-1732` | `JKAMP_GameLogic/g_nav.swift:1552` | ported | `crates/mp/game/src/g_nav.rs:2241-2255` | `func NAV_GetStoredWaypoint(_ targetname: String) -> Int32` |
 | `NAV_CalculatePaths` | `oracle/codemp/game/g_nav.c:1734-1838` | `JKAMP_GameLogic/g_nav.swift:1571` | ported | `crates/mp/game/src/g_nav.rs:2262-2340` | `func NAV_CalculatePaths(_ filename: String, _ checksum: Int32)` |
 | `NAV_Shutdown` | `oracle/codemp/game/g_nav.c:1846-1849` | `JKAMP_GameLogic/g_nav.swift:1662` | ported | `crates/mp/game/src/g_nav.rs:2345-2347` | `func NAV_Shutdown()` |
 | `NAV_ShowDebugInfo` | `oracle/codemp/game/g_nav.c:1857-1903` | `JKAMP_GameLogic/g_nav.swift:1667` | ported | `crates/mp/game/src/g_nav.rs:2352-2409` | `func NAV_ShowDebugInfo()` |

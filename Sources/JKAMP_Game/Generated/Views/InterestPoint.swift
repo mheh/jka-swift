@@ -36,6 +36,15 @@ public struct InterestPoint: Hashable, HandleView {
         return try withUnsafeMutablePointer(to: &slot) { try body(InterestPoint(raw: $0)) }
     }
 
+    /// Raven's `interestPoint_t interestPoint[N];` on the stack, a local array of records.
+    /// The slots are zero at entry, live for the closure, and the closure's value is the result.
+    public static func scratch<Result>(count: Int, _ body: (Slots<InterestPoint>) throws -> Result) rethrows -> Result {
+        let base = UnsafeMutableRawPointer.allocate(byteCount: count * InterestPoint.stride, alignment: MemoryLayout<interestPoint_t>.alignment)
+        defer { base.deallocate() }
+        base.initializeMemory(as: UInt8.self, repeating: 0, count: count * InterestPoint.stride)
+        return try body(Slots(views: base, count: count, stride: InterestPoint.stride))
+    }
+
     /// Raven's `interestPoint_t interestPoint = *other;`, a copy of another slot on the stack.
     public static func scratch<Result>(copying other: InterestPoint, _ body: (InterestPoint) throws -> Result) rethrows -> Result {
         var slot = other.raw.pointee

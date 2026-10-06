@@ -931,10 +931,6 @@ func ShotThroughGlass(_ tr: JKAMP.Trace, _ target: Entity, _ spot: JKAShared.vec
         var muzzle = vec3_t()
 
         muzzle = tr.endpos
-        // Port-note: Raven passes NULL for `mins`, and the callee reads NULL as the zero vector.
-        portMissing("ShotThroughGlass", source: "oracle/codemp/game/NPC_combat.c:1126")
-        // Port-note: Raven passes NULL for `maxs`, and the callee reads NULL as the zero vector.
-        portMissing("ShotThroughGlass", source: "oracle/codemp/game/NPC_combat.c:1126")
         trap_Trace(tr, muzzle, vec3_origin, vec3_origin, spot, skip, mask)
         return true
     }
@@ -965,10 +961,6 @@ func CanShoot(_ ent: Entity, _ shooter: Entity) -> Bool {
         CalcEntitySpot(shooter, SPOT_WEAPON, &muzzle)
         CalcEntitySpot(ent, SPOT_ORIGIN, &spot) //FIXME preferred target locations for some weapons (feet for R/L)
 
-        // Port-note: Raven passes NULL for `mins`, and the callee reads NULL as the zero vector.
-        portMissing("CanShoot", source: "oracle/codemp/game/NPC_combat.c:1150")
-        // Port-note: Raven passes NULL for `maxs`, and the callee reads NULL as the zero vector.
-        portMissing("CanShoot", source: "oracle/codemp/game/NPC_combat.c:1150")
         trap_Trace(tr, muzzle, vec3_origin, vec3_origin, spot, shooter.s.number, MASK_SHOT)
         traceEnt = g_entities[tr.entityNum]
 
@@ -988,10 +980,6 @@ func CanShoot(_ ent: Entity, _ shooter: Entity) -> Bool {
             //MCG - Begin
             //ok, can't hit them in center, try their head
             CalcEntitySpot(ent, SPOT_HEAD, &spot)
-            // Port-note: Raven passes NULL for `mins`, and the callee reads NULL as the zero vector.
-            portMissing("CanShoot", source: "oracle/codemp/game/NPC_combat.c:1150")
-            // Port-note: Raven passes NULL for `maxs`, and the callee reads NULL as the zero vector.
-            portMissing("CanShoot", source: "oracle/codemp/game/NPC_combat.c:1150")
             trap_Trace(tr, muzzle, vec3_origin, vec3_origin, spot, shooter.s.number, MASK_SHOT)
             traceEnt = g_entities[tr.entityNum]
             if traceEnt == ent {
@@ -1323,17 +1311,15 @@ func NPC_PickEnemy(_ closestTo: Entity, _ enemyTeam: Int32, _ checkVis: Bool, _ 
                                                 //I'm not looking in the right dir toward them to see them
                                                 failed = true
                                             } else {
-                                                // Port-note: Raven passes `"%s saw %s trying to hide - hiddenDir %s targetDir %s dot %f\n"` to `Debug_Printf`, whose `char *` parameter the stub holds as an inout CharBuf. Docket row 5 is due.
-                                                // Raven wrote: Debug_Printf(&debugNPCAI, DEBUG_LEVEL_INFO, "%s saw %s trying to hide - hiddenDir %s targetDir %s dot %f\n", NPC->targetname, newenemy->targetname, vtos(newenemy->client->hiddenDir), vtos(diff), dot )
-                                                portMissing("NPC_PickEnemy", source: "oracle/codemp/game/NPC_combat.c:1505")
+                                                var fmt = CharBuf("%s saw %s trying to hide - hiddenDir %s targetDir %s dot %f\n")
+                                                Debug_Printf(debugNPCAI, DEBUG_LEVEL_INFO, &fmt, NPC!.targetname ?? "", newenemy!.targetname ?? "", vtos(newenemy!.client!.hiddenDir), vtos(diff), dot)
                                             }
                                         } else {
                                             failed = true
                                         }
                                     } else {
-                                        // Port-note: Raven passes `"%s saw %s trying to hide - hiddenDist %f\n"` to `Debug_Printf`, whose `char *` parameter the stub holds as an inout CharBuf. Docket row 5 is due.
-                                        // Raven wrote: Debug_Printf(&debugNPCAI, DEBUG_LEVEL_INFO, "%s saw %s trying to hide - hiddenDist %f\n", NPC->targetname, newenemy->targetname, newenemy->client->hiddenDist )
-                                        portMissing("NPC_PickEnemy", source: "oracle/codemp/game/NPC_combat.c:1505")
+                                        var fmt = CharBuf("%s saw %s trying to hide - hiddenDist %f\n")
+                                        Debug_Printf(debugNPCAI, DEBUG_LEVEL_INFO, &fmt, NPC!.targetname ?? "", newenemy!.targetname ?? "", newenemy!.client!.hiddenDist)
                                     }
                                 }
 
@@ -1444,18 +1430,16 @@ func NPC_PickEnemy(_ closestTo: Entity, _ enemyTeam: Int32, _ checkVis: Bool, _ 
                                         entNum += 1
                                         continue
                                     } else {
-                                        // Port-note: Raven passes `"%s saw %s trying to hide - hiddenDir %s targetDir %s dot %f\n"` to `Debug_Printf`, whose `char *` parameter the stub holds as an inout CharBuf. Docket row 5 is due.
-                                        // Raven wrote: Debug_Printf(&debugNPCAI, DEBUG_LEVEL_INFO, "%s saw %s trying to hide - hiddenDir %s targetDir %s dot %f\n", NPC->targetname, newenemy->targetname, vtos(newenemy->client->hiddenDir), vtos(diff), dot )
-                                        portMissing("NPC_PickEnemy", source: "oracle/codemp/game/NPC_combat.c:1505")
+                                        var fmt = CharBuf("%s saw %s trying to hide - hiddenDir %s targetDir %s dot %f\n")
+                                        Debug_Printf(debugNPCAI, DEBUG_LEVEL_INFO, &fmt, NPC!.targetname ?? "", newenemy!.targetname ?? "", vtos(newenemy!.client!.hiddenDir), vtos(diff), dot)
                                     }
                                 } else {
                                     entNum += 1
                                     continue
                                 }
                             } else {
-                                // Port-note: Raven passes `"%s saw %s trying to hide - hiddenDist %f\n"` to `Debug_Printf`, whose `char *` parameter the stub holds as an inout CharBuf. Docket row 5 is due.
-                                // Raven wrote: Debug_Printf(&debugNPCAI, DEBUG_LEVEL_INFO, "%s saw %s trying to hide - hiddenDist %f\n", NPC->targetname, newenemy->targetname, newenemy->client->hiddenDist )
-                                portMissing("NPC_PickEnemy", source: "oracle/codemp/game/NPC_combat.c:1505")
+                                var fmt = CharBuf("%s saw %s trying to hide - hiddenDist %f\n")
+                                Debug_Printf(debugNPCAI, DEBUG_LEVEL_INFO, &fmt, NPC!.targetname ?? "", newenemy!.targetname ?? "", newenemy!.client!.hiddenDist)
                             }
                         }
 
@@ -1805,10 +1789,6 @@ func NPC_ClearShot(_ ent: Entity) -> Bool {
 
             trap_Trace(tr, muzzle, mins, maxs, ent.r.currentOrigin, NPC!.s.number, MASK_SHOT)
         } else {
-            // Port-note: Raven passes NULL for `mins`, and the callee reads NULL as the zero vector.
-            portMissing("NPC_ClearShot", source: "oracle/codemp/game/NPC_combat.c:2110")
-            // Port-note: Raven passes NULL for `maxs`, and the callee reads NULL as the zero vector.
-            portMissing("NPC_ClearShot", source: "oracle/codemp/game/NPC_combat.c:2110")
             trap_Trace(tr, muzzle, vec3_origin, vec3_origin, ent.r.currentOrigin, NPC!.s.number, MASK_SHOT)
         }
 
@@ -1867,10 +1847,6 @@ func NPC_ShotEntity(_ ent: Entity, _ impactPos: inout JKAShared.vec3_t) -> Int32
 
             trap_Trace(tr, muzzle, mins, maxs, targ, NPC!.s.number, MASK_SHOT)
         } else {
-            // Port-note: Raven passes NULL for `mins`, and the callee reads NULL as the zero vector.
-            portMissing("NPC_ShotEntity", source: "oracle/codemp/game/NPC_combat.c:2152")
-            // Port-note: Raven passes NULL for `maxs`, and the callee reads NULL as the zero vector.
-            portMissing("NPC_ShotEntity", source: "oracle/codemp/game/NPC_combat.c:2152")
             trap_Trace(tr, muzzle, vec3_origin, vec3_origin, targ, NPC!.s.number, MASK_SHOT)
         }
         //FIXME: if using a bouncing weapon like the bowcaster, should we check the reflection of the wall, too?
@@ -2027,10 +2003,6 @@ func NPC_CheckCanAttack(_ attack_scale: Float, _ stationary: Bool) -> Bool {
                 var scratchUp = vec3_t()
                 AngleVectors(client!.ps.viewangles, &forward, &scratchRight, &scratchUp)
                 _VectorMA(muzzle, distanceToEnemy, forward, &hitspot)
-                // Port-note: Raven passes NULL for `mins`, and the callee reads NULL as the zero vector.
-                portMissing("NPC_CheckCanAttack", source: "oracle/codemp/game/NPC_combat.c:2263")
-                // Port-note: Raven passes NULL for `maxs`, and the callee reads NULL as the zero vector.
-                portMissing("NPC_CheckCanAttack", source: "oracle/codemp/game/NPC_combat.c:2263")
                 trap_Trace(tr, muzzle, vec3_origin, vec3_origin, hitspot, NPC!.s.number, MASK_SHOT)
                 ShotThroughGlass(tr, NPC!.enemy!, hitspot, MASK_SHOT)
                 /*
@@ -2292,223 +2264,225 @@ private func NPC_CollectCombatPoints(_ origin: JKAShared.vec3_t, _ radius: Float
 
 /// Source: oracle/codemp/game/NPC_combat.c:2657
 func NPC_FindCombatPoint(_ position: JKAShared.vec3_t, _ avoidPosition: JKAShared.vec3_t, _ enemyPosition: JKAShared.vec3_t, _ flags: Int32, _ avoidDist: Float, _ ignorePoint: Int32) -> Int32 {
-    // Port-note: A local `combatPt_t[512] points` the table has no type for.
-    // Raven wrote: combatPt_t points[MAX_COMBAT_POINTS];
-    portMissing("NPC_FindCombatPoint", source: "oracle/codemp/game/NPC_combat.c:2657")
-    var best: Int32 = -1
-    var cost: Int32 = 0
-    var bestCost: Int32 = Q3_INFINITE
-    var waypoint: Int32 = WAYPOINT_NONE
-    var dist: Float = 0
-    // Raven's record lives to the end of his block, so the block is the closure.
-    // Every path of Raven's block returns, so the closure's value is the function's.
-    return Trace.scratch { tr -> Int32 in
-        var collRad: Float = CP_COLLECT_RADIUS
-        var numPoints: Int32 = 0
-        var j: Int32 = 0
-        var modifiedAvoidDist: Float = avoidDist
+    // Raven's array lives to the end of his block, so the block is the closure.
+    return CombatPt.scratch(count: Int(MAX_COMBAT_POINTS)) { points -> Int32 in
+        var best: Int32 = -1
+        var cost: Int32 = 0
+        var bestCost: Int32 = Q3_INFINITE
+        var waypoint: Int32 = WAYPOINT_NONE
+        var dist: Float = 0
+        // Raven's record lives to the end of his block, so the block is the closure.
+        // Every path of Raven's block returns, so the closure's value is the function's.
+        return Trace.scratch { tr -> Int32 in
+            var collRad: Float = CP_COLLECT_RADIUS
+            var numPoints: Int32 = 0
+            var j: Int32 = 0
+            var modifiedAvoidDist: Float = avoidDist
 
-        if modifiedAvoidDist <= 0 {
-            modifiedAvoidDist = Float(MIN_AVOID_DISTANCE_SQUARED)
-        } else {
-            modifiedAvoidDist *= modifiedAvoidDist
-        }
-
-        if (flags & CP_HAS_ROUTE) != 0 || (flags & CP_NEAREST) != 0 {
-            //going to be doing macro nav tests
-            if NPC!.waypoint == WAYPOINT_NONE {
-                waypoint = NAV_GetNearestNode(NPC!, NPC!.lastWaypoint)
+            if modifiedAvoidDist <= 0 {
+                modifiedAvoidDist = Float(MIN_AVOID_DISTANCE_SQUARED)
             } else {
-                waypoint = NPC!.waypoint
+                modifiedAvoidDist *= modifiedAvoidDist
             }
-        }
 
-        //Collect our nearest points
-        if (flags & CP_NO_PVS) != 0 {
-            //much larger radius since most will be dropped?
-            collRad = CP_COLLECT_RADIUS * 4
-        }
-        // Port-note: A read of `points`, a local the draft left as a hole.
-        // Raven wrote: numPoints = NPC_CollectCombatPoints( enemyPosition, collRad, points, flags )
-        portMissing("NPC_FindCombatPoint", source: "oracle/codemp/game/NPC_combat.c:2657")
-
-
-        j = 0
-        while j < numPoints {
-            //const int i = (*cpi).second;
-            // Port-note: A read of `points`, a local the draft left as a hole.
-            // Raven wrote: const int i = points[j].index;
-            portMissing("NPC_FindCombatPoint", source: "oracle/codemp/game/NPC_combat.c:2657")
-            // Port-note: A read of `points`, a local the draft left as a hole.
-            // Raven wrote: const float pdist = points[j].dist;
-            portMissing("NPC_FindCombatPoint", source: "oracle/codemp/game/NPC_combat.c:2657")
-
-            //Must not be one we want to ignore
-            // Port-note: A read of `i`, a local the draft left as a hole.
-            // Raven wrote: if ( i == ignorePoint ) continue
-            portMissing("NPC_FindCombatPoint", source: "oracle/codemp/game/NPC_combat.c:2657")
-
-            //FIXME: able to mark certain ones as too dangerous to go to for now?  Like a tripmine/thermal/detpack is near or something?
-            //If we need a cover point, check this point
-            // Port-note: A read of `i`, a local the draft left as a hole.
-            // Raven wrote: if ( ( flags & CP_COVER ) && ( NPC_ClearLOS( level.combatPoints[i].origin, enemyPosition ) == qtrue ) )//Used to use NPC->enemy continue
-            portMissing("NPC_FindCombatPoint", source: "oracle/codemp/game/NPC_combat.c:2657")
-
-            //Need a clear LOS to our target... and be within shot range to enemy position (FIXME: make this a separate CS_ flag? and pass in a range?)
-            if (flags & CP_CLEAR) != 0 {
-                // Port-note: A read of `i`, a local the draft left as a hole.
-                // Raven wrote: if ( NPC_ClearLOS3( level.combatPoints[i].origin, NPC->enemy ) == qfalse ) { continue; }
-                portMissing("NPC_FindCombatPoint", source: "oracle/codemp/game/NPC_combat.c:2657")
-                if NPC!.s.weapon == WP_THERMAL {
-                    //horizontal
-                    // Port-note: A read of `i`, a local the draft left as a hole.
-                    // Raven wrote: dist = DistanceHorizontalSquared( level.combatPoints[i].origin, NPC->enemy->r.currentOrigin )
-                    portMissing("NPC_FindCombatPoint", source: "oracle/codemp/game/NPC_combat.c:2657")
+            if (flags & CP_HAS_ROUTE) != 0 || (flags & CP_NEAREST) != 0 {
+                //going to be doing macro nav tests
+                if NPC!.waypoint == WAYPOINT_NONE {
+                    waypoint = NAV_GetNearestNode(NPC!, NPC!.lastWaypoint)
                 } else {
-                    //actual
-                    // Port-note: A read of `i`, a local the draft left as a hole.
-                    // Raven wrote: dist = DistanceSquared( level.combatPoints[i].origin, NPC->enemy->r.currentOrigin )
-                    portMissing("NPC_FindCombatPoint", source: "oracle/codemp/game/NPC_combat.c:2657")
-                }
-                if dist > (NPCInfo!.stats.visrange * NPCInfo!.stats.visrange) {
-                    j += 1
-                    continue
+                    waypoint = NPC!.waypoint
                 }
             }
 
-            //Avoid this position?
-            // Port-note: A read of `i`, a local the draft left as a hole.
-            // Raven wrote: if ( ( flags & CP_AVOID ) && ( DistanceSquared( level.combatPoints[i].origin, position ) < modifiedAvoidDist ) )//was using MIN_AVOID_DISTANCE_SQUARED, not passed in modifiedAvoidDist continue
-            portMissing("NPC_FindCombatPoint", source: "oracle/codemp/game/NPC_combat.c:2657")
-
-            //Try to find a point closer to the enemy than where we are
-            if (flags & CP_APPROACH_ENEMY) != 0 {
-                if (flags & CP_HORZ_DIST_COLL) != 0 {
-                    // Port-note: A read of `pdist`, a local the draft left as a hole.
-                    // Raven wrote: if ( pdist > DistanceHorizontalSquared( position, enemyPosition ) ) { continue; }
-                    portMissing("NPC_FindCombatPoint", source: "oracle/codemp/game/NPC_combat.c:2657")
-                } else {
-                    // Port-note: A read of `pdist`, a local the draft left as a hole.
-                    // Raven wrote: if ( pdist > DistanceSquared( position, enemyPosition ) ) { continue; }
-                    portMissing("NPC_FindCombatPoint", source: "oracle/codemp/game/NPC_combat.c:2657")
-                }
+            //Collect our nearest points
+            if (flags & CP_NO_PVS) != 0 {
+                //much larger radius since most will be dropped?
+                collRad = CP_COLLECT_RADIUS * 4
             }
-            //Try to find a point farther from the enemy than where we are
-            if (flags & CP_RETREAT) != 0 {
-                if (flags & CP_HORZ_DIST_COLL) != 0 {
-                    // Port-note: A read of `pdist`, a local the draft left as a hole.
-                    // Raven wrote: if ( pdist < DistanceHorizontalSquared( position, enemyPosition ) ) {//it's closer, don't use it continue; }
-                    portMissing("NPC_FindCombatPoint", source: "oracle/codemp/game/NPC_combat.c:2657")
-                } else {
-                    // Port-note: A read of `pdist`, a local the draft left as a hole.
-                    // Raven wrote: if ( pdist < DistanceSquared( position, enemyPosition ) ) {//it's closer, don't use it continue; }
-                    portMissing("NPC_FindCombatPoint", source: "oracle/codemp/game/NPC_combat.c:2657")
-                }
-            }
+            numPoints = NPC_CollectCombatPoints(enemyPosition, collRad, points, flags) //position
 
-            //We want a point on other side of the enemy from current pos
-            if (flags & CP_FLANK) != 0 {
-                var eDir2Me = vec3_t()
-                var eDir2CP = vec3_t()
-                var dot: Float = 0
 
-                eDir2Me = position - enemyPosition
-                VectorNormalize(&eDir2Me)
+            j = 0
+            while j < numPoints {
+                //const int i = (*cpi).second;
+                let i: Int32 = points[j].index
+                let pdist: Float = points[j].dist
 
-                // Port-note: A read of `i`, a local the draft left as a hole.
-                // Raven wrote: VectorSubtract( level.combatPoints[i].origin, enemyPosition, eDir2CP )
-                portMissing("NPC_FindCombatPoint", source: "oracle/codemp/game/NPC_combat.c:2657")
-                VectorNormalize(&eDir2CP)
-
-                dot = _DotProduct(eDir2Me, eDir2CP)
-
-                //Not far enough behind enemy from current pos
-                if Double(dot) >= 0.4 {
-                    j += 1
-                    continue
-                }
-            }
-
-            //See if we're trying to avoid our enemy
-            //FIXME: this needs to check for the waypoint you'll be taking to get to that combat point
-            if (flags & CP_AVOID_ENEMY) != 0 {
-                var eDir = vec3_t()
-                var gDir = vec3_t()
-                var wpOrg = vec3_t()
-                var dot: Float = 0
-
-                eDir = position - enemyPosition
-                VectorNormalize(&eDir)
-
-                /*
-                NAV_FindClosestWaypointForEnt( NPC, level.combatPoints[i].waypoint );
-                if ( NPC->waypoint != WAYPOINT_NONE && NPC->waypoint != level.combatPoints[i].waypoint )
-                {
-                trap_Nav_GetNodePosition( NPC->waypoint, wpOrg );
-                }
-                else
-                */
-                do {
-                    // Port-note: A read of `i`, a local the draft left as a hole.
-                    // Raven wrote: VectorCopy( level.combatPoints[i].origin, wpOrg )
-                    portMissing("NPC_FindCombatPoint", source: "oracle/codemp/game/NPC_combat.c:2657")
-                }
-                gDir = position - wpOrg
-                VectorNormalize(&gDir)
-
-                dot = _DotProduct(gDir, eDir)
-
-                //Don't want to run at enemy
-                if dot >= MIN_AVOID_DOT {
+                //Must not be one we want to ignore
+                if i == ignorePoint {
                     j += 1
                     continue
                 }
 
-                //Can't be too close to the enemy
-                if DistanceSquared(wpOrg, enemyPosition) < modifiedAvoidDist {
+                //FIXME: able to mark certain ones as too dangerous to go to for now?  Like a tripmine/thermal/detpack is near or something?
+                //If we need a cover point, check this point
+                if (flags & CP_COVER) != 0 && (NPC_ClearLOS(level.combatPoints[i].origin, enemyPosition) == true) { //Used to use NPC->enemy
                     j += 1
                     continue
                 }
-            }
 
-            //Okay, now make sure it's not blocked
-            // Port-note: A read of `i`, a local the draft left as a hole.
-            // Raven wrote: trap_Trace( &tr, level.combatPoints[i].origin, NPC->r.mins, NPC->r.maxs, level.combatPoints[i].origin, NPC->s.number, NPC->clipmask )
-            portMissing("NPC_FindCombatPoint", source: "oracle/codemp/game/NPC_combat.c:2657")
-            if tr.allsolid != 0 || tr.startsolid != 0 {
-                j += 1
-                continue
-            }
-
-            //we must have a route to the combat point
-            if (flags & CP_HAS_ROUTE) != 0 {
-                /*
-                if ( level.combatPoints[i].waypoint == WAYPOINT_NONE )
-                {
-                level.combatPoints[i].waypoint = NAV_FindClosestWaypointForPoint( level.combatPoints[i].origin );
+                //Need a clear LOS to our target... and be within shot range to enemy position (FIXME: make this a separate CS_ flag? and pass in a range?)
+                if (flags & CP_CLEAR) != 0 {
+                    if NPC_ClearLOS3(level.combatPoints[i].origin, NPC!.enemy!) == false {
+                        j += 1
+                        continue
+                    }
+                    if NPC!.s.weapon == WP_THERMAL {
+                        //horizontal
+                        dist = DistanceHorizontalSquared(level.combatPoints[i].origin, NPC!.enemy!.r.currentOrigin)
+                    } else {
+                        //actual
+                        dist = DistanceSquared(level.combatPoints[i].origin, NPC!.enemy!.r.currentOrigin)
+                    }
+                    if dist > (NPCInfo!.stats.visrange * NPCInfo!.stats.visrange) {
+                        j += 1
+                        continue
+                    }
                 }
-                */
 
-                // Port-note: A read of `i`, a local the draft left as a hole.
-                // Raven wrote: if ( waypoint == WAYPOINT_NONE || level.combatPoints[i].waypoint == WAYPOINT_NONE || trap_Nav_GetBestNodeAltRoute2( waypoint, level.combatPoints[i].waypoint, NODE_NONE ) == WAYPOINT_NONE ) {//can't possibly have a route to any OR can't possibly have a route to this one OR don't have a route to this one if ( !NAV_ClearPathToPoint( NPC, NPC->r.mins, NPC->r.maxs, level.combatPoints[i].origin, NPC->clipmask, ENTITYNUM_NONE ) ) {//don't even have a clear straight path to this one continue; } }
-                portMissing("NPC_FindCombatPoint", source: "oracle/codemp/game/NPC_combat.c:2657")
+                //Avoid this position?
+                if (flags & CP_AVOID) != 0 && (DistanceSquared(level.combatPoints[i].origin, position) < modifiedAvoidDist) { //was using MIN_AVOID_DISTANCE_SQUARED, not passed in modifiedAvoidDist
+                    j += 1
+                    continue
+                }
+
+                //Try to find a point closer to the enemy than where we are
+                if (flags & CP_APPROACH_ENEMY) != 0 {
+                    if (flags & CP_HORZ_DIST_COLL) != 0 {
+                        if pdist > DistanceHorizontalSquared(position, enemyPosition) {
+                            j += 1
+                            continue
+                        }
+                    } else {
+                        if pdist > DistanceSquared(position, enemyPosition) {
+                            j += 1
+                            continue
+                        }
+                    }
+                }
+                //Try to find a point farther from the enemy than where we are
+                if (flags & CP_RETREAT) != 0 {
+                    if (flags & CP_HORZ_DIST_COLL) != 0 {
+                        if pdist < DistanceHorizontalSquared(position, enemyPosition) {
+                            //it's closer, don't use it
+                            j += 1
+                            continue
+                        }
+                    } else {
+                        if pdist < DistanceSquared(position, enemyPosition) {
+                            //it's closer, don't use it
+                            j += 1
+                            continue
+                        }
+                    }
+                }
+
+                //We want a point on other side of the enemy from current pos
+                if (flags & CP_FLANK) != 0 {
+                    var eDir2Me = vec3_t()
+                    var eDir2CP = vec3_t()
+                    var dot: Float = 0
+
+                    eDir2Me = position - enemyPosition
+                    VectorNormalize(&eDir2Me)
+
+                    eDir2CP = level.combatPoints[i].origin - enemyPosition
+                    VectorNormalize(&eDir2CP)
+
+                    dot = _DotProduct(eDir2Me, eDir2CP)
+
+                    //Not far enough behind enemy from current pos
+                    if Double(dot) >= 0.4 {
+                        j += 1
+                        continue
+                    }
+                }
+
+                //See if we're trying to avoid our enemy
+                //FIXME: this needs to check for the waypoint you'll be taking to get to that combat point
+                if (flags & CP_AVOID_ENEMY) != 0 {
+                    var eDir = vec3_t()
+                    var gDir = vec3_t()
+                    var wpOrg = vec3_t()
+                    var dot: Float = 0
+
+                    eDir = position - enemyPosition
+                    VectorNormalize(&eDir)
+
+                    /*
+                    NAV_FindClosestWaypointForEnt( NPC, level.combatPoints[i].waypoint );
+                    if ( NPC->waypoint != WAYPOINT_NONE && NPC->waypoint != level.combatPoints[i].waypoint )
+                    {
+                    trap_Nav_GetNodePosition( NPC->waypoint, wpOrg );
+                    }
+                    else
+                    */
+                    do {
+                        wpOrg = level.combatPoints[i].origin
+                    }
+                    gDir = position - wpOrg
+                    VectorNormalize(&gDir)
+
+                    dot = _DotProduct(gDir, eDir)
+
+                    //Don't want to run at enemy
+                    if dot >= MIN_AVOID_DOT {
+                        j += 1
+                        continue
+                    }
+
+                    //Can't be too close to the enemy
+                    if DistanceSquared(wpOrg, enemyPosition) < modifiedAvoidDist {
+                        j += 1
+                        continue
+                    }
+                }
+
+                //Okay, now make sure it's not blocked
+                trap_Trace(tr, level.combatPoints[i].origin, NPC!.r.mins, NPC!.r.maxs, level.combatPoints[i].origin, NPC!.s.number, NPC!.clipmask)
+                if tr.allsolid != 0 || tr.startsolid != 0 {
+                    j += 1
+                    continue
+                }
+
+                //we must have a route to the combat point
+                if (flags & CP_HAS_ROUTE) != 0 {
+                    /*
+                    if ( level.combatPoints[i].waypoint == WAYPOINT_NONE )
+                    {
+                    level.combatPoints[i].waypoint = NAV_FindClosestWaypointForPoint( level.combatPoints[i].origin );
+                    }
+                    */
+
+                    if waypoint == WAYPOINT_NONE || level.combatPoints[i].waypoint == WAYPOINT_NONE || trap_Nav_GetBestNodeAltRoute2(waypoint, level.combatPoints[i].waypoint, NODE_NONE) == WAYPOINT_NONE {
+                        //can't possibly have a route to any OR can't possibly have a route to this one OR don't have a route to this one
+                        if !NAV_ClearPathToPoint(NPC!, NPC!.r.mins, NPC!.r.maxs, level.combatPoints[i].origin, NPC!.clipmask, ENTITYNUM_NONE) {
+                            //don't even have a clear straight path to this one
+                            j += 1
+                            continue
+                        }
+                    }
+                }
+
+                //We want the one with the shortest path from current pos
+                if (flags & CP_NEAREST) != 0 && waypoint != WAYPOINT_NONE && level.combatPoints[i].waypoint != WAYPOINT_NONE {
+                    cost = trap_Nav_GetPathCost(waypoint, level.combatPoints[i].waypoint)
+                    if cost < bestCost {
+                        bestCost = cost
+                        best = i
+                    }
+                    j += 1
+                    continue
+                }
+
+                //we want the combat point closest to the enemy
+                //if ( flags & CP_CLOSEST )
+                //they are sorted by this distance, so the first one to get this far is the closest
+                return i
             }
 
-            //We want the one with the shortest path from current pos
-            // Port-note: A read of `i`, a local the draft left as a hole.
-            // Raven wrote: if ( flags & CP_NEAREST && waypoint != WAYPOINT_NONE && level.combatPoints[i].waypoint != WAYPOINT_NONE ) { cost = trap_Nav_GetPathCost( waypoint, level.combatPoints[i].waypoint ); if ( cost < bestCost ) { bestCost = cost; best = i; } continue; }
-            portMissing("NPC_FindCombatPoint", source: "oracle/codemp/game/NPC_combat.c:2657")
-
-            //we want the combat point closest to the enemy
-            //if ( flags & CP_CLOSEST )
-            //they are sorted by this distance, so the first one to get this far is the closest
-            // Port-note: A read of `i`, a local the draft left as a hole.
-            // Raven wrote: return i
-            portMissing("NPC_FindCombatPoint", source: "oracle/codemp/game/NPC_combat.c:2657")
-            j += 1
+            return best
         }
-
-        return best
     }
 }
 

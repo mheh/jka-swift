@@ -97,6 +97,10 @@ class Manifest:
             rust_cell = "none"
         static = " static" if fn.static else ""
         signature = f"`{self.skeleton.signature(fn)}`"
+        forward = self.skeleton.forward_signature(fn)
+        if forward is not None:
+            # The forward stands beside the function in its file, for the callers that pass a vector.
+            signature += f" Forward: `{forward}`"
         if not fn.mapped:
             signature += f" TODO: Port signature. {fn.reason}"
         return f"| `{fn.name}`{static} | `oracle/{ORACLE_DIR}/{fn.stem}.c:{first}-{last}` | {swift_cell} | {state} | {rust_cell} | {signature} |"

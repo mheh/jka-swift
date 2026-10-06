@@ -128,11 +128,16 @@ BG_FIELDS = {"s", "playerState", "m_pVehicle", "ghoul2", "localAnimIndex", "mode
 # A parameter whose every use is one of these crosses as a String, and any other use keeps it the `inout CharBuf` of rule 11,
 # because a use the sweep cannot read is a use that may write the bytes.
 #   1. A pass to a callee position the callee declared `const`, which no callee writes through.
-#   2. A pass to a function of TEXT_READERS, and a pass past the last declared parameter, which is a format argument.
-#   3. A pass to another function's own non-const `char *`, which the sweep follows to that parameter and back.
-#   4. An operand of one of TEXT_TESTS, and an operand of `!`, which are Raven's NULL tests and his comparisons.
-#   5. The whole condition of an `if`, a `while`, a `do`, or a `?:`, which is a NULL test again.
-# A read at an index, a dereference, a cast, an address-of, pointer arithmetic, `++`, a store into the parameter,
+#   2. A pass to a function of TEXT_READERS, which read the bytes and write none of them.
+#   3. A pass past the last declared parameter, which is a format argument.
+#   4. A pass to a function whose body the sweep has and whose matching parameter the sweep reads as a String,
+#      which the sweep follows to that parameter and back.
+#   5. An operand of one of TEXT_TESTS, and an operand of `!`, which are Raven's NULL tests and his comparisons.
+#   6. The whole condition of an `if`, a `while`, a `do`, or a `?:`, which is a NULL test again.
+#   7. An indexed read, `saberName[0]`, or a dereference, `*from`, used as a value and not as a store target.
+#   8. The value of a pointer local, `p = from`, whose own uses are all reads of these forms.
+#      A step of that local, `p++`, moves the local and writes no byte, so it counts as a read of the local.
+# A cast, an address-of, pointer arithmetic, `++` on the parameter, a store into the parameter or through it,
 # a return of it, and a pass to a function with no body are none of these, so each one keeps the CharBuf.
 TEXT_READERS = {"Q_stricmp", "Q_stricmpn", "Q_strncmp", "strlen", "strcmp", "strncmp", "atoi", "atof", "Com_Printf"}
 TEXT_TESTS = {"==", "!=", "<", ">", "<=", ">=", "&&", "||"}
@@ -272,6 +277,8 @@ class Table:
         self.called: set[str] = set()
         # The (function, parameter) pairs whose body writes through the pointer, so the output keeps its `inout` spelling.
         self.stores_through: set[tuple[str, str]] = set()
+        # The (function, parameter) pairs whose body tests the pointer for NULL with an arm that does more than skip a write through it.
+        self.null_arms: set[tuple[str, str]] = set()
         # The functions whose bodies the store sweep walked, so a parameter outside `stores_through` is proven read-only only for these.
         self.store_swept: set[str] = set()
         # The (function, parameter) pairs whose body never writes through the `char *`, so the parameter is a String.
@@ -605,6 +612,100 @@ class Table:
                     changed = True
         self.store_swept = defined
 
+    def sweep_null_arms(self, tu: ci.TranslationUnit, folder: Path) -> None:
+        """Every pointer parameter whose body tests it for NULL with an arm that does more than skip a write through it.
+        `if (forward) { forward[0] = x; }` of AngleVectors only skips the write, so a caller's NULL takes a scratch local.
+        `if (!dir)` of G_Damage changes what the body does, so the parameter keeps Raven's NULL and crosses as an optional."""
+        for cur in tu.cursor.get_children():
+            if cur.kind != CursorKind.FUNCTION_DECL or not cur.is_definition() or not cur.location.file:
+                continue
+            path = Path(cur.location.file.name).resolve()
+            if path.parent != folder or path.suffix != ".c":
+                continue
+            names = {p.spelling for p in cur.get_arguments() if self.takes_null(p.type)}
+            if not names:
+                continue
+            data = C.parsed_bytes(path)
+            for node, chain in self.text_uses(cur, names):
+                pair = (cur.spelling, node.spelling)
+                if pair in self.null_arms:
+                    continue
+                test = self.null_test(node, chain, data)
+                if isinstance(test, str):
+                    self.null_arms.add(pair)
+                elif test is not None and not self.skips_write(test, node.spelling, data):
+                    self.null_arms.add(pair)
+
+    def null_test(self, node: ci.Cursor, chain: list[ci.Cursor], data: bytes) -> ci.Cursor | str | None:
+        """The `if` statement of a test `if (p)` or `if (p != NULL)` with no else, "arm" for any other NULL test of the parameter,
+        or None for a use that tests nothing."""
+        inner = node
+        depth = 0
+        while depth < len(chain) and chain[depth].kind in (CursorKind.PAREN_EXPR, CursorKind.UNEXPOSED_EXPR):
+            inner = chain[depth]
+            depth += 1
+        if depth >= len(chain):
+            return None
+        parent = chain[depth]
+        kids = list(parent.get_children())
+        test = None
+        if parent.kind == CursorKind.BINARY_OPERATOR and len(kids) == 2:
+            op = data[kids[0].extent.end.offset:kids[1].extent.start.offset].decode("utf-8", "replace").strip()
+            other = kids[1] if self.same_extent(kids[0], inner) else kids[0]
+            text = data[other.extent.start.offset:other.extent.end.offset].decode("utf-8", "replace").strip()
+            if op in ("==", "!=") and text in ("NULL", "0"):
+                if op == "==":
+                    return "arm"
+                test = parent
+            elif op in ("&&", "||"):
+                return "arm"
+            else:
+                return None
+        elif parent.kind == CursorKind.UNARY_OPERATOR and data[parent.extent.start.offset:parent.extent.start.offset + 1] == b"!":
+            return "arm"
+        elif parent.kind == CursorKind.CONDITIONAL_OPERATOR and kids and self.same_extent(kids[0], inner):
+            return "arm"
+        elif parent.kind in (CursorKind.IF_STMT, CursorKind.WHILE_STMT, CursorKind.DO_STMT) and kids and self.same_extent(kids[0], inner):
+            return parent if parent.kind == CursorKind.IF_STMT else "arm"
+        else:
+            return None
+        # Raven's `p != NULL` stands as the whole test of an `if`.
+        rest = chain[depth + 1:]
+        d = 0
+        while d < len(rest) and rest[d].kind in (CursorKind.PAREN_EXPR, CursorKind.UNEXPOSED_EXPR):
+            d += 1
+        if d < len(rest) and rest[d].kind == CursorKind.IF_STMT and self.same_extent(list(rest[d].get_children())[0], rest[d - 1] if d else test):
+            return rest[d]
+        return "arm"
+
+    def skips_write(self, statement: ci.Cursor, name: str, data: bytes) -> bool:
+        """True when an `if` with no else writes only through the parameter in its arm, so its NULL skips that write and nothing else."""
+        kids = list(statement.get_children())
+        if len(kids) != 2:
+            return False
+        body = kids[1]
+        lines = list(body.get_children()) if body.kind == CursorKind.COMPOUND_STMT else [body]
+        for line in lines:
+            line = self.unwrapped(line)
+            parts = list(line.get_children())
+            if line.kind in (CursorKind.BINARY_OPERATOR, CursorKind.COMPOUND_ASSIGNMENT_OPERATOR) and len(parts) == 2 \
+                    and data[parts[0].extent.end.offset:parts[1].extent.start.offset].decode("utf-8", "replace").strip() in ASSIGN_OPS \
+                    and self.argument_root(self.unwrapped(parts[0])) == name:
+                continue
+            if line.kind == CursorKind.CALL_EXPR and line.referenced is not None and line.referenced.kind == CursorKind.FUNCTION_DECL:
+                callee = line.referenced.spelling
+                args = parts[1:]
+                if callee in MACROS:
+                    written = written_arguments(callee)
+                else:
+                    params = list(line.referenced.get_arguments())
+                    written = {i for i, p in enumerate(params) if p.type.get_canonical().kind in (TypeKind.POINTER, TypeKind.CONSTANTARRAY)
+                               and not p.type.get_canonical().get_pointee().is_const_qualified() and "const" not in p.type.spelling}
+                if written and all(i < len(args) and self.argument_root(self.unwrapped(args[i])) == name for i in written):
+                    continue
+            return False
+        return True
+
     @staticmethod
     @functools.cache
     def adopted(stem: str) -> bool:
@@ -681,8 +782,9 @@ class Table:
                 stack.append((kid, [node] + chain))
         return out
 
-    def text_use(self, node: ci.Cursor, chain: list[ci.Cursor], data: bytes) -> tuple[str, tuple[str, int] | None]:
-        """One use of a `char *` parameter as the sweep reads it: "read", "pass" with the callee and the position, or "unknown"."""
+    def text_use(self, node: ci.Cursor, chain: list[ci.Cursor], data: bytes) -> tuple[str, object]:
+        """One use of a `char *` parameter as the sweep reads it: "read", "pass" with the callee and the position,
+        "local" with the pointer local the use sets, or "unknown"."""
         inner = node
         depth = 0
         while depth < len(chain) and chain[depth].kind in (CursorKind.PAREN_EXPR, CursorKind.UNEXPOSED_EXPR):
@@ -694,6 +796,22 @@ class Table:
         kids = list(parent.get_children())
         if parent.kind == CursorKind.CALL_EXPR:
             return self.text_argument(parent, inner, kids)
+        if parent.kind == CursorKind.ARRAY_SUBSCRIPT_EXPR and kids and self.same_extent(kids[0], inner):
+            # Raven's `saberName[0]` reads one byte, and the read is a read where nothing stores into it or takes its address.
+            return ("read", None) if self.value_use(chain[depth + 1:], parent, data) else ("unknown", None)
+        if parent.kind == CursorKind.UNARY_OPERATOR and data[parent.extent.start.offset:parent.extent.start.offset + 1] == b"*":
+            return ("read", None) if self.value_use(chain[depth + 1:], parent, data) else ("unknown", None)
+        if parent.kind == CursorKind.VAR_DECL and parent.semantic_parent is not None \
+                and parent.semantic_parent.kind != CursorKind.TRANSLATION_UNIT and self.char_pointer(parent.type):
+            # Raven's `char *p = from;` hands the bytes to a local, which the sweep reads in turn.
+            return ("local", parent)
+        if parent.kind == CursorKind.BINARY_OPERATOR and len(kids) == 2 and self.same_extent(kids[1], inner) \
+                and data[kids[0].extent.end.offset:kids[1].extent.start.offset].decode("utf-8", "replace").strip() == "=":
+            target = self.unwrapped(kids[0])
+            ref = target.referenced if target.kind == CursorKind.DECL_REF_EXPR else None
+            if ref is not None and ref.kind == CursorKind.VAR_DECL and ref.semantic_parent is not None \
+                    and ref.semantic_parent.kind != CursorKind.TRANSLATION_UNIT and self.char_pointer(ref.type):
+                return ("local", ref)
         if parent.kind == CursorKind.BINARY_OPERATOR and len(kids) == 2:
             between = data[kids[0].extent.end.offset:kids[1].extent.start.offset].decode("utf-8", "replace").strip()
             return ("read", None) if between in TEXT_TESTS else ("unknown", None)
@@ -705,6 +823,86 @@ class Table:
         if parent.kind == CursorKind.CONDITIONAL_OPERATOR and kids and self.same_extent(kids[0], inner):
             return ("read", None)
         return ("unknown", None)
+
+    @staticmethod
+    def value_use(rest: list[ci.Cursor], expr: ci.Cursor, data: bytes) -> bool:
+        """True when a byte read, `p[i]` or `*p`, is a value: no store writes into it, no `&` takes its address, and no `++` steps it."""
+        inner = expr
+        depth = 0
+        while depth < len(rest) and rest[depth].kind in (CursorKind.PAREN_EXPR, CursorKind.UNEXPOSED_EXPR):
+            inner = rest[depth]
+            depth += 1
+        if depth >= len(rest):
+            return True
+        outer = rest[depth]
+        kids = list(outer.get_children())
+        if outer.kind in (CursorKind.BINARY_OPERATOR, CursorKind.COMPOUND_ASSIGNMENT_OPERATOR) and len(kids) == 2 \
+                and Table.same_extent(kids[0], inner):
+            return data[kids[0].extent.end.offset:kids[1].extent.start.offset].decode("utf-8", "replace").strip() not in ASSIGN_OPS
+        if outer.kind == CursorKind.UNARY_OPERATOR:
+            text = data[outer.extent.start.offset:outer.extent.end.offset].decode("utf-8", "replace").strip()
+            return not (text.startswith(("&", "++", "--")) or text.endswith(("++", "--")))
+        return True
+
+    def local_reads(self, fn: ci.Cursor, local: ci.Cursor, data: bytes, seen: set[int]) -> list[tuple[str, object]] | None:
+        """The uses of a pointer local set from the parameter, each as the sweep reads it, or None when one use is not a read.
+        A step of the local and a store into the local itself move the pointer and write no byte, so both read."""
+        key = local.extent.start.offset
+        if key in seen:
+            return []
+        seen.add(key)
+        out: list[tuple[str, object]] = []
+        stack: list[tuple[ci.Cursor, list[ci.Cursor]]] = [(fn, [])]
+        while stack:
+            node, chain = stack.pop()
+            for kid in node.get_children():
+                stack.append((kid, [node] + chain))
+            ref = node.referenced if node.kind == CursorKind.DECL_REF_EXPR else None
+            if ref is None or ref.kind != CursorKind.VAR_DECL or ref.extent.start.offset != key or ref.spelling != local.spelling:
+                continue
+            inner = node
+            depth = 0
+            while depth < len(chain) and chain[depth].kind in (CursorKind.PAREN_EXPR, CursorKind.UNEXPOSED_EXPR):
+                inner = chain[depth]
+                depth += 1
+            parent = chain[depth] if depth < len(chain) else None
+            kids = list(parent.get_children()) if parent is not None else []
+            if parent is not None and parent.kind == CursorKind.UNARY_OPERATOR:
+                text = data[parent.extent.start.offset:parent.extent.end.offset].decode("utf-8", "replace").strip()
+                if text.startswith(("++", "--")) or text.endswith(("++", "--")):
+                    # A step moves the local, and a byte read through the step, `*p++`, reads where no store writes into it.
+                    deref = self.deref_parent(chain[depth + 1:], data)
+                    if deref is None or self.value_use(chain[depth + 1:][deref + 1:], chain[depth + 1:][deref], data):
+                        continue
+                    return None
+            if parent is not None and parent.kind in (CursorKind.BINARY_OPERATOR, CursorKind.COMPOUND_ASSIGNMENT_OPERATOR) \
+                    and len(kids) == 2 and self.same_extent(kids[0], inner) \
+                    and data[kids[0].extent.end.offset:kids[1].extent.start.offset].decode("utf-8", "replace").strip() in ASSIGN_OPS:
+                continue
+            use = self.text_use(node, chain, data)
+            if use[0] == "local":
+                deeper = self.local_reads(fn, use[1], data, seen)
+                if deeper is None:
+                    return None
+                out += deeper
+                continue
+            if use[0] == "unknown":
+                return None
+            out.append(use)
+        return out
+
+    @staticmethod
+    def deref_parent(rest: list[ci.Cursor], data: bytes) -> int | None:
+        """The place in `rest` of a dereference above a step, `*p++`, whose value is a byte read or a byte write, or None."""
+        depth = 0
+        while depth < len(rest) and rest[depth].kind in (CursorKind.PAREN_EXPR, CursorKind.UNEXPOSED_EXPR):
+            depth += 1
+        if depth >= len(rest):
+            return None
+        outer = rest[depth]
+        if outer.kind == CursorKind.UNARY_OPERATOR and data[outer.extent.start.offset:outer.extent.start.offset + 1] == b"*":
+            return depth
+        return None
 
     @staticmethod
     def same_extent(one: ci.Cursor, other: ci.Cursor) -> bool:
@@ -756,9 +954,15 @@ class Table:
             if not targets:
                 continue
             data = C.parsed_bytes(path)
-            uses: dict[str, list[tuple[str, tuple[str, int] | None]]] = {name: [] for name in targets}
+            uses: dict[str, list[tuple[str, object]]] = {name: [] for name in targets}
             for node, chain in self.text_uses(cur, targets):
-                uses[node.spelling].append(self.text_use(node, chain, data))
+                use = self.text_use(node, chain, data)
+                if use[0] == "local":
+                    # The pointer local reads in turn, and one use of it that is not a read keeps the parameter a CharBuf.
+                    reads = self.local_reads(cur, use[1], data, set())
+                    uses[node.spelling] += reads if reads is not None else [("unknown", None)]
+                    continue
+                uses[node.spelling].append(use)
             for name, kinds in uses.items():
                 if any(kind == "unknown" for kind, _ in kinds):
                     continue
@@ -1399,6 +1603,7 @@ class Table:
         self.resolve_handoffs()
         self.sweep_buffer_traps(other, folder, other_folder)
         self.sweep_stores(tu, folder)
+        self.sweep_null_arms(tu, folder)
         self.sweep_text(tu, folder)
         self.sweep_cursors(tu, folder)
         self.sweep_file_walks()
@@ -1435,6 +1640,7 @@ class Table:
             readonly_text=(owner, name) in self.readonly_text,
             indexed=(owner, name) in self.indexed_params,
             stores_through=(owner, name) in self.stores_through,
+            null_arm=(owner, name) in self.null_arms,
             store_swept=owner in self.store_swept,
             fills_array=(owner, name) in self.array_handoffs,
         )

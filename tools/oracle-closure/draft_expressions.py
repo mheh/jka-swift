@@ -525,7 +525,13 @@ class Expressions:
                 op = "&" + op
             left, right = list(cur.get_children())
             if op in LOGICAL:
-                a, b = self.condition(left), self.condition(right)
+                a = self.condition(left)
+                # The right side runs only on some passes, so a store inside it has no line of its own before the statement.
+                self.lift_blocked += 1
+                try:
+                    b = self.condition(right)
+                finally:
+                    self.lift_blocked -= 1
                 span = (self.fn.stem, cur.extent.start.offset, cur.extent.end.offset)
                 # A folded guard drops out of the operator it sat in.
                 if (op == "||" and a == "false") or (op == "&&" and a == "true"):
@@ -545,7 +551,7 @@ class Expressions:
                 self.logical_tails[span] = (b, right)
                 return f"{a} {op} {b}"
             if op in ASSIGN_OPS:
-                raise Hole("An assignment inside an expression.")
+                return self.lifted_store(cur)
             if op in COMPARISONS and self.leaf_wrap is None and (self.has_double_literal(cur) or self.holds_double(cur)) \
                     and TypeKind.DOUBLE in (left.type.get_canonical().kind, right.type.get_canonical().kind):
                 # C compares in double where one operand is double, so the comparison is the operator that meets the double operand.
@@ -583,12 +589,32 @@ class Expressions:
             return f"{self.expr(left)} {op} {self.expr(right)}"
         if kind == CursorKind.CONDITIONAL_OPERATOR:
             test, yes, no = list(cur.get_children())
-            return f"{self.condition(test)} ? {self.expr(yes)} : {self.expr(no)}"
+            first = self.condition(test)
+            # One arm runs on each pass, so a store inside an arm has no line of its own before the statement.
+            self.lift_blocked += 1
+            try:
+                return f"{first} ? {self.expr(yes)} : {self.expr(no)}"
+            finally:
+                self.lift_blocked -= 1
         if kind == CursorKind.CSTYLE_CAST_EXPR:
             return self.cast(cur)
         if kind == CursorKind.CXX_UNARY_EXPR:
             return self.sizeof(cur)
+        if kind == CursorKind.COMPOUND_ASSIGNMENT_OPERATOR:
+            return self.lifted_store(cur)
         raise Hole(f"No rule for a {kind.name} expression.")
+
+    def lifted_store(self, cur: ci.Cursor) -> str:
+        """Raven's store inside an expression, `(spot = G_Find(...)) != NULL`, as its own line before the statement.
+        The expression reads the variable after the store, and a compound store lifts its inner store first."""
+        if self.lift_blocked:
+            raise Hole("An assignment inside an expression, where a line before the statement would run at the wrong time.")
+        key = (cur.extent.start.offset, cur.extent.end.offset)
+        if key not in self.lifted:
+            self.lifted.add(key)
+            lines = self.statement_lines(cur, 0)
+            self.pending += lines
+        return self.expr(list(cur.get_children())[0])
 
     def unwrap(self, cur: ci.Cursor) -> ci.Cursor:
         while cur.kind in (CursorKind.PAREN_EXPR, CursorKind.UNEXPOSED_EXPR):
@@ -710,11 +736,18 @@ class Expressions:
         """Raven's `ent - g_entities`, a pointer minus its own table, as the index of the slot it points at, or None.
 
         A walk pointer is its index local. An entity is its number, `ent.s.number`, the index Raven keeps in the record.
-        A store of that index into the entity's own number reads the Slots slot form, `g_entities.slot(of: ent)`,
+        A store of that index into the entity's own number reads the Slots index form, `g_entities.index(of: ent)`,
         because the number is the value the store writes.
         A record of another table is the collection search, `bg_itemlist.firstIndex(of: item)!`, where an array index takes it,
-        and the Slots slot form, `bg_itemlist.slot(of: item)`, where the site takes an Int32."""
+        and the Slots index form, `bg_itemlist.index(of: item)`, where the site takes an Int32.
+        A pointer field Raven indexes is its Slots accessor, `level.clientsSlots.index(of: client)`."""
         table = self.unwrap(right)
+        member = self.slots_member(right)
+        pointer = self.strip(left).type.get_canonical()
+        if member is not None and pointer.kind == TypeKind.POINTER and table.type.get_canonical().kind == TypeKind.POINTER \
+                and table.type.get_canonical().get_pointee().get_canonical() == pointer.get_pointee().get_canonical():
+            # Raven's `client - level.clients` over a field he indexes is the slot index on the field's Slots accessor.
+            return f"{member}.index(of: {self.operand(left)}{'!' if self.optional_base(left) else ''})"
         if table.kind != CursorKind.DECL_REF_EXPR or table.referenced is None or table.referenced.kind != CursorKind.VAR_DECL:
             return None
         canonical = table.referenced.type.get_canonical()
@@ -732,12 +765,12 @@ class Expressions:
         optional = self.optional_base(left)
         if self.types.record_name(element) == "gentity_t":
             if self.stores_own_number(left, right):
-                return f"{swift_name(table.spelling)}.slot(of: {self.operand(left)}{'!' if optional else ''})"
+                return f"{swift_name(table.spelling)}.index(of: {self.operand(left)}{'!' if optional else ''})"
             return f"{self.operand(left)}{'!' if optional else ''}.s.number"
         key = (self.unwrap(left).extent.start.offset, self.unwrap(right).extent.end.offset)
         if key in self.index_spans:
             return f"{swift_name(table.spelling)}.firstIndex(of: {self.operand(left)}{'!' if optional else ''})!"
-        return f"{swift_name(table.spelling)}.slot(of: {self.operand(left)}{'!' if optional else ''})"
+        return f"{swift_name(table.spelling)}.index(of: {self.operand(left)}{'!' if optional else ''})"
 
     def stores_own_number(self, left: ci.Cursor, right: ci.Cursor) -> bool:
         """True when Raven's `ent - g_entities` is the value of a store into `ent->s.number`, the store that sets the number."""

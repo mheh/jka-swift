@@ -85,6 +85,8 @@ class Facts:
     store_swept: bool = False
     # True when the NULL sweep, at a direct call or one hop on, reaches the parameter. The vector, axis, and out-scalar rules read this one.
     null_reaches: bool = False
+    # True when the body tests the pointer for NULL with an arm that does more than skip a write through it.
+    null_arm: bool = False
     # True when the body hands the `int *` on to an array a trap fills, so the parameter is that array too.
     fills_array: bool = False
     # The body already spells the expression as a Swift Bool, and the expression is a number Swift types by context.
@@ -249,6 +251,9 @@ class Types:
             return Answer("inout JKAShared.vec3_t", "vec3_mut")
         if facts.ruled == "float_array":
             return Answer("inout [Float]", "bare")
+        if facts.ruled == "key_path":
+            # Raven's field offset, `FOFS(classname)`, is the key path to the entity's text field, `\.classname`.
+            return Answer(f"KeyPath<{self.views.qualified_view('gentity_t', TARGET)}, String?>", "bare")
         if facts.ruled == "int_array":
             # The body only reads the values, and Raven's callers pass NULL with a count of zero, so the array crosses by value as an optional.
             return Answer("[Int32]?", "int_array")
@@ -259,6 +264,11 @@ class Types:
             if facts.null_reaches and not facts.stores_through and not facts.traps:
                 # A caller passes NULL and the body only reads, so the vector crosses as an optional value and the NULL test keeps its form.
                 return Answer(f"JKAShared.{t.spelling.split()[-1]}?", "vec3_opt")
+            if facts.null_reaches and facts.stores_through and facts.null_arm and not facts.traps and facts.ruled is None and "const" not in t.spelling:
+                # A caller passes NULL, the body writes the vector, and a NULL arm does more than skip that write,
+                # so the vector crosses as an optional inout, and the NULL test keeps its form.
+                # The skeleton writes a forward with the plain inout vector beside the function, for the callers that pass one.
+                return Answer(f"inout JKAShared.{t.spelling.split()[-1]}?", "vec3_mut_opt")
             if "const" in t.spelling:
                 return Answer(f"JKAShared.{t.spelling.split()[-1]}", "vec3_const")
             if facts.store_swept and not facts.stores_through and not facts.traps:
@@ -288,6 +298,9 @@ class Types:
                     return None
                 if facts.null_reaches and not facts.stores_through:
                     return Answer("[JKAShared.vec3_t]?", "axis_opt")
+                if facts.null_reaches and facts.stores_through and facts.null_arm:
+                    # A written axis a caller skips with NULL is an optional inout, with the same forward as a written vector.
+                    return Answer("inout [JKAShared.vec3_t]?", "axis_mut_opt")
                 return Answer("inout [JKAShared.vec3_t]", "vec3_axis")
             if inner.kind == TypeKind.CHAR_S:
                 if pointee.is_const_qualified():
@@ -309,7 +322,8 @@ class Types:
                 if facts.ruled is None and facts.readonly_text:
                     # The body only reads the text, so the parameter is a String, the spelling a `const char *` already has.
                     # A PARAMS row names the kind itself, so it wins over the sweep.
-                    return Answer("String?" if facts.nullable else "String", "cstring_opt" if facts.nullable else "cstring")
+                    # A NULL the sweep reaches at a call or one hop on makes it a String?, the way the vector rules read the same sets.
+                    return Answer("String?" if facts.null_reaches else "String", "cstring_opt" if facts.null_reaches else "cstring")
                 # A body reads and rewrites the caller's buffer in place, so the caller's CharBuf crosses with `&`.
                 return Answer("inout JKAShared.CharBuf", "inout_charbuf")
             record = self.record_name(pointee)
@@ -358,16 +372,21 @@ class Types:
             # A pointer to one scalar is an out-param, `inout`. A body that finds Raven walks it as an array writes a Port-note.
             if not pointee.is_const_qualified() and (inner.kind in INT_KINDS or inner.kind in (TypeKind.FLOAT, TypeKind.ENUM)):
                 swift = self.scalar(pointee, TARGET)
-                if swift is not None and self.known(swift) and facts.null_reaches and not facts.stores_through:
-                    # An output a caller skips with NULL, at a direct call or one hop on, crosses as the pointer itself, in the wrapper alone, so `nil` has a seat.
-                    # A body that writes through the pointer keeps the `inout` spelling, and the caller's NULL takes a scratch local.
+                if swift is not None and self.known(swift) and facts.null_reaches:
+                    # An output a caller skips with NULL, at a direct call or one hop on, crosses as the pointer itself, so `nil` has a seat.
+                    # A body that writes through it keeps Raven's NULL test, `crazySmoothFactor` of BG_G2PlayerAngles.
                     return Answer(f"UnsafeMutablePointer<{swift}>?", "bare")
                 if swift is not None and self.known(swift):
                     return Answer(f"inout {swift}", "out_scalar")
             return None
         if canonical.kind == TypeKind.CONSTANTARRAY and "vec3_t" in t.spelling:
             # `vec3_t name[3]` is an axis, the type the ported q_math axis functions take.
-            return None if facts.traps else Answer("inout [JKAShared.vec3_t]", "vec3_axis")
+            if facts.traps:
+                return None
+            if facts.null_reaches and facts.stores_through and facts.null_arm:
+                # A written axis a caller skips with NULL is an optional inout, with the same forward as a written vector.
+                return Answer("inout [JKAShared.vec3_t]?", "axis_mut_opt")
+            return Answer("inout [JKAShared.vec3_t]", "vec3_axis")
         if canonical.kind in (TypeKind.CONSTANTARRAY, TypeKind.INCOMPLETEARRAY) and not facts.traps:
             # A C array of struct pointers the function fills, `gentity_t *ent_list[MAX_GENTITIES]`, is the caller's array of optional views.
             element = canonical.element_type.get_canonical()
@@ -453,6 +472,9 @@ class Types:
             return Answer(want, "bool_to_number")
         if want in ("Float", "Int32", "Double") and have is not None and have != want and not facts.is_literal:
             return Answer(want, "convert", crossing=want + "({text})")
+        if want == "Int32" and have in ("Float", "Double") and facts.is_literal:
+            # Swift types a float literal as no integer, so Raven's `gravity = 1.0f` converts at the store, the mirror of `Float(x)`.
+            return Answer(want, "convert", crossing="Int32({text})")
         if want in NARROW_STORAGE and have is not None and not facts.is_literal:
             # C truncates the int it computed into the narrow local at the store.
             return Answer(want, "convert", crossing=want + "(truncatingIfNeeded: {text})")

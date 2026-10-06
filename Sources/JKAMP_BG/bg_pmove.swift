@@ -7707,7 +7707,7 @@ func BG_InRoll2(_ es: JKAMP.EntityState) -> Bool {
 }
 
 /// Source: oracle/codemp/game/bg_pmove.c:9082
-public func BG_G2PlayerAngles(_ ghoul2: OpaquePointer?, _ motionBolt: Int32, _ cent: JKAMP.EntityState, _ time: Int32, _ cent_lerpOrigin: inout JKAShared.vec3_t, _ cent_lerpAngles: inout JKAShared.vec3_t, _ legs: inout [JKAShared.vec3_t], _ legsAngles: inout JKAShared.vec3_t, _ tYawing: inout Bool, _ tPitching: inout Bool, _ lYawing: inout Bool, _ tYawAngle: inout Float, _ tPitchAngle: inout Float, _ lYawAngle: inout Float, _ frametime: Int32, _ turAngles: inout JKAShared.vec3_t, _ modelScale: inout JKAShared.vec3_t, _ ciLegs: Int32, _ ciTorso: Int32, _ corrTime: inout Int32, _ lookAngles: inout JKAShared.vec3_t, _ lastHeadAngles: inout JKAShared.vec3_t, _ lookTime: Int32, _ emplaced: JKAMP.EntityState, _ crazySmoothFactor: inout Int32) {
+public func BG_G2PlayerAngles(_ ghoul2: OpaquePointer?, _ motionBolt: Int32, _ cent: JKAMP.EntityState, _ time: Int32, _ cent_lerpOrigin: inout JKAShared.vec3_t, _ cent_lerpAngles: inout JKAShared.vec3_t, _ legs: inout [JKAShared.vec3_t], _ legsAngles: inout JKAShared.vec3_t, _ tYawing: inout Bool, _ tPitching: inout Bool, _ lYawing: inout Bool, _ tYawAngle: inout Float, _ tPitchAngle: inout Float, _ lYawAngle: inout Float, _ frametime: Int32, _ turAngles: inout JKAShared.vec3_t, _ modelScale: inout JKAShared.vec3_t, _ ciLegs: Int32, _ ciTorso: Int32, _ corrTime: inout Int32, _ lookAngles: inout JKAShared.vec3_t, _ lastHeadAngles: inout JKAShared.vec3_t, _ lookTime: Int32, _ emplaced: JKAMP.EntityState?, _ crazySmoothFactor: UnsafeMutablePointer<Int32>?) {
     var adddir: Int32 = 0
     var degrees_negative: Float = 0
     var degrees_positive: Float = 0
@@ -7851,7 +7851,7 @@ public func BG_G2PlayerAngles(_ ghoul2: OpaquePointer?, _ motionBolt: Int32, _ c
 
     if cent.groundEntityNum == ENTITYNUM_NONE
         || cent.forceFrame != 0
-        || cent.weapon == WP_EMPLACED_GUN {
+        || (cent.weapon == WP_EMPLACED_GUN && emplaced != nil) {
         //off the ground, no direction-based leg angles (same if in saberlock)
         velPos = cent_lerpOrigin
     }
@@ -7946,14 +7946,14 @@ public func BG_G2PlayerAngles(_ ghoul2: OpaquePointer?, _ motionBolt: Int32, _ c
         angles[0] = -30
     }
 
-    if cent.weapon == WP_EMPLACED_GUN {
+    if cent.weapon == WP_EMPLACED_GUN && emplaced != nil {
         //if using an emplaced gun, then we want to make sure we're angled to "hold" it right
         var facingAngles = vec3_t()
 
-        facingAngles = emplaced.pos.trBase - cent_lerpOrigin
+        facingAngles = emplaced!.pos.trBase - cent_lerpOrigin
         vectoangles(facingAngles, &facingAngles)
 
-        if emplaced.weapon == WP_NONE {
+        if emplaced!.weapon == WP_NONE {
             //e-web
             legsAngles = facingAngles
             AnglesToAxis(legsAngles, &legs)
@@ -7972,7 +7972,10 @@ public func BG_G2PlayerAngles(_ ghoul2: OpaquePointer?, _ motionBolt: Int32, _ c
 
             if cent.legsAnim == BOTH_STRAFE_LEFT1 || cent.legsAnim == BOTH_STRAFE_RIGHT1 {
                 //try to adjust so it doesn't look wrong
-                crazySmoothFactor = time + 1000
+                if crazySmoothFactor != nil {
+                    //want to smooth a lot during this because it chops around and looks like ass
+                    crazySmoothFactor!.pointee = time + 1000
+                }
 
                 BG_G2ClientSpineAngles(ghoul2, motionBolt, &cent_lerpOrigin, &cent_lerpAngles, cent, time,
                     &viewAngles, ciLegs, ciTorso, angles, &thoracicAngles, &ulAngles, &llAngles, &modelScale,

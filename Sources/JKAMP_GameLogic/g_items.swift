@@ -1314,7 +1314,7 @@ func G_SpecialSpawnItem(_ ent: Entity, _ item: JKAMP.Gitem) {
     ent.r.maxs = vec3_t(8, 8, 16)
 
     ent.s.eType = ET_ITEM
-    ent.s.modelindex = bg_itemlist.slot(of: ent.item!) // store item number in modelindex
+    ent.s.modelindex = bg_itemlist.index(of: ent.item!) // store item number in modelindex
 
     ent.r.contents = CONTENTS_TRIGGER
     ent.touch = Touch.Touch_Item
@@ -1983,7 +1983,7 @@ func Pickup_Powerup(_ ent: Entity, _ other: Entity) -> Int32 {
 
 /// Source: oracle/codemp/game/g_items.c:2104
 func Pickup_Holdable(_ ent: Entity, _ other: Entity) -> Int32 {
-    other.client!.ps.stats[STAT_HOLDABLE_ITEM] = bg_itemlist.slot(of: ent.item!)
+    other.client!.ps.stats[STAT_HOLDABLE_ITEM] = bg_itemlist.index(of: ent.item!)
 
     other.client!.ps.stats[STAT_HOLDABLE_ITEMS] |= (1 << ent.item!.giTag)
 
@@ -2483,7 +2483,7 @@ func LaunchItem(_ item: JKAMP.Gitem, _ origin: inout JKAShared.vec3_t, _ velocit
     dropped = G_Spawn()
 
     dropped!.s.eType = ET_ITEM
-    dropped!.s.modelindex = bg_itemlist.slot(of: item) // store item number in modelindex
+    dropped!.s.modelindex = bg_itemlist.index(of: item) // store item number in modelindex
     if dropped!.s.modelindex < 0 {
         dropped!.s.modelindex = 0
     }
@@ -2695,7 +2695,7 @@ func FinishSpawningItem(_ ent: Entity) {
         ent.r.maxs = vec3_t(8, 8, 16)
 
         ent.s.eType = ET_ITEM
-        ent.s.modelindex = bg_itemlist.slot(of: ent.item!) // store item number in modelindex
+        ent.s.modelindex = bg_itemlist.index(of: ent.item!) // store item number in modelindex
         ent.s.modelindex2 = 0 // zero indicates this isn't a dropped item
 
         ent.r.contents = CONTENTS_TRIGGER

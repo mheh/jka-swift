@@ -35,6 +35,15 @@ public struct StringIDTable: Hashable, HandleView {
         return try withUnsafeMutablePointer(to: &slot) { try body(StringIDTable(raw: $0)) }
     }
 
+    /// Raven's `stringID_table_t stringID_table[N];` on the stack, a local array of records.
+    /// The slots are zero at entry, live for the closure, and the closure's value is the result.
+    public static func scratch<Result>(count: Int, _ body: (Slots<StringIDTable>) throws -> Result) rethrows -> Result {
+        let base = UnsafeMutableRawPointer.allocate(byteCount: count * StringIDTable.stride, alignment: MemoryLayout<stringID_table_t>.alignment)
+        defer { base.deallocate() }
+        base.initializeMemory(as: UInt8.self, repeating: 0, count: count * StringIDTable.stride)
+        return try body(Slots(views: base, count: count, stride: StringIDTable.stride))
+    }
+
     /// Raven's `stringID_table_t stringID_table = *other;`, a copy of another slot on the stack.
     public static func scratch<Result>(copying other: StringIDTable, _ body: (StringIDTable) throws -> Result) rethrows -> Result {
         var slot = other.raw.pointee

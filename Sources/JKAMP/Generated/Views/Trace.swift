@@ -35,6 +35,15 @@ public struct Trace: Hashable, HandleView {
         return try withUnsafeMutablePointer(to: &slot) { try body(Trace(raw: $0)) }
     }
 
+    /// Raven's `trace_t trace[N];` on the stack, a local array of records.
+    /// The slots are zero at entry, live for the closure, and the closure's value is the result.
+    public static func scratch<Result>(count: Int, _ body: (Slots<Trace>) throws -> Result) rethrows -> Result {
+        let base = UnsafeMutableRawPointer.allocate(byteCount: count * Trace.stride, alignment: MemoryLayout<trace_t>.alignment)
+        defer { base.deallocate() }
+        base.initializeMemory(as: UInt8.self, repeating: 0, count: count * Trace.stride)
+        return try body(Slots(views: base, count: count, stride: Trace.stride))
+    }
+
     /// Raven's `trace_t trace = *other;`, a copy of another slot on the stack.
     public static func scratch<Result>(copying other: Trace, _ body: (Trace) throws -> Result) rethrows -> Result {
         var slot = other.raw.pointee

@@ -3313,7 +3313,7 @@ func SP_NPC_Droid_Protocol(_ `self`: Entity) {
 }
 
 /// Source: oracle/codemp/game/NPC_spawn.c:3872
-func NPC_SpawnType(_ ent: Entity, _ npc_type: inout JKAShared.CharBuf, _ targetname: String?, _ isVehicle: Bool) -> Entity? {
+func NPC_SpawnType(_ ent: Entity, _ npc_type: String?, _ targetname: String?, _ isVehicle: Bool) -> Entity? {
     let NPCspawner: Entity? = G_Spawn()
     var forward = vec3_t()
     var end = vec3_t()
@@ -3329,8 +3329,11 @@ func NPC_SpawnType(_ ent: Entity, _ npc_type: inout JKAShared.CharBuf, _ targetn
         NPCspawner!.think = Think.G_FreeEntity
         NPCspawner!.nextthink = level.time + FRAMETIME
 
+        if npc_type == nil {
+            return nil
+        }
 
-        if npc_type[0] == 0 {
+        if npc_type!.isEmpty {
             Com_Printf(S_COLOR_RED + "Error, expected one of:\n" + S_COLOR_WHITE + " NPC spawn [NPC type (from ext_data/NPCs)]\n NPC spawn vehicle [VEH type (from ext_data/vehicles)]\n")
             return nil
         }
@@ -3373,7 +3376,7 @@ func NPC_SpawnType(_ ent: Entity, _ npc_type: inout JKAShared.CharBuf, _ targetn
 
         trap_LinkEntity(NPCspawner!)
 
-        NPCspawner!.NPC_type = G_NewString(String(npc_type))
+        NPCspawner!.NPC_type = G_NewString(npc_type!)
 
         if targetname != nil {
             NPCspawner!.NPC_targetname = G_NewString(targetname!)
@@ -3450,9 +3453,7 @@ func NPC_Spawn_f(_ ent: Entity) {
         strcpy(&targetname, trap_Argv(3, 1024))
     }
 
-    // Port-note: The draft of this statement did not compile, and the compiler wrote "cannot convert value of type 'CharBuf' to expected argument type 'String'".
-    // Raven wrote: NPC_SpawnType( ent, npc_type, targetname, isVehicle )
-    portMissing("NPC_Spawn_f", source: "oracle/codemp/game/NPC_spawn.c:4020")
+    _ = NPC_SpawnType(ent, String(npc_type), String(targetname), isVehicle)
 }
 
 /// Source: oracle/codemp/game/NPC_spawn.c:4045

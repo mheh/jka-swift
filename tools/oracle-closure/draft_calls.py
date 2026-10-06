@@ -21,6 +21,9 @@ from draft_classification import Hole
 
 TEXT_TYPES = {"String", "CharBuf", "JKAShared.CharBuf", "PooledString", "JKAShared.PooledString"}
 # The declaration tail of the scratch local each `inout` output a caller skips with NULL takes, by the parameter's Swift spelling.
+# The traps whose engine side substitutes `vec3_origin` for a NULL `mins` or `maxs`, at oracle/code/server/sv_world.cpp:859
+# and cm_trace.cpp:987 and 1125.
+TRACE_TRAPS = {"trap_Trace", "trap_G2Trace"}
 SCRATCH_ZEROS = {"inout vec3_t": "= vec3_t()", "inout Int32": ": Int32 = 0", "inout Float": ": Float = 0"}
 # One C conversion, `%%` or a `%` with its flags, width, precision, length, and conversion letter.
 CONVERSION = re.compile(r"%(?:%|[-+ #0]*(\*|\d+)?(?:\.(\*|\d*))?(?:hh|h|ll|l|j|z|t|L|I64|I32|I)?([diouxXeEfFgGaAcspn]))")
@@ -87,6 +90,12 @@ class Calls:
             name = callee.spelling
             if name in MACROS:
                 return self.macro_call(name, args)
+            if name == "FOFS":
+                # Raven's field offset is the key path to the entity's field, which G_Find reads through the key path.
+                m = re.fullmatch(r"FOFS\s*\(\s*(\w+)\s*\)", " ".join(self.bytes[cur.extent.start.offset:cur.extent.end.offset].decode("utf-8", "replace").split()))
+                if m is None:
+                    raise Hole("Raven's `FOFS` names no one field here.")
+                return f"\\.{swift_name(m.group(1))}"
             if name == "sscanf" and len(args) == 5:
                 roots = [self.vector_member(a) for a in args[2:]]
                 if roots[0] is not None and all(r == roots[0] for r in roots):
@@ -253,11 +262,24 @@ class Calls:
             return [(p.name.strip("`"), p.swift or "") for p in fn.params]
         return []
 
+    def null_local(self, name: str) -> str:
+        """The name of the nil optional a caller passes for Raven's NULL, the parameter's own name, numbered on a repeat,
+        and with `null` in front where Raven's function already declares the name."""
+        taken = {c.spelling for c in self.fn.cur.walk_preorder() if c.kind in (CursorKind.VAR_DECL, CursorKind.PARM_DECL)}
+        local = name if name not in taken else "null" + name[:1].upper() + name[1:]
+        self.scratch_names[local] = self.scratch_names.get(local, 0) + 1
+        return local if self.scratch_names[local] == 1 else f"{local}{self.scratch_names[local]}"
+
     def inout_positions(self, name: str) -> set[int]:
         return {i for i, (_, swift) in enumerate(self.callee_params(name)) if swift.startswith("inout ")}
 
     def argument(self, cur: ci.Cursor, inout: bool, param: tuple[str, str] | None = None, callee: str | None = None, position: int = 0) -> str:
         inner = self.strip(cur)
+        spelled = " ".join(self.bytes[cur.extent.start.offset:cur.extent.end.offset].decode("utf-8", "replace").split())
+        offset = re.fullmatch(r"FOFS\s*\(\s*(\w+)\s*\)", spelled)
+        if offset is not None:
+            # g_local.h expands Raven's `FOFS(classname)` to the field's offset, and the key path to the field stands for it.
+            return f"\\.{swift_name(offset.group(1))}"
         if self.argument_key(cur, position) in self.aliased_positions:
             return f"&{self.aliased_positions[self.argument_key(cur, position)]}"
         if self.text_tail(inner) is not None:
@@ -282,6 +304,11 @@ class Calls:
                 # The slot at the byte offset is an optional raw pointer, and Raven's guard above it proved it is set.
                 return f"{self.raw_slot(slot)}!"
             return self.expr(inner)
+        if inout and self.is_null(inner) and param is not None and param[1].endswith("?"):
+            # The callee takes the vector as an optional inout and keeps Raven's NULL test, so the caller passes a nil optional.
+            local = self.null_local(param[0])
+            self.pending.append(f"var {local}: {param[1].removeprefix('inout ').replace('JKAShared.', '')} = nil")
+            return f"&{local}"
         if inout and self.is_null(inner):
             tail = SCRATCH_ZEROS.get(param[1].replace("JKAShared.", "")) if param is not None else None
             if param is None or tail is None:
@@ -301,6 +328,10 @@ class Calls:
         if param is not None and param[1].endswith("?") and inner.kind == CursorKind.DECL_REF_EXPR and inner.spelling in self.optional_vectors:
             # The optional vector passes on as it is, NULL and all.
             return self.names[inner.spelling]
+        if param is not None and param[1].replace("JKAShared.", "") == "vec3_t" and self.is_null(inner) \
+                and callee in TRACE_TRAPS and param[0] in ("mins", "maxs"):
+            # The engine substitutes `vec3_origin` for a NULL `mins` or `maxs`, so the plain argument is the same call.
+            return "JKAShared.vec3_origin"
         if param is not None and param[1].replace("JKAShared.", "") == "vec3_t" and self.is_null(inner):
             self.pending += self.noted_hole(f"// Port-note: Raven passes NULL for `{param[0]}`, and the callee reads NULL as the zero vector.")
             return "JKAShared.vec3_origin"
@@ -347,7 +378,8 @@ class Calls:
             # A `char *` field is a String?, and Raven's format argument list takes the text itself, so the read takes the bind.
             return f"{text}!"
         if param is not None and not param[1].endswith("?") and not inout and self.optional_view_name(inner):
-            raise Hole(f"Raven passes the optional `{inner.spelling}` to `{callee}`, whose `{param[0]}` parameter takes a value. A never-null ruling is due.")
+            # The callee takes a value, and the force unwrap traps where Raven's callee would dereference NULL.
+            return f"{text}!"
         if param is not None and not param[1].endswith("?") and not inout and self.optional_base(inner):
             # A bind on a conditional binds the whole choice, so the choice takes parentheses first.
             text = f"({text})!" if self.unwrap(inner).kind == CursorKind.CONDITIONAL_OPERATOR else f"{text}!"

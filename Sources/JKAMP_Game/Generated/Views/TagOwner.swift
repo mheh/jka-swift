@@ -36,6 +36,15 @@ public struct TagOwner: Hashable, HandleView {
         return try withUnsafeMutablePointer(to: &slot) { try body(TagOwner(raw: $0)) }
     }
 
+    /// Raven's `tagOwner_t tagOwner[N];` on the stack, a local array of records.
+    /// The slots are zero at entry, live for the closure, and the closure's value is the result.
+    public static func scratch<Result>(count: Int, _ body: (Slots<TagOwner>) throws -> Result) rethrows -> Result {
+        let base = UnsafeMutableRawPointer.allocate(byteCount: count * TagOwner.stride, alignment: MemoryLayout<tagOwner_t>.alignment)
+        defer { base.deallocate() }
+        base.initializeMemory(as: UInt8.self, repeating: 0, count: count * TagOwner.stride)
+        return try body(Slots(views: base, count: count, stride: TagOwner.stride))
+    }
+
     /// Raven's `tagOwner_t tagOwner = *other;`, a copy of another slot on the stack.
     public static func scratch<Result>(copying other: TagOwner, _ body: (TagOwner) throws -> Result) rethrows -> Result {
         var slot = other.raw.pointee

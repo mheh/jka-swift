@@ -85,6 +85,14 @@ final class GameWorld {
         "I'm attempting to regroup and form a new squad"
     ]
 
+    /// Raven's `static int local_time` of `BotAIStartFrame` in `ai_main.c`.
+    /// Source: oracle/codemp/game/ai_main.c:7495
+    var local_time: Int32 = 0
+
+    /// Raven's `static int lastbotthink_time` of `BotAIStartFrame` in `ai_main.c`.
+    /// Source: oracle/codemp/game/ai_main.c:7497
+    var lastbotthink_time: Int32 = 0
+
     // MARK: - g_cmds.c
 
     /// Raven's `static char *gc_orders[]` of `g_cmds.c`.
@@ -113,6 +121,10 @@ final class GameWorld {
         "Capture the Flag",
         "Capture the Ysalamiri"
     ]
+
+    /// Raven's `static char line[MAX_STRING_CHARS]` of `ConcatArgs` in `g_cmds.c`.
+    /// Source: oracle/codemp/game/g_cmds.c:129
+    var line = CharBuf(MAX_STRING_CHARS)
 
     // MARK: - g_combat.c
 
@@ -190,6 +202,16 @@ final class GameWorld {
         "generic5", // HL_GENERIC5,
         "generic6" // HL_GENERIC6
     ]
+
+    /// Raven's `static int i` of `player_die` in `g_combat.c`.
+    /// Source: oracle/codemp/game/g_combat.c:2858
+    var i_player_die: Int32 = 0
+
+    // MARK: - g_active.c
+
+    /// Raven's `static vec3_t range = {40, 40, 52}` of `G_TouchTriggers` in `g_active.c`.
+    /// Source: oracle/codemp/game/g_active.c:522
+    var range: JKAShared.vec3_t = JKAShared.vec3_t(40, 40, 52)
 
     // MARK: - g_log.c
 
@@ -660,6 +682,19 @@ final class GameWorld {
     /// Source: oracle/codemp/game/w_saber.c:3796
     var saberClashNorm: JKAShared.vec3_t = vec3_t()
 
+    /// Raven's `static saberFace_t faces[12]` of `G_BuildSaberFaces` in `w_saber.c`.
+    /// The world allocates the 12 zeroed slots once and frees them in `deinit`.
+    /// Source: oracle/codemp/game/w_saber.c:2457
+    var faces: Slots<SaberFace> = {
+        let base = UnsafeMutableRawPointer.allocate(byteCount: 12 * SaberFace.stride, alignment: 16)
+        base.initializeMemory(as: UInt8.self, repeating: 0, count: 12 * SaberFace.stride)
+        return Slots(views: base, count: 12, stride: SaberFace.stride)
+    }()
+
+    /// Raven's `static float planeEq[4]` of `G_SaberFaceCollisionCheck` in `w_saber.c`.
+    /// Source: oracle/codemp/game/w_saber.c:2602
+    var planeEq: [Float] = [0, 0, 0, 0]
+
     // MARK: - g_client.c and g_utils.c
 
     /// Raven's `static vec3_t playerMins` of `g_client.c`, one of two files that keep this static.
@@ -677,6 +712,54 @@ final class GameWorld {
     /// Raven's `static vec3_t playerMaxs` of `g_utils.c`.
     /// Source: oracle/codemp/game/g_utils.c:1617
     var g_utils_playerMaxs = JKAShared.vec3_t(15, 15, Float(JKAShared.DEFAULT_MAXS_2))
+
+    /// Raven's `static char sTemp[1024]` of `ClientConnect` in `g_client.c`.
+    /// Source: oracle/codemp/game/g_client.c:2285
+    var sTemp = CharBuf(1024)
+
+    /// Raven's `static int f` of `G_UpdateClientAnims` in `g_client.c`.
+    /// Source: oracle/codemp/game/g_client.c:2683
+    var f: Int32 = 0
+
+    /// Raven's `static int torsoAnim` of `G_UpdateClientAnims` in `g_client.c`.
+    /// Source: oracle/codemp/game/g_client.c:2684
+    var torsoAnim: Int32 = 0
+
+    /// Raven's `static int legsAnim` of `G_UpdateClientAnims` in `g_client.c`.
+    /// Source: oracle/codemp/game/g_client.c:2685
+    var legsAnim: Int32 = 0
+
+    /// Raven's `static int firstFrame` of `G_UpdateClientAnims` in `g_client.c`.
+    /// Source: oracle/codemp/game/g_client.c:2686
+    var firstFrame: Int32 = 0
+
+    /// Raven's `static int lastFrame` of `G_UpdateClientAnims` in `g_client.c`.
+    /// Source: oracle/codemp/game/g_client.c:2686
+    var lastFrame: Int32 = 0
+
+    /// Raven's `static int aFlags` of `G_UpdateClientAnims` in `g_client.c`.
+    /// Source: oracle/codemp/game/g_client.c:2687
+    var aFlags: Int32 = 0
+
+    /// Raven's `static float animSpeed` of `G_UpdateClientAnims` in `g_client.c`.
+    /// Source: oracle/codemp/game/g_client.c:2688
+    var animSpeed: Float = 0
+
+    /// Raven's `static float lAnimSpeedScale` of `G_UpdateClientAnims` in `g_client.c`.
+    /// Source: oracle/codemp/game/g_client.c:2688
+    var lAnimSpeedScale: Float = 0
+
+    /// Raven's `static char buff[MAX_STRING_CHARS*4]` of `BuildShaderStateConfig` in `g_utils.c`.
+    /// Source: oracle/codemp/game/g_utils.c:40
+    var buff = CharBuf(MAX_STRING_CHARS * 4)
+
+    /// Raven's `static int index` of `vtos` in `g_utils.c`.
+    /// Source: oracle/codemp/game/g_utils.c:654
+    var index_vtos: Int32 = 0
+
+    deinit {
+        self.faces.base.deallocate()
+    }
 }
 
 /// One row of Raven's `spawns` of `g_spawn.c`, the `spawn_t` record with the spawn function as a Swift function value.

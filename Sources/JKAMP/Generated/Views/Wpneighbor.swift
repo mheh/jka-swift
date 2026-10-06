@@ -35,6 +35,15 @@ public struct Wpneighbor: Hashable, HandleView {
         return try withUnsafeMutablePointer(to: &slot) { try body(Wpneighbor(raw: $0)) }
     }
 
+    /// Raven's `wpneighbor_t wpneighbor[N];` on the stack, a local array of records.
+    /// The slots are zero at entry, live for the closure, and the closure's value is the result.
+    public static func scratch<Result>(count: Int, _ body: (Slots<Wpneighbor>) throws -> Result) rethrows -> Result {
+        let base = UnsafeMutableRawPointer.allocate(byteCount: count * Wpneighbor.stride, alignment: MemoryLayout<wpneighbor_t>.alignment)
+        defer { base.deallocate() }
+        base.initializeMemory(as: UInt8.self, repeating: 0, count: count * Wpneighbor.stride)
+        return try body(Slots(views: base, count: count, stride: Wpneighbor.stride))
+    }
+
     /// Raven's `wpneighbor_t wpneighbor = *other;`, a copy of another slot on the stack.
     public static func scratch<Result>(copying other: Wpneighbor, _ body: (Wpneighbor) throws -> Result) rethrows -> Result {
         var slot = other.raw.pointee

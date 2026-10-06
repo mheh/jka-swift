@@ -116,7 +116,8 @@ G_FilterPacket
 ```
 */
 /// Source: oracle/codemp/game/g_svcmds.c:134
-func G_FilterPacket(_ from: inout JKAShared.CharBuf) -> Bool {
+func G_FilterPacket(_ from: String) -> Bool {
+    let from = CharBuf(from)
     var m: [Int32] = [Int32](repeating: 0, count: 4)
     var i: Int32 = 0
     let `in`: UInt32

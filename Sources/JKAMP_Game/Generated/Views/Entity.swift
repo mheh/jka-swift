@@ -36,6 +36,15 @@ public struct Entity: Hashable, HandleView {
         return try withUnsafeMutablePointer(to: &slot) { try body(Entity(raw: $0)) }
     }
 
+    /// Raven's `gentity_t gentity[N];` on the stack, a local array of records.
+    /// The slots are zero at entry, live for the closure, and the closure's value is the result.
+    public static func scratch<Result>(count: Int, _ body: (Slots<Entity>) throws -> Result) rethrows -> Result {
+        let base = UnsafeMutableRawPointer.allocate(byteCount: count * Entity.stride, alignment: MemoryLayout<gentity_t>.alignment)
+        defer { base.deallocate() }
+        base.initializeMemory(as: UInt8.self, repeating: 0, count: count * Entity.stride)
+        return try body(Slots(views: base, count: count, stride: Entity.stride))
+    }
+
     /// Raven's `gentity_t gentity = *other;`, a copy of another slot on the stack.
     public static func scratch<Result>(copying other: Entity, _ body: (Entity) throws -> Result) rethrows -> Result {
         var slot = other.raw.pointee
@@ -632,8 +641,10 @@ public struct Entity: Hashable, HandleView {
     }
 
     /// Calls the stored `think` function through the C pointer, with this slot first, as Raven's `ent->think(ent, ...)` did.
+    /// A NULL `think` traps with the field's name, as Raven's call through the pointer would crash.
     public func runThink() {
-        self.think?(self.handle)
+        precondition(self.raw.pointee.think != nil, "think is NULL")
+        self.think!(self.handle)
     }
 
     /// Source: oracle/codemp/game/g_local.h:286
@@ -643,8 +654,10 @@ public struct Entity: Hashable, HandleView {
     }
 
     /// Calls the stored `reached` function through the C pointer, with this slot first, as Raven's `ent->reached(ent, ...)` did.
+    /// A NULL `reached` traps with the field's name, as Raven's call through the pointer would crash.
     public func runReached() {
-        self.reached?(self.handle)
+        precondition(self.raw.pointee.reached != nil, "reached is NULL")
+        self.reached!(self.handle)
     }
 
     /// Source: oracle/codemp/game/g_local.h:287
@@ -654,8 +667,10 @@ public struct Entity: Hashable, HandleView {
     }
 
     /// Calls the stored `blocked` function through the C pointer, with this slot first, as Raven's `ent->blocked(ent, ...)` did.
+    /// A NULL `blocked` traps with the field's name, as Raven's call through the pointer would crash.
     public func runBlocked(_ other: Entity?) {
-        self.blocked?(self.handle, other?.handle)
+        precondition(self.raw.pointee.blocked != nil, "blocked is NULL")
+        self.blocked!(self.handle, other?.handle)
     }
 
     /// Source: oracle/codemp/game/g_local.h:288
@@ -665,8 +680,10 @@ public struct Entity: Hashable, HandleView {
     }
 
     /// Calls the stored `touch` function through the C pointer, with this slot first, as Raven's `ent->touch(ent, ...)` did.
+    /// A NULL `touch` traps with the field's name, as Raven's call through the pointer would crash.
     public func runTouch(_ other: Entity?, _ trace: JKAMP.Trace?) {
-        self.touch?(self.handle, other?.handle, trace?.handle)
+        precondition(self.raw.pointee.touch != nil, "touch is NULL")
+        self.touch!(self.handle, other?.handle, trace?.handle)
     }
 
     /// Source: oracle/codemp/game/g_local.h:289
@@ -676,8 +693,10 @@ public struct Entity: Hashable, HandleView {
     }
 
     /// Calls the stored `use` function through the C pointer, with this slot first, as Raven's `ent->use(ent, ...)` did.
+    /// A NULL `use` traps with the field's name, as Raven's call through the pointer would crash.
     public func runUse(_ other: Entity?, _ activator: Entity?) {
-        self.use?(self.handle, other?.handle, activator?.handle)
+        precondition(self.raw.pointee.use != nil, "use is NULL")
+        self.use!(self.handle, other?.handle, activator?.handle)
     }
 
     /// Source: oracle/codemp/game/g_local.h:290
@@ -687,8 +706,10 @@ public struct Entity: Hashable, HandleView {
     }
 
     /// Calls the stored `pain` function through the C pointer, with this slot first, as Raven's `ent->pain(ent, ...)` did.
+    /// A NULL `pain` traps with the field's name, as Raven's call through the pointer would crash.
     public func runPain(_ attacker: Entity?, _ damage: Int32) {
-        self.pain?(self.handle, attacker?.handle, damage)
+        precondition(self.raw.pointee.pain != nil, "pain is NULL")
+        self.pain!(self.handle, attacker?.handle, damage)
     }
 
     /// Source: oracle/codemp/game/g_local.h:291
@@ -698,8 +719,10 @@ public struct Entity: Hashable, HandleView {
     }
 
     /// Calls the stored `die` function through the C pointer, with this slot first, as Raven's `ent->die(ent, ...)` did.
+    /// A NULL `die` traps with the field's name, as Raven's call through the pointer would crash.
     public func runDie(_ inflictor: Entity?, _ attacker: Entity?, _ damage: Int32, _ mod: Int32) {
-        self.die?(self.handle, inflictor?.handle, attacker?.handle, damage, mod)
+        precondition(self.raw.pointee.die != nil, "die is NULL")
+        self.die!(self.handle, inflictor?.handle, attacker?.handle, damage, mod)
     }
 
     /// Source: oracle/codemp/game/g_local.h:293

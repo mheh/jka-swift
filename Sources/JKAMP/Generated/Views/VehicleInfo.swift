@@ -35,6 +35,15 @@ public struct VehicleInfo: Hashable, HandleView {
         return try withUnsafeMutablePointer(to: &slot) { try body(VehicleInfo(raw: $0)) }
     }
 
+    /// Raven's `vehicleInfo_t vehicleInfo[N];` on the stack, a local array of records.
+    /// The slots are zero at entry, live for the closure, and the closure's value is the result.
+    public static func scratch<Result>(count: Int, _ body: (Slots<VehicleInfo>) throws -> Result) rethrows -> Result {
+        let base = UnsafeMutableRawPointer.allocate(byteCount: count * VehicleInfo.stride, alignment: MemoryLayout<vehicleInfo_t>.alignment)
+        defer { base.deallocate() }
+        base.initializeMemory(as: UInt8.self, repeating: 0, count: count * VehicleInfo.stride)
+        return try body(Slots(views: base, count: count, stride: VehicleInfo.stride))
+    }
+
     /// Raven's `vehicleInfo_t vehicleInfo = *other;`, a copy of another slot on the stack.
     public static func scratch<Result>(copying other: VehicleInfo, _ body: (VehicleInfo) throws -> Result) rethrows -> Result {
         var slot = other.raw.pointee
@@ -733,8 +742,10 @@ public struct VehicleInfo: Hashable, HandleView {
     }
 
     /// Calls the stored `AnimateVehicle` function through the C pointer, with the caller's arguments, as Raven's `pm->AnimateVehicle(...)` did.
+    /// A NULL `AnimateVehicle` traps with the field's name, as Raven's call through the pointer would crash.
     public func runAnimateVehicle(_ pVeh: Vehicle?) {
-        self.AnimateVehicle?(pVeh?.handle)
+        precondition(self.raw.pointee.AnimateVehicle != nil, "AnimateVehicle is NULL")
+        self.AnimateVehicle!(pVeh?.handle)
     }
 
     /// Source: oracle/codemp/game/bg_vehicles.h:294
@@ -744,8 +755,10 @@ public struct VehicleInfo: Hashable, HandleView {
     }
 
     /// Calls the stored `AnimateRiders` function through the C pointer, with the caller's arguments, as Raven's `pm->AnimateRiders(...)` did.
+    /// A NULL `AnimateRiders` traps with the field's name, as Raven's call through the pointer would crash.
     public func runAnimateRiders(_ pVeh: Vehicle?) {
-        self.AnimateRiders?(pVeh?.handle)
+        precondition(self.raw.pointee.AnimateRiders != nil, "AnimateRiders is NULL")
+        self.AnimateRiders!(pVeh?.handle)
     }
 
     /// Source: oracle/codemp/game/bg_vehicles.h:297
@@ -755,8 +768,11 @@ public struct VehicleInfo: Hashable, HandleView {
     }
 
     /// Calls the stored `ValidateBoard` function through the C pointer, with the caller's arguments, as Raven's `pm->ValidateBoard(...)` did.
-    public func runValidateBoard(_ pVeh: Vehicle?, _ pEnt: BgEntity?) -> Bool? {
-        (self.ValidateBoard?(pVeh?.handle, pEnt?.handle)).map { $0 != 0 }
+    /// A NULL `ValidateBoard` traps with the field's name, as Raven's call through the pointer would crash.
+    @discardableResult
+    public func runValidateBoard(_ pVeh: Vehicle?, _ pEnt: BgEntity?) -> Bool {
+        precondition(self.raw.pointee.ValidateBoard != nil, "ValidateBoard is NULL")
+        return self.ValidateBoard!(pVeh?.handle, pEnt?.handle) != 0
     }
 
     /// Source: oracle/codemp/game/bg_vehicles.h:300
@@ -766,8 +782,10 @@ public struct VehicleInfo: Hashable, HandleView {
     }
 
     /// Calls the stored `SetParent` function through the C pointer, with the caller's arguments, as Raven's `pm->SetParent(...)` did.
+    /// A NULL `SetParent` traps with the field's name, as Raven's call through the pointer would crash.
     public func runSetParent(_ pVeh: Vehicle?, _ pParentEntity: BgEntity?) {
-        self.SetParent?(pVeh?.handle, pParentEntity?.handle)
+        precondition(self.raw.pointee.SetParent != nil, "SetParent is NULL")
+        self.SetParent!(pVeh?.handle, pParentEntity?.handle)
     }
 
     /// Source: oracle/codemp/game/bg_vehicles.h:303
@@ -777,8 +795,10 @@ public struct VehicleInfo: Hashable, HandleView {
     }
 
     /// Calls the stored `SetPilot` function through the C pointer, with the caller's arguments, as Raven's `pm->SetPilot(...)` did.
+    /// A NULL `SetPilot` traps with the field's name, as Raven's call through the pointer would crash.
     public func runSetPilot(_ pVeh: Vehicle?, _ pPilot: BgEntity?) {
-        self.SetPilot?(pVeh?.handle, pPilot?.handle)
+        precondition(self.raw.pointee.SetPilot != nil, "SetPilot is NULL")
+        self.SetPilot!(pVeh?.handle, pPilot?.handle)
     }
 
     /// Source: oracle/codemp/game/bg_vehicles.h:306
@@ -788,8 +808,11 @@ public struct VehicleInfo: Hashable, HandleView {
     }
 
     /// Calls the stored `AddPassenger` function through the C pointer, with the caller's arguments, as Raven's `pm->AddPassenger(...)` did.
-    public func runAddPassenger(_ pVeh: Vehicle?) -> Bool? {
-        (self.AddPassenger?(pVeh?.handle)).map { $0 != 0 }
+    /// A NULL `AddPassenger` traps with the field's name, as Raven's call through the pointer would crash.
+    @discardableResult
+    public func runAddPassenger(_ pVeh: Vehicle?) -> Bool {
+        precondition(self.raw.pointee.AddPassenger != nil, "AddPassenger is NULL")
+        return self.AddPassenger!(pVeh?.handle) != 0
     }
 
     /// Source: oracle/codemp/game/bg_vehicles.h:309
@@ -799,8 +822,10 @@ public struct VehicleInfo: Hashable, HandleView {
     }
 
     /// Calls the stored `Animate` function through the C pointer, with the caller's arguments, as Raven's `pm->Animate(...)` did.
+    /// A NULL `Animate` traps with the field's name, as Raven's call through the pointer would crash.
     public func runAnimate(_ pVeh: Vehicle?) {
-        self.Animate?(pVeh?.handle)
+        precondition(self.raw.pointee.Animate != nil, "Animate is NULL")
+        self.Animate!(pVeh?.handle)
     }
 
     /// Source: oracle/codemp/game/bg_vehicles.h:312
@@ -810,8 +835,11 @@ public struct VehicleInfo: Hashable, HandleView {
     }
 
     /// Calls the stored `Board` function through the C pointer, with the caller's arguments, as Raven's `pm->Board(...)` did.
-    public func runBoard(_ pVeh: Vehicle?, _ pEnt: BgEntity?) -> Bool? {
-        (self.Board?(pVeh?.handle, pEnt?.handle)).map { $0 != 0 }
+    /// A NULL `Board` traps with the field's name, as Raven's call through the pointer would crash.
+    @discardableResult
+    public func runBoard(_ pVeh: Vehicle?, _ pEnt: BgEntity?) -> Bool {
+        precondition(self.raw.pointee.Board != nil, "Board is NULL")
+        return self.Board!(pVeh?.handle, pEnt?.handle) != 0
     }
 
     /// Source: oracle/codemp/game/bg_vehicles.h:315
@@ -821,8 +849,11 @@ public struct VehicleInfo: Hashable, HandleView {
     }
 
     /// Calls the stored `Eject` function through the C pointer, with the caller's arguments, as Raven's `pm->Eject(...)` did.
-    public func runEject(_ pVeh: Vehicle?, _ pEnt: BgEntity?, _ forceEject: Bool) -> Bool? {
-        (self.Eject?(pVeh?.handle, pEnt?.handle, forceEject ? 1 : 0)).map { $0 != 0 }
+    /// A NULL `Eject` traps with the field's name, as Raven's call through the pointer would crash.
+    @discardableResult
+    public func runEject(_ pVeh: Vehicle?, _ pEnt: BgEntity?, _ forceEject: Bool) -> Bool {
+        precondition(self.raw.pointee.Eject != nil, "Eject is NULL")
+        return self.Eject!(pVeh?.handle, pEnt?.handle, forceEject ? 1 : 0) != 0
     }
 
     /// Source: oracle/codemp/game/bg_vehicles.h:318
@@ -832,8 +863,11 @@ public struct VehicleInfo: Hashable, HandleView {
     }
 
     /// Calls the stored `EjectAll` function through the C pointer, with the caller's arguments, as Raven's `pm->EjectAll(...)` did.
-    public func runEjectAll(_ pVeh: Vehicle?) -> Bool? {
-        (self.EjectAll?(pVeh?.handle)).map { $0 != 0 }
+    /// A NULL `EjectAll` traps with the field's name, as Raven's call through the pointer would crash.
+    @discardableResult
+    public func runEjectAll(_ pVeh: Vehicle?) -> Bool {
+        precondition(self.raw.pointee.EjectAll != nil, "EjectAll is NULL")
+        return self.EjectAll!(pVeh?.handle) != 0
     }
 
     /// Source: oracle/codemp/game/bg_vehicles.h:321
@@ -843,8 +877,10 @@ public struct VehicleInfo: Hashable, HandleView {
     }
 
     /// Calls the stored `StartDeathDelay` function through the C pointer, with the caller's arguments, as Raven's `pm->StartDeathDelay(...)` did.
+    /// A NULL `StartDeathDelay` traps with the field's name, as Raven's call through the pointer would crash.
     public func runStartDeathDelay(_ pVeh: Vehicle?, _ iDelayTime: Int32) {
-        self.StartDeathDelay?(pVeh?.handle, iDelayTime)
+        precondition(self.raw.pointee.StartDeathDelay != nil, "StartDeathDelay is NULL")
+        self.StartDeathDelay!(pVeh?.handle, iDelayTime)
     }
 
     /// Source: oracle/codemp/game/bg_vehicles.h:324
@@ -854,8 +890,10 @@ public struct VehicleInfo: Hashable, HandleView {
     }
 
     /// Calls the stored `DeathUpdate` function through the C pointer, with the caller's arguments, as Raven's `pm->DeathUpdate(...)` did.
+    /// A NULL `DeathUpdate` traps with the field's name, as Raven's call through the pointer would crash.
     public func runDeathUpdate(_ pVeh: Vehicle?) {
-        self.DeathUpdate?(pVeh?.handle)
+        precondition(self.raw.pointee.DeathUpdate != nil, "DeathUpdate is NULL")
+        self.DeathUpdate!(pVeh?.handle)
     }
 
     /// Source: oracle/codemp/game/bg_vehicles.h:327
@@ -865,8 +903,10 @@ public struct VehicleInfo: Hashable, HandleView {
     }
 
     /// Calls the stored `RegisterAssets` function through the C pointer, with the caller's arguments, as Raven's `pm->RegisterAssets(...)` did.
+    /// A NULL `RegisterAssets` traps with the field's name, as Raven's call through the pointer would crash.
     public func runRegisterAssets(_ pVeh: Vehicle?) {
-        self.RegisterAssets?(pVeh?.handle)
+        precondition(self.raw.pointee.RegisterAssets != nil, "RegisterAssets is NULL")
+        self.RegisterAssets!(pVeh?.handle)
     }
 
     /// Source: oracle/codemp/game/bg_vehicles.h:330
@@ -876,8 +916,11 @@ public struct VehicleInfo: Hashable, HandleView {
     }
 
     /// Calls the stored `Initialize` function through the C pointer, with the caller's arguments, as Raven's `pm->Initialize(...)` did.
-    public func runInitialize(_ pVeh: Vehicle?) -> Bool? {
-        (self.Initialize?(pVeh?.handle)).map { $0 != 0 }
+    /// A NULL `Initialize` traps with the field's name, as Raven's call through the pointer would crash.
+    @discardableResult
+    public func runInitialize(_ pVeh: Vehicle?) -> Bool {
+        precondition(self.raw.pointee.Initialize != nil, "Initialize is NULL")
+        return self.Initialize!(pVeh?.handle) != 0
     }
 
     /// Source: oracle/codemp/game/bg_vehicles.h:333
@@ -887,8 +930,11 @@ public struct VehicleInfo: Hashable, HandleView {
     }
 
     /// Calls the stored `Update` function through the C pointer, with the caller's arguments, as Raven's `pm->Update(...)` did.
-    public func runUpdate(_ pVeh: Vehicle?, _ pUcmd: Usercmd?) -> Bool? {
-        (self.Update?(pVeh?.handle, pUcmd?.handle)).map { $0 != 0 }
+    /// A NULL `Update` traps with the field's name, as Raven's call through the pointer would crash.
+    @discardableResult
+    public func runUpdate(_ pVeh: Vehicle?, _ pUcmd: Usercmd?) -> Bool {
+        precondition(self.raw.pointee.Update != nil, "Update is NULL")
+        return self.Update!(pVeh?.handle, pUcmd?.handle) != 0
     }
 
     /// Source: oracle/codemp/game/bg_vehicles.h:338
@@ -898,8 +944,11 @@ public struct VehicleInfo: Hashable, HandleView {
     }
 
     /// Calls the stored `UpdateRider` function through the C pointer, with the caller's arguments, as Raven's `pm->UpdateRider(...)` did.
-    public func runUpdateRider(_ pVeh: Vehicle?, _ pRider: BgEntity?, _ pUcmd: Usercmd?) -> Bool? {
-        (self.UpdateRider?(pVeh?.handle, pRider?.handle, pUcmd?.handle)).map { $0 != 0 }
+    /// A NULL `UpdateRider` traps with the field's name, as Raven's call through the pointer would crash.
+    @discardableResult
+    public func runUpdateRider(_ pVeh: Vehicle?, _ pRider: BgEntity?, _ pUcmd: Usercmd?) -> Bool {
+        precondition(self.raw.pointee.UpdateRider != nil, "UpdateRider is NULL")
+        return self.UpdateRider!(pVeh?.handle, pRider?.handle, pUcmd?.handle) != 0
     }
 
     /// Source: oracle/codemp/game/bg_vehicles.h:341
@@ -909,8 +958,10 @@ public struct VehicleInfo: Hashable, HandleView {
     }
 
     /// Calls the stored `ProcessMoveCommands` function through the C pointer, with the caller's arguments, as Raven's `pm->ProcessMoveCommands(...)` did.
+    /// A NULL `ProcessMoveCommands` traps with the field's name, as Raven's call through the pointer would crash.
     public func runProcessMoveCommands(_ pVeh: Vehicle?) {
-        self.ProcessMoveCommands?(pVeh?.handle)
+        precondition(self.raw.pointee.ProcessMoveCommands != nil, "ProcessMoveCommands is NULL")
+        self.ProcessMoveCommands!(pVeh?.handle)
     }
 
     /// Source: oracle/codemp/game/bg_vehicles.h:344
@@ -920,8 +971,10 @@ public struct VehicleInfo: Hashable, HandleView {
     }
 
     /// Calls the stored `ProcessOrientCommands` function through the C pointer, with the caller's arguments, as Raven's `pm->ProcessOrientCommands(...)` did.
+    /// A NULL `ProcessOrientCommands` traps with the field's name, as Raven's call through the pointer would crash.
     public func runProcessOrientCommands(_ pVeh: Vehicle?) {
-        self.ProcessOrientCommands?(pVeh?.handle)
+        precondition(self.raw.pointee.ProcessOrientCommands != nil, "ProcessOrientCommands is NULL")
+        self.ProcessOrientCommands!(pVeh?.handle)
     }
 
     /// Source: oracle/codemp/game/bg_vehicles.h:347
@@ -931,8 +984,10 @@ public struct VehicleInfo: Hashable, HandleView {
     }
 
     /// Calls the stored `AttachRiders` function through the C pointer, with the caller's arguments, as Raven's `pm->AttachRiders(...)` did.
+    /// A NULL `AttachRiders` traps with the field's name, as Raven's call through the pointer would crash.
     public func runAttachRiders(_ pVeh: Vehicle?) {
-        self.AttachRiders?(pVeh?.handle)
+        precondition(self.raw.pointee.AttachRiders != nil, "AttachRiders is NULL")
+        self.AttachRiders!(pVeh?.handle)
     }
 
     /// Source: oracle/codemp/game/bg_vehicles.h:350
@@ -942,8 +997,10 @@ public struct VehicleInfo: Hashable, HandleView {
     }
 
     /// Calls the stored `Ghost` function through the C pointer, with the caller's arguments, as Raven's `pm->Ghost(...)` did.
+    /// A NULL `Ghost` traps with the field's name, as Raven's call through the pointer would crash.
     public func runGhost(_ pVeh: Vehicle?, _ pEnt: BgEntity?) {
-        self.Ghost?(pVeh?.handle, pEnt?.handle)
+        precondition(self.raw.pointee.Ghost != nil, "Ghost is NULL")
+        self.Ghost!(pVeh?.handle, pEnt?.handle)
     }
 
     /// Source: oracle/codemp/game/bg_vehicles.h:353
@@ -953,8 +1010,10 @@ public struct VehicleInfo: Hashable, HandleView {
     }
 
     /// Calls the stored `UnGhost` function through the C pointer, with the caller's arguments, as Raven's `pm->UnGhost(...)` did.
+    /// A NULL `UnGhost` traps with the field's name, as Raven's call through the pointer would crash.
     public func runUnGhost(_ pVeh: Vehicle?, _ pEnt: BgEntity?) {
-        self.UnGhost?(pVeh?.handle, pEnt?.handle)
+        precondition(self.raw.pointee.UnGhost != nil, "UnGhost is NULL")
+        self.UnGhost!(pVeh?.handle, pEnt?.handle)
     }
 
     /// Source: oracle/codemp/game/bg_vehicles.h:356
@@ -964,8 +1023,10 @@ public struct VehicleInfo: Hashable, HandleView {
     }
 
     /// Calls the stored `GetPilot` function through the C pointer, with the caller's arguments, as Raven's `pm->GetPilot(...)` did.
+    /// A NULL `GetPilot` traps with the field's name, as Raven's call through the pointer would crash.
     public func runGetPilot(_ pVeh: Vehicle?) {
-        self.GetPilot?(pVeh?.handle)
+        precondition(self.raw.pointee.GetPilot != nil, "GetPilot is NULL")
+        self.GetPilot!(pVeh?.handle)
     }
 
     /// Source: oracle/codemp/game/bg_vehicles.h:359
@@ -975,7 +1036,10 @@ public struct VehicleInfo: Hashable, HandleView {
     }
 
     /// Calls the stored `Inhabited` function through the C pointer, with the caller's arguments, as Raven's `pm->Inhabited(...)` did.
-    public func runInhabited(_ pVeh: Vehicle?) -> Bool? {
-        (self.Inhabited?(pVeh?.handle)).map { $0 != 0 }
+    /// A NULL `Inhabited` traps with the field's name, as Raven's call through the pointer would crash.
+    @discardableResult
+    public func runInhabited(_ pVeh: Vehicle?) -> Bool {
+        precondition(self.raw.pointee.Inhabited != nil, "Inhabited is NULL")
+        return self.Inhabited!(pVeh?.handle) != 0
     }
 }
