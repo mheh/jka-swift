@@ -18,6 +18,8 @@ CREATE TABLE IF NOT EXISTS files (generation TEXT NOT NULL, path TEXT NOT NULL, 
 CREATE TABLE IF NOT EXISTS parameters (fact TEXT NOT NULL, function TEXT NOT NULL, parameter TEXT NOT NULL);
 CREATE TABLE IF NOT EXISTS functions (fact TEXT NOT NULL, seq INTEGER NOT NULL, file TEXT NOT NULL, name TEXT NOT NULL);
 CREATE TABLE IF NOT EXISTS fields (fact TEXT NOT NULL, record TEXT NOT NULL, field TEXT NOT NULL);
+CREATE TABLE IF NOT EXISTS handoffs (fact TEXT NOT NULL, seq INTEGER NOT NULL, callee TEXT NOT NULL, parameter TEXT NOT NULL,
+    held TEXT NOT NULL, caller TEXT NOT NULL, caller_parameter TEXT NOT NULL);
 """
 
 
@@ -50,6 +52,18 @@ def sequence(table: str, columns: tuple[str, ...]) -> Kind:
                 lambda rows: [tuple(row[1:]) for row in rows], order="seq")
 
 
+def handoff_row(i: int, callee: str, parameter: str, table: bool | tuple[str, str]) -> tuple:
+    """One hand-off as a row: `held` is `table` for a table of the caller's own, `none` for no table, and `parameter` for a caller's parameter."""
+    if isinstance(table, tuple):
+        return (i, callee, parameter, "parameter") + table
+    return (i, callee, parameter, "table" if table else "none", "", "")
+
+
+def handoff(row: tuple) -> tuple[str, str, bool | tuple[str, str]]:
+    _, callee, parameter, held, caller, caller_parameter = row
+    return (callee, parameter, (caller, caller_parameter) if held == "parameter" else held == "table")
+
+
 # The fact kinds by name, each the name of the Table attribute it holds.
 KINDS: dict[str, Kind] = {
     **{kind: pairs("parameters", ("function", "parameter"))
@@ -58,6 +72,9 @@ KINDS: dict[str, Kind] = {
     # The bodies of the swept unit keep the order of the parse.
     "functions": sequence("functions", ("file", "name")),
     "indexed_fields": pairs("fields", ("record", "field")),
+    "handoffs": Kind("handoffs", ("seq", "callee", "parameter", "held", "caller", "caller_parameter"),
+                     lambda value: [handoff_row(i, *item) for i, item in enumerate(value)],
+                     lambda rows: [handoff(row) for row in rows], order="seq"),
 }
 
 

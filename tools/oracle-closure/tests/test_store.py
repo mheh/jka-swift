@@ -57,6 +57,17 @@ class RoundTrip(unittest.TestCase):
         # then the store gives back the same set
         self.assertEqual(self.round_trip("base", facts), facts)
 
+    def test_handoffs(self) -> None:
+        # given hand-offs of a table of the caller's own and of a caller's parameter, in call order
+        facts = {"handoffs": [
+            ("BG_AnimLength", "animations", True),
+            ("PM_SetAnim", "anims", ("PM_Animate", "animations")),
+            ("BG_AnimLength", "animations", True),
+        ]}
+
+        # then the store gives back the same list in the same order
+        self.assertEqual(self.round_trip("base", facts), facts)
+
 
 if __name__ == "__main__":
     unittest.main()
