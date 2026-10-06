@@ -10,6 +10,7 @@ from __future__ import annotations
 import hashlib
 import json
 import sqlite3
+import sys
 from dataclasses import dataclass
 from pathlib import Path
 from typing import Any, Callable, Iterable
@@ -172,10 +173,30 @@ class Store:
     """One open store file. A save is one transaction."""
 
     def __init__(self, path: Path) -> None:
-        self.db = sqlite3.connect(path)
-        self.db.execute("PRAGMA journal_mode=WAL")
-        self.db.execute("PRAGMA synchronous=NORMAL")
-        self.db.executescript(SCHEMA)
+        self.path = Path(path)
+        try:
+            self.db = self.open()
+        except sqlite3.DatabaseError as error:
+            # The file is no store, so it holds no fact worth more than one sweep.
+            print(f"store.py: {self.path} is corrupt ({error}), so it is deleted and made again", file=sys.stderr)
+            self.delete()
+            self.db = self.open()
+
+    def open(self) -> sqlite3.Connection:
+        db = sqlite3.connect(self.path)
+        try:
+            db.execute("PRAGMA journal_mode=WAL")
+            db.execute("PRAGMA synchronous=NORMAL")
+            db.executescript(SCHEMA)
+        except sqlite3.DatabaseError:
+            db.close()
+            raise
+        return db
+
+    def delete(self) -> None:
+        """Delete the store file with its WAL files."""
+        for suffix in ("", "-wal", "-shm"):
+            Path(f"{self.path}{suffix}").unlink(missing_ok=True)
 
     def close(self) -> None:
         self.db.close()

@@ -2,6 +2,9 @@
 
 from __future__ import annotations
 
+import contextlib
+import io
+import os
 import sqlite3
 import sys
 import tempfile
@@ -177,6 +180,29 @@ class Schema(unittest.TestCase):
         for word in words:
             for project_word in ("trap", "swift", "oracle", "raven", "jka", "game", "entity", "clang"):
                 self.assertNotIn(project_word, word.lower(), word)
+
+
+class Recovery(unittest.TestCase):
+    def setUp(self) -> None:
+        self.folder = tempfile.TemporaryDirectory()
+        self.path = Path(self.folder.name) / "table.sqlite"
+
+    def tearDown(self) -> None:
+        self.folder.cleanup()
+
+    def test_a_corrupt_file_is_deleted_and_opened_again(self) -> None:
+        # given a store file of random bytes
+        self.path.write_bytes(os.urandom(8192))
+
+        # when the store opens it
+        err = io.StringIO()
+        with contextlib.redirect_stderr(err), Store(self.path) as store:
+            store.save("base", "key-1", {}, {"called": {"G_Find"}})
+
+        # then it says so on one line, and the new file holds what the store saved
+        self.assertEqual(len(err.getvalue().splitlines()), 1)
+        with Store(self.path) as store:
+            self.assertEqual(store.load("base", "key-1"), {"called": {"G_Find"}})
 
 
 if __name__ == "__main__":
