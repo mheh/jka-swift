@@ -92,6 +92,13 @@ class RoundTrip(unittest.TestCase):
         # then the store gives back cursors with the same kind, buffer, and scope
         self.assertEqual(plain(self.round_trip("base", facts)), plain(facts))
 
+    def test_alias_writes(self) -> None:
+        # given the file-scope buffers a write cursor points into
+        facts = {"alias_writes": {"str", "text"}}
+
+        # then the store gives back the same set
+        self.assertEqual(self.round_trip("base", facts), facts)
+
 
 if __name__ == "__main__":
     unittest.main()
