@@ -2,6 +2,8 @@
 
 from __future__ import annotations
 
+import contextlib
+import io
 import sys
 import tempfile
 import unittest
@@ -78,6 +80,22 @@ class Key(unittest.TestCase):
         adopted = self.compute()
         self.assertEqual(adopted.base, before.base)
         self.assertNotEqual(adopted.adoption, before.adoption)
+
+    def test_a_deleted_input_file_changes_the_key_and_the_store_names_the_file(self) -> None:
+        # given a store that holds the facts of the input set
+        before = self.compute()
+        store = Store(self.root / "table.sqlite")
+        self.addCleanup(store.close)
+        store.save("base", before.base, before.files, {"called": {"G_InitGame"}})
+
+        # when one input file is deleted
+        (self.root / "src/g_local.h").unlink()
+        after = self.compute()
+
+        # then the key changes, the store holds nothing under it, and the store names the file
+        self.assertNotEqual(after.base, before.base)
+        self.assertIsNone(store.load("base", after.base))
+        self.assertEqual(store.changed("base", after.files), ["src/g_local.h"])
 
     def test_a_tool_module_change_changes_both_generations(self) -> None:
         # given the keys of the input set
@@ -171,6 +189,26 @@ class DeclarationKey(unittest.TestCase):
         # then the base key changes and the store names the file
         self.assertNotEqual(after.base, before.base)
         self.assertEqual(store.changed("base", after.files), [str(self.declarations.resolve())])
+
+    def test_a_deleted_declaration_file_makes_the_base_facts_stale_and_the_table_names_it(self) -> None:
+        import table
+
+        # given a store that holds the base facts under the keys of the declarations
+        before = self.table.input_keys()
+        self.table.store = Store(self.root / "table.sqlite")
+        self.addCleanup(self.table.store.close)
+        self.table.store.save("base", before.base, before.files, {"called": {"G_InitGame"}})
+
+        # when a declaration file the key covered is deleted
+        self.callbacks.unlink()
+        after = self.table.input_keys()
+
+        # then the store holds no base facts under the new key, and the stale line names the file
+        self.assertIsNone(self.table.store.load("base", after.base))
+        err = io.StringIO()
+        with contextlib.redirect_stderr(err), mock.patch.object(table, "REBUILD", False):
+            self.table.stale("base", after.files)
+        self.assertEqual(err.getvalue(), f"table.py: the base facts are stale, 1 files changed: {self.callbacks.resolve()}\n")
 
     def test_a_changed_callback_signature_changes_the_key(self) -> None:
         # given the keys of the declarations
