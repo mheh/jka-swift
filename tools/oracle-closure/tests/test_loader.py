@@ -38,6 +38,7 @@ class Loader(unittest.TestCase):
             # given one cold sweep into an empty store, and the local facts of a sample of functions
             cold = Table(parse, store=path)
             cold.sweep()
+            self.addCleanup(cold.store.close)
             self.assertEqual(cold.swept, {"base", "adoption"})
             sample = list(cold.functions)[::40] + sorted({(stem, function) for stem, function, _ in cold.cursors})[:20]
             cold_locals = {key: plain(cold.locals_of(*key)) for key in sample}
@@ -45,6 +46,7 @@ class Loader(unittest.TestCase):
             # when a second Table sweeps the same parse
             warm = Table(parse, store=path)
             warm.sweep()
+            self.addCleanup(warm.store.close)
 
             # then it sweeps nothing and holds every fact store of the cold Table
             self.assertEqual(warm.swept, set())

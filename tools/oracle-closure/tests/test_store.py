@@ -40,8 +40,10 @@ class RoundTrip(unittest.TestCase):
         self.folder.cleanup()
 
     def round_trip(self, generation: str, facts: dict) -> dict | None:
-        Store(self.path).save(generation, "key-1", {"codemp/game/g_main.c": "aa11"}, facts)
-        return Store(self.path).load(generation, "key-1")
+        with Store(self.path) as store:
+            store.save(generation, "key-1", {"codemp/game/g_main.c": "aa11"}, facts)
+        with Store(self.path) as store:
+            return store.load(generation, "key-1")
 
     def test_parameter_facts(self) -> None:
         # given every fact kind that names a parameter of a function
@@ -154,13 +156,14 @@ class RoundTrip(unittest.TestCase):
             addressed={"trace"},
         )
         empty = LocalFacts(rows={}, written=set(), single_writes=set(), addressed=set())
-        Store(self.path).save_locals("key-1", "g_utils", "G_Find", full)
-        Store(self.path).save_locals("key-1", "g_main", "G_InitGame", empty)
+        with Store(self.path) as store:
+            store.save_locals("key-1", "g_utils", "G_Find", full)
+            store.save_locals("key-1", "g_main", "G_InitGame", empty)
 
         # then the store gives back the same facts for each function
-        store = Store(self.path)
-        self.assertEqual(plain(store.load_locals("key-1", "g_utils", "G_Find")), plain(full))
-        self.assertEqual(plain(store.load_locals("key-1", "g_main", "G_InitGame")), plain(empty))
+        with Store(self.path) as store:
+            self.assertEqual(plain(store.load_locals("key-1", "g_utils", "G_Find")), plain(full))
+            self.assertEqual(plain(store.load_locals("key-1", "g_main", "G_InitGame")), plain(empty))
 
 
 class Schema(unittest.TestCase):

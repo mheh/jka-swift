@@ -50,6 +50,7 @@ class Key(unittest.TestCase):
         # given a store that holds the facts of the input set
         before = self.compute()
         store = Store(self.root / "table.sqlite")
+        self.addCleanup(store.close)
         store.save("base", before.base, before.files, {"called": {"G_InitGame"}})
 
         # when one byte of one input file changes
@@ -95,6 +96,7 @@ class Key(unittest.TestCase):
 
         before = compute("Entity\nPlayerState")
         store = Store(self.root / "table.sqlite")
+        self.addCleanup(store.close)
         store.save("base", before.base, before.files, {"called": {"G_InitGame"}})
 
         # when the value changes

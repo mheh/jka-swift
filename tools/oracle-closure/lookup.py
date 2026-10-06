@@ -92,7 +92,8 @@ def stored(name: str) -> list[dict] | None:
     """The signature rows of a name from the store, or None when no store exists or its rows describe other manifests."""
     if not STORE.exists():
         return None
-    return Store(STORE).signatures(manifest_key(), name)
+    with Store(STORE) as store:
+        return store.signatures(manifest_key(), name)
 
 
 def signature_cell(row: dict) -> str:
