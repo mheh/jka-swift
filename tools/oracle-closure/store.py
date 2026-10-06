@@ -7,6 +7,7 @@ The schema names facts about functions, parameters, fields, and locals, and no p
 
 from __future__ import annotations
 
+import hashlib
 import json
 import sqlite3
 from dataclasses import dataclass
@@ -122,6 +123,43 @@ KINDS: dict[str, Kind] = {
                        lambda value: [(i, pointer) + walk for i, (pointer, walk) in enumerate(value.items())],
                        lambda rows: {pointer: (walked, index) for _, pointer, walked, index in rows}, order="seq"),
 }
+
+
+# MARK: - The key
+
+@dataclass(frozen=True)
+class Keys:
+    """The keys of the two generations, and the hash of each file they cover, by the file's name.
+
+    `base` covers every input file and every tool module.
+    `adoption` covers the base key, the first line of every stub, and the salt, so a stub edit leaves the base generation alone."""
+
+    base: str
+    adoption: str
+    files: dict[str, str]
+    stubs: dict[str, str]
+
+
+def digest(data: bytes) -> str:
+    return hashlib.sha256(data).hexdigest()
+
+
+def named(path: Path, root: Path) -> str:
+    """The name the store keeps for a file: relative to the root inside it, and absolute outside it."""
+    path = path.resolve()
+    return str(path.relative_to(root.resolve())) if path.is_relative_to(root.resolve()) else str(path)
+
+
+def combined(hashes: dict[str, str], *extra: str) -> str:
+    return digest("\n".join([f"{name} {value}" for name, value in sorted(hashes.items())] + list(extra)).encode())
+
+
+def keys(inputs: Iterable[Path], tools: Iterable[Path], stubs: Iterable[Path], root: Path, salt: str = "") -> Keys:
+    """The keys of one input set. A file that does not exist hashes as the empty name, so its creation changes the key."""
+    files = {named(path, root): digest(path.read_bytes()) if path.exists() else "" for path in [*inputs, *tools]}
+    lines = {named(path, root): digest(path.read_bytes().split(b"\n", 1)[0]) if path.exists() else "" for path in stubs}
+    base = combined(files)
+    return Keys(base=base, adoption=combined(lines, base, salt), files=files, stubs=lines)
 
 
 class Store:

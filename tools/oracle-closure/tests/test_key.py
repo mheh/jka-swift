@@ -1,0 +1,51 @@
+"""Seam B: the whole-input key and its two generations."""
+
+from __future__ import annotations
+
+import sys
+import tempfile
+import unittest
+from pathlib import Path
+
+HERE = Path(__file__).resolve().parents[1]
+sys.path.insert(0, str(HERE))
+
+from store import Store, keys  # noqa: E402
+
+
+class Key(unittest.TestCase):
+    def setUp(self) -> None:
+        self.folder = tempfile.TemporaryDirectory()
+        self.root = Path(self.folder.name)
+        for rel, text in {
+            "src/g_main.c": "int level;\n",
+            "src/g_local.h": "#define MAX 4\n",
+            "tool/table.py": "RULE = 1\n",
+            "out/g_main.swift": "// Generated stub\nfunc G_InitGame() {}\n",
+            "out/bg_misc.swift": "// Adopted by hand\nfunc BG_Misc() {}\n",
+        }.items():
+            (self.root / rel).parent.mkdir(parents=True, exist_ok=True)
+            (self.root / rel).write_text(text)
+
+    def tearDown(self) -> None:
+        self.folder.cleanup()
+
+    def compute(self):
+        return keys(
+            inputs=[self.root / "src/g_main.c", self.root / "src/g_local.h"],
+            tools=[self.root / "tool/table.py"],
+            stubs=[self.root / "out/g_main.swift", self.root / "out/bg_misc.swift"],
+            root=self.root,
+        )
+
+    def test_the_key_is_stable_over_two_computations(self) -> None:
+        # given one fixed input set, computed twice
+        first, second = self.compute(), self.compute()
+
+        # then both generations have the same key
+        self.assertEqual(first.base, second.base)
+        self.assertEqual(first.adoption, second.adoption)
+
+
+if __name__ == "__main__":
+    unittest.main()
