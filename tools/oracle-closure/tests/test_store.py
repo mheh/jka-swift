@@ -50,6 +50,13 @@ class RoundTrip(unittest.TestCase):
         # then the store gives back the bodies in the same order and the same sets
         self.assertEqual(self.round_trip("base", facts), facts)
 
+    def test_field_facts(self) -> None:
+        # given the (record, field) pairs a body indexes through the pointer
+        facts = {"indexed_fields": {("pmove_t", "animations"), ("gclient_t", "saber")}}
+
+        # then the store gives back the same set
+        self.assertEqual(self.round_trip("base", facts), facts)
+
 
 if __name__ == "__main__":
     unittest.main()
