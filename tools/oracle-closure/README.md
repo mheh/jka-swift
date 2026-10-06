@@ -4,7 +4,7 @@ These scripts parse the oracle with libclang and answer layout and dependency qu
 
 ## What each script does
 
-- `closure.py`: the parse core. It gives the transitive dependency closure of one type or function, its by-value or pointer-only class, and its size and field offsets. `modules/` holds the per-module compile flags, mirrored from Raven's vcproj Release configs.
+- `closure.py`: the parse core. It gives the transitive dependency closure of one type or function, its by-value or pointer-only class, and its size and field offsets. `project.toml` holds the per-unit compile flags, mirrored from Raven's vcproj Release configs, and the paths the sweeps read.
 - `fnsweep.py`: the function manifest for one module, from one unity parse.
 - `symsweep.py`: the symbol manifest. It lists every macro constant, enum constant, and file-scope global a module references.
 - `pass2lib.py`: the worktree scanner the two sweeps use to mark items as ported.

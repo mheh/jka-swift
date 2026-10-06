@@ -15,10 +15,10 @@ profile mirrors JACoders/OpenJK's CMakeLists. See NOTES.md for the verdict.
 """
 import argparse
 from collections import defaultdict
-import importlib.util
 import re
 import subprocess
 import sys
+import tomllib
 from pathlib import Path
 
 import clang.cindex as ci
@@ -29,32 +29,20 @@ from overlay import OVERLAY
 from rulings import HEADER_PRELUDES
 
 REPO = Path(__file__).resolve().parents[2]
-ORACLE = REPO / "oracle"
+# The project file holds the source root, the units, and the sweep folders, which this module and table.py read.
+PROJECT_FILE = Path(__file__).resolve().parent / "project.toml"
+with PROJECT_FILE.open("rb") as _f:
+    PROJECT = tomllib.load(_f)
+ORACLE = REPO / PROJECT["project"]["source_root"]
 CRATES = REPO / "crates"
 SRC_ROOT = ORACLE  # reassigned by --root for non-oracle trees (e.g. OpenJK)
-MODULES_DIR = Path(__file__).resolve().parent / "modules"
 
-
-def _load_specs():
-    """Each module's variable surface lives in one spec file under modules/.
-    A spec carries the parse profile plus the chain fields the sweep, order,
-    and packets tools read. The historical inline dicts moved there verbatim."""
-    specs = {}
-    for p in sorted(MODULES_DIR.glob("*.py")):
-        if p.name.startswith("_"):
-            continue
-        loader = importlib.util.spec_from_file_location(f"modspec_{p.stem}", p)
-        mod = importlib.util.module_from_spec(loader)
-        loader.loader.exec_module(mod)
-        specs[mod.SPEC["name"]] = mod.SPEC
-    return specs
-
-
-MODULE_SPECS = _load_specs()
+# Each unit's parse profile lives in the project file, by the unit's name.
+MODULE_SPECS = PROJECT["units"]
 
 
 def spec(module: str) -> dict:
-    """The full spec dict for one module (parse profile + chain fields)."""
+    """The parse profile of one unit."""
     return MODULE_SPECS[module]
 
 
@@ -72,8 +60,7 @@ def freshness_stamp() -> dict:
 # Defines mirror the vcproj Release (non-FINAL_BUILD) configs; WIN32/_WINDOWS
 # omitted deliberately (they gate macros/inline asm, not layouts) so the parse
 # matches the 64-bit host layouts the existing Rust asserts were verified on.
-# The per-module dicts live in modules/<name>.py now; the extra chain keys a
-# spec may carry (label, subsystems, order, packets) are ignored here.
+# The per-unit profiles live in project.toml.
 RAVEN_MODULES = MODULE_SPECS
 
 # JACoders/OpenJK profile — defines/includes mirror its CMakeLists:
@@ -320,9 +307,9 @@ def derived_entries(module: str, tu=None) -> tuple[list[str], list[str]]:
 
 
 # ------------------------------------------------------------- one parse per run
-# The oracle directories of the two modules a generator reads, which every sweep of the port walks.
-GAME_DIR = "codemp/game"
-CGAME_DIR = "codemp/cgame"
+# The oracle directories of the two units a generator reads, which every sweep of the port walks.
+GAME_DIR = PROJECT["sweep"]["folder"]
+CGAME_DIR = PROJECT["sweep"]["other_folder"]
 
 
 class Parse:
@@ -334,9 +321,9 @@ class Parse:
 
     def __init__(self) -> None:
         self.overlay = OVERLAY
-        self.game = parse_tu("mp-game", None, unity=True, overlay=self.overlay)
+        self.game = parse_tu(PROJECT["sweep"]["unit"], None, unity=True, overlay=self.overlay)
         # A sweep proves a fact over every caller the port parses, so the cgame unit stands beside the game unit.
-        self.cgame = parse_tu("mp-cgame", None, unity=True, overlay=self.overlay)
+        self.cgame = parse_tu(PROJECT["sweep"]["other_unit"], None, unity=True, overlay=self.overlay)
         # The view target's header umbrella, which the views and the re-exports read.
         self.headers = reexport.parse(reexport.GAME_TARGET)
         self.game_folder = (ORACLE / GAME_DIR).resolve()

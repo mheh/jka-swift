@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 """extract.py: copy Raven's type declarations out of the oracle into C headers we own, one file per type.
 
-One libclang parse of a module, with the module's define set from modules/<name>.py, decides which #if branches are live.
+One libclang parse of a module, with the module's define set from project.toml, decides which #if branches are live.
 The script keeps struct, union, enum, and typedef declarations plus object-like macros with a value.
 It drops function prototypes, extern variables, function-like macros, and inline function bodies.
 Each kept declaration is a verbatim slice of the oracle source, so Raven's names and comments survive.
