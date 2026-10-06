@@ -11,6 +11,20 @@ HERE = Path(__file__).resolve().parents[1]
 sys.path.insert(0, str(HERE))
 
 from store import Store  # noqa: E402
+from table import Cursor  # noqa: E402
+
+
+def plain(value):
+    """A value with each object of a table class spelled as its class name and its public attributes, so two equal facts compare equal."""
+    if isinstance(value, dict):
+        return {k: plain(v) for k, v in value.items()}
+    if isinstance(value, (list, tuple)):
+        return type(value)(plain(v) for v in value)
+    if isinstance(value, (set, frozenset)):
+        return value
+    if hasattr(value, "__dict__"):
+        return (type(value).__name__, {k: plain(v) for k, v in vars(value).items() if not k.startswith("_")})
+    return value
 
 
 class RoundTrip(unittest.TestCase):
@@ -67,6 +81,16 @@ class RoundTrip(unittest.TestCase):
 
         # then the store gives back the same list in the same order
         self.assertEqual(self.round_trip("base", facts), facts)
+
+    def test_cursors(self) -> None:
+        # given a read cursor over a local buffer and a write cursor over a file-scope buffer
+        facts = {"cursors": {
+            ("g_cmds", "Cmd_Say_f", "p"): Cursor("read", "text", False),
+            ("g_utils", "vtos", "s"): Cursor("write", "str", True),
+        }}
+
+        # then the store gives back cursors with the same kind, buffer, and scope
+        self.assertEqual(plain(self.round_trip("base", facts)), plain(facts))
 
 
 if __name__ == "__main__":

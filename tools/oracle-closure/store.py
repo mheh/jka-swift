@@ -20,6 +20,8 @@ CREATE TABLE IF NOT EXISTS functions (fact TEXT NOT NULL, seq INTEGER NOT NULL, 
 CREATE TABLE IF NOT EXISTS fields (fact TEXT NOT NULL, record TEXT NOT NULL, field TEXT NOT NULL);
 CREATE TABLE IF NOT EXISTS handoffs (fact TEXT NOT NULL, seq INTEGER NOT NULL, callee TEXT NOT NULL, parameter TEXT NOT NULL,
     held TEXT NOT NULL, caller TEXT NOT NULL, caller_parameter TEXT NOT NULL);
+CREATE TABLE IF NOT EXISTS cursors (fact TEXT NOT NULL, seq INTEGER NOT NULL, file TEXT NOT NULL, function TEXT NOT NULL, name TEXT NOT NULL,
+    kind TEXT NOT NULL, buffer TEXT NOT NULL, is_global INTEGER NOT NULL);
 """
 
 
@@ -64,6 +66,12 @@ def handoff(row: tuple) -> tuple[str, str, bool | tuple[str, str]]:
     return (callee, parameter, (caller, caller_parameter) if held == "parameter" else held == "table")
 
 
+def cursors(rows: list[tuple]) -> dict:
+    from table import Cursor
+
+    return {(f, function, name): Cursor(kind, buffer, bool(is_global)) for _, f, function, name, kind, buffer, is_global in rows}
+
+
 # The fact kinds by name, each the name of the Table attribute it holds.
 KINDS: dict[str, Kind] = {
     **{kind: pairs("parameters", ("function", "parameter"))
@@ -75,6 +83,9 @@ KINDS: dict[str, Kind] = {
     "handoffs": Kind("handoffs", ("seq", "callee", "parameter", "held", "caller", "caller_parameter"),
                      lambda value: [handoff_row(i, *item) for i, item in enumerate(value)],
                      lambda rows: [handoff(row) for row in rows], order="seq"),
+    "cursors": Kind("cursors", ("seq", "file", "function", "name", "kind", "buffer", "is_global"),
+                    lambda value: [(i,) + key + (c.kind, c.buffer, int(c.is_global)) for i, (key, c) in enumerate(value.items())],
+                    cursors, order="seq"),
 }
 
 
