@@ -1674,9 +1674,11 @@ class Table:
     # MARK: - The store
 
     def input_keys(self) -> S.Keys:
-        """The keys of this run's inputs: every file the three parses read, the generated declarations the views read,
+        """The keys of this run's inputs: every file the three parses read, the names and callback signatures of the generated declarations,
         the tool modules of the project file, and the first line of every stub, salted with the line of a generated stub."""
         from skeleton import NOTE
+
+        from views import declaration_heads
 
         inputs: set[Path] = set()
         for tu in (self.parse.game, self.parse.cgame, self.parse.headers):
@@ -1684,13 +1686,14 @@ class Table:
             if Path(tu.spelling).exists():
                 inputs.add(Path(tu.spelling))
             inputs |= {Path(inc.include.name) for inc in tu.get_includes()}
-        for pattern in C.PROJECT["output"]["declarations"]:
-            inputs |= set(OUTPUT.glob(pattern))
         tools = [HERE / name for name in C.PROJECT["store"]["modules"]]
         stubs = sorted(path for folder in C.PROJECT["output"]["stubs"] for path in (OUTPUT / folder).glob("*.swift"))
         # The sweeps read which records have a view, and a view generator of one root has fewer of them, so the view set is an input too.
-        views = {"(the view set)": "\n".join(sorted(self.views.views))}
-        return S.keys(sorted(inputs), tools, stubs, C.REPO, salt=NOTE, values=views)
+        values = {"(the view set)": "\n".join(sorted(self.views.views))}
+        # The views read the declared names and the callback signatures of the generated declarations, so the key covers those parts alone.
+        declarations = {path for pattern in C.PROJECT["output"]["declarations"] for path in OUTPUT.glob(pattern)}
+        values |= {S.named(path, C.REPO): declaration_heads(path.read_text()) for path in sorted(declarations)}
+        return S.keys(sorted(inputs), tools, stubs, C.REPO, salt=NOTE, values=values)
 
     def stale(self, generation: str, files: dict[str, str]) -> None:
         """Say on standard error which files made a generation stale, so a slow run names its cause."""

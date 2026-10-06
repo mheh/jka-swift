@@ -6,6 +6,8 @@ import sys
 import tempfile
 import unittest
 from pathlib import Path
+from types import SimpleNamespace
+from unittest import mock
 
 HERE = Path(__file__).resolve().parents[1]
 sys.path.insert(0, str(HERE))
@@ -105,6 +107,80 @@ class Key(unittest.TestCase):
         # then the base key changes and the store names the value
         self.assertNotEqual(after.base, before.base)
         self.assertEqual(store.changed("base", after.files), ["(the view set)"])
+
+
+class Unit:
+    """A parse unit with no file on disk and no include, so the key of a Table reads the declarations alone."""
+
+    spelling = "(unity)"
+
+    def get_includes(self) -> list:
+        return []
+
+
+class DeclarationKey(unittest.TestCase):
+    """The base key covers the lines of the generated declarations that the views read, and no other line of them."""
+
+    def setUp(self) -> None:
+        import table
+
+        self.folder = tempfile.TemporaryDirectory()
+        self.addCleanup(self.folder.cleanup)
+        self.root = Path(self.folder.name)
+        self.declarations = self.root / "JKAMP/Generated/anims.swift"
+        self.callbacks = self.root / "JKAMP_Game/Generated/Views/Callbacks.swift"
+        self.declarations.parent.mkdir(parents=True)
+        self.callbacks.parent.mkdir(parents=True)
+        self.declarations.write_text("// Generated\n\n/// Source: anims.h:6\npublic typealias animNumber_t = Int32\n"
+                                     "public let FACE_TALK0: animNumber_t = Int32(truncatingIfNeeded: CJKAMP.FACE_TALK0.rawValue)\n")
+        self.callbacks.write_text("// Generated\npublic typealias EntityPain = @convention(c) (OpaquePointer?, OpaquePointer?, Int32) -> Void\n")
+        for patch in (mock.patch.object(table, "OUTPUT", self.root), mock.patch.object(table, "HERE", self.root)):
+            patch.start()
+            self.addCleanup(patch.stop)
+        self.table = table.Table.__new__(table.Table)
+        self.table.parse = SimpleNamespace(game=Unit(), cgame=Unit(), headers=Unit())
+        self.table.views = SimpleNamespace(views={})
+
+    def edit(self, path: Path, old: str, new: str) -> None:
+        path.write_text(path.read_text().replace(old, new))
+
+    def test_a_change_to_a_line_the_views_do_not_read_keeps_the_key(self) -> None:
+        # given the keys of the declarations
+        before = self.table.input_keys()
+
+        # when a comment, a value, and a type annotation change
+        self.edit(self.declarations, "anims.h:6", "anims.h:7")
+        self.edit(self.declarations, "Int32(truncatingIfNeeded: CJKAMP.FACE_TALK0.rawValue)", "0")
+        self.edit(self.declarations, "FACE_TALK0: animNumber_t", "FACE_TALK0: Int32")
+        after = self.table.input_keys()
+
+        # then both keys stay
+        self.assertEqual((after.base, after.adoption), (before.base, before.adoption))
+
+    def test_a_changed_name_changes_the_key_and_the_store_names_the_file(self) -> None:
+        # given a store that holds the facts under the keys of the declarations
+        before = self.table.input_keys()
+        store = Store(self.root / "table.sqlite")
+        self.addCleanup(store.close)
+        store.save("base", before.base, before.files, {"called": {"G_InitGame"}})
+
+        # when a declared name changes
+        self.edit(self.declarations, "FACE_TALK0", "FACE_TALK9")
+        after = self.table.input_keys()
+
+        # then the base key changes and the store names the file
+        self.assertNotEqual(after.base, before.base)
+        self.assertEqual(store.changed("base", after.files), [str(self.declarations.resolve())])
+
+    def test_a_changed_callback_signature_changes_the_key(self) -> None:
+        # given the keys of the declarations
+        before = self.table.input_keys()
+
+        # when the C signature of a callback typealias changes
+        self.edit(self.callbacks, "Int32) -> Void", "Int32) -> Int32")
+
+        # then the base key changes
+        self.assertNotEqual(self.table.input_keys().base, before.base)
 
 
 if __name__ == "__main__":
