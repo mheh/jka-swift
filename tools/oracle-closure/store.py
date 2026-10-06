@@ -173,7 +173,8 @@ def keys(inputs: Iterable[Path], tools: Iterable[Path], stubs: Iterable[Path], r
 
 
 class Store:
-    """One open store file. A save is one transaction."""
+    """One open store file. A save is one transaction.
+    Every open writes the schema version to meta and deletes a store of another version, so a reader such as lookup.py does this too."""
 
     def __init__(self, path: Path) -> None:
         self.path = Path(path)
