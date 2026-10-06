@@ -32,6 +32,9 @@ CREATE TABLE IF NOT EXISTS rulings (fact TEXT NOT NULL, ruling TEXT NOT NULL, fu
 CREATE TABLE IF NOT EXISTS locals (key TEXT NOT NULL, file TEXT NOT NULL, function TEXT NOT NULL, fact TEXT NOT NULL, name TEXT NOT NULL,
     cursor_kind TEXT, cursor_buffer TEXT, cursor_is_global INTEGER, walked TEXT, index_name TEXT);
 CREATE INDEX IF NOT EXISTS locals_by_function ON locals (file, function);
+CREATE TABLE IF NOT EXISTS signatures (seq INTEGER NOT NULL, file TEXT NOT NULL, name TEXT NOT NULL, kind TEXT NOT NULL, target TEXT NOT NULL,
+    text TEXT NOT NULL, forward TEXT, reason TEXT, source TEXT NOT NULL, destination TEXT NOT NULL, state TEXT NOT NULL, peer TEXT NOT NULL);
+CREATE INDEX IF NOT EXISTS signatures_by_name ON signatures (name);
 CREATE TABLE IF NOT EXISTS file_walks (fact TEXT NOT NULL, seq INTEGER NOT NULL, pointer TEXT NOT NULL, walked TEXT NOT NULL, index_name TEXT NOT NULL);
 """
 
@@ -234,6 +237,25 @@ class Store:
         with self.db:
             self.db.execute("DELETE FROM locals WHERE file = ? AND function = ?", (file, function))
             self.db.executemany("INSERT INTO locals VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)", [(key, file, function) + row for row in rows])
+
+    # MARK: - The signatures of the destination files
+
+    SIGNATURE_COLUMNS = ("file", "name", "kind", "target", "text", "forward", "reason", "source", "destination", "state", "peer")
+
+    def save_signatures(self, key: str, rows: list[dict]) -> None:
+        """Replace every signature row, in the order given, under the key of the files the rows describe."""
+        with self.db:
+            self.db.execute("DELETE FROM signatures")
+            self.db.executemany(f"INSERT INTO signatures VALUES (?, {', '.join('?' for _ in self.SIGNATURE_COLUMNS)})",
+                                [(i,) + tuple(row[c] for c in self.SIGNATURE_COLUMNS) for i, row in enumerate(rows)])
+            self.db.execute("INSERT OR REPLACE INTO meta VALUES (?, ?)", ("key:signatures", key))
+
+    def signatures(self, key: str, name: str) -> list[dict] | None:
+        """The signature rows of one name in saved order, or None when the store holds the rows under another key or not at all."""
+        if self.key("signatures") != key:
+            return None
+        rows = self.db.execute(f"SELECT {', '.join(self.SIGNATURE_COLUMNS)} FROM signatures WHERE name = ? ORDER BY seq", (name,))
+        return [dict(zip(self.SIGNATURE_COLUMNS, row)) for row in rows]
 
     def drop_locals(self) -> None:
         """Delete the local facts of every function, because the generation they stand on was swept again."""
