@@ -192,6 +192,11 @@ class Store:
             self.db.execute("INSERT OR REPLACE INTO meta VALUES (?, ?)", (f"kinds:{generation}", ",".join(facts)))
             self.db.execute("INSERT OR REPLACE INTO meta VALUES (?, ?)", (f"key:{generation}", key))
 
+    def changed(self, generation: str, files: dict[str, str]) -> list[str]:
+        """The names of the files whose hash differs from the one the generation was saved with, a new file and a gone file too, in name order."""
+        saved = dict(self.db.execute("SELECT path, hash FROM files WHERE generation = ?", (generation,)).fetchall())
+        return sorted(name for name in set(saved) | set(files) if saved.get(name) != files.get(name))
+
     # MARK: - The local facts of one function
 
     def load_locals(self, key: str, file: str, function: str):

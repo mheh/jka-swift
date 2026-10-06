@@ -46,6 +46,21 @@ class Key(unittest.TestCase):
         self.assertEqual(first.base, second.base)
         self.assertEqual(first.adoption, second.adoption)
 
+    def test_a_one_byte_change_changes_the_key_and_the_store_names_the_file(self) -> None:
+        # given a store that holds the facts of the input set
+        before = self.compute()
+        store = Store(self.root / "table.sqlite")
+        store.save("base", before.base, before.files, {"called": {"G_InitGame"}})
+
+        # when one byte of one input file changes
+        (self.root / "src/g_local.h").write_text("#define MAX 5\n")
+        after = self.compute()
+
+        # then the key changes, the store holds nothing under it, and the store names the file
+        self.assertNotEqual(after.base, before.base)
+        self.assertIsNone(store.load("base", after.base))
+        self.assertEqual(store.changed("base", after.files), ["src/g_local.h"])
+
 
 if __name__ == "__main__":
     unittest.main()
