@@ -129,6 +129,13 @@ class RoundTrip(unittest.TestCase):
         # then the store gives back reads with the same root, path, type, write, cite, index, and name
         self.assertEqual(plain(self.round_trip("base", facts)), plain(facts))
 
+    def test_rulings(self) -> None:
+        # given the ruled rows a sweep started from, each as the ruling, the function, and the parameter
+        facts = {"rulings": {("NULLABLE", "G_Damage", "inflictor"), ("NULLABLE", "G_Damage", "dir")}}
+
+        # then the store gives back the same set
+        self.assertEqual(self.round_trip("base", facts), facts)
+
 
 if __name__ == "__main__":
     unittest.main()

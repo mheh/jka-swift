@@ -27,6 +27,7 @@ CREATE TABLE IF NOT EXISTS alias_writes (fact TEXT NOT NULL, buffer TEXT NOT NUL
 CREATE TABLE IF NOT EXISTS trap_overloads (fact TEXT NOT NULL, trap TEXT NOT NULL, parameter TEXT NOT NULL);
 CREATE TABLE IF NOT EXISTS reads (fact TEXT NOT NULL, seq INTEGER NOT NULL, root TEXT NOT NULL, path TEXT NOT NULL, written INTEGER NOT NULL,
     value_type TEXT NOT NULL, cite TEXT NOT NULL, at INTEGER NOT NULL, name TEXT NOT NULL);
+CREATE TABLE IF NOT EXISTS rulings (fact TEXT NOT NULL, ruling TEXT NOT NULL, function TEXT NOT NULL, parameter TEXT NOT NULL);
 CREATE TABLE IF NOT EXISTS file_walks (fact TEXT NOT NULL, seq INTEGER NOT NULL, pointer TEXT NOT NULL, walked TEXT NOT NULL, index_name TEXT NOT NULL);
 """
 
@@ -109,6 +110,8 @@ KINDS: dict[str, Kind] = {
                     lambda value: [(i,) + key + (c.kind, c.buffer, int(c.is_global)) for i, (key, c) in enumerate(value.items())],
                     cursors, order="seq"),
     "alias_writes": names("alias_writes", "buffer"),
+    # The ruled rows a sweep starts from, each as the ruling's name, the function, and the parameter.
+    "rulings": Kind("rulings", ("ruling", "function", "parameter"), lambda value: list(value), lambda rows: {tuple(row) for row in rows}),
     "reads": Kind("reads", ("seq", "root", "path", "written", "value_type", "cite", "at", "name"),
                   lambda value: [read_row(i, read) for i, read in enumerate(value.values())], reads, order="seq"),
     **{kind: pairs("trap_overloads", ("trap", "parameter")) for kind in ("buffer_traps", "text_traps")},
