@@ -22,8 +22,8 @@ import closure as C
 import store as S
 from reexport import GAME_TARGET
 from fnsweep import ASSIGN_OPS
-from overlay import MACROS, written_arguments
-from rulings import NULLABLE, PARAMS, RETURNS
+from overlay import DECLARED, DROPPED, MACROS, written_arguments
+from rulings import HAND_MACROS, NULLABLE, PARAMS, RETURNS
 from views import Generator
 from spelling import Facts, OPTIONAL_TEXT_RESULT, engine_array
 
@@ -135,6 +135,151 @@ class SourceFile:
     def c_signature(self, cur: ci.Cursor) -> str:
         text = self.slice(cur.extent)
         return " ".join(text[:text.index("{")].split())
+
+
+# MARK: - The syntax rows
+
+# The functions the overlay declares in place of Raven's function-like macros, so a use of one parses as a call and not as a macro.
+OVERLAY_CALLS = set(MACROS) | DROPPED | DECLARED
+
+
+def statement_children(cur: ci.Cursor, data: bytes) -> list[ci.Cursor]:
+    """The children of a statement that stand in a statement place, in source order.
+    The test of an `if`, a loop, or a `switch` and the case value are expressions and stand in no statement place.
+    The init and the step of a `for` do, and so do the two sides of C's comma operator in a statement place, because the drafter writes each as a statement."""
+    kids = list(cur.get_children())
+    kind = cur.kind
+    if kind == CursorKind.COMPOUND_STMT:
+        return kids
+    if kind == CursorKind.IF_STMT:
+        return kids[1:]
+    if kind in (CursorKind.WHILE_STMT, CursorKind.SWITCH_STMT, CursorKind.CASE_STMT, CursorKind.DEFAULT_STMT, CursorKind.LABEL_STMT):
+        return kids[-1:]
+    if kind == CursorKind.DO_STMT:
+        return kids[:1]
+    if kind == CursorKind.FOR_STMT:
+        body = kids[-1]
+        semis: list[int] = []
+        depth = 0
+        for token in cur.get_tokens():
+            if token.extent.start.offset >= body.extent.start.offset:
+                break
+            if token.spelling == "(":
+                depth += 1
+            elif token.spelling == ")":
+                depth -= 1
+            elif token.spelling == ";" and depth == 1:
+                semis.append(token.extent.start.offset)
+        if len(semis) != 2:
+            return [body]
+        # The test stands between the two semicolons of the head, and the init and the step stand outside them.
+        return [k for k in kids[:-1] if not semis[0] <= k.extent.start.offset < semis[1]] + [body]
+    inner = cur
+    while inner.kind == CursorKind.UNEXPOSED_EXPR and len(list(inner.get_children())) == 1:
+        inner = next(inner.get_children())
+    if inner.kind == CursorKind.BINARY_OPERATOR:
+        parts = list(inner.get_children())
+        if len(parts) == 2:
+            between = data[parts[0].extent.end.offset:parts[1].extent.start.offset].decode("utf-8", "replace")
+            if COMMENT.sub("", between).strip() == ",":
+                return parts
+    return []
+
+
+def between_lines(source: SourceFile, after: int, before: int) -> list[tuple[int, str]]:
+    """Raven's comment and blank lines strictly between two source lines, each as its line number and its stripped text.
+    A blank line has empty text, and a line of code or of the preprocessor has no row."""
+    out: list[tuple[int, str]] = []
+    block = False
+    for number in range(after + 1, before):
+        text = source.lines[number - 1].strip()
+        if block:
+            out.append((number, text))
+            block = "*/" not in text
+        elif not text or text.startswith("//"):
+            out.append((number, text))
+        elif text.startswith("/*"):
+            out.append((number, text))
+            block = "*/" not in text[2:]
+    return out
+
+
+def syntax_rows(stem: str, fn: ci.Cursor, source: SourceFile, data: bytes,
+                uses: list[ci.Cursor]) -> tuple[list[tuple], list[tuple], list[tuple]]:
+    """The statement rows, the comment rows, and the macro rows of one function body, in the column order of the store.
+
+    Every statement node of the body is one row, numbered in preorder from the body itself, and an expression has no row.
+    A comment line between two statements is `above` the next statement when no blank line stands between them, and `gap` otherwise.
+    A blank line is a `gap` row with empty text, and the lines after the last statement of a block are `gap` rows of the block.
+    A comment after the brace of a block is `opening`, and a comment after the last text of a statement is `trailing`.
+    `uses` are the macro uses of the file, and a call of the overlay counts as the use of a function-like macro."""
+    body = [c for c in fn.get_children() if c.kind == CursorKind.COMPOUND_STMT][-1]
+    nodes: list[tuple[ci.Cursor, int | None]] = []
+
+    def visit(cur: ci.Cursor, parent: int | None) -> None:
+        seq = len(nodes)
+        nodes.append((cur, parent))
+        for child in statement_children(cur, data):
+            visit(child, seq)
+
+    visit(body, None)
+    function = fn.spelling
+    statements = []
+    for seq, (cur, parent) in enumerate(nodes):
+        start, end = cur.extent.start, cur.extent.end
+        statements.append((stem, function, seq, parent, cur.kind.name, start.line, start.column, end.line, end.column,
+                           start.offset, end.offset, source.slice(cur.extent)))
+    comments: dict[tuple[int, int], tuple] = {}
+    seq_of = {(cur.kind.name, cur.extent.start.offset, cur.extent.end.offset): seq for seq, (cur, _) in enumerate(nodes)}
+    for seq, (cur, _) in enumerate(nodes):
+        if cur.kind != CursorKind.COMPOUND_STMT:
+            continue
+        rest = source.lines[cur.extent.start.line - 1][cur.extent.start.column:].strip()
+        if rest.startswith("//") or (rest.startswith("/*") and rest.endswith("*/") and len(rest) >= 4):
+            comments[(seq, cur.extent.start.line)] = (stem, function, seq, cur.extent.start.line, "opening", rest)
+        previous = cur.extent.start.line
+        for child in cur.get_children():
+            run = between_lines(source, previous, child.extent.start.line)
+            child_seq = seq_of[(child.kind.name, child.extent.start.offset, child.extent.end.offset)]
+            # The comment lines that touch the statement, with no blank line between, stand above it.
+            touching, expected = len(run), child.extent.start.line - 1
+            while touching > 0 and run[touching - 1][1] and run[touching - 1][0] == expected:
+                touching, expected = touching - 1, expected - 1
+            for i, (line, text) in enumerate(run):
+                comments[(child_seq, line)] = (stem, function, child_seq, line, "above" if i >= touching else "gap", text)
+            previous = child.extent.end.line
+        for line, text in between_lines(source, previous, cur.extent.end.line):
+            comments[(seq, line)] = (stem, function, seq, line, "gap", text)
+    # A trailing comment belongs to the statement that ends last before it on its line, and the innermost one of equal end.
+    trailing: dict[int, tuple[int, int, str]] = {}
+    for seq, (cur, _) in enumerate(nodes):
+        end = cur.extent.end
+        rest = source.lines[end.line - 1][end.column - 1:].strip().lstrip(";").strip()
+        if rest.startswith("//") and (end.line not in trailing or (end.offset, seq) > trailing[end.line][:2]):
+            trailing[end.line] = (end.offset, seq, rest)
+    for line, (_, seq, text) in trailing.items():
+        comments[(seq, line)] = (stem, function, seq, line, "trailing", text)
+
+    def innermost(offset: int) -> int:
+        return max(seq for seq, (cur, _) in enumerate(nodes) if cur.extent.start.offset <= offset < cur.extent.end.offset)
+
+    macros: dict[tuple[int, int], tuple] = {}
+    low, high = body.extent.start.offset, body.extent.end.offset
+    for use in uses:
+        offset = use.extent.start.offset
+        if not low <= offset < high:
+            continue
+        text = source.slice(use.extent)
+        kind = "hand" if use.spelling in HAND_MACROS else ("function" if text.strip() != use.spelling else "object")
+        seq = innermost(offset)
+        macros[(seq, offset)] = (stem, function, seq, offset, use.extent.end.offset, use.spelling, text, kind)
+    taken = {offset for _, offset in macros}
+    for node in body.walk_preorder():
+        if node.kind == CursorKind.CALL_EXPR and node.spelling in OVERLAY_CALLS and node.extent.start.offset not in taken:
+            offset = node.extent.start.offset
+            seq = innermost(offset)
+            macros[(seq, offset)] = (stem, function, seq, offset, node.extent.end.offset, node.spelling, source.slice(node.extent), "function")
+    return statements, sorted(comments.values(), key=lambda row: (row[2], row[3])), sorted(macros.values(), key=lambda row: (row[2], row[3]))
 
 
 # The fields of bgEntity_t, the head of gentity_t and centity_t alike, which a bg body reads through its own view.
@@ -1634,7 +1779,7 @@ class Table:
         if base is None or not self.load_base(base):
             self.stale("base", self.keys.files)
             self.sweep_base()
-            self.store.save("base", self.keys.base, self.keys.files, self.base_facts())
+            self.store.save("base", self.keys.base, self.keys.files, self.base_facts(), tables=self.sweep_syntax())
             self.swept.add("base")
         adoption = None if REBUILD else self.store.load("adoption", self.keys.adoption)
         if adoption is None:
@@ -1670,6 +1815,24 @@ class Table:
         self.sweep_array_handoffs()
         self.sweep_returns(tu, folder)
         self.reads = {read.key: read for read in self.sweep_reads(tu, folder)}
+
+    def sweep_syntax(self) -> dict[str, list[tuple]]:
+        """The statement, comment, and macro rows of every function body of the swept unit, by table, which the base generation saves.
+        It reads the macro uses of the parse once and gives each body the uses of its own file."""
+        uses: dict[str, list[ci.Cursor]] = {}
+        for cur in self.parse.game.cursor.get_children():
+            if cur.kind == CursorKind.MACRO_INSTANTIATION and cur.location.file:
+                uses.setdefault(str(Path(cur.location.file.name).resolve()), []).append(cur)
+        tables: dict[str, list[tuple]] = {"statements": [], "comments": [], "macros": []}
+        sources: dict[Path, tuple[SourceFile, bytes]] = {}
+        for (stem, _), cur in self.functions.items():
+            path = Path(cur.location.file.name).resolve()
+            if path not in sources:
+                sources[path] = (SourceFile(path), C.parsed_bytes(path))
+            rows = syntax_rows(stem, cur, *sources[path], uses.get(str(path), []))
+            for table, part in zip(tables, rows):
+                tables[table] += part
+        return tables
 
     # MARK: - The store
 

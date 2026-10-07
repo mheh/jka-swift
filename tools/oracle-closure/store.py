@@ -41,7 +41,26 @@ CREATE TABLE IF NOT EXISTS signatures (seq INTEGER NOT NULL, file TEXT NOT NULL,
     text TEXT NOT NULL, forward TEXT, reason TEXT, source TEXT NOT NULL, destination TEXT NOT NULL, state TEXT NOT NULL, peer TEXT NOT NULL);
 CREATE INDEX IF NOT EXISTS signatures_by_name ON signatures (name);
 CREATE TABLE IF NOT EXISTS file_walks (fact TEXT NOT NULL, seq INTEGER NOT NULL, pointer TEXT NOT NULL, walked TEXT NOT NULL, index_name TEXT NOT NULL);
+CREATE TABLE IF NOT EXISTS statements (file TEXT NOT NULL, function TEXT NOT NULL, seq INTEGER NOT NULL, parent_seq INTEGER, kind TEXT NOT NULL,
+    start_line INTEGER NOT NULL, start_column INTEGER NOT NULL, end_line INTEGER NOT NULL, end_column INTEGER NOT NULL,
+    start_offset INTEGER NOT NULL, end_offset INTEGER NOT NULL, text TEXT NOT NULL, PRIMARY KEY (file, function, seq));
+CREATE INDEX IF NOT EXISTS statements_by_function ON statements (file, function);
+CREATE TABLE IF NOT EXISTS comments (file TEXT NOT NULL, function TEXT NOT NULL, seq INTEGER NOT NULL, line INTEGER NOT NULL, position TEXT NOT NULL,
+    text TEXT NOT NULL, PRIMARY KEY (file, function, seq, line));
+CREATE INDEX IF NOT EXISTS comments_by_function ON comments (file, function);
+CREATE TABLE IF NOT EXISTS macros (file TEXT NOT NULL, function TEXT NOT NULL, seq INTEGER NOT NULL, start_offset INTEGER NOT NULL,
+    end_offset INTEGER NOT NULL, name TEXT NOT NULL, text TEXT NOT NULL, kind TEXT NOT NULL, PRIMARY KEY (file, function, seq, start_offset));
+CREATE INDEX IF NOT EXISTS macros_by_function ON macros (file, function);
 """
+
+# The syntax tables of the base generation, each with its columns in order and the columns of its primary key.
+# A sweep replaces every row of each table at once, and a reader asks for the rows of one function.
+SYNTAX = {
+    "statements": (("file", "function", "seq", "parent_seq", "kind", "start_line", "start_column", "end_line", "end_column",
+                    "start_offset", "end_offset", "text"), ("file", "function", "seq")),
+    "comments": (("file", "function", "seq", "line", "position", "text"), ("file", "function", "seq", "line")),
+    "macros": (("file", "function", "seq", "start_offset", "end_offset", "name", "text", "kind"), ("file", "function", "seq", "start_offset")),
+}
 
 
 @dataclass(frozen=True)
@@ -252,11 +271,16 @@ class Store:
         finally:
             self.db.commit()
 
-    def save(self, generation: str, key: str, files: dict[str, str], facts: dict) -> None:
-        """Replace the rows of every kind in `facts`, the file hashes, and the key of the generation, in one transaction."""
+    def save(self, generation: str, key: str, files: dict[str, str], facts: dict, tables: dict[str, list[tuple]] | None = None) -> None:
+        """Replace the rows of every kind in `facts`, every row of each syntax table in `tables`, the file hashes, and the key of the generation,
+        in one transaction."""
         with self.db:
             for kind, value in facts.items():
                 self.write(kind, value)
+            for table, rows in (tables or {}).items():
+                columns, _ = SYNTAX[table]
+                self.db.execute(f"DELETE FROM {table}")
+                self.db.executemany(f"INSERT INTO {table} VALUES ({', '.join('?' for _ in columns)})", rows)
             self.db.execute("DELETE FROM files WHERE generation = ?", (generation,))
             self.db.executemany("INSERT INTO files VALUES (?, ?, ?)", [(generation, path, digest) for path, digest in files.items()])
             self.db.execute("INSERT OR REPLACE INTO meta VALUES (?, ?)", (f"kinds:{generation}", ",".join(facts)))
@@ -333,6 +357,13 @@ class Store:
                 return None
             rows = self.db.execute(f"SELECT {', '.join(self.SIGNATURE_COLUMNS)} FROM signatures WHERE name = ? ORDER BY seq", (name,)).fetchall()
         return [dict(zip(self.SIGNATURE_COLUMNS, row)) for row in rows]
+
+    def syntax(self, table: str, file: str, function: str) -> list[dict]:
+        """The rows of one syntax table for one function, in the order of the primary key."""
+        columns, key = SYNTAX[table]
+        rows = self.db.execute(f"SELECT {', '.join(columns)} FROM {table} WHERE file = ? AND function = ? ORDER BY {', '.join(key)}",
+                               (file, function)).fetchall()
+        return [dict(zip(columns, row)) for row in rows]
 
     def drop_locals(self) -> None:
         """Delete the local facts of every function, because the generation they stand on was swept again."""
