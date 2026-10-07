@@ -273,6 +273,12 @@ class Drafter(Statements, Expressions, Calls, Declarations, Classification):
         return clean
 
 
+def printed(drafter: Drafter, fns: list[Function]) -> str:
+    """The text a run of bodies.py prints for the functions: each draft and a blank line after it, then the footer of the hole count."""
+    text = "".join("\n".join(drafter.draft(fn)) + "\n\n" for fn in fns)
+    return text + f"// {drafter.holes} holes\n"
+
+
 def main() -> None:
     parser = argparse.ArgumentParser()
     parser.add_argument("--only", help="comma-separated function names to print")
@@ -286,10 +292,7 @@ def main() -> None:
         fns = sk.files[args.stem]
     else:
         parser.error("give --only or --stem")
-    for fn in fns:
-        print("\n".join(drafter.draft(fn)))
-        print()
-    print(f"// {drafter.holes} holes", flush=True)
+    print(printed(drafter, fns), end="", flush=True)
 
 
 if __name__ == "__main__":

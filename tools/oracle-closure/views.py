@@ -666,23 +666,27 @@ class Generator:
         return files
 
 
-def write(files: dict[tuple[str, str], list[str]], only: bool) -> int:
-    by_view: dict[str, dict[str, list[str]]] = defaultdict(dict)
-    for (view, stem), lines in files.items():
-        by_view[view][stem] = lines
+def texts(files: dict[tuple[str, str], list[str]]) -> dict[str, dict[str, str]]:
+    """The text of each view file by its view target and its stem, with the header and the imports of its target."""
+    by_view: dict[str, dict[str, str]] = defaultdict(dict)
     target_of_view = {v: k for k, v in VIEW_OF.items()}
+    for (view, stem), lines in sorted(files.items()):
+        target = target_of_view[view]
+        imports = [f"internal import {target}"] + [f"import {VIEW_OF[d]}" for d in DEPS[target]]
+        by_view[view][stem] = "\n".join([NOTE, ""] + imports + [""] + lines).rstrip() + "\n"
+    return by_view
+
+
+def write(files: dict[tuple[str, str], list[str]], only: bool) -> int:
     count = 0
-    for view, stems in by_view.items():
+    for view, stems in texts(files).items():
         out = SOURCES / view / "Generated" / "Views"
         if out.exists() and not only:
             for old in out.glob("*.swift"):
                 old.unlink()
         out.mkdir(parents=True, exist_ok=True)
-        target = target_of_view[view]
-        imports = [f"internal import {target}"] + [f"import {VIEW_OF[d]}" for d in DEPS[target]]
-        for stem, lines in sorted(stems.items()):
-            text = [NOTE, ""] + imports + [""] + lines
-            (out / f"{stem}.swift").write_text("\n".join(text).rstrip() + "\n")
+        for stem, text in stems.items():
+            (out / f"{stem}.swift").write_text(text)
             count += 1
     return count
 
