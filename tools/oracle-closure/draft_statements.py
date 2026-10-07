@@ -16,7 +16,7 @@ from skeleton import LOGIC, target_of
 from table import ASSIGN_OPS, TARGET, swift_name
 from overlay import DROPPED, MACROS, RECORD_CALLS, address_arguments
 
-from draft_classification import COMPILE_NOTE, INDENT, Hole, marked
+from draft_classification import COMPILE_NOTE, INDENT, ROLE_MARK, TRAILING, Hole, marked, roled
 from draft_declarations import extent_key
 from draft_expressions import IDENTIFIER, NUMBER
 
@@ -107,9 +107,9 @@ class Statements:
             self.goto_forms[name] = f"break {name}"
             out += self.statements(region[:lead], previous_line, region[lead].extent.start.line if lead < len(region) else label.extent.start.line, depth)
             out += self.param_copy_lines(depth)
-            out.append(f"{pad}{name}: do {{")
+            out += roled([f"{pad}{name}: do {{"], "frame")
             out += self.statements(region[lead:], region[lead].extent.start.line - 1 if lead < len(region) else label.extent.start.line - 1, label.extent.start.line, depth + 1)
-            out.append(f"{pad}}}")
+            out += roled([f"{pad}}}"], "frame")
             out += self.statements(rest, label.extent.start.line, last_line, depth)
             return out
         if after and not before:
@@ -118,10 +118,9 @@ class Statements:
             self.goto_forms[name] = f"continue {name}"
             out += self.statements(children[:i], previous_line, label.extent.start.line, depth)
             out += self.param_copy_lines(depth)
-            out.append(f"{pad}{name}: while true {{")
+            out += roled([f"{pad}{name}: while true {{"], "frame")
             out += self.statements(rest, label.extent.start.line, last_line, depth + 1)
-            out.append(f"{INDENT * (depth + 1)}break")
-            out.append(f"{pad}}}")
+            out += roled([f"{INDENT * (depth + 1)}break", f"{pad}}}"], "frame")
             return out
         raise Hole(f"Raven's `{name}:` takes a goto from both sides, and the transcriptor restructures the flow.")
 
@@ -137,13 +136,14 @@ class Statements:
         out = [f"{pad}// Raven points `{name}` at one of the file-scope variables, and the statements after his choice run over the one he chose.",
                f"{pad}// The chosen variable crosses as an inout parameter, and each arm of the choice calls the nested function with its own variable.",
                f"{pad}func {self.chosen_helper(name)}(_ {swift_name(name)}: inout {view}?){returns} {{"]
+        out = roled(out, "frame")
         body = self.statements(rest, chain.extent.end.line, last_line, depth + 1)
         while body and not body[0].strip():
             body.pop(0)
         while body and not body[-1].strip():
             body.pop()
         out += body
-        out.append(f"{pad}}}")
+        out += roled([f"{pad}}}"], "frame")
         out += self.statement(chain, depth)
         return out
 
@@ -174,23 +174,28 @@ class Statements:
             line = self.source.lines[before - 1]
             if "*/" in line:
                 out.append(INDENT * depth + flat_comment(line[:line.index("*/") + 2].strip(), False, True))
-        return out
+        return roled(out, "comment")
 
     def opening(self, block: ci.Cursor, depth: int) -> list[str]:
         """Raven's comment on the line of the opening brace, `{ //lost it`, as the first line of the block."""
         line = self.source.lines[block.extent.start.line - 1]
         rest = line[block.extent.start.column:].strip()
         if rest.startswith("//"):
-            return [INDENT * depth + rest]
+            return roled([INDENT * depth + rest], "comment")
         if rest.startswith("/*") and rest.endswith("*/") and len(rest) >= 4:
-            return [INDENT * depth + flat_comment(rest, True, True)]
+            return roled([INDENT * depth + flat_comment(rest, True, True)], "comment")
         return []
 
     def trailing(self, cur: ci.Cursor) -> str:
-        """Raven's comment on the last line of a statement, after the statement's text."""
+        """Raven's comment on the last line of a statement, after the statement's text, behind the mark that prints as one space."""
+        rest = self.trailing_comment(cur)
+        return f"{TRAILING}{rest}" if rest else ""
+
+    def trailing_comment(self, cur: ci.Cursor) -> str:
+        """Raven's comment on the last line of a statement, or the empty text when the line holds none."""
         line = self.source.lines[cur.extent.end.line - 1]
         rest = line[cur.extent.end.column - 1:].strip().lstrip(";").strip()
-        return f" {rest}" if rest.startswith("//") else ""
+        return rest if rest.startswith("//") else ""
 
     def statement(self, cur: ci.Cursor, depth: int) -> list[str]:
         outer = self.pending
@@ -201,7 +206,7 @@ class Statements:
                 lines = self.statement_lines(cur, depth)
             except Hole as hole:
                 lines = self.hole(cur, depth, str(hole))
-        lines = [INDENT * depth + line for line in self.pending] + lines
+        lines = [INDENT * depth + line for line in roled(self.pending, "lifted")] + lines
         self.pending = outer
         return marked(lines, self.statement_number(cur))
 
@@ -427,7 +432,7 @@ class Statements:
             return self.statement_lines(list(cur.get_children())[0], depth)
         kind = cur.kind
         if kind == CursorKind.COMPOUND_STMT:
-            return [f"{pad}do {{"] + self.block_body(cur, depth + 1) + [f"{pad}}}"]
+            return roled([f"{pad}do {{"], "frame") + self.block_body(cur, depth + 1) + roled([f"{pad}}}"], "frame")
         if kind == CursorKind.DECL_STMT:
             return [pad + line for line in self.declarations(cur)]
         if kind == CursorKind.RETURN_STMT:
@@ -459,11 +464,11 @@ class Statements:
             cond, body = list(cur.get_children())
             if self.holds_store(cond):
                 return self.store_while(cond, body, depth)
-            return [f"{pad}while {self.condition(cond)} {{"] + self.loop_body(body, None, depth + 1) + [f"{pad}}}"]
+            return [f"{pad}while {self.condition(cond)} {{"] + self.loop_body(body, None, depth + 1) + roled([f"{pad}}}"], "frame")
         if kind == CursorKind.DO_STMT:
             body, cond = list(cur.get_children())
             lines = self.loop_body(body, None, depth + 1)
-            return [f"{pad}repeat {{"] + lines + [f"{pad}}} while {self.blocked_condition(cond)}"]
+            return roled([f"{pad}repeat {{"], "frame") + lines + [f"{pad}}} while {self.blocked_condition(cond)}"]
         if kind == CursorKind.FOR_STMT:
             return self.for_statement(cur, depth)
         if kind == CursorKind.SWITCH_STMT:
@@ -589,8 +594,8 @@ class Statements:
                     return [f"{pad}{index} = {offset}" + self.trailing(cur)]
                 if op == "=" and self.unwrap(left).kind == CursorKind.DECL_REF_EXPR and self.unwrap(left).spelling in self.aliases:
                     # The store that names the alias has no effect of its own, and the comment beside it stays.
-                    rest = self.trailing(cur).strip()
-                    return [f"{pad}{rest}"] if rest else []
+                    rest = self.trailing_comment(cur)
+                    return roled([f"{pad}{rest}"], "comment") if rest else []
                 raw = self.raw_store(left)
                 if raw is not None:
                     # Raven's `*(int *)(b+f->ofs) = v` is the labeled subscript of the raw pointer, one per C type, by RawField.swift.
@@ -697,8 +702,8 @@ class Statements:
             return self.record_bytes(cur, depth)
         if self.is_call(cur) and self.callee_name(cur) in DROPPED:
             # `assert` is `((void)0)` under Raven's NDEBUG build, so the body drops it, by "assert".
-            rest = self.trailing(cur).strip()
-            return [f"{pad}{rest}"] if rest else []
+            rest = self.trailing_comment(cur)
+            return roled([f"{pad}{rest}"], "comment") if rest else []
         if self.is_call(cur) and self.filled_call(cur) is not None:
             call, buffer, whole = self.filled_call(cur)
             if whole:
@@ -713,7 +718,8 @@ class Statements:
             inner_pad = INDENT * (depth + 1)
             note, before = self.aliased_copies(aliased, pad, inner_pad)
             after = [f"{inner_pad}{text} = {local}" for _, text, local, back in aliased if back]
-            return [note, f"{pad}do {{"] + before + [f"{inner_pad}{call}" + self.trailing(cur)] + after + [f"{pad}}}"]
+            return roled([note], "lifted") + roled([f"{pad}do {{"], "frame") + roled(before, "lifted") + [f"{inner_pad}{call}" + self.trailing(cur)] \
+                + roled(after, "lifted") + roled([f"{pad}}}"], "frame")
         if self.is_call(cur):
             copies = self.overlapping_slots(cur)
             if copies:
@@ -726,7 +732,8 @@ class Statements:
                 inner_pad = INDENT * (depth + 1)
                 before = [f"{inner_pad}var {local} = {text}" for text, local in copies]
                 after = [f"{inner_pad}{text} = {local}" for text, local in copies]
-                return [f"{pad}do {{"] + before + [f"{inner_pad}{call}" + self.trailing(cur)] + after + [f"{pad}}}"]
+                return roled([f"{pad}do {{"], "frame") + roled(before, "lifted") + [f"{inner_pad}{call}" + self.trailing(cur)] \
+                    + roled(after, "lifted") + roled([f"{pad}}}"], "frame")
             return [f"{pad}{self.expr(cur)}" + self.trailing(cur)]
         if kind.is_expression():
             raise Hole("An expression statement with no effect the draft knows.")
@@ -804,7 +811,7 @@ class Statements:
             self.scratch_names["filledTest"] = self.scratch_names.get("filledTest", 0) + 1
             filled = "filledTest" if self.scratch_names["filledTest"] == 1 else f"filledTest{self.scratch_names['filledTest']}"
             fill = f"{buffer} = {filled}.1" if whole else f"strcpy(&{buffer}, {filled}.1)"
-            head = [f"{pad}let {filled} = {call}", f"{pad}{fill}"]
+            head = roled([f"{pad}let {filled} = {call}", f"{pad}{fill}"], "lifted")
             test = f"!{filled}.0" if negated else f"{filled}.0"
         else:
             test = self.condition(cond)
@@ -831,10 +838,10 @@ class Statements:
                     self.pending = outer
                 if any(not line.lstrip().startswith("//") for line in before):
                     # A store lifted out of the else-if test runs only when the first test fails, so it opens the else block.
-                    out.append(f"{pad}}} else {{")
-                    out += between + [INDENT * (depth + 1) + line for line in before]
+                    out += roled([f"{pad}}} else {{"], "frame")
+                    out += between + [INDENT * (depth + 1) + line for line in roled(before, "lifted")]
                     out += [INDENT + line if line.strip() else line for line in nested]
-                    out.append(f"{pad}}}")
+                    out += roled([f"{pad}}}"], "frame")
                     return out
                 self.pending += before
                 if nested and nested[0].strip().startswith("if "):
@@ -842,19 +849,19 @@ class Statements:
                     out += between + nested[1:]
                     return out
                 # The nested if folded to one arm, so the arm is the else block.
-                out.append(f"{pad}}} else {{")
+                out += roled([f"{pad}}} else {{"], "frame")
                 out += between + [INDENT + line if line.strip() else line for line in nested]
-                out.append(f"{pad}}}")
+                out += roled([f"{pad}}}"], "frame")
                 return out
-            out.append(f"{pad}}} else {{")
+            out += roled([f"{pad}}} else {{"], "frame")
             out += between + self.branch(other, depth + 1)
-        out.append(f"{pad}}}")
+        out += roled([f"{pad}}}"], "frame")
         return out
 
     def commented(self, cur: ci.Cursor) -> list[str]:
         """Raven's text of a statement as comment lines, for an arm the draft leaves out."""
         text = self.bytes[cur.extent.start.offset:cur.extent.end.offset].decode("utf-8", "replace")
-        return [f"// {line.rstrip()}".rstrip() for line in text.replace("\t", "    ").splitlines()]
+        return roled([f"// {line.rstrip()}".rstrip() for line in text.replace("\t", "    ").splitlines()], "text")
 
     def for_statement(self, cur: ci.Cursor, depth: int) -> list[str]:
         """Raven's three clauses by their place between the two semicolons of the head, then `init; while cond { body; step }`."""
@@ -895,7 +902,7 @@ class Statements:
         out += inner
         if step is not None:
             out += self.statement(step, depth + 1)
-        out.append(f"{pad}}}")
+        out += roled([f"{pad}}}"], "frame")
         return out
 
     def blocked_condition(self, cond: ci.Cursor) -> str:
@@ -941,7 +948,7 @@ class Statements:
                 if all(line.lstrip().startswith("//") for line in before):
                     self.pending += before
                     return [f"{pad}while let next = {source} {{", f"{inner_pad}{self.expr(target)} = next"] \
-                        + self.loop_body(body, None, depth + 1) + [f"{pad}}}"]
+                        + self.loop_body(body, None, depth + 1) + roled([f"{pad}}}"], "frame")
         outer = self.pending
         self.pending = []
         try:
@@ -949,8 +956,8 @@ class Statements:
             lifted = self.pending
         finally:
             self.pending = outer
-        return [f"{pad}while true {{"] + [inner_pad + line for line in lifted] + [f"{inner_pad}if !({check}) {{ break }}"] \
-            + self.loop_body(body, None, depth + 1) + [f"{pad}}}"]
+        return roled([f"{pad}while true {{"], "frame") + [inner_pad + line for line in roled(lifted, "lifted")] + [f"{inner_pad}if !({check}) {{ break }}"] \
+            + self.loop_body(body, None, depth + 1) + roled([f"{pad}}}"], "frame")
 
     def loop_body(self, body: ci.Cursor, step: ci.Cursor | None, depth: int) -> list[str]:
         """The body of a loop, with its step clause on the stack so a `continue` inside it runs the step first."""
@@ -1017,15 +1024,15 @@ class Statements:
                 last = stmts[-1].extent.end.line if stmts else label_line
                 lines += [line for line in self.gap(last, groups[i + 1][2], depth + 1) if line.strip()]
             if not ends_in_break and not ends_in_exit and i + 1 < len(groups):
-                lines.append(f"{INDENT * (depth + 1)}fallthrough")
+                lines += roled([f"{INDENT * (depth + 1)}fallthrough"], "frame")
             if not any(line.strip() and not line.strip().startswith("//") for line in lines):
                 # A case with comments alone still needs its break.
-                lines.append(f"{INDENT * (depth + 1)}break")
+                lines += roled([f"{INDENT * (depth + 1)}break"], "frame")
             arms.append([f"{pad}{label}:"] + lines)
         if default_at is not None and default_at + 1 < len(arms):
             # Swift takes no case after the default block. A fall-through beside the default has no order that keeps it, so it stays a hole.
             neighbors = [arms[default_at]] + ([arms[default_at - 1]] if default_at else [])
-            if any(line.strip() == "fallthrough" for arm in neighbors for line in arm):
+            if any(ROLE_MARK.sub("", line).strip() == "fallthrough" for arm in neighbors for line in arm):
                 raise Hole("Raven's `default:` comes before his other cases, and a case falls through beside it.")
             arms.append(arms.pop(default_at))
         for i, arm in enumerate(arms):
@@ -1033,8 +1040,8 @@ class Statements:
             if i + 1 < len(arms):
                 out.append("")
         if default_at is None:
-            out += ["", f"{pad}default:", f"{INDENT * (depth + 1)}break"]
-        out.append(f"{pad}}}")
+            out += [""] + roled([f"{pad}default:", f"{INDENT * (depth + 1)}break"], "frame")
+        out += roled([f"{pad}}}"], "frame")
         return out
 
     def condition(self, cur: ci.Cursor) -> str:

@@ -33,7 +33,7 @@ from table import Cursor, Param
 
 from draft_calls import Calls
 # Hole stands under the Port-note the drafter writes, so it lives beside the classification that writes one.
-from draft_classification import STATEMENT_MARK, Classification, Hole
+from draft_classification import ROLE_MARK, STATEMENT_MARK, TRAILING, Classification, Hole
 from draft_declarations import Declarations, short_named
 from draft_expressions import Expressions
 from draft_statements import Statements
@@ -175,13 +175,19 @@ class Drafter(Statements, Expressions, Calls, Declarations, Classification):
         self.statement_numbers: dict[tuple[str, str, int, int], int] = {}
         # The key of the statement that drafted each line of the last draft, or None for a line no statement drafted.
         self.line_keys: list[tuple[str, str, int, int] | None] = []
+        # The role of each line of the last draft, one of ROLES, and Raven's comment at the end of the line, or None for a line with none.
+        self.line_roles: list[str] = []
+        self.line_trailing: list[str | None] = []
 
     # MARK: - One function
 
     def draft(self, fn: Function) -> list[str]:
         header = self.sk.stub(fn)
         if not fn.mapped or not header[-1].startswith("}"):
+            # The stub stands as the skeleton wrote it, and only its closing brace is no header line.
             self.line_keys = [None] * len(header)
+            self.line_roles = ["header"] * (len(header) - 1) + ["frame"]
+            self.line_trailing = [None] * len(header)
             return header
         self.fn = fn
         self.source = self.sk.source(fn.stem)
@@ -261,15 +267,25 @@ class Drafter(Statements, Expressions, Calls, Declarations, Classification):
         # The signature keeps the spelling of the transcription tables, and every body line reads its types by their short names.
         lines += [short_named(line) for line in self.block_body(body, 1)]
         lines.append("}")
-        # Each line gives up its statement mark here, and line_keys keeps the statement beside the line for the compile gate.
+        # Each line gives up its statement mark and its role here.
+        # line_keys keeps the statement beside the line for the compile gate, and line_roles keeps the role.
+        # A line with no role of its own is a header line, the closing brace, a blank line, or a line of its statement's own text.
         clean: list[str] = []
         self.line_keys = []
-        for line in lines:
+        self.line_roles = []
+        self.line_trailing = []
+        head = len(header) - 3
+        for i, line in enumerate(lines):
             mark = STATEMENT_MARK.search(line)
             key = self.statement_keys[int(mark.group(1))] if mark else None
-            for part in STATEMENT_MARK.sub("", line).split("\n"):
-                clean.append(part)
+            named = ROLE_MARK.search(line)
+            role = "header" if i < head else "frame" if i == len(lines) - 1 else named.group(1) if named else None
+            for part in ROLE_MARK.sub("", STATEMENT_MARK.sub("", line)).split("\n"):
+                text, _, comment = part.partition(TRAILING)
+                clean.append(f"{text} {comment}" if comment else text)
                 self.line_keys.append(key)
+                self.line_roles.append(role or ("blank" if not text.strip() else "own"))
+                self.line_trailing.append(comment or None)
         return clean
 
 

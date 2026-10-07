@@ -37,6 +37,29 @@ def marked(lines: list[str], number: int) -> list[str]:
     return [line if not line.strip() or STATEMENT_MARK.search(line) else f"{line}\x00{number}\x01" for line in lines]
 
 
+# The role of a drafted line, `\x02` and its name and `\x03`, which the emitter of the line puts on it and the drafter strips once the function is whole.
+# A line keeps the first role it gets, so the innermost emitter names it.
+ROLE_MARK = re.compile(r"\x02(\w+)\x03")
+# The start of Raven's comment at the end of a statement's line, which the drafter prints as one space.
+TRAILING = "\x04"
+# Every role a drafted line takes:
+# - `header`: the comment block, the Source line, and the signature
+# - `own`: a line the statement's own text gives
+# - `lifted`: a line that runs before its statement, a scratch local, a lifted store, or a plain note from inside an expression
+# - `trailing`: Raven's comment at the end of a statement's line
+# - `comment` and `blank`: a comment line and a blank line between statements
+# - `frame`: a brace, a `do {`, a `while true {`, a closure head, or a `break` that the form adds
+# - `copy` and `hoist`: a parameter copy and a shared read at the block head
+# - `text`: Raven's text kept as a comment
+# - `note`, `raven`, and `marker`: the three lines of a hole, or the note and the marker of a noted hole
+ROLES = ("header", "own", "lifted", "trailing", "comment", "blank", "frame", "copy", "hoist", "text", "note", "raven", "marker")
+
+
+def roled(lines: list[str], role: str) -> list[str]:
+    """The lines with one role on each line that holds text and no role yet."""
+    return [line if not line.strip() or ROLE_MARK.search(line) else f"{line}\x02{role}\x03" for line in lines]
+
+
 def port_note(reason: str) -> str:
     """The Port-note line of a hole, with each newline of the reason and the indentation after it as one space.
     A reason can quote Raven's text across a line, for example an operator span over `#ifdef _JK2MP`, and a second line would fall outside the comment."""
@@ -423,16 +446,16 @@ class Classification:
         pad = INDENT * depth
         raven = " ".join(self.source.slice(cur.extent).split())
         return [
-            f"{pad}{port_note(reason)}",
-            f"{pad}// Raven wrote: {raven}",
-            f'{pad}portMissing("{self.fn.name}", source: "{self.fn.cite}")',
+            *roled([f"{pad}{port_note(reason)}"], "note"),
+            *roled([f"{pad}// Raven wrote: {raven}"], "raven"),
+            *roled([f'{pad}portMissing("{self.fn.name}", source: "{self.fn.cite}")'], "marker"),
         ]
 
     def noted_hole(self, note: str) -> list[str]:
         """A Port-note that names a behaviour the draft does not reproduce, and the `portMissing` marker under it.
         The drafted code after the marker keeps its form, and the note counts as a hole."""
         self.holes += 1
-        return [note, f'portMissing("{self.fn.name}", source: "{self.fn.cite}")']
+        return roled([note], "note") + roled([f'portMissing("{self.fn.name}", source: "{self.fn.cite}")'], "marker")
 
     def is_record(self, t: ci.Type) -> bool:
         """True for a C struct the views cover."""

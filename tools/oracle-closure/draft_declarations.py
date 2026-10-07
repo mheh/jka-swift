@@ -15,7 +15,7 @@ import closure as C
 from skeleton import BG, target_of
 from table import TARGET, swift_name
 
-from draft_classification import INDENT, Hole, port_note
+from draft_classification import INDENT, Hole, port_note, roled
 
 
 def extent_key(cur: ci.Cursor) -> tuple[str, int, int]:
@@ -54,7 +54,7 @@ class Declarations:
             out.append(f"{INDENT}// Raven assigns his own `{name}` parameter. A Swift parameter is immutable, so the body takes a mutable copy of it.")
             out.append(f"{INDENT}var {name} = {name}")
         self.param_copies = []
-        return out
+        return roled(out, "copy")
 
     def record_local(self, cur: ci.Cursor) -> ci.Cursor | None:
         """The one variable of a declaration that is a C struct with a view, or None."""
@@ -102,6 +102,7 @@ class Declarations:
             out.append(f"{pad}let {result} = {opener} {{ {name} -> {self.fn.returns}? in")
         else:
             out.append(f"{pad}{opener} {{ {name} in")
+        out = roled(out, "frame")
         self.scratch_modes.append(mode)
         try:
             body = self.statements(rest, decl.extent.end.line, last_line, depth + 1)
@@ -110,18 +111,19 @@ class Declarations:
         while body and not body[-1].strip():
             body.pop()
         out += body
+        tail: list[str] = []
         if mode == "flag":
-            out.append(f"{INDENT * (depth + 1)}return false")
+            tail.append(f"{INDENT * (depth + 1)}return false")
         elif mode == "value":
-            out.append(f"{INDENT * (depth + 1)}return nil")
-        out.append(f"{pad}}}")
+            tail.append(f"{INDENT * (depth + 1)}return nil")
+        tail.append(f"{pad}}}")
         if mode == "flag":
             # Inside an enclosing flag closure, Raven's return from the function is that closure's true, at every depth.
             leave = "return true" if self.scratch_modes and self.scratch_modes[-1] == "flag" else "return"
-            out += [f"{pad}if {result} {{", f"{INDENT * (depth + 1)}{leave}", f"{pad}}}"]
+            tail += [f"{pad}if {result} {{", f"{INDENT * (depth + 1)}{leave}", f"{pad}}}"]
         elif mode == "value":
-            out += [f"{pad}if let {result} {{", f"{INDENT * (depth + 1)}return {result}", f"{pad}}}"]
-        return out
+            tail += [f"{pad}if let {result} {{", f"{INDENT * (depth + 1)}return {result}", f"{pad}}}"]
+        return out + roled(tail, "frame")
 
     def always_returns(self, stmts: list[ci.Cursor]) -> bool:
         """True when no path through the statements reaches their end: the last is a return, an if whose arms both do, or a
@@ -265,7 +267,7 @@ class Declarations:
             out.append(f"{INDENT * depth}// Raven names `{raven}` more than once, and each Swift use calls the channel, so the draft reads it once.")
             out.append(f"{INDENT * depth}let {local} = {read}")
             self.hoisted[key] = local
-        return out
+        return roled(out, "hoist")
 
     def declarations(self, cur: ci.Cursor) -> list[str]:
         out: list[str] = []
@@ -282,7 +284,8 @@ class Declarations:
                 self.hole_names.add(var.spelling)
                 self.local_holes.add(var.spelling)
                 raven = " ".join(self.bytes[var.extent.start.offset:var.extent.end.offset].decode("utf-8", "replace").split())
-                out += [port_note(str(hole)), f"// Raven wrote: {raven};", f'portMissing("{self.fn.name}", source: "{self.fn.cite}")']
+                out += roled([port_note(str(hole))], "note") + roled([f"// Raven wrote: {raven};"], "raven") \
+                    + roled([f'portMissing("{self.fn.name}", source: "{self.fn.cite}")'], "marker")
         return out
 
     def declaration(self, var: ci.Cursor) -> str:
