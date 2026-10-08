@@ -214,21 +214,25 @@ class Drafter(Statements, Expressions, Calls, Declarations, Classification):
         # Raven's `char *buf` locals that only ever hold a CHARBUF_ALLOCS call at one constant size, which Swift holds as a CharBuf of that size.
         self.charbuf_allocs = self.charbuf_alloc_names(fn.cur)
         self.charbuf_locals: set[str] = set(self.charbuf_allocs)
-        # Raven's `byte *b` and `char *dest` locals that only ever hold a raw allocation, which Swift holds as UnsafeMutableRawPointer.
-        self.raw_locals = self.raw_local_names(fn.cur) - self.charbuf_locals
-        # Raven's `const char *token` that only holds parsed text is a String.
-        self.text_locals, self.optional_texts = self.text_local_names(fn.cur)
+        # Raven's vector parameters a caller passes NULL to and the body only reads, which cross as optional values.
+        self.optional_vectors = {c.spelling for c, p in zip(fn.cur.get_arguments(), fn.params)
+                                 if p.kind in ("vec3_opt", "axis_opt", "vec3_mut_opt", "axis_mut_opt")}
         # His `char *p` over a named buffer is a read cursor, a TextCursor, or a write cursor, the byte offset of row 47.
         # Raven's `for (it = table + 1; it->name; it++)` walks a table by pointer, and the draft walks it by index, `table[itIndex]`.
         self.cursor_locals, self.offset_cursors, self.table_cursors = self.local_facts(fn)
-        # The slot text each copy stands for inside the one call being drafted, `fxAxis[2]` for `fxAxis2`.
-        self.slot_copies: dict[str, str] = {}
-        # The copy that stands in for each earlier aliased argument of the one call being drafted, keyed by the argument's extent and position.
-        self.aliased_positions: dict[tuple[int, int, int], str] = {}
         # Raven's `animation_t *animations` local that only ever holds a table of records, which Swift holds as the Slots over it.
         self.slots_locals = self.slots_local_names(fn.cur)
         # Raven's `short temp` locals, by his name, with the narrow storage Swift keeps for each, so a store truncates and a read widens.
         self.narrow_locals = self.narrow_local_names(fn.cur)
+        # The scan of the raw locals spells a store through `expr`, and that spelling reads the four facts above, so they come first.
+        # Raven's `byte *b` and `char *dest` locals that only ever hold a raw allocation, which Swift holds as UnsafeMutableRawPointer.
+        self.raw_locals = self.raw_local_names(fn.cur) - self.charbuf_locals
+        # Raven's `const char *token` that only holds parsed text is a String.
+        self.text_locals, self.optional_texts = self.text_local_names(fn.cur)
+        # The slot text each copy stands for inside the one call being drafted, `fxAxis[2]` for `fxAxis2`.
+        self.slot_copies: dict[str, str] = {}
+        # The copy that stands in for each earlier aliased argument of the one call being drafted, keyed by the argument's extent and position.
+        self.aliased_positions: dict[tuple[int, int, int], str] = {}
         # Raven's `siegeTeam_t **teamPtr` that only holds the address of a file-scope variable he chooses between.
         self.chosen_locals = self.chosen_local_names(fn.cur)
         facts = self.sk.table.locals_of(fn.stem, fn.cur.spelling)
@@ -239,9 +243,6 @@ class Drafter(Statements, Expressions, Calls, Declarations, Classification):
         self.written = facts.written
         self.addressed = facts.addressed
         self.has_scratch = any(self.record_local(c) is not None for c in fn.cur.walk_preorder())
-        # Raven's vector parameters a caller passes NULL to and the body only reads, which cross as optional values.
-        self.optional_vectors = {c.spelling for c, p in zip(fn.cur.get_arguments(), fn.params)
-                                 if p.kind in ("vec3_opt", "axis_opt", "vec3_mut_opt", "axis_mut_opt")}
         # A store inside an expression lifts to its own line before the statement, except where the line would run at the wrong time:
         # a loop test, the right side of `&&` or `||`, an arm of `?:`. The count holds how many of those enclose the expression.
         self.lift_blocked = 0
