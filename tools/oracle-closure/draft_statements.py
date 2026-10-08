@@ -98,7 +98,8 @@ class Statements:
             out += self.param_copy_lines(depth)
             out += self.gap(end, decl.extent.start.line, depth)
             out += self.shared_read_lines(decl, depth)
-            out += self.scratch(decl, self.record_local(decl), children[first + 1:], last_line, depth)
+            self.lowered_as(decl, "scratch", depth)
+            out += marked(self.scratch(decl, self.record_local(decl), children[first + 1:], last_line, depth), self.statement_number(decl))
             return out
         if before and not after:
             region = children[:i]
@@ -111,9 +112,12 @@ class Statements:
             self.goto_forms[name] = f"break {name}"
             out += self.statements(region[:lead], previous_line, region[lead].extent.start.line if lead < len(region) else label.extent.start.line, depth)
             out += self.param_copy_lines(depth)
-            out += roled([f"{pad}{name}: do {{"], "frame")
-            out += self.statements(region[lead:], region[lead].extent.start.line - 1 if lead < len(region) else label.extent.start.line - 1, label.extent.start.line, depth + 1)
-            out += roled([f"{pad}}}"], "frame")
+            # The frame and the lines inside it take the label's mark, and the statements after the frame keep their own.
+            frame = roled([f"{pad}{name}: do {{"], "frame")
+            frame += self.statements(region[lead:], region[lead].extent.start.line - 1 if lead < len(region) else label.extent.start.line - 1,
+                                     label.extent.start.line, depth + 1)
+            frame += roled([f"{pad}}}"], "frame")
+            out += marked(frame, self.statement_number(label))
             out += self.statements(rest, label.extent.start.line, last_line, depth)
             return out
         if after and not before:
@@ -122,9 +126,11 @@ class Statements:
             self.goto_forms[name] = f"continue {name}"
             out += self.statements(children[:i], previous_line, label.extent.start.line, depth)
             out += self.param_copy_lines(depth)
-            out += roled([f"{pad}{name}: while true {{"], "frame")
-            out += self.statements(rest, label.extent.start.line, last_line, depth + 1)
-            out += roled([f"{INDENT * (depth + 1)}break", f"{pad}}}"], "frame")
+            # The frame, the lines inside it, and its `break` take the label's mark.
+            frame = roled([f"{pad}{name}: while true {{"], "frame")
+            frame += self.statements(rest, label.extent.start.line, last_line, depth + 1)
+            frame += roled([f"{INDENT * (depth + 1)}break", f"{pad}}}"], "frame")
+            out += marked(frame, self.statement_number(label))
             return out
         raise Hole(f"Raven's `{name}:` takes a goto from both sides, and the transcriptor restructures the flow.")
 
