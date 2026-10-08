@@ -1,6 +1,6 @@
 # The stage-two amendment walk, rulings of 2026-10-08
 
-The first review of 2026-10-07 named five rows whose text no longer matches the code after steps 1 to 4, and the second review of 2026-10-08 added facts to three of them. The user ruled each row one at a time under the ratification-walk skill. An amended row carries its full amendment here, and that text is the ruling on top of the row in `notes/2026-10-06/stage-two-seams.md` and its verdict in `notes/2026-10-06/stage-two-walk.md`.
+The first review of 2026-10-07 named five rows whose text no longer matches the code after steps 1 to 4, and the second review of 2026-10-08 added facts to three of them. The review of steps 5 to 7 named five more rows, and the second walk below rules them. The user ruled each row one at a time under the ratification-walk skill. An amended row carries its full amendment here, and that text is the ruling on top of the row in `notes/2026-10-06/stage-two-seams.md` and its verdict in `notes/2026-10-06/stage-two-walk.md`.
 
 ## Ledger
 
@@ -15,3 +15,21 @@ The first review of 2026-10-07 named five rows whose text no longer matches the 
 ## What the amendments give the next builders
 
 Step 5 carries two items from this walk: one `marked()` call around the body walk with the body's seq 0, so no line but the header and the function's own braces carries a null `statement_seq`, and the retirement of the in-memory footer of `bodies.py` once `printer.py` prints the footer from the rows. Stage three carries one: the lowered key and its reset become per language before a second language writes rows.
+
+## The second walk, after steps 5 to 7
+
+The review of steps 5 to 7 in `stage-two-steps-5-7-review.md` named five rows in its last section, two departures of the code from the text and three rows whose text is behind the code. S7 takes its second amendment here, and it stacks on the first.
+
+### Ledger
+
+| Row | Verdict | Ruled by | Date |
+|---|---|---|---|
+| S7 | Amended as proposed. A nested blank line carries its enclosing statement's seq, as a nested comment does, so one rule binds every gap line of the `lines` table. The first amendment's "every top-level line of the body walk" stands, and a nested blank is not a top-level line. A helper strips the statement mark before the blank tests of `draft_statements.py`, every `marked()` call takes blanks, and the body call's `blanks` parameter goes away. Nothing reads a blank's `statement_seq` before step 8, so the fix goes to the fourth builder as one commit ahead of step 8. | User | 2026-10-08 |
+| S16 | Amended as proposed. Under `--compile-holes` the printer puts the three hole lines in place of each rejected statement's rows, the deeper rows inside the span included. It stops with one line that names `bodies.py --compile-holes` on a function whose rejected rows include a `DECL_STMT` or a statement of form scratch or choice, because the drafter's later lines change through `local_holes` and the rows cannot carry that state. Under the flag the printer also reads `statements` and `lowered` for the kinds and the forms. Those two reads are the flag's own and sit outside S12's boundary. A later step can make the printer exact: draftcheck stores the last-pass rows of the affected functions, or a digest of their printed lines, beside the rejected rows under the same key. The stored `lines` rows hold the first pass either way, and the exact form is left to step 8 or step 10. One latent hazard stands. A rejected statement that would have taken a scratch name leaves the scratch counters lower, so a later scratch local can print with a lower suffix in the hole pass than in the stored rows. The builder's comparison over the 43 stems found no such case. | User | 2026-10-08 |
+| S15 | Amended as proposed. The printer recomputes every part of the key it can compute with no parse: the first line of each stub the `files` table lists, the declaration lines of every Swift file under Sources, and the lowering modules of `project.toml`. It takes the C-inputs part from the stored base key, the S5a shape, because only a parse can compute that part. The check catches a stale stub, a stale signature, and a stale lowering module. It does not catch a stale C input, and the standing rule covers that: a generator run refreshes the base key. | User | 2026-10-08 |
+| S27 | Amended as proposed. The game draftcheck reference is 1357 holes, 0 defects, and 224 compile holes over 75 stems. The bg reference holds at 107 holes and 0 defects. The rest of the row stands. The figure of 1342 over 72 never matched the enumeration, which the draftcheck log of 2026-10-04 lists at 75 stems, and the 15-hole difference has no per-stem record. | User | 2026-10-08 |
+| S12 | Amended as proposed. The stored `lines` rows keep the module qualifiers, and the printer drops them at print, so a reader of `lines.text` expects them. The rest of the row stands. The row's "plus `lowered` for the hole count" reads with the S38 amendment above, which moves the footer to the count of line rows with role note. | User | 2026-10-08 |
+
+### What the second walk gives the fourth builder
+
+The S7 fix is one commit on the stage-two branch ahead of step 8: the helper before the blank tests, every `marked()` call with blanks, and the body call's parameter gone. Its gate is the tool tests and `snapshot.py --check` against the step-4 snapshot, because the printed bytes do not move. The S16 stored last pass is an open form for step 8 or step 10, not a task of the brief. S27 gives the draftcheck figures of the step-8 to step-10 gates. S15 and S12 change text alone.
