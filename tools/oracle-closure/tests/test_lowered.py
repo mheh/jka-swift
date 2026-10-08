@@ -9,6 +9,7 @@ from __future__ import annotations
 
 import os
 import sqlite3
+import subprocess
 import sys
 import tempfile
 import unittest
@@ -125,6 +126,27 @@ class Lowered(unittest.TestCase):
             bare = [row for i, row in enumerate(rows) if row[1] is None and row[2] != "header" and i != len(rows) - 1]
             self.assertEqual(bare, [], function)
         self.assertTrue(any(row[1] == 0 for rows in functions.values() for row in rows))
+
+    def test_the_printer_prints_a_stem_from_a_copied_store_with_no_parse_byte_for_byte(self) -> None:
+        import printer
+        from bodies import Lowering
+
+        # given the text bodies.py --stem prints for bg_pmove, and a copy of the store it wrote
+        lowering = Lowering(self.sk, self.registry)
+        expected = printer.stem_text([lowering.lines("bg_pmove", fn.cur.spelling) for fn in self.sk.files["bg_pmove"]])
+        copied = Path(self.folder.name) / "printed.sqlite"
+        with sqlite3.connect(self.store) as source, sqlite3.connect(copied) as copy:
+            source.backup(copy)
+
+        # when a process that never parses prints the stem from the copied store
+        script = ("import sys; sys.path.insert(0, sys.argv[1]); import printer; from pathlib import Path; "
+                  "sys.stdout.write(printer.store_text(Path(sys.argv[2]), stem='bg_pmove')); "
+                  "import clang.cindex as ci; sys.exit(3 if ci.conf.loaded else 0)")
+        run = subprocess.run([sys.executable, "-c", script, str(HERE), str(copied)], capture_output=True, text=True)
+
+        # then the process loads no libclang and prints the text of bodies.py byte for byte
+        self.assertEqual(run.returncode, 0, run.stderr)
+        self.assertEqual(run.stdout, expected)
 
 if __name__ == "__main__":
     unittest.main()
