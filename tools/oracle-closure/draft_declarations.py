@@ -15,7 +15,7 @@ import closure as C
 from skeleton import BG, target_of
 from table import TARGET, swift_name
 
-from draft_classification import INDENT, Hole, port_note, roled
+from draft_classification import INDENT, Hole, blank, port_note, roled
 
 
 def extent_key(cur: ci.Cursor) -> tuple[str, int, int]:
@@ -99,7 +99,7 @@ class Declarations:
             body = self.statements(rest, decl.extent.end.line, last_line, depth + 1)
         finally:
             self.scratch_modes.pop()
-        while body and not body[-1].strip():
+        while body and blank(body[-1]):
             body.pop()
         out += body
         tail: list[str] = []

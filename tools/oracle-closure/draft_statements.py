@@ -16,7 +16,7 @@ from skeleton import LOGIC, target_of
 from table import ASSIGN_OPS, TARGET, swift_name
 from overlay import DROPPED, MACROS, RECORD_CALLS, address_arguments
 
-from draft_classification import COMPILE_NOTE, INDENT, ROLE_MARK, TRAILING, Hole, marked, roled
+from draft_classification import COMPILE_NOTE, INDENT, ROLE_MARK, TRAILING, Hole, blank, marked, roled
 from draft_declarations import extent_key
 from draft_expressions import IDENTIFIER, NUMBER
 
@@ -39,9 +39,9 @@ class Statements:
     def block_body(self, block: ci.Cursor, depth: int) -> list[str]:
         """The statements of a compound statement, with Raven's comment and blank lines between them."""
         out = self.opening(block, depth) + self.statements(list(block.get_children()), block.extent.start.line, block.extent.end.line, depth)
-        while out and not out[0].strip():
+        while out and blank(out[0]):
             out.pop(0)
-        while out and not out[-1].strip():
+        while out and blank(out[-1]):
             out.pop()
         return out
 
@@ -141,9 +141,9 @@ class Statements:
                f"{pad}func {self.chosen_helper(name)}(_ {swift_name(name)}: inout {view}?){returns} {{"]
         out = roled(out, "frame")
         body = self.statements(rest, chain.extent.end.line, last_line, depth + 1)
-        while body and not body[0].strip():
+        while body and blank(body[0]):
             body.pop(0)
-        while body and not body[-1].strip():
+        while body and blank(body[-1]):
             body.pop()
         out += body
         out += roled([f"{pad}}}"], "frame")
@@ -843,7 +843,7 @@ class Statements:
         if len(kids) == 3:
             other = kids[2]
             # Raven's comment between the then arm's brace and his `else` has no seat there in Swift, so it opens the else arm.
-            between = [line for line in self.gap(then.extent.end.line, other.extent.start.line, depth + 1) if line.strip()]
+            between = [line for line in self.gap(then.extent.end.line, other.extent.start.line, depth + 1) if not blank(line)]
             if other.kind == CursorKind.IF_STMT:
                 # Raven's else-if is a statement of its own, so the compile gate maps an error in it to it and not to the whole chain.
                 outer = self.pending
@@ -859,7 +859,7 @@ class Statements:
                     # A store lifted out of the else-if test runs only when the first test fails, so it opens the else block.
                     out += roled([f"{pad}}} else {{"], "frame")
                     out += between + [INDENT * (depth + 1) + line for line in roled(before, "lifted")]
-                    out += [INDENT + line if line.strip() else line for line in nested]
+                    out += [line if blank(line) else INDENT + line for line in nested]
                     out += roled([f"{pad}}}"], "frame")
                     return out
                 self.pending += before
@@ -869,7 +869,7 @@ class Statements:
                     return out
                 # The nested if folded to one arm, so the arm is the else block.
                 out += roled([f"{pad}}} else {{"], "frame")
-                out += between + [INDENT + line if line.strip() else line for line in nested]
+                out += between + [line if blank(line) else INDENT + line for line in nested]
                 out += roled([f"{pad}}}"], "frame")
                 return out
             out += roled([f"{pad}}} else {{"], "frame")
@@ -1016,7 +1016,7 @@ class Statements:
         out = [f"{pad}switch {self.expr(subject)} {{"]
         if groups:
             # Raven's comment between the switch's brace and his first case, `//case WP_NONE:`, stays above the first case.
-            out += [line for line in self.gap(body.extent.start.line, groups[0][2], depth) if line.strip()]
+            out += [line for line in self.gap(body.extent.start.line, groups[0][2], depth) if not blank(line)]
         # Each group is one arm, so Raven's `default:` before his other cases moves to the end of the switch as a whole arm.
         arms: list[list[str]] = []
         default_at = next((i for i, (labels, _, _) in enumerate(groups) if "default" in labels), None)
@@ -1035,16 +1035,16 @@ class Statements:
                 previous_line = s.extent.end.line
             if not inner_stmts and stmts:
                 # The case holds only its break, and Raven's comment above the break stays.
-                lines += [line for line in self.gap(label_line, stmts[0].extent.start.line, depth + 1) if line.strip()]
-            while lines and not lines[0].strip():
+                lines += [line for line in self.gap(label_line, stmts[0].extent.start.line, depth + 1) if not blank(line)]
+            while lines and blank(lines[0]):
                 lines.pop(0)
             if i + 1 < len(groups):
                 # Raven's comment after the case's last statement, or between two labels, stays with the case.
                 last = stmts[-1].extent.end.line if stmts else label_line
-                lines += [line for line in self.gap(last, groups[i + 1][2], depth + 1) if line.strip()]
+                lines += [line for line in self.gap(last, groups[i + 1][2], depth + 1) if not blank(line)]
             if not ends_in_break and not ends_in_exit and i + 1 < len(groups):
                 lines += roled([f"{INDENT * (depth + 1)}fallthrough"], "frame")
-            if not any(line.strip() and not line.strip().startswith("//") for line in lines):
+            if not any(not blank(line) and not line.strip().startswith("//") for line in lines):
                 # A case with comments alone still needs its break.
                 lines += roled([f"{INDENT * (depth + 1)}break"], "frame")
             arms.append([f"{pad}{label}:"] + lines)

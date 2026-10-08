@@ -32,10 +32,15 @@ COMPILE_NOTE = "The draft of this statement did not compile, and the compiler wr
 STATEMENT_MARK = re.compile(r"\x00(\d+)\x01")
 
 
-def marked(lines: list[str], number: int, blanks: bool = False) -> list[str]:
-    """The lines with the mark of one statement on each line that holds text and no mark yet.
-    With `blanks`, a blank line takes the mark too, which only the mark of a whole body may do, because the walk reads a blank line as empty."""
-    return [line if (not blanks and not line.strip()) or STATEMENT_MARK.search(line) else f"{line}\x00{number}\x01" for line in lines]
+def marked(lines: list[str], number: int) -> list[str]:
+    """The lines with the mark of one statement on each line that has no mark yet, a blank line too.
+    A blank line inside a statement takes the mark of the innermost statement that holds it, as a comment line does."""
+    return [line if STATEMENT_MARK.search(line) else f"{line}\x00{number}\x01" for line in lines]
+
+
+def blank(line: str) -> bool:
+    """True for a line with no text once its statement mark is gone, so a marked blank line still reads as blank."""
+    return not STATEMENT_MARK.sub("", line).strip()
 
 
 # The role of a drafted line, `\x02` and its name and `\x03`, which the emitter of the line puts on it and the drafter strips once the function is whole.
@@ -58,7 +63,7 @@ ROLES = ("header", "own", "lifted", "trailing", "comment", "blank", "frame", "co
 
 def roled(lines: list[str], role: str) -> list[str]:
     """The lines with one role on each line that holds text and no role yet."""
-    return [line if not line.strip() or ROLE_MARK.search(line) else f"{line}\x02{role}\x03" for line in lines]
+    return [line if blank(line) or ROLE_MARK.search(line) else f"{line}\x02{role}\x03" for line in lines]
 
 
 def port_note(reason: str) -> str:

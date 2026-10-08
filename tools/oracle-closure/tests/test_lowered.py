@@ -161,6 +161,29 @@ class Lowered(unittest.TestCase):
             self.assertEqual(bare, [], function)
         self.assertTrue(any(row[1] == 0 for rows in functions.values() for row in rows))
 
+    def test_a_nested_blank_row_names_its_enclosing_statement_and_not_the_body(self) -> None:
+        from bodies import LANGUAGE, Lowering
+
+        # given the line rows of every function of bg_pmove with no label
+        # The labeled path drafts its blocks with no statement mark, so a nested line there names the body, a comment line too.
+        lowering = Lowering(self.sk, self.registry)
+        functions = {fn.cur.spelling: lowering.lines("bg_pmove", fn.cur.spelling) for fn in self.sk.files["bg_pmove"]}
+        functions = {function: rows for function, rows in functions.items()
+                     if all(form != "label" for _, form, *_ in lowering.store.lowered_rows(LANGUAGE, "bg_pmove", function))}
+
+        # when each blank row is paired with the next row of its function that holds text
+        nested = []
+        for function, rows in functions.items():
+            for i, row in enumerate(rows):
+                following = next((later for later in rows[i + 1:] if later[4]), None)
+                if row[2] == "blank" and following is not None and following[3] >= 2:
+                    nested.append((function, row))
+
+        # then a blank row inside a nested block names a statement inside the body, and it keeps depth 0 so it prints as an empty line
+        self.assertTrue(nested)
+        self.assertEqual([(function, row) for function, row in nested if row[1] == 0], [])
+        self.assertEqual([(function, row) for function, row in nested if row[3] != 0 or row[4]], [])
+
     def test_the_printer_prints_a_stem_from_a_copied_store_with_no_parse_byte_for_byte(self) -> None:
         import printer
         from bodies import Lowering
