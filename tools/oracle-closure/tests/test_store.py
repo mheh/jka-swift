@@ -230,6 +230,33 @@ class Recovery(unittest.TestCase):
             pass
         self.assertEqual(err.getvalue(), "")
 
+    def test_a_reader_open_of_a_store_of_this_version_keeps_its_bytes(self) -> None:
+        # given a store that a writer saved and closed
+        with Store(self.path) as store:
+            store.save("base", "key-1", {}, {"called": {"G_Find"}})
+        before = self.path.read_bytes()
+
+        # when a reader opens it, loads the facts, and closes it
+        with Store(self.path, reader=True) as store:
+            loaded = store.load("base", "key-1")
+
+        # then the reader saw the facts, and the file holds the bytes it held before
+        self.assertEqual(loaded, {"called": {"G_Find"}})
+        self.assertEqual(self.path.read_bytes(), before)
+
+    def test_a_rejected_write_under_a_new_key_deletes_the_rows_of_every_file_under_the_old_key(self) -> None:
+        # given rejected rows of two files under the old key
+        with Store(self.path) as store:
+            store.save_rejected("old", "swift", "g_a", [("G_A", 3, "boom")])
+            store.save_rejected("old", "swift", "g_b", [("G_B", 5, "bang")])
+
+            # when one file is gated again under a new key
+            store.save_rejected("new", "swift", "g_a", [("G_A", 4, "crash")])
+
+            # then the table holds the rows of the new key alone
+            rows = store.db.execute("SELECT file, key FROM rejected").fetchall()
+        self.assertEqual(rows, [("g_a", "new")])
+
 
 class Snapshot(unittest.TestCase):
     def setUp(self) -> None:

@@ -15,7 +15,8 @@ import closure as C
 from skeleton import BG, target_of
 from table import TARGET, swift_name
 
-from draft_classification import INDENT, Hole, blank, port_note, roled
+from draft_classification import Hole, blank, roled
+from layout import INDENT, port_note
 
 
 def extent_key(cur: ci.Cursor) -> tuple[str, int, int]:

@@ -133,12 +133,14 @@ def gate(sk: Skeleton, registry: Registry, stem: str, lowered: str) -> tuple[int
         for fn in sk.files[stem]:
             # The printer prints the rows of each draft, the text bodies.py prints, and each printed line keeps the seq of its statement.
             drafter.draft(fn)
-            _, rows = drafter.rows(sk.table.store.syntax("statements", stem, fn.cur.spelling))
+            _, rows = drafter.rows()
             draft += function_lines(rows)
             # The body is seq 0, and no hole stands for a whole body, so a line of the body's own keeps no key.
             keys += [(stem, fn.cur.spelling, row[1]) if row[1] else None for row in rows if row[2] != "trailing"]
             draft.append("")
             keys.append(None)
+            # The printer prints one line for each row that is not trailing, so the keys stand beside the lines they name.
+            assert len(keys) == len(draft), f"draftcheck.py: the keys of {fn.cur.spelling} of {stem} do not match its printed lines"
         spliced, origins, replaced = splice(hand, draft)
         if "import Foundation" not in spliced:
             # A stub written before Foundation joined the stub imports gets it in the mirror, so libc math resolves.

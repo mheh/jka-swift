@@ -1,6 +1,6 @@
 """draft_classification.py: the questions the drafter asks about a cursor, the view, the Slots, the entity, and the text.
 It answers which member is a slot of a view, which name stands for a Slots, which pointer is a game entity, and which local holds text, a cursor, or raw bytes.
-It holds the Hole exception and the Port-note line the drafter writes where a construct has no rule, so every other concern reads them from here."""
+It holds the Hole exception the drafter raises where a construct has no rule, so every other concern reads it from here."""
 
 from __future__ import annotations
 
@@ -16,16 +16,12 @@ import closure as C
 from skeleton import BG, Function, target_of
 from table import Cursor, swift_name
 from views import BUFFER_SUFFIX
-
-INDENT = "    "
+from layout import INDENT, port_note
 
 
 class Hole(Exception):
     """A construct the draft has no rule for. The message is the reason the Port-note carries."""
 
-
-# The reason of a hole at a statement whose draft the compile gate rejected, with the compiler's message of the first error on it.
-COMPILE_NOTE = "The draft of this statement did not compile, and the compiler wrote \"{}\"."
 
 # The mark of the statement that drafted a line, `\x00` and its number and `\x01`, which the drafter strips once the function is whole.
 # A line takes the mark of the innermost statement that drafted it, so a compile error on the line maps back to that statement.
@@ -64,12 +60,6 @@ ROLES = ("header", "own", "lifted", "trailing", "comment", "blank", "frame", "co
 def roled(lines: list[str], role: str) -> list[str]:
     """The lines with one role on each line that holds text and no role yet."""
     return [line if blank(line) or ROLE_MARK.search(line) else f"{line}\x02{role}\x03" for line in lines]
-
-
-def port_note(reason: str) -> str:
-    """The Port-note line of a hole, with each newline of the reason and the indentation after it as one space.
-    A reason can quote Raven's text across a line, for example an operator span over `#ifdef _JK2MP`, and a second line would fall outside the comment."""
-    return "// Port-note: " + re.sub(r"\s*\n\s*", " ", reason.strip())
 
 
 class Classification:

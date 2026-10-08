@@ -89,7 +89,7 @@ def stored(name: str) -> list[dict] | None:
     The input part of the key needs a parse, so a generator run checks it and this reader does not."""
     if not STORE.exists():
         return None
-    with Store(STORE) as store:
+    with Store(STORE, reader=True) as store:
         stale = store.rehashed(SIGNATURES, REPO)
         if stale:
             shown = ", ".join(stale[:5]) + (f", and {len(stale) - 5} more" if len(stale) > 5 else "")

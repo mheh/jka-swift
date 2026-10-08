@@ -224,9 +224,10 @@ def keys(inputs: Iterable[Path], tools: Iterable[Path], stubs: Iterable[Path], r
 
 class Store:
     """One open store file. A save is one transaction, and a load is one read transaction.
-    Every open writes the schema version to meta and deletes a store of another version, so a reader such as lookup.py does this too."""
+    Every open deletes a store of another version, and writes the schema version to meta.
+    A reader such as printer.py or lookup.py opens with `reader`, which skips that write when the stored version matches, so the file keeps its bytes."""
 
-    def __init__(self, path: Path) -> None:
+    def __init__(self, path: Path, reader: bool = False) -> None:
         self.path = Path(path)
         try:
             self.db = self.open()
@@ -242,6 +243,8 @@ class Store:
             self.db.close()
             self.delete()
             self.db = self.open()
+        if reader and version == str(SCHEMA_VERSION):
+            return
         with self.db:
             self.db.execute("INSERT OR REPLACE INTO meta VALUES ('schema', ?)", (str(SCHEMA_VERSION),))
 
@@ -430,9 +433,10 @@ class Store:
 
     def save_rejected(self, key: str, language: str, file: str, rows: list[tuple[str, int, str]]) -> None:
         """Replace the rejected statements of one file, each as its function, its seq, and the compiler's message, under the lowered key.
-        The rows stand outside the generations, so a change of the lowered key keeps them, and a read under another key skips them."""
+        The rows stand outside the generations, so a change of the lowered key keeps them until the next write, and a read under another key skips them.
+        A write deletes the rows of every file under another key, so the table holds the rows of one key."""
         with self.db:
-            self.db.execute("DELETE FROM rejected WHERE language = ? AND file = ?", (language, file))
+            self.db.execute("DELETE FROM rejected WHERE language = ? AND (file = ? OR key != ?)", (language, file, key))
             self.db.executemany("INSERT INTO rejected VALUES (?, ?, ?, ?, ?, ?)", [(language, file, function, seq, message, key) for function, seq, message in rows])
 
     def rejected(self, key: str, language: str) -> dict[tuple[str, str, int], str]:

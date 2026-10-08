@@ -25,7 +25,7 @@ from pathlib import Path
 
 import store as S
 from align import STATES, counts, printed
-from bodies import LANGUAGE
+from lowering_key import LANGUAGE
 from draftcheck import SOURCE_LINE
 from printer import stem_text
 
@@ -139,7 +139,7 @@ def compare_against(store: S.Store, key: str, stem: str, names: list[str], folde
 
 def main() -> None:
     from closure import REPO
-    from printer import lowered_key
+    from printer import known, lowered_key
     from skeleton import stub_path
     from table import STORE
 
@@ -151,15 +151,15 @@ def main() -> None:
     if not STORE.exists():
         print(f"compare.py: no store at {STORE}, so run bodies.py first", file=sys.stderr)
         sys.exit(2)
-    with S.Store(STORE) as store:
+    with S.Store(STORE, reader=True) as store:
         key = lowered_key(store)
         names = [function for file, function in store.read("functions") if file == args.stem]
         path = stub_path(args.stem)
         try:
             if store.key(S.LOWERED) != key:
                 raise Missing("the lowered rows are stale or missing, so run bodies.py to lower them again")
-            if not names:
-                raise Missing(f"the store holds no function of the stem {args.stem}")
+            if not names and not known(store, args.stem):
+                raise Missing(f"the store holds no stub and no function of the stem {args.stem}")
             if args.against:
                 lines, code = compare_against(store, key, args.stem, names, args.against)
             elif args.counts:

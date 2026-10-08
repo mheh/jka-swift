@@ -33,12 +33,14 @@ from reexport import SOURCES
 import closure as C
 import store as S
 from skeleton import ORACLE_DIR, Function, Skeleton
+from layout import INDENT
+from lowering_key import FUNC_HEAD, LANGUAGE, MODIFIERS, VAR_LINE, lowered_keys, lowering_modules
 from printer import short_named, stem_text
 from table import Cursor, Param
 
 from draft_calls import Calls
 # Hole stands under the Port-note the drafter writes, so it lives beside the classification that writes one.
-from draft_classification import INDENT, ROLE_MARK, STATEMENT_MARK, TRAILING, Classification, Hole, marked
+from draft_classification import ROLE_MARK, STATEMENT_MARK, TRAILING, Classification, Hole, marked
 from draft_declarations import Declarations
 from draft_expressions import Expressions
 from draft_statements import Statements
@@ -46,36 +48,14 @@ from draft_statements import Statements
 WRAPPERS = {CursorKind.UNEXPOSED_EXPR, CursorKind.PAREN_EXPR}
 
 FUNC_LINE = re.compile(r"func\s+`?(\w+)`?\s*\((.*)\)")
-FUNC_HEAD = re.compile(r"func\s+`?(\w+)`?\s*\(")
-# A file-scope `var`, `let`, or `func` of a Swift file: at column 0, after its modifiers. A method sits indented under its type.
-MODIFIERS = r"(?:(?:public|package|internal|private|fileprivate|nonisolated\(unsafe\)|@\w+(?:\([^)]*\))?)\s+)*"
-VAR_LINE = re.compile(MODIFIERS + r"(?:var|let)\s+`?(\w+)`?")
 # The type annotation of a file-scope variable, up to its initializer or its computed body.
 VAR_TYPE = re.compile(r"\s*:\s*([^={]+)")
 FILE_FUNC = re.compile(MODIFIERS + r"func\s")
-HERE = Path(__file__).resolve().parent
-# The language of the lowered rows, a column value of every row the lowering writes.
-LANGUAGE = C.PROJECT["project"]["target_language"]
-
-
-def declaration_line(line: str) -> bool:
-    """True for a line the registry reads a declaration from: a file-scope `var` or `let`, or a line that holds a `func` head."""
-    return VAR_LINE.match(line) is not None or (FUNC_HEAD.search(line) is not None and "func " in line.split("//")[0])
-
-
-def lowered_keys(adoption: str, sources: Path, modules: list[Path], root: Path) -> tuple[str, dict[str, str]]:
-    """The key of the lowered generation and the hash of each file it covers, by the file's name.
-    A Swift file counts by its declaration lines alone, so a body edit under a signature keeps the key."""
-    files = {S.named(path, root): S.digest("\n".join(line for line in path.read_text().splitlines() if declaration_line(line)).encode())
-             for path in sorted(sources.rglob("*.swift"))}
-    files |= {S.named(path, root): S.file_hash(path) for path in modules}
-    return S.combined(files, adoption), files
 
 
 def lowered_key(sk: Skeleton) -> tuple[str, dict[str, str]]:
     """The lowered key of this run's parse and the hash of each file it covers, from the adoption key and the lowering modules of the project file."""
-    modules = [HERE / name for name in C.PROJECT["store"]["lowering"]]
-    return lowered_keys(sk.table.keys.adoption, SOURCES, modules, C.REPO)
+    return lowered_keys(sk.table.keys.adoption, SOURCES, lowering_modules(), C.REPO)
 
 
 def split_params(text: str) -> list[str]:
@@ -198,6 +178,7 @@ class Drafter(Statements, Expressions, Calls, Declarations, Classification):
         # The statements the compile gate rejected on an earlier pass, by their file, function, and seq, each with the compiler's message for its hole.
         self.compile_due: dict[tuple[str, str, int], str] = compile_due or {}
         # The seq of each statement of the function being drafted, by its kind and its extent, from the statement rows.
+        # The compile gate and the line rows of the draft read the one map.
         self.statement_seqs: dict[tuple[str, int, int], int] = {}
         self.compile_holes = 0
         # The key of each statement mark, by its number, and the number of each key, for the statements this drafter drafted.
@@ -220,6 +201,7 @@ class Drafter(Statements, Expressions, Calls, Declarations, Classification):
         header = self.sk.stub(fn)
         self.drafted = {}
         self.forms = {}
+        self.statement_seqs = {}
         if not fn.mapped or not header[-1].startswith("}"):
             # The stub stands as the skeleton wrote it, and only its closing brace is no header line.
             self.line_keys = [None] * len(header)
@@ -335,20 +317,19 @@ class Drafter(Statements, Expressions, Calls, Declarations, Classification):
 
     # MARK: - The rows of one draft
 
-    def rows(self, statements: list[dict]) -> tuple[list[tuple], list[tuple]]:
+    def rows(self) -> tuple[list[tuple], list[tuple]]:
         """The lowered rows and the line rows of the last draft, in the column order of the store after the function.
 
-        `statements` are the statement rows of the function, which give each drafted statement its seq.
+        The statement rows the draft read give each drafted statement its seq.
         A statement whose lines hold a Raven line is a hole, and one whose lines hold a note and no Raven line is a note.
-        The reason is the text of its first note line, and the message stays empty, because the stored rows are the first pass of the compile gate.
+        The reason is the text of its note lines, one after the other, so a declaration with two holes names both variables.
+        The message stays empty, because the stored rows are the first pass of the compile gate.
         A line splits into its depth of four spaces and the text after it, and Raven's trailing comment is a row of its own after the line.
         The text keeps its module qualifiers, and the printer drops them."""
-        seq_of = {(row["kind"], row["start_offset"], row["end_offset"]): row["seq"] for row in statements}
-
         def seq(key: tuple[str, str, int, int] | None) -> int | None:
             if key is None:
                 return None
-            found = seq_of.get(key[1:])
+            found = self.statement_seqs.get(key[1:])
             if found is None:
                 raise SystemExit(f"bodies.py: no statement row for {key} of {self.fn.stem}")
             return found
@@ -377,7 +358,7 @@ class Drafter(Statements, Expressions, Calls, Declarations, Classification):
                 form = "block"
             else:
                 form = "statement"
-            reason = notes[0] if form in ("hole", "note") else ""
+            reason = " ".join(notes) if form in ("hole", "note") else ""
             lowered.append((seq(key), form, depth, reason, ""))
         out = []
         for key, role, text, comment in zip(self.line_keys, self.line_roles, self.line_own, self.line_trailing):
@@ -425,7 +406,7 @@ class Lowering:
         """The line rows of one function, each as its seq, its statement seq, its role, its depth, and its text."""
         if self.hole_drafter is not None and (stem, function) in self.holed:
             self.hole_drafter.draft(self.function(stem, function))
-            return self.hole_drafter.rows(self.store.syntax("statements", stem, function))[1]
+            return self.hole_drafter.rows()[1]
         rows = self.store.lowered_lines(self.key, LANGUAGE, stem, function)
         if rows is None:
             self.lower(stem, function)
@@ -435,7 +416,7 @@ class Lowering:
     def lower(self, stem: str, function: str) -> None:
         """Draft one function and save its lowered rows and its line rows."""
         self.drafter.draft(self.function(stem, function))
-        lowered, rows = self.drafter.rows(self.store.syntax("statements", stem, function))
+        lowered, rows = self.drafter.rows()
         self.store.save_lowered(LANGUAGE, stem, function, lowered, rows)
         self.lowered += 1
 

@@ -56,6 +56,8 @@ lowering = [
     "draft_calls.py",
     "draft_declarations.py",
     "draft_classification.py",
+    "layout.py",
+    "lowering_key.py",
     "skeleton.py",
 ]
 

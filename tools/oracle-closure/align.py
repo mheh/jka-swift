@@ -26,7 +26,7 @@ from dataclasses import dataclass, field
 from pathlib import Path
 
 import store as S
-from bodies import LANGUAGE
+from lowering_key import LANGUAGE
 from draftcheck import FORWARD_DOC, SOURCE_LINE, functions
 from printer import function_lines
 

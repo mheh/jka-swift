@@ -16,7 +16,8 @@ from skeleton import LOGIC, target_of
 from table import ASSIGN_OPS, TARGET, swift_name
 from overlay import DROPPED, MACROS, RECORD_CALLS, address_arguments
 
-from draft_classification import COMPILE_NOTE, INDENT, ROLE_MARK, TRAILING, Hole, blank, marked, roled
+from draft_classification import ROLE_MARK, TRAILING, Hole, blank, marked, roled
+from layout import COMPILE_NOTE, INDENT
 from draft_declarations import extent_key
 from draft_expressions import IDENTIFIER, NUMBER
 

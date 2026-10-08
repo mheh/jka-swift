@@ -40,7 +40,7 @@ NAME = "Sources/JKAMP_GameLogic/g_x.swift"
 class Compare(unittest.TestCase):
     def setUp(self) -> None:
         import store as S
-        from bodies import LANGUAGE
+        from lowering_key import LANGUAGE
 
         self.folder = tempfile.TemporaryDirectory()
         self.store = S.Store(Path(self.folder.name) / "table.sqlite")

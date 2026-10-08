@@ -9,6 +9,7 @@ The functions of a stem print with one blank line after each, and the footer cou
 Its own command prints from the store with no parse and no libclang.
 It computes the lowered key again from the files the store lists and the declaration lines of the Swift files, and it stops with one line
 on standard error when the key differs from the stored key, or when a function has no line rows.
+A stem whose stub the store lists and that holds no function prints the footer alone, as bodies.py prints it.
 With --compile-holes, each statement the last draftcheck run rejected prints as a compile hole in the place of its lines.
 A rejected declaration or a rejected statement that opens a closure changes the draft of the statements after it, which the rows cannot show.
 For such a function the printer stops with one line on standard error, and bodies.py --compile-holes prints it.
@@ -27,7 +28,8 @@ import sys
 from pathlib import Path
 
 import store as S
-from draft_classification import COMPILE_NOTE, INDENT, port_note
+from layout import COMPILE_NOTE, INDENT, port_note
+from lowering_key import LANGUAGE, lowered_keys, lowering_modules
 
 # A module qualifier appears only to break a genuine ambiguity, the short-name rule of porting-rules.md, and no body line has one.
 QUALIFIER = re.compile(r"\b(JKAMP|JKAShared)\.(?=[A-Za-z_])")
@@ -103,26 +105,31 @@ def lowered_key(store: S.Store) -> str:
     """The lowered key of the files on disk, computed with no parse.
     The adoption part takes the stored base key, the first line of each stub the store lists, and the salt of a generated stub.
     The base part, the C inputs and the tool modules, is the stored key, because only a parse can compute it again."""
-    # bodies.py imports this module, so its names come in at the call.
-    from bodies import HERE, SOURCES, lowered_keys
-    from closure import PROJECT, REPO
+    from closure import REPO
+    from reexport import SOURCES
     from skeleton import NOTE
 
     stubs = {name: S.digest((REPO / name).read_bytes().split(b"\n", 1)[0]) if (REPO / name).exists() else "" for name in store.files("adoption")}
     adoption = S.combined(stubs, store.key("base") or "", NOTE)
-    key, _ = lowered_keys(adoption, SOURCES, [HERE / name for name in PROJECT["store"]["lowering"]], REPO)
+    key, _ = lowered_keys(adoption, SOURCES, lowering_modules(), REPO)
     return key
+
+
+def known(store: S.Store, stem: str) -> bool:
+    """True when the store lists the stub of the stem, so a stem with no function prints the footer alone, as bodies.py prints it."""
+    from closure import REPO
+    from skeleton import stub_path
+
+    return str(stub_path(stem).relative_to(REPO)) in store.files("adoption")
 
 
 def store_text(path: Path, stem: str | None = None, only: list[str] | None = None, compile_holes: bool = False) -> str:
     """The text of every function of one stem, or of the named functions, from the line rows of the store at the path.
     The read stops with one line on standard error when the store is missing, its lowered key is stale, or a function has no rows.
     With `compile_holes`, each statement draftcheck rejected under the key prints as a compile hole."""
-    from bodies import LANGUAGE
-
     if not path.exists():
         raise SystemExit(f"printer.py: no store at {path}, so run bodies.py first")
-    with S.Store(path) as store:
+    with S.Store(path, reader=True) as store:
         key = lowered_key(store)
         if store.key(S.LOWERED) != key:
             raise SystemExit("printer.py: the lowered rows are stale or missing, so run bodies.py to lower them again")
@@ -130,8 +137,8 @@ def store_text(path: Path, stem: str | None = None, only: list[str] | None = Non
         functions = store.read("functions")
         if stem is not None:
             chosen = [(file, name) for file, name in functions if file == stem]
-            if not chosen:
-                raise SystemExit(f"printer.py: the store holds no function of the stem {stem}")
+            if not chosen and not known(store, stem):
+                raise SystemExit(f"printer.py: the store holds no stub and no function of the stem {stem}")
         else:
             first = {}
             for file, name in functions:

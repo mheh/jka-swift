@@ -131,7 +131,7 @@ class LoweredKey(unittest.TestCase):
     """The lowered key covers the adoption key, the declaration lines of the Swift files, and the drafter modules, and no body line."""
 
     def test_a_body_edit_under_a_signature_leaves_the_lowered_key_and_a_signature_edit_changes_it(self) -> None:
-        from bodies import lowered_keys
+        from lowering_key import lowered_keys
 
         # given a folder with one Swift file of one func line and its body
         folder = tempfile.TemporaryDirectory()
