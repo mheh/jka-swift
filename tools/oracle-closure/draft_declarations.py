@@ -23,15 +23,6 @@ def extent_key(cur: ci.Cursor) -> tuple[str, int, int]:
     return cur.kind.name, cur.extent.start.offset, cur.extent.end.offset
 
 
-# A module qualifier appears only to break a genuine ambiguity, the short-name rule of porting-rules.md, and no body line has one.
-QUALIFIER = re.compile(r"\b(JKAMP|JKAShared)\.(?=[A-Za-z_])")
-
-
-def short_named(line: str) -> str:
-    """A body line with every module qualifier dropped, so `var ent: BgEntity? = nil` reads as Raven wrote it."""
-    return QUALIFIER.sub("", line)
-
-
 class Declarations:
     """The declaration half of the drafter."""
 

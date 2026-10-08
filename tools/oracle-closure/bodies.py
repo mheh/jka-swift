@@ -32,12 +32,13 @@ from reexport import SOURCES
 import closure as C
 import store as S
 from skeleton import ORACLE_DIR, Function, Skeleton
+from printer import short_named, stem_text
 from table import Cursor, Param
 
 from draft_calls import Calls
 # Hole stands under the Port-note the drafter writes, so it lives beside the classification that writes one.
-from draft_classification import INDENT, ROLE_MARK, STATEMENT_MARK, TRAILING, Classification, Hole
-from draft_declarations import Declarations, short_named
+from draft_classification import INDENT, ROLE_MARK, STATEMENT_MARK, TRAILING, Classification, Hole, marked
+from draft_declarations import Declarations
 from draft_expressions import Expressions
 from draft_statements import Statements
 
@@ -203,6 +204,8 @@ class Drafter(Statements, Expressions, Calls, Declarations, Classification):
         # The depth of each statement the last draft reached, by the number of its mark, and the form of the ones whose form no line shows.
         self.drafted: dict[int, int] = {}
         self.forms: dict[int, str] = {}
+        # The key of the body of the last draft, whose mark the body's own lines carry, or None for a stub with no body.
+        self.body_key: tuple[str, str, int, int] | None = None
 
     # MARK: - One function
 
@@ -210,6 +213,7 @@ class Drafter(Statements, Expressions, Calls, Declarations, Classification):
         header = self.sk.stub(fn)
         self.drafted = {}
         self.forms = {}
+        self.body_key = None
         if not fn.mapped or not header[-1].startswith("}"):
             # The stub stands as the skeleton wrote it, and only its closing brace is no header line.
             self.line_keys = [None] * len(header)
@@ -293,8 +297,9 @@ class Drafter(Statements, Expressions, Calls, Declarations, Classification):
         self.hoisted: dict[str, str] = {}
         self.hoists = self.shared_reads(body)
         lines = header[:-3]
-        # The signature keeps the spelling of the transcription tables, and every body line reads its types by their short names.
-        lines += [short_named(line) for line in self.block_body(body, 1)]
+        # A line of the body that no statement inside it drafted, a gap, a parameter copy, or a frame, belongs to the body, seq 0 of the function.
+        lines += marked(self.block_body(body, 1), self.statement_number(body), blanks=True)
+        self.body_key = self.statement_key(body)
         lines.append("}")
         # Each line gives up its statement mark and its role here.
         # line_keys keeps the statement beside the line for the compile gate, and line_roles keeps the role.
@@ -312,7 +317,9 @@ class Drafter(Statements, Expressions, Calls, Declarations, Classification):
             role = "header" if i < head else "frame" if i == len(lines) - 1 else named.group(1) if named else None
             for part in ROLE_MARK.sub("", STATEMENT_MARK.sub("", line)).split("\n"):
                 text, _, comment = part.partition(TRAILING)
-                clean.append(f"{text} {comment}" if comment else text)
+                joined = f"{text} {comment}" if comment else text
+                # The signature keeps the spelling of the transcription tables, and every body line reads its types by their short names.
+                clean.append(joined if i < head else short_named(joined))
                 self.line_keys.append(key)
                 self.line_roles.append(role or ("blank" if not text.strip() else "own"))
                 self.line_trailing.append(comment or None)
@@ -327,7 +334,8 @@ class Drafter(Statements, Expressions, Calls, Declarations, Classification):
         `statements` are the statement rows of the function, which give each drafted statement its seq.
         A statement whose lines hold a Raven line is a hole, and one whose lines hold a note and no Raven line is a note.
         The reason is the text of its first note line, and the message stays empty, because the stored rows are the first pass of the compile gate.
-        A line splits into its depth of four spaces and the text after it, and Raven's trailing comment is a row of its own after the line."""
+        A line splits into its depth of four spaces and the text after it, and Raven's trailing comment is a row of its own after the line.
+        The text keeps its module qualifiers, and the printer drops them."""
         seq_of = {(row["kind"], row["start_offset"], row["end_offset"]): row["seq"] for row in statements}
 
         def seq(key: tuple[str, str, int, int] | None) -> int | None:
@@ -377,17 +385,6 @@ class Drafter(Statements, Expressions, Calls, Declarations, Classification):
         return sorted(lowered), out
 
 
-def printed(drafter: Drafter, fns: list[Function]) -> str:
-    """The text of the drafts of the functions from memory: each draft and a blank line after it, then the footer of the hole count.
-    The footer counts the note lines, as `stem_text` does, and not the counter of the drafter, which also counts a hole in a draft it threw away."""
-    text = ""
-    holes = 0
-    for fn in fns:
-        text += "\n".join(drafter.draft(fn)) + "\n\n"
-        holes += drafter.line_roles.count("note")
-    return text + f"// {holes} holes\n"
-
-
 class Lowering:
     """The lowered generation of one run: the lowered rows and the line rows of each function, read from the store or drafted once and saved.
 
@@ -422,30 +419,13 @@ class Lowering:
 
     def lower(self, stem: str, function: str) -> None:
         """Draft one function and save its lowered rows and its line rows."""
-        fn = next(fn for fn in self.sk.files[stem] if fn.cur.spelling == function)
+        fn = next((fn for fn in self.sk.files[stem] if fn.cur.spelling == function), None)
+        if fn is None:
+            raise SystemExit(f"bodies.py: the stem {stem} holds no function named {function}")
         self.drafter.draft(fn)
         lowered, rows = self.drafter.rows(self.store.syntax("statements", stem, function))
         self.store.save_lowered(LANGUAGE, stem, function, lowered, rows)
         self.lowered += 1
-
-
-def printed_lines(rows: list[tuple]) -> list[str]:
-    """The printed lines of one function from its line rows: each line indented by its depth, and a trailing comment joined onto its line by one space."""
-    out: list[str] = []
-    for _, _, role, depth, text in rows:
-        if role == "trailing":
-            out[-1] += f" {text}"
-        else:
-            out.append(INDENT * depth + text)
-    return out
-
-
-def stem_text(lowering: Lowering, functions: list[tuple[str, str]]) -> str:
-    """The text a run of bodies.py prints for the functions, each named by its stem and its name, from their line rows:
-    each function and a blank line after it, then the footer of the hole count, one hole for each note line."""
-    rows = [lowering.lines(stem, function) for stem, function in functions]
-    holes = sum(1 for function in rows for row in function if row[2] == "note")
-    return "".join("\n".join(printed_lines(function)) + "\n\n" for function in rows) + f"// {holes} holes\n"
 
 
 def main() -> None:
@@ -461,7 +441,7 @@ def main() -> None:
         fns = sk.files[args.stem]
     else:
         parser.error("give --only or --stem")
-    print(stem_text(lowering, [(fn.stem, fn.cur.spelling) for fn in fns]), end="", flush=True)
+    print(stem_text([lowering.lines(fn.stem, fn.cur.spelling) for fn in fns]), end="", flush=True)
 
 
 if __name__ == "__main__":

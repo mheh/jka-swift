@@ -3,12 +3,15 @@
 This test drafts a function of the real parse, so it runs only with SLOW=1 in the environment.
 PM_pitch_roll_for_slope, the function the docket names, holds noted holes alone and no Raven line.
 SelectRandomDeathmatchSpawnPoint shows the five roles the docket names, so the test drafts it.
+The test reads and writes a copy of the working store in a temporary folder, and the working store stays as it is.
 """
 
 from __future__ import annotations
 
 import os
+import sqlite3
 import sys
+import tempfile
 import unittest
 from pathlib import Path
 
@@ -20,12 +23,20 @@ sys.path.insert(0, str(HERE))
 class Roles(unittest.TestCase):
     def test_every_line_of_a_draft_has_one_role_and_a_hole_has_note_raven_marker(self) -> None:
         import closure as C
+        import table
         from bodies import Drafter, Registry
         from draft_classification import ROLES
         from skeleton import Skeleton
 
-        # given the draft of a function with holes, a lifted store, and a lifted note
-        sk = Skeleton(C.Parse())
+        # given the draft of a function with holes, a lifted store, and a lifted note, over a copy of the working store
+        folder = tempfile.TemporaryDirectory()
+        self.addCleanup(folder.cleanup)
+        store = Path(folder.name) / "table.sqlite"
+        if table.STORE.exists():
+            with sqlite3.connect(table.STORE) as source, sqlite3.connect(store) as copy:
+                source.backup(copy)
+        sk = Skeleton(C.Parse(), path=store)
+        self.addCleanup(sk.table.store.close)
         drafter = Drafter(sk, Registry())
         lines = drafter.draft(sk.by_name["SelectRandomDeathmatchSpawnPoint"])
         roles = drafter.line_roles

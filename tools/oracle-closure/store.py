@@ -61,6 +61,8 @@ CREATE INDEX IF NOT EXISTS lines_by_function ON lines (file, function);
 
 # The generation of the lowered rows. Its key covers the adoption key, the declaration lines of every destination file, and the drafter modules.
 LOWERED = "lowered"
+# The `depth` of a lowered row is the depth of the statement's first draft.
+# A statement drafted twice, a loop step before a `continue` and at the loop end, has a line row at the depth of each copy.
 LOWERED_COLUMNS = ("seq", "form", "depth", "reason", "message")
 LINE_COLUMNS = ("seq", "statement_seq", "role", "depth", "text")
 

@@ -31,6 +31,7 @@ from pathlib import Path
 
 import closure as C
 from bodies import Drafter, Registry
+from printer import function_lines
 from reexport import REPO
 from skeleton import BG, LOGIC, Skeleton, stub_path, target_of
 
@@ -118,6 +119,8 @@ def gate(sk: Skeleton, registry: Registry, stem: str) -> tuple[int, int, int, in
     target = MIRROR / path.relative_to(REPO)
     # The statements the builds rejected so far, by key, each with the message of its first error by line.
     due: dict[tuple[str, str, int, int], str] = {}
+    # The key of each function body, which marks the lines of the body that no statement drafted, and which no hole stands for.
+    bodies: set[tuple[str, str, int, int]] = set()
     capped = False
     passes = 0
     while True:
@@ -127,8 +130,13 @@ def gate(sk: Skeleton, registry: Registry, stem: str) -> tuple[int, int, int, in
         draft: list[str] = []
         keys: list[tuple[str, str, int, int] | None] = []
         for fn in sk.files[stem]:
-            draft += drafter.draft(fn)
+            # The printer prints the rows of each draft, the text bodies.py prints, and each printed line keeps the key of its statement.
+            drafter.draft(fn)
+            _, rows = drafter.rows(sk.table.store.syntax("statements", stem, fn.cur.spelling))
+            draft += function_lines(rows)
             keys += drafter.line_keys
+            if drafter.body_key is not None:
+                bodies.add(drafter.body_key)
             draft.append("")
             keys.append(None)
         spliced, origins, replaced = splice(hand, draft)
@@ -162,7 +170,7 @@ def gate(sk: Skeleton, registry: Registry, stem: str) -> tuple[int, int, int, in
             index = int(number) - 1
             if Path(source).resolve() == target.resolve() and 0 <= index < len(origins) and origins[index] is not None:
                 key = keys[origins[index]]
-                if key is not None and key not in due:
+                if key is not None and key not in due and key not in bodies:
                     rejected.setdefault(key, []).append((int(number), message.strip()))
         if summaries and not defects and not cascades:
             # An error outside a Swift file is the build's own, and it stands as a defect so a broken mirror never reads clean.
