@@ -16,6 +16,7 @@ The Drafter here is their one entry, it holds the state of a draft, and each con
 Usage:
   .venv/bin/python bodies.py --only PM_AddTouchEnt,BG_SabersOff   # prints the drafts of the named functions
   .venv/bin/python bodies.py --stem bg_pmove                       # prints every draft of one file
+  .venv/bin/python bodies.py --stem bg_pmove --compile-holes       # prints the statements draftcheck rejected as compile holes
 """
 
 from __future__ import annotations
@@ -69,6 +70,12 @@ def lowered_keys(adoption: str, sources: Path, modules: list[Path], root: Path) 
              for path in sorted(sources.rglob("*.swift"))}
     files |= {S.named(path, root): S.file_hash(path) for path in modules}
     return S.combined(files, adoption), files
+
+
+def lowered_key(sk: Skeleton) -> tuple[str, dict[str, str]]:
+    """The lowered key of this run's parse and the hash of each file it covers, from the adoption key and the lowering modules of the project file."""
+    modules = [HERE / name for name in C.PROJECT["store"]["lowering"]]
+    return lowered_keys(sk.table.keys.adoption, SOURCES, modules, C.REPO)
 
 
 def split_params(text: str) -> list[str]:
@@ -150,7 +157,7 @@ class Registry:
 class Drafter(Statements, Expressions, Calls, Declarations, Classification):
     """The one drafter of a function body. The state of a draft lives here, and each concern module gives the class its methods."""
 
-    def __init__(self, sk: Skeleton, registry: Registry, compile_due: dict[tuple[str, str, int, int], str] | None = None) -> None:
+    def __init__(self, sk: Skeleton, registry: Registry, compile_due: dict[tuple[str, str, int], str] | None = None) -> None:
         self.sk = sk
         self.views = sk.table.views
         # The one owner of the type question, which the table holds.
@@ -188,8 +195,10 @@ class Drafter(Statements, Expressions, Calls, Declarations, Classification):
         self.charbuf_allocs: dict[str, ci.Cursor] = {}
         self.param_walks: dict[str, list[tuple[int, int, list[tuple[int, int, int]]]]] = {}
         self.param_walk_heads: list[str] = []
-        # The statements the compile gate rejected on an earlier pass, by their key, each with the compiler's message for its hole.
-        self.compile_due: dict[tuple[str, str, int, int], str] = compile_due or {}
+        # The statements the compile gate rejected on an earlier pass, by their file, function, and seq, each with the compiler's message for its hole.
+        self.compile_due: dict[tuple[str, str, int], str] = compile_due or {}
+        # The seq of each statement of the function being drafted, by its kind and its extent, from the statement rows.
+        self.statement_seqs: dict[tuple[str, int, int], int] = {}
         self.compile_holes = 0
         # The key of each statement mark, by its number, and the number of each key, for the statements this drafter drafted.
         self.statement_keys: list[tuple[str, str, int, int]] = []
@@ -204,8 +213,6 @@ class Drafter(Statements, Expressions, Calls, Declarations, Classification):
         # The depth of each statement the last draft reached, by the number of its mark, and the form of the ones whose form no line shows.
         self.drafted: dict[int, int] = {}
         self.forms: dict[int, str] = {}
-        # The key of the body of the last draft, whose mark the body's own lines carry, or None for a stub with no body.
-        self.body_key: tuple[str, str, int, int] | None = None
 
     # MARK: - One function
 
@@ -213,7 +220,6 @@ class Drafter(Statements, Expressions, Calls, Declarations, Classification):
         header = self.sk.stub(fn)
         self.drafted = {}
         self.forms = {}
-        self.body_key = None
         if not fn.mapped or not header[-1].startswith("}"):
             # The stub stands as the skeleton wrote it, and only its closing brace is no header line.
             self.line_keys = [None] * len(header)
@@ -222,6 +228,8 @@ class Drafter(Statements, Expressions, Calls, Declarations, Classification):
             self.line_own = list(header)
             return header
         self.fn = fn
+        self.statement_seqs = {(row["kind"], row["start_offset"], row["end_offset"]): row["seq"]
+                               for row in self.sk.table.store.syntax("statements", fn.stem, fn.cur.spelling)}
         self.source = self.sk.source(fn.stem)
         self.bytes = C.parsed_bytes(C.ORACLE / ORACLE_DIR / f"{fn.stem}.c")
         self.names = {c.spelling: p.name for c, p in zip(fn.cur.get_arguments(), fn.params)}
@@ -299,7 +307,6 @@ class Drafter(Statements, Expressions, Calls, Declarations, Classification):
         lines = header[:-3]
         # A line of the body that no statement inside it drafted, a gap, a parameter copy, or a frame, belongs to the body, seq 0 of the function.
         lines += marked(self.block_body(body, 1), self.statement_number(body), blanks=True)
-        self.body_key = self.statement_key(body)
         lines.append("}")
         # Each line gives up its statement mark and its role here.
         # line_keys keeps the statement beside the line for the compile gate, and line_roles keeps the role.
@@ -389,17 +396,18 @@ class Lowering:
     """The lowered generation of one run: the lowered rows and the line rows of each function, read from the store or drafted once and saved.
 
     The first read of a function drafts it with the one drafter of the run and saves its rows, as the local facts of the table do.
-    Every later read takes the rows. A change of the lowered key deletes every lowered row and line row, and the stale files go to standard error."""
+    Every later read takes the rows. A change of the lowered key deletes every lowered row and line row, and the stale files go to standard error.
+    With `compile_holes`, a function that holds a statement draftcheck rejected under the key drafts again with that statement as a compile hole.
+    Those rows stay in memory, so the stored line rows keep the first pass."""
 
-    def __init__(self, sk: Skeleton, registry: Registry, store: S.Store | None = None) -> None:
+    def __init__(self, sk: Skeleton, registry: Registry, store: S.Store | None = None, compile_holes: bool = False) -> None:
         self.sk = sk
         self.store = store if store is not None else sk.table.store
         self.registry = registry
         self.drafter = Drafter(sk, registry)
         # The functions this run drafted, because the store held no rows for them.
         self.lowered = 0
-        modules = [HERE / name for name in C.PROJECT["store"]["lowering"]]
-        self.key, files = lowered_keys(sk.table.keys.adoption, SOURCES, modules, C.REPO)
+        self.key, files = lowered_key(sk)
         if self.store.key(S.LOWERED) != self.key:
             if self.store.key(S.LOWERED) is None:
                 print("bodies.py: the store holds no lowered rows, so the drafts write them", file=sys.stderr)
@@ -408,9 +416,16 @@ class Lowering:
                 shown = ", ".join(changed[:5]) + (f", and {len(changed) - 5} more" if len(changed) > 5 else "")
                 print(f"bodies.py: the lowered rows are stale, {len(changed)} files changed: {shown}", file=sys.stderr)
             self.store.reset_lowered(self.key, files)
+        # The statements draftcheck rejected under this key, and the drafter that drafts each one as a compile hole.
+        self.due = self.store.rejected(self.key, LANGUAGE) if compile_holes else {}
+        self.holed = {(stem, function) for stem, function, _ in self.due}
+        self.hole_drafter = Drafter(sk, registry, self.due) if self.due else None
 
     def lines(self, stem: str, function: str) -> list[tuple]:
         """The line rows of one function, each as its seq, its statement seq, its role, its depth, and its text."""
+        if self.hole_drafter is not None and (stem, function) in self.holed:
+            self.hole_drafter.draft(self.function(stem, function))
+            return self.hole_drafter.rows(self.store.syntax("statements", stem, function))[1]
         rows = self.store.lowered_lines(self.key, LANGUAGE, stem, function)
         if rows is None:
             self.lower(stem, function)
@@ -419,22 +434,27 @@ class Lowering:
 
     def lower(self, stem: str, function: str) -> None:
         """Draft one function and save its lowered rows and its line rows."""
-        fn = next((fn for fn in self.sk.files[stem] if fn.cur.spelling == function), None)
-        if fn is None:
-            raise SystemExit(f"bodies.py: the stem {stem} holds no function named {function}")
-        self.drafter.draft(fn)
+        self.drafter.draft(self.function(stem, function))
         lowered, rows = self.drafter.rows(self.store.syntax("statements", stem, function))
         self.store.save_lowered(LANGUAGE, stem, function, lowered, rows)
         self.lowered += 1
+
+    def function(self, stem: str, function: str) -> Function:
+        """The function of the stem by its name."""
+        fn = next((fn for fn in self.sk.files[stem] if fn.cur.spelling == function), None)
+        if fn is None:
+            raise SystemExit(f"bodies.py: the stem {stem} holds no function named {function}")
+        return fn
 
 
 def main() -> None:
     parser = argparse.ArgumentParser()
     parser.add_argument("--only", help="comma-separated function names to print")
     parser.add_argument("--stem", help="print every draft of one .c file")
+    parser.add_argument("--compile-holes", action="store_true", help="print each statement the last draftcheck run rejected as a compile hole")
     args = parser.parse_args()
     sk = Skeleton(C.Parse())
-    lowering = Lowering(sk, Registry())
+    lowering = Lowering(sk, Registry(), compile_holes=args.compile_holes)
     if args.only:
         fns = [sk.by_name[n] for n in args.only.split(",")]
     elif args.stem:

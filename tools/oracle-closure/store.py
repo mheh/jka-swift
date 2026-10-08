@@ -57,6 +57,8 @@ CREATE INDEX IF NOT EXISTS lowered_by_function ON lowered (file, function);
 CREATE TABLE IF NOT EXISTS lines (language TEXT NOT NULL, file TEXT NOT NULL, function TEXT NOT NULL, seq INTEGER NOT NULL, statement_seq INTEGER,
     role TEXT NOT NULL, depth INTEGER NOT NULL, text TEXT NOT NULL, PRIMARY KEY (language, file, function, seq));
 CREATE INDEX IF NOT EXISTS lines_by_function ON lines (file, function);
+CREATE TABLE IF NOT EXISTS rejected (language TEXT NOT NULL, file TEXT NOT NULL, function TEXT NOT NULL, seq INTEGER NOT NULL, message TEXT NOT NULL,
+    key TEXT NOT NULL, PRIMARY KEY (language, file, function, seq));
 """
 
 # The generation of the lowered rows. Its key covers the adoption key, the declaration lines of every destination file, and the drafter modules.
@@ -417,6 +419,20 @@ class Store:
         """The lowered rows of one function in statement order, each in the order of LOWERED_COLUMNS."""
         return self.db.execute(f"SELECT {', '.join(LOWERED_COLUMNS)} FROM lowered WHERE language = ? AND file = ? AND function = ? ORDER BY seq",
                                (language, file, function)).fetchall()
+
+    # MARK: - The statements the compile gate rejected
+
+    def save_rejected(self, key: str, language: str, file: str, rows: list[tuple[str, int, str]]) -> None:
+        """Replace the rejected statements of one file, each as its function, its seq, and the compiler's message, under the lowered key.
+        The rows stand outside the generations, so a change of the lowered key keeps them, and a read under another key skips them."""
+        with self.db:
+            self.db.execute("DELETE FROM rejected WHERE language = ? AND file = ?", (language, file))
+            self.db.executemany("INSERT INTO rejected VALUES (?, ?, ?, ?, ?, ?)", [(language, file, function, seq, message, key) for function, seq, message in rows])
+
+    def rejected(self, key: str, language: str) -> dict[tuple[str, str, int], str]:
+        """The compiler's message of each rejected statement saved under the lowered key, by its file, its function, and its seq."""
+        rows = self.db.execute("SELECT file, function, seq, message FROM rejected WHERE language = ? AND key = ?", (language, key)).fetchall()
+        return {(file, function, seq): message for file, function, seq, message in rows}
 
     def drop_locals(self) -> None:
         """Delete the local facts of every function, because the generation they stand on was swept again."""

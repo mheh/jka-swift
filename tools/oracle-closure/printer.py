@@ -9,10 +9,14 @@ The functions of a stem print with one blank line after each, and the footer cou
 Its own command prints from the store with no parse and no libclang.
 It computes the lowered key again from the files the store lists and the declaration lines of the Swift files, and it stops with one line
 on standard error when the key differs from the stored key, or when a function has no line rows.
+With --compile-holes, each statement the last draftcheck run rejected prints as a compile hole in the place of its lines.
+A rejected declaration or a rejected statement that opens a closure changes the draft of the statements after it, which the rows cannot show.
+For such a function the printer stops with one line on standard error, and bodies.py --compile-holes prints it.
 
 Usage:
   .venv/bin/python printer.py --stem bg_pmove                       # prints every draft of one file from the store
   .venv/bin/python printer.py --only PM_AddTouchEnt,BG_SabersOff   # prints the drafts of the named functions from the store
+  .venv/bin/python printer.py --stem bg_pmove --compile-holes       # prints the statements draftcheck rejected as compile holes
 """
 
 from __future__ import annotations
@@ -23,7 +27,7 @@ import sys
 from pathlib import Path
 
 import store as S
-from draft_classification import INDENT
+from draft_classification import COMPILE_NOTE, INDENT, port_note
 
 # A module qualifier appears only to break a genuine ambiguity, the short-name rule of porting-rules.md, and no body line has one.
 QUALIFIER = re.compile(r"\b(JKAMP|JKAShared)\.(?=[A-Za-z_])")
@@ -53,6 +57,48 @@ def stem_text(functions: list[list[tuple]]) -> str:
     return "".join("\n".join(function_lines(rows)) + "\n\n" for rows in functions) + f"// {holes} holes\n"
 
 
+def holed(rows: list[tuple], statements: list[dict], rejected: dict[int, str], function: str) -> list[tuple]:
+    """The line rows of one function with the lines of each rejected statement replaced by the three lines of its compile hole.
+
+    `statements` are the statement rows of the function, and `rejected` holds the compiler's message by the seq of each rejected statement.
+    The lines of a statement are its own rows and the rows of the statements inside it, with the blank rows between them.
+    A deeper row inside those lines goes with them too, for example the loop step the drafter writes before a `continue`.
+    A statement inside a rejected statement goes with it, and a statement drafted twice, a loop step, is a hole at each copy."""
+    parent = {row["seq"]: row["parent_seq"] for row in statements}
+    text = {row["seq"]: row["text"] for row in statements}
+
+    def top(seq: int | None) -> int | None:
+        """The outermost rejected statement that holds the statement, itself included, or None."""
+        found = None
+        while seq is not None:
+            if seq in rejected:
+                found = seq
+            seq = parent.get(seq)
+        return found
+
+    cite = [row[4].removeprefix("/// Source: ") for row in rows if row[2] == "header" and row[4].startswith("/// Source: ")][-1]
+    out: list[tuple] = []
+    i = 0
+    while i < len(rows):
+        seq = top(rows[i][1])
+        if seq is None:
+            out.append(rows[i])
+            i += 1
+            continue
+        depth = rows[i][3]
+        last = i
+        for j in range(i + 1, len(rows)):
+            if top(rows[j][1]) == seq or (rows[j][2] != "blank" and rows[j][3] > depth):
+                last = j
+            elif rows[j][2] != "blank":
+                break
+        out += [(0, seq, "note", depth, port_note(COMPILE_NOTE.format(rejected[seq]))),
+                (0, seq, "raven", depth, "// Raven wrote: " + " ".join(text[seq].split())),
+                (0, seq, "marker", depth, f'portMissing("{function}", source: "{cite}")')]
+        i = last + 1
+    return [(n,) + row[1:] for n, row in enumerate(out)]
+
+
 def lowered_key(store: S.Store) -> str:
     """The lowered key of the files on disk, computed with no parse.
     The adoption part takes the stored base key, the first line of each stub the store lists, and the salt of a generated stub.
@@ -68,9 +114,10 @@ def lowered_key(store: S.Store) -> str:
     return key
 
 
-def store_text(path: Path, stem: str | None = None, only: list[str] | None = None) -> str:
+def store_text(path: Path, stem: str | None = None, only: list[str] | None = None, compile_holes: bool = False) -> str:
     """The text of every function of one stem, or of the named functions, from the line rows of the store at the path.
-    The read stops with one line on standard error when the store is missing, its lowered key is stale, or a function has no rows."""
+    The read stops with one line on standard error when the store is missing, its lowered key is stale, or a function has no rows.
+    With `compile_holes`, each statement draftcheck rejected under the key prints as a compile hole."""
     from bodies import LANGUAGE
 
     if not path.exists():
@@ -93,11 +140,23 @@ def store_text(path: Path, stem: str | None = None, only: list[str] | None = Non
             if missing:
                 raise SystemExit(f"printer.py: the store holds no function named {', '.join(missing)}")
             chosen = [first[name] for name in only or []]
+        due = store.rejected(key, LANGUAGE) if compile_holes else {}
         rows = []
         for file, name in chosen:
             lines = store.lowered_lines(key, LANGUAGE, file, name)
             if lines is None:
                 raise SystemExit(f"printer.py: the store holds no line rows for {name} of {file}, so run bodies.py --stem {file}")
+            rejected = {seq: message for (owner, function, seq), message in due.items() if (owner, function) == (file, name)}
+            if rejected:
+                statements = store.syntax("statements", file, name)
+                kinds = {row["seq"]: row["kind"] for row in statements}
+                forms = {row[0]: row[1] for row in store.lowered_rows(LANGUAGE, file, name)}
+                # The drafter drafts the statements after a rejected closure outside it, and every later use of a rejected local as a hole.
+                changing = sorted(seq for seq in rejected if forms.get(seq) in ("scratch", "choice") or kinds.get(seq) == "DECL_STMT")
+                if changing:
+                    raise SystemExit(f"printer.py: the rejected statement {changing[0]} of {name} changes the statements after it, "
+                                     "so bodies.py --compile-holes prints it")
+                lines = holed(lines, statements, rejected, name)
             rows.append(lines)
     return stem_text(rows)
 
@@ -108,10 +167,14 @@ def main() -> None:
     parser = argparse.ArgumentParser()
     parser.add_argument("--only", help="comma-separated function names to print")
     parser.add_argument("--stem", help="print every draft of one .c file")
+    parser.add_argument("--compile-holes", action="store_true", help="print each statement the last draftcheck run rejected as a compile hole")
     args = parser.parse_args()
     if not (args.only or args.stem):
         parser.error("give --only or --stem")
-    text = store_text(STORE, only=args.only.split(",")) if args.only else store_text(STORE, stem=args.stem)
+    if args.only:
+        text = store_text(STORE, only=args.only.split(","), compile_holes=args.compile_holes)
+    else:
+        text = store_text(STORE, stem=args.stem, compile_holes=args.compile_holes)
     print(text, end="", flush=True)
 
 

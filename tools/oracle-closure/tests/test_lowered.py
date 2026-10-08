@@ -54,6 +54,40 @@ class Printer(unittest.TestCase):
         self.assertEqual(text, "\n".join(lines) + "\n\nfunc G_Y() {\n}\n\n// 1 holes\n")
 
 
+    def test_a_compile_hole_takes_the_deeper_loop_step_inside_its_statement(self) -> None:
+        import printer
+
+        # given a loop whose `if` holds the loop step before its `continue`, and a rejected row for the `if`, seq 2
+        rows = [(0, None, "header", 0, "/// Source: oracle/codemp/game/g_x.c:4"),
+                (1, None, "header", 0, "func G_X() {"),
+                (2, 1, "own", 1, "while i < 4 {"),
+                (3, 2, "own", 2, "if skip {"),
+                (4, 4, "own", 3, "i += 1"),
+                (5, 3, "own", 3, "continue"),
+                (6, 2, "frame", 2, "}"),
+                (7, 4, "own", 2, "i += 1"),
+                (8, 1, "frame", 1, "}"),
+                (9, None, "frame", 0, "}")]
+        statements = [{"seq": 0, "parent_seq": None, "text": "{ }"},
+                      {"seq": 1, "parent_seq": 0, "text": "while ( i < 4 ) { }"},
+                      {"seq": 2, "parent_seq": 1, "text": "if ( skip ) {\n\t\tcontinue;\n\t}"},
+                      {"seq": 3, "parent_seq": 2, "text": "continue"},
+                      {"seq": 4, "parent_seq": 1, "text": "i++"}]
+
+        # when the printer prints the function with the `if` as a compile hole
+        lines = printer.function_lines(printer.holed(rows, statements, {2: "boom"}, "G_X"))
+
+        # then the three lines of the hole stand in the place of the whole `if`, the step inside it included
+        self.assertEqual(lines, ["/// Source: oracle/codemp/game/g_x.c:4",
+                                 "func G_X() {",
+                                 "    while i < 4 {",
+                                 '        // Port-note: The draft of this statement did not compile, and the compiler wrote "boom".',
+                                 "        // Raven wrote: if ( skip ) { continue; }",
+                                 '        portMissing("G_X", source: "oracle/codemp/game/g_x.c:4")',
+                                 "        i += 1",
+                                 "    }",
+                                 "}"])
+
 @unittest.skipUnless(os.environ.get("SLOW") == "1", "slow: one parse and one draft of the real tree, run with SLOW=1")
 class Lowered(unittest.TestCase):
     @classmethod
@@ -147,6 +181,36 @@ class Lowered(unittest.TestCase):
         # then the process loads no libclang and prints the text of bodies.py byte for byte
         self.assertEqual(run.returncode, 0, run.stderr)
         self.assertEqual(run.stdout, expected)
+
+    def test_a_rejected_row_makes_its_statement_a_compile_hole_under_the_flag_and_not_without_it(self) -> None:
+        import printer
+        from bodies import LANGUAGE, Lowering
+
+        # given the rows of PM_AddTouchEnt in a copy of the store, and a rejected row for its first `if`, seq 2, under the lowered key
+        lowering = Lowering(self.sk, self.registry)
+        lowering.lines("bg_pmove", "PM_AddTouchEnt")
+        lowering.store.save_rejected(lowering.key, LANGUAGE, "bg_pmove", [("PM_AddTouchEnt", 2, "cannot convert value")])
+        copied = Path(self.folder.name) / "rejected.sqlite"
+        with sqlite3.connect(self.store) as source, sqlite3.connect(copied) as copy:
+            source.backup(copy)
+        hole = ['    // Port-note: The draft of this statement did not compile, and the compiler wrote "cannot convert value".',
+                "    // Raven wrote: if ( entityNum == ENTITYNUM_WORLD ) { return; }",
+                '    portMissing("PM_AddTouchEnt", source: "oracle/codemp/game/bg_pmove.c:924")']
+
+        # when the printer and bodies.py print the function without the flag and with it
+        plain = printer.store_text(copied, only=["PM_AddTouchEnt"]).splitlines()
+        holed = printer.store_text(copied, only=["PM_AddTouchEnt"], compile_holes=True).splitlines()
+        drafted = printer.function_lines(Lowering(self.sk, self.registry, compile_holes=True).lines("bg_pmove", "PM_AddTouchEnt"))
+
+        # then without the flag the `if` prints as drafted, and no line is a compile hole
+        self.assertTrue(any(line.lstrip().startswith("if ") and "ENTITYNUM_WORLD" in line for line in plain), plain)
+        self.assertFalse(any("did not compile" in line for line in plain), plain)
+        # and with the flag the three lines of the hole stand in the place of the `if`, in the printer and in bodies.py alike
+        start = holed.index(hole[0])
+        self.assertEqual(holed[start:start + 3], hole)
+        self.assertFalse(any(line.lstrip().startswith("if ") and "ENTITYNUM_WORLD" in line for line in holed), holed)
+        self.assertEqual(len(holed), len(plain))
+        self.assertEqual(drafted, holed[:-2])
 
 if __name__ == "__main__":
     unittest.main()

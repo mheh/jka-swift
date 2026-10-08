@@ -59,12 +59,12 @@ class Statements:
             out += self.gap(previous_line, child.extent.start.line, depth)
             out += self.shared_read_lines(child, depth)
             # A record or a choice whose statement the compile gate rejected is a hole, and the statements after it draft at this depth.
-            if record is not None and self.statement_key(child) not in self.compile_due:
+            if record is not None and self.compile_message(child) is None:
                 self.lowered_as(child, "scratch", depth)
                 out += marked(self.scratch(child, record, children[i + 1:], last_line, depth), self.statement_number(child))
                 return out
             chosen = self.chosen_choice(child, children[i + 1:])
-            if chosen is not None and self.statement_key(child) not in self.compile_due:
+            if chosen is not None and self.compile_message(child) is None:
                 self.lowered_as(child, "choice", depth)
                 out += marked(self.choice(chosen, child, children[i + 1:], last_line, depth), self.statement_number(child))
                 return out
@@ -234,9 +234,15 @@ class Statements:
         if form is not None:
             self.forms[number] = form
 
+    def compile_message(self, cur: ci.Cursor) -> str | None:
+        """The compiler's message for a statement the compile gate rejected on an earlier pass, by its file, its function, and its seq.
+        A statement the gate accepted has no message."""
+        seq = self.statement_seqs.get(extent_key(cur))
+        return None if seq is None else self.compile_due.get((self.fn.stem, self.fn.cur.spelling, seq))
+
     def compile_hole(self, cur: ci.Cursor, depth: int) -> list[str] | None:
         """The hole of a statement whose draft the compile gate rejected on an earlier pass, or None for a statement it accepted."""
-        message = self.compile_due.get(self.statement_key(cur))
+        message = self.compile_message(cur)
         if message is None:
             return None
         self.compile_holes += 1
