@@ -51,7 +51,18 @@ CREATE INDEX IF NOT EXISTS comments_by_function ON comments (file, function);
 CREATE TABLE IF NOT EXISTS macros (file TEXT NOT NULL, function TEXT NOT NULL, seq INTEGER NOT NULL, start_offset INTEGER NOT NULL,
     end_offset INTEGER NOT NULL, name TEXT NOT NULL, text TEXT NOT NULL, kind TEXT NOT NULL, PRIMARY KEY (file, function, seq, start_offset));
 CREATE INDEX IF NOT EXISTS macros_by_function ON macros (file, function);
+CREATE TABLE IF NOT EXISTS lowered (language TEXT NOT NULL, file TEXT NOT NULL, function TEXT NOT NULL, seq INTEGER NOT NULL, form TEXT NOT NULL,
+    depth INTEGER NOT NULL, reason TEXT NOT NULL, message TEXT NOT NULL, PRIMARY KEY (language, file, function, seq));
+CREATE INDEX IF NOT EXISTS lowered_by_function ON lowered (file, function);
+CREATE TABLE IF NOT EXISTS lines (language TEXT NOT NULL, file TEXT NOT NULL, function TEXT NOT NULL, seq INTEGER NOT NULL, statement_seq INTEGER,
+    role TEXT NOT NULL, depth INTEGER NOT NULL, text TEXT NOT NULL, PRIMARY KEY (language, file, function, seq));
+CREATE INDEX IF NOT EXISTS lines_by_function ON lines (file, function);
 """
+
+# The generation of the lowered rows. Its key covers the adoption key, the declaration lines of every destination file, and the drafter modules.
+LOWERED = "lowered"
+LOWERED_COLUMNS = ("seq", "form", "depth", "reason", "message")
+LINE_COLUMNS = ("seq", "statement_seq", "role", "depth", "text")
 
 # The syntax tables of the base generation, each with its columns in order and the columns of its primary key.
 # A sweep replaces every row of each table at once, and a reader asks for the rows of one function.
@@ -364,6 +375,46 @@ class Store:
         rows = self.db.execute(f"SELECT {', '.join(columns)} FROM {table} WHERE file = ? AND function = ? ORDER BY {', '.join(key)}",
                                (file, function)).fetchall()
         return [dict(zip(columns, row)) for row in rows]
+
+    # MARK: - The lowered rows of each function
+
+    def reset_lowered(self, key: str, files: dict[str, str]) -> None:
+        """Delete every lowered row and line row, and keep the new key of the generation with the hash of each file it covers, in one transaction."""
+        with self.db:
+            self.db.execute("DELETE FROM lowered")
+            self.db.execute("DELETE FROM lines")
+            self.db.execute("DELETE FROM files WHERE generation = ?", (LOWERED,))
+            self.db.executemany("INSERT INTO files VALUES (?, ?, ?)", [(LOWERED, path, hashed) for path, hashed in files.items()])
+            self.db.execute("INSERT OR REPLACE INTO meta VALUES (?, ?)", (f"key:{LOWERED}", key))
+
+    def drop_lowered(self) -> None:
+        """Delete every lowered row and line row and leave the key, so the next read of each function lowers it again."""
+        with self.db:
+            self.db.execute("DELETE FROM lowered")
+            self.db.execute("DELETE FROM lines")
+
+    def save_lowered(self, language: str, file: str, function: str, lowered: list[tuple], lines: list[tuple]) -> None:
+        """Replace the lowered rows and the line rows of one function in one transaction, each row in the column order of its table after the function."""
+        with self.db:
+            for table, columns, rows in (("lowered", LOWERED_COLUMNS, lowered), ("lines", LINE_COLUMNS, lines)):
+                self.db.execute(f"DELETE FROM {table} WHERE language = ? AND file = ? AND function = ?", (language, file, function))
+                self.db.executemany(f"INSERT INTO {table} VALUES (?, ?, ?, {', '.join('?' for _ in columns)})",
+                                    [(language, file, function) + tuple(row) for row in rows])
+
+    def lowered_lines(self, key: str, language: str, file: str, function: str) -> list[tuple] | None:
+        """The line rows of one function in their order, each in the order of LINE_COLUMNS.
+        The read gives None when the store holds no rows for the function or holds them under another key."""
+        with self.snapshot():
+            if self.key(LOWERED) != key:
+                return None
+            rows = self.db.execute(f"SELECT {', '.join(LINE_COLUMNS)} FROM lines WHERE language = ? AND file = ? AND function = ? ORDER BY seq",
+                                   (language, file, function)).fetchall()
+        return rows or None
+
+    def lowered_rows(self, language: str, file: str, function: str) -> list[tuple]:
+        """The lowered rows of one function in statement order, each in the order of LOWERED_COLUMNS."""
+        return self.db.execute(f"SELECT {', '.join(LOWERED_COLUMNS)} FROM lowered WHERE language = ? AND file = ? AND function = ? ORDER BY seq",
+                               (language, file, function)).fetchall()
 
     def drop_locals(self) -> None:
         """Delete the local facts of every function, because the generation they stand on was swept again."""

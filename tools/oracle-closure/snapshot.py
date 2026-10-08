@@ -21,7 +21,7 @@ import tempfile
 from pathlib import Path
 
 import closure as C
-from bodies import Drafter, Registry, printed
+from bodies import Lowering, Registry, stem_text
 from channel import Channel
 from manifest import Manifest
 from skeleton import BG, LOGIC, target_of
@@ -48,10 +48,10 @@ def write(out: Path) -> int:
     for view, stems in texts(gen.emit()).items():
         for stem, text in stems.items():
             files[f"views/{view}/{stem}.swift"] = text
-    # Each stem drafts with a drafter of its own, as one run of `bodies.py --stem` does, over the one skeleton and registry of this run.
-    registry = Registry()
+    # The drafts print from the lowered rows, as `bodies.py --stem` prints them, over the one skeleton and registry of this run.
+    lowering = Lowering(sk, Registry())
     for stem in sorted(stem for stem in sk.files if target_of(stem) in (BG, LOGIC)):
-        files[f"bodies/{stem}.swift"] = printed(Drafter(sk, registry), sk.files[stem])
+        files[f"bodies/{stem}.swift"] = stem_text(lowering, [(stem, fn.cur.spelling) for fn in sk.files[stem]])
     for name, text in files.items():
         path = out / name
         path.parent.mkdir(parents=True, exist_ok=True)

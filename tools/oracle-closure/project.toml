@@ -47,6 +47,17 @@ modules = [
     "store.py",
     "project.toml",
 ]
+# The modules of the lowering, whose logic feeds the lowered rows, relative to this folder.
+# A change to one of them invalidates every lowered row, and so does a change to the declaration lines of a destination file.
+lowering = [
+    "bodies.py",
+    "draft_statements.py",
+    "draft_expressions.py",
+    "draft_calls.py",
+    "draft_declarations.py",
+    "draft_classification.py",
+    "skeleton.py",
+]
 
 # The units: the compile profile of each parse, mirrored from Raven's vcproj Release configs.
 # `entry` is the hand list of headers for the header parse, and a unit without it reads the list closure.py derives from `srcglob`.

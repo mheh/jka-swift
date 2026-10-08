@@ -127,6 +127,36 @@ class Key(unittest.TestCase):
         self.assertEqual(store.changed("base", after.files), ["(the view set)"])
 
 
+class LoweredKey(unittest.TestCase):
+    """The lowered key covers the adoption key, the declaration lines of the Swift files, and the drafter modules, and no body line."""
+
+    def test_a_body_edit_under_a_signature_leaves_the_lowered_key_and_a_signature_edit_changes_it(self) -> None:
+        from bodies import lowered_keys
+
+        # given a folder with one Swift file of one func line and its body
+        folder = tempfile.TemporaryDirectory()
+        self.addCleanup(folder.cleanup)
+        root = Path(folder.name)
+        swift = root / "Sources/g_main.swift"
+        swift.parent.mkdir()
+        swift.write_text("func G_InitGame(_ levelTime: Int32) {\n    level = 0\n}\n")
+
+        def compute():
+            return lowered_keys("adoption-1", root / "Sources", [], root)
+
+        before, files = compute()
+
+        # when a body line changes, the key stays
+        swift.write_text("func G_InitGame(_ levelTime: Int32) {\n    level = levelTime\n}\n")
+        self.assertEqual(compute()[0], before)
+
+        # when the signature changes, the key changes, and the file hashes name the file
+        swift.write_text("func G_InitGame(_ levelTime: inout Int32) {\n    level = levelTime\n}\n")
+        after, changed = compute()
+        self.assertNotEqual(after, before)
+        self.assertEqual([name for name in changed if changed[name] != files.get(name)], ["Sources/g_main.swift"])
+
+
 class Unit:
     """A parse unit with no file on disk and no include, so the key of a Table reads the declarations alone."""
 

@@ -22,18 +22,21 @@ from __future__ import annotations
 
 import argparse
 import re
+import sys
+from pathlib import Path
 
 import clang.cindex as ci
 from clang.cindex import CursorKind
 
 from reexport import SOURCES
 import closure as C
+import store as S
 from skeleton import ORACLE_DIR, Function, Skeleton
 from table import Cursor, Param
 
 from draft_calls import Calls
 # Hole stands under the Port-note the drafter writes, so it lives beside the classification that writes one.
-from draft_classification import ROLE_MARK, STATEMENT_MARK, TRAILING, Classification, Hole
+from draft_classification import INDENT, ROLE_MARK, STATEMENT_MARK, TRAILING, Classification, Hole
 from draft_declarations import Declarations, short_named
 from draft_expressions import Expressions
 from draft_statements import Statements
@@ -48,6 +51,23 @@ VAR_LINE = re.compile(MODIFIERS + r"(?:var|let)\s+`?(\w+)`?")
 # The type annotation of a file-scope variable, up to its initializer or its computed body.
 VAR_TYPE = re.compile(r"\s*:\s*([^={]+)")
 FILE_FUNC = re.compile(MODIFIERS + r"func\s")
+HERE = Path(__file__).resolve().parent
+# The language of the lowered rows, a column value of every row the lowering writes.
+LANGUAGE = C.PROJECT["project"]["target_language"]
+
+
+def declaration_line(line: str) -> bool:
+    """True for a line the registry reads a declaration from: a file-scope `var` or `let`, or a line that holds a `func` head."""
+    return VAR_LINE.match(line) is not None or (FUNC_HEAD.search(line) is not None and "func " in line.split("//")[0])
+
+
+def lowered_keys(adoption: str, sources: Path, modules: list[Path], root: Path) -> tuple[str, dict[str, str]]:
+    """The key of the lowered generation and the hash of each file it covers, by the file's name.
+    A Swift file counts by its declaration lines alone, so a body edit under a signature keeps the key."""
+    files = {S.named(path, root): S.digest("\n".join(line for line in path.read_text().splitlines() if declaration_line(line)).encode())
+             for path in sorted(sources.rglob("*.swift"))}
+    files |= {S.named(path, root): S.file_hash(path) for path in modules}
+    return S.combined(files, adoption), files
 
 
 def split_params(text: str) -> list[str]:
@@ -178,16 +198,24 @@ class Drafter(Statements, Expressions, Calls, Declarations, Classification):
         # The role of each line of the last draft, one of ROLES, and Raven's comment at the end of the line, or None for a line with none.
         self.line_roles: list[str] = []
         self.line_trailing: list[str | None] = []
+        # The text of each line of the last draft without its trailing comment.
+        self.line_own: list[str] = []
+        # The depth of each statement the last draft reached, by the number of its mark, and the form of the ones whose form no line shows.
+        self.drafted: dict[int, int] = {}
+        self.forms: dict[int, str] = {}
 
     # MARK: - One function
 
     def draft(self, fn: Function) -> list[str]:
         header = self.sk.stub(fn)
+        self.drafted = {}
+        self.forms = {}
         if not fn.mapped or not header[-1].startswith("}"):
             # The stub stands as the skeleton wrote it, and only its closing brace is no header line.
             self.line_keys = [None] * len(header)
             self.line_roles = ["header"] * (len(header) - 1) + ["frame"]
             self.line_trailing = [None] * len(header)
+            self.line_own = list(header)
             return header
         self.fn = fn
         self.source = self.sk.source(fn.stem)
@@ -275,6 +303,7 @@ class Drafter(Statements, Expressions, Calls, Declarations, Classification):
         self.line_keys = []
         self.line_roles = []
         self.line_trailing = []
+        self.line_own = []
         head = len(header) - 3
         for i, line in enumerate(lines):
             mark = STATEMENT_MARK.search(line)
@@ -287,13 +316,136 @@ class Drafter(Statements, Expressions, Calls, Declarations, Classification):
                 self.line_keys.append(key)
                 self.line_roles.append(role or ("blank" if not text.strip() else "own"))
                 self.line_trailing.append(comment or None)
+                self.line_own.append(text)
         return clean
+
+    # MARK: - The rows of one draft
+
+    def rows(self, statements: list[dict]) -> tuple[list[tuple], list[tuple]]:
+        """The lowered rows and the line rows of the last draft, in the column order of the store after the function.
+
+        `statements` are the statement rows of the function, which give each drafted statement its seq.
+        A statement whose lines hold a Raven line is a hole, and one whose lines hold a note and no Raven line is a note.
+        The reason is the text of its first note line, and the message stays empty, because the stored rows are the first pass of the compile gate.
+        A line splits into its depth of four spaces and the text after it, and Raven's trailing comment is a row of its own after the line."""
+        seq_of = {(row["kind"], row["start_offset"], row["end_offset"]): row["seq"] for row in statements}
+
+        def seq(key: tuple[str, str, int, int] | None) -> int | None:
+            if key is None:
+                return None
+            found = seq_of.get(key[1:])
+            if found is None:
+                raise SystemExit(f"bodies.py: no statement row for {key} of {self.fn.stem}")
+            return found
+
+        by_key: dict[tuple[str, str, int, int], list[tuple[str, str]]] = {}
+        for key, role, text in zip(self.line_keys, self.line_roles, self.line_own):
+            if key is not None:
+                by_key.setdefault(key, []).append((role, text))
+        lowered = []
+        for number, depth in self.drafted.items():
+            key = self.statement_keys[number]
+            lines = by_key.get(key, [])
+            roles = {role for role, _ in lines}
+            notes = [text.strip().removeprefix("// Port-note: ") for role, text in lines if role == "note"]
+            if "raven" in roles:
+                form = "hole"
+            elif "note" in roles:
+                form = "note"
+            elif number in self.forms:
+                form = self.forms[number]
+            elif not lines:
+                form = "dropped"
+            elif key[1] == "DECL_STMT":
+                form = "declaration"
+            elif key[1] == "COMPOUND_STMT":
+                form = "block"
+            else:
+                form = "statement"
+            reason = notes[0] if form in ("hole", "note") else ""
+            lowered.append((seq(key), form, depth, reason, ""))
+        out = []
+        for key, role, text, comment in zip(self.line_keys, self.line_roles, self.line_own, self.line_trailing):
+            depth = 0
+            if role != "header":
+                while text.startswith(INDENT):
+                    depth += 1
+                    text = text[len(INDENT):]
+            out.append((len(out), seq(key), role, depth, text))
+            if comment is not None:
+                out.append((len(out), seq(key), "trailing", depth, comment))
+        return sorted(lowered), out
 
 
 def printed(drafter: Drafter, fns: list[Function]) -> str:
-    """The text a run of bodies.py prints for the functions: each draft and a blank line after it, then the footer of the hole count."""
-    text = "".join("\n".join(drafter.draft(fn)) + "\n\n" for fn in fns)
-    return text + f"// {drafter.holes} holes\n"
+    """The text of the drafts of the functions from memory: each draft and a blank line after it, then the footer of the hole count.
+    The footer counts the note lines, as `stem_text` does, and not the counter of the drafter, which also counts a hole in a draft it threw away."""
+    text = ""
+    holes = 0
+    for fn in fns:
+        text += "\n".join(drafter.draft(fn)) + "\n\n"
+        holes += drafter.line_roles.count("note")
+    return text + f"// {holes} holes\n"
+
+
+class Lowering:
+    """The lowered generation of one run: the lowered rows and the line rows of each function, read from the store or drafted once and saved.
+
+    The first read of a function drafts it with the one drafter of the run and saves its rows, as the local facts of the table do.
+    Every later read takes the rows. A change of the lowered key deletes every lowered row and line row, and the stale files go to standard error."""
+
+    def __init__(self, sk: Skeleton, registry: Registry, store: S.Store | None = None) -> None:
+        self.sk = sk
+        self.store = store if store is not None else sk.table.store
+        self.registry = registry
+        self.drafter = Drafter(sk, registry)
+        # The functions this run drafted, because the store held no rows for them.
+        self.lowered = 0
+        modules = [HERE / name for name in C.PROJECT["store"]["lowering"]]
+        self.key, files = lowered_keys(sk.table.keys.adoption, SOURCES, modules, C.REPO)
+        if self.store.key(S.LOWERED) != self.key:
+            if self.store.key(S.LOWERED) is None:
+                print("bodies.py: the store holds no lowered rows, so the drafts write them", file=sys.stderr)
+            else:
+                changed = self.store.changed(S.LOWERED, files)
+                shown = ", ".join(changed[:5]) + (f", and {len(changed) - 5} more" if len(changed) > 5 else "")
+                print(f"bodies.py: the lowered rows are stale, {len(changed)} files changed: {shown}", file=sys.stderr)
+            self.store.reset_lowered(self.key, files)
+
+    def lines(self, stem: str, function: str) -> list[tuple]:
+        """The line rows of one function, each as its seq, its statement seq, its role, its depth, and its text."""
+        rows = self.store.lowered_lines(self.key, LANGUAGE, stem, function)
+        if rows is None:
+            self.lower(stem, function)
+            rows = self.store.lowered_lines(self.key, LANGUAGE, stem, function)
+        return rows
+
+    def lower(self, stem: str, function: str) -> None:
+        """Draft one function and save its lowered rows and its line rows."""
+        fn = next(fn for fn in self.sk.files[stem] if fn.cur.spelling == function)
+        self.drafter.draft(fn)
+        lowered, rows = self.drafter.rows(self.store.syntax("statements", stem, function))
+        self.store.save_lowered(LANGUAGE, stem, function, lowered, rows)
+        self.lowered += 1
+
+
+def printed_lines(rows: list[tuple]) -> list[str]:
+    """The printed lines of one function from its line rows: each line indented by its depth, and a trailing comment joined onto its line by one space."""
+    out: list[str] = []
+    for _, _, role, depth, text in rows:
+        if role == "trailing":
+            out[-1] += f" {text}"
+        else:
+            out.append(INDENT * depth + text)
+    return out
+
+
+def stem_text(lowering: Lowering, functions: list[tuple[str, str]]) -> str:
+    """The text a run of bodies.py prints for the functions, each named by its stem and its name, from their line rows:
+    each function and a blank line after it, then the footer of the hole count, one hole for each note line."""
+    rows = [lowering.lines(stem, function) for stem, function in functions]
+    holes = sum(1 for function in rows for row in function if row[2] == "note")
+    return "".join("\n".join(printed_lines(function)) + "\n\n" for function in rows) + f"// {holes} holes\n"
 
 
 def main() -> None:
@@ -302,14 +454,14 @@ def main() -> None:
     parser.add_argument("--stem", help="print every draft of one .c file")
     args = parser.parse_args()
     sk = Skeleton(C.Parse())
-    drafter = Drafter(sk, Registry())
+    lowering = Lowering(sk, Registry())
     if args.only:
         fns = [sk.by_name[n] for n in args.only.split(",")]
     elif args.stem:
         fns = sk.files[args.stem]
     else:
         parser.error("give --only or --stem")
-    print(printed(drafter, fns), end="", flush=True)
+    print(stem_text(lowering, [(fn.stem, fn.cur.spelling) for fn in fns]), end="", flush=True)
 
 
 if __name__ == "__main__":

@@ -60,10 +60,12 @@ class Statements:
             out += self.shared_read_lines(child, depth)
             # A record or a choice whose statement the compile gate rejected is a hole, and the statements after it draft at this depth.
             if record is not None and self.statement_key(child) not in self.compile_due:
+                self.lowered_as(child, "scratch", depth)
                 out += marked(self.scratch(child, record, children[i + 1:], last_line, depth), self.statement_number(child))
                 return out
             chosen = self.chosen_choice(child, children[i + 1:])
             if chosen is not None and self.statement_key(child) not in self.compile_due:
+                self.lowered_as(child, "choice", depth)
                 out += marked(self.choice(chosen, child, children[i + 1:], last_line, depth), self.statement_number(child))
                 return out
             out += self.statement(child, depth)
@@ -83,6 +85,7 @@ class Statements:
         after = [g for g in gotos if g.extent.start.offset > label.extent.start.offset]
         inner = list(label.get_children())
         rest = inner + children[i + 1:]
+        self.lowered_as(label, "label", depth)
         out: list[str] = []
         # A record local before the label lives to the end of Raven's block, so its closure holds the label and every statement after it.
         # A goto before the record would leave the closure, so the record then stays in the labeled block.
@@ -198,6 +201,7 @@ class Statements:
         return rest if rest.startswith("//") else ""
 
     def statement(self, cur: ci.Cursor, depth: int) -> list[str]:
+        self.lowered_as(cur, None, depth)
         outer = self.pending
         self.pending = []
         lines = self.compile_hole(cur, depth)
@@ -221,6 +225,14 @@ class Statements:
             self.statement_numbers[key] = len(self.statement_keys)
             self.statement_keys.append(key)
         return self.statement_numbers[key]
+
+    def lowered_as(self, cur: ci.Cursor, form: str | None, depth: int) -> None:
+        """Keep the depth of a statement the draft reaches, and its form when the form does not show in its lines.
+        A statement drafted twice, a loop step before a `continue` and at the loop end, keeps the first depth."""
+        number = self.statement_number(cur)
+        self.drafted.setdefault(number, depth)
+        if form is not None:
+            self.forms[number] = form
 
     def compile_hole(self, cur: ci.Cursor, depth: int) -> list[str] | None:
         """The hole of a statement whose draft the compile gate rejected on an earlier pass, or None for a statement it accepted."""
@@ -830,6 +842,7 @@ class Statements:
                 # Raven's else-if is a statement of its own, so the compile gate maps an error in it to it and not to the whole chain.
                 outer = self.pending
                 self.pending = []
+                self.lowered_as(other, None, depth)
                 try:
                     nested = self.compile_hole(other, depth)
                     nested = marked(self.if_statement(other, depth) if nested is None else nested, self.statement_number(other))

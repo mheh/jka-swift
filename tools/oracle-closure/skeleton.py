@@ -224,11 +224,12 @@ class RustIndex:
 
 
 class Skeleton:
-    def __init__(self, parse: C.Parse) -> None:
+    def __init__(self, parse: C.Parse, store: Path | None = None) -> None:
         self.parse = parse
         self.tu = parse.game
         self.cgame_tu = parse.cgame
-        self.table = Table(parse)
+        # A test gives a store in a temporary folder, and every other caller takes the working store.
+        self.table = Table(parse, store=store)
         self.table.sweep()
         self.sources: dict[str, SourceFile] = {}
         self.files: dict[str, list[Function]] = defaultdict(list)
