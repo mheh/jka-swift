@@ -59,6 +59,10 @@ CREATE TABLE IF NOT EXISTS lines (language TEXT NOT NULL, file TEXT NOT NULL, fu
 CREATE INDEX IF NOT EXISTS lines_by_function ON lines (file, function);
 CREATE TABLE IF NOT EXISTS rejected (language TEXT NOT NULL, file TEXT NOT NULL, function TEXT NOT NULL, seq INTEGER NOT NULL, message TEXT NOT NULL,
     key TEXT NOT NULL, PRIMARY KEY (language, file, function, seq));
+CREATE TABLE IF NOT EXISTS alignments (path TEXT NOT NULL, function TEXT NOT NULL, hand_line INTEGER NOT NULL, line_seq INTEGER, statement_seq INTEGER,
+    role TEXT, state TEXT NOT NULL, PRIMARY KEY (path, function, hand_line));
+CREATE INDEX IF NOT EXISTS alignments_by_function ON alignments (path, function);
+CREATE TABLE IF NOT EXISTS aligned_files (path TEXT NOT NULL, hash TEXT NOT NULL, key TEXT NOT NULL, PRIMARY KEY (path));
 """
 
 # The generation of the lowered rows. Its key covers the adoption key, the declaration lines of every destination file, and the drafter modules.
@@ -67,6 +71,8 @@ LOWERED = "lowered"
 # A statement drafted twice, a loop step before a `continue` and at the loop end, has a line row at the depth of each copy.
 LOWERED_COLUMNS = ("seq", "form", "depth", "reason", "message")
 LINE_COLUMNS = ("seq", "statement_seq", "role", "depth", "text")
+# An alignment row maps one line of a hand file to the line row it matches, or to none for a line the hand wrote.
+ALIGNMENT_COLUMNS = ("function", "hand_line", "line_seq", "statement_seq", "role", "state")
 
 # The syntax tables of the base generation, each with its columns in order and the columns of its primary key.
 # A sweep replaces every row of each table at once, and a reader asks for the rows of one function.
@@ -433,6 +439,24 @@ class Store:
         """The compiler's message of each rejected statement saved under the lowered key, by its file, its function, and its seq."""
         rows = self.db.execute("SELECT file, function, seq, message FROM rejected WHERE language = ? AND key = ?", (language, key)).fetchall()
         return {(file, function, seq): message for file, function, seq, message in rows}
+
+    # MARK: - The alignment of each hand file
+
+    def aligned(self, path: str) -> tuple[str, str] | None:
+        """The hash of a hand file and the lowered key its alignment rows stand under, or None when the file has no alignment."""
+        row = self.db.execute("SELECT hash, key FROM aligned_files WHERE path = ?", (path,)).fetchone()
+        return tuple(row) if row else None
+
+    def save_alignment(self, path: str, hashed: str, key: str, rows: list[tuple]) -> None:
+        """Replace the alignment rows of one hand file, each in the order of ALIGNMENT_COLUMNS, and keep its hash and the key, in one transaction."""
+        with self.db:
+            self.db.execute("DELETE FROM alignments WHERE path = ?", (path,))
+            self.db.executemany(f"INSERT INTO alignments VALUES (?, {', '.join('?' for _ in ALIGNMENT_COLUMNS)})", [(path,) + tuple(row) for row in rows])
+            self.db.execute("INSERT OR REPLACE INTO aligned_files VALUES (?, ?, ?)", (path, hashed, key))
+
+    def alignments(self, path: str) -> list[tuple]:
+        """The alignment rows of one hand file in the order of its lines, each in the order of ALIGNMENT_COLUMNS."""
+        return self.db.execute(f"SELECT {', '.join(ALIGNMENT_COLUMNS)} FROM alignments WHERE path = ? ORDER BY hand_line", (path,)).fetchall()
 
     def drop_locals(self) -> None:
         """Delete the local facts of every function, because the generation they stand on was swept again."""
