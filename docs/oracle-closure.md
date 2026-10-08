@@ -66,10 +66,13 @@ A `DECL_STMT` with two declaration holes is one `hole` row, and its reason holds
 - `edited`: the line replaces a draft line in a block of equal length on both sides, with the same names
 - `hand`: the line stands where no draft line pairs with it, an insert or a replaced block of unequal length, or a line of a forward or of a hand function no draft holds
 - `rewritten`: the line belongs to a function whose match ratio is under 0.3
+- `stub`: the line belongs to a function whose body between its signature and its closing brace is still the TODO line and the `portMissing` marker of the skeleton
+
+The `stub` test comes before the ratio. A `stub` or a `rewritten` row names no line row, no statement, and no role.
 
 The draft lines that no hand line matches count on standard error, and so does each rewritten function with its ratio. `aligned_files` keeps the hash of each hand file and the lowered key, and the command skips a file whose hash and key match.
 
-`compare.py` reads the alignment, the line rows, and the statement rows. It prints each `edited` or `hand` line with Raven's file and line, the function, and the role, then the draft text and the hand text. A hand line with no statement cites the statement above it in its function, or the function's Source line. `--counts` prints the count of each state per function. `--against <folder>` compares the stored line rows of a stem with the draft file of a snapshot folder and prints each differing line with its C line.
+`compare.py` reads the alignment, the line rows, and the statement rows. It prints each `edited` or `hand` line with Raven's file and line, the function, and the role, then the draft text and the hand text. A `rewritten` or a `stub` function prints one line, its Source line, its name, and its state, with no texts. A hand line with no statement cites the statement above it in its function, or the function's Source line. `--counts` prints the count of each state per function. `--against <folder>` compares the stored line rows of a stem with the draft file of a snapshot folder and prints each differing line with its C line.
 
 ### The exit codes
 
@@ -79,7 +82,7 @@ The draft lines that no hand line matches count on standard error, and so does e
 | `draftcheck.py` | no defect | a defect stands | |
 | `printer.py` | printed | a stop: stale key, missing function, or a function with no rows | |
 | `align.py` | aligned | | the store or the line rows are missing or stale |
-| `compare.py` | nothing differs | a line differs | the store, the alignment, or the snapshot is missing or stale |
+| `compare.py` | nothing differs | a line or a function differs | the store, the alignment, or the snapshot is missing or stale |
 | `lookup.py` | answered | no answer for the name | no question, or a question of the wrong form |
 
 ### The snapshot gate

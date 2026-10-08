@@ -5,7 +5,9 @@ A hand function and a draft function match by their `/// Source:` line, as draft
 difflib compares the stripped lines of the two from the Source line to the closing brace.
 An equal line is `same`, and a replaced line in a block of equal length on both sides is `edited`, each with the line row it matches.
 A line the hand wrote in place of no draft line is `hand`, with no line row.
-A function whose ratio is under RATIO is `rewritten`, and every line of it has no line row.
+A function whose body is still the two lines the skeleton writes, the TODO line and the `portMissing` marker, is `stub`.
+Else a function whose ratio is under RATIO is `rewritten`.
+Every line of a `stub` or a `rewritten` function has no line row, no statement, and no role.
 
 The store keeps the hash of each hand file and the lowered key beside its rows, and the command skips a file whose hash and key match.
 The command reads the line rows of the store with no parse, so they must stand under the lowered key of the files on disk.
@@ -30,7 +32,7 @@ from lowering_key import LANGUAGE
 from draftcheck import FORWARD_DOC, SOURCE_LINE, functions
 from printer import function_lines
 
-STATES = ("same", "edited", "hand", "rewritten")
+STATES = ("same", "edited", "hand", "rewritten", "stub")
 FUNC_NAME = re.compile(r"\bfunc\s+`?(\w+)`?")
 # Under this ratio of matched lines the hand restructured the body, and a pairing of its lines with the draft's would mislead.
 RATIO = 0.3
@@ -55,8 +57,19 @@ def printed(rows: list[tuple]) -> tuple[list[str], list[tuple]]:
     return lines, own
 
 
+def stub(name: str, hand: list[str]) -> bool:
+    """True when the body of the hand function, between its signature line and its closing brace,
+    is the marker pair of the skeleton and nothing else."""
+    body = [line.strip() for line in hand]
+    return (len(body) >= 4 and body[-1] == "}" and body[-4].endswith("{") and body[-3] == f"// TODO: Port {name}"
+            and body[-2].startswith(f'portMissing("{name}"'))
+
+
 def align_function(name: str, hand: list[str], first: int, lines: list[str], rows: list[tuple], out: Alignment) -> None:
     """Align the hand lines of one function, the first at hand line `first`, with the printed lines of its draft and their rows."""
+    if stub(name, hand):
+        out.rows += [(name, first + j, None, None, None, "stub") for j in range(len(hand))]
+        return
     matcher = difflib.SequenceMatcher(None, [line.strip() for line in lines], [line.strip() for line in hand], autojunk=False)
     ratio = matcher.ratio()
     if ratio < RATIO:

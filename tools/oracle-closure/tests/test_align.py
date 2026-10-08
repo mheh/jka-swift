@@ -139,6 +139,17 @@ class Align(unittest.TestCase):
         self.assertEqual(rows[-4:], [("G_Helper", 20 + i, None, None, None, "hand") for i in range(4)])
         self.assertEqual([row[5] for row in rows[4:-4]], ["same"] * 10)
 
+    def test_a_hand_body_of_the_marker_pair_is_stub_and_not_rewritten(self) -> None:
+        # given a hand file that keeps the Source line, the signature, and the brace of the draft, with the two body lines the skeleton writes
+        lines = DRAFT[:2] + ["    // TODO: Port G_X", '    portMissing("G_X", source: "oracle/codemp/game/g_x.c:4")'] + DRAFT[-1:]
+
+        # when the file is aligned
+        rows, err = self.align(lines)
+
+        # then every line of the function is stub with no line row, no statement, and no role, and nothing goes to standard error
+        self.assertEqual(rows, [("G_X", 3 + i, None, None, None, "stub") for i in range(len(lines))])
+        self.assertEqual(err, "")
+
 
 if __name__ == "__main__":
     unittest.main()

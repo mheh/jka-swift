@@ -4,11 +4,12 @@
 The default form reads the alignment of the stem's hand file that align.py wrote, and prints each hand line in state `edited` or `hand`.
 Each difference is one line with Raven's file and line, the function, and the role of the draft line, then the draft text and the hand text.
 A hand line with no statement takes the line of the statement above it in its function, or the function's Source line.
-A rewritten function prints one line with its Source line and no texts.
+A `rewritten` function, and a `stub` function whose body is still the marker pair of the skeleton, prints one line with its Source line and no texts.
 `--counts` prints the count of each state for each function.
 `--against` compares the stored line rows of the stem with the draft file of a snapshot folder, by function and line row, and prints each differing line.
 
-The command exits 0 when nothing differs, 1 when a line differs, and 2 when the store, the alignment, or the snapshot is missing or stale.
+The command exits 0 when nothing differs, 1 when a line or a function differs,
+and 2 when the store, the alignment, or the snapshot is missing or stale.
 
 Usage:
   .venv/bin/python compare.py --stem bg_pmove
@@ -79,9 +80,9 @@ def compare_stem(store: S.Store, key: str, stem: str, names: list[str], path: Pa
         if state == "same":
             continue
         cited = starts.get((owner, anchor), source) if anchor is not None else source
-        if state == "rewritten":
+        if state in ("rewritten", "stub"):
             if found:
-                out.append(f"{stem}.c:{cited} {owner} rewritten")
+                out.append(f"{stem}.c:{cited} {owner} {state}")
             continue
         draft = drafts.get((owner, line_seq), "") if line_seq is not None else ""
         out += [f"{stem}.c:{cited} {owner} {role or 'hand'}", f"    draft: {draft.strip()}".rstrip(), f"    hand: {hand[number - 1].strip()}".rstrip()]

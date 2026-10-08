@@ -119,6 +119,17 @@ class Compare(unittest.TestCase):
         with self.assertRaises(compare.Missing):
             compare.compare_stem(self.store, KEY, "g_x", ["G_X"], self.hand, NAME)
 
+    def test_a_stub_function_prints_one_line_and_exits_one(self) -> None:
+        # given a hand file whose body of G_X is still the two lines the skeleton writes
+        lines = DRAFT[:2] + ["    // TODO: Port G_X", '    portMissing("G_X", source: "oracle/codemp/game/g_x.c:4")'] + DRAFT[-1:]
+
+        # when the stem is compared with its hand file
+        printed, code = self.compare(lines)
+
+        # then the function prints one line with its Source line and no texts, and the code is 1
+        self.assertEqual(printed, ["g_x.c:4 G_X stub"])
+        self.assertEqual(code, 1)
+
 
 if __name__ == "__main__":
     unittest.main()
