@@ -2,7 +2,7 @@
 """snapshot.py: the text of every generator that reads the table, one file each, so one command proves that no printed byte moved.
 
 The snapshot holds the text of `skeleton.py --only` and `manifest.py --only` for each stem, the files of `traps.py`, `channel.py`, and `views.py`,
-and the text of `bodies.py --stem` for each stem of the bg target and the game target.
+and the text of `bodies.py --stem` for each stem of the bg target, the game target, and the shared target.
 One run parses once and drafts every stem in the same process, so a snapshot costs one cold sweep at most and no generator writes into Sources/.
 `--check` writes a new snapshot to a temporary folder and compares it with the given folder by `diff -r`.
 The snapshot folder belongs to the caller and stays outside version control.
@@ -25,7 +25,7 @@ from bodies import Lowering, Registry
 from channel import Channel
 from manifest import Manifest
 from printer import stem_text
-from skeleton import BG, LOGIC, target_of
+from skeleton import BG, LOGIC, SHARED, target_of
 from traps import Traps
 from views import Generator, indexed_fields, texts
 
@@ -51,7 +51,7 @@ def write(out: Path) -> int:
             files[f"views/{view}/{stem}.swift"] = text
     # The drafts print from the lowered rows, as `bodies.py --stem` prints them, over the one skeleton and registry of this run.
     lowering = Lowering(sk, Registry())
-    for stem in sorted(stem for stem in sk.files if target_of(stem) in (BG, LOGIC)):
+    for stem in sorted(stem for stem in sk.files if target_of(stem) in (BG, LOGIC, SHARED)):
         files[f"bodies/{stem}.swift"] = stem_text([lowering.lines(stem, fn.cur.spelling) for fn in sk.files[stem]])
     for name, text in files.items():
         path = out / name
