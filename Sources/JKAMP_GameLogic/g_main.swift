@@ -3369,6 +3369,13 @@ func CheckTeamVote(_ team: Int32) {
     trap_SetConfigstring(CS_TEAMVOTE_TIME + cs_offset, "")
 }
 
+/// Raven's `static int lastMod` of `CheckCvars`, a property of `GameWorld`.
+/// Source: oracle/codemp/game/g_main.c:3456
+var lastMod: Int32 {
+    get { world.lastMod }
+    set { world.lastMod = newValue }
+}
+
 /**
 ```
 ==================
@@ -3899,6 +3906,13 @@ let CLOAK_DEFUEL_RATE = 200 as Int32
 
 /// Source: oracle/codemp/game/g_main.c:3928
 let CLOAK_REFUEL_RATE = 150 as Int32
+
+/// Raven's `static char text[1024]` of `G_GetStringEdString`, a property of `GameWorld`.
+/// Source: oracle/codemp/game/g_main.c:4117
+var text: CharBuf {
+    get { world.text }
+    set { world.text = newValue }
+}
 
 /// Source: oracle/codemp/game/g_main.c:4104
 func G_GetStringEdString(_ refSection: String, _ refName: String) -> String {

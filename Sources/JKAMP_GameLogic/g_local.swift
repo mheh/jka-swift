@@ -524,6 +524,14 @@ final class GameWorld {
 
     // MARK: - g_main.c
 
+    /// Raven's `static int lastMod` of `CheckCvars` in `g_main.c`.
+    /// Source: oracle/codemp/game/g_main.c:3456
+    var lastMod: Int32 = -1
+
+    /// Raven's `static char text[1024]` of `G_GetStringEdString` in `g_main.c`.
+    /// Source: oracle/codemp/game/g_main.c:4117
+    var text = CharBuf(1024)
+
     /// Raven's `static cvarTable_t gameCvarTable[]` of `g_main.c`, 140 rows in Raven's order.
     /// The build defines are those of closure.py: `#if 0` and `_DEBUG` drop four rows, `FINAL_BUILD` is off, and `DEBUG_SABER_BOX` is on.
     /// G_RegisterCvars and G_UpdateCvars write `modificationCount`, so the array is a `var`.
