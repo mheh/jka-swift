@@ -141,20 +141,18 @@ public func COM_DefaultExtension(_ path: inout CharBuf, _ maxSize: Int32, _ `ext
 }
 
 /// Source: oracle/codemp/game/q_shared.c:162
-public func ShortSwap(_ l: Int16) -> Int16 {
+public func ShortSwap(_ l: Int32) -> Int32 {
     let b1: byte
     let b2: byte
 
     b1 = UInt8(truncatingIfNeeded: l & 255)
     b2 = UInt8(truncatingIfNeeded: (l >> 8) & 255)
 
-    // Port-note: cannot convert return expression of type 'Int32' to return type 'Int16'
-    // Raven wrote: return (Int32(b1) << 8) + Int32(b2)
-    portMissing("ShortSwap", source: "oracle/codemp/game/q_shared.c:162")
+    return (Int32(b1) << 8) + Int32(b2)
 }
 
 /// Source: oracle/codemp/game/q_shared.c:172
-public func ShortNoSwap(_ l: Int16) -> Int16 {
+public func ShortNoSwap(_ l: Int32) -> Int32 {
     return l
 }
 
@@ -577,7 +575,7 @@ COM_MatchToken
 ```
 */
 /// Source: oracle/codemp/game/q_shared.c:666
-public func COM_MatchToken(_ buf_p: inout JKAShared.TextCursor, _ match: inout JKAShared.CharBuf) {
+public func COM_MatchToken(_ buf_p: inout JKAShared.TextCursor, _ match: String) {
     let token: String
 
     token = COM_Parse(&buf_p)
