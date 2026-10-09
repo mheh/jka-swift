@@ -55,6 +55,12 @@ class Shapes(unittest.TestCase):
         # and a call before the first step takes the buffer itself
         self.assertIn("if strlen(s) >= MAX_INFO_STRING {", self.draft("Info_RemoveKey"))
 
+    def test_an_output_text_and_a_string_local_read_as_text_and_as_bytes(self) -> None:
+        # given COM_ParseString, which tests `s[0]` on its `char **` output, and SkipBracedSection, which reads `token[1]`
+        # then the output is the String itself, and the local reads its bytes
+        self.assertIn("if s.isEmpty {", self.draft("COM_ParseString"))
+        self.assertIn("if CharBuf(token)[1] == 0 {", self.draft("SkipBracedSection"))
+
 
 if __name__ == "__main__":
     unittest.main()

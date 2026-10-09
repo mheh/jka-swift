@@ -244,7 +244,8 @@ class Expressions:
         if param is None or base.spelling in self.cursor_locals:
             # A parameter the body walks is a read cursor, and its subscript reads the byte.
             return None
-        if param.kind == "cstring":
+        if param.kind in ("cstring", "out_string_ref"):
+            # Raven's `s[0]` on his `char **` output is the text the pointer holds, and Swift holds that text as the String itself.
             return self.names[base.spelling]
         if param.kind != "cstring_opt":
             return None
@@ -424,6 +425,10 @@ class Expressions:
                 return self.leaf(cur, slot)
             if inner_base.kind == CursorKind.DECL_REF_EXPR and inner_base.spelling in self.cursor_locals:
                 return self.leaf(cur, f"{self.expr(inner_base)}[{self.converted(index, 'Int32')}]")
+            if inner_base.kind == CursorKind.DECL_REF_EXPR and inner_base.spelling in self.text_locals \
+                    and inner_base.spelling not in self.optional_texts:
+                # Raven's `token[1]` on a String local is the byte at that index, which the CharBuf of the text reads.
+                return self.leaf(cur, f"JKAShared.CharBuf({self.expr(inner_base)})[{self.converted(index, 'Int32')}]")
             pointer = self.params_by_name.get(inner_base.spelling) if inner_base.kind == CursorKind.DECL_REF_EXPR else None
             if pointer is not None and pointer.kind == "int_array":
                 # The parameter is an optional array, and Raven's NULL guard stands above every index, so the read unwraps it.
