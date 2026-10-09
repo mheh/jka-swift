@@ -606,10 +606,10 @@ func vmMain(_ command: Int32, _ arg0: Int32, _ arg1: Int32, _ arg2: Int32, _ arg
 
     case GAME_ICARUS_PLAYSOUND:
         do {
-            // Port-note: A pointer local `T_G_ICARUS_PLAYSOUND * sharedMem` with no view.
+            // Port-note: A pointer local `T_G_ICARUS_PLAYSOUND * sharedMem` with no view. This body needs a view over `T_G_ICARUS_PLAYSOUND` on the `gSharedBuffer` bytes.
             // Raven wrote: T_G_ICARUS_PLAYSOUND *sharedMem = (T_G_ICARUS_PLAYSOUND *)gSharedBuffer;
             portMissing("vmMain", source: "oracle/codemp/game/g_main.c:515")
-            // Port-note: A read of `sharedMem`, a local the draft left as a hole.
+            // Port-note: A read of `sharedMem`, a local the draft left as a hole. This read needs the `sharedMem` local, which needs a view over the `gSharedBuffer` bytes.
             // Raven wrote: return Q3_PlaySound(sharedMem->taskID, sharedMem->entID, sharedMem->name, sharedMem->channel)
             portMissing("vmMain", source: "oracle/codemp/game/g_main.c:515")
         }
@@ -617,10 +617,10 @@ func vmMain(_ command: Int32, _ arg0: Int32, _ arg1: Int32, _ arg2: Int32, _ arg
 
     case GAME_ICARUS_SET:
         do {
-            // Port-note: A pointer local `T_G_ICARUS_SET * sharedMem` with no view.
+            // Port-note: A pointer local `T_G_ICARUS_SET * sharedMem` with no view. This body needs a view over `T_G_ICARUS_SET` on the `gSharedBuffer` bytes.
             // Raven wrote: T_G_ICARUS_SET *sharedMem = (T_G_ICARUS_SET *)gSharedBuffer;
             portMissing("vmMain", source: "oracle/codemp/game/g_main.c:515")
-            // Port-note: A read of `sharedMem`, a local the draft left as a hole.
+            // Port-note: A read of `sharedMem`, a local the draft left as a hole. This read needs the `sharedMem` local, which needs a view over the `gSharedBuffer` bytes.
             // Raven wrote: return Q3_Set(sharedMem->taskID, sharedMem->entID, sharedMem->type_name, sharedMem->data)
             portMissing("vmMain", source: "oracle/codemp/game/g_main.c:515")
         }
@@ -628,10 +628,10 @@ func vmMain(_ command: Int32, _ arg0: Int32, _ arg1: Int32, _ arg2: Int32, _ arg
 
     case GAME_ICARUS_LERP2POS:
         do {
-            // Port-note: A pointer local `T_G_ICARUS_LERP2POS * sharedMem` with no view.
+            // Port-note: A pointer local `T_G_ICARUS_LERP2POS * sharedMem` with no view. This body needs a view over `T_G_ICARUS_LERP2POS` on the `gSharedBuffer` bytes.
             // Raven wrote: T_G_ICARUS_LERP2POS *sharedMem = (T_G_ICARUS_LERP2POS *)gSharedBuffer;
             portMissing("vmMain", source: "oracle/codemp/game/g_main.c:515")
-            // Port-note: A read of `sharedMem`, a local the draft left as a hole.
+            // Port-note: A read of `sharedMem`, a local the draft left as a hole. This read needs the `sharedMem` local, which needs a view over the `gSharedBuffer` bytes.
             // Raven wrote: if (sharedMem->nullAngles) { Q3_Lerp2Pos(sharedMem->taskID, sharedMem->entID, sharedMem->origin, NULL, sharedMem->duration); } else { Q3_Lerp2Pos(sharedMem->taskID, sharedMem->entID, sharedMem->origin, sharedMem->angles, sharedMem->duration); }
             portMissing("vmMain", source: "oracle/codemp/game/g_main.c:515")
         }
@@ -639,10 +639,10 @@ func vmMain(_ command: Int32, _ arg0: Int32, _ arg1: Int32, _ arg2: Int32, _ arg
 
     case GAME_ICARUS_LERP2ORIGIN:
         do {
-            // Port-note: A pointer local `T_G_ICARUS_LERP2ORIGIN * sharedMem` with no view.
+            // Port-note: A pointer local `T_G_ICARUS_LERP2ORIGIN * sharedMem` with no view. This body needs a view over `T_G_ICARUS_LERP2ORIGIN` on the `gSharedBuffer` bytes.
             // Raven wrote: T_G_ICARUS_LERP2ORIGIN *sharedMem = (T_G_ICARUS_LERP2ORIGIN *)gSharedBuffer;
             portMissing("vmMain", source: "oracle/codemp/game/g_main.c:515")
-            // Port-note: A read of `sharedMem`, a local the draft left as a hole.
+            // Port-note: A read of `sharedMem`, a local the draft left as a hole. This read needs the `sharedMem` local, which needs a view over the `gSharedBuffer` bytes.
             // Raven wrote: Q3_Lerp2Origin(sharedMem->taskID, sharedMem->entID, sharedMem->origin, sharedMem->duration)
             portMissing("vmMain", source: "oracle/codemp/game/g_main.c:515")
         }
@@ -650,10 +650,10 @@ func vmMain(_ command: Int32, _ arg0: Int32, _ arg1: Int32, _ arg2: Int32, _ arg
 
     case GAME_ICARUS_LERP2ANGLES:
         do {
-            // Port-note: A pointer local `T_G_ICARUS_LERP2ANGLES * sharedMem` with no view.
+            // Port-note: A pointer local `T_G_ICARUS_LERP2ANGLES * sharedMem` with no view. This body needs a view over `T_G_ICARUS_LERP2ANGLES` on the `gSharedBuffer` bytes.
             // Raven wrote: T_G_ICARUS_LERP2ANGLES *sharedMem = (T_G_ICARUS_LERP2ANGLES *)gSharedBuffer;
             portMissing("vmMain", source: "oracle/codemp/game/g_main.c:515")
-            // Port-note: A read of `sharedMem`, a local the draft left as a hole.
+            // Port-note: A read of `sharedMem`, a local the draft left as a hole. This read needs the `sharedMem` local, which needs a view over the `gSharedBuffer` bytes.
             // Raven wrote: Q3_Lerp2Angles(sharedMem->taskID, sharedMem->entID, sharedMem->angles, sharedMem->duration)
             portMissing("vmMain", source: "oracle/codemp/game/g_main.c:515")
         }
@@ -661,10 +661,10 @@ func vmMain(_ command: Int32, _ arg0: Int32, _ arg1: Int32, _ arg2: Int32, _ arg
 
     case GAME_ICARUS_GETTAG:
         do {
-            // Port-note: A pointer local `T_G_ICARUS_GETTAG * sharedMem` with no view.
+            // Port-note: A pointer local `T_G_ICARUS_GETTAG * sharedMem` with no view. This body needs a view over `T_G_ICARUS_GETTAG` on the `gSharedBuffer` bytes.
             // Raven wrote: T_G_ICARUS_GETTAG *sharedMem = (T_G_ICARUS_GETTAG *)gSharedBuffer;
             portMissing("vmMain", source: "oracle/codemp/game/g_main.c:515")
-            // Port-note: A read of `sharedMem`, a local the draft left as a hole.
+            // Port-note: A read of `sharedMem`, a local the draft left as a hole. This read needs the `sharedMem` local, which needs a view over the `gSharedBuffer` bytes.
             // Raven wrote: return Q3_GetTag(sharedMem->entID, sharedMem->name, sharedMem->lookup, sharedMem->info)
             portMissing("vmMain", source: "oracle/codemp/game/g_main.c:515")
         }
@@ -672,10 +672,10 @@ func vmMain(_ command: Int32, _ arg0: Int32, _ arg1: Int32, _ arg2: Int32, _ arg
 
     case GAME_ICARUS_LERP2START:
         do {
-            // Port-note: A pointer local `T_G_ICARUS_LERP2START * sharedMem` with no view.
+            // Port-note: A pointer local `T_G_ICARUS_LERP2START * sharedMem` with no view. This body needs a view over `T_G_ICARUS_LERP2START` on the `gSharedBuffer` bytes.
             // Raven wrote: T_G_ICARUS_LERP2START *sharedMem = (T_G_ICARUS_LERP2START *)gSharedBuffer;
             portMissing("vmMain", source: "oracle/codemp/game/g_main.c:515")
-            // Port-note: A read of `sharedMem`, a local the draft left as a hole.
+            // Port-note: A read of `sharedMem`, a local the draft left as a hole. This read needs the `sharedMem` local, which needs a view over the `gSharedBuffer` bytes.
             // Raven wrote: Q3_Lerp2Start(sharedMem->entID, sharedMem->taskID, sharedMem->duration)
             portMissing("vmMain", source: "oracle/codemp/game/g_main.c:515")
         }
@@ -683,10 +683,10 @@ func vmMain(_ command: Int32, _ arg0: Int32, _ arg1: Int32, _ arg2: Int32, _ arg
 
     case GAME_ICARUS_LERP2END:
         do {
-            // Port-note: A pointer local `T_G_ICARUS_LERP2END * sharedMem` with no view.
+            // Port-note: A pointer local `T_G_ICARUS_LERP2END * sharedMem` with no view. This body needs a view over `T_G_ICARUS_LERP2END` on the `gSharedBuffer` bytes.
             // Raven wrote: T_G_ICARUS_LERP2END *sharedMem = (T_G_ICARUS_LERP2END *)gSharedBuffer;
             portMissing("vmMain", source: "oracle/codemp/game/g_main.c:515")
-            // Port-note: A read of `sharedMem`, a local the draft left as a hole.
+            // Port-note: A read of `sharedMem`, a local the draft left as a hole. This read needs the `sharedMem` local, which needs a view over the `gSharedBuffer` bytes.
             // Raven wrote: Q3_Lerp2End(sharedMem->entID, sharedMem->taskID, sharedMem->duration)
             portMissing("vmMain", source: "oracle/codemp/game/g_main.c:515")
         }
@@ -694,10 +694,10 @@ func vmMain(_ command: Int32, _ arg0: Int32, _ arg1: Int32, _ arg2: Int32, _ arg
 
     case GAME_ICARUS_USE:
         do {
-            // Port-note: A pointer local `T_G_ICARUS_USE * sharedMem` with no view.
+            // Port-note: A pointer local `T_G_ICARUS_USE * sharedMem` with no view. This body needs a view over `T_G_ICARUS_USE` on the `gSharedBuffer` bytes.
             // Raven wrote: T_G_ICARUS_USE *sharedMem = (T_G_ICARUS_USE *)gSharedBuffer;
             portMissing("vmMain", source: "oracle/codemp/game/g_main.c:515")
-            // Port-note: A read of `sharedMem`, a local the draft left as a hole.
+            // Port-note: A read of `sharedMem`, a local the draft left as a hole. This read needs the `sharedMem` local, which needs a view over the `gSharedBuffer` bytes.
             // Raven wrote: Q3_Use(sharedMem->entID, sharedMem->target)
             portMissing("vmMain", source: "oracle/codemp/game/g_main.c:515")
         }
@@ -705,10 +705,10 @@ func vmMain(_ command: Int32, _ arg0: Int32, _ arg1: Int32, _ arg2: Int32, _ arg
 
     case GAME_ICARUS_KILL:
         do {
-            // Port-note: A pointer local `T_G_ICARUS_KILL * sharedMem` with no view.
+            // Port-note: A pointer local `T_G_ICARUS_KILL * sharedMem` with no view. This body needs a view over `T_G_ICARUS_KILL` on the `gSharedBuffer` bytes.
             // Raven wrote: T_G_ICARUS_KILL *sharedMem = (T_G_ICARUS_KILL *)gSharedBuffer;
             portMissing("vmMain", source: "oracle/codemp/game/g_main.c:515")
-            // Port-note: A read of `sharedMem`, a local the draft left as a hole.
+            // Port-note: A read of `sharedMem`, a local the draft left as a hole. This read needs the `sharedMem` local, which needs a view over the `gSharedBuffer` bytes.
             // Raven wrote: Q3_Kill(sharedMem->entID, sharedMem->name)
             portMissing("vmMain", source: "oracle/codemp/game/g_main.c:515")
         }
@@ -716,10 +716,10 @@ func vmMain(_ command: Int32, _ arg0: Int32, _ arg1: Int32, _ arg2: Int32, _ arg
 
     case GAME_ICARUS_REMOVE:
         do {
-            // Port-note: A pointer local `T_G_ICARUS_REMOVE * sharedMem` with no view.
+            // Port-note: A pointer local `T_G_ICARUS_REMOVE * sharedMem` with no view. This body needs a view over `T_G_ICARUS_REMOVE` on the `gSharedBuffer` bytes.
             // Raven wrote: T_G_ICARUS_REMOVE *sharedMem = (T_G_ICARUS_REMOVE *)gSharedBuffer;
             portMissing("vmMain", source: "oracle/codemp/game/g_main.c:515")
-            // Port-note: A read of `sharedMem`, a local the draft left as a hole.
+            // Port-note: A read of `sharedMem`, a local the draft left as a hole. This read needs the `sharedMem` local, which needs a view over the `gSharedBuffer` bytes.
             // Raven wrote: Q3_Remove(sharedMem->entID, sharedMem->name)
             portMissing("vmMain", source: "oracle/codemp/game/g_main.c:515")
         }
@@ -727,10 +727,10 @@ func vmMain(_ command: Int32, _ arg0: Int32, _ arg1: Int32, _ arg2: Int32, _ arg
 
     case GAME_ICARUS_PLAY:
         do {
-            // Port-note: A pointer local `T_G_ICARUS_PLAY * sharedMem` with no view.
+            // Port-note: A pointer local `T_G_ICARUS_PLAY * sharedMem` with no view. This body needs a view over `T_G_ICARUS_PLAY` on the `gSharedBuffer` bytes.
             // Raven wrote: T_G_ICARUS_PLAY *sharedMem = (T_G_ICARUS_PLAY *)gSharedBuffer;
             portMissing("vmMain", source: "oracle/codemp/game/g_main.c:515")
-            // Port-note: A read of `sharedMem`, a local the draft left as a hole.
+            // Port-note: A read of `sharedMem`, a local the draft left as a hole. This read needs the `sharedMem` local, which needs a view over the `gSharedBuffer` bytes.
             // Raven wrote: Q3_Play(sharedMem->taskID, sharedMem->entID, sharedMem->type, sharedMem->name)
             portMissing("vmMain", source: "oracle/codemp/game/g_main.c:515")
         }
@@ -738,10 +738,10 @@ func vmMain(_ command: Int32, _ arg0: Int32, _ arg1: Int32, _ arg2: Int32, _ arg
 
     case GAME_ICARUS_GETFLOAT:
         do {
-            // Port-note: A pointer local `T_G_ICARUS_GETFLOAT * sharedMem` with no view.
+            // Port-note: A pointer local `T_G_ICARUS_GETFLOAT * sharedMem` with no view. This body needs a view over `T_G_ICARUS_GETFLOAT` on the `gSharedBuffer` bytes.
             // Raven wrote: T_G_ICARUS_GETFLOAT *sharedMem = (T_G_ICARUS_GETFLOAT *)gSharedBuffer;
             portMissing("vmMain", source: "oracle/codemp/game/g_main.c:515")
-            // Port-note: A read of `sharedMem`, a local the draft left as a hole.
+            // Port-note: A read of `sharedMem`, a local the draft left as a hole. This read needs the `sharedMem` local, which needs a view over the `gSharedBuffer` bytes.
             // Raven wrote: return Q3_GetFloat(sharedMem->entID, sharedMem->type, sharedMem->name, &sharedMem->value)
             portMissing("vmMain", source: "oracle/codemp/game/g_main.c:515")
         }
@@ -749,10 +749,10 @@ func vmMain(_ command: Int32, _ arg0: Int32, _ arg1: Int32, _ arg2: Int32, _ arg
 
     case GAME_ICARUS_GETVECTOR:
         do {
-            // Port-note: A pointer local `T_G_ICARUS_GETVECTOR * sharedMem` with no view.
+            // Port-note: A pointer local `T_G_ICARUS_GETVECTOR * sharedMem` with no view. This body needs a view over `T_G_ICARUS_GETVECTOR` on the `gSharedBuffer` bytes.
             // Raven wrote: T_G_ICARUS_GETVECTOR *sharedMem = (T_G_ICARUS_GETVECTOR *)gSharedBuffer;
             portMissing("vmMain", source: "oracle/codemp/game/g_main.c:515")
-            // Port-note: A read of `sharedMem`, a local the draft left as a hole.
+            // Port-note: A read of `sharedMem`, a local the draft left as a hole. This read needs the `sharedMem` local, which needs a view over the `gSharedBuffer` bytes.
             // Raven wrote: return Q3_GetVector(sharedMem->entID, sharedMem->type, sharedMem->name, sharedMem->value)
             portMissing("vmMain", source: "oracle/codemp/game/g_main.c:515")
         }
@@ -760,7 +760,7 @@ func vmMain(_ command: Int32, _ arg0: Int32, _ arg1: Int32, _ arg2: Int32, _ arg
 
     case GAME_ICARUS_GETSTRING:
         do {
-            // Port-note: A pointer local `T_G_ICARUS_GETSTRING * sharedMem` with no view.
+            // Port-note: A pointer local `T_G_ICARUS_GETSTRING * sharedMem` with no view. This body needs a view over `T_G_ICARUS_GETSTRING` on the `gSharedBuffer` bytes.
             // Raven wrote: T_G_ICARUS_GETSTRING *sharedMem = (T_G_ICARUS_GETSTRING *)gSharedBuffer;
             portMissing("vmMain", source: "oracle/codemp/game/g_main.c:515")
             let r: Int32
@@ -770,7 +770,7 @@ func vmMain(_ command: Int32, _ arg0: Int32, _ arg1: Int32, _ arg2: Int32, _ arg
             // Port-note: A pointer local `char ** morecrap` with no view.
             // Raven wrote: char **morecrap = &crap;
             portMissing("vmMain", source: "oracle/codemp/game/g_main.c:515")
-            // Port-note: A read of `sharedMem`, a local the draft left as a hole.
+            // Port-note: A read of `sharedMem`, a local the draft left as a hole. This read needs the `sharedMem` local, which needs a view over the `gSharedBuffer` bytes.
             // Raven wrote: r = Q3_GetString(sharedMem->entID, sharedMem->type, sharedMem->name, morecrap)
             portMissing("vmMain", source: "oracle/codemp/game/g_main.c:515")
 
@@ -784,10 +784,10 @@ func vmMain(_ command: Int32, _ arg0: Int32, _ arg1: Int32, _ arg2: Int32, _ arg
 
     case GAME_ICARUS_SOUNDINDEX:
         do {
-            // Port-note: A pointer local `T_G_ICARUS_SOUNDINDEX * sharedMem` with no view.
+            // Port-note: A pointer local `T_G_ICARUS_SOUNDINDEX * sharedMem` with no view. This body needs a view over `T_G_ICARUS_SOUNDINDEX` on the `gSharedBuffer` bytes.
             // Raven wrote: T_G_ICARUS_SOUNDINDEX *sharedMem = (T_G_ICARUS_SOUNDINDEX *)gSharedBuffer;
             portMissing("vmMain", source: "oracle/codemp/game/g_main.c:515")
-            // Port-note: A read of `sharedMem`, a local the draft left as a hole.
+            // Port-note: A read of `sharedMem`, a local the draft left as a hole. This read needs the `sharedMem` local, which needs a view over the `gSharedBuffer` bytes.
             // Raven wrote: G_SoundIndex(sharedMem->filename)
             portMissing("vmMain", source: "oracle/codemp/game/g_main.c:515")
         }
@@ -795,7 +795,7 @@ func vmMain(_ command: Int32, _ arg0: Int32, _ arg1: Int32, _ arg2: Int32, _ arg
 
     case GAME_ICARUS_GETSETIDFORSTRING:
         do {
-            // Port-note: A pointer local `T_G_ICARUS_GETSETIDFORSTRING * sharedMem` with no view.
+            // Port-note: A pointer local `T_G_ICARUS_GETSETIDFORSTRING * sharedMem` with no view. This body needs a view over `T_G_ICARUS_GETSETIDFORSTRING` on the `gSharedBuffer` bytes.
             // Raven wrote: T_G_ICARUS_GETSETIDFORSTRING *sharedMem = (T_G_ICARUS_GETSETIDFORSTRING *)gSharedBuffer;
             portMissing("vmMain", source: "oracle/codemp/game/g_main.c:515")
             // Port-note: Raven passes `setTable` to `GetIDForString`, whose `table` parameter takes the Slots over the records, and Swift holds one record here. A Slots over one record has no form yet.
@@ -970,16 +970,14 @@ func G_RegisterCvars() {
     i = 0
     cvIndex = 0
     while i < gameCvarTableSize {
-        // Port-note: Raven walks `gameCvarTable` by pointer, and the hand table is a Swift array of rows with no view. A walk over it has no form yet.
-        // Raven wrote: trap_Cvar_Register( cv->vmCvar, cv->cvarName, cv->defaultString, cv->cvarFlags )
-        portMissing("G_RegisterCvars", source: "oracle/codemp/game/g_main.c:803")
-        // Port-note: Raven walks `gameCvarTable` by pointer, and the hand table is a Swift array of rows with no view. A walk over it has no form yet.
-        // Raven wrote: if ( cv->vmCvar ) cv->modificationCount = cv->vmCvar->modificationCount
-        portMissing("G_RegisterCvars", source: "oracle/codemp/game/g_main.c:803")
+        trap_Cvar_Register(gameCvarTable[cvIndex].vmCvar.map { world.storage[keyPath: $0] }, gameCvarTable[cvIndex].cvarName, gameCvarTable[cvIndex].defaultString, gameCvarTable[cvIndex].cvarFlags)
+        if gameCvarTable[cvIndex].vmCvar != nil {
+            gameCvarTable[cvIndex].modificationCount = world.storage[keyPath: gameCvarTable[cvIndex].vmCvar!].modificationCount
+        }
 
-        // Port-note: Raven walks `gameCvarTable` by pointer, and the hand table is a Swift array of rows with no view. A walk over it has no form yet.
-        // Raven wrote: if (cv->teamShader) { remapped = qtrue; }
-        portMissing("G_RegisterCvars", source: "oracle/codemp/game/g_main.c:803")
+        if gameCvarTable[cvIndex].teamShader {
+            remapped = true
+        }
         i += 1
         cvIndex += 1
     }
@@ -1022,9 +1020,21 @@ func G_UpdateCvars() {
     i = 0
     cvIndex = 0
     while i < gameCvarTableSize {
-        // Port-note: Raven walks `gameCvarTable` by pointer, and the hand table is a Swift array of rows with no view. A walk over it has no form yet.
-        // Raven wrote: if ( cv->vmCvar ) { trap_Cvar_Update( cv->vmCvar ); if ( cv->modificationCount != cv->vmCvar->modificationCount ) { cv->modificationCount = cv->vmCvar->modificationCount; if ( cv->trackChange ) { trap_SendServerCommand( -1, va("print \"Server: %s changed to %s\n\"", cv->cvarName, cv->vmCvar->string ) ); } if (cv->teamShader) { remapped = qtrue; } } }
-        portMissing("G_UpdateCvars", source: "oracle/codemp/game/g_main.c:852")
+        if gameCvarTable[cvIndex].vmCvar != nil {
+            trap_Cvar_Update(world.storage[keyPath: gameCvarTable[cvIndex].vmCvar!])
+
+            if gameCvarTable[cvIndex].modificationCount != world.storage[keyPath: gameCvarTable[cvIndex].vmCvar!].modificationCount {
+                gameCvarTable[cvIndex].modificationCount = world.storage[keyPath: gameCvarTable[cvIndex].vmCvar!].modificationCount
+
+                if gameCvarTable[cvIndex].trackChange {
+                    trap_SendServerCommand(-1, va("print \"Server: %s changed to %s\n\"", gameCvarTable[cvIndex].cvarName, world.storage[keyPath: gameCvarTable[cvIndex].vmCvar!].string))
+                }
+
+                if gameCvarTable[cvIndex].teamShader {
+                    remapped = true
+                }
+            }
+        }
         i += 1
         cvIndex += 1
     }
@@ -1115,7 +1125,7 @@ func G_InitGame(_ levelTime: Int32, _ randomSeed: Int32, _ restart: Int32) {
 
             // initialize all entities for this game
             g_entities.zero()
-            // Port-note: Raven stores `level.gentities = g_entities`, and Swift holds the source as a Slots where the target takes one record. A Slots ruling is due.
+            // Port-note: Raven stores `level.gentities = g_entities`, and Swift holds the source as a Slots where the target takes one record. A Slots ruling is due. This statement needs a `gentitiesSlots` accessor on `Level`.
             // Raven wrote: level.gentities = g_entities
             portMissing("G_InitGame", source: "oracle/codemp/game/g_main.c:897")
 
@@ -1127,9 +1137,7 @@ func G_InitGame(_ levelTime: Int32, _ randomSeed: Int32, _ restart: Int32) {
             // set client fields on player ents
             i = 0
             while i < level.maxclients {
-                // Port-note: The draft of this statement did not compile, and the compiler wrote "cannot assign value of type 'Int32' to type 'Client'".
-                // Raven wrote: g_entities[i].client = level.clients + i
-                portMissing("G_InitGame", source: "oracle/codemp/game/g_main.c:897")
+                g_entities[i].client = level.clientsSlots[i]
                 i += 1
             }
 
@@ -2003,9 +2011,7 @@ func SendScoreboardMessageToAllClients() {
     i = 0
     while i < level.maxclients {
         if level.clientsSlots[i].pers.connected == CON_CONNECTED {
-            // Port-note: The draft of this statement did not compile, and the compiler wrote "binary operator '+' cannot be applied to operands of type 'Slots<Entity>' and 'Int32'".
-            // Raven wrote: DeathmatchScoreboardMessage( g_entities + i )
-            portMissing("SendScoreboardMessageToAllClients", source: "oracle/codemp/game/g_main.c:1925")
+            DeathmatchScoreboardMessage(g_entities[i])
         }
         i += 1
     }
@@ -2151,9 +2157,7 @@ func DuelLimitHit() -> Bool {
 
     i = 0
     while i < g_maxclients.integer {
-        // Port-note: The draft of this statement did not compile, and the compiler wrote "binary operator '+' cannot be applied to operands of type 'Client?' and 'Int32'".
-        // Raven wrote: cl = level.clients + i
-        portMissing("DuelLimitHit", source: "oracle/codemp/game/g_main.c:2094")
+        cl = level.clientsSlots[i]
         if cl!.pers.connected != CON_CONNECTED {
             i += 1
             continue
@@ -2175,9 +2179,7 @@ func DuelResetWinsLosses() {
 
     i = 0
     while i < g_maxclients.integer {
-        // Port-note: The draft of this statement did not compile, and the compiler wrote "binary operator '+' cannot be applied to operands of type 'Client?' and 'Int32'".
-        // Raven wrote: cl = level.clients + i
-        portMissing("DuelResetWinsLosses", source: "oracle/codemp/game/g_main.c:2114")
+        cl = level.clientsSlots[i]
         if cl!.pers.connected != CON_CONNECTED {
             i += 1
             continue
@@ -2230,9 +2232,7 @@ func ExitLevel() {
     level.teamScores[TEAM_BLUE] = 0
     i = 0
     while i < g_maxclients.integer {
-        // Port-note: The draft of this statement did not compile, and the compiler wrote "binary operator '+' cannot be applied to operands of type 'Client?' and 'Int32'".
-        // Raven wrote: cl = level.clients + i
-        portMissing("ExitLevel", source: "oracle/codemp/game/g_main.c:2141")
+        cl = level.clientsSlots[i]
         if cl!.pers.connected != CON_CONNECTED {
             i += 1
             continue
@@ -2402,9 +2402,7 @@ func CheckIntermissionExit() {
     readyMask = 0
     i = 0
     while i < g_maxclients.integer {
-        // Port-note: The draft of this statement did not compile, and the compiler wrote "binary operator '+' cannot be applied to operands of type 'Client?' and 'Int32'".
-        // Raven wrote: cl = level.clients + i
-        portMissing("CheckIntermissionExit", source: "oracle/codemp/game/g_main.c:2317")
+        cl = level.clientsSlots[i]
         if cl!.pers.connected != CON_CONNECTED {
             i += 1
             continue
@@ -2516,9 +2514,7 @@ func CheckIntermissionExit() {
             //being in a "ready" state is not necessary here, so clear it for everyone
             //yes, I also thinking holding this in a ps value uniquely for each player
             //is bad and wrong, but it wasn't my idea.
-            // Port-note: The draft of this statement did not compile, and the compiler wrote "binary operator '+' cannot be applied to operands of type 'Client?' and 'Int32'".
-            // Raven wrote: cl = level.clients + i
-            portMissing("CheckIntermissionExit", source: "oracle/codemp/game/g_main.c:2317")
+            cl = level.clientsSlots[i]
             if cl!.pers.connected != CON_CONNECTED {
                 i += 1
                 continue
@@ -2533,9 +2529,7 @@ func CheckIntermissionExit() {
     // it can be displayed on the scoreboard
     i = 0
     while i < g_maxclients.integer {
-        // Port-note: The draft of this statement did not compile, and the compiler wrote "binary operator '+' cannot be applied to operands of type 'Client?' and 'Int32'".
-        // Raven wrote: cl = level.clients + i
-        portMissing("CheckIntermissionExit", source: "oracle/codemp/game/g_main.c:2317")
+        cl = level.clientsSlots[i]
         if cl!.pers.connected != CON_CONNECTED {
             i += 1
             continue
@@ -2852,9 +2846,7 @@ func CheckExitRules() {
 
         i = 0
         while i < g_maxclients.integer {
-            // Port-note: The draft of this statement did not compile, and the compiler wrote "binary operator '+' cannot be applied to operands of type 'Client?' and 'Int32'".
-            // Raven wrote: cl = level.clients + i
-            portMissing("CheckExitRules", source: "oracle/codemp/game/g_main.c:2588")
+            cl = level.clientsSlots[i]
             if cl!.pers.connected != CON_CONNECTED {
                 i += 1
                 continue
@@ -3127,9 +3119,7 @@ func G_KickAllBots() {
 
     i = 0
     while i < g_maxclients.integer {
-        // Port-note: The draft of this statement did not compile, and the compiler wrote "binary operator '+' cannot be applied to operands of type 'Client?' and 'Int32'".
-        // Raven wrote: cl = level.clients + i
-        portMissing("G_KickAllBots", source: "oracle/codemp/game/g_main.c:3218")
+        cl = level.clientsSlots[i]
         if cl!.pers.connected != CON_CONNECTED {
             i += 1
             continue
@@ -3391,11 +3381,11 @@ CheckCvars
 */
 /// Source: oracle/codemp/game/g_main.c:3455
 func CheckCvars() {
-    // Port-note: A static local `lastMod` a statement reads before it writes, storage that outlives the call.
+    // Port-note: A static local `lastMod` a statement reads before it writes, storage that outlives the call. This body needs a stored property for `lastMod` on `GameWorld` and a forward in `g_local.swift`.
     // Raven wrote: static int lastMod = -1;
     portMissing("CheckCvars", source: "oracle/codemp/game/g_main.c:3455")
 
-    // Port-note: A read of `lastMod`, a local the draft left as a hole.
+    // Port-note: A read of `lastMod`, a local the draft left as a hole. This read needs the stored property for `lastMod` on `GameWorld`.
     // Raven wrote: if ( g_password.modificationCount != lastMod ) { char password[MAX_INFO_STRING]; char *c = password; lastMod = g_password.modificationCount; strcpy( password, g_password.string ); while( *c ) { if ( *c == '%' ) { *c = '.'; } c++; } trap_Cvar_Set("g_password", password ); if ( *g_password.string && Q_stricmp( g_password.string, "none" ) ) { trap_Cvar_Set( "g_needpass", "1" ); } else { trap_Cvar_Set( "g_needpass", "0" ); } }
     portMissing("CheckCvars", source: "oracle/codemp/game/g_main.c:3455")
 }
@@ -3926,13 +3916,13 @@ func G_GetStringEdString(_ refSection: String, _ refName: String) -> String {
     //a stringed reference with @@@ and send the refname to the client, and when it goes
     //to print it will get scanned for the stringed reference indication and dealt with
     //properly.
-    // Port-note: A static local `text` the function returns, storage that outlives the call.
+    // Port-note: A static local `text` the function returns, storage that outlives the call. This body needs a stored property for `text` on `GameWorld` and a forward in `g_local.swift`.
     // Raven wrote: static char text[1024]={0};
     portMissing("G_GetStringEdString", source: "oracle/codemp/game/g_main.c:4104")
-    // Port-note: A read of `text`, a local the draft left as a hole.
+    // Port-note: A read of `text`, a local the draft left as a hole. This read needs the stored property for `text` on `GameWorld`.
     // Raven wrote: Com_sprintf(text, sizeof(text), "@@@%s", refName)
     portMissing("G_GetStringEdString", source: "oracle/codemp/game/g_main.c:4104")
-    // Port-note: A read of `text`, a local the draft left as a hole.
+    // Port-note: A read of `text`, a local the draft left as a hole. This read needs the stored property for `text` on `GameWorld`.
     // Raven wrote: return text
     portMissing("G_GetStringEdString", source: "oracle/codemp/game/g_main.c:4104")
 }
