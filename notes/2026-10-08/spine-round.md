@@ -79,6 +79,12 @@ The compile agent converted 58 statements in `q_shared.c.swift` to the three-lin
 
 The `Q_strrchr` hole came from the second pass. The first pass removed the declaration of `cc`, so a later `if cc == 0` statement failed with "cannot find 'cc' in scope".
 
+The fifteen compound conversions carried six drafter holes into their `Raven wrote:` lines, so the file held 183 calls and a plain grep counted 189.
+
+## The shared reference
+
+The gate `draftcheck.py --stem q_shared` ran on branch `spine` after the signature, channel, and parser-global changes. The stock run reported 137 holes, 0 cascade errors, 3 defects, and 0 compile holes over 1 pass. The three defects are redeclarations of `Q_stricmpn`, `Q_strncmp`, and `Q_stricmp`, because the gate splices the draft over the four hand functions too, and the draft of each of those three collides with the hand `String` overload. These errors stop the type check, so the 0 compile holes of the stock run are not a true count. A second run of the same `gate()` kept the four hand functions out of the splice, and it reported 167 holes, 0 cascade errors, 0 defects, and 35 compile holes over 2 passes. That second run is the shared reference. After the re-splice, the file holds 155 lines that start with `portMissing(` and 159 Port-notes.
+
 ## Align
 
 The compile agent did not run `align.py`. The worktree has no `tools/oracle-closure/table.sqlite` and no `tools/oracle-closure/.venv`.
