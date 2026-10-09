@@ -42,15 +42,6 @@
 // Source: oracle/codemp/game/q_shared.h:381
 #define	MAX_STRING_TOKENS	1024	// max tokens resulting from Cmd_TokenizeString
 
-// Source: oracle/codemp/game/q_shared.h:388
-#define	BIG_INFO_STRING		8192  // used for system info key only
-
-// Source: oracle/codemp/game/q_shared.h:389
-#define	BIG_INFO_KEY		  8192
-
-// Source: oracle/codemp/game/q_shared.h:390
-#define	BIG_INFO_VALUE		8192
-
 // Source: oracle/codemp/game/q_shared.h:395
 #define MAX_OSPATH			PATH_MAX
 

@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 """merge.py: partition the extract.py trees into the C targets the Swift package imports.
 
-extract.py writes one complete tree per module under out/extract/<module>/. This script reads those trees and never touches the oracle.
+extract.py writes one complete tree per module under out/extract/<module>/. This script reads those trees, and from the oracle only the text of the two shared .c files, for the names their bodies read.
 It compares every emitted declaration across modules and trees by code identity: the declaration text with comments stripped and
 whitespace collapsed. Two declarations with the same identity are one type. A type is shared only when every type it includes is shared
 too, so the partition runs to a fixed point.
@@ -52,6 +52,8 @@ TARGET_OF_MODULE = {
 }
 TREE_TARGET = {"mp": "CJKAMP", "sp": "CJKASP"}
 SHARED = "CJKAShared"
+# The .c files every module compiles, whose ports live in JKAShared, so a tree macro their bodies read must stand where JKAShared sees it.
+SHARED_BODIES = [HERE.parents[1] / "oracle" / "codemp" / "game" / f"{stem}.c" for stem in ("q_shared", "q_math")]
 FORWARD: dict[str, list[str]] = {}
 # The include directories a target may reach, in order.
 TARGET_DEPS = {
@@ -475,6 +477,13 @@ def partition_shared(mp: dict[str, Placed], sp: dict[str, Placed]) -> tuple[set[
         sp_macros = {n: code_key(t) for n, _, t in sp[identity].header.macros}
         shared_macros[identity] = {n for n in mp_macros if n in sp_macros and mp_macros[n] == sp_macros[n]}
 
+    # An MP macro that SP never defines and a shared .c body reads is shared too, because the JKAShared port of that body reads it.
+    sp_names = {n for q in sp.values() if q.header.is_constants for n, _, _ in q.header.macros}
+    body_names = set().union(*(macro_names_in(path.read_text(errors="replace")) for path in SHARED_BODIES if path.exists()))
+    for identity, p in mp.items():
+        if identity in shared_macros and p.conflict is None:
+            shared_macros[identity] |= {n for n, _, t in p.header.macros if n in body_names and n not in sp_names and not re.search(rf"#\s*define\s+{n}\(", t)}
+
     candidates = set()
     for identity, p in mp.items():
         q = sp.get(identity)
@@ -631,7 +640,8 @@ def emit(out_dir: Path, mp_modules: list[str], sp_modules: list[str]) -> int:
                 body = []
                 for n, s, t in p.header.macros:
                     if n in shared_names:
-                        body += [s, sp_sources[n], t, ""]
+                        # A macro only MP defines cites MP's line alone.
+                        body += [s] + ([sp_sources[n]] if n in sp_sources else []) + [t, ""]
                 out.files[SHARED][rel] = wrap(rel, [], [], body)
                 out.order[SHARED].append(rel)
                 out.source[rel] = source_header(p.header.sources[0])

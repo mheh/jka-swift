@@ -42,6 +42,15 @@ public let MAX_INFO_KEY = CJKAShared.MAX_INFO_KEY
 /// Source: oracle/code/game/q_shared.h:212
 public let MAX_INFO_VALUE = CJKAShared.MAX_INFO_VALUE
 
+/// Source: oracle/codemp/game/q_shared.h:388
+public let BIG_INFO_STRING = CJKAShared.BIG_INFO_STRING
+
+/// Source: oracle/codemp/game/q_shared.h:389
+public let BIG_INFO_KEY = CJKAShared.BIG_INFO_KEY
+
+/// Source: oracle/codemp/game/q_shared.h:390
+public let BIG_INFO_VALUE = CJKAShared.BIG_INFO_VALUE
+
 /// Source: oracle/codemp/game/q_shared.h:393
 /// Source: oracle/code/game/q_shared.h:215
 public let MAX_QPATH = CJKAShared.MAX_QPATH

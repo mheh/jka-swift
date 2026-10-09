@@ -21,15 +21,6 @@ public let WORLD_SIZE = (MAX_WORLD_COORD - MIN_WORLD_COORD)
 /// Source: oracle/codemp/game/q_shared.h:381
 public let MAX_STRING_TOKENS = CJKAMP.MAX_STRING_TOKENS
 
-/// Source: oracle/codemp/game/q_shared.h:388
-public let BIG_INFO_STRING = CJKAMP.BIG_INFO_STRING
-
-/// Source: oracle/codemp/game/q_shared.h:389
-public let BIG_INFO_KEY = CJKAMP.BIG_INFO_KEY
-
-/// Source: oracle/codemp/game/q_shared.h:390
-public let BIG_INFO_VALUE = CJKAMP.BIG_INFO_VALUE
-
 /// Source: oracle/codemp/game/q_shared.h:395
 public let MAX_OSPATH = CJKAMP.MAX_OSPATH
 

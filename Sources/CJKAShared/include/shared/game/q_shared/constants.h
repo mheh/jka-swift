@@ -51,6 +51,15 @@
 // Source: oracle/code/game/q_shared.h:212
 #define	MAX_INFO_VALUE		1024
 
+// Source: oracle/codemp/game/q_shared.h:388
+#define	BIG_INFO_STRING		8192  // used for system info key only
+
+// Source: oracle/codemp/game/q_shared.h:389
+#define	BIG_INFO_KEY		  8192
+
+// Source: oracle/codemp/game/q_shared.h:390
+#define	BIG_INFO_VALUE		8192
+
 // Source: oracle/codemp/game/q_shared.h:393
 // Source: oracle/code/game/q_shared.h:215
 #define	MAX_QPATH			64		// max length of a quake game pathname
