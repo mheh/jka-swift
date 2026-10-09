@@ -402,6 +402,9 @@ class Declarations:
         swift = self.types.scalar(t, TARGET)
         if swift is None:
             raise Hole(f"A local `{t.spelling} {var.spelling}` the table has no type for.")
+        if init and swift in ("CChar", "Int8", "UInt8", "Int16", "UInt16") and self.wider_parameter(init[0], t):
+            # Raven's `char cc = c` from an int parameter truncates at the store, as C does.
+            return f"{keyword} {name}: {swift} = {swift}(truncatingIfNeeded: {self.expr(init[0])})"
         if init:
             return f"{keyword} {name}: {swift} = {self.converted(init[0], swift)}"
         if self.has_scratch or var.spelling in self.addressed:
@@ -409,6 +412,14 @@ class Declarations:
             # so the local starts at zero. The zero is the divergence rule 19 allows.
             return f"{keyword} {name}: {swift} = {'false' if swift == 'Bool' else '0'}"
         return f"{keyword} {name}: {swift}"
+
+    def wider_parameter(self, cur: ci.Cursor, t: ci.Type) -> bool:
+        """True for a parameter of a C integer type wider than the local's type `t`."""
+        inner = self.unwrap(cur)
+        if inner.kind != CursorKind.DECL_REF_EXPR or inner.spelling not in self.params_by_name:
+            return False
+        have = inner.type.get_canonical()
+        return have.kind in (TypeKind.INT, TypeKind.UINT, TypeKind.LONG, TypeKind.ULONG) and have.get_size() > t.get_canonical().get_size()
 
     def view_bytes(self, cur: ci.Cursor) -> bool:
         """True for Raven's `(byte *)vehWeapon`, the cast that walks one record's bytes through a view the port holds."""

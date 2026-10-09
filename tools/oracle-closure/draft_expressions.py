@@ -10,7 +10,7 @@ from pathlib import Path
 import clang.cindex as ci
 from clang.cindex import CursorKind, TypeKind
 
-from spelling import Facts, UNSIGNED
+from spelling import Facts, UNSIGNED, VECTORS
 
 from rulings import HAND_MACROS, HAND_VARS, WRAPPING_ARITHMETIC
 from overlay import MACRO_RETURNS, MACROS
@@ -252,6 +252,13 @@ class Expressions:
         # An optional text reads its bytes under the NULL test Raven wrote beside this one.
         return self.names[base.spelling] + "!"
 
+    def simd_without_int32_index(self, cur: ci.Cursor) -> bool:
+        """True for a base of a SIMD vector typedef other than `vec3_t`, `vec4_t` today, as Raven's `(*c)` or a parameter that holds one."""
+        cur = self.unwrap(cur)
+        param = self.params_by_name.get(cur.spelling) if cur.kind == CursorKind.DECL_REF_EXPR else None
+        spelled = (param.swift or "").split(".")[-1] if param is not None else cur.type.spelling.split()[-1]
+        return spelled in VECTORS - {"vec3_t"}
+
     def is_charbuf(self, cur: ci.Cursor) -> bool:
         """True for a local or parameter Swift holds as a CharBuf: Raven's `char name[N]` or a `char *` he rewrites in place."""
         inner = self.unwrap(cur)
@@ -453,6 +460,9 @@ class Expressions:
                 index_text = self.expr(index)
             finally:
                 self.leaf_wrap = outer
+            if self.simd_without_int32_index(inner_base) and not self.is_literal(index):
+                # SIMD4 takes an `Int` index, and only the SIMD3 of JKAShared adds a C integer subscript.
+                index_text = f"Int({index_text})"
             text = f"{base_text}[{index_text}]"
             if text in self.slot_copies:
                 return self.leaf(cur, self.slot_copies[text])

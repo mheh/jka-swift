@@ -69,6 +69,12 @@ class Shapes(unittest.TestCase):
         self.assertIn("return", lines)
         self.assertNotIn("return s1", lines)
 
+    def test_a_simd_index_and_a_narrow_local_convert_to_the_swift_type(self) -> None:
+        # given COM_ParseVec4, which indexes its `vec4_t` with an int, and Q_strrchr, which stores its int parameter in a char
+        # then the index is an Int, and the local truncates the parameter
+        self.assertIn("(c)[Int(i)] = f", self.draft("COM_ParseVec4"))
+        self.assertIn("let cc: CChar = CChar(truncatingIfNeeded: c)", self.draft("Q_strrchr"))
+
 
 if __name__ == "__main__":
     unittest.main()
