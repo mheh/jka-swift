@@ -8,6 +8,8 @@ on their own, which are the draft's defects. One line reports each stem, and a t
 stays at .build-draft/build.log and holds the log of the last stem. A run of several stems parses and sweeps once, and
 each stem after the first costs a draft and a build alone.
 
+In an adopted stem, a hand function that align.py marks `hand`, `edited`, or `rewritten` stays as a person ported it.
+The draft splices only over a `stub` or a `same` body, and the stem's line counts the hand functions kept.
 A defect on a line that a statement drafted makes that statement a hole on the next pass, with the compiler's message in its Port-note.
 The stem drafts and builds again until no such defect is left, or until the passes reach PASSES.
 The stem's line counts these compile holes among its holes and also apart.
@@ -33,6 +35,7 @@ from pathlib import Path
 
 import closure as C
 from bodies import LANGUAGE, Drafter, Registry, lowered_key
+from layout import COMPILE_NOTE, port_note
 from printer import function_lines
 from reexport import REPO
 from skeleton import BG, LOGIC, SHARED, Skeleton, stub_path, target_of
@@ -53,6 +56,9 @@ ERROR = re.compile(r"^(?:(/[^:]*\.swift):(\d+):\d+: error: (.*)|error: (/[^:]*\.
 # It also wraps a diagnostic group's name in a link escape, which the Port-note of a compile hole must not carry.
 ANSI = re.compile(r"\x1b\[[0-9;]*m|\x1b\]8;[^\x1b]*\x1b\\")
 MISSING = re.compile(r"cannot find '(\w+)' in scope")
+# The first words of the Port-note of a compile hole, the first of its three lines.
+COMPILE_PREFIX = port_note(COMPILE_NOTE.split("{}")[0])
+MARKER = re.compile(r'^portMissing\("(\w+)"')
 # The cap on the drafts of one stem. Each pass after the first makes a hole of each statement the last build rejected.
 PASSES = 8
 
@@ -79,10 +85,42 @@ def functions(lines: list[str]) -> dict[int, tuple[int, int]]:
     return out
 
 
-def splice(hand: list[str], draft: list[str]) -> tuple[list[str], list[int | None], int]:
+def kept(hand: list[str], drafts: list[tuple[str, list[tuple]]]) -> set[int]:
+    """The Raven line of each hand function that align.py marks `hand`, `edited`, or `rewritten` against the line rows of its draft.
+    A person ported such a function, so the gate builds the drafts beside it and never splices over it.
+    A function whose every line is `stub` or `same` is not in the set."""
+    # align.py imports this module, so the import waits for the call.
+    from align import align_text
+
+    marked = {row[1] for row in align_text(hand, drafts).rows if row[5] in ("hand", "edited", "rewritten")}
+    # An alignment row counts hand lines from 1, and a span holds the index of its Source line and of its closing brace.
+    out = {raven for raven, (start, end) in functions(hand).items() if marked & set(range(start + 1, end + 2))}
+    return out
+
+
+def hand_due(sk: Skeleton, stem: str, hand: list[str]) -> dict[tuple[str, str, int], str]:
+    """The compile holes the hand file of the stem holds, by file, function, and seq, each with the compiler's message of its Port-note.
+    A compile hole is the gate's own text and not a person's, so the draft the alignment reads holds the same holes.
+    The `Raven wrote:` line names the statement by its text, and every statement of the function with that text takes the hole."""
+    out: dict[tuple[str, str, int], str] = {}
+    for i, line in enumerate(hand[:-2]):
+        note = line.strip()
+        marker = MARKER.match(hand[i + 2].strip())
+        if not note.startswith(COMPILE_PREFIX) or not note.endswith('".') or marker is None:
+            continue
+        text = hand[i + 1].strip().removeprefix("// Raven wrote: ")
+        for row in sk.table.store.syntax("statements", stem, marker.group(1)):
+            if " ".join(row["text"].split()) == text:
+                out[(stem, marker.group(1), row["seq"])] = note[len(COMPILE_PREFIX):-2]
+    return out
+
+
+def splice(hand: list[str], draft: list[str], keep: set[int] | None = None) -> tuple[list[str], list[int | None], int]:
     """The hand file with each function's lines replaced by the draft's, matched by Raven line.
+    A function whose Raven line is in `keep` stays as the hand wrote it.
     Beside it comes the index of the draft line each spliced line came from, or None for a hand line."""
     h, d = functions(hand), functions(draft)
+    keep = keep or set()
     starts = {a: k for k, (a, _) in h.items()}
     out: list[str] = []
     origins: list[int | None] = []
@@ -90,7 +128,7 @@ def splice(hand: list[str], draft: list[str]) -> tuple[list[str], list[int | Non
     replaced = 0
     while i < len(hand):
         k = starts.get(i)
-        if k is not None and k in d:
+        if k is not None and k in d and k not in keep:
             a, b = d[k]
             out += draft[a:b + 1]
             origins += range(a, b + 1)
@@ -124,6 +162,17 @@ def gate(sk: Skeleton, registry: Registry, stem: str, lowered: str) -> tuple[int
     due: dict[tuple[str, str, int], str] = {}
     capped = False
     passes = 0
+    # The hand functions of an adopted stem stay, each classed against the draft that holds the compile holes the hand file holds.
+    from align import adopted
+
+    keep: set[int] = set()
+    if adopted(stem):
+        first = Drafter(sk, registry, hand_due(sk, stem, hand))
+        drafts = []
+        for fn in sk.files[stem]:
+            first.draft(fn)
+            drafts.append((fn.cur.spelling, first.rows()[1]))
+        keep = kept(hand, drafts)
     while True:
         passes += 1
         # The drafter counts the holes of one draft, so each pass takes its own over the run's one skeleton and registry.
@@ -141,7 +190,7 @@ def gate(sk: Skeleton, registry: Registry, stem: str, lowered: str) -> tuple[int
             keys.append(None)
             # The printer prints one line for each row that is not trailing, so the keys stand beside the lines they name.
             assert len(keys) == len(draft), f"draftcheck.py: the keys of {fn.cur.spelling} of {stem} do not match its printed lines"
-        spliced, origins, replaced = splice(hand, draft)
+        spliced, origins, replaced = splice(hand, draft, keep)
         if "import Foundation" not in spliced:
             # A stub written before Foundation joined the stub imports gets it in the mirror, so libc math resolves.
             first = next((i for i, line in enumerate(spliced) if line.startswith("import ")), 0)
@@ -188,7 +237,7 @@ def gate(sk: Skeleton, registry: Registry, stem: str, lowered: str) -> tuple[int
     DRAFTS.mkdir(parents=True, exist_ok=True)
     (DRAFTS / f"{stem}.swift").write_text("\n".join(draft) + "\n")
     cap = f", the cap of {PASSES} passes hit" if capped else ""
-    print(f"{stem}: {replaced} of {len(functions(hand))} hand functions replaced, {drafter.holes} holes, {cascades} cascade errors, {len(defects)} defects, "
+    print(f"{stem}: {replaced} of {len(functions(hand))} hand functions replaced, {len(keep)} kept, {drafter.holes} holes, {cascades} cascade errors, {len(defects)} defects, "
           f"{drafter.compile_holes} compile holes over {passes} passes{cap}")
     for line in defects:
         print(f"  {line}")
