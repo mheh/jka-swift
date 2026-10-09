@@ -29,3 +29,9 @@ A later ruling can choose to teach the gate the hand functions of a stem, so the
 ## Item 6, the record (R8, R9)
 
 `notes/2026-10-08/spine-round.md` has the sentence on the six absorbed holes and a new section with the shared reference. Commit `4d77405`.
+
+## The ruling on the gate and the hand functions
+
+| Row | Verdict | Ruled by | Date |
+|---|---|---|---|
+| G1, the gate and the hand functions of an adopted stem | Ratified as proposed. `draftcheck.py` skips a function whose hand body `align.py` would mark `hand`, `edited`, or `rewritten`, and splices only over `stub` and `same` bodies. A hand function is what a person ported, and the gate's question is whether the drafts compile beside it, not instead of it. The stem line gains the count of hand functions kept, as in "q_shared: 52 of 56 hand functions replaced, 4 kept". The reference for q_shared is 167 holes, 0 defects, and 35 compile holes, the figure the builder's filter gave. The filter by four Raven lines goes away. Gate: the tool tests, plus a stock `draftcheck.py --stem q_shared` at the reference counts. The row goes on the drafter round's docket. | User | 2026-10-08 |
