@@ -63,6 +63,8 @@ CREATE TABLE IF NOT EXISTS alignments (path TEXT NOT NULL, function TEXT NOT NUL
     role TEXT, state TEXT NOT NULL, PRIMARY KEY (path, function, hand_line));
 CREATE INDEX IF NOT EXISTS alignments_by_function ON alignments (path, function);
 CREATE TABLE IF NOT EXISTS aligned_files (path TEXT NOT NULL, hash TEXT NOT NULL, key TEXT NOT NULL, PRIMARY KEY (path));
+-- One row per function the compile gate spliced, with the hash of the body it wrote. A hand body with that hash is a draft, not a person's port.
+CREATE TABLE IF NOT EXISTS splices (path TEXT NOT NULL, function TEXT NOT NULL, hash TEXT NOT NULL, PRIMARY KEY (path, function));
 """
 
 # The generation of the lowered rows. Its key covers the adoption key, the declaration lines of every destination file, and the drafter modules.
@@ -465,6 +467,17 @@ class Store:
     def alignments(self, path: str) -> list[tuple]:
         """The alignment rows of one hand file in the order of its lines, each in the order of ALIGNMENT_COLUMNS."""
         return self.db.execute(f"SELECT {', '.join(ALIGNMENT_COLUMNS)} FROM alignments WHERE path = ? ORDER BY hand_line", (path,)).fetchall()
+
+    # MARK: - The splices of the compile gate
+
+    def save_splices(self, path: str, rows: list[tuple[str, str]]) -> None:
+        """Replace the splice row of each named function of one hand file with the hash of the body the gate wrote."""
+        with self.db:
+            self.db.executemany("INSERT OR REPLACE INTO splices VALUES (?, ?, ?)", [(path, function, hashed) for function, hashed in rows])
+
+    def splices(self, path: str) -> dict[str, str]:
+        """The hash of the body the gate last spliced, by function, for one hand file."""
+        return dict(self.db.execute("SELECT function, hash FROM splices WHERE path = ?", (path,)).fetchall())
 
     def drop_locals(self) -> None:
         """Delete the local facts of every function, because the generation they stand on was swept again."""

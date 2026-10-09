@@ -102,5 +102,31 @@ class Kept(unittest.TestCase):
         self.assertEqual((out, replaced), (DRAFT, 1))
 
 
+    def test_a_body_with_the_hash_of_its_splice_row_is_a_draft_and_not_kept(self) -> None:
+        from draftcheck import kept, spliced_rows
+
+        # given an earlier draft the gate spliced over the stub, which reads as edited against the newer rows
+        older = DRAFT[:3] + ["    total = ent * 3"] + DRAFT[4:]
+        splices = dict(spliced_rows(older, STUB, set()))
+        self.assertEqual(list(splices), ["G_X"])
+
+        # then the body with the row's hash is spliced over, and a body a person changed after it stays
+        with contextlib.redirect_stderr(io.StringIO()):
+            self.assertEqual(kept(older, [("G_X", ROWS)], splices), set())
+            touched = older[:4] + ["    total += 1"] + older[4:]
+            self.assertEqual(kept(touched, [("G_X", ROWS)], splices), {4})
+
+    def test_a_store_keeps_one_splice_row_per_function(self) -> None:
+        import tempfile
+
+        from store import Store
+
+        with tempfile.TemporaryDirectory() as tmp:
+            store = Store(Path(tmp) / "table.sqlite")
+            store.save_splices("Sources/X/g_x.swift", [("G_X", "a"), ("G_Y", "b")])
+            store.save_splices("Sources/X/g_x.swift", [("G_X", "c")])
+            self.assertEqual(store.splices("Sources/X/g_x.swift"), {"G_X": "c", "G_Y": "b"})
+            store.close()
+
 if __name__ == "__main__":
     unittest.main()

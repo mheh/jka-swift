@@ -9,6 +9,8 @@ stays at .build-draft/build.log and holds the log of the last build. A run parse
 into the mirror, and builds once per pass. Each error goes to the stem whose file the compiler names.
 
 In an adopted stem, a hand function that align.py marks `hand`, `edited`, or `rewritten` stays as a person ported it.
+Each run writes one row per spliced function to the `splices` table with the hash of the body it wrote.
+A hand body with the hash of its row is a draft the gate wrote, so the gate splices over it whatever align.py says.
 The draft splices only over a `stub` or a `same` body, and the stem's line counts the hand functions kept.
 A defect on a line that a statement drafted makes that statement a hole on the next pass, with the compiler's message in its Port-note.
 Each stem with such a defect drafts again for the next pass, until no such defect is left, or until the run's passes reach PASSES.
@@ -28,6 +30,7 @@ Usage:
 from __future__ import annotations
 
 import argparse
+import hashlib
 import re
 import subprocess
 import sys
@@ -85,17 +88,44 @@ def functions(lines: list[str]) -> dict[int, tuple[int, int]]:
     return out
 
 
-def kept(hand: list[str], drafts: list[tuple[str, list[tuple]]]) -> set[int]:
+FUNC_NAME = re.compile(r"^(?:[a-z@()]+ )*func (\w+)")
+
+
+def body_name(lines: list[str], start: int, end: int, raven: int) -> str:
+    """The Swift name of the function whose span is `start` to `end`, or its Raven line when no `func` line stands in the span."""
+    for line in lines[start:end + 1]:
+        m = FUNC_NAME.match(line)
+        if m:
+            return m.group(1)
+    return str(raven)
+
+
+def body_hash(lines: list[str], start: int, end: int) -> str:
+    """The hash of the lines of one function, from its Source line to its closing brace."""
+    return hashlib.sha256("\n".join(lines[start:end + 1]).encode()).hexdigest()
+
+
+def spliced_rows(draft: list[str], hand: list[str], keep: set[int]) -> list[tuple[str, str]]:
+    """The name and the body hash of each draft function the splice wrote over a hand function, for the `splices` table."""
+    h = functions(hand)
+    return [(body_name(draft, a, b, k), body_hash(draft, a, b)) for k, (a, b) in functions(draft).items() if k in h and k not in keep]
+
+
+def kept(hand: list[str], drafts: list[tuple[str, list[tuple]]], splices: dict[str, str] | None = None) -> set[int]:
     """The Raven line of each hand function that align.py marks `hand`, `edited`, or `rewritten` against the line rows of its draft.
     A person ported such a function, so the gate builds the drafts beside it and never splices over it.
-    A function whose every line is `stub` or `same` is not in the set."""
+    A function whose every line is `stub` or `same` is not in the set.
+    A function whose body hash equals its row in `splices` is a draft the gate wrote, so it is not in the set, whatever align.py says."""
     # align.py imports this module, so the import waits for the call.
     from align import align_text
 
     marked = {row[1] for row in align_text(hand, drafts).rows if row[5] in ("hand", "edited", "rewritten")}
     # An alignment row counts hand lines from 1, and a span holds the index of its Source line and of its closing brace.
     out = {raven for raven, (start, end) in functions(hand).items() if marked & set(range(start + 1, end + 2))}
-    return out
+    splices = splices or {}
+    drafted = {raven for raven, (start, end) in functions(hand).items()
+               if splices.get(body_name(hand, start, end, raven)) == body_hash(hand, start, end)}
+    return out - drafted
 
 
 def hand_due(sk: Skeleton, stem: str, hand: list[str]) -> dict[tuple[str, str, int], str]:
@@ -288,12 +318,13 @@ def gate(sk: Skeleton, registry: Registry, stems: list[str], lowered: str) -> tu
             for fn in sk.files[stem]:
                 first.draft(fn)
                 drafts.append((fn.cur.spelling, first.rows()[1]))
-            s.keep = kept(s.hand, drafts)
+            s.keep = kept(s.hand, drafts, sk.table.store.splices(str(path.relative_to(REPO))))
         states.append(s)
     passes, others = run(states)
     DRAFTS.mkdir(parents=True, exist_ok=True)
     for s in states:
         sk.table.store.save_rejected(lowered, LANGUAGE, s.stem, [(function, seq, message) for (_, function, seq), message in sorted(s.due.items())])
+        sk.table.store.save_splices(str(stub_path(s.stem).relative_to(REPO)), spliced_rows(s.draft, s.hand, s.keep))
         (DRAFTS / f"{s.stem}.swift").write_text("\n".join(s.draft) + "\n")
         cap = f", the cap of {PASSES} passes hit" if s.capped else ""
         print(f"{s.stem}: {s.replaced} of {len(functions(s.hand))} hand functions replaced, {len(s.keep)} kept, {s.holes} holes, {s.cascades} cascade errors, "
