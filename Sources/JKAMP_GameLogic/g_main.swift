@@ -468,10 +468,7 @@ var gameCvarTable: [CvarTableRow] {
 var gameCvarTableSize: Int32 { Int32(world.gameCvarTable.count) }
 
 /// Source: oracle/codemp/game/g_main.c:881
-var gSharedBuffer: JKAShared.CharBuf {
-    get { world.variables.gSharedBuffer }
-    set { world.variables.gSharedBuffer = newValue }
-}
+var gSharedBuffer: UnsafeMutableRawPointer { world.storage.gSharedBuffer }
 
 /// Source: oracle/codemp/game/g_main.c:1427
 var g_dontFrickinCheck: Bool {

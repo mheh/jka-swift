@@ -121,6 +121,11 @@ NEVER_NULL_VARS = {"pm"}
 # `bg_pool` is the raw allocation of rule 9 that `BG_Alloc` hands pointers into, `bg.pool`, sized by the consumer's `MAX_POOL_SIZE`.
 HAND_VARS = {"bg_pool": "bg.pool"}
 
+# File-scope character arrays whose address the engine holds, so each one is one zeroed byte allocation on the storage class, not a `CharBuf`.
+# `gSharedBuffer` of g_main.c goes to the engine through `trap_SV_RegisterSharedMemory`, and vmMain reads the ICARUS views at its base.
+# See "The post-spine walk", row P1, and the zeroed storage rule of docs/transcription.md.
+BYTE_STORAGE_VARS = {"gSharedBuffer"}
+
 @dataclass(frozen=True)
 class HandMacro:
     """One macro whose value is hand work: the Swift spelling a body writes, and the reason the stub carries.

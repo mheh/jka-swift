@@ -414,10 +414,6 @@ public struct GameVariables {
     /// Source: oracle/codemp/game/g_main.c:30
     public var gDuelExit: Bool = false
 
-    /// Raven's `char gSharedBuffer[MAX_G_SHARED_BUFFER_SIZE]` of `g_main.c`.
-    /// Source: oracle/codemp/game/g_main.c:881
-    public var gSharedBuffer: JKAShared.CharBuf = JKAShared.CharBuf(Int(JKAMP_Game.MAX_G_SHARED_BUFFER_SIZE))
-
     /// Raven's `qboolean g_dontFrickinCheck` of `g_main.c`.
     /// Source: oracle/codemp/game/g_main.c:1427
     public var g_dontFrickinCheck: Bool = false

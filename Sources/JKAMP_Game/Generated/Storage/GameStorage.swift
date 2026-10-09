@@ -678,6 +678,10 @@ public final class GameStorage {
     /// Source: oracle/codemp/game/g_main.c:227
     public let g_showDuelHealths: JKAMP.VmCvar
 
+    /// Raven's `char gSharedBuffer[MAX_G_SHARED_BUFFER_SIZE]` of `g_main.c`.
+    /// Source: oracle/codemp/game/g_main.c:881
+    public let gSharedBuffer: UnsafeMutableRawPointer
+
     /// Raven's `tagOwner_t refTagOwnerMap[MAX_TAG_OWNERS]` of `g_misc.c`.
     /// Source: oracle/codemp/game/g_misc.c:2886
     public let refTagOwnerMap: Slots<TagOwner>
@@ -899,6 +903,7 @@ public final class GameStorage {
         self.g_powerDuelStartHealth = GameStorage.record(of: JKAMP.VmCvar.self)
         self.g_powerDuelEndHealth = GameStorage.record(of: JKAMP.VmCvar.self)
         self.g_showDuelHealths = GameStorage.record(of: JKAMP.VmCvar.self)
+        self.gSharedBuffer = GameStorage.bytes(count: Int(JKAMP_Game.MAX_G_SHARED_BUFFER_SIZE))
         self.refTagOwnerMap = GameStorage.records(count: 16, of: TagOwner.self)
         self.g_shooterClients = GameStorage.records(count: 16, of: ShooterClient.self)
         self.pushed = GameStorage.records(count: Int(JKAShared.MAX_GENTITIES), of: Pushed.self)
@@ -1083,6 +1088,7 @@ public final class GameStorage {
         UnsafeMutableRawPointer(self.g_powerDuelStartHealth.handle).deallocate()
         UnsafeMutableRawPointer(self.g_powerDuelEndHealth.handle).deallocate()
         UnsafeMutableRawPointer(self.g_showDuelHealths.handle).deallocate()
+        self.gSharedBuffer.deallocate()
         self.refTagOwnerMap.base.deallocate()
         self.g_shooterClients.base.deallocate()
         self.pushed.base.deallocate()
@@ -1124,5 +1130,12 @@ public final class GameStorage {
             read: { $0.load(as: OpaquePointer?.self).map { View(handle: $0) } },
             write: { $0.storeBytes(of: $1?.handle, as: OpaquePointer?.self) }
         )
+    }
+
+    /// One zeroed C array of `count` bytes at a fixed base, for a buffer whose address the engine holds.
+    private static func bytes(count: Int) -> UnsafeMutableRawPointer {
+        let base = UnsafeMutableRawPointer.allocate(byteCount: count, alignment: 16)
+        base.initializeMemory(as: UInt8.self, repeating: 0, count: count)
+        return base
     }
 }
