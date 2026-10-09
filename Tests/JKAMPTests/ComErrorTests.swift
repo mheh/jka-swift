@@ -11,7 +11,7 @@ struct ComErrorTests {
         var lines: [String] = []
         bg.print = { text in lines.append(text) }
 
-        Com_Printf("hello")
+        JKAMP_BG.Com_Printf("hello")
 
         #expect(lines == ["hello"])
         bg = BgState()
@@ -20,7 +20,7 @@ struct ComErrorTests {
     @Test("Com_Error records the level and text, then ends the process")
     func errorRecordsAndExits() async {
         await #expect(processExitsWith: .failure) {
-            Com_Error(ERR_DROP, "no item")
+            JKAMP_BG.Com_Error(ERR_DROP, "no item")
         }
     }
 }

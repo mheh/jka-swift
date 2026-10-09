@@ -16,6 +16,9 @@ public func dllEntry(_ syscallptr: OpaquePointer) {
     bg.error = { level, text in JKAMP_GameLogic.Com_Error(level, text) }
     bg.print = { text in JKAMP_GameLogic.Com_Printf(text) }
     installBgChannel()
+    // The game installs the shared channel here too, in the same shape.
+    sharedChannel.error = { level, text in JKAMP_GameLogic.Com_Error(level, text) }
+    sharedChannel.print = { text in JKAMP_GameLogic.Com_Printf(text) }
 }
 
 /// Source: oracle/codemp/game/g_main.c:515
