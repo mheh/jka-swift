@@ -735,7 +735,8 @@ class Skeleton:
             lines.append(f"{self.let_prefix(var)}let {var.name}: {var.swift} = {{ () -> {var.swift} in portMissing(\"{var.name}\", source: \"{var.cite}\") }}()")
         elif kind in ("state", "state_data") and target_of(var.stem) == SHARED:
             lines.insert(1, f"// TODO: Port global {var.name}")
-            lines.append(f"// Rule 3: a stored property of the shared module's owner with {initializer}.")
+            # The home is the stub itself, as q_math holds Raven's `holdrand` in the file-scope `rng`.
+            lines.append(f"// Rule 3: a file-scope variable of this stub at Raven's line, the `rng` shape of q_math, with {initializer}.")
         elif kind == "state":
             # The value lives on the generated variables struct the world owns, and the stub carries Raven's name at Raven's line.
             spelled = "bg" if target_of(var.stem) == BG else "world"

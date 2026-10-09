@@ -75,6 +75,14 @@ class Shapes(unittest.TestCase):
         self.assertIn("(c)[Int(i)] = f", self.draft("COM_ParseVec4"))
         self.assertIn("let cc: CChar = CChar(truncatingIfNeeded: c)", self.draft("Q_strrchr"))
 
+    def test_a_shared_state_variable_names_its_home_in_the_stub(self) -> None:
+        # given com_token, a file-scope state variable of the shared stem q_shared
+        var = next(v for v in self.sk.variables["q_shared"] if v.name == "com_token")
+
+        # then the rule 3 note names a file-scope variable of the stub in the `rng` shape
+        note = next(line for line in self.sk.variable_entry(var) if line.startswith("// Rule 3:"))
+        self.assertIn("a file-scope variable of this stub at Raven's line, the `rng` shape of q_math", note)
+
 
 if __name__ == "__main__":
     unittest.main()
