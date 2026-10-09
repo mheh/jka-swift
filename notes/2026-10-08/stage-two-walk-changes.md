@@ -80,3 +80,9 @@ The tool tests went from 60 to 60, 62, 62, and 63 across the four commits, 9 of 
 2. 41 of the 97 stub functions aligned as `same`, `edited`, or `hand` under the old rule. In some of them the draft is a hole whose marker line is byte-equal to the skeleton's `portMissing` line, so the old alignment called an untranscribed body `same`.
 3. The usage line of `compare.py` names the step-4 folder in its `--against` example. The example still runs, and the reference is now `snapshot-stage-two-shared`. `HANDOFF.md` at the root of the main checkout names the step-4 folder at line 16 as the reference.
 4. The store of the worktree now holds the lowered rows and the alignment under the key of commit 6b44653. The main checkout's store is untouched.
+
+## The ruling on the stub count
+
+| Row | Verdict | Ruled by | Date |
+|---|---|---|---|
+| S20, the stub count | Ratified as built. Every hand function whose body is the marker pair alone is `stub`, tested before the ratio, whatever its ratio against the draft. The count over the adopted stems is 488 rows over 97 functions. The delegated walk's gate figure of 280 counted only the 56 marker-pair functions that the ratio already made `rewritten`, and the figure gives way to the ruled text. | User | 2026-10-08 |
