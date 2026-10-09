@@ -42,3 +42,13 @@ The holes go down and the defects stay at 0, so the round has no defect finding.
 ## The snapshot
 
 `snapshot.py --check` against `$HOME/.cache/jka-swift/snapshot-stage-two-shared` ran for 119 s and exited with 1. 101 of 353 files moved: 13 body files, 86 manifest files, and the skeletons of `q_math` and `q_shared`. The skeleton lines are the new rule 3 note. The body lines include the write cursor of R5, for example `out[outIndex] = 0` in `g_client`, and the shapes of this round. The manifest lines show 0 jka-rust matches where the snapshot shows a match, because the worktree has no `../jka-rust` sibling. That move comes from the worktree path, not from the round. The snapshot was not refreshed.
+
+## R4, the partition rule
+
+The function `partition_shared` in `tools/oracle-closure/merge.py` has a new rule. An object-like MP macro that SP never defines is shared when the `q_shared.c` or `q_math.c` body reads it. The emit step cites only the MP source line for such a macro. The change came from the earlier patch, which applied without edits.
+
+The new test `tools/oracle-closure/tests/test_partition.py` builds an MP and an SP constants file and a small shared body. It shows that a read macro is shared, and that a macro the body does not read and a function-like macro stay in the tree.
+
+A trial run of `merge.py` into a temporary folder moved only the three macros. The real run of `merge.py` and `reexport.py --probe` moved four files. `BIG_INFO_STRING`, `BIG_INFO_KEY`, and `BIG_INFO_VALUE` left `Sources/CJKAMP/include/codemp/game/q_shared/constants.h` and went to `Sources/CJKAShared/include/shared/game/q_shared/constants.h`. Their re-exports left `Sources/JKAMP/Generated/q_shared.swift` and went to `Sources/JKAShared/Generated/q_shared.swift`. A first `reexport.py` run without `--probe` lost the probed spellings in twelve files, and the merge run deleted `Sources/CJKAMP/bg_tables.c`. We restored `bg_tables.c` from git, and the run with `--probe` restored the twelve files.
+
+The gate passed. The tool tests ran 73 tests with 14 skipped. `swift build` had 0 errors. `swift test --no-parallel` ran 106 tests in four binaries: 78, 14, 13, and 1.
