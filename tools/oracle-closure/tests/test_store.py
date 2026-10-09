@@ -15,7 +15,7 @@ from unittest import mock
 HERE = Path(__file__).resolve().parents[1]
 sys.path.insert(0, str(HERE))
 
-from store import Store, digest  # noqa: E402
+from store import SCHEMA_VERSION, Store, digest  # noqa: E402
 from table import Cursor, Local, LocalFacts, Read  # noqa: E402
 
 
@@ -242,6 +242,27 @@ class Recovery(unittest.TestCase):
 
         # then the reader saw the facts, and the file holds the bytes it held before
         self.assertEqual(loaded, {"called": {"G_Find"}})
+        self.assertEqual(self.path.read_bytes(), before)
+
+    def test_a_reader_open_of_another_schema_version_stops_and_keeps_the_file(self) -> None:
+        # given a store that a writer saved and closed, with another schema version in its meta
+        with Store(self.path) as store:
+            store.save("base", "key-1", {}, {"called": {"G_Find"}})
+        db = sqlite3.connect(self.path)
+        with db:
+            db.execute("UPDATE meta SET value = '0' WHERE name = 'schema'")
+        db.close()
+        before = self.path.read_bytes()
+
+        # when a reader opens it
+        with self.assertRaises(SystemExit) as stop:
+            Store(self.path, reader=True)
+
+        # then the open stops with one line that names the file, both versions, and the generator, and the file keeps its bytes
+        message = str(stop.exception.code)
+        self.assertEqual(len(message.splitlines()), 1)
+        for part in (str(self.path), "version 0", str(SCHEMA_VERSION), "bodies.py"):
+            self.assertIn(part, message)
         self.assertEqual(self.path.read_bytes(), before)
 
     def test_a_rejected_write_under_a_new_key_deletes_the_rows_of_every_file_under_the_old_key(self) -> None:

@@ -224,8 +224,9 @@ def keys(inputs: Iterable[Path], tools: Iterable[Path], stubs: Iterable[Path], r
 
 class Store:
     """One open store file. A save is one transaction, and a load is one read transaction.
-    Every open deletes a store of another version, and writes the schema version to meta.
-    A reader such as printer.py or lookup.py opens with `reader`, which skips that write when the stored version matches, so the file keeps its bytes."""
+    A writer open deletes a store of another version, and writes the schema version to meta.
+    A reader such as printer.py or lookup.py opens with `reader`, which skips that write when the stored version matches, so the file keeps its bytes.
+    A reader open of a store of another version stops with one line and deletes nothing, because only a generator makes the store again."""
 
     def __init__(self, path: Path, reader: bool = False) -> None:
         self.path = Path(path)
@@ -238,6 +239,9 @@ class Store:
             self.db = self.open()
         version = self.meta("schema")
         fresh = self.db.execute("SELECT COUNT(*) FROM meta").fetchone()[0] == 0
+        if version != str(SCHEMA_VERSION) and not fresh and reader:
+            self.db.close()
+            raise SystemExit(f"store.py: {self.path} holds schema version {version}, not {SCHEMA_VERSION}, so run bodies.py to make it again")
         if version != str(SCHEMA_VERSION) and not fresh:
             print(f"store.py: {self.path} holds schema version {version}, not {SCHEMA_VERSION}, so it is deleted and made again", file=sys.stderr)
             self.db.close()
