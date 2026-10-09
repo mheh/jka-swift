@@ -175,6 +175,12 @@ class Drafter(Statements, Expressions, Calls, Declarations, Classification):
         self.charbuf_allocs: dict[str, ci.Cursor] = {}
         self.param_walks: dict[str, list[tuple[int, int, list[tuple[int, int, int]]]]] = {}
         self.param_walk_heads: list[str] = []
+        # Raven's stepped `char *` buffer parameters, by his name, with the index the body walks, and the indexes not yet declared.
+        self.buffer_cursors: dict[str, str] = {}
+        self.buffer_cursor_heads: list[str] = []
+        self.buffer_first_writes: dict[str, int] = {}
+        # The stepped buffer parameters a call argument passes whole, because the cursor still stands at the start.
+        self.plain_buffers: set[str] = set()
         # The statements the compile gate rejected on an earlier pass, by their file, function, and seq, each with the compiler's message for its hole.
         self.compile_due: dict[tuple[str, str, int], str] = compile_due or {}
         # The seq of each statement of the function being drafted, by its kind and its extent, from the statement rows.
@@ -282,6 +288,15 @@ class Drafter(Statements, Expressions, Calls, Declarations, Classification):
         self.cursor_params = {name for _, name in walked}
         for raven, _ in walked:
             self.cursor_locals[raven] = Cursor("read", raven, False)
+        # Raven steps his own `char *` buffer parameter, or compares it as a pointer, so the body walks a write cursor over the buffer.
+        # The cursor is an index into the buffer, declared at the head of the function, and the buffer keeps the parameter's name.
+        stepped = [(c.spelling, p.name) for c, p in zip(fn.cur.get_arguments(), fn.params) if p.kind == "inout_charbuf" and c.spelling in self.written]
+        self.buffer_cursors = {raven: f"{name.strip('`')}Index" for raven, name in stepped}
+        self.buffer_cursor_heads = list(self.buffer_cursors.values())
+        for raven, _ in stepped:
+            self.offset_cursors[raven] = Cursor("write", raven, False)
+        # The cursor stands at the start of the buffer until the first top-level statement that steps or stores it.
+        self.buffer_first_writes = {raven: self.first_write(fn.cur, raven) for raven, _ in stepped}
         body = [c for c in fn.cur.get_children() if c.kind == CursorKind.COMPOUND_STMT][-1]
         # A view read Raven names more than once is one local, by his text of the read, once the draft declares it.
         self.hoisted: dict[str, str] = {}
@@ -314,6 +329,19 @@ class Drafter(Statements, Expressions, Calls, Declarations, Classification):
                 self.line_trailing.append(comment or None)
                 self.line_own.append(text)
         return clean
+
+    def first_write(self, fn: ci.Cursor, name: str) -> int:
+        """The start offset of the first top-level statement of the body that steps or stores Raven's variable."""
+        body = [c for c in fn.get_children() if c.kind == CursorKind.COMPOUND_STMT][-1]
+        for statement in body.get_children():
+            for cur in statement.walk_preorder():
+                kids = list(cur.get_children())
+                if not kids or self.unwrap(kids[0]).kind != CursorKind.DECL_REF_EXPR or self.unwrap(kids[0]).spelling != name:
+                    continue
+                if cur.kind == CursorKind.UNARY_OPERATOR and self.is_step(cur) or cur.kind == CursorKind.COMPOUND_ASSIGNMENT_OPERATOR \
+                        or cur.kind == CursorKind.BINARY_OPERATOR and self.operator_or_none(cur) == "=":
+                    return statement.extent.start.offset
+        return fn.extent.end.offset
 
     # MARK: - The rows of one draft
 

@@ -30,9 +30,12 @@ class Declarations:
     def param_copy_lines(self, depth: int) -> list[str]:
         """The mutable copy of each parameter Raven assigns, at the head of the function's own block.
         A deeper block gives no seat, because a copy there hides the parameter from the statements outside it."""
-        if depth != 1 or not (self.param_copies or self.param_walk_heads):
+        if depth != 1 or not (self.param_copies or self.param_walk_heads or self.buffer_cursor_heads):
             return []
         out: list[str] = []
+        for index in self.buffer_cursor_heads:
+            out.append(f"{INDENT}var {index}: Int32 = 0")
+        self.buffer_cursor_heads = []
         for raven in self.param_walk_heads:
             table, index = self.table_cursors[raven]
             out.append(f"{INDENT}// Raven walks his own `{raven}` parameter over `{table}`, so the body walks the index of its slot, as for a walked local.")

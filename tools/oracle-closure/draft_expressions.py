@@ -506,7 +506,8 @@ class Expressions:
                 return self.expr(operand)
             if op == "*":
                 inner = self.strip(operand)
-                if inner.kind == CursorKind.DECL_REF_EXPR and inner.spelling in self.inout_locals:
+                if inner.kind == CursorKind.DECL_REF_EXPR and inner.spelling in self.inout_locals \
+                        and (inner.spelling not in self.buffer_cursors or inner.spelling in self.plain_buffers):
                     # A Swift inout parameter is the value Raven reaches through the pointer.
                     return self.names[inner.spelling]
                 through_cursor = self.cursor_deref(operand)
@@ -652,6 +653,9 @@ class Expressions:
             # The walk has started, so the parameter stands for the slot at the index.
             table, index = self.table_cursors[name]
             return f"{table}[{index}]"
+        if name in self.buffer_cursors and name not in self.plain_buffers and ref is not None and ref.kind == CursorKind.PARM_DECL:
+            # A stepped buffer parameter is a write cursor, so a read of Raven's pointer is the index into the buffer.
+            return self.buffer_cursors[name]
         if name in self.names:
             # A read of an optional vector parameter is the force unwrap, where C read through the pointer with no guard.
             return self.names[name] + ("!" if name in self.optional_vectors else "")

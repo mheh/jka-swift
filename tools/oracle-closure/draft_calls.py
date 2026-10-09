@@ -289,7 +289,16 @@ class Calls:
         addressed = inner.kind == CursorKind.UNARY_OPERATOR and self.unary_parts(inner)[0] == "&"
         if addressed:
             inner = self.unary_parts(inner)[2]
-        if self.unwrap(inner).kind == CursorKind.DECL_REF_EXPR and self.unwrap(inner).spelling in self.offset_cursors:
+        target = self.unwrap(inner)
+        if target.kind == CursorKind.DECL_REF_EXPR and target.spelling in self.buffer_cursors and target.spelling not in self.plain_buffers \
+                and target.extent.start.offset < self.buffer_first_writes[target.spelling]:
+            # The cursor still stands at the start of the buffer, so the call takes the buffer parameter itself.
+            self.plain_buffers.add(target.spelling)
+            try:
+                return self.argument(cur, inout, param, callee, position)
+            finally:
+                self.plain_buffers.discard(target.spelling)
+        if target.kind == CursorKind.DECL_REF_EXPR and target.spelling in self.offset_cursors and target.spelling not in self.plain_buffers:
             raise Hole(f"Raven passes the write cursor `{self.unwrap(inner).spelling}` where the callee takes no buffer beside it, "
                        "and a byte offset has no form there.")
         if param is not None and self.types.is_slots(param[1]):
