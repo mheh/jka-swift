@@ -83,6 +83,14 @@ class Shapes(unittest.TestCase):
         note = next(line for line in self.sk.variable_entry(var) if line.startswith("// Rule 3:"))
         self.assertIn("a file-scope variable of this stub at Raven's line, the `rng` shape of q_math", note)
 
+    def test_a_cast_of_the_shared_byte_buffer_is_a_view_at_its_base(self) -> None:
+        # given vmMain, which casts `gSharedBuffer` to each ICARUS struct pointer
+        lines = self.draft("vmMain")
+
+        # then the local is the view over the base of the byte allocation
+        self.assertIn("let sharedMem = IcarusPlaySound(handle: OpaquePointer(gSharedBuffer))", lines)
+        self.assertNotIn("A pointer local `T_G_ICARUS_PLAYSOUND * sharedMem` with no view.", " ".join(lines))
+
 
 if __name__ == "__main__":
     unittest.main()

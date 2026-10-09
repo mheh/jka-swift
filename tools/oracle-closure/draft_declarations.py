@@ -10,6 +10,7 @@ import clang.cindex as ci
 from clang.cindex import CursorKind, TypeKind
 
 from overlay import MACROS, written_arguments
+from rulings import BYTE_STORAGE_VARS
 
 import closure as C
 from skeleton import BG, target_of
@@ -390,6 +391,9 @@ class Declarations:
             if record and record in self.views.views:
                 self.reachable(record)
                 view = self.views.qualified_view(record, TARGET)
+                if init and self.byte_storage_cast(init[0]):
+                    # Raven's `T *sharedMem = (T *)gSharedBuffer` reads a view at the base of a byte allocation the storage class owns.
+                    return f"{keyword} {name} = {view}(handle: OpaquePointer({self.uncast(init[0]).spelling}))"
                 if var.spelling in self.slots_locals:
                     # Every store into the local holds a table of records, so the local is the Slots over it.
                     if init:
@@ -412,6 +416,13 @@ class Declarations:
             # so the local starts at zero. The zero is the divergence rule 19 allows.
             return f"{keyword} {name}: {swift} = {'false' if swift == 'Bool' else '0'}"
         return f"{keyword} {name}: {swift}"
+
+    def byte_storage_cast(self, cur: ci.Cursor) -> bool:
+        """True for a cast of a file-scope byte allocation in BYTE_STORAGE_VARS, the `(T *)gSharedBuffer` of vmMain."""
+        if self.unwrap(cur).kind != CursorKind.CSTYLE_CAST_EXPR:
+            return False
+        source = self.uncast(cur)
+        return source.kind == CursorKind.DECL_REF_EXPR and source.spelling in BYTE_STORAGE_VARS
 
     def wider_parameter(self, cur: ci.Cursor, t: ci.Type) -> bool:
         """True for a parameter of a C integer type wider than the local's type `t`."""
