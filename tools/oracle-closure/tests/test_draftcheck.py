@@ -34,6 +34,45 @@ STUB = ["/// Source: oracle/codemp/game/g_x.c:4",
         "}"]
 
 
+class OneBuild(unittest.TestCase):
+    def test_two_stems_build_once_per_pass_and_each_defect_goes_to_its_stem(self) -> None:
+        import tempfile
+
+        import draftcheck
+
+        class Fake(draftcheck.Stem):
+            # The draft of G_X, with the compile holes the builds rejected as Port-note lines in place of their statements.
+            def lines(self):
+                draft = ["/// Source: oracle/codemp/game/g_x.c:4", "func G_X(_ ent: Int32) -> Int32 {"]
+                keys = [None, None]
+                for seq, text in ((1, "var total: Int32 = 0"), (2, "total = ent * 2"), (3, "return total")):
+                    draft.append(f"    // hole {seq}" if (self.stem, "G_X", seq) in self.due else f"    {text}")
+                    keys.append((self.stem, "G_X", seq))
+                return draft + ["}", ""], keys + [None, None], 0, len(self.due), set()
+
+        with tempfile.TemporaryDirectory() as tmp:
+            root = Path(tmp)
+            stems = []
+            for name in ("g_a", "g_b"):
+                (root / f"{name}.hand").write_text("\n".join(STUB) + "\n")
+                stems.append(Fake(None, None, name, root / f"{name}.hand", root / f"{name}.swift"))
+            builds: list[str] = []
+
+            # given the mirror file opens with import Foundation, and the first build rejects seq 2 of g_a and seq 3 of g_b, and the second build is clean
+            def make() -> str:
+                builds.append("".join(s.target.read_text() for s in stems))
+                if len(builds) > 1:
+                    return ""
+                return f"{root}/g_a.swift:5:5: error: bad a\n{root}/g_b.swift:6:5: error: bad b\n"
+
+            passes, others = draftcheck.run(stems, make)
+        self.assertEqual((passes, len(builds), others), (2, 2, []))
+        self.assertEqual(set(stems[0].due), {("g_a", "G_X", 2)})
+        self.assertEqual(set(stems[1].due), {("g_b", "G_X", 3)})
+        self.assertEqual([s.defects for s in stems], [[], []])
+        self.assertEqual([s.passes for s in stems], [2, 2])
+
+
 class Kept(unittest.TestCase):
     def kept(self, hand: list[str]) -> set[int]:
         from draftcheck import kept

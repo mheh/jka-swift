@@ -5,13 +5,13 @@ The drafts of one file replace the hand bodies of its Swift file in a mirror of 
 mirror builds the game product. No file of the working tree changes. The report separates three counts: the holes the
 draft left, the errors that follow from a hole, because a local the hole declared is missing, and the errors that stand
 on their own, which are the draft's defects. One line reports each stem, and a total line closes the run. The build log
-stays at .build-draft/build.log and holds the log of the last stem. A run of several stems parses and sweeps once, and
-each stem after the first costs a draft and a build alone.
+stays at .build-draft/build.log and holds the log of the last build. A run parses and sweeps once, splices every stem
+into the mirror, and builds once per pass. Each error goes to the stem whose file the compiler names.
 
 In an adopted stem, a hand function that align.py marks `hand`, `edited`, or `rewritten` stays as a person ported it.
 The draft splices only over a `stub` or a `same` body, and the stem's line counts the hand functions kept.
 A defect on a line that a statement drafted makes that statement a hole on the next pass, with the compiler's message in its Port-note.
-The stem drafts and builds again until no such defect is left, or until the passes reach PASSES.
+Each stem with such a defect drafts again for the next pass, until no such defect is left, or until the run's passes reach PASSES.
 The stem's line counts these compile holes among its holes and also apart.
 The last pass's draft of each stem stays at .build-draft/drafts/<stem>.swift.
 The compile holes of the last pass go to the `rejected` table of the store under the lowered key, by file, function, and seq,
@@ -59,7 +59,7 @@ MISSING = re.compile(r"cannot find '(\w+)' in scope")
 # The first words of the Port-note of a compile hole, the first of its three lines.
 COMPILE_PREFIX = port_note(COMPILE_NOTE.split("{}")[0])
 MARKER = re.compile(r'^portMissing\("(\w+)"')
-# The cap on the drafts of one stem. Each pass after the first makes a hole of each statement the last build rejected.
+# The cap on the passes of one run. Each pass after the first makes a hole of each statement the last build rejected.
 PASSES = 8
 
 
@@ -150,99 +150,163 @@ def mirror() -> None:
     subprocess.run(["rsync", "-a", str(REPO / "Package.swift"), str(MIRROR / "Package.swift")], check=True)
 
 
-def gate(sk: Skeleton, registry: Registry, stem: str, lowered: str) -> tuple[int, int, int, int, int, bool]:
-    """One stem drafted, spliced into the mirror, and built there, pass by pass. The stem's line and its defects go to stdout.
-    The holes, the cascade errors, the defects, the holes the passes made, the passes, and whether the passes hit the cap come back.
-    The mirror holds the hand text of the stub again at the end, so the draft of one stem never stands in the build of the next.
-    The compile holes of the last pass go to the store under the lowered key."""
-    path = stub_path(stem)
-    hand = path.read_text().splitlines()
-    target = MIRROR / path.relative_to(REPO)
-    # The statements the builds rejected so far, by file, function, and seq, each with the message of its first error by line.
-    due: dict[tuple[str, str, int], str] = {}
-    capped = False
-    passes = 0
-    # The hand functions of an adopted stem stay, each classed against the draft that holds the compile holes the hand file holds.
-    from align import adopted
+class Stem:
+    """One stem of a run: its hand file, its mirror file, the hand functions it keeps, and the state of its last draft."""
 
-    keep: set[int] = set()
-    if adopted(stem):
-        first = Drafter(sk, registry, hand_due(sk, stem, hand))
-        drafts = []
-        for fn in sk.files[stem]:
-            first.draft(fn)
-            drafts.append((fn.cur.spelling, first.rows()[1]))
-        keep = kept(hand, drafts)
-    while True:
-        passes += 1
+    def __init__(self, sk: Skeleton | None, registry: Registry | None, stem: str, path: Path, target: Path) -> None:
+        self.sk, self.registry, self.stem, self.target = sk, registry, stem, target
+        self.hand = path.read_text().splitlines()
+        # The statements the builds rejected so far, by file, function, and seq, each with the message of its first error by line.
+        self.due: dict[tuple[str, str, int], str] = {}
+        self.keep: set[int] = set()
+        self.passes = 0
+        self.capped = False
+        self.cascades = 0
+        self.defects: list[str] = []
+
+    def lines(self) -> tuple[list[str], list[tuple[str, str, int] | None], int, int, set[str]]:
+        """The draft of the stem over its due compile holes, the key of each line, its holes, its compile holes, and its hole names."""
         # The drafter counts the holes of one draft, so each pass takes its own over the run's one skeleton and registry.
-        drafter = Drafter(sk, registry, due)
+        drafter = Drafter(self.sk, self.registry, self.due)
         draft: list[str] = []
         keys: list[tuple[str, str, int] | None] = []
-        for fn in sk.files[stem]:
+        for fn in self.sk.files[self.stem]:
             # The printer prints the rows of each draft, the text bodies.py prints, and each printed line keeps the seq of its statement.
             drafter.draft(fn)
             _, rows = drafter.rows()
             draft += function_lines(rows)
             # The body is seq 0, and no hole stands for a whole body, so a line of the body's own keeps no key.
-            keys += [(stem, fn.cur.spelling, row[1]) if row[1] else None for row in rows if row[2] != "trailing"]
+            keys += [(self.stem, fn.cur.spelling, row[1]) if row[1] else None for row in rows if row[2] != "trailing"]
             draft.append("")
             keys.append(None)
             # The printer prints one line for each row that is not trailing, so the keys stand beside the lines they name.
-            assert len(keys) == len(draft), f"draftcheck.py: the keys of {fn.cur.spelling} of {stem} do not match its printed lines"
-        spliced, origins, replaced = splice(hand, draft, keep)
+            assert len(keys) == len(draft), f"draftcheck.py: the keys of {fn.cur.spelling} of {self.stem} do not match its printed lines"
+        return draft, keys, drafter.holes, drafter.compile_holes, drafter.hole_names
+
+    def write(self) -> None:
+        """The stem drafted again over its due compile holes and spliced into its mirror file."""
+        self.passes += 1
+        self.draft, self.keys, self.holes, self.compile_holes, self.hole_names = self.lines()
+        spliced, self.origins, self.replaced = splice(self.hand, self.draft, self.keep)
         if "import Foundation" not in spliced:
             # A stub written before Foundation joined the stub imports gets it in the mirror, so libc math resolves.
             first = next((i for i, line in enumerate(spliced) if line.startswith("import ")), 0)
             spliced.insert(first, "import Foundation")
-            origins.insert(first, None)
-        target.write_text("\n".join(spliced) + "\n")
-        build = subprocess.run(["swift", "build", "--package-path", str(MIRROR), "--scratch-path", str(SCRATCH), "--product", "jampgame"],
-                               capture_output=True, text=True)
-        LOG.write_text(build.stdout + build.stderr)
-        cascades = 0
-        defects: list[str] = []
-        summaries: list[str] = []
-        rejected: dict[tuple[str, str, int], list[tuple[int, str]]] = {}
-        # The compiler reports one error under more than one job at times, so each error line counts once.
-        for line in dict.fromkeys(ANSI.sub("", raw) for raw in (build.stdout + build.stderr).splitlines()):
-            m = ERROR.match(line)
-            if m is None:
-                if line.startswith("error:"):
-                    summaries.append(line)
+            self.origins.insert(first, None)
+        self.target.write_text("\n".join(spliced) + "\n")
+
+
+def build() -> str:
+    """The game product built in the mirror. The build log goes to LOG, and its text comes back."""
+    done = subprocess.run(["swift", "build", "--package-path", str(MIRROR), "--scratch-path", str(SCRATCH), "--product", "jampgame"],
+                          capture_output=True, text=True)
+    LOG.write_text(done.stdout + done.stderr)
+    return done.stdout + done.stderr
+
+
+def attribute(output: str, stems: list[Stem]) -> tuple[dict[str, dict[tuple[str, str, int], list[tuple[int, str]]]], list[str]]:
+    """Each error of one build under the stem whose mirror file the compiler names, or under the run when it names no such file.
+    Each stem's cascades and defects take the counts of this build, and the statements each stem's draft lost to a defect come back by stem."""
+    by_target = {s.target.resolve(): s for s in stems}
+    rejected: dict[str, dict[tuple[str, str, int], list[tuple[int, str]]]] = {s.stem: {} for s in stems}
+    for s in stems:
+        s.cascades = 0
+        s.defects = []
+    others: list[str] = []
+    summaries: list[str] = []
+    # The compiler reports one error under more than one job at times, so each error line counts once.
+    for line in dict.fromkeys(ANSI.sub("", raw) for raw in output.splitlines()):
+        m = ERROR.match(line)
+        if m is None:
+            if line.startswith("error:"):
+                summaries.append(line)
+            continue
+        source, number, message = m.group(1, 2, 3) if m.group(1) else m.group(4, 5, 6)
+        owner = by_target.get(Path(source).resolve())
+        name = MISSING.search(message)
+        if name:
+            # A missing name that a hole swallowed is a cascade of the stem whose draft made the hole.
+            holder = owner if owner is not None and name.group(1) in owner.hole_names else next((s for s in stems if name.group(1) in s.hole_names), None)
+            if holder is not None:
+                holder.cascades += 1
                 continue
-            source, number, message = m.group(1, 2, 3) if m.group(1) else m.group(4, 5, 6)
-            name = MISSING.search(message)
-            if name and name.group(1) in drafter.hole_names:
-                cascades += 1
-                continue
-            defects.append(f"{Path(source).name}:{number}: {message}")
-            # A defect on a line a statement of the draft wrote rejects that statement, and a defect elsewhere stays a defect.
-            index = int(number) - 1
-            if Path(source).resolve() == target.resolve() and 0 <= index < len(origins) and origins[index] is not None:
-                key = keys[origins[index]]
-                if key is not None and key not in due:
-                    rejected.setdefault(key, []).append((int(number), message.strip()))
-        if summaries and not defects and not cascades:
-            # An error outside a Swift file is the build's own, and it stands as a defect so a broken mirror never reads clean.
-            defects += summaries
-        if not rejected:
+        text = f"{Path(source).name}:{number}: {message}"
+        if owner is None:
+            others.append(text)
+            continue
+        owner.defects.append(text)
+        # A defect on a line a statement of the draft wrote rejects that statement, and a defect elsewhere stays a defect.
+        index = int(number) - 1
+        if 0 <= index < len(owner.origins) and owner.origins[index] is not None:
+            key = owner.keys[owner.origins[index]]
+            if key is not None and key not in owner.due:
+                rejected[owner.stem].setdefault(key, []).append((int(number), message.strip()))
+    if summaries and not others and not any(s.defects or s.cascades for s in stems):
+        # An error outside a Swift file is the build's own, and it stands as a defect so a broken mirror never reads clean.
+        others += summaries
+    return rejected, others
+
+
+def run(stems: list[Stem], make=build) -> tuple[int, list[str]]:
+    """Every stem of the run spliced into the mirror and one build per pass.
+    A stem with a new compile hole drafts again on the next pass, and a stem with none keeps its draft as it stands.
+    The passes and the defects in no stem's file come back."""
+    pending = list(stems)
+    passes = 0
+    while True:
+        passes += 1
+        for s in pending:
+            s.write()
+        rejected, others = attribute(make(), stems)
+        pending = [s for s in stems if rejected[s.stem]]
+        if not pending:
             break
         if passes == PASSES:
-            capped = True
+            for s in pending:
+                s.capped = True
             break
-        for key, found in rejected.items():
-            due[key] = min(found)[1]
-    sk.table.store.save_rejected(lowered, LANGUAGE, stem, [(function, seq, message) for (_, function, seq), message in sorted(due.items())])
+        for s in pending:
+            for key, found in rejected[s.stem].items():
+                s.due[key] = min(found)[1]
+    return passes, others
+
+
+def gate(sk: Skeleton, registry: Registry, stems: list[str], lowered: str) -> tuple[list[Stem], int, list[str]]:
+    """The stems of the run drafted, spliced into the mirror together, and built there, pass by pass.
+    Each stem's line and its defects go to stdout after the last pass, and the mirror holds the hand text again at the end.
+    The compile holes of the last pass go to the store under the lowered key."""
+    # The hand functions of an adopted stem stay, each classed against the draft that holds the compile holes the hand file holds.
+    from align import adopted
+
+    states: list[Stem] = []
+    for stem in stems:
+        path = stub_path(stem)
+        s = Stem(sk, registry, stem, path, MIRROR / path.relative_to(REPO))
+        if adopted(stem):
+            first = Drafter(sk, registry, hand_due(sk, stem, s.hand))
+            drafts = []
+            for fn in sk.files[stem]:
+                first.draft(fn)
+                drafts.append((fn.cur.spelling, first.rows()[1]))
+            s.keep = kept(s.hand, drafts)
+        states.append(s)
+    passes, others = run(states)
     DRAFTS.mkdir(parents=True, exist_ok=True)
-    (DRAFTS / f"{stem}.swift").write_text("\n".join(draft) + "\n")
-    cap = f", the cap of {PASSES} passes hit" if capped else ""
-    print(f"{stem}: {replaced} of {len(functions(hand))} hand functions replaced, {len(keep)} kept, {drafter.holes} holes, {cascades} cascade errors, {len(defects)} defects, "
-          f"{drafter.compile_holes} compile holes over {passes} passes{cap}")
-    for line in defects:
-        print(f"  {line}")
-    subprocess.run(["rsync", "-a", str(path), str(target)], check=True)
-    return drafter.holes, cascades, len(defects), drafter.compile_holes, passes, capped
+    for s in states:
+        sk.table.store.save_rejected(lowered, LANGUAGE, s.stem, [(function, seq, message) for (_, function, seq), message in sorted(s.due.items())])
+        (DRAFTS / f"{s.stem}.swift").write_text("\n".join(s.draft) + "\n")
+        cap = f", the cap of {PASSES} passes hit" if s.capped else ""
+        print(f"{s.stem}: {s.replaced} of {len(functions(s.hand))} hand functions replaced, {len(s.keep)} kept, {s.holes} holes, {s.cascades} cascade errors, "
+              f"{len(s.defects)} defects, {s.compile_holes} compile holes over {s.passes} passes{cap}")
+        for line in s.defects:
+            print(f"  {line}")
+        subprocess.run(["rsync", "-a", str(stub_path(s.stem)), str(s.target)], check=True)
+    if others:
+        print(f"other files: {len(others)} defects")
+        for line in others:
+            print(f"  {line}")
+    print(f"run: {passes} passes, {passes} builds")
+    return states, passes, others
 
 
 def main() -> None:
@@ -267,19 +331,12 @@ def main() -> None:
     stems += sorted(stem for stem in sk.files if target_of(stem) in targets and stem not in stems)
     mirror()
     lowered, _ = lowered_key(sk)
-    holes = 0
-    cascades = 0
-    defects = 0
-    compile_holes = 0
-    capped: list[str] = []
-    for stem in stems:
-        counts = gate(sk, registry, stem, lowered)
-        holes += counts[0]
-        cascades += counts[1]
-        defects += counts[2]
-        compile_holes += counts[3]
-        if counts[5]:
-            capped.append(stem)
+    states, _, others = gate(sk, registry, stems, lowered)
+    holes = sum(s.holes for s in states)
+    cascades = sum(s.cascades for s in states)
+    defects = sum(len(s.defects) for s in states) + len(others)
+    compile_holes = sum(s.compile_holes for s in states)
+    capped = [s.stem for s in states if s.capped]
     print(f"build log: {LOG}")
     print(f"total: {holes} holes, {cascades} cascade errors, {defects} defects, {compile_holes} compile holes")
     if capped:
