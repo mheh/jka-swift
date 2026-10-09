@@ -1122,9 +1122,7 @@ func G_InitGame(_ levelTime: Int32, _ randomSeed: Int32, _ restart: Int32) {
 
             // initialize all entities for this game
             g_entities.zero()
-            // Port-note: Raven stores `level.gentities = g_entities`, and Swift holds the source as a Slots where the target takes one record. A Slots ruling is due. This statement needs a `gentitiesSlots` accessor on `Level`.
-            // Raven wrote: level.gentities = g_entities
-            portMissing("G_InitGame", source: "oracle/codemp/game/g_main.c:897")
+            level.gentities = g_entities[0]
 
             // initialize all clients for this game
             level.maxclients = g_maxclients.integer
