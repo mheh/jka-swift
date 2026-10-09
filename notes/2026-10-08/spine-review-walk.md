@@ -112,3 +112,9 @@ The drafter items, each a shape rule in a lowering module.
 | Row | Verdict | Ruled by | Date |
 |---|---|---|---|
 | R4, the four holes on `BIG_INFO_STRING` | Ratified as proposed. The placement of the `q_shared.h` constants that shared bodies read is ruled for `merge.py`. The fix is the partition rule, not a hand constant: a tree macro that a shared `.c` body reads goes where JKAShared sees it. The row leaves the parked state and joins the drafter round's docket beside the five drafter items and G1. | User | 2026-10-08 |
+
+## The amendment of R4, 2026-10-09
+
+| Row | Verdict | Ruled by | Date |
+|---|---|---|---|
+| R4, amended | Amended as proposed. The rule stands as ruled, and its reach is three macros: `BIG_INFO_STRING`, `BIG_INFO_KEY`, and `BIG_INFO_VALUE`, defined together at lines 388 to 390 of the MP `q_shared.h` and read together by the big-info functions of q_shared. The move lands them where JKAShared sees them, and the game module's re-export of the three names follows from one run of `reexport.py`, which a builder runs only when a rule changed, and this is such a change. The gate is `swift build` at 0 errors and `swift test --no-parallel` at 106 tests. A regenerate that moves any file beyond the three placements and their re-exports stops the item. The four holes of q_shared on these names go away at the next re-splice. | User | 2026-10-09 |
