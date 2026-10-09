@@ -61,6 +61,14 @@ class Shapes(unittest.TestCase):
         self.assertIn("if s.isEmpty {", self.draft("COM_ParseString"))
         self.assertIn("if CharBuf(token)[1] == 0 {", self.draft("SkipBracedSection"))
 
+    def test_a_return_in_a_void_function_drops_the_value(self) -> None:
+        # given Q_strlwr, which Raven writes as `return s1` and the table makes void
+        lines = self.draft("Q_strlwr")
+
+        # then the return carries no value
+        self.assertIn("return", lines)
+        self.assertNotIn("return s1", lines)
+
 
 if __name__ == "__main__":
     unittest.main()

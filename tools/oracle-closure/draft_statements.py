@@ -466,6 +466,11 @@ class Statements:
                 return [f"{pad}return true" + self.trailing(cur)]
             if not kids:
                 return [f"{pad}return" + self.trailing(cur)]
+            if self.fn.returns is None:
+                # The table makes the function void, so the return drops Raven's value and keeps any call in it.
+                value = self.unwrap(kids[0])
+                kept = [] if value.kind in (CursorKind.DECL_REF_EXPR, CursorKind.INTEGER_LITERAL) else self.statement_lines(kids[0], depth)
+                return kept + [f"{pad}return" + self.trailing(cur)]
             if self.is_null(kids[0]) and self.fn.returns and self.fn.returns.endswith("?"):
                 return [f"{pad}return nil" + self.trailing(cur)]
             if self.is_null(kids[0]) and self.fn.returns and not self.fn.returns.endswith("?") and self.fn.returns not in ("Int32", "Float", "Double", "Bool"):
