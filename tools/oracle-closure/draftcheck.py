@@ -20,7 +20,7 @@ Usage:
   .venv/bin/python draftcheck.py --stem bg_pmove,bg_misc
   .venv/bin/python draftcheck.py --all      # every bg stem
   .venv/bin/python draftcheck.py --game     # every game stem under Sources/JKAMP_GameLogic
-  .venv/bin/python draftcheck.py --every    # the bg stems and the game stems
+  .venv/bin/python draftcheck.py --every    # the bg stems, the game stems, and the shared stems under Sources/JKAShared
 """
 
 from __future__ import annotations
@@ -35,7 +35,7 @@ import closure as C
 from bodies import LANGUAGE, Drafter, Registry, lowered_key
 from printer import function_lines
 from reexport import REPO
-from skeleton import BG, LOGIC, Skeleton, stub_path, target_of
+from skeleton import BG, LOGIC, SHARED, Skeleton, stub_path, target_of
 
 MIRROR = REPO / ".build-draft" / "tree"
 SCRATCH = REPO / ".build-draft" / "scratch"
@@ -201,7 +201,7 @@ def main() -> None:
     parser.add_argument("--stem", action="append", default=[], help="the Raven files to draft and build, bg_pmove,bg_misc")
     parser.add_argument("--all", action="store_true", help="every Raven file the skeleton holds under Sources/JKAMP_BG")
     parser.add_argument("--game", action="store_true", help="every Raven file the skeleton holds under Sources/JKAMP_GameLogic")
-    parser.add_argument("--every", action="store_true", help="the files of --all and of --game")
+    parser.add_argument("--every", action="store_true", help="the files of --all and of --game, and every Raven file the skeleton holds under Sources/JKAShared")
     args = parser.parse_args()
     if not (args.stem or args.all or args.game or args.every):
         parser.error("give --stem, --all, --game, or --every")
@@ -212,6 +212,8 @@ def main() -> None:
         targets.add(BG)
     if args.game or args.every:
         targets.add(LOGIC)
+    if args.every:
+        targets.add(SHARED)
     stems = [stem for group in args.stem for stem in group.split(",")]
     stems += sorted(stem for stem in sk.files if target_of(stem) in targets and stem not in stems)
     mirror()
