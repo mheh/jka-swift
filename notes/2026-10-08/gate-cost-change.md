@@ -27,3 +27,13 @@
    - ai_wpnav: `ai_wpnav.swift:242: cannot convert return expression of type 'CharBuf' to return type 'String'`
 3. The game gate took 888 seconds and passed the 600-second limit of one call, so it went on in the background. Eight builds of the full set cost more than the one-stem builds did, because each build compiles every drafted file.
 4. The q_shared gate shows 159 holes and 22 compile holes against the reference of 167 and 35, with 0 defects. G1 and R5 are the expected cause.
+
+## The cap run
+
+`PASSES` is 24 for every run. The code does not tell a single-stem run from a shared run, so one cap applies to both. The tool tests pass, with 10 skipped.
+
+`draftcheck.py --game` took 13 passes and 13 builds in 1144 seconds. It shows 1211 holes, 0 cascade errors, 0 defects, and 136 compile holes. The references are 1357 holes, 0 defects, and 224 compile holes. No stem hit the cap, and no defect remains.
+
+1. The holes are 146 under the reference, and the compile holes are 88 under the reference. G1 and R5 landed before this run and lower both counts, but this run does not show how much of the difference comes from them.
+2. The run passed the 600-second limit of one call, so it went on in the background. The run of one build per stem took 3,255 seconds, so this run takes about one third of that time.
+3. The output prints no line for each pass and no wall time for each pass. It does not show how many stems still had a defect at pass 8, 12, 16, or 20.
