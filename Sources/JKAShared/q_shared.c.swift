@@ -75,8 +75,8 @@ public func COM_SkipPath(_ pathname: inout JKAShared.CharBuf) -> Int32 {
     // Port-note: A store into `last`, a local the draft left as a hole.
     // Raven wrote: last = pathname
     portMissing("COM_SkipPath", source: "oracle/codemp/game/q_shared.c:80")
-    // Port-note: referencing operator function '!=' on 'BinaryInteger' requires that 'CharBuf' conform to 'BinaryInteger'
-    // Raven wrote: while pathname != 0 { if pathname == Int32(ascii: "/") { // Port-note: A store into `last`, a local the draft left as a hole. // Raven wrote: last = pathname+1 portMissing("COM_SkipPath", source: "oracle/codemp/game/q_shared.c:80") } pathname += 1 }
+    // Port-note: The draft of this statement did not compile, and the compiler wrote "referencing operator function '!=' on 'BinaryInteger' requires that 'CharBuf' conform to 'BinaryInteger'".
+    // Raven wrote: while (*pathname) { if (*pathname=='/') last = pathname+1; pathname++; }
     portMissing("COM_SkipPath", source: "oracle/codemp/game/q_shared.c:80")
     // Port-note: A read of `last`, a local the draft left as a hole.
     // Raven wrote: return last
@@ -91,7 +91,7 @@ COM_StripExtension
 ```
 */
 /// Source: oracle/codemp/game/q_shared.c:99
-public func COM_StripExtension(_ `in`: String, _ out: inout CharBuf) {
+public func COM_StripExtension(_ `in`: String, _ out: inout JKAShared.CharBuf) {
     // Raven steps his own ``in`` parameter through its bytes, so the body walks a TextCursor over a copy of them.
     var `in` = TextCursor(CharBuf(`in`))
     while `in`.byte != 0 && `in`.byte != Int32(ascii: ".") {
@@ -99,8 +99,8 @@ public func COM_StripExtension(_ `in`: String, _ out: inout CharBuf) {
         // Raven wrote: *out++ = *in++
         portMissing("COM_StripExtension", source: "oracle/codemp/game/q_shared.c:99")
     }
-    // Port-note: cannot assign value of type 'Int' to type 'CharBuf'
-    // Raven wrote: out = 0
+    // Port-note: The draft of this statement did not compile, and the compiler wrote "cannot assign value of type 'Int' to type 'CharBuf'".
+    // Raven wrote: *out = 0
     portMissing("COM_StripExtension", source: "oracle/codemp/game/q_shared.c:99")
 }
 
@@ -112,7 +112,7 @@ COM_DefaultExtension
 ```
 */
 /// Source: oracle/codemp/game/q_shared.c:112
-public func COM_DefaultExtension(_ path: inout CharBuf, _ maxSize: Int32, _ `extension`: String) {
+public func COM_DefaultExtension(_ path: inout JKAShared.CharBuf, _ maxSize: Int32, _ `extension`: String) {
     var oldPath = CharBuf(64)
     // Port-note: A pointer local `char * src` with no view.
     // Raven wrote: char *src;
@@ -241,19 +241,13 @@ public func FloatNoSwap(_ f: Float) -> Float {
 
 /// Source: oracle/codemp/game/q_shared.c:284
 public func COM_BeginParseSession(_ name: String) {
-    // Port-note: cannot find 'com_lines' in scope
-    // Raven wrote: com_lines = 0
-    portMissing("COM_BeginParseSession", source: "oracle/codemp/game/q_shared.c:284")
-    // Port-note: cannot convert value of type '_' to expected argument type 'CharBuf'
-    // Raven wrote: Com_sprintf(&com_parsename, Int32((com_parsename).count), "%s", name)
-    portMissing("COM_BeginParseSession", source: "oracle/codemp/game/q_shared.c:284")
+    com_lines = 0
+    Com_sprintf(&com_parsename, Int32((com_parsename).count), "%s", name)
 }
 
 /// Source: oracle/codemp/game/q_shared.c:290
 public func COM_GetCurrentParseLine() -> Int32 {
-    // Port-note: cannot find 'com_lines' in scope
-    // Raven wrote: return com_lines
-    portMissing("COM_GetCurrentParseLine", source: "oracle/codemp/game/q_shared.c:290")
+    return com_lines
 }
 
 /// Source: oracle/codemp/game/q_shared.c:295
@@ -278,9 +272,7 @@ public func COM_ParseError(_ format: inout JKAShared.CharBuf, _ args: any JKASha
     // Raven wrote: va_end (argptr)
     portMissing("COM_ParseError", source: "oracle/codemp/game/q_shared.c:300")
 
-    // Port-note: cannot find 'Com_Printf' in scope
-    // Raven wrote: Com_Printf("ERROR: %s, line %d: %s\n", com_parsename, com_lines, string)
-    portMissing("COM_ParseError", source: "oracle/codemp/game/q_shared.c:300")
+    Com_Printf("ERROR: %s, line %d: %s\n", com_parsename, com_lines, string)
 }
 
 /// Source: oracle/codemp/game/q_shared.c:312
@@ -300,9 +292,7 @@ public func COM_ParseWarning(_ format: inout JKAShared.CharBuf, _ args: any JKAS
     // Raven wrote: va_end (argptr)
     portMissing("COM_ParseWarning", source: "oracle/codemp/game/q_shared.c:312")
 
-    // Port-note: cannot find 'Com_Printf' in scope
-    // Raven wrote: Com_Printf("WARNING: %s, line %d: %s\n", com_parsename, com_lines, string)
-    portMissing("COM_ParseWarning", source: "oracle/codemp/game/q_shared.c:312")
+    Com_Printf("WARNING: %s, line %d: %s\n", com_parsename, com_lines, string)
 }
 
 /**
@@ -333,7 +323,7 @@ public func SkipWhitespace(_ data: JKAShared.TextCursor, _ hasNewLines: inout Bo
 }
 
 /// Source: oracle/codemp/game/q_shared.c:353
-public func COM_Compress(_ data_p: inout CharBuf) -> Int32 {
+public func COM_Compress(_ data_p: inout JKAShared.CharBuf) -> Int32 {
     // Port-note: A pointer local `char * in` with no view.
     // Raven wrote: char *in;
     portMissing("COM_Compress", source: "oracle/codemp/game/q_shared.c:353")
@@ -371,9 +361,7 @@ public func COM_ParseExt(_ data_p: inout JKAShared.TextCursor, _ allowLineBreaks
     // Raven wrote: data = *data_p
     portMissing("COM_ParseExt", source: "oracle/codemp/game/q_shared.c:421")
     len = 0
-    // Port-note: cannot find 'com_token' in scope
-    // Raven wrote: com_token[0] = 0
-    portMissing("COM_ParseExt", source: "oracle/codemp/game/q_shared.c:421")
+    com_token[0] = 0
 
     // make sure incoming data is valid
     // Port-note: A read of `data`, a local the draft left as a hole.
@@ -392,7 +380,7 @@ public func COM_ParseExt(_ data_p: inout JKAShared.TextCursor, _ allowLineBreaks
             // Port-note: A read of `data`, a local the draft left as a hole.
             // Raven wrote: *data_p = data
             portMissing("COM_ParseExt", source: "oracle/codemp/game/q_shared.c:421")
-            // Port-note: cannot find 'com_token' in scope
+            // Port-note: The draft of this statement did not compile, and the compiler wrote "cannot convert return expression of type 'CharBuf' to return type 'String'".
             // Raven wrote: return com_token
             portMissing("COM_ParseExt", source: "oracle/codemp/game/q_shared.c:421")
         }
@@ -417,20 +405,16 @@ public func COM_ParseExt(_ data_p: inout JKAShared.TextCursor, _ allowLineBreaks
             // Raven wrote: c = *data++
             portMissing("COM_ParseExt", source: "oracle/codemp/game/q_shared.c:421")
             if c == Int32(ascii: "\"") || c == 0 {
-                // Port-note: cannot find 'com_token' in scope
-                // Raven wrote: com_token[len] = 0
-                portMissing("COM_ParseExt", source: "oracle/codemp/game/q_shared.c:421")
+                com_token[len] = 0
                 // Port-note: A read of `data`, a local the draft left as a hole.
                 // Raven wrote: *data_p = ( char * ) data
                 portMissing("COM_ParseExt", source: "oracle/codemp/game/q_shared.c:421")
-                // Port-note: cannot find 'com_token' in scope
+                // Port-note: The draft of this statement did not compile, and the compiler wrote "cannot convert return expression of type 'CharBuf' to return type 'String'".
                 // Raven wrote: return com_token
                 portMissing("COM_ParseExt", source: "oracle/codemp/game/q_shared.c:421")
             }
             if len < MAX_TOKEN_CHARS {
-                // Port-note: cannot find 'com_token' in scope
-                // Raven wrote: com_token[len] = c
-                portMissing("COM_ParseExt", source: "oracle/codemp/game/q_shared.c:421")
+                com_token[len] = c
                 len += 1
             }
         }
@@ -439,9 +423,7 @@ public func COM_ParseExt(_ data_p: inout JKAShared.TextCursor, _ allowLineBreaks
     // parse a regular word
     repeat {
         if len < MAX_TOKEN_CHARS {
-            // Port-note: cannot find 'com_token' in scope
-            // Raven wrote: com_token[len] = c
-            portMissing("COM_ParseExt", source: "oracle/codemp/game/q_shared.c:421")
+            com_token[len] = c
             len += 1
         }
         // Port-note: A read of `data`, a local the draft left as a hole.
@@ -451,9 +433,7 @@ public func COM_ParseExt(_ data_p: inout JKAShared.TextCursor, _ allowLineBreaks
         // Raven wrote: c = *data
         portMissing("COM_ParseExt", source: "oracle/codemp/game/q_shared.c:421")
         if c == Int32(ascii: "\n") {
-            // Port-note: cannot find 'com_lines' in scope
-            // Raven wrote: com_lines += 1
-            portMissing("COM_ParseExt", source: "oracle/codemp/game/q_shared.c:421")
+            com_lines += 1
         }
     } while c > 32
 
@@ -461,14 +441,12 @@ public func COM_ParseExt(_ data_p: inout JKAShared.TextCursor, _ allowLineBreaks
         //		Com_Printf ("Token exceeded %i chars, discarded.\n", MAX_TOKEN_CHARS);
         len = 0
     }
-    // Port-note: cannot find 'com_token' in scope
-    // Raven wrote: com_token[len] = 0
-    portMissing("COM_ParseExt", source: "oracle/codemp/game/q_shared.c:421")
+    com_token[len] = 0
 
     // Port-note: A read of `data`, a local the draft left as a hole.
     // Raven wrote: *data_p = ( char * ) data
     portMissing("COM_ParseExt", source: "oracle/codemp/game/q_shared.c:421")
-    // Port-note: cannot find 'com_token' in scope
+    // Port-note: The draft of this statement did not compile, and the compiler wrote "cannot convert return expression of type 'CharBuf' to return type 'String'".
     // Raven wrote: return com_token
     portMissing("COM_ParseExt", source: "oracle/codemp/game/q_shared.c:421")
 }
@@ -484,8 +462,8 @@ COM_ParseString
 public func COM_ParseString(_ data: inout JKAShared.TextCursor, _ s: inout String) -> Bool {
     //	*s = COM_ParseExt( data, qtrue );
     s = COM_ParseExt(&data, false)
-    // Port-note: binary operator '==' cannot be applied to operands of type 'Character' and 'Int'
-    // Raven wrote: if s[0] == 0 { Com_Printf("unexpected EOF\n") return true }
+    // Port-note: The draft of this statement did not compile, and the compiler wrote "binary operator '==' cannot be applied to operands of type 'Character' and 'Int'".
+    // Raven wrote: if ( s[0] == 0 ) { Com_Printf("unexpected EOF\n"); return qtrue; }
     portMissing("COM_ParseString", source: "oracle/codemp/game/q_shared.c:588")
     return false
 }
@@ -503,9 +481,7 @@ public func COM_ParseInt(_ data: inout JKAShared.TextCursor, _ i: inout Int32) -
 
     token = COM_ParseExt(&data, false)
     if token.isEmpty {
-        // Port-note: cannot find 'Com_Printf' in scope
-        // Raven wrote: Com_Printf("unexpected EOF\n")
-        portMissing("COM_ParseInt", source: "oracle/codemp/game/q_shared.c:605")
+        Com_Printf("unexpected EOF\n")
         return true
     }
 
@@ -526,9 +502,7 @@ public func COM_ParseFloat(_ data: inout JKAShared.TextCursor, _ f: inout Float)
 
     token = COM_ParseExt(&data, false)
     if token.isEmpty {
-        // Port-note: cannot find 'Com_Printf' in scope
-        // Raven wrote: Com_Printf("unexpected EOF\n")
-        portMissing("COM_ParseFloat", source: "oracle/codemp/game/q_shared.c:625")
+        Com_Printf("unexpected EOF\n")
         return true
     }
 
@@ -553,8 +527,8 @@ public func COM_ParseVec4(_ buffer: inout JKAShared.TextCursor, _ c: inout JKASh
         if COM_ParseFloat(&buffer, &f) {
             return true
         }
-        // Port-note: cannot convert value of type 'Int32' to expected argument type 'Int'
-        // Raven wrote: (c)[i] = f
+        // Port-note: The draft of this statement did not compile, and the compiler wrote "cannot convert value of type 'Int32' to expected argument type 'Int'".
+        // Raven wrote: (*c)[i] = f
         portMissing("COM_ParseVec4", source: "oracle/codemp/game/q_shared.c:645")
         i += 1
     }
@@ -574,8 +548,8 @@ public func COM_MatchToken(_ buf_p: inout JKAShared.TextCursor, _ match: String)
 
     token = COM_Parse(&buf_p)
     if strcmp(token, match) != 0 {
-        // Port-note: cannot find 'Com_Error' in scope
-        // Raven wrote: Com_Error(ERR_DROP, "MatchToken: %s != %s", token, match)
+        // Port-note: The draft of this statement did not compile, and the compiler wrote "cannot find 'ERR_DROP' in scope".
+        // Raven wrote: Com_Error( ERR_DROP, "MatchToken: %s != %s", token, match )
         portMissing("COM_MatchToken", source: "oracle/codemp/game/q_shared.c:666")
     }
 }
@@ -599,8 +573,8 @@ public func SkipBracedSection(_ program: inout JKAShared.TextCursor) {
     depth = 0
     repeat {
         token = COM_ParseExt(&program, true)
-        // Port-note: binary operator '==' cannot be applied to operands of type 'Character' and 'Int'
-        // Raven wrote: if token[1] == 0 { if token[0] == Int32(ascii: "{") { depth += 1 } else if token[0] == Int32(ascii: "}") { depth -= 1 } }
+        // Port-note: The draft of this statement did not compile, and the compiler wrote "binary operator '==' cannot be applied to operands of type 'Character' and 'Int'".
+        // Raven wrote: if( token[1] == 0 ) { if( token[0] == '{' ) { depth++; } else if( token[0] == '}' ) { depth--; } }
         portMissing("SkipBracedSection", source: "oracle/codemp/game/q_shared.c:685")
     } while depth != 0 && program != nil
 }
@@ -636,9 +610,7 @@ public func Parse1DMatrix(_ buf_p: inout JKAShared.TextCursor, _ x: Int32, _ m: 
     var token: String
     var i: Int32
 
-    // Port-note: Raven passes `"("` to `COM_MatchToken`, whose `char *` parameter the stub holds as an inout CharBuf. Docket row 5 is due.
-    // Raven wrote: COM_MatchToken( buf_p, "(" )
-    portMissing("Parse1DMatrix", source: "oracle/codemp/game/q_shared.c:724")
+    COM_MatchToken(&buf_p, "(")
 
     i = 0
     while i < x {
@@ -647,51 +619,41 @@ public func Parse1DMatrix(_ buf_p: inout JKAShared.TextCursor, _ x: Int32, _ m: 
         i += 1
     }
 
-    // Port-note: Raven passes `")"` to `COM_MatchToken`, whose `char *` parameter the stub holds as an inout CharBuf. Docket row 5 is due.
-    // Raven wrote: COM_MatchToken( buf_p, ")" )
-    portMissing("Parse1DMatrix", source: "oracle/codemp/game/q_shared.c:724")
+    COM_MatchToken(&buf_p, ")")
 }
 
 /// Source: oracle/codemp/game/q_shared.c:738
 public func Parse2DMatrix(_ buf_p: inout JKAShared.TextCursor, _ y: Int32, _ x: Int32, _ m: inout [Float]) {
     var i: Int32
 
-    // Port-note: Raven passes `"("` to `COM_MatchToken`, whose `char *` parameter the stub holds as an inout CharBuf. Docket row 5 is due.
-    // Raven wrote: COM_MatchToken( buf_p, "(" )
-    portMissing("Parse2DMatrix", source: "oracle/codemp/game/q_shared.c:738")
+    COM_MatchToken(&buf_p, "(")
 
     i = 0
     while i < y {
-        // Port-note: cannot convert value of type 'UnsafeMutableRawPointer' to expected argument type '[Float]'
-        // Raven wrote: Parse1DMatrix(&buf_p, x, &m + i * x)
+        // Port-note: The draft of this statement did not compile, and the compiler wrote "cannot convert value of type 'UnsafeMutableRawPointer' to expected argument type '[Float]'".
+        // Raven wrote: Parse1DMatrix (buf_p, x, m + i * x)
         portMissing("Parse2DMatrix", source: "oracle/codemp/game/q_shared.c:738")
         i += 1
     }
 
-    // Port-note: Raven passes `")"` to `COM_MatchToken`, whose `char *` parameter the stub holds as an inout CharBuf. Docket row 5 is due.
-    // Raven wrote: COM_MatchToken( buf_p, ")" )
-    portMissing("Parse2DMatrix", source: "oracle/codemp/game/q_shared.c:738")
+    COM_MatchToken(&buf_p, ")")
 }
 
 /// Source: oracle/codemp/game/q_shared.c:750
 public func Parse3DMatrix(_ buf_p: inout JKAShared.TextCursor, _ z: Int32, _ y: Int32, _ x: Int32, _ m: inout [Float]) {
     var i: Int32
 
-    // Port-note: Raven passes `"("` to `COM_MatchToken`, whose `char *` parameter the stub holds as an inout CharBuf. Docket row 5 is due.
-    // Raven wrote: COM_MatchToken( buf_p, "(" )
-    portMissing("Parse3DMatrix", source: "oracle/codemp/game/q_shared.c:750")
+    COM_MatchToken(&buf_p, "(")
 
     i = 0
     while i < z {
-        // Port-note: cannot convert value of type 'UnsafeMutableRawPointer' to expected argument type '[Float]'
-        // Raven wrote: Parse2DMatrix(&buf_p, y, x, &m + i * x * y)
+        // Port-note: The draft of this statement did not compile, and the compiler wrote "cannot convert value of type 'UnsafeMutableRawPointer' to expected argument type '[Float]'".
+        // Raven wrote: Parse2DMatrix (buf_p, y, x, m + i * x*y)
         portMissing("Parse3DMatrix", source: "oracle/codemp/game/q_shared.c:750")
         i += 1
     }
 
-    // Port-note: Raven passes `")"` to `COM_MatchToken`, whose `char *` parameter the stub holds as an inout CharBuf. Docket row 5 is due.
-    // Raven wrote: COM_MatchToken( buf_p, ")" )
-    portMissing("Parse3DMatrix", source: "oracle/codemp/game/q_shared.c:750")
+    COM_MatchToken(&buf_p, ")")
 }
 
 /// Source: oracle/codemp/game/q_shared.c:771
@@ -728,8 +690,8 @@ public func Q_isalpha(_ c: Int32) -> Int32 {
 
 /// Source: oracle/codemp/game/q_shared.c:799
 public func Q_strrchr(_ string: String, _ c: Int32) -> Int32? {
-    // Port-note: cannot convert value of type 'Int32' to specified type 'CChar' (aka 'Int8')
-    // Raven wrote: let cc: CChar = c
+    // Port-note: The draft of this statement did not compile, and the compiler wrote "cannot convert value of type 'Int32' to specified type 'CChar' (aka 'Int8')".
+    // Raven wrote: char cc = c;
     portMissing("Q_strrchr", source: "oracle/codemp/game/q_shared.c:799")
     // Port-note: A pointer local `char * s` with no view.
     // Raven wrote: char *s;
@@ -745,8 +707,8 @@ public func Q_strrchr(_ string: String, _ c: Int32) -> Int32? {
     // Port-note: A pointer dereference the draft cannot place.
     // Raven wrote: while (*s) { if (*s == cc) sp = s; s++; }
     portMissing("Q_strrchr", source: "oracle/codemp/game/q_shared.c:799")
-    // Port-note: cannot find 'cc' in scope
-    // Raven wrote: if cc == 0 { // Port-note: A store into `sp`, a local the draft left as a hole. // Raven wrote: sp = s portMissing("Q_strrchr", source: "oracle/codemp/game/q_shared.c:799") }
+    // Port-note: A read of `cc`, a local the draft left as a hole.
+    // Raven wrote: if (cc == 0) sp = s
     portMissing("Q_strrchr", source: "oracle/codemp/game/q_shared.c:799")
 
     // Port-note: A read of `sp`, a local the draft left as a hole.
@@ -764,11 +726,11 @@ Safe strncpy that ensures a trailing zero
 ```
 */
 /// Source: oracle/codemp/game/q_shared.c:826
-public func Q_strncpyz(_ dest: inout CharBuf, _ src: String, _ destsize: Int32) {
+public func Q_strncpyz(_ dest: inout JKAShared.CharBuf, _ src: String, _ destsize: Int32) {
     // bk001129 - also NULL dest
     if destsize < 1 {
-        // Port-note: cannot find 'Com_Error' in scope
-        // Raven wrote: Com_Error(ERR_FATAL, "Q_strncpyz: destsize < 1")
+        // Port-note: The draft of this statement did not compile, and the compiler wrote "cannot find 'ERR_FATAL' in scope".
+        // Raven wrote: Com_Error(ERR_FATAL,"Q_strncpyz: destsize < 1" )
         portMissing("Q_strncpyz", source: "oracle/codemp/game/q_shared.c:826")
     }
 
@@ -884,7 +846,7 @@ public func Q_strlwr(_ s1: inout JKAShared.CharBuf) {
     // Port-note: A pointer dereference the draft cannot place.
     // Raven wrote: while ( *s ) { *s = tolower(*s); s++; }
     portMissing("Q_strlwr", source: "oracle/codemp/game/q_shared.c:905")
-    // Port-note: unexpected non-void return value in void function
+    // Port-note: The draft of this statement did not compile, and the compiler wrote "unexpected non-void return value in void function".
     // Raven wrote: return s1
     portMissing("Q_strlwr", source: "oracle/codemp/game/q_shared.c:905")
 }
@@ -910,7 +872,7 @@ public func Q_strupr(_ s1: inout JKAShared.CharBuf) {
     // Port-note: A pointer dereference the draft cannot place.
     // Raven wrote: while ( *s ) { *s = toupper(*s); s++; }
     portMissing("Q_strupr", source: "oracle/codemp/game/q_shared.c:916")
-    // Port-note: unexpected non-void return value in void function
+    // Port-note: The draft of this statement did not compile, and the compiler wrote "unexpected non-void return value in void function".
     // Raven wrote: return s1
     portMissing("Q_strupr", source: "oracle/codemp/game/q_shared.c:916")
 }
@@ -925,17 +887,17 @@ public func Q_strupr(_ s1: String) -> String {
 
 // never goes past bounds or leaves without a terminating 0
 /// Source: oracle/codemp/game/q_shared.c:929
-public func Q_strcat(_ dest: inout CharBuf, _ size: Int32, _ src: String) {
+public func Q_strcat(_ dest: inout JKAShared.CharBuf, _ size: Int32, _ src: String) {
     let l1: Int32
 
     l1 = strlen(dest)
     if l1 >= size {
-        // Port-note: cannot find 'Com_Error' in scope
-        // Raven wrote: Com_Error(ERR_FATAL, "Q_strcat: already overflowed")
+        // Port-note: The draft of this statement did not compile, and the compiler wrote "cannot find 'ERR_FATAL' in scope".
+        // Raven wrote: Com_Error( ERR_FATAL, "Q_strcat: already overflowed" )
         portMissing("Q_strcat", source: "oracle/codemp/game/q_shared.c:929")
     }
-    // Port-note: cannot convert value of type 'UnsafeMutableRawPointer' to expected argument type 'CharBuf'
-    // Raven wrote: Q_strncpyz(&dest + l1, src, size - l1)
+    // Port-note: The draft of this statement did not compile, and the compiler wrote "cannot convert value of type 'UnsafeMutableRawPointer' to expected argument type 'CharBuf'".
+    // Raven wrote: Q_strncpyz( dest + l1, src, size - l1 )
     portMissing("Q_strcat", source: "oracle/codemp/game/q_shared.c:929")
 }
 
@@ -993,7 +955,7 @@ public func Q_CleanStr(_ string: inout JKAShared.CharBuf) {
     // Raven wrote: *d = '\0'
     portMissing("Q_CleanStr", source: "oracle/codemp/game/q_shared.c:963")
 
-    // Port-note: unexpected non-void return value in void function
+    // Port-note: The draft of this statement did not compile, and the compiler wrote "unexpected non-void return value in void function".
     // Raven wrote: return string
     portMissing("Q_CleanStr", source: "oracle/codemp/game/q_shared.c:963")
 }
@@ -1024,14 +986,12 @@ public func Com_sprintf(_ dest: inout JKAShared.CharBuf, _ size: Int32, _ fmt: S
     // Raven wrote: va_end (argptr)
     portMissing("Com_sprintf", source: "oracle/codemp/game/q_shared.c:985")
     if len >= Int32((bigbuffer).count) {
-        // Port-note: cannot find 'Com_Error' in scope
-        // Raven wrote: Com_Error(ERR_FATAL, "Com_sprintf: overflowed bigbuffer")
+        // Port-note: The draft of this statement did not compile, and the compiler wrote "cannot find 'ERR_FATAL' in scope".
+        // Raven wrote: Com_Error( ERR_FATAL, "Com_sprintf: overflowed bigbuffer" )
         portMissing("Com_sprintf", source: "oracle/codemp/game/q_shared.c:985")
     }
     if len >= size {
-        // Port-note: cannot find 'Com_Printf' in scope
-        // Raven wrote: Com_Printf("Com_sprintf: overflow of %i in %i\n", len, size)
-        portMissing("Com_sprintf", source: "oracle/codemp/game/q_shared.c:985")
+        Com_Printf("Com_sprintf: overflow of %i in %i\n", len, size)
     }
     Q_strncpyz(&dest, String(bigbuffer), size)
 }
@@ -1081,8 +1041,8 @@ public func Info_ValueForKey(_ s: String, _ key: String) -> String {
     var s = TextCursor(CharBuf(s))
 
 
-    // Port-note: cannot find 'BIG_INFO_STRING' in scope
-    // Raven wrote: if strlen(s.text) >= BIG_INFO_STRING { Com_Error(ERR_DROP, "Info_ValueForKey: oversize infostring") }
+    // Port-note: The draft of this statement did not compile, and the compiler wrote "cannot find 'BIG_INFO_STRING' in scope".
+    // Raven wrote: if ( strlen( s ) >= BIG_INFO_STRING ) { Com_Error( ERR_DROP, "Info_ValueForKey: oversize infostring" ); }
     portMissing("Info_ValueForKey", source: "oracle/codemp/game/q_shared.c:1051")
 
     // Port-note: A store into `valueindex`, a local the draft left as a hole.
@@ -1200,7 +1160,7 @@ Info_RemoveKey
 ```
 */
 /// Source: oracle/codemp/game/q_shared.c:1147
-public func Info_RemoveKey(_ s: inout CharBuf, _ key: String) {
+public func Info_RemoveKey(_ s: inout JKAShared.CharBuf, _ key: String) {
     // Port-note: A pointer local `char * start` with no view.
     // Raven wrote: char *start;
     portMissing("Info_RemoveKey", source: "oracle/codemp/game/q_shared.c:1147")
@@ -1211,8 +1171,8 @@ public func Info_RemoveKey(_ s: inout CharBuf, _ key: String) {
     portMissing("Info_RemoveKey", source: "oracle/codemp/game/q_shared.c:1147")
 
     if strlen(s) >= MAX_INFO_STRING {
-        // Port-note: cannot find 'Com_Error' in scope
-        // Raven wrote: Com_Error(ERR_DROP, "Info_RemoveKey: oversize infostring")
+        // Port-note: The draft of this statement did not compile, and the compiler wrote "cannot find 'ERR_DROP' in scope".
+        // Raven wrote: Com_Error( ERR_DROP, "Info_RemoveKey: oversize infostring" )
         portMissing("Info_RemoveKey", source: "oracle/codemp/game/q_shared.c:1147")
     }
 
@@ -1224,27 +1184,27 @@ public func Info_RemoveKey(_ s: inout CharBuf, _ key: String) {
         // Port-note: A store into `start`, a local the draft left as a hole.
         // Raven wrote: start = s
         portMissing("Info_RemoveKey", source: "oracle/codemp/game/q_shared.c:1147")
-        // Port-note: referencing operator function '==' on 'BinaryInteger' requires that 'CharBuf' conform to 'BinaryInteger'
-        // Raven wrote: if s == Int32(ascii: "\\") { s += 1 }
+        // Port-note: The draft of this statement did not compile, and the compiler wrote "referencing operator function '==' on 'BinaryInteger' requires that 'CharBuf' conform to 'BinaryInteger'".
+        // Raven wrote: if (*s == '\\') s++
         portMissing("Info_RemoveKey", source: "oracle/codemp/game/q_shared.c:1147")
         // Port-note: A store into `o`, a local the draft left as a hole.
         // Raven wrote: o = pkey
         portMissing("Info_RemoveKey", source: "oracle/codemp/game/q_shared.c:1147")
-        // Port-note: referencing operator function '!=' on 'BinaryInteger' requires that 'CharBuf' conform to 'BinaryInteger'
-        // Raven wrote: while s != Int32(ascii: "\\") { if s == 0 { return } // Port-note: A pointer dereference the draft cannot place. // Raven wrote: *o++ = *s++ portMissing("Info_RemoveKey", source: "oracle/codemp/game/q_shared.c:1147") }
+        // Port-note: The draft of this statement did not compile, and the compiler wrote "referencing operator function '!=' on 'BinaryInteger' requires that 'CharBuf' conform to 'BinaryInteger'".
+        // Raven wrote: while (*s != '\\') { if (!*s) return; *o++ = *s++; }
         portMissing("Info_RemoveKey", source: "oracle/codemp/game/q_shared.c:1147")
         // Port-note: A pointer dereference the draft cannot place.
         // Raven wrote: *o = 0
         portMissing("Info_RemoveKey", source: "oracle/codemp/game/q_shared.c:1147")
-        // Port-note: binary operator '+=' cannot be applied to operands of type 'CharBuf' and 'Int'
-        // Raven wrote: s += 1
+        // Port-note: The draft of this statement did not compile, and the compiler wrote "binary operator '+=' cannot be applied to operands of type 'CharBuf' and 'Int'".
+        // Raven wrote: s++
         portMissing("Info_RemoveKey", source: "oracle/codemp/game/q_shared.c:1147")
 
         // Port-note: A store into `o`, a local the draft left as a hole.
         // Raven wrote: o = value
         portMissing("Info_RemoveKey", source: "oracle/codemp/game/q_shared.c:1147")
-        // Port-note: referencing operator function '!=' on 'BinaryInteger' requires that 'CharBuf' conform to 'BinaryInteger'
-        // Raven wrote: while s != Int32(ascii: "\\") && s != 0 { if s == 0 { return } // Port-note: A pointer dereference the draft cannot place. // Raven wrote: *o++ = *s++ portMissing("Info_RemoveKey", source: "oracle/codemp/game/q_shared.c:1147") }
+        // Port-note: The draft of this statement did not compile, and the compiler wrote "referencing operator function '!=' on 'BinaryInteger' requires that 'CharBuf' conform to 'BinaryInteger'".
+        // Raven wrote: while (*s != '\\' && *s) { if (!*s) return; *o++ = *s++; }
         portMissing("Info_RemoveKey", source: "oracle/codemp/game/q_shared.c:1147")
         // Port-note: A pointer dereference the draft cannot place.
         // Raven wrote: *o = 0
@@ -1257,8 +1217,8 @@ public func Info_RemoveKey(_ s: inout CharBuf, _ key: String) {
             return
         }
 
-        // Port-note: referencing operator function '==' on 'BinaryInteger' requires that 'CharBuf' conform to 'BinaryInteger'
-        // Raven wrote: if s == 0 { return }
+        // Port-note: The draft of this statement did not compile, and the compiler wrote "referencing operator function '==' on 'BinaryInteger' requires that 'CharBuf' conform to 'BinaryInteger'".
+        // Raven wrote: if (!*s) return
         portMissing("Info_RemoveKey", source: "oracle/codemp/game/q_shared.c:1147")
     }
 }
@@ -1271,7 +1231,7 @@ Info_RemoveKey_Big
 ```
 */
 /// Source: oracle/codemp/game/q_shared.c:1202
-public func Info_RemoveKey_Big(_ s: inout CharBuf, _ key: String) {
+public func Info_RemoveKey_Big(_ s: inout JKAShared.CharBuf, _ key: String) {
     // Port-note: A pointer local `char * start` with no view.
     // Raven wrote: char *start;
     portMissing("Info_RemoveKey_Big", source: "oracle/codemp/game/q_shared.c:1202")
@@ -1281,8 +1241,8 @@ public func Info_RemoveKey_Big(_ s: inout CharBuf, _ key: String) {
     // Raven wrote: char *o;
     portMissing("Info_RemoveKey_Big", source: "oracle/codemp/game/q_shared.c:1202")
 
-    // Port-note: cannot find 'BIG_INFO_STRING' in scope
-    // Raven wrote: if strlen(s) >= BIG_INFO_STRING { Com_Error(ERR_DROP, "Info_RemoveKey_Big: oversize infostring") }
+    // Port-note: The draft of this statement did not compile, and the compiler wrote "cannot find 'BIG_INFO_STRING' in scope".
+    // Raven wrote: if ( strlen( s ) >= BIG_INFO_STRING ) { Com_Error( ERR_DROP, "Info_RemoveKey_Big: oversize infostring" ); }
     portMissing("Info_RemoveKey_Big", source: "oracle/codemp/game/q_shared.c:1202")
 
     if strchr(key, Int32(ascii: "\\")) != nil {
@@ -1293,27 +1253,27 @@ public func Info_RemoveKey_Big(_ s: inout CharBuf, _ key: String) {
         // Port-note: A store into `start`, a local the draft left as a hole.
         // Raven wrote: start = s
         portMissing("Info_RemoveKey_Big", source: "oracle/codemp/game/q_shared.c:1202")
-        // Port-note: referencing operator function '==' on 'BinaryInteger' requires that 'CharBuf' conform to 'BinaryInteger'
-        // Raven wrote: if s == Int32(ascii: "\\") { s += 1 }
+        // Port-note: The draft of this statement did not compile, and the compiler wrote "referencing operator function '==' on 'BinaryInteger' requires that 'CharBuf' conform to 'BinaryInteger'".
+        // Raven wrote: if (*s == '\\') s++
         portMissing("Info_RemoveKey_Big", source: "oracle/codemp/game/q_shared.c:1202")
         // Port-note: A store into `o`, a local the draft left as a hole.
         // Raven wrote: o = pkey
         portMissing("Info_RemoveKey_Big", source: "oracle/codemp/game/q_shared.c:1202")
-        // Port-note: referencing operator function '!=' on 'BinaryInteger' requires that 'CharBuf' conform to 'BinaryInteger'
-        // Raven wrote: while s != Int32(ascii: "\\") { if s == 0 { return } // Port-note: A pointer dereference the draft cannot place. // Raven wrote: *o++ = *s++ portMissing("Info_RemoveKey_Big", source: "oracle/codemp/game/q_shared.c:1202") }
+        // Port-note: The draft of this statement did not compile, and the compiler wrote "referencing operator function '!=' on 'BinaryInteger' requires that 'CharBuf' conform to 'BinaryInteger'".
+        // Raven wrote: while (*s != '\\') { if (!*s) return; *o++ = *s++; }
         portMissing("Info_RemoveKey_Big", source: "oracle/codemp/game/q_shared.c:1202")
         // Port-note: A pointer dereference the draft cannot place.
         // Raven wrote: *o = 0
         portMissing("Info_RemoveKey_Big", source: "oracle/codemp/game/q_shared.c:1202")
-        // Port-note: binary operator '+=' cannot be applied to operands of type 'CharBuf' and 'Int'
-        // Raven wrote: s += 1
+        // Port-note: The draft of this statement did not compile, and the compiler wrote "binary operator '+=' cannot be applied to operands of type 'CharBuf' and 'Int'".
+        // Raven wrote: s++
         portMissing("Info_RemoveKey_Big", source: "oracle/codemp/game/q_shared.c:1202")
 
         // Port-note: A store into `o`, a local the draft left as a hole.
         // Raven wrote: o = value
         portMissing("Info_RemoveKey_Big", source: "oracle/codemp/game/q_shared.c:1202")
-        // Port-note: referencing operator function '!=' on 'BinaryInteger' requires that 'CharBuf' conform to 'BinaryInteger'
-        // Raven wrote: while s != Int32(ascii: "\\") && s != 0 { if s == 0 { return } // Port-note: A pointer dereference the draft cannot place. // Raven wrote: *o++ = *s++ portMissing("Info_RemoveKey_Big", source: "oracle/codemp/game/q_shared.c:1202") }
+        // Port-note: The draft of this statement did not compile, and the compiler wrote "referencing operator function '!=' on 'BinaryInteger' requires that 'CharBuf' conform to 'BinaryInteger'".
+        // Raven wrote: while (*s != '\\' && *s) { if (!*s) return; *o++ = *s++; }
         portMissing("Info_RemoveKey_Big", source: "oracle/codemp/game/q_shared.c:1202")
         // Port-note: A pointer dereference the draft cannot place.
         // Raven wrote: *o = 0
@@ -1326,8 +1286,8 @@ public func Info_RemoveKey_Big(_ s: inout CharBuf, _ key: String) {
             return
         }
 
-        // Port-note: referencing operator function '==' on 'BinaryInteger' requires that 'CharBuf' conform to 'BinaryInteger'
-        // Raven wrote: if s == 0 { return }
+        // Port-note: The draft of this statement did not compile, and the compiler wrote "referencing operator function '==' on 'BinaryInteger' requires that 'CharBuf' conform to 'BinaryInteger'".
+        // Raven wrote: if (!*s) return
         portMissing("Info_RemoveKey_Big", source: "oracle/codemp/game/q_shared.c:1202")
     }
 }
@@ -1363,33 +1323,27 @@ Changes or adds a key/value pair
 ```
 */
 /// Source: oracle/codemp/game/q_shared.c:1280
-public func Info_SetValueForKey(_ s: inout CharBuf, _ key: String, _ value: String) {
+public func Info_SetValueForKey(_ s: inout JKAShared.CharBuf, _ key: String, _ value: String) {
     var newi = CharBuf(1024)
 
     if strlen(s) >= MAX_INFO_STRING {
-        // Port-note: cannot find 'Com_Error' in scope
-        // Raven wrote: Com_Error(ERR_DROP, "Info_SetValueForKey: oversize infostring")
+        // Port-note: The draft of this statement did not compile, and the compiler wrote "cannot find 'ERR_DROP' in scope".
+        // Raven wrote: Com_Error( ERR_DROP, "Info_SetValueForKey: oversize infostring" )
         portMissing("Info_SetValueForKey", source: "oracle/codemp/game/q_shared.c:1280")
     }
 
     if strchr(key, Int32(ascii: "\\")) != nil || strchr(value, Int32(ascii: "\\")) != nil {
-        // Port-note: cannot find 'Com_Printf' in scope
-        // Raven wrote: Com_Printf("Can't use keys or values with a \\\n")
-        portMissing("Info_SetValueForKey", source: "oracle/codemp/game/q_shared.c:1280")
+        Com_Printf("Can't use keys or values with a \\\n")
         return
     }
 
     if strchr(key, Int32(ascii: ";")) != nil || strchr(value, Int32(ascii: ";")) != nil {
-        // Port-note: cannot find 'Com_Printf' in scope
-        // Raven wrote: Com_Printf("Can't use keys or values with a semicolon\n")
-        portMissing("Info_SetValueForKey", source: "oracle/codemp/game/q_shared.c:1280")
+        Com_Printf("Can't use keys or values with a semicolon\n")
         return
     }
 
     if strchr(key, Int32(ascii: "\"")) != nil || strchr(value, Int32(ascii: "\"")) != nil {
-        // Port-note: cannot find 'Com_Printf' in scope
-        // Raven wrote: Com_Printf("Can't use keys or values with a \"\n")
-        portMissing("Info_SetValueForKey", source: "oracle/codemp/game/q_shared.c:1280")
+        Com_Printf("Can't use keys or values with a \"\n")
         return
     }
 
@@ -1401,9 +1355,7 @@ public func Info_SetValueForKey(_ s: inout CharBuf, _ key: String, _ value: Stri
     Com_sprintf(&newi, Int32((newi).count), "\\%s\\%s", key, value)
 
     if strlen(newi) + strlen(s) > MAX_INFO_STRING {
-        // Port-note: cannot find 'Com_Printf' in scope
-        // Raven wrote: Com_Printf("Info string length exceeded\n")
-        portMissing("Info_SetValueForKey", source: "oracle/codemp/game/q_shared.c:1280")
+        Com_Printf("Info string length exceeded\n")
         return
     }
 
@@ -1421,31 +1373,25 @@ Changes or adds a key/value pair
 ```
 */
 /// Source: oracle/codemp/game/q_shared.c:1328
-public func Info_SetValueForKey_Big(_ s: inout CharBuf, _ key: String, _ value: String) {
+public func Info_SetValueForKey_Big(_ s: inout JKAShared.CharBuf, _ key: String, _ value: String) {
     var newi = CharBuf(8192)
 
-    // Port-note: cannot find 'BIG_INFO_STRING' in scope
-    // Raven wrote: if strlen(s) >= BIG_INFO_STRING { Com_Error(ERR_DROP, "Info_SetValueForKey: oversize infostring") }
+    // Port-note: The draft of this statement did not compile, and the compiler wrote "cannot find 'BIG_INFO_STRING' in scope".
+    // Raven wrote: if ( strlen( s ) >= BIG_INFO_STRING ) { Com_Error( ERR_DROP, "Info_SetValueForKey: oversize infostring" ); }
     portMissing("Info_SetValueForKey_Big", source: "oracle/codemp/game/q_shared.c:1328")
 
     if strchr(key, Int32(ascii: "\\")) != nil || strchr(value, Int32(ascii: "\\")) != nil {
-        // Port-note: cannot find 'Com_Printf' in scope
-        // Raven wrote: Com_Printf("Can't use keys or values with a \\\n")
-        portMissing("Info_SetValueForKey_Big", source: "oracle/codemp/game/q_shared.c:1328")
+        Com_Printf("Can't use keys or values with a \\\n")
         return
     }
 
     if strchr(key, Int32(ascii: ";")) != nil || strchr(value, Int32(ascii: ";")) != nil {
-        // Port-note: cannot find 'Com_Printf' in scope
-        // Raven wrote: Com_Printf("Can't use keys or values with a semicolon\n")
-        portMissing("Info_SetValueForKey_Big", source: "oracle/codemp/game/q_shared.c:1328")
+        Com_Printf("Can't use keys or values with a semicolon\n")
         return
     }
 
     if strchr(key, Int32(ascii: "\"")) != nil || strchr(value, Int32(ascii: "\"")) != nil {
-        // Port-note: cannot find 'Com_Printf' in scope
-        // Raven wrote: Com_Printf("Can't use keys or values with a \"\n")
-        portMissing("Info_SetValueForKey_Big", source: "oracle/codemp/game/q_shared.c:1328")
+        Com_Printf("Can't use keys or values with a \"\n")
         return
     }
 
@@ -1456,8 +1402,8 @@ public func Info_SetValueForKey_Big(_ s: inout CharBuf, _ key: String, _ value: 
 
     Com_sprintf(&newi, Int32((newi).count), "\\%s\\%s", key, value)
 
-    // Port-note: cannot find 'BIG_INFO_STRING' in scope
-    // Raven wrote: if strlen(newi) + strlen(s) > BIG_INFO_STRING { Com_Printf("BIG Info string length exceeded\n") return }
+    // Port-note: The draft of this statement did not compile, and the compiler wrote "cannot find 'BIG_INFO_STRING' in scope".
+    // Raven wrote: if (strlen(newi) + strlen(s) > BIG_INFO_STRING) { Com_Printf ("BIG Info string length exceeded\n"); return; }
     portMissing("Info_SetValueForKey_Big", source: "oracle/codemp/game/q_shared.c:1328")
 
     strcat(&s, newi)
