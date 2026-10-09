@@ -106,3 +106,9 @@ The drafter items, each a shape rule in a lowering module.
 3. `tools/oracle-closure/draft_statements.py`, the `RETURN_STMT` arm: a `return` with a value in a function the table makes void drops the value. (R6)
 4. `tools/oracle-closure/draft_expressions.py`, the subscript arm, and `draft_declarations.py`, `declaration`: the index of a `SIMD` vector converts to `Int`, and the initializer of a narrow local from a wider parameter converts to the local's type. (R6)
 5. `tools/oracle-closure/skeleton.py`, lines 736-738: the rule 3 note of a SHARED state variable names the home, a file-scope variable of the stub at Raven's line in the `rng` shape of q_math. (R3)
+
+## The user's ruling on R4
+
+| Row | Verdict | Ruled by | Date |
+|---|---|---|---|
+| R4, the four holes on `BIG_INFO_STRING` | Ratified as proposed. The placement of the `q_shared.h` constants that shared bodies read is ruled for `merge.py`. The fix is the partition rule, not a hand constant: a tree macro that a shared `.c` body reads goes where JKAShared sees it. The row leaves the parked state and joins the drafter round's docket beside the five drafter items and G1. | User | 2026-10-08 |
