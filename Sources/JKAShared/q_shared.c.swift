@@ -1,3 +1,8 @@
+/// These two cases of Raven's `errorParm_t` are private constants, the guide's form for an enum that cannot reach its module.
+/// Source: oracle/codemp/game/q_shared.h:451
+private let ERR_FATAL: Int32 = 0
+private let ERR_DROP: Int32 = 1
+
 /// Source: oracle/codemp/game/q_shared.c:280
 private nonisolated(unsafe) var com_token = CharBuf(MAX_TOKEN_CHARS)
 
@@ -526,9 +531,7 @@ public func COM_MatchToken(_ buf_p: inout JKAShared.TextCursor, _ match: String)
 
     token = COM_Parse(&buf_p)
     if strcmp(token, match) != 0 {
-        // Port-note: The draft of this statement did not compile, and the compiler wrote "cannot find 'ERR_DROP' in scope".
-        // Raven wrote: Com_Error( ERR_DROP, "MatchToken: %s != %s", token, match )
-        portMissing("COM_MatchToken", source: "oracle/codemp/game/q_shared.c:666")
+        Com_Error(ERR_DROP, "MatchToken: %s != %s", token, match)
     }
 }
 
@@ -709,9 +712,7 @@ public func Q_strncpyz(_ dest: inout JKAShared.CharBuf, _ src: String, _ destsiz
     var destIndex: Int32 = 0
     // bk001129 - also NULL dest
     if destsize < 1 {
-        // Port-note: The draft of this statement did not compile, and the compiler wrote "cannot find 'ERR_FATAL' in scope".
-        // Raven wrote: Com_Error(ERR_FATAL,"Q_strncpyz: destsize < 1" )
-        portMissing("Q_strncpyz", source: "oracle/codemp/game/q_shared.c:826")
+        Com_Error(ERR_FATAL, "Q_strncpyz: destsize < 1")
     }
 
     strncpy(&dest, src, destsize - 1, at: destIndex)
@@ -873,9 +874,7 @@ public func Q_strcat(_ dest: inout JKAShared.CharBuf, _ size: Int32, _ src: Stri
 
     l1 = strlen(dest)
     if l1 >= size {
-        // Port-note: The draft of this statement did not compile, and the compiler wrote "cannot find 'ERR_FATAL' in scope".
-        // Raven wrote: Com_Error( ERR_FATAL, "Q_strcat: already overflowed" )
-        portMissing("Q_strcat", source: "oracle/codemp/game/q_shared.c:929")
+        Com_Error(ERR_FATAL, "Q_strcat: already overflowed")
     }
     Q_strncpyz(&dest, src, size - l1, at: l1)
 }
@@ -955,9 +954,7 @@ public func Com_sprintf(_ dest: inout JKAShared.CharBuf, _ size: Int32, _ fmt: S
     strcpy(&bigbuffer, JKAShared.format(fmt, args))
     len = strlen(bigbuffer)
     if len >= Int32((bigbuffer).count) {
-        // Port-note: The draft of this statement did not compile, and the compiler wrote "cannot find 'ERR_FATAL' in scope".
-        // Raven wrote: Com_Error( ERR_FATAL, "Com_sprintf: overflowed bigbuffer" )
-        portMissing("Com_sprintf", source: "oracle/codemp/game/q_shared.c:985")
+        Com_Error(ERR_FATAL, "Com_sprintf: overflowed bigbuffer")
     }
     if len >= size {
         Com_Printf("Com_sprintf: overflow of %i in %i\n", len, size)
@@ -1005,9 +1002,7 @@ public func Info_ValueForKey(_ s: String, _ key: String) -> String {
 
 
     if strlen(s.text) >= BIG_INFO_STRING {
-        // Port-note: The draft of this statement did not compile, and the compiler wrote "cannot find 'ERR_DROP' in scope".
-        // Raven wrote: Com_Error( ERR_DROP, "Info_ValueForKey: oversize infostring" )
-        portMissing("Info_ValueForKey", source: "oracle/codemp/game/q_shared.c:1051")
+        Com_Error(ERR_DROP, "Info_ValueForKey: oversize infostring")
     }
 
     if s.byte == Int32(ascii: "\\") {
@@ -1113,9 +1108,7 @@ public func Info_RemoveKey(_ s: inout JKAShared.CharBuf, _ key: String) {
     var sIndex: Int32 = 0
 
     if strlen(s) >= MAX_INFO_STRING {
-        // Port-note: The draft of this statement did not compile, and the compiler wrote "cannot find 'ERR_DROP' in scope".
-        // Raven wrote: Com_Error( ERR_DROP, "Info_RemoveKey: oversize infostring" )
-        portMissing("Info_RemoveKey", source: "oracle/codemp/game/q_shared.c:1147")
+        Com_Error(ERR_DROP, "Info_RemoveKey: oversize infostring")
     }
 
     if strchr(key, Int32(ascii: "\\")) != nil {
@@ -1177,9 +1170,7 @@ public func Info_RemoveKey_Big(_ s: inout JKAShared.CharBuf, _ key: String) {
     var sIndex: Int32 = 0
 
     if strlen(s) >= BIG_INFO_STRING {
-        // Port-note: The draft of this statement did not compile, and the compiler wrote "cannot find 'ERR_DROP' in scope".
-        // Raven wrote: Com_Error( ERR_DROP, "Info_RemoveKey_Big: oversize infostring" )
-        portMissing("Info_RemoveKey_Big", source: "oracle/codemp/game/q_shared.c:1202")
+        Com_Error(ERR_DROP, "Info_RemoveKey_Big: oversize infostring")
     }
 
     if strchr(key, Int32(ascii: "\\")) != nil {
@@ -1260,9 +1251,7 @@ public func Info_SetValueForKey(_ s: inout JKAShared.CharBuf, _ key: String, _ v
     var newi = CharBuf(1024)
 
     if strlen(s) >= MAX_INFO_STRING {
-        // Port-note: The draft of this statement did not compile, and the compiler wrote "cannot find 'ERR_DROP' in scope".
-        // Raven wrote: Com_Error( ERR_DROP, "Info_SetValueForKey: oversize infostring" )
-        portMissing("Info_SetValueForKey", source: "oracle/codemp/game/q_shared.c:1280")
+        Com_Error(ERR_DROP, "Info_SetValueForKey: oversize infostring")
     }
 
     if strchr(key, Int32(ascii: "\\")) != nil || strchr(value, Int32(ascii: "\\")) != nil {
@@ -1310,9 +1299,7 @@ public func Info_SetValueForKey_Big(_ s: inout JKAShared.CharBuf, _ key: String,
     var newi = CharBuf(8192)
 
     if strlen(s) >= BIG_INFO_STRING {
-        // Port-note: The draft of this statement did not compile, and the compiler wrote "cannot find 'ERR_DROP' in scope".
-        // Raven wrote: Com_Error( ERR_DROP, "Info_SetValueForKey: oversize infostring" )
-        portMissing("Info_SetValueForKey_Big", source: "oracle/codemp/game/q_shared.c:1328")
+        Com_Error(ERR_DROP, "Info_SetValueForKey: oversize infostring")
     }
 
     if strchr(key, Int32(ascii: "\\")) != nil || strchr(value, Int32(ascii: "\\")) != nil {

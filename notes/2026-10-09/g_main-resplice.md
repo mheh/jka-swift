@@ -10,7 +10,7 @@ As the q_shared re-splice did for `Q_strncpyz` and `Info_NextPair`, the builder 
 
 ## The print
 
-`bodies.py --stem g_main --compile-holes` reset the lowered rows. After each draftcheck run, `printer.py --stem g_main --compile-holes` printed the whole stem with no stop, and its text equals the draft file of the run under `.build-draft/drafts/`. The printer did not stop on a function, so the builder did not need `bodies.py --only`.
+`bodies.py --stem g_main --compile-holes` reset the lowered rows. After each draftcheck run, `printer.py --stem g_main --compile-holes` printed the whole stem with no stop, and its text equals the draft file of the run under `.build-draft/drafts/`. The printer did not stop on a function, so the builder did not need `bodies.py --only`. After a draftcheck run, `bodies.py --stem <stem>` lowers the line rows again before `printer.py --stem <stem> --compile-holes` prints, because the printer stops on a function with no line rows.
 
 A script keyed on the `/// Source:` lines spliced the 33 drafted functions. The kept set is each hand function with no row in the `splices` table. The script kept the 16 hand functions, every forward, and every signature line. The splice changed only `vmMain`. The other 32 drafted functions were equal to their hand bodies. `vmMain` lost no Raven comment.
 
