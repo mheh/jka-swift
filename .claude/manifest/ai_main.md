@@ -113,9 +113,9 @@ The oracle range is the whole definition, from the return type to the closing br
 | `BotWeaponBlockable` | `oracle/codemp/game/ai_main.c:5855-5877` | `JKAMP_GameLogic/ai_main.swift:5212` | ported | `crates/mp/game/src/ai_main.rs:6386-6397` | `func BotWeaponBlockable(_ weapon: Int32) -> Int32` |
 | `Bot_SetForcedMovement` | `oracle/codemp/game/ai_main.c:5883-5927` | `JKAMP_GameLogic/ai_main.swift:5242` | ported | `crates/mp/game/src/ai_main.rs:6402-6439` | `func Bot_SetForcedMovement(_ bot: Int32, _ forward: Int32, _ right: Int32, _ up: Int32)` |
 | `StandardBotAI` | `oracle/codemp/game/ai_main.c:5931-7483` | `JKAMP_GameLogic/ai_main.swift:5278` | ported | `crates/mp/game/src/ai_main.rs:6447-8038` | `func StandardBotAI(_ bs: BotState, _ thinktime: Float)` |
-| `BotAIStartFrame` | `oracle/codemp/game/ai_main.c:7492-7568` | `JKAMP_GameLogic/ai_main.swift:6479` | ported | `crates/mp/game/src/ai_main.rs:8045-8136` | `func BotAIStartFrame(_ time: Int32) -> Int32` |
-| `BotAISetup` | `oracle/codemp/game/ai_main.c:7575-7616` | `JKAMP_GameLogic/ai_main.swift:6570` | ported | `crates/mp/game/src/ai_main.rs:8143-8250` | `func BotAISetup(_ restart: Int32) -> Int32` |
-| `BotAIShutdown` | `oracle/codemp/game/ai_main.c:7623-7641` | `JKAMP_GameLogic/ai_main.swift:6614` | ported | `crates/mp/game/src/ai_main.rs:8255-8274` | `func BotAIShutdown(_ restart: Int32) -> Int32` |
+| `BotAIStartFrame` | `oracle/codemp/game/ai_main.c:7492-7568` | `JKAMP_GameLogic/ai_main.swift:6473` | ported | `crates/mp/game/src/ai_main.rs:8045-8136` | `func BotAIStartFrame(_ time: Int32) -> Int32` |
+| `BotAISetup` | `oracle/codemp/game/ai_main.c:7575-7616` | `JKAMP_GameLogic/ai_main.swift:6564` | ported | `crates/mp/game/src/ai_main.rs:8143-8250` | `func BotAISetup(_ restart: Int32) -> Int32` |
+| `BotAIShutdown` | `oracle/codemp/game/ai_main.c:7623-7641` | `JKAMP_GameLogic/ai_main.swift:6608` | ported | `crates/mp/game/src/ai_main.rs:8255-8274` | `func BotAIShutdown(_ restart: Int32) -> Int32` |
 
 31 file-scope variables. The entry is the stub's line for the variable, by rule 3 and rule 6.
 
