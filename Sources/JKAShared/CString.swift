@@ -1,4 +1,4 @@
-/// This file holds the libc names Raven calls: `atoi`, `atof`, `strlen`, `strcpy`, `strncpy`, `strcat`, `strcmp`, `strchr`, and `strstr`.
+/// This file holds the libc names Raven calls: `atoi`, `atof`, `strlen`, `strcpy`, `strncpy`, `strcat`, `strcmp`, `strchr`, `strstr`, `tolower`, and `toupper`.
 /// A ported body spells the call as Raven wrote it, over `CharBuf`, `String`, or `PooledString`.
 /// Each function works over raw bytes, with C semantics, and narrows to `Int32` or `Float` once inside.
 
@@ -333,6 +333,26 @@ public func strncpy(_ dest: inout CharBuf, _ source: String, _ n: some BinaryInt
     }
 }
 
+/// This copies at most `n` bytes of a Swift string from byte `offset` on, Raven's `strncpy(dest + offset, source, n)` through a pointer into the buffer.
+/// It pads with NUL up to `n` when `source` is shorter, and it writes no NUL when `source` is `n` bytes or longer.
+public func strncpy(_ dest: inout CharBuf, _ source: String, _ n: some BinaryInteger, at offset: some BinaryInteger) {
+    let limit = Int(n)
+    let start = Int(offset)
+    let sourceBytes = Array(source.utf8)
+    let copyCount = min(limit, sourceBytes.count)
+    precondition(start >= 0 && start + limit <= dest.count, "strncpy: n bytes do not fit in dest from the offset")
+    dest.withMutableBytes { destBytes in
+        for i in 0..<copyCount {
+            destBytes[start + i] = sourceBytes[i]
+        }
+        if copyCount < limit {
+            for i in copyCount..<limit {
+                destBytes[start + i] = 0
+            }
+        }
+    }
+}
+
 // MARK: - strcmp
 
 /// This compares two buffers byte for byte as unsigned char, Raven's `strcmp(a, b)`.
@@ -436,6 +456,26 @@ public func strstr(_ s: CharBuf, _ needle: CharBuf) -> Int32? {
 public func strstr(_ s: CharBuf, _ needle: String) -> Int32? {
     strstr(s, CharBuf(needle))
 }
+
+// MARK: - tolower and toupper
+
+/// This maps `A` to `Z` onto `a` to `z` and gives every other value back, Raven's `tolower(c)` in the C locale.
+public func tolower(_ c: Int32) -> Int32 {
+    if c >= Int32(UInt8(ascii: "A")) && c <= Int32(UInt8(ascii: "Z")) {
+        return c + (Int32(UInt8(ascii: "a")) - Int32(UInt8(ascii: "A")))
+    }
+    return c
+}
+
+/// This maps `a` to `z` onto `A` to `Z` and gives every other value back, Raven's `toupper(c)` in the C locale.
+public func toupper(_ c: Int32) -> Int32 {
+    if c >= Int32(UInt8(ascii: "a")) && c <= Int32(UInt8(ascii: "z")) {
+        return c + (Int32(UInt8(ascii: "A")) - Int32(UInt8(ascii: "a")))
+    }
+    return c
+}
+
+// MARK: - withCString
 
 /// This runs the body over the C string of an optional Swift string, and over NULL when the string is nil.
 /// A trap calls it for a parameter Raven's callers pass NULL to, so the engine sees the NULL as C did.

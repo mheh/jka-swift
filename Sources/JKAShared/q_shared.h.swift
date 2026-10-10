@@ -25,8 +25,9 @@ public func VALIDSTRING(_ a: String?) -> Bool {
 }
 
 /// Raven wrote `Q_IsColorString(&text[i])`, so the buffer and the offset come in as two arguments.
+/// The offset is any C integer, so a body passes its `Int32` byte offset as Raven passed the pointer.
 /// Source: oracle/codemp/game/q_shared.h:1147
-public func Q_IsColorString(_ buf: CharBuf, at i: Int) -> Bool {
+public func Q_IsColorString<I: BinaryInteger>(_ buf: CharBuf, at i: I) -> Bool {
     let escape: Int32 = buf[i]
     guard escape == Q_COLOR_ESCAPE else { return false }
 

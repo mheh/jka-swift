@@ -33,3 +33,20 @@ extension Array {
         }
     }
 }
+
+extension Array {
+    /// This reads and writes the elements of a C integer range, so a body copies a row into `m[i * x ..< i * x + x]`.
+    public subscript<I: BinaryInteger>(r: Range<I>) -> ArraySlice<Element> {
+        get {
+            self[Int(r.lowerBound) ..< Int(r.upperBound)]
+        }
+        set {
+            self[Int(r.lowerBound) ..< Int(r.upperBound)] = newValue
+        }
+    }
+
+    /// This makes an array of a C integer count, so a body declares `[Float](repeating: 0, count: x)` for Raven's `float row[x]`.
+    public init<I: BinaryInteger>(repeating repeatedValue: Element, count: I) {
+        self.init(repeating: repeatedValue, count: Int(count))
+    }
+}
