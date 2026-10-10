@@ -103,3 +103,81 @@ The gate before the commit of the fills passed. `swift build` completed with 0 e
 3. The `Q_strncpyz( dest + l1, src, size - l1 )` of `Q_strcat`, `q_shared.c.swift:881`. The guide reads a pointer into a buffer as a byte offset, and a write through it as the `at:` form. `Q_strncpyz` has no `at:` overload. The proposed form is an `at:` overload of `Q_strncpyz` beside the one of `Q_strcat`, so the line reads `Q_strncpyz(&dest, src, size - l1, at: l1)`. This row belongs to the q_shared hole round, and it blocks `WP_SaberLoadParms` in every map load.
 4. The trap in the shutdown. `G_LogWeaponOutput` traps at its first hole, `g_log.swift:205`, and the engine then hangs after the second fatal error. Every run of the load test with a trap in `G_InitGame` hangs this way until the hole is filled or the script ends the process. The proposed default is to keep the 60-second alarm of `tools/load-test.sh` and to fill `G_LogWeaponOutput` in the g_log hole round, because the first clean `+quit` needs it.
 5. The master server heartbeats. With `dedicated 2`, the server resolves `masterjk3.ravensoft.com` and `master.jkhub.org` and sends heartbeats, also after a trap. The proposed default is `+set dedicated 1` in `tools/load-test.sh`, which is a LAN server with no heartbeat.
+
+## The second run
+
+The second run builds the rulings L1 and L5 of `load-test-walk.md` and continues the trap loop from `WP_SaberLoadParms`.
+
+### The rulings and the script changes
+
+The guide's `vsprintf` form in `docs/transcription.md` has the offset case of L1: Raven's `vsprintf(string + 7, fmt, argptr)` is `strcpy(&string, format(fmt, args), at: 7)`, and the `va_list` local, `va_start`, and `va_end` drop. `G_LogPrintf` in `Sources/JKAMP_GameLogic/g_main.swift` fills its four holes under that form, and its Port-notes and `portMissing` calls are gone. `tools/load-test.sh` sets `dedicated` to 1 under L5. The server log of the run has no line with `heartbeat` or `master`. The script keeps the 60-second alarm of L4.
+
+The gate before the commit `5bb5372` passed. `swift build` completed with 0 errors. `swift test --no-parallel` passed 112 tests in four binaries, 84, 14, 13, and 1.
+
+### The trap table
+
+| Order | Function | File:line | Raven line | The hole's text | Result |
+| --- | --- | --- | --- | --- | --- |
+| 1 | `ClearRegisteredItems` | `Sources/JKAMP_GameLogic/g_items.swift:2807` before the fill | `g_items.c:2999` | "Raven's `memset( itemRegistered, 0, sizeof( itemRegistered ) )` runs over bytes that are not one record with a view." | filled, `itemRegistered.fill(false)`, the fill form with `false` for a `qboolean` element |
+| 2 | `G_AddSpawnVarToken` | `Sources/JKAMP_GameLogic/g_spawn.swift:321-341` | `g_spawn.c:853`, `860`, `861`, and `865` | four holes: "A pointer local `char * dest` with no view.", "A store into `dest`, a local the draft left as a hole." over `dest = level.spawnVarChars + level.numSpawnVarChars`, "Raven's `memcpy( dest, string, l+1 )` runs over bytes that are not one record with a view.", and "A read of `dest`, a local the draft left as a hole." over `return dest` | docket row S1 |
+| 3 | `G_LogWeaponOutput`, in the shutdown | `Sources/JKAMP_GameLogic/g_log.swift:203` | `g_log.c:246` | "A pointer local `char * nameptr` with no view." | recorded, not filled, under L4 |
+
+Row 1 traps at `g_main.swift:1104`, after `WP_SaberLoadParms` at `g_main.swift:1084`. So the `Q_strncpyz(_:_:_:at:)` overload of Q4 unblocks `WP_SaberLoadParms`, and the saber files load with no trap. Row 2 traps after `InitSiegeMode`, the two `trap_Cvar_Register` calls, and `trap_Nav_Load`. By the order of `G_InitGame`, the call is `G_SpawnEntitiesFromString` at `g_main.swift:1115`, then `G_ParseSpawnVars`, then `G_AddSpawnVarToken` at `g_spawn.swift:525`. The guide has no form for Raven's `memcpy` of a text into a byte offset of a buffer, so the loop stops at row 2. Row 3 follows each trap in `G_InitGame`, and the process then hangs until the alarm ends it with exit status 142.
+
+The iterations of the loop were these:
+
+| Run | Code | First trap |
+| --- | --- | --- |
+| 1 | `5bb5372` | row 1, then row 3, then the alarm |
+| 2 | `5bb5372` with the fill of row 1, committed as `ec0f08f` | row 2, then row 3, then the alarm |
+
+The script writes each run to `/tmp/jka-load/server.log`, so the log on disk is the log of run 2.
+
+The tail of run 2, without the `InitGame:` line of the server info that follows the dashed line:
+
+```
+VM_Create: jampgamearm64.dylib failed!
+VM_CreateLegacy: jampgamearm64.dylib succeeded
+------- Game Initialization -------
+gamename: basejka
+gamedate: unknown
+G_LoadBanIP - ERROR: can't open banip.txt
+------------------------------------------------------------
+JKAShared/PortMissing.swift:4: Fatal error: TODO: Port G_AddSpawnVarToken, source: oracle/codemp/game/g_spawn.c:851
+JKAShared/PortMissing.swift:4: Fatal error: TODO: Port G_LogWeaponOutput, source: oracle/codemp/game/g_log.c:227
+```
+
+The dashed line and the `InitGame:` line with the server info come from the first two `G_LogPrintf` calls, through `G_Printf`, so the L1 fill runs. The file `games.log` in the mod folder has 0 bytes after the run. The process ends on `SIGALRM`, so an unflushed engine write is one possible cause. This note does not check the cause.
+
+### Where G_InitGame stands
+
+`G_InitGame` does not return. It stops in `G_AddSpawnVarToken`, the first function of the entity parse, at `g_spawn.swift:321`. The loop stopped after two runs, because row 2 has no guide form. The holes after row 2 on the same path are known from the file, not from a run:
+
+- `AddSpawnField`, `g_spawn.swift:352`, a compile hole over the `Q_stricmp` test of `level.spawnVars[i][0]`, a `String?`.
+- `SP_worldspawn`, `g_spawn.swift:560`, a compile hole over the `Q_stricmp` test of `level.spawnVars[i][0]` and the `BG_ParseField` call.
+- `G_SpawnEntitiesFromString`, `g_spawn.swift:729`, a compile hole over the test of `behaviorSet[BSET_SPAWN]` of the world entity.
+
+### Hashes
+
+| Commit | Subject |
+| --- | --- |
+| `5bb5372` | The G_LogPrintf fills and the LAN server |
+| `ec0f08f` | The G_InitGame path fills, 2 |
+| this commit | The record of the second load test |
+
+### Docket rows
+
+S1. The text copy of `G_AddSpawnVarToken` into `level.spawnVarChars`. Raven sets `dest = level.spawnVarChars + level.numSpawnVarChars`, copies `l+1` bytes with `memcpy`, where `l = strlen( string )`, and returns `dest`. The guide reads a `char *` over a named buffer that a use writes as a write cursor, a byte offset `Int32`. It reads a write through the cursor as the `at:` form of `strcpy`, and a read through it as the suffix subscript. The guide has no form for `memcpy` of a text. The proposed form treats a `memcpy` of `strlen + 1` bytes of a `String` as `strcpy`, because both copy the text and its NUL, and nothing else:
+
+```swift
+let dest: Int32
+...
+dest = level.numSpawnVarChars
+strcpy(&level.spawnVarCharsBuffer, string, at: dest)
+
+level.numSpawnVarChars += l + 1
+
+return String(level.spawnVarCharsBuffer[dest...])
+```
+
+The return is a `String` by the signature, and the callers store it into `level.spawnVars`, whose setter interns it in the string pool. So the pointer in `spawnVars` points into the pool and not into `spawnVarChars` as in Raven. The text is the same. The proposed default is to write the form into the section "C string functions" of `docs/transcription.md` and to fill the four holes.
