@@ -5,8 +5,7 @@ import JKAMP_BG
 
 /// This target holds the module's two ABI entry points, `dllEntry` and `vmMain`, and the 40-arm command decode.
 /// It is the dynamic library the engine loads.
-/// `GAME_INIT` prints one line, and `GAME_GETITEMINDEXBYTAG` calls the public bg function.
-/// Every other arm traps with its Raven subject, because its bare function is internal to the logic target.
+/// Each arm decodes the words into typed arguments, calls the bare function, and encodes the return, rule 11.
 
 /// Source: oracle/codemp/game/g_syscalls.c:14
 @_cdecl("dllEntry")
@@ -41,168 +40,210 @@ public func vmMain(
 ) -> Int {
     switch Int32(truncatingIfNeeded: command) {
     case GAME_INIT:
-        trap_Printf("jka-swift jampgame init\n")
+        G_InitGame(int32(arg0), int32(arg1), int32(arg2))
         return 0
 
     case GAME_SHUTDOWN:
-        // TODO: Port G_ShutdownGame
-        portMissing("G_ShutdownGame", source: "oracle/codemp/game/g_main.c:520")
+        G_ShutdownGame(int32(arg0))
+        return 0
 
+    // The engine reads the denial text through the pointer, so the text goes through the string pool.
     case GAME_CLIENT_CONNECT:
-        // TODO: Port ClientConnect
-        portMissing("ClientConnect", source: "oracle/codemp/game/g_main.c:523")
+        let denial = ClientConnect(int32(arg0), arg1 != 0, arg2 != 0)
+        return Int(bitPattern: StringPool.shared.pointer(for: denial))
 
     case GAME_CLIENT_THINK:
-        // TODO: Port ClientThink
-        portMissing("ClientThink", source: "oracle/codemp/game/g_main.c:525")
+        ClientThink(int32(arg0), nil)
+        return 0
 
     case GAME_CLIENT_USERINFO_CHANGED:
-        // TODO: Port ClientUserinfoChanged
-        portMissing("ClientUserinfoChanged", source: "oracle/codemp/game/g_main.c:528")
+        ClientUserinfoChanged(int32(arg0))
+        return 0
 
     case GAME_CLIENT_DISCONNECT:
-        // TODO: Port ClientDisconnect
-        portMissing("ClientDisconnect", source: "oracle/codemp/game/g_main.c:531")
+        ClientDisconnect(int32(arg0))
+        return 0
 
     case GAME_CLIENT_BEGIN:
-        // TODO: Port ClientBegin
-        portMissing("ClientBegin", source: "oracle/codemp/game/g_main.c:534")
+        ClientBegin(int32(arg0), true)
+        return 0
 
     case GAME_CLIENT_COMMAND:
-        // TODO: Port ClientCommand
-        portMissing("ClientCommand", source: "oracle/codemp/game/g_main.c:537")
+        ClientCommand(int32(arg0))
+        return 0
 
     case GAME_RUN_FRAME:
-        // TODO: Port G_RunFrame
-        portMissing("G_RunFrame", source: "oracle/codemp/game/g_main.c:540")
+        G_RunFrame(int32(arg0))
+        return 0
 
     case GAME_CONSOLE_COMMAND:
-        // TODO: Port ConsoleCommand
-        portMissing("ConsoleCommand", source: "oracle/codemp/game/g_main.c:543")
+        return ConsoleCommand() ? 1 : 0
 
     case BOTAI_START_FRAME:
-        // TODO: Port BotAIStartFrame
-        portMissing("BotAIStartFrame", source: "oracle/codemp/game/g_main.c:545")
+        return Int(BotAIStartFrame(int32(arg0)))
 
     case GAME_ROFF_NOTETRACK_CALLBACK:
-        // TODO: Port G_ROFF_NotetrackCallback
-        portMissing("G_ROFF_NotetrackCallback", source: "oracle/codemp/game/g_main.c:547")
+        G_ROFF_NotetrackCallback(g_entities[arg0], text(at: arg1))
+        return 0
 
     case GAME_SPAWN_RMG_ENTITY:
-        // TODO: Port G_ParseSpawnVars
-        portMissing("G_ParseSpawnVars", source: "oracle/codemp/game/g_main.c:550")
+        if G_ParseSpawnVars(false) {
+            G_SpawnGEntityFromSpawnVars(false)
+        }
+        return 0
 
+    // The ICARUS arms read their arguments from the shared buffer, one record type per command.
     case GAME_ICARUS_PLAYSOUND:
-        // TODO: Port Q3_PlaySound
-        portMissing("Q3_PlaySound", source: "oracle/codemp/game/g_main.c:558")
+        let sharedMem = IcarusPlaySound(gSharedBuffer)
+        return Int(Q3_PlaySound(sharedMem.taskID, sharedMem.entID, sharedMem.name, sharedMem.channel))
 
     case GAME_ICARUS_SET:
-        // TODO: Port Q3_Set
-        portMissing("Q3_Set", source: "oracle/codemp/game/g_main.c:563")
+        let sharedMem = IcarusSet(gSharedBuffer)
+        return Q3_Set(sharedMem.taskID, sharedMem.entID, sharedMem.type_name, sharedMem.data) ? 1 : 0
 
     case GAME_ICARUS_LERP2POS:
-        // TODO: Port Q3_Lerp2Pos
-        portMissing("Q3_Lerp2Pos", source: "oracle/codemp/game/g_main.c:568")
+        let sharedMem = IcarusLerp2Pos(gSharedBuffer)
+        let angles: vec3_t? = sharedMem.nullAngles ? nil : sharedMem.angles
+        Q3_Lerp2Pos(sharedMem.taskID, sharedMem.entID, sharedMem.origin, angles, sharedMem.duration)
+        return 0
 
     case GAME_ICARUS_LERP2ORIGIN:
-        // TODO: Port Q3_Lerp2Origin
-        portMissing("Q3_Lerp2Origin", source: "oracle/codemp/game/g_main.c:581")
+        let sharedMem = IcarusLerp2Origin(gSharedBuffer)
+        Q3_Lerp2Origin(sharedMem.taskID, sharedMem.entID, sharedMem.origin, sharedMem.duration)
+        return 0
 
     case GAME_ICARUS_LERP2ANGLES:
-        // TODO: Port Q3_Lerp2Angles
-        portMissing("Q3_Lerp2Angles", source: "oracle/codemp/game/g_main.c:587")
+        let sharedMem = IcarusLerp2Angles(gSharedBuffer)
+        Q3_Lerp2Angles(sharedMem.taskID, sharedMem.entID, sharedMem.angles, sharedMem.duration)
+        return 0
 
     case GAME_ICARUS_GETTAG:
-        // TODO: Port Q3_GetTag
-        portMissing("Q3_GetTag", source: "oracle/codemp/game/g_main.c:593")
+        let sharedMem = IcarusGetTag(gSharedBuffer)
+        return Int(Q3_GetTag(sharedMem.entID, sharedMem.name, sharedMem.lookup, &sharedMem.info))
 
     case GAME_ICARUS_LERP2START:
-        // TODO: Port Q3_Lerp2Start
-        portMissing("Q3_Lerp2Start", source: "oracle/codemp/game/g_main.c:598")
+        let sharedMem = IcarusLerp2Start(gSharedBuffer)
+        Q3_Lerp2Start(sharedMem.entID, sharedMem.taskID, sharedMem.duration)
+        return 0
 
     case GAME_ICARUS_LERP2END:
-        // TODO: Port Q3_Lerp2End
-        portMissing("Q3_Lerp2End", source: "oracle/codemp/game/g_main.c:604")
+        let sharedMem = IcarusLerp2End(gSharedBuffer)
+        Q3_Lerp2End(sharedMem.entID, sharedMem.taskID, sharedMem.duration)
+        return 0
 
     case GAME_ICARUS_USE:
-        // TODO: Port Q3_Use
-        portMissing("Q3_Use", source: "oracle/codemp/game/g_main.c:610")
+        let sharedMem = IcarusUse(gSharedBuffer)
+        Q3_Use(sharedMem.entID, sharedMem.target)
+        return 0
 
     case GAME_ICARUS_KILL:
-        // TODO: Port Q3_Kill
-        portMissing("Q3_Kill", source: "oracle/codemp/game/g_main.c:616")
+        let sharedMem = IcarusKill(gSharedBuffer)
+        Q3_Kill(sharedMem.entID, sharedMem.name)
+        return 0
 
     case GAME_ICARUS_REMOVE:
-        // TODO: Port Q3_Remove
-        portMissing("Q3_Remove", source: "oracle/codemp/game/g_main.c:622")
+        let sharedMem = IcarusRemove(gSharedBuffer)
+        Q3_Remove(sharedMem.entID, sharedMem.name)
+        return 0
 
     case GAME_ICARUS_PLAY:
-        // TODO: Port Q3_Play
-        portMissing("Q3_Play", source: "oracle/codemp/game/g_main.c:628")
+        let sharedMem = IcarusPlay(gSharedBuffer)
+        Q3_Play(sharedMem.taskID, sharedMem.entID, sharedMem.type, sharedMem.name)
+        return 0
 
     case GAME_ICARUS_GETFLOAT:
-        // TODO: Port Q3_GetFloat
-        portMissing("Q3_GetFloat", source: "oracle/codemp/game/g_main.c:634")
+        let sharedMem = IcarusGetFloat(gSharedBuffer)
+        return Int(Q3_GetFloat(sharedMem.entID, sharedMem.type, sharedMem.name, &sharedMem.value))
 
     case GAME_ICARUS_GETVECTOR:
-        // TODO: Port Q3_GetVector
-        portMissing("Q3_GetVector", source: "oracle/codemp/game/g_main.c:639")
+        let sharedMem = IcarusGetVector(gSharedBuffer)
+        return Int(Q3_GetVector(sharedMem.entID, sharedMem.type, sharedMem.name, &sharedMem.value))
 
+    // Raven copies the text into the buffer only when the call sets it.
+    // The value starts as the buffer's own text, so a call that sets nothing writes the same text back.
     case GAME_ICARUS_GETSTRING:
-        // TODO: Port Q3_GetString
-        portMissing("Q3_GetString", source: "oracle/codemp/game/g_main.c:644")
+        let sharedMem = IcarusGetString(gSharedBuffer)
+        var value = sharedMem.value
+        let r = Q3_GetString(sharedMem.entID, sharedMem.type, sharedMem.name, &value)
+        sharedMem.value = value
+        return Int(r)
 
     case GAME_ICARUS_SOUNDINDEX:
-        // TODO: Port G_SoundIndex
-        portMissing("G_SoundIndex", source: "oracle/codemp/game/g_main.c:659")
+        let sharedMem = IcarusSoundIndex(gSharedBuffer)
+        _ = G_SoundIndex(sharedMem.filename)
+        return 0
 
     case GAME_ICARUS_GETSETIDFORSTRING:
-        // TODO: Port GetIDForString
-        portMissing("GetIDForString", source: "oracle/codemp/game/g_main.c:665")
+        let sharedMem = IcarusGetSetIDForString(gSharedBuffer)
+        return Int(GetIDForString(setTable, sharedMem.string))
 
+    // The navigation arms receive vectors as `float *` words.
     case GAME_NAV_CLEARPATHTOPOINT:
-        // TODO: Port NAV_ClearPathToPoint
-        portMissing("NAV_ClearPathToPoint", source: "oracle/codemp/game/g_main.c:672")
+        let clear = NAV_ClearPathToPoint(
+            g_entities[arg0],
+            vector(at: arg1),
+            vector(at: arg2),
+            vector(at: arg3),
+            int32(arg4),
+            int32(arg5)
+        )
+        return clear ? 1 : 0
 
     case GAME_NAV_CLEARLOS:
-        // TODO: Port NPC_ClearLOS2
-        portMissing("NPC_ClearLOS2", source: "oracle/codemp/game/g_main.c:674")
+        return NPC_ClearLOS2(g_entities[arg0], vector(at: arg1)) ? 1 : 0
 
     case GAME_NAV_CLEARPATHBETWEENPOINTS:
-        // TODO: Port NAVNEW_ClearPathBetweenPoints
-        portMissing("NAVNEW_ClearPathBetweenPoints", source: "oracle/codemp/game/g_main.c:676")
+        let trace = NAVNEW_ClearPathBetweenPoints(
+            vector(at: arg0),
+            vector(at: arg1),
+            vector(at: arg2),
+            vector(at: arg3),
+            int32(arg4),
+            int32(arg5)
+        )
+        return Int(trace)
 
     case GAME_NAV_CHECKNODEFAILEDFORENT:
-        // TODO: Port NAV_CheckNodeFailedForEnt
-        portMissing("NAV_CheckNodeFailedForEnt", source: "oracle/codemp/game/g_main.c:678")
+        return NAV_CheckNodeFailedForEnt(g_entities[arg0], int32(arg1)) ? 1 : 0
 
     case GAME_NAV_ENTISUNLOCKEDDOOR:
-        // TODO: Port G_EntIsUnlockedDoor
-        portMissing("G_EntIsUnlockedDoor", source: "oracle/codemp/game/g_main.c:680")
+        return G_EntIsUnlockedDoor(int32(arg0)) ? 1 : 0
 
     case GAME_NAV_ENTISDOOR:
-        // TODO: Port G_EntIsDoor
-        portMissing("G_EntIsDoor", source: "oracle/codemp/game/g_main.c:682")
+        return G_EntIsDoor(int32(arg0)) ? 1 : 0
 
     case GAME_NAV_ENTISBREAKABLE:
-        // TODO: Port G_EntIsBreakable
-        portMissing("G_EntIsBreakable", source: "oracle/codemp/game/g_main.c:684")
+        return G_EntIsBreakable(int32(arg0)) ? 1 : 0
 
     case GAME_NAV_ENTISREMOVABLEUSABLE:
-        // TODO: Port G_EntIsRemovableUsable
-        portMissing("G_EntIsRemovableUsable", source: "oracle/codemp/game/g_main.c:686")
+        return G_EntIsRemovableUsable(int32(arg0)) ? 1 : 0
 
     case GAME_NAV_FINDCOMBATPOINTWAYPOINTS:
-        // TODO: Port CP_FindCombatPointWaypoints
-        portMissing("CP_FindCombatPointWaypoints", source: "oracle/codemp/game/g_main.c:688")
+        CP_FindCombatPointWaypoints()
+        return 0
 
     case GAME_GETITEMINDEXBYTAG:
-        let tag = Int32(truncatingIfNeeded: arg0)
-        let type = Int32(truncatingIfNeeded: arg1)
-        return Int(BG_GetItemIndexByTag(tag, type))
+        return Int(BG_GetItemIndexByTag(int32(arg0), int32(arg1)))
 
     // The wire enum is a struct with statics, so Swift needs this arm. It is Raven's fall-through return at g_main.c:695.
     default:
         return -1
     }
+}
+
+// MARK: - The decode of a word
+
+/// This reads a word as Raven's `int` argument.
+private func int32(_ word: Int) -> Int32 {
+    Int32(truncatingIfNeeded: word)
+}
+
+/// This reads the text at a word the engine passes as a `const char *`.
+private func text(at word: Int) -> String {
+    cString(at: UnsafeMutableRawPointer(bitPattern: word)!)
+}
+
+/// This reads the three floats at a word the engine passes as a `float *`.
+private func vector(at word: Int) -> vec3_t {
+    Slots(vectors: UnsafeMutableRawPointer(bitPattern: word)!, count: 1)[0]
 }

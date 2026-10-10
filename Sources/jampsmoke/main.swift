@@ -6,7 +6,8 @@ import Darwin
 import CJKASyscall
 import Foundation
 
-// This loads a jampgame library in its own process and drives it through GAME_INIT.
+// This loads a jampgame library in its own process and sends GAME_GETITEMINDEXBYTAG through its vmMain.
+// The command needs no engine behind the syscalls, so the run proves the load and the dispatch.
 // The smoke test runs this executable, so the test binary never loads a second copy of the module's classes.
 // Run `swift run jampsmoke <path-to-library>` for a manual smoke run.
 
@@ -52,8 +53,10 @@ private let moduleVmMain = unsafeBitCast(mainSymbol, to: VmMainFn.self)
 jka_recorder_reset()
 moduleDllEntry(jka_recorder_entry())
 
-// 0 is GAME_INIT. This loader links no Swift module of the game, so it cannot spell the constant's name.
-let answer = moduleVmMain(0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0)
+// 39 is GAME_GETITEMINDEXBYTAG. This loader links no Swift module of the game, so it cannot spell the constant's name.
+// The tag is 1, HI_SEEKER, and the type is 6, IT_HOLDABLE.
+// The answer is 4, the row of item_seeker in bg_itemlist.
+let answer = moduleVmMain(39, 1, 6, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0)
 let command = jka_recorded_command()
 let wordAddress = jka_recorded_word()
 

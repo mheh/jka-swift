@@ -7,10 +7,12 @@ private final class Anchor {}
 
 /// This test runs the `jampsmoke` loader in its own process, the way the engine loads a module.
 /// The loader does the dlopen, so the built `jampgame` library never loads into this test process.
+/// The loader sends `GAME_GETITEMINDEXBYTAG`, so the test proves the load and the dispatch.
+/// It does not send `GAME_INIT`, because `G_InitGame` needs the engine behind the syscalls.
 @Suite(.serialized)
 struct JampgameSmokeSuite {
-    @Test("the loaded module answers GAME_INIT with the init line through G_PRINT")
-    func gameInitPrintsTheInitLine() throws {
+    @Test("the loaded module answers GAME_GETITEMINDEXBYTAG with the row of item_seeker")
+    func itemIndexByTagAnswersTheSeekerRow() throws {
         let library = try #require(Self.builtArtifactPath(named: Self.libraryName))
         let loader = try #require(Self.builtArtifactPath(named: Self.loaderName))
 
@@ -37,10 +39,13 @@ struct JampgameSmokeSuite {
         let stdoutText = String(data: stdoutData, encoding: .utf8) ?? ""
         let lines = stdoutText.split(separator: "\n", omittingEmptySubsequences: true).map(String.init)
 
+        // The loader sends command 39 with tag 1, HI_SEEKER, and type 6, IT_HOLDABLE.
+        // Row 4 of bg_itemlist is item_seeker, and the dispatch makes no syscall.
+        #expect(GAME_GETITEMINDEXBYTAG.rawValue == 39)
         #expect(lines == [
-            "answer 0",
-            "command \(G_PRINT.rawValue)",
-            "text jka-swift jampgame init\\n",
+            "answer 4",
+            "command 0",
+            "text",
         ])
     }
 
