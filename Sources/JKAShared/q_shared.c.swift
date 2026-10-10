@@ -744,7 +744,7 @@ public func Q_strncpyz(_ dest: inout JKAShared.CharBuf, _ src: String, _ destsiz
     }
 
     // Port-note: The draft of this statement did not compile, and the compiler wrote "extra argument 'at' in call".
-    // Raven wrote: strncpy( dest, src, destsize-1 );
+    // Raven wrote: strncpy( dest, src, destsize-1 )
     portMissing("Q_strncpyz", source: "oracle/codemp/game/q_shared.c:826")
     dest[destIndex + destsize - 1] = 0
 }
