@@ -207,9 +207,7 @@ public func COM_Parse(_ data_p: inout JKAShared.TextCursor) -> String {
 public func COM_ParseError(_ format: inout JKAShared.CharBuf, _ args: any JKAShared.FormatArg...) {
     var string = CharBuf(4096)
 
-    // Port-note: The guide has no form for `vsprintf` into a buffer from the variadic arguments.
-    // Raven wrote: vsprintf (string, format, argptr)
-    portMissing("COM_ParseError", source: "oracle/codemp/game/q_shared.c:300")
+    strcpy(&string, JKAShared.format(String(format), args))
 
     Com_Printf("ERROR: %s, line %d: %s\n", com_parsename, com_lines, string)
 }
@@ -218,9 +216,7 @@ public func COM_ParseError(_ format: inout JKAShared.CharBuf, _ args: any JKASha
 public func COM_ParseWarning(_ format: inout JKAShared.CharBuf, _ args: any JKAShared.FormatArg...) {
     var string = CharBuf(4096)
 
-    // Port-note: The guide has no form for `vsprintf` into a buffer from the variadic arguments.
-    // Raven wrote: vsprintf (string, format, argptr)
-    portMissing("COM_ParseWarning", source: "oracle/codemp/game/q_shared.c:312")
+    strcpy(&string, JKAShared.format(String(format), args))
 
     Com_Printf("WARNING: %s, line %d: %s\n", com_parsename, com_lines, string)
 }
@@ -616,9 +612,10 @@ public func Parse2DMatrix(_ buf_p: inout JKAShared.TextCursor, _ y: Int32, _ x: 
 
     i = 0
     while i < y {
-        // Port-note: The draft of this statement did not compile, and the compiler wrote "cannot convert value of type 'UnsafeMutableRawPointer' to expected argument type '[Float]'".
-        // Raven wrote: Parse1DMatrix (buf_p, x, m + i * x)
-        portMissing("Parse2DMatrix", source: "oracle/codemp/game/q_shared.c:738")
+        // Raven passes the pointer `m + i * x`, so the body fills a row-sized local and copies it into place.
+        var row = [Float](repeating: 0, count: x)
+        Parse1DMatrix(&buf_p, x, &row)
+        m[i * x ..< i * x + x] = row[...]
         i += 1
     }
 
@@ -633,9 +630,10 @@ public func Parse3DMatrix(_ buf_p: inout JKAShared.TextCursor, _ z: Int32, _ y: 
 
     i = 0
     while i < z {
-        // Port-note: The draft of this statement did not compile, and the compiler wrote "cannot convert value of type 'UnsafeMutableRawPointer' to expected argument type '[Float]'".
-        // Raven wrote: Parse2DMatrix (buf_p, y, x, m + i * x*y)
-        portMissing("Parse3DMatrix", source: "oracle/codemp/game/q_shared.c:750")
+        // Raven passes the pointer `m + i * x*y`, so the body fills a local of one 2D matrix and copies it into place.
+        var matrix = [Float](repeating: 0, count: x * y)
+        Parse2DMatrix(&buf_p, y, x, &matrix)
+        m[i * x * y ..< i * x * y + x * y] = matrix[...]
         i += 1
     }
 
@@ -716,9 +714,7 @@ public func Q_strncpyz(_ dest: inout JKAShared.CharBuf, _ src: String, _ destsiz
         portMissing("Q_strncpyz", source: "oracle/codemp/game/q_shared.c:826")
     }
 
-    // Port-note: The draft of this statement did not compile, and the compiler wrote "extra argument 'at' in call".
-    // Raven wrote: strncpy( dest, src, destsize-1 )
-    portMissing("Q_strncpyz", source: "oracle/codemp/game/q_shared.c:826")
+    strncpy(&dest, src, destsize - 1, at: destIndex)
     dest[destIndex + destsize - 1] = 0
 }
 
@@ -729,9 +725,9 @@ public func Q_stricmpn(_ s1: CharBuf, _ s2: CharBuf, _ n: Int32) -> Int32 {
     var n = n
 
     // bk001129 - moved in 1.17 fix not in id codebase
-    // Port-note: Raven returns 0, -1, or 1 here for a NULL s1 or a NULL s2. A `String` is non-optional, so the guard has no Swift form.
 
-    // Port-note: A C `char` is signed on the target build, so a byte above 127 reads as a negative int. The port keeps that sign.
+    // A C `char` is signed on the target build, so a byte above 127 reads as a negative int.
+    // The port keeps that sign.
     var i1 = 0
     var i2 = 0
 
@@ -776,7 +772,8 @@ public func Q_strncmp(_ s1: CharBuf, _ s2: CharBuf, _ n: Int32) -> Int32 {
     var c2: Int32
     var n = n
 
-    // Port-note: A C `char` is signed on the target build, so a byte above 127 reads as a negative int. The port keeps that sign.
+    // A C `char` is signed on the target build, so a byte above 127 reads as a negative int.
+    // The port keeps that sign.
     var i1 = 0
     var i2 = 0
 
@@ -808,7 +805,6 @@ public func Q_strncmp(_ s1: String, _ s2: String, _ n: Int32) -> Int32 {
 
 /// Source: oracle/codemp/game/q_shared.c:900
 public func Q_stricmp(_ s1: CharBuf, _ s2: CharBuf) -> Int32 {
-    // Port-note: Raven returns -1 when s1 or s2 is NULL. A `String` is non-optional, so the guard has no Swift form.
     return Q_stricmpn(s1, s2, 99999)
 }
 
@@ -820,16 +816,13 @@ public func Q_stricmp(_ s1: String, _ s2: String) -> Int32 {
 /// Source: oracle/codemp/game/q_shared.c:905
 // Raven returns the argument, which the caller already holds.
 public func Q_strlwr(_ s1: inout JKAShared.CharBuf) {
-    // Port-note: A pointer local `char * s` with no view.
-    // Raven wrote: char *s;
-    portMissing("Q_strlwr", source: "oracle/codemp/game/q_shared.c:905")
+    var s: Int32
 
-    // Port-note: A store into `s`, a local the draft left as a hole.
-    // Raven wrote: s = s1
-    portMissing("Q_strlwr", source: "oracle/codemp/game/q_shared.c:905")
-    // Port-note: A pointer dereference the draft cannot place.
-    // Raven wrote: while ( *s ) { *s = tolower(*s); s++; }
-    portMissing("Q_strlwr", source: "oracle/codemp/game/q_shared.c:905")
+    s = 0
+    while s1[s] != 0 {
+        s1[s] = tolower(s1[s])
+        s += 1
+    }
     return
 }
 
@@ -844,17 +837,25 @@ public func Q_strlwr(_ s1: String) -> String {
 /// Source: oracle/codemp/game/q_shared.c:916
 // Raven returns the argument, which the caller already holds.
 public func Q_strupr(_ s1: inout JKAShared.CharBuf) {
-    // Port-note: A pointer local `char * s` with no view.
-    // Raven wrote: char *s;
-    portMissing("Q_strupr", source: "oracle/codemp/game/q_shared.c:916")
+    var s: Int32
 
-    // Port-note: A store into `s`, a local the draft left as a hole.
-    // Raven wrote: s = s1
-    portMissing("Q_strupr", source: "oracle/codemp/game/q_shared.c:916")
-    // Port-note: A pointer dereference the draft cannot place.
-    // Raven wrote: while ( *s ) { *s = toupper(*s); s++; }
-    portMissing("Q_strupr", source: "oracle/codemp/game/q_shared.c:916")
+    s = 0
+    while s1[s] != 0 {
+        s1[s] = toupper(s1[s])
+        s += 1
+    }
     return
+}
+
+/// Raven's `Q_strncpyz(dest + offset, src, destsize)` through a pointer into the buffer, which is the same rule over the bytes from `offset` on.
+/// The suffix is a copy, so the call writes it back into `dest` at that byte.
+public func Q_strncpyz(_ dest: inout CharBuf, _ src: String, _ destsize: Int32, at offset: some BinaryInteger) {
+    let start = Int32(offset)
+    var suffix = dest[start...]
+    Q_strncpyz(&suffix, src, destsize)
+    for i in 0 ..< Int32(suffix.count) {
+        dest[start + i] = suffix[i] as Int8
+    }
 }
 
 /// The value form of `Q_strupr`, for a view's `char` array or a pooled string, where no `CharBuf` sits behind the text.
@@ -876,9 +877,7 @@ public func Q_strcat(_ dest: inout JKAShared.CharBuf, _ size: Int32, _ src: Stri
         // Raven wrote: Com_Error( ERR_FATAL, "Q_strcat: already overflowed" )
         portMissing("Q_strcat", source: "oracle/codemp/game/q_shared.c:929")
     }
-    // Port-note: The draft of this statement did not compile, and the compiler wrote "cannot convert value of type 'UnsafeMutableRawPointer' to expected argument type 'CharBuf'".
-    // Raven wrote: Q_strncpyz( dest + l1, src, size - l1 )
-    portMissing("Q_strcat", source: "oracle/codemp/game/q_shared.c:929")
+    Q_strncpyz(&dest, src, size - l1, at: l1)
 }
 
 /// Raven's `Q_strcat(marker, size, src)` through a pointer into the buffer, which is the same rule over the bytes from `offset` on.
@@ -895,18 +894,21 @@ public func Q_strcat(_ dest: inout CharBuf, _ size: Int32, _ src: String, at off
 /// Source: oracle/codemp/game/q_shared.c:940
 public func Q_PrintStrlen(_ string: String) -> Int32 {
     var len: Int32
-    // Port-note: A pointer local `const char * p` with no view.
-    // Raven wrote: const char *p;
-    portMissing("Q_PrintStrlen", source: "oracle/codemp/game/q_shared.c:940")
+    var p: Int32
+    // Raven steps a pointer through the bytes of `string`, so the body reads a CharBuf copy of them.
+    let string = CharBuf(string)
 
 
     len = 0
-    // Port-note: A store into `p`, a local the draft left as a hole.
-    // Raven wrote: p = string
-    portMissing("Q_PrintStrlen", source: "oracle/codemp/game/q_shared.c:940")
-    // Port-note: A pointer dereference the draft cannot place.
-    // Raven wrote: while( *p ) { if( Q_IsColorString( p ) ) { p += 2; continue; } p++; len++; }
-    portMissing("Q_PrintStrlen", source: "oracle/codemp/game/q_shared.c:940")
+    p = 0
+    while string[p] != 0 {
+        if Q_IsColorString(string, at: p) {
+            p += 2
+            continue
+        }
+        p += 1
+        len += 1
+    }
 
     return len
 }
@@ -914,26 +916,24 @@ public func Q_PrintStrlen(_ string: String) -> Int32 {
 /// Source: oracle/codemp/game/q_shared.c:963
 // Raven returns the argument, which the caller already holds.
 public func Q_CleanStr(_ string: inout JKAShared.CharBuf) {
-    // Port-note: A pointer local `char * d` with no view.
-    // Raven wrote: char* d;
-    portMissing("Q_CleanStr", source: "oracle/codemp/game/q_shared.c:963")
-    // Port-note: A pointer local `char * s` with no view.
-    // Raven wrote: char* s;
-    portMissing("Q_CleanStr", source: "oracle/codemp/game/q_shared.c:963")
+    var d: Int32
+    var s: Int32
     var c: Int32
 
-    // Port-note: A store into `s`, a local the draft left as a hole.
-    // Raven wrote: s = string
-    portMissing("Q_CleanStr", source: "oracle/codemp/game/q_shared.c:963")
-    // Port-note: A store into `d`, a local the draft left as a hole.
-    // Raven wrote: d = string
-    portMissing("Q_CleanStr", source: "oracle/codemp/game/q_shared.c:963")
-    // Port-note: A pointer dereference the draft cannot place.
-    // Raven wrote: while ((c = *s) != 0 ) { if ( Q_IsColorString( s ) ) { s++; } else if ( c >= 0x20 && c <= 0x7E ) { *d++ = c; } s++; }
-    portMissing("Q_CleanStr", source: "oracle/codemp/game/q_shared.c:963")
-    // Port-note: A pointer dereference the draft cannot place.
-    // Raven wrote: *d = '\0'
-    portMissing("Q_CleanStr", source: "oracle/codemp/game/q_shared.c:963")
+    s = 0
+    d = 0
+    while true {
+        c = string[s]
+        if !(c != 0) { break }
+        if Q_IsColorString(string, at: s) {
+            s += 1
+        } else if c >= 0x20 && c <= 0x7E {
+            string[d] = c
+            d += 1
+        }
+        s += 1
+    }
+    string[d] = 0
 
     return
 }
@@ -951,9 +951,9 @@ public func Com_sprintf(_ dest: inout JKAShared.CharBuf, _ size: Int32, _ fmt: S
     let len: Int32
     var bigbuffer = CharBuf(32000)
 
-    // Port-note: The guide has no form for `vsprintf` into a buffer from the variadic arguments.
-    // Raven wrote: len = vsprintf (bigbuffer,fmt,argptr)
-    portMissing("Com_sprintf", source: "oracle/codemp/game/q_shared.c:985")
+    // Raven's vsprintf overruns `bigbuffer` past 32000 bytes, and strcpy traps there.
+    strcpy(&bigbuffer, JKAShared.format(fmt, args))
+    len = strlen(bigbuffer)
     if len >= Int32((bigbuffer).count) {
         // Port-note: The draft of this statement did not compile, and the compiler wrote "cannot find 'ERR_FATAL' in scope".
         // Raven wrote: Com_Error( ERR_FATAL, "Com_sprintf: overflowed bigbuffer" )
@@ -996,16 +996,10 @@ FIXME: overflow check?
 /// Source: oracle/codemp/game/q_shared.c:1051
 public func Info_ValueForKey(_ s: String, _ key: String) -> String {
     var pkey = CharBuf(8192)
-    // Port-note: A local `char[2][8192] value` the table has no type for.
-    // Raven wrote: static char value[2][BIG_INFO_VALUE];
-    portMissing("Info_ValueForKey", source: "oracle/codemp/game/q_shared.c:1051")
+    // Raven keeps two static buffers and an index so two results stay valid together, and a returned `String` is already a copy.
+    var value = CharBuf(BIG_INFO_VALUE)	// use two buffers so compares
     // work without stomping on each other
-    // Port-note: A static local `valueindex` a statement reads before it writes, storage that outlives the call.
-    // Raven wrote: static int valueindex = 0;
-    portMissing("Info_ValueForKey", source: "oracle/codemp/game/q_shared.c:1051")
-    // Port-note: A pointer local `char * o` with no view.
-    // Raven wrote: char *o;
-    portMissing("Info_ValueForKey", source: "oracle/codemp/game/q_shared.c:1051")
+    var o: Int32
     // Raven steps his own `s` parameter through its bytes, so the body walks a TextCursor over a copy of them.
     var s = TextCursor(CharBuf(s))
 
@@ -1016,46 +1010,33 @@ public func Info_ValueForKey(_ s: String, _ key: String) -> String {
         portMissing("Info_ValueForKey", source: "oracle/codemp/game/q_shared.c:1051")
     }
 
-    // Port-note: A store into `valueindex`, a local the draft left as a hole.
-    // Raven wrote: valueindex ^= 1
-    portMissing("Info_ValueForKey", source: "oracle/codemp/game/q_shared.c:1051")
     if s.byte == Int32(ascii: "\\") {
         s.advance()
     }
     while 1 != 0 {
-        // Port-note: A store into `o`, a local the draft left as a hole.
-        // Raven wrote: o = pkey
-        portMissing("Info_ValueForKey", source: "oracle/codemp/game/q_shared.c:1051")
+        o = 0
         while s.byte != Int32(ascii: "\\") {
             if s.byte == 0 {
                 return ""
             }
-            // Port-note: A pointer dereference the draft cannot place.
-            // Raven wrote: *o++ = *s++
-            portMissing("Info_ValueForKey", source: "oracle/codemp/game/q_shared.c:1051")
+            pkey[o] = s.byte
+            o += 1
+            s.advance()
         }
-        // Port-note: A pointer dereference the draft cannot place.
-        // Raven wrote: *o = 0
-        portMissing("Info_ValueForKey", source: "oracle/codemp/game/q_shared.c:1051")
+        pkey[o] = 0
         s.advance()
 
-        // Port-note: A store into `o`, a local the draft left as a hole.
-        // Raven wrote: o = value[valueindex]
-        portMissing("Info_ValueForKey", source: "oracle/codemp/game/q_shared.c:1051")
+        o = 0
 
         while s.byte != Int32(ascii: "\\") && s.byte != 0 {
-            // Port-note: A pointer dereference the draft cannot place.
-            // Raven wrote: *o++ = *s++
-            portMissing("Info_ValueForKey", source: "oracle/codemp/game/q_shared.c:1051")
+            value[o] = s.byte
+            o += 1
+            s.advance()
         }
-        // Port-note: A pointer dereference the draft cannot place.
-        // Raven wrote: *o = 0
-        portMissing("Info_ValueForKey", source: "oracle/codemp/game/q_shared.c:1051")
+        value[o] = 0
 
         if Q_stricmp(key, String(pkey)) == 0 {
-            // Port-note: A read of `value`, a local the draft left as a hole.
-            // Raven wrote: return value[valueindex]
-            portMissing("Info_ValueForKey", source: "oracle/codemp/game/q_shared.c:1051")
+            return String(value)
         }
 
         if s.byte == 0 {
