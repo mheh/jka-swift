@@ -39,3 +39,35 @@ The 6 compile holes of the draft are in `vmMain` two times, the `ClientConnect` 
 | Row | Item | Proposed |
 | --- | --- | --- |
 | R1 | Raven passes an `int` to an `unsigned` parameter, `srand( randomSeed )` in `G_InitGame`. C converts the value with no cast, but Swift rejects an `Int32` where `srand` takes a `UInt32`. The guide has no form for this conversion. | A guide form for an implicit `int` to `unsigned` argument, for example an `Int32` overload of `srand` in `bg_lib.swift` that converts once inside it, as `strlen` narrows once inside it. |
+
+## The R1 build and the stash pop
+
+### Step 1. Ruling R1, `4b7fac1`
+
+`docs/transcription.md` gets the form under "Primitive types", after the forms for an `int` stored into a `float`. Raven passes an `int` to an `unsigned` parameter, and the callee takes a second overload with an `Int32` parameter that converts the value once inside it. `Sources/JKAMP_BG/bg_lib.swift` gets `public func srand(_ seed: Int32)` beside the `UInt32` `srand`, with the line `/// Source: oracle/codemp/game/bg_lib.c:765`. It calls `srand(UInt32(bitPattern: seed))`. In `G_InitGame` of `Sources/JKAMP_GameLogic/g_main.swift`, the seed line is `srand(randomSeed)`, the bare spelling of the file's other calls into the bg module, and its Port-note and its `portMissing` call went.
+
+The gate. `swift build` gave 0 errors. `swift test --no-parallel` passed 106 tests in four binaries: 78, 14, 13, and 1. The smoke test passed, because the working tree held the committed shell.
+
+### Step 2. The pop of the dispatch fill, not committed
+
+`git stash pop` applied with no conflict and dropped the stash. `Sources/jampgame/jampgame.swift` is equal to `/tmp/jampgame-step3.swift`.
+
+The gate. `swift build` gave 0 errors. `swift test --no-parallel` passed 105 of 106 tests. The binaries of 78, 13, and 14 tests passed. The smoke test "the loaded module answers GAME_INIT with the init line through G_PRINT" failed with this output:
+
+```
+jampsmoke exited with status 5: JKAShared/PortMissing.swift:4: Fatal error: TODO: Port G_LogWeaponInit, source: oracle/codemp/game/g_log.c:108
+```
+
+`swift run jampsmoke .build/debug/libjampgame.dylib` wrote this output and exited with code 133:
+
+```
+Building for debugging...
+Build complete! (0.29 sec)
+JKAShared/PortMissing.swift:4: Fatal error: TODO: Port G_LogWeaponInit, source: oracle/codemp/game/g_log.c:108
+```
+
+`G_InitGame` now runs past `srand`. It stops at the call `G_LogWeaponInit()` at `Sources/JKAMP_GameLogic/g_main.swift:1055`, Raven's `g_main.c:973`. The trap is the first `portMissing` call of `G_LogWeaponInit`, at `Sources/JKAMP_GameLogic/g_log.swift:98`. The body holds ten Port-notes, one for each `memset` of a `G_WeaponLog` array, and each note says the bytes are not one record with a view. The guide's memset section already gives the form for a whole array of scalars, `G_WeaponLogPickups.fill(0)`, so the ten holes are older than that form.
+
+### Where the fill stands
+
+The fill is in the working tree, not in a stash, and it is not committed. The test and the smoke driver did not change. A ruling decides the next step.
