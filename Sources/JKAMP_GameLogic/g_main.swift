@@ -2225,9 +2225,7 @@ func G_LogPrintf(_ fmt: String, _ args: any JKAShared.FormatArg...) {
     portMissing("G_LogPrintf", source: "oracle/codemp/game/g_main.c:2213")
 
     if g_dedicated.integer != 0 {
-        // Port-note: The draft of this statement did not compile, and the compiler wrote "cannot convert value of type 'CharBuf' to expected argument type 'Int'".
-        // Raven wrote: G_Printf( "%s", string + 7 )
-        portMissing("G_LogPrintf", source: "oracle/codemp/game/g_main.c:2213")
+        G_Printf("%s", string[7...])
     }
 
     if level.logFile == 0 {

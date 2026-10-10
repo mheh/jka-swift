@@ -93,36 +93,16 @@ G_LogWeaponInit
 */
 /// Source: oracle/codemp/game/g_log.c:108
 func G_LogWeaponInit() {
-    // Port-note: Raven's `memset(G_WeaponLogPickups, 0, sizeof(G_WeaponLogPickups))` runs over bytes that are not one record with a view.
-    // Raven wrote: memset(G_WeaponLogPickups, 0, sizeof(G_WeaponLogPickups))
-    portMissing("G_LogWeaponInit", source: "oracle/codemp/game/g_log.c:108")
-    // Port-note: Raven's `memset(G_WeaponLogFired, 0, sizeof(G_WeaponLogFired))` runs over bytes that are not one record with a view.
-    // Raven wrote: memset(G_WeaponLogFired, 0, sizeof(G_WeaponLogFired))
-    portMissing("G_LogWeaponInit", source: "oracle/codemp/game/g_log.c:108")
-    // Port-note: Raven's `memset(G_WeaponLogDamage, 0, sizeof(G_WeaponLogDamage))` runs over bytes that are not one record with a view.
-    // Raven wrote: memset(G_WeaponLogDamage, 0, sizeof(G_WeaponLogDamage))
-    portMissing("G_LogWeaponInit", source: "oracle/codemp/game/g_log.c:108")
-    // Port-note: Raven's `memset(G_WeaponLogKills, 0, sizeof(G_WeaponLogKills))` runs over bytes that are not one record with a view.
-    // Raven wrote: memset(G_WeaponLogKills, 0, sizeof(G_WeaponLogKills))
-    portMissing("G_LogWeaponInit", source: "oracle/codemp/game/g_log.c:108")
-    // Port-note: Raven's `memset(G_WeaponLogDeaths, 0, sizeof(G_WeaponLogDeaths))` runs over bytes that are not one record with a view.
-    // Raven wrote: memset(G_WeaponLogDeaths, 0, sizeof(G_WeaponLogDeaths))
-    portMissing("G_LogWeaponInit", source: "oracle/codemp/game/g_log.c:108")
-    // Port-note: Raven's `memset(G_WeaponLogFrags, 0, sizeof(G_WeaponLogFrags))` runs over bytes that are not one record with a view.
-    // Raven wrote: memset(G_WeaponLogFrags, 0, sizeof(G_WeaponLogFrags))
-    portMissing("G_LogWeaponInit", source: "oracle/codemp/game/g_log.c:108")
-    // Port-note: Raven's `memset(G_WeaponLogTime, 0, sizeof(G_WeaponLogTime))` runs over bytes that are not one record with a view.
-    // Raven wrote: memset(G_WeaponLogTime, 0, sizeof(G_WeaponLogTime))
-    portMissing("G_LogWeaponInit", source: "oracle/codemp/game/g_log.c:108")
-    // Port-note: Raven's `memset(G_WeaponLogLastTime, 0, sizeof(G_WeaponLogLastTime))` runs over bytes that are not one record with a view.
-    // Raven wrote: memset(G_WeaponLogLastTime, 0, sizeof(G_WeaponLogLastTime))
-    portMissing("G_LogWeaponInit", source: "oracle/codemp/game/g_log.c:108")
-    // Port-note: Raven's `memset(G_WeaponLogPowerups, 0, sizeof(G_WeaponLogPowerups))` runs over bytes that are not one record with a view.
-    // Raven wrote: memset(G_WeaponLogPowerups, 0, sizeof(G_WeaponLogPowerups))
-    portMissing("G_LogWeaponInit", source: "oracle/codemp/game/g_log.c:108")
-    // Port-note: Raven's `memset(G_WeaponLogItems, 0, sizeof(G_WeaponLogItems))` runs over bytes that are not one record with a view.
-    // Raven wrote: memset(G_WeaponLogItems, 0, sizeof(G_WeaponLogItems))
-    portMissing("G_LogWeaponInit", source: "oracle/codemp/game/g_log.c:108")
+    G_WeaponLogPickups.fill(0)
+    G_WeaponLogFired.fill(0)
+    G_WeaponLogDamage.fill(0)
+    G_WeaponLogKills.fill(0)
+    G_WeaponLogDeaths.fill(0)
+    G_WeaponLogFrags.fill(0)
+    G_WeaponLogTime.fill(0)
+    G_WeaponLogLastTime.fill(0)
+    G_WeaponLogPowerups.fill(0)
+    G_WeaponLogItems.fill(0)
 }
 
 /// Source: oracle/codemp/game/g_log.c:123
