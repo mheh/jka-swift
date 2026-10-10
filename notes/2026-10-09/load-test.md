@@ -181,3 +181,78 @@ return String(level.spawnVarCharsBuffer[dest...])
 ```
 
 The return is a `String` by the signature, and the callers store it into `level.spawnVars`, whose setter interns it in the string pool. So the pointer in `spawnVars` points into the pool and not into `spawnVarChars` as in Raven. The text is the same. The proposed default is to write the form into the section "C string functions" of `docs/transcription.md` and to fill the four holes.
+
+## The third run
+
+The third run builds the rulings S1, S2, and M1, and continues the trap loop from `G_AddSpawnVarToken`.
+
+### The rulings
+
+S1: `Sources/JKAShared/q_shared.c.swift` has `private let ERR_FATAL: Int32 = 0` and `private let ERR_DROP: Int32 = 1` at the top, under `/// Source: oracle/codemp/game/q_shared.h:451`. The nine `Com_Error` calls are filled by hand, and their Port-notes and `portMissing` calls are gone. `swift build` gave 0 errors, so the private names collide in no file that imports `JKAMP`. S2: the section "The print" of `g_main-resplice.md` has the `bodies.py --stem <stem>` step before `printer.py --compile-holes`.
+
+M1: the section "C string functions" of `docs/transcription.md` has the form for a `memcpy` of `strlen + 1` bytes of a `String`. `G_AddSpawnVarToken` fills its four holes with that form. The level property for Raven's `spawnVarChars` as a buffer is `spawnVarCharsBuffer`, the name the walk record used, and the count is `numSpawnVarChars`.
+
+The gate before each commit passed. `swift build` completed with 0 errors. `swift test --no-parallel` passed 112 tests in four binaries, 84, 14, 13, and 1.
+
+### The trap table
+
+| Order | Function | File:line | Raven line | The hole's text | Result |
+| --- | --- | --- | --- | --- | --- |
+| 1 | `G_SpawnString` | `Sources/JKAMP_GameLogic/g_spawn.swift:41`, `49`, and `55` before the fill | `g_spawn.c:10`, `15-18`, and `21` | three compile holes, "The draft of this statement did not compile, and the compiler wrote "value of optional type 'String?' must be unwrapped to a value of type 'String'"." over `*out = (char *)defaultString` twice and the `Q_stricmp` test of `level.spawnVars[i][0]` | filled, the force unwrap of an optional stored into a value or passed where a value is due, `level.spawnVars[i][0]!` and `out = defaultString!`; see docket row T2 |
+| 2 | `AddSpawnField`, found by reading | `g_spawn.swift:342` before the fill | `g_spawn.c:874` | the same compile hole over the `Q_stricmp` test of `level.spawnVars[i][0]` | filled, the force unwrap |
+| 3 | `SP_worldspawn`, found by reading | `g_spawn.swift:550` before the fill | `g_spawn.c:1277` | the same compile hole over the `Q_stricmp` test and the `BG_ParseField` call | filled, the force unwrap, and `UnsafeMutableRawPointer(g_entities[ENTITYNUM_WORLD].handle)` for Raven's `(byte *)` cast, with the comment that names rule 11, the guide's form for a caller of `BG_ParseField` |
+| 4 | `G_SpawnEntitiesFromString`, found by reading | `g_spawn.swift:719` before the fill | `g_spawn.c:1454` | "The draft of this statement did not compile, and the compiler wrote "cannot convert value of type 'Character' to expected argument type 'Int'"." over the test of `behaviorSet[BSET_SPAWN]` and the script runner block | filled, `behaviorSet[BSET_SPAWN] != nil && !behaviorSet[BSET_SPAWN]!.isEmpty`, `if let script_runner` for Raven's guard, and `Think.scriptrunner_run` for the store of the callback |
+| 5 | `G_CallSpawn`, found by reading | `g_spawn.swift:173` before the fill | `g_spawn.c:701` | "Raven walks `spawns` by pointer, and the hand table is a Swift array of rows with no view. A walk over it has no form yet." | filled, the index local `sIndex` of the pointer walk, with the count of `spawns` in place of Raven's `{0, 0}` row |
+| 6 | `G_NewString`, found by reading | `g_spawn.swift:193`, `203`, and `210` before the fill | `g_spawn.c:725`, `732`, and `736-747` | "A pointer local `char * new_p` with no view.", "A store into `new_p`, a local the draft left as a hole.", and the compile hole "binary operator '==' cannot be applied to operands of type 'Character' and 'Int32'" over the loop body | filled, `new_p` is a write cursor, an `Int32` offset into `newb`, `*new_p++ = c` is `newb[byte: new_p] = c` and `new_p += 1`, and `string` becomes a `CharBuf` at the top of the body |
+| 7 | `G_SpawnGEntityFromSpawnVars`, found by reading | `g_spawn.swift:223`, `227`, `230`, `239`, `276`, `280`, and `283` before the fill | `g_spawn.c:769`, `770`, `776`, `810`, `812`, and `813` | three locals with no view or type, `char *s`, `char *gametypeName`, and `static char *gametypeNames[]`, the `BG_ParseField` note "A Slots over one record has no form yet.", and the store and read holes of `gametypeName` and `s` | filled, `s` is the `Int32?` offset that `strstr` returns, `gametypeName` is a `String`, `gametypeNames` is a `[String]` property of `GameWorld` with a forward, and the `BG_ParseField` call passes `fields`, the `Slots<BgField>` of `GameTables.swift` |
+| 8 | `G_Alloc` | `Sources/JKAMP_GameLogic/g_mem.swift:24`, `34`, `39`, and `45` | `g_mem.c:17`, `25`, `28`, and `32` | "A pointer local `char * p` with no view.", "Raven returns NULL, and the function returns a `UnsafeMutableRawPointer`.", "A store into `p`, a local the draft left as a hole." over `p = &memoryPool[allocPoint]`, and "A read of `p`, a local the draft left as a hole." over `return p` | docket row T1 |
+| 9 | `G_LogWeaponOutput`, in the shutdown | `Sources/JKAMP_GameLogic/g_log.swift:203` | `g_log.c:246` | "A pointer local `char * nameptr` with no view." | recorded, not filled, under L4 |
+
+Row 1 traps first. It is the loop of `G_SpawnString`, which `SP_worldspawn` reaches through `G_SpawnFloat("distanceCull", ...)`. Rows 2 to 7 are on the same path, and the loop filled them by reading before the next run. `G_SpawnGEntityFromSpawnVars` held a trap at its entry, so no entity after the worldspawn could spawn without row 7. The `strstr` of row 7 needs a `String` haystack, so `Sources/JKAShared/CString.swift` gains the overload `strstr(_: String, _: String)`, in the shape of the `String` overloads of `strchr`.
+
+Row 8 traps after `SP_worldspawn`. By the order of the code, the call is `G_SpawnEntitiesFromString` at `g_main.swift:1115`, then `G_SpawnGEntityFromSpawnVars`, then `BG_ParseField` of the `classname` key, then `G_NewString` at `bg_misc.swift:166` through the bg channel, then `G_Alloc` at `g_spawn.swift:206`. `memoryPool` is a `CharBuf` of `GameVariables`, a Swift value with no fixed address, and `G_Alloc` returns an `UnsafeMutableRawPointer` into it. The guide has no form for that pointer, so the loop stops at row 8.
+
+The iterations of the loop were these:
+
+| Run | Code | First trap |
+| --- | --- | --- |
+| 1 | `66a4dbe` | row 1, then row 9, then the alarm |
+| 2 | `66a4dbe` with the fills of rows 1 to 7, committed as `2de188c` | row 8, then row 9, then the alarm |
+| probe | `2de188c`, with `+set g_logSync 1` | row 8, then row 9, then the alarm |
+
+The log on disk at `/tmp/jka-load/server.log` is the log of the probe. The tail of run 2, with the `InitGame:` line cut:
+
+```
+VM_CreateLegacy: jampgamearm64.dylib succeeded
+------- Game Initialization -------
+gamename: basejka
+gamedate: unknown
+G_LoadBanIP - ERROR: can't open banip.txt
+------------------------------------------------------------
+InitGame: \version\OpenJK-MP: vUNKNOWN macosx-arm64 Oct  9 2026\...
+JKAShared/PortMissing.swift:4: Fatal error: TODO: Port G_Alloc, source: oracle/codemp/game/g_mem.c:16
+JKAShared/PortMissing.swift:4: Fatal error: TODO: Port G_LogWeaponOutput, source: oracle/codemp/game/g_log.c:227
+```
+
+### The empty games.log
+
+`G_InitGame` opens `games.log` with `FS_APPEND` when `g_logSync` is 0, the engine buffers the writes, and the `SIGALRM` ends the process before the engine closes the file, so `games.log` has 0 bytes after run 2 and 879 bytes, the two `G_LogPrintf` lines, after the probe with `g_logSync 1`.
+
+### Where G_InitGame stands
+
+`G_InitGame` does not return. It stops in `G_Alloc`, `g_mem.swift:24`, under the first `G_NewString` call of the entity parse. `SP_worldspawn` runs to its end before the stop. The loop stopped after two runs and one probe, because row 8 has no guide form. The server does not reach the frame loop, so this run shows no `G_RunFrame` trap.
+
+### Hashes
+
+| Commit | Subject |
+| --- | --- |
+| `e229e7c` | The error constants of q_shared and the printer step |
+| `66a4dbe` | The memcpy of a text as a strcpy at a cursor |
+| `2de188c` | The G_InitGame path fills, 3 |
+| this commit | The record of the third load test |
+
+### Docket rows
+
+T1. The bump pool of `G_Alloc`. Raven sets `p = &memoryPool[allocPoint]` and returns `p`, a pointer into the static `char memoryPool[POOLSIZE]`. The port holds `memoryPool` as a `CharBuf` of `GameVariables`, which has no fixed address, and the guide's table gives `G_Alloc` an `UnsafeMutableRawPointer` return. Rule 9 keeps `G_Alloc` a bump pool over `memoryPool` and `allocPoint` on the world. The proposed form is the shape of `bg_pool`: `memoryPool` joins `HAND_VARS` of `rulings.py` as one raw allocation of `POOLSIZE` bytes that the world owns and frees, and the stub forwards it under Raven's name. `G_Alloc` then writes `let p: UnsafeMutableRawPointer`, `p = memoryPool + allocPoint` with the `+` of `RawField.swift`, and `return p`. The `return NULL` after `G_Error` drops, because `G_Error` is `-> Never` under rule 22, so the line has no path.
+
+T2. The NULL default of `G_SpawnString`. The fill of row 1 writes `out = defaultString!`, the guide's force unwrap for an optional stored into a value. `G_SpawnGEntityFromSpawnVars` calls `G_SpawnString("gametype", nil, &value)` at `g_spawn.swift:274`. Raven stores NULL into `value` and returns `qfalse`, and the caller reads nothing. The unwrap traps on each entity with no `gametype` key, a place where Raven does not crash, so this trap is the next stop behind T1. The proposed form follows the `out_string` NULL form of the guide: the store keeps the caller's text when the default is NULL, `if defaultString != nil { out = defaultString! }`, at the two stores of `defaultString`.
