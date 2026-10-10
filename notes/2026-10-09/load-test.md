@@ -256,3 +256,75 @@ JKAShared/PortMissing.swift:4: Fatal error: TODO: Port G_LogWeaponOutput, source
 T1. The bump pool of `G_Alloc`. Raven sets `p = &memoryPool[allocPoint]` and returns `p`, a pointer into the static `char memoryPool[POOLSIZE]`. The port holds `memoryPool` as a `CharBuf` of `GameVariables`, which has no fixed address, and the guide's table gives `G_Alloc` an `UnsafeMutableRawPointer` return. Rule 9 keeps `G_Alloc` a bump pool over `memoryPool` and `allocPoint` on the world. The proposed form is the shape of `bg_pool`: `memoryPool` joins `HAND_VARS` of `rulings.py` as one raw allocation of `POOLSIZE` bytes that the world owns and frees, and the stub forwards it under Raven's name. `G_Alloc` then writes `let p: UnsafeMutableRawPointer`, `p = memoryPool + allocPoint` with the `+` of `RawField.swift`, and `return p`. The `return NULL` after `G_Error` drops, because `G_Error` is `-> Never` under rule 22, so the line has no path.
 
 T2. The NULL default of `G_SpawnString`. The fill of row 1 writes `out = defaultString!`, the guide's force unwrap for an optional stored into a value. `G_SpawnGEntityFromSpawnVars` calls `G_SpawnString("gametype", nil, &value)` at `g_spawn.swift:274`. Raven stores NULL into `value` and returns `qfalse`, and the caller reads nothing. The unwrap traps on each entity with no `gametype` key, a place where Raven does not crash, so this trap is the next stop behind T1. The proposed form follows the `out_string` NULL form of the guide: the store keeps the caller's text when the default is NULL, `if defaultString != nil { out = defaultString! }`, at the two stores of `defaultString`.
+
+## The fourth run
+
+The fourth run builds the rulings T1 and T2 of `load-test-walk.md` and continues the trap loop from `G_Alloc`.
+
+### The rulings
+
+T1: `memoryPool` is in `HAND_VARS` of `tools/oracle-closure/rulings.py` with the spelling `world.memoryPool`, the shape of `bg_pool`. `GameWorld` in `Sources/JKAMP_GameLogic/g_local.swift` holds `let memoryPool: UnsafeMutableRawPointer`, one zeroed block of `POOLSIZE` bytes, and frees it in `deinit`. The `memoryPool` entry of `GameVariables.swift` is gone, because `write_variables` of `skeleton.py` writes only the kind `state`. `skeleton.py --only g_mem` prints and writes nothing, so the stub of the adopted `g_mem.swift` takes the two comment lines it prints in place of the old forward. The run moved no file. `G_Alloc` declares `let p: UnsafeMutableRawPointer`, writes `p = world.memoryPool + allocPoint`, and returns `p`. The body spells the HAND_VARS name, `world.memoryPool`, as `BG_Alloc` spells `bg.pool`, because the property is on the state object and has no forward. The `return NULL` after `G_Error` is gone, and so are the four Port-notes and `portMissing` calls.
+
+T2: the two stores of `defaultString` in `G_SpawnString` read `if defaultString != nil { out = defaultString! }`.
+
+The gate before the commit `0f8d191` passed. `swift build` completed with 0 errors. `swift test --no-parallel` passed 112 tests in four binaries, 84, 14, 13, and 1. The tool tests ran 78 tests, OK, 16 skipped.
+
+### The trap table
+
+| Order | Function | File:line | Raven line | The hole's text | Result |
+| --- | --- | --- | --- | --- | --- |
+| 1 | `InitMover` | `Sources/JKAMP_GameLogic/g_mover.swift:984` before the fill | `g_mover.c:958` | "The draft of this statement did not compile, and the compiler wrote "cannot convert value of type 'vec3_t' (aka 'SIMD3<Float>') to expected argument type 'Float'"." over `colorSet = G_SpawnVector( "color", "1 1 1", color )` | filled, `colorSet = G_SpawnVector("color", "1 1 1", &color)`, after the signature fix of row 2 |
+| 2 | `G_SpawnVector`, found by reading | `Sources/JKAMP_GameLogic/g_spawn.swift:79` and `84` before the fill | `g_spawn.c:43` and `48` | the signature `_ out: inout Float`, and "The draft of this statement did not compile, and the compiler wrote "'&' used with non-inout argument of type 'Any'"." over `sscanf( s, "%f %f %f", &out[0], &out[1], &out[2] )` | filled, `("G_SpawnVector", "out"): "vec3_mut"` in `PARAMS`, the guide's row for a pointer Raven fills as a fixed set of floats, the signature `_ out: inout JKAShared.vec3_t`, and `sscanf(s, "%f %f %f", &out)`, the vector form of `Scan.swift` |
+| 3 | `InitBBrush`, found by reading | `g_mover.swift:2446` before the fill | `g_mover.c:2627` | the same compile hole as row 1 | filled, the same form |
+| 4 | `SP_func_rotating`, found by reading | `g_mover.swift:2050` before the fill | `g_mover.c:2172-2191` | the same compile hole over the `if` of `G_SpawnVector( "spinangles", ... )` and both arms | filled, `G_SpawnVector("spinangles", "0 0 0", &spinangles)` as the test, `ent.s.apos.trDelta = spinangles` for the `VectorCopy`, and `ent.speed == 0` for `!ent->speed` |
+| 5 | `SP_target_speaker` | `Sources/JKAMP_GameLogic/g_target.swift:301` before the fill | `g_target.c:308` | "The draft of this statement did not compile, and the compiler wrote "binary operator '==' cannot be applied to operands of type 'Character' and 'Int32'"." over `if ( s[0] == '*' )` | filled, `CharBuf(s)[0] == Int32(ascii: "*")`, the byte read of a `String` local through `CharBuf` that `drafter-round.md` of 2026-10-08 records |
+| 6 | `G_LoadBots` | `Sources/JKAMP_GameLogic/g_bot.swift:1268` before the fill | `g_bot.c:1238-1244` | "A pointer dereference the draft cannot place." over `if( *botsFile.string )` and both arms | filled, `!botsFile.string.isEmpty`, the truth test on a record's `char name[N]` field |
+| 7 | `G_LoadBotsFromFile`, found by reading | `g_bot.swift:1237` before the fill | `g_bot.c:1214` | "The draft of this statement did not compile, and the compiler wrote "cannot convert value of type 'Int32' to expected argument type 'Range<Int>'"." over the `G_ParseInfos` call | filled, `&g_botInfos[Int(g_numBots)...]`, the guide's row for a C array of strings the function fills from a caller's `&array[i]` |
+| 8 | `G_LoadArenasFromFile`, found by reading | `g_bot.swift:149` before the fill | `g_bot.c:126` | the same compile hole as row 7 | filled, `&g_arenaInfos[Int(g_numArenas)...]` |
+| 9 | `G_ParseInfos` | `Sources/JKAMP_GameLogic/g_bot.swift:71-73`, `89-91`, and `101-103` | `g_bot.c:58`, `75`, and `85` | "A cast to `const char **` the draft has no view for." over `token = COM_Parse( (const char **)(&buf) )` and the two `COM_ParseExt` calls | docket row F1 |
+| 10 | `G_ParseInfos` | `g_bot.swift:110-115` | `g_bot.c:93-97` | "The draft of this statement did not compile, and the compiler wrote "no 'G_Alloc' candidates produce the expected contextual result type 'String'"." over `infos[count] = (char *) G_Alloc(...)`, and "... "cannot convert value of type 'Int32' to expected argument type 'Int'"." over `if (infos[count]) { strcpy(infos[count], info); count++; }` | docket row F2 |
+| 11 | `G_LogWeaponOutput`, in the shutdown | `Sources/JKAMP_GameLogic/g_log.swift:203` | `g_log.c:246` | "A pointer local `char * nameptr` with no view." | recorded, not filled, under L4 |
+
+Row 1 traps after the worldspawn and the first `G_NewString` calls, so the T1 pool hands out its first blocks with no trap. The entity parse then reaches the first mover of `mp/ffa1`. Rows 2 to 4 are the rest of the `G_SpawnVector` holes on the spawn path, filled by reading before the next run. Row 5 is the next trap. Rows 6 to 8 come after `G_SpawnEntitiesFromString` returns, in `G_InitBots` at `g_main.swift:1149`, after `BotAISetup` and `BotAILoadMap` return with no trap. Row 9 is the next trap, and the guide has no form for it, so the loop stops there. Row 10 is in the same body, and it has no form either. Row 11 follows each trap in `G_InitGame`, and the process then hangs until the alarm ends it with exit status 142.
+
+The two `G_SpawnVector` holes of `SP_misc_siege_item` in `g_saga.swift:1606` and `1609` stay as they are. The function has other holes before them, and it spawns only in a siege map.
+
+The iterations of the loop were these:
+
+| Run | Code | First trap |
+| --- | --- | --- |
+| 1 | `0f8d191` | row 1, then row 11, then the alarm |
+| 2 | `0f8d191` with the fills of rows 1 to 4 | row 5, then row 11, then the alarm |
+| 3 | `0f8d191` with the fills of rows 1 to 5 | row 6, then row 11, then the alarm |
+| 4 | `0f8d191` with the fills of rows 1 to 8, committed as `4117a09` | row 9, then row 11, then the alarm |
+
+The log on disk at `/tmp/jka-load/server.log` is the log of run 4. Its tail, with the `InitGame:` line cut:
+
+```
+2026-10-09 22:09:34 ------- Game Initialization -------
+2026-10-09 22:09:34 gamename: basejka
+2026-10-09 22:09:34 gamedate: unknown
+2026-10-09 22:09:34 G_LoadBanIP - ERROR: can't open banip.txt
+2026-10-09 22:09:34 ------------------------------------------------------------
+JKAShared/PortMissing.swift:4: Fatal error: TODO: Port G_ParseInfos, source: oracle/codemp/game/g_bot.c:50
+JKAShared/PortMissing.swift:4: Fatal error: TODO: Port G_LogWeaponOutput, source: oracle/codemp/game/g_log.c:227
+---- exit status 142
+```
+
+### Where G_InitGame stands
+
+`G_InitGame` does not return. The entity parse of `mp/ffa1` runs to its end, and `BotAISetup` and `BotAILoadMap` return. The run stops in `G_ParseInfos`, `g_bot.swift:73`, under `G_LoadBotsFromFile("botfiles/bots.txt")` of `G_LoadBots`, the first call of `G_InitBots`. The loop stopped after four runs, because row 9 has no guide form. The server does not reach the frame loop, so this run shows no `G_RunFrame` trap. After `G_ParseInfos`, `G_InitBots` calls `G_LoadArenas`, which calls `G_ParseInfos` again through `G_LoadArenasFromFile`.
+
+### Hashes
+
+| Commit | Subject |
+| --- | --- |
+| `0f8d191` | The game memory pool and the NULL default of G_SpawnString |
+| `4117a09` | The G_InitGame path fills, 4 |
+| this commit | The record of the fourth load test |
+
+### Docket rows
+
+F1. The parse cursor of `G_ParseInfos`. Raven's `char *buf` parameter is a cursor that `COM_Parse( (const char **)(&buf) )` and `COM_ParseExt` advance, and no use of it writes a byte. The signature gives `buf` as `inout JKAShared.CharBuf`, and `COM_Parse` and `COM_ParseExt` take an `inout TextCursor`. The guide drops the `(const char **)` cast around the address of a `TextCursor` local, but it has no form for a cursor over a `CharBuf` parameter. The proposed form follows the guide's form for a `String` parameter a body walks by byte, `let s1 = CharBuf(s1)` at the top of the body: the first line of the body is `var buf = TextCursor(buf)`, and the three calls read `token = COM_Parse(&buf)`, `token = COM_ParseExt(&buf, true)`, and `token = COM_ParseExt(&buf, false)`. The signature and the two callers stay as they are.
+
+F2. The info slot of `G_ParseInfos`. Raven allocates `strlen(info) + strlen("\\num\\") + strlen(va("%d", MAX_ARENAS)) + 1` bytes with `G_Alloc` into `infos[count]`, tests the pointer, and copies `info` into it. The slot is a `String` of the `ArraySlice<String>` parameter, and `G_Alloc` returns a raw pointer. The extra bytes leave room for the `\num\` key that `G_LoadArenas` adds to the same slot later. The proposed form follows the `CHARBUF_ALLOCS` form, where the call stays on the page with its result dropped so the pool keeps Raven's count: `_ = G_Alloc(strlen(info) + strlen("\\num\\") + strlen(va("%d", MAX_ARENAS)) + 1)`, then `infos[infos.startIndex + count] = String(info)` and `count += 1`. The `if (infos[count])` test drops, because `G_Alloc` never returns NULL now that `G_Error` is `-> Never` under rule 22.
