@@ -134,6 +134,22 @@ class Signatures(unittest.TestCase):
             self.assertIsNone(lookup.answers("Pmove", "store"))
         self.assertIn(str(self.stubs[0]), err.getvalue())
 
+    def test_a_store_with_no_signatures_rows_warns_and_the_manifests_answer(self) -> None:
+        # given a store that holds no signatures rows
+        self.store.unlink()
+        with Store(self.store):
+            pass
+
+        # when a question reads the store first
+        err = io.StringIO()
+        with contextlib.redirect_stderr(err):
+            status, printed = self.printed(lookup.signature, "Pmove", None)
+
+        # then standard error says the manifests answer, and the answer is the manifest text
+        self.assertIn("the store holds no signatures rows", err.getvalue())
+        self.assertIn("manifests", err.getvalue())
+        self.assertEqual((status, printed), self.printed(lookup.signature, "Pmove", "manifest"))
+
 
 @unittest.skipUnless(os.environ.get("SLOW") == "1", "slow: one parse and one warm sweep of the real tree, run with SLOW=1")
 class SkeletonRows(unittest.TestCase):

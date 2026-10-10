@@ -96,7 +96,10 @@ def stored(name: str) -> list[dict] | None:
             print(f"lookup.py: the signature rows in the store are stale, {len(stale)} Swift stubs changed: {shown}. "
                   f"Run skeleton.py to write them again.", file=sys.stderr)
             return None
-        return store.signatures(name)
+        found = store.signatures(name)
+        if found is None:
+            print("lookup.py: the store holds no signatures rows, so this answer comes from the manifests. Run skeleton.py to write the rows.", file=sys.stderr)
+        return found
 
 
 def signature_cell(row: dict) -> str:
