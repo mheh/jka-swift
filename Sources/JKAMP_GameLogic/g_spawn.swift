@@ -38,23 +38,20 @@ func G_SpawnString(_ key: String, _ defaultString: String?, _ out: inout String)
     var i: Int32
 
     if !level.spawning {
-        // Port-note: The draft of this statement did not compile, and the compiler wrote "value of optional type 'String?' must be unwrapped to a value of type 'String'".
-        // Raven wrote: *out = (char *)defaultString
-        portMissing("G_SpawnString", source: "oracle/codemp/game/g_spawn.c:6")
+        out = defaultString!
         //		G_Error( "G_SpawnString() called while not spawning" );
     }
 
     i = 0
     while i < level.numSpawnVars {
-        // Port-note: The draft of this statement did not compile, and the compiler wrote "value of optional type 'String?' must be unwrapped to a value of type 'String'".
-        // Raven wrote: if ( !Q_stricmp( key, level.spawnVars[i][0] ) ) { *out = level.spawnVars[i][1]; return qtrue; }
-        portMissing("G_SpawnString", source: "oracle/codemp/game/g_spawn.c:6")
+        if Q_stricmp(key, level.spawnVars[i][0]!) == 0 {
+            out = level.spawnVars[i][1]!
+            return true
+        }
         i += 1
     }
 
-    // Port-note: The draft of this statement did not compile, and the compiler wrote "value of optional type 'String?' must be unwrapped to a value of type 'String'".
-    // Raven wrote: *out = (char *)defaultString
-    portMissing("G_SpawnString", source: "oracle/codemp/game/g_spawn.c:6")
+    out = defaultString!
     return false
 }
 
@@ -170,9 +167,18 @@ func G_CallSpawn(_ ent: Entity) -> Bool {
     }
 
     // check normal spawn functions
-    // Port-note: Raven walks `spawns` by pointer, and the hand table is a Swift array of rows with no view. A walk over it has no form yet.
-    // Raven wrote: for ( s=spawns ; s->name ; s++ ) { if ( !strcmp(s->name, ent->classname) ) { // found it if (ent->healingsound && ent->healingsound[0]) { //yeah...this can be used for anything, so.. precache it if it's there G_SoundIndex(ent->healingsound); } s->spawn(ent); return qtrue; } }
-    portMissing("G_CallSpawn", source: "oracle/codemp/game/g_spawn.c:683")
+    sIndex = 0
+    while sIndex < spawns.count {
+        if strcmp(spawns[sIndex].name, ent.classname!) == 0 {
+            // found it
+            if ent.healingsound != nil && !ent.healingsound!.isEmpty { //yeah...this can be used for anything, so.. precache it if it's there
+                G_SoundIndex(ent.healingsound!)
+            }
+            spawns[sIndex].spawn(ent)
+            return true
+        }
+        sIndex += 1
+    }
     G_Printf("%s doesn't have a spawn function\n", ent.classname!)
     return false
 }
@@ -189,10 +195,9 @@ so message texts can be multi-line
 */
 /// Source: oracle/codemp/game/g_spawn.c:724
 func G_NewString(_ string: String) -> String {
+    let string = CharBuf(string)
     let newb: UnsafeMutableRawPointer
-    // Port-note: A pointer local `char * new_p` with no view.
-    // Raven wrote: new_p;
-    portMissing("G_NewString", source: "oracle/codemp/game/g_spawn.c:724")
+    var new_p: Int32
     var i: Int32
     let l: Int32
 
@@ -200,45 +205,52 @@ func G_NewString(_ string: String) -> String {
 
     newb = G_Alloc(l)
 
-    // Port-note: A store into `new_p`, a local the draft left as a hole.
-    // Raven wrote: new_p = newb
-    portMissing("G_NewString", source: "oracle/codemp/game/g_spawn.c:724")
+    new_p = 0
 
     // turn \n into a real linefeed
     i = 0
     while i < l {
-        // Port-note: The draft of this statement did not compile, and the compiler wrote "binary operator '==' cannot be applied to operands of type 'Character' and 'Int32'".
-        // Raven wrote: if (string[i] == '\\' && i < l-1) { i++; if (string[i] == 'n') { *new_p++ = '\n'; } else { *new_p++ = '\\'; } } else { *new_p++ = string[i]; }
-        portMissing("G_NewString", source: "oracle/codemp/game/g_spawn.c:724")
+        if string[i] == Int32(ascii: "\\") && i < l - 1 {
+            i += 1
+            if string[i] == Int32(ascii: "n") {
+                newb[byte: new_p] = Int32(ascii: "\n")
+                new_p += 1
+            } else {
+                newb[byte: new_p] = Int32(ascii: "\\")
+                new_p += 1
+            }
+        } else {
+            newb[byte: new_p] = string[i]
+            new_p += 1
+        }
         i += 1
     }
 
     return String(cString: newb.assumingMemoryBound(to: CChar.self))
 }
 
+/// Raven's `static char *gametypeNames[]` of `G_SpawnGEntityFromSpawnVars`, which the world keeps.
+/// Source: oracle/codemp/game/g_spawn.c:770
+var gametypeNames: [String] {
+    get { world.gametypeNames }
+    set { world.gametypeNames = newValue }
+}
+
 /// Source: oracle/codemp/game/g_spawn.c:766
 public func G_SpawnGEntityFromSpawnVars(_ inSubBSP: Bool) {
     var i: Int32 = 0
     var ent: Entity?
-    // Port-note: A pointer local `char * s` with no view.
-    // Raven wrote: char *s;
-    portMissing("G_SpawnGEntityFromSpawnVars", source: "oracle/codemp/game/g_spawn.c:766")
+    let s: Int32?
     var value: String = ""
-    // Port-note: A pointer local `char * gametypeName` with no view.
-    // Raven wrote: gametypeName;
-    portMissing("G_SpawnGEntityFromSpawnVars", source: "oracle/codemp/game/g_spawn.c:766")
-    // Port-note: A local `char *[10] gametypeNames` the table has no type for.
-    // Raven wrote: static char *gametypeNames[] = {"ffa", "holocron", "jedimaster", "duel", "powerduel", "single", "team", "siege", "ctf", "cty"};
-    portMissing("G_SpawnGEntityFromSpawnVars", source: "oracle/codemp/game/g_spawn.c:766")
+    let gametypeName: String
 
     // get the next free entity
     ent = G_Spawn()
 
     i = 0
     while i < level.numSpawnVars {
-        // Port-note: Raven passes `fields` to `BG_ParseField`, whose `l_fields` parameter takes the Slots over the records, and Swift holds one record here. A Slots over one record has no form yet.
-        // Raven wrote: BG_ParseField( fields, level.spawnVars[i][0], level.spawnVars[i][1], (byte *)ent )
-        portMissing("G_SpawnGEntityFromSpawnVars", source: "oracle/codemp/game/g_spawn.c:766")
+        // Raven casts the entity to `byte *`, and the raw pointer over the entity's slot is that cast, under rule 11.
+        BG_ParseField(fields, level.spawnVars[i][0]!, level.spawnVars[i][1]!, UnsafeMutableRawPointer(ent!.handle))
         i += 1
     }
 
@@ -273,16 +285,13 @@ public func G_SpawnGEntityFromSpawnVars(_ inSubBSP: Bool) {
 
     if G_SpawnString("gametype", nil, &value) {
         if g_gametype.integer >= GT_FFA && g_gametype.integer < GT_MAX_GAME_TYPE {
-            // Port-note: A store into `gametypeName`, a local the draft left as a hole.
-            // Raven wrote: gametypeName = gametypeNames[g_gametype.integer]
-            portMissing("G_SpawnGEntityFromSpawnVars", source: "oracle/codemp/game/g_spawn.c:766")
+            gametypeName = gametypeNames[g_gametype.integer]
 
-            // Port-note: A store into `s`, a local the draft left as a hole.
-            // Raven wrote: s = strstr( value, gametypeName )
-            portMissing("G_SpawnGEntityFromSpawnVars", source: "oracle/codemp/game/g_spawn.c:766")
-            // Port-note: A read of `s`, a local the draft left as a hole.
-            // Raven wrote: if( !s ) { G_FreeEntity( ent ); return; }
-            portMissing("G_SpawnGEntityFromSpawnVars", source: "oracle/codemp/game/g_spawn.c:766")
+            s = strstr(value, gametypeName)
+            if s == nil {
+                G_FreeEntity(ent!)
+                return
+            }
         }
     }
 
@@ -339,9 +348,10 @@ func AddSpawnField(_ field: String, _ value: String) {
 
     i = 0
     while i < level.numSpawnVars {
-        // Port-note: The draft of this statement did not compile, and the compiler wrote "value of optional type 'String?' must be unwrapped to a value of type 'String'".
-        // Raven wrote: if (Q_stricmp(level.spawnVars[i][0], field) == 0) { level.spawnVars[ i ][1] = G_AddSpawnVarToken( value ); return; }
-        portMissing("AddSpawnField", source: "oracle/codemp/game/g_spawn.c:868")
+        if Q_stricmp(level.spawnVars[i][0]!, field) == 0 {
+            level.spawnVars[i][1] = G_AddSpawnVarToken(value)
+            return
+        }
         i += 1
     }
 
@@ -547,9 +557,10 @@ func SP_worldspawn() {
 
     i = 0
     while i < level.numSpawnVars {
-        // Port-note: The draft of this statement did not compile, and the compiler wrote "value of optional type 'String?' must be unwrapped to a value of type 'String'".
-        // Raven wrote: if ( Q_stricmp( "spawnscript", level.spawnVars[i][0] ) == 0 ) {//ONly let them set spawnscript, we don't want them setting an angle or something on the world. BG_ParseField( fields, level.spawnVars[i][0], level.spawnVars[i][1], (byte *)&g_entities[ENTITYNUM_WORLD] ); }
-        portMissing("SP_worldspawn", source: "oracle/codemp/game/g_spawn.c:1259")
+        if Q_stricmp("spawnscript", level.spawnVars[i][0]!) == 0 {//ONly let them set spawnscript, we don't want them setting an angle or something on the world.
+            // Raven casts the entity to `byte *`, and the raw pointer over the entity's slot is that cast, under rule 11.
+            BG_ParseField(fields, level.spawnVars[i][0]!, level.spawnVars[i][1]!, UnsafeMutableRawPointer(g_entities[ENTITYNUM_WORLD].handle))
+        }
         i += 1
     }
     //The server will precache the standard model and animations, so that there is no hit
@@ -716,9 +727,20 @@ func G_SpawnEntitiesFromString(_ inSubBSP: Bool) {
         G_SpawnGEntityFromSpawnVars(inSubBSP)
     }
 
-    // Port-note: The draft of this statement did not compile, and the compiler wrote "cannot convert value of type 'Character' to expected argument type 'Int'".
-    // Raven wrote: if( g_entities[ENTITYNUM_WORLD].behaviorSet[BSET_SPAWN] && g_entities[ENTITYNUM_WORLD].behaviorSet[BSET_SPAWN][0] ) {//World has a spawn script, but we don't want the world in ICARUS and running scripts, //so make a scriptrunner and start it going. gentity_t *script_runner = G_Spawn(); if ( script_runner ) { script_runner->behaviorSet[BSET_USE] = g_entities[ENTITYNUM_WORLD].behaviorSet[BSET_SPAWN]; script_runner->count = 1; script_runner->think = scriptrunner_run; script_runner->nextthink = level.time + 100; if ( script_runner->inuse ) { trap_ICARUS_InitEnt( script_runner ); } } }
-    portMissing("G_SpawnEntitiesFromString", source: "oracle/codemp/game/g_spawn.c:1424")
+    if g_entities[ENTITYNUM_WORLD].behaviorSet[BSET_SPAWN] != nil && !g_entities[ENTITYNUM_WORLD].behaviorSet[BSET_SPAWN]!.isEmpty {//World has a spawn script, but we don't want the world in ICARUS and running scripts,
+        //so make a scriptrunner and start it going.
+        let script_runner = G_Spawn()
+        if let script_runner {
+            script_runner.behaviorSet[BSET_USE] = g_entities[ENTITYNUM_WORLD].behaviorSet[BSET_SPAWN]
+            script_runner.count = 1
+            script_runner.think = Think.scriptrunner_run
+            script_runner.nextthink = level.time + 100
+
+            if script_runner.inuse {
+                trap_ICARUS_InitEnt(script_runner)
+            }
+        }
+    }
 
     if !inSubBSP {
         level.spawning = false // any future calls to G_Spawn*() will be errors

@@ -457,6 +457,11 @@ public func strstr(_ s: CharBuf, _ needle: String) -> Int32? {
     strstr(s, CharBuf(needle))
 }
 
+/// This finds the first occurrence of `needle` in a Swift string's text, Raven's `strstr(s, needle)`.
+public func strstr(_ s: String, _ needle: String) -> Int32? {
+    strstr(CharBuf(s), CharBuf(needle))
+}
+
 // MARK: - tolower and toupper
 
 /// This maps `A` to `Z` onto `a` to `z` and gives every other value back, Raven's `tolower(c)` in the C locale.

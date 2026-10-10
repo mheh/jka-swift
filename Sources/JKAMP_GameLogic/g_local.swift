@@ -331,6 +331,10 @@ public final class GameWorld {
         [ "", "", "" ]  // 31
     ]
 
+    /// Raven's `static char *gametypeNames[]` of `G_SpawnGEntityFromSpawnVars` in `g_spawn.c`.
+    /// Source: oracle/codemp/game/g_spawn.c:770
+    var gametypeNames: [String] = ["ffa", "holocron", "jedimaster", "duel", "powerduel", "single", "team", "siege", "ctf", "cty"]
+
     /// Raven's `spawn_t spawns[]` of `g_spawn.c`, 185 rows in Raven's order.
     /// Raven's closing `{0, 0}` row marks the end for his walk, and the Swift array's count takes its place.
     /// Source: oracle/codemp/game/g_spawn.c:435
