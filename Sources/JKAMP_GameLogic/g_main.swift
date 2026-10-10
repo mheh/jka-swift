@@ -603,10 +603,8 @@ func vmMain(_ command: Int32, _ arg0: Int32, _ arg1: Int32, _ arg2: Int32, _ arg
 
     case GAME_ICARUS_PLAYSOUND:
         do {
-            // Port-note: A pointer local `T_G_ICARUS_PLAYSOUND * sharedMem` with no view. This body needs a view over `T_G_ICARUS_PLAYSOUND` on the `gSharedBuffer` bytes.
-            // Raven wrote: T_G_ICARUS_PLAYSOUND *sharedMem = (T_G_ICARUS_PLAYSOUND *)gSharedBuffer;
-            portMissing("vmMain", source: "oracle/codemp/game/g_main.c:515")
-            // Port-note: A read of `sharedMem`, a local the draft left as a hole. This read needs the `sharedMem` local, which needs a view over the `gSharedBuffer` bytes.
+            let sharedMem = IcarusPlaySound(handle: OpaquePointer(gSharedBuffer))
+            // Port-note: The draft of this statement did not compile, and the compiler wrote "cannot force unwrap value of non-optional type 'IcarusPlaySound'".
             // Raven wrote: return Q3_PlaySound(sharedMem->taskID, sharedMem->entID, sharedMem->name, sharedMem->channel)
             portMissing("vmMain", source: "oracle/codemp/game/g_main.c:515")
         }
@@ -614,10 +612,8 @@ func vmMain(_ command: Int32, _ arg0: Int32, _ arg1: Int32, _ arg2: Int32, _ arg
 
     case GAME_ICARUS_SET:
         do {
-            // Port-note: A pointer local `T_G_ICARUS_SET * sharedMem` with no view. This body needs a view over `T_G_ICARUS_SET` on the `gSharedBuffer` bytes.
-            // Raven wrote: T_G_ICARUS_SET *sharedMem = (T_G_ICARUS_SET *)gSharedBuffer;
-            portMissing("vmMain", source: "oracle/codemp/game/g_main.c:515")
-            // Port-note: A read of `sharedMem`, a local the draft left as a hole. This read needs the `sharedMem` local, which needs a view over the `gSharedBuffer` bytes.
+            let sharedMem = IcarusSet(handle: OpaquePointer(gSharedBuffer))
+            // Port-note: The draft of this statement did not compile, and the compiler wrote "cannot force unwrap value of non-optional type 'IcarusSet'".
             // Raven wrote: return Q3_Set(sharedMem->taskID, sharedMem->entID, sharedMem->type_name, sharedMem->data)
             portMissing("vmMain", source: "oracle/codemp/game/g_main.c:515")
         }
@@ -625,10 +621,8 @@ func vmMain(_ command: Int32, _ arg0: Int32, _ arg1: Int32, _ arg2: Int32, _ arg
 
     case GAME_ICARUS_LERP2POS:
         do {
-            // Port-note: A pointer local `T_G_ICARUS_LERP2POS * sharedMem` with no view. This body needs a view over `T_G_ICARUS_LERP2POS` on the `gSharedBuffer` bytes.
-            // Raven wrote: T_G_ICARUS_LERP2POS *sharedMem = (T_G_ICARUS_LERP2POS *)gSharedBuffer;
-            portMissing("vmMain", source: "oracle/codemp/game/g_main.c:515")
-            // Port-note: A read of `sharedMem`, a local the draft left as a hole. This read needs the `sharedMem` local, which needs a view over the `gSharedBuffer` bytes.
+            let sharedMem = IcarusLerp2Pos(handle: OpaquePointer(gSharedBuffer))
+            // Port-note: The draft of this statement did not compile, and the compiler wrote "cannot force unwrap value of non-optional type 'IcarusLerp2Pos'".
             // Raven wrote: if (sharedMem->nullAngles) { Q3_Lerp2Pos(sharedMem->taskID, sharedMem->entID, sharedMem->origin, NULL, sharedMem->duration); } else { Q3_Lerp2Pos(sharedMem->taskID, sharedMem->entID, sharedMem->origin, sharedMem->angles, sharedMem->duration); }
             portMissing("vmMain", source: "oracle/codemp/game/g_main.c:515")
         }
@@ -636,10 +630,8 @@ func vmMain(_ command: Int32, _ arg0: Int32, _ arg1: Int32, _ arg2: Int32, _ arg
 
     case GAME_ICARUS_LERP2ORIGIN:
         do {
-            // Port-note: A pointer local `T_G_ICARUS_LERP2ORIGIN * sharedMem` with no view. This body needs a view over `T_G_ICARUS_LERP2ORIGIN` on the `gSharedBuffer` bytes.
-            // Raven wrote: T_G_ICARUS_LERP2ORIGIN *sharedMem = (T_G_ICARUS_LERP2ORIGIN *)gSharedBuffer;
-            portMissing("vmMain", source: "oracle/codemp/game/g_main.c:515")
-            // Port-note: A read of `sharedMem`, a local the draft left as a hole. This read needs the `sharedMem` local, which needs a view over the `gSharedBuffer` bytes.
+            let sharedMem = IcarusLerp2Origin(handle: OpaquePointer(gSharedBuffer))
+            // Port-note: The draft of this statement did not compile, and the compiler wrote "cannot force unwrap value of non-optional type 'IcarusLerp2Origin'".
             // Raven wrote: Q3_Lerp2Origin(sharedMem->taskID, sharedMem->entID, sharedMem->origin, sharedMem->duration)
             portMissing("vmMain", source: "oracle/codemp/game/g_main.c:515")
         }
@@ -647,10 +639,8 @@ func vmMain(_ command: Int32, _ arg0: Int32, _ arg1: Int32, _ arg2: Int32, _ arg
 
     case GAME_ICARUS_LERP2ANGLES:
         do {
-            // Port-note: A pointer local `T_G_ICARUS_LERP2ANGLES * sharedMem` with no view. This body needs a view over `T_G_ICARUS_LERP2ANGLES` on the `gSharedBuffer` bytes.
-            // Raven wrote: T_G_ICARUS_LERP2ANGLES *sharedMem = (T_G_ICARUS_LERP2ANGLES *)gSharedBuffer;
-            portMissing("vmMain", source: "oracle/codemp/game/g_main.c:515")
-            // Port-note: A read of `sharedMem`, a local the draft left as a hole. This read needs the `sharedMem` local, which needs a view over the `gSharedBuffer` bytes.
+            let sharedMem = IcarusLerp2Angles(handle: OpaquePointer(gSharedBuffer))
+            // Port-note: The draft of this statement did not compile, and the compiler wrote "cannot force unwrap value of non-optional type 'IcarusLerp2Angles'".
             // Raven wrote: Q3_Lerp2Angles(sharedMem->taskID, sharedMem->entID, sharedMem->angles, sharedMem->duration)
             portMissing("vmMain", source: "oracle/codemp/game/g_main.c:515")
         }
@@ -658,10 +648,8 @@ func vmMain(_ command: Int32, _ arg0: Int32, _ arg1: Int32, _ arg2: Int32, _ arg
 
     case GAME_ICARUS_GETTAG:
         do {
-            // Port-note: A pointer local `T_G_ICARUS_GETTAG * sharedMem` with no view. This body needs a view over `T_G_ICARUS_GETTAG` on the `gSharedBuffer` bytes.
-            // Raven wrote: T_G_ICARUS_GETTAG *sharedMem = (T_G_ICARUS_GETTAG *)gSharedBuffer;
-            portMissing("vmMain", source: "oracle/codemp/game/g_main.c:515")
-            // Port-note: A read of `sharedMem`, a local the draft left as a hole. This read needs the `sharedMem` local, which needs a view over the `gSharedBuffer` bytes.
+            let sharedMem = IcarusGetTag(handle: OpaquePointer(gSharedBuffer))
+            // Port-note: The draft of this statement did not compile, and the compiler wrote "cannot force unwrap value of non-optional type 'IcarusGetTag'".
             // Raven wrote: return Q3_GetTag(sharedMem->entID, sharedMem->name, sharedMem->lookup, sharedMem->info)
             portMissing("vmMain", source: "oracle/codemp/game/g_main.c:515")
         }
@@ -669,10 +657,8 @@ func vmMain(_ command: Int32, _ arg0: Int32, _ arg1: Int32, _ arg2: Int32, _ arg
 
     case GAME_ICARUS_LERP2START:
         do {
-            // Port-note: A pointer local `T_G_ICARUS_LERP2START * sharedMem` with no view. This body needs a view over `T_G_ICARUS_LERP2START` on the `gSharedBuffer` bytes.
-            // Raven wrote: T_G_ICARUS_LERP2START *sharedMem = (T_G_ICARUS_LERP2START *)gSharedBuffer;
-            portMissing("vmMain", source: "oracle/codemp/game/g_main.c:515")
-            // Port-note: A read of `sharedMem`, a local the draft left as a hole. This read needs the `sharedMem` local, which needs a view over the `gSharedBuffer` bytes.
+            let sharedMem = IcarusLerp2Start(handle: OpaquePointer(gSharedBuffer))
+            // Port-note: The draft of this statement did not compile, and the compiler wrote "cannot force unwrap value of non-optional type 'IcarusLerp2Start'".
             // Raven wrote: Q3_Lerp2Start(sharedMem->entID, sharedMem->taskID, sharedMem->duration)
             portMissing("vmMain", source: "oracle/codemp/game/g_main.c:515")
         }
@@ -680,10 +666,8 @@ func vmMain(_ command: Int32, _ arg0: Int32, _ arg1: Int32, _ arg2: Int32, _ arg
 
     case GAME_ICARUS_LERP2END:
         do {
-            // Port-note: A pointer local `T_G_ICARUS_LERP2END * sharedMem` with no view. This body needs a view over `T_G_ICARUS_LERP2END` on the `gSharedBuffer` bytes.
-            // Raven wrote: T_G_ICARUS_LERP2END *sharedMem = (T_G_ICARUS_LERP2END *)gSharedBuffer;
-            portMissing("vmMain", source: "oracle/codemp/game/g_main.c:515")
-            // Port-note: A read of `sharedMem`, a local the draft left as a hole. This read needs the `sharedMem` local, which needs a view over the `gSharedBuffer` bytes.
+            let sharedMem = IcarusLerp2End(handle: OpaquePointer(gSharedBuffer))
+            // Port-note: The draft of this statement did not compile, and the compiler wrote "cannot force unwrap value of non-optional type 'IcarusLerp2End'".
             // Raven wrote: Q3_Lerp2End(sharedMem->entID, sharedMem->taskID, sharedMem->duration)
             portMissing("vmMain", source: "oracle/codemp/game/g_main.c:515")
         }
@@ -691,10 +675,8 @@ func vmMain(_ command: Int32, _ arg0: Int32, _ arg1: Int32, _ arg2: Int32, _ arg
 
     case GAME_ICARUS_USE:
         do {
-            // Port-note: A pointer local `T_G_ICARUS_USE * sharedMem` with no view. This body needs a view over `T_G_ICARUS_USE` on the `gSharedBuffer` bytes.
-            // Raven wrote: T_G_ICARUS_USE *sharedMem = (T_G_ICARUS_USE *)gSharedBuffer;
-            portMissing("vmMain", source: "oracle/codemp/game/g_main.c:515")
-            // Port-note: A read of `sharedMem`, a local the draft left as a hole. This read needs the `sharedMem` local, which needs a view over the `gSharedBuffer` bytes.
+            let sharedMem = IcarusUse(handle: OpaquePointer(gSharedBuffer))
+            // Port-note: The draft of this statement did not compile, and the compiler wrote "cannot force unwrap value of non-optional type 'IcarusUse'".
             // Raven wrote: Q3_Use(sharedMem->entID, sharedMem->target)
             portMissing("vmMain", source: "oracle/codemp/game/g_main.c:515")
         }
@@ -702,10 +684,8 @@ func vmMain(_ command: Int32, _ arg0: Int32, _ arg1: Int32, _ arg2: Int32, _ arg
 
     case GAME_ICARUS_KILL:
         do {
-            // Port-note: A pointer local `T_G_ICARUS_KILL * sharedMem` with no view. This body needs a view over `T_G_ICARUS_KILL` on the `gSharedBuffer` bytes.
-            // Raven wrote: T_G_ICARUS_KILL *sharedMem = (T_G_ICARUS_KILL *)gSharedBuffer;
-            portMissing("vmMain", source: "oracle/codemp/game/g_main.c:515")
-            // Port-note: A read of `sharedMem`, a local the draft left as a hole. This read needs the `sharedMem` local, which needs a view over the `gSharedBuffer` bytes.
+            let sharedMem = IcarusKill(handle: OpaquePointer(gSharedBuffer))
+            // Port-note: The draft of this statement did not compile, and the compiler wrote "cannot force unwrap value of non-optional type 'IcarusKill'".
             // Raven wrote: Q3_Kill(sharedMem->entID, sharedMem->name)
             portMissing("vmMain", source: "oracle/codemp/game/g_main.c:515")
         }
@@ -713,10 +693,8 @@ func vmMain(_ command: Int32, _ arg0: Int32, _ arg1: Int32, _ arg2: Int32, _ arg
 
     case GAME_ICARUS_REMOVE:
         do {
-            // Port-note: A pointer local `T_G_ICARUS_REMOVE * sharedMem` with no view. This body needs a view over `T_G_ICARUS_REMOVE` on the `gSharedBuffer` bytes.
-            // Raven wrote: T_G_ICARUS_REMOVE *sharedMem = (T_G_ICARUS_REMOVE *)gSharedBuffer;
-            portMissing("vmMain", source: "oracle/codemp/game/g_main.c:515")
-            // Port-note: A read of `sharedMem`, a local the draft left as a hole. This read needs the `sharedMem` local, which needs a view over the `gSharedBuffer` bytes.
+            let sharedMem = IcarusRemove(handle: OpaquePointer(gSharedBuffer))
+            // Port-note: The draft of this statement did not compile, and the compiler wrote "cannot force unwrap value of non-optional type 'IcarusRemove'".
             // Raven wrote: Q3_Remove(sharedMem->entID, sharedMem->name)
             portMissing("vmMain", source: "oracle/codemp/game/g_main.c:515")
         }
@@ -724,10 +702,8 @@ func vmMain(_ command: Int32, _ arg0: Int32, _ arg1: Int32, _ arg2: Int32, _ arg
 
     case GAME_ICARUS_PLAY:
         do {
-            // Port-note: A pointer local `T_G_ICARUS_PLAY * sharedMem` with no view. This body needs a view over `T_G_ICARUS_PLAY` on the `gSharedBuffer` bytes.
-            // Raven wrote: T_G_ICARUS_PLAY *sharedMem = (T_G_ICARUS_PLAY *)gSharedBuffer;
-            portMissing("vmMain", source: "oracle/codemp/game/g_main.c:515")
-            // Port-note: A read of `sharedMem`, a local the draft left as a hole. This read needs the `sharedMem` local, which needs a view over the `gSharedBuffer` bytes.
+            let sharedMem = IcarusPlay(handle: OpaquePointer(gSharedBuffer))
+            // Port-note: The draft of this statement did not compile, and the compiler wrote "cannot force unwrap value of non-optional type 'IcarusPlay'".
             // Raven wrote: Q3_Play(sharedMem->taskID, sharedMem->entID, sharedMem->type, sharedMem->name)
             portMissing("vmMain", source: "oracle/codemp/game/g_main.c:515")
         }
@@ -735,10 +711,8 @@ func vmMain(_ command: Int32, _ arg0: Int32, _ arg1: Int32, _ arg2: Int32, _ arg
 
     case GAME_ICARUS_GETFLOAT:
         do {
-            // Port-note: A pointer local `T_G_ICARUS_GETFLOAT * sharedMem` with no view. This body needs a view over `T_G_ICARUS_GETFLOAT` on the `gSharedBuffer` bytes.
-            // Raven wrote: T_G_ICARUS_GETFLOAT *sharedMem = (T_G_ICARUS_GETFLOAT *)gSharedBuffer;
-            portMissing("vmMain", source: "oracle/codemp/game/g_main.c:515")
-            // Port-note: A read of `sharedMem`, a local the draft left as a hole. This read needs the `sharedMem` local, which needs a view over the `gSharedBuffer` bytes.
+            let sharedMem = IcarusGetFloat(handle: OpaquePointer(gSharedBuffer))
+            // Port-note: The draft of this statement did not compile, and the compiler wrote "cannot force unwrap value of non-optional type 'IcarusGetFloat'".
             // Raven wrote: return Q3_GetFloat(sharedMem->entID, sharedMem->type, sharedMem->name, &sharedMem->value)
             portMissing("vmMain", source: "oracle/codemp/game/g_main.c:515")
         }
@@ -746,10 +720,8 @@ func vmMain(_ command: Int32, _ arg0: Int32, _ arg1: Int32, _ arg2: Int32, _ arg
 
     case GAME_ICARUS_GETVECTOR:
         do {
-            // Port-note: A pointer local `T_G_ICARUS_GETVECTOR * sharedMem` with no view. This body needs a view over `T_G_ICARUS_GETVECTOR` on the `gSharedBuffer` bytes.
-            // Raven wrote: T_G_ICARUS_GETVECTOR *sharedMem = (T_G_ICARUS_GETVECTOR *)gSharedBuffer;
-            portMissing("vmMain", source: "oracle/codemp/game/g_main.c:515")
-            // Port-note: A read of `sharedMem`, a local the draft left as a hole. This read needs the `sharedMem` local, which needs a view over the `gSharedBuffer` bytes.
+            let sharedMem = IcarusGetVector(handle: OpaquePointer(gSharedBuffer))
+            // Port-note: The draft of this statement did not compile, and the compiler wrote "cannot force unwrap value of non-optional type 'IcarusGetVector'".
             // Raven wrote: return Q3_GetVector(sharedMem->entID, sharedMem->type, sharedMem->name, sharedMem->value)
             portMissing("vmMain", source: "oracle/codemp/game/g_main.c:515")
         }
@@ -757,9 +729,7 @@ func vmMain(_ command: Int32, _ arg0: Int32, _ arg1: Int32, _ arg2: Int32, _ arg
 
     case GAME_ICARUS_GETSTRING:
         do {
-            // Port-note: A pointer local `T_G_ICARUS_GETSTRING * sharedMem` with no view. This body needs a view over `T_G_ICARUS_GETSTRING` on the `gSharedBuffer` bytes.
-            // Raven wrote: T_G_ICARUS_GETSTRING *sharedMem = (T_G_ICARUS_GETSTRING *)gSharedBuffer;
-            portMissing("vmMain", source: "oracle/codemp/game/g_main.c:515")
+            let sharedMem = IcarusGetString(handle: OpaquePointer(gSharedBuffer))
             let r: Int32
             // Port-note: A pointer local `char * crap` with no view.
             // Raven wrote: char *crap = NULL;
@@ -767,7 +737,7 @@ func vmMain(_ command: Int32, _ arg0: Int32, _ arg1: Int32, _ arg2: Int32, _ arg
             // Port-note: A pointer local `char ** morecrap` with no view.
             // Raven wrote: char **morecrap = &crap;
             portMissing("vmMain", source: "oracle/codemp/game/g_main.c:515")
-            // Port-note: A read of `sharedMem`, a local the draft left as a hole. This read needs the `sharedMem` local, which needs a view over the `gSharedBuffer` bytes.
+            // Port-note: A read of `morecrap`, a local the draft left as a hole.
             // Raven wrote: r = Q3_GetString(sharedMem->entID, sharedMem->type, sharedMem->name, morecrap)
             portMissing("vmMain", source: "oracle/codemp/game/g_main.c:515")
 
@@ -781,10 +751,8 @@ func vmMain(_ command: Int32, _ arg0: Int32, _ arg1: Int32, _ arg2: Int32, _ arg
 
     case GAME_ICARUS_SOUNDINDEX:
         do {
-            // Port-note: A pointer local `T_G_ICARUS_SOUNDINDEX * sharedMem` with no view. This body needs a view over `T_G_ICARUS_SOUNDINDEX` on the `gSharedBuffer` bytes.
-            // Raven wrote: T_G_ICARUS_SOUNDINDEX *sharedMem = (T_G_ICARUS_SOUNDINDEX *)gSharedBuffer;
-            portMissing("vmMain", source: "oracle/codemp/game/g_main.c:515")
-            // Port-note: A read of `sharedMem`, a local the draft left as a hole. This read needs the `sharedMem` local, which needs a view over the `gSharedBuffer` bytes.
+            let sharedMem = IcarusSoundIndex(handle: OpaquePointer(gSharedBuffer))
+            // Port-note: The draft of this statement did not compile, and the compiler wrote "cannot force unwrap value of non-optional type 'IcarusSoundIndex'".
             // Raven wrote: G_SoundIndex(sharedMem->filename)
             portMissing("vmMain", source: "oracle/codemp/game/g_main.c:515")
         }
@@ -792,9 +760,7 @@ func vmMain(_ command: Int32, _ arg0: Int32, _ arg1: Int32, _ arg2: Int32, _ arg
 
     case GAME_ICARUS_GETSETIDFORSTRING:
         do {
-            // Port-note: A pointer local `T_G_ICARUS_GETSETIDFORSTRING * sharedMem` with no view. This body needs a view over `T_G_ICARUS_GETSETIDFORSTRING` on the `gSharedBuffer` bytes.
-            // Raven wrote: T_G_ICARUS_GETSETIDFORSTRING *sharedMem = (T_G_ICARUS_GETSETIDFORSTRING *)gSharedBuffer;
-            portMissing("vmMain", source: "oracle/codemp/game/g_main.c:515")
+            let sharedMem = IcarusGetSetIDForString(handle: OpaquePointer(gSharedBuffer))
             // Port-note: Raven passes `setTable` to `GetIDForString`, whose `table` parameter takes the Slots over the records, and Swift holds one record here. A Slots over one record has no form yet.
             // Raven wrote: return GetIDForString(setTable, sharedMem->string)
             portMissing("vmMain", source: "oracle/codemp/game/g_main.c:515")
