@@ -114,6 +114,19 @@ An enum of that last kind is `private let` constants of type `Int32` at the top 
 | a fixed C array of a scalar the body reads, such as `int delta_angles[3]` | `[Int32]` by value, and a caller with a view field passes `Array(bs.cur_ps.delta_angles)`. |
 | a read-only `int *` with a count beside it, such as `g2Bolts` of `G_RunExPhys` | `[Int32]?` by value, PARAMS kind `int_array`. The body reads `g2Bolts![i]` under Raven's NULL guard, and a caller that passes `NULL` passes `nil`. |
 
+A caller of an `out_string` parameter that the callee may leave NULL passes a buffer's own text as the `inout` and writes the result back into the buffer.
+Raven's `GAME_ICARUS_GETSTRING` arm starts `char *crap = NULL`, passes `&crap` to `Q3_GetString`, and copies into `sharedMem->value` only when `crap` is set.
+The Swift arm passes the text the buffer already holds, so a call that sets nothing writes the same text back, and the buffer keeps its value as in Raven's skip.
+
+```swift
+    case GAME_ICARUS_GETSTRING:
+        let sharedMem = IcarusGetString(gSharedBuffer)
+        var value = sharedMem.value
+        let r = Q3_GetString(sharedMem.entID, sharedMem.type, sharedMem.name, &value)
+        sharedMem.value = value
+        return Int(r)
+```
+
 Three RETURNS kinds cover the `char *` return cases beyond a plain `String`.
 `in_place` marks a function that rewrites its argument and returns it, such as `Q_strlwr`, `Q_strupr`, and `Q_CleanStr`.
 It returns nothing, and the skeleton writes the comment `// Raven returns the argument, which the caller already holds.` above it.
@@ -666,6 +679,24 @@ The same file defines `+` and `-` between a raw pointer and any integer, so `BG_
 
 No `Unsafe` type appears in a logic target, under rule 11. A pointer stays inside the view target.
 A transcriptor that finds it needs one stops and writes a Port-note instead.
+
+### A pointer word in the shell
+
+Rule 11 names the shell's `vmMain` as a pointer place, so the decode of a pointer word lives in `Sources/jampgame/jampgame.swift`.
+Two private helpers hold the decode, and an arm calls them on its word.
+`text(at:)` reads a `const char *` word as a `String`, and `vector(at:)` reads a `float *` word as a `vec3_t`.
+
+```swift
+/// This reads the text at a word the engine passes as a `const char *`.
+private func text(at word: Int) -> String {
+    cString(at: UnsafeMutableRawPointer(bitPattern: word)!)
+}
+
+/// This reads the three floats at a word the engine passes as a `float *`.
+private func vector(at word: Int) -> vec3_t {
+    Slots(vectors: UnsafeMutableRawPointer(bitPattern: word)!, count: 1)[0]
+}
+```
 
 ## 4. The gate
 
