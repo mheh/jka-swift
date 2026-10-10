@@ -68,25 +68,17 @@ COM_SkipPath
 */
 /// Source: oracle/codemp/game/q_shared.c:80
 public func COM_SkipPath(_ pathname: inout JKAShared.CharBuf) -> Int32 {
-    // Port-note: A pointer local `char * last` with no view.
-    // Raven wrote: char *last;
-    portMissing("COM_SkipPath", source: "oracle/codemp/game/q_shared.c:80")
+    var last: Int32
     var pathnameIndex: Int32 = 0
 
-    // Port-note: A store into `last`, a local the draft left as a hole.
-    // Raven wrote: last = pathname
-    portMissing("COM_SkipPath", source: "oracle/codemp/game/q_shared.c:80")
+    last = pathnameIndex
     while pathname[pathnameIndex] != 0 {
         if pathname[pathnameIndex] == Int32(ascii: "/") {
-            // Port-note: A store into `last`, a local the draft left as a hole.
-            // Raven wrote: last = pathname+1
-            portMissing("COM_SkipPath", source: "oracle/codemp/game/q_shared.c:80")
+            last = pathnameIndex + 1
         }
         pathnameIndex += 1
     }
-    // Port-note: A read of `last`, a local the draft left as a hole.
-    // Raven wrote: return last
-    portMissing("COM_SkipPath", source: "oracle/codemp/game/q_shared.c:80")
+    return last
 }
 
 /**
@@ -102,9 +94,9 @@ public func COM_StripExtension(_ `in`: String, _ out: inout JKAShared.CharBuf) {
     // Raven steps his own ``in`` parameter through its bytes, so the body walks a TextCursor over a copy of them.
     var `in` = TextCursor(CharBuf(`in`))
     while `in`.byte != 0 && `in`.byte != Int32(ascii: ".") {
-        // Port-note: A pointer dereference the draft cannot place.
-        // Raven wrote: *out++ = *in++
-        portMissing("COM_StripExtension", source: "oracle/codemp/game/q_shared.c:99")
+        out[outIndex] = `in`.byte
+        outIndex += 1
+        `in`.advance()
     }
     out[outIndex] = 0
 }
@@ -119,21 +111,21 @@ COM_DefaultExtension
 /// Source: oracle/codemp/game/q_shared.c:112
 public func COM_DefaultExtension(_ path: inout JKAShared.CharBuf, _ maxSize: Int32, _ `extension`: String) {
     var oldPath = CharBuf(64)
-    // Port-note: A pointer local `char * src` with no view.
-    // Raven wrote: char *src;
-    portMissing("COM_DefaultExtension", source: "oracle/codemp/game/q_shared.c:112")
+    var src: Int32
 
     //
     // if path doesn't have a .EXT, append extension
     // (extension should include the .)
     //
-    // Port-note: A store into `src`, a local the draft left as a hole.
-    // Raven wrote: src = path + strlen(path) - 1
-    portMissing("COM_DefaultExtension", source: "oracle/codemp/game/q_shared.c:112")
+    src = strlen(path) - 1
 
-    // Port-note: A pointer dereference the draft cannot place.
-    // Raven wrote: while (*src != '/' && src != path) { if ( *src == '.' ) { return; // it has an extension } src--; }
-    portMissing("COM_DefaultExtension", source: "oracle/codemp/game/q_shared.c:112")
+    // Raven reads the byte before the buffer for an empty path, and the Swift subscript traps there.
+    while path[src] != Int32(ascii: "/") && src != 0 {
+        if path[src] == Int32(ascii: ".") {
+            return // it has an extension
+        }
+        src -= 1
+    }
 
     Q_strncpyz(&oldPath, String(path), Int32((oldPath).count))
     Com_sprintf(&path, maxSize, "%s%s", oldPath, `extension`)
@@ -177,38 +169,7 @@ public func LongNoSwap(_ l: Int32) -> Int32 {
 
 /// Source: oracle/codemp/game/q_shared.c:194
 public func Long64Swap(_ ll: Int64) -> Int64 {
-    // Port-note: A local `qint64 result` the table has no type for.
-    // Raven wrote: qint64 result;
-    portMissing("Long64Swap", source: "oracle/codemp/game/q_shared.c:194")
-
-    // Port-note: A read of `result`, a local the draft left as a hole.
-    // Raven wrote: result.b0 = ll.b7
-    portMissing("Long64Swap", source: "oracle/codemp/game/q_shared.c:194")
-    // Port-note: A read of `result`, a local the draft left as a hole.
-    // Raven wrote: result.b1 = ll.b6
-    portMissing("Long64Swap", source: "oracle/codemp/game/q_shared.c:194")
-    // Port-note: A read of `result`, a local the draft left as a hole.
-    // Raven wrote: result.b2 = ll.b5
-    portMissing("Long64Swap", source: "oracle/codemp/game/q_shared.c:194")
-    // Port-note: A read of `result`, a local the draft left as a hole.
-    // Raven wrote: result.b3 = ll.b4
-    portMissing("Long64Swap", source: "oracle/codemp/game/q_shared.c:194")
-    // Port-note: A read of `result`, a local the draft left as a hole.
-    // Raven wrote: result.b4 = ll.b3
-    portMissing("Long64Swap", source: "oracle/codemp/game/q_shared.c:194")
-    // Port-note: A read of `result`, a local the draft left as a hole.
-    // Raven wrote: result.b5 = ll.b2
-    portMissing("Long64Swap", source: "oracle/codemp/game/q_shared.c:194")
-    // Port-note: A read of `result`, a local the draft left as a hole.
-    // Raven wrote: result.b6 = ll.b1
-    portMissing("Long64Swap", source: "oracle/codemp/game/q_shared.c:194")
-    // Port-note: A read of `result`, a local the draft left as a hole.
-    // Raven wrote: result.b7 = ll.b0
-    portMissing("Long64Swap", source: "oracle/codemp/game/q_shared.c:194")
-
-    // Port-note: A read of `result`, a local the draft left as a hole.
-    // Raven wrote: return result
-    portMissing("Long64Swap", source: "oracle/codemp/game/q_shared.c:194")
+    return ll.byteSwapped
 }
 
 /// Source: oracle/codemp/game/q_shared.c:210
@@ -218,30 +179,12 @@ public func Long64NoSwap(_ ll: Int64) -> Int64 {
 
 /// Source: oracle/codemp/game/q_shared.c:220
 public func FloatSwap(_ f: Float) -> Float {
-    // Port-note: A pointer local `const _FloatByteUnion * in` with no view.
-    // Raven wrote: const _FloatByteUnion *in;
-    portMissing("FloatSwap", source: "oracle/codemp/game/q_shared.c:220")
-    // Port-note: A local `_FloatByteUnion out` the table has no type for.
-    // Raven wrote: _FloatByteUnion out;
-    portMissing("FloatSwap", source: "oracle/codemp/game/q_shared.c:220")
-
-    // Port-note: A store into `in`, a local the draft left as a hole.
-    // Raven wrote: in = (_FloatByteUnion *)f
-    portMissing("FloatSwap", source: "oracle/codemp/game/q_shared.c:220")
-    // Port-note: A read of `out`, a local the draft left as a hole.
-    // Raven wrote: out.i = LongSwap(in->i)
-    portMissing("FloatSwap", source: "oracle/codemp/game/q_shared.c:220")
-
-    // Port-note: A read of `out`, a local the draft left as a hole.
-    // Raven wrote: return out.f
-    portMissing("FloatSwap", source: "oracle/codemp/game/q_shared.c:220")
+    return Float(bitPattern: f.bitPattern.byteSwapped)
 }
 
 /// Source: oracle/codemp/game/q_shared.c:230
 public func FloatNoSwap(_ f: Float) -> Float {
-    // Port-note: A pointer dereference the draft cannot place.
-    // Raven wrote: return *f
-    portMissing("FloatNoSwap", source: "oracle/codemp/game/q_shared.c:230")
+    return f
 }
 
 /// Source: oracle/codemp/game/q_shared.c:284
@@ -262,19 +205,10 @@ public func COM_Parse(_ data_p: inout JKAShared.TextCursor) -> String {
 
 /// Source: oracle/codemp/game/q_shared.c:300
 public func COM_ParseError(_ format: inout JKAShared.CharBuf, _ args: any JKAShared.FormatArg...) {
-    // Port-note: A pointer local `va_list argptr` with no view.
-    // Raven wrote: va_list argptr;
-    portMissing("COM_ParseError", source: "oracle/codemp/game/q_shared.c:300")
     var string = CharBuf(4096)
 
-    // Port-note: A read of `argptr`, a local the draft left as a hole.
-    // Raven wrote: va_start (argptr, format)
-    portMissing("COM_ParseError", source: "oracle/codemp/game/q_shared.c:300")
-    // Port-note: A read of `argptr`, a local the draft left as a hole.
+    // Port-note: The guide has no form for `vsprintf` into a buffer from the variadic arguments.
     // Raven wrote: vsprintf (string, format, argptr)
-    portMissing("COM_ParseError", source: "oracle/codemp/game/q_shared.c:300")
-    // Port-note: A read of `argptr`, a local the draft left as a hole.
-    // Raven wrote: va_end (argptr)
     portMissing("COM_ParseError", source: "oracle/codemp/game/q_shared.c:300")
 
     Com_Printf("ERROR: %s, line %d: %s\n", com_parsename, com_lines, string)
@@ -282,19 +216,10 @@ public func COM_ParseError(_ format: inout JKAShared.CharBuf, _ args: any JKASha
 
 /// Source: oracle/codemp/game/q_shared.c:312
 public func COM_ParseWarning(_ format: inout JKAShared.CharBuf, _ args: any JKAShared.FormatArg...) {
-    // Port-note: A pointer local `va_list argptr` with no view.
-    // Raven wrote: va_list argptr;
-    portMissing("COM_ParseWarning", source: "oracle/codemp/game/q_shared.c:312")
     var string = CharBuf(4096)
 
-    // Port-note: A read of `argptr`, a local the draft left as a hole.
-    // Raven wrote: va_start (argptr, format)
-    portMissing("COM_ParseWarning", source: "oracle/codemp/game/q_shared.c:312")
-    // Port-note: A read of `argptr`, a local the draft left as a hole.
+    // Port-note: The guide has no form for `vsprintf` into a buffer from the variadic arguments.
     // Raven wrote: vsprintf (string, format, argptr)
-    portMissing("COM_ParseWarning", source: "oracle/codemp/game/q_shared.c:312")
-    // Port-note: A read of `argptr`, a local the draft left as a hole.
-    // Raven wrote: va_end (argptr)
     portMissing("COM_ParseWarning", source: "oracle/codemp/game/q_shared.c:312")
 
     Com_Printf("WARNING: %s, line %d: %s\n", com_parsename, com_lines, string)
@@ -320,37 +245,100 @@ public func SkipWhitespace(_ data: JKAShared.TextCursor, _ hasNewLines: inout Bo
     // Raven assigns his own `data` parameter. A Swift parameter is immutable, so the body takes a mutable copy of it.
     var data = data
 
-    // Port-note: A pointer dereference the draft cannot place.
-    // Raven wrote: while( (c = *data) <= ' ') { if( !c ) { return NULL; } if( c == '\n' ) { com_lines++; *hasNewLines = qtrue; } data++; }
-    portMissing("SkipWhitespace", source: "oracle/codemp/game/q_shared.c:336")
+    while true {
+        c = data.byte
+        if !(c <= Int32(ascii: " ")) { break }
+        if c == 0 {
+            return TextCursor()
+        }
+        if c == Int32(ascii: "\n") {
+            com_lines += 1
+            hasNewLines = true
+        }
+        data.advance()
+    }
 
     return data
 }
 
 /// Source: oracle/codemp/game/q_shared.c:353
 public func COM_Compress(_ data_p: inout JKAShared.CharBuf) -> Int32 {
-    // Port-note: A pointer local `char * in` with no view.
-    // Raven wrote: char *in;
-    portMissing("COM_Compress", source: "oracle/codemp/game/q_shared.c:353")
-    // Port-note: A pointer local `char * out` with no view.
-    // Raven wrote: out;
-    portMissing("COM_Compress", source: "oracle/codemp/game/q_shared.c:353")
+    var `in`: Int32
+    var out: Int32
     var c: Int32
     var newline: Bool = false
     var whitespace: Bool = false
 
-    // Port-note: A store into `in`, a local the draft left as a hole.
-    // Raven wrote: in = out = data_p
-    portMissing("COM_Compress", source: "oracle/codemp/game/q_shared.c:353")
-    // Port-note: A read of `in`, a local the draft left as a hole.
-    // Raven wrote: if (in) { while ((c = *in) != 0) { // skip double slash comments if ( c == '/' && in[1] == '/' ) { while (*in && *in != '\n') { in++; } // skip /* */ comments } else if ( c == '/' && in[1] == '*' ) { while ( *in && ( *in != '*' || in[1] != '/' ) ) in++; if ( *in ) in += 2; // record when we hit a newline } else if ( c == '\n' || c == '\r' ) { newline = qtrue; in++; // record when we hit whitespace } else if ( c == ' ' || c == '\t') { whitespace = qtrue; in++; // an actual token } else { // if we have a pending newline, emit it (and it counts as whitespace) if (newline) { *out++ = '\n'; newline = qfalse; whitespace = qfalse; } if (whitespace) { *out++ = ' '; whitespace = qfalse; } // copy quoted strings unmolested if (c == '"') { *out++ = c; in++; while (1) { c = *in; if (c && c != '"') { *out++ = c; in++; } else { break; } } if (c == '"') { *out++ = c; in++; } } else { *out = c; out++; in++; } } } }
-    portMissing("COM_Compress", source: "oracle/codemp/game/q_shared.c:353")
-    // Port-note: A pointer dereference the draft cannot place.
-    // Raven wrote: *out = 0
-    portMissing("COM_Compress", source: "oracle/codemp/game/q_shared.c:353")
-    // Port-note: A read of `out`, a local the draft left as a hole.
-    // Raven wrote: return out - data_p
-    portMissing("COM_Compress", source: "oracle/codemp/game/q_shared.c:353")
+    out = 0
+    `in` = out
+    while true {
+        c = data_p[`in`]
+        if !(c != 0) { break }
+        // skip double slash comments
+        if c == Int32(ascii: "/") && data_p[`in` + 1] == Int32(ascii: "/") {
+            while data_p[`in`] != 0 && data_p[`in`] != Int32(ascii: "\n") {
+                `in` += 1
+            }
+            // skip /* */ comments
+        } else if c == Int32(ascii: "/") && data_p[`in` + 1] == Int32(ascii: "*") {
+            while data_p[`in`] != 0 && (data_p[`in`] != Int32(ascii: "*") || data_p[`in` + 1] != Int32(ascii: "/")) {
+                `in` += 1
+            }
+            if data_p[`in`] != 0 {
+                `in` += 2
+            }
+            // record when we hit a newline
+        } else if c == Int32(ascii: "\n") || c == Int32(ascii: "\r") {
+            newline = true
+            `in` += 1
+            // record when we hit whitespace
+        } else if c == Int32(ascii: " ") || c == Int32(ascii: "\t") {
+            whitespace = true
+            `in` += 1
+            // an actual token
+        } else {
+            // if we have a pending newline, emit it (and it counts as whitespace)
+            if newline {
+                data_p[out] = Int32(ascii: "\n")
+                out += 1
+                newline = false
+                whitespace = false
+            }
+            if whitespace {
+                data_p[out] = Int32(ascii: " ")
+                out += 1
+                whitespace = false
+            }
+
+            // copy quoted strings unmolested
+            if c == Int32(ascii: "\"") {
+                data_p[out] = c
+                out += 1
+                `in` += 1
+                while 1 != 0 {
+                    c = data_p[`in`]
+                    if c != 0 && c != Int32(ascii: "\"") {
+                        data_p[out] = c
+                        out += 1
+                        `in` += 1
+                    } else {
+                        break
+                    }
+                }
+                if c == Int32(ascii: "\"") {
+                    data_p[out] = c
+                    out += 1
+                    `in` += 1
+                }
+            } else {
+                data_p[out] = c
+                out += 1
+                `in` += 1
+            }
+        }
+    }
+    data_p[out] = 0
+    return out
 }
 
 /// Source: oracle/codemp/game/q_shared.c:421
@@ -358,65 +346,63 @@ public func COM_ParseExt(_ data_p: inout JKAShared.TextCursor, _ allowLineBreaks
     var c: Int32 = 0
     var len: Int32
     var hasNewLines: Bool = false
-    // Port-note: A pointer local `const char * data` with no view.
-    // Raven wrote: const char *data;
-    portMissing("COM_ParseExt", source: "oracle/codemp/game/q_shared.c:421")
+    var data: TextCursor
 
-    // Port-note: A store into `data`, a local the draft left as a hole.
-    // Raven wrote: data = *data_p
-    portMissing("COM_ParseExt", source: "oracle/codemp/game/q_shared.c:421")
+    data = data_p
     len = 0
     com_token[0] = 0
 
     // make sure incoming data is valid
-    // Port-note: A read of `data`, a local the draft left as a hole.
-    // Raven wrote: if ( !data ) { *data_p = NULL; return com_token; }
-    portMissing("COM_ParseExt", source: "oracle/codemp/game/q_shared.c:421")
+    if data.isNull {
+        data_p = TextCursor()
+        return String(com_token)
+    }
 
     while 1 != 0 {
         // skip whitespace
-        // Port-note: A store into `data`, a local the draft left as a hole.
-        // Raven wrote: data = SkipWhitespace( data, &hasNewLines )
-        portMissing("COM_ParseExt", source: "oracle/codemp/game/q_shared.c:421")
-        // Port-note: A read of `data`, a local the draft left as a hole.
-        // Raven wrote: if ( !data ) { *data_p = NULL; return com_token; }
-        portMissing("COM_ParseExt", source: "oracle/codemp/game/q_shared.c:421")
+        data = SkipWhitespace(data, &hasNewLines)
+        if data.isNull {
+            data_p = TextCursor()
+            return String(com_token)
+        }
         if hasNewLines && !allowLineBreaks {
-            // Port-note: A read of `data`, a local the draft left as a hole.
-            // Raven wrote: *data_p = data
-            portMissing("COM_ParseExt", source: "oracle/codemp/game/q_shared.c:421")
-            // Port-note: The draft of this statement did not compile, and the compiler wrote "cannot convert return expression of type 'CharBuf' to return type 'String'".
-            // Raven wrote: return com_token
-            portMissing("COM_ParseExt", source: "oracle/codemp/game/q_shared.c:421")
+            data_p = data
+            return String(com_token)
         }
 
-        // Port-note: A pointer dereference the draft cannot place.
-        // Raven wrote: c = *data
-        portMissing("COM_ParseExt", source: "oracle/codemp/game/q_shared.c:421")
+        c = data.byte
 
         // skip double slash comments
-        // Port-note: A read of `data`, a local the draft left as a hole.
-        // Raven wrote: if ( c == '/' && data[1] == '/' ) { data += 2; while (*data && *data != '\n') { data++; } } // skip /* */ comments else if ( c=='/' && data[1] == '*' ) { data += 2; while ( *data && ( *data != '*' || data[1] != '/' ) ) { data++; } if ( *data ) { data += 2; } } else { break; }
-        portMissing("COM_ParseExt", source: "oracle/codemp/game/q_shared.c:421")
+        if c == Int32(ascii: "/") && data[1] == Int32(ascii: "/") {
+            data.advance(by: 2)
+            while data.byte != 0 && data.byte != Int32(ascii: "\n") {
+                data.advance()
+            }
+        }
+        // skip /* */ comments
+        else if c == Int32(ascii: "/") && data[1] == Int32(ascii: "*") {
+            data.advance(by: 2)
+            while data.byte != 0 && (data.byte != Int32(ascii: "*") || data[1] != Int32(ascii: "/")) {
+                data.advance()
+            }
+            if data.byte != 0 {
+                data.advance(by: 2)
+            }
+        } else {
+            break
+        }
     }
 
     // handle quoted strings
     if c == Int32(ascii: "\"") {
-        // Port-note: A read of `data`, a local the draft left as a hole.
-        // Raven wrote: data++
-        portMissing("COM_ParseExt", source: "oracle/codemp/game/q_shared.c:421")
+        data.advance()
         while 1 != 0 {
-            // Port-note: A pointer dereference the draft cannot place.
-            // Raven wrote: c = *data++
-            portMissing("COM_ParseExt", source: "oracle/codemp/game/q_shared.c:421")
+            c = data.byte
+            data.advance()
             if c == Int32(ascii: "\"") || c == 0 {
                 com_token[len] = 0
-                // Port-note: A read of `data`, a local the draft left as a hole.
-                // Raven wrote: *data_p = ( char * ) data
-                portMissing("COM_ParseExt", source: "oracle/codemp/game/q_shared.c:421")
-                // Port-note: The draft of this statement did not compile, and the compiler wrote "cannot convert return expression of type 'CharBuf' to return type 'String'".
-                // Raven wrote: return com_token
-                portMissing("COM_ParseExt", source: "oracle/codemp/game/q_shared.c:421")
+                data_p = data
+                return String(com_token)
             }
             if len < MAX_TOKEN_CHARS {
                 com_token[len] = c
@@ -431,12 +417,8 @@ public func COM_ParseExt(_ data_p: inout JKAShared.TextCursor, _ allowLineBreaks
             com_token[len] = c
             len += 1
         }
-        // Port-note: A read of `data`, a local the draft left as a hole.
-        // Raven wrote: data++
-        portMissing("COM_ParseExt", source: "oracle/codemp/game/q_shared.c:421")
-        // Port-note: A pointer dereference the draft cannot place.
-        // Raven wrote: c = *data
-        portMissing("COM_ParseExt", source: "oracle/codemp/game/q_shared.c:421")
+        data.advance()
+        c = data.byte
         if c == Int32(ascii: "\n") {
             com_lines += 1
         }
@@ -448,12 +430,8 @@ public func COM_ParseExt(_ data_p: inout JKAShared.TextCursor, _ allowLineBreaks
     }
     com_token[len] = 0
 
-    // Port-note: A read of `data`, a local the draft left as a hole.
-    // Raven wrote: *data_p = ( char * ) data
-    portMissing("COM_ParseExt", source: "oracle/codemp/game/q_shared.c:421")
-    // Port-note: The draft of this statement did not compile, and the compiler wrote "cannot convert return expression of type 'CharBuf' to return type 'String'".
-    // Raven wrote: return com_token
-    portMissing("COM_ParseExt", source: "oracle/codemp/game/q_shared.c:421")
+    data_p = data
+    return String(com_token)
 }
 
 /**
@@ -596,21 +574,21 @@ SkipRestOfLine
 */
 /// Source: oracle/codemp/game/q_shared.c:708
 public func SkipRestOfLine(_ data: inout JKAShared.TextCursor) {
-    // Port-note: A pointer local `const char * p` with no view.
-    // Raven wrote: const char *p;
-    portMissing("SkipRestOfLine", source: "oracle/codemp/game/q_shared.c:708")
+    var p: TextCursor
     var c: Int32
 
-    // Port-note: A store into `p`, a local the draft left as a hole.
-    // Raven wrote: p = *data
-    portMissing("SkipRestOfLine", source: "oracle/codemp/game/q_shared.c:708")
-    // Port-note: A pointer dereference the draft cannot place.
-    // Raven wrote: while ( (c = *p++) != 0 ) { if ( c == '\n' ) { com_lines++; break; } }
-    portMissing("SkipRestOfLine", source: "oracle/codemp/game/q_shared.c:708")
+    p = data
+    while true {
+        c = p.byte
+        p.advance()
+        if !(c != 0) { break }
+        if c == Int32(ascii: "\n") {
+            com_lines += 1
+            break
+        }
+    }
 
-    // Port-note: A read of `p`, a local the draft left as a hole.
-    // Raven wrote: *data = p
-    portMissing("SkipRestOfLine", source: "oracle/codemp/game/q_shared.c:708")
+    data = p
 }
 
 /// Source: oracle/codemp/game/q_shared.c:724
@@ -699,29 +677,24 @@ public func Q_isalpha(_ c: Int32) -> Int32 {
 /// Source: oracle/codemp/game/q_shared.c:799
 public func Q_strrchr(_ string: String, _ c: Int32) -> Int32? {
     let cc: CChar = CChar(truncatingIfNeeded: c)
-    // Port-note: A pointer local `char * s` with no view.
-    // Raven wrote: char *s;
-    portMissing("Q_strrchr", source: "oracle/codemp/game/q_shared.c:799")
-    // Port-note: A pointer local `char * sp` with no view.
-    // Raven wrote: char *sp=(char *)0;
-    portMissing("Q_strrchr", source: "oracle/codemp/game/q_shared.c:799")
+    var s: Int32
+    var sp: Int32? = nil
+    // Raven steps a pointer through the bytes of `string`, so the body reads a CharBuf copy of them.
+    let string = CharBuf(string)
 
-    // Port-note: A store into `s`, a local the draft left as a hole.
-    // Raven wrote: s = (char*)string
-    portMissing("Q_strrchr", source: "oracle/codemp/game/q_shared.c:799")
+    s = 0
 
-    // Port-note: A pointer dereference the draft cannot place.
-    // Raven wrote: while (*s) { if (*s == cc) sp = s; s++; }
-    portMissing("Q_strrchr", source: "oracle/codemp/game/q_shared.c:799")
+    while string[s] != 0 {
+        if string[s] == cc {
+            sp = s
+        }
+        s += 1
+    }
     if cc == 0 {
-        // Port-note: A store into `sp`, a local the draft left as a hole.
-        // Raven wrote: sp = s
-        portMissing("Q_strrchr", source: "oracle/codemp/game/q_shared.c:799")
+        sp = s
     }
 
-    // Port-note: A read of `sp`, a local the draft left as a hole.
-    // Raven wrote: return sp
-    portMissing("Q_strrchr", source: "oracle/codemp/game/q_shared.c:799")
+    return sp
 }
 
 /**
@@ -976,19 +949,10 @@ public func Q_CleanStr(_ string: String) -> String {
 /// Source: oracle/codemp/game/q_shared.c:985
 public func Com_sprintf(_ dest: inout JKAShared.CharBuf, _ size: Int32, _ fmt: String, _ args: any JKAShared.FormatArg...) {
     let len: Int32
-    // Port-note: A pointer local `va_list argptr` with no view.
-    // Raven wrote: va_list argptr;
-    portMissing("Com_sprintf", source: "oracle/codemp/game/q_shared.c:985")
     var bigbuffer = CharBuf(32000)
 
-    // Port-note: A read of `argptr`, a local the draft left as a hole.
-    // Raven wrote: va_start (argptr,fmt)
-    portMissing("Com_sprintf", source: "oracle/codemp/game/q_shared.c:985")
-    // Port-note: A read of `argptr`, a local the draft left as a hole.
+    // Port-note: The guide has no form for `vsprintf` into a buffer from the variadic arguments.
     // Raven wrote: len = vsprintf (bigbuffer,fmt,argptr)
-    portMissing("Com_sprintf", source: "oracle/codemp/game/q_shared.c:985")
-    // Port-note: A read of `argptr`, a local the draft left as a hole.
-    // Raven wrote: va_end (argptr)
     portMissing("Com_sprintf", source: "oracle/codemp/game/q_shared.c:985")
     if len >= Int32((bigbuffer).count) {
         // Port-note: The draft of this statement did not compile, and the compiler wrote "cannot find 'ERR_FATAL' in scope".
@@ -1114,51 +1078,42 @@ Used to itterate through all the key/value pairs in an info string
 */
 /// Source: oracle/codemp/game/q_shared.c:1108
 public func Info_NextPair(_ head: inout JKAShared.TextCursor, _ key: inout JKAShared.CharBuf, _ value: inout JKAShared.CharBuf) {
-    // Port-note: A pointer local `char * o` with no view.
-    // Raven wrote: char *o;
-    portMissing("Info_NextPair", source: "oracle/codemp/game/q_shared.c:1108")
-    // Port-note: A pointer local `const char * s` with no view.
-    // Raven wrote: const char *s;
-    portMissing("Info_NextPair", source: "oracle/codemp/game/q_shared.c:1108")
+    var o: Int32
+    var s: TextCursor
     var keyIndex: Int32 = 0
     var valueIndex: Int32 = 0
 
-    // Port-note: A store into `s`, a local the draft left as a hole.
-    // Raven wrote: s = *head
-    portMissing("Info_NextPair", source: "oracle/codemp/game/q_shared.c:1108")
+    s = head
 
-    // Port-note: A pointer dereference the draft cannot place.
-    // Raven wrote: if ( *s == '\\' ) { s++; }
-    portMissing("Info_NextPair", source: "oracle/codemp/game/q_shared.c:1108")
+    if s.byte == Int32(ascii: "\\") {
+        s.advance()
+    }
     key[keyIndex + 0] = 0
     value[valueIndex + 0] = 0
 
-    // Port-note: A store into `o`, a local the draft left as a hole.
-    // Raven wrote: o = key
-    portMissing("Info_NextPair", source: "oracle/codemp/game/q_shared.c:1108")
-    // Port-note: A pointer dereference the draft cannot place.
-    // Raven wrote: while ( *s != '\\' ) { if ( !*s ) { *o = 0; *head = s; return; } *o++ = *s++; }
-    portMissing("Info_NextPair", source: "oracle/codemp/game/q_shared.c:1108")
-    // Port-note: A pointer dereference the draft cannot place.
-    // Raven wrote: *o = 0
-    portMissing("Info_NextPair", source: "oracle/codemp/game/q_shared.c:1108")
-    // Port-note: A read of `s`, a local the draft left as a hole.
-    // Raven wrote: s++
-    portMissing("Info_NextPair", source: "oracle/codemp/game/q_shared.c:1108")
+    o = keyIndex
+    while s.byte != Int32(ascii: "\\") {
+        if s.byte == 0 {
+            key[o] = 0
+            head = s
+            return
+        }
+        key[o] = s.byte
+        o += 1
+        s.advance()
+    }
+    key[o] = 0
+    s.advance()
 
-    // Port-note: A store into `o`, a local the draft left as a hole.
-    // Raven wrote: o = value
-    portMissing("Info_NextPair", source: "oracle/codemp/game/q_shared.c:1108")
-    // Port-note: A pointer dereference the draft cannot place.
-    // Raven wrote: while ( *s != '\\' && *s ) { *o++ = *s++; }
-    portMissing("Info_NextPair", source: "oracle/codemp/game/q_shared.c:1108")
-    // Port-note: A pointer dereference the draft cannot place.
-    // Raven wrote: *o = 0
-    portMissing("Info_NextPair", source: "oracle/codemp/game/q_shared.c:1108")
+    o = valueIndex
+    while s.byte != Int32(ascii: "\\") && s.byte != 0 {
+        value[o] = s.byte
+        o += 1
+        s.advance()
+    }
+    value[o] = 0
 
-    // Port-note: A read of `s`, a local the draft left as a hole.
-    // Raven wrote: *head = s
-    portMissing("Info_NextPair", source: "oracle/codemp/game/q_shared.c:1108")
+    head = s
 }
 
 /**
@@ -1170,14 +1125,10 @@ Info_RemoveKey
 */
 /// Source: oracle/codemp/game/q_shared.c:1147
 public func Info_RemoveKey(_ s: inout JKAShared.CharBuf, _ key: String) {
-    // Port-note: A pointer local `char * start` with no view.
-    // Raven wrote: char *start;
-    portMissing("Info_RemoveKey", source: "oracle/codemp/game/q_shared.c:1147")
+    var start: Int32
     var pkey = CharBuf(1024)
     var value = CharBuf(1024)
-    // Port-note: A pointer local `char * o` with no view.
-    // Raven wrote: char *o;
-    portMissing("Info_RemoveKey", source: "oracle/codemp/game/q_shared.c:1147")
+    var o: Int32
     var sIndex: Int32 = 0
 
     if strlen(s) >= MAX_INFO_STRING {
@@ -1191,47 +1142,35 @@ public func Info_RemoveKey(_ s: inout JKAShared.CharBuf, _ key: String) {
     }
 
     while 1 != 0 {
-        // Port-note: A store into `start`, a local the draft left as a hole.
-        // Raven wrote: start = s
-        portMissing("Info_RemoveKey", source: "oracle/codemp/game/q_shared.c:1147")
+        start = sIndex
         if s[sIndex] == Int32(ascii: "\\") {
             sIndex += 1
         }
-        // Port-note: A store into `o`, a local the draft left as a hole.
-        // Raven wrote: o = pkey
-        portMissing("Info_RemoveKey", source: "oracle/codemp/game/q_shared.c:1147")
+        o = 0
         while s[sIndex] != Int32(ascii: "\\") {
             if s[sIndex] == 0 {
                 return
             }
-            // Port-note: A pointer dereference the draft cannot place.
-            // Raven wrote: *o++ = *s++
-            portMissing("Info_RemoveKey", source: "oracle/codemp/game/q_shared.c:1147")
+            pkey[o] = s[sIndex]
+            o += 1
+            sIndex += 1
         }
-        // Port-note: A pointer dereference the draft cannot place.
-        // Raven wrote: *o = 0
-        portMissing("Info_RemoveKey", source: "oracle/codemp/game/q_shared.c:1147")
+        pkey[o] = 0
         sIndex += 1
 
-        // Port-note: A store into `o`, a local the draft left as a hole.
-        // Raven wrote: o = value
-        portMissing("Info_RemoveKey", source: "oracle/codemp/game/q_shared.c:1147")
+        o = 0
         while s[sIndex] != Int32(ascii: "\\") && s[sIndex] != 0 {
             if s[sIndex] == 0 {
                 return
             }
-            // Port-note: A pointer dereference the draft cannot place.
-            // Raven wrote: *o++ = *s++
-            portMissing("Info_RemoveKey", source: "oracle/codemp/game/q_shared.c:1147")
+            value[o] = s[sIndex]
+            o += 1
+            sIndex += 1
         }
-        // Port-note: A pointer dereference the draft cannot place.
-        // Raven wrote: *o = 0
-        portMissing("Info_RemoveKey", source: "oracle/codemp/game/q_shared.c:1147")
+        value[o] = 0
 
         if strcmp(key, pkey) == 0 {
-            // Port-note: A read of `start`, a local the draft left as a hole.
-            // Raven wrote: strcpy (start, s)
-            portMissing("Info_RemoveKey", source: "oracle/codemp/game/q_shared.c:1147")
+            strcpy(&s, String(s[sIndex...]), at: start) // remove this part
             return
         }
 
@@ -1250,14 +1189,10 @@ Info_RemoveKey_Big
 */
 /// Source: oracle/codemp/game/q_shared.c:1202
 public func Info_RemoveKey_Big(_ s: inout JKAShared.CharBuf, _ key: String) {
-    // Port-note: A pointer local `char * start` with no view.
-    // Raven wrote: char *start;
-    portMissing("Info_RemoveKey_Big", source: "oracle/codemp/game/q_shared.c:1202")
+    var start: Int32
     var pkey = CharBuf(8192)
     var value = CharBuf(8192)
-    // Port-note: A pointer local `char * o` with no view.
-    // Raven wrote: char *o;
-    portMissing("Info_RemoveKey_Big", source: "oracle/codemp/game/q_shared.c:1202")
+    var o: Int32
     var sIndex: Int32 = 0
 
     if strlen(s) >= BIG_INFO_STRING {
@@ -1271,47 +1206,35 @@ public func Info_RemoveKey_Big(_ s: inout JKAShared.CharBuf, _ key: String) {
     }
 
     while 1 != 0 {
-        // Port-note: A store into `start`, a local the draft left as a hole.
-        // Raven wrote: start = s
-        portMissing("Info_RemoveKey_Big", source: "oracle/codemp/game/q_shared.c:1202")
+        start = sIndex
         if s[sIndex] == Int32(ascii: "\\") {
             sIndex += 1
         }
-        // Port-note: A store into `o`, a local the draft left as a hole.
-        // Raven wrote: o = pkey
-        portMissing("Info_RemoveKey_Big", source: "oracle/codemp/game/q_shared.c:1202")
+        o = 0
         while s[sIndex] != Int32(ascii: "\\") {
             if s[sIndex] == 0 {
                 return
             }
-            // Port-note: A pointer dereference the draft cannot place.
-            // Raven wrote: *o++ = *s++
-            portMissing("Info_RemoveKey_Big", source: "oracle/codemp/game/q_shared.c:1202")
+            pkey[o] = s[sIndex]
+            o += 1
+            sIndex += 1
         }
-        // Port-note: A pointer dereference the draft cannot place.
-        // Raven wrote: *o = 0
-        portMissing("Info_RemoveKey_Big", source: "oracle/codemp/game/q_shared.c:1202")
+        pkey[o] = 0
         sIndex += 1
 
-        // Port-note: A store into `o`, a local the draft left as a hole.
-        // Raven wrote: o = value
-        portMissing("Info_RemoveKey_Big", source: "oracle/codemp/game/q_shared.c:1202")
+        o = 0
         while s[sIndex] != Int32(ascii: "\\") && s[sIndex] != 0 {
             if s[sIndex] == 0 {
                 return
             }
-            // Port-note: A pointer dereference the draft cannot place.
-            // Raven wrote: *o++ = *s++
-            portMissing("Info_RemoveKey_Big", source: "oracle/codemp/game/q_shared.c:1202")
+            value[o] = s[sIndex]
+            o += 1
+            sIndex += 1
         }
-        // Port-note: A pointer dereference the draft cannot place.
-        // Raven wrote: *o = 0
-        portMissing("Info_RemoveKey_Big", source: "oracle/codemp/game/q_shared.c:1202")
+        value[o] = 0
 
         if strcmp(key, pkey) == 0 {
-            // Port-note: A read of `start`, a local the draft left as a hole.
-            // Raven wrote: strcpy (start, s)
-            portMissing("Info_RemoveKey_Big", source: "oracle/codemp/game/q_shared.c:1202")
+            strcpy(&s, String(s[sIndex...]), at: start) // remove this part
             return
         }
 
