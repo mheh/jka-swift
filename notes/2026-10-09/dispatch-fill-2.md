@@ -75,3 +75,24 @@ The fill is in `stash@{0}`, "dispatch fill step 3, held: the smoke test fails", 
 3. The decode of a pointer word. Rule 11 lets the shell hold pointer code, but the guide shows no form for a `const char *` or `float *` word. The fill uses two private helpers in the shell. The proposed default is to keep them in the shell and name the form in `docs/transcription.md`.
 4. The 16 Port-note holes that pass a game table. Bodies in `g_ICARUScb.swift`, `NPC_utils.swift`, `NPC_stats.swift`, `NPC_spawn.swift`, `g_spawn.swift`, and `g_main.swift` say "A Slots over one record has no form yet" where Raven passes `setTable`, `TeamTable`, `ClassTable`, `BSTable`, `BSETTable`, or `fields`. The tables now exist as `Slots`. The proposed default is to fill these holes in the next hole round of those files.
 5. The logic `vmMain` in `Sources/JKAMP_GameLogic/g_main.swift:546`. The shell no longer needs it, and nothing calls it. The proposed default is to remove it when `g_main.swift` is re-spliced.
+
+## The F1 to F3 build
+
+The build of the rulings in `dispatch-fill-2-walk.md` is committed on wave-0.
+
+| Step | Ruling | Commit |
+| --- | --- | --- |
+| The smoke driver, the smoke test, and the fill | F1 | `87302a2` |
+| The two guide forms | F2, F3 | `ccb8331` |
+
+`jampsmoke` sends command 39, `GAME_GETITEMINDEXBYTAG`, with tag 1, `HI_SEEKER`, and type 6, `IT_HOLDABLE`. The answer is 4, the row of `item_seeker` in `bg_itemlist`. The test asserts this answer and no syscall, and it no longer sends `GAME_INIT`.
+
+`swift build` completed with 0 errors. `swift test --no-parallel` passed 106 tests in four binaries, 78, 14, 13, and 1. `swift run jampsmoke .build/debug/libjampgame.dylib` wrote this output and exited with code 0:
+
+```
+answer 4
+command 0
+text
+```
+
+The guide forms are in `docs/transcription.md`. The `out_string` caller form follows the signature table, and "A pointer word in the shell" follows "No `Unsafe` type".
