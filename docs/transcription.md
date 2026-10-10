@@ -408,6 +408,11 @@ A body reads and writes the static local by Raven's name through the forward.
 Where two functions share a static-local name, `text` and `string` in the game oracle, the property and the forward take the function name as a suffix, `text_ConcatArgs`, and the function carries a one-line comment that names Raven's local.
 In a Port-note round, the transcriptor adds that property and that forward.
 
+`JKAShared` cannot see `GameWorld`, so a static local of a function in `JKAShared` has no world property and no forward.
+A static buffer that such a function returns as a `String`, the two buffers of `va` and of `Info_ValueForKey`, is a local `CharBuf` of Raven's bound, and the index that picks one of the two buffers drops.
+Raven's second buffer keeps one result valid across a second call, and a returned `String` is already a copy.
+The function carries one comment line that says this.
+
 `bg_itemlist`, `weaponData`, and `ammoData` are C storage in `Sources/CJKAMP/bg_tables.c`, with Raven's initializers as written, and `Sources/JKAMP/BgTables.swift` reaches each one as a `Slots` over the C array, with the view's `stride`, because the view target is the one Swift module that imports the C target and can take the address of the C array, and `bg_numItems` reads the C global, so a body reads `bg_itemlist[i].giTag`.
 `tools/oracle-closure/tables.py` writes that file from one piece per table, each naming the oracle file and the first and last line of Raven's text, and it copies those bytes as they stand.
 The header `Sources/CJKAMP/include/bg_tables.h` stays hand work, and it declares each array with a written bound, because the Swift importer drops an array of unknown bound, and clang checks the bound against the initializer.
@@ -635,6 +640,9 @@ Each one works over `CharBuf` and `String`, `strcpy` also takes a raw destinatio
 `BG_StringAlloc` returns its text, because the `char *` field setter interns it under rule 9, and the bg pool holds no copy.
 Raven's `...` is `_ args: any JKAShared.FormatArg...`, and `Sources/JKAShared/Format.swift` formats it with the `printf` subset the game uses, `%i`, `%d`, `%s`, `%c`, and `%f` with a width, a precision, and the left-align flag.
 `va` returns that text, so `strcpy(&powerOut, va("%i-", maxRank))` is Raven's line, and `Com_Printf`, `G_Printf`, and `Com_Error` format the same way.
+Raven's `vsprintf(buf, fmt, argptr)` into a `char buf[N]` is `strcpy(&buf, JKAShared.format(fmt, args))`, so the buffer keeps its N bytes.
+A format that is a `CharBuf` parameter takes `String(format)`, and where Raven reads the count `vsprintf` returns, the next line is `len = strlen(buf)`.
+The module name stands before `format`, because a parameter of that name hides the function.
 A specifier outside the subset is a precondition failure, so a new shape surfaces at once.
 Raven passes a whole record to a `%s`, as `Com_Printf("OLD: %s\n", animTable[oldAnim])` does.
 The format reads the text at the record's address, and those bytes are the record's first field.
