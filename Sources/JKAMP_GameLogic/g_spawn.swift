@@ -318,27 +318,19 @@ G_AddSpawnVarToken
 /// Source: oracle/codemp/game/g_spawn.c:851
 func G_AddSpawnVarToken(_ string: String) -> String {
     let l: Int32
-    // Port-note: A pointer local `char * dest` with no view.
-    // Raven wrote: char *dest;
-    portMissing("G_AddSpawnVarToken", source: "oracle/codemp/game/g_spawn.c:851")
+    let dest: Int32
 
     l = strlen(string)
     if level.numSpawnVarChars + l + 1 > MAX_SPAWN_VARS_CHARS {
         G_Error("G_AddSpawnVarToken: MAX_SPAWN_CHARS")
     }
 
-    // Port-note: A store into `dest`, a local the draft left as a hole.
-    // Raven wrote: dest = level.spawnVarChars + level.numSpawnVarChars
-    portMissing("G_AddSpawnVarToken", source: "oracle/codemp/game/g_spawn.c:851")
-    // Port-note: Raven's `memcpy( dest, string, l+1 )` runs over bytes that are not one record with a view.
-    // Raven wrote: memcpy( dest, string, l+1 )
-    portMissing("G_AddSpawnVarToken", source: "oracle/codemp/game/g_spawn.c:851")
+    dest = level.numSpawnVarChars
+    strcpy(&level.spawnVarCharsBuffer, string, at: dest)
 
     level.numSpawnVarChars += l + 1
 
-    // Port-note: A read of `dest`, a local the draft left as a hole.
-    // Raven wrote: return dest
-    portMissing("G_AddSpawnVarToken", source: "oracle/codemp/game/g_spawn.c:851")
+    return String(level.spawnVarCharsBuffer[dest...])
 }
 
 /// Source: oracle/codemp/game/g_spawn.c:868

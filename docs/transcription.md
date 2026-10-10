@@ -637,6 +637,10 @@ Where no port exists, the transcriptor adds a Port-note, because the exact C sem
 `Sources/JKAShared/CString.swift` holds the libc names Raven calls, `atoi`, `atof`, `strcpy`, `strncpy`, `strcat`, `strlen`, `strcmp`, `strchr`, and `strstr`, with C semantics.
 Each one works over `CharBuf` and `String`, `strcpy` also takes a raw destination, and `strlen` returns `Int32`, narrowed once inside it.
 `strcpy` and `strcat` take an `at:` offset too, for Raven's copy through a pointer into the buffer, and `strcat` appends at the first NUL from that byte.
+Raven's `memcpy(dest, string, l+1)` of a `String`, where `l = strlen(string)`, is a `strcpy`, because both copy the text and its NUL and nothing else.
+The `char *dest` over a named buffer is a write cursor, an `Int32` byte offset, so `dest = level.spawnVarChars + level.numSpawnVarChars` is `dest = level.numSpawnVarChars`.
+The copy is `strcpy(&level.spawnVarCharsBuffer, string, at: dest)`, and Raven's `return dest` is the `String` at the offset, `String(level.spawnVarCharsBuffer[dest...])`.
+A caller's store of that `String` interns it in the string pool, so the pointer is into the pool, and the buffer keeps Raven's count.
 `BG_StringAlloc` returns its text, because the `char *` field setter interns it under rule 9, and the bg pool holds no copy.
 Raven's `...` is `_ args: any JKAShared.FormatArg...`, and `Sources/JKAShared/Format.swift` formats it with the `printf` subset the game uses, `%i`, `%d`, `%s`, `%c`, and `%f` with a width, a precision, and the left-align flag.
 `va` returns that text, so `strcpy(&powerOut, va("%i-", maxRank))` is Raven's line, and `Com_Printf`, `G_Printf`, and `Com_Error` format the same way.
