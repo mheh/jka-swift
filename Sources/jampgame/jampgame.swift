@@ -5,7 +5,8 @@ import JKAMP_BG
 
 /// This target holds the module's two ABI entry points, `dllEntry` and `vmMain`, and the 40-arm command decode.
 /// It is the dynamic library the engine loads.
-/// Only `GAME_INIT` is answered today, and every other arm traps with its Raven subject.
+/// `GAME_INIT` prints one line, and `GAME_GETITEMINDEXBYTAG` calls the public bg function.
+/// Every other arm traps with its Raven subject, because its bare function is internal to the logic target.
 
 /// Source: oracle/codemp/game/g_syscalls.c:14
 @_cdecl("dllEntry")
@@ -196,8 +197,9 @@ public func vmMain(
         portMissing("CP_FindCombatPointWaypoints", source: "oracle/codemp/game/g_main.c:688")
 
     case GAME_GETITEMINDEXBYTAG:
-        // TODO: Port BG_GetItemIndexByTag
-        portMissing("BG_GetItemIndexByTag", source: "oracle/codemp/game/g_main.c:691")
+        let tag = Int32(truncatingIfNeeded: arg0)
+        let type = Int32(truncatingIfNeeded: arg1)
+        return Int(BG_GetItemIndexByTag(tag, type))
 
     // The wire enum is a struct with statics, so Swift needs this arm. It is Raven's fall-through return at g_main.c:695.
     default:
