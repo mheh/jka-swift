@@ -4,25 +4,17 @@ import JKAShared
 import JKAMP_Game
 import JKAMP_BG
 
-/// Source: oracle/codemp/game/NPC_stats.c:14
-// TODO: Port global TeamTable
-// Raven wrote: stringID_table_t TeamTable[]
-// Raven's data table is C storage in the C target, with his initializer as written, reached as a Slots over the C array, the bg_tables.c shape that tables.py writes.
+// Source: oracle/codemp/game/NPC_stats.c:14
+// Raven's `TeamTable` is C storage in `Sources/CJKAMP_Game/g_tables.c`, and a body reads the public Slots in `Sources/JKAMP_Game/GameTables.swift`.
 
-/// Source: oracle/codemp/game/NPC_stats.c:24
-// TODO: Port global ClassTable
-// Raven wrote: stringID_table_t ClassTable[]
-// Raven's data table is C storage in the C target, with his initializer as written, reached as a Slots over the C array, the bg_tables.c shape that tables.py writes.
+// Source: oracle/codemp/game/NPC_stats.c:24
+// Raven's `ClassTable` is C storage in `Sources/CJKAMP_Game/g_tables.c`, and a body reads the public Slots in `Sources/JKAMP_Game/GameTables.swift`.
 
-/// Source: oracle/codemp/game/NPC_stats.c:88
-// TODO: Port global BSTable
-// Raven wrote: stringID_table_t BSTable[]
-// Raven's data table is C storage in the C target, with his initializer as written, reached as a Slots over the C array, the bg_tables.c shape that tables.py writes.
+// Source: oracle/codemp/game/NPC_stats.c:88
+// Raven's `BSTable` is C storage in `Sources/CJKAMP_Game/g_tables.c`, and a body reads the public Slots in `Sources/JKAMP_Game/GameTables.swift`.
 
-/// Source: oracle/codemp/game/NPC_stats.c:106
-// TODO: Port global BSETTable
-// Raven wrote: stringID_table_t BSETTable[]
-// Raven's data table is C storage in the C target, with his initializer as written, reached as a Slots over the C array, the bg_tables.c shape that tables.py writes.
+// Source: oracle/codemp/game/NPC_stats.c:106
+// Raven's `BSETTable` is C storage in `Sources/CJKAMP_Game/g_tables.c`, and a body reads the public Slots in `Sources/JKAMP_Game/GameTables.swift`.
 
 /// Source: oracle/codemp/game/NPC_stats.c:133
 /// Raven's data table, a hand property of `GameWorld`.

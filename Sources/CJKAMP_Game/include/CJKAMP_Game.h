@@ -192,5 +192,6 @@
 #include "codemp/game/w_saber_c/constants.h"
 #include "codemp/game/NPC_AI_Interrogator_c/constants.h"
 #include "g_types.h"
+#include "g_tables.h"
 
 #endif // JKA_CJKAMP_GAME_H

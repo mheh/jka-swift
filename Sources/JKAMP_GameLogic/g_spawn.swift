@@ -4,10 +4,8 @@ import JKAShared
 import JKAMP_Game
 import JKAMP_BG
 
-/// Source: oracle/codemp/game/g_spawn.c:54
-// TODO: Port global fields
-// Raven wrote: BG_field_t fields[]
-// Raven's data table is C storage in the C target, with his initializer as written, reached as a Slots over the C array, the bg_tables.c shape that tables.py writes.
+// Source: oracle/codemp/game/g_spawn.c:54
+// Raven's `fields` is C storage in `Sources/CJKAMP_Game/g_tables.c`, and a body reads the public Slots in `Sources/JKAMP_Game/GameTables.swift`.
 
 /// Source: oracle/codemp/game/g_spawn.c:435
 /// Raven's data table, a hand property of `GameWorld`.
