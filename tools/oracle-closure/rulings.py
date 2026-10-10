@@ -219,6 +219,7 @@ PARAMS = {
     ("trap_Bot_UpdateWaypoints", "wps"): "pointer_table",
     ("BG_ParseField", "ent"): "raw",
     ("BG_ValidateSkinForTeam", "colors"): "vec3_mut",
+    ("G_SpawnVector", "out"): "vec3_mut",
     ("trap_SnapVector", "v"): "vec3_mut",
     # These bodies never write the vector, and an adopted file passes `&` there, so the parameter keeps inout.
     # g_exphysics.swift passes `&tr.endpos` to G_SetOrigin, and g_object.swift passes `&oldOrg` to G_MoverTouchPushTriggers.

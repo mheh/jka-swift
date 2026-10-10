@@ -980,9 +980,7 @@ func InitMover(_ ent: Entity) {
 
     // if the "color" or "light" keys are set, setup constantLight
     lightSet = G_SpawnFloat("light", "100", &light)
-    // Port-note: The draft of this statement did not compile, and the compiler wrote "cannot convert value of type 'vec3_t' (aka 'SIMD3<Float>') to expected argument type 'Float'".
-    // Raven wrote: colorSet = G_SpawnVector( "color", "1 1 1", color )
-    portMissing("InitMover", source: "oracle/codemp/game/g_mover.c:936")
+    colorSet = G_SpawnVector("color", "1 1 1", &color)
     if lightSet || colorSet {
         var r: Int32
         var g: Int32
@@ -2046,9 +2044,23 @@ func SP_func_rotating(_ ent: Entity) {
         ent.s.iModelScale = 1023
     }
 
-    // Port-note: The draft of this statement did not compile, and the compiler wrote "cannot convert value of type 'vec3_t' (aka 'SIMD3<Float>') to expected argument type 'Float'".
-    // Raven wrote: if ( G_SpawnVector( "spinangles", "0 0 0", spinangles ) ) { ent->speed = VectorLength( spinangles ); // set the axis of rotation VectorCopy( spinangles, ent->s.apos.trDelta ); } else { if ( !ent->speed ) { ent->speed = 100; } // set the axis of rotation if ( ent->spawnflags & 4 ) { ent->s.apos.trDelta[2] = ent->speed; } else if ( ent->spawnflags & 8 ) { ent->s.apos.trDelta[0] = ent->speed; } else { ent->s.apos.trDelta[1] = ent->speed; } }
-    portMissing("SP_func_rotating", source: "oracle/codemp/game/g_mover.c:2133")
+    if G_SpawnVector("spinangles", "0 0 0", &spinangles) {
+        ent.speed = VectorLength(spinangles)
+        // set the axis of rotation
+        ent.s.apos.trDelta = spinangles
+    } else {
+        if ent.speed == 0 {
+            ent.speed = 100
+        }
+        // set the axis of rotation
+        if (ent.spawnflags & 4) != 0 {
+            ent.s.apos.trDelta[2] = ent.speed
+        } else if (ent.spawnflags & 8) != 0 {
+            ent.s.apos.trDelta[0] = ent.speed
+        } else {
+            ent.s.apos.trDelta[1] = ent.speed
+        }
+    }
     ent.s.apos.trType = TR_LINEAR
 
     if ent.damage == 0 {
@@ -2442,9 +2454,7 @@ private func InitBBrush(_ ent: Entity) {
 
     // if the "color" or "light" keys are set, setup constantLight
     lightSet = G_SpawnFloat("light", "100", &light)
-    // Port-note: The draft of this statement did not compile, and the compiler wrote "cannot convert value of type 'vec3_t' (aka 'SIMD3<Float>') to expected argument type 'Float'".
-    // Raven wrote: colorSet = G_SpawnVector( "color", "1 1 1", color )
-    portMissing("InitBBrush", source: "oracle/codemp/game/g_mover.c:2599")
+    colorSet = G_SpawnVector("color", "1 1 1", &color)
     if lightSet || colorSet {
         var r: Int32
         var g: Int32

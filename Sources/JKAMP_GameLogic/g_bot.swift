@@ -145,9 +145,7 @@ private func G_LoadArenasFromFile(_ filename: String) {
     buf[len] = 0
     trap_FS_FCloseFile(f)
 
-    // Port-note: The draft of this statement did not compile, and the compiler wrote "cannot convert value of type 'Int32' to expected argument type 'Range<Int>'".
-    // Raven wrote: g_numArenas += G_ParseInfos( buf, MAX_ARENAS - g_numArenas, &g_arenaInfos[g_numArenas] )
-    portMissing("G_LoadArenasFromFile", source: "oracle/codemp/game/g_bot.c:106")
+    g_numArenas += G_ParseInfos(&buf, MAX_ARENAS - g_numArenas, &g_arenaInfos[Int(g_numArenas)...])
 }
 
 /// Source: oracle/codemp/game/g_bot.c:129
@@ -1234,9 +1232,7 @@ private func G_LoadBotsFromFile(_ filename: String) {
     buf[len] = 0
     trap_FS_FCloseFile(f)
 
-    // Port-note: The draft of this statement did not compile, and the compiler wrote "cannot convert value of type 'Int32' to expected argument type 'Range<Int>'".
-    // Raven wrote: g_numBots += G_ParseInfos( buf, MAX_BOTS - g_numBots, &g_botInfos[g_numBots] )
-    portMissing("G_LoadBotsFromFile", source: "oracle/codemp/game/g_bot.c:1194")
+    g_numBots += G_ParseInfos(&buf, MAX_BOTS - g_numBots, &g_botInfos[Int(g_numBots)...])
 }
 
 /**
@@ -1265,9 +1261,12 @@ private func G_LoadBots() {
         g_numBots = 0
 
         trap_Cvar_Register(botsFile, "g_botsFile", "", CVAR_INIT | CVAR_ROM)
-        // Port-note: A pointer dereference the draft cannot place.
-        // Raven wrote: if( *botsFile.string ) { G_LoadBotsFromFile(botsFile.string); } else { //G_LoadBotsFromFile("scripts/bots.txt"); G_LoadBotsFromFile("botfiles/bots.txt"); }
-        portMissing("G_LoadBots", source: "oracle/codemp/game/g_bot.c:1222")
+        if !botsFile.string.isEmpty {
+            G_LoadBotsFromFile(botsFile.string)
+        } else {
+            //G_LoadBotsFromFile("scripts/bots.txt");
+            G_LoadBotsFromFile("botfiles/bots.txt")
+        }
 
         // get all bots from .bot files
         let filled = trap_FS_GetFileList("scripts", ".bot", 1024)

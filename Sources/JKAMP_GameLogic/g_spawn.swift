@@ -76,14 +76,12 @@ func G_SpawnInt(_ key: String, _ defaultString: String, _ out: inout Int32) -> B
 }
 
 /// Source: oracle/codemp/game/g_spawn.c:43
-func G_SpawnVector(_ key: String, _ defaultString: String, _ out: inout Float) -> Bool {
+func G_SpawnVector(_ key: String, _ defaultString: String, _ out: inout JKAShared.vec3_t) -> Bool {
     var s: String = ""
     let present: Bool
 
     present = G_SpawnString(key, defaultString, &s)
-    // Port-note: The draft of this statement did not compile, and the compiler wrote "'&' used with non-inout argument of type 'Any'".
-    // Raven wrote: sscanf( s, "%f %f %f", &out[0], &out[1], &out[2] )
-    portMissing("G_SpawnVector", source: "oracle/codemp/game/g_spawn.c:43")
+    sscanf(s, "%f %f %f", &out)
     return present
 }
 

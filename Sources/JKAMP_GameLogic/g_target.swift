@@ -298,9 +298,9 @@ func SP_target_speaker(_ ent: Entity) {
 
     // force all client reletive sounds to be "activator" speakers that
     // play on the entity that activates it
-    // Port-note: The draft of this statement did not compile, and the compiler wrote "binary operator '==' cannot be applied to operands of type 'Character' and 'Int32'".
-    // Raven wrote: if ( s[0] == '*' ) { ent->spawnflags |= 8; }
-    portMissing("SP_target_speaker", source: "oracle/codemp/game/g_target.c:286")
+    if CharBuf(s)[0] == Int32(ascii: "*") {
+        ent.spawnflags |= 8
+    }
 
     Q_strncpyz(&buffer, s, Int32((buffer).count))
 
