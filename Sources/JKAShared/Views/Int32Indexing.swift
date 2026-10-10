@@ -50,3 +50,7 @@ extension Array {
         self.init(repeating: repeatedValue, count: Int(count))
     }
 }
+
+/// This adds a C integer to a slice's start index, so a body writes `infos[infos.startIndex + count]` for Raven's `infos[count]`.
+/// A slice keeps the parent's indices, and the sum is an `Int` that the slice's own subscript takes.
+@_disfavoredOverload public func + <I: BinaryInteger>(lhs: Int, rhs: I) -> Int { lhs + Int(rhs) }

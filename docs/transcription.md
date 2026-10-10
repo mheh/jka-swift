@@ -524,6 +524,7 @@ A local of a narrow type keeps its storage, `var temp: Int16`, because the local
 A store into it truncates, `temp = Int16(truncatingIfNeeded: cmd.angles[i] + ps.delta_angles[i])`, and a read of it widens, `Int32(temp)`, as C does.
 The arithmetic of a generator or a hash, `Q_rand`, `rand`, `irand`, `flrand`, and the others `WRAPPING_ARITHMETIC` of `rulings.py` names, wraps at 32 bits with `&+`, `&-`, and `&*`, as C's does.
 An array index is the C constant or variable Raven wrote, for example `vec[YAW]` and `ps.stats[STAT_HEALTH]`, never `Int(...)`. Every array in the port takes any C integer index.
+A slice index is the slice's start index plus Raven's index, `infos[infos.startIndex + count]`, and the `+` of `Sources/JKAShared/Views/Int32Indexing.swift` takes any C integer on the right.
 A C enum is an `Int32` typealias, and each case is a bare `Int32` constant with Raven's name.
 A body compares, stores, switches, and shifts it exactly as Raven wrote it. `.rawValue` and `EnumName(rawValue:)` never appear.
 An unsigned hex mask Raven applies to an `int`, such as `0xfffffffc`, is spelled as the complement of the low bits, `~0x0000_0003`, the same bit pattern with no cast, and one comment line at the site says what Raven wrote.
@@ -687,6 +688,7 @@ Raven's `qboolean` and his `vehicleType_t` are enums of four bytes, so `*(qboole
 A `byte *` local whose one store is the cast of a view, Raven's `byte *b = (byte *)vehWeapon`, is the raw pointer over the view's own slot, `let b = UnsafeMutableRawPointer(vehWeapon.handle)`, with the one-line comment that names rule 11.
 A `char *` local whose every store is a call to a `CHARBUF_ALLOCS` allocator of `rulings.py` at one constant size is a `CharBuf` of that size, `var buf = CharBuf(131072)` for Raven's `buf = (char *)B_TempAlloc(131072)`.
 The call stays on the page with its result dropped, `_ = B_TempAlloc(131072)`, and the free stays too, so the pool keeps Raven's count.
+A `G_Alloc` into a `String` slot that Raven then fills with `strcpy` takes the same form, `_ = G_Alloc(strlen(info) + 1)`, then the store `infos[infos.startIndex + count] = String(info)`, and Raven's NULL test of the slot drops under rule 22.
 The same file defines `+` and `-` between a raw pointer and any integer, so `BG_Alloc` reads `return bg.pool + (bg.poolSize - size)` for Raven's `&bg_pool[bg_poolSize-size]`.
 
 ### No `Unsafe` type

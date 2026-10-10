@@ -60,6 +60,7 @@ G_ParseInfos
 */
 /// Source: oracle/codemp/game/g_bot.c:50
 func G_ParseInfos(_ buf: inout JKAShared.CharBuf, _ max: Int32, _ infos: inout ArraySlice<String>) -> Int32 {
+    var buf = TextCursor(buf)
     var token: String
     var count: Int32
     var key = CharBuf(1024)
@@ -68,9 +69,7 @@ func G_ParseInfos(_ buf: inout JKAShared.CharBuf, _ max: Int32, _ infos: inout A
     count = 0
 
     while 1 != 0 {
-        // Port-note: A cast to `const char **` the draft has no view for.
-        // Raven wrote: token = COM_Parse( (const char **)(&buf) )
-        portMissing("G_ParseInfos", source: "oracle/codemp/game/g_bot.c:50")
+        token = COM_Parse(&buf)
         if token.isEmpty {
             break
         }
@@ -86,9 +85,7 @@ func G_ParseInfos(_ buf: inout JKAShared.CharBuf, _ max: Int32, _ infos: inout A
 
         info[0] = 0
         while 1 != 0 {
-            // Port-note: A cast to `const char **` the draft has no view for.
-            // Raven wrote: token = COM_ParseExt( (const char **)(&buf), qtrue )
-            portMissing("G_ParseInfos", source: "oracle/codemp/game/g_bot.c:50")
+            token = COM_ParseExt(&buf, true)
             if token.isEmpty {
                 Com_Printf("Unexpected end of info file\n")
                 break
@@ -98,21 +95,16 @@ func G_ParseInfos(_ buf: inout JKAShared.CharBuf, _ max: Int32, _ infos: inout A
             }
             Q_strncpyz(&key, token, Int32((key).count))
 
-            // Port-note: A cast to `const char **` the draft has no view for.
-            // Raven wrote: token = COM_ParseExt( (const char **)(&buf), qfalse )
-            portMissing("G_ParseInfos", source: "oracle/codemp/game/g_bot.c:50")
+            token = COM_ParseExt(&buf, false)
             if token.isEmpty {
                 strcpy(&token, "<NULL>")
             }
             Info_SetValueForKey(&info, String(key), token)
         }
         //NOTE: extra space for arena number
-        // Port-note: The draft of this statement did not compile, and the compiler wrote "no 'G_Alloc' candidates produce the expected contextual result type 'String'".
-        // Raven wrote: infos[count] = (char *) G_Alloc(strlen(info) + strlen("\\num\\") + strlen(va("%d", MAX_ARENAS)) + 1)
-        portMissing("G_ParseInfos", source: "oracle/codemp/game/g_bot.c:50")
-        // Port-note: The draft of this statement did not compile, and the compiler wrote "cannot convert value of type 'Int32' to expected argument type 'Int'".
-        // Raven wrote: if (infos[count]) { strcpy(infos[count], info); count++; }
-        portMissing("G_ParseInfos", source: "oracle/codemp/game/g_bot.c:50")
+        _ = G_Alloc(strlen(info) + strlen("\\num\\") + strlen(va("%d", MAX_ARENAS)) + 1)
+        infos[infos.startIndex + count] = String(info)
+        count += 1
     }
     return count
 }
