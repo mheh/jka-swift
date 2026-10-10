@@ -1010,9 +1010,7 @@ public func G_InitGame(_ levelTime: Int32, _ randomSeed: Int32, _ restart: Int32
             G_Printf("gamename: %s\n", GAMEVERSION)
             G_Printf("gamedate: %s\n", buildDate)
 
-            // Port-note: The draft of this statement did not compile, and the compiler wrote "cannot convert value of type 'Int32' to expected argument type 'UInt32'".
-            // Raven wrote: srand( randomSeed )
-            portMissing("G_InitGame", source: "oracle/codemp/game/g_main.c:897")
+            srand(randomSeed)
 
             G_RegisterCvars()
 

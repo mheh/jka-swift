@@ -156,6 +156,12 @@ public func srand(_ seed: UInt32) {
     randSeed = Int32(bitPattern: seed)
 }
 
+/// Source: oracle/codemp/game/bg_lib.c:765
+/// This overload is the guide's form for an `int` argument to an `unsigned` parameter, and it converts the value once.
+public func srand(_ seed: Int32) {
+    srand(UInt32(bitPattern: seed))
+}
+
 /// Source: oracle/codemp/game/bg_lib.c:769
 public func rand() -> Int32 {
     randSeed = (69069 &* randSeed &+ 1)

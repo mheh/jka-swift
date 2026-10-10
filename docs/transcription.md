@@ -521,6 +521,9 @@ This is the one place a body writes a conversion Raven did not write, and a Rave
 A `float` stored into an `int` takes `Int32(...)` at the store, the mirror of the next rule, so `ps.gravity = 1.0f` reads `ps.gravity = Int32(1.0)`.
 An `int` stored into a `float` with no operator between them takes `Float(...)` at the store, `ps.speed = Float(ps.basespeed)`, because Swift has no conversion on assignment and no operator reaches `=`.
 The same holds for an `int` in a float table, `Float(JUMP_VELOCITY)`. The site carries no Port-note.
+Raven passes an `int` to an `unsigned` parameter, and C converts the value with no cast on the page.
+The callee takes a second overload with an `Int32` parameter, which converts the value once inside it, as `srand` in `Sources/JKAMP_BG/bg_lib.swift` does.
+So a body writes `srand(randomSeed)` as Raven wrote it, with no cast and no Port-note.
 Raven's `fabs` and `fabsf` are both `abs`, because Swift deprecates Foundation's `fabs` and `fabsf`, and `LIBC_SPELLINGS` of `rulings.py` holds this spelling.
 
 ### `#ifdef`
