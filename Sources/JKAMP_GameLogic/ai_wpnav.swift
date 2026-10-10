@@ -60,7 +60,30 @@ var gLevelFlags: Int32 {
 
 /// Source: oracle/codemp/game/ai_wpnav.c:1796
 // Raven wrote: float botGlobalNavWeaponWeights[WP_NUM_WEAPONS]
-let botGlobalNavWeaponWeights: [Float] = { () -> [Float] in portMissing("botGlobalNavWeaponWeights", source: "oracle/codemp/game/ai_wpnav.c:1796") }()
+// Raven writes 16 rows for a `WP_NUM_WEAPONS` array, so C zeroes the last three slots.
+// The last three rows here are those zeros.
+let botGlobalNavWeaponWeights: [Float] = [
+    0,//WP_NONE,
+
+    0,//WP_STUN_BATON,
+    0,//WP_MELEE
+    0,//WP_SABER,				 // NOTE: lots of code assumes this is the first weapon (... which is crap) so be careful -Ste.
+    0,//WP_BRYAR_PISTOL,
+    3,//WP_BLASTER,
+    5,//WP_DISRUPTOR,
+    4,//WP_BOWCASTER,
+    6,//WP_REPEATER,
+    7,//WP_DEMP2,
+    8,//WP_FLECHETTE,
+    9,//WP_ROCKET_LAUNCHER,
+    3,//WP_THERMAL,
+    3,//WP_TRIP_MINE,
+    3,//WP_DET_PACK,
+    0,//WP_EMPLACED_GUN,
+    0,
+    0,
+    0,
+]
 
 /// Source: oracle/codemp/game/ai_wpnav.c:2505
 let MAX_SPAWNPOINT_ARRAY = 64 as Int32
