@@ -328,3 +328,71 @@ JKAShared/PortMissing.swift:4: Fatal error: TODO: Port G_LogWeaponOutput, source
 F1. The parse cursor of `G_ParseInfos`. Raven's `char *buf` parameter is a cursor that `COM_Parse( (const char **)(&buf) )` and `COM_ParseExt` advance, and no use of it writes a byte. The signature gives `buf` as `inout JKAShared.CharBuf`, and `COM_Parse` and `COM_ParseExt` take an `inout TextCursor`. The guide drops the `(const char **)` cast around the address of a `TextCursor` local, but it has no form for a cursor over a `CharBuf` parameter. The proposed form follows the guide's form for a `String` parameter a body walks by byte, `let s1 = CharBuf(s1)` at the top of the body: the first line of the body is `var buf = TextCursor(buf)`, and the three calls read `token = COM_Parse(&buf)`, `token = COM_ParseExt(&buf, true)`, and `token = COM_ParseExt(&buf, false)`. The signature and the two callers stay as they are.
 
 F2. The info slot of `G_ParseInfos`. Raven allocates `strlen(info) + strlen("\\num\\") + strlen(va("%d", MAX_ARENAS)) + 1` bytes with `G_Alloc` into `infos[count]`, tests the pointer, and copies `info` into it. The slot is a `String` of the `ArraySlice<String>` parameter, and `G_Alloc` returns a raw pointer. The extra bytes leave room for the `\num\` key that `G_LoadArenas` adds to the same slot later. The proposed form follows the `CHARBUF_ALLOCS` form, where the call stays on the page with its result dropped so the pool keeps Raven's count: `_ = G_Alloc(strlen(info) + strlen("\\num\\") + strlen(va("%d", MAX_ARENAS)) + 1)`, then `infos[infos.startIndex + count] = String(info)` and `count += 1`. The `if (infos[count])` test drops, because `G_Alloc` never returns NULL now that `G_Error` is `-> Never` under rule 22.
+
+## The fifth run
+
+The fifth run builds the rulings P1 and P2 of `load-test-walk.md` and continues the trap loop from `G_ParseInfos`.
+
+### The rulings
+
+P1: the first body line of `G_ParseInfos` is `var buf = TextCursor(buf)`, and the three calls read `token = COM_Parse(&buf)`, `token = COM_ParseExt(&buf, true)`, and `token = COM_ParseExt(&buf, false)`. The overloads of `COM_Parse` and `COM_ParseExt` that take an `inout TextCursor` were already in `Sources/JKAShared/q_shared.c.swift`, so no overload was added.
+
+P2: the slot store reads `_ = G_Alloc(strlen(info) + strlen("\\num\\") + strlen(va("%d", MAX_ARENAS)) + 1)`, then `infos[infos.startIndex + count] = String(info)` and `count += 1`. The NULL test is gone, and so are the five Port-notes and `portMissing` calls of the function.
+
+The store did not compile at first, because `infos.startIndex` is an `Int` and `count` is an `Int32`, and Swift has no `+` between the two. `Sources/JKAShared/Views/Int32Indexing.swift` gains a disfavored `+` that adds any C integer to an `Int` and returns an `Int`, so the store reads as ruled with no cast. `docs/transcription.md` gains two lines: the slice index form beside the array index rule, and the `G_Alloc` form of a `String` slot beside the `CHARBUF_ALLOCS` form.
+
+The gate before the commit `351da17` passed. `swift build` completed with 0 errors. `swift test --no-parallel` passed 112 tests in four binaries, 84, 14, 13, and 1.
+
+### The trap table
+
+| Order | Function | File:line | Raven line | The hole's text | Result |
+| --- | --- | --- | --- | --- | --- |
+| 1 | `G_LoadArenas` | `Sources/JKAMP_GameLogic/g_bot.swift:338-341` | `g_bot.c:317` | "The draft of this statement did not compile, and the compiler wrote "failed to produce diagnostic for expression; please submit a bug report (https://swift.org/contributing/#reporting-bugs)"." over `Info_SetValueForKey( g_arenaInfos[n], "num", va( "%i", n ) )` | docket row V1 |
+| 2 | `G_LogWeaponOutput`, in the shutdown | `Sources/JKAMP_GameLogic/g_log.swift:203` | `g_log.c:246` | "A pointer local `char * nameptr` with no view." | recorded, not filled, under L4 |
+
+Row 1 traps after both `G_ParseInfos` calls return: the bot files parse under `G_LoadBots`, and the `.arena` files parse under `G_LoadArenasFromFile`. The log shows no "Missing {", "Max infos exceeded", or "Unexpected end of info file" line. Row 1 is the loop that adds the `num` key to each arena slot, the key that P2's extra bytes leave room for. The guide has no form that keeps those extra bytes for the callee's write, so the loop stops at row 1. Row 2 follows the trap in `G_InitGame`, and the process then hangs until the alarm ends it with exit status 142.
+
+The next hole on the path, found by reading, is the `trap_Cvar_Set( "nextmap", va("map %s", type))` hole of `G_RefreshNextMap` at `g_bot.swift:293-295`, Raven's `g_bot.c:284`. `G_LoadArenas` calls `G_RefreshNextMap(g_gametype.integer, false)`, which returns at Raven's first test unless `g_autoMapCycle` is set, so the load test does not reach that hole.
+
+The iterations of the loop were these:
+
+| Run | Code | First trap |
+| --- | --- | --- |
+| 1 | `351da17` | row 1, then row 2, then the alarm |
+
+The log on disk at `/tmp/jka-load/server.log` is the log of run 1. Its tail, with the `InitGame:` line cut:
+
+```
+2026-10-09 22:15:23 ------- Game Initialization -------
+2026-10-09 22:15:23 gamename: basejka
+2026-10-09 22:15:23 gamedate: unknown
+2026-10-09 22:15:23 G_LoadBanIP - ERROR: can't open banip.txt
+2026-10-09 22:15:23 ------------------------------------------------------------
+JKAShared/PortMissing.swift:4: Fatal error: TODO: Port G_LoadArenas, source: oracle/codemp/game/g_bot.c:295
+JKAShared/PortMissing.swift:4: Fatal error: TODO: Port G_LogWeaponOutput, source: oracle/codemp/game/g_log.c:227
+---- exit status 142
+```
+
+### Where G_InitGame stands
+
+`G_InitGame` does not return. The entity parse of `mp/ffa1` runs to its end, `BotAISetup` and `BotAILoadMap` return, and `G_InitBots` gets past both `G_ParseInfos` calls. The run stops in `G_LoadArenas`, `g_bot.swift:340`, in the loop after the `.arena` files load. The loop stopped after one run, because row 1 has no guide form that runs. The server does not reach the frame loop, so this run shows no `G_RunFrame` trap, and the `+quit` does not reach a clean exit.
+
+### Hashes
+
+| Commit | Subject |
+| --- | --- |
+| `351da17` | The parse cursor and the info slot of G_ParseInfos |
+| this commit | The record of the fifth load test |
+
+### Docket rows
+
+V1. The `num` key of each arena slot in `G_LoadArenas`. Raven's `Info_SetValueForKey( g_arenaInfos[n], "num", va( "%i", n ) )` writes into the slot that `G_ParseInfos` allocated, and the slot has `strlen("\\num\\") + strlen(va("%d", MAX_ARENAS))` bytes of room past the info text for this write. The slot is a `String` of `g_arenaInfos`, and `Info_SetValueForKey` takes an `inout CharBuf`. The guide's form for a `String` caller of an `inout CharBuf` parameter is `var buf = CharBuf(name)`, `&buf`, and `String(buf)` after the call. That buffer holds the text and its NUL and no more, so the final `strcpy(&s, newi)` of `Info_SetValueForKey` traps on its precondition, a place where Raven does not overrun. The proposed form gives the buffer the size of Raven's slot, the same sum that P2 hands to `G_Alloc`, and stores the text back into the slot:
+
+```swift
+var info = CharBuf(strlen(g_arenaInfos[n]) + strlen("\\num\\") + strlen(va("%d", MAX_ARENAS)) + 1)
+strcpy(&info, g_arenaInfos[n])
+Info_SetValueForKey(&info, "num", va("%i", n))
+g_arenaInfos[n] = String(info)
+```
+
+The form joins the guide beside the `String` caller form, as the case where Raven's buffer holds room past the text for the callee's write.
