@@ -396,3 +396,61 @@ g_arenaInfos[n] = String(info)
 ```
 
 The form joins the guide beside the `String` caller form, as the case where Raven's buffer holds room past the text for the callee's write.
+
+## The sixth run
+
+The sixth run builds the ruling V1 of `load-test-walk.md` and continues the trap loop from `G_LoadArenas`.
+
+### The ruling
+
+V1: the loop of `G_LoadArenas` at `Sources/JKAMP_GameLogic/g_bot.swift:339-342` reads `var info = CharBuf(strlen(g_arenaInfos[n]) + strlen("\\num\\") + strlen(va("%d", MAX_ARENAS)) + 1)`, `strcpy(&info, g_arenaInfos[n])`, `Info_SetValueForKey(&info, "num", va("%i", n))`, and `g_arenaInfos[n] = String(info)`. The Port-note and the `portMissing` call are gone. `docs/transcription.md` gains the form beside the `String` caller form of an `inout CharBuf` parameter.
+
+The gate before the commit `c0d8626` passed. `swift build` completed with 0 errors. `swift test --no-parallel` passed 112 tests in four binaries, 84, 14, 13, and 1.
+
+### The trap table
+
+| Order | Function | File:line | Raven line | The hole's text | Result |
+| --- | --- | --- | --- | --- | --- |
+| 1 | `botGlobalNavWeaponWeights`, read by `CalculateWeightGoals` | `Sources/JKAMP_GameLogic/ai_wpnav.swift:63` before the fill | `ai_wpnav.c:1796` | the `portMissing` initializer under `// Raven wrote: float botGlobalNavWeaponWeights[WP_NUM_WEAPONS]` | filled, Raven's 16 rows with his comments, and three zero rows for the slots C zeroes, under two comment lines. The zero tail follows `WeaponAttackAnim` of `bg_local.swift` and is docket row W1. |
+| 2 | `G_CheckMinimumPlayers`, in the frame loop | `Sources/JKAMP_GameLogic/g_bot.swift:638-640` | `g_bot.c:572` | "A static local `checkminimumplayers_time` a statement reads before it writes, storage that outlives the call." | recorded, not filled, the first trap of the frame loop |
+| 3 | `G_LogWeaponOutput`, in the shutdown of the signal handler | `Sources/JKAMP_GameLogic/g_log.swift:203` | `g_log.c:246` | "A pointer local `char * nameptr` with no view." | recorded, not filled, under L4 |
+
+Row 1 traps in `G_InitBots`, where `LoadPath_ThisLevel` of `g_bot.c:1309` reaches `CalculateWeightGoals` of `ai_wpnav.c:2241`. The guide's form for a variable the module never assigns replaces the `portMissing` initializer with Raven's data. After the fill, `G_InitGame` returns.
+
+Row 2 is in `BotAIStartFrame`, which calls `G_CheckBotSpawn`, which calls `G_CheckMinimumPlayers`. The engine reaches it through `SV_BotFrame` in the settle loop of `SV_SpawnServer`, `openjk/codemp/server/sv_init.cpp:625-634`, and the loop calls `GVM_RunFrame` before `SV_BotFrame`. So the first `G_RunFrame` runs and returns with no trap, and the first trap of the frame loop is the bot frame of the same pass. The guide's static local form in the section "A file-scope static or a static local" covers row 2, a `GameWorld` property and a forward. The run did not fill it, because the brief stops the loop at the first frame-loop trap.
+
+Row 3 does not come from the `+quit`. The Swift trap of row 2 raises a signal, and `Sys_SigHandler` of `openjk/shared/sys/sys_main.cpp:680` calls `SV_Shutdown`, which runs `G_ShutdownGame` and reaches `G_LogWeaponOutput`. That second trap stops the handler, and the process hangs until the alarm ends it with exit status 142. The `+quit` is not reached, and row 3 is not the only hole between the run and a clean exit, so it stays for the g_log round.
+
+The iterations of the loop were these:
+
+| Run | Code | First trap |
+| --- | --- | --- |
+| 1 | `c0d8626` | row 1, then row 3, then the alarm |
+| 2 | `c0d8626` with the fill of row 1, committed as `a255995` | row 2, then row 3, then the alarm |
+
+### Where G_InitGame stands
+
+`G_InitGame` returns. The entity parse of `mp/ffa1` runs to its end, `BotAISetup` and `BotAILoadMap` return, `G_InitBots` loads the bot and arena files, adds the `num` key to each arena slot, and loads the paths of the level. The engine then runs the settle loop of `SV_SpawnServer`. The first `G_RunFrame` returns, and the first `BotAIStartFrame` traps in `G_CheckMinimumPlayers`.
+
+The engine prints no line between the return of `G_InitGame` and the trap. The `InitGame:` line is Raven's `G_LogPrintf` at `g_main.c:966`, inside `G_InitGame`. The log on disk at `/tmp/jka-load/server.log` is the log of run 2. Its lines from the `InitGame:` line to the end, as written:
+
+```
+2026-10-09 22:21:55 InitGame: \version\OpenJK-MP: vUNKNOWN macosx-arm64 Oct  9 2026\timelimit\0\sv_privateClients\0\sv_minRate\0\sv_minPing\0\sv_maxclients\8\sv_maxRate\0\sv_maxPing\0\sv_hostname\*Jedi*\sv_fps\40\sv_floodProtectSlow\1\sv_floodProtect\1\sv_autoDemo\0\sv_allowDownload\0\protocol\26\mapname\mp/ffa1\g_saberLocking\1\g_privateDuel\1\g_needpass\0\g_maxHolocronCarry\3\g_maxForceRank\7\g_gametype\0\g_forceBasedTeams\0\g_duelWeaponDisable\1\fraglimit\20\duel_fraglimit\10\dmflags\0\capturelimit\0\g_debugMelee\0\g_stepSlideFix\1\g_noSpecMove\0\gamename\basejka\g_maxGameClients\0\g_jediVmerc\0\g_allowNPC\1\g_forceRegenTime\200\g_forcePowerDisable\0\g_weaponDisable\0\g_siegeRespawn\20\g_saberWallDamageScale\0.4\g_siegeTeamSwitch\1\bg_fighterAltControl\0\g_siegeTeam1\none\g_siegeTeam2\none\g_showDuelHealths\0
+JKAShared/PortMissing.swift:4: Fatal error: TODO: Port G_CheckMinimumPlayers, source: oracle/codemp/game/g_bot.c:569
+JKAShared/PortMissing.swift:4: Fatal error: TODO: Port G_LogWeaponOutput, source: oracle/codemp/game/g_log.c:227
+---- exit status 142
+```
+
+The last line is the script's own line, not a line of the log.
+
+### Hashes
+
+| Commit | Subject |
+| --- | --- |
+| `c0d8626` | The slot-sized buffer of G_LoadArenas |
+| `a255995` | The G_InitGame path fills, 5 |
+| this commit | The record of the sixth load test |
+
+### Docket rows
+
+W1. The zero tail of a short brace list. Raven declares `float botGlobalNavWeaponWeights[WP_NUM_WEAPONS]` with 16 values, and `WP_NUM_WEAPONS` is 19, so C zeroes the slots of `WP_BRYAR_OLD`, `WP_EMPLACED_GUN`, and `WP_TURRET`. His comments name the rows one slot off from the enum, because the list has no `WP_CONCUSSION` row. The guide's form replaces the `portMissing` initializer with Raven's data, but it does not say how a Swift array holds the slots C zeroes past the list. Without them, a read at `giTag` 16 to 18 traps where Raven reads 0. The fill writes three `0,` rows after Raven's last row, under two comment lines that say so, the same shape as `WeaponAttackAnim` of `bg_local.swift`, which carries a Port-note for its one zero row. The fill is unruled. The proposed form is one guide line beside the data-initializer rule: an array whose brace list is shorter than its declared bound takes one `0` row per slot that C zeroes, after Raven's last row, under a comment that names Raven's row count and the bound. The Port-note of `WeaponAttackAnim` then becomes the same comment.
