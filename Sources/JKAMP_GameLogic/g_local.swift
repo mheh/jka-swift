@@ -10,6 +10,17 @@ public final class GameWorld {
     var variables = GameVariables()
     let strings = StringPool.shared
 
+    // MARK: - g_mem.c
+
+    /// Raven's `static char memoryPool[POOLSIZE]` of `g_mem.c`, the raw block of rule 9 that `G_Alloc` hands pointers into.
+    /// The world allocates the zeroed block once and frees it in `deinit`.
+    /// Source: oracle/codemp/game/g_mem.c:13
+    let memoryPool: UnsafeMutableRawPointer = {
+        let base = UnsafeMutableRawPointer.allocate(byteCount: Int(POOLSIZE), alignment: 16)
+        base.initializeMemory(as: UInt8.self, repeating: 0, count: Int(POOLSIZE))
+        return base
+    }()
+
     // MARK: - NPC.c
 
     /// Raven's `vec3_t NPCDEBUG_RED = {1.0, 0.0, 0.0}` of `NPC.c`.
@@ -770,6 +781,7 @@ public final class GameWorld {
     var index_vtos: Int32 = 0
 
     deinit {
+        self.memoryPool.deallocate()
         self.faces.base.deallocate()
     }
 }

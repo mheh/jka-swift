@@ -8,10 +8,8 @@ import JKAMP_BG
 let POOLSIZE = (256 * 1024) as Int32
 
 /// Source: oracle/codemp/game/g_mem.c:13
-var memoryPool: JKAShared.CharBuf {
-    get { world.variables.memoryPool }
-    set { world.variables.memoryPool = newValue }
-}
+// Raven wrote: static char memoryPool[POOLSIZE]
+// A hand property of the state object, `world.memoryPool`, by the HAND_VARS ruling.
 
 /// Source: oracle/codemp/game/g_mem.c:14
 var allocPoint: Int32 {
@@ -21,9 +19,7 @@ var allocPoint: Int32 {
 
 /// Source: oracle/codemp/game/g_mem.c:16
 func G_Alloc(_ size: Int32) -> UnsafeMutableRawPointer {
-    // Port-note: A pointer local `char * p` with no view.
-    // Raven wrote: char *p;
-    portMissing("G_Alloc", source: "oracle/codemp/game/g_mem.c:16")
+    let p: UnsafeMutableRawPointer
 
     if g_debugAlloc.integer != 0 {
         G_Printf("G_Alloc of %i bytes (%i left)\n", size, POOLSIZE - allocPoint - ((size + 31) & ~31))
@@ -31,20 +27,13 @@ func G_Alloc(_ size: Int32) -> UnsafeMutableRawPointer {
 
     if allocPoint + size > POOLSIZE {
         G_Error("G_Alloc: failed on allocation of %i bytes\n", size) // bk010103 - was %u, but is signed
-        // Port-note: Raven returns NULL, and the function returns a `UnsafeMutableRawPointer`.
-        // Raven wrote: return NULL
-        portMissing("G_Alloc", source: "oracle/codemp/game/g_mem.c:16")
     }
 
-    // Port-note: A store into `p`, a local the draft left as a hole.
-    // Raven wrote: p = &memoryPool[allocPoint]
-    portMissing("G_Alloc", source: "oracle/codemp/game/g_mem.c:16")
+    p = world.memoryPool + allocPoint
 
     allocPoint += (size + 31) & ~31
 
-    // Port-note: A read of `p`, a local the draft left as a hole.
-    // Raven wrote: return p
-    portMissing("G_Alloc", source: "oracle/codemp/game/g_mem.c:16")
+    return p
 }
 
 /// Source: oracle/codemp/game/g_mem.c:35

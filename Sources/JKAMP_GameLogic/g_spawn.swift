@@ -38,7 +38,7 @@ func G_SpawnString(_ key: String, _ defaultString: String?, _ out: inout String)
     var i: Int32
 
     if !level.spawning {
-        out = defaultString!
+        if defaultString != nil { out = defaultString! }
         //		G_Error( "G_SpawnString() called while not spawning" );
     }
 
@@ -51,7 +51,7 @@ func G_SpawnString(_ key: String, _ defaultString: String?, _ out: inout String)
         i += 1
     }
 
-    out = defaultString!
+    if defaultString != nil { out = defaultString! }
     return false
 }
 

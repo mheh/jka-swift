@@ -462,10 +462,6 @@ public struct GameVariables {
     /// Source: oracle/codemp/game/g_main.c:3580
     public var g_siegeRespawnCheck: Int32 = 0
 
-    /// Raven's `char memoryPool[POOLSIZE]` of `g_mem.c`.
-    /// Source: oracle/codemp/game/g_mem.c:13
-    public var memoryPool: JKAShared.CharBuf = JKAShared.CharBuf(262144)
-
     /// Raven's `int allocPoint` of `g_mem.c`.
     /// Source: oracle/codemp/game/g_mem.c:14
     public var allocPoint: Int32 = 0
