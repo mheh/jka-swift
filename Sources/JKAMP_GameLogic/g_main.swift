@@ -1001,9 +1001,7 @@ func G_InitGame(_ levelTime: Int32, _ randomSeed: Int32, _ restart: Int32) {
 
             B_InitAlloc() //make sure everything is clean
 
-            // Port-note: The draft of this statement did not compile, and the compiler wrote "cannot convert value of type 'CharBuf' to expected argument type 'UnsafeMutableRawPointer'".
-            // Raven wrote: trap_SV_RegisterSharedMemory(gSharedBuffer)
-            portMissing("G_InitGame", source: "oracle/codemp/game/g_main.c:897")
+            trap_SV_RegisterSharedMemory(gSharedBuffer)
 
             //Load external vehicle data
             BG_VehicleLoadParms()
@@ -3323,13 +3321,26 @@ CheckCvars
 */
 /// Source: oracle/codemp/game/g_main.c:3455
 func CheckCvars() {
-    // Port-note: A static local `lastMod` a statement reads before it writes, storage that outlives the call. This body needs a stored property for `lastMod` on `GameWorld` and a forward in `g_local.swift`.
-    // Raven wrote: static int lastMod = -1;
-    portMissing("CheckCvars", source: "oracle/codemp/game/g_main.c:3455")
+    if g_password.modificationCount != lastMod {
+        var password = CharBuf(MAX_INFO_STRING)
+        var c: Int32 = 0
+        lastMod = g_password.modificationCount
 
-    // Port-note: A read of `lastMod`, a local the draft left as a hole. This read needs the stored property for `lastMod` on `GameWorld`.
-    // Raven wrote: if ( g_password.modificationCount != lastMod ) { char password[MAX_INFO_STRING]; char *c = password; lastMod = g_password.modificationCount; strcpy( password, g_password.string ); while( *c ) { if ( *c == '%' ) { *c = '.'; } c++; } trap_Cvar_Set("g_password", password ); if ( *g_password.string && Q_stricmp( g_password.string, "none" ) ) { trap_Cvar_Set( "g_needpass", "1" ); } else { trap_Cvar_Set( "g_needpass", "0" ); } }
-    portMissing("CheckCvars", source: "oracle/codemp/game/g_main.c:3455")
+        strcpy(&password, g_password.string)
+        while password[c] != 0 {
+            if password[c] == Int32(ascii: "%") {
+                password[c] = Int32(ascii: ".")
+            }
+            c += 1
+        }
+        trap_Cvar_Set("g_password", String(password))
+
+        if !g_password.string.isEmpty && Q_stricmp(g_password.string, "none") != 0 {
+            trap_Cvar_Set("g_needpass", "1")
+        } else {
+            trap_Cvar_Set("g_needpass", "0")
+        }
+    }
 }
 
 /**
@@ -3865,13 +3876,6 @@ func G_GetStringEdString(_ refSection: String, _ refName: String) -> String {
     //a stringed reference with @@@ and send the refname to the client, and when it goes
     //to print it will get scanned for the stringed reference indication and dealt with
     //properly.
-    // Port-note: A static local `text` the function returns, storage that outlives the call. This body needs a stored property for `text` on `GameWorld` and a forward in `g_local.swift`.
-    // Raven wrote: static char text[1024]={0};
-    portMissing("G_GetStringEdString", source: "oracle/codemp/game/g_main.c:4104")
-    // Port-note: A read of `text`, a local the draft left as a hole. This read needs the stored property for `text` on `GameWorld`.
-    // Raven wrote: Com_sprintf(text, sizeof(text), "@@@%s", refName)
-    portMissing("G_GetStringEdString", source: "oracle/codemp/game/g_main.c:4104")
-    // Port-note: A read of `text`, a local the draft left as a hole. This read needs the stored property for `text` on `GameWorld`.
-    // Raven wrote: return text
-    portMissing("G_GetStringEdString", source: "oracle/codemp/game/g_main.c:4104")
+    Com_sprintf(&text, Int32((text).count), "@@@%s", refName)
+    return String(text)
 }
