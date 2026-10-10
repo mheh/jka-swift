@@ -2197,9 +2197,6 @@ Print to the logfile with a time stamp if it is open
 */
 /// Source: oracle/codemp/game/g_main.c:2213
 func G_LogPrintf(_ fmt: String, _ args: any JKAShared.FormatArg...) {
-    // Port-note: A pointer local `va_list argptr` with no view.
-    // Raven wrote: va_list argptr;
-    portMissing("G_LogPrintf", source: "oracle/codemp/game/g_main.c:2213")
     var string = CharBuf(1024)
     let min: Int32
     let tens: Int32
@@ -2214,15 +2211,7 @@ func G_LogPrintf(_ fmt: String, _ args: any JKAShared.FormatArg...) {
 
     Com_sprintf(&string, Int32((string).count), "%3i:%i%i ", min, tens, sec)
 
-    // Port-note: A read of `argptr`, a local the draft left as a hole.
-    // Raven wrote: va_start( argptr, fmt )
-    portMissing("G_LogPrintf", source: "oracle/codemp/game/g_main.c:2213")
-    // Port-note: A read of `argptr`, a local the draft left as a hole.
-    // Raven wrote: vsprintf( string +7 , fmt,argptr )
-    portMissing("G_LogPrintf", source: "oracle/codemp/game/g_main.c:2213")
-    // Port-note: A read of `argptr`, a local the draft left as a hole.
-    // Raven wrote: va_end( argptr )
-    portMissing("G_LogPrintf", source: "oracle/codemp/game/g_main.c:2213")
+    strcpy(&string, format(fmt, args), at: 7)
 
     if g_dedicated.integer != 0 {
         G_Printf("%s", string[7...])

@@ -641,6 +641,8 @@ Each one works over `CharBuf` and `String`, `strcpy` also takes a raw destinatio
 Raven's `...` is `_ args: any JKAShared.FormatArg...`, and `Sources/JKAShared/Format.swift` formats it with the `printf` subset the game uses, `%i`, `%d`, `%s`, `%c`, and `%f` with a width, a precision, and the left-align flag.
 `va` returns that text, so `strcpy(&powerOut, va("%i-", maxRank))` is Raven's line, and `Com_Printf`, `G_Printf`, and `Com_Error` format the same way.
 Raven's `vsprintf(buf, fmt, argptr)` into a `char buf[N]` is `strcpy(&buf, JKAShared.format(fmt, args))`, so the buffer keeps its N bytes.
+His `vsprintf(string + 7, fmt, argptr)` into an offset of the buffer is the `at:` form, `strcpy(&string, format(fmt, args), at: 7)`.
+In both forms, the `va_list` local, `va_start`, and `va_end` drop under the variadic form.
 A format that is a `CharBuf` parameter takes `String(format)`, and where Raven reads the count `vsprintf` returns, the next line is `len = strlen(buf)`.
 The module name stands before `format`, because a parameter of that name hides the function.
 A specifier outside the subset is a precondition failure, so a new shape surfaces at once.

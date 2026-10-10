@@ -29,7 +29,7 @@ perl -e 'alarm shift; exec @ARGV' 60 "$ROOT/.build/openjk/openjkded.arm64" \
     +set fs_homepath "$HOME_PATH" \
     +set fs_basepath "$BASE_PATH" \
     +set fs_game "$MOD" \
-    +set dedicated 2 \
+    +set dedicated 1 \
     +set sv_pure 0 \
     +set vm_game 0 \
     "$@" \
