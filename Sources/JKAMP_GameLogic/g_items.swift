@@ -2804,9 +2804,7 @@ ClearRegisteredItems
 */
 /// Source: oracle/codemp/game/g_items.c:2998
 func ClearRegisteredItems() {
-    // Port-note: Raven's `memset( itemRegistered, 0, sizeof( itemRegistered ) )` runs over bytes that are not one record with a view.
-    // Raven wrote: memset( itemRegistered, 0, sizeof( itemRegistered ) )
-    portMissing("ClearRegisteredItems", source: "oracle/codemp/game/g_items.c:2998")
+    itemRegistered.fill(false)
 
     // players always start with the base weapon
     RegisterItem(BG_FindItemForWeapon(WP_BRYAR_PISTOL)!)
