@@ -3053,7 +3053,7 @@ ClientCommand
 ```
 */
 /// Source: oracle/codemp/game/g_cmds.c:3202
-func ClientCommand(_ clientNum: Int32) {
+public func ClientCommand(_ clientNum: Int32) {
     var entIndex: Int32 = 0
     var cmd = CharBuf(1024)
 

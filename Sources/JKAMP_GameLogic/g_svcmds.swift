@@ -519,7 +519,7 @@ ConsoleCommand
 ```
 */
 /// Source: oracle/codemp/game/g_svcmds.c:513
-func ConsoleCommand() -> Bool {
+public func ConsoleCommand() -> Bool {
     var cmd = CharBuf(1024)
 
     strcpy(&cmd, trap_Argv(0, Int32((cmd).count)))

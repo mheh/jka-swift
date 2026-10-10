@@ -5,7 +5,7 @@ import JKAMP_Game
 import JKAMP_BG
 
 /// Source: oracle/codemp/game/g_navnew.c:15
-func NAV_CheckNodeFailedForEnt(_ ent: Entity, _ nodeNum: Int32) -> Bool {
+public func NAV_CheckNodeFailedForEnt(_ ent: Entity, _ nodeNum: Int32) -> Bool {
     var j: Int32
 
     //FIXME: must be a better way to do this
@@ -57,7 +57,7 @@ NAVNEW_ClearPathBetweenPoints
 ```
 */
 /// Source: oracle/codemp/game/g_navnew.c:58
-func NAVNEW_ClearPathBetweenPoints(_ start: JKAShared.vec3_t, _ end: JKAShared.vec3_t, _ mins: JKAShared.vec3_t, _ maxs: JKAShared.vec3_t, _ ignore: Int32, _ clipmask: Int32) -> Int32 {
+public func NAVNEW_ClearPathBetweenPoints(_ start: JKAShared.vec3_t, _ end: JKAShared.vec3_t, _ mins: JKAShared.vec3_t, _ maxs: JKAShared.vec3_t, _ ignore: Int32, _ clipmask: Int32) -> Int32 {
     // Raven's record lives to the end of his block, so the block is the closure.
     // Every path of Raven's block returns, so the closure's value is the function's.
     return Trace.scratch { trace -> Int32 in

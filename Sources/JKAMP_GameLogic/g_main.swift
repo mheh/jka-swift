@@ -25,7 +25,7 @@ var killPlayerTimer: Int32 {
 }
 
 /// Source: oracle/codemp/game/g_main.c:27
-var g_entities: Slots<Entity> { world.storage.g_entities }
+public var g_entities: Slots<Entity> { world.storage.g_entities }
 
 /// Source: oracle/codemp/game/g_main.c:28
 var g_clients: Slots<Client> { world.storage.g_clients }
@@ -468,7 +468,7 @@ var gameCvarTable: [CvarTableRow] {
 var gameCvarTableSize: Int32 { Int32(world.gameCvarTable.count) }
 
 /// Source: oracle/codemp/game/g_main.c:881
-var gSharedBuffer: UnsafeMutableRawPointer { world.storage.gSharedBuffer }
+public var gSharedBuffer: UnsafeMutableRawPointer { world.storage.gSharedBuffer }
 
 /// Source: oracle/codemp/game/g_main.c:1427
 var g_dontFrickinCheck: Bool {
@@ -982,7 +982,7 @@ func G_UpdateCvars() {
 }
 
 /// Source: oracle/codemp/game/g_main.c:897
-func G_InitGame(_ levelTime: Int32, _ randomSeed: Int32, _ restart: Int32) {
+public func G_InitGame(_ levelTime: Int32, _ randomSeed: Int32, _ restart: Int32) {
     var i: Int32 = 0
     // Raven's record lives to the end of his block, so the block is the closure.
     VmCvar.scratch { mapname in
@@ -1196,7 +1196,7 @@ func G_InitGame(_ levelTime: Int32, _ randomSeed: Int32, _ restart: Int32) {
 }
 
 /// Source: oracle/codemp/game/g_main.c:1128
-func G_ShutdownGame(_ restart: Int32) {
+public func G_ShutdownGame(_ restart: Int32) {
     var i: Int32 = 0
     var ent: Entity?
 
@@ -3415,7 +3415,7 @@ func BG_GetTime() -> Int32 {
 }
 
 /// Source: oracle/codemp/game/g_main.c:3582
-func G_RunFrame(_ levelTime: Int32) {
+public func G_RunFrame(_ levelTime: Int32) {
     var i: Int32
     var entIndex: Int32 = 0
     let msec: Int32

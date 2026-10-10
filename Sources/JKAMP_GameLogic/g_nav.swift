@@ -260,7 +260,7 @@ func NAV_HitNavGoal(_ point: JKAShared.vec3_t, _ mins: JKAShared.vec3_t, _ maxs:
 }
 
 /// Source: oracle/codemp/game/g_nav.c:222
-func NAV_ClearPathToPoint(_ `self`: Entity, _ pmins: JKAShared.vec3_t, _ pmaxs: JKAShared.vec3_t, _ point: JKAShared.vec3_t, _ clipmask: Int32, _ okToHitEntNum: Int32) -> Bool {
+public func NAV_ClearPathToPoint(_ `self`: Entity, _ pmins: JKAShared.vec3_t, _ pmaxs: JKAShared.vec3_t, _ point: JKAShared.vec3_t, _ clipmask: Int32, _ okToHitEntNum: Int32) -> Bool {
     //	trace_t	trace;
     //	return NAV_CheckAhead( self, point, trace, clipmask|CONTENTS_BOTCLIP );
 

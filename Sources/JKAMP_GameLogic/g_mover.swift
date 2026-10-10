@@ -1244,7 +1244,7 @@ func Think_MatchTeam(_ ent: Entity) {
 }
 
 /// Source: oracle/codemp/game/g_mover.c:1222
-func G_EntIsDoor(_ entityNum: Int32) -> Bool {
+public func G_EntIsDoor(_ entityNum: Int32) -> Bool {
     var ent: Entity?
 
     if entityNum < 0 || entityNum >= ENTITYNUM_WORLD {
@@ -1290,7 +1290,7 @@ func G_FindDoorTrigger(_ ent: Entity) -> Entity? {
 }
 
 /// Source: oracle/codemp/game/g_mover.c:1282
-func G_EntIsUnlockedDoor(_ entityNum: Int32) -> Bool {
+public func G_EntIsUnlockedDoor(_ entityNum: Int32) -> Bool {
     if entityNum < 0 || entityNum >= ENTITYNUM_WORLD {
         return false
     }
@@ -2647,7 +2647,7 @@ func SP_func_breakable(_ `self`: Entity) {
 }
 
 /// Source: oracle/codemp/game/g_mover.c:2831
-func G_EntIsBreakable(_ entityNum: Int32) -> Bool {
+public func G_EntIsBreakable(_ entityNum: Int32) -> Bool {
     var ent: Entity?
 
     if entityNum < 0 || entityNum >= ENTITYNUM_WORLD {
@@ -2843,7 +2843,7 @@ func func_usable_think(_ `self`: Entity) {
 }
 
 /// Source: oracle/codemp/game/g_mover.c:3037
-func G_EntIsRemovableUsable(_ entNum: Int32) -> Bool {
+public func G_EntIsRemovableUsable(_ entNum: Int32) -> Bool {
     let ent: Entity? = g_entities[entNum]
     if ent!.classname != nil && Q_stricmp("func_usable", ent!.classname!) == 0 {
         if !((ent!.s.eFlags & EF_SHADER_ANIM) != 0) && !((ent!.spawnflags & 8) != 0) && ent!.targetname != nil {

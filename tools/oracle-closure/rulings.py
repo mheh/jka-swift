@@ -261,6 +261,21 @@ NOT_PORTED = {
     "qsort": "Raven's byte-swap qsort has no view form, and the hand port is generic over the element type",
 }
 
+# Game functions and globals the shell's `vmMain` names, which cross the module line, so each is public. Rule 11 and ruling E1.
+# The shell decodes the words of a command and calls the bare function, so the callee is public in its own logic file.
+PUBLIC_NAMES = {
+    # The commands of Raven's vmMain at g_main.c:515, in the order of the switch.
+    "G_InitGame", "G_ShutdownGame", "ClientConnect", "ClientThink", "ClientUserinfoChanged", "ClientDisconnect", "ClientBegin",
+    "ClientCommand", "G_RunFrame", "ConsoleCommand", "BotAIStartFrame", "G_ROFF_NotetrackCallback", "G_ParseSpawnVars",
+    "G_SpawnGEntityFromSpawnVars", "Q3_PlaySound", "Q3_Set", "Q3_Lerp2Pos", "Q3_Lerp2Origin", "Q3_Lerp2Angles", "Q3_GetTag",
+    "Q3_Lerp2Start", "Q3_Lerp2End", "Q3_Use", "Q3_Kill", "Q3_Remove", "Q3_Play", "Q3_GetFloat", "Q3_GetVector", "Q3_GetString",
+    "G_SoundIndex", "GetIDForString", "NAV_ClearPathToPoint", "NPC_ClearLOS2", "NAVNEW_ClearPathBetweenPoints",
+    "NAV_CheckNodeFailedForEnt", "G_EntIsUnlockedDoor", "G_EntIsDoor", "G_EntIsBreakable", "G_EntIsRemovableUsable",
+    "CP_FindCombatPointWaypoints", "BG_GetItemIndexByTag",
+    # The globals the decode reads: the entity table and the ICARUS shared buffer. `world` is hand code in g_local.swift.
+    "g_entities", "gSharedBuffer",
+}
+
 # C library functions a .c file aliases, `#define sqrtf sqrt`, with the Swift signature the forwarder takes.
 LIBC_FUNCTIONS = {"sqrt": ([("x", "Float")], "Float", "x.squareRoot()")}
 

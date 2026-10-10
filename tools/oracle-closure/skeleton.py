@@ -48,7 +48,7 @@ import reexport
 from fnsweep import binop_assign_op, rhs_function, root_var
 from overlay import MACROS, written_arguments
 from reexport import REPO, SOURCES
-from rulings import BYTE_STORAGE_VARS, HAND_MACROS, HAND_VARS, LIBC_FUNCTIONS, NEVER_NULL_VARS, NOT_PORTED, RETURNS
+from rulings import BYTE_STORAGE_VARS, HAND_MACROS, HAND_VARS, LIBC_FUNCTIONS, NEVER_NULL_VARS, NOT_PORTED, PUBLIC_NAMES, RETURNS
 from store import Store, combined, file_hash, named
 from table import Param, SourceFile, Table, swift_name
 
@@ -718,6 +718,9 @@ class Skeleton:
         """A bg variable a game file names crosses the module line, so it is public, the same as a bg function a game file calls."""
         if not var.shared and target_of(var.stem) == BG and var.name in self.game_calls:
             return "public "
+        # A global the shell's `vmMain` reads is public by ruling E1, `g_entities` and `gSharedBuffer`.
+        if not var.shared and target_of(var.stem) == LOGIC and var.name in PUBLIC_NAMES:
+            return "public "
         return var.access
 
     def let_prefix(self, var: Variable) -> str:
@@ -1004,6 +1007,9 @@ class Skeleton:
             return "public "
         # A game function a Swift file of another source target calls crosses the module line too, `Com_Error` from the shell.
         if target_of(fn.stem) == LOGIC and fn.name in self.outside_calls:
+            return "public "
+        # A function the shell's `vmMain` calls is public by ruling E1, before the shell names it.
+        if target_of(fn.stem) in (LOGIC, BG) and fn.name in PUBLIC_NAMES:
             return "public "
         return "public " if target_of(fn.stem) == SHARED else ""
 

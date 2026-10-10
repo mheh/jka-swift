@@ -184,7 +184,7 @@ private func Q3_GetAnimBoth(_ ent: Entity) -> String? {
 }
 
 /// Source: oracle/codemp/game/g_ICARUScb.c:400
-func Q3_PlaySound(_ taskID: Int32, _ entID: Int32, _ name: String, _ channel: String) -> Int32 {
+public func Q3_PlaySound(_ taskID: Int32, _ entID: Int32, _ name: String, _ channel: String) -> Int32 {
     let ent: Entity? = g_entities[entID]
     var finalName = CharBuf(64)
     var voice_chan: soundChannel_t = CHAN_VOICE
@@ -309,7 +309,7 @@ Q3_Play
 ```
 */
 /// Source: oracle/codemp/game/g_ICARUScb.c:527
-func Q3_Play(_ taskID: Int32, _ entID: Int32, _ type: String, _ name: String) {
+public func Q3_Play(_ taskID: Int32, _ entID: Int32, _ type: String, _ name: String) {
     let ent: Entity? = g_entities[entID]
 
     if Q_stricmp(type, "PLAY_ROFF") == 0 {
@@ -465,7 +465,7 @@ Lerps the origin of an entity to its starting position
 ```
 */
 /// Source: oracle/codemp/game/g_ICARUScb.c:682
-func Q3_Lerp2Start(_ entID: Int32, _ taskID: Int32, _ duration: Float) {
+public func Q3_Lerp2Start(_ entID: Int32, _ taskID: Int32, _ duration: Float) {
     let ent: Entity? = g_entities[entID]
 
     if ent == nil {
@@ -511,7 +511,7 @@ Lerps the origin of an entity to its ending position
 ```
 */
 /// Source: oracle/codemp/game/g_ICARUScb.c:730
-func Q3_Lerp2End(_ entID: Int32, _ taskID: Int32, _ duration: Float) {
+public func Q3_Lerp2End(_ entID: Int32, _ taskID: Int32, _ duration: Float) {
     let ent: Entity? = g_entities[entID]
 
     if ent == nil {
@@ -558,7 +558,7 @@ Lerps the origin and angles of an entity to the destination values
 ```
 */
 /// Source: oracle/codemp/game/g_ICARUScb.c:781
-func Q3_Lerp2Pos(_ taskID: Int32, _ entID: Int32, _ origin: JKAShared.vec3_t, _ angles: JKAShared.vec3_t?, _ duration: Float) {
+public func Q3_Lerp2Pos(_ taskID: Int32, _ entID: Int32, _ origin: JKAShared.vec3_t, _ angles: JKAShared.vec3_t?, _ duration: Float) {
     let ent: Entity? = g_entities[entID]
     var ang = vec3_t()
     var i: Int32
@@ -662,7 +662,7 @@ Lerps the angles to the destination value
 ```
 */
 /// Source: oracle/codemp/game/g_ICARUScb.c:892
-func Q3_Lerp2Angles(_ taskID: Int32, _ entID: Int32, _ angles: JKAShared.vec3_t, _ duration: Float) {
+public func Q3_Lerp2Angles(_ taskID: Int32, _ entID: Int32, _ angles: JKAShared.vec3_t, _ duration: Float) {
     let ent: Entity? = g_entities[entID]
     var ang = vec3_t()
     var i: Int32
@@ -716,7 +716,7 @@ Gets the value of a tag by the give name
 ```
 */
 /// Source: oracle/codemp/game/g_ICARUScb.c:948
-func Q3_GetTag(_ entID: Int32, _ name: String, _ lookup: Int32, _ info: inout JKAShared.vec3_t) -> Int32 {
+public func Q3_GetTag(_ entID: Int32, _ name: String, _ lookup: Int32, _ info: inout JKAShared.vec3_t) -> Int32 {
     let ent: Entity? = g_entities[entID]
 
     if !ent!.inuse {
@@ -747,7 +747,7 @@ Uses an entity
 ```
 */
 /// Source: oracle/codemp/game/g_ICARUScb.c:981
-func Q3_Use(_ entID: Int32, _ target: String) {
+public func Q3_Use(_ entID: Int32, _ target: String) {
     let ent: Entity? = g_entities[entID]
 
     if ent == nil {
@@ -775,7 +775,7 @@ Q3_Kill
 ```
 */
 /// Source: oracle/codemp/game/g_ICARUScb.c:1009
-func Q3_Kill(_ entID: Int32, _ name: String) {
+public func Q3_Kill(_ entID: Int32, _ name: String) {
     let ent: Entity? = g_entities[entID]
     var victim: Entity? = nil
     let o_health: Int32
@@ -882,7 +882,7 @@ Q3_Remove
 ```
 */
 /// Source: oracle/codemp/game/g_ICARUScb.c:1128
-func Q3_Remove(_ entID: Int32, _ name: String) {
+public func Q3_Remove(_ entID: Int32, _ name: String) {
     let ent: Entity? = g_entities[entID]
     var victim: Entity? = nil
 
@@ -926,7 +926,7 @@ Q3_GetFloat
 ```
 */
 /// Source: oracle/codemp/game/g_ICARUScb.c:1189
-func Q3_GetFloat(_ entID: Int32, _ type: Int32, _ name: String, _ value: inout Float) -> Int32 {
+public func Q3_GetFloat(_ entID: Int32, _ type: Int32, _ name: String, _ value: inout Float) -> Int32 {
     let ent: Entity? = g_entities[entID]
     var toGet: Int32 = 0
 
@@ -1265,7 +1265,7 @@ Q3_GetVector
 ```
 */
 /// Source: oracle/codemp/game/g_ICARUScb.c:1573
-func Q3_GetVector(_ entID: Int32, _ type: Int32, _ name: String, _ value: inout JKAShared.vec3_t) -> Int32 {
+public func Q3_GetVector(_ entID: Int32, _ type: Int32, _ name: String, _ value: inout JKAShared.vec3_t) -> Int32 {
     let ent: Entity? = g_entities[entID]
     var toGet: Int32 = 0
     if ent == nil {
@@ -1317,7 +1317,7 @@ Q3_GetString
 ```
 */
 /// Source: oracle/codemp/game/g_ICARUScb.c:1642
-func Q3_GetString(_ entID: Int32, _ type: Int32, _ name: String, _ value: inout String) -> Int32 {
+public func Q3_GetString(_ entID: Int32, _ type: Int32, _ name: String, _ value: inout String) -> Int32 {
     let ent: Entity? = g_entities[entID]
     var toGet: Int32 = 0
     if ent == nil {
@@ -1683,7 +1683,7 @@ Lerps the origin to the destination value
 ```
 */
 /// Source: oracle/codemp/game/g_ICARUScb.c:2051
-func Q3_Lerp2Origin(_ taskID: Int32, _ entID: Int32, _ origin: JKAShared.vec3_t, _ duration: Float) {
+public func Q3_Lerp2Origin(_ taskID: Int32, _ entID: Int32, _ origin: JKAShared.vec3_t, _ duration: Float) {
     let ent: Entity? = g_entities[entID]
     var moverState: moverState_t
 
@@ -4632,7 +4632,7 @@ private func Q3_LCARSText(_ id: String) {
 
 //returns qtrue if it got to the end, otherwise qfalse.
 /// Source: oracle/codemp/game/g_ICARUScb.c:5018
-func Q3_Set(_ taskID: Int32, _ entID: Int32, _ type_name: String, _ data: String) -> Bool {
+public func Q3_Set(_ taskID: Int32, _ entID: Int32, _ type_name: String, _ data: String) -> Bool {
     let ent: Entity? = g_entities[entID]
     var float_data: Float
     var int_data: Int32

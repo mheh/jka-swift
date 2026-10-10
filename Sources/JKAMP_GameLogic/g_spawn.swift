@@ -219,7 +219,7 @@ func G_NewString(_ string: String) -> String {
 }
 
 /// Source: oracle/codemp/game/g_spawn.c:766
-func G_SpawnGEntityFromSpawnVars(_ inSubBSP: Bool) {
+public func G_SpawnGEntityFromSpawnVars(_ inSubBSP: Bool) {
     var i: Int32 = 0
     var ent: Entity?
     // Port-note: A pointer local `char * s` with no view.
@@ -480,7 +480,7 @@ This does not actually spawn an entity.
 ```
 */
 /// Source: oracle/codemp/game/g_spawn.c:1018
-func G_ParseSpawnVars(_ inSubBSP: Bool) -> Bool {
+public func G_ParseSpawnVars(_ inSubBSP: Bool) -> Bool {
     var keyname = CharBuf(1024)
     var com_token = CharBuf(1024)
 

@@ -1809,7 +1809,7 @@ func SetupGameGhoul2Model(_ ent: Entity, _ modelname: inout JKAShared.CharBuf, _
 }
 
 /// Source: oracle/codemp/game/g_client.c:1888
-func ClientUserinfoChanged(_ clientNum: Int32) {
+public func ClientUserinfoChanged(_ clientNum: Int32) {
     var entIndex: Int32 = 0
     let teamTask: Int32
     let teamLeader: Int32
@@ -2137,7 +2137,7 @@ restarts.
 ```
 */
 /// Source: oracle/codemp/game/g_client.c:2258
-func ClientConnect(_ clientNum: Int32, _ firstTime: Bool, _ isBot: Bool) -> String? {
+public func ClientConnect(_ clientNum: Int32, _ firstTime: Bool, _ isBot: Bool) -> String? {
     var value: String
     //	char		*areabits;
     var client: Client?
@@ -2248,7 +2248,7 @@ func ClientConnect(_ clientNum: Int32, _ firstTime: Bool, _ isBot: Bool) -> Stri
 }
 
 /// Source: oracle/codemp/game/g_client.c:2393
-func ClientBegin(_ clientNum: Int32, _ allowTeamReset: Bool) {
+public func ClientBegin(_ clientNum: Int32, _ allowTeamReset: Bool) {
     var entIndex: Int32 = 0
     var client: Client?
     var tent: Entity?
@@ -3426,7 +3426,7 @@ server system housekeeping.
 ```
 */
 /// Source: oracle/codemp/game/g_client.c:3816
-func ClientDisconnect(_ clientNum: Int32) {
+public func ClientDisconnect(_ clientNum: Int32) {
     var entIndex: Int32 = 0
     var tent: Entity?
     var i: Int32

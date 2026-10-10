@@ -3189,7 +3189,7 @@ A new command has arrived from the client
 ```
 */
 /// Source: oracle/codemp/game/g_active.c:3649
-func ClientThink(_ clientNum: Int32, _ ucmd: JKAMP.Usercmd?) {
+public func ClientThink(_ clientNum: Int32, _ ucmd: JKAMP.Usercmd?) {
     var entIndex: Int32 = 0
 
     entIndex = clientNum

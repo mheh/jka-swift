@@ -6470,7 +6470,7 @@ BotAIStartFrame
 ```
 */
 /// Source: oracle/codemp/game/ai_main.c:7492
-func BotAIStartFrame(_ time: Int32) -> Int32 {
+public func BotAIStartFrame(_ time: Int32) -> Int32 {
     var i: Int32
     let elapsed_time: Int32
     let thinktime: Int32

@@ -2175,7 +2175,7 @@ func SP_point_combat(_ `self`: Entity) {
 }
 
 /// Source: oracle/codemp/game/NPC_combat.c:2548
-func CP_FindCombatPointWaypoints() {
+public func CP_FindCombatPointWaypoints() {
     var i: Int32
 
     i = 0

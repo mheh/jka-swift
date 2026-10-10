@@ -180,7 +180,7 @@ func G_IconIndex(_ name: String) -> Int32 {
 }
 
 /// Source: oracle/codemp/game/g_utils.c:138
-func G_SoundIndex(_ name: String) -> Int32 {
+public func G_SoundIndex(_ name: String) -> Int32 {
     return G_FindConfigstringIndex(name, CS_SOUNDS, MAX_SOUNDS, true)
 }
 
@@ -1898,7 +1898,7 @@ func DebugLine(_ start: JKAShared.vec3_t, _ end: JKAShared.vec3_t, _ color: Int3
 }
 
 /// Source: oracle/codemp/game/g_utils.c:2039
-func G_ROFF_NotetrackCallback(_ cent: Entity, _ notetrack: String) {
+public func G_ROFF_NotetrackCallback(_ cent: Entity, _ notetrack: String) {
     var type = CharBuf(256)
     var i: Int32 = 0
     var addlArg: Int32 = 0
