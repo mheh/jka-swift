@@ -207,6 +207,8 @@ So are a comparison or a NULL test, the whole condition of an `if`, a `while`, a
 A pointer local set from the parameter, `p = from`, reads when each of its own uses reads, and a step of that local, `p++`, moves the local and writes no byte.
 A parameter the body writes, steps, casts, or passes to a function with no body keeps the `inout CharBuf`.
 A caller with a `String` for that parameter passes `var buf = CharBuf(name)` and `&buf`, and reads `String(buf)` after the call where Raven reads the result.
+When Raven writes into a slot with room past the text, the buffer takes the size of the slot, and the text stores back into the slot after the call.
+So `Info_SetValueForKey( g_arenaInfos[n], "num", va( "%i", n ) )` of `G_LoadArenas` reads `var info = CharBuf(strlen(g_arenaInfos[n]) + strlen("\\num\\") + strlen(va("%d", MAX_ARENAS)) + 1)`, `strcpy(&info, g_arenaInfos[n])`, `Info_SetValueForKey(&info, "num", va("%i", n))`, and `g_arenaInfos[n] = String(info)`, with the sum `G_ParseInfos` hands to `G_Alloc` for the slot.
 A `char *` parameter the NULL sweep reaches, at a direct `NULL` or one hop on, crosses as a `String?`, the caller passes `nil` for `NULL`, and the body keeps Raven's test with both arms, `if locMsg != nil { ... } else { ... }` of `G_SayTo`.
 A body with an `inout CharBuf` parameter writes as Raven wrote, `powerOut[i] = readBuf[0]`, and `Q_strncpyz(_ dest: inout CharBuf, _ src: String, _ destsize: Int32)` ports line for line.
 `BG_ParseField` takes `UnsafeMutableRawPointer` for `byte *ent` and `Slots<BgField>` for the field table, and writes through the labeled subscript of the section on typed access at a byte offset. The caller passes the entity's handle turned raw, with a one-line comment that names rule 11.

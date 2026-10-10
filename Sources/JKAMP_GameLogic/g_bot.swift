@@ -336,9 +336,10 @@ private func G_LoadArenas() {
 
     n = 0
     while n < g_numArenas {
-        // Port-note: The draft of this statement did not compile, and the compiler wrote "failed to produce diagnostic for expression; please submit a bug report (https://swift.org/contributing/#reporting-bugs)".
-        // Raven wrote: Info_SetValueForKey( g_arenaInfos[n], "num", va( "%i", n ) )
-        portMissing("G_LoadArenas", source: "oracle/codemp/game/g_bot.c:295")
+        var info = CharBuf(strlen(g_arenaInfos[n]) + strlen("\\num\\") + strlen(va("%d", MAX_ARENAS)) + 1)
+        strcpy(&info, g_arenaInfos[n])
+        Info_SetValueForKey(&info, "num", va("%i", n))
+        g_arenaInfos[n] = String(info)
         n += 1
     }
 
