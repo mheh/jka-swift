@@ -424,6 +424,13 @@ class Declarations:
         source = self.uncast(cur)
         return source.kind == CursorKind.DECL_REF_EXPR and source.spelling in BYTE_STORAGE_VARS
 
+    def byte_storage_view(self, var: ci.Cursor) -> bool:
+        """True for a local the draft declared as a view at the base of a BYTE_STORAGE_VARS allocation, which is never optional."""
+        if var.kind != CursorKind.VAR_DECL or var.location.file is None or var.location.file.name != self.fn.cur.location.file.name:
+            return False
+        init = [c for c in var.get_children() if c.kind.is_expression() and b"=" in self.bytes[var.extent.start.offset:c.extent.start.offset]]
+        return bool(init) and self.byte_storage_cast(init[0])
+
     def wider_parameter(self, cur: ci.Cursor, t: ci.Type) -> bool:
         """True for a parameter of a C integer type wider than the local's type `t`."""
         inner = self.unwrap(cur)

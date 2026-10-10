@@ -676,6 +676,9 @@ class Classification:
                 return False
             if inner.spelling in self.aliases and ref is not None and ref.kind == CursorKind.VAR_DECL:
                 return self.optional_base(self.aliases[inner.spelling])
+            if ref is not None and self.byte_storage_view(ref):
+                # The view at the shared byte buffer always has a base, so a read through it takes no bind.
+                return False
             return ref is not None and ref.kind == CursorKind.VAR_DECL
         if inner.kind == CursorKind.MEMBER_REF_EXPR:
             if self.float_field(inner):

@@ -604,126 +604,102 @@ func vmMain(_ command: Int32, _ arg0: Int32, _ arg1: Int32, _ arg2: Int32, _ arg
     case GAME_ICARUS_PLAYSOUND:
         do {
             let sharedMem = IcarusPlaySound(handle: OpaquePointer(gSharedBuffer))
-            // Port-note: The draft of this statement did not compile, and the compiler wrote "cannot force unwrap value of non-optional type 'IcarusPlaySound'".
-            // Raven wrote: return Q3_PlaySound(sharedMem->taskID, sharedMem->entID, sharedMem->name, sharedMem->channel)
-            portMissing("vmMain", source: "oracle/codemp/game/g_main.c:515")
+            return Q3_PlaySound(sharedMem.taskID, sharedMem.entID, sharedMem.name, sharedMem.channel)
         }
         fallthrough
 
     case GAME_ICARUS_SET:
         do {
             let sharedMem = IcarusSet(handle: OpaquePointer(gSharedBuffer))
-            // Port-note: The draft of this statement did not compile, and the compiler wrote "cannot force unwrap value of non-optional type 'IcarusSet'".
-            // Raven wrote: return Q3_Set(sharedMem->taskID, sharedMem->entID, sharedMem->type_name, sharedMem->data)
-            portMissing("vmMain", source: "oracle/codemp/game/g_main.c:515")
+            return (Q3_Set(sharedMem.taskID, sharedMem.entID, sharedMem.type_name, sharedMem.data) ? 1 : 0)
         }
         fallthrough
 
     case GAME_ICARUS_LERP2POS:
         do {
             let sharedMem = IcarusLerp2Pos(handle: OpaquePointer(gSharedBuffer))
-            // Port-note: The draft of this statement did not compile, and the compiler wrote "cannot force unwrap value of non-optional type 'IcarusLerp2Pos'".
-            // Raven wrote: if (sharedMem->nullAngles) { Q3_Lerp2Pos(sharedMem->taskID, sharedMem->entID, sharedMem->origin, NULL, sharedMem->duration); } else { Q3_Lerp2Pos(sharedMem->taskID, sharedMem->entID, sharedMem->origin, sharedMem->angles, sharedMem->duration); }
-            portMissing("vmMain", source: "oracle/codemp/game/g_main.c:515")
+            if sharedMem.nullAngles {
+                Q3_Lerp2Pos(sharedMem.taskID, sharedMem.entID, sharedMem.origin, nil, sharedMem.duration)
+            } else {
+                Q3_Lerp2Pos(sharedMem.taskID, sharedMem.entID, sharedMem.origin, sharedMem.angles, sharedMem.duration)
+            }
         }
         return 0
 
     case GAME_ICARUS_LERP2ORIGIN:
         do {
             let sharedMem = IcarusLerp2Origin(handle: OpaquePointer(gSharedBuffer))
-            // Port-note: The draft of this statement did not compile, and the compiler wrote "cannot force unwrap value of non-optional type 'IcarusLerp2Origin'".
-            // Raven wrote: Q3_Lerp2Origin(sharedMem->taskID, sharedMem->entID, sharedMem->origin, sharedMem->duration)
-            portMissing("vmMain", source: "oracle/codemp/game/g_main.c:515")
+            Q3_Lerp2Origin(sharedMem.taskID, sharedMem.entID, sharedMem.origin, sharedMem.duration)
         }
         return 0
 
     case GAME_ICARUS_LERP2ANGLES:
         do {
             let sharedMem = IcarusLerp2Angles(handle: OpaquePointer(gSharedBuffer))
-            // Port-note: The draft of this statement did not compile, and the compiler wrote "cannot force unwrap value of non-optional type 'IcarusLerp2Angles'".
-            // Raven wrote: Q3_Lerp2Angles(sharedMem->taskID, sharedMem->entID, sharedMem->angles, sharedMem->duration)
-            portMissing("vmMain", source: "oracle/codemp/game/g_main.c:515")
+            Q3_Lerp2Angles(sharedMem.taskID, sharedMem.entID, sharedMem.angles, sharedMem.duration)
         }
         return 0
 
     case GAME_ICARUS_GETTAG:
         do {
             let sharedMem = IcarusGetTag(handle: OpaquePointer(gSharedBuffer))
-            // Port-note: The draft of this statement did not compile, and the compiler wrote "cannot force unwrap value of non-optional type 'IcarusGetTag'".
-            // Raven wrote: return Q3_GetTag(sharedMem->entID, sharedMem->name, sharedMem->lookup, sharedMem->info)
-            portMissing("vmMain", source: "oracle/codemp/game/g_main.c:515")
+            return Q3_GetTag(sharedMem.entID, sharedMem.name, sharedMem.lookup, &sharedMem.info)
         }
         fallthrough
 
     case GAME_ICARUS_LERP2START:
         do {
             let sharedMem = IcarusLerp2Start(handle: OpaquePointer(gSharedBuffer))
-            // Port-note: The draft of this statement did not compile, and the compiler wrote "cannot force unwrap value of non-optional type 'IcarusLerp2Start'".
-            // Raven wrote: Q3_Lerp2Start(sharedMem->entID, sharedMem->taskID, sharedMem->duration)
-            portMissing("vmMain", source: "oracle/codemp/game/g_main.c:515")
+            Q3_Lerp2Start(sharedMem.entID, sharedMem.taskID, sharedMem.duration)
         }
         return 0
 
     case GAME_ICARUS_LERP2END:
         do {
             let sharedMem = IcarusLerp2End(handle: OpaquePointer(gSharedBuffer))
-            // Port-note: The draft of this statement did not compile, and the compiler wrote "cannot force unwrap value of non-optional type 'IcarusLerp2End'".
-            // Raven wrote: Q3_Lerp2End(sharedMem->entID, sharedMem->taskID, sharedMem->duration)
-            portMissing("vmMain", source: "oracle/codemp/game/g_main.c:515")
+            Q3_Lerp2End(sharedMem.entID, sharedMem.taskID, sharedMem.duration)
         }
         return 0
 
     case GAME_ICARUS_USE:
         do {
             let sharedMem = IcarusUse(handle: OpaquePointer(gSharedBuffer))
-            // Port-note: The draft of this statement did not compile, and the compiler wrote "cannot force unwrap value of non-optional type 'IcarusUse'".
-            // Raven wrote: Q3_Use(sharedMem->entID, sharedMem->target)
-            portMissing("vmMain", source: "oracle/codemp/game/g_main.c:515")
+            Q3_Use(sharedMem.entID, sharedMem.target)
         }
         return 0
 
     case GAME_ICARUS_KILL:
         do {
             let sharedMem = IcarusKill(handle: OpaquePointer(gSharedBuffer))
-            // Port-note: The draft of this statement did not compile, and the compiler wrote "cannot force unwrap value of non-optional type 'IcarusKill'".
-            // Raven wrote: Q3_Kill(sharedMem->entID, sharedMem->name)
-            portMissing("vmMain", source: "oracle/codemp/game/g_main.c:515")
+            Q3_Kill(sharedMem.entID, sharedMem.name)
         }
         return 0
 
     case GAME_ICARUS_REMOVE:
         do {
             let sharedMem = IcarusRemove(handle: OpaquePointer(gSharedBuffer))
-            // Port-note: The draft of this statement did not compile, and the compiler wrote "cannot force unwrap value of non-optional type 'IcarusRemove'".
-            // Raven wrote: Q3_Remove(sharedMem->entID, sharedMem->name)
-            portMissing("vmMain", source: "oracle/codemp/game/g_main.c:515")
+            Q3_Remove(sharedMem.entID, sharedMem.name)
         }
         return 0
 
     case GAME_ICARUS_PLAY:
         do {
             let sharedMem = IcarusPlay(handle: OpaquePointer(gSharedBuffer))
-            // Port-note: The draft of this statement did not compile, and the compiler wrote "cannot force unwrap value of non-optional type 'IcarusPlay'".
-            // Raven wrote: Q3_Play(sharedMem->taskID, sharedMem->entID, sharedMem->type, sharedMem->name)
-            portMissing("vmMain", source: "oracle/codemp/game/g_main.c:515")
+            Q3_Play(sharedMem.taskID, sharedMem.entID, sharedMem.type, sharedMem.name)
         }
         return 0
 
     case GAME_ICARUS_GETFLOAT:
         do {
             let sharedMem = IcarusGetFloat(handle: OpaquePointer(gSharedBuffer))
-            // Port-note: The draft of this statement did not compile, and the compiler wrote "cannot force unwrap value of non-optional type 'IcarusGetFloat'".
-            // Raven wrote: return Q3_GetFloat(sharedMem->entID, sharedMem->type, sharedMem->name, &sharedMem->value)
-            portMissing("vmMain", source: "oracle/codemp/game/g_main.c:515")
+            return Q3_GetFloat(sharedMem.entID, sharedMem.type, sharedMem.name, &sharedMem.value)
         }
         fallthrough
 
     case GAME_ICARUS_GETVECTOR:
         do {
             let sharedMem = IcarusGetVector(handle: OpaquePointer(gSharedBuffer))
-            // Port-note: The draft of this statement did not compile, and the compiler wrote "cannot force unwrap value of non-optional type 'IcarusGetVector'".
-            // Raven wrote: return Q3_GetVector(sharedMem->entID, sharedMem->type, sharedMem->name, sharedMem->value)
-            portMissing("vmMain", source: "oracle/codemp/game/g_main.c:515")
+            return Q3_GetVector(sharedMem.entID, sharedMem.type, sharedMem.name, &sharedMem.value)
         }
         fallthrough
 
@@ -752,9 +728,7 @@ func vmMain(_ command: Int32, _ arg0: Int32, _ arg1: Int32, _ arg2: Int32, _ arg
     case GAME_ICARUS_SOUNDINDEX:
         do {
             let sharedMem = IcarusSoundIndex(handle: OpaquePointer(gSharedBuffer))
-            // Port-note: The draft of this statement did not compile, and the compiler wrote "cannot force unwrap value of non-optional type 'IcarusSoundIndex'".
-            // Raven wrote: G_SoundIndex(sharedMem->filename)
-            portMissing("vmMain", source: "oracle/codemp/game/g_main.c:515")
+            G_SoundIndex(sharedMem.filename)
         }
         return 0
 
