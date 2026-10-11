@@ -33,14 +33,10 @@ func WP_SetSaberModel(_ client: Client?, _ npcClass: JKAMP.class_t) -> Int32 {
 
 /// Source: oracle/codemp/game/NPC_spawn.c:103
 func NPC_PainFunc(_ ent: Entity) -> EntityPain? {
-    // Port-note: A pointer local `void (*)(gentity_t *, gentity_t *, int) func` with no view.
-    // Raven wrote: void (*func)(gentity_t *self, gentity_t *attacker, int damage);
-    portMissing("NPC_PainFunc", source: "oracle/codemp/game/NPC_spawn.c:103")
+    var `func`: EntityPain? = nil
 
     if ent.client!.ps.weapon == WP_SABER {
-        // Port-note: A store into `func`, a local the draft left as a hole.
-        // Raven wrote: func = NPC_Jedi_Pain
-        portMissing("NPC_PainFunc", source: "oracle/codemp/game/NPC_spawn.c:103")
+        `func` = Pain.NPC_Jedi_Pain
     } else {
         // team no longer indicates race/species, use NPC_class to determine different npc types
         /*
@@ -54,102 +50,64 @@ func NPC_PainFunc(_ ent: Entity) -> EntityPain? {
         switch ent.client!.NPC_class {
         // troopers get special pain
         case CLASS_STORMTROOPER, CLASS_SWAMPTROOPER:
-            // Port-note: A store into `func`, a local the draft left as a hole.
-            // Raven wrote: func = NPC_ST_Pain
-            portMissing("NPC_PainFunc", source: "oracle/codemp/game/NPC_spawn.c:103")
+            `func` = Pain.NPC_ST_Pain
 
         case CLASS_SEEKER:
-            // Port-note: A store into `func`, a local the draft left as a hole.
-            // Raven wrote: func = NPC_Seeker_Pain
-            portMissing("NPC_PainFunc", source: "oracle/codemp/game/NPC_spawn.c:103")
+            `func` = Pain.NPC_Seeker_Pain
 
         case CLASS_REMOTE:
-            // Port-note: A store into `func`, a local the draft left as a hole.
-            // Raven wrote: func = NPC_Remote_Pain
-            portMissing("NPC_PainFunc", source: "oracle/codemp/game/NPC_spawn.c:103")
+            `func` = Pain.NPC_Remote_Pain
 
         case CLASS_MINEMONSTER:
-            // Port-note: A store into `func`, a local the draft left as a hole.
-            // Raven wrote: func = NPC_MineMonster_Pain
-            portMissing("NPC_PainFunc", source: "oracle/codemp/game/NPC_spawn.c:103")
+            `func` = Pain.NPC_MineMonster_Pain
 
         case CLASS_HOWLER:
-            // Port-note: A store into `func`, a local the draft left as a hole.
-            // Raven wrote: func = NPC_Howler_Pain
-            portMissing("NPC_PainFunc", source: "oracle/codemp/game/NPC_spawn.c:103")
+            `func` = Pain.NPC_Howler_Pain
             // all other droids, did I miss any?
 
         case CLASS_GONK, CLASS_R2D2, CLASS_R5D2, CLASS_MOUSE, CLASS_PROTOCOL, CLASS_INTERROGATOR:
-            // Port-note: A store into `func`, a local the draft left as a hole.
-            // Raven wrote: func = NPC_Droid_Pain
-            portMissing("NPC_PainFunc", source: "oracle/codemp/game/NPC_spawn.c:103")
+            `func` = Pain.NPC_Droid_Pain
 
         case CLASS_PROBE:
-            // Port-note: A store into `func`, a local the draft left as a hole.
-            // Raven wrote: func = NPC_Probe_Pain
-            portMissing("NPC_PainFunc", source: "oracle/codemp/game/NPC_spawn.c:103")
+            `func` = Pain.NPC_Probe_Pain
 
         case CLASS_SENTRY:
-            // Port-note: A store into `func`, a local the draft left as a hole.
-            // Raven wrote: func = NPC_Sentry_Pain
-            portMissing("NPC_PainFunc", source: "oracle/codemp/game/NPC_spawn.c:103")
+            `func` = Pain.NPC_Sentry_Pain
 
         case CLASS_MARK1:
-            // Port-note: A store into `func`, a local the draft left as a hole.
-            // Raven wrote: func = NPC_Mark1_Pain
-            portMissing("NPC_PainFunc", source: "oracle/codemp/game/NPC_spawn.c:103")
+            `func` = Pain.NPC_Mark1_Pain
 
         case CLASS_MARK2:
-            // Port-note: A store into `func`, a local the draft left as a hole.
-            // Raven wrote: func = NPC_Mark2_Pain
-            portMissing("NPC_PainFunc", source: "oracle/codemp/game/NPC_spawn.c:103")
+            `func` = Pain.NPC_Mark2_Pain
 
         case CLASS_ATST:
-            // Port-note: A store into `func`, a local the draft left as a hole.
-            // Raven wrote: func = NPC_ATST_Pain
-            portMissing("NPC_PainFunc", source: "oracle/codemp/game/NPC_spawn.c:103")
+            `func` = Pain.NPC_ATST_Pain
 
         case CLASS_GALAKMECH:
-            // Port-note: A store into `func`, a local the draft left as a hole.
-            // Raven wrote: func = NPC_GM_Pain
-            portMissing("NPC_PainFunc", source: "oracle/codemp/game/NPC_spawn.c:103")
+            `func` = Pain.NPC_GM_Pain
 
         case CLASS_RANCOR:
-            // Port-note: A store into `func`, a local the draft left as a hole.
-            // Raven wrote: func = NPC_Rancor_Pain
-            portMissing("NPC_PainFunc", source: "oracle/codemp/game/NPC_spawn.c:103")
+            `func` = Pain.NPC_Rancor_Pain
 
         case CLASS_WAMPA:
-            // Port-note: A store into `func`, a local the draft left as a hole.
-            // Raven wrote: func = NPC_Wampa_Pain
-            portMissing("NPC_PainFunc", source: "oracle/codemp/game/NPC_spawn.c:103")
+            `func` = Pain.NPC_Wampa_Pain
             // everyone else gets the normal pain func
 
         default:
-            // Port-note: A store into `func`, a local the draft left as a hole.
-            // Raven wrote: func = NPC_Pain
-            portMissing("NPC_PainFunc", source: "oracle/codemp/game/NPC_spawn.c:103")
+            `func` = Pain.NPC_Pain
         }
     }
 
-    // Port-note: A read of `func`, a local the draft left as a hole.
-    // Raven wrote: return func
-    portMissing("NPC_PainFunc", source: "oracle/codemp/game/NPC_spawn.c:103")
+    return `func`
 }
 
 /// Source: oracle/codemp/game/NPC_spawn.c:199
 func NPC_TouchFunc(_ ent: Entity) -> EntityTouch? {
-    // Port-note: A pointer local `void (*)(gentity_t *, gentity_t *, trace_t *) func` with no view.
-    // Raven wrote: void (*func)(gentity_t *self, gentity_t *other, trace_t *trace);
-    portMissing("NPC_TouchFunc", source: "oracle/codemp/game/NPC_spawn.c:199")
+    var `func`: EntityTouch? = nil
 
-    // Port-note: A store into `func`, a local the draft left as a hole.
-    // Raven wrote: func = NPC_Touch
-    portMissing("NPC_TouchFunc", source: "oracle/codemp/game/NPC_spawn.c:199")
+    `func` = Touch.NPC_Touch
 
-    // Port-note: A read of `func`, a local the draft left as a hole.
-    // Raven wrote: return func
-    portMissing("NPC_TouchFunc", source: "oracle/codemp/game/NPC_spawn.c:199")
+    return `func`
 }
 
 /// Source: oracle/codemp/game/NPC_spawn.c:215
@@ -1283,9 +1241,7 @@ func NPC_Spawn_Do(_ ent: Entity) -> Entity? {
 
 
             //set up my happy prediction hack
-            // Port-note: Raven stores a pointer into the `float *` field with `newent->m_pVehicle->m_vOrientation = &newent->client->ps.vehOrientation[0]`, and rule 11 keeps a pointer out of a logic target.
-            // Raven wrote: newent->m_pVehicle->m_vOrientation = &newent->client->ps.vehOrientation[0]
-            portMissing("NPC_Spawn_Do", source: "oracle/codemp/game/NPC_spawn.c:1377")
+            newent!.m_pVehicle!.pointOrientation(at: newent!.client!.ps)
 
             // Setup the vehicle.
             newent!.m_pVehicle!.m_pParentEntity = newent.map { BgEntity($0) }

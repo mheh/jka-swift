@@ -1102,9 +1102,8 @@ func TeamplayInfoMessage(_ ent: Entity) {
     while i < g_maxclients.integer && cnt < TEAM_MAXOVERLAY {
         playerIndex = level.sortedClients[i]
         if g_entities[playerIndex].inuse && g_entities[playerIndex].client!.sess.sessionTeam == ent.client!.sess.sessionTeam {
-            // Port-note: A ++ inside an expression.
-            // Raven wrote: clients[cnt++] = level.sortedClients[i]
-            portMissing("TeamplayInfoMessage", source: "oracle/codemp/game/g_team.c:1103")
+            clients[cnt] = level.sortedClients[i]
+            cnt += 1
         }
         i += 1
     }

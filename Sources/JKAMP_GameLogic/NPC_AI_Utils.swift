@@ -253,9 +253,8 @@ func AI_InsertGroupMember(_ group: AIGroupInfo, _ member: Entity) {
         //found him in group already
     } else {
         //add him in
-        // Port-note: A ++ inside an expression.
-        // Raven wrote: group->member[group->numGroup++].number = member->s.number
-        portMissing("AI_InsertGroupMember", source: "oracle/codemp/game/NPC_AI_Utils.c:232")
+        group.member[group.numGroup].number = member.s.number
+        group.numGroup += 1
         group.numState[member.NPC!.squadState] += 1
     }
     if group.commander == nil || (member.NPC!.rank > group.commander!.NPC!.rank) {

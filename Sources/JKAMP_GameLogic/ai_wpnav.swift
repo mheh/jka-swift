@@ -2124,9 +2124,7 @@ func FlagObjects() {
 /// Source: oracle/codemp/game/ai_wpnav.c:2372
 func SavePathData(_ filename: String) -> Int32 {
     var f: fileHandle_t = 0
-    // Port-note: A pointer local `char * fileString` with no view.
-    // Raven wrote: char *fileString;
-    portMissing("SavePathData", source: "oracle/codemp/game/ai_wpnav.c:2372")
+    var fileString = CharBuf(524288)
     var storeString = CharBuf(4096)
     var routePath = CharBuf(1024)
     var a = vec3_t()
@@ -2135,9 +2133,7 @@ func SavePathData(_ filename: String) -> Int32 {
     let s: Int32
     var n: Int32
 
-    // Port-note: A store into `fileString`, a local the draft left as a hole.
-    // Raven wrote: fileString = NULL
-    portMissing("SavePathData", source: "oracle/codemp/game/ai_wpnav.c:2372")
+    // Raven wrote `fileString = NULL` here, and no read reaches it before the allocation.
     i = 0
     s = 0
 
@@ -2167,14 +2163,10 @@ func SavePathData(_ filename: String) -> Int32 {
 
     FlagObjects() //currently only used for flagging waypoints nearest CTF flags
 
-    // Port-note: A store into `fileString`, a local the draft left as a hole.
-    // Raven wrote: fileString = (char *)B_TempAlloc(524288)
-    portMissing("SavePathData", source: "oracle/codemp/game/ai_wpnav.c:2372")
+    _ = B_TempAlloc(524288)
     _ = B_TempAlloc(4096)
 
-    // Port-note: A read of `fileString`, a local the draft left as a hole.
-    // Raven wrote: Com_sprintf(fileString, 524288, "%i %i %f (%f %f %f) { ", gWPArray[i]->index, gWPArray[i]->flags, gWPArray[i]->weight, gWPArray[i]->origin[0], gWPArray[i]->origin[1], gWPArray[i]->origin[2])
-    portMissing("SavePathData", source: "oracle/codemp/game/ai_wpnav.c:2372")
+    Com_sprintf(&fileString, 524288, "%i %i %f (%f %f %f) { ", gWPArray[i]!.index, gWPArray[i]!.flags, gWPArray[i]!.weight, gWPArray[i]!.origin[0], gWPArray[i]!.origin[1], gWPArray[i]!.origin[2])
 
     n = 0
 
@@ -2196,9 +2188,7 @@ func SavePathData(_ filename: String) -> Int32 {
 
     gWPArray[i]!.disttonext = flLen
 
-    // Port-note: A read of `fileString`, a local the draft left as a hole.
-    // Raven wrote: Com_sprintf(fileString, 524288, "%s} %f\n", fileString, flLen)
-    portMissing("SavePathData", source: "oracle/codemp/game/ai_wpnav.c:2372")
+    Com_sprintf(&fileString, 524288, "%s} %f\n", fileString, flLen)
 
     i += 1
 
@@ -2228,16 +2218,12 @@ func SavePathData(_ filename: String) -> Int32 {
 
         Com_sprintf(&storeString, 4096, "%s} %f\n", storeString, flLen)
 
-        // Port-note: A read of `fileString`, a local the draft left as a hole.
-        // Raven wrote: strcat(fileString, storeString)
-        portMissing("SavePathData", source: "oracle/codemp/game/ai_wpnav.c:2372")
+        strcat(&fileString, storeString)
 
         i += 1
     }
 
-    // Port-note: A read of `fileString`, a local the draft left as a hole.
-    // Raven wrote: trap_FS_Write(fileString, strlen(fileString), f)
-    portMissing("SavePathData", source: "oracle/codemp/game/ai_wpnav.c:2372")
+    trap_FS_Write(&fileString, strlen(fileString), f)
 
     B_TempFree(524288) //fileString
     B_TempFree(4096) //storeString
@@ -2811,7 +2797,7 @@ func AcceptBotCommand(_ cmd: String, _ pl: Entity) -> Int32 {
     var i: Int32 = 0
     var FlagsFromArgument: Int32 = 0
     var OptionalSArgument: String? = nil
-    var RequiredSArgument: String? = nil
+    var RequiredSArgument: CharBuf? = nil
     // Raven's record lives to the end of his block, so the block is the closure.
     // Every path of Raven's block returns, so the closure's value is the function's.
     return VmCvar.scratch { mapname -> Int32 in
@@ -2915,16 +2901,37 @@ func AcceptBotCommand(_ cmd: String, _ pl: Entity) -> Int32 {
         if Q_stricmp(cmd, "bot_wp_addflagged") == 0 {
             gDeactivated = 1
 
-            RequiredSArgument = ConcatArgs(1)
+            RequiredSArgument = CharBuf(ConcatArgs(1))
 
-            if RequiredSArgument == nil || RequiredSArgument!.isEmpty {
+            if RequiredSArgument == nil || RequiredSArgument![0] == 0 {
                 G_Printf(S_COLOR_YELLOW + "Flag string needed for bot_wp_addflagged\nj - Jump point\nd - Duck point\nc - Snipe or camp standing\nf - Wait for func\nm - Do not move to when func is under\ns - Snipe or camp\nx - Oneway, forward\ny - Oneway, back\ng - Mission goal\nn - No visibility\nExample (for a point the bot would jump at, and reverse on when traveling a trail backwards):\nbot_wp_addflagged jx\n")
                 return 1
             }
 
-            // Port-note: The draft of this statement did not compile, and the compiler wrote "binary operator '!=' cannot be applied to operands of type 'Character' and 'Int'".
-            // Raven wrote: while (RequiredSArgument[i]) { if (RequiredSArgument[i] == 'j') { FlagsFromArgument |= WPFLAG_JUMP; } else if (RequiredSArgument[i] == 'd') { FlagsFromArgument |= WPFLAG_DUCK; } else if (RequiredSArgument[i] == 'c') { FlagsFromArgument |= WPFLAG_SNIPEORCAMPSTAND; } else if (RequiredSArgument[i] == 'f') { FlagsFromArgument |= WPFLAG_WAITFORFUNC; } else if (RequiredSArgument[i] == 's') { FlagsFromArgument |= WPFLAG_SNIPEORCAMP; } else if (RequiredSArgument[i] == 'x') { FlagsFromArgument |= WPFLAG_ONEWAY_FWD; } else if (RequiredSArgument[i] == 'y') { FlagsFromArgument |= WPFLAG_ONEWAY_BACK; } else if (RequiredSArgument[i] == 'g') { FlagsFromArgument |= WPFLAG_GOALPOINT; } else if (RequiredSArgument[i] == 'n') { FlagsFromArgument |= WPFLAG_NOVIS; } else if (RequiredSArgument[i] == 'm') { FlagsFromArgument |= WPFLAG_NOMOVEFUNC; } i++; }
-            portMissing("AcceptBotCommand", source: "oracle/codemp/game/ai_wpnav.c:3501")
+            while RequiredSArgument![i] != 0 {
+                if RequiredSArgument![i] == Int32(ascii: "j") {
+                    FlagsFromArgument |= WPFLAG_JUMP
+                } else if RequiredSArgument![i] == Int32(ascii: "d") {
+                    FlagsFromArgument |= WPFLAG_DUCK
+                } else if RequiredSArgument![i] == Int32(ascii: "c") {
+                    FlagsFromArgument |= WPFLAG_SNIPEORCAMPSTAND
+                } else if RequiredSArgument![i] == Int32(ascii: "f") {
+                    FlagsFromArgument |= WPFLAG_WAITFORFUNC
+                } else if RequiredSArgument![i] == Int32(ascii: "s") {
+                    FlagsFromArgument |= WPFLAG_SNIPEORCAMP
+                } else if RequiredSArgument![i] == Int32(ascii: "x") {
+                    FlagsFromArgument |= WPFLAG_ONEWAY_FWD
+                } else if RequiredSArgument![i] == Int32(ascii: "y") {
+                    FlagsFromArgument |= WPFLAG_ONEWAY_BACK
+                } else if RequiredSArgument![i] == Int32(ascii: "g") {
+                    FlagsFromArgument |= WPFLAG_GOALPOINT
+                } else if RequiredSArgument![i] == Int32(ascii: "n") {
+                    FlagsFromArgument |= WPFLAG_NOVIS
+                } else if RequiredSArgument![i] == Int32(ascii: "m") {
+                    FlagsFromArgument |= WPFLAG_NOMOVEFUNC
+                }
+                i += 1
+            }
 
             OptionalSArgument = ConcatArgs(2)
 
@@ -2943,16 +2950,37 @@ func AcceptBotCommand(_ cmd: String, _ pl: Entity) -> Int32 {
         if Q_stricmp(cmd, "bot_wp_switchflags") == 0 {
             gDeactivated = 1
 
-            RequiredSArgument = ConcatArgs(1)
+            RequiredSArgument = CharBuf(ConcatArgs(1))
 
-            if RequiredSArgument == nil || RequiredSArgument!.isEmpty {
+            if RequiredSArgument == nil || RequiredSArgument![0] == 0 {
                 G_Printf(S_COLOR_YELLOW + "Flag string needed for bot_wp_switchflags\nType bot_wp_addflagged for a list of flags and their corresponding characters, or use 0 for no flags.\nSyntax: bot_wp_switchflags <flags> <n>\n")
                 return 1
             }
 
-            // Port-note: The draft of this statement did not compile, and the compiler wrote "binary operator '!=' cannot be applied to operands of type 'Character' and 'Int'".
-            // Raven wrote: while (RequiredSArgument[i]) { if (RequiredSArgument[i] == 'j') { FlagsFromArgument |= WPFLAG_JUMP; } else if (RequiredSArgument[i] == 'd') { FlagsFromArgument |= WPFLAG_DUCK; } else if (RequiredSArgument[i] == 'c') { FlagsFromArgument |= WPFLAG_SNIPEORCAMPSTAND; } else if (RequiredSArgument[i] == 'f') { FlagsFromArgument |= WPFLAG_WAITFORFUNC; } else if (RequiredSArgument[i] == 's') { FlagsFromArgument |= WPFLAG_SNIPEORCAMP; } else if (RequiredSArgument[i] == 'x') { FlagsFromArgument |= WPFLAG_ONEWAY_FWD; } else if (RequiredSArgument[i] == 'y') { FlagsFromArgument |= WPFLAG_ONEWAY_BACK; } else if (RequiredSArgument[i] == 'g') { FlagsFromArgument |= WPFLAG_GOALPOINT; } else if (RequiredSArgument[i] == 'n') { FlagsFromArgument |= WPFLAG_NOVIS; } else if (RequiredSArgument[i] == 'm') { FlagsFromArgument |= WPFLAG_NOMOVEFUNC; } i++; }
-            portMissing("AcceptBotCommand", source: "oracle/codemp/game/ai_wpnav.c:3501")
+            while RequiredSArgument![i] != 0 {
+                if RequiredSArgument![i] == Int32(ascii: "j") {
+                    FlagsFromArgument |= WPFLAG_JUMP
+                } else if RequiredSArgument![i] == Int32(ascii: "d") {
+                    FlagsFromArgument |= WPFLAG_DUCK
+                } else if RequiredSArgument![i] == Int32(ascii: "c") {
+                    FlagsFromArgument |= WPFLAG_SNIPEORCAMPSTAND
+                } else if RequiredSArgument![i] == Int32(ascii: "f") {
+                    FlagsFromArgument |= WPFLAG_WAITFORFUNC
+                } else if RequiredSArgument![i] == Int32(ascii: "s") {
+                    FlagsFromArgument |= WPFLAG_SNIPEORCAMP
+                } else if RequiredSArgument![i] == Int32(ascii: "x") {
+                    FlagsFromArgument |= WPFLAG_ONEWAY_FWD
+                } else if RequiredSArgument![i] == Int32(ascii: "y") {
+                    FlagsFromArgument |= WPFLAG_ONEWAY_BACK
+                } else if RequiredSArgument![i] == Int32(ascii: "g") {
+                    FlagsFromArgument |= WPFLAG_GOALPOINT
+                } else if RequiredSArgument![i] == Int32(ascii: "n") {
+                    FlagsFromArgument |= WPFLAG_NOVIS
+                } else if RequiredSArgument![i] == Int32(ascii: "m") {
+                    FlagsFromArgument |= WPFLAG_NOMOVEFUNC
+                }
+                i += 1
+            }
 
             OptionalSArgument = ConcatArgs(2)
 

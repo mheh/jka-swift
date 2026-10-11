@@ -293,9 +293,9 @@ func NPC_GM_Pain(_ `self`: Entity, _ attacker: Entity, _ damage: Int32) {
         */
     } else {
         //store the point for shield impact
-        // Port-note: The draft of this statement did not compile, and the compiler wrote "binary operator '!=' cannot be applied to operands of type 'vec3_t' (aka 'SIMD3<Float>') and 'Int'".
-        // Raven wrote: if ( point ) { // VectorCopy( point, self->pos4 ); // self->client->poisonTime = level.time; //rwwFIXMEFIXME: ..do this is as well. }
-        portMissing("NPC_GM_Pain", source: "oracle/codemp/game/NPC_AI_GalakMech.c:238")
+        //	VectorCopy( point, self->pos4 );
+        //	self->client->poisonTime = level.time;
+        //rwwFIXMEFIXME: ..do this is as well.
     }
 
     if `self`.lockCount == 0 && `self`.client!.ps.torsoTimer <= 0 {

@@ -37,40 +37,66 @@ private let START_DIS = 15 as Int32
 //special routine for tracking angles between client and server -rww
 /// Source: oracle/codemp/game/g_turret_G2.c:24
 func G2Tur_SetBoneAngles(_ ent: Entity, _ bone: String, _ angles: JKAShared.vec3_t) {
-    // Port-note: A pointer local `int * thebone` with no view.
-    // Raven wrote: int *thebone = &ent->s.boneIndex1;
-    portMissing("G2Tur_SetBoneAngles", source: "oracle/codemp/game/g_turret_G2.c:24")
-    // Port-note: A pointer local `int * firstFree` with no view.
-    // Raven wrote: int *firstFree = NULL;
-    portMissing("G2Tur_SetBoneAngles", source: "oracle/codemp/game/g_turret_G2.c:24")
+    var thebone: Int32? = 0
+    var firstFree: Int32? = nil
     var i: Int32 = 0
     let boneIndex: Int32 = G_BoneIndex(bone)
     let flags: Int32
     let up: Int32
     let right: Int32
     let forward: Int32
-    // Port-note: A pointer local `vec3_t * boneVector` with no view.
-    // Raven wrote: vec3_t *boneVector = &ent->s.boneAngles1;
-    portMissing("G2Tur_SetBoneAngles", source: "oracle/codemp/game/g_turret_G2.c:24")
-    // Port-note: A pointer local `vec3_t * freeBoneVec` with no view.
-    // Raven wrote: vec3_t *freeBoneVec = NULL;
-    portMissing("G2Tur_SetBoneAngles", source: "oracle/codemp/game/g_turret_G2.c:24")
+    var boneVector: Int32? = 0
+    var freeBoneVec: Int32? = nil
 
-    // Port-note: A read of `thebone`, a local the draft left as a hole.
-    // Raven wrote: while (thebone) { if (!*thebone && !firstFree) { //if the value is 0 then this index is clear, we can use it if we don't find the bone we want already existing. firstFree = thebone; freeBoneVec = boneVector; } else if (*thebone) { if (*thebone == boneIndex) { //this is it break; } } switch (i) { case 0: thebone = &ent->s.boneIndex2; boneVector = &ent->s.boneAngles2; break; case 1: thebone = &ent->s.boneIndex3; boneVector = &ent->s.boneAngles3; break; case 2: thebone = &ent->s.boneIndex4; boneVector = &ent->s.boneAngles4; break; default: thebone = NULL; boneVector = NULL; break; } i++; }
-    portMissing("G2Tur_SetBoneAngles", source: "oracle/codemp/game/g_turret_G2.c:24")
+    while thebone != nil {
+        if ent.s.boneIndexSlots[thebone!] == 0 && firstFree == nil {
+            //if the value is 0 then this index is clear, we can use it if we don't find the bone we want already existing.
+            firstFree = thebone
+            freeBoneVec = boneVector
+        } else if ent.s.boneIndexSlots[thebone!] != 0 {
+            if ent.s.boneIndexSlots[thebone!] == boneIndex {
+                //this is it
+                break
+            }
+        }
 
-    // Port-note: A read of `thebone`, a local the draft left as a hole.
-    // Raven wrote: if (!thebone) { //didn't find it, create it if (!firstFree) { //no free bones.. can't do a thing then. Com_Printf("WARNING: NPC has no free bone indexes\n"); return; } thebone = firstFree; *thebone = boneIndex; boneVector = freeBoneVec; }
-    portMissing("G2Tur_SetBoneAngles", source: "oracle/codemp/game/g_turret_G2.c:24")
+        switch i {
+        case 0:
+            thebone = 1
+            boneVector = 1
+        case 1:
+            thebone = 2
+            boneVector = 2
+        case 2:
+            thebone = 3
+            boneVector = 3
+        default:
+            thebone = nil
+            boneVector = nil
+        }
+
+        i += 1
+    }
+
+    if thebone == nil {
+        //didn't find it, create it
+        if firstFree == nil {
+            //no free bones.. can't do a thing then.
+            Com_Printf("WARNING: NPC has no free bone indexes\n")
+            return
+        }
+
+        thebone = firstFree
+
+        ent.s.boneIndexSlots[thebone!] = boneIndex
+        boneVector = freeBoneVec
+    }
 
     //If we got here then we have a vector and an index.
 
     //Copy the angles over the vector in the entitystate, so we can use the corresponding index
     //to set the bone angles on the client.
-    // Port-note: A pointer dereference the draft cannot place.
-    // Raven wrote: VectorCopy(angles, *boneVector)
-    portMissing("G2Tur_SetBoneAngles", source: "oracle/codemp/game/g_turret_G2.c:24")
+    ent.s.boneAnglesSlots[boneVector!] = angles
 
     //Now set the angles on our server instance if we have one.
 
@@ -566,9 +592,85 @@ private func turretG2_find_enemies(_ `self`: Entity) -> Bool {
 
     count = G_RadiusList(org2, `self`.radius, `self`, true, &entity_list)
 
-    // Port-note: Raven's block leaves a loop outside the record's scope, and the closure cannot.
-    // Raven wrote: for ( i = 0; i < count; i++ ) { trace_t tr; target = entity_list[i]; if ( !target->client ) { // only attack clients if ( !(target->flags&FL_BBRUSH)//not a breakable brush || !target->takedamage//is a bbrush, but invincible || (target->NPC_targetname&&self->targetname&&Q_stricmp(target->NPC_targetname,self->targetname)!=0) )//not in invicible bbrush, but can only be broken by an NPC that is not me { continue; } //else: we will shoot at bbrushes! } if ( target == self || !target->takedamage || target->health <= 0 || ( target->flags & FL_NOTARGET )) { continue; } if ( target->client && target->client->sess.sessionTeam == TEAM_SPECTATOR ) { continue; } if ( self->alliedTeam ) { if ( target->client ) { if ( target->client->sess.sessionTeam == self->alliedTeam ) { // A bot/client/NPC we don't want to shoot continue; } } else if ( target->teamnodmg == self->alliedTeam ) { // An ent we don't want to shoot continue; } } if ( !trap_InPVS( org2, target->r.currentOrigin )) { continue; } if ( target->client ) { VectorCopy( target->client->renderInfo.eyePoint, org ); } else { VectorCopy( target->r.currentOrigin, org ); } if ( self->spawnflags & 2 ) { org[2] -= 15; } else { org[2] += 5; } trap_Trace( &tr, org2, NULL, NULL, org, self->s.number, MASK_SHOT ); if ( !tr.allsolid && !tr.startsolid && ( tr.fraction == 1.0 || tr.entityNum == target->s.number )) { // Only acquire if have a clear shot, Is it in range and closer than our best? VectorSubtract( target->r.currentOrigin, self->r.currentOrigin, enemyDir ); enemyDist = VectorLengthSquared( enemyDir ); if ( enemyDist < bestDist || (target->client && !foundClient))// all things equal, keep current { if ( self->attackDebounceTime < level.time ) { // We haven't fired or acquired an enemy in the last 2 seconds-start-up sound if ( !(self->spawnflags&SPF_TURRETG2_TURBO) ) { G_Sound( self, CHAN_BODY, G_SoundIndex( "sound/chars/turret/startup.wav" )); } // Wind up turrets for a bit self->attackDebounceTime = level.time + 1400; } bestTarget = target; bestDist = enemyDist; found = qtrue; if ( target->client ) {//prefer clients over non-clients foundClient = qtrue; } } } }
-    portMissing("turretG2_find_enemies", source: "oracle/codemp/game/g_turret_G2.c:677")
+    i = 0
+    while i < count {
+        Trace.scratch { tr in
+            target = entity_list[i]
+
+            if target!.client == nil {
+                // only attack clients
+                if !((target!.flags & FL_BBRUSH) != 0) //not a breakable brush
+                    || !target!.takedamage //is a bbrush, but invincible
+                    || (target!.NPC_targetname != nil && `self`.targetname != nil && Q_stricmp(target!.NPC_targetname, `self`.targetname) != 0) {
+                    //not in invicible bbrush, but can only be broken by an NPC that is not me
+                    return
+                }
+                //else: we will shoot at bbrushes!
+            }
+            if target == `self` || !target!.takedamage || target!.health <= 0 || (target!.flags & FL_NOTARGET) != 0 {
+                return
+            }
+            if target!.client != nil && target!.client!.sess.sessionTeam == TEAM_SPECTATOR {
+                return
+            }
+            if `self`.alliedTeam != 0 {
+                if target!.client != nil {
+                    if target!.client!.sess.sessionTeam == `self`.alliedTeam {
+                        // A bot/client/NPC we don't want to shoot
+                        return
+                    }
+                } else if target!.teamnodmg == `self`.alliedTeam {
+                    // An ent we don't want to shoot
+                    return
+                }
+            }
+            if !trap_InPVS(org2, target!.r.currentOrigin) {
+                return
+            }
+
+            if target!.client != nil {
+                org = target!.client!.renderInfo.eyePoint
+            } else {
+                org = target!.r.currentOrigin
+            }
+
+            if (`self`.spawnflags & 2) != 0 {
+                org[2] -= 15
+            } else {
+                org[2] += 5
+            }
+
+            trap_Trace(tr, org2, vec3_origin, vec3_origin, org, `self`.s.number, MASK_SHOT)
+
+            if tr.allsolid == 0 && tr.startsolid == 0 && (tr.fraction == 1.0 || tr.entityNum == target!.s.number) {
+                // Only acquire if have a clear shot, Is it in range and closer than our best?
+                enemyDir = target!.r.currentOrigin - `self`.r.currentOrigin
+                enemyDist = VectorLengthSquared(enemyDir)
+
+                if enemyDist < bestDist || (target!.client != nil && !foundClient) {
+                    // all things equal, keep current
+                    if `self`.attackDebounceTime < level.time {
+                        // We haven't fired or acquired an enemy in the last 2 seconds-start-up sound
+                        if !((`self`.spawnflags & SPF_TURRETG2_TURBO) != 0) {
+                            G_Sound(`self`, CHAN_BODY, G_SoundIndex("sound/chars/turret/startup.wav"))
+                        }
+
+                        // Wind up turrets for a bit
+                        `self`.attackDebounceTime = level.time + 1400
+                    }
+
+                    bestTarget = target
+                    bestDist = enemyDist
+                    found = true
+                    if target!.client != nil {
+                        //prefer clients over non-clients
+                        foundClient = true
+                    }
+                }
+            }
+        }
+        i += 1
+    }
 
     if found {
         /*

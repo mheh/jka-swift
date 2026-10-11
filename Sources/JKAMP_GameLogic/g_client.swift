@@ -3237,9 +3237,12 @@ func ClientSpawn(_ ent: Entity) {
                         //only start with 100 health in Duel
                         if g_gametype.integer == GT_POWERDUEL && client!.sess.duelTeam == DUELTEAM_LONE {
                             if g_duel_fraglimit.integer != 0 {
-                                // Port-note: The draft of this statement did not compile, and the compiler wrote "the compiler is unable to type-check this expression in reasonable time; try breaking up the expression into distinct sub-expressions".
-                                // Raven wrote: ent->health = client->ps.stats[STAT_HEALTH] = client->ps.stats[STAT_MAX_HEALTH] = g_powerDuelStartHealth.integer - ((g_powerDuelStartHealth.integer - g_powerDuelEndHealth.integer) * (float)client->sess.wins / (float)g_duel_fraglimit.integer)
-                                portMissing("ClientSpawn", source: "oracle/codemp/game/g_client.c:2938")
+                                // Raven's one expression is two terms here, because the compiler cannot type-check it whole in reasonable time.
+                                let healthSpan: Int32 = g_powerDuelStartHealth.integer - g_powerDuelEndHealth.integer
+                                let healthLoss: Float = healthSpan * Float(client!.sess.wins) / Float(g_duel_fraglimit.integer)
+                                client!.ps.stats[STAT_MAX_HEALTH] = Int32(g_powerDuelStartHealth.integer - healthLoss)
+                                client!.ps.stats[STAT_HEALTH] = client!.ps.stats[STAT_MAX_HEALTH]
+                                ent.health = client!.ps.stats[STAT_HEALTH]
                             } else {
                                 client!.ps.stats[STAT_MAX_HEALTH] = 150
                                 client!.ps.stats[STAT_HEALTH] = client!.ps.stats[STAT_MAX_HEALTH]

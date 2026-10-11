@@ -165,9 +165,7 @@ func ConcatArgs(_ start: Int32) -> String {
         if len + tlen >= MAX_STRING_CHARS - 1 {
             break
         }
-        // Port-note: Raven's `memcpy( line + len, arg, tlen )` runs over bytes that are not one record with a view.
-        // Raven wrote: memcpy( line + len, arg, tlen )
-        portMissing("ConcatArgs", source: "oracle/codemp/game/g_cmds.c:127")
+        strncpy(&line, String(arg), tlen, at: len)
         len += tlen
         if i != c - 1 {
             line[len] = Int32(ascii: " ")
@@ -192,11 +190,22 @@ Remove case and control characters
 */
 /// Source: oracle/codemp/game/g_cmds.c:161
 func SanitizeString(_ `in`: inout JKAShared.CharBuf, _ out: inout JKAShared.CharBuf) {
+    var inIndex: Int32 = 0
     var outIndex: Int32 = 0
 
-    // Port-note: The draft of this statement did not compile, and the compiler wrote "referencing operator function '!=' on 'BinaryInteger' requires that 'CharBuf' conform to 'BinaryInteger'".
-    // Raven wrote: while ( *in ) { if ( *in == 27 ) { in += 2; // skip color code continue; } if ( *in < 32 ) { in++; continue; } *out++ = tolower( (unsigned char) *in++ ); }
-    portMissing("SanitizeString", source: "oracle/codemp/game/g_cmds.c:161")
+    while `in`[inIndex] != 0 {
+        if `in`[inIndex] == 27 {
+            inIndex += 2 // skip color code
+            continue
+        }
+        if `in`[inIndex] < 32 {
+            inIndex += 1
+            continue
+        }
+        out[outIndex] = JKAShared.tolower(Int32(UInt8(truncatingIfNeeded: `in`[inIndex])))
+        outIndex += 1
+        inIndex += 1
+    }
 
     out[outIndex] = 0
 }
@@ -1752,9 +1761,10 @@ func Cmd_GameCommand_f(_ ent: Entity) {
     if player < 0 || player >= MAX_CLIENTS {
         return
     }
-    // Port-note: A sizeof of `char *[7]` the draft cannot size.
-    // Raven wrote: if ( order < 0 || order > sizeof(gc_orders)/sizeof(char *) ) { return; }
-    portMissing("Cmd_GameCommand_f", source: "oracle/codemp/game/g_cmds.c:1822")
+    // Raven tests `order > gc_orders.count`, so an `order` of 7 reads one past the seven rows and the subscript traps there. Rule 19.
+    if order < 0 || order > gc_orders.count {
+        return
+    }
     G_Say(ent, g_entities[player], SAY_TELL, gc_orders[order])
     G_Say(ent, ent, SAY_TELL, gc_orders[order])
 }

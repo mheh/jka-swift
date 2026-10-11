@@ -785,10 +785,6 @@ public final class GameWorld {
     /// Source: oracle/codemp/game/g_utils.c:40
     var buff = CharBuf(MAX_STRING_CHARS * 4)
 
-    /// Raven's `static int index` of `vtos` in `g_utils.c`.
-    /// Source: oracle/codemp/game/g_utils.c:654
-    var index_vtos: Int32 = 0
-
     deinit {
         self.memoryPool.deallocate()
         self.faces.base.deallocate()

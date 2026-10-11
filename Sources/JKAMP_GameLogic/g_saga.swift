@@ -1631,9 +1631,11 @@ func SP_misc_siege_item(_ ent: Entity) {
     ent.s.modelindex = G_ModelIndex(ent.model!)
 
     //Is the model a ghoul2 model?
-    // Port-note: Raven reads `ent->model[strlen(ent->model) - 4]` through a `char *` field. The generated field is an `OpaquePointer?`, and rule 11 keeps a pointer out of a logic target.
-    // Raven wrote: if (!Q_stricmp(&ent->model[strlen(ent->model) - 4], ".glm")) { //apparently so. ent->s.modelGhoul2 = 1; }
-    portMissing("SP_misc_siege_item", source: "oracle/codemp/game/g_saga.c:1676")
+    let model = CharBuf(ent.model!)
+    if Q_stricmp(model[(strlen(model) - 4)...], ".glm") == 0 {
+        //apparently so.
+        ent.s.modelGhoul2 = 1
+    }
 
     ent.s.eType = ET_GENERAL
 

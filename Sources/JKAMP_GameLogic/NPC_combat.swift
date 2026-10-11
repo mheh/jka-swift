@@ -2229,9 +2229,10 @@ private func NPC_CollectCombatPoints(_ origin: JKAShared.vec3_t, _ radius: Float
         }
 
         //Squad points are only valid if we're looking for them
-        // Port-note: The draft of this statement did not compile, and the compiler wrote "binary operator '==' cannot be applied to operands of type 'Int32' and 'Bool'".
-        // Raven wrote: if ( ( level.combatPoints[i].flags & CPF_SQUAD ) && ( ( flags & CP_SQUAD ) == qfalse ) ) continue
-        portMissing("NPC_CollectCombatPoints", source: "oracle/codemp/game/NPC_combat.c:2575")
+        if (level.combatPoints[i].flags & CPF_SQUAD) != 0 && (flags & CP_SQUAD) == 0 {
+            i += 1
+            continue
+        }
 
         if (flags & CP_NO_PVS) != 0 {
             //must not be within PVS of mu current origin
@@ -2499,9 +2500,10 @@ func NPC_FindSquadPoint(_ position: JKAShared.vec3_t) -> Int32 {
     i = 0
     while i < level.numCombatPoints {
         //Squad points are only valid if we're looking for them
-        // Port-note: The draft of this statement did not compile, and the compiler wrote "binary operator '==' cannot be applied to operands of type 'Int32' and 'Bool'".
-        // Raven wrote: if ( ( level.combatPoints[i].flags & CPF_SQUAD ) == qfalse ) continue
-        portMissing("NPC_FindSquadPoint", source: "oracle/codemp/game/NPC_combat.c:2882")
+        if (level.combatPoints[i].flags & CPF_SQUAD) == 0 {
+            i += 1
+            continue
+        }
 
         //Must be vacant
         if level.combatPoints[i].occupied == true {

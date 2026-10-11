@@ -32,9 +32,7 @@ func VEH_TurretCheckFire(_ pVeh: JKAMP.Vehicle, _ parent: Entity, _ turretStats:
         WP_CalcVehMuzzle(parent, curMuzzle)
 
         //FIXME: some variation in fire dir
-        // Port-note: The draft of this statement did not compile, and the compiler wrote "failed to produce diagnostic for expression; please submit a bug report (https://swift.org/contributing/#reporting-bugs)".
-        // Raven wrote: missile = WP_FireVehicleWeapon( parent, pVeh->m_vMuzzlePos[curMuzzle], pVeh->m_vMuzzleDir[curMuzzle], vehWeapon, (turretNum!=0), qtrue )
-        portMissing("VEH_TurretCheckFire", source: "oracle/codemp/game/g_vehicleTurret.c:12")
+        missile = WP_FireVehicleWeapon(parent, &pVeh.m_vMuzzlePos[curMuzzle], pVeh.m_vMuzzleDir[curMuzzle], vehWeapon, (turretNum != 0), true)
 
         //play the weapon's muzzle effect if we have one
         G_VehMuzzleFireFX(parent, missile!, muzzlesFired)
@@ -62,9 +60,7 @@ func VEH_TurretAnglesToEnemy(_ pVeh: JKAMP.Vehicle, _ curMuzzle: Int32, _ fSpeed
         var diff = vec3_t()
         var velocity = vec3_t()
         let dist: Float
-        // Port-note: The draft of this statement did not compile, and the compiler wrote "binary operator '-' cannot be applied to operands of type 'vec3_t' (aka 'SIMD3<Float>') and 'Slots<Float>'".
-        // Raven wrote: VectorSubtract( org, pVeh->m_vMuzzlePos[curMuzzle], diff )
-        portMissing("VEH_TurretAnglesToEnemy", source: "oracle/codemp/game/g_vehicleTurret.c:61")
+        diff = org - pVeh.m_vMuzzlePos[curMuzzle]
         dist = VectorNormalize(&diff)
         if turretEnemy.client != nil {
             velocity = turretEnemy.client!.ps.velocity
@@ -75,9 +71,7 @@ func VEH_TurretAnglesToEnemy(_ pVeh: JKAMP.Vehicle, _ curMuzzle: Int32, _ fSpeed
     }
 
     //FIXME: this isn't quite right, it's aiming from the muzzle, not the center of the turret...
-    // Port-note: The draft of this statement did not compile, and the compiler wrote "binary operator '-' cannot be applied to operands of type 'vec3_t' (aka 'SIMD3<Float>') and 'Slots<Float>'".
-    // Raven wrote: VectorSubtract( org, pVeh->m_vMuzzlePos[curMuzzle], enemyDir )
-    portMissing("VEH_TurretAnglesToEnemy", source: "oracle/codemp/game/g_vehicleTurret.c:61")
+    enemyDir = org - pVeh.m_vMuzzlePos[curMuzzle]
     //Get the desired absolute, world angles to our target
     vectoangles(enemyDir, &desiredAngles)
 }
@@ -94,9 +88,7 @@ func VEH_TurretAim(_ pVeh: JKAMP.Vehicle, _ parent: Entity, _ turretEnemy: Entit
 
     WP_CalcVehMuzzle(parent, curMuzzle)
     //get the current absolute angles of the turret right now
-    // Port-note: The draft of this statement did not compile, and the compiler wrote "cannot convert value of type 'Slots<Float>' to expected argument type 'vec3_t' (aka 'SIMD3<Float>')".
-    // Raven wrote: vectoangles( pVeh->m_vMuzzleDir[curMuzzle], curAngles )
-    portMissing("VEH_TurretAim", source: "oracle/codemp/game/g_vehicleTurret.c:89")
+    vectoangles(pVeh.m_vMuzzleDir[curMuzzle], &curAngles)
     //subtract out the vehicle's angles to get the relative alignment
     AnglesSubtract(curAngles, pVeh.m_vOrientationVector, &curAngles)
 
@@ -186,15 +178,76 @@ private func VEH_TurretFindEnemies(_ pVeh: JKAMP.Vehicle, _ parent: Entity, _ tu
     var bestTarget: Entity? = nil
 
     WP_CalcVehMuzzle(parent, curMuzzle)
-    // Port-note: The draft of this statement did not compile, and the compiler wrote "cannot assign value of type 'Slots<Float>' to type 'vec3_t' (aka 'SIMD3<Float>')".
-    // Raven wrote: VectorCopy( pVeh->m_vMuzzlePos[curMuzzle], org2 )
-    portMissing("VEH_TurretFindEnemies", source: "oracle/codemp/game/g_vehicleTurret.c:193")
+    org2 = pVeh.m_vMuzzlePos[curMuzzle]
 
     count = G_RadiusList(org2, turretStats.fAIRange, parent, true, &entity_list)
 
-    // Port-note: Raven's block leaves a loop outside the record's scope, and the closure cannot.
-    // Raven wrote: for ( i = 0; i < count; i++ ) { trace_t tr; target = entity_list[i]; if ( target == parent || !target->takedamage || target->health <= 0 || ( target->flags & FL_NOTARGET )) { continue; } if ( !target->client ) {// only attack clients if ( !(target->flags&FL_BBRUSH)//not a breakable brush || !target->takedamage//is a bbrush, but invincible || (target->NPC_targetname&&parent->targetname&&Q_stricmp(target->NPC_targetname,parent->targetname)!=0) )//not in invicible bbrush, but can only be broken by an NPC that is not me { if ( target->s.weapon == WP_TURRET && target->classname && Q_strncmp( "misc_turret", target->classname, 11 ) == 0 ) {//these guys we want to shoot at } else { continue; } } //else: we will shoot at bbrushes! } else if ( target->client->sess.sessionTeam == TEAM_SPECTATOR ) { continue; } if ( target == ((gentity_t*)pVeh->m_pPilot) || target->r.ownerNum == parent->s.number ) {//don't get angry at my pilot or passengers? continue; } if ( parent->client && parent->client->sess.sessionTeam ) { if ( target->client ) { if ( target->client->sess.sessionTeam == parent->client->sess.sessionTeam ) { // A bot/client/NPC we don't want to shoot continue; } } else if ( target->teamnodmg == parent->client->sess.sessionTeam ) {//some other entity that's allied with us continue; } } if ( !trap_InPVS( org2, target->r.currentOrigin )) { continue; } VectorCopy( target->r.currentOrigin, org ); trap_Trace( &tr, org2, NULL, NULL, org, parent->s.number, MASK_SHOT ); if ( tr.entityNum == target->s.number || (!tr.allsolid && !tr.startsolid && tr.fraction == 1.0 ) ) { // Only acquire if have a clear shot, Is it in range and closer than our best? VectorSubtract( target->r.currentOrigin, org2, enemyDir ); enemyDist = VectorLengthSquared( enemyDir ); if ( enemyDist < bestDist || (target->client && !foundClient))// all things equal, keep current { bestTarget = target; bestDist = enemyDist; found = qtrue; if ( target->client ) {//prefer clients over non-clients foundClient = qtrue; } } } }
-    portMissing("VEH_TurretFindEnemies", source: "oracle/codemp/game/g_vehicleTurret.c:193")
+    i = 0
+    while i < count {
+        Trace.scratch { tr in
+            target = entity_list[i]
+
+            if target == parent || !target!.takedamage || target!.health <= 0 || (target!.flags & FL_NOTARGET) != 0 {
+                return
+            }
+            if target!.client == nil {
+                // only attack clients
+                if !((target!.flags & FL_BBRUSH) != 0) //not a breakable brush
+                    || !target!.takedamage //is a bbrush, but invincible
+                    || (target!.NPC_targetname != nil && parent.targetname != nil && Q_stricmp(target!.NPC_targetname, parent.targetname) != 0) {
+                    //not in invicible bbrush, but can only be broken by an NPC that is not me
+                    if target!.s.weapon == WP_TURRET && target!.classname != nil && Q_strncmp("misc_turret", target!.classname!, 11) == 0 {
+                        //these guys we want to shoot at
+                    } else {
+                        return
+                    }
+                }
+                //else: we will shoot at bbrushes!
+            } else if target!.client!.sess.sessionTeam == TEAM_SPECTATOR {
+                return
+            }
+            if target == (pVeh.m_pPilot.map { Entity($0) }) || target!.r.ownerNum == parent.s.number {
+                //don't get angry at my pilot or passengers?
+                return
+            }
+            if parent.client != nil && parent.client!.sess.sessionTeam != 0 {
+                if target!.client != nil {
+                    if target!.client!.sess.sessionTeam == parent.client!.sess.sessionTeam {
+                        // A bot/client/NPC we don't want to shoot
+                        return
+                    }
+                } else if target!.teamnodmg == parent.client!.sess.sessionTeam {
+                    //some other entity that's allied with us
+                    return
+                }
+            }
+            if !trap_InPVS(org2, target!.r.currentOrigin) {
+                return
+            }
+
+            org = target!.r.currentOrigin
+
+            trap_Trace(tr, org2, vec3_origin, vec3_origin, org, parent.s.number, MASK_SHOT)
+
+            if tr.entityNum == target!.s.number || (tr.allsolid == 0 && tr.startsolid == 0 && tr.fraction == 1.0) {
+                // Only acquire if have a clear shot, Is it in range and closer than our best?
+                enemyDir = target!.r.currentOrigin - org2
+                enemyDist = VectorLengthSquared(enemyDir)
+
+                if enemyDist < bestDist || (target!.client != nil && !foundClient) {
+                    // all things equal, keep current
+                    bestTarget = target
+                    bestDist = enemyDist
+                    found = true
+                    if target!.client != nil {
+                        //prefer clients over non-clients
+                        foundClient = true
+                    }
+                }
+            }
+        }
+        i += 1
+    }
 
     if found {
         pVeh.turretStatus[turretNum].enemyEntNum = bestTarget!.s.number
@@ -292,16 +345,25 @@ func VEH_TurretThink(_ pVeh: JKAMP.Vehicle, _ parent: Entity, _ turretNum: Int32
         if turretEnemy!.health > 0 {
             // enemy is alive
             WP_CalcVehMuzzle(parent, curMuzzle)
-            // Port-note: The draft of this statement did not compile, and the compiler wrote "binary operator '-' cannot be applied to operands of type 'vec3_t' (aka 'SIMD3<Float>') and 'Slots<Float>'".
-            // Raven wrote: VectorSubtract( turretEnemy->r.currentOrigin, pVeh->m_vMuzzlePos[curMuzzle], enemyDir )
-            portMissing("VEH_TurretThink", source: "oracle/codemp/game/g_vehicleTurret.c:324")
+            enemyDir = turretEnemy!.r.currentOrigin - pVeh.m_vMuzzlePos[curMuzzle]
             enemyDist = VectorLengthSquared(enemyDir)
 
             if enemyDist < rangeSq {
                 // was in valid radius
-                // Port-note: The draft of this statement did not compile, and the compiler wrote "cannot convert value of type 'Slots<Float>' to expected argument type 'vec3_t' (aka 'SIMD3<Float>')".
-                // Raven wrote: if ( trap_InPVS( pVeh->m_vMuzzlePos[curMuzzle], turretEnemy->r.currentOrigin ) ) { // Every now and again, check to see if we can even trace to the enemy trace_t tr; vec3_t start, end; VectorCopy( pVeh->m_vMuzzlePos[curMuzzle], start ); VectorCopy( turretEnemy->r.currentOrigin, end ); trap_Trace( &tr, start, NULL, NULL, end, parent->s.number, MASK_SHOT ); if ( tr.entityNum == turretEnemy->s.number || (!tr.allsolid && !tr.startsolid ) ) { doAim = qtrue; // Can see our enemy } }
-                portMissing("VEH_TurretThink", source: "oracle/codemp/game/g_vehicleTurret.c:324")
+                if trap_InPVS(pVeh.m_vMuzzlePos[curMuzzle], turretEnemy!.r.currentOrigin) {
+                    // Every now and again, check to see if we can even trace to the enemy
+                    Trace.scratch { tr in
+                        var start = vec3_t()
+                        var end = vec3_t()
+                        start = pVeh.m_vMuzzlePos[curMuzzle]
+
+                        end = turretEnemy!.r.currentOrigin
+                        trap_Trace(tr, start, vec3_origin, vec3_origin, end, parent.s.number, MASK_SHOT)
+                        if tr.entityNum == turretEnemy!.s.number || (tr.allsolid == 0 && tr.startsolid == 0) {
+                            doAim = true // Can see our enemy
+                        }
+                    }
+                }
             }
         }
     }

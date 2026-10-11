@@ -61,9 +61,24 @@ func G_WriteClientSessionData(_ client: Client) {
         i += 1
     }
 
-    // Port-note: The draft of this statement did not compile, and the compiler wrote "argument type 'Bool' does not conform to expected type 'FormatArg'".
-    // Raven wrote: s = va("%i %i %i %i %i %i %i %i %i %i %i %i %s %s %s", client->sess.sessionTeam, client->sess.spectatorTime, client->sess.spectatorState, client->sess.spectatorClient, client->sess.wins, client->sess.losses, client->sess.teamLeader, client->sess.setForce, client->sess.saberLevel, client->sess.selectedFP, client->sess.duelTeam, client->sess.siegeDesiredTeam, siegeClass, saberType, saber2Type )
-    portMissing("G_WriteClientSessionData", source: "oracle/codemp/game/g_session.c:23")
+    s = va(
+        "%i %i %i %i %i %i %i %i %i %i %i %i %s %s %s",
+        client.sess.sessionTeam,
+        client.sess.spectatorTime,
+        client.sess.spectatorState,
+        client.sess.spectatorClient,
+        client.sess.wins,
+        client.sess.losses,
+        client.sess.teamLeader,
+        client.sess.setForce,
+        client.sess.saberLevel,
+        client.sess.selectedFP,
+        client.sess.duelTeam,
+        client.sess.siegeDesiredTeam,
+        siegeClass,
+        saberType,
+        saber2Type
+    )
 
     `var` = va("session%i", level.clientsSlots.index(of: client))
 
@@ -93,9 +108,37 @@ func G_ReadSessionData(_ client: Client) {
     `var` = va("session%i", level.clientsSlots.index(of: client))
     strcpy(&s, trap_Cvar_VariableStringBuffer(`var`, Int32((s).count)))
 
-    // Port-note: The draft of this statement did not compile, and the compiler wrote "'&' used with non-inout argument of type 'Any'".
-    // Raven wrote: sscanf( s, "%i %i %i %i %i %i %i %i %i %i %i %i %s %s %s", &sessionTeam, // bk010221 - format &client->sess.spectatorTime, &spectatorState, // bk010221 - format &client->sess.spectatorClient, &client->sess.wins, &client->sess.losses, &teamLeader, // bk010221 - format &client->sess.setForce, &client->sess.saberLevel, &client->sess.selectedFP, &client->sess.duelTeam, &client->sess.siegeDesiredTeam, &client->sess.siegeClass, &client->sess.saberType, &client->sess.saber2Type )
-    portMissing("G_ReadSessionData", source: "oracle/codemp/game/g_session.c:105")
+    var ints: [Int32] = [
+        sessionTeam, // bk010221 - format
+        client.sess.spectatorTime,
+        spectatorState, // bk010221 - format
+        client.sess.spectatorClient,
+        client.sess.wins,
+        client.sess.losses,
+        teamLeader, // bk010221 - format
+        (client.sess.setForce ? 1 : 0),
+        client.sess.saberLevel,
+        client.sess.selectedFP,
+        client.sess.duelTeam,
+        client.sess.siegeDesiredTeam,
+    ]
+    var texts: [String] = [client.sess.siegeClass, client.sess.saberType, client.sess.saber2Type]
+    sscanf(s, "%i %i %i %i %i %i %i %i %i %i %i %i %s %s %s", &ints, &texts)
+    sessionTeam = ints[0]
+    client.sess.spectatorTime = ints[1]
+    spectatorState = ints[2]
+    client.sess.spectatorClient = ints[3]
+    client.sess.wins = ints[4]
+    client.sess.losses = ints[5]
+    teamLeader = ints[6]
+    client.sess.setForce = Bool(ints[7])
+    client.sess.saberLevel = ints[8]
+    client.sess.selectedFP = ints[9]
+    client.sess.duelTeam = ints[10]
+    client.sess.siegeDesiredTeam = ints[11]
+    client.sess.siegeClass = texts[0]
+    client.sess.saberType = texts[1]
+    client.sess.saber2Type = texts[2]
 
     while client.sess.siegeClassBuffer[i] != 0 {
         //convert back to spaces from unused chars, as session data is written that way.
@@ -125,9 +168,7 @@ func G_ReadSessionData(_ client: Client) {
     // bk001205 - format issues
     client.sess.sessionTeam = team_t(sessionTeam)
     client.sess.spectatorState = spectatorState_t(spectatorState)
-    // Port-note: The draft of this statement did not compile, and the compiler wrote "no exact matches in call to initializer".
-    // Raven wrote: client->sess.teamLeader = (qboolean)teamLeader
-    portMissing("G_ReadSessionData", source: "oracle/codemp/game/g_session.c:105")
+    client.sess.teamLeader = Bool(teamLeader)
 
     client.ps.fd.saberAnimLevel = client.sess.saberLevel
     client.ps.fd.saberDrawAnimLevel = client.sess.saberLevel
@@ -146,7 +187,7 @@ Called on a first-time connect
 /// Source: oracle/codemp/game/g_session.c:187
 func G_InitSessionData(_ client: Client, _ userinfo: String, _ isBot: Bool) {
     var sess: ClientSession?
-    var value: String
+    var value: CharBuf
 
     sess = client.sess
 
@@ -163,18 +204,58 @@ func G_InitSessionData(_ client: Client, _ userinfo: String, _ isBot: Bool) {
                 sess!.sessionTeam = TEAM_SPECTATOR
             } else {
                 //Bots choose their team on creation
-                value = Info_ValueForKey(userinfo, "team")
-                // Port-note: The draft of this statement did not compile, and the compiler wrote "binary operator '==' cannot be applied to operands of type 'Character' and 'Int32'".
-                // Raven wrote: if (value[0] == 'r' || value[0] == 'R') { sess->sessionTeam = TEAM_RED; } else if (value[0] == 'b' || value[0] == 'B') { sess->sessionTeam = TEAM_BLUE; } else { sess->sessionTeam = PickTeam( -1 ); }
-                portMissing("G_InitSessionData", source: "oracle/codemp/game/g_session.c:187")
+                value = CharBuf(Info_ValueForKey(userinfo, "team"))
+                if value[0] == Int32(ascii: "r") || value[0] == Int32(ascii: "R") {
+                    sess!.sessionTeam = TEAM_RED
+                } else if value[0] == Int32(ascii: "b") || value[0] == Int32(ascii: "B") {
+                    sess!.sessionTeam = TEAM_BLUE
+                } else {
+                    sess!.sessionTeam = PickTeam(-1)
+                }
                 BroadcastTeamChange(client, -1)
             }
         }
     } else {
-        value = Info_ValueForKey(userinfo, "team")
-        // Port-note: The draft of this statement did not compile, and the compiler wrote "binary operator '==' cannot be applied to operands of type 'Character' and 'Int32'".
-        // Raven wrote: if ( value[0] == 's' ) { // a willing spectator, not a waiting-in-line sess->sessionTeam = TEAM_SPECTATOR; } else { switch ( g_gametype.integer ) { default: case GT_FFA: case GT_HOLOCRON: case GT_JEDIMASTER: case GT_SINGLE_PLAYER: if ( g_maxGameClients.integer > 0 && level.numNonSpectatorClients >= g_maxGameClients.integer ) { sess->sessionTeam = TEAM_SPECTATOR; } else { sess->sessionTeam = TEAM_FREE; } break; case GT_DUEL: // if the game is full, go into a waiting mode if ( level.numNonSpectatorClients >= 2 ) { sess->sessionTeam = TEAM_SPECTATOR; } else { sess->sessionTeam = TEAM_FREE; } break; case GT_POWERDUEL: //sess->duelTeam = DUELTEAM_LONE; //default { int loners = 0; int doubles = 0; G_PowerDuelCount(&loners, &doubles, qtrue); if (!doubles || loners > (doubles/2)) { sess->duelTeam = DUELTEAM_DOUBLE; } else { sess->duelTeam = DUELTEAM_LONE; } } sess->sessionTeam = TEAM_SPECTATOR; break; } }
-        portMissing("G_InitSessionData", source: "oracle/codemp/game/g_session.c:187")
+        value = CharBuf(Info_ValueForKey(userinfo, "team"))
+        if value[0] == Int32(ascii: "s") {
+            // a willing spectator, not a waiting-in-line
+            sess!.sessionTeam = TEAM_SPECTATOR
+        } else {
+            switch g_gametype.integer {
+            case GT_DUEL:
+                // if the game is full, go into a waiting mode
+                if level.numNonSpectatorClients >= 2 {
+                    sess!.sessionTeam = TEAM_SPECTATOR
+                } else {
+                    sess!.sessionTeam = TEAM_FREE
+                }
+
+            case GT_POWERDUEL:
+                //sess->duelTeam = DUELTEAM_LONE; //default
+                do {
+                    var loners: Int32 = 0
+                    var doubles: Int32 = 0
+
+                    G_PowerDuelCount(&loners, &doubles, true)
+
+                    if doubles == 0 || loners > (doubles / 2) {
+                        sess!.duelTeam = DUELTEAM_DOUBLE
+                    } else {
+                        sess!.duelTeam = DUELTEAM_LONE
+                    }
+                }
+                sess!.sessionTeam = TEAM_SPECTATOR
+
+            default:
+                // Raven's `default` label stands first, over the labels `GT_FFA`, `GT_HOLOCRON`, `GT_JEDIMASTER`, and `GT_SINGLE_PLAYER`.
+                // Swift puts `default` last, and those four labels share its body.
+                if g_maxGameClients.integer > 0 && level.numNonSpectatorClients >= g_maxGameClients.integer {
+                    sess!.sessionTeam = TEAM_SPECTATOR
+                } else {
+                    sess!.sessionTeam = TEAM_FREE
+                }
+            }
+        }
     }
 
     sess!.spectatorState = SPECTATOR_FREE

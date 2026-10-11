@@ -1530,9 +1530,7 @@ func prox_mine_think(_ ent: Entity) {
 
     // if it isn't time to auto-explode, do a small proximity check
     if ent.delay > level.time {
-        // Port-note: The draft of this statement did not compile, and the compiler wrote "cannot convert value of type 'Slots<Entity?>' to expected argument type '[Entity?]'".
-        // Raven wrote: count = G_RadiusList( ent->r.currentOrigin, FLECHETTE_MINE_RADIUS_CHECK, ent, qtrue, ent_list )
-        portMissing("prox_mine_think", source: "oracle/codemp/game/g_weapon.c:1470")
+        count = G_RadiusList(ent.r.currentOrigin, Float(FLECHETTE_MINE_RADIUS_CHECK), ent, true, ent_list)
 
         i = 0
         while i < count {
@@ -4151,12 +4149,8 @@ func FireVehicleWeapon(_ ent: Entity, _ alt_fire: Bool) {
                             //have enough ammo to shoot
                             //do the firing
                             WP_CalcVehMuzzle(ent, i)
-                            // Port-note: The draft of this statement did not compile, and the compiler wrote "cannot assign value of type 'Slots<Float>' to type 'vec3_t' (aka 'SIMD3<Float>')".
-                            // Raven wrote: VectorCopy( pVeh->m_vMuzzlePos[i], start )
-                            portMissing("FireVehicleWeapon", source: "oracle/codemp/game/g_weapon.c:4116")
-                            // Port-note: The draft of this statement did not compile, and the compiler wrote "cannot assign value of type 'Slots<Float>' to type 'vec3_t' (aka 'SIMD3<Float>')".
-                            // Raven wrote: VectorCopy( pVeh->m_vMuzzleDir[i], dir )
-                            portMissing("FireVehicleWeapon", source: "oracle/codemp/game/g_weapon.c:4116")
+                            start = pVeh!.m_vMuzzlePos[i]
+                            dir = pVeh!.m_vMuzzleDir[i]
                             if WP_VehCheckTraceFromCamPos(ent, start, &dir) {
                                 //auto-aim at whatever crosshair would be over from camera's point of view (if closer)
                             } else if aimCorrect {

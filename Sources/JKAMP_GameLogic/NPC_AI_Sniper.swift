@@ -523,9 +523,7 @@ func Sniper_FaceEnemy() {
                     //???
                     missFactor = 0
                 }
-                // Port-note: The draft of this statement did not compile, and the compiler wrote "cannot assign value of type 'Slots<Float>' to type 'vec3_t' (aka 'SIMD3<Float>')".
-                // Raven wrote: VectorCopy( NPCInfo->enemyLaggedPos[missFactor], target )
-                portMissing("Sniper_FaceEnemy", source: "oracle/codemp/game/NPC_AI_Sniper.c:508")
+                target = NPCInfo!.enemyLaggedPos[missFactor]
             }
             GetAnglesForDirection(muzzle, target, &angles)
         } else {
@@ -549,9 +547,7 @@ func Sniper_UpdateEnemyPos() {
     while i >= 0 {
         index = i / ENEMY_POS_LAG_INTERVAL
         if index == 0 {
-            // Port-note: The draft of this statement did not compile, and the compiler wrote "failed to produce diagnostic for expression; please submit a bug report (https://swift.org/contributing/#reporting-bugs)".
-            // Raven wrote: CalcEntitySpot( NPC->enemy, SPOT_HEAD_LEAN, NPCInfo->enemyLaggedPos[index] )
-            portMissing("Sniper_UpdateEnemyPos", source: "oracle/codemp/game/NPC_AI_Sniper.c:605")
+            CalcEntitySpot(NPC!.enemy!, SPOT_HEAD_LEAN, &NPCInfo!.enemyLaggedPos[index])
             NPCInfo!.enemyLaggedPos[index][2] -= flrand(2, 16)
         } else {
             NPCInfo!.enemyLaggedPos[index] = NPCInfo!.enemyLaggedPos[index - 1]

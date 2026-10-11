@@ -411,9 +411,7 @@ func CreateShield(_ ent: Entity) {
         //	posWidth - 0-255 8 bits
         //  negWidth - 0 - 255 8 bits
 
-        // Port-note: The draft of this statement did not compile, and the compiler wrote "cannot convert value of type 'Bool' to expected argument type 'Int32'".
-        // Raven wrote: paramData = (xaxis << 24) | (height << 16) | (posWidth << 8) | (negWidth)
-        portMissing("CreateShield", source: "oracle/codemp/game/g_items.c:254")
+        paramData = ((xaxis ? 1 : 0) << 24) | (height << 16) | (posWidth << 8) | (negWidth)
         ent.s.time2 = paramData
 
         if g_gametype.integer == GT_SIEGE {
@@ -1453,40 +1451,66 @@ func EWebPain(_ `self`: Entity, _ attacker: Entity, _ damage: Int32) {
 //special routine for tracking angles between client and server
 /// Source: oracle/codemp/game/g_items.c:1499
 func EWeb_SetBoneAngles(_ ent: Entity, _ bone: String, _ angles: JKAShared.vec3_t) {
-    // Port-note: A pointer local `int * thebone` with no view.
-    // Raven wrote: int *thebone = &ent->s.boneIndex1;
-    portMissing("EWeb_SetBoneAngles", source: "oracle/codemp/game/g_items.c:1499")
-    // Port-note: A pointer local `int * firstFree` with no view.
-    // Raven wrote: int *firstFree = NULL;
-    portMissing("EWeb_SetBoneAngles", source: "oracle/codemp/game/g_items.c:1499")
+    var thebone: Int32? = 0
+    var firstFree: Int32? = nil
     var i: Int32 = 0
     let boneIndex: Int32 = G_BoneIndex(bone)
     let flags: Int32
     let up: Int32
     let right: Int32
     let forward: Int32
-    // Port-note: A pointer local `vec3_t * boneVector` with no view.
-    // Raven wrote: vec3_t *boneVector = &ent->s.boneAngles1;
-    portMissing("EWeb_SetBoneAngles", source: "oracle/codemp/game/g_items.c:1499")
-    // Port-note: A pointer local `vec3_t * freeBoneVec` with no view.
-    // Raven wrote: vec3_t *freeBoneVec = NULL;
-    portMissing("EWeb_SetBoneAngles", source: "oracle/codemp/game/g_items.c:1499")
+    var boneVector: Int32? = 0
+    var freeBoneVec: Int32? = nil
 
-    // Port-note: A read of `thebone`, a local the draft left as a hole.
-    // Raven wrote: while (thebone) { if (!*thebone && !firstFree) { //if the value is 0 then this index is clear, we can use it if we don't find the bone we want already existing. firstFree = thebone; freeBoneVec = boneVector; } else if (*thebone) { if (*thebone == boneIndex) { //this is it break; } } switch (i) { case 0: thebone = &ent->s.boneIndex2; boneVector = &ent->s.boneAngles2; break; case 1: thebone = &ent->s.boneIndex3; boneVector = &ent->s.boneAngles3; break; case 2: thebone = &ent->s.boneIndex4; boneVector = &ent->s.boneAngles4; break; default: thebone = NULL; boneVector = NULL; break; } i++; }
-    portMissing("EWeb_SetBoneAngles", source: "oracle/codemp/game/g_items.c:1499")
+    while thebone != nil {
+        if ent.s.boneIndexSlots[thebone!] == 0 && firstFree == nil {
+            //if the value is 0 then this index is clear, we can use it if we don't find the bone we want already existing.
+            firstFree = thebone
+            freeBoneVec = boneVector
+        } else if ent.s.boneIndexSlots[thebone!] != 0 {
+            if ent.s.boneIndexSlots[thebone!] == boneIndex {
+                //this is it
+                break
+            }
+        }
 
-    // Port-note: A read of `thebone`, a local the draft left as a hole.
-    // Raven wrote: if (!thebone) { //didn't find it, create it if (!firstFree) { //no free bones.. can't do a thing then. Com_Printf("WARNING: E-Web has no free bone indexes\n"); return; } thebone = firstFree; *thebone = boneIndex; boneVector = freeBoneVec; }
-    portMissing("EWeb_SetBoneAngles", source: "oracle/codemp/game/g_items.c:1499")
+        switch i {
+        case 0:
+            thebone = 1
+            boneVector = 1
+        case 1:
+            thebone = 2
+            boneVector = 2
+        case 2:
+            thebone = 3
+            boneVector = 3
+        default:
+            thebone = nil
+            boneVector = nil
+        }
+
+        i += 1
+    }
+
+    if thebone == nil {
+        //didn't find it, create it
+        if firstFree == nil {
+            //no free bones.. can't do a thing then.
+            Com_Printf("WARNING: E-Web has no free bone indexes\n")
+            return
+        }
+
+        thebone = firstFree
+
+        ent.s.boneIndexSlots[thebone!] = boneIndex
+        boneVector = freeBoneVec
+    }
 
     //If we got here then we have a vector and an index.
 
     //Copy the angles over the vector in the entitystate, so we can use the corresponding index
     //to set the bone angles on the client.
-    // Port-note: A pointer dereference the draft cannot place.
-    // Raven wrote: VectorCopy(angles, *boneVector)
-    portMissing("EWeb_SetBoneAngles", source: "oracle/codemp/game/g_items.c:1499")
+    ent.s.boneAnglesSlots[boneVector!] = angles
 
     //Now set the angles on our server instance if we have one.
 
@@ -1943,9 +1967,57 @@ func Pickup_Powerup(_ ent: Entity, _ other: Entity) -> Int32 {
     }
 
     // give any nearby players a "denied" anti-reward
-    // Port-note: Raven's block leaves a loop outside the record's scope, and the closure cannot.
-    // Raven wrote: for ( i = 0 ; i < level.maxclients ; i++ ) { vec3_t delta; float len; vec3_t forward; trace_t tr; client = &level.clients[i]; if ( client == other->client ) { continue; } if ( client->pers.connected == CON_DISCONNECTED ) { continue; } if ( client->ps.stats[STAT_HEALTH] <= 0 ) { continue; } // if same team in team game, no sound // cannot use OnSameTeam as it expects to g_entities, not clients if ( g_gametype.integer >= GT_TEAM && other->client->sess.sessionTeam == client->sess.sessionTeam ) { continue; } // if too far away, no sound VectorSubtract( ent->s.pos.trBase, client->ps.origin, delta ); len = VectorNormalize( delta ); if ( len > 192 ) { continue; } // if not facing, no sound AngleVectors( client->ps.viewangles, forward, NULL, NULL ); if ( DotProduct( delta, forward ) < 0.4 ) { continue; } // if not line of sight, no sound trap_Trace( &tr, client->ps.origin, NULL, NULL, ent->s.pos.trBase, ENTITYNUM_NONE, CONTENTS_SOLID ); if ( tr.fraction != 1.0 ) { continue; } // anti-reward client->ps.persistant[PERS_PLAYEREVENTS] ^= PLAYEREVENT_DENIEDREWARD; }
-    portMissing("Pickup_Powerup", source: "oracle/codemp/game/g_items.c:2024")
+    i = 0
+    while i < level.maxclients {
+        Trace.scratch { tr in
+            var delta = vec3_t()
+            let len: Float
+            var forward = vec3_t()
+
+            client = level.clientsSlots[i]
+            if client == other.client {
+                return
+            }
+            if client!.pers.connected == CON_DISCONNECTED {
+                return
+            }
+            if client!.ps.stats[STAT_HEALTH] <= 0 {
+                return
+            }
+
+            // if same team in team game, no sound
+            // cannot use OnSameTeam as it expects to g_entities, not clients
+            if g_gametype.integer >= GT_TEAM && other.client!.sess.sessionTeam == client!.sess.sessionTeam {
+                return
+            }
+
+            // if too far away, no sound
+            delta = ent.s.pos.trBase - client!.ps.origin
+            len = VectorNormalize(&delta)
+            if len > 192 {
+                return
+            }
+
+            // if not facing, no sound
+            // Raven passes NULL for the right and up outputs.
+            var scratchRight = vec3_t()
+            var scratchUp = vec3_t()
+            AngleVectors(client!.ps.viewangles, &forward, &scratchRight, &scratchUp)
+            if Double(_DotProduct(delta, forward)) < 0.4 {
+                return
+            }
+
+            // if not line of sight, no sound
+            trap_Trace(tr, client!.ps.origin, vec3_origin, vec3_origin, ent.s.pos.trBase, ENTITYNUM_NONE, CONTENTS_SOLID)
+            if tr.fraction != 1.0 {
+                return
+            }
+
+            // anti-reward
+            client!.ps.persistant[PERS_PLAYEREVENTS] ^= PLAYEREVENT_DENIEDREWARD
+        }
+        i += 1
+    }
     return RESPAWN_POWERUP
 }
 

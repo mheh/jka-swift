@@ -687,40 +687,69 @@ func G_ActivateBehavior(_ `self`: Entity, _ bset: Int32) -> Bool {
 //rww - special system for sync'ing bone angles between client and server.
 /// Source: oracle/codemp/game/NPC_utils.c:906
 func NPC_SetBoneAngles(_ ent: Entity, _ bone: String, _ angles: JKAShared.vec3_t) {
-    // Port-note: A pointer local `int * thebone` with no view.
-    // Raven wrote: int *thebone = &ent->s.boneIndex1;
-    portMissing("NPC_SetBoneAngles", source: "oracle/codemp/game/NPC_utils.c:906")
-    // Port-note: A pointer local `int * firstFree` with no view.
-    // Raven wrote: int *firstFree = NULL;
-    portMissing("NPC_SetBoneAngles", source: "oracle/codemp/game/NPC_utils.c:906")
+    var thebone: Int32? = 0
+    var firstFree: Int32? = nil
     var i: Int32 = 0
     let boneIndex: Int32 = G_BoneIndex(bone)
     let flags: Int32
     let up: Int32
     let right: Int32
     let forward: Int32
-    // Port-note: A pointer local `vec3_t * boneVector` with no view.
-    // Raven wrote: vec3_t *boneVector = &ent->s.boneAngles1;
-    portMissing("NPC_SetBoneAngles", source: "oracle/codemp/game/NPC_utils.c:906")
-    // Port-note: A pointer local `vec3_t * freeBoneVec` with no view.
-    // Raven wrote: vec3_t *freeBoneVec = NULL;
-    portMissing("NPC_SetBoneAngles", source: "oracle/codemp/game/NPC_utils.c:906")
+    var boneVector: Int32? = 0
+    var freeBoneVec: Int32? = nil
 
-    // Port-note: A read of `thebone`, a local the draft left as a hole.
-    // Raven wrote: while (thebone) { if (!*thebone && !firstFree) { //if the value is 0 then this index is clear, we can use it if we don't find the bone we want already existing. firstFree = thebone; freeBoneVec = boneVector; } else if (*thebone) { if (*thebone == boneIndex) { //this is it break; } } switch (i) { case 0: thebone = &ent->s.boneIndex2; boneVector = &ent->s.boneAngles2; break; case 1: thebone = &ent->s.boneIndex3; boneVector = &ent->s.boneAngles3; break; case 2: thebone = &ent->s.boneIndex4; boneVector = &ent->s.boneAngles4; break; default: thebone = NULL; boneVector = NULL; break; } i++; }
-    portMissing("NPC_SetBoneAngles", source: "oracle/codemp/game/NPC_utils.c:906")
+    while thebone != nil {
+        if ent.s.boneIndexSlots[thebone!] == 0 && firstFree == nil {
+            //if the value is 0 then this index is clear, we can use it if we don't find the bone we want already existing.
+            firstFree = thebone
+            freeBoneVec = boneVector
+        } else if ent.s.boneIndexSlots[thebone!] != 0 {
+            if ent.s.boneIndexSlots[thebone!] == boneIndex {
+                //this is it
+                break
+            }
+        }
 
-    // Port-note: A read of `thebone`, a local the draft left as a hole.
-    // Raven wrote: if (!thebone) { //didn't find it, create it if (!firstFree) { //no free bones.. can't do a thing then. Com_Printf("WARNING: NPC has no free bone indexes\n"); return; } thebone = firstFree; *thebone = boneIndex; boneVector = freeBoneVec; }
-    portMissing("NPC_SetBoneAngles", source: "oracle/codemp/game/NPC_utils.c:906")
+        switch i {
+        case 0:
+            thebone = 1
+            boneVector = 1
+
+        case 1:
+            thebone = 2
+            boneVector = 2
+
+        case 2:
+            thebone = 3
+            boneVector = 3
+
+        default:
+            thebone = nil
+            boneVector = nil
+        }
+
+        i += 1
+    }
+
+    if thebone == nil {
+        //didn't find it, create it
+        if firstFree == nil {
+            //no free bones.. can't do a thing then.
+            Com_Printf("WARNING: NPC has no free bone indexes\n")
+            return
+        }
+
+        thebone = firstFree
+
+        ent.s.boneIndexSlots[thebone!] = boneIndex
+        boneVector = freeBoneVec
+    }
 
     //If we got here then we have a vector and an index.
 
     //Copy the angles over the vector in the entitystate, so we can use the corresponding index
     //to set the bone angles on the client.
-    // Port-note: A pointer dereference the draft cannot place.
-    // Raven wrote: VectorCopy(angles, *boneVector)
-    portMissing("NPC_SetBoneAngles", source: "oracle/codemp/game/NPC_utils.c:906")
+    ent.s.boneAnglesSlots[boneVector!] = angles
 
     //Now set the angles on our server instance if we have one.
 

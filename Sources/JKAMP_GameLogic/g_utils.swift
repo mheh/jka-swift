@@ -106,9 +106,7 @@ func BuildShaderStateConfig() -> String {
     var out = CharBuf(133)
     var i: Int32
 
-    // Port-note: Raven's `memset(buff, 0, MAX_STRING_CHARS)` runs over bytes that are not one record with a view.
-    // Raven wrote: memset(buff, 0, MAX_STRING_CHARS)
-    portMissing("BuildShaderStateConfig", source: "oracle/codemp/game/g_utils.c:39")
+    buff.zero(count: MAX_STRING_CHARS)
     i = 0
     while i < remapCount {
         Com_sprintf(&out, (MAX_QPATH * 2) + 5, "%s=%s:%5.2f@", remappedShaders[i].oldShader, remappedShaders[i].newShader, remappedShaders[i].timeOffset)
@@ -609,13 +607,6 @@ func tv(_ x: Float, _ y: Float, _ z: Float) -> JKAShared.vec3_t {
     vec3_t(x, y, z)
 }
 
-/// Raven's `static int index` of `vtos`.
-/// Source: oracle/codemp/game/g_utils.c:654
-var index_vtos: Int32 {
-    get { world.index_vtos }
-    set { world.index_vtos = newValue }
-}
-
 /**
 ```
 =============
@@ -628,27 +619,13 @@ for printing vectors
 */
 /// Source: oracle/codemp/game/g_utils.c:653
 func vtos(_ v: JKAShared.vec3_t) -> String {
-    // Raven's static local `index` is `index_vtos`, because `tv` and `vtos` both declare an `index`.
-    // Port-note: A local `char[8][32] str` the table has no type for.
-    // Raven wrote: static char str[8][32];
-    portMissing("vtos", source: "oracle/codemp/game/g_utils.c:653")
-    // Port-note: A pointer local `char * s` with no view.
-    // Raven wrote: char *s;
-    portMissing("vtos", source: "oracle/codemp/game/g_utils.c:653")
+    // Raven's ring of eight buffers keeps one result valid across a later call, and a returned `String` is already a copy.
+    var s = CharBuf(32)
 
     // use an array so that multiple vtos won't collide
-    // Port-note: A store into `s`, a local the draft left as a hole.
-    // Raven wrote: s = str[index]
-    portMissing("vtos", source: "oracle/codemp/game/g_utils.c:653")
-    index_vtos = (index_vtos + 1) & 7
+    Com_sprintf(&s, 32, "(%i %i %i)", Int32(v[0]), Int32(v[1]), Int32(v[2]))
 
-    // Port-note: A read of `s`, a local the draft left as a hole.
-    // Raven wrote: Com_sprintf (s, 32, "(%i %i %i)", (int)v[0], (int)v[1], (int)v[2])
-    portMissing("vtos", source: "oracle/codemp/game/g_utils.c:653")
-
-    // Port-note: A read of `s`, a local the draft left as a hole.
-    // Raven wrote: return s
-    portMissing("vtos", source: "oracle/codemp/game/g_utils.c:653")
+    return String(s)
 }
 
 /**

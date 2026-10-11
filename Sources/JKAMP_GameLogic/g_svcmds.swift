@@ -28,8 +28,8 @@ private func StringToFilter(_ s: inout JKAShared.CharBuf, _ f: IpFilter) -> Bool
     var num = CharBuf(128)
     var i: Int32
     var j: Int32
-    var b: [Int32] = [Int32](repeating: 0, count: 4)
-    var m: [Int32] = [Int32](repeating: 0, count: 4)
+    var b: [UInt8] = [UInt8](repeating: 0, count: 4)
+    var m: [UInt8] = [UInt8](repeating: 0, count: 4)
     // Raven steps the pointer `s`, and this index is its byte offset in the buffer.
     var sIndex: Int32 = 0
 
@@ -54,7 +54,7 @@ private func StringToFilter(_ s: inout JKAShared.CharBuf, _ f: IpFilter) -> Bool
             sIndex += 1
         }
         num[j] = 0
-        b[i] = atoi(num)
+        b[i] = UInt8(truncatingIfNeeded: atoi(num))
         if b[i] != 0 {
             m[i] = 255
         }
@@ -66,12 +66,8 @@ private func StringToFilter(_ s: inout JKAShared.CharBuf, _ f: IpFilter) -> Bool
         i += 1
     }
 
-    // Port-note: A pointer dereference the draft cannot place.
-    // Raven wrote: f->mask = *(unsigned *)m
-    portMissing("StringToFilter", source: "oracle/codemp/game/g_svcmds.c:62")
-    // Port-note: A pointer dereference the draft cannot place.
-    // Raven wrote: f->compare = *(unsigned *)b
-    portMissing("StringToFilter", source: "oracle/codemp/game/g_svcmds.c:62")
+    f.mask = UInt32(nativeBytes: m)
+    f.compare = UInt32(nativeBytes: b)
 
     return true
 }
@@ -85,7 +81,7 @@ UpdateIPBans
 */
 /// Source: oracle/codemp/game/g_svcmds.c:109
 private func UpdateIPBans() {
-    var b: [Int32] = [Int32](repeating: 0, count: 4)
+    var b: [UInt8] = [UInt8](repeating: 0, count: 4)
     var i: Int32
     var iplist = CharBuf(1024)
 
@@ -97,12 +93,8 @@ private func UpdateIPBans() {
             continue
         }
 
-        // Port-note: A pointer dereference the draft cannot place.
-        // Raven wrote: *(unsigned *)b = ipFilters[i].compare
-        portMissing("UpdateIPBans", source: "oracle/codemp/game/g_svcmds.c:109")
-        // Port-note: The draft of this statement did not compile, and the compiler wrote "cannot convert value of type 'UnsafeMutableRawPointer' to expected argument type 'CharBuf'".
-        // Raven wrote: Com_sprintf( iplist + strlen(iplist), sizeof(iplist) - strlen(iplist), "%i.%i.%i.%i ", b[0], b[1], b[2], b[3])
-        portMissing("UpdateIPBans", source: "oracle/codemp/game/g_svcmds.c:109")
+        b = nativeBytes(of: ipFilters[i].compare)
+        Com_sprintf(&iplist, Int32(iplist.count) - strlen(iplist), "%i.%i.%i.%i ", Int32(b[0]), Int32(b[1]), Int32(b[2]), Int32(b[3]), at: strlen(iplist))
         i += 1
     }
 
@@ -119,7 +111,7 @@ G_FilterPacket
 /// Source: oracle/codemp/game/g_svcmds.c:134
 func G_FilterPacket(_ from: String) -> Bool {
     let from = CharBuf(from)
-    var m: [Int32] = [Int32](repeating: 0, count: 4)
+    var m: [UInt8] = [UInt8](repeating: 0, count: 4)
     var i: Int32 = 0
     let `in`: UInt32
     var p = TextCursor()
@@ -133,7 +125,7 @@ func G_FilterPacket(_ from: String) -> Bool {
     p = TextCursor(from)
     while p.byte != 0 && i < 4 {
         while p.byte >= Int32(ascii: "0") && p.byte <= Int32(ascii: "9") {
-            m[i] = m[i] * 10 + (p.byte - Int32(ascii: "0"))
+            m[i] = UInt8(truncatingIfNeeded: Int32(m[i]) * 10 + (p.byte - Int32(ascii: "0")))
             p.advance()
         }
         if p.byte == 0 || p.byte == Int32(ascii: ":") {
@@ -143,9 +135,7 @@ func G_FilterPacket(_ from: String) -> Bool {
         p.advance()
     }
 
-    // Port-note: A pointer dereference the draft cannot place.
-    // Raven wrote: in = *(unsigned int *)m
-    portMissing("G_FilterPacket", source: "oracle/codemp/game/g_svcmds.c:134")
+    `in` = UInt32(nativeBytes: m)
 
     i = 0
     while i < numIPFilters {
@@ -286,7 +276,7 @@ func Svcmd_RemoveIP_f() {
 func Svcmd_ListIPs_f() {
     var i: Int32
     var str: String
-    var b: [Int32] = [Int32](repeating: 0, count: 4)
+    var b: [UInt8] = [UInt8](repeating: 0, count: 4)
 
     G_Printf("%d IP slots used.\n", numIPFilters)
     i = 0
@@ -295,10 +285,8 @@ func Svcmd_ListIPs_f() {
         if ipFilters[i].compare == 0xffffffff {
             G_Printf("unused\n")
         } else {
-            // Port-note: A pointer dereference the draft cannot place.
-            // Raven wrote: *(unsigned *)b = ipFilters[i].compare
-            portMissing("Svcmd_ListIPs_f", source: "oracle/codemp/game/g_svcmds.c:276")
-            str = va("%i.%i.%i.%i \n", b[0], b[1], b[2], b[3])
+            b = nativeBytes(of: ipFilters[i].compare)
+            str = va("%i.%i.%i.%i \n", Int32(b[0]), Int32(b[1]), Int32(b[2]), Int32(b[3]))
             G_Printf("%s\n", str)
         }
         i += 1
@@ -311,7 +299,7 @@ func G_SaveBanIP() {
     var i: Int32
     var str: String
     var fh: fileHandle_t = 0
-    var b: [Int32] = [Int32](repeating: 0, count: 4)
+    var b: [UInt8] = [UInt8](repeating: 0, count: 4)
 
     trap_FS_FOpenFile("banip.txt", &fh, FS_WRITE)
     if fh == 0 {
@@ -327,10 +315,8 @@ func G_SaveBanIP() {
             str = "unused \n"
             trap_FS_Write(str, strlen(str), fh)
         } else {
-            // Port-note: A pointer dereference the draft cannot place.
-            // Raven wrote: *(unsigned *)b = ipFilters[i].compare
-            portMissing("G_SaveBanIP", source: "oracle/codemp/game/g_svcmds.c:299")
-            str = va("%i.%i.%i.%i \n", b[0], b[1], b[2], b[3])
+            b = nativeBytes(of: ipFilters[i].compare)
+            str = va("%i.%i.%i.%i \n", Int32(b[0]), Int32(b[1]), Int32(b[2]), Int32(b[3]))
             trap_FS_Write(str, strlen(str), fh)
         }
         i += 1
@@ -452,14 +438,26 @@ func Svcmd_EntityList_f() {
 
 /// Source: oracle/codemp/game/g_svcmds.c:445
 func ClientForString(_ s: String) -> Client? {
+    let s = CharBuf(s)
     var cl: Client?
     var i: Int32
     let idnum: Int32
 
     // numeric values are just slot numbers
-    // Port-note: The draft of this statement did not compile, and the compiler wrote "cannot convert value of type 'Character' to expected argument type 'Int32'".
-    // Raven wrote: if ( s[0] >= '0' && s[0] <= '9' ) { idnum = atoi( s ); if ( idnum < 0 || idnum >= level.maxclients ) { Com_Printf( "Bad client slot: %i\n", idnum ); return NULL; } cl = &level.clients[idnum]; if ( cl->pers.connected == CON_DISCONNECTED ) { G_Printf( "Client %i is not connected\n", idnum ); return NULL; } return cl; }
-    portMissing("ClientForString", source: "oracle/codemp/game/g_svcmds.c:445")
+    if s[0] >= Int32(ascii: "0") && s[0] <= Int32(ascii: "9") {
+        idnum = atoi(s)
+        if idnum < 0 || idnum >= level.maxclients {
+            Com_Printf("Bad client slot: %i\n", idnum)
+            return nil
+        }
+
+        cl = level.clientsSlots[idnum]
+        if cl!.pers.connected == CON_DISCONNECTED {
+            G_Printf("Client %i is not connected\n", idnum)
+            return nil
+        }
+        return cl
+    }
 
     // check for a name match
     i = 0
@@ -469,7 +467,7 @@ func ClientForString(_ s: String) -> Client? {
             i += 1
             continue
         }
-        if Q_stricmp(cl!.pers.netname, s) == 0 {
+        if Q_stricmp(cl!.pers.netname, String(s)) == 0 {
             return cl
         }
         i += 1

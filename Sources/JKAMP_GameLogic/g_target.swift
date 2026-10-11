@@ -207,9 +207,12 @@ func Use_Target_Print(_ ent: Entity, _ other: Entity, _ activator: Entity) {
         }
         if activator.client != nil {
             //make sure there's a valid client ent to send it to
-            // Port-note: Raven reads `ent->message[0]` through a `char *` field. The generated field is an `OpaquePointer?`, and rule 11 keeps a pointer out of a logic target.
-            // Raven wrote: if (ent->message[0] == '@' && ent->message[1] != '@') { trap_SendServerCommand( activator-g_entities, va("cps \"%s\"", ent->message )); } else { trap_SendServerCommand( activator-g_entities, va("cp \"%s\"", ent->message )); }
-            portMissing("Use_Target_Print", source: "oracle/codemp/game/g_target.c:132")
+            let message = CharBuf(ent.message!)
+            if message[0] == Int32(ascii: "@") && message[1] != Int32(ascii: "@") {
+                trap_SendServerCommand(activator.s.number, va("cps \"%s\"", ent.message ?? "(null)"))
+            } else {
+                trap_SendServerCommand(activator.s.number, va("cp \"%s\"", ent.message ?? "(null)"))
+            }
         }
         //NOTE: change in functionality - if there *is* no valid client ent, it won't send it to anyone at all
         return
@@ -217,21 +220,30 @@ func Use_Target_Print(_ ent: Entity, _ other: Entity, _ activator: Entity) {
 
     if (ent.spawnflags & 3) != 0 {
         if (ent.spawnflags & 1) != 0 {
-            // Port-note: Raven reads `ent->message[0]` through a `char *` field. The generated field is an `OpaquePointer?`, and rule 11 keeps a pointer out of a logic target.
-            // Raven wrote: if (ent->message[0] == '@' && ent->message[1] != '@') { G_TeamCommand( TEAM_RED, va("cps \"%s\"", ent->message) ); } else { G_TeamCommand( TEAM_RED, va("cp \"%s\"", ent->message) ); }
-            portMissing("Use_Target_Print", source: "oracle/codemp/game/g_target.c:132")
+            let message = CharBuf(ent.message!)
+            if message[0] == Int32(ascii: "@") && message[1] != Int32(ascii: "@") {
+                G_TeamCommand(TEAM_RED, va("cps \"%s\"", ent.message ?? "(null)"))
+            } else {
+                G_TeamCommand(TEAM_RED, va("cp \"%s\"", ent.message ?? "(null)"))
+            }
         }
         if (ent.spawnflags & 2) != 0 {
-            // Port-note: Raven reads `ent->message[0]` through a `char *` field. The generated field is an `OpaquePointer?`, and rule 11 keeps a pointer out of a logic target.
-            // Raven wrote: if (ent->message[0] == '@' && ent->message[1] != '@') { G_TeamCommand( TEAM_BLUE, va("cps \"%s\"", ent->message) ); } else { G_TeamCommand( TEAM_BLUE, va("cp \"%s\"", ent->message) ); }
-            portMissing("Use_Target_Print", source: "oracle/codemp/game/g_target.c:132")
+            let message = CharBuf(ent.message!)
+            if message[0] == Int32(ascii: "@") && message[1] != Int32(ascii: "@") {
+                G_TeamCommand(TEAM_BLUE, va("cps \"%s\"", ent.message ?? "(null)"))
+            } else {
+                G_TeamCommand(TEAM_BLUE, va("cp \"%s\"", ent.message ?? "(null)"))
+            }
         }
         return
     }
 
-    // Port-note: Raven reads `ent->message[0]` through a `char *` field. The generated field is an `OpaquePointer?`, and rule 11 keeps a pointer out of a logic target.
-    // Raven wrote: if (ent->message[0] == '@' && ent->message[1] != '@') { trap_SendServerCommand( -1, va("cps \"%s\"", ent->message )); } else { trap_SendServerCommand( -1, va("cp \"%s\"", ent->message )); }
-    portMissing("Use_Target_Print", source: "oracle/codemp/game/g_target.c:132")
+    let message = CharBuf(ent.message!)
+    if message[0] == Int32(ascii: "@") && message[1] != Int32(ascii: "@") {
+        trap_SendServerCommand(-1, va("cps \"%s\"", ent.message ?? "(null)"))
+    } else {
+        trap_SendServerCommand(-1, va("cp \"%s\"", ent.message ?? "(null)"))
+    }
 }
 
 /// Source: oracle/codemp/game/g_target.c:239
@@ -771,9 +783,8 @@ func scriptrunner_run(_ `self`: Entity) {
                 //Need to be initialized through ICARUS
                 if `self`.activator!.script_targetname == nil || `self`.activator!.script_targetname!.isEmpty {
                     //We don't have a script_targetname, so create a new one
-                    // Port-note: A ++ inside an expression.
-                    // Raven wrote: self->activator->script_targetname = va( "newICARUSEnt%d", numNewICARUSEnts++ )
-                    portMissing("scriptrunner_run", source: "oracle/codemp/game/g_target.c:754")
+                    `self`.activator!.script_targetname = va("newICARUSEnt%d", numNewICARUSEnts)
+                    numNewICARUSEnts += 1
                 }
 
                 if trap_ICARUS_ValidEnt(`self`.activator!) {

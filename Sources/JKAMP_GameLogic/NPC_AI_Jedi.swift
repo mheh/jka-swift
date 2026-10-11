@@ -313,9 +313,7 @@ func Boba_FlyStop(_ `self`: Entity) {
 
 /// Source: oracle/codemp/game/NPC_AI_Jedi.c:386
 func Boba_Flying(_ `self`: Entity) -> Bool {
-    // Port-note: The draft of this statement did not compile, and the compiler wrote "no exact matches in call to initializer".
-    // Raven wrote: return ((qboolean)(self->client->ps.eFlags2&EF2_FLYING))
-    portMissing("Boba_Flying", source: "oracle/codemp/game/NPC_AI_Jedi.c:386")
+    return Bool(`self`.client!.ps.eFlags2 & EF2_FLYING)
 }
 
 /// Source: oracle/codemp/game/NPC_AI_Jedi.c:391
@@ -3162,12 +3160,12 @@ private func Jedi_FaceEnemy(_ doPitch: Bool) {
         //boba leads his enemy
         if NPC!.health < NPC!.client!.pers.maxHealth * 0.5 {
             //lead
-            // Port-note: The draft of this statement did not compile, and the compiler wrote "no exact matches in call to initializer".
-            // Raven wrote: float missileSpeed = WP_SpeedOfMissileForWeapon( NPC->s.weapon, ((qboolean)(NPCInfo->scriptFlags&SCF_ALT_FIRE)) );
-            portMissing("Jedi_FaceEnemy", source: "oracle/codemp/game/NPC_AI_Jedi.c:3799")
-            // Port-note: A read of `missileSpeed`, a local the draft left as a hole.
-            // Raven wrote: if ( missileSpeed ) { float eDist = Distance( eyes, enemy_eyes ); eDist /= missileSpeed;//How many seconds it will take to get to the enemy VectorMA( enemy_eyes, eDist*flrand(0.95f,1.25f), NPC->enemy->client->ps.velocity, enemy_eyes ); }
-            portMissing("Jedi_FaceEnemy", source: "oracle/codemp/game/NPC_AI_Jedi.c:3799")
+            let missileSpeed: Float = WP_SpeedOfMissileForWeapon(NPC!.s.weapon, Bool(NPCInfo!.scriptFlags & SCF_ALT_FIRE))
+            if missileSpeed != 0 {
+                var eDist: Float = Distance(eyes, enemy_eyes)
+                eDist /= missileSpeed //How many seconds it will take to get to the enemy
+                _VectorMA(enemy_eyes, eDist * flrand(0.95, 1.25), NPC!.enemy!.client!.ps.velocity, &enemy_eyes)
+            }
         }
     }
 
@@ -3986,9 +3984,33 @@ private func Jedi_TryJump(_ goal: Entity) -> Bool {
                             dest = goal.r.currentOrigin
                             if goal == NPC!.enemy {
                                 var sideTry: Int32 = 0
-                                // Port-note: Raven's block leaves a loop outside the record's scope, and the closure cannot.
-                                // Raven wrote: while( sideTry < 10 ) {//FIXME: make it so it doesn't try the same spot again? trace_t trace; vec3_t bottom; if ( Q_irand( 0, 1 ) ) { dest[0] += NPC->enemy->r.maxs[0]*1.25; } else { dest[0] += NPC->enemy->r.mins[0]*1.25; } if ( Q_irand( 0, 1 ) ) { dest[1] += NPC->enemy->r.maxs[1]*1.25; } else { dest[1] += NPC->enemy->r.mins[1]*1.25; } VectorCopy( dest, bottom ); bottom[2] -= 128; trap_Trace( &trace, dest, NPC->r.mins, NPC->r.maxs, bottom, goal->s.number, NPC->clipmask ); if ( trace.fraction < 1.0f ) {//hit floor, okay to land here break; } sideTry++; }
-                                portMissing("Jedi_TryJump", source: "oracle/codemp/game/NPC_AI_Jedi.c:4719")
+                                while sideTry < 10 {
+                                    //FIXME: make it so it doesn't try the same spot again?
+                                    let landed = Trace.scratch { trace -> Bool in
+                                        var bottom = vec3_t()
+
+                                        if Q_irand(0, 1) != 0 {
+                                            dest[0] = Float(Double(dest[0]) + Double(NPC!.enemy!.r.maxs[0]) * 1.25)
+                                        } else {
+                                            dest[0] = Float(Double(dest[0]) + Double(NPC!.enemy!.r.mins[0]) * 1.25)
+                                        }
+                                        if Q_irand(0, 1) != 0 {
+                                            dest[1] = Float(Double(dest[1]) + Double(NPC!.enemy!.r.maxs[1]) * 1.25)
+                                        } else {
+                                            dest[1] = Float(Double(dest[1]) + Double(NPC!.enemy!.r.mins[1]) * 1.25)
+                                        }
+                                        bottom = dest
+                                        bottom[2] -= 128
+                                        trap_Trace(trace, dest, NPC!.r.mins, NPC!.r.maxs, bottom, goal.s.number, NPC!.clipmask)
+                                        if trace.fraction < 1.0 {
+                                            //hit floor, okay to land here
+                                            return true
+                                        }
+                                        return false
+                                    }
+                                    if landed { break }
+                                    sideTry += 1
+                                }
                                 if sideTry >= 10 {
                                     //screw it, just jump right at him?
                                     dest = goal.r.currentOrigin

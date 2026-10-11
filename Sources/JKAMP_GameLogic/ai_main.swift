@@ -704,9 +704,7 @@ func BotUpdateInput(_ bs: BotState, _ time: Int32, _ elapsed_time: Int32) {
         //change the bot view angles
         BotChangeViewAngles(bs, Float(elapsed_time) / 1000)
         //retrieve the bot input
-        // Port-note: The draft of this statement did not compile, and the compiler wrote "cannot convert value of type 'BotInput' to expected argument type 'OpaquePointer'".
-        // Raven wrote: trap_EA_GetInput(bs->client, (float) time / 1000, &bi)
-        portMissing("BotUpdateInput", source: "oracle/codemp/game/ai_main.c:633")
+        trap_EA_GetInput(bs.client, Float(time) / 1000, bi)
         //respawn hack
         if (bi.actionflags & ACTION_RESPAWN) != 0 {
             if (bs.lastucmd.buttons & BUTTON_ATTACK) != 0 {
@@ -792,9 +790,7 @@ BotAI
 func BotAI(_ client: Int32, _ thinktime: Float) -> Int32 {
     var bs: BotState?
     var buf = CharBuf(1024)
-    // Port-note: A pointer local `char * args` with no view.
-    // Raven wrote: args;
-    portMissing("BotAI", source: "oracle/codemp/game/ai_main.c:696")
+    var args: Int32?
     var j: Int32
 
     trap_EA_ResetInput(client)
@@ -809,9 +805,33 @@ func BotAI(_ client: Int32, _ thinktime: Float) -> Int32 {
     BotAI_GetClientState(client, bs!.cur_ps)
 
     //retrieve any waiting server commands
-    // Port-note: The draft of this statement did not compile, and the compiler wrote "binary operator '!=' cannot be applied to operands of type '(Int32, String)' and 'Int'".
-    // Raven wrote: while( trap_BotGetServerCommand(client, buf, sizeof(buf)) ) { //have buf point to the command and args to the command arguments args = strchr( buf, ' '); if (!args) continue; *args++ = '\0'; //remove color espace sequences from the arguments RemoveColorEscapeSequences( args ); if (!Q_stricmp(buf, "cp ")) { /*CenterPrintf*/ } else if (!Q_stricmp(buf, "cs")) { /*ConfigStringModified*/ } else if (!Q_stricmp(buf, "scores")) { /*FIXME: parse scores?*/ } else if (!Q_stricmp(buf, "clientLevelShot")) { /*ignore*/ } }
-    portMissing("BotAI", source: "oracle/codemp/game/ai_main.c:696")
+    while true {
+        let (count, text) = trap_BotGetServerCommand(client, Int32(buf.count))
+        strcpy(&buf, text)
+        if count == 0 {
+            break
+        }
+        //have buf point to the command and args to the command arguments
+        args = strchr(buf, Int32(ascii: " "))
+        if args == nil {
+            continue
+        }
+        buf[args!] = 0
+        args! += 1
+
+        //remove color espace sequences from the arguments
+        RemoveColorEscapeSequences(&buf, at: args!)
+
+        if Q_stricmp(buf, "cp ") == 0 {
+            /*CenterPrintf*/
+        } else if Q_stricmp(buf, "cs") == 0 {
+            /*ConfigStringModified*/
+        } else if Q_stricmp(buf, "scores") == 0 {
+            /*FIXME: parse scores?*/
+        } else if Q_stricmp(buf, "clientLevelShot") == 0 {
+            /*ignore*/
+        }
+    }
     //add the delta angles to the bot's current view angles
     j = 0
     while j < 3 {

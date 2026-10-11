@@ -597,9 +597,8 @@ func AddSoundEvent(_ owner: Entity, _ position: JKAShared.vec3_t, _ radius: Floa
     } else {
         level.alertEvents[level.numAlertEvents].addLight = 0 //will force an LOS trace on this sound
     }
-    // Port-note: A ++ inside an expression.
-    // Raven wrote: level.alertEvents[ level.numAlertEvents ].ID = level.curAlertID++
-    portMissing("AddSoundEvent", source: "oracle/codemp/game/NPC_senses.c:579")
+    level.alertEvents[level.numAlertEvents].ID = level.curAlertID
+    level.curAlertID += 1
     level.alertEvents[level.numAlertEvents].timestamp = level.time
 
     level.numAlertEvents += 1
@@ -630,9 +629,8 @@ func AddSightEvent(_ owner: Entity, _ position: JKAShared.vec3_t, _ radius: Floa
     level.alertEvents[level.numAlertEvents].type = AET_SIGHT
     level.alertEvents[level.numAlertEvents].owner = owner
     level.alertEvents[level.numAlertEvents].addLight = addLight //will get added to actual light at that point when it's checked
-    // Port-note: A ++ inside an expression.
-    // Raven wrote: level.alertEvents[ level.numAlertEvents ].ID = level.curAlertID++
-    portMissing("AddSightEvent", source: "oracle/codemp/game/NPC_senses.c:623")
+    level.alertEvents[level.numAlertEvents].ID = level.curAlertID
+    level.curAlertID += 1
     level.alertEvents[level.numAlertEvents].timestamp = level.time
 
     level.numAlertEvents += 1

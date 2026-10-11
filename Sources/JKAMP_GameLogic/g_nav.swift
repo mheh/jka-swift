@@ -345,9 +345,10 @@ public func NAV_ClearPathToPoint(_ `self`: Entity, _ pmins: JKAShared.vec3_t, _ 
                 trap_Trace(trace, `self`.r.currentOrigin, mins, maxs, point, `self`.s.number, clipmask | CONTENTS_MONSTERCLIP)
             }
 
-            // Port-note: The draft of this statement did not compile, and the compiler wrote "binary operator '==' cannot be applied to operands of type 'Int32' and 'Bool'".
-            // Raven wrote: if( ( ( trace.startsolid == qfalse ) && ( trace.allsolid == qfalse ) ) && ( trace.fraction == 1.0f ) ) {//FIXME: check for drops return qtrue; }
-            portMissing("NAV_ClearPathToPoint", source: "oracle/codemp/game/g_nav.c:222")
+            if ((trace.startsolid == 0) && (trace.allsolid == 0)) && (trace.fraction == 1.0) {
+                //FIXME: check for drops
+                return true
+            }
 
             if okToHitEntNum != ENTITYNUM_NONE && trace.entityNum == okToHitEntNum {
                 return true
@@ -515,9 +516,9 @@ func NAV_CheckAhead(_ `self`: Entity, _ end: JKAShared.vec3_t, _ trace: JKAMP.Tr
         trap_Trace(trace, `self`.r.currentOrigin, mins, `self`.r.maxs, end, `self`.s.number, clipmask)
     }
     //Do a simple check
-    // Port-note: The draft of this statement did not compile, and the compiler wrote "binary operator '==' cannot be applied to operands of type 'Int32' and 'Bool'".
-    // Raven wrote: if ( ( trace->allsolid == qfalse ) && ( trace->startsolid == qfalse ) && ( trace->fraction == 1.0f ) ) return qtrue
-    portMissing("NAV_CheckAhead", source: "oracle/codemp/game/g_nav.c:494")
+    if (trace.allsolid == 0) && (trace.startsolid == 0) && (trace.fraction == 1.0) {
+        return true
+    }
 
     //See if we're too far above
     if abs(`self`.r.currentOrigin[2] - end[2]) > 48 {
@@ -790,9 +791,9 @@ func NAV_StackedCanyon(_ `self`: Entity, _ blocker: Entity, _ pathDir: JKAShared
             G_Cube(mins, maxs, RED, 0.25)
         }
 
-        // Port-note: The draft of this statement did not compile, and the compiler wrote "binary operator '==' cannot be applied to operands of type 'Int32' and 'Bool'".
-        // Raven wrote: if ( tr.startsolid == qfalse && tr.allsolid == qfalse ) return qfalse
-        portMissing("NAV_StackedCanyon", source: "oracle/codemp/game/g_nav.c:758")
+        if tr.startsolid == 0 && tr.allsolid == 0 {
+            return false
+        }
 
         _VectorMA(blocker.r.currentOrigin, -avoidRadius, cross, &test)
 
@@ -803,9 +804,9 @@ func NAV_StackedCanyon(_ `self`: Entity, _ blocker: Entity, _ pathDir: JKAShared
             trap_Trace(tr, test, `self`.r.mins, `self`.r.maxs, test, `self`.s.number, `self`.clipmask | extraClip)
         }
 
-        // Port-note: The draft of this statement did not compile, and the compiler wrote "binary operator '==' cannot be applied to operands of type 'Int32' and 'Bool'".
-        // Raven wrote: if ( tr.startsolid == qfalse && tr.allsolid == qfalse ) return qfalse
-        portMissing("NAV_StackedCanyon", source: "oracle/codemp/game/g_nav.c:758")
+        if tr.startsolid == 0 && tr.allsolid == 0 {
+            return false
+        }
 
         if NAVDEBUG_showCollision {
             var mins = vec3_t()
@@ -974,9 +975,10 @@ func NAV_TestBestNode(_ `self`: Entity, _ startID: Int32, _ endID: Int32, _ fail
             trap_Trace(trace, `self`.r.currentOrigin, mins, `self`.r.maxs, end, `self`.s.number, clipmask)
         }
         //Do a simple check
-        // Port-note: The draft of this statement did not compile, and the compiler wrote "binary operator '==' cannot be applied to operands of type 'Int32' and 'Bool'".
-        // Raven wrote: if ( ( trace.allsolid == qfalse ) && ( trace.startsolid == qfalse ) && ( trace.fraction == 1.0f ) ) {//it's clear return endID; }
-        portMissing("NAV_TestBestNode", source: "oracle/codemp/game/g_nav.c:971")
+        if (trace.allsolid == 0) && (trace.startsolid == 0) && (trace.fraction == 1.0) {
+            //it's clear
+            return endID
+        }
 
         //See if we're too far above
         if `self`.s.weapon != WP_SABER && abs(`self`.r.currentOrigin[2] - end[2]) > 48 {

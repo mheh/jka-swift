@@ -527,9 +527,13 @@ func G_TouchTriggers(_ ent: Entity) {
 
             // ignore most entities if a spectator
             if ent.client!.sess.sessionTeam == TEAM_SPECTATOR {
-                // Port-note: The draft of this statement did not compile, and the compiler wrote "type '@convention(c) (Optional<OpaquePointer>, Optional<OpaquePointer>, Optional<OpaquePointer>) -> ()' cannot conform to 'Equatable' [#ProtocolTypeNonConformance]".
-                // Raven wrote: if ( hit->s.eType != ET_TELEPORT_TRIGGER && // this is ugly but adding a new ET_? type will // most likely cause network incompatibilities hit->touch != Touch_DoorTrigger) { continue; }
-                portMissing("G_TouchTriggers", source: "oracle/codemp/game/g_active.c:516")
+                if hit!.s.eType != ET_TELEPORT_TRIGGER &&
+                    // this is ugly but adding a new ET_? type will
+                    // most likely cause network incompatibilities
+                    hit!.touch != Touch.Touch_DoorTrigger {
+                    i += 1
+                    continue
+                }
             }
 
             // use seperate code for determining if an item is picked up
@@ -711,12 +715,8 @@ func SpectatorThink(_ ent: Entity, _ ucmd: JKAMP.Usercmd) {
             pm.nonHumanoid = false
 
             //Set up bg entity data
-            // Port-note: A read of `pm`, a local the draft left as a hole.
-            // Raven wrote: pm.baseEnt = (bgEntity_t *)g_entities
-            portMissing("SpectatorThink", source: "oracle/codemp/game/g_active.c:678")
-            // Port-note: A read of `pm`, a local the draft left as a hole.
-            // Raven wrote: pm.entSize = sizeof(gentity_t)
-            portMissing("SpectatorThink", source: "oracle/codemp/game/g_active.c:678")
+            pm.baseEnt = BgEntity(g_entities[0])
+            pm.entSize = Int32(Entity.byteCount)
 
             // perform a pmove
             Pmove(pm)
@@ -2568,9 +2568,7 @@ func ClientThink_real(_ ent: Entity) {
         pm.debugLevel = g_debugMove.integer
         pm.noFootsteps = (g_dmflags.integer & DF_NO_FOOTSTEPS) > 0
 
-        // Port-note: A read of `pm`, a local the draft left as a hole.
-        // Raven wrote: pm.pmove_fixed = pmove_fixed.integer | client->pers.pmoveFixed
-        portMissing("ClientThink_real", source: "oracle/codemp/game/g_active.c:1939")
+        pm.pmove_fixed = pmove_fixed.integer | (client!.pers.pmoveFixed ? 1 : 0)
         pm.pmove_msec = pmove_msec.integer
 
         pm.animations = bgAllAnims[ent.localAnimIndex].anims //NULL;
@@ -2622,12 +2620,8 @@ func ClientThink_real(_ ent: Entity) {
         */
 
         //Set up bg entity data
-        // Port-note: A read of `pm`, a local the draft left as a hole.
-        // Raven wrote: pm.baseEnt = (bgEntity_t *)g_entities
-        portMissing("ClientThink_real", source: "oracle/codemp/game/g_active.c:1939")
-        // Port-note: A read of `pm`, a local the draft left as a hole.
-        // Raven wrote: pm.entSize = sizeof(gentity_t)
-        portMissing("ClientThink_real", source: "oracle/codemp/game/g_active.c:1939")
+        pm.baseEnt = BgEntity(g_entities[0])
+        pm.entSize = Int32(Entity.byteCount)
 
         if ent.client!.ps.saberLockTime > level.time {
             let blockOpp: Entity? = g_entities[ent.client!.ps.saberLockEnemy]

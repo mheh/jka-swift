@@ -861,9 +861,11 @@ private func G_G2NPCAngles(_ ent: Entity, _ legs: inout [JKAShared.vec3_t], _ an
                 //slowly lerp to this new value
                 //Remember last headAngles
                 oldLookAngles = ent.client!.renderInfo.lastHeadAngles
-                // Port-note: The draft of this statement did not compile, and the compiler wrote "binary operator '==' cannot be applied to operands of type 'Int32' and 'Bool'".
-                // Raven wrote: if( VectorCompare( oldLookAngles, lookAngles ) == qfalse ) { //FIXME: This clamp goes off viewAngles, //but really should go off the tag_torso's axis[0] angles, no? lookAngles[YAW] = oldLookAngles[YAW]+(lookAngles[YAW]-oldLookAngles[YAW])*0.4f; }
-                portMissing("G_G2NPCAngles", source: "oracle/codemp/game/w_saber.c:732")
+                if VectorCompare(oldLookAngles, lookAngles) == 0 {
+                    //FIXME: This clamp goes off viewAngles,
+                    //but really should go off the tag_torso's axis[0] angles, no?
+                    lookAngles[YAW] = oldLookAngles[YAW] + (lookAngles[YAW] - oldLookAngles[YAW]) * 0.4
+                }
                 //Remember current lookAngles next time
                 ent.client!.renderInfo.lastHeadAngles = lookAngles
             } else {

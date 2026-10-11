@@ -908,7 +908,7 @@ public func Q3_GetFloat(_ entID: Int32, _ type: Int32, _ name: String, _ value: 
     switch toGet {
     case SET_PARM1, SET_PARM2, SET_PARM3, SET_PARM4, SET_PARM5, SET_PARM6, SET_PARM7, SET_PARM8, SET_PARM9, SET_PARM10, SET_PARM11, SET_PARM12, SET_PARM13, SET_PARM14, SET_PARM15, SET_PARM16:
         if ent!.parms == nil {
-            G_DebugPrint(WL_ERROR, "GET_PARM: %s %s did not have any parms set!\n", ent!.classname!, ent!.targetname!)
+            G_DebugPrint(WL_ERROR, "GET_PARM: %s %s did not have any parms set!\n", ent!.classname ?? "(null)", ent!.targetname ?? "(null)")
             return 0 // would prefer qfalse, but I'm fitting in with what's here <sigh>
         }
         value = atof(ent!.parms!.parm[toGet - SET_PARM1])
@@ -924,21 +924,21 @@ public func Q3_GetFloat(_ entID: Int32, _ type: Int32, _ name: String, _ value: 
 
     case SET_XVELOCITY:
         if ent!.client == nil {
-            G_DebugPrint(WL_WARNING, "Q3_GetFloat: SET_XVELOCITY, %s not a client\n", ent!.targetname!)
+            G_DebugPrint(WL_WARNING, "Q3_GetFloat: SET_XVELOCITY, %s not a client\n", ent!.targetname ?? "(null)")
             return 0
         }
         value = ent!.client!.ps.velocity[0]
 
     case SET_YVELOCITY:
         if ent!.client == nil {
-            G_DebugPrint(WL_WARNING, "Q3_GetFloat: SET_YVELOCITY, %s not a client\n", ent!.targetname!)
+            G_DebugPrint(WL_WARNING, "Q3_GetFloat: SET_YVELOCITY, %s not a client\n", ent!.targetname ?? "(null)")
             return 0
         }
         value = ent!.client!.ps.velocity[1]
 
     case SET_ZVELOCITY:
         if ent!.client == nil {
-            G_DebugPrint(WL_WARNING, "Q3_GetFloat: SET_ZVELOCITY, %s not a client\n", ent!.targetname!)
+            G_DebugPrint(WL_WARNING, "Q3_GetFloat: SET_ZVELOCITY, %s not a client\n", ent!.targetname ?? "(null)")
             return 0
         }
         value = ent!.client!.ps.velocity[2]
@@ -986,14 +986,14 @@ public func Q3_GetFloat(_ entID: Int32, _ type: Int32, _ name: String, _ value: 
 
     case SET_ANIM_HOLDTIME_LOWER:
         if ent!.client == nil {
-            G_DebugPrint(WL_WARNING, "Q3_GetFloat: SET_ANIM_HOLDTIME_LOWER, %s not a client\n", ent!.targetname!)
+            G_DebugPrint(WL_WARNING, "Q3_GetFloat: SET_ANIM_HOLDTIME_LOWER, %s not a client\n", ent!.targetname ?? "(null)")
             return 0
         }
         value = Float(ent!.client!.ps.legsTimer)
 
     case SET_ANIM_HOLDTIME_UPPER:
         if ent!.client == nil {
-            G_DebugPrint(WL_WARNING, "Q3_GetFloat: SET_ANIM_HOLDTIME_UPPER, %s not a client\n", ent!.targetname!)
+            G_DebugPrint(WL_WARNING, "Q3_GetFloat: SET_ANIM_HOLDTIME_UPPER, %s not a client\n", ent!.targetname ?? "(null)")
             return 0
         }
         value = Float(ent!.client!.ps.torsoTimer)
@@ -1004,7 +1004,7 @@ public func Q3_GetFloat(_ entID: Int32, _ type: Int32, _ name: String, _ value: 
 
     case SET_ARMOR:
         if ent!.client == nil {
-            G_DebugPrint(WL_WARNING, "Q3_GetFloat: SET_ARMOR, %s not a client\n", ent!.targetname!)
+            G_DebugPrint(WL_WARNING, "Q3_GetFloat: SET_ARMOR, %s not a client\n", ent!.targetname ?? "(null)")
             return 0
         }
         value = Float(ent!.client!.ps.stats[STAT_ARMOR])
@@ -1298,7 +1298,7 @@ public func Q3_GetString(_ entID: Int32, _ type: Int32, _ name: String, _ value:
         if ent!.parms != nil {
             value = ent!.parms!.parm[toGet - SET_PARM1]
         } else {
-            G_DebugPrint(WL_WARNING, "Q3_GetString: invalid ent %s has no parms!\n", ent!.targetname!)
+            G_DebugPrint(WL_WARNING, "Q3_GetString: invalid ent %s has no parms!\n", ent!.targetname ?? "(null)")
             return 0
         }
 
@@ -1840,9 +1840,24 @@ private func Q3_SetNavGoal(_ entID: Int32, _ name: String) -> Bool {
         return false
     } else {
         //Get the position of the goal
-        // Port-note: The draft of this statement did not compile, and the compiler wrote "binary operator '==' cannot be applied to operands of type 'Int32' and 'Bool'".
-        // Raven wrote: if ( TAG_GetOrigin2( NULL, name, goalPos ) == qfalse ) { gentity_t *targ = G_Find(NULL, FOFS(targetname), (char*)name); if ( !targ ) { G_DebugPrint( WL_ERROR, "Q3_SetNavGoal: can't find NAVGOAL \"%s\"\n", name ); return qfalse; } else { ent->NPC->goalEntity = targ; ent->NPC->goalRadius = sqrt(ent->r.maxs[0]+ent->r.maxs[0]) + sqrt(targ->r.maxs[0]+targ->r.maxs[0]); ent->NPC->aiFlags &= ~NPCAI_TOUCHED_GOAL; } } else { int goalRadius = TAG_GetRadius( NULL, name ); NPC_SetMoveGoal( ent, goalPos, goalRadius, qtrue, -1, NULL ); //We know we want to clear the lastWaypoint here ent->NPC->goalEntity->lastWaypoint = WAYPOINT_NONE; ent->NPC->aiFlags &= ~NPCAI_TOUCHED_GOAL; #ifdef _DEBUG //this is *only* for debugging navigation ent->NPC->tempGoal->target = G_NewString( name ); #endif// _DEBUG return qtrue; }
-        portMissing("Q3_SetNavGoal", source: "oracle/codemp/game/g_ICARUScb.c:2255")
+        if TAG_GetOrigin2(nil, name, &goalPos) == 0 {
+            let targ: Entity? = G_Find(nil, \.targetname, name)
+            if targ == nil {
+                G_DebugPrint(WL_ERROR, "Q3_SetNavGoal: can't find NAVGOAL \"%s\"\n", name)
+                return false
+            } else {
+                ent!.NPC!.goalEntity = targ
+                ent!.NPC!.goalRadius = Int32(sqrt(Double(ent!.r.maxs[0] + ent!.r.maxs[0])) + sqrt(Double(targ!.r.maxs[0] + targ!.r.maxs[0])))
+                ent!.NPC!.aiFlags &= ~NPCAI_TOUCHED_GOAL
+            }
+        } else {
+            let goalRadius: Int32 = TAG_GetRadius(nil, name)
+            NPC_SetMoveGoal(ent!, goalPos, goalRadius, true, -1, nil)
+            //We know we want to clear the lastWaypoint here
+            ent!.NPC!.goalEntity!.lastWaypoint = WAYPOINT_NONE
+            ent!.NPC!.aiFlags &= ~NPCAI_TOUCHED_GOAL
+            return true
+        }
     }
     return false
 }
@@ -2114,7 +2129,7 @@ private func Q3_SetBState(_ entID: Int32, _ bs_name: String) -> Bool {
     }
 
     if ent!.NPC == nil {
-        G_DebugPrint(WL_ERROR, "Q3_SetBState: '%s' is not an NPC\n", ent!.targetname!)
+        G_DebugPrint(WL_ERROR, "Q3_SetBState: '%s' is not an NPC\n", ent!.targetname ?? "(null)")
         return true //ok to complete
     }
 
@@ -2139,7 +2154,7 @@ private func Q3_SetBState(_ entID: Int32, _ bs_name: String) -> Bool {
                     {
                     NPC_BSSearchStart( ent->lastValidWaypoint, bSID );
                     }*/
-                    G_DebugPrint(WL_ERROR, "Q3_SetBState: '%s' is not in a valid waypoint to search from!\n", ent!.targetname!)
+                    G_DebugPrint(WL_ERROR, "Q3_SetBState: '%s' is not in a valid waypoint to search from!\n", ent!.targetname ?? "(null)")
                     return true
                 }
             }
@@ -2225,7 +2240,7 @@ private func Q3_SetTempBState(_ entID: Int32, _ bs_name: String) -> Bool {
     }
 
     if ent!.NPC == nil {
-        G_DebugPrint(WL_ERROR, "Q3_SetTempBState: '%s' is not an NPC\n", ent!.targetname!)
+        G_DebugPrint(WL_ERROR, "Q3_SetTempBState: '%s' is not an NPC\n", ent!.targetname ?? "(null)")
         return true //ok to complete
     }
 
@@ -2273,7 +2288,7 @@ private func Q3_SetDefaultBState(_ entID: Int32, _ bs_name: String) {
     }
 
     if ent!.NPC == nil {
-        G_DebugPrint(WL_ERROR, "Q3_SetDefaultBState: '%s' is not an NPC\n", ent!.targetname!)
+        G_DebugPrint(WL_ERROR, "Q3_SetDefaultBState: '%s' is not an NPC\n", ent!.targetname ?? "(null)")
         return
     }
 
@@ -2658,7 +2673,7 @@ private func Q3_SetWalkSpeed(_ entID: Int32, _ int_data: Int32) {
     }
 
     if `self`!.NPC == nil {
-        G_DebugPrint(WL_ERROR, "Q3_SetWalkSpeed: '%s' is not an NPC!\n", `self`!.targetname!)
+        G_DebugPrint(WL_ERROR, "Q3_SetWalkSpeed: '%s' is not an NPC!\n", `self`!.targetname ?? "(null)")
         return
     }
 
@@ -2692,7 +2707,7 @@ private func Q3_SetRunSpeed(_ entID: Int32, _ int_data: Int32) {
     }
 
     if `self`!.NPC == nil {
-        G_DebugPrint(WL_ERROR, "Q3_SetRunSpeed: '%s' is not an NPC!\n", `self`!.targetname!)
+        G_DebugPrint(WL_ERROR, "Q3_SetRunSpeed: '%s' is not an NPC!\n", `self`!.targetname ?? "(null)")
         return
     }
 
@@ -2777,7 +2792,7 @@ private func Q3_SetFriction(_ entID: Int32, _ int_data: Int32) {
     }
 
     if `self`!.client == nil {
-        G_DebugPrint(WL_ERROR, "Q3_SetFriction: '%s' is not an NPC/player!\n", `self`!.targetname!)
+        G_DebugPrint(WL_ERROR, "Q3_SetFriction: '%s' is not an NPC/player!\n", `self`!.targetname ?? "(null)")
         return
     }
 
@@ -2806,7 +2821,7 @@ private func Q3_SetGravity(_ entID: Int32, _ float_data: Float) {
     }
 
     if `self`!.client == nil {
-        G_DebugPrint(WL_ERROR, "Q3_SetGravity: '%s' is not an NPC/player!\n", `self`!.targetname!)
+        G_DebugPrint(WL_ERROR, "Q3_SetGravity: '%s' is not an NPC/player!\n", `self`!.targetname ?? "(null)")
         return
     }
 
@@ -3174,9 +3189,23 @@ func Q3_SetParm(_ entID: Int32, _ parmNum: Int32, _ parmValue: String) {
         ent!.parms!.clear()
     }
 
-    // Port-note: An assignment inside an expression.
-    // Raven wrote: if ( (val = Q3_GameSideCheckStringCounterIncrement( parmValue )) ) { val += atof( ent->parms->parm[parmNum] ); Com_sprintf( ent->parms->parm[parmNum], sizeof(ent->parms->parm), "%f", val ); } else {//Just copy the string //copy only 16 characters strncpy( ent->parms->parm[parmNum], parmValue, sizeof(ent->parms->parm[0]) ); //set the last charcter to null in case we had to truncate their passed string if ( ent->parms->parm[parmNum][sizeof(ent->parms->parm[0]) - 1] != 0 ) {//Tried to set a string that is too long ent->parms->parm[parmNum][sizeof(ent->parms->parm[0]) - 1] = 0; G_DebugPrint( WL_WARNING, "SET_PARM: parm%d string too long, truncated to '%s'!\n", parmNum, ent->parms->parm[parmNum] ); } }
-    portMissing("Q3_SetParm", source: "oracle/codemp/game/g_ICARUScb.c:3651")
+    val = Q3_GameSideCheckStringCounterIncrement(parmValue)
+    if val != 0 {
+        val += atof(ent!.parms!.parm[parmNum])
+        // Raven passes sizeof(parm), 1024, and the NUL pad clears the later rows and overruns parms_t past row 0.
+        // The "%f" text is at most 47 bytes, so the row size gives the same row bytes.
+        Com_sprintf(&ent!.parms!.parmBuffers[parmNum], MAX_PARM_STRING_LENGTH, "%f", val)
+    } else {
+        //Just copy the string
+        //copy only 16 characters
+        strncpy(&ent!.parms!.parmBuffers[parmNum], parmValue, MAX_PARM_STRING_LENGTH)
+        //set the last charcter to null in case we had to truncate their passed string
+        if ent!.parms!.parmBuffers[parmNum][MAX_PARM_STRING_LENGTH - 1] != 0 {
+            //Tried to set a string that is too long
+            ent!.parms!.parmBuffers[parmNum][MAX_PARM_STRING_LENGTH - 1] = 0
+            G_DebugPrint(WL_WARNING, "SET_PARM: parm%d string too long, truncated to '%s'!\n", parmNum, ent!.parms!.parm[parmNum])
+        }
+    }
 }
 
 /**
@@ -3458,7 +3487,7 @@ private func Q3_SetWalking(_ entID: Int32, _ add: Bool) {
     }
 
     if ent!.NPC == nil {
-        G_DebugPrint(WL_ERROR, "Q3_SetWalking: '%s' is not an NPC!\n", ent!.targetname!)
+        G_DebugPrint(WL_ERROR, "Q3_SetWalking: '%s' is not an NPC!\n", ent!.targetname ?? "(null)")
         return
     }
 
@@ -3791,7 +3820,7 @@ private func Q3_SetNoAvoid(_ entID: Int32, _ noAvoid: Bool) {
     }
 
     if ent!.NPC == nil {
-        G_DebugPrint(WL_ERROR, "Q3_SetNoAvoid: '%s' is not an NPC!\n", ent!.targetname!)
+        G_DebugPrint(WL_ERROR, "Q3_SetNoAvoid: '%s' is not an NPC!\n", ent!.targetname ?? "(null)")
         return
     }
 
@@ -3899,7 +3928,7 @@ private func Q3_SetForwardMove(_ entID: Int32, _ fmoveVal: Int32) {
     }
 
     if ent!.client == nil {
-        G_DebugPrint(WL_ERROR, "Q3_SetForwardMove: '%s' is not an NPC/player!\n", ent!.targetname!)
+        G_DebugPrint(WL_ERROR, "Q3_SetForwardMove: '%s' is not an NPC/player!\n", ent!.targetname ?? "(null)")
         return
     }
 
@@ -3926,7 +3955,7 @@ private func Q3_SetRightMove(_ entID: Int32, _ rmoveVal: Int32) {
     }
 
     if ent!.client == nil {
-        G_DebugPrint(WL_ERROR, "Q3_SetRightMove: '%s' is not an NPC/player!\n", ent!.targetname!)
+        G_DebugPrint(WL_ERROR, "Q3_SetRightMove: '%s' is not an NPC/player!\n", ent!.targetname ?? "(null)")
         return
     }
 
@@ -3953,7 +3982,7 @@ private func Q3_SetLockAngle(_ entID: Int32, _ lockAngle: String) {
     }
 
     if ent!.client == nil {
-        G_DebugPrint(WL_ERROR, "Q3_SetLockAngle: '%s' is not an NPC/player!\n", ent!.targetname!)
+        G_DebugPrint(WL_ERROR, "Q3_SetLockAngle: '%s' is not an NPC/player!\n", ent!.targetname ?? "(null)")
         return
     }
 
@@ -4661,13 +4690,13 @@ public func Q3_Set(_ taskID: Int32, _ entID: Int32, _ type_name: String, _ data:
                 trap_ICARUS_TaskIDSet(ent!, TID_ANIM_UPPER, taskID)
                 both += 1
             } else {
-                G_DebugPrint(WL_ERROR, "Q3_SetAnimUpper: %s does not have anim %s!\n", ent!.targetname!, data)
+                G_DebugPrint(WL_ERROR, "Q3_SetAnimUpper: %s does not have anim %s!\n", ent!.targetname ?? "(null)", data)
             }
             if Q3_SetAnimLower(entID, data) {
                 trap_ICARUS_TaskIDSet(ent!, TID_ANIM_LOWER, taskID)
                 both += 1
             } else {
-                G_DebugPrint(WL_ERROR, "Q3_SetAnimLower: %s does not have anim %s!\n", ent!.targetname!, data)
+                G_DebugPrint(WL_ERROR, "Q3_SetAnimLower: %s does not have anim %s!\n", ent!.targetname ?? "(null)", data)
             }
             if both >= 2 {
                 trap_ICARUS_TaskIDSet(ent!, TID_ANIM_BOTH, taskID)

@@ -2790,9 +2790,10 @@ func G_Dismember(_ ent: Entity, _ enemy: Entity, _ point: JKAShared.vec3_t, _ li
         Com_sprintf(&stubCapName, Int32((stubCapName).count), "%s_cap_r_leg", stubName)
     }
 
-    // Port-note: The draft of this statement did not compile, and the compiler wrote "referencing operator function '!=' on 'BinaryInteger' requires that 'CharBuf' conform to 'BinaryInteger'".
-    // Raven wrote: if (ent->ghoul2 && limbName && trap_G2API_GetSurfaceRenderStatus(ent->ghoul2, 0, limbName)) { //is it already off? If so there's no reason to be doing it again, so get out of here. return; }
-    portMissing("G_Dismember", source: "oracle/codemp/game/g_combat.c:3436")
+    if ent.ghoul2 != nil && trap_G2API_GetSurfaceRenderStatus(ent.ghoul2, 0, String(limbName)) != 0 {
+        //is it already off? If so there's no reason to be doing it again, so get out of here.
+        return
+    }
 
     newPoint = point
     limb = G_Spawn()
@@ -2892,9 +2893,11 @@ func G_Dismember(_ ent: Entity, _ enemy: Entity, _ point: JKAShared.vec3_t, _ li
         }
     }
 
-    // Port-note: The draft of this statement did not compile, and the compiler wrote "referencing operator function '!=' on 'BinaryInteger' requires that 'CharBuf' conform to 'BinaryInteger'".
-    // Raven wrote: if (ent->s.eType == ET_NPC && ent->ghoul2 && limbName && stubCapName) { //if it's an npc remove these surfs on the server too. For players we don't even care cause there's no further dismemberment after death. trap_G2API_SetSurfaceOnOff(ent->ghoul2, limbName, 0x00000100); trap_G2API_SetSurfaceOnOff(ent->ghoul2, stubCapName, 0); }
-    portMissing("G_Dismember", source: "oracle/codemp/game/g_combat.c:3436")
+    if ent.s.eType == ET_NPC && ent.ghoul2 != nil {
+        //if it's an npc remove these surfs on the server too. For players we don't even care cause there's no further dismemberment after death.
+        trap_G2API_SetSurfaceOnOff(ent.ghoul2, String(limbName), 0x00000100)
+        trap_G2API_SetSurfaceOnOff(ent.ghoul2, String(stubCapName), 0)
+    }
 
     limb!.s.customRGBA[0] = ent.s.customRGBA[0]
     limb!.s.customRGBA[1] = ent.s.customRGBA[1]

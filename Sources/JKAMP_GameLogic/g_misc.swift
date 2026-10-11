@@ -713,15 +713,9 @@ func SP_misc_skyportal(_ ent: Entity) {
     G_SpawnString("fov", "80", &fov)
     fov_x = atof(fov)
 
-    // Port-note: The draft of this statement did not compile, and the compiler wrote "cannot convert value of type 'Bool' to expected argument type 'Int32'".
-    // Raven wrote: isfog += G_SpawnVector ("fogcolor", "0 0 0", fogv)
-    portMissing("SP_misc_skyportal", source: "oracle/codemp/game/g_misc.c:694")
-    // Port-note: The draft of this statement did not compile, and the compiler wrote "cannot convert value of type 'Bool' to expected argument type 'Int32'".
-    // Raven wrote: isfog += G_SpawnInt ("fognear", "0", &fogn)
-    portMissing("SP_misc_skyportal", source: "oracle/codemp/game/g_misc.c:694")
-    // Port-note: The draft of this statement did not compile, and the compiler wrote "cannot convert value of type 'Bool' to expected argument type 'Int32'".
-    // Raven wrote: isfog += G_SpawnInt ("fogfar", "300", &fogf)
-    portMissing("SP_misc_skyportal", source: "oracle/codemp/game/g_misc.c:694")
+    isfog += G_SpawnVector("fogcolor", "0 0 0", &fogv)
+    isfog += G_SpawnInt("fognear", "0", &fogn)
+    isfog += G_SpawnInt("fogfar", "300", &fogf)
 
     trap_SetConfigstring(CS_SKYBOXORG, va("%.2f %.2f %.2f %.1f %i %.2f %.2f %.2f %i %i", ent.s.origin[0], ent.s.origin[1], ent.s.origin[2], fov_x, Int32(isfog), fogv[0], fogv[1], fogv[2], fogn, fogf))
 
