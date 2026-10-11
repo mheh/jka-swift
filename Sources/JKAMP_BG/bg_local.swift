@@ -199,8 +199,8 @@ public final class BgState {
         BOTH_STAND1//WP_TURRET,
     ]
 
-    // Port-note: Raven writes 18 rows for a `WP_NUM_WEAPONS` array, so C zeroes the last slot.
-    // The last row here is that zero, and it keeps the read at `WP_TURRET` the same as the C.
+    // Raven writes 18 rows for a `WP_NUM_WEAPONS` array, so C zeroes the last slot.
+    // The last row here is that zero.
     /// Raven's `WeaponAttackAnim[WP_NUM_WEAPONS]` of `bg_misc.c`, the animation a weapon attacks with.
     /// Source: oracle/codemp/game/bg_misc.c:294
     var WeaponAttackAnim: [Int32] = [

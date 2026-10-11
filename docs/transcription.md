@@ -440,6 +440,7 @@ A struct record whose initializer is all C's zero, `g_siegePersistant = {qfalse,
 A struct Raven defines inside a `.c` file with no view yet keeps a marker that names the struct.
 The stub of a `.c` file carries one entry per file-scope variable, above its first function.
 A variable the module never assigns is a typed `let` with a `portMissing` initializer and a `// Raven wrote:` line, and the transcriptor replaces the initializer with Raven's data.
+An array whose brace list is shorter than its declared bound takes one `0` row per slot that C zeroes, after Raven's last row, under a comment that names Raven's row count and the bound, `botGlobalNavWeaponWeights` of `ai_wpnav.swift`.
 A variable the module assigns is a stored property of the generated variables struct, `BgVariables` in `Sources/JKAMP_BG/Generated/BgVariables.swift` or `GameVariables` in `Sources/JKAMP_Game/Generated/Storage/GameVariables.swift`, which the state object owns as `variables`.
 The property carries Raven's initializer when it is a number, `qtrue`, `qfalse`, `NULL`, a string, or a name a module exports, and C's zero otherwise, with a `// TODO: Port initializer` line that names the hand line in the state object's `init`.
 The stub forwards it under Raven's name at Raven's line, `var gWPNum: Int32 { get { world.variables.gWPNum } set { world.variables.gWPNum = newValue } }`, so a body writes `gWPNum = 0` as Raven wrote it.
