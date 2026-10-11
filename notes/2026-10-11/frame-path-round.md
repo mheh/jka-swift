@@ -213,3 +213,16 @@ Two reviewers read every fill of the working tree before the commit, 250 fills: 
 | R12 | g_nav, `NAV_TestBestNode`: Raven's `fabs(...) > 48` is a `Float` `abs`, where the double-math rule wants `Double`. The file uses the form at two other lines. | `abs(Double(...)) > 48`. |
 | R13 | g_nav, `NAV_CalculatePaths`: the Port-note for `if (!tempWaypointList) return;` drops with no line, allowed by the never-null rule for a static array. | One comment line that names the dropped test. |
 | R14 | NPC_AI_Rancor, `Rancor_Attack`: two trailing `//, HL_NONE );` comments of Raven's dropped. | Write them back. |
+
+## The proofs
+
+Seven investigators proved every open row before the walk: every hole site, every Raven use with its line, the jka-rust handling, the Swift types, the helpers that exist, and the guide. The records are `docket-proofs-A-B.md`, `docket-proofs-C-D.md`, `docket-proofs-E-F-G.md`, `docket-proofs-H-I-J.md`, `docket-proofs-L-M-N-O.md`, `docket-proofs-P-Q-S-T.md`, and `docket-proofs-R.md`. The walk presents each row with its proof, and the walk record holds the verdicts.
+
+Three rows fail on their premise: G1 and J4, because `BSTable` and `BSETTable` are already `Slots<StringIDTable>` and the two holes fill today, and L3's half about `G_SpawnVector`, because the live stub takes `inout vec3_t` and the sig table is stale. R11 and R13 are withdrawn under the never-null rule.
+
+Two findings sit on no row.
+
+| Row | Finding | Proposed fix |
+| --- | --- | --- |
+| U1 | `NPC_AI_Sniper.swift:557` compiles and traps on its first run: a whole-row store through `Slots(rows:)` reaches the `fatalError` at `Slots.swift:157`. | The S2 retype of the `vec3_t[N]` field as `Slots<vec3_t>`, which M2 traces to a check order in `spelling.py`. |
+| U2 | `modNames` holds 42 names for the 45 slots of `MOD_MAX`, and the three `G_LogWeaponOutput` loops read `modNames[j]` to `MOD_MAX`, so they trap at slot 42 when the weapon log is on. C reads NULL there and prints `(null)`. | The W1 form for a `char *` table: three `nil` rows after Raven's last, under the comment that names his row count and the bound, with the element type `String?` and the `%s` read under R2. |
