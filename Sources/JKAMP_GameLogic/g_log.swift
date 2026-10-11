@@ -200,9 +200,7 @@ func G_LogWeaponOutput() {
     var percharacter: [Int32] = [Int32](repeating: 0, count: 19)
     var info = CharBuf(1024)
     var mapname = CharBuf(128)
-    // Port-note: A pointer local `char * nameptr` with no view.
-    // Raven wrote: char *nameptr;
-    portMissing("G_LogWeaponOutput", source: "oracle/codemp/game/g_log.c:227")
+    var nameptr: String
     let unknownname: String = "<Unknown>"
 
     if g_statLog.integer == 0 {
@@ -211,30 +209,14 @@ func G_LogWeaponOutput() {
 
     G_LogPrintf("*****************************Weapon Log:\n")
 
-    // Port-note: Raven's `memset(totalpickups, 0, sizeof(totalpickups))` runs over bytes that are not one record with a view.
-    // Raven wrote: memset(totalpickups, 0, sizeof(totalpickups))
-    portMissing("G_LogWeaponOutput", source: "oracle/codemp/game/g_log.c:227")
-    // Port-note: Raven's `memset(totaltime, 0, sizeof(totaltime))` runs over bytes that are not one record with a view.
-    // Raven wrote: memset(totaltime, 0, sizeof(totaltime))
-    portMissing("G_LogWeaponOutput", source: "oracle/codemp/game/g_log.c:227")
-    // Port-note: Raven's `memset(totaldeaths, 0, sizeof(totaldeaths))` runs over bytes that are not one record with a view.
-    // Raven wrote: memset(totaldeaths, 0, sizeof(totaldeaths))
-    portMissing("G_LogWeaponOutput", source: "oracle/codemp/game/g_log.c:227")
-    // Port-note: Raven's `memset(totaldamageMOD, 0, sizeof(totaldamageMOD))` runs over bytes that are not one record with a view.
-    // Raven wrote: memset(totaldamageMOD, 0, sizeof(totaldamageMOD))
-    portMissing("G_LogWeaponOutput", source: "oracle/codemp/game/g_log.c:227")
-    // Port-note: Raven's `memset(totalkillsMOD, 0, sizeof(totalkillsMOD))` runs over bytes that are not one record with a view.
-    // Raven wrote: memset(totalkillsMOD, 0, sizeof(totalkillsMOD))
-    portMissing("G_LogWeaponOutput", source: "oracle/codemp/game/g_log.c:227")
-    // Port-note: Raven's `memset(totaldamage, 0, sizeof(totaldamage))` runs over bytes that are not one record with a view.
-    // Raven wrote: memset(totaldamage, 0, sizeof(totaldamage))
-    portMissing("G_LogWeaponOutput", source: "oracle/codemp/game/g_log.c:227")
-    // Port-note: Raven's `memset(totalkills, 0, sizeof(totalkills))` runs over bytes that are not one record with a view.
-    // Raven wrote: memset(totalkills, 0, sizeof(totalkills))
-    portMissing("G_LogWeaponOutput", source: "oracle/codemp/game/g_log.c:227")
-    // Port-note: Raven's `memset(totalshots, 0, sizeof(totalshots))` runs over bytes that are not one record with a view.
-    // Raven wrote: memset(totalshots, 0, sizeof(totalshots))
-    portMissing("G_LogWeaponOutput", source: "oracle/codemp/game/g_log.c:227")
+    totalpickups.fill(0)
+    totaltime.fill(0)
+    totaldeaths.fill(0)
+    totaldamageMOD.fill(0)
+    totalkillsMOD.fill(0)
+    totaldamage.fill(0)
+    totalkills.fill(0)
+    totalshots.fill(0)
 
     i = 0
     while i < MAX_CLIENTS {
@@ -340,17 +322,11 @@ func G_LogWeaponOutput() {
         if G_WeaponLogClientTouch[i] {
             // Ignore any entity/clients we don't care about!
             if g_entities[i].client != nil {
-                // Port-note: A store into `nameptr`, a local the draft left as a hole.
-                // Raven wrote: nameptr = g_entities[i].client->pers.netname
-                portMissing("G_LogWeaponOutput", source: "oracle/codemp/game/g_log.c:227")
+                nameptr = g_entities[i].client!.pers.netname
             } else {
-                // Port-note: A store into `nameptr`, a local the draft left as a hole.
-                // Raven wrote: nameptr = unknownname
-                portMissing("G_LogWeaponOutput", source: "oracle/codemp/game/g_log.c:227")
+                nameptr = unknownname
             }
-            // Port-note: A read of `nameptr`, a local the draft left as a hole.
-            // Raven wrote: trap_FS_Write(nameptr, strlen(nameptr), weaponfile)
-            portMissing("G_LogWeaponOutput", source: "oracle/codemp/game/g_log.c:227")
+            trap_FS_Write(nameptr, strlen(nameptr), weaponfile)
 
             j = 0
             while j < WP_NUM_WEAPONS {
@@ -402,17 +378,11 @@ func G_LogWeaponOutput() {
         if G_WeaponLogClientTouch[i] {
             // Ignore any entity/clients we don't care about!
             if g_entities[i].client != nil {
-                // Port-note: A store into `nameptr`, a local the draft left as a hole.
-                // Raven wrote: nameptr = g_entities[i].client->pers.netname
-                portMissing("G_LogWeaponOutput", source: "oracle/codemp/game/g_log.c:227")
+                nameptr = g_entities[i].client!.pers.netname
             } else {
-                // Port-note: A store into `nameptr`, a local the draft left as a hole.
-                // Raven wrote: nameptr = unknownname
-                portMissing("G_LogWeaponOutput", source: "oracle/codemp/game/g_log.c:227")
+                nameptr = unknownname
             }
-            // Port-note: A read of `nameptr`, a local the draft left as a hole.
-            // Raven wrote: trap_FS_Write(nameptr, strlen(nameptr), weaponfile)
-            portMissing("G_LogWeaponOutput", source: "oracle/codemp/game/g_log.c:227")
+            trap_FS_Write(nameptr, strlen(nameptr), weaponfile)
 
             j = 0
             while j < WP_NUM_WEAPONS {
@@ -464,17 +434,11 @@ func G_LogWeaponOutput() {
         if G_WeaponLogClientTouch[i] {
             // Ignore any entity/clients we don't care about!
             if g_entities[i].client != nil {
-                // Port-note: A store into `nameptr`, a local the draft left as a hole.
-                // Raven wrote: nameptr = g_entities[i].client->pers.netname
-                portMissing("G_LogWeaponOutput", source: "oracle/codemp/game/g_log.c:227")
+                nameptr = g_entities[i].client!.pers.netname
             } else {
-                // Port-note: A store into `nameptr`, a local the draft left as a hole.
-                // Raven wrote: nameptr = unknownname
-                portMissing("G_LogWeaponOutput", source: "oracle/codemp/game/g_log.c:227")
+                nameptr = unknownname
             }
-            // Port-note: A read of `nameptr`, a local the draft left as a hole.
-            // Raven wrote: trap_FS_Write(nameptr, strlen(nameptr), weaponfile)
-            portMissing("G_LogWeaponOutput", source: "oracle/codemp/game/g_log.c:227")
+            trap_FS_Write(nameptr, strlen(nameptr), weaponfile)
 
             j = 0
             while j < WP_NUM_WEAPONS {
@@ -527,17 +491,11 @@ func G_LogWeaponOutput() {
         if G_WeaponLogClientTouch[i] {
             // Ignore any entity/clients we don't care about!
             if g_entities[i].client != nil {
-                // Port-note: A store into `nameptr`, a local the draft left as a hole.
-                // Raven wrote: nameptr = g_entities[i].client->pers.netname
-                portMissing("G_LogWeaponOutput", source: "oracle/codemp/game/g_log.c:227")
+                nameptr = g_entities[i].client!.pers.netname
             } else {
-                // Port-note: A store into `nameptr`, a local the draft left as a hole.
-                // Raven wrote: nameptr = unknownname
-                portMissing("G_LogWeaponOutput", source: "oracle/codemp/game/g_log.c:227")
+                nameptr = unknownname
             }
-            // Port-note: A read of `nameptr`, a local the draft left as a hole.
-            // Raven wrote: trap_FS_Write(nameptr, strlen(nameptr), weaponfile)
-            portMissing("G_LogWeaponOutput", source: "oracle/codemp/game/g_log.c:227")
+            trap_FS_Write(nameptr, strlen(nameptr), weaponfile)
 
             j = 0
             while j < WP_NUM_WEAPONS {
@@ -593,9 +551,7 @@ func G_LogWeaponOutput() {
             // Ignore any entity/clients we don't care about!
 
             // We must grab the totals from the damage types for the player and map them to the weapons.
-            // Port-note: Raven's `memset(percharacter, 0, sizeof(percharacter))` runs over bytes that are not one record with a view.
-            // Raven wrote: memset(percharacter, 0, sizeof(percharacter))
-            portMissing("G_LogWeaponOutput", source: "oracle/codemp/game/g_log.c:227")
+            percharacter.fill(0)
             j = 0
             while j < MOD_MAX {
                 if j <= MOD_SENTRY {
@@ -606,17 +562,11 @@ func G_LogWeaponOutput() {
             }
 
             if g_entities[i].client != nil {
-                // Port-note: A store into `nameptr`, a local the draft left as a hole.
-                // Raven wrote: nameptr = g_entities[i].client->pers.netname
-                portMissing("G_LogWeaponOutput", source: "oracle/codemp/game/g_log.c:227")
+                nameptr = g_entities[i].client!.pers.netname
             } else {
-                // Port-note: A store into `nameptr`, a local the draft left as a hole.
-                // Raven wrote: nameptr = unknownname
-                portMissing("G_LogWeaponOutput", source: "oracle/codemp/game/g_log.c:227")
+                nameptr = unknownname
             }
-            // Port-note: A read of `nameptr`, a local the draft left as a hole.
-            // Raven wrote: trap_FS_Write(nameptr, strlen(nameptr), weaponfile)
-            portMissing("G_LogWeaponOutput", source: "oracle/codemp/game/g_log.c:227")
+            trap_FS_Write(nameptr, strlen(nameptr), weaponfile)
 
             j = 0
             while j < WP_NUM_WEAPONS {
@@ -671,9 +621,7 @@ func G_LogWeaponOutput() {
             // Ignore any entity/clients we don't care about!
 
             // We must grab the totals from the damage types for the player and map them to the weapons.
-            // Port-note: Raven's `memset(percharacter, 0, sizeof(percharacter))` runs over bytes that are not one record with a view.
-            // Raven wrote: memset(percharacter, 0, sizeof(percharacter))
-            portMissing("G_LogWeaponOutput", source: "oracle/codemp/game/g_log.c:227")
+            percharacter.fill(0)
             j = 0
             while j < MOD_MAX {
                 if j <= MOD_SENTRY {
@@ -684,17 +632,11 @@ func G_LogWeaponOutput() {
             }
 
             if g_entities[i].client != nil {
-                // Port-note: A store into `nameptr`, a local the draft left as a hole.
-                // Raven wrote: nameptr = g_entities[i].client->pers.netname
-                portMissing("G_LogWeaponOutput", source: "oracle/codemp/game/g_log.c:227")
+                nameptr = g_entities[i].client!.pers.netname
             } else {
-                // Port-note: A store into `nameptr`, a local the draft left as a hole.
-                // Raven wrote: nameptr = unknownname
-                portMissing("G_LogWeaponOutput", source: "oracle/codemp/game/g_log.c:227")
+                nameptr = unknownname
             }
-            // Port-note: A read of `nameptr`, a local the draft left as a hole.
-            // Raven wrote: trap_FS_Write(nameptr, strlen(nameptr), weaponfile)
-            portMissing("G_LogWeaponOutput", source: "oracle/codemp/game/g_log.c:227")
+            trap_FS_Write(nameptr, strlen(nameptr), weaponfile)
 
             j = 0
             while j < WP_NUM_WEAPONS {
@@ -747,17 +689,11 @@ func G_LogWeaponOutput() {
         if G_WeaponLogClientTouch[i] {
             // Ignore any entity/clients we don't care about!
             if g_entities[i].client != nil {
-                // Port-note: A store into `nameptr`, a local the draft left as a hole.
-                // Raven wrote: nameptr = g_entities[i].client->pers.netname
-                portMissing("G_LogWeaponOutput", source: "oracle/codemp/game/g_log.c:227")
+                nameptr = g_entities[i].client!.pers.netname
             } else {
-                // Port-note: A store into `nameptr`, a local the draft left as a hole.
-                // Raven wrote: nameptr = unknownname
-                portMissing("G_LogWeaponOutput", source: "oracle/codemp/game/g_log.c:227")
+                nameptr = unknownname
             }
-            // Port-note: A read of `nameptr`, a local the draft left as a hole.
-            // Raven wrote: trap_FS_Write(nameptr, strlen(nameptr), weaponfile)
-            portMissing("G_LogWeaponOutput", source: "oracle/codemp/game/g_log.c:227")
+            trap_FS_Write(nameptr, strlen(nameptr), weaponfile)
 
             j = 0
             while j < MOD_MAX {
@@ -810,17 +746,11 @@ func G_LogWeaponOutput() {
         if G_WeaponLogClientTouch[i] {
             // Ignore any entity/clients we don't care about!
             if g_entities[i].client != nil {
-                // Port-note: A store into `nameptr`, a local the draft left as a hole.
-                // Raven wrote: nameptr = g_entities[i].client->pers.netname
-                portMissing("G_LogWeaponOutput", source: "oracle/codemp/game/g_log.c:227")
+                nameptr = g_entities[i].client!.pers.netname
             } else {
-                // Port-note: A store into `nameptr`, a local the draft left as a hole.
-                // Raven wrote: nameptr = unknownname
-                portMissing("G_LogWeaponOutput", source: "oracle/codemp/game/g_log.c:227")
+                nameptr = unknownname
             }
-            // Port-note: A read of `nameptr`, a local the draft left as a hole.
-            // Raven wrote: trap_FS_Write(nameptr, strlen(nameptr), weaponfile)
-            portMissing("G_LogWeaponOutput", source: "oracle/codemp/game/g_log.c:227")
+            trap_FS_Write(nameptr, strlen(nameptr), weaponfile)
 
             j = 0
             while j < MOD_MAX {
