@@ -104,6 +104,10 @@ public final class GameWorld {
     /// Source: oracle/codemp/game/ai_main.c:7497
     var lastbotthink_time: Int32 = 0
 
+    /// Raven's `static int checkminimumplayers_time` of `G_CheckMinimumPlayers` in `g_bot.c`.
+    /// Source: oracle/codemp/game/g_bot.c:572
+    var checkminimumplayers_time: Int32 = 0
+
     // MARK: - g_cmds.c
 
     /// Raven's `static char *gc_orders[]` of `g_cmds.c`.

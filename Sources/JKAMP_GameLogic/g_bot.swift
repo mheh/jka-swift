@@ -630,14 +630,15 @@ G_CheckMinimumPlayers
 ===============
 ```
 */
+/// Raven's `static int checkminimumplayers_time` of `G_CheckMinimumPlayers`, a property of `GameWorld`.
+/// Source: oracle/codemp/game/g_bot.c:572
+var checkminimumplayers_time: Int32 { get { world.checkminimumplayers_time } set { world.checkminimumplayers_time = newValue } }
+
 /// Source: oracle/codemp/game/g_bot.c:569
 func G_CheckMinimumPlayers() {
     var minplayers: Int32
     let humanplayers: Int32
     let botplayers: Int32
-    // Port-note: A static local `checkminimumplayers_time` a statement reads before it writes, storage that outlives the call.
-    // Raven wrote: static int checkminimumplayers_time;
-    portMissing("G_CheckMinimumPlayers", source: "oracle/codemp/game/g_bot.c:569")
 
     if g_gametype.integer == GT_SIEGE {
         return
@@ -647,12 +648,10 @@ func G_CheckMinimumPlayers() {
         return
     }
     //only check once each 10 seconds
-    // Port-note: A read of `checkminimumplayers_time`, a local the draft left as a hole.
-    // Raven wrote: if (checkminimumplayers_time > level.time - 10000) { return; }
-    portMissing("G_CheckMinimumPlayers", source: "oracle/codemp/game/g_bot.c:569")
-    // Port-note: A store into `checkminimumplayers_time`, a local the draft left as a hole.
-    // Raven wrote: checkminimumplayers_time = level.time
-    portMissing("G_CheckMinimumPlayers", source: "oracle/codemp/game/g_bot.c:569")
+    if checkminimumplayers_time > level.time - 10000 {
+        return
+    }
+    checkminimumplayers_time = level.time
     trap_Cvar_Update(bot_minplayers)
     minplayers = bot_minplayers.integer
     if minplayers <= 0 {
