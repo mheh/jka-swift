@@ -70,4 +70,4 @@ The walk of the one docket row in the section "The ninth run" of `load-test.md`.
 
 | Row | Verdict | What the ruling orders |
 |---|---|---|
-| X1 | open | The `FRAMES` knob of `tools/load-test.sh`, an environment variable with default 0, which inserts `+wait N` after the map command and grows the alarm. |
+| X1 | ratified as proposed | The `FRAMES` knob of `tools/load-test.sh`, an environment variable with default 0, which inserts `+wait N` after the map command and grows the alarm. |
