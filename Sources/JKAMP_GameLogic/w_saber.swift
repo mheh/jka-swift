@@ -455,9 +455,7 @@ private func SetSaberBoxSize(_ saberent: Entity) {
     var j: Int32 = 0
     var k: Int32 = 0
     var dualSabers: Bool = false
-    // Port-note: A local `qboolean[2][8] alwaysBlock` the table has no type for.
-    // Raven wrote: qboolean alwaysBlock[MAX_SABERS][MAX_BLADES];
-    portMissing("SetSaberBoxSize", source: "oracle/codemp/game/w_saber.c:376")
+    var alwaysBlock = [[Bool]](repeating: [Bool](repeating: false, count: MAX_BLADES), count: MAX_SABERS)
     var forceBlock: Bool = false
 
 
@@ -485,18 +483,14 @@ private func SetSaberBoxSize(_ saberent: Entity) {
                 //not using a second saber, set it to not blocking
                 j = 0
                 while j < MAX_BLADES {
-                    // Port-note: A read of `alwaysBlock`, a local the draft left as a hole.
-                    // Raven wrote: alwaysBlock[i][j] = qfalse
-                    portMissing("SetSaberBoxSize", source: "oracle/codemp/game/w_saber.c:376")
+                    alwaysBlock[i][j] = false
                     j += 1
                 }
             } else {
                 if (owner!.client!.saber[i].saberFlags2 & SFL2_ALWAYS_BLOCK) != 0 {
                     j = 0
                     while j < owner!.client!.saber[i].numBlades {
-                        // Port-note: A read of `alwaysBlock`, a local the draft left as a hole.
-                        // Raven wrote: alwaysBlock[i][j] = qtrue
-                        portMissing("SetSaberBoxSize", source: "oracle/codemp/game/w_saber.c:376")
+                        alwaysBlock[i][j] = true
                         forceBlock = true
                         j += 1
                     }
@@ -505,14 +499,10 @@ private func SetSaberBoxSize(_ saberent: Entity) {
                     j = owner!.client!.saber[i].bladeStyle2Start
                     while j < owner!.client!.saber[i].numBlades {
                         if (owner!.client!.saber[i].saberFlags2 & SFL2_ALWAYS_BLOCK2) != 0 {
-                            // Port-note: A read of `alwaysBlock`, a local the draft left as a hole.
-                            // Raven wrote: alwaysBlock[i][j] = qtrue
-                            portMissing("SetSaberBoxSize", source: "oracle/codemp/game/w_saber.c:376")
+                            alwaysBlock[i][j] = true
                             forceBlock = true
                         } else {
-                            // Port-note: A read of `alwaysBlock`, a local the draft left as a hole.
-                            // Raven wrote: alwaysBlock[i][j] = qfalse
-                            portMissing("SetSaberBoxSize", source: "oracle/codemp/game/w_saber.c:376")
+                            alwaysBlock[i][j] = false
                         }
                         j += 1
                     }
@@ -592,9 +582,11 @@ private func SetSaberBoxSize(_ saberent: Entity) {
                 }
                 if forceBlock {
                     //only do blocking with blades that are marked to block
-                    // Port-note: A read of `alwaysBlock`, a local the draft left as a hole.
-                    // Raven wrote: if ( !alwaysBlock[j][k] ) {//this blade shouldn't be blocking continue; }
-                    portMissing("SetSaberBoxSize", source: "oracle/codemp/game/w_saber.c:376")
+                    if !alwaysBlock[j][k] {
+                        //this blade shouldn't be blocking
+                        k += 1
+                        continue
+                    }
                 }
                 //VectorMA(owner->client->saber[j].blade[k].muzzlePoint, owner->client->saber[j].blade[k].lengthMax*0.5f, owner->client->saber[j].blade[k].muzzleDir, saberOrg);
                 saberOrg = owner!.client!.saber[j].blade[k].muzzlePoint
@@ -1007,8 +999,7 @@ private func G_G2PlayerAngles(_ ent: Entity, _ legs: inout [JKAShared.vec3_t], _
             }
 
             if lHandBolt != 0 {
-                // Port-note: Raven passes the `let` vector `vec3_origin` to `desiredPos`, which BG_IK_MoveArm takes by reference, so the body passes a scratch copy until a ruling reads that write.
-                portMissing("G_G2PlayerAngles", source: "oracle/codemp/game/w_saber.c:881")
+                // BG_IK_MoveArm only reads `desiredPos`, so the copy of `vec3_origin` is never written.
                 var originPos = vec3_origin
                 BG_IK_MoveArm(ent.ghoul2, lHandBolt, level.time, ent.s, ent.client!.ps.torsoAnim/*BOTH_DEAD1*/, &originPos, &ent.client!.ikStatus, &ent.client!.ps.origin, &ent.client!.ps.viewangles, &ent.modelScale, 500, true)
             }
@@ -1958,7 +1949,7 @@ private func G_GetAttackDamage(_ `self`: Entity, _ minDmg: Int32, _ maxDmg: Int3
         damageFactor = (2.0 - damageFactor)
     }
 
-    totalDamage = Int32(Float(totalDamage) * damageFactor)
+    totalDamage = Int32(totalDamage * damageFactor)
     if totalDamage < minDmg {
         totalDamage = minDmg
     }
@@ -2099,18 +2090,10 @@ var faces: Slots<SaberFace> {
 /// Source: oracle/codemp/game/w_saber.c:2454
 private func G_BuildSaberFaces(_ base: JKAShared.vec3_t, _ tip: JKAShared.vec3_t, _ radius: Float, _ fwd: JKAShared.vec3_t, _ right: JKAShared.vec3_t, _ fNum: inout Int32, _ fList: inout SaberFace?) {
     var i: Int32 = 0
-    // Port-note: A pointer local `float * d1` with no view.
-    // Raven wrote: float *d1 = NULL;
-    portMissing("G_BuildSaberFaces", source: "oracle/codemp/game/w_saber.c:2454")
-    // Port-note: A pointer local `float * d2` with no view.
-    // Raven wrote: d2 = NULL;
-    portMissing("G_BuildSaberFaces", source: "oracle/codemp/game/w_saber.c:2454")
+    var d1 = vec3_t()
+    var d2 = vec3_t()
     var invFwd = vec3_t()
     var invRight = vec3_t()
-    // Raven assigns his own `fwd` parameter. A Swift parameter is immutable, so the body takes a mutable copy of it.
-    var fwd = fwd
-    // Raven assigns his own `right` parameter. A Swift parameter is immutable, so the body takes a mutable copy of it.
-    var right = right
 
     invFwd = fwd
     VectorInverse(&invFwd)
@@ -2121,83 +2104,43 @@ private func G_BuildSaberFaces(_ base: JKAShared.vec3_t, _ tip: JKAShared.vec3_t
         //yeah, this part is kind of a hack, but eh
         if i < 2 {
             //"left" surface
-            // Port-note: A store into `d1`, a local the draft left as a hole.
-            // Raven wrote: d1 = &fwd[0]
-            portMissing("G_BuildSaberFaces", source: "oracle/codemp/game/w_saber.c:2454")
-            // Port-note: A store into `d2`, a local the draft left as a hole.
-            // Raven wrote: d2 = &invRight[0]
-            portMissing("G_BuildSaberFaces", source: "oracle/codemp/game/w_saber.c:2454")
+            d1 = fwd
+            d2 = invRight
         } else if i < 4 {
             //"right" surface
-            // Port-note: A store into `d1`, a local the draft left as a hole.
-            // Raven wrote: d1 = &fwd[0]
-            portMissing("G_BuildSaberFaces", source: "oracle/codemp/game/w_saber.c:2454")
-            // Port-note: A store into `d2`, a local the draft left as a hole.
-            // Raven wrote: d2 = &right[0]
-            portMissing("G_BuildSaberFaces", source: "oracle/codemp/game/w_saber.c:2454")
+            d1 = fwd
+            d2 = right
         } else if i < 6 {
             //"front" surface
-            // Port-note: A store into `d1`, a local the draft left as a hole.
-            // Raven wrote: d1 = &right[0]
-            portMissing("G_BuildSaberFaces", source: "oracle/codemp/game/w_saber.c:2454")
-            // Port-note: A store into `d2`, a local the draft left as a hole.
-            // Raven wrote: d2 = &fwd[0]
-            portMissing("G_BuildSaberFaces", source: "oracle/codemp/game/w_saber.c:2454")
+            d1 = right
+            d2 = fwd
         } else if i < 8 {
             //"back" surface
-            // Port-note: A store into `d1`, a local the draft left as a hole.
-            // Raven wrote: d1 = &right[0]
-            portMissing("G_BuildSaberFaces", source: "oracle/codemp/game/w_saber.c:2454")
-            // Port-note: A store into `d2`, a local the draft left as a hole.
-            // Raven wrote: d2 = &invFwd[0]
-            portMissing("G_BuildSaberFaces", source: "oracle/codemp/game/w_saber.c:2454")
+            d1 = right
+            d2 = invFwd
         }
 
         //first triangle for this surface
-        // Port-note: A read of `d1`, a local the draft left as a hole.
-        // Raven wrote: VectorMA(base, radius/2.0f, d1, faces[i].v1)
-        portMissing("G_BuildSaberFaces", source: "oracle/codemp/game/w_saber.c:2454")
-        // Port-note: A read of `d2`, a local the draft left as a hole.
-        // Raven wrote: VectorMA(faces[i].v1, radius/2.0f, d2, faces[i].v1)
-        portMissing("G_BuildSaberFaces", source: "oracle/codemp/game/w_saber.c:2454")
+        _VectorMA(base, radius / 2.0, d1, &faces[i].v1)
+        _VectorMA(faces[i].v1, radius / 2.0, d2, &faces[i].v1)
 
-        // Port-note: A read of `d1`, a local the draft left as a hole.
-        // Raven wrote: VectorMA(tip, radius/2.0f, d1, faces[i].v2)
-        portMissing("G_BuildSaberFaces", source: "oracle/codemp/game/w_saber.c:2454")
-        // Port-note: A read of `d2`, a local the draft left as a hole.
-        // Raven wrote: VectorMA(faces[i].v2, radius/2.0f, d2, faces[i].v2)
-        portMissing("G_BuildSaberFaces", source: "oracle/codemp/game/w_saber.c:2454")
+        _VectorMA(tip, radius / 2.0, d1, &faces[i].v2)
+        _VectorMA(faces[i].v2, radius / 2.0, d2, &faces[i].v2)
 
-        // Port-note: A read of `d1`, a local the draft left as a hole.
-        // Raven wrote: VectorMA(tip, -radius/2.0f, d1, faces[i].v3)
-        portMissing("G_BuildSaberFaces", source: "oracle/codemp/game/w_saber.c:2454")
-        // Port-note: A read of `d2`, a local the draft left as a hole.
-        // Raven wrote: VectorMA(faces[i].v3, radius/2.0f, d2, faces[i].v3)
-        portMissing("G_BuildSaberFaces", source: "oracle/codemp/game/w_saber.c:2454")
+        _VectorMA(tip, -radius / 2.0, d1, &faces[i].v3)
+        _VectorMA(faces[i].v3, radius / 2.0, d2, &faces[i].v3)
 
         i += 1
 
         //second triangle for this surface
-        // Port-note: A read of `d1`, a local the draft left as a hole.
-        // Raven wrote: VectorMA(tip, -radius/2.0f, d1, faces[i].v1)
-        portMissing("G_BuildSaberFaces", source: "oracle/codemp/game/w_saber.c:2454")
-        // Port-note: A read of `d2`, a local the draft left as a hole.
-        // Raven wrote: VectorMA(faces[i].v1, radius/2.0f, d2, faces[i].v1)
-        portMissing("G_BuildSaberFaces", source: "oracle/codemp/game/w_saber.c:2454")
+        _VectorMA(tip, -radius / 2.0, d1, &faces[i].v1)
+        _VectorMA(faces[i].v1, radius / 2.0, d2, &faces[i].v1)
 
-        // Port-note: A read of `d1`, a local the draft left as a hole.
-        // Raven wrote: VectorMA(base, radius/2.0f, d1, faces[i].v2)
-        portMissing("G_BuildSaberFaces", source: "oracle/codemp/game/w_saber.c:2454")
-        // Port-note: A read of `d2`, a local the draft left as a hole.
-        // Raven wrote: VectorMA(faces[i].v2, radius/2.0f, d2, faces[i].v2)
-        portMissing("G_BuildSaberFaces", source: "oracle/codemp/game/w_saber.c:2454")
+        _VectorMA(base, radius / 2.0, d1, &faces[i].v2)
+        _VectorMA(faces[i].v2, radius / 2.0, d2, &faces[i].v2)
 
-        // Port-note: A read of `d1`, a local the draft left as a hole.
-        // Raven wrote: VectorMA(base, -radius/2.0f, d1, faces[i].v3)
-        portMissing("G_BuildSaberFaces", source: "oracle/codemp/game/w_saber.c:2454")
-        // Port-note: A read of `d2`, a local the draft left as a hole.
-        // Raven wrote: VectorMA(faces[i].v3, radius/2.0f, d2, faces[i].v3)
-        portMissing("G_BuildSaberFaces", source: "oracle/codemp/game/w_saber.c:2454")
+        _VectorMA(base, -radius / 2.0, d1, &faces[i].v3)
+        _VectorMA(faces[i].v3, radius / 2.0, d2, &faces[i].v3)
 
         i += 1
     }
@@ -3837,7 +3780,7 @@ private func CheckSaberDamage(_ `self`: Entity, _ rSaberNum: Int32, _ rBladeNum:
         }
 
         if dmg > SABER_NONATTACK_DAMAGE {
-            dmg = Int32(Float(dmg) * g_saberDamageScale.value)
+            dmg = Int32(dmg * g_saberDamageScale.value)
 
             //see if this specific saber has a damagescale
             if !WP_SaberBladeUseSecondBladeStyle(`self`.client!.saber[rSaberNum], rBladeNum) && `self`.client!.saber[rSaberNum].damageScale != 1.0 {
@@ -4334,7 +4277,7 @@ private func CheckSaberDamage(_ `self`: Entity, _ rSaberNum: Int32, _ rBladeNum:
 
                 if `self`.s.eType == ET_NPC && g_entities[tr.entityNum].client != nil && `self`.client!.playerTeam == g_entities[tr.entityNum].client!.playerTeam {
                     //Oops. Since he's an NPC, we'll be forgiving and cut the damage down.
-                    dmg = Int32(Float(dmg) * 0.2)
+                    dmg = Int32(dmg * 0.2)
                 }
 
                 //store the damage, we'll apply it later
@@ -4866,9 +4809,25 @@ func WP_SaberStartMissileBlockCheck(_ `self`: Entity, _ ucmd: JKAMP.Usercmd) {
             if ent!.s.weapon == WP_THERMAL {
                 //thermal detonator!
                 if `self`.NPC != nil && dist < ent!.splashRadius {
-                    // Port-note: An assignment inside an expression.
-                    // Raven wrote: if ( dist < ent->splashRadius && ent->nextthink < level.time + 600 && ent->count && self->client->ps.groundEntityNum != ENTITYNUM_NONE && (ent->s.pos.trType == TR_STATIONARY|| ent->s.pos.trType == TR_INTERPOLATE|| (dot1 = DotProduct( dir, forward )) < SABER_REFLECT_MISSILE_CONE|| !WP_ForcePowerUsable( self, FP_PUSH )) ) {//TD is close enough to hurt me, I'm on the ground and the thing is at rest or behind me and about to blow up, or I don't have force-push so force-jump! //FIXME: sometimes this might make me just jump into it...? self->client->ps.fd.forceJumpCharge = 480; } else if ( self->client->NPC_class != CLASS_BOBAFETT ) {//FIXME: check forcePushRadius[NPC->client->ps.forcePowerLevel[FP_PUSH]] ForceThrow( self, qfalse ); }
-                    portMissing("WP_SaberStartMissileBlockCheck", source: "oracle/codemp/game/w_saber.c:5492")
+                    var jump = false
+                    if dist < ent!.splashRadius && ent!.nextthink < level.time + 600 && ent!.count != 0 && `self`.client!.ps.groundEntityNum != ENTITYNUM_NONE {
+                        jump = ent!.s.pos.trType == TR_STATIONARY || ent!.s.pos.trType == TR_INTERPOLATE
+                        if !jump {
+                            dot1 = _DotProduct(dir, forward)
+                            jump = dot1 < SABER_REFLECT_MISSILE_CONE
+                        }
+                        if !jump {
+                            jump = !WP_ForcePowerUsable(`self`, FP_PUSH)
+                        }
+                    }
+                    if jump {
+                        //TD is close enough to hurt me, I'm on the ground and the thing is at rest or behind me and about to blow up, or I don't have force-push so force-jump!
+                        //FIXME: sometimes this might make me just jump into it...?
+                        `self`.client!.ps.fd.forceJumpCharge = 480
+                    } else if `self`.client!.NPC_class != CLASS_BOBAFETT {
+                        //FIXME: check forcePushRadius[NPC->client->ps.forcePowerLevel[FP_PUSH]]
+                        ForceThrow(`self`, false)
+                    }
                 }
                 e += 1
                 continue

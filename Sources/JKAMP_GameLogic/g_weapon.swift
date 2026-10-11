@@ -1426,7 +1426,7 @@ private func WP_DEMP2_AltFire(_ ent: Entity) {
         if fact < 1 {
             fact = 1
         }
-        damage = Int32(Float(damage) * fact)
+        damage = Int32(damage * fact)
 
         if origcount == 0 {
             //this was just a tap-fire
@@ -1865,7 +1865,7 @@ private func WP_FireRocket(_ ent: Entity, _ altFire: Bool) {
     var missile: Entity?
 
     if altFire {
-        vel = Int32(Float(vel) * 0.5)
+        vel = Int32(vel * 0.5)
     }
 
     missile = CreateMissile(&muzzle, forward, Float(vel), 10000, ent, altFire)

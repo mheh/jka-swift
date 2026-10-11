@@ -1988,9 +1988,7 @@ func Jedi_ReCalcParryTime(_ `self`: Entity, _ evasionType: JKAMP.evasionType_t) 
                     //fencers, bosses, shadowtroopers, luke, desann, et al use the norm
                     if Q_irand(0, 2) != 0 {
                         //medium speed parry
-                        // Port-note: The draft of this statement did not compile, and the compiler wrote "assigning a variable to itself".
-                        // Raven wrote: baseTime = baseTime
-                        portMissing("Jedi_ReCalcParryTime", source: "oracle/codemp/game/NPC_AI_Jedi.c:2305")
+                        // Raven wrote `baseTime = baseTime`, a store with no effect, and Swift refuses a store of a variable to itself.
                     } else {
                         //with the occasional fast parry
                         baseTime = Int32(ceil(baseTime / 2.0))
@@ -3119,7 +3117,10 @@ private func Jedi_SetEnemyInfo(_ enemy_dest: inout JKAShared.vec3_t, _ enemy_dir
         enemy_movedir = NPC!.enemy!.client!.ps.velocity
         enemy_movespeed = VectorNormalize(&enemy_movedir)
         //figure out where he'll be, say, 3 frames from now
-        _VectorMA(NPC!.enemy!.r.currentOrigin, Float(Double(enemy_movespeed) * 0.001 * Double(prediction)), enemy_movedir, &enemy_dest)
+        let scale = Double(enemy_movespeed) * 0.001 * Double(prediction)
+        enemy_dest[0] = Float(Double(NPC!.enemy!.r.currentOrigin[0]) + Double(enemy_movedir[0]) * scale)
+        enemy_dest[1] = Float(Double(NPC!.enemy!.r.currentOrigin[1]) + Double(enemy_movedir[1]) * scale)
+        enemy_dest[2] = Float(Double(NPC!.enemy!.r.currentOrigin[2]) + Double(enemy_movedir[2]) * scale)
         //figure out what dir the enemy's estimated position is from me and how far from the tip of my saber he is
         enemy_dir = enemy_dest - NPC!.r.currentOrigin //NPC->client->renderInfo.muzzlePoint
         //FIXME: enemy_dist calc needs to include all blade lengths, and include distance from hand to start of blade....

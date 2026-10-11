@@ -250,8 +250,7 @@ private func ProcessMoveCommands(_ pVeh: JKAMP.Vehicle) {
             }
         }
     } else {
-        if pVeh.m_pVehicleInfo!.strafePerc == 0
-            || (0 != 0 && pVeh.m_pParentEntity!.s.number < MAX_CLIENTS) {
+        if pVeh.m_pVehicleInfo!.strafePerc == 0 || (false && pVeh.m_pParentEntity!.s.number < MAX_CLIENTS) {
             //if in a strafe-capable vehicle, clear strafing unless using alternate control scheme
             //pVeh->m_ucmd.rightmove = 0;
         }

@@ -506,7 +506,7 @@ func Rancor_Attack(_ distance: Float, _ doCharge: Bool) {
                 //KILL
                 // G_Damage may write `dir`, so the call passes a copy of `vec3_origin`.
                 var dir = vec3_origin
-                G_Damage(NPC!.activator!, NPC, NPC, &dir, NPC!.activator!.r.currentOrigin, NPC!.enemy!.health + 10, DAMAGE_NO_PROTECTION | DAMAGE_NO_ARMOR | DAMAGE_NO_KNOCKBACK | DAMAGE_NO_HIT_LOC, MOD_MELEE)
+                G_Damage(NPC!.activator!, NPC, NPC, &dir, NPC!.activator!.r.currentOrigin, NPC!.enemy!.health + 10, DAMAGE_NO_PROTECTION | DAMAGE_NO_ARMOR | DAMAGE_NO_KNOCKBACK | DAMAGE_NO_HIT_LOC, MOD_MELEE) //, HL_NONE );//
                 if NPC!.activator!.client != nil {
                     NPC!.activator!.client!.ps.forceHandExtend = HANDEXTEND_NONE
                     NPC!.activator!.client!.ps.forceHandExtendTime = 0
@@ -548,7 +548,7 @@ func Rancor_Attack(_ distance: Float, _ doCharge: Bool) {
                     //KILL
                     // G_Damage may write `dir`, so the call passes a copy of `vec3_origin`.
                     var dir = vec3_origin
-                    G_Damage(NPC!.activator!, NPC, NPC, &dir, NPC!.activator!.r.currentOrigin, NPC!.enemy!.health + 10, DAMAGE_NO_PROTECTION | DAMAGE_NO_ARMOR | DAMAGE_NO_KNOCKBACK | DAMAGE_NO_HIT_LOC, MOD_MELEE)
+                    G_Damage(NPC!.activator!, NPC, NPC, &dir, NPC!.activator!.r.currentOrigin, NPC!.enemy!.health + 10, DAMAGE_NO_PROTECTION | DAMAGE_NO_ARMOR | DAMAGE_NO_KNOCKBACK | DAMAGE_NO_HIT_LOC, MOD_MELEE) //, HL_NONE );
                     NPC!.activator!.client!.ps.forceHandExtend = HANDEXTEND_NONE
                     NPC!.activator!.client!.ps.forceHandExtendTime = 0
                     NPC_SetAnim(NPC!.activator!, SETANIM_BOTH, BOTH_SWIM_IDLE1, SETANIM_FLAG_OVERRIDE | SETANIM_FLAG_HOLD)

@@ -2129,11 +2129,9 @@ func RespawnItem(_ ent: Entity) {
         master = ent.teammaster
 
         count = 0
-        ent = master!
-        while true {
-            // Port-note: Raven stores `ent = ent->teamchain`, and the view holds the source as an optional where the target takes a value. A never-null ruling is due.
-            // Raven wrote: ent = ent->teamchain
-            portMissing("RespawnItem", source: "oracle/codemp/game/g_items.c:2288")
+        var entWalk: Entity? = master
+        while entWalk != nil {
+            entWalk = entWalk!.teamchain
             count += 1
         }
 
@@ -2385,7 +2383,7 @@ func Touch_Item(_ ent: Entity, _ other: Entity, _ trace: JKAMP.Trace) {
 
     // random can be used to vary the respawn time
     if ent.random != 0 {
-        respawn = Int32(Float(respawn) + crandom() * ent.random)
+        respawn = Int32(respawn + crandom() * ent.random)
         if respawn < 1 {
             respawn = 1
         }

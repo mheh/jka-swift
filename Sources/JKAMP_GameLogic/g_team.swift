@@ -1062,10 +1062,8 @@ func SelectSiegeSpawnPoint(_ siegeClass: Int32, _ team: JKAMP.team_t, _ teamstat
 }
 
 /// Source: oracle/codemp/game/g_team.c:1089
-private func SortClients(_ a: OpaquePointer?, _ b: OpaquePointer?) -> Int32 {
-    // Port-note: A pointer dereference the draft cannot place.
-    // Raven wrote: return *(int *)a - *(int *)b
-    portMissing("SortClients", source: "oracle/codemp/game/g_team.c:1089")
+private func SortClients(_ a: Int32, _ b: Int32) -> Int32 {
+    return a - b
 }
 
 /**
@@ -1112,9 +1110,7 @@ func TeamplayInfoMessage(_ ent: Entity) {
     }
 
     // We have the top eight players, sort them by clientNum
-    // Port-note: The draft of this statement did not compile, and the compiler wrote "cannot convert value of type '@Sendable (OpaquePointer?, OpaquePointer?) -> Int32' to expected argument type '@convention(c) (UnsafeRawPointer?, UnsafeRawPointer?) -> Int32'".
-    // Raven wrote: qsort( clients, cnt, sizeof( clients[0] ), SortClients )
-    portMissing("TeamplayInfoMessage", source: "oracle/codemp/game/g_team.c:1103")
+    qsort(&clients, cnt, SortClients)
 
     // send the latest information on all clients
     string[0] = 0

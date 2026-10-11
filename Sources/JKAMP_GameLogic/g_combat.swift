@@ -6,7 +6,7 @@ import JKAMP_BG
 
 /// Source: oracle/codemp/game/g_combat.c:755
 /// Raven's data table, a hand property of `GameWorld`.
-var modNames: [String] {
+var modNames: [String?] {
     get { world.modNames }
     set { world.modNames = newValue }
 }
@@ -1966,13 +1966,15 @@ func player_die(_ `self`: Entity, _ inflictor: Entity, _ attacker: Entity, _ dam
         killerName = "<world>"
     }
 
-    // Port-note: A sizeof of `char *[45]` the draft cannot size.
-    // Raven wrote: if ( meansOfDeath < 0 || meansOfDeath >= sizeof( modNames ) / sizeof( modNames[0] ) ) { obit = "<bad obituary>"; } else { obit = modNames[ meansOfDeath ]; }
-    portMissing("player_die", source: "oracle/codemp/game/g_combat.c:2123")
+    if meansOfDeath < 0 || meansOfDeath >= modNames.count {
+        obit = "<bad obituary>"
+    } else {
+        // Raven's table holds NULL past its 42 names, and his `%s` of NULL is undefined.
+        // The port prints "(null)", as the C runtimes do.
+        obit = modNames[meansOfDeath] ?? "(null)"
+    }
 
-    // Port-note: A read of `obit`, a local the draft left as a hole.
-    // Raven wrote: G_LogPrintf("Kill: %i %i %i: %s killed %s by %s\n", killer, self->s.number, meansOfDeath, killerName, self->client->pers.netname, obit )
-    portMissing("player_die", source: "oracle/codemp/game/g_combat.c:2123")
+    G_LogPrintf("Kill: %i %i %i: %s killed %s by %s\n", killer, `self`.s.number, meansOfDeath, killerName, `self`.client!.pers.netname, obit)
 
     if g_austrian.integer != 0 && (g_gametype.integer == GT_DUEL) && level.numPlayingClients >= 2 {
         let spawnTime: Int32 = (level.clientsSlots[level.sortedClients[0]].respawnTime > level.clientsSlots[level.sortedClients[1]].respawnTime) ? level.clientsSlots[level.sortedClients[0]].respawnTime : level.clientsSlots[level.sortedClients[1]].respawnTime
@@ -4330,9 +4332,9 @@ func G_Damage(_ targ: Entity, _ inflictor: Entity?, _ attacker: Entity?, _ dir: 
                 }
 
                 if targ.client!.ps.powerups[PW_FORCE_BOON] == 0 {
-                    targ.client!.ps.fd.forcePower = Int32(Float(targ.client!.ps.fd.forcePower) - maxtake * famt)
+                    targ.client!.ps.fd.forcePower = Int32(targ.client!.ps.fd.forcePower - maxtake * famt)
                 } else {
-                    targ.client!.ps.fd.forcePower = Int32(Float(targ.client!.ps.fd.forcePower) - (maxtake * famt) / 2)
+                    targ.client!.ps.fd.forcePower = Int32(targ.client!.ps.fd.forcePower - (maxtake * famt) / 2)
                 }
                 subamt = Int32((maxtake * hamt) + (take - maxtake))
                 if targ.client!.ps.fd.forcePower < 0 {

@@ -576,7 +576,7 @@ private func ProcessMoveCommands(_ pVeh: JKAMP.Vehicle) {
                 if strafeSpeed > 0 {
                     _VectorMA(parentPS!.velocity, strafeSpeed * pVeh.m_fTimeModifier, vRight, &parentPS!.velocity)
                 }
-                parentPS!.hackingTime = Int32(Float(parentPS!.hackingTime) - 50 * pVeh.m_fTimeModifier)
+                parentPS!.hackingTime = Int32(parentPS!.hackingTime - 50 * pVeh.m_fTimeModifier)
             }
         } else {
             //strafe left
@@ -590,7 +590,7 @@ private func ProcessMoveCommands(_ pVeh: JKAMP.Vehicle) {
                 if strafeSpeed > 0 {
                     _VectorMA(parentPS!.velocity, -strafeSpeed * pVeh.m_fTimeModifier, vRight, &parentPS!.velocity)
                 }
-                parentPS!.hackingTime = Int32(Float(parentPS!.hackingTime) + 50 * pVeh.m_fTimeModifier)
+                parentPS!.hackingTime = Int32(parentPS!.hackingTime + 50 * pVeh.m_fTimeModifier)
             }
         }
         //strafing takes away from forward speed?  If so, strafePerc above should use speedMax
@@ -598,12 +598,12 @@ private func ProcessMoveCommands(_ pVeh: JKAMP.Vehicle) {
     } else {
         //if ( parentPS->hackingTime )
         if parentPS!.hackingTime > 0 {
-            parentPS!.hackingTime = Int32(Float(parentPS!.hackingTime) - 50 * pVeh.m_fTimeModifier)
+            parentPS!.hackingTime = Int32(parentPS!.hackingTime - 50 * pVeh.m_fTimeModifier)
             if parentPS!.hackingTime < 0 {
                 parentPS!.hackingTime = Int32(0.0)
             }
         } else if parentPS!.hackingTime < 0 {
-            parentPS!.hackingTime = Int32(Float(parentPS!.hackingTime) + 50 * pVeh.m_fTimeModifier)
+            parentPS!.hackingTime = Int32(parentPS!.hackingTime + 50 * pVeh.m_fTimeModifier)
             if parentPS!.hackingTime > 0 {
                 parentPS!.hackingTime = Int32(0.0)
             }

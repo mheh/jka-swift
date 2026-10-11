@@ -145,7 +145,9 @@ public final class GameWorld {
 
     /// Raven's `char *modNames[MOD_MAX]` of `g_combat.c`.
     /// Source: oracle/codemp/game/g_combat.c:755
-    var modNames: [String] = [
+    // Raven writes 42 rows for a `MOD_MAX` array of 45, so C zeroes the last three slots.
+    // The last three rows here are those zeros.
+    var modNames: [String?] = [
         "MOD_UNKNOWN",
         "MOD_STUN_BATON",
         "MOD_MELEE",
@@ -187,7 +189,10 @@ public final class GameWorld {
         "MOD_FALLING",
         "MOD_SUICIDE",
         "MOD_TARGET_LASER",
-        "MOD_TRIGGER_HURT"
+        "MOD_TRIGGER_HURT",
+        nil,
+        nil,
+        nil
     ]
 
     /// Raven's `char *hitLocName[HL_MAX]` of `g_combat.c`.

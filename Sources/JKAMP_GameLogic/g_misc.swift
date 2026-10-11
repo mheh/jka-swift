@@ -2027,7 +2027,7 @@ func fx_runner_link(_ ent: Entity) {
         // try to use the target to override the orientation
         var target: Entity? = nil
 
-        target = G_Find(target, \.targetname, ent.target!)
+        target = G_Find(target, \.targetname, ent.target)
 
         if target == nil {
             // Bah, no good, dump a warning, but continue on and use the UP vector
@@ -2045,7 +2045,7 @@ func fx_runner_link(_ ent: Entity) {
     if ent.target2 != nil && !ent.target2!.isEmpty {
         var target: Entity? = nil
 
-        target = G_Find(target, \.targetname, ent.target2!)
+        target = G_Find(target, \.targetname, ent.target2)
 
         if target == nil {
             // Target2 is bogus, but we can still continue
@@ -2715,7 +2715,7 @@ func ref_link(_ ent: Entity) {
 
     if ent.target != nil {
         //TODO: Find the target and set our angles to that direction
-        let target: Entity? = G_Find(nil, \.targetname, ent.target!)
+        let target: Entity? = G_Find(nil, \.targetname, ent.target)
         var dir = vec3_t()
 
         if target != nil {
@@ -2812,7 +2812,7 @@ func misc_weapon_shooter_use(_ `self`: Entity, _ other: Entity, _ activator: Ent
 func misc_weapon_shooter_aim(_ `self`: Entity) {
     //update my aim
     if `self`.target != nil {
-        let targ: Entity? = G_Find(nil, \.targetname, `self`.target!)
+        let targ: Entity? = G_Find(nil, \.targetname, `self`.target)
         if targ != nil {
             `self`.enemy = targ
             `self`.pos1 = targ!.r.currentOrigin - `self`.r.currentOrigin

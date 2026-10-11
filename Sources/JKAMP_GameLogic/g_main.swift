@@ -1645,16 +1645,12 @@ SortRanks
 ```
 */
 /// Source: oracle/codemp/game/g_main.c:1624
-func SortRanks(_ a: OpaquePointer?, _ b: OpaquePointer?) -> Int32 {
+func SortRanks(_ a: Int32, _ b: Int32) -> Int32 {
     var ca: Client?
     var cb: Client?
 
-    // Port-note: A pointer dereference the draft cannot place.
-    // Raven wrote: ca = &level.clients[*(int *)a]
-    portMissing("SortRanks", source: "oracle/codemp/game/g_main.c:1624")
-    // Port-note: A pointer dereference the draft cannot place.
-    // Raven wrote: cb = &level.clients[*(int *)b]
-    portMissing("SortRanks", source: "oracle/codemp/game/g_main.c:1624")
+    ca = level.clientsSlots[a]
+    cb = level.clientsSlots[b]
 
     if g_gametype.integer == GT_POWERDUEL {
         //sort single duelists first
@@ -1844,9 +1840,7 @@ func CalculateRanks() {
     */
     //NOTE: for now not doing this either. May use later if appropriate.
 
-    // Port-note: The draft of this statement did not compile, and the compiler wrote "cannot convert value of type '@Sendable (OpaquePointer?, OpaquePointer?) -> Int32' to expected argument type '@convention(c) (UnsafeRawPointer?, UnsafeRawPointer?) -> Int32'".
-    // Raven wrote: qsort( level.sortedClients, level.numConnectedClients, sizeof(level.sortedClients[0]), SortRanks )
-    portMissing("CalculateRanks", source: "oracle/codemp/game/g_main.c:1751")
+    qsort(level.sortedClients, level.numConnectedClients, SortRanks)
 
     // set the rank value for all clients that are connected and not spectators
     if g_gametype.integer >= GT_TEAM {
@@ -1993,9 +1987,17 @@ func FindIntermissionPoint() {
 
     // find the intermission spot
     if g_gametype.integer == GT_SIEGE && level.intermissiontime != 0 && level.intermissiontime <= level.time && gSiegeRoundEnded {
-        // Port-note: The draft of this statement did not compile, and the compiler wrote "binary operator '==' cannot be applied to operands of type 'Bool' and 'Int32'".
-        // Raven wrote: if (gSiegeRoundWinningTeam == SIEGETEAM_TEAM1) { ent = G_Find (NULL, FOFS(classname), "info_player_intermission_red"); if ( ent && ent->target2 ) { G_UseTargets2( ent, ent, ent->target2 ); } } else if (gSiegeRoundWinningTeam == SIEGETEAM_TEAM2) { ent = G_Find (NULL, FOFS(classname), "info_player_intermission_blue"); if ( ent && ent->target2 ) { G_UseTargets2( ent, ent, ent->target2 ); } }
-        portMissing("FindIntermissionPoint", source: "oracle/codemp/game/g_main.c:1979")
+        if gSiegeRoundWinningTeam == SIEGETEAM_TEAM1 {
+            ent = G_Find(nil, \.classname, "info_player_intermission_red")
+            if ent != nil && ent!.target2 != nil {
+                G_UseTargets2(ent!, ent, ent!.target2)
+            }
+        } else if gSiegeRoundWinningTeam == SIEGETEAM_TEAM2 {
+            ent = G_Find(nil, \.classname, "info_player_intermission_blue")
+            if ent != nil && ent!.target2 != nil {
+                G_UseTargets2(ent!, ent, ent!.target2)
+            }
+        }
     }
     if ent == nil {
         ent = G_Find(nil, \.classname, "info_player_intermission")

@@ -654,9 +654,11 @@ func ClearPlayerAlertEvents() {
             if level.numAlertEvents > 0 {
                 //still have more in the array
                 if (i + 1) < MAX_ALERT_EVENTS {
-                    // Port-note: The draft of this statement did not compile, and the compiler wrote "cannot convert value of type 'AlertEvent' to expected argument type 'UnsafeMutableRawPointer'".
-                    // Raven wrote: memmove( &level.alertEvents[i], &level.alertEvents[i+1], sizeof(alertEvent_t)*(MAX_ALERT_EVENTS-(i+1) ) )
-                    portMissing("ClearPlayerAlertEvents", source: "oracle/codemp/game/NPC_senses.c:660")
+                    var j = i
+                    while j < MAX_ALERT_EVENTS - 1 {
+                        level.alertEvents[j] = level.alertEvents[j + 1]
+                        j += 1
+                    }
                 }
             } else {
                 //just clear this one... or should we clear the whole array?
@@ -695,9 +697,11 @@ func RemoveOldestAlert() -> Bool {
         if level.numAlertEvents > 0 {
             //still have more in the array
             if (oldestEvent + 1) < MAX_ALERT_EVENTS {
-                // Port-note: The draft of this statement did not compile, and the compiler wrote "cannot convert value of type 'AlertEvent' to expected argument type 'UnsafeMutableRawPointer'".
-                // Raven wrote: memmove( &level.alertEvents[oldestEvent], &level.alertEvents[oldestEvent+1], sizeof(alertEvent_t)*(MAX_ALERT_EVENTS-(oldestEvent+1) ) )
-                portMissing("RemoveOldestAlert", source: "oracle/codemp/game/NPC_senses.c:695")
+                var j = oldestEvent
+                while j < MAX_ALERT_EVENTS - 1 {
+                    level.alertEvents[j] = level.alertEvents[j + 1]
+                    j += 1
+                }
             }
         } else {
             //just clear this one... or should we clear the whole array?

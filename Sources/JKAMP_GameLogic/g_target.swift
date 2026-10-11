@@ -39,7 +39,7 @@ func Use_Target_Give(_ ent: Entity, _ other: Entity, _ activator: Entity) {
 
         // Raven clears the record with `memset` here. The scratch slot is zero at entry, so the body drops the call.
         t = nil
-        while let next = G_Find(t, \.targetname, ent.target!) {
+        while let next = G_Find(t, \.targetname, ent.target) {
             t = next
             if t!.item == nil {
                 continue
@@ -407,7 +407,7 @@ func target_laser_start(_ `self`: Entity) {
     `self`.s.eType = ET_BEAM
 
     if `self`.target != nil {
-        ent = G_Find(nil, \.targetname, `self`.target!)
+        ent = G_Find(nil, \.targetname, `self`.target)
         if ent == nil {
             G_Printf("%s at %s: %s is a bad target\n", `self`.classname!, vtos(`self`.s.origin), `self`.target!)
         }
@@ -686,7 +686,7 @@ func target_random_use(_ `self`: Entity, _ other: Entity, _ activator: Entity) {
         `self`.use = nil
     }
 
-    while let next = G_Find(t, \.targetname, `self`.target!) {
+    while let next = G_Find(t, \.targetname, `self`.target) {
         t = next
         if t!.s.number != `self`.s.number {
             t_count += 1
@@ -706,7 +706,7 @@ func target_random_use(_ `self`: Entity, _ other: Entity, _ activator: Entity) {
     //FIXME: need a seed
     pick = Q_irand(1, t_count)
     t_count = 0
-    while let next = G_Find(t, \.targetname, `self`.target!) {
+    while let next = G_Find(t, \.targetname, `self`.target) {
         t = next
         if t!.s.number != `self`.s.number {
             t_count += 1

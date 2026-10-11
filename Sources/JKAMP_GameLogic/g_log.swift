@@ -274,7 +274,7 @@ func G_LogWeaponOutput() {
     G_LogPrintf("\n****Combat Data By Damage Type:\n")
     j = 0
     while j < MOD_MAX {
-        G_LogPrintf("%25s:  Damage: %6d,  Kills: %5d\n", modNames[j], totaldamageMOD[j], totalkillsMOD[j])
+        G_LogPrintf("%25s:  Damage: %6d,  Kills: %5d\n", modNames[j] ?? "(null)", totaldamageMOD[j], totalkillsMOD[j])
         j += 1
     }
 
@@ -676,7 +676,7 @@ func G_LogWeaponOutput() {
 
     j = 0
     while j < MOD_MAX {
-        Com_sprintf(&string, Int32((string).count), "\t%s", modNames[j])
+        Com_sprintf(&string, Int32((string).count), "\t%s", modNames[j] ?? "(null)")
         trap_FS_Write(&string, strlen(string), weaponfile)
         j += 1
     }
@@ -733,7 +733,7 @@ func G_LogWeaponOutput() {
 
     j = 0
     while j < MOD_MAX {
-        Com_sprintf(&string, Int32((string).count), "\t%s", modNames[j])
+        Com_sprintf(&string, Int32((string).count), "\t%s", modNames[j] ?? "(null)")
         trap_FS_Write(&string, strlen(string), weaponfile)
         j += 1
     }

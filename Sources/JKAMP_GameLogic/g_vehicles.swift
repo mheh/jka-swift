@@ -2119,9 +2119,7 @@ func G_VehicleSetDamageLocFlags(_ veh: Entity, _ impactDir: Int32, _ deathPoint:
 
 /// Source: oracle/codemp/game/g_vehicles.c:3102
 func G_FlyVehicleDestroySurface(_ veh: Entity, _ surface: Int32) -> Bool {
-    // Port-note: A local `char *[4] surfName` the table has no type for.
-    // Raven wrote: char *surfName[4];
-    portMissing("G_FlyVehicleDestroySurface", source: "oracle/codemp/game/g_vehicles.c:3102")
+    var surfName = [String](repeating: "", count: 4) //up to 4 surfs at once
     var numSurfs: Int32 = 0
     var smashedBits: Int32 = 0
 
@@ -2132,63 +2130,41 @@ func G_FlyVehicleDestroySurface(_ veh: Entity, _ surface: Int32) -> Bool {
 
     switch surface {
     case SHIPSURF_FRONT:
-        // Port-note: A read of `surfName`, a local the draft left as a hole.
-        // Raven wrote: surfName[0] = "nose"
-        portMissing("G_FlyVehicleDestroySurface", source: "oracle/codemp/game/g_vehicles.c:3102")
+        surfName[0] = "nose"
 
         smashedBits = (SHIPSURF_BROKEN_G)
 
         numSurfs = 1
 
     case SHIPSURF_BACK:
-        // Port-note: A read of `surfName`, a local the draft left as a hole.
-        // Raven wrote: surfName[0] = "r_wing2"
-        portMissing("G_FlyVehicleDestroySurface", source: "oracle/codemp/game/g_vehicles.c:3102")
-        // Port-note: A read of `surfName`, a local the draft left as a hole.
-        // Raven wrote: surfName[1] = "l_wing2"
-        portMissing("G_FlyVehicleDestroySurface", source: "oracle/codemp/game/g_vehicles.c:3102")
+        surfName[0] = "r_wing2"
+        surfName[1] = "l_wing2"
 
         //get rid of the landing gear
-        // Port-note: A read of `surfName`, a local the draft left as a hole.
-        // Raven wrote: surfName[2] = "r_gear"
-        portMissing("G_FlyVehicleDestroySurface", source: "oracle/codemp/game/g_vehicles.c:3102")
-        // Port-note: A read of `surfName`, a local the draft left as a hole.
-        // Raven wrote: surfName[3] = "l_gear"
-        portMissing("G_FlyVehicleDestroySurface", source: "oracle/codemp/game/g_vehicles.c:3102")
+        surfName[2] = "r_gear"
+        surfName[3] = "l_gear"
 
         smashedBits = (SHIPSURF_BROKEN_A | SHIPSURF_BROKEN_B | SHIPSURF_BROKEN_D | SHIPSURF_BROKEN_F)
 
         numSurfs = 4
 
     case SHIPSURF_RIGHT:
-        // Port-note: A read of `surfName`, a local the draft left as a hole.
-        // Raven wrote: surfName[0] = "r_wing1"
-        portMissing("G_FlyVehicleDestroySurface", source: "oracle/codemp/game/g_vehicles.c:3102")
-        // Port-note: A read of `surfName`, a local the draft left as a hole.
-        // Raven wrote: surfName[1] = "r_wing2"
-        portMissing("G_FlyVehicleDestroySurface", source: "oracle/codemp/game/g_vehicles.c:3102")
+        surfName[0] = "r_wing1"
+        surfName[1] = "r_wing2"
 
         //get rid of the landing gear
-        // Port-note: A read of `surfName`, a local the draft left as a hole.
-        // Raven wrote: surfName[2] = "r_gear"
-        portMissing("G_FlyVehicleDestroySurface", source: "oracle/codemp/game/g_vehicles.c:3102")
+        surfName[2] = "r_gear"
 
         smashedBits = (SHIPSURF_BROKEN_B | SHIPSURF_BROKEN_E | SHIPSURF_BROKEN_F)
 
         numSurfs = 3
 
     case SHIPSURF_LEFT:
-        // Port-note: A read of `surfName`, a local the draft left as a hole.
-        // Raven wrote: surfName[0] = "l_wing1"
-        portMissing("G_FlyVehicleDestroySurface", source: "oracle/codemp/game/g_vehicles.c:3102")
-        // Port-note: A read of `surfName`, a local the draft left as a hole.
-        // Raven wrote: surfName[1] = "l_wing2"
-        portMissing("G_FlyVehicleDestroySurface", source: "oracle/codemp/game/g_vehicles.c:3102")
+        surfName[0] = "l_wing1"
+        surfName[1] = "l_wing2"
 
         //get rid of the landing gear
-        // Port-note: A read of `surfName`, a local the draft left as a hole.
-        // Raven wrote: surfName[2] = "l_gear"
-        portMissing("G_FlyVehicleDestroySurface", source: "oracle/codemp/game/g_vehicles.c:3102")
+        surfName[2] = "l_gear"
 
         smashedBits = (SHIPSURF_BROKEN_A | SHIPSURF_BROKEN_C | SHIPSURF_BROKEN_D)
 
@@ -2206,9 +2182,7 @@ func G_FlyVehicleDestroySurface(_ veh: Entity, _ surface: Int32) -> Bool {
     while numSurfs > 0 {
         //use my silly system of automatically managing surf status on both client and server
         numSurfs -= 1
-        // Port-note: A read of `surfName`, a local the draft left as a hole.
-        // Raven wrote: NPC_SetSurfaceOnOff(veh, surfName[numSurfs], TURN_OFF)
-        portMissing("G_FlyVehicleDestroySurface", source: "oracle/codemp/game/g_vehicles.c:3102")
+        NPC_SetSurfaceOnOff(veh, surfName[numSurfs], TURN_OFF)
     }
 
     if veh.m_pVehicle!.m_iRemovedSurfaces == 0 {

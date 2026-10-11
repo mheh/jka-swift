@@ -1638,12 +1638,8 @@ func SP_misc_siege_item(_ ent: Entity) {
     ent.s.eType = ET_GENERAL
 
     //Set the mins/maxs with default values.
-    // Port-note: The draft of this statement did not compile, and the compiler wrote "cannot convert value of type 'vec3_t' (aka 'SIMD3<Float>') to expected argument type 'Float'".
-    // Raven wrote: G_SpawnVector("mins", "-16 -16 -24", ent->r.mins)
-    portMissing("SP_misc_siege_item", source: "oracle/codemp/game/g_saga.c:1676")
-    // Port-note: The draft of this statement did not compile, and the compiler wrote "cannot convert value of type 'vec3_t' (aka 'SIMD3<Float>') to expected argument type 'Float'".
-    // Raven wrote: G_SpawnVector("maxs", "16 16 32", ent->r.maxs)
-    portMissing("SP_misc_siege_item", source: "oracle/codemp/game/g_saga.c:1676")
+    G_SpawnVector("mins", "-16 -16 -24", &ent.r.mins)
+    G_SpawnVector("maxs", "16 16 32", &ent.r.maxs)
 
     ent.pos1 = ent.s.origin //store off the initial origin for respawning
     G_SetOrigin(ent, &ent.s.origin)

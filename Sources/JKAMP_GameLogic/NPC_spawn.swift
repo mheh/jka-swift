@@ -957,9 +957,9 @@ func NPC_Begin(_ ent: Entity) {
         // initialize animations and other things
         // Raven clears the record with `memset` here. The scratch slot is zero at entry, so the body drops the call.
         //_VectorCopy( client->pers.cmd_angles, ucmd.angles );
-        // Port-note: The draft of this statement did not compile, and the compiler wrote "cannot assign to property: 'angles' is a get-only property".
-        // Raven wrote: VectorCopy(client->pers.cmd.angles, ucmd.angles)
-        portMissing("NPC_Begin", source: "oracle/codemp/game/NPC_spawn.c:862")
+        ucmd.angles[0] = client!.pers.cmd.angles[0]
+        ucmd.angles[1] = client!.pers.cmd.angles[1]
+        ucmd.angles[2] = client!.pers.cmd.angles[2]
 
         ent.client!.ps.groundEntityNum = ENTITYNUM_NONE
 

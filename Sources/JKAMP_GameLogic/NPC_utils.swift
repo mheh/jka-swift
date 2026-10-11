@@ -662,9 +662,7 @@ func G_ActivateBehavior(_ `self`: Entity, _ bset: Int32) -> Bool {
     }
 
     if `self`.NPC != nil {
-        // Port-note: Raven passes `BSTable` to `GetIDForString`, whose `table` parameter takes the Slots over the records, and Swift holds one record here. A Slots over one record has no form yet.
-        // Raven wrote: bSID = (bState_t)(GetIDForString( BSTable, bs_name ))
-        portMissing("G_ActivateBehavior", source: "oracle/codemp/game/NPC_utils.c:851")
+        bSID = bState_t(GetIDForString(BSTable, bs_name!))
     }
 
     if bSID > -1 {
@@ -679,9 +677,7 @@ func G_ActivateBehavior(_ `self`: Entity, _ bset: Int32) -> Bool {
         //FIXME: between here and actually getting into the ICARUS_RunScript function, the stack gets blown!
         //if ( ( ICARUS_entFilter == -1 ) || ( ICARUS_entFilter == self->s.number ) )
         if 0 != 0 {
-            // Port-note: Raven passes `BSETTable` to `GetStringForID`, whose `table` parameter takes the Slots over the records, and Swift holds one record here. A Slots over one record has no form yet.
-            // Raven wrote: G_DebugPrint( WL_VERBOSE, "%s attempting to run bSet %s (%s)\n", self->targetname, GetStringForID( BSETTable, bset ), bs_name )
-            portMissing("G_ActivateBehavior", source: "oracle/codemp/game/NPC_utils.c:851")
+            G_DebugPrint(WL_VERBOSE, "%s attempting to run bSet %s (%s)\n", `self`.targetname ?? "", GetStringForID(BSETTable, bset) ?? "", bs_name!)
         }
         trap_ICARUS_RunScript(`self`, va("%s/%s", Q3_SCRIPT_DIR, bs_name!))
     }

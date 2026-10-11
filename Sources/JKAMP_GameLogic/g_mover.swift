@@ -1789,7 +1789,7 @@ func Think_SetupTrainTargets(_ ent: Entity) {
     var next: Entity?
     var start: Entity?
 
-    ent.nextTrain = G_Find(nil, \.targetname, ent.target!)
+    ent.nextTrain = G_Find(nil, \.targetname, ent.target)
     if ent.nextTrain == nil {
         Com_Printf("func_train at %s with an unfound target\n", vtos(ent.r.absmin))
         //Free me?`
@@ -1820,7 +1820,7 @@ func Think_SetupTrainTargets(_ ent: Entity) {
         // is reached
         next = nil
         repeat {
-            next = G_Find(next, \.targetname, path!.target!)
+            next = G_Find(next, \.targetname, path!.target)
             if next == nil {
                 //				gi.Printf( "Train corner at %s without a target path_corner\n",
                 //					vtos(path->s.origin) );
@@ -2304,7 +2304,7 @@ func funcBBrushDieGo(_ `self`: Entity) {
     if `self`.radius > 0.0 {
         // designer wants to scale number of chunks, helpful because the above scale code is far from perfect
         //	I do this after the scale calculation because it seems that the chunk size generally seems to be very close, it's just the number of chunks is a bit weak
-        numChunks = Int32(Float(numChunks) * `self`.radius)
+        numChunks = Int32(numChunks * `self`.radius)
     }
 
     _VectorMA(`self`.r.absmin, 0.5, org, &org)

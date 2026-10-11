@@ -267,7 +267,7 @@ NULL will be returned if the end of the list is reached.
 ```
 */
 /// Source: oracle/codemp/game/g_utils.c:222
-func G_Find(_ from: Entity?, _ fieldofs: KeyPath<Entity, String?>, _ match: String) -> Entity? {
+func G_Find(_ from: Entity?, _ fieldofs: KeyPath<Entity, String?>, _ match: String?) -> Entity? {
     var s: String?
     // Raven walks his own `from` parameter over `g_entities`, so the body walks the index of its slot, as for a walked local.
     var fromIndex: Int32 = 0
@@ -288,7 +288,7 @@ func G_Find(_ from: Entity?, _ fieldofs: KeyPath<Entity, String?>, _ match: Stri
             fromIndex += 1
             continue
         }
-        if Q_stricmp(s!, match) == 0 {
+        if Q_stricmp(s, match) == 0 {
             return g_entities[fromIndex]
         }
         fromIndex += 1

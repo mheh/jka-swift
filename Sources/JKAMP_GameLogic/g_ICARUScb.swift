@@ -75,7 +75,7 @@ func G_DebugPrint(_ level: Int32, _ format: String, _ args: any JKAShared.Format
                 entNum = 0
             }
 
-            Com_Printf(S_COLOR_BLUE + "DEBUG: %s(%d): %s\n", g_entities[entNum].script_targetname!, entNum, buffer.text)
+            Com_Printf(S_COLOR_BLUE + "DEBUG: %s(%d): %s\n", g_entities[entNum].script_targetname ?? "(null)", entNum, buffer.text)
             break
         }
         fallthrough
@@ -1291,13 +1291,8 @@ public func Q3_GetString(_ entID: Int32, _ type: Int32, _ name: String, _ value:
 
     switch toGet {
     case SET_ANIM_BOTH:
-        // Port-note: The draft of this statement did not compile, and the compiler wrote "value of optional type 'String?' must be unwrapped to a value of type 'String'".
-        // Raven wrote: *value = (char *) Q3_GetAnimBoth( ent )
-        portMissing("Q3_GetString", source: "oracle/codemp/game/g_ICARUScb.c:1642")
-
-        // Port-note: The draft of this statement did not compile, and the compiler wrote "'subscript(_:)' is unavailable: cannot subscript String with an Int, use a String.Index instead.".
-        // Raven wrote: if ( !value || !value[0] ) return 0
-        portMissing("Q3_GetString", source: "oracle/codemp/game/g_ICARUScb.c:1642")
+        guard let text = Q3_GetAnimBoth(ent!) else { return 0 }
+        value = text
 
     case SET_PARM1, SET_PARM2, SET_PARM3, SET_PARM4, SET_PARM5, SET_PARM6, SET_PARM7, SET_PARM8, SET_PARM9, SET_PARM10, SET_PARM11, SET_PARM12, SET_PARM13, SET_PARM14, SET_PARM15, SET_PARM16:
         if ent!.parms != nil {
@@ -1824,19 +1819,19 @@ private func Q3_SetNavGoal(_ entID: Int32, _ name: String) -> Bool {
     var goalPos = vec3_t()
 
     if ent!.health == 0 {
-        G_DebugPrint(WL_ERROR, "Q3_SetNavGoal: tried to set a navgoal (\"%s\") on a corpse! \"%s\"\n", name, ent!.script_targetname!)
+        G_DebugPrint(WL_ERROR, "Q3_SetNavGoal: tried to set a navgoal (\"%s\") on a corpse! \"%s\"\n", name, ent!.script_targetname ?? "(null)")
         return false
     }
     if ent!.NPC == nil {
-        G_DebugPrint(WL_ERROR, "Q3_SetNavGoal: tried to set a navgoal (\"%s\") on a non-NPC: \"%s\"\n", name, ent!.script_targetname!)
+        G_DebugPrint(WL_ERROR, "Q3_SetNavGoal: tried to set a navgoal (\"%s\") on a non-NPC: \"%s\"\n", name, ent!.script_targetname ?? "(null)")
         return false
     }
     if ent!.NPC!.tempGoal == nil {
-        G_DebugPrint(WL_ERROR, "Q3_SetNavGoal: tried to set a navgoal (\"%s\") on a dead NPC: \"%s\"\n", name, ent!.script_targetname!)
+        G_DebugPrint(WL_ERROR, "Q3_SetNavGoal: tried to set a navgoal (\"%s\") on a dead NPC: \"%s\"\n", name, ent!.script_targetname ?? "(null)")
         return false
     }
     if !ent!.NPC!.tempGoal!.inuse {
-        G_DebugPrint(WL_ERROR, "Q3_SetNavGoal: NPC's (\"%s\") navgoal is freed: \"%s\"\n", name, ent!.script_targetname!)
+        G_DebugPrint(WL_ERROR, "Q3_SetNavGoal: NPC's (\"%s\") navgoal is freed: \"%s\"\n", name, ent!.script_targetname ?? "(null)")
         return false
     }
     if Q_stricmp("null", name) == 0 || Q_stricmp("NULL", name) == 0 {

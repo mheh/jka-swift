@@ -2205,9 +2205,10 @@ private func NPC_CollectCombatPoints(_ origin: JKAShared.vec3_t, _ radius: Float
         }
 
         //Must be vacant
-        // Port-note: The draft of this statement did not compile, and the compiler wrote "binary operator '==' cannot be applied to operands of type 'Bool' and 'Int'".
-        // Raven wrote: if ( level.combatPoints[i].occupied == (int) qtrue ) continue
-        portMissing("NPC_CollectCombatPoints", source: "oracle/codemp/game/NPC_combat.c:2575")
+        if level.combatPoints[i].occupied == true {
+            i += 1
+            continue
+        }
 
         //If we want a duck space, make sure this is one
         if (flags & CP_DUCK) != 0 && (level.combatPoints[i].flags & CPF_DUCK) != 0 {

@@ -1387,7 +1387,7 @@ func shipboundary_touch(_ `self`: Entity, _ other: Entity, _ trace: JKAMP.Trace?
         return
     }
 
-    ent = G_Find(nil, \.targetname, `self`.target!)
+    ent = G_Find(nil, \.targetname, `self`.target)
     if ent == nil || !ent!.inuse {
         //this is bad
         G_Error("trigger_shipboundary has invalid target '%s'\n", `self`.target!)
@@ -1497,7 +1497,7 @@ func hyperspace_touch(_ `self`: Entity, _ other: Entity, _ trace: JKAMP.Trace) {
                 //take off the flag so we only do this once
                 other.client!.ps.eFlags2 &= ~EF2_HYPERSPACE
                 //Get the offset from the local position
-                ent = G_Find(nil, \.targetname, `self`.target!)
+                ent = G_Find(nil, \.targetname, `self`.target)
                 if ent == nil || !ent!.inuse {
                     //this is bad
                     G_Error("trigger_hyperspace has invalid target '%s'\n", `self`.target!)
@@ -1510,7 +1510,7 @@ func hyperspace_touch(_ `self`: Entity, _ other: Entity, _ trace: JKAMP.Trace) {
                 uDiff = _DotProduct(up, diff)
 
                 //Now get the base position of the destination
-                ent = G_Find(nil, \.targetname, `self`.target2!)
+                ent = G_Find(nil, \.targetname, `self`.target2)
                 if ent == nil || !ent!.inuse {
                     //this is bad
                     G_Error("trigger_hyperspace has invalid target2 '%s'\n", `self`.target2!)
@@ -1539,7 +1539,7 @@ func hyperspace_touch(_ `self`: Entity, _ other: Entity, _ trace: JKAMP.Trace) {
         }
         return
     } else {
-        ent = G_Find(nil, \.targetname, `self`.target!)
+        ent = G_Find(nil, \.targetname, `self`.target)
         if ent == nil || !ent!.inuse {
             //this is bad
             G_Error("trigger_hyperspace has invalid target '%s'\n", `self`.target!)
@@ -1680,7 +1680,7 @@ func asteroid_pick_random_asteroid(_ `self`: Entity) -> Entity? {
     let pick: Int32
     var t: Entity? = nil
 
-    while let next = G_Find(t, \.targetname, `self`.target!) {
+    while let next = G_Find(t, \.targetname, `self`.target) {
         t = next
         if t!.s.number != `self`.s.number {
             t_count += 1
@@ -1693,13 +1693,13 @@ func asteroid_pick_random_asteroid(_ `self`: Entity) -> Entity? {
     }
 
     if t_count == 1 {
-        return (G_Find(nil, \.targetname, `self`.target!))
+        return (G_Find(nil, \.targetname, `self`.target))
     }
 
     //FIXME: need a seed
     pick = Q_irand(1, t_count)
     t_count = 0
-    while let next = G_Find(t, \.targetname, `self`.target!) {
+    while let next = G_Find(t, \.targetname, `self`.target) {
         t = next
         if t!.s.number != `self`.s.number {
             t_count += 1

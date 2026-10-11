@@ -495,9 +495,9 @@ func RemoveWP() {
 
     //B_Free((wpobject_t *)gWPArray[gWPNum]);
     if gWPArray[gWPNum] != nil {
-        // Port-note: The draft of this statement did not compile, and the compiler wrote "value of optional type 'Wpobject?' must be unwrapped to refer to member 'clear' of wrapped base type 'Wpobject'".
-        // Raven wrote: memset( gWPArray[gWPNum], 0, sizeof(gWPArray[gWPNum]) )
-        portMissing("RemoveWP", source: "oracle/codemp/game/ai_wpnav.c:456")
+        // Raven's memset zeroes the size of a pointer, 8 bytes of `origin` on the 64-bit build.
+        gWPArray[gWPNum]!.origin[0] = 0
+        gWPArray[gWPNum]!.origin[1] = 0
     }
 
     //gWPArray[gWPNum] = NULL;
@@ -553,9 +553,9 @@ func RemoveWP_InTrail(_ afterindex: Int32) {
             //B_Free(gWPArray[i]);
 
             //Keep reusing the memory
-            // Port-note: The draft of this statement did not compile, and the compiler wrote "value of optional type 'Wpobject?' must be unwrapped to refer to member 'clear' of wrapped base type 'Wpobject'".
-            // Raven wrote: memset( gWPArray[i], 0, sizeof(gWPArray[i]) )
-            portMissing("RemoveWP_InTrail", source: "oracle/codemp/game/ai_wpnav.c:491")
+            // Raven's memset zeroes the size of a pointer, 8 bytes of `origin` on the 64-bit build.
+            gWPArray[i]!.origin[0] = 0
+            gWPArray[i]!.origin[1] = 0
 
             //gWPArray[i] = NULL;
             gWPArray[i]!.inuse = 0
@@ -565,9 +565,9 @@ func RemoveWP_InTrail(_ afterindex: Int32) {
             //B_Free(gWPArray[i]);
 
             //Keep reusing the memory
-            // Port-note: The draft of this statement did not compile, and the compiler wrote "value of optional type 'Wpobject?' must be unwrapped to refer to member 'clear' of wrapped base type 'Wpobject'".
-            // Raven wrote: memset( gWPArray[i], 0, sizeof(gWPArray[i]) )
-            portMissing("RemoveWP_InTrail", source: "oracle/codemp/game/ai_wpnav.c:491")
+            // Raven's memset zeroes the size of a pointer, 8 bytes of `origin` on the 64-bit build.
+            gWPArray[i]!.origin[0] = 0
+            gWPArray[i]!.origin[1] = 0
 
             //gWPArray[i] = NULL;
             gWPArray[i]!.inuse = 0
@@ -2497,7 +2497,7 @@ func G_RMGPathing() {
     let earlyOut = Trace.scratch { tr -> Bool in
         let terrain = G_Find(nil, \.classname, "terrain")
 
-        if terrain == nil || !terrain!.inuse || terrain!.s.eType != ET_TERRAIN {
+        guard let terrain, terrain.inuse, terrain.s.eType == ET_TERRAIN else {
             G_Printf("Error: RMG with no terrain!\n")
             return true
         }
@@ -2509,18 +2509,18 @@ func G_RMGPathing() {
         trMins = vec3_t(-15, -15, Float(DEFAULT_MINS_2))
         trMaxs = vec3_t(15, 15, Float(DEFAULT_MAXS_2))
 
-        placeX = terrain!.r.absmin[0]
-        placeY = terrain!.r.absmin[1]
-        placeZ = terrain!.r.absmax[2] - 400
+        placeX = terrain.r.absmin[0]
+        placeY = terrain.r.absmin[1]
+        placeZ = terrain.r.absmax[2] - 400
 
         //skim through the entirety of the terrain limits and drop nodes, removing
         //nodes that start in solid or fall too high on the terrain.
-        while placeY < terrain!.r.absmax[1] {
+        while placeY < terrain.r.absmax[1] {
             if nodenum >= MAX_NODETABLE_SIZE {
                 break
             }
 
-            while placeX < terrain!.r.absmax[0] {
+            while placeX < terrain.r.absmax[0] {
                 if nodenum >= MAX_NODETABLE_SIZE {
                     break
                 }
@@ -2533,7 +2533,7 @@ func G_RMGPathing() {
                 downVec[2] -= 3000
                 trap_Trace(tr, nodetable[nodenum].origin, trMins, trMaxs, downVec, ENTITYNUM_NONE, MASK_SOLID)
 
-                if (tr.entityNum >= ENTITYNUM_WORLD || g_entities[tr.entityNum].s.eType == ET_TERRAIN) && tr.endpos[2] < terrain!.r.absmin[2] + 750 {
+                if (tr.entityNum >= ENTITYNUM_WORLD || g_entities[tr.entityNum].s.eType == ET_TERRAIN) && tr.endpos[2] < terrain.r.absmin[2] + 750 {
                     //only drop nodes on terrain directly
                     nodetable[nodenum].origin = tr.endpos
                     nodenum += 1
@@ -2544,7 +2544,7 @@ func G_RMGPathing() {
                 placeX += gridSpacing
             }
 
-            placeX = terrain!.r.absmin[0]
+            placeX = terrain.r.absmin[0]
             placeY += gridSpacing
         }
 
@@ -2579,11 +2579,11 @@ func G_RMGPathing() {
 
             //For now I am going to branch out mindlessly, but I will probably want to use some sort of A* algorithm
             //here to lessen the time taken.
-            if G_RecursiveConnection(nearestIndex, nearestIndexForNext, 0, true, terrain!.r.absmin[2]) != nearestIndexForNext {
+            if G_RecursiveConnection(nearestIndex, nearestIndexForNext, 0, true, terrain.r.absmin[2]) != nearestIndexForNext {
                 //failed to branch to where we want. Oh well, try it without trace checks.
                 G_NodeClearForNext()
 
-                if G_RecursiveConnection(nearestIndex, nearestIndexForNext, 0, false, terrain!.r.absmin[2]) != nearestIndexForNext {
+                if G_RecursiveConnection(nearestIndex, nearestIndexForNext, 0, false, terrain.r.absmin[2]) != nearestIndexForNext {
                     //still failed somehow. Just disregard this point.
                     G_NodeClearForNext()
                     i += 1

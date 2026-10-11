@@ -1197,27 +1197,21 @@ func waypoint_testDirection(_ origin: JKAShared.vec3_t, _ yaw: Float, _ minDist:
 
 /// Source: oracle/codemp/game/g_nav.c:1251
 func waypoint_getRadius(_ ent: Entity) -> UInt32 {
-    // Port-note: The draft of this statement did not compile, and the compiler wrote "cannot convert value of type 'Int32' to specified type 'UInt32'".
-    // Raven wrote: unsigned int minDist = MAX_RADIUS_CHECK + 1;
-    portMissing("waypoint_getRadius", source: "oracle/codemp/game/g_nav.c:1251")
+    var minDist: UInt32 = UInt32(bitPattern: MAX_RADIUS_CHECK + 1) // (unsigned int) -1;
     var dist: UInt32
     var i: Int32
 
     i = 0
     while i < YAW_ITERATIONS {
-        // Port-note: A read of `minDist`, a local the draft left as a hole.
-        // Raven wrote: dist = waypoint_testDirection( ent->r.currentOrigin, ((360.0f/YAW_ITERATIONS) * i), minDist )
-        portMissing("waypoint_getRadius", source: "oracle/codemp/game/g_nav.c:1251")
+        dist = waypoint_testDirection(ent.r.currentOrigin, ((360.0 / YAW_ITERATIONS) * i), minDist)
 
-        // Port-note: A read of `minDist`, a local the draft left as a hole.
-        // Raven wrote: if ( dist < minDist ) minDist = dist
-        portMissing("waypoint_getRadius", source: "oracle/codemp/game/g_nav.c:1251")
+        if dist < minDist {
+            minDist = dist
+        }
         i += 1
     }
 
-    // Port-note: A read of `minDist`, a local the draft left as a hole.
-    // Raven wrote: return minDist
-    portMissing("waypoint_getRadius", source: "oracle/codemp/game/g_nav.c:1251")
+    return minDist
 }
 
 /**
