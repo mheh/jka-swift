@@ -216,10 +216,8 @@ func G_TryPushingEntity(_ check: Entity, _ pusher: Entity, _ move: JKAShared.vec
         else
         */
         do {
-            // Port-note: Raven passes NULL for the `dir` output. The ported function takes it by reference, so the body passes a scratch local it never reads.
-            portMissing("G_TryPushingEntity", source: "oracle/codemp/game/g_mover.c:159")
-            var scratchDir = vec3_t()
-            G_Damage(check, pusher, pusher, &scratchDir, nil, pusher.damage, DAMAGE_NO_KNOCKBACK, MOD_CRUSH)
+            var dir: vec3_t? = nil
+            G_Damage(check, pusher, pusher, &dir, nil, pusher.damage, DAMAGE_NO_KNOCKBACK, MOD_CRUSH)
         }
         return true
     }
@@ -278,9 +276,9 @@ func G_TryPushingEntity(_ check: Entity, _ pusher: Entity, _ move: JKAShared.vec
 
     if check.takedamage && check.client == nil && check.s.weapon != 0 && check.r.ownerNum < MAX_CLIENTS && check.health < 500 {
         if check.health > 0 {
-            // Port-note: The draft of this statement did not compile, and the compiler wrote "cannot pass immutable value as inout argument: 'vec3_origin' is a 'let' constant".
-            // Raven wrote: G_Damage(check, pusher, pusher, vec3_origin, check->r.currentOrigin, 999, 0, MOD_UNKNOWN)
-            portMissing("G_TryPushingEntity", source: "oracle/codemp/game/g_mover.c:159")
+            // G_Damage writes its `dir`, so the call passes a copy of `vec3_origin`.
+            var dir = vec3_origin
+            G_Damage(check, pusher, pusher, &dir, check.r.currentOrigin, 999, 0, MOD_UNKNOWN)
         }
         return false
     }
@@ -408,20 +406,16 @@ func G_MoverPush(_ pusher: Entity, _ move: JKAShared.vec3_t, _ amove: JKAShared.
         }
 
         if pusher.damage != 0 && check!.client != nil && (pusher.spawnflags & 32) != 0 {
-            // Port-note: Raven passes NULL for the `dir` output. The ported function takes it by reference, so the body passes a scratch local it never reads.
-            portMissing("G_MoverPush", source: "oracle/codemp/game/g_mover.c:283")
-            var scratchDir = vec3_t()
-            G_Damage(check!, pusher, pusher, &scratchDir, nil, pusher.damage, 0, MOD_CRUSH)
+            var dir: vec3_t? = nil
+            G_Damage(check!, pusher, pusher, &dir, nil, pusher.damage, 0, MOD_CRUSH)
             e += 1
             continue
         }
 
         if check!.s.eType == ET_BODY || (check!.s.eType == ET_PLAYER && check!.health < 1) {
             //whatever, just crush it
-            // Port-note: Raven passes NULL for the `dir` output. The ported function takes it by reference, so the body passes a scratch local it never reads.
-            portMissing("G_MoverPush", source: "oracle/codemp/game/g_mover.c:283")
-            var scratchDir2 = vec3_t()
-            G_Damage(check!, pusher, pusher, &scratchDir2, nil, 999, 0, MOD_CRUSH)
+            var dir: vec3_t? = nil
+            G_Damage(check!, pusher, pusher, &dir, nil, 999, 0, MOD_CRUSH)
             e += 1
             continue
         }
@@ -430,19 +424,15 @@ func G_MoverPush(_ pusher: Entity, _ move: JKAShared.vec3_t, _ amove: JKAShared.
 
         // bobbing entities are instant-kill and never get blocked
         if pusher.s.pos.trType == TR_SINE || pusher.s.apos.trType == TR_SINE {
-            // Port-note: Raven passes NULL for the `dir` output. The ported function takes it by reference, so the body passes a scratch local it never reads.
-            portMissing("G_MoverPush", source: "oracle/codemp/game/g_mover.c:283")
-            var scratchDir3 = vec3_t()
-            G_Damage(check!, pusher, pusher, &scratchDir3, nil, 99999, 0, MOD_CRUSH)
+            var dir: vec3_t? = nil
+            G_Damage(check!, pusher, pusher, &dir, nil, 99999, 0, MOD_CRUSH)
             e += 1
             continue
         }
 
 
         // save off the obstacle so we can call the block function (crush, etc)
-        // Port-note: Raven stores `*obstacle = check`, and the view holds the source as an optional where the target takes a value. A never-null ruling is due.
-        // Raven wrote: *obstacle = check
-        portMissing("G_MoverPush", source: "oracle/codemp/game/g_mover.c:283")
+        obstacle = check
 
         // move back any entities we already moved
         // go backwards, so if the same entity was pushed
@@ -1036,10 +1026,8 @@ Blocked_Door
 /// Source: oracle/codemp/game/g_mover.c:1018
 func Blocked_Door(_ ent: Entity, _ other: Entity) {
     if ent.damage != 0 {
-        // Port-note: Raven passes NULL for the `dir` output. The ported function takes it by reference, so the body passes a scratch local it never reads.
-        portMissing("Blocked_Door", source: "oracle/codemp/game/g_mover.c:1018")
-        var scratchDir = vec3_t()
-        G_Damage(other, ent, ent, &scratchDir, nil, ent.damage, 0, MOD_CRUSH)
+        var dir: vec3_t? = nil
+        G_Damage(other, ent, ent, &dir, nil, ent.damage, 0, MOD_CRUSH)
     }
     if (ent.spawnflags & MOVER_CRUSHER) != 0 {
         return // crushers don't reverse
@@ -1270,19 +1258,28 @@ func G_FindDoorTrigger(_ ent: Entity) -> Entity? {
     if door!.targetname != nil {
         //find out what is targeting it
         //FIXME: if ent->targetname, check what kind of trigger/ent is targetting it?  If a normal trigger (active, etc), then it's okay?
-        // Port-note: An assignment inside an expression.
-        // Raven wrote: while ( (owner = G_Find( owner, FOFS( target ), door->targetname )) != NULL ) { if ( owner && (owner->r.contents&CONTENTS_TRIGGER) ) { return owner; } }
-        portMissing("G_FindDoorTrigger", source: "oracle/codemp/game/g_mover.c:1239")
+        while let next = G_Find(owner, \.target, door!.targetname!) {
+            owner = next
+            if owner != nil && (owner!.r.contents & CONTENTS_TRIGGER) != 0 {
+                return owner
+            }
+        }
         owner = nil
-        // Port-note: An assignment inside an expression.
-        // Raven wrote: while ( (owner = G_Find( owner, FOFS( target2 ), door->targetname )) != NULL ) { if ( owner && (owner->r.contents&CONTENTS_TRIGGER) ) { return owner; } }
-        portMissing("G_FindDoorTrigger", source: "oracle/codemp/game/g_mover.c:1239")
+        while let next = G_Find(owner, \.target2, door!.targetname!) {
+            owner = next
+            if owner != nil && (owner!.r.contents & CONTENTS_TRIGGER) != 0 {
+                return owner
+            }
+        }
     }
 
     owner = nil
-    // Port-note: An assignment inside an expression.
-    // Raven wrote: while ( (owner = G_Find( owner, FOFS( classname ), "trigger_door" )) != NULL ) { if ( owner->parent == door ) { return owner; } }
-    portMissing("G_FindDoorTrigger", source: "oracle/codemp/game/g_mover.c:1239")
+    while let next = G_Find(owner, \.classname, "trigger_door") {
+        owner = next
+        if owner!.parent == door {
+            return owner
+        }
+    }
 
     return nil
 }
@@ -1306,13 +1303,25 @@ public func G_EntIsUnlockedDoor(_ entityNum: Int32) -> Bool {
             //find out what is targetting it
             owner = nil
             //FIXME: if ent->targetname, check what kind of trigger/ent is targetting it?  If a normal trigger (active, etc), then it's okay?
-            // Port-note: An assignment inside an expression.
-            // Raven wrote: while ( (owner = G_Find( owner, FOFS( target ), ent->targetname )) != NULL ) { if ( !Q_stricmp( "trigger_multiple", owner->classname ) )//FIXME: other triggers okay too? { if ( !(owner->flags & FL_INACTIVE) ) { return qtrue; } } }
-            portMissing("G_EntIsUnlockedDoor", source: "oracle/codemp/game/g_mover.c:1282")
+            while let next = G_Find(owner, \.target, ent!.targetname!) {
+                owner = next
+                if Q_stricmp("trigger_multiple", owner!.classname!) == 0 {
+                    //FIXME: other triggers okay too?
+                    if !((owner!.flags & FL_INACTIVE) != 0) {
+                        return true
+                    }
+                }
+            }
             owner = nil
-            // Port-note: An assignment inside an expression.
-            // Raven wrote: while ( (owner = G_Find( owner, FOFS( target2 ), ent->targetname )) != NULL ) { if ( !Q_stricmp( "trigger_multiple", owner->classname ) )//FIXME: other triggers okay too? { if ( !(owner->flags & FL_INACTIVE) ) { return qtrue; } } }
-            portMissing("G_EntIsUnlockedDoor", source: "oracle/codemp/game/g_mover.c:1282")
+            while let next = G_Find(owner, \.target2, ent!.targetname!) {
+                owner = next
+                if Q_stricmp("trigger_multiple", owner!.classname!) == 0 {
+                    //FIXME: other triggers okay too?
+                    if !((owner!.flags & FL_INACTIVE) != 0) {
+                        return true
+                    }
+                }
+            }
             return false
         } else {
             //check the door's auto-created trigger instead
@@ -1780,9 +1789,7 @@ func Think_SetupTrainTargets(_ ent: Entity) {
     var next: Entity?
     var start: Entity?
 
-    // Port-note: No operator beside the operand, the text there is ``.
-    // Raven wrote: ent->nextTrain = G_Find( NULL, FOFS(targetname), ent->target )
-    portMissing("Think_SetupTrainTargets", source: "oracle/codemp/game/g_mover.c:1802")
+    ent.nextTrain = G_Find(nil, \.targetname, ent.target!)
     if ent.nextTrain == nil {
         Com_Printf("func_train at %s with an unfound target\n", vtos(ent.r.absmin))
         //Free me?`
@@ -1813,9 +1820,7 @@ func Think_SetupTrainTargets(_ ent: Entity) {
         // is reached
         next = nil
         repeat {
-            // Port-note: No operator beside the operand, the text there is ``.
-            // Raven wrote: next = G_Find( next, FOFS(targetname), path->target )
-            portMissing("Think_SetupTrainTargets", source: "oracle/codemp/game/g_mover.c:1802")
+            next = G_Find(next, \.targetname, path!.target!)
             if next == nil {
                 //				gi.Printf( "Train corner at %s without a target path_corner\n",
                 //					vtos(path->s.origin) );
@@ -2261,10 +2266,8 @@ func funcBBrushDieGo(_ `self`: Entity) {
     i = 0
     while i < MAX_GENTITIES {
         if g_entities[i].s.groundEntityNum == `self`.s.number && (g_entities[i].s.eFlags & EF_MISSILE_STICK) != 0 {
-            // Port-note: Raven passes NULL for the `dir` output. The ported function takes it by reference, so the body passes a scratch local it never reads.
-            portMissing("funcBBrushDieGo", source: "oracle/codemp/game/g_mover.c:2398")
-            var scratchDir = vec3_t()
-            G_Damage(g_entities[i], `self`, `self`, &scratchDir, nil, 99999, 0, MOD_CRUSH) //?? MOD?
+            var dir: vec3_t? = nil
+            G_Damage(g_entities[i], `self`, `self`, &dir, nil, 99999, 0, MOD_CRUSH) //?? MOD?
         }
         i += 1
     }
@@ -2608,9 +2611,7 @@ func SP_func_breakable(_ `self`: Entity) {
 
     G_SoundIndex("sound/weapons/explosions/cargoexplode.wav") //precaching
     G_SpawnFloat("radius", "1", &`self`.radius) // used to scale chunk code if desired by a designer
-    // Port-note: A cast to `int *` the draft has no view for.
-    // Raven wrote: G_SpawnInt( "material", "0", (int*)&self->material )
-    portMissing("SP_func_breakable", source: "oracle/codemp/game/g_mover.c:2731")
+    G_SpawnInt("material", "0", &`self`.material)
 
     G_SpawnInt("splashDamage", "0", &`self`.splashDamage)
     G_SpawnInt("splashRadius", "0", &`self`.splashRadius)

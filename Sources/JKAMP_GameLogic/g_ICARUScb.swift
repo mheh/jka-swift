@@ -932,9 +932,7 @@ public func Q3_GetFloat(_ entID: Int32, _ type: Int32, _ name: String, _ value: 
         return 0
     }
 
-    // Port-note: Raven passes `setTable` to `GetIDForString`, whose `table` parameter takes the Slots over the records, and Swift holds one record here. A Slots over one record has no form yet.
-    // Raven wrote: toGet = GetIDForString( setTable, name )
-    portMissing("Q3_GetFloat", source: "oracle/codemp/game/g_ICARUScb.c:1189")
+    toGet = GetIDForString(setTable, name) //FIXME: May want to make a "getTable" as well
     //FIXME: I'm getting really sick of these huge switch statements!
 
     //NOTENOTE: return true if the value was correctly obtained
@@ -1270,9 +1268,7 @@ public func Q3_GetVector(_ entID: Int32, _ type: Int32, _ name: String, _ value:
         return 0
     }
 
-    // Port-note: Raven passes `setTable` to `GetIDForString`, whose `table` parameter takes the Slots over the records, and Swift holds one record here. A Slots over one record has no form yet.
-    // Raven wrote: toGet = GetIDForString( setTable, name )
-    portMissing("Q3_GetVector", source: "oracle/codemp/game/g_ICARUScb.c:1573")
+    toGet = GetIDForString(setTable, name) //FIXME: May want to make a "getTable" as well
     //FIXME: I'm getting really sick of these huge switch statements!
 
     //NOTENOTE: return true if the value was correctly obtained
@@ -1322,9 +1318,7 @@ public func Q3_GetString(_ entID: Int32, _ type: Int32, _ name: String, _ value:
         return 0
     }
 
-    // Port-note: Raven passes `setTable` to `GetIDForString`, whose `table` parameter takes the Slots over the records, and Swift holds one record here. A Slots over one record has no form yet.
-    // Raven wrote: toGet = GetIDForString( setTable, name )
-    portMissing("Q3_GetString", source: "oracle/codemp/game/g_ICARUScb.c:1642")
+    toGet = GetIDForString(setTable, name) //FIXME: May want to make a "getTable" as well
 
     switch toGet {
     case SET_ANIM_BOTH:
@@ -2160,9 +2154,7 @@ private func Q3_SetBState(_ entID: Int32, _ bs_name: String) -> Bool {
         return true //ok to complete
     }
 
-    // Port-note: Raven passes `BSTable` to `GetIDForString`, whose `table` parameter takes the Slots over the records, and Swift holds one record here. A Slots over one record has no form yet.
-    // Raven wrote: bSID = (bState_t)(GetIDForString( BSTable, bs_name ))
-    portMissing("Q3_SetBState", source: "oracle/codemp/game/g_ICARUScb.c:2573")
+    bSID = bState_t(GetIDForString(BSTable, bs_name))
     if bSID > -1 {
         if bSID == BS_SEARCH || bSID == BS_WANDER {
             //FIXME: Reimplement
@@ -2273,9 +2265,7 @@ private func Q3_SetTempBState(_ entID: Int32, _ bs_name: String) -> Bool {
         return true //ok to complete
     }
 
-    // Port-note: Raven passes `BSTable` to `GetIDForString`, whose `table` parameter takes the Slots over the records, and Swift holds one record here. A Slots over one record has no form yet.
-    // Raven wrote: bSID = (bState_t)(GetIDForString( BSTable, bs_name ))
-    portMissing("Q3_SetTempBState", source: "oracle/codemp/game/g_ICARUScb.c:2699")
+    bSID = bState_t(GetIDForString(BSTable, bs_name))
     if bSID > -1 {
         ent!.NPC!.tempBehavior = bSID
     }
@@ -2323,9 +2313,7 @@ private func Q3_SetDefaultBState(_ entID: Int32, _ bs_name: String) {
         return
     }
 
-    // Port-note: Raven passes `BSTable` to `GetIDForString`, whose `table` parameter takes the Slots over the records, and Swift holds one record here. A Slots over one record has no form yet.
-    // Raven wrote: bSID = (bState_t)(GetIDForString( BSTable, bs_name ))
-    portMissing("Q3_SetDefaultBState", source: "oracle/codemp/game/g_ICARUScb.c:2749")
+    bSID = bState_t(GetIDForString(BSTable, bs_name))
     if bSID > -1 {
         ent!.NPC!.defaultBehavior = bSID
     }
@@ -4638,9 +4626,7 @@ public func Q3_Set(_ taskID: Int32, _ entID: Int32, _ type_name: String, _ data:
     var vector_data = vec3_t()
 
     //Set this for callbacks
-    // Port-note: Raven passes `setTable` to `GetIDForString`, whose `table` parameter takes the Slots over the records, and Swift holds one record here. A Slots over one record has no form yet.
-    // Raven wrote: toSet = GetIDForString( setTable, type_name )
-    portMissing("Q3_Set", source: "oracle/codemp/game/g_ICARUScb.c:5018")
+    toSet = GetIDForString(setTable, type_name)
 
     //TODO: Throw in a showscript command that will list each command and what they're doing...
     //		maybe as simple as printing that line of the script to the console preceeded by the person's name?

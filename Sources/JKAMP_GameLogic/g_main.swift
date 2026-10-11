@@ -3079,9 +3079,7 @@ func CheckVote() {
                 }
 
                 if nextMap != nil && !nextMap!.isEmpty {
-                    // Port-note: The draft of this statement did not compile, and the compiler wrote "cannot force unwrap value of non-optional type 'String'".
-                    // Raven wrote: trap_SendConsoleCommand( EXEC_APPEND, va("map %s\n", nextMap ) )
-                    portMissing("CheckVote", source: "oracle/codemp/game/g_main.c:3246")
+                    trap_SendConsoleCommand(EXEC_APPEND, va("map %s\n", nextMap!))
                 }
             } else {
                 //otherwise, just leave the map until a restart

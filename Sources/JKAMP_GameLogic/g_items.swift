@@ -356,10 +356,6 @@ func CreateShield(_ ent: Entity) {
         // trace upward to find height of shield
         end = ent.r.currentOrigin
         end[2] += MAX_SHIELD_HEIGHT
-        // Port-note: Raven passes NULL for `mins`, and the callee reads NULL as the zero vector.
-        portMissing("CreateShield", source: "oracle/codemp/game/g_items.c:254")
-        // Port-note: Raven passes NULL for `maxs`, and the callee reads NULL as the zero vector.
-        portMissing("CreateShield", source: "oracle/codemp/game/g_items.c:254")
         trap_Trace(tr, ent.r.currentOrigin, vec3_origin, vec3_origin, end, ent.s.number, MASK_SHOT)
         height = Int32((MAX_SHIELD_HEIGHT * tr.fraction))
 
@@ -383,17 +379,9 @@ func CreateShield(_ ent: Entity) {
         // positive trace
         start = ent.r.currentOrigin
         start[2] += (height >> 1)
-        // Port-note: Raven passes NULL for `mins`, and the callee reads NULL as the zero vector.
-        portMissing("CreateShield", source: "oracle/codemp/game/g_items.c:254")
-        // Port-note: Raven passes NULL for `maxs`, and the callee reads NULL as the zero vector.
-        portMissing("CreateShield", source: "oracle/codemp/game/g_items.c:254")
         trap_Trace(tr, start, vec3_origin, vec3_origin, posTraceEnd, ent.s.number, MASK_SHOT)
         posWidth = Int32(MAX_SHIELD_HALFWIDTH * tr.fraction)
         // negative trace
-        // Port-note: Raven passes NULL for `mins`, and the callee reads NULL as the zero vector.
-        portMissing("CreateShield", source: "oracle/codemp/game/g_items.c:254")
-        // Port-note: Raven passes NULL for `maxs`, and the callee reads NULL as the zero vector.
-        portMissing("CreateShield", source: "oracle/codemp/game/g_items.c:254")
         trap_Trace(tr, start, vec3_origin, vec3_origin, negTraceEnd, ent.s.number, MASK_SHOT)
         negWidth = Int32(MAX_SHIELD_HALFWIDTH * tr.fraction)
 
@@ -501,11 +489,8 @@ func PlaceShield(_ playerent: Entity) -> Bool {
         }
 
         // can we place this in front of us?
-        // Port-note: Raven passes NULL for the `right` output. The ported function takes it by reference, so the body passes a scratch local it never reads.
-        portMissing("PlaceShield", source: "oracle/codemp/game/g_items.c:382")
+        // Raven passes NULL for the `right` and `up` outputs.
         var scratchRight = vec3_t()
-        // Port-note: Raven passes NULL for the `up` output. The ported function takes it by reference, so the body passes a scratch local it never reads.
-        portMissing("PlaceShield", source: "oracle/codemp/game/g_items.c:382")
         var scratchUp = vec3_t()
         AngleVectors(playerent.client!.ps.viewangles, &fwd, &scratchRight, &scratchUp)
         fwd[2] = 0
@@ -649,9 +634,7 @@ private func pas_find_enemies(_ `self`: Entity) -> Bool {
     var enemyDir = vec3_t()
     var org = vec3_t()
     var org2 = vec3_t()
-    // Port-note: A local `gentity_t *[1024] entity_list` the table has no type for.
-    // Raven wrote: gentity_t *entity_list[MAX_GENTITIES];
-    portMissing("pas_find_enemies", source: "oracle/codemp/game/g_items.c:547")
+    var entity_list = [Entity?](repeating: nil, count: Int(MAX_GENTITIES))
     var target: Entity?
     // Raven's record lives to the end of his block, so the block is the closure.
     // Every path of Raven's block returns, so the closure's value is the function's.
@@ -667,15 +650,11 @@ private func pas_find_enemies(_ `self`: Entity) -> Bool {
 
         org2 = `self`.s.pos.trBase
 
-        // Port-note: A read of `entity_list`, a local the draft left as a hole.
-        // Raven wrote: count = G_RadiusList( org2, TURRET_RADIUS, self, qtrue, entity_list )
-        portMissing("pas_find_enemies", source: "oracle/codemp/game/g_items.c:547")
+        count = G_RadiusList(org2, Float(TURRET_RADIUS), `self`, true, &entity_list)
 
         i = 0
         while i < count {
-            // Port-note: A read of `entity_list`, a local the draft left as a hole.
-            // Raven wrote: target = entity_list[i]
-            portMissing("pas_find_enemies", source: "oracle/codemp/game/g_items.c:547")
+            target = entity_list[i]
 
             if target!.client == nil {
                 i += 1
@@ -710,10 +689,6 @@ private func pas_find_enemies(_ `self`: Entity) -> Bool {
                 org = target!.r.currentOrigin
             }
 
-            // Port-note: Raven passes NULL for `mins`, and the callee reads NULL as the zero vector.
-            portMissing("pas_find_enemies", source: "oracle/codemp/game/g_items.c:547")
-            // Port-note: Raven passes NULL for `maxs`, and the callee reads NULL as the zero vector.
-            portMissing("pas_find_enemies", source: "oracle/codemp/game/g_items.c:547")
             trap_Trace(tr, org2, vec3_origin, vec3_origin, org, `self`.s.number, MASK_SHOT)
 
             if tr.allsolid == 0 && tr.startsolid == 0 && (Double(tr.fraction) == 1.0 || tr.entityNum == target!.s.number) {
@@ -765,10 +740,6 @@ func pas_adjust_enemy(_ ent: Entity) {
                 org = ent.enemy!.r.currentOrigin
             }
 
-            // Port-note: Raven passes NULL for `mins`, and the callee reads NULL as the zero vector.
-            portMissing("pas_adjust_enemy", source: "oracle/codemp/game/g_items.c:642")
-            // Port-note: Raven passes NULL for `maxs`, and the callee reads NULL as the zero vector.
-            portMissing("pas_adjust_enemy", source: "oracle/codemp/game/g_items.c:642")
             trap_Trace(tr, org2, vec3_origin, vec3_origin, org, ent.s.number, MASK_SHOT)
 
             if tr.allsolid != 0 || tr.startsolid != 0 || tr.fraction < 0.9 || tr.entityNum == ent.s.number {
@@ -1080,11 +1051,8 @@ func ItemUse_Sentry(_ ent: Entity) {
     yawonly[PITCH] = 0
     yawonly[YAW] = ent.client!.ps.viewangles[YAW]
 
-    // Port-note: Raven passes NULL for the `right` output. The ported function takes it by reference, so the body passes a scratch local it never reads.
-    portMissing("ItemUse_Sentry", source: "oracle/codemp/game/g_items.c:1014")
+    // Raven passes NULL for the `right` and `up` outputs.
     var scratchRight = vec3_t()
-    // Port-note: Raven passes NULL for the `up` output. The ported function takes it by reference, so the body passes a scratch local it never reads.
-    portMissing("ItemUse_Sentry", source: "oracle/codemp/game/g_items.c:1014")
     var scratchUp = vec3_t()
     AngleVectors(yawonly, &fwd, &scratchRight, &scratchUp)
 
@@ -1097,9 +1065,7 @@ func ItemUse_Sentry(_ ent: Entity) {
     sentry!.classname = "sentryGun"
     sentry!.s.modelindex = G_ModelIndex("models/items/psgun.glm") //replace ASAP
 
-    // Port-note: The draft of this statement did not compile, and the compiler wrote "cannot assign value of type 'Double' to type 'Int32'".
-    // Raven wrote: sentry->s.g2radius = 30.0f
-    portMissing("ItemUse_Sentry", source: "oracle/codemp/game/g_items.c:1014")
+    sentry!.s.g2radius = Int32(30.0)
     sentry!.s.modelGhoul2 = 1
 
     G_SetOrigin(sentry!, &fwdorg)
@@ -1149,12 +1115,20 @@ func ItemUse_Sentry(_ ent: Entity) {
 func ItemUse_Seeker(_ ent: Entity) {
     if g_gametype.integer == GT_SIEGE && d_siegeSeekerNPC.integer != 0 {
         //actualy spawn a remote NPC
-        // Port-note: Raven passes `"remote"` to `NPC_SpawnType`, whose `char *` parameter the stub holds as an inout CharBuf. Docket row 5 is due.
-        // Raven wrote: gentity_t *remote = NPC_SpawnType( ent, "remote", NULL, qfalse );
-        portMissing("ItemUse_Seeker", source: "oracle/codemp/game/g_items.c:1096")
-        // Port-note: A read of `remote`, a local the draft left as a hole.
-        // Raven wrote: if ( remote && remote->client ) {//set it to my team remote->s.owner = remote->r.ownerNum = ent->s.number; remote->activator = ent; if ( ent->client->sess.sessionTeam == TEAM_BLUE ) { remote->client->playerTeam = NPCTEAM_PLAYER; } else if ( ent->client->sess.sessionTeam == TEAM_RED ) { remote->client->playerTeam = NPCTEAM_ENEMY; } else { remote->client->playerTeam = NPCTEAM_NEUTRAL; } }
-        portMissing("ItemUse_Seeker", source: "oracle/codemp/game/g_items.c:1096")
+        let remote = NPC_SpawnType(ent, "remote", nil, false)
+        if remote != nil && remote!.client != nil {
+            //set it to my team
+            remote!.r.ownerNum = ent.s.number
+            remote!.s.owner = remote!.r.ownerNum
+            remote!.activator = ent
+            if ent.client!.sess.sessionTeam == TEAM_BLUE {
+                remote!.client!.playerTeam = NPCTEAM_PLAYER
+            } else if ent.client!.sess.sessionTeam == TEAM_RED {
+                remote!.client!.playerTeam = NPCTEAM_ENEMY
+            } else {
+                remote!.client!.playerTeam = NPCTEAM_NEUTRAL
+            }
+        }
     } else {
         ent.client!.ps.eFlags |= EF_SEEKERDRONE
         ent.client!.ps.droneExistTime = Float(level.time + 30000)
@@ -1392,11 +1366,8 @@ func ItemUse_UseDisp(_ ent: Entity, _ type: Int32) {
 
         G_SpecialSpawnItem(eItem!, item!)
 
-        // Port-note: Raven passes NULL for the `right` output. The ported function takes it by reference, so the body passes a scratch local it never reads.
-        portMissing("ItemUse_UseDisp", source: "oracle/codemp/game/g_items.c:1353")
+        // Raven passes NULL for the `right` and `up` outputs.
         var scratchRight = vec3_t()
-        // Port-note: Raven passes NULL for the `up` output. The ported function takes it by reference, so the body passes a scratch local it never reads.
-        portMissing("ItemUse_UseDisp", source: "oracle/codemp/game/g_items.c:1353")
         var scratchUp = vec3_t()
         AngleVectors(ent.client!.ps.viewangles, &fwd, &scratchRight, &scratchUp)
         eItem!.epVelocity = fwd * 128.0
@@ -1794,11 +1765,8 @@ func EWeb_Create(_ spawner: Entity) -> Entity? {
         maxs = vec3_t(32, 32, 24)
 
         fAng = vec3_t(0, spawner.client!.ps.viewangles[1], 0)
-        // Port-note: Raven passes NULL for the `right` output. The ported function takes it by reference, so the body passes a scratch local it never reads.
-        portMissing("EWeb_Create", source: "oracle/codemp/game/g_items.c:1859")
+        // Raven passes NULL for the `right` and `up` outputs.
         var scratchRight = vec3_t()
-        // Port-note: Raven passes NULL for the `up` output. The ported function takes it by reference, so the body passes a scratch local it never reads.
-        portMissing("EWeb_Create", source: "oracle/codemp/game/g_items.c:1859")
         var scratchUp = vec3_t()
         AngleVectors(fAng, &fwd, &scratchRight, &scratchUp)
 
@@ -2161,9 +2129,7 @@ func RespawnItem(_ ent: Entity) {
         master = ent.teammaster
 
         count = 0
-        // Port-note: Raven stores `ent = master`, and the view holds the source as an optional where the target takes a value. A never-null ruling is due.
-        // Raven wrote: ent = master
-        portMissing("RespawnItem", source: "oracle/codemp/game/g_items.c:2288")
+        ent = master!
         while true {
             // Port-note: Raven stores `ent = ent->teamchain`, and the view holds the source as an optional where the target takes a value. A never-null ruling is due.
             // Raven wrote: ent = ent->teamchain
@@ -2175,13 +2141,9 @@ func RespawnItem(_ ent: Entity) {
         choice = JKAMP_BG.rand() % count
 
         count = 0
-        // Port-note: Raven stores `ent = master`, and the view holds the source as an optional where the target takes a value. A never-null ruling is due.
-        // Raven wrote: ent = master
-        portMissing("RespawnItem", source: "oracle/codemp/game/g_items.c:2288")
+        ent = master!
         while count < choice {
-            // Port-note: Raven stores `ent = ent->teamchain`, and the view holds the source as an optional where the target takes a value. A never-null ruling is due.
-            // Raven wrote: ent = ent->teamchain
-            portMissing("RespawnItem", source: "oracle/codemp/game/g_items.c:2288")
+            ent = ent.teamchain!
             count += 1
         }
     }
@@ -2564,11 +2526,8 @@ func Drop_Item(_ ent: Entity, _ item: JKAMP.Gitem, _ angle: Float) -> Entity? {
     angles[YAW] += angle
     angles[PITCH] = 0 // always forward
 
-    // Port-note: Raven passes NULL for the `right` output. The ported function takes it by reference, so the body passes a scratch local it never reads.
-    portMissing("Drop_Item", source: "oracle/codemp/game/g_items.c:2742")
+    // Raven passes NULL for the `right` and `up` outputs.
     var scratchRight = vec3_t()
-    // Port-note: Raven passes NULL for the `up` output. The ported function takes it by reference, so the body passes a scratch local it never reads.
-    portMissing("Drop_Item", source: "oracle/codemp/game/g_items.c:2742")
     var scratchUp = vec3_t()
     AngleVectors(angles, &velocity, &scratchRight, &scratchUp)
     velocity = velocity * 150

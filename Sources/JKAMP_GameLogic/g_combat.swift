@@ -1632,9 +1632,7 @@ func player_die(_ `self`: Entity, _ inflictor: Entity, _ attacker: Entity, _ dam
     var killer: Int32
     var i: Int32
     var killerName: String
-    // Port-note: A pointer local `char * obit` with no view.
-    // Raven wrote: obit;
-    portMissing("player_die", source: "oracle/codemp/game/g_combat.c:2123")
+    var obit: String
     var wasJediMaster: Bool = false
     var sPMType: Int32 = 0
     var wasInVehicle: Int32 = 0

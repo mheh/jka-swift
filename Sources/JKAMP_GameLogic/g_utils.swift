@@ -497,9 +497,7 @@ func G_SetAnim(_ ent: Entity, _ ucmd: JKAMP.Usercmd?, _ setAnimParts: Int32, _ a
 func G_PickTarget(_ targetname: String) -> Entity? {
     var ent: Entity? = nil
     var num_choices: Int32 = 0
-    // Port-note: A local `gentity_t *[32] choice` the table has no type for.
-    // Raven wrote: gentity_t *choice[MAXCHOICES];
-    portMissing("G_PickTarget", source: "oracle/codemp/game/g_utils.c:521")
+    var choice = [Entity?](repeating: nil, count: Int(MAXCHOICES))
 
 
     while 1 != 0 {
@@ -507,9 +505,8 @@ func G_PickTarget(_ targetname: String) -> Entity? {
         if ent == nil {
             break
         }
-        // Port-note: A ++ inside an expression.
-        // Raven wrote: choice[num_choices++] = ent
-        portMissing("G_PickTarget", source: "oracle/codemp/game/g_utils.c:521")
+        choice[num_choices] = ent
+        num_choices += 1
         if num_choices == MAXCHOICES {
             break
         }
@@ -520,9 +517,7 @@ func G_PickTarget(_ targetname: String) -> Entity? {
         return nil
     }
 
-    // Port-note: A read of `choice`, a local the draft left as a hole.
-    // Raven wrote: return choice[rand() % num_choices]
-    portMissing("G_PickTarget", source: "oracle/codemp/game/g_utils.c:521")
+    return choice[rand() % num_choices]
 }
 
 /// Source: oracle/codemp/game/g_utils.c:552

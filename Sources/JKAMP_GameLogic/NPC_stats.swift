@@ -321,9 +321,7 @@ func NPC_Precache(_ spawner: Entity) {
             }
             //playerTeam = TranslateTeamName(value);
             Com_sprintf(&tk, Int32((tk).count), "NPC%s", token)
-            // Port-note: Raven passes `TeamTable` to `GetIDForString`, whose `table` parameter takes the Slots over the records, and Swift holds one record here. A Slots over one record has no form yet.
-            // Raven wrote: playerTeam = (team_t)GetIDForString( TeamTable, tk )
-            portMissing("NPC_Precache", source: "oracle/codemp/game/NPC_stats.c:599")
+            playerTeam = team_t(GetIDForString(TeamTable, String(tk)))
             continue
         }
 
@@ -1182,9 +1180,8 @@ func NPC_ParseParms(_ NPCName: String, _ NPC: Entity) -> Bool {
                     continue
                 }
                 Com_sprintf(&tk, Int32((tk).count), "NPC%s", token)
-                // Port-note: Raven passes `TeamTable` to `GetIDForString`, whose `table` parameter takes the Slots over the records, and Swift holds one record here. A Slots over one record has no form yet.
-                // Raven wrote: NPC->client->playerTeam = NPC->s.teamowner = (team_t)GetIDForString( TeamTable, tk )
-                portMissing("NPC_ParseParms", source: "oracle/codemp/game/NPC_stats.c:974")
+                NPC.s.teamowner = team_t(GetIDForString(TeamTable, String(tk))) //TranslateTeamName(value);
+                NPC.client!.playerTeam = NPC.s.teamowner
                 continue
             }
 
@@ -1196,9 +1193,7 @@ func NPC_ParseParms(_ NPCName: String, _ NPC: Entity) -> Bool {
                     continue
                 }
                 Com_sprintf(&tk, Int32((tk).count), "NPC%s", token)
-                // Port-note: Raven passes `TeamTable` to `GetIDForString`, whose `table` parameter takes the Slots over the records, and Swift holds one record here. A Slots over one record has no form yet.
-                // Raven wrote: NPC->client->enemyTeam = (team_t)GetIDForString( TeamTable, tk )
-                portMissing("NPC_ParseParms", source: "oracle/codemp/game/NPC_stats.c:974")
+                NPC.client!.enemyTeam = team_t(GetIDForString(TeamTable, String(tk))) //TranslateTeamName(value);
                 continue
             }
 
@@ -1207,9 +1202,7 @@ func NPC_ParseParms(_ NPCName: String, _ NPC: Entity) -> Bool {
                 if COM_ParseString(&p, &value) {
                     continue
                 }
-                // Port-note: Raven passes `ClassTable` to `GetIDForString`, whose `table` parameter takes the Slots over the records, and Swift holds one record here. A Slots over one record has no form yet.
-                // Raven wrote: NPC->client->NPC_class = (class_t)GetIDForString( ClassTable, value )
-                portMissing("NPC_ParseParms", source: "oracle/codemp/game/NPC_stats.c:974")
+                NPC.client!.NPC_class = class_t(GetIDForString(ClassTable, value))
                 NPC.s.NPC_class = NPC.client!.NPC_class //we actually only need this value now, but at the moment I don't feel like changing the 200+ references to client->NPC_class.
 
                 // No md3's for vehicles.

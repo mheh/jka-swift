@@ -3494,9 +3494,7 @@ func NPC_Kill_f() {
         if Q_stricmp("nonally", name) == 0 {
             killNonSF = true
         } else {
-            // Port-note: Raven passes `TeamTable` to `GetIDForString`, whose `table` parameter takes the Slots over the records, and Swift holds one record here. A Slots over one record has no form yet.
-            // Raven wrote: killTeam = (team_t)GetIDForString( TeamTable, name )
-            portMissing("NPC_Kill_f", source: "oracle/codemp/game/NPC_spawn.c:4045")
+            killTeam = team_t(GetIDForString(TeamTable, String(name)))
 
             if killTeam == TEAM_FREE {
                 Com_Printf(S_COLOR_RED + "NPC_Kill Error: team '%s' not recognized\n", name)

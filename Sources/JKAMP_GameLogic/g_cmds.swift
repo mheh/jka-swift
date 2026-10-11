@@ -192,13 +192,13 @@ Remove case and control characters
 */
 /// Source: oracle/codemp/game/g_cmds.c:161
 func SanitizeString(_ `in`: inout JKAShared.CharBuf, _ out: inout JKAShared.CharBuf) {
+    var outIndex: Int32 = 0
+
     // Port-note: The draft of this statement did not compile, and the compiler wrote "referencing operator function '!=' on 'BinaryInteger' requires that 'CharBuf' conform to 'BinaryInteger'".
     // Raven wrote: while ( *in ) { if ( *in == 27 ) { in += 2; // skip color code continue; } if ( *in < 32 ) { in++; continue; } *out++ = tolower( (unsigned char) *in++ ); }
     portMissing("SanitizeString", source: "oracle/codemp/game/g_cmds.c:161")
 
-    // Port-note: The draft of this statement did not compile, and the compiler wrote "cannot assign value of type 'Int' to type 'CharBuf'".
-    // Raven wrote: *out = 0
-    portMissing("SanitizeString", source: "oracle/codemp/game/g_cmds.c:161")
+    out[outIndex] = 0
 }
 
 /**
@@ -1389,9 +1389,7 @@ func G_SetSaber(_ ent: Entity, _ saberNum: Int32, _ saberName: String, _ siegeOv
 
     //Set the saber with the arg given. If the arg is
     //not a valid sabername defaults will be used.
-    // Port-note: Raven passes `ent->client->saber` to `WP_SetSaber`, whose `sabers` parameter takes the Slots over the records, and Swift holds one record here. A Slots over one record has no form yet.
-    // Raven wrote: WP_SetSaber(ent->s.number, ent->client->saber, saberNum, truncSaberName)
-    portMissing("G_SetSaber", source: "oracle/codemp/game/g_cmds.c:1396")
+    WP_SetSaber(ent.s.number, ent.client!.saber, saberNum, String(truncSaberName))
 
     if ent.client!.saber[0].model.isEmpty {
         //should never happen!
@@ -2150,9 +2148,7 @@ func Cmd_CallTeamVote_f(_ ent: Entity) {
         if i > 2 {
             strcat(&arg2, " ")
         }
-        // Port-note: The draft of this statement did not compile, and the compiler wrote "extra argument in call".
-        // Raven wrote: trap_Argv( i, &arg2[strlen(arg2)], sizeof( arg2 ) - strlen(arg2) )
-        portMissing("Cmd_CallTeamVote_f", source: "oracle/codemp/game/g_cmds.c:2206")
+        strcpy(&arg2, trap_Argv(i, Int32((arg2).count) - strlen(arg2)), at: strlen(arg2))
         i += 1
     }
 
@@ -2234,14 +2230,14 @@ func Cmd_CallTeamVote_f(_ ent: Entity) {
 
     if Q_stricmp("kick", arg1) == 0 {
         //use clientkick and number (so they can't change their name)
-        // Port-note: The draft of this statement did not compile, and the compiler wrote "failed to produce diagnostic for expression; please submit a bug report (https://swift.org/contributing/#reporting-bugs)".
-        // Raven wrote: Com_sprintf( level.teamVoteString[cs_offset], sizeof( level.teamVoteString[cs_offset] ), "clientkick %s", arg2 )
-        portMissing("Cmd_CallTeamVote_f", source: "oracle/codemp/game/g_cmds.c:2206")
+        var teamVoteString = CharBuf(1024)
+        Com_sprintf(&teamVoteString, 1024, "clientkick %s", arg2)
+        level.teamVoteString[cs_offset] = String(teamVoteString)
     } else {
         //just a number
-        // Port-note: The draft of this statement did not compile, and the compiler wrote "failed to produce diagnostic for expression; please submit a bug report (https://swift.org/contributing/#reporting-bugs)".
-        // Raven wrote: Com_sprintf( level.teamVoteString[cs_offset], sizeof( level.teamVoteString[cs_offset] ), "%s %s", arg1, arg2 )
-        portMissing("Cmd_CallTeamVote_f", source: "oracle/codemp/game/g_cmds.c:2206")
+        var teamVoteString = CharBuf(1024)
+        Com_sprintf(&teamVoteString, 1024, "%s %s", arg1, arg2)
+        level.teamVoteString[cs_offset] = String(teamVoteString)
     }
 
     i = 0

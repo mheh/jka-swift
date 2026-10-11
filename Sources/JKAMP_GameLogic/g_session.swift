@@ -65,9 +65,7 @@ func G_WriteClientSessionData(_ client: Client) {
     // Raven wrote: s = va("%i %i %i %i %i %i %i %i %i %i %i %i %s %s %s", client->sess.sessionTeam, client->sess.spectatorTime, client->sess.spectatorState, client->sess.spectatorClient, client->sess.wins, client->sess.losses, client->sess.teamLeader, client->sess.setForce, client->sess.saberLevel, client->sess.selectedFP, client->sess.duelTeam, client->sess.siegeDesiredTeam, siegeClass, saberType, saber2Type )
     portMissing("G_WriteClientSessionData", source: "oracle/codemp/game/g_session.c:23")
 
-    // Port-note: The draft of this statement did not compile, and the compiler wrote "referencing operator function '-' on 'Strideable' requires that 'Client' conform to '_Pointer'".
-    // Raven wrote: var = va( "session%i", client - level.clients )
-    portMissing("G_WriteClientSessionData", source: "oracle/codemp/game/g_session.c:23")
+    `var` = va("session%i", level.clientsSlots.index(of: client))
 
     trap_Cvar_Set(`var`, s)
 }
@@ -92,29 +90,37 @@ func G_ReadSessionData(_ client: Client) {
     var spectatorState: Int32 = 0
     var sessionTeam: Int32 = 0
 
-    // Port-note: The draft of this statement did not compile, and the compiler wrote "referencing operator function '-' on 'Strideable' requires that 'Client' conform to '_Pointer'".
-    // Raven wrote: var = va( "session%i", client - level.clients )
-    portMissing("G_ReadSessionData", source: "oracle/codemp/game/g_session.c:105")
+    `var` = va("session%i", level.clientsSlots.index(of: client))
     strcpy(&s, trap_Cvar_VariableStringBuffer(`var`, Int32((s).count)))
 
     // Port-note: The draft of this statement did not compile, and the compiler wrote "'&' used with non-inout argument of type 'Any'".
     // Raven wrote: sscanf( s, "%i %i %i %i %i %i %i %i %i %i %i %i %s %s %s", &sessionTeam, // bk010221 - format &client->sess.spectatorTime, &spectatorState, // bk010221 - format &client->sess.spectatorClient, &client->sess.wins, &client->sess.losses, &teamLeader, // bk010221 - format &client->sess.setForce, &client->sess.saberLevel, &client->sess.selectedFP, &client->sess.duelTeam, &client->sess.siegeDesiredTeam, &client->sess.siegeClass, &client->sess.saberType, &client->sess.saber2Type )
     portMissing("G_ReadSessionData", source: "oracle/codemp/game/g_session.c:105")
 
-    // Port-note: The draft of this statement did not compile, and the compiler wrote "binary operator '!=' cannot be applied to operands of type 'Character' and 'Int'".
-    // Raven wrote: while (client->sess.siegeClass[i]) { //convert back to spaces from unused chars, as session data is written that way. if (client->sess.siegeClass[i] == 1) { client->sess.siegeClass[i] = ' '; } i++; }
-    portMissing("G_ReadSessionData", source: "oracle/codemp/game/g_session.c:105")
+    while client.sess.siegeClassBuffer[i] != 0 {
+        //convert back to spaces from unused chars, as session data is written that way.
+        if client.sess.siegeClassBuffer[i] == 1 {
+            client.sess.siegeClassBuffer[i] = Int32(ascii: " ")
+        }
+        i += 1
+    }
 
     i = 0
     //And do the same for the saber type
-    // Port-note: The draft of this statement did not compile, and the compiler wrote "binary operator '!=' cannot be applied to operands of type 'Character' and 'Int'".
-    // Raven wrote: while (client->sess.saberType[i]) { if (client->sess.saberType[i] == 1) { client->sess.saberType[i] = ' '; } i++; }
-    portMissing("G_ReadSessionData", source: "oracle/codemp/game/g_session.c:105")
+    while client.sess.saberTypeBuffer[i] != 0 {
+        if client.sess.saberTypeBuffer[i] == 1 {
+            client.sess.saberTypeBuffer[i] = Int32(ascii: " ")
+        }
+        i += 1
+    }
 
     i = 0
-    // Port-note: The draft of this statement did not compile, and the compiler wrote "binary operator '!=' cannot be applied to operands of type 'Character' and 'Int'".
-    // Raven wrote: while (client->sess.saber2Type[i]) { if (client->sess.saber2Type[i] == 1) { client->sess.saber2Type[i] = ' '; } i++; }
-    portMissing("G_ReadSessionData", source: "oracle/codemp/game/g_session.c:105")
+    while client.sess.saber2TypeBuffer[i] != 0 {
+        if client.sess.saber2TypeBuffer[i] == 1 {
+            client.sess.saber2TypeBuffer[i] = Int32(ascii: " ")
+        }
+        i += 1
+    }
 
     // bk001205 - format issues
     client.sess.sessionTeam = team_t(sessionTeam)

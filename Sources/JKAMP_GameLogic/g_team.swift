@@ -446,9 +446,13 @@ func Team_FragBonuses(_ targ: Entity, _ inflictor: Entity, _ attacker: Entity) {
         i += 1
     }
     flag = nil
-    // Port-note: An assignment inside an expression.
-    // Raven wrote: while ((flag = G_Find (flag, FOFS(classname), c)) != NULL) { if (!(flag->flags & FL_DROPPED_ITEM)) break; }
-    portMissing("Team_FragBonuses", source: "oracle/codemp/game/g_team.c:363")
+    flag = G_Find(flag, \.classname, c)
+    while let f = flag {
+        if (f.flags & FL_DROPPED_ITEM) == 0 {
+            break
+        }
+        flag = G_Find(f, \.classname, c)
+    }
 
     if flag == nil {
         return // can't find attacker's flag
@@ -543,9 +547,15 @@ func Team_ResetFlag(_ team: Int32) -> Entity? {
     }
 
     ent = nil
-    // Port-note: An assignment inside an expression.
-    // Raven wrote: while ((ent = G_Find (ent, FOFS(classname), c)) != NULL) { if (ent->flags & FL_DROPPED_ITEM) G_FreeEntity(ent); else { rent = ent; RespawnItem(ent); } }
-    portMissing("Team_ResetFlag", source: "oracle/codemp/game/g_team.c:568")
+    while let next = G_Find(ent, \.classname, c) {
+        ent = next
+        if (ent!.flags & FL_DROPPED_ITEM) != 0 {
+            G_FreeEntity(ent!)
+        } else {
+            rent = ent
+            RespawnItem(ent!)
+        }
+    }
 
     Team_SetFlagStatus(team, FLAG_ATBASE)
 
@@ -915,9 +925,7 @@ func SelectRandomTeamSpawnPoint(_ teamstate: Int32, _ team: JKAMP.team_t, _ sieg
     var spot: Entity?
     var count: Int32
     var selection: Int32
-    // Port-note: A local `gentity_t *[32] spots` the table has no type for.
-    // Raven wrote: gentity_t *spots[MAX_TEAM_SPAWN_POINTS];
-    portMissing("SelectRandomTeamSpawnPoint", source: "oracle/codemp/game/g_team.c:951")
+    var spots = [Entity?](repeating: nil, count: Int(MAX_TEAM_SPAWN_POINTS))
     var classname: String
     var mustBeEnabled: Bool = false
 
@@ -952,29 +960,41 @@ func SelectRandomTeamSpawnPoint(_ teamstate: Int32, _ team: JKAMP.team_t, _ sieg
 
     spot = nil
 
-    // Port-note: An assignment inside an expression.
-    // Raven wrote: while ((spot = G_Find (spot, FOFS(classname), classname)) != NULL) { if ( SpotWouldTelefrag( spot ) ) { continue; } if (mustBeEnabled && !spot->genericValue1) { //siege point that's not enabled, can't use it continue; } spots[ count ] = spot; if (++count == MAX_TEAM_SPAWN_POINTS) break; }
-    portMissing("SelectRandomTeamSpawnPoint", source: "oracle/codemp/game/g_team.c:951")
+    while let next = G_Find(spot, \.classname, classname) {
+        spot = next
+        if SpotWouldTelefrag(spot!) {
+            continue
+        }
+
+        if mustBeEnabled && spot!.genericValue1 == 0 {
+            //siege point that's not enabled, can't use it
+            continue
+        }
+
+        spots[count] = spot
+        count += 1
+        if count == MAX_TEAM_SPAWN_POINTS {
+            break
+        }
+    }
 
     if count == 0 {
         // no spots that won't telefrag
-        // Port-note: No operator beside the operand, the text there is ``.
-        // Raven wrote: return G_Find( NULL, FOFS(classname), classname)
-        portMissing("SelectRandomTeamSpawnPoint", source: "oracle/codemp/game/g_team.c:951")
+        return G_Find(nil, \.classname, classname)
     }
 
     if g_gametype.integer == GT_SIEGE && siegeClass >= 0 && !bgSiegeClasses[siegeClass].name.isEmpty {
         //out of the spots found, see if any have an idealclass to match our class name
-        // Port-note: A local `gentity_t *[32] classSpots` the table has no type for.
-        // Raven wrote: gentity_t *classSpots[MAX_TEAM_SPAWN_POINTS];
-        portMissing("SelectRandomTeamSpawnPoint", source: "oracle/codemp/game/g_team.c:951")
+        var classSpots = [Entity?](repeating: nil, count: Int(MAX_TEAM_SPAWN_POINTS))
         var classCount: Int32 = 0
         var i: Int32 = 0
 
         while i < count {
-            // Port-note: A read of `spots`, a local the draft left as a hole.
-            // Raven wrote: if (spots[i] && spots[i]->idealclass && spots[i]->idealclass[0] && !Q_stricmp(spots[i]->idealclass, bgSiegeClasses[siegeClass].name)) { //this spot's idealclass matches the class name classSpots[classCount] = spots[i]; classCount++; }
-            portMissing("SelectRandomTeamSpawnPoint", source: "oracle/codemp/game/g_team.c:951")
+            if spots[i] != nil && spots[i]!.idealclass != nil && !spots[i]!.idealclass!.isEmpty && Q_stricmp(spots[i]!.idealclass!, bgSiegeClasses[siegeClass].name) == 0 {
+                //this spot's idealclass matches the class name
+                classSpots[classCount] = spots[i]
+                classCount += 1
+            }
             i += 1
         }
 
@@ -982,17 +1002,13 @@ func SelectRandomTeamSpawnPoint(_ teamstate: Int32, _ team: JKAMP.team_t, _ sieg
             //found at least one
             // The SDK also declares `rand`, so the call names the bg module.
             selection = JKAMP_BG.rand() % classCount
-            // Port-note: A read of `spots`, a local the draft left as a hole.
-            // Raven wrote: return spots[ selection ]
-            portMissing("SelectRandomTeamSpawnPoint", source: "oracle/codemp/game/g_team.c:951")
+            return spots[selection]
         }
     }
 
     // The SDK also declares `rand`, so the call names the bg module.
     selection = JKAMP_BG.rand() % count
-    // Port-note: A read of `spots`, a local the draft left as a hole.
-    // Raven wrote: return spots[ selection ]
-    portMissing("SelectRandomTeamSpawnPoint", source: "oracle/codemp/game/g_team.c:951")
+    return spots[selection]
 }
 
 /**
