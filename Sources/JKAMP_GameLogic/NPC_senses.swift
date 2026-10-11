@@ -21,10 +21,6 @@ func G_ClearLineOfSight(_ point1: JKAShared.vec3_t, _ point2: JKAShared.vec3_t, 
     return Trace.scratch { tr -> Bool in
         var hit: Entity?
 
-        // Port-note: Raven passes NULL for `mins`, and the callee reads NULL as the zero vector.
-        portMissing("G_ClearLineOfSight", source: "oracle/codemp/game/NPC_senses.c:11")
-        // Port-note: Raven passes NULL for `maxs`, and the callee reads NULL as the zero vector.
-        portMissing("G_ClearLineOfSight", source: "oracle/codemp/game/NPC_senses.c:11")
         trap_Trace(tr, point1, vec3_origin, vec3_origin, point2, ignore, clipmask)
         if Double(tr.fraction) == 1.0 {
             return true
@@ -34,10 +30,6 @@ func G_ClearLineOfSight(_ point1: JKAShared.vec3_t, _ point2: JKAShared.vec3_t, 
         if EntIsGlass(hit!) {
             var newpoint1 = vec3_t()
             newpoint1 = tr.endpos
-            // Port-note: Raven passes NULL for `mins`, and the callee reads NULL as the zero vector.
-            portMissing("G_ClearLineOfSight", source: "oracle/codemp/game/NPC_senses.c:11")
-            // Port-note: Raven passes NULL for `maxs`, and the callee reads NULL as the zero vector.
-            portMissing("G_ClearLineOfSight", source: "oracle/codemp/game/NPC_senses.c:11")
             trap_Trace(tr, newpoint1, vec3_origin, vec3_origin, point2, hit!.s.number, clipmask)
 
             if Double(tr.fraction) == 1.0 {
@@ -71,10 +63,6 @@ func CanSee(_ ent: Entity) -> Bool {
         CalcEntitySpot(NPC!, SPOT_HEAD_LEAN, &eyes)
 
         CalcEntitySpot(ent, SPOT_ORIGIN, &spot)
-        // Port-note: Raven passes NULL for `mins`, and the callee reads NULL as the zero vector.
-        portMissing("CanSee", source: "oracle/codemp/game/NPC_senses.c:47")
-        // Port-note: Raven passes NULL for `maxs`, and the callee reads NULL as the zero vector.
-        portMissing("CanSee", source: "oracle/codemp/game/NPC_senses.c:47")
         trap_Trace(tr, eyes, vec3_origin, vec3_origin, spot, NPC!.s.number, MASK_OPAQUE)
         ShotThroughGlass(tr, ent, spot, MASK_OPAQUE)
         if Double(tr.fraction) == 1.0 {
@@ -82,10 +70,6 @@ func CanSee(_ ent: Entity) -> Bool {
         }
 
         CalcEntitySpot(ent, SPOT_HEAD, &spot)
-        // Port-note: Raven passes NULL for `mins`, and the callee reads NULL as the zero vector.
-        portMissing("CanSee", source: "oracle/codemp/game/NPC_senses.c:47")
-        // Port-note: Raven passes NULL for `maxs`, and the callee reads NULL as the zero vector.
-        portMissing("CanSee", source: "oracle/codemp/game/NPC_senses.c:47")
         trap_Trace(tr, eyes, vec3_origin, vec3_origin, spot, NPC!.s.number, MASK_OPAQUE)
         ShotThroughGlass(tr, ent, spot, MASK_OPAQUE)
         if Double(tr.fraction) == 1.0 {
@@ -93,10 +77,6 @@ func CanSee(_ ent: Entity) -> Bool {
         }
 
         CalcEntitySpot(ent, SPOT_LEGS, &spot)
-        // Port-note: Raven passes NULL for `mins`, and the callee reads NULL as the zero vector.
-        portMissing("CanSee", source: "oracle/codemp/game/NPC_senses.c:47")
-        // Port-note: Raven passes NULL for `maxs`, and the callee reads NULL as the zero vector.
-        portMissing("CanSee", source: "oracle/codemp/game/NPC_senses.c:47")
         trap_Trace(tr, eyes, vec3_origin, vec3_origin, spot, NPC!.s.number, MASK_OPAQUE)
         ShotThroughGlass(tr, ent, spot, MASK_OPAQUE)
         if Double(tr.fraction) == 1.0 {
@@ -120,11 +100,8 @@ func InFront(_ spot: JKAShared.vec3_t, _ from: JKAShared.vec3_t, _ fromAngles: J
 
     angles = fromAngles
     angles[0] = 0
-    // Port-note: Raven passes NULL for the `right` output. The ported function takes it by reference, so the body passes a scratch local it never reads.
-    portMissing("InFront", source: "oracle/codemp/game/NPC_senses.c:82")
+    // Raven passes NULL for the `right` and `up` outputs, so the call passes scratch locals.
     var scratchRight = vec3_t()
-    // Port-note: Raven passes NULL for the `up` output. The ported function takes it by reference, so the body passes a scratch local it never reads.
-    portMissing("InFront", source: "oracle/codemp/game/NPC_senses.c:82")
     var scratchUp = vec3_t()
     AngleVectors(angles, &forward, &scratchRight, &scratchUp)
 
@@ -741,20 +718,12 @@ func G_ClearLOS(_ `self`: Entity, _ start: JKAShared.vec3_t, _ end: JKAShared.ve
         var traceCount: Int32 = 0
 
         //FIXME: ENTITYNUM_NONE ok?
-        // Port-note: Raven passes NULL for `mins`, and the callee reads NULL as the zero vector.
-        portMissing("G_ClearLOS", source: "oracle/codemp/game/NPC_senses.c:739")
-        // Port-note: Raven passes NULL for `maxs`, and the callee reads NULL as the zero vector.
-        portMissing("G_ClearLOS", source: "oracle/codemp/game/NPC_senses.c:739")
         trap_Trace(tr, start, vec3_origin, vec3_origin, end, ENTITYNUM_NONE, CONTENTS_OPAQUE)
         while Double(tr.fraction) < 1.0 && traceCount < 3 {
             //can see through 3 panes of glass
             if tr.entityNum < ENTITYNUM_WORLD {
                 if g_entities[tr.entityNum] != nil && (g_entities[tr.entityNum].r.svFlags & SVF_GLASS_BRUSH) != 0 {
                     //can see through glass, trace again, ignoring me
-                    // Port-note: Raven passes NULL for `mins`, and the callee reads NULL as the zero vector.
-                    portMissing("G_ClearLOS", source: "oracle/codemp/game/NPC_senses.c:739")
-                    // Port-note: Raven passes NULL for `maxs`, and the callee reads NULL as the zero vector.
-                    portMissing("G_ClearLOS", source: "oracle/codemp/game/NPC_senses.c:739")
                     trap_Trace(tr, tr.endpos, vec3_origin, vec3_origin, end, tr.entityNum, MASK_OPAQUE)
                     traceCount += 1
                     continue

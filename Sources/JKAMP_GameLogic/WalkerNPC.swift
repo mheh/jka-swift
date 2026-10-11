@@ -76,9 +76,9 @@ private func RegisterAssets(_ pVeh: JKAMP.Vehicle) {
 // Board this Vehicle (get on). The first entity to board an empty vehicle becomes the Pilot.
 /// Source: oracle/codemp/game/WalkerNPC.c:106
 private func Board(_ pVeh: JKAMP.Vehicle, _ pEnt: JKAMP.BgEntity) -> Bool {
-    // Port-note: The draft of this statement did not compile, and the compiler wrote "value of optional type 'Bool?' must be unwrapped to a value of type 'Bool'".
-    // Raven wrote: if ( !g_vehicleInfo[VEHICLE_BASE].Board( pVeh, pEnt ) ) return false
-    portMissing("Board", source: "oracle/codemp/game/WalkerNPC.c:106")
+    if !g_vehicleInfo[VEHICLE_BASE].runBoard(pVeh, pEnt) {
+        return false
+    }
 
     // Set the board wait time (they won't be able to do anything, including getting off, for this amount of time).
     pVeh.m_iBoarding = level.time + 1500
@@ -426,12 +426,8 @@ func G_CreateWalkerNPC(_ pVeh: inout JKAMP.Vehicle?, _ strAnimalType: String) {
     //never stomped. on the server, however, when an ent is freed, the entity struct is
     //memset to 0, so this memory would be lost..
     G_AllocateVehicleObject(&pVeh)
-    // Port-note: Raven's `memset(*pVeh, 0, sizeof(Vehicle_t))` runs over a size that is not the record's own, and a view's clear() takes the whole record.
-    // Raven wrote: memset(*pVeh, 0, sizeof(Vehicle_t))
-    portMissing("G_CreateWalkerNPC", source: "oracle/codemp/game/WalkerNPC.c:594")
-    // Port-note: The draft of this statement did not compile, and the compiler wrote "value of optional type 'Vehicle?' must be unwrapped to refer to member 'm_pVehicleInfo' of wrapped base type 'Vehicle'".
-    // Raven wrote: (*pVeh)->m_pVehicleInfo = &g_vehicleInfo[BG_VehicleGetIndex( strAnimalType )]
-    portMissing("G_CreateWalkerNPC", source: "oracle/codemp/game/WalkerNPC.c:594")
+    pVeh!.clear()
+    pVeh!.m_pVehicleInfo = g_vehicleInfo[BG_VehicleGetIndex(strAnimalType)]
 }
 
 /// One static per function this file stores in a `VehicleInfo` callback field, so each has one address for the life of the module.

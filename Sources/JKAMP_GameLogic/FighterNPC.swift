@@ -137,9 +137,9 @@ private func Update(_ pVeh: JKAMP.Vehicle, _ pUcmd: JKAMP.Usercmd) -> Bool {
         return false
     }
 
-    // Port-note: The draft of this statement did not compile, and the compiler wrote "value of optional type 'Bool?' must be unwrapped to a value of type 'Bool'".
-    // Raven wrote: if ( !g_vehicleInfo[VEHICLE_BASE].Update( pVeh, pUcmd ) ) { return false; }
-    portMissing("Update", source: "oracle/codemp/game/FighterNPC.c:188")
+    if !g_vehicleInfo[VEHICLE_BASE].runUpdate(pVeh, pUcmd) {
+        return false
+    }
 
     return true
 }
@@ -147,9 +147,9 @@ private func Update(_ pVeh: JKAMP.Vehicle, _ pUcmd: JKAMP.Usercmd) -> Bool {
 // Board this Vehicle (get on). The first entity to board an empty vehicle becomes the Pilot.
 /// Source: oracle/codemp/game/FighterNPC.c:212
 private func Board(_ pVeh: JKAMP.Vehicle, _ pEnt: JKAMP.BgEntity) -> Bool {
-    // Port-note: The draft of this statement did not compile, and the compiler wrote "value of optional type 'Bool?' must be unwrapped to a value of type 'Bool'".
-    // Raven wrote: if ( !g_vehicleInfo[VEHICLE_BASE].Board( pVeh, pEnt ) ) return false
-    portMissing("Board", source: "oracle/codemp/game/FighterNPC.c:212")
+    if !g_vehicleInfo[VEHICLE_BASE].runBoard(pVeh, pEnt) {
+        return false
+    }
 
     // Set the board wait time (they won't be able to do anything, including getting off, for this amount of time).
     pVeh.m_iBoarding = level.time + 1500
@@ -160,9 +160,9 @@ private func Board(_ pVeh: JKAMP.Vehicle, _ pEnt: JKAMP.BgEntity) -> Bool {
 // Eject an entity from the vehicle.
 /// Source: oracle/codemp/game/FighterNPC.c:224
 private func Eject(_ pVeh: JKAMP.Vehicle, _ pEnt: JKAMP.BgEntity, _ forceEject: Bool) -> Bool {
-    // Port-note: The draft of this statement did not compile, and the compiler wrote "value of optional type 'Bool?' must be unwrapped to a value of type 'Bool'".
-    // Raven wrote: if ( g_vehicleInfo[VEHICLE_BASE].Eject( pVeh, pEnt, forceEject ) ) { return true; }
-    portMissing("Eject", source: "oracle/codemp/game/FighterNPC.c:224")
+    if g_vehicleInfo[VEHICLE_BASE].runEject(pVeh, pEnt, forceEject) {
+        return true
+    }
 
     return false
 }
@@ -228,17 +228,27 @@ func FighterIsLanded(_ pVeh: JKAMP.Vehicle, _ parentPS: JKAMP.PlayerState) -> Bo
 
 /// Source: oracle/codemp/game/FighterNPC.c:310
 func FighterIsLanding(_ pVeh: JKAMP.Vehicle, _ parentPS: JKAMP.PlayerState) -> Bool {
-    // Port-note: No operator between the operands, the text there is `#endif &&`.
-    // Raven wrote: if ( FighterOverValidLandingSurface( pVeh ) #ifdef QAGAME//only do this check on GAME side, because if it's CGAME, it's being predicted, and it's only predicted if the local client is the driver && pVeh->m_pVehicleInfo->Inhabited( pVeh )//has to have a driver in order to be capable of landing #endif && (pVeh->m_ucmd.forwardmove < 0||pVeh->m_ucmd.upmove<0) //decelerating or holding crouch button && parentPS->speed <= MIN_LANDING_SPEED )//going slow enough to start landing - was using pVeh->m_pVehicleInfo->speedIdle, but that's still too fast { return qtrue; }
-    portMissing("FighterIsLanding", source: "oracle/codemp/game/FighterNPC.c:310")
+    if FighterOverValidLandingSurface(pVeh)
+        //only do this check on GAME side, because if it's CGAME, it's being predicted, and it's only predicted if the local client is the driver
+        && pVeh.m_pVehicleInfo!.runInhabited(pVeh) //has to have a driver in order to be capable of landing
+        && (pVeh.m_ucmd.forwardmove < 0 || pVeh.m_ucmd.upmove < 0) //decelerating or holding crouch button
+        && parentPS.speed <= MIN_LANDING_SPEED {
+        //going slow enough to start landing - was using pVeh->m_pVehicleInfo->speedIdle, but that's still too fast
+        return true
+    }
     return false
 }
 
 /// Source: oracle/codemp/game/FighterNPC.c:325
 func FighterIsLaunching(_ pVeh: JKAMP.Vehicle, _ parentPS: JKAMP.PlayerState) -> Bool {
-    // Port-note: No operator between the operands, the text there is `#endif &&`.
-    // Raven wrote: if ( FighterOverValidLandingSurface( pVeh ) #ifdef QAGAME//only do this check on GAME side, because if it's CGAME, it's being predicted, and it's only predicted if the local client is the driver && pVeh->m_pVehicleInfo->Inhabited( pVeh )//has to have a driver in order to be capable of landing #endif && pVeh->m_ucmd.upmove > 0 //trying to take off && parentPS->speed <= 200.0f )//going slow enough to start landing - was using pVeh->m_pVehicleInfo->speedIdle, but that's still too fast { return qtrue; }
-    portMissing("FighterIsLaunching", source: "oracle/codemp/game/FighterNPC.c:325")
+    if FighterOverValidLandingSurface(pVeh)
+        //only do this check on GAME side, because if it's CGAME, it's being predicted, and it's only predicted if the local client is the driver
+        && pVeh.m_pVehicleInfo!.runInhabited(pVeh) //has to have a driver in order to be capable of landing
+        && pVeh.m_ucmd.upmove > 0 //trying to take off
+        && parentPS.speed <= 200.0 {
+        //going slow enough to start landing - was using pVeh->m_pVehicleInfo->speedIdle, but that's still too fast
+        return true
+    }
     return false
 }
 
@@ -418,16 +428,187 @@ private func ProcessMoveCommands(_ pVeh: JKAMP.Vehicle) {
     } else if FighterSuspended(pVeh, parentPS!) {
         parentPS!.speed = 0
         pVeh.m_ucmd.forwardmove = 0
+    } else if !pVeh.m_pVehicleInfo!.runInhabited(pVeh) && parentPS!.speed > 0 {
+        //pilot jumped out while we were moving forward (not landing or landed) so just keep the throttle locked
+        //Why set forwardmove?  PMove code doesn't use it... does it?
+        pVeh.m_ucmd.forwardmove = 127
+    } else if (parentPS!.speed != 0 || parentPS!.groundEntityNum == ENTITYNUM_NONE || pVeh.m_ucmd.forwardmove != 0 || pVeh.m_ucmd.upmove > 0) && pVeh.m_LandTrace.fraction >= 0.05 {
+        if pVeh.m_ucmd.forwardmove > 0 && speedInc != 0 {
+            parentPS!.speed += speedInc
+            pVeh.m_ucmd.forwardmove = 127
+        } else if pVeh.m_ucmd.forwardmove < 0 || pVeh.m_ucmd.upmove < 0 {
+            //decelerating or braking
+            if pVeh.m_ucmd.upmove < 0 {
+                //braking (trying to land?), slow down faster
+                if pVeh.m_ucmd.forwardmove != 0 {
+                    //decelerator + brakes
+                    speedInc += pVeh.m_pVehicleInfo!.braking
+                    speedIdleDec += pVeh.m_pVehicleInfo!.braking
+                } else {
+                    //just brakes
+                    speedIdleDec = pVeh.m_pVehicleInfo!.braking
+                    speedInc = speedIdleDec
+                }
+            }
+            if parentPS!.speed > speedIdle {
+                parentPS!.speed -= speedInc
+            } else if parentPS!.speed > speedMin {
+                if FighterOverValidLandingSurface(pVeh) {
+                    //there's ground below us and we're trying to slow down, slow down faster
+                    parentPS!.speed -= speedInc
+                } else {
+                    parentPS!.speed -= speedIdleDec
+                    if parentPS!.speed < MIN_LANDING_SPEED {
+                        //unless you can land, don't drop below the landing speed!!!  This way you can't come to a dead stop in mid-air
+                        parentPS!.speed = Float(MIN_LANDING_SPEED)
+                    }
+                }
+            }
+            if pVeh.m_pVehicleInfo!.type == VH_FIGHTER {
+                pVeh.m_ucmd.forwardmove = 127
+            } else if speedMin >= 0 {
+                pVeh.m_ucmd.forwardmove = 0
+            }
+        }
+        //else not accel, decel or braking
+        else if pVeh.m_pVehicleInfo!.throttleSticks != 0 {
+            //we're using a throttle that sticks at current speed
+            if parentPS!.speed <= MIN_LANDING_SPEED {
+                //going less than landing speed
+                if FighterOverValidLandingSurface(pVeh) {
+                    //close to ground and not going very fast
+                    //slow to a stop if within landing height and not accel/decel/braking
+                    if parentPS!.speed > 0 {
+                        //slow down
+                        parentPS!.speed -= speedIdleDec
+                    } else if parentPS!.speed < 0 {
+                        //going backwards, slow down
+                        parentPS!.speed += speedIdleDec
+                    }
+                } else {
+                    //not over a valid landing surf, but going too slow
+                    //speed up to idle speed if not over a valid landing surf and not accel/decel/braking
+                    if parentPS!.speed < speedIdle {
+                        parentPS!.speed += speedIdleAccel
+                        if parentPS!.speed > speedIdle {
+                            parentPS!.speed = speedIdle
+                        }
+                    }
+                }
+            }
+        } else {
+            //then speed up or slow down to idle speed
+            //accelerate to cruising speed only, otherwise, just coast
+            // If they've launched, apply some constant motion.
+            if (pVeh.m_LandTrace.fraction >= 1.0 //no ground
+                || pVeh.m_LandTrace.plane.normal[2] < MIN_LANDING_SLOPE) //or can't land on ground below us
+                && speedIdle > 0 {
+                //not above ground and have an idle speed
+                //float fSpeed = pVeh->m_pParentEntity->client->ps.speed;
+                if parentPS!.speed < speedIdle {
+                    parentPS!.speed += speedIdleAccel
+                    if parentPS!.speed > speedIdle {
+                        parentPS!.speed = speedIdle
+                    }
+                } else if parentPS!.speed > 0 {
+                    //slow down
+                    parentPS!.speed -= speedIdleDec
+
+                    if parentPS!.speed < speedIdle {
+                        parentPS!.speed = speedIdle
+                    }
+                }
+            } else {
+                //either close to ground or no idle speed
+                //slow to a stop if no idle speed or within landing height and not accel/decel/braking
+                if parentPS!.speed > 0 {
+                    //slow down
+                    parentPS!.speed -= speedIdleDec
+                } else if parentPS!.speed < 0 {
+                    //going backwards, slow down
+                    parentPS!.speed += speedIdleDec
+                }
+            }
+        }
     } else {
-        // Port-note: The draft of this statement did not compile, and the compiler wrote "value of optional type 'Bool?' must be unwrapped to a value of type 'Bool'".
-        // Raven wrote: if ( !pVeh->m_pVehicleInfo->Inhabited( pVeh ) && parentPS->speed > 0 ) {//pilot jumped out while we were moving forward (not landing or landed) so just keep the throttle locked //Why set forwardmove? PMove code doesn't use it... does it? pVeh->m_ucmd.forwardmove = 127; } #endif else if ( ( parentPS->speed || parentPS->groundEntityNum == ENTITYNUM_NONE || pVeh->m_ucmd.forwardmove || pVeh->m_ucmd.upmove > 0 ) && pVeh->m_LandTrace.fraction >= 0.05f ) { if ( pVeh->m_ucmd.forwardmove > 0 && speedInc ) { parentPS->speed += speedInc; pVeh->m_ucmd.forwardmove = 127; } else if ( pVeh->m_ucmd.forwardmove < 0 || pVeh->m_ucmd.upmove < 0 ) {//decelerating or braking if ( pVeh->m_ucmd.upmove < 0 ) {//braking (trying to land?), slow down faster if ( pVeh->m_ucmd.forwardmove ) {//decelerator + brakes speedInc += pVeh->m_pVehicleInfo->braking; speedIdleDec += pVeh->m_pVehicleInfo->braking; } else {//just brakes speedInc = speedIdleDec = pVeh->m_pVehicleInfo->braking; } } if ( parentPS->speed > speedIdle ) { parentPS->speed -= speedInc; } else if ( parentPS->speed > speedMin ) { if ( FighterOverValidLandingSurface( pVeh ) ) {//there's ground below us and we're trying to slow down, slow down faster parentPS->speed -= speedInc; } else { parentPS->speed -= speedIdleDec; if ( parentPS->speed < MIN_LANDING_SPEED ) {//unless you can land, don't drop below the landing speed!!! This way you can't come to a dead stop in mid-air parentPS->speed = MIN_LANDING_SPEED; } } } if ( pVeh->m_pVehicleInfo->type == VH_FIGHTER ) { pVeh->m_ucmd.forwardmove = 127; } else if ( speedMin >= 0 ) { pVeh->m_ucmd.forwardmove = 0; } } //else not accel, decel or braking else if ( pVeh->m_pVehicleInfo->throttleSticks ) {//we're using a throttle that sticks at current speed if ( parentPS->speed <= MIN_LANDING_SPEED ) {//going less than landing speed if ( FighterOverValidLandingSurface( pVeh ) ) {//close to ground and not going very fast //slow to a stop if within landing height and not accel/decel/braking if ( parentPS->speed > 0 ) {//slow down parentPS->speed -= speedIdleDec; } else if ( parentPS->speed < 0 ) {//going backwards, slow down parentPS->speed += speedIdleDec; } } else {//not over a valid landing surf, but going too slow //speed up to idle speed if not over a valid landing surf and not accel/decel/braking if ( parentPS->speed < speedIdle ) { parentPS->speed += speedIdleAccel; if ( parentPS->speed > speedIdle ) { parentPS->speed = speedIdle; } } } } } else {//then speed up or slow down to idle speed //accelerate to cruising speed only, otherwise, just coast // If they've launched, apply some constant motion. if ( (pVeh->m_LandTrace.fraction >= 1.0f //no ground || pVeh->m_LandTrace.plane.normal[2] < MIN_LANDING_SLOPE )//or can't land on ground below us && speedIdle > 0 ) {//not above ground and have an idle speed //float fSpeed = pVeh->m_pParentEntity->client->ps.speed; if ( parentPS->speed < speedIdle ) { parentPS->speed += speedIdleAccel; if ( parentPS->speed > speedIdle ) { parentPS->speed = speedIdle; } } else if ( parentPS->speed > 0 ) {//slow down parentPS->speed -= speedIdleDec; if ( parentPS->speed < speedIdle ) { parentPS->speed = speedIdle; } } } else//either close to ground or no idle speed {//slow to a stop if no idle speed or within landing height and not accel/decel/braking if ( parentPS->speed > 0 ) {//slow down parentPS->speed -= speedIdleDec; } else if ( parentPS->speed < 0 ) {//going backwards, slow down parentPS->speed += speedIdleDec; } } } } else { if ( pVeh->m_ucmd.forwardmove < 0 ) { pVeh->m_ucmd.forwardmove = 0; } if ( pVeh->m_ucmd.upmove < 0 ) { pVeh->m_ucmd.upmove = 0; } #ifndef _JK2MP if ( !pVeh->m_pVehicleInfo->strafePerc || (!g_speederControlScheme->value && !pVeh->m_pParentEntity->s.number) ) {//if in a strafe-capable vehicle, clear strafing unless using alternate control scheme pVeh->m_ucmd.rightmove = 0; } #endif }
-        portMissing("ProcessMoveCommands", source: "oracle/codemp/game/FighterNPC.c:370")
+        if pVeh.m_ucmd.forwardmove < 0 {
+            pVeh.m_ucmd.forwardmove = 0
+        }
+        if pVeh.m_ucmd.upmove < 0 {
+            pVeh.m_ucmd.upmove = 0
+        }
     }
 
     //STRAFING==============================================================================
-    // Port-note: No operator between the operands, the text there is `#endif &&`.
-    // Raven wrote: if ( pVeh->m_pVehicleInfo->strafePerc #ifdef QAGAME//only do this check on GAME side, because if it's CGAME, it's being predicted, and it's only predicted if the local client is the driver && pVeh->m_pVehicleInfo->Inhabited( pVeh )//has to have a driver in order to be capable of landing #endif && !pVeh->m_iRemovedSurfaces && parentPS->electrifyTime < curTime && parentPS->vehTurnaroundTime < curTime && (pVeh->m_LandTrace.fraction >= 1.0f//no grounf ||pVeh->m_LandTrace.plane.normal[2] < MIN_LANDING_SLOPE//can't land here ||parentPS->speed>MIN_LANDING_SPEED)//going too fast to land && pVeh->m_ucmd.rightmove ) {//strafe vec3_t vAngles, vRight; float strafeSpeed = (pVeh->m_pVehicleInfo->strafePerc*speedMax)*5.0f; VectorCopy( pVeh->m_vOrientation, vAngles ); vAngles[PITCH] = vAngles[ROLL] = 0; AngleVectors( vAngles, NULL, vRight, NULL ); if ( pVeh->m_ucmd.rightmove > 0 ) {//strafe right //FIXME: this will probably make it possible to cheat and // go faster than max speed if you keep turning and strafing... if ( parentPS->hackingTime > -MAX_STRAFE_TIME ) {//can strafe right for 2 seconds float curStrafeSpeed = DotProduct( parentPS->velocity, vRight ); if ( curStrafeSpeed > 0.0f ) {//if > 0, already strafing right strafeSpeed -= curStrafeSpeed;//so it doesn't add up } if ( strafeSpeed > 0 ) { VectorMA( parentPS->velocity, strafeSpeed*pVeh->m_fTimeModifier, vRight, parentPS->velocity ); } parentPS->hackingTime -= 50*pVeh->m_fTimeModifier; } } else {//strafe left if ( parentPS->hackingTime < MAX_STRAFE_TIME ) {//can strafe left for 2 seconds float curStrafeSpeed = DotProduct( parentPS->velocity, vRight ); if ( curStrafeSpeed < 0.0f ) {//if < 0, already strafing left strafeSpeed += curStrafeSpeed;//so it doesn't add up } if ( strafeSpeed > 0 ) { VectorMA( parentPS->velocity, -strafeSpeed*pVeh->m_fTimeModifier, vRight, parentPS->velocity ); } parentPS->hackingTime += 50*pVeh->m_fTimeModifier; } } //strafing takes away from forward speed? If so, strafePerc above should use speedMax //parentPS->speed *= (1.0f-pVeh->m_pVehicleInfo->strafePerc); } else//if ( parentPS->hackingTime ) { if ( parentPS->hackingTime > 0 ) { parentPS->hackingTime -= 50*pVeh->m_fTimeModifier; if ( parentPS->hackingTime < 0 ) { parentPS->hackingTime = 0.0f; } } else if ( parentPS->hackingTime < 0 ) { parentPS->hackingTime += 50*pVeh->m_fTimeModifier; if ( parentPS->hackingTime > 0 ) { parentPS->hackingTime = 0.0f; } } }
-    portMissing("ProcessMoveCommands", source: "oracle/codemp/game/FighterNPC.c:370")
+    if pVeh.m_pVehicleInfo!.strafePerc != 0
+        //only do this check on GAME side, because if it's CGAME, it's being predicted, and it's only predicted if the local client is the driver
+        && pVeh.m_pVehicleInfo!.runInhabited(pVeh) //has to have a driver in order to be capable of landing
+        && pVeh.m_iRemovedSurfaces == 0
+        && parentPS!.electrifyTime < curTime
+        && parentPS!.vehTurnaroundTime < curTime
+        && (pVeh.m_LandTrace.fraction >= 1.0 //no grounf
+            || pVeh.m_LandTrace.plane.normal[2] < MIN_LANDING_SLOPE //can't land here
+            || parentPS!.speed > MIN_LANDING_SPEED) //going too fast to land
+        && pVeh.m_ucmd.rightmove != 0 {
+        //strafe
+        var vAngles = vec3_t()
+        var vRight = vec3_t()
+        var strafeSpeed: Float = (pVeh.m_pVehicleInfo!.strafePerc * speedMax) * 5.0
+        vAngles = pVeh.m_vOrientationVector
+        vAngles[ROLL] = 0
+        vAngles[PITCH] = vAngles[ROLL]
+        // Raven passes NULL for the `forward` and `up` outputs.
+        var scratchForward = vec3_t()
+        var scratchUp = vec3_t()
+        AngleVectors(vAngles, &scratchForward, &vRight, &scratchUp)
+
+        if pVeh.m_ucmd.rightmove > 0 {
+            //strafe right
+            //FIXME: this will probably make it possible to cheat and
+            //		go faster than max speed if you keep turning and strafing...
+            if parentPS!.hackingTime > -MAX_STRAFE_TIME {
+                //can strafe right for 2 seconds
+                let curStrafeSpeed: Float = _DotProduct(parentPS!.velocity, vRight)
+                if curStrafeSpeed > 0.0 {
+                    //if > 0, already strafing right
+                    strafeSpeed -= curStrafeSpeed //so it doesn't add up
+                }
+                if strafeSpeed > 0 {
+                    _VectorMA(parentPS!.velocity, strafeSpeed * pVeh.m_fTimeModifier, vRight, &parentPS!.velocity)
+                }
+                parentPS!.hackingTime = Int32(Float(parentPS!.hackingTime) - 50 * pVeh.m_fTimeModifier)
+            }
+        } else {
+            //strafe left
+            if parentPS!.hackingTime < MAX_STRAFE_TIME {
+                //can strafe left for 2 seconds
+                let curStrafeSpeed: Float = _DotProduct(parentPS!.velocity, vRight)
+                if curStrafeSpeed < 0.0 {
+                    //if < 0, already strafing left
+                    strafeSpeed += curStrafeSpeed //so it doesn't add up
+                }
+                if strafeSpeed > 0 {
+                    _VectorMA(parentPS!.velocity, -strafeSpeed * pVeh.m_fTimeModifier, vRight, &parentPS!.velocity)
+                }
+                parentPS!.hackingTime = Int32(Float(parentPS!.hackingTime) + 50 * pVeh.m_fTimeModifier)
+            }
+        }
+        //strafing takes away from forward speed?  If so, strafePerc above should use speedMax
+        //parentPS->speed *= (1.0f-pVeh->m_pVehicleInfo->strafePerc);
+    } else {
+        //if ( parentPS->hackingTime )
+        if parentPS!.hackingTime > 0 {
+            parentPS!.hackingTime = Int32(Float(parentPS!.hackingTime) - 50 * pVeh.m_fTimeModifier)
+            if parentPS!.hackingTime < 0 {
+                parentPS!.hackingTime = Int32(0.0)
+            }
+        } else if parentPS!.hackingTime < 0 {
+            parentPS!.hackingTime = Int32(Float(parentPS!.hackingTime) + 50 * pVeh.m_fTimeModifier)
+            if parentPS!.hackingTime > 0 {
+                parentPS!.hackingTime = Int32(0.0)
+            }
+        }
+    }
     //STRAFING==============================================================================
 
     if parentPS!.speed > speedMax {
@@ -460,22 +641,16 @@ private func ProcessMoveCommands(_ pVeh: JKAMP.Vehicle) {
                 parentPS!.gravity = 0
             } else if !((parent!.s.number & 2) != 0) {
                 //even multiple of 2, go up
-                // Port-note: The draft of this statement did not compile, and the compiler wrote "cannot assign value of type 'Double' to type 'Int32'".
-                // Raven wrote: parentPS->gravity = -500.0f
-                portMissing("ProcessMoveCommands", source: "oracle/codemp/game/FighterNPC.c:370")
+                parentPS!.gravity = Int32(-500.0)
                 parentPS!.velocity[2] = 80.0
             } else {
                 //odd number, go down
-                // Port-note: The draft of this statement did not compile, and the compiler wrote "cannot assign value of type 'Double' to type 'Int32'".
-                // Raven wrote: parentPS->gravity = 500.0f
-                portMissing("ProcessMoveCommands", source: "oracle/codemp/game/FighterNPC.c:370")
+                parentPS!.gravity = Int32(500.0)
                 parentPS!.velocity[2] = -80.0
             }
         } else {
             //over a planet
-            // Port-note: The draft of this statement did not compile, and the compiler wrote "cannot assign value of type 'Double' to type 'Int32'".
-            // Raven wrote: parentPS->gravity = 500.0f
-            portMissing("ProcessMoveCommands", source: "oracle/codemp/game/FighterNPC.c:370")
+            parentPS!.gravity = Int32(500.0)
             parentPS!.velocity[2] = -80.0
         }
     } else if FighterSuspended(pVeh, parentPS!) {
@@ -614,9 +789,7 @@ private func FighterDamageRoutine(_ pVeh: JKAMP.Vehicle, _ parent: JKAMP.BgEntit
     if pVeh.m_LandTrace.fraction < 1.0 {
         //if you land at all when pieces of your ship are missing, then die
         let parent: Entity? = pVeh.m_pParentEntity.map { Entity($0) }
-        // Port-note: The draft of this statement did not compile, and the compiler wrote "value of optional type 'Entity?' must be unwrapped to a value of type 'Entity'".
-        // Raven wrote: G_DamageFromKiller( parent, parent, NULL, parent->client->ps.origin, 999999, DAMAGE_NO_ARMOR, MOD_SUICIDE )
-        portMissing("FighterDamageRoutine", source: "oracle/codemp/game/FighterNPC.c:935")
+        G_DamageFromKiller(parent!, parent!, nil, parent!.client!.ps.origin, 999999, DAMAGE_NO_ARMOR, MOD_SUICIDE)
     }
 
     if ((pVeh.m_iRemovedSurfaces & SHIPSURF_BROKEN_C) != 0 || (pVeh.m_iRemovedSurfaces & SHIPSURF_BROKEN_D) != 0) && ((pVeh.m_iRemovedSurfaces & SHIPSURF_BROKEN_E) != 0 || (pVeh.m_iRemovedSurfaces & SHIPSURF_BROKEN_F) != 0) {
@@ -967,9 +1140,16 @@ private func ProcessOrientCommands(_ pVeh: JKAMP.Vehicle) {
     }
     */
     // If no one is in this vehicle and it's up in the sky, pitch it forward as it comes tumbling down.
-    // Port-note: The draft of this statement did not compile, and the compiler wrote "value of optional type 'Bool?' must be unwrapped to a value of type 'Bool'".
-    // Raven wrote: if ( !pVeh->m_pVehicleInfo->Inhabited( pVeh ) && pVeh->m_LandTrace.fraction >= groundFraction && !FighterIsInSpace( (gentity_t *)parent ) && !FighterSuspended( pVeh, parentPS ) ) { pVeh->m_ucmd.upmove = 0; //pVeh->m_ucmd.forwardmove = 0; pVeh->m_vOrientation[PITCH] += pVeh->m_fTimeModifier; if ( !BG_UnrestrainedPitchRoll( riderPS, pVeh ) ) { if ( pVeh->m_vOrientation[PITCH] > 60.0f ) { pVeh->m_vOrientation[PITCH] = 60.0f; } } }
-    portMissing("ProcessOrientCommands", source: "oracle/codemp/game/FighterNPC.c:1381")
+    if !pVeh.m_pVehicleInfo!.runInhabited(pVeh) && pVeh.m_LandTrace.fraction >= groundFraction && !FighterIsInSpace(parent.map { Entity($0) }!) && !FighterSuspended(pVeh, parentPS!) {
+        pVeh.m_ucmd.upmove = 0
+        //pVeh->m_ucmd.forwardmove = 0;
+        pVeh.m_vOrientationVector[PITCH] += pVeh.m_fTimeModifier
+        if !BG_UnrestrainedPitchRoll(riderPS!, pVeh) {
+            if pVeh.m_vOrientationVector[PITCH] > 60.0 {
+                pVeh.m_vOrientationVector[PITCH] = 60.0
+            }
+        }
+    }
 
     if parentPS!.hackingTime == 0 {
         //use that roll
@@ -1120,12 +1300,8 @@ func G_CreateFighterNPC(_ pVeh: inout JKAMP.Vehicle?, _ strType: String) {
     //never stomped. on the server, however, when an ent is freed, the entity struct is
     //memset to 0, so this memory would be lost..
     G_AllocateVehicleObject(&pVeh)
-    // Port-note: Raven's `memset(*pVeh, 0, sizeof(Vehicle_t))` runs over a size that is not the record's own, and a view's clear() takes the whole record.
-    // Raven wrote: memset(*pVeh, 0, sizeof(Vehicle_t))
-    portMissing("G_CreateFighterNPC", source: "oracle/codemp/game/FighterNPC.c:1994")
-    // Port-note: The draft of this statement did not compile, and the compiler wrote "value of optional type 'Vehicle?' must be unwrapped to refer to member 'm_pVehicleInfo' of wrapped base type 'Vehicle'".
-    // Raven wrote: (*pVeh)->m_pVehicleInfo = &g_vehicleInfo[BG_VehicleGetIndex( strType )]
-    portMissing("G_CreateFighterNPC", source: "oracle/codemp/game/FighterNPC.c:1994")
+    pVeh!.clear()
+    pVeh!.m_pVehicleInfo = g_vehicleInfo[BG_VehicleGetIndex(strType)]
 }
 
 /// One static per function this file stores in a `VehicleInfo` callback field, so each has one address for the life of the module.

@@ -40,9 +40,6 @@ func Q3_TaskIDClear(_ taskID: inout Int32) {
 
 /// Source: oracle/codemp/game/g_ICARUScb.c:275
 func G_DebugPrint(_ level: Int32, _ format: String, _ args: any JKAShared.FormatArg...) {
-    // Port-note: A pointer local `va_list argptr` with no view.
-    // Raven wrote: va_list argptr;
-    portMissing("G_DebugPrint", source: "oracle/codemp/game/g_ICARUScb.c:275")
     var text = CharBuf(1024)
 
     //Don't print messages they don't want to see
@@ -51,15 +48,7 @@ func G_DebugPrint(_ level: Int32, _ format: String, _ args: any JKAShared.Format
         return
     }
 
-    // Port-note: A read of `argptr`, a local the draft left as a hole.
-    // Raven wrote: va_start (argptr, format)
-    portMissing("G_DebugPrint", source: "oracle/codemp/game/g_ICARUScb.c:275")
-    // Port-note: A read of `argptr`, a local the draft left as a hole.
-    // Raven wrote: vsprintf (text, format, argptr)
-    portMissing("G_DebugPrint", source: "oracle/codemp/game/g_ICARUScb.c:275")
-    // Port-note: A read of `argptr`, a local the draft left as a hole.
-    // Raven wrote: va_end (argptr)
-    portMissing("G_DebugPrint", source: "oracle/codemp/game/g_ICARUScb.c:275")
+    strcpy(&text, JKAShared.format(format, args))
 
     //Add the color formatting
     switch level {
@@ -72,29 +61,21 @@ func G_DebugPrint(_ level: Int32, _ format: String, _ args: any JKAShared.Format
     case WL_DEBUG:
         do {
             var entNum: Int32 = 0
-            // Port-note: A pointer local `char * buffer` with no view.
-            // Raven wrote: char *buffer;
-            portMissing("G_DebugPrint", source: "oracle/codemp/game/g_ICARUScb.c:275")
+            var buffer = TextCursor()
 
             sscanf(text, "%d", &entNum)
 
             //if ( ( ICARUS_entFilter >= 0 ) && ( ICARUS_entFilter != entNum ) )
             //	return;
 
-            // Port-note: A store into `buffer`, a local the draft left as a hole.
-            // Raven wrote: buffer = (char *) text
-            portMissing("G_DebugPrint", source: "oracle/codemp/game/g_ICARUScb.c:275")
-            // Port-note: A store into `buffer`, a local the draft left as a hole.
-            // Raven wrote: buffer += 5
-            portMissing("G_DebugPrint", source: "oracle/codemp/game/g_ICARUScb.c:275")
+            buffer = TextCursor(text)
+            buffer.advance(by: 5)
 
             if (entNum < 0) || (entNum > MAX_GENTITIES) {
                 entNum = 0
             }
 
-            // Port-note: A read of `buffer`, a local the draft left as a hole.
-            // Raven wrote: Com_Printf ( S_COLOR_BLUE"DEBUG: %s(%d): %s\n", g_entities[entNum].script_targetname, entNum, buffer )
-            portMissing("G_DebugPrint", source: "oracle/codemp/game/g_ICARUScb.c:275")
+            Com_Printf(S_COLOR_BLUE + "DEBUG: %s(%d): %s\n", g_entities[entNum].script_targetname!, entNum, buffer.text)
             break
         }
         fallthrough
@@ -155,27 +136,23 @@ Q3_GetAnimBoth
 */
 /// Source: oracle/codemp/game/g_ICARUScb.c:371
 private func Q3_GetAnimBoth(_ ent: Entity) -> String? {
-    let lowerName: String
-    let upperName: String
+    let lowerName: String?
+    let upperName: String?
 
-    // Port-note: Raven stores `Q3_GetAnimLower( ent )`, and the callee hands an optional text back where the target takes a value. A never-null ruling is due.
-    // Raven wrote: lowerName = Q3_GetAnimLower( ent )
-    portMissing("Q3_GetAnimBoth", source: "oracle/codemp/game/g_ICARUScb.c:371")
-    // Port-note: Raven stores `Q3_GetAnimUpper( ent )`, and the callee hands an optional text back where the target takes a value. A never-null ruling is due.
-    // Raven wrote: upperName = Q3_GetAnimUpper( ent )
-    portMissing("Q3_GetAnimBoth", source: "oracle/codemp/game/g_ICARUScb.c:371")
+    lowerName = Q3_GetAnimLower(ent)
+    upperName = Q3_GetAnimUpper(ent)
 
-    if lowerName.isEmpty {
+    if lowerName == nil || lowerName!.isEmpty {
         G_DebugPrint(WL_WARNING, "Q3_GetAnimBoth: NULL legs animation string found!\n")
         return nil
     }
 
-    if upperName.isEmpty {
+    if upperName == nil || upperName!.isEmpty {
         G_DebugPrint(WL_WARNING, "Q3_GetAnimBoth: NULL torso animation string found!\n")
         return nil
     }
 
-    if Q_stricmp(lowerName, upperName) != 0 {
+    if Q_stricmp(lowerName!, upperName!) != 0 {
     }
 
     return lowerName
@@ -194,13 +171,9 @@ public func Q3_PlaySound(_ taskID: Int32, _ entID: Int32, _ name: String, _ chan
     Q_strupr(&finalName)
     //G_AddSexToMunroString( finalName, qtrue );
 
-    // Port-note: The draft of this statement did not compile, and the compiler wrote "cannot convert value of type 'CharBuf' to expected argument type 'String'".
-    // Raven wrote: COM_StripExtension( (const char *)finalName, finalName )
-    portMissing("Q3_PlaySound", source: "oracle/codemp/game/g_ICARUScb.c:400")
+    COM_StripExtension(String(finalName), &finalName)
 
-    // Port-note: The draft of this statement did not compile, and the compiler wrote "cannot convert value of type 'CharBuf' to expected argument type 'String'".
-    // Raven wrote: soundHandle = G_SoundIndex( (char *) finalName )
-    portMissing("Q3_PlaySound", source: "oracle/codemp/game/g_ICARUScb.c:400")
+    soundHandle = G_SoundIndex(String(finalName))
     bBroadcast = false
 
     if (Q_stricmp(channel, "CHAN_ANNOUNCER") == 0) || (ent!.classname != nil && Q_stricmp("target_scriptrunner", ent!.classname!) == 0) {
@@ -275,9 +248,7 @@ public func Q3_PlaySound(_ taskID: Int32, _ entID: Int32, _ name: String, _ chan
             return 1
         } else {
             //This the voice channel
-            // Port-note: The draft of this statement did not compile, and the compiler wrote "cannot convert value of type 'CharBuf' to expected argument type 'String'".
-            // Raven wrote: G_Sound( ent, voice_chan, G_SoundIndex((char *) finalName) )
-            portMissing("Q3_PlaySound", source: "oracle/codemp/game/g_ICARUScb.c:400")
+            G_Sound(ent!, voice_chan, G_SoundIndex(String(finalName)))
         }
         //Remember we're waiting for this
         trap_ICARUS_TaskIDSet(ent!, TID_CHAN_VOICE, taskID)
@@ -429,10 +400,8 @@ func Blocked_Mover(_ ent: Entity, _ other: Entity) {
     }
 
     if ent.damage != 0 {
-        // Port-note: Raven passes NULL for the `dir` output. The ported function takes it by reference, so the body passes a scratch local it never reads.
-        portMissing("Blocked_Mover", source: "oracle/codemp/game/g_ICARUScb.c:635")
-        var scratchDir = vec3_t()
-        G_Damage(other, ent, ent, &scratchDir, nil, ent.damage, 0, MOD_CRUSH)
+        var dir: vec3_t? = nil
+        G_Damage(other, ent, ent, &dir, nil, ent.damage, 0, MOD_CRUSH)
     }
 }
 
@@ -2946,9 +2915,7 @@ Q3_GameSideCheckStringCounterIncrement
 */
 /// Source: oracle/codemp/game/g_ICARUScb.c:3406
 private func Q3_GameSideCheckStringCounterIncrement(_ string: String) -> Float {
-    // Port-note: A pointer local `char * numString` with no view.
-    // Raven wrote: char *numString;
-    portMissing("Q3_GameSideCheckStringCounterIncrement", source: "oracle/codemp/game/g_ICARUScb.c:3406")
+    var numString = TextCursor()
     var val: Float = 0.0
     // Raven steps his own `string` parameter through its bytes, so the body walks a TextCursor over a copy of them.
     var string = TextCursor(CharBuf(string))
@@ -2956,22 +2923,16 @@ private func Q3_GameSideCheckStringCounterIncrement(_ string: String) -> Float {
     if string[0] == Int32(ascii: "+") {
         //We want to increment whatever the value is by whatever follows the +
         if string[1] != 0 {
-            // Port-note: A store into `numString`, a local the draft left as a hole.
-            // Raven wrote: numString = (char *)&string[1]
-            portMissing("Q3_GameSideCheckStringCounterIncrement", source: "oracle/codemp/game/g_ICARUScb.c:3406")
-            // Port-note: A read of `numString`, a local the draft left as a hole.
-            // Raven wrote: val = atof( numString )
-            portMissing("Q3_GameSideCheckStringCounterIncrement", source: "oracle/codemp/game/g_ICARUScb.c:3406")
+            numString = string
+            numString.advance()
+            val = atof(numString.text)
         }
     } else if string[0] == Int32(ascii: "-") {
         //we want to decrement
         if string[1] != 0 {
-            // Port-note: A store into `numString`, a local the draft left as a hole.
-            // Raven wrote: numString = (char *)&string[1]
-            portMissing("Q3_GameSideCheckStringCounterIncrement", source: "oracle/codemp/game/g_ICARUScb.c:3406")
-            // Port-note: A read of `numString`, a local the draft left as a hole.
-            // Raven wrote: val = atof( numString ) * -1
-            portMissing("Q3_GameSideCheckStringCounterIncrement", source: "oracle/codemp/game/g_ICARUScb.c:3406")
+            numString = string
+            numString.advance()
+            val = atof(numString.text) * -1
         }
     }
 
@@ -3000,9 +2961,12 @@ private func Q3_SetCount(_ entID: Int32, _ data: String) {
         return
     }
 
-    // Port-note: An assignment inside an expression.
-    // Raven wrote: if ( (val = Q3_GameSideCheckStringCounterIncrement( data )) ) { self->count += (int)(val); } else { self->count = atoi((char *) data); }
-    portMissing("Q3_SetCount", source: "oracle/codemp/game/g_ICARUScb.c:3440")
+    val = Q3_GameSideCheckStringCounterIncrement(data)
+    if val != 0 {
+        `self`!.count += Int32(val)
+    } else {
+        `self`!.count = atoi(data)
+    }
 }
 
 /**
@@ -3212,9 +3176,7 @@ func Q3_SetParm(_ entID: Int32, _ parmNum: Int32, _ parmValue: String) {
 
     if ent!.parms == nil {
         ent!.parms = Parms(G_Alloc(Int32(Parms.byteCount)))
-        // Port-note: The draft of this statement did not compile, and the compiler wrote "value of optional type 'Parms?' must be unwrapped to refer to member 'clear' of wrapped base type 'Parms'".
-        // Raven wrote: memset( ent->parms, 0, sizeof(parms_t) )
-        portMissing("Q3_SetParm", source: "oracle/codemp/game/g_ICARUScb.c:3651")
+        ent!.parms!.clear()
     }
 
     // Port-note: An assignment inside an expression.

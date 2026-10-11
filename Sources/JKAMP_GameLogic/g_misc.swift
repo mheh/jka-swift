@@ -226,11 +226,8 @@ func TeleportPlayer(_ player: Entity, _ origin: JKAShared.vec3_t, _ angles: JKAS
     player.client!.ps.origin[2] += 1
 
     // spit the player out
-    // Port-note: Raven passes NULL for the `right` output. The ported function takes it by reference, so the body passes a scratch local it never reads.
-    portMissing("TeleportPlayer", source: "oracle/codemp/game/g_misc.c:177")
+    // Raven passes NULL for the `right` and `up` outputs.
     var scratchRight = vec3_t()
-    // Port-note: Raven passes NULL for the `up` output. The ported function takes it by reference, so the body passes a scratch local it never reads.
-    portMissing("TeleportPlayer", source: "oracle/codemp/game/g_misc.c:177")
     var scratchUp = vec3_t()
     AngleVectors(angles, &player.client!.ps.velocity, &scratchRight, &scratchUp)
     player.client!.ps.velocity = player.client!.ps.velocity * 400
@@ -1656,9 +1653,7 @@ ammo_power_converter_use
 */
 /// Source: oracle/codemp/game/g_misc.c:1753
 func ammo_power_converter_use(_ `self`: Entity, _ other: Entity, _ activator: Entity) {
-    // Port-note: The draft of this statement did not compile, and the compiler wrote "cannot convert value of type 'Double' to specified type 'Int32'".
-    // Raven wrote: int add = 0.0f;
-    portMissing("ammo_power_converter_use", source: "oracle/codemp/game/g_misc.c:1753")
+    var add: Int32 = Int32(0.0) //,highest;
     let overcharge: Bool
     //	int			difBlaster,difPowerCell,difMetalBolts;
     var stop: Int32 = 1
@@ -1679,16 +1674,12 @@ func ammo_power_converter_use(_ `self`: Entity, _ other: Entity, _ activator: En
         if `self`.count != 0 {
             var i: Int32 = AMMO_BLASTER
             while i < AMMO_MAX {
-                // Port-note: A store into `add`, a local the draft left as a hole.
-                // Raven wrote: add = ammoData[i].max*0.1
-                portMissing("ammo_power_converter_use", source: "oracle/codemp/game/g_misc.c:1753")
-                // Port-note: A read of `add`, a local the draft left as a hole.
-                // Raven wrote: if (add < 1) { add = 1; }
-                portMissing("ammo_power_converter_use", source: "oracle/codemp/game/g_misc.c:1753")
+                add = Int32(Double(ammoData[i].max) * 0.1)
+                if add < 1 {
+                    add = 1
+                }
                 if activator.client!.ps.ammo[i] < ammoData[i].max {
-                    // Port-note: A read of `add`, a local the draft left as a hole.
-                    // Raven wrote: activator->client->ps.ammo[i] += add
-                    portMissing("ammo_power_converter_use", source: "oracle/codemp/game/g_misc.c:1753")
+                    activator.client!.ps.ammo[i] += add
                     if activator.client!.ps.ammo[i] > ammoData[i].max {
                         activator.client!.ps.ammo[i] = ammoData[i].max
                     }
@@ -1696,9 +1687,7 @@ func ammo_power_converter_use(_ `self`: Entity, _ other: Entity, _ activator: En
                 i += 1
             }
             if `self`.genericValue12 == 0 {
-                // Port-note: A read of `add`, a local the draft left as a hole.
-                // Raven wrote: self->count -= add
-                portMissing("ammo_power_converter_use", source: "oracle/codemp/game/g_misc.c:1753")
+                `self`.count -= add
             }
             stop = 0
 
@@ -2038,9 +2027,7 @@ func fx_runner_link(_ ent: Entity) {
         // try to use the target to override the orientation
         var target: Entity? = nil
 
-        // Port-note: No operator beside the operand, the text there is ``.
-        // Raven wrote: target = G_Find( target, FOFS(targetname), ent->target )
-        portMissing("fx_runner_link", source: "oracle/codemp/game/g_misc.c:2387")
+        target = G_Find(target, \.targetname, ent.target!)
 
         if target == nil {
             // Bah, no good, dump a warning, but continue on and use the UP vector
@@ -2058,9 +2045,7 @@ func fx_runner_link(_ ent: Entity) {
     if ent.target2 != nil && !ent.target2!.isEmpty {
         var target: Entity? = nil
 
-        // Port-note: No operator beside the operand, the text there is ``.
-        // Raven wrote: target = G_Find( target, FOFS(targetname), ent->target2 )
-        portMissing("fx_runner_link", source: "oracle/codemp/game/g_misc.c:2387")
+        target = G_Find(target, \.targetname, ent.target2!)
 
         if target == nil {
             // Target2 is bogus, but we can still continue
@@ -2298,11 +2283,8 @@ func maglock_link(_ `self`: Entity) {
     let earlyOut = Trace.scratch { trace -> Bool in
         var traceEnt: Entity?
 
-        // Port-note: Raven passes NULL for the `right` output. The ported function takes it by reference, so the body passes a scratch local it never reads.
-        portMissing("maglock_link", source: "oracle/codemp/game/g_misc.c:2659")
+        // Raven passes NULL for the `right` and `up` outputs.
         var scratchRight = vec3_t()
-        // Port-note: Raven passes NULL for the `up` output. The ported function takes it by reference, so the body passes a scratch local it never reads.
-        portMissing("maglock_link", source: "oracle/codemp/game/g_misc.c:2659")
         var scratchUp = vec3_t()
         AngleVectors(`self`.s.angles, &forward, &scratchRight, &scratchUp)
         _VectorMA(`self`.s.origin, 128, forward, &end)
@@ -2652,20 +2634,12 @@ func TAG_Add(_ name: String, _ owner: String?, _ origin: JKAShared.vec3_t, _ ang
 
 
     //Copy the name
-    // Port-note: Raven passes `(char *) tagOwner->name` to `Q_strncpyz`, whose `char *` parameter the stub holds as an inout CharBuf. Docket row 5 is due.
-    // Raven wrote: Q_strncpyz( (char *) tagOwner->name, owner, MAX_REFNAME )
-    portMissing("TAG_Add", source: "oracle/codemp/game/g_misc.c:3036")
-    // Port-note: Raven passes `(char *) tagOwner->name` to `Q_strlwr`, whose `char *` parameter the stub holds as an inout CharBuf. Docket row 5 is due.
-    // Raven wrote: Q_strlwr( (char *) tagOwner->name )
-    portMissing("TAG_Add", source: "oracle/codemp/game/g_misc.c:3036")
+    Q_strncpyz(&tagOwner!.nameBuffer, owner!, MAX_REFNAME)
+    tagOwner!.name = Q_strlwr(tagOwner!.name) //NOTENOTE: For case insensitive searches on a map
 
     //Copy the name
-    // Port-note: Raven passes `(char *) tag->name` to `Q_strncpyz`, whose `char *` parameter the stub holds as an inout CharBuf. Docket row 5 is due.
-    // Raven wrote: Q_strncpyz( (char *) tag->name, name, MAX_REFNAME )
-    portMissing("TAG_Add", source: "oracle/codemp/game/g_misc.c:3036")
-    // Port-note: Raven passes `(char *) tag->name` to `Q_strlwr`, whose `char *` parameter the stub holds as an inout CharBuf. Docket row 5 is due.
-    // Raven wrote: Q_strlwr( (char *) tag->name )
-    portMissing("TAG_Add", source: "oracle/codemp/game/g_misc.c:3036")
+    Q_strncpyz(&tag!.nameBuffer, name, MAX_REFNAME)
+    tag!.name = Q_strlwr(tag!.name) //NOTENOTE: For case insensitive searches on a map
 
     tagOwner!.inuse = true
     tag!.inuse = true
@@ -2741,14 +2715,19 @@ func ref_link(_ ent: Entity) {
 
     if ent.target != nil {
         //TODO: Find the target and set our angles to that direction
-        // Port-note: No operator beside the operand, the text there is ``.
-        // Raven wrote: gentity_t *target = G_Find( NULL, FOFS(targetname), ent->target );
-        portMissing("ref_link", source: "oracle/codemp/game/g_misc.c:3267")
+        let target: Entity? = G_Find(nil, \.targetname, ent.target!)
         var dir = vec3_t()
 
-        // Port-note: A read of `target`, a local the draft left as a hole.
-        // Raven wrote: if ( target ) { //Find the direction to the target VectorSubtract( target->s.origin, ent->s.origin, dir ); VectorNormalize( dir ); vectoangles( dir, ent->s.angles ); //FIXME: Does pitch get flipped? } else { Com_Printf( S_COLOR_RED"ERROR: ref_tag (%s) has invalid target (%s)", ent->targetname, ent->target ); }
-        portMissing("ref_link", source: "oracle/codemp/game/g_misc.c:3267")
+        if target != nil {
+            //Find the direction to the target
+            dir = target!.s.origin - ent.s.origin
+            VectorNormalize(&dir)
+            vectoangles(dir, &ent.s.angles)
+
+            //FIXME: Does pitch get flipped?
+        } else {
+            Com_Printf(S_COLOR_RED + "ERROR: ref_tag (%s) has invalid target (%s)", ent.targetname!, ent.target!)
+        }
     }
 
     //Add the tag
@@ -2833,12 +2812,18 @@ func misc_weapon_shooter_use(_ `self`: Entity, _ other: Entity, _ activator: Ent
 func misc_weapon_shooter_aim(_ `self`: Entity) {
     //update my aim
     if `self`.target != nil {
-        // Port-note: No operator beside the operand, the text there is ``.
-        // Raven wrote: gentity_t *targ = G_Find( NULL, FOFS(targetname), self->target );
-        portMissing("misc_weapon_shooter_aim", source: "oracle/codemp/game/g_misc.c:3417")
-        // Port-note: A read of `targ`, a local the draft left as a hole.
-        // Raven wrote: if ( targ ) { self->enemy = targ; VectorSubtract( targ->r.currentOrigin, self->r.currentOrigin, self->pos1 ); VectorCopy( targ->r.currentOrigin, self->pos1 ); vectoangles( self->pos1, self->client->ps.viewangles ); SetClientViewAngle( self, self->client->ps.viewangles ); //FIXME: don't keep doing this unless target is a moving target? self->nextthink = level.time + FRAMETIME; } else { self->enemy = NULL; }
-        portMissing("misc_weapon_shooter_aim", source: "oracle/codemp/game/g_misc.c:3417")
+        let targ: Entity? = G_Find(nil, \.targetname, `self`.target!)
+        if targ != nil {
+            `self`.enemy = targ
+            `self`.pos1 = targ!.r.currentOrigin - `self`.r.currentOrigin
+            `self`.pos1 = targ!.r.currentOrigin
+            vectoangles(`self`.pos1, &`self`.client!.ps.viewangles)
+            SetClientViewAngle(`self`, `self`.client!.ps.viewangles)
+            //FIXME: don't keep doing this unless target is a moving target?
+            `self`.nextthink = level.time + FRAMETIME
+        } else {
+            `self`.enemy = nil
+        }
     }
 }
 
@@ -2874,11 +2859,8 @@ func SP_misc_weapon_shooter(_ `self`: Entity) {
     } else {
         //just set aim angles
         `self`.client!.ps.viewangles = `self`.s.angles
-        // Port-note: Raven passes NULL for the `right` output. The ported function takes it by reference, so the body passes a scratch local it never reads.
-        portMissing("SP_misc_weapon_shooter", source: "oracle/codemp/game/g_misc.c:3444")
+        // Raven passes NULL for the `right` and `up` outputs.
         var scratchRight = vec3_t()
-        // Port-note: Raven passes NULL for the `up` output. The ported function takes it by reference, so the body passes a scratch local it never reads.
-        portMissing("SP_misc_weapon_shooter", source: "oracle/codemp/game/g_misc.c:3444")
         var scratchUp = vec3_t()
         AngleVectors(`self`.s.angles, &`self`.pos1, &scratchRight, &scratchUp)
     }

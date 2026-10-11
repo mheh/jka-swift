@@ -226,8 +226,7 @@ func Boba_StopKnockdown(_ `self`: Entity, _ pusher: Entity, _ pushDir: JKAShared
     ang = vec3_t(0, `self`.r.currentAngles[YAW], 0)
     strafeTime = Q_irand(1000, 2000)
 
-    // Port-note: Raven passes NULL for the `up` output. The ported function takes it by reference, so the body passes a scratch local it never reads.
-    portMissing("Boba_StopKnockdown", source: "oracle/codemp/game/NPC_AI_Jedi.c:272")
+    // Raven passes NULL for the `up` output, so the call passes a scratch local.
     var scratchUp = vec3_t()
     AngleVectors(ang, &fwd, &right, &scratchUp)
     VectorNormalize2(pushDir, &pDir)
@@ -467,11 +466,8 @@ func Boba_FireDecide() {
 
     enemyDir = NPC!.enemy!.r.currentOrigin - NPC!.r.currentOrigin
     VectorNormalize(&enemyDir)
-    // Port-note: Raven passes NULL for the `right` output. The ported function takes it by reference, so the body passes a scratch local it never reads.
-    portMissing("Boba_FireDecide", source: "oracle/codemp/game/NPC_AI_Jedi.c:481")
+    // Raven passes NULL for the `right` and `up` outputs, so the call passes scratch locals.
     var scratchRight = vec3_t()
-    // Port-note: Raven passes NULL for the `up` output. The ported function takes it by reference, so the body passes a scratch local it never reads.
-    portMissing("Boba_FireDecide", source: "oracle/codemp/game/NPC_AI_Jedi.c:481")
     var scratchUp = vec3_t()
     AngleVectors(NPC!.client!.ps.viewangles, &shootDir, &scratchRight, &scratchUp)
     dot = _DotProduct(enemyDir, shootDir)
@@ -590,11 +586,8 @@ func Boba_FireDecide() {
                                 //vec3_t	mins = {-2,-2,-2}, maxs = {2,2,2};
                                 var forward = vec3_t()
                                 var end = vec3_t()
-                                // Port-note: Raven passes NULL for the `right` output. The ported function takes it by reference, so the body passes a scratch local it never reads.
-                                portMissing("Boba_FireDecide", source: "oracle/codemp/game/NPC_AI_Jedi.c:481")
+                                // Raven passes NULL for the `right` and `up` outputs, so the call passes scratch locals.
                                 var scratchRight2 = vec3_t()
-                                // Port-note: Raven passes NULL for the `up` output. The ported function takes it by reference, so the body passes a scratch local it never reads.
-                                portMissing("Boba_FireDecide", source: "oracle/codemp/game/NPC_AI_Jedi.c:481")
                                 var scratchUp2 = vec3_t()
                                 AngleVectors(NPC!.client!.ps.viewangles, &forward, &scratchRight2, &scratchUp2)
                                 _VectorMA(muzzle, 8192, forward, &end)
@@ -995,8 +988,7 @@ func NPC_MoveDirClear(_ forwardmove: Int32, _ rightmove: Int32, _ reset: Bool) -
         angles[ROLL] = 0
         angles[PITCH] = angles[ROLL]
         angles[YAW] = NPC!.client!.ps.viewangles[YAW] //Add ucmd.angles[YAW]?
-        // Port-note: Raven passes NULL for the `up` output. The ported function takes it by reference, so the body passes a scratch local it never reads.
-        portMissing("NPC_MoveDirClear", source: "oracle/codemp/game/NPC_AI_Jedi.c:1079")
+        // Raven passes NULL for the `up` output, so the call passes a scratch local.
         var scratchUp = vec3_t()
         AngleVectors(angles, &forward, &right, &scratchUp)
         fwdDist = (Float(forwardmove)) / 2.0
@@ -1655,11 +1647,8 @@ func Jedi_CheckFlipEvasions(_ `self`: Entity, _ rightdot: Float, _ zdiff: Float)
 
         fwdAngles = vec3_t(0, `self`.client!.ps.viewangles[YAW], 0)
 
-        // Port-note: Raven passes NULL for the `forward` output. The ported function takes it by reference, so the body passes a scratch local it never reads.
-        portMissing("Jedi_CheckFlipEvasions", source: "oracle/codemp/game/NPC_AI_Jedi.c:1969")
+        // Raven passes NULL for the `forward` and `up` outputs, so the call passes scratch locals.
         var scratchForward = vec3_t()
-        // Port-note: Raven passes NULL for the `up` output. The ported function takes it by reference, so the body passes a scratch local it never reads.
-        portMissing("Jedi_CheckFlipEvasions", source: "oracle/codemp/game/NPC_AI_Jedi.c:1969")
         var scratchUp = vec3_t()
         AngleVectors(fwdAngles, &scratchForward, &right, &scratchUp)
 
@@ -1743,8 +1732,7 @@ func Jedi_CheckFlipEvasions(_ `self`: Entity, _ rightdot: Float, _ zdiff: Float)
             maxs = vec3_t(`self`.r.maxs[0], `self`.r.maxs[1], 24)
             fwdAngles = vec3_t(0, `self`.client!.ps.viewangles[YAW], 0)
 
-            // Port-note: Raven passes NULL for the `up` output. The ported function takes it by reference, so the body passes a scratch local it never reads.
-            portMissing("Jedi_CheckFlipEvasions", source: "oracle/codemp/game/NPC_AI_Jedi.c:1969")
+            // Raven passes NULL for the `up` output, so the call passes a scratch local.
             var scratchUp2 = vec3_t()
             AngleVectors(fwdAngles, &fwd, &right, &scratchUp2)
 
@@ -1785,11 +1773,8 @@ func Jedi_CheckFlipEvasions(_ `self`: Entity, _ rightdot: Float, _ zdiff: Float)
                 fwdAngles[ROLL] = 0
                 fwdAngles[PITCH] = fwdAngles[ROLL]
                 //do the flip
-                // Port-note: Raven passes NULL for the `forward` output. The ported function takes it by reference, so the body passes a scratch local it never reads.
-                portMissing("Jedi_CheckFlipEvasions", source: "oracle/codemp/game/NPC_AI_Jedi.c:1969")
+                // Raven passes NULL for the `forward` and `up` outputs, so the call passes scratch locals.
                 var scratchForward2 = vec3_t()
-                // Port-note: Raven passes NULL for the `up` output. The ported function takes it by reference, so the body passes a scratch local it never reads.
-                portMissing("Jedi_CheckFlipEvasions", source: "oracle/codemp/game/NPC_AI_Jedi.c:1969")
                 var scratchUp3 = vec3_t()
                 AngleVectors(fwdAngles, &scratchForward2, &jumpRt, &scratchUp3)
                 `self`.client!.ps.velocity = jumpRt * speed
@@ -2109,11 +2094,8 @@ func Jedi_SaberBlockGo(_ `self`: Entity, _ cmd: JKAMP.Usercmd, _ pHitloc: JKASha
     //VectorNormalize( diff );
     fwdangles[1] = `self`.client!.ps.viewangles[1]
     // Ultimately we might care if the shot was ahead or behind, but for now, just quadrant is fine.
-    // Port-note: Raven passes NULL for the `forward` output. The ported function takes it by reference, so the body passes a scratch local it never reads.
-    portMissing("Jedi_SaberBlockGo", source: "oracle/codemp/game/NPC_AI_Jedi.c:2485")
+    // Raven passes NULL for the `forward` and `up` outputs, so the call passes scratch locals.
     var scratchForward = vec3_t()
-    // Port-note: Raven passes NULL for the `up` output. The ported function takes it by reference, so the body passes a scratch local it never reads.
-    portMissing("Jedi_SaberBlockGo", source: "oracle/codemp/game/NPC_AI_Jedi.c:2485")
     var scratchUp = vec3_t()
     AngleVectors(fwdangles, &scratchForward, &right, &scratchUp)
 
@@ -2401,9 +2383,38 @@ func Jedi_SaberBlockGo(_ `self`: Entity, _ cmd: JKAMP.Usercmd, _ pHitloc: JKASha
                     }
                 }
             }
-            // Port-note: An assignment inside an expression.
-            // Raven wrote: if ( ((evasionType = Jedi_CheckFlipEvasions( self, rightdot, zdiff ))!=EVASION_NONE) ) { if ( d_slowmodeath.integer > 5 && self->enemy && !self->enemy->s.number ) { G_StartMatrixEffect( self ); } saberBusy = qtrue; evaded = qtrue; } else if ( incoming || !saberBusy ) { //since the jump may be cleared if not safe, set a lower block too if ( rightdot >= 0 ) { self->client->ps.saberBlocked = BLOCKED_LOWER_RIGHT; if ( evasionType == EVASION_JUMP ) { evasionType = EVASION_JUMP_PARRY; } else if ( evasionType == EVASION_NONE ) { evasionType = EVASION_PARRY; } if ( d_JediAI.integer ) { Com_Printf( "LR block\n" ); } } else { self->client->ps.saberBlocked = BLOCKED_LOWER_LEFT; if ( evasionType == EVASION_JUMP ) { evasionType = EVASION_JUMP_PARRY; } else if ( evasionType == EVASION_NONE ) { evasionType = EVASION_PARRY; } if ( d_JediAI.integer ) { Com_Printf( "LL block\n" ); } } evaded = qtrue; }
-            portMissing("Jedi_SaberBlockGo", source: "oracle/codemp/game/NPC_AI_Jedi.c:2485")
+            evasionType = Jedi_CheckFlipEvasions(`self`, rightdot, zdiff)
+            if evasionType != EVASION_NONE {
+                if d_slowmodeath.integer > 5 && `self`.enemy != nil && `self`.enemy!.s.number == 0 {
+                    G_StartMatrixEffect(`self`)
+                }
+                saberBusy = true
+                evaded = true
+            } else if incoming != nil || !saberBusy {
+                //since the jump may be cleared if not safe, set a lower block too
+                if rightdot >= 0 {
+                    `self`.client!.ps.saberBlocked = BLOCKED_LOWER_RIGHT
+                    if evasionType == EVASION_JUMP {
+                        evasionType = EVASION_JUMP_PARRY
+                    } else if evasionType == EVASION_NONE {
+                        evasionType = EVASION_PARRY
+                    }
+                    if d_JediAI.integer != 0 {
+                        Com_Printf("LR block\n")
+                    }
+                } else {
+                    `self`.client!.ps.saberBlocked = BLOCKED_LOWER_LEFT
+                    if evasionType == EVASION_JUMP {
+                        evasionType = EVASION_JUMP_PARRY
+                    } else if evasionType == EVASION_NONE {
+                        evasionType = EVASION_PARRY
+                    }
+                    if d_JediAI.integer != 0 {
+                        Com_Printf("LL block\n")
+                    }
+                }
+                evaded = true
+            }
         }
     } else {
         if incoming != nil || !saberBusy {
@@ -2701,9 +2712,44 @@ private func Jedi_SaberBlock(_ saberNum: Int32, _ bladeNum: Int32) -> Bool {
 
         //FIXME: if saber is off and/or we have force speed and want to be really cocky,
         //		and the swing misses by some amount, we can use the dodges here... :)
-        // Port-note: An assignment inside an expression.
-        // Raven wrote: if ( (evasionType=Jedi_SaberBlockGo( NPC, &ucmd, hitloc, dir, NULL, dist )) != EVASION_DODGE ) {//we did block (not dodge) int parryReCalcTime; if ( !NPC->client->ps.saberInFlight ) {//make sure saber is on WP_ActivateSaber(NPC); } //debounce our parry recalc time parryReCalcTime = Jedi_ReCalcParryTime( NPC, evasionType ); TIMER_Set( NPC, "parryReCalcTime", Q_irand( 0, parryReCalcTime ) ); if ( d_JediAI.integer ) { Com_Printf( "Keep parry choice until: %d\n", level.time + parryReCalcTime ); } //determine how long to hold this anim if ( TIMER_Done( NPC, "parryTime" ) ) { if ( NPC->client->NPC_class == CLASS_TAVION ) { TIMER_Set( NPC, "parryTime", Q_irand( parryReCalcTime/2, parryReCalcTime*1.5 ) ); } else if ( NPCInfo->rank >= RANK_LT_JG ) {//fencers and higher hold a parry less TIMER_Set( NPC, "parryTime", parryReCalcTime ); } else {//others hold it longer TIMER_Set( NPC, "parryTime", Q_irand( 1, 2 )*parryReCalcTime ); } } } else { int dodgeTime = NPC->client->ps.torsoTimer; if ( NPCInfo->rank > RANK_LT_COMM && NPC->client->NPC_class != CLASS_DESANN ) {//higher-level guys can dodge faster dodgeTime -= 200; } TIMER_Set( NPC, "parryReCalcTime", dodgeTime ); TIMER_Set( NPC, "parryTime", dodgeTime ); }
-        portMissing("Jedi_SaberBlock", source: "oracle/codemp/game/NPC_AI_Jedi.c:3143")
+        evasionType = Jedi_SaberBlockGo(NPC!, ucmd, hitloc, dir, nil, dist)
+        if evasionType != EVASION_DODGE {
+            //we did block (not dodge)
+            let parryReCalcTime: Int32
+
+            if !NPC!.client!.ps.saberInFlight {
+                //make sure saber is on
+                WP_ActivateSaber(NPC!)
+            }
+
+            //debounce our parry recalc time
+            parryReCalcTime = Jedi_ReCalcParryTime(NPC!, evasionType)
+            TIMER_Set(NPC!, "parryReCalcTime", Q_irand(0, parryReCalcTime))
+            if d_JediAI.integer != 0 {
+                Com_Printf("Keep parry choice until: %d\n", level.time + parryReCalcTime)
+            }
+
+            //determine how long to hold this anim
+            if TIMER_Done(NPC!, "parryTime") {
+                if NPC!.client!.NPC_class == CLASS_TAVION {
+                    TIMER_Set(NPC!, "parryTime", Q_irand(parryReCalcTime / 2, Int32(Double(parryReCalcTime) * 1.5)))
+                } else if NPCInfo!.rank >= RANK_LT_JG {
+                    //fencers and higher hold a parry less
+                    TIMER_Set(NPC!, "parryTime", parryReCalcTime)
+                } else {
+                    //others hold it longer
+                    TIMER_Set(NPC!, "parryTime", Q_irand(1, 2) * parryReCalcTime)
+                }
+            }
+        } else {
+            var dodgeTime: Int32 = NPC!.client!.ps.torsoTimer
+            if NPCInfo!.rank > RANK_LT_COMM && NPC!.client!.NPC_class != CLASS_DESANN {
+                //higher-level guys can dodge faster
+                dodgeTime -= 200
+            }
+            TIMER_Set(NPC!, "parryReCalcTime", dodgeTime)
+            TIMER_Set(NPC!, "parryTime", dodgeTime)
+        }
         return true
     }
 }
@@ -2785,11 +2831,8 @@ private func Jedi_EvasionSaber(_ enemy_movedir: JKAShared.vec3_t, _ enemy_dist: 
         if VectorCompare(enemy_movedir, vec3_origin) != 0 || shooting_lightning || throwing_saber {
             //he's not moving (or he's using a ranged attack), see if he's facing me
             var enemy_fwd = vec3_t()
-            // Port-note: Raven passes NULL for the `right` output. The ported function takes it by reference, so the body passes a scratch local it never reads.
-            portMissing("Jedi_EvasionSaber", source: "oracle/codemp/game/NPC_AI_Jedi.c:3380")
+            // Raven passes NULL for the `right` and `up` outputs, so the call passes scratch locals.
             var scratchRight = vec3_t()
-            // Port-note: Raven passes NULL for the `up` output. The ported function takes it by reference, so the body passes a scratch local it never reads.
-            portMissing("Jedi_EvasionSaber", source: "oracle/codemp/game/NPC_AI_Jedi.c:3380")
             var scratchUp = vec3_t()
             AngleVectors(NPC!.enemy!.client!.ps.viewangles, &enemy_fwd, &scratchRight, &scratchUp)
             facingAmt = _DotProduct(enemy_fwd, dirEnemy2Me)
@@ -2853,11 +2896,8 @@ private func Jedi_EvasionSaber(_ enemy_movedir: JKAShared.vec3_t, _ enemy_dist: 
                     //he's getting close and swinging at me
                     var fwd = vec3_t()
                     //see if I'm facing him
-                    // Port-note: Raven passes NULL for the `right` output. The ported function takes it by reference, so the body passes a scratch local it never reads.
-                    portMissing("Jedi_EvasionSaber", source: "oracle/codemp/game/NPC_AI_Jedi.c:3380")
+                    // Raven passes NULL for the `right` and `up` outputs, so the call passes scratch locals.
                     var scratchRight2 = vec3_t()
-                    // Port-note: Raven passes NULL for the `up` output. The ported function takes it by reference, so the body passes a scratch local it never reads.
-                    portMissing("Jedi_EvasionSaber", source: "oracle/codemp/game/NPC_AI_Jedi.c:3380")
                     var scratchUp2 = vec3_t()
                     AngleVectors(NPC!.client!.ps.viewangles, &fwd, &scratchRight2, &scratchUp2)
                     if Double(_DotProduct(enemy_dir, fwd)) < 0.5 {
@@ -2984,11 +3024,8 @@ func Jedi_FindEnemyInCone(_ `self`: Entity, _ fallback: Entity, _ minDot: Float)
             return enemy
         }
 
-        // Port-note: Raven passes NULL for the `right` output. The ported function takes it by reference, so the body passes a scratch local it never reads.
-        portMissing("Jedi_FindEnemyInCone", source: "oracle/codemp/game/NPC_AI_Jedi.c:3686")
+        // Raven passes NULL for the `right` and `up` outputs, so the call passes scratch locals.
         var scratchRight = vec3_t()
-        // Port-note: Raven passes NULL for the `up` output. The ported function takes it by reference, so the body passes a scratch local it never reads.
-        portMissing("Jedi_FindEnemyInCone", source: "oracle/codemp/game/NPC_AI_Jedi.c:3686")
         var scratchUp = vec3_t()
         AngleVectors(`self`.client!.ps.viewangles, &forward, &scratchRight, &scratchUp)
 
@@ -3082,9 +3119,7 @@ private func Jedi_SetEnemyInfo(_ enemy_dest: inout JKAShared.vec3_t, _ enemy_dir
         enemy_movedir = NPC!.enemy!.client!.ps.velocity
         enemy_movespeed = VectorNormalize(&enemy_movedir)
         //figure out where he'll be, say, 3 frames from now
-        // Port-note: The draft of this statement did not compile, and the compiler wrote "cannot convert value of type 'Float' to expected argument type 'Double'".
-        // Raven wrote: VectorMA( NPC->enemy->r.currentOrigin, *enemy_movespeed * 0.001 * prediction, enemy_movedir, enemy_dest )
-        portMissing("Jedi_SetEnemyInfo", source: "oracle/codemp/game/NPC_AI_Jedi.c:3763")
+        _VectorMA(NPC!.enemy!.r.currentOrigin, Float(Double(enemy_movespeed) * 0.001 * Double(prediction)), enemy_movedir, &enemy_dest)
         //figure out what dir the enemy's estimated position is from me and how far from the tip of my saber he is
         enemy_dir = enemy_dest - NPC!.r.currentOrigin //NPC->client->renderInfo.muzzlePoint
         //FIXME: enemy_dist calc needs to include all blade lengths, and include distance from hand to start of blade....
@@ -3635,11 +3670,8 @@ private func Jedi_AttackDecide(_ enemy_dist: Int32) -> Bool {
                 var right = vec3_t()
                 var dir2enemy = vec3_t()
 
-                // Port-note: Raven passes NULL for the `forward` output. The ported function takes it by reference, so the body passes a scratch local it never reads.
-                portMissing("Jedi_AttackDecide", source: "oracle/codemp/game/NPC_AI_Jedi.c:4339")
+                // Raven passes NULL for the `forward` and `up` outputs, so the call passes scratch locals.
                 var scratchForward = vec3_t()
-                // Port-note: Raven passes NULL for the `up` output. The ported function takes it by reference, so the body passes a scratch local it never reads.
-                portMissing("Jedi_AttackDecide", source: "oracle/codemp/game/NPC_AI_Jedi.c:4339")
                 var scratchUp = vec3_t()
                 AngleVectors(NPC!.r.currentAngles, &scratchForward, &right, &scratchUp)
                 dir2enemy = NPC!.enemy!.r.currentOrigin - NPC!.r.currentAngles
@@ -4158,11 +4190,8 @@ private func Jedi_CheckEnemyMovement(_ enemy_dist: Float) {
                             TIMER_Set(NPC!, "strafeRight", -1)
                             TIMER_Set(NPC!, "noStrafe", Q_irand(500, 1000))
 
-                            // Port-note: Raven passes NULL for the `right` output. The ported function takes it by reference, so the body passes a scratch local it never reads.
-                            portMissing("Jedi_CheckEnemyMovement", source: "oracle/codemp/game/NPC_AI_Jedi.c:4917")
+                            // Raven passes NULL for the `right` and `up` outputs, so the call passes scratch locals.
                             var scratchRight = vec3_t()
-                            // Port-note: Raven passes NULL for the `up` output. The ported function takes it by reference, so the body passes a scratch local it never reads.
-                            portMissing("Jedi_CheckEnemyMovement", source: "oracle/codemp/game/NPC_AI_Jedi.c:4917")
                             var scratchUp = vec3_t()
                             AngleVectors(NPC!.enemy!.r.currentAngles, &enemyFwd, &scratchRight, &scratchUp)
                             _VectorMA(NPC!.enemy!.r.currentOrigin, -32, enemyFwd, &dest)
@@ -4540,11 +4569,8 @@ func NPC_Jedi_Pain(_ `self`: Entity, _ attacker: Entity, _ damage: Int32) {
             diff = point - `self`.client!.renderInfo.eyePoint
             diff[2] = 0
             fwdangles[1] = `self`.client!.ps.viewangles[1]
-            // Port-note: Raven passes NULL for the `forward` output. The ported function takes it by reference, so the body passes a scratch local it never reads.
-            portMissing("NPC_Jedi_Pain", source: "oracle/codemp/game/NPC_AI_Jedi.c:5358")
+            // Raven passes NULL for the `forward` and `up` outputs, so the call passes scratch locals.
             var scratchForward = vec3_t()
-            // Port-note: Raven passes NULL for the `up` output. The ported function takes it by reference, so the body passes a scratch local it never reads.
-            portMissing("NPC_Jedi_Pain", source: "oracle/codemp/game/NPC_AI_Jedi.c:5358")
             var scratchUp = vec3_t()
             AngleVectors(fwdangles, &scratchForward, &right, &scratchUp)
             rightdot = _DotProduct(right, diff)
@@ -4640,9 +4666,27 @@ func Jedi_CheckAmbushPlayer() -> Bool {
             }
 
             //If the target is this close, then wake up regardless
-            // Port-note: An assignment inside an expression.
-            // Raven wrote: if ( (target_dist = DistanceHorizontalSquared( player->r.currentOrigin, NPC->r.currentOrigin )) > 4096 ) {//closer than 64 - always ambush if ( target_dist > 147456 ) {//> 384, not close enough to ambush continue; } //Check FOV first if ( NPC->client->ps.powerups[PW_CLOAKED] ) { if ( InFOV( player, NPC, 30, 90 ) == qfalse ) { continue; } } else { if ( InFOV( player, NPC, 45, 90 ) == qfalse ) { continue; } } }
-            portMissing("Jedi_CheckAmbushPlayer", source: "oracle/codemp/game/NPC_AI_Jedi.c:5465")
+            target_dist = DistanceHorizontalSquared(player!.r.currentOrigin, NPC!.r.currentOrigin)
+            if target_dist > 4096 {
+                //closer than 64 - always ambush
+                if target_dist > 147456 {
+                    //> 384, not close enough to ambush
+                    i += 1
+                    continue
+                }
+                //Check FOV first
+                if NPC!.client!.ps.powerups[PW_CLOAKED] != 0 {
+                    if InFOV(player!, NPC!, 30, 90) == false {
+                        i += 1
+                        continue
+                    }
+                } else {
+                    if InFOV(player!, NPC!, 45, 90) == false {
+                        i += 1
+                        continue
+                    }
+                }
+            }
 
             if !NPC_ClearLOS4(player!) {
                 i += 1

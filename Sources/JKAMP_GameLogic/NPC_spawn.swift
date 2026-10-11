@@ -990,25 +990,61 @@ func NPC_Begin(_ ent: Entity) {
             //a vehicle
             //check for droidunit
             if ent.m_pVehicle!.m_iDroidUnitTag != -1 {
-                // Port-note: A pointer local `char * droidNPCType` with no view.
-                // Raven wrote: char *droidNPCType = NULL;
-                portMissing("NPC_Begin", source: "oracle/codemp/game/NPC_spawn.c:862")
+                var droidNPCType: String? = nil
                 var droidEnt: Entity? = nil
                 if ent.model2 != nil && !ent.model2!.isEmpty {
                     //specified on the NPC_Vehicle spawner ent
-                    // Port-note: A store into `droidNPCType`, a local the draft left as a hole.
-                    // Raven wrote: droidNPCType = ent->model2
-                    portMissing("NPC_Begin", source: "oracle/codemp/game/NPC_spawn.c:862")
+                    droidNPCType = ent.model2
                 } else if ent.m_pVehicle!.m_pVehicleInfo!.droidNPC != nil && !ent.m_pVehicle!.m_pVehicleInfo!.droidNPC!.isEmpty {
                     //specified in the vehicle's .veh file
-                    // Port-note: A store into `droidNPCType`, a local the draft left as a hole.
-                    // Raven wrote: droidNPCType = ent->m_pVehicle->m_pVehicleInfo->droidNPC
-                    portMissing("NPC_Begin", source: "oracle/codemp/game/NPC_spawn.c:862")
+                    droidNPCType = ent.m_pVehicle!.m_pVehicleInfo!.droidNPC
                 }
 
-                // Port-note: A read of `droidNPCType`, a local the draft left as a hole.
-                // Raven wrote: if ( droidNPCType != NULL ) { if ( Q_stricmp( "random", droidNPCType ) == 0 || Q_stricmp( "default", droidNPCType ) == 0 ) {//use default - R2D2 or R5D2 if ( Q_irand( 0, 1 ) ) { droidNPCType = "r2d2"; } else { droidNPCType = "r5d2"; } } droidEnt = NPC_SpawnType( ent, droidNPCType, NULL, qfalse ); if ( droidEnt != NULL ) { if ( droidEnt->client ) { droidEnt->client->ps.m_iVehicleNum = droidEnt->s.m_iVehicleNum = //droidEnt->s.otherEntityNum2 = droidEnt->s.owner = droidEnt->r.ownerNum = ent->s.number; ent->m_pVehicle->m_pDroidUnit = (bgEntity_t *)droidEnt; //SP way: //droidEnt->s.m_iVehicleNum = ent->s.number; //droidEnt->owner = ent; //set team droidEnt->alliedTeam = ent->alliedTeam; droidEnt->teamnodmg = ent->teamnodmg; droidEnt->client->sess.sessionTeam = ent->client->sess.sessionTeam; droidEnt->client->ps.persistant[PERS_TEAM] = ent->client->ps.persistant[PERS_TEAM]; //position VectorCopy( ent->r.currentOrigin, droidEnt->s.origin ); VectorCopy( ent->r.currentOrigin, droidEnt->client->ps.origin ); G_SetOrigin( droidEnt, droidEnt->s.origin ); trap_LinkEntity( droidEnt ); VectorCopy( ent->r.currentAngles, droidEnt->s.angles ); G_SetAngles( droidEnt, droidEnt->s.angles ); if ( droidEnt->NPC ) { droidEnt->NPC->desiredYaw = droidEnt->s.angles[YAW]; droidEnt->NPC->desiredPitch = droidEnt->s.angles[PITCH]; } droidEnt->flags |= FL_UNDYING; } else {//wtf? G_FreeEntity( droidEnt ); } } }
-                portMissing("NPC_Begin", source: "oracle/codemp/game/NPC_spawn.c:862")
+                if droidNPCType != nil {
+                    if Q_stricmp("random", droidNPCType!) == 0
+                        || Q_stricmp("default", droidNPCType!) == 0 {
+                        //use default - R2D2 or R5D2
+                        if Q_irand(0, 1) != 0 {
+                            droidNPCType = "r2d2"
+                        } else {
+                            droidNPCType = "r5d2"
+                        }
+                    }
+                    droidEnt = NPC_SpawnType(ent, droidNPCType, nil, false)
+                    if droidEnt != nil {
+                        if droidEnt!.client != nil {
+                            //droidEnt->s.otherEntityNum2 =
+                            droidEnt!.r.ownerNum = ent.s.number
+                            droidEnt!.s.owner = droidEnt!.r.ownerNum
+                            droidEnt!.s.m_iVehicleNum = droidEnt!.s.owner
+                            droidEnt!.client!.ps.m_iVehicleNum = droidEnt!.s.m_iVehicleNum
+                            ent.m_pVehicle!.m_pDroidUnit = BgEntity(droidEnt!)
+                            //SP way:
+                            //droidEnt->s.m_iVehicleNum = ent->s.number;
+                            //droidEnt->owner = ent;
+                            //set team
+                            droidEnt!.alliedTeam = ent.alliedTeam
+                            droidEnt!.teamnodmg = ent.teamnodmg
+                            droidEnt!.client!.sess.sessionTeam = ent.client!.sess.sessionTeam
+                            droidEnt!.client!.ps.persistant[PERS_TEAM] = ent.client!.ps.persistant[PERS_TEAM]
+                            //position
+                            droidEnt!.s.origin = ent.r.currentOrigin
+                            droidEnt!.client!.ps.origin = ent.r.currentOrigin
+                            G_SetOrigin(droidEnt!, &droidEnt!.s.origin)
+                            trap_LinkEntity(droidEnt!)
+                            droidEnt!.s.angles = ent.r.currentAngles
+                            G_SetAngles(droidEnt!, droidEnt!.s.angles)
+                            if droidEnt!.NPC != nil {
+                                droidEnt!.NPC!.desiredYaw = droidEnt!.s.angles[YAW]
+                                droidEnt!.NPC!.desiredPitch = droidEnt!.s.angles[PITCH]
+                            }
+                            droidEnt!.flags |= FL_UNDYING
+                        } else {
+                            //wtf?
+                            G_FreeEntity(droidEnt!)
+                        }
+                    }
+                }
             }
         }
         return false
@@ -1031,9 +1067,7 @@ func New_NPC_t(_ entNum: Int32) -> GNPC? {
     if ptr != nil {
         // clear it...
         //
-        // Port-note: The draft of this statement did not compile, and the compiler wrote "value of optional type 'GNPC?' must be unwrapped to refer to member 'clear' of wrapped base type 'GNPC'".
-        // Raven wrote: memset(ptr, 0, sizeof( *ptr ) )
-        portMissing("New_NPC_t", source: "oracle/codemp/game/NPC_spawn.c:1278")
+        ptr!.clear()
     }
 
     return ptr
@@ -1178,9 +1212,7 @@ func NPC_Spawn_Do(_ ent: Entity) -> Entity? {
             return nil
         }
 
-        // Port-note: The draft of this statement did not compile, and the compiler wrote "value of optional type 'Client?' must be unwrapped to refer to member 'clear' of wrapped base type 'Client'".
-        // Raven wrote: memset ( newent->client, 0, sizeof(*newent->client) )
-        portMissing("NPC_Spawn_Do", source: "oracle/codemp/game/NPC_spawn.c:1377")
+        newent!.client!.clear()
 
         //Assign the pointer for bg entity access
         newent!.playerState = newent!.client!.ps
@@ -1190,9 +1222,7 @@ func NPC_Spawn_Do(_ ent: Entity) -> Entity? {
         if ent.NPC_type == nil {
             ent.NPC_type = "random"
         } else {
-            // Port-note: The draft of this statement did not compile, and the compiler wrote "'&' used with non-inout argument of type 'String'".
-            // Raven wrote: ent->NPC_type = Q_strlwr( G_NewString( ent->NPC_type ) )
-            portMissing("NPC_Spawn_Do", source: "oracle/codemp/game/NPC_spawn.c:1377")
+            ent.NPC_type = G_NewString(Q_strlwr(ent.NPC_type!))
         }
 
         if (ent.r.svFlags & SVF_NO_BASIC_SOUNDS) != 0 {
@@ -1384,9 +1414,11 @@ func NPC_Spawn_Do(_ ent: Entity) -> Entity? {
 
             parmNum = 0
             while parmNum < MAX_PARMS {
-                // Port-note: The draft of this statement did not compile, and the compiler wrote "cannot convert value of type 'Character' to expected argument type 'Int'".
-                // Raven wrote: if ( ent->parms->parm[parmNum] && ent->parms->parm[parmNum][0] ) { Q3_SetParm( newent->s.number, parmNum, ent->parms->parm[parmNum] ); }
-                portMissing("NPC_Spawn_Do", source: "oracle/codemp/game/NPC_spawn.c:1377")
+                // Raven's first test is `ent->parms->parm[parmNum]`.
+                // Raven's second test is `ent->parms->parm[parmNum][0]`.
+                if !ent.parms!.parm[parmNum].isEmpty {
+                    Q3_SetParm(newent!.s.number, parmNum, ent.parms!.parm[parmNum])
+                }
                 parmNum += 1
             }
         }
@@ -1647,9 +1679,7 @@ teamnodmg - team that NPC does not take damage from (turrets and other auto-defe
 */
 /// Source: oracle/codemp/game/NPC_spawn.c:2103
 func NPC_VehiclePrecache(_ spawner: Entity) -> Bool {
-    // Port-note: A pointer local `char * droidNPCType` with no view.
-    // Raven wrote: char *droidNPCType = NULL;
-    portMissing("NPC_VehiclePrecache", source: "oracle/codemp/game/NPC_spawn.c:2103")
+    var droidNPCType: String? = nil
     //This will precache the vehicle
     var pVehInfo: VehicleInfo?
     let iVehIndex: Int32 = BG_VehicleGetIndex(spawner.NPC_type!)
@@ -1676,12 +1706,10 @@ func NPC_VehiclePrecache(_ spawner: Entity) -> Bool {
             strcpy(&GLAName, trap_G2API_GetGLAName(tempG2, 0))
 
             if GLAName[0] != 0 {
-                // Port-note: A pointer local `char * slash` with no view.
-                // Raven wrote: char *slash = Q_strrchr( GLAName, '/' );
-                portMissing("NPC_VehiclePrecache", source: "oracle/codemp/game/NPC_spawn.c:2103")
-                // Port-note: A read of `slash`, a local the draft left as a hole.
-                // Raven wrote: if ( slash ) { strcpy(slash, "/animation.cfg"); BG_ParseAnimationFile(GLAName, NULL, qfalse); }
-                portMissing("NPC_VehiclePrecache", source: "oracle/codemp/game/NPC_spawn.c:2103")
+                if let slash = Q_strrchr(String(GLAName), Int32(ascii: "/")) {
+                    strcpy(&GLAName, "/animation.cfg", at: slash)
+                    BG_ParseAnimationFile(String(GLAName), nil, false)
+                }
             }
             trap_G2API_CleanGhoul2Models(&tempG2)
         }
@@ -1689,18 +1717,24 @@ func NPC_VehiclePrecache(_ spawner: Entity) -> Bool {
 
     //also precache the droid NPC if there is one
     if spawner.model2 != nil && !spawner.model2!.isEmpty {
-        // Port-note: A store into `droidNPCType`, a local the draft left as a hole.
-        // Raven wrote: droidNPCType = spawner->model2
-        portMissing("NPC_VehiclePrecache", source: "oracle/codemp/game/NPC_spawn.c:2103")
+        droidNPCType = spawner.model2
     } else if g_vehicleInfo[iVehIndex].droidNPC != nil && !g_vehicleInfo[iVehIndex].droidNPC!.isEmpty {
-        // Port-note: A store into `droidNPCType`, a local the draft left as a hole.
-        // Raven wrote: droidNPCType = g_vehicleInfo[iVehIndex].droidNPC
-        portMissing("NPC_VehiclePrecache", source: "oracle/codemp/game/NPC_spawn.c:2103")
+        droidNPCType = g_vehicleInfo[iVehIndex].droidNPC
     }
 
-    // Port-note: A read of `droidNPCType`, a local the draft left as a hole.
-    // Raven wrote: if ( droidNPCType ) { if ( Q_stricmp( "random", droidNPCType ) == 0 || Q_stricmp( "default", droidNPCType ) == 0 ) {//precache both r2 and r5, as defaults NPC_PrecacheType( "r2d2" ); NPC_PrecacheType( "r5d2" ); } else { NPC_PrecacheType( droidNPCType ); } }
-    portMissing("NPC_VehiclePrecache", source: "oracle/codemp/game/NPC_spawn.c:2103")
+    if droidNPCType != nil {
+        if Q_stricmp("random", droidNPCType!) == 0
+            || Q_stricmp("default", droidNPCType!) == 0 {
+            //precache both r2 and r5, as defaults
+            var r2d2 = CharBuf("r2d2")
+            NPC_PrecacheType(&r2d2)
+            var r5d2 = CharBuf("r5d2")
+            NPC_PrecacheType(&r5d2)
+        } else {
+            var buf = CharBuf(droidNPCType!)
+            NPC_PrecacheType(&buf)
+        }
+    }
     return true
 }
 
@@ -3346,26 +3380,15 @@ func NPC_SpawnType(_ ent: Entity, _ npc_type: String?, _ targetname: String?, _ 
         //rwwFIXMEFIXME: Care about who is issuing this command/other clients besides 0?
         //Spawn it at spot of first player
         //FIXME: will gib them!
-        // Port-note: Raven passes NULL for the `right` output. The ported function takes it by reference, so the body passes a scratch local it never reads.
-        portMissing("NPC_SpawnType", source: "oracle/codemp/game/NPC_spawn.c:3872")
+        // Raven passes NULL for the `right` and `up` outputs, so the body passes scratch locals it never reads.
         var scratchRight = vec3_t()
-        // Port-note: Raven passes NULL for the `up` output. The ported function takes it by reference, so the body passes a scratch local it never reads.
-        portMissing("NPC_SpawnType", source: "oracle/codemp/game/NPC_spawn.c:3872")
         var scratchUp = vec3_t()
         AngleVectors(ent.client!.ps.viewangles, &forward, &scratchRight, &scratchUp)
         VectorNormalize(&forward)
         _VectorMA(ent.r.currentOrigin, 64, forward, &end)
-        // Port-note: Raven passes NULL for `mins`, and the callee reads NULL as the zero vector.
-        portMissing("NPC_SpawnType", source: "oracle/codemp/game/NPC_spawn.c:3872")
-        // Port-note: Raven passes NULL for `maxs`, and the callee reads NULL as the zero vector.
-        portMissing("NPC_SpawnType", source: "oracle/codemp/game/NPC_spawn.c:3872")
         trap_Trace(trace, ent.r.currentOrigin, vec3_origin, vec3_origin, end, 0, MASK_SOLID)
         end = trace.endpos
         end[2] -= 24
-        // Port-note: Raven passes NULL for `mins`, and the callee reads NULL as the zero vector.
-        portMissing("NPC_SpawnType", source: "oracle/codemp/game/NPC_spawn.c:3872")
-        // Port-note: Raven passes NULL for `maxs`, and the callee reads NULL as the zero vector.
-        portMissing("NPC_SpawnType", source: "oracle/codemp/game/NPC_spawn.c:3872")
         trap_Trace(trace, trace.endpos, vec3_origin, vec3_origin, end, 0, MASK_SOLID)
         end = trace.endpos
         end[2] += 24
@@ -3590,9 +3613,7 @@ func Cmd_NPC_f(_ ent: Entity) {
         NPC_Kill_f()
     } else if Q_stricmp(cmd, "showbounds") == 0 {
         //Toggle on and off
-        // Port-note: The draft of this statement did not compile, and the compiler wrote "binary operator '!=' cannot be applied to operands of type 'Bool' and 'Int'".
-        // Raven wrote: showBBoxes = showBBoxes ? qfalse : qtrue
-        portMissing("Cmd_NPC_f", source: "oracle/codemp/game/NPC_spawn.c:4183")
+        showBBoxes = showBBoxes ? false : true
     } else if Q_stricmp(cmd, "score") == 0 {
         var cmd2 = CharBuf(1024)
         var ent: Entity? = nil
@@ -3607,18 +3628,20 @@ func Cmd_NPC_f(_ ent: Entity) {
             i = 0
             while i < ENTITYNUM_WORLD {
                 ent = g_entities[i]
-                // Port-note: The draft of this statement did not compile, and the compiler wrote "value of optional type 'Entity?' must be unwrapped to refer to member 'client' of wrapped base type 'Entity'".
-                // Raven wrote: if ( !ent || !ent->client ) { continue; }
-                portMissing("Cmd_NPC_f", source: "oracle/codemp/game/NPC_spawn.c:4183")
-                // Port-note: The draft of this statement did not compile, and the compiler wrote "value of optional type 'Entity?' must be unwrapped to a value of type 'Entity'".
-                // Raven wrote: NPC_PrintScore( ent )
-                portMissing("Cmd_NPC_f", source: "oracle/codemp/game/NPC_spawn.c:4183")
+                if ent == nil || ent!.client == nil {
+                    i += 1
+                    continue
+                }
+                NPC_PrintScore(ent!)
                 i += 1
             }
         } else {
-            // Port-note: An unexposed expression with 0 children.
-            // Raven wrote: if ( (ent = G_Find( NULL, FOFS(targetname), cmd2 )) != NULL && ent->client ) { NPC_PrintScore( ent ); } else { Com_Printf( "ERROR: NPC score - no such NPC %s\n", cmd2 ); }
-            portMissing("Cmd_NPC_f", source: "oracle/codemp/game/NPC_spawn.c:4183")
+            ent = G_Find(nil, \.targetname, String(cmd2))
+            if ent != nil && ent!.client != nil {
+                NPC_PrintScore(ent!)
+            } else {
+                Com_Printf("ERROR: NPC score - no such NPC %s\n", cmd2)
+            }
         }
     }
 }

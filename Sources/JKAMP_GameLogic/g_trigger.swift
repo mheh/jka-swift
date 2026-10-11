@@ -363,11 +363,8 @@ func Touch_Multi(_ `self`: Entity, _ other: Entity, _ trace: JKAMP.Trace) {
         //FACING
         var forward = vec3_t()
 
-        // Port-note: Raven passes NULL for the `right` output. The ported function takes it by reference, so the body passes a scratch local it never reads.
-        portMissing("Touch_Multi", source: "oracle/codemp/game/g_trigger.c:350")
+        // Raven passes NULL for the `right` and `up` outputs.
         var scratchRight = vec3_t()
-        // Port-note: Raven passes NULL for the `up` output. The ported function takes it by reference, so the body passes a scratch local it never reads.
-        portMissing("Touch_Multi", source: "oracle/codemp/game/g_trigger.c:350")
         var scratchUp = vec3_t()
         AngleVectors(other.client!.ps.viewangles, &forward, &scratchRight, &scratchUp)
 
@@ -694,10 +691,6 @@ func Do_Strike(_ ent: Entity) {
         strikeFrom[2] = ent.r.absmax[2] - 4.0
 
         //now trace for damaging stuff, and do the effect
-        // Port-note: Raven passes NULL for `mins`, and the callee reads NULL as the zero vector.
-        portMissing("Do_Strike", source: "oracle/codemp/game/g_trigger.c:739")
-        // Port-note: Raven passes NULL for `maxs`, and the callee reads NULL as the zero vector.
-        portMissing("Do_Strike", source: "oracle/codemp/game/g_trigger.c:739")
         trap_Trace(localTrace, strikeFrom, vec3_origin, vec3_origin, strikePoint, ent.s.number, MASK_PLAYERSOLID)
         strikePoint = localTrace.endpos
 
@@ -716,10 +709,8 @@ func Do_Strike(_ ent: Entity) {
 
             if trHit!.inuse && trHit!.takedamage {
                 //damage it then
-                // Port-note: Raven passes NULL for the `dir` output. The ported function takes it by reference, so the body passes a scratch local it never reads.
-                portMissing("Do_Strike", source: "oracle/codemp/game/g_trigger.c:739")
-                var scratchDir = vec3_t()
-                G_Damage(trHit!, ent, ent, &scratchDir, trHit!.r.currentOrigin, ent.damage, 0, MOD_SUICIDE)
+                var dir: vec3_t? = nil
+                G_Damage(trHit!, ent, ent, &dir, trHit!.r.currentOrigin, ent.damage, 0, MOD_SUICIDE)
             }
         }
 
@@ -1299,15 +1290,11 @@ func hurt_touch(_ `self`: Entity, _ other: Entity, _ trace: JKAMP.Trace) {
             `self`.timestamp = 0
         }
         if `self`.activator != nil && `self`.activator!.inuse && `self`.activator!.client != nil {
-            // Port-note: Raven passes NULL for the `dir` output. The ported function takes it by reference, so the body passes a scratch local it never reads.
-            portMissing("hurt_touch", source: "oracle/codemp/game/g_trigger.c:1299")
-            var scratchDir = vec3_t()
-            G_Damage(other, `self`.activator, `self`.activator, &scratchDir, nil, dmg, dflags | DAMAGE_NO_PROTECTION, MOD_TRIGGER_HURT)
+            var dir: vec3_t? = nil
+            G_Damage(other, `self`.activator, `self`.activator, &dir, nil, dmg, dflags | DAMAGE_NO_PROTECTION, MOD_TRIGGER_HURT)
         } else {
-            // Port-note: Raven passes NULL for the `dir` output. The ported function takes it by reference, so the body passes a scratch local it never reads.
-            portMissing("hurt_touch", source: "oracle/codemp/game/g_trigger.c:1299")
-            var scratchDir2 = vec3_t()
-            G_Damage(other, `self`, `self`, &scratchDir2, nil, dmg, dflags | DAMAGE_NO_PROTECTION, MOD_TRIGGER_HURT)
+            var dir: vec3_t? = nil
+            G_Damage(other, `self`, `self`, &dir, nil, dmg, dflags | DAMAGE_NO_PROTECTION, MOD_TRIGGER_HURT)
         }
     }
 }
@@ -1400,9 +1387,7 @@ func shipboundary_touch(_ `self`: Entity, _ other: Entity, _ trace: JKAMP.Trace?
         return
     }
 
-    // Port-note: No operator beside the operand, the text there is ``.
-    // Raven wrote: ent = G_Find (NULL, FOFS(targetname), self->target)
-    portMissing("shipboundary_touch", source: "oracle/codemp/game/g_trigger.c:1494")
+    ent = G_Find(nil, \.targetname, `self`.target!)
     if ent == nil || !ent!.inuse {
         //this is bad
         G_Error("trigger_shipboundary has invalid target '%s'\n", `self`.target!)
@@ -1411,10 +1396,8 @@ func shipboundary_touch(_ `self`: Entity, _ other: Entity, _ trace: JKAMP.Trace?
 
     if other.client!.ps.m_iVehicleNum == 0 || other.m_pVehicle!.m_iRemovedSurfaces != 0 {
         //if a vehicle touches a boundary without a pilot in it or with parts missing, just blow the thing up
-        // Port-note: Raven passes NULL for the `dir` output. The ported function takes it by reference, so the body passes a scratch local it never reads.
-        portMissing("shipboundary_touch", source: "oracle/codemp/game/g_trigger.c:1494")
-        var scratchDir = vec3_t()
-        G_Damage(other, other, other, &scratchDir, other.client!.ps.origin, 99999, DAMAGE_NO_PROTECTION, MOD_SUICIDE)
+        var dir: vec3_t? = nil
+        G_Damage(other, other, other, &dir, other.client!.ps.origin, 99999, DAMAGE_NO_PROTECTION, MOD_SUICIDE)
         return
     }
 
@@ -1514,9 +1497,7 @@ func hyperspace_touch(_ `self`: Entity, _ other: Entity, _ trace: JKAMP.Trace) {
                 //take off the flag so we only do this once
                 other.client!.ps.eFlags2 &= ~EF2_HYPERSPACE
                 //Get the offset from the local position
-                // Port-note: No operator beside the operand, the text there is ``.
-                // Raven wrote: ent = G_Find (NULL, FOFS(targetname), self->target)
-                portMissing("hyperspace_touch", source: "oracle/codemp/game/g_trigger.c:1597")
+                ent = G_Find(nil, \.targetname, `self`.target!)
                 if ent == nil || !ent!.inuse {
                     //this is bad
                     G_Error("trigger_hyperspace has invalid target '%s'\n", `self`.target!)
@@ -1529,9 +1510,7 @@ func hyperspace_touch(_ `self`: Entity, _ other: Entity, _ trace: JKAMP.Trace) {
                 uDiff = _DotProduct(up, diff)
 
                 //Now get the base position of the destination
-                // Port-note: No operator beside the operand, the text there is ``.
-                // Raven wrote: ent = G_Find (NULL, FOFS(targetname), self->target2)
-                portMissing("hyperspace_touch", source: "oracle/codemp/game/g_trigger.c:1597")
+                ent = G_Find(nil, \.targetname, `self`.target2!)
                 if ent == nil || !ent!.inuse {
                     //this is bad
                     G_Error("trigger_hyperspace has invalid target2 '%s'\n", `self`.target2!)
@@ -1560,9 +1539,7 @@ func hyperspace_touch(_ `self`: Entity, _ other: Entity, _ trace: JKAMP.Trace) {
         }
         return
     } else {
-        // Port-note: No operator beside the operand, the text there is ``.
-        // Raven wrote: ent = G_Find (NULL, FOFS(targetname), self->target)
-        portMissing("hyperspace_touch", source: "oracle/codemp/game/g_trigger.c:1597")
+        ent = G_Find(nil, \.targetname, `self`.target!)
         if ent == nil || !ent!.inuse {
             //this is bad
             G_Error("trigger_hyperspace has invalid target '%s'\n", `self`.target!)
@@ -1571,10 +1548,8 @@ func hyperspace_touch(_ `self`: Entity, _ other: Entity, _ trace: JKAMP.Trace) {
 
         if other.client!.ps.m_iVehicleNum == 0 || other.m_pVehicle!.m_iRemovedSurfaces != 0 {
             //if a vehicle touches a boundary without a pilot in it or with parts missing, just blow the thing up
-            // Port-note: Raven passes NULL for the `dir` output. The ported function takes it by reference, so the body passes a scratch local it never reads.
-            portMissing("hyperspace_touch", source: "oracle/codemp/game/g_trigger.c:1597")
-            var scratchDir = vec3_t()
-            G_Damage(other, other, other, &scratchDir, other.client!.ps.origin, 99999, DAMAGE_NO_PROTECTION, MOD_SUICIDE)
+            var dir: vec3_t? = nil
+            G_Damage(other, other, other, &dir, other.client!.ps.origin, 99999, DAMAGE_NO_PROTECTION, MOD_SUICIDE)
             return
         }
         //other->client->ps.hyperSpaceIndex = ent->s.number;
@@ -1705,26 +1680,37 @@ func asteroid_pick_random_asteroid(_ `self`: Entity) -> Entity? {
     let pick: Int32
     var t: Entity? = nil
 
-    // Port-note: An assignment inside an expression.
-    // Raven wrote: while ( (t = G_Find (t, FOFS(targetname), self->target)) != NULL ) { if (t != self) { t_count++; } }
-    portMissing("asteroid_pick_random_asteroid", source: "oracle/codemp/game/g_trigger.c:1798")
+    while let next = G_Find(t, \.targetname, `self`.target!) {
+        t = next
+        if t!.s.number != `self`.s.number {
+            t_count += 1
+        }
+    }
+    t = nil
 
     if t_count == 0 {
         return nil
     }
 
     if t_count == 1 {
-        // Port-note: No operator beside the operand, the text there is ``.
-        // Raven wrote: return (G_Find (NULL, FOFS(targetname), self->target))
-        portMissing("asteroid_pick_random_asteroid", source: "oracle/codemp/game/g_trigger.c:1798")
+        return (G_Find(nil, \.targetname, `self`.target!))
     }
 
     //FIXME: need a seed
     pick = Q_irand(1, t_count)
     t_count = 0
-    // Port-note: An assignment inside an expression.
-    // Raven wrote: while ( (t = G_Find (t, FOFS(targetname), self->target)) != NULL ) { if (t != self) { t_count++; } else { continue; } if(t_count == pick) { return t; } }
-    portMissing("asteroid_pick_random_asteroid", source: "oracle/codemp/game/g_trigger.c:1798")
+    while let next = G_Find(t, \.targetname, `self`.target!) {
+        t = next
+        if t!.s.number != `self`.s.number {
+            t_count += 1
+        } else {
+            continue
+        }
+
+        if t_count == pick {
+            return t
+        }
+    }
     return nil
 }
 

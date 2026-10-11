@@ -68,9 +68,11 @@ private let MOD_EXPLOSIVE = JKAMP.MOD_SUICIDE
 private func DeathUpdate(_ pVeh: JKAMP.Vehicle) {
     if level.time >= pVeh.m_iDieTime {
         // If the vehicle is not empty.
-        // Port-note: The draft of this statement did not compile, and the compiler wrote "value of optional type 'Bool?' must be unwrapped to a value of type 'Bool'".
-        // Raven wrote: if ( pVeh->m_pVehicleInfo->Inhabited( pVeh ) ) { pVeh->m_pVehicleInfo->EjectAll( pVeh ); } else { // Waste this sucker. }
-        portMissing("DeathUpdate", source: "oracle/codemp/game/AnimalNPC.c:97")
+        if pVeh.m_pVehicleInfo!.runInhabited(pVeh) {
+            pVeh.m_pVehicleInfo!.runEjectAll(pVeh)
+        } else {
+            // Waste this sucker.
+        }
 
         // Die now...
         /*		else
@@ -114,9 +116,7 @@ private func DeathUpdate(_ pVeh: JKAMP.Vehicle) {
 // Like a think or move command, this updates various vehicle properties.
 /// Source: oracle/codemp/game/AnimalNPC.c:151
 private func Update(_ pVeh: JKAMP.Vehicle, _ pUcmd: JKAMP.Usercmd) -> Bool {
-    // Port-note: The draft of this statement did not compile, and the compiler wrote "value of optional type 'Bool?' must be unwrapped to a value of type 'Bool'".
-    // Raven wrote: return g_vehicleInfo[VEHICLE_BASE].Update( pVeh, pUcmd )
-    portMissing("Update", source: "oracle/codemp/game/AnimalNPC.c:151")
+    return g_vehicleInfo[VEHICLE_BASE].runUpdate(pVeh, pUcmd)
 }
 
 //MP RULE - ALL PROCESSMOVECOMMANDS FUNCTIONS MUST BE BG-COMPATIBLE!!!
@@ -357,9 +357,7 @@ private func AnimateVehicle(_ pVeh: JKAMP.Vehicle) {
     var parentPS: PlayerState?
     let fSpeedPercToMax: Float
 
-    // Port-note: The draft of this statement did not compile, and the compiler wrote "cannot assign value of type 'Int' to type 'PlayerState'".
-    // Raven wrote: pilotPS = (pilot)?(pilot->playerState):(0)
-    portMissing("AnimateVehicle", source: "oracle/codemp/game/AnimalNPC.c:474")
+    pilotPS = (pilot != nil) ? (pilot!.playerState) : (nil)
     parentPS = parent!.playerState
 
     // We're dead (boarding is reused here so I don't have to make another variable :-).
@@ -493,9 +491,7 @@ private func AnimateRiders(_ pVeh: JKAMP.Vehicle) {
         iBlend = 600
     } else {
         let HasWeapon: Bool = ((pilotPS!.weapon != WP_NONE) && (pilotPS!.weapon != WP_MELEE))
-        // Port-note: The draft of this statement did not compile, and the compiler wrote "cannot convert value of type '_' to expected argument type 'Bool'".
-        // Raven wrote: bool Attacking = (HasWeapon && !!(pVeh->m_ucmd.buttons&BUTTON_ATTACK));
-        portMissing("AnimateRiders", source: "oracle/codemp/game/AnimalNPC.c:620")
+        let Attacking: Bool = (HasWeapon && ((pVeh.m_ucmd.buttons & BUTTON_ATTACK) != 0))
         var Right: Bool = (pVeh.m_ucmd.rightmove > 0)
         var Left: Bool = (pVeh.m_ucmd.rightmove < 0)
         let Turbo: Bool = (fSpeedPercToMax > 0.0 && level.time < pVeh.m_iTurboTime)
@@ -534,9 +530,89 @@ private func AnimateRiders(_ pVeh: JKAMP.Vehicle) {
         }
 
 
-        // Port-note: A read of `Attacking`, a local the draft left as a hole.
-        // Raven wrote: if (Attacking && WeaponPose) {// Attack! iBlend = 100; iFlags = SETANIM_FLAG_OVERRIDE|SETANIM_FLAG_HOLD|SETANIM_FLAG_RESTART; if (Turbo) { Right = true; Left = false; } // Auto Aiming //=============================================== if (!Left && !Right) // Allow player strafe keys to override { #ifndef _JK2MP if (pVeh->m_pPilot->enemy) { vec3_t toEnemy; float toEnemyDistance; vec3_t actorRight; float actorRightDot; VectorSubtract(pVeh->m_pPilot->currentOrigin, pVeh->m_pPilot->enemy->currentOrigin, toEnemy); toEnemyDistance = VectorNormalize(toEnemy); AngleVectors(pVeh->m_pParentEntity->currentAngles, 0, actorRight, 0); actorRightDot = DotProduct(toEnemy, actorRight); if (fabsf(actorRightDot)>0.5f || pilotPS->weapon==WP_SABER) { Left = (actorRightDot>0.0f); Right = !Left; } else { Right = Left = false; } } else #endif if (pilotPS->weapon==WP_SABER && !Left && !Right) { Left = (WeaponPose==WPOSE_SABERLEFT); Right = !Left; } } if (Left) {// Attack Left switch(WeaponPose) { case WPOSE_BLASTER: Anim = BOTH_VT_ATL_G; break; case WPOSE_SABERLEFT: Anim = BOTH_VT_ATL_S; break; case WPOSE_SABERRIGHT: Anim = BOTH_VT_ATR_TO_L_S; break; default: assert(0); } } else if (Right) {// Attack Right switch(WeaponPose) { case WPOSE_BLASTER: Anim = BOTH_VT_ATR_G; break; case WPOSE_SABERLEFT: Anim = BOTH_VT_ATL_TO_R_S; break; case WPOSE_SABERRIGHT: Anim = BOTH_VT_ATR_S; break; default: assert(0); } } else {// Attack Ahead switch(WeaponPose) { case WPOSE_BLASTER: Anim = BOTH_VT_ATF_G; break; default: assert(0); } } } else if (Turbo) {// Kicked In Turbo iBlend = 50; iFlags = SETANIM_FLAG_OVERRIDE; Anim = BOTH_VT_TURBO; } else {// No Special Moves iBlend = 300; iFlags = SETANIM_FLAG_OVERRIDE | SETANIM_FLAG_HOLDLESS; if (WeaponPose==WPOSE_NONE) { if (Walking) { Anim = BOTH_VT_WALK_FWD; } else if (Running) { Anim = BOTH_VT_RUN_FWD; } else { Anim = BOTH_VT_IDLE1;//(Q_irand(0,1)==0)?(BOTH_VT_IDLE):(BOTH_VT_IDLE1); } } else { switch(WeaponPose) { case WPOSE_BLASTER: Anim = BOTH_VT_IDLE_G; break; case WPOSE_SABERLEFT: Anim = BOTH_VT_IDLE_SL; break; case WPOSE_SABERRIGHT: Anim = BOTH_VT_IDLE_SR; break; default: assert(0); } } }
-        portMissing("AnimateRiders", source: "oracle/codemp/game/AnimalNPC.c:620")
+        if Attacking && WeaponPose != 0 {
+            // Attack!
+            iBlend = 100
+            iFlags = SETANIM_FLAG_OVERRIDE | SETANIM_FLAG_HOLD | SETANIM_FLAG_RESTART
+            if Turbo {
+                Right = true
+                Left = false
+            }
+            // Auto Aiming
+            //===============================================
+            if !Left && !Right {
+                // Allow player strafe keys to override
+                if pilotPS!.weapon == WP_SABER && !Left && !Right {
+                    Left = (WeaponPose == WPOSE_SABERLEFT)
+                    Right = !Left
+                }
+            }
+
+
+            if Left {
+                // Attack Left
+                switch WeaponPose {
+                case WPOSE_BLASTER:
+                    Anim = BOTH_VT_ATL_G
+                case WPOSE_SABERLEFT:
+                    Anim = BOTH_VT_ATL_S
+                case WPOSE_SABERRIGHT:
+                    Anim = BOTH_VT_ATR_TO_L_S
+                default:
+                    break
+                }
+            } else if Right {
+                // Attack Right
+                switch WeaponPose {
+                case WPOSE_BLASTER:
+                    Anim = BOTH_VT_ATR_G
+                case WPOSE_SABERLEFT:
+                    Anim = BOTH_VT_ATL_TO_R_S
+                case WPOSE_SABERRIGHT:
+                    Anim = BOTH_VT_ATR_S
+                default:
+                    break
+                }
+            } else {
+                // Attack Ahead
+                switch WeaponPose {
+                case WPOSE_BLASTER:
+                    Anim = BOTH_VT_ATF_G
+                default:
+                    break
+                }
+            }
+        } else if Turbo {
+            // Kicked In Turbo
+            iBlend = 50
+            iFlags = SETANIM_FLAG_OVERRIDE
+            Anim = BOTH_VT_TURBO
+        } else {
+            // No Special Moves
+            iBlend = 300
+            iFlags = SETANIM_FLAG_OVERRIDE | SETANIM_FLAG_HOLDLESS
+
+            if WeaponPose == WPOSE_NONE {
+                if Walking {
+                    Anim = BOTH_VT_WALK_FWD
+                } else if Running {
+                    Anim = BOTH_VT_RUN_FWD
+                } else {
+                    Anim = BOTH_VT_IDLE1 //(Q_irand(0,1)==0)?(BOTH_VT_IDLE):(BOTH_VT_IDLE1);
+                }
+            } else {
+                switch WeaponPose {
+                case WPOSE_BLASTER:
+                    Anim = BOTH_VT_IDLE_G
+                case WPOSE_SABERLEFT:
+                    Anim = BOTH_VT_IDLE_SL
+                case WPOSE_SABERRIGHT:
+                    Anim = BOTH_VT_IDLE_SR
+                default:
+                    break
+                }
+            }
+        } // No Special Moves
     }
 
     Vehicle_SetAnim(pilot!, SETANIM_BOTH, Anim, iFlags, iBlend)
@@ -579,12 +655,8 @@ func G_CreateAnimalNPC(_ pVeh: inout JKAMP.Vehicle?, _ strAnimalType: String) {
     //never stomped. on the server, however, when an ent is freed, the entity struct is
     //memset to 0, so this memory would be lost..
     G_AllocateVehicleObject(&pVeh)
-    // Port-note: Raven's `memset(*pVeh, 0, sizeof(Vehicle_t))` runs over a size that is not the record's own, and a view's clear() takes the whole record.
-    // Raven wrote: memset(*pVeh, 0, sizeof(Vehicle_t))
-    portMissing("G_CreateAnimalNPC", source: "oracle/codemp/game/AnimalNPC.c:904")
-    // Port-note: The draft of this statement did not compile, and the compiler wrote "value of optional type 'Vehicle?' must be unwrapped to refer to member 'm_pVehicleInfo' of wrapped base type 'Vehicle'".
-    // Raven wrote: (*pVeh)->m_pVehicleInfo = &g_vehicleInfo[BG_VehicleGetIndex( strAnimalType )]
-    portMissing("G_CreateAnimalNPC", source: "oracle/codemp/game/AnimalNPC.c:904")
+    pVeh!.clear()
+    pVeh!.m_pVehicleInfo = g_vehicleInfo[BG_VehicleGetIndex(strAnimalType)]
 }
 
 /// One static per function this file stores in a `VehicleInfo` callback field, so each has one address for the life of the module.

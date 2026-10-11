@@ -30,6 +30,8 @@ private func StringToFilter(_ s: inout JKAShared.CharBuf, _ f: IpFilter) -> Bool
     var j: Int32
     var b: [Int32] = [Int32](repeating: 0, count: 4)
     var m: [Int32] = [Int32](repeating: 0, count: 4)
+    // Raven steps the pointer `s`, and this index is its byte offset in the buffer.
+    var sIndex: Int32 = 0
 
     i = 0
     while i < 4 {
@@ -40,26 +42,27 @@ private func StringToFilter(_ s: inout JKAShared.CharBuf, _ f: IpFilter) -> Bool
 
     i = 0
     while i < 4 {
-        // Port-note: The draft of this statement did not compile, and the compiler wrote "referencing operator function '<' on 'BinaryInteger' requires that 'CharBuf' conform to 'BinaryInteger'".
-        // Raven wrote: if (*s < '0' || *s > '9') { G_Printf( "Bad filter address: %s\n", s ); return qfalse; }
-        portMissing("StringToFilter", source: "oracle/codemp/game/g_svcmds.c:62")
+        if s[sIndex] < Int32(ascii: "0") || s[sIndex] > Int32(ascii: "9") {
+            G_Printf("Bad filter address: %s\n", String(s[sIndex...]))
+            return false
+        }
 
         j = 0
-        // Port-note: The draft of this statement did not compile, and the compiler wrote "referencing operator function '<=' on 'BinaryInteger' requires that 'CharBuf' conform to 'BinaryInteger'".
-        // Raven wrote: while (*s >= '0' && *s <= '9') { num[j++] = *s++; }
-        portMissing("StringToFilter", source: "oracle/codemp/game/g_svcmds.c:62")
+        while s[sIndex] >= Int32(ascii: "0") && s[sIndex] <= Int32(ascii: "9") {
+            num[j] = s[sIndex]
+            j += 1
+            sIndex += 1
+        }
         num[j] = 0
         b[i] = atoi(num)
         if b[i] != 0 {
             m[i] = 255
         }
 
-        // Port-note: The draft of this statement did not compile, and the compiler wrote "referencing operator function '==' on 'BinaryInteger' requires that 'CharBuf' conform to 'BinaryInteger'".
-        // Raven wrote: if (!*s) break
-        portMissing("StringToFilter", source: "oracle/codemp/game/g_svcmds.c:62")
-        // Port-note: The draft of this statement did not compile, and the compiler wrote "binary operator '+=' cannot be applied to operands of type 'CharBuf' and 'Int'".
-        // Raven wrote: s++
-        portMissing("StringToFilter", source: "oracle/codemp/game/g_svcmds.c:62")
+        if s[sIndex] == 0 {
+            break
+        }
+        sIndex += 1
         i += 1
     }
 
@@ -86,9 +89,7 @@ private func UpdateIPBans() {
     var i: Int32
     var iplist = CharBuf(1024)
 
-    // Port-note: A pointer dereference the draft cannot place.
-    // Raven wrote: *iplist = 0
-    portMissing("UpdateIPBans", source: "oracle/codemp/game/g_svcmds.c:109")
+    iplist[0] = 0
     i = 0
     while i < numIPFilters {
         if ipFilters[i].compare == 0xffffffff {
@@ -121,9 +122,7 @@ func G_FilterPacket(_ from: String) -> Bool {
     var m: [Int32] = [Int32](repeating: 0, count: 4)
     var i: Int32 = 0
     let `in`: UInt32
-    // Port-note: A pointer local `char * p` with no view.
-    // Raven wrote: char *p;
-    portMissing("G_FilterPacket", source: "oracle/codemp/game/g_svcmds.c:134")
+    var p = TextCursor()
 
     while i < 4 {
         m[i] = 0
@@ -131,12 +130,18 @@ func G_FilterPacket(_ from: String) -> Bool {
     }
 
     i = 0
-    // Port-note: A store into `p`, a local the draft left as a hole.
-    // Raven wrote: p = from
-    portMissing("G_FilterPacket", source: "oracle/codemp/game/g_svcmds.c:134")
-    // Port-note: A pointer dereference the draft cannot place.
-    // Raven wrote: while (*p && i < 4) { while (*p >= '0' && *p <= '9') { m[i] = m[i]*10 + (*p - '0'); p++; } if (!*p || *p == ':') break; i++, p++; }
-    portMissing("G_FilterPacket", source: "oracle/codemp/game/g_svcmds.c:134")
+    p = TextCursor(from)
+    while p.byte != 0 && i < 4 {
+        while p.byte >= Int32(ascii: "0") && p.byte <= Int32(ascii: "9") {
+            m[i] = m[i] * 10 + (p.byte - Int32(ascii: "0"))
+            p.advance()
+        }
+        if p.byte == 0 || p.byte == Int32(ascii: ":") {
+            break
+        }
+        i += 1
+        p.advance()
+    }
 
     // Port-note: A pointer dereference the draft cannot place.
     // Raven wrote: in = *(unsigned int *)m
@@ -180,9 +185,7 @@ func AddIP(_ str: inout JKAShared.CharBuf) {
     }
 
     if !StringToFilter(&str, ipFilters[i]) {
-        // Port-note: The draft of this statement did not compile, and the compiler wrote "cannot assign value of type 'Int32' to type 'UInt32'".
-        // Raven wrote: ipFilters[i].compare = 0xffffffffu
-        portMissing("AddIP", source: "oracle/codemp/game/g_svcmds.c:173")
+        ipFilters[i].compare = 0xffffffff
     }
 
     UpdateIPBans()
@@ -262,9 +265,7 @@ func Svcmd_RemoveIP_f() {
         i = 0
         while i < numIPFilters {
             if ipFilters[i].mask == f.mask && ipFilters[i].compare == f.compare {
-                // Port-note: The draft of this statement did not compile, and the compiler wrote "cannot assign value of type 'Int32' to type 'UInt32'".
-                // Raven wrote: ipFilters[i].compare = 0xffffffffu
-                portMissing("Svcmd_RemoveIP_f", source: "oracle/codemp/game/g_svcmds.c:246")
+                ipFilters[i].compare = 0xffffffff
                 G_Printf("Removed.\n")
 
                 UpdateIPBans()
@@ -369,13 +370,10 @@ func G_LoadIPBans() {
         token = COM_ParseExt(&p, true)
         //have an ip
         if Q_stricmp("unused", token) == 0 {
-            // Port-note: The draft of this statement did not compile, and the compiler wrote "cannot assign value of type 'Int32' to type 'UInt32'".
-            // Raven wrote: ipFilters[i].compare = 0xffffffffu
-            portMissing("G_LoadIPBans", source: "oracle/codemp/game/g_svcmds.c:333")
+            ipFilters[i].compare = 0xffffffff
         } else {
-            // Port-note: Raven passes `token` to `StringToFilter`, whose `char *` parameter the stub holds as an inout CharBuf. Docket row 5 is due.
-            // Raven wrote: StringToFilter(token,&ipFilters[i])
-            portMissing("G_LoadIPBans", source: "oracle/codemp/game/g_svcmds.c:333")
+            var tokenBuf = CharBuf(token)
+            StringToFilter(&tokenBuf, ipFilters[i])
         }
         i += 1
     }
@@ -505,9 +503,7 @@ func Svcmd_ForceTeam_f() {
 
     // set the team
     strcpy(&str, trap_Argv(2, Int32((str).count)))
-    // Port-note: The draft of this statement did not compile, and the compiler wrote "binary operator '-' cannot be applied to two 'Client?' operands".
-    // Raven wrote: SetTeam( &g_entities[cl - level.clients], str )
-    portMissing("Svcmd_ForceTeam_f", source: "oracle/codemp/game/g_svcmds.c:489")
+    SetTeam(g_entities[level.clientsSlots.index(of: cl!)], String(str))
 }
 
 /**

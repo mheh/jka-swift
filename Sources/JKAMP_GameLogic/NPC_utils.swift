@@ -652,18 +652,14 @@ func SetTeamNumbers() {
 /// Source: oracle/codemp/game/NPC_utils.c:851
 func G_ActivateBehavior(_ `self`: Entity, _ bset: Int32) -> Bool {
     var bSID: bState_t = bState_t(-1)
-    // Port-note: A pointer local `char * bs_name` with no view.
-    // Raven wrote: char *bs_name = NULL;
-    portMissing("G_ActivateBehavior", source: "oracle/codemp/game/NPC_utils.c:851")
+    var bs_name: String? = nil
 
 
-    // Port-note: A store into `bs_name`, a local the draft left as a hole.
-    // Raven wrote: bs_name = self->behaviorSet[bset]
-    portMissing("G_ActivateBehavior", source: "oracle/codemp/game/NPC_utils.c:851")
+    bs_name = `self`.behaviorSet[bset]
 
-    // Port-note: No operator between the operands, the text there is ``.
-    // Raven wrote: if( !(VALIDSTRING( bs_name )) ) { return qfalse; }
-    portMissing("G_ActivateBehavior", source: "oracle/codemp/game/NPC_utils.c:851")
+    if !(VALIDSTRING(bs_name)) {
+        return false
+    }
 
     if `self`.NPC != nil {
         // Port-note: Raven passes `BSTable` to `GetIDForString`, whose `table` parameter takes the Slots over the records, and Swift holds one record here. A Slots over one record has no form yet.
@@ -687,9 +683,7 @@ func G_ActivateBehavior(_ `self`: Entity, _ bset: Int32) -> Bool {
             // Raven wrote: G_DebugPrint( WL_VERBOSE, "%s attempting to run bSet %s (%s)\n", self->targetname, GetStringForID( BSETTable, bset ), bs_name )
             portMissing("G_ActivateBehavior", source: "oracle/codemp/game/NPC_utils.c:851")
         }
-        // Port-note: A read of `bs_name`, a local the draft left as a hole.
-        // Raven wrote: trap_ICARUS_RunScript( self, va( "%s/%s", Q3_SCRIPT_DIR, bs_name ) )
-        portMissing("G_ActivateBehavior", source: "oracle/codemp/game/NPC_utils.c:851")
+        trap_ICARUS_RunScript(`self`, va("%s/%s", Q3_SCRIPT_DIR, bs_name!))
     }
     return true
 }

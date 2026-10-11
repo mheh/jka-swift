@@ -104,9 +104,7 @@ func VEH_TurretAim(_ pVeh: JKAMP.Vehicle, _ parent: Entity, _ turretEnemy: Entit
         aimCorrect = 1
         // ...then we'll calculate what new aim adjustments we should attempt to make this frame
         // Aim at enemy
-        // Port-note: Raven passes the optional `turretEnemy` to `VEH_TurretAnglesToEnemy`, whose `turretEnemy` parameter takes a value. A never-null ruling is due.
-        // Raven wrote: VEH_TurretAnglesToEnemy( pVeh, curMuzzle, vehWeapon->fSpeed, turretEnemy, turretStats->bAILead, desiredAngles )
-        portMissing("VEH_TurretAim", source: "oracle/codemp/game/g_vehicleTurret.c:89")
+        VEH_TurretAnglesToEnemy(pVeh, curMuzzle, vehWeapon.fSpeed, turretEnemy!, turretStats.bAILead, &desiredAngles)
     }
     //subtract out the vehicle's angles to get the relative desired alignment
     AnglesSubtract(desiredAngles, pVeh.m_vOrientationVector, &desiredAngles)
@@ -183,9 +181,7 @@ private func VEH_TurretFindEnemies(_ pVeh: JKAMP.Vehicle, _ parent: Entity, _ tu
     var org = vec3_t()
     var org2 = vec3_t()
     var foundClient: Bool = false
-    // Port-note: A local `gentity_t *[1024] entity_list` the table has no type for.
-    // Raven wrote: gentity_t *entity_list[MAX_GENTITIES];
-    portMissing("VEH_TurretFindEnemies", source: "oracle/codemp/game/g_vehicleTurret.c:193")
+    var entity_list = [Entity?](repeating: nil, count: Int(MAX_GENTITIES))
     var target: Entity?
     var bestTarget: Entity? = nil
 
@@ -194,9 +190,7 @@ private func VEH_TurretFindEnemies(_ pVeh: JKAMP.Vehicle, _ parent: Entity, _ tu
     // Raven wrote: VectorCopy( pVeh->m_vMuzzlePos[curMuzzle], org2 )
     portMissing("VEH_TurretFindEnemies", source: "oracle/codemp/game/g_vehicleTurret.c:193")
 
-    // Port-note: A read of `entity_list`, a local the draft left as a hole.
-    // Raven wrote: count = G_RadiusList( org2, turretStats->fAIRange, parent, qtrue, entity_list )
-    portMissing("VEH_TurretFindEnemies", source: "oracle/codemp/game/g_vehicleTurret.c:193")
+    count = G_RadiusList(org2, turretStats.fAIRange, parent, true, &entity_list)
 
     // Port-note: Raven's block leaves a loop outside the record's scope, and the closure cannot.
     // Raven wrote: for ( i = 0; i < count; i++ ) { trace_t tr; target = entity_list[i]; if ( target == parent || !target->takedamage || target->health <= 0 || ( target->flags & FL_NOTARGET )) { continue; } if ( !target->client ) {// only attack clients if ( !(target->flags&FL_BBRUSH)//not a breakable brush || !target->takedamage//is a bbrush, but invincible || (target->NPC_targetname&&parent->targetname&&Q_stricmp(target->NPC_targetname,parent->targetname)!=0) )//not in invicible bbrush, but can only be broken by an NPC that is not me { if ( target->s.weapon == WP_TURRET && target->classname && Q_strncmp( "misc_turret", target->classname, 11 ) == 0 ) {//these guys we want to shoot at } else { continue; } } //else: we will shoot at bbrushes! } else if ( target->client->sess.sessionTeam == TEAM_SPECTATOR ) { continue; } if ( target == ((gentity_t*)pVeh->m_pPilot) || target->r.ownerNum == parent->s.number ) {//don't get angry at my pilot or passengers? continue; } if ( parent->client && parent->client->sess.sessionTeam ) { if ( target->client ) { if ( target->client->sess.sessionTeam == parent->client->sess.sessionTeam ) { // A bot/client/NPC we don't want to shoot continue; } } else if ( target->teamnodmg == parent->client->sess.sessionTeam ) {//some other entity that's allied with us continue; } } if ( !trap_InPVS( org2, target->r.currentOrigin )) { continue; } VectorCopy( target->r.currentOrigin, org ); trap_Trace( &tr, org2, NULL, NULL, org, parent->s.number, MASK_SHOT ); if ( tr.entityNum == target->s.number || (!tr.allsolid && !tr.startsolid && tr.fraction == 1.0 ) ) { // Only acquire if have a clear shot, Is it in range and closer than our best? VectorSubtract( target->r.currentOrigin, org2, enemyDir ); enemyDist = VectorLengthSquared( enemyDir ); if ( enemyDist < bestDist || (target->client && !foundClient))// all things equal, keep current { bestTarget = target; bestDist = enemyDist; found = qtrue; if ( target->client ) {//prefer clients over non-clients foundClient = qtrue; } } } }

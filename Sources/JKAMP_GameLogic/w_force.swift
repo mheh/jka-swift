@@ -1204,21 +1204,14 @@ func ForceGrip(_ `self`: Entity) {
 
         tfrom = `self`.client!.ps.origin
         tfrom[2] += `self`.client!.ps.viewheight
-        // Port-note: Raven passes NULL for the `right` output. The ported function takes it by reference, so the body passes a scratch local it never reads.
-        portMissing("ForceGrip", source: "oracle/codemp/game/w_force.c:1523")
+        // Raven passes NULL for the right and up outputs.
         var scratchRight = vec3_t()
-        // Port-note: Raven passes NULL for the `up` output. The ported function takes it by reference, so the body passes a scratch local it never reads.
-        portMissing("ForceGrip", source: "oracle/codemp/game/w_force.c:1523")
         var scratchUp = vec3_t()
         AngleVectors(`self`.client!.ps.viewangles, &fwd, &scratchRight, &scratchUp)
         tto[0] = tfrom[0] + fwd[0] * MAX_GRIP_DISTANCE
         tto[1] = tfrom[1] + fwd[1] * MAX_GRIP_DISTANCE
         tto[2] = tfrom[2] + fwd[2] * MAX_GRIP_DISTANCE
 
-        // Port-note: Raven passes NULL for `mins`, and the callee reads NULL as the zero vector.
-        portMissing("ForceGrip", source: "oracle/codemp/game/w_force.c:1523")
-        // Port-note: Raven passes NULL for `maxs`, and the callee reads NULL as the zero vector.
-        portMissing("ForceGrip", source: "oracle/codemp/game/w_force.c:1523")
         trap_Trace(tr, tfrom, vec3_origin, vec3_origin, tto, `self`.s.number, MASK_PLAYERSOLID)
 
         if Double(tr.fraction) != 1.0 && tr.entityNum != ENTITYNUM_NONE && g_entities[tr.entityNum].client != nil && g_entities[tr.entityNum].client!.ps.fd.forceGripCripple == 0 && g_entities[tr.entityNum].client!.ps.fd.forceGripBeingGripped < level.time && ForcePowerUsableOn(`self`, g_entities[tr.entityNum], FP_GRIP) != 0 && (g_friendlyFire.integer != 0 || !OnSameTeam(`self`, g_entities[tr.entityNum])) {
@@ -1519,11 +1512,8 @@ func ForceShootLightning(_ `self`: Entity) {
         if `self`.health <= 0 {
             return true
         }
-        // Port-note: Raven passes NULL for the `right` output. The ported function takes it by reference, so the body passes a scratch local it never reads.
-        portMissing("ForceShootLightning", source: "oracle/codemp/game/w_force.c:1902")
+        // Raven passes NULL for the right and up outputs.
         var scratchRight = vec3_t()
-        // Port-note: Raven passes NULL for the `up` output. The ported function takes it by reference, so the body passes a scratch local it never reads.
-        portMissing("ForceShootLightning", source: "oracle/codemp/game/w_force.c:1902")
         var scratchUp = vec3_t()
         AngleVectors(`self`.client!.ps.viewangles, &forward, &scratchRight, &scratchUp)
         VectorNormalize(&forward)
@@ -1540,9 +1530,7 @@ func ForceShootLightning(_ `self`: Entity) {
             let radius: Float = Float(FORCE_LIGHTNING_RADIUS)
             var dot: Float = 0
             var dist: Float = 0
-            // Port-note: A local `gentity_t *[1024] entityList` the table has no type for.
-            // Raven wrote: gentity_t *entityList[MAX_GENTITIES];
-            portMissing("ForceShootLightning", source: "oracle/codemp/game/w_force.c:1902")
+            var entityList = [Entity?](repeating: nil, count: Int(MAX_GENTITIES))
             var iEntityList: [Int32] = [Int32](repeating: 0, count: 1024)
             var e: Int32 = 0
             var numListedEntities: Int32 = 0
@@ -1559,18 +1547,13 @@ func ForceShootLightning(_ `self`: Entity) {
 
             i = 0
             while i < numListedEntities {
-                // Port-note: A read of `entityList`, a local the draft left as a hole.
-                // Raven wrote: entityList[i] = &g_entities[iEntityList[i]]
-                portMissing("ForceShootLightning", source: "oracle/codemp/game/w_force.c:1902")
-
+                entityList[i] = g_entities[iEntityList[i]]
                 i += 1
             }
 
             e = 0
             while e < numListedEntities {
-                // Port-note: A read of `entityList`, a local the draft left as a hole.
-                // Raven wrote: traceEnt = entityList[e]
-                portMissing("ForceShootLightning", source: "oracle/codemp/game/w_force.c:1902")
+                traceEnt = entityList[e]
 
                 if traceEnt == nil {
                     e += 1
@@ -1621,9 +1604,11 @@ func ForceShootLightning(_ `self`: Entity) {
                 //must be within the forward cone
                 dir = ent_org - center
                 VectorNormalize(&dir)
-                // Port-note: An assignment inside an expression.
-                // Raven wrote: if ( (dot = DotProduct( dir, forward )) < 0.5 ) continue
-                portMissing("ForceShootLightning", source: "oracle/codemp/game/w_force.c:1902")
+                dot = _DotProduct(dir, forward)
+                if Double(dot) < 0.5 {
+                    e += 1
+                    continue
+                }
 
                 //must be close enough
                 dist = VectorLength(v)
@@ -1820,11 +1805,8 @@ func ForceShootDrain(_ `self`: Entity) -> Int32 {
         if `self`.health <= 0 {
             return 0
         }
-        // Port-note: Raven passes NULL for the `right` output. The ported function takes it by reference, so the body passes a scratch local it never reads.
-        portMissing("ForceShootDrain", source: "oracle/codemp/game/w_force.c:2184")
+        // Raven passes NULL for the right and up outputs.
         var scratchRight = vec3_t()
-        // Port-note: Raven passes NULL for the `up` output. The ported function takes it by reference, so the body passes a scratch local it never reads.
-        portMissing("ForceShootDrain", source: "oracle/codemp/game/w_force.c:2184")
         var scratchUp = vec3_t()
         AngleVectors(`self`.client!.ps.viewangles, &forward, &scratchRight, &scratchUp)
         VectorNormalize(&forward)
@@ -1841,9 +1823,7 @@ func ForceShootDrain(_ `self`: Entity) -> Int32 {
             let radius: Float = Float(MAX_DRAIN_DISTANCE)
             var dot: Float = 0
             var dist: Float = 0
-            // Port-note: A local `gentity_t *[1024] entityList` the table has no type for.
-            // Raven wrote: gentity_t *entityList[MAX_GENTITIES];
-            portMissing("ForceShootDrain", source: "oracle/codemp/game/w_force.c:2184")
+            var entityList = [Entity?](repeating: nil, count: Int(MAX_GENTITIES))
             var iEntityList: [Int32] = [Int32](repeating: 0, count: 1024)
             var e: Int32 = 0
             var numListedEntities: Int32 = 0
@@ -1860,18 +1840,13 @@ func ForceShootDrain(_ `self`: Entity) -> Int32 {
 
             i = 0
             while i < numListedEntities {
-                // Port-note: A read of `entityList`, a local the draft left as a hole.
-                // Raven wrote: entityList[i] = &g_entities[iEntityList[i]]
-                portMissing("ForceShootDrain", source: "oracle/codemp/game/w_force.c:2184")
-
+                entityList[i] = g_entities[iEntityList[i]]
                 i += 1
             }
 
             e = 0
             while e < numListedEntities {
-                // Port-note: A read of `entityList`, a local the draft left as a hole.
-                // Raven wrote: traceEnt = entityList[e]
-                portMissing("ForceShootDrain", source: "oracle/codemp/game/w_force.c:2184")
+                traceEnt = entityList[e]
 
                 if traceEnt == nil {
                     e += 1
@@ -1926,9 +1901,11 @@ func ForceShootDrain(_ `self`: Entity) -> Int32 {
                 //must be within the forward cone
                 dir = ent_org - center
                 VectorNormalize(&dir)
-                // Port-note: An assignment inside an expression.
-                // Raven wrote: if ( (dot = DotProduct( dir, forward )) < 0.5 ) continue
-                portMissing("ForceShootDrain", source: "oracle/codemp/game/w_force.c:2184")
+                dot = _DotProduct(dir, forward)
+                if Double(dot) < 0.5 {
+                    e += 1
+                    continue
+                }
 
                 //must be close enough
                 dist = VectorLength(v)
@@ -2043,8 +2020,7 @@ func WP_GetVelocityForForceJump(_ `self`: Entity, _ jumpVel: inout JKAShared.vec
     var right = vec3_t()
     view = `self`.client!.ps.viewangles
     view[0] = 0
-    // Port-note: Raven passes NULL for the `up` output. The ported function takes it by reference, so the body passes a scratch local it never reads.
-    portMissing("WP_GetVelocityForForceJump", source: "oracle/codemp/game/w_force.c:2377")
+    // Raven passes NULL for the up output.
     var scratchUp = vec3_t()
     AngleVectors(view, &forward, &right, &scratchUp)
     if ucmd.forwardmove != 0 && ucmd.rightmove != 0 {
@@ -2162,21 +2138,14 @@ func ForceTelepathyCheckDirectNPCTarget(_ `self`: Entity, _ tr: JKAMP.Trace, _ t
     //Check for a direct usage on NPCs first
     tfrom = `self`.client!.ps.origin
     tfrom[2] += `self`.client!.ps.viewheight
-    // Port-note: Raven passes NULL for the `right` output. The ported function takes it by reference, so the body passes a scratch local it never reads.
-    portMissing("ForceTelepathyCheckDirectNPCTarget", source: "oracle/codemp/game/w_force.c:2527")
+    // Raven passes NULL for the right and up outputs.
     var scratchRight = vec3_t()
-    // Port-note: Raven passes NULL for the `up` output. The ported function takes it by reference, so the body passes a scratch local it never reads.
-    portMissing("ForceTelepathyCheckDirectNPCTarget", source: "oracle/codemp/game/w_force.c:2527")
     var scratchUp = vec3_t()
     AngleVectors(`self`.client!.ps.viewangles, &fwd, &scratchRight, &scratchUp)
     tto[0] = tfrom[0] + fwd[0] * radius / 2
     tto[1] = tfrom[1] + fwd[1] * radius / 2
     tto[2] = tfrom[2] + fwd[2] * radius / 2
 
-    // Port-note: Raven passes NULL for `mins`, and the callee reads NULL as the zero vector.
-    portMissing("ForceTelepathyCheckDirectNPCTarget", source: "oracle/codemp/game/w_force.c:2527")
-    // Port-note: Raven passes NULL for `maxs`, and the callee reads NULL as the zero vector.
-    portMissing("ForceTelepathyCheckDirectNPCTarget", source: "oracle/codemp/game/w_force.c:2527")
     trap_Trace(tr, tfrom, vec3_origin, vec3_origin, tto, `self`.s.number, MASK_PLAYERSOLID)
 
     if tr.entityNum == ENTITYNUM_NONE || tr.fraction == 1.0 || tr.allsolid != 0 || tr.startsolid != 0 {
@@ -2286,11 +2255,8 @@ func ForceTelepathyCheckDirectNPCTarget(_ `self`: Entity, _ tr: JKAMP.Trace, _ t
                 WP_ForcePowerStart(`self`, FP_TELEPATHY, 1)
             }
         }
-        // Port-note: Raven passes NULL for the `right` output. The ported function takes it by reference, so the body passes a scratch local it never reads.
-        portMissing("ForceTelepathyCheckDirectNPCTarget", source: "oracle/codemp/game/w_force.c:2527")
+        // Raven passes NULL for the right and up outputs.
         var scratchRight2 = vec3_t()
-        // Port-note: Raven passes NULL for the `up` output. The ported function takes it by reference, so the body passes a scratch local it never reads.
-        portMissing("ForceTelepathyCheckDirectNPCTarget", source: "oracle/codemp/game/w_force.c:2527")
         var scratchUp2 = vec3_t()
         AngleVectors(traceEnt!.client!.renderInfo.eyeAngles, &eyeDir, &scratchRight2, &scratchUp2)
         VectorNormalize(&eyeDir)
@@ -2388,8 +2354,7 @@ func ForceTelepathy(_ `self`: Entity) {
         }
 
         fwdangles = `self`.client!.ps.viewangles
-        // Port-note: Raven passes NULL for the `up` output. The ported function takes it by reference, so the body passes a scratch local it never reads.
-        portMissing("ForceTelepathy", source: "oracle/codemp/game/w_force.c:2723")
+        // Raven passes NULL for the up output.
         var scratchUp = vec3_t()
         AngleVectors(fwdangles, &forward, &right, &scratchUp)
         center = `self`.client!.ps.origin
@@ -2585,9 +2550,7 @@ func ForceThrow(_ `self`: Entity, _ pull: Bool) {
     var dist: Float = 0
     var ent: Entity?
     var entityList: [Int32] = [Int32](repeating: 0, count: 1024)
-    // Port-note: A local `gentity_t *[1024] push_list` the table has no type for.
-    // Raven wrote: gentity_t *push_list[MAX_GENTITIES];
-    portMissing("ForceThrow", source: "oracle/codemp/game/w_force.c:3054")
+    var push_list = [Entity?](repeating: nil, count: Int(MAX_GENTITIES))
     var numListedEntities: Int32 = 0
     var mins = vec3_t()
     var maxs = vec3_t()
@@ -2694,8 +2657,7 @@ func ForceThrow(_ `self`: Entity, _ pull: Bool) {
         }
 
         fwdangles = `self`.client!.ps.viewangles
-        // Port-note: Raven passes NULL for the `up` output. The ported function takes it by reference, so the body passes a scratch local it never reads.
-        portMissing("ForceThrow", source: "oracle/codemp/game/w_force.c:3054")
+        // Raven passes NULL for the up output.
         var scratchUp = vec3_t()
         AngleVectors(fwdangles, &forward, &right, &scratchUp)
         center = `self`.client!.ps.origin
@@ -2731,21 +2693,14 @@ func ForceThrow(_ `self`: Entity, _ pull: Bool) {
             //can only push/pull targeted things at level 1
             tfrom = `self`.client!.ps.origin
             tfrom[2] += `self`.client!.ps.viewheight
-            // Port-note: Raven passes NULL for the `right` output. The ported function takes it by reference, so the body passes a scratch local it never reads.
-            portMissing("ForceThrow", source: "oracle/codemp/game/w_force.c:3054")
+            // Raven passes NULL for the right and up outputs.
             var scratchRight = vec3_t()
-            // Port-note: Raven passes NULL for the `up` output. The ported function takes it by reference, so the body passes a scratch local it never reads.
-            portMissing("ForceThrow", source: "oracle/codemp/game/w_force.c:3054")
             var scratchUp2 = vec3_t()
             AngleVectors(`self`.client!.ps.viewangles, &fwd, &scratchRight, &scratchUp2)
             tto[0] = tfrom[0] + fwd[0] * radius / 2
             tto[1] = tfrom[1] + fwd[1] * radius / 2
             tto[2] = tfrom[2] + fwd[2] * radius / 2
 
-            // Port-note: Raven passes NULL for `mins`, and the callee reads NULL as the zero vector.
-            portMissing("ForceThrow", source: "oracle/codemp/game/w_force.c:3054")
-            // Port-note: Raven passes NULL for `maxs`, and the callee reads NULL as the zero vector.
-            portMissing("ForceThrow", source: "oracle/codemp/game/w_force.c:3054")
             trap_Trace(tr, tfrom, vec3_origin, vec3_origin, tto, `self`.s.number, MASK_PLAYERSOLID)
 
             if Double(tr.fraction) != 1.0 && tr.entityNum != ENTITYNUM_NONE {
@@ -2919,9 +2874,11 @@ func ForceThrow(_ `self`: Entity, _ pull: Bool) {
 
             dir = ent_org - center
             VectorNormalize(&dir)
-            // Port-note: An assignment inside an expression.
-            // Raven wrote: if ( (dot1 = DotProduct( dir, forward )) < 0.6 ) continue
-            portMissing("ForceThrow", source: "oracle/codemp/game/w_force.c:3054")
+            dot1 = _DotProduct(dir, forward)
+            if Double(dot1) < 0.6 {
+                e += 1
+                continue
+            }
 
             dist = VectorLength(v)
 
@@ -2957,9 +2914,7 @@ func ForceThrow(_ `self`: Entity, _ pull: Bool) {
             }
 
             // ok, we are within the radius, add us to the incoming list
-            // Port-note: A read of `push_list`, a local the draft left as a hole.
-            // Raven wrote: push_list[ent_count] = ent
-            portMissing("ForceThrow", source: "oracle/codemp/game/w_force.c:3054")
+            push_list[ent_count] = ent
             ent_count += 1
             e += 1
         }
@@ -2971,19 +2926,291 @@ func ForceThrow(_ `self`: Entity, _ pull: Bool) {
                 var modPowerLevel: Int32 = powerLevel
 
 
-                // Port-note: A read of `push_list`, a local the draft left as a hole.
-                // Raven wrote: if (push_list[x]->client) { modPowerLevel = WP_AbsorbConversion(push_list[x], push_list[x]->client->ps.fd.forcePowerLevel[FP_ABSORB], self, powerUse, powerLevel, forcePowerNeeded[self->client->ps.fd.forcePowerLevel[powerUse]][powerUse]); if (modPowerLevel == -1) { modPowerLevel = powerLevel; } }
-                portMissing("ForceThrow", source: "oracle/codemp/game/w_force.c:3054")
+                if push_list[x]!.client != nil {
+                    modPowerLevel = WP_AbsorbConversion(push_list[x]!, push_list[x]!.client!.ps.fd.forcePowerLevel[FP_ABSORB], `self`, powerUse, powerLevel, forcePowerNeeded[`self`.client!.ps.fd.forcePowerLevel[powerUse]][powerUse])
+                    if modPowerLevel == -1 {
+                        modPowerLevel = powerLevel
+                    }
+                }
 
                 pushPower = 256 * modPowerLevel
 
-                // Port-note: A read of `push_list`, a local the draft left as a hole.
-                // Raven wrote: if (push_list[x]->client) { VectorCopy(push_list[x]->client->ps.origin, thispush_org); } else { VectorCopy(push_list[x]->s.origin, thispush_org); }
-                portMissing("ForceThrow", source: "oracle/codemp/game/w_force.c:3054")
+                if push_list[x]!.client != nil {
+                    thispush_org = push_list[x]!.client!.ps.origin
+                } else {
+                    thispush_org = push_list[x]!.s.origin
+                }
 
-                // Port-note: A read of `push_list`, a local the draft left as a hole.
-                // Raven wrote: if ( push_list[x]->client ) {//FIXME: make enemy jedi able to hunker down and resist this? int otherPushPower = push_list[x]->client->ps.fd.forcePowerLevel[powerUse]; qboolean canPullWeapon = qtrue; float dirLen = 0; if ( g_debugMelee.integer ) { if ( (push_list[x]->client->ps.pm_flags&PMF_STUCK_TO_WALL) ) {//no resistance if stuck to wall //push/pull them off the wall otherPushPower = 0; G_LetGoOfWall( push_list[x] ); } } knockback = pull?0:200; pushPowerMod = pushPower; if (push_list[x]->client->pers.cmd.forwardmove || push_list[x]->client->pers.cmd.rightmove) { //if you are moving, you get one less level of defense otherPushPower--; if (otherPushPower < 0) { otherPushPower = 0; } } if (otherPushPower && CanCounterThrow(push_list[x], self, pull)) { if ( pull ) { G_Sound( push_list[x], CHAN_BODY, G_SoundIndex( "sound/weapons/force/pull.wav" ) ); push_list[x]->client->ps.forceHandExtend = HANDEXTEND_FORCEPULL; push_list[x]->client->ps.forceHandExtendTime = level.time + 400; } else { G_Sound( push_list[x], CHAN_BODY, G_SoundIndex( "sound/weapons/force/push.wav" ) ); push_list[x]->client->ps.forceHandExtend = HANDEXTEND_FORCEPUSH; push_list[x]->client->ps.forceHandExtendTime = level.time + 1000; } push_list[x]->client->ps.powerups[PW_DISINT_4] = push_list[x]->client->ps.forceHandExtendTime + 200; if (pull) { push_list[x]->client->ps.powerups[PW_PULL] = push_list[x]->client->ps.powerups[PW_DISINT_4]; } else { push_list[x]->client->ps.powerups[PW_PULL] = 0; } //Make a counter-throw effect if (otherPushPower >= modPowerLevel) { pushPowerMod = 0; canPullWeapon = qfalse; } else { int powerDif = (modPowerLevel - otherPushPower); if (powerDif >= 3) { pushPowerMod -= pushPowerMod*0.2; } else if (powerDif == 2) { pushPowerMod -= pushPowerMod*0.4; } else if (powerDif == 1) { pushPowerMod -= pushPowerMod*0.8; } if (pushPowerMod < 0) { pushPowerMod = 0; } } } //shove them if ( pull ) { VectorSubtract( self->client->ps.origin, thispush_org, pushDir ); if (push_list[x]->client && VectorLength(pushDir) <= 256) { int randfact = 0; if (modPowerLevel == FORCE_LEVEL_1) { randfact = 3; } else if (modPowerLevel == FORCE_LEVEL_2) { randfact = 7; } else if (modPowerLevel == FORCE_LEVEL_3) { randfact = 10; } if (!OnSameTeam(self, push_list[x]) && Q_irand(1, 10) <= randfact && canPullWeapon) { vec3_t uorg, vecnorm; VectorCopy(self->client->ps.origin, uorg); uorg[2] += 64; VectorSubtract(uorg, thispush_org, vecnorm); VectorNormalize(vecnorm); TossClientWeapon(push_list[x], vecnorm, 500); } } } else { VectorSubtract( thispush_org, self->client->ps.origin, pushDir ); } if ((modPowerLevel > otherPushPower || push_list[x]->client->ps.m_iVehicleNum) && push_list[x]->client) { if (modPowerLevel == FORCE_LEVEL_3 && push_list[x]->client->ps.forceHandExtend != HANDEXTEND_KNOCKDOWN) { dirLen = VectorLength(pushDir); if (BG_KnockDownable(&push_list[x]->client->ps) && dirLen <= (64*((modPowerLevel - otherPushPower)-1))) { //can only do a knockdown if fairly close push_list[x]->client->ps.forceHandExtend = HANDEXTEND_KNOCKDOWN; push_list[x]->client->ps.forceHandExtendTime = level.time + 700; push_list[x]->client->ps.forceDodgeAnim = 0; //this toggles between 1 and 0, when it's 1 we should play the get up anim push_list[x]->client->ps.quickerGetup = qtrue; } else if (push_list[x]->s.number < MAX_CLIENTS && push_list[x]->client->ps.m_iVehicleNum && dirLen <= 128.0f ) { //a player on a vehicle gentity_t *vehEnt = &g_entities[push_list[x]->client->ps.m_iVehicleNum]; if (vehEnt->inuse && vehEnt->client && vehEnt->m_pVehicle) { if (vehEnt->m_pVehicle->m_pVehicleInfo->type == VH_SPEEDER || vehEnt->m_pVehicle->m_pVehicleInfo->type == VH_ANIMAL) { //push the guy off vehEnt->m_pVehicle->m_pVehicleInfo->Eject(vehEnt->m_pVehicle, (bgEntity_t *)push_list[x], qfalse); } } } } } if (!dirLen) { dirLen = VectorLength(pushDir); } VectorNormalize(pushDir); if (push_list[x]->client) { //escape a force grip if we're in one if (self->client->ps.fd.forceGripBeingGripped > level.time) { //force the enemy to stop gripping me if I managed to push him if (push_list[x]->client->ps.fd.forceGripEntityNum == self->s.number) { if (modPowerLevel >= push_list[x]->client->ps.fd.forcePowerLevel[FP_GRIP]) { //only break the grip if our push/pull level is >= their grip level WP_ForcePowerStop(push_list[x], FP_GRIP); self->client->ps.fd.forceGripBeingGripped = 0; push_list[x]->client->ps.fd.forceGripUseTime = level.time + 1000; //since we just broke out of it.. } } } push_list[x]->client->ps.otherKiller = self->s.number; push_list[x]->client->ps.otherKillerTime = level.time + 5000; push_list[x]->client->ps.otherKillerDebounceTime = level.time + 100; push_list[x]->client->otherKillerMOD = MOD_UNKNOWN; push_list[x]->client->otherKillerVehWeapon = 0; push_list[x]->client->otherKillerWeaponType = WP_NONE; pushPowerMod -= (dirLen*0.7); if (pushPowerMod < 16) { pushPowerMod = 16; } //fullbody push effect push_list[x]->client->pushEffectTime = level.time + 600; push_list[x]->client->ps.velocity[0] = pushDir[0]*pushPowerMod; push_list[x]->client->ps.velocity[1] = pushDir[1]*pushPowerMod; if ((int)push_list[x]->client->ps.velocity[2] == 0) { //if not going anywhere vertically, boost them up a bit push_list[x]->client->ps.velocity[2] = pushDir[2]*pushPowerMod; if (push_list[x]->client->ps.velocity[2] < 128) { push_list[x]->client->ps.velocity[2] = 128; } } else { push_list[x]->client->ps.velocity[2] = pushDir[2]*pushPowerMod; } } } else if ( push_list[x]->s.eType == ET_MISSILE && push_list[x]->s.pos.trType != TR_STATIONARY && (push_list[x]->s.pos.trType != TR_INTERPOLATE||push_list[x]->s.weapon != WP_THERMAL) )//rolling and stationary thermal detonators are dealt with below { if ( pull ) {//deflect rather than reflect? } else { G_ReflectMissile( self, push_list[x], forward ); } } else if ( !Q_stricmp( "func_static", push_list[x]->classname ) ) {//force-usable func_static if ( !pull && (push_list[x]->spawnflags&1/*F_PUSH*/) ) { GEntity_UseFunc( push_list[x], self, self ); } else if ( pull && (push_list[x]->spawnflags&2/*F_PULL*/) ) { GEntity_UseFunc( push_list[x], self, self ); } } else if ( !Q_stricmp( "func_door", push_list[x]->classname ) && (push_list[x]->spawnflags&2) ) {//push/pull the door vec3_t pos1, pos2; vec3_t trFrom; VectorCopy(self->client->ps.origin, trFrom); trFrom[2] += self->client->ps.viewheight; AngleVectors( self->client->ps.viewangles, forward, NULL, NULL ); VectorNormalize( forward ); VectorMA( trFrom, radius, forward, end ); trap_Trace( &tr, trFrom, vec3_origin, vec3_origin, end, self->s.number, MASK_SHOT ); if ( tr.entityNum != push_list[x]->s.number || tr.fraction == 1.0 || tr.allsolid || tr.startsolid ) {//must be pointing right at it continue; } if ( VectorCompare( vec3_origin, push_list[x]->s.origin ) ) {//does not have an origin brush, so pos1 & pos2 are relative to world origin, need to calc center VectorSubtract( push_list[x]->r.absmax, push_list[x]->r.absmin, size ); VectorMA( push_list[x]->r.absmin, 0.5, size, center ); if ( (push_list[x]->spawnflags&1) && push_list[x]->moverState == MOVER_POS1 ) {//if at pos1 and started open, make sure we get the center where it *started* because we're going to add back in the relative values pos1 and pos2 VectorSubtract( center, push_list[x]->pos1, center ); } else if ( !(push_list[x]->spawnflags&1) && push_list[x]->moverState == MOVER_POS2 ) {//if at pos2, make sure we get the center where it *started* because we're going to add back in the relative values pos1 and pos2 VectorSubtract( center, push_list[x]->pos2, center ); } VectorAdd( center, push_list[x]->pos1, pos1 ); VectorAdd( center, push_list[x]->pos2, pos2 ); } else {//actually has an origin, pos1 and pos2 are absolute VectorCopy( push_list[x]->r.currentOrigin, center ); VectorCopy( push_list[x]->pos1, pos1 ); VectorCopy( push_list[x]->pos2, pos2 ); } if ( Distance( pos1, trFrom ) < Distance( pos2, trFrom ) ) {//pos1 is closer if ( push_list[x]->moverState == MOVER_POS1 ) {//at the closest pos if ( pull ) {//trying to pull, but already at closest point, so screw it continue; } } else if ( push_list[x]->moverState == MOVER_POS2 ) {//at farthest pos if ( !pull ) {//trying to push, but already at farthest point, so screw it continue; } } } else {//pos2 is closer if ( push_list[x]->moverState == MOVER_POS1 ) {//at the farthest pos if ( !pull ) {//trying to push, but already at farthest point, so screw it continue; } } else if ( push_list[x]->moverState == MOVER_POS2 ) {//at closest pos if ( pull ) {//trying to pull, but already at closest point, so screw it continue; } } } GEntity_UseFunc( push_list[x], self, self ); } else if ( Q_stricmp( "func_button", push_list[x]->classname ) == 0 ) {//pretend you pushed it Touch_Button( push_list[x], self, NULL ); continue; }
-                portMissing("ForceThrow", source: "oracle/codemp/game/w_force.c:3054")
+                if push_list[x]!.client != nil {
+                    //FIXME: make enemy jedi able to hunker down and resist this?
+                    var otherPushPower: Int32 = push_list[x]!.client!.ps.fd.forcePowerLevel[powerUse]
+                    var canPullWeapon: Bool = true
+                    var dirLen: Float = 0
+
+                    if g_debugMelee.integer != 0 {
+                        if (push_list[x]!.client!.ps.pm_flags & PMF_STUCK_TO_WALL) != 0 {
+                            //no resistance if stuck to wall
+                            //push/pull them off the wall
+                            otherPushPower = 0
+                            G_LetGoOfWall(push_list[x]!)
+                        }
+                    }
+
+                    knockback = pull ? 0 : 200
+
+                    pushPowerMod = pushPower
+
+                    if push_list[x]!.client!.pers.cmd.forwardmove != 0 || push_list[x]!.client!.pers.cmd.rightmove != 0 {
+                        //if you are moving, you get one less level of defense
+                        otherPushPower -= 1
+
+                        if otherPushPower < 0 {
+                            otherPushPower = 0
+                        }
+                    }
+
+                    if otherPushPower != 0 && CanCounterThrow(push_list[x]!, `self`, pull) {
+                        if pull {
+                            G_Sound(push_list[x]!, CHAN_BODY, G_SoundIndex("sound/weapons/force/pull.wav"))
+                            push_list[x]!.client!.ps.forceHandExtend = HANDEXTEND_FORCEPULL
+                            push_list[x]!.client!.ps.forceHandExtendTime = level.time + 400
+                        } else {
+                            G_Sound(push_list[x]!, CHAN_BODY, G_SoundIndex("sound/weapons/force/push.wav"))
+                            push_list[x]!.client!.ps.forceHandExtend = HANDEXTEND_FORCEPUSH
+                            push_list[x]!.client!.ps.forceHandExtendTime = level.time + 1000
+                        }
+                        push_list[x]!.client!.ps.powerups[PW_DISINT_4] = push_list[x]!.client!.ps.forceHandExtendTime + 200
+
+                        if pull {
+                            push_list[x]!.client!.ps.powerups[PW_PULL] = push_list[x]!.client!.ps.powerups[PW_DISINT_4]
+                        } else {
+                            push_list[x]!.client!.ps.powerups[PW_PULL] = 0
+                        }
+
+                        //Make a counter-throw effect
+
+                        if otherPushPower >= modPowerLevel {
+                            pushPowerMod = 0
+                            canPullWeapon = false
+                        } else {
+                            let powerDif: Int32 = (modPowerLevel - otherPushPower)
+
+                            if powerDif >= 3 {
+                                pushPowerMod = Int32(Double(pushPowerMod) - Double(pushPowerMod) * 0.2)
+                            } else if powerDif == 2 {
+                                pushPowerMod = Int32(Double(pushPowerMod) - Double(pushPowerMod) * 0.4)
+                            } else if powerDif == 1 {
+                                pushPowerMod = Int32(Double(pushPowerMod) - Double(pushPowerMod) * 0.8)
+                            }
+
+                            if pushPowerMod < 0 {
+                                pushPowerMod = 0
+                            }
+                        }
+                    }
+
+                    //shove them
+                    if pull {
+                        pushDir = `self`.client!.ps.origin - thispush_org
+
+                        if push_list[x]!.client != nil && VectorLength(pushDir) <= 256 {
+                            var randfact: Int32 = 0
+
+                            if modPowerLevel == FORCE_LEVEL_1 {
+                                randfact = 3
+                            } else if modPowerLevel == FORCE_LEVEL_2 {
+                                randfact = 7
+                            } else if modPowerLevel == FORCE_LEVEL_3 {
+                                randfact = 10
+                            }
+
+                            if !OnSameTeam(`self`, push_list[x]!) && Q_irand(1, 10) <= randfact && canPullWeapon {
+                                var uorg = vec3_t()
+                                var vecnorm = vec3_t()
+
+                                uorg = `self`.client!.ps.origin
+                                uorg[2] += 64
+
+                                vecnorm = uorg - thispush_org
+                                VectorNormalize(&vecnorm)
+
+                                TossClientWeapon(push_list[x]!, vecnorm, 500)
+                            }
+                        }
+                    } else {
+                        pushDir = thispush_org - `self`.client!.ps.origin
+                    }
+
+                    if (modPowerLevel > otherPushPower || push_list[x]!.client!.ps.m_iVehicleNum != 0) && push_list[x]!.client != nil {
+                        if modPowerLevel == FORCE_LEVEL_3 && push_list[x]!.client!.ps.forceHandExtend != HANDEXTEND_KNOCKDOWN {
+                            dirLen = VectorLength(pushDir)
+
+                            if BG_KnockDownable(push_list[x]!.client!.ps) && dirLen <= (64 * ((modPowerLevel - otherPushPower) - 1)) {
+                                //can only do a knockdown if fairly close
+                                push_list[x]!.client!.ps.forceHandExtend = HANDEXTEND_KNOCKDOWN
+                                push_list[x]!.client!.ps.forceHandExtendTime = level.time + 700
+                                push_list[x]!.client!.ps.forceDodgeAnim = 0 //this toggles between 1 and 0, when it's 1 we should play the get up anim
+                                push_list[x]!.client!.ps.quickerGetup = true
+                            } else if push_list[x]!.s.number < MAX_CLIENTS && push_list[x]!.client!.ps.m_iVehicleNum != 0 && dirLen <= 128.0 {
+                                //a player on a vehicle
+                                let vehEnt: Entity? = g_entities[push_list[x]!.client!.ps.m_iVehicleNum]
+                                if vehEnt!.inuse && vehEnt!.client != nil && vehEnt!.m_pVehicle != nil {
+                                    if vehEnt!.m_pVehicle!.m_pVehicleInfo!.type == VH_SPEEDER || vehEnt!.m_pVehicle!.m_pVehicleInfo!.type == VH_ANIMAL {
+                                        //push the guy off
+                                        vehEnt!.m_pVehicle!.m_pVehicleInfo!.runEject(vehEnt!.m_pVehicle, BgEntity(push_list[x]!), false)
+                                    }
+                                }
+                            }
+                        }
+                    }
+
+                    if dirLen == 0 {
+                        dirLen = VectorLength(pushDir)
+                    }
+
+                    VectorNormalize(&pushDir)
+
+                    if push_list[x]!.client != nil {
+                        //escape a force grip if we're in one
+                        if `self`.client!.ps.fd.forceGripBeingGripped > level.time {
+                            //force the enemy to stop gripping me if I managed to push him
+                            if push_list[x]!.client!.ps.fd.forceGripEntityNum == `self`.s.number {
+                                if modPowerLevel >= push_list[x]!.client!.ps.fd.forcePowerLevel[FP_GRIP] {
+                                    //only break the grip if our push/pull level is >= their grip level
+                                    WP_ForcePowerStop(push_list[x]!, FP_GRIP)
+                                    `self`.client!.ps.fd.forceGripBeingGripped = 0
+                                    push_list[x]!.client!.ps.fd.forceGripUseTime = level.time + 1000 //since we just broke out of it..
+                                }
+                            }
+                        }
+
+                        push_list[x]!.client!.ps.otherKiller = `self`.s.number
+                        push_list[x]!.client!.ps.otherKillerTime = level.time + 5000
+                        push_list[x]!.client!.ps.otherKillerDebounceTime = level.time + 100
+                        push_list[x]!.client!.otherKillerMOD = MOD_UNKNOWN
+                        push_list[x]!.client!.otherKillerVehWeapon = 0
+                        push_list[x]!.client!.otherKillerWeaponType = WP_NONE
+
+                        pushPowerMod = Int32(Double(pushPowerMod) - (Double(dirLen) * 0.7))
+                        if pushPowerMod < 16 {
+                            pushPowerMod = 16
+                        }
+
+                        //fullbody push effect
+                        push_list[x]!.client!.pushEffectTime = level.time + 600
+
+                        push_list[x]!.client!.ps.velocity[0] = pushDir[0] * pushPowerMod
+                        push_list[x]!.client!.ps.velocity[1] = pushDir[1] * pushPowerMod
+
+                        if Int32(push_list[x]!.client!.ps.velocity[2]) == 0 {
+                            //if not going anywhere vertically, boost them up a bit
+                            push_list[x]!.client!.ps.velocity[2] = pushDir[2] * pushPowerMod
+
+                            if push_list[x]!.client!.ps.velocity[2] < 128 {
+                                push_list[x]!.client!.ps.velocity[2] = 128
+                            }
+                        } else {
+                            push_list[x]!.client!.ps.velocity[2] = pushDir[2] * pushPowerMod
+                        }
+                    }
+                } else if push_list[x]!.s.eType == ET_MISSILE && push_list[x]!.s.pos.trType != TR_STATIONARY && (push_list[x]!.s.pos.trType != TR_INTERPOLATE || push_list[x]!.s.weapon != WP_THERMAL) {
+                    //rolling and stationary thermal detonators are dealt with below
+                    if pull {
+                        //deflect rather than reflect?
+                    } else {
+                        G_ReflectMissile(`self`, push_list[x]!, forward)
+                    }
+                } else if Q_stricmp("func_static", push_list[x]!.classname!) == 0 {
+                    //force-usable func_static
+                    if !pull && (push_list[x]!.spawnflags & 1 /*F_PUSH*/) != 0 {
+                        GEntity_UseFunc(push_list[x]!, `self`, `self`)
+                    } else if pull && (push_list[x]!.spawnflags & 2 /*F_PULL*/) != 0 {
+                        GEntity_UseFunc(push_list[x]!, `self`, `self`)
+                    }
+                } else if Q_stricmp("func_door", push_list[x]!.classname!) == 0 && (push_list[x]!.spawnflags & 2) != 0 {
+                    //push/pull the door
+                    var pos1 = vec3_t()
+                    var pos2 = vec3_t()
+                    var trFrom = vec3_t()
+
+                    trFrom = `self`.client!.ps.origin
+                    trFrom[2] += `self`.client!.ps.viewheight
+
+                    // Raven passes NULL for the right and up outputs.
+                    var scratchRight3 = vec3_t()
+                    var scratchUp3 = vec3_t()
+                    AngleVectors(`self`.client!.ps.viewangles, &forward, &scratchRight3, &scratchUp3)
+                    VectorNormalize(&forward)
+                    _VectorMA(trFrom, Float(radius), forward, &end)
+                    trap_Trace(tr, trFrom, vec3_origin, vec3_origin, end, `self`.s.number, MASK_SHOT)
+                    if tr.entityNum != push_list[x]!.s.number || Double(tr.fraction) == 1.0 || tr.allsolid != 0 || tr.startsolid != 0 {
+                        //must be pointing right at it
+                        x += 1
+                        continue
+                    }
+
+                    if VectorCompare(vec3_origin, push_list[x]!.s.origin) != 0 {
+                        //does not have an origin brush, so pos1 & pos2 are relative to world origin, need to calc center
+                        size = push_list[x]!.r.absmax - push_list[x]!.r.absmin
+                        _VectorMA(push_list[x]!.r.absmin, 0.5, size, &center)
+                        if (push_list[x]!.spawnflags & 1) != 0 && push_list[x]!.moverState == MOVER_POS1 {
+                            //if at pos1 and started open, make sure we get the center where it *started* because we're going to add back in the relative values pos1 and pos2
+                            center = center - push_list[x]!.pos1
+                        } else if !((push_list[x]!.spawnflags & 1) != 0) && push_list[x]!.moverState == MOVER_POS2 {
+                            //if at pos2, make sure we get the center where it *started* because we're going to add back in the relative values pos1 and pos2
+                            center = center - push_list[x]!.pos2
+                        }
+                        pos1 = center + push_list[x]!.pos1
+                        pos2 = center + push_list[x]!.pos2
+                    } else {
+                        //actually has an origin, pos1 and pos2 are absolute
+                        center = push_list[x]!.r.currentOrigin
+                        pos1 = push_list[x]!.pos1
+                        pos2 = push_list[x]!.pos2
+                    }
+
+                    if Distance(pos1, trFrom) < Distance(pos2, trFrom) {
+                        //pos1 is closer
+                        if push_list[x]!.moverState == MOVER_POS1 {
+                            //at the closest pos
+                            if pull {
+                                //trying to pull, but already at closest point, so screw it
+                                x += 1
+                                continue
+                            }
+                        } else if push_list[x]!.moverState == MOVER_POS2 {
+                            //at farthest pos
+                            if !pull {
+                                //trying to push, but already at farthest point, so screw it
+                                x += 1
+                                continue
+                            }
+                        }
+                    } else {
+                        //pos2 is closer
+                        if push_list[x]!.moverState == MOVER_POS1 {
+                            //at the farthest pos
+                            if !pull {
+                                //trying to push, but already at farthest point, so screw it
+                                x += 1
+                                continue
+                            }
+                        } else if push_list[x]!.moverState == MOVER_POS2 {
+                            //at closest pos
+                            if pull {
+                                //trying to pull, but already at closest point, so screw it
+                                x += 1
+                                continue
+                            }
+                        }
+                    }
+                    GEntity_UseFunc(push_list[x]!, `self`, `self`)
+                } else if Q_stricmp("func_button", push_list[x]!.classname!) == 0 {
+                    //pretend you pushed it
+                    Touch_Button(push_list[x]!, `self`, nil)
+                    x += 1
+                    continue
+                }
                 x += 1
             }
         }
@@ -3144,10 +3371,6 @@ func DoGripAction(_ `self`: Entity, _ forcePower: JKAMP.forcePowers_t) {
 
         a = gripEnt!.client!.ps.origin - `self`.client!.ps.origin
 
-        // Port-note: Raven passes NULL for `mins`, and the callee reads NULL as the zero vector.
-        portMissing("DoGripAction", source: "oracle/codemp/game/w_force.c:3948")
-        // Port-note: Raven passes NULL for `maxs`, and the callee reads NULL as the zero vector.
-        portMissing("DoGripAction", source: "oracle/codemp/game/w_force.c:3948")
         trap_Trace(tr, `self`.client!.ps.origin, vec3_origin, vec3_origin, gripEnt!.client!.ps.origin, `self`.s.number, MASK_PLAYERSOLID)
 
         gripLevel = WP_AbsorbConversion(gripEnt!, gripEnt!.client!.ps.fd.forcePowerLevel[FP_ABSORB], `self`, FP_GRIP, `self`.client!.ps.fd.forcePowerLevel[FP_GRIP], forcePowerNeeded[`self`.client!.ps.fd.forcePowerLevel[FP_GRIP]][FP_GRIP])
@@ -3179,10 +3402,8 @@ func DoGripAction(_ `self`: Entity, _ forcePower: JKAMP.forcePowers_t) {
         if `self`.client!.ps.fd.forcePowerDebounce[FP_GRIP] < level.time {
             //2 damage per second while choking, resulting in 10 damage total (not including The Squeeze<tm>)
             `self`.client!.ps.fd.forcePowerDebounce[FP_GRIP] = level.time + 1000
-            // Port-note: Raven passes NULL for the `dir` output. The ported function takes it by reference, so the body passes a scratch local it never reads.
-            portMissing("DoGripAction", source: "oracle/codemp/game/w_force.c:3948")
-            var scratchDir = vec3_t()
-            G_Damage(gripEnt!, `self`, `self`, &scratchDir, nil, 2, DAMAGE_NO_ARMOR, MOD_FORCE_DARK)
+            var dir: vec3_t? = nil
+            G_Damage(gripEnt!, `self`, `self`, &dir, nil, 2, DAMAGE_NO_ARMOR, MOD_FORCE_DARK)
         }
 
         Jetpack_Off(gripEnt!) //make sure the guy being gripped has his jetpack off.
@@ -3217,10 +3438,8 @@ func DoGripAction(_ `self`: Entity, _ forcePower: JKAMP.forcePowers_t) {
             if (level.time - gripEnt!.client!.ps.fd.forceGripStarted) > 3000 && `self`.client!.ps.fd.forceGripDamageDebounceTime == 0 {
                 //if we managed to lift him into the air for 2 seconds, give him a crack
                 `self`.client!.ps.fd.forceGripDamageDebounceTime = 1
-                // Port-note: Raven passes NULL for the `dir` output. The ported function takes it by reference, so the body passes a scratch local it never reads.
-                portMissing("DoGripAction", source: "oracle/codemp/game/w_force.c:3948")
-                var scratchDir2 = vec3_t()
-                G_Damage(gripEnt!, `self`, `self`, &scratchDir2, nil, 20, DAMAGE_NO_ARMOR, MOD_FORCE_DARK)
+                var dir: vec3_t? = nil
+                G_Damage(gripEnt!, `self`, `self`, &dir, nil, 20, DAMAGE_NO_ARMOR, MOD_FORCE_DARK)
 
                 //Must play custom sounds on the actual entity. Don't use G_Sound (it creates a temp entity for the sound)
                 G_EntitySound(gripEnt!, CHAN_VOICE, G_SoundIndex(va("*choke%d.wav", Q_irand(1, 3))))
@@ -3254,11 +3473,8 @@ func DoGripAction(_ `self`: Entity, _ forcePower: JKAMP.forcePowers_t) {
                 var nvLen: Float = 0
 
                 start_o = gripEnt!.client!.ps.origin
-                // Port-note: Raven passes NULL for the `right` output. The ported function takes it by reference, so the body passes a scratch local it never reads.
-                portMissing("DoGripAction", source: "oracle/codemp/game/w_force.c:3948")
+                // Raven passes NULL for the right and up outputs.
                 var scratchRight = vec3_t()
-                // Port-note: Raven passes NULL for the `up` output. The ported function takes it by reference, so the body passes a scratch local it never reads.
-                portMissing("DoGripAction", source: "oracle/codemp/game/w_force.c:3948")
                 var scratchUp = vec3_t()
                 AngleVectors(`self`.client!.ps.viewangles, &fwd, &scratchRight, &scratchUp)
                 fwd_o[0] = `self`.client!.ps.origin[0] + fwd[0] * 128
@@ -3303,10 +3519,8 @@ func DoGripAction(_ `self`: Entity, _ forcePower: JKAMP.forcePowers_t) {
             if (level.time - gripEnt!.client!.ps.fd.forceGripStarted) > 3000 && `self`.client!.ps.fd.forceGripDamageDebounceTime == 0 {
                 //if we managed to lift him into the air for 2 seconds, give him a crack
                 `self`.client!.ps.fd.forceGripDamageDebounceTime = 1
-                // Port-note: Raven passes NULL for the `dir` output. The ported function takes it by reference, so the body passes a scratch local it never reads.
-                portMissing("DoGripAction", source: "oracle/codemp/game/w_force.c:3948")
-                var scratchDir3 = vec3_t()
-                G_Damage(gripEnt!, `self`, `self`, &scratchDir3, nil, 40, DAMAGE_NO_ARMOR, MOD_FORCE_DARK)
+                var dir: vec3_t? = nil
+                G_Damage(gripEnt!, `self`, `self`, &dir, nil, 40, DAMAGE_NO_ARMOR, MOD_FORCE_DARK)
 
                 //Must play custom sounds on the actual entity. Don't use G_Sound (it creates a temp entity for the sound)
                 G_EntitySound(gripEnt!, CHAN_VOICE, G_SoundIndex(va("*choke%d.wav", Q_irand(1, 3))))
@@ -3909,10 +4123,6 @@ func SeekerDroneUpdate(_ `self`: Entity) {
 
             //org is now where the thing should be client-side because it uses the same time-based offset
             if `self`.client!.ps.droneFireTime < level.time {
-                // Port-note: Raven passes NULL for `mins`, and the callee reads NULL as the zero vector.
-                portMissing("SeekerDroneUpdate", source: "oracle/codemp/game/w_force.c:4711")
-                // Port-note: Raven passes NULL for `maxs`, and the callee reads NULL as the zero vector.
-                portMissing("SeekerDroneUpdate", source: "oracle/codemp/game/w_force.c:4711")
                 trap_Trace(tr, org, vec3_origin, vec3_origin, en!.client!.ps.origin, -1, MASK_SOLID)
 
                 if tr.fraction == 1 && tr.startsolid == 0 && tr.allsolid == 0 {

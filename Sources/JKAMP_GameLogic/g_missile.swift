@@ -89,11 +89,8 @@ func G_DeflectMissile(_ ent: Entity, _ missile: Entity, _ forward: JKAShared.vec
 
     if ent.client != nil {
         //VectorSubtract( ent->r.currentOrigin, missile->r.currentOrigin, missile_dir );
-        // Port-note: Raven passes NULL for the `right` output. The ported function takes it by reference, so the body passes a scratch local it never reads.
-        portMissing("G_DeflectMissile", source: "oracle/codemp/game/g_missile.c:91")
+        // Raven passes NULL for the right and up outputs.
         var scratchRight = vec3_t()
-        // Port-note: Raven passes NULL for the `up` output. The ported function takes it by reference, so the body passes a scratch local it never reads.
-        portMissing("G_DeflectMissile", source: "oracle/codemp/game/g_missile.c:91")
         var scratchUp = vec3_t()
         AngleVectors(ent.client!.ps.viewangles, &missile_dir, &scratchRight, &scratchUp)
         bounce_dir = missile_dir
@@ -240,10 +237,8 @@ func G_RunStuckMissile(_ ent: Entity) {
 
             if (VectorCompare(vec3_origin, other!.s.pos.trDelta) == 0 && other!.s.pos.trType != TR_STATIONARY) || (VectorCompare(vec3_origin, other!.s.apos.trDelta) == 0 && other!.s.apos.trType != TR_STATIONARY) {
                 //thing I stuck to is moving or rotating now, kill me
-                // Port-note: Raven passes NULL for the `dir` output. The ported function takes it by reference, so the body passes a scratch local it never reads.
-                portMissing("G_RunStuckMissile", source: "oracle/codemp/game/g_missile.c:259")
-                var scratchDir = vec3_t()
-                G_Damage(ent, other, other, &scratchDir, nil, 99999, 0, MOD_CRUSH)
+                var dir: vec3_t? = nil
+                G_Damage(ent, other, other, &dir, nil, 99999, 0, MOD_CRUSH)
                 return
             }
         }
@@ -403,19 +398,13 @@ func G_MissileImpact(_ ent: Entity, _ trace: JKAMP.Trace) {
             var fwd = vec3_t()
 
             if other!.client != nil {
-                // Port-note: Raven passes NULL for the `right` output. The ported function takes it by reference, so the body passes a scratch local it never reads.
-                portMissing("G_MissileImpact", source: "oracle/codemp/game/g_missile.c:362")
+                // Raven passes NULL for the right and up outputs.
                 var scratchRight = vec3_t()
-                // Port-note: Raven passes NULL for the `up` output. The ported function takes it by reference, so the body passes a scratch local it never reads.
-                portMissing("G_MissileImpact", source: "oracle/codemp/game/g_missile.c:362")
                 var scratchUp = vec3_t()
                 AngleVectors(other!.client!.ps.viewangles, &fwd, &scratchRight, &scratchUp)
             } else {
-                // Port-note: Raven passes NULL for the `right` output. The ported function takes it by reference, so the body passes a scratch local it never reads.
-                portMissing("G_MissileImpact", source: "oracle/codemp/game/g_missile.c:362")
+                // Raven passes NULL for the right and up outputs.
                 var scratchRight2 = vec3_t()
-                // Port-note: Raven passes NULL for the `up` output. The ported function takes it by reference, so the body passes a scratch local it never reads.
-                portMissing("G_MissileImpact", source: "oracle/codemp/game/g_missile.c:362")
                 var scratchUp2 = vec3_t()
                 AngleVectors(other!.r.currentAngles, &fwd, &scratchRight2, &scratchUp2)
             }
@@ -449,11 +438,8 @@ func G_MissileImpact(_ ent: Entity, _ trace: JKAMP.Trace) {
                 }
             }
 
-            // Port-note: Raven passes NULL for the `right` output. The ported function takes it by reference, so the body passes a scratch local it never reads.
-            portMissing("G_MissileImpact", source: "oracle/codemp/game/g_missile.c:362")
+            // Raven passes NULL for the right and up outputs.
             var scratchRight3 = vec3_t()
-            // Port-note: Raven passes NULL for the `up` output. The ported function takes it by reference, so the body passes a scratch local it never reads.
-            portMissing("G_MissileImpact", source: "oracle/codemp/game/g_missile.c:362")
             var scratchUp3 = vec3_t()
             AngleVectors(other!.client!.ps.viewangles, &fwd, &scratchRight3, &scratchUp3)
             if otherDefLevel == FORCE_LEVEL_1 {
@@ -509,11 +495,8 @@ func G_MissileImpact(_ ent: Entity, _ trace: JKAMP.Trace) {
                     }
                 }
 
-                // Port-note: Raven passes NULL for the `right` output. The ported function takes it by reference, so the body passes a scratch local it never reads.
-                portMissing("G_MissileImpact", source: "oracle/codemp/game/g_missile.c:362")
+                // Raven passes NULL for the right and up outputs.
                 var scratchRight4 = vec3_t()
-                // Port-note: Raven passes NULL for the `up` output. The ported function takes it by reference, so the body passes a scratch local it never reads.
-                portMissing("G_MissileImpact", source: "oracle/codemp/game/g_missile.c:362")
                 var scratchUp4 = vec3_t()
                 AngleVectors(otherOwner!.client!.ps.viewangles, &fwd, &scratchRight4, &scratchUp4)
 

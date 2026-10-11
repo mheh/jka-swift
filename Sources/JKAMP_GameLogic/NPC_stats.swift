@@ -204,9 +204,7 @@ func NPC_Precache(_ spawner: Entity) {
     var token: String
     var value: String = ""
     var p = TextCursor()
-    // Port-note: A pointer local `char * patch` with no view.
-    // Raven wrote: char *patch;
-    portMissing("NPC_Precache", source: "oracle/codemp/game/NPC_stats.c:599")
+    var patch: Int32?
     var sound = CharBuf(64)
     var md3Model: Bool = false
     var playerModel = CharBuf(64)
@@ -334,12 +332,10 @@ func NPC_Precache(_ spawner: Entity) {
             if !((spawner.r.svFlags & SVF_NO_BASIC_SOUNDS) != 0) {
                 //FIXME: store this in some sound field or parse in the soundTable like the animTable...
                 Q_strncpyz(&sound, value, Int32((sound).count))
-                // Port-note: A store into `patch`, a local the draft left as a hole.
-                // Raven wrote: patch = strstr( sound, "/" )
-                portMissing("NPC_Precache", source: "oracle/codemp/game/NPC_stats.c:599")
-                // Port-note: A read of `patch`, a local the draft left as a hole.
-                // Raven wrote: if ( patch ) { *patch = 0; }
-                portMissing("NPC_Precache", source: "oracle/codemp/game/NPC_stats.c:599")
+                patch = strstr(sound, "/")
+                if let patch {
+                    sound[patch] = 0
+                }
                 spawner.s.csSounds_Std = G_SoundIndex(va("*$%s", sound))
             }
             continue
@@ -353,12 +349,10 @@ func NPC_Precache(_ spawner: Entity) {
             if !((spawner.r.svFlags & SVF_NO_COMBAT_SOUNDS) != 0) {
                 //FIXME: store this in some sound field or parse in the soundTable like the animTable...
                 Q_strncpyz(&sound, value, Int32((sound).count))
-                // Port-note: A store into `patch`, a local the draft left as a hole.
-                // Raven wrote: patch = strstr( sound, "/" )
-                portMissing("NPC_Precache", source: "oracle/codemp/game/NPC_stats.c:599")
-                // Port-note: A read of `patch`, a local the draft left as a hole.
-                // Raven wrote: if ( patch ) { *patch = 0; }
-                portMissing("NPC_Precache", source: "oracle/codemp/game/NPC_stats.c:599")
+                patch = strstr(sound, "/")
+                if let patch {
+                    sound[patch] = 0
+                }
                 spawner.s.csSounds_Combat = G_SoundIndex(va("*$%s", sound))
             }
             continue
@@ -372,12 +366,10 @@ func NPC_Precache(_ spawner: Entity) {
             if !((spawner.r.svFlags & SVF_NO_EXTRA_SOUNDS) != 0) {
                 //FIXME: store this in some sound field or parse in the soundTable like the animTable...
                 Q_strncpyz(&sound, value, Int32((sound).count))
-                // Port-note: A store into `patch`, a local the draft left as a hole.
-                // Raven wrote: patch = strstr( sound, "/" )
-                portMissing("NPC_Precache", source: "oracle/codemp/game/NPC_stats.c:599")
-                // Port-note: A read of `patch`, a local the draft left as a hole.
-                // Raven wrote: if ( patch ) { *patch = 0; }
-                portMissing("NPC_Precache", source: "oracle/codemp/game/NPC_stats.c:599")
+                patch = strstr(sound, "/")
+                if let patch {
+                    sound[patch] = 0
+                }
                 spawner.s.csSounds_Extra = G_SoundIndex(va("*$%s", sound))
             }
             continue
@@ -391,12 +383,10 @@ func NPC_Precache(_ spawner: Entity) {
             if !((spawner.r.svFlags & SVF_NO_EXTRA_SOUNDS) != 0) {
                 //FIXME: store this in some sound field or parse in the soundTable like the animTable...
                 Q_strncpyz(&sound, value, Int32((sound).count))
-                // Port-note: A store into `patch`, a local the draft left as a hole.
-                // Raven wrote: patch = strstr( sound, "/" )
-                portMissing("NPC_Precache", source: "oracle/codemp/game/NPC_stats.c:599")
-                // Port-note: A read of `patch`, a local the draft left as a hole.
-                // Raven wrote: if ( patch ) { *patch = 0; }
-                portMissing("NPC_Precache", source: "oracle/codemp/game/NPC_stats.c:599")
+                patch = strstr(sound, "/")
+                if let patch {
+                    sound[patch] = 0
+                }
                 spawner.s.csSounds_Jedi = G_SoundIndex(va("*$%s", sound))
             }
             continue
@@ -453,9 +443,7 @@ func NPC_ParseParms(_ NPCName: String, _ NPC: Entity) -> Bool {
     var p = TextCursor()
     var n: Int32 = 0
     var f: Float = 0
-    // Port-note: A pointer local `char * patch` with no view.
-    // Raven wrote: char *patch;
-    portMissing("NPC_ParseParms", source: "oracle/codemp/game/NPC_stats.c:974")
+    var patch: Int32?
     var sound = CharBuf(64)
     var playerModel = CharBuf(64)
     var customSkin = CharBuf(64)
@@ -1466,12 +1454,10 @@ func NPC_ParseParms(_ NPCName: String, _ NPC: Entity) -> Bool {
                 if !((NPC.r.svFlags & SVF_NO_BASIC_SOUNDS) != 0) {
                     //FIXME: store this in some sound field or parse in the soundTable like the animTable...
                     Q_strncpyz(&sound, value, Int32((sound).count))
-                    // Port-note: A store into `patch`, a local the draft left as a hole.
-                    // Raven wrote: patch = strstr( sound, "/" )
-                    portMissing("NPC_ParseParms", source: "oracle/codemp/game/NPC_stats.c:974")
-                    // Port-note: A read of `patch`, a local the draft left as a hole.
-                    // Raven wrote: if ( patch ) { *patch = 0; }
-                    portMissing("NPC_ParseParms", source: "oracle/codemp/game/NPC_stats.c:974")
+                    patch = strstr(sound, "/")
+                    if let patch {
+                        sound[patch] = 0
+                    }
                     //	ci->customBasicSoundDir = G_NewString( sound );
                     //rwwFIXMEFIXME: Hooray for violating client server rules
                 }
@@ -1486,12 +1472,10 @@ func NPC_ParseParms(_ NPCName: String, _ NPC: Entity) -> Bool {
                 if !((NPC.r.svFlags & SVF_NO_COMBAT_SOUNDS) != 0) {
                     //FIXME: store this in some sound field or parse in the soundTable like the animTable...
                     Q_strncpyz(&sound, value, Int32((sound).count))
-                    // Port-note: A store into `patch`, a local the draft left as a hole.
-                    // Raven wrote: patch = strstr( sound, "/" )
-                    portMissing("NPC_ParseParms", source: "oracle/codemp/game/NPC_stats.c:974")
-                    // Port-note: A read of `patch`, a local the draft left as a hole.
-                    // Raven wrote: if ( patch ) { *patch = 0; }
-                    portMissing("NPC_ParseParms", source: "oracle/codemp/game/NPC_stats.c:974")
+                    patch = strstr(sound, "/")
+                    if let patch {
+                        sound[patch] = 0
+                    }
                     //	ci->customCombatSoundDir = G_NewString( sound );
                 }
                 continue
@@ -1505,12 +1489,10 @@ func NPC_ParseParms(_ NPCName: String, _ NPC: Entity) -> Bool {
                 if !((NPC.r.svFlags & SVF_NO_EXTRA_SOUNDS) != 0) {
                     //FIXME: store this in some sound field or parse in the soundTable like the animTable...
                     Q_strncpyz(&sound, value, Int32((sound).count))
-                    // Port-note: A store into `patch`, a local the draft left as a hole.
-                    // Raven wrote: patch = strstr( sound, "/" )
-                    portMissing("NPC_ParseParms", source: "oracle/codemp/game/NPC_stats.c:974")
-                    // Port-note: A read of `patch`, a local the draft left as a hole.
-                    // Raven wrote: if ( patch ) { *patch = 0; }
-                    portMissing("NPC_ParseParms", source: "oracle/codemp/game/NPC_stats.c:974")
+                    patch = strstr(sound, "/")
+                    if let patch {
+                        sound[patch] = 0
+                    }
                     //	ci->customExtraSoundDir = G_NewString( sound );
                 }
                 continue
@@ -1524,12 +1506,10 @@ func NPC_ParseParms(_ NPCName: String, _ NPC: Entity) -> Bool {
                 if !((NPC.r.svFlags & SVF_NO_EXTRA_SOUNDS) != 0) {
                     //FIXME: store this in some sound field or parse in the soundTable like the animTable...
                     Q_strncpyz(&sound, value, Int32((sound).count))
-                    // Port-note: A store into `patch`, a local the draft left as a hole.
-                    // Raven wrote: patch = strstr( sound, "/" )
-                    portMissing("NPC_ParseParms", source: "oracle/codemp/game/NPC_stats.c:974")
-                    // Port-note: A read of `patch`, a local the draft left as a hole.
-                    // Raven wrote: if ( patch ) { *patch = 0; }
-                    portMissing("NPC_ParseParms", source: "oracle/codemp/game/NPC_stats.c:974")
+                    patch = strstr(sound, "/")
+                    if let patch {
+                        sound[patch] = 0
+                    }
                     //ci->customJediSoundDir = G_NewString( sound );
                 }
                 continue
@@ -1669,9 +1649,7 @@ func NPC_ParseParms(_ NPCName: String, _ NPC: Entity) -> Bool {
                     portMissing("NPC_ParseParms", source: "oracle/codemp/game/NPC_stats.c:974")
                     if (NPC.client!.saber[1].saberFlags & SFL_TWO_HANDED) != 0 {
                         //tsk tsk, can't use a twoHanded saber as second saber
-                        // Port-note: Raven passes `NPC->client->saber` to `WP_RemoveSaber`, whose `sabers` parameter takes the Slots over the records, and Swift holds one record here. A Slots over one record has no form yet.
-                        // Raven wrote: WP_RemoveSaber( NPC->client->saber, 1 )
-                        portMissing("NPC_ParseParms", source: "oracle/codemp/game/NPC_stats.c:974")
+                        WP_RemoveSaber(NPC.client!.saber, 1)
                     } else {
                         //NPC->client->ps.dualSabers = qtrue;
                         // Port-note: The draft of this statement did not compile, and the compiler wrote "argument type 'UnsafeMutableRawPointer' does not conform to expected type 'FormatArg'".
@@ -2350,9 +2328,7 @@ func NPC_ParseParms(_ NPCName: String, _ NPC: Entity) -> Bool {
 
         if NPC.NPC_type == nil {
             //just do this for now so NPC_Precache can see the name.
-            // Port-note: The draft of this statement did not compile, and the compiler wrote "cannot assign value of type 'TextCursor' to type 'String'".
-            // Raven wrote: NPC->NPC_type = (char *)NPCName
-            portMissing("NPC_ParseParms", source: "oracle/codemp/game/NPC_stats.c:974")
+            NPC.NPC_type = NPCName.text
             setTypeBack = true
         }
 
