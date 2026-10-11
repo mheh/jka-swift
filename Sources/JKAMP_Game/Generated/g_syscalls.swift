@@ -1371,6 +1371,12 @@ public func trap_EA_GetInput(_ client: Int32, _ thinktime: Float, _ input: Opaqu
     Syscall.call(BOTLIB_EA_GET_INPUT, client, thinktime, input)
 }
 
+/// Source: oracle/codemp/game/g_syscalls.c:845
+/// Raven's `input` takes the address of a `struct bot_input_s` record at every call site, and this overload takes the view.
+public func trap_EA_GetInput(_ client: Int32, _ thinktime: Float, _ input: BotInput) {
+    trap_EA_GetInput(client, thinktime, input.handle)
+}
+
 /// Source: oracle/codemp/game/g_syscalls.c:849
 public func trap_EA_ResetInput(_ client: Int32) {
     Syscall.call(BOTLIB_EA_RESET_INPUT, client)

@@ -44,8 +44,24 @@ private func insertion<T>(_ a: inout [T], _ lo: Int, _ n: Int, _ cmp: (T, T) -> 
 /// jka-rust ruled this body canonical in DEC-34 and never reproduces the tie order of the MSVC runtime.
 ///
 /// Source: oracle/codemp/game/bg_lib.c:105
-func qsort<T>(_ a: inout [T], _ cmp: (T, T) -> Int32) {
+public func qsort<T>(_ a: inout [T], _ cmp: (T, T) -> Int32) {
     qsortSpan(&a, 0, a.count, cmp)
+}
+
+/// Raven's `qsort(base, num, width, compare)` over the first `n` elements, with the `width` argument dropped.
+/// The elements past `n` keep their order.
+public func qsort<T>(_ a: inout [T], _ n: Int32, _ cmp: (T, T) -> Int32) {
+    qsortSpan(&a, 0, Int(n), cmp)
+}
+
+/// Raven's `qsort(base, num, width, compare)` over the first `n` slots of an `int` table, for `level.sortedClients`.
+/// The table is a view over C memory, so this sorts a copy and writes the `n` sorted slots back.
+public func qsort(_ a: Slots<Int32>, _ n: Int32, _ cmp: (Int32, Int32) -> Int32) {
+    var values = Array(a)
+    qsortSpan(&values, 0, Int(n), cmp)
+    for i in 0 ..< Int(n) {
+        a[i] = values[i]
+    }
 }
 
 /// Raven reaches its tail iteration with `goto loop` over the same locals, and this holds the span in two parameters.

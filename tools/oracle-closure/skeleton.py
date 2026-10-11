@@ -48,7 +48,7 @@ import reexport
 from fnsweep import binop_assign_op, rhs_function, root_var
 from overlay import MACROS, written_arguments
 from reexport import REPO, SOURCES
-from rulings import BYTE_STORAGE_VARS, HAND_MACROS, HAND_VARS, LIBC_FUNCTIONS, NEVER_NULL_VARS, NOT_PORTED, PUBLIC_NAMES, RETURNS
+from rulings import BYTE_STORAGE_VARS, HAND_MACROS, HAND_VARS, LIBC_FUNCTIONS, NEVER_NULL_VARS, NOT_PORTED, PUBLIC_NAMES, RETURNS, TYPES
 from store import Store, combined, file_hash, named
 from table import Param, SourceFile, Table, swift_name
 
@@ -504,6 +504,10 @@ class Skeleton:
 
     def map_variable(self, var: Variable) -> None:
         """The Swift type of a variable, or the reason it has none. A struct table is C storage, never a Swift type."""
+        if var.name in TYPES:
+            # A TYPES ruling names the variable, because Raven's declared type is not the type he stores through it.
+            var.swift = TYPES[var.name]
+            return
         t = var.cur.type
         canonical = t.get_canonical()
         element = canonical
@@ -800,20 +804,42 @@ class Skeleton:
         return lines
 
     def collect_stores(self) -> dict[str, list[tuple[str, Function]]]:
-        """Every `ent->field = Name` in the module, by field, as (site cite, stored function)."""
+        """Every `ent->field = Name` in the module, by field, as (site cite, stored function).
+        A store into a function-pointer local of a callback field's type, `func = NPC_Jedi_Pain` of NPC_PainFunc, counts for that field,
+        because the function returns the local into the field.
+        A local whose type fits more than one field names no field."""
         stores: dict[str, list[tuple[str, Function]]] = defaultdict(list)
         seen: set[tuple[str, str]] = set()
+        field_of_proto: dict[str, set[str]] = defaultdict(set)
+        for record in self.table.views.records.values():
+            if record.spelling == "gentity_s":
+                for f in record.get_children():
+                    if f.kind == CursorKind.FIELD_DECL and f.spelling in FIELDS:
+                        field_of_proto[f.type.get_canonical().get_pointee().get_canonical().spelling].add(f.spelling)
+
+        def stored_field(lhs: ci.Cursor) -> str | None:
+            if lhs.kind == CursorKind.MEMBER_REF_EXPR and lhs.spelling in FIELDS:
+                return lhs.spelling
+            ref = lhs.referenced if lhs.kind == CursorKind.DECL_REF_EXPR else None
+            if ref is not None and ref.kind == CursorKind.VAR_DECL and ref.semantic_parent.kind == CursorKind.FUNCTION_DECL:
+                canonical = ref.type.get_canonical()
+                if canonical.kind == TypeKind.POINTER and canonical.get_pointee().kind == TypeKind.FUNCTIONPROTO:
+                    fields = field_of_proto.get(canonical.get_pointee().get_canonical().spelling, set())
+                    if len(fields) == 1:
+                        return next(iter(fields))
+            return None
 
         def walk(node: ci.Cursor) -> None:
             if node.kind == CursorKind.BINARY_OPERATOR and binop_assign_op(node) == "=":
                 lhs, rhs = list(node.get_children())
-                if lhs.kind == CursorKind.MEMBER_REF_EXPR and lhs.spelling in FIELDS:
+                field = stored_field(lhs)
+                if field is not None:
                     owner = lhs.type.get_canonical()
                     if owner.kind == TypeKind.POINTER and owner.get_pointee().kind == TypeKind.FUNCTIONPROTO:
                         name = rhs_function(rhs)
-                        if name and name in self.by_name and (lhs.spelling, name) not in seen:
-                            seen.add((lhs.spelling, name))
-                            stores[lhs.spelling].append((name, self.by_name[name]))
+                        if name and name in self.by_name and (field, name) not in seen:
+                            seen.add((field, name))
+                            stores[field].append((name, self.by_name[name]))
                         elif name and name not in self.by_name:
                             self.counts["store of a function outside the module"] += 1
             for child in node.get_children():

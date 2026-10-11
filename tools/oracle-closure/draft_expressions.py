@@ -122,6 +122,19 @@ class Expressions:
         words += ["0"] * (3 - len(words))
         return f"vec3_t({', '.join(words)})"
 
+    def narrow_element(self, cur: ci.Cursor) -> str | None:
+        """The slot text of Raven's `m[i]` over a narrow local array, `m[i]` as Swift stores it, or None for any other expression."""
+        cur = self.unwrap(cur)
+        if cur.kind != CursorKind.ARRAY_SUBSCRIPT_EXPR:
+            return None
+        base, index = list(cur.get_children())
+        base = self.strip(base)
+        if base.kind != CursorKind.DECL_REF_EXPR or base.spelling not in self.narrow_arrays:
+            return None
+        if base.referenced is None or base.referenced.kind != CursorKind.VAR_DECL:
+            return None
+        return f"{swift_name(base.spelling)}[{self.converted(index, 'Int32')}]"
+
     def strip(self, cur: ci.Cursor) -> ci.Cursor:
         """The expression under the implicit casts Clang wraps around it."""
         while cur.kind == CursorKind.UNEXPOSED_EXPR:
@@ -426,6 +439,9 @@ class Expressions:
                 # Raven's `ent->client->saber[n]` is one record of the game's table, and the callback takes both indexes.
                 args = f"of: {self.entity_index_text(self.game_chain(inner_base)[2])}, at: {self.converted(index, 'Int32')}"
                 return self.leaf(cur, f"{indexed.name}({args})")
+            if self.narrow_element(cur) is not None:
+                # C widens the narrow element to int at every read.
+                return self.leaf(cur, f"Int32({self.narrow_element(cur)})")
             if inner_base.kind == CursorKind.DECL_REF_EXPR and inner_base.spelling in self.offset_cursors:
                 # A write cursor is a byte offset, so Raven's `p[i]` is the buffer's byte that far past it.
                 slot = f"{self.cursor_buffer(inner_base.spelling)}[{self.expr(inner_base)} + {self.converted(index, 'Int32')}]"

@@ -1,4 +1,5 @@
-/// This file holds the `sscanf` subset Raven's game code reads through: `%f`, `%d`, and `%i`, into one float, one integer, or a `vec3_t`.
+/// This file holds the `sscanf` subset Raven's game code reads through: `%f`, `%d`, `%i`, and `%s`.
+/// The targets are one float, one integer, a `vec3_t`, or lists of integers and words.
 /// Swift has no variadic `inout`, so each target shape is one overload, and every overload checks with `precondition` that the format is the one it serves.
 /// A ported body therefore still spells the call with Raven's format string, and a format the port does not cover traps at once.
 
@@ -203,4 +204,45 @@ public func sscanf(_ s: String, _ fmt: String, _ n: inout Int32) -> Int32 {
 public func sscanf(_ s: CharBuf, _ fmt: String, _ n: inout Int32) -> Int32 {
     precondition(fmt == "%d" || fmt == "%i", "sscanf: the integer overload serves \"%d\" and \"%i\" alone, and the format was \"\(fmt)\"")
     return scanInt(scanBytes(of: s), &n)
+}
+
+/// This reads a format of `%i` and `%s` conversions alone out of a `char` buffer, Raven's `sscanf` in `G_ReadSessionData`.
+/// Each `%i` fills the next slot of `ints` and each `%s` the next slot of `texts`, in format order, and a slot past the stop keeps its value.
+@discardableResult
+public func sscanf(_ s: CharBuf, _ fmt: String, _ ints: inout [Int32], _ texts: inout [String]) -> Int32 {
+    let specifiers = fmt.split(separator: " ")
+    precondition(
+        specifiers.allSatisfy { $0 == "%i" || $0 == "%s" },
+        "sscanf: the list overload serves \"%i\" and \"%s\" alone, and the format was \"\(fmt)\""
+    )
+    precondition(
+        specifiers.filter { $0 == "%i" }.count == ints.count && specifiers.filter { $0 == "%s" }.count == texts.count,
+        "sscanf: the list overload needs one target per conversion, and the format was \"\(fmt)\""
+    )
+
+    let bytes = scanBytes(of: s)
+    var i = 0
+    var read: Int32 = 0
+    var nextInt = 0
+    var nextText = 0
+    for specifier in specifiers {
+        if specifier == "%i" {
+            // C's `%i` also takes hexadecimal and octal, and Raven writes plain decimals alone.
+            guard let value = readScanInt(bytes, &i) else { break }
+            ints[nextInt] = value
+            nextInt += 1
+        } else {
+            // A `%s` skips whitespace and reads the run of bytes up to the next whitespace.
+            skipScanSpace(bytes, &i)
+            let start = i
+            while i < bytes.count, !isScanSpace(bytes[i]) {
+                i += 1
+            }
+            guard i > start else { break }
+            texts[nextText] = String(decoding: bytes[start..<i], as: UTF8.self)
+            nextText += 1
+        }
+        read += 1
+    }
+    return read
 }

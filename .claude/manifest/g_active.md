@@ -39,7 +39,7 @@ The oracle range is the whole definition, from the return type to the closing br
 | `G_SetTauntAnim` | `oracle/codemp/game/g_active.c:1662-1926` | `JKAMP_GameLogic/g_active.swift:1529` | ported | `crates/mp/game/src/g_active.rs:1952-2177` | `func G_SetTauntAnim(_ ent: Entity, _ taunt: Int32)` |
 | `ClientThink_real` | `oracle/codemp/game/g_active.c:1939-3611` | `JKAMP_GameLogic/g_active.swift:1760` | ported | `crates/mp/game/src/g_active.rs:2182-3867` | `func ClientThink_real(_ ent: Entity)` |
 | `G_CheckClientTimeouts` | `oracle/codemp/game/g_active.c:3620-3640` | `JKAMP_GameLogic/g_active.swift:3164` | ported | `crates/mp/game/src/g_active.rs:3872-3897` | `func G_CheckClientTimeouts(_ ent: Entity)` |
-| `ClientThink` | `oracle/codemp/game/g_active.c:3649-3720` | `JKAMP_GameLogic/g_active.swift:3192` | ported | `crates/mp/game/src/g_active.rs:3902-3938` | `func ClientThink(_ clientNum: Int32, _ ucmd: JKAMP.Usercmd?)` |
+| `ClientThink` | `oracle/codemp/game/g_active.c:3649-3720` | `JKAMP_GameLogic/g_active.swift:3192` | ported | `crates/mp/game/src/g_active.rs:3902-3938` | `public func ClientThink(_ clientNum: Int32, _ ucmd: JKAMP.Usercmd?)` |
 | `G_RunClient` | `oracle/codemp/game/g_active.c:3723-3729` | `JKAMP_GameLogic/g_active.swift:3263` | ported | `crates/mp/game/src/g_active.rs:3943-3956` | `func G_RunClient(_ ent: Entity)` |
 | `SpectatorClientEndFrame` | `oracle/codemp/game/g_active.c:3738-3783` | `JKAMP_GameLogic/g_active.swift:3280` | ported | `crates/mp/game/src/g_active.rs:3961-4008` | `func SpectatorClientEndFrame(_ ent: Entity)` |
 | `ClientEndFrame` | `oracle/codemp/game/g_active.c:3794-3874` | `JKAMP_GameLogic/g_active.swift:3337` | ported | `crates/mp/game/src/g_active.rs:4013-4083` | `func ClientEndFrame(_ ent: Entity)` |

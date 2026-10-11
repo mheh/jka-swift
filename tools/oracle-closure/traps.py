@@ -195,6 +195,7 @@ class Traps:
         lines += self.nil_overload(cur, name, mapped, returns, body)
         lines += self.buffer_overload(cur, name, mapped, returns, never)
         lines += self.text_overload(cur, name, mapped, returns, never)
+        lines += self.record_overload(cur, name, mapped, returns, never)
         return lines
 
     def nil_overload(self, cur: ci.Cursor, name: str, mapped: dict[str, Param], returns: str | None, body: list[str]) -> list[str]:
@@ -284,6 +285,75 @@ class Traps:
             "    }",
             "}",
         ]
+
+    def record_overload(self, cur: ci.Cursor, name: str, mapped: dict[str, Param], returns: str | None, never: bool) -> list[str]:
+        """The overload for a `void /* struct name */ *` parameter, when the struct has a view and every caller of the trap hands it that record.
+
+        Raven's comment names the record, `trap_EA_GetInput(int client, float thinktime, void /* struct bot_input_s */ *input)`,
+        and his caller passes `&bi`, so a body passes the view bare and no `Unsafe` type reaches a logic target.
+        Ruling O4 of 2026-10-11."""
+        params = list(cur.get_arguments())
+        found: list[tuple[str, Param, str]] = []
+        for i, p in enumerate(params):
+            m = mapped[p.spelling]
+            if m.swift != "OpaquePointer?":
+                continue
+            tag = re.search(r"/\*\s*struct\s+(\w+)\s*\*/", self.source.slice(p.extent))
+            if tag is None:
+                continue
+            record = self.table.views.typedef_of.get(tag.group(1), tag.group(1))
+            if record not in self.table.views.views or not self.callers_pass_record(name, i, tag.group(1)):
+                continue
+            found.append((tag.group(1), m, self.table.views.qualified_view(record, TARGET)))
+        if len(found) != 1:
+            return []
+        tag, record_param, view = found[0]
+        crossing = [p for p in mapped.values() if p.swift]
+        signature = ", ".join(f"_ {p.name}: " + (view if p is record_param else p.swift) for p in crossing)
+        words = []
+        for p in crossing:
+            if p is record_param:
+                words.append(f"{p.name}.handle")
+            elif (p.swift or "").startswith("inout "):
+                words.append(f"&{p.name}")
+            else:
+                words.append(p.name)
+        self.counts["record overloads"] += 1
+        head = f"public func {name}({signature})" + (" -> Never" if never else f" -> {returns}" if returns else "")
+        if returns and not never:
+            head = "@discardableResult\n" + head
+        keyword = "return " if returns or never else ""
+        return [
+            "",
+            f"/// Source: oracle/{SOURCE}:{cur.location.line}",
+            f"/// Raven's `{record_param.name}` takes the address of a `struct {tag}` record at every call site, and this overload takes the view.",
+            head + " {",
+            f"    {keyword}{name}({', '.join(words)})",
+            "}",
+        ]
+
+    def callers_pass_record(self, name: str, index: int, tag: str) -> bool:
+        """True when the game unit calls the trap at least once, and every call hands argument `index` the address of a struct `tag`."""
+        calls = 0
+        for fn in self.tu.cursor.get_children():
+            if fn.kind != CursorKind.FUNCTION_DECL or not fn.is_definition() or not fn.location.file:
+                continue
+            if Path(fn.location.file.name).resolve().parent != self.parse.game_folder:
+                continue
+            for node in fn.walk_preorder():
+                if node.kind != CursorKind.CALL_EXPR or node.referenced is None or node.referenced.spelling != name:
+                    continue
+                args = list(node.get_arguments())
+                if index >= len(args):
+                    return False
+                arg = Table.unwrapped(args[index])
+                while arg.kind == CursorKind.CSTYLE_CAST_EXPR:
+                    arg = Table.unwrapped(list(arg.get_children())[-1])
+                pointee = arg.type.get_canonical()
+                if pointee.kind != TypeKind.POINTER or pointee.get_pointee().get_canonical().get_declaration().spelling != tag:
+                    return False
+                calls += 1
+        return calls > 0
 
     def nest(self, layers: list[str], call: str, prefix: str) -> list[str]:
         out = [prefix + layers[0]]

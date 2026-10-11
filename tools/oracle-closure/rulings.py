@@ -154,10 +154,14 @@ HAND_MACROS = {
 
 # MARK: - Types
 
-# C typedef -> the Swift type it is at every surface, where the C definition alone does not say.
+# C typedef or file-scope variable -> the Swift type it is at every surface, where the C definition alone does not say.
 # qint64 is Raven's struct of eight bytes from before the compilers had a portable 64-bit integer, and only the byte-swap pair touches it.
 TYPES = {
     "qint64": "Int64",
+    # Raven declares `qboolean gSiegeRoundWinningTeam` at g_saga.c:38 and in the extern at g_main.c:1978,
+    # and he stores and compares a team number through it, 0, SIEGETEAM_TEAM1, or SIEGETEAM_TEAM2.
+    # Ruling A2 of 2026-10-11.
+    "gSiegeRoundWinningTeam": "Int32",
 }
 
 # MARK: - Functions
@@ -210,6 +214,7 @@ CHARBUF_ALLOCS = {"B_TempAlloc"}
 #   int_array  an [Int32]? by value for a read-only `int *` with a count beside it, and a caller's NULL is nil
 #   pointer_table  a Slots<View?> over a file-scope array of struct pointers, whose base a trap hands to the engine
 #   key_path  a KeyPath<Entity, String?> for an `int` field offset Raven takes from `FOFS(field)`, which a call site spells `\.field`
+#   int_value  an Int32 by value for a `const void *` a qsort comparator reads as `*(int *)`, so the comparator is `(Int32, Int32) -> Int32`
 PARAMS = {
     ("COM_ParseString", "s"): "out_string",
     # A `char **` the function sets once to a string it owns, never walked, the same shape as the const one.
@@ -247,6 +252,13 @@ PARAMS = {
     ("BG_SiegeTranslateGenericTable", "table"): "table",
     # Raven's callers pass `FOFS(classname)`, `FOFS(targetname)`, `FOFS(target)`, and `FOFS(script_targetname)`, each a `char *` field.
     ("G_Find", "fieldofs"): "key_path",
+    # Raven's two qsort comparators over an `int` array, `SortClients` at g_team.c:1089 and `SortRanks` at g_main.c:1624.
+    # The hand qsort of bg_lib.swift takes `(Int32, Int32) -> Int32`.
+    # Rulings A1 and D6 of 2026-10-11.
+    ("SortClients", "a"): "int_value",
+    ("SortClients", "b"): "int_value",
+    ("SortRanks", "a"): "int_value",
+    ("SortRanks", "b"): "int_value",
 }
 
 # Functions of the oracle the port leaves out. The stub carries the cite, Raven's line, and the reason, and no function.
@@ -316,6 +328,9 @@ NULLABLE = {
     ("GlobalUse", "activator"),
     # G_G2PlayerAngles of w_saber.c sets emplaced only when ps.emplacedIndex is non-zero and passes NULL otherwise, and the body tests it at bg_pmove.c:9235 and 9354.
     ("BG_G2PlayerAngles", "emplaced"),
+    # target_random_use passes `self->target`, which SP_target_random does not require, and Q_stricmp returns -1 for a NULL at q_shared.c:901.
+    # Ruling R9 of 2026-10-11.
+    ("G_Find", "match"),
 }
 # Files whose functions a bg body reaches directly, because they live in the shared module or in bg itself.
 # The functions whose integer arithmetic is a generator or a hash, where C wraps at 32 bits and Swift's plain operators trap.

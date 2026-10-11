@@ -11,10 +11,10 @@ The oracle range is the whole definition, from the return type to the closing br
 | `med3` static | `oracle/codemp/game/bg_lib.c:98-103` | `JKAMP_BG/bg_lib.swift:22` | ported | none | `private func med3(_ a: inout JKAShared.CharBuf, _ b: inout JKAShared.CharBuf, _ c: inout JKAShared.CharBuf, _ cmp: (() -> Int32)?) -> String` |
 | `qsort` | `oracle/codemp/game/bg_lib.c:105-181` | `JKAMP_BG/bg_lib.swift:47` | ported | none | `public func qsort(_ a: OpaquePointer?, _ n: UInt, _ es: UInt, _ cmp: (() -> Int32)?)` |
 | `memmove` | `oracle/codemp/game/bg_lib.c:287-300` | missing | marker | none | `public func memmove() -> Never` TODO: Port signature. No table row for the return `void *`. |
-| `srand` | `oracle/codemp/game/bg_lib.c:765-767` | `JKAMP_BG/bg_lib.swift:155` | ported | none | `public func srand(_ seed: UInt32)` |
-| `rand` | `oracle/codemp/game/bg_lib.c:769-772` | `JKAMP_BG/bg_lib.swift:160` | ported | none | `public func rand() -> Int32` |
-| `atof` | `oracle/codemp/game/bg_lib.c:774-839` | `JKAMP_BG/bg_lib.swift:177` | ported | none | `func atof(_ string: String) -> Double` |
-| `_atof` | `oracle/codemp/game/bg_lib.c:841-907` | `JKAMP_BG/bg_lib.swift:247` | ported | none | `func _atof(_ stringPtr: inout JKAShared.TextCursor) -> Double` |
+| `srand` | `oracle/codemp/game/bg_lib.c:765-767` | `JKAMP_BG/bg_lib.swift:171` | ported | none | `public func srand(_ seed: UInt32)` |
+| `rand` | `oracle/codemp/game/bg_lib.c:769-772` | `JKAMP_BG/bg_lib.swift:182` | ported | none | `public func rand() -> Int32` |
+| `atof` | `oracle/codemp/game/bg_lib.c:774-839` | `JKAMP_BG/bg_lib.swift:199` | ported | none | `func atof(_ string: String) -> Double` |
+| `_atof` | `oracle/codemp/game/bg_lib.c:841-907` | `JKAMP_BG/bg_lib.swift:269` | ported | none | `func _atof(_ stringPtr: inout JKAShared.TextCursor) -> Double` |
 
 1 file-scope variables. The entry is the stub's line for the variable, by rule 3 and rule 6.
 

@@ -626,7 +626,7 @@ public struct GNPC: Hashable, HandleView {
     }
 
     /// Source: oracle/codemp/game/b_public.h:257
-    public var enemyLaggedPos: Slots<Slots<Float>> { Slots(rows: UnsafeMutableRawPointer(self.raw.pointer(to: \.enemyLaggedPos)!), count: 24, stride: 3 * MemoryLayout<Float>.stride) { Slots<Float>(scalars: $0, count: 3) } }
+    public var enemyLaggedPos: Slots<JKAShared.vec3_t> { Slots(vectors: UnsafeMutableRawPointer(self.raw.pointer(to: \.enemyLaggedPos)!), count: 24) }
 
     /// Source: oracle/codemp/game/b_public.h:259
     public var watchTarget: Entity? {

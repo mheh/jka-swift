@@ -40,3 +40,9 @@
 @_disfavoredOverload public func -= (lhs: inout Float, rhs: Int32) { lhs = lhs - rhs }
 @_disfavoredOverload public func *= (lhs: inout Float, rhs: Int32) { lhs = lhs * rhs }
 @_disfavoredOverload public func /= (lhs: inout Float, rhs: Int32) { lhs = lhs / rhs }
+
+// MARK: - Truth values
+
+/// Raven adds a `qboolean` to an `int`, which C reads as 0 or 1, for example `isfog += G_SpawnInt("fognear", "0", &fogn)`.
+/// `@_disfavoredOverload` keeps every `Int32` right side on the stdlib's `Int32` operator.
+@_disfavoredOverload public func += (lhs: inout Int32, rhs: Bool) { lhs += rhs ? 1 : 0 }

@@ -14,10 +14,10 @@ The oracle range is the whole definition, from the return type to the closing br
 | `Wampa_Patrol` | `oracle/codemp/game/NPC_AI_Wampa.c:94-119` | `JKAMP_GameLogic/NPC_AI_Wampa.swift:113` | ported | `crates/mp/game/src/NPC_AI_Wampa.rs:127-162` | `func Wampa_Patrol()` |
 | `Wampa_Move` | `oracle/codemp/game/NPC_AI_Wampa.c:126-169` | `JKAMP_GameLogic/NPC_AI_Wampa.swift:142` | ported | `crates/mp/game/src/NPC_AI_Wampa.rs:167-220` | `func Wampa_Move(_ visible: Bool)` |
 | `Wampa_Slash` | `oracle/codemp/game/NPC_AI_Wampa.c:177-264` | `JKAMP_GameLogic/NPC_AI_Wampa.swift:181` | ported | `crates/mp/game/src/NPC_AI_Wampa.rs:225-389` | `func Wampa_Slash(_ boltIndex: Int32, _ backhand: Bool)` |
-| `Wampa_Attack` | `oracle/codemp/game/NPC_AI_Wampa.c:267-341` | `JKAMP_GameLogic/NPC_AI_Wampa.swift:277` | ported | `crates/mp/game/src/NPC_AI_Wampa.rs:394-502` | `func Wampa_Attack(_ distance: Float, _ doCharge: Bool)` |
-| `Wampa_Combat` | `oracle/codemp/game/NPC_AI_Wampa.c:344-425` | `JKAMP_GameLogic/NPC_AI_Wampa.swift:358` | ported | `crates/mp/game/src/NPC_AI_Wampa.rs:507-604` | `func Wampa_Combat()` |
-| `NPC_Wampa_Pain` | `oracle/codemp/game/NPC_AI_Wampa.c:433-499` | `JKAMP_GameLogic/NPC_AI_Wampa.swift:412` | ported | `crates/mp/game/src/NPC_AI_Wampa.rs:609-745` | `func NPC_Wampa_Pain(_ `self`: Entity, _ attacker: Entity, _ damage: Int32)` |
-| `NPC_BSWampa_Default` | `oracle/codemp/game/NPC_AI_Wampa.c:506-654` | `JKAMP_GameLogic/NPC_AI_Wampa.swift:466` | ported | `crates/mp/game/src/NPC_AI_Wampa.rs:750-974` | `func NPC_BSWampa_Default()` |
+| `Wampa_Attack` | `oracle/codemp/game/NPC_AI_Wampa.c:267-341` | `JKAMP_GameLogic/NPC_AI_Wampa.swift:271` | ported | `crates/mp/game/src/NPC_AI_Wampa.rs:394-502` | `func Wampa_Attack(_ distance: Float, _ doCharge: Bool)` |
+| `Wampa_Combat` | `oracle/codemp/game/NPC_AI_Wampa.c:344-425` | `JKAMP_GameLogic/NPC_AI_Wampa.swift:349` | ported | `crates/mp/game/src/NPC_AI_Wampa.rs:507-604` | `func Wampa_Combat()` |
+| `NPC_Wampa_Pain` | `oracle/codemp/game/NPC_AI_Wampa.c:433-499` | `JKAMP_GameLogic/NPC_AI_Wampa.swift:429` | ported | `crates/mp/game/src/NPC_AI_Wampa.rs:609-745` | `func NPC_Wampa_Pain(_ `self`: Entity, _ attacker: Entity, _ damage: Int32)` |
+| `NPC_BSWampa_Default` | `oracle/codemp/game/NPC_AI_Wampa.c:506-654` | `JKAMP_GameLogic/NPC_AI_Wampa.swift:483` | ported | `crates/mp/game/src/NPC_AI_Wampa.rs:750-974` | `func NPC_BSWampa_Default()` |
 
 1 file-scope variables. The entry is the stub's line for the variable, by rule 3 and rule 6.
 

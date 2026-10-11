@@ -4,7 +4,7 @@ internal import CJKAMP_Game
 import JKAMP
 import JKAShared
 
-/// The C types of the stored functions, one per signature, and the address compare Raven's `==` did.
+/// The C types of the stored functions, one per signature, and the address compares Raven's `==` and `!=` did.
 public typealias EntityBlocked = @convention(c) (OpaquePointer?, OpaquePointer?) -> Void
 
 public typealias EntityDie = @convention(c) (OpaquePointer?, OpaquePointer?, OpaquePointer?, Int32, Int32) -> Void
@@ -29,6 +29,10 @@ public func == (lhs: EntityDie?, rhs: EntityDie?) -> Bool {
         == withUnsafeBytes(of: EntityDieBits(function: rhs)) { $0.load(as: UInt.self) }
 }
 
+public func != (lhs: EntityDie?, rhs: EntityDie?) -> Bool {
+    return !(lhs == rhs)
+}
+
 private struct EntityPainBits { var function: EntityPain? }
 
 public func == (lhs: EntityPain?, rhs: EntityPain?) -> Bool {
@@ -37,10 +41,18 @@ public func == (lhs: EntityPain?, rhs: EntityPain?) -> Bool {
         == withUnsafeBytes(of: EntityPainBits(function: rhs)) { $0.load(as: UInt.self) }
 }
 
+public func != (lhs: EntityPain?, rhs: EntityPain?) -> Bool {
+    return !(lhs == rhs)
+}
+
 private struct EntityTouchBits { var function: EntityTouch? }
 
 public func == (lhs: EntityTouch?, rhs: EntityTouch?) -> Bool {
     precondition(MemoryLayout<EntityTouchBits>.size == MemoryLayout<UInt>.size)
     return withUnsafeBytes(of: EntityTouchBits(function: lhs)) { $0.load(as: UInt.self) }
         == withUnsafeBytes(of: EntityTouchBits(function: rhs)) { $0.load(as: UInt.self) }
+}
+
+public func != (lhs: EntityTouch?, rhs: EntityTouch?) -> Bool {
+    return !(lhs == rhs)
 }

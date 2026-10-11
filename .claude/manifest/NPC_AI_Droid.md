@@ -14,10 +14,10 @@ The oracle range is the whole definition, from the return type to the closing br
 | `Droid_Run` | `oracle/codemp/game/NPC_AI_Droid.c:175-200` | `JKAMP_GameLogic/NPC_AI_Droid.swift:160` | ported | `crates/mp/game/src/NPC_AI_Droid.rs:264-298` | `func Droid_Run()` |
 | `Droid_Spin` | `oracle/codemp/game/NPC_AI_Droid.c:207-266` | `JKAMP_GameLogic/NPC_AI_Droid.swift:189` | ported | `crates/mp/game/src/NPC_AI_Droid.rs:303-401` | `func Droid_Spin()` |
 | `NPC_Droid_Pain` | `oracle/codemp/game/NPC_AI_Droid.c:273-434` | `JKAMP_GameLogic/NPC_AI_Droid.swift:241` | ported | `crates/mp/game/src/NPC_AI_Droid.rs:406-665` | `func NPC_Droid_Pain(_ `self`: Entity, _ attacker: Entity, _ damage: Int32)` |
-| `Droid_Pain` | `oracle/codemp/game/NPC_AI_Droid.c:442-448` | `JKAMP_GameLogic/NPC_AI_Droid.swift:386` | ported | `crates/mp/game/src/NPC_AI_Droid.rs:670-684` | `func Droid_Pain()` |
-| `NPC_Mouse_Precache` | `oracle/codemp/game/NPC_AI_Droid.c:455-467` | `JKAMP_GameLogic/NPC_AI_Droid.swift:400` | ported | `crates/mp/game/src/NPC_AI_Droid.rs:689-698` | `func NPC_Mouse_Precache()` |
-| `NPC_R5D2_Precache` | `oracle/codemp/game/NPC_AI_Droid.c:474-490` | `JKAMP_GameLogic/NPC_AI_Droid.swift:422` | ported | `crates/mp/game/src/NPC_AI_Droid.rs:703-716` | `func NPC_R5D2_Precache()` |
-| `NPC_R2D2_Precache` | `oracle/codemp/game/NPC_AI_Droid.c:497-513` | `JKAMP_GameLogic/NPC_AI_Droid.swift:448` | ported | `crates/mp/game/src/NPC_AI_Droid.rs:721-734` | `func NPC_R2D2_Precache()` |
-| `NPC_Gonk_Precache` | `oracle/codemp/game/NPC_AI_Droid.c:520-530` | `JKAMP_GameLogic/NPC_AI_Droid.swift:474` | ported | `crates/mp/game/src/NPC_AI_Droid.rs:739-749` | `func NPC_Gonk_Precache()` |
-| `NPC_Protocol_Precache` | `oracle/codemp/game/NPC_AI_Droid.c:537-541` | `JKAMP_GameLogic/NPC_AI_Droid.swift:493` | ported | `crates/mp/game/src/NPC_AI_Droid.rs:754-758` | `func NPC_Protocol_Precache()` |
-| `NPC_BSDroid_Default` | `oracle/codemp/game/NPC_AI_Droid.c:597-621` | `JKAMP_GameLogic/NPC_AI_Droid.swift:506` | ported | `crates/mp/game/src/NPC_AI_Droid.rs:763-784` | `func NPC_BSDroid_Default()` |
+| `Droid_Pain` | `oracle/codemp/game/NPC_AI_Droid.c:442-448` | `JKAMP_GameLogic/NPC_AI_Droid.swift:380` | ported | `crates/mp/game/src/NPC_AI_Droid.rs:670-684` | `func Droid_Pain()` |
+| `NPC_Mouse_Precache` | `oracle/codemp/game/NPC_AI_Droid.c:455-467` | `JKAMP_GameLogic/NPC_AI_Droid.swift:394` | ported | `crates/mp/game/src/NPC_AI_Droid.rs:689-698` | `func NPC_Mouse_Precache()` |
+| `NPC_R5D2_Precache` | `oracle/codemp/game/NPC_AI_Droid.c:474-490` | `JKAMP_GameLogic/NPC_AI_Droid.swift:416` | ported | `crates/mp/game/src/NPC_AI_Droid.rs:703-716` | `func NPC_R5D2_Precache()` |
+| `NPC_R2D2_Precache` | `oracle/codemp/game/NPC_AI_Droid.c:497-513` | `JKAMP_GameLogic/NPC_AI_Droid.swift:442` | ported | `crates/mp/game/src/NPC_AI_Droid.rs:721-734` | `func NPC_R2D2_Precache()` |
+| `NPC_Gonk_Precache` | `oracle/codemp/game/NPC_AI_Droid.c:520-530` | `JKAMP_GameLogic/NPC_AI_Droid.swift:468` | ported | `crates/mp/game/src/NPC_AI_Droid.rs:739-749` | `func NPC_Gonk_Precache()` |
+| `NPC_Protocol_Precache` | `oracle/codemp/game/NPC_AI_Droid.c:537-541` | `JKAMP_GameLogic/NPC_AI_Droid.swift:487` | ported | `crates/mp/game/src/NPC_AI_Droid.rs:754-758` | `func NPC_Protocol_Precache()` |
+| `NPC_BSDroid_Default` | `oracle/codemp/game/NPC_AI_Droid.c:597-621` | `JKAMP_GameLogic/NPC_AI_Droid.swift:500` | ported | `crates/mp/game/src/NPC_AI_Droid.rs:763-784` | `func NPC_BSDroid_Default()` |

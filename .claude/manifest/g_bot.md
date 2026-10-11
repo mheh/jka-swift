@@ -9,29 +9,29 @@ The oracle range is the whole definition, from the return type to the closing br
 |---|---|---|---|---|---|
 | `trap_Cvar_VariableValue` | `oracle/codemp/game/g_bot.c:36-41` | `JKAMP_GameLogic/g_bot.swift:47` | ported | `crates/mp/game/src/g_bot.rs:34-37` | `func trap_Cvar_VariableValue(_ var_name: String) -> Float` |
 | `G_ParseInfos` | `oracle/codemp/game/g_bot.c:50-99` | `JKAMP_GameLogic/g_bot.swift:62` | ported | `crates/mp/game/src/g_bot.rs:42-42` | `func G_ParseInfos(_ buf: inout JKAShared.CharBuf, _ max: Int32, _ infos: inout ArraySlice<String>) -> Int32` |
-| `G_LoadArenasFromFile` static | `oracle/codemp/game/g_bot.c:106-127` | `JKAMP_GameLogic/g_bot.swift:128` | ported | `crates/mp/game/src/g_bot.rs:98-131` | `private func G_LoadArenasFromFile(_ filename: String)` |
-| `G_GetMapTypeBits` | `oracle/codemp/game/g_bot.c:129-169` | `JKAMP_GameLogic/g_bot.swift:154` | ported | `crates/mp/game/src/g_bot.rs:136-176` | `func G_GetMapTypeBits(_ type: String?) -> Int32` |
-| `G_DoesMapSupportGametype` | `oracle/codemp/game/g_bot.c:171-213` | `JKAMP_GameLogic/g_bot.swift:197` | ported | `crates/mp/game/src/g_bot.rs:181-209` | `func G_DoesMapSupportGametype(_ mapname: String, _ gametype: Int32) -> Bool` |
-| `G_RefreshNextMap` | `oracle/codemp/game/g_bot.c:216-288` | `JKAMP_GameLogic/g_bot.swift:239` | ported | `crates/mp/game/src/g_bot.rs:214-285` | `func G_RefreshNextMap(_ gametype: Int32, _ forced: Bool) -> String?` |
-| `G_LoadArenas` static | `oracle/codemp/game/g_bot.c:295-321` | `JKAMP_GameLogic/g_bot.swift:320` | ported | `crates/mp/game/src/g_bot.rs:290-313` | `private func G_LoadArenas()` |
-| `G_GetArenaInfoByMap` | `oracle/codemp/game/g_bot.c:329-339` | `JKAMP_GameLogic/g_bot.swift:366` | ported | `crates/mp/game/src/g_bot.rs:318-329` | `func G_GetArenaInfoByMap(_ map: String) -> String?` |
-| `G_AddRandomBot` | `oracle/codemp/game/g_bot.c:373-454` | `JKAMP_GameLogic/g_bot.swift:388` | ported | `crates/mp/game/src/g_bot.rs:334-419` | `func G_AddRandomBot(_ team: Int32)` |
-| `G_RemoveRandomBot` | `oracle/codemp/game/g_bot.c:461-492` | `JKAMP_GameLogic/g_bot.swift:502` | ported | `crates/mp/game/src/g_bot.rs:424-451` | `func G_RemoveRandomBot(_ team: Int32) -> Int32` |
-| `G_CountHumanPlayers` | `oracle/codemp/game/g_bot.c:499-518` | `JKAMP_GameLogic/g_bot.swift:548` | ported | `crates/mp/game/src/g_bot.rs:456-472` | `func G_CountHumanPlayers(_ team: Int32) -> Int32` |
-| `G_CountBotPlayers` | `oracle/codemp/game/g_bot.c:525-562` | `JKAMP_GameLogic/g_bot.swift:585` | ported | `crates/mp/game/src/g_bot.rs:477-506` | `func G_CountBotPlayers(_ team: Int32) -> Int32` |
-| `G_CheckMinimumPlayers` | `oracle/codemp/game/g_bot.c:569-690` | `JKAMP_GameLogic/g_bot.swift:643` | ported | `crates/mp/game/src/g_bot.rs:514-547` | `func G_CheckMinimumPlayers()` |
-| `G_CheckBotSpawn` | `oracle/codemp/game/g_bot.c:697-719` | `JKAMP_GameLogic/g_bot.swift:777` | ported | `crates/mp/game/src/g_bot.rs:552-566` | `func G_CheckBotSpawn()` |
-| `AddBotToSpawnQueue` static | `oracle/codemp/game/g_bot.c:727-740` | `JKAMP_GameLogic/g_bot.swift:813` | ported | `crates/mp/game/src/g_bot.rs:571-588` | `private func AddBotToSpawnQueue(_ clientNum: Int32, _ delay: Int32)` |
-| `G_RemoveQueuedBotBegin` | `oracle/codemp/game/g_bot.c:751-760` | `JKAMP_GameLogic/g_bot.swift:841` | ported | `crates/mp/game/src/g_bot.rs:593-600` | `func G_RemoveQueuedBotBegin(_ clientNum: Int32)` |
-| `G_BotConnect` | `oracle/codemp/game/g_bot.c:768-784` | `JKAMP_GameLogic/g_bot.swift:862` | ported | `crates/mp/game/src/g_bot.rs:605-631` | `func G_BotConnect(_ clientNum: Int32, _ restart: Bool) -> Bool` |
-| `G_AddBot` static | `oracle/codemp/game/g_bot.c:792-1033` | `JKAMP_GameLogic/g_bot.swift:891` | ported | `crates/mp/game/src/g_bot.rs:636-851` | `private func G_AddBot(_ name: String, _ skill: Float, _ team: String, _ delay: Int32, _ altname: String)` |
-| `Svcmd_AddBot_f` | `oracle/codemp/game/g_bot.c:1041-1093` | `JKAMP_GameLogic/g_bot.swift:1119` | ported | `crates/mp/game/src/g_bot.rs:856-900` | `func Svcmd_AddBot_f()` |
-| `Svcmd_BotList_f` | `oracle/codemp/game/g_bot.c:1100-1127` | `JKAMP_GameLogic/g_bot.swift:1178` | ported | `crates/mp/game/src/g_bot.rs:905-935` | `func Svcmd_BotList_f()` |
-| `G_LoadBotsFromFile` static | `oracle/codemp/game/g_bot.c:1194-1215` | `JKAMP_GameLogic/g_bot.swift:1217` | ported | `crates/mp/game/src/g_bot.rs:940-973` | `private func G_LoadBotsFromFile(_ filename: String)` |
-| `G_LoadBots` static | `oracle/codemp/game/g_bot.c:1222-1256` | `JKAMP_GameLogic/g_bot.swift:1250` | ported | `crates/mp/game/src/g_bot.rs:978-1011` | `private func G_LoadBots()` |
-| `G_GetBotInfoByNumber` | `oracle/codemp/game/g_bot.c:1265-1271` | `JKAMP_GameLogic/g_bot.swift:1302` | ported | `crates/mp/game/src/g_bot.rs:1016-1027` | `func G_GetBotInfoByNumber(_ num: Int32) -> String?` |
-| `G_GetBotInfoByName` | `oracle/codemp/game/g_bot.c:1279-1291` | `JKAMP_GameLogic/g_bot.swift:1318` | ported | `crates/mp/game/src/g_bot.rs:1032-1040` | `func G_GetBotInfoByName(_ name: String) -> String?` |
-| `G_InitBots` | `oracle/codemp/game/g_bot.c:1302-1311` | `JKAMP_GameLogic/g_bot.swift:1342` | ported | `crates/mp/game/src/g_bot.rs:1045-1060` | `func G_InitBots(_ restart: Bool)` |
+| `G_LoadArenasFromFile` static | `oracle/codemp/game/g_bot.c:106-127` | `JKAMP_GameLogic/g_bot.swift:120` | ported | `crates/mp/game/src/g_bot.rs:98-131` | `private func G_LoadArenasFromFile(_ filename: String)` |
+| `G_GetMapTypeBits` | `oracle/codemp/game/g_bot.c:129-169` | `JKAMP_GameLogic/g_bot.swift:144` | ported | `crates/mp/game/src/g_bot.rs:136-176` | `func G_GetMapTypeBits(_ type: String?) -> Int32` |
+| `G_DoesMapSupportGametype` | `oracle/codemp/game/g_bot.c:171-213` | `JKAMP_GameLogic/g_bot.swift:187` | ported | `crates/mp/game/src/g_bot.rs:181-209` | `func G_DoesMapSupportGametype(_ mapname: String, _ gametype: Int32) -> Bool` |
+| `G_RefreshNextMap` | `oracle/codemp/game/g_bot.c:216-288` | `JKAMP_GameLogic/g_bot.swift:229` | ported | `crates/mp/game/src/g_bot.rs:214-285` | `func G_RefreshNextMap(_ gametype: Int32, _ forced: Bool) -> String?` |
+| `G_LoadArenas` static | `oracle/codemp/game/g_bot.c:295-321` | `JKAMP_GameLogic/g_bot.swift:308` | ported | `crates/mp/game/src/g_bot.rs:290-313` | `private func G_LoadArenas()` |
+| `G_GetArenaInfoByMap` | `oracle/codemp/game/g_bot.c:329-339` | `JKAMP_GameLogic/g_bot.swift:355` | ported | `crates/mp/game/src/g_bot.rs:318-329` | `func G_GetArenaInfoByMap(_ map: String) -> String?` |
+| `G_AddRandomBot` | `oracle/codemp/game/g_bot.c:373-454` | `JKAMP_GameLogic/g_bot.swift:377` | ported | `crates/mp/game/src/g_bot.rs:334-419` | `func G_AddRandomBot(_ team: Int32)` |
+| `G_RemoveRandomBot` | `oracle/codemp/game/g_bot.c:461-492` | `JKAMP_GameLogic/g_bot.swift:487` | ported | `crates/mp/game/src/g_bot.rs:424-451` | `func G_RemoveRandomBot(_ team: Int32) -> Int32` |
+| `G_CountHumanPlayers` | `oracle/codemp/game/g_bot.c:499-518` | `JKAMP_GameLogic/g_bot.swift:531` | ported | `crates/mp/game/src/g_bot.rs:456-472` | `func G_CountHumanPlayers(_ team: Int32) -> Int32` |
+| `G_CountBotPlayers` | `oracle/codemp/game/g_bot.c:525-562` | `JKAMP_GameLogic/g_bot.swift:566` | ported | `crates/mp/game/src/g_bot.rs:477-506` | `func G_CountBotPlayers(_ team: Int32) -> Int32` |
+| `G_CheckMinimumPlayers` | `oracle/codemp/game/g_bot.c:569-690` | `JKAMP_GameLogic/g_bot.swift:626` | ported | `crates/mp/game/src/g_bot.rs:514-547` | `func G_CheckMinimumPlayers()` |
+| `G_CheckBotSpawn` | `oracle/codemp/game/g_bot.c:697-719` | `JKAMP_GameLogic/g_bot.swift:755` | ported | `crates/mp/game/src/g_bot.rs:552-566` | `func G_CheckBotSpawn()` |
+| `AddBotToSpawnQueue` static | `oracle/codemp/game/g_bot.c:727-740` | `JKAMP_GameLogic/g_bot.swift:791` | ported | `crates/mp/game/src/g_bot.rs:571-588` | `private func AddBotToSpawnQueue(_ clientNum: Int32, _ delay: Int32)` |
+| `G_RemoveQueuedBotBegin` | `oracle/codemp/game/g_bot.c:751-760` | `JKAMP_GameLogic/g_bot.swift:819` | ported | `crates/mp/game/src/g_bot.rs:593-600` | `func G_RemoveQueuedBotBegin(_ clientNum: Int32)` |
+| `G_BotConnect` | `oracle/codemp/game/g_bot.c:768-784` | `JKAMP_GameLogic/g_bot.swift:840` | ported | `crates/mp/game/src/g_bot.rs:605-631` | `func G_BotConnect(_ clientNum: Int32, _ restart: Bool) -> Bool` |
+| `G_AddBot` static | `oracle/codemp/game/g_bot.c:792-1033` | `JKAMP_GameLogic/g_bot.swift:869` | ported | `crates/mp/game/src/g_bot.rs:636-851` | `private func G_AddBot(_ name: String, _ skill: Float, _ team: String, _ delay: Int32, _ altname: String)` |
+| `Svcmd_AddBot_f` | `oracle/codemp/game/g_bot.c:1041-1093` | `JKAMP_GameLogic/g_bot.swift:1091` | ported | `crates/mp/game/src/g_bot.rs:856-900` | `func Svcmd_AddBot_f()` |
+| `Svcmd_BotList_f` | `oracle/codemp/game/g_bot.c:1100-1127` | `JKAMP_GameLogic/g_bot.swift:1150` | ported | `crates/mp/game/src/g_bot.rs:905-935` | `func Svcmd_BotList_f()` |
+| `G_LoadBotsFromFile` static | `oracle/codemp/game/g_bot.c:1194-1215` | `JKAMP_GameLogic/g_bot.swift:1189` | ported | `crates/mp/game/src/g_bot.rs:940-973` | `private func G_LoadBotsFromFile(_ filename: String)` |
+| `G_LoadBots` static | `oracle/codemp/game/g_bot.c:1222-1256` | `JKAMP_GameLogic/g_bot.swift:1220` | ported | `crates/mp/game/src/g_bot.rs:978-1011` | `private func G_LoadBots()` |
+| `G_GetBotInfoByNumber` | `oracle/codemp/game/g_bot.c:1265-1271` | `JKAMP_GameLogic/g_bot.swift:1275` | ported | `crates/mp/game/src/g_bot.rs:1016-1027` | `func G_GetBotInfoByNumber(_ num: Int32) -> String?` |
+| `G_GetBotInfoByName` | `oracle/codemp/game/g_bot.c:1279-1291` | `JKAMP_GameLogic/g_bot.swift:1291` | ported | `crates/mp/game/src/g_bot.rs:1032-1040` | `func G_GetBotInfoByName(_ name: String) -> String?` |
+| `G_InitBots` | `oracle/codemp/game/g_bot.c:1302-1311` | `JKAMP_GameLogic/g_bot.swift:1315` | ported | `crates/mp/game/src/g_bot.rs:1045-1060` | `func G_InitBots(_ restart: Bool)` |
 
 6 file-scope variables. The entry is the stub's line for the variable, by rule 3 and rule 6.
 

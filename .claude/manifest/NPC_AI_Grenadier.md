@@ -17,7 +17,7 @@ The oracle range is the whole definition, from the return type to the closing br
 | `Grenadier_CheckFireState` static | `oracle/codemp/game/NPC_AI_Grenadier.c:399-439` | `JKAMP_GameLogic/NPC_AI_Grenadier.swift:350` | ported | `crates/mp/game/src/NPC_AI_Grenadier.rs:537-569` | `private func Grenadier_CheckFireState()` |
 | `Grenadier_EvaluateShot` | `oracle/codemp/game/NPC_AI_Grenadier.c:441-453` | `JKAMP_GameLogic/NPC_AI_Grenadier.swift:392` | ported | `crates/mp/game/src/NPC_AI_Grenadier.rs:574-603` | `func Grenadier_EvaluateShot(_ hit: Int32) -> Bool` |
 | `NPC_BSGrenadier_Attack` | `oracle/codemp/game/NPC_AI_Grenadier.c:461-662` | `JKAMP_GameLogic/NPC_AI_Grenadier.swift:405` | ported | `crates/mp/game/src/NPC_AI_Grenadier.rs:608-884` | `func NPC_BSGrenadier_Attack()` |
-| `NPC_BSGrenadier_Default` | `oracle/codemp/game/NPC_AI_Grenadier.c:664-679` | `JKAMP_GameLogic/NPC_AI_Grenadier.swift:583` | ported | `crates/mp/game/src/NPC_AI_Grenadier.rs:889-911` | `func NPC_BSGrenadier_Default()` |
+| `NPC_BSGrenadier_Default` | `oracle/codemp/game/NPC_AI_Grenadier.c:664-679` | `JKAMP_GameLogic/NPC_AI_Grenadier.swift:582` | ported | `crates/mp/game/src/NPC_AI_Grenadier.rs:889-911` | `func NPC_BSGrenadier_Default()` |
 
 6 file-scope variables. The entry is the stub's line for the variable, by rule 3 and rule 6.
 

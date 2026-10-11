@@ -12,12 +12,12 @@ The oracle range is the whole definition, from the return type to the closing br
 | `BodyRemovalPadTime` | `oracle/codemp/game/NPC.c:233-312` | `JKAMP_GameLogic/NPC.swift:230` | ported | `crates/mp/game/src/npc_c.rs:283-310` | `func BodyRemovalPadTime(_ ent: Entity) -> Int32` |
 | `NPC_RemoveBodyEffect` static | `oracle/codemp/game/NPC.c:323-378` | `JKAMP_GameLogic/NPC.swift:299` | ported | `crates/mp/game/src/npc_c.rs:315-330` | `private func NPC_RemoveBodyEffect()` |
 | `pitch_roll_for_slope` | `oracle/codemp/game/NPC.c:395-470` | `JKAMP_GameLogic/NPC.swift:345` | ported | `crates/mp/game/src/npc_c.rs:339-466` | `func pitch_roll_for_slope(_ forwhom: Entity, _ pass_slope: JKAShared.vec3_t?)` |
-| `DeadThink` static | `oracle/codemp/game/NPC.c:478-607` | `JKAMP_GameLogic/NPC.swift:448` | ported | `crates/mp/game/src/npc_c.rs:471-661` | `private func DeadThink()` |
-| `SetNPCGlobals` | `oracle/codemp/game/NPC.c:617-623` | `JKAMP_GameLogic/NPC.swift:577` | ported | `crates/mp/game/src/npc_c.rs:666-676` | `func SetNPCGlobals(_ ent: Entity)` |
-| `SaveNPCGlobals` | `oracle/codemp/game/NPC.c:630-636` | `JKAMP_GameLogic/NPC.swift:585` | ported | `crates/mp/game/src/npc_c.rs:681-686` | `func SaveNPCGlobals()` |
-| `RestoreNPCGlobals` | `oracle/codemp/game/NPC.c:638-644` | `JKAMP_GameLogic/NPC.swift:593` | ported | `crates/mp/game/src/npc_c.rs:691-696` | `func RestoreNPCGlobals()` |
-| `ClearNPCGlobals` | `oracle/codemp/game/NPC.c:647-652` | `JKAMP_GameLogic/NPC.swift:602` | ported | `crates/mp/game/src/npc_c.rs:702-706` | `func ClearNPCGlobals()` |
-| `NPC_ShowDebugInfo` | `oracle/codemp/game/NPC.c:664-681` | `JKAMP_GameLogic/NPC.swift:609` | ported | `crates/mp/game/src/npc_c.rs:711-751` | `func NPC_ShowDebugInfo()` |
+| `DeadThink` static | `oracle/codemp/game/NPC.c:478-607` | `JKAMP_GameLogic/NPC.swift:444` | ported | `crates/mp/game/src/npc_c.rs:471-661` | `private func DeadThink()` |
+| `SetNPCGlobals` | `oracle/codemp/game/NPC.c:617-623` | `JKAMP_GameLogic/NPC.swift:572` | ported | `crates/mp/game/src/npc_c.rs:666-676` | `func SetNPCGlobals(_ ent: Entity)` |
+| `SaveNPCGlobals` | `oracle/codemp/game/NPC.c:630-636` | `JKAMP_GameLogic/NPC.swift:580` | ported | `crates/mp/game/src/npc_c.rs:681-686` | `func SaveNPCGlobals()` |
+| `RestoreNPCGlobals` | `oracle/codemp/game/NPC.c:638-644` | `JKAMP_GameLogic/NPC.swift:588` | ported | `crates/mp/game/src/npc_c.rs:691-696` | `func RestoreNPCGlobals()` |
+| `ClearNPCGlobals` | `oracle/codemp/game/NPC.c:647-652` | `JKAMP_GameLogic/NPC.swift:597` | ported | `crates/mp/game/src/npc_c.rs:702-706` | `func ClearNPCGlobals()` |
+| `NPC_ShowDebugInfo` | `oracle/codemp/game/NPC.c:664-681` | `JKAMP_GameLogic/NPC.swift:604` | ported | `crates/mp/game/src/npc_c.rs:711-751` | `func NPC_ShowDebugInfo()` |
 | `NPC_ApplyScriptFlags` | `oracle/codemp/game/NPC.c:683-735` | `JKAMP_GameLogic/NPC.swift:622` | ported | `crates/mp/game/src/npc_c.rs:756-811` | `func NPC_ApplyScriptFlags()` |
 | `NPC_HandleAIFlags` | `oracle/codemp/game/NPC.c:738-833` | `JKAMP_GameLogic/NPC.swift:665` | ported | `crates/mp/game/src/npc_c.rs:816-871` | `func NPC_HandleAIFlags()` |
 | `NPC_AvoidWallsAndCliffs` | `oracle/codemp/game/NPC.c:835-838` | `JKAMP_GameLogic/NPC.swift:759` | ported | `crates/mp/game/src/npc_c.rs:878-878` | `func NPC_AvoidWallsAndCliffs()` |

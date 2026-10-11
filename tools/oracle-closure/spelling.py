@@ -223,6 +223,9 @@ class Types:
             if name and name in self.views.views:
                 return Answer(self.views.qualified_view(name, target), "views")
             return None
+        # A `vec3_t` element is one vector, so the test stands above the array arm, which sees only the canonical `float[3]`.
+        if self.views.is_vec3(t):
+            return Answer("JKAShared.vec3_t", "vectors")
         if canonical.kind == TypeKind.CONSTANTARRAY:
             inner = self.views.element_type(t)
             if inner.get_canonical().kind == TypeKind.CHAR_S:
@@ -231,8 +234,6 @@ class Types:
                 return Answer("JKAShared.vec3_t", "vectors")
             # A row of the outer array, whose own element type the accessor asks for in turn.
             return Answer(None, "rows")
-        if self.views.is_vec3(t):
-            return Answer("JKAShared.vec3_t", "vectors")
         swift = self.scalar(t, target)
         if swift is None:
             return None
@@ -254,6 +255,9 @@ class Types:
         if facts.ruled == "key_path":
             # Raven's field offset, `FOFS(classname)`, is the key path to the entity's text field, `\.classname`.
             return Answer(f"KeyPath<{self.views.qualified_view('gentity_t', TARGET)}, String?>", "bare")
+        if facts.ruled == "int_value":
+            # A qsort comparator reads its `const void *` as `*(int *)`, so the value crosses, and the hand qsort hands it over.
+            return Answer("Int32", "bare")
         if facts.ruled == "int_array":
             # The body only reads the values, and Raven's callers pass NULL with a count of zero, so the array crosses by value as an optional.
             return Answer("[Int32]?", "int_array")

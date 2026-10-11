@@ -106,8 +106,8 @@ public struct SaberTrail: Hashable, HandleView {
     public var haveOldPos: Slots<Bool> { Slots(flags: UnsafeMutableRawPointer(self.raw.pointer(to: \.haveOldPos)!), count: 2) }
 
     /// Source: oracle/codemp/game/q_shared.h:647
-    public var oldPos: Slots<Slots<Float>> { Slots(rows: UnsafeMutableRawPointer(self.raw.pointer(to: \.oldPos)!), count: 2, stride: 3 * MemoryLayout<Float>.stride) { Slots<Float>(scalars: $0, count: 3) } }
+    public var oldPos: Slots<JKAShared.vec3_t> { Slots(vectors: UnsafeMutableRawPointer(self.raw.pointer(to: \.oldPos)!), count: 2) }
 
     /// Source: oracle/codemp/game/q_shared.h:648
-    public var oldNormal: Slots<Slots<Float>> { Slots(rows: UnsafeMutableRawPointer(self.raw.pointer(to: \.oldNormal)!), count: 2, stride: 3 * MemoryLayout<Float>.stride) { Slots<Float>(scalars: $0, count: 3) } }
+    public var oldNormal: Slots<JKAShared.vec3_t> { Slots(vectors: UnsafeMutableRawPointer(self.raw.pointer(to: \.oldNormal)!), count: 2) }
 }

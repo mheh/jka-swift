@@ -535,6 +535,9 @@ class Statements:
                     if op == "--":
                         raise Hole(f"Raven steps the cursor `{self.unwrap(operand).spelling}` back, and the TextCursor has no backward step.")
                     return [f"{pad}{self.expr(operand)}.advance()" + self.trailing(cur)]
+                if self.narrow_element(operand) is not None:
+                    # The narrow element wraps as C's truncation does.
+                    return [f"{pad}{self.narrow_element(operand)} &{op[0]}= 1" + self.trailing(cur)]
                 if self.unwrap(operand).kind == CursorKind.DECL_REF_EXPR and self.unwrap(operand).spelling in self.narrow_locals:
                     # The narrow local wraps as C's truncation does.
                     return [f"{pad}{swift_name(self.unwrap(operand).spelling)} &{op[0]}= 1" + self.trailing(cur)]
@@ -550,6 +553,11 @@ class Statements:
                 return self.statement(left, depth) + self.statement(right, depth)
             if op in ASSIGN_OPS:
                 left, right = list(cur.get_children())
+                if op == "=" and self.unwrap(left).kind == CursorKind.DECL_REF_EXPR and self.unwrap(left).spelling in self.charbuf_allocs \
+                        and self.is_null(right):
+                    # No read reaches Raven's NULL before the allocation, so the store drops under one comment.
+                    raven = " ".join(self.bytes[cur.extent.start.offset:cur.extent.end.offset].decode("utf-8", "replace").split())
+                    return roled([f"{pad}// Raven wrote `{raven}` here, and no read reaches it before the allocation."], "comment")
                 if op == "=" and self.unwrap(left).kind == CursorKind.DECL_REF_EXPR and self.unwrap(left).spelling in self.charbuf_allocs:
                     # The local is already a CharBuf of the size, so the store keeps only the call, for the pool's count.
                     return [f"{pad}_ = {self.expr(self.uncast(right))}" + self.trailing(cur)]
@@ -680,6 +688,13 @@ class Statements:
                 if op == "=" and self.slots_source(right):
                     raven = self.bytes[cur.extent.start.offset:cur.extent.end.offset].decode("utf-8", "replace")
                     raise Hole(f"Raven stores `{raven}`, and Swift holds the source as a Slots where the target takes one record. A Slots ruling is due.")
+                if self.narrow_element(left) is not None:
+                    # C computes in int and truncates into the narrow element at the store.
+                    slot = self.narrow_element(left)
+                    narrow = self.narrow_arrays[self.strip(list(self.unwrap(left).get_children())[0]).spelling]
+                    if op == "=":
+                        return [f"{pad}{slot} = {self.converted(right, narrow)}" + self.trailing(cur)]
+                    return [f"{pad}{slot} = {narrow}(truncatingIfNeeded: Int32({slot}) {op[:-1]} {self.converted(right, 'Int32')})" + self.trailing(cur)]
                 if self.unwrap(left).kind == CursorKind.DECL_REF_EXPR and self.unwrap(left).spelling in self.narrow_locals:
                     # C computes in int and truncates into the narrow local at the store.
                     name = swift_name(self.unwrap(left).spelling)

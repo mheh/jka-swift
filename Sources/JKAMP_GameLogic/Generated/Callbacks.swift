@@ -433,6 +433,9 @@ enum Touch {
     /// Source: oracle/codemp/game/g_combat.c:3387
     static let LimbTouch: EntityTouch = { JKAMP_GameLogic.LimbTouch(Entity(handle: $0!), Entity(handle: $1!), JKAMP.Trace(handle: $2!)) }
 
+    /// Source: oracle/codemp/game/NPC_reactions.c:537
+    static let NPC_Touch: EntityTouch = { JKAMP_GameLogic.NPC_Touch(Entity(handle: $0!), Entity(handle: $1!), JKAMP.Trace(handle: $2!)) }
+
     /// Source: oracle/codemp/game/w_saber.c:6229
     static let SaberBounceSound: EntityTouch = { JKAMP_GameLogic.SaberBounceSound(Entity(handle: $0!), Entity(handle: $1!), JKAMP.Trace(handle: $2!)) }
 
@@ -574,8 +577,47 @@ enum Pain {
     /// Source: oracle/codemp/game/NPC_AI_Atst.c:119
     static let NPC_ATST_Pain: EntityPain = { JKAMP_GameLogic.NPC_ATST_Pain(Entity(handle: $0!), Entity(handle: $1!), $2) }
 
+    /// Source: oracle/codemp/game/NPC_AI_Droid.c:273
+    static let NPC_Droid_Pain: EntityPain = { JKAMP_GameLogic.NPC_Droid_Pain(Entity(handle: $0!), Entity(handle: $1!), $2) }
+
+    /// Source: oracle/codemp/game/NPC_AI_GalakMech.c:238
+    static let NPC_GM_Pain: EntityPain = { JKAMP_GameLogic.NPC_GM_Pain(Entity(handle: $0!), Entity(handle: $1!), $2) }
+
+    /// Source: oracle/codemp/game/NPC_AI_Howler.c:178
+    static let NPC_Howler_Pain: EntityPain = { JKAMP_GameLogic.NPC_Howler_Pain(Entity(handle: $0!), Entity(handle: $1!), $2) }
+
+    /// Source: oracle/codemp/game/NPC_AI_Jedi.c:5358
+    static let NPC_Jedi_Pain: EntityPain = { JKAMP_GameLogic.NPC_Jedi_Pain(Entity(handle: $0!), Entity(handle: $1!), $2) }
+
+    /// Source: oracle/codemp/game/NPC_AI_Mark1.c:320
+    static let NPC_Mark1_Pain: EntityPain = { JKAMP_GameLogic.NPC_Mark1_Pain(Entity(handle: $0!), Entity(handle: $1!), $2) }
+
+    /// Source: oracle/codemp/game/NPC_AI_Mark2.c:80
+    static let NPC_Mark2_Pain: EntityPain = { JKAMP_GameLogic.NPC_Mark2_Pain(Entity(handle: $0!), Entity(handle: $1!), $2) }
+
+    /// Source: oracle/codemp/game/NPC_AI_MineMonster.c:234
+    static let NPC_MineMonster_Pain: EntityPain = { JKAMP_GameLogic.NPC_MineMonster_Pain(Entity(handle: $0!), Entity(handle: $1!), $2) }
+
+    /// Source: oracle/codemp/game/NPC_reactions.c:363
+    static let NPC_Pain: EntityPain = { JKAMP_GameLogic.NPC_Pain(Entity(handle: $0!), Entity(handle: $1!), $2) }
+
+    /// Source: oracle/codemp/game/NPC_AI_ImperialProbe.c:433
+    static let NPC_Probe_Pain: EntityPain = { JKAMP_GameLogic.NPC_Probe_Pain(Entity(handle: $0!), Entity(handle: $1!), $2) }
+
     /// Source: oracle/codemp/game/NPC_AI_Rancor.c:703
     static let NPC_Rancor_Pain: EntityPain = { JKAMP_GameLogic.NPC_Rancor_Pain(Entity(handle: $0!), Entity(handle: $1!), $2) }
+
+    /// Source: oracle/codemp/game/NPC_AI_Remote.c:29
+    static let NPC_Remote_Pain: EntityPain = { JKAMP_GameLogic.NPC_Remote_Pain(Entity(handle: $0!), Entity(handle: $1!), $2) }
+
+    /// Source: oracle/codemp/game/NPC_AI_Stormtrooper.c:260
+    static let NPC_ST_Pain: EntityPain = { JKAMP_GameLogic.NPC_ST_Pain(Entity(handle: $0!), Entity(handle: $1!), $2) }
+
+    /// Source: oracle/codemp/game/NPC_AI_Seeker.c:34
+    static let NPC_Seeker_Pain: EntityPain = { JKAMP_GameLogic.NPC_Seeker_Pain(Entity(handle: $0!), Entity(handle: $1!), $2) }
+
+    /// Source: oracle/codemp/game/NPC_AI_Sentry.c:79
+    static let NPC_Sentry_Pain: EntityPain = { JKAMP_GameLogic.NPC_Sentry_Pain(Entity(handle: $0!), Entity(handle: $1!), $2) }
 
     /// Source: oracle/codemp/game/NPC_AI_Wampa.c:433
     static let NPC_Wampa_Pain: EntityPain = { JKAMP_GameLogic.NPC_Wampa_Pain(Entity(handle: $0!), Entity(handle: $1!), $2) }

@@ -72,6 +72,16 @@ public struct CharBuf: ExpressibleByStringLiteral {
         self.bytes = [UInt8](repeating: 0, count: self.count)
     }
 
+    /// Raven's `memset(buf, 0, n)`, the first `n` bytes of the buffer to zero.
+    /// The bytes past `n` keep their values, and an `n` past the end traps.
+    public mutating func zero<I: BinaryInteger>(count n: I) {
+        let n = Int(n)
+        precondition(n >= 0 && n <= self.count, "CharBuf zero count past the end")
+        for i in 0 ..< n {
+            self.bytes[i] = 0
+        }
+    }
+
     /// The body gets a raw pointer into the buffer to copy bytes in, for `CString.swift`'s `strcpy` and the rest.
     public mutating func withUnsafeMutableRawPointer<R>(_ body: (UnsafeMutableRawPointer) throws -> R) rethrows -> R {
         try self.bytes.withUnsafeMutableBytes { rawBuffer in

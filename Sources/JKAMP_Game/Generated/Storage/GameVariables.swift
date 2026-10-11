@@ -596,7 +596,7 @@ public struct GameVariables {
 
     /// Raven's `qboolean gSiegeRoundWinningTeam` of `g_saga.c`.
     /// Source: oracle/codemp/game/g_saga.c:38
-    public var gSiegeRoundWinningTeam: Bool = false
+    public var gSiegeRoundWinningTeam: Int32 = 0
 
     /// Raven's `int gSiegeBeginTime` of `g_saga.c`.
     /// Source: oracle/codemp/game/g_saga.c:39

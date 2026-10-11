@@ -165,6 +165,7 @@ class Drafter(Statements, Expressions, Calls, Declarations, Classification):
         self.reads = sk.table.reads
         # The locals of the function being drafted that Raven typed `gentity_t *` and the draft holds as `JKAMP.BgEntity`.
         self.game_entities: set[str] = set()
+        self.plain_entities: set[str] = set()
         # The text kind of each argument of the call being drafted, by position, so one overload takes the whole call.
         self.call_kinds: dict[int, str] = {}
         # The conversion letter each argument of the call being drafted feeds in the callee's format string, by position, with the argument.
@@ -238,6 +239,8 @@ class Drafter(Statements, Expressions, Calls, Declarations, Classification):
         self.game_entities = set()
         self.local_holes = set()
         self.optional_entities: set[str] = set()
+        # Raven's `gentity_t *` locals whose every store is a table slot address, which Swift holds as a plain `Entity`.
+        self.plain_entities: set[str] = set()
         self.after_com_error = False
         # Raven's `char *buf` locals that only ever hold a CHARBUF_ALLOCS call at one constant size, which Swift holds as a CharBuf of that size.
         self.charbuf_allocs = self.charbuf_alloc_names(fn.cur)
@@ -252,6 +255,8 @@ class Drafter(Statements, Expressions, Calls, Declarations, Classification):
         self.slots_locals = self.slots_local_names(fn.cur)
         # Raven's `short temp` locals, by his name, with the narrow storage Swift keeps for each, so a store truncates and a read widens.
         self.narrow_locals = self.narrow_local_names(fn.cur)
+        # Raven's `byte m[4]` locals, by his name, with the narrow element Swift keeps, so a store truncates and a read widens.
+        self.narrow_arrays = self.narrow_array_names(fn.cur)
         # The scan of the raw locals spells a store through `expr`, and that spelling reads the four facts above, so they come first.
         # Raven's `byte *b` and `char *dest` locals that only ever hold a raw allocation, which Swift holds as UnsafeMutableRawPointer.
         self.raw_locals = self.raw_local_names(fn.cur) - self.charbuf_locals

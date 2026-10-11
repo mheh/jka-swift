@@ -184,10 +184,10 @@ public struct Vehicle: Hashable, HandleView {
     public var m_iMuzzleTime: Slots<Int32> { Slots<Int32>(scalars: UnsafeMutableRawPointer(self.raw.pointer(to: \.m_iMuzzleTime)!), count: 12) }
 
     /// Source: oracle/codemp/game/bg_vehicles.h:530
-    public var m_vMuzzlePos: Slots<Slots<Float>> { Slots(rows: UnsafeMutableRawPointer(self.raw.pointer(to: \.m_vMuzzlePos)!), count: 12, stride: 3 * MemoryLayout<Float>.stride) { Slots<Float>(scalars: $0, count: 3) } }
+    public var m_vMuzzlePos: Slots<JKAShared.vec3_t> { Slots(vectors: UnsafeMutableRawPointer(self.raw.pointer(to: \.m_vMuzzlePos)!), count: 12) }
 
     /// Source: oracle/codemp/game/bg_vehicles.h:530
-    public var m_vMuzzleDir: Slots<Slots<Float>> { Slots(rows: UnsafeMutableRawPointer(self.raw.pointer(to: \.m_vMuzzleDir)!), count: 12, stride: 3 * MemoryLayout<Float>.stride) { Slots<Float>(scalars: $0, count: 3) } }
+    public var m_vMuzzleDir: Slots<JKAShared.vec3_t> { Slots(vectors: UnsafeMutableRawPointer(self.raw.pointer(to: \.m_vMuzzleDir)!), count: 12) }
 
     /// Source: oracle/codemp/game/bg_vehicles.h:534
     public var m_iMuzzleWait: Slots<Int32> { Slots<Int32>(scalars: UnsafeMutableRawPointer(self.raw.pointer(to: \.m_iMuzzleWait)!), count: 12) }

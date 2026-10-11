@@ -3,7 +3,7 @@
 internal import CJKAMP
 import JKAShared
 
-/// The C types of the stored functions, one per signature, and the address compare Raven's `==` did.
+/// The C types of the stored functions, one per signature, and the address compares Raven's `==` and `!=` did.
 public typealias PmovePointcontents = @convention(c) (OpaquePointer?, Int32) -> Int32
 
 public typealias PmoveTrace = @convention(c) (OpaquePointer?, OpaquePointer?, OpaquePointer?, OpaquePointer?, OpaquePointer?, Int32, Int32) -> Void
@@ -62,12 +62,20 @@ public func == (lhs: PmovePointcontents?, rhs: PmovePointcontents?) -> Bool {
         == withUnsafeBytes(of: PmovePointcontentsBits(function: rhs)) { $0.load(as: UInt.self) }
 }
 
+public func != (lhs: PmovePointcontents?, rhs: PmovePointcontents?) -> Bool {
+    return !(lhs == rhs)
+}
+
 private struct PmoveTraceBits { var function: PmoveTrace? }
 
 public func == (lhs: PmoveTrace?, rhs: PmoveTrace?) -> Bool {
     precondition(MemoryLayout<PmoveTraceBits>.size == MemoryLayout<UInt>.size)
     return withUnsafeBytes(of: PmoveTraceBits(function: lhs)) { $0.load(as: UInt.self) }
         == withUnsafeBytes(of: PmoveTraceBits(function: rhs)) { $0.load(as: UInt.self) }
+}
+
+public func != (lhs: PmoveTrace?, rhs: PmoveTrace?) -> Bool {
+    return !(lhs == rhs)
 }
 
 private struct VehicleInfoAddPassengerBits { var function: VehicleInfoAddPassenger? }
@@ -78,12 +86,20 @@ public func == (lhs: VehicleInfoAddPassenger?, rhs: VehicleInfoAddPassenger?) ->
         == withUnsafeBytes(of: VehicleInfoAddPassengerBits(function: rhs)) { $0.load(as: UInt.self) }
 }
 
+public func != (lhs: VehicleInfoAddPassenger?, rhs: VehicleInfoAddPassenger?) -> Bool {
+    return !(lhs == rhs)
+}
+
 private struct VehicleInfoAnimateBits { var function: VehicleInfoAnimate? }
 
 public func == (lhs: VehicleInfoAnimate?, rhs: VehicleInfoAnimate?) -> Bool {
     precondition(MemoryLayout<VehicleInfoAnimateBits>.size == MemoryLayout<UInt>.size)
     return withUnsafeBytes(of: VehicleInfoAnimateBits(function: lhs)) { $0.load(as: UInt.self) }
         == withUnsafeBytes(of: VehicleInfoAnimateBits(function: rhs)) { $0.load(as: UInt.self) }
+}
+
+public func != (lhs: VehicleInfoAnimate?, rhs: VehicleInfoAnimate?) -> Bool {
+    return !(lhs == rhs)
 }
 
 private struct VehicleInfoBoardBits { var function: VehicleInfoBoard? }
@@ -94,12 +110,20 @@ public func == (lhs: VehicleInfoBoard?, rhs: VehicleInfoBoard?) -> Bool {
         == withUnsafeBytes(of: VehicleInfoBoardBits(function: rhs)) { $0.load(as: UInt.self) }
 }
 
+public func != (lhs: VehicleInfoBoard?, rhs: VehicleInfoBoard?) -> Bool {
+    return !(lhs == rhs)
+}
+
 private struct VehicleInfoEjectBits { var function: VehicleInfoEject? }
 
 public func == (lhs: VehicleInfoEject?, rhs: VehicleInfoEject?) -> Bool {
     precondition(MemoryLayout<VehicleInfoEjectBits>.size == MemoryLayout<UInt>.size)
     return withUnsafeBytes(of: VehicleInfoEjectBits(function: lhs)) { $0.load(as: UInt.self) }
         == withUnsafeBytes(of: VehicleInfoEjectBits(function: rhs)) { $0.load(as: UInt.self) }
+}
+
+public func != (lhs: VehicleInfoEject?, rhs: VehicleInfoEject?) -> Bool {
+    return !(lhs == rhs)
 }
 
 private struct VehicleInfoGhostBits { var function: VehicleInfoGhost? }
@@ -110,6 +134,10 @@ public func == (lhs: VehicleInfoGhost?, rhs: VehicleInfoGhost?) -> Bool {
         == withUnsafeBytes(of: VehicleInfoGhostBits(function: rhs)) { $0.load(as: UInt.self) }
 }
 
+public func != (lhs: VehicleInfoGhost?, rhs: VehicleInfoGhost?) -> Bool {
+    return !(lhs == rhs)
+}
+
 private struct VehicleInfoStartDeathDelayBits { var function: VehicleInfoStartDeathDelay? }
 
 public func == (lhs: VehicleInfoStartDeathDelay?, rhs: VehicleInfoStartDeathDelay?) -> Bool {
@@ -118,10 +146,18 @@ public func == (lhs: VehicleInfoStartDeathDelay?, rhs: VehicleInfoStartDeathDela
         == withUnsafeBytes(of: VehicleInfoStartDeathDelayBits(function: rhs)) { $0.load(as: UInt.self) }
 }
 
+public func != (lhs: VehicleInfoStartDeathDelay?, rhs: VehicleInfoStartDeathDelay?) -> Bool {
+    return !(lhs == rhs)
+}
+
 private struct VehicleInfoUpdateRiderBits { var function: VehicleInfoUpdateRider? }
 
 public func == (lhs: VehicleInfoUpdateRider?, rhs: VehicleInfoUpdateRider?) -> Bool {
     precondition(MemoryLayout<VehicleInfoUpdateRiderBits>.size == MemoryLayout<UInt>.size)
     return withUnsafeBytes(of: VehicleInfoUpdateRiderBits(function: lhs)) { $0.load(as: UInt.self) }
         == withUnsafeBytes(of: VehicleInfoUpdateRiderBits(function: rhs)) { $0.load(as: UInt.self) }
+}
+
+public func != (lhs: VehicleInfoUpdateRider?, rhs: VehicleInfoUpdateRider?) -> Bool {
+    return !(lhs == rhs)
 }

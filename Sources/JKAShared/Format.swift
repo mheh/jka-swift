@@ -52,6 +52,12 @@ extension PooledString: FormatArg {
     public var formatValue: FormatValue { .text(self.string) }
 }
 
+/// Raven's `qboolean` under `%i` or `%d`, which C reads as its `int`, 0 or 1.
+/// A `Bool` under `%s` traps, as every integer does.
+extension Bool: FormatArg {
+    public var formatValue: FormatValue { .integer(self ? 1 : 0) }
+}
+
 // MARK: - format
 
 /// This prints `fmt` with `args` substituted, Raven's `printf` over the specifiers the game uses.

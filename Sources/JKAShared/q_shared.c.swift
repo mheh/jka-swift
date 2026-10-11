@@ -814,6 +814,13 @@ public func Q_stricmp(_ s1: String, _ s2: String) -> Int32 {
     Q_stricmp(CharBuf(s1), CharBuf(s2))
 }
 
+/// Raven's `Q_stricmp` with a NULL argument, which returns -1 and compares nothing.
+/// Source: oracle/codemp/game/q_shared.c:900
+public func Q_stricmp(_ s1: String?, _ s2: String?) -> Int32 {
+    guard let s1, let s2 else { return -1 }
+    return Q_stricmp(s1, s2)
+}
+
 /// Source: oracle/codemp/game/q_shared.c:905
 // Raven returns the argument, which the caller already holds.
 public func Q_strlwr(_ s1: inout JKAShared.CharBuf) {
@@ -960,6 +967,19 @@ public func Com_sprintf(_ dest: inout JKAShared.CharBuf, _ size: Int32, _ fmt: S
         Com_Printf("Com_sprintf: overflow of %i in %i\n", len, size)
     }
     Q_strncpyz(&dest, String(bigbuffer), size)
+}
+
+/// Raven's `Com_sprintf(marker, size, fmt, ...)` through a pointer into the buffer, which is the same rule over the bytes from `offset` on.
+/// The suffix is a copy, so the call writes it back into `dest` at that byte.
+public func Com_sprintf(_ dest: inout CharBuf, _ size: Int32, _ fmt: String, _ args: any FormatArg..., at offset: some BinaryInteger) {
+    let start = Int32(offset)
+    var suffix = dest[start...]
+    // Swift cannot pass a variadic list on, so the base form prints the formatted text through one `%s`.
+    // That gives the same bytes and the same length checks.
+    Com_sprintf(&suffix, size, "%s", JKAShared.format(fmt, args))
+    for i in 0 ..< Int32(suffix.count) {
+        dest[start + i] = suffix[i] as Int8
+    }
 }
 
 /**

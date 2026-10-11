@@ -17,10 +17,10 @@ The oracle range is the whole definition, from the return type to the closing br
 | `NPC_BSGM_Patrol` | `oracle/codemp/game/NPC_AI_GalakMech.c:416-432` | `JKAMP_GameLogic/NPC_AI_GalakMech.swift:410` | ported | `crates/mp/game/src/NPC_AI_GalakMech.rs:500-514` | `func NPC_BSGM_Patrol()` |
 | `GM_CheckMoveState` static | `oracle/codemp/game/NPC_AI_GalakMech.c:440-460` | `JKAMP_GameLogic/NPC_AI_GalakMech.swift:426` | ported | `crates/mp/game/src/NPC_AI_GalakMech.rs:519-579` | `private func GM_CheckMoveState()` |
 | `GM_CheckFireState` static | `oracle/codemp/game/NPC_AI_GalakMech.c:468-556` | `JKAMP_GameLogic/NPC_AI_GalakMech.swift:446` | ported | `crates/mp/game/src/NPC_AI_GalakMech.rs:584-699` | `private func GM_CheckFireState()` |
-| `NPC_GM_StartLaser` | `oracle/codemp/game/NPC_AI_GalakMech.c:558-573` | `JKAMP_GameLogic/NPC_AI_GalakMech.swift:539` | ported | `crates/mp/game/src/NPC_AI_GalakMech.rs:704-740` | `func NPC_GM_StartLaser()` |
-| `GM_StartGloat` | `oracle/codemp/game/NPC_AI_GalakMech.c:575-587` | `JKAMP_GameLogic/NPC_AI_GalakMech.swift:553` | ported | `crates/mp/game/src/NPC_AI_GalakMech.rs:745-768` | `func GM_StartGloat()` |
-| `NPC_BSGM_Attack` | `oracle/codemp/game/NPC_AI_GalakMech.c:594-1229` | `JKAMP_GameLogic/NPC_AI_GalakMech.swift:567` | ported | `crates/mp/game/src/NPC_AI_GalakMech.rs:773-1457` | `func NPC_BSGM_Attack()` |
-| `NPC_BSGM_Default` | `oracle/codemp/game/NPC_AI_GalakMech.c:1231-1297` | `JKAMP_GameLogic/NPC_AI_GalakMech.swift:1043` | ported | `crates/mp/game/src/NPC_AI_GalakMech.rs:1462-1548` | `func NPC_BSGM_Default()` |
+| `NPC_GM_StartLaser` | `oracle/codemp/game/NPC_AI_GalakMech.c:558-573` | `JKAMP_GameLogic/NPC_AI_GalakMech.swift:536` | ported | `crates/mp/game/src/NPC_AI_GalakMech.rs:704-740` | `func NPC_GM_StartLaser()` |
+| `GM_StartGloat` | `oracle/codemp/game/NPC_AI_GalakMech.c:575-587` | `JKAMP_GameLogic/NPC_AI_GalakMech.swift:550` | ported | `crates/mp/game/src/NPC_AI_GalakMech.rs:745-768` | `func GM_StartGloat()` |
+| `NPC_BSGM_Attack` | `oracle/codemp/game/NPC_AI_GalakMech.c:594-1229` | `JKAMP_GameLogic/NPC_AI_GalakMech.swift:564` | ported | `crates/mp/game/src/NPC_AI_GalakMech.rs:773-1457` | `func NPC_BSGM_Attack()` |
+| `NPC_BSGM_Default` | `oracle/codemp/game/NPC_AI_GalakMech.c:1231-1297` | `JKAMP_GameLogic/NPC_AI_GalakMech.swift:1036` | ported | `crates/mp/game/src/NPC_AI_GalakMech.rs:1462-1548` | `func NPC_BSGM_Default()` |
 
 10 file-scope variables. The entry is the stub's line for the variable, by rule 3 and rule 6.
 

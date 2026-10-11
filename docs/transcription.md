@@ -150,6 +150,7 @@ A trap's `char *` parameter with a size beside it is already the returned `Strin
 A body that hands that trap a `char buf[N]` copies the returned text into the buffer, `strcpy(&arg, trap_Argv(1, Int32(arg.count)))`, so the buffer keeps its N bytes.
 A test that is one call to a trap that returns `(Bool, String)`, `if (!trap_GetEntityToken(com_token, sizeof(com_token)))`, puts the call and the copy before the `if`, and the `if` tests the Bool.
 An assignment from a trap that returns `(Int32, String)` takes the count from the first value and copies the text into the buffer with `strcpy`, so the buffer keeps its N bytes too.
+A `while` test that is one call to a trap that returns `(Int32, String)`, `while( trap_BotGetServerCommand(client, buf, sizeof(buf)) )`, is `while true` with the call and the copy at the top and the test as a break, `let (count, text) = trap_BotGetServerCommand(client, Int32(buf.count))`, `strcpy(&buf, text)`, and `if count == 0 { break }`.
 A trap's `int *` parameter with a count beside it is an `inout [Int32]` the engine fills, `trap_EntitiesInBox(mins, maxs, &entityList, MAX_GENTITIES)`.
 A function that hands its own `int *` parameter to that trap parameter takes an `inout [Int32]` too, such as `NPC_GetEntsNearBolt`.
 A trap that fills a NUL-separated list, `trap_FS_GetFileList`, returns the whole buffer as a `CharBuf` in place of the `String`, and the body walks it with a `TextCursor` as Raven walked the bytes.
@@ -158,6 +159,7 @@ A trap no file of the module calls, such as `trap_UnifyWhiteSpaces` and `trap_AA
 A raw block the engine keeps, such as `trap_SV_RegisterSharedMemory`, has a PARAMS entry `raw` and is `UnsafeMutableRawPointer`.
 A trap's `void *` parameter is an `OpaquePointer?`, and it gains a second overload that takes `inout CharBuf` when Raven's own callers fill it with a `char buf[N]`.
 The overload hands the engine the buffer's base inside the generated file, so a body writes `trap_FS_Read(&BGPAFtext, len, f)` and a caller that holds a raw allocation keeps the first overload.
+A trap's `void /* struct ... */ *` parameter gains a second generated overload that takes the view, where Raven's comment names the struct and every caller passes that record, so `trap_EA_GetInput(bs->client, (float) time / 1000, &bi)` reads `trap_EA_GetInput(bs.client, Float(time) / 1000, bi)`.
 A trap's `const void *` parameter gains an overload that takes a `String` when Raven's own callers hand it a `char *` text, so a body writes `trap_FS_Write(str, strlen(str), fh)`.
 A `NIL_OVERLOADS` entry of `rulings.py` gives a trap a second overload that takes the named view as optional, so `trap_Cvar_Register` registers the three NULL rows of `gameCvarTable`.
 
@@ -174,8 +176,8 @@ The value is zero for any element, `false` for a `qboolean` element, and -1 for 
 A two-dimensional array of scalars takes the same call, `G_WeaponLogPickups.fill(0)`, which fills every row.
 A memset of zero over a whole record local drops, because the scratch slot is zero at entry, only where the target is the record itself and not a pointer to one, the size is the record's own, and no loop encloses the call. Otherwise it is the view's `clear()`.
 The record's own size is `sizeof` of the record, of the pointee, or of the pointee's type name under any typedef, so `memset(*pVeh, 0, sizeof(Vehicle_t))` through a `Vehicle_t *` is `pVeh.clear()`.
-A memset over a partial size keeps its Port-note, `memset(buff, 0, MAX_STRING_CHARS)` over the `char buff[MAX_STRING_CHARS*4]` of `BuildShaderStateConfig` among them.
-A memset with a value the rules above do not give, or over a record with no view, keeps its Port-note too.
+A memset of zero over the first N bytes of a `CharBuf` is `zero(count:)`, so `memset(buff, 0, MAX_STRING_CHARS)` over the `char buff[MAX_STRING_CHARS*4]` of `BuildShaderStateConfig` is `buff.zero(count: MAX_STRING_CHARS)`.
+A memset over any other partial size, with a value the rules above do not give, or over a record with no view, keeps its Port-note.
 
 Raven's struct of eight bytes exists because the compilers of the time had no portable 64-bit integer.
 Only the byte-swap pair touches `qint64`, and a body swaps with `byteSwapped`.
@@ -246,7 +248,7 @@ Raven's vector macros become operators or the ported `q_math` functions in `Sour
 | `VectorSubtract(a, b, c)` | `c = a - b`, or `_VectorSubtract(a, b, &c)` |
 | `VectorScale(a, s, b)` | `b = a * s`, or `_VectorScale(a, s, &b)` |
 | `VectorCopy(a, b)` | `b = a` |
-| `VectorMA(a, s, b, c)` | `_VectorMA(a, s, b, &c)` |
+| `VectorMA(a, s, b, c)` | `_VectorMA(a, s, b, &c)`, and where C computes `s` in `double`, one store per component, `let scale = Double(enemy_movespeed) * 0.001 * Double(prediction)`, then `enemy_dest[0] = Float(Double(NPC!.enemy!.r.currentOrigin[0]) + Double(enemy_movedir[0]) * scale)` and the same for 1 and 2 |
 | `VectorNegate(a, b)` | `b = -a` |
 | `VectorClear(a)` | `a = vec3_t()` |
 | `VectorSet(a, x, y, z)` | `a = vec3_t(x, y, z)` |
@@ -320,7 +322,7 @@ Every generated view carries `public static let byteCount`, the size of one slot
 It also carries `public static let stride`, the distance between two slots of a C array of the type, for a `Slots` over one.
 
 Every generated view has, beside `init(handle:)`, `public init(_ raw: UnsafeMutableRawPointer)` and `public init(_ other: some HandleView)`.
-A body writes `View(x)` where and only where Raven wrote an explicit cast to that struct's pointer, from a raw pointer or from another struct's pointer, so `((gentity_t *)(ent))->s.number` reads `BgEntity(ent).s.number` in bg, and `(gentity_t *)bgEnt` is `Entity(bgEnt)` in the game.
+A body writes `View(x)` where and only where Raven wrote an explicit cast to that struct's pointer, from a raw pointer or from another struct's pointer, so `((gentity_t *)(ent))->s.number` reads `BgEntity(ent).s.number` in bg, and `(gentity_t *)bgEnt` is `Entity(bgEnt)` in the game. A cast of a table name is the view cast over slot 0, because C's array name is the address of its first element, so `pm->baseEnt = (bgEntity_t *)g_entities` reads `pm.baseEnt = BgEntity(g_entities[0])`.
 A cast to a view the body already holds, such as a bg body that passes its `BgEntity` to a bg channel function, is dropped without a note.
 A cast of a pointer that can be NULL maps over the optional, `pVeh.m_pPilot.map { Entity($0) }`, so NULL stays nil.
 The `handle:` form stays inside generated code under rule 11, and a signature keeps the plain view type Raven's parameter had, never a generic or protocol parameter that absorbs the cast.
@@ -332,12 +334,12 @@ C gives the pointer no bound, so the `Slots` takes the widest count and Raven's 
 A field in the table is generated non-optional, and its getter traps with the field's name when the pointer is NULL, the one divergence rule 19 allows.
 `pmove_t.ps`, `pmove_t.trace`, and `pmove_t.pointcontents` are in it, so a body reads `pm.ps.velocity` for `pm->ps->velocity` with no bind. A field joins the table only by a ruling, never by a transcriptor's guess.
 A view parameter is non-optional, so a body drops Raven's null guard on it, with no comment and no marker.
-The Swift signature holds the value, so no NULL reaches the body, and the arm under the guard has no path. The same holds for an `inout` parameter, a text local the text-local rule made non-optional, and a never-null variable.
+The Swift signature holds the value, so no NULL reaches the body, and the arm under the guard has no path. The same holds for an `inout` parameter, a text local the text-local rule made non-optional, a never-null variable, and the address of a local or file-scope array, so Raven's `ent->ghoul2 && limbName && ...` reads `ent.ghoul2 != nil && ...`.
 A caller that holds an optional and passes it where a value is due writes the force unwrap with no comment, `OnSameTeam(targ, attacker!)`, and a store from an optional into a value reads `ent = master!`, because the unwrap traps where Raven's callee would dereference NULL.
-A `String?` that a format call such as `Debug_Printf` reads only under a runtime test takes `?? ""` in place of the force unwrap.
-The C read happens inside the callee and only on that path, but Swift evaluates the argument before the test and the unwrap would trap there.
+A `String?` that Raven passes to a `%s` takes `?? "(null)"` at the argument in place of the force unwrap, the text his `vsprintf` prints for NULL, `g_entities[entNum].script_targetname ?? "(null)"`.
+The rule holds where a format call such as `Debug_Printf` reads the text only under a runtime test, because Swift evaluates the argument before the test and the unwrap would trap there.
 A text local that a body sets from a callee whose return is an optional text is a `String?`, Raven's NULL test keeps its form, and a later read unwraps it.
-A caller that holds an optional view unwraps it at the call site, in Raven's control shape: `guard let ... else { return }` where Raven wrote an early-out, and `if let ... { }` where Raven wrapped a block. A guard that does other work on the NULL path keeps a Port-note.
+A caller that holds an optional view unwraps it at the call site, in Raven's control shape: `guard let ... else { return }` where Raven wrote an early-out, and `if let ... { }` where Raven wrapped a block. An early-out whose arm does work before it leaves is a `guard` with Raven's test negated in his order and his arm in the `else`, `guard let terrain, terrain.inuse, terrain.s.eType == ET_TERRAIN else { ... }` for his `if (!terrain || !terrain->inuse || terrain->s.eType != ET_TERRAIN)`.
 A read Raven made through the pointer with no guard is a force unwrap, `saber!.model`, which traps where C would crash. A guard Raven wrote is the only source of a bind, so no guard is invented for him.
 A chain a body reads three or more times with no store to it in between binds once at its first read, `let vehicleInfo = veh.m_pVehicleInfo!`, and the later reads use the local. A local alias is not a guard. The trap moves to the first read, where C would first crash. Never an if-let.
 Raven's `a = b` on two records reads `a = b` when `a` is a field, because the view's setter copies the record, and `a.copy(from: b)` when `a` is a scratch slot. His `memcpy( &a, &b, sizeof(a) )` is the same copy.
@@ -362,6 +364,9 @@ A `return` inside Raven's block is the closure's value, and the body acts on tha
 The closure returns a value read from the slot, never the view itself, because the slot is gone when `scratch` returns.
 Two records in one scope nest two closures.
 A `return` of Raven's inside a nested flag closure is `return true` of each enclosing flag closure after the inner one, at every depth.
+A record that opens a loop body, `trace_t tr;` at the top of a `for` body, opens its closure inside the loop around the whole body, and the loop step is the first statement after the closure.
+A `continue` of Raven's inside that closure is a bare `return`, `if tr.fraction != 1.0 { return }`, because the step after the closure runs on every path.
+A `break` of Raven's inside that closure is `return true` of a flag closure, and the loop acts on the flag after it, `let landed = Trace.scratch { trace -> Bool in ... }` and then `if landed { break }`.
 A record local before a `goto` label opens its closure around the labeled block and every statement after the label, so all of them see the locals, unless a `goto` comes before the record.
 A copy of another slot, `usercmd_t cmd = pm->cmd;`, is the `copying` form: `Usercmd.scratch(copying: pm.cmd) { cmd in ... }`.
 A local array of records, `trace_t traces[3];`, is the `count` form, `Trace.scratch(count: 3) { traces in ... }`, a `Slots` over N zeroed slots that live for the closure.
@@ -411,8 +416,8 @@ Where two functions share a static-local name, `text` and `string` in the game o
 In a Port-note round, the transcriptor adds that property and that forward.
 
 `JKAShared` cannot see `GameWorld`, so a static local of a function in `JKAShared` has no world property and no forward.
-A static buffer that such a function returns as a `String`, the two buffers of `va` and of `Info_ValueForKey`, is a local `CharBuf` of Raven's bound, and the index that picks one of the two buffers drops.
-Raven's second buffer keeps one result valid across a second call, and a returned `String` is already a copy.
+A ring of static buffers that any function returns as a `String`, the two buffers of `va` and of `Info_ValueForKey` and the eight of `vtos`, is a local `CharBuf` of Raven's bound, `var s = CharBuf(32)`, and the index that picks one buffer drops, with its world property and its forward in the game module.
+Raven's ring keeps one result valid across a later call, and a returned `String` is already a copy.
 The function carries one comment line that says this.
 
 `bg_itemlist`, `weaponData`, and `ammoData` are C storage in `Sources/CJKAMP/bg_tables.c`, with Raven's initializers as written, and `Sources/JKAMP/BgTables.swift` reaches each one as a `Slots` over the C array, with the view's `stride`, because the view target is the one Swift module that imports the C target and can take the address of the C array, and `bg_numItems` reads the C global, so a body reads `bg_itemlist[i].giTag`.
@@ -531,17 +536,25 @@ A slice index is the slice's start index plus Raven's index, `infos[infos.startI
 A C enum is an `Int32` typealias, and each case is a bare `Int32` constant with Raven's name.
 A body compares, stores, switches, and shifts it exactly as Raven wrote it. `.rawValue` and `EnumName(rawValue:)` never appear.
 An unsigned hex mask Raven applies to an `int`, such as `0xfffffffc`, is spelled as the complement of the low bits, `~0x0000_0003`, the same bit pattern with no cast, and one comment line at the site says what Raven wrote.
+A `qboolean` operand where C reads an `int` is `(b ? 1 : 0)`, the 0 or 1 that C reads, so `pmove_fixed.integer | client->pers.pmoveFixed` reads `pmove_fixed.integer | (client!.pers.pmoveFixed ? 1 : 0)`.
+An `int` or a `byte` that Raven compares with `qfalse` is `== 0`, and with `qtrue` is `== 1`, with no comment line, the text the drafter writes for `!x`, so `TAG_GetOrigin2( NULL, name, goalPos ) == qfalse` reads `TAG_GetOrigin2(nil, name, &goalPos) == 0`.
 
 A cast Raven wrote explicitly stays on the page, so `(int)v[0]` is `Int32(v[0])` and `(float)x` is `Float(x)`. A body never adds a cast Raven did not write.
 `Sources/JKAShared/Promotion.swift` defines the arithmetic and comparison operators between `Int32` and `Float`, both orders, and the compound assignments, and each one promotes the integer as C does.
 So `ps.velocity[2] -= ps.gravity * bg.pml.frametime` and `ps.origin[2] + MINS_Z + 1` are Raven's lines.
+An expression the type checker cannot finish splits into typed `let` locals, one per term, each of the type C computes the term in, under one comment that names the split, `// Raven's one expression is two terms here, because the compiler cannot type-check it whole in reasonable time.`.
+Raven's explicit casts stay in the terms, and the operators of `Promotion.swift` promote the rest, so `ClientSpawn` reads `let healthSpan: Int32 = g_powerDuelStartHealth.integer - g_powerDuelEndHealth.integer` and `let healthLoss: Float = healthSpan * Float(client!.sess.wins) / Float(g_duel_fraglimit.integer)`.
 Swift reads `0.1` beside a `Float` as a `Float`, which changes the bits Raven's double math sets.
 So a body writes `Double(...)` on each operand at the operator where it meets the double operand, and `Float(...)` once at the store, `drop += Float(Double(speed) * 0.1 * Double(bg.pml.frametime))`, and `(150 + pml.frametime) * 0.003` is `Double(150 + pml.frametime) * 0.003`, because C adds in float.
 A macro constant that expands to a double literal, `M_PI` or `ARMOR_PROTECTION`, is a double literal, and a comparison or a cast whose operand C computes in double takes the same widening, `abs(Double(du0)) < EPSILON`.
 A C library call that takes and returns `double` inside that expression takes its arguments in `Double` too, `Int32(ceil(Double(dropTime) * 1000.0))`, so the `Double` overload answers as C's call does.
 This is the one place a body writes a conversion Raven did not write, and a Raven explicit cast inside it, `(float)pm->ps->speed`, stays as `Float(ps.speed)`.
-A `float` stored into an `int` takes `Int32(...)` at the store, the mirror of the next rule, so `ps.gravity = 1.0f` reads `ps.gravity = Int32(1.0)`.
-An `int` stored into a `float` with no operator between them takes `Float(...)` at the store, `ps.speed = Float(ps.basespeed)`, because Swift has no conversion on assignment and no operator reaches `=`.
+Raven's `sizeof(T)` stored into an `int` is `Int32(View.byteCount)`, so `pm->entSize = sizeof(gentity_t)` is `pm.entSize = Int32(Entity.byteCount)`.
+`byteCount` is `MemoryLayout<T>.size`, and C's `sizeof` is Swift's `stride`, so the form holds only where the size and the stride of `T` are equal.
+For `gentity_t` the two are 1832.
+Raven's `sizeof(t)/sizeof(t[0])` over a table that is a Swift array is `t.count`, compared with no cast, `meansOfDeath >= modNames.count`.
+A `float` stored into an `int` takes `Int32(...)` at the store, the mirror of the next rule, so `ps.gravity = 1.0f` reads `ps.gravity = Int32(1.0)`. A compound store into an `int` from a `float` is `x = Int32(x op f)` over the `Promotion.swift` operator, with no `Float(x)`, so `parentPS->hackingTime -= 50*pVeh->m_fTimeModifier` reads `parentPS!.hackingTime = Int32(parentPS!.hackingTime - 50 * pVeh.m_fTimeModifier)`.
+An `int` stored into a `float` with no operator between them takes `Float(...)` at the store, `ps.speed = Float(ps.basespeed)`, because Swift has no conversion on assignment and no operator reaches `=`. An `int` passed to a `float` parameter takes `Float(...)` at the argument, as at a store, ``G_RadiusList(org2, Float(TURRET_RADIUS), `self`, true, &entity_list)``.
 The same holds for an `int` in a float table, `Float(JUMP_VELOCITY)`. The site carries no Port-note.
 Raven passes an `int` to an `unsigned` parameter, and C converts the value with no cast on the page.
 The callee takes a second overload with an `Int32` parameter, which converts the value once inside it, as `srand` in `Sources/JKAMP_BG/bg_lib.swift` does.
@@ -608,7 +621,9 @@ A `switch` with fallthrough uses Swift's `fallthrough` keyword, case for case, i
 Any integer indexes it, and its subscript is generic in what it returns and stores, sign-extending a byte on the way out as C does for a signed `char` and truncating on the way in.
 So `c1 = s1[i1]` reads Raven's `c1 = *s1` with `c1` declared `Int32`, and `readBuf[c] = powerBuf[i]` moves a byte.
 `String(readBuf)` reads up to the first NUL, and a string literal converts to a `CharBuf` where Raven assigns one.
-A `String` parameter a body walks by byte becomes a `CharBuf` at the top of the body, `let s1 = CharBuf(s1)`, and Raven's `*s1++` is the read plus `i1 += 1`.
+A `String` parameter a body walks by byte becomes a `CharBuf` at the top of the body, `let s1 = CharBuf(s1)`, and Raven's `*s1++` is the read plus `i1 += 1`. A text local whose every read is a byte read is a `CharBuf` too, and each store converts, `value = CharBuf(Info_ValueForKey(userinfo, "team"))`, or a `CharBuf?` where Raven also stores `NULL`, `RequiredSArgument = CharBuf(ConcatArgs(1))`. A byte read of a `char *` field binds the field into a `CharBuf` on the arm where Raven reads it, `let message = CharBuf(ent.message!)`, and reads the byte, `message[0] == Int32(ascii: "@")`.
+A post-increment inside a statement, `clients[cnt++] = level.sortedClients[i]`, is the statement with the old value, `clients[cnt] = level.sortedClients[i]`, and the step on the next statement, `cnt += 1`, when the variable appears once in the statement and the statement is not an `if`, `while`, or `for` test.
+A post-increment in a `return`, `return (numVehicles++)`, reads the value into a `let`, steps, and returns the `let`.
 `Int32.init(ascii: Unicode.Scalar)` in `JKAShared` spells Raven's `'a'` as `Int32(ascii: "a")`, one call for one literal, so `c1 -= ('a' - 'A')` reads `c1 -= (Int32(ascii: "a") - Int32(ascii: "A"))`.
 A pointer into the buffer, Raven's `&skinName[len-3]` or the `char *slash` that `Q_strrchr` returns, is its byte offset, an `Int32`.
 A read through it is the suffix subscript, `Q_strncmp("red", skinName[start...], 3)`, and a write through it is `strcpy(&GLAName, "/animation.cfg", at: slash)`.
@@ -638,10 +653,12 @@ A write cursor is the byte offset of the pointer rule instead, an `Int32` over t
 `Q_stricmp`, `Com_sprintf`, `strcpy`, and the rest call the ported `q_shared` functions where a port exists.
 Where no port exists, the transcriptor adds a Port-note, because the exact C semantics are not proven.
 `q_shared.c` is compiled into every module the same as `q_math.c`, so its port is `Sources/JKAShared/q_shared.c.swift`, named with the `.c` because the re-export of `q_shared.h` already holds the stem in that module. A body reaches `Q_stricmp`, `Q_stricmpn`, and `Q_strncmp` there, and each of the three has a `CharBuf` overload.
-`Sources/JKAShared/CString.swift` holds the libc names Raven calls, `atoi`, `atof`, `strcpy`, `strncpy`, `strcat`, `strlen`, `strcmp`, `strchr`, and `strstr`, with C semantics.
+`Sources/JKAShared/CString.swift` holds the libc names Raven calls, `atoi`, `atof`, `strcpy`, `strncpy`, `strcat`, `strlen`, `strcmp`, `strchr`, `strstr`, `tolower`, and `toupper`, with C semantics.
 Each one works over `CharBuf` and `String`, `strcpy` also takes a raw destination, and `strlen` returns `Int32`, narrowed once inside it.
+Raven's `(unsigned char) c` is `Int32(UInt8(truncatingIfNeeded: c))`, so `*out++ = tolower( (unsigned char) *in++ )` stores ``out[outIndex] = tolower(Int32(UInt8(truncatingIfNeeded: `in`[inIndex])))``.
 `strcpy` and `strcat` take an `at:` offset too, for Raven's copy through a pointer into the buffer, and `strcat` appends at the first NUL from that byte.
 Raven's `memcpy(dest, string, l+1)` of a `String`, where `l = strlen(string)`, is a `strcpy`, because both copy the text and its NUL and nothing else.
+His `memcpy(dest + off, src, strlen(src))` copies the text with no NUL, and it is `strncpy(&dest, String(src), len, at: off)`, so `memcpy( line + len, arg, tlen )` of `ConcatArgs` reads `strncpy(&line, String(arg), tlen, at: len)`.
 The `char *dest` over a named buffer is a write cursor, an `Int32` byte offset, so `dest = level.spawnVarChars + level.numSpawnVarChars` is `dest = level.numSpawnVarChars`.
 The copy is `strcpy(&level.spawnVarCharsBuffer, string, at: dest)`, and Raven's `return dest` is the `String` at the offset, `String(level.spawnVarCharsBuffer[dest...])`.
 A caller's store of that `String` interns it in the string pool, so the pointer is into the pool, and the buffer keeps Raven's count.

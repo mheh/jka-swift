@@ -324,6 +324,14 @@ class Declarations:
             # Raven's `char *buf = (char *)B_TempAlloc(1024)` is a CharBuf of the size he asks for.
             # The call stays on the page with its result dropped, so the pool keeps his count for the free that follows.
             declared = f"var {name} = JKAShared.CharBuf({self.expr(self.charbuf_allocs[var.spelling])})"
+            if init and self.is_null(init[0]):
+                # Raven's NULL initializer is no allocation, and no read reaches it before the allocator store, so it drops under one comment.
+                null = " ".join(self.bytes[init[0].extent.start.offset:init[0].extent.end.offset].decode("utf-8", "replace").split())
+                size = self.charbuf_allocs[var.spelling].extent
+                alloc = next(c for c in self.fn.cur.walk_preorder() if c.kind == CursorKind.CALL_EXPR
+                             and any(a.extent == size for a in list(c.get_children())[1:]))
+                comment = f"// Raven wrote `{var.spelling} = {null}` before the `{self.callee_name(alloc)}` store, so the store is the first value."
+                return declared + "\n" + roled([comment], "comment")[0]
             return declared + (f"\n_ = {self.expr(self.uncast(init[0]))}" if init else "")
         if t.get_canonical().kind == TypeKind.POINTER and t.get_canonical().get_pointee().get_canonical().kind == TypeKind.CHAR_S and init:
             source = self.unwrap(init[0])
@@ -399,6 +407,10 @@ class Declarations:
                     if init:
                         return f"{keyword} {name}: Slots<{view}> = {self.slots_expression(init[0])}"
                     return f"var {name}: Slots<{view}>"
+                if init and record == "gentity_t" and self.plain_entity(var, init[0]):
+                    # Every store is the address of a table slot, and no statement stores or tests NULL, so the local is never nil.
+                    self.plain_entities.add(var.spelling)
+                    return f"{keyword} {name} = {self.expr(init[0])}"
                 if init:
                     return f"{keyword} {name}: {view}? = {self.expr(init[0])}"
                 return f"var {name}: {view}?"
@@ -416,6 +428,62 @@ class Declarations:
             # so the local starts at zero. The zero is the divergence rule 19 allows.
             return f"{keyword} {name}: {swift} = {'false' if swift == 'Bool' else '0'}"
         return f"{keyword} {name}: {swift}"
+
+    def slot_address(self, cur: ci.Cursor) -> bool:
+        """True for Raven's `&g_entities[n]`, the address of one slot of a file-scope table of records."""
+        inner = self.unwrap(cur)
+        if inner.kind != CursorKind.UNARY_OPERATOR or self.operator_or_none_unary(inner) != "&":
+            return False
+        operand = self.unwrap(self.unary_parts(inner)[2])
+        if operand.kind != CursorKind.ARRAY_SUBSCRIPT_EXPR:
+            return False
+        base = self.strip(list(operand.get_children())[0])
+        ref = base.referenced if base.kind == CursorKind.DECL_REF_EXPR else None
+        return ref is not None and ref.kind == CursorKind.VAR_DECL and ref.semantic_parent is not None \
+            and ref.semantic_parent.kind == CursorKind.TRANSLATION_UNIT and ref.type.get_canonical().kind == TypeKind.CONSTANTARRAY
+
+    def plain_entity(self, var: ci.Cursor, init: ci.Cursor) -> bool:
+        """True for a `gentity_t *` local whose every store is a table slot address, with no NULL store and no NULL test.
+
+        A read of the local is a member access, a call argument, a store into another name, or a compare with a non-NULL value.
+        Any other read, `!ent`, `if (ent)`, `ent && ...`, or `&ent`, counts as a NULL test."""
+        if not self.slot_address(init):
+            return False
+        parents: dict[tuple[int, int], ci.Cursor] = {}
+        refs: list[ci.Cursor] = []
+        for node in self.fn.cur.walk_preorder():
+            for kid in node.get_children():
+                parents[(kid.extent.start.offset, kid.extent.end.offset, kid.kind.value)] = node
+            if node.kind == CursorKind.DECL_REF_EXPR and node.referenced is not None and node.referenced == var:
+                refs.append(node)
+
+        def parent(cur: ci.Cursor) -> tuple[ci.Cursor | None, ci.Cursor]:
+            child = cur
+            up = parents.get((cur.extent.start.offset, cur.extent.end.offset, cur.kind.value))
+            while up is not None and up.kind in (CursorKind.UNEXPOSED_EXPR, CursorKind.PAREN_EXPR):
+                child = up
+                up = parents.get((up.extent.start.offset, up.extent.end.offset, up.kind.value))
+            return up, child
+
+        for ref in refs:
+            up, child = parent(ref)
+            if up is None:
+                return False
+            if up.kind in (CursorKind.MEMBER_REF_EXPR, CursorKind.CALL_EXPR, CursorKind.RETURN_STMT, CursorKind.VAR_DECL):
+                continue
+            if up.kind == CursorKind.BINARY_OPERATOR:
+                left, right = list(up.get_children())
+                op = self.operator_or_none(up)
+                if op == "=" and self.unwrap(left).kind == CursorKind.DECL_REF_EXPR and self.unwrap(left).referenced == var:
+                    if not self.slot_address(right):
+                        return False
+                    continue
+                if op == "=":
+                    continue
+                if op in ("==", "!=") and not self.is_null(left) and not self.is_null(right):
+                    continue
+            return False
+        return True
 
     def byte_storage_cast(self, cur: ci.Cursor) -> bool:
         """True for a cast of a file-scope byte allocation in BYTE_STORAGE_VARS, the `(T *)gSharedBuffer` of vmMain."""
@@ -520,6 +588,18 @@ class Declarations:
                 out[c.spelling] = narrow
         return out
 
+    def narrow_array_names(self, fn: ci.Cursor) -> dict[str, str]:
+        """Raven's local arrays of a type narrower than int, `byte m[4]`, by his name, with the Swift storage of each element.
+        The array keeps the narrow element, so a store truncates as C's does and a read widens to Int32."""
+        out: dict[str, str] = {}
+        for c in fn.walk_preorder():
+            if c.kind != CursorKind.VAR_DECL or c.type.get_canonical().kind != TypeKind.CONSTANTARRAY:
+                continue
+            narrow = self.types.narrow(c.type.get_canonical().element_type)
+            if narrow is not None:
+                out[c.spelling] = narrow
+        return out
+
     def array_declaration(self, var: ci.Cursor, init: list[ci.Cursor]) -> str:
         """A local array of scalars, `static int movementOffsets[8] = { ... }`, as a Swift array. A static array nothing writes is
         a constant table, the same value on every call, and a static array a statement writes is storage that outlives the call."""
@@ -529,7 +609,8 @@ class Declarations:
         if element is None:
             raise Hole(f"A local `{var.type.spelling} {var.spelling}` the table has no type for.")
         if self.types.narrow(t.element_type) is not None:
-            element = "Int32"
+            # The array keeps Raven's narrow element, `[UInt8]` for `byte`, and each store truncates.
+            element = self.types.narrow(t.element_type)
         written = var.spelling in self.written
         if var.storage_class == ci.StorageClass.STATIC and written:
             raise Hole(f"A static local `{var.spelling}` a statement writes, storage that outlives the call.")

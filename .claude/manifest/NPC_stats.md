@@ -7,14 +7,14 @@ The oracle range is the whole definition, from the return type to the closing br
 
 | Function | Oracle | Swift | State | jka-rust | Signature |
 |---|---|---|---|---|---|
-| `NPC_ReactionTime` | `oracle/codemp/game/NPC_stats.c:220-223` | `JKAMP_GameLogic/NPC_stats.swift:66` | ported | `crates/mp/game/src/NPC_stats.rs:355-359` | `func NPC_ReactionTime() -> Int32` |
-| `TranslateRankName` static | `oracle/codemp/game/NPC_stats.c:287-330` | `JKAMP_GameLogic/NPC_stats.swift:90` | ported | `crates/mp/game/src/NPC_stats.rs:365-391` | `private func TranslateRankName(_ name: String) -> rank_t` |
-| `G_ParseAnimFileSet` | `oracle/codemp/game/NPC_stats.c:424-437` | `JKAMP_GameLogic/NPC_stats.swift:127` | ported | `crates/mp/game/src/NPC_stats.rs:396-432` | `func G_ParseAnimFileSet(_ filename: String, _ animCFG: String, _ animFileIndex: inout Int32) -> Bool` |
-| `NPC_PrecacheAnimationCFG` | `oracle/codemp/game/NPC_stats.c:439-548` | `JKAMP_GameLogic/NPC_stats.swift:141` | ported | `crates/mp/game/src/NPC_stats.rs:439-442` | `func NPC_PrecacheAnimationCFG(_ NPC_type: String)` |
-| `NPC_PrecacheWeapons` | `oracle/codemp/game/NPC_stats.c:551-591` | `JKAMP_GameLogic/NPC_stats.swift:187` | ported | `crates/mp/game/src/NPC_stats.rs:447-467` | `func NPC_PrecacheWeapons(_ playerTeam: JKAMP.team_t, _ spawnflags: Int32, _ NPCtype: String)` |
-| `NPC_Precache` | `oracle/codemp/game/NPC_stats.c:599-873` | `JKAMP_GameLogic/NPC_stats.swift:210` | ported | `crates/mp/game/src/NPC_stats.rs:472-803` | `func NPC_Precache(_ spawner: Entity)` |
-| `NPC_ParseParms` | `oracle/codemp/game/NPC_stats.c:974-3233` | `JKAMP_GameLogic/NPC_stats.swift:460` | ported | `crates/mp/game/src/NPC_stats.rs:808-2461` | `func NPC_ParseParms(_ NPCName: String, _ NPC: Entity) -> Bool` |
-| `NPC_LoadParms` | `oracle/codemp/game/NPC_stats.c:3241-3302` | `JKAMP_GameLogic/NPC_stats.swift:2401` | ported | `crates/mp/game/src/NPC_stats.rs:2466-2538` | `func NPC_LoadParms()` |
+| `NPC_ReactionTime` | `oracle/codemp/game/NPC_stats.c:220-223` | `JKAMP_GameLogic/NPC_stats.swift:58` | ported | `crates/mp/game/src/NPC_stats.rs:355-359` | `func NPC_ReactionTime() -> Int32` |
+| `TranslateRankName` static | `oracle/codemp/game/NPC_stats.c:287-330` | `JKAMP_GameLogic/NPC_stats.swift:82` | ported | `crates/mp/game/src/NPC_stats.rs:365-391` | `private func TranslateRankName(_ name: String) -> rank_t` |
+| `G_ParseAnimFileSet` | `oracle/codemp/game/NPC_stats.c:424-437` | `JKAMP_GameLogic/NPC_stats.swift:119` | ported | `crates/mp/game/src/NPC_stats.rs:396-432` | `func G_ParseAnimFileSet(_ filename: String, _ animCFG: String, _ animFileIndex: inout Int32) -> Bool` |
+| `NPC_PrecacheAnimationCFG` | `oracle/codemp/game/NPC_stats.c:439-548` | `JKAMP_GameLogic/NPC_stats.swift:133` | ported | `crates/mp/game/src/NPC_stats.rs:439-442` | `func NPC_PrecacheAnimationCFG(_ NPC_type: String)` |
+| `NPC_PrecacheWeapons` | `oracle/codemp/game/NPC_stats.c:551-591` | `JKAMP_GameLogic/NPC_stats.swift:179` | ported | `crates/mp/game/src/NPC_stats.rs:447-467` | `func NPC_PrecacheWeapons(_ playerTeam: JKAMP.team_t, _ spawnflags: Int32, _ NPCtype: String)` |
+| `NPC_Precache` | `oracle/codemp/game/NPC_stats.c:599-873` | `JKAMP_GameLogic/NPC_stats.swift:202` | ported | `crates/mp/game/src/NPC_stats.rs:472-803` | `func NPC_Precache(_ spawner: Entity)` |
+| `NPC_ParseParms` | `oracle/codemp/game/NPC_stats.c:974-3233` | `JKAMP_GameLogic/NPC_stats.swift:440` | ported | `crates/mp/game/src/NPC_stats.rs:808-2461` | `func NPC_ParseParms(_ NPCName: String, _ NPC: Entity) -> Bool` |
+| `NPC_LoadParms` | `oracle/codemp/game/NPC_stats.c:3241-3302` | `JKAMP_GameLogic/NPC_stats.swift:2362` | ported | `crates/mp/game/src/NPC_stats.rs:2466-2538` | `func NPC_LoadParms()` |
 
 9 file-scope variables. The entry is the stub's line for the variable, by rule 3 and rule 6.
 

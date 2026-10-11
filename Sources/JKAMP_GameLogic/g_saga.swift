@@ -95,7 +95,7 @@ var gSiegeRoundEnded: Bool {
 }
 
 /// Source: oracle/codemp/game/g_saga.c:38
-var gSiegeRoundWinningTeam: Bool {
+var gSiegeRoundWinningTeam: Int32 {
     get { world.variables.gSiegeRoundWinningTeam }
     set { world.variables.gSiegeRoundWinningTeam = newValue }
 }
@@ -675,7 +675,7 @@ func SiegeRoundComplete(_ winningteam: Int32, _ winningclient: Int32) {
     trap_SetConfigstring(CS_SIEGE_STATE, va("3|%i", level.time)) //ended
     gSiegeRoundBegun = false
     gSiegeRoundEnded = true
-    gSiegeRoundWinningTeam = winningteam != 0
+    gSiegeRoundWinningTeam = winningteam
 
     if BG_SiegeGetValueGroup(String(siege_info), String(teamstr), &gParseObjectives) != 0 {
         if BG_SiegeGetPairedValue(String(gParseObjectives), "roundover_target", &teamstr) == 0 {

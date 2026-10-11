@@ -45,14 +45,14 @@ The oracle range is the whole definition, from the return type to the closing br
 | `ClientCleanName` static | `oracle/codemp/game/g_client.c:1335-1410` | `JKAMP_GameLogic/g_client.swift:1361` | ported | `crates/mp/game/src/g_client.rs:1513-1595` | `private func ClientCleanName(_ `in`: String, _ out: inout JKAShared.CharBuf, _ outSize: Int32)` |
 | `G_SaberModelSetup` | `oracle/codemp/game/g_client.c:1423-1499` | `JKAMP_GameLogic/g_client.swift:1454` | ported | `crates/mp/game/src/g_client.rs:1600-1727` | `func G_SaberModelSetup(_ ent: Entity) -> Bool` |
 | `SetupGameGhoul2Model` | `oracle/codemp/game/g_client.c:1519-1870` | `JKAMP_GameLogic/g_client.swift:1518` | ported | `crates/mp/game/src/g_client.rs:3348-3945` | `func SetupGameGhoul2Model(_ ent: Entity, _ modelname: inout JKAShared.CharBuf, _ skinName: String?)` |
-| `ClientUserinfoChanged` | `oracle/codemp/game/g_client.c:1888-2235` | `JKAMP_GameLogic/g_client.swift:1812` | ported | `crates/mp/game/src/g_client.rs:3950-4304` | `func ClientUserinfoChanged(_ clientNum: Int32)` |
-| `ClientConnect` | `oracle/codemp/game/g_client.c:2258-2373` | `JKAMP_GameLogic/g_client.swift:2140` | ported | `crates/mp/game/src/g_client.rs:1732-1861` | `func ClientConnect(_ clientNum: Int32, _ firstTime: Bool, _ isBot: Bool) -> String?` |
-| `ClientBegin` | `oracle/codemp/game/g_client.c:2393-2593` | `JKAMP_GameLogic/g_client.swift:2251` | ported | `crates/mp/game/src/g_client.rs:1866-2061` | `func ClientBegin(_ clientNum: Int32, _ allowTeamReset: Bool)` |
+| `ClientUserinfoChanged` | `oracle/codemp/game/g_client.c:1888-2235` | `JKAMP_GameLogic/g_client.swift:1812` | ported | `crates/mp/game/src/g_client.rs:3950-4304` | `public func ClientUserinfoChanged(_ clientNum: Int32)` |
+| `ClientConnect` | `oracle/codemp/game/g_client.c:2258-2373` | `JKAMP_GameLogic/g_client.swift:2140` | ported | `crates/mp/game/src/g_client.rs:1732-1861` | `public func ClientConnect(_ clientNum: Int32, _ firstTime: Bool, _ isBot: Bool) -> String?` |
+| `ClientBegin` | `oracle/codemp/game/g_client.c:2393-2593` | `JKAMP_GameLogic/g_client.swift:2251` | ported | `crates/mp/game/src/g_client.rs:1866-2061` | `public func ClientBegin(_ clientNum: Int32, _ allowTeamReset: Bool)` |
 | `AllForceDisabled` static | `oracle/codemp/game/g_client.c:2595-2613` | `JKAMP_GameLogic/g_client.swift:2429` | ported | `crates/mp/game/src/g_client.rs:2066-2077` | `private func AllForceDisabled(_ force: Int32) -> Bool` |
 | `G_BreakArm` | `oracle/codemp/game/g_client.c:2616-2674` | `JKAMP_GameLogic/g_client.swift:2449` | ported | `crates/mp/game/src/g_client.rs:2082-2158` | `func G_BreakArm(_ ent: Entity, _ arm: Int32)` |
 | `G_UpdateClientAnims` | `oracle/codemp/game/g_client.c:2681-2926` | `JKAMP_GameLogic/g_client.swift:2532` | ported | `crates/mp/game/src/g_client.rs:2163-2379` | `func G_UpdateClientAnims(_ `self`: Entity, _ animSpeedScale: Float)` |
 | `ClientSpawn` | `oracle/codemp/game/g_client.c:2938-3801` | `JKAMP_GameLogic/g_client.swift:2656` | ported | `crates/mp/game/src/g_client.rs:2384-3166` | `func ClientSpawn(_ ent: Entity)` |
-| `ClientDisconnect` | `oracle/codemp/game/g_client.c:3816-3938` | `JKAMP_GameLogic/g_client.swift:3429` | ported | `crates/mp/game/src/g_client.rs:3171-3336` | `func ClientDisconnect(_ clientNum: Int32)` |
+| `ClientDisconnect` | `oracle/codemp/game/g_client.c:3816-3938` | `JKAMP_GameLogic/g_client.swift:3429` | ported | `crates/mp/game/src/g_client.rs:3171-3336` | `public func ClientDisconnect(_ clientNum: Int32)` |
 
 5 file-scope variables. The entry is the stub's line for the variable, by rule 3 and rule 6.
 

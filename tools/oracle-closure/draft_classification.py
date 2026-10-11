@@ -360,8 +360,14 @@ class Classification:
 
     def charbuf_alloc_names(self, fn: ci.Cursor) -> dict[str, ci.Cursor]:
         """Every `char *` local whose every store is one CHARBUF_ALLOCS call at one constant size, by Raven's name, with the size argument.
-        The local is a CharBuf of that size, and the call stays on the page for the pool's count."""
+        The local is a CharBuf of that size, and the call stays on the page for the pool's count.
+        A NULL store before the first allocator store also fits, when no read of the local stands between the two, `fileString = NULL` of SavePathData."""
         stores: dict[str, list[ci.Cursor | None]] = {}
+        # The NULL stores of each local and the offsets of its stores and its reads, for the test that no read reaches a NULL store.
+        nulls: dict[str, list[int]] = {}
+        allocs: dict[str, list[int]] = {}
+        reads: dict[str, list[int]] = {}
+        targets: set[tuple[int, int]] = set()
         for var in fn.walk_preorder():
             if var.kind != CursorKind.VAR_DECL:
                 continue
@@ -369,8 +375,11 @@ class Classification:
             if t.kind != TypeKind.POINTER or t.get_pointee().get_canonical().kind != TypeKind.CHAR_S:
                 continue
             init = [c for c in var.get_children() if c.kind.is_expression() and b"=" in self.bytes[var.extent.start.offset:c.extent.start.offset]]
-            if init:
+            if init and self.is_null(init[0]):
+                nulls.setdefault(var.spelling, []).append(init[0].extent.end.offset)
+            elif init:
                 stores.setdefault(var.spelling, []).append(self.charbuf_alloc(init[0]))
+                allocs.setdefault(var.spelling, []).append(init[0].extent.start.offset)
         for cur in fn.walk_preorder():
             kids = list(cur.get_children())
             if cur.kind != CursorKind.BINARY_OPERATOR or len(kids) != 2 or self.collapsed(cur) or self.operator_or_none(cur) != "=":
@@ -381,10 +390,22 @@ class Classification:
             t = left.type.get_canonical()
             if t.kind != TypeKind.POINTER or t.get_pointee().get_canonical().kind != TypeKind.CHAR_S:
                 continue
+            targets.add((left.extent.start.offset, left.extent.end.offset))
+            if self.is_null(kids[1]):
+                nulls.setdefault(left.spelling, []).append(cur.extent.end.offset)
+                continue
             stores.setdefault(left.spelling, []).append(self.charbuf_alloc(kids[1]))
+            allocs.setdefault(left.spelling, []).append(cur.extent.start.offset)
+        for cur in fn.walk_preorder():
+            if cur.kind == CursorKind.DECL_REF_EXPR and cur.spelling in nulls and (cur.extent.start.offset, cur.extent.end.offset) not in targets:
+                reads.setdefault(cur.spelling, []).append(cur.extent.start.offset)
         out: dict[str, ci.Cursor] = {}
         for name, sizes in stores.items():
             if not sizes or any(size is None for size in sizes):
+                continue
+            first = min(allocs[name])
+            if any(null > first or any(null < read < first for read in reads.get(name, [])) for null in nulls.get(name, [])):
+                # A NULL store after the allocation, or a read between a NULL store and the allocation, sees Raven's NULL.
                 continue
             # Every store asks for the same size, so the CharBuf has one count.
             if len({self.source.slice(size.extent).strip() for size in sizes}) == 1:
@@ -665,6 +686,8 @@ class Classification:
                 # A walked parameter reads the table at its index, which is a value.
                 return True
             if inner.spelling in self.names or inner.spelling in NEVER_NULL_VARS or inner.spelling in self.game_entities:
+                return False
+            if inner.spelling in self.plain_entities:
                 return False
             if inner.spelling in self.charbuf_locals or inner.spelling in self.table_cursors or inner.spelling in self.raw_locals:
                 return False

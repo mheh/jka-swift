@@ -770,6 +770,17 @@ func RemoveColorEscapeSequences(_ text: inout JKAShared.CharBuf) {
     text[l] = 0
 }
 
+/// Raven's `RemoveColorEscapeSequences(args)` through a pointer into the buffer, which is the same rule over the bytes from `offset` on.
+/// The suffix is a copy, so the call writes it back into `text` at that byte.
+func RemoveColorEscapeSequences(_ text: inout JKAShared.CharBuf, at offset: some BinaryInteger) {
+    let start = Int32(offset)
+    var suffix = text[start...]
+    RemoveColorEscapeSequences(&suffix)
+    for i in 0 ..< Int32(suffix.count) {
+        text[start + i] = suffix[i] as Int8
+    }
+}
+
 /**
 ```
 ==============
