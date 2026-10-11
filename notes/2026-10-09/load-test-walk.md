@@ -63,3 +63,11 @@ The walk of the one docket row in the section "The sixth run" of `load-test.md`.
 
 1. The guide line in `docs/transcription.md` beside the data-initializer rule.
 2. The `WeaponAttackAnim` comment in `bg_local.swift`, in place of its Port-note.
+
+## The seventh to ninth runs
+
+The walk of the one docket row in the section "The ninth run" of `load-test.md`. The seventh and eighth runs raised no row.
+
+| Row | Verdict | What the ruling orders |
+|---|---|---|
+| X1 | open | The `FRAMES` knob of `tools/load-test.sh`, an environment variable with default 0, which inserts `+wait N` after the map command and grows the alarm. |

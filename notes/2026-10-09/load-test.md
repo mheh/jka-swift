@@ -454,3 +454,85 @@ The last line is the script's own line, not a line of the log.
 ### Docket rows
 
 W1. The zero tail of a short brace list. Raven declares `float botGlobalNavWeaponWeights[WP_NUM_WEAPONS]` with 16 values, and `WP_NUM_WEAPONS` is 19, so C zeroes the slots of `WP_BRYAR_OLD`, `WP_EMPLACED_GUN`, and `WP_TURRET`. His comments name the rows one slot off from the enum, because the list has no `WP_CONCUSSION` row. The guide's form replaces the `portMissing` initializer with Raven's data, but it does not say how a Swift array holds the slots C zeroes past the list. Without them, a read at `giTag` 16 to 18 traps where Raven reads 0. The fill writes three `0,` rows after Raven's last row, under two comment lines that say so, the same shape as `WeaponAttackAnim` of `bg_local.swift`, which carries a Port-note for its one zero row. The fill is unruled. The proposed form is one guide line beside the data-initializer rule: an array whose brace list is shorter than its declared bound takes one `0` row per slot that C zeroes, after Raven's last row, under a comment that names Raven's row count and the bound. The Port-note of `WeaponAttackAnim` then becomes the same comment.
+
+## The seventh run
+
+The seventh run builds the ruling W1 of `load-test-walk.md` and continues the trap loop from `G_CheckMinimumPlayers`. The runs from here on are on 2026-10-11.
+
+### The ruling
+
+W1: `docs/transcription.md` gains one line beside the data-initializer rule, the zero tail of a short brace list, with `botGlobalNavWeaponWeights` as its exemplar. The Port-note of `WeaponAttackAnim` in `bg_local.swift` is a plain comment, and the bg Port-note count is 11.
+
+The gate before the commit `fa4ada4` passed. `swift build` completed with 0 errors. `swift test --no-parallel` passed 112 tests in four binaries, 84, 14, 13, and 1.
+
+### The trap table
+
+| Order | Function | File:line | Raven line | The hole's text | Result |
+| --- | --- | --- | --- | --- | --- |
+| 1 | `G_CheckMinimumPlayers`, in the bot frame | `Sources/JKAMP_GameLogic/g_bot.swift:638-640` before the fill | `g_bot.c:572` | "A static local `checkminimumplayers_time` a statement reads before it writes, storage that outlives the call." | filled, a property of `GameWorld` in `g_local.swift` and a forward above the function, the guide's static-local form. The two holes at the read and the store of the local fill with Raven's lines. |
+| 2 | `G_LogWeaponOutput`, in the shutdown | `Sources/JKAMP_GameLogic/g_log.swift:203` | `g_log.c:246` | "A pointer local `char * nameptr` with no view." | recorded, filled in the eighth run |
+
+After the fill of row 1, the settle loop of `SV_SpawnServer` runs its three passes, the `+quit` reaches `G_ShutdownGame`, and `G_ShutdownGame` traps in row 2. The signal handler runs `G_ShutdownGame` a second time and traps in row 2 again, and the alarm ends the process with exit status 142. The log holds the `InitGame:` line and two `Fatal error` lines for `G_LogWeaponOutput`.
+
+The gate before the commit `dd89bd7` passed, 0 errors and 112 tests.
+
+### Hashes
+
+| Commit | Subject |
+| --- | --- |
+| `bd5e719` | The walk records of the load test and the q_shared rulings |
+| `fa4ada4` | The zero tail of a short brace list |
+| `dd89bd7` | The static local of G_CheckMinimumPlayers |
+
+## The eighth run
+
+The eighth run fills `G_LogWeaponOutput` under the ruling L4, so the `+quit` exits clean.
+
+### The fill
+
+`G_LogWeaponOutput` held 35 holes. The `char *nameptr` local is `var nameptr: String`, the form of `lname` in `BotUtilizePersonality` of `ai_main.swift`. Its 24 stores and reads are Raven's lines: `nameptr = g_entities[i].client!.pers.netname`, `nameptr = unknownname`, and `trap_FS_Write(nameptr, strlen(nameptr), weaponfile)` through the `String` overload. The nine `memset` calls over the local arrays are `fill(0)`, the guide's form for a memset over a whole array of scalars. The function holds no Port-note, and `g_log.swift` holds none.
+
+The first hole sat in the declarations, above the `g_statLog` return, so the trap fired with the weapon log off. The run did not change the declaration order.
+
+### The result
+
+The run exits with status 0. The log holds the `InitGame:` line at 08:29:33 and the `ShutdownGame:` line at 08:29:43, with no `Fatal error` line between them. The ten seconds sit inside `G_InitGame`, after its `InitGame:` line, and the ninth run names them.
+
+The gate before the commit `1ee5a35` passed, 0 errors and 112 tests.
+
+### Hashes
+
+| Commit | Subject |
+| --- | --- |
+| `1ee5a35` | The holes of G_LogWeaponOutput |
+
+## The ninth run
+
+The ninth run holds the server for one minute of frames with no client.
+
+### The script
+
+`tools/load-test.sh` takes `FRAMES=N` and inserts `+wait N` between the map command and the quit. The engine's `wait` command holds the command buffer for N calls of `Cbuf_Execute`, one per `Com_Frame`, and the dedicated server paces `Com_Frame` at `sv_fps`, so `FRAMES=2400` is one minute at 40 frames a second. The alarm is 60 seconds plus one twentieth of the frame count. The knob is docket row X1.
+
+### The result
+
+`FRAMES=2400 tools/load-test.sh` exits with status 0. The log has 53 lines. The `InitGame:` line is at 08:30:42, the `ShutdownGame:` line at 08:31:53, and no `Fatal error` line sits between them. One engine line sits between them, at 08:30:53:
+
+```
+Hitch warning: 11229 msec frame time
+```
+
+The hitch is the first frame after `G_InitGame`, and its length is the time `G_InitGame` spends after its `InitGame:` line, in `G_InitBots` and the path load of the level. The eighth run shows the same ten seconds between its two log lines. The sixty seconds of frames after the hitch print nothing, which is the engine's behavior with no client. The frame loop runs clean, and task 10 of the handoff is done.
+
+The eleven seconds of `G_InitGame` are a finding, not a trap. No run has timed the stock `jampgame` on this map for a comparison. The cost sits in the Swift bot path load or the arena parse, and no run has measured which. It waits under the running-game rule.
+
+### Hashes
+
+| Commit | Subject |
+| --- | --- |
+| `9ac7d31` | The FRAMES hold of the load test |
+| this commit | The record of the seventh to ninth load tests |
+
+### Docket rows
+
+X1. The `FRAMES` knob of `tools/load-test.sh`. The builder added `FRAMES=N`, which inserts `+wait N` after the map command and grows the alarm by `N / 20` seconds, so one run can hold the server for a measured number of frames with no client. The knob is unruled. The proposed form is the one in the script: an environment variable, default 0, so the plain call keeps its shape and exits after the map load.
