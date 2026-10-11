@@ -290,9 +290,7 @@ func G_RefreshNextMap(_ gametype: Int32, _ forced: Bool) -> String? {
         } else {
             //otherwise we have a valid nextmap to cycle to, so use it.
             type = Info_ValueForKey(g_arenaInfos[desiredMap], "map")
-            // Port-note: The draft of this statement did not compile, and the compiler wrote "cannot force unwrap value of non-optional type 'String'".
-            // Raven wrote: trap_Cvar_Set( "nextmap", va("map %s", type))
-            portMissing("G_RefreshNextMap", source: "oracle/codemp/game/g_bot.c:216")
+            trap_Cvar_Set("nextmap", va("map %s", type!))
         }
 
         return Info_ValueForKey(g_arenaInfos[desiredMap], "map")
@@ -393,9 +391,7 @@ func G_AddRandomBot(_ team: Int32) {
         //
         i = 0
         while i < g_maxclients.integer {
-            // Port-note: The draft of this statement did not compile, and the compiler wrote "binary operator '+' cannot be applied to operands of type 'Client?' and 'Int32'".
-            // Raven wrote: cl = level.clients + i
-            portMissing("G_AddRandomBot", source: "oracle/codemp/game/g_bot.c:373")
+            cl = level.clientsSlots[i]
             if cl!.pers.connected != CON_CONNECTED {
                 i += 1
                 continue
@@ -433,9 +429,7 @@ func G_AddRandomBot(_ team: Int32) {
         //
         i = 0
         while i < g_maxclients.integer {
-            // Port-note: The draft of this statement did not compile, and the compiler wrote "binary operator '+' cannot be applied to operands of type 'Client?' and 'Int32'".
-            // Raven wrote: cl = level.clients + i
-            portMissing("G_AddRandomBot", source: "oracle/codemp/game/g_bot.c:373")
+            cl = level.clientsSlots[i]
             if cl!.pers.connected != CON_CONNECTED {
                 i += 1
                 continue
@@ -497,9 +491,7 @@ func G_RemoveRandomBot(_ team: Int32) -> Int32 {
 
     i = 0
     while i < g_maxclients.integer {
-        // Port-note: The draft of this statement did not compile, and the compiler wrote "binary operator '+' cannot be applied to operands of type 'Client?' and 'Int32'".
-        // Raven wrote: cl = level.clients + i
-        portMissing("G_RemoveRandomBot", source: "oracle/codemp/game/g_bot.c:461")
+        cl = level.clientsSlots[i]
         if cl!.pers.connected != CON_CONNECTED {
             i += 1
             continue
@@ -544,9 +536,7 @@ func G_CountHumanPlayers(_ team: Int32) -> Int32 {
     num = 0
     i = 0
     while i < g_maxclients.integer {
-        // Port-note: The draft of this statement did not compile, and the compiler wrote "binary operator '+' cannot be applied to operands of type 'Client?' and 'Int32'".
-        // Raven wrote: cl = level.clients + i
-        portMissing("G_CountHumanPlayers", source: "oracle/codemp/game/g_bot.c:499")
+        cl = level.clientsSlots[i]
         if cl!.pers.connected != CON_CONNECTED {
             i += 1
             continue
@@ -582,9 +572,7 @@ func G_CountBotPlayers(_ team: Int32) -> Int32 {
     num = 0
     i = 0
     while i < g_maxclients.integer {
-        // Port-note: The draft of this statement did not compile, and the compiler wrote "binary operator '+' cannot be applied to operands of type 'Client?' and 'Int32'".
-        // Raven wrote: cl = level.clients + i
-        portMissing("G_CountBotPlayers", source: "oracle/codemp/game/g_bot.c:525")
+        cl = level.clientsSlots[i]
         if cl!.pers.connected != CON_CONNECTED {
             i += 1
             continue
@@ -881,13 +869,11 @@ G_AddBot
 private func G_AddBot(_ name: String, _ skill: Float, _ team: String, _ delay: Int32, _ altname: String) {
     let altname = CharBuf(altname)
     let clientNum: Int32
-    let botinfo: String
+    let botinfo: String?
     var bot: Entity?
     var key: String
     var s: String
-    // Port-note: A pointer local `char * botname` with no view.
-    // Raven wrote: char *botname;
-    portMissing("G_AddBot", source: "oracle/codemp/game/g_bot.c:792")
+    var botname: String
     var model: String
     //	char			*headmodel;
     var userinfo = CharBuf(1024)
@@ -896,28 +882,24 @@ private func G_AddBot(_ name: String, _ skill: Float, _ team: String, _ delay: I
     var team = TextCursor(CharBuf(team))
 
     // get the botinfo from bots.txt
-    // Port-note: Raven stores `G_GetBotInfoByName( name )`, and the callee hands an optional text back where the target takes a value. A never-null ruling is due.
-    // Raven wrote: botinfo = G_GetBotInfoByName( name )
-    portMissing("G_AddBot", source: "oracle/codemp/game/g_bot.c:792")
+    botinfo = G_GetBotInfoByName(name)
+    if botinfo == nil {
+        G_Printf(S_COLOR_RED + "Error: Bot '%s' not defined\n", name)
+        return
+    }
 
     // create the bot's userinfo
     userinfo[0] = 0
 
-    // Port-note: A store into `botname`, a local the draft left as a hole.
-    // Raven wrote: botname = Info_ValueForKey( botinfo, "funname" )
-    portMissing("G_AddBot", source: "oracle/codemp/game/g_bot.c:792")
-    // Port-note: A read of `botname`, a local the draft left as a hole.
-    // Raven wrote: if( !botname[0] ) { botname = Info_ValueForKey( botinfo, "name" ); }
-    portMissing("G_AddBot", source: "oracle/codemp/game/g_bot.c:792")
+    botname = Info_ValueForKey(botinfo!, "funname")
+    if botname.isEmpty {
+        botname = Info_ValueForKey(botinfo!, "name")
+    }
     // check for an alternative name
     if altname[0] != 0 {
-        // Port-note: A store into `botname`, a local the draft left as a hole.
-        // Raven wrote: botname = altname
-        portMissing("G_AddBot", source: "oracle/codemp/game/g_bot.c:792")
+        botname = String(altname)
     }
-    // Port-note: A read of `botname`, a local the draft left as a hole.
-    // Raven wrote: Info_SetValueForKey( userinfo, "name", botname )
-    portMissing("G_AddBot", source: "oracle/codemp/game/g_bot.c:792")
+    Info_SetValueForKey(&userinfo, "name", botname)
     Info_SetValueForKey(&userinfo, "rate", "25000")
     Info_SetValueForKey(&userinfo, "snaps", "20")
     Info_SetValueForKey(&userinfo, "skill", va("%1.2f", skill))
@@ -931,10 +913,10 @@ private func G_AddBot(_ name: String, _ skill: Float, _ team: String, _ delay: I
     }
 
     key = "model"
-    model = Info_ValueForKey(botinfo, key)
-    // Port-note: A pointer dereference the draft cannot place.
-    // Raven wrote: if ( !*model ) { model = "kyle/default"; }
-    portMissing("G_AddBot", source: "oracle/codemp/game/g_bot.c:792")
+    model = Info_ValueForKey(botinfo!, key)
+    if model.isEmpty {
+        model = "kyle/default"
+    }
     Info_SetValueForKey(&userinfo, key, model)
 
     /*	key = "headmodel";
@@ -947,53 +929,53 @@ private func G_AddBot(_ name: String, _ skill: Float, _ team: String, _ delay: I
     Info_SetValueForKey( userinfo, key, headmodel );
     */
     key = "gender"
-    s = Info_ValueForKey(botinfo, key)
-    // Port-note: A pointer dereference the draft cannot place.
-    // Raven wrote: if ( !*s ) { s = "male"; }
-    portMissing("G_AddBot", source: "oracle/codemp/game/g_bot.c:792")
+    s = Info_ValueForKey(botinfo!, key)
+    if s.isEmpty {
+        s = "male"
+    }
     Info_SetValueForKey(&userinfo, "sex", s)
 
     key = "color1"
-    s = Info_ValueForKey(botinfo, key)
-    // Port-note: A pointer dereference the draft cannot place.
-    // Raven wrote: if ( !*s ) { s = "4"; }
-    portMissing("G_AddBot", source: "oracle/codemp/game/g_bot.c:792")
+    s = Info_ValueForKey(botinfo!, key)
+    if s.isEmpty {
+        s = "4"
+    }
     Info_SetValueForKey(&userinfo, key, s)
 
     key = "color2"
-    s = Info_ValueForKey(botinfo, key)
-    // Port-note: A pointer dereference the draft cannot place.
-    // Raven wrote: if ( !*s ) { s = "4"; }
-    portMissing("G_AddBot", source: "oracle/codemp/game/g_bot.c:792")
+    s = Info_ValueForKey(botinfo!, key)
+    if s.isEmpty {
+        s = "4"
+    }
     Info_SetValueForKey(&userinfo, key, s)
 
     key = "saber1"
-    s = Info_ValueForKey(botinfo, key)
-    // Port-note: A pointer dereference the draft cannot place.
-    // Raven wrote: if ( !*s ) { s = "single_1"; }
-    portMissing("G_AddBot", source: "oracle/codemp/game/g_bot.c:792")
+    s = Info_ValueForKey(botinfo!, key)
+    if s.isEmpty {
+        s = "single_1"
+    }
     Info_SetValueForKey(&userinfo, key, s)
 
     key = "saber2"
-    s = Info_ValueForKey(botinfo, key)
-    // Port-note: A pointer dereference the draft cannot place.
-    // Raven wrote: if ( !*s ) { s = "none"; }
-    portMissing("G_AddBot", source: "oracle/codemp/game/g_bot.c:792")
+    s = Info_ValueForKey(botinfo!, key)
+    if s.isEmpty {
+        s = "none"
+    }
     Info_SetValueForKey(&userinfo, key, s)
 
-    s = Info_ValueForKey(botinfo, "personality")
-    // Port-note: A pointer dereference the draft cannot place.
-    // Raven wrote: if (!*s ) { Info_SetValueForKey( userinfo, "personality", "botfiles/default.jkb" ); } else { Info_SetValueForKey( userinfo, "personality", s ); }
-    portMissing("G_AddBot", source: "oracle/codemp/game/g_bot.c:792")
+    s = Info_ValueForKey(botinfo!, "personality")
+    if s.isEmpty {
+        Info_SetValueForKey(&userinfo, "personality", "botfiles/default.jkb")
+    } else {
+        Info_SetValueForKey(&userinfo, "personality", s)
+    }
 
     // have the server allocate a client slot
     clientNum = trap_BotAllocateClient()
     if clientNum == -1 {
         //		G_Printf( S_COLOR_RED "Unable to add bot.  All player slots are in use.\n" );
         //		G_Printf( S_COLOR_RED "Start server with more 'open' slots.\n" );
-        // Port-note: Raven passes `"MP_SVGAME"` to `G_GetStringEdString`, whose `char *` parameter the stub holds as an inout CharBuf. Docket row 5 is due.
-        // Raven wrote: trap_SendServerCommand( -1, va("print \"%s\n\"", G_GetStringEdString("MP_SVGAME", "UNABLE_TO_ADD_BOT")))
-        portMissing("G_AddBot", source: "oracle/codemp/game/g_bot.c:792")
+        trap_SendServerCommand(-1, va("print \"%s\n\"", G_GetStringEdString("MP_SVGAME", "UNABLE_TO_ADD_BOT")))
         return
     }
 
@@ -1176,21 +1158,21 @@ func Svcmd_BotList_f() {
     i = 0
     while i < g_numBots {
         strcpy(&name, Info_ValueForKey(g_botInfos[i], "name"))
-        // Port-note: A pointer dereference the draft cannot place.
-        // Raven wrote: if ( !*name ) { strcpy(name, "Padawan"); }
-        portMissing("Svcmd_BotList_f", source: "oracle/codemp/game/g_bot.c:1100")
+        if name[0] == 0 {
+            strcpy(&name, "Padawan")
+        }
         strcpy(&funname, Info_ValueForKey(g_botInfos[i], "funname"))
-        // Port-note: A pointer dereference the draft cannot place.
-        // Raven wrote: if ( !*funname ) { strcpy(funname, ""); }
-        portMissing("Svcmd_BotList_f", source: "oracle/codemp/game/g_bot.c:1100")
+        if funname[0] == 0 {
+            strcpy(&funname, "")
+        }
         strcpy(&model, Info_ValueForKey(g_botInfos[i], "model"))
-        // Port-note: A pointer dereference the draft cannot place.
-        // Raven wrote: if ( !*model ) { strcpy(model, "kyle/default"); }
-        portMissing("Svcmd_BotList_f", source: "oracle/codemp/game/g_bot.c:1100")
+        if model[0] == 0 {
+            strcpy(&model, "kyle/default")
+        }
         strcpy(&personality, Info_ValueForKey(g_botInfos[i], "personality"))
-        // Port-note: A pointer dereference the draft cannot place.
-        // Raven wrote: if (!*personality ) { strcpy(personality, "botfiles/kyle.jkb"); }
-        portMissing("Svcmd_BotList_f", source: "oracle/codemp/game/g_bot.c:1100")
+        if personality[0] == 0 {
+            strcpy(&personality, "botfiles/kyle.jkb")
+        }
         trap_Printf(va("%-16s %-16s %-20s %-20s\n", name, model, personality, funname))
         i += 1
     }

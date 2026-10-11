@@ -152,11 +152,8 @@ func Remote_Strafe() {
     // Raven's record lives to the end of his block, so the block is the closure.
     Trace.scratch { tr in
 
-        // Port-note: Raven passes NULL for the `forward` output. The ported function takes it by reference, so the body passes a scratch local it never reads.
-        portMissing("Remote_Strafe", source: "oracle/codemp/game/NPC_AI_Remote.c:139")
+        // Raven passes NULL for the `forward` and `up` outputs.
         var scratchForward = vec3_t()
-        // Port-note: Raven passes NULL for the `up` output. The ported function takes it by reference, so the body passes a scratch local it never reads.
-        portMissing("Remote_Strafe", source: "oracle/codemp/game/NPC_AI_Remote.c:139")
         var scratchUp = vec3_t()
         AngleVectors(NPC!.client!.renderInfo.eyeAngles, &scratchForward, &right, &scratchUp)
 
@@ -166,10 +163,6 @@ func Remote_Strafe() {
         dir = (JKAMP_BG.rand() & 1) != 0 ? -1 : 1
         _VectorMA(NPC!.r.currentOrigin, Float(REMOTE_STRAFE_DIS * dir), right, &end)
 
-        // Port-note: Raven passes NULL for `mins`, and the callee reads NULL as the zero vector.
-        portMissing("Remote_Strafe", source: "oracle/codemp/game/NPC_AI_Remote.c:139")
-        // Port-note: Raven passes NULL for `maxs`, and the callee reads NULL as the zero vector.
-        portMissing("Remote_Strafe", source: "oracle/codemp/game/NPC_AI_Remote.c:139")
         trap_Trace(tr, NPC!.r.currentOrigin, vec3_origin, vec3_origin, end, NPC!.s.number, MASK_SOLID)
 
         // Close enough

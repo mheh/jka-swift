@@ -211,9 +211,9 @@ func Wampa_Slash(_ boltIndex: Int32, _ backhand: Bool) {
 
         if DistanceSquared(radiusEnt!.r.currentOrigin, boltOrg) <= radiusSquared {
             //smack
-            // Port-note: The draft of this statement did not compile, and the compiler wrote "cannot pass immutable value as inout argument: 'vec3_origin' is a 'let' constant".
-            // Raven wrote: G_Damage( radiusEnt, NPC, NPC, vec3_origin, radiusEnt->r.currentOrigin, damage, ((backhand)?DAMAGE_NO_ARMOR:(DAMAGE_NO_ARMOR|DAMAGE_NO_KNOCKBACK)), MOD_MELEE )
-            portMissing("Wampa_Slash", source: "oracle/codemp/game/NPC_AI_Wampa.c:177")
+            // G_Damage may write `dir`, so the call passes a copy of `vec3_origin`.
+            var dir = vec3_origin
+            G_Damage(radiusEnt!, NPC, NPC, &dir, radiusEnt!.r.currentOrigin, damage, ((backhand) ? DAMAGE_NO_ARMOR : (DAMAGE_NO_ARMOR | DAMAGE_NO_KNOCKBACK)), MOD_MELEE)
             if backhand {
                 //actually push the enemy
                 var pushDir = vec3_t()
@@ -221,11 +221,8 @@ func Wampa_Slash(_ boltIndex: Int32, _ backhand: Bool) {
                 angs = NPC!.client!.ps.viewangles
                 angs[YAW] += flrand(25, 50)
                 angs[PITCH] = flrand(-25, -15)
-                // Port-note: Raven passes NULL for the `right` output. The ported function takes it by reference, so the body passes a scratch local it never reads.
-                portMissing("Wampa_Slash", source: "oracle/codemp/game/NPC_AI_Wampa.c:177")
+                // Raven passes NULL for the `right` and `up` outputs.
                 var scratchRight = vec3_t()
-                // Port-note: Raven passes NULL for the `up` output. The ported function takes it by reference, so the body passes a scratch local it never reads.
-                portMissing("Wampa_Slash", source: "oracle/codemp/game/NPC_AI_Wampa.c:177")
                 var scratchUp = vec3_t()
                 AngleVectors(angs, &pushDir, &scratchRight, &scratchUp)
                 if radiusEnt!.client!.NPC_class != CLASS_WAMPA && radiusEnt!.client!.NPC_class != CLASS_RANCOR && radiusEnt!.client!.NPC_class != CLASS_ATST {
@@ -257,11 +254,8 @@ func Wampa_Slash(_ boltIndex: Int32, _ backhand: Bool) {
                 angs = NPC!.client!.ps.viewangles
                 angs[YAW] += flrand(25, 50)
                 angs[PITCH] = flrand(-25, -15)
-                // Port-note: Raven passes NULL for the `right` output. The ported function takes it by reference, so the body passes a scratch local it never reads.
-                portMissing("Wampa_Slash", source: "oracle/codemp/game/NPC_AI_Wampa.c:177")
+                // Raven passes NULL for the `right` and `up` outputs.
                 var scratchRight2 = vec3_t()
-                // Port-note: Raven passes NULL for the `up` output. The ported function takes it by reference, so the body passes a scratch local it never reads.
-                portMissing("Wampa_Slash", source: "oracle/codemp/game/NPC_AI_Wampa.c:177")
                 var scratchUp2 = vec3_t()
                 AngleVectors(angs, &pushDir, &scratchRight2, &scratchUp2)
                 G_Knockdown(radiusEnt!)
@@ -287,11 +281,8 @@ func Wampa_Attack(_ distance: Float, _ doCharge: Bool) {
             yawAng = vec3_t(0, NPC!.client!.ps.viewangles[YAW], 0)
             NPC_SetAnim(NPC!, SETANIM_BOTH, BOTH_ATTACK2, SETANIM_FLAG_OVERRIDE | SETANIM_FLAG_HOLD)
             TIMER_Set(NPC!, "attack_dmg", 500)
-            // Port-note: Raven passes NULL for the `right` output. The ported function takes it by reference, so the body passes a scratch local it never reads.
-            portMissing("Wampa_Attack", source: "oracle/codemp/game/NPC_AI_Wampa.c:267")
+            // Raven passes NULL for the `right` and `up` outputs.
             var scratchRight = vec3_t()
-            // Port-note: Raven passes NULL for the `up` output. The ported function takes it by reference, so the body passes a scratch local it never reads.
-            portMissing("Wampa_Attack", source: "oracle/codemp/game/NPC_AI_Wampa.c:267")
             var scratchUp = vec3_t()
             AngleVectors(yawAng, &fwd, &scratchRight, &scratchUp)
             NPC!.client!.ps.velocity = fwd * (distance * 1.5)
@@ -377,12 +368,9 @@ func Wampa_Combat() {
         Wampa_Move(1 != 0)
         return
     } else {
-        // Port-note: An assignment inside an expression.
-        // Raven wrote: float distance = enemyDist = Distance( NPC->r.currentOrigin, NPC->enemy->r.currentOrigin );
-        portMissing("Wampa_Combat", source: "oracle/codemp/game/NPC_AI_Wampa.c:344")
-        // Port-note: A read of `distance`, a local the draft left as a hole.
-        // Raven wrote: qboolean advance = (qboolean)( distance > (NPC->r.maxs[0]+MIN_DISTANCE) ? qtrue : qfalse );
-        portMissing("Wampa_Combat", source: "oracle/codemp/game/NPC_AI_Wampa.c:344")
+        enemyDist = Distance(NPC!.r.currentOrigin, NPC!.enemy!.r.currentOrigin)
+        let distance: Float = enemyDist
+        var advance: Bool = distance > (NPC!.r.maxs[0] + MIN_DISTANCE) ? true : false
         var doCharge: Bool = false
 
         // Sometimes I have problems with facing the enemy I'm attacking, so force the issue so I don't look dumb
@@ -390,13 +378,42 @@ func Wampa_Combat() {
         NPC_FaceEnemy(true)
 
 
-        // Port-note: A read of `advance`, a local the draft left as a hole.
-        // Raven wrote: if ( advance ) {//have to get closer vec3_t yawOnlyAngles; VectorSet( yawOnlyAngles, 0, NPC->r.currentAngles[YAW], 0 ); if ( NPC->enemy->health > 0//enemy still alive && fabs(distance-350) <= 80 //enemy anywhere from 270 to 430 away && InFOV3( NPC->enemy->r.currentOrigin, NPC->r.currentOrigin, yawOnlyAngles, 20, 20 ) )//enemy generally in front {//10% chance of doing charge anim if ( !Q_irand( 0, 9 ) ) {//go for the charge doCharge = qtrue; advance = qfalse; } } }
-        portMissing("Wampa_Combat", source: "oracle/codemp/game/NPC_AI_Wampa.c:344")
+        if advance {
+            //have to get closer
+            var yawOnlyAngles = vec3_t()
+            yawOnlyAngles = vec3_t(0, NPC!.r.currentAngles[YAW], 0)
+            if NPC!.enemy!.health > 0 //enemy still alive
+                && abs(distance - 350) <= 80 //enemy anywhere from 270 to 430 away
+                && InFOV3(NPC!.enemy!.r.currentOrigin, NPC!.r.currentOrigin, yawOnlyAngles, 20, 20) {
+                //enemy generally in front
+                //10% chance of doing charge anim
+                if Q_irand(0, 9) == 0 {
+                    //go for the charge
+                    doCharge = true
+                    advance = false
+                }
+            }
+        }
 
-        // Port-note: A read of `advance`, a local the draft left as a hole.
-        // Raven wrote: if (( advance || NPCInfo->localState == LSTATE_WAITING ) && TIMER_Done( NPC, "attacking" )) // waiting monsters can't attack { if ( TIMER_Done2( NPC, "takingPain", qtrue )) { NPCInfo->localState = LSTATE_CLEAR; } else { Wampa_Move( 1 ); } } else { if ( !Q_irand( 0, 20 ) ) {//FIXME: only do this if we just damaged them or vice-versa? if ( Wampa_CheckRoar( NPC ) ) { return; } } if ( !Q_irand( 0, 1 ) ) {//FIXME: base on skill Wampa_Attack( distance, doCharge ); } }
-        portMissing("Wampa_Combat", source: "oracle/codemp/game/NPC_AI_Wampa.c:344")
+        if (advance || NPCInfo!.localState == LSTATE_WAITING) && TIMER_Done(NPC!, "attacking") {
+            // waiting monsters can't attack
+            if TIMER_Done2(NPC!, "takingPain", true) {
+                NPCInfo!.localState = LSTATE_CLEAR
+            } else {
+                Wampa_Move(1 != 0)
+            }
+        } else {
+            if Q_irand(0, 20) == 0 {
+                //FIXME: only do this if we just damaged them or vice-versa?
+                if Wampa_CheckRoar(NPC!) {
+                    return
+                }
+            }
+            if Q_irand(0, 1) == 0 {
+                //FIXME: base on skill
+                Wampa_Attack(distance, doCharge)
+            }
+        }
     }
 }
 

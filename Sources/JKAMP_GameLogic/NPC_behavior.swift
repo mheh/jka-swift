@@ -89,19 +89,11 @@ func NPC_BSAdvanceFight() {
                     Trace.scratch { tr in
                         var traceEnt: Entity?
                         //are we gonna hit him if we shoot at his center?
-                        // Port-note: Raven passes NULL for `mins`, and the callee reads NULL as the zero vector.
-                        portMissing("NPC_BSAdvanceFight", source: "oracle/codemp/game/NPC_behavior.c:29")
-                        // Port-note: Raven passes NULL for `maxs`, and the callee reads NULL as the zero vector.
-                        portMissing("NPC_BSAdvanceFight", source: "oracle/codemp/game/NPC_behavior.c:29")
                         trap_Trace(tr, muzzle, vec3_origin, vec3_origin, enemy_org, NPC!.s.number, MASK_SHOT)
                         traceEnt = g_entities[tr.entityNum]
                         if traceEnt != NPC!.enemy && (traceEnt == nil || traceEnt!.client == nil || NPC!.client!.enemyTeam == 0 || NPC!.client!.enemyTeam != traceEnt!.client!.playerTeam) {
                             //no, so shoot for the head
                             attack_scale = Float(Double(attack_scale) * 0.75)
-                            // Port-note: Raven passes NULL for `mins`, and the callee reads NULL as the zero vector.
-                            portMissing("NPC_BSAdvanceFight", source: "oracle/codemp/game/NPC_behavior.c:29")
-                            // Port-note: Raven passes NULL for `maxs`, and the callee reads NULL as the zero vector.
-                            portMissing("NPC_BSAdvanceFight", source: "oracle/codemp/game/NPC_behavior.c:29")
                             trap_Trace(tr, muzzle, vec3_origin, vec3_origin, enemy_head, NPC!.s.number, MASK_SHOT)
                             traceEnt = g_entities[tr.entityNum]
                         }
@@ -134,12 +126,9 @@ func NPC_BSAdvanceFight() {
                     if !dead_on {
                         //We're not going to hit him directly, try a suppressing fire
                         //see if where we're going to shoot is too far from his origin
-                        // Port-note: Raven passes NULL for the `right` output. The ported function takes it by reference, so the body passes a scratch local it never reads.
-                        portMissing("NPC_BSAdvanceFight", source: "oracle/codemp/game/NPC_behavior.c:29")
                         var scratchRight = vec3_t()
-                        // Port-note: Raven passes NULL for the `up` output. The ported function takes it by reference, so the body passes a scratch local it never reads.
-                        portMissing("NPC_BSAdvanceFight", source: "oracle/codemp/game/NPC_behavior.c:29")
                         var scratchUp = vec3_t()
+                        // Raven passes NULL for the right and up outputs.
                         AngleVectors(NPCInfo!.shootAngles, &forward, &scratchRight, &scratchUp)
                         _VectorMA(muzzle, distanceToEnemy, forward, &hitspot)
                         diff = hitspot - enemy_org
@@ -1094,9 +1083,8 @@ func NPC_BSNoClip() {
         vectoangles(dir, &angles)
         NPCInfo!.desiredYaw = angles[YAW]
 
-        // Port-note: Raven passes NULL for the `up` output. The ported function takes it by reference, so the body passes a scratch local it never reads.
-        portMissing("NPC_BSNoClip", source: "oracle/codemp/game/NPC_behavior.c:1160")
         var scratchUp = vec3_t()
+        // Raven passes NULL for the up output.
         AngleVectors(NPC!.r.currentAngles, &forward, &right, &scratchUp)
 
         VectorNormalize(&dir)

@@ -173,11 +173,8 @@ func ImperialProbe_Strafe() {
     // Raven's record lives to the end of his block, so the block is the closure.
     Trace.scratch { tr in
 
-        // Port-note: Raven passes NULL for the `forward` output. The ported function takes it by reference, so the body passes a scratch local it never reads.
-        portMissing("ImperialProbe_Strafe", source: "oracle/codemp/game/NPC_AI_ImperialProbe.c:182")
+        // Raven passes NULL for the `forward` and `up` outputs.
         var scratchForward = vec3_t()
-        // Port-note: Raven passes NULL for the `up` output. The ported function takes it by reference, so the body passes a scratch local it never reads.
-        portMissing("ImperialProbe_Strafe", source: "oracle/codemp/game/NPC_AI_ImperialProbe.c:182")
         var scratchUp = vec3_t()
         AngleVectors(NPC!.client!.renderInfo.eyeAngles, &scratchForward, &right, &scratchUp)
 
@@ -187,10 +184,6 @@ func ImperialProbe_Strafe() {
         dir = (JKAMP_BG.rand() & 1) != 0 ? -1 : 1
         _VectorMA(NPC!.r.currentOrigin, Float(HUNTER_STRAFE_DIS * dir), right, &end)
 
-        // Port-note: Raven passes NULL for `mins`, and the callee reads NULL as the zero vector.
-        portMissing("ImperialProbe_Strafe", source: "oracle/codemp/game/NPC_AI_ImperialProbe.c:182")
-        // Port-note: Raven passes NULL for `maxs`, and the callee reads NULL as the zero vector.
-        portMissing("ImperialProbe_Strafe", source: "oracle/codemp/game/NPC_AI_ImperialProbe.c:182")
         trap_Trace(tr, NPC!.r.currentOrigin, vec3_origin, vec3_origin, end, NPC!.s.number, MASK_SOLID)
 
         // Close enough
@@ -412,10 +405,6 @@ func NPC_Probe_Pain(_ `self`: Entity, _ attacker: Entity, _ damage: Int32) {
         Trace.scratch { trace in
 
             endPos = vec3_t(`self`.r.currentOrigin[0], `self`.r.currentOrigin[1], `self`.r.currentOrigin[2] - 128)
-            // Port-note: Raven passes NULL for `mins`, and the callee reads NULL as the zero vector.
-            portMissing("NPC_Probe_Pain", source: "oracle/codemp/game/NPC_AI_ImperialProbe.c:433")
-            // Port-note: Raven passes NULL for `maxs`, and the callee reads NULL as the zero vector.
-            portMissing("NPC_Probe_Pain", source: "oracle/codemp/game/NPC_AI_ImperialProbe.c:433")
             trap_Trace(trace, `self`.r.currentOrigin, vec3_origin, vec3_origin, endPos, `self`.s.number, MASK_SOLID)
 
             if trace.fraction == 1.0 || mod == MOD_DEMP2 {
@@ -531,17 +520,11 @@ func ImperialProbe_Wait() {
             NPCInfo!.desiredYaw = AngleNormalize360(NPCInfo!.desiredYaw + 25)
 
             endPos = vec3_t(NPC!.r.currentOrigin[0], NPC!.r.currentOrigin[1], NPC!.r.currentOrigin[2] - 32)
-            // Port-note: Raven passes NULL for `mins`, and the callee reads NULL as the zero vector.
-            portMissing("ImperialProbe_Wait", source: "oracle/codemp/game/NPC_AI_ImperialProbe.c:563")
-            // Port-note: Raven passes NULL for `maxs`, and the callee reads NULL as the zero vector.
-            portMissing("ImperialProbe_Wait", source: "oracle/codemp/game/NPC_AI_ImperialProbe.c:563")
             trap_Trace(trace, NPC!.r.currentOrigin, vec3_origin, vec3_origin, endPos, NPC!.s.number, MASK_SOLID)
 
             if trace.fraction != 1.0 {
-                // Port-note: Raven passes NULL for the `dir` output. The ported function takes it by reference, so the body passes a scratch local it never reads.
-                portMissing("ImperialProbe_Wait", source: "oracle/codemp/game/NPC_AI_ImperialProbe.c:563")
-                var scratchDir = vec3_t()
-                G_Damage(NPC!, NPC!.enemy, NPC!.enemy, &scratchDir, nil, 2000, 0, MOD_UNKNOWN)
+                var dir: vec3_t? = nil
+                G_Damage(NPC!, NPC!.enemy, NPC!.enemy, &dir, nil, 2000, 0, MOD_UNKNOWN)
             }
         }
     }

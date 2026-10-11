@@ -2619,21 +2619,19 @@ func NPC_SearchForWeapons() -> Entity? {
             if trap_InPVS(g_entities[foundIndex].r.currentOrigin, NPC!.r.currentOrigin) {
                 dist = DistanceSquared(g_entities[foundIndex].r.currentOrigin, NPC!.r.currentOrigin)
                 if dist < bestDist {
-                    // Port-note: The draft of this statement did not compile, and the compiler wrote "type 'Int32' cannot be used as a boolean; test for '== 0' instead"
-                    portMissing("NPC_SearchForWeapons", source: "oracle/codemp/game/NPC_combat.c:2988")
-                    // if !trap_Nav_GetBestPathBetweenEnts(NPC!, g_entities[foundIndex], NF_CLEAR_PATH)
-                    //     || trap_Nav_GetBestNodeAltRoute2(NPC!.waypoint, g_entities[foundIndex].waypoint, NODE_NONE) == WAYPOINT_NONE {
-                    //     //can't possibly have a route to any OR can't possibly have a route to this one OR don't have a route to this one
-                    //     if NAV_ClearPathToPoint(NPC!, NPC!.r.mins, NPC!.r.maxs, g_entities[foundIndex].r.currentOrigin, NPC!.clipmask, ENTITYNUM_NONE) {
-                    //         //have a clear straight path to this one
-                    //         bestDist = dist
-                    //         bestFound = g_entities[foundIndex]
-                    //     }
-                    // } else {
-                    //     //can nav to it
-                    //     bestDist = dist
-                    //     bestFound = g_entities[foundIndex]
-                    // }
+                    if trap_Nav_GetBestPathBetweenEnts(NPC!, g_entities[foundIndex], NF_CLEAR_PATH) == 0
+                        || trap_Nav_GetBestNodeAltRoute2(NPC!.waypoint, g_entities[foundIndex].waypoint, NODE_NONE) == WAYPOINT_NONE {
+                        //can't possibly have a route to any OR can't possibly have a route to this one OR don't have a route to this one
+                        if NAV_ClearPathToPoint(NPC!, NPC!.r.mins, NPC!.r.maxs, g_entities[foundIndex].r.currentOrigin, NPC!.clipmask, ENTITYNUM_NONE) {
+                            //have a clear straight path to this one
+                            bestDist = dist
+                            bestFound = g_entities[foundIndex]
+                        }
+                    } else {
+                        //can nav to it
+                        bestDist = dist
+                        bestFound = g_entities[foundIndex]
+                    }
                 }
             }
         }

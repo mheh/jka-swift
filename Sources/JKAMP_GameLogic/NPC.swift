@@ -388,9 +388,8 @@ func pitch_roll_for_slope(_ forwhom: Entity, _ pass_slope: JKAShared.vec3_t?) {
     }
 
 
-    // Port-note: Raven passes NULL for the `up` output. The ported function takes it by reference, so the body passes a scratch local it never reads.
-    portMissing("pitch_roll_for_slope", source: "oracle/codemp/game/NPC.c:395")
     var scratchUp = vec3_t()
+    // Raven passes NULL for the up output.
     AngleVectors(forwhom.r.currentAngles, &ovf, &ovr, &scratchUp)
 
     vectoangles(slope, &new_angles)
@@ -398,12 +397,9 @@ func pitch_roll_for_slope(_ forwhom: Entity, _ pass_slope: JKAShared.vec3_t?) {
     new_angles[PITCH] = 0
     new_angles[ROLL] = new_angles[PITCH]
 
-    // Port-note: Raven passes NULL for the `right` output. The ported function takes it by reference, so the body passes a scratch local it never reads.
-    portMissing("pitch_roll_for_slope", source: "oracle/codemp/game/NPC.c:395")
     var scratchRight = vec3_t()
-    // Port-note: Raven passes NULL for the `up` output. The ported function takes it by reference, so the body passes a scratch local it never reads.
-    portMissing("pitch_roll_for_slope", source: "oracle/codemp/game/NPC.c:395")
     var scratchUp2 = vec3_t()
+    // Raven passes NULL for the right and up outputs.
     AngleVectors(new_angles, &nvf, &scratchRight, &scratchUp2)
 
     mod = _DotProduct(nvf, ovr)
@@ -547,13 +543,12 @@ private func DeadThink() {
         // If the player is on the ground and the resting position contents haven't been set yet...(BounceCount tracks the contents)
         if NPC!.bounceCount < 0 && NPC!.s.groundEntityNum >= 0 {
             // if client is in a nodrop area, make him/her nodraw
-            // Port-note: An assignment inside an expression.
-            // Raven wrote: int contents = NPC->bounceCount = trap_PointContents( NPC->r.currentOrigin, -1 );
-            portMissing("DeadThink", source: "oracle/codemp/game/NPC.c:478")
+            NPC!.bounceCount = trap_PointContents(NPC!.r.currentOrigin, -1)
+            let contents: Int32 = NPC!.bounceCount
 
-            // Port-note: A read of `contents`, a local the draft left as a hole.
-            // Raven wrote: if ( ( contents & CONTENTS_NODROP ) ) { NPC->client->ps.eFlags |= EF_NODRAW; }
-            portMissing("DeadThink", source: "oracle/codemp/game/NPC.c:478")
+            if (contents & CONTENTS_NODROP) != 0 {
+                NPC!.client!.ps.eFlags |= EF_NODRAW
+            }
         }
 
         CorpsePhysics(NPC!)
@@ -612,9 +607,14 @@ func NPC_ShowDebugInfo() {
         var mins = vec3_t()
         var maxs = vec3_t()
 
-        // Port-note: An assignment inside an expression.
-        // Raven wrote: while( (found = G_Find( found, FOFS(classname), "NPC" ) ) != NULL ) { if ( trap_InPVS( found->r.currentOrigin, g_entities[0].r.currentOrigin ) ) { VectorAdd( found->r.currentOrigin, found->r.mins, mins ); VectorAdd( found->r.currentOrigin, found->r.maxs, maxs ); G_Cube( mins, maxs, NPCDEBUG_RED, 0.25 ); } }
-        portMissing("NPC_ShowDebugInfo", source: "oracle/codemp/game/NPC.c:664")
+        while let next = G_Find(found, \.classname, "NPC") {
+            found = next
+            if trap_InPVS(found!.r.currentOrigin, g_entities[0].r.currentOrigin) {
+                mins = found!.r.currentOrigin + found!.r.mins
+                maxs = found!.r.currentOrigin + found!.r.maxs
+                G_Cube(mins, maxs, NPCDEBUG_RED, 0.25)
+            }
+        }
     }
 }
 

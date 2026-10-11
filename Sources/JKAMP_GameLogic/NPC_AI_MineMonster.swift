@@ -118,11 +118,8 @@ func MineMonster_TryDamage(_ enemy: Entity, _ damage: Int32) {
     let earlyOut = Trace.scratch { tr -> Bool in
 
 
-        // Port-note: Raven passes NULL for the `right` output. The ported function takes it by reference, so the body passes a scratch local it never reads.
-        portMissing("MineMonster_TryDamage", source: "oracle/codemp/game/NPC_AI_MineMonster.c:101")
+        // Raven passes NULL for the `right` and `up` outputs.
         var scratchRight = vec3_t()
-        // Port-note: Raven passes NULL for the `up` output. The ported function takes it by reference, so the body passes a scratch local it never reads.
-        portMissing("MineMonster_TryDamage", source: "oracle/codemp/game/NPC_AI_MineMonster.c:101")
         var scratchUp = vec3_t()
         AngleVectors(NPC!.client!.ps.viewangles, &dir, &scratchRight, &scratchUp)
         _VectorMA(NPC!.r.currentOrigin, Float(MIN_DISTANCE), dir, &end)

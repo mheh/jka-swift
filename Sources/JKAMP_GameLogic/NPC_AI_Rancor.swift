@@ -261,17 +261,14 @@ func Rancor_Swing(_ tryGrab: Bool) {
                 angs = NPC!.client!.ps.viewangles
                 angs[YAW] += flrand(25, 50)
                 angs[PITCH] = flrand(-25, -15)
-                // Port-note: Raven passes NULL for the `right` output. The ported function takes it by reference, so the body passes a scratch local it never reads.
-                portMissing("Rancor_Swing", source: "oracle/codemp/game/NPC_AI_Rancor.c:196")
+                // Raven passes NULL for the `right` and `up` outputs.
                 var scratchRight = vec3_t()
-                // Port-note: Raven passes NULL for the `up` output. The ported function takes it by reference, so the body passes a scratch local it never reads.
-                portMissing("Rancor_Swing", source: "oracle/codemp/game/NPC_AI_Rancor.c:196")
                 var scratchUp = vec3_t()
                 AngleVectors(angs, &pushDir, &scratchRight, &scratchUp)
                 if radiusEnt!.client!.NPC_class != CLASS_RANCOR && radiusEnt!.client!.NPC_class != CLASS_ATST {
-                    // Port-note: The draft of this statement did not compile, and the compiler wrote "cannot pass immutable value as inout argument: 'vec3_origin' is a 'let' constant".
-                    // Raven wrote: G_Damage( radiusEnt, NPC, NPC, vec3_origin, radiusEnt->r.currentOrigin, Q_irand( 25, 40 ), DAMAGE_NO_ARMOR|DAMAGE_NO_KNOCKBACK, MOD_MELEE )
-                    portMissing("Rancor_Swing", source: "oracle/codemp/game/NPC_AI_Rancor.c:196")
+                    // G_Damage may write `dir`, so the call passes a copy of `vec3_origin`.
+                    var dir = vec3_origin
+                    G_Damage(radiusEnt!, NPC, NPC, &dir, radiusEnt!.r.currentOrigin, Q_irand(25, 40), DAMAGE_NO_ARMOR | DAMAGE_NO_KNOCKBACK, MOD_MELEE)
                     G_Throw(radiusEnt!, pushDir, 250)
                     if radiusEnt!.health > 0 {
                         //do pain on enemy
@@ -330,9 +327,9 @@ func Rancor_Smash() {
             G_Sound(radiusEnt!, CHAN_AUTO, G_SoundIndex("sound/chars/rancor/swipehit.wav"))
             if distSq < halfRadSquared {
                 //close enough to do damage, too
-                // Port-note: The draft of this statement did not compile, and the compiler wrote "cannot pass immutable value as inout argument: 'vec3_origin' is a 'let' constant".
-                // Raven wrote: G_Damage( radiusEnt, NPC, NPC, vec3_origin, radiusEnt->r.currentOrigin, Q_irand( 10, 25 ), DAMAGE_NO_ARMOR|DAMAGE_NO_KNOCKBACK, MOD_MELEE )
-                portMissing("Rancor_Smash", source: "oracle/codemp/game/NPC_AI_Rancor.c:308")
+                // G_Damage may write `dir`, so the call passes a copy of `vec3_origin`.
+                var dir = vec3_origin
+                G_Damage(radiusEnt!, NPC, NPC, &dir, radiusEnt!.r.currentOrigin, Q_irand(10, 25), DAMAGE_NO_ARMOR | DAMAGE_NO_KNOCKBACK, MOD_MELEE)
             }
             if radiusEnt!.health > 0 && radiusEnt!.client != nil && radiusEnt!.client!.NPC_class != CLASS_RANCOR && radiusEnt!.client!.NPC_class != CLASS_ATST {
                 if distSq < halfRadSquared || radiusEnt!.client!.ps.groundEntityNum != ENTITYNUM_NONE {
@@ -383,9 +380,9 @@ func Rancor_Bite() {
         }
 
         if DistanceSquared(radiusEnt!.r.currentOrigin, boltOrg) <= radiusSquared {
-            // Port-note: The draft of this statement did not compile, and the compiler wrote "cannot pass immutable value as inout argument: 'vec3_origin' is a 'let' constant".
-            // Raven wrote: G_Damage( radiusEnt, NPC, NPC, vec3_origin, radiusEnt->r.currentOrigin, Q_irand( 15, 30 ), DAMAGE_NO_ARMOR|DAMAGE_NO_KNOCKBACK, MOD_MELEE )
-            portMissing("Rancor_Bite", source: "oracle/codemp/game/NPC_AI_Rancor.c:369")
+            // G_Damage may write `dir`, so the call passes a copy of `vec3_origin`.
+            var dir = vec3_origin
+            G_Damage(radiusEnt!, NPC, NPC, &dir, radiusEnt!.r.currentOrigin, Q_irand(15, 30), DAMAGE_NO_ARMOR | DAMAGE_NO_KNOCKBACK, MOD_MELEE)
             if radiusEnt!.health <= 0 && radiusEnt!.client != nil {
                 //killed them, chance of dismembering
                 if Q_irand(0, 1) == 0 {
@@ -438,11 +435,8 @@ func Rancor_Attack(_ distance: Float, _ doCharge: Bool) {
             var fwd = vec3_t()
             var yawAng = vec3_t()
             yawAng = vec3_t(0, NPC!.client!.ps.viewangles[YAW], 0)
-            // Port-note: Raven passes NULL for the `right` output. The ported function takes it by reference, so the body passes a scratch local it never reads.
-            portMissing("Rancor_Attack", source: "oracle/codemp/game/NPC_AI_Rancor.c:431")
+            // Raven passes NULL for the `right` and `up` outputs.
             var scratchRight = vec3_t()
-            // Port-note: Raven passes NULL for the `up` output. The ported function takes it by reference, so the body passes a scratch local it never reads.
-            portMissing("Rancor_Attack", source: "oracle/codemp/game/NPC_AI_Rancor.c:431")
             var scratchUp = vec3_t()
             AngleVectors(yawAng, &fwd, &scratchRight, &scratchUp)
             NPC!.client!.ps.velocity = fwd * (distance * 1.5)
@@ -481,9 +475,9 @@ func Rancor_Attack(_ distance: Float, _ doCharge: Bool) {
 
         case BOTH_ATTACK1:
             if NPC!.count == 1 && NPC!.activator != nil {
-                // Port-note: The draft of this statement did not compile, and the compiler wrote "cannot pass immutable value as inout argument: 'vec3_origin' is a 'let' constant".
-                // Raven wrote: G_Damage( NPC->activator, NPC, NPC, vec3_origin, NPC->activator->r.currentOrigin, Q_irand( 25, 40 ), DAMAGE_NO_ARMOR|DAMAGE_NO_KNOCKBACK, MOD_MELEE )
-                portMissing("Rancor_Attack", source: "oracle/codemp/game/NPC_AI_Rancor.c:431")
+                // G_Damage may write `dir`, so the call passes a copy of `vec3_origin`.
+                var dir = vec3_origin
+                G_Damage(NPC!.activator!, NPC, NPC, &dir, NPC!.activator!.r.currentOrigin, Q_irand(25, 40), DAMAGE_NO_ARMOR | DAMAGE_NO_KNOCKBACK, MOD_MELEE)
                 if NPC!.activator!.health <= 0 {
                     //killed him
                     //make it look like we bit his head off
@@ -510,9 +504,9 @@ func Rancor_Attack(_ distance: Float, _ doCharge: Bool) {
                     //G_DoDismemberment( NPC->activator, NPC->enemy->r.currentOrigin, MOD_SABER, 1000, HL_WAIST, qtrue );
                 }
                 //KILL
-                // Port-note: The draft of this statement did not compile, and the compiler wrote "cannot pass immutable value as inout argument: 'vec3_origin' is a 'let' constant".
-                // Raven wrote: G_Damage( NPC->activator, NPC, NPC, vec3_origin, NPC->activator->r.currentOrigin, NPC->enemy->health+10, DAMAGE_NO_PROTECTION|DAMAGE_NO_ARMOR|DAMAGE_NO_KNOCKBACK|DAMAGE_NO_HIT_LOC, MOD_MELEE )
-                portMissing("Rancor_Attack", source: "oracle/codemp/game/NPC_AI_Rancor.c:431")
+                // G_Damage may write `dir`, so the call passes a copy of `vec3_origin`.
+                var dir = vec3_origin
+                G_Damage(NPC!.activator!, NPC, NPC, &dir, NPC!.activator!.r.currentOrigin, NPC!.enemy!.health + 10, DAMAGE_NO_PROTECTION | DAMAGE_NO_ARMOR | DAMAGE_NO_KNOCKBACK | DAMAGE_NO_HIT_LOC, MOD_MELEE)
                 if NPC!.activator!.client != nil {
                     NPC!.activator!.client!.ps.forceHandExtend = HANDEXTEND_NONE
                     NPC!.activator!.client!.ps.forceHandExtendTime = 0
@@ -552,9 +546,9 @@ func Rancor_Attack(_ distance: Float, _ doCharge: Bool) {
                     G_Dismember(NPC!.activator!, NPC!, NPC!.activator!.r.currentOrigin, G2_MODELPART_WAIST, 90, 0, NPC!.activator!.client!.ps.torsoAnim, true)
                     //G_DoDismemberment( NPC->activator, NPC->enemy->r.currentOrigin, MOD_SABER, 1000, HL_WAIST, qtrue );
                     //KILL
-                    // Port-note: The draft of this statement did not compile, and the compiler wrote "cannot pass immutable value as inout argument: 'vec3_origin' is a 'let' constant".
-                    // Raven wrote: G_Damage( NPC->activator, NPC, NPC, vec3_origin, NPC->activator->r.currentOrigin, NPC->enemy->health+10, DAMAGE_NO_PROTECTION|DAMAGE_NO_ARMOR|DAMAGE_NO_KNOCKBACK|DAMAGE_NO_HIT_LOC, MOD_MELEE )
-                    portMissing("Rancor_Attack", source: "oracle/codemp/game/NPC_AI_Rancor.c:431")
+                    // G_Damage may write `dir`, so the call passes a copy of `vec3_origin`.
+                    var dir = vec3_origin
+                    G_Damage(NPC!.activator!, NPC, NPC, &dir, NPC!.activator!.r.currentOrigin, NPC!.enemy!.health + 10, DAMAGE_NO_PROTECTION | DAMAGE_NO_ARMOR | DAMAGE_NO_KNOCKBACK | DAMAGE_NO_HIT_LOC, MOD_MELEE)
                     NPC!.activator!.client!.ps.forceHandExtend = HANDEXTEND_NONE
                     NPC!.activator!.client!.ps.forceHandExtendTime = 0
                     NPC_SetAnim(NPC!.activator!, SETANIM_BOTH, BOTH_SWIM_IDLE1, SETANIM_FLAG_OVERRIDE | SETANIM_FLAG_HOLD)
@@ -755,10 +749,8 @@ func Rancor_Crush() {
     crush = g_entities[NPC!.client!.ps.groundEntityNum]
     if crush!.inuse && crush!.client != nil && crush!.localAnimIndex == 0 {
         //a humanoid, smash them good.
-        // Port-note: Raven passes NULL for the `dir` output. The ported function takes it by reference, so the body passes a scratch local it never reads.
-        portMissing("Rancor_Crush", source: "oracle/codemp/game/NPC_AI_Rancor.c:805")
-        var scratchDir = vec3_t()
-        G_Damage(crush!, NPC, NPC, &scratchDir, NPC!.r.currentOrigin, 200, 0, MOD_CRUSH)
+        var dir: vec3_t? = nil
+        G_Damage(crush!, NPC, NPC, &dir, NPC!.r.currentOrigin, 200, 0, MOD_CRUSH)
     }
 }
 

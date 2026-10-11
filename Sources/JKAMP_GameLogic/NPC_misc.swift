@@ -12,9 +12,6 @@ Debug_Printf
 /// Source: oracle/codemp/game/NPC_misc.c:10
 func Debug_Printf(_ cv: JKAMP.VmCvar, _ debugLevel: Int32, _ fmt: inout JKAShared.CharBuf, _ args: any JKAShared.FormatArg...) {
     var color: String
-    // Port-note: A pointer local `va_list argptr` with no view.
-    // Raven wrote: va_list argptr;
-    portMissing("Debug_Printf", source: "oracle/codemp/game/NPC_misc.c:10")
     var msg = CharBuf(1024)
 
     if cv.value < debugLevel {
@@ -33,15 +30,7 @@ func Debug_Printf(_ cv: JKAMP.VmCvar, _ debugLevel: Int32, _ fmt: inout JKAShare
         color = S_COLOR_RED
     }
 
-    // Port-note: A read of `argptr`, a local the draft left as a hole.
-    // Raven wrote: va_start (argptr,fmt)
-    portMissing("Debug_Printf", source: "oracle/codemp/game/NPC_misc.c:10")
-    // Port-note: A read of `argptr`, a local the draft left as a hole.
-    // Raven wrote: vsprintf (msg, fmt, argptr)
-    portMissing("Debug_Printf", source: "oracle/codemp/game/NPC_misc.c:10")
-    // Port-note: A read of `argptr`, a local the draft left as a hole.
-    // Raven wrote: va_end (argptr)
-    portMissing("Debug_Printf", source: "oracle/codemp/game/NPC_misc.c:10")
+    strcpy(&msg, JKAShared.format(String(fmt), args))
 
     Com_Printf("%s%5i:%s", color, level.time, msg)
 }
@@ -54,9 +43,6 @@ Debug_NPCPrintf
 /// Source: oracle/codemp/game/NPC_misc.c:41
 func Debug_NPCPrintf(_ printNPC: Entity, _ cv: JKAMP.VmCvar, _ debugLevel: Int32, _ fmt: inout JKAShared.CharBuf, _ args: any JKAShared.FormatArg...) {
     var color: Int32
-    // Port-note: A pointer local `va_list argptr` with no view.
-    // Raven wrote: va_list argptr;
-    portMissing("Debug_NPCPrintf", source: "oracle/codemp/game/NPC_misc.c:41")
     var msg = CharBuf(1024)
 
     if cv.value < debugLevel {
@@ -80,15 +66,7 @@ func Debug_NPCPrintf(_ printNPC: Entity, _ cv: JKAMP.VmCvar, _ debugLevel: Int32
         color = COLOR_RED
     }
 
-    // Port-note: A read of `argptr`, a local the draft left as a hole.
-    // Raven wrote: va_start (argptr,fmt)
-    portMissing("Debug_NPCPrintf", source: "oracle/codemp/game/NPC_misc.c:41")
-    // Port-note: A read of `argptr`, a local the draft left as a hole.
-    // Raven wrote: vsprintf (msg, fmt, argptr)
-    portMissing("Debug_NPCPrintf", source: "oracle/codemp/game/NPC_misc.c:41")
-    // Port-note: A read of `argptr`, a local the draft left as a hole.
-    // Raven wrote: va_end (argptr)
-    portMissing("Debug_NPCPrintf", source: "oracle/codemp/game/NPC_misc.c:41")
+    strcpy(&msg, JKAShared.format(String(fmt), args))
 
     Com_Printf("%c%c%5i (%s) %s", Q_COLOR_ESCAPE, color, level.time, printNPC.targetname!, msg)
 }

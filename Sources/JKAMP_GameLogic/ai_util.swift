@@ -44,12 +44,8 @@ func B_CleanupAlloc() {
 
 /// Source: oracle/codemp/game/ai_util.c:160
 func GetValueGroup(_ buf: inout JKAShared.CharBuf, _ group: String, _ outbuf: inout JKAShared.CharBuf) -> Int32 {
-    // Port-note: A pointer local `char * place` with no view.
-    // Raven wrote: char *place;
-    portMissing("GetValueGroup", source: "oracle/codemp/game/ai_util.c:160")
-    // Port-note: A pointer local `char * placesecond` with no view.
-    // Raven wrote: placesecond;
-    portMissing("GetValueGroup", source: "oracle/codemp/game/ai_util.c:160")
+    var place: Int32?
+    var placesecond: Int32?
     let iplace: Int32
     var failure: Int32
     var i: Int32
@@ -61,20 +57,14 @@ func GetValueGroup(_ buf: inout JKAShared.CharBuf, _ group: String, _ outbuf: in
 
     iplace = 0
 
-    // Port-note: A store into `place`, a local the draft left as a hole.
-    // Raven wrote: place = strstr(buf, group)
-    portMissing("GetValueGroup", source: "oracle/codemp/game/ai_util.c:160")
+    place = strstr(buf, group)
 
-    // Port-note: A read of `place`, a local the draft left as a hole.
-    // Raven wrote: if (!place) { return 0; }
-    portMissing("GetValueGroup", source: "oracle/codemp/game/ai_util.c:160")
+    if place == nil {
+        return 0
+    }
 
-    // Port-note: A read of `place`, a local the draft left as a hole.
-    // Raven wrote: startpoint = place - buf + strlen(group) + 1
-    portMissing("GetValueGroup", source: "oracle/codemp/game/ai_util.c:160")
-    // Port-note: A read of `place`, a local the draft left as a hole.
-    // Raven wrote: startletter = (place - buf) - 1
-    portMissing("GetValueGroup", source: "oracle/codemp/game/ai_util.c:160")
+    startpoint = place! + strlen(group) + 1
+    startletter = (place!) - 1
 
     failure = 0
 
@@ -118,12 +108,8 @@ func GetValueGroup(_ buf: inout JKAShared.CharBuf, _ group: String, _ outbuf: in
 
 /// Source: oracle/codemp/game/ai_util.c:236
 func GetPairedValue(_ buf: inout JKAShared.CharBuf, _ key: String, _ outbuf: inout JKAShared.CharBuf) -> Int32 {
-    // Port-note: A pointer local `char * place` with no view.
-    // Raven wrote: char *place;
-    portMissing("GetPairedValue", source: "oracle/codemp/game/ai_util.c:236")
-    // Port-note: A pointer local `char * placesecond` with no view.
-    // Raven wrote: placesecond;
-    portMissing("GetPairedValue", source: "oracle/codemp/game/ai_util.c:236")
+    var place: Int32?
+    var placesecond: Int32?
     var startpoint: Int32
     var startletter: Int32
     var i: Int32
@@ -148,20 +134,14 @@ func GetPairedValue(_ buf: inout JKAShared.CharBuf, _ key: String, _ outbuf: ino
         i += 1
     }
 
-    // Port-note: A store into `place`, a local the draft left as a hole.
-    // Raven wrote: place = strstr(buf, key)
-    portMissing("GetPairedValue", source: "oracle/codemp/game/ai_util.c:236")
+    place = strstr(buf, key)
 
-    // Port-note: A read of `place`, a local the draft left as a hole.
-    // Raven wrote: if (!place) { return 0; }
-    portMissing("GetPairedValue", source: "oracle/codemp/game/ai_util.c:236")
+    if place == nil {
+        return 0
+    }
     //tab == 9
-    // Port-note: A read of `place`, a local the draft left as a hole.
-    // Raven wrote: startpoint = place - buf + strlen(key)
-    portMissing("GetPairedValue", source: "oracle/codemp/game/ai_util.c:236")
-    // Port-note: A read of `place`, a local the draft left as a hole.
-    // Raven wrote: startletter = (place - buf) - 1
-    portMissing("GetPairedValue", source: "oracle/codemp/game/ai_util.c:236")
+    startpoint = place! + strlen(key)
+    startletter = (place!) - 1
 
     found = 0
 
@@ -184,9 +164,11 @@ func GetPairedValue(_ buf: inout JKAShared.CharBuf, _ key: String, _ outbuf: ino
         portMissing("GetPairedValue", source: "oracle/codemp/game/ai_util.c:236")
     }
 
-    // Port-note: A read of `place`, a local the draft left as a hole.
-    // Raven wrote: if (!found || !place || !buf[startpoint] || buf[startpoint] == '\0') { return 0; }
-    portMissing("GetPairedValue", source: "oracle/codemp/game/ai_util.c:236")
+    // Raven tests `!buf[startpoint]` and `buf[startpoint] == '\0'`.
+    // Both read as the same Swift test, so the draft writes it once.
+    if found == 0 || place == nil || buf[startpoint] == 0 {
+        return 0
+    }
 
     while buf[startpoint] == Int32(ascii: " ") || buf[startpoint] == 9 || buf[startpoint] == Int32(ascii: "\n") {
         startpoint += 1
@@ -344,31 +326,27 @@ func BotDoChat(_ bs: BotState, _ section: String, _ always: Int32) -> Int32 {
             if cobject != nil && cobject!.client != nil {
                 inc_n = 0
 
-                // Port-note: The draft of this statement did not compile, and the compiler wrote "binary operator '!=' cannot be applied to operands of type 'Character' and 'Int'".
-                // Raven wrote: while (cobject->client->pers.netname[inc_n]) { bs->currentChat[inc_2] = cobject->client->pers.netname[inc_n]; inc_2++; inc_n++; }
-                portMissing("BotDoChat", source: "oracle/codemp/game/ai_util.c:328")
+                while cobject!.client!.pers.netnameBuffer[inc_n] != 0 {
+                    bs.currentChatBuffer[inc_2] = cobject!.client!.pers.netnameBuffer[inc_n]
+                    inc_2 += 1
+                    inc_n += 1
+                }
                 inc_2 -= 1 //to make up for the auto-increment below
             }
         } else {
-            // Port-note: Raven writes `bs->currentChat[inc_2] = chatgroup[inc_1]` into a character buffer the view holds as a String.
-            // Raven wrote: bs->currentChat[inc_2] = chatgroup[inc_1]
-            portMissing("BotDoChat", source: "oracle/codemp/game/ai_util.c:328")
+            bs.currentChatBuffer[inc_2] = chatgroup[inc_1]
         }
         inc_2 += 1
         inc_1 += 1
     }
-    // Port-note: Raven writes `bs->currentChat[inc_2] = '\0'` into a character buffer the view holds as a String.
-    // Raven wrote: bs->currentChat[inc_2] = '\0'
-    portMissing("BotDoChat", source: "oracle/codemp/game/ai_util.c:328")
+    bs.currentChatBuffer[inc_2] = 0
 
     if strcmp(section, "GeneralGreetings") == 0 {
         bs.doChat = 2
     } else {
         bs.doChat = 1
     }
-    // Port-note: The draft of this statement did not compile, and the compiler wrote "cannot convert value of type 'UInt' to expected argument type 'Int'".
-    // Raven wrote: bs->chatTime_stored = (strlen(bs->currentChat)*45)+Q_irand(1300, 1500)
-    portMissing("BotDoChat", source: "oracle/codemp/game/ai_util.c:328")
+    bs.chatTime_stored = Float((strlen(bs.currentChat) * 45) + Q_irand(1300, 1500))
     bs.chatTime = level.time + bs.chatTime_stored
 
     B_TempFree(MAX_CHAT_BUFFER_SIZE) //chatgroup
@@ -391,15 +369,11 @@ func ParseEmotionalAttachments(_ bs: BotState, _ buf: String) {
         if buf[i] != 0 && buf[i] != Int32(ascii: "}") {
             i_c = 0
             while buf[i] != Int32(ascii: "{") && buf[i] != 9 && buf[i] != 13 && buf[i] != Int32(ascii: "\n") {
-                // Port-note: Raven writes `bs->loved[bs->lovednum].name[i_c] = buf[i]` into a character buffer the view holds as a String.
-                // Raven wrote: bs->loved[bs->lovednum].name[i_c] = buf[i]
-                portMissing("ParseEmotionalAttachments", source: "oracle/codemp/game/ai_util.c:517")
+                bs.loved[bs.lovednum].nameBuffer[i_c] = buf[i]
                 i_c += 1
                 i += 1
             }
-            // Port-note: Raven writes `bs->loved[bs->lovednum].name[i_c] = '\0'` into a character buffer the view holds as a String.
-            // Raven wrote: bs->loved[bs->lovednum].name[i_c] = '\0'
-            portMissing("ParseEmotionalAttachments", source: "oracle/codemp/game/ai_util.c:517")
+            bs.loved[bs.lovednum].nameBuffer[i_c] = 0
 
             while buf[i] == Int32(ascii: " ") || buf[i] == Int32(ascii: "{") || buf[i] == 9 || buf[i] == 13 || buf[i] == Int32(ascii: "\n") {
                 i += 1
@@ -431,27 +405,22 @@ func ParseEmotionalAttachments(_ bs: BotState, _ buf: String) {
 
 /// Source: oracle/codemp/game/ai_util.c:574
 func ReadChatGroups(_ bs: BotState, _ buf: inout JKAShared.CharBuf) -> Int32 {
-    // Port-note: A pointer local `char * cgroupbegin` with no view.
-    // Raven wrote: char *cgroupbegin;
-    portMissing("ReadChatGroups", source: "oracle/codemp/game/ai_util.c:574")
+    var cgroupbegin: Int32?
     var cgbplace: Int32
     var i: Int32
 
-    // Port-note: A store into `cgroupbegin`, a local the draft left as a hole.
-    // Raven wrote: cgroupbegin = strstr(buf, "BEGIN_CHAT_GROUPS")
-    portMissing("ReadChatGroups", source: "oracle/codemp/game/ai_util.c:574")
+    cgroupbegin = strstr(buf, "BEGIN_CHAT_GROUPS")
 
-    // Port-note: A read of `cgroupbegin`, a local the draft left as a hole.
-    // Raven wrote: if (!cgroupbegin) { return 0; }
-    portMissing("ReadChatGroups", source: "oracle/codemp/game/ai_util.c:574")
+    if cgroupbegin == nil {
+        return 0
+    }
 
-    // Port-note: A read of `cgroupbegin`, a local the draft left as a hole.
-    // Raven wrote: if (strlen(cgroupbegin) >= MAX_CHAT_BUFFER_SIZE) { G_Printf(S_COLOR_RED "Error: Personality chat section exceeds max size\n"); return 0; }
-    portMissing("ReadChatGroups", source: "oracle/codemp/game/ai_util.c:574")
+    if strlen(buf[cgroupbegin!...]) >= MAX_CHAT_BUFFER_SIZE {
+        G_Printf(S_COLOR_RED + "Error: Personality chat section exceeds max size\n")
+        return 0
+    }
 
-    // Port-note: A read of `cgroupbegin`, a local the draft left as a hole.
-    // Raven wrote: cgbplace = cgroupbegin - buf+1
-    portMissing("ReadChatGroups", source: "oracle/codemp/game/ai_util.c:574")
+    cgbplace = cgroupbegin! + 1
 
     while buf[cgbplace] != Int32(ascii: "\n") {
         cgbplace += 1

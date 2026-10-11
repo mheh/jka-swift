@@ -455,21 +455,15 @@ func NAV_Steer(_ `self`: Entity, _ dir: JKAShared.vec3_t, _ distance: Float) -> 
         deviation = dir
         deviation[YAW] = right_ang
 
-        // Port-note: Raven passes NULL for the `right` output. The ported function takes it by reference, so the body passes a scratch local it never reads.
-        portMissing("NAV_Steer", source: "oracle/codemp/game/g_nav.c:440")
+        // Raven passes NULL for the right and up outputs.
         var scratchRight = vec3_t()
-        // Port-note: Raven passes NULL for the `up` output. The ported function takes it by reference, so the body passes a scratch local it never reads.
-        portMissing("NAV_Steer", source: "oracle/codemp/game/g_nav.c:440")
         var scratchUp = vec3_t()
         AngleVectors(deviation, &right_test, &scratchRight, &scratchUp)
 
         deviation[YAW] = left_ang
 
-        // Port-note: Raven passes NULL for the `right` output. The ported function takes it by reference, so the body passes a scratch local it never reads.
-        portMissing("NAV_Steer", source: "oracle/codemp/game/g_nav.c:440")
+        // Raven passes NULL for the right and up outputs.
         var scratchRight2 = vec3_t()
-        // Port-note: Raven passes NULL for the `up` output. The ported function takes it by reference, so the body passes a scratch local it never reads.
-        portMissing("NAV_Steer", source: "oracle/codemp/game/g_nav.c:440")
         var scratchUp2 = vec3_t()
         AngleVectors(deviation, &left_test, &scratchRight2, &scratchUp2)
 
@@ -543,9 +537,17 @@ func NAV_CheckAhead(_ `self`: Entity, _ end: JKAShared.vec3_t, _ trace: JKAMP.Tr
     if trace.entityNum < ENTITYNUM_WORLD {
         let blocker: Entity? = g_entities[trace.entityNum]
 
-        // Port-note: No operator between the operands, the text there is ``.
-        // Raven wrote: if VALIDSTRING( blocker->classname ) { if ( G_EntIsUnlockedDoor( blocker->s.number ) ) //if ( Q_stricmp( blocker->classname, "func_door" ) == 0 ) { //We're too close, try and avoid the door (most likely stuck on a lip) if ( DistanceSquared( self->r.currentOrigin, trace->endpos ) < MIN_DOOR_BLOCK_DIST_SQR ) return qfalse; return qtrue; } }
-        portMissing("NAV_CheckAhead", source: "oracle/codemp/game/g_nav.c:494")
+        if VALIDSTRING(blocker!.classname) {
+            if G_EntIsUnlockedDoor(blocker!.s.number) {
+                //if ( Q_stricmp( blocker->classname, "func_door" ) == 0 )
+                //We're too close, try and avoid the door (most likely stuck on a lip)
+                if DistanceSquared(`self`.r.currentOrigin, trace.endpos) < MIN_DOOR_BLOCK_DIST_SQR {
+                    return false
+                }
+
+                return true
+            }
+        }
     }
 
     return false
@@ -563,11 +565,8 @@ private func NAV_TestBypass(_ `self`: Entity, _ yaw: Float, _ blocked_dist: Floa
         avoidAngles = vec3_t()
         avoidAngles[YAW] = yaw
 
-        // Port-note: Raven passes NULL for the `right` output. The ported function takes it by reference, so the body passes a scratch local it never reads.
-        portMissing("NAV_TestBypass", source: "oracle/codemp/game/g_nav.c:555")
+        // Raven passes NULL for the right and up outputs.
         var scratchRight = vec3_t()
-        // Port-note: Raven passes NULL for the `up` output. The ported function takes it by reference, so the body passes a scratch local it never reads.
-        portMissing("NAV_TestBypass", source: "oracle/codemp/game/g_nav.c:555")
         var scratchUp = vec3_t()
         AngleVectors(avoidAngles, &block_test, &scratchRight, &scratchUp)
         _VectorMA(`self`.r.currentOrigin, blocked_dist, block_test, &block_pos)
@@ -600,11 +599,8 @@ func NAV_Bypass(_ `self`: Entity, _ blocker: Entity, _ blocked_dir: JKAShared.ve
         G_DrawEdge(`self`.r.currentOrigin, blocker.r.currentOrigin, EDGE_NORMAL)
     }
 
-    // Port-note: Raven passes NULL for the `forward` output. The ported function takes it by reference, so the body passes a scratch local it never reads.
-    portMissing("NAV_Bypass", source: "oracle/codemp/game/g_nav.c:589")
+    // Raven passes NULL for the forward and up outputs.
     var scratchForward = vec3_t()
-    // Port-note: Raven passes NULL for the `up` output. The ported function takes it by reference, so the body passes a scratch local it never reads.
-    portMissing("NAV_Bypass", source: "oracle/codemp/game/g_nav.c:589")
     var scratchUp = vec3_t()
     AngleVectors(`self`.r.currentAngles, &scratchForward, &right, &scratchUp)
 
@@ -690,11 +686,8 @@ func NAV_MoveBlocker(_ `self`: Entity, _ shove_dir: JKAShared.vec3_t) -> Bool {
     vectoangles(shove_dir, &temp_dir)
 
     temp_dir[YAW] += 45
-    // Port-note: Raven passes NULL for the `right` output. The ported function takes it by reference, so the body passes a scratch local it never reads.
-    portMissing("NAV_MoveBlocker", source: "oracle/codemp/game/g_nav.c:669")
+    // Raven passes NULL for the right and up outputs.
     var scratchRight = vec3_t()
-    // Port-note: Raven passes NULL for the `up` output. The ported function takes it by reference, so the body passes a scratch local it never reads.
-    portMissing("NAV_MoveBlocker", source: "oracle/codemp/game/g_nav.c:669")
     var scratchUp = vec3_t()
     AngleVectors(temp_dir, &forward, &scratchRight, &scratchUp)
 
@@ -1003,9 +996,47 @@ func NAV_TestBestNode(_ `self`: Entity, _ startID: Int32, _ endID: Int32, _ fail
         if trace.entityNum < ENTITYNUM_WORLD {
             let blocker: Entity? = g_entities[trace.entityNum]
 
-            // Port-note: No operator between the operands, the text there is ``.
-            // Raven wrote: if VALIDSTRING( blocker->classname ) {//special case: doors are architecture, but are dynamic, like entitites if ( G_EntIsUnlockedDoor( blocker->s.number ) ) //if ( Q_stricmp( blocker->classname, "func_door" ) == 0 ) {//it's unlocked, go for it //We're too close, try and avoid the door (most likely stuck on a lip) if ( DistanceSquared( self->r.currentOrigin, trace.endpos ) < MIN_DOOR_BLOCK_DIST_SQR ) { return startID; } //we can keep heading to the door, it should open if ( self->s.weapon != WP_SABER && fabs( self->r.currentOrigin[2] - end[2] ) > 48 ) {//too far above } else { return endID; } } else if ( G_EntIsDoor( blocker->s.number ) ) {//a locked door! //path is blocked by a locked door, mark it as such if instructed to do so if ( failEdge ) { trap_Nav_AddFailedEdge( self->s.number, startID, endID ); } } else if ( G_EntIsBreakable( blocker->s.number ) ) {//do same for breakable brushes/models/glass? //path is blocked by a breakable, mark it as such if instructed to do so if ( failEdge ) { trap_Nav_AddFailedEdge( self->s.number, startID, endID ); } } else if ( G_EntIsRemovableUsable( blocker->s.number ) ) {//and removable usables //path is blocked by a removable usable, mark it as such if instructed to do so if ( failEdge ) { trap_Nav_AddFailedEdge( self->s.number, startID, endID ); } } else if ( blocker->targetname && blocker->s.solid == SOLID_BMODEL && ((blocker->r.contents&CONTENTS_MONSTERCLIP)|| (blocker->r.contents&CONTENTS_BOTCLIP)) ) {//some other kind of do not enter entity brush that will probably be removed //path is blocked by a removable brushent, mark it as such if instructed to do so if ( failEdge ) { trap_Nav_AddFailedEdge( self->s.number, startID, endID ); } } }
-            portMissing("NAV_TestBestNode", source: "oracle/codemp/game/g_nav.c:971")
+            if VALIDSTRING(blocker!.classname) {
+                //special case: doors are architecture, but are dynamic, like entitites
+                if G_EntIsUnlockedDoor(blocker!.s.number) {
+                    //if ( Q_stricmp( blocker->classname, "func_door" ) == 0 )
+                    //it's unlocked, go for it
+                    //We're too close, try and avoid the door (most likely stuck on a lip)
+                    if DistanceSquared(`self`.r.currentOrigin, trace.endpos) < MIN_DOOR_BLOCK_DIST_SQR {
+                        return startID
+                    }
+                    //we can keep heading to the door, it should open
+                    if `self`.s.weapon != WP_SABER && abs(`self`.r.currentOrigin[2] - end[2]) > 48 {
+                        //too far above
+                    } else {
+                        return endID
+                    }
+                } else if G_EntIsDoor(blocker!.s.number) {
+                    //a locked door!
+                    //path is blocked by a locked door, mark it as such if instructed to do so
+                    if failEdge {
+                        trap_Nav_AddFailedEdge(`self`.s.number, startID, endID)
+                    }
+                } else if G_EntIsBreakable(blocker!.s.number) {
+                    //do same for breakable brushes/models/glass?
+                    //path is blocked by a breakable, mark it as such if instructed to do so
+                    if failEdge {
+                        trap_Nav_AddFailedEdge(`self`.s.number, startID, endID)
+                    }
+                } else if G_EntIsRemovableUsable(blocker!.s.number) {
+                    //and removable usables
+                    //path is blocked by a removable usable, mark it as such if instructed to do so
+                    if failEdge {
+                        trap_Nav_AddFailedEdge(`self`.s.number, startID, endID)
+                    }
+                } else if blocker!.targetname != nil && blocker!.s.solid == SOLID_BMODEL && ((blocker!.r.contents & CONTENTS_MONSTERCLIP) != 0 || (blocker!.r.contents & CONTENTS_BOTCLIP) != 0) {
+                    //some other kind of do not enter entity brush that will probably be removed
+                    //path is blocked by a removable brushent, mark it as such if instructed to do so
+                    if failEdge {
+                        trap_Nav_AddFailedEdge(`self`.s.number, startID, endID)
+                    }
+                }
+            }
         }
         //path is blocked
         //use the fallback choice
@@ -1050,15 +1081,17 @@ func NAV_MoveToGoal(_ `self`: Entity, _ info: NavInfo) -> Int32 {
         //NOTENOTE: Otherwise trust this waypoint for the whole frame (reduce all unnecessary calculations)
     } else {
         //Find the target's waypoint
-        // Port-note: An assignment inside an expression.
-        // Raven wrote: if ( ( self->NPC->goalEntity->waypoint = NAV_GetNearestNode( self->NPC->goalEntity, self->NPC->goalEntity->waypoint ) ) == WAYPOINT_NONE ) return WAYPOINT_NONE
-        portMissing("NAV_MoveToGoal", source: "oracle/codemp/game/g_nav.c:1113")
+        `self`.NPC!.goalEntity!.waypoint = NAV_GetNearestNode(`self`.NPC!.goalEntity!, `self`.NPC!.goalEntity!.waypoint)
+        if `self`.NPC!.goalEntity!.waypoint == WAYPOINT_NONE {
+            return WAYPOINT_NONE
+        }
     }
 
     //Find our waypoint
-    // Port-note: An assignment inside an expression.
-    // Raven wrote: if ( ( self->waypoint = NAV_GetNearestNode( self, self->lastWaypoint ) ) == WAYPOINT_NONE ) return WAYPOINT_NONE
-    portMissing("NAV_MoveToGoal", source: "oracle/codemp/game/g_nav.c:1113")
+    `self`.waypoint = NAV_GetNearestNode(`self`, `self`.lastWaypoint)
+    if `self`.waypoint == WAYPOINT_NONE {
+        return WAYPOINT_NONE
+    }
 
     bestNode = trap_Nav_GetBestNode(`self`.waypoint, `self`.NPC!.goalEntity!.waypoint, NODE_NONE)
 
@@ -1146,11 +1179,8 @@ func waypoint_testDirection(_ origin: JKAShared.vec3_t, _ yaw: Float, _ minDist:
 
         //Get our test direction
         angles = vec3_t(0, yaw, 0)
-        // Port-note: Raven passes NULL for the `right` output. The ported function takes it by reference, so the body passes a scratch local it never reads.
-        portMissing("waypoint_testDirection", source: "oracle/codemp/game/g_nav.c:1220")
+        // Raven passes NULL for the right and up outputs.
         var scratchRight = vec3_t()
-        // Port-note: Raven passes NULL for the `up` output. The ported function takes it by reference, so the body passes a scratch local it never reads.
-        portMissing("waypoint_testDirection", source: "oracle/codemp/game/g_nav.c:1220")
         var scratchUp = vec3_t()
         AngleVectors(angles, &trace_dir, &scratchRight, &scratchUp)
 
@@ -1572,13 +1602,8 @@ func NAV_CalculatePaths(_ filename: String, _ checksum: Int32) {
     var target: Int32 = -1
     var i: Int32
 
-    // Port-note: The draft of this statement did not compile, and the compiler wrote "referencing operator function '==' on 'BinaryInteger' requires that 'Slots<WaypointData>' conform to 'BinaryInteger'".
-    // Raven wrote: if ( !tempWaypointList ) { return; }
-    portMissing("NAV_CalculatePaths", source: "oracle/codemp/game/g_nav.c:1734")
     fatalErrors = 0
-    // Port-note: Raven's `memset( fatalErrorString, 0, sizeof( fatalErrorString ) )` runs over bytes that are not one record with a view.
-    // Raven wrote: memset( fatalErrorString, 0, sizeof( fatalErrorString ) )
-    portMissing("NAV_CalculatePaths", source: "oracle/codemp/game/g_nav.c:1734")
+    fatalErrorString.zero()
     // Port-note: The draft of this statement did not compile, and the compiler wrote "cannot assign value of type 'Int8' to type 'String'".
     // Raven wrote: fatalErrorPointer = &fatalErrorString[0]
     portMissing("NAV_CalculatePaths", source: "oracle/codemp/game/g_nav.c:1734")

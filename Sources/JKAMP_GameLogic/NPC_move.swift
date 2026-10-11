@@ -108,9 +108,7 @@ func NPC_GetMoveInformation(_ dir: inout JKAShared.vec3_t, _ distance: inout Flo
 
 /// Source: oracle/codemp/game/NPC_move.c:149
 func NAV_GetLastMove(_ info: NavInfo) {
-    // Port-note: A pointer dereference the draft cannot place.
-    // Raven wrote: *info = frameNavInfo
-    portMissing("NAV_GetLastMove", source: "oracle/codemp/game/NPC_move.c:149")
+    info.copy(from: frameNavInfo)
 }
 
 /// Source: oracle/codemp/game/NPC_move.c:160
@@ -275,9 +273,8 @@ func G_UcmdMoveForDir(_ `self`: Entity, _ cmd: JKAMP.Usercmd, _ dir: inout JKASh
     var fDot: Float
     var rDot: Float
 
-    // Port-note: Raven passes NULL for the `up` output. The ported function takes it by reference, so the body passes a scratch local it never reads.
-    portMissing("G_UcmdMoveForDir", source: "oracle/codemp/game/NPC_move.c:324")
     var scratchUp = vec3_t()
+    // Raven passes NULL for the up output.
     AngleVectors(`self`.r.currentAngles, &forward, &right, &scratchUp)
 
     dir[2] = 0

@@ -215,9 +215,9 @@ func InitSiegeMode() {
 
             Com_sprintf(&levelname, Int32((levelname).count), "maps/%s.siege\0", mapname.string)
 
-            // Port-note: The draft of this statement did not compile, and the compiler wrote "referencing operator function '==' on 'BinaryInteger' requires that 'CharBuf' conform to 'BinaryInteger'".
-            // Raven wrote: if (!levelname || !levelname[0]) { goto failure; }
-            portMissing("InitSiegeMode", source: "oracle/codemp/game/g_saga.c:96")
+            if levelname[0] == 0 {
+                break failure
+            }
 
             len = trap_FS_FOpenFile(String(levelname), &f, FS_READ)
 
@@ -414,30 +414,43 @@ func InitSiegeMode() {
 
 /// Source: oracle/codemp/game/g_saga.c:375
 func G_SiegeSetObjectiveComplete(_ team: Int32, _ objective: Int32, _ failIt: Bool) {
-    // Port-note: A pointer local `char * p` with no view.
-    // Raven wrote: char *p = NULL;
-    portMissing("G_SiegeSetObjectiveComplete", source: "oracle/codemp/game/g_saga.c:375")
+    var p: Int32? = nil
     var onObjective: Int32 = 0
 
     if team == SIEGETEAM_TEAM1 {
-        // Port-note: A store into `p`, a local the draft left as a hole.
-        // Raven wrote: p = strstr(gObjectiveCfgStr, "t1")
-        portMissing("G_SiegeSetObjectiveComplete", source: "oracle/codemp/game/g_saga.c:375")
+        p = strstr(gObjectiveCfgStr, "t1")
     } else if team == SIEGETEAM_TEAM2 {
-        // Port-note: A store into `p`, a local the draft left as a hole.
-        // Raven wrote: p = strstr(gObjectiveCfgStr, "t2")
-        portMissing("G_SiegeSetObjectiveComplete", source: "oracle/codemp/game/g_saga.c:375")
+        p = strstr(gObjectiveCfgStr, "t2")
     }
 
-    // Port-note: A read of `p`, a local the draft left as a hole.
-    // Raven wrote: if (!p) { assert(0); return; }
-    portMissing("G_SiegeSetObjectiveComplete", source: "oracle/codemp/game/g_saga.c:375")
+    if p == nil {
+        return
+    }
 
     //Parse from the beginning of this team's objectives until we get to the desired objective
     //number.
-    // Port-note: A read of `p`, a local the draft left as a hole.
-    // Raven wrote: while (p && *p && *p != '|') { if (*p == '-') { onObjective++; } if (onObjective == objective) { //this is the one we want //Move to the next char, the status of this objective p++; //Now change it from '0' to '1' if we are completeing the objective //or vice versa if the objective has been taken away if (failIt) { *p = '0'; } else { *p = '1'; } break; } p++; }
-    portMissing("G_SiegeSetObjectiveComplete", source: "oracle/codemp/game/g_saga.c:375")
+    while p != nil && gObjectiveCfgStr[p!] != 0 && gObjectiveCfgStr[p!] != Int32(ascii: "|") {
+        if gObjectiveCfgStr[p!] == Int32(ascii: "-") {
+            onObjective += 1
+        }
+
+        if onObjective == objective {
+            //this is the one we want
+            //Move to the next char, the status of this objective
+            p! += 1
+
+            //Now change it from '0' to '1' if we are completeing the objective
+            //or vice versa if the objective has been taken away
+            if failIt {
+                gObjectiveCfgStr[p!] = Int32(ascii: "0")
+            } else {
+                gObjectiveCfgStr[p!] = Int32(ascii: "1")
+            }
+            break
+        }
+
+        p! += 1
+    }
 
     //Now re-update the configstring.
     trap_SetConfigstring(CS_SIEGE_OBJECTIVES, String(gObjectiveCfgStr))
@@ -446,30 +459,42 @@ func G_SiegeSetObjectiveComplete(_ team: Int32, _ objective: Int32, _ failIt: Bo
 //Returns qtrue if objective complete currently, otherwise qfalse
 /// Source: oracle/codemp/game/g_saga.c:430
 func G_SiegeGetCompletionStatus(_ team: Int32, _ objective: Int32) -> Bool {
-    // Port-note: A pointer local `char * p` with no view.
-    // Raven wrote: char *p = NULL;
-    portMissing("G_SiegeGetCompletionStatus", source: "oracle/codemp/game/g_saga.c:430")
+    var p: Int32? = nil
     var onObjective: Int32 = 0
 
     if team == SIEGETEAM_TEAM1 {
-        // Port-note: A store into `p`, a local the draft left as a hole.
-        // Raven wrote: p = strstr(gObjectiveCfgStr, "t1")
-        portMissing("G_SiegeGetCompletionStatus", source: "oracle/codemp/game/g_saga.c:430")
+        p = strstr(gObjectiveCfgStr, "t1")
     } else if team == SIEGETEAM_TEAM2 {
-        // Port-note: A store into `p`, a local the draft left as a hole.
-        // Raven wrote: p = strstr(gObjectiveCfgStr, "t2")
-        portMissing("G_SiegeGetCompletionStatus", source: "oracle/codemp/game/g_saga.c:430")
+        p = strstr(gObjectiveCfgStr, "t2")
     }
 
-    // Port-note: A read of `p`, a local the draft left as a hole.
-    // Raven wrote: if (!p) { assert(0); return qfalse; }
-    portMissing("G_SiegeGetCompletionStatus", source: "oracle/codemp/game/g_saga.c:430")
+    if p == nil {
+        return false
+    }
 
     //Parse from the beginning of this team's objectives until we get to the desired objective
     //number.
-    // Port-note: A read of `p`, a local the draft left as a hole.
-    // Raven wrote: while (p && *p && *p != '|') { if (*p == '-') { onObjective++; } if (onObjective == objective) { //this is the one we want //Move to the next char, the status of this objective p++; //return qtrue if it's '1', qfalse if it's anything else if (*p == '1') { return qtrue; } else { return qfalse; } break; } p++; }
-    portMissing("G_SiegeGetCompletionStatus", source: "oracle/codemp/game/g_saga.c:430")
+    while p != nil && gObjectiveCfgStr[p!] != 0 && gObjectiveCfgStr[p!] != Int32(ascii: "|") {
+        if gObjectiveCfgStr[p!] == Int32(ascii: "-") {
+            onObjective += 1
+        }
+
+        if onObjective == objective {
+            //this is the one we want
+            //Move to the next char, the status of this objective
+            p! += 1
+
+            //return qtrue if it's '1', qfalse if it's anything else
+            if gObjectiveCfgStr[p!] == Int32(ascii: "1") {
+                return true
+            } else {
+                return false
+            }
+            break
+        }
+
+        p! += 1
+    }
 
     return false
 }
@@ -490,9 +515,20 @@ func UseSiegeTarget(_ other: Entity, _ en: Entity, _ target: String) {
 
 
     t = nil
-    // Port-note: An assignment inside an expression.
-    // Raven wrote: while ( (t = G_Find (t, FOFS(targetname), target)) != NULL ) { if ( t == ent ) { G_Printf ("WARNING: Entity used itself.\n"); } else { if ( t->use ) { GlobalUse(t, ent, ent); } } if ( !ent->inuse ) { G_Printf("entity was removed while using targets\n"); return; } }
-    portMissing("UseSiegeTarget", source: "oracle/codemp/game/g_saga.c:482")
+    while let next = G_Find(t, \.targetname, target) {
+        t = next
+        if t!.s.number == ent!.s.number {
+            G_Printf("WARNING: Entity used itself.\n")
+        } else {
+            if t!.use != nil {
+                GlobalUse(t!, ent!, ent)
+            }
+        }
+        if !ent!.inuse {
+            G_Printf("entity was removed while using targets\n")
+            return
+        }
+    }
 }
 
 /// Source: oracle/codemp/game/g_saga.c:528
@@ -1458,13 +1494,12 @@ func SiegeItemUse(_ ent: Entity, _ other: Entity, _ activator: Entity) {
 
     if ent.paintarget != nil && !ent.paintarget!.isEmpty {
         //want to be on this guy's origin now then
-        // Port-note: No operator beside the operand, the text there is ``.
-        // Raven wrote: gentity_t *targ = G_Find (NULL, FOFS(targetname), ent->paintarget);
-        portMissing("SiegeItemUse", source: "oracle/codemp/game/g_saga.c:1576")
+        let targ = G_Find(nil, \.targetname, ent.paintarget!)
 
-        // Port-note: A read of `targ`, a local the draft left as a hole.
-        // Raven wrote: if (targ && targ->inuse) { G_SetOrigin(ent, targ->r.currentOrigin); trap_LinkEntity(ent); }
-        portMissing("SiegeItemUse", source: "oracle/codemp/game/g_saga.c:1576")
+        if targ != nil && targ!.inuse {
+            G_SetOrigin(ent, &targ!.r.currentOrigin)
+            trap_LinkEntity(ent)
+        }
     }
 }
 

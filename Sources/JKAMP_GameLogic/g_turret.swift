@@ -188,11 +188,8 @@ func turret_head_think(_ `self`: Entity) {
         */
         org = top!.r.currentOrigin
         org[2] += top!.r.maxs[2] - 8
-        // Port-note: Raven passes NULL for the `right` output. The ported function takes it by reference, so the body passes a scratch local it never reads.
-        portMissing("turret_head_think", source: "oracle/codemp/game/g_turret.c:179")
+        // Raven passes NULL for the right and up outputs.
         var scratchRight = vec3_t()
-        // Port-note: Raven passes NULL for the `up` output. The ported function takes it by reference, so the body passes a scratch local it never reads.
-        portMissing("turret_head_think", source: "oracle/codemp/game/g_turret.c:179")
         var scratchUp = vec3_t()
         AngleVectors(top!.r.currentAngles, &fwd, &scratchRight, &scratchUp)
 
@@ -360,9 +357,7 @@ private func turret_find_enemies(_ `self`: Entity) -> Bool {
     var enemyDir = vec3_t()
     var org = vec3_t()
     var org2 = vec3_t()
-    // Port-note: A local `gentity_t *[1024] entity_list` the table has no type for.
-    // Raven wrote: gentity_t *entity_list[MAX_GENTITIES];
-    portMissing("turret_find_enemies", source: "oracle/codemp/game/g_turret.c:394")
+    var entity_list = [Entity?](repeating: nil, count: Int(MAX_GENTITIES))
     var target: Entity?
     var bestTarget: Entity? = nil
     // Raven's record lives to the end of his block, so the block is the closure.
@@ -383,15 +378,11 @@ private func turret_find_enemies(_ `self`: Entity) -> Bool {
 
         org2 = top!.r.currentOrigin
 
-        // Port-note: A read of `entity_list`, a local the draft left as a hole.
-        // Raven wrote: count = G_RadiusList( org2, self->radius, self, qtrue, entity_list )
-        portMissing("turret_find_enemies", source: "oracle/codemp/game/g_turret.c:394")
+        count = G_RadiusList(org2, `self`.radius, `self`, true, &entity_list)
 
         i = 0
         while i < count {
-            // Port-note: A read of `entity_list`, a local the draft left as a hole.
-            // Raven wrote: target = entity_list[i]
-            portMissing("turret_find_enemies", source: "oracle/codemp/game/g_turret.c:394")
+            target = entity_list[i]
 
             if target!.client == nil {
                 // only attack clients
@@ -427,10 +418,6 @@ private func turret_find_enemies(_ `self`: Entity) -> Bool {
             org = target!.r.currentOrigin
             org[2] += target!.r.maxs[2] * 0.5
 
-            // Port-note: Raven passes NULL for `mins`, and the callee reads NULL as the zero vector.
-            portMissing("turret_find_enemies", source: "oracle/codemp/game/g_turret.c:394")
-            // Port-note: Raven passes NULL for `maxs`, and the callee reads NULL as the zero vector.
-            portMissing("turret_find_enemies", source: "oracle/codemp/game/g_turret.c:394")
             trap_Trace(tr, org2, vec3_origin, vec3_origin, org, `self`.s.number, MASK_SHOT)
 
             if tr.allsolid == 0 && tr.startsolid == 0 && (Double(tr.fraction) == 1.0 || tr.entityNum == target!.s.number) {
@@ -457,9 +444,9 @@ private func turret_find_enemies(_ `self`: Entity) -> Bool {
 
         if found {
             G_SetEnemy(`self`, bestTarget!)
-            // Port-note: No operator between the operands, the text there is ``.
-            // Raven wrote: if ( VALIDSTRING( self->target2 )) { G_UseTargets2( self, self, self->target2 ); }
-            portMissing("turret_find_enemies", source: "oracle/codemp/game/g_turret.c:394")
+            if VALIDSTRING(`self`.target2) {
+                G_UseTargets2(`self`, `self`, `self`.target2)
+            }
         }
 
         return found
@@ -522,10 +509,6 @@ func turret_base_think(_ `self`: Entity) {
                         } else {
                             org2[2] -= 10
                         }
-                        // Port-note: Raven passes NULL for `mins`, and the callee reads NULL as the zero vector.
-                        portMissing("turret_base_think", source: "oracle/codemp/game/g_turret.c:505")
-                        // Port-note: Raven passes NULL for `maxs`, and the callee reads NULL as the zero vector.
-                        portMissing("turret_base_think", source: "oracle/codemp/game/g_turret.c:505")
                         trap_Trace(tr, org2, vec3_origin, vec3_origin, org, `self`.s.number, MASK_SHOT)
 
                         if tr.allsolid == 0 && tr.startsolid == 0 && tr.entityNum == `self`.enemy!.s.number {

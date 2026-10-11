@@ -262,9 +262,7 @@ func GetFlagStr(_ flags: Int32) -> String {
         }
 
     }
-    // Port-note: The draft of this statement did not compile, and the compiler wrote "cannot convert return expression of type 'CharBuf' to return type 'String'".
-    // Raven wrote: return flagstr
-    portMissing("GetFlagStr", source: "oracle/codemp/game/ai_wpnav.c:25")
+    return String(flagstr)
 }
 
 /// Source: oracle/codemp/game/ai_wpnav.c:212
@@ -1008,10 +1006,6 @@ func ConnectTrail(_ startindex: Int32, _ endindex: Int32, _ behindTheScenes: Boo
 
         starttrace[2] -= 4096
 
-        // Port-note: Raven passes NULL for `mins`, and the callee reads NULL as the zero vector.
-        portMissing("ConnectTrail", source: "oracle/codemp/game/ai_wpnav.c:1000")
-        // Port-note: Raven passes NULL for `maxs`, and the callee reads NULL as the zero vector.
-        portMissing("ConnectTrail", source: "oracle/codemp/game/ai_wpnav.c:1000")
         trap_Trace(tr, startplace, vec3_origin, vec3_origin, starttrace, ENTITYNUM_NONE, MASK_SOLID)
 
         baseheight = startplace[2] - tr.endpos[2]
@@ -1072,10 +1066,6 @@ func ConnectTrail(_ startindex: Int32, _ endindex: Int32, _ behindTheScenes: Boo
 
                     starttrace[2] -= 4096
 
-                    // Port-note: Raven passes NULL for `mins`, and the callee reads NULL as the zero vector.
-                    portMissing("ConnectTrail", source: "oracle/codemp/game/ai_wpnav.c:1000")
-                    // Port-note: Raven passes NULL for `maxs`, and the callee reads NULL as the zero vector.
-                    portMissing("ConnectTrail", source: "oracle/codemp/game/ai_wpnav.c:1000")
                     trap_Trace(tr, testspot, vec3_origin, vec3_origin, starttrace, ENTITYNUM_NONE, MASK_SOLID)
 
                     testspot[2] = tr.endpos[2] + baseheight
@@ -1105,10 +1095,6 @@ func ConnectTrail(_ startindex: Int32, _ endindex: Int32, _ behindTheScenes: Boo
 
                     starttrace[2] -= 4096
 
-                    // Port-note: Raven passes NULL for `mins`, and the callee reads NULL as the zero vector.
-                    portMissing("ConnectTrail", source: "oracle/codemp/game/ai_wpnav.c:1000")
-                    // Port-note: Raven passes NULL for `maxs`, and the callee reads NULL as the zero vector.
-                    portMissing("ConnectTrail", source: "oracle/codemp/game/ai_wpnav.c:1000")
                     trap_Trace(tr, testspot, vec3_origin, vec3_origin, starttrace, ENTITYNUM_NONE, MASK_SOLID)
 
                     testspot[2] = tr.endpos[2] + baseheight
@@ -1138,10 +1124,6 @@ func ConnectTrail(_ startindex: Int32, _ endindex: Int32, _ behindTheScenes: Boo
 
                     starttrace[2] -= 4096
 
-                    // Port-note: Raven passes NULL for `mins`, and the callee reads NULL as the zero vector.
-                    portMissing("ConnectTrail", source: "oracle/codemp/game/ai_wpnav.c:1000")
-                    // Port-note: Raven passes NULL for `maxs`, and the callee reads NULL as the zero vector.
-                    portMissing("ConnectTrail", source: "oracle/codemp/game/ai_wpnav.c:1000")
                     trap_Trace(tr, testspot, vec3_origin, vec3_origin, starttrace, ENTITYNUM_NONE, MASK_SOLID)
 
                     testspot[2] = tr.endpos[2] + baseheight
@@ -1171,10 +1153,6 @@ func ConnectTrail(_ startindex: Int32, _ endindex: Int32, _ behindTheScenes: Boo
 
                     starttrace[2] -= 4096
 
-                    // Port-note: Raven passes NULL for `mins`, and the callee reads NULL as the zero vector.
-                    portMissing("ConnectTrail", source: "oracle/codemp/game/ai_wpnav.c:1000")
-                    // Port-note: Raven passes NULL for `maxs`, and the callee reads NULL as the zero vector.
-                    portMissing("ConnectTrail", source: "oracle/codemp/game/ai_wpnav.c:1000")
                     trap_Trace(tr, testspot, vec3_origin, vec3_origin, starttrace, ENTITYNUM_NONE, MASK_SOLID)
 
                     testspot[2] = tr.endpos[2] + baseheight
@@ -1329,10 +1307,6 @@ func DoorBlockingSection(_ start: Int32, _ end: Int32) -> Int32 {
             return 0
         }
 
-        // Port-note: Raven passes NULL for `mins`, and the callee reads NULL as the zero vector.
-        portMissing("DoorBlockingSection", source: "oracle/codemp/game/ai_wpnav.c:1418")
-        // Port-note: Raven passes NULL for `maxs`, and the callee reads NULL as the zero vector.
-        portMissing("DoorBlockingSection", source: "oracle/codemp/game/ai_wpnav.c:1418")
         trap_Trace(tr, gWPArray[start]!.origin, vec3_origin, vec3_origin, gWPArray[end]!.origin, ENTITYNUM_NONE, MASK_SOLID)
 
         if tr.fraction == 1 {
@@ -1351,10 +1325,6 @@ func DoorBlockingSection(_ start: Int32, _ end: Int32) -> Int32 {
 
         start_trace_index = tr.entityNum
 
-        // Port-note: Raven passes NULL for `mins`, and the callee reads NULL as the zero vector.
-        portMissing("DoorBlockingSection", source: "oracle/codemp/game/ai_wpnav.c:1418")
-        // Port-note: Raven passes NULL for `maxs`, and the callee reads NULL as the zero vector.
-        portMissing("DoorBlockingSection", source: "oracle/codemp/game/ai_wpnav.c:1418")
         trap_Trace(tr, gWPArray[end]!.origin, vec3_origin, vec3_origin, gWPArray[start]!.origin, ENTITYNUM_NONE, MASK_SOLID)
 
         if tr.fraction == 1 {
@@ -1592,9 +1562,7 @@ func GetObjectThatTargets(_ ent: Entity) -> Entity? {
         return nil
     }
 
-    // Port-note: No operator beside the operand, the text there is ``.
-    // Raven wrote: next = G_Find( next, FOFS(target), ent->targetname )
-    portMissing("GetObjectThatTargets", source: "oracle/codemp/game/ai_wpnav.c:1715")
+    next = G_Find(next, \.target, ent.targetname!)
 
     if next != nil {
         return next
@@ -2426,10 +2394,6 @@ func G_RecursiveConnection(_ start: Int32, _ end: Int32, _ weight: Int32, _ trac
 
             if indexDirections[i] != -1 && traceCheck {
                 //if we care about trace visibility between nodes, perform the check and mark as not valid if the trace isn't clear.
-                // Port-note: Raven passes NULL for `mins`, and the callee reads NULL as the zero vector.
-                portMissing("G_RecursiveConnection", source: "oracle/codemp/game/ai_wpnav.c:2616")
-                // Port-note: Raven passes NULL for `maxs`, and the callee reads NULL as the zero vector.
-                portMissing("G_RecursiveConnection", source: "oracle/codemp/game/ai_wpnav.c:2616")
                 trap_Trace(tr, nodetable[start].origin, vec3_origin, vec3_origin, nodetable[indexDirections[i]].origin, ENTITYNUM_NONE, CONTENTS_SOLID)
 
                 if tr.fraction != 1 {
@@ -2531,13 +2495,12 @@ func G_RMGPathing() {
     // Raven's record lives to the end of his block, so the block is the closure.
     // The closure gives true where Raven returns from the function.
     let earlyOut = Trace.scratch { tr -> Bool in
-        // Port-note: No operator beside the operand, the text there is ``.
-        // Raven wrote: gentity_t *terrain = G_Find( NULL, FOFS(classname), "terrain" );
-        portMissing("G_RMGPathing", source: "oracle/codemp/game/ai_wpnav.c:3055")
+        let terrain = G_Find(nil, \.classname, "terrain")
 
-        // Port-note: A read of `terrain`, a local the draft left as a hole.
-        // Raven wrote: if (!terrain || !terrain->inuse || terrain->s.eType != ET_TERRAIN) { G_Printf("Error: RMG with no terrain!\n"); return; }
-        portMissing("G_RMGPathing", source: "oracle/codemp/game/ai_wpnav.c:3055")
+        if terrain == nil || !terrain!.inuse || terrain!.s.eType != ET_TERRAIN {
+            G_Printf("Error: RMG with no terrain!\n")
+            return true
+        }
 
 
         nodenum = 0
@@ -2546,21 +2509,44 @@ func G_RMGPathing() {
         trMins = vec3_t(-15, -15, Float(DEFAULT_MINS_2))
         trMaxs = vec3_t(15, 15, Float(DEFAULT_MAXS_2))
 
-        // Port-note: A read of `terrain`, a local the draft left as a hole.
-        // Raven wrote: placeX = terrain->r.absmin[0]
-        portMissing("G_RMGPathing", source: "oracle/codemp/game/ai_wpnav.c:3055")
-        // Port-note: A read of `terrain`, a local the draft left as a hole.
-        // Raven wrote: placeY = terrain->r.absmin[1]
-        portMissing("G_RMGPathing", source: "oracle/codemp/game/ai_wpnav.c:3055")
-        // Port-note: A read of `terrain`, a local the draft left as a hole.
-        // Raven wrote: placeZ = terrain->r.absmax[2]-400
-        portMissing("G_RMGPathing", source: "oracle/codemp/game/ai_wpnav.c:3055")
+        placeX = terrain!.r.absmin[0]
+        placeY = terrain!.r.absmin[1]
+        placeZ = terrain!.r.absmax[2] - 400
 
         //skim through the entirety of the terrain limits and drop nodes, removing
         //nodes that start in solid or fall too high on the terrain.
-        // Port-note: A read of `terrain`, a local the draft left as a hole.
-        // Raven wrote: while (placeY < terrain->r.absmax[1]) { if (nodenum >= MAX_NODETABLE_SIZE) { break; } while (placeX < terrain->r.absmax[0]) { if (nodenum >= MAX_NODETABLE_SIZE) { break; } nodetable[nodenum].origin[0] = placeX; nodetable[nodenum].origin[1] = placeY; nodetable[nodenum].origin[2] = placeZ; VectorCopy(nodetable[nodenum].origin, downVec); downVec[2] -= 3000; trap_Trace(&tr, nodetable[nodenum].origin, trMins, trMaxs, downVec, ENTITYNUM_NONE, MASK_SOLID); if ((tr.entityNum >= ENTITYNUM_WORLD || g_entities[tr.entityNum].s.eType == ET_TERRAIN) && tr.endpos[2] < terrain->r.absmin[2]+750) { //only drop nodes on terrain directly VectorCopy(tr.endpos, nodetable[nodenum].origin); nodenum++; } else { VectorClear(nodetable[nodenum].origin); } placeX += gridSpacing; } placeX = terrain->r.absmin[0]; placeY += gridSpacing; }
-        portMissing("G_RMGPathing", source: "oracle/codemp/game/ai_wpnav.c:3055")
+        while placeY < terrain!.r.absmax[1] {
+            if nodenum >= MAX_NODETABLE_SIZE {
+                break
+            }
+
+            while placeX < terrain!.r.absmax[0] {
+                if nodenum >= MAX_NODETABLE_SIZE {
+                    break
+                }
+
+                nodetable[nodenum].origin[0] = placeX
+                nodetable[nodenum].origin[1] = placeY
+                nodetable[nodenum].origin[2] = placeZ
+
+                downVec = nodetable[nodenum].origin
+                downVec[2] -= 3000
+                trap_Trace(tr, nodetable[nodenum].origin, trMins, trMaxs, downVec, ENTITYNUM_NONE, MASK_SOLID)
+
+                if (tr.entityNum >= ENTITYNUM_WORLD || g_entities[tr.entityNum].s.eType == ET_TERRAIN) && tr.endpos[2] < terrain!.r.absmin[2] + 750 {
+                    //only drop nodes on terrain directly
+                    nodetable[nodenum].origin = tr.endpos
+                    nodenum += 1
+                } else {
+                    nodetable[nodenum].origin = vec3_t()
+                }
+
+                placeX += gridSpacing
+            }
+
+            placeX = terrain!.r.absmin[0]
+            placeY += gridSpacing
+        }
 
 
         G_NodeClearForNext()
@@ -2593,9 +2579,17 @@ func G_RMGPathing() {
 
             //For now I am going to branch out mindlessly, but I will probably want to use some sort of A* algorithm
             //here to lessen the time taken.
-            // Port-note: A read of `terrain`, a local the draft left as a hole.
-            // Raven wrote: if (G_RecursiveConnection(nearestIndex, nearestIndexForNext, 0, qtrue, terrain->r.absmin[2]) != nearestIndexForNext) { //failed to branch to where we want. Oh well, try it without trace checks. G_NodeClearForNext(); #ifdef PAINFULLY_DEBUGGING_THROUGH_VM Com_Printf("FAILED RECURSIVE WITH TRACES\n"); #endif if (G_RecursiveConnection(nearestIndex, nearestIndexForNext, 0, qfalse, terrain->r.absmin[2]) != nearestIndexForNext) { //still failed somehow. Just disregard this point. #ifdef PAINFULLY_DEBUGGING_THROUGH_VM Com_Printf("FAILED RECURSIVE -WITHOUT- TRACES (?!?!)\n"); #endif G_NodeClearForNext(); i++; continue; } }
-            portMissing("G_RMGPathing", source: "oracle/codemp/game/ai_wpnav.c:3055")
+            if G_RecursiveConnection(nearestIndex, nearestIndexForNext, 0, true, terrain!.r.absmin[2]) != nearestIndexForNext {
+                //failed to branch to where we want. Oh well, try it without trace checks.
+                G_NodeClearForNext()
+
+                if G_RecursiveConnection(nearestIndex, nearestIndexForNext, 0, false, terrain!.r.absmin[2]) != nearestIndexForNext {
+                    //still failed somehow. Just disregard this point.
+                    G_NodeClearForNext()
+                    i += 1
+                    continue
+                }
+            }
 
             //Now our node array is set up so that highest reasonable weight is the destination node, and 2 is next to the original index,
             //so trace back to that point.

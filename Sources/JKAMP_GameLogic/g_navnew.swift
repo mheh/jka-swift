@@ -271,11 +271,8 @@ func NAVNEW_SidestepBlocker(_ `self`: Entity, _ blocker: Entity, _ blocked_dir: 
                 arcAngle *= -1
             }
             avoidAngles[YAW] = AngleNormalize360(yaw + arcAngle)
-            // Port-note: Raven passes NULL for the `right` output. The ported function takes it by reference, so the body passes a scratch local it never reads.
-            portMissing("NAVNEW_SidestepBlocker", source: "oracle/codemp/game/g_navnew.c:222")
+            // Raven passes NULL for the right and up outputs.
             var scratchRight = vec3_t()
-            // Port-note: Raven passes NULL for the `up` output. The ported function takes it by reference, so the body passes a scratch local it never reads.
-            portMissing("NAVNEW_SidestepBlocker", source: "oracle/codemp/game/g_navnew.c:222")
             var scratchUp = vec3_t()
             AngleVectors(avoidAngles, &movedir, &scratchRight, &scratchUp)
             _VectorMA(`self`.r.currentOrigin, blocked_dist, movedir, &block_pos)
@@ -285,11 +282,8 @@ func NAVNEW_SidestepBlocker(_ `self`: Entity, _ blocker: Entity, _ blocked_dir: 
 
         //test right
         avoidAngles[YAW] = AngleNormalize360(yaw + arcAngle)
-        // Port-note: Raven passes NULL for the `right` output. The ported function takes it by reference, so the body passes a scratch local it never reads.
-        portMissing("NAVNEW_SidestepBlocker", source: "oracle/codemp/game/g_navnew.c:222")
+        // Raven passes NULL for the right and up outputs.
         var scratchRight2 = vec3_t()
-        // Port-note: Raven passes NULL for the `up` output. The ported function takes it by reference, so the body passes a scratch local it never reads.
-        portMissing("NAVNEW_SidestepBlocker", source: "oracle/codemp/game/g_navnew.c:222")
         var scratchUp2 = vec3_t()
         AngleVectors(avoidAngles, &avoidRight_dir, &scratchRight2, &scratchUp2)
 
@@ -314,11 +308,8 @@ func NAVNEW_SidestepBlocker(_ `self`: Entity, _ blocker: Entity, _ blocked_dir: 
         arcAngle *= -1
 
         avoidAngles[YAW] = AngleNormalize360(yaw + arcAngle)
-        // Port-note: Raven passes NULL for the `right` output. The ported function takes it by reference, so the body passes a scratch local it never reads.
-        portMissing("NAVNEW_SidestepBlocker", source: "oracle/codemp/game/g_navnew.c:222")
+        // Raven passes NULL for the right and up outputs.
         var scratchRight3 = vec3_t()
-        // Port-note: Raven passes NULL for the `up` output. The ported function takes it by reference, so the body passes a scratch local it never reads.
-        portMissing("NAVNEW_SidestepBlocker", source: "oracle/codemp/game/g_navnew.c:222")
         var scratchUp3 = vec3_t()
         AngleVectors(avoidAngles, &avoidLeft_dir, &scratchRight3, &scratchUp3)
 
@@ -383,11 +374,8 @@ func NAVNEW_Bypass(_ `self`: Entity, _ blocker: Entity, _ blocked_dir: JKAShared
 
     vectoangles(movedir, &moveangles)
     moveangles[2] = 0
-    // Port-note: Raven passes NULL for the `forward` output. The ported function takes it by reference, so the body passes a scratch local it never reads.
-    portMissing("NAVNEW_Bypass", source: "oracle/codemp/game/g_navnew.c:347")
+    // Raven passes NULL for the forward and up outputs.
     var scratchForward = vec3_t()
-    // Port-note: Raven passes NULL for the `up` output. The ported function takes it by reference, so the body passes a scratch local it never reads.
-    portMissing("NAVNEW_Bypass", source: "oracle/codemp/game/g_navnew.c:347")
     var scratchUp = vec3_t()
     AngleVectors(moveangles, &scratchForward, &right, &scratchUp)
 
@@ -630,9 +618,30 @@ func NAVNEW_MoveToGoal(_ `self`: Entity, _ info: NavInfo) -> Int32 {
                 //didn't have a valid one in about the past second, don't look again just yet
                 return WAYPOINT_NONE
             }
-            // Port-note: An assignment inside an expression.
-            // Raven wrote: if ( self->noWaypointTime > level.time && self->NPC->goalEntity->noWaypointTime > level.time ) {//just use current waypoints bestNode = trap_Nav_GetBestNodeAltRoute2( self->waypoint, self->NPC->goalEntity->waypoint, bestNode ); } //FIXME!!!!: this is making them wiggle back and forth between waypoints else if ( (bestNode = trap_Nav_GetBestPathBetweenEnts( self, self->NPC->goalEntity, NF_CLEAR_PATH )) == NODE_NONE )//!NAVNEW_GetWaypoints( self, qtrue ) ) {//one of us didn't have a valid waypoint! if ( self->waypoint == NODE_NONE ) {//don't even try to find one again for a bit self->noWaypointTime = level.time + Q_irand( 500, 1500 ); } if ( self->NPC->goalEntity->waypoint == NODE_NONE ) {//don't even try to find one again for a bit self->NPC->goalEntity->noWaypointTime = level.time + Q_irand( 500, 1500 ); } return WAYPOINT_NONE; } else { if ( self->NPC->goalEntity->noWaypointTime < level.time ) { self->NPC->goalEntity->noWaypointTime = level.time + Q_irand( 500, 1500 ); } }
-            portMissing("NAVNEW_MoveToGoal", source: "oracle/codemp/game/g_navnew.c:578")
+            if `self`.noWaypointTime > level.time && `self`.NPC!.goalEntity!.noWaypointTime > level.time {
+                //just use current waypoints
+                bestNode = trap_Nav_GetBestNodeAltRoute2(`self`.waypoint, `self`.NPC!.goalEntity!.waypoint, bestNode)
+            } else {
+                //FIXME!!!!: this is making them wiggle back and forth between waypoints
+                bestNode = trap_Nav_GetBestPathBetweenEnts(`self`, `self`.NPC!.goalEntity!, NF_CLEAR_PATH)
+                if bestNode == NODE_NONE {
+                    //!NAVNEW_GetWaypoints( self, qtrue ) )
+                    //one of us didn't have a valid waypoint!
+                    if `self`.waypoint == NODE_NONE {
+                        //don't even try to find one again for a bit
+                        `self`.noWaypointTime = level.time + Q_irand(500, 1500)
+                    }
+                    if `self`.NPC!.goalEntity!.waypoint == NODE_NONE {
+                        //don't even try to find one again for a bit
+                        `self`.NPC!.goalEntity!.noWaypointTime = level.time + Q_irand(500, 1500)
+                    }
+                    return WAYPOINT_NONE
+                } else {
+                    if `self`.NPC!.goalEntity!.noWaypointTime < level.time {
+                        `self`.NPC!.goalEntity!.noWaypointTime = level.time + Q_irand(500, 1500)
+                    }
+                }
+            }
 
             while !foundClearPath {
                 inGoalWP = false
@@ -791,9 +800,10 @@ func NAVNEW_MoveToGoal(_ `self`: Entity, _ info: NavInfo) -> Int32 {
                         }
                     }
 
-                    // Port-note: A ++ inside an expression.
-                    // Raven wrote: if ( ++numTries >= 10 ) { goto failed; }
-                    portMissing("NAVNEW_MoveToGoal", source: "oracle/codemp/game/g_navnew.c:578")
+                    numTries += 1
+                    if numTries >= 10 {
+                        break failed
+                    }
                 }
             }
 

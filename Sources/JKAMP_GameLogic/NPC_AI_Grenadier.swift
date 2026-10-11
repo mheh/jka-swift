@@ -478,8 +478,7 @@ func NPC_BSGrenadier_Attack() {
             //in front of me
             //can we shoot our target?
             //FIXME: how accurate/necessary is this check?
-            // Port-note: Raven passes NULL for the `impactPos` output. The ported function takes it by reference, so the body passes a scratch local it never reads.
-            portMissing("NPC_BSGrenadier_Attack", source: "oracle/codemp/game/NPC_AI_Grenadier.c:461")
+            // Raven passes NULL for the `impactPos` output.
             var scratchImpactPos = vec3_t()
             let hit: Int32 = NPC_ShotEntity(NPC!.enemy!, &scratchImpactPos)
             let hitEnt: Entity? = g_entities[hit]

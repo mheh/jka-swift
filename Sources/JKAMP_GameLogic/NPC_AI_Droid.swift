@@ -260,11 +260,8 @@ func NPC_Droid_Pain(_ `self`: Entity, _ attacker: Entity, _ damage: Int32) {
 
                         if `self`.client!.ps.m_iVehicleNum != 0 {
                             var up = vec3_t()
-                            // Port-note: Raven passes NULL for the `forward` output. The ported function takes it by reference, so the body passes a scratch local it never reads.
-                            portMissing("NPC_Droid_Pain", source: "oracle/codemp/game/NPC_AI_Droid.c:273")
+                            // Raven passes NULL for the `forward` and `right` outputs.
                             var scratchForward = vec3_t()
-                            // Port-note: Raven passes NULL for the `right` output. The ported function takes it by reference, so the body passes a scratch local it never reads.
-                            portMissing("NPC_Droid_Pain", source: "oracle/codemp/game/NPC_AI_Droid.c:273")
                             var scratchRight = vec3_t()
                             AngleVectors(`self`.r.currentAngles, &scratchForward, &scratchRight, &up)
                             G_PlayEffectID(G_EffectIndex("chunks/r5d2head_veh"), `self`.r.currentOrigin, up)
@@ -323,11 +320,8 @@ func NPC_Droid_Pain(_ `self`: Entity, _ attacker: Entity, _ damage: Int32) {
 
                         if `self`.client!.ps.m_iVehicleNum != 0 {
                             var up = vec3_t()
-                            // Port-note: Raven passes NULL for the `forward` output. The ported function takes it by reference, so the body passes a scratch local it never reads.
-                            portMissing("NPC_Droid_Pain", source: "oracle/codemp/game/NPC_AI_Droid.c:273")
+                            // Raven passes NULL for the `forward` and `right` outputs.
                             var scratchForward2 = vec3_t()
-                            // Port-note: Raven passes NULL for the `right` output. The ported function takes it by reference, so the body passes a scratch local it never reads.
-                            portMissing("NPC_Droid_Pain", source: "oracle/codemp/game/NPC_AI_Droid.c:273")
                             var scratchRight2 = vec3_t()
                             AngleVectors(`self`.r.currentAngles, &scratchForward2, &scratchRight2, &up)
                             G_PlayEffectID(G_EffectIndex("chunks/r2d2head_veh"), `self`.r.currentOrigin, up)

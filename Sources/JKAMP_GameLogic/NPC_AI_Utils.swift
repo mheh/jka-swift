@@ -135,70 +135,80 @@ func AI_SetClosestBuddy(_ group: AIGroupInfo) {
 
 /// Source: oracle/codemp/game/NPC_AI_Utils.c:134
 func AI_SortGroupByPathCostToEnemy(_ group: AIGroupInfo) {
-    // Port-note: A local `AIGroupMember_t[32] bestMembers` the table has no type for.
-    // Raven wrote: AIGroupMember_t bestMembers[MAX_GROUP_MEMBERS];
-    portMissing("AI_SortGroupByPathCostToEnemy", source: "oracle/codemp/game/NPC_AI_Utils.c:134")
-    var i: Int32
-    var j: Int32
-    var k: Int32
-    var sort: Bool = false
+    // Raven's array of records lives to the end of his function, so the rest of the body is the closure.
+    AIGroupMember.scratch(count: Int(MAX_GROUP_MEMBERS)) { bestMembers in
+        var i: Int32
+        var j: Int32
+        var k: Int32
+        var sort: Bool = false
 
-    if group.enemy != nil {
-        //FIXME: just use enemy->waypoint?
-        group.enemyWP = NAV_FindClosestWaypointForEnt(group.enemy!, WAYPOINT_NONE)
-    } else {
-        group.enemyWP = WAYPOINT_NONE
-    }
-
-    i = 0
-    while i < group.numGroup {
-        if group.enemyWP == WAYPOINT_NONE {
-            //FIXME: just use member->waypoint?
-            group.member[i].waypoint = WAYPOINT_NONE
-            group.member[i].pathCostToEnemy = Q3_INFINITE
+        if group.enemy != nil {
+            //FIXME: just use enemy->waypoint?
+            group.enemyWP = NAV_FindClosestWaypointForEnt(group.enemy!, WAYPOINT_NONE)
         } else {
-            //FIXME: just use member->waypoint?
-            group.member[i].waypoint = NAV_FindClosestWaypointForEnt(group.enemy!, WAYPOINT_NONE)
-            if group.member[i].waypoint != WAYPOINT_NONE {
-                group.member[i].pathCostToEnemy = trap_Nav_GetPathCost(group.member[i].waypoint, group.enemyWP)
-                //at least one of us has a path, so do sorting
-                sort = true
-            } else {
-                group.member[i].pathCostToEnemy = Q3_INFINITE
-            }
-        }
-        i += 1
-    }
-    //Now sort
-    if sort {
-        //initialize bestMembers data
-        j = 0
-        while j < group.numGroup {
-            // Port-note: A read of `bestMembers`, a local the draft left as a hole.
-            // Raven wrote: bestMembers[j].number = ENTITYNUM_NONE
-            portMissing("AI_SortGroupByPathCostToEnemy", source: "oracle/codemp/game/NPC_AI_Utils.c:134")
-            j += 1
+            group.enemyWP = WAYPOINT_NONE
         }
 
         i = 0
         while i < group.numGroup {
+            if group.enemyWP == WAYPOINT_NONE {
+                //FIXME: just use member->waypoint?
+                group.member[i].waypoint = WAYPOINT_NONE
+                group.member[i].pathCostToEnemy = Q3_INFINITE
+            } else {
+                //FIXME: just use member->waypoint?
+                group.member[i].waypoint = NAV_FindClosestWaypointForEnt(group.enemy!, WAYPOINT_NONE)
+                if group.member[i].waypoint != WAYPOINT_NONE {
+                    group.member[i].pathCostToEnemy = trap_Nav_GetPathCost(group.member[i].waypoint, group.enemyWP)
+                    //at least one of us has a path, so do sorting
+                    sort = true
+                } else {
+                    group.member[i].pathCostToEnemy = Q3_INFINITE
+                }
+            }
+            i += 1
+        }
+        //Now sort
+        if sort {
+            //initialize bestMembers data
             j = 0
             while j < group.numGroup {
-                // Port-note: A read of `bestMembers`, a local the draft left as a hole.
-                // Raven wrote: if ( bestMembers[j].number != ENTITYNUM_NONE ) {//slot occupied if ( group->member[i].pathCostToEnemy < bestMembers[j].pathCostToEnemy ) {//this guy has a shorter path than the one currenly in this spot, bump him and put myself in here for ( k = group->numGroup; k > j; k++ ) { memcpy( &bestMembers[k], &bestMembers[k-1], sizeof( bestMembers[k] ) ); } memcpy( &bestMembers[j], &group->member[i], sizeof( bestMembers[j] ) ); break; } } else {//slot unoccupied, reached end of list, throw self in here memcpy( &bestMembers[j], &group->member[i], sizeof( bestMembers[j] ) ); break; }
-                portMissing("AI_SortGroupByPathCostToEnemy", source: "oracle/codemp/game/NPC_AI_Utils.c:134")
+                bestMembers[j].number = ENTITYNUM_NONE
                 j += 1
             }
-            i += 1
-        }
 
-        //Okay, now bestMembers is a sorted list, just copy it into group->members
-        i = 0
-        while i < group.numGroup {
-            // Port-note: A read of `bestMembers`, a local the draft left as a hole.
-            // Raven wrote: memcpy( &group->member[i], &bestMembers[i], sizeof( group->member[i] ) )
-            portMissing("AI_SortGroupByPathCostToEnemy", source: "oracle/codemp/game/NPC_AI_Utils.c:134")
-            i += 1
+            i = 0
+            while i < group.numGroup {
+                j = 0
+                while j < group.numGroup {
+                    if bestMembers[j].number != ENTITYNUM_NONE {
+                        //slot occupied
+                        if group.member[i].pathCostToEnemy < bestMembers[j].pathCostToEnemy {
+                            //this guy has a shorter path than the one currenly in this spot, bump him and put myself in here
+                            k = group.numGroup
+                            while k > j {
+                                bestMembers[k].copy(from: bestMembers[k - 1])
+                                k += 1
+                            }
+                            bestMembers[j].copy(from: group.member[i])
+                            break
+                        }
+                    } else {
+                        //slot unoccupied, reached end of list, throw self in here
+                        bestMembers[j].copy(from: group.member[i])
+                        break
+                    }
+                    j += 1
+                }
+                i += 1
+            }
+
+            //Okay, now bestMembers is a sorted list, just copy it into group->members
+            i = 0
+            while i < group.numGroup {
+                group.member[i].copy(from: bestMembers[i])
+                i += 1
+            }
         }
     }
 }
@@ -457,9 +467,7 @@ func AI_GetGroup(_ `self`: Entity) {
     }
 
     //create a new one
-    // Port-note: Raven's `memset( self->NPC->group, 0, sizeof( AIGroupInfo_t ) )` runs over a size that is not the record's own, and a view's clear() takes the whole record.
-    // Raven wrote: memset( self->NPC->group, 0, sizeof( AIGroupInfo_t ) )
-    portMissing("AI_GetGroup", source: "oracle/codemp/game/NPC_AI_Utils.c:443")
+    `self`.NPC!.group!.clear()
 
     `self`.NPC!.group!.enemy = `self`.enemy
     `self`.NPC!.group!.team = `self`.client!.playerTeam

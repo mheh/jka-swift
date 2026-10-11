@@ -50,9 +50,9 @@ func NPC_Seeker_Precache() {
 func NPC_Seeker_Pain(_ `self`: Entity, _ attacker: Entity, _ damage: Int32) {
     if !((`self`.NPC!.aiFlags & NPCAI_CUSTOM_GRAVITY) != 0) {
         //void G_Damage( gentity_t *targ, gentity_t *inflictor, gentity_t *attacker, vec3_t dir, vec3_t point, int damage, int dflags, int mod, int hitLoc=HL_NONE );
-        // Port-note: A cast to `float *` the draft has no view for.
-        // Raven wrote: G_Damage( self, NULL, NULL, (float*)vec3_origin, (float*)vec3_origin, 999, 0, MOD_FALLING )
-        portMissing("NPC_Seeker_Pain", source: "oracle/codemp/game/NPC_AI_Seeker.c:34")
+        // G_Damage may write `dir`, so the call passes a copy of `vec3_origin`.
+        var dir = vec3_origin
+        G_Damage(`self`, nil, nil, &dir, vec3_origin, 999, 0, MOD_FALLING)
     }
 
     SaveNPCGlobals()
@@ -155,11 +155,8 @@ func Seeker_Strafe() {
         // The SDK also declares `random`, so the call names the bg module.
         if JKAMP_BG.random() > 0.7 || NPC!.enemy == nil || NPC!.enemy!.client == nil {
             // Do a regular style strafe
-            // Port-note: Raven passes NULL for the `forward` output. The ported function takes it by reference, so the body passes a scratch local it never reads.
-            portMissing("Seeker_Strafe", source: "oracle/codemp/game/NPC_AI_Seeker.c:151")
+            // Raven passes NULL for the `forward` and `up` outputs.
             var scratchForward = vec3_t()
-            // Port-note: Raven passes NULL for the `up` output. The ported function takes it by reference, so the body passes a scratch local it never reads.
-            portMissing("Seeker_Strafe", source: "oracle/codemp/game/NPC_AI_Seeker.c:151")
             var scratchUp = vec3_t()
             AngleVectors(NPC!.client!.renderInfo.eyeAngles, &scratchForward, &right, &scratchUp)
 
@@ -169,10 +166,6 @@ func Seeker_Strafe() {
             side = (JKAMP_BG.rand() & 1) != 0 ? -1 : 1
             _VectorMA(NPC!.r.currentOrigin, Float(SEEKER_STRAFE_DIS * side), right, &end)
 
-            // Port-note: Raven passes NULL for `mins`, and the callee reads NULL as the zero vector.
-            portMissing("Seeker_Strafe", source: "oracle/codemp/game/NPC_AI_Seeker.c:151")
-            // Port-note: Raven passes NULL for `maxs`, and the callee reads NULL as the zero vector.
-            portMissing("Seeker_Strafe", source: "oracle/codemp/game/NPC_AI_Seeker.c:151")
             trap_Trace(tr, NPC!.r.currentOrigin, vec3_origin, vec3_origin, end, NPC!.s.number, MASK_SOLID)
 
             // Close enough
@@ -196,8 +189,7 @@ func Seeker_Strafe() {
             var stDis: Float = 0
 
             // Do a strafe to try and keep on the side of their enemy
-            // Port-note: Raven passes NULL for the `up` output. The ported function takes it by reference, so the body passes a scratch local it never reads.
-            portMissing("Seeker_Strafe", source: "oracle/codemp/game/NPC_AI_Seeker.c:151")
+            // Raven passes NULL for the `up` output.
             var scratchUp2 = vec3_t()
             AngleVectors(NPC!.enemy!.client!.renderInfo.eyeAngles, &dir, &right, &scratchUp2)
 
@@ -213,10 +205,6 @@ func Seeker_Strafe() {
             // then add a very small bit of random in front of/behind the player action
             _VectorMA(end, crandom() * 25, dir, &end)
 
-            // Port-note: Raven passes NULL for `mins`, and the callee reads NULL as the zero vector.
-            portMissing("Seeker_Strafe", source: "oracle/codemp/game/NPC_AI_Seeker.c:151")
-            // Port-note: Raven passes NULL for `maxs`, and the callee reads NULL as the zero vector.
-            portMissing("Seeker_Strafe", source: "oracle/codemp/game/NPC_AI_Seeker.c:151")
             trap_Trace(tr, NPC!.r.currentOrigin, vec3_origin, vec3_origin, end, NPC!.s.number, MASK_SOLID)
 
             // Close enough
@@ -336,10 +324,8 @@ func Seeker_Ranged(_ visible: Bool, _ advance: Bool) {
             //		NPC->client->ps.gravity = 900;
             //		NPC->svFlags &= ~SVF_CUSTOM_GRAVITY;
             //		NPC->client->ps.velocity[2] += 16;
-            // Port-note: Raven passes NULL for the `dir` output. The ported function takes it by reference, so the body passes a scratch local it never reads.
-            portMissing("Seeker_Ranged", source: "oracle/codemp/game/NPC_AI_Seeker.c:320")
-            var scratchDir = vec3_t()
-            G_Damage(NPC!, NPC, NPC, &scratchDir, nil, 999, 0, MOD_UNKNOWN)
+            var dir: vec3_t? = nil
+            G_Damage(NPC!, NPC, NPC, &dir, nil, 999, 0, MOD_UNKNOWN)
         }
     }
 
@@ -524,10 +510,8 @@ func NPC_BSSeeker_Default() {
         if owner!.health <= 0 || (owner!.client != nil && owner!.client!.pers.connected == CON_DISCONNECTED) {
             //owner is dead or gone
             //remove me
-            // Port-note: Raven passes NULL for the `dir` output. The ported function takes it by reference, so the body passes a scratch local it never reads.
-            portMissing("NPC_BSSeeker_Default", source: "oracle/codemp/game/NPC_AI_Seeker.c:523")
-            var scratchDir = vec3_t()
-            G_Damage(NPC!, nil, nil, &scratchDir, nil, 10000, DAMAGE_NO_PROTECTION, MOD_TELEFRAG)
+            var dir: vec3_t? = nil
+            G_Damage(NPC!, nil, nil, &dir, nil, 10000, DAMAGE_NO_PROTECTION, MOD_TELEFRAG)
             return
         }
     }

@@ -394,10 +394,8 @@ func NPC_Mark1_Pain(_ `self`: Entity, _ attacker: Entity, _ damage: Int32) {
 
     // Are both guns shot off?
     if (trap_G2API_GetSurfaceRenderStatus(`self`.ghoul2, 0, "l_arm") > 0) && (trap_G2API_GetSurfaceRenderStatus(`self`.ghoul2, 0, "r_arm") > 0) {
-        // Port-note: Raven passes NULL for the `dir` output. The ported function takes it by reference, so the body passes a scratch local it never reads.
-        portMissing("NPC_Mark1_Pain", source: "oracle/codemp/game/NPC_AI_Mark1.c:320")
-        var scratchDir = vec3_t()
-        G_Damage(`self`, nil, nil, &scratchDir, nil, `self`.health, 0, MOD_UNKNOWN)
+        var dir: vec3_t? = nil
+        G_Damage(`self`, nil, nil, &dir, nil, `self`.health, 0, MOD_UNKNOWN)
     }
 }
 

@@ -39,9 +39,17 @@ func Use_Target_Give(_ ent: Entity, _ other: Entity, _ activator: Entity) {
 
         // Raven clears the record with `memset` here. The scratch slot is zero at entry, so the body drops the call.
         t = nil
-        // Port-note: An assignment inside an expression.
-        // Raven wrote: while ( (t = G_Find (t, FOFS(targetname), ent->target)) != NULL ) { if ( !t->item ) { continue; } Touch_Item( t, activator, &trace ); // make sure it isn't going to respawn or show any events t->nextthink = 0; trap_UnlinkEntity( t ); }
-        portMissing("Use_Target_Give", source: "oracle/codemp/game/g_target.c:10")
+        while let next = G_Find(t, \.targetname, ent.target!) {
+            t = next
+            if t!.item == nil {
+                continue
+            }
+            Touch_Item(t!, activator, trace)
+
+            // make sure it isn't going to respawn or show any events
+            t!.nextthink = 0
+            trap_UnlinkEntity(t!)
+        }
         return false
     }
     if earlyOut {
@@ -75,9 +83,7 @@ func Use_target_remove_powerups(_ ent: Entity, _ other: Entity, _ activator: Ent
         Team_ReturnFlag(TEAM_FREE)
     }
 
-    // Port-note: Raven's `memset( activator->client->ps.powerups, 0, sizeof( activator->client->ps.powerups ) )` runs over bytes that are not one record with a view.
-    // Raven wrote: memset( activator->client->ps.powerups, 0, sizeof( activator->client->ps.powerups ) )
-    portMissing("Use_target_remove_powerups", source: "oracle/codemp/game/g_target.c:47")
+    activator.client!.ps.powerups.fill(0)
 }
 
 /// Source: oracle/codemp/game/g_target.c:63
@@ -356,10 +362,6 @@ func target_laser_think(_ `self`: Entity) {
         // fire forward and see what we hit
         _VectorMA(`self`.s.origin, 2048, `self`.movedir, &end)
 
-        // Port-note: Raven passes NULL for `mins`, and the callee reads NULL as the zero vector.
-        portMissing("target_laser_think", source: "oracle/codemp/game/g_target.c:349")
-        // Port-note: Raven passes NULL for `maxs`, and the callee reads NULL as the zero vector.
-        portMissing("target_laser_think", source: "oracle/codemp/game/g_target.c:349")
         trap_Trace(tr, `self`.s.origin, vec3_origin, vec3_origin, end, `self`.s.number, CONTENTS_SOLID | CONTENTS_BODY | CONTENTS_CORPSE)
 
         if tr.entityNum != 0 {
@@ -405,9 +407,7 @@ func target_laser_start(_ `self`: Entity) {
     `self`.s.eType = ET_BEAM
 
     if `self`.target != nil {
-        // Port-note: No operator beside the operand, the text there is ``.
-        // Raven wrote: ent = G_Find (NULL, FOFS(targetname), self->target)
-        portMissing("target_laser_start", source: "oracle/codemp/game/g_target.c:401")
+        ent = G_Find(nil, \.targetname, `self`.target!)
         if ent == nil {
             G_Printf("%s at %s: %s is a bad target\n", `self`.classname!, vtos(`self`.s.origin), `self`.target!)
         }
@@ -539,10 +539,8 @@ Kills the activator.
 /// Source: oracle/codemp/game/g_target.c:534
 func target_kill_use(_ `self`: Entity, _ other: Entity, _ activator: Entity) {
     G_ActivateBehavior(`self`, BSET_USE)
-    // Port-note: Raven passes NULL for the `dir` output. The ported function takes it by reference, so the body passes a scratch local it never reads.
-    portMissing("target_kill_use", source: "oracle/codemp/game/g_target.c:534")
-    var scratchDir = vec3_t()
-    G_Damage(activator, nil, nil, &scratchDir, nil, 100000, DAMAGE_NO_PROTECTION, MOD_TELEFRAG)
+    var dir: vec3_t? = nil
+    G_Damage(activator, nil, nil, &dir, nil, 100000, DAMAGE_NO_PROTECTION, MOD_TELEFRAG)
 }
 
 /// Source: oracle/codemp/game/g_target.c:539
@@ -688,9 +686,13 @@ func target_random_use(_ `self`: Entity, _ other: Entity, _ activator: Entity) {
         `self`.use = nil
     }
 
-    // Port-note: An assignment inside an expression.
-    // Raven wrote: while ( (t = G_Find (t, FOFS(targetname), self->target)) != NULL ) { if (t != self) { t_count++; } }
-    portMissing("target_random_use", source: "oracle/codemp/game/g_target.c:681")
+    while let next = G_Find(t, \.targetname, `self`.target!) {
+        t = next
+        if t!.s.number != `self`.s.number {
+            t_count += 1
+        }
+    }
+    t = nil
 
     if t_count == 0 {
         return
@@ -704,9 +706,27 @@ func target_random_use(_ `self`: Entity, _ other: Entity, _ activator: Entity) {
     //FIXME: need a seed
     pick = Q_irand(1, t_count)
     t_count = 0
-    // Port-note: An assignment inside an expression.
-    // Raven wrote: while ( (t = G_Find (t, FOFS(targetname), self->target)) != NULL ) { if (t != self) { t_count++; } else { continue; } if (t == self) { // gi.Printf ("WARNING: Entity used itself.\n"); } else if(t_count == pick) { if (t->use != NULL) // check can be omitted { GlobalUse(t, self, activator); return; } } if (!self->inuse) { Com_Printf("entity was removed while using targets\n"); return; } }
-    portMissing("target_random_use", source: "oracle/codemp/game/g_target.c:681")
+    while let next = G_Find(t, \.targetname, `self`.target!) {
+        t = next
+        if t!.s.number != `self`.s.number {
+            t_count += 1
+        } else {
+            continue
+        }
+
+        if t!.s.number == `self`.s.number {
+            // gi.Printf ("WARNING: Entity used itself.\n");
+        } else if t_count == pick {
+            if t!.use != nil { // check can be omitted
+                GlobalUse(t!, `self`, activator)
+                return
+            }
+        }
+        if !`self`.inuse {
+            Com_Printf("entity was removed while using targets\n")
+            return
+        }
+    }
 }
 
 /// Source: oracle/codemp/game/g_target.c:748
@@ -844,9 +864,10 @@ func SP_target_scriptrunner(_ `self`: Entity) {
 /// Source: oracle/codemp/game/g_target.c:900
 func G_SetActiveState(_ targetstring: String, _ actState: Bool) {
     var target: Entity? = nil
-    // Port-note: An assignment inside an expression.
-    // Raven wrote: while( NULL != (target = G_Find(target, FOFS(targetname), targetstring)) ) { target->flags = actState ? (target->flags&~FL_INACTIVE) : (target->flags|FL_INACTIVE); }
-    portMissing("G_SetActiveState", source: "oracle/codemp/game/g_target.c:900")
+    while let next = G_Find(target, \.targetname, targetstring) {
+        target = next
+        target!.flags = actState ? (target!.flags & ~FL_INACTIVE) : (target!.flags | FL_INACTIVE)
+    }
 }
 
 /// Source: oracle/codemp/game/g_target.c:912

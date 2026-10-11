@@ -854,12 +854,9 @@ private func ST_OffsetLook(_ offset: Float, _ out: inout JKAShared.vec3_t) {
 
     GetAnglesForDirection(NPC!.r.currentOrigin, NPCInfo!.investigateGoal, &angles)
     angles[YAW] += offset
-    // Port-note: Raven passes NULL for the `right` output. The ported function takes it by reference, so the body passes a scratch local it never reads.
-    portMissing("ST_OffsetLook", source: "oracle/codemp/game/NPC_AI_Stormtrooper.c:927")
     var scratchRight = vec3_t()
-    // Port-note: Raven passes NULL for the `up` output. The ported function takes it by reference, so the body passes a scratch local it never reads.
-    portMissing("ST_OffsetLook", source: "oracle/codemp/game/NPC_AI_Stormtrooper.c:927")
     var scratchUp = vec3_t()
+    // Raven passes NULL for the right and up outputs.
     AngleVectors(angles, &forward, &scratchRight, &scratchUp)
     _VectorMA(NPC!.r.currentOrigin, 64, forward, &out)
 
@@ -1261,12 +1258,9 @@ private func ST_CheckFireState() {
                         //vec3_t	mins = {-2,-2,-2}, maxs = {2,2,2};
                         var forward = vec3_t()
                         var end = vec3_t()
-                        // Port-note: Raven passes NULL for the `right` output. The ported function takes it by reference, so the body passes a scratch local it never reads.
-                        portMissing("ST_CheckFireState", source: "oracle/codemp/game/NPC_AI_Stormtrooper.c:1411")
                         var scratchRight = vec3_t()
-                        // Port-note: Raven passes NULL for the `up` output. The ported function takes it by reference, so the body passes a scratch local it never reads.
-                        portMissing("ST_CheckFireState", source: "oracle/codemp/game/NPC_AI_Stormtrooper.c:1411")
                         var scratchUp = vec3_t()
+                        // Raven passes NULL for the right and up outputs.
                         AngleVectors(NPC!.client!.ps.viewangles, &forward, &scratchRight, &scratchUp)
                         _VectorMA(muzzle, 8192, forward, &end)
                         trap_Trace(tr, muzzle, vec3_origin, vec3_origin, end, NPC!.s.number, MASK_SHOT)
@@ -1408,9 +1402,7 @@ func ST_TransferMoveGoal(_ `self`: Entity, _ other: Entity) {
     } else {
         //I must be going for a goal, give that to him instead
         if `self`.NPC!.goalEntity == `self`.NPC!.tempGoal {
-            // Port-note: The draft of this statement did not compile, and the compiler wrote "cannot convert value of type 'Bool' to expected argument type 'Int'".
-            // Raven wrote: NPC_SetMoveGoal( other, self->NPC->tempGoal->r.currentOrigin, self->NPC->goalRadius, ((self->NPC->tempGoal->flags&FL_NAVGOAL)?qtrue:qfalse), -1, NULL )
-            portMissing("ST_TransferMoveGoal", source: "oracle/codemp/game/NPC_AI_Stormtrooper.c:1595")
+            NPC_SetMoveGoal(other, `self`.NPC!.tempGoal!.r.currentOrigin, `self`.NPC!.goalRadius, ((`self`.NPC!.tempGoal!.flags & FL_NAVGOAL) != 0 ? true : false), -1, nil)
         } else {
             other.NPC!.goalEntity = `self`.NPC!.goalEntity
         }
@@ -2195,12 +2187,9 @@ func NPC_BSST_Attack() {
 
     enemyDir = NPC!.enemy!.r.currentOrigin - NPC!.r.currentOrigin
     VectorNormalize(&enemyDir)
-    // Port-note: Raven passes NULL for the `right` output. The ported function takes it by reference, so the body passes a scratch local it never reads.
-    portMissing("NPC_BSST_Attack", source: "oracle/codemp/game/NPC_AI_Stormtrooper.c:2409")
     var scratchRight = vec3_t()
-    // Port-note: Raven passes NULL for the `up` output. The ported function takes it by reference, so the body passes a scratch local it never reads.
-    portMissing("NPC_BSST_Attack", source: "oracle/codemp/game/NPC_AI_Stormtrooper.c:2409")
     var scratchUp = vec3_t()
+    // Raven passes NULL for the right and up outputs.
     AngleVectors(NPC!.client!.ps.viewangles, &shootDir, &scratchRight, &scratchUp)
     dot = _DotProduct(enemyDir, shootDir)
     if dot > 0.5 || (enemyDist * (1.0 - dot)) < 10000 {

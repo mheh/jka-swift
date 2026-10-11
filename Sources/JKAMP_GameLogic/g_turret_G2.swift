@@ -271,11 +271,8 @@ private func turretG2_fire(_ ent: Entity, _ start: inout JKAShared.vec3_t, _ dir
         vectoangles(dir, &ang)
         ang[PITCH] += flrand(-ent.random, ent.random)
         ang[YAW] += flrand(-ent.random, ent.random)
-        // Port-note: Raven passes NULL for the `right` output. The ported function takes it by reference, so the body passes a scratch local it never reads.
-        portMissing("turretG2_fire", source: "oracle/codemp/game/g_turret_G2.c:344")
+        // Raven passes NULL for the right and up outputs.
         var scratchRight = vec3_t()
-        // Port-note: Raven passes NULL for the `up` output. The ported function takes it by reference, so the body passes a scratch local it never reads.
-        portMissing("turretG2_fire", source: "oracle/codemp/game/g_turret_G2.c:344")
         var scratchUp = vec3_t()
         AngleVectors(ang, &dir, &scratchRight, &scratchUp)
     }
@@ -546,9 +543,7 @@ private func turretG2_find_enemies(_ `self`: Entity) -> Bool {
     var org = vec3_t()
     var org2 = vec3_t()
     var foundClient: Bool = false
-    // Port-note: A local `gentity_t *[1024] entity_list` the table has no type for.
-    // Raven wrote: gentity_t *entity_list[MAX_GENTITIES];
-    portMissing("turretG2_find_enemies", source: "oracle/codemp/game/g_turret_G2.c:677")
+    var entity_list = [Entity?](repeating: nil, count: Int(MAX_GENTITIES))
     var target: Entity?
     var bestTarget: Entity? = nil
 
@@ -569,9 +564,7 @@ private func turretG2_find_enemies(_ `self`: Entity) -> Bool {
         org2[2] -= 20
     }
 
-    // Port-note: A read of `entity_list`, a local the draft left as a hole.
-    // Raven wrote: count = G_RadiusList( org2, self->radius, self, qtrue, entity_list )
-    portMissing("turretG2_find_enemies", source: "oracle/codemp/game/g_turret_G2.c:677")
+    count = G_RadiusList(org2, `self`.radius, `self`, true, &entity_list)
 
     // Port-note: Raven's block leaves a loop outside the record's scope, and the closure cannot.
     // Raven wrote: for ( i = 0; i < count; i++ ) { trace_t tr; target = entity_list[i]; if ( !target->client ) { // only attack clients if ( !(target->flags&FL_BBRUSH)//not a breakable brush || !target->takedamage//is a bbrush, but invincible || (target->NPC_targetname&&self->targetname&&Q_stricmp(target->NPC_targetname,self->targetname)!=0) )//not in invicible bbrush, but can only be broken by an NPC that is not me { continue; } //else: we will shoot at bbrushes! } if ( target == self || !target->takedamage || target->health <= 0 || ( target->flags & FL_NOTARGET )) { continue; } if ( target->client && target->client->sess.sessionTeam == TEAM_SPECTATOR ) { continue; } if ( self->alliedTeam ) { if ( target->client ) { if ( target->client->sess.sessionTeam == self->alliedTeam ) { // A bot/client/NPC we don't want to shoot continue; } } else if ( target->teamnodmg == self->alliedTeam ) { // An ent we don't want to shoot continue; } } if ( !trap_InPVS( org2, target->r.currentOrigin )) { continue; } if ( target->client ) { VectorCopy( target->client->renderInfo.eyePoint, org ); } else { VectorCopy( target->r.currentOrigin, org ); } if ( self->spawnflags & 2 ) { org[2] -= 15; } else { org[2] += 5; } trap_Trace( &tr, org2, NULL, NULL, org, self->s.number, MASK_SHOT ); if ( !tr.allsolid && !tr.startsolid && ( tr.fraction == 1.0 || tr.entityNum == target->s.number )) { // Only acquire if have a clear shot, Is it in range and closer than our best? VectorSubtract( target->r.currentOrigin, self->r.currentOrigin, enemyDir ); enemyDist = VectorLengthSquared( enemyDir ); if ( enemyDist < bestDist || (target->client && !foundClient))// all things equal, keep current { if ( self->attackDebounceTime < level.time ) { // We haven't fired or acquired an enemy in the last 2 seconds-start-up sound if ( !(self->spawnflags&SPF_TURRETG2_TURBO) ) { G_Sound( self, CHAN_BODY, G_SoundIndex( "sound/chars/turret/startup.wav" )); } // Wind up turrets for a bit self->attackDebounceTime = level.time + 1400; } bestTarget = target; bestDist = enemyDist; found = qtrue; if ( target->client ) {//prefer clients over non-clients foundClient = qtrue; } } } }
@@ -586,9 +579,9 @@ private func turretG2_find_enemies(_ `self`: Entity) -> Bool {
         }
         */
         G_SetEnemy(`self`, bestTarget!)
-        // Port-note: No operator between the operands, the text there is ``.
-        // Raven wrote: if ( VALIDSTRING( self->target2 )) { G_UseTargets2( self, self, self->target2 ); }
-        portMissing("turretG2_find_enemies", source: "oracle/codemp/game/g_turret_G2.c:677")
+        if VALIDSTRING(`self`.target2) {
+            G_UseTargets2(`self`, `self`, `self`.target2)
+        }
     }
 
     return found
@@ -677,10 +670,6 @@ func turretG2_base_think(_ `self`: Entity) {
                         } else {
                             org2[2] -= 10
                         }
-                        // Port-note: Raven passes NULL for `mins`, and the callee reads NULL as the zero vector.
-                        portMissing("turretG2_base_think", source: "oracle/codemp/game/g_turret_G2.c:829")
-                        // Port-note: Raven passes NULL for `maxs`, and the callee reads NULL as the zero vector.
-                        portMissing("turretG2_base_think", source: "oracle/codemp/game/g_turret_G2.c:829")
                         trap_Trace(tr, org2, vec3_origin, vec3_origin, org, `self`.s.number, MASK_SHOT)
 
                         if tr.allsolid == 0 && tr.startsolid == 0 && tr.entityNum == `self`.enemy!.s.number {
@@ -833,11 +822,8 @@ func finish_spawning_turretG2(_ base: Entity) {
     }
 
     G_SetAngles(base, base.s.angles)
-    // Port-note: Raven passes NULL for the `right` output. The ported function takes it by reference, so the body passes a scratch local it never reads.
-    portMissing("finish_spawning_turretG2", source: "oracle/codemp/game/g_turret_G2.c:1084")
+    // Raven passes NULL for the right and up outputs.
     var scratchRight = vec3_t()
-    // Port-note: Raven passes NULL for the `up` output. The ported function takes it by reference, so the body passes a scratch local it never reads.
-    portMissing("finish_spawning_turretG2", source: "oracle/codemp/game/g_turret_G2.c:1084")
     var scratchUp = vec3_t()
     AngleVectors(base.r.currentAngles, &fwd, &scratchRight, &scratchUp)
 

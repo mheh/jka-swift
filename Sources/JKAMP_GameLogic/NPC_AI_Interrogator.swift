@@ -229,11 +229,8 @@ func Interrogator_Strafe() {
     Trace.scratch { tr in
         var dif: Float = 0
 
-        // Port-note: Raven passes NULL for the `forward` output. The ported function takes it by reference, so the body passes a scratch local it never reads.
-        portMissing("Interrogator_Strafe", source: "oracle/codemp/game/NPC_AI_Interrogator.c:238")
+        // Raven passes NULL for the `forward` and `up` outputs.
         var scratchForward = vec3_t()
-        // Port-note: Raven passes NULL for the `up` output. The ported function takes it by reference, so the body passes a scratch local it never reads.
-        portMissing("Interrogator_Strafe", source: "oracle/codemp/game/NPC_AI_Interrogator.c:238")
         var scratchUp = vec3_t()
         AngleVectors(NPC!.client!.renderInfo.eyeAngles, &scratchForward, &right, &scratchUp)
 
@@ -243,10 +240,6 @@ func Interrogator_Strafe() {
         dir = (JKAMP_BG.rand() & 1) != 0 ? -1 : 1
         _VectorMA(NPC!.r.currentOrigin, Float(HUNTER_STRAFE_DIS * dir), right, &end)
 
-        // Port-note: Raven passes NULL for `mins`, and the callee reads NULL as the zero vector.
-        portMissing("Interrogator_Strafe", source: "oracle/codemp/game/NPC_AI_Interrogator.c:238")
-        // Port-note: Raven passes NULL for `maxs`, and the callee reads NULL as the zero vector.
-        portMissing("Interrogator_Strafe", source: "oracle/codemp/game/NPC_AI_Interrogator.c:238")
         trap_Trace(tr, NPC!.r.currentOrigin, vec3_origin, vec3_origin, end, NPC!.s.number, MASK_SOLID)
 
         // Close enough
@@ -335,10 +328,8 @@ func Interrogator_Melee(_ visible: Bool, _ advance: Bool) {
             //gentity_t *tent;
 
             TIMER_Set(NPC!, "attackDelay", Q_irand(500, 3000))
-            // Port-note: Raven passes NULL for the `dir` output. The ported function takes it by reference, so the body passes a scratch local it never reads.
-            portMissing("Interrogator_Melee", source: "oracle/codemp/game/NPC_AI_Interrogator.c:345")
-            var scratchDir = vec3_t()
-            G_Damage(NPC!.enemy!, NPC, NPC, &scratchDir, nil, 2, DAMAGE_NO_KNOCKBACK, MOD_MELEE)
+            var dir: vec3_t? = nil
+            G_Damage(NPC!.enemy!, NPC, NPC, &dir, nil, 2, DAMAGE_NO_KNOCKBACK, MOD_MELEE)
 
             //	NPC->enemy->client->poisonDamage = 18;
             //	NPC->enemy->client->poisonTime = level.time + 1000;

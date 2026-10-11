@@ -475,11 +475,8 @@ private func GM_CheckFireState() {
                         //vec3_t	mins = {-2,-2,-2}, maxs = {2,2,2};
                         var forward = vec3_t()
                         var end = vec3_t()
-                        // Port-note: Raven passes NULL for the `right` output. The ported function takes it by reference, so the body passes a scratch local it never reads.
-                        portMissing("GM_CheckFireState", source: "oracle/codemp/game/NPC_AI_GalakMech.c:468")
+                        // Raven passes NULL for the `right` and `up` outputs.
                         var scratchRight = vec3_t()
-                        // Port-note: Raven passes NULL for the `up` output. The ported function takes it by reference, so the body passes a scratch local it never reads.
-                        portMissing("GM_CheckFireState", source: "oracle/codemp/game/NPC_AI_GalakMech.c:468")
                         var scratchUp = vec3_t()
                         AngleVectors(NPC!.client!.ps.viewangles, &forward, &scratchRight, &scratchUp)
                         _VectorMA(muzzle, 8192, forward, &end)
@@ -981,15 +978,11 @@ func NPC_BSGM_Attack() {
             //if ( NPC->client->ps.powerups[PW_GALAK_SHIELD] > 0 )
             if 0 != 0 {
                 NPC!.client!.ps.powerups[PW_BATTLESUIT] = level.time + ARMOR_EFFECT_TIME
-                // Port-note: Raven passes NULL for the `dir` output. The ported function takes it by reference, so the body passes a scratch local it never reads.
-                portMissing("NPC_BSGM_Attack", source: "oracle/codemp/game/NPC_AI_GalakMech.c:594")
-                var scratchDir = vec3_t()
-                G_Damage(NPC!.enemy!, NPC, NPC, &scratchDir, NPC!.r.currentOrigin, 100, DAMAGE_NO_KNOCKBACK, MOD_UNKNOWN)
+                var dir: vec3_t? = nil
+                G_Damage(NPC!.enemy!, NPC, NPC, &dir, NPC!.r.currentOrigin, 100, DAMAGE_NO_KNOCKBACK, MOD_UNKNOWN)
             } else {
-                // Port-note: Raven passes NULL for the `dir` output. The ported function takes it by reference, so the body passes a scratch local it never reads.
-                portMissing("NPC_BSGM_Attack", source: "oracle/codemp/game/NPC_AI_GalakMech.c:594")
-                var scratchDir2 = vec3_t()
-                G_Damage(NPC!.enemy!, NPC, NPC, &scratchDir2, NPC!.r.currentOrigin, 100, DAMAGE_NO_KNOCKBACK, MOD_CRUSH)
+                var dir: vec3_t? = nil
+                G_Damage(NPC!.enemy!, NPC, NPC, &dir, NPC!.r.currentOrigin, 100, DAMAGE_NO_KNOCKBACK, MOD_CRUSH)
             }
         }
     } else if NPCInfo!.touchedByPlayer != nil && NPCInfo!.touchedByPlayer == NPC!.enemy {

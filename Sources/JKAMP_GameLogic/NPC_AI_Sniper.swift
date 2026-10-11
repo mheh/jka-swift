@@ -665,10 +665,6 @@ func NPC_BSSniper_Attack() {
                 AngleVectors(NPC!.client!.ps.viewangles, &fwd, &right, &up)
                 CalcMuzzlePoint(NPC!, fwd, right, up, &muzzle)
                 _VectorMA(muzzle, 8192, fwd, &end)
-                // Port-note: Raven passes NULL for `mins`, and the callee reads NULL as the zero vector.
-                portMissing("NPC_BSSniper_Attack", source: "oracle/codemp/game/NPC_AI_Sniper.c:640")
-                // Port-note: Raven passes NULL for `maxs`, and the callee reads NULL as the zero vector.
-                portMissing("NPC_BSSniper_Attack", source: "oracle/codemp/game/NPC_AI_Sniper.c:640")
                 trap_Trace(tr, muzzle, vec3_origin, vec3_origin, end, NPC!.s.number, MASK_SHOT)
 
                 hit = tr.entityNum

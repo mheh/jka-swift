@@ -114,10 +114,8 @@ func NPC_Mark2_Pain(_ `self`: Entity, _ attacker: Entity, _ damage: Int32) {
 
     // If any pods were blown off, kill him
     if `self`.count > 0 {
-        // Port-note: Raven passes NULL for the `dir` output. The ported function takes it by reference, so the body passes a scratch local it never reads.
-        portMissing("NPC_Mark2_Pain", source: "oracle/codemp/game/NPC_AI_Mark2.c:80")
-        var scratchDir = vec3_t()
-        G_Damage(`self`, nil, nil, &scratchDir, nil, `self`.health, DAMAGE_NO_PROTECTION, MOD_UNKNOWN)
+        var dir: vec3_t? = nil
+        G_Damage(`self`, nil, nil, &dir, nil, `self`.health, DAMAGE_NO_PROTECTION, MOD_UNKNOWN)
     }
 }
 
