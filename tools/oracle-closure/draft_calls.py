@@ -357,6 +357,11 @@ class Calls:
             raven = " ".join(self.bytes[cur.extent.start.offset:cur.extent.end.offset].decode("utf-8", "replace").split())
             raise Hole(f"Raven passes `{raven}` to `{callee}`, whose `char *` parameter the stub holds as an inout CharBuf. Docket row 5 is due.")
         text = self.expr(inner)
+        if param is not None and self.types.is_slots(param[1]) and inner.kind == CursorKind.MEMBER_REF_EXPR and inner.referenced is not None \
+                and inner.referenced.type.get_canonical().kind == TypeKind.CONSTANTARRAY \
+                and self.types.record_name(inner.referenced.type.get_canonical().element_type) in self.views.views:
+            # The record array field of a view reads as its Slots accessor, `NPC.client!.saber`, and the callee takes that Slots.
+            return text
         if param is not None and self.types.is_slots(param[1]):
             raven = " ".join(self.bytes[cur.extent.start.offset:cur.extent.end.offset].decode("utf-8", "replace").split())
             raise Hole(f"Raven passes `{raven}` to `{callee}`, whose `{param[0]}` parameter takes the Slots over the records, "

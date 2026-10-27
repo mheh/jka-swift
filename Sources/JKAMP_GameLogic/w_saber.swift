@@ -2023,7 +2023,8 @@ private func G_G2TraceCollide(_ tr: JKAMP.Trace, _ lastValidStart: JKAShared.vec
             fRadius = (traceMaxs[0] - traceMins[0]) / 2.0
         }
 
-        // Raven clears the array with `memset` here, and the body drops the call, because the scratch slots are zero at entry.
+        // Raven clears the array with `memset` here.
+        // The scratch slots are zero at entry, so the body drops the call.
         while tN < MAX_G2_COLLISIONS {
             G2Trace[tN].mEntityNum = -1
             tN += 1

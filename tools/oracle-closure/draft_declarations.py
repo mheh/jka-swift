@@ -332,7 +332,7 @@ class Declarations:
                              and any(a.extent == size for a in list(c.get_children())[1:]))
                 comment = f"// Raven wrote `{var.spelling} = {null}` before the `{self.callee_name(alloc)}` store, so the store is the first value."
                 return declared + "\n" + roled([comment], "comment")[0]
-            return declared + (f"\n_ = {self.expr(self.uncast(init[0]))}" if init else "")
+            return declared + (f"\n_ = {self.expr(self.uncast(init[0]))}{self.trailing(var)}" if init else "")
         if t.get_canonical().kind == TypeKind.POINTER and t.get_canonical().get_pointee().get_canonical().kind == TypeKind.CHAR_S and init:
             source = self.unwrap(init[0])
             if source.kind == CursorKind.UNARY_OPERATOR and self.unary_parts(source)[0] == "&":

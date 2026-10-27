@@ -248,7 +248,7 @@ Raven's vector macros become operators or the ported `q_math` functions in `Sour
 | `VectorSubtract(a, b, c)` | `c = a - b`, or `_VectorSubtract(a, b, &c)` |
 | `VectorScale(a, s, b)` | `b = a * s`, or `_VectorScale(a, s, &b)` |
 | `VectorCopy(a, b)` | `b = a` |
-| `VectorMA(a, s, b, c)` | `_VectorMA(a, s, b, &c)`, and where C computes `s` in `double`, one store per component, `let scale = Double(enemy_movespeed) * 0.001 * Double(prediction)`, then `enemy_dest[0] = Float(Double(NPC!.enemy!.r.currentOrigin[0]) + Double(enemy_movedir[0]) * scale)` and the same for 1 and 2 Where the scale holds a call, `flrand`, `crandom`, `random`, `Q_irand`, or `Q_flrand`, the macro puts the call into each component, so the body writes one store per component with its own call, in the order 0, 1, 2, `enemy_eyes[0] = enemy_eyes[0] + NPC!.enemy!.client!.ps.velocity[0] * (eDist * flrand(0.95, 1.25))`. |
+| `VectorMA(a, s, b, c)` | `_VectorMA(a, s, b, &c)`, and where C computes `s` in `double`, one store per component, `let scale = Double(enemy_movespeed) * 0.001 * Double(prediction)`, then `enemy_dest[0] = Float(Double(NPC!.enemy!.r.currentOrigin[0]) + Double(enemy_movedir[0]) * scale)` and the same for 1 and 2. Where the scale holds a call, `flrand`, `crandom`, `random`, `Q_irand`, or `Q_flrand`, the macro puts the call into each component, so the body writes one store per component with its own call, in the order 0, 1, 2, `enemy_eyes[0] = enemy_eyes[0] + NPC!.enemy!.client!.ps.velocity[0] * (eDist * flrand(0.95, 1.25))`. |
 | `VectorNegate(a, b)` | `b = -a` |
 | `VectorClear(a)` | `a = vec3_t()` |
 | `VectorSet(a, x, y, z)` | `a = vec3_t(x, y, z)` |
@@ -502,7 +502,7 @@ A `char *` field is a `String?` on the view. A read gives the text behind the po
 A store, `ent.classname = "noclass"`, interns the text in the module's string pool of rule 9, `Sources/JKAShared/Views/StringPool.swift`, so the engine reads a pointer that lives for the module's life.
 The pool copies each distinct text once, so a copy from one field to another, `ent.target = other.target`, stores the same pointer Raven's copy stored.
 A compare, `ent.classname == "noclass"`, compares the text, as Raven's `strcmp` did. Raven compares two `char *` fields by pointer nowhere a body reads.
-The String-to-bytes codec lives only in the two `CharBuf` initializers, one byte for each scalar in both directions, and every other helper and view read works on bytes through `CharBuf`, as its C original does.
+The String-to-bytes codec lives only in the two initializers of `CharBuf.swift`, `CharBuf(_ string:)` and `String(_ buf:)`, one byte for each scalar in both directions, and every other helper and view read works on bytes through `CharBuf`, as its C original does.
 
 ### A callback store
 

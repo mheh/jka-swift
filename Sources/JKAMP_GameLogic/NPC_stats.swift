@@ -1638,7 +1638,7 @@ func NPC_ParseParms(_ NPCName: String, _ NPC: Entity) -> Bool {
                 if !((NPC.client!.saber[0].saberFlags & SFL_TWO_HANDED) != 0) {
                     //can't use a second saber if first one is a two-handed saber...?
                     var saberName = CharBuf(4096)
-                    _ = BG_TempAlloc(4096)
+                    _ = BG_TempAlloc(4096) //G_NewString( value );
                     strcpy(&saberName, value)
 
                     WP_SaberParseParms(String(saberName), NPC.client!.saber[1])
