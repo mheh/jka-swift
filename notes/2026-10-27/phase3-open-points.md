@@ -17,3 +17,17 @@ The user delegated the seven open points of `HANDOFF.md` to the coordinator with
 The plan order of `phase-2-walk.md` stands: the owed review leg for groups 1 and 2, then groups 3, 4, and 5. Groups 3, 4, and 5 touch disjoint files, `docs/transcription.md`, `Sources/`, and `notes/` with `docs/oracle-closure.md`, so they run at the same time with the review leg. Each group commits on its own after its gate, code then records, because the user asked for the build in one session.
 
 V30 is void. The `HANDOFF.md` of phase 2 is gone, and the `HANDOFF.md` of 2026-10-27 goes when phase 3 is committed and reviewed, by its own text.
+
+## The review findings of groups 1 and 2
+
+`review-phase3-groups-1-2.md` gives 11 findings, and five need a ruling. The coordinator ruled them under the same delegation.
+
+| Finding | Ruling | Basis |
+|---|---|---|
+| R1. `String(cString:)` at `RecordingTransport.swift:25` and `jampsmoke/main.swift:25` and `:69` | W19 covers every target of the package. The three sites read `cString(at:)`, the same form as `g_spawn.swift:231`. | The amended W19: the codec lives in the two `CharBuf` initializers alone, with no exception named. A test that decodes engine bytes by another codec tests a different value than the game reads. |
+| R2. The V35 parent map key `(start, end, kind)` | Ratified as a drafter row, V35a. `slot_refs` keys the map by the cursor itself, `slot_parent` reads it by the cursor, and the wrapper test goes. | The review proof: the key is not unique inside a macro expansion, and `Cursor` hashes through `clang_hashCursor`. A defect of a drafter rule goes to the drafter rule. |
+| R3. The first-store test at `draft_declarations.py:506-507` | Ratified as part of V35a. The test compares a read with the end offset of the first store. | The V35 verdict wants every read after the first store, and a read inside the store's right side comes before it. |
+| R4. No tool test reaches the V35 and W14 rule | Ratified as part of V35a. One test in `tests/test_store.py` with four cases: the `SortRanks` shape, the `Pickup_Powerup` closure shape, a read before the first store, and a stacked implicit cast over a read. | A test file is not a Swift name, so the no-new-names rule does not reach it. The tool tests are the gate of a drafter rule. |
+| R5. A `default` arm that joins labels keeps the first label comment alone | Ratified as built. The loss is part of W15, and the V37 record says so. No drafter change. | W15: "the `case` labels that share its arm drop, and the other arms keep Raven's order with no comment". A label that drops takes its comment with it. |
+
+The six findings that need no ruling are fixes of the forms the review gives: `g_spawn.swift:231` in group 4, the `phase3-helpers.md:105` sentence, the `withCString` doc at `CString.swift:480`, the `CStrings.swift:12` doc, the `memset` line numbers in `phase3-helpers.md`, and the docstring line at `draft_declarations.py:532`.
