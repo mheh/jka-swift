@@ -1613,21 +1613,17 @@ func NPC_ParseParms(_ NPCName: String, _ NPC: Entity) -> Bool {
             //have a sabers.cfg and just name your saber in your NPCs.cfg/ICARUS script
             //saber name
             if Q_stricmp(token, "saber") == 0 {
-                var saberName: UnsafeMutableRawPointer
+                var saberName = CharBuf(4096)
 
                 if COM_ParseString(&p, &value) {
                     continue
                 }
 
-                saberName = BG_TempAlloc(4096) //G_NewString( value );
-                strcpy(saberName, value)
+                _ = BG_TempAlloc(4096) //G_NewString( value );
+                strcpy(&saberName, value)
 
-                // Port-note: The draft of this statement did not compile, and the compiler wrote "cannot convert value of type 'UnsafeMutableRawPointer' to expected argument type 'String'".
-                // Raven wrote: WP_SaberParseParms( saberName, &NPC->client->saber[0] )
-                portMissing("NPC_ParseParms", source: "oracle/codemp/game/NPC_stats.c:974")
-                // Port-note: The draft of this statement did not compile, and the compiler wrote "argument type 'UnsafeMutableRawPointer' does not conform to expected type 'FormatArg'".
-                // Raven wrote: npcSaber1 = G_ModelIndex(va("@%s", saberName))
-                portMissing("NPC_ParseParms", source: "oracle/codemp/game/NPC_stats.c:974")
+                WP_SaberParseParms(String(saberName), NPC.client!.saber[0])
+                npcSaber1 = G_ModelIndex(va("@%s", saberName))
 
                 BG_TempFree(4096)
                 continue
@@ -1641,20 +1637,17 @@ func NPC_ParseParms(_ NPCName: String, _ NPC: Entity) -> Bool {
 
                 if !((NPC.client!.saber[0].saberFlags & SFL_TWO_HANDED) != 0) {
                     //can't use a second saber if first one is a two-handed saber...?
-                    var saberName: UnsafeMutableRawPointer = BG_TempAlloc(4096)
-                    strcpy(saberName, value)
+                    var saberName = CharBuf(4096)
+                    _ = BG_TempAlloc(4096)
+                    strcpy(&saberName, value)
 
-                    // Port-note: The draft of this statement did not compile, and the compiler wrote "cannot convert value of type 'UnsafeMutableRawPointer' to expected argument type 'String'".
-                    // Raven wrote: WP_SaberParseParms( saberName, &NPC->client->saber[1] )
-                    portMissing("NPC_ParseParms", source: "oracle/codemp/game/NPC_stats.c:974")
+                    WP_SaberParseParms(String(saberName), NPC.client!.saber[1])
                     if (NPC.client!.saber[1].saberFlags & SFL_TWO_HANDED) != 0 {
                         //tsk tsk, can't use a twoHanded saber as second saber
                         WP_RemoveSaber(NPC.client!.saber, 1)
                     } else {
                         //NPC->client->ps.dualSabers = qtrue;
-                        // Port-note: The draft of this statement did not compile, and the compiler wrote "argument type 'UnsafeMutableRawPointer' does not conform to expected type 'FormatArg'".
-                        // Raven wrote: npcSaber2 = G_ModelIndex(va("@%s", saberName))
-                        portMissing("NPC_ParseParms", source: "oracle/codemp/game/NPC_stats.c:974")
+                        npcSaber2 = G_ModelIndex(va("@%s", saberName))
                     }
                     BG_TempFree(4096)
                 }

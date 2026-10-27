@@ -60,6 +60,8 @@ func G_DebugPrint(_ level: Int32, _ format: String, _ args: any JKAShared.Format
 
     case WL_DEBUG:
         do {
+            // Raven's `entNum` is uninitialized, and he reads a stack value when `sscanf` finds no number.
+            // The port starts it at 0, so that print names slot 0.
             var entNum: Int32 = 0
             var buffer = TextCursor()
 
@@ -922,21 +924,21 @@ public func Q3_GetFloat(_ entID: Int32, _ type: Int32, _ name: String, _ value: 
     case SET_SKILL:
         return 0
 
-    case SET_XVELOCITY:
+    case SET_XVELOCITY: //## %f="0.0" # Velocity along X axis
         if ent!.client == nil {
             G_DebugPrint(WL_WARNING, "Q3_GetFloat: SET_XVELOCITY, %s not a client\n", ent!.targetname ?? "(null)")
             return 0
         }
         value = ent!.client!.ps.velocity[0]
 
-    case SET_YVELOCITY:
+    case SET_YVELOCITY: //## %f="0.0" # Velocity along Y axis
         if ent!.client == nil {
             G_DebugPrint(WL_WARNING, "Q3_GetFloat: SET_YVELOCITY, %s not a client\n", ent!.targetname ?? "(null)")
             return 0
         }
         value = ent!.client!.ps.velocity[1]
 
-    case SET_ZVELOCITY:
+    case SET_ZVELOCITY: //## %f="0.0" # Velocity along Z axis
         if ent!.client == nil {
             G_DebugPrint(WL_WARNING, "Q3_GetFloat: SET_ZVELOCITY, %s not a client\n", ent!.targetname ?? "(null)")
             return 0
@@ -946,239 +948,245 @@ public func Q3_GetFloat(_ entID: Int32, _ type: Int32, _ name: String, _ value: 
     case SET_Z_OFFSET:
         value = ent!.r.currentOrigin[2] - ent!.s.origin[2]
 
-    case SET_DPITCH:
+    case SET_DPITCH: //## %f="0.0" # Pitch for NPC to turn to
         return 0
 
-    case SET_DYAW:
+    case SET_DYAW: //## %f="0.0" # Yaw for NPC to turn to
         return 0
 
-    case SET_WIDTH:
+    case SET_WIDTH: //## %f="0.0" # Width of NPC bounding box
         value = ent!.r.mins[0]
 
-    case SET_TIMESCALE:
+    case SET_TIMESCALE: //## %f="0.0" # Speed-up slow down game (0 - 1.0)
         return 0
 
-    case SET_CAMERA_GROUP_Z_OFS:
+    case SET_CAMERA_GROUP_Z_OFS: //## %s="NULL" # all ents with this cameraGroup will be focused on
         return 0
 
-    case SET_VISRANGE:
+    case SET_VISRANGE: //## %f="0.0" # How far away NPC can see
         return 0
 
-    case SET_EARSHOT:
+    case SET_EARSHOT: //## %f="0.0" # How far an NPC can hear
         return 0
 
-    case SET_VIGILANCE:
+    case SET_VIGILANCE: //## %f="0.0" # How often to look for enemies (0 - 1.0)
         return 0
 
-    case SET_GRAVITY:
+    case SET_GRAVITY: //## %f="0.0" # Change this ent's gravity - 800 default
         value = g_gravity.value
 
-    case SET_FACEEYESCLOSED, SET_FACEEYESOPENED, SET_FACEAUX, SET_FACEBLINK, SET_FACEBLINKFROWN, SET_FACEFROWN, SET_FACENORMAL:
+    case SET_FACEEYESCLOSED,
+         SET_FACEEYESOPENED,
+         SET_FACEAUX, //## %f="0.0" # Set face to Aux expression for number of seconds
+         SET_FACEBLINK, //## %f="0.0" # Set face to Blink expression for number of seconds
+         SET_FACEBLINKFROWN, //## %f="0.0" # Set face to Blinkfrown expression for number of seconds
+         SET_FACEFROWN, //## %f="0.0" # Set face to Frown expression for number of seconds
+         SET_FACENORMAL: //## %f="0.0" # Set face to Normal expression for number of seconds
         G_DebugPrint(WL_WARNING, "Q3_GetFloat: SET_FACE___ not implemented\n")
         return 0
 
-    case SET_WAIT:
+    case SET_WAIT: //## %f="0.0" # Change an entity's wait field
         value = ent!.wait
 
-    case SET_FOLLOWDIST:
+    case SET_FOLLOWDIST: //## %f="0.0" # How far away to stay from leader in BS_FOLLOW_LEADER
         return 0
         //# #sep ints
 
-    case SET_ANIM_HOLDTIME_LOWER:
+    case SET_ANIM_HOLDTIME_LOWER: //## %d="0" # Hold lower anim for number of milliseconds
         if ent!.client == nil {
             G_DebugPrint(WL_WARNING, "Q3_GetFloat: SET_ANIM_HOLDTIME_LOWER, %s not a client\n", ent!.targetname ?? "(null)")
             return 0
         }
         value = Float(ent!.client!.ps.legsTimer)
 
-    case SET_ANIM_HOLDTIME_UPPER:
+    case SET_ANIM_HOLDTIME_UPPER: //## %d="0" # Hold upper anim for number of milliseconds
         if ent!.client == nil {
             G_DebugPrint(WL_WARNING, "Q3_GetFloat: SET_ANIM_HOLDTIME_UPPER, %s not a client\n", ent!.targetname ?? "(null)")
             return 0
         }
         value = Float(ent!.client!.ps.torsoTimer)
 
-    case SET_ANIM_HOLDTIME_BOTH:
+    case SET_ANIM_HOLDTIME_BOTH: //## %d="0" # Hold lower and upper anims for number of milliseconds
         G_DebugPrint(WL_WARNING, "Q3_GetFloat: SET_ANIM_HOLDTIME_BOTH not implemented\n")
         return 0
 
-    case SET_ARMOR:
+    case SET_ARMOR: //## %d="0" # Change armor
         if ent!.client == nil {
             G_DebugPrint(WL_WARNING, "Q3_GetFloat: SET_ARMOR, %s not a client\n", ent!.targetname ?? "(null)")
             return 0
         }
         value = Float(ent!.client!.ps.stats[STAT_ARMOR])
 
-    case SET_WALKSPEED:
+    case SET_WALKSPEED: //## %d="0" # Change walkSpeed
         return 0
 
-    case SET_RUNSPEED:
+    case SET_RUNSPEED: //## %d="0" # Change runSpeed
         return 0
 
-    case SET_YAWSPEED:
+    case SET_YAWSPEED: //## %d="0" # Change yawSpeed
         return 0
 
-    case SET_AGGRESSION:
+    case SET_AGGRESSION: //## %d="0" # Change aggression 1-5
         return 0
 
-    case SET_AIM:
+    case SET_AIM: //## %d="0" # Change aim 1-5
         return 0
 
-    case SET_FRICTION:
+    case SET_FRICTION: //## %d="0" # Change ent's friction - 6 default
         return 0
 
-    case SET_SHOOTDIST:
+    case SET_SHOOTDIST: //## %d="0" # How far the ent can shoot - 0 uses weapon
         return 0
 
-    case SET_HFOV:
+    case SET_HFOV: //## %d="0" # Horizontal field of view
         return 0
 
-    case SET_VFOV:
+    case SET_VFOV: //## %d="0" # Vertical field of view
         return 0
 
-    case SET_DELAYSCRIPTTIME:
+    case SET_DELAYSCRIPTTIME: //## %d="0" # How many seconds to wait before running delayscript
         return 0
 
-    case SET_FORWARDMOVE:
+    case SET_FORWARDMOVE: //## %d="0" # NPC move forward -127(back) to 127
         return 0
 
-    case SET_RIGHTMOVE:
+    case SET_RIGHTMOVE: //## %d="0" # NPC move right -127(left) to 127
         return 0
 
-    case SET_STARTFRAME:
+    case SET_STARTFRAME: //## %d="0" # frame to start animation sequence on
         return 0
 
-    case SET_ENDFRAME:
+    case SET_ENDFRAME: //## %d="0" # frame to end animation sequence on
         return 0
 
-    case SET_ANIMFRAME:
+    case SET_ANIMFRAME: //## %d="0" # of current frame
         return 0
 
-    case SET_SHOT_SPACING:
+    case SET_SHOT_SPACING: //## %d="1000" # Time between shots for an NPC - reset to defaults when changes weapon
         return 0
 
-    case SET_MISSIONSTATUSTIME:
+    case SET_MISSIONSTATUSTIME: //## %d="0" # Amount of time until Mission Status should be shown after death
         return 0
         //# #sep booleans
 
-    case SET_IGNOREPAIN:
+    case SET_IGNOREPAIN: //## %t="BOOL_TYPES" # Do not react to pain
         return 0
 
-    case SET_IGNOREENEMIES:
+    case SET_IGNOREENEMIES: //## %t="BOOL_TYPES" # Do not acquire enemies
         return 0
 
-    case SET_IGNOREALERTS:
+    case SET_IGNOREALERTS: //## Do not get enemy set by allies in area(ambush)
         return 0
 
-    case SET_DONTSHOOT:
+    case SET_DONTSHOOT: //## %t="BOOL_TYPES" # Others won't shoot you
         return 0
 
-    case SET_NOTARGET:
+    case SET_NOTARGET: //## %t="BOOL_TYPES" # Others won't pick you as enemy
         value = Float((ent!.flags & FL_NOTARGET))
 
-    case SET_DONTFIRE:
+    case SET_DONTFIRE: //## %t="BOOL_TYPES" # Don't fire your weapon
         return 0
 
-    case SET_LOCKED_ENEMY:
+    case SET_LOCKED_ENEMY: //## %t="BOOL_TYPES" # Keep current enemy until dead
         return 0
 
-    case SET_CROUCHED:
+    case SET_CROUCHED: //## %t="BOOL_TYPES" # Force NPC to crouch
         return 0
 
-    case SET_WALKING:
+    case SET_WALKING: //## %t="BOOL_TYPES" # Force NPC to move at walkSpeed
         return 0
 
-    case SET_RUNNING:
+    case SET_RUNNING: //## %t="BOOL_TYPES" # Force NPC to move at runSpeed
         return 0
 
-    case SET_CHASE_ENEMIES:
+    case SET_CHASE_ENEMIES: //## %t="BOOL_TYPES" # NPC will chase after enemies
         return 0
 
-    case SET_LOOK_FOR_ENEMIES:
+    case SET_LOOK_FOR_ENEMIES: //## %t="BOOL_TYPES" # NPC will be on the lookout for enemies
         return 0
 
-    case SET_FACE_MOVE_DIR:
+    case SET_FACE_MOVE_DIR: //## %t="BOOL_TYPES" # NPC will face in the direction it's moving
         return 0
 
-    case SET_FORCED_MARCH:
+    case SET_FORCED_MARCH: //## %t="BOOL_TYPES" # Force NPC to move at runSpeed
         return 0
 
-    case SET_UNDYING:
+    case SET_UNDYING: //## %t="BOOL_TYPES" # Can take damage down to 1 but not die
         return 0
 
-    case SET_NOAVOID:
+    case SET_NOAVOID: //## %t="BOOL_TYPES" # Will not avoid other NPCs or architecture
         return 0
 
-    case SET_SOLID:
+    case SET_SOLID: //## %t="BOOL_TYPES" # Make yourself notsolid or solid
         value = Float(ent!.r.contents)
 
-    case SET_PLAYER_USABLE:
+    case SET_PLAYER_USABLE: //## %t="BOOL_TYPES" # Can be activateby the player's "use" button
         value = Float((ent!.r.svFlags & SVF_PLAYER_USABLE))
 
-    case SET_LOOP_ANIM:
+    case SET_LOOP_ANIM: //## %t="BOOL_TYPES" # For non-NPCs: loop your animation sequence
         return 0
 
-    case SET_INTERFACE:
+    case SET_INTERFACE: //## %t="BOOL_TYPES" # Player interface on/off
         G_DebugPrint(WL_WARNING, "Q3_GetFloat: SET_INTERFACE not implemented\n")
         return 0
 
-    case SET_SHIELDS:
+    case SET_SHIELDS: //## %t="BOOL_TYPES" # NPC has no shields (Borg do not adapt)
         return 0
 
-    case SET_INVISIBLE:
+    case SET_INVISIBLE: //## %t="BOOL_TYPES" # Makes an NPC not solid and not visible
         value = Float((ent!.s.eFlags & EF_NODRAW))
 
-    case SET_VAMPIRE:
+    case SET_VAMPIRE: //## %t="BOOL_TYPES" # Makes an NPC not solid and not visible
         return 0
 
-    case SET_FORCE_INVINCIBLE:
+    case SET_FORCE_INVINCIBLE: //## %t="BOOL_TYPES" # Makes an NPC not solid and not visible
         return 0
 
-    case SET_GREET_ALLIES:
+    case SET_GREET_ALLIES: //## %t="BOOL_TYPES" # Makes an NPC greet teammates
         return 0
 
-    case SET_VIDEO_FADE_IN:
+    case SET_VIDEO_FADE_IN: //## %t="BOOL_TYPES" # Makes video playback fade in
         G_DebugPrint(WL_WARNING, "Q3_GetFloat: SET_VIDEO_FADE_IN not implemented\n")
         return 0
 
-    case SET_VIDEO_FADE_OUT:
+    case SET_VIDEO_FADE_OUT: //## %t="BOOL_TYPES" # Makes video playback fade out
         G_DebugPrint(WL_WARNING, "Q3_GetFloat: SET_VIDEO_FADE_OUT not implemented\n")
         return 0
 
-    case SET_PLAYER_LOCKED:
+    case SET_PLAYER_LOCKED: //## %t="BOOL_TYPES" # Makes it so player cannot move
         return 0
 
-    case SET_LOCK_PLAYER_WEAPONS:
+    case SET_LOCK_PLAYER_WEAPONS: //## %t="BOOL_TYPES" # Makes it so player cannot switch weapons
         return 0
 
-    case SET_NO_IMPACT_DAMAGE:
+    case SET_NO_IMPACT_DAMAGE: //## %t="BOOL_TYPES" # Makes it so player cannot switch weapons
         return 0
 
-    case SET_NO_KNOCKBACK:
+    case SET_NO_KNOCKBACK: //## %t="BOOL_TYPES" # Stops this ent from taking knockback from weapons
         value = Float((ent!.flags & FL_NO_KNOCKBACK))
 
-    case SET_ALT_FIRE:
+    case SET_ALT_FIRE: //## %t="BOOL_TYPES" # Force NPC to use altfire when shooting
         return 0
 
-    case SET_NO_RESPONSE:
+    case SET_NO_RESPONSE: //## %t="BOOL_TYPES" # NPCs will do generic responses when this is on (usescripts override generic responses as well)
         return 0
 
-    case SET_INVINCIBLE:
+    case SET_INVINCIBLE: //## %t="BOOL_TYPES" # Completely unkillable
         value = Float((ent!.flags & FL_GODMODE))
 
-    case SET_MISSIONSTATUSACTIVE:
+    case SET_MISSIONSTATUSACTIVE: //# Turns on Mission Status Screen
         return 0
 
-    case SET_NO_COMBAT_TALK:
+    case SET_NO_COMBAT_TALK: //## %t="BOOL_TYPES" # NPCs will not do their combat talking noises when this is on
         return 0
 
-    case SET_NO_ALERT_TALK:
+    case SET_NO_ALERT_TALK: //## %t="BOOL_TYPES" # NPCs will not do their combat talking noises when this is on
         return 0
 
-    case SET_USE_CP_NEAREST:
+    case SET_USE_CP_NEAREST: //## %t="BOOL_TYPES" # NPCs will use their closest combat points, not try and find ones next to the player, or flank player
         return 0
 
-    case SET_DISMEMBERABLE:
+    case SET_DISMEMBERABLE: //## %t="BOOL_TYPES" # NPC will not be affected by force powers
         return 0
 
     case SET_NO_FORCE:
@@ -1190,19 +1198,19 @@ public func Q3_GetFloat(_ entID: Int32, _ type: Int32, _ name: String, _ value: 
     case SET_USE_SUBTITLES:
         return 0
 
-    case SET_NO_FALLTODEATH:
+    case SET_NO_FALLTODEATH: //## %t="BOOL_TYPES" # NPC will not be affected by force powers
         return 0
 
-    case SET_MORELIGHT:
+    case SET_MORELIGHT: //## %t="BOOL_TYPES" # NPCs will use their closest combat points, not try and find ones next to the player, or flank player
         return 0
 
-    case SET_TREASONED:
+    case SET_TREASONED: //## %t="BOOL_TYPES" # Player has turned on his own- scripts will stop: NPCs will turn on him and level changes load the brig
         return 0
 
-    case SET_DISABLE_SHADER_ANIM:
+    case SET_DISABLE_SHADER_ANIM: //## %t="BOOL_TYPES" # Shaders won't animate
         return 0
 
-    case SET_SHADER_ANIM:
+    case SET_SHADER_ANIM: //## %t="BOOL_TYPES" # Shader will be under frame control
         return 0
 
     default:
@@ -1251,7 +1259,7 @@ public func Q3_GetVector(_ entID: Int32, _ type: Int32, _ name: String, _ value:
     case SET_ANGLES:
         value = ent!.r.currentAngles
 
-    case SET_TELEPORT_DEST:
+    case SET_TELEPORT_DEST: //## %v="0.0 0.0 0.0" # Set origin here as soon as the area is clear
         G_DebugPrint(WL_WARNING, "Q3_GetVector: SET_TELEPORT_DEST not implemented\n")
         return 0
 
@@ -1309,77 +1317,77 @@ public func Q3_GetString(_ entID: Int32, _ type: Int32, _ name: String, _ value:
         return 0
         //# #sep Scripts and other file paths
 
-    case SET_SPAWNSCRIPT:
+    case SET_SPAWNSCRIPT: //## %s="NULL" !!"W:\game\base\scripts\!!#*.txt" # Script to run when spawned //0 - do not change these, these are equal to BSET_SPAWN, etc
         value = ent!.behaviorSet[BSET_SPAWN]!
 
-    case SET_USESCRIPT:
+    case SET_USESCRIPT: //## %s="NULL" !!"W:\game\base\scripts\!!#*.txt" # Script to run when used
         value = ent!.behaviorSet[BSET_USE]!
 
-    case SET_AWAKESCRIPT:
+    case SET_AWAKESCRIPT: //## %s="NULL" !!"W:\game\base\scripts\!!#*.txt" # Script to run when startled
         value = ent!.behaviorSet[BSET_AWAKE]!
 
-    case SET_ANGERSCRIPT:
+    case SET_ANGERSCRIPT: //## %s="NULL" !!"W:\game\base\scripts\!!#*.txt" # Script run when find an enemy for the first time
         value = ent!.behaviorSet[BSET_ANGER]!
 
-    case SET_ATTACKSCRIPT:
+    case SET_ATTACKSCRIPT: //## %s="NULL" !!"W:\game\base\scripts\!!#*.txt" # Script to run when you shoot
         value = ent!.behaviorSet[BSET_ATTACK]!
 
-    case SET_VICTORYSCRIPT:
+    case SET_VICTORYSCRIPT: //## %s="NULL" !!"W:\game\base\scripts\!!#*.txt" # Script to run when killed someone
         value = ent!.behaviorSet[BSET_VICTORY]!
 
-    case SET_LOSTENEMYSCRIPT:
+    case SET_LOSTENEMYSCRIPT: //## %s="NULL" !!"W:\game\base\scripts\!!#*.txt" # Script to run when you can't find your enemy
         value = ent!.behaviorSet[BSET_LOSTENEMY]!
 
-    case SET_PAINSCRIPT:
+    case SET_PAINSCRIPT: //## %s="NULL" !!"W:\game\base\scripts\!!#*.txt" # Script to run when hit
         value = ent!.behaviorSet[BSET_PAIN]!
 
-    case SET_FLEESCRIPT:
+    case SET_FLEESCRIPT: //## %s="NULL" !!"W:\game\base\scripts\!!#*.txt" # Script to run when hit and low health
         value = ent!.behaviorSet[BSET_FLEE]!
 
-    case SET_DEATHSCRIPT:
+    case SET_DEATHSCRIPT: //## %s="NULL" !!"W:\game\base\scripts\!!#*.txt" # Script to run when killed
         value = ent!.behaviorSet[BSET_DEATH]!
 
-    case SET_DELAYEDSCRIPT:
+    case SET_DELAYEDSCRIPT: //## %s="NULL" !!"W:\game\base\scripts\!!#*.txt" # Script to run after a delay
         value = ent!.behaviorSet[BSET_DELAYED]!
 
-    case SET_BLOCKEDSCRIPT:
+    case SET_BLOCKEDSCRIPT: //## %s="NULL" !!"W:\game\base\scripts\!!#*.txt" # Script to run when blocked by teammate
         value = ent!.behaviorSet[BSET_BLOCKED]!
 
-    case SET_FFIRESCRIPT:
+    case SET_FFIRESCRIPT: //## %s="NULL" !!"W:\game\base\scripts\!!#*.txt" # Script to run when player has shot own team repeatedly
         value = ent!.behaviorSet[BSET_FFIRE]!
 
-    case SET_FFDEATHSCRIPT:
+    case SET_FFDEATHSCRIPT: //## %s="NULL" !!"W:\game\base\scripts\!!#*.txt" # Script to run when player kills a teammate
         value = ent!.behaviorSet[BSET_FFDEATH]!
         //# #sep Standard strings
 
-    case SET_ENEMY:
+    case SET_ENEMY: //## %s="NULL" # Set enemy by targetname
         return 0
 
-    case SET_LEADER:
+    case SET_LEADER: //## %s="NULL" # Set for BS_FOLLOW_LEADER
         return 0
 
-    case SET_CAPTURE:
+    case SET_CAPTURE: //## %s="NULL" # Set captureGoal by targetname
         return 0
 
-    case SET_TARGETNAME:
+    case SET_TARGETNAME: //## %s="NULL" # Set/change your targetname
         value = ent!.targetname!
 
-    case SET_PAINTARGET:
+    case SET_PAINTARGET: //## %s="NULL" # Set/change what to use when hit
         return 0
 
-    case SET_CAMERA_GROUP:
+    case SET_CAMERA_GROUP: //## %s="NULL" # all ents with this cameraGroup will be focused on
         return 0
 
-    case SET_CAMERA_GROUP_TAG:
+    case SET_CAMERA_GROUP_TAG: //## %s="NULL" # all ents with this cameraGroup will be focused on
         return 0
 
-    case SET_LOOK_TARGET:
+    case SET_LOOK_TARGET: //## %s="NULL" # object for NPC to look at
         G_DebugPrint(WL_WARNING, "Q3_GetString: SET_LOOK_TARGET, NOT SUPPORTED IN MULTIPLAYER\n")
 
-    case SET_TARGET2:
+    case SET_TARGET2: //## %s="NULL" # Set/change your target2: on NPC's: this fires when they're knocked out by the red hypo
         return 0
 
-    case SET_REMOVE_TARGET:
+    case SET_REMOVE_TARGET: //## %s="NULL" # Target that is fired when someone completes the BS_REMOVE behaviorState
         return 0
 
     case SET_WEAPON:
@@ -1392,62 +1400,62 @@ public func Q3_GetString(_ entID: Int32, _ type: Int32, _ name: String, _ value:
         return 0
         //The below cannot be gotten
 
-    case SET_NAVGOAL:
+    case SET_NAVGOAL: //## %s="NULL" # *Move to this navgoal then continue script
         G_DebugPrint(WL_WARNING, "Q3_GetString: SET_NAVGOAL not implemented\n")
         return 0
 
-    case SET_VIEWTARGET:
+    case SET_VIEWTARGET: //## %s="NULL" # Set angles toward ent by targetname
         G_DebugPrint(WL_WARNING, "Q3_GetString: SET_VIEWTARGET not implemented\n")
         return 0
 
-    case SET_WATCHTARGET:
+    case SET_WATCHTARGET: //## %s="NULL" # Set angles toward ent by targetname
         return 0
 
     case SET_VIEWENTITY:
         G_DebugPrint(WL_WARNING, "Q3_GetString: SET_VIEWENTITY not implemented\n")
         return 0
 
-    case SET_CAPTIONTEXTCOLOR:
+    case SET_CAPTIONTEXTCOLOR: //## %s=""  # Color of text RED:WHITE:BLUE: YELLOW
         G_DebugPrint(WL_WARNING, "Q3_GetString: SET_CAPTIONTEXTCOLOR not implemented\n")
         return 0
 
-    case SET_CENTERTEXTCOLOR:
+    case SET_CENTERTEXTCOLOR: //## %s=""  # Color of text RED:WHITE:BLUE: YELLOW
         G_DebugPrint(WL_WARNING, "Q3_GetString: SET_CENTERTEXTCOLOR not implemented\n")
         return 0
 
-    case SET_SCROLLTEXTCOLOR:
+    case SET_SCROLLTEXTCOLOR: //## %s=""  # Color of text RED:WHITE:BLUE: YELLOW
         G_DebugPrint(WL_WARNING, "Q3_GetString: SET_SCROLLTEXTCOLOR not implemented\n")
         return 0
 
-    case SET_COPY_ORIGIN:
+    case SET_COPY_ORIGIN: //## %s="targetname"  # Copy the origin of the ent with targetname to your origin
         G_DebugPrint(WL_WARNING, "Q3_GetString: SET_COPY_ORIGIN not implemented\n")
         return 0
 
-    case SET_DEFEND_TARGET:
+    case SET_DEFEND_TARGET: //## %s="targetname"  # This NPC will attack the target NPC's enemies
         G_DebugPrint(WL_WARNING, "Q3_GetString: SET_COPY_ORIGIN not implemented\n")
         return 0
 
-    case SET_VIDEO_PLAY:
+    case SET_VIDEO_PLAY: //## %s="filename" !!"W:\game\base\video\!!#*.roq" # Play a Video (inGame)
         G_DebugPrint(WL_WARNING, "Q3_GetString: SET_VIDEO_PLAY not implemented\n")
         return 0
 
-    case SET_LOADGAME:
+    case SET_LOADGAME: //## %s="exitholodeck" # Load the savegame that was auto-saved when you started the holodeck
         G_DebugPrint(WL_WARNING, "Q3_GetString: SET_LOADGAME not implemented\n")
         return 0
 
-    case SET_LOCKYAW:
+    case SET_LOCKYAW: //## %s="off"  # Lock legs to a certain yaw angle (or "off" or "auto" uses current)
         G_DebugPrint(WL_WARNING, "Q3_GetString: SET_LOCKYAW not implemented\n")
         return 0
 
-    case SET_SCROLLTEXT:
+    case SET_SCROLLTEXT: //## %s="" # key of text string to print
         G_DebugPrint(WL_WARNING, "Q3_GetString: SET_SCROLLTEXT not implemented\n")
         return 0
 
-    case SET_LCARSTEXT:
+    case SET_LCARSTEXT: //## %s="" # key of text string to print in LCARS frame
         G_DebugPrint(WL_WARNING, "Q3_GetString: SET_LCARSTEXT not implemented\n")
         return 0
 
-    case SET_FULLNAME:
+    case SET_FULLNAME: //## %s="NULL" # Set/change your targetname
         value = ent!.fullName!
 
     default:
@@ -4535,9 +4543,7 @@ Change color text prints in
 */
 /// Source: oracle/codemp/game/g_ICARUScb.c:4955
 private func Q3_SetCaptionTextColor(_ color: String) {
-    // Port-note: The draft of this statement did not compile, and the compiler wrote "cannot convert value of type '[Float]' to expected argument type 'vec4_t' (aka 'SIMD4<Float>')".
-    // Raven wrote: SetTextColor(textcolor_caption,color)
-    portMissing("Q3_SetCaptionTextColor", source: "oracle/codemp/game/g_ICARUScb.c:4955")
+    SetTextColor(textcolor_caption, color)
 }
 
 /**
@@ -4551,9 +4557,7 @@ Change color text prints in
 */
 /// Source: oracle/codemp/game/g_ICARUScb.c:4967
 private func Q3_SetCenterTextColor(_ color: String) {
-    // Port-note: The draft of this statement did not compile, and the compiler wrote "cannot convert value of type '[Float]' to expected argument type 'vec4_t' (aka 'SIMD4<Float>')".
-    // Raven wrote: SetTextColor(textcolor_center,color)
-    portMissing("Q3_SetCenterTextColor", source: "oracle/codemp/game/g_ICARUScb.c:4967")
+    SetTextColor(textcolor_center, color)
 }
 
 /**
@@ -4567,9 +4571,7 @@ Change color text prints in
 */
 /// Source: oracle/codemp/game/g_ICARUScb.c:4979
 private func Q3_SetScrollTextColor(_ color: String) {
-    // Port-note: The draft of this statement did not compile, and the compiler wrote "cannot convert value of type '[Float]' to expected argument type 'vec4_t' (aka 'SIMD4<Float>')".
-    // Raven wrote: SetTextColor(textcolor_scroll,color)
-    portMissing("Q3_SetScrollTextColor", source: "oracle/codemp/game/g_ICARUScb.c:4979")
+    SetTextColor(textcolor_scroll, color)
 }
 
 /**
@@ -4765,7 +4767,7 @@ public func Q3_Set(_ taskID: Int32, _ entID: Int32, _ type_name: String, _ data:
     case SET_CAPTURE:
         Q3_SetCaptureGoal(entID, data)
 
-    case SET_DPITCH:
+    case SET_DPITCH: //FIXME: make these set tempBehavior to BS_FACE and await completion?  Or set lockedDesiredPitch/Yaw and aimTime?
         float_data = Float(atof(data))
         Q3_SetDPitch(entID, float_data)
         trap_ICARUS_TaskIDSet(ent!, TID_ANGLE_FACE, taskID)

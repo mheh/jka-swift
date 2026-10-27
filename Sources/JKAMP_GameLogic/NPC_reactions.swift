@@ -127,14 +127,14 @@ func NPC_GetPainChance(_ `self`: Entity, _ damage: Int32) -> Float {
 
     pain_chance = Float((`self`.client!.ps.stats[STAT_MAX_HEALTH] - `self`.health)) / (`self`.client!.ps.stats[STAT_MAX_HEALTH] * 2.0) + Float(damage) / (`self`.client!.ps.stats[STAT_MAX_HEALTH] / 2.0)
     switch g_spskill.integer {
-    case 0:
+    case 0: //easy
         //return 0.75f;
         break
 
-    case 1:
+    case 1: //med
         pain_chance *= 0.5
 
-    default:
+    default: //hard
         pain_chance *= 0.1
     }
     //Com_Printf( "%s: %4.2f\n", self->NPC_type, pain_chance );
@@ -699,16 +699,16 @@ func NPC_Respond(_ `self`: Entity, _ userNum: Int32) {
             }
         }
 
-    case CLASS_R2D2:
+    case CLASS_R2D2: // droid
         G_Sound(`self`, CHAN_AUTO, G_SoundIndex(va("sound/chars/r2d2/misc/r2d2talk0%d.wav", Q_irand(1, 3))))
 
-    case CLASS_R5D2:
+    case CLASS_R5D2: // droid
         G_Sound(`self`, CHAN_AUTO, G_SoundIndex(va("sound/chars/r5d2/misc/r5talk%d.wav", Q_irand(1, 4))))
 
-    case CLASS_MOUSE:
+    case CLASS_MOUSE: // droid
         G_Sound(`self`, CHAN_AUTO, G_SoundIndex(va("sound/chars/mouse/misc/mousego%d.wav", Q_irand(1, 3))))
 
-    case CLASS_GONK:
+    case CLASS_GONK: // droid
         G_Sound(`self`, CHAN_AUTO, G_SoundIndex(va("sound/chars/gonk/misc/gonktalk%d.wav", Q_irand(1, 2))))
 
     default:

@@ -3482,34 +3482,28 @@ func WP_TouchVehMissile(_ ent: Entity, _ other: Entity, _ trace: JKAMP.Trace) {
 /// Source: oracle/codemp/game/g_weapon.c:3580
 func WP_CalcVehMuzzle(_ ent: Entity, _ muzzleNum: Int32) {
     let pVeh: Vehicle? = ent.m_pVehicle
-    // Port-note: The draft of this statement did not compile, and the compiler wrote "failed to produce diagnostic for expression; please submit a bug report (https://swift.org/contributing/#reporting-bugs)".
-    // Raven wrote: mdxaBone_t boltMatrix;
-    portMissing("WP_CalcVehMuzzle", source: "oracle/codemp/game/g_weapon.c:3580")
-    var vehAngles = vec3_t()
+    // Raven's record lives to the end of his block, so the block is the closure.
+    MdxaBone.scratch { boltMatrix in
+        var vehAngles = vec3_t()
 
 
-    if pVeh!.m_iMuzzleTime[muzzleNum] == level.time {
-        //already done for this frame, don't need to do it again
-        return
+        if pVeh!.m_iMuzzleTime[muzzleNum] == level.time {
+            //already done for this frame, don't need to do it again
+            return
+        }
+        //Uh... how about we set this, hunh...?  :)
+        pVeh!.m_iMuzzleTime[muzzleNum] = level.time
+
+        vehAngles = ent.client!.ps.viewangles
+        if pVeh!.m_pVehicleInfo != nil && (pVeh!.m_pVehicleInfo!.type == VH_ANIMAL || pVeh!.m_pVehicleInfo!.type == VH_WALKER || pVeh!.m_pVehicleInfo!.type == VH_SPEEDER) {
+            vehAngles[ROLL] = 0
+            vehAngles[PITCH] = vehAngles[ROLL]
+        }
+
+        trap_G2API_GetBoltMatrix_NoRecNoRot(ent.ghoul2, 0, pVeh!.m_iMuzzleTag[muzzleNum], boltMatrix, vehAngles, ent.client!.ps.origin, level.time, nil, &ent.modelScale)
+        BG_GiveMeVectorFromMatrix(boltMatrix, ORIGIN, &pVeh!.m_vMuzzlePos[muzzleNum])
+        BG_GiveMeVectorFromMatrix(boltMatrix, NEGATIVE_Y, &pVeh!.m_vMuzzleDir[muzzleNum])
     }
-    //Uh... how about we set this, hunh...?  :)
-    pVeh!.m_iMuzzleTime[muzzleNum] = level.time
-
-    vehAngles = ent.client!.ps.viewangles
-    if pVeh!.m_pVehicleInfo != nil && (pVeh!.m_pVehicleInfo!.type == VH_ANIMAL || pVeh!.m_pVehicleInfo!.type == VH_WALKER || pVeh!.m_pVehicleInfo!.type == VH_SPEEDER) {
-        vehAngles[ROLL] = 0
-        vehAngles[PITCH] = vehAngles[ROLL]
-    }
-
-    // Port-note: A read of `boltMatrix`, a local the draft left as a hole.
-    // Raven wrote: trap_G2API_GetBoltMatrix_NoRecNoRot(ent->ghoul2, 0, pVeh->m_iMuzzleTag[muzzleNum], &boltMatrix, vehAngles, ent->client->ps.origin, level.time, NULL, ent->modelScale)
-    portMissing("WP_CalcVehMuzzle", source: "oracle/codemp/game/g_weapon.c:3580")
-    // Port-note: A read of `boltMatrix`, a local the draft left as a hole.
-    // Raven wrote: BG_GiveMeVectorFromMatrix(&boltMatrix, ORIGIN, pVeh->m_vMuzzlePos[muzzleNum])
-    portMissing("WP_CalcVehMuzzle", source: "oracle/codemp/game/g_weapon.c:3580")
-    // Port-note: A read of `boltMatrix`, a local the draft left as a hole.
-    // Raven wrote: BG_GiveMeVectorFromMatrix(&boltMatrix, NEGATIVE_Y, pVeh->m_vMuzzleDir[muzzleNum])
-    portMissing("WP_CalcVehMuzzle", source: "oracle/codemp/game/g_weapon.c:3580")
 }
 
 /// Source: oracle/codemp/game/g_weapon.c:3610

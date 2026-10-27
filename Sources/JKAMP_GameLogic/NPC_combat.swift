@@ -127,17 +127,17 @@ func G_AttackDelay(_ `self`: Entity, _ enemy: Entity) {
             //invert
             attDelay = 2000 - attDelay
         }
-        attDelay = Int32(Float(attDelay) + floor((_DotProduct(fwd, dir) + 1.0) * 2000.0)) //add up to 4000ms delay if they're facing away
+        attDelay = Int32(Double(attDelay) + floor(Double((_DotProduct(fwd, dir) + 1.0) * 2000.0))) //add up to 4000ms delay if they're facing away
 
         //FIXME: should distance matter, too?
 
         //Now modify the delay based on NPC_class, weapon, and team
         //NOTE: attDelay should be somewhere between 1000 to 6000 milliseconds
         switch `self`.client!.NPC_class {
-        case CLASS_IMPERIAL:
+        case CLASS_IMPERIAL: //they give orders and hang back
             attDelay += Q_irand(500, 1500)
 
-        case CLASS_STORMTROOPER:
+        case CLASS_STORMTROOPER: //stormtroopers shoot sooner
             if `self`.NPC!.rank >= RANK_LT {
                 //officers shoot even sooner
                 attDelay -= Q_irand(500, 1500)
@@ -146,10 +146,10 @@ func G_AttackDelay(_ `self`: Entity, _ enemy: Entity) {
                 attDelay -= Q_irand(0, 1000)
             }
 
-        case CLASS_SWAMPTROOPER:
+        case CLASS_SWAMPTROOPER: //shoot very quickly?  What about guys in water?
             attDelay -= Q_irand(1000, 2000)
 
-        case CLASS_IMPWORKER:
+        case CLASS_IMPWORKER: //they panic, don't fire right away
             attDelay += Q_irand(1000, 2500)
 
         case CLASS_TRANDOSHAN:
@@ -212,19 +212,19 @@ func G_AttackDelay(_ `self`: Entity, _ enemy: Entity) {
             //			break;
             //rwwFIXMEFIXME: Have this weapon for NPCs?
 
-        case WP_DISRUPTOR:
+        case WP_DISRUPTOR: //sniper's don't delay?
             return
 
-        case WP_THERMAL:
+        case WP_THERMAL: //grenade-throwing has a built-in delay
             return
 
-        case WP_STUN_BATON:
+        case WP_STUN_BATON: // Any ol' melee attack
             return
 
         case WP_EMPLACED_GUN:
             return
 
-        case WP_TURRET:
+        case WP_TURRET: // turret guns
             return
             break
 
@@ -450,7 +450,7 @@ func ChangeWeapon(_ ent: Entity, _ newWeapon: Int32) {
     ent.NPC!.currentAmmo = ent.client!.ps.ammo[weaponData[newWeapon].ammoIndex]
 
     switch newWeapon {
-    case WP_BRYAR_PISTOL:
+    case WP_BRYAR_PISTOL: //prifle
         ent.NPC!.aiFlags &= ~NPCAI_BURST_WEAPON
         ent.NPC!.burstSpacing = 1000 //attackdebounce
         /*
@@ -1118,10 +1118,10 @@ func NPC_MaxDistSquaredForWeapon() -> Float {
     }
 
     switch NPC!.s.weapon {
-    case WP_BLASTER:
+    case WP_BLASTER: //scav rifle
         return Float(1024 * 1024) //should be shorter?
 
-    case WP_BRYAR_PISTOL:
+    case WP_BRYAR_PISTOL: //prifle
         return Float(1024 * 1024)
         /*
         case WP_BLASTER_PISTOL://prifle
@@ -1129,7 +1129,7 @@ func NPC_MaxDistSquaredForWeapon() -> Float {
         break;
         */
 
-    case WP_DISRUPTOR:
+    case WP_DISRUPTOR: //disruptor
         if (NPCInfo!.scriptFlags & SCF_ALT_FIRE) != 0 {
             return Float((4096 * 4096))
         } else {
@@ -1312,14 +1312,14 @@ func NPC_PickEnemy(_ closestTo: Entity, _ enemyTeam: Int32, _ checkVis: Bool, _ 
                                                 failed = true
                                             } else {
                                                 var fmt = CharBuf("%s saw %s trying to hide - hiddenDir %s targetDir %s dot %f\n")
-                                                Debug_Printf(debugNPCAI, DEBUG_LEVEL_INFO, &fmt, NPC!.targetname ?? "", newenemy!.targetname ?? "", vtos(newenemy!.client!.hiddenDir), vtos(diff), dot)
+                                                Debug_Printf(debugNPCAI, DEBUG_LEVEL_INFO, &fmt, NPC!.targetname ?? "(null)", newenemy!.targetname ?? "(null)", vtos(newenemy!.client!.hiddenDir), vtos(diff), dot)
                                             }
                                         } else {
                                             failed = true
                                         }
                                     } else {
                                         var fmt = CharBuf("%s saw %s trying to hide - hiddenDist %f\n")
-                                        Debug_Printf(debugNPCAI, DEBUG_LEVEL_INFO, &fmt, NPC!.targetname ?? "", newenemy!.targetname ?? "", newenemy!.client!.hiddenDist)
+                                        Debug_Printf(debugNPCAI, DEBUG_LEVEL_INFO, &fmt, NPC!.targetname ?? "(null)", newenemy!.targetname ?? "(null)", newenemy!.client!.hiddenDist)
                                     }
                                 }
 
@@ -1431,7 +1431,7 @@ func NPC_PickEnemy(_ closestTo: Entity, _ enemyTeam: Int32, _ checkVis: Bool, _ 
                                         continue
                                     } else {
                                         var fmt = CharBuf("%s saw %s trying to hide - hiddenDir %s targetDir %s dot %f\n")
-                                        Debug_Printf(debugNPCAI, DEBUG_LEVEL_INFO, &fmt, NPC!.targetname ?? "", newenemy!.targetname ?? "", vtos(newenemy!.client!.hiddenDir), vtos(diff), dot)
+                                        Debug_Printf(debugNPCAI, DEBUG_LEVEL_INFO, &fmt, NPC!.targetname ?? "(null)", newenemy!.targetname ?? "(null)", vtos(newenemy!.client!.hiddenDir), vtos(diff), dot)
                                     }
                                 } else {
                                     entNum += 1
@@ -1439,7 +1439,7 @@ func NPC_PickEnemy(_ closestTo: Entity, _ enemyTeam: Int32, _ checkVis: Bool, _ 
                                 }
                             } else {
                                 var fmt = CharBuf("%s saw %s trying to hide - hiddenDist %f\n")
-                                Debug_Printf(debugNPCAI, DEBUG_LEVEL_INFO, &fmt, NPC!.targetname ?? "", newenemy!.targetname ?? "", newenemy!.client!.hiddenDist)
+                                Debug_Printf(debugNPCAI, DEBUG_LEVEL_INFO, &fmt, NPC!.targetname ?? "(null)", newenemy!.targetname ?? "(null)", newenemy!.client!.hiddenDist)
                             }
                         }
 

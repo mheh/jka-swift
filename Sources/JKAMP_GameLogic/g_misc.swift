@@ -1647,7 +1647,7 @@ ammo_power_converter_use
 */
 /// Source: oracle/codemp/game/g_misc.c:1753
 func ammo_power_converter_use(_ `self`: Entity, _ other: Entity, _ activator: Entity) {
-    var add: Int32 = Int32(0.0) //,highest;
+    var add: Int32 = 0 //,highest;
     let overcharge: Bool
     //	int			difBlaster,difPowerCell,difMetalBolts;
     var stop: Int32 = 1

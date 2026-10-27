@@ -1110,7 +1110,20 @@ func G_PickDeathAnim(_ `self`: Entity, _ point: JKAShared.vec3_t, _ damage: Int3
 
     //dead flops
     switch legAnim {
-    case BOTH_DEATH1, BOTH_DEAD1, BOTH_DEATH2, BOTH_DEAD2, BOTH_DEATH8, BOTH_DEAD8, BOTH_DEATH13, BOTH_DEAD13, BOTH_DEATH14, BOTH_DEAD14, BOTH_DEATH16, BOTH_DEAD16, BOTH_DEADBACKWARD1, BOTH_DEADBACKWARD2:
+    case BOTH_DEATH1, //# First Death anim
+         BOTH_DEAD1,
+         BOTH_DEATH2, //# Second Death anim
+         BOTH_DEAD2,
+         BOTH_DEATH8, //#
+         BOTH_DEAD8,
+         BOTH_DEATH13, //#
+         BOTH_DEAD13,
+         BOTH_DEATH14, //#
+         BOTH_DEAD14,
+         BOTH_DEATH16, //#
+         BOTH_DEAD16,
+         BOTH_DEADBACKWARD1, //# First thrown backward death finished pose
+         BOTH_DEADBACKWARD2: //# Second thrown backward death finished pose
         deathAnim = -2
         /*
         if ( PM_FinishedCurrentLegsAnim( self ) )
@@ -1128,7 +1141,12 @@ func G_PickDeathAnim(_ `self`: Entity, _ point: JKAShared.vec3_t, _ damage: Int3
         */
         fallthrough
 
-    case BOTH_DEATH10, BOTH_DEAD10, BOTH_DEATH15, BOTH_DEAD15, BOTH_DEADFORWARD1, BOTH_DEADFORWARD2:
+    case BOTH_DEATH10, //#
+         BOTH_DEAD10,
+         BOTH_DEATH15, //#
+         BOTH_DEAD15,
+         BOTH_DEADFORWARD1, //# First thrown forward death finished pose
+         BOTH_DEADFORWARD2: //# Second thrown forward death finished pose
         deathAnim = -2
         /*
         if ( PM_FinishedCurrentLegsAnim( self ) )
@@ -1146,7 +1164,41 @@ func G_PickDeathAnim(_ `self`: Entity, _ point: JKAShared.vec3_t, _ damage: Int3
     case BOTH_DEADFLOP1:
         deathAnim = -2
 
-    case BOTH_DEAD3, BOTH_DEAD4, BOTH_DEAD5, BOTH_DEAD6, BOTH_DEAD7, BOTH_DEAD9, BOTH_DEAD11, BOTH_DEAD12, BOTH_DEAD17, BOTH_DEAD18, BOTH_DEAD19, BOTH_LYINGDEAD1, BOTH_STUMBLEDEAD1, BOTH_FALLDEAD1LAND, BOTH_DEATH3, BOTH_DEATH4, BOTH_DEATH5, BOTH_DEATH6, BOTH_DEATH7, BOTH_DEATH9, BOTH_DEATH11, BOTH_DEATH12, BOTH_DEATH17, BOTH_DEATH18, BOTH_DEATH19, BOTH_DEATHFORWARD1, BOTH_DEATHFORWARD2, BOTH_DEATHBACKWARD1, BOTH_DEATHBACKWARD2, BOTH_DEATH1IDLE, BOTH_LYINGDEATH1, BOTH_STUMBLEDEATH1, BOTH_FALLDEATH1, BOTH_FALLDEATH1INAIR, BOTH_FALLDEATH1LAND:
+    case BOTH_DEAD3, //# Third Death finished pose
+         BOTH_DEAD4, //# Fourth Death finished pose
+         BOTH_DEAD5, //# Fifth Death finished pose
+         BOTH_DEAD6, //# Sixth Death finished pose
+         BOTH_DEAD7, //# Seventh Death finished pose
+         BOTH_DEAD9, //#
+         BOTH_DEAD11, //#
+         BOTH_DEAD12, //#
+         BOTH_DEAD17, //#
+         BOTH_DEAD18, //#
+         BOTH_DEAD19, //#
+         BOTH_LYINGDEAD1, //# Killed lying down death finished pose
+         BOTH_STUMBLEDEAD1, //# Stumble forward death finished pose
+         BOTH_FALLDEAD1LAND, //# Fall forward and splat death finished pose
+         BOTH_DEATH3, //# Third Death anim
+         BOTH_DEATH4, //# Fourth Death anim
+         BOTH_DEATH5, //# Fifth Death anim
+         BOTH_DEATH6, //# Sixth Death anim
+         BOTH_DEATH7, //# Seventh Death anim
+         BOTH_DEATH9, //#
+         BOTH_DEATH11, //#
+         BOTH_DEATH12, //#
+         BOTH_DEATH17, //#
+         BOTH_DEATH18, //#
+         BOTH_DEATH19, //#
+         BOTH_DEATHFORWARD1, //# First Death in which they get thrown forward
+         BOTH_DEATHFORWARD2, //# Second Death in which they get thrown forward
+         BOTH_DEATHBACKWARD1, //# First Death in which they get thrown backward
+         BOTH_DEATHBACKWARD2, //# Second Death in which they get thrown backward
+         BOTH_DEATH1IDLE, //# Idle while close to death
+         BOTH_LYINGDEATH1, //# Death to play when killed lying down
+         BOTH_STUMBLEDEATH1, //# Stumble forward and fall face first death
+         BOTH_FALLDEATH1, //# Fall forward off a high cliff and splat death - start
+         BOTH_FALLDEATH1INAIR, //# Fall forward off a high cliff and splat death - loop
+         BOTH_FALLDEATH1LAND: //# Fall forward off a high cliff and splat death - hit bottom
         deathAnim = -2
 
     default:
@@ -1484,7 +1536,8 @@ func DeathFX(_ ent: Entity) {
         G_PlayEffectID(G_EffectIndex("env/med_explode"), effectPos, defaultDir)
         G_Sound(ent, CHAN_AUTO, G_SoundIndex("sound/chars/mark2/misc/mark2_explo"))
 
-    case CLASS_PROTOCOL, CLASS_R5D2:
+    case CLASS_PROTOCOL, //c3p0
+         CLASS_R5D2:
         effectPos = ent.r.currentOrigin
         effectPos[2] -= 10
         G_PlayEffectID(G_EffectIndex("env/med_explode"), effectPos, defaultDir)

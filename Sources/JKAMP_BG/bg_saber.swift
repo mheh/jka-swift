@@ -617,22 +617,22 @@ func PM_SaberLockLoseAnim(_ genemy: JKAMP.PlayerState, _ victory: Bool, _ superB
 func PM_SaberLockResultAnim(_ duelist: JKAMP.PlayerState, _ superBreak: Bool, _ won: Bool) -> Int32 {
     var baseAnim: Int32 = duelist.torsoAnim
     switch baseAnim {
-    case BOTH_LK_S_S_S_L_2:
+    case BOTH_LK_S_S_S_L_2: //lock if I'm using single vs. a single and other intitiated
         baseAnim = BOTH_LK_S_S_S_L_1
 
-    case BOTH_LK_S_S_T_L_2:
+    case BOTH_LK_S_S_T_L_2: //lock if I'm using single vs. a single and other initiated
         baseAnim = BOTH_LK_S_S_T_L_1
 
-    case BOTH_LK_DL_DL_S_L_2:
+    case BOTH_LK_DL_DL_S_L_2: //lock if I'm using dual vs. dual and other initiated
         baseAnim = BOTH_LK_DL_DL_S_L_1
 
-    case BOTH_LK_DL_DL_T_L_2:
+    case BOTH_LK_DL_DL_T_L_2: //lock if I'm using dual vs. dual and other initiated
         baseAnim = BOTH_LK_DL_DL_T_L_1
 
-    case BOTH_LK_ST_ST_S_L_2:
+    case BOTH_LK_ST_ST_S_L_2: //lock if I'm using staff vs. a staff and other initiated
         baseAnim = BOTH_LK_ST_ST_S_L_1
 
-    case BOTH_LK_ST_ST_T_L_2:
+    case BOTH_LK_ST_ST_T_L_2: //lock if I'm using staff vs. a staff and other initiated
         baseAnim = BOTH_LK_ST_ST_T_L_1
 
     default:
@@ -811,7 +811,20 @@ public func BG_CheckIncrementLockAnim(_ anim: Int32, _ winOrLose: Int32) -> Bool
     //		if you are the second style in the lock anim, you advance from WINNING position to LOSING position
     switch anim {
     //increment to win:
-    case BOTH_LK_DL_DL_S_L_1, BOTH_LK_DL_DL_S_L_2, BOTH_LK_DL_DL_T_L_1, BOTH_LK_DL_DL_T_L_2, BOTH_LK_DL_S_S_L_1, BOTH_LK_DL_S_T_L_1, BOTH_LK_DL_ST_S_L_1, BOTH_LK_DL_ST_T_L_1, BOTH_LK_S_S_S_L_1, BOTH_LK_S_S_T_L_2, BOTH_LK_ST_S_S_L_1, BOTH_LK_ST_S_T_L_1, BOTH_LK_ST_ST_T_L_1, BOTH_LK_ST_ST_T_L_2:
+    case BOTH_LK_DL_DL_S_L_1, //lock if I'm using dual vs. dual and I initiated
+         BOTH_LK_DL_DL_S_L_2, //lock if I'm using dual vs. dual and other initiated
+         BOTH_LK_DL_DL_T_L_1, //lock if I'm using dual vs. dual and I initiated
+         BOTH_LK_DL_DL_T_L_2, //lock if I'm using dual vs. dual and other initiated
+         BOTH_LK_DL_S_S_L_1, //lock if I'm using dual vs. a single
+         BOTH_LK_DL_S_T_L_1, //lock if I'm using dual vs. a single
+         BOTH_LK_DL_ST_S_L_1, //lock if I'm using dual vs. a staff
+         BOTH_LK_DL_ST_T_L_1, //lock if I'm using dual vs. a staff
+         BOTH_LK_S_S_S_L_1, //lock if I'm using single vs. a single and I initiated
+         BOTH_LK_S_S_T_L_2, //lock if I'm using single vs. a single and other initiated
+         BOTH_LK_ST_S_S_L_1, //lock if I'm using staff vs. a single
+         BOTH_LK_ST_S_T_L_1, //lock if I'm using staff vs. a single
+         BOTH_LK_ST_ST_T_L_1, //lock if I'm using staff vs. a staff and I initiated
+         BOTH_LK_ST_ST_T_L_2: //lock if I'm using staff vs. a staff and other initiated
         if winOrLose == SABERLOCK_WIN {
             increment = true
         } else {
@@ -819,7 +832,16 @@ public func BG_CheckIncrementLockAnim(_ anim: Int32, _ winOrLose: Int32) -> Bool
         }
         //decrement to win:
 
-    case BOTH_LK_S_DL_S_L_1, BOTH_LK_S_DL_T_L_1, BOTH_LK_S_S_S_L_2, BOTH_LK_S_S_T_L_1, BOTH_LK_S_ST_S_L_1, BOTH_LK_S_ST_T_L_1, BOTH_LK_ST_DL_S_L_1, BOTH_LK_ST_DL_T_L_1, BOTH_LK_ST_ST_S_L_1, BOTH_LK_ST_ST_S_L_2:
+    case BOTH_LK_S_DL_S_L_1, //lock if I'm using single vs. a dual
+         BOTH_LK_S_DL_T_L_1, //lock if I'm using single vs. a dual
+         BOTH_LK_S_S_S_L_2, //lock if I'm using single vs. a single and other intitiated
+         BOTH_LK_S_S_T_L_1, //lock if I'm using single vs. a single and I initiated
+         BOTH_LK_S_ST_S_L_1, //lock if I'm using single vs. a staff
+         BOTH_LK_S_ST_T_L_1, //lock if I'm using single vs. a staff
+         BOTH_LK_ST_DL_S_L_1, //lock if I'm using staff vs. dual
+         BOTH_LK_ST_DL_T_L_1, //lock if I'm using staff vs. dual
+         BOTH_LK_ST_ST_S_L_1, //lock if I'm using staff vs. a staff and I initiated
+         BOTH_LK_ST_ST_S_L_2: //lock if I'm using staff vs. a staff and other initiated
         if winOrLose == SABERLOCK_WIN {
             increment = false
         } else {
@@ -2355,7 +2377,7 @@ func PM_WeaponLightsaber() {
             case BLOCKED_TOP_PROJ:
                 PM_SetSaberMove(LS_REFLECT_UP)
 
-            default:
+            default: //oh well, can't do any other kick move while in-air
                 pm.ps.saberBlocked = BLOCKED_NONE
             }
             if pm.ps.saberBlocked >= BLOCKED_UPPER_RIGHT && pm.ps.saberBlocked < BLOCKED_UPPER_RIGHT_PROJ {

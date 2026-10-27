@@ -359,6 +359,7 @@ func VEH_TurretThink(_ pVeh: JKAMP.Vehicle, _ parent: Entity, _ turretNum: Int32
 
                         end = turretEnemy!.r.currentOrigin
                         trap_Trace(tr, start, vec3_origin, vec3_origin, end, parent.s.number, MASK_SHOT)
+
                         if tr.entityNum == turretEnemy!.s.number || (tr.allsolid == 0 && tr.startsolid == 0) {
                             doAim = true // Can see our enemy
                         }

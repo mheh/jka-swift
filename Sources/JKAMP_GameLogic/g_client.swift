@@ -697,7 +697,7 @@ func SelectRandomFurthestSpawnPoint(_ avoidPoint: JKAShared.vec3_t, _ origin: in
         } else {
             classname = "info_player_start_blue"
         }
-        while let next = G_Find(spot, \.classname, classname!) {
+        while let next = G_Find(spot, \.classname, classname) {
             spot = next
             if SpotWouldTelefrag(spot!) {
                 continue
@@ -1401,12 +1401,10 @@ private func ClientCleanName(_ `in`: String, _ out: inout JKAShared.CharBuf, _ o
             }
 
             // don't allow black in a name, period
-            // Port-note: The draft of this statement did not compile, and the compiler wrote "cannot convert value of type 'Int32' to expected argument type 'CChar' (aka 'Int8')"
-            portMissing("ClientCleanName", source: "oracle/codemp/game/g_client.c:1335")
-            // if ColorIndex(`in`.byte) == 0 {
-            //     `in`.advance()
-            //     continue
-            // }
+            if ColorIndex(`in`.byte) == 0 {
+                `in`.advance()
+                continue
+            }
 
             // make sure room in dest for both chars
             if len > outSize - 2 {

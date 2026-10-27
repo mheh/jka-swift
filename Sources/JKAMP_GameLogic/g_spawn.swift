@@ -228,7 +228,7 @@ func G_NewString(_ string: String) -> String {
         i += 1
     }
 
-    return String(cString: newb.assumingMemoryBound(to: CChar.self))
+    return cString(at: newb)
 }
 
 /// Raven's `static char *gametypeNames[]` of `G_SpawnGEntityFromSpawnVars`, which the world keeps.

@@ -702,12 +702,8 @@ func SpectatorThink(_ ent: Entity, _ ucmd: JKAMP.Usercmd) {
             pm.ps = client!.ps
             pm.cmd = ucmd
             pm.tracemask = MASK_PLAYERSOLID & ~CONTENTS_BODY // spectators can fly through bodies
-            // Port-note: A read of `pm`, a local the draft left as a hole.
-            // Raven wrote: pm.trace = trap_Trace
-            portMissing("SpectatorThink", source: "oracle/codemp/game/g_active.c:678")
-            // Port-note: A read of `pm`, a local the draft left as a hole.
-            // Raven wrote: pm.pointcontents = trap_PointContents
-            portMissing("SpectatorThink", source: "oracle/codemp/game/g_active.c:678")
+            pm.trace = PmoveThunks.trap_Trace
+            pm.pointcontents = PmoveThunks.trap_PointContents
 
             pm.noSpecMove = g_noSpecMove.integer
 
@@ -991,39 +987,39 @@ func ClientEvents(_ ent: Entity, _ oldEventSequence: Int32) {
             ent.client!.invulnerableTimer = 0
             //rww - Note that these must be in the same order (ITEM#-wise) as they are in holdable_t
 
-        case EV_USE_ITEM1:
+        case EV_USE_ITEM1: //seeker droid
             ItemUse_Seeker(ent)
 
-        case EV_USE_ITEM2:
+        case EV_USE_ITEM2: //shield
             ItemUse_Shield(ent)
 
-        case EV_USE_ITEM3:
+        case EV_USE_ITEM3: //medpack
             ItemUse_MedPack(ent)
 
-        case EV_USE_ITEM4:
+        case EV_USE_ITEM4: //big medpack
             ItemUse_MedPack_Big(ent)
 
-        case EV_USE_ITEM5:
+        case EV_USE_ITEM5: //binoculars
             ItemUse_Binoculars(ent)
 
-        case EV_USE_ITEM6:
+        case EV_USE_ITEM6: //sentry gun
             ItemUse_Sentry(ent)
 
-        case EV_USE_ITEM7:
+        case EV_USE_ITEM7: //jetpack
             ItemUse_Jetpack(ent)
 
-        case EV_USE_ITEM8:
+        case EV_USE_ITEM8: //health disp
             //ItemUse_UseDisp(ent, HI_HEALTHDISP);
             break
 
-        case EV_USE_ITEM9:
+        case EV_USE_ITEM9: //ammo disp
             //ItemUse_UseDisp(ent, HI_AMMODISP);
             break
 
-        case EV_USE_ITEM10:
+        case EV_USE_ITEM10: //eweb
             ItemUse_UseEWeb(ent)
 
-        case EV_USE_ITEM11:
+        case EV_USE_ITEM11: //cloak
             ItemUse_UseCloak(ent)
 
         default:
@@ -1397,7 +1393,7 @@ private func NPC_GetWalkSpeed(_ ent: Entity) -> Int32 {
     }
 
     switch ent.client!.playerTeam {
-    default:
+    default: //To shutup compiler, will add entries later (this is stub code)
         walkSpeed = ent.NPC!.stats.walkSpeed
     }
 
@@ -1447,7 +1443,17 @@ private func NPC_GetRunSpeed(_ ent: Entity) -> Int32 {
     */
     // team no longer indicates species/race.  Use NPC_class to adjust speed for specific npc types
     switch ent.client!.NPC_class {
-    case CLASS_PROBE, CLASS_GONK, CLASS_R2D2, CLASS_R5D2, CLASS_MARK1, CLASS_MARK2, CLASS_PROTOCOL, CLASS_ATST, CLASS_MOUSE, CLASS_SEEKER, CLASS_REMOTE:
+    case CLASS_PROBE, // droid cases here to shut-up compiler
+         CLASS_GONK,
+         CLASS_R2D2,
+         CLASS_R5D2,
+         CLASS_MARK1,
+         CLASS_MARK2,
+         CLASS_PROTOCOL,
+         CLASS_ATST, // hmm, not really your average droid
+         CLASS_MOUSE,
+         CLASS_SEEKER,
+         CLASS_REMOTE:
         runSpeed = ent.NPC!.stats.runSpeed
 
     default:
@@ -2184,7 +2190,7 @@ func ClientThink_real(_ ent: Entity) {
             } else {
                 if ent.client!.inSpaceIndex != 0 && ent.client!.inSpaceIndex != ENTITYNUM_NONE {
                     //in space, so no gravity...
-                    client!.ps.gravity = Int32(1.0)
+                    client!.ps.gravity = 1
                     if ent.s.number < MAX_CLIENTS {
                         client!.ps.velocity = client!.ps.velocity * 0.8
                     }
@@ -2192,7 +2198,7 @@ func ClientThink_real(_ ent: Entity) {
                     if (client!.ps.eFlags2 & EF2_SHIP_DEATH) != 0 {
                         //float there
                         client!.ps.velocity = vec3_t()
-                        client!.ps.gravity = Int32(1.0)
+                        client!.ps.gravity = 1
                     } else {
                         client!.ps.gravity = Int32(g_gravity.value)
                     }
@@ -2559,12 +2565,8 @@ func ClientThink_real(_ ent: Entity) {
         } else {
             pm.tracemask = MASK_PLAYERSOLID
         }
-        // Port-note: A read of `pm`, a local the draft left as a hole.
-        // Raven wrote: pm.trace = trap_Trace
-        portMissing("ClientThink_real", source: "oracle/codemp/game/g_active.c:1939")
-        // Port-note: A read of `pm`, a local the draft left as a hole.
-        // Raven wrote: pm.pointcontents = trap_PointContents
-        portMissing("ClientThink_real", source: "oracle/codemp/game/g_active.c:1939")
+        pm.trace = PmoveThunks.trap_Trace
+        pm.pointcontents = PmoveThunks.trap_PointContents
         pm.debugLevel = g_debugMove.integer
         pm.noFootsteps = (g_dmflags.integer & DF_NO_FOOTSTEPS) > 0
 

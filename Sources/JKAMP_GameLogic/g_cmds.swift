@@ -2520,7 +2520,7 @@ func G_ItemUsable(_ ps: JKAMP.PlayerState, _ forcedUse: Int32) -> Int32 {
             G_AddEvent(g_entities[ps.clientNum], EV_ITEMUSEFAIL, SHIELD_NOROOM)
             return 0
 
-        case HI_JETPACK:
+        case HI_JETPACK: //do something?
             return 1
 
         case HI_HEALTHDISP:

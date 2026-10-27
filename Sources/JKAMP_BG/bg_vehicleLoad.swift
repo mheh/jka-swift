@@ -84,7 +84,7 @@ private func BG_ParseVehWeaponParm(_ vehWeapon: JKAMP.VehWeaponInfo, _ parmName:
             case VF_FLOAT:
                 b[float: vehWeaponFields[i].ofs] = Float(atof(value))
 
-            case VF_LSTRING:
+            case VF_LSTRING: // string on disk, pointer in memory, TAG_LEVEL
                 if b[pointer: vehWeaponFields[i].ofs] == nil {
                     //just use 1024 bytes in case we want to write over the string
                     b[pointer: vehWeaponFields[i].ofs] = BG_Alloc(1024) //(char *)BG_Alloc(strlen(value));
@@ -113,34 +113,34 @@ private func BG_ParseVehWeaponParm(_ vehWeapon: JKAMP.VehWeaponInfo, _ parmName:
                     b[int: vehWeaponFields[i].ofs] = anim
                 }
 
-            case VF_WEAPON:
+            case VF_WEAPON: // take string, resolve into index into VehWeaponParms
                 //*(int *)(b+vehWeaponFields[i].ofs) = VEH_VehWeaponIndexForName( value );
                 break
 
-            case VF_MODEL:
+            case VF_MODEL: // take the string, get the G_ModelIndex
                 b[int: vehWeaponFields[i].ofs] = G_ModelIndex(String(value))
 
-            case VF_MODEL_CLIENT:
+            case VF_MODEL_CLIENT: // (MP cgame only) take the string, get the G_ModelIndex
                 //*(int *)(b+vehWeaponFields[i].ofs) = G_ModelIndex( value );
                 break
 
-            case VF_EFFECT:
+            case VF_EFFECT: // take the string, get the G_EffectIndex
                 b[int: vehWeaponFields[i].ofs] = G_EffectIndex(String(value))
 
-            case VF_EFFECT_CLIENT:
+            case VF_EFFECT_CLIENT: // (MP cgame only) take the string, get the index
                 //*(int *)(b+vehWeaponFields[i].ofs) = G_EffectIndex( value );
                 break
 
-            case VF_SHADER:
+            case VF_SHADER: // (cgame only) take the string, call trap_R_RegisterShader
                 break
 
-            case VF_SHADER_NOMIP:
+            case VF_SHADER_NOMIP: // (cgame only) take the string, call trap_R_RegisterShaderNoMip
                 break
 
-            case VF_SOUND:
+            case VF_SOUND: // take the string, get the G_SoundIndex
                 b[int: vehWeaponFields[i].ofs] = G_SoundIndex(String(value))
 
-            case VF_SOUND_CLIENT:
+            case VF_SOUND_CLIENT: // (MP cgame only) take the string, get the index
                 //*(int *)(b+vehWeaponFields[i].ofs) = G_SoundIndex( value );
                 break
 
@@ -442,7 +442,7 @@ private func BG_ParseVehicleParm(_ vehicle: JKAMP.VehicleInfo, _ parmName: Strin
             case VF_FLOAT:
                 b[float: vehicleFields[i].ofs] = Float(atof(value))
 
-            case VF_LSTRING:
+            case VF_LSTRING: // string on disk, pointer in memory, TAG_LEVEL
                 if b[pointer: vehicleFields[i].ofs] == nil {
                     //just use 128 bytes in case we want to write over the string
                     b[pointer: vehicleFields[i].ofs] = BG_Alloc(128) //(char *)BG_Alloc(strlen(value));
@@ -471,33 +471,33 @@ private func BG_ParseVehicleParm(_ vehicle: JKAMP.VehicleInfo, _ parmName: Strin
                     b[int: vehicleFields[i].ofs] = anim
                 }
 
-            case VF_WEAPON:
+            case VF_WEAPON: // take string, resolve into index into VehWeaponParms
                 b[int: vehicleFields[i].ofs] = VEH_VehWeaponIndexForName(String(value))
 
-            case VF_MODEL:
+            case VF_MODEL: // take the string, get the G_ModelIndex
                 b[int: vehicleFields[i].ofs] = G_ModelIndex(String(value))
 
-            case VF_MODEL_CLIENT:
+            case VF_MODEL_CLIENT: // (MP cgame only) take the string, get the G_ModelIndex
                 //*(int *)(b+vehicleFields[i].ofs) = G_ModelIndex( value );
                 break
 
-            case VF_EFFECT:
+            case VF_EFFECT: // take the string, get the G_EffectIndex
                 b[int: vehicleFields[i].ofs] = G_EffectIndex(String(value))
 
-            case VF_EFFECT_CLIENT:
+            case VF_EFFECT_CLIENT: // (MP cgame only) take the string, get the G_EffectIndex
                 //*(int *)(b+vehicleFields[i].ofs) = G_EffectIndex( value );
                 break
 
-            case VF_SHADER:
+            case VF_SHADER: // (cgame only) take the string, call trap_R_RegisterShader
                 break
 
-            case VF_SHADER_NOMIP:
+            case VF_SHADER_NOMIP: // (cgame only) take the string, call trap_R_RegisterShaderNoMip
                 break
 
-            case VF_SOUND:
+            case VF_SOUND: // take the string, get the G_SoundIndex
                 b[int: vehicleFields[i].ofs] = G_SoundIndex(String(value))
 
-            case VF_SOUND_CLIENT:
+            case VF_SOUND_CLIENT: // (MP cgame only) take the string, get the G_SoundIndex
                 //*(int *)(b+vehicleFields[i].ofs) = G_SoundIndex( value );
                 break
 

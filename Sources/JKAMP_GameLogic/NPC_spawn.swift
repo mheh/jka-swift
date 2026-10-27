@@ -218,7 +218,7 @@ func NPC_SetMiscDefaultData(_ ent: Entity) {
                     //ent->NPC->scriptFlags |= SCF_ALT_FIRE;
                 }
 
-            default:
+            default: //FIXME: new weapon: imp blaster pistol
                 break
             }
         }
@@ -2087,13 +2087,13 @@ func SP_NPC_Cultist(_ `self`: Entity) {
             `self`.NPC_type = nil
             `self`.spawnflags = 0 //fast, no throw
             switch Q_irand(0, 2) {
-            case 0:
+            case 0: //medium
                 `self`.spawnflags |= 1
 
-            case 1:
+            case 1: //strong
                 `self`.spawnflags |= 2
 
-            case 2:
+            case 2: //all
                 `self`.spawnflags |= 4
 
             default:

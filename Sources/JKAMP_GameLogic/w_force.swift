@@ -2161,7 +2161,20 @@ func ForceTelepathyCheckDirectNPCTarget(_ `self`: Entity, _ tr: JKAMP.Trace, _ t
     if traceEnt != nil && traceEnt!.client != nil {
         switch traceEnt!.client!.NPC_class {
         //no droids either
-        case CLASS_GALAKMECH, CLASS_ATST, CLASS_PROBE, CLASS_GONK, CLASS_R2D2, CLASS_R5D2, CLASS_MARK1, CLASS_MARK2, CLASS_MOUSE, CLASS_SEEKER, CLASS_REMOTE, CLASS_PROTOCOL, CLASS_BOBAFETT, CLASS_RANCOR:
+        case CLASS_GALAKMECH, //cant grip him, he's in armor
+             CLASS_ATST, //much too big to grip!
+             CLASS_PROBE,
+             CLASS_GONK,
+             CLASS_R2D2,
+             CLASS_R5D2,
+             CLASS_MARK1,
+             CLASS_MARK2,
+             CLASS_MOUSE,
+             CLASS_SEEKER,
+             CLASS_REMOTE,
+             CLASS_PROTOCOL,
+             CLASS_BOBAFETT,
+             CLASS_RANCOR:
             break
 
         default:

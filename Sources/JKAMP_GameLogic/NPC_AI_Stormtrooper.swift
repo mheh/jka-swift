@@ -1149,17 +1149,17 @@ private func ST_CheckMoveState() {
             var newSquadState: Int32 = SQUAD_STAND_AND_SHOOT
             //we got where we wanted to go, set timers based on why we were running
             switch NPCInfo!.squadState {
-            case SQUAD_RETREAT:
+            case SQUAD_RETREAT: //was running away
                 //done fleeing, obviously
                 TIMER_Set(NPC!, "duck", (NPC!.client!.pers.maxHealth - NPC!.health) * 100)
                 TIMER_Set(NPC!, "hideTime", Q_irand(3000, 7000))
                 TIMER_Set(NPC!, "flee", -level.time)
                 newSquadState = SQUAD_COVER
 
-            case SQUAD_TRANSITION:
+            case SQUAD_TRANSITION: //was heading for a combat point
                 TIMER_Set(NPC!, "hideTime", Q_irand(2000, 4000))
 
-            case SQUAD_SCOUT:
+            case SQUAD_SCOUT: //was running after player
                 break
 
             default:
@@ -1466,16 +1466,16 @@ func ST_GetCPFlags() -> Int32 {
     if cpFlags == 0 {
         //at some medium level of morale
         switch Q_irand(0, 3) {
-        case 0:
+        case 0: //just take the nearest one
             cpFlags = (CP_CLEAR | CP_COVER | CP_NEAREST)
 
-        case 1:
+        case 1: //take one closer to the enemy
             cpFlags = (CP_CLEAR | CP_COVER | CP_APPROACH_ENEMY)
 
-        case 2:
+        case 2: //take the one closest to the enemy
             cpFlags = (CP_CLEAR | CP_COVER | CP_CLOSEST | CP_APPROACH_ENEMY)
 
-        case 3:
+        case 3: //take the one on the other side of the enemy
             cpFlags = (CP_CLEAR | CP_COVER | CP_FLANK | CP_APPROACH_ENEMY)
 
         default:

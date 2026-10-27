@@ -1239,13 +1239,15 @@ func SP_target_siege_end(_ ent: Entity) {
 }
 
 /// Source: oracle/codemp/game/g_saga.c:1338
-func SiegeItemRemoveOwner(_ ent: Entity, _ carrier: Entity) {
+func SiegeItemRemoveOwner(_ ent: Entity, _ carrier: Entity?) {
     ent.genericValue2 = 0 //Remove picked-up flag
 
     ent.genericValue8 = ENTITYNUM_NONE //Mark entity carrying us as none
 
-    carrier.client!.holdingObjectiveItem = 0 //The carrier is no longer carrying us
-    carrier.r.svFlags &= ~SVF_BROADCAST
+    if carrier != nil {
+        carrier!.client!.holdingObjectiveItem = 0 //The carrier is no longer carrying us
+        carrier!.r.svFlags &= ~SVF_BROADCAST
+    }
 }
 
 /// Source: oracle/codemp/game/g_saga.c:1351
@@ -1272,9 +1274,7 @@ private func SiegeItemRespawnEffect(_ ent: Entity, _ newOrg: JKAShared.vec3_t) {
 private func SiegeItemRespawnOnOriginalSpot(_ ent: Entity, _ carrier: Entity?) {
     SiegeItemRespawnEffect(ent, ent.pos1)
     G_SetOrigin(ent, &ent.pos1)
-    // Port-note: Raven passes the optional `carrier` to `SiegeItemRemoveOwner`, whose `carrier` parameter takes a value. A never-null ruling is due.
-    // Raven wrote: SiegeItemRemoveOwner(ent, carrier)
-    portMissing("SiegeItemRespawnOnOriginalSpot", source: "oracle/codemp/game/g_saga.c:1372")
+    SiegeItemRemoveOwner(ent, carrier)
 
     // Stop the item from flashing on the radar
     ent.s.time2 = 0
@@ -1343,7 +1343,7 @@ func SiegeItemThink(_ ent: Entity) {
                 //assume we may not be reachable and respawn on the original spot.
                 ent.genericValue9 = level.time + SIEGE_ITEM_RESPAWN_TIME
 
-                SiegeItemRemoveOwner(ent, carrier!)
+                SiegeItemRemoveOwner(ent, carrier)
             }
         }
     }
@@ -1494,7 +1494,7 @@ func SiegeItemUse(_ ent: Entity, _ other: Entity, _ activator: Entity) {
 
     if ent.paintarget != nil && !ent.paintarget!.isEmpty {
         //want to be on this guy's origin now then
-        let targ = G_Find(nil, \.targetname, ent.paintarget!)
+        let targ = G_Find(nil, \.targetname, ent.paintarget)
 
         if targ != nil && targ!.inuse {
             G_SetOrigin(ent, &targ!.r.currentOrigin)

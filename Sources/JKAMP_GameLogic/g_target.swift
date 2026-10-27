@@ -209,9 +209,9 @@ func Use_Target_Print(_ ent: Entity, _ other: Entity, _ activator: Entity) {
             //make sure there's a valid client ent to send it to
             let message = CharBuf(ent.message!)
             if message[0] == Int32(ascii: "@") && message[1] != Int32(ascii: "@") {
-                trap_SendServerCommand(activator.s.number, va("cps \"%s\"", ent.message ?? "(null)"))
+                trap_SendServerCommand(activator.s.number, va("cps \"%s\"", message))
             } else {
-                trap_SendServerCommand(activator.s.number, va("cp \"%s\"", ent.message ?? "(null)"))
+                trap_SendServerCommand(activator.s.number, va("cp \"%s\"", message))
             }
         }
         //NOTE: change in functionality - if there *is* no valid client ent, it won't send it to anyone at all
@@ -222,17 +222,17 @@ func Use_Target_Print(_ ent: Entity, _ other: Entity, _ activator: Entity) {
         if (ent.spawnflags & 1) != 0 {
             let message = CharBuf(ent.message!)
             if message[0] == Int32(ascii: "@") && message[1] != Int32(ascii: "@") {
-                G_TeamCommand(TEAM_RED, va("cps \"%s\"", ent.message ?? "(null)"))
+                G_TeamCommand(TEAM_RED, va("cps \"%s\"", message))
             } else {
-                G_TeamCommand(TEAM_RED, va("cp \"%s\"", ent.message ?? "(null)"))
+                G_TeamCommand(TEAM_RED, va("cp \"%s\"", message))
             }
         }
         if (ent.spawnflags & 2) != 0 {
             let message = CharBuf(ent.message!)
             if message[0] == Int32(ascii: "@") && message[1] != Int32(ascii: "@") {
-                G_TeamCommand(TEAM_BLUE, va("cps \"%s\"", ent.message ?? "(null)"))
+                G_TeamCommand(TEAM_BLUE, va("cps \"%s\"", message))
             } else {
-                G_TeamCommand(TEAM_BLUE, va("cp \"%s\"", ent.message ?? "(null)"))
+                G_TeamCommand(TEAM_BLUE, va("cp \"%s\"", message))
             }
         }
         return
@@ -240,9 +240,9 @@ func Use_Target_Print(_ ent: Entity, _ other: Entity, _ activator: Entity) {
 
     let message = CharBuf(ent.message!)
     if message[0] == Int32(ascii: "@") && message[1] != Int32(ascii: "@") {
-        trap_SendServerCommand(-1, va("cps \"%s\"", ent.message ?? "(null)"))
+        trap_SendServerCommand(-1, va("cps \"%s\"", message))
     } else {
-        trap_SendServerCommand(-1, va("cp \"%s\"", ent.message ?? "(null)"))
+        trap_SendServerCommand(-1, va("cp \"%s\"", message))
     }
 }
 

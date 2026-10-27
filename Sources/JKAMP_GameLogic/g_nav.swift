@@ -1516,15 +1516,12 @@ func NAV_WaypointsTooFar(_ wp1: Entity, _ wp2: Entity) -> Bool {
             Com_sprintf(&temp, Int32((temp).count), S_COLOR_RED + "Waypoint conn %s->%s > 1024\n", wp1.targetname!, wp2.targetname!)
         }
         len = strlen(temp)
-        // Port-note: The draft of this statement did not compile, and the compiler wrote "referencing operator function '-' on 'SIMD' requires that 'CharBuf' conform to 'SIMD'".
-        // Raven wrote: if ( (fatalErrorPointer-fatalErrorString)+len >= sizeof( fatalErrorString ) ) { Com_Error( ERR_DROP, "%s%s%dTOO MANY FATAL NAV ERRORS!!!\n", fatalErrorString, temp, fatalErrors ); return qtrue; }
-        portMissing("NAV_WaypointsTooFar", source: "oracle/codemp/game/g_nav.c:1618")
-        // Port-note: The draft of this statement did not compile, and the compiler wrote "cannot convert value of type 'String' to expected argument type 'CharBuf'".
-        // Raven wrote: strcat( fatalErrorPointer, temp )
-        portMissing("NAV_WaypointsTooFar", source: "oracle/codemp/game/g_nav.c:1618")
-        // Port-note: The draft of this statement did not compile, and the compiler wrote "cannot convert value of type 'Int32' to expected argument type 'String'".
-        // Raven wrote: fatalErrorPointer += len
-        portMissing("NAV_WaypointsTooFar", source: "oracle/codemp/game/g_nav.c:1618")
+        if fatalErrorPointer! + len >= Int32(fatalErrorString.count) {
+            Com_Error(ERR_DROP, "%s%s%dTOO MANY FATAL NAV ERRORS!!!\n", fatalErrorString, temp, fatalErrors)
+            return true
+        }
+        strcat(&fatalErrorString, temp, at: fatalErrorPointer!)
+        fatalErrorPointer! += len
         return true
     } else {
         return false
@@ -1600,9 +1597,7 @@ func NAV_CalculatePaths(_ filename: String, _ checksum: Int32) {
 
     fatalErrors = 0
     fatalErrorString.zero()
-    // Port-note: The draft of this statement did not compile, and the compiler wrote "cannot assign value of type 'Int8' to type 'String'".
-    // Raven wrote: fatalErrorPointer = &fatalErrorString[0]
-    portMissing("NAV_CalculatePaths", source: "oracle/codemp/game/g_nav.c:1734")
+    fatalErrorPointer = 0
 
     //Find all connections and hard connect them
     i = 0

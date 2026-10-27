@@ -543,248 +543,8 @@ var g_siegeRespawnCheck: Int32 {
 }
 
 /// Source: oracle/codemp/game/g_main.c:515
-func vmMain(_ command: Int32, _ arg0: Int32, _ arg1: Int32, _ arg2: Int32, _ arg3: Int32, _ arg4: Int32, _ arg5: Int32, _ arg6: Int32, _ arg7: Int32, _ arg8: Int32, _ arg9: Int32, _ arg10: Int32, _ arg11: Int32) -> Int32 {
-    switch command {
-    case GAME_INIT:
-        G_InitGame(arg0, arg1, arg2)
-        return 0
-
-    case GAME_SHUTDOWN:
-        G_ShutdownGame(arg0)
-        return 0
-
-    case GAME_CLIENT_CONNECT:
-        // Port-note: The draft of this statement did not compile, and the compiler wrote "no exact matches in call to initializer".
-        // Raven wrote: return (int)ClientConnect( arg0, arg1, arg2 )
-        portMissing("vmMain", source: "oracle/codemp/game/g_main.c:515")
-
-    case GAME_CLIENT_THINK:
-        ClientThink(arg0, nil)
-        return 0
-
-    case GAME_CLIENT_USERINFO_CHANGED:
-        ClientUserinfoChanged(arg0)
-        return 0
-
-    case GAME_CLIENT_DISCONNECT:
-        ClientDisconnect(arg0)
-        return 0
-
-    case GAME_CLIENT_BEGIN:
-        ClientBegin(arg0, true)
-        return 0
-
-    case GAME_CLIENT_COMMAND:
-        ClientCommand(arg0)
-        return 0
-
-    case GAME_RUN_FRAME:
-        G_RunFrame(arg0)
-        return 0
-
-    case GAME_CONSOLE_COMMAND:
-        return (ConsoleCommand() ? 1 : 0)
-
-    case BOTAI_START_FRAME:
-        return BotAIStartFrame(arg0)
-
-    case GAME_ROFF_NOTETRACK_CALLBACK:
-        // Port-note: The draft of this statement did not compile, and the compiler wrote "cannot convert value of type 'Int32' to expected argument type 'String'".
-        // Raven wrote: G_ROFF_NotetrackCallback( &g_entities[arg0], (const char *)arg1 )
-        portMissing("vmMain", source: "oracle/codemp/game/g_main.c:515")
-        return 0
-
-    case GAME_SPAWN_RMG_ENTITY:
-        if G_ParseSpawnVars(false) {
-            G_SpawnGEntityFromSpawnVars(false)
-        }
-        return 0
-        //rww - begin icarus callbacks
-
-    case GAME_ICARUS_PLAYSOUND:
-        do {
-            let sharedMem = IcarusPlaySound(handle: OpaquePointer(gSharedBuffer))
-            return Q3_PlaySound(sharedMem.taskID, sharedMem.entID, sharedMem.name, sharedMem.channel)
-        }
-        fallthrough
-
-    case GAME_ICARUS_SET:
-        do {
-            let sharedMem = IcarusSet(handle: OpaquePointer(gSharedBuffer))
-            return (Q3_Set(sharedMem.taskID, sharedMem.entID, sharedMem.type_name, sharedMem.data) ? 1 : 0)
-        }
-        fallthrough
-
-    case GAME_ICARUS_LERP2POS:
-        do {
-            let sharedMem = IcarusLerp2Pos(handle: OpaquePointer(gSharedBuffer))
-            if sharedMem.nullAngles {
-                Q3_Lerp2Pos(sharedMem.taskID, sharedMem.entID, sharedMem.origin, nil, sharedMem.duration)
-            } else {
-                Q3_Lerp2Pos(sharedMem.taskID, sharedMem.entID, sharedMem.origin, sharedMem.angles, sharedMem.duration)
-            }
-        }
-        return 0
-
-    case GAME_ICARUS_LERP2ORIGIN:
-        do {
-            let sharedMem = IcarusLerp2Origin(handle: OpaquePointer(gSharedBuffer))
-            Q3_Lerp2Origin(sharedMem.taskID, sharedMem.entID, sharedMem.origin, sharedMem.duration)
-        }
-        return 0
-
-    case GAME_ICARUS_LERP2ANGLES:
-        do {
-            let sharedMem = IcarusLerp2Angles(handle: OpaquePointer(gSharedBuffer))
-            Q3_Lerp2Angles(sharedMem.taskID, sharedMem.entID, sharedMem.angles, sharedMem.duration)
-        }
-        return 0
-
-    case GAME_ICARUS_GETTAG:
-        do {
-            let sharedMem = IcarusGetTag(handle: OpaquePointer(gSharedBuffer))
-            return Q3_GetTag(sharedMem.entID, sharedMem.name, sharedMem.lookup, &sharedMem.info)
-        }
-        fallthrough
-
-    case GAME_ICARUS_LERP2START:
-        do {
-            let sharedMem = IcarusLerp2Start(handle: OpaquePointer(gSharedBuffer))
-            Q3_Lerp2Start(sharedMem.entID, sharedMem.taskID, sharedMem.duration)
-        }
-        return 0
-
-    case GAME_ICARUS_LERP2END:
-        do {
-            let sharedMem = IcarusLerp2End(handle: OpaquePointer(gSharedBuffer))
-            Q3_Lerp2End(sharedMem.entID, sharedMem.taskID, sharedMem.duration)
-        }
-        return 0
-
-    case GAME_ICARUS_USE:
-        do {
-            let sharedMem = IcarusUse(handle: OpaquePointer(gSharedBuffer))
-            Q3_Use(sharedMem.entID, sharedMem.target)
-        }
-        return 0
-
-    case GAME_ICARUS_KILL:
-        do {
-            let sharedMem = IcarusKill(handle: OpaquePointer(gSharedBuffer))
-            Q3_Kill(sharedMem.entID, sharedMem.name)
-        }
-        return 0
-
-    case GAME_ICARUS_REMOVE:
-        do {
-            let sharedMem = IcarusRemove(handle: OpaquePointer(gSharedBuffer))
-            Q3_Remove(sharedMem.entID, sharedMem.name)
-        }
-        return 0
-
-    case GAME_ICARUS_PLAY:
-        do {
-            let sharedMem = IcarusPlay(handle: OpaquePointer(gSharedBuffer))
-            Q3_Play(sharedMem.taskID, sharedMem.entID, sharedMem.type, sharedMem.name)
-        }
-        return 0
-
-    case GAME_ICARUS_GETFLOAT:
-        do {
-            let sharedMem = IcarusGetFloat(handle: OpaquePointer(gSharedBuffer))
-            return Q3_GetFloat(sharedMem.entID, sharedMem.type, sharedMem.name, &sharedMem.value)
-        }
-        fallthrough
-
-    case GAME_ICARUS_GETVECTOR:
-        do {
-            let sharedMem = IcarusGetVector(handle: OpaquePointer(gSharedBuffer))
-            return Q3_GetVector(sharedMem.entID, sharedMem.type, sharedMem.name, &sharedMem.value)
-        }
-        fallthrough
-
-    case GAME_ICARUS_GETSTRING:
-        do {
-            let sharedMem = IcarusGetString(handle: OpaquePointer(gSharedBuffer))
-            let r: Int32
-            // Port-note: A pointer local `char * crap` with no view.
-            // Raven wrote: char *crap = NULL;
-            portMissing("vmMain", source: "oracle/codemp/game/g_main.c:515")
-            // Port-note: A pointer local `char ** morecrap` with no view.
-            // Raven wrote: char **morecrap = &crap;
-            portMissing("vmMain", source: "oracle/codemp/game/g_main.c:515")
-            // Port-note: A read of `morecrap`, a local the draft left as a hole.
-            // Raven wrote: r = Q3_GetString(sharedMem->entID, sharedMem->type, sharedMem->name, morecrap)
-            portMissing("vmMain", source: "oracle/codemp/game/g_main.c:515")
-
-            // Port-note: A read of `crap`, a local the draft left as a hole.
-            // Raven wrote: if (crap) { //success! strcpy(sharedMem->value, crap); }
-            portMissing("vmMain", source: "oracle/codemp/game/g_main.c:515")
-
-            return r
-        }
-        fallthrough
-
-    case GAME_ICARUS_SOUNDINDEX:
-        do {
-            let sharedMem = IcarusSoundIndex(handle: OpaquePointer(gSharedBuffer))
-            G_SoundIndex(sharedMem.filename)
-        }
-        return 0
-
-    case GAME_ICARUS_GETSETIDFORSTRING:
-        do {
-            let sharedMem = IcarusGetSetIDForString(handle: OpaquePointer(gSharedBuffer))
-            // Port-note: Raven passes `setTable` to `GetIDForString`, whose `table` parameter takes the Slots over the records, and Swift holds one record here. A Slots over one record has no form yet.
-            // Raven wrote: return GetIDForString(setTable, sharedMem->string)
-            portMissing("vmMain", source: "oracle/codemp/game/g_main.c:515")
-        }
-        //rww - end icarus callbacks
-        fallthrough
-
-    case GAME_NAV_CLEARPATHTOPOINT:
-        // Port-note: A cast to `float *` the draft has no view for.
-        // Raven wrote: return NAV_ClearPathToPoint(&g_entities[arg0], (float *)arg1, (float *)arg2, (float *)arg3, arg4, arg5)
-        portMissing("vmMain", source: "oracle/codemp/game/g_main.c:515")
-
-    case GAME_NAV_CLEARLOS:
-        // Port-note: A cast to `const float *` the draft has no view for.
-        // Raven wrote: return NPC_ClearLOS2(&g_entities[arg0], (const float *)arg1)
-        portMissing("vmMain", source: "oracle/codemp/game/g_main.c:515")
-
-    case GAME_NAV_CLEARPATHBETWEENPOINTS:
-        // Port-note: A cast to `float *` the draft has no view for.
-        // Raven wrote: return NAVNEW_ClearPathBetweenPoints((float *)arg0, (float *)arg1, (float *)arg2, (float *)arg3, arg4, arg5)
-        portMissing("vmMain", source: "oracle/codemp/game/g_main.c:515")
-
-    case GAME_NAV_CHECKNODEFAILEDFORENT:
-        return (NAV_CheckNodeFailedForEnt(g_entities[arg0], arg1) ? 1 : 0)
-
-    case GAME_NAV_ENTISUNLOCKEDDOOR:
-        return (G_EntIsUnlockedDoor(arg0) ? 1 : 0)
-
-    case GAME_NAV_ENTISDOOR:
-        return (G_EntIsDoor(arg0) ? 1 : 0)
-
-    case GAME_NAV_ENTISBREAKABLE:
-        return (G_EntIsBreakable(arg0) ? 1 : 0)
-
-    case GAME_NAV_ENTISREMOVABLEUSABLE:
-        return (G_EntIsRemovableUsable(arg0) ? 1 : 0)
-
-    case GAME_NAV_FINDCOMBATPOINTWAYPOINTS:
-        CP_FindCombatPointWaypoints()
-        return 0
-
-    case GAME_GETITEMINDEXBYTAG:
-        return BG_GetItemIndexByTag(arg0, arg1)
-
-    default:
-        break
-    }
-
-    return -1
-}
+// Raven wrote: int vmMain( int command, int arg0, int arg1, int arg2, int arg3, int arg4, int arg5, int arg6, int arg7, int arg8, int arg9, int arg10, int arg11 )
+// Not ported: the shell's vmMain in Sources/jampgame/jampgame.swift decodes the command words and calls the bare functions, under rule 11 and ruling F5.
 
 /// Source: oracle/codemp/game/g_main.c:703
 func G_Printf(_ fmt: String, _ args: any JKAShared.FormatArg...) {
@@ -1646,18 +1406,18 @@ SortRanks
 */
 /// Source: oracle/codemp/game/g_main.c:1624
 func SortRanks(_ a: Int32, _ b: Int32) -> Int32 {
-    var ca: Client?
-    var cb: Client?
+    let ca: Client
+    let cb: Client
 
     ca = level.clientsSlots[a]
     cb = level.clientsSlots[b]
 
     if g_gametype.integer == GT_POWERDUEL {
         //sort single duelists first
-        if ca!.sess.duelTeam == DUELTEAM_LONE && ca!.sess.sessionTeam != TEAM_SPECTATOR {
+        if ca.sess.duelTeam == DUELTEAM_LONE && ca.sess.sessionTeam != TEAM_SPECTATOR {
             return -1
         }
-        if cb!.sess.duelTeam == DUELTEAM_LONE && cb!.sess.sessionTeam != TEAM_SPECTATOR {
+        if cb.sess.duelTeam == DUELTEAM_LONE && cb.sess.sessionTeam != TEAM_SPECTATOR {
             return 1
         }
 
@@ -1665,44 +1425,44 @@ func SortRanks(_ a: Int32, _ b: Int32) -> Int32 {
     }
 
     // sort special clients last
-    if ca!.sess.spectatorState == SPECTATOR_SCOREBOARD || ca!.sess.spectatorClient < 0 {
+    if ca.sess.spectatorState == SPECTATOR_SCOREBOARD || ca.sess.spectatorClient < 0 {
         return 1
     }
-    if cb!.sess.spectatorState == SPECTATOR_SCOREBOARD || cb!.sess.spectatorClient < 0 {
+    if cb.sess.spectatorState == SPECTATOR_SCOREBOARD || cb.sess.spectatorClient < 0 {
         return -1
     }
 
     // then connecting clients
-    if ca!.pers.connected == CON_CONNECTING {
+    if ca.pers.connected == CON_CONNECTING {
         return 1
     }
-    if cb!.pers.connected == CON_CONNECTING {
+    if cb.pers.connected == CON_CONNECTING {
         return -1
     }
 
 
     // then spectators
-    if ca!.sess.sessionTeam == TEAM_SPECTATOR && cb!.sess.sessionTeam == TEAM_SPECTATOR {
-        if ca!.sess.spectatorTime < cb!.sess.spectatorTime {
+    if ca.sess.sessionTeam == TEAM_SPECTATOR && cb.sess.sessionTeam == TEAM_SPECTATOR {
+        if ca.sess.spectatorTime < cb.sess.spectatorTime {
             return -1
         }
-        if ca!.sess.spectatorTime > cb!.sess.spectatorTime {
+        if ca.sess.spectatorTime > cb.sess.spectatorTime {
             return 1
         }
         return 0
     }
-    if ca!.sess.sessionTeam == TEAM_SPECTATOR {
+    if ca.sess.sessionTeam == TEAM_SPECTATOR {
         return 1
     }
-    if cb!.sess.sessionTeam == TEAM_SPECTATOR {
+    if cb.sess.sessionTeam == TEAM_SPECTATOR {
         return -1
     }
 
     // then sort by score
-    if ca!.ps.persistant[PERS_SCORE] > cb!.ps.persistant[PERS_SCORE] {
+    if ca.ps.persistant[PERS_SCORE] > cb.ps.persistant[PERS_SCORE] {
         return -1
     }
-    if ca!.ps.persistant[PERS_SCORE] < cb!.ps.persistant[PERS_SCORE] {
+    if ca.ps.persistant[PERS_SCORE] < cb.ps.persistant[PERS_SCORE] {
         return 1
     }
     return 0

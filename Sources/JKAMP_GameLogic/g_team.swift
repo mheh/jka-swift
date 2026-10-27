@@ -9,7 +9,7 @@ var teamgame: Teamgame { world.storage.teamgame }
 
 /// Source: oracle/codemp/game/g_team.c:279
 // Raven wrote: static char ctfFlagStatusRemap[] = { '0', '1', '*', '*', '2' }
-nonisolated(unsafe) let ctfFlagStatusRemap: JKAShared.CharBuf = { () -> JKAShared.CharBuf in portMissing("ctfFlagStatusRemap", source: "oracle/codemp/game/g_team.c:279") }()
+nonisolated(unsafe) let ctfFlagStatusRemap: JKAShared.CharBuf = CharBuf(bytes: [0x30, 0x31, 0x2A, 0x2A, 0x32])
 
 /// Source: oracle/codemp/game/g_team.c:950
 let MAX_TEAM_SPAWN_POINTS = 32 as Int32
@@ -222,19 +222,19 @@ func Team_SetFlagStatus(_ team: Int32, _ status: JKAMP.flagStatus_t) {
     var modified: Bool = false
 
     switch team {
-    case TEAM_RED:
+    case TEAM_RED: // CTF
         if teamgame.redStatus != status {
             teamgame.redStatus = status
             modified = true
         }
 
-    case TEAM_BLUE:
+    case TEAM_BLUE: // CTF
         if teamgame.blueStatus != status {
             teamgame.blueStatus = status
             modified = true
         }
 
-    case TEAM_FREE:
+    case TEAM_FREE: // One Flag CTF
         if teamgame.flagStatus != status {
             teamgame.flagStatus = status
             modified = true
@@ -608,7 +608,7 @@ func Team_TakeFlagSound(_ ent: Entity, _ team: Int32) {
         }
         teamgame.blueTakenTime = level.time
 
-    case TEAM_BLUE:
+    case TEAM_BLUE: // CTF
         if teamgame.redStatus != FLAG_ATBASE {
             if teamgame.redTakenTime > level.time - 10000 {
                 return

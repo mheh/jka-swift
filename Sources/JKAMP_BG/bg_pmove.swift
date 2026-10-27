@@ -985,7 +985,7 @@ private func PM_Friction() {
             //almost no friction while floating
             // C promotes this product to double, because 0.1 is a double literal.
             // Port-note: Raven adds `drop` in double here, and jka-rust keeps that, so the guide's `Float(...)` at the store can round one ulp early.
-            drop += Float(Double(speed) * 0.1 * Double(pml.frametime))
+            drop = Float(Double(drop) + Double(speed) * 0.1 * Double(pml.frametime))
         } else {
             drop += speed * pm_spectatorfriction * pml.frametime
         }
@@ -4505,17 +4505,21 @@ func PM_AdjustStandAnimForSlope() -> Bool {
         LEGS_S1_RUP1, LEGS_S1_RUP2, LEGS_S1_RUP3, LEGS_S1_RUP4, LEGS_S1_RUP5:
         destAnim = LEGS_S1_LUP1 + (destAnim - LEGS_LEFTUP1)
 
-    case BOTH_STAND2, BOTH_SABERFAST_STANCE, BOTH_SABERSLOW_STANCE, BOTH_CROUCH1IDLE, BOTH_CROUCH1,
-        LEGS_LEFTUP1,			//# On a slope with left foot 4 higher than right
-        LEGS_LEFTUP2,			//# On a slope with left foot 8 higher than right
-        LEGS_LEFTUP3,			//# On a slope with left foot 12 higher than right
-        LEGS_LEFTUP4,			//# On a slope with left foot 16 higher than right
-        LEGS_LEFTUP5,			//# On a slope with left foot 20 higher than right
-        LEGS_RIGHTUP1,			//# On a slope with RIGHT foot 4 higher than left
-        LEGS_RIGHTUP2,			//# On a slope with RIGHT foot 8 higher than left
-        LEGS_RIGHTUP3,			//# On a slope with RIGHT foot 12 higher than left
-        LEGS_RIGHTUP4,			//# On a slope with RIGHT foot 16 higher than left
-        LEGS_RIGHTUP5:			//# On a slope with RIGHT foot 20 higher than left
+    case BOTH_STAND2,
+         BOTH_SABERFAST_STANCE,
+         BOTH_SABERSLOW_STANCE,
+         BOTH_CROUCH1IDLE,
+         BOTH_CROUCH1,
+         LEGS_LEFTUP1, //# On a slope with left foot 4 higher than right
+         LEGS_LEFTUP2, //# On a slope with left foot 8 higher than right
+         LEGS_LEFTUP3, //# On a slope with left foot 12 higher than right
+         LEGS_LEFTUP4, //# On a slope with left foot 16 higher than right
+         LEGS_LEFTUP5, //# On a slope with left foot 20 higher than right
+         LEGS_RIGHTUP1, //# On a slope with RIGHT foot 4 higher than left
+         LEGS_RIGHTUP2, //# On a slope with RIGHT foot 8 higher than left
+         LEGS_RIGHTUP3, //# On a slope with RIGHT foot 12 higher than left
+         LEGS_RIGHTUP4, //# On a slope with RIGHT foot 16 higher than left
+         LEGS_RIGHTUP5: //# On a slope with RIGHT foot 20 higher than left
         //fine
         break
 
@@ -4678,22 +4682,46 @@ func PM_LegsSlopeBackTransition(_ desiredAnim: Int32) -> Int32 {
     var resultingAnim = desiredAnim
 
     switch anim {
-    case LEGS_LEFTUP2,			//# On a slope with left foot 8 higher than right
-        LEGS_LEFTUP3,			//# On a slope with left foot 12 higher than right
-        LEGS_LEFTUP4,			//# On a slope with left foot 16 higher than right
-        LEGS_LEFTUP5,			//# On a slope with left foot 20 higher than right
-        LEGS_RIGHTUP2,			//# On a slope with RIGHT foot 8 higher than left
-        LEGS_RIGHTUP3,			//# On a slope with RIGHT foot 12 higher than left
-        LEGS_RIGHTUP4,			//# On a slope with RIGHT foot 16 higher than left
-        LEGS_RIGHTUP5,			//# On a slope with RIGHT foot 20 higher than left
-        LEGS_S1_LUP2, LEGS_S1_LUP3, LEGS_S1_LUP4, LEGS_S1_LUP5,
-        LEGS_S1_RUP2, LEGS_S1_RUP3, LEGS_S1_RUP4, LEGS_S1_RUP5,
-        LEGS_S3_LUP2, LEGS_S3_LUP3, LEGS_S3_LUP4, LEGS_S3_LUP5,
-        LEGS_S3_RUP2, LEGS_S3_RUP3, LEGS_S3_RUP4, LEGS_S3_RUP5,
-        LEGS_S4_LUP2, LEGS_S4_LUP3, LEGS_S4_LUP4, LEGS_S4_LUP5,
-        LEGS_S4_RUP2, LEGS_S4_RUP3, LEGS_S4_RUP4, LEGS_S4_RUP5,
-        LEGS_S5_LUP2, LEGS_S5_LUP3, LEGS_S5_LUP4, LEGS_S5_LUP5,
-        LEGS_S5_RUP2, LEGS_S5_RUP3, LEGS_S5_RUP4, LEGS_S5_RUP5:
+    case LEGS_LEFTUP2, //# On a slope with left foot 8 higher than right
+         LEGS_LEFTUP3, //# On a slope with left foot 12 higher than right
+         LEGS_LEFTUP4, //# On a slope with left foot 16 higher than right
+         LEGS_LEFTUP5, //# On a slope with left foot 20 higher than right
+         LEGS_RIGHTUP2, //# On a slope with RIGHT foot 8 higher than left
+         LEGS_RIGHTUP3, //# On a slope with RIGHT foot 12 higher than left
+         LEGS_RIGHTUP4, //# On a slope with RIGHT foot 16 higher than left
+         LEGS_RIGHTUP5, //# On a slope with RIGHT foot 20 higher than left
+         LEGS_S1_LUP2,
+         LEGS_S1_LUP3,
+         LEGS_S1_LUP4,
+         LEGS_S1_LUP5,
+         LEGS_S1_RUP2,
+         LEGS_S1_RUP3,
+         LEGS_S1_RUP4,
+         LEGS_S1_RUP5,
+         LEGS_S3_LUP2,
+         LEGS_S3_LUP3,
+         LEGS_S3_LUP4,
+         LEGS_S3_LUP5,
+         LEGS_S3_RUP2,
+         LEGS_S3_RUP3,
+         LEGS_S3_RUP4,
+         LEGS_S3_RUP5,
+         LEGS_S4_LUP2,
+         LEGS_S4_LUP3,
+         LEGS_S4_LUP4,
+         LEGS_S4_LUP5,
+         LEGS_S4_RUP2,
+         LEGS_S4_RUP3,
+         LEGS_S4_RUP4,
+         LEGS_S4_RUP5,
+         LEGS_S5_LUP2,
+         LEGS_S5_LUP3,
+         LEGS_S5_LUP4,
+         LEGS_S5_LUP5,
+         LEGS_S5_RUP2,
+         LEGS_S5_RUP3,
+         LEGS_S5_RUP4,
+         LEGS_S5_RUP5:
         if ps.slopeRecalcTime < pm.cmd.serverTime {
             resultingAnim = anim - 1
             ps.slopeRecalcTime = pm.cmd.serverTime + 8//SLOPE_RECALC_INT;
@@ -6134,7 +6162,7 @@ private func PM_Weapon() {
             //BOTH_FORCELIGHTNING_HOLD //hold lightning
             //BOTH_FORCELIGHTNING_RELEASE //release lightning
 
-        default:
+        default: //oh well, can't do any other kick move while in-air
             desiredAnim = BOTH_FORCEPUSH
         }
 

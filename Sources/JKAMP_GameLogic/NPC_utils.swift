@@ -677,7 +677,7 @@ func G_ActivateBehavior(_ `self`: Entity, _ bset: Int32) -> Bool {
         //FIXME: between here and actually getting into the ICARUS_RunScript function, the stack gets blown!
         //if ( ( ICARUS_entFilter == -1 ) || ( ICARUS_entFilter == self->s.number ) )
         if 0 != 0 {
-            G_DebugPrint(WL_VERBOSE, "%s attempting to run bSet %s (%s)\n", `self`.targetname ?? "", GetStringForID(BSETTable, bset) ?? "", bs_name!)
+            G_DebugPrint(WL_VERBOSE, "%s attempting to run bSet %s (%s)\n", `self`.targetname ?? "(null)", GetStringForID(BSETTable, bset) ?? "(null)", bs_name!)
         }
         trap_ICARUS_RunScript(`self`, va("%s/%s", Q3_SCRIPT_DIR, bs_name!))
     }

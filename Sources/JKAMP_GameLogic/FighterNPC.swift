@@ -600,12 +600,12 @@ private func ProcessMoveCommands(_ pVeh: JKAMP.Vehicle) {
         if parentPS!.hackingTime > 0 {
             parentPS!.hackingTime = Int32(parentPS!.hackingTime - 50 * pVeh.m_fTimeModifier)
             if parentPS!.hackingTime < 0 {
-                parentPS!.hackingTime = Int32(0.0)
+                parentPS!.hackingTime = 0
             }
         } else if parentPS!.hackingTime < 0 {
             parentPS!.hackingTime = Int32(parentPS!.hackingTime + 50 * pVeh.m_fTimeModifier)
             if parentPS!.hackingTime > 0 {
-                parentPS!.hackingTime = Int32(0.0)
+                parentPS!.hackingTime = 0
             }
         }
     }
@@ -641,16 +641,16 @@ private func ProcessMoveCommands(_ pVeh: JKAMP.Vehicle) {
                 parentPS!.gravity = 0
             } else if !((parent!.s.number & 2) != 0) {
                 //even multiple of 2, go up
-                parentPS!.gravity = Int32(-500.0)
+                parentPS!.gravity = -500
                 parentPS!.velocity[2] = 80.0
             } else {
                 //odd number, go down
-                parentPS!.gravity = Int32(500.0)
+                parentPS!.gravity = 500
                 parentPS!.velocity[2] = -80.0
             }
         } else {
             //over a planet
-            parentPS!.gravity = Int32(500.0)
+            parentPS!.gravity = 500
             parentPS!.velocity[2] = -80.0
         }
     } else if FighterSuspended(pVeh, parentPS!) {

@@ -69,13 +69,20 @@ func GetValueGroup(_ buf: inout JKAShared.CharBuf, _ group: String, _ outbuf: in
     failure = 0
 
     while buf[startpoint + 1] != Int32(ascii: "{") || buf[startletter] != Int32(ascii: "\n") {
-        // Port-note: A store into `placesecond`, a local the draft left as a hole.
-        // Raven wrote: placesecond = strstr(place+1, group)
-        portMissing("GetValueGroup", source: "oracle/codemp/game/ai_util.c:160")
+        if let found = strstr(buf[(place! + 1)...], group) {
+            placesecond = place! + 1 + found
+        } else {
+            placesecond = nil
+        }
 
-        // Port-note: A read of `placesecond`, a local the draft left as a hole.
-        // Raven wrote: if (placesecond) { startpoint += (placesecond - place); startletter += (placesecond - place); place = placesecond; } else { failure = 1; break; }
-        portMissing("GetValueGroup", source: "oracle/codemp/game/ai_util.c:160")
+        if let placesecond {
+            startpoint += (placesecond - place!)
+            startletter += (placesecond - place!)
+            place = placesecond
+        } else {
+            failure = 1
+            break
+        }
     }
 
     if failure != 0 {
@@ -155,13 +162,20 @@ func GetPairedValue(_ buf: inout JKAShared.CharBuf, _ key: String, _ outbuf: ino
             }
         }
 
-        // Port-note: A store into `placesecond`, a local the draft left as a hole.
-        // Raven wrote: placesecond = strstr(place+1, key)
-        portMissing("GetPairedValue", source: "oracle/codemp/game/ai_util.c:236")
+        if let found = strstr(buf[(place! + 1)...], key) {
+            placesecond = place! + 1 + found
+        } else {
+            placesecond = nil
+        }
 
-        // Port-note: A read of `placesecond`, a local the draft left as a hole.
-        // Raven wrote: if (placesecond) { startpoint += placesecond - place; startletter += placesecond - place; place = placesecond; } else { place = NULL; break; }
-        portMissing("GetPairedValue", source: "oracle/codemp/game/ai_util.c:236")
+        if let placesecond {
+            startpoint += placesecond - place!
+            startletter += placesecond - place!
+            place = placesecond
+        } else {
+            place = nil
+            break
+        }
     }
 
     // Raven tests `!buf[startpoint]` and `buf[startpoint] == '\0'`.

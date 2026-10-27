@@ -64,12 +64,15 @@ func G2Tur_SetBoneAngles(_ ent: Entity, _ bone: String, _ angles: JKAShared.vec3
         case 0:
             thebone = 1
             boneVector = 1
+
         case 1:
             thebone = 2
             boneVector = 2
+
         case 2:
             thebone = 3
             boneVector = 3
+
         default:
             thebone = nil
             boneVector = nil

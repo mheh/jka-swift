@@ -308,15 +308,15 @@ private func Sniper_CheckMoveState() {
             var newSquadState: Int32 = SQUAD_STAND_AND_SHOOT
             //we got where we wanted to go, set timers based on why we were running
             switch NPCInfo!.squadState {
-            case SQUAD_RETREAT:
+            case SQUAD_RETREAT: //was running away
                 TIMER_Set(NPC!, "duck", (NPC!.client!.pers.maxHealth - NPC!.health) * 100)
                 TIMER_Set(NPC!, "hideTime", Q_irand(3000, 7000))
                 newSquadState = SQUAD_COVER
 
-            case SQUAD_TRANSITION:
+            case SQUAD_TRANSITION: //was heading for a combat point
                 TIMER_Set(NPC!, "hideTime", Q_irand(2000, 4000))
 
-            case SQUAD_SCOUT:
+            case SQUAD_SCOUT: //was running after player
                 break
 
             default:
@@ -490,16 +490,24 @@ func Sniper_FaceEnemy() {
                             if Q_irand(0, 1) == 0 {
                                 aimError = true
                                 if Q_irand(0, 1) == 0 {
-                                    _VectorMA(target, NPC!.enemy!.r.maxs[2] * flrand(1.5, 4), right, &target)
+                                    target[0] = target[0] + right[0] * (NPC!.enemy!.r.maxs[2] * flrand(1.5, 4))
+                                    target[1] = target[1] + right[1] * (NPC!.enemy!.r.maxs[2] * flrand(1.5, 4))
+                                    target[2] = target[2] + right[2] * (NPC!.enemy!.r.maxs[2] * flrand(1.5, 4))
                                 } else {
-                                    _VectorMA(target, NPC!.enemy!.r.mins[2] * flrand(1.5, 4), right, &target)
+                                    target[0] = target[0] + right[0] * (NPC!.enemy!.r.mins[2] * flrand(1.5, 4))
+                                    target[1] = target[1] + right[1] * (NPC!.enemy!.r.mins[2] * flrand(1.5, 4))
+                                    target[2] = target[2] + right[2] * (NPC!.enemy!.r.mins[2] * flrand(1.5, 4))
                                 }
                             }
                             if !aimError || Q_irand(0, 1) == 0 {
                                 if Q_irand(0, 1) == 0 {
-                                    _VectorMA(target, NPC!.enemy!.r.maxs[2] * flrand(1.5, 4), up, &target)
+                                    target[0] = target[0] + up[0] * (NPC!.enemy!.r.maxs[2] * flrand(1.5, 4))
+                                    target[1] = target[1] + up[1] * (NPC!.enemy!.r.maxs[2] * flrand(1.5, 4))
+                                    target[2] = target[2] + up[2] * (NPC!.enemy!.r.maxs[2] * flrand(1.5, 4))
                                 } else {
-                                    _VectorMA(target, NPC!.enemy!.r.mins[2] * flrand(1.5, 4), up, &target)
+                                    target[0] = target[0] + up[0] * (NPC!.enemy!.r.mins[2] * flrand(1.5, 4))
+                                    target[1] = target[1] + up[1] * (NPC!.enemy!.r.mins[2] * flrand(1.5, 4))
+                                    target[2] = target[2] + up[2] * (NPC!.enemy!.r.mins[2] * flrand(1.5, 4))
                                 }
                             }
                             trap_Trace(trace, muzzle, vec3_origin, vec3_origin, target, NPC!.s.number, MASK_SHOT)
@@ -523,6 +531,8 @@ func Sniper_FaceEnemy() {
                     //???
                     missFactor = 0
                 }
+                // Raven reads one row past the 24 rows, the bytes of watchTarget and the next fields,
+                // when stats.aim plus g_spskill.integer is -6 or less, and the Swift subscript traps there.
                 target = NPCInfo!.enemyLaggedPos[missFactor]
             }
             GetAnglesForDirection(muzzle, target, &angles)

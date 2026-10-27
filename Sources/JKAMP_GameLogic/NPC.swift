@@ -329,7 +329,17 @@ private func NPC_RemoveBodyEffect() {
     // stub code
     switch NPC!.client!.NPC_class {
     //case CLASS_PROTOCOL:
-    case CLASS_PROBE, CLASS_SEEKER, CLASS_REMOTE, CLASS_SENTRY, CLASS_GONK, CLASS_R2D2, CLASS_R5D2, CLASS_MARK1, CLASS_MARK2, CLASS_INTERROGATOR, CLASS_ATST:
+    case CLASS_PROBE,
+         CLASS_SEEKER,
+         CLASS_REMOTE,
+         CLASS_SENTRY,
+         CLASS_GONK,
+         CLASS_R2D2,
+         CLASS_R5D2,
+         CLASS_MARK1,
+         CLASS_MARK2,
+         CLASS_INTERROGATOR,
+         CLASS_ATST: // yeah, this is a little weird, but for now I'm listing all droids
         //	VectorCopy( NPC->r.currentOrigin, org );
         //	org[2] -= 16;
         //	tent = G_TempEntity( org, EV_BOT_EXPLODE );
@@ -847,22 +857,22 @@ func NPC_KeepCurrentFacing() {
 /// Source: oracle/codemp/game/NPC.c:939
 func NPC_BehaviorSet_Charmed(_ bState: Int32) {
     switch bState {
-    case BS_FOLLOW_LEADER:
+    case BS_FOLLOW_LEADER: //# 40: Follow your leader and shoot any enemies you come across
         NPC_BSFollowLeader()
 
     case BS_REMOVE:
         NPC_BSRemove()
 
-    case BS_SEARCH:
+    case BS_SEARCH: //# 43: Using current waypoint as a base, search the immediate branches of waypoints for enemies
         NPC_BSSearch()
 
-    case BS_WANDER:
+    case BS_WANDER: //# 46: Wander down random waypoint paths
         NPC_BSWander()
 
     case BS_FLEE:
         NPC_BSFlee()
 
-    default:
+    default: //whatever
         NPC_BSDefault()
     }
 }
@@ -870,28 +880,28 @@ func NPC_BehaviorSet_Charmed(_ bState: Int32) {
 /// Source: oracle/codemp/game/NPC.c:970
 func NPC_BehaviorSet_Default(_ bState: Int32) {
     switch bState {
-    case BS_ADVANCE_FIGHT:
+    case BS_ADVANCE_FIGHT: //head toward captureGoal, shoot anything that gets in the way
         NPC_BSAdvanceFight()
 
-    case BS_SLEEP:
+    case BS_SLEEP: //Follow a path, looking for enemies
         NPC_BSSleep()
 
-    case BS_FOLLOW_LEADER:
+    case BS_FOLLOW_LEADER: //# 40: Follow your leader and shoot any enemies you come across
         NPC_BSFollowLeader()
 
-    case BS_JUMP:
+    case BS_JUMP: //41: Face navgoal and jump to it.
         NPC_BSJump()
 
     case BS_REMOVE:
         NPC_BSRemove()
 
-    case BS_SEARCH:
+    case BS_SEARCH: //# 43: Using current waypoint as a base, search the immediate branches of waypoints for enemies
         NPC_BSSearch()
 
     case BS_NOCLIP:
         NPC_BSNoClip()
 
-    case BS_WANDER:
+    case BS_WANDER: //# 46: Wander down random waypoint paths
         NPC_BSWander()
 
     case BS_FLEE:
@@ -903,7 +913,7 @@ func NPC_BehaviorSet_Default(_ bState: Int32) {
     case BS_CINEMATIC:
         NPC_BSCinematic()
 
-    default:
+    default: //whatever
         NPC_BSDefault()
     }
 }
@@ -1544,19 +1554,19 @@ func G_DroidSounds(_ `self`: Entity) {
         //make the noises
         if TIMER_Done(`self`, "patrolNoise") && Q_irand(0, 20) == 0 {
             switch `self`.client!.NPC_class {
-            case CLASS_R2D2:
+            case CLASS_R2D2: // droid
                 G_SoundOnEnt(`self`, CHAN_AUTO, va("sound/chars/r2d2/misc/r2d2talk0%d.wav", Q_irand(1, 3)))
 
-            case CLASS_R5D2:
+            case CLASS_R5D2: // droid
                 G_SoundOnEnt(`self`, CHAN_AUTO, va("sound/chars/r5d2/misc/r5talk%d.wav", Q_irand(1, 4)))
 
-            case CLASS_PROBE:
+            case CLASS_PROBE: // droid
                 G_SoundOnEnt(`self`, CHAN_AUTO, va("sound/chars/probe/misc/probetalk%d.wav", Q_irand(1, 3)))
 
-            case CLASS_MOUSE:
+            case CLASS_MOUSE: // droid
                 G_SoundOnEnt(`self`, CHAN_AUTO, va("sound/chars/mouse/misc/mousego%d.wav", Q_irand(1, 3)))
 
-            case CLASS_GONK:
+            case CLASS_GONK: // droid
                 G_SoundOnEnt(`self`, CHAN_AUTO, va("sound/chars/gonk/misc/gonktalk%d.wav", Q_irand(1, 2)))
 
             default:

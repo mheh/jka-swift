@@ -136,6 +136,8 @@ func G_ReadSessionData(_ client: Client) {
     client.sess.selectedFP = ints[9]
     client.sess.duelTeam = ints[10]
     client.sess.siegeDesiredTeam = ints[11]
+    // Raven reads a token of 64 bytes or more into a `char[64]` field and overruns it.
+    // The setter stores the first 63 bytes and the NUL, as `Q_strncpyz` does.
     client.sess.siegeClass = texts[0]
     client.sess.saberType = texts[1]
     client.sess.saber2Type = texts[2]
@@ -247,8 +249,6 @@ func G_InitSessionData(_ client: Client, _ userinfo: String, _ isBot: Bool) {
                 sess!.sessionTeam = TEAM_SPECTATOR
 
             default:
-                // Raven's `default` label stands first, over the labels `GT_FFA`, `GT_HOLOCRON`, `GT_JEDIMASTER`, and `GT_SINGLE_PLAYER`.
-                // Swift puts `default` last, and those four labels share its body.
                 if g_maxGameClients.integer > 0 && level.numNonSpectatorClients >= g_maxGameClients.integer {
                     sess!.sessionTeam = TEAM_SPECTATOR
                 } else {

@@ -1996,7 +1996,7 @@ func G_ShipSurfaceForSurfName(_ surfaceName: String) -> Int32 {
 func G_SetVehDamageFlags(_ veh: Entity, _ shipSurf: Int32, _ damageLevel: Int32) {
     var dmgFlag: Int32
     switch damageLevel {
-    case 3:
+    case 3: //destroyed
         //add both flags so cgame side knows this surf is GONE
         //add heavy
         dmgFlag = SHIPSURF_DAMAGE_FRONT_HEAVY + (shipSurf - SHIPSURF_FRONT)
@@ -2023,7 +2023,7 @@ func G_SetVehDamageFlags(_ veh: Entity, _ shipSurf: Int32, _ damageLevel: Int32)
             }
         }
 
-    case 2:
+    case 2: //heavy only
         dmgFlag = SHIPSURF_DAMAGE_FRONT_HEAVY + (shipSurf - SHIPSURF_FRONT)
         veh.client!.ps.brokenLimbs |= (1 << dmgFlag)
         //remove light
@@ -2044,7 +2044,7 @@ func G_SetVehDamageFlags(_ veh: Entity, _ shipSurf: Int32, _ damageLevel: Int32)
             }
         }
 
-    case 1:
+    case 1: //light only
         //add light
         dmgFlag = SHIPSURF_DAMAGE_FRONT_LIGHT + (shipSurf - SHIPSURF_FRONT)
         veh.client!.ps.brokenLimbs |= (1 << dmgFlag)
@@ -2054,7 +2054,7 @@ func G_SetVehDamageFlags(_ veh: Entity, _ shipSurf: Int32, _ damageLevel: Int32)
         //copy down
         veh.s.brokenLimbs = veh.client!.ps.brokenLimbs
 
-    default:
+    default: //no damage
         //remove heavy
         dmgFlag = SHIPSURF_DAMAGE_FRONT_HEAVY + (shipSurf - SHIPSURF_FRONT)
         veh.client!.ps.brokenLimbs &= ~(1 << dmgFlag)
@@ -2129,14 +2129,14 @@ func G_FlyVehicleDestroySurface(_ veh: Entity, _ surface: Int32) -> Bool {
     }
 
     switch surface {
-    case SHIPSURF_FRONT:
+    case SHIPSURF_FRONT: //break the nose off
         surfName[0] = "nose"
 
         smashedBits = (SHIPSURF_BROKEN_G)
 
         numSurfs = 1
 
-    case SHIPSURF_BACK:
+    case SHIPSURF_BACK: //break both the bottom wings off for a backward impact I guess
         surfName[0] = "r_wing2"
         surfName[1] = "l_wing2"
 
@@ -2148,7 +2148,7 @@ func G_FlyVehicleDestroySurface(_ veh: Entity, _ surface: Int32) -> Bool {
 
         numSurfs = 4
 
-    case SHIPSURF_RIGHT:
+    case SHIPSURF_RIGHT: //break both right wings off
         surfName[0] = "r_wing1"
         surfName[1] = "r_wing2"
 
@@ -2159,7 +2159,7 @@ func G_FlyVehicleDestroySurface(_ veh: Entity, _ surface: Int32) -> Bool {
 
         numSurfs = 3
 
-    case SHIPSURF_LEFT:
+    case SHIPSURF_LEFT: //break both left wings off
         surfName[0] = "l_wing1"
         surfName[1] = "l_wing2"
 

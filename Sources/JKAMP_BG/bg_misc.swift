@@ -1080,8 +1080,8 @@ public func BG_EvaluateTrajectory(_ tr: JKAShared.Trajectory, _ atTime: Int32, _
     case TR_GRAVITY:
         deltaTime = Float(Double(atTime - tr.trTime) * 0.001)	// milliseconds to seconds
         _VectorMA(tr.trBase, deltaTime, tr.trDelta, &result)
-        // Raven's `0.5` is a double, so the whole term runs in double and rounds once into the float.
-        result[2] -= Float(0.5 * Double(DEFAULT_GRAVITY) * Double(deltaTime) * Double(deltaTime))		// FIXME: local gravity...
+        // Raven's `0.5` is a double, so the subtraction runs in double and rounds once into the float.
+        result[2] = Float(Double(result[2]) - 0.5 * Double(DEFAULT_GRAVITY) * Double(deltaTime) * Double(deltaTime))		// FIXME: local gravity...
     default:
         if bg.consumer == .game {
             Com_Error(ERR_DROP, "BG_EvaluateTrajectory: [GAME SIDE] unknown trType: \(tr.trType)")

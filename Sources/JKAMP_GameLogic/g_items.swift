@@ -1063,7 +1063,7 @@ func ItemUse_Sentry(_ ent: Entity) {
     sentry!.classname = "sentryGun"
     sentry!.s.modelindex = G_ModelIndex("models/items/psgun.glm") //replace ASAP
 
-    sentry!.s.g2radius = Int32(30.0)
+    sentry!.s.g2radius = 30
     sentry!.s.modelGhoul2 = 1
 
     G_SetOrigin(sentry!, &fwdorg)
@@ -1478,12 +1478,15 @@ func EWeb_SetBoneAngles(_ ent: Entity, _ bone: String, _ angles: JKAShared.vec3_
         case 0:
             thebone = 1
             boneVector = 1
+
         case 1:
             thebone = 2
             boneVector = 2
+
         case 2:
             thebone = 3
             boneVector = 3
+
         default:
             thebone = nil
             boneVector = nil
@@ -1942,7 +1945,6 @@ func ItemUse_UseEWeb(_ ent: Entity) {
 func Pickup_Powerup(_ ent: Entity, _ other: Entity) -> Int32 {
     var quantity: Int32 = 0
     var i: Int32 = 0
-    var client: Client?
 
     if other.client!.ps.powerups[ent.item!.giTag] == 0 {
         // round timing to seconds to make multiple powerup timers
@@ -1974,25 +1976,25 @@ func Pickup_Powerup(_ ent: Entity, _ other: Entity) -> Int32 {
             let len: Float
             var forward = vec3_t()
 
-            client = level.clientsSlots[i]
+            let client = level.clientsSlots[i]
             if client == other.client {
                 return
             }
-            if client!.pers.connected == CON_DISCONNECTED {
+            if client.pers.connected == CON_DISCONNECTED {
                 return
             }
-            if client!.ps.stats[STAT_HEALTH] <= 0 {
+            if client.ps.stats[STAT_HEALTH] <= 0 {
                 return
             }
 
             // if same team in team game, no sound
             // cannot use OnSameTeam as it expects to g_entities, not clients
-            if g_gametype.integer >= GT_TEAM && other.client!.sess.sessionTeam == client!.sess.sessionTeam {
+            if g_gametype.integer >= GT_TEAM && other.client!.sess.sessionTeam == client.sess.sessionTeam {
                 return
             }
 
             // if too far away, no sound
-            delta = ent.s.pos.trBase - client!.ps.origin
+            delta = ent.s.pos.trBase - client.ps.origin
             len = VectorNormalize(&delta)
             if len > 192 {
                 return
@@ -2002,19 +2004,19 @@ func Pickup_Powerup(_ ent: Entity, _ other: Entity) -> Int32 {
             // Raven passes NULL for the right and up outputs.
             var scratchRight = vec3_t()
             var scratchUp = vec3_t()
-            AngleVectors(client!.ps.viewangles, &forward, &scratchRight, &scratchUp)
+            AngleVectors(client.ps.viewangles, &forward, &scratchRight, &scratchUp)
             if Double(_DotProduct(delta, forward)) < 0.4 {
                 return
             }
 
             // if not line of sight, no sound
-            trap_Trace(tr, client!.ps.origin, vec3_origin, vec3_origin, ent.s.pos.trBase, ENTITYNUM_NONE, CONTENTS_SOLID)
+            trap_Trace(tr, client.ps.origin, vec3_origin, vec3_origin, ent.s.pos.trBase, ENTITYNUM_NONE, CONTENTS_SOLID)
             if tr.fraction != 1.0 {
                 return
             }
 
             // anti-reward
-            client!.ps.persistant[PERS_PLAYEREVENTS] ^= PLAYEREVENT_DENIEDREWARD
+            client.ps.persistant[PERS_PLAYEREVENTS] ^= PLAYEREVENT_DENIEDREWARD
         }
         i += 1
     }

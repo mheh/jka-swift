@@ -1562,7 +1562,7 @@ func GetObjectThatTargets(_ ent: Entity) -> Entity? {
         return nil
     }
 
-    next = G_Find(next, \.target, ent.targetname!)
+    next = G_Find(next, \.target, ent.targetname)
 
     if next != nil {
         return next

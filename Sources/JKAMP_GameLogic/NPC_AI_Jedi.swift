@@ -3164,7 +3164,9 @@ private func Jedi_FaceEnemy(_ doPitch: Bool) {
             if missileSpeed != 0 {
                 var eDist: Float = Distance(eyes, enemy_eyes)
                 eDist /= missileSpeed //How many seconds it will take to get to the enemy
-                _VectorMA(enemy_eyes, eDist * flrand(0.95, 1.25), NPC!.enemy!.client!.ps.velocity, &enemy_eyes)
+                enemy_eyes[0] = enemy_eyes[0] + NPC!.enemy!.client!.ps.velocity[0] * (eDist * flrand(0.95, 1.25))
+                enemy_eyes[1] = enemy_eyes[1] + NPC!.enemy!.client!.ps.velocity[1] * (eDist * flrand(0.95, 1.25))
+                enemy_eyes[2] = enemy_eyes[2] + NPC!.enemy!.client!.ps.velocity[2] * (eDist * flrand(0.95, 1.25))
             }
         }
     }

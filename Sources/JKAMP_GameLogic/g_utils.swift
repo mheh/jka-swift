@@ -557,7 +557,7 @@ func G_UseTargets2(_ ent: Entity, _ activator: Entity?, _ string: String?) {
     }
 
     t = nil
-    while let next = G_Find(t, \.targetname, string!) {
+    while let next = G_Find(t, \.targetname, string) {
         t = next
         if t == ent {
             G_Printf("WARNING: Entity used itself.\n")

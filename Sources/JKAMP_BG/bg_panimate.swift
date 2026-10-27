@@ -23,7 +23,12 @@ var bgNumAllAnims: Int32 {
 /// Source: oracle/codemp/game/bg_panimate.c:33
 func BG_SaberStanceAnim(_ anim: Int32) -> Bool {
     switch anim {
-    case BOTH_STAND1, BOTH_STAND2, BOTH_SABERFAST_STANCE, BOTH_SABERSLOW_STANCE, BOTH_SABERSTAFF_STANCE, BOTH_SABERDUAL_STANCE:
+    case BOTH_STAND1, //not really a saberstance anim, actually... "saber off" stance
+         BOTH_STAND2, //single-saber, medium style
+         BOTH_SABERFAST_STANCE, //single-saber, fast style
+         BOTH_SABERSLOW_STANCE, //single-saber, strong style
+         BOTH_SABERSTAFF_STANCE, //saber staff style
+         BOTH_SABERDUAL_STANCE: //dual saber style
         return true
 
     default:
@@ -35,7 +40,18 @@ func BG_SaberStanceAnim(_ anim: Int32) -> Bool {
 /// Source: oracle/codemp/game/bg_panimate.c:49
 public func BG_CrouchAnim(_ anim: Int32) -> Bool {
     switch anim {
-    case BOTH_SIT1, BOTH_SIT2, BOTH_SIT3, BOTH_CROUCH1, BOTH_CROUCH1IDLE, BOTH_CROUCH1WALK, BOTH_CROUCH1WALKBACK, BOTH_CROUCH2TOSTAND1, BOTH_CROUCH3, BOTH_KNEES1, BOTH_CROUCHATTACKBACK1, BOTH_ROLL_STAB:
+    case BOTH_SIT1, //# Normal chair sit.
+         BOTH_SIT2, //# Lotus position.
+         BOTH_SIT3, //# Sitting in tired position: elbows on knees
+         BOTH_CROUCH1, //# Transition from standing to crouch
+         BOTH_CROUCH1IDLE, //# Crouching idle
+         BOTH_CROUCH1WALK, //# Walking while crouched
+         BOTH_CROUCH1WALKBACK, //# Walking while crouched
+         BOTH_CROUCH2TOSTAND1, //# going from crouch2 to stand1
+         BOTH_CROUCH3, //# Desann crouching down to Kyle (cin 9)
+         BOTH_KNEES1, //# Tavion on her knees
+         BOTH_CROUCHATTACKBACK1, //FIXME: not if in middle of anim?
+         BOTH_ROLL_STAB:
         return true
 
     default:
@@ -47,7 +63,43 @@ public func BG_CrouchAnim(_ anim: Int32) -> Bool {
 /// Source: oracle/codemp/game/bg_panimate.c:71
 public func BG_InSpecialJump(_ anim: Int32) -> Bool {
     switch (anim) {
-    case BOTH_WALL_RUN_RIGHT, BOTH_WALL_RUN_RIGHT_STOP, BOTH_WALL_RUN_RIGHT_FLIP, BOTH_WALL_RUN_LEFT, BOTH_WALL_RUN_LEFT_STOP, BOTH_WALL_RUN_LEFT_FLIP, BOTH_WALL_FLIP_RIGHT, BOTH_WALL_FLIP_LEFT, BOTH_FLIP_BACK1, BOTH_FLIP_BACK2, BOTH_FLIP_BACK3, BOTH_WALL_FLIP_BACK1, BOTH_BUTTERFLY_LEFT, BOTH_BUTTERFLY_RIGHT, BOTH_BUTTERFLY_FL1, BOTH_BUTTERFLY_FR1, BOTH_FJSS_TR_BL, BOTH_FJSS_TL_BR, BOTH_FORCELEAP2_T__B_, BOTH_JUMPFLIPSLASHDOWN1, BOTH_JUMPFLIPSTABDOWN, BOTH_JUMPATTACK6, BOTH_JUMPATTACK7, BOTH_ARIAL_LEFT, BOTH_ARIAL_RIGHT, BOTH_ARIAL_F1, BOTH_CARTWHEEL_LEFT, BOTH_CARTWHEEL_RIGHT, BOTH_FORCELONGLEAP_START, BOTH_FORCELONGLEAP_ATTACK, BOTH_FORCEWALLRUNFLIP_START, BOTH_FORCEWALLRUNFLIP_END, BOTH_FORCEWALLRUNFLIP_ALT, BOTH_FLIP_ATTACK7, BOTH_FLIP_HOLD7, BOTH_FLIP_LAND, BOTH_A7_SOULCAL:
+    case BOTH_WALL_RUN_RIGHT,
+         BOTH_WALL_RUN_RIGHT_STOP,
+         BOTH_WALL_RUN_RIGHT_FLIP,
+         BOTH_WALL_RUN_LEFT,
+         BOTH_WALL_RUN_LEFT_STOP,
+         BOTH_WALL_RUN_LEFT_FLIP,
+         BOTH_WALL_FLIP_RIGHT,
+         BOTH_WALL_FLIP_LEFT,
+         BOTH_FLIP_BACK1,
+         BOTH_FLIP_BACK2,
+         BOTH_FLIP_BACK3,
+         BOTH_WALL_FLIP_BACK1,
+         BOTH_BUTTERFLY_LEFT,
+         BOTH_BUTTERFLY_RIGHT,
+         BOTH_BUTTERFLY_FL1,
+         BOTH_BUTTERFLY_FR1,
+         BOTH_FJSS_TR_BL,
+         BOTH_FJSS_TL_BR,
+         BOTH_FORCELEAP2_T__B_,
+         BOTH_JUMPFLIPSLASHDOWN1, //#
+         BOTH_JUMPFLIPSTABDOWN, //#
+         BOTH_JUMPATTACK6,
+         BOTH_JUMPATTACK7,
+         BOTH_ARIAL_LEFT,
+         BOTH_ARIAL_RIGHT,
+         BOTH_ARIAL_F1,
+         BOTH_CARTWHEEL_LEFT,
+         BOTH_CARTWHEEL_RIGHT,
+         BOTH_FORCELONGLEAP_START,
+         BOTH_FORCELONGLEAP_ATTACK,
+         BOTH_FORCEWALLRUNFLIP_START,
+         BOTH_FORCEWALLRUNFLIP_END,
+         BOTH_FORCEWALLRUNFLIP_ALT,
+         BOTH_FLIP_ATTACK7,
+         BOTH_FLIP_HOLD7,
+         BOTH_FLIP_LAND,
+         BOTH_A7_SOULCAL:
         return true
 
     default:
@@ -130,7 +182,10 @@ func BG_InBackFlip(_ anim: Int32) -> Bool {
 /// Source: oracle/codemp/game/bg_panimate.c:204
 func BG_DirectFlippingAnim(_ anim: Int32) -> Bool {
     switch (anim) {
-    case BOTH_FLIP_F, BOTH_FLIP_B, BOTH_FLIP_L, BOTH_FLIP_R:
+    case BOTH_FLIP_F, //# Flip forward
+         BOTH_FLIP_B, //# Flip backwards
+         BOTH_FLIP_L, //# Flip left
+         BOTH_FLIP_R: //# Flip right
         return true
 
     default:
@@ -241,7 +296,39 @@ public func BG_FlippingAnim(_ anim: Int32) -> Bool {
     //Not really flips, but...
     //
     //JKA
-    case BOTH_FLIP_F, BOTH_FLIP_B, BOTH_FLIP_L, BOTH_FLIP_R, BOTH_WALL_RUN_RIGHT_FLIP, BOTH_WALL_RUN_LEFT_FLIP, BOTH_WALL_FLIP_RIGHT, BOTH_WALL_FLIP_LEFT, BOTH_FLIP_BACK1, BOTH_FLIP_BACK2, BOTH_FLIP_BACK3, BOTH_WALL_FLIP_BACK1, BOTH_WALL_RUN_RIGHT, BOTH_WALL_RUN_LEFT, BOTH_WALL_RUN_RIGHT_STOP, BOTH_WALL_RUN_LEFT_STOP, BOTH_BUTTERFLY_LEFT, BOTH_BUTTERFLY_RIGHT, BOTH_BUTTERFLY_FL1, BOTH_BUTTERFLY_FR1, BOTH_ARIAL_LEFT, BOTH_ARIAL_RIGHT, BOTH_ARIAL_F1, BOTH_CARTWHEEL_LEFT, BOTH_CARTWHEEL_RIGHT, BOTH_JUMPFLIPSLASHDOWN1, BOTH_JUMPFLIPSTABDOWN, BOTH_JUMPATTACK6, BOTH_JUMPATTACK7, BOTH_FORCEWALLRUNFLIP_END, BOTH_FORCEWALLRUNFLIP_ALT, BOTH_FLIP_ATTACK7, BOTH_A7_SOULCAL:
+    case BOTH_FLIP_F, //# Flip forward
+         BOTH_FLIP_B, //# Flip backwards
+         BOTH_FLIP_L, //# Flip left
+         BOTH_FLIP_R, //# Flip right
+         BOTH_WALL_RUN_RIGHT_FLIP,
+         BOTH_WALL_RUN_LEFT_FLIP,
+         BOTH_WALL_FLIP_RIGHT,
+         BOTH_WALL_FLIP_LEFT,
+         BOTH_FLIP_BACK1,
+         BOTH_FLIP_BACK2,
+         BOTH_FLIP_BACK3,
+         BOTH_WALL_FLIP_BACK1,
+         BOTH_WALL_RUN_RIGHT,
+         BOTH_WALL_RUN_LEFT,
+         BOTH_WALL_RUN_RIGHT_STOP,
+         BOTH_WALL_RUN_LEFT_STOP,
+         BOTH_BUTTERFLY_LEFT,
+         BOTH_BUTTERFLY_RIGHT,
+         BOTH_BUTTERFLY_FL1,
+         BOTH_BUTTERFLY_FR1,
+         BOTH_ARIAL_LEFT,
+         BOTH_ARIAL_RIGHT,
+         BOTH_ARIAL_F1,
+         BOTH_CARTWHEEL_LEFT,
+         BOTH_CARTWHEEL_RIGHT,
+         BOTH_JUMPFLIPSLASHDOWN1,
+         BOTH_JUMPFLIPSTABDOWN,
+         BOTH_JUMPATTACK6,
+         BOTH_JUMPATTACK7,
+         BOTH_FORCEWALLRUNFLIP_END,
+         BOTH_FORCEWALLRUNFLIP_ALT,
+         BOTH_FLIP_ATTACK7,
+         BOTH_A7_SOULCAL:
         return true
 
     default:
@@ -390,19 +477,19 @@ public func BG_KnockawayForParry(_ move: Int32) -> Int32 {
     //FIXME: need actual anims for this
     //FIXME: need to know which side of the saber was hit!  For now, we presume the saber gets knocked away from the center
     switch move {
-    case BLOCKED_TOP:
+    case BLOCKED_TOP: //LS_PARRY_UP:
         return LS_K1_T_ //push up
 
-    case BLOCKED_UPPER_LEFT:
+    case BLOCKED_UPPER_LEFT: //LS_PARRY_UL:
         return LS_K1_TL //push up and to left
 
-    case BLOCKED_LOWER_RIGHT:
+    case BLOCKED_LOWER_RIGHT: //LS_PARRY_LR:
         return LS_K1_BR //push down and to left
 
-    case BLOCKED_LOWER_LEFT:
+    case BLOCKED_LOWER_LEFT: //LS_PARRY_LL:
         return LS_K1_BL //push down and to right
 
-    default:
+    default: //LS_PARRY_UR:
         return LS_K1_TR //push up, slightly to right
     }
     //return LS_NONE;
@@ -425,7 +512,16 @@ public func BG_InRoll(_ ps: JKAMP.PlayerState, _ anim: Int32) -> Bool {
 /// Source: oracle/codemp/game/bg_panimate.c:814
 func BG_InSpecialDeathAnim(_ anim: Int32) -> Bool {
     switch anim {
-    case BOTH_DEATH_ROLL, BOTH_DEATH_FLIP, BOTH_DEATH_SPIN_90_R, BOTH_DEATH_SPIN_90_L, BOTH_DEATH_SPIN_180, BOTH_DEATH_LYING_UP, BOTH_DEATH_LYING_DN, BOTH_DEATH_FALLING_DN, BOTH_DEATH_FALLING_UP, BOTH_DEATH_CROUCHED:
+    case BOTH_DEATH_ROLL, //# Death anim from a roll
+         BOTH_DEATH_FLIP, //# Death anim from a flip
+         BOTH_DEATH_SPIN_90_R, //# Death anim when facing 90 degrees right
+         BOTH_DEATH_SPIN_90_L, //# Death anim when facing 90 degrees left
+         BOTH_DEATH_SPIN_180, //# Death anim when facing backwards
+         BOTH_DEATH_LYING_UP, //# Death anim when lying on back
+         BOTH_DEATH_LYING_DN, //# Death anim when lying on front
+         BOTH_DEATH_FALLING_DN, //# Death anim when falling on face
+         BOTH_DEATH_FALLING_UP, //# Death anim when falling on back
+         BOTH_DEATH_CROUCHED: //# Death anim when crouched
         return true
 
     default:
@@ -474,7 +570,30 @@ func BG_InSaberLockOld(_ anim: Int32) -> Bool {
 /// Source: oracle/codemp/game/bg_panimate.c:957
 func BG_InSaberLock(_ anim: Int32) -> Bool {
     switch anim {
-    case BOTH_LK_S_DL_S_L_1, BOTH_LK_S_DL_T_L_1, BOTH_LK_S_ST_S_L_1, BOTH_LK_S_ST_T_L_1, BOTH_LK_S_S_S_L_1, BOTH_LK_S_S_T_L_1, BOTH_LK_DL_DL_S_L_1, BOTH_LK_DL_DL_T_L_1, BOTH_LK_DL_ST_S_L_1, BOTH_LK_DL_ST_T_L_1, BOTH_LK_DL_S_S_L_1, BOTH_LK_DL_S_T_L_1, BOTH_LK_ST_DL_S_L_1, BOTH_LK_ST_DL_T_L_1, BOTH_LK_ST_ST_S_L_1, BOTH_LK_ST_ST_T_L_1, BOTH_LK_ST_S_S_L_1, BOTH_LK_ST_S_T_L_1, BOTH_LK_S_S_S_L_2, BOTH_LK_S_S_T_L_2, BOTH_LK_DL_DL_S_L_2, BOTH_LK_DL_DL_T_L_2, BOTH_LK_ST_ST_S_L_2, BOTH_LK_ST_ST_T_L_2:
+    case BOTH_LK_S_DL_S_L_1, //lock if I'm using single vs. a dual
+         BOTH_LK_S_DL_T_L_1, //lock if I'm using single vs. a dual
+         BOTH_LK_S_ST_S_L_1, //lock if I'm using single vs. a staff
+         BOTH_LK_S_ST_T_L_1, //lock if I'm using single vs. a staff
+         BOTH_LK_S_S_S_L_1, //lock if I'm using single vs. a single and I initiated
+         BOTH_LK_S_S_T_L_1, //lock if I'm using single vs. a single and I initiated
+         BOTH_LK_DL_DL_S_L_1, //lock if I'm using dual vs. dual and I initiated
+         BOTH_LK_DL_DL_T_L_1, //lock if I'm using dual vs. dual and I initiated
+         BOTH_LK_DL_ST_S_L_1, //lock if I'm using dual vs. a staff
+         BOTH_LK_DL_ST_T_L_1, //lock if I'm using dual vs. a staff
+         BOTH_LK_DL_S_S_L_1, //lock if I'm using dual vs. a single
+         BOTH_LK_DL_S_T_L_1, //lock if I'm using dual vs. a single
+         BOTH_LK_ST_DL_S_L_1, //lock if I'm using staff vs. dual
+         BOTH_LK_ST_DL_T_L_1, //lock if I'm using staff vs. dual
+         BOTH_LK_ST_ST_S_L_1, //lock if I'm using staff vs. a staff and I initiated
+         BOTH_LK_ST_ST_T_L_1, //lock if I'm using staff vs. a staff and I initiated
+         BOTH_LK_ST_S_S_L_1, //lock if I'm using staff vs. a single
+         BOTH_LK_ST_S_T_L_1, //lock if I'm using staff vs. a single
+         BOTH_LK_S_S_S_L_2,
+         BOTH_LK_S_S_T_L_2,
+         BOTH_LK_DL_DL_S_L_2,
+         BOTH_LK_DL_DL_T_L_2,
+         BOTH_LK_ST_ST_S_L_2,
+         BOTH_LK_ST_ST_T_L_2:
         return true
 
     default:
@@ -692,7 +811,24 @@ public func PM_InKnockDown(_ ps: JKAMP.PlayerState) -> Bool {
 /// Source: oracle/codemp/game/bg_panimate.c:1256
 func PM_PainAnim(_ anim: Int32) -> Bool {
     switch (anim) {
-    case BOTH_PAIN1, BOTH_PAIN2, BOTH_PAIN3, BOTH_PAIN4, BOTH_PAIN5, BOTH_PAIN6, BOTH_PAIN7, BOTH_PAIN8, BOTH_PAIN9, BOTH_PAIN10, BOTH_PAIN11, BOTH_PAIN12, BOTH_PAIN13, BOTH_PAIN14, BOTH_PAIN15, BOTH_PAIN16, BOTH_PAIN17, BOTH_PAIN18:
+    case BOTH_PAIN1, //# First take pain anim
+         BOTH_PAIN2, //# Second take pain anim
+         BOTH_PAIN3, //# Third take pain anim
+         BOTH_PAIN4, //# Fourth take pain anim
+         BOTH_PAIN5, //# Fifth take pain anim - from behind
+         BOTH_PAIN6, //# Sixth take pain anim - from behind
+         BOTH_PAIN7, //# Seventh take pain anim - from behind
+         BOTH_PAIN8, //# Eigth take pain anim - from behind
+         BOTH_PAIN9, //#
+         BOTH_PAIN10, //#
+         BOTH_PAIN11, //#
+         BOTH_PAIN12, //#
+         BOTH_PAIN13, //#
+         BOTH_PAIN14, //#
+         BOTH_PAIN15, //#
+         BOTH_PAIN16, //#
+         BOTH_PAIN17, //#
+         BOTH_PAIN18: //#
         return true
 
     default:
@@ -704,7 +840,31 @@ func PM_PainAnim(_ anim: Int32) -> Bool {
 /// Source: oracle/codemp/game/bg_panimate.c:1284
 func PM_JumpingAnim(_ anim: Int32) -> Bool {
     switch (anim) {
-    case BOTH_JUMP1, BOTH_INAIR1, BOTH_LAND1, BOTH_LAND2, BOTH_JUMPBACK1, BOTH_INAIRBACK1, BOTH_LANDBACK1, BOTH_JUMPLEFT1, BOTH_INAIRLEFT1, BOTH_LANDLEFT1, BOTH_JUMPRIGHT1, BOTH_INAIRRIGHT1, BOTH_LANDRIGHT1, BOTH_FORCEJUMP1, BOTH_FORCEINAIR1, BOTH_FORCELAND1, BOTH_FORCEJUMPBACK1, BOTH_FORCEINAIRBACK1, BOTH_FORCELANDBACK1, BOTH_FORCEJUMPLEFT1, BOTH_FORCEINAIRLEFT1, BOTH_FORCELANDLEFT1, BOTH_FORCEJUMPRIGHT1, BOTH_FORCEINAIRRIGHT1, BOTH_FORCELANDRIGHT1:
+    case BOTH_JUMP1, //# Jump - wind-up and leave ground
+         BOTH_INAIR1, //# In air loop (from jump)
+         BOTH_LAND1, //# Landing (from in air loop)
+         BOTH_LAND2, //# Landing Hard (from a great height)
+         BOTH_JUMPBACK1, //# Jump backwards - wind-up and leave ground
+         BOTH_INAIRBACK1, //# In air loop (from jump back)
+         BOTH_LANDBACK1, //# Landing backwards(from in air loop)
+         BOTH_JUMPLEFT1, //# Jump left - wind-up and leave ground
+         BOTH_INAIRLEFT1, //# In air loop (from jump left)
+         BOTH_LANDLEFT1, //# Landing left(from in air loop)
+         BOTH_JUMPRIGHT1, //# Jump right - wind-up and leave ground
+         BOTH_INAIRRIGHT1, //# In air loop (from jump right)
+         BOTH_LANDRIGHT1, //# Landing right(from in air loop)
+         BOTH_FORCEJUMP1, //# Jump - wind-up and leave ground
+         BOTH_FORCEINAIR1, //# In air loop (from jump)
+         BOTH_FORCELAND1, //# Landing (from in air loop)
+         BOTH_FORCEJUMPBACK1, //# Jump backwards - wind-up and leave ground
+         BOTH_FORCEINAIRBACK1, //# In air loop (from jump back)
+         BOTH_FORCELANDBACK1, //# Landing backwards(from in air loop)
+         BOTH_FORCEJUMPLEFT1, //# Jump left - wind-up and leave ground
+         BOTH_FORCEINAIRLEFT1, //# In air loop (from jump left)
+         BOTH_FORCELANDLEFT1, //# Landing left(from in air loop)
+         BOTH_FORCEJUMPRIGHT1, //# Jump right - wind-up and leave ground
+         BOTH_FORCEINAIRRIGHT1, //# In air loop (from jump right)
+         BOTH_FORCELANDRIGHT1: //# Landing right(from in air loop)
         return true
 
     default:
@@ -716,7 +876,15 @@ func PM_JumpingAnim(_ anim: Int32) -> Bool {
 /// Source: oracle/codemp/game/bg_panimate.c:1319
 func PM_LandingAnim(_ anim: Int32) -> Bool {
     switch (anim) {
-    case BOTH_LAND1, BOTH_LAND2, BOTH_LANDBACK1, BOTH_LANDLEFT1, BOTH_LANDRIGHT1, BOTH_FORCELAND1, BOTH_FORCELANDBACK1, BOTH_FORCELANDLEFT1, BOTH_FORCELANDRIGHT1:
+    case BOTH_LAND1, //# Landing (from in air loop)
+         BOTH_LAND2, //# Landing Hard (from a great height)
+         BOTH_LANDBACK1, //# Landing backwards(from in air loop)
+         BOTH_LANDLEFT1, //# Landing left(from in air loop)
+         BOTH_LANDRIGHT1, //# Landing right(from in air loop)
+         BOTH_FORCELAND1, //# Landing (from in air loop)
+         BOTH_FORCELANDBACK1, //# Landing backwards(from in air loop)
+         BOTH_FORCELANDLEFT1, //# Landing left(from in air loop)
+         BOTH_FORCELANDRIGHT1: //# Landing right(from in air loop)
         return true
 
     default:
@@ -741,7 +909,46 @@ public func PM_SpinningAnim(_ anim: Int32) -> Bool {
 /// Source: oracle/codemp/game/bg_panimate.c:1351
 func PM_InOnGroundAnim(_ anim: Int32) -> Bool {
     switch anim {
-    case BOTH_DEAD1, BOTH_DEAD2, BOTH_DEAD3, BOTH_DEAD4, BOTH_DEAD5, BOTH_DEADFORWARD1, BOTH_DEADBACKWARD1, BOTH_DEADFORWARD2, BOTH_DEADBACKWARD2, BOTH_LYINGDEATH1, BOTH_LYINGDEAD1, BOTH_SLEEP1, BOTH_KNOCKDOWN1, BOTH_KNOCKDOWN2, BOTH_KNOCKDOWN3, BOTH_KNOCKDOWN4, BOTH_KNOCKDOWN5, BOTH_GETUP1, BOTH_GETUP2, BOTH_GETUP3, BOTH_GETUP4, BOTH_GETUP5, BOTH_GETUP_CROUCH_F1, BOTH_GETUP_CROUCH_B1, BOTH_FORCE_GETUP_F1, BOTH_FORCE_GETUP_F2, BOTH_FORCE_GETUP_B1, BOTH_FORCE_GETUP_B2, BOTH_FORCE_GETUP_B3, BOTH_FORCE_GETUP_B4, BOTH_FORCE_GETUP_B5, BOTH_FORCE_GETUP_B6, BOTH_GETUP_BROLL_B, BOTH_GETUP_BROLL_F, BOTH_GETUP_BROLL_L, BOTH_GETUP_BROLL_R, BOTH_GETUP_FROLL_B, BOTH_GETUP_FROLL_F, BOTH_GETUP_FROLL_L, BOTH_GETUP_FROLL_R:
+    case BOTH_DEAD1,
+         BOTH_DEAD2,
+         BOTH_DEAD3,
+         BOTH_DEAD4,
+         BOTH_DEAD5,
+         BOTH_DEADFORWARD1,
+         BOTH_DEADBACKWARD1,
+         BOTH_DEADFORWARD2,
+         BOTH_DEADBACKWARD2,
+         BOTH_LYINGDEATH1,
+         BOTH_LYINGDEAD1,
+         BOTH_SLEEP1, //# laying on back-rknee up-rhand on torso
+         BOTH_KNOCKDOWN1, //#
+         BOTH_KNOCKDOWN2, //#
+         BOTH_KNOCKDOWN3, //#
+         BOTH_KNOCKDOWN4, //#
+         BOTH_KNOCKDOWN5, //#
+         BOTH_GETUP1,
+         BOTH_GETUP2,
+         BOTH_GETUP3,
+         BOTH_GETUP4,
+         BOTH_GETUP5,
+         BOTH_GETUP_CROUCH_F1,
+         BOTH_GETUP_CROUCH_B1,
+         BOTH_FORCE_GETUP_F1,
+         BOTH_FORCE_GETUP_F2,
+         BOTH_FORCE_GETUP_B1,
+         BOTH_FORCE_GETUP_B2,
+         BOTH_FORCE_GETUP_B3,
+         BOTH_FORCE_GETUP_B4,
+         BOTH_FORCE_GETUP_B5,
+         BOTH_FORCE_GETUP_B6,
+         BOTH_GETUP_BROLL_B,
+         BOTH_GETUP_BROLL_F,
+         BOTH_GETUP_BROLL_L,
+         BOTH_GETUP_BROLL_R,
+         BOTH_GETUP_FROLL_B,
+         BOTH_GETUP_FROLL_F,
+         BOTH_GETUP_FROLL_L,
+         BOTH_GETUP_FROLL_R:
         return true
 
     default:
@@ -776,7 +983,24 @@ func PM_CanRollFromSoulCal(_ ps: JKAMP.PlayerState) -> Bool {
 /// Source: oracle/codemp/game/bg_panimate.c:1430
 public func BG_SuperBreakLoseAnim(_ anim: Int32) -> Bool {
     switch anim {
-    case BOTH_LK_S_DL_S_SB_1_L, BOTH_LK_S_DL_T_SB_1_L, BOTH_LK_S_ST_S_SB_1_L, BOTH_LK_S_ST_T_SB_1_L, BOTH_LK_S_S_S_SB_1_L, BOTH_LK_S_S_T_SB_1_L, BOTH_LK_DL_DL_S_SB_1_L, BOTH_LK_DL_DL_T_SB_1_L, BOTH_LK_DL_ST_S_SB_1_L, BOTH_LK_DL_ST_T_SB_1_L, BOTH_LK_DL_S_S_SB_1_L, BOTH_LK_DL_S_T_SB_1_L, BOTH_LK_ST_DL_S_SB_1_L, BOTH_LK_ST_DL_T_SB_1_L, BOTH_LK_ST_ST_S_SB_1_L, BOTH_LK_ST_ST_T_SB_1_L, BOTH_LK_ST_S_S_SB_1_L, BOTH_LK_ST_S_T_SB_1_L:
+    case BOTH_LK_S_DL_S_SB_1_L, //super break I lost
+         BOTH_LK_S_DL_T_SB_1_L, //super break I lost
+         BOTH_LK_S_ST_S_SB_1_L, //super break I lost
+         BOTH_LK_S_ST_T_SB_1_L, //super break I lost
+         BOTH_LK_S_S_S_SB_1_L, //super break I lost
+         BOTH_LK_S_S_T_SB_1_L, //super break I lost
+         BOTH_LK_DL_DL_S_SB_1_L, //super break I lost
+         BOTH_LK_DL_DL_T_SB_1_L, //super break I lost
+         BOTH_LK_DL_ST_S_SB_1_L, //super break I lost
+         BOTH_LK_DL_ST_T_SB_1_L, //super break I lost
+         BOTH_LK_DL_S_S_SB_1_L, //super break I lost
+         BOTH_LK_DL_S_T_SB_1_L, //super break I lost
+         BOTH_LK_ST_DL_S_SB_1_L, //super break I lost
+         BOTH_LK_ST_DL_T_SB_1_L, //super break I lost
+         BOTH_LK_ST_ST_S_SB_1_L, //super break I lost
+         BOTH_LK_ST_ST_T_SB_1_L, //super break I lost
+         BOTH_LK_ST_S_S_SB_1_L, //super break I lost
+         BOTH_LK_ST_S_T_SB_1_L: //super break I lost
         return true
 
     default:
@@ -788,7 +1012,24 @@ public func BG_SuperBreakLoseAnim(_ anim: Int32) -> Bool {
 /// Source: oracle/codemp/game/bg_panimate.c:1458
 public func BG_SuperBreakWinAnim(_ anim: Int32) -> Bool {
     switch anim {
-    case BOTH_LK_S_DL_S_SB_1_W, BOTH_LK_S_DL_T_SB_1_W, BOTH_LK_S_ST_S_SB_1_W, BOTH_LK_S_ST_T_SB_1_W, BOTH_LK_S_S_S_SB_1_W, BOTH_LK_S_S_T_SB_1_W, BOTH_LK_DL_DL_S_SB_1_W, BOTH_LK_DL_DL_T_SB_1_W, BOTH_LK_DL_ST_S_SB_1_W, BOTH_LK_DL_ST_T_SB_1_W, BOTH_LK_DL_S_S_SB_1_W, BOTH_LK_DL_S_T_SB_1_W, BOTH_LK_ST_DL_S_SB_1_W, BOTH_LK_ST_DL_T_SB_1_W, BOTH_LK_ST_ST_S_SB_1_W, BOTH_LK_ST_ST_T_SB_1_W, BOTH_LK_ST_S_S_SB_1_W, BOTH_LK_ST_S_T_SB_1_W:
+    case BOTH_LK_S_DL_S_SB_1_W, //super break I won
+         BOTH_LK_S_DL_T_SB_1_W, //super break I won
+         BOTH_LK_S_ST_S_SB_1_W, //super break I won
+         BOTH_LK_S_ST_T_SB_1_W, //super break I won
+         BOTH_LK_S_S_S_SB_1_W, //super break I won
+         BOTH_LK_S_S_T_SB_1_W, //super break I won
+         BOTH_LK_DL_DL_S_SB_1_W, //super break I won
+         BOTH_LK_DL_DL_T_SB_1_W, //super break I won
+         BOTH_LK_DL_ST_S_SB_1_W, //super break I won
+         BOTH_LK_DL_ST_T_SB_1_W, //super break I won
+         BOTH_LK_DL_S_S_SB_1_W, //super break I won
+         BOTH_LK_DL_S_T_SB_1_W, //super break I won
+         BOTH_LK_ST_DL_S_SB_1_W, //super break I won
+         BOTH_LK_ST_DL_T_SB_1_W, //super break I won
+         BOTH_LK_ST_ST_S_SB_1_W, //super break I won
+         BOTH_LK_ST_ST_T_SB_1_W, //super break I won
+         BOTH_LK_ST_S_S_SB_1_W, //super break I won
+         BOTH_LK_ST_S_T_SB_1_W: //super break I won
         return true
 
     default:
@@ -800,7 +1041,46 @@ public func BG_SuperBreakWinAnim(_ anim: Int32) -> Bool {
 /// Source: oracle/codemp/game/bg_panimate.c:1487
 func BG_SaberLockBreakAnim(_ anim: Int32) -> Bool {
     switch anim {
-    case BOTH_BF1BREAK, BOTH_BF2BREAK, BOTH_CWCIRCLEBREAK, BOTH_CCWCIRCLEBREAK, BOTH_LK_S_DL_S_B_1_L, BOTH_LK_S_DL_S_B_1_W, BOTH_LK_S_DL_T_B_1_L, BOTH_LK_S_DL_T_B_1_W, BOTH_LK_S_ST_S_B_1_L, BOTH_LK_S_ST_S_B_1_W, BOTH_LK_S_ST_T_B_1_L, BOTH_LK_S_ST_T_B_1_W, BOTH_LK_S_S_S_B_1_L, BOTH_LK_S_S_S_B_1_W, BOTH_LK_S_S_T_B_1_L, BOTH_LK_S_S_T_B_1_W, BOTH_LK_DL_DL_S_B_1_L, BOTH_LK_DL_DL_S_B_1_W, BOTH_LK_DL_DL_T_B_1_L, BOTH_LK_DL_DL_T_B_1_W, BOTH_LK_DL_ST_S_B_1_L, BOTH_LK_DL_ST_S_B_1_W, BOTH_LK_DL_ST_T_B_1_L, BOTH_LK_DL_ST_T_B_1_W, BOTH_LK_DL_S_S_B_1_L, BOTH_LK_DL_S_S_B_1_W, BOTH_LK_DL_S_T_B_1_L, BOTH_LK_DL_S_T_B_1_W, BOTH_LK_ST_DL_S_B_1_L, BOTH_LK_ST_DL_S_B_1_W, BOTH_LK_ST_DL_T_B_1_L, BOTH_LK_ST_DL_T_B_1_W, BOTH_LK_ST_ST_S_B_1_L, BOTH_LK_ST_ST_S_B_1_W, BOTH_LK_ST_ST_T_B_1_L, BOTH_LK_ST_ST_T_B_1_W, BOTH_LK_ST_S_S_B_1_L, BOTH_LK_ST_S_S_B_1_W, BOTH_LK_ST_S_T_B_1_L, BOTH_LK_ST_S_T_B_1_W:
+    case BOTH_BF1BREAK,
+         BOTH_BF2BREAK,
+         BOTH_CWCIRCLEBREAK,
+         BOTH_CCWCIRCLEBREAK,
+         BOTH_LK_S_DL_S_B_1_L, //normal break I lost
+         BOTH_LK_S_DL_S_B_1_W, //normal break I won
+         BOTH_LK_S_DL_T_B_1_L, //normal break I lost
+         BOTH_LK_S_DL_T_B_1_W, //normal break I won
+         BOTH_LK_S_ST_S_B_1_L, //normal break I lost
+         BOTH_LK_S_ST_S_B_1_W, //normal break I won
+         BOTH_LK_S_ST_T_B_1_L, //normal break I lost
+         BOTH_LK_S_ST_T_B_1_W, //normal break I won
+         BOTH_LK_S_S_S_B_1_L, //normal break I lost
+         BOTH_LK_S_S_S_B_1_W, //normal break I won
+         BOTH_LK_S_S_T_B_1_L, //normal break I lost
+         BOTH_LK_S_S_T_B_1_W, //normal break I won
+         BOTH_LK_DL_DL_S_B_1_L, //normal break I lost
+         BOTH_LK_DL_DL_S_B_1_W, //normal break I won
+         BOTH_LK_DL_DL_T_B_1_L, //normal break I lost
+         BOTH_LK_DL_DL_T_B_1_W, //normal break I won
+         BOTH_LK_DL_ST_S_B_1_L, //normal break I lost
+         BOTH_LK_DL_ST_S_B_1_W, //normal break I won
+         BOTH_LK_DL_ST_T_B_1_L, //normal break I lost
+         BOTH_LK_DL_ST_T_B_1_W, //normal break I won
+         BOTH_LK_DL_S_S_B_1_L, //normal break I lost
+         BOTH_LK_DL_S_S_B_1_W, //normal break I won
+         BOTH_LK_DL_S_T_B_1_L, //normal break I lost
+         BOTH_LK_DL_S_T_B_1_W, //normal break I won
+         BOTH_LK_ST_DL_S_B_1_L, //normal break I lost
+         BOTH_LK_ST_DL_S_B_1_W, //normal break I won
+         BOTH_LK_ST_DL_T_B_1_L, //normal break I lost
+         BOTH_LK_ST_DL_T_B_1_W, //normal break I won
+         BOTH_LK_ST_ST_S_B_1_L, //normal break I lost
+         BOTH_LK_ST_ST_S_B_1_W, //normal break I won
+         BOTH_LK_ST_ST_T_B_1_L, //normal break I lost
+         BOTH_LK_ST_ST_T_B_1_W, //normal break I won
+         BOTH_LK_ST_S_S_B_1_L, //normal break I lost
+         BOTH_LK_ST_S_S_B_1_W, //normal break I won
+         BOTH_LK_ST_S_T_B_1_L, //normal break I lost
+         BOTH_LK_ST_S_T_B_1_W: //normal break I won
         return true
 
     default:

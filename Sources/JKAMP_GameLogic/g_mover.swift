@@ -40,15 +40,15 @@ let MOVER_INACTIVE = 128 as Int32
 
 /// Source: oracle/codemp/game/g_mover.c:35
 // Raven wrote: int BMS_START = 0
-let BMS_START: Int32 = { () -> Int32 in portMissing("BMS_START", source: "oracle/codemp/game/g_mover.c:35") }()
+let BMS_START: Int32 = 0
 
 /// Source: oracle/codemp/game/g_mover.c:36
 // Raven wrote: int BMS_MID = 1
-let BMS_MID: Int32 = { () -> Int32 in portMissing("BMS_MID", source: "oracle/codemp/game/g_mover.c:36") }()
+let BMS_MID: Int32 = 1
 
 /// Source: oracle/codemp/game/g_mover.c:37
 // Raven wrote: int BMS_END = 2
-let BMS_END: Int32 = { () -> Int32 in portMissing("BMS_END", source: "oracle/codemp/game/g_mover.c:37") }()
+let BMS_END: Int32 = 2
 
 /// Source: oracle/codemp/game/g_mover.c:1716
 let TRAIN_START_ON = 1 as Int32
@@ -1258,14 +1258,14 @@ func G_FindDoorTrigger(_ ent: Entity) -> Entity? {
     if door!.targetname != nil {
         //find out what is targeting it
         //FIXME: if ent->targetname, check what kind of trigger/ent is targetting it?  If a normal trigger (active, etc), then it's okay?
-        while let next = G_Find(owner, \.target, door!.targetname!) {
+        while let next = G_Find(owner, \.target, door!.targetname) {
             owner = next
             if owner != nil && (owner!.r.contents & CONTENTS_TRIGGER) != 0 {
                 return owner
             }
         }
         owner = nil
-        while let next = G_Find(owner, \.target2, door!.targetname!) {
+        while let next = G_Find(owner, \.target2, door!.targetname) {
             owner = next
             if owner != nil && (owner!.r.contents & CONTENTS_TRIGGER) != 0 {
                 return owner
@@ -1303,7 +1303,7 @@ public func G_EntIsUnlockedDoor(_ entityNum: Int32) -> Bool {
             //find out what is targetting it
             owner = nil
             //FIXME: if ent->targetname, check what kind of trigger/ent is targetting it?  If a normal trigger (active, etc), then it's okay?
-            while let next = G_Find(owner, \.target, ent!.targetname!) {
+            while let next = G_Find(owner, \.target, ent!.targetname) {
                 owner = next
                 if Q_stricmp("trigger_multiple", owner!.classname!) == 0 {
                     //FIXME: other triggers okay too?
@@ -1313,7 +1313,7 @@ public func G_EntIsUnlockedDoor(_ entityNum: Int32) -> Bool {
                 }
             }
             owner = nil
-            while let next = G_Find(owner, \.target2, ent!.targetname!) {
+            while let next = G_Find(owner, \.target2, ent!.targetname) {
                 owner = next
                 if Q_stricmp("trigger_multiple", owner!.classname!) == 0 {
                     //FIXME: other triggers okay too?
@@ -2204,7 +2204,11 @@ private func CacheChunkEffects(_ material: JKAMP.material_t) {
     case MAT_GRATE1:
         G_EffectIndex("chunks/grateexplode")
 
-    case MAT_DRK_STONE, MAT_LT_STONE, MAT_GREY_STONE, MAT_WHITE_METAL, MAT_SNOWY_ROCK:
+    case MAT_DRK_STONE,
+         MAT_LT_STONE,
+         MAT_GREY_STONE,
+         MAT_WHITE_METAL, // what is this crap really supposed to be??
+         MAT_SNOWY_ROCK:
         G_EffectIndex("chunks/rockbreaklg")
         G_EffectIndex("chunks/rockbreakmed")
 
@@ -2568,15 +2572,13 @@ teamnodmg - if 1, team 1 can't damage this. If 2, team 2 can't damage this.
 /// Source: oracle/codemp/game/g_mover.c:2731
 func SP_func_breakable(_ `self`: Entity) {
     var t: Int32 = 0
-    var s: String? = nil
+    var s: String = ""
 
-    // Port-note: The draft of this statement did not compile, and the compiler wrote "value of optional type 'String?' must be unwrapped to a value of type 'String'".
-    // Raven wrote: G_SpawnString("playfx", "", &s)
-    portMissing("SP_func_breakable", source: "oracle/codemp/game/g_mover.c:2731")
+    G_SpawnString("playfx", "", &s)
 
-    if s != nil && !s!.isEmpty {
+    if !s.isEmpty {
         //should we play a special death effect?
-        `self`.genericValue15 = G_EffectIndex(s!)
+        `self`.genericValue15 = G_EffectIndex(s)
     } else {
         `self`.genericValue15 = 0
     }

@@ -286,7 +286,7 @@ private func G_SaberAttackPower(_ ent: Entity, _ attacking: Bool) -> Int32 {
             case SS_FAST:
                 toleranceAmt = 24
 
-            default:
+            default: //dual, staff, etc.
                 toleranceAmt = 16
             }
 
@@ -1086,7 +1086,7 @@ func G_SaberLockAnim(_ attackerSaberStyle: Int32, _ defenderSaberStyle: Int32, _
                         baseAnim = BOTH_LK_ST_ST_S_L_2
                     }
 
-                default:
+                default: //single
                     if topOrSide == SABERLOCK_TOP {
                         baseAnim = BOTH_LK_S_S_T_L_2
                     } else {
@@ -1106,7 +1106,7 @@ func G_SaberLockAnim(_ attackerSaberStyle: Int32, _ defenderSaberStyle: Int32, _
             case SS_STAFF:
                 baseAnim = BOTH_LK_DL_ST_S_B_1_L
 
-            default:
+            default: //single
                 baseAnim = BOTH_LK_DL_S_S_B_1_L
             }
 
@@ -1118,11 +1118,11 @@ func G_SaberLockAnim(_ attackerSaberStyle: Int32, _ defenderSaberStyle: Int32, _
             case SS_STAFF:
                 baseAnim = BOTH_LK_ST_ST_S_B_1_L
 
-            default:
+            default: //single
                 baseAnim = BOTH_LK_ST_S_S_B_1_L
             }
 
-        default:
+        default: //single
             switch defenderSaberStyle {
             case SS_DUAL:
                 baseAnim = BOTH_LK_S_DL_S_B_1_L
@@ -1913,7 +1913,7 @@ func G_KnockawayForParry(_ move: Int32) -> Int32 {
     case LS_PARRY_LL:
         return LS_K1_BL //push down and to right
 
-    default:
+    default: //case LS_READY:
         return LS_K1_TR //push up, slightly to right
     }
 }
@@ -2003,69 +2003,77 @@ private func G_ClientIdleInWorld(_ ent: Entity) -> Bool {
 /// Source: oracle/codemp/game/w_saber.c:2336
 private func G_G2TraceCollide(_ tr: JKAMP.Trace, _ lastValidStart: JKAShared.vec3_t, _ lastValidEnd: JKAShared.vec3_t, _ traceMins: JKAShared.vec3_t, _ traceMaxs: JKAShared.vec3_t) -> Bool {
     //Hit the ent with the normal trace, try the collision trace.
-    // Port-note: A local `G2Trace_t G2Trace` the table has no type for.
-    // Raven wrote: G2Trace_t G2Trace;
-    portMissing("G_G2TraceCollide", source: "oracle/codemp/game/w_saber.c:2336")
-    var g2Hit: Entity?
-    var angles = vec3_t()
-    var tN: Int32 = 0
-    var fRadius: Float = 0
+    // Raven's record array lives to the end of his block, so the block is the closure.
+    return CollisionRecord.scratch(count: Int(MAX_G2_COLLISIONS)) { G2Trace -> Bool in
+        var g2Hit: Entity?
+        var angles = vec3_t()
+        var tN: Int32 = 0
+        var fRadius: Float = 0
 
-    if d_saberGhoul2Collision.integer == 0 {
-        return false
-    }
-
-    if !g_entities[tr.entityNum].inuse {
-        //don't do perpoly on corpses.
-        return false
-    }
-
-    if traceMins[0] != 0 || traceMins[1] != 0 || traceMins[2] != 0 || traceMaxs[0] != 0 || traceMaxs[1] != 0 || traceMaxs[2] != 0 {
-        fRadius = (traceMaxs[0] - traceMins[0]) / 2.0
-    }
-
-    // Port-note: Raven's `memset (&G2Trace, 0, sizeof(G2Trace))` runs over bytes that are not one record with a view.
-    // Raven wrote: memset (&G2Trace, 0, sizeof(G2Trace))
-    portMissing("G_G2TraceCollide", source: "oracle/codemp/game/w_saber.c:2336")
-
-    while tN < MAX_G2_COLLISIONS {
-        // Port-note: A read of `G2Trace`, a local the draft left as a hole.
-        // Raven wrote: G2Trace[tN].mEntityNum = -1
-        portMissing("G_G2TraceCollide", source: "oracle/codemp/game/w_saber.c:2336")
-        tN += 1
-    }
-    g2Hit = g_entities[tr.entityNum]
-
-    if g2Hit != nil && g2Hit!.inuse && g2Hit!.ghoul2 != nil {
-        var g2HitOrigin = vec3_t()
-
-        angles[PITCH] = 0
-        angles[ROLL] = angles[PITCH]
-
-        if g2Hit!.client != nil {
-            g2HitOrigin = g2Hit!.client!.ps.origin
-            angles[YAW] = g2Hit!.client!.ps.viewangles[YAW]
-        } else {
-            g2HitOrigin = g2Hit!.r.currentOrigin
-            angles[YAW] = g2Hit!.r.currentAngles[YAW]
+        if d_saberGhoul2Collision.integer == 0 {
+            return false
         }
 
-        if g_optvehtrace.integer != 0 && g2Hit!.s.eType == ET_NPC && g2Hit!.s.NPC_class == CLASS_VEHICLE && g2Hit!.m_pVehicle != nil {
-            // Port-note: A read of `G2Trace`, a local the draft left as a hole.
-            // Raven wrote: trap_G2API_CollisionDetectCache ( G2Trace, g2Hit->ghoul2, angles, g2HitOrigin, level.time, g2Hit->s.number, lastValidStart, lastValidEnd, g2Hit->modelScale, 0, g_g2TraceLod.integer, fRadius )
-            portMissing("G_G2TraceCollide", source: "oracle/codemp/game/w_saber.c:2336")
-        } else {
-            // Port-note: A read of `G2Trace`, a local the draft left as a hole.
-            // Raven wrote: trap_G2API_CollisionDetect ( G2Trace, g2Hit->ghoul2, angles, g2HitOrigin, level.time, g2Hit->s.number, lastValidStart, lastValidEnd, g2Hit->modelScale, 0, g_g2TraceLod.integer, fRadius )
-            portMissing("G_G2TraceCollide", source: "oracle/codemp/game/w_saber.c:2336")
+        if !g_entities[tr.entityNum].inuse {
+            //don't do perpoly on corpses.
+            return false
         }
 
-        // Port-note: A read of `G2Trace`, a local the draft left as a hole.
-        // Raven wrote: if (G2Trace[0].mEntityNum != g2Hit->s.number) { tr->fraction = 1.0f; tr->entityNum = ENTITYNUM_NONE; tr->startsolid = 0; tr->allsolid = 0; return qfalse; } else { //The ghoul2 trace result matches, so copy the collision position into the trace endpos and send it back. VectorCopy(G2Trace[0].mCollisionPosition, tr->endpos); VectorCopy(G2Trace[0].mCollisionNormal, tr->plane.normal); if (g2Hit->client) { g2Hit->client->g2LastSurfaceHit = G2Trace[0].mSurfaceIndex; g2Hit->client->g2LastSurfaceTime = level.time; } return qtrue; }
-        portMissing("G_G2TraceCollide", source: "oracle/codemp/game/w_saber.c:2336")
-    }
+        if traceMins[0] != 0 || traceMins[1] != 0 || traceMins[2] != 0 || traceMaxs[0] != 0 || traceMaxs[1] != 0 || traceMaxs[2] != 0 {
+            fRadius = (traceMaxs[0] - traceMins[0]) / 2.0
+        }
 
-    return false
+        // Raven clears the array with `memset` here, and the body drops the call, because the scratch slots are zero at entry.
+        while tN < MAX_G2_COLLISIONS {
+            G2Trace[tN].mEntityNum = -1
+            tN += 1
+        }
+        g2Hit = g_entities[tr.entityNum]
+
+        if g2Hit != nil && g2Hit!.inuse && g2Hit!.ghoul2 != nil {
+            var g2HitOrigin = vec3_t()
+
+            angles[PITCH] = 0
+            angles[ROLL] = angles[PITCH]
+
+            if g2Hit!.client != nil {
+                g2HitOrigin = g2Hit!.client!.ps.origin
+                angles[YAW] = g2Hit!.client!.ps.viewangles[YAW]
+            } else {
+                g2HitOrigin = g2Hit!.r.currentOrigin
+                angles[YAW] = g2Hit!.r.currentAngles[YAW]
+            }
+
+            // The engine only reads the ray, at G2_API.cpp:2157-2158, so the copies are behavior-equal.
+            var rayStart = lastValidStart
+            var rayEnd = lastValidEnd
+            if g_optvehtrace.integer != 0 && g2Hit!.s.eType == ET_NPC && g2Hit!.s.NPC_class == CLASS_VEHICLE && g2Hit!.m_pVehicle != nil {
+                trap_G2API_CollisionDetectCache(G2Trace[0], g2Hit!.ghoul2, angles, g2HitOrigin, level.time, g2Hit!.s.number, &rayStart, &rayEnd, &g2Hit!.modelScale, 0, g_g2TraceLod.integer, fRadius)
+            } else {
+                trap_G2API_CollisionDetect(G2Trace[0], g2Hit!.ghoul2, angles, g2HitOrigin, level.time, g2Hit!.s.number, &rayStart, &rayEnd, &g2Hit!.modelScale, 0, g_g2TraceLod.integer, fRadius)
+            }
+
+            if G2Trace[0].mEntityNum != g2Hit!.s.number {
+                tr.fraction = 1.0
+                tr.entityNum = ENTITYNUM_NONE
+                tr.startsolid = 0
+                tr.allsolid = 0
+                return false
+            } else {
+                //The ghoul2 trace result matches, so copy the collision position into the trace endpos and send it back.
+                tr.endpos = G2Trace[0].mCollisionPosition
+                tr.plane.normal = G2Trace[0].mCollisionNormal
+
+                if g2Hit!.client != nil {
+                    g2Hit!.client!.g2LastSurfaceHit = G2Trace[0].mSurfaceIndex
+                    g2Hit!.client!.g2LastSurfaceTime = level.time
+                }
+                return true
+            }
+        }
+
+        return false
+    }
 }
 
 /// Source: oracle/codemp/game/w_saber.c:2428
@@ -2677,7 +2685,12 @@ private func G_PowerLevelForSaberAnim(_ ent: Entity, _ saberNum: Int32, _ mySabe
             //FIXME: break up?
             return FORCE_LEVEL_3
 
-        case BOTH_K1_S1_T_, BOTH_K1_S1_TR, BOTH_K1_S1_TL, BOTH_K1_S1_BL, BOTH_K1_S1_B_, BOTH_K1_S1_BR:
+        case BOTH_K1_S1_T_, //# knockaway saber top
+             BOTH_K1_S1_TR, //# knockaway saber top right
+             BOTH_K1_S1_TL, //# knockaway saber top left
+             BOTH_K1_S1_BL, //# knockaway saber bottom left
+             BOTH_K1_S1_B_, //# knockaway saber bottom
+             BOTH_K1_S1_BR: //# knockaway saber bottom right
             //FIXME: break up?
             return FORCE_LEVEL_3
 

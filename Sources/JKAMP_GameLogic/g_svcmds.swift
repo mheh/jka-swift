@@ -192,19 +192,27 @@ G_ProcessIPBans
 */
 /// Source: oracle/codemp/game/g_svcmds.c:201
 func G_ProcessIPBans() {
-    // Port-note: A pointer local `char * s` with no view.
-    // Raven wrote: char *s;
-    portMissing("G_ProcessIPBans", source: "oracle/codemp/game/g_svcmds.c:201")
-    // Port-note: A pointer local `char * t` with no view.
-    // Raven wrote: t;
-    portMissing("G_ProcessIPBans", source: "oracle/codemp/game/g_svcmds.c:201")
+    var s: Int32
+    var t: Int32
     var str = CharBuf(1024)
 
     Q_strncpyz(&str, g_banIPs.string, Int32((str).count))
 
-    // Port-note: A pointer dereference the draft cannot place.
-    // Raven wrote: for (t = s = g_banIPs.string; *t; /* */ ) { s = strchr(s, ' '); if (!s) break; while (*s == ' ') *s++ = 0; if (*t) AddIP( t ); t = s; }
-    portMissing("G_ProcessIPBans", source: "oracle/codemp/game/g_svcmds.c:201")
+    t = 0
+    s = 0
+    while g_banIPs.stringBuffer[t] != 0 {
+        guard let found = strchr(g_banIPs.stringBuffer[s...], Int32(ascii: " ")) else { break }
+        s += found
+        while g_banIPs.stringBuffer[s] == Int32(ascii: " ") {
+            g_banIPs.stringBuffer[s] = 0
+            s += 1
+        }
+        if g_banIPs.stringBuffer[t] != 0 {
+            var token = g_banIPs.stringBuffer[t...]
+            AddIP(&token)
+        }
+        t = s
+    }
 }
 
 /**
