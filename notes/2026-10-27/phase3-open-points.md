@@ -31,3 +31,5 @@ V30 is void. The `HANDOFF.md` of phase 2 is gone, and the `HANDOFF.md` of 2026-1
 | R5. A `default` arm that joins labels keeps the first label comment alone | Ratified as built. The loss is part of W15, and the V37 record says so. No drafter change. | W15: "the `case` labels that share its arm drop, and the other arms keep Raven's order with no comment". A label that drops takes its comment with it. |
 
 The six findings that need no ruling are fixes of the forms the review gives: `g_spawn.swift:231` in group 4, the `phase3-helpers.md:105` sentence, the `withCString` doc at `CString.swift:480`, the `CStrings.swift:12` doc, the `memset` line numbers in `phase3-helpers.md`, and the docstring line at `draft_declarations.py:532`.
+
+R1a. The two `String(cString:)` sites of `Sources/jampsmoke/main.swift:25` and `:69` stay. The smoke loader depends on `CJKASyscall` alone and must not link game code, by the `Package.swift` comment on the smoke test, so it cannot call `cString(at:)`. The text at `:25` is a `dlerror` message and not engine text. W19 covers every target that links `JKAShared`, and `RecordingTransport.swift:25` changed under it.

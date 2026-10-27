@@ -31,7 +31,7 @@ The two proof sites do not change in the draft:
 
 ## V37. Raven's comment after a `case` or `default` label
 
-`draft_statements.py:1026-1047` keeps the comment of each label beside the label, and `label_comment` at `:1107-1113` reads the text after the label's colon on its line. `:1058-1067` writes the arm head: one label keeps its comment through the `TRAILING` mark, `case SHIPSURF_FRONT: //break the nose off`. An arm that joins labels writes one label per line when any label carries a comment, with the comment after its comma, each continuation five spaces past the arm's indent. A `default` arm that takes other labels writes `default:` with the first comment of its labels.
+`draft_statements.py:1026-1047` keeps the comment of each label beside the label, and `label_comment` at `:1107-1113` reads the text after the label's colon on its line. `:1058-1067` writes the arm head: one label keeps its comment through the `TRAILING` mark, `case SHIPSURF_FRONT: //break the nose off`. An arm that joins labels writes one label per line when any label carries a comment, with the comment after its comma, each continuation five spaces past the arm's indent. A `default` arm that takes other labels writes `default:` with the first comment of its labels. A `default` arm that joins labels keeps the first label comment alone, and the other comments drop with their labels by ruling W15.
 
 Draft count: 273 arm heads change in 21 body files, and they keep 642 of Raven's comments. Raven's game files hold 663 label lines with a comment, the upper bound of the V37 proof. 15 of the changed heads are `default` arms.
 

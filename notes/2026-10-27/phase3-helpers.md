@@ -102,7 +102,7 @@ Three sites compile unchanged and already read the forms of the W17 row: `bg_veh
 
 ## W19. The text codec lives in `CharBuf` alone
 
-The amended ruling of 2026-10-27 puts the codec between `String` and engine bytes in `CharBuf` and nowhere else. `CharBuf(_ string: String)` and `String(_ buf: CharBuf)` are the only two bodies in the repo where a byte meets a Unicode scalar. The decode gives one scalar for each byte, U+0000 to U+00FF, and the encode gives one byte for each scalar with `UInt8(truncatingIfNeeded:)`. Every other helper works on bytes, as its C original does. The reason is one layer: each helper body reads like its C, and the codec has one home. The word Latin-1 appears once, in the doc comment of `CharBuf(_ string:)`, and each of the two bodies carries a one-line comment that gives the byte-to-scalar rule.
+The amended ruling of 2026-10-27 puts the codec between `String` and engine bytes in `CharBuf` and nowhere else. `CharBuf(_ string: String)` and `String(_ buf: CharBuf)` are the only two bodies in the repo where a byte meets a Unicode scalar. `g_spawn.swift:231` reads `cString(at: newb)` since group 4, and the two `jampsmoke` sites keep `String(cString:)` by ruling R1a, because that loader links no game code. The decode gives one scalar for each byte, U+0000 to U+00FF, and the encode gives one byte for each scalar with `UInt8(truncatingIfNeeded:)`. Every other helper works on bytes, as its C original does. The reason is one layer: each helper body reads like its C, and the codec has one home. The word Latin-1 appears once, in the doc comment of `CharBuf(_ string:)`, and each of the two bodies carries a one-line comment that gives the byte-to-scalar rule.
 
 - `Sources/JKAShared/CharBuf.swift:17` and `:97`: the two codec bodies. The doc line of `CharBuf(_ string:)` names the Latin-1 codec, and the doc line of `String(_ buf:)` calls it the decode half.
 - `Sources/JKAShared/CString.swift:65` and `:126`: `atoi(String)` and `atof(String)` read `atoi(CharBuf(s))` and `atof(CharBuf(s))`.
@@ -143,7 +143,7 @@ The file `Sources/JKAShared/Bool+Int32.swift` is deleted. The four sites read `x
 
 ## V9. `CharBuf.zero(count:)` and `memset`
 
-`CharBuf.zero(count:)` at `Sources/JKAShared/CharBuf.swift:75-83` is removed. `CharBuf.zero()` stays. `Sources/JKAShared/CString.swift:357-368` adds the `memset` section: `public func memset(_ buf: inout CharBuf, _ value: Int32, _ count: Int32)`, which sets the first `count` bytes to `value` truncated to one byte, and traps with `memset: count past the end of the buffer` for a `count` below 0 or past `buf.count`. The file doc at `:1` names `memset`. The B5 site at `Sources/JKAMP_GameLogic/g_utils.swift:109` reads `memset(&buff, 0, MAX_STRING_CHARS)`. The Darwin `memset` takes an `Int` count, so the `Int32` count of the call binds to the `JKAShared` function alone.
+`CharBuf.zero(count:)` at `Sources/JKAShared/CharBuf.swift:75-83` is removed. `CharBuf.zero()` stays. `Sources/JKAShared/CString.swift:338-349` adds the `memset` section: `public func memset(_ buf: inout CharBuf, _ value: Int32, _ count: Int32)`, which sets the first `count` bytes to `value` truncated to one byte, and traps with `memset: count past the end of the buffer` for a `count` below 0 or past `buf.count`. The file doc at `:1` names `memset`. The B5 site at `Sources/JKAMP_GameLogic/g_utils.swift:109` reads `memset(&buff, 0, MAX_STRING_CHARS)`. The Darwin `memset` takes an `Int` count, so the `Int32` count of the call binds to the `JKAShared` function alone.
 
 ## W11. `ColorIndex` takes `Int32`
 
