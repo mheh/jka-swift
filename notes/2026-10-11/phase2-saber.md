@@ -39,6 +39,6 @@ The 30 filled Port-notes are 6 of E1, 1 of E3, 22 of E4, and 1 of E5.
 
 1. A-22 is no change. Raven wrote `other->splashRadius = (float)(self->r.maxs[0] - self->r.mins[0])/4.0f;` at `g_active.c:332`. The store is a plain store, not a compound store, and the `(float)` cast is Raven's. The line `other.splashRadius = Int32(Float((self.r.maxs[0] - self.r.mins[0])) / 4.0)` keeps its form.
 2. At `w_saber.swift:4337`, the literal `0.2` takes the `Float` type through the `(Int32, Float)` operator of `Promotion.swift`. This agrees with Raven's `0.2f`.
-3. E5 keeps Raven's dead store into `dot1`, as the ruling orders. jka-rust drops `dot1` at `w_saber.rs:6759`. The compiler can warn that no statement reads the store.
+3. E5 keeps Raven's dead store into `dot1`, as the ruling orders. jka-rust drops `dot1` at `w_saber.rs:6759`. Both stores are read on the next line, so the compiler reports nothing.
 4. The E4 condition holds over the whole function. No statement of `G_BuildSaberFaces` writes `fwd`, `right`, `invFwd`, or `invRight` after `VectorInverse`.
 5. The sites at `w_saber.swift:3787` and `:3789` read `Int32(ceil(Float(dmg) * ...))`. Raven wrote the `(float)` cast there at `w_saber.c:4416` and `:4421`, so they are not N1 sites and stay.

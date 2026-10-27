@@ -168,7 +168,7 @@ No item is blocked. No changed file has a "generated" header.
 ## Open points for the review leg
 
 1. The trap template of group 2 still encodes with `String.withCString` at 98 sites of `Sources/JKAMP_Game/Generated/g_syscalls.swift`, and the drafter line `tools/oracle-closure/draft_statements.py:488` still emits `String(cString:)`. `withCString(_:_:)` of `JKAShared` is the encode through `CharBuf` that the trap template can call.
-2. The VM `atof` drop has no `atof` entry in `NOT_PORTED` of `tools/oracle-closure/rulings.py`, where the `memmove` text lives. `overlay.py:63` lists `memset` in `UNDEFINED`. Both are tool files of group 2.
+2. The `atof` entry of `NOT_PORTED` in `tools/oracle-closure/rulings.py` landed in group 2. The `memset` half is void, because `UNDEFINED` in `overlay.py` names the C fortify macros for the parse and does not name Swift functions.
 3. The form `Double(0.2 as Float)` at `g_weapon.swift:1106` has no guide line.
 4. The `@discardableResult` line of W28 sits between the `Source:` line and the `func` line, so a draft splice of `g_spawn.swift` must keep it.
 

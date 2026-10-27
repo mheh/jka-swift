@@ -91,7 +91,7 @@ s = va("%i %i %i %i %i %i %i %i %i %i %i %i %s %s %s", client.sess.sessionTeam, 
 
 **Verdict.** Premise amended: the guide gives the method, and the shape has no overload yet.
 
-**Form.** Amended to the guide's method, and the hand `COM_Parse` walk drops, because `COM_Parse` reads quotes and comments that `sscanf` does not. The overload is `sscanf(_ s: CharBuf, _ fmt: String, _ ints: inout [Int32], _ texts: inout [String]) -> Int32`, for a format of `%i` and `%s` conversions alone, in format order, which returns the count read and leaves a target past the stop as it was. `setForce` crosses through D3's initializer, and A6's `(b ? 1 : 0)` gives its old value.
+**Form.** Amended to the guide's method, and the hand `COM_Parse` walk is not used, because `COM_Parse` reads quotes and comments that `sscanf` does not. The overload is `sscanf(_ s: CharBuf, _ fmt: String, _ ints: inout [Int32], _ texts: inout [String]) -> Int32`, for a format of `%i` and `%s` conversions alone, in format order, which returns the count read and leaves a target past the stop as it was. `setForce` crosses through D3's initializer, and A6's `(b ? 1 : 0)` gives its old value.
 
 ```swift
 var ints: [Int32] = [sessionTeam, client.sess.spectatorTime, spectatorState, client.sess.spectatorClient, client.sess.wins, client.sess.losses, teamLeader, (client.sess.setForce ? 1 : 0), client.sess.saberLevel, client.sess.selectedFP, client.sess.duelTeam, client.sess.siegeDesiredTeam]

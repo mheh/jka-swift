@@ -124,6 +124,8 @@ The tool tests, `.venv/bin/python -m unittest discover -s tests`, ran 78 tests, 
 
 The reference of the plan is 1357 holes, 0 defects, and 224 compile holes. The holes and the compile holes are lower, and the defects agree. The six compile holes are `g_client` `trap_G2API_SetBoneAnim(...)` in `SP_info_player_duel`, "variable 'aFlags' used before being initialized", the three `fatalErrorPointer` statements of `NAV_WaypointsTooFar` and `if ( !tempWaypointList )` of `g_nav`, and `if ( point )` of `NPC_AI_GalakMech`.
 
+The drop from the reference (1357 holes and 224 compile holes at commit 1eca315) to 1025 holes and 6 compile holes comes from 27 commits to `tools/oracle-closure/` between 1eca315 and b72fe3b. The drafter and gate commits of 2026-10-08 and 2026-10-09 add drafter forms, such as the SIMD index, the output text, the stepped buffer, the labeled path, and the shared byte buffer view, and gate changes, such as the pass cap of 24, the build of every stem once per pass, the splices table, and the shared stems of `--every`. The commit 7728fd9 of phase 1 adds the three generator rules, and the commit feb5ab4 of group 2 adds the group 2 rules. The defect count is 0 on both sides, so the drop is an improvement and not a defect.
+
 `snapshot.py --check $HOME/.cache/jka-swift/snapshot-stage-two-shared` exits 1 with "370 files, a difference". 153 files moved: 46 body files, 67 manifest files, 19 skeleton files, 1 trap file, and 20 view files. The snapshot was taken at c82143f, before the waves of phase 2 and group 1 of phase 3, so the check is stale, and it is not refreshed. The 46 files that this group moves are the count of the before and after snapshots at the top of this record.
 
 ## For the review leg and group 4

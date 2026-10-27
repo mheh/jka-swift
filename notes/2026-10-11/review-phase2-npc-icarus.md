@@ -38,7 +38,7 @@ The diff changes nothing outside these hunks. The Port-note counts agree with th
    - jka-rust `NPC_utils.rs:710` drops the `if (0)` branch and writes no call.
    - The Swift is the J4 proof text. The R2 ruling extends guide line 337 to every `String?` that Raven passes to a `%s` and gives `?? "(null)"`. `GetStringForID` returns NULL for an unknown id, and Raven's `vsprintf` prints `(null)`. The branch is under Raven's `if (0)`, so no behavior differs. The site is the V14 case that the transcriptor record names, with the four A-42 lines.
 
-2. `g_local.swift:146-147`, unit A-34, style.
+2. `g_local.swift:146-147`, unit A-34, style. The finding was resolved before the wave B commit.
    - Raven, `g_combat.c:755`: `char	*modNames[MOD_MAX] = {` with 42 rows.
    - Swift: `// Raven writes 42 rows for a `MOD_MAX` array of 45, so C zeroes the last 3 slots.` and `// The last 3 rows here are those zeros.`, above the `///` lines.
    - jka-rust `g_combat.rs:62-64` puts the note in the `///` doc of the table.
