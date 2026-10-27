@@ -73,19 +73,19 @@ The oracle range is the whole definition, from the return type to the closing br
 |---|---|---|---|
 | `vec3_origin` | `oracle/codemp/game/q_math.c:7` | state_data | `// Rule 3: a file-scope variable of this stub at Raven's line, the `rng` shape of q_math, with Raven's initializer.` |
 | `axisDefault` | `oracle/codemp/game/q_math.c:8` | let | `let axisDefault: [JKAShared.vec3_t] = { () -> [JKAShared.vec3_t] in portMissing("axisDefault", source: "oracle/codemp/game/q_math.c:8") }()` |
-| `colorBlack` | `oracle/codemp/game/q_math.c:11` | let | `let colorBlack: [Float] = { () -> [Float] in portMissing("colorBlack", source: "oracle/codemp/game/q_math.c:11") }()` |
-| `colorRed` | `oracle/codemp/game/q_math.c:12` | let | `let colorRed: [Float] = { () -> [Float] in portMissing("colorRed", source: "oracle/codemp/game/q_math.c:12") }()` |
-| `colorGreen` | `oracle/codemp/game/q_math.c:13` | let | `let colorGreen: [Float] = { () -> [Float] in portMissing("colorGreen", source: "oracle/codemp/game/q_math.c:13") }()` |
-| `colorBlue` | `oracle/codemp/game/q_math.c:14` | let | `let colorBlue: [Float] = { () -> [Float] in portMissing("colorBlue", source: "oracle/codemp/game/q_math.c:14") }()` |
-| `colorYellow` | `oracle/codemp/game/q_math.c:15` | let | `let colorYellow: [Float] = { () -> [Float] in portMissing("colorYellow", source: "oracle/codemp/game/q_math.c:15") }()` |
-| `colorMagenta` | `oracle/codemp/game/q_math.c:16` | let | `let colorMagenta: [Float] = { () -> [Float] in portMissing("colorMagenta", source: "oracle/codemp/game/q_math.c:16") }()` |
-| `colorCyan` | `oracle/codemp/game/q_math.c:17` | let | `let colorCyan: [Float] = { () -> [Float] in portMissing("colorCyan", source: "oracle/codemp/game/q_math.c:17") }()` |
-| `colorWhite` | `oracle/codemp/game/q_math.c:18` | let | `let colorWhite: [Float] = { () -> [Float] in portMissing("colorWhite", source: "oracle/codemp/game/q_math.c:18") }()` |
-| `colorLtGrey` | `oracle/codemp/game/q_math.c:19` | let | `let colorLtGrey: [Float] = { () -> [Float] in portMissing("colorLtGrey", source: "oracle/codemp/game/q_math.c:19") }()` |
-| `colorMdGrey` | `oracle/codemp/game/q_math.c:20` | let | `let colorMdGrey: [Float] = { () -> [Float] in portMissing("colorMdGrey", source: "oracle/codemp/game/q_math.c:20") }()` |
-| `colorDkGrey` | `oracle/codemp/game/q_math.c:21` | let | `let colorDkGrey: [Float] = { () -> [Float] in portMissing("colorDkGrey", source: "oracle/codemp/game/q_math.c:21") }()` |
-| `colorLtBlue` | `oracle/codemp/game/q_math.c:23` | let | `let colorLtBlue: [Float] = { () -> [Float] in portMissing("colorLtBlue", source: "oracle/codemp/game/q_math.c:23") }()` |
-| `colorDkBlue` | `oracle/codemp/game/q_math.c:24` | let | `let colorDkBlue: [Float] = { () -> [Float] in portMissing("colorDkBlue", source: "oracle/codemp/game/q_math.c:24") }()` |
+| `colorBlack` | `oracle/codemp/game/q_math.c:11` | let | `let colorBlack: JKAShared.vec4_t = { () -> JKAShared.vec4_t in portMissing("colorBlack", source: "oracle/codemp/game/q_math.c:11") }()` |
+| `colorRed` | `oracle/codemp/game/q_math.c:12` | let | `let colorRed: JKAShared.vec4_t = { () -> JKAShared.vec4_t in portMissing("colorRed", source: "oracle/codemp/game/q_math.c:12") }()` |
+| `colorGreen` | `oracle/codemp/game/q_math.c:13` | let | `let colorGreen: JKAShared.vec4_t = { () -> JKAShared.vec4_t in portMissing("colorGreen", source: "oracle/codemp/game/q_math.c:13") }()` |
+| `colorBlue` | `oracle/codemp/game/q_math.c:14` | let | `let colorBlue: JKAShared.vec4_t = { () -> JKAShared.vec4_t in portMissing("colorBlue", source: "oracle/codemp/game/q_math.c:14") }()` |
+| `colorYellow` | `oracle/codemp/game/q_math.c:15` | let | `let colorYellow: JKAShared.vec4_t = { () -> JKAShared.vec4_t in portMissing("colorYellow", source: "oracle/codemp/game/q_math.c:15") }()` |
+| `colorMagenta` | `oracle/codemp/game/q_math.c:16` | let | `let colorMagenta: JKAShared.vec4_t = { () -> JKAShared.vec4_t in portMissing("colorMagenta", source: "oracle/codemp/game/q_math.c:16") }()` |
+| `colorCyan` | `oracle/codemp/game/q_math.c:17` | let | `let colorCyan: JKAShared.vec4_t = { () -> JKAShared.vec4_t in portMissing("colorCyan", source: "oracle/codemp/game/q_math.c:17") }()` |
+| `colorWhite` | `oracle/codemp/game/q_math.c:18` | let | `let colorWhite: JKAShared.vec4_t = { () -> JKAShared.vec4_t in portMissing("colorWhite", source: "oracle/codemp/game/q_math.c:18") }()` |
+| `colorLtGrey` | `oracle/codemp/game/q_math.c:19` | let | `let colorLtGrey: JKAShared.vec4_t = { () -> JKAShared.vec4_t in portMissing("colorLtGrey", source: "oracle/codemp/game/q_math.c:19") }()` |
+| `colorMdGrey` | `oracle/codemp/game/q_math.c:20` | let | `let colorMdGrey: JKAShared.vec4_t = { () -> JKAShared.vec4_t in portMissing("colorMdGrey", source: "oracle/codemp/game/q_math.c:20") }()` |
+| `colorDkGrey` | `oracle/codemp/game/q_math.c:21` | let | `let colorDkGrey: JKAShared.vec4_t = { () -> JKAShared.vec4_t in portMissing("colorDkGrey", source: "oracle/codemp/game/q_math.c:21") }()` |
+| `colorLtBlue` | `oracle/codemp/game/q_math.c:23` | let | `let colorLtBlue: JKAShared.vec4_t = { () -> JKAShared.vec4_t in portMissing("colorLtBlue", source: "oracle/codemp/game/q_math.c:23") }()` |
+| `colorDkBlue` | `oracle/codemp/game/q_math.c:24` | let | `let colorDkBlue: JKAShared.vec4_t = { () -> JKAShared.vec4_t in portMissing("colorDkBlue", source: "oracle/codemp/game/q_math.c:24") }()` |
 | `g_color_table` | `oracle/codemp/game/q_math.c:26` | let | `let g_color_table: [[Float]] = { () -> [[Float]] in portMissing("g_color_table", source: "oracle/codemp/game/q_math.c:26") }()` |
 | `bytedirs` | `oracle/codemp/game/q_math.c:39` | let | `let bytedirs: [JKAShared.vec3_t] = { () -> [JKAShared.vec3_t] in portMissing("bytedirs", source: "oracle/codemp/game/q_math.c:39") }()` |
 | `holdrand` | `oracle/codemp/game/q_math.c:1432` | state | `// Rule 3: a file-scope variable of this stub at Raven's line, the `rng` shape of q_math, with Raven's initializer.` |

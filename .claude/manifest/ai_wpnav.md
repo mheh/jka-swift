@@ -39,19 +39,19 @@ The oracle range is the whole definition, from the return type to the closing br
 | `LoadPathData` | `oracle/codemp/game/ai_wpnav.c:2007-2250` | `JKAMP_GameLogic/ai_wpnav.swift:1784` | ported | `crates/mp/game/src/ai_wpnav.rs:2023-2231` | `func LoadPathData(_ filename: String) -> Int32` |
 | `FlagObjects` | `oracle/codemp/game/ai_wpnav.c:2252-2369` | `JKAMP_GameLogic/ai_wpnav.swift:2011` | ported | `crates/mp/game/src/ai_wpnav.rs:2239-2344` | `func FlagObjects()` |
 | `SavePathData` | `oracle/codemp/game/ai_wpnav.c:2372-2500` | `JKAMP_GameLogic/ai_wpnav.swift:2125` | ported | `crates/mp/game/src/ai_wpnav.rs:2349-2495` | `func SavePathData(_ filename: String) -> Int32` |
-| `G_NearestNodeToPoint` | `oracle/codemp/game/ai_wpnav.c:2510-2541` | `JKAMP_GameLogic/ai_wpnav.swift:2253` | ported | `crates/mp/game/src/ai_wpnav.rs:2502-2527` | `func G_NearestNodeToPoint(_ point: JKAShared.vec3_t) -> Int32` |
-| `G_NodeClearForNext` | `oracle/codemp/game/ai_wpnav.c:2545-2556` | `JKAMP_GameLogic/ai_wpnav.swift:2284` | ported | `crates/mp/game/src/ai_wpnav.rs:2532-2540` | `func G_NodeClearForNext()` |
-| `G_NodeClearFlags` | `oracle/codemp/game/ai_wpnav.c:2558-2568` | `JKAMP_GameLogic/ai_wpnav.swift:2297` | ported | `crates/mp/game/src/ai_wpnav.rs:2545-2551` | `func G_NodeClearFlags()` |
-| `G_NodeMatchingXY` | `oracle/codemp/game/ai_wpnav.c:2570-2587` | `JKAMP_GameLogic/ai_wpnav.swift:2309` | ported | `crates/mp/game/src/ai_wpnav.rs:2558-2568` | `func G_NodeMatchingXY(_ x: Float, _ y: Float) -> Int32` |
-| `G_NodeMatchingXY_BA` | `oracle/codemp/game/ai_wpnav.c:2589-2614` | `JKAMP_GameLogic/ai_wpnav.swift:2325` | ported | `crates/mp/game/src/ai_wpnav.rs:2575-2597` | `func G_NodeMatchingXY_BA(_ x: Int32, _ y: Int32, _ final: Int32) -> Int32` |
-| `G_RecursiveConnection` | `oracle/codemp/game/ai_wpnav.c:2616-2689` | `JKAMP_GameLogic/ai_wpnav.swift:2347` | ported | `crates/mp/game/src/ai_wpnav.rs:2605-2689` | `func G_RecursiveConnection(_ start: Int32, _ end: Int32, _ weight: Int32, _ traceCheck: Bool, _ baseHeight: Float) -> Int32` |
-| `G_BackwardAttachment` | `oracle/codemp/game/ai_wpnav.c:2981-3048` | `JKAMP_GameLogic/ai_wpnav.swift:2422` | ported | `crates/mp/game/src/ai_wpnav.rs:2696-2776` | `func G_BackwardAttachment(_ start: Int32, _ finalDestination: Int32, _ insertAfter: Int32) -> Bool` |
-| `G_RMGPathing` | `oracle/codemp/game/ai_wpnav.c:3055-3250` | `JKAMP_GameLogic/ai_wpnav.swift:2483` | ported | `crates/mp/game/src/ai_wpnav.rs:2786-2991` | `func G_RMGPathing()` |
-| `BeginAutoPathRoutine` | `oracle/codemp/game/ai_wpnav.c:3254-3342` | `JKAMP_GameLogic/ai_wpnav.swift:2626` | ported | `crates/mp/game/src/ai_wpnav.rs:3000-3079` | `func BeginAutoPathRoutine()` |
-| `LoadPath_ThisLevel` | `oracle/codemp/game/ai_wpnav.c:3347-3423` | `JKAMP_GameLogic/ai_wpnav.swift:2681` | ported | `crates/mp/game/src/ai_wpnav.rs:3084-3156` | `func LoadPath_ThisLevel()` |
-| `GetClosestSpawn` | `oracle/codemp/game/ai_wpnav.c:3425-3457` | `JKAMP_GameLogic/ai_wpnav.swift:2740` | ported | `crates/mp/game/src/ai_wpnav.rs:3163-3194` | `func GetClosestSpawn(_ ent: Entity) -> Entity?` |
-| `GetNextSpawnInIndex` | `oracle/codemp/game/ai_wpnav.c:3459-3499` | `JKAMP_GameLogic/ai_wpnav.swift:2771` | ported | `crates/mp/game/src/ai_wpnav.rs:3201-3241` | `func GetNextSpawnInIndex(_ currentSpawn: Entity) -> Entity?` |
-| `AcceptBotCommand` | `oracle/codemp/game/ai_wpnav.c:3501-3813` | `JKAMP_GameLogic/ai_wpnav.swift:2809` | ported | `crates/mp/game/src/ai_wpnav.rs:3246-3508` | `func AcceptBotCommand(_ cmd: String, _ pl: Entity) -> Int32` |
+| `G_NearestNodeToPoint` | `oracle/codemp/game/ai_wpnav.c:2510-2541` | `JKAMP_GameLogic/ai_wpnav.swift:2239` | ported | `crates/mp/game/src/ai_wpnav.rs:2502-2527` | `func G_NearestNodeToPoint(_ point: JKAShared.vec3_t) -> Int32` |
+| `G_NodeClearForNext` | `oracle/codemp/game/ai_wpnav.c:2545-2556` | `JKAMP_GameLogic/ai_wpnav.swift:2270` | ported | `crates/mp/game/src/ai_wpnav.rs:2532-2540` | `func G_NodeClearForNext()` |
+| `G_NodeClearFlags` | `oracle/codemp/game/ai_wpnav.c:2558-2568` | `JKAMP_GameLogic/ai_wpnav.swift:2283` | ported | `crates/mp/game/src/ai_wpnav.rs:2545-2551` | `func G_NodeClearFlags()` |
+| `G_NodeMatchingXY` | `oracle/codemp/game/ai_wpnav.c:2570-2587` | `JKAMP_GameLogic/ai_wpnav.swift:2295` | ported | `crates/mp/game/src/ai_wpnav.rs:2558-2568` | `func G_NodeMatchingXY(_ x: Float, _ y: Float) -> Int32` |
+| `G_NodeMatchingXY_BA` | `oracle/codemp/game/ai_wpnav.c:2589-2614` | `JKAMP_GameLogic/ai_wpnav.swift:2311` | ported | `crates/mp/game/src/ai_wpnav.rs:2575-2597` | `func G_NodeMatchingXY_BA(_ x: Int32, _ y: Int32, _ final: Int32) -> Int32` |
+| `G_RecursiveConnection` | `oracle/codemp/game/ai_wpnav.c:2616-2689` | `JKAMP_GameLogic/ai_wpnav.swift:2333` | ported | `crates/mp/game/src/ai_wpnav.rs:2605-2689` | `func G_RecursiveConnection(_ start: Int32, _ end: Int32, _ weight: Int32, _ traceCheck: Bool, _ baseHeight: Float) -> Int32` |
+| `G_BackwardAttachment` | `oracle/codemp/game/ai_wpnav.c:2981-3048` | `JKAMP_GameLogic/ai_wpnav.swift:2408` | ported | `crates/mp/game/src/ai_wpnav.rs:2696-2776` | `func G_BackwardAttachment(_ start: Int32, _ finalDestination: Int32, _ insertAfter: Int32) -> Bool` |
+| `G_RMGPathing` | `oracle/codemp/game/ai_wpnav.c:3055-3250` | `JKAMP_GameLogic/ai_wpnav.swift:2469` | ported | `crates/mp/game/src/ai_wpnav.rs:2786-2991` | `func G_RMGPathing()` |
+| `BeginAutoPathRoutine` | `oracle/codemp/game/ai_wpnav.c:3254-3342` | `JKAMP_GameLogic/ai_wpnav.swift:2612` | ported | `crates/mp/game/src/ai_wpnav.rs:3000-3079` | `func BeginAutoPathRoutine()` |
+| `LoadPath_ThisLevel` | `oracle/codemp/game/ai_wpnav.c:3347-3423` | `JKAMP_GameLogic/ai_wpnav.swift:2667` | ported | `crates/mp/game/src/ai_wpnav.rs:3084-3156` | `func LoadPath_ThisLevel()` |
+| `GetClosestSpawn` | `oracle/codemp/game/ai_wpnav.c:3425-3457` | `JKAMP_GameLogic/ai_wpnav.swift:2726` | ported | `crates/mp/game/src/ai_wpnav.rs:3163-3194` | `func GetClosestSpawn(_ ent: Entity) -> Entity?` |
+| `GetNextSpawnInIndex` | `oracle/codemp/game/ai_wpnav.c:3459-3499` | `JKAMP_GameLogic/ai_wpnav.swift:2757` | ported | `crates/mp/game/src/ai_wpnav.rs:3201-3241` | `func GetNextSpawnInIndex(_ currentSpawn: Entity) -> Entity?` |
+| `AcceptBotCommand` | `oracle/codemp/game/ai_wpnav.c:3501-3813` | `JKAMP_GameLogic/ai_wpnav.swift:2795` | ported | `crates/mp/game/src/ai_wpnav.rs:3246-3508` | `func AcceptBotCommand(_ cmd: String, _ pl: Entity) -> Int32` |
 
 13 file-scope variables. The entry is the stub's line for the variable, by rule 3 and rule 6.
 

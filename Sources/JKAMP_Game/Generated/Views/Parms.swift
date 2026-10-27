@@ -63,9 +63,4 @@ public struct Parms: Hashable, HandleView {
 
     /// Source: oracle/codemp/game/g_public.h:670
     public var parm: Slots<String> { Slots(cStrings: UnsafeMutableRawPointer(self.raw.pointer(to: \.parm)!), count: 16, capacity: Int(JKAMP_Game.MAX_PARM_STRING_LENGTH)) }
-
-    /// Raven's `parm[i]` as the buffer a callee writes into, for a `char *` parameter the port spells `inout CharBuf`.
-    public var parmBuffers: Slots<JKAShared.CharBuf> {
-        Slots(base: UnsafeMutableRawPointer(self.raw.pointer(to: \.parm)!), count: 16, stride: Int(JKAMP_Game.MAX_PARM_STRING_LENGTH), read: { charBuf(at: $0, capacity: Int(JKAMP_Game.MAX_PARM_STRING_LENGTH)) }, write: { store($1, at: $0, capacity: Int(JKAMP_Game.MAX_PARM_STRING_LENGTH)) })
-    }
 }

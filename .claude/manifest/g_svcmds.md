@@ -8,17 +8,17 @@ The oracle range is the whole definition, from the return type to the closing br
 | Function | Oracle | Swift | State | jka-rust | Signature |
 |---|---|---|---|---|---|
 | `StringToFilter` static | `oracle/codemp/game/g_svcmds.c:62-102` | `JKAMP_GameLogic/g_svcmds.swift:27` | ported | `crates/mp/game/src/g_svcmds.rs:43-107` | `private func StringToFilter(_ s: inout JKAShared.CharBuf, _ f: IpFilter) -> Bool` |
-| `UpdateIPBans` static | `oracle/codemp/game/g_svcmds.c:109-127` | `JKAMP_GameLogic/g_svcmds.swift:87` | ported | `crates/mp/game/src/g_svcmds.rs:114-126` | `private func UpdateIPBans()` |
-| `G_FilterPacket` | `oracle/codemp/game/g_svcmds.c:134-166` | `JKAMP_GameLogic/g_svcmds.swift:120` | ported | `crates/mp/game/src/g_svcmds.rs:133-180` | `func G_FilterPacket(_ from: String) -> Bool` |
-| `AddIP` | `oracle/codemp/game/g_svcmds.c:173-194` | `JKAMP_GameLogic/g_svcmds.swift:169` | ported | `crates/mp/game/src/g_svcmds.rs:187-226` | `func AddIP(_ str: inout JKAShared.CharBuf)` |
-| `G_ProcessIPBans` | `oracle/codemp/game/g_svcmds.c:201-218` | `JKAMP_GameLogic/g_svcmds.swift:202` | marker | `crates/mp/game/src/g_svcmds.rs:233-257` | `func G_ProcessIPBans()` |
-| `Svcmd_AddIP_f` | `oracle/codemp/game/g_svcmds.c:226-239` | `JKAMP_GameLogic/g_svcmds.swift:226` | ported | `crates/mp/game/src/g_svcmds.rs:264-275` | `func Svcmd_AddIP_f()` |
-| `Svcmd_RemoveIP_f` | `oracle/codemp/game/g_svcmds.c:246-274` | `JKAMP_GameLogic/g_svcmds.swift:247` | ported | `crates/mp/game/src/g_svcmds.rs:282-318` | `func Svcmd_RemoveIP_f()` |
-| `Svcmd_ListIPs_f` | `oracle/codemp/game/g_svcmds.c:276-297` | `JKAMP_GameLogic/g_svcmds.swift:286` | ported | `crates/mp/game/src/g_svcmds.rs:325-345` | `func Svcmd_ListIPs_f()` |
-| `G_SaveBanIP` | `oracle/codemp/game/g_svcmds.c:299-331` | `JKAMP_GameLogic/g_svcmds.swift:309` | ported | `crates/mp/game/src/g_svcmds.rs:352-376` | `func G_SaveBanIP()` |
-| `G_LoadIPBans` | `oracle/codemp/game/g_svcmds.c:333-379` | `JKAMP_GameLogic/g_svcmds.swift:343` | ported | `crates/mp/game/src/g_svcmds.rs:383-430` | `func G_LoadIPBans()` |
-| `Svcmd_EntityList_f` | `oracle/codemp/game/g_svcmds.c:386-443` | `JKAMP_GameLogic/g_svcmds.swift:390` | ported | `crates/mp/game/src/g_svcmds.rs:437-480` | `func Svcmd_EntityList_f()` |
-| `ClientForString` | `oracle/codemp/game/g_svcmds.c:445-480` | `JKAMP_GameLogic/g_svcmds.swift:454` | ported | `crates/mp/game/src/g_svcmds.rs:487-524` | `func ClientForString(_ s: String) -> Client?` |
+| `UpdateIPBans` static | `oracle/codemp/game/g_svcmds.c:109-127` | `JKAMP_GameLogic/g_svcmds.swift:83` | ported | `crates/mp/game/src/g_svcmds.rs:114-126` | `private func UpdateIPBans()` |
+| `G_FilterPacket` | `oracle/codemp/game/g_svcmds.c:134-166` | `JKAMP_GameLogic/g_svcmds.swift:114` | ported | `crates/mp/game/src/g_svcmds.rs:133-180` | `func G_FilterPacket(_ from: String) -> Bool` |
+| `AddIP` | `oracle/codemp/game/g_svcmds.c:173-194` | `JKAMP_GameLogic/g_svcmds.swift:161` | ported | `crates/mp/game/src/g_svcmds.rs:187-226` | `func AddIP(_ str: inout JKAShared.CharBuf)` |
+| `G_ProcessIPBans` | `oracle/codemp/game/g_svcmds.c:201-218` | `JKAMP_GameLogic/g_svcmds.swift:194` | marker | `crates/mp/game/src/g_svcmds.rs:233-257` | `func G_ProcessIPBans()` |
+| `Svcmd_AddIP_f` | `oracle/codemp/game/g_svcmds.c:226-239` | `JKAMP_GameLogic/g_svcmds.swift:218` | ported | `crates/mp/game/src/g_svcmds.rs:264-275` | `func Svcmd_AddIP_f()` |
+| `Svcmd_RemoveIP_f` | `oracle/codemp/game/g_svcmds.c:246-274` | `JKAMP_GameLogic/g_svcmds.swift:239` | ported | `crates/mp/game/src/g_svcmds.rs:282-318` | `func Svcmd_RemoveIP_f()` |
+| `Svcmd_ListIPs_f` | `oracle/codemp/game/g_svcmds.c:276-297` | `JKAMP_GameLogic/g_svcmds.swift:278` | ported | `crates/mp/game/src/g_svcmds.rs:325-345` | `func Svcmd_ListIPs_f()` |
+| `G_SaveBanIP` | `oracle/codemp/game/g_svcmds.c:299-331` | `JKAMP_GameLogic/g_svcmds.swift:299` | ported | `crates/mp/game/src/g_svcmds.rs:352-376` | `func G_SaveBanIP()` |
+| `G_LoadIPBans` | `oracle/codemp/game/g_svcmds.c:333-379` | `JKAMP_GameLogic/g_svcmds.swift:331` | ported | `crates/mp/game/src/g_svcmds.rs:383-430` | `func G_LoadIPBans()` |
+| `Svcmd_EntityList_f` | `oracle/codemp/game/g_svcmds.c:386-443` | `JKAMP_GameLogic/g_svcmds.swift:378` | ported | `crates/mp/game/src/g_svcmds.rs:437-480` | `func Svcmd_EntityList_f()` |
+| `ClientForString` | `oracle/codemp/game/g_svcmds.c:445-480` | `JKAMP_GameLogic/g_svcmds.swift:442` | ported | `crates/mp/game/src/g_svcmds.rs:487-524` | `func ClientForString(_ s: String) -> Client?` |
 | `Svcmd_ForceTeam_f` | `oracle/codemp/game/g_svcmds.c:489-503` | `JKAMP_GameLogic/g_svcmds.swift:493` | ported | `crates/mp/game/src/g_svcmds.rs:531-549` | `func Svcmd_ForceTeam_f()` |
 | `ConsoleCommand` | `oracle/codemp/game/g_svcmds.c:513-575` | `JKAMP_GameLogic/g_svcmds.swift:518` | ported | `crates/mp/game/src/g_svcmds.rs:556-615` | `public func ConsoleCommand() -> Bool` |
 

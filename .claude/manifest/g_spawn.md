@@ -7,23 +7,23 @@ The oracle range is the whole definition, from the return type to the closing br
 
 | Function | Oracle | Swift | State | jka-rust | Signature |
 |---|---|---|---|---|---|
-| `G_SpawnString` | `oracle/codemp/game/g_spawn.c:6-23` | `JKAMP_GameLogic/g_spawn.swift:37` | ported | `crates/mp/game/src/g_spawn.rs:93-103` | `func G_SpawnString(_ key: String, _ defaultString: String?, _ out: inout String) -> Bool` |
-| `G_SpawnFloat` | `oracle/codemp/game/g_spawn.c:25-32` | `JKAMP_GameLogic/g_spawn.swift:59` | ported | `crates/mp/game/src/g_spawn.rs:108-119` | `func G_SpawnFloat(_ key: String, _ defaultString: String, _ out: inout Float) -> Bool` |
-| `G_SpawnInt` | `oracle/codemp/game/g_spawn.c:34-41` | `JKAMP_GameLogic/g_spawn.swift:69` | ported | `crates/mp/game/src/g_spawn.rs:124-135` | `func G_SpawnInt(_ key: String, _ defaultString: String, _ out: inout Int32) -> Bool` |
-| `G_SpawnVector` | `oracle/codemp/game/g_spawn.c:43-50` | `JKAMP_GameLogic/g_spawn.swift:79` | ported | `crates/mp/game/src/g_spawn.rs:140-157` | `func G_SpawnVector(_ key: String, _ defaultString: String, _ out: inout JKAShared.vec3_t) -> Bool` |
-| `SP_item_botroam` | `oracle/codemp/game/g_spawn.c:368-370` | `JKAMP_GameLogic/g_spawn.swift:89` | ported | `crates/mp/game/src/g_spawn.rs:186-186` | `func SP_item_botroam(_ ent: Entity)` |
-| `SP_gametype_item` | `oracle/codemp/game/g_spawn.c:372-431` | `JKAMP_GameLogic/g_spawn.swift:93` | ported | `crates/mp/game/src/g_spawn.rs:191-240` | `func SP_gametype_item(_ ent: Entity)` |
-| `G_CallSpawn` | `oracle/codemp/game/g_spawn.c:683-714` | `JKAMP_GameLogic/g_spawn.swift:148` | ported | `crates/mp/game/src/g_spawn.rs:248-285` | `func G_CallSpawn(_ ent: Entity) -> Bool` |
-| `G_NewString` | `oracle/codemp/game/g_spawn.c:724-749` | `JKAMP_GameLogic/g_spawn.swift:195` | ported | none | `func G_NewString(_ string: String) -> String` |
-| `G_SpawnGEntityFromSpawnVars` | `oracle/codemp/game/g_spawn.c:766-842` | `JKAMP_GameLogic/g_spawn.swift:238` | ported | `crates/mp/game/src/g_spawn.rs:702-809` | `public func G_SpawnGEntityFromSpawnVars(_ inSubBSP: Bool)` |
-| `G_AddSpawnVarToken` | `oracle/codemp/game/g_spawn.c:851-866` | `JKAMP_GameLogic/g_spawn.swift:326` | ported | none | `func G_AddSpawnVarToken(_ string: String) -> String` |
-| `AddSpawnField` | `oracle/codemp/game/g_spawn.c:868-884` | `JKAMP_GameLogic/g_spawn.swift:344` | ported | `crates/mp/game/src/g_spawn.rs:819-830` | `func AddSpawnField(_ field: String, _ value: String)` |
-| `HandleEntityAdjustment` static | `oracle/codemp/game/g_spawn.c:888-1006` | `JKAMP_GameLogic/g_spawn.swift:362` | ported | `crates/mp/game/src/g_spawn.rs:839-937` | `private func HandleEntityAdjustment()` |
-| `G_ParseSpawnVars` | `oracle/codemp/game/g_spawn.c:1018-1067` | `JKAMP_GameLogic/g_spawn.swift:481` | ported | `crates/mp/game/src/g_spawn.rs:945-982` | `public func G_ParseSpawnVars(_ inSubBSP: Bool) -> Bool` |
-| `SP_worldspawn` | `oracle/codemp/game/g_spawn.c:1259-1386` | `JKAMP_GameLogic/g_spawn.swift:538` | ported | `crates/mp/game/src/g_spawn.rs:999-1224` | `func SP_worldspawn()` |
-| `SP_bsp_worldspawn` | `oracle/codemp/game/g_spawn.c:1389-1392` | `JKAMP_GameLogic/g_spawn.swift:666` | ported | `crates/mp/game/src/g_spawn.rs:1230-1232` | `func SP_bsp_worldspawn() -> Bool` |
-| `G_PrecacheSoundsets` | `oracle/codemp/game/g_spawn.c:1394-1415` | `JKAMP_GameLogic/g_spawn.swift:671` | ported | `crates/mp/game/src/g_spawn.rs:1237-1254` | `func G_PrecacheSoundsets()` |
-| `G_SpawnEntitiesFromString` | `oracle/codemp/game/g_spawn.c:1424-1478` | `JKAMP_GameLogic/g_spawn.swift:702` | ported | `crates/mp/game/src/g_spawn.rs:1261-1321` | `func G_SpawnEntitiesFromString(_ inSubBSP: Bool)` |
+| `G_SpawnString` | `oracle/codemp/game/g_spawn.c:6-23` | `JKAMP_GameLogic/g_spawn.swift:38` | ported | `crates/mp/game/src/g_spawn.rs:93-103` | `func G_SpawnString(_ key: String, _ defaultString: String?, _ out: inout String) -> Bool` |
+| `G_SpawnFloat` | `oracle/codemp/game/g_spawn.c:25-32` | `JKAMP_GameLogic/g_spawn.swift:61` | ported | `crates/mp/game/src/g_spawn.rs:108-119` | `func G_SpawnFloat(_ key: String, _ defaultString: String, _ out: inout Float) -> Bool` |
+| `G_SpawnInt` | `oracle/codemp/game/g_spawn.c:34-41` | `JKAMP_GameLogic/g_spawn.swift:72` | ported | `crates/mp/game/src/g_spawn.rs:124-135` | `func G_SpawnInt(_ key: String, _ defaultString: String, _ out: inout Int32) -> Bool` |
+| `G_SpawnVector` | `oracle/codemp/game/g_spawn.c:43-50` | `JKAMP_GameLogic/g_spawn.swift:83` | ported | `crates/mp/game/src/g_spawn.rs:140-157` | `func G_SpawnVector(_ key: String, _ defaultString: String, _ out: inout JKAShared.vec3_t) -> Bool` |
+| `SP_item_botroam` | `oracle/codemp/game/g_spawn.c:368-370` | `JKAMP_GameLogic/g_spawn.swift:93` | ported | `crates/mp/game/src/g_spawn.rs:186-186` | `func SP_item_botroam(_ ent: Entity)` |
+| `SP_gametype_item` | `oracle/codemp/game/g_spawn.c:372-431` | `JKAMP_GameLogic/g_spawn.swift:97` | ported | `crates/mp/game/src/g_spawn.rs:191-240` | `func SP_gametype_item(_ ent: Entity)` |
+| `G_CallSpawn` | `oracle/codemp/game/g_spawn.c:683-714` | `JKAMP_GameLogic/g_spawn.swift:152` | ported | `crates/mp/game/src/g_spawn.rs:248-285` | `func G_CallSpawn(_ ent: Entity) -> Bool` |
+| `G_NewString` | `oracle/codemp/game/g_spawn.c:724-749` | `JKAMP_GameLogic/g_spawn.swift:199` | ported | none | `func G_NewString(_ string: String) -> String` |
+| `G_SpawnGEntityFromSpawnVars` | `oracle/codemp/game/g_spawn.c:766-842` | `JKAMP_GameLogic/g_spawn.swift:242` | ported | `crates/mp/game/src/g_spawn.rs:702-809` | `public func G_SpawnGEntityFromSpawnVars(_ inSubBSP: Bool)` |
+| `G_AddSpawnVarToken` | `oracle/codemp/game/g_spawn.c:851-866` | `JKAMP_GameLogic/g_spawn.swift:330` | ported | none | `func G_AddSpawnVarToken(_ string: String) -> String` |
+| `AddSpawnField` | `oracle/codemp/game/g_spawn.c:868-884` | `JKAMP_GameLogic/g_spawn.swift:348` | ported | `crates/mp/game/src/g_spawn.rs:819-830` | `func AddSpawnField(_ field: String, _ value: String)` |
+| `HandleEntityAdjustment` static | `oracle/codemp/game/g_spawn.c:888-1006` | `JKAMP_GameLogic/g_spawn.swift:366` | ported | `crates/mp/game/src/g_spawn.rs:839-937` | `private func HandleEntityAdjustment()` |
+| `G_ParseSpawnVars` | `oracle/codemp/game/g_spawn.c:1018-1067` | `JKAMP_GameLogic/g_spawn.swift:485` | ported | `crates/mp/game/src/g_spawn.rs:945-982` | `public func G_ParseSpawnVars(_ inSubBSP: Bool) -> Bool` |
+| `SP_worldspawn` | `oracle/codemp/game/g_spawn.c:1259-1386` | `JKAMP_GameLogic/g_spawn.swift:542` | ported | `crates/mp/game/src/g_spawn.rs:999-1224` | `func SP_worldspawn()` |
+| `SP_bsp_worldspawn` | `oracle/codemp/game/g_spawn.c:1389-1392` | `JKAMP_GameLogic/g_spawn.swift:670` | ported | `crates/mp/game/src/g_spawn.rs:1230-1232` | `func SP_bsp_worldspawn() -> Bool` |
+| `G_PrecacheSoundsets` | `oracle/codemp/game/g_spawn.c:1394-1415` | `JKAMP_GameLogic/g_spawn.swift:675` | ported | `crates/mp/game/src/g_spawn.rs:1237-1254` | `func G_PrecacheSoundsets()` |
+| `G_SpawnEntitiesFromString` | `oracle/codemp/game/g_spawn.c:1424-1478` | `JKAMP_GameLogic/g_spawn.swift:706` | ported | `crates/mp/game/src/g_spawn.rs:1261-1321` | `func G_SpawnEntitiesFromString(_ inSubBSP: Bool)` |
 
 5 file-scope variables. The entry is the stub's line for the variable, by rule 3 and rule 6.
 

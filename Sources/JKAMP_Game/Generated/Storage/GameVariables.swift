@@ -272,15 +272,15 @@ public struct GameVariables {
 
     /// Raven's `vec4_t textcolor_caption` of `g_ICARUScb.c`.
     /// Source: oracle/codemp/game/g_ICARUScb.c:4933
-    public var textcolor_caption: [Float] = [Float](repeating: 0, count: 4)
+    public var textcolor_caption: JKAShared.vec4_t = vec4_t()
 
     /// Raven's `vec4_t textcolor_center` of `g_ICARUScb.c`.
     /// Source: oracle/codemp/game/g_ICARUScb.c:4934
-    public var textcolor_center: [Float] = [Float](repeating: 0, count: 4)
+    public var textcolor_center: JKAShared.vec4_t = vec4_t()
 
     /// Raven's `vec4_t textcolor_scroll` of `g_ICARUScb.c`.
     /// Source: oracle/codemp/game/g_ICARUScb.c:4935
-    public var textcolor_scroll: [Float] = [Float](repeating: 0, count: 4)
+    public var textcolor_scroll: JKAShared.vec4_t = vec4_t()
 
     /// Raven's `int g_numBots` of `g_bot.c`.
     /// Source: oracle/codemp/game/g_bot.c:8
@@ -528,7 +528,7 @@ public struct GameVariables {
 
     /// Raven's `char *fatalErrorPointer` of `g_nav.c`.
     /// Source: oracle/codemp/game/g_nav.c:1616
-    public var fatalErrorPointer: String = ""
+    public var fatalErrorPointer: Int32? = nil
 
     /// Raven's `char fatalErrorString[4096]` of `g_nav.c`.
     /// Source: oracle/codemp/game/g_nav.c:1617

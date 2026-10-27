@@ -407,10 +407,22 @@ class Declarations:
                     if init:
                         return f"{keyword} {name}: Slots<{view}> = {self.slots_expression(init[0])}"
                     return f"var {name}: Slots<{view}>"
-                if init and record == "gentity_t" and self.plain_entity(var, init[0]):
+                if init and record in ("gentity_t", "gclient_t") and self.plain_entity(var, init[0]):
                     # Every store is the address of a table slot, and no statement stores or tests NULL, so the local is never nil.
                     self.plain_entities.add(var.spelling)
                     return f"{keyword} {name} = {self.expr(init[0])}"
+                if not init and record in ("gentity_t", "gclient_t") and self.plain_entity(var, None):
+                    place = self.slot_store_place(var)
+                    if place == "closure":
+                        # Raven stores and reads the local only inside one loop body, which the port wraps in a scratch closure,
+                        # so the local is a `let` at its store there, and this declaration drops.
+                        self.plain_entities.add(var.spelling)
+                        self.store_lets.add(var.spelling)
+                        return ""
+                    if place is not None:
+                        # Every store is a slot address, and the first comes before every read in straight-line code, so the local is plain.
+                        self.plain_entities.add(var.spelling)
+                        return f"{place} {name}: {view}"
                 if init:
                     return f"{keyword} {name}: {view}? = {self.expr(init[0])}"
                 return f"var {name}: {view}?"
@@ -430,7 +442,8 @@ class Declarations:
         return f"{keyword} {name}: {swift}"
 
     def slot_address(self, cur: ci.Cursor) -> bool:
-        """True for Raven's `&g_entities[n]`, the address of one slot of a file-scope table of records."""
+        """True for Raven's `&g_entities[n]`, the address of one slot of a file-scope table of records,
+        and for `&level.clients[i]`, one slot of the records a pointer field holds, which the view reads through its `<name>Slots` accessor."""
         inner = self.unwrap(cur)
         if inner.kind != CursorKind.UNARY_OPERATOR or self.operator_or_none_unary(inner) != "&":
             return False
@@ -438,35 +451,90 @@ class Declarations:
         if operand.kind != CursorKind.ARRAY_SUBSCRIPT_EXPR:
             return False
         base = self.strip(list(operand.get_children())[0])
+        if self.slots_member(base) is not None:
+            return True
         ref = base.referenced if base.kind == CursorKind.DECL_REF_EXPR else None
         return ref is not None and ref.kind == CursorKind.VAR_DECL and ref.semantic_parent is not None \
             and ref.semantic_parent.kind == CursorKind.TRANSLATION_UNIT and ref.type.get_canonical().kind == TypeKind.CONSTANTARRAY
 
-    def plain_entity(self, var: ci.Cursor, init: ci.Cursor) -> bool:
-        """True for a `gentity_t *` local whose every store is a table slot address, with no NULL store and no NULL test.
-
-        A read of the local is a member access, a call argument, a store into another name, or a compare with a non-NULL value.
-        Any other read, `!ent`, `if (ent)`, `ent && ...`, or `&ent`, counts as a NULL test."""
-        if not self.slot_address(init):
-            return False
-        parents: dict[tuple[int, int], ci.Cursor] = {}
+    def slot_refs(self, var: ci.Cursor) -> tuple[dict[tuple[int, int, int], ci.Cursor], list[ci.Cursor]]:
+        """The parent of every node of the function by its extent and kind, and every reference to the local, in the body's order."""
+        parents: dict[tuple[int, int, int], ci.Cursor] = {}
         refs: list[ci.Cursor] = []
         for node in self.fn.cur.walk_preorder():
+            key = (node.extent.start.offset, node.extent.end.offset, node.kind.value)
             for kid in node.get_children():
-                parents[(kid.extent.start.offset, kid.extent.end.offset, kid.kind.value)] = node
+                # A wrapper with its child's extent and kind keys the same, so the child keeps the wrapper's parent and the walk up ends.
+                if (kid.extent.start.offset, kid.extent.end.offset, kid.kind.value) != key:
+                    parents[(kid.extent.start.offset, kid.extent.end.offset, kid.kind.value)] = node
             if node.kind == CursorKind.DECL_REF_EXPR and node.referenced is not None and node.referenced == var:
                 refs.append(node)
+        return parents, refs
 
-        def parent(cur: ci.Cursor) -> tuple[ci.Cursor | None, ci.Cursor]:
-            child = cur
-            up = parents.get((cur.extent.start.offset, cur.extent.end.offset, cur.kind.value))
-            while up is not None and up.kind in (CursorKind.UNEXPOSED_EXPR, CursorKind.PAREN_EXPR):
-                child = up
-                up = parents.get((up.extent.start.offset, up.extent.end.offset, up.kind.value))
-            return up, child
+    def slot_parent(self, parents: dict[tuple[int, int, int], ci.Cursor], cur: ci.Cursor) -> tuple[ci.Cursor | None, ci.Cursor]:
+        """The first parent of a node that is not a cast or a parenthesis, and the child under it."""
+        child = cur
+        up = parents.get((cur.extent.start.offset, cur.extent.end.offset, cur.kind.value))
+        while up is not None and up.kind in (CursorKind.UNEXPOSED_EXPR, CursorKind.PAREN_EXPR):
+            child = up
+            up = parents.get((up.extent.start.offset, up.extent.end.offset, up.kind.value))
+        return up, child
 
+    def slot_store_place(self, var: ci.Cursor) -> str | None:
+        """The keyword of a slot-address local with no initializer, by ruling V35 and W14, or None when the local stays optional.
+
+        `let` or `var` is a local of the body's straight-line code whose first store comes before every read, `let` for one store and `var` for more.
+        `closure` is a local with one store and every read inside one loop body that the port wraps in a scratch closure, with the store first."""
+        parents, refs = self.slot_refs(var)
+        stores: list[ci.Cursor] = []
+        reads: list[ci.Cursor] = []
         for ref in refs:
-            up, child = parent(ref)
+            up, child = self.slot_parent(parents, ref)
+            if up is not None and up.kind == CursorKind.BINARY_OPERATOR and self.operator_or_none(up) == "=" \
+                    and list(up.get_children())[0].extent.start.offset == child.extent.start.offset:
+                stores.append(up)
+            else:
+                reads.append(ref)
+        if not stores:
+            return None
+        for store in stores:
+            try:
+                self.expr(list(store.get_children())[1])
+            except Hole:
+                # A store the draft cannot write leaves the local unset before the reads, so the local stays optional.
+                return None
+        first = min(store.extent.start.offset for store in stores)
+        if any(read.extent.start.offset < first for read in reads):
+            return None
+        blocks = [parents.get((store.extent.start.offset, store.extent.end.offset, store.kind.value)) for store in stores]
+        if any(block is None or block.kind != CursorKind.COMPOUND_STMT for block in blocks):
+            return None
+        body = [c for c in self.fn.cur.get_children() if c.kind == CursorKind.COMPOUND_STMT][-1]
+
+        def opens_scratch(block: ci.Cursor, before: int) -> bool:
+            return any(self.record_local(c) is not None and c.extent.start.offset < before for c in block.get_children())
+
+        if all(block.extent.start.offset == body.extent.start.offset for block in blocks):
+            # A scratch closure that opens before the first store would hold the store, and Swift refuses a store into a captured `let`.
+            return None if opens_scratch(body, first) else ("let" if len(stores) == 1 else "var")
+        block = blocks[0]
+        loop = parents.get((block.extent.start.offset, block.extent.end.offset, block.kind.value))
+        if len(stores) != 1 or loop is None or loop.kind not in (CursorKind.FOR_STMT, CursorKind.WHILE_STMT, CursorKind.DO_STMT):
+            return None
+        if any(not (block.extent.start.offset <= ref.extent.start.offset < block.extent.end.offset) for ref in refs):
+            return None
+        return "closure" if opens_scratch(block, first) else None
+
+    def plain_entity(self, var: ci.Cursor, init: ci.Cursor | None) -> bool:
+        """True for a `gentity_t *` or `gclient_t *` local whose every store is a table slot address, with no NULL store and no NULL test.
+
+        A read of the local is a member access, a call argument, a store into another name, or a compare with a non-NULL value.
+        Any other read, `!ent`, `if (ent)`, `ent && ...`, or `&ent`, counts as a NULL test. A local with no initializer passes on its stores alone."""
+        if init is not None and not self.slot_address(init):
+            return False
+        parents, refs = self.slot_refs(var)
+        for ref in refs:
+            up, child = self.slot_parent(parents, ref)
             if up is None:
                 return False
             if up.kind in (CursorKind.MEMBER_REF_EXPR, CursorKind.CALL_EXPR, CursorKind.RETURN_STMT, CursorKind.VAR_DECL):

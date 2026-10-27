@@ -276,12 +276,7 @@ class Generator:
             if mapped is None:
                 return None
             element_type, call = mapped
-            lines = [f"    public var {name}: Slots<{element_type}> {{ {call.replace('{count}', str(count))} }}"]
-            row = self.element_type(t)
-            if row.get_canonical().kind == TypeKind.CONSTANTARRAY and row.get_canonical().element_type.get_canonical().kind == TypeKind.CHAR_S:
-                capacity = self.bound(field, target, 1, row.get_canonical().element_count)
-                lines += self.row_buffers(name, address, str(count), capacity)
-            return lines
+            return [f"    public var {name}: Slots<{element_type}> {{ {call.replace('{count}', str(count))} }}"]
         if canonical.kind == TypeKind.RECORD:
             record = self.types.record_name(t)
             if record and record in self.views:
@@ -354,20 +349,6 @@ class Generator:
             f"    public var {name}{BUFFER_SUFFIX}: JKAShared.CharBuf {{",
             f"        get {{ charBuf(at: {address}, capacity: {capacity}) }}",
             f"        nonmutating set {{ store(newValue, at: {address}, capacity: {capacity}) }}",
-            "    }",
-        ]
-
-    def row_buffers(self, name: str, address: str, count: str, capacity: str) -> list[str]:
-        """The second accessor of a `char name[M][N]` field, one buffer per row, which a callee writes into.
-
-        A non-const `char *` parameter takes an `inout CharBuf`, so a write target passes `&view.<name>Buffers[i]`.
-        Each row reads its bytes out and the setter puts them back, so the callee's write lands in C memory."""
-        return [
-            "",
-            f"    /// Raven's `{name}[i]` as the buffer a callee writes into, for a `char *` parameter the port spells `inout CharBuf`.",
-            f"    public var {name}{BUFFER_SUFFIX}s: Slots<JKAShared.CharBuf> {{",
-            f"        Slots(base: {address}, count: {count}, stride: {capacity}, read: {{ charBuf(at: $0, capacity: {capacity}) }}, "
-            f"write: {{ store($1, at: $0, capacity: {capacity}) }})",
             "    }",
         ]
 

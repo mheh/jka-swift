@@ -35,7 +35,7 @@ The oracle range is the whole definition, from the return type to the closing br
 | `SP_info_siege_decomplete` | `oracle/codemp/game/g_saga.c:1297-1315` | `JKAMP_GameLogic/g_saga.swift:1202` | ported | `crates/mp/game/src/g_saga.rs:1564-1599` | `func SP_info_siege_decomplete(_ ent: Entity)` |
 | `siegeEndUse` | `oracle/codemp/game/g_saga.c:1317-1320` | `JKAMP_GameLogic/g_saga.swift:1221` | ported | `crates/mp/game/src/g_saga.rs:1604-1612` | `func siegeEndUse(_ ent: Entity, _ other: Entity, _ activator: Entity)` |
 | `SP_target_siege_end` | `oracle/codemp/game/g_saga.c:1325-1334` | `JKAMP_GameLogic/g_saga.swift:1232` | ported | `crates/mp/game/src/g_saga.rs:1617-1624` | `func SP_target_siege_end(_ ent: Entity)` |
-| `SiegeItemRemoveOwner` | `oracle/codemp/game/g_saga.c:1338-1349` | `JKAMP_GameLogic/g_saga.swift:1242` | ported | `crates/mp/game/src/g_saga.rs:1629-1645` | `func SiegeItemRemoveOwner(_ ent: Entity, _ carrier: Entity)` |
+| `SiegeItemRemoveOwner` | `oracle/codemp/game/g_saga.c:1338-1349` | `JKAMP_GameLogic/g_saga.swift:1242` | ported | `crates/mp/game/src/g_saga.rs:1629-1645` | `func SiegeItemRemoveOwner(_ ent: Entity, _ carrier: Entity?)` |
 | `SiegeItemRespawnEffect` static | `oracle/codemp/game/g_saga.c:1351-1370` | `JKAMP_GameLogic/g_saga.swift:1252` | ported | `crates/mp/game/src/g_saga.rs:1650-1672` | `private func SiegeItemRespawnEffect(_ ent: Entity, _ newOrg: JKAShared.vec3_t)` |
 | `SiegeItemRespawnOnOriginalSpot` static | `oracle/codemp/game/g_saga.c:1372-1380` | `JKAMP_GameLogic/g_saga.swift:1272` | ported | `crates/mp/game/src/g_saga.rs:1677-1689` | `private func SiegeItemRespawnOnOriginalSpot(_ ent: Entity, _ carrier: Entity?)` |
 | `SiegeItemThink` | `oracle/codemp/game/g_saga.c:1382-1475` | `JKAMP_GameLogic/g_saga.swift:1284` | ported | `crates/mp/game/src/g_saga.rs:1694-1831` | `func SiegeItemThink(_ ent: Entity)` |
@@ -44,7 +44,7 @@ The oracle range is the whole definition, from the return type to the closing br
 | `SiegeItemDie` | `oracle/codemp/game/g_saga.c:1553-1574` | `JKAMP_GameLogic/g_saga.swift:1439` | ported | `crates/mp/game/src/g_saga.rs:1950-1981` | `func SiegeItemDie(_ `self`: Entity, _ inflictor: Entity, _ attacker: Entity, _ damage: Int32, _ meansOfDeath: Int32)` |
 | `SiegeItemUse` | `oracle/codemp/game/g_saga.c:1576-1623` | `JKAMP_GameLogic/g_saga.swift:1461` | ported | `crates/mp/game/src/g_saga.rs:1988-2051` | `func SiegeItemUse(_ ent: Entity, _ other: Entity, _ activator: Entity)` |
 | `SP_misc_siege_item` | `oracle/codemp/game/g_saga.c:1676-1835` | `JKAMP_GameLogic/g_saga.swift:1561` | ported | `crates/mp/game/src/g_saga.rs:2056-2328` | `func SP_misc_siege_item(_ ent: Entity)` |
-| `G_SiegeClientExData` | `oracle/codemp/game/g_saga.c:1845-1886` | `JKAMP_GameLogic/g_saga.swift:1721` | ported | `crates/mp/game/src/g_saga.rs:2335-2398` | `func G_SiegeClientExData(_ msgTarg: Entity)` |
+| `G_SiegeClientExData` | `oracle/codemp/game/g_saga.c:1845-1886` | `JKAMP_GameLogic/g_saga.swift:1719` | ported | `crates/mp/game/src/g_saga.rs:2335-2398` | `func G_SiegeClientExData(_ msgTarg: Entity)` |
 
 20 file-scope variables. The entry is the stub's line for the variable, by rule 3 and rule 6.
 

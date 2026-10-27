@@ -27,35 +27,35 @@ The oracle range is the whole definition, from the return type to the closing br
 | `RemoveTournamentWinner` | `oracle/codemp/game/g_main.c:1519-1534` | `JKAMP_GameLogic/g_main.swift:1551` | ported | `crates/mp/game/src/g_main.rs:753-766` | `func RemoveTournamentWinner()` |
 | `AdjustTournamentScores` | `oracle/codemp/game/g_main.c:1541-1616` | `JKAMP_GameLogic/g_main.swift:1576` | ported | `crates/mp/game/src/g_main.rs:771-832` | `func AdjustTournamentScores()` |
 | `SortRanks` | `oracle/codemp/game/g_main.c:1624-1689` | `JKAMP_GameLogic/g_main.swift:1648` | ported | `crates/mp/game/src/g_main.rs:883-949` | `func SortRanks(_ a: Int32, _ b: Int32) -> Int32` |
-| `G_CanResetDuelists` | `oracle/codemp/game/g_main.c:1695-1715` | `JKAMP_GameLogic/g_main.swift:1717` | ported | `crates/mp/game/src/g_main.rs:954-976` | `func G_CanResetDuelists() -> Bool` |
-| `G_ResetDuelists` | `oracle/codemp/game/g_main.c:1718-1740` | `JKAMP_GameLogic/g_main.swift:1736` | ported | `crates/mp/game/src/g_main.rs:981-1004` | `func G_ResetDuelists()` |
-| `CalculateRanks` | `oracle/codemp/game/g_main.c:1751-1906` | `JKAMP_GameLogic/g_main.swift:1770` | ported | `crates/mp/game/src/g_main.rs:1009-1188` | `func CalculateRanks()` |
-| `SendScoreboardMessageToAllClients` | `oracle/codemp/game/g_main.c:1925-1933` | `JKAMP_GameLogic/g_main.swift:1939` | ported | `crates/mp/game/src/g_main.rs:1193-1202` | `func SendScoreboardMessageToAllClients()` |
-| `MoveClientToIntermission` | `oracle/codemp/game/g_main.c:1943-1967` | `JKAMP_GameLogic/g_main.swift:1962` | ported | `crates/mp/game/src/g_main.rs:1207-1243` | `func MoveClientToIntermission(_ ent: Entity)` |
-| `FindIntermissionPoint` | `oracle/codemp/game/g_main.c:1979-2026` | `JKAMP_GameLogic/g_main.swift:1989` | ported | `crates/mp/game/src/g_main.rs:1248-1328` | `func FindIntermissionPoint()` |
-| `BeginIntermission` | `oracle/codemp/game/g_main.c:2035-2092` | `JKAMP_GameLogic/g_main.swift:2028` | ported | `crates/mp/game/src/g_main.rs:1333-1386` | `func BeginIntermission()` |
-| `DuelLimitHit` | `oracle/codemp/game/g_main.c:2094-2112` | `JKAMP_GameLogic/g_main.swift:2085` | ported | `crates/mp/game/src/g_main.rs:1391-1409` | `func DuelLimitHit() -> Bool` |
-| `DuelResetWinsLosses` | `oracle/codemp/game/g_main.c:2114-2128` | `JKAMP_GameLogic/g_main.swift:2107` | ported | `crates/mp/game/src/g_main.rs:1414-1427` | `func DuelResetWinsLosses()` |
-| `ExitLevel` | `oracle/codemp/game/g_main.c:2141-2204` | `JKAMP_GameLogic/g_main.swift:2126` | ported | `crates/mp/game/src/g_main.rs:1432-1493` | `func ExitLevel()` |
-| `G_LogPrintf` | `oracle/codemp/game/g_main.c:2213-2240` | `JKAMP_GameLogic/g_main.swift:2199` | ported | `crates/mp/game/src/g_main.rs:1498-1515` | `func G_LogPrintf(_ fmt: String, _ args: any JKAShared.FormatArg...)` |
-| `LogExit` | `oracle/codemp/game/g_main.c:2249-2303` | `JKAMP_GameLogic/g_main.swift:2237` | ported | `crates/mp/game/src/g_main.rs:1520-1570` | `func LogExit(_ string: String)` |
-| `CheckIntermissionExit` | `oracle/codemp/game/g_main.c:2317-2554` | `JKAMP_GameLogic/g_main.swift:2310` | ported | `crates/mp/game/src/g_main.rs:1575-1852` | `func CheckIntermissionExit()` |
-| `ScoreIsTied` | `oracle/codemp/game/g_main.c:2561-2576` | `JKAMP_GameLogic/g_main.swift:2505` | ported | `crates/mp/game/src/g_main.rs:1857-1873` | `func ScoreIsTied() -> Bool` |
-| `CheckExitRules` | `oracle/codemp/game/g_main.c:2588-2911` | `JKAMP_GameLogic/g_main.swift:2524` | ported | `crates/mp/game/src/g_main.rs:1878-2095` | `func CheckExitRules()` |
-| `G_RemoveDuelist` | `oracle/codemp/game/g_main.c:2923-2938` | `JKAMP_GameLogic/g_main.swift:2820` | ported | `crates/mp/game/src/g_main.rs:2100-2117` | `func G_RemoveDuelist(_ team: Int32)` |
-| `CheckTournament` | `oracle/codemp/game/g_main.c:2948-3216` | `JKAMP_GameLogic/g_main.swift:2834` | ported | `crates/mp/game/src/g_main.rs:2122-2353` | `func CheckTournament()` |
-| `G_KickAllBots` | `oracle/codemp/game/g_main.c:3218-3239` | `JKAMP_GameLogic/g_main.swift:3033` | ported | `crates/mp/game/src/g_main.rs:2358-2378` | `func G_KickAllBots()` |
-| `CheckVote` | `oracle/codemp/game/g_main.c:3246-3326` | `JKAMP_GameLogic/g_main.swift:3064` | ported | `crates/mp/game/src/g_main.rs:2383-2475` | `func CheckVote()` |
-| `PrintTeam` | `oracle/codemp/game/g_main.c:3333-3341` | `JKAMP_GameLogic/g_main.swift:3146` | ported | `crates/mp/game/src/g_main.rs:2480-2493` | `func PrintTeam(_ team: Int32, _ message: String)` |
-| `SetLeader` | `oracle/codemp/game/g_main.c:3348-3370` | `JKAMP_GameLogic/g_main.swift:3168` | ported | `crates/mp/game/src/g_main.rs:2498-2544` | `func SetLeader(_ team: Int32, _ client: Int32)` |
-| `CheckTeamLeader` | `oracle/codemp/game/g_main.c:3377-3402` | `JKAMP_GameLogic/g_main.swift:3204` | ported | `crates/mp/game/src/g_main.rs:2549-2584` | `func CheckTeamLeader(_ team: Int32)` |
-| `CheckTeamVote` | `oracle/codemp/game/g_main.c:3409-3447` | `JKAMP_GameLogic/g_main.swift:3252` | ported | `crates/mp/game/src/g_main.rs:2589-2637` | `func CheckTeamVote(_ team: Int32)` |
-| `CheckCvars` | `oracle/codemp/game/g_main.c:3455-3480` | `JKAMP_GameLogic/g_main.swift:3306` | ported | `crates/mp/game/src/g_main.rs:2642-2662` | `func CheckCvars()` |
-| `G_RunThink` | `oracle/codemp/game/g_main.c:3489-3512` | `JKAMP_GameLogic/g_main.swift:3339` | ported | `crates/mp/game/src/g_main.rs:2667-2696` | `func G_RunThink(_ ent: Entity)` |
-| `NAV_CheckCalcPaths` | `oracle/codemp/game/g_main.c:3522-3555` | `JKAMP_GameLogic/g_main.swift:3365` | ported | `crates/mp/game/src/g_main.rs:2701-2744` | `func NAV_CheckCalcPaths()` |
-| `BG_GetTime` | `oracle/codemp/game/g_main.c:3559-3562` | `JKAMP_GameLogic/g_main.swift:3396` | ported | none | `func BG_GetTime() -> Int32` |
-| `G_RunFrame` | `oracle/codemp/game/g_main.c:3582-4102` | `JKAMP_GameLogic/g_main.swift:3401` | ported | `crates/mp/game/src/g_main.rs:2758-3254` | `public func G_RunFrame(_ levelTime: Int32)` |
-| `G_GetStringEdString` | `oracle/codemp/game/g_main.c:4104-4120` | `JKAMP_GameLogic/g_main.swift:3850` | ported | `crates/mp/game/src/g_main.rs:3259-3266` | `func G_GetStringEdString(_ refSection: String, _ refName: String) -> String` |
+| `G_CanResetDuelists` | `oracle/codemp/game/g_main.c:1695-1715` | `JKAMP_GameLogic/g_main.swift:1713` | ported | `crates/mp/game/src/g_main.rs:954-976` | `func G_CanResetDuelists() -> Bool` |
+| `G_ResetDuelists` | `oracle/codemp/game/g_main.c:1718-1740` | `JKAMP_GameLogic/g_main.swift:1732` | ported | `crates/mp/game/src/g_main.rs:981-1004` | `func G_ResetDuelists()` |
+| `CalculateRanks` | `oracle/codemp/game/g_main.c:1751-1906` | `JKAMP_GameLogic/g_main.swift:1766` | ported | `crates/mp/game/src/g_main.rs:1009-1188` | `func CalculateRanks()` |
+| `SendScoreboardMessageToAllClients` | `oracle/codemp/game/g_main.c:1925-1933` | `JKAMP_GameLogic/g_main.swift:1933` | ported | `crates/mp/game/src/g_main.rs:1193-1202` | `func SendScoreboardMessageToAllClients()` |
+| `MoveClientToIntermission` | `oracle/codemp/game/g_main.c:1943-1967` | `JKAMP_GameLogic/g_main.swift:1956` | ported | `crates/mp/game/src/g_main.rs:1207-1243` | `func MoveClientToIntermission(_ ent: Entity)` |
+| `FindIntermissionPoint` | `oracle/codemp/game/g_main.c:1979-2026` | `JKAMP_GameLogic/g_main.swift:1983` | ported | `crates/mp/game/src/g_main.rs:1248-1328` | `func FindIntermissionPoint()` |
+| `BeginIntermission` | `oracle/codemp/game/g_main.c:2035-2092` | `JKAMP_GameLogic/g_main.swift:2030` | ported | `crates/mp/game/src/g_main.rs:1333-1386` | `func BeginIntermission()` |
+| `DuelLimitHit` | `oracle/codemp/game/g_main.c:2094-2112` | `JKAMP_GameLogic/g_main.swift:2087` | ported | `crates/mp/game/src/g_main.rs:1391-1409` | `func DuelLimitHit() -> Bool` |
+| `DuelResetWinsLosses` | `oracle/codemp/game/g_main.c:2114-2128` | `JKAMP_GameLogic/g_main.swift:2109` | ported | `crates/mp/game/src/g_main.rs:1414-1427` | `func DuelResetWinsLosses()` |
+| `ExitLevel` | `oracle/codemp/game/g_main.c:2141-2204` | `JKAMP_GameLogic/g_main.swift:2128` | ported | `crates/mp/game/src/g_main.rs:1432-1493` | `func ExitLevel()` |
+| `G_LogPrintf` | `oracle/codemp/game/g_main.c:2213-2240` | `JKAMP_GameLogic/g_main.swift:2201` | ported | `crates/mp/game/src/g_main.rs:1498-1515` | `func G_LogPrintf(_ fmt: String, _ args: any JKAShared.FormatArg...)` |
+| `LogExit` | `oracle/codemp/game/g_main.c:2249-2303` | `JKAMP_GameLogic/g_main.swift:2239` | ported | `crates/mp/game/src/g_main.rs:1520-1570` | `func LogExit(_ string: String)` |
+| `CheckIntermissionExit` | `oracle/codemp/game/g_main.c:2317-2554` | `JKAMP_GameLogic/g_main.swift:2312` | ported | `crates/mp/game/src/g_main.rs:1575-1852` | `func CheckIntermissionExit()` |
+| `ScoreIsTied` | `oracle/codemp/game/g_main.c:2561-2576` | `JKAMP_GameLogic/g_main.swift:2507` | ported | `crates/mp/game/src/g_main.rs:1857-1873` | `func ScoreIsTied() -> Bool` |
+| `CheckExitRules` | `oracle/codemp/game/g_main.c:2588-2911` | `JKAMP_GameLogic/g_main.swift:2526` | ported | `crates/mp/game/src/g_main.rs:1878-2095` | `func CheckExitRules()` |
+| `G_RemoveDuelist` | `oracle/codemp/game/g_main.c:2923-2938` | `JKAMP_GameLogic/g_main.swift:2822` | ported | `crates/mp/game/src/g_main.rs:2100-2117` | `func G_RemoveDuelist(_ team: Int32)` |
+| `CheckTournament` | `oracle/codemp/game/g_main.c:2948-3216` | `JKAMP_GameLogic/g_main.swift:2836` | ported | `crates/mp/game/src/g_main.rs:2122-2353` | `func CheckTournament()` |
+| `G_KickAllBots` | `oracle/codemp/game/g_main.c:3218-3239` | `JKAMP_GameLogic/g_main.swift:3035` | ported | `crates/mp/game/src/g_main.rs:2358-2378` | `func G_KickAllBots()` |
+| `CheckVote` | `oracle/codemp/game/g_main.c:3246-3326` | `JKAMP_GameLogic/g_main.swift:3066` | ported | `crates/mp/game/src/g_main.rs:2383-2475` | `func CheckVote()` |
+| `PrintTeam` | `oracle/codemp/game/g_main.c:3333-3341` | `JKAMP_GameLogic/g_main.swift:3148` | ported | `crates/mp/game/src/g_main.rs:2480-2493` | `func PrintTeam(_ team: Int32, _ message: String)` |
+| `SetLeader` | `oracle/codemp/game/g_main.c:3348-3370` | `JKAMP_GameLogic/g_main.swift:3170` | ported | `crates/mp/game/src/g_main.rs:2498-2544` | `func SetLeader(_ team: Int32, _ client: Int32)` |
+| `CheckTeamLeader` | `oracle/codemp/game/g_main.c:3377-3402` | `JKAMP_GameLogic/g_main.swift:3206` | ported | `crates/mp/game/src/g_main.rs:2549-2584` | `func CheckTeamLeader(_ team: Int32)` |
+| `CheckTeamVote` | `oracle/codemp/game/g_main.c:3409-3447` | `JKAMP_GameLogic/g_main.swift:3254` | ported | `crates/mp/game/src/g_main.rs:2589-2637` | `func CheckTeamVote(_ team: Int32)` |
+| `CheckCvars` | `oracle/codemp/game/g_main.c:3455-3480` | `JKAMP_GameLogic/g_main.swift:3308` | ported | `crates/mp/game/src/g_main.rs:2642-2662` | `func CheckCvars()` |
+| `G_RunThink` | `oracle/codemp/game/g_main.c:3489-3512` | `JKAMP_GameLogic/g_main.swift:3341` | ported | `crates/mp/game/src/g_main.rs:2667-2696` | `func G_RunThink(_ ent: Entity)` |
+| `NAV_CheckCalcPaths` | `oracle/codemp/game/g_main.c:3522-3555` | `JKAMP_GameLogic/g_main.swift:3367` | ported | `crates/mp/game/src/g_main.rs:2701-2744` | `func NAV_CheckCalcPaths()` |
+| `BG_GetTime` | `oracle/codemp/game/g_main.c:3559-3562` | `JKAMP_GameLogic/g_main.swift:3398` | ported | none | `func BG_GetTime() -> Int32` |
+| `G_RunFrame` | `oracle/codemp/game/g_main.c:3582-4102` | `JKAMP_GameLogic/g_main.swift:3403` | ported | `crates/mp/game/src/g_main.rs:2758-3254` | `public func G_RunFrame(_ levelTime: Int32)` |
+| `G_GetStringEdString` | `oracle/codemp/game/g_main.c:4104-4120` | `JKAMP_GameLogic/g_main.swift:3852` | ported | `crates/mp/game/src/g_main.rs:3259-3266` | `func G_GetStringEdString(_ refSection: String, _ refName: String) -> String` |
 
 163 file-scope variables. The entry is the stub's line for the variable, by rule 3 and rule 6.
 

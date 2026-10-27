@@ -92,6 +92,8 @@ class Facts:
     # The body already spells the expression as a Swift Bool, and the expression is a number Swift types by context.
     is_bool: bool = False
     is_literal: bool = False
+    # Raven's digits of a literal expression, `1.0f` or `-500.0f`, which a store into an int reads for its value.
+    literal_text: str | None = None
     # The expression is one name, so an unsigned value crosses into Int32 with its bits kept.
     named_leaf: bool = False
     # Swift holds the C `double` expression as a Float, because it is a C library call whose Foundation overload follows its float argument.
@@ -477,7 +479,11 @@ class Types:
         if want in ("Float", "Int32", "Double") and have is not None and have != want and not facts.is_literal:
             return Answer(want, "convert", crossing=want + "({text})")
         if want == "Int32" and have in ("Float", "Double") and facts.is_literal:
-            # Swift types a float literal as no integer, so Raven's `gravity = 1.0f` converts at the store, the mirror of `Float(x)`.
+            # A float literal with an integral value is the integer literal, so Raven's `gravity = 1.0f` reads `gravity = 1`.
+            # Any other float literal converts at the store, where C truncates, the mirror of `Float(x)`.
+            value = float("".join((facts.literal_text or "").split()).rstrip("fFlL") or "nan")
+            if value.is_integer():
+                return Answer(want, "convert", crossing=str(int(value)))
             return Answer(want, "convert", crossing="Int32({text})")
         if want in NARROW_STORAGE and have is not None and not facts.is_literal:
             # C truncates the int it computed into the narrow local at the store.

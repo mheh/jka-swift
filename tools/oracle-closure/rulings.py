@@ -162,6 +162,9 @@ TYPES = {
     # and he stores and compares a team number through it, 0, SIEGETEAM_TEAM1, or SIEGETEAM_TEAM2.
     # Ruling A2 of 2026-10-11.
     "gSiegeRoundWinningTeam": "Int32",
+    # Raven declares `char *fatalErrorPointer = NULL` at g_nav.c:1616, a write cursor into `fatalErrorString`,
+    # so it is the byte offset of guide line 648, and `nil` is his NULL.
+    "fatalErrorPointer": "Int32?",
 }
 
 # MARK: - Functions
@@ -201,7 +204,8 @@ RETURNS = {
 
 # Allocators whose `char *` result a body holds as a CharBuf of the constant size Raven asks for, when every store into the local is that call.
 # The allocation call and its free stay on the page, so the pool keeps Raven's count. See row 1 of the walk of 2026-10-01.
-CHARBUF_ALLOCS = {"B_TempAlloc"}
+# BG_TempAlloc holds the saberName locals of NPC_ParseParms and the tempReadBuffer locals of bg_vehicleLoad.
+CHARBUF_ALLOCS = {"B_TempAlloc", "BG_TempAlloc"}
 
 # (function, parameter) -> the kind of the parameter, where the C type alone does not say.
 #   raw       an UnsafeMutableRawPointer a body writes at a byte offset, see "Typed access at a byte offset"
@@ -264,6 +268,8 @@ PARAMS = {
 # Functions of the oracle the port leaves out. The stub carries the cite, Raven's line, and the reason, and no function.
 NOT_PORTED = {
     "memmove": "the C library's, which no body of the module calls, and a Swift body moves bytes through CharBuf and a view's setter",
+    "atof": "the VM's, which computes in float, and the DLL build links the C library's `atof`, which `JKAShared` holds",
+    "vmMain": "the shell's vmMain in Sources/jampgame/jampgame.swift decodes the command words and calls the bare functions, under rule 11 and ruling F5",
     "BotEntityInfo": "no caller in the module, and the botlib record it forwards belongs to the engine, which the module reaches through trap_AAS_EntityInfo alone. "
                      "A view over aas_entityinfo_t of be_aas.h is the fallback if a ported body calls it",
     # A trap no file of the module calls gets its shape when a module that calls it is generated.
@@ -331,6 +337,8 @@ NULLABLE = {
     # target_random_use passes `self->target`, which SP_target_random does not require, and Q_stricmp returns -1 for a NULL at q_shared.c:901.
     # Ruling R9 of 2026-10-11.
     ("G_Find", "match"),
+    # SiegeItemThink passes NULL to SiegeItemRespawnOnOriginalSpot at g_saga.c:1435, which passes it on, and the body tests it at g_saga.c:1344.
+    ("SiegeItemRemoveOwner", "carrier"),
 }
 # Files whose functions a bg body reaches directly, because they live in the shared module or in bg itself.
 # The functions whose integer arithmetic is a generator or a hash, where C wraps at 32 bits and Swift's plain operators trap.

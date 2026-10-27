@@ -18,10 +18,10 @@ The oracle range is the whole definition, from the return type to the closing br
 | `Sniper_CheckFireState` static | `oracle/codemp/game/NPC_AI_Sniper.c:442-486` | `JKAMP_GameLogic/NPC_AI_Sniper.swift:396` | ported | `crates/mp/game/src/NPC_AI_Sniper.rs:542-608` | `private func Sniper_CheckFireState()` |
 | `Sniper_EvaluateShot` | `oracle/codemp/game/NPC_AI_Sniper.c:488-506` | `JKAMP_GameLogic/NPC_AI_Sniper.swift:441` | ported | `crates/mp/game/src/NPC_AI_Sniper.rs:613-646` | `func Sniper_EvaluateShot(_ hit: Int32) -> Bool` |
 | `Sniper_FaceEnemy` | `oracle/codemp/game/NPC_AI_Sniper.c:508-603` | `JKAMP_GameLogic/NPC_AI_Sniper.swift:457` | ported | `crates/mp/game/src/NPC_AI_Sniper.rs:651-790` | `func Sniper_FaceEnemy()` |
-| `Sniper_UpdateEnemyPos` | `oracle/codemp/game/NPC_AI_Sniper.c:605-623` | `JKAMP_GameLogic/NPC_AI_Sniper.swift:544` | ported | `crates/mp/game/src/NPC_AI_Sniper.rs:795-821` | `func Sniper_UpdateEnemyPos()` |
-| `Sniper_StartHide` | `oracle/codemp/game/NPC_AI_Sniper.c:631-638` | `JKAMP_GameLogic/NPC_AI_Sniper.swift:564` | ported | `crates/mp/game/src/NPC_AI_Sniper.rs:826-835` | `func Sniper_StartHide()` |
-| `NPC_BSSniper_Attack` | `oracle/codemp/game/NPC_AI_Sniper.c:640-852` | `JKAMP_GameLogic/NPC_AI_Sniper.swift:573` | ported | `crates/mp/game/src/NPC_AI_Sniper.rs:840-1104` | `func NPC_BSSniper_Attack()` |
-| `NPC_BSSniper_Default` | `oracle/codemp/game/NPC_AI_Sniper.c:854-864` | `JKAMP_GameLogic/NPC_AI_Sniper.swift:773` | ported | `crates/mp/game/src/NPC_AI_Sniper.rs:1109-1120` | `func NPC_BSSniper_Default()` |
+| `Sniper_UpdateEnemyPos` | `oracle/codemp/game/NPC_AI_Sniper.c:605-623` | `JKAMP_GameLogic/NPC_AI_Sniper.swift:542` | ported | `crates/mp/game/src/NPC_AI_Sniper.rs:795-821` | `func Sniper_UpdateEnemyPos()` |
+| `Sniper_StartHide` | `oracle/codemp/game/NPC_AI_Sniper.c:631-638` | `JKAMP_GameLogic/NPC_AI_Sniper.swift:560` | ported | `crates/mp/game/src/NPC_AI_Sniper.rs:826-835` | `func Sniper_StartHide()` |
+| `NPC_BSSniper_Attack` | `oracle/codemp/game/NPC_AI_Sniper.c:640-852` | `JKAMP_GameLogic/NPC_AI_Sniper.swift:569` | ported | `crates/mp/game/src/NPC_AI_Sniper.rs:840-1104` | `func NPC_BSSniper_Attack()` |
+| `NPC_BSSniper_Default` | `oracle/codemp/game/NPC_AI_Sniper.c:854-864` | `JKAMP_GameLogic/NPC_AI_Sniper.swift:769` | ported | `crates/mp/game/src/NPC_AI_Sniper.rs:1109-1120` | `func NPC_BSSniper_Default()` |
 
 6 file-scope variables. The entry is the stub's line for the variable, by rule 3 and rule 6.
 

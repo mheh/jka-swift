@@ -207,6 +207,12 @@ class Expressions:
         text = self.bytes[inner.extent.start.offset:inner.extent.end.offset].decode("utf-8", "replace").strip()
         return NUMBER.fullmatch(text) is not None
 
+    def literal_text(self, cur: ci.Cursor) -> str | None:
+        """Raven's digits of a literal, `1.0f`, or None for any other expression."""
+        inner = self.unwrap(cur)
+        text = self.bytes[inner.extent.start.offset:inner.extent.end.offset].decode("utf-8", "replace").strip()
+        return text if NUMBER.fullmatch(text) else None
+
     def converted(self, cur: ci.Cursor, swift: str) -> str:
         """An expression stored where Swift wants `swift`. spelling.py names the crossing, and the words under it are Raven's own."""
         # C computes in double only where the expression's own type is double, and a double literal inside a call's argument stays in that argument.
@@ -224,7 +230,7 @@ class Expressions:
             # The parse types Raven's macro by the SDK's function of the same name, and C's own kind decides the conversion at the slot.
             return self.expr(cur) if kind == swift else f"{swift}({self.expr(cur)})"
         answer = self.types.crossing(self.strip(cur).type, swift,
-                                     Facts(is_bool=self.is_bool(cur), is_literal=self.is_literal(cur),
+                                     Facts(is_bool=self.is_bool(cur), is_literal=self.is_literal(cur), literal_text=self.literal_text(cur),
                                            named_leaf=self.unwrap(cur).kind in self.NAMED_LEAVES,
                                            float_valued=not self.holds_double(cur)))
         if answer.kind == "bool_to_number":

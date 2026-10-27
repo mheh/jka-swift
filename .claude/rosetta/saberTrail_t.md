@@ -15,5 +15,5 @@ A field reads and writes through the C struct, so `ent.r.absmin` is Raven's `ent
 | `vec3_t dualbase` | `dualbase: JKAShared.vec3_t` |  |
 | `vec3_t dualtip` | `dualtip: JKAShared.vec3_t` |  |
 | `qboolean[2] haveOldPos` | `haveOldPos: Slots<Bool>` | Array of 2. |
-| `vec3_t[2] oldPos` | `oldPos: Slots<Slots<Float>>` | Array of 2. |
-| `vec3_t[2] oldNormal` | `oldNormal: Slots<Slots<Float>>` | Array of 2. |
+| `vec3_t[2] oldPos` | `oldPos: Slots<JKAShared.vec3_t>` | Array of 2. |
+| `vec3_t[2] oldNormal` | `oldNormal: Slots<JKAShared.vec3_t>` | Array of 2. |

@@ -16,19 +16,19 @@ nonisolated(unsafe) let cinematicSkipScript: JKAShared.CharBuf = JKAShared.CharB
 let player_locked: Bool = { () -> Bool in portMissing("player_locked", source: "oracle/codemp/game/g_ICARUScb.c:4575") }()
 
 /// Source: oracle/codemp/game/g_ICARUScb.c:4933
-var textcolor_caption: [Float] {
+var textcolor_caption: JKAShared.vec4_t {
     get { world.variables.textcolor_caption }
     set { world.variables.textcolor_caption = newValue }
 }
 
 /// Source: oracle/codemp/game/g_ICARUScb.c:4934
-var textcolor_center: [Float] {
+var textcolor_center: JKAShared.vec4_t {
     get { world.variables.textcolor_center }
     set { world.variables.textcolor_center = newValue }
 }
 
 /// Source: oracle/codemp/game/g_ICARUScb.c:4935
-var textcolor_scroll: [Float] {
+var textcolor_scroll: JKAShared.vec4_t {
     get { world.variables.textcolor_scroll }
     set { world.variables.textcolor_scroll = newValue }
 }
@@ -3194,17 +3194,21 @@ func Q3_SetParm(_ entID: Int32, _ parmNum: Int32, _ parmValue: String) {
         val = Float(Double(val) + atof(ent!.parms!.parm[parmNum]))
         // Raven passes sizeof(parm), 1024, and the NUL pad clears the later rows and overruns parms_t past row 0.
         // The "%f" text is at most 47 bytes, so the row size gives the same row bytes.
-        Com_sprintf(&ent!.parms!.parmBuffers[parmNum], MAX_PARM_STRING_LENGTH, "%f", val)
+        var buf = CharBuf(MAX_PARM_STRING_LENGTH)
+        Com_sprintf(&buf, MAX_PARM_STRING_LENGTH, "%f", val)
+        ent!.parms!.parm[parmNum] = String(buf)
     } else {
         //Just copy the string
         //copy only 16 characters
-        strncpy(&ent!.parms!.parmBuffers[parmNum], parmValue, MAX_PARM_STRING_LENGTH)
+        var buf = CharBuf(MAX_PARM_STRING_LENGTH)
+        strncpy(&buf, parmValue, MAX_PARM_STRING_LENGTH)
         //set the last charcter to null in case we had to truncate their passed string
-        if ent!.parms!.parmBuffers[parmNum][MAX_PARM_STRING_LENGTH - 1] != 0 {
+        if buf[MAX_PARM_STRING_LENGTH - 1] != 0 {
             //Tried to set a string that is too long
-            ent!.parms!.parmBuffers[parmNum][MAX_PARM_STRING_LENGTH - 1] = 0
-            G_DebugPrint(WL_WARNING, "SET_PARM: parm%d string too long, truncated to '%s'!\n", parmNum, ent!.parms!.parm[parmNum])
+            buf[MAX_PARM_STRING_LENGTH - 1] = 0
+            G_DebugPrint(WL_WARNING, "SET_PARM: parm%d string too long, truncated to '%s'!\n", parmNum, buf)
         }
+        ent!.parms!.parm[parmNum] = String(buf)
     }
 }
 

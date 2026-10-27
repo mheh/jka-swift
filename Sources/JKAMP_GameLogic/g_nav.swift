@@ -71,7 +71,7 @@ var fatalErrors: Int32 {
 }
 
 /// Source: oracle/codemp/game/g_nav.c:1616
-var fatalErrorPointer: String {
+var fatalErrorPointer: Int32? {
     get { world.variables.fatalErrorPointer }
     set { world.variables.fatalErrorPointer = newValue }
 }

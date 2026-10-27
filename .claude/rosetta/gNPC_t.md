@@ -101,7 +101,7 @@ A field reads and writes through the C struct, so `ent.r.absmin` is Raven's `ent
 | `int charmedTime` | `charmedTime: Int32` |  |
 | `int controlledTime` | `controlledTime: Int32` |  |
 | `int surrenderTime` | `surrenderTime: Int32` |  |
-| `vec3_t[24] enemyLaggedPos` | `enemyLaggedPos: Slots<Slots<Float>>` | Array of 24. |
+| `vec3_t[24] enemyLaggedPos` | `enemyLaggedPos: Slots<JKAShared.vec3_t>` | Array of 24. |
 | `gentity_t * watchTarget` | `watchTarget: Entity?` | Optional, nil for a NULL pointer. |
 | `int ffireCount` | `ffireCount: Int32` |  |
 | `int ffireDebounce` | `ffireDebounce: Int32` |  |

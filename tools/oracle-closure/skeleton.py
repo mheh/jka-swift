@@ -28,6 +28,7 @@ and changes no other text.
 Usage:
   .venv/bin/python skeleton.py                 # writes every file and prints the counts
   .venv/bin/python skeleton.py --only g_mover  # prints one file to stdout, writes nothing
+  .venv/bin/python skeleton.py --signatures    # saves the signature rows from the stubs on disk, writes no file
   .venv/bin/python skeleton.py --publish       # the public rule on the adopted bg files, nothing else written
 """
 
@@ -546,6 +547,11 @@ class Skeleton:
                 return
             var.swift = "JKAShared.vec3_t" if not depth or self.table.views.is_vec3(t) else "[JKAShared.vec3_t]"
             return
+        named = t.get_named_type() if t.kind == TypeKind.ELABORATED else t
+        if named.kind == TypeKind.TYPEDEF and named.spelling == "vec4_t":
+            # A scalar `vec4_t` global is one SIMD4 value, as guide line 241 spells the typedef.
+            var.swift = "JKAShared.vec4_t"
+            return
         if not depth and var.name in self.table.file_walks:
             # Raven walks the pointer over a file-scope table of records, so the port holds the index of the slot it points at.
             var.walk = self.table.file_walks[var.name]
@@ -709,6 +715,8 @@ class Skeleton:
             literal = '""'
         elif inner == "JKAShared.vec3_t":
             literal = "vec3_t()"
+        elif inner == "JKAShared.vec4_t":
+            literal = "vec4_t()"
         elif inner == "JKAShared.CharBuf":
             literal = f"JKAShared.CharBuf({var.bound})"
         else:
@@ -1255,7 +1263,7 @@ class Skeleton:
                                 [self.variable_signature(var) for var in self.variables.get(stem, [])])
         return self._rows[stem]
 
-    def save_signatures(self, path: Path | None = None) -> None:
+    def save_signatures(self, path: Path | None = None) -> int:
         """Write the signature rows of every Raven file into the store of the table, in manifest order.
         The key covers the input key of the table and the hash of every stub the rows read, and the files table keeps those hashes for lookup.py."""
         stems = sorted(set(self.files) | set(self.variables))
@@ -1263,6 +1271,7 @@ class Skeleton:
         files = {named(stub_path(stem), REPO): file_hash(stub_path(stem)) for stem in stems}
         with Store(path if path is not None else self.table.store_path) as store:
             store.save_signatures(combined(files, self.table.keys.adoption), files, rows)
+        return len(rows)
 
     # MARK: - Writing
 
@@ -1393,6 +1402,7 @@ def main() -> None:
     ap.add_argument("--rebuild", action="store_true", help="sweep every fact of the table again and write the store anew")
     ap.add_argument("--only", help="one Raven file stem, printed to stdout, nothing written")
     ap.add_argument("--publish", action="store_true", help="put `public` on the declarations the public rule names in the adopted bg files, nothing else")
+    ap.add_argument("--signatures", action="store_true", help="save the signature rows from the stubs on disk into the store, no file written")
     args = ap.parse_args()
     import table
 
@@ -1404,6 +1414,9 @@ def main() -> None:
         print(f"skeleton.py --publish: {changed} declarations in the adopted bg files gained public")
         for line in report:
             print(f"  {line}")
+        return
+    if args.signatures:
+        print(f"skeleton.py --signatures: {gen.save_signatures()} signature rows saved from the stubs on disk")
         return
     if args.only:
         if args.only not in gen.files and args.only not in gen.variables:

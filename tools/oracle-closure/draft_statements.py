@@ -484,8 +484,8 @@ class Statements:
                 return [f"{pad}defer {{ {self.expr(stepped)} {self.unary_parts(post)[0][0]}= 1 }}",
                         f"{pad}return {self.converted(stepped, self.fn.returns)}" + self.trailing(cur)]
             if self.fn.returns == "String" and self.is_raw(kids[0]):
-                # Raven returns the raw allocation he filled, and the result is the text in it.
-                return [f"{pad}return String(cString: {self.expr(kids[0])}.assumingMemoryBound(to: CChar.self))" + self.trailing(cur)]
+                # Raven returns the raw allocation he filled, and the result is the text in it, read through the view decode of JKAShared.
+                return [f"{pad}return cString(at: {self.expr(kids[0])})" + self.trailing(cur)]
             value = self.converted(kids[0], self.fn.returns)
             return [f"{pad}return {value}" + self.trailing(cur)]
         if kind == CursorKind.IF_STMT:
@@ -561,6 +561,9 @@ class Statements:
                 if op == "=" and self.unwrap(left).kind == CursorKind.DECL_REF_EXPR and self.unwrap(left).spelling in self.charbuf_allocs:
                     # The local is already a CharBuf of the size, so the store keeps only the call, for the pool's count.
                     return [f"{pad}_ = {self.expr(self.uncast(right))}" + self.trailing(cur)]
+                if op == "=" and self.unwrap(left).kind == CursorKind.DECL_REF_EXPR and self.unwrap(left).spelling in self.store_lets:
+                    # The local lives in one loop-body scratch closure, so Raven's store is its declaration.
+                    return [f"{pad}let {swift_name(self.unwrap(left).spelling)} = {self.expr(right)}" + self.trailing(cur)]
                 if op == "=" and self.unwrap(left).kind == CursorKind.DECL_REF_EXPR and self.unwrap(left).spelling in self.game_entities | self.optional_entities:
                     return [f"{pad}{self.expr(left)} = {self.entity_or_nil(right)}" + self.trailing(cur)]
                 if self.unwrap(left).kind == CursorKind.DECL_REF_EXPR and self.unwrap(left).spelling in self.chosen_locals:
@@ -1019,9 +1022,10 @@ class Statements:
         subject, body = list(cur.get_children())
         if body.kind != CursorKind.COMPOUND_STMT:
             raise Hole("The switch body is not a block.")
-        groups: list[tuple[list[str], list[ci.Cursor], int]] = []
+        groups: list[tuple[list[str], list[ci.Cursor], int, list[str]]] = []
         for child in body.get_children():
             labels: list[str] = []
+            comments: list[str] = []
             stmt = child
             label_line = child.extent.start.line
             while stmt.kind in (CursorKind.CASE_STMT, CursorKind.DEFAULT_STMT):
@@ -1029,12 +1033,14 @@ class Statements:
                 label_line = stmt.extent.start.line
                 if stmt.kind == CursorKind.CASE_STMT:
                     labels.append(self.expr(inner[0]))
+                    comments.append(self.label_comment(inner[0].extent.end.offset))
                     stmt = inner[-1]
                 else:
                     labels.append("default")
+                    comments.append(self.label_comment(stmt.extent.start.offset + len("default")))
                     stmt = inner[0]
             if labels:
-                groups.append((labels, [], label_line))
+                groups.append((labels, [], label_line, comments))
             if not groups:
                 raise Hole("A statement before the first case of the switch.")
             if stmt.kind in (CursorKind.CASE_STMT, CursorKind.DEFAULT_STMT) or stmt is child and labels and stmt.kind == CursorKind.NULL_STMT:
@@ -1046,11 +1052,19 @@ class Statements:
             out += [line for line in self.gap(body.extent.start.line, groups[0][2], depth) if not blank(line)]
         # Each group is one arm, so Raven's `default:` before his other cases moves to the end of the switch as a whole arm.
         arms: list[list[str]] = []
-        default_at = next((i for i, (labels, _, _) in enumerate(groups) if "default" in labels), None)
-        for i, (labels, stmts, label_line) in enumerate(groups):
+        default_at = next((i for i, (labels, _, _, _) in enumerate(groups) if "default" in labels), None)
+        for i, (labels, stmts, label_line, comments) in enumerate(groups):
             label = "default" if labels == ["default"] else "case " + ", ".join(l for l in labels if l != "default")
+            # Raven's comment after a label stays after it, and an arm that joins labels writes one label per line when any label carries one.
+            head = [f"{pad}{label}:" + (f"{TRAILING}{comments[0]}" if comments[0] else "")]
             if "default" in labels and len(labels) > 1:
                 label = "default"
+                said = [comment for comment in comments if comment]
+                head = [f"{pad}default:" + (f"{TRAILING}{said[0]}" if said else "")]
+            elif len(labels) > 1 and any(comments):
+                head = [f"{pad}case {labels[0]}," + (f"{TRAILING}{comments[0]}" if comments[0] else "")]
+                head += [f"{pad}     {joined}{',' if k + 2 < len(labels) else ':'}" + (f"{TRAILING}{comment}" if comment else "")
+                         for k, (joined, comment) in enumerate(zip(labels[1:], comments[1:]))]
             ends_in_break = bool(stmts) and stmts[-1].kind == CursorKind.BREAK_STMT
             ends_in_exit = bool(stmts) and stmts[-1].kind in (CursorKind.RETURN_STMT, CursorKind.CONTINUE_STMT)
             inner_stmts = stmts[:-1] if ends_in_break else stmts
@@ -1074,7 +1088,7 @@ class Statements:
             if not any(not blank(line) and not line.strip().startswith("//") for line in lines):
                 # A case with comments alone still needs its break.
                 lines += roled([f"{INDENT * (depth + 1)}break"], "frame")
-            arms.append([f"{pad}{label}:"] + lines)
+            arms.append(head + lines)
         if default_at is not None and default_at + 1 < len(arms):
             # Swift takes no case after the default block. A fall-through beside the default has no order that keeps it, so it stays a hole.
             neighbors = [arms[default_at]] + ([arms[default_at - 1]] if default_at else [])
@@ -1089,6 +1103,14 @@ class Statements:
             out += [""] + roled([f"{pad}default:", f"{INDENT * (depth + 1)}break"], "frame")
         out += roled([f"{pad}}}"], "frame")
         return out
+
+    def label_comment(self, offset: int) -> str:
+        """Raven's comment after the colon of a `case` or `default` label whose text ends at `offset`, or the empty text when the line holds none."""
+        end = self.bytes.find(b"\n", offset)
+        rest = self.bytes[offset:end if end >= 0 else len(self.bytes)].decode("utf-8", "replace")
+        colon = rest.find(":")
+        rest = rest[colon + 1:].strip() if colon >= 0 else ""
+        return rest if rest.startswith("//") else ""
 
     def condition(self, cur: ci.Cursor) -> str:
         """A C truth test as a Swift Bool: a Bool as it is, a pointer against nil, a number against 0."""

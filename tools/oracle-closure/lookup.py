@@ -154,6 +154,9 @@ def main() -> None:
     if not args:
         print(__doc__)
         sys.exit(2)
+    if args[0] in ("-h", "--help"):
+        print(__doc__)
+        return
     if args[0] == "fn" and len(args) == 2:
         sys.exit(function(args[1]) or 0)
     if args[0] == "sig" and len(args) == 2:

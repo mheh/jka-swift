@@ -52,7 +52,7 @@ The oracle range is the whole definition, from the return type to the closing br
 | `G_BreakArm` | `oracle/codemp/game/g_client.c:2616-2674` | `JKAMP_GameLogic/g_client.swift:2449` | ported | `crates/mp/game/src/g_client.rs:2082-2158` | `func G_BreakArm(_ ent: Entity, _ arm: Int32)` |
 | `G_UpdateClientAnims` | `oracle/codemp/game/g_client.c:2681-2926` | `JKAMP_GameLogic/g_client.swift:2532` | ported | `crates/mp/game/src/g_client.rs:2163-2379` | `func G_UpdateClientAnims(_ `self`: Entity, _ animSpeedScale: Float)` |
 | `ClientSpawn` | `oracle/codemp/game/g_client.c:2938-3801` | `JKAMP_GameLogic/g_client.swift:2656` | ported | `crates/mp/game/src/g_client.rs:2384-3166` | `func ClientSpawn(_ ent: Entity)` |
-| `ClientDisconnect` | `oracle/codemp/game/g_client.c:3816-3938` | `JKAMP_GameLogic/g_client.swift:3429` | ported | `crates/mp/game/src/g_client.rs:3171-3336` | `public func ClientDisconnect(_ clientNum: Int32)` |
+| `ClientDisconnect` | `oracle/codemp/game/g_client.c:3816-3938` | `JKAMP_GameLogic/g_client.swift:3432` | ported | `crates/mp/game/src/g_client.rs:3171-3336` | `public func ClientDisconnect(_ clientNum: Int32)` |
 
 5 file-scope variables. The entry is the stub's line for the variable, by rule 3 and rule 6.
 

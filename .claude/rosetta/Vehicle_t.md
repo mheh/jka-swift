@@ -30,8 +30,8 @@ A field reads and writes through the C struct, so `ent.r.absmin` is Raven's `ent
 | `int m_iDroidUnitTag` | `m_iDroidUnitTag: Int32` |  |
 | `int[2] m_iGunnerViewTag` | `m_iGunnerViewTag: Slots<Int32>` | Array of 2. |
 | `int[12] m_iMuzzleTime` | `m_iMuzzleTime: Slots<Int32>` | Array of 12. |
-| `vec3_t[12] m_vMuzzlePos` | `m_vMuzzlePos: Slots<Slots<Float>>` | Array of 12. |
-| `vec3_t[12] m_vMuzzleDir` | `m_vMuzzleDir: Slots<Slots<Float>>` | Array of 12. |
+| `vec3_t[12] m_vMuzzlePos` | `m_vMuzzlePos: Slots<JKAShared.vec3_t>` | Array of 12. |
+| `vec3_t[12] m_vMuzzleDir` | `m_vMuzzleDir: Slots<JKAShared.vec3_t>` | Array of 12. |
 | `int[12] m_iMuzzleWait` | `m_iMuzzleWait: Slots<Int32>` | Array of 12. |
 | `usercmd_t m_ucmd` | `m_ucmd: Usercmd` |  |
 | `int m_EjectDir` | `m_EjectDir: Int32` |  |

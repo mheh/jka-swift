@@ -166,6 +166,7 @@ class Drafter(Statements, Expressions, Calls, Declarations, Classification):
         # The locals of the function being drafted that Raven typed `gentity_t *` and the draft holds as `JKAMP.BgEntity`.
         self.game_entities: set[str] = set()
         self.plain_entities: set[str] = set()
+        self.store_lets: set[str] = set()
         # The text kind of each argument of the call being drafted, by position, so one overload takes the whole call.
         self.call_kinds: dict[int, str] = {}
         # The conversion letter each argument of the call being drafted feeds in the callee's format string, by position, with the argument.
@@ -241,6 +242,8 @@ class Drafter(Statements, Expressions, Calls, Declarations, Classification):
         self.optional_entities: set[str] = set()
         # Raven's `gentity_t *` locals whose every store is a table slot address, which Swift holds as a plain `Entity`.
         self.plain_entities: set[str] = set()
+        # The plain locals of one loop-body scratch closure, which Swift declares as a `let` at Raven's store.
+        self.store_lets: set[str] = set()
         self.after_com_error = False
         # Raven's `char *buf` locals that only ever hold a CHARBUF_ALLOCS call at one constant size, which Swift holds as a CharBuf of that size.
         self.charbuf_allocs = self.charbuf_alloc_names(fn.cur)

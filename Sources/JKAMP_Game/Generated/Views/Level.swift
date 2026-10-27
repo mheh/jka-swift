@@ -290,11 +290,6 @@ public struct Level: Hashable, HandleView {
     /// Source: oracle/codemp/game/g_local.h:875
     public var teamVoteString: Slots<String> { Slots(cStrings: UnsafeMutableRawPointer(self.raw.pointer(to: \.teamVoteString)!), count: 2, capacity: Int(JKAShared.MAX_STRING_CHARS)) }
 
-    /// Raven's `teamVoteString[i]` as the buffer a callee writes into, for a `char *` parameter the port spells `inout CharBuf`.
-    public var teamVoteStringBuffers: Slots<JKAShared.CharBuf> {
-        Slots(base: UnsafeMutableRawPointer(self.raw.pointer(to: \.teamVoteString)!), count: 2, stride: Int(JKAShared.MAX_STRING_CHARS), read: { charBuf(at: $0, capacity: Int(JKAShared.MAX_STRING_CHARS)) }, write: { store($1, at: $0, capacity: Int(JKAShared.MAX_STRING_CHARS)) })
-    }
-
     /// Source: oracle/codemp/game/g_local.h:876
     public var teamVoteTime: Slots<Int32> { Slots<Int32>(scalars: UnsafeMutableRawPointer(self.raw.pointer(to: \.teamVoteTime)!), count: 2) }
 

@@ -165,9 +165,8 @@ class Traps:
         # Every scoped pointer wraps the call in one closure, innermost last.
         layers: list[str] = []
         for p in mapped.values():
-            if p.kind == "cstring":
-                layers.append(f"{p.name}.withCString {{ {p.name} in")
-            elif p.kind == "cstring_opt":
+            if p.kind in ("cstring", "cstring_opt"):
+                # The withCString of JKAShared encodes through CharBuf, so the engine reads one byte per scalar.
                 layers.append(f"withCString({p.name}) {{ {p.name} in")
             elif p.kind == "vec3_const":
                 layers.append(f"withUnsafePointer(to: {p.name}) {{ {p.name} in")
@@ -280,7 +279,7 @@ class Traps:
             f"/// Source: oracle/{SOURCE}:{cur.location.line}",
             f"/// Raven's `{text.name}` takes a `char *` text at his own call sites, and this overload hands the engine the text's bytes.",
             head + " {",
-            f"    {keyword}{text.name}.withCString {{ base in",
+            f"    {keyword}withCString({text.name}) {{ base in",
             f"        {name}({', '.join(words)})",
             "    }",
             "}",
