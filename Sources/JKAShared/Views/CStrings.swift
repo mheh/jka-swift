@@ -9,7 +9,8 @@ public func cString(at address: UnsafeRawPointer) -> String {
 }
 
 /// This writes a Swift string into a C `char[capacity]` field.
-/// The bytes come from `CharBuf(_ string:)`, and at most `capacity - 1` bytes are copied, and the NUL follows, which is what Raven's `Q_strncpyz` did.
+/// The bytes come from `CharBuf(_ string:)`.
+/// It copies at most `capacity - 1` bytes and then the NUL, as Raven's `Q_strncpyz` did.
 public func store(_ string: String, at address: UnsafeMutableRawPointer, capacity: Int) {
     precondition(capacity > 0, "a char array field has no room for the NUL")
     let buf = CharBuf(string)

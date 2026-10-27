@@ -457,27 +457,24 @@ class Declarations:
         return ref is not None and ref.kind == CursorKind.VAR_DECL and ref.semantic_parent is not None \
             and ref.semantic_parent.kind == CursorKind.TRANSLATION_UNIT and ref.type.get_canonical().kind == TypeKind.CONSTANTARRAY
 
-    def slot_refs(self, var: ci.Cursor) -> tuple[dict[tuple[int, int, int], ci.Cursor], list[ci.Cursor]]:
-        """The parent of every node of the function by its extent and kind, and every reference to the local, in the body's order."""
-        parents: dict[tuple[int, int, int], ci.Cursor] = {}
+    def slot_refs(self, var: ci.Cursor) -> tuple[dict[ci.Cursor, ci.Cursor], list[ci.Cursor]]:
+        """The parent of every node of the function, keyed by the cursor, and every reference to the local, in the body's order."""
+        parents: dict[ci.Cursor, ci.Cursor] = {}
         refs: list[ci.Cursor] = []
         for node in self.fn.cur.walk_preorder():
-            key = (node.extent.start.offset, node.extent.end.offset, node.kind.value)
             for kid in node.get_children():
-                # A wrapper with its child's extent and kind keys the same, so the child keeps the wrapper's parent and the walk up ends.
-                if (kid.extent.start.offset, kid.extent.end.offset, kid.kind.value) != key:
-                    parents[(kid.extent.start.offset, kid.extent.end.offset, kid.kind.value)] = node
+                parents[kid] = node
             if node.kind == CursorKind.DECL_REF_EXPR and node.referenced is not None and node.referenced == var:
                 refs.append(node)
         return parents, refs
 
-    def slot_parent(self, parents: dict[tuple[int, int, int], ci.Cursor], cur: ci.Cursor) -> tuple[ci.Cursor | None, ci.Cursor]:
+    def slot_parent(self, parents: dict[ci.Cursor, ci.Cursor], cur: ci.Cursor) -> tuple[ci.Cursor | None, ci.Cursor]:
         """The first parent of a node that is not a cast or a parenthesis, and the child under it."""
         child = cur
-        up = parents.get((cur.extent.start.offset, cur.extent.end.offset, cur.kind.value))
+        up = parents.get(cur)
         while up is not None and up.kind in (CursorKind.UNEXPOSED_EXPR, CursorKind.PAREN_EXPR):
             child = up
-            up = parents.get((up.extent.start.offset, up.extent.end.offset, up.kind.value))
+            up = parents.get(up)
         return up, child
 
     def slot_store_place(self, var: ci.Cursor) -> str | None:
@@ -504,9 +501,10 @@ class Declarations:
                 # A store the draft cannot write leaves the local unset before the reads, so the local stays optional.
                 return None
         first = min(store.extent.start.offset for store in stores)
-        if any(read.extent.start.offset < first for read in reads):
+        first_end = min(stores, key=lambda store: store.extent.start.offset).extent.end.offset
+        if any(read.extent.start.offset < first_end for read in reads):
             return None
-        blocks = [parents.get((store.extent.start.offset, store.extent.end.offset, store.kind.value)) for store in stores]
+        blocks = [parents.get(store) for store in stores]
         if any(block is None or block.kind != CursorKind.COMPOUND_STMT for block in blocks):
             return None
         body = [c for c in self.fn.cur.get_children() if c.kind == CursorKind.COMPOUND_STMT][-1]
@@ -518,7 +516,7 @@ class Declarations:
             # A scratch closure that opens before the first store would hold the store, and Swift refuses a store into a captured `let`.
             return None if opens_scratch(body, first) else ("let" if len(stores) == 1 else "var")
         block = blocks[0]
-        loop = parents.get((block.extent.start.offset, block.extent.end.offset, block.kind.value))
+        loop = parents.get(block)
         if len(stores) != 1 or loop is None or loop.kind not in (CursorKind.FOR_STMT, CursorKind.WHILE_STMT, CursorKind.DO_STMT):
             return None
         if any(not (block.extent.start.offset <= ref.extent.start.offset < block.extent.end.offset) for ref in refs):
@@ -529,7 +527,8 @@ class Declarations:
         """True for a `gentity_t *` or `gclient_t *` local whose every store is a table slot address, with no NULL store and no NULL test.
 
         A read of the local is a member access, a call argument, a store into another name, or a compare with a non-NULL value.
-        Any other read, `!ent`, `if (ent)`, `ent && ...`, or `&ent`, counts as a NULL test. A local with no initializer passes on its stores alone."""
+        Any other read, `!ent`, `if (ent)`, `ent && ...`, or `&ent`, counts as a NULL test.
+        A local with no initializer passes on its stores alone."""
         if init is not None and not self.slot_address(init):
             return False
         parents, refs = self.slot_refs(var)

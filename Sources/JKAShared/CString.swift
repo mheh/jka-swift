@@ -478,7 +478,7 @@ public func toupper(_ c: Int32) -> Int32 {
 // MARK: - withCString
 
 /// This runs the body over the C string of an optional Swift string, and over NULL when the string is nil.
-/// A trap calls it for a parameter Raven's callers pass NULL to, so the engine sees the NULL as C did.
+/// Every trap calls it for a `const char *` parameter, and a nil string reaches the engine as NULL.
 public func withCString<R>(_ string: String?, _ body: (UnsafePointer<CChar>?) -> R) -> R {
     guard let string else { return body(nil) }
     return CharBuf(string).withUnsafeRawPointer { body($0.assumingMemoryBound(to: CChar.self)) }

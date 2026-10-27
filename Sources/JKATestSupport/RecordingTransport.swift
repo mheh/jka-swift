@@ -22,7 +22,7 @@ public final class RecordingTransport: SyscallTransport {
         self.calls.append((command: command, words: words))
         if self.textCommands.contains(command), let first = words.first,
            let pointer = UnsafePointer<CChar>(bitPattern: first) {
-            self.texts.append((command: command, text: String(cString: pointer)))
+            self.texts.append((command: command, text: cString(at: pointer)))
         }
         return self.answers[command] ?? 0
     }
