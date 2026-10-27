@@ -137,7 +137,7 @@ The first group is 121 holes of the pointer-local shape, "A pointer local", "A r
 - 21 in `NPC_spawn.swift`, the `func` locals of pain and touch callbacks, take the thunks of J1 that `skeleton.py` now writes into `Callbacks.swift`.
 - 21 in `g_items.swift`, `g_turret_G2.swift`, and `NPC_utils.swift`, the `thebone`, `firstFree`, `boneVector`, and `freeBoneVec` locals with their pointer dereferences, take the J5 shape of conflict 4 through `EntityState+Bones.swift`.
 - About 20 text locals, `fileString` in `ai_wpnav.swift`, `s` and `str` in `g_utils.swift`, `s` and `t` in `g_svcmds.swift`, `args` in `ai_main.swift`, and `crap` and `morecrap` in `g_main.swift`, take guide line 622 (D4, O3, Q1), the drafter rule of O2, and guide lines 419-420 (B6) for `vtos`.
-- The 9 `pm` holes of `g_active.swift` take guide lines 325 (A4), 552 (A5), and 539 (A6), and the four `trace` and `pointcontents` stores take the thunk of ruling W4.
+- Five `pm` holes of `g_active.swift` take guide lines 323 (A4), 552 (A5), and 539 (A6), and the four `trace` and `pointcontents` stores take the thunk of ruling W4.
 
 The second group is 75 holes where the draft did not compile. The largest share, about 20, is a binary operator over `Int32` and `Bool`, which guide lines 539 (A6, F1) and 540 (E2, H2, P1, T2) cover with the `Bool(Int32)` initializer of D3 and I1. Smaller shares take line 554 (N1), line 555 (R5), lines 545-546 (B1) for the three "unable to type-check" and "failed to produce diagnostic" sites, and lines 623-624 (D5, I4, Q4, T1) for the five "A ++ inside an expression" holes. The four "Raven's block leaves a loop outside the record's scope" holes take lines 367-369 (F3, M3, Q3, I3).
 

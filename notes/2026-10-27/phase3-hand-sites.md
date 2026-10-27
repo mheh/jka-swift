@@ -12,7 +12,7 @@ V16 and the nine other bare `portMissing` data entries of W30 wait, as the plan 
 
 A throwaway script under `/tmp` read the drafts of `snapshot.py --out /tmp/v37snap`, one parse of every stem. For each function that the hand file and the draft both hold, matched by Raven line through `functions()` of `draftcheck.py`, it found each draft arm head that carries a comment. It matched the head to the next hand head with the same labels, with comments and whitespace stripped, and wrote the draft head lines over the hand head lines at the hand indent. No other line moved.
 
-The splice wrote 263 arm heads in 20 files, with 527 comment lines. 509 of those comment lines are new, and 18 were on the hand heads already, in the two joined `LEGS_*` heads of `bg_pmove.swift`, which now take one label per line. No draft head failed to find its hand head. 15 more draft heads with a comment were already in the hand files as the draft writes them, among them the one head of `bg_misc.swift`, so that file did not move.
+The splice wrote 263 arm heads in 20 files, with 527 comment lines. 509 of those comment lines are new, and 18 were on the hand heads already, in the two joined `LEGS_*` heads of `bg_pmove.swift`, which now take one label per line. No draft head failed to find its hand head. The review found two heads in `bg_panimate.swift` that the splice missed, `BG_SaberInSpecialAttack` and `BG_InDeathAnim`, and the review-fix round wrote them with 80 comment lines. 15 more draft heads with a comment were already in the hand files as the draft writes them, among them the one head of `bg_misc.swift`, so that file did not move.
 
 | File | Heads | Comment lines |
 |---|---|---|
