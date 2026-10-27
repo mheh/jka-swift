@@ -33,3 +33,17 @@ V30 is void. The `HANDOFF.md` of phase 2 is gone, and the `HANDOFF.md` of 2026-1
 The six findings that need no ruling are fixes of the forms the review gives: `g_spawn.swift:231` in group 4, the `phase3-helpers.md:105` sentence, the `withCString` doc at `CString.swift:480`, the `CStrings.swift:12` doc, the `memset` line numbers in `phase3-helpers.md`, and the docstring line at `draft_declarations.py:532`.
 
 R1a. The two `String(cString:)` sites of `Sources/jampsmoke/main.swift:25` and `:69` stay. The smoke loader depends on `CJKASyscall` alone and must not link game code, by the `Package.swift` comment on the smoke test, so it cannot call `cString(at:)`. The text at `:25` is a `dlerror` message and not engine text. W19 covers every target that links `JKAShared`, and `RecordingTransport.swift:25` changed under it.
+
+## The review findings of groups 3, 4, and 5
+
+`review-phase3-groups-3-5.md` gives 8 findings and 1 drafter row, and five need a ruling.
+
+| Finding | Ruling | Basis |
+|---|---|---|
+| S1. The W19 guide sentence names "the two `CharBuf` initializers" | Ratified as the review form. The sentence names the two initializers of `CharBuf.swift`, `CharBuf(_ string:)` and `String(_ buf:)`. The ledger text above stays as the dated record of what was ruled. | `CharBuf.swift:94-97` holds `String(_ buf:)` in `extension String`. The guide states what is. |
+| S2. The `saber2` arm of `NPC_stats.swift:1641` drops Raven's trailing comment | Ratified as a hand fix and a drafter row, W10a. The split of a `CHARBUF_ALLOCS` initializer carries the statement's trailing comment onto the `_ =` line. | `docs/transcription.md`: Raven's inline comments stay verbatim. A defect of a form goes to the drafter rule. |
+| S3. The `// Not ported:` stub line of `g_main.swift:547` passes 150 columns | Exempt. A `NOT_PORTED` text is data of `rulings.py`, and a stub line is the generator's text. No change at the site and no skeleton change. | A generated file is never hand-edited, and `ai_main.swift:406` stands the same way since phase 1. |
+| S4. The W4 plan text and the W32 proof disagree on the `pm` holes, 9 against 5 and 325 against 323 | The W32 proof wins, because it is the count correction. `phase-2-plan.md:140` and item (e) of `count-corrections.md` take the review's fix forms. | W32 is the ruling that corrects counts, and the review checked the count against the tree. |
+| S5. `WP_RemoveSaber(NPC.client!.saber, 1)` is a hole of the draft | Ratified as a drafter row, W10b. The `Slots` parameter rule passes an argument as it is when `self.slots_expression(inner)` is not `None`, and raises the hole for one record alone. | The hand line compiles, and `:364` of `draft_calls.py` already uses the same test. |
+
+The three findings that need no ruling take the review's fix forms: the period at `docs/transcription.md:251`, the two missed V37 heads of `bg_panimate.swift`, the two-line memset comment at `w_saber.swift:2026`, and item (d) of `count-corrections.md`. The `SiegeItemRemoveOwner(ent, carrier!)` finding of the group 4 record is closed, because the draft against the committed declaration prints the W12 form.
