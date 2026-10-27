@@ -1896,7 +1896,7 @@ func LoadPathData(_ filename: String) -> Int32 {
             }
             currentVar[i_cv] = 0
 
-            thiswp.weight = atof(currentVar)
+            thiswp.weight = Float(atof(currentVar))
 
             i_cv = 0
             i += 1
@@ -1909,7 +1909,7 @@ func LoadPathData(_ filename: String) -> Int32 {
             }
             currentVar[i_cv] = 0
 
-            thiswp.origin[0] = atof(currentVar)
+            thiswp.origin[0] = Float(atof(currentVar))
 
             i_cv = 0
             i += 1
@@ -1921,7 +1921,7 @@ func LoadPathData(_ filename: String) -> Int32 {
             }
             currentVar[i_cv] = 0
 
-            thiswp.origin[1] = atof(currentVar)
+            thiswp.origin[1] = Float(atof(currentVar))
 
             i_cv = 0
             i += 1
@@ -1933,7 +1933,7 @@ func LoadPathData(_ filename: String) -> Int32 {
             }
             currentVar[i_cv] = 0
 
-            thiswp.origin[2] = atof(currentVar)
+            thiswp.origin[2] = Float(atof(currentVar))
 
             i += 4
 
@@ -1980,7 +1980,7 @@ func LoadPathData(_ filename: String) -> Int32 {
             }
             currentVar[i_cv] = 0
 
-            thiswp.disttonext = atof(currentVar)
+            thiswp.disttonext = Float(atof(currentVar))
 
             CreateNewWP_FromObject(thiswp)
             i += 1

@@ -36,6 +36,6 @@ public func Q_IsColorString<I: BinaryInteger>(_ buf: CharBuf, at i: I) -> Bool {
 }
 
 /// Source: oracle/codemp/game/q_shared.h:1158
-public func ColorIndex(_ c: CChar) -> Int32 {
-    (Int32(c) - Int32(UInt8(ascii: "0"))) & 7
+public func ColorIndex(_ c: Int32) -> Int32 {
+    (c - Int32(UInt8(ascii: "0"))) & 7
 }

@@ -131,7 +131,7 @@ func G_ReadSessionData(_ client: Client) {
     client.sess.wins = ints[4]
     client.sess.losses = ints[5]
     teamLeader = ints[6]
-    client.sess.setForce = Bool(ints[7])
+    client.sess.setForce = ints[7] != 0
     client.sess.saberLevel = ints[8]
     client.sess.selectedFP = ints[9]
     client.sess.duelTeam = ints[10]
@@ -168,7 +168,7 @@ func G_ReadSessionData(_ client: Client) {
     // bk001205 - format issues
     client.sess.sessionTeam = team_t(sessionTeam)
     client.sess.spectatorState = spectatorState_t(spectatorState)
-    client.sess.teamLeader = Bool(teamLeader)
+    client.sess.teamLeader = teamLeader != 0
 
     client.ps.fd.saberAnimLevel = client.sess.saberLevel
     client.ps.fd.saberDrawAnimLevel = client.sess.saberLevel

@@ -94,7 +94,9 @@ private func UpdateIPBans() {
         }
 
         b = nativeBytes(of: ipFilters[i].compare)
-        Com_sprintf(&iplist, Int32(iplist.count) - strlen(iplist), "%i.%i.%i.%i ", Int32(b[0]), Int32(b[1]), Int32(b[2]), Int32(b[3]), at: strlen(iplist))
+        var ip = CharBuf(Int32(iplist.count) - strlen(iplist))
+        Com_sprintf(&ip, Int32(iplist.count) - strlen(iplist), "%i.%i.%i.%i ", Int32(b[0]), Int32(b[1]), Int32(b[2]), Int32(b[3]))
+        strcat(&iplist, ip)
         i += 1
     }
 

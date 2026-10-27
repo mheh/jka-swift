@@ -760,7 +760,7 @@ func BG_SiegeParseClassFile(_ filename: String, _ descBuffer: JKAMP.SiegeClassDe
 
     //Parse speed (this is a multiplier value)
     if BG_SiegeGetPairedValue(String(classInfo), "speed", &parseBuf) != 0 {
-        bgSiegeClasses[bgNumSiegeClasses].speed = atof(parseBuf)
+        bgSiegeClasses[bgNumSiegeClasses].speed = Float(atof(parseBuf))
     } else {
         //It's alright, just default to 1 then.
         bgSiegeClasses[bgNumSiegeClasses].speed = 1.0

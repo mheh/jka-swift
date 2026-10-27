@@ -6,7 +6,7 @@ public struct PooledString: Hashable, ExpressibleByStringLiteral {
     public let raw: UnsafeMutablePointer<CChar>
 
     /// The text as a Swift string, read to the NUL.
-    public var string: String { String(cString: self.raw) }
+    public var string: String { cString(at: self.raw) }
 
     /// The pointer a `char *` field holds, or `nil` for a null field.
     public init?(raw: UnsafeMutablePointer<CChar>?) {

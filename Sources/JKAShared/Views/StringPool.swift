@@ -22,12 +22,8 @@ public final class StringPool {
         if let pointer = self.pointers[string] {
             return PooledString(raw: pointer)!
         }
-        let bytes = Array(string.utf8)
-        let pointer = UnsafeMutablePointer<CChar>.allocate(capacity: bytes.count + 1)
-        for (index, byte) in bytes.enumerated() {
-            pointer[index] = CChar(bitPattern: byte)
-        }
-        pointer[bytes.count] = 0
+        let pointer = UnsafeMutablePointer<CChar>.allocate(capacity: Int(strlen(string)) + 1)
+        strcpy(UnsafeMutableRawPointer(pointer), string)
         self.pointers[string] = pointer
         return PooledString(raw: pointer)!
     }

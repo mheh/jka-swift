@@ -354,7 +354,7 @@ public struct Level: Hashable, HandleView {
 
     /// Source: oracle/codemp/game/g_local.h:895
     public var changemap: String? {
-        get { self.raw.pointee.changemap.map { String(cString: $0) } }
+        get { self.raw.pointee.changemap.map { cString(at: $0) } }
         nonmutating set { self.raw.pointee.changemap = StringPool.shared.pointer(for: newValue) }
     }
 
@@ -471,7 +471,7 @@ public struct Level: Hashable, HandleView {
 
     /// Source: oracle/codemp/game/g_local.h:926
     public var mTargetAdjust: String? {
-        get { self.raw.pointee.mTargetAdjust.map { String(cString: $0) } }
+        get { self.raw.pointee.mTargetAdjust.map { cString(at: $0) } }
         nonmutating set { self.raw.pointee.mTargetAdjust = StringPool.shared.pointer(for: newValue) }
     }
 

@@ -48,7 +48,7 @@ func trap_Cvar_VariableValue(_ var_name: String) -> Float {
     var buf = CharBuf(128)
 
     strcpy(&buf, trap_Cvar_VariableStringBuffer(var_name, Int32((buf).count)))
-    return atof(buf)
+    return Float(atof(buf))
 }
 
 /**
@@ -846,7 +846,7 @@ func G_BotConnect(_ clientNum: Int32, _ restart: Bool) -> Bool {
         strcpy(&userinfo, trap_GetUserinfo(clientNum, Int32((userinfo).count)))
 
         Q_strncpyz(&settings.personalityfileBuffer, Info_ValueForKey(String(userinfo), "personality"), 144)
-        settings.skill = atof(Info_ValueForKey(String(userinfo), "skill"))
+        settings.skill = Float(atof(Info_ValueForKey(String(userinfo), "skill")))
         Q_strncpyz(&settings.teamBuffer, Info_ValueForKey(String(userinfo), "team"), 144)
 
         if BotAISetupClient(clientNum, settings, restart) == 0 {
@@ -1113,7 +1113,7 @@ func Svcmd_AddBot_f() {
     if string[0] == 0 {
         skill = 4
     } else {
-        skill = atof(string)
+        skill = Float(atof(string))
     }
 
     // team

@@ -69,13 +69,13 @@ public struct CvarTable: Hashable, HandleView {
 
     /// Source: oracle/codemp/game/g_main.c:19
     public var cvarName: String? {
-        get { self.raw.pointee.cvarName.map { String(cString: $0) } }
+        get { self.raw.pointee.cvarName.map { cString(at: $0) } }
         nonmutating set { self.raw.pointee.cvarName = StringPool.shared.pointer(for: newValue) }
     }
 
     /// Source: oracle/codemp/game/g_main.c:20
     public var defaultString: String? {
-        get { self.raw.pointee.defaultString.map { String(cString: $0) } }
+        get { self.raw.pointee.defaultString.map { cString(at: $0) } }
         nonmutating set { self.raw.pointee.defaultString = StringPool.shared.pointer(for: newValue) }
     }
 

@@ -82,7 +82,7 @@ func multi_trigger_run(_ ent: Entity) {
         if ent.painDebounceTime != level.time {
             //first ent to touch it this frame
             //ent->e_ThinkFunc = thinkF_multi_wait;
-            ent.nextthink = Int32(level.time + (ent.wait + ent.random * crandom()) * 1000)
+            ent.nextthink = Int32(Double(level.time) + (Double(ent.wait) + Double(ent.random) * crandom()) * 1000)
             ent.painDebounceTime = level.time
         }
     } else if ent.wait < 0 {
@@ -489,7 +489,7 @@ func trigger_cleared_fire(_ `self`: Entity) {
     `self`.think = nil
     // should start the wait timer now, because the trigger's just been cleared, so we must "wait" from this point
     if `self`.wait > 0 {
-        `self`.nextthink = Int32(level.time + (`self`.wait + `self`.random * crandom()) * 1000)
+        `self`.nextthink = Int32(Double(level.time) + (Double(`self`.wait) + Double(`self`.random) * crandom()) * 1000)
     }
 }
 
@@ -1634,7 +1634,7 @@ so, the basic time between firing is a random time between
 func func_timer_think(_ `self`: Entity) {
     G_UseTargets(`self`, `self`.activator)
     // set time before next firing
-    `self`.nextthink = Int32(level.time + 1000 * (`self`.wait + crandom() * `self`.random))
+    `self`.nextthink = Int32(Double(level.time) + 1000 * (Double(`self`.wait) + crandom() * Double(`self`.random)))
 }
 
 /// Source: oracle/codemp/game/g_trigger.c:1763

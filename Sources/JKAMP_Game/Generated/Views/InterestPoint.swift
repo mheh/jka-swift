@@ -69,7 +69,7 @@ public struct InterestPoint: Hashable, HandleView {
 
     /// Source: oracle/codemp/game/g_local.h:757
     public var target: String? {
-        get { self.raw.pointee.target.map { String(cString: $0) } }
+        get { self.raw.pointee.target.map { cString(at: $0) } }
         nonmutating set { self.raw.pointee.target = StringPool.shared.pointer(for: newValue) }
     }
 }

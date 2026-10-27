@@ -1,14 +1,20 @@
-/// This reads the NUL-terminated C string at an address.
-public func cString(at address: UnsafeMutableRawPointer) -> String {
-    String(cString: address.assumingMemoryBound(to: CChar.self))
+/// This reads the NUL-terminated C string at an address, through `String(_ buf:)`.
+public func cString(at address: UnsafeRawPointer) -> String {
+    let raw = address.assumingMemoryBound(to: CChar.self)
+    var length = 0
+    while raw[length] != 0 {
+        length += 1
+    }
+    return String(CharBuf(bytes: Array(UnsafeBufferPointer(start: raw, count: length))))
 }
 
 /// This writes a Swift string into a C `char[capacity]` field.
-/// At most `capacity - 1` UTF-8 bytes are copied, and the NUL follows, which is what Raven's `Q_strncpyz` did.
+/// The bytes come from `CharBuf(_ string:)`, and at most `capacity - 1` bytes are copied, and the NUL follows, which is what Raven's `Q_strncpyz` did.
 public func store(_ string: String, at address: UnsafeMutableRawPointer, capacity: Int) {
     precondition(capacity > 0, "a char array field has no room for the NUL")
-    let length = min(string.utf8.count, capacity - 1)
-    UnsafeMutableRawBufferPointer(start: address, count: length).copyBytes(from: string.utf8.prefix(length))
+    let buf = CharBuf(string)
+    let length = min(Int(strlen(buf)), capacity - 1)
+    buf.withUnsafeRawPointer { address.copyMemory(from: $0, byteCount: length) }
     address.storeBytes(of: 0, toByteOffset: length, as: CChar.self)
 }
 

@@ -2370,12 +2370,12 @@ func Cmd_SetViewpos_f(_ ent: Entity) {
     i = 0
     while i < 3 {
         strcpy(&buffer, trap_Argv(i + 1, Int32((buffer).count)))
-        origin[i] = atof(buffer)
+        origin[i] = Float(atof(buffer))
         i += 1
     }
 
     strcpy(&buffer, trap_Argv(4, Int32((buffer).count)))
-    angles[YAW] = atof(buffer)
+    angles[YAW] = Float(atof(buffer))
 
     TeleportPlayer(ent, origin, angles)
 }

@@ -82,7 +82,7 @@ private func BG_ParseVehWeaponParm(_ vehWeapon: JKAMP.VehWeaponInfo, _ parmName:
                 b[int: vehWeaponFields[i].ofs] = atoi(value)
 
             case VF_FLOAT:
-                b[float: vehWeaponFields[i].ofs] = atof(value)
+                b[float: vehWeaponFields[i].ofs] = Float(atof(value))
 
             case VF_LSTRING:
                 if b[pointer: vehWeaponFields[i].ofs] == nil {
@@ -440,7 +440,7 @@ private func BG_ParseVehicleParm(_ vehicle: JKAMP.VehicleInfo, _ parmName: Strin
                 b[int: vehicleFields[i].ofs] = atoi(value)
 
             case VF_FLOAT:
-                b[float: vehicleFields[i].ofs] = atof(value)
+                b[float: vehicleFields[i].ofs] = Float(atof(value))
 
             case VF_LSTRING:
                 if b[pointer: vehicleFields[i].ofs] == nil {

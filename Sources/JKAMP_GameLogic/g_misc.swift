@@ -711,7 +711,7 @@ func SP_misc_skyportal(_ ent: Entity) {
     let fov_x: Float
 
     G_SpawnString("fov", "80", &fov)
-    fov_x = atof(fov)
+    fov_x = Float(atof(fov))
 
     isfog += G_SpawnVector("fogcolor", "0 0 0", &fogv)
     isfog += G_SpawnInt("fognear", "0", &fogn)
@@ -1047,10 +1047,10 @@ func Use_Shooter(_ ent: Entity, _ other: Entity, _ activator: Entity) {
     PerpendicularVector(&up, dir)
     CrossProduct(up, dir, &right)
 
-    deg = crandom() * ent.random
+    deg = Float(crandom() * Double(ent.random))
     _VectorMA(dir, deg, up, &dir)
 
-    deg = crandom() * ent.random
+    deg = Float(crandom() * Double(ent.random))
     _VectorMA(dir, deg, right, &dir)
 
     VectorNormalize(&dir)

@@ -203,7 +203,9 @@ func Seeker_Strafe() {
             _VectorMA(NPC!.enemy!.r.currentOrigin, stDis * side, right, &end)
 
             // then add a very small bit of random in front of/behind the player action
-            _VectorMA(end, crandom() * 25, dir, &end)
+            end[0] = Float(Double(end[0]) + Double(dir[0]) * (crandom() * 25))
+            end[1] = Float(Double(end[1]) + Double(dir[1]) * (crandom() * 25))
+            end[2] = Float(Double(end[2]) + Double(dir[2]) * (crandom() * 25))
 
             trap_Trace(tr, NPC!.r.currentOrigin, vec3_origin, vec3_origin, end, NPC!.s.number, MASK_SOLID)
 

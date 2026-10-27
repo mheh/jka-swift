@@ -231,7 +231,7 @@ func NPC_UpdateAngles(_ doPitch: Bool, _ doYaw: Bool) -> Bool {
 
         strcpy(&buf, trap_Cvar_VariableStringBuffer("timescale", Int32((buf).count)))
 
-        tFVal = atof(buf)
+        tFVal = Float(atof(buf))
 
         yawSpeed *= 1.0 / tFVal
     }

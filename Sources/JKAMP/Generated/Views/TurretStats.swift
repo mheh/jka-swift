@@ -86,13 +86,13 @@ public struct TurretStats: Hashable, HandleView {
 
     /// Source: oracle/codemp/game/bg_vehicles.h:95
     public var yawBone: String? {
-        get { self.raw.pointee.yawBone.map { String(cString: $0) } }
+        get { self.raw.pointee.yawBone.map { cString(at: $0) } }
         nonmutating set { self.raw.pointee.yawBone = StringPool.shared.pointer(for: newValue) }
     }
 
     /// Source: oracle/codemp/game/bg_vehicles.h:96
     public var pitchBone: String? {
-        get { self.raw.pointee.pitchBone.map { String(cString: $0) } }
+        get { self.raw.pointee.pitchBone.map { cString(at: $0) } }
         nonmutating set { self.raw.pointee.pitchBone = StringPool.shared.pointer(for: newValue) }
     }
 
@@ -137,7 +137,7 @@ public struct TurretStats: Hashable, HandleView {
 
     /// Source: oracle/codemp/game/bg_vehicles.h:104
     public var gunnerViewTag: String? {
-        get { self.raw.pointee.gunnerViewTag.map { String(cString: $0) } }
+        get { self.raw.pointee.gunnerViewTag.map { cString(at: $0) } }
         nonmutating set { self.raw.pointee.gunnerViewTag = StringPool.shared.pointer(for: newValue) }
     }
 

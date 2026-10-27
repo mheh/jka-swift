@@ -62,7 +62,7 @@ public struct VehicleInfo: Hashable, HandleView {
 
     /// Source: oracle/codemp/game/bg_vehicles.h:134
     public var name: String? {
-        get { self.raw.pointee.name.map { String(cString: $0) } }
+        get { self.raw.pointee.name.map { cString(at: $0) } }
         nonmutating set { self.raw.pointee.name = StringPool.shared.pointer(for: newValue) }
     }
 
@@ -308,13 +308,13 @@ public struct VehicleInfo: Hashable, HandleView {
 
     /// Source: oracle/codemp/game/bg_vehicles.h:187
     public var model: String? {
-        get { self.raw.pointee.model.map { String(cString: $0) } }
+        get { self.raw.pointee.model.map { cString(at: $0) } }
         nonmutating set { self.raw.pointee.model = StringPool.shared.pointer(for: newValue) }
     }
 
     /// Source: oracle/codemp/game/bg_vehicles.h:188
     public var skin: String? {
-        get { self.raw.pointee.skin.map { String(cString: $0) } }
+        get { self.raw.pointee.skin.map { cString(at: $0) } }
         nonmutating set { self.raw.pointee.skin = StringPool.shared.pointer(for: newValue) }
     }
 
@@ -392,7 +392,7 @@ public struct VehicleInfo: Hashable, HandleView {
 
     /// Source: oracle/codemp/game/bg_vehicles.h:201
     public var droidNPC: String? {
-        get { self.raw.pointee.droidNPC.map { String(cString: $0) } }
+        get { self.raw.pointee.droidNPC.map { cString(at: $0) } }
         nonmutating set { self.raw.pointee.droidNPC = StringPool.shared.pointer(for: newValue) }
     }
 

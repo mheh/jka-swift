@@ -497,25 +497,25 @@ func BotUtilizePersonality(_ bs: BotState) {
     }
 
     if failed == 0 && GetPairedValue(&group, "accuracy", &readbuf) != 0 {
-        bs.skills.accuracy = atof(readbuf)
+        bs.skills.accuracy = Float(atof(readbuf))
     } else {
         bs.skills.accuracy = 10 //default
     }
 
     if failed == 0 && GetPairedValue(&group, "turnspeed", &readbuf) != 0 {
-        bs.skills.turnspeed = atof(readbuf)
+        bs.skills.turnspeed = Float(atof(readbuf))
     } else {
         bs.skills.turnspeed = 0.01 //default
     }
 
     if failed == 0 && GetPairedValue(&group, "turnspeed_combat", &readbuf) != 0 {
-        bs.skills.turnspeed_combat = atof(readbuf)
+        bs.skills.turnspeed_combat = Float(atof(readbuf))
     } else {
         bs.skills.turnspeed_combat = 0.05 //default
     }
 
     if failed == 0 && GetPairedValue(&group, "maxturn", &readbuf) != 0 {
-        bs.skills.maxturn = atof(readbuf)
+        bs.skills.maxturn = Float(atof(readbuf))
     } else {
         bs.skills.maxturn = 360 //default
     }

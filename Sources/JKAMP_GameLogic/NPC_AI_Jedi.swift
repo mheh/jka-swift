@@ -176,7 +176,7 @@ func WP_ResistForcePush(_ `self`: Entity, _ pusher: Entity, _ noPenalty: Bool) {
 
         strcpy(&buf, trap_Cvar_VariableStringBuffer("timescale", Int32((buf).count)))
 
-        tFVal = atof(buf)
+        tFVal = Float(atof(buf))
 
         if !runningResist {
             `self`.client!.ps.velocity = vec3_t()
@@ -313,7 +313,7 @@ func Boba_FlyStop(_ `self`: Entity) {
 
 /// Source: oracle/codemp/game/NPC_AI_Jedi.c:386
 func Boba_Flying(_ `self`: Entity) -> Bool {
-    return Bool(`self`.client!.ps.eFlags2 & EF2_FLYING)
+    return (`self`.client!.ps.eFlags2 & EF2_FLYING) != 0
 }
 
 /// Source: oracle/codemp/game/NPC_AI_Jedi.c:391
@@ -3160,7 +3160,7 @@ private func Jedi_FaceEnemy(_ doPitch: Bool) {
         //boba leads his enemy
         if NPC!.health < NPC!.client!.pers.maxHealth * 0.5 {
             //lead
-            let missileSpeed: Float = WP_SpeedOfMissileForWeapon(NPC!.s.weapon, Bool(NPCInfo!.scriptFlags & SCF_ALT_FIRE))
+            let missileSpeed: Float = WP_SpeedOfMissileForWeapon(NPC!.s.weapon, (NPCInfo!.scriptFlags & SCF_ALT_FIRE) != 0)
             if missileSpeed != 0 {
                 var eDist: Float = Distance(eyes, enemy_eyes)
                 eDist /= missileSpeed //How many seconds it will take to get to the enemy

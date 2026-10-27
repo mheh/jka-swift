@@ -1,6 +1,7 @@
-/// This file holds the libc names Raven calls: `atoi`, `atof`, `strlen`, `strcpy`, `strncpy`, `strcat`, `strcmp`, `strchr`, `strstr`, `tolower`, and `toupper`.
+/// This file holds the libc names Raven calls: `atoi`, `atof`, `strlen`, `strcpy`, `strncpy`, `strcat`, `strcmp`, `strchr`, `strstr`, `memset`, `tolower`, and `toupper`.
 /// A ported body spells the call as Raven wrote it, over `CharBuf`, `String`, or `PooledString`.
-/// Each function works over raw bytes, with C semantics, and narrows to `Int32` or `Float` once inside.
+/// Each function works over raw bytes, with C semantics, and a `String` argument reaches its bytes through `CharBuf(_ string:)`.
+/// `atof` returns `Double` as C's does, and the rest narrow to `Int32` once inside.
 
 // MARK: - Byte access
 
@@ -62,14 +63,14 @@ public func atoi(_ s: CharBuf) -> Int32 {
 
 /// This parses Raven's `atoi(s)` over a Swift string.
 public func atoi(_ s: String) -> Int32 {
-    atoiCore(Array(s.utf8))
+    atoi(CharBuf(s))
 }
 
 // MARK: - atof
 
 /// This scans the decimal forms Raven writes: a sign, digits, one point, digits, and an optional exponent.
-/// The digits parse as `Double` and narrow once to `Float`, because Raven always assigns the result to a `float`.
-private func atofCore<C: RandomAccessCollection>(_ bytes: C) -> Float where C.Element == UInt8, C.Index == Int {
+/// The digits parse as `Double`, the C return type, so a store into a `float` narrows once at the site.
+private func atofCore<C: RandomAccessCollection>(_ bytes: C) -> Double where C.Element == UInt8, C.Index == Int {
     var i = bytes.startIndex
     let end = bytes.endIndex
     while i < end, bytes[i] == UInt8(ascii: " ") || bytes[i] == UInt8(ascii: "\t") || bytes[i] == UInt8(ascii: "\n") {
@@ -113,17 +114,17 @@ private func atofCore<C: RandomAccessCollection>(_ bytes: C) -> Float where C.El
             text += exponentText
         }
     }
-    return Float(Double(text) ?? 0)
+    return Double(text) ?? 0
 }
 
 /// This parses Raven's `atof(s)`.
-public func atof(_ s: CharBuf) -> Float {
+public func atof(_ s: CharBuf) -> Double {
     s.withBytes { atofCore($0) }
 }
 
 /// This parses Raven's `atof(s)` over a Swift string.
-public func atof(_ s: String) -> Float {
-    atofCore(Array(s.utf8))
+public func atof(_ s: String) -> Double {
+    atof(CharBuf(s))
 }
 
 // MARK: - strlen
@@ -139,9 +140,9 @@ public func strlen(_ s: CharBuf) -> Int32 {
     }
 }
 
-/// This counts a Swift string's UTF-8 bytes, Raven's `strlen(s)` over the same text.
+/// This counts a Swift string's bytes up to the first NUL, Raven's `strlen(s)` over the same text.
 public func strlen(_ s: String) -> Int32 {
-    Int32(s.utf8.count)
+    strlen(CharBuf(s))
 }
 
 /// This counts the bytes up to the first NUL past a `PooledString`'s pointer, Raven's `strlen(s)`.
@@ -168,27 +169,22 @@ public func strcpy(_ dest: inout CharBuf, _ source: CharBuf) {
 /// This copies a Swift string's bytes plus a trailing NUL, Raven's `strcpy(dest, source)`.
 /// It traps when the source does not fit in `dest`, C overruns there and that is the one divergence.
 public func strcpy(_ dest: inout CharBuf, _ source: String) {
-    let bytes = Array(source.utf8)
-    precondition(bytes.count + 1 <= dest.count, "strcpy: source does not fit in dest")
-    dest.withMutableBytes { destBytes in
-        for i in 0..<bytes.count {
-            destBytes[i] = bytes[i]
-        }
-        destBytes[bytes.count] = 0
-    }
+    strcpy(&dest, CharBuf(source))
 }
 
 /// This copies a Swift string's bytes plus a trailing NUL from byte `offset` on, Raven's `strcpy(slash, source)` through a pointer into the buffer.
 /// It traps when the source does not fit from that offset, C overruns there and that is the one divergence.
 public func strcpy(_ dest: inout CharBuf, _ source: String, at offset: some BinaryInteger) {
-    let bytes = Array(source.utf8)
+    let source = CharBuf(source)
+    let length = Int(strlen(source))
     let start = Int(offset)
-    precondition(start >= 0 && start + bytes.count + 1 <= dest.count, "strcpy: source does not fit in dest from the offset")
+    precondition(start >= 0 && start + length + 1 <= dest.count, "strcpy: source does not fit in dest from the offset")
     dest.withMutableBytes { destBytes in
-        for i in 0..<bytes.count {
-            destBytes[start + i] = bytes[i]
+        source.withBytes { sourceBytes in
+            for i in 0...length {
+                destBytes[start + i] = sourceBytes[i]
+            }
         }
-        destBytes[start + bytes.count] = 0
     }
 }
 
@@ -207,11 +203,7 @@ public func strcpy(_ dest: inout CharBuf, _ source: PooledString) {
 /// This copies a Swift string's bytes plus a trailing NUL into raw memory, for `BG_StringAlloc`.
 /// The caller owns the memory and answers for its size, so there is no fit check here.
 public func strcpy(_ dest: UnsafeMutableRawPointer, _ source: String) {
-    let bytes = Array(source.utf8)
-    for i in 0..<bytes.count {
-        dest.storeBytes(of: bytes[i], toByteOffset: i, as: UInt8.self)
-    }
-    dest.storeBytes(of: 0, toByteOffset: bytes.count, as: UInt8.self)
+    strcpy(dest, CharBuf(source))
 }
 
 /// This copies a `CharBuf`'s bytes up to and including the NUL into raw memory, for `BG_StringAlloc`.
@@ -269,12 +261,12 @@ private func rawBytes(_ source: UnsafeMutableRawPointer) -> [UInt8] {
 
 /// This appends a Swift string's bytes plus a trailing NUL at the first NUL of `dest`, Raven's `strcat(dest, source)`.
 public func strcat(_ dest: inout CharBuf, _ source: String) {
-    strcatBytes(&dest, Array(source.utf8), from: 0)
+    strcat(&dest, CharBuf(source))
 }
 
 /// This appends a Swift string's bytes at the first NUL from byte `offset` on, Raven's `strcat(marker, source)` through a pointer into the buffer.
 public func strcat(_ dest: inout CharBuf, _ source: String, at offset: some BinaryInteger) {
-    strcatBytes(&dest, Array(source.utf8), from: Int(offset))
+    strcat(&dest, CharBuf(source), at: offset)
 }
 
 /// This appends a buffer's bytes up to its NUL, plus a trailing NUL, at the first NUL of `dest`, Raven's `strcat(dest, source)`.
@@ -318,19 +310,7 @@ public func strncpy(_ dest: inout CharBuf, _ source: CharBuf, _ n: some BinaryIn
 /// This copies at most `n` bytes from a Swift string and pads with NUL up to `n` when `source` is shorter.
 /// It writes no NUL when `source` is `n` bytes or longer, Raven's `strncpy(dest, source, n)`.
 public func strncpy(_ dest: inout CharBuf, _ source: String, _ n: some BinaryInteger) {
-    let limit = Int(n)
-    let sourceBytes = Array(source.utf8)
-    let copyCount = min(limit, sourceBytes.count)
-    dest.withMutableBytes { destBytes in
-        for i in 0..<copyCount {
-            destBytes[i] = sourceBytes[i]
-        }
-        if copyCount < limit {
-            for i in copyCount..<limit {
-                destBytes[i] = 0
-            }
-        }
-    }
+    strncpy(&dest, CharBuf(source), n)
 }
 
 /// This copies at most `n` bytes of a Swift string from byte `offset` on, Raven's `strncpy(dest + offset, source, n)` through a pointer into the buffer.
@@ -338,17 +318,32 @@ public func strncpy(_ dest: inout CharBuf, _ source: String, _ n: some BinaryInt
 public func strncpy(_ dest: inout CharBuf, _ source: String, _ n: some BinaryInteger, at offset: some BinaryInteger) {
     let limit = Int(n)
     let start = Int(offset)
-    let sourceBytes = Array(source.utf8)
-    let copyCount = min(limit, sourceBytes.count)
+    let source = CharBuf(source)
+    let copyCount = min(limit, Int(strlen(source)))
     precondition(start >= 0 && start + limit <= dest.count, "strncpy: n bytes do not fit in dest from the offset")
     dest.withMutableBytes { destBytes in
-        for i in 0..<copyCount {
-            destBytes[start + i] = sourceBytes[i]
+        source.withBytes { sourceBytes in
+            for i in 0..<copyCount {
+                destBytes[start + i] = sourceBytes[i]
+            }
         }
         if copyCount < limit {
             for i in copyCount..<limit {
                 destBytes[start + i] = 0
             }
+        }
+    }
+}
+
+// MARK: - memset
+
+/// This sets the first `count` bytes of `buf` to `value`, truncated to one byte, Raven's `memset(buf, value, count)`.
+/// The bytes past `count` keep their values, and a `count` past the end traps, because C overruns there and that is the one divergence.
+public func memset(_ buf: inout CharBuf, _ value: Int32, _ count: Int32) {
+    precondition(count >= 0 && Int(count) <= buf.count, "memset: count past the end of the buffer")
+    buf.withMutableBytes { bytes in
+        for i in 0..<Int(count) {
+            bytes[i] = UInt8(truncatingIfNeeded: value)
         }
     }
 }
@@ -486,5 +481,5 @@ public func toupper(_ c: Int32) -> Int32 {
 /// A trap calls it for a parameter Raven's callers pass NULL to, so the engine sees the NULL as C did.
 public func withCString<R>(_ string: String?, _ body: (UnsafePointer<CChar>?) -> R) -> R {
     guard let string else { return body(nil) }
-    return string.withCString { body($0) }
+    return CharBuf(string).withUnsafeRawPointer { body($0.assumingMemoryBound(to: CChar.self)) }
 }

@@ -44,8 +44,8 @@ func colorStringRejectsTheOtherForms() {
 
 @Test("ColorIndex maps a digit to its color slot")
 func colorIndexMapsADigit() {
-    #expect(ColorIndex(CChar(UInt8(ascii: "3"))) == 3)
-    #expect(ColorIndex(CChar(UInt8(ascii: ";"))) == 3)
+    #expect(ColorIndex(Int32(ascii: "3")) == 3)
+    #expect(ColorIndex(Int32(ascii: ";")) == 3)
 }
 
 @Test("PlaneTypeForNormal names the axis a normal points along")

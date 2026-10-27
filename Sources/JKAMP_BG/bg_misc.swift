@@ -175,9 +175,9 @@ public func BG_ParseField(_ l_fields: Slots<JKAMP.BgField>, _ key: String, _ val
             case F_INT:
                 b[int: f.ofs] = atoi(value)
             case F_FLOAT:
-                b[float: f.ofs] = atof(value)
+                b[float: f.ofs] = Float(atof(value))
             case F_ANGLEHACK:
-                v = atof(value)
+                v = Float(atof(value))
                 b[float: f.ofs, 0] = 0
                 b[float: f.ofs, 1] = v
                 b[float: f.ofs, 2] = 0

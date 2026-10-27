@@ -240,7 +240,7 @@ public func Q3_PlaySound(_ taskID: Int32, _ entID: Int32, _ name: String, _ chan
 
         strcpy(&buf, trap_Cvar_VariableStringBuffer("timescale", Int32((buf).count)))
 
-        tFVal = atof(buf)
+        tFVal = Float(atof(buf))
 
 
         if tFVal > 1.0 {
@@ -911,7 +911,7 @@ public func Q3_GetFloat(_ entID: Int32, _ type: Int32, _ name: String, _ value: 
             G_DebugPrint(WL_ERROR, "GET_PARM: %s %s did not have any parms set!\n", ent!.classname ?? "(null)", ent!.targetname ?? "(null)")
             return 0 // would prefer qfalse, but I'm fitting in with what's here <sigh>
         }
-        value = atof(ent!.parms!.parm[toGet - SET_PARM1])
+        value = Float(atof(ent!.parms!.parm[toGet - SET_PARM1]))
 
     case SET_COUNT:
         value = Float(ent!.count)
@@ -2935,14 +2935,14 @@ private func Q3_GameSideCheckStringCounterIncrement(_ string: String) -> Float {
         if string[1] != 0 {
             numString = string
             numString.advance()
-            val = atof(numString.text)
+            val = Float(atof(numString.text))
         }
     } else if string[0] == Int32(ascii: "-") {
         //we want to decrement
         if string[1] != 0 {
             numString = string
             numString.advance()
-            val = atof(numString.text) * -1
+            val = Float(atof(numString.text) * -1)
         }
     }
 
@@ -3191,7 +3191,7 @@ func Q3_SetParm(_ entID: Int32, _ parmNum: Int32, _ parmValue: String) {
 
     val = Q3_GameSideCheckStringCounterIncrement(parmValue)
     if val != 0 {
-        val += atof(ent!.parms!.parm[parmNum])
+        val = Float(Double(val) + atof(ent!.parms!.parm[parmNum]))
         // Raven passes sizeof(parm), 1024, and the NUL pad clears the later rows and overruns parms_t past row 0.
         // The "%f" text is at most 47 bytes, so the row size gives the same row bytes.
         Com_sprintf(&ent!.parms!.parmBuffers[parmNum], MAX_PARM_STRING_LENGTH, "%f", val)
@@ -4642,19 +4642,19 @@ public func Q3_Set(_ taskID: Int32, _ entID: Int32, _ type_name: String, _ data:
         Q3_SetAngles(entID, vector_data)
 
     case SET_XVELOCITY:
-        float_data = atof(data)
+        float_data = Float(atof(data))
         Q3_SetVelocity(entID, 0, float_data)
 
     case SET_YVELOCITY:
-        float_data = atof(data)
+        float_data = Float(atof(data))
         Q3_SetVelocity(entID, 1, float_data)
 
     case SET_ZVELOCITY:
-        float_data = atof(data)
+        float_data = Float(atof(data))
         Q3_SetVelocity(entID, 2, float_data)
 
     case SET_Z_OFFSET:
-        float_data = atof(data)
+        float_data = Float(atof(data))
         Q3_SetOriginOffset(entID, 2, float_data)
 
     case SET_ENEMY:
@@ -4762,13 +4762,13 @@ public func Q3_Set(_ taskID: Int32, _ entID: Int32, _ type_name: String, _ data:
         Q3_SetCaptureGoal(entID, data)
 
     case SET_DPITCH:
-        float_data = atof(data)
+        float_data = Float(atof(data))
         Q3_SetDPitch(entID, float_data)
         trap_ICARUS_TaskIDSet(ent!, TID_ANGLE_FACE, taskID)
         return false
 
     case SET_DYAW:
-        float_data = atof(data)
+        float_data = Float(atof(data))
         Q3_SetDYaw(entID, float_data)
         trap_ICARUS_TaskIDSet(ent!, TID_ANGLE_FACE, taskID)
         return false
@@ -4813,7 +4813,7 @@ public func Q3_Set(_ taskID: Int32, _ entID: Int32, _ type_name: String, _ data:
         return false
 
     case SET_YAWSPEED:
-        float_data = atof(data)
+        float_data = Float(atof(data))
         Q3_SetYawSpeed(entID, float_data)
 
     case SET_AGGRESSION:
@@ -4829,19 +4829,19 @@ public func Q3_Set(_ taskID: Int32, _ entID: Int32, _ type_name: String, _ data:
         Q3_SetFriction(entID, int_data)
 
     case SET_GRAVITY:
-        float_data = atof(data)
+        float_data = Float(atof(data))
         Q3_SetGravity(entID, float_data)
 
     case SET_WAIT:
-        float_data = atof(data)
+        float_data = Float(atof(data))
         Q3_SetWait(entID, float_data)
 
     case SET_FOLLOWDIST:
-        float_data = atof(data)
+        float_data = Float(atof(data))
         Q3_SetFollowDist(entID, float_data)
 
     case SET_SCALE:
-        float_data = atof(data)
+        float_data = Float(atof(data))
         Q3_SetScale(entID, float_data)
 
     case SET_COUNT:
@@ -4904,22 +4904,22 @@ public func Q3_Set(_ taskID: Int32, _ entID: Int32, _ type_name: String, _ data:
         G_DebugPrint(WL_WARNING, "SET_LEAN NOT SUPPORTED IN MP\n")
 
     case SET_SHOOTDIST:
-        float_data = atof(data)
+        float_data = Float(atof(data))
         Q3_SetShootDist(entID, float_data)
 
     case SET_TIMESCALE:
         Q3_SetTimeScale(entID, data)
 
     case SET_VISRANGE:
-        float_data = atof(data)
+        float_data = Float(atof(data))
         Q3_SetVisrange(entID, float_data)
 
     case SET_EARSHOT:
-        float_data = atof(data)
+        float_data = Float(atof(data))
         Q3_SetEarshot(entID, float_data)
 
     case SET_VIGILANCE:
-        float_data = atof(data)
+        float_data = Float(atof(data))
         Q3_SetVigilance(entID, float_data)
 
     case SET_VFOV:
@@ -5204,7 +5204,7 @@ public func Q3_Set(_ taskID: Int32, _ entID: Int32, _ type_name: String, _ data:
         Q3_CameraGroup(entID, data)
 
     case SET_CAMERA_GROUP_Z_OFS:
-        float_data = atof(data)
+        float_data = Float(atof(data))
         Q3_CameraGroupZOfs(float_data)
 
     case SET_CAMERA_GROUP_TAG:
@@ -5227,7 +5227,7 @@ public func Q3_Set(_ taskID: Int32, _ entID: Int32, _ type_name: String, _ data:
         Q3_RemoveLHandModel(entID, data)
 
     case SET_FACEEYESCLOSED, SET_FACEEYESOPENED, SET_FACEAUX, SET_FACEBLINK, SET_FACEBLINKFROWN, SET_FACEFROWN, SET_FACENORMAL:
-        float_data = atof(data)
+        float_data = Float(atof(data))
         Q3_Face(entID, toSet, float_data)
 
     case SET_SCROLLTEXT:

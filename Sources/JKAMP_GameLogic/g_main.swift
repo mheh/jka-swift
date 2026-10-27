@@ -3429,7 +3429,7 @@ public func G_RunFrame(_ levelTime: Int32) {
 
             strcpy(&buf, trap_Cvar_VariableStringBuffer("timescale", Int32((buf).count)))
 
-            tFVal = atof(buf)
+            tFVal = Float(atof(buf))
 
             trap_Cvar_Set("timescale", "1")
             if tFVal == 1.0 {
@@ -3456,7 +3456,7 @@ public func G_RunFrame(_ levelTime: Int32) {
 
                 strcpy(&buf, trap_Cvar_VariableStringBuffer("timescale", Int32((buf).count)))
 
-                tFVal = atof(buf)
+                tFVal = Float(atof(buf))
 
                 trap_Cvar_Set("timescale", "1")
                 if timeDif > 1500 && tFVal == 1.0 {

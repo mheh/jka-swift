@@ -618,8 +618,8 @@ private func WP_FireBlaster(_ ent: Entity, _ altFire: Bool) {
 
     if altFire {
         // add some slop to the alt-fire direction
-        angs[PITCH] += crandom() * BLASTER_SPREAD
-        angs[YAW] += crandom() * BLASTER_SPREAD
+        angs[PITCH] = Float(Double(angs[PITCH]) + crandom() * Double(BLASTER_SPREAD))
+        angs[YAW] = Float(Double(angs[YAW]) + crandom() * Double(BLASTER_SPREAD))
     }
 
     // Raven passes NULL for the `right` output, and AngleVectors only skips that write.
@@ -1098,12 +1098,12 @@ private func WP_BowcasterMainFire(_ ent: Entity) {
     i = 0
     while i < count {
         // create a range of different velocities
-        vel = BOWCASTER_VELOCITY * (crandom() * BOWCASTER_VEL_RANGE + 1.0)
+        vel = Float(Double(BOWCASTER_VELOCITY) * (crandom() * Double(BOWCASTER_VEL_RANGE) + 1.0))
 
         vectoangles(forward, &angs)
 
         // add some slop to the alt-fire direction
-        angs[PITCH] += crandom() * BOWCASTER_ALT_SPREAD * 0.2
+        angs[PITCH] = Float(Double(angs[PITCH]) + crandom() * Double(BOWCASTER_ALT_SPREAD) * Double(0.2 as Float))
         angs[YAW] += ((i + 0.5) * BOWCASTER_ALT_SPREAD - count * 0.5 * BOWCASTER_ALT_SPREAD)
 
         // Raven passes NULL for the `right` output, and AngleVectors only skips that write.
@@ -1202,8 +1202,8 @@ private func WP_FireRepeater(_ ent: Entity, _ altFire: Bool) {
         WP_RepeaterAltFire(ent)
     } else {
         // add some slop to the alt-fire direction
-        angs[PITCH] += crandom() * REPEATER_SPREAD
-        angs[YAW] += crandom() * REPEATER_SPREAD
+        angs[PITCH] = Float(Double(angs[PITCH]) + crandom() * Double(REPEATER_SPREAD))
+        angs[YAW] = Float(Double(angs[YAW]) + crandom() * Double(REPEATER_SPREAD))
 
         // Raven passes NULL for the `right` output, and AngleVectors only skips that write.
         var scratchRight = vec3_t()
@@ -1490,8 +1490,8 @@ private func WP_FlechetteMainFire(_ ent: Entity) {
 
         if i != 0 {
             //do nothing on the first shot, it will hit the crosshairs
-            angs[PITCH] += crandom() * FLECHETTE_SPREAD
-            angs[YAW] += crandom() * FLECHETTE_SPREAD
+            angs[PITCH] = Float(Double(angs[PITCH]) + crandom() * Double(FLECHETTE_SPREAD))
+            angs[YAW] = Float(Double(angs[YAW]) + crandom() * Double(FLECHETTE_SPREAD))
         }
 
         // Raven passes NULL for the `right` output, and AngleVectors only skips that write.
@@ -1668,7 +1668,7 @@ private func WP_FlechetteAltFire(_ `self`: Entity) {
 
         // The SDK also declares `random`, so the call names the bg module.
         dir[PITCH] -= JKAMP_BG.random() * 4 + 8 // make it fly upwards
-        dir[YAW] += crandom() * 2
+        dir[YAW] = Float(Double(dir[YAW]) + crandom() * 2)
         // Raven passes NULL for the `right` output, and AngleVectors only skips that write.
         var scratchRight = vec3_t()
         // Raven passes NULL for the `up` output, and AngleVectors only skips that write.
@@ -1811,7 +1811,7 @@ func rocketThink(_ ent: Entity) {
         // add crazy drunkenness
         i = 0
         while i < 3 {
-            newdir[i] += crandom() * ent.random * 0.25
+            newdir[i] = Float(Double(newdir[i]) + crandom() * Double(ent.random) * 0.25)
             i += 1
         }
 

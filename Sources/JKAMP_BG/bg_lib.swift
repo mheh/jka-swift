@@ -190,80 +190,13 @@ public func random() -> Float {
 }
 
 /// Source: oracle/codemp/game/q_shared.h:1592
-public func crandom() -> Float {
-    // Raven's 2.0 and 0.5 are double literals, so the arithmetic runs in double and narrows to float once, on return.
-    Float(2.0 * (Double(random()) - 0.5))
+public func crandom() -> Double {
+    2.0 * (Double(random()) - 0.5)
 }
 
 /// Source: oracle/codemp/game/bg_lib.c:774
-func atof(_ string: String) -> Double {
-    var sign: Float
-    var value: Float
-    var c: Int32
-    // Raven steps his own `string` parameter through its bytes, so the body walks a TextCursor over a copy of them.
-    var string = TextCursor(CharBuf(string))
-
-
-    // skip whitespace
-    while string.byte <= Int32(ascii: " ") {
-        if string.byte == 0 {
-            return 0
-        }
-        string.advance()
-    }
-
-    // check sign
-    switch string.byte {
-    case Int32(ascii: "+"):
-        string.advance()
-        sign = 1
-
-    case Int32(ascii: "-"):
-        string.advance()
-        sign = -1
-
-    default:
-        sign = 1
-    }
-
-    // read digits
-    value = 0
-    c = string[0]
-    if c != Int32(ascii: ".") {
-        repeat {
-            c = string.byte
-            string.advance()
-            if c < Int32(ascii: "0") || c > Int32(ascii: "9") {
-                break
-            }
-            c -= Int32(ascii: "0")
-            value = value * 10 + c
-        } while 1 != 0
-    } else {
-        string.advance()
-    }
-
-    // check for decimal point
-    if c == Int32(ascii: ".") {
-        var fraction: Double
-
-        fraction = 0.1
-        repeat {
-            c = string.byte
-            string.advance()
-            if c < Int32(ascii: "0") || c > Int32(ascii: "9") {
-                break
-            }
-            c -= Int32(ascii: "0")
-            value = Float(Double(value) + Double(c) * fraction)
-            fraction *= 0.1
-        } while 1 != 0
-    }
-
-    // not handling 10e10 notation...
-
-    return Double(value * sign)
-}
+// Raven wrote: double atof( const char *string )
+// Not ported: the VM's, which computes in float, and the DLL build links the C library's `atof`, which `JKAShared` holds.
 
 /// Source: oracle/codemp/game/bg_lib.c:841
 func _atof(_ stringPtr: inout JKAShared.TextCursor) -> Double {

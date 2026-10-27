@@ -345,7 +345,7 @@ public struct Client: Hashable, HandleView {
 
     /// Source: oracle/codemp/game/g_local.h:621
     public var areabits: String? {
-        get { self.raw.pointee.areabits.map { String(cString: $0) } }
+        get { self.raw.pointee.areabits.map { cString(at: $0) } }
         nonmutating set { self.raw.pointee.areabits = StringPool.shared.pointer(for: newValue) }
     }
 
@@ -591,7 +591,7 @@ public struct Client: Hashable, HandleView {
 
     /// Source: oracle/codemp/game/g_local.h:686
     public var squadname: String? {
-        get { self.raw.pointee.squadname.map { String(cString: $0) } }
+        get { self.raw.pointee.squadname.map { cString(at: $0) } }
         nonmutating set { self.raw.pointee.squadname = StringPool.shared.pointer(for: newValue) }
     }
 

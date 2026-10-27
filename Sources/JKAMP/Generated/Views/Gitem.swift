@@ -62,13 +62,13 @@ public struct Gitem: Hashable, HandleView {
 
     /// Source: oracle/codemp/game/bg_public.h:1123
     public var classname: String? {
-        get { self.raw.pointee.classname.map { String(cString: $0) } }
+        get { self.raw.pointee.classname.map { cString(at: $0) } }
         nonmutating set { self.raw.pointee.classname = StringPool.shared.pointer(for: newValue) }
     }
 
     /// Source: oracle/codemp/game/bg_public.h:1124
     public var pickup_sound: String? {
-        get { self.raw.pointee.pickup_sound.map { String(cString: $0) } }
+        get { self.raw.pointee.pickup_sound.map { cString(at: $0) } }
         nonmutating set { self.raw.pointee.pickup_sound = StringPool.shared.pointer(for: newValue) }
     }
 
@@ -77,13 +77,13 @@ public struct Gitem: Hashable, HandleView {
 
     /// Source: oracle/codemp/game/bg_public.h:1126
     public var view_model: String? {
-        get { self.raw.pointee.view_model.map { String(cString: $0) } }
+        get { self.raw.pointee.view_model.map { cString(at: $0) } }
         nonmutating set { self.raw.pointee.view_model = StringPool.shared.pointer(for: newValue) }
     }
 
     /// Source: oracle/codemp/game/bg_public.h:1127
     public var icon: String? {
-        get { self.raw.pointee.icon.map { String(cString: $0) } }
+        get { self.raw.pointee.icon.map { cString(at: $0) } }
         nonmutating set { self.raw.pointee.icon = StringPool.shared.pointer(for: newValue) }
     }
 
@@ -107,19 +107,19 @@ public struct Gitem: Hashable, HandleView {
 
     /// Source: oracle/codemp/game/bg_public.h:1135
     public var precaches: String? {
-        get { self.raw.pointee.precaches.map { String(cString: $0) } }
+        get { self.raw.pointee.precaches.map { cString(at: $0) } }
         nonmutating set { self.raw.pointee.precaches = StringPool.shared.pointer(for: newValue) }
     }
 
     /// Source: oracle/codemp/game/bg_public.h:1136
     public var sounds: String? {
-        get { self.raw.pointee.sounds.map { String(cString: $0) } }
+        get { self.raw.pointee.sounds.map { cString(at: $0) } }
         nonmutating set { self.raw.pointee.sounds = StringPool.shared.pointer(for: newValue) }
     }
 
     /// Source: oracle/codemp/game/bg_public.h:1137
     public var description: String? {
-        get { self.raw.pointee.description.map { String(cString: $0) } }
+        get { self.raw.pointee.description.map { cString(at: $0) } }
         nonmutating set { self.raw.pointee.description = StringPool.shared.pointer(for: newValue) }
     }
 }

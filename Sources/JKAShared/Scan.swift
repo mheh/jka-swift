@@ -163,7 +163,7 @@ private func scanInt(_ bytes: [UInt8], _ n: inout Int32) -> Int32 {
 @discardableResult
 public func sscanf(_ s: String, _ fmt: String, _ v: inout vec3_t) -> Int32 {
     precondition(fmt == "%f %f %f", "sscanf: the vector overload serves \"%f %f %f\" alone, and the format was \"\(fmt)\"")
-    return scanVector(Array(s.utf8), &v)
+    return scanVector(scanBytes(of: CharBuf(s)), &v)
 }
 
 /// This reads three floats out of a `char` buffer, Raven's `sscanf(buf, "%f %f %f", &v[0], &v[1], &v[2])`.
@@ -179,7 +179,7 @@ public func sscanf(_ s: CharBuf, _ fmt: String, _ v: inout vec3_t) -> Int32 {
 @discardableResult
 public func sscanf(_ s: String, _ fmt: String, _ f: inout Float) -> Int32 {
     precondition(fmt == "%f", "sscanf: the float overload serves \"%f\" alone, and the format was \"\(fmt)\"")
-    return scanFloat(Array(s.utf8), &f)
+    return scanFloat(scanBytes(of: CharBuf(s)), &f)
 }
 
 /// This reads one float out of a `char` buffer, Raven's `sscanf(buf, "%f", &f)`.
@@ -195,7 +195,7 @@ public func sscanf(_ s: CharBuf, _ fmt: String, _ f: inout Float) -> Int32 {
 @discardableResult
 public func sscanf(_ s: String, _ fmt: String, _ n: inout Int32) -> Int32 {
     precondition(fmt == "%d" || fmt == "%i", "sscanf: the integer overload serves \"%d\" and \"%i\" alone, and the format was \"\(fmt)\"")
-    return scanInt(Array(s.utf8), &n)
+    return scanInt(scanBytes(of: CharBuf(s)), &n)
 }
 
 /// This reads one integer out of a `char` buffer, Raven's `sscanf(buf, "%d", &n)`.
@@ -239,7 +239,7 @@ public func sscanf(_ s: CharBuf, _ fmt: String, _ ints: inout [Int32], _ texts: 
                 i += 1
             }
             guard i > start else { break }
-            texts[nextText] = String(decoding: bytes[start..<i], as: UTF8.self)
+            texts[nextText] = String(CharBuf(bytes: bytes[start..<i].map { CChar(bitPattern: $0) }))
             nextText += 1
         }
         read += 1

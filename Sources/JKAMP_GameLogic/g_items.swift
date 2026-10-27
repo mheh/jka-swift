@@ -2455,7 +2455,7 @@ func Touch_Item(_ ent: Entity, _ other: Entity, _ trace: JKAMP.Trace) {
 
     // random can be used to vary the respawn time
     if ent.random != 0 {
-        respawn = Int32(respawn + crandom() * ent.random)
+        respawn = Int32(Double(respawn) + crandom() * Double(ent.random))
         if respawn < 1 {
             respawn = 1
         }
@@ -2601,7 +2601,7 @@ func Drop_Item(_ ent: Entity, _ item: JKAMP.Gitem, _ angle: Float) -> Entity? {
     var scratchUp = vec3_t()
     AngleVectors(angles, &velocity, &scratchRight, &scratchUp)
     velocity = velocity * 150
-    velocity[2] += 200 + crandom() * 50
+    velocity[2] = Float(Double(velocity[2]) + (200 + crandom() * 50))
 
     return LaunchItem(item, &ent.s.pos.trBase, velocity)
 }

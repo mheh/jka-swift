@@ -34,6 +34,7 @@ var g_cullDistance: Float {
 }
 
 /// Source: oracle/codemp/game/g_spawn.c:6
+@discardableResult
 func G_SpawnString(_ key: String, _ defaultString: String?, _ out: inout String) -> Bool {
     var i: Int32
 
@@ -56,16 +57,18 @@ func G_SpawnString(_ key: String, _ defaultString: String?, _ out: inout String)
 }
 
 /// Source: oracle/codemp/game/g_spawn.c:25
+@discardableResult
 func G_SpawnFloat(_ key: String, _ defaultString: String, _ out: inout Float) -> Bool {
     var s: String = ""
     let present: Bool
 
     present = G_SpawnString(key, defaultString, &s)
-    out = atof(s)
+    out = Float(atof(s))
     return present
 }
 
 /// Source: oracle/codemp/game/g_spawn.c:34
+@discardableResult
 func G_SpawnInt(_ key: String, _ defaultString: String, _ out: inout Int32) -> Bool {
     var s: String = ""
     let present: Bool
@@ -76,6 +79,7 @@ func G_SpawnInt(_ key: String, _ defaultString: String, _ out: inout Int32) -> B
 }
 
 /// Source: oracle/codemp/game/g_spawn.c:43
+@discardableResult
 func G_SpawnVector(_ key: String, _ defaultString: String, _ out: inout JKAShared.vec3_t) -> Bool {
     var s: String = ""
     let present: Bool

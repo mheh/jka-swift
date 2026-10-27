@@ -62,7 +62,7 @@ public struct BgField: Hashable, HandleView {
 
     /// Source: oracle/codemp/game/bg_public.h:1265
     public var name: String? {
-        get { self.raw.pointee.name.map { String(cString: $0) } }
+        get { self.raw.pointee.name.map { cString(at: $0) } }
         nonmutating set { self.raw.pointee.name = StringPool.shared.pointer(for: newValue) }
     }
 

@@ -1132,7 +1132,7 @@ public func BG_ParseAnimationFile(_ filename: String, _ animset: Slots<JKAMP.Ani
         // {
         //             break;
         //         }
-        fps = atof(token)
+        fps = Float(atof(token))
         if fps == 0 {
             fps = 1 //Don't allow divide by zero error
         }

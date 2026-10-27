@@ -114,7 +114,7 @@ func Use_Target_Delay(_ ent: Entity, _ other: Entity, _ activator: Entity) {
         return
     }
     G_ActivateBehavior(ent, BSET_USE)
-    ent.nextthink = Int32(level.time + (ent.wait + ent.random * crandom()) * 1000)
+    ent.nextthink = Int32(Double(level.time) + (Double(ent.wait) + Double(ent.random) * crandom()) * 1000)
     ent.think = Think.Think_Target_Delay
     ent.activator = activator
 }

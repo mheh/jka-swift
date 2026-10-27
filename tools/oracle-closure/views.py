@@ -228,7 +228,7 @@ class Generator:
                 return self.callback(field, target)
             if inner.get_canonical().kind == TypeKind.CHAR_S:
                 # A `char *` field reads as its text, and a store interns the text in the shared pool, so the engine reads a pointer that lives on.
-                get = f"{pointee}.map {{ String(cString: $0) }}"
+                get = f"{pointee}.map {{ cString(at: $0) }}"
                 if inner.is_const_qualified():
                     # A `const char *` field holds the same text. The view puts the const back on the way in.
                     return self.property(name, "String?", get, f"{pointee} = UnsafePointer(StringPool.shared.pointer(for: newValue))")

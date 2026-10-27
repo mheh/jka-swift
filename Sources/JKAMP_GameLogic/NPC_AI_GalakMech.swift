@@ -876,9 +876,9 @@ func NPC_BSGM_Attack() {
 
         target = NPC!.enemy!.r.currentOrigin
 
-        target[0] += flrand(-5, 5) + (crandom() * (6 - NPCInfo!.currentAim) * 2)
-        target[1] += flrand(-5, 5) + (crandom() * (6 - NPCInfo!.currentAim) * 2)
-        target[2] += flrand(-5, 5) + (crandom() * (6 - NPCInfo!.currentAim) * 2)
+        target[0] = Float(Double(target[0]) + (Double(flrand(-5, 5)) + (crandom() * Double(6 - NPCInfo!.currentAim) * 2)))
+        target[1] = Float(Double(target[1]) + (Double(flrand(-5, 5)) + (crandom() * Double(6 - NPCInfo!.currentAim) * 2)))
+        target[2] = Float(Double(target[2]) + (Double(flrand(-5, 5)) + (crandom() * Double(6 - NPCInfo!.currentAim) * 2)))
 
         //Find the desired angles
         clearshot = WP_LobFire(NPC!, muzzle, target, mins, maxs, MASK_SHOT | CONTENTS_LIGHTSABER, &velocity, true, NPC!.s.number, NPC!.enemy!.s.number, 300, 1100, 1500, true)

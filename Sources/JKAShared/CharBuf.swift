@@ -12,9 +12,11 @@ public struct CharBuf: ExpressibleByStringLiteral {
         self.bytes = [UInt8](repeating: 0, count: self.count)
     }
 
-    /// This builds a buffer from a string's UTF-8 bytes plus a trailing NUL, Raven's `char buf[] = "text"`.
+    /// This builds a buffer from a string's bytes plus a trailing NUL, Raven's `char buf[] = "text"`.
+    /// This initializer and `String(_ buf:)` are the one Latin-1 codec between `String` and engine bytes, so engine text keeps every byte.
     public init(_ string: String) {
-        var bytes = [UInt8](string.utf8)
+        // One byte for each scalar, the scalar value truncated to 8 bits.
+        var bytes = string.unicodeScalars.map { UInt8(truncatingIfNeeded: $0.value) }
         bytes.append(0)
         self.count = bytes.count
         self.bytes = bytes
@@ -72,16 +74,6 @@ public struct CharBuf: ExpressibleByStringLiteral {
         self.bytes = [UInt8](repeating: 0, count: self.count)
     }
 
-    /// Raven's `memset(buf, 0, n)`, the first `n` bytes of the buffer to zero.
-    /// The bytes past `n` keep their values, and an `n` past the end traps.
-    public mutating func zero<I: BinaryInteger>(count n: I) {
-        let n = Int(n)
-        precondition(n >= 0 && n <= self.count, "CharBuf zero count past the end")
-        for i in 0 ..< n {
-            self.bytes[i] = 0
-        }
-    }
-
     /// The body gets a raw pointer into the buffer to copy bytes in, for `CString.swift`'s `strcpy` and the rest.
     public mutating func withUnsafeMutableRawPointer<R>(_ body: (UnsafeMutableRawPointer) throws -> R) rethrows -> R {
         try self.bytes.withUnsafeMutableBytes { rawBuffer in
@@ -101,15 +93,17 @@ public struct CharBuf: ExpressibleByStringLiteral {
 
 extension String {
     /// This reads a `CharBuf` up to its first NUL, or the whole buffer when it holds no NUL.
+    /// It is the decode half of the codec of `CharBuf(_ string:)`, so every byte comes back unchanged.
     public init(_ buf: CharBuf) {
-        var scalars: [UInt8] = []
+        // One scalar for each byte, U+0000 to U+00FF.
+        var scalars = String.UnicodeScalarView()
         var index = 0
         while index < buf.count {
             let byte: UInt8 = buf[index]
             if byte == 0 { break }
-            scalars.append(byte)
+            scalars.append(Unicode.Scalar(byte))
             index += 1
         }
-        self = String(decoding: scalars, as: UTF8.self)
+        self = String(scalars)
     }
 }

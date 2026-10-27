@@ -106,7 +106,7 @@ func BuildShaderStateConfig() -> String {
     var out = CharBuf(133)
     var i: Int32
 
-    buff.zero(count: MAX_STRING_CHARS)
+    memset(&buff, 0, MAX_STRING_CHARS)
     i = 0
     while i < remapCount {
         Com_sprintf(&out, (MAX_QPATH * 2) + 5, "%s=%s:%5.2f@", remappedShaders[i].oldShader, remappedShaders[i].newShader, remappedShaders[i].timeOffset)
@@ -369,7 +369,6 @@ func G_RadiusList(_ origin: JKAShared.vec3_t, _ radius: Float, _ ignore: Entity,
 
 /// A caller that passes a file-scope table for `ent_list` reaches `G_RadiusList` through this forward, `prox_mine_think` of `g_weapon.c`.
 /// It writes back slots `0..<count` alone, because Raven's body writes no other slot.
-/// Source: oracle/codemp/game/g_utils.c:252
 func G_RadiusList(_ origin: JKAShared.vec3_t, _ radius: Float, _ ignore: Entity, _ takeDamage: Bool, _ ent_list: Slots<Entity?>) -> Int32 {
     var list = Array(ent_list)
     let count = G_RadiusList(origin, radius, ignore, takeDamage, &list)

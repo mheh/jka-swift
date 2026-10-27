@@ -114,7 +114,7 @@ extension Slots {
             base: base,
             count: count,
             stride: MemoryLayout<UnsafeMutablePointer<CChar>?>.stride,
-            read: { $0.load(as: UnsafeMutablePointer<CChar>?.self).map { String(cString: $0) } },
+            read: { $0.load(as: UnsafeMutablePointer<CChar>?.self).map { cString(at: $0) } },
             write: { $0.storeBytes(of: StringPool.shared.pointer(for: $1), as: UnsafeMutablePointer<CChar>?.self) }
         )
     }

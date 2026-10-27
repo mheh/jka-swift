@@ -63,7 +63,7 @@ public struct Gtimer: Hashable, HandleView {
 
     /// Source: oracle/codemp/game/g_timer.c:12
     public var name: String? {
-        get { self.raw.pointee.name.map { String(cString: $0) } }
+        get { self.raw.pointee.name.map { cString(at: $0) } }
         nonmutating set { self.raw.pointee.name = UnsafePointer(StringPool.shared.pointer(for: newValue)) }
     }
 
