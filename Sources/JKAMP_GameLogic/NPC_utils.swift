@@ -850,7 +850,7 @@ func NPC_ClearLOS3(_ start: JKAShared.vec3_t, _ ent: Entity) -> Bool {
 
 /// Source: oracle/codemp/game/NPC_utils.c:1085
 public func NPC_ClearLOS2(_ ent: Entity, _ end: JKAShared.vec3_t) -> Bool {
-    return G_ClearLOS2(NPC!, ent, end)
+    return G_ClearLOS2(NPC, ent, end)
 }
 
 /// Source: oracle/codemp/game/NPC_utils.c:1096

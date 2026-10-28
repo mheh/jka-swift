@@ -183,7 +183,7 @@ private func ST_Speech(_ `self`: Entity, _ speechType: Int32, _ failChance: Floa
         } else if !TIMER_Done(`self`, "chatter") {
             //personal timer
             return
-        } else if groupSpeechDebounceTime[`self`.client!.playerTeam] > level.time {
+        } else if `self`.client!.playerTeam >= 0 && `self`.client!.playerTeam < TEAM_NUM_TEAMS && groupSpeechDebounceTime[`self`.client!.playerTeam] > level.time {
             //for those not in group AI
             //FIXME: let certain speech types interrupt others?  Let closer NPCs interrupt farther away ones?
             return
@@ -197,7 +197,11 @@ private func ST_Speech(_ `self`: Entity, _ speechType: Int32, _ failChance: Floa
     } else {
         TIMER_Set(`self`, "chatter", Q_irand(2000, 4000))
     }
-    groupSpeechDebounceTime[`self`.client!.playerTeam] = level.time + Q_irand(2000, 4000)
+    // Raven's team parse gives every NPC -1, and his read and write at -1 land on the float before the table, which is undefined.
+    // An out-of-range team takes no debounce.
+    if `self`.client!.playerTeam >= 0 && `self`.client!.playerTeam < TEAM_NUM_TEAMS {
+        groupSpeechDebounceTime[`self`.client!.playerTeam] = level.time + Q_irand(2000, 4000)
+    }
 
     if `self`.NPC!.blockedSpeechDebounceTime > level.time {
         return
