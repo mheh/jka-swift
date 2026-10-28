@@ -1,6 +1,6 @@
 # The three-byte entity box, resume notes
 
-State as of 2026-09-29. Three untracked files sit at the repo root: `solid_encode.c` is the demo of the pack and the decode, `solid_encode.md` is the finding against the oracle, and this file holds the Lugormod findings, the fix design, and the open rulings. Nothing is committed and no fix is written.
+State as of 2026-09-29. Three files sit in `notes/2026-09-29/`: `solid_encode.c` is the demo of the pack and the decode, `solid_encode.md` is the finding against the oracle, and this file holds the Lugormod findings, the fix design, and the open rulings. Nothing is committed and no fix is written.
 
 ## The fault in one paragraph
 
