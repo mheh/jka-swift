@@ -5910,7 +5910,9 @@ func StandardBotAI(_ bs: BotState, _ thinktime: Float) {
                     bs.duckTime = Float(level.time + 1000)
                 }
             }
-        } else if gWPArray[goalWPIndex] != nil && gWPArray[goalWPIndex]!.inuse != 0 && !((gLevelFlags & LEVELFLAG_NOPOINTPREDICTION) != 0) {
+        } else if goalWPIndex >= 0 && goalWPIndex < MAX_WPARRAY_SIZE && gWPArray[goalWPIndex] != nil && gWPArray[goalWPIndex]!.inuse != 0 && !((gLevelFlags & LEVELFLAG_NOPOINTPREDICTION) != 0) {
+            // Raven reads the pointer before the table for a bot at waypoint 0, and the one past it at the last, which is undefined.
+            // The two bounds above make an index outside the table no waypoint.
             a = gWPArray[goalWPIndex]!.origin - bs.origin
             vectoangles(a, &ang)
             bs.goalAngles = ang
@@ -5948,7 +5950,9 @@ func StandardBotAI(_ bs: BotState, _ thinktime: Float) {
                 desiredIndex = bs.wpCurrent!.index - 1
             }
 
-            if gWPArray[desiredIndex] != nil && gWPArray[desiredIndex]!.inuse != 0 && desiredIndex < gWPNum && desiredIndex >= 0 && PassWayCheck(bs, desiredIndex) != 0 {
+            // Raven tests the two bounds after the read, so a bot at waypoint 0 reads the pointer before the table, which is undefined.
+            // The two bounds come first here.
+            if desiredIndex < gWPNum && desiredIndex >= 0 && gWPArray[desiredIndex] != nil && gWPArray[desiredIndex]!.inuse != 0 && PassWayCheck(bs, desiredIndex) != 0 {
                 bs.wpCurrent = gWPArray[desiredIndex]
             } else {
                 if bs.wpDestination != nil {

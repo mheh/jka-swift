@@ -14,8 +14,8 @@ The shapes:
 qboolean is skipped, because rule 7 makes it Bool at every Swift surface and the view converts it.
 
 Usage:
-  .venv/bin/python reexport.py                    # writes Sources/<View>/Generated/ for every view target that exists
-  .venv/bin/python reexport.py --probe            # then builds, marks the macros Swift could not import, and writes again
+  .venv/bin/python reexport.py                    # writes Sources/<View>/Generated/ for every view target, then builds, marks the macros Swift could not import, and writes again
+  .venv/bin/python reexport.py --no-probe         # writes once with every macro as an import, which builds only when the importer takes them all
 """
 from __future__ import annotations
 
@@ -310,7 +310,7 @@ def probe() -> set[str]:
 
 def main() -> int:
     ap = argparse.ArgumentParser(description=__doc__, formatter_class=argparse.RawDescriptionHelpFormatter)
-    ap.add_argument("--probe", action="store_true", help="build, mark what Swift could not import, and write again")
+    ap.add_argument("--no-probe", action="store_true", help="write once with every macro as an import, and skip the build that marks what Swift could not import")
     args = ap.parse_args()
     targets = [t for t, view in VIEW_OF.items() if (SOURCES / t / "include").exists() and (SOURCES / view).exists()]
     # A name climbs one rung per failed build: the import, the expression, the expression narrowed to Int32, then the marker.
@@ -328,7 +328,7 @@ def main() -> int:
                     if m:
                         declared[m.group(1)] = VIEW_OF[target]
             print(f"{VIEW_OF[target]:12} {count:5} declarations from {target}")
-        if not args.probe:
+        if args.no_probe:
             return 0
         found = probe()
         if not found:

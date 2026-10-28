@@ -108,8 +108,8 @@ NEVER_NULL = {
 # A field the rule does not name keeps the widest count, because no ruling has given it a bound.
 # See docket row 8 of the bg walk of 2026-09-18.
 SLOT_BOUNDS = {
-    ("bgLoadedAnim_t", "anims"): "MAX_ANIMATIONS",
-    ("pmove_t", "animations"): "MAX_ANIMATIONS",
+    ("bgLoadedAnim_t", "anims"): "MAX_TOTALANIMATIONS",
+    ("pmove_t", "animations"): "MAX_TOTALANIMATIONS",
     ("level_locals_t", "clients"): "MAX_CLIENTS",
 }
 
