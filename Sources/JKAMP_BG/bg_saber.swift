@@ -2989,13 +2989,10 @@ func PM_SetSaberMove(_ newMove: Int32) {
 /// Source: oracle/codemp/game/bg_saber.c:4100
 func BG_MySaber(_ clientNum: Int32, _ saberNum: Int32) -> JKAMP.SaberInfo? {
     //returns a pointer to the requested saberNum
-    let ent: BgEntity = pm.entity(at: clientNum)
-    if bgEntityInuse(ent) && ent.playerState != nil {
-        // Raven names `ent->client->saber[saberNum]` more than once, and each Swift use calls the channel, so the draft reads it once.
-        let saber = bgClientSaber(of: clientNum, at: saberNum)
+    if bgEntityAtInuse(of: clientNum), let saber = bgClientSaber(of: clientNum, at: saberNum) {
         // Raven tests `!ent->client->saber[saberNum].model` and `!ent->client->saber[saberNum].model[0]`.
         // Both read as the same Swift test, so the draft writes it once.
-        if saber!.model.isEmpty {
+        if saber.model.isEmpty {
             //don't have saber anymore!
             return nil
         }

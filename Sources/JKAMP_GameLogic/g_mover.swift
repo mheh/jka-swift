@@ -710,7 +710,7 @@ func Reached_BinaryMover(_ ent: Entity) {
         if ent.activator == nil {
             ent.activator = ent
         }
-        G_UseTargets2(ent, ent.activator!, ent.opentarget!)
+        G_UseTargets2(ent, ent.activator, ent.opentarget)
     } else if ent.moverState == MOVER_2TO1 {
         //closed
         var doorcenter = vec3_t()
@@ -727,7 +727,7 @@ func Reached_BinaryMover(_ ent: Entity) {
         if ent.teammaster == ent || ent.teammaster == nil {
             trap_AdjustAreaPortalState(ent, false)
         }
-        G_UseTargets2(ent, ent.activator!, ent.closetarget!)
+        G_UseTargets2(ent, ent.activator, ent.closetarget)
     } else {
         G_Error("Reached_BinaryMover: bad moverState")
     }
@@ -781,7 +781,7 @@ func Use_BinaryMover_Go(_ ent: Entity) {
         } else {
             ent.nextthink = Int32(level.time + ent.wait)
         }
-        G_UseTargets2(ent, ent.activator!, ent.target2!)
+        G_UseTargets2(ent, ent.activator, ent.target2)
         return
     }
 
@@ -1733,7 +1733,7 @@ func Reached_Train(_ ent: Entity) {
     }
 
     // fire all other targets
-    G_UseTargets(next!, nil)
+    G_UseTargets(next, nil)
 
     // set the new trajectory
     ent.nextTrain = next!.nextTrain
@@ -2389,10 +2389,10 @@ func funcBBrushPain(_ `self`: Entity, _ attacker: Entity, _ damage: Int32) {
     if `self`.paintarget != nil && !`self`.paintarget!.isEmpty {
         if `self`.activator == nil {
             if attacker.inuse && attacker.client != nil {
-                G_UseTargets2(`self`, attacker, `self`.paintarget!)
+                G_UseTargets2(`self`, attacker, `self`.paintarget)
             }
         } else {
-            G_UseTargets2(`self`, `self`.activator!, `self`.paintarget!)
+            G_UseTargets2(`self`, `self`.activator, `self`.paintarget)
         }
     }
 
@@ -2832,7 +2832,7 @@ func func_wait_return_solid(_ `self`: Entity) {
         `self`.use = Use.func_usable_use
         `self`.clipmask = 0
         if `self`.target2 != nil && !`self`.target2!.isEmpty {
-            G_UseTargets2(`self`, `self`.activator!, `self`.target2!)
+            G_UseTargets2(`self`, `self`.activator, `self`.target2)
         }
         //FIXME: Animations?
         /*if ( self->s.eFlags & EF_ANIM_ONCE )

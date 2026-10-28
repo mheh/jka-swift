@@ -96,7 +96,7 @@ func DeathmatchScoreboardMessage(_ ent: Entity) {
         if stringlength + j > 1022 {
             break
         }
-        strcpy(&string + stringlength, entry)
+        strcpy(&string, entry, at: stringlength)
         stringlength += j
         i += 1
     }

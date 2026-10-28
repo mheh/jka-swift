@@ -188,6 +188,21 @@ public func strcpy(_ dest: inout CharBuf, _ source: String, at offset: some Bina
     }
 }
 
+/// This copies a buffer's bytes plus a trailing NUL from byte `offset` on, Raven's `strcpy(string + stringlength, entry)`.
+/// It traps when the source does not fit from that offset, C overruns there and that is the one divergence.
+public func strcpy(_ dest: inout CharBuf, _ source: CharBuf, at offset: some BinaryInteger) {
+    let length = Int(strlen(source))
+    let start = Int(offset)
+    precondition(start >= 0 && start + length + 1 <= dest.count, "strcpy: source does not fit in dest from the offset")
+    dest.withMutableBytes { destBytes in
+        source.withBytes { sourceBytes in
+            for i in 0...length {
+                destBytes[start + i] = sourceBytes[i]
+            }
+        }
+    }
+}
+
 /// This copies a `PooledString`'s bytes up to and including the NUL, Raven's `strcpy(dest, source)`.
 /// It traps when the source does not fit in `dest`, C overruns there and that is the one divergence.
 public func strcpy(_ dest: inout CharBuf, _ source: PooledString) {

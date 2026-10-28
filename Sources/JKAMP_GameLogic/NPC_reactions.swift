@@ -405,7 +405,7 @@ func NPC_Pain(_ `self`: Entity, _ attacker: Entity, _ damage: Int32) {
 
     //Attempt to fire any paintargets we might have
     if `self`.paintarget != nil && !`self`.paintarget!.isEmpty {
-        G_UseTargets2(`self`, other!, `self`.paintarget!)
+        G_UseTargets2(`self`, other, `self`.paintarget)
     }
 
     RestoreNPCGlobals()

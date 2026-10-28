@@ -178,6 +178,7 @@ TYPES = {
 #   text_offset    an Int32? byte offset into the argument, or nil, the shape strchr has in CString.swift
 #   text_offset_nonnull  an Int32 byte offset into the argument that is never NULL
 #   vec3           a JKAShared.vec3_t by value, for a `float *` Raven returns out of a static ring of temporaries
+#   table          a Slots over the records a field holds, for a function that returns the pointer of a field with a bound in SLOT_BOUNDS
 RETURNS = {
     "SkipWhitespace": "text_cursor",
     "ClientConnect": "optional_string",
@@ -200,6 +201,8 @@ RETURNS = {
     "BG_StringAlloc": "pooled_string",
     "G_NewString": "pooled_string",
     "tv": "vec3",
+    # BG_AnimsetAlloc returns `bgAllAnims[bgNumAllAnims].anims` at bg_panimate.c:1734, the table the parser indexes. Row X10 of 2026-10-27.
+    "BG_AnimsetAlloc": "table",
 }
 
 # Allocators whose `char *` result a body holds as a CharBuf of the constant size Raven asks for, when every store into the local is that call.
@@ -339,6 +342,19 @@ NULLABLE = {
     ("G_Find", "match"),
     # SiegeItemThink passes NULL to SiegeItemRespawnOnOriginalSpot at g_saga.c:1435, which passes it on, and the body tests it at g_saga.c:1344.
     ("SiegeItemRemoveOwner", "carrier"),
+    # ClientSpawn passes the NULL of SelectSpectatorSpawnPoint at g_client.c:3727, and both bodies test it at g_utils.c:569 and :611.
+    ("G_UseTargets2", "ent"),
+    ("G_UseTargets", "ent"),
+    # SP_waypoint_navgoal passes NULL as the owner at g_nav.c:1382, TAG_Add passes it on at g_misc.c:3042, and the body tests it at g_misc.c:2980.
+    ("TAG_Find", "owner"),
+    # PM_Weapon passes a NULL veh for every entity that is not a vehicle at bg_pmove.c:7362, and the body tests it at bg_pmove.c:5990.
+    ("PM_DoChargedWeapons", "veh"),
+    # NPC_FindEnemy passes the NULL of NPC_PickEnemyExt at NPC_utils.c:1454, and the body tests it at NPC_utils.c:1100.
+    ("NPC_ValidEnemy", "ent"),
+    # Q3_GetTag passes `ent->ownername` as it is at g_ICARUScb.c:961, and each body passes it on to TAG_Find, which tests it at g_misc.c:2980.
+    ("TAG_GetOrigin", "owner"),
+    ("TAG_GetAngles", "owner"),
+    ("TAG_GetFlags", "owner"),
 }
 # Files whose functions a bg body reaches directly, because they live in the shared module or in bg itself.
 # The functions whose integer arithmetic is a generator or a hash, where C wraps at 32 bits and Swift's plain operators trap.

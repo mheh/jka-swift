@@ -707,7 +707,7 @@ func NPC_CheckPlayerTeamStealth() -> Bool {
             continue
         }
 
-        if enemy != nil && enemy!.client != nil && NPC_ValidEnemy(enemy!) && enemy!.client!.playerTeam == NPC!.client!.enemyTeam {
+        if enemy != nil && enemy!.client != nil && NPC_ValidEnemy(enemy) && enemy!.client!.playerTeam == NPC!.client!.enemyTeam {
             if NPC_CheckEnemyStealth(enemy!) {
                 return true
             }

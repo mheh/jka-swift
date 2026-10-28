@@ -62,9 +62,9 @@ func multi_trigger_run(_ ent: Entity) {
     if ent.genericValue4 != 0 {
         //we want to activate target3 for team1 or target4 for team2
         if ent.genericValue4 == SIEGETEAM_TEAM1 && ent.target3 != nil && !ent.target3!.isEmpty {
-            G_UseTargets2(ent, ent.activator!, ent.target3!)
+            G_UseTargets2(ent, ent.activator, ent.target3)
         } else if ent.genericValue4 == SIEGETEAM_TEAM2 && ent.target4 != nil && !ent.target4!.isEmpty {
-            G_UseTargets2(ent, ent.activator!, ent.target4!)
+            G_UseTargets2(ent, ent.activator, ent.target4)
         }
 
         ent.genericValue4 = 0
@@ -176,7 +176,7 @@ func multi_trigger(_ ent: Entity, _ activator: Entity) {
                         //The carrier of the item is not on the team which disallows objective scoring for it
                         if objItem!.target3 != nil && !objItem!.target3!.isEmpty {
                             //if it has a target3, fire it off instead of using the trigger
-                            G_UseTargets2(objItem!, objItem!, objItem!.target3!)
+                            G_UseTargets2(objItem, objItem, objItem!.target3)
 
                             //3-24-03 - want to fire off the target too I guess, if we have one.
                             if ent.targetname != nil && !ent.targetname!.isEmpty {
@@ -485,7 +485,7 @@ func Touch_Multi(_ `self`: Entity, _ other: Entity, _ trace: JKAMP.Trace) {
 
 /// Source: oracle/codemp/game/g_trigger.c:549
 func trigger_cleared_fire(_ `self`: Entity) {
-    G_UseTargets2(`self`, `self`.activator!, `self`.target2!)
+    G_UseTargets2(`self`, `self`.activator, `self`.target2)
     `self`.think = nil
     // should start the wait timer now, because the trigger's just been cleared, so we must "wait" from this point
     if `self`.wait > 0 {

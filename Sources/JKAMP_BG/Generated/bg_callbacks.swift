@@ -111,6 +111,9 @@ public struct BgCallbacks {
     /// Source: oracle/codemp/game/bg_pmove.c:4255
     public var bgEntityAlliedTeam: (JKAMP.BgEntity) -> Int32 = { _ in portMissing("bgEntityAlliedTeam", source: "oracle/codemp/game/bg_pmove.c:4255") }
 
+    /// Source: oracle/codemp/game/bg_saber.c:4105
+    public var bgEntityAtInuse: (Int32) -> Bool = { _ in portMissing("bgEntityAtInuse", source: "oracle/codemp/game/bg_saber.c:4105") }
+
     /// Source: oracle/codemp/game/bg_slidemove.c:77
     public var bgEntityBmodel: (JKAMP.BgEntity) -> Bool = { _ in portMissing("bgEntityBmodel", source: "oracle/codemp/game/bg_slidemove.c:77") }
 
@@ -360,6 +363,12 @@ func bgClientSessionTeam(_ ent: JKAMP.BgEntity) -> JKAMP.team_t {
 @discardableResult
 func bgEntityAlliedTeam(_ ent: JKAMP.BgEntity) -> Int32 {
     bg.callbacks.bgEntityAlliedTeam(ent)
+}
+
+/// Source: oracle/codemp/game/bg_saber.c:4105
+@discardableResult
+func bgEntityAtInuse(of entityNum: Int32) -> Bool {
+    bg.callbacks.bgEntityAtInuse(entityNum)
 }
 
 /// Source: oracle/codemp/game/bg_slidemove.c:77

@@ -178,7 +178,7 @@ func turretG2_set_models(_ `self`: Entity, _ dying: Bool) {
 func TurretG2Pain(_ `self`: Entity, _ attacker: Entity, _ damage: Int32) {
     if `self`.paintarget != nil && !`self`.paintarget!.isEmpty {
         if `self`.genericValue8 < level.time {
-            G_UseTargets2(`self`, `self`, `self`.paintarget!)
+            G_UseTargets2(`self`, `self`, `self`.paintarget)
             `self`.genericValue8 = level.time + `self`.genericValue4
         }
     }

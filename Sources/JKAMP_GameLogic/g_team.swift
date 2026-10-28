@@ -1134,7 +1134,7 @@ func TeamplayInfoMessage(_ ent: Entity) {
             if stringlength + j > Int32((string).count) {
                 break
             }
-            strcpy(&string + stringlength, entry)
+            strcpy(&string, entry, at: stringlength)
             stringlength += j
             cnt += 1
         }

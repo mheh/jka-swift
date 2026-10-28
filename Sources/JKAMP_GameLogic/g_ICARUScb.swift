@@ -580,7 +580,7 @@ public func Q3_Lerp2Pos(_ taskID: Int32, _ entID: Int32, _ origin: JKAShared.vec
     //SetMoverState( ent, moverState, level.time );
 
     //Only do the angles if specified
-    if angles! != nil {
+    if angles != nil {
         //
         // Rotation
 
@@ -694,10 +694,10 @@ public func Q3_GetTag(_ entID: Int32, _ name: String, _ lookup: Int32, _ info: i
 
     switch lookup {
     case TYPE_ORIGIN:
-        return TAG_GetOrigin(ent!.ownername!, name, &info)
+        return TAG_GetOrigin(ent!.ownername, name, &info)
 
     case TYPE_ANGLES:
-        return TAG_GetAngles(ent!.ownername!, name, &info)
+        return TAG_GetAngles(ent!.ownername, name, &info)
 
     default:
         break
@@ -729,7 +729,7 @@ public func Q3_Use(_ entID: Int32, _ target: String) {
         return
     }
 
-    G_UseTargets2(ent!, ent!, target)
+    G_UseTargets2(ent, ent, target)
 }
 
 /**

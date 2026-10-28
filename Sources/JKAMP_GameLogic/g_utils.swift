@@ -542,13 +542,16 @@ func GlobalUse(_ `self`: Entity, _ other: Entity, _ activator: Entity?) {
 }
 
 /// Source: oracle/codemp/game/g_utils.c:566
-func G_UseTargets2(_ ent: Entity, _ activator: Entity?, _ string: String?) {
+func G_UseTargets2(_ ent: Entity?, _ activator: Entity?, _ string: String?) {
     var t: Entity?
 
+    if ent == nil {
+        return
+    }
 
-    if ent.targetShaderName != nil && ent.targetShaderNewName != nil {
+    if ent!.targetShaderName != nil && ent!.targetShaderNewName != nil {
         let f: Float = Float(Double(level.time) * 0.001)
-        AddRemap(ent.targetShaderName!, ent.targetShaderNewName!, f)
+        AddRemap(ent!.targetShaderName!, ent!.targetShaderNewName!, f)
         trap_SetConfigstring(CS_SHADERSTATE, BuildShaderStateConfig())
     }
 
@@ -563,10 +566,10 @@ func G_UseTargets2(_ ent: Entity, _ activator: Entity?, _ string: String?) {
             G_Printf("WARNING: Entity used itself.\n")
         } else {
             if t!.use != nil {
-                GlobalUse(t!, ent, activator)
+                GlobalUse(t!, ent!, activator)
             }
         }
-        if !ent.inuse {
+        if !ent!.inuse {
             G_Printf("entity was removed while using targets\n")
             return
         }
@@ -587,8 +590,11 @@ match (string)self.target and call their .use function
 ```
 */
 /// Source: oracle/codemp/game/g_utils.c:609
-func G_UseTargets(_ ent: Entity, _ activator: Entity?) {
-    G_UseTargets2(ent, activator, ent.target)
+func G_UseTargets(_ ent: Entity?, _ activator: Entity?) {
+    if ent == nil {
+        return
+    }
+    G_UseTargets2(ent, activator, ent!.target)
 }
 
 /**

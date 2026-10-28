@@ -862,7 +862,9 @@ class Statements:
             head = roled([f"{pad}let {filled} = {call}", f"{pad}{fill}"], "lifted")
             test = f"!{filled}.0" if negated else f"{filled}.0"
         else:
-            test = self.condition(cond)
+            # The bind changes the hoists, so the draft asks for it once.
+            bind = self.client_bind(cond, then)
+            test = bind if bind is not None else self.condition(cond)
         if test == "false":
             # The guard folded away, because the Swift signature holds the value, so its arm has no path and only the else arm stays.
             return self.branch(kids[2], depth) if len(kids) == 3 else []
@@ -1111,6 +1113,41 @@ class Statements:
         colon = rest.find(":")
         rest = rest[colon + 1:].strip() if colon >= 0 else ""
         return rest if rest.startswith("//") else ""
+
+    def client_bind(self, cond: ci.Cursor, then: ci.Cursor) -> str | None:
+        """Raven's by-number `ent->client` test as the bind of the record read his then arm shares, or None for any other test.
+
+        Outside a pm function, `ent->client->saber[n]` reads the game by number, and the callback hands back nil where the game's client is NULL.
+        So `if (ent->inuse && ent->client)` reads `if bgEntityInuse(of: n), let saber = bgClientSaber(of: n, at: i)`."""
+        inner = self.unwrap(cond)
+        left = None
+        if inner.kind == CursorKind.BINARY_OPERATOR and self.operator_or_none(inner) == "&&":
+            left, test = list(inner.get_children())
+        else:
+            test = inner
+        test = self.unwrap(test)
+        if test.kind != CursorKind.MEMBER_REF_EXPR or then.kind != CursorKind.COMPOUND_STMT:
+            return None
+        fields, root, base = self.game_chain(test)
+        if fields != ["client"] or root != "entities":
+            return None
+        first = next(iter(then.get_children()), None)
+        if first is None:
+            return None
+        hoists = self.hoists.get(extent_key(first), [])
+        for entry in hoists:
+            key, local, read = entry
+            read_base = self.strip(list(read.get_children())[0])
+            read_fields, _, read_root = self.game_chain(read_base)
+            if read_fields[:1] != ["client"] or self.entity_index_text(read_root) != self.entity_index_text(base):
+                continue
+            hoists.remove(entry)
+            value = self.expr(read)
+            self.hoisted[key] = local
+            self.bound_reads.add(key)
+            bind = f"let {local} = {value}"
+            return bind if left is None else f"{self.condition(left)}, {bind}"
+        return None
 
     def condition(self, cur: ci.Cursor) -> str:
         """A C truth test as a Swift Bool: a Bool as it is, a pointer against nil, a number against 0."""

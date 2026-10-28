@@ -1255,7 +1255,7 @@ private func SiegeItemRespawnEffect(_ ent: Entity, _ newOrg: JKAShared.vec3_t) {
     var upAng = vec3_t()
 
     if ent.target5 != nil && !ent.target5!.isEmpty {
-        G_UseTargets2(ent, ent, ent.target5!)
+        G_UseTargets2(ent, ent, ent.target5)
     }
 
     if ent.genericValue10 == 0 {
@@ -1327,7 +1327,7 @@ func SiegeItemThink(_ ent: Entity) {
         } else if carrier!.health < 1 {
             //The carrier died so pop out where he is (unless in nodrop).
             if ent.target6 != nil && !ent.target6!.isEmpty {
-                G_UseTargets2(ent, ent, ent.target6!)
+                G_UseTargets2(ent, ent, ent.target6)
             }
 
             if (trap_PointContents(carrier!.client!.ps.origin, carrier!.s.number) & CONTENTS_NODROP) != 0 {
@@ -1421,7 +1421,7 @@ func SiegeItemTouch(_ `self`: Entity, _ other: Entity, _ trace: JKAMP.Trace) {
 
     if `self`.target2 != nil && !`self`.target2!.isEmpty && (`self`.genericValue4 == 0 || `self`.genericValue5 == 0) {
         //fire the target for pickup, if it's set to fire every time, or set to only fire the first time and the first time has not yet occured.
-        G_UseTargets2(`self`, `self`, `self`.target2!)
+        G_UseTargets2(`self`, `self`, `self`.target2)
         `self`.genericValue5 = 1 //mark it as having been picked up
     }
 
@@ -1453,7 +1453,7 @@ func SiegeItemDie(_ `self`: Entity, _ inflictor: Entity, _ attacker: Entity, _ d
 
     //Fire off the death target if we've got one.
     if `self`.target4 != nil && !`self`.target4!.isEmpty {
-        G_UseTargets2(`self`, `self`, `self`.target4!)
+        G_UseTargets2(`self`, `self`, `self`.target4)
     }
 }
 

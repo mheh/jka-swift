@@ -2373,7 +2373,7 @@ func player_die(_ `self`: Entity, _ inflictor: Entity, _ attacker: Entity, _ dam
             //FIXME: should running this preclude running the normal deathscript?
             //deathScript = qtrue;
         }
-        G_UseTargets2(`self`, `self`, `self`.target4!)
+        G_UseTargets2(`self`, `self`, `self`.target4)
     }
 
     /*

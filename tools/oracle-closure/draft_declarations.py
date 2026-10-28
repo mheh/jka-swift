@@ -394,6 +394,14 @@ class Declarations:
                 if self.is_null(source):
                     self.optional_entities.add(var.spelling)
                     return f"var {name}: JKAMP.BgEntity? = nil"
+                if self.entity_slot(source) is not None and not self.sk.table.names_pm(self.fn.cur):
+                    # The body never names `pm`, so no Pmove stands behind it, and the local is the number Raven indexed.
+                    # Every read through the local takes that number, and the local drops.
+                    parents, refs = self.slot_refs(var)
+                    if any(self.slot_parent(parents, ref)[0] is None or self.slot_parent(parents, ref)[0].kind != CursorKind.MEMBER_REF_EXPR
+                           for ref in refs):
+                        raise Hole("Outside a pm function, Raven uses an entity of `g_entities` as a whole, and the channel reads it only by field.")
+                    return ""
                 self.game_entities.add(var.spelling)
                 return f"{keyword} {name}: JKAMP.BgEntity = {self.game_entity(init[0])}"
             if record and record in self.views.views:

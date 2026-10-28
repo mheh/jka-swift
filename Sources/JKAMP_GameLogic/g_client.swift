@@ -3319,7 +3319,7 @@ func ClientSpawn(_ ent: Entity) {
                         MoveClientToIntermission(ent)
                     } else {
                         // fire the targets of the spawn point
-                        G_UseTargets(spawnPoint!, ent)
+                        G_UseTargets(spawnPoint, ent)
 
                         // select the highest weapon number available, after any
                         // spawn given items have fired

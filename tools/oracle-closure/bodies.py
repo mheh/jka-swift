@@ -308,6 +308,8 @@ class Drafter(Statements, Expressions, Calls, Declarations, Classification):
         body = [c for c in fn.cur.get_children() if c.kind == CursorKind.COMPOUND_STMT][-1]
         # A view read Raven names more than once is one local, by his text of the read, once the draft declares it.
         self.hoisted: dict[str, str] = {}
+        # The shared reads an `if let` binds, so the local is the record itself and a read through it takes no `!`.
+        self.bound_reads: set[str] = set()
         self.hoists = self.shared_reads(body)
         lines = header[:-3]
         # A line of the body that no statement inside it drafted, a gap, a parameter copy, or a frame, belongs to the body, seq 0 of the function.

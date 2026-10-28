@@ -575,7 +575,7 @@ class Classification:
 
     def game_chain(self, cur: ci.Cursor) -> tuple[list[str], str | None, ci.Cursor]:
         """The field path of a member chain in a bg body, its root kind when the root is the game's, and the root expression."""
-        fields, root = self.sk.table.chain(cur, set())
+        fields, root = self.sk.table.chain(cur, set(), target_of(self.fn.stem) == BG and not self.sk.table.names_pm(self.fn.cur))
         base = cur
         while base.kind == CursorKind.MEMBER_REF_EXPR:
             base = self.unwrap(list(base.get_children())[0])
@@ -670,6 +670,9 @@ class Classification:
         if inner.kind == CursorKind.ARRAY_SUBSCRIPT_EXPR:
             kids = list(inner.get_children())
             if kids and self.indexed_view_read(self.strip(kids[0])) is not None:
+                if self.shared_read_key(inner) in self.bound_reads:
+                    # An `if let` bound the record, so the local is never nil.
+                    return False
                 # The callback hands back the game's record, and the game's client is NULL on an entity that holds no player.
                 return True
         if not self.is_pointer(inner):

@@ -870,7 +870,7 @@ func NPC_BSRemove() {
     NPC_UpdateAngles(true, true)
     if !trap_InPVS(NPC!.r.currentOrigin, g_entities[0].r.currentOrigin) {
         //rwwFIXMEFIXME: Care about all clients instead of just 0?
-        G_UseTargets2(NPC!, NPC!, NPC!.target3!)
+        G_UseTargets2(NPC, NPC, NPC!.target3)
         NPC!.s.eFlags |= EF_NODRAW
         NPC!.s.eType = ET_INVISIBLE
         NPC!.r.contents = 0

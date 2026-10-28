@@ -497,6 +497,7 @@ class Table:
             data = C.parsed_bytes(path)
             consumed: set[tuple[int, int]] = set()
             writes: set[tuple[int, int]] = set()
+            by_number = not self.names_pm(cur)
             for node in cur.walk_preorder():
                 kids = list(node.get_children())
                 if node.kind in (CursorKind.BINARY_OPERATOR, CursorKind.COMPOUND_ASSIGNMENT_OPERATOR) and len(kids) == 2:
@@ -509,7 +510,7 @@ class Table:
                 span = (node.extent.start.offset, node.extent.end.offset)
                 if span in consumed:
                     continue
-                fields, root = self.chain(node, consumed)
+                fields, root = self.chain(node, consumed, by_number)
                 if root is None or self.own_field(root, fields):
                     continue
                 at = False
@@ -585,6 +586,12 @@ class Table:
         operand = list(address.get_children())
         return cls.entity_index(cls.unwrapped(operand[0])) if len(operand) == 1 else None
 
+    @staticmethod
+    def names_pm(fn: ci.Cursor) -> bool:
+        """True when the body names the file-scope `pm`, so a slot of `g_entities` there is the pmove's stride walk.
+        Raven's `PM_BGEntForNum` asserts outside a pm function, so a body that never names `pm` reads the game by number."""
+        return any(n.kind == CursorKind.DECL_REF_EXPR and n.spelling == "pm" for n in fn.walk_preorder())
+
     @classmethod
     def root_of(cls, node: ci.Cursor) -> ci.Cursor:
         """The expression a member chain stands on, `g_entities[n]` under `g_entities[n].s.legsAnim`."""
@@ -592,11 +599,12 @@ class Table:
             node = cls.unwrapped(list(node.get_children())[0])
         return node
 
-    def chain(self, node: ci.Cursor, consumed: set[tuple[int, int]]) -> tuple[list[str], str | None]:
+    def chain(self, node: ci.Cursor, consumed: set[tuple[int, int]], by_number: bool = False) -> tuple[list[str], str | None]:
         """The field path of a member chain, outermost last, and the kind of its root: an entity, the level, a cvar, or None.
 
         A slot of the file-scope `g_entities` is the `entities` root, the second root of the read sweep, and its callback
-        takes Raven's index. Any other entity expression is the `entity` root, whose callback takes the bg entity itself."""
+        takes Raven's index. Any other entity expression is the `entity` root, whose callback takes the bg entity itself.
+        With `by_number`, the body never names `pm`, so a local Raven set to `&g_entities[n]` is the `entities` root too."""
         fields: list[str] = []
         cur = node
         while cur.kind == CursorKind.MEMBER_REF_EXPR:
@@ -610,7 +618,8 @@ class Table:
             t = t.get_pointee().get_canonical()
         record = self.types.record_name(t)
         if record == "gentity_t":
-            return fields, "entities" if self.entity_slot_index(cur) is not None else "entity"
+            slot = self.entity_slot_index(cur) if not by_number else self.entity_index(cur)
+            return fields, "entities" if slot is not None else "entity"
         if cur.kind == CursorKind.DECL_REF_EXPR and cur.referenced is not None and cur.referenced.semantic_parent is not None \
                 and cur.referenced.semantic_parent.kind == CursorKind.TRANSLATION_UNIT:
             if record == "level_locals_t":

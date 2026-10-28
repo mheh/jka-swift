@@ -107,6 +107,11 @@ func G_LogWeaponInit() {
 
 /// Source: oracle/codemp/game/g_log.c:123
 func G_LogWeaponPickup(_ client: Int32, _ weaponid: Int32) {
+    // Raven has no test here and writes past a `MAX_CLIENTS` table for an NPC, which is undefined.
+    // The eight guards of this file are OpenJK's at g_log.c:144.
+    if client >= MAX_CLIENTS {
+        return
+    }
     G_WeaponLogPickups[client][weaponid] += 1
     G_WeaponLogClientTouch[client] = true
 }
@@ -115,6 +120,9 @@ func G_LogWeaponPickup(_ client: Int32, _ weaponid: Int32) {
 func G_LogWeaponFire(_ client: Int32, _ weaponid: Int32) {
     let dur: Int32
 
+    if client >= MAX_CLIENTS {
+        return
+    }
     G_WeaponLogFired[client][weaponid] += 1
     dur = level.time - G_WeaponLogLastTime[client]
     if dur > 5000 {
@@ -131,6 +139,9 @@ func G_LogWeaponDamage(_ client: Int32, _ mod: Int32, _ amount: Int32) {
     if client >= MAX_CLIENTS {
         return
     }
+    if client >= MAX_CLIENTS {
+        return
+    }
     G_WeaponLogDamage[client][mod] += amount
     G_WeaponLogClientTouch[client] = true
 }
@@ -140,12 +151,18 @@ func G_LogWeaponKill(_ client: Int32, _ mod: Int32) {
     if client >= MAX_CLIENTS {
         return
     }
+    if client >= MAX_CLIENTS {
+        return
+    }
     G_WeaponLogKills[client][mod] += 1
     G_WeaponLogClientTouch[client] = true
 }
 
 /// Source: oracle/codemp/game/g_log.c:167
 func G_LogWeaponFrag(_ attacker: Int32, _ deadguy: Int32) {
+    if attacker >= MAX_CLIENTS || deadguy >= MAX_CLIENTS {
+        return
+    }
     if (attacker >= MAX_CLIENTS) || (deadguy >= MAX_CLIENTS) {
         return
     }
@@ -158,6 +175,9 @@ func G_LogWeaponDeath(_ client: Int32, _ weaponid: Int32) {
     if client >= MAX_CLIENTS {
         return
     }
+    if client >= MAX_CLIENTS {
+        return
+    }
     G_WeaponLogDeaths[client][weaponid] += 1
     G_WeaponLogClientTouch[client] = true
 }
@@ -167,12 +187,18 @@ func G_LogWeaponPowerup(_ client: Int32, _ powerupid: Int32) {
     if client >= MAX_CLIENTS {
         return
     }
+    if client >= MAX_CLIENTS {
+        return
+    }
     G_WeaponLogPowerups[client][powerupid] += 1
     G_WeaponLogClientTouch[client] = true
 }
 
 /// Source: oracle/codemp/game/g_log.c:197
 func G_LogWeaponItem(_ client: Int32, _ itemid: Int32) {
+    if client >= MAX_CLIENTS {
+        return
+    }
     if client >= MAX_CLIENTS {
         return
     }

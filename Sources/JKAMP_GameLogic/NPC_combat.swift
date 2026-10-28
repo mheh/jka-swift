@@ -1281,7 +1281,7 @@ func NPC_PickEnemy(_ closestTo: Entity, _ enemyTeam: Int32, _ checkVis: Bool, _ 
         newenemy = g_entities[0]
         if newenemy!.client != nil && !((newenemy!.flags & FL_NOTARGET) != 0) && !((newenemy!.s.eFlags & EF_NODRAW) != 0) {
             if newenemy!.health > 0 {
-                if NPC_ValidEnemy(newenemy!) {
+                if NPC_ValidEnemy(newenemy) {
                     //FIXME:  check for range and FOV or vis?
                     if newenemy != NPC!.lastEnemy {
                         //Make sure we're not just going back and forth here
@@ -1384,7 +1384,7 @@ func NPC_PickEnemy(_ closestTo: Entity, _ enemyTeam: Int32, _ checkVis: Bool, _ 
 
         if newenemy != NPC && newenemy!.client != nil && !((newenemy!.flags & FL_NOTARGET) != 0) && !((newenemy!.s.eFlags & EF_NODRAW) != 0) {
             if newenemy!.health > 0 {
-                if (newenemy!.client != nil && NPC_ValidEnemy(newenemy!)) || (newenemy!.client == nil && newenemy!.alliedTeam == enemyTeam) {
+                if (newenemy!.client != nil && NPC_ValidEnemy(newenemy)) || (newenemy!.client == nil && newenemy!.alliedTeam == enemyTeam) {
                     //FIXME:  check for range and FOV or vis?
                     if NPC!.client!.playerTeam == NPCTEAM_PLAYER && enemyTeam == NPCTEAM_PLAYER {
                         //player allies turning on ourselves?  How?

@@ -4666,7 +4666,7 @@ func Jedi_CheckAmbushPlayer() -> Bool {
             continue
         }
 
-        if !NPC_ValidEnemy(player!) {
+        if !NPC_ValidEnemy(player) {
             i += 1
             continue
         }
@@ -4778,7 +4778,7 @@ private func Jedi_Patrol() {
             while i < ENTITYNUM_WORLD {
                 let enemy: Entity? = g_entities[i]
                 var enemy_dist: Float
-                if enemy != nil && enemy!.client != nil && NPC_ValidEnemy(enemy!) && enemy!.client!.playerTeam == NPC!.client!.enemyTeam {
+                if enemy != nil && enemy!.client != nil && NPC_ValidEnemy(enemy) && enemy!.client!.playerTeam == NPC!.client!.enemyTeam {
                     if trap_InPVS(NPC!.r.currentOrigin, enemy!.r.currentOrigin) {
                         //we could potentially see him
                         enemy_dist = DistanceSquared(NPC!.r.currentOrigin, enemy!.r.currentOrigin)
@@ -5160,7 +5160,7 @@ private func Jedi_Attack() {
     if NPC!.enemy!.s.weapon == WP_TURRET && Q_stricmp("PAS", NPC!.enemy!.classname!) == 0 {
         if NPC!.enemy!.count <= 0 {
             //it's out of ammo
-            if NPC!.enemy!.activator != nil && NPC_ValidEnemy(NPC!.enemy!.activator!) {
+            if NPC!.enemy!.activator != nil && NPC_ValidEnemy(NPC!.enemy!.activator) {
                 let turretOwner: Entity? = NPC!.enemy!.activator
                 G_ClearEnemy(NPC!)
                 G_SetEnemy(NPC!, turretOwner!)

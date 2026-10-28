@@ -867,7 +867,7 @@ func G_FindLocalInterestPoint(_ `self`: Entity) -> Int32 {
         i += 1
     }
     if bestPoint != ENTITYNUM_NONE && level.interestPoints[bestPoint].target != nil {
-        G_UseTargets2(`self`, `self`, level.interestPoints[bestPoint].target!)
+        G_UseTargets2(`self`, `self`, level.interestPoints[bestPoint].target)
     }
     return bestPoint
 }

@@ -644,7 +644,7 @@ func target_counter_use(_ `self`: Entity, _ other: Entity, _ activator: Entity) 
     if `self`.count != 0 {
         if `self`.target2 != nil {
             //gi.Printf("target_counter %s firing target2 from %s, entnum %d\n", self->targetname, activator->targetname, activator->s.number );
-            G_UseTargets2(`self`, activator, `self`.target2!)
+            G_UseTargets2(`self`, activator, `self`.target2)
         }
         return
     }

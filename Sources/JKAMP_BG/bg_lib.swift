@@ -30,12 +30,14 @@ private func med3<T>(_ a: [T], _ x: Int, _ y: Int, _ z: Int, _ cmp: (T, T) -> In
 ///
 /// Source: oracle/codemp/game/bg_lib.c:113
 private func insertion<T>(_ a: inout [T], _ lo: Int, _ n: Int, _ cmp: (T, T) -> Int32) {
-    for pm in (lo + 1) ..< (lo + n) {
+    var pm = lo + 1
+    while pm < lo + n {
         var pl = pm
         while pl > lo && cmp(a[pl - 1], a[pl]) > 0 {
             a.swapAt(pl, pl - 1)
             pl -= 1
         }
+        pm += 1
     }
 }
 

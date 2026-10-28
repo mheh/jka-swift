@@ -327,10 +327,8 @@ func PM_VehicleImpact(_ pEnt: JKAMP.BgEntity, _ trace: JKAMP.Trace) {
                     }
                 }
                 if !noDamage {
-                    // Port-note: Raven passes NULL for the `dir` output. The ported function takes it by reference, so the body passes a scratch local it never reads.
-                    portMissing("PM_VehicleImpact", source: "oracle/codemp/game/bg_slidemove.c:49")
-                    var scratchDir = vec3_t()
-                    G_Damage(pEnt, (hitEnt), killer != nil ? killer : (hitEnt), &scratchDir, pm.ps.origin, Int32(magnitude * 5), DAMAGE_NO_ARMOR, (hitEntity.s.NPC_class == CLASS_VEHICLE ? MOD_COLLISION : MOD_FALLING)) //FIXME: MOD_IMPACT
+                    var dir: vec3_t? = nil
+                    G_Damage(pEnt, (hitEnt), killer != nil ? killer : (hitEnt), &dir, pm.ps.origin, Int32(magnitude * 5), DAMAGE_NO_ARMOR, (hitEntity.s.NPC_class == CLASS_VEHICLE ? MOD_COLLISION : MOD_FALLING)) //FIXME: MOD_IMPACT
                 }
 
                 if vehicleInfo.surfDestruction != 0 {
@@ -389,10 +387,8 @@ func PM_VehicleImpact(_ pEnt: JKAMP.BgEntity, _ trace: JKAMP.Trace) {
                     finalD = 1
                 }
                 if !noDamage {
-                    // Port-note: Raven passes NULL for the `dir` output. The ported function takes it by reference, so the body passes a scratch local it never reads.
-                    portMissing("PM_VehicleImpact", source: "oracle/codemp/game/bg_slidemove.c:49")
-                    var scratchDir2 = vec3_t()
-                    G_Damage(hitEntity, attackEnt, attackEnt, &scratchDir2, pm.ps.origin, finalD, 0, (hitEntity.s.NPC_class == CLASS_VEHICLE ? MOD_COLLISION : MOD_FALLING)) //FIXME: MOD_IMPACT
+                    var dir: vec3_t? = nil
+                    G_Damage(hitEntity, attackEnt, attackEnt, &dir, pm.ps.origin, finalD, 0, (hitEntity.s.NPC_class == CLASS_VEHICLE ? MOD_COLLISION : MOD_FALLING)) //FIXME: MOD_IMPACT
                 }
             }
             //it doesn't look bad though. could just use predicted events, but I'm too lazy.

@@ -1353,10 +1353,10 @@ public func BG_ClearAnimsets() {
 }
 
 /// Source: oracle/codemp/game/bg_panimate.c:1729
-func BG_AnimsetAlloc() -> JKAMP.Animation? {
+func BG_AnimsetAlloc() -> Slots<JKAMP.Animation> {
     bgAllAnims[bgNumAllAnims].anims = Animation(BG_Alloc(Int32(Animation.byteCount) * MAX_TOTALANIMATIONS))
 
-    return bgAllAnims[bgNumAllAnims].anims
+    return bgAllAnims[bgNumAllAnims].animsSlots
 }
 
 /// Source: oracle/codemp/game/bg_panimate.c:1737
@@ -1440,14 +1440,14 @@ public func BG_ParseAnimationFile(_ filename: String, _ animset: Slots<JKAMP.Ani
             } else if strstr(filename, "players/rockettrooper/") != nil {
                 //rockettrooper always index 1
                 nextIndex = 1
-                animset = BG_AnimsetAlloc().map { Slots(record: $0) }
+                animset = BG_AnimsetAlloc()
                 dynAlloc = true //so we know to free this memory in case we have to return early. Don't want any leaks.
 
                 if animset == nil {
                     return -1
                 }
             } else {
-                animset = BG_AnimsetAlloc().map { Slots(record: $0) }
+                animset = BG_AnimsetAlloc()
                 dynAlloc = true //so we know to free this memory in case we have to return early. Don't want any leaks.
 
                 if animset == nil {

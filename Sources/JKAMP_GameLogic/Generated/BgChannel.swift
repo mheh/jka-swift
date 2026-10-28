@@ -178,6 +178,9 @@ public func installBgChannel() {
     bg.callbacks.bgEntityAlliedTeam = { ent in
         Entity(handle: ent.handle).alliedTeam
     }
+    bg.callbacks.bgEntityAtInuse = { entityNum in
+        g_entities[Int(entityNum)].inuse
+    }
     bg.callbacks.bgEntityBmodel = { ent in
         Entity(handle: ent.handle).r.bmodel
     }

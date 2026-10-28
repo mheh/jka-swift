@@ -1541,7 +1541,9 @@ func CalculateRanks() {
     level.numPlayingClients = 0
     level.numVotingClients = 0 // don't count bots
     i = 0
-    while i < TEAM_NUM_TEAMS {
+    // Raven loops to TEAM_NUM_TEAMS, 4, over a two-slot array, so the writes at 2 and 3 land on spawning and the field after it.
+    // The Swift loop stops at the two slots, because the subscript traps past them.
+    while i < 2 {
         level.numteamVotingClients[i] = 0
         i += 1
     }
@@ -1750,12 +1752,12 @@ func FindIntermissionPoint() {
         if gSiegeRoundWinningTeam == SIEGETEAM_TEAM1 {
             ent = G_Find(nil, \.classname, "info_player_intermission_red")
             if ent != nil && ent!.target2 != nil {
-                G_UseTargets2(ent!, ent, ent!.target2)
+                G_UseTargets2(ent, ent, ent!.target2)
             }
         } else if gSiegeRoundWinningTeam == SIEGETEAM_TEAM2 {
             ent = G_Find(nil, \.classname, "info_player_intermission_blue")
             if ent != nil && ent!.target2 != nil {
-                G_UseTargets2(ent!, ent, ent!.target2)
+                G_UseTargets2(ent, ent, ent!.target2)
             }
         }
     }

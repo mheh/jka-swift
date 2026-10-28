@@ -1937,7 +1937,7 @@ func fx_runner_think(_ ent: Entity) {
 
     if ent.target2 != nil && !ent.target2!.isEmpty {
         // let our target know that we have spawned an effect
-        G_UseTargets2(ent, ent, ent.target2!)
+        G_UseTargets2(ent, ent, ent.target2)
     }
 
     if !((ent.spawnflags & 2) != 0) && ent.s.loopSound == 0 {
@@ -1972,7 +1972,7 @@ func fx_runner_use(_ `self`: Entity, _ other: Entity, _ activator: Entity) {
 
         if `self`.target2 != nil {
             // let our target know that we have spawned an effect
-            G_UseTargets2(`self`, `self`, `self`.target2!)
+            G_UseTargets2(`self`, `self`, `self`.target2)
         }
 
         if `self`.soundSet != nil && !`self`.soundSet!.isEmpty {
@@ -2532,12 +2532,12 @@ func TAG_FindOwner(_ owner: String) -> TagOwner? {
 }
 
 /// Source: oracle/codemp/game/g_misc.c:2975
-func TAG_Find(_ owner: String, _ name: String) -> ReferenceTag? {
+func TAG_Find(_ owner: String?, _ name: String) -> ReferenceTag? {
     var tagOwner: TagOwner? = nil
     var i: Int32 = 0
 
-    if !owner.isEmpty {
-        tagOwner = TAG_FindOwner(owner)
+    if owner != nil && !owner!.isEmpty {
+        tagOwner = TAG_FindOwner(owner!)
     }
     if tagOwner == nil {
         tagOwner = TAG_FindOwner(TAG_GENERIC_NAME)
@@ -2585,7 +2585,7 @@ func TAG_Add(_ name: String, _ owner: String?, _ origin: JKAShared.vec3_t, _ ang
     var owner = owner
 
     //Make sure this tag's name isn't alread in use
-    if TAG_Find(owner!, name) != nil {
+    if TAG_Find(owner, name) != nil {
         Com_Printf(S_COLOR_RED + "Duplicate tag name \"%s\"\n", name)
         return nil
     }
@@ -2642,7 +2642,7 @@ func TAG_Add(_ name: String, _ owner: String?, _ origin: JKAShared.vec3_t, _ ang
 }
 
 /// Source: oracle/codemp/game/g_misc.c:3112
-func TAG_GetOrigin(_ owner: String, _ name: String, _ origin: inout JKAShared.vec3_t) -> Int32 {
+func TAG_GetOrigin(_ owner: String?, _ name: String, _ origin: inout JKAShared.vec3_t) -> Int32 {
     let tag: ReferenceTag? = TAG_Find(owner, name)
 
     if tag == nil {
@@ -2657,7 +2657,7 @@ func TAG_GetOrigin(_ owner: String, _ name: String, _ origin: inout JKAShared.ve
 
 /// Source: oracle/codemp/game/g_misc.c:3134
 func TAG_GetOrigin2(_ owner: String?, _ name: String, _ origin: inout JKAShared.vec3_t) -> Int32 {
-    let tag: ReferenceTag? = TAG_Find(owner!, name)
+    let tag: ReferenceTag? = TAG_Find(owner, name)
 
     if tag == nil {
         return 0
@@ -2669,7 +2669,7 @@ func TAG_GetOrigin2(_ owner: String?, _ name: String, _ origin: inout JKAShared.
 }
 
 /// Source: oracle/codemp/game/g_misc.c:3153
-func TAG_GetAngles(_ owner: String, _ name: String, _ angles: inout JKAShared.vec3_t) -> Int32 {
+func TAG_GetAngles(_ owner: String?, _ name: String, _ angles: inout JKAShared.vec3_t) -> Int32 {
     let tag: ReferenceTag? = TAG_Find(owner, name)
 
     if tag == nil {
@@ -2683,7 +2683,7 @@ func TAG_GetAngles(_ owner: String, _ name: String, _ angles: inout JKAShared.ve
 
 /// Source: oracle/codemp/game/g_misc.c:3174
 func TAG_GetRadius(_ owner: String?, _ name: String) -> Int32 {
-    let tag: ReferenceTag? = TAG_Find(owner!, name)
+    let tag: ReferenceTag? = TAG_Find(owner, name)
 
     if tag == nil {
         return 0
@@ -2693,7 +2693,7 @@ func TAG_GetRadius(_ owner: String?, _ name: String) -> Int32 {
 }
 
 /// Source: oracle/codemp/game/g_misc.c:3193
-func TAG_GetFlags(_ owner: String, _ name: String) -> Int32 {
+func TAG_GetFlags(_ owner: String?, _ name: String) -> Int32 {
     let tag: ReferenceTag? = TAG_Find(owner, name)
 
     if tag == nil {

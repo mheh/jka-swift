@@ -854,7 +854,7 @@ public func NPC_ClearLOS2(_ ent: Entity, _ end: JKAShared.vec3_t) -> Bool {
 }
 
 /// Source: oracle/codemp/game/NPC_utils.c:1096
-func NPC_ValidEnemy(_ ent: Entity) -> Bool {
+func NPC_ValidEnemy(_ ent: Entity?) -> Bool {
     var entTeam: Int32 = TEAM_FREE
     //Must be a valid pointer
     if ent == nil {
@@ -862,31 +862,31 @@ func NPC_ValidEnemy(_ ent: Entity) -> Bool {
     }
 
     //Must not be me
-    if ent == NPC {
+    if ent! == NPC {
         return false
     }
 
     //Must not be deleted
-    if ent.inuse == false {
+    if ent!.inuse == false {
         return false
     }
 
     //Must be alive
-    if ent.health <= 0 {
+    if ent!.health <= 0 {
         return false
     }
 
     //In case they're in notarget mode
-    if (ent.flags & FL_NOTARGET) != 0 {
+    if (ent!.flags & FL_NOTARGET) != 0 {
         return false
     }
 
     //Must be an NPC
-    if ent.client == nil {
+    if ent!.client == nil {
         //	if ( ent->svFlags&SVF_NONNPC_ENEMY )
-        if ent.s.eType != ET_NPC {
+        if ent!.s.eType != ET_NPC {
             //still potentially valid
-            if ent.alliedTeam == NPC!.client!.playerTeam {
+            if ent!.alliedTeam == NPC!.client!.playerTeam {
                 return false
             } else {
                 return true
@@ -894,19 +894,19 @@ func NPC_ValidEnemy(_ ent: Entity) -> Bool {
         } else {
             return false
         }
-    } else if ent.client != nil && ent.client!.sess.sessionTeam == TEAM_SPECTATOR {
+    } else if ent!.client != nil && ent!.client!.sess.sessionTeam == TEAM_SPECTATOR {
         //don't go after spectators
         return false
     }
-    if ent.NPC != nil && ent.client != nil {
-        entTeam = ent.client!.playerTeam
-    } else if ent.client != nil {
+    if ent!.NPC != nil && ent!.client != nil {
+        entTeam = ent!.client!.playerTeam
+    } else if ent!.client != nil {
         if g_gametype.integer < GT_TEAM {
             entTeam = NPCTEAM_PLAYER
         } else {
-            if ent.client!.sess.sessionTeam == TEAM_BLUE {
+            if ent!.client!.sess.sessionTeam == TEAM_BLUE {
                 entTeam = NPCTEAM_PLAYER
-            } else if ent.client!.sess.sessionTeam == TEAM_RED {
+            } else if ent!.client!.sess.sessionTeam == TEAM_RED {
                 entTeam = NPCTEAM_ENEMY
             } else {
                 entTeam = NPCTEAM_NEUTRAL
@@ -914,14 +914,14 @@ func NPC_ValidEnemy(_ ent: Entity) -> Bool {
         }
     }
     //Can't be on the same team
-    if ent.client!.playerTeam == NPC!.client!.playerTeam {
+    if ent!.client!.playerTeam == NPC!.client!.playerTeam {
         return false
     }
 
     //if haven't seen him in a while, give up
     //if ( NPCInfo->enemyLastSeenTime != 0 && level.time - NPCInfo->enemyLastSeenTime > 7000 )//FIXME: make a stat?
     //	return qfalse;
-    if entTeam == NPC!.client!.enemyTeam || (NPC!.client!.enemyTeam == NPCTEAM_FREE && ent.client!.NPC_class != NPC!.client!.NPC_class) || (ent.client!.NPC_class == CLASS_WAMPA && ent.enemy != nil) || (ent.client!.NPC_class == CLASS_RANCOR && ent.enemy != nil) || (entTeam == NPCTEAM_FREE && ent.client!.enemyTeam == NPCTEAM_FREE && ent.enemy != nil && ent.enemy!.client != nil && (ent.enemy!.client!.playerTeam == NPC!.client!.playerTeam || (ent.enemy!.client!.playerTeam != NPCTEAM_ENEMY && NPC!.client!.playerTeam == NPCTEAM_PLAYER))) {
+    if entTeam == NPC!.client!.enemyTeam || (NPC!.client!.enemyTeam == NPCTEAM_FREE && ent!.client!.NPC_class != NPC!.client!.NPC_class) || (ent!.client!.NPC_class == CLASS_WAMPA && ent!.enemy != nil) || (ent!.client!.NPC_class == CLASS_RANCOR && ent!.enemy != nil) || (entTeam == NPCTEAM_FREE && ent!.client!.enemyTeam == NPCTEAM_FREE && ent!.enemy != nil && ent!.enemy!.client != nil && (ent!.enemy!.client!.playerTeam == NPC!.client!.playerTeam || (ent!.enemy!.client!.playerTeam != NPCTEAM_ENEMY && NPC!.client!.playerTeam == NPCTEAM_PLAYER))) {
         return true
     }
 
@@ -982,7 +982,7 @@ func NPC_FindNearestEnemy(_ ent: Entity) -> Int32 {
         }
 
         //Must be valid
-        if NPC_ValidEnemy(radEnt!) == false {
+        if NPC_ValidEnemy(radEnt) == false {
             i += 1
             continue
         }
@@ -1130,14 +1130,14 @@ func NPC_FindEnemy(_ checkAlerts: Bool) -> Bool {
     }
 
     //If we've gotten here alright, then our target it still valid
-    if NPC_ValidEnemy(NPC!.enemy!) {
+    if NPC_ValidEnemy(NPC!.enemy) {
         return true
     }
 
     newenemy = NPC_PickEnemyExt(checkAlerts)
 
     //if we found one, take it as the enemy
-    if NPC_ValidEnemy(newenemy!) {
+    if NPC_ValidEnemy(newenemy) {
         G_SetEnemy(NPC!, newenemy!)
         return true
     }

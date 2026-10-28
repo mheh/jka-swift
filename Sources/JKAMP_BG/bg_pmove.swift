@@ -5400,7 +5400,7 @@ func PM_RocketLock(_ lockDist: Float, _ vehicleLock: Bool) {
 
 //---------------------------------------
 /// Source: oracle/codemp/game/bg_pmove.c:5980
-private func PM_DoChargedWeapons(_ vehicleRocketLock: Bool, _ veh: JKAMP.BgEntity) -> Bool {
+private func PM_DoChargedWeapons(_ vehicleRocketLock: Bool, _ veh: JKAMP.BgEntity?) -> Bool {
     var charging: Bool = false
     var altFire: Bool = false
 
@@ -5408,9 +5408,9 @@ private func PM_DoChargedWeapons(_ vehicleRocketLock: Bool, _ veh: JKAMP.BgEntit
         if vehicleRocketLock {
             if (pm.cmd.buttons & (BUTTON_ATTACK | BUTTON_ALT_ATTACK)) != 0 {
                 //actually charging
-                if veh.m_pVehicle != nil {
+                if veh != nil && veh!.m_pVehicle != nil {
                     //just make sure we have this veh info
-                    if ((pm.cmd.buttons & BUTTON_ATTACK) != 0 && g_vehWeaponInfo[veh.m_pVehicle!.m_pVehicleInfo!.weapon[0].ID].fHoming != 0 && pm.ps.ammo[0] >= g_vehWeaponInfo[veh.m_pVehicle!.m_pVehicleInfo!.weapon[0].ID].iAmmoPerShot) || ((pm.cmd.buttons & BUTTON_ALT_ATTACK) != 0 && g_vehWeaponInfo[veh.m_pVehicle!.m_pVehicleInfo!.weapon[1].ID].fHoming != 0 && pm.ps.ammo[1] >= g_vehWeaponInfo[veh.m_pVehicle!.m_pVehicleInfo!.weapon[1].ID].iAmmoPerShot) {
+                    if ((pm.cmd.buttons & BUTTON_ATTACK) != 0 && g_vehWeaponInfo[veh!.m_pVehicle!.m_pVehicleInfo!.weapon[0].ID].fHoming != 0 && pm.ps.ammo[0] >= g_vehWeaponInfo[veh!.m_pVehicle!.m_pVehicleInfo!.weapon[0].ID].iAmmoPerShot) || ((pm.cmd.buttons & BUTTON_ALT_ATTACK) != 0 && g_vehWeaponInfo[veh!.m_pVehicle!.m_pVehicleInfo!.weapon[1].ID].fHoming != 0 && pm.ps.ammo[1] >= g_vehWeaponInfo[veh!.m_pVehicle!.m_pVehicleInfo!.weapon[1].ID].iAmmoPerShot) {
                         //pressing the appropriate fire button for the lock-on/charging weapon
                         PM_RocketLock(16384, true)
                         charging = true
@@ -5514,7 +5514,7 @@ private func PM_DoChargedWeapons(_ vehicleRocketLock: Bool, _ veh: JKAMP.BgEntit
 
                 if vehicleRocketLock {
                     //check vehicle ammo
-                    if pm.ps.ammo[1] < g_vehWeaponInfo[veh.m_pVehicle!.m_pVehicleInfo!.weapon[1].ID].iAmmoPerShot {
+                    if pm.ps.ammo[1] < g_vehWeaponInfo[veh!.m_pVehicle!.m_pVehicleInfo!.weapon[1].ID].iAmmoPerShot {
                         pm.ps.weaponstate = WEAPON_CHARGING_ALT
                         break rest
                     }
@@ -5539,7 +5539,7 @@ private func PM_DoChargedWeapons(_ vehicleRocketLock: Bool, _ veh: JKAMP.BgEntit
                 }
 
                 if vehicleRocketLock {
-                    if pm.ps.ammo[0] < g_vehWeaponInfo[veh.m_pVehicle!.m_pVehicleInfo!.weapon[0].ID].iAmmoPerShot {
+                    if pm.ps.ammo[0] < g_vehWeaponInfo[veh!.m_pVehicle!.m_pVehicleInfo!.weapon[0].ID].iAmmoPerShot {
                         //check vehicle ammo
                         pm.ps.weaponstate = WEAPON_CHARGING
                         break rest
@@ -6490,7 +6490,7 @@ private func PM_Weapon() {
         }
     }
 
-    if PM_DoChargedWeapons(vehicleRocketLock, veh!) {
+    if PM_DoChargedWeapons(vehicleRocketLock, veh) {
         // In some cases the charged weapon code may want us to short circuit the rest of the firing code
         return
     }

@@ -655,7 +655,7 @@ func NPC_Begin(_ ent: Entity) {
                     //remove yourself
                     G_DebugPrint(WL_DEBUG, "NPC %s could not spawn, firing target3 (%s) and removing self\n", ent.targetname!, ent.target3!)
                     //Fire off our target3
-                    G_UseTargets2(ent, ent, ent.target3!)
+                    G_UseTargets2(ent, ent, ent.target3)
 
                     //Kill us
                     ent.think = Think.G_FreeEntity
@@ -850,7 +850,7 @@ func NPC_Begin(_ ent: Entity) {
 
         if spawnPoint != nil {
             // fire the targets of the spawn point
-            G_UseTargets(spawnPoint!, ent)
+            G_UseTargets(spawnPoint, ent)
         }
 
         //ICARUS include
