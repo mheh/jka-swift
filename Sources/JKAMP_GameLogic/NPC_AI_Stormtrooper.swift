@@ -303,7 +303,7 @@ private func ST_HoldPosition() {
     //NPCInfo->combatPoint = -1;//???
     if !trap_ICARUS_TaskIDPending(NPC!, TID_MOVE_NAV) {
         //don't have a script waiting for me to get to my point, okay to stop trying and stand
-        AI_GroupUpdateSquadstates(NPCInfo!.group!, NPC!, SQUAD_STAND_AND_SHOOT)
+        AI_GroupUpdateSquadstates(NPCInfo!.group, NPC!, SQUAD_STAND_AND_SHOOT)
         NPCInfo!.goalEntity = nil
     }
 
@@ -1075,7 +1075,7 @@ private func ST_CheckMoveState() {
             if enemyCS {
                 //if we're going after our enemy, we can stop now
                 if NPCInfo!.goalEntity == NPC!.enemy {
-                    AI_GroupUpdateSquadstates(NPCInfo!.group!, NPC!, SQUAD_STAND_AND_SHOOT)
+                    AI_GroupUpdateSquadstates(NPCInfo!.group, NPC!, SQUAD_STAND_AND_SHOOT)
                     move = false
                     return
                 }
@@ -1114,7 +1114,7 @@ private func ST_CheckMoveState() {
     } else if NPCInfo!.squadState == SQUAD_POINT {
         //see if we're at point, duck and fire
         if TIMER_Done(NPC!, "stick") {
-            AI_GroupUpdateSquadstates(NPCInfo!.group!, NPC!, SQUAD_STAND_AND_SHOOT)
+            AI_GroupUpdateSquadstates(NPCInfo!.group, NPC!, SQUAD_STAND_AND_SHOOT)
             return
         }
 
@@ -1165,7 +1165,7 @@ private func ST_CheckMoveState() {
             default:
                 break
             }
-            AI_GroupUpdateSquadstates(NPCInfo!.group!, NPC!, newSquadState)
+            AI_GroupUpdateSquadstates(NPCInfo!.group, NPC!, newSquadState)
             NPC_ReachedGoal()
             //don't attack right away
             TIMER_Set(NPC!, "attackDelay", Q_irand(250, 500)) //FIXME: Slant for difficulty levels
@@ -1191,7 +1191,7 @@ func ST_ResolveBlockedShot(_ hit: Int32) {
 
     if TIMER_Done(NPC!, "duck") {
         //we're not ducking
-        if AI_GroupContainsEntNum(NPCInfo!.group!, hit) {
+        if AI_GroupContainsEntNum(NPCInfo!.group, hit) {
             let member: Entity? = g_entities[hit]
             if TIMER_Done(member!, "duck") {
                 //they aren't ducking
@@ -2220,7 +2220,7 @@ func NPC_BSST_Attack() {
 
     //can we see our target?
     if NPC_ClearLOS4(NPC!.enemy!) {
-        AI_GroupUpdateEnemyLastSeen(NPCInfo!.group!, NPC!.enemy!.r.currentOrigin)
+        AI_GroupUpdateEnemyLastSeen(NPCInfo!.group, NPC!.enemy!.r.currentOrigin)
         NPCInfo!.enemyLastSeenTime = level.time
         enemyLOS = true
 
@@ -2240,7 +2240,7 @@ func NPC_BSST_Attack() {
 
                 if hit == NPC!.enemy!.s.number || (hitEnt != nil && hitEnt!.client != nil && hitEnt!.client!.playerTeam == NPC!.client!.enemyTeam) || (hitEnt != nil && hitEnt!.takedamage && ((hitEnt!.r.svFlags & SVF_GLASS_BRUSH) != 0 || hitEnt!.health < 40 || NPC!.s.weapon == WP_EMPLACED_GUN)) {
                     //can hit enemy or enemy ally or will hit glass or other minor breakable (or in emplaced gun), so shoot anyway
-                    AI_GroupUpdateClearShotTime(NPCInfo!.group!)
+                    AI_GroupUpdateClearShotTime(NPCInfo!.group)
                     enemyCS = true
                     NPC_AimAdjust(2) //adjust aim better longer we have clear shot at enemy
                     NPCInfo!.enemyLastSeenLocation = NPC!.enemy!.r.currentOrigin

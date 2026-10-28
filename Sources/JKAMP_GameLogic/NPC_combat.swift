@@ -2553,7 +2553,9 @@ func NPC_FreeCombatPoint(_ combatPointID: Int32, _ failed: Bool) -> Bool {
         NPCInfo!.lastFailedCombatPoint = combatPointID
     }
     //Make sure it's valid
-    if combatPointID > level.numCombatPoints {
+    // Raven tests the upper bound alone and reads one record before the table for a fresh NPC's -1, which is undefined.
+    // The lower bound makes it a miss.
+    if combatPointID < 0 || combatPointID > level.numCombatPoints {
         return false
     }
 

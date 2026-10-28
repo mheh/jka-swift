@@ -672,27 +672,36 @@ func AI_GroupMemberKilled(_ `self`: Entity) {
 }
 
 /// Source: oracle/codemp/game/NPC_AI_Utils.c:699
-func AI_GroupUpdateEnemyLastSeen(_ group: AIGroupInfo, _ spot: JKAShared.vec3_t) {
-    group.lastSeenEnemyTime = level.time
-    group.enemyLastSeenPos = spot
+func AI_GroupUpdateEnemyLastSeen(_ group: AIGroupInfo?, _ spot: JKAShared.vec3_t) {
+    if group == nil {
+        return
+    }
+    group!.lastSeenEnemyTime = level.time
+    group!.enemyLastSeenPos = spot
 }
 
 /// Source: oracle/codemp/game/NPC_AI_Utils.c:709
-func AI_GroupUpdateClearShotTime(_ group: AIGroupInfo) {
-    group.lastClearShotTime = level.time
+func AI_GroupUpdateClearShotTime(_ group: AIGroupInfo?) {
+    if group == nil {
+        return
+    }
+    group!.lastClearShotTime = level.time
 }
 
 /// Source: oracle/codemp/game/NPC_AI_Utils.c:718
-func AI_GroupUpdateSquadstates(_ group: AIGroupInfo, _ member: Entity, _ newSquadState: Int32) {
+func AI_GroupUpdateSquadstates(_ group: AIGroupInfo?, _ member: Entity, _ newSquadState: Int32) {
+    if group == nil {
+        return
+    }
     var i: Int32
 
 
     i = 0
-    while i < group.numGroup {
-        if group.member[i].number == member.s.number {
-            group.numState[member.NPC!.squadState] -= 1
+    while i < group!.numGroup {
+        if group!.member[i].number == member.s.number {
+            group!.numState[member.NPC!.squadState] -= 1
             member.NPC!.squadState = newSquadState
-            group.numState[member.NPC!.squadState] += 1
+            group!.numState[member.NPC!.squadState] += 1
             return
         }
         i += 1
@@ -921,12 +930,15 @@ func AI_UpdateGroups() {
 }
 
 /// Source: oracle/codemp/game/NPC_AI_Utils.c:982
-func AI_GroupContainsEntNum(_ group: AIGroupInfo, _ entNum: Int32) -> Bool {
+func AI_GroupContainsEntNum(_ group: AIGroupInfo?, _ entNum: Int32) -> Bool {
+    if group == nil {
+        return false
+    }
     var i: Int32
 
     i = 0
-    while i < group.numGroup {
-        if group.member[i].number == entNum {
+    while i < group!.numGroup {
+        if group!.member[i].number == entNum {
             return true
         }
         i += 1

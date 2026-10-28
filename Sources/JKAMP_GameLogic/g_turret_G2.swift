@@ -126,7 +126,7 @@ func turretG2_set_models(_ `self`: Entity, _ dying: Bool) {
             `self`.s.modelindex2 = G_ModelIndex(name)
         }
 
-        trap_G2API_RemoveGhoul2Model(`self`.ghoul2, 0)
+        trap_G2API_RemoveGhoul2Model(&`self`.ghoul2, 0)
         G_KillG2Queue(`self`.s.number)
         `self`.s.modelGhoul2 = 0
         /*

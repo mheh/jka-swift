@@ -5648,7 +5648,7 @@ func saberKnockDown(_ saberent: Entity, _ saberOwner: Entity, _ other: Entity) {
 /// Source: oracle/codemp/game/w_saber.c:6589
 func WP_SaberRemoveG2Model(_ saberent: Entity) {
     if saberent.ghoul2 != nil {
-        trap_G2API_RemoveGhoul2Models(saberent.ghoul2)
+        trap_G2API_RemoveGhoul2Models(&saberent.ghoul2)
     }
 }
 

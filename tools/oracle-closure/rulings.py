@@ -222,6 +222,7 @@ CHARBUF_ALLOCS = {"B_TempAlloc", "BG_TempAlloc"}
 #   pointer_table  a Slots<View?> over a file-scope array of struct pointers, whose base a trap hands to the engine
 #   key_path  a KeyPath<Entity, String?> for an `int` field offset Raven takes from `FOFS(field)`, which a call site spells `\.field`
 #   int_value  an Int32 by value for a `const void *` a qsort comparator reads as `*(int *)`, so the comparator is `(Int32, Int32) -> Int32`
+#   out_opaque  an inout OpaquePointer? for a `void *` Raven's callers pass the address of a handle field to, the shape a `void **` already has
 PARAMS = {
     ("COM_ParseString", "s"): "out_string",
     # A `char **` the function sets once to a string it owns, never walked, the same shape as the const one.
@@ -266,6 +267,9 @@ PARAMS = {
     ("SortClients", "b"): "int_value",
     ("SortRanks", "a"): "int_value",
     ("SortRanks", "b"): "int_value",
+    # Raven declares `void *ghlInfo`, w_saber.c:6593 and g_turret_G2.c:135 pass `&ent->ghoul2`, and the engine casts the word to `CGhoul2Info_v **` at sv_gameapi.cpp:1590.
+    ("trap_G2API_RemoveGhoul2Models", "ghlInfo"): "out_opaque",
+    ("trap_G2API_RemoveGhoul2Model", "ghlInfo"): "out_opaque",
 }
 
 # Functions of the oracle the port leaves out. The stub carries the cite, Raven's line, and the reason, and no function.
@@ -355,6 +359,11 @@ NULLABLE = {
     ("TAG_GetOrigin", "owner"),
     ("TAG_GetAngles", "owner"),
     ("TAG_GetFlags", "owner"),
+    # NPC_BSST_Attack passes `NPCInfo->group` as it is at NPC_AI_Stormtrooper.c:2531, and each body tests it, NPC_AI_Utils.c:701, :711, :722, and :986.
+    ("AI_GroupUpdateEnemyLastSeen", "group"),
+    ("AI_GroupUpdateClearShotTime", "group"),
+    ("AI_GroupUpdateSquadstates", "group"),
+    ("AI_GroupContainsEntNum", "group"),
 }
 # Files whose functions a bg body reaches directly, because they live in the shared module or in bg itself.
 # The functions whose integer arithmetic is a generator or a hash, where C wraps at 32 bits and Swift's plain operators trap.

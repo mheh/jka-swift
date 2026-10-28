@@ -48,15 +48,110 @@ let FORCE_VELOCITY_DAMAGE = 0 as Int32
 
 /// Source: oracle/codemp/game/w_force.c:51
 // Raven wrote: const int forcePowerMinRank[NUM_FORCE_POWER_LEVELS][NUM_FORCE_POWERS]
-let forcePowerMinRank: [[Int32]] = { () -> [[Int32]] in portMissing("forcePowerMinRank", source: "oracle/codemp/game/w_force.c:51") }()
+let forcePowerMinRank: [[Int32]] = [
+    [
+        999, //FP_HEAL,//instant
+        999, //FP_LEVITATION,//hold/duration
+        999, //FP_SPEED,//duration
+        999, //FP_PUSH,//hold/duration
+        999, //FP_PULL,//hold/duration
+        999, //FP_TELEPATHY,//instant
+        999, //FP_GRIP,//hold/duration
+        999, //FP_LIGHTNING,//hold/duration
+        999, //FP_RAGE,//duration
+        999, //FP_PROTECT,//duration
+        999, //FP_ABSORB,//duration
+        999, //FP_TEAM_HEAL,//instant
+        999, //FP_TEAM_FORCE,//instant
+        999, //FP_DRAIN,//hold/duration
+        999, //FP_SEE,//duration
+        999, //FP_SABER_OFFENSE,
+        999, //FP_SABER_DEFENSE,
+        999, //FP_SABERTHROW,
+        //NUM_FORCE_POWERS
+    ],
+    [
+        10, //FP_HEAL,//instant
+        0, //FP_LEVITATION,//hold/duration
+        0, //FP_SPEED,//duration
+        0, //FP_PUSH,//hold/duration
+        0, //FP_PULL,//hold/duration
+        10, //FP_TELEPATHY,//instant
+        15, //FP_GRIP,//hold/duration
+        10, //FP_LIGHTNING,//hold/duration
+        15, //FP_RAGE,//duration
+        15, //FP_PROTECT,//duration
+        15, //FP_ABSORB,//duration
+        10, //FP_TEAM_HEAL,//instant
+        10, //FP_TEAM_FORCE,//instant
+        10, //FP_DRAIN,//hold/duration
+        5, //FP_SEE,//duration
+        0, //FP_SABER_OFFENSE,
+        0, //FP_SABER_DEFENSE,
+        0, //FP_SABERTHROW,
+        //NUM_FORCE_POWERS
+    ],
+    [
+        10, //FP_HEAL,//instant
+        0, //FP_LEVITATION,//hold/duration
+        0, //FP_SPEED,//duration
+        0, //FP_PUSH,//hold/duration
+        0, //FP_PULL,//hold/duration
+        10, //FP_TELEPATHY,//instant
+        15, //FP_GRIP,//hold/duration
+        10, //FP_LIGHTNING,//hold/duration
+        15, //FP_RAGE,//duration
+        15, //FP_PROTECT,//duration
+        15, //FP_ABSORB,//duration
+        10, //FP_TEAM_HEAL,//instant
+        10, //FP_TEAM_FORCE,//instant
+        10, //FP_DRAIN,//hold/duration
+        5, //FP_SEE,//duration
+        5, //FP_SABER_OFFENSE,
+        5, //FP_SABER_DEFENSE,
+        5, //FP_SABERTHROW,
+        //NUM_FORCE_POWERS
+    ],
+    [
+        10, //FP_HEAL,//instant
+        0, //FP_LEVITATION,//hold/duration
+        0, //FP_SPEED,//duration
+        0, //FP_PUSH,//hold/duration
+        0, //FP_PULL,//hold/duration
+        10, //FP_TELEPATHY,//instant
+        15, //FP_GRIP,//hold/duration
+        10, //FP_LIGHTNING,//hold/duration
+        15, //FP_RAGE,//duration
+        15, //FP_PROTECT,//duration
+        15, //FP_ABSORB,//duration
+        10, //FP_TEAM_HEAL,//instant
+        10, //FP_TEAM_FORCE,//instant
+        10, //FP_DRAIN,//hold/duration
+        5, //FP_SEE,//duration
+        10, //FP_SABER_OFFENSE,
+        10, //FP_SABER_DEFENSE,
+        10, //FP_SABERTHROW,
+        //NUM_FORCE_POWERS
+    ],
+]
 
 /// Source: oracle/codemp/game/w_force.c:139
 // Raven wrote: const int mindTrickTime[NUM_FORCE_POWER_LEVELS]
-let mindTrickTime: [Int32] = { () -> [Int32] in portMissing("mindTrickTime", source: "oracle/codemp/game/w_force.c:139") }()
+let mindTrickTime: [Int32] = [
+    0, //none
+    5000,
+    10000,
+    15000,
+]
 
 /// Source: oracle/codemp/game/w_force.c:3044
 // Raven wrote: float forcePushPullRadius[NUM_FORCE_POWER_LEVELS]
-let forcePushPullRadius: [Float] = { () -> [Float] in portMissing("forcePushPullRadius", source: "oracle/codemp/game/w_force.c:3044") }()
+let forcePushPullRadius: [Float] = [
+    0, //none
+    384, //256,
+    448, //384,
+    512,
+]
 
 /// Source: oracle/codemp/game/w_force.c:40
 func G_PreDefSound(_ org: JKAShared.vec3_t, _ pdSound: Int32) -> Entity? {

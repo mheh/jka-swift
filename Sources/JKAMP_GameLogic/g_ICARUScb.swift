@@ -13,7 +13,7 @@ nonisolated(unsafe) let cinematicSkipScript: JKAShared.CharBuf = JKAShared.CharB
 
 /// Source: oracle/codemp/game/g_ICARUScb.c:4575
 // Raven wrote: qboolean player_locked = qfalse
-let player_locked: Bool = { () -> Bool in portMissing("player_locked", source: "oracle/codemp/game/g_ICARUScb.c:4575") }()
+let player_locked: Bool = false
 
 /// Source: oracle/codemp/game/g_ICARUScb.c:4933
 var textcolor_caption: JKAShared.vec4_t {
