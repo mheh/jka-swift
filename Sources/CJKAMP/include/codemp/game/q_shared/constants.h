@@ -43,7 +43,11 @@
 #define	MAX_STRING_TOKENS	1024	// max tokens resulting from Cmd_TokenizeString
 
 // Source: oracle/codemp/game/q_shared.h:395
+#ifdef PATH_MAX
 #define MAX_OSPATH			PATH_MAX
+#else
+#define	MAX_OSPATH			256		// max length of a filesystem pathname
+#endif
 
 // Source: oracle/codemp/game/q_shared.h:402
 #define	MAX_SAY_TEXT	150

@@ -379,11 +379,11 @@ private func AnimateVehicle(_ pVeh: JKAMP.Vehicle) {
     if parent!.client!.ps.legsAnim == BOTH_VT_BUCK {
         // Done with animation? Erase the flag.
         if parent!.client!.ps.legsTimer <= 0 {
-            pVeh.m_ulFlags &= ~UInt(bitPattern: Int(VEH_BUCKING))
+            pVeh.m_ulFlags &= ~CUnsignedLong(bitPattern: CLong(VEH_BUCKING))
         } else {
             return
         }
-    } else if (pVeh.m_ulFlags & UInt(bitPattern: Int(VEH_BUCKING))) != 0 {
+    } else if (pVeh.m_ulFlags & CUnsignedLong(bitPattern: CLong(VEH_BUCKING))) != 0 {
         iFlags = SETANIM_FLAG_OVERRIDE | SETANIM_FLAG_HOLD
         Anim = BOTH_VT_BUCK
         iBlend = 500
@@ -443,7 +443,7 @@ private func AnimateVehicle(_ pVeh: JKAMP.Vehicle) {
 
         // Remove Crashing Flag
         //----------------------
-        pVeh.m_ulFlags &= ~UInt(bitPattern: Int(VEH_CRASHING))
+        pVeh.m_ulFlags &= ~CUnsignedLong(bitPattern: CLong(VEH_CRASHING))
 
         if Turbo {
             // Kicked In Turbo
@@ -502,7 +502,7 @@ private func AnimateRiders(_ pVeh: JKAMP.Vehicle) {
 
         // Remove Crashing Flag
         //----------------------
-        pVeh.m_ulFlags &= ~UInt(bitPattern: Int(VEH_CRASHING))
+        pVeh.m_ulFlags &= ~CUnsignedLong(bitPattern: CLong(VEH_CRASHING))
 
 
         // Put Away Saber When It Is Not Active
@@ -520,13 +520,13 @@ private func AnimateRiders(_ pVeh: JKAMP.Vehicle) {
         if pilotPS!.weapon == WP_BLASTER {
             WeaponPose = WPOSE_BLASTER
         } else if pilotPS!.weapon == WP_SABER {
-            if (pVeh.m_ulFlags & UInt(bitPattern: Int(VEH_SABERINLEFTHAND))) != 0 && pilotPS!.torsoAnim == BOTH_VT_ATL_TO_R_S {
-                pVeh.m_ulFlags &= ~UInt(bitPattern: Int(VEH_SABERINLEFTHAND))
+            if (pVeh.m_ulFlags & CUnsignedLong(bitPattern: CLong(VEH_SABERINLEFTHAND))) != 0 && pilotPS!.torsoAnim == BOTH_VT_ATL_TO_R_S {
+                pVeh.m_ulFlags &= ~CUnsignedLong(bitPattern: CLong(VEH_SABERINLEFTHAND))
             }
-            if !((pVeh.m_ulFlags & UInt(bitPattern: Int(VEH_SABERINLEFTHAND))) != 0) && pilotPS!.torsoAnim == BOTH_VT_ATR_TO_L_S {
-                pVeh.m_ulFlags |= UInt(bitPattern: Int(VEH_SABERINLEFTHAND))
+            if !((pVeh.m_ulFlags & CUnsignedLong(bitPattern: CLong(VEH_SABERINLEFTHAND))) != 0) && pilotPS!.torsoAnim == BOTH_VT_ATR_TO_L_S {
+                pVeh.m_ulFlags |= CUnsignedLong(bitPattern: CLong(VEH_SABERINLEFTHAND))
             }
-            WeaponPose = (pVeh.m_ulFlags & UInt(bitPattern: Int(VEH_SABERINLEFTHAND))) != 0 ? (WPOSE_SABERLEFT) : (WPOSE_SABERRIGHT)
+            WeaponPose = (pVeh.m_ulFlags & CUnsignedLong(bitPattern: CLong(VEH_SABERINLEFTHAND))) != 0 ? (WPOSE_SABERLEFT) : (WPOSE_SABERRIGHT)
         }
 
 

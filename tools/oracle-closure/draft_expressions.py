@@ -368,6 +368,9 @@ class Expressions:
             return text
         if self.leaf_wrap in UNSIGNED and not self.is_literal(cur):
             # A signed value into unsigned arithmetic keeps its bits, as C's conversion does.
+            if self.leaf_wrap == "CUnsignedLong":
+                # C's `unsigned long` takes the bits of a `long` of the same width, which is `CLong` on every platform.
+                return f"CUnsignedLong(bitPattern: CLong({text}))"
             return f"{self.leaf_wrap}(bitPattern: Int({text}))" if self.leaf_wrap == "UInt" else f"{self.leaf_wrap}(bitPattern: {text})"
         return f"{self.leaf_wrap}({text})"
 

@@ -46,7 +46,7 @@ KEYWORD_MACROS = {"inline", "static", "__inline", "ID_INLINE", "QDECL", "MAC_STA
 
 SCALARS = {
     TypeKind.INT: "Int32", TypeKind.UINT: "UInt32", TypeKind.SHORT: "Int16", TypeKind.USHORT: "UInt16",
-    TypeKind.CHAR_S: "CChar", TypeKind.SCHAR: "Int8", TypeKind.UCHAR: "UInt8", TypeKind.LONG: "Int", TypeKind.ULONG: "UInt",
+    TypeKind.CHAR_S: "CChar", TypeKind.SCHAR: "Int8", TypeKind.UCHAR: "UInt8", TypeKind.LONG: "CLong", TypeKind.ULONG: "CUnsignedLong",
     TypeKind.LONGLONG: "Int64", TypeKind.ULONGLONG: "UInt64", TypeKind.FLOAT: "Float", TypeKind.DOUBLE: "Double",
 }
 

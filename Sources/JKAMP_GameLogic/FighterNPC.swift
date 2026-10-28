@@ -1208,8 +1208,8 @@ private func AnimateVehicle(_ pVeh: JKAMP.Vehicle) {
     if parentPS!.hyperSpaceTime != 0 && curTime - parentPS!.hyperSpaceTime < HYPERSPACE_TIME {
         //Going to Hyperspace
         //close the wings (FIXME: makes sense on X-Wing, not Shuttle?)
-        if (pVeh.m_ulFlags & UInt(bitPattern: Int(VEH_WINGSOPEN))) != 0 {
-            pVeh.m_ulFlags &= ~UInt(bitPattern: Int(VEH_WINGSOPEN))
+        if (pVeh.m_ulFlags & CUnsignedLong(bitPattern: CLong(VEH_WINGSOPEN))) != 0 {
+            pVeh.m_ulFlags &= ~CUnsignedLong(bitPattern: CLong(VEH_WINGSOPEN))
             Anim = BOTH_WINGS_CLOSE
         }
     } else {
@@ -1218,9 +1218,9 @@ private func AnimateVehicle(_ pVeh: JKAMP.Vehicle) {
 
         // if we're above launch height (way up in the air)...
         if !isLanding && !isLanded {
-            if !((pVeh.m_ulFlags & UInt(bitPattern: Int(VEH_WINGSOPEN))) != 0) {
-                pVeh.m_ulFlags |= UInt(bitPattern: Int(VEH_WINGSOPEN))
-                pVeh.m_ulFlags &= ~UInt(bitPattern: Int(VEH_GEARSOPEN))
+            if !((pVeh.m_ulFlags & CUnsignedLong(bitPattern: CLong(VEH_WINGSOPEN))) != 0) {
+                pVeh.m_ulFlags |= CUnsignedLong(bitPattern: CLong(VEH_WINGSOPEN))
+                pVeh.m_ulFlags &= ~CUnsignedLong(bitPattern: CLong(VEH_GEARSOPEN))
                 Anim = BOTH_WINGS_OPEN
             }
         } else {
@@ -1228,26 +1228,26 @@ private func AnimateVehicle(_ pVeh: JKAMP.Vehicle) {
             if (pVeh.m_ucmd.forwardmove < 0 || pVeh.m_ucmd.upmove < 0 || isLanded) && pVeh.m_LandTrace.fraction <= 0.4 && pVeh.m_LandTrace.plane.normal[2] >= MIN_LANDING_SLOPE {
                 //already landed or trying to land and close to ground
                 // Open gears.
-                if !((pVeh.m_ulFlags & UInt(bitPattern: Int(VEH_GEARSOPEN))) != 0) {
+                if !((pVeh.m_ulFlags & CUnsignedLong(bitPattern: CLong(VEH_GEARSOPEN))) != 0) {
                     if pVeh.m_pVehicleInfo!.soundLand != 0 {
                         //just landed?
                         G_EntitySound(((pVeh.m_pParentEntity).map { Entity($0) })!, CHAN_AUTO, pVeh.m_pVehicleInfo!.soundLand)
                         //trap_S_StartSound( NULL, pVeh->m_pParentEntity->s.number, CHAN_AUTO, pVeh->m_pVehicleInfo->soundLand );
                     }
-                    pVeh.m_ulFlags |= UInt(bitPattern: Int(VEH_GEARSOPEN))
+                    pVeh.m_ulFlags |= CUnsignedLong(bitPattern: CLong(VEH_GEARSOPEN))
                     Anim = BOTH_GEARS_OPEN
                 }
             } else {
                 //trying to take off and almost halfway off the ground
                 // Close gears (if they're open).
-                if (pVeh.m_ulFlags & UInt(bitPattern: Int(VEH_GEARSOPEN))) != 0 {
-                    pVeh.m_ulFlags &= ~UInt(bitPattern: Int(VEH_GEARSOPEN))
+                if (pVeh.m_ulFlags & CUnsignedLong(bitPattern: CLong(VEH_GEARSOPEN))) != 0 {
+                    pVeh.m_ulFlags &= ~CUnsignedLong(bitPattern: CLong(VEH_GEARSOPEN))
                     Anim = BOTH_GEARS_CLOSE
                     //iFlags = SETANIM_FLAG_OVERRIDE | SETANIM_FLAG_HOLD;
                 } else {
                     // If gears are closed, and we are below launch height, close the wings.
-                    if (pVeh.m_ulFlags & UInt(bitPattern: Int(VEH_WINGSOPEN))) != 0 {
-                        pVeh.m_ulFlags &= ~UInt(bitPattern: Int(VEH_WINGSOPEN))
+                    if (pVeh.m_ulFlags & CUnsignedLong(bitPattern: CLong(VEH_WINGSOPEN))) != 0 {
+                        pVeh.m_ulFlags &= ~CUnsignedLong(bitPattern: CLong(VEH_WINGSOPEN))
                         Anim = BOTH_WINGS_CLOSE
                     }
                 }

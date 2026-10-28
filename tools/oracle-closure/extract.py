@@ -41,7 +41,7 @@ from pathlib import Path
 
 sys.path.insert(0, str(Path(__file__).resolve().parent))
 import closure as C
-from rulings import HAND_FILES, HEADER_PRELUDES
+from rulings import HAND_FILES, HEADER_PRELUDES, PLATFORM_MACROS
 from clang.cindex import CursorKind, TypeKind
 
 REPO = C.REPO
@@ -170,6 +170,10 @@ class IfResolver:
         self.macros = macros
         self.unresolved: list[str] = []
 
+    def platform(self, expr: str) -> bool:
+        """True for a conditional that names a platform macro, which stays as text so each platform build takes its own arm."""
+        return any(re.search(rf"\b{name}\b", expr) for name in PLATFORM_MACROS)
+
     def value(self, name: str) -> int:
         text = self.macros.get(name)
         if text is None:
@@ -181,6 +185,8 @@ class IfResolver:
 
     def evaluate(self, expr: str) -> bool | None:
         expr = expr.strip()
+        if self.platform(expr):
+            return None
         expr = re.sub(r"defined\s*\(\s*(\w+)\s*\)", lambda m: "1" if m.group(1) in self.macros else "0", expr)
         expr = re.sub(r"defined\s+(\w+)", lambda m: "1" if m.group(1) in self.macros else "0", expr)
         expr = re.sub(r"\b([A-Za-z_]\w*)\b", lambda m: str(self.value(m.group(1))), expr)
@@ -209,7 +215,9 @@ class IfResolver:
             directive, rest = m.group(1), m.group(2).strip()
             if directive in ("ifdef", "ifndef", "if"):
                 parent = active()
-                if directive == "ifdef":
+                if self.platform(rest):
+                    result = None
+                elif directive == "ifdef":
                     result = rest.split()[0] in self.macros
                 elif directive == "ifndef":
                     result = rest.split()[0] not in self.macros
@@ -608,11 +616,47 @@ def pack_at(path: str, line: int) -> str | None:
     return _pack_cache[path][line - 1]
 
 
+def platform_block(lines: list[str], first: int) -> list[str] | None:
+    """Raven's conditional around the macro at `first`, when that conditional names a platform macro, or None.
+    The parse keeps one arm, and the extracted header keeps both, so each platform build takes its own."""
+    directive = re.compile(r"\s*#\s*(ifdef|ifndef|if|elif|else|endif)\b(.*)")
+    depth = 0
+    i = first - 1
+    while i >= 0:
+        m = directive.match(lines[i])
+        if m:
+            if m.group(1) == "endif":
+                depth += 1
+            elif m.group(1) in ("ifdef", "ifndef", "if"):
+                if depth == 0:
+                    break
+                depth -= 1
+        i -= 1
+    if i < 0:
+        return None
+    m = directive.match(lines[i])
+    if not any(re.search(rf"\b{name}\b", m.group(2)) for name in PLATFORM_MACROS):
+        return None
+    depth = 0
+    for j in range(i, len(lines)):
+        d = directive.match(lines[j])
+        if d and d.group(1) in ("ifdef", "ifndef", "if"):
+            depth += 1
+        elif d and d.group(1) == "endif":
+            depth -= 1
+            if depth == 0:
+                return lines[i:j + 1]
+    return None
+
+
 def slice_text(decl: Decl, resolver: IfResolver | None) -> str:
     lines = lines_of(decl.file)
     first = decl.start.line - 1
     last = decl.end.line - 1
     if decl.kind == "macro":
+        block = platform_block(lines, first)
+        if block is not None:
+            return "\n".join(block)
         return "\n".join(lines[first:last + 1])
     if decl.override is not None:
         return decl.override

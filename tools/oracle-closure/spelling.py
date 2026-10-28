@@ -30,7 +30,8 @@ VECTORS = {"vec3_t", "vec4_t"}
 # An int beside a char * is its size only when Raven named it so. trap_BotSetChatName's `client` is not a size.
 SIZE_NAME = re.compile(r"size|len|max", re.I)
 # The unsigned Swift spellings. A view widens a byte and a short to Int32, so those two read as signed arithmetic.
-UNSIGNED = {"UInt", "UInt8", "UInt16", "UInt32", "UInt64"}
+# `CUnsignedLong` is C's `unsigned long`, 64 bits on Darwin and Linux and 32 on Windows, so a view keeps the C width on every platform.
+UNSIGNED = {"UInt", "CUnsignedLong", "UInt8", "UInt16", "UInt32", "UInt64"}
 ROLES = ("field", "parameter", "return", "local", "expression")
 # The head of the Swift spelling that stands over a table of records, the one place the word is written.
 SLOTS = "Slots<"

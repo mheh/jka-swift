@@ -303,7 +303,7 @@ private func Board(_ pVeh: JKAMP.Vehicle, _ pEnt: JKAMP.BgEntity) -> Bool {
     }
 
     // Bucking so we can't do anything (NOTE: Should probably be a better name since fighters don't buck...).
-    if (pVeh.m_ulFlags & UInt(bitPattern: Int(VEH_BUCKING))) != 0 {
+    if (pVeh.m_ulFlags & CUnsignedLong(bitPattern: CLong(VEH_BUCKING))) != 0 {
         return false
     }
 
@@ -1120,7 +1120,7 @@ func Initialize(_ pVeh: JKAMP.Vehicle) -> Bool {
     do {
         let iFlags: Int32 = SETANIM_FLAG_NORMAL
         let iBlend: Int32 = 300
-        pVeh.m_ulFlags |= UInt(bitPattern: Int(VEH_GEARSOPEN))
+        pVeh.m_ulFlags |= CUnsignedLong(bitPattern: CLong(VEH_GEARSOPEN))
         BG_SetAnim(pVeh.m_pParentEntity!.playerState!, bgAllAnims[pVeh.m_pParentEntity!.localAnimIndex].animsSlots, SETANIM_BOTH, BOTH_VS_IDLE, iFlags, iBlend)
     }
 
@@ -1563,7 +1563,7 @@ private func UpdateRider(_ pVeh: JKAMP.Vehicle, _ pRider: JKAMP.BgEntity, _ pUmc
             if pVeh.m_pVehicleInfo!.runEject(pVeh, pRider, false) {
                 return false
             }
-        } else if !((pVeh.m_ulFlags & UInt(bitPattern: Int(VEH_FLYING))) != 0) {
+        } else if !((pVeh.m_ulFlags & CUnsignedLong(bitPattern: CLong(VEH_FLYING))) != 0) {
             // If going too fast, roll off.
             if (parent!.client!.ps.speed <= 600) && pUmcd.rightmove != 0 {
                 if pVeh.m_pVehicleInfo!.runEject(pVeh, pRider, false) {
@@ -1684,7 +1684,7 @@ private func UpdateRider(_ pVeh: JKAMP.Vehicle, _ pRider: JKAMP.BgEntity, _ pUmc
             }
 
             if pVeh.m_pVehicleInfo!.runEject(pVeh, pRider, false) {
-                if !((pVeh.m_ulFlags & UInt(bitPattern: Int(VEH_FLYING))) != 0) {
+                if !((pVeh.m_ulFlags & CUnsignedLong(bitPattern: CLong(VEH_FLYING))) != 0) {
                     rider!.client!.ps.velocity = parent!.client!.ps.velocity * 0.25
                     Vehicle_SetAnim(rider!, SETANIM_BOTH, Anim, SETANIM_FLAG_OVERRIDE | SETANIM_FLAG_HOLD | SETANIM_FLAG_HOLDLESS, 300)
                     //PM_SetAnim(pm,SETANIM_BOTH,anim,SETANIM_FLAG_OVERRIDE|SETANIM_FLAG_HOLD|SETANIM_FLAG_HOLDLESS);

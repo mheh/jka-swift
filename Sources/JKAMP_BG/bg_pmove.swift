@@ -742,13 +742,13 @@ func PM_HoverTrace() {
     if pml.groundPlane {
         PM_SetVehicleAngles(pml.groundTrace.plane.normal)
         // We're on the ground.
-        vehicle.m_ulFlags &= ~UInt(bitPattern: Int(VEH_FLYING))
+        vehicle.m_ulFlags &= ~CUnsignedLong(bitPattern: CLong(VEH_FLYING))
 
         vehicle.m_vAngularVelocity = 0.0
     } else {
         PM_SetVehicleAngles(nil)
         // We're flying in the air.
-        vehicle.m_ulFlags |= UInt(bitPattern: Int(VEH_FLYING))
+        vehicle.m_ulFlags |= CUnsignedLong(bitPattern: CLong(VEH_FLYING))
         //groundTrace
 
         if vehicle.m_vAngularVelocity == 0.0 {
@@ -5864,7 +5864,7 @@ func PM_VehicleWeaponAnimate() {
                 // Crashing.
                 //else if ( pVeh->m_ulFlags & VEH_CRASHING )
                 else if false {
-                    pVeh.m_ulFlags &= ~UInt(bitPattern: Int(VEH_CRASHING)) // Remove the flag, we are doing the animation.
+                    pVeh.m_ulFlags &= ~CUnsignedLong(bitPattern: CLong(VEH_CRASHING)) // Remove the flag, we are doing the animation.
                     iBlend = 800
                     Anim = BOTH_VS_LAND_SR
                     iFlags = SETANIM_FLAG_OVERRIDE | SETANIM_FLAG_HOLD
@@ -5883,7 +5883,7 @@ func PM_VehicleWeaponAnimate() {
                 // Crashing.
                 //else if ( pVeh->m_ulFlags & VEH_CRASHING )
                 else if false {
-                    pVeh.m_ulFlags &= ~UInt(bitPattern: Int(VEH_CRASHING)) // Remove the flag, we are doing the animation.
+                    pVeh.m_ulFlags &= ~CUnsignedLong(bitPattern: CLong(VEH_CRASHING)) // Remove the flag, we are doing the animation.
                     iBlend = 800
                     Anim = BOTH_VS_LAND_G
                     iFlags = SETANIM_FLAG_OVERRIDE | SETANIM_FLAG_HOLD
@@ -9206,8 +9206,8 @@ func PmoveSingle(_ pmove: JKAMP.Pmove) {
             var i: Int32 = 0
 
 
-            if pm.ps.pm_type == PM_DEAD && (vehicle.m_ulFlags & UInt(bitPattern: Int(VEH_CRASHING))) != 0 {
-                vehicle.m_ulFlags &= ~UInt(bitPattern: Int(VEH_CRASHING))
+            if pm.ps.pm_type == PM_DEAD && (vehicle.m_ulFlags & CUnsignedLong(bitPattern: CLong(VEH_CRASHING))) != 0 {
+                vehicle.m_ulFlags &= ~CUnsignedLong(bitPattern: CLong(VEH_CRASHING))
             }
 
             if `self`!.playerState!.m_iVehicleNum != 0 {
