@@ -14,11 +14,11 @@ The oracle range is the whole definition, from the return type to the closing br
 | `B_InitAlloc` | `oracle/codemp/game/ai_util.c:133-140` | `JKAMP_GameLogic/ai_util.swift:37` | ported | `crates/mp/game/src/ai_util.rs:56-60` | `func B_InitAlloc()` |
 | `B_CleanupAlloc` | `oracle/codemp/game/ai_util.c:142-158` | `JKAMP_GameLogic/ai_util.swift:42` | ported | `crates/mp/game/src/ai_util.rs:67-67` | `func B_CleanupAlloc()` |
 | `GetValueGroup` | `oracle/codemp/game/ai_util.c:160-234` | `JKAMP_GameLogic/ai_util.swift:46` | ported | `crates/mp/game/src/ai_util.rs:78-483` | `func GetValueGroup(_ buf: inout JKAShared.CharBuf, _ group: String, _ outbuf: inout JKAShared.CharBuf) -> Int32` |
-| `GetPairedValue` | `oracle/codemp/game/ai_util.c:236-326` | `JKAMP_GameLogic/ai_util.swift:110` | ported | `crates/mp/game/src/ai_util.rs:156-243` | `func GetPairedValue(_ buf: inout JKAShared.CharBuf, _ key: String, _ outbuf: inout JKAShared.CharBuf) -> Int32` |
-| `BotDoChat` | `oracle/codemp/game/ai_util.c:328-515` | `JKAMP_GameLogic/ai_util.swift:193` | ported | `crates/mp/game/src/ai_util.rs:252-461` | `func BotDoChat(_ bs: BotState, _ section: String, _ always: Int32) -> Int32` |
-| `ParseEmotionalAttachments` | `oracle/codemp/game/ai_util.c:517-572` | `JKAMP_GameLogic/ai_util.swift:358` | ported | `crates/mp/game/src/ai_util.rs:488-488` | `func ParseEmotionalAttachments(_ bs: BotState, _ buf: String)` |
-| `ReadChatGroups` | `oracle/codemp/game/ai_util.c:574-612` | `JKAMP_GameLogic/ai_util.swift:407` | ported | `crates/mp/game/src/ai_util.rs:562-616` | `func ReadChatGroups(_ bs: BotState, _ buf: inout JKAShared.CharBuf) -> Int32` |
-| `BotUtilizePersonality` | `oracle/codemp/game/ai_util.c:614-867` | `JKAMP_GameLogic/ai_util.swift:445` | ported | `crates/mp/game/src/ai_util.rs:625-925` | `func BotUtilizePersonality(_ bs: BotState)` |
+| `GetPairedValue` | `oracle/codemp/game/ai_util.c:236-326` | `JKAMP_GameLogic/ai_util.swift:117` | ported | `crates/mp/game/src/ai_util.rs:156-243` | `func GetPairedValue(_ buf: inout JKAShared.CharBuf, _ key: String, _ outbuf: inout JKAShared.CharBuf) -> Int32` |
+| `BotDoChat` | `oracle/codemp/game/ai_util.c:328-515` | `JKAMP_GameLogic/ai_util.swift:207` | ported | `crates/mp/game/src/ai_util.rs:252-461` | `func BotDoChat(_ bs: BotState, _ section: String, _ always: Int32) -> Int32` |
+| `ParseEmotionalAttachments` | `oracle/codemp/game/ai_util.c:517-572` | `JKAMP_GameLogic/ai_util.swift:372` | ported | `crates/mp/game/src/ai_util.rs:488-488` | `func ParseEmotionalAttachments(_ bs: BotState, _ buf: String)` |
+| `ReadChatGroups` | `oracle/codemp/game/ai_util.c:574-612` | `JKAMP_GameLogic/ai_util.swift:421` | ported | `crates/mp/game/src/ai_util.rs:562-616` | `func ReadChatGroups(_ bs: BotState, _ buf: inout JKAShared.CharBuf) -> Int32` |
+| `BotUtilizePersonality` | `oracle/codemp/game/ai_util.c:614-867` | `JKAMP_GameLogic/ai_util.swift:459` | ported | `crates/mp/game/src/ai_util.rs:625-925` | `func BotUtilizePersonality(_ bs: BotState)` |
 
 1 file-scope variables. The entry is the stub's line for the variable, by rule 3 and rule 6.
 

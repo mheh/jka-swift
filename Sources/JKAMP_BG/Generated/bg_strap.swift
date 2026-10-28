@@ -4,97 +4,97 @@ import JKAMP
 import JKAShared
 
 /// The strap functions of `bg_strap.h`, which the consumer installs over its own traps at its entry point, rule 23.
-/// A default traps as a marker, so a consumer that installs nothing fails at the first call and names it.
+/// A default traps with the hook's name, so a consumer that installs nothing fails at the first call and names it.
 public struct BgStraps {
     /// Source: oracle/codemp/game/bg_strap.h:7
-    public var strap_G2API_GetBoltMatrix: (OpaquePointer?, Int32, Int32, JKAMP.MdxaBone, JKAShared.vec3_t, JKAShared.vec3_t, Int32, UnsafeMutablePointer<Int32>?, inout JKAShared.vec3_t) -> Bool = { _, _, _, _, _, _, _, _, _ in portMissing("strap_G2API_GetBoltMatrix", source: "oracle/codemp/game/bg_strap.h:7") }
+    public var strap_G2API_GetBoltMatrix: (OpaquePointer?, Int32, Int32, JKAMP.MdxaBone, JKAShared.vec3_t, JKAShared.vec3_t, Int32, UnsafeMutablePointer<Int32>?, inout JKAShared.vec3_t) -> Bool = { _, _, _, _, _, _, _, _, _ in fatalError("No consumer installed strap_G2API_GetBoltMatrix, source: oracle/codemp/game/bg_strap.h:7") }
 
     /// Source: oracle/codemp/game/bg_strap.h:10
-    public var strap_G2API_GetBoltMatrix_NoReconstruct: (OpaquePointer?, Int32, Int32, JKAMP.MdxaBone, JKAShared.vec3_t, JKAShared.vec3_t, Int32, UnsafeMutablePointer<Int32>?, inout JKAShared.vec3_t) -> Bool = { _, _, _, _, _, _, _, _, _ in portMissing("strap_G2API_GetBoltMatrix_NoReconstruct", source: "oracle/codemp/game/bg_strap.h:10") }
+    public var strap_G2API_GetBoltMatrix_NoReconstruct: (OpaquePointer?, Int32, Int32, JKAMP.MdxaBone, JKAShared.vec3_t, JKAShared.vec3_t, Int32, UnsafeMutablePointer<Int32>?, inout JKAShared.vec3_t) -> Bool = { _, _, _, _, _, _, _, _, _ in fatalError("No consumer installed strap_G2API_GetBoltMatrix_NoReconstruct, source: oracle/codemp/game/bg_strap.h:10") }
 
     /// Source: oracle/codemp/game/bg_strap.h:13
-    public var strap_G2API_GetBoltMatrix_NoRecNoRot: (OpaquePointer?, Int32, Int32, JKAMP.MdxaBone, JKAShared.vec3_t, JKAShared.vec3_t, Int32, UnsafeMutablePointer<Int32>?, inout JKAShared.vec3_t) -> Bool = { _, _, _, _, _, _, _, _, _ in portMissing("strap_G2API_GetBoltMatrix_NoRecNoRot", source: "oracle/codemp/game/bg_strap.h:13") }
+    public var strap_G2API_GetBoltMatrix_NoRecNoRot: (OpaquePointer?, Int32, Int32, JKAMP.MdxaBone, JKAShared.vec3_t, JKAShared.vec3_t, Int32, UnsafeMutablePointer<Int32>?, inout JKAShared.vec3_t) -> Bool = { _, _, _, _, _, _, _, _, _ in fatalError("No consumer installed strap_G2API_GetBoltMatrix_NoRecNoRot, source: oracle/codemp/game/bg_strap.h:13") }
 
     /// Source: oracle/codemp/game/bg_strap.h:16
-    public var strap_G2API_SetBoneAngles: (OpaquePointer?, Int32, String, JKAShared.vec3_t, Int32, Int32, Int32, Int32, UnsafeMutablePointer<Int32>?, Int32, Int32) -> Bool = { _, _, _, _, _, _, _, _, _, _, _ in portMissing("strap_G2API_SetBoneAngles", source: "oracle/codemp/game/bg_strap.h:16") }
+    public var strap_G2API_SetBoneAngles: (OpaquePointer?, Int32, String, JKAShared.vec3_t, Int32, Int32, Int32, Int32, UnsafeMutablePointer<Int32>?, Int32, Int32) -> Bool = { _, _, _, _, _, _, _, _, _, _, _ in fatalError("No consumer installed strap_G2API_SetBoneAngles, source: oracle/codemp/game/bg_strap.h:16") }
 
     /// Source: oracle/codemp/game/bg_strap.h:20
-    public var strap_G2API_SetBoneAnim: (OpaquePointer?, Int32, String, Int32, Int32, Int32, Float, Int32, Float, Int32) -> Bool = { _, _, _, _, _, _, _, _, _, _ in portMissing("strap_G2API_SetBoneAnim", source: "oracle/codemp/game/bg_strap.h:20") }
+    public var strap_G2API_SetBoneAnim: (OpaquePointer?, Int32, String, Int32, Int32, Int32, Float, Int32, Float, Int32) -> Bool = { _, _, _, _, _, _, _, _, _, _ in fatalError("No consumer installed strap_G2API_SetBoneAnim, source: oracle/codemp/game/bg_strap.h:20") }
 
     /// Source: oracle/codemp/game/bg_strap.h:23
-    public var strap_G2API_GetBoneAnim: (OpaquePointer?, String, Int32, inout Float, inout Int32, inout Int32, inout Int32, inout Float, UnsafeMutablePointer<Int32>?, Int32) -> Bool = { _, _, _, _, _, _, _, _, _, _ in portMissing("strap_G2API_GetBoneAnim", source: "oracle/codemp/game/bg_strap.h:23") }
+    public var strap_G2API_GetBoneAnim: (OpaquePointer?, String, Int32, inout Float, inout Int32, inout Int32, inout Int32, inout Float, UnsafeMutablePointer<Int32>?, Int32) -> Bool = { _, _, _, _, _, _, _, _, _, _ in fatalError("No consumer installed strap_G2API_GetBoneAnim, source: oracle/codemp/game/bg_strap.h:23") }
 
     /// Source: oracle/codemp/game/bg_strap.h:26
-    public var strap_G2API_SetRagDoll: (OpaquePointer?, JKAMP.SharedRagDollParams) -> Void = { _, _ in portMissing("strap_G2API_SetRagDoll", source: "oracle/codemp/game/bg_strap.h:26") }
+    public var strap_G2API_SetRagDoll: (OpaquePointer?, JKAMP.SharedRagDollParams) -> Void = { _, _ in fatalError("No consumer installed strap_G2API_SetRagDoll, source: oracle/codemp/game/bg_strap.h:26") }
 
     /// Source: oracle/codemp/game/bg_strap.h:28
-    public var strap_G2API_AnimateG2Models: (OpaquePointer?, Int32, JKAMP.SharedRagDollUpdateParams) -> Void = { _, _, _ in portMissing("strap_G2API_AnimateG2Models", source: "oracle/codemp/game/bg_strap.h:28") }
+    public var strap_G2API_AnimateG2Models: (OpaquePointer?, Int32, JKAMP.SharedRagDollUpdateParams) -> Void = { _, _, _ in fatalError("No consumer installed strap_G2API_AnimateG2Models, source: oracle/codemp/game/bg_strap.h:28") }
 
     /// Source: oracle/codemp/game/bg_strap.h:30
-    public var strap_G2API_SetBoneIKState: (OpaquePointer?, Int32, String?, Int32, JKAMP.SharedSetBoneIKStateParams?) -> Bool = { _, _, _, _, _ in portMissing("strap_G2API_SetBoneIKState", source: "oracle/codemp/game/bg_strap.h:30") }
+    public var strap_G2API_SetBoneIKState: (OpaquePointer?, Int32, String?, Int32, JKAMP.SharedSetBoneIKStateParams?) -> Bool = { _, _, _, _, _ in fatalError("No consumer installed strap_G2API_SetBoneIKState, source: oracle/codemp/game/bg_strap.h:30") }
 
     /// Source: oracle/codemp/game/bg_strap.h:32
-    public var strap_G2API_IKMove: (OpaquePointer?, Int32, JKAMP.SharedIKMoveParams) -> Bool = { _, _, _ in portMissing("strap_G2API_IKMove", source: "oracle/codemp/game/bg_strap.h:32") }
+    public var strap_G2API_IKMove: (OpaquePointer?, Int32, JKAMP.SharedIKMoveParams) -> Bool = { _, _, _ in fatalError("No consumer installed strap_G2API_IKMove, source: oracle/codemp/game/bg_strap.h:32") }
 
     /// Source: oracle/codemp/game/bg_strap.h:34
-    public var strap_TrueMalloc: (inout OpaquePointer?, Int32) -> Void = { _, _ in portMissing("strap_TrueMalloc", source: "oracle/codemp/game/bg_strap.h:34") }
+    public var strap_TrueMalloc: (inout OpaquePointer?, Int32) -> Void = { _, _ in fatalError("No consumer installed strap_TrueMalloc, source: oracle/codemp/game/bg_strap.h:34") }
 
     /// Source: oracle/codemp/game/bg_strap.h:36
-    public var strap_TrueFree: (inout OpaquePointer?) -> Void = { _ in portMissing("strap_TrueFree", source: "oracle/codemp/game/bg_strap.h:36") }
+    public var strap_TrueFree: (inout OpaquePointer?) -> Void = { _ in fatalError("No consumer installed strap_TrueFree, source: oracle/codemp/game/bg_strap.h:36") }
 
     /// Source: oracle/codemp/game/g_syscalls.c:97
-    public var trap_FS_FCloseFile: (JKAShared.fileHandle_t) -> Void = { _ in portMissing("trap_FS_FCloseFile", source: "oracle/codemp/game/g_syscalls.c:97") }
+    public var trap_FS_FCloseFile: (JKAShared.fileHandle_t) -> Void = { _ in fatalError("No consumer installed trap_FS_FCloseFile, source: oracle/codemp/game/g_syscalls.c:97") }
 
     /// Source: oracle/codemp/game/g_syscalls.c:85
-    public var trap_FS_FOpenFile: (String, inout Int32, JKAShared.fsMode_t) -> Int32 = { _, _, _ in portMissing("trap_FS_FOpenFile", source: "oracle/codemp/game/g_syscalls.c:85") }
+    public var trap_FS_FOpenFile: (String, inout Int32, JKAShared.fsMode_t) -> Int32 = { _, _, _ in fatalError("No consumer installed trap_FS_FOpenFile, source: oracle/codemp/game/g_syscalls.c:85") }
 
     /// Source: oracle/codemp/game/g_syscalls.c:219
-    public var trap_FS_GetFileList: (String, String, Int32) -> (Int32, JKAShared.CharBuf) = { _, _, _ in portMissing("trap_FS_GetFileList", source: "oracle/codemp/game/g_syscalls.c:219") }
+    public var trap_FS_GetFileList: (String, String, Int32) -> (Int32, JKAShared.CharBuf) = { _, _, _ in fatalError("No consumer installed trap_FS_GetFileList, source: oracle/codemp/game/g_syscalls.c:219") }
 
     /// Source: oracle/codemp/game/g_syscalls.c:89
-    public var trap_FS_Read: (OpaquePointer?, Int32, JKAShared.fileHandle_t) -> Void = { _, _, _ in portMissing("trap_FS_Read", source: "oracle/codemp/game/g_syscalls.c:89") }
+    public var trap_FS_Read: (OpaquePointer?, Int32, JKAShared.fileHandle_t) -> Void = { _, _, _ in fatalError("No consumer installed trap_FS_Read, source: oracle/codemp/game/g_syscalls.c:89") }
 
     /// Source: oracle/codemp/cgame/cg_syscalls.c:637
-    public var trap_FX_PlayEffectID: (Int32, inout JKAShared.vec3_t, inout JKAShared.vec3_t, Int32, Int32) -> Void = { _, _, _, _, _ in portMissing("trap_FX_PlayEffectID", source: "oracle/codemp/cgame/cg_syscalls.c:637") }
+    public var trap_FX_PlayEffectID: (Int32, inout JKAShared.vec3_t, inout JKAShared.vec3_t, Int32, Int32) -> Void = { _, _, _, _, _ in fatalError("No consumer installed trap_FX_PlayEffectID, source: oracle/codemp/cgame/cg_syscalls.c:637") }
 
     /// Source: oracle/codemp/cgame/cg_syscalls.c:621
-    public var trap_FX_RegisterEffect: (String) -> Int32 = { _ in portMissing("trap_FX_RegisterEffect", source: "oracle/codemp/cgame/cg_syscalls.c:621") }
+    public var trap_FX_RegisterEffect: (String) -> Int32 = { _ in fatalError("No consumer installed trap_FX_RegisterEffect, source: oracle/codemp/cgame/cg_syscalls.c:621") }
 
     /// Source: oracle/codemp/game/g_syscalls.c:1239
-    public var trap_G2API_AddBolt: (OpaquePointer?, Int32, String) -> Int32 = { _, _, _ in portMissing("trap_G2API_AddBolt", source: "oracle/codemp/game/g_syscalls.c:1239") }
+    public var trap_G2API_AddBolt: (OpaquePointer?, Int32, String) -> Int32 = { _, _, _ in fatalError("No consumer installed trap_G2API_AddBolt, source: oracle/codemp/game/g_syscalls.c:1239") }
 
     /// Source: oracle/codemp/game/g_syscalls.c:1303
-    public var trap_G2API_CleanGhoul2Models: (inout OpaquePointer?) -> Void = { _ in portMissing("trap_G2API_CleanGhoul2Models", source: "oracle/codemp/game/g_syscalls.c:1303") }
+    public var trap_G2API_CleanGhoul2Models: (inout OpaquePointer?) -> Void = { _ in fatalError("No consumer installed trap_G2API_CleanGhoul2Models, source: oracle/codemp/game/g_syscalls.c:1303") }
 
     /// Source: oracle/codemp/game/g_syscalls.c:1205
-    public var trap_G2API_GetBoltMatrix: (OpaquePointer?, Int32, Int32, JKAMP.MdxaBone, JKAShared.vec3_t, JKAShared.vec3_t, Int32, UnsafeMutablePointer<Int32>?, inout JKAShared.vec3_t) -> Bool = { _, _, _, _, _, _, _, _, _ in portMissing("trap_G2API_GetBoltMatrix", source: "oracle/codemp/game/g_syscalls.c:1205") }
+    public var trap_G2API_GetBoltMatrix: (OpaquePointer?, Int32, Int32, JKAMP.MdxaBone, JKAShared.vec3_t, JKAShared.vec3_t, Int32, UnsafeMutablePointer<Int32>?, inout JKAShared.vec3_t) -> Bool = { _, _, _, _, _, _, _, _, _ in fatalError("No consumer installed trap_G2API_GetBoltMatrix, source: oracle/codemp/game/g_syscalls.c:1205") }
 
     /// Source: oracle/codemp/game/g_syscalls.c:1370
-    public var trap_G2API_GetSurfaceRenderStatus: (OpaquePointer?, Int32, String) -> Int32 = { _, _, _ in portMissing("trap_G2API_GetSurfaceRenderStatus", source: "oracle/codemp/game/g_syscalls.c:1370") }
+    public var trap_G2API_GetSurfaceRenderStatus: (OpaquePointer?, Int32, String) -> Int32 = { _, _, _ in fatalError("No consumer installed trap_G2API_GetSurfaceRenderStatus, source: oracle/codemp/game/g_syscalls.c:1370") }
 
     /// Source: oracle/codemp/game/g_syscalls.c:1223
-    public var trap_G2API_InitGhoul2Model: (inout OpaquePointer?, String, Int32, JKAShared.qhandle_t, JKAShared.qhandle_t, Int32, Int32) -> Int32 = { _, _, _, _, _, _, _ in portMissing("trap_G2API_InitGhoul2Model", source: "oracle/codemp/game/g_syscalls.c:1223") }
+    public var trap_G2API_InitGhoul2Model: (inout OpaquePointer?, String, Int32, JKAShared.qhandle_t, JKAShared.qhandle_t, Int32, Int32) -> Int32 = { _, _, _, _, _, _, _ in fatalError("No consumer installed trap_G2API_InitGhoul2Model, source: oracle/codemp/game/g_syscalls.c:1223") }
 
     /// Source: oracle/codemp/cgame/cg_syscalls.c:266
-    public var trap_R_RegisterModel: (String) -> JKAShared.qhandle_t = { _ in portMissing("trap_R_RegisterModel", source: "oracle/codemp/cgame/cg_syscalls.c:266") }
+    public var trap_R_RegisterModel: (String) -> JKAShared.qhandle_t = { _ in fatalError("No consumer installed trap_R_RegisterModel, source: oracle/codemp/cgame/cg_syscalls.c:266") }
 
     /// Source: oracle/codemp/cgame/cg_syscalls.c:274
-    public var trap_R_RegisterShader: (String) -> JKAShared.qhandle_t = { _ in portMissing("trap_R_RegisterShader", source: "oracle/codemp/cgame/cg_syscalls.c:274") }
+    public var trap_R_RegisterShader: (String) -> JKAShared.qhandle_t = { _ in fatalError("No consumer installed trap_R_RegisterShader, source: oracle/codemp/cgame/cg_syscalls.c:274") }
 
     /// Source: oracle/codemp/cgame/cg_syscalls.c:278
-    public var trap_R_RegisterShaderNoMip: (String) -> JKAShared.qhandle_t = { _ in portMissing("trap_R_RegisterShaderNoMip", source: "oracle/codemp/cgame/cg_syscalls.c:278") }
+    public var trap_R_RegisterShaderNoMip: (String) -> JKAShared.qhandle_t = { _ in fatalError("No consumer installed trap_R_RegisterShaderNoMip, source: oracle/codemp/cgame/cg_syscalls.c:278") }
 
     /// Source: oracle/codemp/game/g_syscalls.c:1179
-    public var trap_R_RegisterSkin: (String) -> JKAShared.qhandle_t = { _ in portMissing("trap_R_RegisterSkin", source: "oracle/codemp/game/g_syscalls.c:1179") }
+    public var trap_R_RegisterSkin: (String) -> JKAShared.qhandle_t = { _ in fatalError("No consumer installed trap_R_RegisterSkin, source: oracle/codemp/game/g_syscalls.c:1179") }
 
     /// Source: oracle/codemp/cgame/cg_syscalls.c:229
-    public var trap_S_RegisterSound: (String) -> JKAShared.sfxHandle_t = { _ in portMissing("trap_S_RegisterSound", source: "oracle/codemp/cgame/cg_syscalls.c:229") }
+    public var trap_S_RegisterSound: (String) -> JKAShared.sfxHandle_t = { _ in fatalError("No consumer installed trap_S_RegisterSound, source: oracle/codemp/cgame/cg_syscalls.c:229") }
 
     /// Source: oracle/codemp/game/g_syscalls.c:235
-    public var trap_SnapVector: (inout JKAShared.vec3_t) -> Void = { _ in portMissing("trap_SnapVector", source: "oracle/codemp/game/g_syscalls.c:235") }
+    public var trap_SnapVector: (inout JKAShared.vec3_t) -> Void = { _ in fatalError("No consumer installed trap_SnapVector, source: oracle/codemp/game/g_syscalls.c:235") }
 
     /// Source: oracle/codemp/game/g_syscalls.c:148
-    public var trap_Trace: (JKAMP.Trace, JKAShared.vec3_t, JKAShared.vec3_t, JKAShared.vec3_t, JKAShared.vec3_t, Int32, Int32) -> Void = { _, _, _, _, _, _, _ in portMissing("trap_Trace", source: "oracle/codemp/game/g_syscalls.c:148") }
+    public var trap_Trace: (JKAMP.Trace, JKAShared.vec3_t, JKAShared.vec3_t, JKAShared.vec3_t, JKAShared.vec3_t, Int32, Int32) -> Void = { _, _, _, _, _, _, _ in fatalError("No consumer installed trap_Trace, source: oracle/codemp/game/g_syscalls.c:148") }
 
     public init() {}
 }

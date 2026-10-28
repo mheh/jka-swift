@@ -277,14 +277,14 @@ class Channel:
 
     def bg_file(self, hooks: list[Hook], struct: str, store: str, source: str, doc: str) -> list[str]:
         lines = [NOTE.format(source=source), "", "import JKAMP", "import JKAShared", "", f"/// {doc}",
-                 "/// A default traps as a marker, so a consumer that installs nothing fails at the first call and names it.",
+                 "/// A default traps with the hook's name, so a consumer that installs nothing fails at the first call and names it.",
                  f"public struct {struct} {{"]
         for hook in hooks:
             if not hook.mapped:
                 continue
             blanks = ", ".join("_" for _ in hook.crossing)
-            default = f"{{ {blanks} in portMissing(\"{hook.name}\", source: \"{hook.cite}\") }}" if hook.crossing else \
-                f"{{ portMissing(\"{hook.name}\", source: \"{hook.cite}\") }}"
+            default = f"{{ {blanks} in fatalError(\"No consumer installed {hook.name}, source: {hook.cite}\") }}" if hook.crossing else \
+                f"{{ fatalError(\"No consumer installed {hook.name}, source: {hook.cite}\") }}"
             lines += [f"    /// Source: {hook.cite}", f"    public var {hook.name}: {hook.closure_type()} = {default}", ""]
         lines += ["    public init() {}", "}", ""]
         for hook in hooks:

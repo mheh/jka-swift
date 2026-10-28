@@ -4,163 +4,163 @@ import JKAMP
 import JKAShared
 
 /// The game functions a bg body calls by name, which the game installs at its entry point, rule 23.
-/// A default traps as a marker, so a consumer that installs nothing fails at the first call and names it.
+/// A default traps with the hook's name, so a consumer that installs nothing fails at the first call and names it.
 public struct BgCallbacks {
     /// Source: oracle/codemp/game/FighterNPC.c:99
-    public var BG_FighterUpdate: (JKAMP.Vehicle, JKAMP.Usercmd, JKAShared.vec3_t, JKAShared.vec3_t, Float, ((JKAMP.Trace, JKAShared.vec3_t, JKAShared.vec3_t, JKAShared.vec3_t, JKAShared.vec3_t, Int32, Int32) -> Void)?) -> Bool = { _, _, _, _, _, _ in portMissing("BG_FighterUpdate", source: "oracle/codemp/game/FighterNPC.c:99") }
+    public var BG_FighterUpdate: (JKAMP.Vehicle, JKAMP.Usercmd, JKAShared.vec3_t, JKAShared.vec3_t, Float, ((JKAMP.Trace, JKAShared.vec3_t, JKAShared.vec3_t, JKAShared.vec3_t, JKAShared.vec3_t, Int32, Int32) -> Void)?) -> Bool = { _, _, _, _, _, _ in fatalError("No consumer installed BG_FighterUpdate, source: oracle/codemp/game/FighterNPC.c:99") }
 
     /// Source: oracle/codemp/game/g_main.c:3559
-    public var BG_GetTime: () -> Int32 = { portMissing("BG_GetTime", source: "oracle/codemp/game/g_main.c:3559") }
+    public var BG_GetTime: () -> Int32 = { fatalError("No consumer installed BG_GetTime, source: oracle/codemp/game/g_main.c:3559") }
 
     /// Source: oracle/codemp/cgame/cg_view.c:797
-    public var CG_GetVehicleCamPos: (inout JKAShared.vec3_t) -> Void = { _ in portMissing("CG_GetVehicleCamPos", source: "oracle/codemp/cgame/cg_view.c:797") }
+    public var CG_GetVehicleCamPos: (inout JKAShared.vec3_t) -> Void = { _ in fatalError("No consumer installed CG_GetVehicleCamPos, source: oracle/codemp/cgame/cg_view.c:797") }
 
     /// Source: oracle/codemp/cgame/cg_main.c:3344
-    public var CG_NewString: (String) -> String = { _ in portMissing("CG_NewString", source: "oracle/codemp/cgame/cg_main.c:3344") }
+    public var CG_NewString: (String) -> String = { _ in fatalError("No consumer installed CG_NewString, source: oracle/codemp/cgame/cg_main.c:3344") }
 
     /// Source: oracle/codemp/game/g_active.c:407
-    public var Client_CheckImpactBBrush: (JKAMP.BgEntity, JKAMP.BgEntity) -> Void = { _, _ in portMissing("Client_CheckImpactBBrush", source: "oracle/codemp/game/g_active.c:407") }
+    public var Client_CheckImpactBBrush: (JKAMP.BgEntity, JKAMP.BgEntity) -> Void = { _, _ in fatalError("No consumer installed Client_CheckImpactBBrush, source: oracle/codemp/game/g_active.c:407") }
 
     /// Source: oracle/codemp/game/FighterNPC.c:300
-    public var FighterIsLanded: (JKAMP.Vehicle, JKAMP.PlayerState) -> Bool = { _, _ in portMissing("FighterIsLanded", source: "oracle/codemp/game/FighterNPC.c:300") }
+    public var FighterIsLanded: (JKAMP.Vehicle, JKAMP.PlayerState) -> Bool = { _, _ in fatalError("No consumer installed FighterIsLanded, source: oracle/codemp/game/FighterNPC.c:300") }
 
     /// Source: oracle/codemp/game/g_utils.c:1221
-    public var G_AddEvent: (JKAMP.BgEntity, Int32, Int32) -> Void = { _, _, _ in portMissing("G_AddEvent", source: "oracle/codemp/game/g_utils.c:1221") }
+    public var G_AddEvent: (JKAMP.BgEntity, Int32, Int32) -> Void = { _, _, _ in fatalError("No consumer installed G_AddEvent, source: oracle/codemp/game/g_utils.c:1221") }
 
     /// Source: oracle/codemp/game/w_saber.c:82
-    public var G_CanBeEnemy: (JKAMP.BgEntity, JKAMP.BgEntity) -> Bool = { _, _ in portMissing("G_CanBeEnemy", source: "oracle/codemp/game/w_saber.c:82") }
+    public var G_CanBeEnemy: (JKAMP.BgEntity, JKAMP.BgEntity) -> Bool = { _, _ in fatalError("No consumer installed G_CanBeEnemy, source: oracle/codemp/game/w_saber.c:82") }
 
     /// Source: oracle/codemp/game/g_active.c:857
-    public var G_CheapWeaponFire: (Int32, Int32) -> Void = { _, _ in portMissing("G_CheapWeaponFire", source: "oracle/codemp/game/g_active.c:857") }
+    public var G_CheapWeaponFire: (Int32, Int32) -> Void = { _, _ in fatalError("No consumer installed G_CheapWeaponFire, source: oracle/codemp/game/g_active.c:857") }
 
     /// Source: oracle/codemp/game/g_combat.c:4577
-    public var G_Damage: (JKAMP.BgEntity, JKAMP.BgEntity?, JKAMP.BgEntity?, inout JKAShared.vec3_t?, JKAShared.vec3_t?, Int32, Int32, Int32) -> Void = { _, _, _, _, _, _, _, _ in portMissing("G_Damage", source: "oracle/codemp/game/g_combat.c:4577") }
+    public var G_Damage: (JKAMP.BgEntity, JKAMP.BgEntity?, JKAMP.BgEntity?, inout JKAShared.vec3_t?, JKAShared.vec3_t?, Int32, Int32, Int32) -> Void = { _, _, _, _, _, _, _, _ in fatalError("No consumer installed G_Damage, source: oracle/codemp/game/g_combat.c:4577") }
 
     /// Source: oracle/codemp/game/g_combat.c:5717
-    public var G_DamageFromKiller: (JKAMP.BgEntity, JKAMP.BgEntity, JKAMP.BgEntity?, JKAShared.vec3_t, Int32, Int32, Int32) -> Void = { _, _, _, _, _, _, _ in portMissing("G_DamageFromKiller", source: "oracle/codemp/game/g_combat.c:5717") }
+    public var G_DamageFromKiller: (JKAMP.BgEntity, JKAMP.BgEntity, JKAMP.BgEntity?, JKAShared.vec3_t, Int32, Int32, Int32) -> Void = { _, _, _, _, _, _, _ in fatalError("No consumer installed G_DamageFromKiller, source: oracle/codemp/game/g_combat.c:5717") }
 
     /// Source: oracle/codemp/game/g_utils.c:148
-    public var G_EffectIndex: (String) -> Int32 = { _ in portMissing("G_EffectIndex", source: "oracle/codemp/game/g_utils.c:148") }
+    public var G_EffectIndex: (String) -> Int32 = { _ in fatalError("No consumer installed G_EffectIndex, source: oracle/codemp/game/g_utils.c:148") }
 
     /// Source: oracle/codemp/game/g_vehicles.c:3190
-    public var G_FlyVehicleSurfaceDestruction: (JKAMP.BgEntity, JKAMP.Trace, Int32, Bool) -> Void = { _, _, _, _ in portMissing("G_FlyVehicleSurfaceDestruction", source: "oracle/codemp/game/g_vehicles.c:3190") }
+    public var G_FlyVehicleSurfaceDestruction: (JKAMP.BgEntity, JKAMP.Trace, Int32, Bool) -> Void = { _, _, _, _ in fatalError("No consumer installed G_FlyVehicleSurfaceDestruction, source: oracle/codemp/game/g_vehicles.c:3190") }
 
     /// Source: oracle/codemp/game/g_utils.c:108
-    public var G_ModelIndex: (String) -> Int32 = { _ in portMissing("G_ModelIndex", source: "oracle/codemp/game/g_utils.c:108") }
+    public var G_ModelIndex: (String) -> Int32 = { _ in fatalError("No consumer installed G_ModelIndex, source: oracle/codemp/game/g_utils.c:108") }
 
     /// Source: oracle/codemp/game/g_spawn.c:724
-    public var G_NewString: (String) -> String = { _ in portMissing("G_NewString", source: "oracle/codemp/game/g_spawn.c:724") }
+    public var G_NewString: (String) -> String = { _ in fatalError("No consumer installed G_NewString, source: oracle/codemp/game/g_spawn.c:724") }
 
     /// Source: oracle/codemp/game/g_utils.c:1250
-    public var G_PlayEffect: (Int32, JKAShared.vec3_t, JKAShared.vec3_t) -> JKAMP.BgEntity? = { _, _, _ in portMissing("G_PlayEffect", source: "oracle/codemp/game/g_utils.c:1250") }
+    public var G_PlayEffect: (Int32, JKAShared.vec3_t, JKAShared.vec3_t) -> JKAMP.BgEntity? = { _, _, _ in fatalError("No consumer installed G_PlayEffect, source: oracle/codemp/game/g_utils.c:1250") }
 
     /// Source: oracle/codemp/game/g_utils.c:1267
-    public var G_PlayEffectID: (Int32, JKAShared.vec3_t, JKAShared.vec3_t) -> JKAMP.BgEntity? = { _, _, _ in portMissing("G_PlayEffectID", source: "oracle/codemp/game/g_utils.c:1267") }
+    public var G_PlayEffectID: (Int32, JKAShared.vec3_t, JKAShared.vec3_t) -> JKAMP.BgEntity? = { _, _, _ in fatalError("No consumer installed G_PlayEffectID, source: oracle/codemp/game/g_utils.c:1267") }
 
     /// Source: oracle/codemp/game/AnimalNPC.c:857
-    public var G_SetAnimalVehicleFunctions: (JKAMP.VehicleInfo) -> Void = { _ in portMissing("G_SetAnimalVehicleFunctions", source: "oracle/codemp/game/AnimalNPC.c:857") }
+    public var G_SetAnimalVehicleFunctions: (JKAMP.VehicleInfo) -> Void = { _ in fatalError("No consumer installed G_SetAnimalVehicleFunctions, source: oracle/codemp/game/AnimalNPC.c:857") }
 
     /// Source: oracle/codemp/game/FighterNPC.c:1948
-    public var G_SetFighterVehicleFunctions: (JKAMP.VehicleInfo) -> Void = { _ in portMissing("G_SetFighterVehicleFunctions", source: "oracle/codemp/game/FighterNPC.c:1948") }
+    public var G_SetFighterVehicleFunctions: (JKAMP.VehicleInfo) -> Void = { _ in fatalError("No consumer installed G_SetFighterVehicleFunctions, source: oracle/codemp/game/FighterNPC.c:1948") }
 
     /// Source: oracle/codemp/game/g_vehicles.c:3290
-    public var G_SetSharedVehicleFunctions: (JKAMP.VehicleInfo) -> Void = { _ in portMissing("G_SetSharedVehicleFunctions", source: "oracle/codemp/game/g_vehicles.c:3290") }
+    public var G_SetSharedVehicleFunctions: (JKAMP.VehicleInfo) -> Void = { _ in fatalError("No consumer installed G_SetSharedVehicleFunctions, source: oracle/codemp/game/g_vehicles.c:3290") }
 
     /// Source: oracle/codemp/game/SpeederNPC.c:1044
-    public var G_SetSpeederVehicleFunctions: (JKAMP.VehicleInfo) -> Void = { _ in portMissing("G_SetSpeederVehicleFunctions", source: "oracle/codemp/game/SpeederNPC.c:1044") }
+    public var G_SetSpeederVehicleFunctions: (JKAMP.VehicleInfo) -> Void = { _ in fatalError("No consumer installed G_SetSpeederVehicleFunctions, source: oracle/codemp/game/SpeederNPC.c:1044") }
 
     /// Source: oracle/codemp/game/WalkerNPC.c:547
-    public var G_SetWalkerVehicleFunctions: (JKAMP.VehicleInfo) -> Void = { _ in portMissing("G_SetWalkerVehicleFunctions", source: "oracle/codemp/game/WalkerNPC.c:547") }
+    public var G_SetWalkerVehicleFunctions: (JKAMP.VehicleInfo) -> Void = { _ in fatalError("No consumer installed G_SetWalkerVehicleFunctions, source: oracle/codemp/game/WalkerNPC.c:547") }
 
     /// Source: oracle/codemp/game/g_utils.c:138
-    public var G_SoundIndex: (String) -> Int32 = { _ in portMissing("G_SoundIndex", source: "oracle/codemp/game/g_utils.c:138") }
+    public var G_SoundIndex: (String) -> Int32 = { _ in fatalError("No consumer installed G_SoundIndex, source: oracle/codemp/game/g_utils.c:138") }
 
     /// Source: oracle/codemp/game/NPC.c:2058
-    public var NPC_SetAnim: (JKAMP.BgEntity, Int32, Int32, Int32) -> Void = { _, _, _, _ in portMissing("NPC_SetAnim", source: "oracle/codemp/game/NPC.c:2058") }
+    public var NPC_SetAnim: (JKAMP.BgEntity, Int32, Int32, Int32) -> Void = { _, _, _, _ in fatalError("No consumer installed NPC_SetAnim, source: oracle/codemp/game/NPC.c:2058") }
 
     /// Source: oracle/codemp/game/g_ICARUScb.c:3651
-    public var Q3_SetParm: (Int32, Int32, String) -> Void = { _, _, _ in portMissing("Q3_SetParm", source: "oracle/codemp/game/g_ICARUScb.c:3651") }
+    public var Q3_SetParm: (Int32, Int32, String) -> Void = { _, _, _ in fatalError("No consumer installed Q3_SetParm, source: oracle/codemp/game/g_ICARUScb.c:3651") }
 
     /// Source: oracle/codemp/game/g_cmds.c:3148
-    public var TryGrapple: (JKAMP.BgEntity) -> Bool = { _ in portMissing("TryGrapple", source: "oracle/codemp/game/g_cmds.c:3148") }
+    public var TryGrapple: (JKAMP.BgEntity) -> Bool = { _ in fatalError("No consumer installed TryGrapple, source: oracle/codemp/game/g_cmds.c:3148") }
 
     /// Source: oracle/codemp/game/g_weapon.c:3961
-    public var WP_GetVehicleCamPos: (JKAMP.BgEntity, JKAMP.BgEntity, inout JKAShared.vec3_t) -> Void = { _, _, _ in portMissing("WP_GetVehicleCamPos", source: "oracle/codemp/game/g_weapon.c:3961") }
+    public var WP_GetVehicleCamPos: (JKAMP.BgEntity, JKAMP.BgEntity, inout JKAShared.vec3_t) -> Void = { _, _, _ in fatalError("No consumer installed WP_GetVehicleCamPos, source: oracle/codemp/game/g_weapon.c:3961") }
 
     /// Source: oracle/codemp/game/bg_pmove.c:4234
-    public var bgLandOnVehicle: (Int32) -> Void = { _ in portMissing("bgLandOnVehicle", source: "oracle/codemp/game/bg_pmove.c:4234") }
+    public var bgLandOnVehicle: (Int32) -> Void = { _ in fatalError("No consumer installed bgLandOnVehicle, source: oracle/codemp/game/bg_pmove.c:4234") }
 
     /// Source: oracle/codemp/game/bg_pmove.c:4448
-    public var bgSetSolidHack: (Int32) -> Void = { _ in portMissing("bgSetSolidHack", source: "oracle/codemp/game/bg_pmove.c:4448") }
+    public var bgSetSolidHack: (Int32) -> Void = { _ in fatalError("No consumer installed bgSetSolidHack, source: oracle/codemp/game/bg_pmove.c:4448") }
 
     /// Source: oracle/codemp/game/bg_pmove.c:3684
-    public var PM_CrashLandEffect: () -> Void = { portMissing("PM_CrashLandEffect", source: "oracle/codemp/game/bg_pmove.c:3684") }
+    public var PM_CrashLandEffect: () -> Void = { fatalError("No consumer installed PM_CrashLandEffect, source: oracle/codemp/game/bg_pmove.c:3684") }
 
     /// Source: oracle/codemp/game/bg_pmove.c:7786
-    public var bgBg_fighterAltControlInteger: () -> Int32 = { portMissing("bgBg_fighterAltControlInteger", source: "oracle/codemp/game/bg_pmove.c:7786") }
+    public var bgBg_fighterAltControlInteger: () -> Int32 = { fatalError("No consumer installed bgBg_fighterAltControlInteger, source: oracle/codemp/game/bg_pmove.c:7786") }
 
     /// Source: oracle/codemp/game/bg_pmove.c:10957
-    public var bgClientCmd: (JKAMP.BgEntity) -> JKAMP.Usercmd = { _ in portMissing("bgClientCmd", source: "oracle/codemp/game/bg_pmove.c:10957") }
+    public var bgClientCmd: (JKAMP.BgEntity) -> JKAMP.Usercmd = { _ in fatalError("No consumer installed bgClientCmd, source: oracle/codemp/game/bg_pmove.c:10957") }
 
     /// Source: oracle/codemp/game/bg_saber.c:4107
-    public var bgClientSaber: (Int32, Int32) -> JKAMP.SaberInfo? = { _, _ in portMissing("bgClientSaber", source: "oracle/codemp/game/bg_saber.c:4107") }
+    public var bgClientSaber: (Int32, Int32) -> JKAMP.SaberInfo? = { _, _ in fatalError("No consumer installed bgClientSaber, source: oracle/codemp/game/bg_saber.c:4107") }
 
     /// Source: oracle/codemp/game/bg_pmove.c:4256
-    public var bgClientSessionTeam: (JKAMP.BgEntity) -> JKAMP.team_t = { _ in portMissing("bgClientSessionTeam", source: "oracle/codemp/game/bg_pmove.c:4256") }
+    public var bgClientSessionTeam: (JKAMP.BgEntity) -> JKAMP.team_t = { _ in fatalError("No consumer installed bgClientSessionTeam, source: oracle/codemp/game/bg_pmove.c:4256") }
 
     /// Source: oracle/codemp/game/bg_pmove.c:4255
-    public var bgEntityAlliedTeam: (JKAMP.BgEntity) -> Int32 = { _ in portMissing("bgEntityAlliedTeam", source: "oracle/codemp/game/bg_pmove.c:4255") }
+    public var bgEntityAlliedTeam: (JKAMP.BgEntity) -> Int32 = { _ in fatalError("No consumer installed bgEntityAlliedTeam, source: oracle/codemp/game/bg_pmove.c:4255") }
 
     /// Source: oracle/codemp/game/bg_saber.c:4105
-    public var bgEntityAtInuse: (Int32) -> Bool = { _ in portMissing("bgEntityAtInuse", source: "oracle/codemp/game/bg_saber.c:4105") }
+    public var bgEntityAtInuse: (Int32) -> Bool = { _ in fatalError("No consumer installed bgEntityAtInuse, source: oracle/codemp/game/bg_saber.c:4105") }
 
     /// Source: oracle/codemp/game/bg_slidemove.c:77
-    public var bgEntityBmodel: (JKAMP.BgEntity) -> Bool = { _ in portMissing("bgEntityBmodel", source: "oracle/codemp/game/bg_slidemove.c:77") }
+    public var bgEntityBmodel: (JKAMP.BgEntity) -> Bool = { _ in fatalError("No consumer installed bgEntityBmodel, source: oracle/codemp/game/bg_slidemove.c:77") }
 
     /// Source: oracle/codemp/game/bg_slidemove.c:97
-    public var bgEntityClassname: (JKAMP.BgEntity) -> String? = { _ in portMissing("bgEntityClassname", source: "oracle/codemp/game/bg_slidemove.c:97") }
+    public var bgEntityClassname: (JKAMP.BgEntity) -> String? = { _ in fatalError("No consumer installed bgEntityClassname, source: oracle/codemp/game/bg_slidemove.c:97") }
 
     /// Source: oracle/codemp/game/bg_slidemove.c:617
-    public var bgEntityContents: (JKAMP.BgEntity) -> Int32 = { _ in portMissing("bgEntityContents", source: "oracle/codemp/game/bg_slidemove.c:617") }
+    public var bgEntityContents: (JKAMP.BgEntity) -> Int32 = { _ in fatalError("No consumer installed bgEntityContents, source: oracle/codemp/game/bg_slidemove.c:617") }
 
     /// Source: oracle/codemp/game/bg_slidemove.c:200
-    public var bgEntityCurrentOrigin: (JKAMP.BgEntity) -> JKAShared.vec3_t = { _ in portMissing("bgEntityCurrentOrigin", source: "oracle/codemp/game/bg_slidemove.c:200") }
+    public var bgEntityCurrentOrigin: (JKAMP.BgEntity) -> JKAShared.vec3_t = { _ in fatalError("No consumer installed bgEntityCurrentOrigin, source: oracle/codemp/game/bg_slidemove.c:200") }
 
     /// Source: oracle/codemp/game/bg_pmove.c:4243
-    public var bgEntityInuse: (JKAMP.BgEntity) -> Bool = { _ in portMissing("bgEntityInuse", source: "oracle/codemp/game/bg_pmove.c:4243") }
+    public var bgEntityInuse: (JKAMP.BgEntity) -> Bool = { _ in fatalError("No consumer installed bgEntityInuse, source: oracle/codemp/game/bg_pmove.c:4243") }
 
     /// Source: oracle/codemp/game/bg_panimate.c:2611
-    public var bgEntityLegsAnim: (Int32) -> Int32 = { _ in portMissing("bgEntityLegsAnim", source: "oracle/codemp/game/bg_panimate.c:2611") }
+    public var bgEntityLegsAnim: (Int32) -> Int32 = { _ in fatalError("No consumer installed bgEntityLegsAnim, source: oracle/codemp/game/bg_panimate.c:2611") }
 
     /// Source: oracle/codemp/game/bg_slidemove.c:61
-    public var bgEntityOwnerNum: (JKAMP.BgEntity) -> Int32 = { _ in portMissing("bgEntityOwnerNum", source: "oracle/codemp/game/bg_slidemove.c:61") }
+    public var bgEntityOwnerNum: (JKAMP.BgEntity) -> Int32 = { _ in fatalError("No consumer installed bgEntityOwnerNum, source: oracle/codemp/game/bg_slidemove.c:61") }
 
     /// Source: oracle/codemp/game/bg_pmove.c:10895
-    public var bgEntitySpawnflags: (JKAMP.BgEntity) -> Int32 = { _ in portMissing("bgEntitySpawnflags", source: "oracle/codemp/game/bg_pmove.c:10895") }
+    public var bgEntitySpawnflags: (JKAMP.BgEntity) -> Int32 = { _ in fatalError("No consumer installed bgEntitySpawnflags, source: oracle/codemp/game/bg_pmove.c:10895") }
 
     /// Source: oracle/codemp/game/bg_slidemove.c:429
-    public var bgEntityTakedamage: (JKAMP.BgEntity) -> Bool = { _ in portMissing("bgEntityTakedamage", source: "oracle/codemp/game/bg_slidemove.c:429") }
+    public var bgEntityTakedamage: (JKAMP.BgEntity) -> Bool = { _ in fatalError("No consumer installed bgEntityTakedamage, source: oracle/codemp/game/bg_slidemove.c:429") }
 
     /// Source: oracle/codemp/game/bg_panimate.c:2678
-    public var bgEntityTorsoAnim: (Int32) -> Int32 = { _ in portMissing("bgEntityTorsoAnim", source: "oracle/codemp/game/bg_panimate.c:2678") }
+    public var bgEntityTorsoAnim: (Int32) -> Int32 = { _ in fatalError("No consumer installed bgEntityTorsoAnim, source: oracle/codemp/game/bg_panimate.c:2678") }
 
     /// Source: oracle/codemp/game/bg_pmove.c:4254
-    public var bgGametypeInteger: () -> Int32 = { portMissing("bgGametypeInteger", source: "oracle/codemp/game/bg_pmove.c:4254") }
+    public var bgGametypeInteger: () -> Int32 = { fatalError("No consumer installed bgGametypeInteger, source: oracle/codemp/game/bg_pmove.c:4254") }
 
     /// Source: oracle/codemp/game/bg_pmove.c:4453
-    public var bgLevelTime: () -> Int32 = { portMissing("bgLevelTime", source: "oracle/codemp/game/bg_pmove.c:4453") }
+    public var bgLevelTime: () -> Int32 = { fatalError("No consumer installed bgLevelTime, source: oracle/codemp/game/bg_pmove.c:4453") }
 
     /// Source: oracle/codemp/game/bg_slidemove.c:512
-    public var bgSetClientOtherKillerMOD: (JKAMP.BgEntity, Int32) -> Void = { _, _ in portMissing("bgSetClientOtherKillerMOD", source: "oracle/codemp/game/bg_slidemove.c:512") }
+    public var bgSetClientOtherKillerMOD: (JKAMP.BgEntity, Int32) -> Void = { _, _ in fatalError("No consumer installed bgSetClientOtherKillerMOD, source: oracle/codemp/game/bg_slidemove.c:512") }
 
     /// Source: oracle/codemp/game/bg_slidemove.c:513
-    public var bgSetClientOtherKillerVehWeapon: (JKAMP.BgEntity, Int32) -> Void = { _, _ in portMissing("bgSetClientOtherKillerVehWeapon", source: "oracle/codemp/game/bg_slidemove.c:513") }
+    public var bgSetClientOtherKillerVehWeapon: (JKAMP.BgEntity, Int32) -> Void = { _, _ in fatalError("No consumer installed bgSetClientOtherKillerVehWeapon, source: oracle/codemp/game/bg_slidemove.c:513") }
 
     /// Source: oracle/codemp/game/bg_slidemove.c:514
-    public var bgSetClientOtherKillerWeaponType: (JKAMP.BgEntity, Int32) -> Void = { _, _ in portMissing("bgSetClientOtherKillerWeaponType", source: "oracle/codemp/game/bg_slidemove.c:514") }
+    public var bgSetClientOtherKillerWeaponType: (JKAMP.BgEntity, Int32) -> Void = { _, _ in fatalError("No consumer installed bgSetClientOtherKillerWeaponType, source: oracle/codemp/game/bg_slidemove.c:514") }
 
     /// Source: oracle/codemp/game/bg_pmove.c:4453
-    public var bgSetClientSolidHack: (JKAMP.BgEntity, Int32) -> Void = { _, _ in portMissing("bgSetClientSolidHack", source: "oracle/codemp/game/bg_pmove.c:4453") }
+    public var bgSetClientSolidHack: (JKAMP.BgEntity, Int32) -> Void = { _, _ in fatalError("No consumer installed bgSetClientSolidHack, source: oracle/codemp/game/bg_pmove.c:4453") }
 
     public init() {}
 }

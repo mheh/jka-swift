@@ -472,7 +472,6 @@ public func BG_LegalizedForcePowers(_ powerOut: inout JKAShared.CharBuf, _ maxRa
 }
 
 /// Source: oracle/codemp/game/bg_misc.c:795
-// TODO: Port global bg_itemlist
 // Raven wrote: gitem_t bg_itemlist[]
 // Raven's data table is C storage by hand in the C target, with his initializer as written, reached as a Slots over the C array, the bg_tables.c shape.
 
