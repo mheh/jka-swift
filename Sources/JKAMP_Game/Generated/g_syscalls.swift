@@ -2174,15 +2174,19 @@ let word = Syscall.call(G_G2_HASGHOUL2MODELONINDEX, ghlInfo, modelIndex)
 
 /// Source: oracle/codemp/game/g_syscalls.c:1293
 @discardableResult
-public func trap_G2API_RemoveGhoul2Model(_ ghlInfo: OpaquePointer?, _ modelIndex: Int32) -> Bool {
-let word = Syscall.call(G_G2_REMOVEGHOUL2MODEL, ghlInfo, modelIndex)
+public func trap_G2API_RemoveGhoul2Model(_ ghlInfo: inout OpaquePointer?, _ modelIndex: Int32) -> Bool {
+    let word = withUnsafeMutablePointer(to: &ghlInfo) { ghlInfo in
+        Syscall.call(G_G2_REMOVEGHOUL2MODEL, ghlInfo, modelIndex)
+    }
     return word != 0
 }
 
 /// Source: oracle/codemp/game/g_syscalls.c:1298
 @discardableResult
-public func trap_G2API_RemoveGhoul2Models(_ ghlInfo: OpaquePointer?) -> Bool {
-let word = Syscall.call(G_G2_REMOVEGHOUL2MODELS, ghlInfo)
+public func trap_G2API_RemoveGhoul2Models(_ ghlInfo: inout OpaquePointer?) -> Bool {
+    let word = withUnsafeMutablePointer(to: &ghlInfo) { ghlInfo in
+        Syscall.call(G_G2_REMOVEGHOUL2MODELS, ghlInfo)
+    }
     return word != 0
 }
 

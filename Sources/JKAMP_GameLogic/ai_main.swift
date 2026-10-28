@@ -121,7 +121,15 @@ var droppedBlueFlag: Entity? {
 
 /// Source: oracle/codemp/game/ai_main.c:96
 // Raven wrote: char *ctfStateNames[]
-let ctfStateNames: [String] = { () -> [String] in portMissing("ctfStateNames", source: "oracle/codemp/game/ai_main.c:96") }()
+let ctfStateNames: [String] = [
+    "CTFSTATE_NONE",
+    "CTFSTATE_ATTACKER",
+    "CTFSTATE_DEFENDER",
+    "CTFSTATE_RETRIEVAL",
+    "CTFSTATE_GUARDCARRIER",
+    "CTFSTATE_GETFLAGHOME",
+    "CTFSTATE_MAXCTFSTATES",
+]
 
 /// Source: oracle/codemp/game/ai_main.c:106
 /// Raven's data table, a hand property of `GameWorld`.

@@ -260,6 +260,9 @@ class Types:
         if facts.ruled == "int_value":
             # A qsort comparator reads its `const void *` as `*(int *)`, so the value crosses, and the hand qsort hands it over.
             return Answer("Int32", "bare")
+        if facts.ruled == "out_opaque":
+            # Raven declares `void *` and his callers pass the address of a handle field, the `void **` shape below.
+            return Answer("inout OpaquePointer?", "out_opaque")
         if facts.ruled == "int_array":
             # The body only reads the values, and Raven's callers pass NULL with a count of zero, so the array crosses by value as an optional.
             return Answer("[Int32]?", "int_array")
