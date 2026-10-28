@@ -16,6 +16,7 @@ name: Build the game module
 # The `test` job runs the Swift tests on Linux and does not gate the build matrix.
 # The tests run one suite at a time, because they share the module's one world and one bg state.
 # The build names the product alone, because the `jampsmoke` executable imports Darwin and has no Linux or Windows build.
+# The package step asks SwiftPM for its product folder, because the 6.4 build system places products under .build/out/Products/Release.
 #
 # The zip names carry no version segment, so the rolling `latest` release keeps stable download URLs.
 # The release body records the built commit.
@@ -89,8 +90,9 @@ jobs:
         shell: bash
         run: |
           module="jampgamex86_64.so"
-          src="$(find .build -path '*release*' -name 'libjampgame.so' -print -quit)"
-          test -n "$src" || { echo "::error::built module libjampgame.so not found under .build"; exit 1; }
+          bin="$(swift build -c release --product jampgame --show-bin-path)"
+          src="${bin}/libjampgame.so"
+          test -f "$src" || { echo "::error::built module not found at $src"; ls -l "$bin"; exit 1; }
           zip_name="jampgame-x86_64-linux-release.zip"
           rm -rf package dist
           mkdir -p package dist
@@ -137,8 +139,9 @@ jobs:
         shell: bash
         run: |
           module="jampgamex86_64.dll"
-          src="$(find .build -path '*release*' -name 'jampgame.dll' -print -quit)"
-          test -n "$src" || { echo "::error::built module jampgame.dll not found under .build"; exit 1; }
+          bin="$(swift build -c release --product jampgame --show-bin-path)"
+          src="${bin}/jampgame.dll"
+          test -f "$src" || { echo "::error::built module not found at $src"; ls -l "$bin"; exit 1; }
           zip_name="jampgame-x86_64-windows-release.zip"
           rm -rf package dist
           mkdir -p package dist
