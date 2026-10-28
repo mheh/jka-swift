@@ -526,7 +526,7 @@ func G_PickTarget(_ targetname: String) -> Entity? {
         return nil
     }
 
-    return choice[rand() % num_choices]
+    return choice[JKAMP_BG.rand() % num_choices]
 }
 
 /// Source: oracle/codemp/game/g_utils.c:552
