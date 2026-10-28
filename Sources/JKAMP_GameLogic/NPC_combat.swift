@@ -1363,7 +1363,7 @@ func NPC_PickEnemy(_ closestTo: Entity, _ enemyTeam: Int32, _ checkVis: Bool, _ 
     }
 
     if num_choices != 0 {
-        return g_entities[choice[rand() % num_choices]]
+        return g_entities[choice[JKAMP_BG.rand() % num_choices]]
     }
 
     /*
@@ -1489,7 +1489,7 @@ func NPC_PickEnemy(_ closestTo: Entity, _ enemyTeam: Int32, _ checkVis: Bool, _ 
         return nil
     }
 
-    return g_entities[choice[rand() % num_choices]]
+    return g_entities[choice[JKAMP_BG.rand() % num_choices]]
 }
 
 /// Source: oracle/codemp/game/NPC_combat.c:1804
