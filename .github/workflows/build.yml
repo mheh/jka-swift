@@ -1,0 +1,162 @@
+name: Build the game module
+
+# This workflow runs on a push to master and on request, never on a pull request.
+# It builds the `jampgame` library as a release shared library on each platform the engine loads, and it packages each one as a zip.
+# The pipeline comes from jka-rust (jka-rust/.github/workflows/build.yml), without its approval gate.
+#
+# The file inside each zip keeps the exact arch-suffixed name the engine expects at load time, because the engine refuses to load a renamed module.
+# The platform lives in the zip name, never in the module filename:
+#
+#   Linux   64-bit  x86_64   jampgamex86_64.so
+#   Windows 64-bit  x86_64   jampgamex86_64.dll
+#
+# No macOS lane runs for now, by the user's word of 2026-10-28, so the arm64 dylib stays a local build.
+# The `test` job runs the Swift tests on Linux and does not gate the build matrix.
+# The tests run one suite at a time, because they share the module's one world and one bg state.
+# The build names the product alone, because the `jampsmoke` executable imports Darwin and has no Linux or Windows build.
+#
+# The zip names carry no version segment, so the rolling `latest` release keeps stable download URLs.
+# The release body records the built commit.
+
+on:
+  push:
+    branches: [master]
+  workflow_dispatch:
+
+permissions:
+  contents: write # The release job attaches assets to the rolling release.
+
+concurrency:
+  group: build-${{ github.ref }}
+  cancel-in-progress: true
+
+env:
+  SWIFT_VERSION: "6.4.1"
+
+jobs:
+  test:
+    name: Swift tests on Linux
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v7
+
+      - name: Install the Swift toolchain
+        uses: swift-actions/setup-swift@v2
+        with:
+          swift-version: ${{ env.SWIFT_VERSION }}
+
+      - name: Cache the build folder
+        uses: actions/cache@v6
+        with:
+          path: .build
+          key: test-linux-swift-${{ env.SWIFT_VERSION }}-${{ hashFiles('Package.swift', 'Sources/**', 'Tests/**') }}
+          restore-keys: test-linux-swift-${{ env.SWIFT_VERSION }}-
+
+      - name: Build the library
+        run: swift build --product jampgame
+
+      - name: Run the tests one suite at a time
+        run: swift test --no-parallel
+
+  build:
+    name: jampgame ${{ matrix.target.arch }}-${{ matrix.target.platform }}
+    runs-on: ${{ matrix.target.runner }}
+    continue-on-error: ${{ matrix.target.allow_failure }}
+    strategy:
+      fail-fast: false
+      matrix:
+        target:
+          - runner: ubuntu-latest
+            arch: x86_64
+            platform: linux
+            built: libjampgame.so
+            ext: so
+            allow_failure: false
+          - runner: windows-latest
+            arch: x86_64
+            platform: windows
+            built: jampgame.dll
+            ext: dll
+            allow_failure: true
+    steps:
+      - uses: actions/checkout@v7
+
+      - name: Install the Swift toolchain
+        uses: swift-actions/setup-swift@v2
+        with:
+          swift-version: ${{ env.SWIFT_VERSION }}
+
+      - name: Cache the build folder
+        uses: actions/cache@v6
+        with:
+          path: .build
+          key: ${{ matrix.target.platform }}-${{ matrix.target.arch }}-release-swift-${{ env.SWIFT_VERSION }}-${{ hashFiles('Package.swift', 'Sources/**') }}
+          restore-keys: ${{ matrix.target.platform }}-${{ matrix.target.arch }}-release-swift-${{ env.SWIFT_VERSION }}-
+
+      - name: Build the release library
+        run: swift build -c release --product jampgame
+
+      - name: Package the zip
+        shell: bash
+        run: |
+          module="jampgame${{ matrix.target.arch }}.${{ matrix.target.ext }}"
+          src="$(find .build -path '*release*' -name '${{ matrix.target.built }}' -print -quit)"
+          test -n "$src" || { echo "::error::built module ${{ matrix.target.built }} not found under .build"; exit 1; }
+          zip_name="jampgame-${{ matrix.target.arch }}-${{ matrix.target.platform }}-release.zip"
+          rm -rf package dist
+          mkdir -p package dist
+          cp "$src" "package/${module}"
+          ( cd package && 7z a -tzip tmp.zip "${module}" >/dev/null )
+          mv package/tmp.zip "dist/${zip_name}"
+          echo "ZIP_NAME=${zip_name}" >> "$GITHUB_ENV"
+          ls -l dist
+
+      - name: Upload the artifact
+        uses: actions/upload-artifact@v7
+        with:
+          name: ${{ env.ZIP_NAME }}
+          path: dist/${{ env.ZIP_NAME }}
+          if-no-files-found: error
+
+  release:
+    name: Update the rolling release
+    needs: [build]
+    if: github.ref == 'refs/heads/master'
+    runs-on: ubuntu-latest
+    steps:
+      - name: Download every artifact
+        uses: actions/download-artifact@v8
+        with:
+          path: dist
+          merge-multiple: true
+
+      - name: List the collected zips
+        run: ls -lR dist
+
+      - name: Delete the stale release assets
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          if ! gh release view latest --repo "$GITHUB_REPOSITORY" >/dev/null 2>&1; then
+            echo "no rolling release yet, nothing to delete"
+            exit 0
+          fi
+          for asset in $(gh release view latest --repo "$GITHUB_REPOSITORY" --json assets --jq '.assets[].name'); do
+            if [ ! -f "dist/${asset}" ]; then
+              echo "deleting stale asset: ${asset}"
+              gh release delete-asset latest "${asset}" --repo "$GITHUB_REPOSITORY" --yes
+            fi
+          done
+
+      - name: Publish the rolling latest release
+        uses: softprops/action-gh-release@v3
+        with:
+          tag_name: latest
+          name: Rolling build (master)
+          prerelease: true
+          body: |
+            Automated build of `master` at ${{ github.sha }}.
+            Each zip holds the game module under the exact name the engine loads, `jampgamex86_64.so` or `jampgamex86_64.dll`.
+            The asset URLs stay the same from build to build.
+          files: dist/*.zip
+          fail_on_unmatched_files: false
