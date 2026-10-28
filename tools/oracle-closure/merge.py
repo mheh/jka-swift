@@ -170,7 +170,8 @@ def split_macros(text: str) -> list[tuple[str, str, str]]:
             while j < len(lines) and lines[j].strip():
                 block.append(lines[j])
                 j += 1
-            m = re.match(r"\s*#\s*define\s+(\w+)", block[0]) if block else None
+            # A block under a platform conditional opens with Raven's `#ifdef`, so the name comes from the first `#define` line of the block.
+            m = next((d for d in (re.match(r"\s*#\s*define\s+(\w+)", line) for line in block) if d), None)
             if m:
                 out.append((m.group(1), source, "\n".join(block)))
             i = j

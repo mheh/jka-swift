@@ -1564,7 +1564,7 @@ public func trap_StringContains(_ str1: String, _ str2: String, _ casesensitive:
 
 /// Source: oracle/codemp/game/g_syscalls.c:937
 @discardableResult
-public func trap_BotFindMatch(_ str: String, _ match: OpaquePointer?, _ context: UInt) -> Int32 {
+public func trap_BotFindMatch(_ str: String, _ match: OpaquePointer?, _ context: CUnsignedLong) -> Int32 {
     let word = withCString(str) { str in
         Syscall.call(BOTLIB_AI_FIND_MATCH, str, match, context)
     }
@@ -1586,7 +1586,7 @@ public func trap_BotMatchVariable(_ match: OpaquePointer?, _ variable: Int32, _ 
 // Not ported: no caller in the game module, and its `char *` rewritten in place is shaped when a module that calls it is generated.
 
 /// Source: oracle/codemp/game/g_syscalls.c:949
-public func trap_BotReplaceSynonyms(_ string: String, _ context: UInt) {
+public func trap_BotReplaceSynonyms(_ string: String, _ context: CUnsignedLong) {
     _ = withCString(string) { string in
         Syscall.call(BOTLIB_AI_REPLACE_SYNONYMS, string, context)
     }

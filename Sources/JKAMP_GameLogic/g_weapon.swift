@@ -4003,7 +4003,7 @@ func FireVehicleWeapon(_ ent: Entity, _ alt_fire: Bool) {
         // would actually have to press the 2 key or something like that (I doubt I'd get a graphic for it anyways though). -AReis
 
         // If this is not the alternate fire, fire a normal blaster shot...
-        if pVeh!.m_pVehicleInfo != nil && (pVeh!.m_pVehicleInfo!.type != VH_FIGHTER || (pVeh!.m_ulFlags & UInt(bitPattern: Int(VEH_WINGSOPEN))) != 0) {
+        if pVeh!.m_pVehicleInfo != nil && (pVeh!.m_pVehicleInfo!.type != VH_FIGHTER || (pVeh!.m_ulFlags & CUnsignedLong(bitPattern: CLong(VEH_WINGSOPEN))) != 0) {
             //fighters can only fire when wings are open
             var weaponNum: Int32 = 0
             var vehWeaponIndex: Int32 = VEH_WEAPON_NONE

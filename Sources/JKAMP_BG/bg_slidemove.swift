@@ -335,7 +335,7 @@ func PM_VehicleImpact(_ pEnt: JKAMP.BgEntity, _ trace: JKAMP.Trace) {
                     G_FlyVehicleSurfaceDestruction(pEnt, trace, Int32(magnitude), forceSurfDestruction)
                 }
 
-                selfVehicle.m_ulFlags |= UInt(bitPattern: Int(VEH_CRASHING))
+                selfVehicle.m_ulFlags |= CUnsignedLong(bitPattern: CLong(VEH_CRASHING))
             }
 
             if hitEnt != nil && bgEntityInuse(hitEntity) && bgEntityTakedamage(hitEntity) {

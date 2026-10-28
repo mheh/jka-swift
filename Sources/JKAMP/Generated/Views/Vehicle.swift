@@ -205,7 +205,7 @@ public struct Vehicle: Hashable, HandleView {
     }
 
     /// Source: oracle/codemp/game/bg_vehicles.h:543
-    public var m_ulFlags: UInt {
+    public var m_ulFlags: CUnsignedLong {
         get { self.raw.pointee.m_ulFlags }
         nonmutating set { self.raw.pointee.m_ulFlags = newValue }
     }

@@ -309,6 +309,10 @@ LIBC_FUNCTIONS = {"sqrt": ([("x", "Float")], "Float", "x.squareRoot()")}
 # The Swift name of a C library function whose Foundation name Swift deprecates, so a body writes `abs` where Raven wrote `fabs`.
 LIBC_SPELLINGS = {"fabs": "abs", "fabsf": "abs"}
 
+# Macros a platform defines or not, so a conditional that names one stays as Raven wrote it in the extracted header, and each platform build takes its own arm.
+# PATH_MAX picks the arm of MAX_OSPATH at q_shared.h:394, and Windows has no PATH_MAX.
+PLATFORM_MACROS = {"PATH_MAX"}
+
 # Header macros the port leaves out, with the reason the reexport carries instead of a marker.
 NOT_PORTED_MACROS = {
     "MATERIALS": "a list of material names no body of the module names",

@@ -9,7 +9,7 @@ The oracle range is the whole definition, from the return type to the closing br
 |---|---|---|---|---|---|
 | `swapfunc` static | `oracle/codemp/game/bg_lib.c:80-86` | `JKAMP_BG/bg_lib.swift:14` | ported | none | `private func swapfunc(_ a: inout JKAShared.CharBuf, _ b: inout JKAShared.CharBuf, _ n: Int32, _ swaptype: Int32)` |
 | `med3` static | `oracle/codemp/game/bg_lib.c:98-103` | `JKAMP_BG/bg_lib.swift:22` | ported | none | `private func med3(_ a: inout JKAShared.CharBuf, _ b: inout JKAShared.CharBuf, _ c: inout JKAShared.CharBuf, _ cmp: (() -> Int32)?) -> String` |
-| `qsort` | `oracle/codemp/game/bg_lib.c:105-181` | `JKAMP_BG/bg_lib.swift:49` | ported | none | `public func qsort(_ a: OpaquePointer?, _ n: UInt, _ es: UInt, _ cmp: (() -> Int32)?)` |
+| `qsort` | `oracle/codemp/game/bg_lib.c:105-181` | `JKAMP_BG/bg_lib.swift:49` | ported | none | `public func qsort(_ a: OpaquePointer?, _ n: CUnsignedLong, _ es: CUnsignedLong, _ cmp: (() -> Int32)?)` |
 | `memmove` | `oracle/codemp/game/bg_lib.c:287-300` | missing | marker | none | `public func memmove() -> Never` TODO: Port signature. No table row for the return `void *`. |
 | `srand` | `oracle/codemp/game/bg_lib.c:765-767` | `JKAMP_BG/bg_lib.swift:173` | ported | none | `public func srand(_ seed: UInt32)` |
 | `rand` | `oracle/codemp/game/bg_lib.c:769-772` | `JKAMP_BG/bg_lib.swift:184` | ported | none | `public func rand() -> Int32` |
