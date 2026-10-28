@@ -16,7 +16,7 @@ public struct BgVariables {
 
     /// Raven's `int bg_poolTail` of `bg_misc.c`.
     /// Source: oracle/codemp/game/bg_misc.c:3326
-    // TODO: Port initializer bg_poolTail, Raven wrote `= MAX_POOL_SIZE`. The hand line sits in `BgState.init`.
+    // Raven wrote `= MAX_POOL_SIZE`, and the hand line in `BgState.init` holds it.
     public var bg_poolTail: Int32 = 0
 
     /// Raven's `qboolean BGPAFtextLoaded` of `bg_panimate.c`.

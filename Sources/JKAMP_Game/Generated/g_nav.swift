@@ -68,9 +68,9 @@ public let EFLAG_FAILED = CJKAMP_Game.EFLAG_FAILED
 public let NODE_NONE = CJKAMP_Game.NODE_NONE
 
 /// Source: oracle/codemp/game/g_nav.h:46
-// TODO: Port NAV_HEADER_ID
 // Raven wrote: #define NAV_HEADER_ID 'JNV5'
+// Not ported: a four-character constant no .c file of the module reads.
 
 /// Source: oracle/codemp/game/g_nav.h:47
-// TODO: Port NODE_HEADER_ID
 // Raven wrote: #define NODE_HEADER_ID 'NODE'
+// Not ported: a four-character constant no .c file of the module reads.

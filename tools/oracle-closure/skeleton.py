@@ -800,7 +800,7 @@ class Skeleton:
                 # Raven never writes the table, so the hand property is a `let` and the forward has no setter.
                 lines.append(f"{self.variable_access(var)}var {var.name}: {var.swift} {{ {spelled}.{var.field} }}")
         elif kind == "storage_data":
-            lines.insert(1, f"// TODO: Port global {var.name}")
+            # tables.py serves the table from C storage, so the stub carries no marker.
             lines.append("// Raven's data table is C storage in the C target, with his initializer as written, reached as a Slots over the C array, the bg_tables.c shape that tables.py writes.")
         elif kind in ("storage", "pointer_table", "byte_storage"):
             # The allocation lives on the state object's generated storage class, and the stub carries the name at Raven's line.
@@ -1314,7 +1314,7 @@ class Skeleton:
                 value = self.initializer(var)
                 if value is None and "=" in text:
                     raw = " ".join(text.split("=", 1)[1].split()).rstrip(";")
-                    lines.append(f"    // TODO: Port initializer {var.name}, Raven wrote `= {raw}`. The hand line sits in `{home}.init`.")
+                    lines.append(f"    // Raven wrote `= {raw}`, and the hand line in `{home}.init` holds it.")
                     self.counts["variables, initializer by hand"] += 1
                 lines += [f"    public var {var.field}: {var.swift} = {value if value is not None else self.zero(var)}", ""]
             lines += ["    public init() {}", "}"]

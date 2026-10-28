@@ -7,39 +7,39 @@ The oracle range is the whole definition, from the return type to the closing br
 
 | Function | Oracle | Swift | State | jka-rust | Signature |
 |---|---|---|---|---|---|
-| `G_LogWeaponInit` | `oracle/codemp/game/g_log.c:108-121` | `JKAMP_GameLogic/g_log.swift:95` | ported | `crates/mp/game/src/g_log.rs:47-59` | `func G_LogWeaponInit()` |
-| `G_LogWeaponPickup` | `oracle/codemp/game/g_log.c:123-129` | `JKAMP_GameLogic/g_log.swift:109` | ported | `crates/mp/game/src/g_log.rs:63-72` | `func G_LogWeaponPickup(_ client: Int32, _ weaponid: Int32)` |
-| `G_LogWeaponFire` | `oracle/codemp/game/g_log.c:131-145` | `JKAMP_GameLogic/g_log.swift:115` | ported | `crates/mp/game/src/g_log.rs:76-94` | `func G_LogWeaponFire(_ client: Int32, _ weaponid: Int32)` |
-| `G_LogWeaponDamage` | `oracle/codemp/game/g_log.c:147-155` | `JKAMP_GameLogic/g_log.swift:130` | ported | `crates/mp/game/src/g_log.rs:98-105` | `func G_LogWeaponDamage(_ client: Int32, _ mod: Int32, _ amount: Int32)` |
-| `G_LogWeaponKill` | `oracle/codemp/game/g_log.c:157-165` | `JKAMP_GameLogic/g_log.swift:139` | ported | `crates/mp/game/src/g_log.rs:109-116` | `func G_LogWeaponKill(_ client: Int32, _ mod: Int32)` |
-| `G_LogWeaponFrag` | `oracle/codemp/game/g_log.c:167-175` | `JKAMP_GameLogic/g_log.swift:148` | ported | `crates/mp/game/src/g_log.rs:120-127` | `func G_LogWeaponFrag(_ attacker: Int32, _ deadguy: Int32)` |
-| `G_LogWeaponDeath` | `oracle/codemp/game/g_log.c:177-185` | `JKAMP_GameLogic/g_log.swift:157` | ported | `crates/mp/game/src/g_log.rs:131-138` | `func G_LogWeaponDeath(_ client: Int32, _ weaponid: Int32)` |
-| `G_LogWeaponPowerup` | `oracle/codemp/game/g_log.c:187-195` | `JKAMP_GameLogic/g_log.swift:166` | ported | `crates/mp/game/src/g_log.rs:142-154` | `func G_LogWeaponPowerup(_ client: Int32, _ powerupid: Int32)` |
-| `G_LogWeaponItem` | `oracle/codemp/game/g_log.c:197-205` | `JKAMP_GameLogic/g_log.swift:175` | ported | `crates/mp/game/src/g_log.rs:158-165` | `func G_LogWeaponItem(_ client: Int32, _ itemid: Int32)` |
-| `G_LogWeaponOutput` | `oracle/codemp/game/g_log.c:227-821` | `JKAMP_GameLogic/g_log.swift:184` | ported | `crates/mp/game/src/g_log.rs:170-499` | `func G_LogWeaponOutput()` |
-| `CalculateEfficiency` | `oracle/codemp/game/g_log.c:824-863` | `JKAMP_GameLogic/g_log.swift:788` | ported | `crates/mp/game/src/g_log.rs:525-559` | `func CalculateEfficiency(_ ent: Entity, _ efficiency: inout Int32) -> Bool` |
-| `CalculateSharpshooter` | `oracle/codemp/game/g_log.c:866-903` | `JKAMP_GameLogic/g_log.swift:832` | ported | `crates/mp/game/src/g_log.rs:563-601` | `func CalculateSharpshooter(_ ent: Entity, _ frags: inout Int32) -> Bool` |
-| `CalculateUntouchable` | `oracle/codemp/game/g_log.c:906-928` | `JKAMP_GameLogic/g_log.swift:872` | ported | `crates/mp/game/src/g_log.rs:605-630` | `func CalculateUntouchable(_ ent: Entity) -> Bool` |
-| `CalculateLogistics` | `oracle/codemp/game/g_log.c:931-982` | `JKAMP_GameLogic/g_log.swift:897` | ported | `crates/mp/game/src/g_log.rs:634-672` | `func CalculateLogistics(_ ent: Entity, _ stuffUsed: inout Int32) -> Bool` |
-| `CalculateTactician` | `oracle/codemp/game/g_log.c:988-1081` | `JKAMP_GameLogic/g_log.swift:953` | ported | `crates/mp/game/src/g_log.rs:678-756` | `func CalculateTactician(_ ent: Entity, _ kills: inout Int32) -> Bool` |
-| `CalculateDemolitionist` | `oracle/codemp/game/g_log.c:1087-1134` | `JKAMP_GameLogic/g_log.swift:1064` | ported | `crates/mp/game/src/g_log.rs:761-802` | `func CalculateDemolitionist(_ ent: Entity, _ kills: inout Int32) -> Bool` |
-| `CalculateStreak` | `oracle/codemp/game/g_log.c:1136-1158` | `JKAMP_GameLogic/g_log.swift:1114` | ported | `crates/mp/game/src/g_log.rs:810-812` | `func CalculateStreak(_ ent: Entity) -> Int32` |
-| `CalculateTeamMVP` | `oracle/codemp/game/g_log.c:1160-1188` | `JKAMP_GameLogic/g_log.swift:1120` | ported | `crates/mp/game/src/g_log.rs:817-845` | `func CalculateTeamMVP(_ ent: Entity) -> Bool` |
-| `CalculateTeamMVPByRank` | `oracle/codemp/game/g_log.c:1190-1240` | `JKAMP_GameLogic/g_log.swift:1153` | ported | `crates/mp/game/src/g_log.rs:853-885` | `func CalculateTeamMVPByRank(_ ent: Entity) -> Bool` |
-| `CalculateTeamDefender` | `oracle/codemp/game/g_log.c:1242-1276` | `JKAMP_GameLogic/g_log.swift:1207` | ported | `crates/mp/game/src/g_log.rs:892-920` | `func CalculateTeamDefender(_ ent: Entity) -> Bool` |
-| `CalculateTeamWarrior` | `oracle/codemp/game/g_log.c:1278-1312` | `JKAMP_GameLogic/g_log.swift:1246` | ported | `crates/mp/game/src/g_log.rs:927-955` | `func CalculateTeamWarrior(_ ent: Entity) -> Bool` |
-| `CalculateTeamCarrier` | `oracle/codemp/game/g_log.c:1314-1348` | `JKAMP_GameLogic/g_log.swift:1285` | ported | `crates/mp/game/src/g_log.rs:962-990` | `func CalculateTeamCarrier(_ ent: Entity) -> Bool` |
-| `CalculateTeamInterceptor` | `oracle/codemp/game/g_log.c:1350-1386` | `JKAMP_GameLogic/g_log.swift:1324` | ported | `crates/mp/game/src/g_log.rs:997-1026` | `func CalculateTeamInterceptor(_ ent: Entity) -> Bool` |
-| `CalculateTeamRedShirt` | `oracle/codemp/game/g_log.c:1388-1424` | `JKAMP_GameLogic/g_log.swift:1365` | ported | `crates/mp/game/src/g_log.rs:1033-1064` | `func CalculateTeamRedShirt(_ ent: Entity) -> Bool` |
-| `CalculateTeamAward` | `oracle/codemp/game/g_log.c:1451-1484` | `JKAMP_GameLogic/g_log.swift:1406` | ported | `crates/mp/game/src/g_log.rs:1093-1119` | `func CalculateTeamAward(_ ent: Entity) -> Int32` |
-| `CalculateSection31Award` | `oracle/codemp/game/g_log.c:1486-1514` | `JKAMP_GameLogic/g_log.swift:1434` | ported | `crates/mp/game/src/g_log.rs:1123-1141` | `func CalculateSection31Award(_ ent: Entity) -> Bool` |
-| `CalculateAwards` | `oracle/codemp/game/g_log.c:1518-1587` | `JKAMP_GameLogic/g_log.swift:1466` | ported | `crates/mp/game/src/g_log.rs:1168-1227` | `func CalculateAwards(_ ent: Entity, _ msg: inout JKAShared.CharBuf)` |
-| `GetMaxDeathsForClient` | `oracle/codemp/game/g_log.c:1589-1605` | `JKAMP_GameLogic/g_log.swift:1531` | ported | `crates/mp/game/src/g_log.rs:1232-1244` | `func GetMaxDeathsForClient(_ nClient: Int32) -> Int32` |
-| `GetMaxKillsForClient` | `oracle/codemp/game/g_log.c:1607-1623` | `JKAMP_GameLogic/g_log.swift:1549` | ported | `crates/mp/game/src/g_log.rs:1249-1261` | `func GetMaxKillsForClient(_ nClient: Int32) -> Int32` |
-| `GetFavoriteTargetForClient` | `oracle/codemp/game/g_log.c:1625-1642` | `JKAMP_GameLogic/g_log.swift:1567` | ported | `crates/mp/game/src/g_log.rs:1266-1280` | `func GetFavoriteTargetForClient(_ nClient: Int32) -> Int32` |
-| `GetWorstEnemyForClient` | `oracle/codemp/game/g_log.c:1644-1666` | `JKAMP_GameLogic/g_log.swift:1587` | ported | `crates/mp/game/src/g_log.rs:1287-1301` | `func GetWorstEnemyForClient(_ nClient: Int32) -> Int32` |
-| `GetFavoriteWeaponForClient` | `oracle/codemp/game/g_log.c:1668-1702` | `JKAMP_GameLogic/g_log.swift:1611` | ported | `crates/mp/game/src/g_log.rs:1358-1395` | `func GetFavoriteWeaponForClient(_ nClient: Int32) -> Int32` |
-| `G_ClearClientLog` | `oracle/codemp/game/g_log.c:1705-1751` | `JKAMP_GameLogic/g_log.swift:1654` | ported | `crates/mp/game/src/g_log.rs:1401-1436` | `func G_ClearClientLog(_ client: Int32)` |
+| `G_LogWeaponInit` | `oracle/codemp/game/g_log.c:108-121` | `JKAMP_GameLogic/g_log.swift:136` | ported | `crates/mp/game/src/g_log.rs:47-59` | `func G_LogWeaponInit()` |
+| `G_LogWeaponPickup` | `oracle/codemp/game/g_log.c:123-129` | `JKAMP_GameLogic/g_log.swift:150` | ported | `crates/mp/game/src/g_log.rs:63-72` | `func G_LogWeaponPickup(_ client: Int32, _ weaponid: Int32)` |
+| `G_LogWeaponFire` | `oracle/codemp/game/g_log.c:131-145` | `JKAMP_GameLogic/g_log.swift:161` | ported | `crates/mp/game/src/g_log.rs:76-94` | `func G_LogWeaponFire(_ client: Int32, _ weaponid: Int32)` |
+| `G_LogWeaponDamage` | `oracle/codemp/game/g_log.c:147-155` | `JKAMP_GameLogic/g_log.swift:179` | ported | `crates/mp/game/src/g_log.rs:98-105` | `func G_LogWeaponDamage(_ client: Int32, _ mod: Int32, _ amount: Int32)` |
+| `G_LogWeaponKill` | `oracle/codemp/game/g_log.c:157-165` | `JKAMP_GameLogic/g_log.swift:191` | ported | `crates/mp/game/src/g_log.rs:109-116` | `func G_LogWeaponKill(_ client: Int32, _ mod: Int32)` |
+| `G_LogWeaponFrag` | `oracle/codemp/game/g_log.c:167-175` | `JKAMP_GameLogic/g_log.swift:203` | ported | `crates/mp/game/src/g_log.rs:120-127` | `func G_LogWeaponFrag(_ attacker: Int32, _ deadguy: Int32)` |
+| `G_LogWeaponDeath` | `oracle/codemp/game/g_log.c:177-185` | `JKAMP_GameLogic/g_log.swift:215` | ported | `crates/mp/game/src/g_log.rs:131-138` | `func G_LogWeaponDeath(_ client: Int32, _ weaponid: Int32)` |
+| `G_LogWeaponPowerup` | `oracle/codemp/game/g_log.c:187-195` | `JKAMP_GameLogic/g_log.swift:227` | ported | `crates/mp/game/src/g_log.rs:142-154` | `func G_LogWeaponPowerup(_ client: Int32, _ powerupid: Int32)` |
+| `G_LogWeaponItem` | `oracle/codemp/game/g_log.c:197-205` | `JKAMP_GameLogic/g_log.swift:239` | ported | `crates/mp/game/src/g_log.rs:158-165` | `func G_LogWeaponItem(_ client: Int32, _ itemid: Int32)` |
+| `G_LogWeaponOutput` | `oracle/codemp/game/g_log.c:227-821` | `JKAMP_GameLogic/g_log.swift:251` | ported | `crates/mp/game/src/g_log.rs:170-499` | `func G_LogWeaponOutput()` |
+| `CalculateEfficiency` | `oracle/codemp/game/g_log.c:824-863` | `JKAMP_GameLogic/g_log.swift:855` | ported | `crates/mp/game/src/g_log.rs:525-559` | `func CalculateEfficiency(_ ent: Entity, _ efficiency: inout Int32) -> Bool` |
+| `CalculateSharpshooter` | `oracle/codemp/game/g_log.c:866-903` | `JKAMP_GameLogic/g_log.swift:899` | ported | `crates/mp/game/src/g_log.rs:563-601` | `func CalculateSharpshooter(_ ent: Entity, _ frags: inout Int32) -> Bool` |
+| `CalculateUntouchable` | `oracle/codemp/game/g_log.c:906-928` | `JKAMP_GameLogic/g_log.swift:939` | ported | `crates/mp/game/src/g_log.rs:605-630` | `func CalculateUntouchable(_ ent: Entity) -> Bool` |
+| `CalculateLogistics` | `oracle/codemp/game/g_log.c:931-982` | `JKAMP_GameLogic/g_log.swift:964` | ported | `crates/mp/game/src/g_log.rs:634-672` | `func CalculateLogistics(_ ent: Entity, _ stuffUsed: inout Int32) -> Bool` |
+| `CalculateTactician` | `oracle/codemp/game/g_log.c:988-1081` | `JKAMP_GameLogic/g_log.swift:1020` | ported | `crates/mp/game/src/g_log.rs:678-756` | `func CalculateTactician(_ ent: Entity, _ kills: inout Int32) -> Bool` |
+| `CalculateDemolitionist` | `oracle/codemp/game/g_log.c:1087-1134` | `JKAMP_GameLogic/g_log.swift:1131` | ported | `crates/mp/game/src/g_log.rs:761-802` | `func CalculateDemolitionist(_ ent: Entity, _ kills: inout Int32) -> Bool` |
+| `CalculateStreak` | `oracle/codemp/game/g_log.c:1136-1158` | `JKAMP_GameLogic/g_log.swift:1181` | ported | `crates/mp/game/src/g_log.rs:810-812` | `func CalculateStreak(_ ent: Entity) -> Int32` |
+| `CalculateTeamMVP` | `oracle/codemp/game/g_log.c:1160-1188` | `JKAMP_GameLogic/g_log.swift:1187` | ported | `crates/mp/game/src/g_log.rs:817-845` | `func CalculateTeamMVP(_ ent: Entity) -> Bool` |
+| `CalculateTeamMVPByRank` | `oracle/codemp/game/g_log.c:1190-1240` | `JKAMP_GameLogic/g_log.swift:1220` | ported | `crates/mp/game/src/g_log.rs:853-885` | `func CalculateTeamMVPByRank(_ ent: Entity) -> Bool` |
+| `CalculateTeamDefender` | `oracle/codemp/game/g_log.c:1242-1276` | `JKAMP_GameLogic/g_log.swift:1274` | ported | `crates/mp/game/src/g_log.rs:892-920` | `func CalculateTeamDefender(_ ent: Entity) -> Bool` |
+| `CalculateTeamWarrior` | `oracle/codemp/game/g_log.c:1278-1312` | `JKAMP_GameLogic/g_log.swift:1313` | ported | `crates/mp/game/src/g_log.rs:927-955` | `func CalculateTeamWarrior(_ ent: Entity) -> Bool` |
+| `CalculateTeamCarrier` | `oracle/codemp/game/g_log.c:1314-1348` | `JKAMP_GameLogic/g_log.swift:1352` | ported | `crates/mp/game/src/g_log.rs:962-990` | `func CalculateTeamCarrier(_ ent: Entity) -> Bool` |
+| `CalculateTeamInterceptor` | `oracle/codemp/game/g_log.c:1350-1386` | `JKAMP_GameLogic/g_log.swift:1391` | ported | `crates/mp/game/src/g_log.rs:997-1026` | `func CalculateTeamInterceptor(_ ent: Entity) -> Bool` |
+| `CalculateTeamRedShirt` | `oracle/codemp/game/g_log.c:1388-1424` | `JKAMP_GameLogic/g_log.swift:1432` | ported | `crates/mp/game/src/g_log.rs:1033-1064` | `func CalculateTeamRedShirt(_ ent: Entity) -> Bool` |
+| `CalculateTeamAward` | `oracle/codemp/game/g_log.c:1451-1484` | `JKAMP_GameLogic/g_log.swift:1473` | ported | `crates/mp/game/src/g_log.rs:1093-1119` | `func CalculateTeamAward(_ ent: Entity) -> Int32` |
+| `CalculateSection31Award` | `oracle/codemp/game/g_log.c:1486-1514` | `JKAMP_GameLogic/g_log.swift:1501` | ported | `crates/mp/game/src/g_log.rs:1123-1141` | `func CalculateSection31Award(_ ent: Entity) -> Bool` |
+| `CalculateAwards` | `oracle/codemp/game/g_log.c:1518-1587` | `JKAMP_GameLogic/g_log.swift:1533` | ported | `crates/mp/game/src/g_log.rs:1168-1227` | `func CalculateAwards(_ ent: Entity, _ msg: inout JKAShared.CharBuf)` |
+| `GetMaxDeathsForClient` | `oracle/codemp/game/g_log.c:1589-1605` | `JKAMP_GameLogic/g_log.swift:1598` | ported | `crates/mp/game/src/g_log.rs:1232-1244` | `func GetMaxDeathsForClient(_ nClient: Int32) -> Int32` |
+| `GetMaxKillsForClient` | `oracle/codemp/game/g_log.c:1607-1623` | `JKAMP_GameLogic/g_log.swift:1616` | ported | `crates/mp/game/src/g_log.rs:1249-1261` | `func GetMaxKillsForClient(_ nClient: Int32) -> Int32` |
+| `GetFavoriteTargetForClient` | `oracle/codemp/game/g_log.c:1625-1642` | `JKAMP_GameLogic/g_log.swift:1634` | ported | `crates/mp/game/src/g_log.rs:1266-1280` | `func GetFavoriteTargetForClient(_ nClient: Int32) -> Int32` |
+| `GetWorstEnemyForClient` | `oracle/codemp/game/g_log.c:1644-1666` | `JKAMP_GameLogic/g_log.swift:1654` | ported | `crates/mp/game/src/g_log.rs:1287-1301` | `func GetWorstEnemyForClient(_ nClient: Int32) -> Int32` |
+| `GetFavoriteWeaponForClient` | `oracle/codemp/game/g_log.c:1668-1702` | `JKAMP_GameLogic/g_log.swift:1678` | ported | `crates/mp/game/src/g_log.rs:1358-1395` | `func GetFavoriteWeaponForClient(_ nClient: Int32) -> Int32` |
+| `G_ClearClientLog` | `oracle/codemp/game/g_log.c:1705-1751` | `JKAMP_GameLogic/g_log.swift:1721` | ported | `crates/mp/game/src/g_log.rs:1401-1436` | `func G_ClearClientLog(_ client: Int32)` |
 
 13 file-scope variables. The entry is the stub's line for the variable, by rule 3 and rule 6.
 

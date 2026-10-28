@@ -9,6 +9,6 @@ The oracle range is the whole definition, from the return type to the closing br
 |---|---|---|---|---|---|
 | `G_WriteClientSessionData` | `oracle/codemp/game/g_session.c:23-96` | `JKAMP_GameLogic/g_session.swift:17` | ported | `crates/mp/game/src/g_session.rs:19-86` | `func G_WriteClientSessionData(_ client: Client)` |
 | `G_ReadSessionData` | `oracle/codemp/game/g_session.c:105-177` | `JKAMP_GameLogic/g_session.swift:98` | ported | `crates/mp/game/src/g_session.rs:91-183` | `func G_ReadSessionData(_ client: Client)` |
-| `G_InitSessionData` | `oracle/codemp/game/g_session.c:187-282` | `JKAMP_GameLogic/g_session.swift:188` | ported | `crates/mp/game/src/g_session.rs:188-269` | `func G_InitSessionData(_ client: Client, _ userinfo: String, _ isBot: Bool)` |
+| `G_InitSessionData` | `oracle/codemp/game/g_session.c:187-282` | `JKAMP_GameLogic/g_session.swift:190` | ported | `crates/mp/game/src/g_session.rs:188-269` | `func G_InitSessionData(_ client: Client, _ userinfo: String, _ isBot: Bool)` |
 | `G_InitWorldSession` | `oracle/codemp/game/g_session.c:291-304` | `JKAMP_GameLogic/g_session.swift:280` | ported | `crates/mp/game/src/g_session.rs:274-283` | `func G_InitWorldSession()` |
 | `G_WriteSessionData` | `oracle/codemp/game/g_session.c:312-322` | `JKAMP_GameLogic/g_session.swift:304` | ported | `crates/mp/game/src/g_session.rs:288-297` | `func G_WriteSessionData()` |

@@ -5,16 +5,13 @@ import JKAMP
 import JKAShared
 
 /// Source: oracle/codemp/game/bg_weapons.c:10
-// TODO: Port global WP_MuzzlePoint
 // Raven wrote: vec3_t WP_MuzzlePoint[WP_NUM_WEAPONS]
 // Raven's data table is C storage in the C target, with his initializer as written, reached as a Slots over the C array, the bg_tables.c shape that tables.py writes.
 
 /// Source: oracle/codemp/game/bg_weapons.c:31
-// TODO: Port global weaponData
 // Raven wrote: weaponData_t weaponData[WP_NUM_WEAPONS]
 // Raven's data table is C storage in the C target, with his initializer as written, reached as a Slots over the C array, the bg_tables.c shape that tables.py writes.
 
 /// Source: oracle/codemp/game/bg_weapons.c:358
-// TODO: Port global ammoData
 // Raven wrote: ammoData_t ammoData[AMMO_MAX]
 // Raven's data table is C storage in the C target, with his initializer as written, reached as a Slots over the C array, the bg_tables.c shape that tables.py writes.

@@ -312,6 +312,8 @@ LIBC_SPELLINGS = {"fabs": "abs", "fabsf": "abs"}
 # Header macros the port leaves out, with the reason the reexport carries instead of a marker.
 NOT_PORTED_MACROS = {
     "MATERIALS": "a list of material names no body of the module names",
+    "NAV_HEADER_ID": "a four-character constant no .c file of the module reads",
+    "NODE_HEADER_ID": "a four-character constant no .c file of the module reads",
 }
 
 # MARK: - The bg channel

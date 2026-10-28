@@ -50,13 +50,13 @@ The oracle range is the whole definition, from the return type to the closing br
 | `SP_waypoint_navgoal_1` | `oracle/codemp/game/g_nav.c:1495-1510` | `JKAMP_GameLogic/g_nav.swift:1434` | ported | `crates/mp/game/src/g_nav.rs:2013-2045` | `func SP_waypoint_navgoal_1(_ ent: Entity)` |
 | `Svcmd_Nav_f` | `oracle/codemp/game/g_nav.c:1518-1592` | `JKAMP_GameLogic/g_nav.swift:1449` | ported | `crates/mp/game/src/g_nav.rs:2050-2118` | `func Svcmd_Nav_f()` |
 | `NAV_WaypointsTooFar` | `oracle/codemp/game/g_nav.c:1618-1655` | `JKAMP_GameLogic/g_nav.swift:1503` | ported | `crates/mp/game/src/g_nav.rs:2123-2182` | `func NAV_WaypointsTooFar(_ wp1: Entity, _ wp2: Entity) -> Bool` |
-| `NAV_ClearStoredWaypoints` | `oracle/codemp/game/g_nav.c:1663-1666` | `JKAMP_GameLogic/g_nav.swift:1535` | ported | `crates/mp/game/src/g_nav.rs:2187-2189` | `func NAV_ClearStoredWaypoints()` |
-| `NAV_StoreWaypoint` | `oracle/codemp/game/g_nav.c:1669-1711` | `JKAMP_GameLogic/g_nav.swift:1540` | ported | `crates/mp/game/src/g_nav.rs:2194-2236` | `func NAV_StoreWaypoint(_ ent: Entity)` |
-| `NAV_GetStoredWaypoint` | `oracle/codemp/game/g_nav.c:1713-1732` | `JKAMP_GameLogic/g_nav.swift:1578` | ported | `crates/mp/game/src/g_nav.rs:2241-2255` | `func NAV_GetStoredWaypoint(_ targetname: String) -> Int32` |
-| `NAV_CalculatePaths` | `oracle/codemp/game/g_nav.c:1734-1838` | `JKAMP_GameLogic/g_nav.swift:1597` | ported | `crates/mp/game/src/g_nav.rs:2262-2340` | `func NAV_CalculatePaths(_ filename: String, _ checksum: Int32)` |
-| `NAV_Shutdown` | `oracle/codemp/game/g_nav.c:1846-1849` | `JKAMP_GameLogic/g_nav.swift:1683` | ported | `crates/mp/game/src/g_nav.rs:2345-2347` | `func NAV_Shutdown()` |
-| `NAV_ShowDebugInfo` | `oracle/codemp/game/g_nav.c:1857-1903` | `JKAMP_GameLogic/g_nav.swift:1688` | ported | `crates/mp/game/src/g_nav.rs:2352-2409` | `func NAV_ShowDebugInfo()` |
-| `NAV_FindPlayerWaypoint` | `oracle/codemp/game/g_nav.c:1911-1914` | `JKAMP_GameLogic/g_nav.swift:1733` | ported | `crates/mp/game/src/g_nav.rs:2414-2423` | `func NAV_FindPlayerWaypoint(_ clNum: Int32)` |
+| `NAV_ClearStoredWaypoints` | `oracle/codemp/game/g_nav.c:1663-1666` | `JKAMP_GameLogic/g_nav.swift:1532` | ported | `crates/mp/game/src/g_nav.rs:2187-2189` | `func NAV_ClearStoredWaypoints()` |
+| `NAV_StoreWaypoint` | `oracle/codemp/game/g_nav.c:1669-1711` | `JKAMP_GameLogic/g_nav.swift:1537` | ported | `crates/mp/game/src/g_nav.rs:2194-2236` | `func NAV_StoreWaypoint(_ ent: Entity)` |
+| `NAV_GetStoredWaypoint` | `oracle/codemp/game/g_nav.c:1713-1732` | `JKAMP_GameLogic/g_nav.swift:1575` | ported | `crates/mp/game/src/g_nav.rs:2241-2255` | `func NAV_GetStoredWaypoint(_ targetname: String) -> Int32` |
+| `NAV_CalculatePaths` | `oracle/codemp/game/g_nav.c:1734-1838` | `JKAMP_GameLogic/g_nav.swift:1594` | ported | `crates/mp/game/src/g_nav.rs:2262-2340` | `func NAV_CalculatePaths(_ filename: String, _ checksum: Int32)` |
+| `NAV_Shutdown` | `oracle/codemp/game/g_nav.c:1846-1849` | `JKAMP_GameLogic/g_nav.swift:1678` | ported | `crates/mp/game/src/g_nav.rs:2345-2347` | `func NAV_Shutdown()` |
+| `NAV_ShowDebugInfo` | `oracle/codemp/game/g_nav.c:1857-1903` | `JKAMP_GameLogic/g_nav.swift:1683` | ported | `crates/mp/game/src/g_nav.rs:2352-2409` | `func NAV_ShowDebugInfo()` |
+| `NAV_FindPlayerWaypoint` | `oracle/codemp/game/g_nav.c:1911-1914` | `JKAMP_GameLogic/g_nav.swift:1728` | ported | `crates/mp/game/src/g_nav.rs:2414-2423` | `func NAV_FindPlayerWaypoint(_ clNum: Int32)` |
 
 15 file-scope variables. The entry is the stub's line for the variable, by rule 3 and rule 6.
 
