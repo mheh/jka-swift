@@ -713,7 +713,7 @@ func RemoveOldestAlert() -> Bool {
 
 // Position to position
 /// Source: oracle/codemp/game/NPC_senses.c:739
-func G_ClearLOS(_ `self`: Entity, _ start: JKAShared.vec3_t, _ end: JKAShared.vec3_t) -> Bool {
+func G_ClearLOS(_ `self`: Entity?, _ start: JKAShared.vec3_t, _ end: JKAShared.vec3_t) -> Bool {
     // Raven's record lives to the end of his block, so the block is the closure.
     // Every path of Raven's block returns, so the closure's value is the function's.
     return Trace.scratch { tr -> Bool in
@@ -744,7 +744,7 @@ func G_ClearLOS(_ `self`: Entity, _ start: JKAShared.vec3_t, _ end: JKAShared.ve
 
 //Entity to position
 /// Source: oracle/codemp/game/NPC_senses.c:767
-func G_ClearLOS2(_ `self`: Entity, _ ent: Entity, _ end: JKAShared.vec3_t) -> Bool {
+func G_ClearLOS2(_ `self`: Entity?, _ ent: Entity, _ end: JKAShared.vec3_t) -> Bool {
     var eyes = vec3_t()
 
     CalcEntitySpot(ent, SPOT_HEAD_LEAN, &eyes)

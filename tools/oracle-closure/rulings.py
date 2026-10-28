@@ -364,6 +364,9 @@ NULLABLE = {
     ("AI_GroupUpdateClearShotTime", "group"),
     ("AI_GroupUpdateSquadstates", "group"),
     ("AI_GroupContainsEntNum", "group"),
+    # G_RunFrame clears the NPC global at g_main.c:4001, G_AlertTeam passes it through NPC_ClearLOS2 at g_combat.c:1848, and the trace at NPC_senses.c:745 never reads it.
+    ("G_ClearLOS2", "self"),
+    ("G_ClearLOS", "self"),
 }
 # Files whose functions a bg body reaches directly, because they live in the shared module or in bg itself.
 # The functions whose integer arithmetic is a generator or a hash, where C wraps at 32 bits and Swift's plain operators trap.
