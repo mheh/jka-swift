@@ -29,7 +29,7 @@ Base MP has no `misc_model_breakable` in its spawn table. A mod ports the SP spa
 
 ## Demo
 
-`solid_encode.c` at the repo root holds both functions with minimal types. Build and run it with `cc -o solid_encode solid_encode.c && ./solid_encode`. The gap column is the distance the client lets a player into the box.
+`solid_encode.c` beside this note holds both functions with minimal types. Build and run it with `cc -o solid_encode solid_encode.c && ./solid_encode` from `notes/2026-09-29/`. The gap column is the distance the client lets a player into the box.
 
 ```
 ok      scale 1.50  server maxs[0] 24.00  client 24.00  gap 0.00

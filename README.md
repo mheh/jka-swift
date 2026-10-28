@@ -6,20 +6,12 @@ A Swift port of Star Wars Jedi Knight: Jedi Academy, modeled on [jka-rust](jka-r
 
 [`oracle/`](oracle) is a git submodule that holds Raven's released Jedi Academy source, SP under `code/` and MP under `codemp/`. We never edit it. Every port is verified against it, and every generated declaration cites the line it came from. The rules a port follows are in [`docs/porting-rules.md`](docs/porting-rules.md), the shapes a transcriptor writes are in [`docs/transcription.md`](docs/transcription.md), and the generators that read the oracle are described in [`tools/oracle-closure/README.md`](tools/oracle-closure/README.md).
 
-## Status
-
-The tree holds every function of the MP game module as a callable stub, and the bg files with the most logic, `bg_pmove` and `bg_misc`, have bodies. The per file tables under [`.claude/manifest`](.claude/manifest) say which functions are ported, which are markers, and what each stub's signature is, and a Port-note in a body marks each place Raven's C has no Swift form yet.
-
-The ported bodies are untested. The test targets cover the shared layer and the generated seam: the math parity, the string pool, `Slots`, the syscall word, the format and scan helpers, the bg channel, the bg tables, the type layouts, the world, the game storage, the game traps, and the dylib smoke test. No test names a `PM_` function. I report that the module booted under the engine, registered, and fatal errored at the first unported body. The tree cannot show that run.
-
-The rulings that shaped the tools were made one row at a time, each shown as generated output and committed on its own, and the ledger of those walks sits in the guide.
-
 ## Build and verify
 
 Run these from the repo root.
 
 1. Fetch the oracle source: `git submodule update --init`. The generators and the tests read it.
-2. Build: `swift build`, and `swift build -c release` for the library the engine loads. `Package.swift` declares `swift-tools-version: 6.3`, and the tree builds with Apple Swift 6.3.3.
+2. Build: `swift build`, and `swift build -c release` for the library the engine loads. `Package.swift` declares `swift-tools-version: 6.3`, and the tree builds with Apple Swift 6.4.
 3. Test: `swift test --no-parallel`. The tests share the module's one world and one bg state, so the suites run one at a time.
 
 ## For readers of Raven's `g_*.c`
