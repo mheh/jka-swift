@@ -25,6 +25,10 @@ Usage:
   .venv/bin/python draftcheck.py --all      # every bg stem
   .venv/bin/python draftcheck.py --game     # every game stem under Sources/JKAMP_GameLogic
   .venv/bin/python draftcheck.py --every    # the bg stems, the game stems, and the shared stems under Sources/JKAShared
+  .venv/bin/python draftcheck.py --unit mp-cgame --game   # every cgame stem, drafted under out/mp-cgame/ and not built
+
+A unit whose logic target is not in the package yet has no product to build, so a run of that unit drafts each stem,
+writes the draft under out/<unit>/.build-draft/drafts/, counts its holes, and builds nothing.
 """
 
 from __future__ import annotations
@@ -48,7 +52,7 @@ SCRATCH = REPO / ".build-draft" / "scratch"
 LOG = REPO / ".build-draft" / "build.log"
 # The last pass's draft of each stem, the text a transcriptor reads, with every hole the passes made.
 DRAFTS = REPO / ".build-draft" / "drafts"
-SOURCE_LINE = re.compile(r"/// Source: oracle/codemp/game/\w+\.c:(\d+)$")
+SOURCE_LINE = re.compile(rf"/// Source: oracle/{re.escape(C.GAME_DIR)}/\w+\.c:(\d+)$")
 # skeleton.py writes this doc line above the /// Source: line of a forward, and the forward shares the Source line of the hand body.
 FORWARD_DOC = re.compile(r"^/// A caller that passes .* reaches `\w+` through this forward, and a NULL caller passes the optional\.$")
 # swiftc writes `path:line:col: error: message`.
@@ -340,11 +344,35 @@ def gate(sk: Skeleton, registry: Registry, stems: list[str], lowered: str) -> tu
     return states, passes, others
 
 
+def draft_only(sk: Skeleton, registry: Registry, stems: list[str]) -> None:
+    """The drafts of a unit whose logic target is not in the package yet, with no build, so the run counts the holes alone.
+    Each stem's draft goes to the drafts folder under out/<unit>/, beside the stubs skeleton.py wrote there."""
+    print(f"draftcheck.py: the package holds no target {LOGIC}, so the run drafts {len(stems)} stems and builds nothing")
+    drafts = C.written(DRAFTS)
+    drafts.mkdir(parents=True, exist_ok=True)
+    functions_total = bodies_total = holes_total = 0
+    for stem in stems:
+        path = stub_path(stem)
+        if not path.exists():
+            raise SystemExit(f"draftcheck.py: no stub at {path.relative_to(REPO)}, so run skeleton.py --unit {C.UNIT} first")
+        draft, _, holes, _, _ = Stem(sk, registry, stem, path, path).lines()
+        (drafts / f"{stem}.swift").write_text("\n".join(draft) + "\n")
+        fns = sk.files[stem]
+        bodies = sum(1 for fn in fns if fn.mapped)
+        functions_total += len(fns)
+        bodies_total += bodies
+        holes_total += holes
+        print(f"{stem}: {len(fns)} functions, {bodies} bodies drafted, {len(fns) - bodies} signature markers, {holes} holes")
+    print(f"drafts: {drafts.relative_to(REPO)}")
+    print(f"total: {len(stems)} stems, {functions_total} functions, {bodies_total} bodies drafted, {holes_total} holes, no build")
+
+
 def main() -> None:
     parser = argparse.ArgumentParser()
+    C.unit_argument(parser)
     parser.add_argument("--stem", action="append", default=[], help="the Raven files to draft and build, bg_pmove,bg_misc")
     parser.add_argument("--all", action="store_true", help="every Raven file the skeleton holds under Sources/JKAMP_BG")
-    parser.add_argument("--game", action="store_true", help="every Raven file the skeleton holds under Sources/JKAMP_GameLogic")
+    parser.add_argument("--game", action="store_true", help=f"every Raven file the skeleton holds under Sources/{LOGIC}")
     parser.add_argument("--every", action="store_true", help="the files of --all and of --game, and every Raven file the skeleton holds under Sources/JKAShared")
     args = parser.parse_args()
     if not (args.stem or args.all or args.game or args.every):
@@ -360,6 +388,9 @@ def main() -> None:
         targets.add(SHARED)
     stems = [stem for group in args.stem for stem in group.split(",")]
     stems += sorted(stem for stem in sk.files if target_of(stem) in targets and stem not in stems)
+    if C.STAGED:
+        draft_only(sk, registry, stems)
+        return
     mirror()
     lowered, _ = lowered_key(sk)
     states, _, others = gate(sk, registry, stems, lowered)

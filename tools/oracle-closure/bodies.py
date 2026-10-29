@@ -94,8 +94,10 @@ class Registry:
         self.homes: dict[str, set[str]] = {}
         # The Swift type of each file-scope variable that spells one, so a store reads whether the source is a Slots.
         self.var_types: dict[str, str] = {}
-        for path in SOURCES.rglob("*.swift"):
-            target = path.relative_to(SOURCES).parts[0]
+        # A unit whose logic target is not under Sources yet holds its stubs under out/<unit>/, and the registry reads them too.
+        roots = [SOURCES] + ([C.written(SOURCES)] if C.STAGED else [])
+        for root, path in ((root, path) for root in roots for path in root.rglob("*.swift")):
+            target = path.relative_to(root).parts[0]
             for line in path.read_text().splitlines():
                 v = VAR_LINE.match(line)
                 if v is not None:
@@ -468,6 +470,7 @@ class Lowering:
 
 def main() -> None:
     parser = argparse.ArgumentParser()
+    C.unit_argument(parser)
     parser.add_argument("--only", help="comma-separated function names to print")
     parser.add_argument("--stem", help="print every draft of one .c file")
     parser.add_argument("--compile-holes", action="store_true", help="print each statement the last draftcheck run rejected as a compile hole")

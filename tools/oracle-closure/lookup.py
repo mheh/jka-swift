@@ -29,8 +29,10 @@ HERE = Path(__file__).resolve().parent
 REPO = HERE.parents[1]
 ROSETTA = REPO / ".claude" / "rosetta"
 MANIFEST = REPO / ".claude" / "manifest"
+# lookup.py answers for the default unit, so it reads the store of that unit's row.
 with (HERE / "project.toml").open("rb") as _f:
-    STORE = REPO / tomllib.load(_f)["store"]["path"]
+    _project = tomllib.load(_f)
+STORE = REPO / _project["targets"][_project["sweep"]["unit"]]["store"]
 
 
 def rows(path: Path) -> list[str]:

@@ -32,7 +32,7 @@ from clang.cindex import CursorKind
 import closure as C
 from reexport import REPO, SOURCES
 from rulings import ARM_HOOKS, EXTRA_HOOKS, LIST_TRAPS, OWN_HOOKS, QAGAME_ONLY, SHARED_STEMS
-from skeleton import OPTIONAL_INOUTS
+from skeleton import LOGIC, OPTIONAL_INOUTS
 from table import Param, SourceFile, Table
 
 ORACLE_DIR = C.GAME_DIR
@@ -415,11 +415,13 @@ class Channel:
         return lines
 
     def write(self) -> None:
-        bg_dir = SOURCES / "JKAMP_BG" / "Generated"
+        # A unit whose logic target is not under Sources yet writes the three files under out/<unit>/, so the bg files stay the game's.
+        bg_dir = C.written(SOURCES / "JKAMP_BG" / "Generated")
         bg_dir.mkdir(parents=True, exist_ok=True)
         (bg_dir / "bg_strap.swift").write_text("\n".join(self.strap_file()).rstrip() + "\n")
         (bg_dir / "bg_callbacks.swift").write_text("\n".join(self.callback_file()).rstrip() + "\n")
-        out = SOURCES / "JKAMP_GameLogic" / "Generated" / "BgChannel.swift"
+        out = C.written(SOURCES / LOGIC / "Generated" / "BgChannel.swift")
+        out.parent.mkdir(parents=True, exist_ok=True)
         out.write_text("\n".join(self.install_file()).rstrip() + "\n")
 
     def strap_file(self) -> list[str]:
@@ -433,9 +435,14 @@ class Channel:
 
 def main() -> None:
     ap = argparse.ArgumentParser()
+    C.unit_argument(ap)
     ap.add_argument("--rebuild", action="store_true", help="sweep every fact of the table again and write the store anew")
     ap.add_argument("--only", choices=["bg", "game"], help="print to stdout, write nothing")
     args = ap.parse_args()
+    if C.UNIT != C.PROJECT["sweep"]["unit"]:
+        # The hooks and the install name the game's functions, `G_NewString`, so the cgame consumer of the channel waits for its own rows.
+        print(f"channel.py: the bg channel has one consumer, {C.PROJECT['sweep']['unit']}, so the {C.UNIT} run writes nothing")
+        return
     import table
 
     table.REBUILD = args.rebuild

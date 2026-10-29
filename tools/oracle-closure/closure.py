@@ -306,10 +306,53 @@ def derived_entries(module: str, tu=None) -> tuple[list[str], list[str]]:
     return roots, found
 
 
-# ------------------------------------------------------------- one parse per run
+# ------------------------------------------------------------- the unit of a run
+def unit_of(argv: list[str]) -> str:
+    """The unit a generator run reads: the word after `--unit` on its command line, or the default of `[sweep]`.
+    Every generator module reads the unit at import, so this module reads the command line before any argument parser does."""
+    for i, word in enumerate(argv):
+        if word == "--unit" and i + 1 < len(argv):
+            return argv[i + 1]
+        if word.startswith("--unit="):
+            return word.split("=", 1)[1]
+    return PROJECT["sweep"]["unit"]
+
+
+def unit_argument(parser: argparse.ArgumentParser) -> None:
+    """The `--unit` option of a generator, so its help names the units and its parser accepts the word that `unit_of` read."""
+    parser.add_argument("--unit", choices=sorted(PROJECT["targets"]), default=UNIT,
+                        help=f"the unit the run reads, {PROJECT['sweep']['unit']} by default")
+
+
+UNIT = unit_of(sys.argv[1:])
+if UNIT not in PROJECT["targets"]:
+    raise SystemExit(f"closure.py: no unit {UNIT} in [targets] of project.toml, the units are {', '.join(sorted(PROJECT['targets']))}")
+# The row of the run's unit in `[targets]` of the project file.
+TARGETS = PROJECT["targets"][UNIT]
+OTHER_UNIT = TARGETS["other"]
 # The oracle directories of the two units a generator reads, which every sweep of the port walks.
-GAME_DIR = PROJECT["sweep"]["folder"]
-CGAME_DIR = PROJECT["sweep"]["other_folder"]
+GAME_DIR = TARGETS["folder"]
+CGAME_DIR = PROJECT["targets"][OTHER_UNIT]["folder"]
+# The root of the generated targets, and the folder that takes the files of a unit whose logic target is not under that root yet.
+SOURCES = REPO / PROJECT["output"]["root"]
+STAGED = not (SOURCES / TARGETS["logic"]).exists()
+STAGE = Path(__file__).resolve().parent / "out" / UNIT
+_said: set[str] = set()
+
+
+def written(path: Path) -> Path:
+    """The path a run writes for a path of the repository.
+    A unit whose logic target is not under the output root yet writes under out/<unit>/ at the same relative path, and the run says so once."""
+    if not STAGED:
+        return path
+    if not _said:
+        _said.add(UNIT)
+        print(f"closure.py: {PROJECT['output']['root']} holds no target {TARGETS['logic']}, so the {UNIT} run writes under {STAGE.relative_to(REPO)}",
+              file=sys.stderr)
+    return STAGE / path.relative_to(REPO)
+
+
+# ------------------------------------------------------------- one parse per run
 
 
 class Parse:
@@ -321,9 +364,9 @@ class Parse:
 
     def __init__(self) -> None:
         self.overlay = OVERLAY
-        self.game = parse_tu(PROJECT["sweep"]["unit"], None, unity=True, overlay=self.overlay)
-        # A sweep proves a fact over every caller the port parses, so the cgame unit stands beside the game unit.
-        self.cgame = parse_tu(PROJECT["sweep"]["other_unit"], None, unity=True, overlay=self.overlay)
+        self.game = parse_tu(UNIT, None, unity=True, overlay=self.overlay)
+        # A sweep proves a fact over every caller the port parses, so the other unit stands beside the unit of the run.
+        self.cgame = parse_tu(OTHER_UNIT, None, unity=True, overlay=self.overlay)
         # The view target's header umbrella, which the views and the re-exports read.
         self.headers = reexport.parse(reexport.GAME_TARGET)
         self.game_folder = (ORACLE / GAME_DIR).resolve()
