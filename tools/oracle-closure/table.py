@@ -20,14 +20,13 @@ from clang.cindex import CursorKind
 
 import closure as C
 import store as S
-from reexport import GAME_TARGET
 from fnsweep import ASSIGN_OPS
 from overlay import DECLARED, DROPPED, MACROS, written_arguments
 from rulings import HAND_MACROS, NULLABLE, PARAMS, RETURNS
 from views import Generator
 from spelling import Facts, OPTIONAL_TEXT_RESULT, engine_array
 
-TARGET = GAME_TARGET
+TARGET = C.TARGETS["c_target"]
 HERE = Path(__file__).resolve().parent
 # The store file of the sweeps, and the output folders whose files the key reads, from the project file.
 STORE = C.REPO / C.TARGETS["store"]

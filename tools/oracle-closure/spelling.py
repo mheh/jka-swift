@@ -17,10 +17,10 @@ import clang.cindex as ci
 from clang.cindex import CursorKind, TypeKind
 
 import closure as C
-from reexport import GAME_TARGET, NARROW, SCALARS
+from reexport import NARROW, SCALARS
 from rulings import TYPES
 
-TARGET = GAME_TARGET
+TARGET = C.TARGETS["c_target"]
 BUILTINS = set(SCALARS.values()) | {"Bool", "Float", "Int32"}
 # The Swift storage of a C integer narrower than int, which a local keeps.
 NARROW_STORAGE = {SCALARS[k] for k in NARROW}

@@ -66,12 +66,20 @@ class DefaultUnit(unittest.TestCase):
 
     def test_the_c_target_is_the_game_target(self) -> None:
         import reexport
+        import skeleton
+        import spelling
+        import table
         import traps
 
+        # given the game, the C target of every generator is the game's
         self.assertEqual(traps.IMPORT, "CJKAMP_Game")
-        self.assertEqual(reexport.GAME_TARGET, "CJKAMP_Game")
-        self.assertEqual(reexport.VIEW_OF, {"CJKAShared": "JKAShared", "CJKAMP": "JKAMP", "CJKAMP_Game": "JKAMP_Game"})
-        self.assertEqual(reexport.DEPS, {"CJKAShared": [], "CJKAMP": ["CJKAShared"], "CJKAMP_Game": ["CJKAMP", "CJKAShared"]})
+        for target in (skeleton.C_TARGET, spelling.TARGET, table.TARGET, traps.TARGET):
+            self.assertEqual(target, "CJKAMP_Game")
+
+        # and the re-exports name every unit's target, the game's first
+        self.assertEqual(reexport.VIEW_OF, {"CJKAShared": "JKAShared", "CJKAMP": "JKAMP", "CJKAMP_Game": "JKAMP_Game", "CJKAMP_CGame": "JKAMP_CGame"})
+        self.assertEqual(reexport.DEPS, {"CJKAShared": [], "CJKAMP": ["CJKAShared"], "CJKAMP_Game": ["CJKAMP", "CJKAShared"],
+                                         "CJKAMP_CGame": ["CJKAMP", "CJKAShared"]})
 
     def test_the_state_names_are_the_game_names(self) -> None:
         import skeleton

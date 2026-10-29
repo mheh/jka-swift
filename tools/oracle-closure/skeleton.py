@@ -48,7 +48,7 @@ import closure as C
 import reexport
 from fnsweep import binop_assign_op, rhs_function, root_var
 from overlay import MACROS, written_arguments
-from reexport import GAME_TARGET, REPO, SOURCES
+from reexport import REPO, SOURCES
 from rulings import BYTE_STORAGE_VARS, HAND_MACROS, HAND_VARS, LIBC_FUNCTIONS, NEVER_NULL_VARS, NOT_PORTED, PUBLIC_NAMES, RETURNS, TYPES
 from store import Store, combined, file_hash, named
 from table import Param, SourceFile, Table, swift_name
@@ -62,6 +62,8 @@ FIELDS = ["think", "use", "touch", "die", "pain", "reached", "blocked"]
 LOGIC = C.TARGETS["logic"]
 VIEWS = C.TARGETS["views"]
 STATE = C.TARGETS["state"]
+# The C target of the unit, whose views and re-exports the stubs and the state files name.
+C_TARGET = C.TARGETS["c_target"]
 BG = "JKAMP_BG"
 SHARED = "JKAShared"
 # The parameter kinds of an optional inout vector or axis, which a forward with the plain inout serves for the callers that pass one.
@@ -498,7 +500,7 @@ class Skeleton:
         return self._accessors.get(field, [])
 
     def exported_of(self, stem: str) -> dict[str, str]:
-        return self.table.views.exported_names("CJKAMP" if target_of(stem) == BG else GAME_TARGET)
+        return self.table.views.exported_names("CJKAMP" if target_of(stem) == BG else C_TARGET)
 
     def note_write(self, lvalue: ci.Cursor, by_name: dict[str, list[Variable]], arrays_only: bool = False) -> None:
         """A write marks every file's copy of the name, because the unity parse binds a shared static's uses to one declaration."""
@@ -541,7 +543,7 @@ class Skeleton:
                 # Raven's `= {qfalse, 0, 0}` is C's zero, so the record is the zeroed allocation of the storage kind, not a data table.
                 var.data = False
             var.reason = "storage"
-            var.view = self.table.views.qualified_view(record, GAME_TARGET)
+            var.view = self.table.views.qualified_view(record, C_TARGET)
             var.count = canonical.element_count if depth else 0
             var.swift = f"Slots<{var.view}>" if depth else var.view
             return
@@ -578,7 +580,7 @@ class Skeleton:
                 if not record or record not in self.table.views.views:
                     var.reason = f"No table row for `{' '.join(t.spelling.split())}`."
                     return
-                inner = self.table.views.qualified_view(record, GAME_TARGET) + "?"
+                inner = self.table.views.qualified_view(record, C_TARGET) + "?"
                 if depth == 1:
                     # A file-scope array of struct pointers is C storage the engine may read, reached through a Slots of optional views.
                     var.reason = "pointer_table"
@@ -603,7 +605,7 @@ class Skeleton:
                 if scalar_type.kind != TypeKind.CONSTANTARRAY:
                     scalar_type = scalar_type.get_canonical()
                 scalar_type = scalar_type.element_type
-            inner = self.table.views.scalar(scalar_type, GAME_TARGET)
+            inner = self.table.views.scalar(scalar_type, C_TARGET)
             if inner is None or not self.table.known(inner):
                 var.reason = f"No table row for `{' '.join(t.spelling.split())}`."
                 return
@@ -651,7 +653,7 @@ class Skeleton:
         return bool(values) and all(re.fullmatch(r"0+|0*\.0*[fF]?|qfalse|NULL", v) for v in values)
 
     def exported(self, var: Variable) -> dict[str, str]:
-        return self.table.views.exported_names("CJKAMP" if target_of(var.stem) == BG else GAME_TARGET)
+        return self.table.views.exported_names("CJKAMP" if target_of(var.stem) == BG else C_TARGET)
 
     def bound_text(self, var: Variable) -> str:
         """The innermost array bound, `Int(JKAShared.MAX_QPATH)` when Raven named a macro a module exports, else the number."""
@@ -1185,9 +1187,9 @@ class Skeleton:
             canonical = arg.get_canonical()
             if canonical.kind == TypeKind.POINTER:
                 record = self.table.views.record_name(canonical.get_pointee())
-                view = self.table.views.qualified_view(record, GAME_TARGET) if record in self.table.views.views else None
+                view = self.table.views.qualified_view(record, C_TARGET) if record in self.table.views.views else None
                 args.append(f"{view}(handle: ${i}!)" if view else f"${i}")
-            elif self.table.views.scalar(arg, GAME_TARGET) == "Bool":
+            elif self.table.views.scalar(arg, C_TARGET) == "Bool":
                 args.append(f"${i} != 0")
             else:
                 args.append(f"${i}")
@@ -1355,7 +1357,7 @@ class Skeleton:
                      f"public final class {cls} {{"]
             inits: list[str] = []
             deinits: list[str] = []
-            exported = self.table.views.exported_names(GAME_TARGET)
+            exported = self.table.views.exported_names(C_TARGET)
             for stem, var in tables:
                 declaration = " ".join(self.declaration_text(var).split("=", 1)[0].split()).removeprefix("static ")
                 lines += [f"    /// Raven's `{declaration}` of `{stem}.c`.", f"    /// Source: {var.cite}", f"    public let {var.field}: {var.swift}", ""]
