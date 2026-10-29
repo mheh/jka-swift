@@ -19,6 +19,7 @@ unit = "mp-game"
 # `rust` is the jka-rust crate under `jka-rust/crates/mp` that the manifest reads beside `bg` and `qshared`.
 # `store` is the table cache of the unit's sweeps, one SQLite file outside version control.
 # `borrowed` lists the .c files of another folder that the unit's build compiles too, which the unit's stubs mirror with Source lines in that folder.
+# `borrowed_rust` lists the jka-rust files under `jka-rust/crates/mp` that the manifest reads first for a borrowed file.
 # A unit whose `logic` target is not under the output root yet writes every file of its run under `tools/oracle-closure/out/<unit>/`.
 [targets.mp-game]
 other = "mp-cgame"
@@ -47,6 +48,10 @@ borrowed = [
     "codemp/game/FighterNPC.c",
     "codemp/game/SpeederNPC.c",
     "codemp/game/WalkerNPC.c",
+]
+borrowed_rust = [
+    "bg/src/vehicles",
+    "cgame/src/vehicle_npc.rs",
 ]
 
 [output]

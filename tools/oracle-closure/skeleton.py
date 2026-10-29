@@ -201,15 +201,24 @@ class Macro:
 
 
 class RustIndex:
-    """Every `fn Name(` of the jka-rust crate of the unit and of the bg and qshared crates, with the line the body ends on."""
+    """Every `fn Name(` of the jka-rust crate of the unit and of the bg and qshared crates, with the line the body ends on.
+    A borrowed file of the unit reads the jka-rust files of `borrowed_rust` first, where four vehicle files each define `ProcessMoveCommands`."""
 
     def __init__(self) -> None:
         self.spans: dict[str, tuple[Path, int, int]] = {}
         for root in (RUST / C.TARGETS["rust"] / "src", RUST / "bg" / "src", RUST / "qshared" / "src"):
             for path in sorted(root.rglob("*.rs")):
-                self.index(path)
+                self.index(path, self.spans)
+        self.borrowed: dict[str, dict[Path, tuple[Path, int, int]]] = defaultdict(dict)
+        for entry in C.TARGETS.get("borrowed_rust", []):
+            root = RUST / entry
+            for path in [root] if root.is_file() else sorted(root.rglob("*.rs")):
+                found: dict[str, tuple[Path, int, int]] = {}
+                self.index(path, found)
+                for name, span in found.items():
+                    self.borrowed[name][path] = span
 
-    def index(self, path: Path) -> None:
+    def index(self, path: Path, spans: dict[str, tuple[Path, int, int]]) -> None:
         lines = path.read_text(errors="replace").split("\n")
         for i, line in enumerate(lines, start=1):
             m = re.match(r"\s*(?:pub(?:\([^)]*\))?\s+)?(?:unsafe\s+)?fn\s+(\w+)\s*[(<]", line)
@@ -217,7 +226,17 @@ class RustIndex:
                 continue
             name = m.group(1)
             end = self.body_end(lines, i - 1)
-            self.spans.setdefault(name, (path, i, end))
+            spans.setdefault(name, (path, i, end))
+
+    def span(self, name: str, stem: str) -> tuple[Path, int, int] | None:
+        """The jka-rust function of one Raven function. A borrowed stem takes the file of its own snake name first,
+        `animal_npc.rs` for AnimalNPC.c, then any file of `borrowed_rust`, then the crates of the unit."""
+        if stem in C.BORROWED and name in self.borrowed:
+            files = self.borrowed[name]
+            snake = re.sub(r"(?<=[a-z])(?=[A-Z])", "_", stem).lower()
+            own = [span for path, span in files.items() if path.stem == snake]
+            return own[0] if own else next(iter(files.values()))
+        return self.spans.get(name)
 
     @staticmethod
     def body_end(lines: list[str], start: int) -> int:
@@ -1278,7 +1297,7 @@ class Skeleton:
         first = fn.cur.extent.start.line
         last = fn.cur.extent.end.line
         swift, marker = self.swift_line(fn)
-        span = self.rust.spans.get(fn.name)
+        span = self.rust.span(fn.name, fn.stem)
         peer = ""
         if span:
             path, a, b = span
