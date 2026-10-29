@@ -44,6 +44,8 @@ let package = Package(
         .target(name: "JKAMP_BG", dependencies: ["JKAMP"]),
         // g_*.c and the one world instance.
         .target(name: "JKAMP_GameLogic", dependencies: ["JKAMP_Game", "JKAMP_BG"]),
+        // cg_*.c and the one world instance.
+        .target(name: "JKAMP_CGameLogic", dependencies: ["JKAMP_CGame", "JKAMP_BG"]),
 
         // MARK: - Shell, the product
         // dllEntry and vmMain. It decodes words and calls the bare functions.
