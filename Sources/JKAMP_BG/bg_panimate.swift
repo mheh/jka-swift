@@ -20,6 +20,29 @@ var bgNumAllAnims: Int32 {
     set { bg.variables.bgNumAllAnims = newValue }
 }
 
+/// Source: oracle/codemp/game/bg_panimate.c:1758
+// Raven wrote: stringID_table_t animEventTypeTable[MAX_ANIM_EVENTS+1]
+// Raven's data table is C storage in the C target, with his initializer as written, reached as a Slots over the C array, the bg_tables.c shape that tables.py writes.
+
+/// Source: oracle/codemp/game/bg_panimate.c:1772
+// Raven wrote: stringID_table_t footstepTypeTable[NUM_FOOTSTEP_TYPES+1]
+// Raven's data table is C storage in the C target, with his initializer as written, reached as a Slots over the C array, the bg_tables.c shape that tables.py writes.
+
+/// Source: oracle/codemp/game/bg_panimate.c:2166
+public var bgAllEvents: Slots<JKAMP.BgLoadedEvents> { bg.storage.bgAllEvents }
+
+/// Source: oracle/codemp/game/bg_panimate.c:2167
+public var bgNumAnimEvents: Int32 {
+    get { bg.variables.bgNumAnimEvents }
+    set { bg.variables.bgNumAnimEvents = newValue }
+}
+
+/// Source: oracle/codemp/game/bg_panimate.c:2168
+var bg_animParseIncluding: Int32 {
+    get { bg.variables.bg_animParseIncluding }
+    set { bg.variables.bg_animParseIncluding = newValue }
+}
+
 /// Source: oracle/codemp/game/bg_panimate.c:33
 func BG_SaberStanceAnim(_ anim: Int32) -> Bool {
     switch anim {
@@ -1376,6 +1399,521 @@ func BG_AnimsetFree(_ animset: Slots<JKAMP.Animation>) {
     }
     #endif
     */
+}
+
+//none of this is actually needed serverside. Could just be moved to cgame code but it's here since it
+//used to tie in a lot with the anim loading stuff.
+/// Source: oracle/codemp/game/bg_panimate.c:1782
+func CheckAnimFrameForEventType(_ animEvents: Slots<JKAMP.Animevent>, _ keyFrame: Int32, _ eventType: JKAShared.animEventType_t) -> Int32 {
+    var i: Int32
+
+    i = 0
+    while i < MAX_ANIM_EVENTS {
+        if animEvents[i].keyFrame == keyFrame {
+            //there is an animevent on this frame already
+            if animEvents[i].eventType == eventType {
+                //and it is of the same type
+                return i
+            }
+        }
+        i += 1
+    }
+    //nope
+    return -1
+}
+
+/// Source: oracle/codemp/game/bg_panimate.c:1800
+func ParseAnimationEvtBlock(_ aeb_filename: String, _ animEvents: Slots<JKAMP.Animevent>, _ animations: Slots<JKAMP.Animation>, _ i: inout Int32, _ text_p: inout JKAShared.TextCursor) {
+    var token: String
+    var num: Int32
+    var n: Int32
+    var animNum: Int32
+    var keyFrame: Int32
+    var lowestVal: Int32
+    var highestVal: Int32
+    var curAnimEvent: Int32
+    var lastAnimEvent: Int32 = 0
+    var eventType: animEventType_t
+    var stringData = CharBuf(MAX_QPATH)
+
+    // get past starting bracket
+    while 1 != 0 {
+        token = COM_Parse(&text_p)
+        if Q_stricmp(token, "{") == 0 {
+            break
+        }
+    }
+
+    //NOTE: instead of a blind increment, increase the index
+    //			this way if we have an event on an anim that already
+    //			has an event of that type, it stomps it
+
+    // read information for each frame
+    while 1 != 0 {
+        if lastAnimEvent >= MAX_ANIM_EVENTS {
+            Com_Error(ERR_DROP, "ParseAnimationEvtBlock: number events in animEvent file %s > MAX_ANIM_EVENTS(%i)", aeb_filename, MAX_ANIM_EVENTS)
+            // Raven writes `return` after this call, which `Com_Error` never reaches.
+        }
+        // Get base frame of sequence
+        token = COM_Parse(&text_p)
+        if token.isEmpty {
+            break
+        }
+
+        if Q_stricmp(token, "}") == 0 {
+            // At end of block
+            break
+        }
+
+        //Compare to same table as animations used
+        //	so we don't have to use actual numbers for animation first frames,
+        //	just need offsets.
+        //This way when animation numbers change, this table won't have to be updated,
+        //	at least not much.
+        animNum = GetIDForString(animTable, token)
+        if animNum == -1 {
+            //Unrecognized ANIM ENUM name, or we're skipping this line, keep going till you get a good one
+            Com_Printf(S_COLOR_YELLOW + "WARNING: Unknown token %s in animEvent file %s\n", token, aeb_filename)
+            while !token.isEmpty {
+                token = COM_ParseExt(&text_p, false) //returns empty string when next token is EOL
+            }
+            continue
+        }
+
+        if animations[animNum].numFrames == 0 {
+            //we don't use this anim
+            Com_Printf(S_COLOR_YELLOW + "WARNING: %s animevents.cfg: anim %s not used by this model\n", aeb_filename, token)
+            //skip this entry
+            SkipRestOfLine(&text_p)
+            continue
+        }
+
+        token = COM_Parse(&text_p)
+        eventType = GetIDForString(animEventTypeTable, token)
+        if eventType == AEV_NONE || eventType == -1 {
+            //Unrecognized ANIM EVENT TYOE, or we're skipping this line, keep going till you get a good one
+            //Com_Printf(S_COLOR_YELLOW"WARNING: Unknown token %s in animEvent file %s\n", token, aeb_filename );
+            continue
+        }
+
+        //set our start frame
+        keyFrame = animations[animNum].firstFrame
+        // Get offset to frame within sequence
+        token = COM_Parse(&text_p)
+        // Raven's arm under the guard has no path, and its text stays here:
+        // {
+        //     break;
+        // }
+        keyFrame += atoi(token)
+
+        //see if this frame already has an event of this type on it, if so, overwrite it
+        curAnimEvent = CheckAnimFrameForEventType(animEvents, keyFrame, eventType)
+        if curAnimEvent == -1 {
+            //this anim frame doesn't already have an event of this type on it
+            curAnimEvent = lastAnimEvent
+        }
+
+        //now that we know which event index we're going to plug the data into, start doing it
+        animEvents[curAnimEvent].eventType = eventType
+        animEvents[curAnimEvent].keyFrame = keyFrame
+
+        //now read out the proper data based on the type
+        switch animEvents[curAnimEvent].eventType {
+        case AEV_SOUNDCHAN: //# animID AEV_SOUNDCHAN framenum CHANNEL soundpath randomlow randomhi chancetoplay
+            token = COM_Parse(&text_p)
+            // Raven's arm under the guard has no path, and its text stays here:
+            // {
+            //     break;
+            // }
+            // Raven calls the C library's `stricmp` here, which Swift has on no platform.
+            // `Q_stricmp` of `q_shared.c` gives the same answer for two set texts, so the body calls it.
+            if Q_stricmp(token, "CHAN_VOICE_ATTEN") == 0 {
+                animEvents[curAnimEvent].eventData[AED_SOUNDCHANNEL] = Int16(truncatingIfNeeded: CHAN_VOICE_ATTEN)
+            } else if Q_stricmp(token, "CHAN_VOICE_GLOBAL") == 0 {
+                animEvents[curAnimEvent].eventData[AED_SOUNDCHANNEL] = Int16(truncatingIfNeeded: CHAN_VOICE_GLOBAL)
+            } else if Q_stricmp(token, "CHAN_ANNOUNCER") == 0 {
+                animEvents[curAnimEvent].eventData[AED_SOUNDCHANNEL] = Int16(truncatingIfNeeded: CHAN_ANNOUNCER)
+            } else if Q_stricmp(token, "CHAN_BODY") == 0 {
+                animEvents[curAnimEvent].eventData[AED_SOUNDCHANNEL] = Int16(truncatingIfNeeded: CHAN_BODY)
+            } else if Q_stricmp(token, "CHAN_WEAPON") == 0 {
+                animEvents[curAnimEvent].eventData[AED_SOUNDCHANNEL] = Int16(truncatingIfNeeded: CHAN_WEAPON)
+            } else if Q_stricmp(token, "CHAN_VOICE") == 0 {
+                animEvents[curAnimEvent].eventData[AED_SOUNDCHANNEL] = Int16(truncatingIfNeeded: CHAN_VOICE)
+            } else {
+                animEvents[curAnimEvent].eventData[AED_SOUNDCHANNEL] = Int16(truncatingIfNeeded: CHAN_AUTO)
+            }
+            //fall through to normal sound
+            fallthrough
+
+        case AEV_SOUND: //# animID AEV_SOUND framenum soundpath randomlow randomhi chancetoplay
+            //get soundstring
+            token = COM_Parse(&text_p)
+            // Raven's arm under the guard has no path, and its text stays here:
+            // {
+            //     break;
+            // }
+            strcpy(&stringData, token)
+            //get lowest value
+            token = COM_Parse(&text_p)
+            // Raven's arm under the guard has no path, and its text stays here:
+            // {//WARNING!  BAD TABLE!
+            //     break;
+            // }
+            lowestVal = atoi(token)
+            //get highest value
+            token = COM_Parse(&text_p)
+            // Raven's arm under the guard has no path, and its text stays here:
+            // {//WARNING!  BAD TABLE!
+            //     break;
+            // }
+            highestVal = atoi(token)
+            //Now precache all the sounds
+            //NOTE: If we can be assured sequential handles, we can store sound indices
+            //		instead of strings, unfortunately, if these sounds were previously
+            //		registered, we cannot be guaranteed sequential indices.  Thus an array
+            if lowestVal != 0 && highestVal != 0 {
+                //assert(highestVal - lowestVal < MAX_RANDOM_ANIM_SOUNDS);
+                if (highestVal - lowestVal) >= MAX_RANDOM_ANIM_SOUNDS {
+                    highestVal = lowestVal + (MAX_RANDOM_ANIM_SOUNDS - 1)
+                }
+                n = lowestVal
+                num = AED_SOUNDINDEX_START
+                while n <= highestVal && num <= AED_SOUNDINDEX_END {
+                    if stringData[0] == Int32(ascii: "*") {
+                        //FIXME? Would be nice to make custom sounds work with animEvents.
+                        animEvents[curAnimEvent].eventData[num] = 0
+                    } else {
+                        animEvents[curAnimEvent].eventData[num] = Int16(truncatingIfNeeded: trap_S_RegisterSound(va(String(stringData), n)))
+                    }
+                    n += 1
+                    num += 1
+                }
+                animEvents[curAnimEvent].eventData[AED_SOUND_NUMRANDOMSNDS] = Int16(truncatingIfNeeded: num - 1)
+            } else {
+                if stringData[0] == Int32(ascii: "*") {
+                    //FIXME? Would be nice to make custom sounds work with animEvents.
+                    animEvents[curAnimEvent].eventData[AED_SOUNDINDEX_START] = 0
+                } else {
+                    animEvents[curAnimEvent].eventData[AED_SOUNDINDEX_START] = Int16(truncatingIfNeeded: trap_S_RegisterSound(String(stringData)))
+                }
+                if animEvents[curAnimEvent].eventData[AED_SOUNDINDEX_START] == 0 && stringData[0] != Int32(ascii: "*") {
+                    //couldn't register it - file not found
+                    Com_Printf(S_COLOR_RED + "ParseAnimationSndBlock: sound %s does not exist (animevents.cfg %s)!\n", stringData, aeb_filename)
+                }
+                animEvents[curAnimEvent].eventData[AED_SOUND_NUMRANDOMSNDS] = 0
+            }
+            //get probability
+            token = COM_Parse(&text_p)
+            // Raven's arm under the guard has no path, and its text stays here:
+            // {//WARNING!  BAD TABLE!
+            //     break;
+            // }
+            animEvents[curAnimEvent].eventData[AED_SOUND_PROBABILITY] = Int16(truncatingIfNeeded: atoi(token))
+
+            //last part - cheat and check and see if it's a special overridable saber sound we know of...
+            if Q_stricmpn("sound/weapons/saber/saberhup", String(stringData), 28) == 0 {
+                //a saber swing
+                animEvents[curAnimEvent].eventType = AEV_SABER_SWING
+                animEvents[curAnimEvent].eventData[AED_SABER_SWING_SABERNUM] = 0 //since we don't know which one they meant if we're hacking this, always use first saber
+                animEvents[curAnimEvent].eventData[AED_SABER_SWING_PROBABILITY] = animEvents[curAnimEvent].eventData[AED_SOUND_PROBABILITY]
+                if lowestVal < 4 {
+                    //fast swing
+                    animEvents[curAnimEvent].eventData[AED_SABER_SWING_TYPE] = 0 //SWING_FAST;
+                } else if lowestVal < 7 {
+                    //medium swing
+                    animEvents[curAnimEvent].eventData[AED_SABER_SWING_TYPE] = 1 //SWING_MEDIUM;
+                } else {
+                    //strong swing
+                    animEvents[curAnimEvent].eventData[AED_SABER_SWING_TYPE] = 2 //SWING_STRONG;
+                }
+            } else if Q_stricmpn("sound/weapons/saber/saberspin", String(stringData), 29) == 0 {
+                //a saber spin
+                animEvents[curAnimEvent].eventType = AEV_SABER_SPIN
+                animEvents[curAnimEvent].eventData[AED_SABER_SPIN_SABERNUM] = 0 //since we don't know which one they meant if we're hacking this, always use first saber
+                animEvents[curAnimEvent].eventData[AED_SABER_SPIN_PROBABILITY] = animEvents[curAnimEvent].eventData[AED_SOUND_PROBABILITY]
+                if stringData[29] == Int32(ascii: "o") {
+                    //saberspinoff
+                    animEvents[curAnimEvent].eventData[AED_SABER_SPIN_TYPE] = 0
+                } else if stringData[29] == Int32(ascii: "1") {
+                    //saberspin1
+                    animEvents[curAnimEvent].eventData[AED_SABER_SPIN_TYPE] = 2
+                } else if stringData[29] == Int32(ascii: "2") {
+                    //saberspin2
+                    animEvents[curAnimEvent].eventData[AED_SABER_SPIN_TYPE] = 3
+                } else if stringData[29] == Int32(ascii: "3") {
+                    //saberspin3
+                    animEvents[curAnimEvent].eventData[AED_SABER_SPIN_TYPE] = 4
+                } else if stringData[29] == Int32(ascii: "%") {
+                    //saberspin%d
+                    animEvents[curAnimEvent].eventData[AED_SABER_SPIN_TYPE] = 5
+                } else {
+                    //just plain saberspin
+                    animEvents[curAnimEvent].eventData[AED_SABER_SPIN_TYPE] = 1
+                }
+            }
+
+        case AEV_FOOTSTEP: //# animID AEV_FOOTSTEP framenum footstepType
+            //get footstep type
+            token = COM_Parse(&text_p)
+            // Raven's arm under the guard has no path, and its text stays here:
+            // {
+            //     break;
+            // }
+            animEvents[curAnimEvent].eventData[AED_FOOTSTEP_TYPE] = Int16(truncatingIfNeeded: GetIDForString(footstepTypeTable, token))
+            //get probability
+            token = COM_Parse(&text_p)
+            // Raven's arm under the guard has no path, and its text stays here:
+            // {//WARNING!  BAD TABLE!
+            //     break;
+            // }
+            animEvents[curAnimEvent].eventData[AED_FOOTSTEP_PROBABILITY] = Int16(truncatingIfNeeded: atoi(token))
+
+        case AEV_EFFECT: //# animID AEV_EFFECT framenum effectpath boltName
+            //get effect index
+            token = COM_Parse(&text_p)
+            // Raven's arm under the guard has no path, and its text stays here:
+            // {
+            //     break;
+            // }
+            animEvents[curAnimEvent].eventData[AED_EFFECTINDEX] = Int16(truncatingIfNeeded: trap_FX_RegisterEffect(token))
+            //get bolt index
+            token = COM_Parse(&text_p)
+            // Raven's arm under the guard has no path, and its text stays here:
+            // {
+            //     break;
+            // }
+            if Q_stricmp("none", token) != 0 && Q_stricmp("NULL", token) != 0 {
+                //actually are specifying a bolt to use
+                if animEvents[curAnimEvent].stringData == nil {
+                    //eh, whatever. no dynamic stuff, so this will do.
+                    // Raven points `stringData` at a 2048-byte block of the bg pool, and the field's setter interns the text under rule 9.
+                    // The body still takes the block, so the pool count stays Raven's.
+                    _ = BG_Alloc(2048)
+                }
+                animEvents[curAnimEvent].stringData = token
+            }
+            //NOTE: this string will later be used to add a bolt and store the index, as below:
+            //animEvent->eventData[AED_BOLTINDEX] = gi.G2API_AddBolt( &cent->gent->ghoul2[cent->gent->playerModel], animEvent->stringData );
+            //get probability
+            token = COM_Parse(&text_p)
+            // Raven's arm under the guard has no path, and its text stays here:
+            // {//WARNING!  BAD TABLE!
+            //     break;
+            // }
+            animEvents[curAnimEvent].eventData[AED_EFFECT_PROBABILITY] = Int16(truncatingIfNeeded: atoi(token))
+
+        case AEV_FIRE: //# animID AEV_FIRE framenum altfire chancetofire
+            //get altfire
+            token = COM_Parse(&text_p)
+            // Raven's arm under the guard has no path, and its text stays here:
+            // {//WARNING!  BAD TABLE!
+            //     break;
+            // }
+            animEvents[curAnimEvent].eventData[AED_FIRE_ALT] = Int16(truncatingIfNeeded: atoi(token))
+            //get probability
+            token = COM_Parse(&text_p)
+            // Raven's arm under the guard has no path, and its text stays here:
+            // {//WARNING!  BAD TABLE!
+            //     break;
+            // }
+            animEvents[curAnimEvent].eventData[AED_FIRE_PROBABILITY] = Int16(truncatingIfNeeded: atoi(token))
+
+        case AEV_MOVE: //# animID AEV_MOVE framenum forwardpush rightpush uppush
+            //get forward push
+            token = COM_Parse(&text_p)
+            // Raven's arm under the guard has no path, and its text stays here:
+            // {//WARNING!  BAD TABLE!
+            //     break;
+            // }
+            animEvents[curAnimEvent].eventData[AED_MOVE_FWD] = Int16(truncatingIfNeeded: atoi(token))
+            //get right push
+            token = COM_Parse(&text_p)
+            // Raven's arm under the guard has no path, and its text stays here:
+            // {//WARNING!  BAD TABLE!
+            //     break;
+            // }
+            animEvents[curAnimEvent].eventData[AED_MOVE_RT] = Int16(truncatingIfNeeded: atoi(token))
+            //get upwards push
+            token = COM_Parse(&text_p)
+            // Raven's arm under the guard has no path, and its text stays here:
+            // {//WARNING!  BAD TABLE!
+            //     break;
+            // }
+            animEvents[curAnimEvent].eventData[AED_MOVE_UP] = Int16(truncatingIfNeeded: atoi(token))
+
+        default: //unknown?
+            SkipRestOfLine(&text_p)
+            continue
+        }
+
+        if curAnimEvent == lastAnimEvent {
+            lastAnimEvent += 1
+        }
+    }
+}
+
+/**
+```
+======================
+BG_ParseAnimationEvtFile
+
+Read a configuration file containing animation events
+models/players/kyle/animevents.cfg, etc
+
+This file's presence is not required
+
+======================
+```
+*/
+/// Source: oracle/codemp/game/bg_panimate.c:2169
+public func BG_ParseAnimationEvtFile(_ as_filename: String, _ animFileIndex: Int32, _ eventFileIndex: Int32) -> Int32 {
+    var text_p = TextCursor()
+    let len: Int32
+    var token: String
+    var text = CharBuf(80000)
+    var sfilename = CharBuf(MAX_QPATH)
+    var f: fileHandle_t = 0
+    var i: Int32
+    var j: Int32
+    var upper_i: Int32
+    var lower_i: Int32
+    var usedIndex: Int32 = -1
+    let legsAnimEvents: Slots<JKAMP.Animevent>
+    let torsoAnimEvents: Slots<JKAMP.Animevent>
+    let animations: Slots<JKAMP.Animation>
+    let forcedIndex: Int32
+
+    if animFileIndex < 0 || animFileIndex >= MAX_ANIM_FILES {
+        //WTF??!!
+        return 0
+    }
+
+    if eventFileIndex < 0 || eventFileIndex >= MAX_ANIM_FILES {
+        //WTF??!!
+        forcedIndex = 0
+    } else {
+        forcedIndex = eventFileIndex
+    }
+
+    if bg_animParseIncluding <= 0 {
+        //if we should be parsing an included file, skip this part
+        if bgAllEvents[forcedIndex].eventsParsed {
+            //already cached this one
+            return forcedIndex
+        }
+    }
+
+    legsAnimEvents = bgAllEvents[forcedIndex].legsAnimEvents
+    torsoAnimEvents = bgAllEvents[forcedIndex].torsoAnimEvents
+    animations = bgAllAnims[animFileIndex].animsSlots
+
+    if bg_animParseIncluding <= 0 {
+        //if we should be parsing an included file, skip this part
+        //Go through and see if this filename is already in the table.
+        i = 0
+        while i < bgNumAnimEvents && forcedIndex != 0 {
+            if Q_stricmp(as_filename, bgAllEvents[i].filename) == 0 {
+                //looks like we have it already.
+                return i
+            }
+            i += 1
+        }
+    }
+
+    // Load and parse animevents.cfg file
+    Com_sprintf(&sfilename, Int32((sfilename).count), "%sanimevents.cfg", as_filename)
+
+    if bg_animParseIncluding <= 0 {
+        //should already be done if we're including
+        //initialize anim event array
+        i = 0
+        while i < MAX_ANIM_EVENTS {
+            //Type of event
+            torsoAnimEvents[i].eventType = AEV_NONE
+            legsAnimEvents[i].eventType = AEV_NONE
+            //Frame to play event on
+            torsoAnimEvents[i].keyFrame = -1
+            legsAnimEvents[i].keyFrame = -1
+            //we allow storage of one string, temporarily (in case we have to look up an index later, then make sure to set stringData to NULL so we only do the look-up once)
+            torsoAnimEvents[i].stringData = nil
+            legsAnimEvents[i].stringData = nil
+            //Unique IDs, can be soundIndex of sound file to play OR effect index or footstep type, etc.
+            j = 0
+            while j < AED_ARRAY_SIZE {
+                torsoAnimEvents[i].eventData[j] = -1
+                legsAnimEvents[i].eventData[j] = -1
+                j += 1
+            }
+            i += 1
+        }
+    }
+
+    // Port-note: Raven jumps to his label `fin` when the file is missing or too long.
+    // The labeled block `fin` ends at his label, so `break fin` lands where his `goto fin` lands.
+    fin: do {
+        // load the file
+        len = trap_FS_FOpenFile(String(sfilename), &f, FS_READ)
+        if len <= 0 {
+            //no file
+            break fin
+        }
+        if len >= Int32((text).count) - 1 {
+            trap_FS_FCloseFile(f)
+            Com_Error(ERR_DROP, "File %s too long\n", sfilename)
+            // Raven writes `goto fin` after this call, which `Com_Error` never reaches.
+        }
+
+        trap_FS_Read(&text, len, f)
+        text[len] = 0
+        trap_FS_FCloseFile(f)
+
+        // parse the text
+        text_p = TextCursor(text)
+        upper_i = 0
+        lower_i = 0
+
+        // read information for batches of sounds (UPPER or LOWER)
+        while 1 != 0 {
+            // Get base frame of sequence
+            token = COM_Parse(&text_p)
+            if token.isEmpty {
+                break
+            }
+
+            if Q_stricmp(token, "include") == 0 {
+                // grab from another animevents.cfg
+                //NOTE: you REALLY should NOT do this after the main block of UPPERSOUNDS and LOWERSOUNDS
+                let include_filename: String = COM_Parse(&text_p)
+                // Raven tests `include_filename != NULL`, and `COM_Parse` never returns NULL, so the arm always runs.
+                var fullIPath = CharBuf(MAX_QPATH)
+                strcpy(&fullIPath, va("models/players/%s/", include_filename))
+                bg_animParseIncluding += 1
+                BG_ParseAnimationEvtFile(String(fullIPath), animFileIndex, forcedIndex)
+                bg_animParseIncluding -= 1
+            }
+
+            if Q_stricmp(token, "UPPEREVENTS") == 0 {
+                // A batch of upper sounds
+                ParseAnimationEvtBlock(as_filename, torsoAnimEvents, animations, &upper_i, &text_p)
+            } else if Q_stricmp(token, "LOWEREVENTS") == 0 {
+                // A batch of lower sounds
+                ParseAnimationEvtBlock(as_filename, legsAnimEvents, animations, &lower_i, &text_p)
+            }
+        }
+
+        usedIndex = forcedIndex
+    }
+    //Mark this anim set so that we know we tried to load he sounds, don't care if the load failed
+    if bg_animParseIncluding <= 0 {
+        //if we should be parsing an included file, skip this part
+        bgAllEvents[forcedIndex].eventsParsed = true
+        strcpy(&bgAllEvents[forcedIndex].filenameBuffer, as_filename)
+        if forcedIndex != 0 {
+            bgNumAnimEvents += 1
+        }
+    }
+
+    return usedIndex
 }
 
 /**
