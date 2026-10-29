@@ -11,6 +11,8 @@ import JKAMP_BG
 @_cdecl("dllEntry")
 public func dllEntry(_ syscallptr: OpaquePointer) {
     Syscall.transport = EngineTransport(entry: syscallptr)
+    // AI: Raven relied on the engine reload of the image to zero every static at a map load. The image stays resident here, so a fresh world gives the same result.
+    world = GameWorld()
     // The game installs the bg channel here, rule 23, with Raven's `MAX_POOL_SIZE` of 3000000 for the game at oracle/codemp/game/bg_misc.c:3312.
     bg = BgState(consumer: .game, maxPoolSize: 3_000_000)
     bg.error = { level, text in JKAMP_GameLogic.Com_Error(level, text) }
