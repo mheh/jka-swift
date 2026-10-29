@@ -570,6 +570,7 @@ Raven's `fabs` and `fabsf` are both `abs`, because Swift deprecates Foundation's
 A `#ifdef` takes the native build's branch. The other branch is not written, and it gets no Port-note, because it is dead by the build's own choice.
 A define with no body, `_JK2MP`, `MISSIONPACK`, `BOT_STRAFE_AVOIDANCE`, an include guard, is a switch of the build, fixed by the parse's defines in `tools/oracle-closure/modules/mp-game.py`, Raven's release configuration, and it is never a Swift name.
 Raven's `#ifdef QAGAME` in a bg body is the one exception, and it is `if bg.consumer == .game { ... } else { ... }`, with both arms on the page.
+A chain with more than two arms, or with a `CGAME` test, is a `switch bg.consumer` with one `case` per Raven arm in Raven's order, `case .game, .ui:` where Raven's `#else` covers both, and `case .game: break` for a consumer with no arm.
 
 ### An assignment inside an expression
 
