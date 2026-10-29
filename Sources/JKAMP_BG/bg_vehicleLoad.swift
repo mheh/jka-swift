@@ -84,8 +84,8 @@ private func BG_ParseVehWeaponParm(_ vehWeapon: JKAMP.VehWeaponInfo, _ parmName:
             case VF_LSTRING: // string on disk, pointer in memory, TAG_LEVEL
                 if b[pointer: vehWeaponFields[i].ofs] == nil {
                     //just use 1024 bytes in case we want to write over the string
-                    b[pointer: vehWeaponFields[i].ofs] = BG_Alloc(1024) //(char *)BG_Alloc(strlen(value));
-                    strcpy(b[pointer: vehWeaponFields[i].ofs]!, value)
+                    // AI: Raven copies the text into a BG_Alloc block of 1024 bytes. The string pool holds the text.
+                    b[string: vehWeaponFields[i].ofs] = String(value)
                 }
 
             case VF_VECTOR:
@@ -442,8 +442,8 @@ private func BG_ParseVehicleParm(_ vehicle: JKAMP.VehicleInfo, _ parmName: Strin
             case VF_LSTRING: // string on disk, pointer in memory, TAG_LEVEL
                 if b[pointer: vehicleFields[i].ofs] == nil {
                     //just use 128 bytes in case we want to write over the string
-                    b[pointer: vehicleFields[i].ofs] = BG_Alloc(128) //(char *)BG_Alloc(strlen(value));
-                    strcpy(b[pointer: vehicleFields[i].ofs]!, value)
+                    // AI: Raven copies the text into a BG_Alloc block of 128 bytes. The string pool holds the text.
+                    b[string: vehicleFields[i].ofs] = String(value)
                 }
 
             case VF_VECTOR:
@@ -786,7 +786,8 @@ func BG_VehWeaponLoadParms() {
     var marker: Int32 = 0
     var vehWeaponExtensionListBuf = CharBuf(2048)
     var f: fileHandle_t = 0
-    var tempReadBuffer: UnsafeMutableRawPointer
+    // AI: Raven reads each file into a BG_TempAlloc block. The buffer is a CharBuf local, and the call stays for the count.
+    var tempReadBuffer = CharBuf(MAX_VEH_WEAPON_DATA_SIZE)
 
     len = 0
 
@@ -803,7 +804,7 @@ func BG_VehWeaponLoadParms() {
 
     holdChar = TextCursor(vehWeaponExtensionListBuf)
 
-    tempReadBuffer = BG_TempAlloc(MAX_VEH_WEAPON_DATA_SIZE)
+    _ = BG_TempAlloc(MAX_VEH_WEAPON_DATA_SIZE)
 
     // NOTE: Not use TempAlloc anymore...
     //Make ABSOLUTELY CERTAIN that BG_Alloc/etc. is not used before
@@ -821,8 +822,8 @@ func BG_VehWeaponLoadParms() {
         if len == -1 {
             Com_Printf("error reading file\n")
         } else {
-            trap_FS_Read(OpaquePointer(tempReadBuffer), len, f)
-            tempReadBuffer[byte: len] = 0
+            trap_FS_Read(&tempReadBuffer, len, f)
+            tempReadBuffer[len] = 0
 
             // Don't let it end on a } because that should be a stand-alone token.
             if totallen != 0 && VehWeaponParms[marker - 1] == Int32(ascii: "}") {
@@ -861,7 +862,8 @@ public func BG_VehicleLoadParms() {
     var marker: Int32 = 0
     var vehExtensionListBuf = CharBuf(2048)
     var f: fileHandle_t = 0
-    var tempReadBuffer: UnsafeMutableRawPointer
+    // AI: Raven reads each file into a BG_TempAlloc block. The buffer is a CharBuf local, and the call stays for the count.
+    var tempReadBuffer = CharBuf(MAX_VEHICLE_DATA_SIZE)
 
     len = 0
 
@@ -878,7 +880,7 @@ public func BG_VehicleLoadParms() {
 
     holdChar = TextCursor(vehExtensionListBuf)
 
-    tempReadBuffer = BG_TempAlloc(MAX_VEHICLE_DATA_SIZE)
+    _ = BG_TempAlloc(MAX_VEHICLE_DATA_SIZE)
 
     // NOTE: Not use TempAlloc anymore...
     //Make ABSOLUTELY CERTAIN that BG_Alloc/etc. is not used before
@@ -896,8 +898,8 @@ public func BG_VehicleLoadParms() {
         if len == -1 {
             Com_Printf("error reading file\n")
         } else {
-            trap_FS_Read(OpaquePointer(tempReadBuffer), len, f)
-            tempReadBuffer[byte: len] = 0
+            trap_FS_Read(&tempReadBuffer, len, f)
+            tempReadBuffer[len] = 0
 
             // Don't let it end on a } because that should be a stand-alone token.
             if totallen != 0 && VehicleParms[marker - 1] == Int32(ascii: "}") {

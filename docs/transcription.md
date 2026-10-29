@@ -452,7 +452,7 @@ The stub forwards it under Raven's name at Raven's line, `var gWPNum: Int32 { ge
 A name in `NEVER_NULL_VARS` of `rulings.py`, `pm` among them, forwards non-optional and traps on nil with the name, because Raven's callers set it before any body runs.
 A `void *` variable is an engine handle, an `OpaquePointer?` whose `NULL` or `0` initializer is nil, so a body hands `g2SaberInstance` to a Ghoul2 trap by value and `&g2SaberInstance` by address.
 A variable the module assigns and Raven gives a data initializer, a brace list, is a hand property of the state object with Raven's data, and the stub forwards it the same way.
-A name in `HAND_VARS` of `rulings.py` keeps its hand storage, `bg_pool` as `bg.pool`, and its stub entry says so.
+A name in `HAND_VARS` of `rulings.py` keeps its hand storage, `memoryPool` as `world.memoryPool`, and its stub entry says so. The `bg_pool` entry has no storage, and it keeps the stub from a `CharBuf` of `MAX_POOL_SIZE` bytes.
 A C character array at file scope is a `CharBuf` of Raven's bound.
 A variable Raven declares with no initializer is his all the same, zeroed by the loader, and its entry says C's zero where the initializer would be.
 A file-scope array of struct pointers, such as `gWPArray`, is one zeroed allocation the world owns, on the generated `GameStorage` class in `Sources/JKAMP_Game/Generated/Storage/GameStorage.swift`, as a `Slots` of optional views, born and freed with `GameWorld`.
@@ -472,7 +472,8 @@ A static local a statement writes is storage that outlives the call, and the dra
 A static local that a statement reads before one writes it, or that the function returns, such as the `char buff[]` of `BuildShaderStateConfig`, is a hole of the same kind, whatever its type.
 The 23 statics of `BG_UpdateLookAngles` and `BG_G2PlayerAngles` are this shape, and none of them sits on `BgState`.
 
-`bg_pool` is one raw allocation of `MAX_POOL_SIZE` bytes, `bg.pool`, made at the consumer's install and never freed. `bg_poolSize` and `bg_poolTail` are `BgVariables` properties, and `BgState.init` sets `bg_poolTail` to the consumer's `MAX_POOL_SIZE` by hand.
+`bg_pool` has no storage. `BG_Alloc` and `BG_TempAlloc` keep Raven's count over `bg_poolSize` and `bg_poolTail`, and each call returns one zeroed block in the shape of Raven's Xbox arm. `bg_poolSize` and `bg_poolTail` are `BgVariables` properties, and `BgState.init` sets `bg_poolTail` to the consumer's `MAX_POOL_SIZE` by hand.
+The open temporary blocks are `tempAllocPointers` and `tempAllocSizes` on `BgState`, Raven's names of his Xbox arm, of `MAX_TEMP_ALLOCS` slots.
 `MAX_POOL_SIZE` is `var MAX_POOL_SIZE: Int32 { bg.maxPoolSize }` in `bg_local.swift`, so a body reads Raven's name.
 
 ### The bg channel
@@ -706,14 +707,14 @@ A new comment the transcriptor writes follows the house style: STE prose, one se
 `Sources/JKAShared/Views/RawField.swift` extends `UnsafeMutableRawPointer` with one labeled subscript per C type Raven casts to at an offset, each taking any integer offset.
 `b[int: f.ofs]` stores an `Int32`, `b[float: f.ofs]` a `Float`, `b[float: f.ofs, 1]` the second float after the offset, and `b[string: f.ofs]` the text of a `char *` field, which the store interns in the pool.
 `b[pointer: f.ofs]` is the `UnsafeMutableRawPointer?` a `char *` field holds, so `*(char **)(b+ofs)` reads `b[pointer: ofs]` and Raven's `!*(char **)(b+ofs)` reads `b[pointer: ofs] == nil`.
-`b[byte: len]` is one byte at an offset, which sign-extends and truncates as `CharBuf` does, so `tempReadBuffer[len] = 0` through a raw allocation reads `tempReadBuffer[byte: len] = 0`.
+`b[byte: ofs]` is one byte at an offset, which sign-extends and truncates as `CharBuf` does, so Raven's `*new_p++ = '\n'` through the raw allocation of `G_NewString` reads `newb[byte: new_p] = Int32(ascii: "\n")`, with the index held apart.
 Raven's `qboolean` and his `vehicleType_t` are enums of four bytes, so `*(qboolean *)(b+ofs)` and `*(vehicleType_t *)(b+ofs)` both take the `int` slot.
 `BG_ParseField` reads `b[int: f.ofs] = atoi(value)` for Raven's `*(int *)(b+f->ofs) = atoi(value)`, and a body never writes `storeBytes` or `MemoryLayout`.
 A `byte *` local whose one store is the cast of a view, Raven's `byte *b = (byte *)vehWeapon`, is the raw pointer over the view's own slot, `let b = UnsafeMutableRawPointer(vehWeapon.handle)`, with the one-line comment that names rule 11.
 A `char *` local whose every store is a call to a `CHARBUF_ALLOCS` allocator of `rulings.py` at one constant size is a `CharBuf` of that size, `var buf = CharBuf(131072)` for Raven's `buf = (char *)B_TempAlloc(131072)`.
 The call stays on the page with its result dropped, `_ = B_TempAlloc(131072)`, and the free stays too, so the pool keeps Raven's count.
 A `G_Alloc` into a `String` slot that Raven then fills with `strcpy` takes the same form, `_ = G_Alloc(strlen(info) + 1)`, then the store `infos[infos.startIndex + count] = String(info)`, and Raven's NULL test of the slot drops under rule 22.
-The same file defines `+` and `-` between a raw pointer and any integer, so `BG_Alloc` reads `return bg.pool + (bg.poolSize - size)` for Raven's `&bg_pool[bg_poolSize-size]`.
+The same file defines `+` and `-` between a raw pointer and any integer, so a body adds Raven's offset to a raw pointer as he wrote it.
 
 ### No `Unsafe` type
 

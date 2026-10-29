@@ -539,7 +539,7 @@ class Expressions:
                 slot = self.unwrap(operand)
                 if slot.kind == CursorKind.ARRAY_SUBSCRIPT_EXPR:
                     base, index = list(slot.get_children())
-                    if self.unwrap(base).spelling in HAND_VARS:
+                    if HAND_VARS.get(self.unwrap(base).spelling) is not None:
                         # `&bg_pool[i]` is a pointer into the raw allocation, and the raw pointer advances by the offset.
                         return f"{HAND_VARS[self.unwrap(base).spelling]} + ({self.converted(index, 'Int32')})"
                 # The address of a value is the value in Swift, and the call site adds `&` where a parameter is inout.
@@ -721,7 +721,7 @@ class Expressions:
             fields = [field for field, pairs in self.sk.stores.items() if any(stored == name for stored, _ in pairs)]
             if len(fields) == 1:
                 return f"{fields[0][0].upper()}{fields[0][1:]}.{swift_name(name)}"
-        if name in HAND_VARS:
+        if HAND_VARS.get(name) is not None:
             return HAND_VARS[name]
         if ref is not None and ref.kind == CursorKind.VAR_DECL and ref.semantic_parent is not None and ref.semantic_parent.kind == CursorKind.TRANSLATION_UNIT:
             self.reach(name, "variable")

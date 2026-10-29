@@ -1665,7 +1665,7 @@ func BG_ModelCache(_ modelName: String, _ skinName: String?) -> Int32 {
 
 /// Source: oracle/codemp/game/bg_misc.c:3324
 // Raven wrote: static char bg_pool[MAX_POOL_SIZE]
-// A hand property of the state object, `bg.pool`, by the HAND_VARS ruling.
+// AI: Raven allocates from this static pool. Each allocation is its own block, so the pool has no storage.
 
 /// Source: oracle/codemp/game/bg_misc.c:3325
 var bg_poolSize: Int32 {
@@ -1691,7 +1691,10 @@ public func BG_Alloc(_ size: Int32) -> UnsafeMutableRawPointer {
 
     bg_poolSize += size
 
-    return bg.pool + (bg_poolSize - size)
+    // AI: Raven returns a pointer into bg_pool. Each call allocates one zeroed block that is never freed, as in his Xbox arm.
+    let block = UnsafeMutableRawPointer.allocate(byteCount: Int(size), alignment: 16)
+    block.initializeMemory(as: UInt8.self, repeating: 0, count: Int(size))
+    return block
 }
 
 /// Source: oracle/codemp/game/bg_misc.c:3343
@@ -1703,7 +1706,10 @@ func BG_AllocUnaligned(_ size: Int32) -> UnsafeMutableRawPointer {
 
     bg_poolSize += size
 
-    return bg.pool + (bg_poolSize - size)
+    // AI: Raven returns a pointer into bg_pool. Each call allocates one zeroed block that is never freed, as in his Xbox arm.
+    let block = UnsafeMutableRawPointer.allocate(byteCount: Int(size), alignment: 16)
+    block.initializeMemory(as: UInt8.self, repeating: 0, count: Int(size))
+    return block
 }
 
 /// Source: oracle/codemp/game/bg_misc.c:3356
@@ -1719,7 +1725,27 @@ public func BG_TempAlloc(_ size: Int32) -> UnsafeMutableRawPointer {
 
     bg_poolTail -= size
 
-    return bg.pool + bg_poolTail
+    // AI: Raven returns a pointer into the tail of bg_pool. Each call allocates one zeroed block in a free slot, as in his Xbox arm.
+    var i: Int32 = 0
+
+    // Do we have a free spot?
+    while i < MAX_TEMP_ALLOCS {
+        if bg.tempAllocPointers[i] == nil {
+            break
+        }
+        i += 1
+    }
+
+    if i == MAX_TEMP_ALLOCS {
+        Com_Error(ERR_DROP, "BG_TempAlloc: No space for TempAlloc -> Increase MAX_TEMP_ALLOCS")
+    }
+
+    let block = UnsafeMutableRawPointer.allocate(byteCount: Int(size), alignment: 16)
+    block.initializeMemory(as: UInt8.self, repeating: 0, count: Int(size))
+    bg.tempAllocPointers[i] = block
+    bg.tempAllocSizes[i] = size
+
+    return block
 }
 
 /// Source: oracle/codemp/game/bg_misc.c:3371
@@ -1733,6 +1759,25 @@ public func BG_TempFree(_ size: Int32) {
     }
 
     bg_poolTail += size
+
+    // AI: Raven moves the tail of bg_pool back. The call frees the last open block of this size, as in his Xbox arm.
+    var i: Int32 = MAX_TEMP_ALLOCS - 1
+
+    // Find the allocation
+    while i >= 0 {
+        if bg.tempAllocPointers[i] != nil && bg.tempAllocSizes[i] == size {
+            break
+        }
+        i -= 1
+    }
+
+    if i < 0 {
+        Com_Error(ERR_DROP, "BG_TempFree: BG_TempFree doesn't match a call to BG_TempAlloc")
+    }
+
+    bg.tempAllocPointers[i]!.deallocate()
+    bg.tempAllocPointers[i] = nil
+    bg.tempAllocSizes[i] = 0
 }
 
 /// Source: oracle/codemp/game/bg_misc.c:3383
