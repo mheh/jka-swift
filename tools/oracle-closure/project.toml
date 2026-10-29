@@ -186,8 +186,13 @@ defines = [
     "CGAME",
     "_JK2",
 ]
+# The four vehicle NPC files of the game folder are Raven's list at oracle/codemp/cgame/JK2_cgame.vcproj:294-303.
 srcglob = [
     "codemp/cgame/*.c",
+    "codemp/game/AnimalNPC.c",
+    "codemp/game/FighterNPC.c",
+    "codemp/game/SpeederNPC.c",
+    "codemp/game/WalkerNPC.c",
     "codemp/game/bg_*.c",
     "codemp/ui/ui_shared.c",
 ]
