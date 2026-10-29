@@ -6006,7 +6006,17 @@ private func PM_Weapon() {
             //riding a walker/fighter
             //keep saber off, do no weapon stuff at all!
             pm.ps.saberHolstered = 2
-            pm.cmd.buttons &= ~(BUTTON_ATTACK | BUTTON_ALT_ATTACK)
+            if bg.consumer == .game {
+                pm.cmd.buttons &= ~(BUTTON_ATTACK | BUTTON_ALT_ATTACK)
+            } else {
+                if g_vehWeaponInfo[veh!.m_pVehicle!.m_pVehicleInfo!.weapon[0].ID].fHoming != 0 || g_vehWeaponInfo[veh!.m_pVehicle!.m_pVehicleInfo!.weapon[1].ID].fHoming != 0 {
+                    //our vehicle uses a rocket launcher, so do the normal checks
+                    vehicleRocketLock = true
+                    pm.cmd.buttons &= ~BUTTON_ATTACK
+                } else {
+                    pm.cmd.buttons &= ~(BUTTON_ATTACK | BUTTON_ALT_ATTACK)
+                }
+            }
         }
     }
 
@@ -6563,10 +6573,14 @@ private func PM_Weapon() {
                 //ok, grapple time
 
                 //G_SetAnim(ent, &ent->client->pers.cmd, SETANIM_BOTH, BOTH_KYLE_GRAB, SETANIM_FLAG_OVERRIDE|SETANIM_FLAG_HOLD, 0);
-                if pm_entSelf != nil {
-                    if TryGrapple(selfEntity) {
-                        return
+                if bg.consumer == .game {
+                    if pm_entSelf != nil {
+                        if TryGrapple(selfEntity) {
+                            return
+                        }
                     }
+                } else {
+                    return
                 }
             } else if pm.debugMelee != 0 && (pm.cmd.buttons & BUTTON_ALT_ATTACK) != 0 {
                 //kicks
@@ -9225,37 +9239,79 @@ func PmoveSingle(_ pmove: JKAMP.Pmove) {
                 PM_VehicleViewAngles(`self`!.playerState!, veh!, vehicle.m_ucmd)
             }
 
-            vehicleInfo.runUpdate(vehicle, vehicle.m_ucmd)
-            vehicleInfo.runAnimate(vehicle)
+            if bg.consumer == .game {
+                vehicleInfo.runUpdate(vehicle, vehicle.m_ucmd)
+                vehicleInfo.runAnimate(vehicle)
 
-            vehicleInfo.runUpdateRider(vehicle, `self`, vehicle.m_ucmd)
-            //update the passengers
-            while i < vehicle.m_iNumPassengers {
-                if vehicle.m_ppPassengers[i] != nil {
-                    let thePassenger: BgEntity = vehicle.m_ppPassengers[i]!
-                    if bgEntityInuse(thePassenger) && thePassenger.playerState != nil {
-                        vehicleInfo.runUpdateRider(vehicle, vehicle.m_ppPassengers[i], bgClientCmd(thePassenger))
+                vehicleInfo.runUpdateRider(vehicle, `self`, vehicle.m_ucmd)
+                //update the passengers
+                while i < vehicle.m_iNumPassengers {
+                    if vehicle.m_ppPassengers[i] != nil {
+                        let thePassenger: BgEntity = vehicle.m_ppPassengers[i]!
+                        if bgEntityInuse(thePassenger) && thePassenger.playerState != nil {
+                            vehicleInfo.runUpdateRider(vehicle, vehicle.m_ppPassengers[i], bgClientCmd(thePassenger))
+                        }
+                    }
+                    i += 1
+                }
+            } else {
+                if !veh!.playerState!.vehBoarding {
+                    //|| veh->m_pVehicle->m_pVehicleInfo->type == VH_FIGHTER)
+                    if vehicleInfo.type == VH_FIGHTER {
+                        //client must explicitly call this for prediction
+                        BG_FighterUpdate(vehicle, vehicle.m_ucmd, pm.mins, pm.maxs, Float(`self`!.playerState!.gravity), pm.runTrace)
+                    }
+
+                    if vehicle.m_iBoarding == 0 {
+                        var vRollAng = vec3_t()
+
+                        //make sure we are set as its pilot cgame side
+                        vehicle.m_pPilot = `self`
+
+                        // Keep track of the old orientation.
+                        vehicle.m_vPrevOrientation = vehicle.m_vOrientationVector
+
+                        vehicleInfo.runProcessOrientCommands(vehicle)
+                        PM_SetPMViewAngle(veh!.playerState!, &vehicle.m_vOrientationVector, vehicle.m_ucmd)
+                        vehicleInfo.runProcessMoveCommands(vehicle)
+
+                        vRollAng[YAW] = `self`!.playerState!.viewangles[YAW]
+                        vRollAng[PITCH] = `self`!.playerState!.viewangles[PITCH]
+                        vRollAng[ROLL] = vehicle.m_vOrientationVector[ROLL]
+                        PM_SetPMViewAngle(`self`!.playerState!, &vRollAng, pm.cmd)
+
+                        // Setup the move direction.
+                        if vehicleInfo.type == VH_FIGHTER {
+                            // Raven passes NULL for the second and third outputs of `AngleVectors`.
+                            // The ported function takes them by reference, so the body passes scratch vectors it never reads.
+                            var scratchRight = vec3_t()
+                            var scratchUp = vec3_t()
+                            AngleVectors(vehicle.m_vOrientationVector, &veh!.playerState!.moveDir, &scratchRight, &scratchUp)
+                        } else {
+                            var vVehAngles = vec3_t()
+
+                            vVehAngles = vec3_t(0, vehicle.m_vOrientationVector[YAW], 0)
+                            var scratchRight = vec3_t()
+                            var scratchUp = vec3_t()
+                            AngleVectors(vVehAngles, &veh!.playerState!.moveDir, &scratchRight, &scratchUp)
+                        }
                     }
                 }
-                i += 1
+                /*
+                else
+                {
+                veh->playerState->speed = 0.0f;
+                PM_SetPMViewAngle(self->playerState, veh->playerState->viewangles, &veh->m_pVehicle->m_ucmd);
+                }
+                */
+                else if veh!.playerState != nil {
+                    veh!.playerState!.speed = 0.0
+                    if veh!.m_pVehicle != nil {
+                        PM_SetPMViewAngle(`self`!.playerState!, &vehicle.m_vOrientationVector, pm.cmd)
+                        PM_SetPMViewAngle(veh!.playerState!, &vehicle.m_vOrientationVector, pm.cmd)
+                    }
+                }
             }
-
-
-            //make sure we are set as its pilot cgame side
-
-            // Keep track of the old orientation.
-
-
-
-            // Setup the move direction.
-
-            /*
-            else
-            {
-            veh->playerState->speed = 0.0f;
-            PM_SetPMViewAngle(self->playerState, veh->playerState->viewangles, &veh->m_pVehicle->m_ucmd);
-            }
-            */
         }
         noAnimate = true
     }
