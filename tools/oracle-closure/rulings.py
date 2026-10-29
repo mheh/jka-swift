@@ -415,6 +415,21 @@ ARM_HOOKS = {
     "bgLandOnVehicle": ("oracle/codemp/game/bg_pmove.c:4234", [("entityNum", "Int32")]),
     "bgSetSolidHack": ("oracle/codemp/game/bg_pmove.c:4448", [("clientNum", "Int32")]),
 }
+# A cgame arm of a bg body that reads a cgame table reads it through one read callback per field, row C5 of the bg consumer docket.
+# The game's install skips it, and the cgame install reads the field through the cgame's own views by the expression of the entry.
+# name -> (the cite of Raven's read, the parameters as (name, Swift type, label) triples, the Swift return, the cgame install expression)
+CGAME_READS = {
+    "bgClientInfoInfoValid": ("oracle/codemp/game/bg_saber.c:4129", [("entityNum", "Int32", "of")], "Bool",
+                              "cgs.clientinfo[Int(entityNum)].infoValid"),
+    "bgClientInfoSaber": ("oracle/codemp/game/bg_saber.c:4131", [("entityNum", "Int32", "of"), ("index", "Int32", "at")], "JKAMP.SaberInfo",
+                          "cgs.clientinfo[Int(entityNum)].saber[Int(index)]"),
+    "bgCentNpcClient": ("oracle/codemp/game/bg_saber.c:4123", [("entityNum", "Int32", "of")], "Bool",
+                        "cg_entities[Int(entityNum)].npcClient != nil"),
+    "bgNpcClientInfoValid": ("oracle/codemp/game/bg_saber.c:4129", [("entityNum", "Int32", "of")], "Bool",
+                             "cg_entities[Int(entityNum)].npcClient!.infoValid"),
+    "bgNpcClientSaber": ("oracle/codemp/game/bg_saber.c:4131", [("entityNum", "Int32", "of"), ("index", "Int32", "at")], "JKAMP.SaberInfo",
+                         "cg_entities[Int(entityNum)].npcClient!.saber[Int(index)]"),
+}
 # A function Raven compiles only under `#ifdef QAGAME` is a game function, R31. The game defines it by hand beside the arm hooks,
 # and the bg body reaches it through the channel. name -> the cite of Raven's definition
 QAGAME_ONLY = {"PM_CrashLandEffect": "oracle/codemp/game/bg_pmove.c:3684"}

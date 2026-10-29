@@ -31,7 +31,7 @@ from clang.cindex import CursorKind
 
 import closure as C
 from reexport import REPO, SOURCES
-from rulings import ARM_HOOKS, EXTRA_HOOKS, LIST_TRAPS, OWN_HOOKS, QAGAME_ONLY, SHARED_STEMS
+from rulings import ARM_HOOKS, CGAME_READS, EXTRA_HOOKS, LIST_TRAPS, OWN_HOOKS, QAGAME_ONLY, SHARED_STEMS
 from skeleton import LOGIC, OPTIONAL_INOUTS
 from table import Param, SourceFile, Table
 
@@ -270,6 +270,13 @@ class Channel:
                 hook.params.append(Param("value", read.swift, "bare"))
             else:
                 hook.returns = read.swift
+            hooks.append(hook)
+        # A cgame read stands on the channel with its trapping default, and the game's install skips it as a foreign hook.
+        for name, (cite, params, returns, install) in CGAME_READS.items():
+            hook = Hook(None, name, cite=cite, foreign=True)
+            hook.install = install
+            hook.params = [Param(p, t, "bare", label=label) for p, t, label in params]
+            hook.returns = returns
             hooks.append(hook)
         return hooks
 
