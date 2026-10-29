@@ -30,7 +30,18 @@ var bgSaberParseTBuffer: JKAShared.CharBuf {
 
 /// Source: oracle/codemp/game/bg_saberLoad.c:32
 func BG_SoundIndex(_ sound: String) -> Int32 {
-    return G_SoundIndex(sound)
+    switch bg.consumer {
+    case .game:
+        return G_SoundIndex(sound)
+
+    case .cgame:
+        return trap_S_RegisterSound(sound)
+
+    case .ui:
+        // Port-note: Raven compiles no return for the ui, so the ui reads an undefined value.
+        // The ui gets 0.
+        return 0
+    }
 }
 
 //Also used in npc code
@@ -1418,7 +1429,16 @@ public func WP_SaberParseParms(_ SaberName: String, _ saber: JKAMP.SaberInfo) ->
                 SkipRestOfLine(&p)
                 continue
             }
-            SkipRestOfLine(&p)
+            switch bg.consumer {
+            case .game: //cgame-only cares about this
+                SkipRestOfLine(&p)
+
+            case .cgame:
+                saber.g2MarksShader = trap_R_RegisterShader(value)
+
+            case .ui:
+                SkipRestOfLine(&p)
+            }
             continue
         }
 
@@ -1428,7 +1448,16 @@ public func WP_SaberParseParms(_ SaberName: String, _ saber: JKAMP.SaberInfo) ->
                 SkipRestOfLine(&p)
                 continue
             }
-            SkipRestOfLine(&p)
+            switch bg.consumer {
+            case .game: //cgame-only cares about this
+                SkipRestOfLine(&p)
+
+            case .cgame:
+                saber.g2WeaponMarkShader = trap_R_RegisterShader(value)
+
+            case .ui:
+                SkipRestOfLine(&p)
+            }
             continue
         }
 
@@ -1628,7 +1657,16 @@ public func WP_SaberParseParms(_ SaberName: String, _ saber: JKAMP.SaberInfo) ->
             if COM_ParseString(&p, &value) {
                 continue
             }
-            SkipRestOfLine(&p)
+            switch bg.consumer {
+            case .game: //cgame-only cares about this
+                SkipRestOfLine(&p)
+
+            case .cgame:
+                saber.blockEffect = trap_FX_RegisterEffect(value)
+
+            case .ui:
+                SkipRestOfLine(&p)
+            }
             continue
         }
 
@@ -1637,7 +1675,16 @@ public func WP_SaberParseParms(_ SaberName: String, _ saber: JKAMP.SaberInfo) ->
             if COM_ParseString(&p, &value) {
                 continue
             }
-            SkipRestOfLine(&p)
+            switch bg.consumer {
+            case .game: //cgame-only cares about this
+                SkipRestOfLine(&p)
+
+            case .cgame:
+                saber.hitPersonEffect = trap_FX_RegisterEffect(value)
+
+            case .ui:
+                SkipRestOfLine(&p)
+            }
             continue
         }
 
@@ -1646,7 +1693,16 @@ public func WP_SaberParseParms(_ SaberName: String, _ saber: JKAMP.SaberInfo) ->
             if COM_ParseString(&p, &value) {
                 continue
             }
-            SkipRestOfLine(&p)
+            switch bg.consumer {
+            case .game: //cgame-only cares about this
+                SkipRestOfLine(&p)
+
+            case .cgame:
+                saber.hitOtherEffect = trap_FX_RegisterEffect(value)
+
+            case .ui:
+                SkipRestOfLine(&p)
+            }
             continue
         }
 
@@ -1655,7 +1711,16 @@ public func WP_SaberParseParms(_ SaberName: String, _ saber: JKAMP.SaberInfo) ->
             if COM_ParseString(&p, &value) {
                 continue
             }
-            SkipRestOfLine(&p)
+            switch bg.consumer {
+            case .game: //cgame-only cares about this
+                SkipRestOfLine(&p)
+
+            case .cgame:
+                saber.bladeEffect = trap_FX_RegisterEffect(value)
+
+            case .ui:
+                SkipRestOfLine(&p)
+            }
             continue
         }
 
@@ -1724,7 +1789,16 @@ public func WP_SaberParseParms(_ SaberName: String, _ saber: JKAMP.SaberInfo) ->
                 SkipRestOfLine(&p)
                 continue
             }
-            SkipRestOfLine(&p)
+            switch bg.consumer {
+            case .game: //cgame-only cares about this
+                SkipRestOfLine(&p)
+
+            case .cgame:
+                saber.g2MarksShader2 = trap_R_RegisterShader(value)
+
+            case .ui:
+                SkipRestOfLine(&p)
+            }
             continue
         }
 
@@ -1734,7 +1808,16 @@ public func WP_SaberParseParms(_ SaberName: String, _ saber: JKAMP.SaberInfo) ->
                 SkipRestOfLine(&p)
                 continue
             }
-            SkipRestOfLine(&p)
+            switch bg.consumer {
+            case .game: //cgame-only cares about this
+                SkipRestOfLine(&p)
+
+            case .cgame:
+                saber.g2WeaponMarkShader2 = trap_R_RegisterShader(value)
+
+            case .ui:
+                SkipRestOfLine(&p)
+            }
             continue
         }
 
@@ -1934,7 +2017,16 @@ public func WP_SaberParseParms(_ SaberName: String, _ saber: JKAMP.SaberInfo) ->
             if COM_ParseString(&p, &value) {
                 continue
             }
-            SkipRestOfLine(&p)
+            switch bg.consumer {
+            case .game: //cgame-only cares about this
+                SkipRestOfLine(&p)
+
+            case .cgame:
+                saber.blockEffect2 = trap_FX_RegisterEffect(value)
+
+            case .ui:
+                SkipRestOfLine(&p)
+            }
             continue
         }
 
@@ -1943,7 +2035,16 @@ public func WP_SaberParseParms(_ SaberName: String, _ saber: JKAMP.SaberInfo) ->
             if COM_ParseString(&p, &value) {
                 continue
             }
-            SkipRestOfLine(&p)
+            switch bg.consumer {
+            case .game: //cgame-only cares about this
+                SkipRestOfLine(&p)
+
+            case .cgame:
+                saber.hitPersonEffect2 = trap_FX_RegisterEffect(value)
+
+            case .ui:
+                SkipRestOfLine(&p)
+            }
             continue
         }
 
@@ -1952,7 +2053,16 @@ public func WP_SaberParseParms(_ SaberName: String, _ saber: JKAMP.SaberInfo) ->
             if COM_ParseString(&p, &value) {
                 continue
             }
-            SkipRestOfLine(&p)
+            switch bg.consumer {
+            case .game: //cgame-only cares about this
+                SkipRestOfLine(&p)
+
+            case .cgame:
+                saber.hitOtherEffect2 = trap_FX_RegisterEffect(value)
+
+            case .ui:
+                SkipRestOfLine(&p)
+            }
             continue
         }
 
@@ -1961,7 +2071,16 @@ public func WP_SaberParseParms(_ SaberName: String, _ saber: JKAMP.SaberInfo) ->
             if COM_ParseString(&p, &value) {
                 continue
             }
-            SkipRestOfLine(&p)
+            switch bg.consumer {
+            case .game: //cgame-only cares about this
+                SkipRestOfLine(&p)
+
+            case .cgame:
+                saber.bladeEffect2 = trap_FX_RegisterEffect(value)
+
+            case .ui:
+                SkipRestOfLine(&p)
+            }
             continue
         }
 

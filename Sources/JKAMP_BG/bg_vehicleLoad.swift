@@ -115,31 +115,74 @@ private func BG_ParseVehWeaponParm(_ vehWeapon: JKAMP.VehWeaponInfo, _ parmName:
                 break
 
             case VF_MODEL: // take the string, get the G_ModelIndex
-                b[int: vehWeaponFields[i].ofs] = G_ModelIndex(String(value))
+                if bg.consumer == .game {
+                    b[int: vehWeaponFields[i].ofs] = G_ModelIndex(String(value))
+                } else {
+                    b[int: vehWeaponFields[i].ofs] = trap_R_RegisterModel(String(value))
+                }
 
             case VF_MODEL_CLIENT: // (MP cgame only) take the string, get the G_ModelIndex
-                //*(int *)(b+vehWeaponFields[i].ofs) = G_ModelIndex( value );
-                break
+                if bg.consumer == .game {
+                    //*(int *)(b+vehWeaponFields[i].ofs) = G_ModelIndex( value );
+                } else {
+                    b[int: vehWeaponFields[i].ofs] = trap_R_RegisterModel(String(value))
+                }
 
             case VF_EFFECT: // take the string, get the G_EffectIndex
-                b[int: vehWeaponFields[i].ofs] = G_EffectIndex(String(value))
+                switch bg.consumer {
+                case .game:
+                    b[int: vehWeaponFields[i].ofs] = G_EffectIndex(String(value))
+
+                case .cgame:
+                    b[int: vehWeaponFields[i].ofs] = trap_FX_RegisterEffect(String(value))
+
+                case .ui:
+                    break
+                }
 
             case VF_EFFECT_CLIENT: // (MP cgame only) take the string, get the index
-                //*(int *)(b+vehWeaponFields[i].ofs) = G_EffectIndex( value );
-                break
+                switch bg.consumer {
+                case .game:
+                    //*(int *)(b+vehWeaponFields[i].ofs) = G_EffectIndex( value );
+                    break
+
+                case .cgame:
+                    b[int: vehWeaponFields[i].ofs] = trap_FX_RegisterEffect(String(value))
+
+                case .ui:
+                    break
+                }
 
             case VF_SHADER: // (cgame only) take the string, call trap_R_RegisterShader
-                break
+                switch bg.consumer {
+                case .ui:
+                    b[int: vehWeaponFields[i].ofs] = trap_R_RegisterShaderNoMip(String(value))
+
+                case .cgame:
+                    b[int: vehWeaponFields[i].ofs] = trap_R_RegisterShader(String(value))
+
+                case .game:
+                    break
+                }
 
             case VF_SHADER_NOMIP: // (cgame only) take the string, call trap_R_RegisterShaderNoMip
-                break
+                if bg.consumer != .game {
+                    b[int: vehWeaponFields[i].ofs] = trap_R_RegisterShaderNoMip(String(value))
+                }
 
             case VF_SOUND: // take the string, get the G_SoundIndex
-                b[int: vehWeaponFields[i].ofs] = G_SoundIndex(String(value))
+                if bg.consumer == .game {
+                    b[int: vehWeaponFields[i].ofs] = G_SoundIndex(String(value))
+                } else {
+                    b[int: vehWeaponFields[i].ofs] = trap_S_RegisterSound(String(value))
+                }
 
             case VF_SOUND_CLIENT: // (MP cgame only) take the string, get the index
-                //*(int *)(b+vehWeaponFields[i].ofs) = G_SoundIndex( value );
-                break
+                if bg.consumer == .game {
+                    //*(int *)(b+vehWeaponFields[i].ofs) = G_SoundIndex( value );
+                } else {
+                    b[int: vehWeaponFields[i].ofs] = trap_S_RegisterSound(String(value))
+                }
 
             default:
                 //Unknown type?
@@ -224,9 +267,27 @@ func VEH_LoadVehWeapon(_ vehWeaponName: String) -> Int32 {
     }
     if vehWeapon!.fHoming != 0 {
         //all lock-on weapons use these 2 sounds
-        //Hmm, no need fo have server register this, is there?
-        //G_SoundIndex( "sound/weapons/torpedo/tick.wav" );
-        //G_SoundIndex( "sound/weapons/torpedo/lock.wav" );
+        switch bg.consumer {
+        case .game:
+            //Hmm, no need fo have server register this, is there?
+            //G_SoundIndex( "sound/weapons/torpedo/tick.wav" );
+            //G_SoundIndex( "sound/weapons/torpedo/lock.wav" );
+            break
+
+        case .cgame:
+            trap_S_RegisterSound("sound/vehicles/weapons/common/tick.wav")
+            trap_S_RegisterSound("sound/vehicles/weapons/common/lock.wav")
+            trap_S_RegisterSound("sound/vehicles/common/lockalarm1.wav")
+            trap_S_RegisterSound("sound/vehicles/common/lockalarm2.wav")
+            trap_S_RegisterSound("sound/vehicles/common/lockalarm3.wav")
+
+        case .ui:
+            trap_S_RegisterSound("sound/vehicles/weapons/common/tick.wav")
+            trap_S_RegisterSound("sound/vehicles/weapons/common/lock.wav")
+            trap_S_RegisterSound("sound/vehicles/common/lockalarm1.wav")
+            trap_S_RegisterSound("sound/vehicles/common/lockalarm2.wav")
+            trap_S_RegisterSound("sound/vehicles/common/lockalarm3.wav")
+        }
     }
     defer { numVehicleWeapons += 1 }
     return numVehicleWeapons
@@ -474,31 +535,74 @@ private func BG_ParseVehicleParm(_ vehicle: JKAMP.VehicleInfo, _ parmName: Strin
                 b[int: vehicleFields[i].ofs] = VEH_VehWeaponIndexForName(String(value))
 
             case VF_MODEL: // take the string, get the G_ModelIndex
-                b[int: vehicleFields[i].ofs] = G_ModelIndex(String(value))
+                if bg.consumer == .game {
+                    b[int: vehicleFields[i].ofs] = G_ModelIndex(String(value))
+                } else {
+                    b[int: vehicleFields[i].ofs] = trap_R_RegisterModel(String(value))
+                }
 
             case VF_MODEL_CLIENT: // (MP cgame only) take the string, get the G_ModelIndex
-                //*(int *)(b+vehicleFields[i].ofs) = G_ModelIndex( value );
-                break
+                if bg.consumer == .game {
+                    //*(int *)(b+vehicleFields[i].ofs) = G_ModelIndex( value );
+                } else {
+                    b[int: vehicleFields[i].ofs] = trap_R_RegisterModel(String(value))
+                }
 
             case VF_EFFECT: // take the string, get the G_EffectIndex
-                b[int: vehicleFields[i].ofs] = G_EffectIndex(String(value))
+                switch bg.consumer {
+                case .game:
+                    b[int: vehicleFields[i].ofs] = G_EffectIndex(String(value))
+
+                case .cgame:
+                    b[int: vehicleFields[i].ofs] = trap_FX_RegisterEffect(String(value))
+
+                case .ui:
+                    break
+                }
 
             case VF_EFFECT_CLIENT: // (MP cgame only) take the string, get the G_EffectIndex
-                //*(int *)(b+vehicleFields[i].ofs) = G_EffectIndex( value );
-                break
+                switch bg.consumer {
+                case .game:
+                    //*(int *)(b+vehicleFields[i].ofs) = G_EffectIndex( value );
+                    break
+
+                case .cgame:
+                    b[int: vehicleFields[i].ofs] = trap_FX_RegisterEffect(String(value))
+
+                case .ui:
+                    break
+                }
 
             case VF_SHADER: // (cgame only) take the string, call trap_R_RegisterShader
-                break
+                switch bg.consumer {
+                case .ui:
+                    b[int: vehicleFields[i].ofs] = trap_R_RegisterShaderNoMip(String(value))
+
+                case .cgame:
+                    b[int: vehicleFields[i].ofs] = trap_R_RegisterShader(String(value))
+
+                case .game:
+                    break
+                }
 
             case VF_SHADER_NOMIP: // (cgame only) take the string, call trap_R_RegisterShaderNoMip
-                break
+                if bg.consumer != .game {
+                    b[int: vehicleFields[i].ofs] = trap_R_RegisterShaderNoMip(String(value))
+                }
 
             case VF_SOUND: // take the string, get the G_SoundIndex
-                b[int: vehicleFields[i].ofs] = G_SoundIndex(String(value))
+                if bg.consumer == .game {
+                    b[int: vehicleFields[i].ofs] = G_SoundIndex(String(value))
+                } else {
+                    b[int: vehicleFields[i].ofs] = trap_S_RegisterSound(String(value))
+                }
 
             case VF_SOUND_CLIENT: // (MP cgame only) take the string, get the G_SoundIndex
-                //*(int *)(b+vehicleFields[i].ofs) = G_SoundIndex( value );
-                break
+                if bg.consumer == .game {
+                    //*(int *)(b+vehicleFields[i].ofs) = G_SoundIndex( value );
+                } else {
+                    b[int: vehicleFields[i].ofs] = trap_S_RegisterSound(String(value))
+                }
 
             default:
                 //Unknown type?
@@ -713,7 +817,11 @@ func VEH_LoadVehicle(_ vehicleName: String) -> Int32 {
     }
 
     if vehicleInfo.model != nil {
-        vehicleInfo.modelIndex = G_ModelIndex(va("models/players/%s/model.glm", vehicleInfo.model!))
+        if bg.consumer == .game {
+            vehicleInfo.modelIndex = G_ModelIndex(va("models/players/%s/model.glm", vehicleInfo.model!))
+        } else {
+            vehicleInfo.modelIndex = trap_R_RegisterModel(va("models/players/%s/model.glm", vehicleInfo.model!))
+        }
     }
 
     //SP
@@ -721,25 +829,82 @@ func VEH_LoadVehicle(_ vehicleName: String) -> Int32 {
     //this is for the server-side call, it will propgate down to cgame with configstrings and register it at the same time as all the other skins for ghoul2 models
     //this will just turn off surfs if there is a *off shader on a surf, the skin will actually get thrown away when cgame starts
     //this is for the server-side call, it will propgate down to cgame with configstrings and register it at the same time as all the other skins for ghoul2 models
+    if bg.consumer != .game {
+        if vehicleInfo.skin != nil && !vehicleInfo.skin!.isEmpty {
+            trap_R_RegisterSkin(va("models/players/%s/model_%s.skin", vehicleInfo.model ?? "(null)", vehicleInfo.skin!))
+        }
+    }
     //sanity check and clamp the vehicle's data
     BG_VehicleClampData(vehicleInfo)
     // Setup the shared function pointers.
     BG_SetSharedVehicleFunctions(vehicleInfo)
     //misc effects... FIXME: not even used in MP, are they?
     if vehicleInfo.explosionDamage != 0 {
-        G_EffectIndex("ships/ship_explosion_mark")
+        switch bg.consumer {
+        case .game:
+            G_EffectIndex("ships/ship_explosion_mark")
+
+        case .cgame:
+            trap_FX_RegisterEffect("ships/ship_explosion_mark")
+
+        case .ui:
+            break
+        }
     }
     if vehicleInfo.flammable {
-        G_SoundIndex("sound/vehicles/common/fire_lp.wav")
+        switch bg.consumer {
+        case .game:
+            G_SoundIndex("sound/vehicles/common/fire_lp.wav")
+
+        case .cgame:
+            trap_S_RegisterSound("sound/vehicles/common/fire_lp.wav")
+
+        case .ui:
+            trap_S_RegisterSound("sound/vehicles/common/fire_lp.wav")
+        }
     }
 
     if vehicleInfo.hoverHeight > 0 {
-        G_EffectIndex("ships/swoop_dust")
+        switch bg.consumer {
+        case .game:
+            G_EffectIndex("ships/swoop_dust")
+
+        case .cgame:
+            trap_FX_RegisterEffect("ships/swoop_dust")
+
+        case .ui:
+            break
+        }
     }
 
-    G_EffectIndex("volumetric/black_smoke")
-    G_EffectIndex("ships/fire")
-    G_SoundIndex("sound/vehicles/common/release.wav")
+    switch bg.consumer {
+    case .game:
+        G_EffectIndex("volumetric/black_smoke")
+        G_EffectIndex("ships/fire")
+        G_SoundIndex("sound/vehicles/common/release.wav")
+
+    case .cgame:
+        trap_R_RegisterShader("gfx/menus/radar/bracket")
+        trap_R_RegisterShader("gfx/menus/radar/lead")
+        trap_R_RegisterShaderNoMip("gfx/menus/radar/asteroid")
+        trap_S_RegisterSound("sound/vehicles/common/impactalarm.wav")
+        trap_S_RegisterSound("sound/vehicles/common/linkweaps.wav")
+        trap_S_RegisterSound("sound/vehicles/common/release.wav")
+        trap_FX_RegisterEffect("effects/ships/dest_burning.efx")
+        trap_FX_RegisterEffect("effects/ships/dest_destroyed.efx")
+        trap_FX_RegisterEffect("volumetric/black_smoke")
+        trap_FX_RegisterEffect("ships/fire")
+        trap_FX_RegisterEffect("ships/hyperspace_stars")
+
+        if vehicleInfo.hideRider {
+            trap_R_RegisterShaderNoMip("gfx/menus/radar/circle_base")
+            trap_R_RegisterShaderNoMip("gfx/menus/radar/circle_base_frame")
+            trap_R_RegisterShaderNoMip("gfx/menus/radar/circle_base_shield")
+        }
+
+    case .ui:
+        break
+    }
 
 
     defer { numVehicles += 1 }
