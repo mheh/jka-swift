@@ -785,7 +785,10 @@ class Skeleton:
                          f"    set {{ {spelled}.variables.{var.field} = newValue }}",
                          "}"]
         elif kind == "hand":
-            lines.append(f"// A hand property of the state object, `{HAND_VARS[var.name]}`, by the HAND_VARS ruling.")
+            if HAND_VARS[var.name] is None:
+                lines.append("// No storage, by the HAND_VARS ruling.")
+            else:
+                lines.append(f"// A hand property of the state object, `{HAND_VARS[var.name]}`, by the HAND_VARS ruling.")
         elif kind == "state_data":
             # Raven's data is hand work on the state object, and the stub forwards it under Raven's name.
             home = "BgState" if target_of(var.stem) == BG else "GameWorld"

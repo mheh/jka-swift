@@ -50,9 +50,11 @@ public final class BgState {
     /// Raven's `MAX_POOL_SIZE`, which is 3000000 for the game, 2048000 for cgame, and 512000 for the user interface.
     public let maxPoolSize: Int32
 
-    /// Raven's `static char bg_pool[MAX_POOL_SIZE]` of `bg_misc.c`.
-    /// The block is never freed, and it lives as long as the module.
-    public let pool: UnsafeMutableRawPointer
+    /// Raven's `static void *tempAllocPointers[MAX_TEMP_ALLOCS]` and `static int tempAllocSizes[MAX_TEMP_ALLOCS]` of `bg_misc.c`, his Xbox arm.
+    /// `BG_TempAlloc` records each open temporary block here, and `BG_TempFree` finds it by its size.
+    /// Source: oracle/codemp/game/bg_misc.c:3247-3249
+    var tempAllocPointers = [UnsafeMutableRawPointer?](repeating: nil, count: MAX_TEMP_ALLOCS)
+    var tempAllocSizes = [Int32](repeating: 0, count: MAX_TEMP_ALLOCS)
 
     /// A view over the game's own memory for Raven's `bg_fighterAltControl` cvar, which the game installs at its entry point.
     /// The default is a view over one zeroed `vmCvar_t` this state owns, so `.integer` reads 0, which is Raven's default for the cvar.
@@ -339,7 +341,6 @@ public final class BgState {
         self.maxPoolSize = maxPoolSize
         // Raven's `bg_poolTail = MAX_POOL_SIZE`, the consumer's value, which the generated struct cannot spell.
         self.variables.bg_poolTail = maxPoolSize
-        self.pool = UnsafeMutableRawPointer.allocate(byteCount: Int(maxPoolSize), alignment: 16)
 
         let cvarStorage = UnsafeMutableRawPointer.allocate(byteCount: VmCvar.byteCount, alignment: 4)
         cvarStorage.initializeMemory(as: UInt8.self, repeating: 0, count: VmCvar.byteCount)
@@ -370,6 +371,10 @@ func Com_Printf(_ text: String, _ args: any JKAShared.FormatArg...) {
 
 /// A body reads Raven's `MAX_POOL_SIZE`, and the value comes from the installed state.
 var MAX_POOL_SIZE: Int32 { bg.maxPoolSize }
+
+/// Raven's `#define MAX_TEMP_ALLOCS 3` of `bg_misc.c`, his Xbox arm, the count of temporary blocks open at one time.
+/// Source: oracle/codemp/game/bg_misc.c:3247
+let MAX_TEMP_ALLOCS: Int32 = 3
 
 /// A body reads Raven's `bg_fighterAltControl`, and the view comes from the installed state.
 var bg_fighterAltControl: VmCvar { bg.fighterAltControl }
