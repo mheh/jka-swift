@@ -9,7 +9,7 @@ let POOLSIZE = (256 * 1024) as Int32
 
 /// Source: oracle/codemp/game/g_mem.c:13
 // Raven wrote: static char memoryPool[POOLSIZE]
-// A hand property of the state object, `world.memoryPool`, by the HAND_VARS ruling.
+// AI: Raven allocates from this static pool. Each allocation is its own block, so the pool has no storage.
 
 /// Source: oracle/codemp/game/g_mem.c:14
 var allocPoint: Int32 {
@@ -29,7 +29,9 @@ func G_Alloc(_ size: Int32) -> UnsafeMutableRawPointer {
         G_Error("G_Alloc: failed on allocation of %i bytes\n", size) // bk010103 - was %u, but is signed
     }
 
-    p = world.memoryPool + allocPoint
+    // AI: Raven returns a pointer into memoryPool. Each call allocates one zeroed block that is never freed, as in his SP game.
+    p = UnsafeMutableRawPointer.allocate(byteCount: Int(size), alignment: 16)
+    p.initializeMemory(as: UInt8.self, repeating: 0, count: Int(size))
 
     allocPoint += (size + 31) & ~31
 
