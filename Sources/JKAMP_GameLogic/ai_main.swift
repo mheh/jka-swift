@@ -3531,7 +3531,9 @@ func GetIdealDestination(_ bs: BotState) {
                 if idleWP != -1 && gWPArray[idleWP] != nil && gWPArray[idleWP]!.inuse != 0 {
                     bs.wpDestination = gWPArray[idleWP]
                 }
-            } else if gWPArray[cWPIndex - 1] != nil && gWPArray[cWPIndex - 1]!.inuse != 0 && gWPArray[cWPIndex + 1] != nil && gWPArray[cWPIndex + 1]!.inuse != 0 {
+            } else if cWPIndex - 1 >= 0 && cWPIndex + 1 < MAX_WPARRAY_SIZE && gWPArray[cWPIndex - 1] != nil && gWPArray[cWPIndex - 1]!.inuse != 0 && gWPArray[cWPIndex + 1] != nil && gWPArray[cWPIndex + 1]!.inuse != 0 {
+                // Port-note: Raven reads the pointer before the table for a bot at waypoint 0, and the one past it at the last slot, which is undefined.
+                // The two bounds above make an index outside the table no waypoint.
                 a = gWPArray[cWPIndex + 1]!.origin - usethisvec
                 plusLen = VectorLength(a)
                 a = gWPArray[cWPIndex - 1]!.origin - usethisvec
