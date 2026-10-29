@@ -70,16 +70,24 @@ class DefaultUnit(unittest.TestCase):
         import spelling
         import table
         import traps
+        import views
 
         # given the game, the C target of every generator is the game's
         self.assertEqual(traps.IMPORT, "CJKAMP_Game")
-        for target in (skeleton.C_TARGET, spelling.TARGET, table.TARGET, traps.TARGET):
+        for target in (skeleton.C_TARGET, spelling.TARGET, table.TARGET, traps.TARGET, views.TARGETS[0]):
             self.assertEqual(target, "CJKAMP_Game")
 
         # and the re-exports name every unit's target, the game's first
         self.assertEqual(reexport.VIEW_OF, {"CJKAShared": "JKAShared", "CJKAMP": "JKAMP", "CJKAMP_Game": "JKAMP_Game", "CJKAMP_CGame": "JKAMP_CGame"})
         self.assertEqual(reexport.DEPS, {"CJKAShared": [], "CJKAMP": ["CJKAShared"], "CJKAMP_Game": ["CJKAMP", "CJKAShared"],
                                          "CJKAMP_CGame": ["CJKAMP", "CJKAShared"]})
+
+    def test_the_roots_are_the_game_roots(self) -> None:
+        import views
+        from rulings import ROOTS
+
+        self.assertIs(views.UNIT_ROOTS, ROOTS["mp-game"])
+        self.assertEqual(views.UNIT_ROOTS["gentity_t"], ("Entity", "CJKAMP_Game"))
 
     def test_the_state_names_are_the_game_names(self) -> None:
         import skeleton

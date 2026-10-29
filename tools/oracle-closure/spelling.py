@@ -138,6 +138,12 @@ class Types:
         if t.kind == TypeKind.ELABORATED:
             t = t.get_named_type()
         if t.kind == TypeKind.TYPEDEF:
+            # ui_shared.h names a struct through a second typedef, `typedef windowDef_t Window;`, and the view takes the first name.
+            under = t.get_declaration().underlying_typedef_type
+            if under.kind == TypeKind.ELABORATED:
+                under = under.get_named_type()
+            if under.kind == TypeKind.TYPEDEF:
+                return self.record_name(under)
             return t.spelling
         return self.views.typedef_of.get(decl.spelling, decl.spelling)
 

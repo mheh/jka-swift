@@ -13,9 +13,10 @@ from dataclasses import dataclass
 
 # MARK: - Views
 
-# Root struct -> (view name, C target). Every other view takes Raven's typedef name with _t dropped and the first letter raised.
+# Root struct -> (view name, C target), one table per unit, and ROOTS keys the tables by the unit of a run.
+# Every other view takes Raven's typedef name with _t dropped and the first letter raised.
 # A view is generated for a root and for every struct a root's field points at. See "The views".
-ROOTS = {
+GAME_ROOTS = {
     "gentity_t": ("Entity", "CJKAMP_Game"),
     "gclient_t": ("Client", "CJKAMP_Game"),
     "level_locals_t": ("Level", "CJKAMP_Game"),
@@ -94,6 +95,83 @@ ROOTS = {
     # bg_vehicleLoad.c defines this one, copied into bg_tables.h.
     "vehField_t": ("VehField", "CJKAMP"),
 }
+
+CGAME_ROOTS = {
+    # The rows the game holds for a struct of JKAMP, with the game's view name and target, so both units write one view file.
+    # They come first, because the first walk to reach a struct gives it its target.
+    "vmCvar_t": ("VmCvar", "CJKAMP"),
+    "pmove_t": ("Pmove", "CJKAMP"),
+    "siegeClass_t": ("SiegeClass", "CJKAMP"),
+    "siegeTeam_t": ("SiegeTeam", "CJKAMP"),
+    "vehWeaponInfo_t": ("VehWeaponInfo", "CJKAMP"),
+    "weaponData_t": ("WeaponData", "CJKAMP"),
+    "ammoData_t": ("AmmoData", "CJKAMP"),
+    "mdxaBone_t": ("MdxaBone", "CJKAMP"),
+    "sharedRagDollParams_t": ("SharedRagDollParams", "CJKAMP"),
+    "sharedRagDollUpdateParams_t": ("SharedRagDollUpdateParams", "CJKAMP"),
+    "pc_token_t": ("PcToken", "CJKAMP"),
+    "bgLoadedAnim_t": ("BgLoadedAnim", "CJKAMP"),
+    "saberMoveData_t": ("SaberMoveData", "CJKAMP"),
+    # The cgame's state: Raven's `cg`, `cgs`, and `cg_entities` of cg_main.c.
+    "cg_t": ("Cg", "CJKAMP_CGame"),
+    "cgs_t": ("Cgs", "CJKAMP_CGame"),
+    "centity_t": ("Centity", "CJKAMP_CGame"),
+    # A file-scope table or record of a cgame .c file names these, and no root field points at them.
+    "localEntity_t": ("LocalEntity", "CJKAMP_CGame"),
+    "markPoly_t": ("MarkPoly", "CJKAMP_CGame"),
+    "weaponInfo_t": ("WeaponInfo", "CJKAMP_CGame"),
+    "itemInfo_t": ("ItemInfo", "CJKAMP_CGame"),
+    "clightstyle_t": ("Clightstyle", "CJKAMP_CGame"),
+    "cgscreffects_t": ("Cgscreffects", "CJKAMP_CGame"),
+    "siegeExtended_t": ("SiegeExtended", "CJKAMP_CGame"),
+    "displayContextDef_t": ("DisplayContextDef", "CJKAMP_CGame"),
+    # The bg table bg_itemlist names this one, and no cgame root field points at it.
+    "gitem_t": ("Gitem", "CJKAMP"),
+    # Raven defines these inside a cgame .c file, and cg_types.h carries them into the cgame target.
+    # The cgame's cvarTable_t has other fields than the game's, and the two views live in two modules no target imports together.
+    "cvarTable_t": ("CvarTable", "CJKAMP_CGame"),
+    "cgSpawnEnt_t": ("CgSpawnEnt", "CJKAMP_CGame"),
+    "cparticle_t": ("Cparticle", "CJKAMP_CGame"),
+    "lagometer_t": ("Lagometer", "CJKAMP_CGame"),
+    "veh_damage_t": ("Veh_damage", "CJKAMP_CGame"),
+    "consoleCommand_t": ("ConsoleCommand", "CJKAMP_CGame"),
+    # A trap or a stub parameter names these, and no root field points at them.
+    "polyVert_t": ("PolyVert", "CJKAMP"),
+    "poly_t": ("Poly", "CJKAMP"),
+    "markFragment_t": ("MarkFragment", "CJKAShared"),
+    "orientation_t": ("Orientation", "CJKAShared"),
+    "addpolyArgStruct_t": ("AddpolyArgStruct", "CJKAMP"),
+    "addspriteArgStruct_t": ("AddspriteArgStruct", "CJKAMP"),
+    "addbezierArgStruct_t": ("AddbezierArgStruct", "CJKAMP"),
+    "addElectricityArgStruct_t": ("AddElectricityArgStruct", "CJKAMP"),
+    "effectTrailArgStruct_t": ("EffectTrailArgStruct", "CJKAMP"),
+    "effectTrailVertStruct_t": ("EffectTrailVertStruct", "CJKAMP"),
+    # Raven gave this typedef no _t, so the view drops his leading S and keeps its own name apart from the C type.
+    "SSkinGoreData": ("SkinGoreData", "CJKAMP"),
+    "animevent_t": ("Animevent", "CJKAMP"),
+    "bgLoadedEvents_t": ("BgLoadedEvents", "CJKAMP"),
+    "itemDef_t": ("ItemDef", "CJKAMP_CGame"),
+    "cachedAssets_t": ("CachedAssets", "CJKAMP_CGame"),
+    # The game's view of CollisionRecord_t stands in JKAMP_Game, which a cgame target cannot import, so the cgame has its own.
+    "CollisionRecord_t": ("CollisionRecord", "CJKAMP_CGame"),
+    # vmMain and the engine's callbacks read these through the shared buffer of cg_public.h, and no root field points at them.
+    # Raven gave the TCG typedefs no _t, so each view drops his leading T, as IcarusPlaySound drops T_G_ICARUS_.
+    "autoMapInput_t": ("AutoMapInput", "CJKAMP_CGame"),
+    "TCGTrace": ("CGTrace", "CJKAMP_CGame"),
+    "TCGPointContents": ("CGPointContents", "CJKAMP_CGame"),
+    "TCGVectorData": ("CGVectorData", "CJKAMP_CGame"),
+    "TCGGetBoltData": ("CGGetBoltData", "CJKAMP_CGame"),
+    "TCGImpactMark": ("CGImpactMark", "CJKAMP_CGame"),
+    "TCGMiscEnt": ("CGMiscEnt", "CJKAMP_CGame"),
+    "TCGG2Mark": ("CGG2Mark", "CJKAMP_CGame"),
+    "TCGCameraShake": ("CGCameraShake", "CJKAMP_CGame"),
+    "ragCallbackTraceLine_t": ("RagCallbackTraceLine", "CJKAMP_CGame"),
+    "ragCallbackDebugLine_t": ("RagCallbackDebugLine", "CJKAMP_CGame"),
+    "ragCallbackDebugBox_t": ("RagCallbackDebugBox", "CJKAMP_CGame"),
+    "ragCallbackBoneSnap_t": ("RagCallbackBoneSnap", "CJKAMP_CGame"),
+}
+
+ROOTS = {"mp-game": GAME_ROOTS, "mp-cgame": CGAME_ROOTS}
 
 # (struct, field) pairs whose pointer Raven's callers always set. The field is non-optional, and its getter traps with the
 # field's name when the pointer is NULL, the one divergence rule 19 allows. See "A pointer field Raven's callers always set".
