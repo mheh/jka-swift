@@ -1752,11 +1752,13 @@ func CalculateJumpRoutes() {
 
                 gWPArray[i]!.forceJumpTo = 0
 
-                if gWPArray[i - 1] != nil && gWPArray[i - 1]!.inuse != 0 && (gWPArray[i - 1]!.origin[2] + 16) < gWPArray[i]!.origin[2] {
+                // Port-note: Raven reads the pointer before the table for a jump at waypoint 0, and the one past it at a full table, which is undefined.
+                // The two bounds below make an index outside the table no waypoint.
+                if i - 1 >= 0 && gWPArray[i - 1] != nil && gWPArray[i - 1]!.inuse != 0 && (gWPArray[i - 1]!.origin[2] + 16) < gWPArray[i]!.origin[2] {
                     nheightdif = (gWPArray[i]!.origin[2] - gWPArray[i - 1]!.origin[2])
                 }
 
-                if gWPArray[i + 1] != nil && gWPArray[i + 1]!.inuse != 0 && (gWPArray[i + 1]!.origin[2] + 16) < gWPArray[i]!.origin[2] {
+                if i + 1 < MAX_WPARRAY_SIZE && gWPArray[i + 1] != nil && gWPArray[i + 1]!.inuse != 0 && (gWPArray[i + 1]!.origin[2] + 16) < gWPArray[i]!.origin[2] {
                     pheightdif = (gWPArray[i]!.origin[2] - gWPArray[i + 1]!.origin[2])
                 }
 
