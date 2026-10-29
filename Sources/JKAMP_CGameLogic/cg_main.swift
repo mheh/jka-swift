@@ -667,7 +667,7 @@ func CG_Printf(_ msg: String, _ args: any JKAShared.FormatArg...) {
 }
 
 /// Source: oracle/codemp/cgame/cg_main.c:1220
-func CG_Error(_ msg: String, _ args: any JKAShared.FormatArg...) {
+func CG_Error(_ msg: String, _ args: any JKAShared.FormatArg...) -> Never {
     // TODO: Port CG_Error
     portMissing("CG_Error", source: "oracle/codemp/cgame/cg_main.c:1220")
 }

@@ -55,19 +55,13 @@ func strap_G2API_AnimateG2Models(_ ghoul2: OpaquePointer?, _ time: Int32, _ para
 }
 
 /// Source: oracle/codemp/cgame/cg_strap.c:53
-// TODO: Port signature
-// Raven wrote: qboolean strap_G2API_SetBoneIKState(void *ghoul2, int time, const char *boneName, int ikState, sharedSetBoneIKStateParams_t *params)
-// No table row for `sharedSetBoneIKStateParams_t * params`.
-func strap_G2API_SetBoneIKState() -> Never {
+func strap_G2API_SetBoneIKState(_ ghoul2: OpaquePointer?, _ time: Int32, _ boneName: String?, _ ikState: Int32, _ params: JKAMP.SharedSetBoneIKStateParams?) -> Bool {
     // TODO: Port strap_G2API_SetBoneIKState
     portMissing("strap_G2API_SetBoneIKState", source: "oracle/codemp/cgame/cg_strap.c:53")
 }
 
 /// Source: oracle/codemp/cgame/cg_strap.c:58
-// TODO: Port signature
-// Raven wrote: qboolean strap_G2API_IKMove(void *ghoul2, int time, sharedIKMoveParams_t *params)
-// No table row for `sharedIKMoveParams_t * params`.
-func strap_G2API_IKMove() -> Never {
+func strap_G2API_IKMove(_ ghoul2: OpaquePointer?, _ time: Int32, _ params: JKAMP.SharedIKMoveParams) -> Bool {
     // TODO: Port strap_G2API_IKMove
     portMissing("strap_G2API_IKMove", source: "oracle/codemp/cgame/cg_strap.c:58")
 }
