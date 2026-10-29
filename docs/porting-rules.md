@@ -68,3 +68,4 @@ func SP_func_door(_ ent: Entity) {
 ## Import and path style
 
 Every `import` sits at the top of the file, and a logic file imports its view target and nothing from C. A symbol is referenced by its short name, never module-qualified in an expression, so `G_Damage` and `level` read as Raven wrote them. A module qualifier appears only to break a genuine ambiguity, and that case gets a one-line comment. Test files are exempt and may qualify freely.
+24. **A ruling that changes Raven's form leaves an `AI:` comment at the site.** One line, two at most, in the form `// AI: Raven <what Raven did>. <What the ruling changed it to>.` The comment names the mechanism and not the row number, so a reader at the call site sees the divergence without the notes. A rule 19 note keeps its `Port-note:` prefix, because it marks undefined behavior and not a ruling. A site that keeps Raven's form carries no comment.
