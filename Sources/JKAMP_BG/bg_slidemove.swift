@@ -67,7 +67,7 @@ func PM_VehicleImpact(_ pEnt: JKAMP.BgEntity, _ trace: JKAMP.Trace) {
         */
         //this was annoying me -rww
         //FIXME: this shouldn't even be getting called when the vehicle is at rest!
-        if hitEnt != nil && (hitEntity.s.eType == ET_PLAYER || hitEntity.s.eType == ET_NPC) && vehicleInfo.type == VH_FIGHTER {
+        if bg.consumer == .game && hitEnt != nil && (hitEntity.s.eType == ET_PLAYER || hitEntity.s.eType == ET_NPC) && vehicleInfo.type == VH_FIGHTER {
             //always smack players
         } else {
             return
@@ -199,74 +199,76 @@ func PM_VehicleImpact(_ pEnt: JKAMP.BgEntity, _ trace: JKAMP.Trace) {
                     }
                     }
                     */
-                    if turnHitEnt && hitEntity.playerState != nil && !FighterIsLanded(hitEntity.m_pVehicle!, hitEntity.playerState!) && !((bgEntitySpawnflags(hitEntity) & 2) != 0) {
-                        let hitVehicle = hitEntity.m_pVehicle!
-                        let hitPlayerState = hitEntity.playerState!
-                        l = hitPlayerState.speed
-                        //now bounce *them* away and turn them
-                        //flip the bounceDir
-                        bounceDir = bounceDir * -1
-                        //do bounce
-                        pushDir = bounceDir * ((pm.ps.speed + l) * 0.5)
-                        pushDir = pushDir * (l * 0.5 / hitVehicle.m_pVehicleInfo!.mass)
-                        VectorNormalize2(hitPlayerState.velocity, &moveDir)
-                        bounceDot = _DotProduct(moveDir, bounceDir) * -1
-                        if bounceDot < 0.1 {
-                            bounceDot = 0.1
-                        }
-                        pushDir = pushDir * bounceDot
-                        hitPlayerState.velocity = hitPlayerState.velocity + pushDir
-                        //turn
-                        turnDivider = (hitVehicle.m_pVehicleInfo!.mass / 400.0)
-                        if turnHitEnt {
-                            //don't turn as much when hit another ship
-                            turnDivider *= 4.0
-                        }
-                        if turnDivider < 0.5 {
-                            turnDivider = 0.5
-                        }
-                        //get the angles we are going to turn towards
-                        vectoangles(bounceDir, &turnAwayAngles)
-                        //get the delta from our current angles to those new angles
-                        AnglesSubtract(turnAwayAngles, hitVehicle.m_vOrientationVector, &turnDelta)
-                        //now do pitch
-                        if bounceDir[2] == 0 {
-                            //shouldn't be any pitch
-                        } else {
-                            pitchTurnStrength = turnStrength * turnDelta[PITCH]
-                            if pitchTurnStrength > MAX_IMPACT_TURN_ANGLE {
-                                pitchTurnStrength = MAX_IMPACT_TURN_ANGLE
-                            } else if pitchTurnStrength < -MAX_IMPACT_TURN_ANGLE {
-                                pitchTurnStrength = -MAX_IMPACT_TURN_ANGLE
+                    if bg.consumer == .game { //server-side, turn the guy we hit away from us, too
+                        if turnHitEnt && hitEntity.playerState != nil && !FighterIsLanded(hitEntity.m_pVehicle!, hitEntity.playerState!) && !((bgEntitySpawnflags(hitEntity) & 2) != 0) {
+                            let hitVehicle = hitEntity.m_pVehicle!
+                            let hitPlayerState = hitEntity.playerState!
+                            l = hitPlayerState.speed
+                            //now bounce *them* away and turn them
+                            //flip the bounceDir
+                            bounceDir = bounceDir * -1
+                            //do bounce
+                            pushDir = bounceDir * ((pm.ps.speed + l) * 0.5)
+                            pushDir = pushDir * (l * 0.5 / hitVehicle.m_pVehicleInfo!.mass)
+                            VectorNormalize2(hitPlayerState.velocity, &moveDir)
+                            bounceDot = _DotProduct(moveDir, bounceDir) * -1
+                            if bounceDot < 0.1 {
+                                bounceDot = 0.1
                             }
-                            //hitEnt->m_pVehicle->m_vOrientation[PITCH] = AngleNormalize180(hitEnt->m_pVehicle->m_vOrientation[PITCH]+pitchTurnStrength/turnDivider*pSelfVeh->m_fTimeModifier);
-                            hitVehicle.m_vFullAngleVelocity[PITCH] = AngleNormalize180(hitVehicle.m_vOrientationVector[PITCH] + pitchTurnStrength / turnDivider * selfVehicle.m_fTimeModifier)
-                        }
-                        //now do yaw
-                        if bounceDir[0] == 0 && bounceDir[1] == 0 {
-                            //shouldn't be any yaw
-                        } else {
-                            yawTurnStrength = turnStrength * turnDelta[YAW]
-                            if yawTurnStrength > MAX_IMPACT_TURN_ANGLE {
-                                yawTurnStrength = MAX_IMPACT_TURN_ANGLE
-                            } else if yawTurnStrength < -MAX_IMPACT_TURN_ANGLE {
-                                yawTurnStrength = -MAX_IMPACT_TURN_ANGLE
+                            pushDir = pushDir * bounceDot
+                            hitPlayerState.velocity = hitPlayerState.velocity + pushDir
+                            //turn
+                            turnDivider = (hitVehicle.m_pVehicleInfo!.mass / 400.0)
+                            if turnHitEnt {
+                                //don't turn as much when hit another ship
+                                turnDivider *= 4.0
                             }
-                            //hitEnt->m_pVehicle->m_vOrientation[ROLL] = AngleNormalize180(hitEnt->m_pVehicle->m_vOrientation[ROLL]-yawTurnStrength/turnDivider*pSelfVeh->m_fTimeModifier);
-                            hitVehicle.m_vFullAngleVelocity[ROLL] = AngleNormalize180(hitVehicle.m_vOrientationVector[ROLL] - yawTurnStrength / turnDivider * selfVehicle.m_fTimeModifier)
+                            if turnDivider < 0.5 {
+                                turnDivider = 0.5
+                            }
+                            //get the angles we are going to turn towards
+                            vectoangles(bounceDir, &turnAwayAngles)
+                            //get the delta from our current angles to those new angles
+                            AnglesSubtract(turnAwayAngles, hitVehicle.m_vOrientationVector, &turnDelta)
+                            //now do pitch
+                            if bounceDir[2] == 0 {
+                                //shouldn't be any pitch
+                            } else {
+                                pitchTurnStrength = turnStrength * turnDelta[PITCH]
+                                if pitchTurnStrength > MAX_IMPACT_TURN_ANGLE {
+                                    pitchTurnStrength = MAX_IMPACT_TURN_ANGLE
+                                } else if pitchTurnStrength < -MAX_IMPACT_TURN_ANGLE {
+                                    pitchTurnStrength = -MAX_IMPACT_TURN_ANGLE
+                                }
+                                //hitEnt->m_pVehicle->m_vOrientation[PITCH] = AngleNormalize180(hitEnt->m_pVehicle->m_vOrientation[PITCH]+pitchTurnStrength/turnDivider*pSelfVeh->m_fTimeModifier);
+                                hitVehicle.m_vFullAngleVelocity[PITCH] = AngleNormalize180(hitVehicle.m_vOrientationVector[PITCH] + pitchTurnStrength / turnDivider * selfVehicle.m_fTimeModifier)
+                            }
+                            //now do yaw
+                            if bounceDir[0] == 0 && bounceDir[1] == 0 {
+                                //shouldn't be any yaw
+                            } else {
+                                yawTurnStrength = turnStrength * turnDelta[YAW]
+                                if yawTurnStrength > MAX_IMPACT_TURN_ANGLE {
+                                    yawTurnStrength = MAX_IMPACT_TURN_ANGLE
+                                } else if yawTurnStrength < -MAX_IMPACT_TURN_ANGLE {
+                                    yawTurnStrength = -MAX_IMPACT_TURN_ANGLE
+                                }
+                                //hitEnt->m_pVehicle->m_vOrientation[ROLL] = AngleNormalize180(hitEnt->m_pVehicle->m_vOrientation[ROLL]-yawTurnStrength/turnDivider*pSelfVeh->m_fTimeModifier);
+                                hitVehicle.m_vFullAngleVelocity[ROLL] = AngleNormalize180(hitVehicle.m_vOrientationVector[ROLL] - yawTurnStrength / turnDivider * selfVehicle.m_fTimeModifier)
+                            }
+                            //NOTE: will these angle changes stick or will they be stomped
+                            //		when the vehicle goes through its own update and re-grabs
+                            //		its angles from its pilot...?  Should we do a
+                            //		SetClientViewAngles on the pilot?
+                            /*
+                            SetClientViewAngle( hitEnt, hitEnt->m_pVehicle->m_vOrientation );
+                            if ( hitEnt->m_pVehicle->m_pPilot
+                            && ((gentity_t *)hitEnt->m_pVehicle->m_pPilot)->client )
+                            {
+                            SetClientViewAngle( (gentity_t *)hitEnt->m_pVehicle->m_pPilot, hitEnt->m_pVehicle->m_vOrientation );
+                            }
+                            */
                         }
-                        //NOTE: will these angle changes stick or will they be stomped
-                        //		when the vehicle goes through its own update and re-grabs
-                        //		its angles from its pilot...?  Should we do a
-                        //		SetClientViewAngles on the pilot?
-                        /*
-                        SetClientViewAngle( hitEnt, hitEnt->m_pVehicle->m_vOrientation );
-                        if ( hitEnt->m_pVehicle->m_pPilot
-                        && ((gentity_t *)hitEnt->m_pVehicle->m_pPilot)->client )
-                        {
-                        SetClientViewAngle( (gentity_t *)hitEnt->m_pVehicle->m_pPilot, hitEnt->m_pVehicle->m_vOrientation );
-                        }
-                        */
                     }
                 }
             }
@@ -534,7 +536,7 @@ func PM_SlideMove(_ gravity: Bool) -> Bool {
                     //do vehicle impact stuff then
                     PM_VehicleImpact(pEnt!, trace)
                 }
-            } else {
+            } else if bg.consumer == .game {
                 if PM_ClientImpact(trace) {
                     bumpcount += 1
                     continue

@@ -664,10 +664,12 @@ func PM_HoverTrace() {
                     } else {
                         wakeOrg[2] = pm.ps.origin[2]
                     }
-                    if vehicleInfo.iWakeFX != 0 {
-                        //G_PlayEffectID( pVeh->m_pVehicleInfo->iWakeFX, wakeOrg, fxAxis[0] );
-                        //tempent use bad!
-                        G_AddEvent(pEnt!, EV_PLAY_EFFECT_ID, vehicleInfo.iWakeFX)
+                    if bg.consumer == .game { //yeah, this is kind of crappy and makes no use of prediction whatsoever
+                        if vehicleInfo.iWakeFX != 0 {
+                            //G_PlayEffectID( pVeh->m_pVehicleInfo->iWakeFX, wakeOrg, fxAxis[0] );
+                            //tempent use bad!
+                            G_AddEvent(pEnt!, EV_PLAY_EFFECT_ID, vehicleInfo.iWakeFX)
+                        }
                     }
                 }
             }
@@ -729,8 +731,10 @@ func PM_HoverTrace() {
                                 fxAxis[1] = fxAxis1
                                 fxAxis[0] = fxAxis0
                             }
-                            if vehicleInfo.iWakeFX != 0 {
-                                G_PlayEffectID(vehicleInfo.iWakeFX, groundTrace.endpos, fxAxis[0])
+                            if bg.consumer == .game {
+                                if vehicleInfo.iWakeFX != 0 {
+                                    G_PlayEffectID(vehicleInfo.iWakeFX, groundTrace.endpos, fxAxis[0])
+                                }
                             }
                         }
                     }
@@ -5960,14 +5964,16 @@ private func PM_Weapon() {
     var veh: BgEntity? = nil
     var vehicleRocketLock: Bool = false
 
-    if pm.ps.clientNum >= MAX_CLIENTS && pm.ps.weapon == WP_NONE && pm.cmd.weapon == WP_NONE && pm_entSelf != nil {
-        //npc with no weapon
-        let gent: BgEntity = pm_entSelf!
-        if bgEntityInuse(gent) && gent.playerState != nil && gent.localAnimIndex == 0 {
-            //humanoid
-            pm.ps.torsoAnim = pm.ps.legsAnim
-            pm.ps.torsoTimer = pm.ps.legsTimer
-            return
+    if bg.consumer == .game {
+        if pm.ps.clientNum >= MAX_CLIENTS && pm.ps.weapon == WP_NONE && pm.cmd.weapon == WP_NONE && pm_entSelf != nil {
+            //npc with no weapon
+            let gent: BgEntity = pm_entSelf!
+            if bgEntityInuse(gent) && gent.playerState != nil && gent.localAnimIndex == 0 {
+                //humanoid
+                pm.ps.torsoAnim = pm.ps.legsAnim
+                pm.ps.torsoTimer = pm.ps.legsTimer
+                return
+            }
         }
     }
 
@@ -6515,10 +6521,12 @@ private func PM_Weapon() {
         //a vehicle NPC that has a pilot
         pm.ps.weaponstate = WEAPON_FIRING
         pm.ps.weaponTime += 100
-        if (pm.cmd.buttons & BUTTON_ALT_ATTACK) != 0 {
-            G_CheapWeaponFire(pm.ps.clientNum, EV_ALT_FIRE)
-        } else {
-            G_CheapWeaponFire(pm.ps.clientNum, EV_FIRE_WEAPON)
+        if bg.consumer == .game { //hack, only do it game-side. vehicle weapons don't really need predicting I suppose.
+            if (pm.cmd.buttons & BUTTON_ALT_ATTACK) != 0 {
+                G_CheapWeaponFire(pm.ps.clientNum, EV_ALT_FIRE)
+            } else {
+                G_CheapWeaponFire(pm.ps.clientNum, EV_FIRE_WEAPON)
+            }
         }
         /*
         addTime = weaponData[WP_EMPLACED_GUN].fireTime;
@@ -9175,7 +9183,7 @@ func PmoveSingle(_ pmove: JKAMP.Pmove) {
                 pm.ps.velocity[2] = 270 //seems reasonable
                 pm.cmd.upmove = 127
             }
-        } else if pm.ps.zoomMode == 0 && pm_entSelf != nil && pEnt!.m_pVehicle != nil {
+        } else if bg.consumer == .game && pm.ps.zoomMode == 0 && pm_entSelf != nil && pEnt!.m_pVehicle != nil {
             let gEnt: BgEntity = pEnt!
             if gEnt.playerState != nil && gEnt.playerState!.m_iVehicleNum == 0 && (bgEntitySpawnflags(gEnt) & 2) != 0 {
                 //it's a vehicle, see if we should get in it
@@ -9199,8 +9207,10 @@ func PmoveSingle(_ pmove: JKAMP.Pmove) {
 
         if pm.ps.m_iVehicleNum == 0 {
             //no one is driving, just update and get out
-            vehicleInfo.runUpdate(vehicle, pm.cmd)
-            vehicleInfo.runAnimate(vehicle)
+            if bg.consumer == .game {
+                vehicleInfo.runUpdate(vehicle, pm.cmd)
+                vehicleInfo.runAnimate(vehicle)
+            }
         } else {
             let `self`: BgEntity? = pm_entVeh
             var i: Int32 = 0

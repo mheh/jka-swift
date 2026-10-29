@@ -1634,7 +1634,7 @@ private func BG_StartLegsAnim(_ ps: JKAMP.PlayerState, _ anim: Int32) {
 
     if ps.legsAnim == anim {
         BG_FlipPart(ps, SETANIM_LEGS)
-    } else if bgEntityLegsAnim(of: ps.clientNum) == anim {
+    } else if bg.consumer == .game && bgEntityLegsAnim(of: ps.clientNum) == anim {
         //toggled anim to one anim then back to the one we were at previously in
         //one frame, indicating that anim should be restarted.
         BG_FlipPart(ps, SETANIM_LEGS)
@@ -1700,7 +1700,7 @@ func BG_StartTorsoAnim(_ ps: JKAMP.PlayerState, _ anim: Int32) {
 
     if ps.torsoAnim == anim {
         BG_FlipPart(ps, SETANIM_TORSO)
-    } else if bgEntityTorsoAnim(of: ps.clientNum) == anim {
+    } else if bg.consumer == .game && bgEntityTorsoAnim(of: ps.clientNum) == anim {
         //toggled anim to one anim then back to the one we were at previously in
         //one frame, indicating that anim should be restarted.
         BG_FlipPart(ps, SETANIM_TORSO)

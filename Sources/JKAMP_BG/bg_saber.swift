@@ -771,8 +771,10 @@ func PM_SaberLockLoseAnim(_ genemy: JKAMP.PlayerState, _ victory: Bool, _ superB
         break
     }
     if loseAnim != -1 {
-        NPC_SetAnim(pm.entity(at: genemy.clientNum), SETANIM_BOTH, loseAnim, SETANIM_FLAG_OVERRIDE | SETANIM_FLAG_HOLD)
-        genemy.weaponTime = genemy.torsoTimer // + 250;
+        if bg.consumer == .game {
+            NPC_SetAnim(pm.entity(at: genemy.clientNum), SETANIM_BOTH, loseAnim, SETANIM_FLAG_OVERRIDE | SETANIM_FLAG_HOLD)
+            genemy.weaponTime = genemy.torsoTimer // + 250;
+        }
         genemy.saberBlocked = BLOCKED_NONE
         genemy.weaponstate = WEAPON_READY
     }

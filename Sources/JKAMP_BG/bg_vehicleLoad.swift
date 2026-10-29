@@ -265,8 +265,10 @@ func VEH_VehWeaponIndexForName(_ vehWeaponName: String) -> Int32 {
 // Setup the shared functions (one's that all vehicles would generally use).
 /// Source: oracle/codemp/game/bg_vehicleLoad.c:683
 func BG_SetSharedVehicleFunctions(_ pVehInfo: JKAMP.VehicleInfo) {
-    //only do the whole thing if we're on game
-    G_SetSharedVehicleFunctions(pVehInfo)
+    if bg.consumer == .game {
+        //only do the whole thing if we're on game
+        G_SetSharedVehicleFunctions(pVehInfo)
+    }
 
     switch pVehInfo.type {
     case VH_SPEEDER:
