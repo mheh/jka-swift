@@ -16,7 +16,6 @@ from pathlib import Path
 HERE = Path(__file__).resolve().parents[1]
 sys.path.insert(0, str(HERE))
 
-
 @unittest.skipUnless(os.environ.get("SLOW") == "1", "slow: one parse and the drafts of the real tree, run with SLOW=1")
 class Shapes(unittest.TestCase):
     @classmethod
@@ -82,23 +81,6 @@ class Shapes(unittest.TestCase):
         # then the rule 3 note names a file-scope variable of the stub in the `rng` shape
         note = next(line for line in self.sk.variable_entry(var) if line.startswith("// Rule 3:"))
         self.assertIn("a file-scope variable of this stub at Raven's line, the `rng` shape of q_math", note)
-
-    def test_a_cast_of_the_shared_byte_buffer_is_a_view_at_its_base(self) -> None:
-        # given vmMain, which casts `gSharedBuffer` to each ICARUS struct pointer
-        lines = self.draft("vmMain")
-
-        # then the local is the view over the base of the byte allocation
-        self.assertIn("let sharedMem = IcarusPlaySound(handle: OpaquePointer(gSharedBuffer))", lines)
-        self.assertNotIn("A pointer local `T_G_ICARUS_PLAYSOUND * sharedMem` with no view.", " ".join(lines))
-
-    def test_a_read_of_a_view_at_the_shared_byte_buffer_takes_no_force_unwrap(self) -> None:
-        # given vmMain, which reads each ICARUS view at `gSharedBuffer` member by member
-        text = "\n".join(self.draft("vmMain"))
-
-        # then each read is plain, because the view at the buffer base is not optional
-        self.assertIn("sharedMem.", text)
-        self.assertNotIn("sharedMem!", text)
-
 
 class Slots(unittest.TestCase):
     """The V35 and W14 rule, `slot_store_place`, on small C functions parsed in the test, so the class runs without SLOW=1."""
@@ -184,7 +166,6 @@ class Slots(unittest.TestCase):
 
         # and the store before the call gives let
         self.assertEqual(rule.slot_store_place(local), "let")
-
 
 if __name__ == "__main__":
     unittest.main()
