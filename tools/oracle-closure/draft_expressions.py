@@ -15,14 +15,14 @@ from spelling import Facts, UNSIGNED, VECTORS
 from rulings import HAND_MACROS, HAND_VARS, WRAPPING_ARITHMETIC
 from overlay import MACRO_RETURNS, MACROS
 import closure as C
-from skeleton import BG, LOGIC, target_of
+from skeleton import BG, LOGIC, VIEWS, target_of
 from table import ASSIGN_OPS, COMMENT, TARGET, swift_name
 from overlay import MACROS
 
 from draft_classification import Hole
 
 # The Swift targets a bg body never sees, by the bg/game boundary.
-GAME_SIDE = {LOGIC, "JKAMP_Game"}
+GAME_SIDE = {LOGIC, VIEWS}
 
 COMPARISONS = {"==", "!=", "<", ">", "<=", ">="}
 LOGICAL = {"&&", "||"}
@@ -882,7 +882,7 @@ class Expressions:
 
     def reachable(self, record: str) -> None:
         """A view of the game target has no name in a bg file, so a bg body that reaches for one keeps a hole."""
-        if target_of(self.fn.stem) == BG and self.views.views[record][1] == "CJKAMP_Game":
+        if target_of(self.fn.stem) == BG and self.views.views[record][1] == TARGET:
             raise Hole(f"Raven reaches the game's `{record}` here, and the bg module has no view of it.")
 
     def cast(self, cur: ci.Cursor) -> str:

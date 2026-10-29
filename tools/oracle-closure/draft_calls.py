@@ -12,7 +12,7 @@ from clang.cindex import CursorKind, TypeKind
 
 from spelling import INT_KINDS
 
-from skeleton import BG, LOGIC, target_of
+from skeleton import BG, LOGIC, VIEWS, target_of
 from table import Param, swift_name
 from overlay import MACROS
 from rulings import LIBC_SPELLINGS
@@ -234,7 +234,7 @@ class Calls:
         if target_of(self.fn.stem) == BG or name not in self.sdk_functions():
             return ""
         homes = self.registry.homes.get(swift_name(name), set())
-        if BG not in homes or homes & {LOGIC, "JKAMP_Game", "JKAShared"}:
+        if BG not in homes or homes & {LOGIC, VIEWS, "JKAShared"}:
             return ""
         note = f"// The SDK also declares `{name}`, so the call names the bg module."
         if note not in self.pending:

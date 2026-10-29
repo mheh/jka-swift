@@ -30,7 +30,7 @@ from spelling import Facts, OPTIONAL_TEXT_RESULT, engine_array
 TARGET = GAME_TARGET
 HERE = Path(__file__).resolve().parent
 # The store file of the sweeps, and the output folders whose files the key reads, from the project file.
-STORE = C.REPO / C.PROJECT["store"]["path"]
+STORE = C.REPO / C.TARGETS["store"]
 OUTPUT = C.REPO / C.PROJECT["output"]["root"]
 # True when a generator runs with --rebuild, so the next sweep of the run resweeps every generation and writes it again.
 REBUILD = False
@@ -96,7 +96,12 @@ class SourceFile:
     """One oracle .c file, read once, for the text a cursor's extent names and Raven's comment above a function."""
 
     def __init__(self, path) -> None:
-        self.lines = path.read_text().splitlines()
+        try:
+            self.lines = path.read_text().splitlines()
+        except UnicodeDecodeError:
+            # cg_effects.c:401 holds the Latin-1 byte 0xD7, the multiplication sign, in a comment.
+            # Latin-1 reads each byte as one character, so every column of clang's extent stays where it was.
+            self.lines = path.read_text(encoding="latin-1").splitlines()
 
 
     def slice(self, extent: ci.SourceRange) -> str:
@@ -1782,6 +1787,8 @@ class Table:
         The store sweep reads none of the other facts' results back, so it runs after them in its own generation."""
         global REBUILD
         self.keys = self.input_keys()
+        # The store of a unit other than the game stands under out/<unit>/, which a fresh tree does not hold yet.
+        Path(self.store_path).parent.mkdir(parents=True, exist_ok=True)
         self.store = S.Store(self.store_path)
         self.swept = set()
         base = None if REBUILD else self.store.load("base", self.keys.base)
@@ -1859,11 +1866,13 @@ class Table:
                 inputs.add(Path(tu.spelling))
             inputs |= {Path(inc.include.name) for inc in tu.get_includes()}
         tools = [HERE / name for name in C.PROJECT["store"]["modules"]]
-        stubs = sorted(path for folder in C.PROJECT["output"]["stubs"] for path in (OUTPUT / folder).glob("*.swift"))
+        folders = C.PROJECT["output"]["stubs"] + [C.TARGETS["logic"]]
+        stubs = sorted(path for folder in folders for path in C.written(OUTPUT / folder).glob("*.swift"))
         # The sweeps read which records have a view, and a view generator of one root has fewer of them, so the view set is an input too.
         values = {"(the view set)": "\n".join(sorted(self.views.views))}
         # The views read the declared names and the callback signatures of the generated declarations, so the key covers those parts alone.
-        declarations = {path for pattern in C.PROJECT["output"]["declarations"] for path in OUTPUT.glob(pattern)}
+        patterns = [pattern.format(views=C.TARGETS["views"]) for pattern in C.PROJECT["output"]["declarations"]]
+        declarations = {path for pattern in patterns for path in OUTPUT.glob(pattern)}
         values |= {S.named(path, C.REPO): declaration_heads(path.read_text()) for path in sorted(declarations)}
         return S.keys(sorted(inputs), tools, stubs, C.REPO, salt=NOTE, values=values)
 

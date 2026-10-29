@@ -23,6 +23,7 @@ import argparse
 import re
 import subprocess
 import sys
+import tomllib
 from collections import defaultdict
 from pathlib import Path
 
@@ -36,10 +37,14 @@ REPO = HERE.parent.parent
 SOURCES = REPO / "Sources"
 
 # The C target of the MP game module, whose header umbrella the table, the views, and the rosetta stones read.
-GAME_TARGET = "CJKAMP_Game"
+# The mp-game row of project.toml names it and its view target.
+# The header parse stays on the game target for a run of any unit, until the cgame views exist.
+with (HERE / "project.toml").open("rb") as _f:
+    _game = tomllib.load(_f)["targets"]["mp-game"]
+GAME_TARGET = _game["c_target"]
 # C target -> Swift view target, and the C targets each view target's umbrella reaches.
-VIEW_OF = {"CJKAShared": "JKAShared", "CJKAMP": "JKAMP", "CJKAMP_Game": "JKAMP_Game"}
-DEPS = {"CJKAShared": [], "CJKAMP": ["CJKAShared"], "CJKAMP_Game": ["CJKAMP", "CJKAShared"]}
+VIEW_OF = {"CJKAShared": "JKAShared", "CJKAMP": "JKAMP", GAME_TARGET: _game["views"]}
+DEPS = {"CJKAShared": [], "CJKAMP": ["CJKAShared"], GAME_TARGET: ["CJKAMP", "CJKAShared"]}
 SKIP = {"qboolean"}
 # Macro bodies that are a keyword or a keyword macro, not a value.
 KEYWORD_MACROS = {"inline", "static", "__inline", "ID_INLINE", "QDECL", "MAC_STATIC"}

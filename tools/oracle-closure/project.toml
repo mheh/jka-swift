@@ -8,31 +8,57 @@ source_root = "oracle"
 target_language = "swift"
 
 [sweep]
-# The unit whose bodies the sweeps walk, and the unit beside it that a proof over every caller reads too.
+# The unit a generator run reads when its command line names no `--unit`.
 unit = "mp-game"
-other_unit = "mp-cgame"
-# The folder of each unit's own source files, relative to the source root.
+
+# One row per unit that a generator run takes with `--unit`, and every fact of that unit that a generator reads.
+# `other` is the unit beside it that a proof over every caller reads too, and its folder comes from its own row.
+# `folder` holds the unit's own source files, relative to the source root, and `traps` is the file of that folder that holds the trap table.
+# `logic` is the Swift target of the stubs, `views` is the view target, and `c_target` is the C target that the traps import.
+# `state` names the state files and the state object of the logic target: `<state>Variables`, `<state>Storage`, and `<state>World`.
+# `rust` is the jka-rust crate under `jka-rust/crates/mp` that the manifest reads beside `bg` and `qshared`.
+# `store` is the table cache of the unit's sweeps, one SQLite file outside version control.
+# A unit whose `logic` target is not under the output root yet writes every file of its run under `tools/oracle-closure/out/<unit>/`.
+[targets.mp-game]
+other = "mp-cgame"
 folder = "codemp/game"
-other_folder = "codemp/cgame"
+traps = "g_syscalls.c"
+logic = "JKAMP_GameLogic"
+views = "JKAMP_Game"
+c_target = "CJKAMP_Game"
+state = "Game"
+rust = "game"
+store = "tools/oracle-closure/table.sqlite"
+
+[targets.mp-cgame]
+other = "mp-game"
+folder = "codemp/cgame"
+traps = "cg_syscalls.c"
+logic = "JKAMP_CGameLogic"
+views = "JKAMP_CGame"
+c_target = "CJKAMP_CGame"
+state = "CGame"
+rust = "cgame"
+store = "tools/oracle-closure/out/mp-cgame/table.sqlite"
 
 [output]
 # The root of the generated targets.
 root = "Sources"
-# The folders under the root that hold the stubs. The first line of each stub decides whether the stub is adopted.
-stubs = ["JKAMP_BG", "JKAMP_GameLogic", "JKAShared"]
+# The folders under the root that hold the stubs, beside the `logic` target of the unit.
+# The first line of each stub decides whether the stub is adopted.
+stubs = ["JKAMP_BG", "JKAShared"]
 # The generated declarations under the root that the views read for the module of a name, as globs.
+# `{views}` stands for the `views` target of the unit.
 declarations = [
     "JKAShared/Generated/*.swift",
     "JKAMP/Generated/*.swift",
-    "JKAMP_Game/Generated/*.swift",
+    "{views}/Generated/*.swift",
     "JKAShared/Generated/Views/Callbacks.swift",
     "JKAMP/Generated/Views/Callbacks.swift",
-    "JKAMP_Game/Generated/Views/Callbacks.swift",
+    "{views}/Generated/Views/Callbacks.swift",
 ]
 
 [store]
-# The table cache of the sweeps, one SQLite file outside version control.
-path = "tools/oracle-closure/table.sqlite"
 # The tool modules whose logic feeds the facts, relative to this folder.
 # A change to one of them invalidates every fact in the store.
 modules = [
