@@ -10,6 +10,9 @@ public final class GameWorld {
     var variables = GameVariables()
     let strings = StringPool.shared
 
+    /// The module entry builds a fresh world at every map load, so the initializer is public.
+    public init() {}
+
     // MARK: - g_mem.c
 
     /// Raven's `static char memoryPool[POOLSIZE]` of `g_mem.c`, the raw block of rule 9 that `G_Alloc` hands pointers into.
