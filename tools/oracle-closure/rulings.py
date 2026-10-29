@@ -121,8 +121,9 @@ NEVER_NULL_VARS = {"pm"}
 # The value is the Swift spelling of the storage, and `None` means the variable has no storage.
 # `bg_pool` has no storage, because `BG_Alloc` and `BG_TempAlloc` return one block per call.
 # The entry stays, so the stub does not declare a `CharBuf` of `MAX_POOL_SIZE` bytes, and a body that reads `bg_pool` drafts a `portMissing` hole.
-# `memoryPool` is the raw allocation of rule 9 that `G_Alloc` hands pointers into, `world.memoryPool`, of `POOLSIZE` bytes the world owns.
-HAND_VARS = {"bg_pool": None, "memoryPool": "world.memoryPool"}
+# `memoryPool` has no storage, because `G_Alloc` returns one block per call.
+# The entry stays, so the stub does not declare a `CharBuf` of `POOLSIZE` bytes, and a body that reads `memoryPool` drafts a `portMissing` hole.
+HAND_VARS = {"bg_pool": None, "memoryPool": None}
 
 # File-scope character arrays whose address the engine holds, so each one is one zeroed byte allocation on the storage class, not a `CharBuf`.
 # `gSharedBuffer` of g_main.c goes to the engine through `trap_SV_RegisterSharedMemory`, and vmMain reads the ICARUS views at its base.

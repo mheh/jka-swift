@@ -452,7 +452,7 @@ The stub forwards it under Raven's name at Raven's line, `var gWPNum: Int32 { ge
 A name in `NEVER_NULL_VARS` of `rulings.py`, `pm` among them, forwards non-optional and traps on nil with the name, because Raven's callers set it before any body runs.
 A `void *` variable is an engine handle, an `OpaquePointer?` whose `NULL` or `0` initializer is nil, so a body hands `g2SaberInstance` to a Ghoul2 trap by value and `&g2SaberInstance` by address.
 A variable the module assigns and Raven gives a data initializer, a brace list, is a hand property of the state object with Raven's data, and the stub forwards it the same way.
-A name in `HAND_VARS` of `rulings.py` keeps its hand storage, `memoryPool` as `world.memoryPool`, and its stub entry says so. The `bg_pool` entry has no storage, and it keeps the stub from a `CharBuf` of `MAX_POOL_SIZE` bytes.
+A name in `HAND_VARS` of `rulings.py` is a variable whose storage is hand work, and its stub entry says so. The `bg_pool` and `memoryPool` entries have no storage, and they keep the stub from a `CharBuf` of the pool size.
 A C character array at file scope is a `CharBuf` of Raven's bound.
 A variable Raven declares with no initializer is his all the same, zeroed by the loader, and its entry says C's zero where the initializer would be.
 A file-scope array of struct pointers, such as `gWPArray`, is one zeroed allocation the world owns, on the generated `GameStorage` class in `Sources/JKAMP_Game/Generated/Storage/GameStorage.swift`, as a `Slots` of optional views, born and freed with `GameWorld`.
@@ -713,7 +713,7 @@ Raven's `qboolean` and his `vehicleType_t` are enums of four bytes, so `*(qboole
 A `byte *` local whose one store is the cast of a view, Raven's `byte *b = (byte *)vehWeapon`, is the raw pointer over the view's own slot, `let b = UnsafeMutableRawPointer(vehWeapon.handle)`, with the one-line comment that names rule 11.
 A `char *` local whose every store is a call to a `CHARBUF_ALLOCS` allocator of `rulings.py` at one constant size is a `CharBuf` of that size, `var buf = CharBuf(131072)` for Raven's `buf = (char *)B_TempAlloc(131072)`.
 The call stays on the page with its result dropped, `_ = B_TempAlloc(131072)`, and the free stays too, so the pool keeps Raven's count.
-A `G_Alloc` into a `String` slot that Raven then fills with `strcpy` takes the same form, `_ = G_Alloc(strlen(info) + 1)`, then the store `infos[infos.startIndex + count] = String(info)`, and Raven's NULL test of the slot drops under rule 22.
+A `G_Alloc` into a `String` slot that Raven then fills with `strcpy` takes the same form, `_ = G_Alloc(strlen(info) + strlen("\\num\\") + strlen(va("%d", MAX_ARENAS)) + 1)`, then the store `infos[infos.startIndex + count] = String(info)`, and Raven's NULL test of the slot drops under rule 22.
 The same file defines `+` and `-` between a raw pointer and any integer, so a body adds Raven's offset to a raw pointer as he wrote it.
 
 ### No `Unsafe` type
