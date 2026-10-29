@@ -47,7 +47,7 @@ The AI comment. Rule 24 (`docs/porting-rules.md:71`) puts an `AI:` line only whe
 
 ## C1. Header, declaration, and value selectors (kind c, 37 chains)
 
-Proposed. Waits for a ruling.
+Ratified as proposed on 2026-10-29.
 
 The sites. The include selectors at `bg_g2_utils.c:9-21` (4), `bg_misc.c:9-21` (4), `bg_panimate.c:9-18` (2), `bg_pmove.c:12-14`, `bg_saber.c:987-997`, `bg_slidemove.c:9-11`, and `bg_vehicleLoad.c:30-35` (2), which defines `WE_ARE_IN_THE_UI` for the ui. The extern selectors at `bg_misc.c:28-30`, `:341-345`, `:3190-3196`, `bg_pmove.c:18-22`, `:637-639`, `:711-714`, `:5827-5831`, `bg_saberLoad.c:20-28`, `bg_saga.c:28-30`, `bg_slidemove.c:24-27`, `:37-39`, `:41-44`, and `bg_vehicleLoad.c:42-66`, `:95-101`. The `_XBOX` selectors at `bg_pmove.c:7782-7801` and `bg_vehicleLoad.c:75-89`: the PC build compiles the first arm for every consumer, and the Swift bodies are at `bg_pmove.swift:6772` and `bg_vehicleLoad.swift:54`. The local declarations at `bg_pmove.c:5671-5673` (Swift `bg_pmove.swift:5121`, with its comment at `:5120`), `bg_pmove.c:10927-10929` (Swift `bg_pmove.swift:9203`), and `bg_slidemove.c:148-152` (Swift `bg_slidemove.swift:80`). The cgame `hitEnt` declarations at `bg_slidemove.c:159-161` and `:187-189` initialize the same entity from `PM_BGEntForNum(trace->entityNum)`, and the one Swift `hitEnt` at `bg_slidemove.swift:18` reads `pm.entity(at: trace.entityNum)` (`Sources/JKAMP/Generated/Views/Pmove.swift:65`) for every consumer. The value selector `MAX_POOL_SIZE` at `bg_misc.c:3311-3317` is `bg.maxPoolSize` (`bg_local.swift:51`, `:373`), with the hand line at `bg_misc.swift:1663-1664`.
 
@@ -57,7 +57,7 @@ Generator rows. None.
 
 ## C2. Faithful tests (kind a, 12 chains)
 
-Proposed. Waits for a ruling.
+Ratified as proposed on 2026-10-29.
 
 | Raven | Swift | Raven's arms |
 |---|---|---|
@@ -80,7 +80,7 @@ Generator rows. None.
 
 ## C3. A game arm with no test, where Raven gives cgame nothing (kind b, 13 chains)
 
-Proposed. Waits for a ruling.
+Ratified as proposed on 2026-10-29.
 
 Raven's chain is `#ifdef QAGAME` with no `#else`. The Swift body writes the game arm with no test, so a cgame consumer runs the game arm. Each site calls a game closure that the cgame does not have in Raven, or a read closure over the game's tables.
 
@@ -93,7 +93,7 @@ Raven's chain is `#ifdef QAGAME` with no `#else`. The Swift body writes the game
 | `bg_pmove.c:6649-6664` | `bg_pmove.swift:5963-5972` | `bgEntityInuse` |
 | `bg_pmove.c:7395-7404` | `bg_pmove.swift:6518-6522` | `G_CheapWeaponFire` |
 | `bg_pmove.c:10887-10901` | `bg_pmove.swift:9177-9183` | `bgEntitySpawnflags`, the vehicle `Board` |
-| `bg_pmove.c:10919-10922` | `bg_pmove.swift:9198-9201` | the vehicle `Update` and `Animate` |
+| `bg_pmove.c:10919-10922` | `bg_pmove.swift:9200-9203` | the vehicle `Update` and `Animate` |
 | `bg_saber.c:1118-1121` | `bg_saber.swift:774-775` | `NPC_SetAnim` |
 | `bg_slidemove.c:128-133` | `bg_slidemove.swift:66-70` | no call, the `else` of the landing test |
 | `bg_slidemove.c:313-398` | `bg_slidemove.swift:202-270` | `FighterIsLanded`, `bgEntitySpawnflags` |
@@ -112,7 +112,7 @@ Generator rows. None. The edits are hand edits of adopted bodies.
 
 ## C4. Asset registration arms (kind b, 38 chains)
 
-Proposed. Waits for a ruling.
+Ratified as proposed on 2026-10-29.
 
 The game arm takes an index (`G_ModelIndex`, `G_SoundIndex`, `G_EffectIndex`) or skips the value. The cgame arm registers the asset with a `trap_R_`, `trap_S_`, or `trap_FX_` trap. The Swift body holds the game arm only.
 
@@ -156,13 +156,13 @@ Generator rows. None. The rule 23 sentence of item 2 is a doc row.
 
 ## C5. Logic arms that differ for cgame (kind b, 11 chains)
 
-Proposed. Waits for a ruling.
+Ratified as proposed on 2026-10-29.
 
 | Raven | Swift | Raven's cgame arm |
 |---|---|---|
 | `bg_pmove.c:6699-6712` | `bg_pmove.swift:6000-6004` | sets `vehicleRocketLock` and clears only `BUTTON_ATTACK` when either vehicle weapon is homing |
 | `bg_pmove.c:7478-7488`, inside the live `#else` of `#if 0` at `:7447` | `bg_pmove.swift:6559-6563` | `return` |
-| `bg_pmove.c:10944-11019` | `bg_pmove.swift:9213-9240`, with Raven's cgame comments left at `:9230-9240` and no statements | `BG_FighterUpdate`, sets the pilot, the orientation commands, `PM_SetPMViewAngle`, the move direction |
+| `bg_pmove.c:10944-11019` | `bg_pmove.swift:9213-9240`, with Raven's cgame comments left at `:9234-9240` and no statements | `BG_FighterUpdate`, sets the pilot, the orientation commands, `PM_SetPMViewAngle`, the move direction |
 | `bg_saber.c:1172-1184` | `bg_saber.swift:823-829` | `PM_SetAnim` on the local player only |
 | `bg_saber.c:1200-1204` | `bg_saber.swift:844` | `if ( duelist->clientNum == pm->ps->clientNum )` in place of `if ( 1 )` |
 | `bg_saber.c:1213-1217` | `bg_saber.swift:852` | the same test |
@@ -182,7 +182,7 @@ Generator rows. One `ARM_HOOKS`-like entry per cgame read callback, which `chann
 
 ## C6. ui-only arms (kind b, 2 chains)
 
-Proposed. Waits for a ruling.
+Ratified as proposed on 2026-10-29.
 
 `bg_saga.c:978-987` gives the game and cgame the same arm and the ui a register and a copy. The Swift body at `bg_saga.swift:764-767` holds the game arm. `bg_vehicleLoad.c:690-706` gives the game and cgame the switch of `G_Set*VehicleFunctions` and the ui nothing. The Swift body at `bg_vehicleLoad.swift:271-285` holds the switch. The ui arms of the three-arm chains of C4 are in the same position.
 
@@ -192,7 +192,7 @@ Generator rows. None.
 
 ## C7. Whole functions one or two consumers compile (kind d, 6 chains)
 
-Proposed. Waits for a ruling.
+Ratified as proposed on 2026-10-29.
 
 | Raven | Consumers | In `JKAMP_BG` today |
 |---|---|---|
@@ -217,7 +217,7 @@ Generator rows. Item 1 needs the skeleton to read the cgame parse for the block 
 
 ## C8. Not compiled in the release build (kind e, 6 chains)
 
-Proposed. Waits for a ruling.
+Ratified as proposed on 2026-10-29.
 
 Inside a comment: `bg_pmove.c:647-652`, `:3450-3454`, `:10546-10550`, and `bg_slidemove.c:119-123`. Inside `#ifdef _DEBUG`: `bg_misc.c:2649-2653`. Inside `#ifdef _TESTING_VEH_PREDICTION`: `bg_pmove.c:10844-10853`. The Swift bodies keep the comments as text, for example `bg_slidemove.swift:58-64`, and carry no line for the two dead arms.
 
@@ -227,7 +227,7 @@ Generator rows. None.
 
 ## C9. The vehicle NPC files that cgame also compiles
 
-Proposed. Waits for a ruling.
+Ratified as proposed on 2026-10-29.
 
 `JK2_cgame.vcproj` compiles `AnimalNPC.c`, `FighterNPC.c`, `SpeederNPC.c`, and `WalkerNPC.c` from the game folder with `CGAME` defined. These files are outside `bg_*.c`, and they carry 71 consumer conditionals: 11, 36, 15, and 9 (`grep -cE` over `#if`, `#ifdef`, `#ifndef`, and `#elif` with `QAGAME` or `CGAME`). For example, `FighterNPC.c:185-197` keeps a block for the game only. The Swift files are in the game target: `Sources/JKAMP_GameLogic/AnimalNPC.swift`, `FighterNPC.swift`, `SpeederNPC.swift`, and `WalkerNPC.swift`. The bg channel reaches them through `BG_FighterUpdate`, `FighterIsLanded`, and the four `G_Set*VehicleFunctions` (`bg_callbacks.swift:10`, `:25`, `:61`, `:64`, `:70`, `:73`), each citing a game file. The cgame arm of `bg_pmove.c:10944-11019` calls `BG_FighterUpdate` at `:10966-10970`, and `BG_SetSharedVehicleFunctions` calls the four setters for cgame at `bg_vehicleLoad.c:690-706`.
 
@@ -304,4 +304,16 @@ A cgame run does not exist yet (blockers 9 to 11 at `notes/2026-10-29/cgame-scou
 
 ## The ledger
 
-No row is ruled.
+Every row was ratified as proposed on 2026-10-29, in one walk, one row per message. The coordinator read every cited line in both trees before each row, and two cites were short, corrected in the rows above.
+
+| Row | Verdict | Date |
+|---|---|---|
+| C1. Header, declaration, and value selectors | ratified as proposed | 2026-10-29 |
+| C2. Faithful tests | ratified as proposed | 2026-10-29 |
+| C3. A game arm with no test, where Raven gives cgame nothing | ratified as proposed | 2026-10-29 |
+| C4. Asset registration arms | ratified as proposed | 2026-10-29 |
+| C5. Logic arms that differ for cgame | ratified as proposed | 2026-10-29 |
+| C6. ui-only arms | ratified as proposed | 2026-10-29 |
+| C7. Whole functions one or two consumers compile | ratified as proposed | 2026-10-29 |
+| C8. Not compiled in the release build | ratified as proposed | 2026-10-29 |
+| C9. The vehicle NPC files that cgame also compiles | ratified as proposed, a separate docket follows | 2026-10-29 |
