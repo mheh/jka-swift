@@ -124,7 +124,7 @@ Every chain, with its kind, its row, and what the Swift body holds today. A Swif
 
 ## V1. The shape
 
-Proposed. Waits for a ruling.
+Ratified as proposed on 2026-10-29.
 
 Shape A. Move the four files into `JKAMP_BG` and spell each consumer conditional as a rule 23 `bg.consumer` test with both arms. This is what jka-rust did, in a split form: the 33 functions of both builds went to the bg crate, and the 15 game-only functions stayed in the game crate (`jka-rust/crates/mp/bg/src/vehicles/mod.rs:9-17`, `jka-rust/crates/mp/game/src/AnimalNPC.rs:1-7`). The consequences:
 
@@ -152,7 +152,7 @@ Generator rows. Row V10.
 
 ## V2. Header, extern, and declaration selectors (kind c, 17 chains)
 
-Proposed. Waits for a ruling.
+Ratified as proposed on 2026-10-29.
 
 The sites. The include selectors at `AnimalNPC.c:37-41`, `FighterNPC.c:37-41`, `SpeederNPC.c:37-41`, and `WalkerNPC.c:37-41`: the game includes `g_local.h`, and the cgame includes `bg_public.h`. The game externs at `FighterNPC.c:72-81`, `:91-93`, and `SpeederNPC.c:74-82`. The `G_AllocateVehicleObject` externs at `AnimalNPC.c:894-896`, `FighterNPC.c:1985-1987`, `SpeederNPC.c:1083-1085`, and `WalkerNPC.c:584-586`. The cgame declarations of `AttachRidersGeneric` at `AnimalNPC.c:852-854`, `FighterNPC.c:1944-1946`, `SpeederNPC.c:1040-1042`, and `WalkerNPC.c:542-544`. The cgame trap externs at `FighterNPC.c:357-360`. The local `const float groundFraction = 0.1f` at `FighterNPC.c:1390-1392`, which only the game arm at `:1759-1776` reads.
 
@@ -164,7 +164,7 @@ Generator rows. None.
 
 ## V3. Not compiled in the release build (kind e, 5 chains)
 
-Proposed. Waits for a ruling.
+Ratified as proposed on 2026-10-29.
 
 The sites. `#ifndef QAGAME` / `#define QAGAME` inside `#ifndef _JK2MP` at `AnimalNPC.c:32-34`, `FighterNPC.c:32-34`, `SpeederNPC.c:32-34`, and `WalkerNPC.c:32-34`. The MP build defines `_JK2MP` at line 25-29 of each file, so the outer chain drops them. The `curTime` chain at `FighterNPC.c:381-388` is inside the comment `:380-389`, and the Swift body keeps it as comment text at `FighterNPC.swift:278-287`.
 
@@ -174,7 +174,7 @@ Generator rows. None.
 
 ## V4. Whole functions only the game compiles (kind d, 11 chains)
 
-Proposed. Waits for a ruling.
+Ratified as proposed on 2026-10-29.
 
 The sites. `AnimalNPC.c:71-155` and `:473-850`, `FighterNPC.c:185-234`, `:275-287`, and `:1831-1942`, `SpeederNPC.c:147-269` and `:602-612`, and `WalkerNPC.c:71-116` and `:413-540`. These nine chains hold the 15 game-only functions of the facts table. The two nested chains `FighterNPC.c:1846-1853` and `:1893-1897` are inside `AnimateVehicle`, which only the game compiles, so their `CGAME` arms never compile in any build. The Swift body keeps Raven's cgame comment at `FighterNPC.swift:1206` and `:1235`.
 
@@ -186,7 +186,7 @@ Generator rows. None under shape B. Under shape A, the skeleton needs a per-func
 
 ## V5. A game arm with no cgame arm (kind b, 10 chains)
 
-Proposed. Waits for a ruling.
+Ratified as proposed on 2026-10-29.
 
 | Raven | Swift today | What the game arm does |
 |---|---|---|
@@ -211,7 +211,7 @@ Generator rows. None under shape B.
 
 ## V6. Two arms that differ (kind b, 11 chains)
 
-Proposed. Waits for a ruling.
+Ratified as proposed on 2026-10-29.
 
 | Raven | Swift today | Raven's cgame arm |
 |---|---|---|
@@ -237,7 +237,7 @@ Generator rows. None under shape B, beyond row V10. Under shape A, `channel.py` 
 
 ## V7. The cgame `AttachRiders` stores (kind b, 4 chains)
 
-Proposed. Waits for a ruling.
+Ratified as proposed on 2026-10-29.
 
 The sites. `AnimalNPC.c:880-882`, `FighterNPC.c:1971-1973`, `SpeederNPC.c:1069-1071`, and `WalkerNPC.c:570-572` each store `pVehInfo->AttachRiders = AttachRidersGeneric` under `#ifndef QAGAME`. The Swift setters hold no such store, after `AnimalNPC.swift:641`, `FighterNPC.swift:1287`, `SpeederNPC.swift:641`, and `WalkerNPC.swift:412`.
 
@@ -251,7 +251,7 @@ Generator rows. None. The skeleton writes the thunks per file (`tools/oracle-clo
 
 ## V8. The game arms of the four setters (kind b, 4 chains)
 
-Proposed. Waits for a ruling.
+Ratified as proposed on 2026-10-29.
 
 The sites. `AnimalNPC.c:859-876`, `FighterNPC.c:1950-1967`, `SpeederNPC.c:1046-1063`, and `WalkerNPC.c:549-566`. Each stores the file's game-only functions in the slots: 4, 5, 3, and 3 stores. 14 of the 15 stored functions are game-only. Speeder's `AnimateRiders` is the exception: the cgame compiles it, and only the game stores it. The Swift setters hold the stores with no test (the chain table).
 
@@ -263,7 +263,7 @@ Generator rows. None under shape B. Under shape A, four `ARM_HOOKS` entries.
 
 ## V9. What the cgame calls, and the cgame install
 
-Proposed. Waits for a ruling.
+Ratified as proposed on 2026-10-29.
 
 The cgame reaches the four files at these sites:
 
@@ -288,7 +288,7 @@ Generator rows. The cgame install writer of row V10.
 
 ## V10. The generator rows
 
-Proposed. Waits for a ruling.
+Ratified as proposed on 2026-10-29.
 
 Shape B needs these rows:
 
@@ -313,7 +313,7 @@ Generator rows. As listed.
 
 ## V11. The gate
 
-Proposed. Waits for a ruling.
+Ratified as proposed on 2026-10-29.
 
 Shape B. No file under `Sources/JKAMP_GameLogic`, `Sources/JKAMP_Game`, or `Sources/JKAMP_BG` changes, so the game run cannot change. Three checks prove it: `git diff --stat master -- Sources/JKAMP_GameLogic Sources/JKAMP_Game Sources/JKAMP_BG` is empty, `snapshot.py --check` of the game unit reports no difference, and one replay of `notes/2026-10-29/game-pool-docket.md:170-180` gives the same `G_Alloc of` stream. `swift build`, `swift test --no-parallel`, and the tool tests are the rest of the gate. The cgame copy is proven by a test in the cgame test target: the cgame copy's `G_SetFighterVehicleFunctions` on a zeroed `VehicleInfo` fills the two move and orient slots and the `AttachRiders` slot and leaves `Update` empty, and the cgame `curTime` arm reads `pm.cmd.serverTime`.
 
@@ -377,18 +377,18 @@ OpenJK is at `~/Developer/Milo/OpenJK` at 35e4184f. It keeps Raven's two compile
 
 ## The ledger
 
-No row is ruled.
+The user delegated the eleven rows to the coordinator on 2026-10-29, and the coordinator read the cited lines of every row in all four trees before the rulings. Every row is ratified as proposed, so the four files compile a second time in `JKAMP_CGameLogic`, shape B.
 
 | Row | Verdict | Date |
 |---|---|---|
-| V1. The shape | open | |
-| V2. Header, extern, and declaration selectors | open | |
-| V3. Not compiled in the release build | open | |
-| V4. Whole functions only the game compiles | open | |
-| V5. A game arm with no cgame arm | open | |
-| V6. Two arms that differ | open | |
-| V7. The cgame `AttachRiders` stores | open | |
-| V8. The game arms of the four setters | open | |
-| V9. What the cgame calls, and the cgame install | open | |
-| V10. The generator rows | open | |
-| V11. The gate | open | |
+| V1. The shape | ratified as proposed | 2026-10-29 |
+| V2. Header, extern, and declaration selectors | ratified as proposed | 2026-10-29 |
+| V3. Not compiled in the release build | ratified as proposed | 2026-10-29 |
+| V4. Whole functions only the game compiles | ratified as proposed | 2026-10-29 |
+| V5. A game arm with no cgame arm | ratified as proposed | 2026-10-29 |
+| V6. Two arms that differ | ratified as proposed | 2026-10-29 |
+| V7. The cgame `AttachRiders` stores | ratified as proposed | 2026-10-29 |
+| V8. The game arms of the four setters | ratified as proposed | 2026-10-29 |
+| V9. What the cgame calls, and the cgame install | ratified as proposed | 2026-10-29 |
+| V10. The generator rows | ratified as proposed | 2026-10-29 |
+| V11. The gate | ratified as proposed | 2026-10-29 |
