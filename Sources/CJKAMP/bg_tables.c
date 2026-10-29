@@ -3375,6 +3375,32 @@ stringID_table_t animTable [MAX_ANIMATIONS+1] =
 	NULL,-1
 };
 
+// Source: oracle/codemp/game/bg_panimate.c:1758-1770
+stringID_table_t animEventTypeTable[MAX_ANIM_EVENTS+1] = 
+{
+	ENUM2STRING(AEV_SOUND),			//# animID AEV_SOUND framenum soundpath randomlow randomhi chancetoplay
+	ENUM2STRING(AEV_FOOTSTEP),		//# animID AEV_FOOTSTEP framenum footstepType
+	ENUM2STRING(AEV_EFFECT),		//# animID AEV_EFFECT framenum effectpath boltName
+	ENUM2STRING(AEV_FIRE),			//# animID AEV_FIRE framenum altfire chancetofire
+	ENUM2STRING(AEV_MOVE),			//# animID AEV_MOVE framenum forwardpush rightpush uppush
+	ENUM2STRING(AEV_SOUNDCHAN),		//# animID AEV_SOUNDCHAN framenum CHANNEL soundpath randomlow randomhi chancetoplay 
+	ENUM2STRING(AEV_SABER_SWING),	//# animID AEV_SABER_SWING framenum CHANNEL randomlow randomhi chancetoplay 
+	ENUM2STRING(AEV_SABER_SPIN),	//# animID AEV_SABER_SPIN framenum CHANNEL chancetoplay 
+	//must be terminated
+	NULL,-1
+};
+
+// Source: oracle/codemp/game/bg_panimate.c:1772-1780
+stringID_table_t footstepTypeTable[NUM_FOOTSTEP_TYPES+1] = 
+{
+	ENUM2STRING(FOOTSTEP_R),
+	ENUM2STRING(FOOTSTEP_L),
+	ENUM2STRING(FOOTSTEP_HEAVY_R),
+	ENUM2STRING(FOOTSTEP_HEAVY_L),
+	//must be terminated
+	NULL,-1
+};
+
 // Source: oracle/codemp/game/bg_saberLoad.c:46-61
 stringID_table_t SaberTable[] =
 {
