@@ -9,8 +9,6 @@
 #include "CJKASP.h"
 #include "CJKAShared.h"
 #include "CJKASP_CGame_forward.h"
-#include "code/cgame/cg_camera/constants.h"
-#include "code/cgame/cg_lights/clightstyle_t.h"
 #include "code/cgame/cg_local/constants.h"
 #include "code/cgame/cg_local/centity_t.h"
 #include "code/cgame/cg_local/itemInfo_t.h"
@@ -23,6 +21,7 @@
 #include "code/cgame/cg_local/playerEntity_t.h"
 #include "code/cgame/cg_local/powerupInfo_t.h"
 #include "code/cgame/cg_local/screengraphics_s.h"
+#include "code/cgame/cg_camera/constants.h"
 #include "code/cgame/cg_media/constants.h"
 #include "code/cgame/cg_media/HUDMenuItem_t.h"
 #include "code/cgame/cg_media/cgEffects_t.h"
@@ -31,5 +30,6 @@
 #include "code/cgame/cg_media/enum_CHUNK_METAL1.h"
 #include "code/cgame/cg_media/footstep_t.h"
 #include "code/cgame/cg_media/otherhudbits_t.h"
+#include "code/cgame/cg_lights/clightstyle_t.h"
 
 #endif // JKA_CJKASP_CGAME_H
