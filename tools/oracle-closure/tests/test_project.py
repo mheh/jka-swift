@@ -15,6 +15,9 @@ REPO = HERE.parents[1]
 # The last commit that holds the module files, which is the known fact the project file must match.
 OLD = "95fb8c0"
 PARSE_KEYS = ("name", "lang", "entry", "includes", "defines", "flags", "srcglob", "exclude")
+# The source patterns a ruling added after the old commit, by unit and by the pattern each one follows.
+# Row V10 of notes/2026-10-29/vehicle-npc-docket.md adds the four vehicle files that Raven's cgame build compiles a second time.
+ADDED = {"mp-cgame": ("codemp/cgame/*.c", [f"codemp/game/{stem}.c" for stem in ("AnimalNPC", "FighterNPC", "SpeederNPC", "WalkerNPC")])}
 
 
 def git(*args: str) -> str:
@@ -44,6 +47,10 @@ class ProjectFile(unittest.TestCase):
         self.assertEqual(set(units), set(old))
         for name, spec in old.items():
             expected = {key: spec[key] for key in PARSE_KEYS if key in spec}
+            if name in ADDED:
+                after, added = ADDED[name]
+                at = expected["srcglob"].index(after) + 1
+                expected["srcglob"] = expected["srcglob"][:at] + added + expected["srcglob"][at:]
             actual = {key: units[name][key] for key in PARSE_KEYS if key in units[name]}
             self.assertEqual(actual, expected, name)
 
@@ -58,7 +65,8 @@ class ProjectFile(unittest.TestCase):
         # then each unity parse includes exactly the .c files the old globs name
         for tu, name in ((parse.game, "mp-game"), (parse.cgame, "mp-cgame")):
             included = {Path(inc.include.name).resolve() for inc in tu.get_includes() if inc.depth == 1 and inc.include.name.endswith(".c")}
-            expected = {p.resolve() for g in old[name]["srcglob"] for p in oracle.glob(g)}
+            patterns = old[name]["srcglob"] + (ADDED[name][1] if name in ADDED else [])
+            expected = {p.resolve() for g in patterns for p in oracle.glob(g)}
             self.assertTrue(expected, name)
             self.assertEqual(included, expected, name)
 
