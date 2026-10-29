@@ -14,6 +14,10 @@ public final class BgStorage {
     /// Source: oracle/codemp/game/bg_panimate.c:1702
     public let bgAllAnims: Slots<JKAMP.BgLoadedAnim>
 
+    /// Raven's `bgLoadedEvents_t bgAllEvents[MAX_ANIM_FILES]` of `bg_panimate.c`.
+    /// Source: oracle/codemp/game/bg_panimate.c:2166
+    public let bgAllEvents: Slots<JKAMP.BgLoadedEvents>
+
     /// Raven's `pml_t pml` of `bg_pmove.c`.
     /// Source: oracle/codemp/game/bg_pmove.c:31
     public let pml: JKAMP.Pml
@@ -37,6 +41,7 @@ public final class BgStorage {
     public init() {
         self.bgHumanoidAnimations = BgStorage.records(count: Int(JKAMP.MAX_TOTALANIMATIONS), of: JKAMP.Animation.self)
         self.bgAllAnims = BgStorage.records(count: Int(JKAMP.MAX_ANIM_FILES), of: JKAMP.BgLoadedAnim.self)
+        self.bgAllEvents = BgStorage.records(count: Int(JKAMP.MAX_ANIM_FILES), of: JKAMP.BgLoadedEvents.self)
         self.pml = BgStorage.record(of: JKAMP.Pml.self)
         self.bgSiegeClasses = BgStorage.records(count: Int(JKAMP.MAX_SIEGE_CLASSES), of: JKAMP.SiegeClass.self)
         self.bgSiegeTeams = BgStorage.records(count: Int(JKAMP.MAX_SIEGE_TEAMS), of: JKAMP.SiegeTeam.self)
@@ -47,6 +52,7 @@ public final class BgStorage {
     deinit {
         self.bgHumanoidAnimations.base.deallocate()
         self.bgAllAnims.base.deallocate()
+        self.bgAllEvents.base.deallocate()
         UnsafeMutableRawPointer(self.pml.handle).deallocate()
         self.bgSiegeClasses.base.deallocate()
         self.bgSiegeTeams.base.deallocate()

@@ -49,6 +49,8 @@ GAME_ROOTS = {
     "bot_input_t": ("BotInput", "CJKAMP_Game"),
     # A file-scope table names these, and no root field points at them.
     "bgLoadedAnim_t": ("BgLoadedAnim", "CJKAMP"),
+    # The bg table `bgAllEvents` of the cgame and ui block at bg_panimate.c:2166 names this one, with the cgame's view name and target.
+    "bgLoadedEvents_t": ("BgLoadedEvents", "CJKAMP"),
     "saberMoveData_t": ("SaberMoveData", "CJKAMP"),
     "boteventtracker_t": ("Boteventtracker", "CJKAMP_Game"),
     "nodeobject_t": ("Nodeobject", "CJKAMP_Game"),
