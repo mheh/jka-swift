@@ -367,8 +367,8 @@ class Parse:
         self.game = parse_tu(UNIT, None, unity=True, overlay=self.overlay)
         # A sweep proves a fact over every caller the port parses, so the other unit stands beside the unit of the run.
         self.cgame = parse_tu(OTHER_UNIT, None, unity=True, overlay=self.overlay)
-        # The view target's header umbrella, which the views and the re-exports read.
-        self.headers = reexport.parse(reexport.GAME_TARGET)
+        # The header umbrella of the unit's C target, which the views and the table read.
+        self.headers = reexport.parse(TARGETS["c_target"])
         self.game_folder = (ORACLE / GAME_DIR).resolve()
         self.cgame_folder = (ORACLE / CGAME_DIR).resolve()
 

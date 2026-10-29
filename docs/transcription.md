@@ -85,6 +85,7 @@ An enum Raven declares inside a `.c` file goes to the constants header of that `
 The enum stays in its `.c` file when a header, a hand header, or a `.c` macro names one of its names, or when another `.c` file declares one of them in a different enum, such as `LSTATE_NONE` of the NPC_AI files.
 An enum of that last kind is `private let` constants of type `Int32` at the top of its stub, in Raven's order with Raven's values, under the enum's `/// Source:` line, and an enumerator with no initializer counts on from the one before, from 0 for the first.
 `Sources/CJKAMP_Game/include/g_types.h` is this hand header for the game target, so a view can bind over the struct.
+`Sources/CJKAMP_CGame/include/cg_types.h` is the hand header of the cgame target in the same form.
 
 | Raven | Swift |
 |---|---|

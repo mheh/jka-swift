@@ -36,12 +36,16 @@ let package = Package(
         .target(name: "JKAMP", dependencies: ["JKAShared", "CJKAMP"]),
         // The game module views: Entity, Client, Level, and the typed traps of g_syscalls.c.
         .target(name: "JKAMP_Game", dependencies: ["JKAMP", "CJKAMP_Game"]),
+        // The cgame module views: Cg, Cgs, Centity, and every struct they reach.
+        .target(name: "JKAMP_CGame", dependencies: ["JKAMP", "CJKAMP_CGame"]),
 
         // MARK: - Swift logic, ported bodies, no C import
         // bg_*.c, shared by the game and cgame modules.
         .target(name: "JKAMP_BG", dependencies: ["JKAMP"]),
         // g_*.c and the one world instance.
         .target(name: "JKAMP_GameLogic", dependencies: ["JKAMP_Game", "JKAMP_BG"]),
+        // cg_*.c and the one world instance.
+        .target(name: "JKAMP_CGameLogic", dependencies: ["JKAMP_CGame", "JKAMP_BG"]),
 
         // MARK: - Shell, the product
         // dllEntry and vmMain. It decodes words and calls the bare functions.

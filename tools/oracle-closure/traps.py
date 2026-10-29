@@ -38,11 +38,11 @@ import clang.cindex as ci
 from clang.cindex import CursorKind, TypeKind
 
 import closure as C
-from reexport import GAME_TARGET, REPO, SOURCES
+from reexport import REPO, SOURCES
 from rulings import LIST_TRAPS, NIL_OVERLOADS, NOT_PORTED
 from table import Param, SourceFile, Table, swift_name
 
-TARGET = GAME_TARGET
+TARGET = C.TARGETS["c_target"]
 # The view target and the C target of the unit, and the file of the unit's folder that holds the trap table.
 VIEW = C.TARGETS["views"]
 IMPORT = C.TARGETS["c_target"]

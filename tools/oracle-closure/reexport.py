@@ -36,15 +36,13 @@ HERE = Path(__file__).resolve().parent
 REPO = HERE.parent.parent
 SOURCES = REPO / "Sources"
 
-# The C target of the MP game module, whose header umbrella the table, the views, and the rosetta stones read.
-# The mp-game row of project.toml names it and its view target.
-# The header parse stays on the game target for a run of any unit, until the cgame views exist.
+# The C target and the view target of each unit, from the rows of `[targets]` in project.toml, in the order of the rows.
+# A generator reads the C target of its run's unit from closure.py, and this file re-exports every target whose view target exists.
 with (HERE / "project.toml").open("rb") as _f:
-    _game = tomllib.load(_f)["targets"]["mp-game"]
-GAME_TARGET = _game["c_target"]
+    _units = tomllib.load(_f)["targets"].values()
 # C target -> Swift view target, and the C targets each view target's umbrella reaches.
-VIEW_OF = {"CJKAShared": "JKAShared", "CJKAMP": "JKAMP", GAME_TARGET: _game["views"]}
-DEPS = {"CJKAShared": [], "CJKAMP": ["CJKAShared"], GAME_TARGET: ["CJKAMP", "CJKAShared"]}
+VIEW_OF = {"CJKAShared": "JKAShared", "CJKAMP": "JKAMP"} | {unit["c_target"]: unit["views"] for unit in _units}
+DEPS = {"CJKAShared": [], "CJKAMP": ["CJKAShared"]} | {unit["c_target"]: ["CJKAMP", "CJKAShared"] for unit in _units}
 SKIP = {"qboolean"}
 # Macro bodies that are a keyword or a keyword macro, not a value.
 KEYWORD_MACROS = {"inline", "static", "__inline", "ID_INLINE", "QDECL", "MAC_STATIC"}
@@ -299,17 +297,21 @@ def write(target: str, files: dict[str, list[str]]) -> int:
     return count
 
 
-def probe() -> set[str]:
-    """The names of the generated declarations a build rejects, whatever the error, read from the failing lines."""
+def probe() -> set[tuple[str, str]]:
+    """The view target and the name of each generated declaration a build rejects, whatever the error, read from the failing lines."""
     run = subprocess.run(["swift", "build"], cwd=REPO, capture_output=True, text=True)
     # The compiler colours `error:` even with no terminal, and the escapes sit between the location and the word.
     log = ANSI.sub("", run.stdout + run.stderr)
-    names: set[str] = set()
-    for path, line in re.findall(r"^(/\S+/Generated/\w+\.swift):(\d+):\d+: error:", log, re.M):
+    names: set[tuple[str, str]] = set()
+    # A type error prints as `<path>:<line>:<column>: error:`, and a syntax error the build system reports as `error: <path>:<line>:<column> `.
+    found = re.findall(r"^(/\S+/Generated/\w+\.swift):(\d+):\d+: error:", log, re.M)
+    found += re.findall(r"^error: (/\S+/Generated/\w+\.swift):(\d+):\d+ ", log, re.M)
+    for path, line in found:
         text = Path(path).read_text().splitlines()[int(line) - 1]
         m = re.search(r"public let (\w+)", text)
         if m:
-            names.add(m.group(1))
+            # Two view targets can spell one name, and the importer can take it in one and refuse it in the other.
+            names.add((Path(path).parent.parent.name, m.group(1)))
     return names
 
 
@@ -319,13 +321,18 @@ def main() -> int:
     args = ap.parse_args()
     targets = [t for t, view in VIEW_OF.items() if (SOURCES / t / "include").exists() and (SOURCES / view).exists()]
     # A name climbs one rung per failed build: the import, the expression, the expression narrowed to Int32, then the marker.
-    unimportable: set[str] = set()
-    narrowed: set[str] = set()
-    unexpressible: set[str] = set()
-    for _ in range(12):
+    # Each set holds pairs of a view target and a name.
+    unimportable: set[tuple[str, str]] = set()
+    narrowed: set[tuple[str, str]] = set()
+    unexpressible: set[tuple[str, str]] = set()
+    # A failed build stops at the first module that fails, so each view target can take its own rounds.
+    for _ in range(24):
         declared: dict[str, str] = {}
         for target in targets:
-            files = emit(target, unimportable, narrowed, unexpressible, declared)
+            # A target reads the names of the targets its umbrella reaches, and never the names of a sibling unit's target.
+            reached = {VIEW_OF[d] for d in DEPS[target]}
+            mine = [{name for view, name in rung if view == VIEW_OF[target]} for rung in (unimportable, narrowed, unexpressible)]
+            files = emit(target, *mine, {name: view for name, view in declared.items() if view in reached})
             count = write(target, files)
             for lines in files.values():
                 for line in lines:
@@ -342,7 +349,7 @@ def main() -> int:
         unexpressible |= found & narrowed
         narrowed |= found & unimportable
         unimportable |= found
-    print("reexport.py: the build still fails after twelve rounds", file=sys.stderr)
+    print("reexport.py: the build still fails after 24 rounds", file=sys.stderr)
     return 1
 
 
