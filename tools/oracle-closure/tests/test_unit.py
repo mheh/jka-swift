@@ -30,6 +30,28 @@ class DefaultUnit(unittest.TestCase):
         self.assertEqual(C.GAME_DIR, "codemp/game")
         self.assertEqual(C.CGAME_DIR, "codemp/cgame")
 
+    def test_the_game_borrows_no_file(self) -> None:
+        import closure as C
+
+        # given the game, whose build compiles its own folder alone
+        game = C.ORACLE.resolve() / "codemp" / "game"
+        cgame = C.ORACLE.resolve() / "codemp" / "cgame"
+
+        # then every stem stands in the game folder, and a cgame copy of a vehicle file is not a game file
+        self.assertEqual(C.BORROWED, {})
+        self.assertEqual(C.folder_of("FighterNPC"), "codemp/game")
+        self.assertTrue(C.within(game / "FighterNPC.c", game))
+        self.assertFalse(C.within(game / "FighterNPC.c", cgame))
+
+    def test_the_cgame_borrows_the_four_vehicle_files(self) -> None:
+        import closure as C
+
+        # given the cgame row, Raven's list at JK2_cgame.vcproj:294-303
+        row = C.PROJECT["targets"]["mp-cgame"]
+
+        # then it names the four vehicle files of the game folder
+        self.assertEqual(row["borrowed"], [f"codemp/game/{stem}.c" for stem in ("AnimalNPC", "FighterNPC", "SpeederNPC", "WalkerNPC")])
+
     def test_the_game_writes_into_the_repository(self) -> None:
         import closure as C
 

@@ -18,6 +18,7 @@ unit = "mp-game"
 # `state` names the state files and the state object of the logic target: `<state>Variables`, `<state>Storage`, and `<state>World`.
 # `rust` is the jka-rust crate under `jka-rust/crates/mp` that the manifest reads beside `bg` and `qshared`.
 # `store` is the table cache of the unit's sweeps, one SQLite file outside version control.
+# `borrowed` lists the .c files of another folder that the unit's build compiles too, which the unit's stubs mirror with Source lines in that folder.
 # A unit whose `logic` target is not under the output root yet writes every file of its run under `tools/oracle-closure/out/<unit>/`.
 [targets.mp-game]
 other = "mp-cgame"
@@ -40,6 +41,13 @@ c_target = "CJKAMP_CGame"
 state = "CGame"
 rust = "cgame"
 store = "tools/oracle-closure/out/mp-cgame/table.sqlite"
+# Raven's cgame build compiles these game files a second time, oracle/codemp/cgame/JK2_cgame.vcproj:294-303.
+borrowed = [
+    "codemp/game/AnimalNPC.c",
+    "codemp/game/FighterNPC.c",
+    "codemp/game/SpeederNPC.c",
+    "codemp/game/WalkerNPC.c",
+]
 
 [output]
 # The root of the generated targets.

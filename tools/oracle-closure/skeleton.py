@@ -103,10 +103,12 @@ class Function:
         self.params: list[Param] = []
         self.returns: str | None = None
         self.reason: str | None = None
+        # The oracle folder of a bg function that a unit with no bg stem names, which is not the folder of the unit.
+        self.folder: str | None = None
 
     @property
     def cite(self) -> str:
-        return f"oracle/{ORACLE_DIR}/{self.stem}.c:{self.line}"
+        return f"oracle/{self.folder or C.folder_of(self.stem)}/{self.stem}.c:{self.line}"
 
     @property
     def raven_name(self) -> str:
@@ -158,7 +160,7 @@ class Variable:
 
     @property
     def cite(self) -> str:
-        return f"oracle/{ORACLE_DIR}/{self.stem}.c:{self.line}"
+        return f"oracle/{C.folder_of(self.stem)}/{self.stem}.c:{self.line}"
 
     @property
     def kind(self) -> str:
@@ -191,7 +193,7 @@ class Macro:
 
     @property
     def cite(self) -> str:
-        return f"oracle/{ORACLE_DIR}/{self.stem}.c:{self.line}"
+        return f"oracle/{C.folder_of(self.stem)}/{self.stem}.c:{self.line}"
 
     @property
     def access(self) -> str:
@@ -270,7 +272,7 @@ class Skeleton:
 
     def source(self, stem: str) -> SourceFile:
         if stem not in self.sources:
-            self.sources[stem] = SourceFile(C.ORACLE / ORACLE_DIR / f"{stem}.c")
+            self.sources[stem] = SourceFile(C.ORACLE / C.folder_of(stem) / f"{stem}.c")
         return self.sources[stem]
 
     def collect(self) -> None:
@@ -279,7 +281,7 @@ class Skeleton:
             if cur.kind != CursorKind.FUNCTION_DECL or not cur.is_definition() or not cur.location.file:
                 continue
             path = Path(cur.location.file.name).resolve()
-            if path.parent != game or path.suffix != ".c" or path.name in SKIP:
+            if not C.within(path, game) or path.suffix != ".c" or path.name in SKIP:
                 continue
             fn = Function(cur, path.stem)
             self.map(fn)
@@ -312,7 +314,7 @@ class Skeleton:
             if cur.kind != CursorKind.VAR_DECL or not cur.location.file or cur.storage_class == ci.StorageClass.EXTERN:
                 continue
             path = Path(cur.location.file.name).resolve()
-            if path.parent != game or path.suffix != ".c" or path.name in SKIP:
+            if not C.within(path, game) or path.suffix != ".c" or path.name in SKIP:
                 continue
             # A file-scope variable with no initializer is C's tentative definition, which clang does not call a definition.
             # It is Raven's variable all the same, zeroed by the loader, so the sweep keeps the first one per name and file.
@@ -379,7 +381,7 @@ class Skeleton:
             if cur.kind != CursorKind.MACRO_DEFINITION or not cur.location.file:
                 continue
             path = Path(cur.location.file.name).resolve()
-            if path.parent != game or path.suffix != ".c" or path.name in SKIP:
+            if not C.within(path, game) or path.suffix != ".c" or path.name in SKIP:
                 continue
             tokens = [t.spelling for t in cur.get_tokens()][1:]
             if reexport.is_function_like(cur) or not tokens or set(tokens) <= reexport.KEYWORD_MACROS:
@@ -405,7 +407,7 @@ class Skeleton:
         for row in json.loads(path.read_text()).get("file_enums", []):
             source, line = row["source"].rsplit(":", 1)
             source_path = Path(source)
-            if source_path.parent != Path("oracle") / ORACLE_DIR or source_path.name in SKIP:
+            if source_path.parent != Path("oracle") / C.folder_of(source_path.stem) or source_path.name in SKIP:
                 continue
             lines = [f"/// Source: {row['source']}"]
             # An enumerator with no initializer counts on from the one before it, and the first one counts from 0.
@@ -901,11 +903,31 @@ class Skeleton:
                     stored = own.get(name) if name else None
                     if stored is None and name in self.by_name and target_of(self.by_name[name].stem) != LOGIC:
                         stored = self.by_name[name]
+                    if stored is None and name:
+                        stored = self.bg_function(rhs, name)
                     if stored is None or (field.spelling, name) in seen:
                         continue
                     seen.add((field.spelling, name))
                     stores[stem].append((self.table.views.views[record][0], field, stored))
         return stores
+
+    def bg_function(self, rhs: ci.Cursor, name: str) -> Function | None:
+        """The bg function a store names in a unit whose stems hold no bg file, or None.
+        The cgame copy of a vehicle file stores `AttachRidersGeneric` of bg_vehicleLoad.c, and the cgame run collects no bg stem."""
+        for node in rhs.walk_preorder():
+            if node.kind != CursorKind.DECL_REF_EXPR or node.spelling != name or node.referenced is None:
+                continue
+            definition = node.referenced.get_definition()
+            if definition is None or definition.kind != CursorKind.FUNCTION_DECL or not definition.location.file:
+                return None
+            path = Path(definition.location.file.name).resolve()
+            if not path.stem.startswith("bg_"):
+                return None
+            fn = Function(definition, path.stem)
+            fn.folder = str(path.parent.relative_to(C.ORACLE.resolve()))
+            self.map(fn)
+            return fn
+        return None
 
     def record_thunks_name(self, view: str) -> str:
         """The private namespace of a file's thunks for one record's callback fields, `VehicleInfoThunks`."""
@@ -1175,11 +1197,16 @@ class Skeleton:
         """The static of one stored function under the callback typealias of its field.
         A view argument is the view over the handle, a qboolean is the test against 0, and a Bool return is C's 1 or 0."""
         lines = [f"    /// Source: {fn.cite}"]
-        if not fn.mapped:
+        # A vector, a text, or a scalar output crosses as a C pointer with no view, and only a view target may read it under rule 11.
+        # A thunk with such an argument keeps the marker, unless the function takes the pointer as it is.
+        raw = fn.mapped and any(self.raw_argument(arg, fn.params[i] if i < len(fn.params) else None)
+                                for i, arg in enumerate(proto.argument_types()))
+        if not fn.mapped or raw:
             self.counts["thunks over an unmapped signature"] += 1
+            ignored = ", ".join("_" for _ in proto.argument_types()) or "_"
             lines += [
                 f"    // TODO: Port signature",
-                f'    static let {swift_name(fn.name)}: {alias} = {{ _ in portMissing("{fn.name}", source: "{fn.cite}") }}',
+                f'    static let {swift_name(fn.name)}: {alias} = {{ {ignored} in portMissing("{fn.name}", source: "{fn.cite}") }}',
             ]
             return lines
         args: list[str] = []
@@ -1200,6 +1227,16 @@ class Skeleton:
         lines.append(f"    static let {swift_name(fn.name)}: {alias} = {{ {call} }}")
         self.counts["thunks"] += 1
         return lines
+
+    def raw_argument(self, arg: ci.Type, param: Param | None) -> bool:
+        """Whether a thunk argument is a C pointer that no view reads and that the stored function does not take as an `OpaquePointer?`."""
+        canonical = arg.get_canonical()
+        if canonical.kind != TypeKind.POINTER:
+            return False
+        record = self.table.views.record_name(canonical.get_pointee())
+        if record in self.table.views.views:
+            return False
+        return param is None or not (param.swift or "").startswith("OpaquePointer")
 
     def thunks(self) -> list[str]:
         lines = [THUNKS_NOTE, "", "import JKAMP", "import JKAMP_BG", f"import {VIEWS}", "import JKAShared", ""]
@@ -1254,7 +1291,7 @@ class Skeleton:
             "text": self.signature(fn),
             "forward": self.forward_signature(fn),
             "reason": fn.reason,
-            "source": f"oracle/{ORACLE_DIR}/{fn.stem}.c:{first}-{last}",
+            "source": f"oracle/{C.folder_of(fn.stem)}/{fn.stem}.c:{first}-{last}",
             "destination": f"{stub_file(fn.stem)}:{swift}" if swift else "",
             "state": "marker" if marker else "ported",
             "peer": peer,
@@ -1265,7 +1302,7 @@ class Skeleton:
         the `let`, the rule 3 line, the storage line, or the reason."""
         entry = self.variable_entry(var)
         return {"file": f"{var.stem}.c", "name": var.name, "kind": "variable", "target": target_of(var.stem), "text": entry[-1],
-                "forward": None, "reason": None, "source": f"oracle/{ORACLE_DIR}/{var.stem}.c:{var.line}", "destination": "", "state": var.kind, "peer": ""}
+                "forward": None, "reason": None, "source": f"oracle/{C.folder_of(var.stem)}/{var.stem}.c:{var.line}", "destination": "", "state": var.kind, "peer": ""}
 
     def signature_rows(self, stem: str) -> tuple[list[dict[str, str | None]], list[dict[str, str | None]]]:
         """The signature rows of one Raven file, its functions and then its file-scope variables, read once per run.

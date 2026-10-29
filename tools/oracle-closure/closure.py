@@ -333,6 +333,24 @@ OTHER_UNIT = TARGETS["other"]
 # The oracle directories of the two units a generator reads, which every sweep of the port walks.
 GAME_DIR = TARGETS["folder"]
 CGAME_DIR = PROJECT["targets"][OTHER_UNIT]["folder"]
+# The .c files of another folder that the unit's build compiles too, by stem, each with its folder, from `borrowed` of the row.
+BORROWED = {Path(p).stem: str(Path(p).parent) for p in TARGETS.get("borrowed", [])}
+_BORROWED_FILES = {(ORACLE / p).resolve() for p in TARGETS.get("borrowed", [])}
+_UNIT_FOLDER = (ORACLE / GAME_DIR).resolve()
+
+
+def folder_of(stem: str) -> str:
+    """The oracle folder of one .c file of the run's unit: the unit's folder, or the folder of a borrowed file."""
+    return BORROWED.get(stem, GAME_DIR)
+
+
+def within(path: Path, *folders: Path) -> bool:
+    """Whether a resolved .c file of a parse stands in one of the folders.
+    The folder of the run's unit also holds the files its row borrows, so a sweep of the unit's own parse reads them as its own files.
+    A caller hands the unit's folder alone with the unit's own parse, or beside the other folder, which holds the borrowed file already."""
+    return path.parent in folders or (path in _BORROWED_FILES and _UNIT_FOLDER in folders)
+
+
 # The root of the generated targets, and the folder that takes the files of a unit whose logic target is not under that root yet.
 SOURCES = REPO / PROJECT["output"]["root"]
 STAGED = not (SOURCES / TARGETS["logic"]).exists()
