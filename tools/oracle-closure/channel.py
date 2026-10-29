@@ -14,9 +14,14 @@ A signature the table cannot map is a `TODO: Port signature` marker with Raven's
 it. A bg body spells `strap_G2API_SetBoneAngles(...)` and `G_NewString(...)` as Raven wrote them. The `Entity` view lives
 in the game target, which bg cannot import, so the bg side of the channel names `JKAMP.BgEntity` over the same memory.
 
+A run of another unit, `--unit mp-cgame`, writes that consumer's `installBgChannel()` into its own logic target and no bg file.
+The bg side is one text for every consumer, so the run reads the closures from the two generated bg files.
+
 Usage:
-  .venv/bin/python channel.py            # writes the three files and prints the counts
-  .venv/bin/python channel.py --only bg  # prints the two bg files to stdout, writes nothing
+  .venv/bin/python channel.py                          # writes the three files and prints the counts
+  .venv/bin/python channel.py --only bg                # prints the two bg files to stdout, writes nothing
+  .venv/bin/python channel.py --unit mp-cgame          # writes the cgame install
+  .venv/bin/python channel.py --unit mp-cgame --only game  # prints the cgame install, writes nothing
 """
 
 from __future__ import annotations
@@ -30,9 +35,10 @@ import clang.cindex as ci
 from clang.cindex import CursorKind
 
 import closure as C
+import rulings
 from reexport import REPO, SOURCES
 from rulings import ARM_HOOKS, EXTRA_HOOKS, LIST_TRAPS, OWN_HOOKS, QAGAME_ONLY, SHARED_STEMS
-from skeleton import LOGIC, OPTIONAL_INOUTS
+from skeleton import LOGIC, OPTIONAL_INOUTS, VIEWS
 from table import Param, SourceFile, Table
 
 ORACLE_DIR = C.GAME_DIR
@@ -433,6 +439,123 @@ class Channel:
                             "The game functions a bg body calls by name, which the game installs at its entry point, rule 23.")
 
 
+# The cvar views on `BgState` that a consumer other than the game points at its own cvar of Raven's name, bg_local.swift:61.
+CVAR_VIEWS = {"fighterAltControl": "bg_fighterAltControl"}
+# One closure on BgStraps or BgCallbacks in a generated bg file: its cite, its name, and its closure type.
+CLOSURE = re.compile(r"^    /// Source: (\S+)\n    public var (\w+): (.+?) = \{", re.M)
+
+
+class ConsumerInstall:
+    """The `installBgChannel()` of a consumer other than the game, in the consumer's logic target.
+
+    The bg side of the channel is one text for every consumer, and the game run writes it, so this run reads the closures of `BgStraps`
+    and `BgCallbacks` from the two generated bg files. It points each closure at the consumer's function of the same name, where the
+    consumer's build defines one, as Raven's link of that build resolves the bg call. A closure with no such function keeps its trapping
+    default, so a consumer call to a game closure names the closure at the first call. A read callback the consumer defines by the
+    expression of its CGAME_READS entry reads the consumer's own tables."""
+
+    def __init__(self, parse: C.Parse) -> None:
+        self.consumer = C.TARGETS["state"].lower()
+        # The unit's own parse holds the consumer's build, its folder and the files its row borrows.
+        self.defined: set[str] = set()
+        for cur in parse.game.cursor.get_children():
+            if cur.kind == CursorKind.FUNCTION_DECL and cur.is_definition() and cur.location.file:
+                path = Path(cur.location.file.name).resolve()
+                if C.within(path, parse.game_folder) and path.suffix == ".c":
+                    self.defined.add(cur.spelling)
+        # The Swift declarations of the consumer, the stubs of its logic target and its typed traps, by name.
+        self.declarations: dict[str, list[str]] = {}
+        files = sorted((SOURCES / LOGIC).glob("*.swift")) + [SOURCES / VIEWS / "Generated" / f"{Path(C.TARGETS['traps']).stem}.swift"]
+        for path in files:
+            if not path.exists():
+                continue
+            lines = path.read_text().split("\n")
+            for i, line in enumerate(lines):
+                m = re.match(r"(private |fileprivate )?(?:public )?func `?(\w+)`?\(", line)
+                if m and m.group(2) not in self.declarations:
+                    self.declarations[m.group(2)] = [m.group(1) or ""] + lines[max(0, i - 4):i]
+        self.reads = getattr(rulings, "CGAME_READS", {})
+        self.counts: Counter[str] = Counter()
+
+    @staticmethod
+    def closures(path: Path) -> list[tuple[str, str, list[str]]]:
+        """The closures of one generated bg file, in its order, each with its cite and the Swift types of its parameters."""
+        found = []
+        for cite, name, kind in CLOSURE.findall(path.read_text()):
+            # The arrow of a function type is no closing bracket, so it reads as one mark.
+            kind = kind.replace("->", "\u2192")
+            depth, end = 0, 0
+            for i, ch in enumerate(kind):
+                depth += ch in "([<"
+                depth -= ch in ")]>"
+                if depth == 0:
+                    end = i
+                    break
+            params, part, depth = [], "", 0
+            for ch in kind[1:end].replace("\u2192", "->"):
+                if ch == "," and depth == 0:
+                    params.append(part.strip())
+                    part = ""
+                    continue
+                if ch == ">" and part.endswith("-"):
+                    part += ch
+                    continue
+                depth += ch in "([<"
+                depth -= ch in ")]>"
+                part += ch
+            if part.strip():
+                params.append(part.strip())
+            found.append((cite, name, params))
+        return found
+
+    def reason(self, name: str) -> str | None:
+        """Why the consumer cannot install its function of this name, or None when it can."""
+        declaration = self.declarations.get(name)
+        if declaration is None:
+            return f"the {self.consumer} build defines `{name}`, and no Swift declaration of it exists"
+        if declaration[0]:
+            return f"the {self.consumer} declaration of `{name}` is private to its file"
+        if any("TODO: Port signature" in line for line in declaration[1:]):
+            return f"the {self.consumer} stub of `{name}` carries a TODO: Port signature marker"
+        return None
+
+    def install_file(self) -> list[str]:
+        lines = [NOTE.format(source="bg_strap.h and the bg call sites"), "", "import JKAMP", "import JKAMP_BG", f"import {VIEWS}", "",
+                 f"/// The {self.consumer} module points each closure of the bg channel at its own function of the same name, where its build defines one.",
+                 "/// A closure with no such function keeps its trapping default, so a call to a game closure names the closure at the first call.",
+                 "public func installBgChannel() {",
+                 "    bg.error = { level, text in Com_Error(level, text) }",
+                 "    bg.print = { text in Com_Printf(text) }"]
+        for view, cvar in CVAR_VIEWS.items():
+            lines.append(f"    bg.{view} = {cvar}")
+        bg = SOURCES / "JKAMP_BG" / "Generated"
+        for store, path in (("straps", bg / "bg_strap.swift"), ("callbacks", bg / "bg_callbacks.swift")):
+            for cite, name, params in self.closures(path):
+                if name in self.reads:
+                    names = ", ".join(p for p, _, _ in self.reads[name][1])
+                    lines += [f"    bg.{store}.{name} = {{ {names} in", f"        {self.reads[name][3]}", "    }"]
+                    self.counts["reads"] += 1
+                    continue
+                if name not in self.defined:
+                    self.counts["defaults"] += 1
+                    continue
+                reason = self.reason(name)
+                if reason is not None:
+                    lines.append(f"    // {name} keeps its default, because {reason}.")
+                    self.counts["markers"] += 1
+                    continue
+                words = ", ".join(f"&${i}" if p.startswith("inout ") else f"${i}" for i, p in enumerate(params))
+                lines.append(f"    bg.{store}.{name} = {{ {name}({words}) }}")
+                self.counts["installed"] += 1
+        lines += ["}"]
+        return lines
+
+    def write(self) -> None:
+        out = C.written(SOURCES / LOGIC / "Generated" / "BgChannel.swift")
+        out.parent.mkdir(parents=True, exist_ok=True)
+        out.write_text("\n".join(self.install_file()).rstrip() + "\n")
+
+
 def main() -> None:
     ap = argparse.ArgumentParser()
     C.unit_argument(ap)
@@ -440,8 +563,18 @@ def main() -> None:
     ap.add_argument("--only", choices=["bg", "game"], help="print to stdout, write nothing")
     args = ap.parse_args()
     if C.UNIT != C.PROJECT["sweep"]["unit"]:
-        # The hooks and the install name the game's functions, `G_NewString`, so the cgame consumer of the channel waits for its own rows.
-        print(f"channel.py: the bg channel has one consumer, {C.PROJECT['sweep']['unit']}, so the {C.UNIT} run writes nothing")
+        # The bg side is the game run's, so another unit writes its install alone and maps no hook over its own table.
+        install = ConsumerInstall(C.Parse())
+        if args.only == "bg":
+            print(f"channel.py: the bg files are the {C.PROJECT['sweep']['unit']} run's, so the {C.UNIT} run prints its install alone")
+            return
+        if args.only == "game":
+            print("\n".join(install.install_file()))
+            return
+        install.write()
+        c = install.counts
+        print(f"channel.py: the {C.UNIT} install, {c['installed']} closures over its functions, {c['reads']} read callbacks, "
+              f"{c['defaults']} closures with the trapping default, {c['markers']} closures over a signature marker")
         return
     import table
 

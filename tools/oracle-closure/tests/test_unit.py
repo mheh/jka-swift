@@ -157,6 +157,31 @@ class DefaultUnit(unittest.TestCase):
         for key in ("folder", "traps", "logic", "views", "c_target", "state", "rust", "store"):
             self.assertNotEqual(game[key], cgame[key], key)
 
+    def test_the_consumer_install_reads_each_closure_of_a_bg_file(self) -> None:
+        import tempfile
+
+        import channel
+
+        # given a bg file with a closure of no parameter and one with a nested closure type and an inout vector
+        text = "\n".join([
+            "public struct BgCallbacks {",
+            "    /// Source: oracle/codemp/cgame/cg_main.c:1276",
+            '    public var BG_GetTime: () -> Int32 = { fatalError("No consumer installed BG_GetTime") }',
+            "",
+            "    /// Source: oracle/codemp/cgame/cg_view.c:797",
+            "    public var CG_Move: (((Int32, Int32) -> Void)?, inout JKAShared.vec3_t) -> Void = { _, _ in fatalError(\"x\") }",
+            "}",
+        ])
+        with tempfile.TemporaryDirectory() as folder:
+            path = Path(folder) / "bg_callbacks.swift"
+            path.write_text(text)
+
+            # then each closure keeps its cite and its parameters in order, and the nested comma splits nothing
+            self.assertEqual(channel.ConsumerInstall.closures(path), [
+                ("oracle/codemp/cgame/cg_main.c:1276", "BG_GetTime", []),
+                ("oracle/codemp/cgame/cg_view.c:797", "CG_Move", ["((Int32, Int32) -> Void)?", "inout JKAShared.vec3_t"]),
+            ])
+
 
 if __name__ == "__main__":
     unittest.main()
