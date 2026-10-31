@@ -162,6 +162,21 @@ public struct BgCallbacks {
     /// Source: oracle/codemp/game/bg_pmove.c:4453
     public var bgSetClientSolidHack: (JKAMP.BgEntity, Int32) -> Void = { _, _ in fatalError("No consumer installed bgSetClientSolidHack, source: oracle/codemp/game/bg_pmove.c:4453") }
 
+    /// Source: oracle/codemp/game/bg_saber.c:4129
+    public var bgClientInfoInfoValid: (Int32) -> Bool = { _ in fatalError("No consumer installed bgClientInfoInfoValid, source: oracle/codemp/game/bg_saber.c:4129") }
+
+    /// Source: oracle/codemp/game/bg_saber.c:4131
+    public var bgClientInfoSaber: (Int32, Int32) -> JKAMP.SaberInfo = { _, _ in fatalError("No consumer installed bgClientInfoSaber, source: oracle/codemp/game/bg_saber.c:4131") }
+
+    /// Source: oracle/codemp/game/bg_saber.c:4123
+    public var bgCentNpcClient: (Int32) -> Bool = { _ in fatalError("No consumer installed bgCentNpcClient, source: oracle/codemp/game/bg_saber.c:4123") }
+
+    /// Source: oracle/codemp/game/bg_saber.c:4129
+    public var bgNpcClientInfoValid: (Int32) -> Bool = { _ in fatalError("No consumer installed bgNpcClientInfoValid, source: oracle/codemp/game/bg_saber.c:4129") }
+
+    /// Source: oracle/codemp/game/bg_saber.c:4131
+    public var bgNpcClientSaber: (Int32, Int32) -> JKAMP.SaberInfo = { _, _ in fatalError("No consumer installed bgNpcClientSaber, source: oracle/codemp/game/bg_saber.c:4131") }
+
     public init() {}
 }
 
@@ -461,4 +476,34 @@ func bgSetClientOtherKillerWeaponType(_ ent: JKAMP.BgEntity, _ value: Int32) {
 /// Source: oracle/codemp/game/bg_pmove.c:4453
 func bgSetClientSolidHack(_ ent: JKAMP.BgEntity, _ value: Int32) {
     bg.callbacks.bgSetClientSolidHack(ent, value)
+}
+
+/// Source: oracle/codemp/game/bg_saber.c:4129
+@discardableResult
+func bgClientInfoInfoValid(of entityNum: Int32) -> Bool {
+    bg.callbacks.bgClientInfoInfoValid(entityNum)
+}
+
+/// Source: oracle/codemp/game/bg_saber.c:4131
+@discardableResult
+func bgClientInfoSaber(of entityNum: Int32, at index: Int32) -> JKAMP.SaberInfo {
+    bg.callbacks.bgClientInfoSaber(entityNum, index)
+}
+
+/// Source: oracle/codemp/game/bg_saber.c:4123
+@discardableResult
+func bgCentNpcClient(of entityNum: Int32) -> Bool {
+    bg.callbacks.bgCentNpcClient(entityNum)
+}
+
+/// Source: oracle/codemp/game/bg_saber.c:4129
+@discardableResult
+func bgNpcClientInfoValid(of entityNum: Int32) -> Bool {
+    bg.callbacks.bgNpcClientInfoValid(entityNum)
+}
+
+/// Source: oracle/codemp/game/bg_saber.c:4131
+@discardableResult
+func bgNpcClientSaber(of entityNum: Int32, at index: Int32) -> JKAMP.SaberInfo {
+    bg.callbacks.bgNpcClientSaber(entityNum, index)
 }

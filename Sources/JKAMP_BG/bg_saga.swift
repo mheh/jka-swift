@@ -771,10 +771,17 @@ func BG_SiegeParseClassFile(_ filename: String, _ descBuffer: JKAMP.SiegeClassDe
 
     //Parse shader for ui to use
     if BG_SiegeGetPairedValue(String(classInfo), "class_shader", &parseBuf) != 0 {
-        bgSiegeClasses[bgNumSiegeClasses].classShader = 0
-        //Com_Error( ERR_DROP, "ERROR: could not find class_shader %s for class %s\n", parseBuf, bgSiegeClasses[bgNumSiegeClasses].name );
-        // A very hacky way to determine class . . .
-        do {
+        if bg.consumer == .game {
+            bgSiegeClasses[bgNumSiegeClasses].classShader = 0
+        } else {
+            //cgame, ui
+            bgSiegeClasses[bgNumSiegeClasses].classShader = trap_R_RegisterShaderNoMip(String(parseBuf))
+        }
+        if bg.consumer != .game && bgSiegeClasses[bgNumSiegeClasses].classShader == 0 {
+            //Com_Error( ERR_DROP, "ERROR: could not find class_shader %s for class %s\n", parseBuf, bgSiegeClasses[bgNumSiegeClasses].name );
+            Com_Printf("ERROR: could not find class_shader %s for class %s\n", parseBuf, bgSiegeClasses[bgNumSiegeClasses].name)
+        } else {
+            // A very hacky way to determine class . . .
             // Find the base player class based on the icon name - very bad, I know.
             let titleLength: Int32
             var i: Int32
@@ -1017,7 +1024,15 @@ func BG_SiegeParseTeamFile(_ filename: String) {
     }
 
     //I don't entirely like doing things this way but it's the easiest way.
-    bgSiegeTeams[bgNumSiegeTeams].friendlyShader = 0
+    switch bg.consumer {
+    case .cgame:
+        if BG_SiegeGetPairedValue(String(teamInfo), "FriendlyShader", &parseBuf) != 0 {
+            bgSiegeTeams[bgNumSiegeTeams].friendlyShader = trap_R_RegisterShaderNoMip(String(parseBuf))
+        }
+
+    case .game, .ui:
+        bgSiegeTeams[bgNumSiegeTeams].friendlyShader = 0
+    }
 
     bgSiegeTeams[bgNumSiegeTeams].numClasses = 0
 

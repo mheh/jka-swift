@@ -664,10 +664,12 @@ func PM_HoverTrace() {
                     } else {
                         wakeOrg[2] = pm.ps.origin[2]
                     }
-                    if vehicleInfo.iWakeFX != 0 {
-                        //G_PlayEffectID( pVeh->m_pVehicleInfo->iWakeFX, wakeOrg, fxAxis[0] );
-                        //tempent use bad!
-                        G_AddEvent(pEnt!, EV_PLAY_EFFECT_ID, vehicleInfo.iWakeFX)
+                    if bg.consumer == .game { //yeah, this is kind of crappy and makes no use of prediction whatsoever
+                        if vehicleInfo.iWakeFX != 0 {
+                            //G_PlayEffectID( pVeh->m_pVehicleInfo->iWakeFX, wakeOrg, fxAxis[0] );
+                            //tempent use bad!
+                            G_AddEvent(pEnt!, EV_PLAY_EFFECT_ID, vehicleInfo.iWakeFX)
+                        }
                     }
                 }
             }
@@ -729,8 +731,10 @@ func PM_HoverTrace() {
                                 fxAxis[1] = fxAxis1
                                 fxAxis[0] = fxAxis0
                             }
-                            if vehicleInfo.iWakeFX != 0 {
-                                G_PlayEffectID(vehicleInfo.iWakeFX, groundTrace.endpos, fxAxis[0])
+                            if bg.consumer == .game {
+                                if vehicleInfo.iWakeFX != 0 {
+                                    G_PlayEffectID(vehicleInfo.iWakeFX, groundTrace.endpos, fxAxis[0])
+                                }
                             }
                         }
                     }
@@ -5960,14 +5964,16 @@ private func PM_Weapon() {
     var veh: BgEntity? = nil
     var vehicleRocketLock: Bool = false
 
-    if pm.ps.clientNum >= MAX_CLIENTS && pm.ps.weapon == WP_NONE && pm.cmd.weapon == WP_NONE && pm_entSelf != nil {
-        //npc with no weapon
-        let gent: BgEntity = pm_entSelf!
-        if bgEntityInuse(gent) && gent.playerState != nil && gent.localAnimIndex == 0 {
-            //humanoid
-            pm.ps.torsoAnim = pm.ps.legsAnim
-            pm.ps.torsoTimer = pm.ps.legsTimer
-            return
+    if bg.consumer == .game {
+        if pm.ps.clientNum >= MAX_CLIENTS && pm.ps.weapon == WP_NONE && pm.cmd.weapon == WP_NONE && pm_entSelf != nil {
+            //npc with no weapon
+            let gent: BgEntity = pm_entSelf!
+            if bgEntityInuse(gent) && gent.playerState != nil && gent.localAnimIndex == 0 {
+                //humanoid
+                pm.ps.torsoAnim = pm.ps.legsAnim
+                pm.ps.torsoTimer = pm.ps.legsTimer
+                return
+            }
         }
     }
 
@@ -6000,7 +6006,17 @@ private func PM_Weapon() {
             //riding a walker/fighter
             //keep saber off, do no weapon stuff at all!
             pm.ps.saberHolstered = 2
-            pm.cmd.buttons &= ~(BUTTON_ATTACK | BUTTON_ALT_ATTACK)
+            if bg.consumer == .game {
+                pm.cmd.buttons &= ~(BUTTON_ATTACK | BUTTON_ALT_ATTACK)
+            } else {
+                if g_vehWeaponInfo[veh!.m_pVehicle!.m_pVehicleInfo!.weapon[0].ID].fHoming != 0 || g_vehWeaponInfo[veh!.m_pVehicle!.m_pVehicleInfo!.weapon[1].ID].fHoming != 0 {
+                    //our vehicle uses a rocket launcher, so do the normal checks
+                    vehicleRocketLock = true
+                    pm.cmd.buttons &= ~BUTTON_ATTACK
+                } else {
+                    pm.cmd.buttons &= ~(BUTTON_ATTACK | BUTTON_ALT_ATTACK)
+                }
+            }
         }
     }
 
@@ -6515,10 +6531,12 @@ private func PM_Weapon() {
         //a vehicle NPC that has a pilot
         pm.ps.weaponstate = WEAPON_FIRING
         pm.ps.weaponTime += 100
-        if (pm.cmd.buttons & BUTTON_ALT_ATTACK) != 0 {
-            G_CheapWeaponFire(pm.ps.clientNum, EV_ALT_FIRE)
-        } else {
-            G_CheapWeaponFire(pm.ps.clientNum, EV_FIRE_WEAPON)
+        if bg.consumer == .game { //hack, only do it game-side. vehicle weapons don't really need predicting I suppose.
+            if (pm.cmd.buttons & BUTTON_ALT_ATTACK) != 0 {
+                G_CheapWeaponFire(pm.ps.clientNum, EV_ALT_FIRE)
+            } else {
+                G_CheapWeaponFire(pm.ps.clientNum, EV_FIRE_WEAPON)
+            }
         }
         /*
         addTime = weaponData[WP_EMPLACED_GUN].fireTime;
@@ -6555,10 +6573,14 @@ private func PM_Weapon() {
                 //ok, grapple time
 
                 //G_SetAnim(ent, &ent->client->pers.cmd, SETANIM_BOTH, BOTH_KYLE_GRAB, SETANIM_FLAG_OVERRIDE|SETANIM_FLAG_HOLD, 0);
-                if pm_entSelf != nil {
-                    if TryGrapple(selfEntity) {
-                        return
+                if bg.consumer == .game {
+                    if pm_entSelf != nil {
+                        if TryGrapple(selfEntity) {
+                            return
+                        }
                     }
+                } else {
+                    return
                 }
             } else if pm.debugMelee != 0 && (pm.cmd.buttons & BUTTON_ALT_ATTACK) != 0 {
                 //kicks
@@ -9175,7 +9197,7 @@ func PmoveSingle(_ pmove: JKAMP.Pmove) {
                 pm.ps.velocity[2] = 270 //seems reasonable
                 pm.cmd.upmove = 127
             }
-        } else if pm.ps.zoomMode == 0 && pm_entSelf != nil && pEnt!.m_pVehicle != nil {
+        } else if bg.consumer == .game && pm.ps.zoomMode == 0 && pm_entSelf != nil && pEnt!.m_pVehicle != nil {
             let gEnt: BgEntity = pEnt!
             if gEnt.playerState != nil && gEnt.playerState!.m_iVehicleNum == 0 && (bgEntitySpawnflags(gEnt) & 2) != 0 {
                 //it's a vehicle, see if we should get in it
@@ -9199,8 +9221,10 @@ func PmoveSingle(_ pmove: JKAMP.Pmove) {
 
         if pm.ps.m_iVehicleNum == 0 {
             //no one is driving, just update and get out
-            vehicleInfo.runUpdate(vehicle, pm.cmd)
-            vehicleInfo.runAnimate(vehicle)
+            if bg.consumer == .game {
+                vehicleInfo.runUpdate(vehicle, pm.cmd)
+                vehicleInfo.runAnimate(vehicle)
+            }
         } else {
             let `self`: BgEntity? = pm_entVeh
             var i: Int32 = 0
@@ -9215,37 +9239,79 @@ func PmoveSingle(_ pmove: JKAMP.Pmove) {
                 PM_VehicleViewAngles(`self`!.playerState!, veh!, vehicle.m_ucmd)
             }
 
-            vehicleInfo.runUpdate(vehicle, vehicle.m_ucmd)
-            vehicleInfo.runAnimate(vehicle)
+            if bg.consumer == .game {
+                vehicleInfo.runUpdate(vehicle, vehicle.m_ucmd)
+                vehicleInfo.runAnimate(vehicle)
 
-            vehicleInfo.runUpdateRider(vehicle, `self`, vehicle.m_ucmd)
-            //update the passengers
-            while i < vehicle.m_iNumPassengers {
-                if vehicle.m_ppPassengers[i] != nil {
-                    let thePassenger: BgEntity = vehicle.m_ppPassengers[i]!
-                    if bgEntityInuse(thePassenger) && thePassenger.playerState != nil {
-                        vehicleInfo.runUpdateRider(vehicle, vehicle.m_ppPassengers[i], bgClientCmd(thePassenger))
+                vehicleInfo.runUpdateRider(vehicle, `self`, vehicle.m_ucmd)
+                //update the passengers
+                while i < vehicle.m_iNumPassengers {
+                    if vehicle.m_ppPassengers[i] != nil {
+                        let thePassenger: BgEntity = vehicle.m_ppPassengers[i]!
+                        if bgEntityInuse(thePassenger) && thePassenger.playerState != nil {
+                            vehicleInfo.runUpdateRider(vehicle, vehicle.m_ppPassengers[i], bgClientCmd(thePassenger))
+                        }
+                    }
+                    i += 1
+                }
+            } else {
+                if !veh!.playerState!.vehBoarding {
+                    //|| veh->m_pVehicle->m_pVehicleInfo->type == VH_FIGHTER)
+                    if vehicleInfo.type == VH_FIGHTER {
+                        //client must explicitly call this for prediction
+                        BG_FighterUpdate(vehicle, vehicle.m_ucmd, pm.mins, pm.maxs, Float(`self`!.playerState!.gravity), pm.runTrace)
+                    }
+
+                    if vehicle.m_iBoarding == 0 {
+                        var vRollAng = vec3_t()
+
+                        //make sure we are set as its pilot cgame side
+                        vehicle.m_pPilot = `self`
+
+                        // Keep track of the old orientation.
+                        vehicle.m_vPrevOrientation = vehicle.m_vOrientationVector
+
+                        vehicleInfo.runProcessOrientCommands(vehicle)
+                        PM_SetPMViewAngle(veh!.playerState!, &vehicle.m_vOrientationVector, vehicle.m_ucmd)
+                        vehicleInfo.runProcessMoveCommands(vehicle)
+
+                        vRollAng[YAW] = `self`!.playerState!.viewangles[YAW]
+                        vRollAng[PITCH] = `self`!.playerState!.viewangles[PITCH]
+                        vRollAng[ROLL] = vehicle.m_vOrientationVector[ROLL]
+                        PM_SetPMViewAngle(`self`!.playerState!, &vRollAng, pm.cmd)
+
+                        // Setup the move direction.
+                        if vehicleInfo.type == VH_FIGHTER {
+                            // Raven passes NULL for the second and third outputs of `AngleVectors`.
+                            // The ported function takes them by reference, so the body passes scratch vectors it never reads.
+                            var scratchRight = vec3_t()
+                            var scratchUp = vec3_t()
+                            AngleVectors(vehicle.m_vOrientationVector, &veh!.playerState!.moveDir, &scratchRight, &scratchUp)
+                        } else {
+                            var vVehAngles = vec3_t()
+
+                            vVehAngles = vec3_t(0, vehicle.m_vOrientationVector[YAW], 0)
+                            var scratchRight = vec3_t()
+                            var scratchUp = vec3_t()
+                            AngleVectors(vVehAngles, &veh!.playerState!.moveDir, &scratchRight, &scratchUp)
+                        }
                     }
                 }
-                i += 1
+                /*
+                else
+                {
+                veh->playerState->speed = 0.0f;
+                PM_SetPMViewAngle(self->playerState, veh->playerState->viewangles, &veh->m_pVehicle->m_ucmd);
+                }
+                */
+                else if veh!.playerState != nil {
+                    veh!.playerState!.speed = 0.0
+                    if veh!.m_pVehicle != nil {
+                        PM_SetPMViewAngle(`self`!.playerState!, &vehicle.m_vOrientationVector, pm.cmd)
+                        PM_SetPMViewAngle(veh!.playerState!, &vehicle.m_vOrientationVector, pm.cmd)
+                    }
+                }
             }
-
-
-            //make sure we are set as its pilot cgame side
-
-            // Keep track of the old orientation.
-
-
-
-            // Setup the move direction.
-
-            /*
-            else
-            {
-            veh->playerState->speed = 0.0f;
-            PM_SetPMViewAngle(self->playerState, veh->playerState->viewangles, &veh->m_pVehicle->m_ucmd);
-            }
-            */
         }
         noAnimate = true
     }

@@ -68,6 +68,8 @@ BG_PIECES: tuple[Piece, ...] = (
     ),
     Piece(source="codemp/game/bg_saber.c", first=120, last=321),
     Piece(source="codemp/cgame/animtable.h", first=9, last=1791),
+    Piece(source="codemp/game/bg_panimate.c", first=1758, last=1770),
+    Piece(source="codemp/game/bg_panimate.c", first=1772, last=1780),
     Piece(source="codemp/game/bg_saberLoad.c", first=46, last=61),
     Piece(source="codemp/game/bg_saberLoad.c", first=63, last=126),
     Piece(source="codemp/game/bg_saga.c", first=45, last=56),

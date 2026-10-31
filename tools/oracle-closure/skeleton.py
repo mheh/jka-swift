@@ -304,15 +304,32 @@ class Skeleton:
             return
         fn.returns = result[0]
 
+    def file_scope_cursors(self) -> list[tuple[ci.Cursor, bool]]:
+        """The top-level cursors of the game parse, then those of the cgame parse, each with whether it came from the cgame parse.
+        A bg block Raven compiles only for the cgame and the ui, `#ifndef QAGAME` at `bg_panimate.c:1756`, exists only in the cgame parse."""
+        cursors = [(cur, False) for cur in self.tu.cursor.get_children()]
+        if self.cgame_tu is not None:
+            cursors += [(cur, True) for cur in self.cgame_tu.cursor.get_children()]
+        return cursors
+
+    def cgame_bg_function(self, cur: ci.Cursor) -> bool:
+        """A function of a bg file that the cgame parse compiles and the game parse does not, so its writes count for the bg variables."""
+        if not cur.location.file or cur.spelling in self.by_name:
+            return False
+        path = Path(cur.location.file.name).resolve()
+        return path.parent == (C.ORACLE / ORACLE_DIR).resolve() and target_of(path.stem) == BG
+
     def collect_variables(self) -> None:
         """Every file-scope variable definition of the module, and whether any body in the module writes it."""
         game = (C.ORACLE / ORACLE_DIR).resolve()
         by_name: dict[str, list[Variable]] = defaultdict(list)
-        for cur in self.tu.cursor.get_children():
+        for cur, cgame in self.file_scope_cursors():
             if cur.kind != CursorKind.VAR_DECL or not cur.location.file or cur.storage_class == ci.StorageClass.EXTERN:
                 continue
             path = Path(cur.location.file.name).resolve()
             if path.parent != game or path.suffix != ".c" or path.name in SKIP:
+                continue
+            if cgame and (target_of(path.stem) != BG or any(v.name == cur.spelling for v in self.variables[path.stem])):
                 continue
             # A file-scope variable with no initializer is C's tentative definition, which clang does not call a definition.
             # It is Raven's variable all the same, zeroed by the loader, so the sweep keeps the first one per name and file.
@@ -361,8 +378,8 @@ class Skeleton:
             for child in node.get_children():
                 written(child)
 
-        for cur in self.tu.cursor.get_children():
-            if cur.kind == CursorKind.FUNCTION_DECL and cur.is_definition():
+        for cur, cgame in self.file_scope_cursors():
+            if cur.kind == CursorKind.FUNCTION_DECL and cur.is_definition() and (not cgame or self.cgame_bg_function(cur)):
                 written(cur)
 
         # Raven writes a buffer through an alias too, `marker = SaberParms + totallen` and then `*marker = 0`,

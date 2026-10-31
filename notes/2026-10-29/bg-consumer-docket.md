@@ -33,7 +33,7 @@ The 64 (b) chains fall in four classes, rows C3 to C6: 13 game arms with no test
 
 ## Facts every row uses
 
-Rule 23. "A bg body spells Raven's `#ifdef QAGAME` as `if bg.consumer == .game { ... } else { ... }`, with both arms on the page" (`docs/porting-rules.md:48`, `docs/transcription.md:571`). A game function a bg body calls is a bare function that forwards to a closure on `BgState` (`docs/porting-rules.md:48`). A game arm that reads the game's tables is one callback in `ARM_HOOKS` (`docs/transcription.md:488`, `tools/oracle-closure/rulings.py:336-339`, R30 of `notes/2026-10-05/walk.md:10`). A function Raven compiles only under `QAGAME` is in `QAGAME_ONLY` (`docs/transcription.md:489`, `rulings.py:342`, R31 of `notes/2026-10-05/walk.md:11`). A game field a bg body reads is one read callback (`docs/transcription.md:490-494`). A cgame-only name is on the channel, and `installBgChannel()` skips it (`docs/transcription.md:483-484`).
+Rule 23. "A bg body spells Raven's `#ifdef QAGAME` as `if bg.consumer == .game { ... } else { ... }`, with both arms on the page" (`docs/porting-rules.md:48`, `docs/transcription.md:571`). A game function a bg body calls is a bare function that forwards to a closure on `BgState` (`docs/porting-rules.md:48`). A game arm that reads the game's tables is one callback in `ARM_HOOKS` (`docs/transcription.md:488`, `tools/oracle-closure/rulings.py:416-419`, R30 of `notes/2026-10-05/walk.md:10`). A function Raven compiles only under `QAGAME` is in `QAGAME_ONLY` (`docs/transcription.md:489`, `rulings.py:437`, R31 of `notes/2026-10-05/walk.md:11`). A game field a bg body reads is one read callback (`docs/transcription.md:490-494`). A cgame-only name is on the channel, and `installBgChannel()` skips it (`docs/transcription.md:483-484`).
 
 The consumer. `BgConsumer` has the cases `.game`, `.cgame`, and `.ui` (`Sources/JKAMP_BG/bg_local.swift:10-14`). `BgState.consumer` is a `let` (`bg_local.swift:48`), set in `init(consumer:maxPoolSize:)` (`bg_local.swift:339-343`). The game builds `BgState(consumer: .game, maxPoolSize: 3_000_000)` at `Sources/jampgame/jampgame.swift:17`. The game install is `installBgChannel()` at `Sources/JKAMP_GameLogic/Generated/BgChannel.swift:9`. The game's arm hooks are at `Sources/JKAMP_GameLogic/bg_pmove_game.swift:11`, `:52`, and `:77`.
 
@@ -197,7 +197,7 @@ Ratified as proposed on 2026-10-29.
 | Raven | Consumers | In `JKAMP_BG` today |
 |---|---|---|
 | `bg_panimate.c:1756-2328`, `#ifndef QAGAME` | cgame, ui | absent: `animEventTypeTable` `:1758`, `footstepTypeTable` `:1772`, `CheckAnimFrameForEventType` `:1782`, `ParseAnimationEvtBlock` `:1800`, `bgAllEvents` `:2166`, `bgNumAnimEvents` `:2167`, `BG_ParseAnimationEvtFile` `:2169` |
-| `bg_pmove.c:3683-3723`, `PM_CrashLandEffect` | game | not a bg body. It is in `QAGAME_ONLY` (`rulings.py:342`) and in `Sources/JKAMP_GameLogic/bg_pmove_game.swift:11`, through the channel at `bg_callbacks.swift:97` |
+| `bg_pmove.c:3683-3723`, `PM_CrashLandEffect` | game | not a bg body. It is in `QAGAME_ONLY` (`rulings.py:437`) and in `Sources/JKAMP_GameLogic/bg_pmove_game.swift:11`, through the channel at `bg_callbacks.swift:97` |
 | `bg_slidemove.c:588-624`, `PM_ClientImpact` | game | present at `bg_slidemove.swift:412`, with its game reads through `bgLevelTime`, `bgEntityContents`, and `Client_CheckImpactBBrush` |
 | `bg_misc.c:335-425`, `BG_ParseField` and its externs | game, cgame | present at `bg_misc.swift:151`, public |
 | `bg_saga.c:1358-1414`, `BG_PrecacheSabersForSiegeTeam` | game, cgame | present at `bg_saga.swift:1097`, public |
@@ -213,7 +213,7 @@ Reason for item 1. The block is bg code that reads bg statics, and both Raven an
 
 Reason for item 2. R31 makes a `QAGAME` function a game function, and `PM_ClientImpact` is the second such function. The body already reaches the game only through the channel, so it works in bg. The alternative is a second `QAGAME_ONLY` entry and a move to `bg_pmove_game.swift`, which R31 names. The record proposes item 2 and lists the R31 move as the alternative.
 
-Generator rows. Item 1 needs the skeleton to read the cgame parse for the block (blocker 3 at `notes/2026-10-29/cgame-scout.md:308`). The R31 alternative of item 2 needs a `QAGAME_ONLY` entry at `rulings.py:342`.
+Generator rows. Item 1 needs the skeleton to read the cgame parse for the block (blocker 3 at `notes/2026-10-29/cgame-scout.md:308`). The R31 alternative of item 2 needs a `QAGAME_ONLY` entry at `rulings.py:437`.
 
 ## C8. Not compiled in the release build (kind e, 6 chains)
 

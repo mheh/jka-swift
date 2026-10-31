@@ -17,6 +17,10 @@ extern ammoData_t ammoData[AMMO_MAX];
 extern saberMoveData_t saberMoveData[LS_MOVE_MAX];
 // Source: oracle/codemp/cgame/animtable.h:9
 extern stringID_table_t animTable[MAX_ANIMATIONS+1];
+// Source: oracle/codemp/game/bg_panimate.c:1758
+extern stringID_table_t animEventTypeTable[MAX_ANIM_EVENTS+1];
+// Source: oracle/codemp/game/bg_panimate.c:1772
+extern stringID_table_t footstepTypeTable[NUM_FOOTSTEP_TYPES+1];
 // Source: oracle/codemp/game/bg_saberLoad.c:46
 extern stringID_table_t SaberTable[13];
 // Source: oracle/codemp/game/bg_saberLoad.c:63
