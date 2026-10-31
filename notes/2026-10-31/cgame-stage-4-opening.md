@@ -64,6 +64,10 @@ A generator run on the branch rewrote `NULL_HANDLE`, `NULL_SOUND`, `NULL_FX`, an
 
 Result: a clean run of `reexport.py` on master 715c95f reproduces the committed files byte for byte, 43 macros as expressions, 3 narrowed, 3 marked `TODO: Port`. The cause is in `probe()` at `tools/oracle-closure/reexport.py:318-336`. It collects only the `error:` lines that name a `public let` in a generated file. A build that fails for any other reason gives no names, and `main()` takes that as success. On the branch the probe ran while the C1 signatures were half changed, so the four constants stayed on the first rung. The README sentence lands with the C4 and C5 commits. A probe that exits nonzero on a failed build with no names is a possible row.
 
+## The gate after C4 and C5
+
+With the cap at 48, the gate gave 37 stems, 1946 holes, 1 cascade error, 0 defects, 886 compile holes, 27 passes, exit 0, cap not hit. `cg_event` settled in 2 passes with 0 defects, `cg_info` and `cg_light` in 2 each, `cg_players` in 6. Holes rose from 1490 to 1946 because the three starved stems ran their passes, and every rejected statement is a hole. The one cascade error is in `cg_draw`, 266 holes and 156 compile holes over 3 passes, and the last pass names `previousTimes` as out of scope at the draft's line 2274. The `cg_draw` transcription round meets it. The log is `cgame-draftcheck-mp-cgame-after-c4.log`.
+
 ## The ledger
 
 | Row | Verdict |

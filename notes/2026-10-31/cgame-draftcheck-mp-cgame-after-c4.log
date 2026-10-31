@@ -1,0 +1,48 @@
+[warn] 5576 parse errors (layouts may be partial); first:
+  /private/tmp/jka-c1c2/oracle/codemp/game/q_shared.h:1242: conflicting types for 'powf'
+  /private/tmp/jka-c1c2/oracle/codemp/game/q_shared.h:1414: expected 'volatile', 'inline', 'goto', or '('
+  /private/tmp/jka-c1c2/oracle/codemp/game/q_shared.h:1415: expected 'volatile', 'inline', 'goto', or '('
+[warn] 6628 parse errors (layouts may be partial); first:
+  /private/tmp/jka-c1c2/oracle/codemp/game/q_shared.h:1242: conflicting types for 'powf'
+  /private/tmp/jka-c1c2/oracle/codemp/game/q_shared.h:1414: expected 'volatile', 'inline', 'goto', or '('
+  /private/tmp/jka-c1c2/oracle/codemp/game/q_shared.h:1415: expected 'volatile', 'inline', 'goto', or '('
+AnimalNPC: 5 of 8 hand functions replaced, 0 kept, 2 holes, 0 cascade errors, 0 defects, 2 compile holes over 2 passes
+FighterNPC: 17 of 20 hand functions replaced, 0 kept, 6 holes, 0 cascade errors, 0 defects, 2 compile holes over 2 passes
+SpeederNPC: 6 of 9 hand functions replaced, 0 kept, 5 holes, 0 cascade errors, 0 defects, 3 compile holes over 2 passes
+WalkerNPC: 5 of 8 hand functions replaced, 0 kept, 2 holes, 0 cascade errors, 0 defects, 2 compile holes over 2 passes
+cg_consolecmds: 18 of 18 hand functions replaced, 0 kept, 4 holes, 0 cascade errors, 0 defects, 2 compile holes over 2 passes
+cg_draw: 100 of 100 hand functions replaced, 0 kept, 266 holes, 1 cascade errors, 0 defects, 156 compile holes over 3 passes
+cg_drawtools: 24 of 24 hand functions replaced, 0 kept, 21 holes, 0 cascade errors, 0 defects, 13 compile holes over 2 passes
+cg_effects: 22 of 22 hand functions replaced, 0 kept, 40 holes, 0 cascade errors, 0 defects, 24 compile holes over 2 passes
+cg_ents: 40 of 40 hand functions replaced, 0 kept, 79 holes, 0 cascade errors, 0 defects, 38 compile holes over 7 passes
+cg_event: 20 of 20 hand functions replaced, 0 kept, 293 holes, 0 cascade errors, 0 defects, 152 compile holes over 2 passes
+cg_info: 5 of 5 hand functions replaced, 0 kept, 7 holes, 0 cascade errors, 0 defects, 7 compile holes over 2 passes
+cg_light: 3 of 3 hand functions replaced, 0 kept, 2 holes, 0 cascade errors, 0 defects, 1 compile holes over 2 passes
+cg_localents: 21 of 21 hand functions replaced, 0 kept, 3 holes, 0 cascade errors, 0 defects, 3 compile holes over 3 passes
+cg_main: 81 of 81 hand functions replaced, 0 kept, 232 holes, 0 cascade errors, 0 defects, 78 compile holes over 5 passes
+cg_marks: 28 of 28 hand functions replaced, 0 kept, 308 holes, 0 cascade errors, 0 defects, 45 compile holes over 2 passes
+cg_newDraw: 24 of 24 hand functions replaced, 0 kept, 37 holes, 0 cascade errors, 0 defects, 21 compile holes over 2 passes
+cg_players: 85 of 85 hand functions replaced, 0 kept, 297 holes, 0 cascade errors, 0 defects, 80 compile holes over 6 passes
+cg_playerstate: 7 of 7 hand functions replaced, 0 kept, 3 holes, 0 cascade errors, 0 defects, 0 compile holes over 1 passes
+cg_predict: 14 of 14 hand functions replaced, 0 kept, 27 holes, 0 cascade errors, 0 defects, 6 compile holes over 3 passes
+cg_saga: 13 of 13 hand functions replaced, 0 kept, 10 holes, 0 cascade errors, 0 defects, 6 compile holes over 2 passes
+cg_scoreboard: 6 of 6 hand functions replaced, 0 kept, 14 holes, 0 cascade errors, 0 defects, 7 compile holes over 2 passes
+cg_servercmds: 21 of 21 hand functions replaced, 0 kept, 32 holes, 0 cascade errors, 0 defects, 10 compile holes over 2 passes
+cg_snapshot: 7 of 7 hand functions replaced, 0 kept, 2 holes, 0 cascade errors, 0 defects, 2 compile holes over 2 passes
+cg_strap: 12 of 12 hand functions replaced, 0 kept, 0 holes, 0 cascade errors, 0 defects, 0 compile holes over 1 passes
+cg_turret: 2 of 2 hand functions replaced, 0 kept, 2 holes, 0 cascade errors, 0 defects, 1 compile holes over 2 passes
+cg_view: 42 of 42 hand functions replaced, 0 kept, 31 holes, 0 cascade errors, 0 defects, 22 compile holes over 8 passes
+cg_weaponinit: 1 of 1 hand functions replaced, 0 kept, 145 holes, 0 cascade errors, 0 defects, 139 compile holes over 2 passes
+cg_weapons: 28 of 28 hand functions replaced, 0 kept, 42 holes, 0 cascade errors, 0 defects, 30 compile holes over 5 passes
+fx_blaster: 4 of 4 hand functions replaced, 0 kept, 3 holes, 0 cascade errors, 0 defects, 3 compile holes over 2 passes
+fx_bowcaster: 4 of 4 hand functions replaced, 0 kept, 2 holes, 0 cascade errors, 0 defects, 2 compile holes over 2 passes
+fx_bryarpistol: 13 of 13 hand functions replaced, 0 kept, 13 holes, 0 cascade errors, 0 defects, 13 compile holes over 2 passes
+fx_demp2: 5 of 5 hand functions replaced, 0 kept, 2 holes, 0 cascade errors, 0 defects, 2 compile holes over 2 passes
+fx_disruptor: 6 of 6 hand functions replaced, 0 kept, 4 holes, 0 cascade errors, 0 defects, 4 compile holes over 2 passes
+fx_flechette: 4 of 4 hand functions replaced, 0 kept, 2 holes, 0 cascade errors, 0 defects, 2 compile holes over 2 passes
+fx_force: 1 of 1 hand functions replaced, 0 kept, 1 holes, 0 cascade errors, 0 defects, 1 compile holes over 2 passes
+fx_heavyrepeater: 7 of 7 hand functions replaced, 0 kept, 5 holes, 0 cascade errors, 0 defects, 5 compile holes over 2 passes
+fx_rocketlauncher: 4 of 4 hand functions replaced, 0 kept, 2 holes, 0 cascade errors, 0 defects, 2 compile holes over 2 passes
+run: 27 passes, 27 builds
+build log: /private/tmp/jka-c1c2/.build-draft/build.log
+total: 1946 holes, 1 cascade errors, 0 defects, 886 compile holes
