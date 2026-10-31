@@ -1525,8 +1525,7 @@ func ParseAnimationEvtBlock(_ aeb_filename: String, _ animEvents: Slots<JKAMP.An
             // {
             //     break;
             // }
-            // Raven calls the C library's `stricmp` here, which Swift has on no platform.
-            // `Q_stricmp` of `q_shared.c` gives the same answer for two set texts, so the body calls it.
+            // AI: Raven called the C library's stricmp. Swift has it on no platform, so the body calls Q_stricmp, which gives the same answer for two set texts.
             if Q_stricmp(token, "CHAN_VOICE_ATTEN") == 0 {
                 animEvents[curAnimEvent].eventData[AED_SOUNDCHANNEL] = Int16(truncatingIfNeeded: CHAN_VOICE_ATTEN)
             } else if Q_stricmp(token, "CHAN_VOICE_GLOBAL") == 0 {
