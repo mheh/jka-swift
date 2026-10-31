@@ -68,6 +68,8 @@ Result: a clean run of `reexport.py` on master 715c95f reproduces the committed 
 
 With the cap at 48, the gate gave 37 stems, 1946 holes, 1 cascade error, 0 defects, 886 compile holes, 27 passes, exit 0, cap not hit. `cg_event` settled in 2 passes with 0 defects, `cg_info` and `cg_light` in 2 each, `cg_players` in 6. Holes rose from 1490 to 1946 because the three starved stems ran their passes, and every rejected statement is a hole. The one cascade error is in `cg_draw`, 266 holes and 156 compile holes over 3 passes, and the last pass names `previousTimes` as out of scope at the draft's line 2274. The `cg_draw` transcription round meets it. The log is `cgame-draftcheck-mp-cgame-after-c4.log`.
 
+The cascade is by rule. `previousTimes` is a static local of `CG_DrawFPS` at `oracle/codemp/cgame/cg_draw.c:3074`, written at `:3094` and read at `:3100`, and `docs/transcription.md:472` keeps a written static local as a hole until a storage ruling names its home. `draftcheck.py:268-273` counts a missing name that a hole swallowed as a cascade. The draft holes all four statics of the function, `previousTimes`, `index`, `previous`, and `lastupdate`. The `cg_draw` round adds the four as stored properties on `CGameWorld` with their Source lines and the global forwards, the shape of `faces` at `Sources/JKAMP_GameLogic/w_saber.swift:2093-2098` and `g_local.swift:712`. No drafter row.
+
 ## The ledger
 
 | Row | Verdict |
