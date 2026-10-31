@@ -70,7 +70,7 @@ MISSING = re.compile(r"cannot find '(\w+)' in scope")
 COMPILE_PREFIX = port_note(COMPILE_NOTE.split("{}")[0])
 MARKER = re.compile(r'^portMissing\("(\w+)"')
 # The cap on the passes of one run. Each pass after the first makes a hole of each statement the last build rejected.
-PASSES = 24
+PASSES = 48
 
 
 def functions(lines: list[str]) -> dict[int, tuple[int, int]]:
