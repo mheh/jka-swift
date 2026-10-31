@@ -25,10 +25,11 @@ Usage:
   .venv/bin/python draftcheck.py --all      # every bg stem
   .venv/bin/python draftcheck.py --game     # every game stem under Sources/JKAMP_GameLogic
   .venv/bin/python draftcheck.py --every    # the bg stems, the game stems, and the shared stems under Sources/JKAShared
-  .venv/bin/python draftcheck.py --unit mp-cgame --game   # every cgame stem, drafted under out/mp-cgame/ and not built
+  .venv/bin/python draftcheck.py --unit mp-cgame          # every cgame stem under Sources/JKAMP_CGameLogic, the logic target built
 
 A unit whose logic target is not in the package yet has no product to build, so a run of that unit drafts each stem,
 writes the draft under out/<unit>/.build-draft/drafts/, counts its holes, and builds nothing.
+The cgame has its logic target and no shell yet, so its run builds that target in the mirror.
 """
 
 from __future__ import annotations
@@ -52,7 +53,9 @@ SCRATCH = REPO / ".build-draft" / "scratch"
 LOG = REPO / ".build-draft" / "build.log"
 # The last pass's draft of each stem, the text a transcriptor reads, with every hole the passes made.
 DRAFTS = REPO / ".build-draft" / "drafts"
-SOURCE_LINE = re.compile(rf"/// Source: oracle/{re.escape(C.GAME_DIR)}/\w+\.c:(\d+)$")
+# A stem of the unit cites the unit's folder, and a borrowed stem cites its own folder, the game folder for the cgame copy of a vehicle file.
+FOLDERS = "|".join(re.escape(folder) for folder in dict.fromkeys([C.GAME_DIR, *C.BORROWED.values()]))
+SOURCE_LINE = re.compile(rf"/// Source: oracle/(?:{FOLDERS})/\w+\.c:(\d+)$")
 # skeleton.py writes this doc line above the /// Source: line of a forward, and the forward shares the Source line of the hand body.
 FORWARD_DOC = re.compile(r"^/// A caller that passes .* reaches `\w+` through this forward, and a NULL caller passes the optional\.$")
 # swiftc writes `path:line:col: error: message`.
@@ -230,9 +233,13 @@ class Stem:
         self.target.write_text("\n".join(spliced) + "\n")
 
 
+# The game builds its product. The cgame has no shell target yet, so its run builds the logic target of its stubs.
+BUILT = ["--product", "jampgame"] if C.UNIT == C.PROJECT["sweep"]["unit"] else ["--target", LOGIC]
+
+
 def build() -> str:
-    """The game product built in the mirror. The build log goes to LOG, and its text comes back."""
-    done = subprocess.run(["swift", "build", "--package-path", str(MIRROR), "--scratch-path", str(SCRATCH), "--product", "jampgame"],
+    """The product of the unit built in the mirror, or its logic target. The build log goes to LOG, and its text comes back."""
+    done = subprocess.run(["swift", "build", "--package-path", str(MIRROR), "--scratch-path", str(SCRATCH), *BUILT],
                           capture_output=True, text=True)
     LOG.write_text(done.stdout + done.stderr)
     return done.stdout + done.stderr
@@ -375,6 +382,9 @@ def main() -> None:
     parser.add_argument("--game", action="store_true", help=f"every Raven file the skeleton holds under Sources/{LOGIC}")
     parser.add_argument("--every", action="store_true", help="the files of --all and of --game, and every Raven file the skeleton holds under Sources/JKAShared")
     args = parser.parse_args()
+    if not (args.stem or args.all or args.game or args.every) and C.UNIT != C.PROJECT["sweep"]["unit"]:
+        # A unit other than the game holds no bg or shared stem of its own, so its run with no choice gates every stem of its logic target.
+        args.game = True
     if not (args.stem or args.all or args.game or args.every):
         parser.error("give --stem, --all, --game, or --every")
     sk = Skeleton(C.Parse())

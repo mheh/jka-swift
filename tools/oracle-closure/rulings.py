@@ -111,6 +111,8 @@ CGAME_ROOTS = {
     "mdxaBone_t": ("MdxaBone", "CJKAMP"),
     "sharedRagDollParams_t": ("SharedRagDollParams", "CJKAMP"),
     "sharedRagDollUpdateParams_t": ("SharedRagDollUpdateParams", "CJKAMP"),
+    "sharedIKMoveParams_t": ("SharedIKMoveParams", "CJKAMP"),
+    "sharedSetBoneIKStateParams_t": ("SharedSetBoneIKStateParams", "CJKAMP"),
     "pc_token_t": ("PcToken", "CJKAMP"),
     "bgLoadedAnim_t": ("BgLoadedAnim", "CJKAMP"),
     "saberMoveData_t": ("SaberMoveData", "CJKAMP"),

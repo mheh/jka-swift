@@ -30,6 +30,28 @@ class DefaultUnit(unittest.TestCase):
         self.assertEqual(C.GAME_DIR, "codemp/game")
         self.assertEqual(C.CGAME_DIR, "codemp/cgame")
 
+    def test_the_game_borrows_no_file(self) -> None:
+        import closure as C
+
+        # given the game, whose build compiles its own folder alone
+        game = C.ORACLE.resolve() / "codemp" / "game"
+        cgame = C.ORACLE.resolve() / "codemp" / "cgame"
+
+        # then every stem stands in the game folder, and a cgame copy of a vehicle file is not a game file
+        self.assertEqual(C.BORROWED, {})
+        self.assertEqual(C.folder_of("FighterNPC"), "codemp/game")
+        self.assertTrue(C.within(game / "FighterNPC.c", game))
+        self.assertFalse(C.within(game / "FighterNPC.c", cgame))
+
+    def test_the_cgame_borrows_the_four_vehicle_files(self) -> None:
+        import closure as C
+
+        # given the cgame row, Raven's list at JK2_cgame.vcproj:294-303
+        row = C.PROJECT["targets"]["mp-cgame"]
+
+        # then it names the four vehicle files of the game folder
+        self.assertEqual(row["borrowed"], [f"codemp/game/{stem}.c" for stem in ("AnimalNPC", "FighterNPC", "SpeederNPC", "WalkerNPC")])
+
     def test_the_game_writes_into_the_repository(self) -> None:
         import closure as C
 
@@ -134,6 +156,31 @@ class DefaultUnit(unittest.TestCase):
         self.assertEqual((game["other"], cgame["other"]), ("mp-cgame", "mp-game"))
         for key in ("folder", "traps", "logic", "views", "c_target", "state", "rust", "store"):
             self.assertNotEqual(game[key], cgame[key], key)
+
+    def test_the_consumer_install_reads_each_closure_of_a_bg_file(self) -> None:
+        import tempfile
+
+        import channel
+
+        # given a bg file with a closure of no parameter and one with a nested closure type and an inout vector
+        text = "\n".join([
+            "public struct BgCallbacks {",
+            "    /// Source: oracle/codemp/cgame/cg_main.c:1276",
+            '    public var BG_GetTime: () -> Int32 = { fatalError("No consumer installed BG_GetTime") }',
+            "",
+            "    /// Source: oracle/codemp/cgame/cg_view.c:797",
+            "    public var CG_Move: (((Int32, Int32) -> Void)?, inout JKAShared.vec3_t) -> Void = { _, _ in fatalError(\"x\") }",
+            "}",
+        ])
+        with tempfile.TemporaryDirectory() as folder:
+            path = Path(folder) / "bg_callbacks.swift"
+            path.write_text(text)
+
+            # then each closure keeps its cite and its parameters in order, and the nested comma splits nothing
+            self.assertEqual(channel.ConsumerInstall.closures(path), [
+                ("oracle/codemp/cgame/cg_main.c:1276", "BG_GetTime", []),
+                ("oracle/codemp/cgame/cg_view.c:797", "CG_Move", ["((Int32, Int32) -> Void)?", "inout JKAShared.vec3_t"]),
+            ])
 
 
 if __name__ == "__main__":

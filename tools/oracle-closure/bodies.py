@@ -32,7 +32,7 @@ from clang.cindex import CursorKind
 from reexport import SOURCES
 import closure as C
 import store as S
-from skeleton import ORACLE_DIR, Function, Skeleton
+from skeleton import Function, Skeleton
 from layout import INDENT
 from lowering_key import FUNC_HEAD, LANGUAGE, MODIFIERS, VAR_LINE, lowered_keys, lowering_modules
 from printer import short_named, stem_text
@@ -223,7 +223,7 @@ class Drafter(Statements, Expressions, Calls, Declarations, Classification):
         self.statement_seqs = {(row["kind"], row["start_offset"], row["end_offset"]): row["seq"]
                                for row in self.sk.table.store.syntax("statements", fn.stem, fn.cur.spelling)}
         self.source = self.sk.source(fn.stem)
-        self.bytes = C.parsed_bytes(C.ORACLE / ORACLE_DIR / f"{fn.stem}.c")
+        self.bytes = C.parsed_bytes(C.ORACLE / C.folder_of(fn.stem) / f"{fn.stem}.c")
         self.names = {c.spelling: p.name for c, p in zip(fn.cur.get_arguments(), fn.params)}
         self.params_by_name = {c.spelling: p for c, p in zip(fn.cur.get_arguments(), fn.params)}
         self.scratch_names: dict[str, int] = {}

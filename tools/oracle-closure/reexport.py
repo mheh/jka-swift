@@ -140,7 +140,8 @@ def swift_expression(cur: ci.Cursor, enum_of: dict[str, str], declared: dict[str
         elif re.fullmatch(r"\d+[uUlL]*", tok):
             out.append(re.sub(r"[uUlL]+$", "", tok))
         elif re.fullmatch(r"(\d+\.\d*|\.\d+|\d+)([eE][+-]?\d+)?[fFlL]?", tok):
-            out.append(re.sub(r"[fFlL]$", "", tok) + ("0" if tok.rstrip("fFlL").endswith(".") else ""))
+            # Swift takes no bare point on either side of a literal, so Raven's `.55` reads `0.55` and his `1.` reads `1.0`.
+            out.append(("0" if tok.startswith(".") else "") + re.sub(r"[fFlL]$", "", tok) + ("0" if tok.rstrip("fFlL").endswith(".") else ""))
             has_float = True
             has_float_suffix = has_float_suffix or tok[-1] in "fF"
         elif tok.startswith('"') and tok.endswith('"') and len(tok) >= 2:
