@@ -7,16 +7,16 @@ import JKAShared
 /// A default traps with the hook's name, so a consumer that installs nothing fails at the first call and names it.
 public struct BgStraps {
     /// Source: oracle/codemp/game/bg_strap.h:7
-    public var strap_G2API_GetBoltMatrix: (OpaquePointer?, Int32, Int32, JKAMP.MdxaBone, JKAShared.vec3_t, JKAShared.vec3_t, Int32, UnsafeMutablePointer<Int32>?, inout JKAShared.vec3_t) -> Bool = { _, _, _, _, _, _, _, _, _ in fatalError("No consumer installed strap_G2API_GetBoltMatrix, source: oracle/codemp/game/bg_strap.h:7") }
+    public var strap_G2API_GetBoltMatrix: (OpaquePointer?, Int32, Int32, JKAMP.MdxaBone, JKAShared.vec3_t, JKAShared.vec3_t, Int32, Slots<qhandle_t>?, inout JKAShared.vec3_t) -> Bool = { _, _, _, _, _, _, _, _, _ in fatalError("No consumer installed strap_G2API_GetBoltMatrix, source: oracle/codemp/game/bg_strap.h:7") }
 
     /// Source: oracle/codemp/game/bg_strap.h:10
-    public var strap_G2API_GetBoltMatrix_NoReconstruct: (OpaquePointer?, Int32, Int32, JKAMP.MdxaBone, JKAShared.vec3_t, JKAShared.vec3_t, Int32, UnsafeMutablePointer<Int32>?, inout JKAShared.vec3_t) -> Bool = { _, _, _, _, _, _, _, _, _ in fatalError("No consumer installed strap_G2API_GetBoltMatrix_NoReconstruct, source: oracle/codemp/game/bg_strap.h:10") }
+    public var strap_G2API_GetBoltMatrix_NoReconstruct: (OpaquePointer?, Int32, Int32, JKAMP.MdxaBone, JKAShared.vec3_t, JKAShared.vec3_t, Int32, Slots<qhandle_t>?, inout JKAShared.vec3_t) -> Bool = { _, _, _, _, _, _, _, _, _ in fatalError("No consumer installed strap_G2API_GetBoltMatrix_NoReconstruct, source: oracle/codemp/game/bg_strap.h:10") }
 
     /// Source: oracle/codemp/game/bg_strap.h:13
-    public var strap_G2API_GetBoltMatrix_NoRecNoRot: (OpaquePointer?, Int32, Int32, JKAMP.MdxaBone, JKAShared.vec3_t, JKAShared.vec3_t, Int32, UnsafeMutablePointer<Int32>?, inout JKAShared.vec3_t) -> Bool = { _, _, _, _, _, _, _, _, _ in fatalError("No consumer installed strap_G2API_GetBoltMatrix_NoRecNoRot, source: oracle/codemp/game/bg_strap.h:13") }
+    public var strap_G2API_GetBoltMatrix_NoRecNoRot: (OpaquePointer?, Int32, Int32, JKAMP.MdxaBone, JKAShared.vec3_t, JKAShared.vec3_t, Int32, Slots<qhandle_t>?, inout JKAShared.vec3_t) -> Bool = { _, _, _, _, _, _, _, _, _ in fatalError("No consumer installed strap_G2API_GetBoltMatrix_NoRecNoRot, source: oracle/codemp/game/bg_strap.h:13") }
 
     /// Source: oracle/codemp/game/bg_strap.h:16
-    public var strap_G2API_SetBoneAngles: (OpaquePointer?, Int32, String, JKAShared.vec3_t, Int32, Int32, Int32, Int32, UnsafeMutablePointer<Int32>?, Int32, Int32) -> Bool = { _, _, _, _, _, _, _, _, _, _, _ in fatalError("No consumer installed strap_G2API_SetBoneAngles, source: oracle/codemp/game/bg_strap.h:16") }
+    public var strap_G2API_SetBoneAngles: (OpaquePointer?, Int32, String, JKAShared.vec3_t, Int32, Int32, Int32, Int32, Slots<qhandle_t>?, Int32, Int32) -> Bool = { _, _, _, _, _, _, _, _, _, _, _ in fatalError("No consumer installed strap_G2API_SetBoneAngles, source: oracle/codemp/game/bg_strap.h:16") }
 
     /// Source: oracle/codemp/game/bg_strap.h:20
     public var strap_G2API_SetBoneAnim: (OpaquePointer?, Int32, String, Int32, Int32, Int32, Float, Int32, Float, Int32) -> Bool = { _, _, _, _, _, _, _, _, _, _ in fatalError("No consumer installed strap_G2API_SetBoneAnim, source: oracle/codemp/game/bg_strap.h:20") }
@@ -67,7 +67,7 @@ public struct BgStraps {
     public var trap_G2API_CleanGhoul2Models: (inout OpaquePointer?) -> Void = { _ in fatalError("No consumer installed trap_G2API_CleanGhoul2Models, source: oracle/codemp/game/g_syscalls.c:1303") }
 
     /// Source: oracle/codemp/game/g_syscalls.c:1205
-    public var trap_G2API_GetBoltMatrix: (OpaquePointer?, Int32, Int32, JKAMP.MdxaBone, JKAShared.vec3_t, JKAShared.vec3_t, Int32, UnsafeMutablePointer<Int32>?, inout JKAShared.vec3_t) -> Bool = { _, _, _, _, _, _, _, _, _ in fatalError("No consumer installed trap_G2API_GetBoltMatrix, source: oracle/codemp/game/g_syscalls.c:1205") }
+    public var trap_G2API_GetBoltMatrix: (OpaquePointer?, Int32, Int32, JKAMP.MdxaBone, JKAShared.vec3_t, JKAShared.vec3_t, Int32, Slots<qhandle_t>?, inout JKAShared.vec3_t) -> Bool = { _, _, _, _, _, _, _, _, _ in fatalError("No consumer installed trap_G2API_GetBoltMatrix, source: oracle/codemp/game/g_syscalls.c:1205") }
 
     /// Source: oracle/codemp/game/g_syscalls.c:1370
     public var trap_G2API_GetSurfaceRenderStatus: (OpaquePointer?, Int32, String) -> Int32 = { _, _, _ in fatalError("No consumer installed trap_G2API_GetSurfaceRenderStatus, source: oracle/codemp/game/g_syscalls.c:1370") }
@@ -101,25 +101,25 @@ public struct BgStraps {
 
 /// Source: oracle/codemp/game/bg_strap.h:7
 @discardableResult
-func strap_G2API_GetBoltMatrix(_ ghoul2: OpaquePointer?, _ modelIndex: Int32, _ boltIndex: Int32, _ matrix: JKAMP.MdxaBone, _ angles: JKAShared.vec3_t, _ position: JKAShared.vec3_t, _ frameNum: Int32, _ modelList: UnsafeMutablePointer<Int32>?, _ scale: inout JKAShared.vec3_t) -> Bool {
+func strap_G2API_GetBoltMatrix(_ ghoul2: OpaquePointer?, _ modelIndex: Int32, _ boltIndex: Int32, _ matrix: JKAMP.MdxaBone, _ angles: JKAShared.vec3_t, _ position: JKAShared.vec3_t, _ frameNum: Int32, _ modelList: Slots<qhandle_t>?, _ scale: inout JKAShared.vec3_t) -> Bool {
     bg.straps.strap_G2API_GetBoltMatrix(ghoul2, modelIndex, boltIndex, matrix, angles, position, frameNum, modelList, &scale)
 }
 
 /// Source: oracle/codemp/game/bg_strap.h:10
 @discardableResult
-func strap_G2API_GetBoltMatrix_NoReconstruct(_ ghoul2: OpaquePointer?, _ modelIndex: Int32, _ boltIndex: Int32, _ matrix: JKAMP.MdxaBone, _ angles: JKAShared.vec3_t, _ position: JKAShared.vec3_t, _ frameNum: Int32, _ modelList: UnsafeMutablePointer<Int32>?, _ scale: inout JKAShared.vec3_t) -> Bool {
+func strap_G2API_GetBoltMatrix_NoReconstruct(_ ghoul2: OpaquePointer?, _ modelIndex: Int32, _ boltIndex: Int32, _ matrix: JKAMP.MdxaBone, _ angles: JKAShared.vec3_t, _ position: JKAShared.vec3_t, _ frameNum: Int32, _ modelList: Slots<qhandle_t>?, _ scale: inout JKAShared.vec3_t) -> Bool {
     bg.straps.strap_G2API_GetBoltMatrix_NoReconstruct(ghoul2, modelIndex, boltIndex, matrix, angles, position, frameNum, modelList, &scale)
 }
 
 /// Source: oracle/codemp/game/bg_strap.h:13
 @discardableResult
-func strap_G2API_GetBoltMatrix_NoRecNoRot(_ ghoul2: OpaquePointer?, _ modelIndex: Int32, _ boltIndex: Int32, _ matrix: JKAMP.MdxaBone, _ angles: JKAShared.vec3_t, _ position: JKAShared.vec3_t, _ frameNum: Int32, _ modelList: UnsafeMutablePointer<Int32>?, _ scale: inout JKAShared.vec3_t) -> Bool {
+func strap_G2API_GetBoltMatrix_NoRecNoRot(_ ghoul2: OpaquePointer?, _ modelIndex: Int32, _ boltIndex: Int32, _ matrix: JKAMP.MdxaBone, _ angles: JKAShared.vec3_t, _ position: JKAShared.vec3_t, _ frameNum: Int32, _ modelList: Slots<qhandle_t>?, _ scale: inout JKAShared.vec3_t) -> Bool {
     bg.straps.strap_G2API_GetBoltMatrix_NoRecNoRot(ghoul2, modelIndex, boltIndex, matrix, angles, position, frameNum, modelList, &scale)
 }
 
 /// Source: oracle/codemp/game/bg_strap.h:16
 @discardableResult
-func strap_G2API_SetBoneAngles(_ ghoul2: OpaquePointer?, _ modelIndex: Int32, _ boneName: String, _ angles: JKAShared.vec3_t, _ flags: Int32, _ up: Int32, _ right: Int32, _ forward: Int32, _ modelList: UnsafeMutablePointer<Int32>?, _ blendTime: Int32, _ currentTime: Int32) -> Bool {
+func strap_G2API_SetBoneAngles(_ ghoul2: OpaquePointer?, _ modelIndex: Int32, _ boneName: String, _ angles: JKAShared.vec3_t, _ flags: Int32, _ up: Int32, _ right: Int32, _ forward: Int32, _ modelList: Slots<qhandle_t>?, _ blendTime: Int32, _ currentTime: Int32) -> Bool {
     bg.straps.strap_G2API_SetBoneAngles(ghoul2, modelIndex, boneName, angles, flags, up, right, forward, modelList, blendTime, currentTime)
 }
 
@@ -221,7 +221,7 @@ func trap_G2API_CleanGhoul2Models(_ ghoul2Ptr: inout OpaquePointer?) {
 
 /// Source: oracle/codemp/game/g_syscalls.c:1205
 @discardableResult
-func trap_G2API_GetBoltMatrix(_ ghoul2: OpaquePointer?, _ modelIndex: Int32, _ boltIndex: Int32, _ matrix: JKAMP.MdxaBone, _ angles: JKAShared.vec3_t, _ position: JKAShared.vec3_t, _ frameNum: Int32, _ modelList: UnsafeMutablePointer<Int32>?, _ scale: inout JKAShared.vec3_t) -> Bool {
+func trap_G2API_GetBoltMatrix(_ ghoul2: OpaquePointer?, _ modelIndex: Int32, _ boltIndex: Int32, _ matrix: JKAMP.MdxaBone, _ angles: JKAShared.vec3_t, _ position: JKAShared.vec3_t, _ frameNum: Int32, _ modelList: Slots<qhandle_t>?, _ scale: inout JKAShared.vec3_t) -> Bool {
     bg.straps.trap_G2API_GetBoltMatrix(ghoul2, modelIndex, boltIndex, matrix, angles, position, frameNum, modelList, &scale)
 }
 

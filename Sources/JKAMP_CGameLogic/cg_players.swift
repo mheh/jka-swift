@@ -436,7 +436,7 @@ private func CG_PlayerAnimation(_ cent: Centity, _ legsOld: inout Int32, _ legs:
 }
 
 /// Source: oracle/codemp/cgame/cg_players.c:3365
-func CG_G2SetBoneAngles(_ ghoul2: OpaquePointer?, _ modelIndex: Int32, _ boneName: String, _ angles: JKAShared.vec3_t, _ flags: Int32, _ up: Int32, _ right: Int32, _ forward: Int32, _ modelList: UnsafeMutablePointer<Int32>?, _ blendTime: Int32, _ currentTime: Int32) {
+func CG_G2SetBoneAngles(_ ghoul2: OpaquePointer?, _ modelIndex: Int32, _ boneName: String, _ angles: JKAShared.vec3_t, _ flags: Int32, _ up: Int32, _ right: Int32, _ forward: Int32, _ modelList: Slots<qhandle_t>?, _ blendTime: Int32, _ currentTime: Int32) {
     // TODO: Port CG_G2SetBoneAngles
     portMissing("CG_G2SetBoneAngles", source: "oracle/codemp/cgame/cg_players.c:3365")
 }

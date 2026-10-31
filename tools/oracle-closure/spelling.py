@@ -376,9 +376,10 @@ class Types:
                     return Answer(f"Slots<{self.views.qualified_view(record, TARGET)}?>", "slots")
                 if record and record in self.views.views and not facts.traps:
                     return Answer(f"inout {self.views.qualified_view(record, TARGET)}?", "out_view")
-            # An array of model handles the engine reads, and every caller passes NULL. The pointer stays in generated code.
+            # The engine reads an array of model handles. The caller passes the view over `cgs.gameModels`, or nil.
+            # The trap wrapper hands the engine the base of the view.
             if t.get_pointee().spelling.replace("const ", "") == "qhandle_t":
-                return Answer("UnsafeMutablePointer<Int32>?", "bare")
+                return Answer("Slots<qhandle_t>?", "slots_opt")
             if (facts.traps and engine_array(t, facts.following)) or (not facts.traps and facts.fills_array):
                 # An `int *` with a count beside it is an array the engine fills, `trap_EntitiesInBox(mins, maxs, list, maxcount)`.
                 # A function that hands its own `int *` on to that array takes the caller's array the same way.
