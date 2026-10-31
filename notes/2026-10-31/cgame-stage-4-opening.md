@@ -46,6 +46,24 @@ Ratified: a drafter rule change. `narrow_element` also accepts a subscript over 
 
 Ratified: no change to the cap. C1 and C2 remove the two shapes of the residue. The next gate run shows whether `cg_players` settles inside the budget. If the cap still hits, a one-line raise of `PASSES` comes back as a new row.
 
+## The gate after C1 and C2
+
+The gate on the branch after both rows gave 1490 holes, 176 defects, 426 compile holes, 24 passes. `cg_players` settled in 6 passes with 0 defects, which answers C3. The cap moved to `cg_event`, `cg_info`, and `cg_light`, each at 1 pass, so the 176 defects are first-pass drafts. The log is `cgame-draftcheck-mp-cgame-after-c1c2.log`.
+
+### C4, the pass cap raise
+
+Ratified: `PASSES` in `tools/oracle-closure/draftcheck.py` rises from 24 to 48, one line with the snapshot check, in its own commit, then the gate again.
+
+### C5, the force unwrap on an optional Slots passthrough
+
+The drafter writes `modelList!` when a body passes a `Slots<qhandle_t>?` parameter to a callee with the same parameter. The hand files of `g_strap.swift` and `bg_g2_utils.swift` hold the bare name, so the port is correct, but the `cg_strap` drafts carry the `!`. Raven passes the pointer through, and a nil caller is legal. Ratified: a drafter rule change in the argument arm. A `slots_opt` parameter passed to a `slots_opt` parameter drafts as the bare name. No `// AI:` line.
+
+### C6, the four re-export constants
+
+A generator run on the branch rewrote `NULL_HANDLE`, `NULL_SOUND`, `NULL_FX`, and `TFL_DEFAULT` in a form that fails the build, and the agent reverted the two files. The committed forms are the probe ladder of `reexport.py`. Ratified: run `reexport.py` alone in a clean worktree on master and diff against the committed files. A match means the probe ran on a tree that did not build, and the README gets one sentence. A difference comes back as a ruling row with the commit that changed either side.
+
+Result: a clean run of `reexport.py` on master 715c95f reproduces the committed files byte for byte, 43 macros as expressions, 3 narrowed, 3 marked `TODO: Port`. The cause is in `probe()` at `tools/oracle-closure/reexport.py:318-336`. It collects only the `error:` lines that name a `public let` in a generated file. A build that fails for any other reason gives no names, and `main()` takes that as success. On the branch the probe ran while the C1 signatures were half changed, so the four constants stayed on the first rung. The README sentence lands with the C4 and C5 commits. A probe that exits nonzero on a failed build with no names is a possible row.
+
 ## The ledger
 
 | Row | Verdict |
@@ -55,3 +73,6 @@ Ratified: no change to the cap. C1 and C2 remove the two shapes of the residue. 
 | C1 | ratified as proposed |
 | C2 | ratified as proposed |
 | C3 | ratified as proposed, no change |
+| C4 | ratified as proposed |
+| C5 | ratified as proposed |
+| C6 | ratified as proposed, investigation |
