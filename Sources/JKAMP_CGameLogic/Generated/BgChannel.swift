@@ -48,4 +48,19 @@ public func installBgChannel() {
     bg.callbacks.G_SetFighterVehicleFunctions = { G_SetFighterVehicleFunctions($0) }
     bg.callbacks.G_SetSpeederVehicleFunctions = { G_SetSpeederVehicleFunctions($0) }
     bg.callbacks.G_SetWalkerVehicleFunctions = { G_SetWalkerVehicleFunctions($0) }
+    bg.callbacks.bgClientInfoInfoValid = { entityNum in
+        cgs.clientinfo[Int(entityNum)].infoValid
+    }
+    bg.callbacks.bgClientInfoSaber = { entityNum, index in
+        cgs.clientinfo[Int(entityNum)].saber[Int(index)]
+    }
+    bg.callbacks.bgCentNpcClient = { entityNum in
+        cg_entities[Int(entityNum)].npcClient != nil
+    }
+    bg.callbacks.bgNpcClientInfoValid = { entityNum in
+        cg_entities[Int(entityNum)].npcClient!.infoValid
+    }
+    bg.callbacks.bgNpcClientSaber = { entityNum, index in
+        cg_entities[Int(entityNum)].npcClient!.saber[Int(index)]
+    }
 }
