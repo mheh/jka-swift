@@ -16,3 +16,4 @@ __pycache__/
 
 # A parked handoff is session state, absorbed and deleted at the next session start.
 /.claude/HANDOFF.md
+.codegraph/
