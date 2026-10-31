@@ -57,7 +57,7 @@ clang -fsyntax-only -x c -std=gnu11 -Wno-everything -I out/extract/mp-game -I gl
 .venv/bin/python merge.py --out ../../Sources
 .venv/bin/python tables.py
 ./check.sh ../../Sources
-.venv/bin/python reexport.py --probe
+.venv/bin/python reexport.py
 .venv/bin/python views.py
 ```
 

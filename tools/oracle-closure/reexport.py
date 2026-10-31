@@ -94,6 +94,23 @@ def source_lines(cur: ci.Cursor) -> list[str]:
                 in_block = False
         elif line.endswith("*/"):
             in_block = "/*" not in line
+        elif re.match(r"#\s*(else|elif)\b", line):
+            # A macro in the second arm of a platform conditional takes the Source line above the opening `#if`.
+            # The walk skips the first arm to that `#if`, and it counts nested conditionals on the way.
+            depth = 0
+            i -= 1
+            while i >= 0:
+                directive = lines[i].strip()
+                if re.match(r"#\s*endif\b", directive):
+                    depth += 1
+                elif re.match(r"#\s*if", directive):
+                    if depth == 0:
+                        break
+                    depth -= 1
+                i -= 1
+        elif re.match(r"#\s*if", line):
+            # The opening `#if` of a conditional sits between a macro of the first arm and its Source line.
+            pass
         elif line.startswith("//"):
             m = re.match(r"// Source: (.*)$", line)
             if m:
