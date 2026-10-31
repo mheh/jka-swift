@@ -1255,8 +1255,8 @@ public func trap_G2_ListModelBones(_ ghlInfo: OpaquePointer?, _ frame: Int32) {
 }
 
 /// Source: oracle/codemp/cgame/cg_syscalls.c:781
-public func trap_G2_SetGhoul2ModelIndexes(_ ghoul2: OpaquePointer?, _ modelList: UnsafeMutablePointer<Int32>?, _ skinList: UnsafeMutablePointer<Int32>?) {
-    Syscall.call(CG_G2_SETMODELS, ghoul2, modelList, skinList)
+public func trap_G2_SetGhoul2ModelIndexes(_ ghoul2: OpaquePointer?, _ modelList: Slots<qhandle_t>?, _ skinList: Slots<qhandle_t>?) {
+    Syscall.call(CG_G2_SETMODELS, ghoul2, modelList?.base, skinList?.base)
 }
 
 /// Source: oracle/codemp/cgame/cg_syscalls.c:786
@@ -1268,11 +1268,11 @@ let word = Syscall.call(CG_G2_HAVEWEGHOULMODELS, ghoul2)
 
 /// Source: oracle/codemp/cgame/cg_syscalls.c:791
 @discardableResult
-public func trap_G2API_GetBoltMatrix(_ ghoul2: OpaquePointer?, _ modelIndex: Int32, _ boltIndex: Int32, _ matrix: JKAMP.MdxaBone, _ angles: JKAShared.vec3_t, _ position: JKAShared.vec3_t, _ frameNum: Int32, _ modelList: UnsafeMutablePointer<Int32>?, _ scale: inout JKAShared.vec3_t) -> Bool {
+public func trap_G2API_GetBoltMatrix(_ ghoul2: OpaquePointer?, _ modelIndex: Int32, _ boltIndex: Int32, _ matrix: JKAMP.MdxaBone, _ angles: JKAShared.vec3_t, _ position: JKAShared.vec3_t, _ frameNum: Int32, _ modelList: Slots<qhandle_t>?, _ scale: inout JKAShared.vec3_t) -> Bool {
     let word = withUnsafePointer(to: angles) { angles in
         withUnsafePointer(to: position) { position in
             withUnsafeMutablePointer(to: &scale) { scale in
-                Syscall.call(CG_G2_GETBOLT, ghoul2, modelIndex, boltIndex, matrix, angles, position, frameNum, modelList, scale)
+                Syscall.call(CG_G2_GETBOLT, ghoul2, modelIndex, boltIndex, matrix, angles, position, frameNum, modelList?.base, scale)
             }
         }
     }
@@ -1281,11 +1281,11 @@ public func trap_G2API_GetBoltMatrix(_ ghoul2: OpaquePointer?, _ modelIndex: Int
 
 /// Source: oracle/codemp/cgame/cg_syscalls.c:797
 @discardableResult
-public func trap_G2API_GetBoltMatrix_NoReconstruct(_ ghoul2: OpaquePointer?, _ modelIndex: Int32, _ boltIndex: Int32, _ matrix: JKAMP.MdxaBone, _ angles: JKAShared.vec3_t, _ position: JKAShared.vec3_t, _ frameNum: Int32, _ modelList: UnsafeMutablePointer<Int32>?, _ scale: inout JKAShared.vec3_t) -> Bool {
+public func trap_G2API_GetBoltMatrix_NoReconstruct(_ ghoul2: OpaquePointer?, _ modelIndex: Int32, _ boltIndex: Int32, _ matrix: JKAMP.MdxaBone, _ angles: JKAShared.vec3_t, _ position: JKAShared.vec3_t, _ frameNum: Int32, _ modelList: Slots<qhandle_t>?, _ scale: inout JKAShared.vec3_t) -> Bool {
     let word = withUnsafePointer(to: angles) { angles in
         withUnsafePointer(to: position) { position in
             withUnsafeMutablePointer(to: &scale) { scale in
-                Syscall.call(CG_G2_GETBOLT_NOREC, ghoul2, modelIndex, boltIndex, matrix, angles, position, frameNum, modelList, scale)
+                Syscall.call(CG_G2_GETBOLT_NOREC, ghoul2, modelIndex, boltIndex, matrix, angles, position, frameNum, modelList?.base, scale)
             }
         }
     }
@@ -1294,11 +1294,11 @@ public func trap_G2API_GetBoltMatrix_NoReconstruct(_ ghoul2: OpaquePointer?, _ m
 
 /// Source: oracle/codemp/cgame/cg_syscalls.c:803
 @discardableResult
-public func trap_G2API_GetBoltMatrix_NoRecNoRot(_ ghoul2: OpaquePointer?, _ modelIndex: Int32, _ boltIndex: Int32, _ matrix: JKAMP.MdxaBone, _ angles: JKAShared.vec3_t, _ position: JKAShared.vec3_t, _ frameNum: Int32, _ modelList: UnsafeMutablePointer<Int32>?, _ scale: inout JKAShared.vec3_t) -> Bool {
+public func trap_G2API_GetBoltMatrix_NoRecNoRot(_ ghoul2: OpaquePointer?, _ modelIndex: Int32, _ boltIndex: Int32, _ matrix: JKAMP.MdxaBone, _ angles: JKAShared.vec3_t, _ position: JKAShared.vec3_t, _ frameNum: Int32, _ modelList: Slots<qhandle_t>?, _ scale: inout JKAShared.vec3_t) -> Bool {
     let word = withUnsafePointer(to: angles) { angles in
         withUnsafePointer(to: position) { position in
             withUnsafeMutablePointer(to: &scale) { scale in
-                Syscall.call(CG_G2_GETBOLT_NOREC_NOROT, ghoul2, modelIndex, boltIndex, matrix, angles, position, frameNum, modelList, scale)
+                Syscall.call(CG_G2_GETBOLT_NOREC_NOROT, ghoul2, modelIndex, boltIndex, matrix, angles, position, frameNum, modelList?.base, scale)
             }
         }
     }
@@ -1362,10 +1362,10 @@ public func trap_G2API_CleanGhoul2Models(_ ghoul2Ptr: inout OpaquePointer?) {
 
 /// Source: oracle/codemp/cgame/cg_syscalls.c:861
 @discardableResult
-public func trap_G2API_SetBoneAngles(_ ghoul2: OpaquePointer?, _ modelIndex: Int32, _ boneName: String, _ angles: JKAShared.vec3_t, _ flags: Int32, _ up: Int32, _ right: Int32, _ forward: Int32, _ modelList: UnsafeMutablePointer<Int32>?, _ blendTime: Int32, _ currentTime: Int32) -> Bool {
+public func trap_G2API_SetBoneAngles(_ ghoul2: OpaquePointer?, _ modelIndex: Int32, _ boneName: String, _ angles: JKAShared.vec3_t, _ flags: Int32, _ up: Int32, _ right: Int32, _ forward: Int32, _ modelList: Slots<qhandle_t>?, _ blendTime: Int32, _ currentTime: Int32) -> Bool {
     let word = withCString(boneName) { boneName in
         withUnsafePointer(to: angles) { angles in
-            Syscall.call(CG_G2_ANGLEOVERRIDE, ghoul2, modelIndex, boneName, angles, flags, up, right, forward, modelList, blendTime, currentTime)
+            Syscall.call(CG_G2_ANGLEOVERRIDE, ghoul2, modelIndex, boneName, angles, flags, up, right, forward, modelList?.base, blendTime, currentTime)
         }
     }
     return word != 0
@@ -1652,21 +1652,19 @@ let word = Syscall.call(CG_G2_RAGFORCESOLVE, ghoul2, force)
 }
 
 /// Source: oracle/codemp/cgame/cg_syscalls.c:1040
-// TODO: Port signature
-// Raven wrote: qboolean trap_G2API_SetBoneIKState(void *ghoul2, int time, const char *boneName, int ikState, sharedSetBoneIKStateParams_t *params)
-// No table row for `sharedSetBoneIKStateParams_t * params`.
-public func trap_G2API_SetBoneIKState() -> Never {
-    // TODO: Port trap_G2API_SetBoneIKState
-    portMissing("trap_G2API_SetBoneIKState", source: "oracle/codemp/cgame/cg_syscalls.c:1040")
+@discardableResult
+public func trap_G2API_SetBoneIKState(_ ghoul2: OpaquePointer?, _ time: Int32, _ boneName: String?, _ ikState: Int32, _ params: JKAMP.SharedSetBoneIKStateParams?) -> Bool {
+    let word = withCString(boneName) { boneName in
+        Syscall.call(CG_G2_SETBONEIKSTATE, ghoul2, time, boneName, ikState, params?.handle)
+    }
+    return word != 0
 }
 
 /// Source: oracle/codemp/cgame/cg_syscalls.c:1045
-// TODO: Port signature
-// Raven wrote: qboolean trap_G2API_IKMove(void *ghoul2, int time, sharedIKMoveParams_t *params)
-// No table row for `sharedIKMoveParams_t * params`.
-public func trap_G2API_IKMove() -> Never {
-    // TODO: Port trap_G2API_IKMove
-    portMissing("trap_G2API_IKMove", source: "oracle/codemp/cgame/cg_syscalls.c:1045")
+@discardableResult
+public func trap_G2API_IKMove(_ ghoul2: OpaquePointer?, _ time: Int32, _ params: JKAMP.SharedIKMoveParams) -> Bool {
+let word = Syscall.call(CG_G2_IKMOVE, ghoul2, time, params)
+    return word != 0
 }
 
 /// Source: oracle/codemp/cgame/cg_syscalls.c:1050

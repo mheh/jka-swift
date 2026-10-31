@@ -68,6 +68,8 @@ class Param:
             return f"{self.name.strip('`')}Flat.baseAddress!"
         if self.kind == "slots":
             return f"{self.name}.base"
+        if self.kind == "slots_opt":
+            return f"{self.name}?.base"
         if self.kind == "view_opt":
             return f"{self.name}?.handle"
         return self.name

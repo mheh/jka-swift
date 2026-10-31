@@ -691,6 +691,12 @@ class Statements:
                 if op == "=" and self.slots_source(right):
                     raven = self.bytes[cur.extent.start.offset:cur.extent.end.offset].decode("utf-8", "replace")
                     raise Hole(f"Raven stores `{raven}`, and Swift holds the source as a Slots where the target takes one record. A Slots ruling is due.")
+                if self.narrow_field_element(left) and self.strip(right).kind != CursorKind.INTEGER_LITERAL and self.types.narrow(self.strip(right).type) is None:
+                    # A narrow field of a view, `byte shaderRGBA[4]`, takes the int value truncated, as C's store does.
+                    narrow = self.types.narrow(self.unwrap(left).type)
+                    slot = self.expr(left)
+                    value = self.converted(right, "Int32") if op == "=" else f"Int32({slot}) {op[:-1]} {self.converted(right, 'Int32')}"
+                    return [f"{pad}{slot} = {narrow}(truncatingIfNeeded: {value})" + self.trailing(cur)]
                 if self.narrow_element(left) is not None:
                     # C computes in int and truncates into the narrow element at the store.
                     slot = self.narrow_element(left)

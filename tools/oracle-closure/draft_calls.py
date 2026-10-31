@@ -304,6 +304,10 @@ class Calls:
         if param is not None and self.types.is_slots(param[1]):
             # The parameter takes the Slots over the records, and the caller hands the table it holds.
             slots = self.slots_expression(inner)
+            if slots is not None and param[1].endswith("?") and self.unwrap(inner).kind == CursorKind.DECL_REF_EXPR \
+                    and self.optional_slots_name(self.unwrap(inner)):
+                # The callee takes the optional Slots too, so the caller's optional passes on as it is, nil and all.
+                return self.expr(inner)
             if slots is not None:
                 return slots
         if self.is_raw(inner) and self.overload_takes(callee, position, "UnsafeMutableRawPointer"):

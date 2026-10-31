@@ -892,7 +892,7 @@ private func CG_InfoFromScoreIndex(_ index: Int32, _ team: Int32, _ scoreIndex: 
 }
 
 /// Source: oracle/codemp/cgame/cg_main.c:2909
-private func CG_FeederItemText(_ feederID: Float, _ index: Int32, _ column: Int32, _ handle1: UnsafeMutablePointer<Int32>?, _ handle2: UnsafeMutablePointer<Int32>?, _ handle3: UnsafeMutablePointer<Int32>?) -> String {
+private func CG_FeederItemText(_ feederID: Float, _ index: Int32, _ column: Int32, _ handle1: Slots<qhandle_t>?, _ handle2: Slots<qhandle_t>?, _ handle3: Slots<qhandle_t>?) -> String {
     // TODO: Port CG_FeederItemText
     portMissing("CG_FeederItemText", source: "oracle/codemp/cgame/cg_main.c:2909")
 }

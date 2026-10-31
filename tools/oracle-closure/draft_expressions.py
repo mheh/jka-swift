@@ -135,6 +135,14 @@ class Expressions:
             return None
         return f"{swift_name(base.spelling)}[{self.converted(index, 'Int32')}]"
 
+    def narrow_field_element(self, cur: ci.Cursor) -> bool:
+        """True for Raven's `legs.shaderRGBA[i]`, a subscript over a field whose element is narrower than int."""
+        cur = self.unwrap(cur)
+        if cur.kind != CursorKind.ARRAY_SUBSCRIPT_EXPR:
+            return False
+        base = self.strip(list(cur.get_children())[0])
+        return base.kind == CursorKind.MEMBER_REF_EXPR and self.types.narrow(cur.type) is not None
+
     def strip(self, cur: ci.Cursor) -> ci.Cursor:
         """The expression under the implicit casts Clang wraps around it."""
         while cur.kind == CursorKind.UNEXPOSED_EXPR:

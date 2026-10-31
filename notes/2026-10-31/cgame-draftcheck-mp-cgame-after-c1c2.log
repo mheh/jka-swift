@@ -1,0 +1,227 @@
+[warn] 5576 parse errors (layouts may be partial); first:
+  /private/tmp/jka-c1c2/oracle/codemp/game/q_shared.h:1242: conflicting types for 'powf'
+  /private/tmp/jka-c1c2/oracle/codemp/game/q_shared.h:1414: expected 'volatile', 'inline', 'goto', or '('
+  /private/tmp/jka-c1c2/oracle/codemp/game/q_shared.h:1415: expected 'volatile', 'inline', 'goto', or '('
+[warn] 6628 parse errors (layouts may be partial); first:
+  /private/tmp/jka-c1c2/oracle/codemp/game/q_shared.h:1242: conflicting types for 'powf'
+  /private/tmp/jka-c1c2/oracle/codemp/game/q_shared.h:1414: expected 'volatile', 'inline', 'goto', or '('
+  /private/tmp/jka-c1c2/oracle/codemp/game/q_shared.h:1415: expected 'volatile', 'inline', 'goto', or '('
+table.py: the base facts are stale, 2 files changed: tools/oracle-closure/spelling.py, tools/oracle-closure/table.py
+table.py: the adoption facts are stale, 0 files changed: 
+AnimalNPC: 5 of 8 hand functions replaced, 0 kept, 2 holes, 0 cascade errors, 0 defects, 2 compile holes over 2 passes
+FighterNPC: 17 of 20 hand functions replaced, 0 kept, 6 holes, 0 cascade errors, 0 defects, 2 compile holes over 2 passes
+SpeederNPC: 6 of 9 hand functions replaced, 0 kept, 5 holes, 0 cascade errors, 0 defects, 3 compile holes over 2 passes
+WalkerNPC: 5 of 8 hand functions replaced, 0 kept, 0 holes, 0 cascade errors, 0 defects, 0 compile holes over 1 passes
+cg_consolecmds: 18 of 18 hand functions replaced, 0 kept, 2 holes, 0 cascade errors, 0 defects, 0 compile holes over 1 passes
+cg_draw: 100 of 100 hand functions replaced, 0 kept, 118 holes, 0 cascade errors, 0 defects, 0 compile holes over 1 passes
+cg_drawtools: 24 of 24 hand functions replaced, 0 kept, 8 holes, 0 cascade errors, 0 defects, 0 compile holes over 1 passes
+cg_effects: 22 of 22 hand functions replaced, 0 kept, 16 holes, 0 cascade errors, 0 defects, 0 compile holes over 1 passes
+cg_ents: 40 of 40 hand functions replaced, 0 kept, 37 holes, 0 cascade errors, 0 defects, 0 compile holes over 1 passes
+cg_event: 20 of 20 hand functions replaced, 0 kept, 141 holes, 0 cascade errors, 166 defects, 0 compile holes over 1 passes, the cap of 24 passes hit
+  cg_event.swift:44: extra argument in call
+  cg_event.swift:44: cannot convert value of type 'CharBuf' to expected argument type 'Int32'
+  cg_event.swift:45: extra argument in call
+  cg_event.swift:45: cannot convert value of type 'CharBuf' to expected argument type 'Int32'
+  cg_event.swift:46: extra argument in call
+  cg_event.swift:46: cannot convert value of type 'CharBuf' to expected argument type 'Int32'
+  cg_event.swift:47: extra argument in call
+  cg_event.swift:47: cannot convert value of type 'CharBuf' to expected argument type 'Int32'
+  cg_event.swift:48: extra argument in call
+  cg_event.swift:48: cannot convert value of type 'CharBuf' to expected argument type 'Int32'
+  cg_event.swift:302: extra argument in call
+  cg_event.swift:302: cannot convert value of type 'CharBuf' to expected argument type 'Int32'
+  cg_event.swift:303: extra argument in call
+  cg_event.swift:303: cannot convert value of type 'CharBuf' to expected argument type 'Int32'
+  cg_event.swift:308: extra argument in call
+  cg_event.swift:308: cannot convert value of type 'CharBuf' to expected argument type 'Int32'
+  cg_event.swift:321: extra argument in call
+  cg_event.swift:321: cannot convert value of type 'CharBuf' to expected argument type 'Int32'
+  cg_event.swift:322: extra argument in call
+  cg_event.swift:322: cannot convert value of type 'CharBuf' to expected argument type 'Int32'
+  cg_event.swift:328: extra argument in call
+  cg_event.swift:328: cannot convert value of type 'CharBuf' to expected argument type 'Int32'
+  cg_event.swift:788: cannot convert value of type 'CharBuf' to expected argument type 'String'
+  cg_event.swift:788: binary operator '!=' cannot be applied to operands of type '(Int32, String)' and 'Int'
+  cg_event.swift:788: extra argument in call
+  cg_event.swift:788: cannot convert value of type 'CharBuf' to expected argument type 'Int32'
+  cg_event.swift:1098: cannot pass immutable value as inout argument: 'origin' is a 'let' constant
+  cg_event.swift:1331: cannot find 'DEBUGNAME' in scope
+  cg_event.swift:1351: value of optional type 'ClientInfo?' must be unwrapped to refer to member 'clear' of wrapped base type 'ClientInfo'
+  cg_event.swift:1366: cannot find 'DEBUGNAME' in scope
+  cg_event.swift:1397: cannot find 'DEBUGNAME' in scope
+  cg_event.swift:1445: cannot find 'DEBUGNAME' in scope
+  cg_event.swift:1457: cannot find 'DEBUGNAME' in scope
+  cg_event.swift:1469: cannot find 'DEBUGNAME' in scope
+  cg_event.swift:1481: cannot find 'DEBUGNAME' in scope
+  cg_event.swift:1493: cannot find 'DEBUGNAME' in scope
+  cg_event.swift:1505: cannot find 'DEBUGNAME' in scope
+  cg_event.swift:1540: cannot find 'DEBUGNAME' in scope
+  cg_event.swift:1545: cannot find 'DEBUGNAME' in scope
+  cg_event.swift:1555: cannot find 'DEBUGNAME' in scope
+  cg_event.swift:1566: cannot find 'DEBUGNAME' in scope
+  cg_event.swift:1588: cannot find 'DEBUGNAME' in scope
+  cg_event.swift:1599: cannot find 'DEBUGNAME' in scope
+  cg_event.swift:1620: cannot find 'DEBUGNAME' in scope
+  cg_event.swift:1686: cannot find 'DEBUGNAME' in scope
+  cg_event.swift:1694: cannot find 'DEBUGNAME' in scope
+  cg_event.swift:1702: cannot find 'DEBUGNAME' in scope
+  cg_event.swift:1710: cannot find 'DEBUGNAME' in scope
+  cg_event.swift:1718: cannot find 'DEBUGNAME' in scope
+  cg_event.swift:1724: cannot find 'DEBUGNAME' in scope
+  cg_event.swift:1730: cannot find 'DEBUGNAME' in scope
+  cg_event.swift:1737: cannot find 'DEBUGNAME' in scope
+  cg_event.swift:1743: cannot find 'DEBUGNAME' in scope
+  cg_event.swift:1749: cannot find 'DEBUGNAME' in scope
+  cg_event.swift:1755: cannot find 'DEBUGNAME' in scope
+  cg_event.swift:1761: cannot find 'DEBUGNAME' in scope
+  cg_event.swift:1767: cannot find 'DEBUGNAME' in scope
+  cg_event.swift:1773: cannot find 'DEBUGNAME' in scope
+  cg_event.swift:1779: cannot find 'DEBUGNAME' in scope
+  cg_event.swift:1785: cannot find 'DEBUGNAME' in scope
+  cg_event.swift:1791: cannot find 'DEBUGNAME' in scope
+  cg_event.swift:1797: cannot find 'DEBUGNAME' in scope
+  cg_event.swift:1804: cannot find 'DEBUGNAME' in scope
+  cg_event.swift:1810: cannot find 'DEBUGNAME' in scope
+  cg_event.swift:1816: cannot find 'DEBUGNAME' in scope
+  cg_event.swift:1822: cannot find 'DEBUGNAME' in scope
+  cg_event.swift:1828: cannot find 'DEBUGNAME' in scope
+  cg_event.swift:1834: cannot find 'DEBUGNAME' in scope
+  cg_event.swift:1840: cannot find 'DEBUGNAME' in scope
+  cg_event.swift:1846: cannot find 'DEBUGNAME' in scope
+  cg_event.swift:1853: cannot find 'DEBUGNAME' in scope
+  cg_event.swift:1861: cannot find 'DEBUGNAME' in scope
+  cg_event.swift:1870: cannot find 'DEBUGNAME' in scope
+  cg_event.swift:1879: cannot find 'DEBUGNAME' in scope
+  cg_event.swift:1888: cannot find 'DEBUGNAME' in scope
+  cg_event.swift:1897: cannot find 'DEBUGNAME' in scope
+  cg_event.swift:1971: cannot find 'DEBUGNAME' in scope
+  cg_event.swift:1999: cannot find 'DEBUGNAME' in scope
+  cg_event.swift:2011: cannot find 'DEBUGNAME' in scope
+  cg_event.swift:2055: cannot find 'DEBUGNAME' in scope
+  cg_event.swift:2081: cannot find 'DEBUGNAME' in scope
+  cg_event.swift:2089: cannot find 'DEBUGNAME' in scope
+  cg_event.swift:2113: cannot find 'DEBUGNAME' in scope
+  cg_event.swift:2132: cannot find 'DEBUGNAME' in scope
+  cg_event.swift:2260: cannot find 'DEBUGNAME' in scope
+  cg_event.swift:2353: cannot find 'DEBUGNAME' in scope
+  cg_event.swift:2386: cannot find 'DEBUGNAME' in scope
+  cg_event.swift:2415: cannot find 'DEBUGNAME' in scope
+  cg_event.swift:2423: cannot find 'DEBUGNAME' in scope
+  cg_event.swift:2438: cannot find 'DEBUGNAME' in scope
+  cg_event.swift:2453: cannot find 'DEBUGNAME' in scope
+  cg_event.swift:2466: cannot find 'DEBUGNAME' in scope
+  cg_event.swift:2479: cannot find 'DEBUGNAME' in scope
+  cg_event.swift:2491: cannot find 'DEBUGNAME' in scope
+  cg_event.swift:2532: cannot find 'DEBUGNAME' in scope
+  cg_event.swift:2563: cannot find 'DEBUGNAME' in scope
+  cg_event.swift:2571: cannot find 'DEBUGNAME' in scope
+  cg_event.swift:2579: cannot find 'DEBUGNAME' in scope
+  cg_event.swift:2585: cannot find 'DEBUGNAME' in scope
+  cg_event.swift:2591: cannot find 'DEBUGNAME' in scope
+  cg_event.swift:2597: cannot find 'DEBUGNAME' in scope
+  cg_event.swift:2603: cannot find 'DEBUGNAME' in scope
+  cg_event.swift:2609: cannot find 'DEBUGNAME' in scope
+  cg_event.swift:2615: cannot find 'DEBUGNAME' in scope
+  cg_event.swift:2621: cannot find 'DEBUGNAME' in scope
+  cg_event.swift:2627: cannot find 'DEBUGNAME' in scope
+  cg_event.swift:2633: cannot find 'DEBUGNAME' in scope
+  cg_event.swift:2639: cannot find 'DEBUGNAME' in scope
+  cg_event.swift:2645: cannot find 'DEBUGNAME' in scope
+  cg_event.swift:2651: cannot find 'DEBUGNAME' in scope
+  cg_event.swift:2657: cannot find 'DEBUGNAME' in scope
+  cg_event.swift:2663: cannot find 'DEBUGNAME' in scope
+  cg_event.swift:2669: cannot find 'DEBUGNAME' in scope
+  cg_event.swift:2716: cannot find 'DEBUGNAME' in scope
+  cg_event.swift:2724: cannot find 'DEBUGNAME' in scope
+  cg_event.swift:2732: cannot find 'DEBUGNAME' in scope
+  cg_event.swift:2741: cannot find 'DEBUGNAME' in scope
+  cg_event.swift:2751: cannot find 'DEBUGNAME' in scope
+  cg_event.swift:2756: cannot find 'DEBUGNAME' in scope
+  cg_event.swift:2762: cannot find 'DEBUGNAME' in scope
+  cg_event.swift:2783: cannot find 'DEBUGNAME' in scope
+  cg_event.swift:2789: cannot find 'DEBUGNAME' in scope
+  cg_event.swift:2795: cannot find 'DEBUGNAME' in scope
+  cg_event.swift:2807: cannot find 'DEBUGNAME' in scope
+  cg_event.swift:2815: cannot find 'DEBUGNAME' in scope
+  cg_event.swift:2829: cannot find 'DEBUGNAME' in scope
+  cg_event.swift:2836: cannot find 'DEBUGNAME' in scope
+  cg_event.swift:2846: cannot find 'DEBUGNAME' in scope
+  cg_event.swift:2872: cannot find 'DEBUGNAME' in scope
+  cg_event.swift:2877: cannot find 'DEBUGNAME' in scope
+  cg_event.swift:2882: cannot pass immutable value as inout argument: 'position' is a 'let' constant
+  cg_event.swift:2898: cannot find 'DEBUGNAME' in scope
+  cg_event.swift:2903: cannot pass immutable value as inout argument: 'position' is a 'let' constant
+  cg_event.swift:2919: cannot find 'DEBUGNAME' in scope
+  cg_event.swift:2924: cannot pass immutable value as inout argument: 'position' is a 'let' constant
+  cg_event.swift:2935: cannot find 'DEBUGNAME' in scope
+  cg_event.swift:3014: cannot find 'DEBUGNAME' in scope
+  cg_event.swift:3049: cannot pass immutable value as inout argument: 'position' is a 'let' constant
+  cg_event.swift:3051: cannot pass immutable value as inout argument: 'position' is a 'let' constant
+  cg_event.swift:3064: cannot find 'DEBUGNAME' in scope
+  cg_event.swift:3090: cannot find 'DEBUGNAME' in scope
+  cg_event.swift:3100: cannot find 'DEBUGNAME' in scope
+  cg_event.swift:3151: cannot find 'DEBUGNAME' in scope
+  cg_event.swift:3175: cannot find 'DEBUGNAME' in scope
+  cg_event.swift:3193: cannot find 'DEBUGNAME' in scope
+  cg_event.swift:3258: cannot find 'DEBUGNAME' in scope
+  cg_event.swift:3276: cannot find 'DEBUGNAME' in scope
+  cg_event.swift:3282: cannot find 'DEBUGNAME' in scope
+  cg_event.swift:3288: cannot find 'DEBUGNAME' in scope
+  cg_event.swift:3294: cannot find 'DEBUGNAME' in scope
+  cg_event.swift:3302: cannot find 'DEBUGNAME' in scope
+  cg_event.swift:3311: cannot find 'DEBUGNAME' in scope
+  cg_event.swift:3324: cannot find 'DEBUGNAME' in scope
+  cg_event.swift:3333: cannot find 'DEBUGNAME' in scope
+  cg_event.swift:3342: cannot find 'DEBUGNAME' in scope
+  cg_event.swift:3351: cannot find 'DEBUGNAME' in scope
+  cg_event.swift:3364: cannot find 'DEBUGNAME' in scope
+  cg_event.swift:3369: cannot find 'DEBUGNAME' in scope
+  cg_event.swift:3383: cannot find 'DEBUGNAME' in scope
+  cg_event.swift:3390: cannot find 'DEBUGNAME' in scope
+  cg_event.swift:3406: cannot find 'DEBUGNAME' in scope
+  cg_event.swift:3417: cannot find 'DEBUGNAME' in scope
+  cg_event.swift:3424: cannot find 'DEBUGNAME' in scope
+  cg_event.swift:3430: cannot find 'DEBUGNAME' in scope
+  cg_event.swift:3432: cannot convert value of type 'Int32' to expected argument type 'UInt32'
+  cg_event.swift:3436: cannot find 'DEBUGNAME' in scope
+cg_info: 5 of 5 hand functions replaced, 0 kept, 0 holes, 0 cascade errors, 9 defects, 0 compile holes over 1 passes, the cap of 24 passes hit
+  cg_info.swift:53: cannot convert value of type 'CharBuf' to expected argument type 'String'
+  cg_info.swift:131: 'nil' is not compatible with expected argument type 'Float'
+  cg_info.swift:290: extra argument in call
+  cg_info.swift:290: cannot convert value of type 'CharBuf' to expected argument type 'Int32'
+  cg_info.swift:292: cannot find 'forceMasteryLevels' in scope
+  cg_info.swift:296: extra argument in call
+  cg_info.swift:296: cannot convert value of type 'CharBuf' to expected argument type 'Int32'
+  cg_info.swift:298: cannot find 'forceMasteryLevels' in scope
+  cg_info.swift:401: cannot convert value of type 'vec4_t' (aka 'SIMD4<Float>') to expected argument type 'Float'
+cg_light: 3 of 3 hand functions replaced, 0 kept, 1 holes, 0 cascade errors, 1 defects, 0 compile holes over 1 passes, the cap of 24 passes hit
+  cg_light.swift:99: the compiler is unable to type-check this expression in reasonable time; try breaking up the expression into distinct sub-expressions
+cg_localents: 21 of 21 hand functions replaced, 0 kept, 3 holes, 0 cascade errors, 0 defects, 3 compile holes over 3 passes
+cg_main: 81 of 81 hand functions replaced, 0 kept, 233 holes, 0 cascade errors, 0 defects, 79 compile holes over 6 passes
+cg_marks: 28 of 28 hand functions replaced, 0 kept, 263 holes, 0 cascade errors, 0 defects, 0 compile holes over 1 passes
+cg_newDraw: 24 of 24 hand functions replaced, 0 kept, 16 holes, 0 cascade errors, 0 defects, 0 compile holes over 1 passes
+cg_players: 85 of 85 hand functions replaced, 0 kept, 297 holes, 0 cascade errors, 0 defects, 80 compile holes over 6 passes
+cg_playerstate: 7 of 7 hand functions replaced, 0 kept, 3 holes, 0 cascade errors, 0 defects, 0 compile holes over 1 passes
+cg_predict: 14 of 14 hand functions replaced, 0 kept, 27 holes, 0 cascade errors, 0 defects, 6 compile holes over 3 passes
+cg_saga: 13 of 13 hand functions replaced, 0 kept, 10 holes, 0 cascade errors, 0 defects, 6 compile holes over 2 passes
+cg_scoreboard: 6 of 6 hand functions replaced, 0 kept, 14 holes, 0 cascade errors, 0 defects, 7 compile holes over 2 passes
+cg_servercmds: 21 of 21 hand functions replaced, 0 kept, 32 holes, 0 cascade errors, 0 defects, 10 compile holes over 2 passes
+cg_snapshot: 7 of 7 hand functions replaced, 0 kept, 2 holes, 0 cascade errors, 0 defects, 2 compile holes over 2 passes
+cg_strap: 12 of 12 hand functions replaced, 0 kept, 0 holes, 0 cascade errors, 0 defects, 0 compile holes over 1 passes
+cg_turret: 2 of 2 hand functions replaced, 0 kept, 2 holes, 0 cascade errors, 0 defects, 1 compile holes over 2 passes
+cg_view: 42 of 42 hand functions replaced, 0 kept, 31 holes, 0 cascade errors, 0 defects, 22 compile holes over 8 passes
+cg_weaponinit: 1 of 1 hand functions replaced, 0 kept, 145 holes, 0 cascade errors, 0 defects, 139 compile holes over 2 passes
+cg_weapons: 28 of 28 hand functions replaced, 0 kept, 42 holes, 0 cascade errors, 0 defects, 30 compile holes over 5 passes
+fx_blaster: 4 of 4 hand functions replaced, 0 kept, 3 holes, 0 cascade errors, 0 defects, 3 compile holes over 2 passes
+fx_bowcaster: 4 of 4 hand functions replaced, 0 kept, 2 holes, 0 cascade errors, 0 defects, 2 compile holes over 2 passes
+fx_bryarpistol: 13 of 13 hand functions replaced, 0 kept, 13 holes, 0 cascade errors, 0 defects, 13 compile holes over 2 passes
+fx_demp2: 5 of 5 hand functions replaced, 0 kept, 2 holes, 0 cascade errors, 0 defects, 2 compile holes over 2 passes
+fx_disruptor: 6 of 6 hand functions replaced, 0 kept, 4 holes, 0 cascade errors, 0 defects, 4 compile holes over 2 passes
+fx_flechette: 4 of 4 hand functions replaced, 0 kept, 2 holes, 0 cascade errors, 0 defects, 2 compile holes over 2 passes
+fx_force: 1 of 1 hand functions replaced, 0 kept, 1 holes, 0 cascade errors, 0 defects, 1 compile holes over 2 passes
+fx_heavyrepeater: 7 of 7 hand functions replaced, 0 kept, 5 holes, 0 cascade errors, 0 defects, 5 compile holes over 2 passes
+fx_rocketlauncher: 4 of 4 hand functions replaced, 0 kept, 2 holes, 0 cascade errors, 0 defects, 2 compile holes over 2 passes
+run: 24 passes, 24 builds
+build log: /private/tmp/jka-c1c2/.build-draft/build.log
+total: 1490 holes, 0 cascade errors, 176 defects, 426 compile holes
+the cap of 24 passes hit: cg_event, cg_info, cg_light
