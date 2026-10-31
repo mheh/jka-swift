@@ -61,6 +61,8 @@ clang -fsyntax-only -x c -std=gnu11 -Wno-everything -I out/extract/mp-game -I gl
 .venv/bin/python views.py
 ```
 
+The developer creates `.venv` locally, as a folder or as a link to the `.venv` of another clone, and git does not track it.
+
 `check.sh` compiles every merged target's translation unit as C with its dependency include directories and exits nonzero on the first failure. Its one argument is the directory the merge wrote, `out/merge` by default. `EXTRACT_DEBUG=<TypeName>` makes `extract.py` print every include it adds for that type and why, for a dependency that looks wrong.
 
 ## Known gaps
