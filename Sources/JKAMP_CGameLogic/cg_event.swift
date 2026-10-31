@@ -8,10 +8,7 @@ import JKAMP_BG
 
 /// Source: oracle/codemp/cgame/cg_event.c:1429
 /// Raven's data table, a hand property of `CGameWorld`.
-var cg_stringEdVoiceChatTable: [String] {
-    get { world.cg_stringEdVoiceChatTable }
-    set { world.cg_stringEdVoiceChatTable = newValue }
-}
+var cg_stringEdVoiceChatTable: [String?] { world.cg_stringEdVoiceChatTable }
 
 /**
 ```

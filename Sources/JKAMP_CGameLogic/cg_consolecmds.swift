@@ -8,10 +8,7 @@ import JKAMP_BG
 
 /// Source: oracle/codemp/cgame/cg_consolecmds.c:265
 /// Raven's data table, a hand property of `CGameWorld`.
-var commands: [ConsoleCommandRow] {
-    get { world.commands }
-    set { world.commands = newValue }
-}
+var commands: [ConsoleCommandRow] { world.commands }
 
 /// Source: oracle/codemp/cgame/cg_consolecmds.c:13
 func CG_TargetCommand_f() {
@@ -29,7 +26,7 @@ Keybinding command
 ```
 */
 /// Source: oracle/codemp/cgame/cg_consolecmds.c:35
-private func CG_SizeUp_f() {
+func CG_SizeUp_f() {
     // TODO: Port CG_SizeUp_f
     portMissing("CG_SizeUp_f", source: "oracle/codemp/cgame/cg_consolecmds.c:35")
 }
@@ -44,7 +41,7 @@ Keybinding command
 ```
 */
 /// Source: oracle/codemp/cgame/cg_consolecmds.c:47
-private func CG_SizeDown_f() {
+func CG_SizeDown_f() {
     // TODO: Port CG_SizeDown_f
     portMissing("CG_SizeDown_f", source: "oracle/codemp/cgame/cg_consolecmds.c:47")
 }
@@ -59,79 +56,79 @@ Debugging command to print the current position
 ```
 */
 /// Source: oracle/codemp/cgame/cg_consolecmds.c:59
-private func CG_Viewpos_f() {
+func CG_Viewpos_f() {
     // TODO: Port CG_Viewpos_f
     portMissing("CG_Viewpos_f", source: "oracle/codemp/cgame/cg_consolecmds.c:59")
 }
 
 /// Source: oracle/codemp/cgame/cg_consolecmds.c:66
-private func CG_ScoresDown_f() {
+func CG_ScoresDown_f() {
     // TODO: Port CG_ScoresDown_f
     portMissing("CG_ScoresDown_f", source: "oracle/codemp/cgame/cg_consolecmds.c:66")
 }
 
 /// Source: oracle/codemp/cgame/cg_consolecmds.c:88
-private func CG_ScoresUp_f() {
+func CG_ScoresUp_f() {
     // TODO: Port CG_ScoresUp_f
     portMissing("CG_ScoresUp_f", source: "oracle/codemp/cgame/cg_consolecmds.c:88")
 }
 
 /// Source: oracle/codemp/cgame/cg_consolecmds.c:98
-private func CG_scrollScoresDown_f() {
+func CG_scrollScoresDown_f() {
     // TODO: Port CG_scrollScoresDown_f
     portMissing("CG_scrollScoresDown_f", source: "oracle/codemp/cgame/cg_consolecmds.c:98")
 }
 
 /// Source: oracle/codemp/cgame/cg_consolecmds.c:107
-private func CG_scrollScoresUp_f() {
+func CG_scrollScoresUp_f() {
     // TODO: Port CG_scrollScoresUp_f
     portMissing("CG_scrollScoresUp_f", source: "oracle/codemp/cgame/cg_consolecmds.c:107")
 }
 
 /// Source: oracle/codemp/cgame/cg_consolecmds.c:116
-private func CG_spWin_f() {
+func CG_spWin_f() {
     // TODO: Port CG_spWin_f
     portMissing("CG_spWin_f", source: "oracle/codemp/cgame/cg_consolecmds.c:116")
 }
 
 /// Source: oracle/codemp/cgame/cg_consolecmds.c:127
-private func CG_spLose_f() {
+func CG_spLose_f() {
     // TODO: Port CG_spLose_f
     portMissing("CG_spLose_f", source: "oracle/codemp/cgame/cg_consolecmds.c:127")
 }
 
 /// Source: oracle/codemp/cgame/cg_consolecmds.c:139
-private func CG_TellTarget_f() {
+func CG_TellTarget_f() {
     // TODO: Port CG_TellTarget_f
     portMissing("CG_TellTarget_f", source: "oracle/codemp/cgame/cg_consolecmds.c:139")
 }
 
 /// Source: oracle/codemp/cgame/cg_consolecmds.c:154
-private func CG_TellAttacker_f() {
+func CG_TellAttacker_f() {
     // TODO: Port CG_TellAttacker_f
     portMissing("CG_TellAttacker_f", source: "oracle/codemp/cgame/cg_consolecmds.c:154")
 }
 
 /// Source: oracle/codemp/cgame/cg_consolecmds.c:176
-private func CG_StartOrbit_f() {
+func CG_StartOrbit_f() {
     // TODO: Port CG_StartOrbit_f
     portMissing("CG_StartOrbit_f", source: "oracle/codemp/cgame/cg_consolecmds.c:176")
 }
 
 /// Source: oracle/codemp/cgame/cg_consolecmds.c:195
-private func CG_SiegeBriefing_f() {
+func CG_SiegeBriefing_f() {
     // TODO: Port CG_SiegeBriefing_f
     portMissing("CG_SiegeBriefing_f", source: "oracle/codemp/cgame/cg_consolecmds.c:195")
 }
 
 /// Source: oracle/codemp/cgame/cg_consolecmds.c:215
-private func CG_SiegeCvarUpdate_f() {
+func CG_SiegeCvarUpdate_f() {
     // TODO: Port CG_SiegeCvarUpdate_f
     portMissing("CG_SiegeCvarUpdate_f", source: "oracle/codemp/cgame/cg_consolecmds.c:215")
 }
 
 /// Source: oracle/codemp/cgame/cg_consolecmds.c:234
-private func CG_SiegeCompleteCvarUpdate_f() {
+func CG_SiegeCompleteCvarUpdate_f() {
     // TODO: Port CG_SiegeCompleteCvarUpdate_f
     portMissing("CG_SiegeCompleteCvarUpdate_f", source: "oracle/codemp/cgame/cg_consolecmds.c:234")
 }

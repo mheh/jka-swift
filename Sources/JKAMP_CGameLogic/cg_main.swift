@@ -11,10 +11,7 @@ var cgDC: DisplayContextDef { world.storage.cgDC }
 
 /// Source: oracle/codemp/cgame/cg_main.c:27
 /// Raven's data table, a hand property of `CGameWorld`.
-var colorTable: [[Float]] {
-    get { world.colorTable }
-    set { world.colorTable = newValue }
-}
+var colorTable: [vec4_t] { world.colorTable }
 
 /// Source: oracle/codemp/cgame/cg_main.c:113
 // Raven wrote: int cgWeatherOverride = 0

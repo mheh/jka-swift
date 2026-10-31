@@ -54,10 +54,7 @@ let MAX_SHADER_ANIM_FRAMES = 64 as Int32
 
 /// Source: oracle/codemp/cgame/cg_marks.c:363
 /// Raven's data table, a hand property of `CGameWorld`.
-var shaderAnimNames: [String] {
-    get { world.shaderAnimNames }
-    set { world.shaderAnimNames = newValue }
-}
+var shaderAnimNames: [String?] { world.shaderAnimNames }
 
 /// Source: oracle/codemp/cgame/cg_marks.c:367
 // Raven wrote: static qhandle_t shaderAnims[MAX_SHADER_ANIMS][MAX_SHADER_ANIM_FRAMES]

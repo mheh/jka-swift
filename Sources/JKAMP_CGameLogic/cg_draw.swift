@@ -65,38 +65,23 @@ let MAX_HUD_TICS = 4 as Int32
 
 /// Source: oracle/codemp/cgame/cg_draw.c:43
 /// Raven's data table, a hand property of `CGameWorld`.
-var armorTicName: [String] {
-    get { world.armorTicName }
-    set { world.armorTicName = newValue }
-}
+var armorTicName: [String] { world.armorTicName }
 
 /// Source: oracle/codemp/cgame/cg_draw.c:51
 /// Raven's data table, a hand property of `CGameWorld`.
-var healthTicName: [String] {
-    get { world.healthTicName }
-    set { world.healthTicName = newValue }
-}
+var healthTicName: [String] { world.healthTicName }
 
 /// Source: oracle/codemp/cgame/cg_draw.c:59
 /// Raven's data table, a hand property of `CGameWorld`.
-var forceTicName: [String] {
-    get { world.forceTicName }
-    set { world.forceTicName = newValue }
-}
+var forceTicName: [String] { world.forceTicName }
 
 /// Source: oracle/codemp/cgame/cg_draw.c:67
 /// Raven's data table, a hand property of `CGameWorld`.
-var ammoTicName: [String] {
-    get { world.ammoTicName }
-    set { world.ammoTicName = newValue }
-}
+var ammoTicName: [String] { world.ammoTicName }
 
 /// Source: oracle/codemp/cgame/cg_draw.c:75
 /// Raven's data table, a hand property of `CGameWorld`.
-var showPowersName: [String] {
-    get { world.showPowersName }
-    set { world.showPowersName = newValue }
-}
+var showPowersName: [String?] { world.showPowersName }
 
 /// Source: oracle/codemp/cgame/cg_draw.c:1393
 let MAX_SHOWPOWERS = JKAMP.NUM_FORCE_POWERS

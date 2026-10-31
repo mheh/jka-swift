@@ -8,10 +8,7 @@ import JKAMP_BG
 
 /// Source: oracle/codemp/cgame/cg_ents.c:632
 /// Raven's data table, a hand property of `CGameWorld`.
-var forceHolocronModels: [String] {
-    get { world.forceHolocronModels }
-    set { world.forceHolocronModels = newValue }
-}
+var forceHolocronModels: [String] { world.forceHolocronModels }
 
 /// Source: oracle/codemp/cgame/cg_ents.c:2736
 // Raven wrote: int CG_BMS_START = 0
