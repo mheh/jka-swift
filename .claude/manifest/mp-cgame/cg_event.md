@@ -7,26 +7,26 @@ The oracle range is the whole definition, from the return type to the closing br
 
 | Function | Oracle | Swift | State | jka-rust | Signature |
 |---|---|---|---|---|---|
-| `CG_PlaceString` | `oracle/codemp/cgame/cg_event.c:45-94` | `JKAMP_CGameLogic/cg_event.swift:26` | marker | `crates/mp/cgame/src/cg_event.rs:224-270` | `func CG_PlaceString(_ rank: Int32) -> String` |
-| `CG_Obituary` static | `oracle/codemp/cgame/cg_event.c:103-607` | `JKAMP_CGameLogic/cg_event.swift:39` | marker | `crates/mp/cgame/src/cg_event.rs:718-1213` | `private func CG_Obituary(_ ent: JKAMP.EntityState)` |
-| `CG_ToggleBinoculars` | `oracle/codemp/cgame/cg_event.c:611-650` | `JKAMP_CGameLogic/cg_event.swift:45` | marker | `crates/mp/cgame/src/cg_event.rs:278-329` | `func CG_ToggleBinoculars(_ cent: Centity, _ forceZoom: Int32)` |
-| `CG_LocalTimingBar` | `oracle/codemp/cgame/cg_event.c:656-665` | `JKAMP_CGameLogic/cg_event.swift:51` | marker | `crates/mp/cgame/src/cg_event.rs:338-343` | `func CG_LocalTimingBar(_ startTime: Int32, _ duration: Int32)` |
-| `CG_UseItem` static | `oracle/codemp/cgame/cg_event.c:672-743` | `JKAMP_CGameLogic/cg_event.swift:64` | marker | `crates/mp/cgame/src/cg_event.rs:587-677` | `private func CG_UseItem(_ cent: Centity)` |
-| `CG_ItemPickup` static | `oracle/codemp/cgame/cg_event.c:753-832` | `JKAMP_CGameLogic/cg_event.swift:79` | marker | `crates/mp/cgame/src/cg_event.rs:1223-1305` | `private func CG_ItemPickup(_ itemNum: Int32)` |
-| `CG_PainEvent` | `oracle/codemp/cgame/cg_event.c:842-865` | `JKAMP_CGameLogic/cg_event.swift:94` | marker | `crates/mp/cgame/src/cg_event.rs:1387-1414` | `func CG_PainEvent(_ cent: Centity, _ health: Int32)` |
-| `CG_ReattachLimb` | `oracle/codemp/cgame/cg_event.c:868-943` | `JKAMP_CGameLogic/cg_event.swift:100` | marker | `crates/mp/cgame/src/cg_event.rs:352-424` | `func CG_ReattachLimb(_ source: Centity)` |
-| `CG_TeamName` | `oracle/codemp/cgame/cg_event.c:945-954` | `JKAMP_CGameLogic/cg_event.swift:106` | marker | `crates/mp/cgame/src/cg_event.rs:429-439` | `func CG_TeamName(_ team: Int32) -> String` |
-| `CG_PrintCTFMessage` | `oracle/codemp/cgame/cg_event.c:956-1042` | `JKAMP_CGameLogic/cg_event.swift:112` | marker | `crates/mp/cgame/src/cg_event.rs:1315-1381` | `func CG_PrintCTFMessage(_ ci: ClientInfo, _ teamName: String, _ ctfMessage: Int32)` |
-| `CG_GetCTFMessageEvent` | `oracle/codemp/cgame/cg_event.c:1044-1067` | `JKAMP_CGameLogic/cg_event.swift:118` | marker | `crates/mp/cgame/src/cg_event.rs:1426-1447` | `func CG_GetCTFMessageEvent(_ es: JKAMP.EntityState)` |
-| `DoFall` | `oracle/codemp/cgame/cg_event.c:1078-1168` | `JKAMP_CGameLogic/cg_event.swift:124` | marker | `crates/mp/cgame/src/cg_event.rs:1457-1512` | `func DoFall(_ cent: Centity, _ es: JKAMP.EntityState, _ clientNum: Int32)` |
-| `CG_InClientBitflags` | `oracle/codemp/cgame/cg_event.c:1170-1201` | `JKAMP_CGameLogic/cg_event.swift:130` | marker | `crates/mp/cgame/src/cg_event.rs:446-458` | `func CG_InClientBitflags(_ ent: JKAMP.EntityState, _ client: Int32) -> Int32` |
-| `CG_TryPlayCustomSound` | `oracle/codemp/cgame/cg_event.c:1206-1216` | `JKAMP_CGameLogic/cg_event.swift:136` | marker | `crates/mp/cgame/src/cg_event.rs:1518-1532` | `func CG_TryPlayCustomSound(_ origin: JKAShared.vec3_t?, _ entityNum: Int32, _ channel: Int32, _ soundName: String)` |
-| `CG_G2MarkEvent` | `oracle/codemp/cgame/cg_event.c:1218-1348` | `JKAMP_CGameLogic/cg_event.swift:142` | marker | `crates/mp/cgame/src/cg_event.rs:1539-1697` | `func CG_G2MarkEvent(_ es: JKAMP.EntityState)` |
-| `CG_CalcVehMuzzle` | `oracle/codemp/cgame/cg_event.c:1350-1381` | `JKAMP_CGameLogic/cg_event.swift:148` | marker | `crates/mp/cgame/src/cg_event.rs:467-518` | `func CG_CalcVehMuzzle(_ pVeh: JKAMP.Vehicle, _ ent: Centity, _ muzzleNum: Int32)` |
-| `CG_VehMuzzleFireFX` | `oracle/codemp/cgame/cg_event.c:1384-1427` | `JKAMP_CGameLogic/cg_event.swift:155` | marker | `crates/mp/cgame/src/cg_event.rs:525-575` | `func CG_VehMuzzleFireFX(_ veh: Centity, _ broadcaster: JKAMP.EntityState)` |
-| `CG_GetStringForVoiceSound` | `oracle/codemp/cgame/cg_event.c:1464-1479` | `JKAMP_CGameLogic/cg_event.swift:162` | marker | `crates/mp/cgame/src/cg_event.rs:684-704` | `func CG_GetStringForVoiceSound(_ s: String) -> String` |
-| `CG_EntityEvent` | `oracle/codemp/cgame/cg_event.c:1491-3691` | `JKAMP_CGameLogic/cg_event.swift:168` | marker | `crates/mp/cgame/src/cg_event.rs:1730-4403` | `func CG_EntityEvent(_ cent: Centity, _ position: JKAShared.vec3_t)` |
-| `CG_CheckEvents` | `oracle/codemp/cgame/cg_event.c:3700-3730` | `JKAMP_CGameLogic/cg_event.swift:182` | marker | `crates/mp/cgame/src/cg_event.rs:4410-4452` | `func CG_CheckEvents(_ cent: Centity)` |
+| `CG_PlaceString` | `oracle/codemp/cgame/cg_event.c:45-94` | `JKAMP_CGameLogic/cg_event.swift:21` | marker | `crates/mp/cgame/src/cg_event.rs:224-270` | `func CG_PlaceString(_ rank: Int32) -> String` |
+| `CG_Obituary` static | `oracle/codemp/cgame/cg_event.c:103-607` | `JKAMP_CGameLogic/cg_event.swift:34` | marker | `crates/mp/cgame/src/cg_event.rs:718-1213` | `private func CG_Obituary(_ ent: JKAMP.EntityState)` |
+| `CG_ToggleBinoculars` | `oracle/codemp/cgame/cg_event.c:611-650` | `JKAMP_CGameLogic/cg_event.swift:40` | marker | `crates/mp/cgame/src/cg_event.rs:278-329` | `func CG_ToggleBinoculars(_ cent: Centity, _ forceZoom: Int32)` |
+| `CG_LocalTimingBar` | `oracle/codemp/cgame/cg_event.c:656-665` | `JKAMP_CGameLogic/cg_event.swift:46` | marker | `crates/mp/cgame/src/cg_event.rs:338-343` | `func CG_LocalTimingBar(_ startTime: Int32, _ duration: Int32)` |
+| `CG_UseItem` static | `oracle/codemp/cgame/cg_event.c:672-743` | `JKAMP_CGameLogic/cg_event.swift:59` | marker | `crates/mp/cgame/src/cg_event.rs:587-677` | `private func CG_UseItem(_ cent: Centity)` |
+| `CG_ItemPickup` static | `oracle/codemp/cgame/cg_event.c:753-832` | `JKAMP_CGameLogic/cg_event.swift:74` | marker | `crates/mp/cgame/src/cg_event.rs:1223-1305` | `private func CG_ItemPickup(_ itemNum: Int32)` |
+| `CG_PainEvent` | `oracle/codemp/cgame/cg_event.c:842-865` | `JKAMP_CGameLogic/cg_event.swift:89` | marker | `crates/mp/cgame/src/cg_event.rs:1387-1414` | `func CG_PainEvent(_ cent: Centity, _ health: Int32)` |
+| `CG_ReattachLimb` | `oracle/codemp/cgame/cg_event.c:868-943` | `JKAMP_CGameLogic/cg_event.swift:95` | marker | `crates/mp/cgame/src/cg_event.rs:352-424` | `func CG_ReattachLimb(_ source: Centity)` |
+| `CG_TeamName` | `oracle/codemp/cgame/cg_event.c:945-954` | `JKAMP_CGameLogic/cg_event.swift:101` | marker | `crates/mp/cgame/src/cg_event.rs:429-439` | `func CG_TeamName(_ team: Int32) -> String` |
+| `CG_PrintCTFMessage` | `oracle/codemp/cgame/cg_event.c:956-1042` | `JKAMP_CGameLogic/cg_event.swift:107` | marker | `crates/mp/cgame/src/cg_event.rs:1315-1381` | `func CG_PrintCTFMessage(_ ci: ClientInfo, _ teamName: String, _ ctfMessage: Int32)` |
+| `CG_GetCTFMessageEvent` | `oracle/codemp/cgame/cg_event.c:1044-1067` | `JKAMP_CGameLogic/cg_event.swift:113` | marker | `crates/mp/cgame/src/cg_event.rs:1426-1447` | `func CG_GetCTFMessageEvent(_ es: JKAMP.EntityState)` |
+| `DoFall` | `oracle/codemp/cgame/cg_event.c:1078-1168` | `JKAMP_CGameLogic/cg_event.swift:119` | marker | `crates/mp/cgame/src/cg_event.rs:1457-1512` | `func DoFall(_ cent: Centity, _ es: JKAMP.EntityState, _ clientNum: Int32)` |
+| `CG_InClientBitflags` | `oracle/codemp/cgame/cg_event.c:1170-1201` | `JKAMP_CGameLogic/cg_event.swift:125` | marker | `crates/mp/cgame/src/cg_event.rs:446-458` | `func CG_InClientBitflags(_ ent: JKAMP.EntityState, _ client: Int32) -> Int32` |
+| `CG_TryPlayCustomSound` | `oracle/codemp/cgame/cg_event.c:1206-1216` | `JKAMP_CGameLogic/cg_event.swift:131` | marker | `crates/mp/cgame/src/cg_event.rs:1518-1532` | `func CG_TryPlayCustomSound(_ origin: JKAShared.vec3_t?, _ entityNum: Int32, _ channel: Int32, _ soundName: String)` |
+| `CG_G2MarkEvent` | `oracle/codemp/cgame/cg_event.c:1218-1348` | `JKAMP_CGameLogic/cg_event.swift:137` | marker | `crates/mp/cgame/src/cg_event.rs:1539-1697` | `func CG_G2MarkEvent(_ es: JKAMP.EntityState)` |
+| `CG_CalcVehMuzzle` | `oracle/codemp/cgame/cg_event.c:1350-1381` | `JKAMP_CGameLogic/cg_event.swift:143` | marker | `crates/mp/cgame/src/cg_event.rs:467-518` | `func CG_CalcVehMuzzle(_ pVeh: JKAMP.Vehicle, _ ent: Centity, _ muzzleNum: Int32)` |
+| `CG_VehMuzzleFireFX` | `oracle/codemp/cgame/cg_event.c:1384-1427` | `JKAMP_CGameLogic/cg_event.swift:150` | marker | `crates/mp/cgame/src/cg_event.rs:525-575` | `func CG_VehMuzzleFireFX(_ veh: Centity, _ broadcaster: JKAMP.EntityState)` |
+| `CG_GetStringForVoiceSound` | `oracle/codemp/cgame/cg_event.c:1464-1479` | `JKAMP_CGameLogic/cg_event.swift:157` | marker | `crates/mp/cgame/src/cg_event.rs:684-704` | `func CG_GetStringForVoiceSound(_ s: String) -> String` |
+| `CG_EntityEvent` | `oracle/codemp/cgame/cg_event.c:1491-3691` | `JKAMP_CGameLogic/cg_event.swift:163` | marker | `crates/mp/cgame/src/cg_event.rs:1730-4403` | `func CG_EntityEvent(_ cent: Centity, _ position: JKAShared.vec3_t)` |
+| `CG_CheckEvents` | `oracle/codemp/cgame/cg_event.c:3700-3730` | `JKAMP_CGameLogic/cg_event.swift:177` | marker | `crates/mp/cgame/src/cg_event.rs:4410-4452` | `func CG_CheckEvents(_ cent: Centity)` |
 
 1 file-scope variables. The entry is the stub's line for the variable, by rule 3 and rule 6.
 

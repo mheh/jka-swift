@@ -7,24 +7,24 @@ The oracle range is the whole definition, from the return type to the closing br
 
 | Function | Oracle | Swift | State | jka-rust | Signature |
 |---|---|---|---|---|---|
-| `CG_TargetCommand_f` | `oracle/codemp/cgame/cg_consolecmds.c:13-24` | `JKAMP_CGameLogic/cg_consolecmds.swift:17` | marker | `crates/mp/cgame/src/cg_consolecmds.rs:87-95` | `func CG_TargetCommand_f()` |
-| `CG_SizeUp_f` static | `oracle/codemp/cgame/cg_consolecmds.c:35-37` | `JKAMP_CGameLogic/cg_consolecmds.swift:32` | marker | `crates/mp/cgame/src/cg_consolecmds.rs:100-103` | `private func CG_SizeUp_f()` |
-| `CG_SizeDown_f` static | `oracle/codemp/cgame/cg_consolecmds.c:47-49` | `JKAMP_CGameLogic/cg_consolecmds.swift:47` | marker | `crates/mp/cgame/src/cg_consolecmds.rs:108-111` | `private func CG_SizeDown_f()` |
-| `CG_Viewpos_f` static | `oracle/codemp/cgame/cg_consolecmds.c:59-63` | `JKAMP_CGameLogic/cg_consolecmds.swift:62` | marker | `crates/mp/cgame/src/cg_consolecmds.rs:117-130` | `private func CG_Viewpos_f()` |
-| `CG_ScoresDown_f` static | `oracle/codemp/cgame/cg_consolecmds.c:66-86` | `JKAMP_CGameLogic/cg_consolecmds.swift:68` | marker | `crates/mp/cgame/src/cg_consolecmds.rs:137-156` | `private func CG_ScoresDown_f()` |
-| `CG_ScoresUp_f` static | `oracle/codemp/cgame/cg_consolecmds.c:88-93` | `JKAMP_CGameLogic/cg_consolecmds.swift:74` | marker | `crates/mp/cgame/src/cg_consolecmds.rs:162-167` | `private func CG_ScoresUp_f()` |
-| `CG_scrollScoresDown_f` static | `oracle/codemp/cgame/cg_consolecmds.c:98-104` | `JKAMP_CGameLogic/cg_consolecmds.swift:80` | marker | `crates/mp/cgame/src/cg_consolecmds.rs:179-190` | `private func CG_scrollScoresDown_f()` |
-| `CG_scrollScoresUp_f` static | `oracle/codemp/cgame/cg_consolecmds.c:107-113` | `JKAMP_CGameLogic/cg_consolecmds.swift:86` | marker | `crates/mp/cgame/src/cg_consolecmds.rs:199-210` | `private func CG_scrollScoresUp_f()` |
-| `CG_spWin_f` static | `oracle/codemp/cgame/cg_consolecmds.c:116-125` | `JKAMP_CGameLogic/cg_consolecmds.swift:92` | marker | `crates/mp/cgame/src/cg_consolecmds.rs:219-232` | `private func CG_spWin_f()` |
-| `CG_spLose_f` static | `oracle/codemp/cgame/cg_consolecmds.c:127-136` | `JKAMP_CGameLogic/cg_consolecmds.swift:98` | marker | `crates/mp/cgame/src/cg_consolecmds.rs:241-254` | `private func CG_spLose_f()` |
-| `CG_TellTarget_f` static | `oracle/codemp/cgame/cg_consolecmds.c:139-152` | `JKAMP_CGameLogic/cg_consolecmds.swift:104` | marker | `crates/mp/cgame/src/cg_consolecmds.rs:260-274` | `private func CG_TellTarget_f()` |
-| `CG_TellAttacker_f` static | `oracle/codemp/cgame/cg_consolecmds.c:154-167` | `JKAMP_CGameLogic/cg_consolecmds.swift:110` | marker | `crates/mp/cgame/src/cg_consolecmds.rs:280-294` | `private func CG_TellAttacker_f()` |
-| `CG_StartOrbit_f` static | `oracle/codemp/cgame/cg_consolecmds.c:176-192` | `JKAMP_CGameLogic/cg_consolecmds.swift:116` | marker | `crates/mp/cgame/src/cg_consolecmds.rs:301-316` | `private func CG_StartOrbit_f()` |
-| `CG_SiegeBriefing_f` static | `oracle/codemp/cgame/cg_consolecmds.c:195-213` | `JKAMP_CGameLogic/cg_consolecmds.swift:122` | marker | `crates/mp/cgame/src/cg_consolecmds.rs:322-335` | `private func CG_SiegeBriefing_f()` |
-| `CG_SiegeCvarUpdate_f` static | `oracle/codemp/cgame/cg_consolecmds.c:215-233` | `JKAMP_CGameLogic/cg_consolecmds.swift:128` | marker | `crates/mp/cgame/src/cg_consolecmds.rs:342-355` | `private func CG_SiegeCvarUpdate_f()` |
-| `CG_SiegeCompleteCvarUpdate_f` static | `oracle/codemp/cgame/cg_consolecmds.c:234-245` | `JKAMP_CGameLogic/cg_consolecmds.swift:134` | marker | `crates/mp/cgame/src/cg_consolecmds.rs:361-370` | `private func CG_SiegeCompleteCvarUpdate_f()` |
-| `CG_ConsoleCommand` | `oracle/codemp/cgame/cg_consolecmds.c:309-323` | `JKAMP_CGameLogic/cg_consolecmds.swift:150` | marker | `crates/mp/cgame/src/cg_consolecmds.rs:386-438` | `func CG_ConsoleCommand() -> Bool` |
-| `CG_InitConsoleCommands` | `oracle/codemp/cgame/cg_consolecmds.c:334-391` | `JKAMP_CGameLogic/cg_consolecmds.swift:166` | marker | `crates/mp/cgame/src/cg_consolecmds.rs:445-499` | `func CG_InitConsoleCommands()` |
+| `CG_TargetCommand_f` | `oracle/codemp/cgame/cg_consolecmds.c:13-24` | `JKAMP_CGameLogic/cg_consolecmds.swift:12` | marker | `crates/mp/cgame/src/cg_consolecmds.rs:87-95` | `func CG_TargetCommand_f()` |
+| `CG_SizeUp_f` static | `oracle/codemp/cgame/cg_consolecmds.c:35-37` | `JKAMP_CGameLogic/cg_consolecmds.swift:27` | marker | `crates/mp/cgame/src/cg_consolecmds.rs:100-103` | `private func CG_SizeUp_f()` |
+| `CG_SizeDown_f` static | `oracle/codemp/cgame/cg_consolecmds.c:47-49` | `JKAMP_CGameLogic/cg_consolecmds.swift:42` | marker | `crates/mp/cgame/src/cg_consolecmds.rs:108-111` | `private func CG_SizeDown_f()` |
+| `CG_Viewpos_f` static | `oracle/codemp/cgame/cg_consolecmds.c:59-63` | `JKAMP_CGameLogic/cg_consolecmds.swift:57` | marker | `crates/mp/cgame/src/cg_consolecmds.rs:117-130` | `private func CG_Viewpos_f()` |
+| `CG_ScoresDown_f` static | `oracle/codemp/cgame/cg_consolecmds.c:66-86` | `JKAMP_CGameLogic/cg_consolecmds.swift:63` | marker | `crates/mp/cgame/src/cg_consolecmds.rs:137-156` | `private func CG_ScoresDown_f()` |
+| `CG_ScoresUp_f` static | `oracle/codemp/cgame/cg_consolecmds.c:88-93` | `JKAMP_CGameLogic/cg_consolecmds.swift:69` | marker | `crates/mp/cgame/src/cg_consolecmds.rs:162-167` | `private func CG_ScoresUp_f()` |
+| `CG_scrollScoresDown_f` static | `oracle/codemp/cgame/cg_consolecmds.c:98-104` | `JKAMP_CGameLogic/cg_consolecmds.swift:75` | marker | `crates/mp/cgame/src/cg_consolecmds.rs:179-190` | `private func CG_scrollScoresDown_f()` |
+| `CG_scrollScoresUp_f` static | `oracle/codemp/cgame/cg_consolecmds.c:107-113` | `JKAMP_CGameLogic/cg_consolecmds.swift:81` | marker | `crates/mp/cgame/src/cg_consolecmds.rs:199-210` | `private func CG_scrollScoresUp_f()` |
+| `CG_spWin_f` static | `oracle/codemp/cgame/cg_consolecmds.c:116-125` | `JKAMP_CGameLogic/cg_consolecmds.swift:87` | marker | `crates/mp/cgame/src/cg_consolecmds.rs:219-232` | `private func CG_spWin_f()` |
+| `CG_spLose_f` static | `oracle/codemp/cgame/cg_consolecmds.c:127-136` | `JKAMP_CGameLogic/cg_consolecmds.swift:93` | marker | `crates/mp/cgame/src/cg_consolecmds.rs:241-254` | `private func CG_spLose_f()` |
+| `CG_TellTarget_f` static | `oracle/codemp/cgame/cg_consolecmds.c:139-152` | `JKAMP_CGameLogic/cg_consolecmds.swift:99` | marker | `crates/mp/cgame/src/cg_consolecmds.rs:260-274` | `private func CG_TellTarget_f()` |
+| `CG_TellAttacker_f` static | `oracle/codemp/cgame/cg_consolecmds.c:154-167` | `JKAMP_CGameLogic/cg_consolecmds.swift:105` | marker | `crates/mp/cgame/src/cg_consolecmds.rs:280-294` | `private func CG_TellAttacker_f()` |
+| `CG_StartOrbit_f` static | `oracle/codemp/cgame/cg_consolecmds.c:176-192` | `JKAMP_CGameLogic/cg_consolecmds.swift:111` | marker | `crates/mp/cgame/src/cg_consolecmds.rs:301-316` | `private func CG_StartOrbit_f()` |
+| `CG_SiegeBriefing_f` static | `oracle/codemp/cgame/cg_consolecmds.c:195-213` | `JKAMP_CGameLogic/cg_consolecmds.swift:117` | marker | `crates/mp/cgame/src/cg_consolecmds.rs:322-335` | `private func CG_SiegeBriefing_f()` |
+| `CG_SiegeCvarUpdate_f` static | `oracle/codemp/cgame/cg_consolecmds.c:215-233` | `JKAMP_CGameLogic/cg_consolecmds.swift:123` | marker | `crates/mp/cgame/src/cg_consolecmds.rs:342-355` | `private func CG_SiegeCvarUpdate_f()` |
+| `CG_SiegeCompleteCvarUpdate_f` static | `oracle/codemp/cgame/cg_consolecmds.c:234-245` | `JKAMP_CGameLogic/cg_consolecmds.swift:129` | marker | `crates/mp/cgame/src/cg_consolecmds.rs:361-370` | `private func CG_SiegeCompleteCvarUpdate_f()` |
+| `CG_ConsoleCommand` | `oracle/codemp/cgame/cg_consolecmds.c:309-323` | `JKAMP_CGameLogic/cg_consolecmds.swift:145` | marker | `crates/mp/cgame/src/cg_consolecmds.rs:386-438` | `func CG_ConsoleCommand() -> Bool` |
+| `CG_InitConsoleCommands` | `oracle/codemp/cgame/cg_consolecmds.c:334-391` | `JKAMP_CGameLogic/cg_consolecmds.swift:161` | marker | `crates/mp/cgame/src/cg_consolecmds.rs:445-499` | `func CG_InitConsoleCommands()` |
 
 1 file-scope variables. The entry is the stub's line for the variable, by rule 3 and rule 6.
 
