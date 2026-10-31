@@ -69,3 +69,34 @@ Proposed: `var lastFlyBySound: [Int32] = Array(repeating: 0, count: Int(MAX_GENT
 ### T5, the `vec4_t` color table, row 11
 
 The stub at `cg_local.swift:82` spells the table as `[[Float]]`, and Raven's type is `vec4_t[CT_MAX]`. `vec4_t` exists in `Sources/JKAShared/q_math.swift:13`. Proposed: a `let colorTable: [vec4_t]` with Raven's `CT_MAX` rows, under rule 9, and the stub's `[[Float]]` corrected to `[vec4_t]`. No game precedent. No `// AI:` line.
+
+## The ledger
+
+The walk of 2026-10-31. Every row ratified as proposed.
+
+| Row | Verdict |
+|---|---|
+| T1 | ratified as proposed |
+| T2 | ratified as proposed, the transcriptor confirms no store before `let` stands on rows 6, 9, 13, 14 |
+| T3 | ratified as proposed |
+| T4 | ratified as proposed |
+| T5 | ratified as proposed, the stub's `[[Float]]` becomes `[vec4_t]` |
+
+## The transcription
+
+Commit `ee15214` replaces all 30 placeholders in `Sources/JKAMP_CGameLogic/cg_local.swift`, and the diff over 8 files is 556 lines added and 162 removed. The tables hold 31 console commands, 124 cvar rows, 67 colors, 15 string tables, 11 `vec3_t` globals, and `lastFlyBySound`.
+
+- The store search in `oracle/codemp/cgame/*.c` finds no store into rows 6, 9, 13, or 14, so every string table is a `let` and no row needs a `var`.
+- `CAMERA_SIZE` at `cg_view.swift:13` is internal already, so the two camera bounds stay on `CGameWorld` and read it as `Float(CAMERA_SIZE)`.
+- A string table with a NULL row is `[String?]`. A sized table that Raven fills only in part pads to its macro with `Array(repeating: nil, count:)`, so the count stays Raven's.
+- The forwards of the 17 `let` tables lose their setters, and the forward of `colorTable` reads `[vec4_t]`.
+- The 15 static functions of `cg_consolecmds.swift` lose `private`, because the `commands` table names them from `cg_local.swift`. This is the rule of `skeleton.py` for a static function that a thunk names from another file.
+- `swift build` is clean, and `swift test --no-parallel` passes 112 tests. `compare.py` takes a stem and compares function bodies with their drafts, so it does not apply to hand tables.
+
+## A1, the seven unadopted stubs
+
+The table commit edits seven stubs that still carry the generated header of `skeleton.py:71`, "Do not edit until adopted. Rule 13": `cg_consolecmds.swift`, `cg_draw.swift`, `cg_ents.swift`, `cg_event.swift`, `cg_main.swift`, `cg_marks.swift`, `cg_players.swift`. The edits are the forwards of the tables, which take the ruled types and lose their setters, and the 15 `private` removals on the console command functions that `commands` names. A rerun of `skeleton.py --unit mp-cgame` undoes every one of them and the build then fails, because the skeleton emits a setter whenever its write sweep at `:378-411` sets `written`, and that sweep counts an array passed by name to a call as a write. The game port never met this, because its stubs were adopted before any hand edit, and the skeleton leaves an adopted stub alone.
+
+Two options. Adopt the seven stubs now, the act their transcription rounds perform anyway, so the skeleton leaves them alone and the forwards stand. Or hold the table commit until each stem's round adopts its file, and land the tables stem by stem. A generator change to the write sweep is a third path that no ruling asked for.
+
+Ratified: adopt the seven stubs on this branch, the act their transcription rounds perform anyway.

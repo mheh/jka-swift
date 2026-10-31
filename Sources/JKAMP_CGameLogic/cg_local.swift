@@ -14,177 +14,622 @@ public final class CGameWorld {
     public init() {}
 
     // MARK: - Raven's data tables
-    // Each table waits for its transcription, so its first read traps with the subject.
 
     // MARK: - cg_consolecmds.c
 
-    /// Raven's `static consoleCommand_t commands[]` of `cg_consolecmds.c`.
+    /// Raven's `static consoleCommand_t commands[]` of `cg_consolecmds.c`, 31 rows in Raven's order.
     /// Source: oracle/codemp/cgame/cg_consolecmds.c:265
-    // TODO: Port commands
-    lazy var commands: [ConsoleCommandRow] = { () -> [ConsoleCommandRow] in portMissing("commands", source: "oracle/codemp/cgame/cg_consolecmds.c:265") }()
+    let commands: [ConsoleCommandRow] = [
+        ConsoleCommandRow(cmd: "testgun", function: CG_TestGun_f),
+        ConsoleCommandRow(cmd: "testmodel", function: CG_TestModel_f),
+        ConsoleCommandRow(cmd: "nextframe", function: CG_TestModelNextFrame_f),
+        ConsoleCommandRow(cmd: "prevframe", function: CG_TestModelPrevFrame_f),
+        ConsoleCommandRow(cmd: "nextskin", function: CG_TestModelNextSkin_f),
+        ConsoleCommandRow(cmd: "prevskin", function: CG_TestModelPrevSkin_f),
+        ConsoleCommandRow(cmd: "viewpos", function: CG_Viewpos_f),
+        ConsoleCommandRow(cmd: "+scores", function: CG_ScoresDown_f),
+        ConsoleCommandRow(cmd: "-scores", function: CG_ScoresUp_f),
+        ConsoleCommandRow(cmd: "sizeup", function: CG_SizeUp_f),
+        ConsoleCommandRow(cmd: "sizedown", function: CG_SizeDown_f),
+        ConsoleCommandRow(cmd: "weapnext", function: CG_NextWeapon_f),
+        ConsoleCommandRow(cmd: "weapprev", function: CG_PrevWeapon_f),
+        ConsoleCommandRow(cmd: "weapon", function: CG_Weapon_f),
+        ConsoleCommandRow(cmd: "weaponclean", function: CG_WeaponClean_f),
+        ConsoleCommandRow(cmd: "tell_target", function: CG_TellTarget_f),
+        ConsoleCommandRow(cmd: "tell_attacker", function: CG_TellAttacker_f),
+        ConsoleCommandRow(cmd: "tcmd", function: CG_TargetCommand_f),
+        ConsoleCommandRow(cmd: "spWin", function: CG_spWin_f),
+        ConsoleCommandRow(cmd: "spLose", function: CG_spLose_f),
+        ConsoleCommandRow(cmd: "scoresDown", function: CG_scrollScoresDown_f),
+        ConsoleCommandRow(cmd: "scoresUp", function: CG_scrollScoresUp_f),
+        ConsoleCommandRow(cmd: "startOrbit", function: CG_StartOrbit_f),
+        // ConsoleCommandRow(cmd: "camera", function: CG_Camera_f),
+        ConsoleCommandRow(cmd: "loaddeferred", function: CG_LoadDeferredPlayers),
+        ConsoleCommandRow(cmd: "invnext", function: CG_NextInventory_f),
+        ConsoleCommandRow(cmd: "invprev", function: CG_PrevInventory_f),
+        ConsoleCommandRow(cmd: "forcenext", function: CG_NextForcePower_f),
+        ConsoleCommandRow(cmd: "forceprev", function: CG_PrevForcePower_f),
+        ConsoleCommandRow(cmd: "briefing", function: CG_SiegeBriefing_f),
+        ConsoleCommandRow(cmd: "siegeCvarUpdate", function: CG_SiegeCvarUpdate_f),
+        ConsoleCommandRow(cmd: "siegeCompleteCvarUpdate", function: CG_SiegeCompleteCvarUpdate_f),
+    ]
 
     // MARK: - cg_draw.c
 
     /// Raven's `const char *armorTicName[MAX_HUD_TICS]` of `cg_draw.c`.
     /// Source: oracle/codemp/cgame/cg_draw.c:43
-    // TODO: Port armorTicName
-    lazy var armorTicName: [String] = { () -> [String] in portMissing("armorTicName", source: "oracle/codemp/cgame/cg_draw.c:43") }()
+    let armorTicName: [String] = [
+        "armor_tic1",
+        "armor_tic2",
+        "armor_tic3",
+        "armor_tic4",
+    ]
 
     /// Raven's `const char *healthTicName[MAX_HUD_TICS]` of `cg_draw.c`.
     /// Source: oracle/codemp/cgame/cg_draw.c:51
-    // TODO: Port healthTicName
-    lazy var healthTicName: [String] = { () -> [String] in portMissing("healthTicName", source: "oracle/codemp/cgame/cg_draw.c:51") }()
+    let healthTicName: [String] = [
+        "health_tic1",
+        "health_tic2",
+        "health_tic3",
+        "health_tic4",
+    ]
 
     /// Raven's `const char *forceTicName[MAX_HUD_TICS]` of `cg_draw.c`.
     /// Source: oracle/codemp/cgame/cg_draw.c:59
-    // TODO: Port forceTicName
-    lazy var forceTicName: [String] = { () -> [String] in portMissing("forceTicName", source: "oracle/codemp/cgame/cg_draw.c:59") }()
+    let forceTicName: [String] = [
+        "force_tic1",
+        "force_tic2",
+        "force_tic3",
+        "force_tic4",
+    ]
 
     /// Raven's `const char *ammoTicName[MAX_HUD_TICS]` of `cg_draw.c`.
     /// Source: oracle/codemp/cgame/cg_draw.c:67
-    // TODO: Port ammoTicName
-    lazy var ammoTicName: [String] = { () -> [String] in portMissing("ammoTicName", source: "oracle/codemp/cgame/cg_draw.c:67") }()
+    let ammoTicName: [String] = [
+        "ammo_tic1",
+        "ammo_tic2",
+        "ammo_tic3",
+        "ammo_tic4",
+    ]
 
     /// Raven's `char *showPowersName[]` of `cg_draw.c`.
     /// Source: oracle/codemp/cgame/cg_draw.c:75
-    // TODO: Port showPowersName
-    lazy var showPowersName: [String] = { () -> [String] in portMissing("showPowersName", source: "oracle/codemp/cgame/cg_draw.c:75") }()
+    let showPowersName: [String?] = [
+        "HEAL2",
+        "JUMP2",
+        "SPEED2",
+        "PUSH2",
+        "PULL2",
+        "MINDTRICK2",
+        "GRIP2",
+        "LIGHTNING2",
+        "DARK_RAGE2",
+        "PROTECT2",
+        "ABSORB2",
+        "TEAM_HEAL2",
+        "TEAM_REPLENISH2",
+        "DRAIN2",
+        "SEEING2",
+        "SABER_OFFENSE2",
+        "SABER_DEFENSE2",
+        "SABER_THROW2",
+        nil,
+    ]
 
-    /// Raven's `vec3_t cg_crosshairPos` of `cg_draw.c`.
+    /// Raven's `vec3_t cg_crosshairPos={0,0,0}` of `cg_draw.c`.
     /// Source: oracle/codemp/cgame/cg_draw.c:4847
-    // TODO: Port cg_crosshairPos
-    lazy var cg_crosshairPos: JKAShared.vec3_t = { () -> JKAShared.vec3_t in portMissing("cg_crosshairPos", source: "oracle/codemp/cgame/cg_draw.c:4847") }()
+    var cg_crosshairPos: JKAShared.vec3_t = vec3_t()
 
-    /// Raven's `vec3_t cg_saberFlashPos` of `cg_draw.c`.
+    /// Raven's `vec3_t cg_saberFlashPos = {0, 0, 0}` of `cg_draw.c`.
     /// Source: oracle/codemp/cgame/cg_draw.c:5326
-    // TODO: Port cg_saberFlashPos
-    lazy var cg_saberFlashPos: JKAShared.vec3_t = { () -> JKAShared.vec3_t in portMissing("cg_saberFlashPos", source: "oracle/codemp/cgame/cg_draw.c:5326") }()
+    var cg_saberFlashPos: JKAShared.vec3_t = vec3_t()
 
     // MARK: - cg_ents.c
 
     /// Raven's `char *forceHolocronModels[]` of `cg_ents.c`.
     /// Source: oracle/codemp/cgame/cg_ents.c:632
-    // TODO: Port forceHolocronModels
-    lazy var forceHolocronModels: [String] = { () -> [String] in portMissing("forceHolocronModels", source: "oracle/codemp/cgame/cg_ents.c:632") }()
+    let forceHolocronModels: [String] = [
+        "models/map_objects/mp/lt_heal.md3",
+        "models/map_objects/mp/force_jump.md3",
+        "models/map_objects/mp/force_speed.md3",
+        "models/map_objects/mp/force_push.md3",
+        "models/map_objects/mp/force_pull.md3",
+        "models/map_objects/mp/lt_telepathy.md3",
+        "models/map_objects/mp/dk_grip.md3",
+        "models/map_objects/mp/dk_lightning.md3",
+        "models/map_objects/mp/dk_rage.md3",
+        "models/map_objects/mp/lt_protect.md3",
+        "models/map_objects/mp/lt_absorb.md3",
+        "models/map_objects/mp/lt_healother.md3",
+        "models/map_objects/mp/dk_powerother.md3",
+        "models/map_objects/mp/dk_drain.md3",
+        "models/map_objects/mp/force_sight.md3",
+        "models/map_objects/mp/saber_attack.md3",
+        "models/map_objects/mp/saber_defend.md3",
+        "models/map_objects/mp/saber_throw.md3",
+    ]
 
     // MARK: - cg_event.c
 
     /// Raven's `const char *cg_stringEdVoiceChatTable[MAX_CUSTOM_SIEGE_SOUNDS]` of `cg_event.c`.
     /// Source: oracle/codemp/cgame/cg_event.c:1429
-    // TODO: Port cg_stringEdVoiceChatTable
-    lazy var cg_stringEdVoiceChatTable: [String] = { () -> [String] in portMissing("cg_stringEdVoiceChatTable", source: "oracle/codemp/cgame/cg_event.c:1429") }()
+    let cg_stringEdVoiceChatTable: [String?] = [
+        "VC_ATT",
+        "VC_ATT_PRIMARY",
+        "VC_ATT_SECONDARY",
+        "VC_DEF_GUNS",
+        "VC_DEF_POSITION",
+        "VC_DEF_PRIMARY",
+        "VC_DEF_SECONDARY",
+        "VC_REPLY_COMING",
+        "VC_REPLY_GO",
+        "VC_REPLY_NO",
+        "VC_REPLY_STAY",
+        "VC_REPLY_YES",
+        "VC_REQ_ASSIST",
+        "VC_REQ_DEMO",
+        "VC_REQ_HVY",
+        "VC_REQ_MEDIC",
+        "VC_REQ_SUPPLY",
+        "VC_REQ_TECH",
+        "VC_SPOT_AIR",
+        "VC_SPOT_DEF",
+        "VC_SPOT_EMPLACED",
+        "VC_SPOT_SNIPER",
+        "VC_SPOT_TROOP",
+        "VC_TAC_COVER",
+        "VC_TAC_FALLBACK",
+        "VC_TAC_FOLLOW",
+        "VC_TAC_HOLD",
+        "VC_TAC_SPLIT",
+        "VC_TAC_TOGETHER",
+        nil,
+    ]
 
     // MARK: - cg_main.c
 
-    /// Raven's `vec4_t colorTable[CT_MAX]` of `cg_main.c`.
+    /// Raven's `vec4_t colorTable[CT_MAX]` of `cg_main.c`, 67 rows in `ct_table_t` order.
     /// Source: oracle/codemp/cgame/cg_main.c:27
-    // TODO: Port colorTable
-    lazy var colorTable: [[Float]] = { () -> [[Float]] in portMissing("colorTable", source: "oracle/codemp/cgame/cg_main.c:27") }()
+    let colorTable: [vec4_t] = [
+        vec4_t(0, 0, 0, 0),
+        vec4_t(0, 0, 0, 1),
+        vec4_t(1, 0, 0, 1),
+        vec4_t(0, 1, 0, 1),
+        vec4_t(0, 0, 1, 1),
+        vec4_t(1, 1, 0, 1),
+        vec4_t(1, 0, 1, 1),
+        vec4_t(0, 1, 1, 1),
+        vec4_t(1, 1, 1, 1),
+        vec4_t(0.75, 0.75, 0.75, 1),
+        vec4_t(0.50, 0.50, 0.50, 1),
+        vec4_t(0.25, 0.25, 0.25, 1),
+        vec4_t(0.15, 0.15, 0.15, 1),
+        vec4_t(0.810, 0.530, 0.0, 1),
+        vec4_t(0.810, 0.530, 0.0, 1),
+        vec4_t(0.610, 0.330, 0.0, 1),
+        vec4_t(0.402, 0.265, 0.0, 1),
+        vec4_t(0.503, 0.375, 0.996, 1),
+        vec4_t(0.367, 0.261, 0.722, 1),
+        vec4_t(0.199, 0.0, 0.398, 1),
+        vec4_t(0.160, 0.117, 0.324, 1),
+        vec4_t(0.300, 0.628, 0.816, 1),
+        vec4_t(0.300, 0.628, 0.816, 1),
+        vec4_t(0.191, 0.289, 0.457, 1),
+        vec4_t(0.125, 0.250, 0.324, 1),
+        vec4_t(0.796, 0.398, 0.199, 1),
+        vec4_t(0.796, 0.398, 0.199, 1),
+        vec4_t(0.558, 0.207, 0.027, 1),
+        vec4_t(0.328, 0.125, 0.035, 1),
+        vec4_t(0.996, 0.796, 0.398, 1),
+        vec4_t(0.996, 0.796, 0.398, 1),
+        vec4_t(0.605, 0.441, 0.113, 1),
+        vec4_t(0.386, 0.308, 0.148, 1),
+        vec4_t(0.648, 0.562, 0.784, 1),
+        vec4_t(0.648, 0.562, 0.784, 1),
+        vec4_t(0.437, 0.335, 0.597, 1),
+        vec4_t(0.308, 0.269, 0.375, 1),
+        vec4_t(0.816, 0.531, 0.710, 1),
+        vec4_t(0.816, 0.531, 0.710, 1),
+        vec4_t(0.566, 0.269, 0.457, 1),
+        vec4_t(0.343, 0.226, 0.316, 1),
+        vec4_t(0.929, 0.597, 0.929, 1),
+        vec4_t(0.570, 0.371, 0.570, 1),
+        vec4_t(0.355, 0.199, 0.355, 1),
+        vec4_t(0.285, 0.136, 0.230, 1),
+        vec4_t(0.953, 0.378, 0.250, 1),
+        vec4_t(0.953, 0.378, 0.250, 1),
+        vec4_t(0.593, 0.121, 0.109, 1),
+        vec4_t(0.429, 0.171, 0.113, 1),
+        vec4_t(0.25, 0, 0, 1),
+        vec4_t(0.70, 0, 0, 1),
+        vec4_t(0.717, 0.902, 1.0, 1),
+        vec4_t(0.574, 0.722, 0.804, 1),
+        vec4_t(0.287, 0.361, 0.402, 1),
+        vec4_t(0.143, 0.180, 0.201, 1),
+        vec4_t(0.871, 0.386, 0.375, 1),
+        vec4_t(0.435, 0.193, 0.187, 1),
+        vec4_t(0, 0.5, 0.5, 1),
+        vec4_t(0, 0.25, 0.25, 1),
+        vec4_t(0.179, 0.51, 0.92, 1),
+        vec4_t(0.199, 0.71, 0.92, 1),
+        vec4_t(0.5, 0.05, 0.4, 1),
+        vec4_t(0.0, 0.613, 0.097, 1),
+        vec4_t(0.835, 0.015, 0.015, 1),
+        vec4_t(0.567, 0.685, 1.0, 0.75),
+        vec4_t(0.515, 0.406, 0.507, 1),
+        vec4_t(1.0, 0.658, 0.062, 1),
+    ]
 
-    /// Raven's `static cvarTable_t cvarTable[]` of `cg_main.c`.
+    /// Raven's `static cvarTable_t cvarTable[]` of `cg_main.c`, 124 rows in Raven's order.
     /// Source: oracle/codemp/cgame/cg_main.c:882
-    // TODO: Port cvarTable
-    lazy var cvarTable: [CvarTableRow] = { () -> [CvarTableRow] in portMissing("cvarTable", source: "oracle/codemp/cgame/cg_main.c:882") }()
+    let cvarTable: [CvarTableRow] = [
+        CvarTableRow(vmCvar: \CGameStorage.cg_ignore, cvarName: "cg_ignore", defaultString: "0", cvarFlags: 0),
+        CvarTableRow(vmCvar: \CGameStorage.cg_autoswitch, cvarName: "cg_autoswitch", defaultString: "1", cvarFlags: CVAR_ARCHIVE),
+        CvarTableRow(vmCvar: \CGameStorage.cg_drawGun, cvarName: "cg_drawGun", defaultString: "1", cvarFlags: CVAR_ARCHIVE),
+        CvarTableRow(vmCvar: \CGameStorage.cg_zoomFov, cvarName: "cg_zoomfov", defaultString: "40.0", cvarFlags: CVAR_ARCHIVE),
+        CvarTableRow(vmCvar: \CGameStorage.cg_fov, cvarName: "cg_fov", defaultString: "80", cvarFlags: CVAR_ARCHIVE),
+        CvarTableRow(vmCvar: \CGameStorage.cg_viewsize, cvarName: "cg_viewsize", defaultString: "100", cvarFlags: CVAR_ARCHIVE),
+        CvarTableRow(vmCvar: \CGameStorage.cg_stereoSeparation, cvarName: "cg_stereoSeparation", defaultString: "0.4", cvarFlags: CVAR_ARCHIVE),
+        CvarTableRow(vmCvar: \CGameStorage.cg_shadows, cvarName: "cg_shadows", defaultString: "1", cvarFlags: CVAR_ARCHIVE),
+        CvarTableRow(vmCvar: \CGameStorage.cg_renderToTextureFX, cvarName: "cg_renderToTextureFX", defaultString: "1", cvarFlags: CVAR_ARCHIVE),
+        CvarTableRow(vmCvar: \CGameStorage.cg_draw2D, cvarName: "cg_draw2D", defaultString: "1", cvarFlags: CVAR_ARCHIVE),
+        CvarTableRow(vmCvar: \CGameStorage.cg_drawStatus, cvarName: "cg_drawStatus", defaultString: "1", cvarFlags: CVAR_ARCHIVE),
+        CvarTableRow(vmCvar: \CGameStorage.cg_drawTimer, cvarName: "cg_drawTimer", defaultString: "0", cvarFlags: CVAR_ARCHIVE),
+        CvarTableRow(vmCvar: \CGameStorage.cg_drawFPS, cvarName: "cg_drawFPS", defaultString: "0", cvarFlags: CVAR_ARCHIVE),
+        CvarTableRow(vmCvar: \CGameStorage.cg_drawSnapshot, cvarName: "cg_drawSnapshot", defaultString: "0", cvarFlags: CVAR_ARCHIVE),
+        CvarTableRow(vmCvar: \CGameStorage.cg_draw3dIcons, cvarName: "cg_draw3dIcons", defaultString: "1", cvarFlags: CVAR_ARCHIVE),
+        CvarTableRow(vmCvar: \CGameStorage.cg_drawIcons, cvarName: "cg_drawIcons", defaultString: "1", cvarFlags: CVAR_ARCHIVE),
+        CvarTableRow(vmCvar: \CGameStorage.cg_drawAmmoWarning, cvarName: "cg_drawAmmoWarning", defaultString: "0", cvarFlags: CVAR_ARCHIVE),
+        CvarTableRow(vmCvar: \CGameStorage.cg_drawEnemyInfo, cvarName: "cg_drawEnemyInfo", defaultString: "1", cvarFlags: CVAR_ARCHIVE),
+        CvarTableRow(vmCvar: \CGameStorage.cg_drawCrosshair, cvarName: "cg_drawCrosshair", defaultString: "1", cvarFlags: CVAR_ARCHIVE),
+        CvarTableRow(vmCvar: \CGameStorage.cg_drawCrosshairNames, cvarName: "cg_drawCrosshairNames", defaultString: "1", cvarFlags: CVAR_ARCHIVE),
+        CvarTableRow(vmCvar: \CGameStorage.cg_drawRadar, cvarName: "cg_drawRadar", defaultString: "1", cvarFlags: CVAR_ARCHIVE),
+        CvarTableRow(vmCvar: \CGameStorage.cg_drawVehLeadIndicator, cvarName: "cg_drawVehLeadIndicator", defaultString: "1", cvarFlags: CVAR_ARCHIVE),
+        CvarTableRow(vmCvar: \CGameStorage.cg_drawScores, cvarName: "cg_drawScores", defaultString: "1", cvarFlags: CVAR_ARCHIVE),
+        CvarTableRow(vmCvar: \CGameStorage.cg_dynamicCrosshair, cvarName: "cg_dynamicCrosshair", defaultString: "1", cvarFlags: CVAR_ARCHIVE),
+        CvarTableRow(vmCvar: \CGameStorage.cg_dynamicCrosshairPrecision, cvarName: "cg_dynamicCrosshairPrecision", defaultString: "1", cvarFlags: CVAR_ARCHIVE),
+        CvarTableRow(vmCvar: \CGameStorage.cg_drawRewards, cvarName: "cg_drawRewards", defaultString: "1", cvarFlags: CVAR_ARCHIVE),
+        CvarTableRow(vmCvar: \CGameStorage.cg_crosshairSize, cvarName: "cg_crosshairSize", defaultString: "24", cvarFlags: CVAR_ARCHIVE),
+        CvarTableRow(vmCvar: \CGameStorage.cg_crosshairHealth, cvarName: "cg_crosshairHealth", defaultString: "0", cvarFlags: CVAR_ARCHIVE),
+        CvarTableRow(vmCvar: \CGameStorage.cg_crosshairX, cvarName: "cg_crosshairX", defaultString: "0", cvarFlags: CVAR_ARCHIVE),
+        CvarTableRow(vmCvar: \CGameStorage.cg_crosshairY, cvarName: "cg_crosshairY", defaultString: "0", cvarFlags: CVAR_ARCHIVE),
+        CvarTableRow(vmCvar: \CGameStorage.cg_simpleItems, cvarName: "cg_simpleItems", defaultString: "0", cvarFlags: CVAR_ARCHIVE),
+        CvarTableRow(vmCvar: \CGameStorage.cg_addMarks, cvarName: "cg_marks", defaultString: "1", cvarFlags: CVAR_ARCHIVE),
+        CvarTableRow(vmCvar: \CGameStorage.cg_lagometer, cvarName: "cg_lagometer", defaultString: "0", cvarFlags: CVAR_ARCHIVE),
+        CvarTableRow(vmCvar: \CGameStorage.cg_gun_x, cvarName: "cg_gunX", defaultString: "0", cvarFlags: CVAR_CHEAT),
+        CvarTableRow(vmCvar: \CGameStorage.cg_gun_y, cvarName: "cg_gunY", defaultString: "0", cvarFlags: CVAR_CHEAT),
+        CvarTableRow(vmCvar: \CGameStorage.cg_gun_z, cvarName: "cg_gunZ", defaultString: "0", cvarFlags: CVAR_CHEAT),
+        CvarTableRow(vmCvar: \CGameStorage.cg_centertime, cvarName: "cg_centertime", defaultString: "3", cvarFlags: CVAR_CHEAT),
+        CvarTableRow(vmCvar: \CGameStorage.cg_runpitch, cvarName: "cg_runpitch", defaultString: "0.002", cvarFlags: CVAR_ARCHIVE),
+        CvarTableRow(vmCvar: \CGameStorage.cg_runroll, cvarName: "cg_runroll", defaultString: "0.005", cvarFlags: CVAR_ARCHIVE),
+        CvarTableRow(vmCvar: \CGameStorage.cg_bobup, cvarName: "cg_bobup", defaultString: "0.005", cvarFlags: CVAR_ARCHIVE),
+        CvarTableRow(vmCvar: \CGameStorage.cg_bobpitch, cvarName: "cg_bobpitch", defaultString: "0.002", cvarFlags: CVAR_ARCHIVE),
+        CvarTableRow(vmCvar: \CGameStorage.cg_bobroll, cvarName: "cg_bobroll", defaultString: "0.002", cvarFlags: CVAR_ARCHIVE),
+        // CvarTableRow(vmCvar: \CGameStorage.cg_swingSpeed, cvarName: "cg_swingSpeed", defaultString: "0.3", cvarFlags: CVAR_CHEAT),
+        CvarTableRow(vmCvar: \CGameStorage.cg_animSpeed, cvarName: "cg_animspeed", defaultString: "1", cvarFlags: CVAR_CHEAT),
+        CvarTableRow(vmCvar: \CGameStorage.cg_debugAnim, cvarName: "cg_debuganim", defaultString: "0", cvarFlags: CVAR_CHEAT),
+        CvarTableRow(vmCvar: \CGameStorage.cg_debugSaber, cvarName: "cg_debugsaber", defaultString: "0", cvarFlags: CVAR_CHEAT),
+        CvarTableRow(vmCvar: \CGameStorage.cg_debugPosition, cvarName: "cg_debugposition", defaultString: "0", cvarFlags: CVAR_CHEAT),
+        CvarTableRow(vmCvar: \CGameStorage.cg_debugEvents, cvarName: "cg_debugevents", defaultString: "0", cvarFlags: CVAR_CHEAT),
+        CvarTableRow(vmCvar: \CGameStorage.cg_errorDecay, cvarName: "cg_errordecay", defaultString: "100", cvarFlags: 0),
+        CvarTableRow(vmCvar: \CGameStorage.cg_nopredict, cvarName: "cg_nopredict", defaultString: "0", cvarFlags: 0),
+        CvarTableRow(vmCvar: \CGameStorage.cg_noPlayerAnims, cvarName: "cg_noplayeranims", defaultString: "0", cvarFlags: CVAR_CHEAT),
+        CvarTableRow(vmCvar: \CGameStorage.cg_showmiss, cvarName: "cg_showmiss", defaultString: "0", cvarFlags: 0),
+        CvarTableRow(vmCvar: \CGameStorage.cg_showVehMiss, cvarName: "cg_showVehMiss", defaultString: "0", cvarFlags: 0),
+        CvarTableRow(vmCvar: \CGameStorage.cg_footsteps, cvarName: "cg_footsteps", defaultString: "3", cvarFlags: CVAR_ARCHIVE),
+        CvarTableRow(vmCvar: \CGameStorage.cg_swingAngles, cvarName: "cg_swingAngles", defaultString: "1", cvarFlags: 0),
+        CvarTableRow(vmCvar: \CGameStorage.cg_oldPainSounds, cvarName: "cg_oldPainSounds", defaultString: "0", cvarFlags: 0),
+        CvarTableRow(vmCvar: \CGameStorage.cg_ragDoll, cvarName: "broadsword", defaultString: "0", cvarFlags: 0),
+        CvarTableRow(vmCvar: \CGameStorage.cg_jumpSounds, cvarName: "cg_jumpSounds", defaultString: "0", cvarFlags: 0),
+        CvarTableRow(vmCvar: \CGameStorage.cg_autoMap, cvarName: "r_autoMap", defaultString: "0", cvarFlags: CVAR_ARCHIVE),
+        CvarTableRow(vmCvar: \CGameStorage.cg_autoMapX, cvarName: "r_autoMapX", defaultString: "496", cvarFlags: CVAR_ARCHIVE),
+        CvarTableRow(vmCvar: \CGameStorage.cg_autoMapY, cvarName: "r_autoMapY", defaultString: "32", cvarFlags: CVAR_ARCHIVE),
+        CvarTableRow(vmCvar: \CGameStorage.cg_autoMapW, cvarName: "r_autoMapW", defaultString: "128", cvarFlags: CVAR_ARCHIVE),
+        CvarTableRow(vmCvar: \CGameStorage.cg_autoMapH, cvarName: "r_autoMapH", defaultString: "128", cvarFlags: CVAR_ARCHIVE),
+        CvarTableRow(vmCvar: \CGameStorage.bg_fighterAltControl, cvarName: "bg_fighterAltControl", defaultString: "0", cvarFlags: CVAR_SERVERINFO),
+        CvarTableRow(vmCvar: \CGameStorage.cg_chatBox, cvarName: "cg_chatBox", defaultString: "10000", cvarFlags: CVAR_ARCHIVE),
+        CvarTableRow(vmCvar: \CGameStorage.cg_chatBoxHeight, cvarName: "cg_chatBoxHeight", defaultString: "350", cvarFlags: CVAR_ARCHIVE),
+        CvarTableRow(vmCvar: \CGameStorage.cg_saberModelTraceEffect, cvarName: "cg_saberModelTraceEffect", defaultString: "0", cvarFlags: 0),
+        CvarTableRow(vmCvar: \CGameStorage.cg_saberClientVisualCompensation, cvarName: "cg_saberClientVisualCompensation", defaultString: "1", cvarFlags: 0),
+        CvarTableRow(vmCvar: \CGameStorage.cg_g2TraceLod, cvarName: "cg_g2TraceLod", defaultString: "2", cvarFlags: 0),
+        CvarTableRow(vmCvar: \CGameStorage.cg_fpls, cvarName: "cg_fpls", defaultString: "0", cvarFlags: 0),
+        CvarTableRow(vmCvar: \CGameStorage.cg_ghoul2Marks, cvarName: "cg_ghoul2Marks", defaultString: "16", cvarFlags: 0),
+        CvarTableRow(vmCvar: \CGameStorage.cg_optvehtrace, cvarName: "com_optvehtrace", defaultString: "0", cvarFlags: 0),
+        CvarTableRow(vmCvar: \CGameStorage.cg_saberDynamicMarks, cvarName: "cg_saberDynamicMarks", defaultString: "0", cvarFlags: 0),
+        CvarTableRow(vmCvar: \CGameStorage.cg_saberDynamicMarkTime, cvarName: "cg_saberDynamicMarkTime", defaultString: "60000", cvarFlags: 0),
+        CvarTableRow(vmCvar: \CGameStorage.cg_saberContact, cvarName: "cg_saberContact", defaultString: "1", cvarFlags: 0),
+        CvarTableRow(vmCvar: \CGameStorage.cg_saberTrail, cvarName: "cg_saberTrail", defaultString: "1", cvarFlags: 0),
+        CvarTableRow(vmCvar: \CGameStorage.cg_duelHeadAngles, cvarName: "cg_duelHeadAngles", defaultString: "0", cvarFlags: 0),
+        CvarTableRow(vmCvar: \CGameStorage.cg_speedTrail, cvarName: "cg_speedTrail", defaultString: "1", cvarFlags: 0),
+        CvarTableRow(vmCvar: \CGameStorage.cg_auraShell, cvarName: "cg_auraShell", defaultString: "1", cvarFlags: 0),
+        CvarTableRow(vmCvar: \CGameStorage.cg_repeaterOrb, cvarName: "cg_repeaterOrb", defaultString: "0", cvarFlags: 0),
+        CvarTableRow(vmCvar: \CGameStorage.cg_animBlend, cvarName: "cg_animBlend", defaultString: "1", cvarFlags: 0),
+        CvarTableRow(vmCvar: \CGameStorage.cg_dismember, cvarName: "cg_dismember", defaultString: "0", cvarFlags: CVAR_ARCHIVE),
+        CvarTableRow(vmCvar: \CGameStorage.cg_thirdPersonSpecialCam, cvarName: "cg_thirdPersonSpecialCam", defaultString: "0", cvarFlags: 0),
+        CvarTableRow(vmCvar: \CGameStorage.cg_thirdPerson, cvarName: "cg_thirdPerson", defaultString: "0", cvarFlags: CVAR_ARCHIVE),
+        CvarTableRow(vmCvar: \CGameStorage.cg_thirdPersonRange, cvarName: "cg_thirdPersonRange", defaultString: "80", cvarFlags: CVAR_CHEAT),
+        CvarTableRow(vmCvar: \CGameStorage.cg_thirdPersonAngle, cvarName: "cg_thirdPersonAngle", defaultString: "0", cvarFlags: CVAR_CHEAT),
+        CvarTableRow(vmCvar: \CGameStorage.cg_thirdPersonPitchOffset, cvarName: "cg_thirdPersonPitchOffset", defaultString: "0", cvarFlags: CVAR_CHEAT),
+        CvarTableRow(vmCvar: \CGameStorage.cg_thirdPersonVertOffset, cvarName: "cg_thirdPersonVertOffset", defaultString: "16", cvarFlags: CVAR_CHEAT),
+        CvarTableRow(vmCvar: \CGameStorage.cg_thirdPersonCameraDamp, cvarName: "cg_thirdPersonCameraDamp", defaultString: "0.3", cvarFlags: 0),
+        CvarTableRow(vmCvar: \CGameStorage.cg_thirdPersonTargetDamp, cvarName: "cg_thirdPersonTargetDamp", defaultString: "0.5", cvarFlags: CVAR_CHEAT),
+        CvarTableRow(vmCvar: \CGameStorage.cg_thirdPersonHorzOffset, cvarName: "cg_thirdPersonHorzOffset", defaultString: "0", cvarFlags: CVAR_CHEAT),
+        CvarTableRow(vmCvar: \CGameStorage.cg_thirdPersonAlpha, cvarName: "cg_thirdPersonAlpha", defaultString: "1.0", cvarFlags: CVAR_CHEAT),
+        CvarTableRow(vmCvar: \CGameStorage.cg_forceModel, cvarName: "cg_forceModel", defaultString: "0", cvarFlags: CVAR_ARCHIVE),
+        CvarTableRow(vmCvar: \CGameStorage.cg_predictItems, cvarName: "cg_predictItems", defaultString: "1", cvarFlags: CVAR_ARCHIVE),
+        CvarTableRow(vmCvar: \CGameStorage.cg_deferPlayers, cvarName: "cg_deferPlayers", defaultString: "1", cvarFlags: CVAR_ARCHIVE),
+        CvarTableRow(vmCvar: \CGameStorage.cg_drawTeamOverlay, cvarName: "cg_drawTeamOverlay", defaultString: "0", cvarFlags: CVAR_ARCHIVE),
+        CvarTableRow(vmCvar: \CGameStorage.cg_teamOverlayUserinfo, cvarName: "teamoverlay", defaultString: "0", cvarFlags: CVAR_ROM | CVAR_USERINFO),
+        CvarTableRow(vmCvar: \CGameStorage.cg_stats, cvarName: "cg_stats", defaultString: "0", cvarFlags: 0),
+        CvarTableRow(vmCvar: \CGameStorage.cg_drawFriend, cvarName: "cg_drawFriend", defaultString: "1", cvarFlags: CVAR_ARCHIVE),
+        CvarTableRow(vmCvar: \CGameStorage.cg_teamChatsOnly, cvarName: "cg_teamChatsOnly", defaultString: "0", cvarFlags: CVAR_ARCHIVE),
+        CvarTableRow(vmCvar: \CGameStorage.cg_buildScript, cvarName: "com_buildScript", defaultString: "0", cvarFlags: 0),
+        CvarTableRow(vmCvar: \CGameStorage.cg_paused, cvarName: "cl_paused", defaultString: "0", cvarFlags: CVAR_ROM),
+        CvarTableRow(vmCvar: \CGameStorage.cg_blood, cvarName: "com_blood", defaultString: "1", cvarFlags: CVAR_ARCHIVE),
+        CvarTableRow(vmCvar: \CGameStorage.cg_synchronousClients, cvarName: "g_synchronousClients", defaultString: "0", cvarFlags: 0),
+        // CvarTableRow(vmCvar: \CGameStorage.cg_redTeamName, cvarName: "g_redteam", defaultString: DEFAULT_REDTEAM_NAME, cvarFlags: CVAR_ARCHIVE | CVAR_SERVERINFO | CVAR_USERINFO),
+        // CvarTableRow(vmCvar: \CGameStorage.cg_blueTeamName, cvarName: "g_blueteam", defaultString: DEFAULT_BLUETEAM_NAME, cvarFlags: CVAR_ARCHIVE | CVAR_SERVERINFO | CVAR_USERINFO),
+        CvarTableRow(vmCvar: \CGameStorage.cg_currentSelectedPlayer, cvarName: "cg_currentSelectedPlayer", defaultString: "0", cvarFlags: CVAR_ARCHIVE),
+        CvarTableRow(vmCvar: \CGameStorage.cg_currentSelectedPlayerName, cvarName: "cg_currentSelectedPlayerName", defaultString: "", cvarFlags: CVAR_ARCHIVE),
+        // CvarTableRow(vmCvar: \CGameStorage.cg_singlePlayerActive, cvarName: "ui_singlePlayerActive", defaultString: "0", cvarFlags: CVAR_USERINFO),
+        CvarTableRow(vmCvar: \CGameStorage.cg_recordSPDemo, cvarName: "ui_recordSPDemo", defaultString: "0", cvarFlags: CVAR_ARCHIVE),
+        CvarTableRow(vmCvar: \CGameStorage.cg_recordSPDemoName, cvarName: "ui_recordSPDemoName", defaultString: "", cvarFlags: CVAR_ARCHIVE),
+        CvarTableRow(vmCvar: \CGameStorage.cg_cameraOrbit, cvarName: "cg_cameraOrbit", defaultString: "0", cvarFlags: CVAR_CHEAT),
+        CvarTableRow(vmCvar: \CGameStorage.cg_cameraOrbitDelay, cvarName: "cg_cameraOrbitDelay", defaultString: "50", cvarFlags: CVAR_ARCHIVE),
+        CvarTableRow(vmCvar: \CGameStorage.cg_timescaleFadeEnd, cvarName: "cg_timescaleFadeEnd", defaultString: "1", cvarFlags: 0),
+        CvarTableRow(vmCvar: \CGameStorage.cg_timescaleFadeSpeed, cvarName: "cg_timescaleFadeSpeed", defaultString: "0", cvarFlags: 0),
+        CvarTableRow(vmCvar: \CGameStorage.cg_timescale, cvarName: "timescale", defaultString: "1", cvarFlags: 0),
+        CvarTableRow(vmCvar: \CGameStorage.cg_scorePlum, cvarName: "cg_scorePlums", defaultString: "1", cvarFlags: CVAR_ARCHIVE),
+        CvarTableRow(vmCvar: \CGameStorage.cg_hudFiles, cvarName: "cg_hudFiles", defaultString: "ui/jahud.txt", cvarFlags: CVAR_ARCHIVE),
+        CvarTableRow(vmCvar: \CGameStorage.cg_smoothClients, cvarName: "cg_smoothClients", defaultString: "1", cvarFlags: CVAR_ARCHIVE),
+        CvarTableRow(vmCvar: \CGameStorage.cg_cameraMode, cvarName: "com_cameraMode", defaultString: "0", cvarFlags: CVAR_CHEAT),
+        CvarTableRow(vmCvar: \CGameStorage.pmove_fixed, cvarName: "pmove_fixed", defaultString: "0", cvarFlags: 0),
+        CvarTableRow(vmCvar: \CGameStorage.pmove_msec, cvarName: "pmove_msec", defaultString: "8", cvarFlags: 0),
+        CvarTableRow(vmCvar: \CGameStorage.cg_noTaunt, cvarName: "cg_noTaunt", defaultString: "0", cvarFlags: CVAR_ARCHIVE),
+        CvarTableRow(vmCvar: \CGameStorage.cg_noProjectileTrail, cvarName: "cg_noProjectileTrail", defaultString: "0", cvarFlags: CVAR_ARCHIVE),
+        // CvarTableRow(vmCvar: \CGameStorage.cg_trueLightning, cvarName: "cg_trueLightning", defaultString: "0.0", cvarFlags: CVAR_ARCHIVE),
+        CvarTableRow(vmCvar: \CGameStorage.cg_showVehBounds, cvarName: "cg_showVehBounds", defaultString: "0", cvarFlags: 0),
+        CvarTableRow(vmCvar: \CGameStorage.ui_myteam, cvarName: "ui_myteam", defaultString: "0", cvarFlags: CVAR_ROM | CVAR_INTERNAL),
+        CvarTableRow(vmCvar: \CGameStorage.cg_snapshotTimeout, cvarName: "cg_snapshotTimeout", defaultString: "10", cvarFlags: CVAR_ARCHIVE),
+        // CvarTableRow(vmCvar: \CGameStorage.cg_pmove_fixed, cvarName: "cg_pmove_fixed", defaultString: "0", cvarFlags: CVAR_USERINFO | CVAR_ARCHIVE),
+        CvarTableRow(vmCvar: \CGameStorage.cg_debugBB, cvarName: "debugBB", defaultString: "0", cvarFlags: 0),
+    ]
 
     // MARK: - cg_marks.c
 
     /// Raven's `static char *shaderAnimNames[MAX_SHADER_ANIMS]` of `cg_marks.c`.
+    /// Raven writes 2 rows for a `MAX_SHADER_ANIMS` array of 32, so C zeroes the rest.
+    /// The nils past his rows are those zeros.
     /// Source: oracle/codemp/cgame/cg_marks.c:363
-    // TODO: Port shaderAnimNames
-    lazy var shaderAnimNames: [String] = { () -> [String] in portMissing("shaderAnimNames", source: "oracle/codemp/cgame/cg_marks.c:363") }()
+    let shaderAnimNames: [String?] = [
+        "explode1",
+        nil,
+    ] + Array(repeating: nil, count: Int(MAX_SHADER_ANIMS) - 2)
 
     // MARK: - cg_players.c
 
     /// Raven's `char *cg_customSoundNames[MAX_CUSTOM_SOUNDS]` of `cg_players.c`.
+    /// Raven writes 16 rows for a `MAX_CUSTOM_SOUNDS` array of 40, so C zeroes the rest.
+    /// The nils past his rows are those zeros.
     /// Source: oracle/codemp/cgame/cg_players.c:25
-    // TODO: Port cg_customSoundNames
-    lazy var cg_customSoundNames: [String] = { () -> [String] in portMissing("cg_customSoundNames", source: "oracle/codemp/cgame/cg_players.c:25") }()
+    let cg_customSoundNames: [String?] = [
+        "*death1",
+        "*death2",
+        "*death3",
+        "*jump1",
+        "*pain25",
+        "*pain50",
+        "*pain75",
+        "*pain100",
+        "*falling1",
+        "*choke1",
+        "*choke2",
+        "*choke3",
+        "*gasp",
+        "*land1",
+        "*taunt",
+        nil,
+    ] + Array(repeating: nil, count: Int(MAX_CUSTOM_SOUNDS) - 16)
 
     /// Raven's `const char *cg_customCombatSoundNames[MAX_CUSTOM_COMBAT_SOUNDS]` of `cg_players.c`.
+    /// Raven writes 18 rows for a `MAX_CUSTOM_COMBAT_SOUNDS` array of 40, so C zeroes the rest.
+    /// The nils past his rows are those zeros.
     /// Source: oracle/codemp/cgame/cg_players.c:47
-    // TODO: Port cg_customCombatSoundNames
-    lazy var cg_customCombatSoundNames: [String] = { () -> [String] in portMissing("cg_customCombatSoundNames", source: "oracle/codemp/cgame/cg_players.c:47") }()
+    let cg_customCombatSoundNames: [String?] = [
+        "*anger1",
+        "*anger2",
+        "*anger3",
+        "*victory1",
+        "*victory2",
+        "*victory3",
+        "*confuse1",
+        "*confuse2",
+        "*confuse3",
+        "*pushed1",
+        "*pushed2",
+        "*pushed3",
+        "*choke1",
+        "*choke2",
+        "*choke3",
+        "*ffwarn",
+        "*ffturn",
+        nil,
+    ] + Array(repeating: nil, count: Int(MAX_CUSTOM_COMBAT_SOUNDS) - 18)
 
     /// Raven's `const char *cg_customExtraSoundNames[MAX_CUSTOM_EXTRA_SOUNDS]` of `cg_players.c`.
+    /// Raven writes 37 rows for a `MAX_CUSTOM_EXTRA_SOUNDS` array of 40, so C zeroes the rest.
+    /// The nils past his rows are those zeros.
     /// Source: oracle/codemp/cgame/cg_players.c:71
-    // TODO: Port cg_customExtraSoundNames
-    lazy var cg_customExtraSoundNames: [String] = { () -> [String] in portMissing("cg_customExtraSoundNames", source: "oracle/codemp/cgame/cg_players.c:71") }()
+    let cg_customExtraSoundNames: [String?] = [
+        "*chase1",
+        "*chase2",
+        "*chase3",
+        "*cover1",
+        "*cover2",
+        "*cover3",
+        "*cover4",
+        "*cover5",
+        "*detected1",
+        "*detected2",
+        "*detected3",
+        "*detected4",
+        "*detected5",
+        "*lost1",
+        "*outflank1",
+        "*outflank2",
+        "*escaping1",
+        "*escaping2",
+        "*escaping3",
+        "*giveup1",
+        "*giveup2",
+        "*giveup3",
+        "*giveup4",
+        "*look1",
+        "*look2",
+        "*sight1",
+        "*sight2",
+        "*sight3",
+        "*sound1",
+        "*sound2",
+        "*sound3",
+        "*suspicious1",
+        "*suspicious2",
+        "*suspicious3",
+        "*suspicious4",
+        "*suspicious5",
+        nil,
+    ] + Array(repeating: nil, count: Int(MAX_CUSTOM_EXTRA_SOUNDS) - 37)
 
     /// Raven's `const char *cg_customJediSoundNames[MAX_CUSTOM_JEDI_SOUNDS]` of `cg_players.c`.
+    /// Raven writes 23 rows for a `MAX_CUSTOM_JEDI_SOUNDS` array of 40, so C zeroes the rest.
+    /// The nils past his rows are those zeros.
     /// Source: oracle/codemp/cgame/cg_players.c:114
-    // TODO: Port cg_customJediSoundNames
-    lazy var cg_customJediSoundNames: [String] = { () -> [String] in portMissing("cg_customJediSoundNames", source: "oracle/codemp/cgame/cg_players.c:114") }()
+    let cg_customJediSoundNames: [String?] = [
+        "*combat1",
+        "*combat2",
+        "*combat3",
+        "*jdetected1",
+        "*jdetected2",
+        "*jdetected3",
+        "*taunt1",
+        "*taunt2",
+        "*taunt3",
+        "*jchase1",
+        "*jchase2",
+        "*jchase3",
+        "*jlost1",
+        "*jlost2",
+        "*jlost3",
+        "*deflect1",
+        "*deflect2",
+        "*deflect3",
+        "*gloat1",
+        "*gloat2",
+        "*gloat3",
+        "*pushfail",
+        nil,
+    ] + Array(repeating: nil, count: Int(MAX_CUSTOM_JEDI_SOUNDS) - 23)
 
     /// Raven's `const char *cg_customDuelSoundNames[MAX_CUSTOM_DUEL_SOUNDS]` of `cg_players.c`.
+    /// Raven writes 16 rows for a `MAX_CUSTOM_DUEL_SOUNDS` array of 40, so C zeroes the rest.
+    /// The nils past his rows are those zeros.
     /// Source: oracle/codemp/cgame/cg_players.c:142
-    // TODO: Port cg_customDuelSoundNames
-    lazy var cg_customDuelSoundNames: [String] = { () -> [String] in portMissing("cg_customDuelSoundNames", source: "oracle/codemp/cgame/cg_players.c:142") }()
+    let cg_customDuelSoundNames: [String?] = [
+        "*anger1",
+        "*anger2",
+        "*anger3",
+        "*victory1",
+        "*victory2",
+        "*victory3",
+        "*taunt1",
+        "*taunt2",
+        "*taunt3",
+        "*deflect1",
+        "*deflect2",
+        "*deflect3",
+        "*gloat1",
+        "*gloat2",
+        "*gloat3",
+        nil,
+    ] + Array(repeating: nil, count: Int(MAX_CUSTOM_DUEL_SOUNDS) - 16)
 
     /// Raven's `static const char *cg_effectorStringTable[]` of `cg_players.c`.
     /// Source: oracle/codemp/cgame/cg_players.c:3440
-    // TODO: Port cg_effectorStringTable
-    lazy var cg_effectorStringTable: [String] = { () -> [String] in portMissing("cg_effectorStringTable", source: "oracle/codemp/cgame/cg_players.c:3440") }()
+    let cg_effectorStringTable: [String?] = [
+        // "thoracic",
+        // "rhand",
+        "lhand",
+        "rtibia",
+        "ltibia",
+        "rtalus",
+        "ltalus",
+        // "rradiusX",
+        "lradiusX",
+        "rfemurX",
+        "lfemurX",
+        // "ceyebrow",
+        nil,
+    ]
 
     /// Raven's `static const char *cg_pushBoneNames[]` of `cg_players.c`.
     /// Source: oracle/codemp/cgame/cg_players.c:4945
-    // TODO: Port cg_pushBoneNames
-    lazy var cg_pushBoneNames: [String] = { () -> [String] in portMissing("cg_pushBoneNames", source: "oracle/codemp/cgame/cg_players.c:4945") }()
+    let cg_pushBoneNames: [String?] = [
+        "cranium",
+        "lower_lumbar",
+        "rhand",
+        "lhand",
+        "ltibia",
+        "rtibia",
+        "lradius",
+        "rradius",
+        nil,
+    ]
 
-    /// Raven's `static int lastFlyBySound[MAX_GENTITIES]` of `cg_players.c`.
+    /// Raven's `static int lastFlyBySound[MAX_GENTITIES] = {0}` of `cg_players.c`.
     /// Source: oracle/codemp/cgame/cg_players.c:7978
-    // TODO: Port lastFlyBySound
-    lazy var lastFlyBySound: [Int32] = { () -> [Int32] in portMissing("lastFlyBySound", source: "oracle/codemp/cgame/cg_players.c:7978") }()
+    var lastFlyBySound: [Int32] = Array(repeating: 0, count: Int(MAX_GENTITIES))
 
     // MARK: - cg_view.c
 
-    /// Raven's `static vec3_t cameramins` of `cg_view.c`.
+    /// Raven's `static vec3_t cameramins = { -CAMERA_SIZE, -CAMERA_SIZE, -CAMERA_SIZE }` of `cg_view.c`.
     /// Source: oracle/codemp/cgame/cg_view.c:221
-    // TODO: Port cameramins
-    lazy var cameramins: JKAShared.vec3_t = { () -> JKAShared.vec3_t in portMissing("cameramins", source: "oracle/codemp/cgame/cg_view.c:221") }()
+    var cameramins: JKAShared.vec3_t = JKAShared.vec3_t(-Float(CAMERA_SIZE), -Float(CAMERA_SIZE), -Float(CAMERA_SIZE))
 
-    /// Raven's `static vec3_t cameramaxs` of `cg_view.c`.
+    /// Raven's `static vec3_t cameramaxs = { CAMERA_SIZE, CAMERA_SIZE, CAMERA_SIZE }` of `cg_view.c`.
     /// Source: oracle/codemp/cgame/cg_view.c:222
-    // TODO: Port cameramaxs
-    lazy var cameramaxs: JKAShared.vec3_t = { () -> JKAShared.vec3_t in portMissing("cameramaxs", source: "oracle/codemp/cgame/cg_view.c:222") }()
+    var cameramaxs: JKAShared.vec3_t = JKAShared.vec3_t(Float(CAMERA_SIZE), Float(CAMERA_SIZE), Float(CAMERA_SIZE))
 
-    /// Raven's `vec3_t cameraCurTarget` of `cg_view.c`.
+    /// Raven's `vec3_t cameraCurTarget={0,0,0}` of `cg_view.c`.
     /// Source: oracle/codemp/cgame/cg_view.c:227
-    // TODO: Port cameraCurTarget
-    lazy var cameraCurTarget: JKAShared.vec3_t = { () -> JKAShared.vec3_t in portMissing("cameraCurTarget", source: "oracle/codemp/cgame/cg_view.c:227") }()
+    var cameraCurTarget: JKAShared.vec3_t = vec3_t()
 
-    /// Raven's `vec3_t cameraCurLoc` of `cg_view.c`.
+    /// Raven's `vec3_t cameraCurLoc={0,0,0}` of `cg_view.c`.
     /// Source: oracle/codemp/cgame/cg_view.c:227
-    // TODO: Port cameraCurLoc
-    lazy var cameraCurLoc: JKAShared.vec3_t = { () -> JKAShared.vec3_t in portMissing("cameraCurLoc", source: "oracle/codemp/cgame/cg_view.c:227") }()
+    var cameraCurLoc: JKAShared.vec3_t = vec3_t()
 
-    /// Raven's `vec3_t cg_lastTurretViewAngles` of `cg_view.c`.
+    /// Raven's `vec3_t cg_lastTurretViewAngles={0}` of `cg_view.c`.
     /// Source: oracle/codemp/cgame/cg_view.c:1476
-    // TODO: Port cg_lastTurretViewAngles
-    lazy var cg_lastTurretViewAngles: JKAShared.vec3_t = { () -> JKAShared.vec3_t in portMissing("cg_lastTurretViewAngles", source: "oracle/codemp/cgame/cg_view.c:1476") }()
+    var cg_lastTurretViewAngles: JKAShared.vec3_t = vec3_t()
 
-    /// Raven's `vec3_t cg_autoMapAngle` of `cg_view.c`.
+    /// Raven's `vec3_t cg_autoMapAngle = {90.0f, 0.0f, 0.0f}` of `cg_view.c`.
     /// Source: oracle/codemp/cgame/cg_view.c:2279
-    // TODO: Port cg_autoMapAngle
-    lazy var cg_autoMapAngle: JKAShared.vec3_t = { () -> JKAShared.vec3_t in portMissing("cg_autoMapAngle", source: "oracle/codemp/cgame/cg_view.c:2279") }()
+    var cg_autoMapAngle: JKAShared.vec3_t = JKAShared.vec3_t(90.0, 0.0, 0.0)
 
     // MARK: - fx_bryarpistol.c
 
-    /// Raven's `static vec3_t WHITE` of `fx_bryarpistol.c`.
+    /// Raven's `static vec3_t WHITE ={1.0f,1.0f,1.0f}` of `fx_bryarpistol.c`.
     /// Source: oracle/codemp/cgame/fx_bryarpistol.c:219
-    // TODO: Port WHITE
-    lazy var fx_bryarpistol_WHITE: JKAShared.vec3_t = { () -> JKAShared.vec3_t in portMissing("WHITE", source: "oracle/codemp/cgame/fx_bryarpistol.c:219") }()
+    var fx_bryarpistol_WHITE: JKAShared.vec3_t = JKAShared.vec3_t(1.0, 1.0, 1.0)
 
-    /// Raven's `static vec3_t BRIGHT` of `fx_bryarpistol.c`.
+    /// Raven's `static vec3_t BRIGHT={0.75f,0.5f,1.0f}` of `fx_bryarpistol.c`.
     /// Source: oracle/codemp/cgame/fx_bryarpistol.c:220
-    // TODO: Port BRIGHT
-    lazy var BRIGHT: JKAShared.vec3_t = { () -> JKAShared.vec3_t in portMissing("BRIGHT", source: "oracle/codemp/cgame/fx_bryarpistol.c:220") }()
+    var BRIGHT: JKAShared.vec3_t = JKAShared.vec3_t(0.75, 0.5, 1.0)
 
     // MARK: - fx_disruptor.c
 
-    /// Raven's `static vec3_t WHITE` of `fx_disruptor.c`.
+    /// Raven's `static vec3_t WHITE={1.0f,1.0f,1.0f}` of `fx_disruptor.c`.
     /// Source: oracle/codemp/cgame/fx_disruptor.c:11
-    // TODO: Port WHITE
-    lazy var fx_disruptor_WHITE: JKAShared.vec3_t = { () -> JKAShared.vec3_t in portMissing("WHITE", source: "oracle/codemp/cgame/fx_disruptor.c:11") }()
+    var fx_disruptor_WHITE: JKAShared.vec3_t = JKAShared.vec3_t(1.0, 1.0, 1.0)
 }
 
 /// One row of Raven's `commands` of `cg_consolecmds.c`, the `consoleCommand_t` record with the command function as a Swift function value.
