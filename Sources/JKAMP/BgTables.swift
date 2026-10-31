@@ -30,6 +30,14 @@ public nonisolated(unsafe) let saberMoveData: Slots<SaberMoveData> = makeSaberMo
 /// Source: oracle/codemp/cgame/animtable.h:9
 public nonisolated(unsafe) let animTable: Slots<StringIDTable> = makeAnimTable()
 
+/// Raven's animation event type name table, over the C storage of `Sources/CJKAMP/bg_tables.c`.
+/// Source: oracle/codemp/game/bg_panimate.c:1758
+public nonisolated(unsafe) let animEventTypeTable: Slots<StringIDTable> = makeAnimEventTypeTable()
+
+/// Raven's footstep type name table, over the C storage of `Sources/CJKAMP/bg_tables.c`.
+/// Source: oracle/codemp/game/bg_panimate.c:1772
+public nonisolated(unsafe) let footstepTypeTable: Slots<StringIDTable> = makeFootstepTypeTable()
+
 /// Raven's saber type name table, over the C storage of `Sources/CJKAMP/bg_tables.c`.
 /// Source: oracle/codemp/game/bg_saberLoad.c:46
 public nonisolated(unsafe) let SaberTable: Slots<StringIDTable> = makeSaberTable()
@@ -110,6 +118,18 @@ private func makeSaberMoveData() -> Slots<SaberMoveData> {
 private func makeAnimTable() -> Slots<StringIDTable> {
     let base = withUnsafeMutablePointer(to: &CJKAMP.animTable) { UnsafeMutableRawPointer($0) }
     let count = MemoryLayout.size(ofValue: CJKAMP.animTable) / StringIDTable.stride
+    return Slots(views: base, count: count, stride: StringIDTable.stride)
+}
+
+private func makeAnimEventTypeTable() -> Slots<StringIDTable> {
+    let base = withUnsafeMutablePointer(to: &CJKAMP.animEventTypeTable) { UnsafeMutableRawPointer($0) }
+    let count = MemoryLayout.size(ofValue: CJKAMP.animEventTypeTable) / StringIDTable.stride
+    return Slots(views: base, count: count, stride: StringIDTable.stride)
+}
+
+private func makeFootstepTypeTable() -> Slots<StringIDTable> {
+    let base = withUnsafeMutablePointer(to: &CJKAMP.footstepTypeTable) { UnsafeMutableRawPointer($0) }
+    let count = MemoryLayout.size(ofValue: CJKAMP.footstepTypeTable) / StringIDTable.stride
     return Slots(views: base, count: count, stride: StringIDTable.stride)
 }
 

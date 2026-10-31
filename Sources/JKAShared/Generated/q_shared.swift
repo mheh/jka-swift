@@ -739,7 +739,7 @@ public let TR_GRAVITY: trType_t = Int32(truncatingIfNeeded: CJKAShared.TR_GRAVIT
 
 /// Source: oracle/codemp/game/q_shared.h:351
 /// Source: oracle/code/game/q_shared.h:173
-public typealias ulong = UInt
+public typealias ulong = CUnsignedLong
 
 /// Source: oracle/codemp/game/q_shared.h:350
 /// Source: oracle/code/game/q_shared.h:174

@@ -771,8 +771,10 @@ func PM_SaberLockLoseAnim(_ genemy: JKAMP.PlayerState, _ victory: Bool, _ superB
         break
     }
     if loseAnim != -1 {
-        NPC_SetAnim(pm.entity(at: genemy.clientNum), SETANIM_BOTH, loseAnim, SETANIM_FLAG_OVERRIDE | SETANIM_FLAG_HOLD)
-        genemy.weaponTime = genemy.torsoTimer // + 250;
+        if bg.consumer == .game {
+            NPC_SetAnim(pm.entity(at: genemy.clientNum), SETANIM_BOTH, loseAnim, SETANIM_FLAG_OVERRIDE | SETANIM_FLAG_HOLD)
+            genemy.weaponTime = genemy.torsoTimer // + 250;
+        }
         genemy.saberBlocked = BLOCKED_NONE
         genemy.weaponstate = WEAPON_READY
     }
@@ -819,13 +821,17 @@ func PM_SaberLockResultAnim(_ duelist: JKAMP.PlayerState, _ superBreak: Bool, _ 
     }
 
     //play the anim and hold it
-    //server-side: set it on the other guy, too
-    if duelist.clientNum == pm.ps.clientNum {
-        //me
-        PM_SetAnim(SETANIM_BOTH, baseAnim, SETANIM_FLAG_OVERRIDE | SETANIM_FLAG_HOLD, 0)
+    if bg.consumer == .game {
+        //server-side: set it on the other guy, too
+        if duelist.clientNum == pm.ps.clientNum {
+            //me
+            PM_SetAnim(SETANIM_BOTH, baseAnim, SETANIM_FLAG_OVERRIDE | SETANIM_FLAG_HOLD, 0)
+        } else {
+            //other guy
+            NPC_SetAnim(pm.entity(at: duelist.clientNum), SETANIM_BOTH, baseAnim, SETANIM_FLAG_OVERRIDE | SETANIM_FLAG_HOLD)
+        }
     } else {
-        //other guy
-        NPC_SetAnim(pm.entity(at: duelist.clientNum), SETANIM_BOTH, baseAnim, SETANIM_FLAG_OVERRIDE | SETANIM_FLAG_HOLD)
+        PM_SetAnim(SETANIM_BOTH, baseAnim, SETANIM_FLAG_OVERRIDE | SETANIM_FLAG_HOLD, 0)
     }
 
     if superBreak && !won {
@@ -841,7 +847,7 @@ func PM_SaberLockResultAnim(_ duelist: JKAMP.PlayerState, _ superBreak: Bool, _ 
         G_SetOrigin(saberent, duelist->currentOrigin);
         }
         */
-        if 1 != 0 {
+        if (bg.consumer == .game ? 1 != 0 : duelist.clientNum == pm.ps.clientNum) {
             //set sabermove to none
             duelist.saberMove = LS_NONE
             //Hold the anim a little longer than it is
@@ -849,7 +855,7 @@ func PM_SaberLockResultAnim(_ duelist: JKAMP.PlayerState, _ superBreak: Bool, _ 
         }
     }
 
-    if 1 != 0 {
+    if (bg.consumer == .game ? 1 != 0 : duelist.clientNum == pm.ps.clientNum) {
         //no attacking during this anim
         duelist.weaponTime = duelist.torsoTimer
         duelist.saberBlocked = BLOCKED_NONE
@@ -3155,14 +3161,43 @@ func PM_SetSaberMove(_ newMove: Int32) {
 /// Source: oracle/codemp/game/bg_saber.c:4100
 func BG_MySaber(_ clientNum: Int32, _ saberNum: Int32) -> JKAMP.SaberInfo? {
     //returns a pointer to the requested saberNum
-    if bgEntityAtInuse(of: clientNum), let saber = bgClientSaber(of: clientNum, at: saberNum) {
-        // Raven tests `!ent->client->saber[saberNum].model` and `!ent->client->saber[saberNum].model[0]`.
-        // Both read as the same Swift test, so the draft writes it once.
-        if saber.model.isEmpty {
-            //don't have saber anymore!
-            return nil
+    switch bg.consumer {
+    case .game:
+        if bgEntityAtInuse(of: clientNum), let saber = bgClientSaber(of: clientNum, at: saberNum) {
+            // Raven tests `!ent->client->saber[saberNum].model` and `!ent->client->saber[saberNum].model[0]`.
+            // Both read as the same Swift test, so the draft writes it once.
+            if saber.model.isEmpty {
+                //don't have saber anymore!
+                return nil
+            }
+            return saber
         }
-        return saber
+
+    case .cgame:
+        // Raven's `ci` points at `cgs.clientinfo[clientNum]` or at the `npcClient` of `cg_entities[clientNum]`, and bg holds no view of either.
+        // So each arm reads the fields of `ci` through the callbacks of the table Raven named.
+        if clientNum < MAX_CLIENTS {
+            if bgClientInfoInfoValid(of: clientNum) {
+                let saber = bgClientInfoSaber(of: clientNum, at: saberNum)
+                if saber.model.isEmpty {
+                    //don't have sabers anymore!
+                    return nil
+                }
+                return saber
+            }
+        } else {
+            if bgCentNpcClient(of: clientNum) && bgNpcClientInfoValid(of: clientNum) {
+                let saber = bgNpcClientSaber(of: clientNum, at: saberNum)
+                if saber.model.isEmpty {
+                    //don't have sabers anymore!
+                    return nil
+                }
+                return saber
+            }
+        }
+
+    case .ui:
+        break
     }
 
     return nil

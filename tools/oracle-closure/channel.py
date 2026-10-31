@@ -35,9 +35,8 @@ import clang.cindex as ci
 from clang.cindex import CursorKind
 
 import closure as C
-import rulings
 from reexport import REPO, SOURCES
-from rulings import ARM_HOOKS, EXTRA_HOOKS, LIST_TRAPS, OWN_HOOKS, QAGAME_ONLY, SHARED_STEMS
+from rulings import ARM_HOOKS, CGAME_READS, EXTRA_HOOKS, LIST_TRAPS, OWN_HOOKS, QAGAME_ONLY, SHARED_STEMS
 from skeleton import LOGIC, OPTIONAL_INOUTS, VIEWS
 from table import Param, SourceFile, Table
 
@@ -277,6 +276,13 @@ class Channel:
             else:
                 hook.returns = read.swift
             hooks.append(hook)
+        # A cgame read stands on the channel with its trapping default, and the game's install skips it as a foreign hook.
+        for name, (cite, params, returns, install) in CGAME_READS.items():
+            hook = Hook(None, name, cite=cite, foreign=True)
+            hook.install = install
+            hook.params = [Param(p, t, "bare", label=label) for p, t, label in params]
+            hook.returns = returns
+            hooks.append(hook)
         return hooks
 
     # MARK: - The bg side
@@ -474,7 +480,7 @@ class ConsumerInstall:
                 m = re.match(r"(private |fileprivate )?(?:public )?func `?(\w+)`?\(", line)
                 if m and m.group(2) not in self.declarations:
                     self.declarations[m.group(2)] = [m.group(1) or ""] + lines[max(0, i - 4):i]
-        self.reads = getattr(rulings, "CGAME_READS", {})
+        self.reads = CGAME_READS
         self.counts: Counter[str] = Counter()
 
     @staticmethod

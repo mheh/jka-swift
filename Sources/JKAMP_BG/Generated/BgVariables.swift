@@ -27,6 +27,14 @@ public struct BgVariables {
     /// Source: oracle/codemp/game/bg_panimate.c:1703
     public var bgNumAllAnims: Int32 = 2
 
+    /// Raven's `int bgNumAnimEvents` of `bg_panimate.c`.
+    /// Source: oracle/codemp/game/bg_panimate.c:2167
+    public var bgNumAnimEvents: Int32 = 1
+
+    /// Raven's `int bg_animParseIncluding` of `bg_panimate.c`.
+    /// Source: oracle/codemp/game/bg_panimate.c:2168
+    public var bg_animParseIncluding: Int32 = 0
+
     /// Raven's `pmove_t *pm` of `bg_pmove.c`.
     /// Source: oracle/codemp/game/bg_pmove.c:30
     public var pm: JKAMP.Pmove? = nil
