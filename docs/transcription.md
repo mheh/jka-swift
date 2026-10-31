@@ -495,6 +495,7 @@ When Raven names one such record more than once in a body, as BG_MySaber does wi
 The local stands in the deepest block that holds every use, before the statement that holds the first use.
 The rule holds when no variable inside the read is written or addressed in the body, and when the first use runs every time its statement runs.
 Any other repeat keeps one call per use.
+A cgame field a bg body reaches on its cgame arm is one read callback, named in `CGAME_READS` of `rulings.py`. Each row carries Raven's cite, the parameters, the result, and the cgame install expression. `channel.py` writes the cgame `installBgChannel()` from the row, and the game install skips it.
 An object-like macro of a game header that a bg body reads is a constant of the shared module. `w_saber.h` is on the bg module's entry list for that reason, so `merge.py` places its macros in `CJKAMP`, and a bg body spells `SEF_LOCK_WON` bare.
 `vmCvar_t` has the view `VmCvar`, and `bg_fighterAltControl` is `var bg_fighterAltControl: VmCvar { bg.fighterAltControl }` in `bg_local.swift`, a view over the game's cvar memory, so a body reads `bg_fighterAltControl.integer`. Until the game's cvar storage exists, the default is a view over one zeroed `vmCvar_t` the state allocates, so `.integer` reads 0, Raven's default.
 
