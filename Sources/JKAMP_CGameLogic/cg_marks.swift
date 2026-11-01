@@ -55,16 +55,15 @@ let MAX_SHADER_ANIM_FRAMES = 64 as Int32
 var shaderAnimNames: [String?] { world.shaderAnimNames }
 
 /// Source: oracle/codemp/cgame/cg_marks.c:367
-// Raven wrote: static qhandle_t shaderAnims[MAX_SHADER_ANIMS][MAX_SHADER_ANIM_FRAMES]
 let shaderAnims: [[JKAShared.qhandle_t]] = [[JKAShared.qhandle_t]](repeating: [JKAShared.qhandle_t](repeating: 0, count: 64), count: 32)
 
 /// Source: oracle/codemp/cgame/cg_marks.c:368
-// Raven wrote: static int shaderAnimCounts[MAX_SHADER_ANIMS]
-let shaderAnimCounts: [Int32] = { () -> [Int32] in portMissing("shaderAnimCounts", source: "oracle/codemp/cgame/cg_marks.c:368") }()
+/// Raven's data table, a hand property of `CGameWorld`.
+var shaderAnimCounts: [Int32] { world.shaderAnimCounts }
 
 /// Source: oracle/codemp/cgame/cg_marks.c:371
-// Raven wrote: static float shaderAnimSTRatio[MAX_SHADER_ANIMS]
-let shaderAnimSTRatio: [Float] = { () -> [Float] in portMissing("shaderAnimSTRatio", source: "oracle/codemp/cgame/cg_marks.c:371") }()
+/// Raven's data table, a hand property of `CGameWorld`.
+var shaderAnimSTRatio: [Float] { world.shaderAnimSTRatio }
 
 /// Source: oracle/codemp/cgame/cg_marks.c:374
 var numShaderAnims: Int32 {
@@ -94,8 +93,8 @@ var free_particles: Cparticle? {
 var particles: Slots<Cparticle> { world.storage.particles }
 
 /// Source: oracle/codemp/cgame/cg_marks.c:382
-// Raven wrote: int cl_numparticles = MAX_PARTICLES
-let cl_numparticles: Int32 = { () -> Int32 in portMissing("cl_numparticles", source: "oracle/codemp/cgame/cg_marks.c:382") }()
+/// Raven's initialized variable, a hand property of `CGameWorld`.
+var cl_numparticles: Int32 { world.cl_numparticles }
 
 /// Source: oracle/codemp/cgame/cg_marks.c:384
 var initparticles: Bool {
@@ -252,7 +251,7 @@ func CG_ImpactMark(_ markShader: JKAShared.qhandle_t, _ origin: JKAShared.vec3_t
     var i: Int32 = 0
     var j: Int32 = 0
     var numFragments: Int32 = 0
-    var mf: MarkFragment?
+    var mfIndex: Int32 = 0
     // Raven's record lives to the end of his block, so the block is the closure.
     // The closure gives true where Raven returns from the function.
     let earlyOut = MarkFragment.scratch(count: 128) { markFragments -> Bool in
@@ -302,9 +301,64 @@ func CG_ImpactMark(_ markShader: JKAShared.qhandle_t, _ origin: JKAShared.vec3_t
         colors[2] = UInt8(truncatingIfNeeded: Int32(blue * 255))
         colors[3] = UInt8(truncatingIfNeeded: Int32(alpha * 255))
 
-        // Port-note: Raven's block leaves a loop outside the record's scope, and the closure cannot.
-        // Raven wrote: for ( i = 0, mf = markFragments ; i < numFragments ; i++, mf++ ) { polyVert_t *v; polyVert_t verts[MAX_VERTS_ON_POLY]; markPoly_t *mark; // we have an upper limit on the complexity of polygons // that we store persistantly if ( mf->numPoints > MAX_VERTS_ON_POLY ) { mf->numPoints = MAX_VERTS_ON_POLY; } for ( j = 0, v = verts ; j < mf->numPoints ; j++, v++ ) { vec3_t delta; VectorCopy( markPoints[mf->firstPoint + j], v->xyz ); VectorSubtract( v->xyz, origin, delta ); v->st[0] = 0.5 + DotProduct( delta, axis[1] ) * texCoordScale; v->st[1] = 0.5 + DotProduct( delta, axis[2] ) * texCoordScale; *(int *)v->modulate = *(int *)colors; } // if it is a temporary (shadow) mark, add it immediately and forget about it if ( temporary ) { trap_R_AddPolyToScene( markShader, mf->numPoints, verts ); continue; } // otherwise save it persistantly mark = CG_AllocMark(); mark->time = cg.time; mark->alphaFade = alphaFade; mark->markShader = markShader; mark->poly.numVerts = mf->numPoints; mark->color[0] = red; mark->color[1] = green; mark->color[2] = blue; mark->color[3] = alpha; memcpy( mark->verts, verts, mf->numPoints * sizeof( verts[0] ) ); markTotal++; }
-        portMissing("CG_ImpactMark", source: "oracle/codemp/cgame/cg_marks.c:110")
+        i = 0
+        mfIndex = 0
+        while i < numFragments {
+            PolyVert.scratch(count: Int(MAX_VERTS_ON_POLY)) { verts in
+                var vIndex: Int32 = 0
+                var mark: MarkPoly?
+
+                // we have an upper limit on the complexity of polygons
+                // that we store persistantly
+                if markFragments[mfIndex].numPoints > MAX_VERTS_ON_POLY {
+                    markFragments[mfIndex].numPoints = MAX_VERTS_ON_POLY
+                }
+                j = 0
+                vIndex = 0
+                while j < markFragments[mfIndex].numPoints {
+                    var delta = vec3_t()
+
+                    verts[vIndex].xyz = markPoints[markFragments[mfIndex].firstPoint + j]
+
+                    delta = verts[vIndex].xyz - origin
+                    verts[vIndex].st[0] = Float(0.5 + Double(_DotProduct(delta, axis[1]) * texCoordScale))
+                    verts[vIndex].st[1] = Float(0.5 + Double(_DotProduct(delta, axis[2]) * texCoordScale))
+                    // Raven copies the four bytes of `colors` as one int.
+                    verts[vIndex].modulate[0] = colors[0]
+                    verts[vIndex].modulate[1] = colors[1]
+                    verts[vIndex].modulate[2] = colors[2]
+                    verts[vIndex].modulate[3] = colors[3]
+                    j += 1
+                    vIndex += 1
+                }
+
+                // if it is a temporary (shadow) mark, add it immediately and forget about it
+                if temporary {
+                    trap_R_AddPolyToScene(markShader, markFragments[mfIndex].numPoints, verts[0])
+                    return
+                }
+
+                // otherwise save it persistantly
+                mark = CG_AllocMark()
+                mark!.time = cg.time
+                mark!.alphaFade = alphaFade
+                mark!.markShader = markShader
+                mark!.poly.numVerts = markFragments[mfIndex].numPoints
+                mark!.color[0] = red
+                mark!.color[1] = green
+                mark!.color[2] = blue
+                mark!.color[3] = alpha
+                // Raven copies the first `numPoints` records with one memcpy.
+                var k: Int32 = 0
+                while k < markFragments[mfIndex].numPoints {
+                    mark!.verts[k].copy(from: verts[k])
+                    k += 1
+                }
+                markTotal += 1
+            }
+            i += 1
+            mfIndex += 1
+        }
         return false
     }
     if earlyOut {
@@ -387,9 +441,7 @@ func CG_AddMarks() {
             }
         }
 
-        // Port-note: The draft of this statement did not compile, and the compiler wrote "cannot convert value of type 'Slots<PolyVert>' to expected argument type 'PolyVert'".
-        // Raven wrote: trap_R_AddPolyToScene( mp->markShader, mp->poly.numVerts, mp->verts )
-        portMissing("CG_AddMarks", source: "oracle/codemp/cgame/cg_marks.c:221")
+        trap_R_AddPolyToScene(mp!.markShader, mp!.poly.numVerts, mp!.verts[0])
         mp = next
     }
 }
@@ -1053,13 +1105,9 @@ func CG_AddParticleToScene(_ p: Cparticle, _ org: JKAShared.vec3_t, _ alpha: Flo
             }
 
             if p.type == P_WEATHER || p.type == P_WEATHER_TURBULENT || p.type == P_WEATHER_FLURRY {
-                // Port-note: Raven passes `TRIverts` to `trap_R_AddPolyToScene`, whose `verts` parameter takes one record, and Swift holds the argument as the Slots over the records.
-                // Raven wrote: trap_R_AddPolyToScene( p->pshader, 3, TRIverts )
-                portMissing("CG_AddParticleToScene", source: "oracle/codemp/cgame/cg_marks.c:436")
+                trap_R_AddPolyToScene(p.pshader, 3, TRIverts[0])
             } else {
-                // Port-note: Raven passes `verts` to `trap_R_AddPolyToScene`, whose `verts` parameter takes one record, and Swift holds the argument as the Slots over the records.
-                // Raven wrote: trap_R_AddPolyToScene( p->pshader, 4, verts )
-                portMissing("CG_AddParticleToScene", source: "oracle/codemp/cgame/cg_marks.c:436")
+                trap_R_AddPolyToScene(p.pshader, 4, verts[0])
             }
             return false
         }
@@ -1507,10 +1555,6 @@ func CG_ParticleExplosion(_ animStr: String, _ origin: JKAShared.vec3_t, _ vel: 
     // Raven assigns his own `duration` parameter. A Swift parameter is immutable, so the body takes a mutable copy of it.
     var duration = duration
 
-    // Port-note: The draft of this statement did not compile, and the compiler wrote "binary operator '<' cannot be applied to operands of type 'String' and 'Int'".
-    // Raven wrote: if (animStr < (char *)10) CG_Error( "CG_ParticleExplosion: animStr is probably an index rather than a string" )
-    portMissing("CG_ParticleExplosion", source: "oracle/codemp/cgame/cg_marks.c:1496")
-
     // find the animation string
     anim = 0
     while shaderAnimNames[anim] != nil {
@@ -1568,9 +1612,7 @@ func CG_AddParticleShrapnel(_ le: LocalEntity) {
 /// Source: oracle/codemp/cgame/cg_marks.c:1556
 func CG_NewParticleArea(_ num: Int32) -> Int32 {
     // const char *str;
-    // Port-note: A pointer local `char * str` with no view.
-    // Raven wrote: char *str;
-    portMissing("CG_NewParticleArea", source: "oracle/codemp/cgame/cg_marks.c:1556")
+    var str = TextCursor()
     var token: String
     let type: Int32
     var origin = vec3_t()
@@ -1581,17 +1623,13 @@ func CG_NewParticleArea(_ num: Int32) -> Int32 {
     let numparticles: Int32
     let snum: Int32
 
-    // Port-note: A store into `str`, a local the draft left as a hole.
-    // Raven wrote: str = (char *) CG_ConfigString (num)
-    portMissing("CG_NewParticleArea", source: "oracle/codemp/cgame/cg_marks.c:1556")
-    // Port-note: A read of `str`, a local the draft left as a hole.
-    // Raven wrote: if (!str[0]) return (0)
-    portMissing("CG_NewParticleArea", source: "oracle/codemp/cgame/cg_marks.c:1556")
+    str = TextCursor(CharBuf(CG_ConfigString(num)))
+    if str[0] == 0 {
+        return (0)
+    }
 
     // returns type 128 64 or 32
-    // Port-note: A cast to `const char **` the draft has no view for.
-    // Raven wrote: token = COM_Parse ((const char **)&str)
-    portMissing("CG_NewParticleArea", source: "oracle/codemp/cgame/cg_marks.c:1556")
+    token = COM_Parse(&str)
     type = atoi(token)
 
     if type == 1 {
@@ -1615,35 +1653,25 @@ func CG_NewParticleArea(_ num: Int32) -> Int32 {
 
     i = 0
     while i < 3 {
-        // Port-note: A cast to `const char **` the draft has no view for.
-        // Raven wrote: token = COM_Parse ((const char **)&str)
-        portMissing("CG_NewParticleArea", source: "oracle/codemp/cgame/cg_marks.c:1556")
+        token = COM_Parse(&str)
         origin[i] = Float(atof(token))
         i += 1
     }
 
     i = 0
     while i < 3 {
-        // Port-note: A cast to `const char **` the draft has no view for.
-        // Raven wrote: token = COM_Parse ((const char **)&str)
-        portMissing("CG_NewParticleArea", source: "oracle/codemp/cgame/cg_marks.c:1556")
+        token = COM_Parse(&str)
         origin2[i] = Float(atof(token))
         i += 1
     }
 
-    // Port-note: A cast to `const char **` the draft has no view for.
-    // Raven wrote: token = COM_Parse ((const char **)&str)
-    portMissing("CG_NewParticleArea", source: "oracle/codemp/cgame/cg_marks.c:1556")
+    token = COM_Parse(&str)
     numparticles = atoi(token)
 
-    // Port-note: A cast to `const char **` the draft has no view for.
-    // Raven wrote: token = COM_Parse ((const char **)&str)
-    portMissing("CG_NewParticleArea", source: "oracle/codemp/cgame/cg_marks.c:1556")
+    token = COM_Parse(&str)
     turb = atoi(token)
 
-    // Port-note: A cast to `const char **` the draft has no view for.
-    // Raven wrote: token = COM_Parse ((const char **)&str)
-    portMissing("CG_NewParticleArea", source: "oracle/codemp/cgame/cg_marks.c:1556")
+    token = COM_Parse(&str)
     snum = atoi(token)
 
     /*
