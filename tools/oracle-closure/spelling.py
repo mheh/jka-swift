@@ -554,6 +554,9 @@ class Types:
             if value.is_integer():
                 return Answer(want, "convert", crossing=str(int(value)))
             return Answer(want, "convert", crossing="Int32({text})")
+        if want in NARROW_STORAGE and have in ("Float", "Double") and not facts.is_literal:
+            # C converts the float to int and truncates the int into the narrow slot, `colors[0] = red * 255`.
+            return Answer(want, "convert", crossing=want + "(truncatingIfNeeded: Int32({text}))")
         if want in NARROW_STORAGE and have is not None and not facts.is_literal:
             # C truncates the int it computed into the narrow local at the store.
             return Answer(want, "convert", crossing=want + "(truncatingIfNeeded: {text})")
