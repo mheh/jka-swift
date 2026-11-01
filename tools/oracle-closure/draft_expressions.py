@@ -110,17 +110,17 @@ class Expressions:
         read = self.reads.get(("entities", tuple(fields), False))
         return read if read is not None and read.at else None
 
-    def vector_literal(self, cur: ci.Cursor) -> str:
-        """Raven's `{ 0, 0, 0 }` or `{0}` as the vector, with the members he left out at zero."""
+    def vector_literal(self, cur: ci.Cursor, count: int = 3) -> str:
+        """Raven's `{ 0, 0, 0 }` or `{0}` as the vector of `count` members, with the members he left out at zero."""
         cur = self.unwrap(cur)
         if cur.kind != CursorKind.INIT_LIST_EXPR:
             raise Hole("A vector local with an initializer that is not a list.")
         # Each member is a float, and C converts an int member at the initializer.
         words = [self.converted(k, "Float") for k in cur.get_children()]
-        if len(words) > 3:
-            raise Hole("A vector initializer with more than three members.")
-        words += ["0"] * (3 - len(words))
-        return f"vec3_t({', '.join(words)})"
+        if len(words) > count:
+            raise Hole(f"A vector initializer with more than {'three' if count == 3 else 'four'} members.")
+        words += ["0"] * (count - len(words))
+        return f"vec{count}_t({', '.join(words)})"
 
     def narrow_element(self, cur: ci.Cursor) -> str | None:
         """The slot text of Raven's `m[i]` over a narrow local array, `m[i]` as Swift stores it, or None for any other expression."""

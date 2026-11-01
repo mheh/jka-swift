@@ -286,6 +286,10 @@ class Generator:
         named = t.get_named_type() if t.kind == TypeKind.ELABORATED else t
         return named.kind == TypeKind.TYPEDEF and named.spelling == "vec3_t"
 
+    def is_vec4(self, t: ci.Type) -> bool:
+        named = t.get_named_type() if t.kind == TypeKind.ELABORATED else t
+        return named.kind == TypeKind.TYPEDEF and named.spelling == "vec4_t"
+
     def qualified_view(self, c_name: str, target: str) -> str:
         view, owner = self.views[c_name]
         return view if owner == target else f"{VIEW_OF[owner]}.{view}"
