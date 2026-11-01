@@ -156,6 +156,7 @@ CGAME_ROOTS = {
     "animevent_t": ("Animevent", "CJKAMP"),
     "bgLoadedEvents_t": ("BgLoadedEvents", "CJKAMP"),
     "itemDef_t": ("ItemDef", "CJKAMP_CGame"),
+    "menuDef_t": ("MenuDef", "CJKAMP_CGame"),
     "cachedAssets_t": ("CachedAssets", "CJKAMP_CGame"),
     # The game's view of CollisionRecord_t stands in JKAMP_Game, which a cgame target cannot import, so the cgame has its own.
     "CollisionRecord_t": ("CollisionRecord", "CJKAMP_CGame"),
