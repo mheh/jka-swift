@@ -165,21 +165,12 @@ func CG_ShowResponseHead() {
 }
 
 /// Source: oracle/codemp/cgame/cg_newDraw.c:876
-// TODO: Port signature
-// Raven wrote: void CG_RunMenuScript(char **args)
-// No table row for `char ** args`.
-func CG_RunMenuScript() -> Never {
-    // TODO: Port CG_RunMenuScript
-    portMissing("CG_RunMenuScript", source: "oracle/codemp/cgame/cg_newDraw.c:876")
+func CG_RunMenuScript(_ args: inout JKAShared.TextCursor) {
 }
 
 /// Source: oracle/codemp/cgame/cg_newDraw.c:879
-// TODO: Port signature
-// Raven wrote: qboolean CG_DeferMenuScript (char **args)
-// No table row for `char ** args`.
-func CG_DeferMenuScript() -> Never {
-    // TODO: Port CG_DeferMenuScript
-    portMissing("CG_DeferMenuScript", source: "oracle/codemp/cgame/cg_newDraw.c:879")
+func CG_DeferMenuScript(_ args: inout JKAShared.TextCursor) -> Bool {
+    return false
 }
 
 /// Source: oracle/codemp/cgame/cg_newDraw.c:884
