@@ -1203,8 +1203,7 @@ func CG_PrevInventory_f() {
 /// The thunks stand in this file, because the functions they call are private to it.
 private enum DisplayContextDefThunks {
     /// Source: oracle/codemp/cgame/cg_main.c:3020
-    // TODO: Port signature
-    static let CG_Cvar_Get: DisplayContextDefGetCVarValue = { _ in portMissing("CG_Cvar_Get", source: "oracle/codemp/cgame/cg_main.c:3020") }
+    static let CG_Cvar_Get: DisplayContextDefGetCVarValue = { JKAMP_CGameLogic.CG_Cvar_Get(text(at: $0!)) }
 
     /// Source: oracle/codemp/cgame/cg_main.c:3061
     static let CG_DrawCinematic: DisplayContextDefDrawCinematic = { JKAMP_CGameLogic.CG_DrawCinematic($0, $1, $2, $3, $4) }
@@ -1216,22 +1215,35 @@ private enum DisplayContextDefThunks {
     static let CG_FeederItemImage: DisplayContextDefFeederItemImage = { JKAMP_CGameLogic.CG_FeederItemImage($0, $1) }
 
     /// Source: oracle/codemp/cgame/cg_main.c:2909
-    // TODO: Port signature
-    static let CG_FeederItemText: DisplayContextDefFeederItemText = { _, _, _, _, _, _ in portMissing("CG_FeederItemText", source: "oracle/codemp/cgame/cg_main.c:2909") }
+    static let CG_FeederItemText: DisplayContextDefFeederItemText = { feederID, index, column, handle1, handle2, handle3 in
+        let text = JKAMP_CGameLogic.CG_FeederItemText(
+            feederID,
+            index,
+            column,
+            handle1.map { Slots<qhandle_t>(scalars: $0, count: 1) },
+            handle2.map { Slots<qhandle_t>(scalars: $0, count: 1) },
+            handle3.map { Slots<qhandle_t>(scalars: $0, count: 1) }
+        )
+        return ringText(text)
+    }
 
     /// Source: oracle/codemp/cgame/cg_main.c:3000
     static let CG_FeederSelection: DisplayContextDefFeederSelection = { JKAMP_CGameLogic.CG_FeederSelection($0, $1, ItemDef(handle: $2!)) ? 1 : 0 }
 
     /// Source: oracle/codemp/cgame/cg_main.c:2829
-    // TODO: Port signature
-    static let CG_OwnerDrawHandleKey: DisplayContextDefOwnerDrawHandleKey = { _, _, _, _ in portMissing("CG_OwnerDrawHandleKey", source: "oracle/codemp/cgame/cg_main.c:2829") }
+    static let CG_OwnerDrawHandleKey: DisplayContextDefOwnerDrawHandleKey = { ownerDraw, flags, special, key in
+        let slots = Slots<Float>(scalars: special!, count: 1)
+        var value = slots[0]
+        let handled = JKAMP_CGameLogic.CG_OwnerDrawHandleKey(ownerDraw, flags, &value, key)
+        slots[0] = value
+        return handled ? 1 : 0
+    }
 
     /// Source: oracle/codemp/cgame/cg_main.c:3031
     static let CG_OwnerDrawWidth: DisplayContextDefOwnerDrawWidth = { JKAMP_CGameLogic.CG_OwnerDrawWidth($0, $1) }
 
     /// Source: oracle/codemp/cgame/cg_main.c:3053
-    // TODO: Port signature
-    static let CG_PlayCinematic: DisplayContextDefPlayCinematic = { _, _, _, _, _ in portMissing("CG_PlayCinematic", source: "oracle/codemp/cgame/cg_main.c:3053") }
+    static let CG_PlayCinematic: DisplayContextDefPlayCinematic = { JKAMP_CGameLogic.CG_PlayCinematic(text(at: $0!), $1, $2, $3, $4) }
 
     /// Source: oracle/codemp/cgame/cg_main.c:3066
     static let CG_RunCinematicFrame: DisplayContextDefRunCinematicFrame = { JKAMP_CGameLogic.CG_RunCinematicFrame($0) }
@@ -1240,14 +1252,43 @@ private enum DisplayContextDefThunks {
     static let CG_StopCinematic: DisplayContextDefStopCinematic = { JKAMP_CGameLogic.CG_StopCinematic($0) }
 
     /// Source: oracle/codemp/cgame/cg_main.c:3027
-    // TODO: Port signature
-    static let CG_Text_PaintWithCursor: DisplayContextDefDrawTextWithCursor = { _, _, _, _, _, _, _, _, _, _ in portMissing("CG_Text_PaintWithCursor", source: "oracle/codemp/cgame/cg_main.c:3027") }
+    static let CG_Text_PaintWithCursor: DisplayContextDefDrawTextWithCursor = { x, y, scale, color, text, cursorPos, cursor, limit, style, iMenuFont in
+        JKAMP_CGameLogic.CG_Text_PaintWithCursor(
+            x,
+            y,
+            scale,
+            vector4(at: color!),
+            JKAMP_CGame.text(at: text!),
+            cursorPos,
+            cursor,
+            limit,
+            style,
+            iMenuFont
+        )
+    }
 
     /// Source: oracle/codemp/cgame/cg_main.c:1234
-    // TODO: Port signature
-    static let Com_Error: DisplayContextDefError = { _, _ in portMissing("Com_Error", source: "oracle/codemp/cgame/cg_main.c:1234") }
+    static let Com_Error: DisplayContextDefError = { JKAMP_CGameLogic.Com_Error($0, text(at: $1!)) }
 
     /// Source: oracle/codemp/cgame/cg_main.c:1245
-    // TODO: Port signature
-    static let Com_Printf: DisplayContextDefPrint = { _ in portMissing("Com_Printf", source: "oracle/codemp/cgame/cg_main.c:1245") }
+    static let Com_Printf: DisplayContextDefPrint = { JKAMP_CGameLogic.Com_Printf(text(at: $0!)) }
+
+    /// Source: oracle/codemp/cgame/cg_newDraw.c:876
+    static let CG_RunMenuScript: DisplayContextDefRunScript = {
+        let args = Slots<OpaquePointer?>(opaque: $0!, count: 1)
+        let p = args[0]
+        var cursor = TextCursor(CharBuf(text(at: p!)))
+        JKAMP_CGameLogic.CG_RunMenuScript(&cursor)
+        args[0] = cursor.offset.flatMap { OpaquePointer(bitPattern: Int(bitPattern: p) + Int($0)) }
+    }
+
+    /// Source: oracle/codemp/cgame/cg_newDraw.c:879
+    static let CG_DeferMenuScript: DisplayContextDefDeferScript = {
+        let args = Slots<OpaquePointer?>(opaque: $0!, count: 1)
+        let p = args[0]
+        var cursor = TextCursor(CharBuf(text(at: p!)))
+        let deferred = JKAMP_CGameLogic.CG_DeferMenuScript(&cursor)
+        args[0] = cursor.offset.flatMap { OpaquePointer(bitPattern: Int(bitPattern: p) + Int($0)) }
+        return deferred ? 1 : 0
+    }
 }

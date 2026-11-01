@@ -193,10 +193,18 @@ func CG_PredictPlayerState() {
 /// The thunks stand in this file, because the functions they call are private to it.
 private enum PmoveThunks {
     /// Source: oracle/codemp/cgame/cg_predict.c:393
-    // TODO: Port signature
-    static let CG_PointContents: PmovePointcontents = { _, _ in portMissing("CG_PointContents", source: "oracle/codemp/cgame/cg_predict.c:393") }
+    static let CG_PointContents: PmovePointcontents = { JKAMP_CGameLogic.CG_PointContents(vector(at: $0!), $1) }
 
     /// Source: oracle/codemp/cgame/cg_predict.c:359
-    // TODO: Port signature
-    static let CG_Trace: PmoveTrace = { _, _, _, _, _, _, _ in portMissing("CG_Trace", source: "oracle/codemp/cgame/cg_predict.c:359") }
+    static let CG_Trace: PmoveTrace = { result, start, mins, maxs, end, skipNumber, mask in
+        JKAMP_CGameLogic.CG_Trace(
+            Trace(handle: result!),
+            vector(at: start!),
+            mins.map { vector(at: $0) },
+            maxs.map { vector(at: $0) },
+            vector(at: end!),
+            skipNumber,
+            mask
+        )
+    }
 }
