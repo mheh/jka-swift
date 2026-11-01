@@ -92,6 +92,8 @@ class Facts:
     null_arm: bool = False
     # True when the body hands the `int *` on to an array a trap fills, so the parameter is that array too.
     fills_array: bool = False
+    # True when the body reads the pointer only through a dereference or a cast, so the pointer holds one scalar.
+    reinterprets: bool = False
     # The body already spells the expression as a Swift Bool, and the expression is a number Swift types by context.
     is_bool: bool = False
     is_literal: bool = False
@@ -312,9 +314,12 @@ class Types:
                     return Answer(f"[JKAShared.{t.get_pointee().spelling}]", "vec3_array")
                 # A pointer to one vector the caller owns, which Raven writes as `(*c)[i]`.
                 return Answer(f"inout JKAShared.{t.get_pointee().spelling}", "vec3_mut")
-            if facts.traps and pointee.is_const_qualified() and pointee.kind == TypeKind.FLOAT:
-                # A trap's `const float *` is a color of four floats the engine reads, `trap_R_SetColor(rgba)`, and Raven's callers pass NULL.
-                # The vector crosses as an optional value, and the trap packs it for the word, see traps.py.
+            if pointee.is_const_qualified() and pointee.kind == TypeKind.FLOAT and not facts.reinterprets:
+                # Raven's `const float *` is a color of four floats, `trap_R_SetColor(rgba)` and `CG_FillRect(..., color)`.
+                # A caller can pass NULL, so the color is optional.
+                # A body that reads the pointer only through `*f` or a cast holds one float, `FloatSwap(const float *f)`.
+                # That pointer takes the scalar arm below.
+                # The vector crosses as an optional value, and a trap packs it for the word, see traps.py.
                 return Answer("JKAShared.vec4_t?", "vec4_opt")
             if pointee.is_const_qualified() and pointee.kind in INT_KINDS | {TypeKind.FLOAT}:
                 # Raven takes the address of a const scalar to reinterpret its bytes, so the scalar crosses by value.

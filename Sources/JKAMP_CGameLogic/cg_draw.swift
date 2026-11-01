@@ -3045,7 +3045,7 @@ private func CG_DrawFPS(_ y: Float) -> Float {
 }
 
 /// Source: oracle/codemp/cgame/cg_draw.c:3117
-func CG_DrawHealthBarRough(_ x: Float, _ y: Float, _ width: Int32, _ height: Int32, _ ratio: Float, _ color1: Float, _ color2: Float) {
+func CG_DrawHealthBarRough(_ x: Float, _ y: Float, _ width: Int32, _ height: Int32, _ ratio: Float, _ color1: JKAShared.vec4_t?, _ color2: JKAShared.vec4_t?) {
     let midpoint: Float
     let remainder: Float
     var color3: [Float] = [1, 0, 0, 0.7]

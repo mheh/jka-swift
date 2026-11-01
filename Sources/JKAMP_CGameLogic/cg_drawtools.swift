@@ -14,7 +14,7 @@ Coordinates are 640*480 virtual values
 ```
 */
 /// Source: oracle/codemp/cgame/cg_drawtools.c:24
-func CG_DrawRect(_ x: Float, _ y: Float, _ width: Float, _ height: Float, _ size: Float, _ color: Float) {
+func CG_DrawRect(_ x: Float, _ y: Float, _ width: Float, _ height: Float, _ size: Float, _ color: JKAShared.vec4_t?) {
     // TODO: Port CG_DrawRect
     portMissing("CG_DrawRect", source: "oracle/codemp/cgame/cg_drawtools.c:24")
 }
@@ -62,7 +62,7 @@ real coords
 ```
 */
 /// Source: oracle/codemp/cgame/cg_drawtools.c:103
-func CG_FillRect2(_ x: Float, _ y: Float, _ width: Float, _ height: Float, _ color: Float) {
+func CG_FillRect2(_ x: Float, _ y: Float, _ width: Float, _ height: Float, _ color: JKAShared.vec4_t?) {
     // TODO: Port CG_FillRect2
     portMissing("CG_FillRect2", source: "oracle/codemp/cgame/cg_drawtools.c:103")
 }
@@ -77,7 +77,7 @@ Coordinates are 640*480 virtual values
 ```
 */
 /// Source: oracle/codemp/cgame/cg_drawtools.c:116
-func CG_FillRect(_ x: Float, _ y: Float, _ width: Float, _ height: Float, _ color: Float) {
+func CG_FillRect(_ x: Float, _ y: Float, _ width: Float, _ height: Float, _ color: JKAShared.vec4_t?) {
     // TODO: Port CG_FillRect
     portMissing("CG_FillRect", source: "oracle/codemp/cgame/cg_drawtools.c:116")
 }
@@ -148,7 +148,7 @@ func CG_DrawChar(_ x: Int32, _ y: Int32, _ width: Int32, _ height: Int32, _ ch: 
 }
 
 /// Source: oracle/codemp/cgame/cg_drawtools.c:212
-func CG_DrawStringExt(_ x: Int32, _ y: Int32, _ string: String, _ setColor: Float, _ forceColor: Bool, _ shadow: Bool, _ charWidth: Int32, _ charHeight: Int32, _ maxChars: Int32) {
+func CG_DrawStringExt(_ x: Int32, _ y: Int32, _ string: String, _ setColor: JKAShared.vec4_t?, _ forceColor: Bool, _ shadow: Bool, _ charWidth: Int32, _ charHeight: Int32, _ maxChars: Int32) {
     // TODO: Port CG_DrawStringExt
     portMissing("CG_DrawStringExt", source: "oracle/codemp/cgame/cg_drawtools.c:212")
 }
