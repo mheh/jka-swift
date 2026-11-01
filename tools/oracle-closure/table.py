@@ -72,7 +72,7 @@ class Param:
             return f"{self.name}?.base"
         if self.kind == "view_opt":
             return f"{self.name}?.handle"
-        if self.kind == "vec4_opt":
+        if self.kind in ("vec4_opt", "vec3_const_opt"):
             return f"{self.name.strip('`')} == nil ? nil : {self.name.strip('`')}Pointer"
         return self.name
 

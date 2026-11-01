@@ -1292,10 +1292,7 @@ func CG_DrawForcePower(_ menuHUD: MenuDef) {
         flash = true
         if cg.forceHUDNextFlashTime < cg.time {
             cg.forceHUDNextFlashTime = cg.time + 400
-            // Port-note: Raven passes NULL for the `origin` input of `trap_S_StartSound`, and the engine then plays the sound at the entity. A zero vector plays it at the world origin, so the trap needs an optional `origin`.
-            portMissing("CG_DrawForcePower", source: "oracle/codemp/cgame/cg_draw.c:1042")
-            var scratchOrigin = vec3_t()
-            trap_S_StartSound(&scratchOrigin, 0, CHAN_LOCAL, cgs.media.noforceSound)
+            trap_S_StartSound(nil, 0, CHAN_LOCAL, cgs.media.noforceSound)
 
             if cg.forceHUDActive {
                 cg.forceHUDActive = false
@@ -2273,10 +2270,7 @@ func CG_DrawVehicleWeaponsLinked(_ menuHUD: MenuDef, _ veh: Centity) {
     if cg_drawLink != drawLink {
         //state changed, play sound
         cg_drawLink = drawLink
-        // Port-note: Raven passes NULL for the `origin` input of `trap_S_StartSound`, and the engine then plays the sound at the entity. A zero vector plays it at the world origin, so the trap needs an optional `origin`.
-        portMissing("CG_DrawVehicleWeaponsLinked", source: "oracle/codemp/cgame/cg_draw.c:2197")
-        var scratchOrigin = vec3_t()
-        trap_S_StartSound(&scratchOrigin, cg.predictedPlayerState.clientNum, CHAN_LOCAL, trap_S_RegisterSound("sound/vehicles/common/linkweaps.wav"))
+        trap_S_StartSound(nil, cg.predictedPlayerState.clientNum, CHAN_LOCAL, trap_S_RegisterSound("sound/vehicles/common/linkweaps.wav"))
     }
 
     if drawLink {
@@ -3300,7 +3294,7 @@ func CG_DrawRadar(_ y: Float) -> Float {
                             impactSoundDebounceTime = cg.time + 100
                         }
                         _VectorMA(cg.refdef.vieworg, -500.0 * (surfaceDist / RADAR_ASTEROID_RANGE), dirPlayer, &soundOrg)
-                        trap_S_StartSound(&soundOrg, ENTITYNUM_WORLD, CHAN_AUTO, trap_S_RegisterSound("sound/vehicles/common/impactalarm.wav"))
+                        trap_S_StartSound(soundOrg, ENTITYNUM_WORLD, CHAN_AUTO, trap_S_RegisterSound("sound/vehicles/common/impactalarm.wav"))
                     }
                     //brighten it the closer it is
                     if surfaceDist > RADAR_ASTEROID_RANGE * 0.66 {
@@ -3360,7 +3354,7 @@ func CG_DrawRadar(_ y: Float) -> Float {
                                 actualDist = RADAR_MISSILE_RANGE
                             }
                             _VectorMA(cg.refdef.vieworg, -500.0 * (actualDist / RADAR_MISSILE_RANGE), dirPlayer, &soundOrg)
-                            trap_S_StartSound(&soundOrg, ENTITYNUM_WORLD, CHAN_AUTO, alarmSound)
+                            trap_S_StartSound(soundOrg, ENTITYNUM_WORLD, CHAN_AUTO, alarmSound)
                         }
                     }
                 }
@@ -5538,15 +5532,15 @@ private func CG_DrawRocketLocking(_ lockEntNum: Int32, _ lockTime: Int32) {
         if oldDif != dif {
             if dif == 8 {
                 if cg.snap!.ps.m_iVehicleNum != 0 {
-                    trap_S_StartSound(&org, 0, CHAN_AUTO, trap_S_RegisterSound("sound/vehicles/weapons/common/lock.wav"))
+                    trap_S_StartSound(org, 0, CHAN_AUTO, trap_S_RegisterSound("sound/vehicles/weapons/common/lock.wav"))
                 } else {
-                    trap_S_StartSound(&org, 0, CHAN_AUTO, trap_S_RegisterSound("sound/weapons/rocket/lock.wav"))
+                    trap_S_StartSound(org, 0, CHAN_AUTO, trap_S_RegisterSound("sound/weapons/rocket/lock.wav"))
                 }
             } else {
                 if cg.snap!.ps.m_iVehicleNum != 0 {
-                    trap_S_StartSound(&org, 0, CHAN_AUTO, trap_S_RegisterSound("sound/vehicles/weapons/common/tick.wav"))
+                    trap_S_StartSound(org, 0, CHAN_AUTO, trap_S_RegisterSound("sound/vehicles/weapons/common/tick.wav"))
                 } else {
-                    trap_S_StartSound(&org, 0, CHAN_AUTO, trap_S_RegisterSound("sound/weapons/rocket/tick.wav"))
+                    trap_S_StartSound(org, 0, CHAN_AUTO, trap_S_RegisterSound("sound/weapons/rocket/tick.wav"))
                 }
             }
         }

@@ -297,6 +297,12 @@ class Types:
                 # so the vector crosses as an optional inout, and the NULL test keeps its form.
                 # The skeleton writes a forward with the plain inout vector beside the function, for the callers that pass one.
                 return Answer(f"inout JKAShared.{t.spelling.split()[-1]}?", "vec3_mut_opt")
+            if facts.null_reaches and facts.traps:
+                # A caller hands the trap NULL, `trap_S_StartSound(NULL, ...)`.
+                # The engine reads NULL as no vector, and this sound then plays at the entity.
+                # The vector crosses as an optional value, and the trap sends the zero word for nil, see traps.py.
+                # Raven's trap declares some such vectors without const, and the engine only reads each one, `S_StartSound(const vec3_t origin, ...)`.
+                return Answer(f"JKAShared.{t.spelling.split()[-1]}?", "vec3_const_opt")
             if "const" in t.spelling:
                 return Answer(f"JKAShared.{t.spelling.split()[-1]}", "vec3_const")
             if facts.store_swept and not facts.stores_through and not facts.traps:

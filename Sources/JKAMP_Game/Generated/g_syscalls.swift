@@ -250,12 +250,12 @@ public func trap_SetBrushModel(_ ent: Entity, _ name: String) {
 }
 
 /// Source: oracle/codemp/game/g_syscalls.c:148
-public func trap_Trace(_ results: JKAMP.Trace, _ start: JKAShared.vec3_t, _ mins: JKAShared.vec3_t, _ maxs: JKAShared.vec3_t, _ end: JKAShared.vec3_t, _ passEntityNum: Int32, _ contentmask: Int32) {
+public func trap_Trace(_ results: JKAMP.Trace, _ start: JKAShared.vec3_t, _ mins: JKAShared.vec3_t?, _ maxs: JKAShared.vec3_t?, _ end: JKAShared.vec3_t, _ passEntityNum: Int32, _ contentmask: Int32) {
     _ = withUnsafePointer(to: start) { start in
-        withUnsafePointer(to: mins) { mins in
-            withUnsafePointer(to: maxs) { maxs in
+        withUnsafePointer(to: mins ?? .zero) { minsPointer in
+            withUnsafePointer(to: maxs ?? .zero) { maxsPointer in
                 withUnsafePointer(to: end) { end in
-                    Syscall.call(G_TRACE, results, start, mins, maxs, end, passEntityNum, contentmask, 0, 10)
+                    Syscall.call(G_TRACE, results, start, mins == nil ? nil : minsPointer, maxs == nil ? nil : maxsPointer, end, passEntityNum, contentmask, 0, 10)
                 }
             }
         }
@@ -264,12 +264,12 @@ public func trap_Trace(_ results: JKAMP.Trace, _ start: JKAShared.vec3_t, _ mins
 
 //g2TraceType 0 is no g2 col, 1 is collision against anything not EF_DEAD, 2 is collision against all.
 /// Source: oracle/codemp/game/g_syscalls.c:153
-public func trap_G2Trace(_ results: JKAMP.Trace, _ start: JKAShared.vec3_t, _ mins: JKAShared.vec3_t, _ maxs: JKAShared.vec3_t, _ end: JKAShared.vec3_t, _ passEntityNum: Int32, _ contentmask: Int32, _ g2TraceType: Int32, _ traceLod: Int32) {
+public func trap_G2Trace(_ results: JKAMP.Trace, _ start: JKAShared.vec3_t, _ mins: JKAShared.vec3_t?, _ maxs: JKAShared.vec3_t?, _ end: JKAShared.vec3_t, _ passEntityNum: Int32, _ contentmask: Int32, _ g2TraceType: Int32, _ traceLod: Int32) {
     _ = withUnsafePointer(to: start) { start in
-        withUnsafePointer(to: mins) { mins in
-            withUnsafePointer(to: maxs) { maxs in
+        withUnsafePointer(to: mins ?? .zero) { minsPointer in
+            withUnsafePointer(to: maxs ?? .zero) { maxsPointer in
                 withUnsafePointer(to: end) { end in
-                    Syscall.call(G_G2TRACE, results, start, mins, maxs, end, passEntityNum, contentmask, g2TraceType, traceLod)
+                    Syscall.call(G_G2TRACE, results, start, mins == nil ? nil : minsPointer, maxs == nil ? nil : maxsPointer, end, passEntityNum, contentmask, g2TraceType, traceLod)
                 }
             }
         }
@@ -2323,10 +2323,10 @@ public func trap_G2API_RagPCJGradientSpeed(_ ghoul2: OpaquePointer?, _ boneName:
 
 /// Source: oracle/codemp/game/g_syscalls.c:1404
 @discardableResult
-public func trap_G2API_RagEffectorGoal(_ ghoul2: OpaquePointer?, _ boneName: String, _ pos: inout JKAShared.vec3_t) -> Bool {
+public func trap_G2API_RagEffectorGoal(_ ghoul2: OpaquePointer?, _ boneName: String, _ pos: JKAShared.vec3_t?) -> Bool {
     let word = withCString(boneName) { boneName in
-        withUnsafeMutablePointer(to: &pos) { pos in
-            Syscall.call(G_G2_RAGEFFECTORGOAL, ghoul2, boneName, pos)
+        withUnsafePointer(to: pos ?? .zero) { posPointer in
+            Syscall.call(G_G2_RAGEFFECTORGOAL, ghoul2, boneName, pos == nil ? nil : posPointer)
         }
     }
     return word != 0

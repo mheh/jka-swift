@@ -94,7 +94,7 @@ public struct BgStraps {
     public var trap_SnapVector: (inout JKAShared.vec3_t) -> Void = { _ in fatalError("No consumer installed trap_SnapVector, source: oracle/codemp/game/g_syscalls.c:235") }
 
     /// Source: oracle/codemp/game/g_syscalls.c:148
-    public var trap_Trace: (JKAMP.Trace, JKAShared.vec3_t, JKAShared.vec3_t, JKAShared.vec3_t, JKAShared.vec3_t, Int32, Int32) -> Void = { _, _, _, _, _, _, _ in fatalError("No consumer installed trap_Trace, source: oracle/codemp/game/g_syscalls.c:148") }
+    public var trap_Trace: (JKAMP.Trace, JKAShared.vec3_t, JKAShared.vec3_t?, JKAShared.vec3_t?, JKAShared.vec3_t, Int32, Int32) -> Void = { _, _, _, _, _, _, _ in fatalError("No consumer installed trap_Trace, source: oracle/codemp/game/g_syscalls.c:148") }
 
     public init() {}
 }
@@ -273,6 +273,6 @@ func trap_SnapVector(_ v: inout JKAShared.vec3_t) {
 }
 
 /// Source: oracle/codemp/game/g_syscalls.c:148
-func trap_Trace(_ results: JKAMP.Trace, _ start: JKAShared.vec3_t, _ mins: JKAShared.vec3_t, _ maxs: JKAShared.vec3_t, _ end: JKAShared.vec3_t, _ passEntityNum: Int32, _ contentmask: Int32) {
+func trap_Trace(_ results: JKAMP.Trace, _ start: JKAShared.vec3_t, _ mins: JKAShared.vec3_t?, _ maxs: JKAShared.vec3_t?, _ end: JKAShared.vec3_t, _ passEntityNum: Int32, _ contentmask: Int32) {
     bg.straps.trap_Trace(results, start, mins, maxs, end, passEntityNum, contentmask)
 }
