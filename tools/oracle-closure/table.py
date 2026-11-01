@@ -64,7 +64,7 @@ class Param:
     def word(self) -> str:
         if self.kind in ("out_string", "out_array"):
             return f"{self.name.strip('`')}Pointer.baseAddress!"
-        if self.kind == "vec3_array":
+        if self.kind in ("vec3_array", "vec3_axis"):
             return f"{self.name.strip('`')}Flat.baseAddress!"
         if self.kind == "slots":
             return f"{self.name}.base"

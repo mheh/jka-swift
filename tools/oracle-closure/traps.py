@@ -165,6 +165,9 @@ class Traps:
             if p.kind == "vec3_array":
                 # Raven's vec3_t is three floats of 12 bytes, and SIMD3<Float> strides 16, so the engine reads a flat copy.
                 body.append(f"    let {p.name}Flat = {p.name}.flatMap {{ [$0.x, $0.y, $0.z] }}")
+            elif p.kind == "vec3_axis":
+                # The axis packs flat the same way, and the engine may write through the pointer, so the trap reads the floats back.
+                body.append(f"    var {p.name}Flat = {p.name}.flatMap {{ [$0.x, $0.y, $0.z] }}")
         # Every scoped pointer wraps the call in one closure, innermost last.
         layers: list[str] = []
         for p in mapped.values():
@@ -177,6 +180,8 @@ class Traps:
                 layers.append(f"withUnsafeMutablePointer(to: &{p.name}) {{ {p.name} in")
             elif p.kind == "vec3_array":
                 layers.append(f"{p.name}Flat.withUnsafeBufferPointer {{ {p.name}Flat in")
+            elif p.kind == "vec3_axis":
+                layers.append(f"{p.name}Flat.withUnsafeMutableBufferPointer {{ {p.name}Flat in")
             elif p.kind in ("out_string", "out_array"):
                 layers.append(f"{p.name}.withUnsafeMutableBufferPointer {{ {p.name}Pointer in")
             elif p.kind in ("out_scalar", "out_opaque"):
@@ -185,6 +190,10 @@ class Traps:
             body += self.nest(layers, call, "    _ = ") if layers else [f"    {call}"]
         else:
             body += self.nest(layers, call, prefix) if layers else [f"{prefix.strip()} {call}"]
+        for p in mapped.values():
+            if p.kind == "vec3_axis":
+                body.append(f"    {p.name} = stride(from: 0, to: {p.name}Flat.count, by: 3).map {{ JKAShared.vec3_t({p.name}Flat[$0], {p.name}Flat[$0 + 1], {p.name}Flat[$0 + 2]) }}")
+        if returns:
             body.append(f"    return {mapping}")
         lines = self.source.comment_above(cur)
         lines.append(f"/// Source: oracle/{SOURCE}:{cur.location.line}")
@@ -398,7 +407,7 @@ def main() -> None:
     print(f"  {'buffer':12} {c['buffer overloads']} inout CharBuf overloads")
     print(f"  {'nil':12} {c['nil overloads']} overloads that take a nil view")
     print(f"  {'text':12} {c['text overloads']} String overloads")
-    for kind in ("bare", "cstring", "out_string", "out_scalar", "out_array", "out_opaque", "vec3_const", "vec3_mut", "vec3_array", "slots", "view"):
+    for kind in ("bare", "cstring", "out_string", "out_scalar", "out_array", "out_opaque", "vec3_const", "vec3_mut", "vec3_array", "vec3_axis", "slots", "view"):
         print(f"  {kind:12} {c[kind]}")
 
 
