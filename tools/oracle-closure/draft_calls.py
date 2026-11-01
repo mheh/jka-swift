@@ -338,8 +338,20 @@ class Calls:
             self.scratch_names[scratch] = self.scratch_names.get(scratch, 0) + 1
             if self.scratch_names[scratch] > 1:
                 scratch += str(self.scratch_names[scratch])
-            self.pending += self.noted_hole(f"// Port-note: Raven passes NULL for the `{param[0]}` output. "
-                                            "The ported function takes it by reference, so the body passes a scratch local it never reads.")
+            # One comment above the scratch locals of a call names every output Raven passes as NULL.
+            last = self.null_outputs
+            if last is not None and last[0] is self.pending and last[2] == callee and last[3] < position:
+                names = last[4] + [param[0]]
+                index = last[1]
+            else:
+                names = [param[0]]
+                index = len(self.pending)
+                self.pending.append("")
+            quoted = [f"`{n}`" for n in names]
+            listed = quoted[0] if len(quoted) == 1 else f"{quoted[0]} and {quoted[1]}" if len(quoted) == 2 \
+                else ", ".join(quoted[:-1]) + f", and {quoted[-1]}"
+            self.pending[index] = f"// Raven passes NULL for the {listed} output{'s' if len(names) > 1 else ''}."
+            self.null_outputs = (self.pending, index, callee, position, names)
             self.pending.append(f"var {scratch} {tail}")
             return f"&{scratch}"
         if param is not None and param[1] in ("Float", "Int32", "Double", "Bool"):
