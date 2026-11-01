@@ -771,7 +771,7 @@ func CG_AddParticleToScene(_ p: Cparticle, _ org: JKAShared.vec3_t, _ alpha: Flo
 
                     vectoangles(rforward, &temp)
                     p.accumroll += p.roll
-                    temp[ROLL] = Float(Double(temp[ROLL]) + Double(p.accumroll) * 0.1)
+                    temp[ROLL] = Float(Double(temp[ROLL]) + (Double(p.accumroll) * 0.1))
                     // Raven passes NULL for the `forward` output.
                     var scratchForward2 = vec3_t()
                     AngleVectors(temp, &scratchForward2, &rright2, &rup2)
@@ -1325,8 +1325,8 @@ func CG_ParticleSnowFlurry(_ pshader: JKAShared.qhandle_t, _ cent: Centity) {
     p!.accel[1] = p!.accel[2]
     p!.accel[0] = p!.accel[1]
 
-    p!.vel[0] = Float(Double(p!.vel[0]) + Double(cent.currentState.angles[0] * 32) + (crandom() * 16))
-    p!.vel[1] = Float(Double(p!.vel[1]) + Double(cent.currentState.angles[1] * 32) + (crandom() * 16))
+    p!.vel[0] = Float(Double(p!.vel[0]) + (Double(cent.currentState.angles[0] * 32) + (crandom() * 16)))
+    p!.vel[1] = Float(Double(p!.vel[1]) + (Double(cent.currentState.angles[1] * 32) + (crandom() * 16)))
     p!.vel[2] += cent.currentState.angles[2]
 
     if turb {
@@ -1925,7 +1925,7 @@ func CG_Particle_OilSlick(_ pshader: JKAShared.qhandle_t, _ cent: Centity) {
 
     p!.org = cent.currentState.origin
 
-    p!.org[2] = Float(Double(p!.org[2]) + 0.55 + (crandom() * 0.5))
+    p!.org[2] = Float(Double(p!.org[2]) + (0.55 + (crandom() * 0.5)))
 
     p!.vel[0] = 0
     p!.vel[1] = 0
@@ -2217,7 +2217,7 @@ func CG_ParticleSparks(_ org: JKAShared.vec3_t, _ vel: JKAShared.vec3_t, _ durat
 
     p!.vel[0] = Float(Double(p!.vel[0]) + (crandom() * 4))
     p!.vel[1] = Float(Double(p!.vel[1]) + (crandom() * 4))
-    p!.vel[2] = Float(Double(p!.vel[2]) + (20 + (crandom() * 10)) * Double(speed))
+    p!.vel[2] = Float(Double(p!.vel[2]) + ((20 + (crandom() * 10)) * Double(speed)))
 
     p!.accel[0] = Float(crandom() * 4)
     p!.accel[1] = Float(crandom() * 4)

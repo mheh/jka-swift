@@ -183,10 +183,10 @@ func adjustRespawnTime(_ preRespawnTime: Float, _ itemType: Int32, _ itemTag: In
             respawnTime = Float(Double(respawnTime) * 0.25)
         } else if level.numPlayingClients > 12 {
             // From 12-32, scale from 0.5 to 0.25;
-            respawnTime = Float(Double(respawnTime) * 20.0 / Double(Float((level.numPlayingClients + 8))))
+            respawnTime = Float(Double(respawnTime) * (20.0 / Double(Float((level.numPlayingClients + 8)))))
         } else {
             // From 4-12, scale from 1.0 to 0.5;
-            respawnTime = Float(Double(respawnTime) * 8.0 / Double(Float((level.numPlayingClients + 4))))
+            respawnTime = Float(Double(respawnTime) * (8.0 / Double(Float((level.numPlayingClients + 4)))))
         }
     }
 

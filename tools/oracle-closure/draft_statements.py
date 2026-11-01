@@ -840,18 +840,20 @@ class Statements:
                     raise Hole("A whole-record store, which a view has no operator for.")
                 lhs_kind = self.swift_type_of(left)
                 unsigned = self.unsigned_of(left)
+                # C's `a op= e` is `a = a op (e)`, so a right side with its own operator takes a group.
+                grouped = op != "=" and self.strip(right).kind in (CursorKind.BINARY_OPERATOR, CursorKind.CONDITIONAL_OPERATOR)
                 if op != "=" and lhs_kind in ("Int32", "Float") and self.strip(right).type.get_canonical().kind == TypeKind.DOUBLE \
                         and (self.has_double_literal(right) or self.holds_double(right)):
                     # C computes the double expression and converts once at the store, by "A double literal".
-                    return [f"{pad}{target} = {lhs_kind}(Double({target}) {op[:-1]} {self.wrapped(right, 'Double')})" + self.trailing(cur)]
+                    return [f"{pad}{target} = {lhs_kind}(Double({target}) {op[:-1]} {f"({self.wrapped(right, 'Double')})" if grouped else self.wrapped(right, 'Double')})" + self.trailing(cur)]
                 held_float = self.arith_kind(right) == "Float" or (self.arith_kind(right) == "Double" and not self.holds_double(right)
                                                                     and not self.has_double_literal(right))
                 if op != "=" and lhs_kind == "Int32" and held_float:
                     # C computes in float and truncates at the store.
                     # A C library call Swift holds in Float, `floor(x)` for a float `x`, is a float here too.
-                    return [f"{pad}{target} = Int32(Float({target}) {op[:-1]} {self.expr(right)})" + self.trailing(cur)]
+                    return [f"{pad}{target} = Int32(Float({target}) {op[:-1]} {f"({self.expr(right)})" if grouped else self.expr(right)})" + self.trailing(cur)]
                 if unsigned is not None and not self.is_literal(right):
-                    return [f"{pad}{target} {op} {self.wrapped(right, unsigned)}" + self.trailing(cur)]
+                    return [f"{pad}{target} {op} {f'({self.wrapped(right, unsigned)})' if grouped else self.wrapped(right, unsigned)}" + self.trailing(cur)]
                 if op == "=" and lhs_kind == "Int32" and self.unsigned_of(right) == "UInt32":
                     # C computes in unsigned and stores the bit pattern, `(size + 3) & 0xfffffffc`.
                     return [f"{pad}{target} = Int32(bitPattern: {self.wrapped(right, 'UInt32')})" + self.trailing(cur)]
