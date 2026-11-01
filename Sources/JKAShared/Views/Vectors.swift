@@ -1,3 +1,7 @@
+/// Raven's `vec2_t` at every Swift surface.
+/// Source: oracle/codemp/game/q_shared.h:531
+public typealias vec2_t = SIMD2<Float>
+
 /// Raven's `vec3_t` at every Swift surface.
 /// The C module imports its own `vec3_t` as a tuple, so generated code writes this one qualified as `JKAShared.vec3_t`.
 public typealias vec3_t = SIMD3<Float>
