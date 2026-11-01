@@ -345,6 +345,9 @@ PARAMS = {
     ("GetIDForString", "table"): "table",
     ("GetStringForID", "table"): "table",
     ("BG_SiegeTranslateGenericTable", "table"): "table",
+    # Raven's callers pass a `polyVert_t` array, `verts` of CG_AddMarks and `TRIverts` of CG_AddParticleToScene, and the engine reads numVerts records.
+    ("trap_R_AddPolyToScene", "verts"): "table",
+    ("trap_R_AddPolysToScene", "verts"): "table",
     # Raven's callers pass `FOFS(classname)`, `FOFS(targetname)`, `FOFS(target)`, and `FOFS(script_targetname)`, each a `char *` field.
     ("G_Find", "fieldofs"): "key_path",
     # Raven's two qsort comparators over an `int` array, `SortClients` at g_team.c:1089 and `SortRanks` at g_main.c:1624.

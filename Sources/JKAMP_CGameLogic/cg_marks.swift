@@ -333,7 +333,7 @@ func CG_ImpactMark(_ markShader: JKAShared.qhandle_t, _ origin: JKAShared.vec3_t
 
                 // if it is a temporary (shadow) mark, add it immediately and forget about it
                 if temporary {
-                    trap_R_AddPolyToScene(markShader, markFragments[mfIndex].numPoints, verts[0])
+                    trap_R_AddPolyToScene(markShader, markFragments[mfIndex].numPoints, verts)
                     return
                 }
 
@@ -440,7 +440,7 @@ func CG_AddMarks() {
             }
         }
 
-        trap_R_AddPolyToScene(mp!.markShader, mp!.poly.numVerts, mp!.verts[0])
+        trap_R_AddPolyToScene(mp!.markShader, mp!.poly.numVerts, mp!.verts)
         mp = next
     }
 }
@@ -1104,9 +1104,9 @@ func CG_AddParticleToScene(_ p: Cparticle, _ org: JKAShared.vec3_t, _ alpha: Flo
             }
 
             if p.type == P_WEATHER || p.type == P_WEATHER_TURBULENT || p.type == P_WEATHER_FLURRY {
-                trap_R_AddPolyToScene(p.pshader, 3, TRIverts[0])
+                trap_R_AddPolyToScene(p.pshader, 3, TRIverts)
             } else {
-                trap_R_AddPolyToScene(p.pshader, 4, verts[0])
+                trap_R_AddPolyToScene(p.pshader, 4, verts)
             }
             return false
         }
