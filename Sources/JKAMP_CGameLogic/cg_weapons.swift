@@ -325,10 +325,7 @@ func CG_ShutDownG2Weapons() {
 }
 
 /// Source: oracle/codemp/cgame/cg_weapons.c:2373
-// TODO: Port signature
-// Raven wrote: void *CG_G2WeaponInstance(centity_t *cent, int weapon)
-// No table row for the return `void *`.
-func CG_G2WeaponInstance() -> Never {
+func CG_G2WeaponInstance(_ cent: Centity, _ weapon: Int32) -> OpaquePointer? {
     // TODO: Port CG_G2WeaponInstance
     portMissing("CG_G2WeaponInstance", source: "oracle/codemp/cgame/cg_weapons.c:2373")
 }
