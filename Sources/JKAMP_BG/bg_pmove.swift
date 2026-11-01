@@ -437,7 +437,7 @@ private func PM_SetVehicleAngles(_ normal: JKAShared.vec3_t?) {
         //in water
         //view pitch has some influence when in water
         //FIXME: take center of gravity into account?
-        vAngles[PITCH] = Float(Double(vAngles[PITCH]) + (Double(pm.ps.viewangles[PITCH]) - Double(vAngles[PITCH])) * 0.75 + (Double(pitchBias) * 0.5))
+        vAngles[PITCH] = Float(Double(vAngles[PITCH]) + ((Double(pm.ps.viewangles[PITCH]) - Double(vAngles[PITCH])) * 0.75 + (Double(pitchBias) * 0.5)))
     } else if normal != nil {
         //have a valid surface below me
         PM_pitch_roll_for_slope(pEnt!, normal, &vAngles)

@@ -192,7 +192,7 @@ public struct CGameVariables {
 
     /// Raven's `localEntity_t *cg_freeLocalEntities` of `cg_localents.c`.
     /// Source: oracle/codemp/cgame/cg_localents.c:12
-    public var cg_freeLocalEntitiesIndex: Int32 = 0
+    public var cg_freeLocalEntities: LocalEntity? = nil
 
     /// Raven's `int forceModelModificationCount` of `cg_main.c`.
     /// Source: oracle/codemp/cgame/cg_main.c:115
@@ -256,7 +256,7 @@ public struct CGameVariables {
 
     /// Raven's `markPoly_t *cg_freeMarkPolys` of `cg_marks.c`.
     /// Source: oracle/codemp/cgame/cg_marks.c:17
-    public var cg_freeMarkPolysIndex: Int32 = 0
+    public var cg_freeMarkPolys: MarkPoly? = nil
 
     /// Raven's `int markTotal` of `cg_marks.c`.
     /// Source: oracle/codemp/cgame/cg_marks.c:19

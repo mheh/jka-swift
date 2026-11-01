@@ -410,6 +410,24 @@ public final class CGameWorld {
         nil,
     ] + Array(repeating: nil, count: Int(MAX_SHADER_ANIMS) - 2)
 
+    /// Raven's `static int shaderAnimCounts[MAX_SHADER_ANIMS]` of `cg_marks.c`.
+    /// Raven writes 1 row for a `MAX_SHADER_ANIMS` array of 32, so C zeroes the rest.
+    /// Source: oracle/codemp/cgame/cg_marks.c:368
+    let shaderAnimCounts: [Int32] = [
+        23,
+    ] + Array(repeating: 0, count: Int(MAX_SHADER_ANIMS) - 1)
+
+    /// Raven's `static float shaderAnimSTRatio[MAX_SHADER_ANIMS]` of `cg_marks.c`.
+    /// Raven writes 1 row for a `MAX_SHADER_ANIMS` array of 32, so C zeroes the rest.
+    /// Source: oracle/codemp/cgame/cg_marks.c:371
+    let shaderAnimSTRatio: [Float] = [
+        1.0,
+    ] + Array(repeating: 0, count: Int(MAX_SHADER_ANIMS) - 1)
+
+    /// Raven's `int cl_numparticles` of `cg_marks.c`.
+    /// Source: oracle/codemp/cgame/cg_marks.c:382
+    let cl_numparticles: Int32 = MAX_PARTICLES
+
     // MARK: - cg_players.c
 
     /// Raven's `char *cg_customSoundNames[MAX_CUSTOM_SOUNDS]` of `cg_players.c`.

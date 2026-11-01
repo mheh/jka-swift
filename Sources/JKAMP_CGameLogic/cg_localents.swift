@@ -16,10 +16,9 @@ var cg_localEntities: Slots<LocalEntity> { world.storage.cg_localEntities }
 var cg_activeLocalEntities: LocalEntity { world.storage.cg_activeLocalEntities }
 
 /// Source: oracle/codemp/cgame/cg_localents.c:12
-/// Raven walks `cg_freeLocalEntities` over `cg_localEntities`, so the port holds the index of the slot it points at.
-var cg_freeLocalEntitiesIndex: Int32 {
-    get { world.variables.cg_freeLocalEntitiesIndex }
-    set { world.variables.cg_freeLocalEntitiesIndex = newValue }
+var cg_freeLocalEntities: LocalEntity? {
+    get { world.variables.cg_freeLocalEntities }
+    set { world.variables.cg_freeLocalEntities = newValue }
 }
 
 /// Source: oracle/codemp/cgame/cg_localents.c:637

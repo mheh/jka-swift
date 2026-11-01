@@ -618,13 +618,13 @@ public func trap_R_AddRefEntityToScene(_ re: JKAMP.RefEntity) {
 }
 
 /// Source: oracle/codemp/cgame/cg_syscalls.c:335
-public func trap_R_AddPolyToScene(_ hShader: JKAShared.qhandle_t, _ numVerts: Int32, _ verts: JKAMP.PolyVert) {
-    Syscall.call(CG_R_ADDPOLYTOSCENE, hShader, numVerts, verts)
+public func trap_R_AddPolyToScene(_ hShader: JKAShared.qhandle_t, _ numVerts: Int32, _ verts: Slots<JKAMP.PolyVert>) {
+    Syscall.call(CG_R_ADDPOLYTOSCENE, hShader, numVerts, verts.base)
 }
 
 /// Source: oracle/codemp/cgame/cg_syscalls.c:339
-public func trap_R_AddPolysToScene(_ hShader: JKAShared.qhandle_t, _ numVerts: Int32, _ verts: JKAMP.PolyVert, _ num: Int32) {
-    Syscall.call(CG_R_ADDPOLYSTOSCENE, hShader, numVerts, verts, num)
+public func trap_R_AddPolysToScene(_ hShader: JKAShared.qhandle_t, _ numVerts: Int32, _ verts: Slots<JKAMP.PolyVert>, _ num: Int32) {
+    Syscall.call(CG_R_ADDPOLYSTOSCENE, hShader, numVerts, verts.base, num)
 }
 
 /// Source: oracle/codemp/cgame/cg_syscalls.c:343

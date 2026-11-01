@@ -227,6 +227,8 @@ class Drafter(Statements, Expressions, Calls, Declarations, Classification):
         self.names = {c.spelling: p.name for c, p in zip(fn.cur.get_arguments(), fn.params)}
         self.params_by_name = {c.spelling: p for c, p in zip(fn.cur.get_arguments(), fn.params)}
         self.scratch_names: dict[str, int] = {}
+        # The NULL outputs of the call being drafted: the lifted lines that hold its comment, the comment's index, the callee, the last position, and the names.
+        self.null_outputs: tuple[list[str], int, str | None, int, list[str]] | None = None
         # The spans of Raven's `a - b` that stand as an array index, where the Slots index form, an Int, has a seat.
         self.index_spans: set[tuple[int, int]] = set()
         for node in fn.cur.walk_preorder():

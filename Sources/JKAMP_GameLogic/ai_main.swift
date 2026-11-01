@@ -558,7 +558,7 @@ func BotChangeViewAngles(_ bs: BotState, _ thinktime: Float) {
         }
         bs.viewangles[i] += anglespeed
         bs.viewangles[i] = AngleMod(bs.viewangles[i])
-        bs.viewanglespeed[i] = Float(Double(bs.viewanglespeed[i]) * 0.45 * Double(1 - factor))
+        bs.viewanglespeed[i] = Float(Double(bs.viewanglespeed[i]) * (0.45 * Double(1 - factor)))
         i += 1
     }
     if bs.viewangles[PITCH] > 180 {

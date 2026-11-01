@@ -915,7 +915,11 @@ class Classification:
                 continue
             sources.setdefault(left.spelling, []).append(self.table_expression(kids[1]))
         # A cursor Raven walks with `f++` already reads the table by index, so it keeps its own form.
-        return {name for name, kinds in sources.items() if kinds and all(kinds) and name not in self.table_cursors}
+        names = {name for name, kinds in sources.items() if kinds and all(kinds) and name not in self.table_cursors}
+        # Raven's local array of records is the Slots its scratch opens, so a read indexes the Slots.
+        arrays = {c.spelling for c in fn.walk_preorder() if c.kind == CursorKind.VAR_DECL and c.storage_class != ci.StorageClass.STATIC
+                  and (answer := self.types.answer("local", c.type)) is not None and answer.kind == "record_array"}
+        return names | arrays
 
     def record_pointer_local(self, var: ci.Cursor) -> bool:
         """True for a local Raven typed as a pointer to a struct a view covers."""

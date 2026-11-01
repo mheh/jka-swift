@@ -128,7 +128,9 @@ class Types:
             return self.returned(t, target)
         if role == "field":
             return self.field(t, target)
-        if role in ("local", "expression"):
+        if role == "local":
+            return self.record_array(t, target) or self.value(t, facts)
+        if role == "expression":
             return self.value(t, facts)
         raise ValueError(f"spelling.py: {role} is no role of {ROLES}")
 
@@ -516,6 +518,16 @@ class Types:
 
     # MARK: - The local and expression roles
 
+    def record_array(self, t: ci.Type, target: str) -> Answer | None:
+        """The Slots over Raven's local array of records a view covers, `polyVert_t verts[4]`, with the count of the scratch that holds it."""
+        canonical = t.get_canonical()
+        if canonical.kind != TypeKind.CONSTANTARRAY:
+            return None
+        record = self.record_name(canonical.element_type)
+        if not record or record not in self.views.views:
+            return None
+        return Answer(SLOTS + self.views.qualified_view(record, target) + ">", "record_array", size=str(canonical.element_count))
+
     def value(self, t: ci.Type, facts: Facts) -> Answer | None:
         """`Bool` for a test the body already spells as one, `Float`, `Double`, or `Int32` for a number, so a store converts its right side as C does."""
         if facts.is_bool:
@@ -542,6 +554,9 @@ class Types:
             if value.is_integer():
                 return Answer(want, "convert", crossing=str(int(value)))
             return Answer(want, "convert", crossing="Int32({text})")
+        if want in NARROW_STORAGE and have in ("Float", "Double") and not facts.is_literal:
+            # C converts the float to int and truncates the int into the narrow slot, `colors[0] = red * 255`.
+            return Answer(want, "convert", crossing=want + "(truncatingIfNeeded: Int32({text}))")
         if want in NARROW_STORAGE and have is not None and not facts.is_literal:
             # C truncates the int it computed into the narrow local at the store.
             return Answer(want, "convert", crossing=want + "(truncatingIfNeeded: {text})")
