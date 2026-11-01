@@ -13,7 +13,7 @@ The record of the walk over `../2026-10-31/cgame-markers-docket.md`, rows M1 to 
 | M5 | ratified as proposed |
 | M6 | ratified as proposed |
 | M7 | ratified as proposed |
-| M8 | ratified as amended |
+| M8 | ratified as amended, then widened by M8a to M8d |
 | K1 | ratified as proposed |
 | M9 | ruled during the work, see the row |
 
@@ -50,6 +50,17 @@ A `MenuDef` view in the cgame view target by the views generator, and the fourte
 The nine closures, plus the two of M6, stay in the private thunk enums of their logic files, in the form of the working closures beside them. Each closure turns its `OpaquePointer?` words into views with `init(handle:)` and into `vec3_t` or `String` values with two readers added to the view target for a vector word and a C string word, then calls the logic function with the Swift signature its stub already carries. CG_Trace and CG_PointContents keep Raven's bodies in the logic target. Com_Error and Com_Printf format no varargs. Each hands the string to the channel line D10 names. No `// AI:` line.
 
 The docket's precedent, `Sources/JKAMP_Game/PmoveThunks.swift`, does not fit. The game's two thunks are traps and call `Syscall.call` directly. Raven's cgame CG_Trace at `cg_predict.c:359` calls the box trace and then CG_ClipMoveToEntities, and CG_PointContents walks `cg_solidEntities`. Both are logic bodies, and the logic target imports the view target at `Package.swift:48`, not the reverse. Rule 11 names the `OpaquePointer` handle a thunk receives as the one exception in a logic target.
+
+## M8a to M8d, the four closures the M8 work could not build
+
+The M8 work found four closures with a word that is neither a view nor a vector or string reader, and the user delegated the rulings on 2026-11-01. Each is proven at Raven's call site.
+
+- M8a, a `qhandle_t *` word. Every caller of `feederItemText` at `oracle/codemp/ui/ui_shared.c:6105`, 6269, and 6335 passes the address of one handle. Ruled: one view-target reader, `Slots(scalars handle: OpaquePointer, count: Int)`, over `init(scalars:count:)`. The thunk passes count 1, and the stub keeps `Slots<qhandle_t>?`.
+- M8b, a `float *` word in and out. The caller at `ui_shared.c:3159` passes `&item->special`, one float. Ruled: no new reader. The thunk takes `Slots<Float>` of count 1 by the M8a reader, copies element 0 into a `var`, calls the stub with `inout`, and writes element 0 back.
+- M8c, a `char **` word. The caller at `ui_shared.c:2353` passes `&p`, the parse cursor into the script text. Ruled: the thunk reads the `char *` at the word by a second form of the reader, `Slots(opaque handle:count:)` over `init(opaque:count:)`, reads its text with `cString(at:)` into a `TextCursor(CharBuf(text))`, calls the stub, and writes the pointer back advanced by the cursor's offset. The codec stays in `CharBuf`.
+- M8d, the callback pointer return. `tools/oracle-closure/views.py` spells a callback result through the scalar table, so a pointer result fell to `Void`, and `DisplayContextDefFeederItemText` lost Raven's `const char *`. Ruled: a pointer result spells `OpaquePointer?`, as a pointer parameter does. The thunk copies the stub's `String` into a view-target text ring of two slots of 32000 bytes, Raven's `va` ring of `q_shared.c`, and returns the slot pointer. The C side reads it until the next call, as Raven's does.
+
+No `// AI:` line on any of the four. The call sites keep Raven's form.
 
 ## K1, the D16 constants
 
