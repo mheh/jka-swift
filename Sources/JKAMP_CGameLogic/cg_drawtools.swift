@@ -233,10 +233,7 @@ CG_FadeColor
 ```
 */
 /// Source: oracle/codemp/cgame/cg_drawtools.c:387
-// TODO: Port signature
-// Raven wrote: float *CG_FadeColor( int startMsec, int totalMsec )
-// No table row for the return `float *`.
-func CG_FadeColor() -> Never {
+func CG_FadeColor(_ startMsec: Int32, _ totalMsec: Int32) -> JKAShared.vec4_t? {
     // TODO: Port CG_FadeColor
     portMissing("CG_FadeColor", source: "oracle/codemp/cgame/cg_drawtools.c:387")
 }
