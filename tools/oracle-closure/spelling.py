@@ -76,6 +76,8 @@ class Facts:
     traps: bool = True
     # The parameter after this one, which a `char *` reads as its size.
     following: ci.Cursor | None = None
+    # The parameter before this one, which a buffer the engine fills reads as its count.
+    preceding: ci.Cursor | None = None
     # The NULL sweep cleared the parameter for nil, the text sweep proved the body only reads the text,
     # the subscript sweep saw an index on it, and the store sweep saw a write through it.
     nullable: bool = False
@@ -275,8 +277,16 @@ class Types:
             return Answer("[Int32]?", "int_array")
         if t.spelling.replace("const ", "") in TYPES:
             return Answer(TYPES[t.spelling.replace("const ", "")], "bare")
+        # A trap's buffer with a maximum count before it is an array the engine fills up to that count,
+        # `trap_CM_MarkFragments(..., maxPoints, pointBuffer, maxFragments, fragmentBuffer)`.
+        # A `sizeof` before a pointer is a byte stride and not a count, `trap_LocateGameData(..., sizeofGEntity_t, clients, ...)`.
+        filled = facts.traps and facts.preceding is not None and facts.preceding.type.get_canonical().kind in INT_KINDS \
+            and facts.preceding.spelling.startswith("max")
         # A vector parameter is the array type itself, and Clang keeps the typedef name on the parameter.
         if t.spelling.split()[-1] in VECTORS:
+            if filled and "const" not in t.spelling:
+                # Raven hands the first of the caller's vectors, so the caller's array crosses and the trap packs it flat, see traps.py.
+                return Answer(f"inout [JKAShared.{t.spelling.split()[-1]}]", "vec3_axis")
             if facts.null_reaches and not facts.stores_through and not facts.traps:
                 # A caller passes NULL and the body only reads, so the vector crosses as an optional value and the NULL test keeps its form.
                 return Answer(f"JKAShared.{t.spelling.split()[-1]}?", "vec3_opt")
@@ -293,6 +303,9 @@ class Types:
             return Answer(f"inout JKAShared.{t.spelling.split()[-1]}", "vec3_mut")
         if canonical.kind == TypeKind.POINTER:
             pointee = canonical.get_pointee()
+            if t.get_pointee().spelling.replace("const ", "") in VECTORS and facts.traps:
+                # An array of vectors the engine reads, with a count beside it. The trap packs it flat, see traps.py.
+                return Answer(f"[JKAShared.{t.get_pointee().spelling.replace('const ', '')}]", "vec3_array")
             if t.get_pointee().spelling in VECTORS:
                 if facts.traps:
                     # An array of vectors the engine reads, with a count beside it. The trap packs it flat, see traps.py.
@@ -344,6 +357,9 @@ class Types:
                 return Answer("inout JKAShared.CharBuf", "inout_charbuf")
             record = self.record_name(pointee)
             if record and record in self.views.views:
+                if filled and not pointee.is_const_qualified():
+                    # Raven hands the first of the caller's records, so the Slots over them crosses, and its base is the word.
+                    return Answer(f"Slots<{self.views.qualified_view(record, TARGET)}>", "slots")
                 if facts.ruled == "table":
                     # Raven indexes the table through the pointer, so the Slots over it crosses, and its base is the word.
                     return Answer(f"Slots<{self.views.qualified_view(record, TARGET)}>", "slots")
@@ -386,6 +402,12 @@ class Types:
                 swift = self.scalar(pointee, TARGET)
                 if swift is not None and self.known(swift):
                     return Answer(f"inout [{swift}]", "out_array" if facts.traps else "bare")
+            if facts.traps and not pointee.is_const_qualified() and inner.kind == TypeKind.UCHAR:
+                # A trap's `byte *` with no count beside it is a byte array the engine reads, `trap_R_inPVS(p1, p2, mask)`.
+                # Raven's caller hands it a byte array field, so the caller's Slots over the bytes crosses, and its base is the word.
+                swift = self.scalar(pointee, TARGET)
+                if swift is not None and self.known(swift):
+                    return Answer(f"Slots<{swift}>", "slots")
             # A pointer to one scalar is an out-param, `inout`. A body that finds Raven walks it as an array writes a Port-note.
             if not pointee.is_const_qualified() and (inner.kind in INT_KINDS or inner.kind in (TypeKind.FLOAT, TypeKind.ENUM)):
                 swift = self.scalar(pointee, TARGET)
@@ -399,7 +421,8 @@ class Types:
         if canonical.kind == TypeKind.CONSTANTARRAY and "vec3_t" in t.spelling:
             # `vec3_t name[3]` is an axis, the type the ported q_math axis functions take.
             if facts.traps:
-                return None
+                # The trap packs the axis flat for the engine and writes the flat floats back, see traps.py.
+                return Answer("inout [JKAShared.vec3_t]", "vec3_axis")
             if facts.null_reaches and facts.stores_through and facts.null_arm:
                 # A written axis a caller skips with NULL is an optional inout, with the same forward as a written vector.
                 return Answer("inout [JKAShared.vec3_t]?", "axis_mut_opt")
@@ -420,6 +443,14 @@ class Types:
                 swift = self.scalar(canonical.element_type, TARGET)
                 if swift is not None and self.known(swift):
                     return Answer(f"[{swift}]", "bare")
+        if canonical.kind == TypeKind.CONSTANTARRAY and facts.traps:
+            # A fixed C array of a scalar into a trap is an array the engine fills, `trap_R_GetLightStyle(style, color)` with Raven's
+            # `typedef byte color4ub_t[4]`, so the caller's array crosses `inout`, as an `int *` with a count beside it does.
+            element = canonical.element_type.get_canonical()
+            if element.kind in INT_KINDS or element.kind in (TypeKind.FLOAT, TypeKind.UCHAR):
+                swift = self.scalar(element, TARGET)
+                if swift is not None and self.known(swift):
+                    return Answer(f"inout [{swift}]", "out_array")
         if canonical.kind in (TypeKind.RECORD, TypeKind.CONSTANTARRAY, TypeKind.INCOMPLETEARRAY):
             return None
         swift = self.scalar(t, TARGET)

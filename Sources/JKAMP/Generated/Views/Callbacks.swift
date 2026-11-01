@@ -26,7 +26,7 @@ public typealias VehicleInfoEject = @convention(c) (OpaquePointer?, OpaquePointe
 
 public typealias VehicleInfoEjectAll = @convention(c) (OpaquePointer?) -> Int32
 
-public typealias VehicleInfoGetPilot = @convention(c) (OpaquePointer?) -> Void
+public typealias VehicleInfoGetPilot = @convention(c) (OpaquePointer?) -> OpaquePointer?
 
 public typealias VehicleInfoGhost = @convention(c) (OpaquePointer?, OpaquePointer?) -> Void
 
@@ -123,6 +123,18 @@ public func == (lhs: VehicleInfoEject?, rhs: VehicleInfoEject?) -> Bool {
 }
 
 public func != (lhs: VehicleInfoEject?, rhs: VehicleInfoEject?) -> Bool {
+    return !(lhs == rhs)
+}
+
+private struct VehicleInfoGetPilotBits { var function: VehicleInfoGetPilot? }
+
+public func == (lhs: VehicleInfoGetPilot?, rhs: VehicleInfoGetPilot?) -> Bool {
+    precondition(MemoryLayout<VehicleInfoGetPilotBits>.size == MemoryLayout<UInt>.size)
+    return withUnsafeBytes(of: VehicleInfoGetPilotBits(function: lhs)) { $0.load(as: UInt.self) }
+        == withUnsafeBytes(of: VehicleInfoGetPilotBits(function: rhs)) { $0.load(as: UInt.self) }
+}
+
+public func != (lhs: VehicleInfoGetPilot?, rhs: VehicleInfoGetPilot?) -> Bool {
     return !(lhs == rhs)
 }
 

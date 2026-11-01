@@ -64,7 +64,7 @@ class Param:
     def word(self) -> str:
         if self.kind in ("out_string", "out_array"):
             return f"{self.name.strip('`')}Pointer.baseAddress!"
-        if self.kind == "vec3_array":
+        if self.kind in ("vec3_array", "vec3_axis"):
             return f"{self.name.strip('`')}Flat.baseAddress!"
         if self.kind == "slots":
             return f"{self.name}.base"
@@ -1925,7 +1925,8 @@ class Table:
             return f"Held by PARAMS as `{ruled}`, {spelled}, until a ruling gives the kind a shape."
         return f"No table row for {spelled}."
 
-    def param(self, cur: ci.Cursor, following: ci.Cursor | None, traps: bool = True, owner: str | None = None) -> Param | None:
+    def param(self, cur: ci.Cursor, following: ci.Cursor | None, traps: bool = True, owner: str | None = None,
+              preceding: ci.Cursor | None = None) -> Param | None:
         """The table row of one parameter. The sweeps and the rulings of this cursor go to spelling.py, which owns the shape."""
         name = cur.spelling
         ruled = PARAMS.get((owner, name))
@@ -1938,6 +1939,7 @@ class Table:
             capacity=capacity,
             traps=traps,
             following=following,
+            preceding=preceding,
             nullable=(owner, name) in self.nullable,
             null_reaches=(owner, name) in self.nullable or (owner, name) in self.hopped,
             readonly_text=(owner, name) in self.readonly_text,

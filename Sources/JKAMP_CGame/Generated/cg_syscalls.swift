@@ -338,12 +338,19 @@ public func trap_CM_TransformedCapsuleTrace(_ results: JKAMP.Trace, _ start: JKA
 }
 
 /// Source: oracle/codemp/cgame/cg_syscalls.c:177
-// TODO: Port signature
-// Raven wrote: int trap_CM_MarkFragments( int numPoints, const vec3_t *points, const vec3_t projection, int maxPoints, vec3_t pointBuffer, int maxFragments, markFragment_t *fragmentBuffer )
-// No table row for `const vec3_t * points`.
-public func trap_CM_MarkFragments() -> Never {
-    // TODO: Port trap_CM_MarkFragments
-    portMissing("trap_CM_MarkFragments", source: "oracle/codemp/cgame/cg_syscalls.c:177")
+@discardableResult
+public func trap_CM_MarkFragments(_ numPoints: Int32, _ points: [JKAShared.vec3_t], _ projection: JKAShared.vec3_t, _ maxPoints: Int32, _ pointBuffer: inout [JKAShared.vec3_t], _ maxFragments: Int32, _ fragmentBuffer: Slots<JKAShared.MarkFragment>) -> Int32 {
+    let pointsFlat = points.flatMap { [$0.x, $0.y, $0.z] }
+    var pointBufferFlat = pointBuffer.flatMap { [$0.x, $0.y, $0.z] }
+    let word = pointsFlat.withUnsafeBufferPointer { pointsFlat in
+        withUnsafePointer(to: projection) { projection in
+            pointBufferFlat.withUnsafeMutableBufferPointer { pointBufferFlat in
+                Syscall.call(CG_CM_MARKFRAGMENTS, numPoints, pointsFlat.baseAddress!, projection, maxPoints, pointBufferFlat.baseAddress!, maxFragments, fragmentBuffer.base)
+            }
+        }
+    }
+    pointBuffer = stride(from: 0, to: pointBufferFlat.count, by: 3).map { JKAShared.vec3_t(pointBufferFlat[$0], pointBufferFlat[$0 + 1], pointBufferFlat[$0 + 2]) }
+    return Int32(truncatingIfNeeded: word)
 }
 
 /// Source: oracle/codemp/cgame/cg_syscalls.c:184
@@ -406,12 +413,14 @@ public func trap_S_StopLoopingSound(_ entityNum: Int32) {
 }
 
 /// Source: oracle/codemp/cgame/cg_syscalls.c:220
-// TODO: Port signature
-// Raven wrote: void trap_S_Respatialize( int entityNum, const vec3_t origin, vec3_t axis[3], int inwater )
-// No table row for `vec3_t[3] axis`.
-public func trap_S_Respatialize() -> Never {
-    // TODO: Port trap_S_Respatialize
-    portMissing("trap_S_Respatialize", source: "oracle/codemp/cgame/cg_syscalls.c:220")
+public func trap_S_Respatialize(_ entityNum: Int32, _ origin: JKAShared.vec3_t, _ axis: inout [JKAShared.vec3_t], _ inwater: Int32) {
+    var axisFlat = axis.flatMap { [$0.x, $0.y, $0.z] }
+    _ = withUnsafePointer(to: origin) { origin in
+        axisFlat.withUnsafeMutableBufferPointer { axisFlat in
+            Syscall.call(CG_S_RESPATIALIZE, entityNum, origin, axisFlat.baseAddress!, inwater)
+        }
+    }
+    axis = stride(from: 0, to: axisFlat.count, by: 3).map { JKAShared.vec3_t(axisFlat[$0], axisFlat[$0 + 1], axisFlat[$0 + 2]) }
 }
 
 /// Source: oracle/codemp/cgame/cg_syscalls.c:224
@@ -721,12 +730,10 @@ public func trap_R_RemapShader(_ oldShader: String, _ newShader: String, _ timeO
 }
 
 /// Source: oracle/codemp/cgame/cg_syscalls.c:411
-// TODO: Port signature
-// Raven wrote: void trap_R_GetLightStyle(int style, color4ub_t color)
-// No table row for `color4ub_t color`.
-public func trap_R_GetLightStyle() -> Never {
-    // TODO: Port trap_R_GetLightStyle
-    portMissing("trap_R_GetLightStyle", source: "oracle/codemp/cgame/cg_syscalls.c:411")
+public func trap_R_GetLightStyle(_ style: Int32, _ color: inout [UInt8]) {
+    _ = color.withUnsafeMutableBufferPointer { colorPointer in
+        Syscall.call(CG_R_GET_LIGHT_STYLE, style, colorPointer.baseAddress!)
+    }
 }
 
 /// Source: oracle/codemp/cgame/cg_syscalls.c:416
@@ -976,12 +983,10 @@ public func trap_S_StopBackgroundTrack() {
 }
 
 /// Source: oracle/codemp/cgame/cg_syscalls.c:575
-// TODO: Port signature
-// Raven wrote: int trap_RealTime(qtime_t *qtime)
-// No table row for `qtime_t * qtime`.
-public func trap_RealTime() -> Never {
-    // TODO: Port trap_RealTime
-    portMissing("trap_RealTime", source: "oracle/codemp/cgame/cg_syscalls.c:575")
+@discardableResult
+public func trap_RealTime(_ qtime: JKAMP.Qtime) -> Int32 {
+let word = Syscall.call(CG_REAL_TIME, qtime)
+    return Int32(truncatingIfNeeded: word)
 }
 
 /// Source: oracle/codemp/cgame/cg_syscalls.c:579
@@ -1041,12 +1046,14 @@ public func trap_GetEntityToken(_ bufferSize: Int32) -> (Bool, String) {
 }
 
 /// Source: oracle/codemp/cgame/cg_syscalls.c:616
-// TODO: Port signature
-// Raven wrote: qboolean trap_R_inPVS( const vec3_t p1, const vec3_t p2, byte *mask )
-// No table row for `byte * mask`.
-public func trap_R_inPVS() -> Never {
-    // TODO: Port trap_R_inPVS
-    portMissing("trap_R_inPVS", source: "oracle/codemp/cgame/cg_syscalls.c:616")
+@discardableResult
+public func trap_R_inPVS(_ p1: JKAShared.vec3_t, _ p2: JKAShared.vec3_t, _ mask: Slots<UInt8>) -> Bool {
+    let word = withUnsafePointer(to: p1) { p1 in
+        withUnsafePointer(to: p2) { p2 in
+            Syscall.call(CG_R_INPVS, p1, p2, mask.base)
+        }
+    }
+    return word != 0
 }
 
 /// Source: oracle/codemp/cgame/cg_syscalls.c:621
@@ -1070,12 +1077,16 @@ public func trap_FX_PlayEffect(_ file: String, _ org: inout JKAShared.vec3_t, _ 
 }
 
 /// Source: oracle/codemp/cgame/cg_syscalls.c:631
-// TODO: Port signature
-// Raven wrote: void trap_FX_PlayEntityEffect( const char *file, vec3_t org, vec3_t axis[3], const int boltInfo, const int entNum, int vol, int rad )
-// No table row for `vec3_t[3] axis`.
-public func trap_FX_PlayEntityEffect() -> Never {
-    // TODO: Port trap_FX_PlayEntityEffect
-    portMissing("trap_FX_PlayEntityEffect", source: "oracle/codemp/cgame/cg_syscalls.c:631")
+public func trap_FX_PlayEntityEffect(_ file: String, _ org: inout JKAShared.vec3_t, _ axis: inout [JKAShared.vec3_t], _ boltInfo: Int32, _ entNum: Int32, _ vol: Int32, _ rad: Int32) {
+    var axisFlat = axis.flatMap { [$0.x, $0.y, $0.z] }
+    _ = withCString(file) { file in
+        withUnsafeMutablePointer(to: &org) { org in
+            axisFlat.withUnsafeMutableBufferPointer { axisFlat in
+                Syscall.call(CG_FX_PLAY_ENTITY_EFFECT, file, org, axisFlat.baseAddress!, boltInfo, entNum, vol, rad)
+            }
+        }
+    }
+    axis = stride(from: 0, to: axisFlat.count, by: 3).map { JKAShared.vec3_t(axisFlat[$0], axisFlat[$0 + 1], axisFlat[$0 + 2]) }
 }
 
 /// Source: oracle/codemp/cgame/cg_syscalls.c:637
@@ -1097,12 +1108,14 @@ public func trap_FX_PlayPortalEffectID(_ id: Int32, _ org: inout JKAShared.vec3_
 }
 
 /// Source: oracle/codemp/cgame/cg_syscalls.c:647
-// TODO: Port signature
-// Raven wrote: void trap_FX_PlayEntityEffectID( int id, vec3_t org, vec3_t axis[3], const int boltInfo, const int entNum, int vol, int rad )
-// No table row for `vec3_t[3] axis`.
-public func trap_FX_PlayEntityEffectID() -> Never {
-    // TODO: Port trap_FX_PlayEntityEffectID
-    portMissing("trap_FX_PlayEntityEffectID", source: "oracle/codemp/cgame/cg_syscalls.c:647")
+public func trap_FX_PlayEntityEffectID(_ id: Int32, _ org: inout JKAShared.vec3_t, _ axis: inout [JKAShared.vec3_t], _ boltInfo: Int32, _ entNum: Int32, _ vol: Int32, _ rad: Int32) {
+    var axisFlat = axis.flatMap { [$0.x, $0.y, $0.z] }
+    _ = withUnsafeMutablePointer(to: &org) { org in
+        axisFlat.withUnsafeMutableBufferPointer { axisFlat in
+            Syscall.call(CG_FX_PLAY_ENTITY_EFFECT_ID, id, org, axisFlat.baseAddress!, boltInfo, entNum, vol, rad)
+        }
+    }
+    axis = stride(from: 0, to: axisFlat.count, by: 3).map { JKAShared.vec3_t(axisFlat[$0], axisFlat[$0 + 1], axisFlat[$0 + 2]) }
 }
 
 /// Source: oracle/codemp/cgame/cg_syscalls.c:653

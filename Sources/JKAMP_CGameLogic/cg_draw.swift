@@ -5,9 +5,8 @@ import JKAMP_CGame
 import JKAMP_BG
 
 /// Source: oracle/codemp/cgame/cg_draw.c:23
-// TODO: Port global menuScoreboard
 // Raven wrote: menuDef_t *menuScoreboard = NULL
-// No table row for `menuDef_t *`.
+nonisolated(unsafe) let menuScoreboard: MenuDef? = { () -> MenuDef? in portMissing("menuScoreboard", source: "oracle/codemp/cgame/cg_draw.c:23") }()
 
 /// Source: oracle/codemp/cgame/cg_draw.c:24
 // Raven wrote: vec4_t bluehudtint = {0.5, 0.5, 1.0, 1.0}
@@ -538,10 +537,7 @@ CG_DrawHealth
 ```
 */
 /// Source: oracle/codemp/cgame/cg_draw.c:614
-// TODO: Port signature
-// Raven wrote: void CG_DrawHealth( menuDef_t *menuHUD )
-// No table row for `menuDef_t * menuHUD`.
-func CG_DrawHealth() -> Never {
+func CG_DrawHealth(_ menuHUD: MenuDef) {
     // TODO: Port CG_DrawHealth
     portMissing("CG_DrawHealth", source: "oracle/codemp/cgame/cg_draw.c:614")
 }
@@ -554,10 +550,7 @@ CG_DrawArmor
 ```
 */
 /// Source: oracle/codemp/cgame/cg_draw.c:702
-// TODO: Port signature
-// Raven wrote: void CG_DrawArmor( menuDef_t *menuHUD )
-// No table row for `menuDef_t * menuHUD`.
-func CG_DrawArmor() -> Never {
+func CG_DrawArmor(_ menuHUD: MenuDef) {
     // TODO: Port CG_DrawArmor
     portMissing("CG_DrawArmor", source: "oracle/codemp/cgame/cg_draw.c:702")
 }
@@ -573,10 +566,7 @@ the saber style (fast, medium, strong)
 ```
 */
 /// Source: oracle/codemp/cgame/cg_draw.c:841
-// TODO: Port signature
-// Raven wrote: static void CG_DrawSaberStyle( centity_t *cent, menuDef_t *menuHUD)
-// No table row for `menuDef_t * menuHUD`.
-private func CG_DrawSaberStyle() -> Never {
+private func CG_DrawSaberStyle(_ cent: Centity, _ menuHUD: MenuDef) {
     // TODO: Port CG_DrawSaberStyle
     portMissing("CG_DrawSaberStyle", source: "oracle/codemp/cgame/cg_draw.c:841")
 }
@@ -589,10 +579,7 @@ CG_DrawAmmo
 ```
 */
 /// Source: oracle/codemp/cgame/cg_draw.c:928
-// TODO: Port signature
-// Raven wrote: static void CG_DrawAmmo( centity_t *cent,menuDef_t *menuHUD)
-// No table row for `menuDef_t * menuHUD`.
-private func CG_DrawAmmo() -> Never {
+private func CG_DrawAmmo(_ cent: Centity, _ menuHUD: MenuDef) {
     // TODO: Port CG_DrawAmmo
     portMissing("CG_DrawAmmo", source: "oracle/codemp/cgame/cg_draw.c:928")
 }
@@ -605,10 +592,7 @@ CG_DrawForcePower
 ```
 */
 /// Source: oracle/codemp/cgame/cg_draw.c:1042
-// TODO: Port signature
-// Raven wrote: void CG_DrawForcePower( menuDef_t *menuHUD )
-// No table row for `menuDef_t * menuHUD`.
-func CG_DrawForcePower() -> Never {
+func CG_DrawForcePower(_ menuHUD: MenuDef) {
     // TODO: Port CG_DrawForcePower
     portMissing("CG_DrawForcePower", source: "oracle/codemp/cgame/cg_draw.c:1042")
 }
@@ -658,84 +642,57 @@ func CG_CheckTargetVehicle(_ pTargetVeh: inout Centity?, _ alpha: inout Float) -
 }
 
 /// Source: oracle/codemp/cgame/cg_draw.c:1873
-// TODO: Port signature
-// Raven wrote: float CG_DrawVehicleShields( const menuDef_t *menuHUD, const centity_t *veh )
-// No table row for `const menuDef_t * menuHUD`.
-func CG_DrawVehicleShields() -> Never {
+func CG_DrawVehicleShields(_ menuHUD: MenuDef, _ veh: Centity) -> Float {
     // TODO: Port CG_DrawVehicleShields
     portMissing("CG_DrawVehicleShields", source: "oracle/codemp/cgame/cg_draw.c:1873")
 }
 
 /// Source: oracle/codemp/cgame/cg_draw.c:1942
-// TODO: Port signature
-// Raven wrote: void CG_DrawVehicleAmmo( const menuDef_t *menuHUD, const centity_t *veh )
-// No table row for `const menuDef_t * menuHUD`.
-func CG_DrawVehicleAmmo() -> Never {
+func CG_DrawVehicleAmmo(_ menuHUD: MenuDef, _ veh: Centity) {
     // TODO: Port CG_DrawVehicleAmmo
     portMissing("CG_DrawVehicleAmmo", source: "oracle/codemp/cgame/cg_draw.c:1942")
 }
 
 /// Source: oracle/codemp/cgame/cg_draw.c:2013
-// TODO: Port signature
-// Raven wrote: void CG_DrawVehicleAmmoUpper( const menuDef_t *menuHUD, const centity_t *veh )
-// No table row for `const menuDef_t * menuHUD`.
-func CG_DrawVehicleAmmoUpper() -> Never {
+func CG_DrawVehicleAmmoUpper(_ menuHUD: MenuDef, _ veh: Centity) {
     // TODO: Port CG_DrawVehicleAmmoUpper
     portMissing("CG_DrawVehicleAmmoUpper", source: "oracle/codemp/cgame/cg_draw.c:2013")
 }
 
 /// Source: oracle/codemp/cgame/cg_draw.c:2084
-// TODO: Port signature
-// Raven wrote: void CG_DrawVehicleAmmoLower( const menuDef_t *menuHUD, const centity_t *veh )
-// No table row for `const menuDef_t * menuHUD`.
-func CG_DrawVehicleAmmoLower() -> Never {
+func CG_DrawVehicleAmmoLower(_ menuHUD: MenuDef, _ veh: Centity) {
     // TODO: Port CG_DrawVehicleAmmoLower
     portMissing("CG_DrawVehicleAmmoLower", source: "oracle/codemp/cgame/cg_draw.c:2084")
 }
 
 // The HUD.menu file has the graphic print with a negative height, so it will print from the bottom up.
 /// Source: oracle/codemp/cgame/cg_draw.c:2156
-// TODO: Port signature
-// Raven wrote: void CG_DrawVehicleTurboRecharge( const menuDef_t *menuHUD, const centity_t *veh )
-// No table row for `const menuDef_t * menuHUD`.
-func CG_DrawVehicleTurboRecharge() -> Never {
+func CG_DrawVehicleTurboRecharge(_ menuHUD: MenuDef, _ veh: Centity) {
     // TODO: Port CG_DrawVehicleTurboRecharge
     portMissing("CG_DrawVehicleTurboRecharge", source: "oracle/codemp/cgame/cg_draw.c:2156")
 }
 
 /// Source: oracle/codemp/cgame/cg_draw.c:2197
-// TODO: Port signature
-// Raven wrote: void CG_DrawVehicleWeaponsLinked( const menuDef_t *menuHUD, const centity_t *veh )
-// No table row for `const menuDef_t * menuHUD`.
-func CG_DrawVehicleWeaponsLinked() -> Never {
+func CG_DrawVehicleWeaponsLinked(_ menuHUD: MenuDef, _ veh: Centity) {
     // TODO: Port CG_DrawVehicleWeaponsLinked
     portMissing("CG_DrawVehicleWeaponsLinked", source: "oracle/codemp/cgame/cg_draw.c:2197")
 }
 
 /// Source: oracle/codemp/cgame/cg_draw.c:2251
-// TODO: Port signature
-// Raven wrote: void CG_DrawVehicleSpeed( const menuDef_t *menuHUD, const centity_t *veh )
-// No table row for `const menuDef_t * menuHUD`.
-func CG_DrawVehicleSpeed() -> Never {
+func CG_DrawVehicleSpeed(_ menuHUD: MenuDef, _ veh: Centity) {
     // TODO: Port CG_DrawVehicleSpeed
     portMissing("CG_DrawVehicleSpeed", source: "oracle/codemp/cgame/cg_draw.c:2251")
 }
 
 /// Source: oracle/codemp/cgame/cg_draw.c:2344
-// TODO: Port signature
-// Raven wrote: void CG_DrawVehicleArmor( const menuDef_t *menuHUD, const centity_t *veh )
-// No table row for `const menuDef_t * menuHUD`.
-func CG_DrawVehicleArmor() -> Never {
+func CG_DrawVehicleArmor(_ menuHUD: MenuDef, _ veh: Centity) {
     // TODO: Port CG_DrawVehicleArmor
     portMissing("CG_DrawVehicleArmor", source: "oracle/codemp/cgame/cg_draw.c:2344")
 }
 
 // Draw health graphic for given part of vehicle
 /// Source: oracle/codemp/cgame/cg_draw.c:2434
-// TODO: Port signature
-// Raven wrote: void CG_DrawVehicleDamage(const centity_t *veh,int brokenLimbs,const menuDef_t *menuHUD,float alpha,int index)
-// No table row for `const menuDef_t * menuHUD`.
-func CG_DrawVehicleDamage() -> Never {
+func CG_DrawVehicleDamage(_ veh: Centity, _ brokenLimbs: Int32, _ menuHUD: MenuDef, _ alpha: Float, _ index: Int32) {
     // TODO: Port CG_DrawVehicleDamage
     portMissing("CG_DrawVehicleDamage", source: "oracle/codemp/cgame/cg_draw.c:2434")
 }

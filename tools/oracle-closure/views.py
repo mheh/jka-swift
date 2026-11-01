@@ -517,7 +517,10 @@ class Generator:
                 c_params.append(self.types.scalar(arg, target) or "Int32")
         result = proto.get_result()
         returns = self.types.scalar(result, target) if result.get_canonical().kind != TypeKind.VOID else None
-        c_result = "Int32" if returns == "Bool" else returns or "Void"
+        if result.get_canonical().kind == TypeKind.POINTER:
+            c_result = "OpaquePointer?"
+        else:
+            c_result = "Int32" if returns == "Bool" else returns or "Void"
         return f"@convention(c) ({', '.join(c_params)}) -> {c_result}"
 
     def callback_alias(self, proto: ci.Type, target: str) -> str | None:
