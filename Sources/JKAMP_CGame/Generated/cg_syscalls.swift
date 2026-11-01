@@ -567,9 +567,11 @@ let word = Syscall.call(CG_R_FONT_STRHEIGHTPIXELS, iFontIndex, scale)
 }
 
 /// Source: oracle/codemp/cgame/cg_syscalls.c:302
-public func trap_R_Font_DrawString(_ ox: Int32, _ oy: Int32, _ text: String, _ rgba: Float, _ setIndex: Int32, _ iCharLimit: Int32, _ scale: Float) {
+public func trap_R_Font_DrawString(_ ox: Int32, _ oy: Int32, _ text: String, _ rgba: JKAShared.vec4_t?, _ setIndex: Int32, _ iCharLimit: Int32, _ scale: Float) {
     _ = withCString(text) { text in
-        Syscall.call(CG_R_FONT_DRAWSTRING, ox, oy, text, rgba, setIndex, iCharLimit, scale)
+        withUnsafePointer(to: rgba ?? .zero) { rgbaPointer in
+            Syscall.call(CG_R_FONT_DRAWSTRING, ox, oy, text, rgba == nil ? nil : rgbaPointer, setIndex, iCharLimit, scale)
+        }
     }
 }
 
@@ -669,8 +671,10 @@ public func trap_R_RenderScene(_ fd: JKAMP.Refdef) {
 }
 
 /// Source: oracle/codemp/cgame/cg_syscalls.c:364
-public func trap_R_SetColor(_ rgba: Float) {
-    Syscall.call(CG_R_SETCOLOR, rgba)
+public func trap_R_SetColor(_ rgba: JKAShared.vec4_t?) {
+    _ = withUnsafePointer(to: rgba ?? .zero) { rgbaPointer in
+        Syscall.call(CG_R_SETCOLOR, rgba == nil ? nil : rgbaPointer)
+    }
 }
 
 /// Source: oracle/codemp/cgame/cg_syscalls.c:368
