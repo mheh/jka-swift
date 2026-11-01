@@ -152,6 +152,29 @@ def hand_due(sk: Skeleton, stem: str, hand: list[str]) -> dict[tuple[str, str, i
     return out
 
 
+# The access word of a func line, after any attribute, `private func CG_Viewpos_f()`.
+ACCESS = re.compile(r"^((?:@\S+ )*)((?:private|fileprivate|public|internal) )?(func \w+)")
+
+
+def hand_access(hand: list[str], draft: list[str]) -> list[str]:
+    """The draft with the access of each func line taken from the hand func line of the same Raven line and name.
+    The skeleton spells Raven's static as `private`, and an adopted file can make the function internal for a hand table in another file.
+    The draft keeps the hand's access, because only the hand file knows that table, `commands` of cg_local.swift."""
+    h = functions(hand)
+    out = list(draft)
+    for raven, (a, b) in functions(draft).items():
+        if raven not in h:
+            continue
+        mine = next((i for i in range(a, b + 1) if ACCESS.match(out[i])), None)
+        theirs = next((ACCESS.match(line) for line in hand[h[raven][0]:h[raven][1] + 1] if ACCESS.match(line)), None)
+        if mine is None or theirs is None:
+            continue
+        m = ACCESS.match(out[mine])
+        if m.group(3) == theirs.group(3):
+            out[mine] = m.group(1) + (theirs.group(2) or "") + out[mine][m.end(1) + len(m.group(2) or ""):]
+    return out
+
+
 def splice(hand: list[str], draft: list[str], keep: set[int] | None = None) -> tuple[list[str], list[int | None], int]:
     """The hand file with each function's lines replaced by the draft's, matched by Raven line.
     A function whose Raven line is in `keep` stays as the hand wrote it.
@@ -224,6 +247,7 @@ class Stem:
         """The stem drafted again over its due compile holes and spliced into its mirror file."""
         self.passes += 1
         self.draft, self.keys, self.holes, self.compile_holes, self.hole_names = self.lines()
+        self.draft = hand_access(self.hand, self.draft)
         spliced, self.origins, self.replaced = splice(self.hand, self.draft, self.keep)
         if "import Foundation" not in spliced:
             # A stub written before Foundation joined the stub imports gets it in the mirror, so libc math resolves.
