@@ -72,7 +72,7 @@ class Param:
             return f"{self.name}?.base"
         if self.kind == "view_opt":
             return f"{self.name}?.handle"
-        if self.kind == "vec4_opt":
+        if self.kind in ("vec4_opt", "vec3_const_opt"):
             return f"{self.name.strip('`')} == nil ? nil : {self.name.strip('`')}Pointer"
         return self.name
 
@@ -1950,6 +1950,7 @@ class Table:
             null_arm=(owner, name) in self.null_arms,
             store_swept=owner in self.store_swept,
             fills_array=(owner, name) in self.array_handoffs,
+            reinterprets=self.reinterprets(cur),
         )
         answer = self.types.answer("parameter", cur.type, facts)
         if answer is None:
@@ -1958,6 +1959,41 @@ class Table:
             # A function-pointer parameter, whose own prototype parameters cross by these rows in turn.
             return self.closure(cur, name)
         return Param(name, answer.swift, answer.kind, size=answer.size)
+
+    @classmethod
+    def reinterprets(cls, cur: ci.Cursor) -> bool:
+        """True for a `const float *` parameter whose body reads it only through `*f` or a cast, `FloatSwap(const float *f)`.
+        A body that indexes the pointer or hands it on reads a color of four floats, and a function with no body reads nothing here."""
+        canonical = cur.type.get_canonical()
+        if canonical.kind != TypeKind.POINTER or canonical.get_pointee().kind != TypeKind.FLOAT:
+            return False
+        function = cur.semantic_parent
+        definition = function.get_definition() if function is not None else None
+        if definition is None:
+            return False
+        # A prototype can name the parameter differently, so the parameter of the definition stands at the same position.
+        position = [p.spelling for p in function.get_arguments()].index(cur.spelling) if cur.spelling else -1
+        params = list(definition.get_arguments())
+        if not 0 <= position < len(params):
+            return False
+        param = params[position]
+        uses = 0
+
+        def walk(node: ci.Cursor, parent: ci.Cursor | None) -> bool:
+            nonlocal uses
+            if node.kind == CursorKind.DECL_REF_EXPR and node.referenced is not None and node.referenced == param:
+                uses += 1
+                if parent is None:
+                    return False
+                if parent.kind == CursorKind.CSTYLE_CAST_EXPR:
+                    return True
+                tokens = [t.spelling for t in parent.get_tokens()]
+                return parent.kind == CursorKind.UNARY_OPERATOR and bool(tokens) and tokens[0] == "*"
+            # A paren and an implicit conversion stand between the name and the operator that reads it.
+            transparent = node.kind in (CursorKind.PAREN_EXPR, CursorKind.UNEXPOSED_EXPR)
+            return all(walk(kid, parent if transparent else node) for kid in node.get_children())
+
+        return walk(definition, None) and uses > 0
 
     def closure(self, cur: ci.Cursor, name: str) -> Param | None:
         """A function-pointer parameter as an optional Swift closure, each prototype parameter through the same rows."""

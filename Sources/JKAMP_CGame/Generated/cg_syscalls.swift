@@ -278,12 +278,12 @@ public func trap_CM_TransformedPointContents(_ p: JKAShared.vec3_t, _ model: JKA
 }
 
 /// Source: oracle/codemp/cgame/cg_syscalls.c:151
-public func trap_CM_BoxTrace(_ results: JKAMP.Trace, _ start: JKAShared.vec3_t, _ end: JKAShared.vec3_t, _ mins: JKAShared.vec3_t, _ maxs: JKAShared.vec3_t, _ model: JKAShared.clipHandle_t, _ brushmask: Int32) {
+public func trap_CM_BoxTrace(_ results: JKAMP.Trace, _ start: JKAShared.vec3_t, _ end: JKAShared.vec3_t, _ mins: JKAShared.vec3_t?, _ maxs: JKAShared.vec3_t?, _ model: JKAShared.clipHandle_t, _ brushmask: Int32) {
     _ = withUnsafePointer(to: start) { start in
         withUnsafePointer(to: end) { end in
-            withUnsafePointer(to: mins) { mins in
-                withUnsafePointer(to: maxs) { maxs in
-                    Syscall.call(CG_CM_BOXTRACE, results, start, end, mins, maxs, model, brushmask)
+            withUnsafePointer(to: mins ?? .zero) { minsPointer in
+                withUnsafePointer(to: maxs ?? .zero) { maxsPointer in
+                    Syscall.call(CG_CM_BOXTRACE, results, start, end, mins == nil ? nil : minsPointer, maxs == nil ? nil : maxsPointer, model, brushmask)
                 }
             }
         }
@@ -304,14 +304,14 @@ public func trap_CM_CapsuleTrace(_ results: JKAMP.Trace, _ start: JKAShared.vec3
 }
 
 /// Source: oracle/codemp/cgame/cg_syscalls.c:163
-public func trap_CM_TransformedBoxTrace(_ results: JKAMP.Trace, _ start: JKAShared.vec3_t, _ end: JKAShared.vec3_t, _ mins: JKAShared.vec3_t, _ maxs: JKAShared.vec3_t, _ model: JKAShared.clipHandle_t, _ brushmask: Int32, _ origin: JKAShared.vec3_t, _ angles: JKAShared.vec3_t) {
+public func trap_CM_TransformedBoxTrace(_ results: JKAMP.Trace, _ start: JKAShared.vec3_t, _ end: JKAShared.vec3_t, _ mins: JKAShared.vec3_t?, _ maxs: JKAShared.vec3_t?, _ model: JKAShared.clipHandle_t, _ brushmask: Int32, _ origin: JKAShared.vec3_t, _ angles: JKAShared.vec3_t) {
     _ = withUnsafePointer(to: start) { start in
         withUnsafePointer(to: end) { end in
-            withUnsafePointer(to: mins) { mins in
-                withUnsafePointer(to: maxs) { maxs in
+            withUnsafePointer(to: mins ?? .zero) { minsPointer in
+                withUnsafePointer(to: maxs ?? .zero) { maxsPointer in
                     withUnsafePointer(to: origin) { origin in
                         withUnsafePointer(to: angles) { angles in
-                            Syscall.call(CG_CM_TRANSFORMEDBOXTRACE, results, start, end, mins, maxs, model, brushmask, origin, angles)
+                            Syscall.call(CG_CM_TRANSFORMEDBOXTRACE, results, start, end, mins == nil ? nil : minsPointer, maxs == nil ? nil : maxsPointer, model, brushmask, origin, angles)
                         }
                     }
                 }
@@ -366,9 +366,9 @@ public func trap_S_MuteSound(_ entityNum: Int32, _ entchannel: Int32) {
 }
 
 /// Source: oracle/codemp/cgame/cg_syscalls.c:192
-public func trap_S_StartSound(_ origin: inout JKAShared.vec3_t, _ entityNum: Int32, _ entchannel: Int32, _ sfx: JKAShared.sfxHandle_t) {
-    _ = withUnsafeMutablePointer(to: &origin) { origin in
-        Syscall.call(CG_S_STARTSOUND, origin, entityNum, entchannel, sfx)
+public func trap_S_StartSound(_ origin: JKAShared.vec3_t?, _ entityNum: Int32, _ entchannel: Int32, _ sfx: JKAShared.sfxHandle_t) {
+    _ = withUnsafePointer(to: origin ?? .zero) { originPointer in
+        Syscall.call(CG_S_STARTSOUND, origin == nil ? nil : originPointer, entityNum, entchannel, sfx)
     }
 }
 
@@ -1624,10 +1624,10 @@ public func trap_G2API_RagPCJGradientSpeed(_ ghoul2: OpaquePointer?, _ boneName:
 
 /// Source: oracle/codemp/cgame/cg_syscalls.c:1020
 @discardableResult
-public func trap_G2API_RagEffectorGoal(_ ghoul2: OpaquePointer?, _ boneName: String, _ pos: inout JKAShared.vec3_t) -> Bool {
+public func trap_G2API_RagEffectorGoal(_ ghoul2: OpaquePointer?, _ boneName: String, _ pos: JKAShared.vec3_t?) -> Bool {
     let word = withCString(boneName) { boneName in
-        withUnsafeMutablePointer(to: &pos) { pos in
-            Syscall.call(CG_G2_RAGEFFECTORGOAL, ghoul2, boneName, pos)
+        withUnsafePointer(to: pos ?? .zero) { posPointer in
+            Syscall.call(CG_G2_RAGEFFECTORGOAL, ghoul2, boneName, pos == nil ? nil : posPointer)
         }
     }
     return word != 0

@@ -177,6 +177,9 @@ class Traps:
                 layers.append(f"withCString({p.name}) {{ {p.name} in")
             elif p.kind == "vec3_const":
                 layers.append(f"withUnsafePointer(to: {p.name}) {{ {p.name} in")
+            elif p.kind == "vec3_const_opt":
+                # A nil vector is the zero word, as Raven's NULL was.
+                layers.append(f"withUnsafePointer(to: {p.name} ?? .zero) {{ {p.name}Pointer in")
             elif p.kind == "vec4_opt":
                 # Raven's vec4_t is four floats of 16 bytes, as SIMD4<Float> is, so the engine reads the packed value, and nil is the zero word.
                 layers.append(f"withUnsafePointer(to: {p.name} ?? .zero) {{ {p.name}Pointer in")
@@ -411,7 +414,7 @@ def main() -> None:
     print(f"  {'buffer':12} {c['buffer overloads']} inout CharBuf overloads")
     print(f"  {'nil':12} {c['nil overloads']} overloads that take a nil view")
     print(f"  {'text':12} {c['text overloads']} String overloads")
-    for kind in ("bare", "cstring", "out_string", "out_scalar", "out_array", "out_opaque", "vec3_const", "vec4_opt", "vec3_mut", "vec3_array", "vec3_axis", "slots", "view"):
+    for kind in ("bare", "cstring", "out_string", "out_scalar", "out_array", "out_opaque", "vec3_const", "vec3_const_opt", "vec4_opt", "vec3_mut", "vec3_array", "vec3_axis", "slots", "view"):
         print(f"  {kind:12} {c[kind]}")
 
 

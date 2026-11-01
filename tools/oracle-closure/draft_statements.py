@@ -350,6 +350,10 @@ class Statements:
         pad = INDENT * depth
         name = self.callee_name(cur)
         args = [self.strip(a) for a in list(cur.get_children())[1:]]
+        if name == "memcpy":
+            copied = self.vec4_copy(args)
+            if copied is not None:
+                return [f"{pad}{copied}" + self.trailing(cur)]
         if name == "memset":
             # Raven's `memset(&table, 0, sizeof(table))` over a whole storage table, which Swift holds as the Slots over it.
             whole = args[0]
@@ -392,6 +396,57 @@ class Statements:
                 return [f"{pad}// Raven clears the record with `memset` here. The scratch slot is zero at entry, so the body drops the call."]
             return [f"{pad}{self.expr(targets[0])}.clear()" + self.trailing(cur)]
         return [f"{pad}{self.expr(targets[0])}.copy(from: {self.expr(targets[1])})" + self.trailing(cur)]
+
+    def vec4_copy(self, args: list[ci.Cursor]) -> str | None:
+        """Raven's `memcpy(calcColor, colorTable[CT_RED], sizeof(vec4_t))` between two colors of four floats, as one store, or None.
+        The size is `sizeof(vec4_t)` or `sizeof` of the target, and the target is a vector Swift holds as `vec4_t`.
+        The source is such a vector, a row of a `vec4_t` table, or a `float[4]` view field or array, which crosses by its four elements."""
+        if len(args) != 3:
+            return None
+        target, source = (self.unaddressed(a) for a in args[:2])
+        if not self.vec4_value(target):
+            return None
+        size = "".join(self.bytes[args[2].extent.start.offset:args[2].extent.end.offset].decode("utf-8", "replace").split())
+        named = "".join(self.bytes[target.extent.start.offset:target.extent.end.offset].decode("utf-8", "replace").split())
+        if size not in ("sizeof(vec4_t)", f"sizeof({named})", f"sizeof{named}"):
+            return None
+        if self.vec4_value(source) or self.vec4_row(source):
+            return f"{self.expr(target)} = {self.expr(source)}"
+        if self.four_floats(source):
+            text = self.expr(source)
+            return f"{self.expr(target)} = vec4_t({text}[0], {text}[1], {text}[2], {text}[3])"
+        return None
+
+    def unaddressed(self, cur: ci.Cursor) -> ci.Cursor:
+        """The operand of Raven's `&color`, or the expression itself."""
+        cur = self.strip(cur)
+        if cur.kind == CursorKind.UNARY_OPERATOR and self.unary_parts(cur)[0] == "&":
+            return self.strip(self.unary_parts(cur)[2])
+        return cur
+
+    def vec4_value(self, cur: ci.Cursor) -> bool:
+        """True for a variable Swift holds as one `vec4_t`: a `vec4_t` local or global, a file-scope variable the stub spells `vec4_t`,
+        or a `float *` local that only names a color."""
+        inner = self.unwrap(cur)
+        if inner.kind != CursorKind.DECL_REF_EXPR or inner.referenced is None or inner.referenced.kind != CursorKind.VAR_DECL:
+            return False
+        spelled = self.registry.var_types.get(swift_name(inner.spelling), "").replace("JKAShared.", "")
+        if inner.referenced.semantic_parent is not None and inner.referenced.semantic_parent.kind == CursorKind.TRANSLATION_UNIT:
+            return spelled == "vec4_t" or (spelled == "" and self.views.is_vec4(inner.referenced.type))
+        if inner.spelling in self.color_locals and inner.spelling not in self.optional_vectors:
+            # Raven's `float *` local that only names a color, which the declaration holds as a `vec4_t`.
+            return True
+        return self.views.is_vec4(inner.referenced.type)
+
+    def vec4_row(self, cur: ci.Cursor) -> bool:
+        """True for one row of a file-scope `vec4_t` table the stub spells `[vec4_t]`, Raven's `colorTable[CT_RED]`."""
+        inner = self.unwrap(cur)
+        if inner.kind != CursorKind.ARRAY_SUBSCRIPT_EXPR or not self.views.is_vec4(inner.type):
+            return False
+        base = self.unwrap(list(inner.get_children())[0])
+        if base.kind != CursorKind.DECL_REF_EXPR:
+            return False
+        return self.registry.var_types.get(swift_name(base.spelling), "").replace("JKAShared.", "") == "[vec4_t]"
 
     def filled_array(self, args: list[ci.Cursor]) -> tuple[str, str] | None:
         """The Swift array and the value for Raven's memset over a whole array of scalars or vectors, or None.

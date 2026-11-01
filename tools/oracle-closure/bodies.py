@@ -253,6 +253,8 @@ class Drafter(Statements, Expressions, Calls, Declarations, Classification):
         # Raven's vector parameters a caller passes NULL to and the body only reads, which cross as optional values.
         self.optional_vectors = {c.spelling for c, p in zip(fn.cur.get_arguments(), fn.params)
                                  if p.kind in ("vec3_opt", "axis_opt", "vec3_mut_opt", "axis_mut_opt")}
+        # Raven's `float *` locals that only name a color of four floats, which Swift holds as `vec4_t`, and optional ones join the set above.
+        self.color_locals: set[str] = set()
         # His `char *p` over a named buffer is a read cursor, a TextCursor, or a write cursor, the byte offset of row 47.
         # Raven's `for (it = table + 1; it->name; it++)` walks a table by pointer, and the draft walks it by index, `table[itIndex]`.
         self.cursor_locals, self.offset_cursors, self.table_cursors = self.local_facts(fn)
