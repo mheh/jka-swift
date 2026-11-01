@@ -246,75 +246,70 @@ func CG_AllocMark() -> MarkPoly? {
 /// Source: oracle/codemp/cgame/cg_marks.c:110
 func CG_ImpactMark(_ markShader: JKAShared.qhandle_t, _ origin: JKAShared.vec3_t, _ dir: JKAShared.vec3_t, _ orientation: Float, _ red: Float, _ green: Float, _ blue: Float, _ alpha: Float, _ alphaFade: Bool, _ radius: Float, _ temporary: Bool) {
     var axis = [vec3_t](repeating: vec3_t(), count: 3)
-    let texCoordScale: Float
+    var texCoordScale: Float = 0
     var originalPoints = [vec3_t](repeating: vec3_t(), count: 4)
     var colors: [UInt8] = [UInt8](repeating: 0, count: 4)
-    var i: Int32
-    var j: Int32
-    let numFragments: Int32
-    // Port-note: A local `markFragment_t[128] markFragments` the table has no type for.
-    // Raven wrote: markFragment_t markFragments[MAX_MARK_FRAGMENTS];
-    portMissing("CG_ImpactMark", source: "oracle/codemp/cgame/cg_marks.c:110")
+    var i: Int32 = 0
+    var j: Int32 = 0
+    var numFragments: Int32 = 0
     var mf: MarkFragment?
-    var markPoints = [vec3_t](repeating: vec3_t(), count: 384)
-    var projection = vec3_t()
+    // Raven's record lives to the end of his block, so the block is the closure.
+    // The closure gives true where Raven returns from the function.
+    let earlyOut = MarkFragment.scratch(count: 128) { markFragments -> Bool in
+        var markPoints = [vec3_t](repeating: vec3_t(), count: 384)
+        var projection = vec3_t()
 
 
-    if cg_addMarks.integer == 0 {
+        if cg_addMarks.integer == 0 {
+            return true
+        } else if cg_addMarks.integer == 2 {
+            trap_R_AddDecalToScene(markShader, origin, dir, orientation, red, green, blue, alpha, alphaFade, radius, temporary)
+            return true
+        }
+
+        if radius <= 0 {
+            CG_Error("CG_ImpactMark called with <= 0 radius")
+        }
+
+        //if ( markTotal >= MAX_MARK_POLYS ) {
+        //	return;
+        //}
+
+        // create the texture axis
+        VectorNormalize2(dir, &axis[0])
+        PerpendicularVector(&axis[1], axis[0])
+        RotatePointAroundVector(&axis[2], axis[0], axis[1], orientation)
+        CrossProduct(axis[0], axis[2], &axis[1])
+
+        texCoordScale = Float(0.5 * 1.0 / Double(radius))
+
+        // create the full polygon
+        i = 0
+        while i < 3 {
+            originalPoints[0][i] = origin[i] - radius * axis[1][i] - radius * axis[2][i]
+            originalPoints[1][i] = origin[i] + radius * axis[1][i] - radius * axis[2][i]
+            originalPoints[2][i] = origin[i] + radius * axis[1][i] + radius * axis[2][i]
+            originalPoints[3][i] = origin[i] - radius * axis[1][i] + radius * axis[2][i]
+            i += 1
+        }
+
+        // get the fragments
+        projection = dir * -20
+        numFragments = trap_CM_MarkFragments(4, originalPoints, projection, MAX_MARK_POINTS, &markPoints, MAX_MARK_FRAGMENTS, markFragments)
+
+        colors[0] = UInt8(truncatingIfNeeded: Int32(red * 255))
+        colors[1] = UInt8(truncatingIfNeeded: Int32(green * 255))
+        colors[2] = UInt8(truncatingIfNeeded: Int32(blue * 255))
+        colors[3] = UInt8(truncatingIfNeeded: Int32(alpha * 255))
+
+        // Port-note: Raven's block leaves a loop outside the record's scope, and the closure cannot.
+        // Raven wrote: for ( i = 0, mf = markFragments ; i < numFragments ; i++, mf++ ) { polyVert_t *v; polyVert_t verts[MAX_VERTS_ON_POLY]; markPoly_t *mark; // we have an upper limit on the complexity of polygons // that we store persistantly if ( mf->numPoints > MAX_VERTS_ON_POLY ) { mf->numPoints = MAX_VERTS_ON_POLY; } for ( j = 0, v = verts ; j < mf->numPoints ; j++, v++ ) { vec3_t delta; VectorCopy( markPoints[mf->firstPoint + j], v->xyz ); VectorSubtract( v->xyz, origin, delta ); v->st[0] = 0.5 + DotProduct( delta, axis[1] ) * texCoordScale; v->st[1] = 0.5 + DotProduct( delta, axis[2] ) * texCoordScale; *(int *)v->modulate = *(int *)colors; } // if it is a temporary (shadow) mark, add it immediately and forget about it if ( temporary ) { trap_R_AddPolyToScene( markShader, mf->numPoints, verts ); continue; } // otherwise save it persistantly mark = CG_AllocMark(); mark->time = cg.time; mark->alphaFade = alphaFade; mark->markShader = markShader; mark->poly.numVerts = mf->numPoints; mark->color[0] = red; mark->color[1] = green; mark->color[2] = blue; mark->color[3] = alpha; memcpy( mark->verts, verts, mf->numPoints * sizeof( verts[0] ) ); markTotal++; }
+        portMissing("CG_ImpactMark", source: "oracle/codemp/cgame/cg_marks.c:110")
+        return false
+    }
+    if earlyOut {
         return
-    } else if cg_addMarks.integer == 2 {
-        trap_R_AddDecalToScene(markShader, origin, dir, orientation, red, green, blue, alpha, alphaFade, radius, temporary)
-        return
     }
-
-    if radius <= 0 {
-        CG_Error("CG_ImpactMark called with <= 0 radius")
-    }
-
-    //if ( markTotal >= MAX_MARK_POLYS ) {
-    //	return;
-    //}
-
-    // create the texture axis
-    VectorNormalize2(dir, &axis[0])
-    PerpendicularVector(&axis[1], axis[0])
-    RotatePointAroundVector(&axis[2], axis[0], axis[1], orientation)
-    CrossProduct(axis[0], axis[2], &axis[1])
-
-    texCoordScale = Float(0.5 * 1.0 / Double(radius))
-
-    // create the full polygon
-    i = 0
-    while i < 3 {
-        originalPoints[0][i] = origin[i] - radius * axis[1][i] - radius * axis[2][i]
-        originalPoints[1][i] = origin[i] + radius * axis[1][i] - radius * axis[2][i]
-        originalPoints[2][i] = origin[i] + radius * axis[1][i] + radius * axis[2][i]
-        originalPoints[3][i] = origin[i] - radius * axis[1][i] + radius * axis[2][i]
-        i += 1
-    }
-
-    // get the fragments
-    projection = dir * -20
-    // Port-note: A cast to `const vec3_t *` the draft has no view for.
-    // Raven wrote: numFragments = trap_CM_MarkFragments( 4, (const vec3_t *) originalPoints, projection, MAX_MARK_POINTS, markPoints[0], MAX_MARK_FRAGMENTS, markFragments )
-    portMissing("CG_ImpactMark", source: "oracle/codemp/cgame/cg_marks.c:110")
-
-    // Port-note: The draft of this statement did not compile, and the compiler wrote "cannot convert value of type 'Float' to expected argument type 'Int'".
-    // Raven wrote: colors[0] = red * 255
-    portMissing("CG_ImpactMark", source: "oracle/codemp/cgame/cg_marks.c:110")
-    // Port-note: The draft of this statement did not compile, and the compiler wrote "cannot convert value of type 'Float' to expected argument type 'Int'".
-    // Raven wrote: colors[1] = green * 255
-    portMissing("CG_ImpactMark", source: "oracle/codemp/cgame/cg_marks.c:110")
-    // Port-note: The draft of this statement did not compile, and the compiler wrote "cannot convert value of type 'Float' to expected argument type 'Int'".
-    // Raven wrote: colors[2] = blue * 255
-    portMissing("CG_ImpactMark", source: "oracle/codemp/cgame/cg_marks.c:110")
-    // Port-note: The draft of this statement did not compile, and the compiler wrote "cannot convert value of type 'Float' to expected argument type 'Int'".
-    // Raven wrote: colors[3] = alpha * 255
-    portMissing("CG_ImpactMark", source: "oracle/codemp/cgame/cg_marks.c:110")
-
-    // Port-note: A read of `markFragments`, a local the draft left as a hole.
-    // Raven wrote: for ( i = 0, mf = markFragments ; i < numFragments ; i++, mf++ ) { polyVert_t *v; polyVert_t verts[MAX_VERTS_ON_POLY]; markPoly_t *mark; // we have an upper limit on the complexity of polygons // that we store persistantly if ( mf->numPoints > MAX_VERTS_ON_POLY ) { mf->numPoints = MAX_VERTS_ON_POLY; } for ( j = 0, v = verts ; j < mf->numPoints ; j++, v++ ) { vec3_t delta; VectorCopy( markPoints[mf->firstPoint + j], v->xyz ); VectorSubtract( v->xyz, origin, delta ); v->st[0] = 0.5 + DotProduct( delta, axis[1] ) * texCoordScale; v->st[1] = 0.5 + DotProduct( delta, axis[2] ) * texCoordScale; *(int *)v->modulate = *(int *)colors; } // if it is a temporary (shadow) mark, add it immediately and forget about it if ( temporary ) { trap_R_AddPolyToScene( markShader, mf->numPoints, verts ); continue; } // otherwise save it persistantly mark = CG_AllocMark(); mark->time = cg.time; mark->alphaFade = alphaFade; mark->markShader = markShader; mark->poly.numVerts = mf->numPoints; mark->color[0] = red; mark->color[1] = green; mark->color[2] = blue; mark->color[3] = alpha; memcpy( mark->verts, verts, mf->numPoints * sizeof( verts[0] ) ); markTotal++; }
-    portMissing("CG_ImpactMark", source: "oracle/codemp/cgame/cg_marks.c:110")
 }
 
 /// Source: oracle/codemp/cgame/cg_marks.c:221
@@ -452,1099 +447,629 @@ CG_AddParticleToScene
 /// Source: oracle/codemp/cgame/cg_marks.c:436
 func CG_AddParticleToScene(_ p: Cparticle, _ org: JKAShared.vec3_t, _ alpha: Float) {
     var point = vec3_t()
-    // Port-note: A local `polyVert_t[4] verts` the table has no type for.
-    // Raven wrote: polyVert_t verts[4];
-    portMissing("CG_AddParticleToScene", source: "oracle/codemp/cgame/cg_marks.c:436")
-    var width: Float
-    var height: Float
-    var time: Float
-    var time2: Float
-    var ratio: Float
-    var invratio: Float
-    var color = vec3_t()
-    // Port-note: A local `polyVert_t[3] TRIverts` the table has no type for.
-    // Raven wrote: polyVert_t TRIverts[3];
-    portMissing("CG_AddParticleToScene", source: "oracle/codemp/cgame/cg_marks.c:436")
-    var rright2 = vec3_t()
-    var rup2 = vec3_t()
     // Raven assigns his own `alpha` parameter. A Swift parameter is immutable, so the body takes a mutable copy of it.
     var alpha = alpha
+    // Raven's record lives to the end of his block, so the block is the closure.
+    // The closure gives true where Raven returns from the function.
+    let earlyOut = PolyVert.scratch(count: 4) { verts -> Bool in
+        var width: Float = 0
+        var height: Float = 0
+        var time: Float = 0
+        var time2: Float = 0
+        var ratio: Float = 0
+        var invratio: Float = 0
+        var color = vec3_t()
+        // Raven's record lives to the end of his block, so the block is the closure.
+        // The closure gives true where Raven returns from the function.
+        let earlyOut2 = PolyVert.scratch(count: 3) { TRIverts -> Bool in
+            var rright2 = vec3_t()
+            var rup2 = vec3_t()
 
-    if p.type == P_WEATHER || p.type == P_WEATHER_TURBULENT || p.type == P_WEATHER_FLURRY || p.type == P_BUBBLE || p.type == P_BUBBLE_TURBULENT {
-        // create a front facing polygon
+            if p.type == P_WEATHER || p.type == P_WEATHER_TURBULENT || p.type == P_WEATHER_FLURRY || p.type == P_BUBBLE || p.type == P_BUBBLE_TURBULENT {
+                // create a front facing polygon
 
-        if p.type != P_WEATHER_FLURRY {
-            if p.type == P_BUBBLE || p.type == P_BUBBLE_TURBULENT {
-                if org[2] > p.end {
-                    p.time = Float(cg.time)
-                    p.org = org // Ridah, fixes rare snow flakes that flicker on the ground
+                if p.type != P_WEATHER_FLURRY {
+                    if p.type == P_BUBBLE || p.type == P_BUBBLE_TURBULENT {
+                        if org[2] > p.end {
+                            p.time = Float(cg.time)
+                            p.org = org // Ridah, fixes rare snow flakes that flicker on the ground
 
-                    // Port-note: The draft of this statement did not compile, and the compiler wrote "cannot convert value of type 'Double' to expected argument type 'Float'".
-                    // Raven wrote: p->org[2] = ( p->start + crandom () * 4 )
-                    portMissing("CG_AddParticleToScene", source: "oracle/codemp/cgame/cg_marks.c:436")
+                            p.org[2] = Float((Double(p.start) + crandom() * 4))
 
 
-                    if p.type == P_BUBBLE_TURBULENT {
-                        // Port-note: The draft of this statement did not compile, and the compiler wrote "cannot assign value of type 'Double' to subscript of type 'Float'".
-                        // Raven wrote: p->vel[0] = crandom() * 4
-                        portMissing("CG_AddParticleToScene", source: "oracle/codemp/cgame/cg_marks.c:436")
-                        // Port-note: The draft of this statement did not compile, and the compiler wrote "cannot assign value of type 'Double' to subscript of type 'Float'".
-                        // Raven wrote: p->vel[1] = crandom() * 4
-                        portMissing("CG_AddParticleToScene", source: "oracle/codemp/cgame/cg_marks.c:436")
+                            if p.type == P_BUBBLE_TURBULENT {
+                                p.vel[0] = Float(crandom() * 4)
+                                p.vel[1] = Float(crandom() * 4)
+                            }
+                        }
+                    } else {
+                        if org[2] < p.end {
+                            p.time = Float(cg.time)
+                            p.org = org // Ridah, fixes rare snow flakes that flicker on the ground
+
+                            while p.org[2] < p.end {
+                                p.org[2] += (p.start - p.end)
+                            }
+
+
+                            if p.type == P_WEATHER_TURBULENT {
+                                p.vel[0] = Float(crandom() * 16)
+                                p.vel[1] = Float(crandom() * 16)
+                            }
+                        }
                     }
+
+
+                    // Rafael snow pvs check
+                    if !p.link {
+                        return true
+                    }
+
+                    p.alpha = 1
                 }
+
+                // Ridah, had to do this or MAX_POLYS is being exceeded in village1.bsp
+                if Distance(cg.snap!.ps.origin, org) > 1024 {
+                    return true
+                }
+                // done.
+
+                if p.type == P_BUBBLE || p.type == P_BUBBLE_TURBULENT {
+                    _VectorMA(org, -p.height, pvup, &point)
+                    _VectorMA(point, -p.width, pvright, &point)
+                    verts[0].xyz = point
+                    verts[0].st[0] = 0
+                    verts[0].st[1] = 0
+                    verts[0].modulate[0] = 255
+                    verts[0].modulate[1] = 255
+                    verts[0].modulate[2] = 255
+                    verts[0].modulate[3] = UInt8(truncatingIfNeeded: Int32(255 * p.alpha))
+
+                    _VectorMA(org, -p.height, pvup, &point)
+                    _VectorMA(point, p.width, pvright, &point)
+                    verts[1].xyz = point
+                    verts[1].st[0] = 0
+                    verts[1].st[1] = 1
+                    verts[1].modulate[0] = 255
+                    verts[1].modulate[1] = 255
+                    verts[1].modulate[2] = 255
+                    verts[1].modulate[3] = UInt8(truncatingIfNeeded: Int32(255 * p.alpha))
+
+                    _VectorMA(org, p.height, pvup, &point)
+                    _VectorMA(point, p.width, pvright, &point)
+                    verts[2].xyz = point
+                    verts[2].st[0] = 1
+                    verts[2].st[1] = 1
+                    verts[2].modulate[0] = 255
+                    verts[2].modulate[1] = 255
+                    verts[2].modulate[2] = 255
+                    verts[2].modulate[3] = UInt8(truncatingIfNeeded: Int32(255 * p.alpha))
+
+                    _VectorMA(org, p.height, pvup, &point)
+                    _VectorMA(point, -p.width, pvright, &point)
+                    verts[3].xyz = point
+                    verts[3].st[0] = 1
+                    verts[3].st[1] = 0
+                    verts[3].modulate[0] = 255
+                    verts[3].modulate[1] = 255
+                    verts[3].modulate[2] = 255
+                    verts[3].modulate[3] = UInt8(truncatingIfNeeded: Int32(255 * p.alpha))
+                } else {
+                    _VectorMA(org, -p.height, pvup, &point)
+                    _VectorMA(point, -p.width, pvright, &point)
+                    TRIverts[0].xyz = point
+                    TRIverts[0].st[0] = 1
+                    TRIverts[0].st[1] = 0
+                    TRIverts[0].modulate[0] = 255
+                    TRIverts[0].modulate[1] = 255
+                    TRIverts[0].modulate[2] = 255
+                    TRIverts[0].modulate[3] = UInt8(truncatingIfNeeded: Int32(255 * p.alpha))
+
+                    _VectorMA(org, p.height, pvup, &point)
+                    _VectorMA(point, -p.width, pvright, &point)
+                    TRIverts[1].xyz = point
+                    TRIverts[1].st[0] = 0
+                    TRIverts[1].st[1] = 0
+                    TRIverts[1].modulate[0] = 255
+                    TRIverts[1].modulate[1] = 255
+                    TRIverts[1].modulate[2] = 255
+                    TRIverts[1].modulate[3] = UInt8(truncatingIfNeeded: Int32(255 * p.alpha))
+
+                    _VectorMA(org, p.height, pvup, &point)
+                    _VectorMA(point, p.width, pvright, &point)
+                    TRIverts[2].xyz = point
+                    TRIverts[2].st[0] = 0
+                    TRIverts[2].st[1] = 1
+                    TRIverts[2].modulate[0] = 255
+                    TRIverts[2].modulate[1] = 255
+                    TRIverts[2].modulate[2] = 255
+                    TRIverts[2].modulate[3] = UInt8(truncatingIfNeeded: Int32(255 * p.alpha))
+                }
+            } else if p.type == P_SPRITE {
+                var rr = vec3_t()
+                var ru = vec3_t()
+                var rotate_ang = vec3_t()
+
+                color = vec3_t(1.0, 1.0, 0.5)
+                time = cg.time - p.time
+                time2 = p.endtime - p.time
+                ratio = time / time2
+
+                width = p.width + (ratio * (p.endwidth - p.width))
+                height = p.height + (ratio * (p.endheight - p.height))
+
+                if p.roll != 0 {
+                    vectoangles(cg.refdef.viewaxis[0], &rotate_ang)
+                    rotate_ang[ROLL] += p.roll
+                    // Raven passes NULL for the `forward` output.
+                    var scratchForward = vec3_t()
+                    AngleVectors(rotate_ang, &scratchForward, &rr, &ru)
+                }
+
+                if p.roll != 0 {
+                    _VectorMA(org, -height, ru, &point)
+                    _VectorMA(point, -width, rr, &point)
+                } else {
+                    _VectorMA(org, -height, pvup, &point)
+                    _VectorMA(point, -width, pvright, &point)
+                }
+                verts[0].xyz = point
+                verts[0].st[0] = 0
+                verts[0].st[1] = 0
+                verts[0].modulate[0] = 255
+                verts[0].modulate[1] = 255
+                verts[0].modulate[2] = 255
+                verts[0].modulate[3] = 255
+
+                if p.roll != 0 {
+                    _VectorMA(point, 2 * height, ru, &point)
+                } else {
+                    _VectorMA(point, 2 * height, pvup, &point)
+                }
+                verts[1].xyz = point
+                verts[1].st[0] = 0
+                verts[1].st[1] = 1
+                verts[1].modulate[0] = 255
+                verts[1].modulate[1] = 255
+                verts[1].modulate[2] = 255
+                verts[1].modulate[3] = 255
+
+                if p.roll != 0 {
+                    _VectorMA(point, 2 * width, rr, &point)
+                } else {
+                    _VectorMA(point, 2 * width, pvright, &point)
+                }
+                verts[2].xyz = point
+                verts[2].st[0] = 1
+                verts[2].st[1] = 1
+                verts[2].modulate[0] = 255
+                verts[2].modulate[1] = 255
+                verts[2].modulate[2] = 255
+                verts[2].modulate[3] = 255
+
+                if p.roll != 0 {
+                    _VectorMA(point, -2 * height, ru, &point)
+                } else {
+                    _VectorMA(point, -2 * height, pvup, &point)
+                }
+                verts[3].xyz = point
+                verts[3].st[0] = 1
+                verts[3].st[1] = 0
+                verts[3].modulate[0] = 255
+                verts[3].modulate[1] = 255
+                verts[3].modulate[2] = 255
+                verts[3].modulate[3] = 255
+            } else if p.type == P_SMOKE || p.type == P_SMOKE_IMPACT {
+                // create a front rotating facing polygon
+
+                if p.type == P_SMOKE_IMPACT && Distance(cg.snap!.ps.origin, org) > 1024 {
+                    return true
+                }
+
+                if p.color == BLOODRED {
+                    color = vec3_t(0.22, 0.0, 0.0)
+                } else if p.color == GREY75 {
+                    var len: Float = 0
+                    var greyit: Float = 0
+                    var val: Float = 0
+                    len = Distance(cg.snap!.ps.origin, org)
+                    if len == 0 {
+                        len = 1
+                    }
+
+                    val = 4096 / len
+                    greyit = Float(0.25 * Double(val))
+                    if Double(greyit) > 0.5 {
+                        greyit = 0.5
+                    }
+
+                    color = vec3_t(greyit, greyit, greyit)
+                } else {
+                    color = vec3_t(1.0, 1.0, 1.0)
+                }
+
+                time = cg.time - p.time
+                time2 = p.endtime - p.time
+                ratio = time / time2
+
+                if cg.time > p.startfade {
+                    invratio = 1 - ((cg.time - p.startfade) / (p.endtime - p.startfade))
+
+                    if p.color == EMISIVEFADE {
+                        var fval: Float = 0
+                        fval = (invratio * invratio)
+                        if fval < 0 {
+                            fval = 0
+                        }
+                        color = vec3_t(fval, fval, fval)
+                    }
+                    invratio *= p.alpha
+                } else {
+                    invratio = 1 * p.alpha
+                }
+
+                if invratio > 1 {
+                    invratio = 1
+                }
+
+                width = p.width + (ratio * (p.endwidth - p.width))
+                height = p.height + (ratio * (p.endheight - p.height))
+
+                if p.type != P_SMOKE_IMPACT {
+                    var temp = vec3_t()
+
+                    vectoangles(rforward, &temp)
+                    p.accumroll += p.roll
+                    temp[ROLL] = Float(Double(temp[ROLL]) + Double(p.accumroll) * 0.1)
+                    // Raven passes NULL for the `forward` output.
+                    var scratchForward2 = vec3_t()
+                    AngleVectors(temp, &scratchForward2, &rright2, &rup2)
+                } else {
+                    rright2 = rright
+                    rup2 = rup
+                }
+
+                if p.rotate {
+                    _VectorMA(org, -height, rup2, &point)
+                    _VectorMA(point, -width, rright2, &point)
+                } else {
+                    _VectorMA(org, -p.height, pvup, &point)
+                    _VectorMA(point, -p.width, pvright, &point)
+                }
+                verts[0].xyz = point
+                verts[0].st[0] = 0
+                verts[0].st[1] = 0
+                verts[0].modulate[0] = UInt8(truncatingIfNeeded: Int32(255 * color[0]))
+                verts[0].modulate[1] = UInt8(truncatingIfNeeded: Int32(255 * color[1]))
+                verts[0].modulate[2] = UInt8(truncatingIfNeeded: Int32(255 * color[2]))
+                verts[0].modulate[3] = UInt8(truncatingIfNeeded: Int32(255 * invratio))
+
+                if p.rotate {
+                    _VectorMA(org, -height, rup2, &point)
+                    _VectorMA(point, width, rright2, &point)
+                } else {
+                    _VectorMA(org, -p.height, pvup, &point)
+                    _VectorMA(point, p.width, pvright, &point)
+                }
+                verts[1].xyz = point
+                verts[1].st[0] = 0
+                verts[1].st[1] = 1
+                verts[1].modulate[0] = UInt8(truncatingIfNeeded: Int32(255 * color[0]))
+                verts[1].modulate[1] = UInt8(truncatingIfNeeded: Int32(255 * color[1]))
+                verts[1].modulate[2] = UInt8(truncatingIfNeeded: Int32(255 * color[2]))
+                verts[1].modulate[3] = UInt8(truncatingIfNeeded: Int32(255 * invratio))
+
+                if p.rotate {
+                    _VectorMA(org, height, rup2, &point)
+                    _VectorMA(point, width, rright2, &point)
+                } else {
+                    _VectorMA(org, p.height, pvup, &point)
+                    _VectorMA(point, p.width, pvright, &point)
+                }
+                verts[2].xyz = point
+                verts[2].st[0] = 1
+                verts[2].st[1] = 1
+                verts[2].modulate[0] = UInt8(truncatingIfNeeded: Int32(255 * color[0]))
+                verts[2].modulate[1] = UInt8(truncatingIfNeeded: Int32(255 * color[1]))
+                verts[2].modulate[2] = UInt8(truncatingIfNeeded: Int32(255 * color[2]))
+                verts[2].modulate[3] = UInt8(truncatingIfNeeded: Int32(255 * invratio))
+
+                if p.rotate {
+                    _VectorMA(org, height, rup2, &point)
+                    _VectorMA(point, -width, rright2, &point)
+                } else {
+                    _VectorMA(org, p.height, pvup, &point)
+                    _VectorMA(point, -p.width, pvright, &point)
+                }
+                verts[3].xyz = point
+                verts[3].st[0] = 1
+                verts[3].st[1] = 0
+                verts[3].modulate[0] = UInt8(truncatingIfNeeded: Int32(255 * color[0]))
+                verts[3].modulate[1] = UInt8(truncatingIfNeeded: Int32(255 * color[1]))
+                verts[3].modulate[2] = UInt8(truncatingIfNeeded: Int32(255 * color[2]))
+                verts[3].modulate[3] = UInt8(truncatingIfNeeded: Int32(255 * invratio))
+            } else if p.type == P_BLEED {
+                var rr = vec3_t()
+                var ru = vec3_t()
+                var rotate_ang = vec3_t()
+                var alpha: Float = 0
+
+                alpha = p.alpha
+
+                if p.roll != 0 {
+                    vectoangles(cg.refdef.viewaxis[0], &rotate_ang)
+                    rotate_ang[ROLL] += p.roll
+                    // Raven passes NULL for the `forward` output.
+                    var scratchForward3 = vec3_t()
+                    AngleVectors(rotate_ang, &scratchForward3, &rr, &ru)
+                } else {
+                    ru = pvup
+                    rr = pvright
+                }
+
+                _VectorMA(org, -p.height, ru, &point)
+                _VectorMA(point, -p.width, rr, &point)
+                verts[0].xyz = point
+                verts[0].st[0] = 0
+                verts[0].st[1] = 0
+                verts[0].modulate[0] = 111
+                verts[0].modulate[1] = 19
+                verts[0].modulate[2] = 9
+                verts[0].modulate[3] = UInt8(truncatingIfNeeded: Int32(255 * alpha))
+
+                _VectorMA(org, -p.height, ru, &point)
+                _VectorMA(point, p.width, rr, &point)
+                verts[1].xyz = point
+                verts[1].st[0] = 0
+                verts[1].st[1] = 1
+                verts[1].modulate[0] = 111
+                verts[1].modulate[1] = 19
+                verts[1].modulate[2] = 9
+                verts[1].modulate[3] = UInt8(truncatingIfNeeded: Int32(255 * alpha))
+
+                _VectorMA(org, p.height, ru, &point)
+                _VectorMA(point, p.width, rr, &point)
+                verts[2].xyz = point
+                verts[2].st[0] = 1
+                verts[2].st[1] = 1
+                verts[2].modulate[0] = 111
+                verts[2].modulate[1] = 19
+                verts[2].modulate[2] = 9
+                verts[2].modulate[3] = UInt8(truncatingIfNeeded: Int32(255 * alpha))
+
+                _VectorMA(org, p.height, ru, &point)
+                _VectorMA(point, -p.width, rr, &point)
+                verts[3].xyz = point
+                verts[3].st[0] = 1
+                verts[3].st[1] = 0
+                verts[3].modulate[0] = 111
+                verts[3].modulate[1] = 19
+                verts[3].modulate[2] = 9
+                verts[3].modulate[3] = UInt8(truncatingIfNeeded: Int32(255 * alpha))
+            } else if p.type == P_FLAT_SCALEUP {
+                var width: Float = 0
+                var height: Float = 0
+                var sinR: Float = 0
+                var cosR: Float = 0
+
+                if p.color == BLOODRED {
+                    color = vec3_t(1, 1, 1)
+                } else {
+                    color = vec3_t(0.5, 0.5, 0.5)
+                }
+
+                time = cg.time - p.time
+                time2 = p.endtime - p.time
+                ratio = time / time2
+
+                width = p.width + (ratio * (p.endwidth - p.width))
+                height = p.height + (ratio * (p.endheight - p.height))
+
+                if width > p.endwidth {
+                    width = p.endwidth
+                }
+
+                if height > p.endheight {
+                    height = p.endheight
+                }
+
+                sinR = height * sin(DEG2RAD(Float(p.roll))) * sqrt(2.0)
+                cosR = width * cos(DEG2RAD(Float(p.roll))) * sqrt(2.0)
+
+                verts[0].xyz = org
+                verts[0].xyz[0] -= sinR
+                verts[0].xyz[1] -= cosR
+                verts[0].st[0] = 0
+                verts[0].st[1] = 0
+                verts[0].modulate[0] = UInt8(truncatingIfNeeded: Int32(255 * color[0]))
+                verts[0].modulate[1] = UInt8(truncatingIfNeeded: Int32(255 * color[1]))
+                verts[0].modulate[2] = UInt8(truncatingIfNeeded: Int32(255 * color[2]))
+                verts[0].modulate[3] = 255
+
+                verts[1].xyz = org
+                verts[1].xyz[0] -= cosR
+                verts[1].xyz[1] += sinR
+                verts[1].st[0] = 0
+                verts[1].st[1] = 1
+                verts[1].modulate[0] = UInt8(truncatingIfNeeded: Int32(255 * color[0]))
+                verts[1].modulate[1] = UInt8(truncatingIfNeeded: Int32(255 * color[1]))
+                verts[1].modulate[2] = UInt8(truncatingIfNeeded: Int32(255 * color[2]))
+                verts[1].modulate[3] = 255
+
+                verts[2].xyz = org
+                verts[2].xyz[0] += sinR
+                verts[2].xyz[1] += cosR
+                verts[2].st[0] = 1
+                verts[2].st[1] = 1
+                verts[2].modulate[0] = UInt8(truncatingIfNeeded: Int32(255 * color[0]))
+                verts[2].modulate[1] = UInt8(truncatingIfNeeded: Int32(255 * color[1]))
+                verts[2].modulate[2] = UInt8(truncatingIfNeeded: Int32(255 * color[2]))
+                verts[2].modulate[3] = 255
+
+                verts[3].xyz = org
+                verts[3].xyz[0] += cosR
+                verts[3].xyz[1] -= sinR
+                verts[3].st[0] = 1
+                verts[3].st[1] = 0
+                verts[3].modulate[0] = UInt8(truncatingIfNeeded: Int32(255 * color[0]))
+                verts[3].modulate[1] = UInt8(truncatingIfNeeded: Int32(255 * color[1]))
+                verts[3].modulate[2] = UInt8(truncatingIfNeeded: Int32(255 * color[2]))
+                verts[3].modulate[3] = 255
+            } else if p.type == P_FLAT {
+                verts[0].xyz = org
+                verts[0].xyz[0] -= p.height
+                verts[0].xyz[1] -= p.width
+                verts[0].st[0] = 0
+                verts[0].st[1] = 0
+                verts[0].modulate[0] = 255
+                verts[0].modulate[1] = 255
+                verts[0].modulate[2] = 255
+                verts[0].modulate[3] = 255
+
+                verts[1].xyz = org
+                verts[1].xyz[0] -= p.height
+                verts[1].xyz[1] += p.width
+                verts[1].st[0] = 0
+                verts[1].st[1] = 1
+                verts[1].modulate[0] = 255
+                verts[1].modulate[1] = 255
+                verts[1].modulate[2] = 255
+                verts[1].modulate[3] = 255
+
+                verts[2].xyz = org
+                verts[2].xyz[0] += p.height
+                verts[2].xyz[1] += p.width
+                verts[2].st[0] = 1
+                verts[2].st[1] = 1
+                verts[2].modulate[0] = 255
+                verts[2].modulate[1] = 255
+                verts[2].modulate[2] = 255
+                verts[2].modulate[3] = 255
+
+                verts[3].xyz = org
+                verts[3].xyz[0] += p.height
+                verts[3].xyz[1] -= p.width
+                verts[3].st[0] = 1
+                verts[3].st[1] = 0
+                verts[3].modulate[0] = 255
+                verts[3].modulate[1] = 255
+                verts[3].modulate[2] = 255
+                verts[3].modulate[3] = 255
+            } else if p.type == P_ANIM {
+                // Ridah
+                var rr = vec3_t()
+                var ru = vec3_t()
+                var rotate_ang = vec3_t()
+                var i: Int32 = 0
+                var j: Int32 = 0
+
+                time = cg.time - p.time
+                time2 = p.endtime - p.time
+                ratio = time / time2
+                if ratio >= 1.0 {
+                    ratio = 0.9999
+                }
+
+                width = p.width + (ratio * (p.endwidth - p.width))
+                height = p.height + (ratio * (p.endheight - p.height))
+
+                // if we are "inside" this sprite, don't draw
+                if Double(Distance(cg.snap!.ps.origin, org)) < Double(width) / 1.5 {
+                    return true
+                }
+
+                i = p.shaderAnim
+                j = Int32(floor(ratio * shaderAnimCounts[p.shaderAnim]))
+                p.pshader = shaderAnims[i][j]
+
+                if p.roll != 0 {
+                    vectoangles(cg.refdef.viewaxis[0], &rotate_ang)
+                    rotate_ang[ROLL] += p.roll
+                    // Raven passes NULL for the `forward` output.
+                    var scratchForward4 = vec3_t()
+                    AngleVectors(rotate_ang, &scratchForward4, &rr, &ru)
+                }
+
+                if p.roll != 0 {
+                    _VectorMA(org, -height, ru, &point)
+                    _VectorMA(point, -width, rr, &point)
+                } else {
+                    _VectorMA(org, -height, pvup, &point)
+                    _VectorMA(point, -width, pvright, &point)
+                }
+                verts[0].xyz = point
+                verts[0].st[0] = 0
+                verts[0].st[1] = 0
+                verts[0].modulate[0] = 255
+                verts[0].modulate[1] = 255
+                verts[0].modulate[2] = 255
+                verts[0].modulate[3] = 255
+
+                if p.roll != 0 {
+                    _VectorMA(point, 2 * height, ru, &point)
+                } else {
+                    _VectorMA(point, 2 * height, pvup, &point)
+                }
+                verts[1].xyz = point
+                verts[1].st[0] = 0
+                verts[1].st[1] = 1
+                verts[1].modulate[0] = 255
+                verts[1].modulate[1] = 255
+                verts[1].modulate[2] = 255
+                verts[1].modulate[3] = 255
+
+                if p.roll != 0 {
+                    _VectorMA(point, 2 * width, rr, &point)
+                } else {
+                    _VectorMA(point, 2 * width, pvright, &point)
+                }
+                verts[2].xyz = point
+                verts[2].st[0] = 1
+                verts[2].st[1] = 1
+                verts[2].modulate[0] = 255
+                verts[2].modulate[1] = 255
+                verts[2].modulate[2] = 255
+                verts[2].modulate[3] = 255
+
+                if p.roll != 0 {
+                    _VectorMA(point, -2 * height, ru, &point)
+                } else {
+                    _VectorMA(point, -2 * height, pvup, &point)
+                }
+                verts[3].xyz = point
+                verts[3].st[0] = 1
+                verts[3].st[1] = 0
+                verts[3].modulate[0] = 255
+                verts[3].modulate[1] = 255
+                verts[3].modulate[2] = 255
+                verts[3].modulate[3] = 255
+            }
+            // done.
+
+            if p.pshader == 0 {
+                // (SA) temp commented out for DM
+                //		CG_Printf ("CG_AddParticleToScene type %d p->pshader == ZERO\n", p->type);
+                return true
+            }
+
+            if p.type == P_WEATHER || p.type == P_WEATHER_TURBULENT || p.type == P_WEATHER_FLURRY {
+                // Port-note: Raven passes `TRIverts` to `trap_R_AddPolyToScene`, whose `verts` parameter takes one record, and Swift holds the argument as the Slots over the records.
+                // Raven wrote: trap_R_AddPolyToScene( p->pshader, 3, TRIverts )
+                portMissing("CG_AddParticleToScene", source: "oracle/codemp/cgame/cg_marks.c:436")
             } else {
-                if org[2] < p.end {
-                    p.time = Float(cg.time)
-                    p.org = org // Ridah, fixes rare snow flakes that flicker on the ground
-
-                    while p.org[2] < p.end {
-                        p.org[2] += (p.start - p.end)
-                    }
-
-
-                    if p.type == P_WEATHER_TURBULENT {
-                        // Port-note: The draft of this statement did not compile, and the compiler wrote "cannot assign value of type 'Double' to subscript of type 'Float'".
-                        // Raven wrote: p->vel[0] = crandom() * 16
-                        portMissing("CG_AddParticleToScene", source: "oracle/codemp/cgame/cg_marks.c:436")
-                        // Port-note: The draft of this statement did not compile, and the compiler wrote "cannot assign value of type 'Double' to subscript of type 'Float'".
-                        // Raven wrote: p->vel[1] = crandom() * 16
-                        portMissing("CG_AddParticleToScene", source: "oracle/codemp/cgame/cg_marks.c:436")
-                    }
-                }
+                // Port-note: Raven passes `verts` to `trap_R_AddPolyToScene`, whose `verts` parameter takes one record, and Swift holds the argument as the Slots over the records.
+                // Raven wrote: trap_R_AddPolyToScene( p->pshader, 4, verts )
+                portMissing("CG_AddParticleToScene", source: "oracle/codemp/cgame/cg_marks.c:436")
             }
-
-
-            // Rafael snow pvs check
-            if !p.link {
-                return
-            }
-
-            p.alpha = 1
+            return false
         }
-
-        // Ridah, had to do this or MAX_POLYS is being exceeded in village1.bsp
-        if Distance(cg.snap!.ps.origin, org) > 1024 {
-            return
+        if earlyOut2 {
+            return true
         }
-        // done.
-
-        if p.type == P_BUBBLE || p.type == P_BUBBLE_TURBULENT {
-            _VectorMA(org, -p.height, pvup, &point)
-            _VectorMA(point, -p.width, pvright, &point)
-            // Port-note: A read of `verts`, a local the draft left as a hole.
-            // Raven wrote: VectorCopy (point, verts[0].xyz)
-            portMissing("CG_AddParticleToScene", source: "oracle/codemp/cgame/cg_marks.c:436")
-            // Port-note: A read of `verts`, a local the draft left as a hole.
-            // Raven wrote: verts[0].st[0] = 0
-            portMissing("CG_AddParticleToScene", source: "oracle/codemp/cgame/cg_marks.c:436")
-            // Port-note: A read of `verts`, a local the draft left as a hole.
-            // Raven wrote: verts[0].st[1] = 0
-            portMissing("CG_AddParticleToScene", source: "oracle/codemp/cgame/cg_marks.c:436")
-            // Port-note: A read of `verts`, a local the draft left as a hole.
-            // Raven wrote: verts[0].modulate[0] = 255
-            portMissing("CG_AddParticleToScene", source: "oracle/codemp/cgame/cg_marks.c:436")
-            // Port-note: A read of `verts`, a local the draft left as a hole.
-            // Raven wrote: verts[0].modulate[1] = 255
-            portMissing("CG_AddParticleToScene", source: "oracle/codemp/cgame/cg_marks.c:436")
-            // Port-note: A read of `verts`, a local the draft left as a hole.
-            // Raven wrote: verts[0].modulate[2] = 255
-            portMissing("CG_AddParticleToScene", source: "oracle/codemp/cgame/cg_marks.c:436")
-            // Port-note: A read of `verts`, a local the draft left as a hole.
-            // Raven wrote: verts[0].modulate[3] = 255 * p->alpha
-            portMissing("CG_AddParticleToScene", source: "oracle/codemp/cgame/cg_marks.c:436")
-
-            _VectorMA(org, -p.height, pvup, &point)
-            _VectorMA(point, p.width, pvright, &point)
-            // Port-note: A read of `verts`, a local the draft left as a hole.
-            // Raven wrote: VectorCopy (point, verts[1].xyz)
-            portMissing("CG_AddParticleToScene", source: "oracle/codemp/cgame/cg_marks.c:436")
-            // Port-note: A read of `verts`, a local the draft left as a hole.
-            // Raven wrote: verts[1].st[0] = 0
-            portMissing("CG_AddParticleToScene", source: "oracle/codemp/cgame/cg_marks.c:436")
-            // Port-note: A read of `verts`, a local the draft left as a hole.
-            // Raven wrote: verts[1].st[1] = 1
-            portMissing("CG_AddParticleToScene", source: "oracle/codemp/cgame/cg_marks.c:436")
-            // Port-note: A read of `verts`, a local the draft left as a hole.
-            // Raven wrote: verts[1].modulate[0] = 255
-            portMissing("CG_AddParticleToScene", source: "oracle/codemp/cgame/cg_marks.c:436")
-            // Port-note: A read of `verts`, a local the draft left as a hole.
-            // Raven wrote: verts[1].modulate[1] = 255
-            portMissing("CG_AddParticleToScene", source: "oracle/codemp/cgame/cg_marks.c:436")
-            // Port-note: A read of `verts`, a local the draft left as a hole.
-            // Raven wrote: verts[1].modulate[2] = 255
-            portMissing("CG_AddParticleToScene", source: "oracle/codemp/cgame/cg_marks.c:436")
-            // Port-note: A read of `verts`, a local the draft left as a hole.
-            // Raven wrote: verts[1].modulate[3] = 255 * p->alpha
-            portMissing("CG_AddParticleToScene", source: "oracle/codemp/cgame/cg_marks.c:436")
-
-            _VectorMA(org, p.height, pvup, &point)
-            _VectorMA(point, p.width, pvright, &point)
-            // Port-note: A read of `verts`, a local the draft left as a hole.
-            // Raven wrote: VectorCopy (point, verts[2].xyz)
-            portMissing("CG_AddParticleToScene", source: "oracle/codemp/cgame/cg_marks.c:436")
-            // Port-note: A read of `verts`, a local the draft left as a hole.
-            // Raven wrote: verts[2].st[0] = 1
-            portMissing("CG_AddParticleToScene", source: "oracle/codemp/cgame/cg_marks.c:436")
-            // Port-note: A read of `verts`, a local the draft left as a hole.
-            // Raven wrote: verts[2].st[1] = 1
-            portMissing("CG_AddParticleToScene", source: "oracle/codemp/cgame/cg_marks.c:436")
-            // Port-note: A read of `verts`, a local the draft left as a hole.
-            // Raven wrote: verts[2].modulate[0] = 255
-            portMissing("CG_AddParticleToScene", source: "oracle/codemp/cgame/cg_marks.c:436")
-            // Port-note: A read of `verts`, a local the draft left as a hole.
-            // Raven wrote: verts[2].modulate[1] = 255
-            portMissing("CG_AddParticleToScene", source: "oracle/codemp/cgame/cg_marks.c:436")
-            // Port-note: A read of `verts`, a local the draft left as a hole.
-            // Raven wrote: verts[2].modulate[2] = 255
-            portMissing("CG_AddParticleToScene", source: "oracle/codemp/cgame/cg_marks.c:436")
-            // Port-note: A read of `verts`, a local the draft left as a hole.
-            // Raven wrote: verts[2].modulate[3] = 255 * p->alpha
-            portMissing("CG_AddParticleToScene", source: "oracle/codemp/cgame/cg_marks.c:436")
-
-            _VectorMA(org, p.height, pvup, &point)
-            _VectorMA(point, -p.width, pvright, &point)
-            // Port-note: A read of `verts`, a local the draft left as a hole.
-            // Raven wrote: VectorCopy (point, verts[3].xyz)
-            portMissing("CG_AddParticleToScene", source: "oracle/codemp/cgame/cg_marks.c:436")
-            // Port-note: A read of `verts`, a local the draft left as a hole.
-            // Raven wrote: verts[3].st[0] = 1
-            portMissing("CG_AddParticleToScene", source: "oracle/codemp/cgame/cg_marks.c:436")
-            // Port-note: A read of `verts`, a local the draft left as a hole.
-            // Raven wrote: verts[3].st[1] = 0
-            portMissing("CG_AddParticleToScene", source: "oracle/codemp/cgame/cg_marks.c:436")
-            // Port-note: A read of `verts`, a local the draft left as a hole.
-            // Raven wrote: verts[3].modulate[0] = 255
-            portMissing("CG_AddParticleToScene", source: "oracle/codemp/cgame/cg_marks.c:436")
-            // Port-note: A read of `verts`, a local the draft left as a hole.
-            // Raven wrote: verts[3].modulate[1] = 255
-            portMissing("CG_AddParticleToScene", source: "oracle/codemp/cgame/cg_marks.c:436")
-            // Port-note: A read of `verts`, a local the draft left as a hole.
-            // Raven wrote: verts[3].modulate[2] = 255
-            portMissing("CG_AddParticleToScene", source: "oracle/codemp/cgame/cg_marks.c:436")
-            // Port-note: A read of `verts`, a local the draft left as a hole.
-            // Raven wrote: verts[3].modulate[3] = 255 * p->alpha
-            portMissing("CG_AddParticleToScene", source: "oracle/codemp/cgame/cg_marks.c:436")
-        } else {
-            _VectorMA(org, -p.height, pvup, &point)
-            _VectorMA(point, -p.width, pvright, &point)
-            // Port-note: A read of `TRIverts`, a local the draft left as a hole.
-            // Raven wrote: VectorCopy( point, TRIverts[0].xyz )
-            portMissing("CG_AddParticleToScene", source: "oracle/codemp/cgame/cg_marks.c:436")
-            // Port-note: A read of `TRIverts`, a local the draft left as a hole.
-            // Raven wrote: TRIverts[0].st[0] = 1
-            portMissing("CG_AddParticleToScene", source: "oracle/codemp/cgame/cg_marks.c:436")
-            // Port-note: A read of `TRIverts`, a local the draft left as a hole.
-            // Raven wrote: TRIverts[0].st[1] = 0
-            portMissing("CG_AddParticleToScene", source: "oracle/codemp/cgame/cg_marks.c:436")
-            // Port-note: A read of `TRIverts`, a local the draft left as a hole.
-            // Raven wrote: TRIverts[0].modulate[0] = 255
-            portMissing("CG_AddParticleToScene", source: "oracle/codemp/cgame/cg_marks.c:436")
-            // Port-note: A read of `TRIverts`, a local the draft left as a hole.
-            // Raven wrote: TRIverts[0].modulate[1] = 255
-            portMissing("CG_AddParticleToScene", source: "oracle/codemp/cgame/cg_marks.c:436")
-            // Port-note: A read of `TRIverts`, a local the draft left as a hole.
-            // Raven wrote: TRIverts[0].modulate[2] = 255
-            portMissing("CG_AddParticleToScene", source: "oracle/codemp/cgame/cg_marks.c:436")
-            // Port-note: A read of `TRIverts`, a local the draft left as a hole.
-            // Raven wrote: TRIverts[0].modulate[3] = 255 * p->alpha
-            portMissing("CG_AddParticleToScene", source: "oracle/codemp/cgame/cg_marks.c:436")
-
-            _VectorMA(org, p.height, pvup, &point)
-            _VectorMA(point, -p.width, pvright, &point)
-            // Port-note: A read of `TRIverts`, a local the draft left as a hole.
-            // Raven wrote: VectorCopy (point, TRIverts[1].xyz)
-            portMissing("CG_AddParticleToScene", source: "oracle/codemp/cgame/cg_marks.c:436")
-            // Port-note: A read of `TRIverts`, a local the draft left as a hole.
-            // Raven wrote: TRIverts[1].st[0] = 0
-            portMissing("CG_AddParticleToScene", source: "oracle/codemp/cgame/cg_marks.c:436")
-            // Port-note: A read of `TRIverts`, a local the draft left as a hole.
-            // Raven wrote: TRIverts[1].st[1] = 0
-            portMissing("CG_AddParticleToScene", source: "oracle/codemp/cgame/cg_marks.c:436")
-            // Port-note: A read of `TRIverts`, a local the draft left as a hole.
-            // Raven wrote: TRIverts[1].modulate[0] = 255
-            portMissing("CG_AddParticleToScene", source: "oracle/codemp/cgame/cg_marks.c:436")
-            // Port-note: A read of `TRIverts`, a local the draft left as a hole.
-            // Raven wrote: TRIverts[1].modulate[1] = 255
-            portMissing("CG_AddParticleToScene", source: "oracle/codemp/cgame/cg_marks.c:436")
-            // Port-note: A read of `TRIverts`, a local the draft left as a hole.
-            // Raven wrote: TRIverts[1].modulate[2] = 255
-            portMissing("CG_AddParticleToScene", source: "oracle/codemp/cgame/cg_marks.c:436")
-            // Port-note: A read of `TRIverts`, a local the draft left as a hole.
-            // Raven wrote: TRIverts[1].modulate[3] = 255 * p->alpha
-            portMissing("CG_AddParticleToScene", source: "oracle/codemp/cgame/cg_marks.c:436")
-
-            _VectorMA(org, p.height, pvup, &point)
-            _VectorMA(point, p.width, pvright, &point)
-            // Port-note: A read of `TRIverts`, a local the draft left as a hole.
-            // Raven wrote: VectorCopy (point, TRIverts[2].xyz)
-            portMissing("CG_AddParticleToScene", source: "oracle/codemp/cgame/cg_marks.c:436")
-            // Port-note: A read of `TRIverts`, a local the draft left as a hole.
-            // Raven wrote: TRIverts[2].st[0] = 0
-            portMissing("CG_AddParticleToScene", source: "oracle/codemp/cgame/cg_marks.c:436")
-            // Port-note: A read of `TRIverts`, a local the draft left as a hole.
-            // Raven wrote: TRIverts[2].st[1] = 1
-            portMissing("CG_AddParticleToScene", source: "oracle/codemp/cgame/cg_marks.c:436")
-            // Port-note: A read of `TRIverts`, a local the draft left as a hole.
-            // Raven wrote: TRIverts[2].modulate[0] = 255
-            portMissing("CG_AddParticleToScene", source: "oracle/codemp/cgame/cg_marks.c:436")
-            // Port-note: A read of `TRIverts`, a local the draft left as a hole.
-            // Raven wrote: TRIverts[2].modulate[1] = 255
-            portMissing("CG_AddParticleToScene", source: "oracle/codemp/cgame/cg_marks.c:436")
-            // Port-note: A read of `TRIverts`, a local the draft left as a hole.
-            // Raven wrote: TRIverts[2].modulate[2] = 255
-            portMissing("CG_AddParticleToScene", source: "oracle/codemp/cgame/cg_marks.c:436")
-            // Port-note: A read of `TRIverts`, a local the draft left as a hole.
-            // Raven wrote: TRIverts[2].modulate[3] = 255 * p->alpha
-            portMissing("CG_AddParticleToScene", source: "oracle/codemp/cgame/cg_marks.c:436")
-        }
-    } else if p.type == P_SPRITE {
-        var rr = vec3_t()
-        var ru = vec3_t()
-        var rotate_ang = vec3_t()
-
-        color = vec3_t(1.0, 1.0, 0.5)
-        time = cg.time - p.time
-        time2 = p.endtime - p.time
-        ratio = time / time2
-
-        width = p.width + (ratio * (p.endwidth - p.width))
-        height = p.height + (ratio * (p.endheight - p.height))
-
-        if p.roll != 0 {
-            vectoangles(cg.refdef.viewaxis[0], &rotate_ang)
-            rotate_ang[ROLL] += p.roll
-            // Port-note: Raven passes NULL for the `forward` output. The ported function takes it by reference, so the body passes a scratch local it never reads.
-            portMissing("CG_AddParticleToScene", source: "oracle/codemp/cgame/cg_marks.c:436")
-            var scratchForward = vec3_t()
-            AngleVectors(rotate_ang, &scratchForward, &rr, &ru)
-        }
-
-        if p.roll != 0 {
-            _VectorMA(org, -height, ru, &point)
-            _VectorMA(point, -width, rr, &point)
-        } else {
-            _VectorMA(org, -height, pvup, &point)
-            _VectorMA(point, -width, pvright, &point)
-        }
-        // Port-note: A read of `verts`, a local the draft left as a hole.
-        // Raven wrote: VectorCopy (point, verts[0].xyz)
-        portMissing("CG_AddParticleToScene", source: "oracle/codemp/cgame/cg_marks.c:436")
-        // Port-note: A read of `verts`, a local the draft left as a hole.
-        // Raven wrote: verts[0].st[0] = 0
-        portMissing("CG_AddParticleToScene", source: "oracle/codemp/cgame/cg_marks.c:436")
-        // Port-note: A read of `verts`, a local the draft left as a hole.
-        // Raven wrote: verts[0].st[1] = 0
-        portMissing("CG_AddParticleToScene", source: "oracle/codemp/cgame/cg_marks.c:436")
-        // Port-note: A read of `verts`, a local the draft left as a hole.
-        // Raven wrote: verts[0].modulate[0] = 255
-        portMissing("CG_AddParticleToScene", source: "oracle/codemp/cgame/cg_marks.c:436")
-        // Port-note: A read of `verts`, a local the draft left as a hole.
-        // Raven wrote: verts[0].modulate[1] = 255
-        portMissing("CG_AddParticleToScene", source: "oracle/codemp/cgame/cg_marks.c:436")
-        // Port-note: A read of `verts`, a local the draft left as a hole.
-        // Raven wrote: verts[0].modulate[2] = 255
-        portMissing("CG_AddParticleToScene", source: "oracle/codemp/cgame/cg_marks.c:436")
-        // Port-note: A read of `verts`, a local the draft left as a hole.
-        // Raven wrote: verts[0].modulate[3] = 255
-        portMissing("CG_AddParticleToScene", source: "oracle/codemp/cgame/cg_marks.c:436")
-
-        if p.roll != 0 {
-            _VectorMA(point, 2 * height, ru, &point)
-        } else {
-            _VectorMA(point, 2 * height, pvup, &point)
-        }
-        // Port-note: A read of `verts`, a local the draft left as a hole.
-        // Raven wrote: VectorCopy (point, verts[1].xyz)
-        portMissing("CG_AddParticleToScene", source: "oracle/codemp/cgame/cg_marks.c:436")
-        // Port-note: A read of `verts`, a local the draft left as a hole.
-        // Raven wrote: verts[1].st[0] = 0
-        portMissing("CG_AddParticleToScene", source: "oracle/codemp/cgame/cg_marks.c:436")
-        // Port-note: A read of `verts`, a local the draft left as a hole.
-        // Raven wrote: verts[1].st[1] = 1
-        portMissing("CG_AddParticleToScene", source: "oracle/codemp/cgame/cg_marks.c:436")
-        // Port-note: A read of `verts`, a local the draft left as a hole.
-        // Raven wrote: verts[1].modulate[0] = 255
-        portMissing("CG_AddParticleToScene", source: "oracle/codemp/cgame/cg_marks.c:436")
-        // Port-note: A read of `verts`, a local the draft left as a hole.
-        // Raven wrote: verts[1].modulate[1] = 255
-        portMissing("CG_AddParticleToScene", source: "oracle/codemp/cgame/cg_marks.c:436")
-        // Port-note: A read of `verts`, a local the draft left as a hole.
-        // Raven wrote: verts[1].modulate[2] = 255
-        portMissing("CG_AddParticleToScene", source: "oracle/codemp/cgame/cg_marks.c:436")
-        // Port-note: A read of `verts`, a local the draft left as a hole.
-        // Raven wrote: verts[1].modulate[3] = 255
-        portMissing("CG_AddParticleToScene", source: "oracle/codemp/cgame/cg_marks.c:436")
-
-        if p.roll != 0 {
-            _VectorMA(point, 2 * width, rr, &point)
-        } else {
-            _VectorMA(point, 2 * width, pvright, &point)
-        }
-        // Port-note: A read of `verts`, a local the draft left as a hole.
-        // Raven wrote: VectorCopy (point, verts[2].xyz)
-        portMissing("CG_AddParticleToScene", source: "oracle/codemp/cgame/cg_marks.c:436")
-        // Port-note: A read of `verts`, a local the draft left as a hole.
-        // Raven wrote: verts[2].st[0] = 1
-        portMissing("CG_AddParticleToScene", source: "oracle/codemp/cgame/cg_marks.c:436")
-        // Port-note: A read of `verts`, a local the draft left as a hole.
-        // Raven wrote: verts[2].st[1] = 1
-        portMissing("CG_AddParticleToScene", source: "oracle/codemp/cgame/cg_marks.c:436")
-        // Port-note: A read of `verts`, a local the draft left as a hole.
-        // Raven wrote: verts[2].modulate[0] = 255
-        portMissing("CG_AddParticleToScene", source: "oracle/codemp/cgame/cg_marks.c:436")
-        // Port-note: A read of `verts`, a local the draft left as a hole.
-        // Raven wrote: verts[2].modulate[1] = 255
-        portMissing("CG_AddParticleToScene", source: "oracle/codemp/cgame/cg_marks.c:436")
-        // Port-note: A read of `verts`, a local the draft left as a hole.
-        // Raven wrote: verts[2].modulate[2] = 255
-        portMissing("CG_AddParticleToScene", source: "oracle/codemp/cgame/cg_marks.c:436")
-        // Port-note: A read of `verts`, a local the draft left as a hole.
-        // Raven wrote: verts[2].modulate[3] = 255
-        portMissing("CG_AddParticleToScene", source: "oracle/codemp/cgame/cg_marks.c:436")
-
-        if p.roll != 0 {
-            _VectorMA(point, -2 * height, ru, &point)
-        } else {
-            _VectorMA(point, -2 * height, pvup, &point)
-        }
-        // Port-note: A read of `verts`, a local the draft left as a hole.
-        // Raven wrote: VectorCopy (point, verts[3].xyz)
-        portMissing("CG_AddParticleToScene", source: "oracle/codemp/cgame/cg_marks.c:436")
-        // Port-note: A read of `verts`, a local the draft left as a hole.
-        // Raven wrote: verts[3].st[0] = 1
-        portMissing("CG_AddParticleToScene", source: "oracle/codemp/cgame/cg_marks.c:436")
-        // Port-note: A read of `verts`, a local the draft left as a hole.
-        // Raven wrote: verts[3].st[1] = 0
-        portMissing("CG_AddParticleToScene", source: "oracle/codemp/cgame/cg_marks.c:436")
-        // Port-note: A read of `verts`, a local the draft left as a hole.
-        // Raven wrote: verts[3].modulate[0] = 255
-        portMissing("CG_AddParticleToScene", source: "oracle/codemp/cgame/cg_marks.c:436")
-        // Port-note: A read of `verts`, a local the draft left as a hole.
-        // Raven wrote: verts[3].modulate[1] = 255
-        portMissing("CG_AddParticleToScene", source: "oracle/codemp/cgame/cg_marks.c:436")
-        // Port-note: A read of `verts`, a local the draft left as a hole.
-        // Raven wrote: verts[3].modulate[2] = 255
-        portMissing("CG_AddParticleToScene", source: "oracle/codemp/cgame/cg_marks.c:436")
-        // Port-note: A read of `verts`, a local the draft left as a hole.
-        // Raven wrote: verts[3].modulate[3] = 255
-        portMissing("CG_AddParticleToScene", source: "oracle/codemp/cgame/cg_marks.c:436")
-    } else if p.type == P_SMOKE || p.type == P_SMOKE_IMPACT {
-        // create a front rotating facing polygon
-
-        if p.type == P_SMOKE_IMPACT && Distance(cg.snap!.ps.origin, org) > 1024 {
-            return
-        }
-
-        if p.color == BLOODRED {
-            color = vec3_t(0.22, 0.0, 0.0)
-        } else if p.color == GREY75 {
-            var len: Float
-            var greyit: Float
-            let val: Float
-            len = Distance(cg.snap!.ps.origin, org)
-            if len == 0 {
-                len = 1
-            }
-
-            val = 4096 / len
-            greyit = Float(0.25 * Double(val))
-            if Double(greyit) > 0.5 {
-                greyit = 0.5
-            }
-
-            color = vec3_t(greyit, greyit, greyit)
-        } else {
-            color = vec3_t(1.0, 1.0, 1.0)
-        }
-
-        time = cg.time - p.time
-        time2 = p.endtime - p.time
-        ratio = time / time2
-
-        if cg.time > p.startfade {
-            invratio = 1 - ((cg.time - p.startfade) / (p.endtime - p.startfade))
-
-            if p.color == EMISIVEFADE {
-                var fval: Float
-                fval = (invratio * invratio)
-                if fval < 0 {
-                    fval = 0
-                }
-                color = vec3_t(fval, fval, fval)
-            }
-            invratio *= p.alpha
-        } else {
-            invratio = 1 * p.alpha
-        }
-
-        if invratio > 1 {
-            invratio = 1
-        }
-
-        width = p.width + (ratio * (p.endwidth - p.width))
-        height = p.height + (ratio * (p.endheight - p.height))
-
-        if p.type != P_SMOKE_IMPACT {
-            var temp = vec3_t()
-
-            vectoangles(rforward, &temp)
-            p.accumroll += p.roll
-            temp[ROLL] = Float(Double(temp[ROLL]) + Double(p.accumroll) * 0.1)
-            // Port-note: Raven passes NULL for the `forward` output. The ported function takes it by reference, so the body passes a scratch local it never reads.
-            portMissing("CG_AddParticleToScene", source: "oracle/codemp/cgame/cg_marks.c:436")
-            var scratchForward2 = vec3_t()
-            AngleVectors(temp, &scratchForward2, &rright2, &rup2)
-        } else {
-            rright2 = rright
-            rup2 = rup
-        }
-
-        if p.rotate {
-            _VectorMA(org, -height, rup2, &point)
-            _VectorMA(point, -width, rright2, &point)
-        } else {
-            _VectorMA(org, -p.height, pvup, &point)
-            _VectorMA(point, -p.width, pvright, &point)
-        }
-        // Port-note: A read of `verts`, a local the draft left as a hole.
-        // Raven wrote: VectorCopy (point, verts[0].xyz)
-        portMissing("CG_AddParticleToScene", source: "oracle/codemp/cgame/cg_marks.c:436")
-        // Port-note: A read of `verts`, a local the draft left as a hole.
-        // Raven wrote: verts[0].st[0] = 0
-        portMissing("CG_AddParticleToScene", source: "oracle/codemp/cgame/cg_marks.c:436")
-        // Port-note: A read of `verts`, a local the draft left as a hole.
-        // Raven wrote: verts[0].st[1] = 0
-        portMissing("CG_AddParticleToScene", source: "oracle/codemp/cgame/cg_marks.c:436")
-        // Port-note: A read of `verts`, a local the draft left as a hole.
-        // Raven wrote: verts[0].modulate[0] = 255 * color[0]
-        portMissing("CG_AddParticleToScene", source: "oracle/codemp/cgame/cg_marks.c:436")
-        // Port-note: A read of `verts`, a local the draft left as a hole.
-        // Raven wrote: verts[0].modulate[1] = 255 * color[1]
-        portMissing("CG_AddParticleToScene", source: "oracle/codemp/cgame/cg_marks.c:436")
-        // Port-note: A read of `verts`, a local the draft left as a hole.
-        // Raven wrote: verts[0].modulate[2] = 255 * color[2]
-        portMissing("CG_AddParticleToScene", source: "oracle/codemp/cgame/cg_marks.c:436")
-        // Port-note: A read of `verts`, a local the draft left as a hole.
-        // Raven wrote: verts[0].modulate[3] = 255 * invratio
-        portMissing("CG_AddParticleToScene", source: "oracle/codemp/cgame/cg_marks.c:436")
-
-        if p.rotate {
-            _VectorMA(org, -height, rup2, &point)
-            _VectorMA(point, width, rright2, &point)
-        } else {
-            _VectorMA(org, -p.height, pvup, &point)
-            _VectorMA(point, p.width, pvright, &point)
-        }
-        // Port-note: A read of `verts`, a local the draft left as a hole.
-        // Raven wrote: VectorCopy (point, verts[1].xyz)
-        portMissing("CG_AddParticleToScene", source: "oracle/codemp/cgame/cg_marks.c:436")
-        // Port-note: A read of `verts`, a local the draft left as a hole.
-        // Raven wrote: verts[1].st[0] = 0
-        portMissing("CG_AddParticleToScene", source: "oracle/codemp/cgame/cg_marks.c:436")
-        // Port-note: A read of `verts`, a local the draft left as a hole.
-        // Raven wrote: verts[1].st[1] = 1
-        portMissing("CG_AddParticleToScene", source: "oracle/codemp/cgame/cg_marks.c:436")
-        // Port-note: A read of `verts`, a local the draft left as a hole.
-        // Raven wrote: verts[1].modulate[0] = 255 * color[0]
-        portMissing("CG_AddParticleToScene", source: "oracle/codemp/cgame/cg_marks.c:436")
-        // Port-note: A read of `verts`, a local the draft left as a hole.
-        // Raven wrote: verts[1].modulate[1] = 255 * color[1]
-        portMissing("CG_AddParticleToScene", source: "oracle/codemp/cgame/cg_marks.c:436")
-        // Port-note: A read of `verts`, a local the draft left as a hole.
-        // Raven wrote: verts[1].modulate[2] = 255 * color[2]
-        portMissing("CG_AddParticleToScene", source: "oracle/codemp/cgame/cg_marks.c:436")
-        // Port-note: A read of `verts`, a local the draft left as a hole.
-        // Raven wrote: verts[1].modulate[3] = 255 * invratio
-        portMissing("CG_AddParticleToScene", source: "oracle/codemp/cgame/cg_marks.c:436")
-
-        if p.rotate {
-            _VectorMA(org, height, rup2, &point)
-            _VectorMA(point, width, rright2, &point)
-        } else {
-            _VectorMA(org, p.height, pvup, &point)
-            _VectorMA(point, p.width, pvright, &point)
-        }
-        // Port-note: A read of `verts`, a local the draft left as a hole.
-        // Raven wrote: VectorCopy (point, verts[2].xyz)
-        portMissing("CG_AddParticleToScene", source: "oracle/codemp/cgame/cg_marks.c:436")
-        // Port-note: A read of `verts`, a local the draft left as a hole.
-        // Raven wrote: verts[2].st[0] = 1
-        portMissing("CG_AddParticleToScene", source: "oracle/codemp/cgame/cg_marks.c:436")
-        // Port-note: A read of `verts`, a local the draft left as a hole.
-        // Raven wrote: verts[2].st[1] = 1
-        portMissing("CG_AddParticleToScene", source: "oracle/codemp/cgame/cg_marks.c:436")
-        // Port-note: A read of `verts`, a local the draft left as a hole.
-        // Raven wrote: verts[2].modulate[0] = 255 * color[0]
-        portMissing("CG_AddParticleToScene", source: "oracle/codemp/cgame/cg_marks.c:436")
-        // Port-note: A read of `verts`, a local the draft left as a hole.
-        // Raven wrote: verts[2].modulate[1] = 255 * color[1]
-        portMissing("CG_AddParticleToScene", source: "oracle/codemp/cgame/cg_marks.c:436")
-        // Port-note: A read of `verts`, a local the draft left as a hole.
-        // Raven wrote: verts[2].modulate[2] = 255 * color[2]
-        portMissing("CG_AddParticleToScene", source: "oracle/codemp/cgame/cg_marks.c:436")
-        // Port-note: A read of `verts`, a local the draft left as a hole.
-        // Raven wrote: verts[2].modulate[3] = 255 * invratio
-        portMissing("CG_AddParticleToScene", source: "oracle/codemp/cgame/cg_marks.c:436")
-
-        if p.rotate {
-            _VectorMA(org, height, rup2, &point)
-            _VectorMA(point, -width, rright2, &point)
-        } else {
-            _VectorMA(org, p.height, pvup, &point)
-            _VectorMA(point, -p.width, pvright, &point)
-        }
-        // Port-note: A read of `verts`, a local the draft left as a hole.
-        // Raven wrote: VectorCopy (point, verts[3].xyz)
-        portMissing("CG_AddParticleToScene", source: "oracle/codemp/cgame/cg_marks.c:436")
-        // Port-note: A read of `verts`, a local the draft left as a hole.
-        // Raven wrote: verts[3].st[0] = 1
-        portMissing("CG_AddParticleToScene", source: "oracle/codemp/cgame/cg_marks.c:436")
-        // Port-note: A read of `verts`, a local the draft left as a hole.
-        // Raven wrote: verts[3].st[1] = 0
-        portMissing("CG_AddParticleToScene", source: "oracle/codemp/cgame/cg_marks.c:436")
-        // Port-note: A read of `verts`, a local the draft left as a hole.
-        // Raven wrote: verts[3].modulate[0] = 255 * color[0]
-        portMissing("CG_AddParticleToScene", source: "oracle/codemp/cgame/cg_marks.c:436")
-        // Port-note: A read of `verts`, a local the draft left as a hole.
-        // Raven wrote: verts[3].modulate[1] = 255 * color[1]
-        portMissing("CG_AddParticleToScene", source: "oracle/codemp/cgame/cg_marks.c:436")
-        // Port-note: A read of `verts`, a local the draft left as a hole.
-        // Raven wrote: verts[3].modulate[2] = 255 * color[2]
-        portMissing("CG_AddParticleToScene", source: "oracle/codemp/cgame/cg_marks.c:436")
-        // Port-note: A read of `verts`, a local the draft left as a hole.
-        // Raven wrote: verts[3].modulate[3] = 255 * invratio
-        portMissing("CG_AddParticleToScene", source: "oracle/codemp/cgame/cg_marks.c:436")
-    } else if p.type == P_BLEED {
-        var rr = vec3_t()
-        var ru = vec3_t()
-        var rotate_ang = vec3_t()
-        let alpha: Float
-
-        alpha = p.alpha
-
-        if p.roll != 0 {
-            vectoangles(cg.refdef.viewaxis[0], &rotate_ang)
-            rotate_ang[ROLL] += p.roll
-            // Port-note: Raven passes NULL for the `forward` output. The ported function takes it by reference, so the body passes a scratch local it never reads.
-            portMissing("CG_AddParticleToScene", source: "oracle/codemp/cgame/cg_marks.c:436")
-            var scratchForward3 = vec3_t()
-            AngleVectors(rotate_ang, &scratchForward3, &rr, &ru)
-        } else {
-            ru = pvup
-            rr = pvright
-        }
-
-        _VectorMA(org, -p.height, ru, &point)
-        _VectorMA(point, -p.width, rr, &point)
-        // Port-note: A read of `verts`, a local the draft left as a hole.
-        // Raven wrote: VectorCopy (point, verts[0].xyz)
-        portMissing("CG_AddParticleToScene", source: "oracle/codemp/cgame/cg_marks.c:436")
-        // Port-note: A read of `verts`, a local the draft left as a hole.
-        // Raven wrote: verts[0].st[0] = 0
-        portMissing("CG_AddParticleToScene", source: "oracle/codemp/cgame/cg_marks.c:436")
-        // Port-note: A read of `verts`, a local the draft left as a hole.
-        // Raven wrote: verts[0].st[1] = 0
-        portMissing("CG_AddParticleToScene", source: "oracle/codemp/cgame/cg_marks.c:436")
-        // Port-note: A read of `verts`, a local the draft left as a hole.
-        // Raven wrote: verts[0].modulate[0] = 111
-        portMissing("CG_AddParticleToScene", source: "oracle/codemp/cgame/cg_marks.c:436")
-        // Port-note: A read of `verts`, a local the draft left as a hole.
-        // Raven wrote: verts[0].modulate[1] = 19
-        portMissing("CG_AddParticleToScene", source: "oracle/codemp/cgame/cg_marks.c:436")
-        // Port-note: A read of `verts`, a local the draft left as a hole.
-        // Raven wrote: verts[0].modulate[2] = 9
-        portMissing("CG_AddParticleToScene", source: "oracle/codemp/cgame/cg_marks.c:436")
-        // Port-note: A read of `verts`, a local the draft left as a hole.
-        // Raven wrote: verts[0].modulate[3] = 255 * alpha
-        portMissing("CG_AddParticleToScene", source: "oracle/codemp/cgame/cg_marks.c:436")
-
-        _VectorMA(org, -p.height, ru, &point)
-        _VectorMA(point, p.width, rr, &point)
-        // Port-note: A read of `verts`, a local the draft left as a hole.
-        // Raven wrote: VectorCopy (point, verts[1].xyz)
-        portMissing("CG_AddParticleToScene", source: "oracle/codemp/cgame/cg_marks.c:436")
-        // Port-note: A read of `verts`, a local the draft left as a hole.
-        // Raven wrote: verts[1].st[0] = 0
-        portMissing("CG_AddParticleToScene", source: "oracle/codemp/cgame/cg_marks.c:436")
-        // Port-note: A read of `verts`, a local the draft left as a hole.
-        // Raven wrote: verts[1].st[1] = 1
-        portMissing("CG_AddParticleToScene", source: "oracle/codemp/cgame/cg_marks.c:436")
-        // Port-note: A read of `verts`, a local the draft left as a hole.
-        // Raven wrote: verts[1].modulate[0] = 111
-        portMissing("CG_AddParticleToScene", source: "oracle/codemp/cgame/cg_marks.c:436")
-        // Port-note: A read of `verts`, a local the draft left as a hole.
-        // Raven wrote: verts[1].modulate[1] = 19
-        portMissing("CG_AddParticleToScene", source: "oracle/codemp/cgame/cg_marks.c:436")
-        // Port-note: A read of `verts`, a local the draft left as a hole.
-        // Raven wrote: verts[1].modulate[2] = 9
-        portMissing("CG_AddParticleToScene", source: "oracle/codemp/cgame/cg_marks.c:436")
-        // Port-note: A read of `verts`, a local the draft left as a hole.
-        // Raven wrote: verts[1].modulate[3] = 255 * alpha
-        portMissing("CG_AddParticleToScene", source: "oracle/codemp/cgame/cg_marks.c:436")
-
-        _VectorMA(org, p.height, ru, &point)
-        _VectorMA(point, p.width, rr, &point)
-        // Port-note: A read of `verts`, a local the draft left as a hole.
-        // Raven wrote: VectorCopy (point, verts[2].xyz)
-        portMissing("CG_AddParticleToScene", source: "oracle/codemp/cgame/cg_marks.c:436")
-        // Port-note: A read of `verts`, a local the draft left as a hole.
-        // Raven wrote: verts[2].st[0] = 1
-        portMissing("CG_AddParticleToScene", source: "oracle/codemp/cgame/cg_marks.c:436")
-        // Port-note: A read of `verts`, a local the draft left as a hole.
-        // Raven wrote: verts[2].st[1] = 1
-        portMissing("CG_AddParticleToScene", source: "oracle/codemp/cgame/cg_marks.c:436")
-        // Port-note: A read of `verts`, a local the draft left as a hole.
-        // Raven wrote: verts[2].modulate[0] = 111
-        portMissing("CG_AddParticleToScene", source: "oracle/codemp/cgame/cg_marks.c:436")
-        // Port-note: A read of `verts`, a local the draft left as a hole.
-        // Raven wrote: verts[2].modulate[1] = 19
-        portMissing("CG_AddParticleToScene", source: "oracle/codemp/cgame/cg_marks.c:436")
-        // Port-note: A read of `verts`, a local the draft left as a hole.
-        // Raven wrote: verts[2].modulate[2] = 9
-        portMissing("CG_AddParticleToScene", source: "oracle/codemp/cgame/cg_marks.c:436")
-        // Port-note: A read of `verts`, a local the draft left as a hole.
-        // Raven wrote: verts[2].modulate[3] = 255 * alpha
-        portMissing("CG_AddParticleToScene", source: "oracle/codemp/cgame/cg_marks.c:436")
-
-        _VectorMA(org, p.height, ru, &point)
-        _VectorMA(point, -p.width, rr, &point)
-        // Port-note: A read of `verts`, a local the draft left as a hole.
-        // Raven wrote: VectorCopy (point, verts[3].xyz)
-        portMissing("CG_AddParticleToScene", source: "oracle/codemp/cgame/cg_marks.c:436")
-        // Port-note: A read of `verts`, a local the draft left as a hole.
-        // Raven wrote: verts[3].st[0] = 1
-        portMissing("CG_AddParticleToScene", source: "oracle/codemp/cgame/cg_marks.c:436")
-        // Port-note: A read of `verts`, a local the draft left as a hole.
-        // Raven wrote: verts[3].st[1] = 0
-        portMissing("CG_AddParticleToScene", source: "oracle/codemp/cgame/cg_marks.c:436")
-        // Port-note: A read of `verts`, a local the draft left as a hole.
-        // Raven wrote: verts[3].modulate[0] = 111
-        portMissing("CG_AddParticleToScene", source: "oracle/codemp/cgame/cg_marks.c:436")
-        // Port-note: A read of `verts`, a local the draft left as a hole.
-        // Raven wrote: verts[3].modulate[1] = 19
-        portMissing("CG_AddParticleToScene", source: "oracle/codemp/cgame/cg_marks.c:436")
-        // Port-note: A read of `verts`, a local the draft left as a hole.
-        // Raven wrote: verts[3].modulate[2] = 9
-        portMissing("CG_AddParticleToScene", source: "oracle/codemp/cgame/cg_marks.c:436")
-        // Port-note: A read of `verts`, a local the draft left as a hole.
-        // Raven wrote: verts[3].modulate[3] = 255 * alpha
-        portMissing("CG_AddParticleToScene", source: "oracle/codemp/cgame/cg_marks.c:436")
-    } else if p.type == P_FLAT_SCALEUP {
-        var width: Float
-        var height: Float
-        let sinR: Float
-        let cosR: Float
-
-        if p.color == BLOODRED {
-            color = vec3_t(1, 1, 1)
-        } else {
-            color = vec3_t(0.5, 0.5, 0.5)
-        }
-
-        time = cg.time - p.time
-        time2 = p.endtime - p.time
-        ratio = time / time2
-
-        width = p.width + (ratio * (p.endwidth - p.width))
-        height = p.height + (ratio * (p.endheight - p.height))
-
-        if width > p.endwidth {
-            width = p.endwidth
-        }
-
-        if height > p.endheight {
-            height = p.endheight
-        }
-
-        sinR = height * sin(DEG2RAD(Float(p.roll))) * sqrt(2.0)
-        cosR = width * cos(DEG2RAD(Float(p.roll))) * sqrt(2.0)
-
-        // Port-note: A read of `verts`, a local the draft left as a hole.
-        // Raven wrote: VectorCopy (org, verts[0].xyz)
-        portMissing("CG_AddParticleToScene", source: "oracle/codemp/cgame/cg_marks.c:436")
-        // Port-note: A read of `verts`, a local the draft left as a hole.
-        // Raven wrote: verts[0].xyz[0] -= sinR
-        portMissing("CG_AddParticleToScene", source: "oracle/codemp/cgame/cg_marks.c:436")
-        // Port-note: A read of `verts`, a local the draft left as a hole.
-        // Raven wrote: verts[0].xyz[1] -= cosR
-        portMissing("CG_AddParticleToScene", source: "oracle/codemp/cgame/cg_marks.c:436")
-        // Port-note: A read of `verts`, a local the draft left as a hole.
-        // Raven wrote: verts[0].st[0] = 0
-        portMissing("CG_AddParticleToScene", source: "oracle/codemp/cgame/cg_marks.c:436")
-        // Port-note: A read of `verts`, a local the draft left as a hole.
-        // Raven wrote: verts[0].st[1] = 0
-        portMissing("CG_AddParticleToScene", source: "oracle/codemp/cgame/cg_marks.c:436")
-        // Port-note: A read of `verts`, a local the draft left as a hole.
-        // Raven wrote: verts[0].modulate[0] = 255 * color[0]
-        portMissing("CG_AddParticleToScene", source: "oracle/codemp/cgame/cg_marks.c:436")
-        // Port-note: A read of `verts`, a local the draft left as a hole.
-        // Raven wrote: verts[0].modulate[1] = 255 * color[1]
-        portMissing("CG_AddParticleToScene", source: "oracle/codemp/cgame/cg_marks.c:436")
-        // Port-note: A read of `verts`, a local the draft left as a hole.
-        // Raven wrote: verts[0].modulate[2] = 255 * color[2]
-        portMissing("CG_AddParticleToScene", source: "oracle/codemp/cgame/cg_marks.c:436")
-        // Port-note: A read of `verts`, a local the draft left as a hole.
-        // Raven wrote: verts[0].modulate[3] = 255
-        portMissing("CG_AddParticleToScene", source: "oracle/codemp/cgame/cg_marks.c:436")
-
-        // Port-note: A read of `verts`, a local the draft left as a hole.
-        // Raven wrote: VectorCopy (org, verts[1].xyz)
-        portMissing("CG_AddParticleToScene", source: "oracle/codemp/cgame/cg_marks.c:436")
-        // Port-note: A read of `verts`, a local the draft left as a hole.
-        // Raven wrote: verts[1].xyz[0] -= cosR
-        portMissing("CG_AddParticleToScene", source: "oracle/codemp/cgame/cg_marks.c:436")
-        // Port-note: A read of `verts`, a local the draft left as a hole.
-        // Raven wrote: verts[1].xyz[1] += sinR
-        portMissing("CG_AddParticleToScene", source: "oracle/codemp/cgame/cg_marks.c:436")
-        // Port-note: A read of `verts`, a local the draft left as a hole.
-        // Raven wrote: verts[1].st[0] = 0
-        portMissing("CG_AddParticleToScene", source: "oracle/codemp/cgame/cg_marks.c:436")
-        // Port-note: A read of `verts`, a local the draft left as a hole.
-        // Raven wrote: verts[1].st[1] = 1
-        portMissing("CG_AddParticleToScene", source: "oracle/codemp/cgame/cg_marks.c:436")
-        // Port-note: A read of `verts`, a local the draft left as a hole.
-        // Raven wrote: verts[1].modulate[0] = 255 * color[0]
-        portMissing("CG_AddParticleToScene", source: "oracle/codemp/cgame/cg_marks.c:436")
-        // Port-note: A read of `verts`, a local the draft left as a hole.
-        // Raven wrote: verts[1].modulate[1] = 255 * color[1]
-        portMissing("CG_AddParticleToScene", source: "oracle/codemp/cgame/cg_marks.c:436")
-        // Port-note: A read of `verts`, a local the draft left as a hole.
-        // Raven wrote: verts[1].modulate[2] = 255 * color[2]
-        portMissing("CG_AddParticleToScene", source: "oracle/codemp/cgame/cg_marks.c:436")
-        // Port-note: A read of `verts`, a local the draft left as a hole.
-        // Raven wrote: verts[1].modulate[3] = 255
-        portMissing("CG_AddParticleToScene", source: "oracle/codemp/cgame/cg_marks.c:436")
-
-        // Port-note: A read of `verts`, a local the draft left as a hole.
-        // Raven wrote: VectorCopy (org, verts[2].xyz)
-        portMissing("CG_AddParticleToScene", source: "oracle/codemp/cgame/cg_marks.c:436")
-        // Port-note: A read of `verts`, a local the draft left as a hole.
-        // Raven wrote: verts[2].xyz[0] += sinR
-        portMissing("CG_AddParticleToScene", source: "oracle/codemp/cgame/cg_marks.c:436")
-        // Port-note: A read of `verts`, a local the draft left as a hole.
-        // Raven wrote: verts[2].xyz[1] += cosR
-        portMissing("CG_AddParticleToScene", source: "oracle/codemp/cgame/cg_marks.c:436")
-        // Port-note: A read of `verts`, a local the draft left as a hole.
-        // Raven wrote: verts[2].st[0] = 1
-        portMissing("CG_AddParticleToScene", source: "oracle/codemp/cgame/cg_marks.c:436")
-        // Port-note: A read of `verts`, a local the draft left as a hole.
-        // Raven wrote: verts[2].st[1] = 1
-        portMissing("CG_AddParticleToScene", source: "oracle/codemp/cgame/cg_marks.c:436")
-        // Port-note: A read of `verts`, a local the draft left as a hole.
-        // Raven wrote: verts[2].modulate[0] = 255 * color[0]
-        portMissing("CG_AddParticleToScene", source: "oracle/codemp/cgame/cg_marks.c:436")
-        // Port-note: A read of `verts`, a local the draft left as a hole.
-        // Raven wrote: verts[2].modulate[1] = 255 * color[1]
-        portMissing("CG_AddParticleToScene", source: "oracle/codemp/cgame/cg_marks.c:436")
-        // Port-note: A read of `verts`, a local the draft left as a hole.
-        // Raven wrote: verts[2].modulate[2] = 255 * color[2]
-        portMissing("CG_AddParticleToScene", source: "oracle/codemp/cgame/cg_marks.c:436")
-        // Port-note: A read of `verts`, a local the draft left as a hole.
-        // Raven wrote: verts[2].modulate[3] = 255
-        portMissing("CG_AddParticleToScene", source: "oracle/codemp/cgame/cg_marks.c:436")
-
-        // Port-note: A read of `verts`, a local the draft left as a hole.
-        // Raven wrote: VectorCopy (org, verts[3].xyz)
-        portMissing("CG_AddParticleToScene", source: "oracle/codemp/cgame/cg_marks.c:436")
-        // Port-note: A read of `verts`, a local the draft left as a hole.
-        // Raven wrote: verts[3].xyz[0] += cosR
-        portMissing("CG_AddParticleToScene", source: "oracle/codemp/cgame/cg_marks.c:436")
-        // Port-note: A read of `verts`, a local the draft left as a hole.
-        // Raven wrote: verts[3].xyz[1] -= sinR
-        portMissing("CG_AddParticleToScene", source: "oracle/codemp/cgame/cg_marks.c:436")
-        // Port-note: A read of `verts`, a local the draft left as a hole.
-        // Raven wrote: verts[3].st[0] = 1
-        portMissing("CG_AddParticleToScene", source: "oracle/codemp/cgame/cg_marks.c:436")
-        // Port-note: A read of `verts`, a local the draft left as a hole.
-        // Raven wrote: verts[3].st[1] = 0
-        portMissing("CG_AddParticleToScene", source: "oracle/codemp/cgame/cg_marks.c:436")
-        // Port-note: A read of `verts`, a local the draft left as a hole.
-        // Raven wrote: verts[3].modulate[0] = 255 * color[0]
-        portMissing("CG_AddParticleToScene", source: "oracle/codemp/cgame/cg_marks.c:436")
-        // Port-note: A read of `verts`, a local the draft left as a hole.
-        // Raven wrote: verts[3].modulate[1] = 255 * color[1]
-        portMissing("CG_AddParticleToScene", source: "oracle/codemp/cgame/cg_marks.c:436")
-        // Port-note: A read of `verts`, a local the draft left as a hole.
-        // Raven wrote: verts[3].modulate[2] = 255 * color[2]
-        portMissing("CG_AddParticleToScene", source: "oracle/codemp/cgame/cg_marks.c:436")
-        // Port-note: A read of `verts`, a local the draft left as a hole.
-        // Raven wrote: verts[3].modulate[3] = 255
-        portMissing("CG_AddParticleToScene", source: "oracle/codemp/cgame/cg_marks.c:436")
-    } else if p.type == P_FLAT {
-        // Port-note: A read of `verts`, a local the draft left as a hole.
-        // Raven wrote: VectorCopy (org, verts[0].xyz)
-        portMissing("CG_AddParticleToScene", source: "oracle/codemp/cgame/cg_marks.c:436")
-        // Port-note: A read of `verts`, a local the draft left as a hole.
-        // Raven wrote: verts[0].xyz[0] -= p->height
-        portMissing("CG_AddParticleToScene", source: "oracle/codemp/cgame/cg_marks.c:436")
-        // Port-note: A read of `verts`, a local the draft left as a hole.
-        // Raven wrote: verts[0].xyz[1] -= p->width
-        portMissing("CG_AddParticleToScene", source: "oracle/codemp/cgame/cg_marks.c:436")
-        // Port-note: A read of `verts`, a local the draft left as a hole.
-        // Raven wrote: verts[0].st[0] = 0
-        portMissing("CG_AddParticleToScene", source: "oracle/codemp/cgame/cg_marks.c:436")
-        // Port-note: A read of `verts`, a local the draft left as a hole.
-        // Raven wrote: verts[0].st[1] = 0
-        portMissing("CG_AddParticleToScene", source: "oracle/codemp/cgame/cg_marks.c:436")
-        // Port-note: A read of `verts`, a local the draft left as a hole.
-        // Raven wrote: verts[0].modulate[0] = 255
-        portMissing("CG_AddParticleToScene", source: "oracle/codemp/cgame/cg_marks.c:436")
-        // Port-note: A read of `verts`, a local the draft left as a hole.
-        // Raven wrote: verts[0].modulate[1] = 255
-        portMissing("CG_AddParticleToScene", source: "oracle/codemp/cgame/cg_marks.c:436")
-        // Port-note: A read of `verts`, a local the draft left as a hole.
-        // Raven wrote: verts[0].modulate[2] = 255
-        portMissing("CG_AddParticleToScene", source: "oracle/codemp/cgame/cg_marks.c:436")
-        // Port-note: A read of `verts`, a local the draft left as a hole.
-        // Raven wrote: verts[0].modulate[3] = 255
-        portMissing("CG_AddParticleToScene", source: "oracle/codemp/cgame/cg_marks.c:436")
-
-        // Port-note: A read of `verts`, a local the draft left as a hole.
-        // Raven wrote: VectorCopy (org, verts[1].xyz)
-        portMissing("CG_AddParticleToScene", source: "oracle/codemp/cgame/cg_marks.c:436")
-        // Port-note: A read of `verts`, a local the draft left as a hole.
-        // Raven wrote: verts[1].xyz[0] -= p->height
-        portMissing("CG_AddParticleToScene", source: "oracle/codemp/cgame/cg_marks.c:436")
-        // Port-note: A read of `verts`, a local the draft left as a hole.
-        // Raven wrote: verts[1].xyz[1] += p->width
-        portMissing("CG_AddParticleToScene", source: "oracle/codemp/cgame/cg_marks.c:436")
-        // Port-note: A read of `verts`, a local the draft left as a hole.
-        // Raven wrote: verts[1].st[0] = 0
-        portMissing("CG_AddParticleToScene", source: "oracle/codemp/cgame/cg_marks.c:436")
-        // Port-note: A read of `verts`, a local the draft left as a hole.
-        // Raven wrote: verts[1].st[1] = 1
-        portMissing("CG_AddParticleToScene", source: "oracle/codemp/cgame/cg_marks.c:436")
-        // Port-note: A read of `verts`, a local the draft left as a hole.
-        // Raven wrote: verts[1].modulate[0] = 255
-        portMissing("CG_AddParticleToScene", source: "oracle/codemp/cgame/cg_marks.c:436")
-        // Port-note: A read of `verts`, a local the draft left as a hole.
-        // Raven wrote: verts[1].modulate[1] = 255
-        portMissing("CG_AddParticleToScene", source: "oracle/codemp/cgame/cg_marks.c:436")
-        // Port-note: A read of `verts`, a local the draft left as a hole.
-        // Raven wrote: verts[1].modulate[2] = 255
-        portMissing("CG_AddParticleToScene", source: "oracle/codemp/cgame/cg_marks.c:436")
-        // Port-note: A read of `verts`, a local the draft left as a hole.
-        // Raven wrote: verts[1].modulate[3] = 255
-        portMissing("CG_AddParticleToScene", source: "oracle/codemp/cgame/cg_marks.c:436")
-
-        // Port-note: A read of `verts`, a local the draft left as a hole.
-        // Raven wrote: VectorCopy (org, verts[2].xyz)
-        portMissing("CG_AddParticleToScene", source: "oracle/codemp/cgame/cg_marks.c:436")
-        // Port-note: A read of `verts`, a local the draft left as a hole.
-        // Raven wrote: verts[2].xyz[0] += p->height
-        portMissing("CG_AddParticleToScene", source: "oracle/codemp/cgame/cg_marks.c:436")
-        // Port-note: A read of `verts`, a local the draft left as a hole.
-        // Raven wrote: verts[2].xyz[1] += p->width
-        portMissing("CG_AddParticleToScene", source: "oracle/codemp/cgame/cg_marks.c:436")
-        // Port-note: A read of `verts`, a local the draft left as a hole.
-        // Raven wrote: verts[2].st[0] = 1
-        portMissing("CG_AddParticleToScene", source: "oracle/codemp/cgame/cg_marks.c:436")
-        // Port-note: A read of `verts`, a local the draft left as a hole.
-        // Raven wrote: verts[2].st[1] = 1
-        portMissing("CG_AddParticleToScene", source: "oracle/codemp/cgame/cg_marks.c:436")
-        // Port-note: A read of `verts`, a local the draft left as a hole.
-        // Raven wrote: verts[2].modulate[0] = 255
-        portMissing("CG_AddParticleToScene", source: "oracle/codemp/cgame/cg_marks.c:436")
-        // Port-note: A read of `verts`, a local the draft left as a hole.
-        // Raven wrote: verts[2].modulate[1] = 255
-        portMissing("CG_AddParticleToScene", source: "oracle/codemp/cgame/cg_marks.c:436")
-        // Port-note: A read of `verts`, a local the draft left as a hole.
-        // Raven wrote: verts[2].modulate[2] = 255
-        portMissing("CG_AddParticleToScene", source: "oracle/codemp/cgame/cg_marks.c:436")
-        // Port-note: A read of `verts`, a local the draft left as a hole.
-        // Raven wrote: verts[2].modulate[3] = 255
-        portMissing("CG_AddParticleToScene", source: "oracle/codemp/cgame/cg_marks.c:436")
-
-        // Port-note: A read of `verts`, a local the draft left as a hole.
-        // Raven wrote: VectorCopy (org, verts[3].xyz)
-        portMissing("CG_AddParticleToScene", source: "oracle/codemp/cgame/cg_marks.c:436")
-        // Port-note: A read of `verts`, a local the draft left as a hole.
-        // Raven wrote: verts[3].xyz[0] += p->height
-        portMissing("CG_AddParticleToScene", source: "oracle/codemp/cgame/cg_marks.c:436")
-        // Port-note: A read of `verts`, a local the draft left as a hole.
-        // Raven wrote: verts[3].xyz[1] -= p->width
-        portMissing("CG_AddParticleToScene", source: "oracle/codemp/cgame/cg_marks.c:436")
-        // Port-note: A read of `verts`, a local the draft left as a hole.
-        // Raven wrote: verts[3].st[0] = 1
-        portMissing("CG_AddParticleToScene", source: "oracle/codemp/cgame/cg_marks.c:436")
-        // Port-note: A read of `verts`, a local the draft left as a hole.
-        // Raven wrote: verts[3].st[1] = 0
-        portMissing("CG_AddParticleToScene", source: "oracle/codemp/cgame/cg_marks.c:436")
-        // Port-note: A read of `verts`, a local the draft left as a hole.
-        // Raven wrote: verts[3].modulate[0] = 255
-        portMissing("CG_AddParticleToScene", source: "oracle/codemp/cgame/cg_marks.c:436")
-        // Port-note: A read of `verts`, a local the draft left as a hole.
-        // Raven wrote: verts[3].modulate[1] = 255
-        portMissing("CG_AddParticleToScene", source: "oracle/codemp/cgame/cg_marks.c:436")
-        // Port-note: A read of `verts`, a local the draft left as a hole.
-        // Raven wrote: verts[3].modulate[2] = 255
-        portMissing("CG_AddParticleToScene", source: "oracle/codemp/cgame/cg_marks.c:436")
-        // Port-note: A read of `verts`, a local the draft left as a hole.
-        // Raven wrote: verts[3].modulate[3] = 255
-        portMissing("CG_AddParticleToScene", source: "oracle/codemp/cgame/cg_marks.c:436")
-    } else if p.type == P_ANIM {
-        // Ridah
-        var rr = vec3_t()
-        var ru = vec3_t()
-        var rotate_ang = vec3_t()
-        let i: Int32
-        let j: Int32
-
-        time = cg.time - p.time
-        time2 = p.endtime - p.time
-        ratio = time / time2
-        if ratio >= 1.0 {
-            ratio = 0.9999
-        }
-
-        width = p.width + (ratio * (p.endwidth - p.width))
-        height = p.height + (ratio * (p.endheight - p.height))
-
-        // if we are "inside" this sprite, don't draw
-        if Double(Distance(cg.snap!.ps.origin, org)) < Double(width) / 1.5 {
-            return
-        }
-
-        i = p.shaderAnim
-        j = Int32(floor(ratio * shaderAnimCounts[p.shaderAnim]))
-        p.pshader = shaderAnims[i][j]
-
-        if p.roll != 0 {
-            vectoangles(cg.refdef.viewaxis[0], &rotate_ang)
-            rotate_ang[ROLL] += p.roll
-            // Port-note: Raven passes NULL for the `forward` output. The ported function takes it by reference, so the body passes a scratch local it never reads.
-            portMissing("CG_AddParticleToScene", source: "oracle/codemp/cgame/cg_marks.c:436")
-            var scratchForward4 = vec3_t()
-            AngleVectors(rotate_ang, &scratchForward4, &rr, &ru)
-        }
-
-        if p.roll != 0 {
-            _VectorMA(org, -height, ru, &point)
-            _VectorMA(point, -width, rr, &point)
-        } else {
-            _VectorMA(org, -height, pvup, &point)
-            _VectorMA(point, -width, pvright, &point)
-        }
-        // Port-note: A read of `verts`, a local the draft left as a hole.
-        // Raven wrote: VectorCopy (point, verts[0].xyz)
-        portMissing("CG_AddParticleToScene", source: "oracle/codemp/cgame/cg_marks.c:436")
-        // Port-note: A read of `verts`, a local the draft left as a hole.
-        // Raven wrote: verts[0].st[0] = 0
-        portMissing("CG_AddParticleToScene", source: "oracle/codemp/cgame/cg_marks.c:436")
-        // Port-note: A read of `verts`, a local the draft left as a hole.
-        // Raven wrote: verts[0].st[1] = 0
-        portMissing("CG_AddParticleToScene", source: "oracle/codemp/cgame/cg_marks.c:436")
-        // Port-note: A read of `verts`, a local the draft left as a hole.
-        // Raven wrote: verts[0].modulate[0] = 255
-        portMissing("CG_AddParticleToScene", source: "oracle/codemp/cgame/cg_marks.c:436")
-        // Port-note: A read of `verts`, a local the draft left as a hole.
-        // Raven wrote: verts[0].modulate[1] = 255
-        portMissing("CG_AddParticleToScene", source: "oracle/codemp/cgame/cg_marks.c:436")
-        // Port-note: A read of `verts`, a local the draft left as a hole.
-        // Raven wrote: verts[0].modulate[2] = 255
-        portMissing("CG_AddParticleToScene", source: "oracle/codemp/cgame/cg_marks.c:436")
-        // Port-note: A read of `verts`, a local the draft left as a hole.
-        // Raven wrote: verts[0].modulate[3] = 255
-        portMissing("CG_AddParticleToScene", source: "oracle/codemp/cgame/cg_marks.c:436")
-
-        if p.roll != 0 {
-            _VectorMA(point, 2 * height, ru, &point)
-        } else {
-            _VectorMA(point, 2 * height, pvup, &point)
-        }
-        // Port-note: A read of `verts`, a local the draft left as a hole.
-        // Raven wrote: VectorCopy (point, verts[1].xyz)
-        portMissing("CG_AddParticleToScene", source: "oracle/codemp/cgame/cg_marks.c:436")
-        // Port-note: A read of `verts`, a local the draft left as a hole.
-        // Raven wrote: verts[1].st[0] = 0
-        portMissing("CG_AddParticleToScene", source: "oracle/codemp/cgame/cg_marks.c:436")
-        // Port-note: A read of `verts`, a local the draft left as a hole.
-        // Raven wrote: verts[1].st[1] = 1
-        portMissing("CG_AddParticleToScene", source: "oracle/codemp/cgame/cg_marks.c:436")
-        // Port-note: A read of `verts`, a local the draft left as a hole.
-        // Raven wrote: verts[1].modulate[0] = 255
-        portMissing("CG_AddParticleToScene", source: "oracle/codemp/cgame/cg_marks.c:436")
-        // Port-note: A read of `verts`, a local the draft left as a hole.
-        // Raven wrote: verts[1].modulate[1] = 255
-        portMissing("CG_AddParticleToScene", source: "oracle/codemp/cgame/cg_marks.c:436")
-        // Port-note: A read of `verts`, a local the draft left as a hole.
-        // Raven wrote: verts[1].modulate[2] = 255
-        portMissing("CG_AddParticleToScene", source: "oracle/codemp/cgame/cg_marks.c:436")
-        // Port-note: A read of `verts`, a local the draft left as a hole.
-        // Raven wrote: verts[1].modulate[3] = 255
-        portMissing("CG_AddParticleToScene", source: "oracle/codemp/cgame/cg_marks.c:436")
-
-        if p.roll != 0 {
-            _VectorMA(point, 2 * width, rr, &point)
-        } else {
-            _VectorMA(point, 2 * width, pvright, &point)
-        }
-        // Port-note: A read of `verts`, a local the draft left as a hole.
-        // Raven wrote: VectorCopy (point, verts[2].xyz)
-        portMissing("CG_AddParticleToScene", source: "oracle/codemp/cgame/cg_marks.c:436")
-        // Port-note: A read of `verts`, a local the draft left as a hole.
-        // Raven wrote: verts[2].st[0] = 1
-        portMissing("CG_AddParticleToScene", source: "oracle/codemp/cgame/cg_marks.c:436")
-        // Port-note: A read of `verts`, a local the draft left as a hole.
-        // Raven wrote: verts[2].st[1] = 1
-        portMissing("CG_AddParticleToScene", source: "oracle/codemp/cgame/cg_marks.c:436")
-        // Port-note: A read of `verts`, a local the draft left as a hole.
-        // Raven wrote: verts[2].modulate[0] = 255
-        portMissing("CG_AddParticleToScene", source: "oracle/codemp/cgame/cg_marks.c:436")
-        // Port-note: A read of `verts`, a local the draft left as a hole.
-        // Raven wrote: verts[2].modulate[1] = 255
-        portMissing("CG_AddParticleToScene", source: "oracle/codemp/cgame/cg_marks.c:436")
-        // Port-note: A read of `verts`, a local the draft left as a hole.
-        // Raven wrote: verts[2].modulate[2] = 255
-        portMissing("CG_AddParticleToScene", source: "oracle/codemp/cgame/cg_marks.c:436")
-        // Port-note: A read of `verts`, a local the draft left as a hole.
-        // Raven wrote: verts[2].modulate[3] = 255
-        portMissing("CG_AddParticleToScene", source: "oracle/codemp/cgame/cg_marks.c:436")
-
-        if p.roll != 0 {
-            _VectorMA(point, -2 * height, ru, &point)
-        } else {
-            _VectorMA(point, -2 * height, pvup, &point)
-        }
-        // Port-note: A read of `verts`, a local the draft left as a hole.
-        // Raven wrote: VectorCopy (point, verts[3].xyz)
-        portMissing("CG_AddParticleToScene", source: "oracle/codemp/cgame/cg_marks.c:436")
-        // Port-note: A read of `verts`, a local the draft left as a hole.
-        // Raven wrote: verts[3].st[0] = 1
-        portMissing("CG_AddParticleToScene", source: "oracle/codemp/cgame/cg_marks.c:436")
-        // Port-note: A read of `verts`, a local the draft left as a hole.
-        // Raven wrote: verts[3].st[1] = 0
-        portMissing("CG_AddParticleToScene", source: "oracle/codemp/cgame/cg_marks.c:436")
-        // Port-note: A read of `verts`, a local the draft left as a hole.
-        // Raven wrote: verts[3].modulate[0] = 255
-        portMissing("CG_AddParticleToScene", source: "oracle/codemp/cgame/cg_marks.c:436")
-        // Port-note: A read of `verts`, a local the draft left as a hole.
-        // Raven wrote: verts[3].modulate[1] = 255
-        portMissing("CG_AddParticleToScene", source: "oracle/codemp/cgame/cg_marks.c:436")
-        // Port-note: A read of `verts`, a local the draft left as a hole.
-        // Raven wrote: verts[3].modulate[2] = 255
-        portMissing("CG_AddParticleToScene", source: "oracle/codemp/cgame/cg_marks.c:436")
-        // Port-note: A read of `verts`, a local the draft left as a hole.
-        // Raven wrote: verts[3].modulate[3] = 255
-        portMissing("CG_AddParticleToScene", source: "oracle/codemp/cgame/cg_marks.c:436")
+        return false
     }
-    // done.
-
-    if p.pshader == 0 {
-        // (SA) temp commented out for DM
-        //		CG_Printf ("CG_AddParticleToScene type %d p->pshader == ZERO\n", p->type);
+    if earlyOut {
         return
-    }
-
-    if p.type == P_WEATHER || p.type == P_WEATHER_TURBULENT || p.type == P_WEATHER_FLURRY {
-        // Port-note: A read of `TRIverts`, a local the draft left as a hole.
-        // Raven wrote: trap_R_AddPolyToScene( p->pshader, 3, TRIverts )
-        portMissing("CG_AddParticleToScene", source: "oracle/codemp/cgame/cg_marks.c:436")
-    } else {
-        // Port-note: A read of `verts`, a local the draft left as a hole.
-        // Raven wrote: trap_R_AddPolyToScene( p->pshader, 4, verts )
-        portMissing("CG_AddParticleToScene", source: "oracle/codemp/cgame/cg_marks.c:436")
     }
 }
 
@@ -1753,21 +1278,13 @@ func CG_ParticleSnowFlurry(_ pshader: JKAShared.qhandle_t, _ cent: Centity) {
     p!.accel[1] = p!.accel[2]
     p!.accel[0] = p!.accel[1]
 
-    // Port-note: The draft of this statement did not compile, and the compiler wrote "cannot convert value of type 'Double' to expected argument type 'Float'".
-    // Raven wrote: p->vel[0] += cent->currentState.angles[0] * 32 + (crandom() * 16)
-    portMissing("CG_ParticleSnowFlurry", source: "oracle/codemp/cgame/cg_marks.c:1215")
-    // Port-note: The draft of this statement did not compile, and the compiler wrote "cannot convert value of type 'Double' to expected argument type 'Float'".
-    // Raven wrote: p->vel[1] += cent->currentState.angles[1] * 32 + (crandom() * 16)
-    portMissing("CG_ParticleSnowFlurry", source: "oracle/codemp/cgame/cg_marks.c:1215")
+    p!.vel[0] = Float(Double(p!.vel[0]) + Double(cent.currentState.angles[0] * 32) + (crandom() * 16))
+    p!.vel[1] = Float(Double(p!.vel[1]) + Double(cent.currentState.angles[1] * 32) + (crandom() * 16))
     p!.vel[2] += cent.currentState.angles[2]
 
     if turb {
-        // Port-note: The draft of this statement did not compile, and the compiler wrote "cannot assign value of type 'Double' to subscript of type 'Float'".
-        // Raven wrote: p->accel[0] = crandom () * 16
-        portMissing("CG_ParticleSnowFlurry", source: "oracle/codemp/cgame/cg_marks.c:1215")
-        // Port-note: The draft of this statement did not compile, and the compiler wrote "cannot assign value of type 'Double' to subscript of type 'Float'".
-        // Raven wrote: p->accel[1] = crandom () * 16
-        portMissing("CG_ParticleSnowFlurry", source: "oracle/codemp/cgame/cg_marks.c:1215")
+        p!.accel[0] = Float(crandom() * 16)
+        p!.accel[1] = Float(crandom() * 16)
     }
 }
 
@@ -1807,15 +1324,9 @@ func CG_ParticleSnow(_ pshader: JKAShared.qhandle_t, _ origin: JKAShared.vec3_t,
 
     p!.org = origin
 
-    // Port-note: The draft of this statement did not compile, and the compiler wrote "cannot convert value of type 'Double' to expected argument type 'Float'".
-    // Raven wrote: p->org[0] = p->org[0] + ( crandom() * range)
-    portMissing("CG_ParticleSnow", source: "oracle/codemp/cgame/cg_marks.c:1283")
-    // Port-note: The draft of this statement did not compile, and the compiler wrote "cannot convert value of type 'Double' to expected argument type 'Float'".
-    // Raven wrote: p->org[1] = p->org[1] + ( crandom() * range)
-    portMissing("CG_ParticleSnow", source: "oracle/codemp/cgame/cg_marks.c:1283")
-    // Port-note: The draft of this statement did not compile, and the compiler wrote "cannot convert value of type 'Double' to expected argument type 'Float'".
-    // Raven wrote: p->org[2] = p->org[2] + ( crandom() * (p->start - p->end))
-    portMissing("CG_ParticleSnow", source: "oracle/codemp/cgame/cg_marks.c:1283")
+    p!.org[0] = Float(Double(p!.org[0]) + (crandom() * Double(range)))
+    p!.org[1] = Float(Double(p!.org[1]) + (crandom() * Double(range)))
+    p!.org[2] = Float(Double(p!.org[2]) + (crandom() * Double(p!.start - p!.end)))
 
     p!.vel[1] = 0
     p!.vel[0] = p!.vel[1]
@@ -1825,12 +1336,8 @@ func CG_ParticleSnow(_ pshader: JKAShared.qhandle_t, _ origin: JKAShared.vec3_t,
     p!.accel[0] = p!.accel[1]
 
     if turb != 0 {
-        // Port-note: The draft of this statement did not compile, and the compiler wrote "cannot assign value of type 'Double' to subscript of type 'Float'".
-        // Raven wrote: p->vel[0] = crandom() * 16
-        portMissing("CG_ParticleSnow", source: "oracle/codemp/cgame/cg_marks.c:1283")
-        // Port-note: The draft of this statement did not compile, and the compiler wrote "cannot assign value of type 'Double' to subscript of type 'Float'".
-        // Raven wrote: p->vel[1] = crandom() * 16
-        portMissing("CG_ParticleSnow", source: "oracle/codemp/cgame/cg_marks.c:1283")
+        p!.vel[0] = Float(crandom() * 16)
+        p!.vel[1] = Float(crandom() * 16)
     }
 
     // Rafael snow pvs check
@@ -1862,14 +1369,12 @@ func CG_ParticleBubble(_ pshader: JKAShared.qhandle_t, _ origin: JKAShared.vec3_
     p!.end = origin2[2]
     p!.pshader = pshader
 
-    randsize = Float(1 + (Double(crandom()) * 0.5))
+    randsize = Float(1 + (crandom() * 0.5))
 
     p!.height = randsize
     p!.width = randsize
 
-    // Port-note: The draft of this statement did not compile, and the compiler wrote "cannot assign value of type 'Double' to subscript of type 'Float'".
-    // Raven wrote: p->vel[2] = 50 + ( crandom() * 10 )
-    portMissing("CG_ParticleBubble", source: "oracle/codemp/cgame/cg_marks.c:1340")
+    p!.vel[2] = Float(50 + (crandom() * 10))
 
     if turb != 0 {
         p!.type = P_BUBBLE_TURBULENT
@@ -1880,15 +1385,9 @@ func CG_ParticleBubble(_ pshader: JKAShared.qhandle_t, _ origin: JKAShared.vec3_
 
     p!.org = origin
 
-    // Port-note: The draft of this statement did not compile, and the compiler wrote "cannot convert value of type 'Double' to expected argument type 'Float'".
-    // Raven wrote: p->org[0] = p->org[0] + ( crandom() * range)
-    portMissing("CG_ParticleBubble", source: "oracle/codemp/cgame/cg_marks.c:1340")
-    // Port-note: The draft of this statement did not compile, and the compiler wrote "cannot convert value of type 'Double' to expected argument type 'Float'".
-    // Raven wrote: p->org[1] = p->org[1] + ( crandom() * range)
-    portMissing("CG_ParticleBubble", source: "oracle/codemp/cgame/cg_marks.c:1340")
-    // Port-note: The draft of this statement did not compile, and the compiler wrote "cannot convert value of type 'Double' to expected argument type 'Float'".
-    // Raven wrote: p->org[2] = p->org[2] + ( crandom() * (p->start - p->end))
-    portMissing("CG_ParticleBubble", source: "oracle/codemp/cgame/cg_marks.c:1340")
+    p!.org[0] = Float(Double(p!.org[0]) + (crandom() * Double(range)))
+    p!.org[1] = Float(Double(p!.org[1]) + (crandom() * Double(range)))
+    p!.org[2] = Float(Double(p!.org[2]) + (crandom() * Double(p!.start - p!.end)))
 
     p!.vel[1] = 0
     p!.vel[0] = p!.vel[1]
@@ -1898,12 +1397,8 @@ func CG_ParticleBubble(_ pshader: JKAShared.qhandle_t, _ origin: JKAShared.vec3_
     p!.accel[0] = p!.accel[1]
 
     if turb != 0 {
-        // Port-note: The draft of this statement did not compile, and the compiler wrote "cannot assign value of type 'Double' to subscript of type 'Float'".
-        // Raven wrote: p->vel[0] = crandom() * 4
-        portMissing("CG_ParticleBubble", source: "oracle/codemp/cgame/cg_marks.c:1340")
-        // Port-note: The draft of this statement did not compile, and the compiler wrote "cannot assign value of type 'Double' to subscript of type 'Float'".
-        // Raven wrote: p->vel[1] = crandom() * 4
-        portMissing("CG_ParticleBubble", source: "oracle/codemp/cgame/cg_marks.c:1340")
+        p!.vel[0] = Float(crandom() * 4)
+        p!.vel[1] = Float(crandom() * 4)
     }
 
     // Rafael snow pvs check
@@ -2123,9 +1618,7 @@ func CG_NewParticleArea(_ num: Int32) -> Int32 {
         // Port-note: A cast to `const char **` the draft has no view for.
         // Raven wrote: token = COM_Parse ((const char **)&str)
         portMissing("CG_NewParticleArea", source: "oracle/codemp/cgame/cg_marks.c:1556")
-        // Port-note: The draft of this statement did not compile, and the compiler wrote "cannot assign value of type 'Double' to subscript of type 'Float'".
-        // Raven wrote: origin[i] = atof (token)
-        portMissing("CG_NewParticleArea", source: "oracle/codemp/cgame/cg_marks.c:1556")
+        origin[i] = Float(atof(token))
         i += 1
     }
 
@@ -2134,9 +1627,7 @@ func CG_NewParticleArea(_ num: Int32) -> Int32 {
         // Port-note: A cast to `const char **` the draft has no view for.
         // Raven wrote: token = COM_Parse ((const char **)&str)
         portMissing("CG_NewParticleArea", source: "oracle/codemp/cgame/cg_marks.c:1556")
-        // Port-note: The draft of this statement did not compile, and the compiler wrote "cannot assign value of type 'Double' to subscript of type 'Float'".
-        // Raven wrote: origin2[i] = atof (token)
-        portMissing("CG_NewParticleArea", source: "oracle/codemp/cgame/cg_marks.c:1556")
+        origin2[i] = Float(atof(token))
         i += 1
     }
 
@@ -2407,7 +1898,7 @@ func CG_Particle_OilSlick(_ pshader: JKAShared.qhandle_t, _ cent: Centity) {
 
     p!.org = cent.currentState.origin
 
-    p!.org[2] = Float(Double(p!.org[2]) + 0.55 + (Double(crandom()) * 0.5))
+    p!.org[2] = Float(Double(p!.org[2]) + 0.55 + (crandom() * 0.5))
 
     p!.vel[0] = 0
     p!.vel[1] = 0
@@ -2473,8 +1964,7 @@ func ValidBloodPool(_ start: JKAShared.vec3_t) -> Bool {
         normal = vec3_t(0, 0, 1)
 
         vectoangles(normal, &angles)
-        // Port-note: Raven passes NULL for the `forward` output. The ported function takes it by reference, so the body passes a scratch local it never reads.
-        portMissing("ValidBloodPool", source: "oracle/codemp/cgame/cg_marks.c:1902")
+        // Raven passes NULL for the `forward` output.
         var scratchForward = vec3_t()
         AngleVectors(angles, &scratchForward, &right, &up)
 
@@ -2588,11 +2078,8 @@ func CG_ParticleBloodCloud(_ cent: Centity, _ origin: JKAShared.vec3_t, _ dir: J
 
     length = VectorLength(dir)
     vectoangles(dir, &angles)
-    // Port-note: Raven passes NULL for the `right` output. The ported function takes it by reference, so the body passes a scratch local it never reads.
-    portMissing("CG_ParticleBloodCloud", source: "oracle/codemp/cgame/cg_marks.c:2011")
+    // Raven passes NULL for the `right` and `up` outputs.
     var scratchRight = vec3_t()
-    // Port-note: Raven passes NULL for the `up` output. The ported function takes it by reference, so the body passes a scratch local it never reads.
-    portMissing("CG_ParticleBloodCloud", source: "oracle/codemp/cgame/cg_marks.c:2011")
     var scratchUp = vec3_t()
     AngleVectors(angles, &forward, &scratchRight, &scratchUp)
 
@@ -2628,9 +2115,7 @@ func CG_ParticleBloodCloud(_ cent: Centity, _ origin: JKAShared.vec3_t, _ dir: J
 
         p!.pshader = 0 //cgs.media.smokePuffShader;
 
-        // Port-note: The draft of this statement did not compile, and the compiler wrote "cannot convert value of type 'Double' to expected argument type 'Float'".
-        // Raven wrote: p->endtime = cg.time + 350 + (crandom() * 100)
-        portMissing("CG_ParticleBloodCloud", source: "oracle/codemp/cgame/cg_marks.c:2011")
+        p!.endtime = Float(Double(cg.time + 350) + (crandom() * 100))
 
         p!.startfade = Float(cg.time)
 
@@ -2692,12 +2177,8 @@ func CG_ParticleSparks(_ org: JKAShared.vec3_t, _ vel: JKAShared.vec3_t, _ durat
 
     p!.org = org
 
-    // Port-note: The draft of this statement did not compile, and the compiler wrote "cannot convert value of type 'Double' to expected argument type 'Float'".
-    // Raven wrote: p->org[0] += (crandom() * x)
-    portMissing("CG_ParticleSparks", source: "oracle/codemp/cgame/cg_marks.c:2088")
-    // Port-note: The draft of this statement did not compile, and the compiler wrote "cannot convert value of type 'Double' to expected argument type 'Float'".
-    // Raven wrote: p->org[1] += (crandom() * y)
-    portMissing("CG_ParticleSparks", source: "oracle/codemp/cgame/cg_marks.c:2088")
+    p!.org[0] = Float(Double(p!.org[0]) + (crandom() * Double(x)))
+    p!.org[1] = Float(Double(p!.org[1]) + (crandom() * Double(y)))
 
     p!.vel[0] = vel[0]
     p!.vel[1] = vel[1]
@@ -2707,22 +2188,12 @@ func CG_ParticleSparks(_ org: JKAShared.vec3_t, _ vel: JKAShared.vec3_t, _ durat
     p!.accel[1] = p!.accel[2]
     p!.accel[0] = p!.accel[1]
 
-    // Port-note: The draft of this statement did not compile, and the compiler wrote "cannot convert value of type 'Double' to expected argument type 'Float'".
-    // Raven wrote: p->vel[0] += (crandom() * 4)
-    portMissing("CG_ParticleSparks", source: "oracle/codemp/cgame/cg_marks.c:2088")
-    // Port-note: The draft of this statement did not compile, and the compiler wrote "cannot convert value of type 'Double' to expected argument type 'Float'".
-    // Raven wrote: p->vel[1] += (crandom() * 4)
-    portMissing("CG_ParticleSparks", source: "oracle/codemp/cgame/cg_marks.c:2088")
-    // Port-note: The draft of this statement did not compile, and the compiler wrote "cannot convert value of type 'Double' to expected argument type 'Float'".
-    // Raven wrote: p->vel[2] += (20 + (crandom() * 10)) * speed
-    portMissing("CG_ParticleSparks", source: "oracle/codemp/cgame/cg_marks.c:2088")
+    p!.vel[0] = Float(Double(p!.vel[0]) + (crandom() * 4))
+    p!.vel[1] = Float(Double(p!.vel[1]) + (crandom() * 4))
+    p!.vel[2] = Float(Double(p!.vel[2]) + (20 + (crandom() * 10)) * Double(speed))
 
-    // Port-note: The draft of this statement did not compile, and the compiler wrote "cannot assign value of type 'Double' to subscript of type 'Float'".
-    // Raven wrote: p->accel[0] = crandom () * 4
-    portMissing("CG_ParticleSparks", source: "oracle/codemp/cgame/cg_marks.c:2088")
-    // Port-note: The draft of this statement did not compile, and the compiler wrote "cannot assign value of type 'Double' to subscript of type 'Float'".
-    // Raven wrote: p->accel[1] = crandom () * 4
-    portMissing("CG_ParticleSparks", source: "oracle/codemp/cgame/cg_marks.c:2088")
+    p!.accel[0] = Float(crandom() * 4)
+    p!.accel[1] = Float(crandom() * 4)
 }
 
 /// Source: oracle/codemp/cgame/cg_marks.c:2136
@@ -2741,11 +2212,8 @@ func CG_ParticleDust(_ cent: Centity, _ origin: JKAShared.vec3_t, _ dir: inout J
     dir = -dir
     length = VectorLength(dir)
     vectoangles(dir, &angles)
-    // Port-note: Raven passes NULL for the `right` output. The ported function takes it by reference, so the body passes a scratch local it never reads.
-    portMissing("CG_ParticleDust", source: "oracle/codemp/cgame/cg_marks.c:2136")
+    // Raven passes NULL for the `right` and `up` outputs.
     var scratchRight = vec3_t()
-    // Port-note: Raven passes NULL for the `up` output. The ported function takes it by reference, so the body passes a scratch local it never reads.
-    portMissing("CG_ParticleDust", source: "oracle/codemp/cgame/cg_marks.c:2136")
     var scratchUp = vec3_t()
     AngleVectors(angles, &forward, &scratchRight, &scratchUp)
 
@@ -2783,13 +2251,9 @@ func CG_ParticleDust(_ cent: Centity, _ origin: JKAShared.vec3_t, _ dir: inout J
 
         // RF, stay around for long enough to expand and dissipate naturally
         if length != 0 {
-            // Port-note: The draft of this statement did not compile, and the compiler wrote "cannot convert value of type 'Double' to expected argument type 'Float'".
-            // Raven wrote: p->endtime = cg.time + 4500 + (crandom() * 3500)
-            portMissing("CG_ParticleDust", source: "oracle/codemp/cgame/cg_marks.c:2136")
+            p!.endtime = Float(Double(cg.time + 4500) + (crandom() * 3500))
         } else {
-            // Port-note: The draft of this statement did not compile, and the compiler wrote "cannot convert value of type 'Double' to expected argument type 'Float'".
-            // Raven wrote: p->endtime = cg.time + 750 + (crandom() * 500)
-            portMissing("CG_ParticleDust", source: "oracle/codemp/cgame/cg_marks.c:2136")
+            p!.endtime = Float(Double(cg.time + 750) + (crandom() * 500))
         }
 
         p!.startfade = Float(cg.time)
@@ -2813,22 +2277,14 @@ func CG_ParticleDust(_ cent: Centity, _ origin: JKAShared.vec3_t, _ dir: inout J
 
         p!.org = point
 
-        // Port-note: The draft of this statement did not compile, and the compiler wrote "cannot assign value of type 'Double' to subscript of type 'Float'".
-        // Raven wrote: p->vel[0] = crandom()*6
-        portMissing("CG_ParticleDust", source: "oracle/codemp/cgame/cg_marks.c:2136")
-        // Port-note: The draft of this statement did not compile, and the compiler wrote "cannot assign value of type 'Double' to subscript of type 'Float'".
-        // Raven wrote: p->vel[1] = crandom()*6
-        portMissing("CG_ParticleDust", source: "oracle/codemp/cgame/cg_marks.c:2136")
+        p!.vel[0] = Float(crandom() * 6)
+        p!.vel[1] = Float(crandom() * 6)
         // The SDK also declares `random`, so the call names the bg module.
         p!.vel[2] = JKAMP_BG.random() * 20
 
         // RF, add some gravity/randomness
-        // Port-note: The draft of this statement did not compile, and the compiler wrote "cannot assign value of type 'Double' to subscript of type 'Float'".
-        // Raven wrote: p->accel[0] = crandom()*3
-        portMissing("CG_ParticleDust", source: "oracle/codemp/cgame/cg_marks.c:2136")
-        // Port-note: The draft of this statement did not compile, and the compiler wrote "cannot assign value of type 'Double' to subscript of type 'Float'".
-        // Raven wrote: p->accel[1] = crandom()*3
-        portMissing("CG_ParticleDust", source: "oracle/codemp/cgame/cg_marks.c:2136")
+        p!.accel[0] = Float(crandom() * 3)
+        p!.accel[1] = Float(crandom() * 3)
         p!.accel[2] = Float(-Double(PARTICLE_GRAVITY) * 0.4)
 
         p!.accel = vec3_t()
