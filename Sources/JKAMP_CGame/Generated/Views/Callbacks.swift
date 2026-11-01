@@ -39,7 +39,7 @@ public typealias DisplayContextDefFeederCount = @convention(c) (Float) -> Int32
 
 public typealias DisplayContextDefFeederItemImage = @convention(c) (Float, Int32) -> Int32
 
-public typealias DisplayContextDefFeederItemText = @convention(c) (Float, Int32, Int32, OpaquePointer?, OpaquePointer?, OpaquePointer?) -> Void
+public typealias DisplayContextDefFeederItemText = @convention(c) (Float, Int32, Int32, OpaquePointer?, OpaquePointer?, OpaquePointer?) -> OpaquePointer?
 
 public typealias DisplayContextDefFeederSelection = @convention(c) (Float, Int32, OpaquePointer?) -> Int32
 
