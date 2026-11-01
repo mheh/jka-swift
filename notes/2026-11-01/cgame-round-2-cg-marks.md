@@ -28,9 +28,20 @@ Three forms the transcriptor chose with no rule to name them, for the user's rul
 - The partial `memcpy` of `numPoints` records is a local `while` loop that copies each record. cg_players.c:5615 and :5627 have the same shape.
 - `if (animStr < (char *)10) CG_Error(...)` at cg_marks.c:1501 is dropped with no comment. A `String` parameter cannot hold an index cast to a pointer, so the arm has no path.
 
+## Rows R14 to R16 and the three forms
+
+Ruled by the coordinator under the user's delegation on 2026-11-01, each on a pattern the port already uses, with every citation read in both trees. The file was past its hole round, so every change to it is a hand edit.
+
+- R14. Raven never steps `cg_freeMarkPolys`, it moves along `nextMark` links. The file-scope walk sweep took the two tests of the local rule, stepped and every store a table slot, so the pointer is `MarkPoly?` on the generated variables, the shape of `g_timerFreeList` and `free_particles`. A bare table store drafts as slot 0. `cg_freeLocalEntities` took the same form in its stub, and `pushed_p` stays an index. The three list functions read as Raven wrote them. Commit c97b7a1.
+- R15. C's `a op= e` is `a = a op (e)`, so the three compound store arms group a right side that is an operator. The hand sites that multiplied left to right took the grouped form: ai_main.c:526, g_items.c:74 and :78, bg_pmove.c:526, and five cg_marks sites. 38 game draft lines moved. Commit 4765dcf.
+- R16. The two AddPoly traps take `Slots<JKAMP.PolyVert>` by a PARAMS table row each, and the four cg_marks calls pass the Slots. Commit f37323d.
+- The int copy stays as four byte stores under its comment. The partial memcpy stays a while loop with no comment, the NPC_senses form. CG_ParticleExplosion has zero callers in either tree, so under rule 20 it is its stub again with a dead note. Commit 8fccab4.
+
+The gate after the rows: 11 holes, 0 cascade errors, 0 defects, 0 compile holes. The build and `swift test --no-parallel` pass. cg_marks.swift holds 1 portMissing line, the dead stub, and 0 Port-notes.
+
 ## The rows left open
 
-- R14, a defect. The drafter ports Raven's file-scope walk pointer `cg_freeMarkPolys` as the index `cg_freeMarkPolysIndex`, and writes `= 0` for `cg_freeMarkPolys = le` at cg_marks.c:58 and for `cg_freeMarkPolys = cg_freeMarkPolys->nextMark` at :83, and `cg_markPolys[index] == nil` for `!cg_freeMarkPolys` at :73. Every allocation takes slot 0. The draft gate reported no defect. The free list needs a form, and the game's pools are the precedent to read.
-- R15. The double compound store at draft_statements.py:841 writes `a += b + c` with no grouping, so Swift adds left to right where C computes `a + (b + c)`. The hand game files group it. A fix moved about 20 game draft lines outside the ruled rows and was reverted.
-- R16. `trap_R_AddPolyToScene` and `trap_R_AddPolysToScene` take one `PolyVert` at cg_syscalls.swift:621 and :626 where Raven passes an array. Every caller passes the first record of a Slots.
+- R17. The tools have no dead-function form. `NOT_PORTED` removes the function, and rule 20 keeps the stub with a marker and a note. The CG_ParticleExplosion stub is hand-written, and the adopt tool leaves it alone because of its note line. A `rulings.py` entry with a stub form in `skeleton.py` would let the generators state it.
+- R18. The hand line bg_pmove.swift:440 computes `(viewangles - vAngles) * 0.75` in double where Raven's `0.75f` keeps it in float.
+- The other adopted cgame stem, cg_draw, is not checked for hand sites with the R15 grouping defect.
 - Two older drafter shapes R11 showed in the game drafts: a `0.2f` literal drafts as `0.2` where the hand file has `Double(0.2 as Float)`, and a `_VectorMA` scale drafts as `Float(crandom() * 25)` where the hand file writes each component in double.
