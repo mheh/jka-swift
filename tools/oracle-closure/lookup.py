@@ -14,6 +14,7 @@ Usage:
   python3 tools/oracle-closure/lookup.py fn CanDamage           # the manifest row: oracle range, Swift stub line, state
   python3 tools/oracle-closure/lookup.py sig Pmove              # the signature the table gives the function today
   python3 tools/oracle-closure/lookup.py sig pm_stopspeed       # the stub entry of a file-scope variable
+  .venv/bin/python lookup.py --unit mp-cgame fn CG_DrawFPS      # a `fn` or `sig` answer for another unit
 """
 
 from __future__ import annotations
@@ -29,10 +30,33 @@ HERE = Path(__file__).resolve().parent
 REPO = HERE.parents[1]
 ROSETTA = REPO / ".claude" / "rosetta"
 MANIFEST = REPO / ".claude" / "manifest"
-# lookup.py answers for the default unit, so it reads the store of that unit's row.
+# lookup.py answers for the default unit, so it reads the store of that unit's row, unless the command line names `--unit`.
 with (HERE / "project.toml").open("rb") as _f:
     _project = tomllib.load(_f)
 STORE = REPO / _project["targets"][_project["sweep"]["unit"]]["store"]
+
+
+def unit(argv: list[str]) -> list[str]:
+    """The manifests and the store of the unit that `--unit` names, and the command line without the option.
+    Only a command line with `--unit` imports closure.py, because that import loads libclang and a game answer stays instant."""
+    if not any(word == "--unit" or word.startswith("--unit=") for word in argv):
+        return argv
+    global MANIFEST, STORE
+    import closure as C
+
+    # manifest.py writes the manifests of a unit other than the default into a folder of the unit's name.
+    MANIFEST = C.written(REPO / ".claude" / "manifest" / ("" if C.UNIT == C.PROJECT["sweep"]["unit"] else C.UNIT))
+    STORE = REPO / C.TARGETS["store"]
+    out = []
+    skip = False
+    for word in argv:
+        if skip:
+            skip = False
+        elif word == "--unit":
+            skip = True
+        elif not word.startswith("--unit="):
+            out.append(word)
+    return out
 
 
 def rows(path: Path) -> list[str]:
@@ -152,7 +176,7 @@ def signature(name: str, source: str | None = None) -> int:
 
 
 def main() -> None:
-    args = sys.argv[1:]
+    args = unit(sys.argv[1:])
     if not args:
         print(__doc__)
         sys.exit(2)

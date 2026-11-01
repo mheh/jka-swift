@@ -361,6 +361,10 @@ class Calls:
             raven = " ".join(self.bytes[cur.extent.start.offset:cur.extent.end.offset].decode("utf-8", "replace").split())
             raise Hole(f"Raven passes `{raven}` to `{callee}`, whose `char *` parameter the stub holds as an inout CharBuf. Docket row 5 is due.")
         text = self.expr(inner)
+        if param is not None and param[1].replace("JKAShared.", "").removesuffix("?") == "vec4_t" and not inout and self.four_floats(inner):
+            # Raven passes a `float[4]` that Swift holds as the Slots of a view field or as an array, and the callee takes the vector,
+            # so the four elements cross.
+            return f"vec4_t({text}[0], {text}[1], {text}[2], {text}[3])"
         if param is not None and self.types.is_slots(param[1]) and inner.kind == CursorKind.MEMBER_REF_EXPR and inner.referenced is not None \
                 and inner.referenced.type.get_canonical().kind == TypeKind.CONSTANTARRAY \
                 and self.types.record_name(inner.referenced.type.get_canonical().element_type) in self.views.views:
@@ -422,6 +426,20 @@ class Calls:
             raven = " ".join(self.bytes[cur.extent.start.offset:cur.extent.end.offset].decode("utf-8", "replace").split())
             raise Hole(f"Raven passes the record `{raven}` in a format argument list, and a view is no FormatArg.")
         return f"&{text}" if inout else text
+
+    def four_floats(self, cur: ci.Cursor) -> bool:
+        """True for Raven's `float[4]` that Swift holds as `Slots<Float>` or `[Float]`: a view field, a local that is no `vec4_t`, or a global of that spelling."""
+        inner = self.unwrap(cur)
+        t = inner.type.get_canonical()
+        if t.kind != TypeKind.CONSTANTARRAY or t.element_type.get_canonical().kind != TypeKind.FLOAT or t.element_count != 4:
+            return False
+        if inner.kind == CursorKind.MEMBER_REF_EXPR:
+            return True
+        if inner.kind != CursorKind.DECL_REF_EXPR or inner.referenced is None or inner.referenced.kind != CursorKind.VAR_DECL:
+            return False
+        if inner.referenced.semantic_parent is not None and inner.referenced.semantic_parent.kind == CursorKind.TRANSLATION_UNIT:
+            return self.registry.var_types.get(swift_name(inner.spelling), "").replace("JKAShared.", "") in ("[Float]", "Slots<Float>")
+        return not self.views.is_vec4(inner.referenced.type)
 
     def format_conversions(self, callee: ci.Type, args: list[ci.Cursor]) -> dict[int, tuple[ci.Cursor, str]]:
         """The conversion letter each argument after a variadic callee's format string feeds, by position, with the argument itself.

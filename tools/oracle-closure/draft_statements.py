@@ -215,11 +215,59 @@ class Statements:
         if lines is None:
             try:
                 lines = self.statement_lines(cur, depth)
+                missed = self.hole_local_use(cur)
+                if missed is not None:
+                    # A form that spells a name with no read through `reference` still reads the local, `total += previousTimes[i]`.
+                    raise Hole(missed)
             except Hole as hole:
                 lines = self.hole(cur, depth, str(hole))
         lines = [INDENT * depth + line for line in roled(self.pending, "lifted")] + lines
         self.pending = outer
         return marked(lines, self.statement_number(cur))
+
+    def hole_local_use(self, cur: ci.Cursor) -> str | None:
+        """The hole reason of the first use of a hole local in the statement's own expressions, or None when it uses none.
+        A nested statement is its own statement and gets its own check, and a declaration checks only the locals it drafted."""
+        if not self.local_holes:
+            return None
+        if cur.kind.is_expression():
+            roots = [cur]
+        elif cur.kind == CursorKind.DECL_STMT:
+            roots = [k for var in cur.get_children() if var.kind == CursorKind.VAR_DECL and var.spelling not in self.local_holes
+                     for k in var.get_children() if k.kind.is_expression()]
+        else:
+            # A body is the nested statement, braced or not, so a loop or a branch checks its condition alone.
+            kids = list(cur.get_children())
+            if cur.kind in (CursorKind.IF_STMT, CursorKind.WHILE_STMT, CursorKind.SWITCH_STMT, CursorKind.CASE_STMT):
+                kids = kids[:1]
+            elif cur.kind == CursorKind.DO_STMT:
+                kids = kids[-1:]
+            elif cur.kind == CursorKind.FOR_STMT:
+                kids = kids[:-1]
+            elif cur.kind in (CursorKind.LABEL_STMT, CursorKind.DEFAULT_STMT, CursorKind.COMPOUND_STMT):
+                kids = []
+            roots = [k for k in kids if k.kind.is_expression()]
+        for root in roots:
+            stores = self.store_targets(root)
+            for node in root.walk_preorder():
+                if node.kind == CursorKind.DECL_REF_EXPR and node.spelling in self.local_holes \
+                        and node.referenced is not None and node.referenced.kind == CursorKind.VAR_DECL:
+                    return self.hole_local_reason(node.spelling, extent_key(node) in stores)
+        return None
+
+    def store_targets(self, root: ci.Cursor) -> set[tuple[str, int, int]]:
+        """The extents of the names a plain `=` stores into, `x = v` or `x[i] = v`, which are stores and not reads."""
+        out: set[tuple[str, int, int]] = set()
+        for node in root.walk_preorder():
+            kids = list(node.get_children())
+            if node.kind != CursorKind.BINARY_OPERATOR or len(kids) != 2 or self.operator_or_none(node) != "=":
+                continue
+            left = self.unwrap(kids[0])
+            if left.kind == CursorKind.ARRAY_SUBSCRIPT_EXPR:
+                left = self.strip(list(left.get_children())[0])
+            if left.kind == CursorKind.DECL_REF_EXPR:
+                out.add(extent_key(left))
+        return out
 
     def statement_key(self, cur: ci.Cursor) -> tuple[str, str, int, int]:
         """One statement's identity across two drafts of the same function, by the function and the statement's extent."""
@@ -606,7 +654,7 @@ class Statements:
                     optional = self.unwrap(left).spelling in self.optional_texts
                     return [f"{pad}{self.expr(left)} = {self.text_value(right, optional)}" + self.trailing(cur)]
                 if self.unwrap(left).kind == CursorKind.DECL_REF_EXPR and self.unwrap(left).spelling in self.local_holes:
-                    raise Hole(f"A store into `{self.unwrap(left).spelling}`, a local the draft left as a hole.")
+                    raise Hole(self.hole_local_reason(self.unwrap(left).spelling, True))
                 if op == "=" and self.unwrap(left).kind == CursorKind.ARRAY_SUBSCRIPT_EXPR and self.is_raw(list(self.unwrap(left).get_children())[0]):
                     # Raven's `tempReadBuffer[len] = 0` writes one byte of a raw allocation, which the `byte` slot of RawField.swift stores.
                     base, index = list(self.unwrap(left).get_children())
@@ -765,6 +813,12 @@ class Statements:
                 return [f"{pad}{buffer} = {call}" + self.trailing(cur)]
             # The trap returns the text the engine wrote, and the copy keeps the buffer's own size, as the engine's write does.
             return [f"{pad}strcpy(&{buffer}, {call})" + self.trailing(cur)]
+        if self.is_call(cur) and self.tuple_call(cur) is not None:
+            call, buffer = self.tuple_call(cur)
+            # Raven drops the trap's count, and the buffer takes the text, the second element of the tuple, as in the form above.
+            if self.registry.returns.get(self.callee_name(self.strip(cur)), "").endswith(", JKAShared.CharBuf)"):
+                return [f"{pad}{buffer} = {call}.1" + self.trailing(cur)]
+            return [f"{pad}strcpy(&{buffer}, {call}.1)" + self.trailing(cur)]
         if self.is_call(cur) and self.aliased_inouts(cur):
             aliased = self.aliased_inouts(cur)
             with self.aliased_reads(cur, aliased):
@@ -830,7 +884,8 @@ class Statements:
 
     def filled_test(self, cur: ci.Cursor) -> tuple[str, str, bool, bool] | None:
         """Raven's `if (!trap_GetEntityToken(com_token, sizeof(com_token)))`, a test that is one call to a trap whose Swift form returns
-        `(Bool, String)`: the call, the buffer, True for a list trap, and True when Raven negates the call. None for any other test."""
+        `(Bool, String)` or `(Int32, String)`: the call, the buffer, True for a list trap, True when the first element is a count,
+        and True when Raven negates the call. None for any other test."""
         inner = self.unwrap(cur)
         negated = False
         if inner.kind == CursorKind.UNARY_OPERATOR and self.operator_or_none_unary(inner) == "!":
@@ -838,12 +893,13 @@ class Statements:
             inner = self.unwrap(self.unary_parts(inner)[2])
         name = self.callee_name(self.strip(inner)) if self.is_call(self.strip(inner)) else None
         returns = self.registry.returns.get(name, "") if name else ""
-        if not (returns.startswith("(Bool, String)") or returns.startswith("(Bool, JKAShared.CharBuf)")):
+        if not any(returns.startswith(f"({first}, {text})") for first in ("Bool", "Int32") for text in ("String", "JKAShared.CharBuf")):
             return None
         filled = self.tuple_call(inner)
         if filled is None:
             return None
-        return filled[0], filled[1], returns.startswith("(Bool, JKAShared.CharBuf)"), negated
+        # C tests the count as true when it is not zero.
+        return filled[0], filled[1], returns.endswith(", JKAShared.CharBuf)"), not returns.startswith("(Bool,"), negated
 
     def if_statement(self, cur: ci.Cursor, depth: int) -> list[str]:
         pad = INDENT * depth
@@ -860,13 +916,16 @@ class Statements:
                 test = self.condition(cond)
         elif self.filled_test(cond) is not None:
             # A trap that fills a buffer and returns its Bool stands before the `if`, the buffer takes the text, and the test reads the Bool.
-            call, buffer, whole, negated = self.filled_test(cond)
+            call, buffer, whole, nonzero, negated = self.filled_test(cond)
             # A second test of this shape in one body takes a numbered name, so no two lets collide in one scope.
             self.scratch_names["filledTest"] = self.scratch_names.get("filledTest", 0) + 1
             filled = "filledTest" if self.scratch_names["filledTest"] == 1 else f"filledTest{self.scratch_names['filledTest']}"
             fill = f"{buffer} = {filled}.1" if whole else f"strcpy(&{buffer}, {filled}.1)"
             head = roled([f"{pad}let {filled} = {call}", f"{pad}{fill}"], "lifted")
-            test = f"!{filled}.0" if negated else f"{filled}.0"
+            if nonzero:
+                test = f"{filled}.0 == 0" if negated else f"{filled}.0 != 0"
+            else:
+                test = f"!{filled}.0" if negated else f"{filled}.0"
         else:
             # The bind changes the hoists, so the draft asks for it once.
             bind = self.client_bind(cond, then)

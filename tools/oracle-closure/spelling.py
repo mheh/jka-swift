@@ -312,6 +312,10 @@ class Types:
                     return Answer(f"[JKAShared.{t.get_pointee().spelling}]", "vec3_array")
                 # A pointer to one vector the caller owns, which Raven writes as `(*c)[i]`.
                 return Answer(f"inout JKAShared.{t.get_pointee().spelling}", "vec3_mut")
+            if facts.traps and pointee.is_const_qualified() and pointee.kind == TypeKind.FLOAT:
+                # A trap's `const float *` is a color of four floats the engine reads, `trap_R_SetColor(rgba)`, and Raven's callers pass NULL.
+                # The vector crosses as an optional value, and the trap packs it for the word, see traps.py.
+                return Answer("JKAShared.vec4_t?", "vec4_opt")
             if pointee.is_const_qualified() and pointee.kind in INT_KINDS | {TypeKind.FLOAT}:
                 # Raven takes the address of a const scalar to reinterpret its bytes, so the scalar crosses by value.
                 swift = self.scalar(pointee, TARGET)

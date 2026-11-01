@@ -299,6 +299,11 @@ class Declarations:
             if not init:
                 return f"var {name} = vec3_t()"
             return f"var {name} = {self.vector_literal(init[0])}"
+        if t.get_canonical().kind == TypeKind.CONSTANTARRAY and self.views.is_vec4(t):
+            # Raven's `vec4_t color` is one vector of four floats, and his element stores `color[1] = 0.4` keep their form.
+            if not init:
+                return f"var {name} = vec4_t()"
+            return f"var {name} = {self.vector_literal(init[0], 4)}"
         # A typedef of an array, `vec2_t` or `G2Trace_t`, has no element type until the canonical type, and a plain array keeps its element's typedef name.
         canonical = t.get_canonical()
         if canonical.kind == TypeKind.CONSTANTARRAY and self.views.is_vec3(t.element_type if t.kind == TypeKind.CONSTANTARRAY else canonical.element_type):

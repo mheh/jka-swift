@@ -56,6 +56,10 @@ public final class CGameWorld {
 
     // MARK: - cg_draw.c
 
+    /// Raven's `float *hudTintColor` of `cg_draw.c`.
+    /// Source: oracle/codemp/cgame/cg_draw.c:26
+    var hudTintColor: JKAShared.vec4_t = vec4_t()
+
     /// Raven's `const char *armorTicName[MAX_HUD_TICS]` of `cg_draw.c`.
     /// Source: oracle/codemp/cgame/cg_draw.c:43
     let armorTicName: [String] = [

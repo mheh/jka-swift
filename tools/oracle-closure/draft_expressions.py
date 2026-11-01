@@ -110,17 +110,17 @@ class Expressions:
         read = self.reads.get(("entities", tuple(fields), False))
         return read if read is not None and read.at else None
 
-    def vector_literal(self, cur: ci.Cursor) -> str:
-        """Raven's `{ 0, 0, 0 }` or `{0}` as the vector, with the members he left out at zero."""
+    def vector_literal(self, cur: ci.Cursor, count: int = 3) -> str:
+        """Raven's `{ 0, 0, 0 }` or `{0}` as the vector of `count` members, with the members he left out at zero."""
         cur = self.unwrap(cur)
         if cur.kind != CursorKind.INIT_LIST_EXPR:
             raise Hole("A vector local with an initializer that is not a list.")
         # Each member is a float, and C converts an int member at the initializer.
         words = [self.converted(k, "Float") for k in cur.get_children()]
-        if len(words) > 3:
-            raise Hole("A vector initializer with more than three members.")
-        words += ["0"] * (3 - len(words))
-        return f"vec3_t({', '.join(words)})"
+        if len(words) > count:
+            raise Hole(f"A vector initializer with more than {'three' if count == 3 else 'four'} members.")
+        words += ["0"] * (count - len(words))
+        return f"vec{count}_t({', '.join(words)})"
 
     def narrow_element(self, cur: ci.Cursor) -> str | None:
         """The slot text of Raven's `m[i]` over a narrow local array, `m[i]` as Swift stores it, or None for any other expression."""
@@ -688,6 +688,12 @@ class Expressions:
             return re.sub(r"^(\d+)\.(?=[eE]|$)", r"\1.0", text)
         return re.sub(r"[uUlL]+$", "", text)
 
+    def hole_local_reason(self, name: str, store: bool) -> str:
+        """The Port-note of a statement that uses a local whose declaration is a hole, one text for a read and one for a store."""
+        if store:
+            return f"A store into `{name}`, a local the draft left as a hole."
+        return f"A read of `{name}`, a local the draft left as a hole."
+
     def reference(self, cur: ci.Cursor) -> str:
         name = cur.spelling
         ref = cur.referenced
@@ -709,7 +715,7 @@ class Expressions:
             return self.names[name] + ("!" if name in self.optional_vectors else "")
         if name in self.local_holes and ref is not None and ref.kind == CursorKind.VAR_DECL:
             # The declaration is a hole, so the local has no Swift name, and a read of it is the same hole one statement later.
-            raise Hole(f"A read of `{name}`, a local the draft left as a hole.")
+            raise Hole(self.hole_local_reason(name, False))
         if name in self.aliases and ref is not None and ref.kind == CursorKind.VAR_DECL:
             return self.expr(self.aliases[name])
         if name in self.table_cursors and ref is not None and ref.kind == CursorKind.VAR_DECL:
