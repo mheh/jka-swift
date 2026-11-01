@@ -31,6 +31,11 @@ public func ringText(_ text: String) -> OpaquePointer {
     return OpaquePointer(buf)
 }
 
+/// This is Raven's `p + n` on a text pointer, the write-back of a cursor a body moved.
+public func advanced(_ handle: OpaquePointer, by offset: Int32) -> OpaquePointer {
+    OpaquePointer(UnsafeRawPointer(handle) + Int(offset))
+}
+
 // MARK: - The handle forms of the array shapes
 
 extension Slots {

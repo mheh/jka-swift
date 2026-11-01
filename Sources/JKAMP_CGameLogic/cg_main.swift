@@ -1279,7 +1279,7 @@ private enum DisplayContextDefThunks {
         let p = args[0]
         var cursor = TextCursor(CharBuf(text(at: p!)))
         JKAMP_CGameLogic.CG_RunMenuScript(&cursor)
-        args[0] = cursor.offset.flatMap { OpaquePointer(bitPattern: Int(bitPattern: p) + Int($0)) }
+        args[0] = cursor.offset.map { advanced(p!, by: $0) }
     }
 
     /// Source: oracle/codemp/cgame/cg_newDraw.c:879
@@ -1288,7 +1288,7 @@ private enum DisplayContextDefThunks {
         let p = args[0]
         var cursor = TextCursor(CharBuf(text(at: p!)))
         let deferred = JKAMP_CGameLogic.CG_DeferMenuScript(&cursor)
-        args[0] = cursor.offset.flatMap { OpaquePointer(bitPattern: Int(bitPattern: p) + Int($0)) }
+        args[0] = cursor.offset.map { advanced(p!, by: $0) }
         return deferred ? 1 : 0
     }
 }
