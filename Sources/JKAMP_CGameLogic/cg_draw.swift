@@ -5055,9 +5055,9 @@ func CG_SaberClashFlare() {
         CG_WorldCoordToScreenCoord(cg_saberFlashPos, &x, &y)
 
         color = vec3_t(0.8, 0.8, 0.8)
-        // Port-note: Raven passes his `vec3_t color` to `trap_R_SetColor`, which reads four floats. The fourth float is a read past the array, so the site needs a rule 19 ruling.
         // Raven wrote: trap_R_SetColor( color )
-        portMissing("CG_SaberClashFlare", source: "oracle/codemp/cgame/cg_draw.c:5327")
+        // AI: Raven passed a vec3_t where the trap reads four floats, and the fourth read was past the array. The change passes 1 as the alpha.
+        trap_R_SetColor(vec4_t(color.x, color.y, color.z, 1))
 
         CG_DrawPic(x - (v * 300), y - (v * 300), v * 600, v * 600, trap_R_RegisterShader("gfx/effects/saberFlare"))
         return false
