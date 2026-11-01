@@ -339,15 +339,17 @@ public func trap_CM_TransformedCapsuleTrace(_ results: JKAMP.Trace, _ start: JKA
 
 /// Source: oracle/codemp/cgame/cg_syscalls.c:177
 @discardableResult
-public func trap_CM_MarkFragments(_ numPoints: Int32, _ points: [JKAShared.vec3_t], _ projection: JKAShared.vec3_t, _ maxPoints: Int32, _ pointBuffer: inout JKAShared.vec3_t, _ maxFragments: Int32, _ fragmentBuffer: JKAShared.MarkFragment) -> Int32 {
+public func trap_CM_MarkFragments(_ numPoints: Int32, _ points: [JKAShared.vec3_t], _ projection: JKAShared.vec3_t, _ maxPoints: Int32, _ pointBuffer: inout [JKAShared.vec3_t], _ maxFragments: Int32, _ fragmentBuffer: Slots<JKAShared.MarkFragment>) -> Int32 {
     let pointsFlat = points.flatMap { [$0.x, $0.y, $0.z] }
+    var pointBufferFlat = pointBuffer.flatMap { [$0.x, $0.y, $0.z] }
     let word = pointsFlat.withUnsafeBufferPointer { pointsFlat in
         withUnsafePointer(to: projection) { projection in
-            withUnsafeMutablePointer(to: &pointBuffer) { pointBuffer in
-                Syscall.call(CG_CM_MARKFRAGMENTS, numPoints, pointsFlat.baseAddress!, projection, maxPoints, pointBuffer, maxFragments, fragmentBuffer)
+            pointBufferFlat.withUnsafeMutableBufferPointer { pointBufferFlat in
+                Syscall.call(CG_CM_MARKFRAGMENTS, numPoints, pointsFlat.baseAddress!, projection, maxPoints, pointBufferFlat.baseAddress!, maxFragments, fragmentBuffer.base)
             }
         }
     }
+    pointBuffer = stride(from: 0, to: pointBufferFlat.count, by: 3).map { JKAShared.vec3_t(pointBufferFlat[$0], pointBufferFlat[$0 + 1], pointBufferFlat[$0 + 2]) }
     return Int32(truncatingIfNeeded: word)
 }
 

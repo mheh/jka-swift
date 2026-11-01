@@ -112,7 +112,8 @@ class Traps:
         mapped: dict[str, Param] = {}
         for i, p in enumerate(params):
             following = params[i + 1] if i + 1 < len(params) else None
-            m = self.table.param(p, following, owner=name)
+            preceding = params[i - 1] if i > 0 else None
+            m = self.table.param(p, following, owner=name, preceding=preceding)
             if m is None:
                 return self.marker(cur, self.table.marker_reason(p, name))
             mapped[p.spelling] = m

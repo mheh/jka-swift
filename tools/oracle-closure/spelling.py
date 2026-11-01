@@ -76,6 +76,8 @@ class Facts:
     traps: bool = True
     # The parameter after this one, which a `char *` reads as its size.
     following: ci.Cursor | None = None
+    # The parameter before this one, which a buffer the engine fills reads as its count.
+    preceding: ci.Cursor | None = None
     # The NULL sweep cleared the parameter for nil, the text sweep proved the body only reads the text,
     # the subscript sweep saw an index on it, and the store sweep saw a write through it.
     nullable: bool = False
@@ -275,8 +277,16 @@ class Types:
             return Answer("[Int32]?", "int_array")
         if t.spelling.replace("const ", "") in TYPES:
             return Answer(TYPES[t.spelling.replace("const ", "")], "bare")
+        # A trap's buffer with a maximum count before it is an array the engine fills up to that count,
+        # `trap_CM_MarkFragments(..., maxPoints, pointBuffer, maxFragments, fragmentBuffer)`.
+        # A `sizeof` before a pointer is a byte stride and not a count, `trap_LocateGameData(..., sizeofGEntity_t, clients, ...)`.
+        filled = facts.traps and facts.preceding is not None and facts.preceding.type.get_canonical().kind in INT_KINDS \
+            and facts.preceding.spelling.startswith("max")
         # A vector parameter is the array type itself, and Clang keeps the typedef name on the parameter.
         if t.spelling.split()[-1] in VECTORS:
+            if filled and "const" not in t.spelling:
+                # Raven hands the first of the caller's vectors, so the caller's array crosses and the trap packs it flat, see traps.py.
+                return Answer(f"inout [JKAShared.{t.spelling.split()[-1]}]", "vec3_axis")
             if facts.null_reaches and not facts.stores_through and not facts.traps:
                 # A caller passes NULL and the body only reads, so the vector crosses as an optional value and the NULL test keeps its form.
                 return Answer(f"JKAShared.{t.spelling.split()[-1]}?", "vec3_opt")
@@ -347,6 +357,9 @@ class Types:
                 return Answer("inout JKAShared.CharBuf", "inout_charbuf")
             record = self.record_name(pointee)
             if record and record in self.views.views:
+                if filled and not pointee.is_const_qualified():
+                    # Raven hands the first of the caller's records, so the Slots over them crosses, and its base is the word.
+                    return Answer(f"Slots<{self.views.qualified_view(record, TARGET)}>", "slots")
                 if facts.ruled == "table":
                     # Raven indexes the table through the pointer, so the Slots over it crosses, and its base is the word.
                     return Answer(f"Slots<{self.views.qualified_view(record, TARGET)}>", "slots")
