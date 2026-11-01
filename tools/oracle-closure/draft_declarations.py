@@ -53,10 +53,15 @@ class Declarations:
         return roled(out, "copy")
 
     def record_local(self, cur: ci.Cursor) -> ci.Cursor | None:
-        """The one variable of a declaration that is a C struct with a view, or None."""
+        """The one variable of a declaration that is a C struct with a view, or a local array of such structs, or None."""
         if cur.kind != CursorKind.DECL_STMT:
             return None
         vars_ = [v for v in cur.get_children() if v.kind == CursorKind.VAR_DECL]
+        arrays = [v for v in vars_ if v.storage_class != ci.StorageClass.STATIC
+                  and (answer := self.types.answer("local", v.type)) is not None and answer.kind == "record_array"]
+        if len(arrays) == 1:
+            # Raven's `markFragment_t markFragments[N], *mf;` opens the scratch, and the other names of the line stand before it.
+            return arrays[0]
         if len(vars_) != 1:
             return None
         t = vars_[0].type.get_canonical()
@@ -69,14 +74,23 @@ class Declarations:
         """Raven's block from the record local on, as the closure of the view's scratch helper. A return inside the block is
         the closure's value, and the body acts on it after the closure, by "A scratch C struct on the stack"."""
         pad = INDENT * depth
-        view = self.views.qualified_view(self.types.record_name(var.type.get_canonical()), TARGET)
+        array = self.types.answer("local", var.type)
+        if array is not None and array.kind == "record_array":
+            # Raven's local array of records is the Slots over a scratch of that many zeroed slots.
+            view = array.swift.removeprefix("Slots<").removesuffix(">")
+        else:
+            array = None
+            view = self.views.qualified_view(self.types.record_name(var.type.get_canonical()), TARGET)
         name = swift_name(var.spelling)
         init = [c for c in var.get_children() if c.kind.is_expression() and b"=" in self.bytes[var.extent.start.offset:c.extent.start.offset]]
-        if not init and rest and self.record_store(rest[0], var):
+        if array is not None and init:
+            raise Hole("Raven initializes a local array of records, and the scratch of its slots starts at zero.")
+        if array is None and not init and rest and self.record_store(rest[0], var):
             # Raven fills the record from another right after declaring it, `cmd = pm->cmd;`, which is the copying form.
             init = [list(self.strip(rest[0]).get_children())[1]]
             rest = rest[1:]
-        opener = f"{view}.scratch(copying: {self.expr(init[0])})" if init else f"{view}.scratch"
+        opener = f"{view}.scratch(count: {array.size})" if array is not None else \
+            f"{view}.scratch(copying: {self.expr(init[0])})" if init else f"{view}.scratch"
         returns = any(c.kind == CursorKind.RETURN_STMT for r in rest for c in r.walk_preorder())
         if self.escapes(rest):
             raise Hole("Raven's block leaves a loop outside the record's scope, and the closure cannot.")
@@ -98,7 +112,7 @@ class Declarations:
             out.append(f"{pad}let {result} = {opener} {{ {name} -> {self.fn.returns}? in")
         else:
             out.append(f"{pad}{opener} {{ {name} in")
-        out = roled(out, "frame")
+        out = [pad + line for line in self.declarations(decl, skip=var)] + roled(out, "frame")
         self.scratch_modes.append(mode)
         try:
             body = self.statements(rest, decl.extent.end.line, last_line, depth + 1)
@@ -265,9 +279,12 @@ class Declarations:
             self.hoisted[key] = local
         return roled(out, "hoist")
 
-    def declarations(self, cur: ci.Cursor) -> list[str]:
+    def declarations(self, cur: ci.Cursor, skip: ci.Cursor | None = None) -> list[str]:
+        """The lines of a declaration, every name but `skip`, which a scratch closure declares."""
         out: list[str] = []
         for var in cur.get_children():
+            if skip is not None and var == skip:
+                continue
             if var.kind != CursorKind.VAR_DECL:
                 raise Hole(f"A {var.kind.name} inside a declaration.")
             try:
