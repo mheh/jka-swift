@@ -114,6 +114,7 @@ CGAME_ROOTS = {
     "sharedIKMoveParams_t": ("SharedIKMoveParams", "CJKAMP"),
     "sharedSetBoneIKStateParams_t": ("SharedSetBoneIKStateParams", "CJKAMP"),
     "pc_token_t": ("PcToken", "CJKAMP"),
+    "qtime_t": ("Qtime", "CJKAMP"),
     "bgLoadedAnim_t": ("BgLoadedAnim", "CJKAMP"),
     "saberMoveData_t": ("SaberMoveData", "CJKAMP"),
     # The cgame's state: Raven's `cg`, `cgs`, and `cg_entities` of cg_main.c.

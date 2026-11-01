@@ -976,12 +976,10 @@ public func trap_S_StopBackgroundTrack() {
 }
 
 /// Source: oracle/codemp/cgame/cg_syscalls.c:575
-// TODO: Port signature
-// Raven wrote: int trap_RealTime(qtime_t *qtime)
-// No table row for `qtime_t * qtime`.
-public func trap_RealTime() -> Never {
-    // TODO: Port trap_RealTime
-    portMissing("trap_RealTime", source: "oracle/codemp/cgame/cg_syscalls.c:575")
+@discardableResult
+public func trap_RealTime(_ qtime: JKAMP.Qtime) -> Int32 {
+let word = Syscall.call(CG_REAL_TIME, qtime)
+    return Int32(truncatingIfNeeded: word)
 }
 
 /// Source: oracle/codemp/cgame/cg_syscalls.c:579
