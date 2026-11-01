@@ -52,7 +52,7 @@ def written_arguments(name: str) -> set[int]:
 
 # The C return type each function takes in the overlay, so the use keeps the type Raven's expression had.
 MACRO_RETURNS = {"DotProduct": "float", "Q_fabs": "float", "DEG2RAD": "float", "RAD2DEG": "float", "ANGLE2SHORT": "int",
-                 "SHORT2ANGLE": "float", "min": "float", "max": "float", "random": "float", "crandom": "float",
+                 "SHORT2ANGLE": "float", "min": "float", "max": "float", "random": "float", "crandom": "double",
                  "FOFS": "int", "DOT": "float"}
 # Function-like macros with no Swift form, declared so a use parses as a call with argument nodes, and the call is a hole by name.
 # FOFS is g_local.h's field offset. The rest are tri_coll_test.c's, which that file defines after the overlay, so the unity source repeats the overlay after each file.

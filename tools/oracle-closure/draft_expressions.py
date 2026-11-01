@@ -171,10 +171,13 @@ class Expressions:
         if inner.kind == CursorKind.CALL_EXPR or self.is_call(inner):
             kids = self.call_children(inner)
             callee = self.strip(kids[0]) if kids else None
-            if callee is None or self.types.number_kind(inner.type) != "Double" or not self.oracle_declares(callee.referenced):
+            if callee is not None and callee.spelling in MACROS and MACRO_RETURNS.get(callee.spelling) == "double":
+                # Raven's `crandom()` computes `2.0 * (random() - 0.5)` in double, and the port returns that Double.
+                return True
+            if callee is None or self.types.number_kind(inner.type) != "Double":
                 return False
-            # A body reaches a C library name Raven redefined, `atof`, through the shared module's port, which answers in Float.
-            return "JKAShared" not in self.registry.homes.get(swift_name(callee.spelling), set())
+            # The shared module's `atof` returns Double as C's does, whether the parse took Raven's declaration or the SDK's.
+            return self.oracle_declares(callee.referenced) or "JKAShared" in self.registry.homes.get(swift_name(callee.spelling), set())
         if inner.kind in (CursorKind.BINARY_OPERATOR, CursorKind.UNARY_OPERATOR, CursorKind.CONDITIONAL_OPERATOR, CursorKind.PAREN_EXPR):
             return any(self.holds_double(k) for k in inner.get_children())
         return False
@@ -186,7 +189,7 @@ class Expressions:
         if inner.kind == CursorKind.CALL_EXPR:
             name = self.callee_name(inner)
             if name in MACROS and name in MACRO_RETURNS:
-                return {"float": "Float", "int": "Int32"}.get(MACRO_RETURNS[name])
+                return {"float": "Float", "double": "Double", "int": "Int32"}.get(MACRO_RETURNS[name])
         parts: list[ci.Cursor] = []
         if inner.kind == CursorKind.BINARY_OPERATOR and not self.macro_span(inner):
             try:
