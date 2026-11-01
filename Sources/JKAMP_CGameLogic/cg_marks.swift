@@ -8,10 +8,9 @@ import JKAMP_BG
 var cg_activeMarkPolys: MarkPoly { world.storage.cg_activeMarkPolys }
 
 /// Source: oracle/codemp/cgame/cg_marks.c:17
-/// Raven walks `cg_freeMarkPolys` over `cg_markPolys`, so the port holds the index of the slot it points at.
-var cg_freeMarkPolysIndex: Int32 {
-    get { world.variables.cg_freeMarkPolysIndex }
-    set { world.variables.cg_freeMarkPolysIndex = newValue }
+var cg_freeMarkPolys: MarkPoly? {
+    get { world.variables.cg_freeMarkPolys }
+    set { world.variables.cg_freeMarkPolys = newValue }
 }
 
 /// Source: oracle/codemp/cgame/cg_marks.c:18
@@ -176,7 +175,7 @@ func CG_InitMarkPolys() {
 
     cg_activeMarkPolys.nextMark = cg_activeMarkPolys
     cg_activeMarkPolys.prevMark = cg_activeMarkPolys
-    cg_freeMarkPolysIndex = 0
+    cg_freeMarkPolys = cg_markPolys[0]
     i = 0
     while i < MAX_MARK_POLYS - 1 {
         cg_markPolys[i].nextMark = cg_markPolys[i + 1]
@@ -202,8 +201,8 @@ func CG_FreeMarkPoly(_ le: MarkPoly) {
     le.nextMark!.prevMark = le.prevMark
 
     // the free list is only singly linked
-    le.nextMark = cg_markPolys[cg_freeMarkPolysIndex]
-    cg_freeMarkPolysIndex = 0
+    le.nextMark = cg_freeMarkPolys
+    cg_freeMarkPolys = le
 }
 
 /**
@@ -217,10 +216,10 @@ Will allways succeed, even if it requires freeing an old active mark
 */
 /// Source: oracle/codemp/cgame/cg_marks.c:68
 func CG_AllocMark() -> MarkPoly? {
-    var leIndex: Int32 = 0
+    var le: MarkPoly?
     let time: Int32
 
-    if cg_markPolys[cg_freeMarkPolysIndex] == nil {
+    if cg_freeMarkPolys == nil {
         // no free entities, so free the one at the end of the chain
         // remove the oldest active entity
         time = cg_activeMarkPolys.prevMark!.time
@@ -229,17 +228,17 @@ func CG_AllocMark() -> MarkPoly? {
         }
     }
 
-    leIndex = cg_freeMarkPolysIndex
-    cg_freeMarkPolysIndex = 0
+    le = cg_freeMarkPolys
+    cg_freeMarkPolys = cg_freeMarkPolys!.nextMark
 
-    cg_markPolys[leIndex].clear()
+    le!.clear()
 
     // link into the active list
-    cg_markPolys[leIndex].nextMark = cg_activeMarkPolys.nextMark
-    cg_markPolys[leIndex].prevMark = cg_activeMarkPolys
-    cg_activeMarkPolys.nextMark!.prevMark = cg_markPolys[leIndex]
-    cg_activeMarkPolys.nextMark = cg_markPolys[leIndex]
-    return cg_markPolys[leIndex]
+    le!.nextMark = cg_activeMarkPolys.nextMark
+    le!.prevMark = cg_activeMarkPolys
+    cg_activeMarkPolys.nextMark!.prevMark = le
+    cg_activeMarkPolys.nextMark = le
+    return le
 }
 
 /// Source: oracle/codemp/cgame/cg_marks.c:110

@@ -7,27 +7,27 @@ The oracle range is the whole definition, from the return type to the closing br
 
 | Function | Oracle | Swift | State | jka-rust | Signature |
 |---|---|---|---|---|---|
-| `CG_InitLocalEntities` | `oracle/codemp/cgame/cg_localents.c:21-31` | `JKAMP_CGameLogic/cg_localents.swift:38` | marker | `crates/mp/cgame/src/cg_localents.rs:71-73` | `func CG_InitLocalEntities()` |
-| `CG_FreeLocalEntity` | `oracle/codemp/cgame/cg_localents.c:39-51` | `JKAMP_CGameLogic/cg_localents.swift:51` | marker | `crates/mp/cgame/src/cg_localents.rs:336-340` | `func CG_FreeLocalEntity(_ le: LocalEntity)` |
-| `CG_AllocLocalEntity` | `oracle/codemp/cgame/cg_localents.c:60-80` | `JKAMP_CGameLogic/cg_localents.swift:66` | marker | `crates/mp/cgame/src/cg_localents.rs:349-351` | `func CG_AllocLocalEntity() -> LocalEntity?` |
-| `CG_BloodTrail` | `oracle/codemp/cgame/cg_localents.c:101-128` | `JKAMP_CGameLogic/cg_localents.swift:81` | marker | `crates/mp/cgame/src/cg_localents.rs:700-736` | `func CG_BloodTrail(_ le: LocalEntity)` |
-| `CG_FragmentBounceMark` | `oracle/codemp/cgame/cg_localents.c:136-155` | `JKAMP_CGameLogic/cg_localents.swift:94` | marker | `crates/mp/cgame/src/cg_localents.rs:86-94` | `func CG_FragmentBounceMark(_ le: LocalEntity, _ trace: JKAMP.Trace)` |
-| `CG_FragmentBounceSound` | `oracle/codemp/cgame/cg_localents.c:162-195` | `JKAMP_CGameLogic/cg_localents.swift:107` | marker | `crates/mp/cgame/src/cg_localents.rs:104-138` | `func CG_FragmentBounceSound(_ le: LocalEntity, _ trace: JKAMP.Trace)` |
-| `CG_ReflectVelocity` | `oracle/codemp/cgame/cg_localents.c:203-227` | `JKAMP_CGameLogic/cg_localents.swift:120` | marker | `crates/mp/cgame/src/cg_localents.rs:147-174` | `func CG_ReflectVelocity(_ le: LocalEntity, _ trace: JKAMP.Trace)` |
-| `CG_AddFragment` | `oracle/codemp/cgame/cg_localents.c:234-332` | `JKAMP_CGameLogic/cg_localents.swift:133` | marker | `crates/mp/cgame/src/cg_localents.rs:752-886` | `func CG_AddFragment(_ le: LocalEntity)` |
-| `CG_AddFadeRGB` | `oracle/codemp/cgame/cg_localents.c:348-363` | `JKAMP_CGameLogic/cg_localents.swift:146` | marker | `crates/mp/cgame/src/cg_localents.rs:179-191` | `func CG_AddFadeRGB(_ le: LocalEntity)` |
-| `CG_AddFadeScaleModel` static | `oracle/codemp/cgame/cg_localents.c:365-390` | `JKAMP_CGameLogic/cg_localents.swift:152` | marker | `crates/mp/cgame/src/cg_localents.rs:200-241` | `private func CG_AddFadeScaleModel(_ le: LocalEntity)` |
-| `CG_AddMoveScaleFade` static | `oracle/codemp/cgame/cg_localents.c:397-432` | `JKAMP_CGameLogic/cg_localents.swift:165` | marker | `crates/mp/cgame/src/cg_localents.rs:361-400` | `private func CG_AddMoveScaleFade(_ le: LocalEntity)` |
-| `CG_AddPuff` static | `oracle/codemp/cgame/cg_localents.c:439-470` | `JKAMP_CGameLogic/cg_localents.swift:178` | marker | `crates/mp/cgame/src/cg_localents.rs:408-444` | `private func CG_AddPuff(_ le: LocalEntity)` |
-| `CG_AddScaleFade` static | `oracle/codemp/cgame/cg_localents.c:481-505` | `JKAMP_CGameLogic/cg_localents.swift:195` | marker | `crates/mp/cgame/src/cg_localents.rs:453-478` | `private func CG_AddScaleFade(_ le: LocalEntity)` |
-| `CG_AddFallScaleFade` static | `oracle/codemp/cgame/cg_localents.c:518-545` | `JKAMP_CGameLogic/cg_localents.swift:213` | marker | `crates/mp/cgame/src/cg_localents.rs:487-515` | `private func CG_AddFallScaleFade(_ le: LocalEntity)` |
-| `CG_AddExplosion` static | `oracle/codemp/cgame/cg_localents.c:554-575` | `JKAMP_CGameLogic/cg_localents.swift:226` | marker | `crates/mp/cgame/src/cg_localents.rs:246-269` | `private func CG_AddExplosion(_ ex: LocalEntity)` |
-| `CG_AddSpriteExplosion` static | `oracle/codemp/cgame/cg_localents.c:582-616` | `JKAMP_CGameLogic/cg_localents.swift:239` | marker | `crates/mp/cgame/src/cg_localents.rs:277-317` | `private func CG_AddSpriteExplosion(_ le: LocalEntity)` |
-| `CG_AddRefEntity` | `oracle/codemp/cgame/cg_localents.c:624-630` | `JKAMP_CGameLogic/cg_localents.swift:252` | marker | `crates/mp/cgame/src/cg_localents.rs:522-535` | `func CG_AddRefEntity(_ le: LocalEntity)` |
-| `CG_AddScorePlum` | `oracle/codemp/cgame/cg_localents.c:639-716` | `JKAMP_CGameLogic/cg_localents.swift:258` | marker | `crates/mp/cgame/src/cg_localents.rs:544-638` | `func CG_AddScorePlum(_ le: LocalEntity)` |
-| `CG_AddOLine` | `oracle/codemp/cgame/cg_localents.c:725-761` | `JKAMP_CGameLogic/cg_localents.swift:273` | marker | `crates/mp/cgame/src/cg_localents.rs:649-690` | `func CG_AddOLine(_ le: LocalEntity)` |
-| `CG_AddLine` | `oracle/codemp/cgame/cg_localents.c:770-779` | `JKAMP_CGameLogic/cg_localents.swift:288` | marker | `crates/mp/cgame/src/cg_localents.rs:322-326` | `func CG_AddLine(_ le: LocalEntity)` |
-| `CG_AddLocalEntities` | `oracle/codemp/cgame/cg_localents.c:789-865` | `JKAMP_CGameLogic/cg_localents.swift:302` | marker | `crates/mp/cgame/src/cg_localents.rs:906-925` | `func CG_AddLocalEntities()` |
+| `CG_InitLocalEntities` | `oracle/codemp/cgame/cg_localents.c:21-31` | `JKAMP_CGameLogic/cg_localents.swift:37` | marker | `crates/mp/cgame/src/cg_localents.rs:71-73` | `func CG_InitLocalEntities()` |
+| `CG_FreeLocalEntity` | `oracle/codemp/cgame/cg_localents.c:39-51` | `JKAMP_CGameLogic/cg_localents.swift:50` | marker | `crates/mp/cgame/src/cg_localents.rs:336-340` | `func CG_FreeLocalEntity(_ le: LocalEntity)` |
+| `CG_AllocLocalEntity` | `oracle/codemp/cgame/cg_localents.c:60-80` | `JKAMP_CGameLogic/cg_localents.swift:65` | marker | `crates/mp/cgame/src/cg_localents.rs:349-351` | `func CG_AllocLocalEntity() -> LocalEntity?` |
+| `CG_BloodTrail` | `oracle/codemp/cgame/cg_localents.c:101-128` | `JKAMP_CGameLogic/cg_localents.swift:80` | marker | `crates/mp/cgame/src/cg_localents.rs:700-736` | `func CG_BloodTrail(_ le: LocalEntity)` |
+| `CG_FragmentBounceMark` | `oracle/codemp/cgame/cg_localents.c:136-155` | `JKAMP_CGameLogic/cg_localents.swift:93` | marker | `crates/mp/cgame/src/cg_localents.rs:86-94` | `func CG_FragmentBounceMark(_ le: LocalEntity, _ trace: JKAMP.Trace)` |
+| `CG_FragmentBounceSound` | `oracle/codemp/cgame/cg_localents.c:162-195` | `JKAMP_CGameLogic/cg_localents.swift:106` | marker | `crates/mp/cgame/src/cg_localents.rs:104-138` | `func CG_FragmentBounceSound(_ le: LocalEntity, _ trace: JKAMP.Trace)` |
+| `CG_ReflectVelocity` | `oracle/codemp/cgame/cg_localents.c:203-227` | `JKAMP_CGameLogic/cg_localents.swift:119` | marker | `crates/mp/cgame/src/cg_localents.rs:147-174` | `func CG_ReflectVelocity(_ le: LocalEntity, _ trace: JKAMP.Trace)` |
+| `CG_AddFragment` | `oracle/codemp/cgame/cg_localents.c:234-332` | `JKAMP_CGameLogic/cg_localents.swift:132` | marker | `crates/mp/cgame/src/cg_localents.rs:752-886` | `func CG_AddFragment(_ le: LocalEntity)` |
+| `CG_AddFadeRGB` | `oracle/codemp/cgame/cg_localents.c:348-363` | `JKAMP_CGameLogic/cg_localents.swift:145` | marker | `crates/mp/cgame/src/cg_localents.rs:179-191` | `func CG_AddFadeRGB(_ le: LocalEntity)` |
+| `CG_AddFadeScaleModel` static | `oracle/codemp/cgame/cg_localents.c:365-390` | `JKAMP_CGameLogic/cg_localents.swift:151` | marker | `crates/mp/cgame/src/cg_localents.rs:200-241` | `private func CG_AddFadeScaleModel(_ le: LocalEntity)` |
+| `CG_AddMoveScaleFade` static | `oracle/codemp/cgame/cg_localents.c:397-432` | `JKAMP_CGameLogic/cg_localents.swift:164` | marker | `crates/mp/cgame/src/cg_localents.rs:361-400` | `private func CG_AddMoveScaleFade(_ le: LocalEntity)` |
+| `CG_AddPuff` static | `oracle/codemp/cgame/cg_localents.c:439-470` | `JKAMP_CGameLogic/cg_localents.swift:177` | marker | `crates/mp/cgame/src/cg_localents.rs:408-444` | `private func CG_AddPuff(_ le: LocalEntity)` |
+| `CG_AddScaleFade` static | `oracle/codemp/cgame/cg_localents.c:481-505` | `JKAMP_CGameLogic/cg_localents.swift:194` | marker | `crates/mp/cgame/src/cg_localents.rs:453-478` | `private func CG_AddScaleFade(_ le: LocalEntity)` |
+| `CG_AddFallScaleFade` static | `oracle/codemp/cgame/cg_localents.c:518-545` | `JKAMP_CGameLogic/cg_localents.swift:212` | marker | `crates/mp/cgame/src/cg_localents.rs:487-515` | `private func CG_AddFallScaleFade(_ le: LocalEntity)` |
+| `CG_AddExplosion` static | `oracle/codemp/cgame/cg_localents.c:554-575` | `JKAMP_CGameLogic/cg_localents.swift:225` | marker | `crates/mp/cgame/src/cg_localents.rs:246-269` | `private func CG_AddExplosion(_ ex: LocalEntity)` |
+| `CG_AddSpriteExplosion` static | `oracle/codemp/cgame/cg_localents.c:582-616` | `JKAMP_CGameLogic/cg_localents.swift:238` | marker | `crates/mp/cgame/src/cg_localents.rs:277-317` | `private func CG_AddSpriteExplosion(_ le: LocalEntity)` |
+| `CG_AddRefEntity` | `oracle/codemp/cgame/cg_localents.c:624-630` | `JKAMP_CGameLogic/cg_localents.swift:251` | marker | `crates/mp/cgame/src/cg_localents.rs:522-535` | `func CG_AddRefEntity(_ le: LocalEntity)` |
+| `CG_AddScorePlum` | `oracle/codemp/cgame/cg_localents.c:639-716` | `JKAMP_CGameLogic/cg_localents.swift:257` | marker | `crates/mp/cgame/src/cg_localents.rs:544-638` | `func CG_AddScorePlum(_ le: LocalEntity)` |
+| `CG_AddOLine` | `oracle/codemp/cgame/cg_localents.c:725-761` | `JKAMP_CGameLogic/cg_localents.swift:272` | marker | `crates/mp/cgame/src/cg_localents.rs:649-690` | `func CG_AddOLine(_ le: LocalEntity)` |
+| `CG_AddLine` | `oracle/codemp/cgame/cg_localents.c:770-779` | `JKAMP_CGameLogic/cg_localents.swift:287` | marker | `crates/mp/cgame/src/cg_localents.rs:322-326` | `func CG_AddLine(_ le: LocalEntity)` |
+| `CG_AddLocalEntities` | `oracle/codemp/cgame/cg_localents.c:789-865` | `JKAMP_CGameLogic/cg_localents.swift:301` | marker | `crates/mp/cgame/src/cg_localents.rs:906-925` | `func CG_AddLocalEntities()` |
 
 3 file-scope variables. The entry is the stub's line for the variable, by rule 3 and rule 6.
 

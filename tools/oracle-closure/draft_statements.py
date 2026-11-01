@@ -791,6 +791,11 @@ class Statements:
                     source = self.expr(right)
                     source = f"({source})!" if self.unwrap(right).kind == CursorKind.CONDITIONAL_OPERATOR else f"{source}!"
                     return [f"{pad}{self.expr(left)} = {source}" + self.trailing(cur)]
+                decayed = self.unwrap(right)
+                if op == "=" and decayed.kind == CursorKind.DECL_REF_EXPR and decayed.referenced is not None \
+                        and self.sk.table.record_table(decayed.referenced) and self.unwrap(left).type.get_canonical().kind == TypeKind.POINTER:
+                    # Raven's `cg_freeMarkPolys = cg_markPolys` points at the first record, and C's decay of the table is slot 0.
+                    return [f"{pad}{self.expr(left)} = {swift_name(decayed.spelling)}[0]" + self.trailing(cur)]
                 if op == "=" and self.slots_source(right):
                     raven = self.bytes[cur.extent.start.offset:cur.extent.end.offset].decode("utf-8", "replace")
                     raise Hole(f"Raven stores `{raven}`, and Swift holds the source as a Slots where the target takes one record. A Slots ruling is due.")

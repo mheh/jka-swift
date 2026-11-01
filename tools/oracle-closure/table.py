@@ -1408,33 +1408,51 @@ class Table:
                         self.array_handoffs.add((owner, arg.spelling))
 
     def sweep_file_walks(self) -> None:
-        """Every file-scope pointer a body sets to a file-scope table of records, `pushed_p = pushed`, or a slot past its start.
+        """Every file-scope pointer a body sets to a file-scope table of records, `pushed_p = pushed`, or a slot past its start, and that a body steps.
 
         The pointer has no local to hold its index, so the skeleton gives it a file-scope index, and every body that names the pointer reads that index.
+        Every store into the pointer must point into the table, and some body must step it, the two tests of a walk local.
+        A free list head that a body sets to the table and then to a record, `cg_freeMarkPolys`, moves along its links and stays a pointer.
         The cursor sweep fills the bodies first."""
+        walks: dict[str, tuple[str, str]] = {}
+        stepped: set[str] = set()
+        other_stores: set[str] = set()
         for fn in self.functions.values():
             data = None
             for cur in fn.walk_preorder():
-                if cur.kind != CursorKind.BINARY_OPERATOR or collapsed(cur):
-                    continue
                 kids = list(cur.get_children())
-                if len(kids) != 2:
+                if cur.kind not in (CursorKind.UNARY_OPERATOR, CursorKind.BINARY_OPERATOR, CursorKind.COMPOUND_ASSIGNMENT_OPERATOR) \
+                        or not kids or collapsed(cur):
                     continue
-                left, right = self.unwrapped(kids[0]), self.unwrapped(kids[1])
+                left = self.unwrapped(kids[0])
                 ref = left.referenced if left.kind == CursorKind.DECL_REF_EXPR else None
                 if ref is None or ref.kind != CursorKind.VAR_DECL or ref.semantic_parent is None \
                         or ref.semantic_parent.kind != CursorKind.TRANSLATION_UNIT or ref.type.get_canonical().kind != TypeKind.POINTER:
                     continue
                 if data is None:
                     data = C.parsed_bytes(Path(fn.location.file.name).resolve())
-                if between(data, kids[0], kids[1]) != "=":
+                if cur.kind == CursorKind.UNARY_OPERATOR:
+                    if self.steps_or_addresses(cur, kids[0], data) \
+                            and data[cur.extent.start.offset:kids[0].extent.start.offset].decode("utf-8", "replace").strip() != "&":
+                        stepped.add(left.spelling)
                     continue
+                if len(kids) != 2:
+                    continue
+                operator = between(data, kids[0], kids[1])
+                if operator in ("+=", "-="):
+                    stepped.add(left.spelling)
+                if operator != "=":
+                    continue
+                right = self.unwrapped(kids[1])
                 table = right
                 if right.kind == CursorKind.BINARY_OPERATOR and len(list(right.get_children())) == 2 and not collapsed(right) \
                         and between(data, *list(right.get_children())) == "+":
                     table = self.unwrapped(list(right.get_children())[0])
                 if table.kind == CursorKind.DECL_REF_EXPR and table.referenced is not None and self.record_table(table.referenced):
-                    self.file_walks[left.spelling] = (swift_name(table.spelling), f"{swift_name(left.spelling)}Index")
+                    walks[left.spelling] = (swift_name(table.spelling), f"{swift_name(left.spelling)}Index")
+                if self.table_slot(right, data) is None:
+                    other_stores.add(left.spelling)
+        self.file_walks.update({name: walk for name, walk in walks.items() if name in stepped and name not in other_stores})
 
     def body_walk(self, fn: ci.Cursor, data: bytes) -> tuple[dict[str, tuple[str, str]], set[str], set[str]]:
         """One walk of the body for the three facts each node carries: the table walks, the written names, and the addressed names.
@@ -1497,7 +1515,10 @@ class Table:
             walked = out.get(table.spelling) or self.file_walks.get(table.spelling)
             if ref.kind == CursorKind.VAR_DECL and walked is not None:
                 out[left.spelling] = (walked[0], f"{swift_name(left.spelling)}Index")
-            elif self.record_table(ref):
+            elif self.record_table(ref) and (left.referenced.semantic_parent is None
+                                             or left.referenced.semantic_parent.kind != CursorKind.TRANSLATION_UNIT
+                                             or left.spelling in self.file_walks):
+                # A file-scope pointer walks the table only where the file sweep says so, and a free list head stays a pointer.
                 out[left.spelling] = (swift_name(table.spelling), f"{swift_name(left.spelling)}Index")
             elif ref.kind == CursorKind.PARM_DECL and table.spelling in params and self.slots_parameter(fn, params[table.spelling]):
                 # A table parameter is a Slots, and the walk reads it by index the same way.
