@@ -502,9 +502,7 @@ func CG_Text_Paint(_ x: Float, _ y: Float, _ scale: Float, _ color: JKAShared.ve
         break
     }
 
-    // Port-note: The draft of this statement did not compile, and the compiler wrote "cannot convert value of type 'vec4_t' (aka 'SIMD4<Float>') to expected argument type 'Float'".
-    // Raven wrote: trap_R_Font_DrawString( x, // int ox y, // int oy text, // const char *text color, // paletteRGBA_c c iStyleOR | iFontIndex, // const int iFontHandle !limit?-1:limit, // iCharLimit (-1 = none) scale // const float scale = 1.0f )
-    portMissing("CG_Text_Paint", source: "oracle/codemp/cgame/cg_draw.c:138")
+    trap_R_Font_DrawString(Int32(x), Int32(y), text, color, iStyleOR | iFontIndex, limit == 0 ? -1 : limit, scale)
 }
 
 /**
@@ -517,7 +515,7 @@ CG_DrawZoomMask
 */
 /// Source: oracle/codemp/cgame/cg_draw.c:220
 private func CG_DrawZoomMask() {
-    var color1: [Float] = [Float](repeating: 0, count: 4)
+    var color1 = vec4_t()
     var level: Float
     // Port-note: A static local `flip` a statement reads before it writes, storage that outlives the call.
     // Raven wrote: static qboolean flip = qtrue;
@@ -550,15 +548,11 @@ private func CG_DrawZoomMask() {
         level *= 162.0
 
         // draw blue tinted distortion mask, trying to make it as small as is necessary to fill in the viewable area
-        // Port-note: The draft of this statement did not compile, and the compiler wrote "cannot convert value of type 'vec4_t' (aka 'SIMD4<Float>') to expected argument type 'Float'".
-        // Raven wrote: trap_R_SetColor( colorTable[CT_WHITE] )
-        portMissing("CG_DrawZoomMask", source: "oracle/codemp/cgame/cg_draw.c:220")
+        trap_R_SetColor(colorTable[CT_WHITE])
         CG_DrawPic(34, 48, 570, 362, cgs.media.binocularStatic)
 
         // Black out the area behind the numbers
-        // Port-note: The draft of this statement did not compile, and the compiler wrote "cannot convert value of type 'vec4_t' (aka 'SIMD4<Float>') to expected argument type 'Float'".
-        // Raven wrote: trap_R_SetColor( colorTable[CT_BLACK])
-        portMissing("CG_DrawZoomMask", source: "oracle/codemp/cgame/cg_draw.c:220")
+        trap_R_SetColor(colorTable[CT_BLACK])
         CG_DrawPic(212, 367, 200, 40, cgs.media.whiteShader)
 
         // Numbers should be kind of greenish
@@ -566,9 +560,7 @@ private func CG_DrawZoomMask() {
         color1[1] = 0.4
         color1[2] = 0.2
         color1[3] = 0.3
-        // Port-note: The draft of this statement did not compile, and the compiler wrote "cannot convert value of type '[Float]' to expected argument type 'Float'".
-        // Raven wrote: trap_R_SetColor( color1 )
-        portMissing("CG_DrawZoomMask", source: "oracle/codemp/cgame/cg_draw.c:220")
+        trap_R_SetColor(color1)
 
         // Draw scrolling numbers, use intervals 10 units apart--sorry, this section of code is just kind of hacked
         //	up with a bunch of magic numbers.....
@@ -601,9 +593,7 @@ private func CG_DrawZoomMask() {
         color1[2] = color1[0]
         color1[3] = 1.0
 
-        // Port-note: The draft of this statement did not compile, and the compiler wrote "cannot convert value of type '[Float]' to expected argument type 'Float'".
-        // Raven wrote: trap_R_SetColor( color1 )
-        portMissing("CG_DrawZoomMask", source: "oracle/codemp/cgame/cg_draw.c:220")
+        trap_R_SetColor(color1)
 
         CG_DrawPic(82, 94, 16, 16, cgs.media.binocularCircle)
 
@@ -618,9 +608,7 @@ private func CG_DrawZoomMask() {
         // Raven wrote: color1[2] = 0.7f + crandom() * 0.1f
         portMissing("CG_DrawZoomMask", source: "oracle/codemp/cgame/cg_draw.c:220")
         color1[3] = 1.0
-        // Port-note: The draft of this statement did not compile, and the compiler wrote "cannot convert value of type '[Float]' to expected argument type 'Float'".
-        // Raven wrote: trap_R_SetColor( color1 )
-        portMissing("CG_DrawZoomMask", source: "oracle/codemp/cgame/cg_draw.c:220")
+        trap_R_SetColor(color1)
 
         CG_DrawPic(0, 0, 640, 480, cgs.media.binocularMask)
 
@@ -652,9 +640,7 @@ private func CG_DrawZoomMask() {
         level *= 103.0
 
         // Draw target mask
-        // Port-note: The draft of this statement did not compile, and the compiler wrote "cannot convert value of type 'vec4_t' (aka 'SIMD4<Float>') to expected argument type 'Float'".
-        // Raven wrote: trap_R_SetColor( colorTable[CT_WHITE] )
-        portMissing("CG_DrawZoomMask", source: "oracle/codemp/cgame/cg_draw.c:220")
+        trap_R_SetColor(colorTable[CT_WHITE])
         CG_DrawPic(0, 0, 640, 480, cgs.media.disruptorMask)
 
         // apparently 99.0f is the full zoom level
@@ -665,9 +651,7 @@ private func CG_DrawZoomMask() {
             color1[2] = 1.0
             color1[3] = 0.7 + sin(cg.time * 0.01) * 0.3
 
-            // Port-note: The draft of this statement did not compile, and the compiler wrote "cannot convert value of type '[Float]' to expected argument type 'Float'".
-            // Raven wrote: trap_R_SetColor( color1 )
-            portMissing("CG_DrawZoomMask", source: "oracle/codemp/cgame/cg_draw.c:220")
+            trap_R_SetColor(color1)
         }
 
         // Draw rotating insert
@@ -716,7 +700,7 @@ private func CG_DrawZoomMask() {
 
         // If we are low on health, make us flash
         if max < 0.15 && (cg.time & 512) != 0 {
-            // Port-note: The draft of this statement did not compile, and the compiler wrote "cannot assign value of type 'SIMD3<Float>' to type '[Float]'".
+            // Port-note: The draft of this statement did not compile, and the compiler wrote "cannot assign value of type 'SIMD3<Float>' to type 'vec4_t' (aka 'SIMD4<Float>')".
             // Raven wrote: VectorClear( color1 )
             portMissing("CG_DrawZoomMask", source: "oracle/codemp/cgame/cg_draw.c:220")
         }
@@ -729,9 +713,7 @@ private func CG_DrawZoomMask() {
             color1[1] = 1.0
         }
 
-        // Port-note: The draft of this statement did not compile, and the compiler wrote "cannot convert value of type '[Float]' to expected argument type 'Float'".
-        // Raven wrote: trap_R_SetColor( color1 )
-        portMissing("CG_DrawZoomMask", source: "oracle/codemp/cgame/cg_draw.c:220")
+        trap_R_SetColor(color1)
 
         max *= 58.0
 
@@ -745,9 +727,7 @@ private func CG_DrawZoomMask() {
         }
 
         if cg.predictedPlayerState.weaponstate == WEAPON_CHARGING_ALT {
-            // Port-note: The draft of this statement did not compile, and the compiler wrote "cannot convert value of type 'vec4_t' (aka 'SIMD4<Float>') to expected argument type 'Float'".
-            // Raven wrote: trap_R_SetColor( colorTable[CT_WHITE] )
-            portMissing("CG_DrawZoomMask", source: "oracle/codemp/cgame/cg_draw.c:220")
+            trap_R_SetColor(colorTable[CT_WHITE])
 
             // draw the charge level
             max = (cg.time - cg.predictedPlayerState.weaponChargeTime) / (50.0 * 30.0) // bad hardcodedness 50 is disruptor charge unit and 30 is max charge units allowed.
@@ -948,7 +928,7 @@ CG_DrawHealth
 */
 /// Source: oracle/codemp/cgame/cg_draw.c:614
 func CG_DrawHealth(_ menuHUD: MenuDef) {
-    var calcColor: [Float] = [Float](repeating: 0, count: 4)
+    var calcColor = vec4_t()
     var ps: PlayerState?
     var healthAmt: Int32
     var i: Int32
@@ -994,9 +974,7 @@ func CG_DrawHealth(_ menuHUD: MenuDef) {
             calcColor[3] *= percent // Fade it out
         }
 
-        // Port-note: The draft of this statement did not compile, and the compiler wrote "cannot convert value of type '[Float]' to expected argument type 'Float'".
-        // Raven wrote: trap_R_SetColor( calcColor)
-        portMissing("CG_DrawHealth", source: "oracle/codemp/cgame/cg_draw.c:614")
+        trap_R_SetColor(calcColor)
 
         CG_DrawPic(focusItem!.window.rect.x, focusItem!.window.rect.y, focusItem!.window.rect.w, focusItem!.window.rect.h, focusItem!.window.background)
 
@@ -1010,9 +988,7 @@ func CG_DrawHealth(_ menuHUD: MenuDef) {
     portMissing("CG_DrawHealth", source: "oracle/codemp/cgame/cg_draw.c:614")
     if focusItem != nil {
         // Print health amount
-        // Port-note: The draft of this statement did not compile, and the compiler wrote "cannot convert value of type 'Slots<Float>' to expected argument type 'Float'".
-        // Raven wrote: trap_R_SetColor( focusItem->window.foreColor )
-        portMissing("CG_DrawHealth", source: "oracle/codemp/cgame/cg_draw.c:614")
+        trap_R_SetColor(vec4_t(focusItem!.window.foreColor[0], focusItem!.window.foreColor[1], focusItem!.window.foreColor[2], focusItem!.window.foreColor[3]))
 
         CG_DrawNumField(Int32(focusItem!.window.rect.x), Int32(focusItem!.window.rect.y), 3, ps!.stats[STAT_HEALTH], Int32(focusItem!.window.rect.w), Int32(focusItem!.window.rect.h), NUM_FONT_SMALL, false)
     }
@@ -1027,7 +1003,7 @@ CG_DrawArmor
 */
 /// Source: oracle/codemp/cgame/cg_draw.c:702
 func CG_DrawArmor(_ menuHUD: MenuDef) {
-    var calcColor: [Float] = [Float](repeating: 0, count: 4)
+    var calcColor = vec4_t()
     var ps: PlayerState?
     var armor: Int32
     let maxArmor: Int32
@@ -1078,9 +1054,7 @@ func CG_DrawArmor(_ menuHUD: MenuDef) {
             calcColor[3] *= percent
         }
 
-        // Port-note: The draft of this statement did not compile, and the compiler wrote "cannot convert value of type '[Float]' to expected argument type 'Float'".
-        // Raven wrote: trap_R_SetColor( calcColor)
-        portMissing("CG_DrawArmor", source: "oracle/codemp/cgame/cg_draw.c:702")
+        trap_R_SetColor(calcColor)
 
         if (i == (MAX_HUD_TICS - 1)) && (currValue < inc) {
             if cg.HUDArmorFlag {
@@ -1100,9 +1074,7 @@ func CG_DrawArmor(_ menuHUD: MenuDef) {
 
     if focusItem != nil {
         // Print armor amount
-        // Port-note: The draft of this statement did not compile, and the compiler wrote "cannot convert value of type 'Slots<Float>' to expected argument type 'Float'".
-        // Raven wrote: trap_R_SetColor( focusItem->window.foreColor )
-        portMissing("CG_DrawArmor", source: "oracle/codemp/cgame/cg_draw.c:702")
+        trap_R_SetColor(vec4_t(focusItem!.window.foreColor[0], focusItem!.window.foreColor[1], focusItem!.window.foreColor[2], focusItem!.window.foreColor[3]))
 
         CG_DrawNumField(Int32(focusItem!.window.rect.x), Int32(focusItem!.window.rect.y), 3, armor, Int32(focusItem!.window.rect.w), Int32(focusItem!.window.rect.h), NUM_FONT_SMALL, false)
     }
@@ -1215,7 +1187,7 @@ CG_DrawAmmo
 private func CG_DrawAmmo(_ cent: Centity, _ menuHUD: MenuDef) {
     var ps: PlayerState?
     var i: Int32
-    var calcColor: [Float] = [Float](repeating: 0, count: 4)
+    var calcColor = vec4_t()
     var value: Float
     var inc: Float = 0.0
     var percent: Float
@@ -1253,9 +1225,7 @@ private func CG_DrawAmmo(_ cent: Centity, _ menuHUD: MenuDef) {
         // Raven wrote: trap_R_SetColor( hudTintColor )
         portMissing("CG_DrawAmmo", source: "oracle/codemp/cgame/cg_draw.c:928")
         if focusItem != nil {
-            // Port-note: The draft of this statement did not compile, and the compiler wrote "cannot convert value of type 'Slots<Float>' to expected argument type 'vec4_t' (aka 'SIMD4<Float>')".
-            // Raven wrote: UI_DrawProportionalString(focusItem->window.rect.x, focusItem->window.rect.y, "--", NUM_FONT_SMALL, focusItem->window.foreColor)
-            portMissing("CG_DrawAmmo", source: "oracle/codemp/cgame/cg_draw.c:928")
+            UI_DrawProportionalString(Int32(focusItem!.window.rect.x), Int32(focusItem!.window.rect.y), "--", NUM_FONT_SMALL, vec4_t(focusItem!.window.foreColor[0], focusItem!.window.foreColor[1], focusItem!.window.foreColor[2], focusItem!.window.foreColor[3]))
         }
     } else {
         // Port-note: The draft of this statement did not compile, and the compiler wrote "cannot find 'Menu_FindItemByName' in scope".
@@ -1299,9 +1269,7 @@ private func CG_DrawAmmo(_ cent: Centity, _ menuHUD: MenuDef) {
             calcColor[3] = percent
         }
 
-        // Port-note: The draft of this statement did not compile, and the compiler wrote "cannot convert value of type '[Float]' to expected argument type 'Float'".
-        // Raven wrote: trap_R_SetColor( calcColor)
-        portMissing("CG_DrawAmmo", source: "oracle/codemp/cgame/cg_draw.c:928")
+        trap_R_SetColor(calcColor)
 
         CG_DrawPic(focusItem!.window.rect.x, focusItem!.window.rect.y, focusItem!.window.rect.w, focusItem!.window.rect.h, focusItem!.window.background)
 
@@ -1320,7 +1288,7 @@ CG_DrawForcePower
 /// Source: oracle/codemp/cgame/cg_draw.c:1042
 func CG_DrawForcePower(_ menuHUD: MenuDef) {
     var i: Int32
-    var calcColor: [Float] = [Float](repeating: 0, count: 4)
+    var calcColor = vec4_t()
     var value: Float
     let inc: Float
     var percent: Float
@@ -1399,9 +1367,7 @@ func CG_DrawForcePower(_ menuHUD: MenuDef) {
             }
         }
 
-        // Port-note: The draft of this statement did not compile, and the compiler wrote "cannot convert value of type '[Float]' to expected argument type 'Float'".
-        // Raven wrote: trap_R_SetColor( calcColor)
-        portMissing("CG_DrawForcePower", source: "oracle/codemp/cgame/cg_draw.c:1042")
+        trap_R_SetColor(calcColor)
 
         CG_DrawPic(focusItem!.window.rect.x, focusItem!.window.rect.y, focusItem!.window.rect.w, focusItem!.window.rect.h, focusItem!.window.background)
 
@@ -1415,9 +1381,7 @@ func CG_DrawForcePower(_ menuHUD: MenuDef) {
 
     if focusItem != nil {
         // Print force amount
-        // Port-note: The draft of this statement did not compile, and the compiler wrote "cannot convert value of type 'Slots<Float>' to expected argument type 'Float'".
-        // Raven wrote: trap_R_SetColor( focusItem->window.foreColor )
-        portMissing("CG_DrawForcePower", source: "oracle/codemp/cgame/cg_draw.c:1042")
+        trap_R_SetColor(vec4_t(focusItem!.window.foreColor[0], focusItem!.window.foreColor[1], focusItem!.window.foreColor[2], focusItem!.window.foreColor[3]))
 
         CG_DrawNumField(Int32(focusItem!.window.rect.x), Int32(focusItem!.window.rect.y), 3, cg.snap!.ps.fd.forcePower, Int32(focusItem!.window.rect.w), Int32(focusItem!.window.rect.h), NUM_FONT_SMALL, false)
     }
@@ -1575,9 +1539,7 @@ func CG_DrawHUD(_ cent: Centity) {
             // Raven wrote: focusItem = Menu_FindItemByName(menuHUD, "score_line")
             portMissing("CG_DrawHUD", source: "oracle/codemp/cgame/cg_draw.c:1169")
             if focusItem != nil {
-                // Port-note: The draft of this statement did not compile, and the compiler wrote "cannot convert value of type 'Slots<Float>' to expected argument type 'vec4_t' (aka 'SIMD4<Float>')".
-                // Raven wrote: UI_DrawScaledProportionalString( focusItem->window.rect.x, focusItem->window.rect.y, scoreStr, UI_RIGHT|UI_DROPSHADOW, focusItem->window.foreColor, 0.7)
-                portMissing("CG_DrawHUD", source: "oracle/codemp/cgame/cg_draw.c:1169")
+                UI_DrawScaledProportionalString(Int32(focusItem!.window.rect.x), Int32(focusItem!.window.rect.y), scoreStr!, UI_RIGHT | UI_DROPSHADOW, vec4_t(focusItem!.window.foreColor[0], focusItem!.window.foreColor[1], focusItem!.window.foreColor[2], focusItem!.window.foreColor[3]), 0.7)
             }
         }
 
@@ -1714,9 +1676,7 @@ func CG_DrawForceSelect() {
         i = NUM_FORCE_POWERS
     }
 
-    // Port-note: The draft of this statement did not compile, and the compiler wrote "'nil' is not compatible with expected argument type 'Float'".
-    // Raven wrote: trap_R_SetColor(NULL)
-    portMissing("CG_DrawForceSelect", source: "oracle/codemp/cgame/cg_draw.c:1421")
+    trap_R_SetColor(nil)
     // Work backwards from current icon
     holdX = x - ((bigIconSize / 2) + pad + smallIconSize)
     iconCnt = 1
@@ -1890,14 +1850,10 @@ func CG_DrawInvenSelect() {
         }
 
         if cgs.media.invenIcons[i] != 0 {
-            // Port-note: The draft of this statement did not compile, and the compiler wrote "'nil' is not compatible with expected argument type 'Float'".
-            // Raven wrote: trap_R_SetColor(NULL)
-            portMissing("CG_DrawInvenSelect", source: "oracle/codemp/cgame/cg_draw.c:1585")
+            trap_R_SetColor(nil)
             CG_DrawPic(Float(holdX), Float(y + 10), Float(smallIconSize), Float(smallIconSize), cgs.media.invenIcons[i])
 
-            // Port-note: The draft of this statement did not compile, and the compiler wrote "cannot convert value of type 'vec4_t' (aka 'SIMD4<Float>') to expected argument type 'Float'".
-            // Raven wrote: trap_R_SetColor(colorTable[CT_ICON_BLUE])
-            portMissing("CG_DrawInvenSelect", source: "oracle/codemp/cgame/cg_draw.c:1585")
+            trap_R_SetColor(colorTable[CT_ICON_BLUE])
             /*CG_DrawNumField (holdX + addX, y + smallIconSize, 2, cg.snap->ps.inventory[i], 6, 12,
             NUM_FONT_SMALL,qfalse);
             */
@@ -1911,26 +1867,22 @@ func CG_DrawInvenSelect() {
     height = Int32(bigIconSize * cg.iconHUDPercent)
     if cgs.media.invenIcons[cg.itemSelect] != 0 && BG_IsItemSelectable(cg.predictedPlayerState, cg.itemSelect) {
         let itemNdex: Int32
-        // Port-note: The draft of this statement did not compile, and the compiler wrote "'nil' is not compatible with expected argument type 'Float'".
-        // Raven wrote: trap_R_SetColor(NULL)
-        portMissing("CG_DrawInvenSelect", source: "oracle/codemp/cgame/cg_draw.c:1585")
+        trap_R_SetColor(nil)
         CG_DrawPic(Float(x - (bigIconSize / 2)), Float((y - ((bigIconSize - smallIconSize) / 2)) + 10), Float(bigIconSize), Float(bigIconSize), cgs.media.invenIcons[cg.itemSelect])
         addX = Float(Double(Float(bigIconSize)) * 0.75)
-        // Port-note: The draft of this statement did not compile, and the compiler wrote "cannot convert value of type 'vec4_t' (aka 'SIMD4<Float>') to expected argument type 'Float'".
-        // Raven wrote: trap_R_SetColor(colorTable[CT_ICON_BLUE])
-        portMissing("CG_DrawInvenSelect", source: "oracle/codemp/cgame/cg_draw.c:1585")
+        trap_R_SetColor(colorTable[CT_ICON_BLUE])
         /*CG_DrawNumField ((x-(bigIconSize/2)) + addX, y, 2, cg.snap->ps.inventory[cg.inventorySelect], 6, 12,
         NUM_FONT_SMALL,qfalse);*/
 
         itemNdex = BG_GetItemIndexByTag(cg.itemSelect, IT_HOLDABLE)
         if bg_itemlist[itemNdex].classname != nil {
-            let textColor: [Float] = [0.312, 0.75, 0.621, 1.0]
+            var textColor = vec4_t(0.312, 0.75, 0.621, 1.0)
             var text = CharBuf(1024)
             var upperKey = CharBuf(1024)
 
             strcpy(&upperKey, bg_itemlist[itemNdex].classname!)
 
-            // Port-note: The draft of this statement did not compile, and the compiler wrote "binary operator '!=' cannot be applied to operands of type '(Int32, String)' and 'Int'".
+            // Port-note: The draft of this statement did not compile, and the compiler wrote "cannot convert value of type 'CharBuf' to expected argument type 'String'".
             // Raven wrote: if ( trap_SP_GetStringTextString( va("SP_INGAME_%s",Q_strupr(upperKey)), text, sizeof( text ))) { UI_DrawProportionalString(320, y+45, text, UI_CENTER | UI_SMALLFONT, textColor); } else { UI_DrawProportionalString(320, y+45, bg_itemlist[itemNdex].classname, UI_CENTER | UI_SMALLFONT, textColor); }
             portMissing("CG_DrawInvenSelect", source: "oracle/codemp/cgame/cg_draw.c:1585")
         }
@@ -1965,14 +1917,10 @@ func CG_DrawInvenSelect() {
         }
 
         if cgs.media.invenIcons[i] != 0 {
-            // Port-note: The draft of this statement did not compile, and the compiler wrote "'nil' is not compatible with expected argument type 'Float'".
-            // Raven wrote: trap_R_SetColor(NULL)
-            portMissing("CG_DrawInvenSelect", source: "oracle/codemp/cgame/cg_draw.c:1585")
+            trap_R_SetColor(nil)
             CG_DrawPic(Float(holdX), Float(y + 10), Float(smallIconSize), Float(smallIconSize), cgs.media.invenIcons[i])
 
-            // Port-note: The draft of this statement did not compile, and the compiler wrote "cannot convert value of type 'vec4_t' (aka 'SIMD4<Float>') to expected argument type 'Float'".
-            // Raven wrote: trap_R_SetColor(colorTable[CT_ICON_BLUE])
-            portMissing("CG_DrawInvenSelect", source: "oracle/codemp/cgame/cg_draw.c:1585")
+            trap_R_SetColor(colorTable[CT_ICON_BLUE])
             /*CG_DrawNumField (holdX + addX, y + smallIconSize, 2, cg.snap->ps.inventory[i], 6, 12,
             NUM_FONT_SMALL,qfalse);*/
 
@@ -2044,7 +1992,7 @@ func CG_DrawVehicleShields(_ menuHUD: MenuDef, _ veh: Centity) -> Float {
     let inc: Float
     var currValue: Float
     let maxShields: Float
-    var calcColor: [Float] = [Float](repeating: 0, count: 4)
+    var calcColor = vec4_t()
     var item: ItemDef?
     let percShields: Float
 
@@ -2053,9 +2001,7 @@ func CG_DrawVehicleShields(_ menuHUD: MenuDef, _ veh: Centity) -> Float {
     portMissing("CG_DrawVehicleShields", source: "oracle/codemp/cgame/cg_draw.c:1873")
 
     if item != nil {
-        // Port-note: The draft of this statement did not compile, and the compiler wrote "cannot convert value of type 'Slots<Float>' to expected argument type 'Float'".
-        // Raven wrote: trap_R_SetColor( item->window.foreColor )
-        portMissing("CG_DrawVehicleShields", source: "oracle/codemp/cgame/cg_draw.c:1873")
+        trap_R_SetColor(vec4_t(item!.window.foreColor[0], item!.window.foreColor[1], item!.window.foreColor[2], item!.window.foreColor[3]))
         CG_DrawPic(item!.window.rect.x, item!.window.rect.y, item!.window.rect.w, item!.window.rect.h, item!.window.background)
     }
 
@@ -2092,9 +2038,7 @@ func CG_DrawVehicleShields(_ menuHUD: MenuDef, _ veh: Centity) -> Float {
             calcColor[3] *= percent // Fade it out
         }
 
-        // Port-note: The draft of this statement did not compile, and the compiler wrote "cannot convert value of type '[Float]' to expected argument type 'Float'".
-        // Raven wrote: trap_R_SetColor( calcColor)
-        portMissing("CG_DrawVehicleShields", source: "oracle/codemp/cgame/cg_draw.c:1873")
+        trap_R_SetColor(calcColor)
 
         CG_DrawPic(item!.window.rect.x, item!.window.rect.y, item!.window.rect.w, item!.window.rect.h, item!.window.background)
 
@@ -2112,7 +2056,7 @@ func CG_DrawVehicleAmmo(_ menuHUD: MenuDef, _ veh: Centity) {
     let inc: Float
     var currValue: Float
     let maxAmmo: Float
-    var calcColor: [Float] = [Float](repeating: 0, count: 4)
+    var calcColor = vec4_t()
     var item: ItemDef?
 
     // Port-note: The draft of this statement did not compile, and the compiler wrote "cannot find 'Menu_FindItemByName' in scope".
@@ -2120,9 +2064,7 @@ func CG_DrawVehicleAmmo(_ menuHUD: MenuDef, _ veh: Centity) {
     portMissing("CG_DrawVehicleAmmo", source: "oracle/codemp/cgame/cg_draw.c:1942")
 
     if item != nil {
-        // Port-note: The draft of this statement did not compile, and the compiler wrote "cannot convert value of type 'Slots<Float>' to expected argument type 'Float'".
-        // Raven wrote: trap_R_SetColor( item->window.foreColor )
-        portMissing("CG_DrawVehicleAmmo", source: "oracle/codemp/cgame/cg_draw.c:1942")
+        trap_R_SetColor(vec4_t(item!.window.foreColor[0], item!.window.foreColor[1], item!.window.foreColor[2], item!.window.foreColor[3]))
         CG_DrawPic(item!.window.rect.x, item!.window.rect.y, item!.window.rect.w, item!.window.rect.h, item!.window.background)
     }
 
@@ -2163,9 +2105,7 @@ func CG_DrawVehicleAmmo(_ menuHUD: MenuDef, _ veh: Centity) {
             }
         }
 
-        // Port-note: The draft of this statement did not compile, and the compiler wrote "cannot convert value of type '[Float]' to expected argument type 'Float'".
-        // Raven wrote: trap_R_SetColor( calcColor)
-        portMissing("CG_DrawVehicleAmmo", source: "oracle/codemp/cgame/cg_draw.c:1942")
+        trap_R_SetColor(calcColor)
 
         CG_DrawPic(item!.window.rect.x, item!.window.rect.y, item!.window.rect.w, item!.window.rect.h, item!.window.background)
 
@@ -2181,7 +2121,7 @@ func CG_DrawVehicleAmmoUpper(_ menuHUD: MenuDef, _ veh: Centity) {
     let inc: Float
     var currValue: Float
     let maxAmmo: Float
-    var calcColor: [Float] = [Float](repeating: 0, count: 4)
+    var calcColor = vec4_t()
     var item: ItemDef?
 
     // Port-note: The draft of this statement did not compile, and the compiler wrote "cannot find 'Menu_FindItemByName' in scope".
@@ -2189,9 +2129,7 @@ func CG_DrawVehicleAmmoUpper(_ menuHUD: MenuDef, _ veh: Centity) {
     portMissing("CG_DrawVehicleAmmoUpper", source: "oracle/codemp/cgame/cg_draw.c:2013")
 
     if item != nil {
-        // Port-note: The draft of this statement did not compile, and the compiler wrote "cannot convert value of type 'Slots<Float>' to expected argument type 'Float'".
-        // Raven wrote: trap_R_SetColor( item->window.foreColor )
-        portMissing("CG_DrawVehicleAmmoUpper", source: "oracle/codemp/cgame/cg_draw.c:2013")
+        trap_R_SetColor(vec4_t(item!.window.foreColor[0], item!.window.foreColor[1], item!.window.foreColor[2], item!.window.foreColor[3]))
         CG_DrawPic(item!.window.rect.x, item!.window.rect.y, item!.window.rect.w, item!.window.rect.h, item!.window.background)
     }
 
@@ -2232,9 +2170,7 @@ func CG_DrawVehicleAmmoUpper(_ menuHUD: MenuDef, _ veh: Centity) {
             }
         }
 
-        // Port-note: The draft of this statement did not compile, and the compiler wrote "cannot convert value of type '[Float]' to expected argument type 'Float'".
-        // Raven wrote: trap_R_SetColor( calcColor)
-        portMissing("CG_DrawVehicleAmmoUpper", source: "oracle/codemp/cgame/cg_draw.c:2013")
+        trap_R_SetColor(calcColor)
 
         CG_DrawPic(item!.window.rect.x, item!.window.rect.y, item!.window.rect.w, item!.window.rect.h, item!.window.background)
 
@@ -2250,7 +2186,7 @@ func CG_DrawVehicleAmmoLower(_ menuHUD: MenuDef, _ veh: Centity) {
     let inc: Float
     var currValue: Float
     let maxAmmo: Float
-    var calcColor: [Float] = [Float](repeating: 0, count: 4)
+    var calcColor = vec4_t()
     var item: ItemDef?
 
 
@@ -2259,9 +2195,7 @@ func CG_DrawVehicleAmmoLower(_ menuHUD: MenuDef, _ veh: Centity) {
     portMissing("CG_DrawVehicleAmmoLower", source: "oracle/codemp/cgame/cg_draw.c:2084")
 
     if item != nil {
-        // Port-note: The draft of this statement did not compile, and the compiler wrote "cannot convert value of type 'Slots<Float>' to expected argument type 'Float'".
-        // Raven wrote: trap_R_SetColor( item->window.foreColor )
-        portMissing("CG_DrawVehicleAmmoLower", source: "oracle/codemp/cgame/cg_draw.c:2084")
+        trap_R_SetColor(vec4_t(item!.window.foreColor[0], item!.window.foreColor[1], item!.window.foreColor[2], item!.window.foreColor[3]))
         CG_DrawPic(item!.window.rect.x, item!.window.rect.y, item!.window.rect.w, item!.window.rect.h, item!.window.background)
     }
 
@@ -2302,9 +2236,7 @@ func CG_DrawVehicleAmmoLower(_ menuHUD: MenuDef, _ veh: Centity) {
             }
         }
 
-        // Port-note: The draft of this statement did not compile, and the compiler wrote "cannot convert value of type '[Float]' to expected argument type 'Float'".
-        // Raven wrote: trap_R_SetColor( calcColor)
-        portMissing("CG_DrawVehicleAmmoLower", source: "oracle/codemp/cgame/cg_draw.c:2084")
+        trap_R_SetColor(calcColor)
 
         CG_DrawPic(item!.window.rect.x, item!.window.rect.y, item!.window.rect.w, item!.window.rect.h, item!.window.background)
 
@@ -2331,17 +2263,13 @@ func CG_DrawVehicleTurboRecharge(_ menuHUD: MenuDef, _ veh: Centity) {
 
         if diff > veh.m_pVehicle!.m_pVehicleInfo!.turboRecharge {
             percent = 1.0
-            // Port-note: The draft of this statement did not compile, and the compiler wrote "cannot convert value of type 'vec4_t' (aka 'SIMD4<Float>') to expected argument type 'Float'".
-            // Raven wrote: trap_R_SetColor( colorTable[CT_GREEN] )
-            portMissing("CG_DrawVehicleTurboRecharge", source: "oracle/codemp/cgame/cg_draw.c:2156")
+            trap_R_SetColor(colorTable[CT_GREEN])
         } else {
             percent = Float(diff) / veh.m_pVehicle!.m_pVehicleInfo!.turboRecharge
             if percent < 0.0 {
                 percent = 0.0
             }
-            // Port-note: The draft of this statement did not compile, and the compiler wrote "cannot convert value of type 'vec4_t' (aka 'SIMD4<Float>') to expected argument type 'Float'".
-            // Raven wrote: trap_R_SetColor( colorTable[CT_RED] )
-            portMissing("CG_DrawVehicleTurboRecharge", source: "oracle/codemp/cgame/cg_draw.c:2156")
+            trap_R_SetColor(colorTable[CT_RED])
         }
 
         height = Int32(Float(height) * percent)
@@ -2390,9 +2318,7 @@ func CG_DrawVehicleWeaponsLinked(_ menuHUD: MenuDef, _ veh: Centity) {
         portMissing("CG_DrawVehicleWeaponsLinked", source: "oracle/codemp/cgame/cg_draw.c:2197")
 
         if item != nil {
-            // Port-note: The draft of this statement did not compile, and the compiler wrote "cannot convert value of type 'vec4_t' (aka 'SIMD4<Float>') to expected argument type 'Float'".
-            // Raven wrote: trap_R_SetColor( colorTable[CT_CYAN] )
-            portMissing("CG_DrawVehicleWeaponsLinked", source: "oracle/codemp/cgame/cg_draw.c:2197")
+            trap_R_SetColor(colorTable[CT_CYAN])
 
             CG_DrawPic(item!.window.rect.x, item!.window.rect.y, item!.window.rect.w, item!.window.rect.h, cgs.media.whiteShader)
         }
@@ -2406,7 +2332,7 @@ func CG_DrawVehicleSpeed(_ menuHUD: MenuDef, _ veh: Centity) {
     let inc: Float
     var currValue: Float
     let maxSpeed: Float
-    var calcColor: [Float] = [Float](repeating: 0, count: 4)
+    var calcColor = vec4_t()
     var item: ItemDef?
 
     // Port-note: The draft of this statement did not compile, and the compiler wrote "cannot find 'Menu_FindItemByName' in scope".
@@ -2414,9 +2340,7 @@ func CG_DrawVehicleSpeed(_ menuHUD: MenuDef, _ veh: Centity) {
     portMissing("CG_DrawVehicleSpeed", source: "oracle/codemp/cgame/cg_draw.c:2251")
 
     if item != nil {
-        // Port-note: The draft of this statement did not compile, and the compiler wrote "cannot convert value of type 'Slots<Float>' to expected argument type 'Float'".
-        // Raven wrote: trap_R_SetColor( item->window.foreColor )
-        portMissing("CG_DrawVehicleSpeed", source: "oracle/codemp/cgame/cg_draw.c:2251")
+        trap_R_SetColor(vec4_t(item!.window.foreColor[0], item!.window.foreColor[1], item!.window.foreColor[2], item!.window.foreColor[3]))
         CG_DrawPic(item!.window.rect.x, item!.window.rect.y, item!.window.rect.w, item!.window.rect.h, item!.window.background)
     }
 
@@ -2476,9 +2400,7 @@ func CG_DrawVehicleSpeed(_ menuHUD: MenuDef, _ veh: Centity) {
             calcColor[3] *= percent // Fade it out
         }
 
-        // Port-note: The draft of this statement did not compile, and the compiler wrote "cannot convert value of type '[Float]' to expected argument type 'Float'".
-        // Raven wrote: trap_R_SetColor( calcColor)
-        portMissing("CG_DrawVehicleSpeed", source: "oracle/codemp/cgame/cg_draw.c:2251")
+        trap_R_SetColor(calcColor)
 
         CG_DrawPic(item!.window.rect.x, item!.window.rect.y, item!.window.rect.w, item!.window.rect.h, item!.window.background)
 
@@ -2490,7 +2412,7 @@ func CG_DrawVehicleSpeed(_ menuHUD: MenuDef, _ veh: Centity) {
 /// Source: oracle/codemp/cgame/cg_draw.c:2344
 func CG_DrawVehicleArmor(_ menuHUD: MenuDef, _ veh: Centity) {
     var i: Int32
-    var calcColor: [Float] = [Float](repeating: 0, count: 4)
+    var calcColor = vec4_t()
     var itemName = CharBuf(64)
     let inc: Float
     var currValue: Float
@@ -2505,9 +2427,7 @@ func CG_DrawVehicleArmor(_ menuHUD: MenuDef, _ veh: Centity) {
     portMissing("CG_DrawVehicleArmor", source: "oracle/codemp/cgame/cg_draw.c:2344")
 
     if item != nil {
-        // Port-note: The draft of this statement did not compile, and the compiler wrote "cannot convert value of type 'Slots<Float>' to expected argument type 'Float'".
-        // Raven wrote: trap_R_SetColor( item->window.foreColor )
-        portMissing("CG_DrawVehicleArmor", source: "oracle/codemp/cgame/cg_draw.c:2344")
+        trap_R_SetColor(vec4_t(item!.window.foreColor[0], item!.window.foreColor[1], item!.window.foreColor[2], item!.window.foreColor[3]))
         CG_DrawPic(item!.window.rect.x, item!.window.rect.y, item!.window.rect.w, item!.window.rect.h, item!.window.background)
     }
 
@@ -2543,9 +2463,7 @@ func CG_DrawVehicleArmor(_ menuHUD: MenuDef, _ veh: Centity) {
             calcColor[3] *= percent // Fade it out
         }
 
-        // Port-note: The draft of this statement did not compile, and the compiler wrote "cannot convert value of type '[Float]' to expected argument type 'Float'".
-        // Raven wrote: trap_R_SetColor( calcColor)
-        portMissing("CG_DrawVehicleArmor", source: "oracle/codemp/cgame/cg_draw.c:2344")
+        trap_R_SetColor(calcColor)
 
         CG_DrawPic(item!.window.rect.x, item!.window.rect.y, item!.window.rect.w, item!.window.rect.h, item!.window.background)
 
@@ -2559,7 +2477,7 @@ func CG_DrawVehicleArmor(_ menuHUD: MenuDef, _ veh: Centity) {
 func CG_DrawVehicleDamage(_ veh: Centity, _ brokenLimbs: Int32, _ menuHUD: MenuDef, _ alpha: Float, _ index: Int32) {
     var item: ItemDef?
     var colorI: Int32
-    var color: [Float] = [Float](repeating: 0, count: 4)
+    var color = vec4_t()
     var graphicHandle: Int32 = 0
 
     // Port-note: The draft of this statement did not compile, and the compiler wrote "cannot find 'Menu_FindItemByName' in scope".
@@ -2574,9 +2492,7 @@ func CG_DrawVehicleDamage(_ veh: Centity, _ brokenLimbs: Int32, _ menuHUD: MenuD
         // Raven wrote: VectorCopy4 ( colorTable[colorI], color )
         portMissing("CG_DrawVehicleDamage", source: "oracle/codemp/cgame/cg_draw.c:2434")
         color[3] = alpha
-        // Port-note: The draft of this statement did not compile, and the compiler wrote "cannot convert value of type '[Float]' to expected argument type 'Float'".
-        // Raven wrote: trap_R_SetColor( color )
-        portMissing("CG_DrawVehicleDamage", source: "oracle/codemp/cgame/cg_draw.c:2434")
+        trap_R_SetColor(color)
 
         switch index {
         case VEH_DAMAGE_FRONT:
@@ -2606,7 +2522,7 @@ func CG_DrawVehicleDamage(_ veh: Centity, _ brokenLimbs: Int32, _ menuHUD: MenuD
 func CG_DrawVehicleDamageHUD(_ veh: Centity, _ brokenLimbs: Int32, _ percShields: Float, _ menuName: String, _ alpha: Float) {
     var menuHUD: MenuDef?
     var item: ItemDef?
-    var color: [Float] = [Float](repeating: 0, count: 4)
+    var color = vec4_t()
 
     // Port-note: The draft of this statement did not compile, and the compiler wrote "cannot find 'Menus_FindByName' in scope".
     // Raven wrote: menuHUD = Menus_FindByName(menuName)
@@ -2634,13 +2550,9 @@ func CG_DrawVehicleDamageHUD(_ veh: Centity, _ brokenLimbs: Int32, _ percShields
                 color[1] = item!.window.foreColor[1] * perc //fade other colors back in over time
                 color[2] = item!.window.foreColor[2] * perc //fade other colors back in over time
                 color[3] = item!.window.foreColor[3] //always normal alpha
-                // Port-note: The draft of this statement did not compile, and the compiler wrote "cannot convert value of type '[Float]' to expected argument type 'Float'".
-                // Raven wrote: trap_R_SetColor( color )
-                portMissing("CG_DrawVehicleDamageHUD", source: "oracle/codemp/cgame/cg_draw.c:2495")
+                trap_R_SetColor(color)
             } else {
-                // Port-note: The draft of this statement did not compile, and the compiler wrote "cannot convert value of type 'Slots<Float>' to expected argument type 'Float'".
-                // Raven wrote: trap_R_SetColor( item->window.foreColor )
-                portMissing("CG_DrawVehicleDamageHUD", source: "oracle/codemp/cgame/cg_draw.c:2495")
+                trap_R_SetColor(vec4_t(item!.window.foreColor[0], item!.window.foreColor[1], item!.window.foreColor[2], item!.window.foreColor[3]))
             }
 
             CG_DrawPic(item!.window.rect.x, item!.window.rect.y, item!.window.rect.w, item!.window.rect.h, veh.m_pVehicle!.m_pVehicleInfo!.dmgIndicBackgroundHandle)
@@ -2652,9 +2564,7 @@ func CG_DrawVehicleDamageHUD(_ veh: Centity, _ brokenLimbs: Int32, _ percShields
     portMissing("CG_DrawVehicleDamageHUD", source: "oracle/codemp/cgame/cg_draw.c:2495")
     if item != nil {
         if veh.m_pVehicle!.m_pVehicleInfo!.dmgIndicFrameHandle != 0 {
-            // Port-note: The draft of this statement did not compile, and the compiler wrote "cannot convert value of type 'Slots<Float>' to expected argument type 'Float'".
-            // Raven wrote: trap_R_SetColor( item->window.foreColor )
-            portMissing("CG_DrawVehicleDamageHUD", source: "oracle/codemp/cgame/cg_draw.c:2495")
+            trap_R_SetColor(vec4_t(item!.window.foreColor[0], item!.window.foreColor[1], item!.window.foreColor[2], item!.window.foreColor[3]))
             CG_DrawPic(item!.window.rect.x, item!.window.rect.y, item!.window.rect.w, item!.window.rect.h, veh.m_pVehicle!.m_pVehicleInfo!.dmgIndicFrameHandle)
         }
     }
@@ -2668,9 +2578,7 @@ func CG_DrawVehicleDamageHUD(_ veh: Centity, _ brokenLimbs: Int32, _ percShields
             // Raven wrote: VectorCopy4 ( colorTable[CT_HUD_GREEN], color )
             portMissing("CG_DrawVehicleDamageHUD", source: "oracle/codemp/cgame/cg_draw.c:2495")
             color[3] = percShields
-            // Port-note: The draft of this statement did not compile, and the compiler wrote "cannot convert value of type '[Float]' to expected argument type 'Float'".
-            // Raven wrote: trap_R_SetColor( color )
-            portMissing("CG_DrawVehicleDamageHUD", source: "oracle/codemp/cgame/cg_draw.c:2495")
+            trap_R_SetColor(color)
             CG_DrawPic(item!.window.rect.x, item!.window.rect.y, item!.window.rect.w, item!.window.rect.h, veh.m_pVehicle!.m_pVehicleInfo!.dmgIndicShieldHandle)
         }
     }
@@ -2719,9 +2627,7 @@ func CG_DrawVehicleHud(_ cent: Centity) -> Bool {
 
     // Draw frame
     if item != nil {
-        // Port-note: The draft of this statement did not compile, and the compiler wrote "cannot convert value of type 'Slots<Float>' to expected argument type 'Float'".
-        // Raven wrote: trap_R_SetColor( item->window.foreColor )
-        portMissing("CG_DrawVehicleHud", source: "oracle/codemp/cgame/cg_draw.c:2585")
+        trap_R_SetColor(vec4_t(item!.window.foreColor[0], item!.window.foreColor[1], item!.window.foreColor[2], item!.window.foreColor[3]))
         CG_DrawPic(item!.window.rect.x, item!.window.rect.y, item!.window.rect.w, item!.window.rect.h, item!.window.background)
     }
 
@@ -2730,9 +2636,7 @@ func CG_DrawVehicleHud(_ cent: Centity) -> Bool {
     portMissing("CG_DrawVehicleHud", source: "oracle/codemp/cgame/cg_draw.c:2585")
 
     if item != nil {
-        // Port-note: The draft of this statement did not compile, and the compiler wrote "cannot convert value of type 'Slots<Float>' to expected argument type 'Float'".
-        // Raven wrote: trap_R_SetColor( item->window.foreColor )
-        portMissing("CG_DrawVehicleHud", source: "oracle/codemp/cgame/cg_draw.c:2585")
+        trap_R_SetColor(vec4_t(item!.window.foreColor[0], item!.window.foreColor[1], item!.window.foreColor[2], item!.window.foreColor[3]))
         CG_DrawPic(item!.window.rect.x, item!.window.rect.y, item!.window.rect.w, item!.window.rect.h, item!.window.background)
     }
 
@@ -2869,7 +2773,7 @@ CG_DrawTeamBackground
 */
 /// Source: oracle/codemp/cgame/cg_draw.c:2776
 func CG_DrawTeamBackground(_ x: Int32, _ y: Int32, _ w: Int32, _ h: Int32, _ alpha: Float, _ team: Int32) {
-    var hcolor: [Float] = [Float](repeating: 0, count: 4)
+    var hcolor = vec4_t()
 
     hcolor[3] = alpha
     if team == TEAM_RED {
@@ -2885,13 +2789,11 @@ func CG_DrawTeamBackground(_ x: Int32, _ y: Int32, _ w: Int32, _ h: Int32, _ alp
     }
     //	trap_R_SetColor( hcolor );
 
-    // Port-note: The draft of this statement did not compile, and the compiler wrote "cannot convert value of type '[Float]' to expected argument type 'Float'".
+    // Port-note: The draft of this statement did not compile, and the compiler wrote "cannot convert value of type 'vec4_t' (aka 'SIMD4<Float>') to expected argument type 'Float'".
     // Raven wrote: CG_FillRect ( x, y, w, h, hcolor )
     portMissing("CG_DrawTeamBackground", source: "oracle/codemp/cgame/cg_draw.c:2776")
     //	CG_DrawPic( x, y, w, h, cgs.media.teamStatusBar );
-    // Port-note: The draft of this statement did not compile, and the compiler wrote "'nil' is not compatible with expected argument type 'Float'".
-    // Raven wrote: trap_R_SetColor( NULL )
-    portMissing("CG_DrawTeamBackground", source: "oracle/codemp/cgame/cg_draw.c:2776")
+    trap_R_SetColor(nil)
 }
 
 /**
@@ -3229,8 +3131,8 @@ func CG_DrawDuelistHealth(_ x: Float, _ y: Float, _ w: Float, _ h: Float, _ duel
 
 /// Source: oracle/codemp/cgame/cg_draw.c:3179
 func CG_DrawRadar(_ y: Float) -> Float {
-    var color: [Float] = [Float](repeating: 0, count: 4)
-    var teamColor: [Float] = [Float](repeating: 0, count: 4)
+    var color = vec4_t()
+    var teamColor = vec4_t()
     var arrow_w: Float
     var arrow_h: Float
     var cl: ClientInfo?
@@ -3264,9 +3166,7 @@ func CG_DrawRadar(_ y: Float) -> Float {
     color[1] = color[2]
     color[0] = color[1]
     color[3] = 0.6
-    // Port-note: The draft of this statement did not compile, and the compiler wrote "cannot convert value of type '[Float]' to expected argument type 'Float'".
-    // Raven wrote: trap_R_SetColor ( color )
-    portMissing("CG_DrawRadar", source: "oracle/codemp/cgame/cg_draw.c:3179")
+    trap_R_SetColor(color)
     CG_DrawPic(Float(RADAR_X + xOffset), y, Float(RADAR_RADIUS * 2), Float(RADAR_RADIUS * 2), cgs.media.radarShader)
 
     //Always green for your own team.
@@ -3361,18 +3261,14 @@ func CG_DrawRadar(_ y: Float) -> Float {
 
                     if cent!.currentState.m_iVehicleNum != 0 && cgs.clientinfo[cent!.currentState.m_iVehicleNum - 1].infoValid {
                         if cgs.clientinfo[cent!.currentState.m_iVehicleNum - 1].team == local!.team {
-                            // Port-note: The draft of this statement did not compile, and the compiler wrote "cannot convert value of type '[Float]' to expected argument type 'Float'".
-                            // Raven wrote: trap_R_SetColor ( teamColor )
-                            portMissing("CG_DrawRadar", source: "oracle/codemp/cgame/cg_draw.c:3179")
+                            trap_R_SetColor(teamColor)
                         } else {
                             // Port-note: No operator between the operands, the text there is ``.
                             // Raven wrote: trap_R_SetColor ( g_color_table[ColorIndex(COLOR_RED)] )
                             portMissing("CG_DrawRadar", source: "oracle/codemp/cgame/cg_draw.c:3179")
                         }
                     } else {
-                        // Port-note: The draft of this statement did not compile, and the compiler wrote "'nil' is not compatible with expected argument type 'Float'".
-                        // Raven wrote: trap_R_SetColor ( NULL )
-                        portMissing("CG_DrawRadar", source: "oracle/codemp/cgame/cg_draw.c:3179")
+                        trap_R_SetColor(nil)
                     }
                     CG_DrawPic(x - 4 + xOffset, ly - 4, arrowBaseScale, arrowBaseScale, cent!.m_pVehicle!.m_pVehicleInfo!.radarIconHandle)
                 }
@@ -3421,7 +3317,7 @@ func CG_DrawRadar(_ y: Float) -> Float {
                 }
                 if mayImpact {
                     //possible collision
-                    var asteroidColor: [Float] = [0.5, 0.5, 0.5, 1.0]
+                    var asteroidColor = vec4_t(0.5, 0.5, 0.5, 1.0)
                     var x: Float
                     var ly: Float
                     var asteroidScale: Float = (cent!.currentState.speed / 2000.0)
@@ -3470,9 +3366,7 @@ func CG_DrawRadar(_ y: Float) -> Float {
                         asteroidColor[3] = Float(((cg.time - impactSoundDebounceTime) - 100)) / 900.0
                     }
 
-                    // Port-note: The draft of this statement did not compile, and the compiler wrote "cannot convert value of type '[Float]' to expected argument type 'Float'".
-                    // Raven wrote: trap_R_SetColor ( asteroidColor )
-                    portMissing("CG_DrawRadar", source: "oracle/codemp/cgame/cg_draw.c:3179")
+                    trap_R_SetColor(asteroidColor)
                     CG_DrawPic(x - 4 + xOffset, ly - 4, arrowBaseScale, arrowBaseScale, trap_R_RegisterShaderNoMip("gfx/menus/radar/asteroid"))
                 }
             }
@@ -3545,25 +3439,21 @@ func CG_DrawRadar(_ y: Float) -> Float {
                 if cent!.currentState.owner >= MAX_CLIENTS && cg_entities[cent!.currentState.owner].currentState.NPC_class == CLASS_VEHICLE && cg_entities[cent!.currentState.owner].currentState.m_iVehicleNum <= MAX_CLIENTS && cgs.clientinfo[cg_entities[cent!.currentState.owner].currentState.m_iVehicleNum - 1].infoValid {
                     cl = cgs.clientinfo[cg_entities[cent!.currentState.owner].currentState.m_iVehicleNum - 1]
                     if cl!.team == local!.team {
-                        // Port-note: The draft of this statement did not compile, and the compiler wrote "cannot convert value of type '[Float]' to expected argument type 'Float'".
-                        // Raven wrote: trap_R_SetColor ( teamColor )
-                        portMissing("CG_DrawRadar", source: "oracle/codemp/cgame/cg_draw.c:3179")
+                        trap_R_SetColor(teamColor)
                     } else {
                         // Port-note: No operator between the operands, the text there is ``.
                         // Raven wrote: trap_R_SetColor ( g_color_table[ColorIndex(COLOR_RED)] )
                         portMissing("CG_DrawRadar", source: "oracle/codemp/cgame/cg_draw.c:3179")
                     }
                 } else {
-                    // Port-note: The draft of this statement did not compile, and the compiler wrote "'nil' is not compatible with expected argument type 'Float'".
-                    // Raven wrote: trap_R_SetColor ( NULL )
-                    portMissing("CG_DrawRadar", source: "oracle/codemp/cgame/cg_draw.c:3179")
+                    trap_R_SetColor(nil)
                 }
                 CG_DrawPic(x - 4 + xOffset, ly - 4, arrowBaseScale, arrowBaseScale, cgs.media.mAutomapRocketIcon)
             }
 
         case ET_PLAYER:
             do {
-                var color: [Float] = [Float](repeating: 0, count: 4)
+                var color = vec4_t()
 
                 cl = cgs.clientinfo[cent!.currentState.number]
 
@@ -3589,9 +3479,7 @@ func CG_DrawRadar(_ y: Float) -> Float {
                     color[2] = teamColor[2] + (1.0 - teamColor[2]) * f
                 }
 
-                // Port-note: The draft of this statement did not compile, and the compiler wrote "cannot convert value of type '[Float]' to expected argument type 'Float'".
-                // Raven wrote: trap_R_SetColor ( color )
-                portMissing("CG_DrawRadar", source: "oracle/codemp/cgame/cg_draw.c:3179")
+                trap_R_SetColor(color)
 
                 //we want to scale the thing up/down based on the relative Z (up/down) positioning
                 if cent!.lerpOrigin[2] > cg.predictedPlayerState.origin[2] {
@@ -3630,7 +3518,7 @@ func CG_DrawRadar(_ y: Float) -> Float {
                 var x: Float
                 var ly: Float
                 var shader: qhandle_t
-                var color: [Float] = [Float](repeating: 0, count: 4)
+                var color = vec4_t()
 
                 x = Float(RADAR_X) + Float(RADAR_RADIUS) + Float(sin(angle)) * distance
                 ly = y + Float(RADAR_RADIUS) + Float(cos(angle)) * distance
@@ -3719,9 +3607,7 @@ func CG_DrawRadar(_ y: Float) -> Float {
                     // Raven wrote: if ( (cent->currentState.time2 && cg.time - cent->currentState.time2 < 5000) || (cent->currentState.time2 == 0xFFFFFFFF) ) { if ( (cg.time / 200) & 1 ) { color[3] = 0.1f + 0.9f * (float) (cg.time % 200) / 200.0f; } else { color[3] = 1.0f - 0.9f * (float) (cg.time % 200) / 200.0f; } }
                     portMissing("CG_DrawRadar", source: "oracle/codemp/cgame/cg_draw.c:3179")
 
-                    // Port-note: The draft of this statement did not compile, and the compiler wrote "cannot convert value of type '[Float]' to expected argument type 'Float'".
-                    // Raven wrote: trap_R_SetColor ( color )
-                    portMissing("CG_DrawRadar", source: "oracle/codemp/cgame/cg_draw.c:3179")
+                    trap_R_SetColor(color)
                     CG_DrawPic(x - 4 + xOffset, ly - 4, arrowBaseScale, arrowBaseScale, shader)
                 }
             }
@@ -3734,9 +3620,7 @@ func CG_DrawRadar(_ y: Float) -> Float {
     arrow_w = arrowBaseScale * RADAR_RADIUS / 128
     arrow_h = arrowBaseScale * RADAR_RADIUS / 128
 
-    // Port-note: The draft of this statement did not compile, and the compiler wrote "cannot convert value of type 'vec4_t' (aka 'SIMD4<Float>') to expected argument type 'Float'".
-    // Raven wrote: trap_R_SetColor ( colorWhite )
-    portMissing("CG_DrawRadar", source: "oracle/codemp/cgame/cg_draw.c:3179")
+    trap_R_SetColor(colorWhite)
     CG_DrawRotatePic2(Float(RADAR_X + RADAR_RADIUS + xOffset), y + RADAR_RADIUS, arrow_w, arrow_h, 0, cgs.media.mAutomapPlayerIcon)
 
     return y + (RADAR_RADIUS * 2)
@@ -3786,7 +3670,7 @@ private func CG_DrawTeamOverlay(_ y: Float, _ right: Bool, _ upper: Bool) -> Flo
     var j: Int32
     var len: Int32
     var p: String
-    var hcolor: [Float] = [Float](repeating: 0, count: 4)
+    var hcolor = vec4_t()
     var pwidth: Int32
     var lwidth: Int32
     var plyrs: Int32
@@ -3880,13 +3764,9 @@ private func CG_DrawTeamOverlay(_ y: Float, _ right: Bool, _ upper: Bool) -> Flo
         hcolor[2] = 1.0
         hcolor[3] = 0.33
     }
-    // Port-note: The draft of this statement did not compile, and the compiler wrote "cannot convert value of type '[Float]' to expected argument type 'Float'".
-    // Raven wrote: trap_R_SetColor( hcolor )
-    portMissing("CG_DrawTeamOverlay", source: "oracle/codemp/cgame/cg_draw.c:3779")
+    trap_R_SetColor(hcolor)
     CG_DrawPic(Float(x + xOffset), y, Float(w), Float(h), cgs.media.teamStatusBar)
-    // Port-note: The draft of this statement did not compile, and the compiler wrote "'nil' is not compatible with expected argument type 'Float'".
-    // Raven wrote: trap_R_SetColor( NULL )
-    portMissing("CG_DrawTeamOverlay", source: "oracle/codemp/cgame/cg_draw.c:3779")
+    trap_R_SetColor(nil)
 
     i = 0
     while i < count {
@@ -3901,7 +3781,7 @@ private func CG_DrawTeamOverlay(_ y: Float, _ right: Bool, _ upper: Bool) -> Flo
 
             xx = x + TINYCHAR_WIDTH
 
-            // Port-note: The draft of this statement did not compile, and the compiler wrote "cannot convert value of type '[Float]' to expected argument type 'Float'".
+            // Port-note: The draft of this statement did not compile, and the compiler wrote "cannot convert value of type 'vec4_t' (aka 'SIMD4<Float>') to expected argument type 'Float'".
             // Raven wrote: CG_DrawStringExt( xx + xOffset, y, ci->name, hcolor, qfalse, qfalse, TINYCHAR_WIDTH, TINYCHAR_HEIGHT, TEAM_OVERLAY_MAXNAME_WIDTH)
             portMissing("CG_DrawTeamOverlay", source: "oracle/codemp/cgame/cg_draw.c:3779")
 
@@ -3918,20 +3798,18 @@ private func CG_DrawTeamOverlay(_ y: Float, _ right: Bool, _ upper: Bool) -> Flo
                 //				xx = x + TINYCHAR_WIDTH * 2 + TINYCHAR_WIDTH * pwidth +
                 //					((lwidth/2 - len/2) * TINYCHAR_WIDTH);
                 xx = x + TINYCHAR_WIDTH * 2 + TINYCHAR_WIDTH * pwidth
-                // Port-note: The draft of this statement did not compile, and the compiler wrote "cannot convert value of type '[Float]' to expected argument type 'Float'".
+                // Port-note: The draft of this statement did not compile, and the compiler wrote "cannot convert value of type 'vec4_t' (aka 'SIMD4<Float>') to expected argument type 'Float'".
                 // Raven wrote: CG_DrawStringExt( xx + xOffset, y, p, hcolor, qfalse, qfalse, TINYCHAR_WIDTH, TINYCHAR_HEIGHT, TEAM_OVERLAY_MAXLOCATION_WIDTH)
                 portMissing("CG_DrawTeamOverlay", source: "oracle/codemp/cgame/cg_draw.c:3779")
             }
 
-            // Port-note: The draft of this statement did not compile, and the compiler wrote "cannot convert value of type '[Float]' to expected argument type 'vec4_t' (aka 'SIMD4<Float>')".
-            // Raven wrote: CG_GetColorForHealth( ci->health, ci->armor, hcolor )
-            portMissing("CG_DrawTeamOverlay", source: "oracle/codemp/cgame/cg_draw.c:3779")
+            CG_GetColorForHealth(ci!.health, ci!.armor, &hcolor)
 
             Com_sprintf(&st, Int32((st).count), "%3i %3i", ci!.health, ci!.armor)
 
             xx = x + TINYCHAR_WIDTH * 3 + TINYCHAR_WIDTH * pwidth + TINYCHAR_WIDTH * lwidth
 
-            // Port-note: The draft of this statement did not compile, and the compiler wrote "cannot convert value of type '[Float]' to expected argument type 'Float'".
+            // Port-note: The draft of this statement did not compile, and the compiler wrote "cannot convert value of type 'vec4_t' (aka 'SIMD4<Float>') to expected argument type 'Float'".
             // Raven wrote: CG_DrawStringExt( xx + xOffset, y, st, hcolor, qfalse, qfalse, TINYCHAR_WIDTH, TINYCHAR_HEIGHT, 0 )
             portMissing("CG_DrawTeamOverlay", source: "oracle/codemp/cgame/cg_draw.c:3779")
 
@@ -4041,9 +3919,7 @@ private func CG_DrawUpperRight() {
 
     y = 0
 
-    // Port-note: The draft of this statement did not compile, and the compiler wrote "cannot convert value of type 'vec4_t' (aka 'SIMD4<Float>') to expected argument type 'Float'".
-    // Raven wrote: trap_R_SetColor( colorTable[CT_WHITE] )
-    portMissing("CG_DrawUpperRight", source: "oracle/codemp/cgame/cg_draw.c:4020")
+    trap_R_SetColor(colorTable[CT_WHITE])
 
     if cgs.gametype >= GT_TEAM && cg_drawTeamOverlay.integer == 1 {
         y = CG_DrawTeamOverlay(y, true, true)
@@ -4210,9 +4086,7 @@ private func CG_DrawLagometer() {
     x = 640 - 48
     y = 480 - 144
 
-    // Port-note: The draft of this statement did not compile, and the compiler wrote "'nil' is not compatible with expected argument type 'Float'".
-    // Raven wrote: trap_R_SetColor( NULL )
-    portMissing("CG_DrawLagometer", source: "oracle/codemp/cgame/cg_draw.c:4252")
+    trap_R_SetColor(nil)
     CG_DrawPic(Float(x), Float(y), 48, 48, cgs.media.lagometerShader)
 
     ax = Float(x)
@@ -4300,9 +4174,7 @@ private func CG_DrawLagometer() {
         a += 1
     }
 
-    // Port-note: The draft of this statement did not compile, and the compiler wrote "'nil' is not compatible with expected argument type 'Float'".
-    // Raven wrote: trap_R_SetColor( NULL )
-    portMissing("CG_DrawLagometer", source: "oracle/codemp/cgame/cg_draw.c:4252")
+    trap_R_SetColor(nil)
 
     if cg_nopredict.integer != 0 || cg_synchronousClients.integer != 0 {
         CG_DrawBigString(Int32(ax), Int32(ay), "snc", 1.0)
@@ -4331,7 +4203,7 @@ func CG_DrawSiegeMessageNonMenu(_ str: String) {
     // Raven steps his own `str` parameter through its bytes, so the body walks a TextCursor over a copy of them.
     var str = TextCursor(CharBuf(str))
     if str[0] == Int32(ascii: "@") {
-        // Port-note: The draft of this statement did not compile, and the compiler wrote "cannot convert value of type 'CharBuf' to expected argument type 'Int32'".
+        // Port-note: The draft of this statement did not compile, and the compiler wrote "cannot convert value of type 'Int' to expected argument type 'String'".
         // Raven wrote: trap_SP_GetStringTextString(str+1, text, sizeof(text))
         portMissing("CG_DrawSiegeMessageNonMenu", source: "oracle/codemp/cgame/cg_draw.c:4370")
         str = TextCursor(text)
@@ -4448,9 +4320,7 @@ private func CG_DrawCenterString() {
         portMissing("CG_DrawCenterString", source: "oracle/codemp/cgame/cg_draw.c:4423")
     }
 
-    // Port-note: The draft of this statement did not compile, and the compiler wrote "'nil' is not compatible with expected argument type 'Float'".
-    // Raven wrote: trap_R_SetColor( NULL )
-    portMissing("CG_DrawCenterString", source: "oracle/codemp/cgame/cg_draw.c:4423")
+    trap_R_SetColor(nil)
 }
 
 //see if we can draw some extra info on this guy based on our class
@@ -4461,9 +4331,9 @@ func CG_DrawSiegeInfo(_ cent: Centity, _ chX: Float, _ chY: Float, _ chW: Float,
     let configstring: String
     let v: String
     var siegeClass: SiegeClass?
-    var aColor: [Float] = [Float](repeating: 0, count: 4)
-    var bColor: [Float] = [Float](repeating: 0, count: 4)
-    var cColor: [Float] = [Float](repeating: 0, count: 4)
+    var aColor = vec4_t()
+    var bColor = vec4_t()
+    var cColor = vec4_t()
     var x: Float
     var y: Float
     var percent: Float
@@ -4546,12 +4416,12 @@ func CG_DrawSiegeInfo(_ cent: Centity, _ chX: Float, _ chY: Float, _ chW: Float,
     portMissing("CG_DrawSiegeInfo", source: "oracle/codemp/cgame/cg_draw.c:4489")
 
     //now draw the part to show how much health there is in the color specified
-    // Port-note: The draft of this statement did not compile, and the compiler wrote "cannot convert value of type '[Float]' to expected argument type 'Float'".
+    // Port-note: The draft of this statement did not compile, and the compiler wrote "cannot convert value of type 'vec4_t' (aka 'SIMD4<Float>') to expected argument type 'Float'".
     // Raven wrote: CG_FillRect(x+1.0f, y+1.0f, percent-1.0f, HEALTH_HEIGHT-1.0f, aColor)
     portMissing("CG_DrawSiegeInfo", source: "oracle/codemp/cgame/cg_draw.c:4489")
 
     //then draw the other part greyed out
-    // Port-note: The draft of this statement did not compile, and the compiler wrote "cannot convert value of type '[Float]' to expected argument type 'Float'".
+    // Port-note: The draft of this statement did not compile, and the compiler wrote "cannot convert value of type 'vec4_t' (aka 'SIMD4<Float>') to expected argument type 'Float'".
     // Raven wrote: CG_FillRect(x+percent, y+1.0f, HEALTH_WIDTH-percent-1.0f, HEALTH_HEIGHT-1.0f, cColor)
     portMissing("CG_DrawSiegeInfo", source: "oracle/codemp/cgame/cg_draw.c:4489")
 
@@ -4596,12 +4466,12 @@ func CG_DrawSiegeInfo(_ cent: Centity, _ chX: Float, _ chY: Float, _ chW: Float,
     portMissing("CG_DrawSiegeInfo", source: "oracle/codemp/cgame/cg_draw.c:4489")
 
     //now draw the part to show how much health there is in the color specified
-    // Port-note: The draft of this statement did not compile, and the compiler wrote "cannot convert value of type '[Float]' to expected argument type 'Float'".
+    // Port-note: The draft of this statement did not compile, and the compiler wrote "cannot convert value of type 'vec4_t' (aka 'SIMD4<Float>') to expected argument type 'Float'".
     // Raven wrote: CG_FillRect(x+1.0f, y+1.0f, percent-1.0f, HEALTH_HEIGHT-1.0f, aColor)
     portMissing("CG_DrawSiegeInfo", source: "oracle/codemp/cgame/cg_draw.c:4489")
 
     //then draw the other part greyed out
-    // Port-note: The draft of this statement did not compile, and the compiler wrote "cannot convert value of type '[Float]' to expected argument type 'Float'".
+    // Port-note: The draft of this statement did not compile, and the compiler wrote "cannot convert value of type 'vec4_t' (aka 'SIMD4<Float>') to expected argument type 'Float'".
     // Raven wrote: CG_FillRect(x+percent, y+1.0f, HEALTH_WIDTH-percent-1.0f, HEALTH_HEIGHT-1.0f, cColor)
     portMissing("CG_DrawSiegeInfo", source: "oracle/codemp/cgame/cg_draw.c:4489")
 }
@@ -4609,9 +4479,9 @@ func CG_DrawSiegeInfo(_ cent: Centity, _ chX: Float, _ chY: Float, _ chW: Float,
 //draw the health bar based on current "health" and maxhealth
 /// Source: oracle/codemp/cgame/cg_draw.c:4632
 func CG_DrawHealthBar(_ cent: Centity, _ chX: Float, _ chY: Float, _ chW: Float, _ chH: Float) {
-    var aColor: [Float] = [Float](repeating: 0, count: 4)
-    var bColor: [Float] = [Float](repeating: 0, count: 4)
-    var cColor: [Float] = [Float](repeating: 0, count: 4)
+    var aColor = vec4_t()
+    var bColor = vec4_t()
+    var cColor = vec4_t()
     let x: Float = chX + ((chW / 2) - (HEALTH_WIDTH / 2))
     let y: Float = (chY + chH) + 8.0
     let percent: Float = (Float(cent.currentState.health) / Float(cent.currentState.maxhealth)) * HEALTH_WIDTH
@@ -4658,12 +4528,12 @@ func CG_DrawHealthBar(_ cent: Centity, _ chX: Float, _ chY: Float, _ chW: Float,
     portMissing("CG_DrawHealthBar", source: "oracle/codemp/cgame/cg_draw.c:4632")
 
     //now draw the part to show how much health there is in the color specified
-    // Port-note: The draft of this statement did not compile, and the compiler wrote "cannot convert value of type '[Float]' to expected argument type 'Float'".
+    // Port-note: The draft of this statement did not compile, and the compiler wrote "cannot convert value of type 'vec4_t' (aka 'SIMD4<Float>') to expected argument type 'Float'".
     // Raven wrote: CG_FillRect(x+1.0f, y+1.0f, percent-1.0f, HEALTH_HEIGHT-1.0f, aColor)
     portMissing("CG_DrawHealthBar", source: "oracle/codemp/cgame/cg_draw.c:4632")
 
     //then draw the other part greyed out
-    // Port-note: The draft of this statement did not compile, and the compiler wrote "cannot convert value of type '[Float]' to expected argument type 'Float'".
+    // Port-note: The draft of this statement did not compile, and the compiler wrote "cannot convert value of type 'vec4_t' (aka 'SIMD4<Float>') to expected argument type 'Float'".
     // Raven wrote: CG_FillRect(x+percent, y+1.0f, HEALTH_WIDTH-percent-1.0f, HEALTH_HEIGHT-1.0f, cColor)
     portMissing("CG_DrawHealthBar", source: "oracle/codemp/cgame/cg_draw.c:4632")
 }
@@ -4671,9 +4541,9 @@ func CG_DrawHealthBar(_ cent: Centity, _ chX: Float, _ chY: Float, _ chW: Float,
 //same routine (at least for now), draw progress of a "hack" or whatever
 /// Source: oracle/codemp/cgame/cg_draw.c:4691
 func CG_DrawHaqrBar(_ chX: Float, _ chY: Float, _ chW: Float, _ chH: Float) {
-    var aColor: [Float] = [Float](repeating: 0, count: 4)
-    var bColor: [Float] = [Float](repeating: 0, count: 4)
-    var cColor: [Float] = [Float](repeating: 0, count: 4)
+    var aColor = vec4_t()
+    var bColor = vec4_t()
+    var cColor = vec4_t()
     let x: Float = chX + ((chW / 2) - (HEALTH_WIDTH / 2))
     let y: Float = (chY + chH) + 8.0
     let percent: Float = ((Float(cg.predictedPlayerState.hackingTime) - Float(cg.time)) / Float(cg.predictedPlayerState.hackingBaseTime)) * HEALTH_WIDTH
@@ -4706,12 +4576,12 @@ func CG_DrawHaqrBar(_ chX: Float, _ chY: Float, _ chW: Float, _ chH: Float) {
     portMissing("CG_DrawHaqrBar", source: "oracle/codemp/cgame/cg_draw.c:4691")
 
     //now draw the part to show how much health there is in the color specified
-    // Port-note: The draft of this statement did not compile, and the compiler wrote "cannot convert value of type '[Float]' to expected argument type 'Float'".
+    // Port-note: The draft of this statement did not compile, and the compiler wrote "cannot convert value of type 'vec4_t' (aka 'SIMD4<Float>') to expected argument type 'Float'".
     // Raven wrote: CG_FillRect(x+1.0f, y+1.0f, percent-1.0f, HEALTH_HEIGHT-1.0f, aColor)
     portMissing("CG_DrawHaqrBar", source: "oracle/codemp/cgame/cg_draw.c:4691")
 
     //then draw the other part greyed out
-    // Port-note: The draft of this statement did not compile, and the compiler wrote "cannot convert value of type '[Float]' to expected argument type 'Float'".
+    // Port-note: The draft of this statement did not compile, and the compiler wrote "cannot convert value of type 'vec4_t' (aka 'SIMD4<Float>') to expected argument type 'Float'".
     // Raven wrote: CG_FillRect(x+percent, y+1.0f, HEALTH_WIDTH-percent-1.0f, HEALTH_HEIGHT-1.0f, cColor)
     portMissing("CG_DrawHaqrBar", source: "oracle/codemp/cgame/cg_draw.c:4691")
 
@@ -4721,9 +4591,9 @@ func CG_DrawHaqrBar(_ chX: Float, _ chY: Float, _ chW: Float, _ chH: Float) {
 
 /// Source: oracle/codemp/cgame/cg_draw.c:4745
 func CG_DrawGenericTimerBar() {
-    var aColor: [Float] = [Float](repeating: 0, count: 4)
-    var bColor: [Float] = [Float](repeating: 0, count: 4)
-    var cColor: [Float] = [Float](repeating: 0, count: 4)
+    var aColor = vec4_t()
+    var bColor = vec4_t()
+    var cColor = vec4_t()
     let x: Float = CGTIMERBAR_X
     let y: Float = CGTIMERBAR_Y
     var percent: Float = (Float((cg_genericTimerBar - cg.time)) / Float(cg_genericTimerDur)) * CGTIMERBAR_H
@@ -4760,12 +4630,12 @@ func CG_DrawGenericTimerBar() {
     portMissing("CG_DrawGenericTimerBar", source: "oracle/codemp/cgame/cg_draw.c:4745")
 
     //now draw the part to show how much health there is in the color specified
-    // Port-note: The draft of this statement did not compile, and the compiler wrote "cannot convert value of type '[Float]' to expected argument type 'Float'".
+    // Port-note: The draft of this statement did not compile, and the compiler wrote "cannot convert value of type 'vec4_t' (aka 'SIMD4<Float>') to expected argument type 'Float'".
     // Raven wrote: CG_FillRect(x+1.0f, y+1.0f+(CGTIMERBAR_H-percent), CGTIMERBAR_W-2.0f, CGTIMERBAR_H-1.0f-(CGTIMERBAR_H-percent), aColor)
     portMissing("CG_DrawGenericTimerBar", source: "oracle/codemp/cgame/cg_draw.c:4745")
 
     //then draw the other part greyed out
-    // Port-note: The draft of this statement did not compile, and the compiler wrote "cannot convert value of type '[Float]' to expected argument type 'Float'".
+    // Port-note: The draft of this statement did not compile, and the compiler wrote "cannot convert value of type 'vec4_t' (aka 'SIMD4<Float>') to expected argument type 'Float'".
     // Raven wrote: CG_FillRect(x+1.0f, y+1.0f, CGTIMERBAR_W-2.0f, CGTIMERBAR_H-percent, cColor)
     portMissing("CG_DrawGenericTimerBar", source: "oracle/codemp/cgame/cg_draw.c:4745")
 }
@@ -4812,7 +4682,7 @@ private func CG_DrawCrosshair(_ worldPoint: JKAShared.vec3_t?, _ chEntValid: Int
     var x: Float = 0
     var y: Float = 0
     var corona: Bool = false
-    var ecolor: [Float] = [0, 0, 0, 0]
+    var ecolor = vec4_t(0, 0, 0, 0)
     var crossEnt: Centity? = nil
     let chX: Float
     var chY: Float
@@ -4844,20 +4714,14 @@ private func CG_DrawCrosshair(_ worldPoint: JKAShared.vec3_t?, _ chEntValid: Int
     */
 
     if cg_crosshairHealth.integer != 0 {
-        var hcolor: [Float] = [Float](repeating: 0, count: 4)
+        var hcolor = vec4_t()
 
-        // Port-note: The draft of this statement did not compile, and the compiler wrote "cannot convert value of type '[Float]' to expected argument type 'vec4_t' (aka 'SIMD4<Float>')".
-        // Raven wrote: CG_ColorForHealth( hcolor )
-        portMissing("CG_DrawCrosshair", source: "oracle/codemp/cgame/cg_draw.c:4848")
-        // Port-note: The draft of this statement did not compile, and the compiler wrote "cannot convert value of type '[Float]' to expected argument type 'Float'".
-        // Raven wrote: trap_R_SetColor( hcolor )
-        portMissing("CG_DrawCrosshair", source: "oracle/codemp/cgame/cg_draw.c:4848")
+        CG_ColorForHealth(&hcolor)
+        trap_R_SetColor(hcolor)
     } else {
         //set color based on what kind of ent is under crosshair
         if cg.crosshairClientNum >= ENTITYNUM_WORLD {
-            // Port-note: The draft of this statement did not compile, and the compiler wrote "'nil' is not compatible with expected argument type 'Float'".
-            // Raven wrote: trap_R_SetColor( NULL )
-            portMissing("CG_DrawCrosshair", source: "oracle/codemp/cgame/cg_draw.c:4848")
+            trap_R_SetColor(nil)
         } else if chEntValid != 0 && (cg_entities[cg.crosshairClientNum].currentState.number < MAX_CLIENTS || cg_entities[cg.crosshairClientNum].currentState.eType == ET_NPC || cg_entities[cg.crosshairClientNum].currentState.shouldtarget || cg_entities[cg.crosshairClientNum].currentState.health != 0 || (cg_entities[cg.crosshairClientNum].currentState.eType == ET_MOVER && cg_entities[cg.crosshairClientNum].currentState.bolt1 != 0 && cg.predictedPlayerState.weapon == WP_SABER) || (cg_entities[cg.crosshairClientNum].currentState.eType == ET_MOVER && cg_entities[cg.crosshairClientNum].currentState.teamowner != 0)) {
             //rwwFIXMEFIXME: Write this a different way, it's getting a bit too sloppy looking
             crossEnt = cg_entities[cg.crosshairClientNum]
@@ -5034,9 +4898,7 @@ private func CG_DrawCrosshair(_ worldPoint: JKAShared.vec3_t?, _ chEntValid: Int
 
             ecolor[3] = 1.0
 
-            // Port-note: The draft of this statement did not compile, and the compiler wrote "cannot convert value of type '[Float]' to expected argument type 'Float'".
-            // Raven wrote: trap_R_SetColor( ecolor )
-            portMissing("CG_DrawCrosshair", source: "oracle/codemp/cgame/cg_draw.c:4848")
+            trap_R_SetColor(ecolor)
         }
     }
 
@@ -5122,9 +4984,7 @@ private func CG_DrawCrosshair(_ worldPoint: JKAShared.vec3_t?, _ chEntValid: Int
         ecolor[0] = ecolor[1] // don't draw full color
         ecolor[3] = 1.0
 
-        // Port-note: The draft of this statement did not compile, and the compiler wrote "cannot convert value of type '[Float]' to expected argument type 'Float'".
-        // Raven wrote: trap_R_SetColor( ecolor )
-        portMissing("CG_DrawCrosshair", source: "oracle/codemp/cgame/cg_draw.c:4848")
+        trap_R_SetColor(ecolor)
 
         w *= 2.0
         h *= 2.0
@@ -5239,7 +5099,7 @@ func CG_SaberClashFlare() {
         CG_WorldCoordToScreenCoord(cg_saberFlashPos, &x, &y)
 
         color = vec3_t(0.8, 0.8, 0.8)
-        // Port-note: The draft of this statement did not compile, and the compiler wrote "cannot convert value of type 'vec3_t' (aka 'SIMD3<Float>') to expected argument type 'Float'".
+        // Port-note: The draft of this statement did not compile, and the compiler wrote "cannot convert value of type 'vec3_t' (aka 'SIMD3<Float>') to expected argument type 'vec4_t' (aka 'SIMD4<Float>')".
         // Raven wrote: trap_R_SetColor( color )
         portMissing("CG_SaberClashFlare", source: "oracle/codemp/cgame/cg_draw.c:5327")
 
@@ -5259,7 +5119,7 @@ func CG_DottedLine(_ x1: Float, _ y1: Float, _ x2: Float, _ y2: Float, _ dotSize
     let yDiff: Float
     let xStep: Float
     let yStep: Float
-    var colorRGBA: [Float] = [Float](repeating: 0, count: 4)
+    var colorRGBA = vec4_t()
     var dotNum: Int32 = 0
 
     // Port-note: An expression statement with no effect the draft knows.
@@ -5267,9 +5127,7 @@ func CG_DottedLine(_ x1: Float, _ y1: Float, _ x2: Float, _ y2: Float, _ dotSize
     portMissing("CG_DottedLine", source: "oracle/codemp/cgame/cg_draw.c:5388")
     colorRGBA[3] = alpha
 
-    // Port-note: The draft of this statement did not compile, and the compiler wrote "cannot convert value of type '[Float]' to expected argument type 'Float'".
-    // Raven wrote: trap_R_SetColor( colorRGBA )
-    portMissing("CG_DottedLine", source: "oracle/codemp/cgame/cg_draw.c:5388")
+    trap_R_SetColor(colorRGBA)
 
     xDiff = x2 - x1
     yDiff = y2 - y1
@@ -5366,9 +5224,7 @@ func CG_BracketEntity(_ cent: Centity, _ radius: Float) {
             }
         } else {
             //FIXME: if we want to ever bracket anything besides vehicles (like siege objectives we want to blow up), we should handle the coloring here
-            // Port-note: The draft of this statement did not compile, and the compiler wrote "'nil' is not compatible with expected argument type 'Float'".
-            // Raven wrote: trap_R_SetColor ( NULL )
-            portMissing("CG_BracketEntity", source: "oracle/codemp/cgame/cg_draw.c:5413")
+            trap_R_SetColor(nil)
         }
 
         if len <= 1.0 {
@@ -5604,7 +5460,7 @@ private func CG_DrawRocketLocking(_ lockEntNum: Int32, _ lockTime: Int32) {
     var org = vec3_t()
     var oldDif: Int32 = 0
     let cent: Centity? = cg_entities[lockEntNum]
-    var color: [Float] = [0.0, 0.0, 0.0, 0.0]
+    var color = vec4_t(0.0, 0.0, 0.0, 0.0)
     var lockTimeInterval: Float = ((cgs.gametype == GT_SIEGE) ? 2400.0 : 1200.0) / 16.0
     //FIXME: if in a vehicle, use the vehicle's lockOnTime...
     var dif: Int32 = Int32((cg.time - cg.snap!.ps.rocketLockTime) / lockTimeInterval)
@@ -5743,9 +5599,7 @@ private func CG_DrawRocketLocking(_ lockEntNum: Int32, _ lockTime: Int32) {
             color[2] = 0.0
             color[3] = 0.1 * i + 0.2
 
-            // Port-note: The draft of this statement did not compile, and the compiler wrote "cannot convert value of type '[Float]' to expected argument type 'Float'".
-            // Raven wrote: trap_R_SetColor( color )
-            portMissing("CG_DrawRocketLocking", source: "oracle/codemp/cgame/cg_draw.c:5747")
+            trap_R_SetColor(color)
 
             // our slices are offset by about 45 degrees.
             CG_DrawRotatePic(cx - sz, cy - sz, sz, sz, i * 45.0, trap_R_RegisterShaderNoMip("gfx/2d/wedge"))
@@ -5759,9 +5613,7 @@ private func CG_DrawRocketLocking(_ lockEntNum: Int32, _ lockTime: Int32) {
             color[0] = color[1]
             color[3] = 1.0 // this art is additive, so the alpha value does nothing
 
-            // Port-note: The draft of this statement did not compile, and the compiler wrote "cannot convert value of type '[Float]' to expected argument type 'Float'".
-            // Raven wrote: trap_R_SetColor( color )
-            portMissing("CG_DrawRocketLocking", source: "oracle/codemp/cgame/cg_draw.c:5747")
+            trap_R_SetColor(color)
 
             CG_DrawPic(cx - sz, cy - sz * 2, sz * 2, sz * 2, trap_R_RegisterShaderNoMip("gfx/2d/lock"))
         }
@@ -6079,7 +5931,7 @@ private func CG_DrawCrosshairNames() {
     // Port-note: A pointer local `float * color` with no view.
     // Raven wrote: float *color;
     portMissing("CG_DrawCrosshairNames", source: "oracle/codemp/cgame/cg_draw.c:6333")
-    var tcolor: [Float] = [Float](repeating: 0, count: 4)
+    var tcolor = vec4_t()
     let name: String
     var sanitized = CharBuf(1024)
     var baseColor: Int32
@@ -6176,18 +6028,12 @@ private func CG_DrawCrosshairNames() {
     if isVeh {
         var str = CharBuf(1024)
         Com_sprintf(&str, MAX_STRING_CHARS, "%s (pilot)", sanitized)
-        // Port-note: The draft of this statement did not compile, and the compiler wrote "cannot convert value of type '[Float]' to expected argument type 'vec4_t' (aka 'SIMD4<Float>')".
-        // Raven wrote: UI_DrawProportionalString(320, 170, str, UI_CENTER, tcolor)
-        portMissing("CG_DrawCrosshairNames", source: "oracle/codemp/cgame/cg_draw.c:6333")
+        UI_DrawProportionalString(320, 170, String(str), UI_CENTER, tcolor)
     } else {
-        // Port-note: The draft of this statement did not compile, and the compiler wrote "cannot convert value of type '[Float]' to expected argument type 'vec4_t' (aka 'SIMD4<Float>')".
-        // Raven wrote: UI_DrawProportionalString(320, 170, sanitized, UI_CENTER, tcolor)
-        portMissing("CG_DrawCrosshairNames", source: "oracle/codemp/cgame/cg_draw.c:6333")
+        UI_DrawProportionalString(320, 170, String(sanitized), UI_CENTER, tcolor)
     }
 
-    // Port-note: The draft of this statement did not compile, and the compiler wrote "'nil' is not compatible with expected argument type 'Float'".
-    // Raven wrote: trap_R_SetColor( NULL )
-    portMissing("CG_DrawCrosshairNames", source: "oracle/codemp/cgame/cg_draw.c:6333")
+    trap_R_SetColor(nil)
 }
 
 /**
@@ -6213,9 +6059,7 @@ private func CG_DrawSpectator() {
         }
         CG_Text_Paint(Float(320 - CG_Text_Width(String(text), 1.0, 3) / 2), 420, 1.0, colorWhite, String(text), 0, 0, 0, 3)
 
-        // Port-note: The draft of this statement did not compile, and the compiler wrote "cannot convert value of type 'vec4_t' (aka 'SIMD4<Float>') to expected argument type 'Float'".
-        // Raven wrote: trap_R_SetColor( colorTable[CT_WHITE] )
-        portMissing("CG_DrawSpectator", source: "oracle/codemp/cgame/cg_draw.c:6470")
+        trap_R_SetColor(colorTable[CT_WHITE])
         if cgs.clientinfo[cgs.duelist1].modelIcon != 0 {
             CG_DrawPic(10, Float(Double(SCREEN_HEIGHT) - (Double(size) * 1.5)), Float(size), Float(size), cgs.clientinfo[cgs.duelist1].modelIcon)
         }
@@ -6294,35 +6138,23 @@ private func CG_DrawVote() {
     }
 
     if strncmp(cgs.voteString, "map_restart", 11) == 0 {
-        // Port-note: The draft of this statement did not compile, and the compiler wrote "cannot convert value of type 'CharBuf' to expected argument type 'Int32'".
-        // Raven wrote: trap_SP_GetStringTextString("MENUS_RESTART_MAP", sCmd, sizeof(sCmd) )
-        portMissing("CG_DrawVote", source: "oracle/codemp/cgame/cg_draw.c:6552")
+        strcpy(&sCmd, trap_SP_GetStringTextString("MENUS_RESTART_MAP", Int32((sCmd).count)).1)
     } else if strncmp(cgs.voteString, "vstr nextmap", 12) == 0 {
-        // Port-note: The draft of this statement did not compile, and the compiler wrote "cannot convert value of type 'CharBuf' to expected argument type 'Int32'".
-        // Raven wrote: trap_SP_GetStringTextString("MENUS_NEXT_MAP", sCmd, sizeof(sCmd) )
-        portMissing("CG_DrawVote", source: "oracle/codemp/cgame/cg_draw.c:6552")
+        strcpy(&sCmd, trap_SP_GetStringTextString("MENUS_NEXT_MAP", Int32((sCmd).count)).1)
     } else if strncmp(cgs.voteString, "g_doWarmup", 10) == 0 {
-        // Port-note: The draft of this statement did not compile, and the compiler wrote "cannot convert value of type 'CharBuf' to expected argument type 'Int32'".
-        // Raven wrote: trap_SP_GetStringTextString("MENUS_WARMUP", sCmd, sizeof(sCmd) )
-        portMissing("CG_DrawVote", source: "oracle/codemp/cgame/cg_draw.c:6552")
+        strcpy(&sCmd, trap_SP_GetStringTextString("MENUS_WARMUP", Int32((sCmd).count)).1)
     } else if strncmp(cgs.voteString, "g_gametype", 10) == 0 {
-        // Port-note: The draft of this statement did not compile, and the compiler wrote "cannot convert value of type 'CharBuf' to expected argument type 'Int32'".
-        // Raven wrote: trap_SP_GetStringTextString("MENUS_GAME_TYPE", sCmd, sizeof(sCmd) )
-        portMissing("CG_DrawVote", source: "oracle/codemp/cgame/cg_draw.c:6552")
+        strcpy(&sCmd, trap_SP_GetStringTextString("MENUS_GAME_TYPE", Int32((sCmd).count)).1)
         // Port-note: The draft of this statement did not compile, and the compiler wrote "cannot find 'stricmp' in scope".
         // Raven wrote: if ( stricmp("Free For All", cgs.voteString+11)==0 ) { sParm = CG_GetStringEdString("MENUS", "FREE_FOR_ALL"); } else if ( stricmp("Duel", cgs.voteString+11)==0 ) { sParm = CG_GetStringEdString("MENUS", "DUEL"); } else if ( stricmp("Holocron FFA", cgs.voteString+11)==0 ) { sParm = CG_GetStringEdString("MENUS", "HOLOCRON_FFA"); } else if ( stricmp("Power Duel", cgs.voteString+11)==0 ) { sParm = CG_GetStringEdString("MENUS", "POWERDUEL"); } else if ( stricmp("Team FFA", cgs.voteString+11)==0 ) { sParm = CG_GetStringEdString("MENUS", "TEAM_FFA"); } else if ( stricmp("Siege", cgs.voteString+11)==0 ) { sParm = CG_GetStringEdString("MENUS", "SIEGE"); } else if ( stricmp("Capture the Flag", cgs.voteString+11)==0 ) { sParm = CG_GetStringEdString("MENUS", "CAPTURE_THE_FLAG"); } else if ( stricmp("Capture the Ysalamiri", cgs.voteString+11)==0 ) { sParm = CG_GetStringEdString("MENUS", "CAPTURE_THE_YSALIMARI"); }
         portMissing("CG_DrawVote", source: "oracle/codemp/cgame/cg_draw.c:6552")
     } else if strncmp(cgs.voteString, "map", 3) == 0 {
-        // Port-note: The draft of this statement did not compile, and the compiler wrote "cannot convert value of type 'CharBuf' to expected argument type 'Int32'".
-        // Raven wrote: trap_SP_GetStringTextString("MENUS_NEW_MAP", sCmd, sizeof(sCmd) )
-        portMissing("CG_DrawVote", source: "oracle/codemp/cgame/cg_draw.c:6552")
+        strcpy(&sCmd, trap_SP_GetStringTextString("MENUS_NEW_MAP", Int32((sCmd).count)).1)
         // Port-note: A store into `sParm`, a local the draft left as a hole.
         // Raven wrote: sParm = cgs.voteString+4
         portMissing("CG_DrawVote", source: "oracle/codemp/cgame/cg_draw.c:6552")
     } else if strncmp(cgs.voteString, "kick", 4) == 0 {
-        // Port-note: The draft of this statement did not compile, and the compiler wrote "cannot convert value of type 'CharBuf' to expected argument type 'Int32'".
-        // Raven wrote: trap_SP_GetStringTextString("MENUS_KICK_PLAYER", sCmd, sizeof(sCmd) )
-        portMissing("CG_DrawVote", source: "oracle/codemp/cgame/cg_draw.c:6552")
+        strcpy(&sCmd, trap_SP_GetStringTextString("MENUS_KICK_PLAYER", Int32((sCmd).count)).1)
         // Port-note: A store into `sParm`, a local the draft left as a hole.
         // Raven wrote: sParm = cgs.voteString+5
         portMissing("CG_DrawVote", source: "oracle/codemp/cgame/cg_draw.c:6552")
@@ -6330,15 +6162,9 @@ private func CG_DrawVote() {
 
 
 
-    // Port-note: The draft of this statement did not compile, and the compiler wrote "cannot convert value of type 'CharBuf' to expected argument type 'Int32'".
-    // Raven wrote: trap_SP_GetStringTextString("MENUS_VOTE", sVote, sizeof(sVote) )
-    portMissing("CG_DrawVote", source: "oracle/codemp/cgame/cg_draw.c:6552")
-    // Port-note: The draft of this statement did not compile, and the compiler wrote "cannot convert value of type 'CharBuf' to expected argument type 'Int32'".
-    // Raven wrote: trap_SP_GetStringTextString("MENUS_YES", sYes, sizeof(sYes) )
-    portMissing("CG_DrawVote", source: "oracle/codemp/cgame/cg_draw.c:6552")
-    // Port-note: The draft of this statement did not compile, and the compiler wrote "cannot convert value of type 'CharBuf' to expected argument type 'Int32'".
-    // Raven wrote: trap_SP_GetStringTextString("MENUS_NO", sNo, sizeof(sNo) )
-    portMissing("CG_DrawVote", source: "oracle/codemp/cgame/cg_draw.c:6552")
+    strcpy(&sVote, trap_SP_GetStringTextString("MENUS_VOTE", Int32((sVote).count)).1)
+    strcpy(&sYes, trap_SP_GetStringTextString("MENUS_YES", Int32((sYes).count)).1)
+    strcpy(&sNo, trap_SP_GetStringTextString("MENUS_NO", Int32((sNo).count)).1)
 
     // Port-note: A read of `sParm`, a local the draft left as a hole.
     // Raven wrote: if (sParm && sParm[0]) { s = va("%s(%i):<%s %s> %s:%i %s:%i", sVote, sec, sCmd, sParm, sYes, cgs.voteYes, sNo, cgs.voteNo); } else { s = va("%s(%i):<%s> %s:%i %s:%i", sVote, sec, sCmd, sYes, cgs.voteYes, sNo, cgs.voteNo); }
@@ -6694,9 +6520,9 @@ func CG_DrawFlagStatus() {
 
 /// Source: oracle/codemp/cgame/cg_draw.c:7150
 func CG_DrawJetpackFuel() {
-    var aColor: [Float] = [Float](repeating: 0, count: 4)
-    var bColor: [Float] = [Float](repeating: 0, count: 4)
-    var cColor: [Float] = [Float](repeating: 0, count: 4)
+    var aColor = vec4_t()
+    var bColor = vec4_t()
+    var cColor = vec4_t()
     let x: Float = JPFUELBAR_X
     let y: Float = JPFUELBAR_Y
     var percent: Float = (Float(cg.snap!.ps.jetpackFuel) / 100.0) * JPFUELBAR_H
@@ -6733,21 +6559,21 @@ func CG_DrawJetpackFuel() {
     portMissing("CG_DrawJetpackFuel", source: "oracle/codemp/cgame/cg_draw.c:7150")
 
     //now draw the part to show how much health there is in the color specified
-    // Port-note: The draft of this statement did not compile, and the compiler wrote "cannot convert value of type '[Float]' to expected argument type 'Float'".
+    // Port-note: The draft of this statement did not compile, and the compiler wrote "cannot convert value of type 'vec4_t' (aka 'SIMD4<Float>') to expected argument type 'Float'".
     // Raven wrote: CG_FillRect(x+1.0f, y+1.0f+(JPFUELBAR_H-percent), JPFUELBAR_W-1.0f, JPFUELBAR_H-1.0f-(JPFUELBAR_H-percent), aColor)
     portMissing("CG_DrawJetpackFuel", source: "oracle/codemp/cgame/cg_draw.c:7150")
 
     //then draw the other part greyed out
-    // Port-note: The draft of this statement did not compile, and the compiler wrote "cannot convert value of type '[Float]' to expected argument type 'Float'".
+    // Port-note: The draft of this statement did not compile, and the compiler wrote "cannot convert value of type 'vec4_t' (aka 'SIMD4<Float>') to expected argument type 'Float'".
     // Raven wrote: CG_FillRect(x+1.0f, y+1.0f, JPFUELBAR_W-1.0f, JPFUELBAR_H-percent, cColor)
     portMissing("CG_DrawJetpackFuel", source: "oracle/codemp/cgame/cg_draw.c:7150")
 }
 
 /// Source: oracle/codemp/cgame/cg_draw.c:7202
 func CG_DrawEWebHealth() {
-    var aColor: [Float] = [Float](repeating: 0, count: 4)
-    var bColor: [Float] = [Float](repeating: 0, count: 4)
-    var cColor: [Float] = [Float](repeating: 0, count: 4)
+    var aColor = vec4_t()
+    var bColor = vec4_t()
+    var cColor = vec4_t()
     var x: Float = EWEBHEALTH_X
     let y: Float = EWEBHEALTH_Y
     let eweb: Centity? = cg_entities[cg.predictedPlayerState.emplacedIndex]
@@ -6793,21 +6619,21 @@ func CG_DrawEWebHealth() {
     portMissing("CG_DrawEWebHealth", source: "oracle/codemp/cgame/cg_draw.c:7202")
 
     //now draw the part to show how much health there is in the color specified
-    // Port-note: The draft of this statement did not compile, and the compiler wrote "cannot convert value of type '[Float]' to expected argument type 'Float'".
+    // Port-note: The draft of this statement did not compile, and the compiler wrote "cannot convert value of type 'vec4_t' (aka 'SIMD4<Float>') to expected argument type 'Float'".
     // Raven wrote: CG_FillRect(x+1.0f, y+1.0f+(EWEBHEALTH_H-percent), EWEBHEALTH_W-1.0f, EWEBHEALTH_H-1.0f-(EWEBHEALTH_H-percent), aColor)
     portMissing("CG_DrawEWebHealth", source: "oracle/codemp/cgame/cg_draw.c:7202")
 
     //then draw the other part greyed out
-    // Port-note: The draft of this statement did not compile, and the compiler wrote "cannot convert value of type '[Float]' to expected argument type 'Float'".
+    // Port-note: The draft of this statement did not compile, and the compiler wrote "cannot convert value of type 'vec4_t' (aka 'SIMD4<Float>') to expected argument type 'Float'".
     // Raven wrote: CG_FillRect(x+1.0f, y+1.0f, EWEBHEALTH_W-1.0f, EWEBHEALTH_H-percent, cColor)
     portMissing("CG_DrawEWebHealth", source: "oracle/codemp/cgame/cg_draw.c:7202")
 }
 
 /// Source: oracle/codemp/cgame/cg_draw.c:7265
 func CG_DrawCloakFuel() {
-    var aColor: [Float] = [Float](repeating: 0, count: 4)
-    var bColor: [Float] = [Float](repeating: 0, count: 4)
-    var cColor: [Float] = [Float](repeating: 0, count: 4)
+    var aColor = vec4_t()
+    var bColor = vec4_t()
+    var cColor = vec4_t()
     var x: Float = CLFUELBAR_X
     let y: Float = CLFUELBAR_Y
     var percent: Float = (Float(cg.snap!.ps.cloakFuel) / 100.0) * CLFUELBAR_H
@@ -6849,12 +6675,12 @@ func CG_DrawCloakFuel() {
     portMissing("CG_DrawCloakFuel", source: "oracle/codemp/cgame/cg_draw.c:7265")
 
     //now draw the part to show how much fuel there is in the color specified
-    // Port-note: The draft of this statement did not compile, and the compiler wrote "cannot convert value of type '[Float]' to expected argument type 'Float'".
+    // Port-note: The draft of this statement did not compile, and the compiler wrote "cannot convert value of type 'vec4_t' (aka 'SIMD4<Float>') to expected argument type 'Float'".
     // Raven wrote: CG_FillRect(x+1.0f, y+1.0f+(CLFUELBAR_H-percent), CLFUELBAR_W-1.0f, CLFUELBAR_H-1.0f-(CLFUELBAR_H-percent), aColor)
     portMissing("CG_DrawCloakFuel", source: "oracle/codemp/cgame/cg_draw.c:7265")
 
     //then draw the other part greyed out
-    // Port-note: The draft of this statement did not compile, and the compiler wrote "cannot convert value of type '[Float]' to expected argument type 'Float'".
+    // Port-note: The draft of this statement did not compile, and the compiler wrote "cannot convert value of type 'vec4_t' (aka 'SIMD4<Float>') to expected argument type 'Float'".
     // Raven wrote: CG_FillRect(x+1.0f, y+1.0f, CLFUELBAR_W-1.0f, CLFUELBAR_H-percent, cColor)
     portMissing("CG_DrawCloakFuel", source: "oracle/codemp/cgame/cg_draw.c:7265")
 }
@@ -6884,9 +6710,7 @@ private func CG_DrawSiegeTimer(_ timeRemaining: Int32, _ isMyTeam: Bool) {
     portMissing("CG_DrawSiegeTimer", source: "oracle/codemp/cgame/cg_draw.c:7356")
 
     if item != nil {
-        // Port-note: The draft of this statement did not compile, and the compiler wrote "cannot convert value of type 'Slots<Float>' to expected argument type 'Float'".
-        // Raven wrote: trap_R_SetColor( item->window.foreColor )
-        portMissing("CG_DrawSiegeTimer", source: "oracle/codemp/cgame/cg_draw.c:7356")
+        trap_R_SetColor(vec4_t(item!.window.foreColor[0], item!.window.foreColor[1], item!.window.foreColor[2], item!.window.foreColor[3]))
         CG_DrawPic(item!.window.rect.x, item!.window.rect.y, item!.window.rect.w, item!.window.rect.h, item!.window.background)
     }
 
@@ -6938,9 +6762,7 @@ private func CG_DrawSiegeDeathTimer(_ timeRemaining: Int32) {
     portMissing("CG_DrawSiegeDeathTimer", source: "oracle/codemp/cgame/cg_draw.c:7424")
 
     if item != nil {
-        // Port-note: The draft of this statement did not compile, and the compiler wrote "cannot convert value of type 'Slots<Float>' to expected argument type 'Float'".
-        // Raven wrote: trap_R_SetColor( item->window.foreColor )
-        portMissing("CG_DrawSiegeDeathTimer", source: "oracle/codemp/cgame/cg_draw.c:7424")
+        trap_R_SetColor(vec4_t(item!.window.foreColor[0], item!.window.foreColor[1], item!.window.foreColor[2], item!.window.foreColor[3]))
         CG_DrawPic(item!.window.rect.x, item!.window.rect.y, item!.window.rect.w, item!.window.rect.h, item!.window.background)
     }
 
@@ -6961,9 +6783,7 @@ private func CG_DrawSiegeDeathTimer(_ timeRemaining: Int32) {
     // Raven wrote: item = Menu_FindItemByName(menuHUD, "deathtimer")
     portMissing("CG_DrawSiegeDeathTimer", source: "oracle/codemp/cgame/cg_draw.c:7424")
     if item != nil {
-        // Port-note: The draft of this statement did not compile, and the compiler wrote "cannot convert value of type 'Slots<Float>' to expected argument type 'vec4_t' (aka 'SIMD4<Float>')".
-        // Raven wrote: UI_DrawProportionalString( item->window.rect.x, item->window.rect.y, timeStr, UI_SMALLFONT|UI_DROPSHADOW, item->window.foreColor )
-        portMissing("CG_DrawSiegeDeathTimer", source: "oracle/codemp/cgame/cg_draw.c:7424")
+        UI_DrawProportionalString(Int32(item!.window.rect.x), Int32(item!.window.rect.y), String(timeStr), UI_SMALLFONT | UI_DROPSHADOW, vec4_t(item!.window.foreColor[0], item!.window.foreColor[1], item!.window.foreColor[2], item!.window.foreColor[3]))
     }
 }
 
@@ -7158,7 +6978,7 @@ private func CG_Draw2DScreenTints() {
     var absorbTime: Float
     var protectTime: Float
     var ysalTime: Float
-    var hcolor: [Float] = [Float](repeating: 0, count: 4)
+    var hcolor = vec4_t()
     if cgs.clientinfo[cg.snap!.ps.clientNum].team != TEAM_SPECTATOR {
         if (cg.snap!.ps.fd.forcePowersActive & (1 << FP_RAGE)) != 0 {
             if cgRageTime == 0 {
@@ -7182,7 +7002,7 @@ private func CG_Draw2DScreenTints() {
             hcolor[2] = 0
 
             if !cg.renderingThirdPerson {
-                // Port-note: The draft of this statement did not compile, and the compiler wrote "cannot convert value of type '[Float]' to expected argument type 'Float'".
+                // Port-note: The draft of this statement did not compile, and the compiler wrote "cannot convert value of type 'vec4_t' (aka 'SIMD4<Float>') to expected argument type 'Float'".
                 // Raven wrote: CG_DrawRect(0, 0, SCREEN_WIDTH, SCREEN_HEIGHT, SCREEN_WIDTH*SCREEN_HEIGHT, hcolor)
                 portMissing("CG_Draw2DScreenTints", source: "oracle/codemp/cgame/cg_draw.c:7701")
             }
@@ -7228,7 +7048,7 @@ private func CG_Draw2DScreenTints() {
             }
 
             if !cg.renderingThirdPerson && rageTime != 0 {
-                // Port-note: The draft of this statement did not compile, and the compiler wrote "cannot convert value of type '[Float]' to expected argument type 'Float'".
+                // Port-note: The draft of this statement did not compile, and the compiler wrote "cannot convert value of type 'vec4_t' (aka 'SIMD4<Float>') to expected argument type 'Float'".
                 // Raven wrote: CG_DrawRect(0, 0, SCREEN_WIDTH, SCREEN_HEIGHT, SCREEN_WIDTH*SCREEN_HEIGHT, hcolor)
                 portMissing("CG_Draw2DScreenTints", source: "oracle/codemp/cgame/cg_draw.c:7701")
             } else {
@@ -7237,7 +7057,7 @@ private func CG_Draw2DScreenTints() {
                     hcolor[0] = 0.2
                     hcolor[1] = 0.2
                     hcolor[2] = 0.2
-                    // Port-note: The draft of this statement did not compile, and the compiler wrote "cannot convert value of type '[Float]' to expected argument type 'Float'".
+                    // Port-note: The draft of this statement did not compile, and the compiler wrote "cannot convert value of type 'vec4_t' (aka 'SIMD4<Float>') to expected argument type 'Float'".
                     // Raven wrote: CG_DrawRect(0, 0, SCREEN_WIDTH, SCREEN_HEIGHT, SCREEN_WIDTH*SCREEN_HEIGHT, hcolor)
                     portMissing("CG_Draw2DScreenTints", source: "oracle/codemp/cgame/cg_draw.c:7701")
                 }
@@ -7265,7 +7085,7 @@ private func CG_Draw2DScreenTints() {
             hcolor[2] = 0.2
 
             if !cg.renderingThirdPerson {
-                // Port-note: The draft of this statement did not compile, and the compiler wrote "cannot convert value of type '[Float]' to expected argument type 'Float'".
+                // Port-note: The draft of this statement did not compile, and the compiler wrote "cannot convert value of type 'vec4_t' (aka 'SIMD4<Float>') to expected argument type 'Float'".
                 // Raven wrote: CG_DrawRect(0, 0, SCREEN_WIDTH, SCREEN_HEIGHT, SCREEN_WIDTH*SCREEN_HEIGHT, hcolor)
                 portMissing("CG_Draw2DScreenTints", source: "oracle/codemp/cgame/cg_draw.c:7701")
             }
@@ -7295,7 +7115,7 @@ private func CG_Draw2DScreenTints() {
             hcolor[2] = 0.2
 
             if !cg.renderingThirdPerson && rageRecTime != 0 {
-                // Port-note: The draft of this statement did not compile, and the compiler wrote "cannot convert value of type '[Float]' to expected argument type 'Float'".
+                // Port-note: The draft of this statement did not compile, and the compiler wrote "cannot convert value of type 'vec4_t' (aka 'SIMD4<Float>') to expected argument type 'Float'".
                 // Raven wrote: CG_DrawRect(0, 0, SCREEN_WIDTH, SCREEN_HEIGHT, SCREEN_WIDTH*SCREEN_HEIGHT, hcolor)
                 portMissing("CG_Draw2DScreenTints", source: "oracle/codemp/cgame/cg_draw.c:7701")
             } else {
@@ -7325,7 +7145,7 @@ private func CG_Draw2DScreenTints() {
             hcolor[2] = 0.7
 
             if !cg.renderingThirdPerson {
-                // Port-note: The draft of this statement did not compile, and the compiler wrote "cannot convert value of type '[Float]' to expected argument type 'Float'".
+                // Port-note: The draft of this statement did not compile, and the compiler wrote "cannot convert value of type 'vec4_t' (aka 'SIMD4<Float>') to expected argument type 'Float'".
                 // Raven wrote: CG_DrawRect(0, 0, SCREEN_WIDTH, SCREEN_HEIGHT, SCREEN_WIDTH*SCREEN_HEIGHT, hcolor)
                 portMissing("CG_Draw2DScreenTints", source: "oracle/codemp/cgame/cg_draw.c:7701")
             }
@@ -7355,7 +7175,7 @@ private func CG_Draw2DScreenTints() {
             hcolor[2] = 0.7
 
             if !cg.renderingThirdPerson && absorbTime != 0 {
-                // Port-note: The draft of this statement did not compile, and the compiler wrote "cannot convert value of type '[Float]' to expected argument type 'Float'".
+                // Port-note: The draft of this statement did not compile, and the compiler wrote "cannot convert value of type 'vec4_t' (aka 'SIMD4<Float>') to expected argument type 'Float'".
                 // Raven wrote: CG_DrawRect(0, 0, SCREEN_WIDTH, SCREEN_HEIGHT, SCREEN_WIDTH*SCREEN_HEIGHT, hcolor)
                 portMissing("CG_Draw2DScreenTints", source: "oracle/codemp/cgame/cg_draw.c:7701")
             } else {
@@ -7385,7 +7205,7 @@ private func CG_Draw2DScreenTints() {
             hcolor[2] = 0
 
             if !cg.renderingThirdPerson {
-                // Port-note: The draft of this statement did not compile, and the compiler wrote "cannot convert value of type '[Float]' to expected argument type 'Float'".
+                // Port-note: The draft of this statement did not compile, and the compiler wrote "cannot convert value of type 'vec4_t' (aka 'SIMD4<Float>') to expected argument type 'Float'".
                 // Raven wrote: CG_DrawRect(0, 0, SCREEN_WIDTH, SCREEN_HEIGHT, SCREEN_WIDTH*SCREEN_HEIGHT, hcolor)
                 portMissing("CG_Draw2DScreenTints", source: "oracle/codemp/cgame/cg_draw.c:7701")
             }
@@ -7415,7 +7235,7 @@ private func CG_Draw2DScreenTints() {
             hcolor[2] = 0
 
             if !cg.renderingThirdPerson && protectTime != 0 {
-                // Port-note: The draft of this statement did not compile, and the compiler wrote "cannot convert value of type '[Float]' to expected argument type 'Float'".
+                // Port-note: The draft of this statement did not compile, and the compiler wrote "cannot convert value of type 'vec4_t' (aka 'SIMD4<Float>') to expected argument type 'Float'".
                 // Raven wrote: CG_DrawRect(0, 0, SCREEN_WIDTH, SCREEN_HEIGHT, SCREEN_WIDTH*SCREEN_HEIGHT, hcolor)
                 portMissing("CG_Draw2DScreenTints", source: "oracle/codemp/cgame/cg_draw.c:7701")
             } else {
@@ -7449,7 +7269,7 @@ private func CG_Draw2DScreenTints() {
             hcolor[2] = 0
 
             if !cg.renderingThirdPerson {
-                // Port-note: The draft of this statement did not compile, and the compiler wrote "cannot convert value of type '[Float]' to expected argument type 'Float'".
+                // Port-note: The draft of this statement did not compile, and the compiler wrote "cannot convert value of type 'vec4_t' (aka 'SIMD4<Float>') to expected argument type 'Float'".
                 // Raven wrote: CG_DrawRect(0, 0, SCREEN_WIDTH, SCREEN_HEIGHT, SCREEN_WIDTH*SCREEN_HEIGHT, hcolor)
                 portMissing("CG_Draw2DScreenTints", source: "oracle/codemp/cgame/cg_draw.c:7701")
             }
@@ -7479,7 +7299,7 @@ private func CG_Draw2DScreenTints() {
             hcolor[2] = 0
 
             if !cg.renderingThirdPerson && ysalTime != 0 {
-                // Port-note: The draft of this statement did not compile, and the compiler wrote "cannot convert value of type '[Float]' to expected argument type 'Float'".
+                // Port-note: The draft of this statement did not compile, and the compiler wrote "cannot convert value of type 'vec4_t' (aka 'SIMD4<Float>') to expected argument type 'Float'".
                 // Raven wrote: CG_DrawRect(0, 0, SCREEN_WIDTH, SCREEN_HEIGHT, SCREEN_WIDTH*SCREEN_HEIGHT, hcolor)
                 portMissing("CG_Draw2DScreenTints", source: "oracle/codemp/cgame/cg_draw.c:7701")
             } else {
@@ -7496,7 +7316,7 @@ private func CG_Draw2DScreenTints() {
         hcolor[1] = 0
         hcolor[2] = 0
 
-        // Port-note: The draft of this statement did not compile, and the compiler wrote "cannot convert value of type '[Float]' to expected argument type 'Float'".
+        // Port-note: The draft of this statement did not compile, and the compiler wrote "cannot convert value of type 'vec4_t' (aka 'SIMD4<Float>') to expected argument type 'Float'".
         // Raven wrote: CG_DrawRect( 0, 0, SCREEN_WIDTH, SCREEN_HEIGHT, SCREEN_WIDTH*SCREEN_HEIGHT, hcolor )
         portMissing("CG_Draw2DScreenTints", source: "oracle/codemp/cgame/cg_draw.c:7701")
     } else if (cg.refdef.viewContents & CONTENTS_SLIME) != 0 {
@@ -7507,7 +7327,7 @@ private func CG_Draw2DScreenTints() {
         hcolor[1] = 0.7
         hcolor[2] = 0
 
-        // Port-note: The draft of this statement did not compile, and the compiler wrote "cannot convert value of type '[Float]' to expected argument type 'Float'".
+        // Port-note: The draft of this statement did not compile, and the compiler wrote "cannot convert value of type 'vec4_t' (aka 'SIMD4<Float>') to expected argument type 'Float'".
         // Raven wrote: CG_DrawRect( 0, 0, SCREEN_WIDTH, SCREEN_HEIGHT, SCREEN_WIDTH*SCREEN_HEIGHT, hcolor )
         portMissing("CG_Draw2DScreenTints", source: "oracle/codemp/cgame/cg_draw.c:7701")
     } else if (cg.refdef.viewContents & CONTENTS_WATER) != 0 {
@@ -7518,7 +7338,7 @@ private func CG_Draw2DScreenTints() {
         hcolor[1] = 0.2
         hcolor[2] = 0.8
 
-        // Port-note: The draft of this statement did not compile, and the compiler wrote "cannot convert value of type '[Float]' to expected argument type 'Float'".
+        // Port-note: The draft of this statement did not compile, and the compiler wrote "cannot convert value of type 'vec4_t' (aka 'SIMD4<Float>') to expected argument type 'Float'".
         // Raven wrote: CG_DrawRect( 0, 0, SCREEN_WIDTH, SCREEN_HEIGHT, SCREEN_WIDTH*SCREEN_HEIGHT, hcolor )
         portMissing("CG_Draw2DScreenTints", source: "oracle/codemp/cgame/cg_draw.c:7701")
     }
@@ -7679,7 +7499,7 @@ private func CG_Draw2D() {
     }
 
     if cg.snap!.ps.fallingToDeath != 0 {
-        var hcolor: [Float] = [Float](repeating: 0, count: 4)
+        var hcolor = vec4_t()
 
         fallTime = Float((cg.time - cg.snap!.ps.fallingToDeath))
 
@@ -7699,7 +7519,7 @@ private func CG_Draw2D() {
         hcolor[1] = 0
         hcolor[2] = 0
 
-        // Port-note: The draft of this statement did not compile, and the compiler wrote "cannot convert value of type '[Float]' to expected argument type 'Float'".
+        // Port-note: The draft of this statement did not compile, and the compiler wrote "cannot convert value of type 'vec4_t' (aka 'SIMD4<Float>') to expected argument type 'Float'".
         // Raven wrote: CG_DrawRect(0, 0, SCREEN_WIDTH, SCREEN_HEIGHT, SCREEN_WIDTH*SCREEN_HEIGHT, hcolor)
         portMissing("CG_Draw2D", source: "oracle/codemp/cgame/cg_draw.c:8118")
 
