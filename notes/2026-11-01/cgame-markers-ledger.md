@@ -15,6 +15,7 @@ The record of the walk over `../2026-10-31/cgame-markers-docket.md`, rows M1 to 
 | M7 | ratified as proposed |
 | M8 | ratified as amended |
 | K1 | ratified as proposed |
+| M9 | ruled during the work, see the row |
 
 ## M1, the trap record pointers
 
@@ -53,6 +54,12 @@ The docket's precedent, `Sources/JKAMP_Game/PmoveThunks.swift`, does not fit. Th
 ## K1, the D16 constants
 
 A `reexport.py` rule, general and not a list of names. A macro body of the form `( ( <scalar typedef> ) <literal> )`, with the typedef among the declared scalar typealiases, writes `public let NAME: <typedef> = <literal>`, the rung between the expression and the marker. The generator change reruns every generator before its commit. No `// AI:` line, because the value and the type stay Raven's.
+
+## M9, the two fill buffers of trap_CM_MarkFragments
+
+A row the M2 work found and the user ruled on 2026-11-01. Raven's caller CG_ImpactMark at `oracle/codemp/cgame/cg_marks.c:161` passes the first of 384 local vectors as `pointBuffer` and the first of 128 local records as `fragmentBuffer`, with the two counts beside them, and the engine fills both. The spelling rule read the declared single-vector type and gave `inout vec3_t` and one `MarkFragment` view, so a transcribed caller would let the engine write past a 12-byte stack value. The game's `trap_EntitiesInBox` is the precedent for a buffer the engine fills with a count beside it, `inout [Int32]`.
+
+Ruled: `pointBuffer` takes `inout [vec3_t]` by a trap rule for a vector parameter the engine fills with a count beside it, and `fragmentBuffer` takes `Slots<markFragment_t>`, the records owned by the caller in C memory. No `// AI:` line, the call site keeps Raven's form.
 
 ## Facts the walk found outside its rows
 
