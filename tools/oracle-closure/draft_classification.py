@@ -14,7 +14,7 @@ from spelling import INT_KINDS
 from rulings import CHARBUF_ALLOCS, NEVER_NULL_VARS
 import closure as C
 from skeleton import BG, Function, target_of
-from table import Cursor, swift_name
+from table import ASSIGN_OPS, Cursor, swift_name
 from views import BUFFER_SUFFIX
 from layout import INDENT, port_note
 
@@ -992,6 +992,55 @@ class Classification:
             return False
         target = self.unwrap(self.unary_parts(inner)[2])
         return target.kind == CursorKind.DECL_REF_EXPR and target.spelling in self.cursor_locals
+
+    def color_local(self, var: ci.Cursor) -> str | None:
+        """The Swift type of Raven's `float *` local that only names a color of four floats, or None.
+        Every store into it is a `vec4_t` value, a row of a `vec4_t` table, a call that returns one, or NULL, `color = CG_FadeColor(...)`.
+        The local is optional when a store may be NULL or when Raven tests it for NULL, `if (!color) return`.
+        A step or a compound store through the pointer walks floats, so such a local is no color."""
+        t = var.type.get_canonical()
+        if t.kind != TypeKind.POINTER or t.get_pointee().get_canonical().kind != TypeKind.FLOAT:
+            return None
+        sources = [c for c in var.get_children() if c.kind.is_expression()]
+        optional = False
+        for node, parent in self.parented(self.fn.cur):
+            if node.kind != CursorKind.DECL_REF_EXPR or node.referenced != var or parent is None:
+                continue
+            kids = [self.unwrap(k) for k in parent.get_children()]
+            if parent.kind in (CursorKind.BINARY_OPERATOR, CursorKind.COMPOUND_ASSIGNMENT_OPERATOR) and len(kids) == 2:
+                op = self.bytes[kids[0].extent.end.offset:kids[1].extent.start.offset].decode("utf-8", "replace").strip()
+                if kids[0] == node and op == "=":
+                    sources.append(kids[1])
+                elif kids[0] == node and op in ASSIGN_OPS:
+                    return None
+                elif op in ("==", "!="):
+                    optional = True
+            elif parent.kind == CursorKind.UNARY_OPERATOR:
+                op = self.unary_parts(parent)[0]
+                if op in ("++", "--"):
+                    return None
+                optional = optional or op == "!"
+            elif parent.kind in (CursorKind.IF_STMT, CursorKind.WHILE_STMT, CursorKind.CONDITIONAL_OPERATOR) and kids and kids[0] == node:
+                optional = True
+        if not any(not self.is_null(c) for c in sources):
+            return None
+        for source in sources:
+            inner = self.unwrap(source)
+            returns = self.registry.returns.get(self.callee_name(inner), "") if self.is_call(inner) else ""
+            if self.is_null(inner) or returns.endswith("?"):
+                optional = True
+            if not (self.is_null(inner) or returns.replace("JKAShared.", "").removesuffix("?") == "vec4_t"
+                    or self.vec4_value(inner) or self.vec4_row(inner)):
+                return None
+        return "JKAShared.vec4_t?" if optional else "JKAShared.vec4_t"
+
+    def parented(self, cur: ci.Cursor, parent: ci.Cursor | None = None) -> list[tuple[ci.Cursor, ci.Cursor | None]]:
+        """Every node under the cursor with the node that holds it, where a paren or an implicit conversion holds nothing of its own."""
+        out = [(cur, parent)]
+        held = parent if cur.kind in (CursorKind.PAREN_EXPR, CursorKind.UNEXPOSED_EXPR) else cur
+        for kid in cur.get_children():
+            out += self.parented(kid, held)
+        return out
 
     def is_null(self, cur: ci.Cursor) -> bool:
         inner = self.unwrap(cur)

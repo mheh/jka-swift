@@ -332,7 +332,7 @@ class Expressions:
         if inner.kind == CursorKind.PAREN_EXPR:
             return self.coerced(list(inner.get_children())[0], "Bool")
         if inner.kind == CursorKind.DECL_REF_EXPR and inner.spelling in self.optional_vectors:
-            return f"{self.names[inner.spelling]} != nil"
+            return f"{self.names.get(inner.spelling, swift_name(inner.spelling))} != nil"
         name = self.always_set(cur)
         if name is not None:
             note = f"// Port-note: Raven tests `{name}` for NULL here. Swift holds it as a value, so the test has no form and reads true."
@@ -517,7 +517,7 @@ class Expressions:
             if op == "!":
                 inner = self.strip(operand)
                 if self.unwrap(operand).kind == CursorKind.DECL_REF_EXPR and self.unwrap(operand).spelling in self.optional_vectors:
-                    return f"{self.names[self.unwrap(operand).spelling]} == nil"
+                    return f"{self.names.get(self.unwrap(operand).spelling, swift_name(self.unwrap(operand).spelling))} == nil"
                 name = self.always_set(operand)
                 if name is not None:
                     note = f"// Port-note: Raven guards a NULL `{name}` here. Swift holds it as a value, so the guard has no form and reads false."

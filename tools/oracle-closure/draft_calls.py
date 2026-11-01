@@ -340,7 +340,7 @@ class Calls:
             return "nil"
         if param is not None and param[1].endswith("?") and inner.kind == CursorKind.DECL_REF_EXPR and inner.spelling in self.optional_vectors:
             # The optional vector passes on as it is, NULL and all.
-            return self.names[inner.spelling]
+            return self.names.get(inner.spelling, swift_name(inner.spelling))
         if param is not None and param[1].replace("JKAShared.", "") == "vec3_t" and self.is_null(inner) \
                 and callee in TRACE_TRAPS and param[0] in ("mins", "maxs"):
             # The engine substitutes `vec3_origin` for a NULL `mins` or `maxs`, so the plain argument is the same call.

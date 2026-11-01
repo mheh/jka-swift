@@ -439,6 +439,13 @@ class Declarations:
                 if init:
                     return f"{keyword} {name}: {view}? = {self.expr(init[0])}"
                 return f"var {name}: {view}?"
+            color = self.color_local(var)
+            if color is not None:
+                # Raven's `float *color` only names a color of four floats, so the local is the vector, and his NULL is nil.
+                if color.endswith("?"):
+                    self.optional_vectors.add(var.spelling)
+                self.color_locals.add(var.spelling)
+                return f"{keyword} {name}: {color}" + (f" = {self.expr(init[0])}" if init else "")
             raise Hole(f"A pointer local `{t.spelling} {var.spelling}` with no view.")
         swift = self.types.scalar(t, TARGET)
         if swift is None:

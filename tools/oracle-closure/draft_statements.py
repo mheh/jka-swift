@@ -425,13 +425,17 @@ class Statements:
         return cur
 
     def vec4_value(self, cur: ci.Cursor) -> bool:
-        """True for a variable Swift holds as one `vec4_t`: a `vec4_t` local or global, or a file-scope variable the stub spells `vec4_t`."""
+        """True for a variable Swift holds as one `vec4_t`: a `vec4_t` local or global, a file-scope variable the stub spells `vec4_t`,
+        or a `float *` local that only names a color."""
         inner = self.unwrap(cur)
         if inner.kind != CursorKind.DECL_REF_EXPR or inner.referenced is None or inner.referenced.kind != CursorKind.VAR_DECL:
             return False
         spelled = self.registry.var_types.get(swift_name(inner.spelling), "").replace("JKAShared.", "")
         if inner.referenced.semantic_parent is not None and inner.referenced.semantic_parent.kind == CursorKind.TRANSLATION_UNIT:
             return spelled == "vec4_t" or (spelled == "" and self.views.is_vec4(inner.referenced.type))
+        if inner.spelling in self.color_locals and inner.spelling not in self.optional_vectors:
+            # Raven's `float *` local that only names a color, which the declaration holds as a `vec4_t`.
+            return True
         return self.views.is_vec4(inner.referenced.type)
 
     def vec4_row(self, cur: ci.Cursor) -> bool:
