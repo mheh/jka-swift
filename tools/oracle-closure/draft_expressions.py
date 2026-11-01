@@ -937,6 +937,13 @@ class Expressions:
                     # Raven casts a pointer that can be NULL, so the view of the other record maps over the optional, and NULL stays nil.
                     return f"{self.expr(operand)}.map {{ {view}($0) }}"
                 return f"{view}({self.expr(operand)})"
+            pointee = canonical.get_pointee().get_canonical()
+            source = self.unwrap(operand)
+            if pointee.kind == TypeKind.CONSTANTARRAY and pointee.element_type.get_canonical().kind == TypeKind.FLOAT \
+                    and pointee.element_count == 3 and source.kind == CursorKind.DECL_REF_EXPR \
+                    and source.type.kind == TypeKind.CONSTANTARRAY and self.views.is_vec3(source.type.element_type):
+                # Raven's `(const vec3_t *)points` over his `vec3_t points[N]` reads the same vectors, so the array passes as it is.
+                return self.expr(source)
             raise Hole(f"A cast to `{target.spelling}` the draft has no view for.")
         swift = self.types.scalar(target, TARGET)
         if swift is None:

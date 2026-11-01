@@ -310,6 +310,14 @@ class Calls:
                 return self.expr(inner)
             if slots is not None:
                 return slots
+        if inout and not addressed and param is not None and param[1].removeprefix("inout ").replace("JKAShared.", "") == "[vec3_t]" \
+                and target.kind == CursorKind.ARRAY_SUBSCRIPT_EXPR:
+            array, index = [self.unwrap(k) for k in target.get_children()]
+            if array.kind == CursorKind.DECL_REF_EXPR and array.type.kind == TypeKind.CONSTANTARRAY and self.views.is_vec3(array.type.element_type) \
+                    and array.referenced is not None and array.referenced.semantic_parent.kind == CursorKind.FUNCTION_DECL \
+                    and self.literal_text(index) == "0":
+                # Raven passes `points[0]`, the head of his local `vec3_t points[N]`, and the callee fills the vectors from there.
+                return f"&{self.expr(array)}"
         if self.is_raw(inner) and self.overload_takes(callee, position, "UnsafeMutableRawPointer"):
             # A raw pointer passes as it is to the overload that takes one, `strcpy(dest, source)`.
             slot = self.raw_store(inner)
