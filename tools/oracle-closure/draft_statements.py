@@ -813,6 +813,12 @@ class Statements:
                 return [f"{pad}{buffer} = {call}" + self.trailing(cur)]
             # The trap returns the text the engine wrote, and the copy keeps the buffer's own size, as the engine's write does.
             return [f"{pad}strcpy(&{buffer}, {call})" + self.trailing(cur)]
+        if self.is_call(cur) and self.tuple_call(cur) is not None:
+            call, buffer = self.tuple_call(cur)
+            # Raven drops the trap's count, and the buffer takes the text, the second element of the tuple, as in the form above.
+            if self.registry.returns.get(self.callee_name(self.strip(cur)), "").endswith(", JKAShared.CharBuf)"):
+                return [f"{pad}{buffer} = {call}.1" + self.trailing(cur)]
+            return [f"{pad}strcpy(&{buffer}, {call}.1)" + self.trailing(cur)]
         if self.is_call(cur) and self.aliased_inouts(cur):
             aliased = self.aliased_inouts(cur)
             with self.aliased_reads(cur, aliased):
@@ -878,7 +884,8 @@ class Statements:
 
     def filled_test(self, cur: ci.Cursor) -> tuple[str, str, bool, bool] | None:
         """Raven's `if (!trap_GetEntityToken(com_token, sizeof(com_token)))`, a test that is one call to a trap whose Swift form returns
-        `(Bool, String)`: the call, the buffer, True for a list trap, and True when Raven negates the call. None for any other test."""
+        `(Bool, String)` or `(Int32, String)`: the call, the buffer, True for a list trap, True when the first element is a count,
+        and True when Raven negates the call. None for any other test."""
         inner = self.unwrap(cur)
         negated = False
         if inner.kind == CursorKind.UNARY_OPERATOR and self.operator_or_none_unary(inner) == "!":
@@ -886,12 +893,13 @@ class Statements:
             inner = self.unwrap(self.unary_parts(inner)[2])
         name = self.callee_name(self.strip(inner)) if self.is_call(self.strip(inner)) else None
         returns = self.registry.returns.get(name, "") if name else ""
-        if not (returns.startswith("(Bool, String)") or returns.startswith("(Bool, JKAShared.CharBuf)")):
+        if not any(returns.startswith(f"({first}, {text})") for first in ("Bool", "Int32") for text in ("String", "JKAShared.CharBuf")):
             return None
         filled = self.tuple_call(inner)
         if filled is None:
             return None
-        return filled[0], filled[1], returns.startswith("(Bool, JKAShared.CharBuf)"), negated
+        # C tests the count as true when it is not zero.
+        return filled[0], filled[1], returns.endswith(", JKAShared.CharBuf)"), not returns.startswith("(Bool,"), negated
 
     def if_statement(self, cur: ci.Cursor, depth: int) -> list[str]:
         pad = INDENT * depth
@@ -908,13 +916,16 @@ class Statements:
                 test = self.condition(cond)
         elif self.filled_test(cond) is not None:
             # A trap that fills a buffer and returns its Bool stands before the `if`, the buffer takes the text, and the test reads the Bool.
-            call, buffer, whole, negated = self.filled_test(cond)
+            call, buffer, whole, nonzero, negated = self.filled_test(cond)
             # A second test of this shape in one body takes a numbered name, so no two lets collide in one scope.
             self.scratch_names["filledTest"] = self.scratch_names.get("filledTest", 0) + 1
             filled = "filledTest" if self.scratch_names["filledTest"] == 1 else f"filledTest{self.scratch_names['filledTest']}"
             fill = f"{buffer} = {filled}.1" if whole else f"strcpy(&{buffer}, {filled}.1)"
             head = roled([f"{pad}let {filled} = {call}", f"{pad}{fill}"], "lifted")
-            test = f"!{filled}.0" if negated else f"{filled}.0"
+            if nonzero:
+                test = f"{filled}.0 == 0" if negated else f"{filled}.0 != 0"
+            else:
+                test = f"!{filled}.0" if negated else f"{filled}.0"
         else:
             # The bind changes the hoists, so the draft asks for it once.
             bind = self.client_bind(cond, then)
