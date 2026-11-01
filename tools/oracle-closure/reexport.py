@@ -185,6 +185,25 @@ def swift_expression(cur: ci.Cursor, enum_of: dict[str, str], declared: dict[str
     return f"{text} as Int32" if narrow else text
 
 
+def cast_literal(cur: ci.Cursor, typealiases: set[str], declared: dict[str, str]) -> tuple[str, str] | None:
+    """The Swift type and the literal of a macro body `( ( <scalar typedef> ) <literal> )`, `NULL_HANDLE ((qhandle_t) 0)`, or None for any other body.
+    The typedef is one of the scalar typealiases a view target declares, qualified as `swift_expression` qualifies a name of a dependency."""
+    tokens = [t.spelling for t in cur.get_tokens()][1:]
+    if len(tokens) != 6 or tokens[:2] != ["(", "("] or tokens[3] != ")" or tokens[5] != ")" or tokens[2] not in typealiases:
+        return None
+    literal = tokens[4]
+    if re.fullmatch(r"0[xX][0-9a-fA-F]+[uUlL]*", literal) or re.fullmatch(r"\d+[uUlL]*", literal) and not re.fullmatch(r"0[0-7]+[uUlL]*", literal):
+        value = re.sub(r"[uUlL]+$", "", literal)
+    elif re.fullmatch(r"0[0-7]+[uUlL]*", literal):
+        value = "0o" + re.sub(r"[uUlL]+$", "", literal)[1:]
+    elif re.fullmatch(r"(\d+\.\d*|\.\d+)([eE][+-]?\d+)?[fFlL]?", literal):
+        value = ("0" if literal.startswith(".") else "") + re.sub(r"[fFlL]$", "", literal) + ("0" if literal.rstrip("fFlL").endswith(".") else "")
+    else:
+        return None
+    module = declared.get(tokens[2])
+    return (f"{module}.{tokens[2]}" if module else tokens[2], value)
+
+
 def header_stem(source: str) -> str:
     return Path(source.rsplit(":", 1)[0]).stem
 
@@ -202,9 +221,16 @@ def doc(sources: list[str]) -> list[str]:
     return [f"/// Source: {s}" for s in sources]
 
 
-def emit(target: str, unimportable: set[str], narrowed: set[str], unexpressible: set[str], declared: dict[str, str]) -> dict[str, list[str]]:
+def emit(target: str, unimportable: set[str], narrowed: set[str], typed: set[str], unexpressible: set[str],
+         declared: dict[str, str]) -> dict[str, list[str]]:
     """The Swift files for one C target, keyed by Raven header stem."""
     tu = parse(target)
+    # The scalar typedefs this target writes as a typealias, or reads from a dependency's view, which a cast body may name.
+    typealiases = {
+        cur.spelling for cur in tu.cursor.get_children()
+        if cur.kind == CursorKind.TYPEDEF_DECL and cur.spelling not in SKIP and SCALARS.get(cur.underlying_typedef_type.get_canonical().kind)
+        and (in_target(cur, target) or cur.spelling in declared)
+    }
     files: dict[str, list[str]] = defaultdict(list)
     seen: set[str] = set()
     enum_of: dict[str, str] = {}
@@ -238,7 +264,11 @@ def emit(target: str, unimportable: set[str], narrowed: set[str], unexpressible:
             expression = swift_expression(cur, enum_of, declared, narrow=name in narrowed) if name in unimportable else None
             if name in NOT_PORTED_MACROS:
                 block += [f"// Raven wrote: #define {macro_text(cur)}", f"// Not ported: {NOT_PORTED_MACROS[name]}."]
-            elif name in unexpressible or (name in unimportable and expression is None):
+            elif name in typed and name not in unexpressible and cast_literal(cur, typealiases, declared) is not None:
+                # Swift takes no C cast, so a cast of a literal to a scalar typedef is the literal with the typedef as its type.
+                swift, value = cast_literal(cur, typealiases, declared)
+                block.append(f"public let {name}: {swift} = {value}")
+            elif name in unexpressible or name in typed or (name in unimportable and expression is None):
                 # Rule 14: a placeholder constant carries the marker alone, and the C text says what it must become.
                 block += [f"// TODO: Port {name}", f"// Raven wrote: #define {macro_text(cur)}"]
             elif name in unimportable:
@@ -338,10 +368,12 @@ def main() -> int:
     ap.add_argument("--no-probe", action="store_true", help="write once with every macro as an import, and skip the build that marks what Swift could not import")
     args = ap.parse_args()
     targets = [t for t, view in VIEW_OF.items() if (SOURCES / t / "include").exists() and (SOURCES / view).exists()]
-    # A name climbs one rung per failed build: the import, the expression, the expression narrowed to Int32, then the marker.
+    # A name climbs one rung per failed build: the import, the expression, the expression narrowed to Int32, a cast literal, then the marker.
+    # The cast rung writes a marker at once for a body of any other form.
     # Each set holds pairs of a view target and a name.
     unimportable: set[tuple[str, str]] = set()
     narrowed: set[tuple[str, str]] = set()
+    typed: set[tuple[str, str]] = set()
     unexpressible: set[tuple[str, str]] = set()
     # A failed build stops at the first module that fails, so each view target can take its own rounds.
     for _ in range(24):
@@ -349,7 +381,7 @@ def main() -> int:
         for target in targets:
             # A target reads the names of the targets its umbrella reaches, and never the names of a sibling unit's target.
             reached = {VIEW_OF[d] for d in DEPS[target]}
-            mine = [{name for view, name in rung if view == VIEW_OF[target]} for rung in (unimportable, narrowed, unexpressible)]
+            mine = [{name for view, name in rung if view == VIEW_OF[target]} for rung in (unimportable, narrowed, typed, unexpressible)]
             files = emit(target, *mine, {name: view for name, view in declared.items() if view in reached})
             count = write(target, files)
             for lines in files.values():
@@ -362,9 +394,11 @@ def main() -> int:
             return 0
         found = probe()
         if not found:
-            print(f"{len(unimportable)} macros spelled as Swift expressions, {len(narrowed)} of them narrowed to Int32, {len(unexpressible)} marked TODO: Port")
+            print(f"{len(unimportable)} macros spelled as Swift expressions, {len(narrowed)} of them narrowed to Int32, "
+                  f"{len(typed - unexpressible)} reached the cast rung, {len(unexpressible)} marked TODO: Port")
             return 0
-        unexpressible |= found & narrowed
+        unexpressible |= found & typed
+        typed |= found & narrowed
         narrowed |= found & unimportable
         unimportable |= found
     print("reexport.py: the build still fails after 24 rounds", file=sys.stderr)

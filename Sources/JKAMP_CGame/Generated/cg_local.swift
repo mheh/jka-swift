@@ -5,16 +5,13 @@ import JKAMP
 import JKAShared
 
 /// Source: oracle/codemp/cgame/cg_local.h:19
-// TODO: Port NULL_HANDLE
-// Raven wrote: #define NULL_HANDLE ( ( qhandle_t ) 0 )
+public let NULL_HANDLE: JKAShared.qhandle_t = 0
 
 /// Source: oracle/codemp/cgame/cg_local.h:20
-// TODO: Port NULL_SOUND
-// Raven wrote: #define NULL_SOUND ( ( sfxHandle_t ) 0 )
+public let NULL_SOUND: JKAShared.sfxHandle_t = 0
 
 /// Source: oracle/codemp/cgame/cg_local.h:21
-// TODO: Port NULL_FX
-// Raven wrote: #define NULL_FX ( ( fxHandle_t ) 0 )
+public let NULL_FX: JKAShared.fxHandle_t = 0
 
 /// Source: oracle/codemp/cgame/cg_local.h:48
 public let SINK_TIME = CJKAMP_CGame.SINK_TIME
