@@ -688,6 +688,12 @@ class Expressions:
             return re.sub(r"^(\d+)\.(?=[eE]|$)", r"\1.0", text)
         return re.sub(r"[uUlL]+$", "", text)
 
+    def hole_local_reason(self, name: str, store: bool) -> str:
+        """The Port-note of a statement that uses a local whose declaration is a hole, one text for a read and one for a store."""
+        if store:
+            return f"A store into `{name}`, a local the draft left as a hole."
+        return f"A read of `{name}`, a local the draft left as a hole."
+
     def reference(self, cur: ci.Cursor) -> str:
         name = cur.spelling
         ref = cur.referenced
@@ -709,7 +715,7 @@ class Expressions:
             return self.names[name] + ("!" if name in self.optional_vectors else "")
         if name in self.local_holes and ref is not None and ref.kind == CursorKind.VAR_DECL:
             # The declaration is a hole, so the local has no Swift name, and a read of it is the same hole one statement later.
-            raise Hole(f"A read of `{name}`, a local the draft left as a hole.")
+            raise Hole(self.hole_local_reason(name, False))
         if name in self.aliases and ref is not None and ref.kind == CursorKind.VAR_DECL:
             return self.expr(self.aliases[name])
         if name in self.table_cursors and ref is not None and ref.kind == CursorKind.VAR_DECL:

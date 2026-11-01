@@ -215,11 +215,59 @@ class Statements:
         if lines is None:
             try:
                 lines = self.statement_lines(cur, depth)
+                missed = self.hole_local_use(cur)
+                if missed is not None:
+                    # A form that spells a name with no read through `reference` still reads the local, `total += previousTimes[i]`.
+                    raise Hole(missed)
             except Hole as hole:
                 lines = self.hole(cur, depth, str(hole))
         lines = [INDENT * depth + line for line in roled(self.pending, "lifted")] + lines
         self.pending = outer
         return marked(lines, self.statement_number(cur))
+
+    def hole_local_use(self, cur: ci.Cursor) -> str | None:
+        """The hole reason of the first use of a hole local in the statement's own expressions, or None when it uses none.
+        A nested statement is its own statement and gets its own check, and a declaration checks only the locals it drafted."""
+        if not self.local_holes:
+            return None
+        if cur.kind.is_expression():
+            roots = [cur]
+        elif cur.kind == CursorKind.DECL_STMT:
+            roots = [k for var in cur.get_children() if var.kind == CursorKind.VAR_DECL and var.spelling not in self.local_holes
+                     for k in var.get_children() if k.kind.is_expression()]
+        else:
+            # A body is the nested statement, braced or not, so a loop or a branch checks its condition alone.
+            kids = list(cur.get_children())
+            if cur.kind in (CursorKind.IF_STMT, CursorKind.WHILE_STMT, CursorKind.SWITCH_STMT, CursorKind.CASE_STMT):
+                kids = kids[:1]
+            elif cur.kind == CursorKind.DO_STMT:
+                kids = kids[-1:]
+            elif cur.kind == CursorKind.FOR_STMT:
+                kids = kids[:-1]
+            elif cur.kind in (CursorKind.LABEL_STMT, CursorKind.DEFAULT_STMT, CursorKind.COMPOUND_STMT):
+                kids = []
+            roots = [k for k in kids if k.kind.is_expression()]
+        for root in roots:
+            stores = self.store_targets(root)
+            for node in root.walk_preorder():
+                if node.kind == CursorKind.DECL_REF_EXPR and node.spelling in self.local_holes \
+                        and node.referenced is not None and node.referenced.kind == CursorKind.VAR_DECL:
+                    return self.hole_local_reason(node.spelling, extent_key(node) in stores)
+        return None
+
+    def store_targets(self, root: ci.Cursor) -> set[tuple[str, int, int]]:
+        """The extents of the names a plain `=` stores into, `x = v` or `x[i] = v`, which are stores and not reads."""
+        out: set[tuple[str, int, int]] = set()
+        for node in root.walk_preorder():
+            kids = list(node.get_children())
+            if node.kind != CursorKind.BINARY_OPERATOR or len(kids) != 2 or self.operator_or_none(node) != "=":
+                continue
+            left = self.unwrap(kids[0])
+            if left.kind == CursorKind.ARRAY_SUBSCRIPT_EXPR:
+                left = self.strip(list(left.get_children())[0])
+            if left.kind == CursorKind.DECL_REF_EXPR:
+                out.add(extent_key(left))
+        return out
 
     def statement_key(self, cur: ci.Cursor) -> tuple[str, str, int, int]:
         """One statement's identity across two drafts of the same function, by the function and the statement's extent."""
@@ -606,7 +654,7 @@ class Statements:
                     optional = self.unwrap(left).spelling in self.optional_texts
                     return [f"{pad}{self.expr(left)} = {self.text_value(right, optional)}" + self.trailing(cur)]
                 if self.unwrap(left).kind == CursorKind.DECL_REF_EXPR and self.unwrap(left).spelling in self.local_holes:
-                    raise Hole(f"A store into `{self.unwrap(left).spelling}`, a local the draft left as a hole.")
+                    raise Hole(self.hole_local_reason(self.unwrap(left).spelling, True))
                 if op == "=" and self.unwrap(left).kind == CursorKind.ARRAY_SUBSCRIPT_EXPR and self.is_raw(list(self.unwrap(left).get_children())[0]):
                     # Raven's `tempReadBuffer[len] = 0` writes one byte of a raw allocation, which the `byte` slot of RawField.swift stores.
                     base, index = list(self.unwrap(left).get_children())
