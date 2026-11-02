@@ -474,13 +474,9 @@ private func CG_Obituary(_ ent: JKAMP.EntityState) {
             }
             if mod == MOD_TARGET_LASER {
                 //no attacker name, just a turbolaser or other kind of turret...
-                // Port-note: The draft of this statement did not compile, and the compiler wrote "cannot force unwrap value of non-optional type 'String'".
-                // Raven wrote: CG_Printf( "%s", message)
-                portMissing("CG_Obituary", source: "oracle/codemp/cgame/cg_event.c:103")
+                CG_Printf("%s", message!)
             } else {
-                // Port-note: The draft of this statement did not compile, and the compiler wrote "cannot force unwrap value of non-optional type 'String'".
-                // Raven wrote: CG_Printf( "%s %s", message, attackerName)
-                portMissing("CG_Obituary", source: "oracle/codemp/cgame/cg_event.c:103")
+                CG_Printf("%s %s", message!, attackerName)
 
                 if attackerVehName[0] != 0 && attackerVehWeapName[0] != 0 {
                     CG_Printf(" (%s %s)", attackerVehName, attackerVehWeapName)
@@ -1201,9 +1197,7 @@ func CG_EntityEvent(_ cent: Centity, _ position: JKAShared.vec3_t) {
 
     if event == 0 {
         if cg_debugEvents.integer != 0 {
-            // Port-note: The draft of this statement did not compile, and the compiler wrote "cannot find 'DEBUGNAME' in scope".
-            // Raven wrote: DEBUGNAME("ZEROEVENT")
-            portMissing("CG_EntityEvent", source: "oracle/codemp/cgame/cg_event.c:1491")
+            CG_Printf("ZEROEVENT\n")
         }
         return
     }
@@ -1240,9 +1234,7 @@ func CG_EntityEvent(_ cent: Centity, _ position: JKAShared.vec3_t) {
     //
     case EV_CLIENTJOIN:
         if cg_debugEvents.integer != 0 {
-            // Port-note: The draft of this statement did not compile, and the compiler wrote "cannot find 'DEBUGNAME' in scope".
-            // Raven wrote: DEBUGNAME("EV_CLIENTJOIN")
-            portMissing("CG_EntityEvent", source: "oracle/codemp/cgame/cg_event.c:1491")
+            CG_Printf("EV_CLIENTJOIN\n")
         }
 
         //Slight hack to force a local reinit of client entity on join.
@@ -1273,9 +1265,7 @@ func CG_EntityEvent(_ cent: Centity, _ position: JKAShared.vec3_t) {
 
     case EV_FOOTSTEP:
         if cg_debugEvents.integer != 0 {
-            // Port-note: The draft of this statement did not compile, and the compiler wrote "cannot find 'DEBUGNAME' in scope".
-            // Raven wrote: DEBUGNAME("EV_FOOTSTEP")
-            portMissing("CG_EntityEvent", source: "oracle/codemp/cgame/cg_event.c:1491")
+            CG_Printf("EV_FOOTSTEP\n")
         }
         if cg_footsteps.integer != 0 {
             var soundType: footstep_t = 0
@@ -1320,9 +1310,7 @@ func CG_EntityEvent(_ cent: Centity, _ position: JKAShared.vec3_t) {
 
     case EV_FOOTSTEP_METAL:
         if cg_debugEvents.integer != 0 {
-            // Port-note: The draft of this statement did not compile, and the compiler wrote "cannot find 'DEBUGNAME' in scope".
-            // Raven wrote: DEBUGNAME("EV_FOOTSTEP_METAL")
-            portMissing("CG_EntityEvent", source: "oracle/codemp/cgame/cg_event.c:1491")
+            CG_Printf("EV_FOOTSTEP_METAL\n")
         }
         if cg_footsteps.integer != 0 {
             // The SDK also declares `rand`, so the call names the bg module.
@@ -1331,9 +1319,7 @@ func CG_EntityEvent(_ cent: Centity, _ position: JKAShared.vec3_t) {
 
     case EV_FOOTSPLASH:
         if cg_debugEvents.integer != 0 {
-            // Port-note: The draft of this statement did not compile, and the compiler wrote "cannot find 'DEBUGNAME' in scope".
-            // Raven wrote: DEBUGNAME("EV_FOOTSPLASH")
-            portMissing("CG_EntityEvent", source: "oracle/codemp/cgame/cg_event.c:1491")
+            CG_Printf("EV_FOOTSPLASH\n")
         }
         if cg_footsteps.integer != 0 {
             // The SDK also declares `rand`, so the call names the bg module.
@@ -1342,9 +1328,7 @@ func CG_EntityEvent(_ cent: Centity, _ position: JKAShared.vec3_t) {
 
     case EV_FOOTWADE:
         if cg_debugEvents.integer != 0 {
-            // Port-note: The draft of this statement did not compile, and the compiler wrote "cannot find 'DEBUGNAME' in scope".
-            // Raven wrote: DEBUGNAME("EV_FOOTWADE")
-            portMissing("CG_EntityEvent", source: "oracle/codemp/cgame/cg_event.c:1491")
+            CG_Printf("EV_FOOTWADE\n")
         }
         if cg_footsteps.integer != 0 {
             // The SDK also declares `rand`, so the call names the bg module.
@@ -1353,9 +1337,7 @@ func CG_EntityEvent(_ cent: Centity, _ position: JKAShared.vec3_t) {
 
     case EV_SWIM:
         if cg_debugEvents.integer != 0 {
-            // Port-note: The draft of this statement did not compile, and the compiler wrote "cannot find 'DEBUGNAME' in scope".
-            // Raven wrote: DEBUGNAME("EV_SWIM")
-            portMissing("CG_EntityEvent", source: "oracle/codemp/cgame/cg_event.c:1491")
+            CG_Printf("EV_SWIM\n")
         }
         if cg_footsteps.integer != 0 {
             // The SDK also declares `rand`, so the call names the bg module.
@@ -1364,9 +1346,7 @@ func CG_EntityEvent(_ cent: Centity, _ position: JKAShared.vec3_t) {
 
     case EV_FALL:
         if cg_debugEvents.integer != 0 {
-            // Port-note: The draft of this statement did not compile, and the compiler wrote "cannot find 'DEBUGNAME' in scope".
-            // Raven wrote: DEBUGNAME("EV_FALL")
-            portMissing("CG_EntityEvent", source: "oracle/codemp/cgame/cg_event.c:1491")
+            CG_Printf("EV_FALL\n")
         }
         if es!.number == cg.snap!.ps.clientNum && cg.snap!.ps.fallingToDeath != 0 {
             break
@@ -1378,9 +1358,7 @@ func CG_EntityEvent(_ cent: Centity, _ position: JKAShared.vec3_t) {
          EV_STEP_12,
          EV_STEP_16: // smooth out step up transitions
         if cg_debugEvents.integer != 0 {
-            // Port-note: The draft of this statement did not compile, and the compiler wrote "cannot find 'DEBUGNAME' in scope".
-            // Raven wrote: DEBUGNAME("EV_STEP")
-            portMissing("CG_EntityEvent", source: "oracle/codemp/cgame/cg_event.c:1491")
+            CG_Printf("EV_STEP\n")
         }
         do {
             var oldStep: Float = 0
@@ -1415,16 +1393,12 @@ func CG_EntityEvent(_ cent: Centity, _ position: JKAShared.vec3_t) {
 
     case EV_JUMP_PAD:
         if cg_debugEvents.integer != 0 {
-            // Port-note: The draft of this statement did not compile, and the compiler wrote "cannot find 'DEBUGNAME' in scope".
-            // Raven wrote: DEBUGNAME("EV_JUMP_PAD")
-            portMissing("CG_EntityEvent", source: "oracle/codemp/cgame/cg_event.c:1491")
+            CG_Printf("EV_JUMP_PAD\n")
         }
 
     case EV_GHOUL2_MARK:
         if cg_debugEvents.integer != 0 {
-            // Port-note: The draft of this statement did not compile, and the compiler wrote "cannot find 'DEBUGNAME' in scope".
-            // Raven wrote: DEBUGNAME("EV_GHOUL2_MARK")
-            portMissing("CG_EntityEvent", source: "oracle/codemp/cgame/cg_event.c:1491")
+            CG_Printf("EV_GHOUL2_MARK\n")
         }
 
         if cg_ghoul2Marks.integer != 0 {
@@ -1434,9 +1408,7 @@ func CG_EntityEvent(_ cent: Centity, _ position: JKAShared.vec3_t) {
 
     case EV_GLOBAL_DUEL:
         if cg_debugEvents.integer != 0 {
-            // Port-note: The draft of this statement did not compile, and the compiler wrote "cannot find 'DEBUGNAME' in scope".
-            // Raven wrote: DEBUGNAME("EV_GLOBAL_DUEL")
-            portMissing("CG_EntityEvent", source: "oracle/codemp/cgame/cg_event.c:1491")
+            CG_Printf("EV_GLOBAL_DUEL\n")
         }
         //used for beginning of power duels
         //if (cg.predictedPlayerState.persistant[PERS_TEAM] != TEAM_SPECTATOR)
@@ -1447,9 +1419,7 @@ func CG_EntityEvent(_ cent: Centity, _ position: JKAShared.vec3_t) {
 
     case EV_PRIVATE_DUEL:
         if cg_debugEvents.integer != 0 {
-            // Port-note: The draft of this statement did not compile, and the compiler wrote "cannot find 'DEBUGNAME' in scope".
-            // Raven wrote: DEBUGNAME("EV_PRIVATE_DUEL")
-            portMissing("CG_EntityEvent", source: "oracle/codemp/cgame/cg_event.c:1491")
+            CG_Printf("EV_PRIVATE_DUEL\n")
         }
 
         if cg.snap!.ps.clientNum != es!.number {
@@ -1471,9 +1441,7 @@ func CG_EntityEvent(_ cent: Centity, _ position: JKAShared.vec3_t) {
 
     case EV_JUMP:
         if cg_debugEvents.integer != 0 {
-            // Port-note: The draft of this statement did not compile, and the compiler wrote "cannot find 'DEBUGNAME' in scope".
-            // Raven wrote: DEBUGNAME("EV_JUMP")
-            portMissing("CG_EntityEvent", source: "oracle/codemp/cgame/cg_event.c:1491")
+            CG_Printf("EV_JUMP\n")
         }
         if cg_jumpSounds.integer != 0 {
             trap_S_StartSound(nil, es!.number, CHAN_VOICE, CG_CustomSound(es!.number, "*jump1.wav"))
@@ -1481,9 +1449,7 @@ func CG_EntityEvent(_ cent: Centity, _ position: JKAShared.vec3_t) {
 
     case EV_ROLL:
         if cg_debugEvents.integer != 0 {
-            // Port-note: The draft of this statement did not compile, and the compiler wrote "cannot find 'DEBUGNAME' in scope".
-            // Raven wrote: DEBUGNAME("EV_ROLL")
-            portMissing("CG_EntityEvent", source: "oracle/codemp/cgame/cg_event.c:1491")
+            CG_Printf("EV_ROLL\n")
         }
         if es!.number == cg.snap!.ps.clientNum && cg.snap!.ps.fallingToDeath != 0 {
             break
@@ -1498,9 +1464,7 @@ func CG_EntityEvent(_ cent: Centity, _ position: JKAShared.vec3_t) {
 
     case EV_TAUNT:
         if cg_debugEvents.integer != 0 {
-            // Port-note: The draft of this statement did not compile, and the compiler wrote "cannot find 'DEBUGNAME' in scope".
-            // Raven wrote: DEBUGNAME("EV_TAUNT")
-            portMissing("CG_EntityEvent", source: "oracle/codemp/cgame/cg_event.c:1491")
+            CG_Printf("EV_TAUNT\n")
         }
         do {
             var soundIndex: Int32 = 0
@@ -1563,9 +1527,7 @@ func CG_EntityEvent(_ cent: Centity, _ position: JKAShared.vec3_t) {
          EV_ANGER2,
          EV_ANGER3:
         if cg_debugEvents.integer != 0 {
-            // Port-note: The draft of this statement did not compile, and the compiler wrote "cannot find 'DEBUGNAME' in scope".
-            // Raven wrote: DEBUGNAME("EV_ANGERx")
-            portMissing("CG_EntityEvent", source: "oracle/codemp/cgame/cg_event.c:1491")
+            CG_Printf("EV_ANGERx\n")
         }
         CG_TryPlayCustomSound(nil, es!.number, CHAN_VOICE, va("*anger%i.wav", event - EV_ANGER1 + 1))
 
@@ -1573,9 +1535,7 @@ func CG_EntityEvent(_ cent: Centity, _ position: JKAShared.vec3_t) {
          EV_VICTORY2,
          EV_VICTORY3:
         if cg_debugEvents.integer != 0 {
-            // Port-note: The draft of this statement did not compile, and the compiler wrote "cannot find 'DEBUGNAME' in scope".
-            // Raven wrote: DEBUGNAME("EV_VICTORYx")
-            portMissing("CG_EntityEvent", source: "oracle/codemp/cgame/cg_event.c:1491")
+            CG_Printf("EV_VICTORYx\n")
         }
         CG_TryPlayCustomSound(nil, es!.number, CHAN_VOICE, va("*victory%i.wav", event - EV_VICTORY1 + 1))
 
@@ -1583,9 +1543,7 @@ func CG_EntityEvent(_ cent: Centity, _ position: JKAShared.vec3_t) {
          EV_CONFUSE2,
          EV_CONFUSE3:
         if cg_debugEvents.integer != 0 {
-            // Port-note: The draft of this statement did not compile, and the compiler wrote "cannot find 'DEBUGNAME' in scope".
-            // Raven wrote: DEBUGNAME("EV_CONFUSEDx")
-            portMissing("CG_EntityEvent", source: "oracle/codemp/cgame/cg_event.c:1491")
+            CG_Printf("EV_CONFUSEDx\n")
         }
         CG_TryPlayCustomSound(nil, es!.number, CHAN_VOICE, va("*confuse%i.wav", event - EV_CONFUSE1 + 1))
 
@@ -1593,9 +1551,7 @@ func CG_EntityEvent(_ cent: Centity, _ position: JKAShared.vec3_t) {
          EV_PUSHED2,
          EV_PUSHED3:
         if cg_debugEvents.integer != 0 {
-            // Port-note: The draft of this statement did not compile, and the compiler wrote "cannot find 'DEBUGNAME' in scope".
-            // Raven wrote: DEBUGNAME("EV_PUSHEDx")
-            portMissing("CG_EntityEvent", source: "oracle/codemp/cgame/cg_event.c:1491")
+            CG_Printf("EV_PUSHEDx\n")
         }
         CG_TryPlayCustomSound(nil, es!.number, CHAN_VOICE, va("*pushed%i.wav", event - EV_PUSHED1 + 1))
 
@@ -1603,188 +1559,142 @@ func CG_EntityEvent(_ cent: Centity, _ position: JKAShared.vec3_t) {
          EV_CHOKE2,
          EV_CHOKE3:
         if cg_debugEvents.integer != 0 {
-            // Port-note: The draft of this statement did not compile, and the compiler wrote "cannot find 'DEBUGNAME' in scope".
-            // Raven wrote: DEBUGNAME("EV_CHOKEx")
-            portMissing("CG_EntityEvent", source: "oracle/codemp/cgame/cg_event.c:1491")
+            CG_Printf("EV_CHOKEx\n")
         }
         CG_TryPlayCustomSound(nil, es!.number, CHAN_VOICE, va("*choke%i.wav", event - EV_CHOKE1 + 1))
 
     case EV_FFWARN: //Warn ally to stop shooting you
         if cg_debugEvents.integer != 0 {
-            // Port-note: The draft of this statement did not compile, and the compiler wrote "cannot find 'DEBUGNAME' in scope".
-            // Raven wrote: DEBUGNAME("EV_FFWARN")
-            portMissing("CG_EntityEvent", source: "oracle/codemp/cgame/cg_event.c:1491")
+            CG_Printf("EV_FFWARN\n")
         }
         CG_TryPlayCustomSound(nil, es!.number, CHAN_VOICE, "*ffwarn.wav")
 
     case EV_FFTURN: //Turn on ally after being shot by them
         if cg_debugEvents.integer != 0 {
-            // Port-note: The draft of this statement did not compile, and the compiler wrote "cannot find 'DEBUGNAME' in scope".
-            // Raven wrote: DEBUGNAME("EV_FFTURN")
-            portMissing("CG_EntityEvent", source: "oracle/codemp/cgame/cg_event.c:1491")
+            CG_Printf("EV_FFTURN\n")
         }
         CG_TryPlayCustomSound(nil, es!.number, CHAN_VOICE, "*ffturn.wav")
         //extra sounds for ST
 
     case EV_CHASE1, EV_CHASE2, EV_CHASE3:
         if cg_debugEvents.integer != 0 {
-            // Port-note: The draft of this statement did not compile, and the compiler wrote "cannot find 'DEBUGNAME' in scope".
-            // Raven wrote: DEBUGNAME("EV_CHASEx")
-            portMissing("CG_EntityEvent", source: "oracle/codemp/cgame/cg_event.c:1491")
+            CG_Printf("EV_CHASEx\n")
         }
         CG_TryPlayCustomSound(nil, es!.number, CHAN_VOICE, va("*chase%i.wav", event - EV_CHASE1 + 1))
 
     case EV_COVER1, EV_COVER2, EV_COVER3, EV_COVER4, EV_COVER5:
         if cg_debugEvents.integer != 0 {
-            // Port-note: The draft of this statement did not compile, and the compiler wrote "cannot find 'DEBUGNAME' in scope".
-            // Raven wrote: DEBUGNAME("EV_COVERx")
-            portMissing("CG_EntityEvent", source: "oracle/codemp/cgame/cg_event.c:1491")
+            CG_Printf("EV_COVERx\n")
         }
         CG_TryPlayCustomSound(nil, es!.number, CHAN_VOICE, va("*cover%i.wav", event - EV_COVER1 + 1))
 
     case EV_DETECTED1, EV_DETECTED2, EV_DETECTED3, EV_DETECTED4, EV_DETECTED5:
         if cg_debugEvents.integer != 0 {
-            // Port-note: The draft of this statement did not compile, and the compiler wrote "cannot find 'DEBUGNAME' in scope".
-            // Raven wrote: DEBUGNAME("EV_DETECTEDx")
-            portMissing("CG_EntityEvent", source: "oracle/codemp/cgame/cg_event.c:1491")
+            CG_Printf("EV_DETECTEDx\n")
         }
         CG_TryPlayCustomSound(nil, es!.number, CHAN_VOICE, va("*detected%i.wav", event - EV_DETECTED1 + 1))
 
     case EV_GIVEUP1, EV_GIVEUP2, EV_GIVEUP3, EV_GIVEUP4:
         if cg_debugEvents.integer != 0 {
-            // Port-note: The draft of this statement did not compile, and the compiler wrote "cannot find 'DEBUGNAME' in scope".
-            // Raven wrote: DEBUGNAME("EV_GIVEUPx")
-            portMissing("CG_EntityEvent", source: "oracle/codemp/cgame/cg_event.c:1491")
+            CG_Printf("EV_GIVEUPx\n")
         }
         CG_TryPlayCustomSound(nil, es!.number, CHAN_VOICE, va("*giveup%i.wav", event - EV_GIVEUP1 + 1))
 
     case EV_LOOK1, EV_LOOK2:
         if cg_debugEvents.integer != 0 {
-            // Port-note: The draft of this statement did not compile, and the compiler wrote "cannot find 'DEBUGNAME' in scope".
-            // Raven wrote: DEBUGNAME("EV_LOOKx")
-            portMissing("CG_EntityEvent", source: "oracle/codemp/cgame/cg_event.c:1491")
+            CG_Printf("EV_LOOKx\n")
         }
         CG_TryPlayCustomSound(nil, es!.number, CHAN_VOICE, va("*look%i.wav", event - EV_LOOK1 + 1))
 
     case EV_LOST1:
         if cg_debugEvents.integer != 0 {
-            // Port-note: The draft of this statement did not compile, and the compiler wrote "cannot find 'DEBUGNAME' in scope".
-            // Raven wrote: DEBUGNAME("EV_LOST1")
-            portMissing("CG_EntityEvent", source: "oracle/codemp/cgame/cg_event.c:1491")
+            CG_Printf("EV_LOST1\n")
         }
         CG_TryPlayCustomSound(nil, es!.number, CHAN_VOICE, "*lost1.wav")
 
     case EV_OUTFLANK1, EV_OUTFLANK2:
         if cg_debugEvents.integer != 0 {
-            // Port-note: The draft of this statement did not compile, and the compiler wrote "cannot find 'DEBUGNAME' in scope".
-            // Raven wrote: DEBUGNAME("EV_OUTFLANKx")
-            portMissing("CG_EntityEvent", source: "oracle/codemp/cgame/cg_event.c:1491")
+            CG_Printf("EV_OUTFLANKx\n")
         }
         CG_TryPlayCustomSound(nil, es!.number, CHAN_VOICE, va("*outflank%i.wav", event - EV_OUTFLANK1 + 1))
 
     case EV_ESCAPING1, EV_ESCAPING2, EV_ESCAPING3:
         if cg_debugEvents.integer != 0 {
-            // Port-note: The draft of this statement did not compile, and the compiler wrote "cannot find 'DEBUGNAME' in scope".
-            // Raven wrote: DEBUGNAME("EV_ESCAPINGx")
-            portMissing("CG_EntityEvent", source: "oracle/codemp/cgame/cg_event.c:1491")
+            CG_Printf("EV_ESCAPINGx\n")
         }
         CG_TryPlayCustomSound(nil, es!.number, CHAN_VOICE, va("*escaping%i.wav", event - EV_ESCAPING1 + 1))
 
     case EV_SIGHT1, EV_SIGHT2, EV_SIGHT3:
         if cg_debugEvents.integer != 0 {
-            // Port-note: The draft of this statement did not compile, and the compiler wrote "cannot find 'DEBUGNAME' in scope".
-            // Raven wrote: DEBUGNAME("EV_SIGHTx")
-            portMissing("CG_EntityEvent", source: "oracle/codemp/cgame/cg_event.c:1491")
+            CG_Printf("EV_SIGHTx\n")
         }
         CG_TryPlayCustomSound(nil, es!.number, CHAN_VOICE, va("*sight%i.wav", event - EV_SIGHT1 + 1))
 
     case EV_SOUND1, EV_SOUND2, EV_SOUND3:
         if cg_debugEvents.integer != 0 {
-            // Port-note: The draft of this statement did not compile, and the compiler wrote "cannot find 'DEBUGNAME' in scope".
-            // Raven wrote: DEBUGNAME("EV_SOUNDx")
-            portMissing("CG_EntityEvent", source: "oracle/codemp/cgame/cg_event.c:1491")
+            CG_Printf("EV_SOUNDx\n")
         }
         CG_TryPlayCustomSound(nil, es!.number, CHAN_VOICE, va("*sound%i.wav", event - EV_SOUND1 + 1))
 
     case EV_SUSPICIOUS1, EV_SUSPICIOUS2, EV_SUSPICIOUS3, EV_SUSPICIOUS4, EV_SUSPICIOUS5:
         if cg_debugEvents.integer != 0 {
-            // Port-note: The draft of this statement did not compile, and the compiler wrote "cannot find 'DEBUGNAME' in scope".
-            // Raven wrote: DEBUGNAME("EV_SUSPICIOUSx")
-            portMissing("CG_EntityEvent", source: "oracle/codemp/cgame/cg_event.c:1491")
+            CG_Printf("EV_SUSPICIOUSx\n")
         }
         CG_TryPlayCustomSound(nil, es!.number, CHAN_VOICE, va("*suspicious%i.wav", event - EV_SUSPICIOUS1 + 1))
         //extra sounds for Jedi
 
     case EV_COMBAT1, EV_COMBAT2, EV_COMBAT3:
         if cg_debugEvents.integer != 0 {
-            // Port-note: The draft of this statement did not compile, and the compiler wrote "cannot find 'DEBUGNAME' in scope".
-            // Raven wrote: DEBUGNAME("EV_COMBATx")
-            portMissing("CG_EntityEvent", source: "oracle/codemp/cgame/cg_event.c:1491")
+            CG_Printf("EV_COMBATx\n")
         }
         CG_TryPlayCustomSound(nil, es!.number, CHAN_VOICE, va("*combat%i.wav", event - EV_COMBAT1 + 1))
 
     case EV_JDETECTED1, EV_JDETECTED2, EV_JDETECTED3:
         if cg_debugEvents.integer != 0 {
-            // Port-note: The draft of this statement did not compile, and the compiler wrote "cannot find 'DEBUGNAME' in scope".
-            // Raven wrote: DEBUGNAME("EV_JDETECTEDx")
-            portMissing("CG_EntityEvent", source: "oracle/codemp/cgame/cg_event.c:1491")
+            CG_Printf("EV_JDETECTEDx\n")
         }
         CG_TryPlayCustomSound(nil, es!.number, CHAN_VOICE, va("*jdetected%i.wav", event - EV_JDETECTED1 + 1))
 
     case EV_TAUNT1, EV_TAUNT2, EV_TAUNT3:
         if cg_debugEvents.integer != 0 {
-            // Port-note: The draft of this statement did not compile, and the compiler wrote "cannot find 'DEBUGNAME' in scope".
-            // Raven wrote: DEBUGNAME("EV_TAUNTx")
-            portMissing("CG_EntityEvent", source: "oracle/codemp/cgame/cg_event.c:1491")
+            CG_Printf("EV_TAUNTx\n")
         }
         CG_TryPlayCustomSound(nil, es!.number, CHAN_VOICE, va("*taunt%i.wav", event - EV_TAUNT1 + 1))
 
     case EV_JCHASE1, EV_JCHASE2, EV_JCHASE3:
         if cg_debugEvents.integer != 0 {
-            // Port-note: The draft of this statement did not compile, and the compiler wrote "cannot find 'DEBUGNAME' in scope".
-            // Raven wrote: DEBUGNAME("EV_JCHASEx")
-            portMissing("CG_EntityEvent", source: "oracle/codemp/cgame/cg_event.c:1491")
+            CG_Printf("EV_JCHASEx\n")
         }
         CG_TryPlayCustomSound(nil, es!.number, CHAN_VOICE, va("*jchase%i.wav", event - EV_JCHASE1 + 1))
 
     case EV_JLOST1, EV_JLOST2, EV_JLOST3:
         if cg_debugEvents.integer != 0 {
-            // Port-note: The draft of this statement did not compile, and the compiler wrote "cannot find 'DEBUGNAME' in scope".
-            // Raven wrote: DEBUGNAME("EV_JLOSTx")
-            portMissing("CG_EntityEvent", source: "oracle/codemp/cgame/cg_event.c:1491")
+            CG_Printf("EV_JLOSTx\n")
         }
         CG_TryPlayCustomSound(nil, es!.number, CHAN_VOICE, va("*jlost%i.wav", event - EV_JLOST1 + 1))
 
     case EV_DEFLECT1, EV_DEFLECT2, EV_DEFLECT3:
         if cg_debugEvents.integer != 0 {
-            // Port-note: The draft of this statement did not compile, and the compiler wrote "cannot find 'DEBUGNAME' in scope".
-            // Raven wrote: DEBUGNAME("EV_DEFLECTx")
-            portMissing("CG_EntityEvent", source: "oracle/codemp/cgame/cg_event.c:1491")
+            CG_Printf("EV_DEFLECTx\n")
         }
         CG_TryPlayCustomSound(nil, es!.number, CHAN_VOICE, va("*deflect%i.wav", event - EV_DEFLECT1 + 1))
 
     case EV_GLOAT1, EV_GLOAT2, EV_GLOAT3:
         if cg_debugEvents.integer != 0 {
-            // Port-note: The draft of this statement did not compile, and the compiler wrote "cannot find 'DEBUGNAME' in scope".
-            // Raven wrote: DEBUGNAME("EV_GLOATx")
-            portMissing("CG_EntityEvent", source: "oracle/codemp/cgame/cg_event.c:1491")
+            CG_Printf("EV_GLOATx\n")
         }
         CG_TryPlayCustomSound(nil, es!.number, CHAN_VOICE, va("*gloat%i.wav", event - EV_GLOAT1 + 1))
 
     case EV_PUSHFAIL:
         if cg_debugEvents.integer != 0 {
-            // Port-note: The draft of this statement did not compile, and the compiler wrote "cannot find 'DEBUGNAME' in scope".
-            // Raven wrote: DEBUGNAME("EV_PUSHFAIL")
-            portMissing("CG_EntityEvent", source: "oracle/codemp/cgame/cg_event.c:1491")
+            CG_Printf("EV_PUSHFAIL\n")
         }
         CG_TryPlayCustomSound(nil, es!.number, CHAN_VOICE, "*pushfail.wav")
         //End NPC sounds
 
     case EV_SIEGESPEC:
         if cg_debugEvents.integer != 0 {
-            // Port-note: The draft of this statement did not compile, and the compiler wrote "cannot find 'DEBUGNAME' in scope".
-            // Raven wrote: DEBUGNAME("EV_SIEGESPEC")
-            portMissing("CG_EntityEvent", source: "oracle/codemp/cgame/cg_event.c:1491")
+            CG_Printf("EV_SIEGESPEC\n")
         }
         if es!.owner == cg.predictedPlayerState.clientNum {
             cg_siegeDeathTime = es!.time
@@ -1792,41 +1702,31 @@ func CG_EntityEvent(_ cent: Centity, _ position: JKAShared.vec3_t) {
 
     case EV_WATER_TOUCH:
         if cg_debugEvents.integer != 0 {
-            // Port-note: The draft of this statement did not compile, and the compiler wrote "cannot find 'DEBUGNAME' in scope".
-            // Raven wrote: DEBUGNAME("EV_WATER_TOUCH")
-            portMissing("CG_EntityEvent", source: "oracle/codemp/cgame/cg_event.c:1491")
+            CG_Printf("EV_WATER_TOUCH\n")
         }
         trap_S_StartSound(nil, es!.number, CHAN_AUTO, cgs.media.watrInSound)
 
     case EV_WATER_LEAVE:
         if cg_debugEvents.integer != 0 {
-            // Port-note: The draft of this statement did not compile, and the compiler wrote "cannot find 'DEBUGNAME' in scope".
-            // Raven wrote: DEBUGNAME("EV_WATER_LEAVE")
-            portMissing("CG_EntityEvent", source: "oracle/codemp/cgame/cg_event.c:1491")
+            CG_Printf("EV_WATER_LEAVE\n")
         }
         trap_S_StartSound(nil, es!.number, CHAN_AUTO, cgs.media.watrOutSound)
 
     case EV_WATER_UNDER:
         if cg_debugEvents.integer != 0 {
-            // Port-note: The draft of this statement did not compile, and the compiler wrote "cannot find 'DEBUGNAME' in scope".
-            // Raven wrote: DEBUGNAME("EV_WATER_UNDER")
-            portMissing("CG_EntityEvent", source: "oracle/codemp/cgame/cg_event.c:1491")
+            CG_Printf("EV_WATER_UNDER\n")
         }
         trap_S_StartSound(nil, es!.number, CHAN_AUTO, cgs.media.watrUnSound)
 
     case EV_WATER_CLEAR:
         if cg_debugEvents.integer != 0 {
-            // Port-note: The draft of this statement did not compile, and the compiler wrote "cannot find 'DEBUGNAME' in scope".
-            // Raven wrote: DEBUGNAME("EV_WATER_CLEAR")
-            portMissing("CG_EntityEvent", source: "oracle/codemp/cgame/cg_event.c:1491")
+            CG_Printf("EV_WATER_CLEAR\n")
         }
         trap_S_StartSound(nil, es!.number, CHAN_AUTO, CG_CustomSound(es!.number, "*gasp.wav"))
 
     case EV_ITEM_PICKUP:
         if cg_debugEvents.integer != 0 {
-            // Port-note: The draft of this statement did not compile, and the compiler wrote "cannot find 'DEBUGNAME' in scope".
-            // Raven wrote: DEBUGNAME("EV_ITEM_PICKUP")
-            portMissing("CG_EntityEvent", source: "oracle/codemp/cgame/cg_event.c:1491")
+            CG_Printf("EV_ITEM_PICKUP\n")
         }
         do {
             var item: Gitem?
@@ -1894,9 +1794,7 @@ func CG_EntityEvent(_ cent: Centity, _ position: JKAShared.vec3_t) {
 
     case EV_GLOBAL_ITEM_PICKUP:
         if cg_debugEvents.integer != 0 {
-            // Port-note: The draft of this statement did not compile, and the compiler wrote "cannot find 'DEBUGNAME' in scope".
-            // Raven wrote: DEBUGNAME("EV_GLOBAL_ITEM_PICKUP")
-            portMissing("CG_EntityEvent", source: "oracle/codemp/cgame/cg_event.c:1491")
+            CG_Printf("EV_GLOBAL_ITEM_PICKUP\n")
         }
         do {
             var item: Gitem?
@@ -1921,9 +1819,7 @@ func CG_EntityEvent(_ cent: Centity, _ position: JKAShared.vec3_t) {
 
     case EV_VEH_FIRE:
         if cg_debugEvents.integer != 0 {
-            // Port-note: The draft of this statement did not compile, and the compiler wrote "cannot find 'DEBUGNAME' in scope".
-            // Raven wrote: DEBUGNAME("EV_VEH_FIRE")
-            portMissing("CG_EntityEvent", source: "oracle/codemp/cgame/cg_event.c:1491")
+            CG_Printf("EV_VEH_FIRE\n")
         }
         do {
             let veh: Centity? = cg_entities[es!.owner]
@@ -1935,9 +1831,7 @@ func CG_EntityEvent(_ cent: Centity, _ position: JKAShared.vec3_t) {
 
     case EV_NOAMMO:
         if cg_debugEvents.integer != 0 {
-            // Port-note: The draft of this statement did not compile, and the compiler wrote "cannot find 'DEBUGNAME' in scope".
-            // Raven wrote: DEBUGNAME("EV_NOAMMO")
-            portMissing("CG_EntityEvent", source: "oracle/codemp/cgame/cg_event.c:1491")
+            CG_Printf("EV_NOAMMO\n")
         }
         //		trap_S_StartSound (NULL, es->number, CHAN_AUTO, cgs.media.noAmmoSound );
         if es!.number == cg.snap!.ps.clientNum {
@@ -1975,9 +1869,7 @@ func CG_EntityEvent(_ cent: Centity, _ position: JKAShared.vec3_t) {
 
     case EV_CHANGE_WEAPON:
         if cg_debugEvents.integer != 0 {
-            // Port-note: The draft of this statement did not compile, and the compiler wrote "cannot find 'DEBUGNAME' in scope".
-            // Raven wrote: DEBUGNAME("EV_CHANGE_WEAPON")
-            portMissing("CG_EntityEvent", source: "oracle/codemp/cgame/cg_event.c:1491")
+            CG_Printf("EV_CHANGE_WEAPON\n")
         }
         do {
             let weapon: Int32 = es!.eventParm
@@ -1997,9 +1889,7 @@ func CG_EntityEvent(_ cent: Centity, _ position: JKAShared.vec3_t) {
 
     case EV_FIRE_WEAPON:
         if cg_debugEvents.integer != 0 {
-            // Port-note: The draft of this statement did not compile, and the compiler wrote "cannot find 'DEBUGNAME' in scope".
-            // Raven wrote: DEBUGNAME("EV_FIRE_WEAPON")
-            portMissing("CG_EntityEvent", source: "oracle/codemp/cgame/cg_event.c:1491")
+            CG_Printf("EV_FIRE_WEAPON\n")
         }
         // Port-note: Raven's block leaves a loop outside the record's scope, and the closure cannot.
         // Raven wrote: if (cent->currentState.number >= MAX_CLIENTS && cent->currentState.eType != ET_NPC) { //special case for turret firing vec3_t gunpoint, gunangle; mdxaBone_t matrix; weaponInfo_t *weaponInfo = &cg_weapons[WP_TURRET]; if ( !weaponInfo->registered ) { CG_RegisterWeapon(WP_TURRET); } if (cent->ghoul2) { if (!cent->bolt1) { cent->bolt1 = trap_G2API_AddBolt(cent->ghoul2, 0, "*flash01"); } if (!cent->bolt2) { cent->bolt2 = trap_G2API_AddBolt(cent->ghoul2, 0, "*flash02"); } trap_G2API_SetBoneAnim(cent->ghoul2, 0, "Bone02", 1, 4, BONE_ANIM_OVERRIDE_FREEZE|BONE_ANIM_BLEND, 1.0f, cg.time, -1, 300); } else { break; } if (cent->currentState.eventParm) { trap_G2API_GetBoltMatrix(cent->ghoul2, 0, cent->bolt2, &matrix, cent->currentState.angles, cent->currentState.origin, cg.time, cgs.gameModels, cent->modelScale); } else { trap_G2API_GetBoltMatrix(cent->ghoul2, 0, cent->bolt1, &matrix, cent->currentState.angles, cent->currentState.origin, cg.time, cgs.gameModels, cent->modelScale); } gunpoint[0] = matrix.matrix[0][3]; gunpoint[1] = matrix.matrix[1][3]; gunpoint[2] = matrix.matrix[2][3]; gunangle[0] = -matrix.matrix[0][0]; gunangle[1] = -matrix.matrix[1][0]; gunangle[2] = -matrix.matrix[2][0]; trap_FX_PlayEffectID(cgs.effects.mEmplacedMuzzleFlash, gunpoint, gunangle, -1, -1); } else if (cent->currentState.weapon != WP_EMPLACED_GUN || cent->currentState.eType == ET_NPC) { if (cent->currentState.eType == ET_NPC && cent->currentState.NPC_class == CLASS_VEHICLE && cent->m_pVehicle) { //vehicles do nothing for clientside weapon fire events.. at least for now. break; } CG_FireWeapon( cent, qfalse ); }
@@ -2007,9 +1897,7 @@ func CG_EntityEvent(_ cent: Centity, _ position: JKAShared.vec3_t) {
 
     case EV_ALT_FIRE:
         if cg_debugEvents.integer != 0 {
-            // Port-note: The draft of this statement did not compile, and the compiler wrote "cannot find 'DEBUGNAME' in scope".
-            // Raven wrote: DEBUGNAME("EV_ALT_FIRE")
-            portMissing("CG_EntityEvent", source: "oracle/codemp/cgame/cg_event.c:1491")
+            CG_Printf("EV_ALT_FIRE\n")
         }
 
         if cent.currentState.weapon == WP_EMPLACED_GUN {
@@ -2033,9 +1921,7 @@ func CG_EntityEvent(_ cent: Centity, _ position: JKAShared.vec3_t) {
 
     case EV_SABER_ATTACK:
         if cg_debugEvents.integer != 0 {
-            // Port-note: The draft of this statement did not compile, and the compiler wrote "cannot find 'DEBUGNAME' in scope".
-            // Raven wrote: DEBUGNAME("EV_SABER_ATTACK")
-            portMissing("CG_EntityEvent", source: "oracle/codemp/cgame/cg_event.c:1491")
+            CG_Printf("EV_SABER_ATTACK\n")
         }
         do {
             var swingSound: qhandle_t = trap_S_RegisterSound(va("sound/weapons/saber/saberhup%i.wav", Q_irand(1, 8)))
@@ -2054,9 +1940,7 @@ func CG_EntityEvent(_ cent: Centity, _ position: JKAShared.vec3_t) {
 
     case EV_SABER_HIT:
         if cg_debugEvents.integer != 0 {
-            // Port-note: The draft of this statement did not compile, and the compiler wrote "cannot find 'DEBUGNAME' in scope".
-            // Raven wrote: DEBUGNAME("EV_SABER_HIT")
-            portMissing("CG_EntityEvent", source: "oracle/codemp/cgame/cg_event.c:1491")
+            CG_Printf("EV_SABER_HIT\n")
         }
         do {
             var hitPersonFxID: Int32 = cgs.effects.mSaberBloodSparks
@@ -2184,9 +2068,7 @@ func CG_EntityEvent(_ cent: Centity, _ position: JKAShared.vec3_t) {
 
     case EV_SABER_BLOCK:
         if cg_debugEvents.integer != 0 {
-            // Port-note: The draft of this statement did not compile, and the compiler wrote "cannot find 'DEBUGNAME' in scope".
-            // Raven wrote: DEBUGNAME("EV_SABER_BLOCK")
-            portMissing("CG_EntityEvent", source: "oracle/codemp/cgame/cg_event.c:1491")
+            CG_Printf("EV_SABER_BLOCK\n")
         }
         do {
             if es!.eventParm != 0 {
@@ -2279,9 +2161,7 @@ func CG_EntityEvent(_ cent: Centity, _ position: JKAShared.vec3_t) {
 
     case EV_SABER_CLASHFLARE:
         if cg_debugEvents.integer != 0 {
-            // Port-note: The draft of this statement did not compile, and the compiler wrote "cannot find 'DEBUGNAME' in scope".
-            // Raven wrote: DEBUGNAME("EV_SABER_CLASHFLARE")
-            portMissing("CG_EntityEvent", source: "oracle/codemp/cgame/cg_event.c:1491")
+            CG_Printf("EV_SABER_CLASHFLARE\n")
         }
         do {
             var cullPass: Bool = false
@@ -2314,9 +2194,7 @@ func CG_EntityEvent(_ cent: Centity, _ position: JKAShared.vec3_t) {
 
     case EV_SABER_UNHOLSTER:
         if cg_debugEvents.integer != 0 {
-            // Port-note: The draft of this statement did not compile, and the compiler wrote "cannot find 'DEBUGNAME' in scope".
-            // Raven wrote: DEBUGNAME("EV_SABER_UNHOLSTER")
-            portMissing("CG_EntityEvent", source: "oracle/codemp/cgame/cg_event.c:1491")
+            CG_Printf("EV_SABER_UNHOLSTER\n")
         }
         do {
             var ci: ClientInfo? = nil
@@ -2339,9 +2217,7 @@ func CG_EntityEvent(_ cent: Centity, _ position: JKAShared.vec3_t) {
 
     case EV_BECOME_JEDIMASTER:
         if cg_debugEvents.integer != 0 {
-            // Port-note: The draft of this statement did not compile, and the compiler wrote "cannot find 'DEBUGNAME' in scope".
-            // Raven wrote: DEBUGNAME("EV_SABER_UNHOLSTER")
-            portMissing("CG_EntityEvent", source: "oracle/codemp/cgame/cg_event.c:1491")
+            CG_Printf("EV_SABER_UNHOLSTER\n")
         }
         // Port-note: Raven's block leaves a loop outside the record's scope, and the closure cannot.
         // Raven wrote: { trace_t tr; vec3_t playerMins = {-15, -15, DEFAULT_MINS_2+8}; vec3_t playerMaxs = {15, 15, DEFAULT_MAXS_2}; vec3_t ang, pos, dpos; VectorClear(ang); ang[ROLL] = 1; VectorCopy(position, dpos); dpos[2] -= 4096; CG_Trace(&tr, position, playerMins, playerMaxs, dpos, es->number, MASK_SOLID); VectorCopy(tr.endpos, pos); if (tr.fraction == 1) { break; } trap_FX_PlayEffectID(cgs.effects.mJediSpawn, pos, ang, -1, -1); trap_S_StartSound (NULL, es->number, CHAN_AUTO, trap_S_RegisterSound( "sound/weapons/saber/saberon.wav" ) ); if (cg.snap->ps.clientNum == es->number) { trap_S_StartLocalSound(cgs.media.happyMusic, CHAN_LOCAL); CGCam_SetMusicMult(0.3, 5000); } }
@@ -2349,9 +2225,7 @@ func CG_EntityEvent(_ cent: Centity, _ position: JKAShared.vec3_t) {
 
     case EV_DISRUPTOR_MAIN_SHOT:
         if cg_debugEvents.integer != 0 {
-            // Port-note: The draft of this statement did not compile, and the compiler wrote "cannot find 'DEBUGNAME' in scope".
-            // Raven wrote: DEBUGNAME("EV_DISRUPTOR_MAIN_SHOT")
-            portMissing("CG_EntityEvent", source: "oracle/codemp/cgame/cg_event.c:1491")
+            CG_Printf("EV_DISRUPTOR_MAIN_SHOT\n")
         }
         if cent.currentState.eventParm != cg.snap!.ps.clientNum || cg.renderingThirdPerson {
             //h4q3ry
@@ -2366,9 +2240,7 @@ func CG_EntityEvent(_ cent: Centity, _ position: JKAShared.vec3_t) {
 
     case EV_DISRUPTOR_SNIPER_SHOT:
         if cg_debugEvents.integer != 0 {
-            // Port-note: The draft of this statement did not compile, and the compiler wrote "cannot find 'DEBUGNAME' in scope".
-            // Raven wrote: DEBUGNAME("EV_DISRUPTOR_SNIPER_SHOT")
-            portMissing("CG_EntityEvent", source: "oracle/codemp/cgame/cg_event.c:1491")
+            CG_Printf("EV_DISRUPTOR_SNIPER_SHOT\n")
         }
         if cent.currentState.eventParm != cg.snap!.ps.clientNum || cg.renderingThirdPerson {
             //h4q3ry
@@ -2383,9 +2255,7 @@ func CG_EntityEvent(_ cent: Centity, _ position: JKAShared.vec3_t) {
 
     case EV_DISRUPTOR_SNIPER_MISS:
         if cg_debugEvents.integer != 0 {
-            // Port-note: The draft of this statement did not compile, and the compiler wrote "cannot find 'DEBUGNAME' in scope".
-            // Raven wrote: DEBUGNAME("EV_DISRUPTOR_SNIPER_MISS")
-            portMissing("CG_EntityEvent", source: "oracle/codemp/cgame/cg_event.c:1491")
+            CG_Printf("EV_DISRUPTOR_SNIPER_MISS\n")
         }
         ByteToDir(es!.eventParm, &dir)
         if es!.weapon != 0 {
@@ -2398,9 +2268,7 @@ func CG_EntityEvent(_ cent: Centity, _ position: JKAShared.vec3_t) {
 
     case EV_DISRUPTOR_HIT:
         if cg_debugEvents.integer != 0 {
-            // Port-note: The draft of this statement did not compile, and the compiler wrote "cannot find 'DEBUGNAME' in scope".
-            // Raven wrote: DEBUGNAME("EV_DISRUPTOR_HIT")
-            portMissing("CG_EntityEvent", source: "oracle/codemp/cgame/cg_event.c:1491")
+            CG_Printf("EV_DISRUPTOR_HIT\n")
         }
         ByteToDir(es!.eventParm, &dir)
         if es!.weapon != 0 {
@@ -2413,9 +2281,7 @@ func CG_EntityEvent(_ cent: Centity, _ position: JKAShared.vec3_t) {
 
     case EV_DISRUPTOR_ZOOMSOUND:
         if cg_debugEvents.integer != 0 {
-            // Port-note: The draft of this statement did not compile, and the compiler wrote "cannot find 'DEBUGNAME' in scope".
-            // Raven wrote: DEBUGNAME("EV_DISRUPTOR_ZOOMSOUND")
-            portMissing("CG_EntityEvent", source: "oracle/codemp/cgame/cg_event.c:1491")
+            CG_Printf("EV_DISRUPTOR_ZOOMSOUND\n")
         }
         if es!.number == cg.snap!.ps.clientNum {
             if cg.snap!.ps.zoomMode != 0 {
@@ -2427,9 +2293,7 @@ func CG_EntityEvent(_ cent: Centity, _ position: JKAShared.vec3_t) {
 
     case EV_PREDEFSOUND:
         if cg_debugEvents.integer != 0 {
-            // Port-note: The draft of this statement did not compile, and the compiler wrote "cannot find 'DEBUGNAME' in scope".
-            // Raven wrote: DEBUGNAME("EV_PREDEFSOUND")
-            portMissing("CG_EntityEvent", source: "oracle/codemp/cgame/cg_event.c:1491")
+            CG_Printf("EV_PREDEFSOUND\n")
         }
         do {
             var sID: Int32 = -1
@@ -2470,9 +2334,7 @@ func CG_EntityEvent(_ cent: Centity, _ position: JKAShared.vec3_t) {
 
     case EV_TEAM_POWER:
         if cg_debugEvents.integer != 0 {
-            // Port-note: The draft of this statement did not compile, and the compiler wrote "cannot find 'DEBUGNAME' in scope".
-            // Raven wrote: DEBUGNAME("EV_TEAM_POWER")
-            portMissing("CG_EntityEvent", source: "oracle/codemp/cgame/cg_event.c:1491")
+            CG_Printf("EV_TEAM_POWER\n")
         }
         do {
             var clnum: Int32 = 0
@@ -2497,9 +2359,7 @@ func CG_EntityEvent(_ cent: Centity, _ position: JKAShared.vec3_t) {
 
     case EV_SCREENSHAKE:
         if cg_debugEvents.integer != 0 {
-            // Port-note: The draft of this statement did not compile, and the compiler wrote "cannot find 'DEBUGNAME' in scope".
-            // Raven wrote: DEBUGNAME("EV_SCREENSHAKE")
-            portMissing("CG_EntityEvent", source: "oracle/codemp/cgame/cg_event.c:1491")
+            CG_Printf("EV_SCREENSHAKE\n")
         }
         if es!.modelindex == 0 || cg.predictedPlayerState.clientNum == es!.modelindex - 1 {
             CGCam_Shake(es!.angles[0], es!.time)
@@ -2507,9 +2367,7 @@ func CG_EntityEvent(_ cent: Centity, _ position: JKAShared.vec3_t) {
 
     case EV_LOCALTIMER:
         if cg_debugEvents.integer != 0 {
-            // Port-note: The draft of this statement did not compile, and the compiler wrote "cannot find 'DEBUGNAME' in scope".
-            // Raven wrote: DEBUGNAME("EV_LOCALTIMER")
-            portMissing("CG_EntityEvent", source: "oracle/codemp/cgame/cg_event.c:1491")
+            CG_Printf("EV_LOCALTIMER\n")
         }
         if es!.owner == cg.predictedPlayerState.clientNum {
             CG_LocalTimingBar(es!.time, es!.time2)
@@ -2517,129 +2375,97 @@ func CG_EntityEvent(_ cent: Centity, _ position: JKAShared.vec3_t) {
 
     case EV_USE_ITEM0:
         if cg_debugEvents.integer != 0 {
-            // Port-note: The draft of this statement did not compile, and the compiler wrote "cannot find 'DEBUGNAME' in scope".
-            // Raven wrote: DEBUGNAME("EV_USE_ITEM0")
-            portMissing("CG_EntityEvent", source: "oracle/codemp/cgame/cg_event.c:1491")
+            CG_Printf("EV_USE_ITEM0\n")
         }
         CG_UseItem(cent)
 
     case EV_USE_ITEM1:
         if cg_debugEvents.integer != 0 {
-            // Port-note: The draft of this statement did not compile, and the compiler wrote "cannot find 'DEBUGNAME' in scope".
-            // Raven wrote: DEBUGNAME("EV_USE_ITEM1")
-            portMissing("CG_EntityEvent", source: "oracle/codemp/cgame/cg_event.c:1491")
+            CG_Printf("EV_USE_ITEM1\n")
         }
         CG_UseItem(cent)
 
     case EV_USE_ITEM2:
         if cg_debugEvents.integer != 0 {
-            // Port-note: The draft of this statement did not compile, and the compiler wrote "cannot find 'DEBUGNAME' in scope".
-            // Raven wrote: DEBUGNAME("EV_USE_ITEM2")
-            portMissing("CG_EntityEvent", source: "oracle/codemp/cgame/cg_event.c:1491")
+            CG_Printf("EV_USE_ITEM2\n")
         }
         CG_UseItem(cent)
 
     case EV_USE_ITEM3:
         if cg_debugEvents.integer != 0 {
-            // Port-note: The draft of this statement did not compile, and the compiler wrote "cannot find 'DEBUGNAME' in scope".
-            // Raven wrote: DEBUGNAME("EV_USE_ITEM3")
-            portMissing("CG_EntityEvent", source: "oracle/codemp/cgame/cg_event.c:1491")
+            CG_Printf("EV_USE_ITEM3\n")
         }
         CG_UseItem(cent)
 
     case EV_USE_ITEM4:
         if cg_debugEvents.integer != 0 {
-            // Port-note: The draft of this statement did not compile, and the compiler wrote "cannot find 'DEBUGNAME' in scope".
-            // Raven wrote: DEBUGNAME("EV_USE_ITEM4")
-            portMissing("CG_EntityEvent", source: "oracle/codemp/cgame/cg_event.c:1491")
+            CG_Printf("EV_USE_ITEM4\n")
         }
         CG_UseItem(cent)
 
     case EV_USE_ITEM5:
         if cg_debugEvents.integer != 0 {
-            // Port-note: The draft of this statement did not compile, and the compiler wrote "cannot find 'DEBUGNAME' in scope".
-            // Raven wrote: DEBUGNAME("EV_USE_ITEM5")
-            portMissing("CG_EntityEvent", source: "oracle/codemp/cgame/cg_event.c:1491")
+            CG_Printf("EV_USE_ITEM5\n")
         }
         CG_UseItem(cent)
 
     case EV_USE_ITEM6:
         if cg_debugEvents.integer != 0 {
-            // Port-note: The draft of this statement did not compile, and the compiler wrote "cannot find 'DEBUGNAME' in scope".
-            // Raven wrote: DEBUGNAME("EV_USE_ITEM6")
-            portMissing("CG_EntityEvent", source: "oracle/codemp/cgame/cg_event.c:1491")
+            CG_Printf("EV_USE_ITEM6\n")
         }
         CG_UseItem(cent)
 
     case EV_USE_ITEM7:
         if cg_debugEvents.integer != 0 {
-            // Port-note: The draft of this statement did not compile, and the compiler wrote "cannot find 'DEBUGNAME' in scope".
-            // Raven wrote: DEBUGNAME("EV_USE_ITEM7")
-            portMissing("CG_EntityEvent", source: "oracle/codemp/cgame/cg_event.c:1491")
+            CG_Printf("EV_USE_ITEM7\n")
         }
         CG_UseItem(cent)
 
     case EV_USE_ITEM8:
         if cg_debugEvents.integer != 0 {
-            // Port-note: The draft of this statement did not compile, and the compiler wrote "cannot find 'DEBUGNAME' in scope".
-            // Raven wrote: DEBUGNAME("EV_USE_ITEM8")
-            portMissing("CG_EntityEvent", source: "oracle/codemp/cgame/cg_event.c:1491")
+            CG_Printf("EV_USE_ITEM8\n")
         }
         CG_UseItem(cent)
 
     case EV_USE_ITEM9:
         if cg_debugEvents.integer != 0 {
-            // Port-note: The draft of this statement did not compile, and the compiler wrote "cannot find 'DEBUGNAME' in scope".
-            // Raven wrote: DEBUGNAME("EV_USE_ITEM9")
-            portMissing("CG_EntityEvent", source: "oracle/codemp/cgame/cg_event.c:1491")
+            CG_Printf("EV_USE_ITEM9\n")
         }
         CG_UseItem(cent)
 
     case EV_USE_ITEM10:
         if cg_debugEvents.integer != 0 {
-            // Port-note: The draft of this statement did not compile, and the compiler wrote "cannot find 'DEBUGNAME' in scope".
-            // Raven wrote: DEBUGNAME("EV_USE_ITEM10")
-            portMissing("CG_EntityEvent", source: "oracle/codemp/cgame/cg_event.c:1491")
+            CG_Printf("EV_USE_ITEM10\n")
         }
         CG_UseItem(cent)
 
     case EV_USE_ITEM11:
         if cg_debugEvents.integer != 0 {
-            // Port-note: The draft of this statement did not compile, and the compiler wrote "cannot find 'DEBUGNAME' in scope".
-            // Raven wrote: DEBUGNAME("EV_USE_ITEM11")
-            portMissing("CG_EntityEvent", source: "oracle/codemp/cgame/cg_event.c:1491")
+            CG_Printf("EV_USE_ITEM11\n")
         }
         CG_UseItem(cent)
 
     case EV_USE_ITEM12:
         if cg_debugEvents.integer != 0 {
-            // Port-note: The draft of this statement did not compile, and the compiler wrote "cannot find 'DEBUGNAME' in scope".
-            // Raven wrote: DEBUGNAME("EV_USE_ITEM12")
-            portMissing("CG_EntityEvent", source: "oracle/codemp/cgame/cg_event.c:1491")
+            CG_Printf("EV_USE_ITEM12\n")
         }
         CG_UseItem(cent)
 
     case EV_USE_ITEM13:
         if cg_debugEvents.integer != 0 {
-            // Port-note: The draft of this statement did not compile, and the compiler wrote "cannot find 'DEBUGNAME' in scope".
-            // Raven wrote: DEBUGNAME("EV_USE_ITEM13")
-            portMissing("CG_EntityEvent", source: "oracle/codemp/cgame/cg_event.c:1491")
+            CG_Printf("EV_USE_ITEM13\n")
         }
         CG_UseItem(cent)
 
     case EV_USE_ITEM14:
         if cg_debugEvents.integer != 0 {
-            // Port-note: The draft of this statement did not compile, and the compiler wrote "cannot find 'DEBUGNAME' in scope".
-            // Raven wrote: DEBUGNAME("EV_USE_ITEM14")
-            portMissing("CG_EntityEvent", source: "oracle/codemp/cgame/cg_event.c:1491")
+            CG_Printf("EV_USE_ITEM14\n")
         }
         CG_UseItem(cent)
 
     case EV_ITEMUSEFAIL:
         if cg_debugEvents.integer != 0 {
-            // Port-note: The draft of this statement did not compile, and the compiler wrote "cannot find 'DEBUGNAME' in scope".
-            // Raven wrote: DEBUGNAME("EV_ITEMUSEFAIL")
-            portMissing("CG_EntityEvent", source: "oracle/codemp/cgame/cg_event.c:1491")
+            CG_Printf("EV_ITEMUSEFAIL\n")
         }
         if cg.snap!.ps.clientNum == es!.number {
             var psStringEDRef: String? = nil
@@ -2665,9 +2491,7 @@ func CG_EntityEvent(_ cent: Centity, _ position: JKAShared.vec3_t) {
                 break
             }
 
-            // Port-note: The draft of this statement did not compile, and the compiler wrote "cannot force unwrap value of non-optional type 'String'".
-            // Raven wrote: Com_Printf("%s\n", psStringEDRef)
-            portMissing("CG_EntityEvent", source: "oracle/codemp/cgame/cg_event.c:1491")
+            Com_Printf("%s\n", psStringEDRef!)
         }
         //=================================================================
         //
@@ -2676,9 +2500,7 @@ func CG_EntityEvent(_ cent: Centity, _ position: JKAShared.vec3_t) {
 
     case EV_PLAYER_TELEPORT_IN:
         if cg_debugEvents.integer != 0 {
-            // Port-note: The draft of this statement did not compile, and the compiler wrote "cannot find 'DEBUGNAME' in scope".
-            // Raven wrote: DEBUGNAME("EV_PLAYER_TELEPORT_IN")
-            portMissing("CG_EntityEvent", source: "oracle/codemp/cgame/cg_event.c:1491")
+            CG_Printf("EV_PLAYER_TELEPORT_IN\n")
         }
         // Port-note: Raven's block leaves a loop outside the record's scope, and the closure cannot.
         // Raven wrote: { trace_t tr; vec3_t playerMins = {-15, -15, DEFAULT_MINS_2+8}; vec3_t playerMaxs = {15, 15, DEFAULT_MAXS_2}; vec3_t ang, pos, dpos; VectorClear(ang); ang[ROLL] = 1; VectorCopy(position, dpos); dpos[2] -= 4096; CG_Trace(&tr, position, playerMins, playerMaxs, dpos, es->number, MASK_SOLID); VectorCopy(tr.endpos, pos); trap_S_StartSound (NULL, es->number, CHAN_AUTO, cgs.media.teleInSound ); if (tr.fraction == 1) { break; } trap_FX_PlayEffectID(cgs.effects.mSpawn, pos, ang, -1, -1); }
@@ -2686,9 +2508,7 @@ func CG_EntityEvent(_ cent: Centity, _ position: JKAShared.vec3_t) {
 
     case EV_PLAYER_TELEPORT_OUT:
         if cg_debugEvents.integer != 0 {
-            // Port-note: The draft of this statement did not compile, and the compiler wrote "cannot find 'DEBUGNAME' in scope".
-            // Raven wrote: DEBUGNAME("EV_PLAYER_TELEPORT_OUT")
-            portMissing("CG_EntityEvent", source: "oracle/codemp/cgame/cg_event.c:1491")
+            CG_Printf("EV_PLAYER_TELEPORT_OUT\n")
         }
         // Port-note: Raven's block leaves a loop outside the record's scope, and the closure cannot.
         // Raven wrote: { trace_t tr; vec3_t playerMins = {-15, -15, DEFAULT_MINS_2+8}; vec3_t playerMaxs = {15, 15, DEFAULT_MAXS_2}; vec3_t ang, pos, dpos; VectorClear(ang); ang[ROLL] = 1; VectorCopy(position, dpos); dpos[2] -= 4096; CG_Trace(&tr, position, playerMins, playerMaxs, dpos, es->number, MASK_SOLID); VectorCopy(tr.endpos, pos); trap_S_StartSound (NULL, es->number, CHAN_AUTO, cgs.media.teleOutSound ); if (tr.fraction == 1) { break; } trap_FX_PlayEffectID(cgs.effects.mSpawn, pos, ang, -1, -1); }
@@ -2696,41 +2516,31 @@ func CG_EntityEvent(_ cent: Centity, _ position: JKAShared.vec3_t) {
 
     case EV_ITEM_POP:
         if cg_debugEvents.integer != 0 {
-            // Port-note: The draft of this statement did not compile, and the compiler wrote "cannot find 'DEBUGNAME' in scope".
-            // Raven wrote: DEBUGNAME("EV_ITEM_POP")
-            portMissing("CG_EntityEvent", source: "oracle/codemp/cgame/cg_event.c:1491")
+            CG_Printf("EV_ITEM_POP\n")
         }
         trap_S_StartSound(nil, es!.number, CHAN_AUTO, cgs.media.respawnSound)
 
     case EV_ITEM_RESPAWN:
         if cg_debugEvents.integer != 0 {
-            // Port-note: The draft of this statement did not compile, and the compiler wrote "cannot find 'DEBUGNAME' in scope".
-            // Raven wrote: DEBUGNAME("EV_ITEM_RESPAWN")
-            portMissing("CG_EntityEvent", source: "oracle/codemp/cgame/cg_event.c:1491")
+            CG_Printf("EV_ITEM_RESPAWN\n")
         }
         cent.miscTime = cg.time // scale up from this
         trap_S_StartSound(nil, es!.number, CHAN_AUTO, cgs.media.respawnSound)
 
     case EV_GRENADE_BOUNCE:
         if cg_debugEvents.integer != 0 {
-            // Port-note: The draft of this statement did not compile, and the compiler wrote "cannot find 'DEBUGNAME' in scope".
-            // Raven wrote: DEBUGNAME("EV_GRENADE_BOUNCE")
-            portMissing("CG_EntityEvent", source: "oracle/codemp/cgame/cg_event.c:1491")
+            CG_Printf("EV_GRENADE_BOUNCE\n")
         }
 
     case EV_SCOREPLUM:
         if cg_debugEvents.integer != 0 {
-            // Port-note: The draft of this statement did not compile, and the compiler wrote "cannot find 'DEBUGNAME' in scope".
-            // Raven wrote: DEBUGNAME("EV_SCOREPLUM")
-            portMissing("CG_EntityEvent", source: "oracle/codemp/cgame/cg_event.c:1491")
+            CG_Printf("EV_SCOREPLUM\n")
         }
         CG_ScorePlum(cent.currentState.otherEntityNum, cent.lerpOrigin, cent.currentState.time)
 
     case EV_CTFMESSAGE:
         if cg_debugEvents.integer != 0 {
-            // Port-note: The draft of this statement did not compile, and the compiler wrote "cannot find 'DEBUGNAME' in scope".
-            // Raven wrote: DEBUGNAME("EV_CTFMESSAGE")
-            portMissing("CG_EntityEvent", source: "oracle/codemp/cgame/cg_event.c:1491")
+            CG_Printf("EV_CTFMESSAGE\n")
         }
         CG_GetCTFMessageEvent(es!)
 
@@ -2751,25 +2561,19 @@ func CG_EntityEvent(_ cent: Centity, _ position: JKAShared.vec3_t) {
 
     case EV_SIEGE_ROUNDOVER:
         if cg_debugEvents.integer != 0 {
-            // Port-note: The draft of this statement did not compile, and the compiler wrote "cannot find 'DEBUGNAME' in scope".
-            // Raven wrote: DEBUGNAME("EV_SIEGE_ROUNDOVER")
-            portMissing("CG_EntityEvent", source: "oracle/codemp/cgame/cg_event.c:1491")
+            CG_Printf("EV_SIEGE_ROUNDOVER\n")
         }
         CG_SiegeRoundOver(cg_entities[cent.currentState.weapon], cent.currentState.eventParm)
 
     case EV_SIEGE_OBJECTIVECOMPLETE:
         if cg_debugEvents.integer != 0 {
-            // Port-note: The draft of this statement did not compile, and the compiler wrote "cannot find 'DEBUGNAME' in scope".
-            // Raven wrote: DEBUGNAME("EV_SIEGE_OBJECTIVECOMPLETE")
-            portMissing("CG_EntityEvent", source: "oracle/codemp/cgame/cg_event.c:1491")
+            CG_Printf("EV_SIEGE_OBJECTIVECOMPLETE\n")
         }
         CG_SiegeObjectiveCompleted(cg_entities[cent.currentState.weapon], cent.currentState.eventParm, cent.currentState.trickedentindex)
 
     case EV_DESTROY_GHOUL2_INSTANCE:
         if cg_debugEvents.integer != 0 {
-            // Port-note: The draft of this statement did not compile, and the compiler wrote "cannot find 'DEBUGNAME' in scope".
-            // Raven wrote: DEBUGNAME("EV_DESTROY_GHOUL2_INSTANCE")
-            portMissing("CG_EntityEvent", source: "oracle/codemp/cgame/cg_event.c:1491")
+            CG_Printf("EV_DESTROY_GHOUL2_INSTANCE\n")
         }
         if cg_entities[es!.eventParm].ghoul2 != nil && trap_G2_HaveWeGhoul2Models(cg_entities[es!.eventParm].ghoul2) {
             if es!.eventParm < MAX_CLIENTS {
@@ -2781,9 +2585,7 @@ func CG_EntityEvent(_ cent: Centity, _ position: JKAShared.vec3_t) {
 
     case EV_DESTROY_WEAPON_MODEL:
         if cg_debugEvents.integer != 0 {
-            // Port-note: The draft of this statement did not compile, and the compiler wrote "cannot find 'DEBUGNAME' in scope".
-            // Raven wrote: DEBUGNAME("EV_DESTROY_WEAPON_MODEL")
-            portMissing("CG_EntityEvent", source: "oracle/codemp/cgame/cg_event.c:1491")
+            CG_Printf("EV_DESTROY_WEAPON_MODEL\n")
         }
         if cg_entities[es!.eventParm].ghoul2 != nil && trap_G2_HaveWeGhoul2Models(cg_entities[es!.eventParm].ghoul2) && trap_G2API_HasGhoul2ModelOnIndex((cg_entities[es!.eventParm].ghoul2), 1) {
             trap_G2API_RemoveGhoul2Model(&(cg_entities[es!.eventParm].ghoul2), 1)
@@ -2791,9 +2593,7 @@ func CG_EntityEvent(_ cent: Centity, _ position: JKAShared.vec3_t) {
 
     case EV_GIVE_NEW_RANK:
         if cg_debugEvents.integer != 0 {
-            // Port-note: The draft of this statement did not compile, and the compiler wrote "cannot find 'DEBUGNAME' in scope".
-            // Raven wrote: DEBUGNAME("EV_GIVE_NEW_RANK")
-            portMissing("CG_EntityEvent", source: "oracle/codemp/cgame/cg_event.c:1491")
+            CG_Printf("EV_GIVE_NEW_RANK\n")
         }
         if es!.trickedentindex == cg.snap!.ps.clientNum {
             trap_Cvar_Set("ui_rankChange", va("%i", es!.eventParm))
@@ -2807,18 +2607,14 @@ func CG_EntityEvent(_ cent: Centity, _ position: JKAShared.vec3_t) {
 
     case EV_SET_FREE_SABER:
         if cg_debugEvents.integer != 0 {
-            // Port-note: The draft of this statement did not compile, and the compiler wrote "cannot find 'DEBUGNAME' in scope".
-            // Raven wrote: DEBUGNAME("EV_SET_FREE_SABER")
-            portMissing("CG_EntityEvent", source: "oracle/codemp/cgame/cg_event.c:1491")
+            CG_Printf("EV_SET_FREE_SABER\n")
         }
 
         trap_Cvar_Set("ui_freeSaber", va("%i", es!.eventParm))
 
     case EV_SET_FORCE_DISABLE:
         if cg_debugEvents.integer != 0 {
-            // Port-note: The draft of this statement did not compile, and the compiler wrote "cannot find 'DEBUGNAME' in scope".
-            // Raven wrote: DEBUGNAME("EV_SET_FORCE_DISABLE")
-            portMissing("CG_EntityEvent", source: "oracle/codemp/cgame/cg_event.c:1491")
+            CG_Printf("EV_SET_FORCE_DISABLE\n")
         }
 
         trap_Cvar_Set("ui_forcePowerDisable", va("%i", es!.eventParm))
@@ -2828,9 +2624,7 @@ func CG_EntityEvent(_ cent: Centity, _ position: JKAShared.vec3_t) {
 
     case EV_CONC_ALT_IMPACT:
         if cg_debugEvents.integer != 0 {
-            // Port-note: The draft of this statement did not compile, and the compiler wrote "cannot find 'DEBUGNAME' in scope".
-            // Raven wrote: DEBUGNAME("EV_CONC_ALT_IMPACT")
-            portMissing("CG_EntityEvent", source: "oracle/codemp/cgame/cg_event.c:1491")
+            CG_Printf("EV_CONC_ALT_IMPACT\n")
         }
         do {
             var dist: Float = 0
@@ -2856,16 +2650,12 @@ func CG_EntityEvent(_ cent: Centity, _ position: JKAShared.vec3_t) {
 
     case EV_MISSILE_STICK:
         if cg_debugEvents.integer != 0 {
-            // Port-note: The draft of this statement did not compile, and the compiler wrote "cannot find 'DEBUGNAME' in scope".
-            // Raven wrote: DEBUGNAME("EV_MISSILE_STICK")
-            portMissing("CG_EntityEvent", source: "oracle/codemp/cgame/cg_event.c:1491")
+            CG_Printf("EV_MISSILE_STICK\n")
         }
 
     case EV_MISSILE_HIT:
         if cg_debugEvents.integer != 0 {
-            // Port-note: The draft of this statement did not compile, and the compiler wrote "cannot find 'DEBUGNAME' in scope".
-            // Raven wrote: DEBUGNAME("EV_MISSILE_HIT")
-            portMissing("CG_EntityEvent", source: "oracle/codemp/cgame/cg_event.c:1491")
+            CG_Printf("EV_MISSILE_HIT\n")
         }
         ByteToDir(es!.eventParm, &dir)
         if es!.emplacedOwner != 0 {
@@ -2886,9 +2676,7 @@ func CG_EntityEvent(_ cent: Centity, _ position: JKAShared.vec3_t) {
 
     case EV_MISSILE_MISS:
         if cg_debugEvents.integer != 0 {
-            // Port-note: The draft of this statement did not compile, and the compiler wrote "cannot find 'DEBUGNAME' in scope".
-            // Raven wrote: DEBUGNAME("EV_MISSILE_MISS")
-            portMissing("CG_EntityEvent", source: "oracle/codemp/cgame/cg_event.c:1491")
+            CG_Printf("EV_MISSILE_MISS\n")
         }
         ByteToDir(es!.eventParm, &dir)
         if es!.emplacedOwner != 0 {
@@ -2909,9 +2697,7 @@ func CG_EntityEvent(_ cent: Centity, _ position: JKAShared.vec3_t) {
 
     case EV_MISSILE_MISS_METAL:
         if cg_debugEvents.integer != 0 {
-            // Port-note: The draft of this statement did not compile, and the compiler wrote "cannot find 'DEBUGNAME' in scope".
-            // Raven wrote: DEBUGNAME("EV_MISSILE_MISS_METAL")
-            portMissing("CG_EntityEvent", source: "oracle/codemp/cgame/cg_event.c:1491")
+            CG_Printf("EV_MISSILE_MISS_METAL\n")
         }
         ByteToDir(es!.eventParm, &dir)
         if es!.emplacedOwner != 0 {
@@ -2927,9 +2713,7 @@ func CG_EntityEvent(_ cent: Centity, _ position: JKAShared.vec3_t) {
 
     case EV_PLAY_EFFECT:
         if cg_debugEvents.integer != 0 {
-            // Port-note: The draft of this statement did not compile, and the compiler wrote "cannot find 'DEBUGNAME' in scope".
-            // Raven wrote: DEBUGNAME("EV_PLAY_EFFECT")
-            portMissing("CG_EntityEvent", source: "oracle/codemp/cgame/cg_event.c:1491")
+            CG_Printf("EV_PLAY_EFFECT\n")
         }
         switch es!.eventParm {
         case EFFECT_SMOKE:
@@ -3008,9 +2792,7 @@ func CG_EntityEvent(_ cent: Centity, _ position: JKAShared.vec3_t) {
 
     case EV_PLAY_EFFECT_ID, EV_PLAY_PORTAL_EFFECT_ID:
         if cg_debugEvents.integer != 0 {
-            // Port-note: The draft of this statement did not compile, and the compiler wrote "cannot find 'DEBUGNAME' in scope".
-            // Raven wrote: DEBUGNAME("EV_PLAY_EFFECT_ID")
-            portMissing("CG_EntityEvent", source: "oracle/codemp/cgame/cg_event.c:1491")
+            CG_Printf("EV_PLAY_EFFECT_ID\n")
         }
         do {
             var fxDir = vec3_t()
@@ -3057,9 +2839,7 @@ func CG_EntityEvent(_ cent: Centity, _ position: JKAShared.vec3_t) {
 
     case EV_BMODEL_SOUND:
         if cg_debugEvents.integer != 0 {
-            // Port-note: The draft of this statement did not compile, and the compiler wrote "cannot find 'DEBUGNAME' in scope".
-            // Raven wrote: DEBUGNAME("EV_BMODEL_SOUND")
-            portMissing("CG_EntityEvent", source: "oracle/codemp/cgame/cg_event.c:1491")
+            CG_Printf("EV_BMODEL_SOUND\n")
         }
         do {
             var sfx: sfxHandle_t = 0
@@ -3082,9 +2862,7 @@ func CG_EntityEvent(_ cent: Centity, _ position: JKAShared.vec3_t) {
 
     case EV_MUTE_SOUND:
         if cg_debugEvents.integer != 0 {
-            // Port-note: The draft of this statement did not compile, and the compiler wrote "cannot find 'DEBUGNAME' in scope".
-            // Raven wrote: DEBUGNAME("EV_MUTE_SOUND")
-            portMissing("CG_EntityEvent", source: "oracle/codemp/cgame/cg_event.c:1491")
+            CG_Printf("EV_MUTE_SOUND\n")
         }
         if (cg_entities[es!.trickedentindex2].currentState.eFlags & EF_SOUNDTRACKER) != 0 {
             cg_entities[es!.trickedentindex2].currentState.eFlags -= EF_SOUNDTRACKER
@@ -3094,9 +2872,7 @@ func CG_EntityEvent(_ cent: Centity, _ position: JKAShared.vec3_t) {
 
     case EV_VOICECMD_SOUND:
         if cg_debugEvents.integer != 0 {
-            // Port-note: The draft of this statement did not compile, and the compiler wrote "cannot find 'DEBUGNAME' in scope".
-            // Raven wrote: DEBUGNAME("EV_VOICECMD_SOUND")
-            portMissing("CG_EntityEvent", source: "oracle/codemp/cgame/cg_event.c:1491")
+            CG_Printf("EV_VOICECMD_SOUND\n")
         }
         if es!.groundEntityNum >= MAX_CLIENTS {
             //don't ever use this unless it is being used on a real client
@@ -3141,9 +2917,7 @@ func CG_EntityEvent(_ cent: Centity, _ position: JKAShared.vec3_t) {
 
     case EV_GENERAL_SOUND:
         if cg_debugEvents.integer != 0 {
-            // Port-note: The draft of this statement did not compile, and the compiler wrote "cannot find 'DEBUGNAME' in scope".
-            // Raven wrote: DEBUGNAME("EV_GENERAL_SOUND")
-            portMissing("CG_EntityEvent", source: "oracle/codemp/cgame/cg_event.c:1491")
+            CG_Printf("EV_GENERAL_SOUND\n")
         }
         if es!.saberEntityNum == TRACK_CHANNEL_2 || es!.saberEntityNum == TRACK_CHANNEL_3 || es!.saberEntityNum == TRACK_CHANNEL_5 {
             //channels 2 and 3 are for speed and rage, 5 for sight
@@ -3161,9 +2935,7 @@ func CG_EntityEvent(_ cent: Centity, _ position: JKAShared.vec3_t) {
 
     case EV_GLOBAL_SOUND: // play from the player's head so it never diminishes
         if cg_debugEvents.integer != 0 {
-            // Port-note: The draft of this statement did not compile, and the compiler wrote "cannot find 'DEBUGNAME' in scope".
-            // Raven wrote: DEBUGNAME("EV_GLOBAL_SOUND")
-            portMissing("CG_EntityEvent", source: "oracle/codemp/cgame/cg_event.c:1491")
+            CG_Printf("EV_GLOBAL_SOUND\n")
         }
         if cgs.gameSounds[es!.eventParm] != 0 {
             trap_S_StartSound(nil, cg.snap!.ps.clientNum, CHAN_MENU1, cgs.gameSounds[es!.eventParm])
@@ -3175,9 +2947,7 @@ func CG_EntityEvent(_ cent: Centity, _ position: JKAShared.vec3_t) {
     case EV_GLOBAL_TEAM_SOUND: // play from the player's head so it never diminishes
         do {
             if cg_debugEvents.integer != 0 {
-                // Port-note: The draft of this statement did not compile, and the compiler wrote "cannot find 'DEBUGNAME' in scope".
-                // Raven wrote: DEBUGNAME("EV_GLOBAL_TEAM_SOUND")
-                portMissing("CG_EntityEvent", source: "oracle/codemp/cgame/cg_event.c:1491")
+                CG_Printf("EV_GLOBAL_TEAM_SOUND\n")
             }
             switch es!.eventParm {
             case GTS_RED_CAPTURE: // CTF: red team captured the blue flag, 1FCTF: red team captured the neutral flag
@@ -3242,9 +3012,7 @@ func CG_EntityEvent(_ cent: Centity, _ position: JKAShared.vec3_t) {
 
     case EV_ENTITY_SOUND:
         if cg_debugEvents.integer != 0 {
-            // Port-note: The draft of this statement did not compile, and the compiler wrote "cannot find 'DEBUGNAME' in scope".
-            // Raven wrote: DEBUGNAME("EV_ENTITY_SOUND")
-            portMissing("CG_EntityEvent", source: "oracle/codemp/cgame/cg_event.c:1491")
+            CG_Printf("EV_ENTITY_SOUND\n")
         }
         //somewhat of a hack - weapon is the caller entity's index, trickedentindex is the proper sound channel
         if cgs.gameSounds[es!.eventParm] != 0 {
@@ -3256,33 +3024,25 @@ func CG_EntityEvent(_ cent: Centity, _ position: JKAShared.vec3_t) {
 
     case EV_PLAY_ROFF:
         if cg_debugEvents.integer != 0 {
-            // Port-note: The draft of this statement did not compile, and the compiler wrote "cannot find 'DEBUGNAME' in scope".
-            // Raven wrote: DEBUGNAME("EV_PLAY_ROFF")
-            portMissing("CG_EntityEvent", source: "oracle/codemp/cgame/cg_event.c:1491")
+            CG_Printf("EV_PLAY_ROFF\n")
         }
         trap_ROFF_Play(es!.weapon, es!.eventParm, es!.trickedentindex != 0)
 
     case EV_GLASS_SHATTER:
         if cg_debugEvents.integer != 0 {
-            // Port-note: The draft of this statement did not compile, and the compiler wrote "cannot find 'DEBUGNAME' in scope".
-            // Raven wrote: DEBUGNAME("EV_GLASS_SHATTER")
-            portMissing("CG_EntityEvent", source: "oracle/codemp/cgame/cg_event.c:1491")
+            CG_Printf("EV_GLASS_SHATTER\n")
         }
         CG_GlassShatter(es!.genericenemyindex, es!.origin, es!.angles, Float(es!.trickedentindex), es!.pos.trTime)
 
     case EV_DEBRIS:
         if cg_debugEvents.integer != 0 {
-            // Port-note: The draft of this statement did not compile, and the compiler wrote "cannot find 'DEBUGNAME' in scope".
-            // Raven wrote: DEBUGNAME("EV_DEBRIS")
-            portMissing("CG_EntityEvent", source: "oracle/codemp/cgame/cg_event.c:1491")
+            CG_Printf("EV_DEBRIS\n")
         }
         CG_Chunks(es!.owner, es!.origin, es!.angles, es!.origin2, es!.angles2, es!.speed, es!.eventParm, es!.trickedentindex, es!.modelindex, es!.apos.trBase[0])
 
     case EV_MISC_MODEL_EXP:
         if cg_debugEvents.integer != 0 {
-            // Port-note: The draft of this statement did not compile, and the compiler wrote "cannot find 'DEBUGNAME' in scope".
-            // Raven wrote: DEBUGNAME("EV_MISC_MODEL_EXP")
-            portMissing("CG_EntityEvent", source: "oracle/codemp/cgame/cg_event.c:1491")
+            CG_Printf("EV_MISC_MODEL_EXP\n")
         }
         CG_MiscModelExplosion(es!.origin2, es!.angles2, es!.time, es!.eventParm)
 
@@ -3290,9 +3050,7 @@ func CG_EntityEvent(_ cent: Centity, _ position: JKAShared.vec3_t) {
         // local player sounds are triggered in CG_CheckLocalSounds,
         // so ignore events on the player
         if cg_debugEvents.integer != 0 {
-            // Port-note: The draft of this statement did not compile, and the compiler wrote "cannot find 'DEBUGNAME' in scope".
-            // Raven wrote: DEBUGNAME("EV_PAIN")
-            portMissing("CG_EntityEvent", source: "oracle/codemp/cgame/cg_event.c:1491")
+            CG_Printf("EV_PAIN\n")
         }
 
         if cg_oldPainSounds.integer == 0 || (cent.currentState.number != cg.snap!.ps.clientNum) {
@@ -3301,9 +3059,7 @@ func CG_EntityEvent(_ cent: Centity, _ position: JKAShared.vec3_t) {
 
     case EV_DEATH1, EV_DEATH2, EV_DEATH3:
         if cg_debugEvents.integer != 0 {
-            // Port-note: The draft of this statement did not compile, and the compiler wrote "cannot find 'DEBUGNAME' in scope".
-            // Raven wrote: DEBUGNAME("EV_DEATHx")
-            portMissing("CG_EntityEvent", source: "oracle/codemp/cgame/cg_event.c:1491")
+            CG_Printf("EV_DEATHx\n")
         }
         trap_S_StartSound(nil, es!.number, CHAN_VOICE, CG_CustomSound(es!.number, va("*death%i.wav", event - EV_DEATH1 + 1)))
         if es!.eventParm != 0 && es!.number == cg.snap!.ps.clientNum {
@@ -3313,9 +3069,7 @@ func CG_EntityEvent(_ cent: Centity, _ position: JKAShared.vec3_t) {
 
     case EV_OBITUARY:
         if cg_debugEvents.integer != 0 {
-            // Port-note: The draft of this statement did not compile, and the compiler wrote "cannot find 'DEBUGNAME' in scope".
-            // Raven wrote: DEBUGNAME("EV_OBITUARY")
-            portMissing("CG_EntityEvent", source: "oracle/codemp/cgame/cg_event.c:1491")
+            CG_Printf("EV_OBITUARY\n")
         }
         CG_Obituary(es!)
         //
@@ -3324,9 +3078,7 @@ func CG_EntityEvent(_ cent: Centity, _ position: JKAShared.vec3_t) {
 
     case EV_POWERUP_QUAD:
         if cg_debugEvents.integer != 0 {
-            // Port-note: The draft of this statement did not compile, and the compiler wrote "cannot find 'DEBUGNAME' in scope".
-            // Raven wrote: DEBUGNAME("EV_POWERUP_QUAD")
-            portMissing("CG_EntityEvent", source: "oracle/codemp/cgame/cg_event.c:1491")
+            CG_Printf("EV_POWERUP_QUAD\n")
         }
         if es!.number == cg.snap!.ps.clientNum {
             cg.powerupActive = PW_QUAD
@@ -3335,9 +3087,7 @@ func CG_EntityEvent(_ cent: Centity, _ position: JKAShared.vec3_t) {
 
     case EV_POWERUP_BATTLESUIT:
         if cg_debugEvents.integer != 0 {
-            // Port-note: The draft of this statement did not compile, and the compiler wrote "cannot find 'DEBUGNAME' in scope".
-            // Raven wrote: DEBUGNAME("EV_POWERUP_BATTLESUIT")
-            portMissing("CG_EntityEvent", source: "oracle/codemp/cgame/cg_event.c:1491")
+            CG_Printf("EV_POWERUP_BATTLESUIT\n")
         }
         if es!.number == cg.snap!.ps.clientNum {
             cg.powerupActive = PW_BATTLESUIT
@@ -3346,9 +3096,7 @@ func CG_EntityEvent(_ cent: Centity, _ position: JKAShared.vec3_t) {
 
     case EV_FORCE_DRAINED:
         if cg_debugEvents.integer != 0 {
-            // Port-note: The draft of this statement did not compile, and the compiler wrote "cannot find 'DEBUGNAME' in scope".
-            // Raven wrote: DEBUGNAME("EV_FORCE_DRAINED")
-            portMissing("CG_EntityEvent", source: "oracle/codemp/cgame/cg_event.c:1491")
+            CG_Printf("EV_FORCE_DRAINED\n")
         }
         ByteToDir(es!.eventParm, &dir)
         //FX_ForceDrained(position, dir);
@@ -3358,16 +3106,12 @@ func CG_EntityEvent(_ cent: Centity, _ position: JKAShared.vec3_t) {
 
     case EV_GIB_PLAYER:
         if cg_debugEvents.integer != 0 {
-            // Port-note: The draft of this statement did not compile, and the compiler wrote "cannot find 'DEBUGNAME' in scope".
-            // Raven wrote: DEBUGNAME("EV_GIB_PLAYER")
-            portMissing("CG_EntityEvent", source: "oracle/codemp/cgame/cg_event.c:1491")
+            CG_Printf("EV_GIB_PLAYER\n")
         }
 
     case EV_STARTLOOPINGSOUND:
         if cg_debugEvents.integer != 0 {
-            // Port-note: The draft of this statement did not compile, and the compiler wrote "cannot find 'DEBUGNAME' in scope".
-            // Raven wrote: DEBUGNAME("EV_STARTLOOPINGSOUND")
-            portMissing("CG_EntityEvent", source: "oracle/codemp/cgame/cg_event.c:1491")
+            CG_Printf("EV_STARTLOOPINGSOUND\n")
         }
         if cgs.gameSounds[es!.eventParm] != 0 {
             isnd = cgs.gameSounds[es!.eventParm]
@@ -3381,18 +3125,14 @@ func CG_EntityEvent(_ cent: Centity, _ position: JKAShared.vec3_t) {
 
     case EV_STOPLOOPINGSOUND:
         if cg_debugEvents.integer != 0 {
-            // Port-note: The draft of this statement did not compile, and the compiler wrote "cannot find 'DEBUGNAME' in scope".
-            // Raven wrote: DEBUGNAME("EV_STOPLOOPINGSOUND")
-            portMissing("CG_EntityEvent", source: "oracle/codemp/cgame/cg_event.c:1491")
+            CG_Printf("EV_STOPLOOPINGSOUND\n")
         }
         CG_S_StopLoopingSound(es!.number, -1)
         es!.loopSound = 0
 
     case EV_WEAPON_CHARGE:
         if cg_debugEvents.integer != 0 {
-            // Port-note: The draft of this statement did not compile, and the compiler wrote "cannot find 'DEBUGNAME' in scope".
-            // Raven wrote: DEBUGNAME("EV_WEAPON_CHARGE")
-            portMissing("CG_EntityEvent", source: "oracle/codemp/cgame/cg_event.c:1491")
+            CG_Printf("EV_WEAPON_CHARGE\n")
         }
         if cg_weapons[es!.eventParm].chargeSound != 0 {
             trap_S_StartSound(nil, es!.number, CHAN_WEAPON, cg_weapons[es!.eventParm].chargeSound)
@@ -3402,9 +3142,7 @@ func CG_EntityEvent(_ cent: Centity, _ position: JKAShared.vec3_t) {
 
     case EV_WEAPON_CHARGE_ALT:
         if cg_debugEvents.integer != 0 {
-            // Port-note: The draft of this statement did not compile, and the compiler wrote "cannot find 'DEBUGNAME' in scope".
-            // Raven wrote: DEBUGNAME("EV_WEAPON_CHARGE_ALT")
-            portMissing("CG_EntityEvent", source: "oracle/codemp/cgame/cg_event.c:1491")
+            CG_Printf("EV_WEAPON_CHARGE_ALT\n")
         }
         if cg_weapons[es!.eventParm].altChargeSound != 0 {
             trap_S_StartSound(nil, es!.number, CHAN_WEAPON, cg_weapons[es!.eventParm].altChargeSound)
@@ -3412,26 +3150,20 @@ func CG_EntityEvent(_ cent: Centity, _ position: JKAShared.vec3_t) {
 
     case EV_SHIELD_HIT:
         if cg_debugEvents.integer != 0 {
-            // Port-note: The draft of this statement did not compile, and the compiler wrote "cannot find 'DEBUGNAME' in scope".
-            // Raven wrote: DEBUGNAME("EV_SHIELD_HIT")
-            portMissing("CG_EntityEvent", source: "oracle/codemp/cgame/cg_event.c:1491")
+            CG_Printf("EV_SHIELD_HIT\n")
         }
         ByteToDir(es!.eventParm, &dir)
         CG_PlayerShieldHit(es!.otherEntityNum, &dir, es!.time2)
 
     case EV_DEBUG_LINE:
         if cg_debugEvents.integer != 0 {
-            // Port-note: The draft of this statement did not compile, and the compiler wrote "cannot find 'DEBUGNAME' in scope".
-            // Raven wrote: DEBUGNAME("EV_DEBUG_LINE")
-            portMissing("CG_EntityEvent", source: "oracle/codemp/cgame/cg_event.c:1491")
+            CG_Printf("EV_DEBUG_LINE\n")
         }
         CG_Beam(cent)
 
     case EV_TESTLINE:
         if cg_debugEvents.integer != 0 {
-            // Port-note: The draft of this statement did not compile, and the compiler wrote "cannot find 'DEBUGNAME' in scope".
-            // Raven wrote: DEBUGNAME("EV_TESTLINE")
-            portMissing("CG_EntityEvent", source: "oracle/codemp/cgame/cg_event.c:1491")
+            CG_Printf("EV_TESTLINE\n")
         }
         // Port-note: The draft of this statement did not compile, and the compiler wrote "cannot convert value of type 'Int32' to expected argument type 'UInt32'".
         // Raven wrote: CG_TestLine(es->origin, es->origin2, es->time2, es->weapon, 1)
@@ -3439,9 +3171,7 @@ func CG_EntityEvent(_ cent: Centity, _ position: JKAShared.vec3_t) {
 
     default:
         if cg_debugEvents.integer != 0 {
-            // Port-note: The draft of this statement did not compile, and the compiler wrote "cannot find 'DEBUGNAME' in scope".
-            // Raven wrote: DEBUGNAME("UNKNOWN")
-            portMissing("CG_EntityEvent", source: "oracle/codemp/cgame/cg_event.c:1491")
+            CG_Printf("UNKNOWN\n")
         }
         CG_Error("Unknown event: %i", event)
     }
