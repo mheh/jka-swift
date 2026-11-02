@@ -26,7 +26,7 @@ public func installBgChannel() {
     bg.straps.trap_FS_FOpenFile = { trap_FS_FOpenFile($0, &$1, $2) }
     bg.straps.trap_FS_GetFileList = { trap_FS_GetFileList($0, $1, $2) }
     bg.straps.trap_FS_Read = { trap_FS_Read($0, $1, $2) }
-    bg.straps.trap_FX_PlayEffectID = { trap_FX_PlayEffectID($0, &$1, &$2, $3, $4) }
+    bg.straps.trap_FX_PlayEffectID = { trap_FX_PlayEffectID($0, $1, $2, $3, $4) }
     bg.straps.trap_FX_RegisterEffect = { trap_FX_RegisterEffect($0) }
     bg.straps.trap_G2API_AddBolt = { trap_G2API_AddBolt($0, $1, $2) }
     bg.straps.trap_G2API_CleanGhoul2Models = { trap_G2API_CleanGhoul2Models(&$0) }

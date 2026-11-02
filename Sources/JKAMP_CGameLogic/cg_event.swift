@@ -2198,12 +2198,12 @@ func CG_EntityEvent(_ cent: Centity, _ position: JKAShared.vec3_t) {
                     fxDir[1] = 1
                 }
                 trap_S_StartSound(es!.origin, es!.number, CHAN_AUTO, hitSound)
-                trap_FX_PlayEffectID(hitPersonFxID, &es!.origin, &fxDir, -1, -1)
-                trap_FX_PlayEffectID(hitPersonFxID, &es!.origin, &fxDir, -1, -1)
-                trap_FX_PlayEffectID(hitPersonFxID, &es!.origin, &fxDir, -1, -1)
-                trap_FX_PlayEffectID(hitPersonFxID, &es!.origin, &fxDir, -1, -1)
-                trap_FX_PlayEffectID(hitPersonFxID, &es!.origin, &fxDir, -1, -1)
-                trap_FX_PlayEffectID(hitPersonFxID, &es!.origin, &fxDir, -1, -1)
+                trap_FX_PlayEffectID(hitPersonFxID, es!.origin, fxDir, -1, -1)
+                trap_FX_PlayEffectID(hitPersonFxID, es!.origin, fxDir, -1, -1)
+                trap_FX_PlayEffectID(hitPersonFxID, es!.origin, fxDir, -1, -1)
+                trap_FX_PlayEffectID(hitPersonFxID, es!.origin, fxDir, -1, -1)
+                trap_FX_PlayEffectID(hitPersonFxID, es!.origin, fxDir, -1, -1)
+                trap_FX_PlayEffectID(hitPersonFxID, es!.origin, fxDir, -1, -1)
             } else if es!.eventParm != 0 {
                 //hit a person
                 var fxDir = vec3_t()
@@ -2214,15 +2214,15 @@ func CG_EntityEvent(_ cent: Centity, _ position: JKAShared.vec3_t) {
                 trap_S_StartSound(es!.origin, es!.number, CHAN_AUTO, hitSound)
                 if es!.eventParm == 3 {
                     // moderate or big hits.
-                    trap_FX_PlayEffectID(hitPersonSmallFxID, &es!.origin, &fxDir, -1, -1)
+                    trap_FX_PlayEffectID(hitPersonSmallFxID, es!.origin, fxDir, -1, -1)
                 } else if es!.eventParm == 2 {
                     // this is for really big hits.
-                    trap_FX_PlayEffectID(hitPersonMidFxID, &es!.origin, &fxDir, -1, -1)
+                    trap_FX_PlayEffectID(hitPersonMidFxID, es!.origin, fxDir, -1, -1)
                 } else {
                     // this should really just be done in the effect itself, no?
-                    trap_FX_PlayEffectID(hitPersonFxID, &es!.origin, &fxDir, -1, -1)
-                    trap_FX_PlayEffectID(hitPersonFxID, &es!.origin, &fxDir, -1, -1)
-                    trap_FX_PlayEffectID(hitPersonFxID, &es!.origin, &fxDir, -1, -1)
+                    trap_FX_PlayEffectID(hitPersonFxID, es!.origin, fxDir, -1, -1)
+                    trap_FX_PlayEffectID(hitPersonFxID, es!.origin, fxDir, -1, -1)
+                    trap_FX_PlayEffectID(hitPersonFxID, es!.origin, fxDir, -1, -1)
                 }
             } else {
                 //hit something else
@@ -2237,7 +2237,7 @@ func CG_EntityEvent(_ cent: Centity, _ position: JKAShared.vec3_t) {
                 trap_FX_PlayEffectID( trap_FX_RegisterEffect("saber/spark.efx"), es->origin, fxDir, -1, -1 );
                 */
 
-                trap_FX_PlayEffectID(hitOtherFxID, &es!.origin, &fxDir, -1, -1)
+                trap_FX_PlayEffectID(hitOtherFxID, es!.origin, fxDir, -1, -1)
             }
 
             //rww - this means we have the number of the ent being hit and the ent that owns the saber doing
@@ -2337,7 +2337,7 @@ func CG_EntityEvent(_ cent: Centity, _ position: JKAShared.vec3_t) {
                         fxDir[1] = 1
                     }
                     trap_S_StartSound(es!.origin, es!.number, CHAN_AUTO, blockSound)
-                    trap_FX_PlayEffectID(blockFXID, &es!.origin, &fxDir, -1, -1)
+                    trap_FX_PlayEffectID(blockFXID, es!.origin, fxDir, -1, -1)
 
                     if !noFlare {
                         cg_saberFlashTime = cg.time - 50
@@ -2351,7 +2351,7 @@ func CG_EntityEvent(_ cent: Centity, _ position: JKAShared.vec3_t) {
                 if fxDir[0] == 0 && fxDir[1] == 0 && fxDir[2] == 0 {
                     fxDir[1] = 1
                 }
-                trap_FX_PlayEffectID(cgs.effects.mBlasterDeflect, &es!.origin, &fxDir, -1, -1)
+                trap_FX_PlayEffectID(cgs.effects.mBlasterDeflect, es!.origin, fxDir, -1, -1)
             }
         }
 
@@ -2929,7 +2929,7 @@ func CG_EntityEvent(_ cent: Centity, _ position: JKAShared.vec3_t) {
             while dist < shotDist {
                 //one effect would be.. a whole lot better
                 _VectorMA(es!.origin2, dist, es!.angles, &spot)
-                trap_FX_PlayEffectID(cgs.effects.mConcussionAltRing, &spot, &es!.angles2, -1, -1)
+                trap_FX_PlayEffectID(cgs.effects.mConcussionAltRing, spot, es!.angles2, -1, -1)
                 dist += 64.0
             }
 
@@ -3097,7 +3097,7 @@ func CG_EntityEvent(_ cent: Centity, _ position: JKAShared.vec3_t) {
                 fxDir[1] = 1
             }
 
-            trap_FX_PlayEffectID(eID, &es!.origin, &fxDir, -1, -1)
+            trap_FX_PlayEffectID(eID, es!.origin, fxDir, -1, -1)
         }
 
     case EV_PLAY_EFFECT_ID, EV_PLAY_PORTAL_EFFECT_ID:
