@@ -456,8 +456,9 @@ class Declarations:
                     return f"{keyword} {name} = {view}(handle: OpaquePointer({self.uncast(init[0]).spelling}))"
                 if var.spelling in self.slots_locals:
                     # Every store into the local holds a table of records, so the local is the Slots over it.
-                    if init:
+                    if init and not self.is_null(init[0]):
                         return f"{keyword} {name}: Slots<{view}> = {self.slots_expression(init[0])}"
+                    # Raven's NULL initializer drops, and Swift checks that every path stores the table before the first read.
                     return f"var {name}: Slots<{view}>"
                 if init and record in ("gentity_t", "gclient_t") and self.plain_entity(var, init[0]):
                     # Every store is the address of a table slot, and no statement stores or tests NULL, so the local is never nil.
