@@ -148,9 +148,9 @@ func CG_CustomSound(_ clientNum: Int32, _ soundName: String) -> JKAShared.sfxHan
     // Raven assigns his own `clientNum` parameter. A Swift parameter is immutable, so the body takes a mutable copy of it.
     var clientNum = clientNum
 
-    // Port-note: The draft of this statement did not compile, and the compiler wrote "cannot convert value of type 'Character' to expected argument type 'Int32'".
-    // Raven wrote: if ( soundName[0] != '*' ) { return trap_S_RegisterSound( soundName ); }
-    portMissing("CG_CustomSound", source: "oracle/codemp/cgame/cg_players.c:170")
+    if CharBuf(soundName)[0] != Int32(ascii: "*") {
+        return trap_S_RegisterSound(soundName)
+    }
 
     COM_StripExtension(soundName, &lSoundName)
 
@@ -165,9 +165,7 @@ func CG_CustomSound(_ clientNum: Int32, _ soundName: String) -> JKAShared.sfxHan
     }
 
     if ci == nil {
-        // Port-note: Raven returns NULL, and the function returns a `sfxHandle_t`.
-        // Raven wrote: return 0
-        portMissing("CG_CustomSound", source: "oracle/codemp/cgame/cg_players.c:170")
+        return 0
     }
 
     i = 0
@@ -235,17 +233,30 @@ func CG_CustomSound(_ clientNum: Int32, _ soundName: String) -> JKAShared.sfxHan
 
     i = 0
     while i < MAX_CUSTOM_SOUNDS {
-        // Port-note: The draft of this statement did not compile, and the compiler wrote "value of optional type 'String?' must be unwrapped to a value of type 'String'".
-        // Raven wrote: if ( i < numCSounds && !strcmp( lSoundName, cg_customSoundNames[i] ) ) { return ci->sounds[i]; } else if ( (cgs.gametype >= GT_TEAM || cg_buildScript.integer) && i < numCSiegeSounds && !strcmp( lSoundName, bg_customSiegeSoundNames[i] ) ) { //siege only return ci->siegeSounds[i]; } else if ( (cgs.gametype == GT_DUEL || cgs.gametype == GT_POWERDUEL || cg_buildScript.integer) && i < numCDuelSounds && !strcmp( lSoundName, cg_customDuelSoundNames[i] ) ) { //siege only return ci->duelSounds[i]; } else if ( clientNum >= MAX_CLIENTS && i < numCComSounds && !strcmp( lSoundName, cg_customCombatSoundNames[i] ) ) { //npc only return ci->combatSounds[i]; } else if ( clientNum >= MAX_CLIENTS && i < numCExSounds && !strcmp( lSoundName, cg_customExtraSoundNames[i] ) ) { //npc only return ci->extraSounds[i]; } else if ( clientNum >= MAX_CLIENTS && i < numCJediSounds && !strcmp( lSoundName, cg_customJediSoundNames[i] ) ) { //npc only return ci->jediSounds[i]; }
-        portMissing("CG_CustomSound", source: "oracle/codemp/cgame/cg_players.c:170")
+        if i < numCSounds && strcmp(lSoundName, cg_customSoundNames[i]!) == 0 {
+            return ci!.sounds[i]
+        } else if (cgs.gametype >= GT_TEAM || cg_buildScript.integer != 0) && i < numCSiegeSounds && strcmp(lSoundName, bg_customSiegeSoundNames[i]) == 0 {
+            //siege only
+            return ci!.siegeSounds[i]
+        } else if (cgs.gametype == GT_DUEL || cgs.gametype == GT_POWERDUEL || cg_buildScript.integer != 0) && i < numCDuelSounds && strcmp(lSoundName, cg_customDuelSoundNames[i]!) == 0 {
+            //siege only
+            return ci!.duelSounds[i]
+        } else if clientNum >= MAX_CLIENTS && i < numCComSounds && strcmp(lSoundName, cg_customCombatSoundNames[i]!) == 0 {
+            //npc only
+            return ci!.combatSounds[i]
+        } else if clientNum >= MAX_CLIENTS && i < numCExSounds && strcmp(lSoundName, cg_customExtraSoundNames[i]!) == 0 {
+            //npc only
+            return ci!.extraSounds[i]
+        } else if clientNum >= MAX_CLIENTS && i < numCJediSounds && strcmp(lSoundName, cg_customJediSoundNames[i]!) == 0 {
+            //npc only
+            return ci!.jediSounds[i]
+        }
         i += 1
     }
 
     //CG_Error( "Unknown custom sound: %s", lSoundName );
     Com_Printf("Unknown custom sound: %s", lSoundName)
-    // Port-note: Raven returns NULL, and the function returns a `sfxHandle_t`.
-    // Raven wrote: return 0
-    portMissing("CG_CustomSound", source: "oracle/codemp/cgame/cg_players.c:170")
+    return 0
 }
 
 /// Source: oracle/codemp/cgame/cg_players.c:314
@@ -258,10 +269,15 @@ func CG_ParseSurfsFile(_ modelName: String, _ skinName: String, _ surfOff: inout
     var sfilename = CharBuf(64)
     var f: fileHandle_t = 0
     var i: Int32 = 0
+    let skinName = CharBuf(skinName)
 
-    // Port-note: The draft of this statement did not compile, and the compiler wrote "binary operator '!=' cannot be applied to operands of type 'Character' and 'Int'".
-    // Raven wrote: while (skinName && skinName[i]) { if (skinName[i] == '|') { //this is a multi-part skin, said skins do not support .surf files return qfalse; } i++; }
-    portMissing("CG_ParseSurfsFile", source: "oracle/codemp/cgame/cg_players.c:314")
+    while skinName[i] != 0 {
+        if skinName[i] == Int32(ascii: "|") {
+            //this is a multi-part skin, said skins do not support .surf files
+            return false
+        }
+        i += 1
+    }
 
 
     // Load and parse .surf file
@@ -332,7 +348,7 @@ func CG_ParseSurfsFile(_ modelName: String, _ skinName: String, _ surfOff: inout
 
 /// Source: oracle/codemp/cgame/cg_players.c:421
 private func CG_RegisterClientModelname(_ ci: ClientInfo, _ modelName: String, _ skinName: String, _ teamName: String, _ clientNum: Int32) -> Bool {
-    let handle: Int32
+    var handle: Int32
     var afilename = CharBuf(64)
     var slash: Int32? = nil
     var GLAName = CharBuf(64)
@@ -340,8 +356,8 @@ private func CG_RegisterClientModelname(_ ci: ClientInfo, _ modelName: String, _
     var badModel: Bool = false
     var surfOff = CharBuf(1024)
     var surfOn = CharBuf(1024)
-    let checkSkin: Int32
-    let useSkinName: String
+    var checkSkin: Int32
+    var useSkinName: String
 
     // Raven steps his own `modelName` parameter through its bytes, so the body walks a TextCursor over a copy of them.
     var modelName = TextCursor(CharBuf(modelName))
@@ -374,9 +390,7 @@ private func CG_RegisterClientModelname(_ ci: ClientInfo, _ modelName: String, _
             // Port-note: The draft of this statement did not compile, and the compiler wrote "cannot convert value of type 'Slots<Float>' to expected argument type 'vec3_t' (aka 'SIMD3<Float>')".
             // Raven wrote: BG_ValidateSkinForTeam( ci->modelName, ci->skinName, ci->team, ci->colorOverride )
             portMissing("CG_RegisterClientModelname", source: "oracle/codemp/cgame/cg_players.c:421")
-            // Port-note: The draft of this statement did not compile, and the compiler wrote "cannot convert value of type 'String' to expected argument type 'CharBuf'".
-            // Raven wrote: skinName = ci->skinName
-            portMissing("CG_RegisterClientModelname", source: "oracle/codemp/cgame/cg_players.c:421")
+            skinName = TextCursor(ci.skinNameBuffer)
         } else {
             ci.colorOverride[2] = 0.0
             ci.colorOverride[1] = ci.colorOverride[2]
@@ -385,18 +399,12 @@ private func CG_RegisterClientModelname(_ ci: ClientInfo, _ modelName: String, _
 
         if strchr(skinName.text, Int32(ascii: "|")) != nil {
             //three part skin
-            // Port-note: The draft of this statement did not compile, and the compiler wrote "immutable value 'useSkinName' may only be initialized once".
-            // Raven wrote: useSkinName = va("models/players/%s/|%s", modelName, skinName)
-            portMissing("CG_RegisterClientModelname", source: "oracle/codemp/cgame/cg_players.c:421")
+            useSkinName = va("models/players/%s/|%s", modelName.text, skinName.text)
         } else {
-            // Port-note: The draft of this statement did not compile, and the compiler wrote "immutable value 'useSkinName' may only be initialized once".
-            // Raven wrote: useSkinName = va("models/players/%s/model_%s.skin", modelName, skinName)
-            portMissing("CG_RegisterClientModelname", source: "oracle/codemp/cgame/cg_players.c:421")
+            useSkinName = va("models/players/%s/model_%s.skin", modelName.text, skinName.text)
         }
 
-        // Port-note: The draft of this statement did not compile, and the compiler wrote "immutable value 'checkSkin' may only be initialized once".
-        // Raven wrote: checkSkin = trap_R_RegisterSkin(useSkinName)
-        portMissing("CG_RegisterClientModelname", source: "oracle/codemp/cgame/cg_players.c:421")
+        checkSkin = trap_R_RegisterSkin(useSkinName)
 
         if checkSkin != 0 {
             ci.torsoSkin = checkSkin
@@ -405,9 +413,7 @@ private func CG_RegisterClientModelname(_ ci: ClientInfo, _ modelName: String, _
             ci.torsoSkin = trap_R_RegisterSkin(va("models/players/%s/model_default.skin", modelName.text, skinName.text))
         }
         Com_sprintf(&afilename, Int32((afilename).count), "models/players/%s/model.glm", modelName.text)
-        // Port-note: The draft of this statement did not compile, and the compiler wrote "immutable value 'handle' may only be initialized once".
-        // Raven wrote: handle = trap_G2API_InitGhoul2Model(&ci->ghoul2Model, afilename, 0, ci->torsoSkin, 0, 0, 0)
-        portMissing("CG_RegisterClientModelname", source: "oracle/codemp/cgame/cg_players.c:421")
+        handle = trap_G2API_InitGhoul2Model(&(ci.ghoul2Model), String(afilename), 0, ci.torsoSkin, 0, 0, 0)
 
         if handle < 0 {
             return false
@@ -472,17 +478,33 @@ private func CG_RegisterClientModelname(_ ci: ClientInfo, _ modelName: String, _
         if CG_ParseSurfsFile(modelName.text, skinName.text, &surfOff, &surfOn) {
             //turn on/off any surfs
             var token: String
-            // Port-note: A pointer local `const char * p` with no view.
-            // Raven wrote: const char *p;
-            portMissing("CG_RegisterClientModelname", source: "oracle/codemp/cgame/cg_players.c:421")
+            var p = TextCursor()
 
             //Now turn on/off any surfaces
-            // Port-note: The draft of this statement did not compile, and the compiler wrote "referencing operator function '!=' on 'BinaryInteger' requires that 'CharBuf' conform to 'BinaryInteger'".
-            // Raven wrote: if ( surfOff && surfOff[0] ) { p = surfOff; while ( 1 ) { token = COM_ParseExt( &p, qtrue ); if ( !token[0] ) {//reached end of list break; } //turn off this surf trap_G2API_SetSurfaceOnOff( ci->ghoul2Model, token, 0x00000002/*G2SURFACEFLAG_OFF*/ ); } }
-            portMissing("CG_RegisterClientModelname", source: "oracle/codemp/cgame/cg_players.c:421")
-            // Port-note: The draft of this statement did not compile, and the compiler wrote "referencing operator function '!=' on 'BinaryInteger' requires that 'CharBuf' conform to 'BinaryInteger'".
-            // Raven wrote: if ( surfOn && surfOn[0] ) { p = surfOn; while ( 1 ) { token = COM_ParseExt( &p, qtrue ); if ( !token[0] ) {//reached end of list break; } //turn on this surf trap_G2API_SetSurfaceOnOff( ci->ghoul2Model, token, 0 ); } }
-            portMissing("CG_RegisterClientModelname", source: "oracle/codemp/cgame/cg_players.c:421")
+            if surfOff[0] != 0 {
+                p = TextCursor(surfOff)
+                while 1 != 0 {
+                    token = COM_ParseExt(&p, true)
+                    if token.isEmpty {
+                        //reached end of list
+                        break
+                    }
+                    //turn off this surf
+                    trap_G2API_SetSurfaceOnOff(ci.ghoul2Model, token, 0x00000002/*G2SURFACEFLAG_OFF*/)
+                }
+            }
+            if surfOn[0] != 0 {
+                p = TextCursor(surfOn)
+                while 1 != 0 {
+                    token = COM_ParseExt(&p, true)
+                    if token.isEmpty {
+                        //reached end of list
+                        break
+                    }
+                    //turn on this surf
+                    trap_G2API_SetSurfaceOnOff(ci.ghoul2Model, token, 0)
+                }
+            }
         }
 
 
@@ -749,9 +771,7 @@ func CG_LoadCISounds(_ ci: ClientInfo, _ modelloaded: Bool) {
             break
         }
 
-        // Port-note: The draft of this statement did not compile, and the compiler wrote "cannot convert value of type 'String?' to expected argument type 'Int'".
-        // Raven wrote: Com_sprintf(soundName, sizeof(soundName), "%s", s+1)
-        portMissing("CG_LoadCISounds", source: "oracle/codemp/cgame/cg_players.c:799")
+        Com_sprintf(&soundName, Int32((soundName).count), "%s", String(s!.dropFirst()))
         COM_StripExtension(String(soundName), &soundName)
         //strip the extension because we might want .mp3's
 
@@ -785,9 +805,7 @@ func CG_LoadCISounds(_ ci: ClientInfo, _ modelloaded: Bool) {
                 break
             }
 
-            // Port-note: The draft of this statement did not compile, and the compiler wrote "cannot convert value of type 'String?' to expected argument type 'Int'".
-            // Raven wrote: Com_sprintf(soundName, sizeof(soundName), "%s", s+1)
-            portMissing("CG_LoadCISounds", source: "oracle/codemp/cgame/cg_players.c:799")
+            Com_sprintf(&soundName, Int32((soundName).count), "%s", String(s!.dropFirst()))
             COM_StripExtension(String(soundName), &soundName)
             //strip the extension because we might want .mp3's
 
@@ -822,9 +840,7 @@ func CG_LoadCISounds(_ ci: ClientInfo, _ modelloaded: Bool) {
                 break
             }
 
-            // Port-note: The draft of this statement did not compile, and the compiler wrote "cannot convert value of type 'String?' to expected argument type 'Int'".
-            // Raven wrote: Com_sprintf(soundName, sizeof(soundName), "%s", s+1)
-            portMissing("CG_LoadCISounds", source: "oracle/codemp/cgame/cg_players.c:799")
+            Com_sprintf(&soundName, Int32((soundName).count), "%s", String(s!.dropFirst()))
             COM_StripExtension(String(soundName), &soundName)
             //strip the extension because we might want .mp3's
 
@@ -1355,13 +1371,9 @@ func CG_NewClientInfo(_ clientNum: Int32, _ entitiesInitialized: Bool) {
     let earlyOut = ClientInfo.scratch { newInfo -> Bool in
         var configstring: String
         var v: String
-        // Port-note: A pointer local `char * slash` with no view.
-        // Raven wrote: char *slash;
-        portMissing("CG_NewClientInfo", source: "oracle/codemp/cgame/cg_players.c:1503")
+        var slash: Int32? = nil
         var oldGhoul2: OpaquePointer? = nil
-        // Port-note: A local `void *[2] oldG2Weapons` the table has no type for.
-        // Raven wrote: void *oldG2Weapons[MAX_SABERS];
-        portMissing("CG_NewClientInfo", source: "oracle/codemp/cgame/cg_players.c:1503")
+        var oldG2Weapons = [OpaquePointer?](repeating: nil, count: Int(MAX_SABERS))
         var i: Int32 = 0
         var k: Int32 = 0
         var saberUpdate: [Bool] = [Bool](repeating: false, count: 2)
@@ -1371,9 +1383,7 @@ func CG_NewClientInfo(_ clientNum: Int32, _ entitiesInitialized: Bool) {
         oldGhoul2 = ci!.ghoul2Model
 
         while k < MAX_SABERS {
-            // Port-note: A read of `oldG2Weapons`, a local the draft left as a hole.
-            // Raven wrote: oldG2Weapons[k] = ci->ghoul2Weapons[k]
-            portMissing("CG_NewClientInfo", source: "oracle/codemp/cgame/cg_players.c:1503")
+            oldG2Weapons[k] = ci!.ghoul2Weapons[k]
             k += 1
         }
 
@@ -1391,9 +1401,7 @@ func CG_NewClientInfo(_ clientNum: Int32, _ entitiesInitialized: Bool) {
                 k += 1
             }
 
-            // Port-note: The draft of this statement did not compile, and the compiler wrote "value of optional type 'ClientInfo?' must be unwrapped to refer to member 'clear' of wrapped base type 'ClientInfo'".
-            // Raven wrote: memset( ci, 0, sizeof( *ci ) )
-            portMissing("CG_NewClientInfo", source: "oracle/codemp/cgame/cg_players.c:1503")
+            ci!.clear()
             return true // player just left
         }
 
@@ -1461,37 +1469,37 @@ func CG_NewClientInfo(_ clientNum: Int32, _ entitiesInitialized: Bool) {
             // forcemodel makes everyone use a single model
             // to prevent load hitches
             var modelStr = CharBuf(64)
-            // Port-note: A pointer local `char * skin` with no view.
-            // Raven wrote: char *skin;
-            portMissing("CG_NewClientInfo", source: "oracle/codemp/cgame/cg_players.c:1503")
+            let skin: String
 
             strcpy(&modelStr, trap_Cvar_VariableStringBuffer("model", Int32((modelStr).count)))
-            // Port-note: A store into `skin`, a local the draft left as a hole.
-            // Raven wrote: if ( ( skin = strchr( modelStr, '/' ) ) == NULL) { skin = "default"; } else { *skin++ = 0; }
-            portMissing("CG_NewClientInfo", source: "oracle/codemp/cgame/cg_players.c:1503")
-            // Port-note: A read of `skin`, a local the draft left as a hole.
-            // Raven wrote: Q_strncpyz( newInfo.skinName, skin, sizeof( newInfo.skinName ) )
-            portMissing("CG_NewClientInfo", source: "oracle/codemp/cgame/cg_players.c:1503")
+            if let slash = strchr(modelStr, Int32(ascii: "/")) {
+                modelStr[slash] = 0
+                skin = String(modelStr[(slash + 1)...])
+            } else {
+                skin = "default"
+            }
+            Q_strncpyz(&newInfo.skinNameBuffer, skin, 64)
             Q_strncpyz(&newInfo.modelNameBuffer, String(modelStr), 64)
 
             if cgs.gametype >= GT_TEAM {
                 // keep skin name
-                // Port-note: A store into `slash`, a local the draft left as a hole.
-                // Raven wrote: slash = strchr( v, '/' )
-                portMissing("CG_NewClientInfo", source: "oracle/codemp/cgame/cg_players.c:1503")
-                // Port-note: A read of `slash`, a local the draft left as a hole.
-                // Raven wrote: if ( slash ) { Q_strncpyz( newInfo.skinName, slash + 1, sizeof( newInfo.skinName ) ); }
-                portMissing("CG_NewClientInfo", source: "oracle/codemp/cgame/cg_players.c:1503")
+                slash = strchr(v, Int32(ascii: "/"))
+                if let slash {
+                    Q_strncpyz(&newInfo.skinNameBuffer, String(CharBuf(v)[(slash + 1)...]), 64)
+                }
             }
         } else {
             Q_strncpyz(&newInfo.modelNameBuffer, v, 64)
 
-            // Port-note: A store into `slash`, a local the draft left as a hole.
-            // Raven wrote: slash = strchr( newInfo.modelName, '/' )
-            portMissing("CG_NewClientInfo", source: "oracle/codemp/cgame/cg_players.c:1503")
-            // Port-note: A read of `slash`, a local the draft left as a hole.
-            // Raven wrote: if ( !slash ) { // modelName didn not include a skin name Q_strncpyz( newInfo.skinName, "default", sizeof( newInfo.skinName ) ); } else { Q_strncpyz( newInfo.skinName, slash + 1, sizeof( newInfo.skinName ) ); // truncate modelName *slash = 0; }
-            portMissing("CG_NewClientInfo", source: "oracle/codemp/cgame/cg_players.c:1503")
+            slash = strchr(newInfo.modelNameBuffer, Int32(ascii: "/"))
+            if slash == nil {
+                // modelName didn not include a skin name
+                Q_strncpyz(&newInfo.skinNameBuffer, "default", 64)
+            } else {
+                Q_strncpyz(&newInfo.skinNameBuffer, String(newInfo.modelNameBuffer[(slash! + 1)...]), 64)
+                // truncate modelName
+                newInfo.modelNameBuffer[slash!] = 0
+            }
         }
 
         if cgs.gametype == GT_SIEGE {
@@ -1569,15 +1577,19 @@ func CG_NewClientInfo(_ clientNum: Int32, _ entitiesInitialized: Bool) {
             while j < MAX_SABERS {
                 if saberUpdate[j] {
                     if !newInfo.saber[j].model.isEmpty {
-                        // Port-note: A read of `oldG2Weapons`, a local the draft left as a hole.
-                        // Raven wrote: if (oldG2Weapons[j]) { //free the old instance(s) trap_G2API_CleanGhoul2Models(&oldG2Weapons[j]); oldG2Weapons[j] = 0; }
-                        portMissing("CG_NewClientInfo", source: "oracle/codemp/cgame/cg_players.c:1503")
+                        if oldG2Weapons[j] != nil {
+                            //free the old instance(s)
+                            trap_G2API_CleanGhoul2Models(&oldG2Weapons[j])
+                            oldG2Weapons[j] = nil
+                        }
 
                         CG_InitG2SaberData(j, newInfo)
                     } else {
-                        // Port-note: A read of `oldG2Weapons`, a local the draft left as a hole.
-                        // Raven wrote: if (oldG2Weapons[j]) { //free the old instance(s) trap_G2API_CleanGhoul2Models(&oldG2Weapons[j]); oldG2Weapons[j] = 0; }
-                        portMissing("CG_NewClientInfo", source: "oracle/codemp/cgame/cg_players.c:1503")
+                        if oldG2Weapons[j] != nil {
+                            //free the old instance(s)
+                            trap_G2API_CleanGhoul2Models(&oldG2Weapons[j])
+                            oldG2Weapons[j] = nil
+                        }
                     }
 
                     cg_entities[clientNum].weapon = 0
@@ -1590,9 +1602,9 @@ func CG_NewClientInfo(_ clientNum: Int32, _ entitiesInitialized: Bool) {
         //Check for any sabers that didn't get set again, if they didn't, then reassign the pointers for the new ci
         k = 0
         while k < MAX_SABERS {
-            // Port-note: A read of `oldG2Weapons`, a local the draft left as a hole.
-            // Raven wrote: if (oldG2Weapons[k]) { newInfo.ghoul2Weapons[k] = oldG2Weapons[k]; }
-            portMissing("CG_NewClientInfo", source: "oracle/codemp/cgame/cg_players.c:1503")
+            if oldG2Weapons[k] != nil {
+                newInfo.ghoul2Weapons[k] = oldG2Weapons[k]
+            }
             k += 1
         }
 
@@ -1638,9 +1650,7 @@ func CG_NewClientInfo(_ clientNum: Int32, _ entitiesInitialized: Bool) {
             //Otherwise we will end up with extra instances all over the place, I think.
             trap_G2API_CleanGhoul2Models(&ci!.ghoul2Model)
         }
-        // Port-note: A pointer dereference the draft cannot place.
-        // Raven wrote: *ci = newInfo
-        portMissing("CG_NewClientInfo", source: "oracle/codemp/cgame/cg_players.c:1503")
+        ci!.copy(from: newInfo)
 
         //force a weapon change anyway, for all clients being rendered to the current client
         while i < MAX_CLIENTS {
@@ -1765,22 +1775,18 @@ Called at the beginning of CG_Player if cgQueueLoad is set.
 /// Source: oracle/codemp/cgame/cg_players.c:1953
 func CG_ActualLoadDeferredPlayers() {
     var i: Int32
-    var ci: Slots<ClientInfo>
+    var ciIndex: Int32
 
     // scan for a deferred player to load
     i = 0
-    ci = cgs.clientinfo
+    ciIndex = 0
     while i < cgs.maxclients {
-        if ci[0].infoValid && ci[0].deferred {
-            // Port-note: Raven passes `ci` to `CG_LoadClientInfo`, whose `ci` parameter takes one record, and Swift holds the argument as the Slots over the records.
-            // Raven wrote: CG_LoadClientInfo( ci )
-            portMissing("CG_ActualLoadDeferredPlayers", source: "oracle/codemp/cgame/cg_players.c:1953")
+        if cgs.clientinfo[ciIndex].infoValid && cgs.clientinfo[ciIndex].deferred {
+            CG_LoadClientInfo(cgs.clientinfo[ciIndex])
             //			break;
         }
         i += 1
-        // Port-note: The draft of this statement did not compile, and the compiler wrote "binary operator '+=' cannot be applied to operands of type 'Slots<ClientInfo>' and 'Int'".
-        // Raven wrote: ci++
-        portMissing("CG_ActualLoadDeferredPlayers", source: "oracle/codemp/cgame/cg_players.c:1953")
+        ciIndex += 1
     }
 }
 
@@ -2010,9 +2016,121 @@ func CG_PlayerAnimEventDo(_ cent: Centity, _ animEvent: JKAMP.Animevent) {
     var spinSound: qhandle_t = 0
 
 
-    // Port-note: The draft of this statement did not compile, and the compiler wrote "'case' label in a 'switch' must have at least one executable statement".
-    // Raven wrote: switch ( animEvent->eventType ) { case AEV_SOUNDCHAN: channel = (soundChannel_t)animEvent->eventData[AED_SOUNDCHANNEL]; case AEV_SOUND: { // are there variations on the sound? const int holdSnd = animEvent->eventData[ AED_SOUNDINDEX_START+Q_irand( 0, animEvent->eventData[AED_SOUND_NUMRANDOMSNDS] ) ]; if ( holdSnd > 0 ) { trap_S_StartSound( NULL, cent->currentState.number, channel, holdSnd ); } } break; case AEV_SABER_SWING: if (cent->currentState.eType == ET_NPC) { client = cent->npcClient; assert(client); } else { client = &cgs.clientinfo[cent->currentState.clientNum]; } if ( client && client->infoValid && client->saber[animEvent->eventData[AED_SABER_SWING_SABERNUM]].swingSound[0] ) {//custom swing sound swingSound = client->saber[0].swingSound[Q_irand(0,2)]; } else { int randomSwing = 1; switch ( animEvent->eventData[AED_SABER_SWING_TYPE] ) { default: case 0://SWING_FAST randomSwing = Q_irand( 1, 3 ); break; case 1://SWING_MEDIUM randomSwing = Q_irand( 4, 6 ); break; case 2://SWING_STRONG randomSwing = Q_irand( 7, 9 ); break; } swingSound = trap_S_RegisterSound(va("sound/weapons/saber/saberhup%i.wav", randomSwing)); } trap_S_StartSound(cent->currentState.pos.trBase, cent->currentState.number, CHAN_AUTO, swingSound ); break; case AEV_SABER_SPIN: if (cent->currentState.eType == ET_NPC) { client = cent->npcClient; assert(client); } else { client = &cgs.clientinfo[cent->currentState.clientNum]; } if ( client && client->infoValid && client->saber[AED_SABER_SPIN_SABERNUM].spinSound ) {//use override spinSound = client->saber[AED_SABER_SPIN_SABERNUM].spinSound; } else { switch ( animEvent->eventData[AED_SABER_SPIN_TYPE] ) { case 0://saberspinoff spinSound = trap_S_RegisterSound( "sound/weapons/saber/saberspinoff.wav" ); break; case 1://saberspin spinSound = trap_S_RegisterSound( "sound/weapons/saber/saberspin.wav" ); break; case 2://saberspin1 spinSound = trap_S_RegisterSound( "sound/weapons/saber/saberspin1.wav" ); break; case 3://saberspin2 spinSound = trap_S_RegisterSound( "sound/weapons/saber/saberspin2.wav" ); break; case 4://saberspin3 spinSound = trap_S_RegisterSound( "sound/weapons/saber/saberspin3.wav" ); break; default://random saberspin1-3 spinSound = trap_S_RegisterSound( va( "sound/weapons/saber/saberspin%d.wav", Q_irand(1,3)) ); break; } } if ( spinSound ) { trap_S_StartSound( NULL, cent->currentState.clientNum, CHAN_AUTO, spinSound ); } break; case AEV_FOOTSTEP: CG_PlayerFootsteps( cent, (footstepType_t)animEvent->eventData[AED_FOOTSTEP_TYPE] ); break; case AEV_EFFECT: #if 0 //SP method //add bolt, play effect if ( animEvent->stringData != NULL && cent && cent->gent && cent->gent->ghoul2.size() ) {//have a bolt name we want to use animEvent->eventData[AED_BOLTINDEX] = gi.G2API_AddBolt( &cent->gent->ghoul2[cent->gent->playerModel], animEvent->stringData ); animEvent->stringData = NULL;//so we don't try to do this again } if ( animEvent->eventData[AED_BOLTINDEX] != -1 ) {//have a bolt we want to play the effect on G_PlayEffect( animEvent->eventData[AED_EFFECTINDEX], cent->gent->playerModel, animEvent->eventData[AED_BOLTINDEX], cent->currentState.clientNum ); } else {//play at origin? FIXME: maybe allow a fwd/rt/up offset? theFxScheduler.PlayEffect( animEvent->eventData[AED_EFFECTINDEX], cent->lerpOrigin, qfalse ); } #else //my method if (animEvent->stringData && animEvent->stringData[0] && cent && cent->ghoul2) { animEvent->eventData[AED_MODELINDEX] = 0; if ( ( Q_stricmpn( "*blade", animEvent->stringData, 6 ) == 0 || Q_stricmp( "*flash", animEvent->stringData ) == 0 ) ) {//must be a weapon, try weapon 0? animEvent->eventData[AED_BOLTINDEX] = trap_G2API_AddBolt( cent->ghoul2, 1, animEvent->stringData ); if ( animEvent->eventData[AED_BOLTINDEX] != -1 ) {//found it! animEvent->eventData[AED_MODELINDEX] = 1; } else {//hmm, just try on the player model, then? animEvent->eventData[AED_BOLTINDEX] = trap_G2API_AddBolt( cent->ghoul2, 0, animEvent->stringData ); } } else { animEvent->eventData[AED_BOLTINDEX] = trap_G2API_AddBolt( cent->ghoul2, 0, animEvent->stringData ); } animEvent->stringData[0] = 0; } if ( animEvent->eventData[AED_BOLTINDEX] != -1 ) { vec3_t lAngles; vec3_t bPoint, bAngle; mdxaBone_t matrix; VectorSet(lAngles, 0, cent->lerpAngles[YAW], 0); trap_G2API_GetBoltMatrix(cent->ghoul2, animEvent->eventData[AED_MODELINDEX], animEvent->eventData[AED_BOLTINDEX], &matrix, lAngles, cent->lerpOrigin, cg.time, cgs.gameModels, cent->modelScale); BG_GiveMeVectorFromMatrix(&matrix, ORIGIN, bPoint); VectorSet(bAngle, 0, 1, 0); trap_FX_PlayEffectID(animEvent->eventData[AED_EFFECTINDEX], bPoint, bAngle, -1, -1); } else { vec3_t bAngle; VectorSet(bAngle, 0, 1, 0); trap_FX_PlayEffectID(animEvent->eventData[AED_EFFECTINDEX], cent->lerpOrigin, bAngle, -1, -1); } #endif break; //Would have to keep track of this on server to for these, it's not worth it. case AEV_FIRE: case AEV_MOVE: break; /* case AEV_FIRE: //add fire event if ( animEvent->eventData[AED_FIRE_ALT] ) { G_AddEvent( cent->gent, EV_ALT_FIRE, 0 ); } else { G_AddEvent( cent->gent, EV_FIRE_WEAPON, 0 ); } break; case AEV_MOVE: //make him jump if ( cent && cent->gent && cent->gent->client ) { if ( cent->gent->client->ps.groundEntityNum != ENTITYNUM_NONE ) {//on something vec3_t fwd, rt, up, angles = {0, cent->gent->client->ps.viewangles[YAW], 0}; AngleVectors( angles, fwd, rt, up ); //FIXME: set or add to velocity? VectorScale( fwd, animEvent->eventData[AED_MOVE_FWD], cent->gent->client->ps.velocity ); VectorMA( cent->gent->client->ps.velocity, animEvent->eventData[AED_MOVE_RT], rt, cent->gent->client->ps.velocity ); VectorMA( cent->gent->client->ps.velocity, animEvent->eventData[AED_MOVE_UP], up, cent->gent->client->ps.velocity ); if ( animEvent->eventData[AED_MOVE_UP] > 0 ) {//a jump cent->gent->client->ps.pm_flags |= PMF_JUMPING; G_AddEvent( cent->gent, EV_JUMP, 0 ); //FIXME: if have force jump, do this? or specify sound in the event data? //cent->gent->client->ps.forceJumpZStart = cent->gent->client->ps.origin[2];//so we don't take damage if we land at same height //G_SoundOnEnt( cent->gent, CHAN_BODY, "sound/weapons/force/jump.wav" ); } } } break; */ default: return; break; }
-    portMissing("CG_PlayerAnimEventDo", source: "oracle/codemp/cgame/cg_players.c:2237")
+    switch animEvent.eventType {
+    case AEV_SOUNDCHAN:
+        channel = soundChannel_t(animEvent.eventData[AED_SOUNDCHANNEL])
+        fallthrough
+    case AEV_SOUND:
+        // are there variations on the sound?
+        let holdSnd: Int32 = Int32(animEvent.eventData[AED_SOUNDINDEX_START + Q_irand(0, Int32(animEvent.eventData[AED_SOUND_NUMRANDOMSNDS]))])
+        if holdSnd > 0 {
+            trap_S_StartSound(nil, cent.currentState.number, channel, holdSnd)
+        }
+    case AEV_SABER_SWING:
+        if cent.currentState.eType == ET_NPC {
+            client = cent.npcClient
+        } else {
+            client = cgs.clientinfo[cent.currentState.clientNum]
+        }
+        if client != nil && client!.infoValid && client!.saber[animEvent.eventData[AED_SABER_SWING_SABERNUM]].swingSound[0] != 0 {
+            //custom swing sound
+            swingSound = client!.saber[0].swingSound[Q_irand(0, 2)]
+        } else {
+            var randomSwing: Int32 = 1
+            switch animEvent.eventData[AED_SABER_SWING_TYPE] {
+            case 1:
+                //SWING_MEDIUM
+                randomSwing = Q_irand(4, 6)
+            case 2:
+                //SWING_STRONG
+                randomSwing = Q_irand(7, 9)
+            default:
+                //SWING_FAST
+                randomSwing = Q_irand(1, 3)
+            }
+            swingSound = trap_S_RegisterSound(va("sound/weapons/saber/saberhup%i.wav", randomSwing))
+        }
+        trap_S_StartSound(cent.currentState.pos.trBase, cent.currentState.number, CHAN_AUTO, swingSound)
+    case AEV_SABER_SPIN:
+        if cent.currentState.eType == ET_NPC {
+            client = cent.npcClient
+        } else {
+            client = cgs.clientinfo[cent.currentState.clientNum]
+        }
+        if client != nil && client!.infoValid && client!.saber[AED_SABER_SPIN_SABERNUM].spinSound != 0 {
+            //use override
+            spinSound = client!.saber[AED_SABER_SPIN_SABERNUM].spinSound
+        } else {
+            switch animEvent.eventData[AED_SABER_SPIN_TYPE] {
+            case 0:
+                //saberspinoff
+                spinSound = trap_S_RegisterSound("sound/weapons/saber/saberspinoff.wav")
+            case 1:
+                //saberspin
+                spinSound = trap_S_RegisterSound("sound/weapons/saber/saberspin.wav")
+            case 2:
+                //saberspin1
+                spinSound = trap_S_RegisterSound("sound/weapons/saber/saberspin1.wav")
+            case 3:
+                //saberspin2
+                spinSound = trap_S_RegisterSound("sound/weapons/saber/saberspin2.wav")
+            case 4:
+                //saberspin3
+                spinSound = trap_S_RegisterSound("sound/weapons/saber/saberspin3.wav")
+            default:
+                //random saberspin1-3
+                spinSound = trap_S_RegisterSound(va("sound/weapons/saber/saberspin%d.wav", Q_irand(1, 3)))
+            }
+        }
+        if spinSound != 0 {
+            trap_S_StartSound(nil, cent.currentState.clientNum, CHAN_AUTO, spinSound)
+        }
+    case AEV_FOOTSTEP:
+        CG_PlayerFootsteps(cent, footstepType_t(animEvent.eventData[AED_FOOTSTEP_TYPE]))
+    case AEV_EFFECT:
+        //my method
+        if animEvent.stringData != nil && CharBuf(animEvent.stringData!)[0] != 0 && cent.ghoul2 != nil {
+            animEvent.eventData[AED_MODELINDEX] = 0
+            if Q_stricmpn("*blade", animEvent.stringData!, 6) == 0 || Q_stricmp("*flash", animEvent.stringData!) == 0 {
+                //must be a weapon, try weapon 0?
+                animEvent.eventData[AED_BOLTINDEX] = Int16(truncatingIfNeeded: trap_G2API_AddBolt(cent.ghoul2, 1, animEvent.stringData!))
+                if animEvent.eventData[AED_BOLTINDEX] != -1 {
+                    //found it!
+                    animEvent.eventData[AED_MODELINDEX] = 1
+                } else {
+                    //hmm, just try on the player model, then?
+                    animEvent.eventData[AED_BOLTINDEX] = Int16(truncatingIfNeeded: trap_G2API_AddBolt(cent.ghoul2, 0, animEvent.stringData!))
+                }
+            } else {
+                animEvent.eventData[AED_BOLTINDEX] = Int16(truncatingIfNeeded: trap_G2API_AddBolt(cent.ghoul2, 0, animEvent.stringData!))
+            }
+            // Port-note: Raven writes a NUL into the first byte of the `char *` field `stringData`, and the view's `String?` setter interns a new text in place of a write into Raven's bytes.
+            // Raven wrote: animEvent->stringData[0] = 0
+            portMissing("CG_PlayerAnimEventDo", source: "oracle/codemp/cgame/cg_players.c:2237")
+        }
+        if animEvent.eventData[AED_BOLTINDEX] != -1 {
+            MdxaBone.scratch { matrix in
+                var lAngles = vec3_t()
+                var bPoint = vec3_t()
+                var bAngle = vec3_t()
+
+                lAngles = vec3_t(0, cent.lerpAngles[YAW], 0)
+                trap_G2API_GetBoltMatrix(cent.ghoul2, Int32(animEvent.eventData[AED_MODELINDEX]), Int32(animEvent.eventData[AED_BOLTINDEX]), matrix, lAngles, cent.lerpOrigin, cg.time, cgs.gameModels, &cent.modelScale)
+                BG_GiveMeVectorFromMatrix(matrix, ORIGIN, &bPoint)
+                bAngle = vec3_t(0, 1, 0)
+                trap_FX_PlayEffectID(Int32(animEvent.eventData[AED_EFFECTINDEX]), bPoint, bAngle, -1, -1)
+            }
+        } else {
+            var bAngle = vec3_t()
+            bAngle = vec3_t(0, 1, 0)
+            trap_FX_PlayEffectID(Int32(animEvent.eventData[AED_EFFECTINDEX]), cent.lerpOrigin, bAngle, -1, -1)
+        }
+    //Would have to keep track of this on server to for these, it's not worth it.
+    case AEV_FIRE, AEV_MOVE:
+        break
+    default:
+        return
+    }
 }
 
 /**
@@ -2308,13 +2426,9 @@ private func CG_SetLerpFrameAnimation(_ cent: Centity, _ ci: ClientInfo, _ lf: L
 
     if cg_debugAnim.integer != 0 && (cg_debugAnim.integer < 0 || cg_debugAnim.integer == cent.currentState.clientNum) {
         if lf == cent.pe.legs {
-            // Port-note: The draft of this statement did not compile, and the compiler wrote "value of optional type 'String?' must be unwrapped to a value of type 'String'".
-            // Raven wrote: CG_Printf( "%d: %d TORSO Anim: %i, '%s'\n", cg.time, cent->currentState.clientNum, newAnimation, GetStringForID(animTable, newAnimation))
-            portMissing("CG_SetLerpFrameAnimation", source: "oracle/codemp/cgame/cg_players.c:2768")
+            CG_Printf("%d: %d TORSO Anim: %i, '%s'\n", cg.time, cent.currentState.clientNum, newAnimation, GetStringForID(animTable, newAnimation) ?? "(null)")
         } else {
-            // Port-note: The draft of this statement did not compile, and the compiler wrote "value of optional type 'String?' must be unwrapped to a value of type 'String'".
-            // Raven wrote: CG_Printf( "%d: %d LEGS Anim: %i, '%s'\n", cg.time, cent->currentState.clientNum, newAnimation, GetStringForID(animTable, newAnimation))
-            portMissing("CG_SetLerpFrameAnimation", source: "oracle/codemp/cgame/cg_players.c:2768")
+            CG_Printf("%d: %d LEGS Anim: %i, '%s'\n", cg.time, cent.currentState.clientNum, newAnimation, GetStringForID(animTable, newAnimation) ?? "(null)")
         }
     }
 
@@ -3032,9 +3146,7 @@ func CG_RagDoll(_ cent: Centity, _ forcedAngles: JKAShared.vec3_t) -> Bool {
                                         dVel = dVel + rVel
                                         dVel = dVel * 10.0
 
-                                        // Port-note: The draft of this statement did not compile, and the compiler wrote "value of optional type 'String?' must be unwrapped to a value of type 'String'".
-                                        // Raven wrote: trap_G2API_RagEffectorKick(cent->ghoul2, cg_effectorStringTable[i], dVel)
-                                        portMissing("CG_RagDoll", source: "oracle/codemp/cgame/cg_players.c:3486")
+                                        trap_G2API_RagEffectorKick(cent.ghoul2, cg_effectorStringTable[i]!, &dVel)
 
 
 
@@ -3410,9 +3522,9 @@ private func CG_G2PlayerAngles(_ cent: Centity, _ legs: inout [JKAShared.vec3_t]
             }
         } else if cent.ikStatus {
             //make sure we aren't IKing if we don't have anyone to hold onto us.
-            // Port-note: The draft of this statement did not compile, and the compiler wrote "cannot pass immutable value as inout argument: 'vec3_origin' is a 'let' constant".
-            // Raven wrote: BG_IK_MoveArm(cent->ghoul2, ci->bolt_lhand, cg.time, &cent->currentState, cent->currentState.torsoAnim/*BOTH_DEAD1*/, vec3_origin, &cent->ikStatus, cent->lerpOrigin, cent->lerpAngles, cent->modelScale, 500, qtrue)
-            portMissing("CG_G2PlayerAngles", source: "oracle/codemp/cgame/cg_players.c:4192")
+            // BG_IK_MoveArm may write `desiredPos`, so the call passes a copy of `vec3_origin`.
+            var desiredPos = vec3_origin
+            BG_IK_MoveArm(cent.ghoul2, ci!.bolt_lhand, cg.time, cent.currentState, cent.currentState.torsoAnim/*BOTH_DEAD1*/, &desiredPos, &cent.ikStatus, &cent.lerpOrigin, &cent.lerpAngles, &cent.modelScale, 500, true)
         }
     } else if cent.m_pVehicle != nil && cent.m_pVehicle!.m_pVehicleInfo!.type == VH_WALKER {
         var lookAngles = vec3_t()
@@ -3518,9 +3630,12 @@ private func CG_PlayerFlag(_ cent: Centity, _ hModel: JKAShared.qhandle_t) {
             _VectorMA(boltOrg, 24, axis[0], &ent.origin)
 
             angles[ROLL] += 20
-            // Port-note: The draft of this statement did not compile, and the compiler wrote "cannot convert value of type 'Slots<vec3_t>' (aka 'Slots<SIMD3<Float>>') to expected argument type '[vec3_t]' (aka 'Array<SIMD3<Float>>')".
-            // Raven wrote: AnglesToAxis( angles, ent.axis )
-            portMissing("CG_PlayerFlag", source: "oracle/codemp/cgame/cg_players.c:4367")
+            // AnglesToAxis takes an array, and the view holds `axis` as a Slots, so the call fills a copy that stores back.
+            var axisCopy = [ent.axis[0], ent.axis[1], ent.axis[2]]
+            AnglesToAxis(angles, &axisCopy)
+            ent.axis[0] = axisCopy[0]
+            ent.axis[1] = axisCopy[1]
+            ent.axis[2] = axisCopy[2]
 
             ent.hModel = hModel
 
@@ -3965,9 +4080,12 @@ private func CG_ForcePushBlur(_ org: JKAShared.vec3_t, _ cent: Centity?) {
 
             vectoangles(ent.axis[0], &ang)
             ang[ROLL] += 180.0
-            // Port-note: The draft of this statement did not compile, and the compiler wrote "cannot convert value of type 'Slots<vec3_t>' (aka 'Slots<SIMD3<Float>>') to expected argument type '[vec3_t]' (aka 'Array<SIMD3<Float>>')".
-            // Raven wrote: AnglesToAxis(ang, ent.axis)
-            portMissing("CG_ForcePushBlur", source: "oracle/codemp/cgame/cg_players.c:4798")
+            // AnglesToAxis takes an array, and the view holds `axis` as a Slots, so the call fills a copy that stores back.
+            var axisCopy = [ent.axis[0], ent.axis[1], ent.axis[2]]
+            AnglesToAxis(ang, &axisCopy)
+            ent.axis[0] = axisCopy[0]
+            ent.axis[1] = axisCopy[1]
+            ent.axis[2] = axisCopy[2]
 
             //radius must be a power of 2, and is the actual captured texture size
             if vLen < 128 {
@@ -4026,9 +4144,7 @@ private func CG_ForcePushBodyBlur(_ cent: Centity) {
         i = 0
         while cg_pushBoneNames[i] != nil {
             //go through all the bones we want to put a blur effect on
-            // Port-note: The draft of this statement did not compile, and the compiler wrote "value of optional type 'String?' must be unwrapped to a value of type 'String'".
-            // Raven wrote: bolt = trap_G2API_AddBolt(cent->ghoul2, 0, cg_pushBoneNames[i])
-            portMissing("CG_ForcePushBodyBlur", source: "oracle/codemp/cgame/cg_players.c:4958")
+            bolt = trap_G2API_AddBolt(cent.ghoul2, 0, cg_pushBoneNames[i]!)
 
             if bolt == -1 {
                 i += 1
@@ -4158,9 +4274,12 @@ func CG_DrawPlayerShield(_ cent: Centity, _ origin: JKAShared.vec3_t) {
 
         ent.origin = origin
         ent.origin[2] = Float(Double(ent.origin[2]) + 10.0)
-        // Port-note: The draft of this statement did not compile, and the compiler wrote "cannot convert value of type 'Slots<vec3_t>' (aka 'Slots<SIMD3<Float>>') to expected argument type '[vec3_t]' (aka 'Array<SIMD3<Float>>')".
-        // Raven wrote: AnglesToAxis( cent->damageAngles, ent.axis )
-        portMissing("CG_DrawPlayerShield", source: "oracle/codemp/cgame/cg_players.c:5107")
+        // AnglesToAxis takes an array, and the view holds `axis` as a Slots, so the call fills a copy that stores back.
+        var axisCopy = [ent.axis[0], ent.axis[1], ent.axis[2]]
+        AnglesToAxis(cent.damageAngles, &axisCopy)
+        ent.axis[0] = axisCopy[0]
+        ent.axis[1] = axisCopy[1]
+        ent.axis[2] = axisCopy[2]
 
         // The SDK also declares `random`, so the call names the bg module.
         alpha = Int32(255.0 * (Double(cent.damageTime - cg.time) / MIN_SHIELD_TIME) + Double(JKAMP_BG.random() * 16))
@@ -4529,12 +4648,12 @@ func CG_CreateSaberMarks(_ start: JKAShared.vec3_t, _ end: JKAShared.vec3_t, _ n
     var mid = vec3_t()
     var markPoints = [vec3_t](repeating: vec3_t(), count: 384)
     var projection = vec3_t()
-    var v: PolyVert?
+    var vIndex: Int32 = 0
     // Raven's record lives to the end of his block, so the block is the closure.
     // The closure gives true where Raven returns from the function.
     let earlyOut = PolyVert.scratch(count: 10) { verts -> Bool in
         var mark: MarkPoly?
-        var mf: MarkFragment?
+        var mfIndex: Int32 = 0
         // Raven's record lives to the end of his block, so the block is the closure.
         // The closure gives true where Raven returns from the function.
         let earlyOut2 = MarkFragment.scratch(count: 128) { markFragments -> Bool in
@@ -4569,36 +4688,30 @@ func CG_CreateSaberMarks(_ start: JKAShared.vec3_t, _ end: JKAShared.vec3_t, _ n
             numFragments = trap_CM_MarkFragments(4, originalPoints, projection, MAX_MARK_POINTS, &markPoints, MAX_MARK_FRAGMENTS, markFragments)
 
             i = 0
-            // Port-note: Raven stores `mf = markFragments`, and Swift holds the source as a Slots where the target takes one record. A Slots ruling is due.
-            // Raven wrote: mf = markFragments
-            portMissing("CG_CreateSaberMarks", source: "oracle/codemp/cgame/cg_players.c:5462")
+            mfIndex = 0
             while i < numFragments {
                 // we have an upper limit on the complexity of polygons that we store persistantly
-                if mf!.numPoints > MAX_VERTS_ON_POLY {
-                    mf!.numPoints = MAX_VERTS_ON_POLY
+                if markFragments[mfIndex].numPoints > MAX_VERTS_ON_POLY {
+                    markFragments[mfIndex].numPoints = MAX_VERTS_ON_POLY
                 }
 
                 j = 0
-                // Port-note: Raven stores `v = verts`, and Swift holds the source as a Slots where the target takes one record. A Slots ruling is due.
-                // Raven wrote: v = verts
-                portMissing("CG_CreateSaberMarks", source: "oracle/codemp/cgame/cg_players.c:5462")
-                while j < mf!.numPoints {
+                vIndex = 0
+                while j < markFragments[mfIndex].numPoints {
                     var delta = vec3_t()
 
                     // Set up our texture coords, this may need some work
-                    v!.xyz = markPoints[mf!.firstPoint + j]
+                    verts[vIndex].xyz = markPoints[markFragments[mfIndex].firstPoint + j]
                     mid = end + start
                     mid = mid * 0.5
-                    delta = v!.xyz - mid
+                    delta = verts[vIndex].xyz - mid
 
                     // The SDK also declares `random`, so the call names the bg module.
-                    v!.st[0] = Float(0.5 + Double(_DotProduct(delta, axis[1]) * (0.05 + JKAMP_BG.random() * 0.03)))
+                    verts[vIndex].st[0] = Float(0.5 + Double(_DotProduct(delta, axis[1]) * (0.05 + JKAMP_BG.random() * 0.03)))
                     // The SDK also declares `random`, so the call names the bg module.
-                    v!.st[1] = Float(0.5 + Double(_DotProduct(delta, axis[2]) * (0.15 + JKAMP_BG.random() * 0.05)))
+                    verts[vIndex].st[1] = Float(0.5 + Double(_DotProduct(delta, axis[2]) * (0.15 + JKAMP_BG.random() * 0.05)))
                     j += 1
-                    // Port-note: The draft of this statement did not compile, and the compiler wrote "cannot convert value of type 'PolyVert?' to expected argument type 'Int'".
-                    // Raven wrote: v++
-                    portMissing("CG_CreateSaberMarks", source: "oracle/codemp/cgame/cg_players.c:5462")
+                    vIndex += 1
                 }
 
                 if cg_saberDynamicMarks.integer != 0 {
@@ -4644,7 +4757,7 @@ func CG_CreateSaberMarks(_ start: JKAShared.vec3_t, _ end: JKAShared.vec3_t, _ n
                             return true
                         }
 
-                        apArgs.numVerts = mf!.numPoints
+                        apArgs.numVerts = markFragments[mfIndex].numPoints
                         apArgs.vel = vec3_origin
                         apArgs.accel = vec3_origin
 
@@ -4693,14 +4806,16 @@ func CG_CreateSaberMarks(_ start: JKAShared.vec3_t, _ end: JKAShared.vec3_t, _ n
                     mark!.time = cg.time
                     mark!.alphaFade = true
                     mark!.markShader = cgs.media.rivetMarkShader
-                    mark!.poly.numVerts = mf!.numPoints
+                    mark!.poly.numVerts = markFragments[mfIndex].numPoints
                     mark!.color[3] = 255
                     mark!.color[2] = mark!.color[3]
                     mark!.color[1] = mark!.color[2]
                     mark!.color[0] = mark!.color[1]
-                    // Port-note: Raven's `memcpy( mark->verts, verts, mf->numPoints * sizeof( verts[0] ) )` runs over bytes that are not one record with a view.
-                    // Raven wrote: memcpy( mark->verts, verts, mf->numPoints * sizeof( verts[0] ) )
-                    portMissing("CG_CreateSaberMarks", source: "oracle/codemp/cgame/cg_players.c:5462")
+                    var k: Int32 = 0
+                    while k < markFragments[mfIndex].numPoints {
+                        mark!.verts[k].copy(from: verts[k])
+                        k += 1
+                    }
 
                     // And now do a glow pass
                     // by moving the start time back, we can hack it to fade out way before the burn does
@@ -4708,7 +4823,7 @@ func CG_CreateSaberMarks(_ start: JKAShared.vec3_t, _ end: JKAShared.vec3_t, _ n
                     mark!.time = cg.time - 8500
                     mark!.alphaFade = false
                     mark!.markShader = cgs.media.mSaberDamageGlow
-                    mark!.poly.numVerts = mf!.numPoints
+                    mark!.poly.numVerts = markFragments[mfIndex].numPoints
                     // The SDK also declares `random`, so the call names the bg module.
                     mark!.color[0] = 215 + JKAMP_BG.random() * 40.0
                     // The SDK also declares `random`, so the call names the bg module.
@@ -4716,14 +4831,14 @@ func CG_CreateSaberMarks(_ start: JKAShared.vec3_t, _ end: JKAShared.vec3_t, _ n
                     // The SDK also declares `random`, so the call names the bg module.
                     mark!.color[3] = JKAMP_BG.random() * 15.0
                     mark!.color[2] = mark!.color[3]
-                    // Port-note: Raven's `memcpy( mark->verts, verts, mf->numPoints * sizeof( verts[0] ) )` runs over bytes that are not one record with a view.
-                    // Raven wrote: memcpy( mark->verts, verts, mf->numPoints * sizeof( verts[0] ) )
-                    portMissing("CG_CreateSaberMarks", source: "oracle/codemp/cgame/cg_players.c:5462")
+                    k = 0
+                    while k < markFragments[mfIndex].numPoints {
+                        mark!.verts[k].copy(from: verts[k])
+                        k += 1
+                    }
                 }
                 i += 1
-                // Port-note: The draft of this statement did not compile, and the compiler wrote "cannot convert value of type 'MarkFragment?' to expected argument type 'Int'".
-                // Raven wrote: mf++
-                portMissing("CG_CreateSaberMarks", source: "oracle/codemp/cgame/cg_players.c:5462")
+                mfIndex += 1
             }
             return false
         }
@@ -4765,13 +4880,9 @@ func CG_G2TraceCollide(_ tr: JKAMP.Trace, _ mins: JKAShared.vec3_t?, _ maxs: JKA
             angles[YAW] = g2Hit!.lerpAngles[YAW]
 
             if cg_optvehtrace.integer != 0 && g2Hit!.currentState.eType == ET_NPC && g2Hit!.currentState.NPC_class == CLASS_VEHICLE && g2Hit!.m_pVehicle != nil {
-                // Port-note: Raven passes `G2Trace` to `trap_G2API_CollisionDetectCache`, whose `collRecMap` parameter takes one record, and Swift holds the argument as the Slots over the records.
-                // Raven wrote: trap_G2API_CollisionDetectCache ( G2Trace, g2Hit->ghoul2, angles, g2Hit->lerpOrigin, cg.time, g2Hit->currentState.number, lastValidStart, lastValidEnd, g2Hit->modelScale, 0, cg_g2TraceLod.integer, fRadius )
-                portMissing("CG_G2TraceCollide", source: "oracle/codemp/cgame/cg_players.c:5632")
+                trap_G2API_CollisionDetectCache(G2Trace[0], g2Hit!.ghoul2, angles, g2Hit!.lerpOrigin, cg.time, g2Hit!.currentState.number, lastValidStart, lastValidEnd, g2Hit!.modelScale, 0, cg_g2TraceLod.integer, fRadius)
             } else {
-                // Port-note: Raven passes `G2Trace` to `trap_G2API_CollisionDetect`, whose `collRecMap` parameter takes one record, and Swift holds the argument as the Slots over the records.
-                // Raven wrote: trap_G2API_CollisionDetect ( G2Trace, g2Hit->ghoul2, angles, g2Hit->lerpOrigin, cg.time, g2Hit->currentState.number, lastValidStart, lastValidEnd, g2Hit->modelScale, 0, cg_g2TraceLod.integer, fRadius )
-                portMissing("CG_G2TraceCollide", source: "oracle/codemp/cgame/cg_players.c:5632")
+                trap_G2API_CollisionDetect(G2Trace[0], g2Hit!.ghoul2, angles, g2Hit!.lerpOrigin, cg.time, g2Hit!.currentState.number, lastValidStart, lastValidEnd, g2Hit!.modelScale, 0, cg_g2TraceLod.integer, fRadius)
             }
 
             if G2Trace[0].mEntityNum != g2Hit!.currentState.number {
@@ -5061,9 +5172,7 @@ func CG_AddSaberBlade(_ cent: Centity, _ scent: Centity, _ saber: JKAMP.RefEntit
     var org_ = vec3_t()
     var end = vec3_t()
     var v = vec3_t()
-    // Port-note: An array of vectors with an initializer.
-    // Raven wrote: axis_[3] = {0,0,0, 0,0,0, 0,0,0};
-    portMissing("CG_AddSaberBlade", source: "oracle/codemp/cgame/cg_players.c:5993")
+    var axis_ = [vec3_t](repeating: vec3_t(), count: 3) // shut the compiler up
     // Raven's record lives to the end of his block, so the block is the closure.
     // The closure gives true where Raven returns from the function.
     let earlyOut = Trace.scratch { trace -> Bool in
@@ -5121,25 +5230,17 @@ func CG_AddSaberBlade(_ cent: Centity, _ scent: Centity, _ saber: JKAMP.RefEntit
 
                     // work the matrix axis stuff into the original axis and origins used.
                     BG_GiveMeVectorFromMatrix(boltMatrix, ORIGIN, &org_)
-                    // Port-note: A read of `axis_`, a local the draft left as a hole.
-                    // Raven wrote: BG_GiveMeVectorFromMatrix(&boltMatrix, NEGATIVE_Y, axis_[0])
-                    portMissing("CG_AddSaberBlade", source: "oracle/codemp/cgame/cg_players.c:5993")
+                    BG_GiveMeVectorFromMatrix(boltMatrix, NEGATIVE_Y, &axis_[0])
 
                     if !fromSaber && saberEnt != nil && !cent.currentState.saberInFlight {
                         saberEnt!.currentState.pos.trBase = org_
 
-                        // Port-note: A read of `axis_`, a local the draft left as a hole.
-                        // Raven wrote: VectorCopy(axis_[0], saberEnt->currentState.apos.trBase)
-                        portMissing("CG_AddSaberBlade", source: "oracle/codemp/cgame/cg_players.c:5993")
+                        saberEnt!.currentState.apos.trBase = axis_[0]
                     }
 
-                    // Port-note: A read of `axis_`, a local the draft left as a hole.
-                    // Raven wrote: VectorMA( org_, saberLen, axis_[0], end )
-                    portMissing("CG_AddSaberBlade", source: "oracle/codemp/cgame/cg_players.c:5993")
+                    _VectorMA(org_, saberLen, axis_[0], &end)
 
-                    // Port-note: A read of `axis_`, a local the draft left as a hole.
-                    // Raven wrote: VectorAdd( end, axis_[0], end )
-                    portMissing("CG_AddSaberBlade", source: "oracle/codemp/cgame/cg_players.c:5993")
+                    end = end + axis_[0]
 
                     if cent.currentState.eType == ET_NPC {
                         scolor = client!.saber[saberNum].blade[bladeNum].color
@@ -5300,16 +5401,128 @@ func CG_AddSaberBlade(_ cent: Centity, _ scent: Centity, _ saber: JKAMP.RefEntit
                     //	the system with very small trail slices...but perhaps doing it by distance would yield better results?
                     if cg.time > saberTrail!.lastTime + 2 || cg_saberTrail.integer == 2 {
                         if !dontDraw {
-                            // Port-note: The draft of this statement did not compile, and the compiler wrote "cannot convert value of type 'Bool' to expected argument type 'Int'".
-                            // Raven wrote: if ( (BG_SuperBreakWinAnim(cent->currentState.torsoAnim) || saberMoveData[cent->currentState.saberMove].trailLength > 0 || ((cent->currentState.powerups & (1 << PW_SPEED) && cg_speedTrail.integer)) || (cent->currentState.saberInFlight && saberNum == 0)) && cg.time < saberTrail->lastTime + 2000 ) // if we have a stale segment, don't draw until we have a fresh one { #if 0 if (cg_saberTrail.integer == 2 && cg_shadows.integer != 2 && cgs.glconfig.stencilBits >= 4) { polyVert_t verts[4]; VectorCopy( org_, verts[0].xyz ); VectorMA( end, 3.0f, axis_[0], verts[1].xyz ); VectorCopy( saberTrail->tip, verts[2].xyz ); VectorCopy( saberTrail->base, verts[3].xyz ); //tc doesn't even matter since we're just gonna stencil an outline, but whatever. verts[0].st[0] = 0; verts[0].st[1] = 0; verts[0].modulate[0] = 255; verts[0].modulate[1] = 255; verts[0].modulate[2] = 255; verts[0].modulate[3] = 255; verts[1].st[0] = 0; verts[1].st[1] = 1; verts[1].modulate[0] = 255; verts[1].modulate[1] = 255; verts[1].modulate[2] = 255; verts[1].modulate[3] = 255; verts[2].st[0] = 1; verts[2].st[1] = 1; verts[2].modulate[0] = 255; verts[2].modulate[1] = 255; verts[2].modulate[2] = 255; verts[2].modulate[3] = 255; verts[3].st[0] = 1; verts[3].st[1] = 0; verts[3].modulate[0] = 255; verts[3].modulate[1] = 255; verts[3].modulate[2] = 255; verts[3].modulate[3] = 255; //don't capture postrender objects (now we'll postrender the saber so it doesn't get in the capture) trap_R_SetRefractProp(1.0f, 0.0f, qtrue, qtrue); //shader 2 is always the crazy refractive shader. trap_R_AddPolyToScene( 2, 4, verts ); } else #endif { vec3_t rgb1={255.0f,255.0f,255.0f}; switch( scolor ) { case SABER_RED: VectorSet( rgb1, 255.0f, 0.0f, 0.0f ); break; case SABER_ORANGE: VectorSet( rgb1, 255.0f, 64.0f, 0.0f ); break; case SABER_YELLOW: VectorSet( rgb1, 255.0f, 255.0f, 0.0f ); break; case SABER_GREEN: VectorSet( rgb1, 0.0f, 255.0f, 0.0f ); break; case SABER_BLUE: VectorSet( rgb1, 0.0f, 64.0f, 255.0f ); break; case SABER_PURPLE: VectorSet( rgb1, 220.0f, 0.0f, 255.0f ); break; default: VectorSet( rgb1, 0.0f, 64.0f, 255.0f ); break; } //Here we will use the happy process of filling a struct in with arguments and passing it to a trap function //so that we can take the struct and fill in an actual CTrail type using the data within it once we get it //into the effects area // Go from new muzzle to new end...then to old end...back down to old muzzle...finally // connect back to the new muzzle...this is our trail quad VectorCopy( org_, fx.mVerts[0].origin ); VectorMA( end, 3.0f, axis_[0], fx.mVerts[1].origin ); VectorCopy( saberTrail->tip, fx.mVerts[2].origin ); VectorCopy( saberTrail->base, fx.mVerts[3].origin ); diff = cg.time - saberTrail->lastTime; // I'm not sure that clipping this is really the best idea //This prevents the trail from showing at all in low framerate situations. //if ( diff <= SABER_TRAIL_TIME * 2 ) if ( diff <= 10000 ) { //don't draw it if the last time is way out of date float oldAlpha = 1.0f - ( diff / trailDur ); if (cg_saberTrail.integer == 2 && cg_shadows.integer != 2 && cgs.glconfig.stencilBits >= 4) {//does other stuff below } else { if ( (!WP_SaberBladeUseSecondBladeStyle( &client->saber[saberNum], bladeNum ) && client->saber[saberNum].trailStyle == 1 ) || ( WP_SaberBladeUseSecondBladeStyle( &client->saber[saberNum], bladeNum ) && client->saber[saberNum].trailStyle2 == 1 ) ) {//motion trail fx.mShader = cgs.media.swordTrailShader; VectorSet( rgb1, 32.0f, 32.0f, 32.0f ); // make the sith sword trail pretty faint trailDur *= 2.0f; // stay around twice as long? } else { fx.mShader = cgs.media.saberBlurShader; } fx.mKillTime = trailDur; fx.mSetFlags = FX_USE_ALPHA; } // New muzzle VectorCopy( rgb1, fx.mVerts[0].rgb ); fx.mVerts[0].alpha = 255.0f; fx.mVerts[0].ST[0] = 0.0f; fx.mVerts[0].ST[1] = 1.0f; fx.mVerts[0].destST[0] = 1.0f; fx.mVerts[0].destST[1] = 1.0f; // new tip VectorCopy( rgb1, fx.mVerts[1].rgb ); fx.mVerts[1].alpha = 255.0f; fx.mVerts[1].ST[0] = 0.0f; fx.mVerts[1].ST[1] = 0.0f; fx.mVerts[1].destST[0] = 1.0f; fx.mVerts[1].destST[1] = 0.0f; // old tip VectorCopy( rgb1, fx.mVerts[2].rgb ); fx.mVerts[2].alpha = 255.0f; fx.mVerts[2].ST[0] = 1.0f - oldAlpha; // NOTE: this just happens to contain the value I want fx.mVerts[2].ST[1] = 0.0f; fx.mVerts[2].destST[0] = 1.0f + fx.mVerts[2].ST[0]; fx.mVerts[2].destST[1] = 0.0f; // old muzzle VectorCopy( rgb1, fx.mVerts[3].rgb ); fx.mVerts[3].alpha = 255.0f; fx.mVerts[3].ST[0] = 1.0f - oldAlpha; // NOTE: this just happens to contain the value I want fx.mVerts[3].ST[1] = 1.0f; fx.mVerts[3].destST[0] = 1.0f + fx.mVerts[2].ST[0]; fx.mVerts[3].destST[1] = 1.0f; if (cg_saberTrail.integer == 2 && cg_shadows.integer != 2 && cgs.glconfig.stencilBits >= 4) { trap_R_SetRefractProp(1.0f, 0.0f, qtrue, qtrue); //don't need to do this every frame.. but.. if (BG_SaberInAttack(cent->currentState.saberMove) ||BG_SuperBreakWinAnim(cent->currentState.torsoAnim)) { //in attack, strong trail fx.mKillTime = 300; } else { //faded trail fx.mKillTime = 40; } fx.mShader = 2; //2 is always refractive shader fx.mSetFlags = FX_USE_ALPHA; } /* else { fx.mShader = cgs.media.saberBlurShader; fx.mKillTime = trailDur; fx.mSetFlags = FX_USE_ALPHA; } */ trap_FX_AddPrimitive(&fx); } } }
-                            portMissing("CG_AddSaberBlade", source: "oracle/codemp/cgame/cg_players.c:5993")
+                            if (BG_SuperBreakWinAnim(cent.currentState.torsoAnim) || (saberMoveData[cent.currentState.saberMove].trailLength ? 1 : 0) > 0 || ((cent.currentState.powerups & (1 << PW_SPEED)) != 0 && cg_speedTrail.integer != 0) || (cent.currentState.saberInFlight && saberNum == 0)) && cg.time < saberTrail!.lastTime + 2000 {
+                                // if we have a stale segment, don't draw until we have a fresh one
+                                var rgb1 = vec3_t(255.0, 255.0, 255.0)
+
+                                switch scolor {
+                                case SABER_RED:
+                                    rgb1 = vec3_t(255.0, 0.0, 0.0)
+                                case SABER_ORANGE:
+                                    rgb1 = vec3_t(255.0, 64.0, 0.0)
+                                case SABER_YELLOW:
+                                    rgb1 = vec3_t(255.0, 255.0, 0.0)
+                                case SABER_GREEN:
+                                    rgb1 = vec3_t(0.0, 255.0, 0.0)
+                                case SABER_BLUE:
+                                    rgb1 = vec3_t(0.0, 64.0, 255.0)
+                                case SABER_PURPLE:
+                                    rgb1 = vec3_t(220.0, 0.0, 255.0)
+                                default:
+                                    rgb1 = vec3_t(0.0, 64.0, 255.0)
+                                }
+
+                                //Here we will use the happy process of filling a struct in with arguments and passing it to a trap function
+                                //so that we can take the struct and fill in an actual CTrail type using the data within it once we get it
+                                //into the effects area
+
+                                // Go from new muzzle to new end...then to old end...back down to old muzzle...finally
+                                //	connect back to the new muzzle...this is our trail quad
+                                fx.mVerts[0].origin = org_
+                                _VectorMA(end, 3.0, axis_[0], &fx.mVerts[1].origin)
+
+                                fx.mVerts[2].origin = saberTrail!.tip
+                                fx.mVerts[3].origin = saberTrail!.base
+
+                                diff = Float(cg.time - saberTrail!.lastTime)
+
+                                // I'm not sure that clipping this is really the best idea
+                                //This prevents the trail from showing at all in low framerate situations.
+                                //if ( diff <= SABER_TRAIL_TIME * 2 )
+                                if diff <= 10000 {
+                                    //don't draw it if the last time is way out of date
+                                    let oldAlpha: Float = 1.0 - (diff / trailDur)
+
+                                    if cg_saberTrail.integer == 2 && cg_shadows.integer != 2 && cgs.glconfig.stencilBits >= 4 {
+                                        //does other stuff below
+                                    } else {
+                                        if (!WP_SaberBladeUseSecondBladeStyle(client!.saber[saberNum], bladeNum) && client!.saber[saberNum].trailStyle == 1) || (WP_SaberBladeUseSecondBladeStyle(client!.saber[saberNum], bladeNum) && client!.saber[saberNum].trailStyle2 == 1) {
+                                            //motion trail
+                                            fx.mShader = cgs.media.swordTrailShader
+                                            rgb1 = vec3_t(32.0, 32.0, 32.0) // make the sith sword trail pretty faint
+                                            trailDur = Int32(trailDur * 2.0) // stay around twice as long?
+                                        } else {
+                                            fx.mShader = cgs.media.saberBlurShader
+                                        }
+                                        fx.mKillTime = trailDur
+                                        fx.mSetFlags = FX_USE_ALPHA
+                                    }
+
+                                    // New muzzle
+                                    fx.mVerts[0].rgb = rgb1
+                                    fx.mVerts[0].alpha = 255.0
+
+                                    fx.mVerts[0].ST[0] = 0.0
+                                    fx.mVerts[0].ST[1] = 1.0
+                                    fx.mVerts[0].destST[0] = 1.0
+                                    fx.mVerts[0].destST[1] = 1.0
+
+                                    // new tip
+                                    fx.mVerts[1].rgb = rgb1
+                                    fx.mVerts[1].alpha = 255.0
+
+                                    fx.mVerts[1].ST[0] = 0.0
+                                    fx.mVerts[1].ST[1] = 0.0
+                                    fx.mVerts[1].destST[0] = 1.0
+                                    fx.mVerts[1].destST[1] = 0.0
+
+                                    // old tip
+                                    fx.mVerts[2].rgb = rgb1
+                                    fx.mVerts[2].alpha = 255.0
+
+                                    fx.mVerts[2].ST[0] = 1.0 - oldAlpha // NOTE: this just happens to contain the value I want
+                                    fx.mVerts[2].ST[1] = 0.0
+                                    fx.mVerts[2].destST[0] = 1.0 + fx.mVerts[2].ST[0]
+                                    fx.mVerts[2].destST[1] = 0.0
+
+                                    // old muzzle
+                                    fx.mVerts[3].rgb = rgb1
+                                    fx.mVerts[3].alpha = 255.0
+
+                                    fx.mVerts[3].ST[0] = 1.0 - oldAlpha // NOTE: this just happens to contain the value I want
+                                    fx.mVerts[3].ST[1] = 1.0
+                                    fx.mVerts[3].destST[0] = 1.0 + fx.mVerts[2].ST[0]
+                                    fx.mVerts[3].destST[1] = 1.0
+
+                                    if cg_saberTrail.integer == 2 && cg_shadows.integer != 2 && cgs.glconfig.stencilBits >= 4 {
+                                        trap_R_SetRefractProp(1.0, 0.0, true, true) //don't need to do this every frame.. but..
+
+                                        if BG_SaberInAttack(cent.currentState.saberMove) || BG_SuperBreakWinAnim(cent.currentState.torsoAnim) {
+                                            //in attack, strong trail
+                                            fx.mKillTime = 300
+                                        } else {
+                                            //faded trail
+                                            fx.mKillTime = 40
+                                        }
+                                        fx.mShader = 2 //2 is always refractive shader
+                                        fx.mSetFlags = FX_USE_ALPHA
+                                    }
+                                    /*
+                                    else
+                                    {
+                                        fx.mShader = cgs.media.saberBlurShader;
+                                        fx.mKillTime = trailDur;
+                                        fx.mSetFlags = FX_USE_ALPHA;
+                                    }
+                                    */
+                                    trap_FX_AddPrimitive(fx)
+                                }
+                            }
                         }
 
                         // we must always do this, even if we aren't active..otherwise we won't know where to pick up from
                         saberTrail!.base = org_
-                        // Port-note: A read of `axis_`, a local the draft left as a hole.
-                        // Raven wrote: VectorMA( end, 3.0f, axis_[0], saberTrail->tip )
-                        portMissing("CG_AddSaberBlade", source: "oracle/codemp/cgame/cg_players.c:5993")
+                        _VectorMA(end, 3.0, axis_[0], &saberTrail!.tip)
                         saberTrail!.lastTime = cg.time
                     }
 
@@ -5331,9 +5544,7 @@ func CG_AddSaberBlade(_ cent: Centity, _ scent: Centity, _ saber: JKAMP.RefEntit
                 //	will get rendered properly in a mirror...not sure if this is necessary??
                 //CG_DoSaber( org_, axis_[0], saberLen, client->saber[saberNum].blade[bladeNum].lengthMax, client->saber[saberNum].blade[bladeNum].radius,
                 //	scolor, renderfx, (qboolean)(saberNum==0&&bladeNum==0) );
-                // Port-note: A read of `axis_`, a local the draft left as a hole.
-                // Raven wrote: CG_DoSaber( org_, axis_[0], saberLen, client->saber[saberNum].blade[bladeNum].lengthMax, client->saber[saberNum].blade[bladeNum].radius, scolor, renderfx, (qboolean)(client->saber[saberNum].numBlades < 3 && !(client->saber[saberNum].saberFlags2&SFL2_NO_DLIGHT)) )
-                portMissing("CG_AddSaberBlade", source: "oracle/codemp/cgame/cg_players.c:5993")
+                CG_DoSaber(org_, axis_[0], saberLen, client!.saber[saberNum].blade[bladeNum].lengthMax, client!.saber[saberNum].blade[bladeNum].radius, scolor, renderfx, (client!.saber[saberNum].numBlades < 3 && !((client!.saber[saberNum].saberFlags2 & SFL2_NO_DLIGHT) != 0)))
                 return false
             }
             if earlyOut3 {
@@ -5413,9 +5624,12 @@ func CG_DrawPlayerSphere(_ cent: Centity, _ origin: JKAShared.vec3_t, _ scale: F
         vectoangles(ent.axis[0], &ang)
         ang[ROLL] += 180.0
         ang[PITCH] += 180.0
-        // Port-note: The draft of this statement did not compile, and the compiler wrote "cannot convert value of type 'Slots<vec3_t>' (aka 'Slots<SIMD3<Float>>') to expected argument type '[vec3_t]' (aka 'Array<SIMD3<Float>>')".
-        // Raven wrote: AnglesToAxis(ang, ent.axis)
-        portMissing("CG_DrawPlayerSphere", source: "oracle/codemp/cgame/cg_players.c:6522")
+        // AnglesToAxis takes an array, and the view holds `axis` as a Slots, so the call fills a copy that stores back.
+        var axisCopy = [ent.axis[0], ent.axis[1], ent.axis[2]]
+        AnglesToAxis(ang, &axisCopy)
+        ent.axis[0] = axisCopy[0]
+        ent.axis[1] = axisCopy[1]
+        ent.axis[2] = axisCopy[2]
 
         ent.axis[0] = ent.axis[0] * scale
         ent.axis[1] = ent.axis[1] * scale
@@ -5437,9 +5651,12 @@ func CG_DrawPlayerSphere(_ cent: Centity, _ origin: JKAShared.vec3_t, _ scale: F
         }
 
         ang[PITCH] -= 180.0
-        // Port-note: The draft of this statement did not compile, and the compiler wrote "cannot convert value of type 'Slots<vec3_t>' (aka 'Slots<SIMD3<Float>>') to expected argument type '[vec3_t]' (aka 'Array<SIMD3<Float>>')".
-        // Raven wrote: AnglesToAxis(ang, ent.axis)
-        portMissing("CG_DrawPlayerSphere", source: "oracle/codemp/cgame/cg_players.c:6522")
+        // AnglesToAxis takes an array, and the view holds `axis` as a Slots, so the call fills a copy that stores back.
+        axisCopy = [ent.axis[0], ent.axis[1], ent.axis[2]]
+        AnglesToAxis(ang, &axisCopy)
+        ent.axis[0] = axisCopy[0]
+        ent.axis[1] = axisCopy[1]
+        ent.axis[2] = axisCopy[2]
 
         ent.axis[0] = ent.axis[0] * (scale * 0.5)
         ent.axis[1] = ent.axis[1] * (scale * 0.5)
@@ -5645,9 +5862,7 @@ func CG_HandleAppendedSkin(_ modelName: String) -> Int32 {
 /// Source: oracle/codemp/cgame/cg_players.c:6876
 func CG_CacheG2AnimInfo(_ modelName: String) {
     var g2: OpaquePointer? = nil
-    // Port-note: A pointer local `char * slash` with no view.
-    // Raven wrote: char *slash;
-    portMissing("CG_CacheG2AnimInfo", source: "oracle/codemp/cgame/cg_players.c:6876")
+    var slash: Int32? = nil
     var useModel = CharBuf(64)
     var useSkin = CharBuf(64)
     var animIndex: Int32
@@ -5655,9 +5870,18 @@ func CG_CacheG2AnimInfo(_ modelName: String) {
     strcpy(&useModel, modelName)
     strcpy(&useSkin, modelName)
 
-    // Port-note: The draft of this statement did not compile, and the compiler wrote "binary operator '==' cannot be applied to operands of type 'Character' and 'Int32'".
-    // Raven wrote: if (modelName[0] == '$') { //it's a vehicle name actually, let's precache the whole vehicle BG_GetVehicleModelName(useModel); BG_GetVehicleSkinName(useSkin); if ( useSkin[0] ) { //use a custom skin trap_R_RegisterSkin(va("models/players/%s/model_%s.skin", useModel, useSkin)); } else { trap_R_RegisterSkin(va("models/players/%s/model_default.skin", useModel)); } strcpy(useModel, va("models/players/%s/model.glm", useModel)); }
-    portMissing("CG_CacheG2AnimInfo", source: "oracle/codemp/cgame/cg_players.c:6876")
+    if CharBuf(modelName)[0] == Int32(ascii: "$") {
+        //it's a vehicle name actually, let's precache the whole vehicle
+        BG_GetVehicleModelName(&useModel)
+        BG_GetVehicleSkinName(&useSkin)
+        if useSkin[0] != 0 {
+            //use a custom skin
+            trap_R_RegisterSkin(va("models/players/%s/model_%s.skin", useModel, useSkin))
+        } else {
+            trap_R_RegisterSkin(va("models/players/%s/model_default.skin", useModel))
+        }
+        strcpy(&useModel, va("models/players/%s/model.glm", useModel))
+    }
 
     trap_G2API_InitGhoul2Model(&g2, String(useModel), 0, 0, 0, 0, 0)
 
@@ -5672,20 +5896,19 @@ func CG_CacheG2AnimInfo(_ modelName: String) {
 
         strcpy(&originalModelName, useModel)
 
-        // Port-note: A store into `slash`, a local the draft left as a hole.
-        // Raven wrote: slash = Q_strrchr( GLAName, '/' )
-        portMissing("CG_CacheG2AnimInfo", source: "oracle/codemp/cgame/cg_players.c:6876")
-        // Port-note: A read of `slash`, a local the draft left as a hole.
-        // Raven wrote: if ( slash ) { strcpy(slash, "/animation.cfg"); animIndex = BG_ParseAnimationFile(GLAName, NULL, qfalse); }
-        portMissing("CG_CacheG2AnimInfo", source: "oracle/codemp/cgame/cg_players.c:6876")
+        slash = Q_strrchr(String(GLAName), Int32(ascii: "/"))
+        if let slash {
+            strcpy(&GLAName, "/animation.cfg", at: slash)
+
+            animIndex = BG_ParseAnimationFile(String(GLAName), nil, false)
+        }
 
         if animIndex != -1 {
-            // Port-note: A store into `slash`, a local the draft left as a hole.
-            // Raven wrote: slash = Q_strrchr( originalModelName, '/' )
-            portMissing("CG_CacheG2AnimInfo", source: "oracle/codemp/cgame/cg_players.c:6876")
-            // Port-note: A read of `slash`, a local the draft left as a hole.
-            // Raven wrote: if ( slash ) { slash++; *slash = 0; }
-            portMissing("CG_CacheG2AnimInfo", source: "oracle/codemp/cgame/cg_players.c:6876")
+            slash = Q_strrchr(String(originalModelName), Int32(ascii: "/"))
+            if var slash {
+                slash += 1
+                originalModelName[slash] = 0
+            }
 
             BG_ParseAnimationEvtFile(String(originalModelName), animIndex, bgNumAnimEvents)
         }
@@ -5754,9 +5977,7 @@ func CG_G2AnimEntModelLoad(_ cent: Centity) {
     if !cModelName.isEmpty {
         var modelName = CharBuf(64)
         var skinID: Int32
-        // Port-note: A pointer local `char * slash` with no view.
-        // Raven wrote: char *slash;
-        portMissing("CG_G2AnimEntModelLoad", source: "oracle/codemp/cgame/cg_players.c:6998")
+        var slash: Int32? = nil
 
         strcpy(&modelName, cModelName)
 
@@ -5822,9 +6043,7 @@ func CG_G2AnimEntModelLoad(_ cent: Centity) {
         if cent.ghoul2 != nil {
             var GLAName = CharBuf(64)
             var originalModelName = CharBuf(64)
-            // Port-note: A pointer local `char * saber` with no view.
-            // Raven wrote: char *saber;
-            portMissing("CG_G2AnimEntModelLoad", source: "oracle/codemp/cgame/cg_players.c:6998")
+            var saber: String
             var j: Int32 = 0
 
             if cent.currentState.NPC_class == CLASS_VEHICLE && cent.m_pVehicle != nil {
@@ -5872,30 +6091,26 @@ func CG_G2AnimEntModelLoad(_ cent: Centity) {
             }
 
             if cent.currentState.npcSaber1 != 0 {
-                // Port-note: A store into `saber`, a local the draft left as a hole.
-                // Raven wrote: saber = (char *)CG_ConfigString(CS_MODELS+cent->currentState.npcSaber1)
-                portMissing("CG_G2AnimEntModelLoad", source: "oracle/codemp/cgame/cg_players.c:6998")
-                // Port-note: A read of `saber`, a local the draft left as a hole.
-                // Raven wrote: assert(!saber || !saber[0] || saber[0] == '@')
-                portMissing("CG_G2AnimEntModelLoad", source: "oracle/codemp/cgame/cg_players.c:6998")
+                saber = CG_ConfigString(CS_MODELS + cent.currentState.npcSaber1)
                 //valid saber names should always start with '@' for NPCs
 
-                // Port-note: A read of `saber`, a local the draft left as a hole.
-                // Raven wrote: if (saber && saber[0]) { saber++; //skip over the @ WP_SetSaber(cent->currentState.number, cent->npcClient->saber, 0, saber); }
-                portMissing("CG_G2AnimEntModelLoad", source: "oracle/codemp/cgame/cg_players.c:6998")
+                // Raven's `saber && saber[0]` tests the pointer and the first byte.
+                // The configstring text is never NULL, so both tests read as one.
+                if !saber.isEmpty {
+                    saber = String(saber.dropFirst()) //skip over the @
+                    WP_SetSaber(cent.currentState.number, cent.npcClient!.saber, 0, saber)
+                }
             }
             if cent.currentState.npcSaber2 != 0 {
-                // Port-note: A store into `saber`, a local the draft left as a hole.
-                // Raven wrote: saber = (char *)CG_ConfigString(CS_MODELS+cent->currentState.npcSaber2)
-                portMissing("CG_G2AnimEntModelLoad", source: "oracle/codemp/cgame/cg_players.c:6998")
-                // Port-note: A read of `saber`, a local the draft left as a hole.
-                // Raven wrote: assert(!saber || !saber[0] || saber[0] == '@')
-                portMissing("CG_G2AnimEntModelLoad", source: "oracle/codemp/cgame/cg_players.c:6998")
+                saber = CG_ConfigString(CS_MODELS + cent.currentState.npcSaber2)
                 //valid saber names should always start with '@' for NPCs
 
-                // Port-note: A read of `saber`, a local the draft left as a hole.
-                // Raven wrote: if (saber && saber[0]) { saber++; //skip over the @ WP_SetSaber(cent->currentState.number, cent->npcClient->saber, 1, saber); }
-                portMissing("CG_G2AnimEntModelLoad", source: "oracle/codemp/cgame/cg_players.c:6998")
+                // Raven's `saber && saber[0]` tests the pointer and the first byte.
+                // The configstring text is never NULL, so both tests read as one.
+                if !saber.isEmpty {
+                    saber = String(saber.dropFirst()) //skip over the @
+                    WP_SetSaber(cent.currentState.number, cent.npcClient!.saber, 1, saber)
+                }
             }
 
             // If this is a not vehicle, give it saber stuff...
@@ -5905,9 +6120,7 @@ func CG_G2AnimEntModelLoad(_ cent: Centity) {
                         if cent.npcClient!.ghoul2Weapons[j] != nil {
                             //free the old instance(s)
                             trap_G2API_CleanGhoul2Models(&cent.npcClient!.ghoul2Weapons[j])
-                            // Port-note: The draft of this statement did not compile, and the compiler wrote "cannot assign value of type 'Int' to subscript of type 'OpaquePointer'".
-                            // Raven wrote: cent->npcClient->ghoul2Weapons[j] = 0
-                            portMissing("CG_G2AnimEntModelLoad", source: "oracle/codemp/cgame/cg_players.c:6998")
+                            cent.npcClient!.ghoul2Weapons[j] = nil
                         }
 
                         CG_InitG2SaberData(j, cent.npcClient!)
@@ -5927,12 +6140,12 @@ func CG_G2AnimEntModelLoad(_ cent: Centity) {
 
             if GLAName[0] != 0 && strstr(GLAName, "players/_humanoid/") == nil {
                 //it doesn't use humanoid anims.
-                // Port-note: A store into `slash`, a local the draft left as a hole.
-                // Raven wrote: slash = Q_strrchr( GLAName, '/' )
-                portMissing("CG_G2AnimEntModelLoad", source: "oracle/codemp/cgame/cg_players.c:6998")
-                // Port-note: A read of `slash`, a local the draft left as a hole.
-                // Raven wrote: if ( slash ) { strcpy(slash, "/animation.cfg"); cent->localAnimIndex = BG_ParseAnimationFile(GLAName, NULL, qfalse); }
-                portMissing("CG_G2AnimEntModelLoad", source: "oracle/codemp/cgame/cg_players.c:6998")
+                slash = Q_strrchr(String(GLAName), Int32(ascii: "/"))
+                if let slash {
+                    strcpy(&GLAName, "/animation.cfg", at: slash)
+
+                    cent.localAnimIndex = BG_ParseAnimationFile(String(GLAName), nil, false)
+                }
             } else {
                 //humanoid index.
                 trap_G2API_AddBolt(cent.ghoul2, 0, "*r_hand")
@@ -5975,12 +6188,11 @@ func CG_G2AnimEntModelLoad(_ cent: Centity) {
             }
 
             if cent.localAnimIndex != -1 {
-                // Port-note: A store into `slash`, a local the draft left as a hole.
-                // Raven wrote: slash = Q_strrchr( originalModelName, '/' )
-                portMissing("CG_G2AnimEntModelLoad", source: "oracle/codemp/cgame/cg_players.c:6998")
-                // Port-note: A read of `slash`, a local the draft left as a hole.
-                // Raven wrote: if ( slash ) { slash++; *slash = 0; }
-                portMissing("CG_G2AnimEntModelLoad", source: "oracle/codemp/cgame/cg_players.c:6998")
+                slash = Q_strrchr(String(originalModelName), Int32(ascii: "/"))
+                if var slash {
+                    slash += 1
+                    originalModelName[slash] = 0
+                }
 
                 cent.eventAnimIndex = BG_ParseAnimationEvtFile(String(originalModelName), cent.localAnimIndex, bgNumAnimEvents)
             }
@@ -6297,9 +6509,7 @@ func CG_CreateNPCClient(_ ci: inout ClientInfo?) {
 
 /// Source: oracle/codemp/cgame/cg_players.c:7701
 func CG_DestroyNPCClient(_ ci: inout ClientInfo?) {
-    // Port-note: The draft of this statement did not compile, and the compiler wrote "value of optional type 'ClientInfo?' must be unwrapped to refer to member 'clear' of wrapped base type 'ClientInfo'".
-    // Raven wrote: memset(*ci, 0, sizeof(clientInfo_t))
-    portMissing("CG_DestroyNPCClient", source: "oracle/codemp/cgame/cg_players.c:7701")
+    ci!.clear()
     //trap_TrueFree((void **)ci);
 }
 
@@ -6891,9 +7101,7 @@ func CG_CheckThirdPersonAlpha(_ cent: Centity, _ legs: JKAMP.RefEntity) {
 
     if alpha < 1.0 {
         legs.renderfx |= setFlags
-        // Port-note: The draft of this statement did not compile, and the compiler wrote "cannot assign value of type 'Int32' to subscript of type 'byte' (aka 'UInt8')".
-        // Raven wrote: legs->shaderRGBA[3] = (unsigned char)(alpha * 255.0f)
-        portMissing("CG_CheckThirdPersonAlpha", source: "oracle/codemp/cgame/cg_players.c:8341")
+        legs.shaderRGBA[3] = UInt8(truncatingIfNeeded: Int32(alpha * 255.0))
     }
 }
 
@@ -7052,9 +7260,7 @@ func CG_Player(_ cent: Centity) {
                                     return true
                                 }
 
-                                // Port-note: The draft of this statement did not compile, and the compiler wrote "value of optional type 'ClientInfo?' must be unwrapped to refer to member 'clear' of wrapped base type 'ClientInfo'".
-                                // Raven wrote: memset(cent->npcClient, 0, sizeof(clientInfo_t))
-                                portMissing("CG_Player", source: "oracle/codemp/cgame/cg_players.c:8423")
+                                cent.npcClient!.clear()
                                 cent.npcClient!.ghoul2Model = nil
                             }
 
@@ -7460,9 +7666,9 @@ func CG_Player(_ cent: Centity) {
                                 seeker.renderfx = 0 //renderfx;
                                 //don't show in first person?
 
-                                // Port-note: The draft of this statement did not compile, and the compiler wrote "the compiler is unable to type-check this expression in reasonable time; try breaking up the expression into distinct sub-expressions".
-                                // Raven wrote: angle = ((cg.time / 12) & 255) * (M_PI * 2) / 255
-                                portMissing("CG_Player", source: "oracle/codemp/cgame/cg_players.c:8423")
+                                // Raven's one expression is two terms here, because the compiler cannot type-check it whole in reasonable time.
+                                let timeStep: Int32 = (cg.time / 12) & 255
+                                angle = Float(Double(timeStep) * (M_PI * 2) / 255)
                                 dir[0] = cos(angle) * 20
                                 dir[1] = sin(angle) * 20
                                 dir[2] = cos(angle) * 5
@@ -7481,9 +7687,9 @@ func CG_Player(_ cent: Centity) {
 
                                     elevated[2] -= 55 - prefig
 
-                                    // Port-note: The draft of this statement did not compile, and the compiler wrote "the compiler is unable to type-check this expression in reasonable time; try breaking up the expression into distinct sub-expressions".
-                                    // Raven wrote: angle = ((cg.time / 12) & 255) * (M_PI * 2) / 255
-                                    portMissing("CG_Player", source: "oracle/codemp/cgame/cg_players.c:8423")
+                                    // Raven's one expression is two terms here, because the compiler cannot type-check it whole in reasonable time.
+                                    let timeStep: Int32 = (cg.time / 12) & 255
+                                    angle = Float(Double(timeStep) * (M_PI * 2) / 255)
                                     dir[0] = cos(angle) * 20
                                     dir[1] = sin(angle) * 20
                                     dir[2] = cos(angle) * 5
@@ -7501,18 +7707,21 @@ func CG_Player(_ cent: Centity) {
 
                                 if successchange == 0 {
                                     angles[0] = sin(angle) * 30
-                                    // Port-note: The draft of this statement did not compile, and the compiler wrote "the compiler is unable to type-check this expression in reasonable time; try breaking up the expression into distinct sub-expressions".
-                                    // Raven wrote: angles[1] = (angle * 180 / M_PI) + 90
-                                    portMissing("CG_Player", source: "oracle/codemp/cgame/cg_players.c:8423")
+                                    // Raven's one expression is two terms here, because the compiler cannot type-check it whole in reasonable time.
+                                    let degrees: Float = angle * 180
+                                    angles[1] = Float((Double(degrees) / M_PI) + 90)
                                     if angles[1] > 360 {
                                         angles[1] -= 360
                                     }
                                     angles[2] = 0
                                 }
 
-                                // Port-note: The draft of this statement did not compile, and the compiler wrote "cannot convert value of type 'Slots<vec3_t>' (aka 'Slots<SIMD3<Float>>') to expected argument type '[vec3_t]' (aka 'Array<SIMD3<Float>>')".
-                                // Raven wrote: AnglesToAxis( angles, seeker.axis )
-                                portMissing("CG_Player", source: "oracle/codemp/cgame/cg_players.c:8423")
+                                // AnglesToAxis takes an array, and the view holds `axis` as a Slots, so the call fills a copy that stores back.
+                                var axisCopy = [seeker.axis[0], seeker.axis[1], seeker.axis[2]]
+                                AnglesToAxis(angles, &axisCopy)
+                                seeker.axis[0] = axisCopy[0]
+                                seeker.axis[1] = axisCopy[1]
+                                seeker.axis[2] = axisCopy[2]
 
                                 seeker.hModel = trap_R_RegisterModel("models/items/remote.md3")
                                 trap_R_AddRefEntityToScene(seeker)
@@ -7541,9 +7750,12 @@ func CG_Player(_ cent: Centity) {
                         }
                         legs.oldorigin = legs.origin // don't positionally lerp at all
 
-                        // Port-note: The draft of this statement did not compile, and the compiler wrote "cannot convert value of type 'Slots<vec3_t>' (aka 'Slots<SIMD3<Float>>') to expected argument type '[vec3_t]' (aka 'Array<SIMD3<Float>>')".
-                        // Raven wrote: CG_G2PlayerAngles( cent, legs.axis, rootAngles )
-                        portMissing("CG_Player", source: "oracle/codemp/cgame/cg_players.c:8423")
+                        // CG_G2PlayerAngles takes an array, and the view holds `axis` as a Slots, so the call fills a copy that stores back.
+                        var axisCopy = [legs.axis[0], legs.axis[1], legs.axis[2]]
+                        CG_G2PlayerAngles(cent, &axisCopy, &rootAngles)
+                        legs.axis[0] = axisCopy[0]
+                        legs.axis[1] = axisCopy[1]
+                        legs.axis[2] = axisCopy[2]
                         CG_G2PlayerHeadAnims(cent)
 
                         if (cent.currentState.eFlags2 & EF2_HELD_BY_MONSTER) != 0 && cent.currentState.hasLookTarget {
@@ -8027,33 +8239,35 @@ func CG_Player(_ cent: Centity) {
                                         holoRef.renderfx = 0 //RF_THIRD_PERSON;
 
                                         if renderedHolos == 0 {
-                                            // Port-note: The draft of this statement did not compile, and the compiler wrote "the compiler is unable to type-check this expression in reasonable time; try breaking up the expression into distinct sub-expressions".
-                                            // Raven wrote: angle = ((cg.time / 8) & 255) * (M_PI * 2) / 255
-                                            portMissing("CG_Player", source: "oracle/codemp/cgame/cg_players.c:8423")
+                                            // Raven's one expression is two terms here, because the compiler cannot type-check it whole in reasonable time.
+                                            let timeStep: Int32 = (cg.time / 8) & 255
+                                            angle = Float(Double(timeStep) * (M_PI * 2) / 255)
                                             dir[0] = cos(angle) * 20
                                             dir[1] = sin(angle) * 20
                                             dir[2] = cos(angle) * 20
                                             holoRef.origin = elevated + dir
 
                                             angles[0] = sin(angle) * 30
-                                            // Port-note: The draft of this statement did not compile, and the compiler wrote "the compiler is unable to type-check this expression in reasonable time; try breaking up the expression into distinct sub-expressions".
-                                            // Raven wrote: angles[1] = (angle * 180 / M_PI) + 90
-                                            portMissing("CG_Player", source: "oracle/codemp/cgame/cg_players.c:8423")
+                                            // Raven's one expression is two terms here, because the compiler cannot type-check it whole in reasonable time.
+                                            let degrees: Float = angle * 180
+                                            angles[1] = Float((Double(degrees) / M_PI) + 90)
                                             if angles[1] > 360 {
                                                 angles[1] -= 360
                                             }
                                             angles[2] = 0
-                                            // Port-note: The draft of this statement did not compile, and the compiler wrote "cannot convert value of type 'Slots<vec3_t>' (aka 'Slots<SIMD3<Float>>') to expected argument type '[vec3_t]' (aka 'Array<SIMD3<Float>>')".
-                                            // Raven wrote: AnglesToAxis( angles, holoRef.axis )
-                                            portMissing("CG_Player", source: "oracle/codemp/cgame/cg_players.c:8423")
+                                            // AnglesToAxis takes an array, and the view holds `axis` as a Slots, so the call fills a copy that stores back.
+                                            var axisCopy = [holoRef.axis[0], holoRef.axis[1], holoRef.axis[2]]
+                                            AnglesToAxis(angles, &axisCopy)
+                                            holoRef.axis[0] = axisCopy[0]
+                                            holoRef.axis[1] = axisCopy[1]
+                                            holoRef.axis[2] = axisCopy[2]
                                         } else if renderedHolos == 1 {
-                                            // Port-note: The draft of this statement did not compile, and the compiler wrote "the compiler is unable to type-check this expression in reasonable time; try breaking up the expression into distinct sub-expressions".
-                                            // Raven wrote: angle = ((cg.time / 8) & 255) * (M_PI * 2) / 255 + M_PI
-                                            portMissing("CG_Player", source: "oracle/codemp/cgame/cg_players.c:8423")
+                                            // Raven's one expression is two terms here, because the compiler cannot type-check it whole in reasonable time.
+                                            let timeStep: Int32 = (cg.time / 8) & 255
+                                            angle = Float(Double(timeStep) * (M_PI * 2) / 255 + M_PI)
                                             if Double(angle) > M_PI * 2 {
-                                                // Port-note: The draft of this statement did not compile, and the compiler wrote "ambiguous use of 'M_PI'".
-                                                // Raven wrote: angle -= (float)M_PI * 2
-                                                portMissing("CG_Player", source: "oracle/codemp/cgame/cg_players.c:8423")
+                                                // JKAShared also declares a float `M_PI`, so the cast names the double constant by its type.
+                                                angle -= Float(M_PI as Double) * 2
                                             }
                                             dir[0] = sin(angle) * 20
                                             dir[1] = cos(angle) * 20
@@ -8061,24 +8275,26 @@ func CG_Player(_ cent: Centity) {
                                             holoRef.origin = elevated + dir
 
                                             angles[0] = Float(cos(Double(angle) - 0.5 * M_PI) * 30)
-                                            // Port-note: The draft of this statement did not compile, and the compiler wrote "the compiler is unable to type-check this expression in reasonable time; try breaking up the expression into distinct sub-expressions".
-                                            // Raven wrote: angles[1] = 360 - (angle * 180 / M_PI)
-                                            portMissing("CG_Player", source: "oracle/codemp/cgame/cg_players.c:8423")
+                                            // Raven's one expression is two terms here, because the compiler cannot type-check it whole in reasonable time.
+                                            let degrees: Float = angle * 180
+                                            angles[1] = Float(360 - (Double(degrees) / M_PI))
                                             if angles[1] > 360 {
                                                 angles[1] -= 360
                                             }
                                             angles[2] = 0
-                                            // Port-note: The draft of this statement did not compile, and the compiler wrote "cannot convert value of type 'Slots<vec3_t>' (aka 'Slots<SIMD3<Float>>') to expected argument type '[vec3_t]' (aka 'Array<SIMD3<Float>>')".
-                                            // Raven wrote: AnglesToAxis( angles, holoRef.axis )
-                                            portMissing("CG_Player", source: "oracle/codemp/cgame/cg_players.c:8423")
+                                            // AnglesToAxis takes an array, and the view holds `axis` as a Slots, so the call fills a copy that stores back.
+                                            var axisCopy = [holoRef.axis[0], holoRef.axis[1], holoRef.axis[2]]
+                                            AnglesToAxis(angles, &axisCopy)
+                                            holoRef.axis[0] = axisCopy[0]
+                                            holoRef.axis[1] = axisCopy[1]
+                                            holoRef.axis[2] = axisCopy[2]
                                         } else {
-                                            // Port-note: The draft of this statement did not compile, and the compiler wrote "the compiler is unable to type-check this expression in reasonable time; try breaking up the expression into distinct sub-expressions".
-                                            // Raven wrote: angle = ((cg.time / 6) & 255) * (M_PI * 2) / 255 + 0.5 * M_PI
-                                            portMissing("CG_Player", source: "oracle/codemp/cgame/cg_players.c:8423")
+                                            // Raven's one expression is two terms here, because the compiler cannot type-check it whole in reasonable time.
+                                            let timeStep: Int32 = (cg.time / 6) & 255
+                                            angle = Float(Double(timeStep) * (M_PI * 2) / 255 + 0.5 * M_PI)
                                             if Double(angle) > M_PI * 2 {
-                                                // Port-note: The draft of this statement did not compile, and the compiler wrote "ambiguous use of 'M_PI'".
-                                                // Raven wrote: angle -= (float)M_PI * 2
-                                                portMissing("CG_Player", source: "oracle/codemp/cgame/cg_players.c:8423")
+                                                // JKAShared also declares a float `M_PI`, so the cast names the double constant by its type.
+                                                angle -= Float(M_PI as Double) * 2
                                             }
                                             dir[0] = sin(angle) * 20
                                             dir[1] = cos(angle) * 20
@@ -8311,9 +8527,7 @@ func CG_Player(_ cent: Centity) {
                                         if saberEnt!.ghoul2 != nil {
                                             //clean if we already have one (because server changed model string index)
                                             trap_G2API_CleanGhoul2Models(&(saberEnt!.ghoul2))
-                                            // Port-note: The draft of this statement did not compile, and the compiler wrote "cannot assign value of type 'Int' to type 'OpaquePointer'".
-                                            // Raven wrote: saberEnt->ghoul2 = 0
-                                            portMissing("CG_Player", source: "oracle/codemp/cgame/cg_players.c:8423")
+                                            saberEnt!.ghoul2 = nil
                                         }
 
                                         if !saberModel.isEmpty {
@@ -9230,9 +9444,7 @@ func CG_ResetPlayerEntity(_ cent: Centity) {
                 return
             }
 
-            // Port-note: The draft of this statement did not compile, and the compiler wrote "value of optional type 'ClientInfo?' must be unwrapped to refer to member 'clear' of wrapped base type 'ClientInfo'".
-            // Raven wrote: memset(cent->npcClient, 0, sizeof(clientInfo_t))
-            portMissing("CG_ResetPlayerEntity", source: "oracle/codemp/cgame/cg_players.c:11119")
+            cent.npcClient!.clear()
             cent.npcClient!.ghoul2Model = nil
         }
 
