@@ -432,8 +432,9 @@ class Calls:
             if own is not None and (own.swift or "").startswith("UnsafeMutablePointer<"):
                 return text
             return f"&{text}"
-        if (param is None or param[1].endswith("...")) and not inout and self.optional_text_name(inner):
+        if (param is None or param[1].endswith("...")) and not inout and self.optional_text_name(inner) and not text.endswith("!"):
             # Raven's format argument list takes the text itself, and an optional text takes the bind under his own NULL test.
+            # The first variadic slot is a parameter, so the bind above can already stand on the text.
             return f"{text}!"
         if (param is None or param[1].endswith("...")) and not inout and not addressed and self.is_record(inner.type):
             first = self.first_text_field(inner.type)
