@@ -310,6 +310,7 @@ CHARBUF_ALLOCS = {"B_TempAlloc", "BG_TempAlloc"}
 #   pointer_table  a Slots<View?> over a file-scope array of struct pointers, whose base a trap hands to the engine
 #   key_path  a KeyPath<Entity, String?> for an `int` field offset Raven takes from `FOFS(field)`, which a call site spells `\.field`
 #   int_value  an Int32 by value for a `const void *` a qsort comparator reads as `*(int *)`, so the comparator is `(Int32, Int32) -> Int32`
+#   model_list  a Slots<qhandle_t>? for an `int *modelList` the engine reads as the array of model handles, the form a `qhandle_t *` has
 #   out_opaque  an inout OpaquePointer? for a `void *` Raven's callers pass the address of a handle field to, the shape a `void **` already has
 PARAMS = {
     ("COM_ParseString", "s"): "out_string",
@@ -351,6 +352,11 @@ PARAMS = {
     ("trap_R_AddPolysToScene", "verts"): "table",
     # Raven declares `vec3_t org, vec3_t fwd` without const at cg_syscalls.c:626, :637, and :642.
     # The engine only reads both, FX_PlayEffect and FX_PlayEffectID at FXExport.cpp:18 and :38 hand them to CFxScheduler::PlayEffect.
+    # cg_syscalls.c:874 and :880 declare `int *modelList`, and the engine reads it as the model list, G2_local.h:117.
+    ("trap_G2API_GetBoneAnim", "modelList"): "model_list",
+    ("trap_G2API_GetBoneFrame", "modelList"): "model_list",
+    # bg_strap.h:23 forwards the same array to the game and the cgame trap.
+    ("strap_G2API_GetBoneAnim", "modelList"): "model_list",
     ("trap_FX_PlayEffect", "org"): "vec3_const",
     ("trap_FX_PlayEffect", "fwd"): "vec3_const",
     ("trap_FX_PlayEffectID", "org"): "vec3_const",

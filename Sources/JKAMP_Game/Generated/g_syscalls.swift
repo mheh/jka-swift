@@ -2119,14 +2119,14 @@ public func trap_G2API_SetBoneAnim(_ ghoul2: OpaquePointer?, _ modelIndex: Int32
 
 /// Source: oracle/codemp/game/g_syscalls.c:1262
 @discardableResult
-public func trap_G2API_GetBoneAnim(_ ghoul2: OpaquePointer?, _ boneName: String, _ currentTime: Int32, _ currentFrame: inout Float, _ startFrame: inout Int32, _ endFrame: inout Int32, _ flags: inout Int32, _ animSpeed: inout Float, _ modelList: UnsafeMutablePointer<Int32>?, _ modelIndex: Int32) -> Bool {
+public func trap_G2API_GetBoneAnim(_ ghoul2: OpaquePointer?, _ boneName: String, _ currentTime: Int32, _ currentFrame: inout Float, _ startFrame: inout Int32, _ endFrame: inout Int32, _ flags: inout Int32, _ animSpeed: inout Float, _ modelList: Slots<qhandle_t>?, _ modelIndex: Int32) -> Bool {
     let word = withCString(boneName) { boneName in
         withUnsafeMutablePointer(to: &currentFrame) { currentFrame in
             withUnsafeMutablePointer(to: &startFrame) { startFrame in
                 withUnsafeMutablePointer(to: &endFrame) { endFrame in
                     withUnsafeMutablePointer(to: &flags) { flags in
                         withUnsafeMutablePointer(to: &animSpeed) { animSpeed in
-                            Syscall.call(G_G2_GETBONEANIM, ghoul2, boneName, currentTime, currentFrame, startFrame, endFrame, flags, animSpeed, modelList, modelIndex)
+                            Syscall.call(G_G2_GETBONEANIM, ghoul2, boneName, currentTime, currentFrame, startFrame, endFrame, flags, animSpeed, modelList?.base, modelIndex)
                         }
                     }
                 }
