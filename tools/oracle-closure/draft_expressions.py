@@ -30,6 +30,8 @@ BINARY_OPS = COMPARISONS | LOGICAL | ASSIGN_OPS | {"+", "-", "*", "/", "%", "&",
 UNARY_PREFIX = {"-", "+", "!", "~", "*", "&", "++", "--"}
 NUMBER = re.compile(r"-?\s*((\d+(\.\d*)?|\.\d+)([eE][-+]?\d+)?[fFuUlL]*|0[xX][0-9a-fA-F]+[uUlL]*)")
 IDENTIFIER = re.compile(r"[A-Za-z_]\w*")
+# Raven's text of one string literal: string literals and macro names side by side, `S_COLOR_RED "text"`, which C concatenates.
+LITERAL_RUN = re.compile(r'(?:"(?:[^"\\]|\\.)*"|[A-Za-z_]\w*)(?:\s*(?:"(?:[^"\\]|\\.)*"|[A-Za-z_]\w*))*')
 
 
 class Expressions:
@@ -440,7 +442,12 @@ class Expressions:
                 raise Hole("A character literal with an escape.")
             return f"Int32(ascii: {text.replace(chr(39), chr(34))})"
         if kind == CursorKind.STRING_LITERAL:
-            return self.joined_literal(self.source.slice(cur.extent))
+            text = self.source.slice(cur.extent)
+            if not LITERAL_RUN.fullmatch(text.strip()):
+                # A macro pasted the literal, `x"\n"` of Raven's DEBUGNAME, so the extent holds the macro's use and not the literal.
+                # The literal's own spelling is the text the preprocessor made.
+                return cur.spelling
+            return self.joined_literal(text)
         if kind == CursorKind.DECL_REF_EXPR:
             word = self.reference(cur)
             if cur.spelling in self.narrow_locals and cur.referenced is not None and cur.referenced.kind == CursorKind.VAR_DECL:

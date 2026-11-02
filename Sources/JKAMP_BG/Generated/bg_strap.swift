@@ -55,7 +55,7 @@ public struct BgStraps {
     public var trap_FS_Read: (OpaquePointer?, Int32, JKAShared.fileHandle_t) -> Void = { _, _, _ in fatalError("No consumer installed trap_FS_Read, source: oracle/codemp/game/g_syscalls.c:89") }
 
     /// Source: oracle/codemp/cgame/cg_syscalls.c:637
-    public var trap_FX_PlayEffectID: (Int32, inout JKAShared.vec3_t, inout JKAShared.vec3_t, Int32, Int32) -> Void = { _, _, _, _, _ in fatalError("No consumer installed trap_FX_PlayEffectID, source: oracle/codemp/cgame/cg_syscalls.c:637") }
+    public var trap_FX_PlayEffectID: (Int32, JKAShared.vec3_t, JKAShared.vec3_t, Int32, Int32) -> Void = { _, _, _, _, _ in fatalError("No consumer installed trap_FX_PlayEffectID, source: oracle/codemp/cgame/cg_syscalls.c:637") }
 
     /// Source: oracle/codemp/cgame/cg_syscalls.c:621
     public var trap_FX_RegisterEffect: (String) -> Int32 = { _ in fatalError("No consumer installed trap_FX_RegisterEffect, source: oracle/codemp/cgame/cg_syscalls.c:621") }
@@ -198,8 +198,8 @@ func trap_FS_Read(_ buffer: inout JKAShared.CharBuf, _ len: Int32, _ f: JKAShare
 }
 
 /// Source: oracle/codemp/cgame/cg_syscalls.c:637
-func trap_FX_PlayEffectID(_ id: Int32, _ org: inout JKAShared.vec3_t, _ fwd: inout JKAShared.vec3_t, _ vol: Int32, _ rad: Int32) {
-    bg.straps.trap_FX_PlayEffectID(id, &org, &fwd, vol, rad)
+func trap_FX_PlayEffectID(_ id: Int32, _ org: JKAShared.vec3_t, _ fwd: JKAShared.vec3_t, _ vol: Int32, _ rad: Int32) {
+    bg.straps.trap_FX_PlayEffectID(id, org, fwd, vol, rad)
 }
 
 /// Source: oracle/codemp/cgame/cg_syscalls.c:621

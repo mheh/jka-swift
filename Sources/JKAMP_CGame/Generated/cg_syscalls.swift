@@ -1070,10 +1070,10 @@ public func trap_FX_RegisterEffect(_ file: String) -> Int32 {
 }
 
 /// Source: oracle/codemp/cgame/cg_syscalls.c:626
-public func trap_FX_PlayEffect(_ file: String, _ org: inout JKAShared.vec3_t, _ fwd: inout JKAShared.vec3_t, _ vol: Int32, _ rad: Int32) {
+public func trap_FX_PlayEffect(_ file: String, _ org: JKAShared.vec3_t, _ fwd: JKAShared.vec3_t, _ vol: Int32, _ rad: Int32) {
     _ = withCString(file) { file in
-        withUnsafeMutablePointer(to: &org) { org in
-            withUnsafeMutablePointer(to: &fwd) { fwd in
+        withUnsafePointer(to: org) { org in
+            withUnsafePointer(to: fwd) { fwd in
                 Syscall.call(CG_FX_PLAY_EFFECT, file, org, fwd, vol, rad)
             }
         }
@@ -1094,18 +1094,18 @@ public func trap_FX_PlayEntityEffect(_ file: String, _ org: inout JKAShared.vec3
 }
 
 /// Source: oracle/codemp/cgame/cg_syscalls.c:637
-public func trap_FX_PlayEffectID(_ id: Int32, _ org: inout JKAShared.vec3_t, _ fwd: inout JKAShared.vec3_t, _ vol: Int32, _ rad: Int32) {
-    _ = withUnsafeMutablePointer(to: &org) { org in
-        withUnsafeMutablePointer(to: &fwd) { fwd in
+public func trap_FX_PlayEffectID(_ id: Int32, _ org: JKAShared.vec3_t, _ fwd: JKAShared.vec3_t, _ vol: Int32, _ rad: Int32) {
+    _ = withUnsafePointer(to: org) { org in
+        withUnsafePointer(to: fwd) { fwd in
             Syscall.call(CG_FX_PLAY_EFFECT_ID, id, org, fwd, vol, rad)
         }
     }
 }
 
 /// Source: oracle/codemp/cgame/cg_syscalls.c:642
-public func trap_FX_PlayPortalEffectID(_ id: Int32, _ org: inout JKAShared.vec3_t, _ fwd: inout JKAShared.vec3_t, _ vol: Int32, _ rad: Int32) {
-    _ = withUnsafeMutablePointer(to: &org) { org in
-        withUnsafeMutablePointer(to: &fwd) { fwd in
+public func trap_FX_PlayPortalEffectID(_ id: Int32, _ org: JKAShared.vec3_t, _ fwd: JKAShared.vec3_t, _ vol: Int32, _ rad: Int32) {
+    _ = withUnsafePointer(to: org) { org in
+        withUnsafePointer(to: fwd) { fwd in
             Syscall.call(CG_FX_PLAY_PORTAL_EFFECT_ID, id, org, fwd)
         }
     }

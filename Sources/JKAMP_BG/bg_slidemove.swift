@@ -417,7 +417,7 @@ func PM_VehicleImpact(_ pEnt: JKAMP.BgEntity, _ trace: JKAMP.Trace) {
                     var scratchRight = vec3_t()
                     AngleVectors(selfVehicle.m_vOrientationVector, &scratchForward, &scratchRight, &vehUp)
                     pEnt.m_pVehicle!.m_iHitDebounce = pm.cmd.serverTime + 200
-                    trap_FX_PlayEffectID(vehicleInfo.iImpactFX, &pm.ps.origin, &vehUp, -1, -1)
+                    trap_FX_PlayEffectID(vehicleInfo.iImpactFX, pm.ps.origin, vehUp, -1, -1)
 
                     selfVehicle.m_ulFlags |= CUnsignedLong(bitPattern: CLong(VEH_CRASHING))
                 }

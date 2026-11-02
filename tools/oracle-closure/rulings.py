@@ -300,6 +300,7 @@ CHARBUF_ALLOCS = {"B_TempAlloc", "BG_TempAlloc"}
 # (function, parameter) -> the kind of the parameter, where the C type alone does not say.
 #   raw       an UnsafeMutableRawPointer a body writes at a byte offset, see "Typed access at a byte offset"
 #   vec3_mut  an inout vec3_t for a `float *` Raven fills as three floats, see "A pointer out-param Raven indexes"
+#   vec3_const  a vec3_t by value for a `vec3_t` Raven declares without const and the engine only reads, the form a `const vec3_t` has
 #   out_string  an inout String, for a `const char **` the function sets to the token instead of walking
 #   text_cursor  a TextCursor by value, for a `const char *` Raven passes as a cursor and returns advanced
 #   fill_buffer  a `char *` a trap fills with no size beside it, given as ("fill_buffer", capacity) with the capacity Raven's
@@ -348,6 +349,14 @@ PARAMS = {
     # Raven's callers pass a `polyVert_t` array, `verts` of CG_AddMarks and `TRIverts` of CG_AddParticleToScene, and the engine reads numVerts records.
     ("trap_R_AddPolyToScene", "verts"): "table",
     ("trap_R_AddPolysToScene", "verts"): "table",
+    # Raven declares `vec3_t org, vec3_t fwd` without const at cg_syscalls.c:626, :637, and :642.
+    # The engine only reads both, FX_PlayEffect and FX_PlayEffectID at FXExport.cpp:18 and :38 hand them to CFxScheduler::PlayEffect.
+    ("trap_FX_PlayEffect", "org"): "vec3_const",
+    ("trap_FX_PlayEffect", "fwd"): "vec3_const",
+    ("trap_FX_PlayEffectID", "org"): "vec3_const",
+    ("trap_FX_PlayEffectID", "fwd"): "vec3_const",
+    ("trap_FX_PlayPortalEffectID", "org"): "vec3_const",
+    ("trap_FX_PlayPortalEffectID", "fwd"): "vec3_const",
     # Raven's callers pass `FOFS(classname)`, `FOFS(targetname)`, `FOFS(target)`, and `FOFS(script_targetname)`, each a `char *` field.
     ("G_Find", "fieldofs"): "key_path",
     # Raven's two qsort comparators over an `int` array, `SortClients` at g_team.c:1089 and `SortRanks` at g_main.c:1624.

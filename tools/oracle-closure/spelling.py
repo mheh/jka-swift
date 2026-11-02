@@ -265,6 +265,8 @@ class Types:
             return Answer("UnsafeMutableRawPointer", "bare")
         if facts.ruled == "vec3_mut":
             return Answer("inout JKAShared.vec3_t", "vec3_mut")
+        if facts.ruled == "vec3_const":
+            return Answer("JKAShared.vec3_t", "vec3_const")
         if facts.ruled == "float_array":
             return Answer("inout [Float]", "bare")
         if facts.ruled == "key_path":
