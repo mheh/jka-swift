@@ -285,10 +285,12 @@ class Classification:
         inner = self.unwrap(cur)
         if self.is_null(inner):
             return "null"
-        if inner.kind == CursorKind.CALL_EXPR and self.registry.returns.get(self.callee_name(inner) or "") == "String?":
+        # Raven's `(char *)CG_GetStringEdString(...)` drops the const of the call's text, and the store is still that text.
+        called = self.uncast(cur)
+        if called.kind == CursorKind.CALL_EXPR and self.registry.returns.get(self.callee_name(called) or "") == "String?":
             # The callee hands an optional text back, so the local is a String? and Raven's NULL test keeps its form.
             return "optional"
-        if inner.kind == CursorKind.CALL_EXPR and self.registry.returns.get(self.callee_name(inner) or "") == "String":
+        if called.kind == CursorKind.CALL_EXPR and self.registry.returns.get(self.callee_name(called) or "") == "String":
             return "text"
         if inner.kind == CursorKind.STRING_LITERAL:
             return "text"
