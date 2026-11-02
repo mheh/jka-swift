@@ -101,6 +101,6 @@ The oracle range is the whole definition, from the return type to the closing br
 | `bgNumAllAnims` | `oracle/codemp/game/bg_panimate.c:1703` | state | `}` |
 | `animEventTypeTable` | `oracle/codemp/game/bg_panimate.c:1758` | storage_data | `// Raven's data table is C storage in the C target, with his initializer as written, reached as a Slots over the C array, the bg_tables.c shape that tables.py writes.` |
 | `footstepTypeTable` | `oracle/codemp/game/bg_panimate.c:1772` | storage_data | `// Raven's data table is C storage in the C target, with his initializer as written, reached as a Slots over the C array, the bg_tables.c shape that tables.py writes.` |
-| `bgAllEvents` | `oracle/codemp/game/bg_panimate.c:2166` | storage | `var bgAllEvents: Slots<JKAMP.BgLoadedEvents> { bg.storage.bgAllEvents }` |
+| `bgAllEvents` | `oracle/codemp/game/bg_panimate.c:2166` | storage | `public var bgAllEvents: Slots<JKAMP.BgLoadedEvents> { bg.storage.bgAllEvents }` |
 | `bgNumAnimEvents` | `oracle/codemp/game/bg_panimate.c:2167` | state | `}` |
 | `bg_animParseIncluding` | `oracle/codemp/game/bg_panimate.c:2168` | state | `}` |

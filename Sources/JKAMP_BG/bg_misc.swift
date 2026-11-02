@@ -9,6 +9,42 @@ public var bgToggleableSurfaces: [String] {
     set { bg.bgToggleableSurfaces = newValue }
 }
 
+/// Raven's `bgToggleableSurfaceDebris` of `bg_misc.c`, the debris kind of each toggleable surface.
+/// Source: oracle/codemp/game/bg_misc.c:78
+public let bgToggleableSurfaceDebris: [Int32] = [
+    0,					//0
+    0,
+    0,
+    0,
+    0,
+    0,					//5
+    0,
+    0,
+    0,
+    0,
+    0,					//10
+    0,
+    0,
+    0,
+    0, //>= 2 means it should create a flame trail when destroyed (for vehicles)
+    3,					//15
+    5, //rwing2
+    4,
+    6, //lwing2
+    0, //rgear
+    0, //lgear			//20
+    7, //nose
+    0, //blah
+    0, //blah
+    0,
+    0,					//25
+    0,
+    0,
+    0,
+    0,					//29
+    -1
+]
+
 /// Source: oracle/codemp/game/bg_misc.c:113
 /// Raven's data table, a hand property of `BgState`.
 public var bg_customSiegeSoundNames: [String] {
@@ -55,7 +91,7 @@ let bgForcePowerCost: [[Int32]] = [ //0 == neutral
 
 /// Raven's `forcePowerSorted` of `bg_misc.c`. Always use this order when drawing force powers, for any reason.
 /// Source: oracle/codemp/game/bg_misc.c:197
-let forcePowerSorted: [Int32] = [
+public let forcePowerSorted: [Int32] = [
     FP_TELEPATHY,
     FP_HEAL,
     FP_ABSORB,
@@ -708,7 +744,7 @@ public func BG_PlayerTouchesItem(_ ps: JKAMP.PlayerState, _ item: JKAMP.EntitySt
 }
 
 /// Source: oracle/codemp/game/bg_misc.c:1997
-func BG_ProperForceIndex(_ power: Int32) -> Int32 {
+public func BG_ProperForceIndex(_ power: Int32) -> Int32 {
     var i: Int32 = 0
 
     while i < NUM_FORCE_POWERS {
@@ -723,7 +759,7 @@ func BG_ProperForceIndex(_ power: Int32) -> Int32 {
 }
 
 /// Source: oracle/codemp/game/bg_misc.c:2014
-func BG_CycleForce(_ ps: JKAMP.PlayerState, _ direction: Int32) {
+public func BG_CycleForce(_ ps: JKAMP.PlayerState, _ direction: Int32) {
     var i = ps.fd.forcePowerSelected
     var x = i
     var presel = i

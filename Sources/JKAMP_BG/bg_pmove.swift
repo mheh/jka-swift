@@ -4230,7 +4230,7 @@ func PM_Use() {
 }
 
 /// Source: oracle/codemp/game/bg_pmove.c:4579
-func PM_WalkingAnim(_ anim: Int32) -> Bool {
+public func PM_WalkingAnim(_ anim: Int32) -> Bool {
     switch anim {
     case BOTH_WALK1, //# Normal walk
          BOTH_WALK2, //# Normal walk with saber
@@ -4251,7 +4251,7 @@ func PM_WalkingAnim(_ anim: Int32) -> Bool {
 }
 
 /// Source: oracle/codemp/game/bg_pmove.c:4600
-func PM_RunningAnim(_ anim: Int32) -> Bool {
+public func PM_RunningAnim(_ anim: Int32) -> Bool {
     switch (anim) {
     case BOTH_RUN1,
          BOTH_RUN2,
@@ -6817,7 +6817,7 @@ are being updated isntead of a full move
 ```
 */
 /// Source: oracle/codemp/game/bg_pmove.c:7813
-func PM_UpdateViewAngles(_ ps: JKAMP.PlayerState, _ cmd: JKAMP.Usercmd) {
+public func PM_UpdateViewAngles(_ ps: JKAMP.PlayerState, _ cmd: JKAMP.Usercmd) {
     var temp: Int16
     var i: Int32
 
@@ -8495,7 +8495,7 @@ func PM_VehFaceHyperspacePoint(_ veh: JKAMP.BgEntity) {
 }
 
 /// Source: oracle/codemp/game/bg_pmove.c:9993
-func BG_VehicleAdjustBBoxForOrientation(_ veh: JKAMP.Vehicle, _ origin: inout JKAShared.vec3_t, _ mins: inout JKAShared.vec3_t, _ maxs: inout JKAShared.vec3_t, _ clientNum: Int32, _ tracemask: Int32, _ localTrace: ((JKAMP.Trace, JKAShared.vec3_t, JKAShared.vec3_t, JKAShared.vec3_t, JKAShared.vec3_t, Int32, Int32) -> Void)?) {
+public func BG_VehicleAdjustBBoxForOrientation(_ veh: JKAMP.Vehicle, _ origin: inout JKAShared.vec3_t, _ mins: inout JKAShared.vec3_t, _ maxs: inout JKAShared.vec3_t, _ clientNum: Int32, _ tracemask: Int32, _ localTrace: ((JKAMP.Trace, JKAShared.vec3_t, JKAShared.vec3_t, JKAShared.vec3_t, JKAShared.vec3_t, Int32, Int32) -> Void)?) {
     let vehicleInfo = veh.m_pVehicleInfo!
     if vehicleInfo.length == 0
         || vehicleInfo.width == 0

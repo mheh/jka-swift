@@ -981,7 +981,7 @@ public func BG_SiegeLoadClasses(_ descBuffer: Slots<JKAMP.SiegeClassDesc>?) {
 //Team loading functions
 //======================================
 /// Source: oracle/codemp/game/bg_saga.c:1219
-func BG_SiegeFindClassByName(_ classname: String) -> JKAMP.SiegeClass? {
+public func BG_SiegeFindClassByName(_ classname: String) -> JKAMP.SiegeClass? {
     var i: Int32 = 0
 
     while i < bgNumSiegeClasses {

@@ -994,25 +994,29 @@ class Skeleton:
         return lines
 
     def collect_game_calls(self) -> set[str]:
-        """Every bg function and bg file-scope variable a game file names, by Raven's name, so the bg declaration is public for the game module.
+        """Every bg function and bg file-scope variable a game or cgame file names, by Raven's name, so the bg declaration is public for those modules.
         A libc name the shared module already holds in public, `atof` of CString.swift, is the game's, so bg's copy stays internal.
         A variable counts only when the name resolves to a file-scope declaration, because a game body has its own locals named `pm`."""
         shared = {m.group(1) for path in (SOURCES / SHARED).rglob("*.swift") for m in re.finditer(r"^public func `?(\w+)", path.read_text(), re.M)}
         bg_names = {fn.name for stem, fns in self.files.items() if target_of(stem) == BG for fn in fns} - shared
         bg_variables = {var.name for stem, variables in self.variables.items() if target_of(stem) == BG for var in variables}
         called: set[str] = set()
-        for stem, fns in self.files.items():
-            if target_of(stem) != LOGIC:
-                continue
-            for fn in fns:
-                for node in fn.cur.walk_preorder():
-                    if node.kind != CursorKind.DECL_REF_EXPR:
-                        continue
-                    if node.spelling in bg_names:
-                        called.add(node.spelling)
-                    elif node.spelling in bg_variables and node.referenced is not None and node.referenced.kind == CursorKind.VAR_DECL \
-                            and node.referenced.semantic_parent.kind == CursorKind.TRANSLATION_UNIT:
-                        called.add(node.spelling)
+        bodies = [fn.cur for stem, fns in self.files.items() if target_of(stem) == LOGIC for fn in fns]
+        if self.cgame_tu is not None:
+            # A bg name only the cgame names, `BG_SI_SetDesiredLength` of cg_players.c, crosses the module line the same way.
+            cgame = (C.ORACLE / CGAME_DIR).resolve()
+            bodies += [cur for cur in self.cgame_tu.cursor.get_children()
+                       if cur.kind == CursorKind.FUNCTION_DECL and cur.is_definition() and cur.location.file
+                       and Path(cur.location.file.name).resolve().parent == cgame]
+        for body in bodies:
+            for node in body.walk_preorder():
+                if node.kind != CursorKind.DECL_REF_EXPR:
+                    continue
+                if node.spelling in bg_names:
+                    called.add(node.spelling)
+                elif node.spelling in bg_variables and node.referenced is not None and node.referenced.kind == CursorKind.VAR_DECL \
+                        and node.referenced.semantic_parent.kind == CursorKind.TRANSLATION_UNIT:
+                    called.add(node.spelling)
         return called
 
     def collect_outside_calls(self) -> set[str]:

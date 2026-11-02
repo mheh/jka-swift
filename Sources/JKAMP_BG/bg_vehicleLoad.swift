@@ -1124,7 +1124,7 @@ public func BG_GetVehicleModelName(_ modelname: inout JKAShared.CharBuf) {
 }
 
 /// Source: oracle/codemp/game/bg_vehicleLoad.c:1613
-func BG_GetVehicleSkinName(_ skinname: inout JKAShared.CharBuf) {
+public func BG_GetVehicleSkinName(_ skinname: inout JKAShared.CharBuf) {
     let vehName: CharBuf = skinname[(1)...]
     let vIndex: Int32 = BG_VehicleGetIndex(String(vehName))
 
