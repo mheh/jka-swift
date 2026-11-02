@@ -296,6 +296,16 @@ class Classification:
             return "text"
         if self.field_slot(inner) is not None:
             return "text"
+        if inner.kind == CursorKind.ARRAY_SUBSCRIPT_EXPR:
+            # An element of a file-scope text table, `cg_customSoundNames[i]`, is the String or the String? the table holds.
+            table = self.unwrap(list(inner.get_children())[0])
+            if table.kind == CursorKind.DECL_REF_EXPR and table.referenced is not None and table.referenced.kind == CursorKind.VAR_DECL \
+                    and table.referenced.semantic_parent.kind == CursorKind.TRANSLATION_UNIT:
+                swift = self.registry.var_types.get(table.spelling, "").replace("JKAShared.", "")
+                if swift == "[String]":
+                    return "text"
+                if swift == "[String?]":
+                    return "optional"
         if inner.kind == CursorKind.DECL_REF_EXPR:
             t = inner.type.get_canonical()
             if t.kind == TypeKind.CONSTANTARRAY and t.element_type.get_canonical().kind == TypeKind.CHAR_S:
