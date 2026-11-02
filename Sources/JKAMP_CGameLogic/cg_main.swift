@@ -529,8 +529,20 @@ var cg_skyOriScale: Float {
 //do we have any force powers that we would normally need to cycle to?
 /// Source: oracle/codemp/cgame/cg_main.c:159
 func CG_NoUseableForce() -> Bool {
-    // TODO: Port CG_NoUseableForce
-    portMissing("CG_NoUseableForce", source: "oracle/codemp/cgame/cg_main.c:159")
+    var i: Int32 = FP_HEAL
+    while i < NUM_FORCE_POWERS {
+        if i != FP_SABERTHROW && i != FP_SABER_OFFENSE && i != FP_SABER_DEFENSE && i != FP_LEVITATION {
+            //valid selectable power
+            if (cg.predictedPlayerState.fd.forcePowersKnown & (1 << i)) != 0 {
+                //we have it
+                return false
+            }
+        }
+        i += 1
+    }
+
+    //no useable force powers, I guess.
+    return true
 }
 
 /// Source: oracle/codemp/cgame/cg_main.c:190
@@ -539,69 +551,355 @@ func CG_NoUseableForce() -> Bool {
 
 /// Source: oracle/codemp/cgame/cg_main.c:362
 private func C_PointContents() -> Int32 {
-    // TODO: Port C_PointContents
+    // Port-note: The draft of this statement did not compile, and the compiler wrote "cannot convert value of type 'String' to expected argument type 'UnsafeMutableRawPointer'".
+    // Raven wrote: TCGPointContents *data = (TCGPointContents *)cg.sharedBuffer;
+    portMissing("C_PointContents", source: "oracle/codemp/cgame/cg_main.c:362")
+
+    // Port-note: A read of `data`, a local the draft left as a hole.
+    // Raven wrote: return CG_PointContents( data->mPoint, data->mPassEntityNum )
     portMissing("C_PointContents", source: "oracle/codemp/cgame/cg_main.c:362")
 }
 
 /// Source: oracle/codemp/cgame/cg_main.c:369
 private func C_GetLerpOrigin() {
-    // TODO: Port C_GetLerpOrigin
+    // Port-note: The draft of this statement did not compile, and the compiler wrote "cannot convert value of type 'String' to expected argument type 'UnsafeMutableRawPointer'".
+    // Raven wrote: TCGVectorData *data = (TCGVectorData *)cg.sharedBuffer;
+    portMissing("C_GetLerpOrigin", source: "oracle/codemp/cgame/cg_main.c:369")
+
+    // Port-note: A read of `data`, a local the draft left as a hole.
+    // Raven wrote: VectorCopy(cg_entities[data->mEntityNum].lerpOrigin, data->mPoint)
     portMissing("C_GetLerpOrigin", source: "oracle/codemp/cgame/cg_main.c:369")
 }
 
 /// Source: oracle/codemp/cgame/cg_main.c:376
 private func C_GetLerpData() {
-    // TODO: Port C_GetLerpData
+    //only used by FX system to pass to getboltmat
+    // Port-note: The draft of this statement did not compile, and the compiler wrote "cannot convert value of type 'String' to expected argument type 'UnsafeMutableRawPointer'".
+    // Raven wrote: TCGGetBoltData *data = (TCGGetBoltData *)cg.sharedBuffer;
+    portMissing("C_GetLerpData", source: "oracle/codemp/cgame/cg_main.c:376")
+
+    // Port-note: A read of `data`, a local the draft left as a hole.
+    // Raven wrote: VectorCopy(cg_entities[data->mEntityNum].lerpOrigin, data->mOrigin)
+    portMissing("C_GetLerpData", source: "oracle/codemp/cgame/cg_main.c:376")
+    // Port-note: A read of `data`, a local the draft left as a hole.
+    // Raven wrote: VectorCopy(cg_entities[data->mEntityNum].modelScale, data->mScale)
+    portMissing("C_GetLerpData", source: "oracle/codemp/cgame/cg_main.c:376")
+    // Port-note: A read of `data`, a local the draft left as a hole.
+    // Raven wrote: VectorCopy(cg_entities[data->mEntityNum].lerpAngles, data->mAngles)
+    portMissing("C_GetLerpData", source: "oracle/codemp/cgame/cg_main.c:376")
+    // Port-note: A read of `data`, a local the draft left as a hole.
+    // Raven wrote: if (cg_entities[data->mEntityNum].currentState.eType == ET_PLAYER) { //normal player data->mAngles[PITCH] = 0.0f; data->mAngles[ROLL] = 0.0f; } else if (cg_entities[data->mEntityNum].currentState.eType == ET_NPC) { //an NPC Vehicle_t *pVeh = cg_entities[data->mEntityNum].m_pVehicle; if (!pVeh) { //for vehicles, we may or may not want to 0 out pitch and roll data->mAngles[PITCH] = 0.0f; data->mAngles[ROLL] = 0.0f; } else if (pVeh->m_pVehicleInfo->type == VH_SPEEDER) { //speeder wants no pitch but a roll data->mAngles[PITCH] = 0.0f; } else if (pVeh->m_pVehicleInfo->type != VH_FIGHTER) { //fighters want all angles data->mAngles[PITCH] = 0.0f; data->mAngles[ROLL] = 0.0f; } }
     portMissing("C_GetLerpData", source: "oracle/codemp/cgame/cg_main.c:376")
 }
 
 /// Source: oracle/codemp/cgame/cg_main.c:408
 private func C_Trace() {
-    // TODO: Port C_Trace
+    // Port-note: The draft of this statement did not compile, and the compiler wrote "cannot convert value of type 'String' to expected argument type 'UnsafeMutableRawPointer'".
+    // Raven wrote: TCGTrace *td = (TCGTrace *)cg.sharedBuffer;
+    portMissing("C_Trace", source: "oracle/codemp/cgame/cg_main.c:408")
+
+    // Port-note: A read of `td`, a local the draft left as a hole.
+    // Raven wrote: CG_Trace(&td->mResult, td->mStart, td->mMins, td->mMaxs, td->mEnd, td->mSkipNumber, td->mMask)
     portMissing("C_Trace", source: "oracle/codemp/cgame/cg_main.c:408")
 }
 
 /// Source: oracle/codemp/cgame/cg_main.c:415
 private func C_G2Trace() {
-    // TODO: Port C_G2Trace
+    // Port-note: The draft of this statement did not compile, and the compiler wrote "cannot convert value of type 'String' to expected argument type 'UnsafeMutableRawPointer'".
+    // Raven wrote: TCGTrace *td = (TCGTrace *)cg.sharedBuffer;
+    portMissing("C_G2Trace", source: "oracle/codemp/cgame/cg_main.c:415")
+
+    // Port-note: A read of `td`, a local the draft left as a hole.
+    // Raven wrote: CG_G2Trace(&td->mResult, td->mStart, td->mMins, td->mMaxs, td->mEnd, td->mSkipNumber, td->mMask)
     portMissing("C_G2Trace", source: "oracle/codemp/cgame/cg_main.c:415")
 }
 
 /// Source: oracle/codemp/cgame/cg_main.c:422
 private func C_G2Mark() {
-    // TODO: Port C_G2Mark
+    // Port-note: The draft of this statement did not compile, and the compiler wrote "cannot convert value of type 'String' to expected argument type 'UnsafeMutableRawPointer'".
+    // Raven wrote: TCGG2Mark *td = (TCGG2Mark *)cg.sharedBuffer;
     portMissing("C_G2Mark", source: "oracle/codemp/cgame/cg_main.c:422")
+    // Raven's record lives to the end of his block, so the block is the closure.
+    Trace.scratch { tr in
+        var end = vec3_t()
+
+        // Port-note: A read of `td`, a local the draft left as a hole.
+        // Raven wrote: VectorMA(td->start, 64, td->dir, end)
+        portMissing("C_G2Mark", source: "oracle/codemp/cgame/cg_main.c:422")
+        // Port-note: A read of `td`, a local the draft left as a hole.
+        // Raven wrote: CG_G2Trace(&tr, td->start, NULL, NULL, end, ENTITYNUM_NONE, MASK_PLAYERSOLID)
+        portMissing("C_G2Mark", source: "oracle/codemp/cgame/cg_main.c:422")
+
+        if tr.entityNum < ENTITYNUM_WORLD && cg_entities[tr.entityNum].ghoul2 != nil {
+            //hit someone with a ghoul2 instance, let's project the decal on them then.
+            let cent: Centity? = cg_entities[tr.entityNum]
+
+            //CG_TestLine(tr.endpos, end, 2000, 0x0000ff, 1);
+
+            // Port-note: A read of `td`, a local the draft left as a hole.
+            // Raven wrote: CG_AddGhoul2Mark(td->shader, td->size, tr.endpos, end, tr.entityNum, cent->lerpOrigin, cent->lerpAngles[YAW], cent->ghoul2, cent->modelScale, Q_irand(2000, 4000))
+            portMissing("C_G2Mark", source: "oracle/codemp/cgame/cg_main.c:422")
+            //I'm making fx system decals have a very short lifetime.
+        }
+    }
 }
 
 /// Source: oracle/codemp/cgame/cg_main.c:445
 private func CG_DebugBoxLines(_ mins: JKAShared.vec3_t, _ maxs: JKAShared.vec3_t, _ duration: Int32) {
-    // TODO: Port CG_DebugBoxLines
-    portMissing("CG_DebugBoxLines", source: "oracle/codemp/cgame/cg_main.c:445")
+    var start = vec3_t()
+    var end = vec3_t()
+    var vert = vec3_t()
+
+    let x: Float = maxs[0] - mins[0]
+    let y: Float = maxs[1] - mins[1]
+
+    start[2] = maxs[2]
+    vert[2] = mins[2]
+
+    vert[0] = mins[0]
+    vert[1] = mins[1]
+    start[0] = vert[0]
+    start[1] = vert[1]
+    CG_TestLine(start, vert, duration, 0x00000ff, 1)
+
+    vert[0] = mins[0]
+    vert[1] = maxs[1]
+    start[0] = vert[0]
+    start[1] = vert[1]
+    CG_TestLine(start, vert, duration, 0x00000ff, 1)
+
+    vert[0] = maxs[0]
+    vert[1] = mins[1]
+    start[0] = vert[0]
+    start[1] = vert[1]
+    CG_TestLine(start, vert, duration, 0x00000ff, 1)
+
+    vert[0] = maxs[0]
+    vert[1] = maxs[1]
+    start[0] = vert[0]
+    start[1] = vert[1]
+    CG_TestLine(start, vert, duration, 0x00000ff, 1)
+
+    // top of box
+    start = maxs
+    end = maxs
+    start[0] -= x
+    CG_TestLine(start, end, duration, 0x00000ff, 1)
+    end[0] = start[0]
+    end[1] -= y
+    CG_TestLine(start, end, duration, 0x00000ff, 1)
+    start[1] = end[1]
+    start[0] += x
+    CG_TestLine(start, end, duration, 0x00000ff, 1)
+    CG_TestLine(start, maxs, duration, 0x00000ff, 1)
+    // bottom of box
+    start = mins
+    end = mins
+    start[0] += x
+    CG_TestLine(start, end, duration, 0x00000ff, 1)
+    end[0] = start[0]
+    end[1] += y
+    CG_TestLine(start, end, duration, 0x00000ff, 1)
+    start[1] = end[1]
+    start[0] -= x
+    CG_TestLine(start, end, duration, 0x00000ff, 1)
+    CG_TestLine(start, mins, duration, 0x00000ff, 1)
 }
 
 //handle ragdoll callbacks, for events and debugging -rww
 /// Source: oracle/codemp/cgame/cg_main.c:508
 private func CG_RagCallback(_ callType: Int32) -> Int32 {
-    // TODO: Port CG_RagCallback
-    portMissing("CG_RagCallback", source: "oracle/codemp/cgame/cg_main.c:508")
+    switch callType {
+    case RAG_CALLBACK_DEBUGBOX:
+        do {
+            // Port-note: The draft of this statement did not compile, and the compiler wrote "cannot convert value of type 'String' to expected argument type 'UnsafeMutableRawPointer'".
+            // Raven wrote: ragCallbackDebugBox_t *callData = (ragCallbackDebugBox_t *)cg.sharedBuffer;
+            portMissing("CG_RagCallback", source: "oracle/codemp/cgame/cg_main.c:508")
+
+            // Port-note: A read of `callData`, a local the draft left as a hole.
+            // Raven wrote: CG_DebugBoxLines(callData->mins, callData->maxs, callData->duration)
+            portMissing("CG_RagCallback", source: "oracle/codemp/cgame/cg_main.c:508")
+        }
+
+    case RAG_CALLBACK_DEBUGLINE:
+        do {
+            // Port-note: The draft of this statement did not compile, and the compiler wrote "cannot convert value of type 'String' to expected argument type 'UnsafeMutableRawPointer'".
+            // Raven wrote: ragCallbackDebugLine_t *callData = (ragCallbackDebugLine_t *)cg.sharedBuffer;
+            portMissing("CG_RagCallback", source: "oracle/codemp/cgame/cg_main.c:508")
+
+            // Port-note: The draft of this statement did not compile, and the compiler wrote "cannot convert value of type 'Int32' to expected argument type 'UInt32'".
+            // Raven wrote: CG_TestLine(callData->start, callData->end, callData->time, callData->color, callData->radius)
+            portMissing("CG_RagCallback", source: "oracle/codemp/cgame/cg_main.c:508")
+        }
+
+    case RAG_CALLBACK_BONESNAP:
+        do {
+            // Port-note: The draft of this statement did not compile, and the compiler wrote "cannot convert value of type 'String' to expected argument type 'UnsafeMutableRawPointer'".
+            // Raven wrote: ragCallbackBoneSnap_t *callData = (ragCallbackBoneSnap_t *)cg.sharedBuffer;
+            portMissing("CG_RagCallback", source: "oracle/codemp/cgame/cg_main.c:508")
+            // Port-note: A read of `callData`, a local the draft left as a hole.
+            // Raven wrote: centity_t *cent = &cg_entities[callData->entNum];
+            portMissing("CG_RagCallback", source: "oracle/codemp/cgame/cg_main.c:508")
+            let snapSound: Int32 = trap_S_RegisterSound(va("sound/player/bodyfall_human%i.wav", Q_irand(1, 3)))
+
+            // Port-note: A read of `cent`, a local the draft left as a hole.
+            // Raven wrote: trap_S_StartSound(cent->lerpOrigin, callData->entNum, CHAN_AUTO, snapSound)
+            portMissing("CG_RagCallback", source: "oracle/codemp/cgame/cg_main.c:508")
+        }
+        fallthrough
+
+    case RAG_CALLBACK_BONEIMPACT:
+        break
+
+    case RAG_CALLBACK_BONEINSOLID:
+        break
+
+    case RAG_CALLBACK_TRACELINE:
+        do {
+            // Port-note: The draft of this statement did not compile, and the compiler wrote "cannot convert value of type 'String' to expected argument type 'UnsafeMutableRawPointer'".
+            // Raven wrote: ragCallbackTraceLine_t *callData = (ragCallbackTraceLine_t *)cg.sharedBuffer;
+            portMissing("CG_RagCallback", source: "oracle/codemp/cgame/cg_main.c:508")
+
+            // Port-note: A read of `callData`, a local the draft left as a hole.
+            // Raven wrote: CG_Trace(&callData->tr, callData->start, callData->mins, callData->maxs, callData->end, callData->ignore, callData->mask)
+            portMissing("CG_RagCallback", source: "oracle/codemp/cgame/cg_main.c:508")
+        }
+
+    default:
+        Com_Error(ERR_DROP, "Invalid callType in CG_RagCallback")
+    }
+
+    return 0
 }
 
 /// Source: oracle/codemp/cgame/cg_main.c:570
 private func C_ImpactMark() {
-    // TODO: Port C_ImpactMark
+    // Port-note: The draft of this statement did not compile, and the compiler wrote "cannot convert value of type 'String' to expected argument type 'UnsafeMutableRawPointer'".
+    // Raven wrote: TCGImpactMark *data = (TCGImpactMark *)cg.sharedBuffer;
+    portMissing("C_ImpactMark", source: "oracle/codemp/cgame/cg_main.c:570")
+
+    /*
+    CG_ImpactMark((int)arg0, (const float *)arg1, (const float *)arg2, (float)arg3,
+    (float)arg4, (float)arg5, (float)arg6, (float)arg7, qtrue, (float)arg8, qfalse);
+    */
+    // Port-note: A read of `data`, a local the draft left as a hole.
+    // Raven wrote: CG_ImpactMark(data->mHandle, data->mPoint, data->mAngle, data->mRotation, data->mRed, data->mGreen, data->mBlue, data->mAlphaStart, qtrue, data->mSizeStart, qfalse)
     portMissing("C_ImpactMark", source: "oracle/codemp/cgame/cg_main.c:570")
 }
 
 /// Source: oracle/codemp/cgame/cg_main.c:582
 func CG_MiscEnt() {
-    // TODO: Port CG_MiscEnt
+    let modelIndex: Int32
+    var RefEnt: RefEntity?
+    // Port-note: The draft of this statement did not compile, and the compiler wrote "cannot convert value of type 'String' to expected argument type 'UnsafeMutableRawPointer'".
+    // Raven wrote: TCGMiscEnt *data = (TCGMiscEnt *)cg.sharedBuffer;
     portMissing("CG_MiscEnt", source: "oracle/codemp/cgame/cg_main.c:582")
+    var mins = vec3_t()
+    var maxs = vec3_t()
+    // Port-note: A pointer local `float * radius` with no view.
+    // Raven wrote: float *radius;
+    portMissing("CG_MiscEnt", source: "oracle/codemp/cgame/cg_main.c:582")
+    // Port-note: A pointer local `float * zOff` with no view.
+    // Raven wrote: zOff;
+    portMissing("CG_MiscEnt", source: "oracle/codemp/cgame/cg_main.c:582")
+
+    if NumMiscEnts >= MAX_MISC_ENTS {
+        return
+    }
+
+    // Port-note: A store into `radius`, a local the draft left as a hole.
+    // Raven wrote: radius = &Radius[NumMiscEnts]
+    portMissing("CG_MiscEnt", source: "oracle/codemp/cgame/cg_main.c:582")
+    // Port-note: A store into `zOff`, a local the draft left as a hole.
+    // Raven wrote: zOff = &zOffset[NumMiscEnts]
+    portMissing("CG_MiscEnt", source: "oracle/codemp/cgame/cg_main.c:582")
+    // Port-note: A ++ inside an expression.
+    // Raven wrote: RefEnt = &MiscEnts[NumMiscEnts++]
+    portMissing("CG_MiscEnt", source: "oracle/codemp/cgame/cg_main.c:582")
+
+    // Port-note: A read of `data`, a local the draft left as a hole.
+    // Raven wrote: modelIndex = trap_R_RegisterModel(data->mModel)
+    portMissing("CG_MiscEnt", source: "oracle/codemp/cgame/cg_main.c:582")
+    if modelIndex == 0 {
+        Com_Error(ERR_DROP, "client_model has invalid model definition")
+        return
+    }
+
+    // Port-note: A pointer dereference the draft cannot place.
+    // Raven wrote: *zOff = 0
+    portMissing("CG_MiscEnt", source: "oracle/codemp/cgame/cg_main.c:582")
+
+    // Port-note: The draft of this statement did not compile, and the compiler wrote "value of optional type 'RefEntity?' must be unwrapped to refer to member 'clear' of wrapped base type 'RefEntity'".
+    // Raven wrote: memset(RefEnt, 0, sizeof(refEntity_t))
+    portMissing("CG_MiscEnt", source: "oracle/codemp/cgame/cg_main.c:582")
+    RefEnt!.reType = RT_MODEL
+    RefEnt!.hModel = modelIndex
+    RefEnt!.frame = 0
+    trap_R_ModelBounds(modelIndex, &mins, &maxs)
+    // Port-note: A read of `data`, a local the draft left as a hole.
+    // Raven wrote: VectorCopy(data->mScale, RefEnt->modelScale)
+    portMissing("CG_MiscEnt", source: "oracle/codemp/cgame/cg_main.c:582")
+    // Port-note: A read of `data`, a local the draft left as a hole.
+    // Raven wrote: VectorCopy(data->mOrigin, RefEnt->origin)
+    portMissing("CG_MiscEnt", source: "oracle/codemp/cgame/cg_main.c:582")
+
+    // Port-note: An expression statement with no effect the draft knows.
+    // Raven wrote: VectorScaleVector(mins, data->mScale, mins)
+    portMissing("CG_MiscEnt", source: "oracle/codemp/cgame/cg_main.c:582")
+    // Port-note: An expression statement with no effect the draft knows.
+    // Raven wrote: VectorScaleVector(maxs, data->mScale, maxs)
+    portMissing("CG_MiscEnt", source: "oracle/codemp/cgame/cg_main.c:582")
+    // Port-note: A pointer dereference the draft cannot place.
+    // Raven wrote: *radius = Distance(mins, maxs)
+    portMissing("CG_MiscEnt", source: "oracle/codemp/cgame/cg_main.c:582")
+
+    // Port-note: The draft of this statement did not compile, and the compiler wrote "cannot convert value of type 'Slots<vec3_t>' (aka 'Slots<SIMD3<Float>>') to expected argument type '[vec3_t]' (aka 'Array<SIMD3<Float>>')".
+    // Raven wrote: AnglesToAxis( data->mAngles, RefEnt->axis )
+    portMissing("CG_MiscEnt", source: "oracle/codemp/cgame/cg_main.c:582")
+    ScaleModelAxis(RefEnt!)
 }
 
 /// Source: oracle/codemp/cgame/cg_main.c:624
 func CG_DrawMiscEnts() {
-    // TODO: Port CG_DrawMiscEnts
+    var i: Int32
+    var RefEntIndex: Int32 = 0
+    // Port-note: A pointer local `float * radius` with no view.
+    // Raven wrote: float *radius;
     portMissing("CG_DrawMiscEnts", source: "oracle/codemp/cgame/cg_main.c:624")
+    // Port-note: A pointer local `float * zOff` with no view.
+    // Raven wrote: zOff;
+    portMissing("CG_DrawMiscEnts", source: "oracle/codemp/cgame/cg_main.c:624")
+    var difference = vec3_t()
+    var cullOrigin = vec3_t()
+
+    RefEntIndex = 0
+    // Port-note: A store into `radius`, a local the draft left as a hole.
+    // Raven wrote: radius = Radius
+    portMissing("CG_DrawMiscEnts", source: "oracle/codemp/cgame/cg_main.c:624")
+    // Port-note: A store into `zOff`, a local the draft left as a hole.
+    // Raven wrote: zOff = zOffset
+    portMissing("CG_DrawMiscEnts", source: "oracle/codemp/cgame/cg_main.c:624")
+    i = 0
+    while i < NumMiscEnts {
+        cullOrigin = MiscEnts[RefEntIndex].origin
+        cullOrigin[2] += 1.0
+
+        // Port-note: A pointer dereference the draft cannot place.
+        // Raven wrote: if (*zOff) { cullOrigin[2] += *zOff; }
+        portMissing("CG_DrawMiscEnts", source: "oracle/codemp/cgame/cg_main.c:624")
+
+        // Port-note: Raven passes `cg.snap->areamask` to `trap_R_inPVS`, whose `mask` parameter takes the Slots over the records, and Swift holds one record here. A Slots over one record has no form yet.
+        // Raven wrote: if (cg.snap && trap_R_inPVS(cg.refdef.vieworg, cullOrigin, cg.snap->areamask)) { VectorSubtract(RefEnt->origin, cg.refdef.vieworg, difference); if (VectorLength(difference)-(*radius) <= cg.distanceCull) { trap_R_AddRefEntityToScene(RefEnt); } }
+        portMissing("CG_DrawMiscEnts", source: "oracle/codemp/cgame/cg_main.c:624")
+        RefEntIndex += 1
+        // Port-note: A read of `radius`, a local the draft left as a hole.
+        // Raven wrote: radius++
+        portMissing("CG_DrawMiscEnts", source: "oracle/codemp/cgame/cg_main.c:624")
+        // Port-note: A read of `zOff`, a local the draft left as a hole.
+        // Raven wrote: zOff++
+        portMissing("CG_DrawMiscEnts", source: "oracle/codemp/cgame/cg_main.c:624")
+        i += 1
+    }
 }
 
 /**
@@ -613,7 +911,114 @@ CG_RegisterCvars
 */
 /// Source: oracle/codemp/cgame/cg_main.c:1062
 func CG_RegisterCvars() {
-    // TODO: Port CG_RegisterCvars
+    var i: Int32
+    var cvIndex: Int32 = 0
+    var `var` = CharBuf(1024)
+
+    i = 0
+    cvIndex = 0
+    while i < cvarTableSize {
+        // Port-note: Raven walks `cvarTable` by pointer, and the hand table is a Swift array of rows with no view. A walk over it has no form yet.
+        // Raven wrote: trap_Cvar_Register( cv->vmCvar, cv->cvarName, cv->defaultString, cv->cvarFlags )
+        portMissing("CG_RegisterCvars", source: "oracle/codemp/cgame/cg_main.c:1062")
+        i += 1
+        cvIndex += 1
+    }
+
+    // see if we are also running the server on this machine
+    strcpy(&`var`, trap_Cvar_VariableStringBuffer("sv_running", Int32((`var`).count)))
+    cgs.localServer = atoi(`var`) != 0
+
+    forceModelModificationCount = cg_forceModel.modificationCount
+
+    // Port-note: NULL for `cvar`, a VmCvar parameter.
+    // Raven wrote: trap_Cvar_Register(NULL, "model", DEFAULT_MODEL, CVAR_USERINFO | CVAR_ARCHIVE )
+    portMissing("CG_RegisterCvars", source: "oracle/codemp/cgame/cg_main.c:1062")
+    // Port-note: NULL for `cvar`, a VmCvar parameter.
+    // Raven wrote: trap_Cvar_Register(NULL, "forcepowers", DEFAULT_FORCEPOWERS, CVAR_USERINFO | CVAR_ARCHIVE )
+    portMissing("CG_RegisterCvars", source: "oracle/codemp/cgame/cg_main.c:1062")
+
+    // Cvars uses for transferring data between client and server
+    // Port-note: NULL for `cvar`, a VmCvar parameter.
+    // Raven wrote: trap_Cvar_Register(NULL, "ui_about_gametype", "0", CVAR_ROM|CVAR_INTERNAL )
+    portMissing("CG_RegisterCvars", source: "oracle/codemp/cgame/cg_main.c:1062")
+    // Port-note: NULL for `cvar`, a VmCvar parameter.
+    // Raven wrote: trap_Cvar_Register(NULL, "ui_about_fraglimit", "0", CVAR_ROM|CVAR_INTERNAL )
+    portMissing("CG_RegisterCvars", source: "oracle/codemp/cgame/cg_main.c:1062")
+    // Port-note: NULL for `cvar`, a VmCvar parameter.
+    // Raven wrote: trap_Cvar_Register(NULL, "ui_about_capturelimit", "0", CVAR_ROM|CVAR_INTERNAL )
+    portMissing("CG_RegisterCvars", source: "oracle/codemp/cgame/cg_main.c:1062")
+    // Port-note: NULL for `cvar`, a VmCvar parameter.
+    // Raven wrote: trap_Cvar_Register(NULL, "ui_about_duellimit", "0", CVAR_ROM|CVAR_INTERNAL )
+    portMissing("CG_RegisterCvars", source: "oracle/codemp/cgame/cg_main.c:1062")
+    // Port-note: NULL for `cvar`, a VmCvar parameter.
+    // Raven wrote: trap_Cvar_Register(NULL, "ui_about_timelimit", "0", CVAR_ROM|CVAR_INTERNAL )
+    portMissing("CG_RegisterCvars", source: "oracle/codemp/cgame/cg_main.c:1062")
+    // Port-note: NULL for `cvar`, a VmCvar parameter.
+    // Raven wrote: trap_Cvar_Register(NULL, "ui_about_maxclients", "0", CVAR_ROM|CVAR_INTERNAL )
+    portMissing("CG_RegisterCvars", source: "oracle/codemp/cgame/cg_main.c:1062")
+    // Port-note: NULL for `cvar`, a VmCvar parameter.
+    // Raven wrote: trap_Cvar_Register(NULL, "ui_about_dmflags", "0", CVAR_ROM|CVAR_INTERNAL )
+    portMissing("CG_RegisterCvars", source: "oracle/codemp/cgame/cg_main.c:1062")
+    // Port-note: NULL for `cvar`, a VmCvar parameter.
+    // Raven wrote: trap_Cvar_Register(NULL, "ui_about_mapname", "0", CVAR_ROM|CVAR_INTERNAL )
+    portMissing("CG_RegisterCvars", source: "oracle/codemp/cgame/cg_main.c:1062")
+    // Port-note: NULL for `cvar`, a VmCvar parameter.
+    // Raven wrote: trap_Cvar_Register(NULL, "ui_about_hostname", "0", CVAR_ROM|CVAR_INTERNAL )
+    portMissing("CG_RegisterCvars", source: "oracle/codemp/cgame/cg_main.c:1062")
+    // Port-note: NULL for `cvar`, a VmCvar parameter.
+    // Raven wrote: trap_Cvar_Register(NULL, "ui_about_needpass", "0", CVAR_ROM|CVAR_INTERNAL )
+    portMissing("CG_RegisterCvars", source: "oracle/codemp/cgame/cg_main.c:1062")
+    // Port-note: NULL for `cvar`, a VmCvar parameter.
+    // Raven wrote: trap_Cvar_Register(NULL, "ui_about_botminplayers", "0", CVAR_ROM|CVAR_INTERNAL )
+    portMissing("CG_RegisterCvars", source: "oracle/codemp/cgame/cg_main.c:1062")
+
+    // Port-note: NULL for `cvar`, a VmCvar parameter.
+    // Raven wrote: trap_Cvar_Register(NULL, "ui_tm1_cnt", "0", CVAR_ROM | CVAR_INTERNAL )
+    portMissing("CG_RegisterCvars", source: "oracle/codemp/cgame/cg_main.c:1062")
+    // Port-note: NULL for `cvar`, a VmCvar parameter.
+    // Raven wrote: trap_Cvar_Register(NULL, "ui_tm2_cnt", "0", CVAR_ROM | CVAR_INTERNAL )
+    portMissing("CG_RegisterCvars", source: "oracle/codemp/cgame/cg_main.c:1062")
+    // Port-note: NULL for `cvar`, a VmCvar parameter.
+    // Raven wrote: trap_Cvar_Register(NULL, "ui_tm3_cnt", "0", CVAR_ROM | CVAR_INTERNAL )
+    portMissing("CG_RegisterCvars", source: "oracle/codemp/cgame/cg_main.c:1062")
+
+    // Port-note: NULL for `cvar`, a VmCvar parameter.
+    // Raven wrote: trap_Cvar_Register(NULL, "ui_tm1_c0_cnt", "0", CVAR_ROM | CVAR_INTERNAL )
+    portMissing("CG_RegisterCvars", source: "oracle/codemp/cgame/cg_main.c:1062")
+    // Port-note: NULL for `cvar`, a VmCvar parameter.
+    // Raven wrote: trap_Cvar_Register(NULL, "ui_tm1_c1_cnt", "0", CVAR_ROM | CVAR_INTERNAL )
+    portMissing("CG_RegisterCvars", source: "oracle/codemp/cgame/cg_main.c:1062")
+    // Port-note: NULL for `cvar`, a VmCvar parameter.
+    // Raven wrote: trap_Cvar_Register(NULL, "ui_tm1_c2_cnt", "0", CVAR_ROM | CVAR_INTERNAL )
+    portMissing("CG_RegisterCvars", source: "oracle/codemp/cgame/cg_main.c:1062")
+    // Port-note: NULL for `cvar`, a VmCvar parameter.
+    // Raven wrote: trap_Cvar_Register(NULL, "ui_tm1_c3_cnt", "0", CVAR_ROM | CVAR_INTERNAL )
+    portMissing("CG_RegisterCvars", source: "oracle/codemp/cgame/cg_main.c:1062")
+    // Port-note: NULL for `cvar`, a VmCvar parameter.
+    // Raven wrote: trap_Cvar_Register(NULL, "ui_tm1_c4_cnt", "0", CVAR_ROM | CVAR_INTERNAL )
+    portMissing("CG_RegisterCvars", source: "oracle/codemp/cgame/cg_main.c:1062")
+    // Port-note: NULL for `cvar`, a VmCvar parameter.
+    // Raven wrote: trap_Cvar_Register(NULL, "ui_tm1_c5_cnt", "0", CVAR_ROM | CVAR_INTERNAL )
+    portMissing("CG_RegisterCvars", source: "oracle/codemp/cgame/cg_main.c:1062")
+
+    // Port-note: NULL for `cvar`, a VmCvar parameter.
+    // Raven wrote: trap_Cvar_Register(NULL, "ui_tm2_c0_cnt", "0", CVAR_ROM | CVAR_INTERNAL )
+    portMissing("CG_RegisterCvars", source: "oracle/codemp/cgame/cg_main.c:1062")
+    // Port-note: NULL for `cvar`, a VmCvar parameter.
+    // Raven wrote: trap_Cvar_Register(NULL, "ui_tm2_c1_cnt", "0", CVAR_ROM | CVAR_INTERNAL )
+    portMissing("CG_RegisterCvars", source: "oracle/codemp/cgame/cg_main.c:1062")
+    // Port-note: NULL for `cvar`, a VmCvar parameter.
+    // Raven wrote: trap_Cvar_Register(NULL, "ui_tm2_c2_cnt", "0", CVAR_ROM | CVAR_INTERNAL )
+    portMissing("CG_RegisterCvars", source: "oracle/codemp/cgame/cg_main.c:1062")
+    // Port-note: NULL for `cvar`, a VmCvar parameter.
+    // Raven wrote: trap_Cvar_Register(NULL, "ui_tm2_c3_cnt", "0", CVAR_ROM | CVAR_INTERNAL )
+    portMissing("CG_RegisterCvars", source: "oracle/codemp/cgame/cg_main.c:1062")
+    // Port-note: NULL for `cvar`, a VmCvar parameter.
+    // Raven wrote: trap_Cvar_Register(NULL, "ui_tm2_c4_cnt", "0", CVAR_ROM | CVAR_INTERNAL )
+    portMissing("CG_RegisterCvars", source: "oracle/codemp/cgame/cg_main.c:1062")
+    // Port-note: NULL for `cvar`, a VmCvar parameter.
+    // Raven wrote: trap_Cvar_Register(NULL, "ui_tm2_c5_cnt", "0", CVAR_ROM | CVAR_INTERNAL )
     portMissing("CG_RegisterCvars", source: "oracle/codemp/cgame/cg_main.c:1062")
 }
 
@@ -626,8 +1031,23 @@ CG_ForceModelChange
 */
 /// Source: oracle/codemp/cgame/cg_main.c:1135
 private func CG_ForceModelChange() {
-    // TODO: Port CG_ForceModelChange
-    portMissing("CG_ForceModelChange", source: "oracle/codemp/cgame/cg_main.c:1135")
+    var i: Int32
+
+    i = 0
+    while i < MAX_CLIENTS {
+        var clientInfo: String
+        var oldGhoul2: OpaquePointer? = nil
+
+        clientInfo = CG_ConfigString(CS_PLAYERS + i)
+        if clientInfo.isEmpty {
+            i += 1
+            continue
+        }
+
+        oldGhoul2 = cgs.clientinfo[i].ghoul2Model
+        CG_NewClientInfo(i, true)
+        i += 1
+    }
 }
 
 /**
@@ -639,44 +1059,136 @@ CG_UpdateCvars
 */
 /// Source: oracle/codemp/cgame/cg_main.c:1157
 func CG_UpdateCvars() {
-    // TODO: Port CG_UpdateCvars
+    var i: Int32
+    var cvIndex: Int32 = 0
+    // Port-note: A static local `drawTeamOverlayModificationCount` a statement reads before it writes, storage that outlives the call.
+    // Raven wrote: static int drawTeamOverlayModificationCount = -1;
     portMissing("CG_UpdateCvars", source: "oracle/codemp/cgame/cg_main.c:1157")
+
+    i = 0
+    cvIndex = 0
+    while i < cvarTableSize {
+        // Port-note: Raven walks `cvarTable` by pointer, and the hand table is a Swift array of rows with no view. A walk over it has no form yet.
+        // Raven wrote: trap_Cvar_Update( cv->vmCvar )
+        portMissing("CG_UpdateCvars", source: "oracle/codemp/cgame/cg_main.c:1157")
+        i += 1
+        cvIndex += 1
+    }
+
+    // check for modications here
+
+    // If team overlay is on, ask for updates from the server.  If its off,
+    // let the server know so we don't receive it
+    // Port-note: A read of `drawTeamOverlayModificationCount`, a local the draft left as a hole.
+    // Raven wrote: if ( drawTeamOverlayModificationCount != cg_drawTeamOverlay.modificationCount ) { drawTeamOverlayModificationCount = cg_drawTeamOverlay.modificationCount; if ( cg_drawTeamOverlay.integer > 0 ) { trap_Cvar_Set( "teamoverlay", "1" ); } else { trap_Cvar_Set( "teamoverlay", "0" ); } // FIXME E3 HACK trap_Cvar_Set( "teamoverlay", "1" ); }
+    portMissing("CG_UpdateCvars", source: "oracle/codemp/cgame/cg_main.c:1157")
+
+    // if force model changed
+    if forceModelModificationCount != cg_forceModel.modificationCount {
+        forceModelModificationCount = cg_forceModel.modificationCount
+        CG_ForceModelChange()
+    }
 }
 
 /// Source: oracle/codemp/cgame/cg_main.c:1189
 func CG_CrosshairPlayer() -> Int32 {
-    // TODO: Port CG_CrosshairPlayer
-    portMissing("CG_CrosshairPlayer", source: "oracle/codemp/cgame/cg_main.c:1189")
+    if cg.time > (cg.crosshairClientTime + 1000) {
+        return -1
+    }
+
+    if cg.crosshairClientNum >= MAX_CLIENTS {
+        return -1
+    }
+
+    return cg.crosshairClientNum
 }
 
 /// Source: oracle/codemp/cgame/cg_main.c:1202
 func CG_LastAttacker() -> Int32 {
-    // TODO: Port CG_LastAttacker
-    portMissing("CG_LastAttacker", source: "oracle/codemp/cgame/cg_main.c:1202")
+    if cg.attackerTime == 0 {
+        return -1
+    }
+    return cg.snap!.ps.persistant[PERS_ATTACKER]
 }
 
 /// Source: oracle/codemp/cgame/cg_main.c:1209
 func CG_Printf(_ msg: String, _ args: any JKAShared.FormatArg...) {
-    // TODO: Port CG_Printf
+    // Port-note: A pointer local `va_list argptr` with no view.
+    // Raven wrote: va_list argptr;
     portMissing("CG_Printf", source: "oracle/codemp/cgame/cg_main.c:1209")
+    var text = CharBuf(1024)
+
+    // Port-note: A read of `argptr`, a local the draft left as a hole.
+    // Raven wrote: va_start (argptr, msg)
+    portMissing("CG_Printf", source: "oracle/codemp/cgame/cg_main.c:1209")
+    // Port-note: A read of `argptr`, a local the draft left as a hole.
+    // Raven wrote: vsprintf (text, msg, argptr)
+    portMissing("CG_Printf", source: "oracle/codemp/cgame/cg_main.c:1209")
+    // Port-note: A read of `argptr`, a local the draft left as a hole.
+    // Raven wrote: va_end (argptr)
+    portMissing("CG_Printf", source: "oracle/codemp/cgame/cg_main.c:1209")
+
+    trap_Print(String(text))
 }
 
 /// Source: oracle/codemp/cgame/cg_main.c:1220
 func CG_Error(_ msg: String, _ args: any JKAShared.FormatArg...) -> Never {
-    // TODO: Port CG_Error
+    // Port-note: A pointer local `va_list argptr` with no view.
+    // Raven wrote: va_list argptr;
     portMissing("CG_Error", source: "oracle/codemp/cgame/cg_main.c:1220")
+    var text = CharBuf(1024)
+
+    // Port-note: A read of `argptr`, a local the draft left as a hole.
+    // Raven wrote: va_start (argptr, msg)
+    portMissing("CG_Error", source: "oracle/codemp/cgame/cg_main.c:1220")
+    // Port-note: A read of `argptr`, a local the draft left as a hole.
+    // Raven wrote: vsprintf (text, msg, argptr)
+    portMissing("CG_Error", source: "oracle/codemp/cgame/cg_main.c:1220")
+    // Port-note: A read of `argptr`, a local the draft left as a hole.
+    // Raven wrote: va_end (argptr)
+    portMissing("CG_Error", source: "oracle/codemp/cgame/cg_main.c:1220")
+
+    trap_Error(String(text))
 }
 
 /// Source: oracle/codemp/cgame/cg_main.c:1234
 func Com_Error(_ level: Int32, _ error: String, _ args: any JKAShared.FormatArg...) -> Never {
-    // TODO: Port Com_Error
+    // Port-note: A pointer local `va_list argptr` with no view.
+    // Raven wrote: va_list argptr;
     portMissing("Com_Error", source: "oracle/codemp/cgame/cg_main.c:1234")
+    var text = CharBuf(1024)
+
+    // Port-note: A read of `argptr`, a local the draft left as a hole.
+    // Raven wrote: va_start (argptr, error)
+    portMissing("Com_Error", source: "oracle/codemp/cgame/cg_main.c:1234")
+    // Port-note: A read of `argptr`, a local the draft left as a hole.
+    // Raven wrote: vsprintf (text, error, argptr)
+    portMissing("Com_Error", source: "oracle/codemp/cgame/cg_main.c:1234")
+    // Port-note: A read of `argptr`, a local the draft left as a hole.
+    // Raven wrote: va_end (argptr)
+    portMissing("Com_Error", source: "oracle/codemp/cgame/cg_main.c:1234")
+
+    CG_Error("%s", text)
 }
 
 /// Source: oracle/codemp/cgame/cg_main.c:1245
 func Com_Printf(_ msg: String, _ args: any JKAShared.FormatArg...) {
-    // TODO: Port Com_Printf
+    // Port-note: A pointer local `va_list argptr` with no view.
+    // Raven wrote: va_list argptr;
     portMissing("Com_Printf", source: "oracle/codemp/cgame/cg_main.c:1245")
+    var text = CharBuf(1024)
+
+    // Port-note: A read of `argptr`, a local the draft left as a hole.
+    // Raven wrote: va_start (argptr, msg)
+    portMissing("Com_Printf", source: "oracle/codemp/cgame/cg_main.c:1245")
+    // Port-note: A read of `argptr`, a local the draft left as a hole.
+    // Raven wrote: vsprintf (text, msg, argptr)
+    portMissing("Com_Printf", source: "oracle/codemp/cgame/cg_main.c:1245")
+    // Port-note: A read of `argptr`, a local the draft left as a hole.
+    // Raven wrote: va_end (argptr)
+    portMissing("Com_Printf", source: "oracle/codemp/cgame/cg_main.c:1245")
+
+    CG_Printf("%s", text)
 }
 
 /**
@@ -688,14 +1200,22 @@ CG_Argv
 */
 /// Source: oracle/codemp/cgame/cg_main.c:1263
 func CG_Argv(_ arg: Int32) -> String {
-    // TODO: Port CG_Argv
+    // Port-note: A static local `buffer` the function returns, storage that outlives the call.
+    // Raven wrote: static char buffer[MAX_STRING_CHARS];
+    portMissing("CG_Argv", source: "oracle/codemp/cgame/cg_main.c:1263")
+
+    // Port-note: A read of `buffer`, a local the draft left as a hole.
+    // Raven wrote: trap_Argv( arg, buffer, sizeof( buffer ) )
+    portMissing("CG_Argv", source: "oracle/codemp/cgame/cg_main.c:1263")
+
+    // Port-note: A read of `buffer`, a local the draft left as a hole.
+    // Raven wrote: return buffer
     portMissing("CG_Argv", source: "oracle/codemp/cgame/cg_main.c:1263")
 }
 
 /// Source: oracle/codemp/cgame/cg_main.c:1276
 func BG_GetTime() -> Int32 {
-    // TODO: Port BG_GetTime
-    portMissing("BG_GetTime", source: "oracle/codemp/cgame/cg_main.c:1276")
+    return cg.time
 }
 
 /**
@@ -709,33 +1229,504 @@ The server says this item is used on this level
 */
 /// Source: oracle/codemp/cgame/cg_main.c:1289
 private func CG_RegisterItemSounds(_ itemNum: Int32) {
-    // TODO: Port CG_RegisterItemSounds
+    var item: Gitem?
+    var data = CharBuf(64)
+    // Port-note: A pointer local `char * s` with no view.
+    // Raven wrote: char *s;
+    portMissing("CG_RegisterItemSounds", source: "oracle/codemp/cgame/cg_main.c:1289")
+    // Port-note: A pointer local `char * start` with no view.
+    // Raven wrote: start;
+    portMissing("CG_RegisterItemSounds", source: "oracle/codemp/cgame/cg_main.c:1289")
+    var len: Int32
+
+    item = bg_itemlist[itemNum]
+
+    if item!.pickup_sound != nil {
+        trap_S_RegisterSound(item!.pickup_sound!)
+    }
+
+    // parse the space seperated precache string for other media
+    // Port-note: A store into `s`, a local the draft left as a hole.
+    // Raven wrote: s = item->sounds
+    portMissing("CG_RegisterItemSounds", source: "oracle/codemp/cgame/cg_main.c:1289")
+    // Port-note: A read of `s`, a local the draft left as a hole.
+    // Raven wrote: if (!s || !s[0]) return
+    portMissing("CG_RegisterItemSounds", source: "oracle/codemp/cgame/cg_main.c:1289")
+
+    // Port-note: A pointer dereference the draft cannot place.
+    // Raven wrote: while (*s) { start = s; while (*s && *s != ' ') { s++; } len = s-start; if (len >= MAX_QPATH || len < 5) { CG_Error( "PrecacheItem: %s has bad precache string", item->classname); return; } memcpy (data, start, len); data[len] = 0; if ( *s ) { s++; } trap_S_RegisterSound( data ); }
+    portMissing("CG_RegisterItemSounds", source: "oracle/codemp/cgame/cg_main.c:1289")
+
+    // parse the space seperated precache string for other media
+    // Port-note: A store into `s`, a local the draft left as a hole.
+    // Raven wrote: s = item->precaches
+    portMissing("CG_RegisterItemSounds", source: "oracle/codemp/cgame/cg_main.c:1289")
+    // Port-note: A read of `s`, a local the draft left as a hole.
+    // Raven wrote: if (!s || !s[0]) return
+    portMissing("CG_RegisterItemSounds", source: "oracle/codemp/cgame/cg_main.c:1289")
+
+    // Port-note: A pointer dereference the draft cannot place.
+    // Raven wrote: while (*s) { start = s; while (*s && *s != ' ') { s++; } len = s-start; if (len >= MAX_QPATH || len < 5) { CG_Error( "PrecacheItem: %s has bad precache string", item->classname); return; } memcpy (data, start, len); data[len] = 0; if ( *s ) { s++; } if ( !strcmp(data+len-3, "efx" )) { trap_FX_RegisterEffect( data ); } }
     portMissing("CG_RegisterItemSounds", source: "oracle/codemp/cgame/cg_main.c:1289")
 }
 
 /// Source: oracle/codemp/cgame/cg_main.c:1356
 private func CG_AS_Register() {
-    // TODO: Port CG_AS_Register
-    portMissing("CG_AS_Register", source: "oracle/codemp/cgame/cg_main.c:1356")
+    var soundName: String
+    var i: Int32
+
+    //	CG_LoadingString( "ambient sound sets" );
+
+    //Load the ambient sets
+    //FIXME: Don't ask... I had to get around a really nasty MS error in the templates with this...
+    trap_AS_AddPrecacheEntry("#clear")
+
+    i = 1
+    while i < MAX_AMBIENT_SETS {
+        soundName = CG_ConfigString(CS_AMBIENT_SET + i)
+        if soundName.isEmpty {
+            break
+        }
+
+        trap_AS_AddPrecacheEntry(soundName)
+        i += 1
+    }
+    soundName = CG_ConfigString(CS_GLOBAL_AMBIENT_SET)
+    if !soundName.isEmpty && Q_stricmp(soundName, "default") != 0 {
+        //global soundset
+        trap_AS_AddPrecacheEntry(soundName)
+    }
+
+    trap_AS_ParseSets()
 }
 
 //a global weather effect (rain, snow, etc)
 /// Source: oracle/codemp/cgame/cg_main.c:1395
 func CG_ParseWeatherEffect(_ str: String) {
-    // TODO: Port CG_ParseWeatherEffect
+    // Port-note: A pointer local `char * sptr` with no view.
+    // Raven wrote: char *sptr = (char *)str;
+    portMissing("CG_ParseWeatherEffect", source: "oracle/codemp/cgame/cg_main.c:1395")
+    // Port-note: A read of `sptr`, a local the draft left as a hole.
+    // Raven wrote: sptr++
+    portMissing("CG_ParseWeatherEffect", source: "oracle/codemp/cgame/cg_main.c:1395")
+    // Port-note: A read of `sptr`, a local the draft left as a hole.
+    // Raven wrote: trap_R_WorldEffectCommand(sptr)
     portMissing("CG_ParseWeatherEffect", source: "oracle/codemp/cgame/cg_main.c:1395")
 }
 
 /// Source: oracle/codemp/cgame/cg_main.c:1403
 func CG_ParseSiegeState(_ str: String) {
-    // TODO: Port CG_ParseSiegeState
+    var i: Int32 = 0
+    var j: Int32 = 0
+    //	int prevState = cgSiegeRoundState;
+    var b = CharBuf(1024)
+
+    // Port-note: The draft of this statement did not compile, and the compiler wrote "binary operator '!=' cannot be applied to operands of type 'Character' and 'Int'".
+    // Raven wrote: while (str[i] && str[i] != '|') { b[j] = str[i]; i++; j++; }
+    portMissing("CG_ParseSiegeState", source: "oracle/codemp/cgame/cg_main.c:1403")
+    b[j] = 0
+    cgSiegeRoundState = atoi(b)
+
+    // Port-note: The draft of this statement did not compile, and the compiler wrote "binary operator '==' cannot be applied to operands of type 'Character' and 'Int32'".
+    // Raven wrote: if (str[i] == '|') { j = 0; i++; while (str[i]) { b[j] = str[i]; i++; j++; } b[j] = 0; // if (cgSiegeRoundState != prevState) { //it changed cgSiegeRoundTime = atoi(b); if (cgSiegeRoundState == 0 || cgSiegeRoundState == 2) { cgSiegeRoundBeganTime = cgSiegeRoundTime; } } } else { cgSiegeRoundTime = cg.time; }
     portMissing("CG_ParseSiegeState", source: "oracle/codemp/cgame/cg_main.c:1403")
 }
 
 /// Source: oracle/codemp/cgame/cg_main.c:1456
 private func CG_RegisterSounds() {
-    // TODO: Port CG_RegisterSounds
-    portMissing("CG_RegisterSounds", source: "oracle/codemp/cgame/cg_main.c:1456")
+    var i: Int32
+    var items = CharBuf(257)
+    var name = CharBuf(64)
+    var soundName: String
+
+    CG_AS_Register()
+
+    //	CG_LoadingString( "sounds" );
+
+    trap_S_RegisterSound("sound/weapons/melee/punch1.mp3")
+    trap_S_RegisterSound("sound/weapons/melee/punch2.mp3")
+    trap_S_RegisterSound("sound/weapons/melee/punch3.mp3")
+    trap_S_RegisterSound("sound/weapons/melee/punch4.mp3")
+    trap_S_RegisterSound("sound/movers/objects/saber_slam")
+
+    trap_S_RegisterSound("sound/player/bodyfall_human1.wav")
+    trap_S_RegisterSound("sound/player/bodyfall_human2.wav")
+    trap_S_RegisterSound("sound/player/bodyfall_human3.wav")
+
+    //test effects
+    trap_FX_RegisterEffect("effects/mp/test_sparks.efx")
+    trap_FX_RegisterEffect("effects/mp/test_wall_impact.efx")
+
+    cgs.media.oneMinuteSound = trap_S_RegisterSound("sound/chars/protocol/misc/40MOM004")
+    cgs.media.fiveMinuteSound = trap_S_RegisterSound("sound/chars/protocol/misc/40MOM005")
+    cgs.media.oneFragSound = trap_S_RegisterSound("sound/chars/protocol/misc/40MOM001")
+    cgs.media.twoFragSound = trap_S_RegisterSound("sound/chars/protocol/misc/40MOM002")
+    cgs.media.threeFragSound = trap_S_RegisterSound("sound/chars/protocol/misc/40MOM003")
+    cgs.media.count3Sound = trap_S_RegisterSound("sound/chars/protocol/misc/40MOM035")
+    cgs.media.count2Sound = trap_S_RegisterSound("sound/chars/protocol/misc/40MOM036")
+    cgs.media.count1Sound = trap_S_RegisterSound("sound/chars/protocol/misc/40MOM037")
+    cgs.media.countFightSound = trap_S_RegisterSound("sound/chars/protocol/misc/40MOM038")
+
+    cgs.media.hackerIconShader = trap_R_RegisterShaderNoMip("gfx/mp/c_icon_tech")
+
+    cgs.media.redSaberGlowShader = trap_R_RegisterShader("gfx/effects/sabers/red_glow")
+    cgs.media.redSaberCoreShader = trap_R_RegisterShader("gfx/effects/sabers/red_line")
+    cgs.media.orangeSaberGlowShader = trap_R_RegisterShader("gfx/effects/sabers/orange_glow")
+    cgs.media.orangeSaberCoreShader = trap_R_RegisterShader("gfx/effects/sabers/orange_line")
+    cgs.media.yellowSaberGlowShader = trap_R_RegisterShader("gfx/effects/sabers/yellow_glow")
+    cgs.media.yellowSaberCoreShader = trap_R_RegisterShader("gfx/effects/sabers/yellow_line")
+    cgs.media.greenSaberGlowShader = trap_R_RegisterShader("gfx/effects/sabers/green_glow")
+    cgs.media.greenSaberCoreShader = trap_R_RegisterShader("gfx/effects/sabers/green_line")
+    cgs.media.blueSaberGlowShader = trap_R_RegisterShader("gfx/effects/sabers/blue_glow")
+    cgs.media.blueSaberCoreShader = trap_R_RegisterShader("gfx/effects/sabers/blue_line")
+    cgs.media.purpleSaberGlowShader = trap_R_RegisterShader("gfx/effects/sabers/purple_glow")
+    cgs.media.purpleSaberCoreShader = trap_R_RegisterShader("gfx/effects/sabers/purple_line")
+    cgs.media.saberBlurShader = trap_R_RegisterShader("gfx/effects/sabers/saberBlur")
+    cgs.media.swordTrailShader = trap_R_RegisterShader("gfx/effects/sabers/swordTrail")
+
+    cgs.media.forceCoronaShader = trap_R_RegisterShaderNoMip("gfx/hud/force_swirl")
+
+    cgs.media.yellowDroppedSaberShader = trap_R_RegisterShader("gfx/effects/yellow_glow")
+
+    cgs.media.rivetMarkShader = trap_R_RegisterShader("gfx/damage/rivetmark")
+
+    trap_R_RegisterShader("gfx/effects/saberFlare")
+
+    trap_R_RegisterShader("powerups/ysalimarishell")
+
+    trap_R_RegisterShader("gfx/effects/forcePush")
+
+    trap_R_RegisterShader("gfx/misc/red_dmgshield")
+    trap_R_RegisterShader("gfx/misc/red_portashield")
+    trap_R_RegisterShader("gfx/misc/blue_dmgshield")
+    trap_R_RegisterShader("gfx/misc/blue_portashield")
+
+    trap_R_RegisterShader("models/map_objects/imp_mine/turret_chair_dmg.tga")
+
+    i = 1
+    while i < 9 {
+        trap_S_RegisterSound(va("sound/weapons/saber/saberhup%i.wav", i))
+        i += 1
+    }
+
+    i = 1
+    while i < 10 {
+        trap_S_RegisterSound(va("sound/weapons/saber/saberblock%i.wav", i))
+        i += 1
+    }
+
+    i = 1
+    while i < 4 {
+        trap_S_RegisterSound(va("sound/weapons/saber/bounce%i.wav", i))
+        i += 1
+    }
+
+    trap_S_RegisterSound("sound/weapons/saber/enemy_saber_on.wav")
+    trap_S_RegisterSound("sound/weapons/saber/enemy_saber_off.wav")
+
+    trap_S_RegisterSound("sound/weapons/saber/saberhum1.wav")
+    trap_S_RegisterSound("sound/weapons/saber/saberon.wav")
+    trap_S_RegisterSound("sound/weapons/saber/saberoffquick.wav")
+    trap_S_RegisterSound("sound/weapons/saber/saberhitwall1")
+    trap_S_RegisterSound("sound/weapons/saber/saberhitwall2")
+    trap_S_RegisterSound("sound/weapons/saber/saberhitwall3")
+    trap_S_RegisterSound("sound/weapons/saber/saberhit.wav")
+    trap_S_RegisterSound("sound/weapons/saber/saberhit1.wav")
+    trap_S_RegisterSound("sound/weapons/saber/saberhit2.wav")
+    trap_S_RegisterSound("sound/weapons/saber/saberhit3.wav")
+
+    trap_S_RegisterSound("sound/weapons/saber/saber_catch.wav")
+
+    cgs.media.teamHealSound = trap_S_RegisterSound("sound/weapons/force/teamheal.wav")
+    cgs.media.teamRegenSound = trap_S_RegisterSound("sound/weapons/force/teamforce.wav")
+
+    trap_S_RegisterSound("sound/weapons/force/heal.wav")
+    trap_S_RegisterSound("sound/weapons/force/speed.wav")
+    trap_S_RegisterSound("sound/weapons/force/see.wav")
+    trap_S_RegisterSound("sound/weapons/force/rage.wav")
+    trap_S_RegisterSound("sound/weapons/force/lightning")
+    trap_S_RegisterSound("sound/weapons/force/lightninghit1")
+    trap_S_RegisterSound("sound/weapons/force/lightninghit2")
+    trap_S_RegisterSound("sound/weapons/force/lightninghit3")
+    trap_S_RegisterSound("sound/weapons/force/drain.wav")
+    trap_S_RegisterSound("sound/weapons/force/jumpbuild.wav")
+    trap_S_RegisterSound("sound/weapons/force/distract.wav")
+    trap_S_RegisterSound("sound/weapons/force/distractstop.wav")
+    trap_S_RegisterSound("sound/weapons/force/pull.wav")
+    trap_S_RegisterSound("sound/weapons/force/push.wav")
+
+    i = 1
+    while i < 3 {
+        trap_S_RegisterSound(va("sound/weapons/thermal/bounce%i.wav", i))
+        i += 1
+    }
+
+    trap_S_RegisterSound("sound/movers/switches/switch2.wav")
+    trap_S_RegisterSound("sound/movers/switches/switch3.wav")
+    trap_S_RegisterSound("sound/ambience/spark5.wav")
+    trap_S_RegisterSound("sound/chars/turret/ping.wav")
+    trap_S_RegisterSound("sound/chars/turret/startup.wav")
+    trap_S_RegisterSound("sound/chars/turret/shutdown.wav")
+    trap_S_RegisterSound("sound/chars/turret/move.wav")
+    trap_S_RegisterSound("sound/player/pickuphealth.wav")
+    trap_S_RegisterSound("sound/player/pickupshield.wav")
+
+    trap_S_RegisterSound("sound/effects/glassbreak1.wav")
+
+    trap_S_RegisterSound("sound/weapons/rocket/tick.wav")
+    trap_S_RegisterSound("sound/weapons/rocket/lock.wav")
+
+    trap_S_RegisterSound("sound/weapons/force/speedloop.wav")
+
+    trap_S_RegisterSound("sound/weapons/force/protecthit.mp3") //PDSOUND_PROTECTHIT
+    trap_S_RegisterSound("sound/weapons/force/protect.mp3") //PDSOUND_PROTECT
+    trap_S_RegisterSound("sound/weapons/force/absorbhit.mp3") //PDSOUND_ABSORBHIT
+    trap_S_RegisterSound("sound/weapons/force/absorb.mp3") //PDSOUND_ABSORB
+    trap_S_RegisterSound("sound/weapons/force/jump.mp3") //PDSOUND_FORCEJUMP
+    trap_S_RegisterSound("sound/weapons/force/grip.mp3") //PDSOUND_FORCEGRIP
+
+    if cgs.gametype >= GT_TEAM || cg_buildScript.integer != 0 {
+        cgs.media.redLeadsSound = trap_S_RegisterSound("sound/chars/protocol/misc/40MOM046")
+        cgs.media.blueLeadsSound = trap_S_RegisterSound("sound/chars/protocol/misc/40MOM045")
+        cgs.media.teamsTiedSound = trap_S_RegisterSound("sound/chars/protocol/misc/40MOM032")
+
+        cgs.media.redScoredSound = trap_S_RegisterSound("sound/chars/protocol/misc/40MOM044")
+        cgs.media.blueScoredSound = trap_S_RegisterSound("sound/chars/protocol/misc/40MOM043")
+
+        if cgs.gametype == GT_CTF || cg_buildScript.integer != 0 {
+            cgs.media.redFlagReturnedSound = trap_S_RegisterSound("sound/chars/protocol/misc/40MOM042")
+            cgs.media.blueFlagReturnedSound = trap_S_RegisterSound("sound/chars/protocol/misc/40MOM041")
+            cgs.media.redTookFlagSound = trap_S_RegisterSound("sound/chars/protocol/misc/40MOM040")
+            cgs.media.blueTookFlagSound = trap_S_RegisterSound("sound/chars/protocol/misc/40MOM039")
+        }
+        if cgs.gametype == GT_CTY {
+            cgs.media.redYsalReturnedSound = trap_S_RegisterSound("sound/chars/protocol/misc/40MOM050")
+            cgs.media.blueYsalReturnedSound = trap_S_RegisterSound("sound/chars/protocol/misc/40MOM049")
+            cgs.media.redTookYsalSound = trap_S_RegisterSound("sound/chars/protocol/misc/40MOM048")
+            cgs.media.blueTookYsalSound = trap_S_RegisterSound("sound/chars/protocol/misc/40MOM047")
+        }
+    }
+
+    cgs.media.drainSound = trap_S_RegisterSound("sound/weapons/force/drained.mp3")
+
+    cgs.media.happyMusic = trap_S_RegisterSound("music/goodsmall.mp3")
+    cgs.media.dramaticFailure = trap_S_RegisterSound("music/badsmall.mp3")
+
+    //PRECACHE ALL MUSIC HERE (don't need to precache normally because it's streamed off the disk)
+    if cg_buildScript.integer != 0 {
+        trap_S_StartBackgroundTrack("music/mp/duel.mp3", "music/mp/duel.mp3", false)
+    }
+
+    cg.loadLCARSStage = 1
+
+    cgs.media.selectSound = trap_S_RegisterSound("sound/weapons/change.wav")
+
+    cgs.media.teleInSound = trap_S_RegisterSound("sound/player/telein.wav")
+    cgs.media.teleOutSound = trap_S_RegisterSound("sound/player/teleout.wav")
+    cgs.media.respawnSound = trap_S_RegisterSound("sound/items/respawn1.wav")
+
+    trap_S_RegisterSound("sound/movers/objects/objectHit.wav")
+
+    cgs.media.talkSound = trap_S_RegisterSound("sound/player/talk.wav")
+    cgs.media.landSound = trap_S_RegisterSound("sound/player/land1.wav")
+    cgs.media.fallSound = trap_S_RegisterSound("sound/player/fallsplat.wav")
+
+    cgs.media.crackleSound = trap_S_RegisterSound("sound/effects/energy_crackle.wav")
+
+    /*
+    cgs.media.takenLeadSound = trap_S_RegisterSound( "sound/chars/protocol/misc/40MOM051");
+    cgs.media.tiedLeadSound = trap_S_RegisterSound( "sound/chars/protocol/misc/40MOM032");
+    cgs.media.lostLeadSound = trap_S_RegisterSound( "sound/chars/protocol/misc/40MOM052");
+    */
+
+    cgs.media.rollSound = trap_S_RegisterSound("sound/player/roll1.wav")
+
+    cgs.media.noforceSound = trap_S_RegisterSound("sound/weapons/force/noforce")
+
+    cgs.media.watrInSound = trap_S_RegisterSound("sound/player/watr_in.wav")
+    cgs.media.watrOutSound = trap_S_RegisterSound("sound/player/watr_out.wav")
+    cgs.media.watrUnSound = trap_S_RegisterSound("sound/player/watr_un.wav")
+
+    cgs.media.explosionModel = trap_R_RegisterModel("models/map_objects/mp/sphere.md3")
+    cgs.media.surfaceExplosionShader = trap_R_RegisterShader("surfaceExplosion")
+
+    cgs.media.disruptorShader = trap_R_RegisterShader("gfx/effects/burn")
+
+    if cg_buildScript.integer != 0 {
+        trap_R_RegisterShader("gfx/effects/turretflashdie")
+    }
+
+    cgs.media.solidWhite = trap_R_RegisterShader("gfx/effects/solidWhite_cull")
+
+    trap_R_RegisterShader("gfx/misc/mp_light_enlight_disable")
+    trap_R_RegisterShader("gfx/misc/mp_dark_enlight_disable")
+
+    trap_R_RegisterModel("models/map_objects/mp/sphere.md3")
+    trap_R_RegisterModel("models/items/remote.md3")
+
+    cgs.media.holocronPickup = trap_S_RegisterSound("sound/player/holocron.wav")
+
+    // Zoom
+    cgs.media.zoomStart = trap_S_RegisterSound("sound/interface/zoomstart.wav")
+    cgs.media.zoomLoop = trap_S_RegisterSound("sound/interface/zoomloop.wav")
+    cgs.media.zoomEnd = trap_S_RegisterSound("sound/interface/zoomend.wav")
+
+    i = 0
+    while i < 4 {
+        Com_sprintf(&name, Int32((name).count), "sound/player/footsteps/stone_step%i.wav", i + 1)
+        cgs.media.footsteps[FOOTSTEP_STONEWALK][i] = trap_S_RegisterSound(String(name))
+        Com_sprintf(&name, Int32((name).count), "sound/player/footsteps/stone_run%i.wav", i + 1)
+        cgs.media.footsteps[FOOTSTEP_STONERUN][i] = trap_S_RegisterSound(String(name))
+
+        Com_sprintf(&name, Int32((name).count), "sound/player/footsteps/metal_step%i.wav", i + 1)
+        cgs.media.footsteps[FOOTSTEP_METALWALK][i] = trap_S_RegisterSound(String(name))
+        Com_sprintf(&name, Int32((name).count), "sound/player/footsteps/metal_run%i.wav", i + 1)
+        cgs.media.footsteps[FOOTSTEP_METALRUN][i] = trap_S_RegisterSound(String(name))
+
+        Com_sprintf(&name, Int32((name).count), "sound/player/footsteps/pipe_step%i.wav", i + 1)
+        cgs.media.footsteps[FOOTSTEP_PIPEWALK][i] = trap_S_RegisterSound(String(name))
+        Com_sprintf(&name, Int32((name).count), "sound/player/footsteps/pipe_run%i.wav", i + 1)
+        cgs.media.footsteps[FOOTSTEP_PIPERUN][i] = trap_S_RegisterSound(String(name))
+
+        Com_sprintf(&name, Int32((name).count), "sound/player/footsteps/water_run%i.wav", i + 1)
+        cgs.media.footsteps[FOOTSTEP_SPLASH][i] = trap_S_RegisterSound(String(name))
+
+        Com_sprintf(&name, Int32((name).count), "sound/player/footsteps/water_walk%i.wav", i + 1)
+        cgs.media.footsteps[FOOTSTEP_WADE][i] = trap_S_RegisterSound(String(name))
+
+        Com_sprintf(&name, Int32((name).count), "sound/player/footsteps/water_wade_0%i.wav", i + 1)
+        cgs.media.footsteps[FOOTSTEP_SWIM][i] = trap_S_RegisterSound(String(name))
+
+        Com_sprintf(&name, Int32((name).count), "sound/player/footsteps/snow_step%i.wav", i + 1)
+        cgs.media.footsteps[FOOTSTEP_SNOWWALK][i] = trap_S_RegisterSound(String(name))
+        Com_sprintf(&name, Int32((name).count), "sound/player/footsteps/snow_run%i.wav", i + 1)
+        cgs.media.footsteps[FOOTSTEP_SNOWRUN][i] = trap_S_RegisterSound(String(name))
+
+        Com_sprintf(&name, Int32((name).count), "sound/player/footsteps/sand_walk%i.wav", i + 1)
+        cgs.media.footsteps[FOOTSTEP_SANDWALK][i] = trap_S_RegisterSound(String(name))
+        Com_sprintf(&name, Int32((name).count), "sound/player/footsteps/sand_run%i.wav", i + 1)
+        cgs.media.footsteps[FOOTSTEP_SANDRUN][i] = trap_S_RegisterSound(String(name))
+
+        Com_sprintf(&name, Int32((name).count), "sound/player/footsteps/grass_step%i.wav", i + 1)
+        cgs.media.footsteps[FOOTSTEP_GRASSWALK][i] = trap_S_RegisterSound(String(name))
+        Com_sprintf(&name, Int32((name).count), "sound/player/footsteps/grass_run%i.wav", i + 1)
+        cgs.media.footsteps[FOOTSTEP_GRASSRUN][i] = trap_S_RegisterSound(String(name))
+
+        Com_sprintf(&name, Int32((name).count), "sound/player/footsteps/dirt_step%i.wav", i + 1)
+        cgs.media.footsteps[FOOTSTEP_DIRTWALK][i] = trap_S_RegisterSound(String(name))
+        Com_sprintf(&name, Int32((name).count), "sound/player/footsteps/dirt_run%i.wav", i + 1)
+        cgs.media.footsteps[FOOTSTEP_DIRTRUN][i] = trap_S_RegisterSound(String(name))
+
+        Com_sprintf(&name, Int32((name).count), "sound/player/footsteps/mud_walk%i.wav", i + 1)
+        cgs.media.footsteps[FOOTSTEP_MUDWALK][i] = trap_S_RegisterSound(String(name))
+        Com_sprintf(&name, Int32((name).count), "sound/player/footsteps/mud_run%i.wav", i + 1)
+        cgs.media.footsteps[FOOTSTEP_MUDRUN][i] = trap_S_RegisterSound(String(name))
+
+        Com_sprintf(&name, Int32((name).count), "sound/player/footsteps/gravel_walk%i.wav", i + 1)
+        cgs.media.footsteps[FOOTSTEP_GRAVELWALK][i] = trap_S_RegisterSound(String(name))
+        Com_sprintf(&name, Int32((name).count), "sound/player/footsteps/gravel_run%i.wav", i + 1)
+        cgs.media.footsteps[FOOTSTEP_GRAVELRUN][i] = trap_S_RegisterSound(String(name))
+
+        Com_sprintf(&name, Int32((name).count), "sound/player/footsteps/rug_step%i.wav", i + 1)
+        cgs.media.footsteps[FOOTSTEP_RUGWALK][i] = trap_S_RegisterSound(String(name))
+        Com_sprintf(&name, Int32((name).count), "sound/player/footsteps/rug_run%i.wav", i + 1)
+        cgs.media.footsteps[FOOTSTEP_RUGRUN][i] = trap_S_RegisterSound(String(name))
+
+        Com_sprintf(&name, Int32((name).count), "sound/player/footsteps/wood_walk%i.wav", i + 1)
+        cgs.media.footsteps[FOOTSTEP_WOODWALK][i] = trap_S_RegisterSound(String(name))
+        Com_sprintf(&name, Int32((name).count), "sound/player/footsteps/wood_run%i.wav", i + 1)
+        cgs.media.footsteps[FOOTSTEP_WOODRUN][i] = trap_S_RegisterSound(String(name))
+        i += 1
+    }
+
+    // only register the items that the server says we need
+    strcpy(&items, CG_ConfigString(CS_ITEMS))
+
+    i = 1
+    while i < bg_numItems {
+        if items[i] == Int32(ascii: "1") || cg_buildScript.integer != 0 {
+            CG_RegisterItemSounds(i)
+        }
+        i += 1
+    }
+
+    i = 1
+    while i < MAX_SOUNDS {
+        soundName = CG_ConfigString(CS_SOUNDS + i)
+        if soundName.isEmpty {
+            break
+        }
+        if CharBuf(soundName)[0] == Int32(ascii: "*") {
+            if CharBuf(soundName)[1] == Int32(ascii: "$") {
+                //an NPC soundset
+                CG_PrecacheNPCSounds(soundName)
+            }
+            i += 1
+            continue // custom sound
+        }
+        cgs.gameSounds[i] = trap_S_RegisterSound(soundName)
+        i += 1
+    }
+
+    i = 1
+    while i < MAX_FX {
+        soundName = CG_ConfigString(CS_EFFECTS + i)
+        if soundName.isEmpty {
+            break
+        }
+
+        if CharBuf(soundName)[0] == Int32(ascii: "*") {
+            //it's a special global weather effect
+            CG_ParseWeatherEffect(soundName)
+            cgs.gameEffects[i] = 0
+        } else {
+            cgs.gameEffects[i] = trap_FX_RegisterEffect(soundName)
+        }
+        i += 1
+    }
+
+    // register all the server specified icons
+    i = 1
+    while i < MAX_ICONS {
+        var iconName: String
+
+        iconName = CG_ConfigString(CS_ICONS + i)
+        if iconName.isEmpty {
+            break
+        }
+
+        cgs.gameIcons[i] = trap_R_RegisterShaderNoMip(iconName)
+        i += 1
+    }
+
+    soundName = CG_ConfigString(CS_SIEGE_STATE)
+
+    if !soundName.isEmpty {
+        CG_ParseSiegeState(soundName)
+    }
+
+    soundName = CG_ConfigString(CS_SIEGE_WINTEAM)
+
+    if !soundName.isEmpty {
+        cg_siegeWinTeam = atoi(soundName)
+    }
+
+    if cgs.gametype == GT_SIEGE {
+        CG_ParseSiegeObjectiveStatus(CG_ConfigString(CS_SIEGE_OBJECTIVES))
+        cg_beatingSiegeTime = atoi(CG_ConfigString(CS_SIEGE_TIMEOVERRIDE))
+        if cg_beatingSiegeTime != 0 {
+            CG_SetSiegeTimerCvar(cg_beatingSiegeTime)
+        }
+    }
+
+    cg.loadLCARSStage = 2
+
+    // FIXME: only needed with item
+    cgs.media.deploySeeker = trap_S_RegisterSound("sound/chars/seeker/misc/hiss")
+    cgs.media.medkitSound = trap_S_RegisterSound("sound/items/use_bacta.wav")
+
+    cgs.media.winnerSound = trap_S_RegisterSound("sound/chars/protocol/misc/40MOM006")
+    cgs.media.loserSound = trap_S_RegisterSound("sound/chars/protocol/misc/40MOM010")
 }
 
 //-------------------------------------
@@ -747,8 +1738,42 @@ private func CG_RegisterSounds() {
 //-------------------------------------
 /// Source: oracle/codemp/cgame/cg_main.c:1867
 private func CG_RegisterEffects() {
-    // TODO: Port CG_RegisterEffects
-    portMissing("CG_RegisterEffects", source: "oracle/codemp/cgame/cg_main.c:1867")
+    /*
+    const char	*effectName;
+    int			i;
+
+    for ( i = 1 ; i < MAX_FX ; i++ )
+    {
+    effectName = CG_ConfigString( CS_EFFECTS + i );
+
+    if ( !effectName[0] )
+    {
+    break;
+    }
+
+    trap_FX_RegisterEffect( effectName );
+    }
+    */
+    //the above was redundant as it's being done in CG_RegisterSounds
+
+    // Set up the glass effects mini-system.
+    CG_InitGlass()
+
+    //footstep effects
+    cgs.effects.footstepMud = trap_FX_RegisterEffect("materials/mud")
+    cgs.effects.footstepSand = trap_FX_RegisterEffect("materials/sand")
+    cgs.effects.footstepSnow = trap_FX_RegisterEffect("materials/snow")
+    cgs.effects.footstepGravel = trap_FX_RegisterEffect("materials/gravel")
+    //landing effects
+    cgs.effects.landingMud = trap_FX_RegisterEffect("materials/mud_large")
+    cgs.effects.landingSand = trap_FX_RegisterEffect("materials/sand_large")
+    cgs.effects.landingDirt = trap_FX_RegisterEffect("materials/dirt_large")
+    cgs.effects.landingSnow = trap_FX_RegisterEffect("materials/snow_large")
+    cgs.effects.landingGravel = trap_FX_RegisterEffect("materials/gravel_large")
+    //splashes
+    cgs.effects.waterSplash = trap_FX_RegisterEffect("env/water_impact")
+    cgs.effects.lavaSplash = trap_FX_RegisterEffect("env/lava_splash")
+    cgs.effects.acidSplash = trap_FX_RegisterEffect("env/acid_splash")
 }
 
 /**
@@ -762,20 +1787,541 @@ This function may execute for a couple of minutes with a slow disk.
 */
 /// Source: oracle/codemp/cgame/cg_main.c:1919
 private func CG_RegisterGraphics() {
-    // TODO: Port CG_RegisterGraphics
+    var i: Int32
+    var breakPoint: Int32
+    var items = CharBuf(257)
+    var terrainInfo: String
+    var terrainID: Int32
+
+    // Port-note: A local `char *[11] sb_nums` the table has no type for.
+    // Raven wrote: static char *sb_nums[11] = { "gfx/2d/numbers/zero", "gfx/2d/numbers/one", "gfx/2d/numbers/two", "gfx/2d/numbers/three", "gfx/2d/numbers/four", "gfx/2d/numbers/five", "gfx/2d/numbers/six", "gfx/2d/numbers/seven", "gfx/2d/numbers/eight", "gfx/2d/numbers/nine", "gfx/2d/numbers/minus", };
     portMissing("CG_RegisterGraphics", source: "oracle/codemp/cgame/cg_main.c:1919")
+
+    // Port-note: A local `char *[11] sb_t_nums` the table has no type for.
+    // Raven wrote: static char *sb_t_nums[11] = { "gfx/2d/numbers/t_zero", "gfx/2d/numbers/t_one", "gfx/2d/numbers/t_two", "gfx/2d/numbers/t_three", "gfx/2d/numbers/t_four", "gfx/2d/numbers/t_five", "gfx/2d/numbers/t_six", "gfx/2d/numbers/t_seven", "gfx/2d/numbers/t_eight", "gfx/2d/numbers/t_nine", "gfx/2d/numbers/t_minus", };
+    portMissing("CG_RegisterGraphics", source: "oracle/codemp/cgame/cg_main.c:1919")
+
+    // Port-note: A local `char *[11] sb_c_nums` the table has no type for.
+    // Raven wrote: static char *sb_c_nums[11] = { "gfx/2d/numbers/c_zero", "gfx/2d/numbers/c_one", "gfx/2d/numbers/c_two", "gfx/2d/numbers/c_three", "gfx/2d/numbers/c_four", "gfx/2d/numbers/c_five", "gfx/2d/numbers/c_six", "gfx/2d/numbers/c_seven", "gfx/2d/numbers/c_eight", "gfx/2d/numbers/c_nine", "gfx/2d/numbers/t_minus", //????? };
+    portMissing("CG_RegisterGraphics", source: "oracle/codemp/cgame/cg_main.c:1919")
+
+    // clear any references to old media
+    cg.refdef.clear()
+    trap_R_ClearScene()
+
+    CG_LoadingString(cgs.mapname)
+
+    //#ifndef _XBOX
+    trap_R_LoadWorldMap(cgs.mapname)
+    //#endif
+
+    // precache status bar pics
+    //	CG_LoadingString( "game media" );
+
+    i = 0
+    while i < 11 {
+        // Port-note: A read of `sb_nums`, a local the draft left as a hole.
+        // Raven wrote: cgs.media.numberShaders[i] = trap_R_RegisterShader( sb_nums[i] )
+        portMissing("CG_RegisterGraphics", source: "oracle/codemp/cgame/cg_main.c:1919")
+        i += 1
+    }
+
+    cg.loadLCARSStage = 3
+
+    i = 0
+    while i < 11 {
+        // Port-note: A read of `sb_nums`, a local the draft left as a hole.
+        // Raven wrote: cgs.media.numberShaders[i] = trap_R_RegisterShaderNoMip( sb_nums[i] )
+        portMissing("CG_RegisterGraphics", source: "oracle/codemp/cgame/cg_main.c:1919")
+        // Port-note: A read of `sb_t_nums`, a local the draft left as a hole.
+        // Raven wrote: cgs.media.smallnumberShaders[i] = trap_R_RegisterShaderNoMip( sb_t_nums[i] )
+        portMissing("CG_RegisterGraphics", source: "oracle/codemp/cgame/cg_main.c:1919")
+        // Port-note: A read of `sb_c_nums`, a local the draft left as a hole.
+        // Raven wrote: cgs.media.chunkyNumberShaders[i] = trap_R_RegisterShaderNoMip( sb_c_nums[i] )
+        portMissing("CG_RegisterGraphics", source: "oracle/codemp/cgame/cg_main.c:1919")
+        i += 1
+    }
+
+    trap_R_RegisterShaderNoMip("gfx/mp/pduel_icon_lone")
+    trap_R_RegisterShaderNoMip("gfx/mp/pduel_icon_double")
+
+    cgs.media.balloonShader = trap_R_RegisterShader("gfx/mp/chat_icon")
+    cgs.media.vchatShader = trap_R_RegisterShader("gfx/mp/vchat_icon")
+
+    cgs.media.deferShader = trap_R_RegisterShaderNoMip("gfx/2d/defer.tga")
+
+    cgs.media.radarShader = trap_R_RegisterShaderNoMip("gfx/menus/radar/radar.png")
+    cgs.media.siegeItemShader = trap_R_RegisterShaderNoMip("gfx/menus/radar/goalitem")
+    cgs.media.mAutomapPlayerIcon = trap_R_RegisterShader("gfx/menus/radar/arrow_w")
+    cgs.media.mAutomapRocketIcon = trap_R_RegisterShader("gfx/menus/radar/rocket")
+
+    cgs.media.wireframeAutomapFrame_left = trap_R_RegisterShader("gfx/mp_automap/mpauto_frame_left")
+    cgs.media.wireframeAutomapFrame_right = trap_R_RegisterShader("gfx/mp_automap/mpauto_frame_right")
+    cgs.media.wireframeAutomapFrame_top = trap_R_RegisterShader("gfx/mp_automap/mpauto_frame_top")
+    cgs.media.wireframeAutomapFrame_bottom = trap_R_RegisterShader("gfx/mp_automap/mpauto_frame_bottom")
+
+    cgs.media.lagometerShader = trap_R_RegisterShaderNoMip("gfx/2d/lag")
+    cgs.media.connectionShader = trap_R_RegisterShaderNoMip("gfx/2d/net")
+
+    trap_FX_InitSystem(cg.refdef)
+    CG_RegisterEffects()
+
+    cgs.media.boltShader = trap_R_RegisterShader("gfx/misc/blueLine")
+
+    cgs.effects.turretShotEffect = trap_FX_RegisterEffect("turret/shot")
+    cgs.effects.mEmplacedDeadSmoke = trap_FX_RegisterEffect("emplaced/dead_smoke.efx")
+    cgs.effects.mEmplacedExplode = trap_FX_RegisterEffect("emplaced/explode.efx")
+    cgs.effects.mTurretExplode = trap_FX_RegisterEffect("turret/explode.efx")
+    cgs.effects.mSparkExplosion = trap_FX_RegisterEffect("sparks/spark_explosion.efx")
+    cgs.effects.mTripmineExplosion = trap_FX_RegisterEffect("tripMine/explosion.efx")
+    cgs.effects.mDetpackExplosion = trap_FX_RegisterEffect("detpack/explosion.efx")
+    cgs.effects.mFlechetteAltBlow = trap_FX_RegisterEffect("flechette/alt_blow.efx")
+    cgs.effects.mStunBatonFleshImpact = trap_FX_RegisterEffect("stunBaton/flesh_impact.efx")
+    cgs.effects.mAltDetonate = trap_FX_RegisterEffect("demp2/altDetonate.efx")
+    cgs.effects.mSparksExplodeNoSound = trap_FX_RegisterEffect("sparks/spark_exp_nosnd")
+    cgs.effects.mTripMineLaster = trap_FX_RegisterEffect("tripMine/laser.efx")
+    cgs.effects.mEmplacedMuzzleFlash = trap_FX_RegisterEffect("effects/emplaced/muzzle_flash")
+    cgs.effects.mConcussionAltRing = trap_FX_RegisterEffect("concussion/alt_ring")
+
+    cgs.effects.mHyperspaceStars = trap_FX_RegisterEffect("ships/hyperspace_stars")
+    cgs.effects.mBlackSmoke = trap_FX_RegisterEffect("volumetric/black_smoke")
+    cgs.effects.mShipDestDestroyed = trap_FX_RegisterEffect("effects/ships/dest_destroyed.efx")
+    cgs.effects.mShipDestBurning = trap_FX_RegisterEffect("effects/ships/dest_burning.efx")
+    cgs.effects.mBobaJet = trap_FX_RegisterEffect("effects/boba/jet.efx")
+
+
+    cgs.effects.itemCone = trap_FX_RegisterEffect("mp/itemcone.efx")
+    cgs.effects.mTurretMuzzleFlash = trap_FX_RegisterEffect("effects/turret/muzzle_flash.efx")
+    cgs.effects.mSparks = trap_FX_RegisterEffect("sparks/spark_nosnd.efx") //sparks/spark.efx
+    cgs.effects.mSaberCut = trap_FX_RegisterEffect("saber/saber_cut.efx")
+    cgs.effects.mSaberBlock = trap_FX_RegisterEffect("saber/saber_block.efx")
+    cgs.effects.mSaberBloodSparks = trap_FX_RegisterEffect("saber/blood_sparks_mp.efx")
+    cgs.effects.mSaberBloodSparksSmall = trap_FX_RegisterEffect("saber/blood_sparks_25_mp.efx")
+    cgs.effects.mSaberBloodSparksMid = trap_FX_RegisterEffect("saber/blood_sparks_50_mp.efx")
+    cgs.effects.mSpawn = trap_FX_RegisterEffect("mp/spawn.efx")
+    cgs.effects.mJediSpawn = trap_FX_RegisterEffect("mp/jedispawn.efx")
+    cgs.effects.mBlasterDeflect = trap_FX_RegisterEffect("blaster/deflect.efx")
+    cgs.effects.mBlasterSmoke = trap_FX_RegisterEffect("blaster/smoke_bolton")
+    cgs.effects.mForceConfustionOld = trap_FX_RegisterEffect("force/confusion_old.efx")
+
+    cgs.effects.forceLightning = trap_FX_RegisterEffect("effects/force/lightning.efx")
+    cgs.effects.forceLightningWide = trap_FX_RegisterEffect("effects/force/lightningwide.efx")
+    cgs.effects.forceDrain = trap_FX_RegisterEffect("effects/mp/drain.efx")
+    cgs.effects.forceDrainWide = trap_FX_RegisterEffect("effects/mp/drainwide.efx")
+    cgs.effects.forceDrained = trap_FX_RegisterEffect("effects/mp/drainhit.efx")
+
+    cgs.effects.mDisruptorDeathSmoke = trap_FX_RegisterEffect("disruptor/death_smoke")
+
+    i = 0
+    while i < NUM_CROSSHAIRS {
+        cgs.media.crosshairShader[i] = trap_R_RegisterShaderNoMip(va("gfx/2d/crosshair%c", Int32(ascii: "a") + i))
+        i += 1
+    }
+
+    cg.loadLCARSStage = 4
+
+    cgs.media.backTileShader = trap_R_RegisterShader("gfx/2d/backtile")
+
+    //precache the fpls skin
+    //trap_R_RegisterSkin("models/players/kyle/model_fpls2.skin");
+
+    cgs.media.itemRespawningPlaceholder = trap_R_RegisterShader("powerups/placeholder")
+    cgs.media.itemRespawningRezOut = trap_R_RegisterShader("powerups/rezout")
+
+    cgs.media.playerShieldDamage = trap_R_RegisterShader("gfx/misc/personalshield")
+    cgs.media.protectShader = trap_R_RegisterShader("gfx/misc/forceprotect")
+    cgs.media.forceSightBubble = trap_R_RegisterShader("gfx/misc/sightbubble")
+    cgs.media.forceShell = trap_R_RegisterShader("powerups/forceshell")
+    cgs.media.sightShell = trap_R_RegisterShader("powerups/sightshell")
+
+    cgs.media.itemHoloModel = trap_R_RegisterModel("models/map_objects/mp/holo.md3")
+
+    if cgs.gametype == GT_HOLOCRON || cg_buildScript.integer != 0 {
+        i = 0
+        while i < NUM_FORCE_POWERS {
+            // Port-note: The draft of this statement did not compile, and the compiler wrote "cannot convert value of type 'Character' to expected argument type 'Int'".
+            // Raven wrote: if (forceHolocronModels[i] && forceHolocronModels[i][0]) { trap_R_RegisterModel(forceHolocronModels[i]); }
+            portMissing("CG_RegisterGraphics", source: "oracle/codemp/cgame/cg_main.c:1919")
+            i += 1
+        }
+    }
+
+    if cgs.gametype == GT_CTF || cgs.gametype == GT_CTY || cg_buildScript.integer != 0 {
+        if cg_buildScript.integer != 0 {
+            trap_R_RegisterModel("models/flags/r_flag.md3")
+            trap_R_RegisterModel("models/flags/b_flag.md3")
+            trap_R_RegisterModel("models/flags/r_flag_ysal.md3")
+            trap_R_RegisterModel("models/flags/b_flag_ysal.md3")
+        }
+
+        if cgs.gametype == GT_CTF {
+            cgs.media.redFlagModel = trap_R_RegisterModel("models/flags/r_flag.md3")
+            cgs.media.blueFlagModel = trap_R_RegisterModel("models/flags/b_flag.md3")
+        } else {
+            cgs.media.redFlagModel = trap_R_RegisterModel("models/flags/r_flag_ysal.md3")
+            cgs.media.blueFlagModel = trap_R_RegisterModel("models/flags/b_flag_ysal.md3")
+        }
+
+        trap_R_RegisterShaderNoMip("gfx/hud/mpi_rflag_x")
+        trap_R_RegisterShaderNoMip("gfx/hud/mpi_bflag_x")
+
+        trap_R_RegisterShaderNoMip("gfx/hud/mpi_rflag_ys")
+        trap_R_RegisterShaderNoMip("gfx/hud/mpi_bflag_ys")
+
+        trap_R_RegisterShaderNoMip("gfx/hud/mpi_rflag")
+        trap_R_RegisterShaderNoMip("gfx/hud/mpi_bflag")
+
+        trap_R_RegisterShaderNoMip("gfx/2d/net.tga")
+
+        cgs.media.flagPoleModel = trap_R_RegisterModel("models/flag2/flagpole.md3")
+        cgs.media.flagFlapModel = trap_R_RegisterModel("models/flag2/flagflap3.md3")
+
+        cgs.media.redFlagBaseModel = trap_R_RegisterModel("models/mapobjects/flagbase/red_base.md3")
+        cgs.media.blueFlagBaseModel = trap_R_RegisterModel("models/mapobjects/flagbase/blue_base.md3")
+        cgs.media.neutralFlagBaseModel = trap_R_RegisterModel("models/mapobjects/flagbase/ntrl_base.md3")
+    }
+
+    if cgs.gametype >= GT_TEAM || cg_buildScript.integer != 0 {
+        cgs.media.teamRedShader = trap_R_RegisterShader("sprites/team_red")
+        cgs.media.teamBlueShader = trap_R_RegisterShader("sprites/team_blue")
+        //cgs.media.redQuadShader = trap_R_RegisterShader("powerups/blueflag" );
+        cgs.media.teamStatusBar = trap_R_RegisterShader("gfx/2d/colorbar.tga")
+    } else if cgs.gametype == GT_JEDIMASTER {
+        cgs.media.teamRedShader = trap_R_RegisterShader("sprites/team_red")
+    }
+
+    if cgs.gametype == GT_POWERDUEL || cg_buildScript.integer != 0 {
+        cgs.media.powerDuelAllyShader = trap_R_RegisterShader("gfx/mp/pduel_icon_double") //trap_R_RegisterShader("gfx/mp/pduel_gameicon_ally");
+    }
+
+    cgs.media.heartShader = trap_R_RegisterShaderNoMip("ui/assets/statusbar/selectedhealth.tga")
+
+    cgs.media.ysaliredShader = trap_R_RegisterShader("powerups/ysaliredshell")
+    cgs.media.ysaliblueShader = trap_R_RegisterShader("powerups/ysaliblueshell")
+    cgs.media.ysalimariShader = trap_R_RegisterShader("powerups/ysalimarishell")
+    cgs.media.boonShader = trap_R_RegisterShader("powerups/boonshell")
+    cgs.media.endarkenmentShader = trap_R_RegisterShader("powerups/endarkenmentshell")
+    cgs.media.enlightenmentShader = trap_R_RegisterShader("powerups/enlightenmentshell")
+    cgs.media.invulnerabilityShader = trap_R_RegisterShader("powerups/invulnerabilityshell")
+
+
+    // Binocular interface
+    cgs.media.binocularCircle = trap_R_RegisterShader("gfx/2d/binCircle")
+    cgs.media.binocularMask = trap_R_RegisterShader("gfx/2d/binMask")
+    cgs.media.binocularArrow = trap_R_RegisterShader("gfx/2d/binSideArrow")
+    cgs.media.binocularTri = trap_R_RegisterShader("gfx/2d/binTopTri")
+    cgs.media.binocularStatic = trap_R_RegisterShader("gfx/2d/binocularWindow")
+    cgs.media.binocularOverlay = trap_R_RegisterShader("gfx/2d/binocularNumOverlay")
+
+    cg.loadLCARSStage = 5
+
+    // Chunk models
+    //FIXME: jfm:? bother to conditionally load these if an ent has this material type?
+    i = 0
+    while i < NUM_CHUNK_MODELS {
+        cgs.media.chunkModels[CHUNK_METAL2][i] = trap_R_RegisterModel(va("models/chunks/metal/metal1_%i.md3", i + 1)) //_ /switched\ _
+        cgs.media.chunkModels[CHUNK_METAL1][i] = trap_R_RegisterModel(va("models/chunks/metal/metal2_%i.md3", i + 1)) //  \switched/
+        cgs.media.chunkModels[CHUNK_ROCK1][i] = trap_R_RegisterModel(va("models/chunks/rock/rock1_%i.md3", i + 1))
+        cgs.media.chunkModels[CHUNK_ROCK2][i] = trap_R_RegisterModel(va("models/chunks/rock/rock2_%i.md3", i + 1))
+        cgs.media.chunkModels[CHUNK_ROCK3][i] = trap_R_RegisterModel(va("models/chunks/rock/rock3_%i.md3", i + 1))
+        cgs.media.chunkModels[CHUNK_CRATE1][i] = trap_R_RegisterModel(va("models/chunks/crate/crate1_%i.md3", i + 1))
+        cgs.media.chunkModels[CHUNK_CRATE2][i] = trap_R_RegisterModel(va("models/chunks/crate/crate2_%i.md3", i + 1))
+        cgs.media.chunkModels[CHUNK_WHITE_METAL][i] = trap_R_RegisterModel(va("models/chunks/metal/wmetal1_%i.md3", i + 1))
+        i += 1
+    }
+
+    cgs.media.chunkSound = trap_S_RegisterSound("sound/weapons/explosions/glasslcar")
+    cgs.media.grateSound = trap_S_RegisterSound("sound/effects/grate_destroy")
+    cgs.media.rockBreakSound = trap_S_RegisterSound("sound/effects/wall_smash")
+    cgs.media.rockBounceSound[0] = trap_S_RegisterSound("sound/effects/stone_bounce")
+    cgs.media.rockBounceSound[1] = trap_S_RegisterSound("sound/effects/stone_bounce2")
+    cgs.media.metalBounceSound[0] = trap_S_RegisterSound("sound/effects/metal_bounce")
+    cgs.media.metalBounceSound[1] = trap_S_RegisterSound("sound/effects/metal_bounce2")
+    cgs.media.glassChunkSound = trap_S_RegisterSound("sound/weapons/explosions/glassbreak1")
+    cgs.media.crateBreakSound[0] = trap_S_RegisterSound("sound/weapons/explosions/crateBust1")
+    cgs.media.crateBreakSound[1] = trap_S_RegisterSound("sound/weapons/explosions/crateBust2")
+
+    /*
+    Ghoul2 Insert Start
+    */
+    CG_InitItems()
+    /*
+    Ghoul2 Insert End
+    */
+    cg_weapons.zero()
+
+    // only register the items that the server says we need
+    strcpy(&items, CG_ConfigString(CS_ITEMS))
+
+    i = 1
+    while i < bg_numItems {
+        if items[i] == Int32(ascii: "1") || cg_buildScript.integer != 0 {
+            CG_LoadingItem(i)
+            CG_RegisterItemVisuals(i)
+        }
+        i += 1
+    }
+
+    cg.loadLCARSStage = 6
+
+    cgs.media.glassShardShader = trap_R_RegisterShader("gfx/misc/test_crackle")
+
+    // doing one shader just makes it look like a shell.  By using two shaders with different bulge offsets and different texture scales, it has a much more chaotic look
+    cgs.media.electricBodyShader = trap_R_RegisterShader("gfx/misc/electric")
+    cgs.media.electricBody2Shader = trap_R_RegisterShader("gfx/misc/fullbodyelectric2")
+
+    cgs.media.fsrMarkShader = trap_R_RegisterShader("footstep_r")
+    cgs.media.fslMarkShader = trap_R_RegisterShader("footstep_l")
+    cgs.media.fshrMarkShader = trap_R_RegisterShader("footstep_heavy_r")
+    cgs.media.fshlMarkShader = trap_R_RegisterShader("footstep_heavy_l")
+
+    cgs.media.refractionShader = trap_R_RegisterShader("effects/refraction")
+
+    cgs.media.cloakedShader = trap_R_RegisterShader("gfx/effects/cloakedShader")
+
+    // wall marks
+    cgs.media.shadowMarkShader = trap_R_RegisterShader("markShadow")
+    cgs.media.wakeMarkShader = trap_R_RegisterShader("wake")
+
+    cgs.media.viewPainShader = trap_R_RegisterShader("gfx/misc/borgeyeflare")
+    cgs.media.viewPainShader_Shields = trap_R_RegisterShader("gfx/mp/dmgshader_shields")
+    cgs.media.viewPainShader_ShieldsAndHealth = trap_R_RegisterShader("gfx/mp/dmgshader_shieldsandhealth")
+
+    // register the inline models
+    cgs.numInlineModels = trap_CM_NumInlineModels()
+    breakPoint = cgs.numInlineModels
+    i = 1
+    while i < cgs.numInlineModels {
+        var name = CharBuf(10)
+        var mins = vec3_t()
+        var maxs = vec3_t()
+        var j: Int32
+
+        Com_sprintf(&name, Int32((name).count), "*%i", i)
+        cgs.inlineDrawModel[i] = trap_R_RegisterModel(String(name))
+        if cgs.inlineDrawModel[i] == 0 {
+            breakPoint = i
+            break
+        }
+
+        trap_R_ModelBounds(cgs.inlineDrawModel[i], &mins, &maxs)
+        j = 0
+        while j < 3 {
+            cgs.inlineModelMidpoints[i][j] = Float(Double(mins[j]) + 0.5 * Double(maxs[j] - mins[j]))
+            j += 1
+        }
+        i += 1
+    }
+
+    cg.loadLCARSStage = 7
+
+    // register all the server specified models
+    i = 1
+    while i < MAX_MODELS {
+        var cModelName: String
+        var modelName = CharBuf(64)
+
+        cModelName = CG_ConfigString(CS_MODELS + i)
+        if cModelName.isEmpty {
+            break
+        }
+
+        strcpy(&modelName, cModelName)
+        if strstr(modelName, ".glm") != nil || modelName[0] == Int32(ascii: "$") {
+            //Check to see if it has a custom skin attached.
+            CG_HandleAppendedSkin(String(modelName))
+            CG_CacheG2AnimInfo(String(modelName))
+        }
+
+        if modelName[0] != Int32(ascii: "$") && modelName[0] != Int32(ascii: "@") {
+            //don't register vehicle names and saber names as models.
+            cgs.gameModels[i] = trap_R_RegisterModel(String(modelName))
+        } else {
+            //FIXME: register here so that stuff gets precached!!!
+            cgs.gameModels[i] = 0
+        }
+        i += 1
+    }
+    cg.loadLCARSStage = 8
+    /*
+    Ghoul2 Insert Start
+    */
+
+
+    //	CG_LoadingString( "BSP instances" );
+
+    i = 1
+    while i < MAX_SUB_BSP {
+        var bspName: String? = nil
+        var mins = vec3_t()
+        var maxs = vec3_t()
+        var j: Int32
+        var sub: Int32 = 0
+        var temp = CharBuf(64)
+
+        bspName = CG_ConfigString(CS_BSP_MODELS + i)
+        if bspName!.isEmpty {
+            break
+        }
+
+        trap_CM_LoadMap(bspName!, true)
+        cgs.inlineDrawModel[breakPoint] = trap_R_RegisterModel(bspName!)
+        trap_R_ModelBounds(cgs.inlineDrawModel[breakPoint], &mins, &maxs)
+        j = 0
+        while j < 3 {
+            cgs.inlineModelMidpoints[breakPoint][j] = Float(Double(mins[j]) + 0.5 * Double(maxs[j] - mins[j]))
+            j += 1
+        }
+        breakPoint += 1
+        sub = 1
+        while sub < MAX_MODELS {
+            Com_sprintf(&temp, MAX_QPATH, "*%d-%d", i, sub)
+            cgs.inlineDrawModel[breakPoint] = trap_R_RegisterModel(String(temp))
+            if cgs.inlineDrawModel[breakPoint] == 0 {
+                break
+            }
+            trap_R_ModelBounds(cgs.inlineDrawModel[breakPoint], &mins, &maxs)
+            j = 0
+            while j < 3 {
+                cgs.inlineModelMidpoints[breakPoint][j] = Float(Double(mins[j]) + 0.5 * Double(maxs[j] - mins[j]))
+                j += 1
+            }
+            breakPoint += 1
+            sub += 1
+        }
+        i += 1
+    }
+
+    //	CG_LoadingString( "Creating terrain" );
+    i = 1
+    while i < MAX_TERRAINS {
+        terrainInfo = CG_ConfigString(CS_TERRAINS + i)
+        if terrainInfo.isEmpty {
+            break
+        }
+
+        terrainID = trap_CM_RegisterTerrain(terrainInfo)
+
+        trap_RMG_Init(terrainID, terrainInfo)
+
+        // Send off the terrainInfo to the renderer
+        trap_RE_InitRendererTerrain(terrainInfo)
+        i += 1
+    }
+
+    /*
+    CG_LoadingString("skins");
+    // register all the server specified models
+    for (i=1 ; i<MAX_CHARSKINS ; i++) {
+    const char		*modelName;
+
+    modelName = CG_ConfigString( CS_CHARSKINS+i );
+    if ( !modelName[0] ) {
+    break;
+    }
+    cgs.skins[i] = trap_R_RegisterSkin( modelName );
+    }
+    */
+    //rww - removed and replaced with CS_G2BONES. For custom skins
+    //the new method is to append a * after an indexed model name and
+    //then append the skin name after that (note that this is only
+    //used for NPCs)
+
+    //	CG_LoadingString("weapons");
+
+    CG_InitG2Weapons()
+
+    /*
+    Ghoul2 Insert End
+    */
+    cg.loadLCARSStage = 9
+
+
+    // new stuff
+    cgs.media.patrolShader = trap_R_RegisterShaderNoMip("ui/assets/statusbar/patrol.tga")
+    cgs.media.assaultShader = trap_R_RegisterShaderNoMip("ui/assets/statusbar/assault.tga")
+    cgs.media.campShader = trap_R_RegisterShaderNoMip("ui/assets/statusbar/camp.tga")
+    cgs.media.followShader = trap_R_RegisterShaderNoMip("ui/assets/statusbar/follow.tga")
+    cgs.media.defendShader = trap_R_RegisterShaderNoMip("ui/assets/statusbar/defend.tga")
+    cgs.media.teamLeaderShader = trap_R_RegisterShaderNoMip("ui/assets/statusbar/team_leader.tga")
+    cgs.media.retrieveShader = trap_R_RegisterShaderNoMip("ui/assets/statusbar/retrieve.tga")
+    cgs.media.escortShader = trap_R_RegisterShaderNoMip("ui/assets/statusbar/escort.tga")
+    cgs.media.cursor = trap_R_RegisterShaderNoMip("menu/art/3_cursor2")
+    cgs.media.sizeCursor = trap_R_RegisterShaderNoMip("ui/assets/sizecursor.tga")
+    cgs.media.selectCursor = trap_R_RegisterShaderNoMip("ui/assets/selectcursor.tga")
+    cgs.media.flagShaders[0] = trap_R_RegisterShaderNoMip("ui/assets/statusbar/flag_in_base.tga")
+    cgs.media.flagShaders[1] = trap_R_RegisterShaderNoMip("ui/assets/statusbar/flag_capture.tga")
+    cgs.media.flagShaders[2] = trap_R_RegisterShaderNoMip("ui/assets/statusbar/flag_missing.tga")
+
+    cgs.media.halfShieldModel = trap_R_RegisterModel("models/weaphits/testboom.md3")
+    cgs.media.halfShieldShader = trap_R_RegisterShader("halfShieldShell")
+
+    trap_FX_RegisterEffect("force/force_touch")
+
+    CG_ClearParticles()
+    /*
+    for (i=1; i<MAX_PARTICLES_AREAS; i++)
+    {
+    {
+    int rval;
+
+    rval = CG_NewParticleArea ( CS_PARTICLES + i);
+    if (!rval)
+    break;
+    }
+    }
+    */
 }
 
 /// Source: oracle/codemp/cgame/cg_main.c:2429
 func CG_GetStringEdString(_ refSection: String, _ refName: String?) -> String {
-    // TODO: Port CG_GetStringEdString
+    // Port-note: A local `char[2][1024] text` the table has no type for.
+    // Raven wrote: static char text[2][1024]={0};
+    portMissing("CG_GetStringEdString", source: "oracle/codemp/cgame/cg_main.c:2429")
+    // Port-note: A static local `index` a statement reads before it writes, storage that outlives the call.
+    // Raven wrote: static int index = 0;
+    portMissing("CG_GetStringEdString", source: "oracle/codemp/cgame/cg_main.c:2429")
+
+    // Port-note: A store into `index`, a local the draft left as a hole.
+    // Raven wrote: index ^= 1
+    portMissing("CG_GetStringEdString", source: "oracle/codemp/cgame/cg_main.c:2429")
+    // Port-note: A read of `text`, a local the draft left as a hole.
+    // Raven wrote: trap_SP_GetStringTextString(va("%s_%s", refSection, refName), text[index], sizeof(text[0]))
+    portMissing("CG_GetStringEdString", source: "oracle/codemp/cgame/cg_main.c:2429")
+    // Port-note: A read of `text`, a local the draft left as a hole.
+    // Raven wrote: return text[index]
     portMissing("CG_GetStringEdString", source: "oracle/codemp/cgame/cg_main.c:2429")
 }
 
 /// Source: oracle/codemp/cgame/cg_main.c:2442
 func CG_SiegeCountCvars() {
-    // TODO: Port CG_SiegeCountCvars
-    portMissing("CG_SiegeCountCvars", source: "oracle/codemp/cgame/cg_main.c:2442")
+    var classGfx: [Int32] = [Int32](repeating: 0, count: 6)
+
+    trap_Cvar_Set("ui_tm1_cnt", va("%d", CG_GetTeamNonScoreCount(TEAM_RED)))
+    trap_Cvar_Set("ui_tm2_cnt", va("%d", CG_GetTeamNonScoreCount(TEAM_BLUE)))
+    trap_Cvar_Set("ui_tm3_cnt", va("%d", CG_GetTeamNonScoreCount(TEAM_SPECTATOR)))
+
+    // This is because the only way we can match up classes is by the gfx handle.
+    classGfx[0] = trap_R_RegisterShaderNoMip("gfx/mp/c_icon_infantry")
+    classGfx[1] = trap_R_RegisterShaderNoMip("gfx/mp/c_icon_heavy_weapons")
+    classGfx[2] = trap_R_RegisterShaderNoMip("gfx/mp/c_icon_demolitionist")
+    classGfx[3] = trap_R_RegisterShaderNoMip("gfx/mp/c_icon_vanguard")
+    classGfx[4] = trap_R_RegisterShaderNoMip("gfx/mp/c_icon_support")
+    classGfx[5] = trap_R_RegisterShaderNoMip("gfx/mp/c_icon_jedi_general")
+
+    trap_Cvar_Set("ui_tm1_c0_cnt", va("%d", CG_GetClassCount(TEAM_RED, classGfx[0])))
+    trap_Cvar_Set("ui_tm1_c1_cnt", va("%d", CG_GetClassCount(TEAM_RED, classGfx[1])))
+    trap_Cvar_Set("ui_tm1_c2_cnt", va("%d", CG_GetClassCount(TEAM_RED, classGfx[2])))
+    trap_Cvar_Set("ui_tm1_c3_cnt", va("%d", CG_GetClassCount(TEAM_RED, classGfx[3])))
+    trap_Cvar_Set("ui_tm1_c4_cnt", va("%d", CG_GetClassCount(TEAM_RED, classGfx[4])))
+    trap_Cvar_Set("ui_tm1_c5_cnt", va("%d", CG_GetClassCount(TEAM_RED, classGfx[5])))
+
+    trap_Cvar_Set("ui_tm2_c0_cnt", va("%d", CG_GetClassCount(TEAM_BLUE, classGfx[0])))
+    trap_Cvar_Set("ui_tm2_c1_cnt", va("%d", CG_GetClassCount(TEAM_BLUE, classGfx[1])))
+    trap_Cvar_Set("ui_tm2_c2_cnt", va("%d", CG_GetClassCount(TEAM_BLUE, classGfx[2])))
+    trap_Cvar_Set("ui_tm2_c3_cnt", va("%d", CG_GetClassCount(TEAM_BLUE, classGfx[3])))
+    trap_Cvar_Set("ui_tm2_c4_cnt", va("%d", CG_GetClassCount(TEAM_BLUE, classGfx[4])))
+    trap_Cvar_Set("ui_tm2_c5_cnt", va("%d", CG_GetClassCount(TEAM_BLUE, classGfx[5])))
 }
 
 /**
@@ -788,8 +2334,24 @@ CG_BuildSpectatorString
 */
 /// Source: oracle/codemp/cgame/cg_main.c:2480
 func CG_BuildSpectatorString() {
-    // TODO: Port CG_BuildSpectatorString
-    portMissing("CG_BuildSpectatorString", source: "oracle/codemp/cgame/cg_main.c:2480")
+    var i: Int32
+    cg.spectatorList = ""
+
+    // Count up the number of players per team and per class
+    CG_SiegeCountCvars()
+
+    i = 0
+    while i < MAX_CLIENTS {
+        if cgs.clientinfo[i].infoValid && cgs.clientinfo[i].team == TEAM_SPECTATOR {
+            Q_strcat(&cg.spectatorListBuffer, 1024, va("%s     ", cgs.clientinfo[i].name))
+        }
+        i += 1
+    }
+    i = strlen(cg.spectatorList)
+    if i != cg.spectatorLen {
+        cg.spectatorLen = i
+        cg.spectatorWidth = -1
+    }
 }
 
 /**
@@ -801,8 +2363,30 @@ CG_RegisterClients
 */
 /// Source: oracle/codemp/cgame/cg_main.c:2505
 private func CG_RegisterClients() {
-    // TODO: Port CG_RegisterClients
-    portMissing("CG_RegisterClients", source: "oracle/codemp/cgame/cg_main.c:2505")
+    var i: Int32
+
+    CG_LoadingClient(cg.clientNum)
+    CG_NewClientInfo(cg.clientNum, false)
+
+    i = 0
+    while i < MAX_CLIENTS {
+        var clientInfo: String
+
+        if cg.clientNum == i {
+            i += 1
+            continue
+        }
+
+        clientInfo = CG_ConfigString(CS_PLAYERS + i)
+        if clientInfo.isEmpty {
+            i += 1
+            continue
+        }
+        CG_LoadingClient(i)
+        CG_NewClientInfo(i, false)
+        i += 1
+    }
+    CG_BuildSpectatorString()
 }
 
 /**
@@ -814,7 +2398,11 @@ CG_ConfigString
 */
 /// Source: oracle/codemp/cgame/cg_main.c:2535
 func CG_ConfigString(_ index: Int32) -> String {
-    // TODO: Port CG_ConfigString
+    if index < 0 || index >= MAX_CONFIGSTRINGS {
+        CG_Error("CG_ConfigString: bad index: %i", index)
+    }
+    // Port-note: The draft of this statement did not compile, and the compiler wrote "cannot convert value of type 'Int32' to expected argument type 'String'".
+    // Raven wrote: return cgs.gameState.stringData + cgs.gameState.stringOffsets[ index ]
     portMissing("CG_ConfigString", source: "oracle/codemp/cgame/cg_main.c:2535")
 }
 
@@ -828,13 +2416,51 @@ CG_StartMusic
 */
 /// Source: oracle/codemp/cgame/cg_main.c:2550
 func CG_StartMusic(_ bForceStart: Bool) {
-    // TODO: Port CG_StartMusic
+    var s: String
+    var parm1 = CharBuf(64)
+    var parm2 = CharBuf(64)
+
+    // start the background music
+    s = CG_ConfigString(CS_MUSIC)
+    // Port-note: A cast to `const char **` the draft has no view for.
+    // Raven wrote: Q_strncpyz( parm1, COM_Parse( (const char **)&s ), sizeof( parm1 ) )
     portMissing("CG_StartMusic", source: "oracle/codemp/cgame/cg_main.c:2550")
+    // Port-note: A cast to `const char **` the draft has no view for.
+    // Raven wrote: Q_strncpyz( parm2, COM_Parse( (const char **)&s ), sizeof( parm2 ) )
+    portMissing("CG_StartMusic", source: "oracle/codemp/cgame/cg_main.c:2550")
+
+    trap_S_StartBackgroundTrack(String(parm1), String(parm2), !bForceStart)
 }
 
 /// Source: oracle/codemp/cgame/cg_main.c:2563
 func CG_GetMenuBuffer(_ filename: String) -> String? {
-    // TODO: Port CG_GetMenuBuffer
+    let len: Int32
+    var f: fileHandle_t = 0
+    // Port-note: A static local `buf` a statement reads before it writes, storage that outlives the call.
+    // Raven wrote: static char buf[MAX_MENUFILE];
+    portMissing("CG_GetMenuBuffer", source: "oracle/codemp/cgame/cg_main.c:2563")
+
+    len = trap_FS_FOpenFile(filename, &f, FS_READ)
+    if f == 0 {
+        trap_Print(va(S_COLOR_RED + "menu file not found: %s, using default\n", filename))
+        return nil
+    }
+    if len >= MAX_MENUFILE {
+        trap_Print(va(S_COLOR_RED + "menu file too large: %s is %i, max allowed is %i", filename, len, MAX_MENUFILE))
+        trap_FS_FCloseFile(f)
+        return nil
+    }
+
+    // Port-note: A read of `buf`, a local the draft left as a hole.
+    // Raven wrote: trap_FS_Read( buf, len, f )
+    portMissing("CG_GetMenuBuffer", source: "oracle/codemp/cgame/cg_main.c:2563")
+    // Port-note: A read of `buf`, a local the draft left as a hole.
+    // Raven wrote: buf[len] = 0
+    portMissing("CG_GetMenuBuffer", source: "oracle/codemp/cgame/cg_main.c:2563")
+    trap_FS_FCloseFile(f)
+
+    // Port-note: A read of `buf`, a local the draft left as a hole.
+    // Raven wrote: return buf
     portMissing("CG_GetMenuBuffer", source: "oracle/codemp/cgame/cg_main.c:2563")
 }
 
@@ -845,105 +2471,553 @@ func CG_GetMenuBuffer(_ filename: String) -> String? {
 //
 /// Source: oracle/codemp/cgame/cg_main.c:2592
 func CG_Asset_Parse(_ handle: Int32) -> Bool {
-    // TODO: Port CG_Asset_Parse
-    portMissing("CG_Asset_Parse", source: "oracle/codemp/cgame/cg_main.c:2592")
+    // Raven's record lives to the end of his block, so the block is the closure.
+    // Every path of Raven's block returns, so the closure's value is the function's.
+    return PcToken.scratch { token -> Bool in
+
+        if trap_PC_ReadToken(handle, token) == 0 {
+            return false
+        }
+        if Q_stricmp(token.string, "{") != 0 {
+            return false
+        }
+
+        while 1 != 0 {
+            if trap_PC_ReadToken(handle, token) == 0 {
+                return false
+            }
+
+            if Q_stricmp(token.string, "}") == 0 {
+                return true
+            }
+
+            // font
+            if Q_stricmp(token.string, "font") == 0 {
+                var pointSize: Int32 = 0
+                // Port-note: The draft of this statement did not compile, and the compiler wrote "cannot convert value of type '_' to expected argument type 'Bool'".
+                // Raven wrote: if (!trap_PC_ReadToken(handle, &token) || !PC_Int_Parse(handle, &pointSize)) { return qfalse; }
+                portMissing("CG_Asset_Parse", source: "oracle/codemp/cgame/cg_main.c:2592")
+
+                //			cgDC.registerFont(token.string, pointSize, &cgDC.Assets.textFont);
+                // Port-note: The draft of this statement did not compile, and the compiler wrote "cannot convert value of type 'String' to expected argument type 'OpaquePointer'".
+                // Raven wrote: cgDC.Assets.qhMediumFont = cgDC.RegisterFont(token.string)
+                portMissing("CG_Asset_Parse", source: "oracle/codemp/cgame/cg_main.c:2592")
+                continue
+            }
+
+            // smallFont
+            if Q_stricmp(token.string, "smallFont") == 0 {
+                var pointSize: Int32 = 0
+                // Port-note: The draft of this statement did not compile, and the compiler wrote "cannot find 'PC_Int_Parse' in scope".
+                // Raven wrote: if (!trap_PC_ReadToken(handle, &token) || !PC_Int_Parse(handle, &pointSize)) { return qfalse; }
+                portMissing("CG_Asset_Parse", source: "oracle/codemp/cgame/cg_main.c:2592")
+                //			cgDC.registerFont(token.string, pointSize, &cgDC.Assets.smallFont);
+                // Port-note: The draft of this statement did not compile, and the compiler wrote "cannot convert value of type 'String' to expected argument type 'OpaquePointer'".
+                // Raven wrote: cgDC.Assets.qhSmallFont = cgDC.RegisterFont(token.string)
+                portMissing("CG_Asset_Parse", source: "oracle/codemp/cgame/cg_main.c:2592")
+                continue
+            }
+
+            // smallFont
+            if Q_stricmp(token.string, "small2Font") == 0 {
+                var pointSize: Int32 = 0
+                // Port-note: The draft of this statement did not compile, and the compiler wrote "cannot find 'PC_Int_Parse' in scope".
+                // Raven wrote: if (!trap_PC_ReadToken(handle, &token) || !PC_Int_Parse(handle, &pointSize)) { return qfalse; }
+                portMissing("CG_Asset_Parse", source: "oracle/codemp/cgame/cg_main.c:2592")
+                //			cgDC.registerFont(token.string, pointSize, &cgDC.Assets.smallFont);
+                // Port-note: The draft of this statement did not compile, and the compiler wrote "cannot convert value of type 'String' to expected argument type 'OpaquePointer'".
+                // Raven wrote: cgDC.Assets.qhSmall2Font = cgDC.RegisterFont(token.string)
+                portMissing("CG_Asset_Parse", source: "oracle/codemp/cgame/cg_main.c:2592")
+                continue
+            }
+
+            // font
+            if Q_stricmp(token.string, "bigfont") == 0 {
+                var pointSize: Int32 = 0
+                // Port-note: The draft of this statement did not compile, and the compiler wrote "cannot find 'PC_Int_Parse' in scope".
+                // Raven wrote: if (!trap_PC_ReadToken(handle, &token) || !PC_Int_Parse(handle, &pointSize)) { return qfalse; }
+                portMissing("CG_Asset_Parse", source: "oracle/codemp/cgame/cg_main.c:2592")
+                //			cgDC.registerFont(token.string, pointSize, &cgDC.Assets.bigFont);
+                // Port-note: The draft of this statement did not compile, and the compiler wrote "cannot convert value of type 'String' to expected argument type 'OpaquePointer'".
+                // Raven wrote: cgDC.Assets.qhBigFont = cgDC.RegisterFont(token.string)
+                portMissing("CG_Asset_Parse", source: "oracle/codemp/cgame/cg_main.c:2592")
+                continue
+            }
+
+            // gradientbar
+            if Q_stricmp(token.string, "gradientbar") == 0 {
+                if trap_PC_ReadToken(handle, token) == 0 {
+                    return false
+                }
+                cgDC.Assets.gradientBar = trap_R_RegisterShaderNoMip(token.string)
+                continue
+            }
+
+            // enterMenuSound
+            if Q_stricmp(token.string, "menuEnterSound") == 0 {
+                if trap_PC_ReadToken(handle, token) == 0 {
+                    return false
+                }
+                cgDC.Assets.menuEnterSound = trap_S_RegisterSound(token.string)
+                continue
+            }
+
+            // exitMenuSound
+            if Q_stricmp(token.string, "menuExitSound") == 0 {
+                if trap_PC_ReadToken(handle, token) == 0 {
+                    return false
+                }
+                cgDC.Assets.menuExitSound = trap_S_RegisterSound(token.string)
+                continue
+            }
+
+            // itemFocusSound
+            if Q_stricmp(token.string, "itemFocusSound") == 0 {
+                if trap_PC_ReadToken(handle, token) == 0 {
+                    return false
+                }
+                cgDC.Assets.itemFocusSound = trap_S_RegisterSound(token.string)
+                continue
+            }
+
+            // menuBuzzSound
+            if Q_stricmp(token.string, "menuBuzzSound") == 0 {
+                if trap_PC_ReadToken(handle, token) == 0 {
+                    return false
+                }
+                cgDC.Assets.menuBuzzSound = trap_S_RegisterSound(token.string)
+                continue
+            }
+
+            if Q_stricmp(token.string, "cursor") == 0 {
+                // Port-note: The draft of this statement did not compile, and the compiler wrote "cannot find 'PC_String_Parse' in scope".
+                // Raven wrote: if (!PC_String_Parse(handle, &cgDC.Assets.cursorStr)) { return qfalse; }
+                portMissing("CG_Asset_Parse", source: "oracle/codemp/cgame/cg_main.c:2592")
+                cgDC.Assets.cursor = trap_R_RegisterShaderNoMip(cgDC.Assets.cursorStr!)
+                continue
+            }
+
+            if Q_stricmp(token.string, "fadeClamp") == 0 {
+                // Port-note: The draft of this statement did not compile, and the compiler wrote "cannot find 'PC_Float_Parse' in scope".
+                // Raven wrote: if (!PC_Float_Parse(handle, &cgDC.Assets.fadeClamp)) { return qfalse; }
+                portMissing("CG_Asset_Parse", source: "oracle/codemp/cgame/cg_main.c:2592")
+                continue
+            }
+
+            if Q_stricmp(token.string, "fadeCycle") == 0 {
+                // Port-note: The draft of this statement did not compile, and the compiler wrote "cannot find 'PC_Int_Parse' in scope".
+                // Raven wrote: if (!PC_Int_Parse(handle, &cgDC.Assets.fadeCycle)) { return qfalse; }
+                portMissing("CG_Asset_Parse", source: "oracle/codemp/cgame/cg_main.c:2592")
+                continue
+            }
+
+            if Q_stricmp(token.string, "fadeAmount") == 0 {
+                // Port-note: The draft of this statement did not compile, and the compiler wrote "cannot find 'PC_Float_Parse' in scope".
+                // Raven wrote: if (!PC_Float_Parse(handle, &cgDC.Assets.fadeAmount)) { return qfalse; }
+                portMissing("CG_Asset_Parse", source: "oracle/codemp/cgame/cg_main.c:2592")
+                continue
+            }
+
+            if Q_stricmp(token.string, "shadowX") == 0 {
+                // Port-note: The draft of this statement did not compile, and the compiler wrote "cannot find 'PC_Float_Parse' in scope".
+                // Raven wrote: if (!PC_Float_Parse(handle, &cgDC.Assets.shadowX)) { return qfalse; }
+                portMissing("CG_Asset_Parse", source: "oracle/codemp/cgame/cg_main.c:2592")
+                continue
+            }
+
+            if Q_stricmp(token.string, "shadowY") == 0 {
+                // Port-note: The draft of this statement did not compile, and the compiler wrote "cannot find 'PC_Float_Parse' in scope".
+                // Raven wrote: if (!PC_Float_Parse(handle, &cgDC.Assets.shadowY)) { return qfalse; }
+                portMissing("CG_Asset_Parse", source: "oracle/codemp/cgame/cg_main.c:2592")
+                continue
+            }
+
+            if Q_stricmp(token.string, "shadowColor") == 0 {
+                // Port-note: The draft of this statement did not compile, and the compiler wrote "cannot find 'PC_Color_Parse' in scope".
+                // Raven wrote: if (!PC_Color_Parse(handle, &cgDC.Assets.shadowColor)) { return qfalse; }
+                portMissing("CG_Asset_Parse", source: "oracle/codemp/cgame/cg_main.c:2592")
+                cgDC.Assets.shadowFadeClamp = cgDC.Assets.shadowColor[3]
+                continue
+            }
+        }
+        return false // bk001204 - why not?
+    }
 }
 
 /// Source: oracle/codemp/cgame/cg_main.c:2753
 func CG_ParseMenu(_ menuFile: String) {
-    // TODO: Port CG_ParseMenu
-    portMissing("CG_ParseMenu", source: "oracle/codemp/cgame/cg_main.c:2753")
+    // Raven's record lives to the end of his block, so the block is the closure.
+    // The closure gives true where Raven returns from the function.
+    let earlyOut = PcToken.scratch { token -> Bool in
+        var handle: Int32 = 0
+
+        handle = trap_PC_LoadSource(menuFile)
+        if handle == 0 {
+            handle = trap_PC_LoadSource("ui/testhud.menu")
+        }
+        if handle == 0 {
+            return true
+        }
+
+        while 1 != 0 {
+            if trap_PC_ReadToken(handle, token) == 0 {
+                break
+            }
+
+            //if ( Q_stricmp( token, "{" ) ) {
+            //	Com_Printf( "Missing { in menu file\n" );
+            //	break;
+            //}
+
+            //if ( menuCount == MAX_MENUS ) {
+            //	Com_Printf( "Too many menus!\n" );
+            //	break;
+            //}
+
+            // Port-note: The draft of this statement did not compile, and the compiler wrote "binary operator '==' cannot be applied to operands of type 'Character' and 'Int32'".
+            // Raven wrote: if ( token.string[0] == '}' ) { break; }
+            portMissing("CG_ParseMenu", source: "oracle/codemp/cgame/cg_main.c:2753")
+
+            if Q_stricmp(token.string, "assetGlobalDef") == 0 {
+                if CG_Asset_Parse(handle) {
+                    continue
+                } else {
+                    break
+                }
+            }
+
+
+            if Q_stricmp(token.string, "menudef") == 0 {
+                // start a new menu
+                // Port-note: The draft of this statement did not compile, and the compiler wrote "cannot find 'Menu_New' in scope".
+                // Raven wrote: Menu_New(handle)
+                portMissing("CG_ParseMenu", source: "oracle/codemp/cgame/cg_main.c:2753")
+            }
+        }
+        trap_PC_FreeSource(handle)
+        return false
+    }
+    if earlyOut {
+        return
+    }
 }
 
 /// Source: oracle/codemp/cgame/cg_main.c:2800
 func CG_Load_Menu(_ p: inout JKAShared.TextCursor) -> Bool {
-    // TODO: Port CG_Load_Menu
+    var token: String
+
+    // Port-note: A cast to `const char **` the draft has no view for.
+    // Raven wrote: token = COM_ParseExt((const char **)p, qtrue)
     portMissing("CG_Load_Menu", source: "oracle/codemp/cgame/cg_main.c:2800")
+
+    if CharBuf(token)[0] != Int32(ascii: "{") {
+        return false
+    }
+
+    while 1 != 0 {
+        // Port-note: A cast to `const char **` the draft has no view for.
+        // Raven wrote: token = COM_ParseExt((const char **)p, qtrue)
+        portMissing("CG_Load_Menu", source: "oracle/codemp/cgame/cg_main.c:2800")
+
+        if Q_stricmp(token, "}") == 0 {
+            return true
+        }
+
+        if token.isEmpty {
+            return false
+        }
+
+        CG_ParseMenu(token)
+    }
+    return false
 }
 
 /// Source: oracle/codemp/cgame/cg_main.c:2829
 private func CG_OwnerDrawHandleKey(_ ownerDraw: Int32, _ flags: Int32, _ special: inout Float, _ key: Int32) -> Bool {
-    // TODO: Port CG_OwnerDrawHandleKey
-    portMissing("CG_OwnerDrawHandleKey", source: "oracle/codemp/cgame/cg_main.c:2829")
+    return false
 }
 
 /// Source: oracle/codemp/cgame/cg_main.c:2834
 private func CG_FeederCount(_ feederID: Float) -> Int32 {
-    // TODO: Port CG_FeederCount
-    portMissing("CG_FeederCount", source: "oracle/codemp/cgame/cg_main.c:2834")
+    var i: Int32
+    var count: Int32
+    count = 0
+    if feederID == FEEDER_REDTEAM_LIST {
+        i = 0
+        while i < cg.numScores {
+            if cg.scores[i].team == TEAM_RED {
+                count += 1
+            }
+            i += 1
+        }
+    } else if feederID == FEEDER_BLUETEAM_LIST {
+        i = 0
+        while i < cg.numScores {
+            if cg.scores[i].team == TEAM_BLUE {
+                count += 1
+            }
+            i += 1
+        }
+    } else if feederID == FEEDER_SCOREBOARD {
+        return cg.numScores
+    }
+    return count
 }
 
 /// Source: oracle/codemp/cgame/cg_main.c:2856
 func CG_SetScoreSelection(_ p: OpaquePointer?) {
-    // TODO: Port CG_SetScoreSelection
+    // Port-note: The draft of this statement did not compile, and the compiler wrote "no exact matches in call to initializer".
+    // Raven wrote: menuDef_t *menu = (menuDef_t*)p;
     portMissing("CG_SetScoreSelection", source: "oracle/codemp/cgame/cg_main.c:2856")
+    let ps: PlayerState? = cg.snap!.ps
+    var i: Int32
+    var red: Int32
+    var blue: Int32
+    blue = 0
+    red = blue
+    i = 0
+    while i < cg.numScores {
+        if cg.scores[i].team == TEAM_RED {
+            red += 1
+        } else if cg.scores[i].team == TEAM_BLUE {
+            blue += 1
+        }
+        if ps!.clientNum == cg.scores[i].client {
+            cg.selectedScore = i
+        }
+        i += 1
+    }
+
+    // Port-note: A read of `menu`, a local the draft left as a hole.
+    // Raven wrote: if (menu == NULL) { // just interested in setting the selected score return; }
+    portMissing("CG_SetScoreSelection", source: "oracle/codemp/cgame/cg_main.c:2856")
+
+    if cgs.gametype >= GT_TEAM {
+        var feeder: Int32 = FEEDER_REDTEAM_LIST
+        i = red
+        if cg.scores[cg.selectedScore].team == TEAM_BLUE {
+            feeder = FEEDER_BLUETEAM_LIST
+            i = blue
+        }
+        // Port-note: The draft of this statement did not compile, and the compiler wrote "cannot find 'Menu_SetFeederSelection' in scope".
+        // Raven wrote: Menu_SetFeederSelection(menu, feeder, i, NULL)
+        portMissing("CG_SetScoreSelection", source: "oracle/codemp/cgame/cg_main.c:2856")
+    } else {
+        // Port-note: The draft of this statement did not compile, and the compiler wrote "cannot find 'Menu_SetFeederSelection' in scope".
+        // Raven wrote: Menu_SetFeederSelection(menu, FEEDER_SCOREBOARD, cg.selectedScore, NULL)
+        portMissing("CG_SetScoreSelection", source: "oracle/codemp/cgame/cg_main.c:2856")
+    }
 }
 
 // FIXME: might need to cache this info
 /// Source: oracle/codemp/cgame/cg_main.c:2891
 private func CG_InfoFromScoreIndex(_ index: Int32, _ team: Int32, _ scoreIndex: inout Int32) -> ClientInfo? {
-    // TODO: Port CG_InfoFromScoreIndex
-    portMissing("CG_InfoFromScoreIndex", source: "oracle/codemp/cgame/cg_main.c:2891")
+    var i: Int32
+    var count: Int32
+    if cgs.gametype >= GT_TEAM {
+        count = 0
+        i = 0
+        while i < cg.numScores {
+            if cg.scores[i].team == team {
+                if count == index {
+                    scoreIndex = i
+                    return cgs.clientinfo[cg.scores[i].client]
+                }
+                count += 1
+            }
+            i += 1
+        }
+    }
+    scoreIndex = index
+    return cgs.clientinfo[cg.scores[index].client]
 }
 
 /// Source: oracle/codemp/cgame/cg_main.c:2909
 private func CG_FeederItemText(_ feederID: Float, _ index: Int32, _ column: Int32, _ handle1: Slots<qhandle_t>?, _ handle2: Slots<qhandle_t>?, _ handle3: Slots<qhandle_t>?) -> String {
-    // TODO: Port CG_FeederItemText
+    var item: Gitem?
+    var scoreIndex: Int32 = 0
+    var info: ClientInfo? = nil
+    var team: Int32 = -1
+    var sp: Score? = nil
+
+    // Port-note: A pointer dereference the draft cannot place.
+    // Raven wrote: *handle1 = *handle2 = *handle3 = -1
     portMissing("CG_FeederItemText", source: "oracle/codemp/cgame/cg_main.c:2909")
+
+    if feederID == FEEDER_REDTEAM_LIST {
+        team = TEAM_RED
+    } else if feederID == FEEDER_BLUETEAM_LIST {
+        team = TEAM_BLUE
+    }
+
+    info = CG_InfoFromScoreIndex(index, team, &scoreIndex)
+    sp = cg.scores[scoreIndex]
+
+    if info != nil && info!.infoValid {
+        switch column {
+        case 0:
+            if (info!.powerups & (1 << PW_NEUTRALFLAG)) != 0 {
+                item = BG_FindItemForPowerup(PW_NEUTRALFLAG)
+                // Port-note: A pointer dereference the draft cannot place.
+                // Raven wrote: *handle1 = cg_items[ ITEM_INDEX(item) ].icon
+                portMissing("CG_FeederItemText", source: "oracle/codemp/cgame/cg_main.c:2909")
+            } else if (info!.powerups & (1 << PW_REDFLAG)) != 0 {
+                item = BG_FindItemForPowerup(PW_REDFLAG)
+                // Port-note: A pointer dereference the draft cannot place.
+                // Raven wrote: *handle1 = cg_items[ ITEM_INDEX(item) ].icon
+                portMissing("CG_FeederItemText", source: "oracle/codemp/cgame/cg_main.c:2909")
+            } else if (info!.powerups & (1 << PW_BLUEFLAG)) != 0 {
+                item = BG_FindItemForPowerup(PW_BLUEFLAG)
+                // Port-note: A pointer dereference the draft cannot place.
+                // Raven wrote: *handle1 = cg_items[ ITEM_INDEX(item) ].icon
+                portMissing("CG_FeederItemText", source: "oracle/codemp/cgame/cg_main.c:2909")
+            } else {
+                /*
+                if ( info->botSkill > 0 && info->botSkill <= 5 ) {
+                *handle1 = cgs.media.botSkillShaders[ info->botSkill - 1 ];
+                } else if ( info->handicap < 100 ) {
+                return va("%i", info->handicap );
+                }
+                */
+            }
+
+        case 1:
+            if team == -1 {
+                return ""
+            } else {
+                // Port-note: A pointer dereference the draft cannot place.
+                // Raven wrote: *handle1 = CG_StatusHandle(info->teamTask)
+                portMissing("CG_FeederItemText", source: "oracle/codemp/cgame/cg_main.c:2909")
+            }
+
+        case 2:
+            if (cg.snap!.ps.stats[STAT_CLIENTS_READY] & (1 << sp!.client)) != 0 {
+                return "Ready"
+            }
+            if team == -1 {
+                if cgs.gametype == GT_DUEL || cgs.gametype == GT_POWERDUEL {
+                    return va("%i/%i", info!.wins, info!.losses)
+                } else if info!.infoValid && info!.team == TEAM_SPECTATOR {
+                    return "Spectator"
+                } else {
+                    return ""
+                }
+            } else {
+                if info!.teamLeader {
+                    return "Leader"
+                }
+            }
+
+        case 3:
+            return info!.name
+
+        case 4:
+            return va("%i", info!.score)
+
+        case 5:
+            return va("%4i", sp!.time)
+
+        case 6:
+            if sp!.ping == -1 {
+                return "connecting"
+            }
+            return va("%4i", sp!.ping)
+
+        default:
+            break
+        }
+    }
+
+    return ""
 }
 
 /// Source: oracle/codemp/cgame/cg_main.c:2996
 private func CG_FeederItemImage(_ feederID: Float, _ index: Int32) -> JKAShared.qhandle_t {
-    // TODO: Port CG_FeederItemImage
+    // Port-note: Raven returns NULL, and the function returns a `qhandle_t`.
+    // Raven wrote: return 0
     portMissing("CG_FeederItemImage", source: "oracle/codemp/cgame/cg_main.c:2996")
 }
 
 /// Source: oracle/codemp/cgame/cg_main.c:3000
 private func CG_FeederSelection(_ feederID: Float, _ index: Int32, _ item: ItemDef) -> Bool {
-    // TODO: Port CG_FeederSelection
-    portMissing("CG_FeederSelection", source: "oracle/codemp/cgame/cg_main.c:3000")
+    if cgs.gametype >= GT_TEAM {
+        var i: Int32
+        var count: Int32
+        let team: Int32 = (feederID == FEEDER_REDTEAM_LIST) ? TEAM_RED : TEAM_BLUE
+        count = 0
+        i = 0
+        while i < cg.numScores {
+            if cg.scores[i].team == team {
+                if index == count {
+                    cg.selectedScore = i
+                }
+                count += 1
+            }
+            i += 1
+        }
+    } else {
+        cg.selectedScore = index
+    }
+
+    return true
 }
 
 /// Source: oracle/codemp/cgame/cg_main.c:3020
 private func CG_Cvar_Get(_ cvar: String) -> Float {
-    // TODO: Port CG_Cvar_Get
-    portMissing("CG_Cvar_Get", source: "oracle/codemp/cgame/cg_main.c:3020")
+    var buff = CharBuf(128)
+    buff.zero()
+    strcpy(&buff, trap_Cvar_VariableStringBuffer(cvar, Int32((buff).count)))
+    return Float(atof(buff))
 }
 
 /// Source: oracle/codemp/cgame/cg_main.c:3027
 func CG_Text_PaintWithCursor(_ x: Float, _ y: Float, _ scale: Float, _ color: JKAShared.vec4_t, _ text: String, _ cursorPos: Int32, _ cursor: CChar, _ limit: Int32, _ style: Int32, _ iMenuFont: Int32) {
-    // TODO: Port CG_Text_PaintWithCursor
-    portMissing("CG_Text_PaintWithCursor", source: "oracle/codemp/cgame/cg_main.c:3027")
+    CG_Text_Paint(x, y, scale, color, text, 0, limit, style, iMenuFont)
 }
 
 /// Source: oracle/codemp/cgame/cg_main.c:3031
 private func CG_OwnerDrawWidth(_ ownerDraw: Int32, _ scale: Float) -> Int32 {
-    // TODO: Port CG_OwnerDrawWidth
-    portMissing("CG_OwnerDrawWidth", source: "oracle/codemp/cgame/cg_main.c:3031")
+    switch ownerDraw {
+    case CG_GAME_TYPE:
+        return CG_Text_Width(CG_GameTypeString(), scale, FONT_MEDIUM)
+
+    case CG_GAME_STATUS:
+        return CG_Text_Width(CG_GetGameStatusText(), scale, FONT_MEDIUM)
+
+    case CG_KILLER:
+        return CG_Text_Width(CG_GetKillerText(), scale, FONT_MEDIUM)
+
+    case CG_RED_NAME:
+        return CG_Text_Width(DEFAULT_REDTEAM_NAME, scale, FONT_MEDIUM)
+
+    case CG_BLUE_NAME:
+        return CG_Text_Width(DEFAULT_BLUETEAM_NAME, scale, FONT_MEDIUM)
+
+    default:
+        break
+    }
+    return 0
 }
 
 /// Source: oracle/codemp/cgame/cg_main.c:3053
 private func CG_PlayCinematic(_ name: String, _ x: Float, _ y: Float, _ w: Float, _ h: Float) -> Int32 {
-    // TODO: Port CG_PlayCinematic
-    portMissing("CG_PlayCinematic", source: "oracle/codemp/cgame/cg_main.c:3053")
+    return trap_CIN_PlayCinematic(name, Int32(x), Int32(y), Int32(w), Int32(h), CIN_loop)
 }
 
 /// Source: oracle/codemp/cgame/cg_main.c:3057
 private func CG_StopCinematic(_ handle: Int32) {
-    // TODO: Port CG_StopCinematic
-    portMissing("CG_StopCinematic", source: "oracle/codemp/cgame/cg_main.c:3057")
+    trap_CIN_StopCinematic(handle)
 }
 
 /// Source: oracle/codemp/cgame/cg_main.c:3061
 private func CG_DrawCinematic(_ handle: Int32, _ x: Float, _ y: Float, _ w: Float, _ h: Float) {
-    // TODO: Port CG_DrawCinematic
-    portMissing("CG_DrawCinematic", source: "oracle/codemp/cgame/cg_main.c:3061")
+    trap_CIN_SetExtents(handle, Int32(x), Int32(y), Int32(w), Int32(h))
+    trap_CIN_DrawCinematic(handle)
 }
 
 /// Source: oracle/codemp/cgame/cg_main.c:3066
 private func CG_RunCinematicFrame(_ handle: Int32) {
-    // TODO: Port CG_RunCinematicFrame
-    portMissing("CG_RunCinematicFrame", source: "oracle/codemp/cgame/cg_main.c:3066")
+    trap_CIN_RunCinematic(handle)
 }
 
 /**
@@ -956,8 +3030,63 @@ CG_LoadMenus();
 */
 /// Source: oracle/codemp/cgame/cg_main.c:3076
 func CG_LoadMenus(_ menuFile: String) {
-    // TODO: Port CG_LoadMenus
+    var token: String
+    var p = TextCursor()
+    var len: Int32
+    var f: fileHandle_t = 0
+    // Port-note: A static local `buf` a statement reads before it writes, storage that outlives the call.
+    // Raven wrote: static char buf[MAX_MENUDEFFILE];
     portMissing("CG_LoadMenus", source: "oracle/codemp/cgame/cg_main.c:3076")
+
+    len = trap_FS_FOpenFile(menuFile, &f, FS_READ)
+
+    if f == 0 {
+        trap_Print(va(S_COLOR_RED + "menu file not found: %s, using default\n", menuFile))
+
+        len = trap_FS_FOpenFile("ui/jahud.txt", &f, FS_READ)
+        if f == 0 {
+            trap_Print(va(S_COLOR_RED + "default menu file not found: ui/hud.txt, unable to continue!\n", menuFile))
+        }
+    }
+
+    if len >= MAX_MENUDEFFILE {
+        trap_Print(va(S_COLOR_RED + "menu file too large: %s is %i, max allowed is %i", menuFile, len, MAX_MENUDEFFILE))
+        trap_FS_FCloseFile(f)
+        return
+    }
+
+    // Port-note: A read of `buf`, a local the draft left as a hole.
+    // Raven wrote: trap_FS_Read( buf, len, f )
+    portMissing("CG_LoadMenus", source: "oracle/codemp/cgame/cg_main.c:3076")
+    // Port-note: A read of `buf`, a local the draft left as a hole.
+    // Raven wrote: buf[len] = 0
+    portMissing("CG_LoadMenus", source: "oracle/codemp/cgame/cg_main.c:3076")
+    trap_FS_FCloseFile(f)
+
+    // Port-note: A read of `buf`, a local the draft left as a hole.
+    // Raven wrote: p = buf
+    portMissing("CG_LoadMenus", source: "oracle/codemp/cgame/cg_main.c:3076")
+
+    while 1 != 0 {
+        token = COM_ParseExt(&p, true)
+        if token.isEmpty || CharBuf(token)[0] == Int32(ascii: "}") {
+            break
+        }
+
+        if Q_stricmp(token, "}") == 0 {
+            break
+        }
+
+        if Q_stricmp(token, "loadmenu") == 0 {
+            if CG_Load_Menu(&p) {
+                continue
+            } else {
+                break
+            }
+        }
+    }
+
+    //Com_Printf("UI menu load time = %d milli seconds\n", cgi_Milliseconds() - start);
 }
 
 /**
@@ -970,52 +3099,232 @@ CG_LoadHudMenu();
 */
 /// Source: oracle/codemp/cgame/cg_main.c:3145
 func CG_LoadHudMenu() {
-    // TODO: Port CG_LoadHudMenu
+    var hudSet: String
+
+    // Port-note: The draft of this statement did not compile, and the compiler wrote "cannot assign value of type '@Sendable (String) -> qhandle_t' (aka '@Sendable (String) -> Int32') to type 'DisplayContextDefRegisterShaderNoMip' (aka '@convention(c) (Optional<OpaquePointer>) -> Int32')".
+    // Raven wrote: cgDC.registerShaderNoMip = &trap_R_RegisterShaderNoMip
     portMissing("CG_LoadHudMenu", source: "oracle/codemp/cgame/cg_main.c:3145")
+    // Port-note: The draft of this statement did not compile, and the compiler wrote "cannot assign value of type '@Sendable (vec4_t?) -> ()' (aka '@Sendable (Optional<SIMD4<Float>>) -> ()') to type 'DisplayContextDefSetColor?' (aka 'Optional<@convention(c) (Optional<OpaquePointer>) -> ()>')".
+    // Raven wrote: cgDC.setColor = &trap_R_SetColor
+    portMissing("CG_LoadHudMenu", source: "oracle/codemp/cgame/cg_main.c:3145")
+    cgDC.drawHandlePic = CG_DrawPic
+    cgDC.drawStretchPic = trap_R_DrawStretchPic
+    // Port-note: The draft of this statement did not compile, and the compiler wrote "cannot assign value of type '@Sendable (Float, Float, Float, vec4_t, String, Float, Int32, Int32, Int32) -> ()' (aka '@Sendable (Float, Float, Float, SIMD4<Float>, String, Float, Int32, Int32, Int32) -> ()') to type 'DisplayContextDefDrawText' (aka '@convention(c) (Float, Float, Float, Optional<OpaquePointer>, Optional<OpaquePointer>, Float, Int32, Int32, Int32) -> ()')".
+    // Raven wrote: cgDC.drawText = &CG_Text_Paint
+    portMissing("CG_LoadHudMenu", source: "oracle/codemp/cgame/cg_main.c:3145")
+    // Port-note: The draft of this statement did not compile, and the compiler wrote "cannot assign value of type '@Sendable (String, Float, Int32) -> Int32' to type 'DisplayContextDefTextWidth' (aka '@convention(c) (Optional<OpaquePointer>, Float, Int32) -> Int32')".
+    // Raven wrote: cgDC.textWidth = &CG_Text_Width
+    portMissing("CG_LoadHudMenu", source: "oracle/codemp/cgame/cg_main.c:3145")
+    // Port-note: The draft of this statement did not compile, and the compiler wrote "cannot assign value of type '@Sendable (String, Float, Int32) -> Int32' to type 'DisplayContextDefTextHeight' (aka '@convention(c) (Optional<OpaquePointer>, Float, Int32) -> Int32')".
+    // Raven wrote: cgDC.textHeight = &CG_Text_Height
+    portMissing("CG_LoadHudMenu", source: "oracle/codemp/cgame/cg_main.c:3145")
+    // Port-note: The draft of this statement did not compile, and the compiler wrote "cannot assign value of type '@Sendable (String) -> qhandle_t' (aka '@Sendable (String) -> Int32') to type 'DisplayContextDefRegisterModel' (aka '@convention(c) (Optional<OpaquePointer>) -> Int32')".
+    // Raven wrote: cgDC.registerModel = &trap_R_RegisterModel
+    portMissing("CG_LoadHudMenu", source: "oracle/codemp/cgame/cg_main.c:3145")
+    // Port-note: The draft of this statement did not compile, and the compiler wrote "cannot assign value of type '@Sendable (clipHandle_t, inout vec3_t, inout vec3_t) -> ()' (aka '@Sendable (Int32, inout SIMD3<Float>, inout SIMD3<Float>) -> ()') to type 'DisplayContextDefModelBounds' (aka '@convention(c) (Int32, Optional<OpaquePointer>, Optional<OpaquePointer>) -> ()')".
+    // Raven wrote: cgDC.modelBounds = &trap_R_ModelBounds
+    portMissing("CG_LoadHudMenu", source: "oracle/codemp/cgame/cg_main.c:3145")
+    // Port-note: The draft of this statement did not compile, and the compiler wrote "failed to produce diagnostic for expression; please submit a bug report (https://swift.org/contributing/#reporting-bugs)".
+    // Raven wrote: cgDC.fillRect = &CG_FillRect
+    portMissing("CG_LoadHudMenu", source: "oracle/codemp/cgame/cg_main.c:3145")
+    // Port-note: The draft of this statement did not compile, and the compiler wrote "failed to produce diagnostic for expression; please submit a bug report (https://swift.org/contributing/#reporting-bugs)".
+    // Raven wrote: cgDC.drawRect = &CG_DrawRect
+    portMissing("CG_LoadHudMenu", source: "oracle/codemp/cgame/cg_main.c:3145")
+    cgDC.drawSides = CG_DrawSides
+    cgDC.drawTopBottom = CG_DrawTopBottom
+    cgDC.clearScene = trap_R_ClearScene
+    // Port-note: The draft of this statement did not compile, and the compiler wrote "cannot assign value of type '@Sendable (RefEntity) -> ()' to type 'DisplayContextDefAddRefEntityToScene' (aka '@convention(c) (Optional<OpaquePointer>) -> ()')".
+    // Raven wrote: cgDC.addRefEntityToScene = &trap_R_AddRefEntityToScene
+    portMissing("CG_LoadHudMenu", source: "oracle/codemp/cgame/cg_main.c:3145")
+    // Port-note: The draft of this statement did not compile, and the compiler wrote "cannot assign value of type '@Sendable (Refdef) -> ()' to type 'DisplayContextDefRenderScene' (aka '@convention(c) (Optional<OpaquePointer>) -> ()')".
+    // Raven wrote: cgDC.renderScene = &trap_R_RenderScene
+    portMissing("CG_LoadHudMenu", source: "oracle/codemp/cgame/cg_main.c:3145")
+    // Port-note: The draft of this statement did not compile, and the compiler wrote "cannot assign value of type '@Sendable (String) -> qhandle_t' (aka '@Sendable (String) -> Int32') to type 'DisplayContextDefRegisterFont' (aka '@convention(c) (Optional<OpaquePointer>) -> Int32')".
+    // Raven wrote: cgDC.RegisterFont = &trap_R_RegisterFont
+    portMissing("CG_LoadHudMenu", source: "oracle/codemp/cgame/cg_main.c:3145")
+    // Port-note: The draft of this statement did not compile, and the compiler wrote "cannot assign value of type '@Sendable (String, Int32, Float) -> Int32' to type 'DisplayContextDefFont_StrLenPixels' (aka '@convention(c) (Optional<OpaquePointer>, Int32, Float) -> Int32')".
+    // Raven wrote: cgDC.Font_StrLenPixels = &trap_R_Font_StrLenPixels
+    portMissing("CG_LoadHudMenu", source: "oracle/codemp/cgame/cg_main.c:3145")
+    // Port-note: The draft of this statement did not compile, and the compiler wrote "cannot assign value of type '@Sendable (String) -> Int32' to type 'DisplayContextDefFont_StrLenChars' (aka '@convention(c) (Optional<OpaquePointer>) -> Int32')".
+    // Raven wrote: cgDC.Font_StrLenChars = &trap_R_Font_StrLenChars
+    portMissing("CG_LoadHudMenu", source: "oracle/codemp/cgame/cg_main.c:3145")
+    cgDC.Font_HeightPixels = trap_R_Font_HeightPixels
+    // Port-note: The draft of this statement did not compile, and the compiler wrote "cannot assign value of type '@Sendable (Int32, Int32, String, vec4_t?, Int32, Int32, Float) -> ()' (aka '@Sendable (Int32, Int32, String, Optional<SIMD4<Float>>, Int32, Int32, Float) -> ()') to type 'DisplayContextDefFont_DrawString' (aka '@convention(c) (Int32, Int32, Optional<OpaquePointer>, Optional<OpaquePointer>, Int32, Int32, Float) -> ()')".
+    // Raven wrote: cgDC.Font_DrawString = &trap_R_Font_DrawString
+    portMissing("CG_LoadHudMenu", source: "oracle/codemp/cgame/cg_main.c:3145")
+    // Port-note: The draft of this statement did not compile, and the compiler wrote "cannot assign value of type '@Sendable () -> Bool' to type 'DisplayContextDefLanguage_IsAsian' (aka '@convention(c) () -> Int32')".
+    // Raven wrote: cgDC.Language_IsAsian = &trap_Language_IsAsian
+    portMissing("CG_LoadHudMenu", source: "oracle/codemp/cgame/cg_main.c:3145")
+    // Port-note: The draft of this statement did not compile, and the compiler wrote "cannot assign value of type '@Sendable () -> Bool' to type 'DisplayContextDefLanguage_UsesSpaces' (aka '@convention(c) () -> Int32')".
+    // Raven wrote: cgDC.Language_UsesSpaces = &trap_Language_UsesSpaces
+    portMissing("CG_LoadHudMenu", source: "oracle/codemp/cgame/cg_main.c:3145")
+    // Port-note: The draft of this statement did not compile, and the compiler wrote "cannot assign value of type '@Sendable (String, inout Int32, inout Bool) -> UInt32' to type 'DisplayContextDefAnyLanguage_ReadCharFromString' (aka '@convention(c) (Optional<OpaquePointer>, Optional<OpaquePointer>, Optional<OpaquePointer>) -> UInt32')".
+    // Raven wrote: cgDC.AnyLanguage_ReadCharFromString = &trap_AnyLanguage_ReadCharFromString
+    portMissing("CG_LoadHudMenu", source: "oracle/codemp/cgame/cg_main.c:3145")
+    // Port-note: The draft of this statement did not compile, and the compiler wrote "cannot assign value of type '@Sendable (Float, Float, Float, Float, Float, Float, Int32, Int32, Int32, Float, Float, vec4_t, qhandle_t, Int32, Int32) -> ()' (aka '@Sendable (Float, Float, Float, Float, Float, Float, Int32, Int32, Int32, Float, Float, SIMD4<Float>, Int32, Int32, Int32) -> ()') to type 'DisplayContextDefOwnerDrawItem' (aka '@convention(c) (Float, Float, Float, Float, Float, Float, Int32, Int32, Int32, Float, Float, Optional<OpaquePointer>, Int32, Int32, Int32) -> ()')".
+    // Raven wrote: cgDC.ownerDrawItem = &CG_OwnerDraw
+    portMissing("CG_LoadHudMenu", source: "oracle/codemp/cgame/cg_main.c:3145")
+    cgDC.getValue = CG_GetValue
+    // Port-note: The draft of this statement did not compile, and the compiler wrote "cannot assign value of type '@Sendable (Int32) -> Bool' to type 'DisplayContextDefOwnerDrawVisible' (aka '@convention(c) (Int32) -> Int32')".
+    // Raven wrote: cgDC.ownerDrawVisible = &CG_OwnerDrawVisible
+    portMissing("CG_LoadHudMenu", source: "oracle/codemp/cgame/cg_main.c:3145")
+    // Port-note: The draft of this statement did not compile, and the compiler wrote "cannot assign value of type '@Sendable (inout TextCursor) -> ()' to type 'DisplayContextDefRunScript' (aka '@convention(c) (Optional<OpaquePointer>) -> ()')".
+    // Raven wrote: cgDC.runScript = &CG_RunMenuScript
+    portMissing("CG_LoadHudMenu", source: "oracle/codemp/cgame/cg_main.c:3145")
+    // Port-note: The draft of this statement did not compile, and the compiler wrote "cannot assign value of type '@Sendable (inout TextCursor) -> Bool' to type 'DisplayContextDefDeferScript' (aka '@convention(c) (Optional<OpaquePointer>) -> Int32')".
+    // Raven wrote: cgDC.deferScript = &CG_DeferMenuScript
+    portMissing("CG_LoadHudMenu", source: "oracle/codemp/cgame/cg_main.c:3145")
+    // Port-note: The draft of this statement did not compile, and the compiler wrote "cannot assign value of type '@Sendable (inout vec4_t) -> ()' (aka '@Sendable (inout SIMD4<Float>) -> ()') to type 'DisplayContextDefGetTeamColor' (aka '@convention(c) (Optional<OpaquePointer>) -> ()')".
+    // Raven wrote: cgDC.getTeamColor = &CG_GetTeamColor
+    portMissing("CG_LoadHudMenu", source: "oracle/codemp/cgame/cg_main.c:3145")
+    // Port-note: The draft of this statement did not compile, and the compiler wrote "cannot assign value of type '@Sendable (String, String) -> ()' to type 'DisplayContextDefSetCVar' (aka '@convention(c) (Optional<OpaquePointer>, Optional<OpaquePointer>) -> ()')".
+    // Raven wrote: cgDC.setCVar = trap_Cvar_Set
+    portMissing("CG_LoadHudMenu", source: "oracle/codemp/cgame/cg_main.c:3145")
+    // Port-note: The draft of this statement did not compile, and the compiler wrote "failed to produce diagnostic for expression; please submit a bug report (https://swift.org/contributing/#reporting-bugs)".
+    // Raven wrote: cgDC.getCVarString = trap_Cvar_VariableStringBuffer
+    portMissing("CG_LoadHudMenu", source: "oracle/codemp/cgame/cg_main.c:3145")
+    cgDC.getCVarValue = DisplayContextDefThunks.CG_Cvar_Get
+    cgDC.drawTextWithCursor = DisplayContextDefThunks.CG_Text_PaintWithCursor
+    //cgDC.setOverstrikeMode = &trap_Key_SetOverstrikeMode;
+    //cgDC.getOverstrikeMode = &trap_Key_GetOverstrikeMode;
+    cgDC.startLocalSound = trap_S_StartLocalSound
+    cgDC.ownerDrawHandleKey = DisplayContextDefThunks.CG_OwnerDrawHandleKey
+    cgDC.feederCount = DisplayContextDefThunks.CG_FeederCount
+    cgDC.feederItemImage = DisplayContextDefThunks.CG_FeederItemImage
+    cgDC.feederItemText = DisplayContextDefThunks.CG_FeederItemText
+    cgDC.feederSelection = DisplayContextDefThunks.CG_FeederSelection
+    //cgDC.setBinding = &trap_Key_SetBinding;
+    //cgDC.getBindingBuf = &trap_Key_GetBindingBuf;
+    //cgDC.keynumToStringBuf = &trap_Key_KeynumToStringBuf;
+    //cgDC.executeText = &trap_Cmd_ExecuteText;
+    cgDC.Error = DisplayContextDefThunks.Com_Error
+    cgDC.Print = DisplayContextDefThunks.Com_Printf
+    cgDC.ownerDrawWidth = DisplayContextDefThunks.CG_OwnerDrawWidth
+    //cgDC.Pause = &CG_Pause;
+    // Port-note: The draft of this statement did not compile, and the compiler wrote "cannot assign value of type '@Sendable (String) -> sfxHandle_t' (aka '@Sendable (String) -> Int32') to type 'DisplayContextDefRegisterSound' (aka '@convention(c) (Optional<OpaquePointer>) -> Int32')".
+    // Raven wrote: cgDC.registerSound = &trap_S_RegisterSound
+    portMissing("CG_LoadHudMenu", source: "oracle/codemp/cgame/cg_main.c:3145")
+    // Port-note: The draft of this statement did not compile, and the compiler wrote "cannot assign value of type '@Sendable (String, String, Bool) -> ()' to type 'DisplayContextDefStartBackgroundTrack' (aka '@convention(c) (Optional<OpaquePointer>, Optional<OpaquePointer>, Int32) -> ()')".
+    // Raven wrote: cgDC.startBackgroundTrack = &trap_S_StartBackgroundTrack
+    portMissing("CG_LoadHudMenu", source: "oracle/codemp/cgame/cg_main.c:3145")
+    cgDC.stopBackgroundTrack = trap_S_StopBackgroundTrack
+    cgDC.playCinematic = DisplayContextDefThunks.CG_PlayCinematic
+    cgDC.stopCinematic = DisplayContextDefThunks.CG_StopCinematic
+    cgDC.drawCinematic = DisplayContextDefThunks.CG_DrawCinematic
+    cgDC.runCinematicFrame = DisplayContextDefThunks.CG_RunCinematicFrame
+
+    // Port-note: The draft of this statement did not compile, and the compiler wrote "cannot find 'Init_Display' in scope".
+    // Raven wrote: Init_Display(&cgDC)
+    portMissing("CG_LoadHudMenu", source: "oracle/codemp/cgame/cg_main.c:3145")
+
+    // Port-note: The draft of this statement did not compile, and the compiler wrote "cannot find 'Menu_Reset' in scope".
+    // Raven wrote: Menu_Reset()
+    portMissing("CG_LoadHudMenu", source: "oracle/codemp/cgame/cg_main.c:3145")
+
+    hudSet = cg_hudFiles.string
+    if CharBuf(hudSet)[0] == 0 {
+        hudSet = "ui/jahud.txt"
+    }
+
+    CG_LoadMenus(hudSet)
 }
 
 /// Source: oracle/codemp/cgame/cg_main.c:3221
 func CG_AssetCache() {
-    // TODO: Port CG_AssetCache
-    portMissing("CG_AssetCache", source: "oracle/codemp/cgame/cg_main.c:3221")
+    //if (Assets.textFont == NULL) {
+    //  trap_R_RegisterFont("fonts/arial.ttf", 72, &Assets.textFont);
+    //}
+    //Assets.background = trap_R_RegisterShaderNoMip( ASSET_BACKGROUND );
+    //Com_Printf("Menu Size: %i bytes\n", sizeof(Menus));
+    cgDC.Assets.gradientBar = trap_R_RegisterShaderNoMip(ASSET_GRADIENTBAR)
+    cgDC.Assets.fxBasePic = trap_R_RegisterShaderNoMip(ART_FX_BASE)
+    cgDC.Assets.fxPic[0] = trap_R_RegisterShaderNoMip(ART_FX_RED)
+    cgDC.Assets.fxPic[1] = trap_R_RegisterShaderNoMip(ART_FX_YELLOW)
+    cgDC.Assets.fxPic[2] = trap_R_RegisterShaderNoMip(ART_FX_GREEN)
+    cgDC.Assets.fxPic[3] = trap_R_RegisterShaderNoMip(ART_FX_TEAL)
+    cgDC.Assets.fxPic[4] = trap_R_RegisterShaderNoMip(ART_FX_BLUE)
+    cgDC.Assets.fxPic[5] = trap_R_RegisterShaderNoMip(ART_FX_CYAN)
+    cgDC.Assets.fxPic[6] = trap_R_RegisterShaderNoMip(ART_FX_WHITE)
+    cgDC.Assets.scrollBar = trap_R_RegisterShaderNoMip(ASSET_SCROLLBAR)
+    cgDC.Assets.scrollBarArrowDown = trap_R_RegisterShaderNoMip(ASSET_SCROLLBAR_ARROWDOWN)
+    cgDC.Assets.scrollBarArrowUp = trap_R_RegisterShaderNoMip(ASSET_SCROLLBAR_ARROWUP)
+    cgDC.Assets.scrollBarArrowLeft = trap_R_RegisterShaderNoMip(ASSET_SCROLLBAR_ARROWLEFT)
+    cgDC.Assets.scrollBarArrowRight = trap_R_RegisterShaderNoMip(ASSET_SCROLLBAR_ARROWRIGHT)
+    cgDC.Assets.scrollBarThumb = trap_R_RegisterShaderNoMip(ASSET_SCROLL_THUMB)
+    cgDC.Assets.sliderBar = trap_R_RegisterShaderNoMip(ASSET_SLIDER_BAR)
+    cgDC.Assets.sliderThumb = trap_R_RegisterShaderNoMip(ASSET_SLIDER_THUMB)
 }
 
 // initialise the cg_entities structure - take into account the ghoul2 stl stuff in the active snap shots
 /// Source: oracle/codemp/cgame/cg_main.c:3254
 func CG_Init_CG() {
-    // TODO: Port CG_Init_CG
-    portMissing("CG_Init_CG", source: "oracle/codemp/cgame/cg_main.c:3254")
+    cg.clear()
 }
 
 // initialise the cg_entities structure - take into account the ghoul2 stl stuff
 /// Source: oracle/codemp/cgame/cg_main.c:3274
 func CG_Init_CGents() {
-    // TODO: Port CG_Init_CGents
-    portMissing("CG_Init_CGents", source: "oracle/codemp/cgame/cg_main.c:3274")
+    cg_entities.zero()
 }
 
 /// Source: oracle/codemp/cgame/cg_main.c:3281
 func CG_InitItems() {
-    // TODO: Port CG_InitItems
-    portMissing("CG_InitItems", source: "oracle/codemp/cgame/cg_main.c:3281")
+    cg_items.zero()
 }
 
 /// Source: oracle/codemp/cgame/cg_main.c:3286
 func CG_TransitionPermanent() {
-    // TODO: Port CG_TransitionPermanent
-    portMissing("CG_TransitionPermanent", source: "oracle/codemp/cgame/cg_main.c:3286")
+    var cent: Slots<Centity> = cg_entities
+    var i: Int32
+
+    cg_numpermanents = 0
+    i = 0
+    while i < MAX_GENTITIES {
+        if trap_GetDefaultState(i, cent[0].currentState) {
+            cent[0].nextState.copy(from: cent[0].currentState)
+            cent[0].lerpOrigin = cent[0].currentState.origin
+            cent[0].lerpAngles = cent[0].currentState.angles
+            cent[0].currentValid = true
+
+            // Port-note: A ++ inside an expression.
+            // Raven wrote: cg_permanents[cg_numpermanents++] = cent
+            portMissing("CG_TransitionPermanent", source: "oracle/codemp/cgame/cg_main.c:3286")
+        }
+        i += 1
+        // Port-note: The draft of this statement did not compile, and the compiler wrote "binary operator '+=' cannot be applied to operands of type 'Slots<Centity>' and 'Int'".
+        // Raven wrote: cent++
+        portMissing("CG_TransitionPermanent", source: "oracle/codemp/cgame/cg_main.c:3286")
+    }
 }
 
 /// Source: oracle/codemp/cgame/cg_main.c:3313
 func CG_StrPool_Alloc(_ size: Int32) -> String {
-    // TODO: Port CG_StrPool_Alloc
+    // Port-note: A pointer local `char * giveThemThis` with no view.
+    // Raven wrote: char *giveThemThis;
+    portMissing("CG_StrPool_Alloc", source: "oracle/codemp/cgame/cg_main.c:3313")
+
+    if cg_strPoolSize + size >= MAX_CGSTRPOOL_SIZE {
+        Com_Error(ERR_DROP, "You exceeded the cgame string pool size. Bad programmer!\n")
+    }
+
+    // Port-note: A store into `giveThemThis`, a local the draft left as a hole.
+    // Raven wrote: giveThemThis = (char *) &cg_strPool[cg_strPoolSize]
+    portMissing("CG_StrPool_Alloc", source: "oracle/codemp/cgame/cg_main.c:3313")
+    cg_strPoolSize += size
+
+    //memset it for them, just to be nice.
+    // Port-note: Raven's `memset(giveThemThis, 0, size)` runs over bytes that are not one record with a view.
+    // Raven wrote: memset(giveThemThis, 0, size)
+    portMissing("CG_StrPool_Alloc", source: "oracle/codemp/cgame/cg_main.c:3313")
+
+    // Port-note: A read of `giveThemThis`, a local the draft left as a hole.
+    // Raven wrote: return giveThemThis
     portMissing("CG_StrPool_Alloc", source: "oracle/codemp/cgame/cg_main.c:3313")
 }
 
 /// Source: oracle/codemp/cgame/cg_main.c:3331
 func CG_StrPool_Reset() {
-    // TODO: Port CG_StrPool_Reset
-    portMissing("CG_StrPool_Reset", source: "oracle/codemp/cgame/cg_main.c:3331")
+    cg_strPoolSize = 0
 }
 
 /**
@@ -1030,40 +3339,139 @@ so message texts can be multi-line
 */
 /// Source: oracle/codemp/cgame/cg_main.c:3344
 func CG_NewString(_ string: String) -> String {
-    // TODO: Port CG_NewString
+    let newb: String
+    // Port-note: A pointer local `char * new_p` with no view.
+    // Raven wrote: new_p;
     portMissing("CG_NewString", source: "oracle/codemp/cgame/cg_main.c:3344")
+    var i: Int32
+    let l: Int32
+
+    l = strlen(string) + 1
+
+    newb = CG_StrPool_Alloc(l)
+
+    // Port-note: A store into `new_p`, a local the draft left as a hole.
+    // Raven wrote: new_p = newb
+    portMissing("CG_NewString", source: "oracle/codemp/cgame/cg_main.c:3344")
+
+    // turn \n into a real linefeed
+    i = 0
+    while i < l {
+        // Port-note: The draft of this statement did not compile, and the compiler wrote "binary operator '==' cannot be applied to operands of type 'Character' and 'Int32'".
+        // Raven wrote: if (string[i] == '\\' && i < l-1) { i++; if (string[i] == 'n') { *new_p++ = '\n'; } else { *new_p++ = '\\'; } } else { *new_p++ = string[i]; }
+        portMissing("CG_NewString", source: "oracle/codemp/cgame/cg_main.c:3344")
+        i += 1
+    }
+
+    return newb
 }
 
 /// Source: oracle/codemp/cgame/cg_main.c:3418
 func CG_CreateSkyPortalFromSpawnEnt(_ ent: CgSpawnEnt) {
-    // TODO: Port CG_CreateSkyPortalFromSpawnEnt
-    portMissing("CG_CreateSkyPortalFromSpawnEnt", source: "oracle/codemp/cgame/cg_main.c:3418")
+    if ent.onlyFogHere != 0 {
+        //only globally fog INSIDE the sky portal
+        cg_noFogOutsidePortal = true
+    }
 }
 
 /// Source: oracle/codemp/cgame/cg_main.c:3432
 func CG_CreateSkyOriFromSpawnEnt(_ ent: CgSpawnEnt) {
-    // TODO: Port CG_CreateSkyOriFromSpawnEnt
-    portMissing("CG_CreateSkyOriFromSpawnEnt", source: "oracle/codemp/cgame/cg_main.c:3432")
+    cg_skyOri = true
+    cg_skyOriPos = ent.origin
+    cg_skyOriScale = ent.fScale
 }
 
 //get brush box extents, note this does not care about bsp instances.
 /// Source: oracle/codemp/cgame/cg_main.c:3440
 func CG_CreateBrushEntData(_ ent: CgSpawnEnt) {
-    // TODO: Port CG_CreateBrushEntData
-    portMissing("CG_CreateBrushEntData", source: "oracle/codemp/cgame/cg_main.c:3440")
+    trap_R_ModelBounds(trap_R_RegisterModel(ent.model!), &ent.mins, &ent.maxs)
 }
 
 /// Source: oracle/codemp/cgame/cg_main.c:3445
 func CG_CreateWeatherZoneFromSpawnEnt(_ ent: CgSpawnEnt) {
-    // TODO: Port CG_CreateWeatherZoneFromSpawnEnt
-    portMissing("CG_CreateWeatherZoneFromSpawnEnt", source: "oracle/codemp/cgame/cg_main.c:3445")
+    CG_CreateBrushEntData(ent)
+    trap_WE_AddWeatherZone(ent.mins, ent.maxs)
 }
 
 //create a new cgame-only model
 /// Source: oracle/codemp/cgame/cg_main.c:3452
 func CG_CreateModelFromSpawnEnt(_ ent: CgSpawnEnt) {
-    // TODO: Port CG_CreateModelFromSpawnEnt
+    let modelIndex: Int32
+    var RefEnt: RefEntity?
+    var mins = vec3_t()
+    var maxs = vec3_t()
+    // Port-note: A pointer local `float * radius` with no view.
+    // Raven wrote: float *radius;
     portMissing("CG_CreateModelFromSpawnEnt", source: "oracle/codemp/cgame/cg_main.c:3452")
+    // Port-note: A pointer local `float * zOff` with no view.
+    // Raven wrote: float *zOff;
+    portMissing("CG_CreateModelFromSpawnEnt", source: "oracle/codemp/cgame/cg_main.c:3452")
+
+    if NumMiscEnts >= MAX_MISC_ENTS {
+        Com_Error(ERR_DROP, "Too many misc_model_static's on level, ask a programmer to raise the limit (currently %i), or take some out.", MAX_MISC_ENTS)
+        return
+    }
+
+    if ent.model == nil || ent.model!.isEmpty {
+        Com_Error(ERR_DROP, "misc_model_static with no model.")
+        return
+    }
+
+    // Port-note: A store into `radius`, a local the draft left as a hole.
+    // Raven wrote: radius = &Radius[NumMiscEnts]
+    portMissing("CG_CreateModelFromSpawnEnt", source: "oracle/codemp/cgame/cg_main.c:3452")
+    // Port-note: A store into `zOff`, a local the draft left as a hole.
+    // Raven wrote: zOff = &zOffset[NumMiscEnts]
+    portMissing("CG_CreateModelFromSpawnEnt", source: "oracle/codemp/cgame/cg_main.c:3452")
+    // Port-note: A ++ inside an expression.
+    // Raven wrote: RefEnt = &MiscEnts[NumMiscEnts++]
+    portMissing("CG_CreateModelFromSpawnEnt", source: "oracle/codemp/cgame/cg_main.c:3452")
+
+    modelIndex = trap_R_RegisterModel(ent.model!)
+    if modelIndex == 0 {
+        Com_Error(ERR_DROP, "misc_model_static failed to load model '%s'", ent.model!)
+        return
+    }
+
+    // Port-note: The draft of this statement did not compile, and the compiler wrote "value of optional type 'RefEntity?' must be unwrapped to refer to member 'clear' of wrapped base type 'RefEntity'".
+    // Raven wrote: memset(RefEnt, 0, sizeof(refEntity_t))
+    portMissing("CG_CreateModelFromSpawnEnt", source: "oracle/codemp/cgame/cg_main.c:3452")
+    RefEnt!.reType = RT_MODEL
+    RefEnt!.hModel = modelIndex
+    RefEnt!.frame = 0
+    trap_R_ModelBounds(modelIndex, &mins, &maxs)
+    RefEnt!.modelScale = ent.scale
+    if ent.fScale != 0 {
+        //use same scale on each axis then
+        RefEnt!.modelScale[2] = ent.fScale
+        RefEnt!.modelScale[1] = RefEnt!.modelScale[2]
+        RefEnt!.modelScale[0] = RefEnt!.modelScale[1]
+    }
+    RefEnt!.origin = ent.origin
+    RefEnt!.lightingOrigin = ent.origin
+
+    // Port-note: An expression statement with no effect the draft knows.
+    // Raven wrote: VectorScaleVector(mins, ent->scale, mins)
+    portMissing("CG_CreateModelFromSpawnEnt", source: "oracle/codemp/cgame/cg_main.c:3452")
+    // Port-note: An expression statement with no effect the draft knows.
+    // Raven wrote: VectorScaleVector(maxs, ent->scale, maxs)
+    portMissing("CG_CreateModelFromSpawnEnt", source: "oracle/codemp/cgame/cg_main.c:3452")
+    // Port-note: A pointer dereference the draft cannot place.
+    // Raven wrote: *radius = Distance(mins, maxs)
+    portMissing("CG_CreateModelFromSpawnEnt", source: "oracle/codemp/cgame/cg_main.c:3452")
+    // Port-note: A pointer dereference the draft cannot place.
+    // Raven wrote: *zOff = ent->zoffset
+    portMissing("CG_CreateModelFromSpawnEnt", source: "oracle/codemp/cgame/cg_main.c:3452")
+
+    if ent.angle != 0 {
+        //only yaw supplied...
+        ent.angles[YAW] = ent.angle
+    }
+
+    // Port-note: The draft of this statement did not compile, and the compiler wrote "cannot convert value of type 'Slots<vec3_t>' (aka 'Slots<SIMD3<Float>>') to expected argument type '[vec3_t]' (aka 'Array<SIMD3<Float>>')".
+    // Raven wrote: AnglesToAxis( ent->angles, RefEnt->axis )
+    portMissing("CG_CreateModelFromSpawnEnt", source: "oracle/codemp/cgame/cg_main.c:3452")
+    ScaleModelAxis(RefEnt!)
 }
 
 /**
@@ -1075,7 +3483,23 @@ CG_AddSpawnVarToken
 */
 /// Source: oracle/codemp/cgame/cg_main.c:3515
 func CG_AddSpawnVarToken(_ string: String) -> String {
-    // TODO: Port CG_AddSpawnVarToken
+    let l: Int32
+    var dest: Int32 = 0
+
+    l = strlen(string)
+    if cg_numSpawnVarChars + l + 1 > MAX_SPAWN_VARS_CHARS {
+        CG_Error("CG_AddSpawnVarToken: MAX_SPAWN_VARS")
+    }
+
+    dest = cg_numSpawnVarChars
+    // Port-note: Raven's `memcpy( dest, string, l+1 )` runs over bytes that are not one record with a view.
+    // Raven wrote: memcpy( dest, string, l+1 )
+    portMissing("CG_AddSpawnVarToken", source: "oracle/codemp/cgame/cg_main.c:3515")
+
+    cg_numSpawnVarChars += l + 1
+
+    // Port-note: The draft of this statement did not compile, and the compiler wrote "cannot convert return expression of type 'Int32' to return type 'String'".
+    // Raven wrote: return dest
     portMissing("CG_AddSpawnVarToken", source: "oracle/codemp/cgame/cg_main.c:3515")
 }
 
@@ -1091,14 +3515,107 @@ need to take up an entity slot (e.g. static models) -rww
 */
 /// Source: oracle/codemp/cgame/cg_main.c:3541
 func CG_ParseSpawnVars() -> Bool {
-    // TODO: Port CG_ParseSpawnVars
-    portMissing("CG_ParseSpawnVars", source: "oracle/codemp/cgame/cg_main.c:3541")
+    var keyname = CharBuf(1024)
+    var com_token = CharBuf(1024)
+
+    cg_numSpawnVars = 0
+    cg_numSpawnVarChars = 0
+
+    // parse the opening brace
+    let filledTest = trap_GetEntityToken(Int32((com_token).count))
+    strcpy(&com_token, filledTest.1)
+    if !filledTest.0 {
+        // end of spawn string
+        return false
+    }
+    if com_token[0] != Int32(ascii: "{") {
+        CG_Error("CG_ParseSpawnVars: found %s when expecting {", com_token)
+    }
+
+    // go through all the key / value pairs
+    while 1 != 0 {
+        // parse key
+        let filledTest2 = trap_GetEntityToken(Int32((keyname).count))
+        strcpy(&keyname, filledTest2.1)
+        if !filledTest2.0 {
+            CG_Error("CG_ParseSpawnVars: EOF without closing brace")
+        }
+
+        if keyname[0] == Int32(ascii: "}") {
+            break
+        }
+
+        // parse value
+        let filledTest3 = trap_GetEntityToken(Int32((com_token).count))
+        strcpy(&com_token, filledTest3.1)
+        if !filledTest3.0 {
+            //this happens on mike's test level, I don't know why. Fixme?
+            //CG_Error( "CG_ParseSpawnVars: EOF without closing brace" );
+            break
+        }
+
+        if com_token[0] == Int32(ascii: "}") {
+            CG_Error("CG_ParseSpawnVars: closing brace without data")
+        }
+        if cg_numSpawnVars == MAX_SPAWN_VARS {
+            CG_Error("CG_ParseSpawnVars: MAX_SPAWN_VARS")
+        }
+        cg_spawnVars[cg_numSpawnVars][0] = CG_AddSpawnVarToken(String(keyname))
+        cg_spawnVars[cg_numSpawnVars][1] = CG_AddSpawnVarToken(String(com_token))
+        cg_numSpawnVars += 1
+    }
+
+    return true
 }
 
 /// Source: oracle/codemp/cgame/cg_main.c:3608
 func CG_SpawnCGameEntFromVars() {
-    // TODO: Port CG_SpawnCGameEntFromVars
-    portMissing("CG_SpawnCGameEntFromVars", source: "oracle/codemp/cgame/cg_main.c:3608")
+    var i: Int32 = 0
+    // Raven's record lives to the end of his block, so the block is the closure.
+    CgSpawnEnt.scratch { ent in
+
+        // Raven clears the record with `memset` here. The scratch slot is zero at entry, so the body drops the call.
+
+        i = 0
+        while i < cg_numSpawnVars {
+            //shove all this stuff into our data structure used specifically for getting spawn info
+            // Port-note: Raven passes `cg_spawnFields` to `BG_ParseField`, whose `l_fields` parameter takes the Slots over the records, and Swift holds one record here. A Slots over one record has no form yet.
+            // Raven wrote: BG_ParseField( cg_spawnFields, cg_spawnVars[i][0], cg_spawnVars[i][1], (byte *)&ent )
+            portMissing("CG_SpawnCGameEntFromVars", source: "oracle/codemp/cgame/cg_main.c:3608")
+            i += 1
+        }
+
+        if ent.classname != nil && !ent.classname!.isEmpty {
+            //we'll just stricmp this bastard, since there aren't all that many cgame-only things, and they all have special handling
+            if Q_stricmp(ent.classname!, "worldspawn") == 0 {
+                //I'd like some info off this guy
+                if ent.fogstart != 0 {
+                    //linear fog method
+                    cg_linearFogOverride = ent.fogstart
+                }
+                //get radarRange off of worldspawn
+                if ent.radarrange != 0 {
+                    //linear fog method
+                    cg_radarRange = ent.radarrange
+                }
+            } else if Q_stricmp(ent.classname!, "misc_model_static") == 0 {
+                //we've got us a static model
+                CG_CreateModelFromSpawnEnt(ent)
+            } else if Q_stricmp(ent.classname!, "misc_skyportal_orient") == 0 {
+                //a sky portal orientation point
+                CG_CreateSkyOriFromSpawnEnt(ent)
+            } else if Q_stricmp(ent.classname!, "misc_skyportal") == 0 {
+                //might as well parse this thing cgame side for the extra info I want out of it
+                CG_CreateSkyPortalFromSpawnEnt(ent)
+            } else if Q_stricmp(ent.classname!, "misc_weather_zone") == 0 {
+                //might as well parse this thing cgame side for the extra info I want out of it
+                CG_CreateWeatherZoneFromSpawnEnt(ent)
+            }
+        }
+
+        //reset the string pool for the next entity, if there is one
+        CG_StrPool_Reset()
+    }
 }
 
 /**
@@ -1113,8 +3630,23 @@ the server and never even bother sending. -rww
 */
 /// Source: oracle/codemp/cgame/cg_main.c:3664
 func CG_SpawnCGameOnlyEnts() {
-    // TODO: Port CG_SpawnCGameOnlyEnts
+    //make sure it is reset
+    // Port-note: The draft of this statement did not compile, and the compiler wrote "'nil' is not compatible with expected argument type 'Int32'".
+    // Raven wrote: trap_GetEntityToken(NULL, -1)
     portMissing("CG_SpawnCGameOnlyEnts", source: "oracle/codemp/cgame/cg_main.c:3664")
+
+    if !CG_ParseSpawnVars() {
+        //first one is gonna be the world spawn
+        CG_Error("no entities for cgame parse")
+    } else {
+        //parse the world spawn info we want
+        CG_SpawnCGameEntFromVars()
+    }
+
+    while CG_ParseSpawnVars() {
+        //now run through the whole list, and look for things we care about cgame-side
+        CG_SpawnCGameEntFromVars()
+    }
 }
 
 /**
@@ -1129,21 +3661,278 @@ Will perform callbacks to make the loading info screen update.
 */
 /// Source: oracle/codemp/cgame/cg_main.c:3704
 func CG_Init(_ serverMessageNum: Int32, _ serverCommandSequence: Int32, _ clientNum: Int32) {
-    // TODO: Port CG_Init
+    var item: Gitem?
+    var buf = CharBuf(64)
+    var s: String
+    var i: Int32 = 0
+
+    BG_InitAnimsets() //clear it out
+
+    trap_CG_RegisterSharedMemory(cg.sharedBuffer)
+
+    //Load external vehicle data
+    BG_VehicleLoadParms()
+
+    // clear everything
+    /*
+    Ghoul2 Insert Start
+    */
+
+    //	memset( cg_entities, 0, sizeof( cg_entities ) );
+    CG_Init_CGents()
+    // this is a No-No now we have stl vector classes in here.
+    //	memset( &cg, 0, sizeof( cg ) );
+    CG_Init_CG()
+    CG_InitItems()
+
+    //create the global jetpack instance
+    CG_InitJetpackGhoul2()
+
+    CG_PmoveClientPointerUpdate()
+
+    /*
+    Ghoul2 Insert End
+    */
+
+    //Load sabers.cfg data
+    WP_SaberLoadParms()
+
+    // this is kinda dumb as well, but I need to pre-load some fonts in order to have the text available
+    //	to say I'm loading the assets.... which includes loading the fonts. So I'll set these up as reasonable
+    //	defaults, then let the menu asset parser (which actually specifies the ingame fonts) load over them
+    //	if desired during parse.  Dunno how legal it is to store in these cgDC things, but it causes no harm
+    //	and even if/when they get overwritten they'll be legalised by the menu asset parser :-)
+    //	CG_LoadFonts();
+    cgDC.Assets.qhSmallFont = trap_R_RegisterFont("ocr_a")
+    cgDC.Assets.qhMediumFont = trap_R_RegisterFont("ergoec")
+    cgDC.Assets.qhBigFont = cgDC.Assets.qhMediumFont
+
+    cgs.clear()
+    cg_weapons.zero()
+
+    cg.clientNum = clientNum
+
+    cgs.processedSnapshotNum = serverMessageNum
+    cgs.serverCommandSequence = serverCommandSequence
+
+    cg.loadLCARSStage = 0
+
+    cg.itemSelect = -1
+    cg.forceSelect = -1
+
+    // load a few needed things before we do any screen updates
+    cgs.media.charsetShader = trap_R_RegisterShaderNoMip("gfx/2d/charsgrid_med")
+    cgs.media.whiteShader = trap_R_RegisterShader("white")
+
+    cgs.media.loadBarLED = trap_R_RegisterShaderNoMip("gfx/hud/load_tick")
+    cgs.media.loadBarLEDCap = trap_R_RegisterShaderNoMip("gfx/hud/load_tick_cap")
+    cgs.media.loadBarLEDSurround = trap_R_RegisterShaderNoMip("gfx/hud/mp_levelload")
+
+    // Force HUD set up
+    cg.forceHUDActive = true
+    cg.forceHUDTotalFlashTime = 0
+    cg.forceHUDNextFlashTime = 0
+
+    i = WP_NONE + 1
+    while i <= WP_BRYAR_OLD {
+        item = BG_FindItemForWeapon(i)
+
+        if item != nil && item!.icon != nil && !item!.icon!.isEmpty {
+            cgs.media.weaponIcons[i] = trap_R_RegisterShaderNoMip(item!.icon!)
+            cgs.media.weaponIcons_NA[i] = trap_R_RegisterShaderNoMip(va("%s_na", item!.icon!))
+        } else {
+            //make sure it is zero'd (default shader)
+            cgs.media.weaponIcons[i] = 0
+            cgs.media.weaponIcons_NA[i] = 0
+        }
+        i += 1
+    }
+    strcpy(&buf, trap_Cvar_VariableStringBuffer("com_buildscript", Int32((buf).count)))
+    if atoi(buf) != 0 {
+        trap_R_RegisterShaderNoMip("gfx/hud/w_icon_saberstaff")
+        trap_R_RegisterShaderNoMip("gfx/hud/w_icon_duallightsaber")
+    }
+    i = 0
+
+    // HUD artwork for cycling inventory,weapons and force powers
+    cgs.media.weaponIconBackground = trap_R_RegisterShaderNoMip("gfx/hud/background")
+    cgs.media.forceIconBackground = trap_R_RegisterShaderNoMip("gfx/hud/background_f")
+    cgs.media.inventoryIconBackground = trap_R_RegisterShaderNoMip("gfx/hud/background_i")
+
+    //rww - precache holdable item icons here
+    while i < bg_numItems {
+        if bg_itemlist[i].giType == IT_HOLDABLE {
+            if bg_itemlist[i].icon != nil {
+                cgs.media.invenIcons[bg_itemlist[i].giTag] = trap_R_RegisterShaderNoMip(bg_itemlist[i].icon!)
+            } else {
+                cgs.media.invenIcons[bg_itemlist[i].giTag] = 0
+            }
+        }
+
+        i += 1
+    }
+
+    //rww - precache force power icons here
+    i = 0
+
+    while i < NUM_FORCE_POWERS {
+        // Port-note: The draft of this statement did not compile, and the compiler wrote "cannot find 'HolocronIcons' in scope".
+        // Raven wrote: cgs.media.forcePowerIcons[i] = trap_R_RegisterShaderNoMip(HolocronIcons[i])
+        portMissing("CG_Init", source: "oracle/codemp/cgame/cg_main.c:3704")
+
+        i += 1
+    }
+    cgs.media.rageRecShader = trap_R_RegisterShaderNoMip("gfx/mp/f_icon_ragerec")
+
+
+    //body decal shaders -rww
+    cgs.media.bdecal_bodyburn1 = trap_R_RegisterShader("gfx/damage/bodyburnmark1")
+    cgs.media.bdecal_saberglow = trap_R_RegisterShader("gfx/damage/saberglowmark")
+    cgs.media.bdecal_burn1 = trap_R_RegisterShader("gfx/damage/bodybigburnmark1")
+    cgs.media.mSaberDamageGlow = trap_R_RegisterShader("gfx/effects/saberDamageGlow")
+
+    CG_RegisterCvars()
+
+    CG_InitConsoleCommands()
+
+    cg.weaponSelect = WP_BRYAR_PISTOL
+
+    cgs.blueflag = -1 // For compatibily, default to unset for
+    cgs.redflag = cgs.blueflag // For compatibily, default to unset for
+    cgs.flagStatus = -1
+    // old servers
+
+    // get the rendering configuration from the client system
+    trap_GetGlconfig(cgs.glconfig)
+    cgs.screenXScale = Float(Double(cgs.glconfig.vidWidth) / 640.0)
+    cgs.screenYScale = Float(Double(cgs.glconfig.vidHeight) / 480.0)
+
+    // get the gamestate from the client system
+    trap_GetGameState(cgs.gameState)
+
+    CG_TransitionPermanent() //rwwRMG - added
+
+    // check version
+    s = CG_ConfigString(CS_GAME_VERSION)
+    if strcmp(s, GAME_VERSION) != 0 {
+        CG_Error("Client/Server game mismatch: %s/%s", GAME_VERSION, s)
+    }
+
+    s = CG_ConfigString(CS_LEVEL_START_TIME)
+    cgs.levelStartTime = atoi(s)
+
+    CG_ParseServerinfo()
+
+    // load the new map
+    //	CG_LoadingString( "collision map" );
+
+    trap_CM_LoadMap(cgs.mapname, false)
+
+    // Port-note: The draft of this statement did not compile, and the compiler wrote "cannot find 'String_Init' in scope".
+    // Raven wrote: String_Init()
     portMissing("CG_Init", source: "oracle/codemp/cgame/cg_main.c:3704")
+
+    cg.loading = true // force players to load instead of defer
+
+    //make sure saber data is loaded before this! (so we can precache the appropriate hilts)
+    CG_InitSiegeMode()
+
+    CG_RegisterSounds()
+
+    //	CG_LoadingString( "graphics" );
+
+    CG_RegisterGraphics()
+
+    //	CG_LoadingString( "clients" );
+
+    CG_RegisterClients() // if low on memory, some clients will be deferred
+
+    CG_AssetCache()
+    CG_LoadHudMenu() // load new hud stuff
+
+    cg.loading = false // future players will be deferred
+
+    CG_InitLocalEntities()
+
+    CG_InitMarkPolys()
+
+    // remove the last loading update
+    cg.infoScreenText = ""
+
+    // Make sure we have update values (scores)
+    CG_SetConfigValues()
+
+    CG_StartMusic(false)
+
+    //	CG_LoadingString( "Clearing light styles" );
+    CG_ClearLightStyles()
+
+    //	CG_LoadingString( "Creating automap data" );
+    //init automap
+    trap_R_InitWireframeAutomap()
+
+    CG_LoadingString("")
+
+    CG_ShaderStateChanged()
+
+    trap_S_ClearLoopingSounds()
+
+    trap_R_GetDistanceCull(&cg.distanceCull)
+
+    //now get all the cgame only cents
+    CG_SpawnCGameOnlyEnts()
 }
 
 //makes sure returned string is in localized format
 /// Source: oracle/codemp/cgame/cg_main.c:3936
 func CG_GetLocationString(_ loc: String) -> String {
-    // TODO: Port CG_GetLocationString
+    // Port-note: A static local `text` the function returns, storage that outlives the call.
+    // Raven wrote: static char text[1024]={0};
+    portMissing("CG_GetLocationString", source: "oracle/codemp/cgame/cg_main.c:3936")
+
+    // Port-note: The draft of this statement did not compile, and the compiler wrote "cannot convert value of type 'Character' to expected argument type 'Int32'".
+    // Raven wrote: if (!loc || loc[0] != '@') { //just a raw string return loc; }
+    portMissing("CG_GetLocationString", source: "oracle/codemp/cgame/cg_main.c:3936")
+
+    // Port-note: A read of `text`, a local the draft left as a hole.
+    // Raven wrote: trap_SP_GetStringTextString(loc+1, text, sizeof(text))
+    portMissing("CG_GetLocationString", source: "oracle/codemp/cgame/cg_main.c:3936")
+    // Port-note: A read of `text`, a local the draft left as a hole.
+    // Raven wrote: return text
     portMissing("CG_GetLocationString", source: "oracle/codemp/cgame/cg_main.c:3936")
 }
 
 /// Source: oracle/codemp/cgame/cg_main.c:3951
 func CG_DestroyAllGhoul2() {
-    // TODO: Port CG_DestroyAllGhoul2
-    portMissing("CG_DestroyAllGhoul2", source: "oracle/codemp/cgame/cg_main.c:3951")
+    var i: Int32 = 0
+    var j: Int32
+
+    //	Com_Printf("... CGameside GHOUL2 Cleanup\n");
+    while i < MAX_GENTITIES {
+        //free all dynamically allocated npc client info structs and ghoul2 instances
+        CG_KillCEntityG2(i)
+        i += 1
+    }
+
+    //Clean the weapon instances
+    CG_ShutDownG2Weapons()
+
+    i = 0
+    while i < MAX_ITEMS {
+        //and now for items
+        j = 0
+        while j < MAX_ITEM_MODELS {
+            if cg_items[i].g2Models[j] != nil && trap_G2_HaveWeGhoul2Models(cg_items[i].g2Models[j]) {
+                trap_G2API_CleanGhoul2Models(&cg_items[i].g2Models[j])
+                cg_items[i].g2Models[j] = nil
+            }
+            j += 1
+        }
+        i += 1
+    }
+
+    //Clean the global jetpack instance
+    CG_CleanJetpackGhoul2()
 }
 
 /**
@@ -1157,8 +3946,28 @@ Called before every level change or subsystem restart
 */
 /// Source: oracle/codemp/cgame/cg_main.c:3993
 func CG_Shutdown() {
-    // TODO: Port CG_Shutdown
+    BG_ClearAnimsets() //free all dynamic allocations made through the engine
+
+    CG_DestroyAllGhoul2()
+
+    //	Com_Printf("... FX System Cleanup\n");
+    trap_FX_FreeSystem()
+    trap_ROFF_Clean()
+
+    if cgWeatherOverride != 0 {
+        trap_R_WeatherContentsOverride(0) //rwwRMG - reset it engine-side
+    }
+
+    //reset weather
+    trap_R_WorldEffectCommand("die")
+
+    // Port-note: The draft of this statement did not compile, and the compiler wrote "cannot find 'UI_CleanupGhoul2' in scope".
+    // Raven wrote: UI_CleanupGhoul2()
     portMissing("CG_Shutdown", source: "oracle/codemp/cgame/cg_main.c:3993")
+    //If there was any ghoul2 stuff in our side of the shared ui code, then remove it now.
+
+    // some mods may need to do cleanup work here,
+    // like closing files or archiving session data
 }
 
 /**
@@ -1170,8 +3979,45 @@ CG_NextForcePower_f
 */
 /// Source: oracle/codemp/cgame/cg_main.c:4023
 func CG_NextForcePower_f() {
-    // TODO: Port CG_NextForcePower_f
-    portMissing("CG_NextForcePower_f", source: "oracle/codemp/cgame/cg_main.c:4023")
+    var current: Int32 = 0
+    // Raven's record lives to the end of his block, so the block is the closure.
+    // The closure gives true where Raven returns from the function.
+    let earlyOut = Usercmd.scratch { cmd -> Bool in
+        if cg.snap == nil {
+            return true
+        }
+
+        if cg.predictedPlayerState.pm_type == PM_SPECTATOR {
+            return true
+        }
+
+        current = trap_GetCurrentCmdNumber()
+        trap_GetUserCmd(current, cmd)
+        if (cmd.buttons & BUTTON_USE) != 0 || CG_NoUseableForce() {
+            CG_NextInventory_f()
+            return true
+        }
+
+        if (cg.snap!.ps.pm_flags & PMF_FOLLOW) != 0 {
+            return true
+        }
+
+        //	BG_CycleForce(&cg.snap->ps, 1);
+        if cg.forceSelect != -1 {
+            cg.snap!.ps.fd.forcePowerSelected = cg.forceSelect
+        }
+
+        BG_CycleForce(cg.snap!.ps, 1)
+
+        if (cg.snap!.ps.fd.forcePowersKnown & (1 << cg.snap!.ps.fd.forcePowerSelected)) != 0 {
+            cg.forceSelect = cg.snap!.ps.fd.forcePowerSelected
+            cg.forceSelectTime = Float(cg.time)
+        }
+        return false
+    }
+    if earlyOut {
+        return
+    }
 }
 
 /**
@@ -1183,20 +4029,95 @@ CG_PrevForcePower_f
 */
 /// Source: oracle/codemp/cgame/cg_main.c:4070
 func CG_PrevForcePower_f() {
-    // TODO: Port CG_PrevForcePower_f
-    portMissing("CG_PrevForcePower_f", source: "oracle/codemp/cgame/cg_main.c:4070")
+    var current: Int32 = 0
+    // Raven's record lives to the end of his block, so the block is the closure.
+    // The closure gives true where Raven returns from the function.
+    let earlyOut = Usercmd.scratch { cmd -> Bool in
+        if cg.snap == nil {
+            return true
+        }
+
+        if cg.predictedPlayerState.pm_type == PM_SPECTATOR {
+            return true
+        }
+
+        current = trap_GetCurrentCmdNumber()
+        trap_GetUserCmd(current, cmd)
+        if (cmd.buttons & BUTTON_USE) != 0 || CG_NoUseableForce() {
+            CG_PrevInventory_f()
+            return true
+        }
+
+        if (cg.snap!.ps.pm_flags & PMF_FOLLOW) != 0 {
+            return true
+        }
+
+        //	BG_CycleForce(&cg.snap->ps, -1);
+        if cg.forceSelect != -1 {
+            cg.snap!.ps.fd.forcePowerSelected = cg.forceSelect
+        }
+
+        BG_CycleForce(cg.snap!.ps, -1)
+
+        if (cg.snap!.ps.fd.forcePowersKnown & (1 << cg.snap!.ps.fd.forcePowerSelected)) != 0 {
+            cg.forceSelect = cg.snap!.ps.fd.forcePowerSelected
+            cg.forceSelectTime = Float(cg.time)
+        }
+        return false
+    }
+    if earlyOut {
+        return
+    }
 }
 
 /// Source: oracle/codemp/cgame/cg_main.c:4112
 func CG_NextInventory_f() {
-    // TODO: Port CG_NextInventory_f
-    portMissing("CG_NextInventory_f", source: "oracle/codemp/cgame/cg_main.c:4112")
+    if cg.snap == nil {
+        return
+    }
+
+    if (cg.snap!.ps.pm_flags & PMF_FOLLOW) != 0 {
+        return
+    }
+
+    if cg.predictedPlayerState.pm_type == PM_SPECTATOR {
+        return
+    }
+
+    if cg.itemSelect != -1 {
+        cg.snap!.ps.stats[STAT_HOLDABLE_ITEM] = BG_GetItemIndexByTag(cg.itemSelect, IT_HOLDABLE)
+    }
+    BG_CycleInven(cg.snap!.ps, 1)
+
+    if cg.snap!.ps.stats[STAT_HOLDABLE_ITEM] != 0 {
+        cg.itemSelect = bg_itemlist[cg.snap!.ps.stats[STAT_HOLDABLE_ITEM]].giTag
+        cg.invenSelectTime = Float(cg.time)
+    }
 }
 
 /// Source: oracle/codemp/cgame/cg_main.c:4142
 func CG_PrevInventory_f() {
-    // TODO: Port CG_PrevInventory_f
-    portMissing("CG_PrevInventory_f", source: "oracle/codemp/cgame/cg_main.c:4142")
+    if cg.snap == nil {
+        return
+    }
+
+    if (cg.snap!.ps.pm_flags & PMF_FOLLOW) != 0 {
+        return
+    }
+
+    if cg.predictedPlayerState.pm_type == PM_SPECTATOR {
+        return
+    }
+
+    if cg.itemSelect != -1 {
+        cg.snap!.ps.stats[STAT_HOLDABLE_ITEM] = BG_GetItemIndexByTag(cg.itemSelect, IT_HOLDABLE)
+    }
+    BG_CycleInven(cg.snap!.ps, -1)
+
+    if cg.snap!.ps.stats[STAT_HOLDABLE_ITEM] != 0 {
+        cg.itemSelect = bg_itemlist[cg.snap!.ps.stats[STAT_HOLDABLE_ITEM]].giTag
+        cg.invenSelectTime = Float(cg.time)
+    }
 }
 
 /// One static per function this file stores in a `DisplayContextDef` callback field, so each has one address for the life of the module.
