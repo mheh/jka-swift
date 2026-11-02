@@ -96,9 +96,7 @@ private func CG_Obituary(_ ent: JKAMP.EntityState) {
     let mod: Int32
     let target: Int32
     let attacker: Int32
-    // Port-note: A pointer local `char * message` with no view.
-    // Raven wrote: char *message;
-    portMissing("CG_Obituary", source: "oracle/codemp/cgame/cg_event.c:103")
+    var message: String? = nil
     let targetInfo: String
     var attackerInfo: String? = nil
     var targetName = CharBuf(32)
@@ -159,38 +157,26 @@ private func CG_Obituary(_ ent: JKAMP.EntityState) {
             //asteroid->vehicle collision
             switch Q_irand(0, 2) {
             case 1:
-                // Port-note: A store into `message`, a local the draft left as a hole.
-                // Raven wrote: message = "DIED_ASTEROID2"
-                portMissing("CG_Obituary", source: "oracle/codemp/cgame/cg_event.c:103")
+                message = "DIED_ASTEROID2"
 
             case 2:
-                // Port-note: A store into `message`, a local the draft left as a hole.
-                // Raven wrote: message = "DIED_ASTEROID3"
-                portMissing("CG_Obituary", source: "oracle/codemp/cgame/cg_event.c:103")
+                message = "DIED_ASTEROID3"
 
             default:
-                // Port-note: A store into `message`, a local the draft left as a hole.
-                // Raven wrote: message = "DIED_ASTEROID1"
-                portMissing("CG_Obituary", source: "oracle/codemp/cgame/cg_event.c:103")
+                message = "DIED_ASTEROID1"
             }
             vehMessage = true
         } else {
             switch mod {
             case MOD_VEHICLE, MOD_SUICIDE, MOD_FALLING, MOD_COLLISION, MOD_VEH_EXPLOSION, MOD_CRUSH, MOD_WATER, MOD_SLIME, MOD_LAVA, MOD_TRIGGER_HURT:
-                // Port-note: A store into `message`, a local the draft left as a hole.
-                // Raven wrote: message = "DIED_GENERIC"
-                portMissing("CG_Obituary", source: "oracle/codemp/cgame/cg_event.c:103")
+                message = "DIED_GENERIC"
 
             case MOD_TARGET_LASER:
                 vehMessage = true
-                // Port-note: A store into `message`, a local the draft left as a hole.
-                // Raven wrote: message = "DIED_TURBOLASER"
-                portMissing("CG_Obituary", source: "oracle/codemp/cgame/cg_event.c:103")
+                message = "DIED_TURBOLASER"
 
             default:
-                // Port-note: A store into `message`, a local the draft left as a hole.
-                // Raven wrote: message = NULL
-                portMissing("CG_Obituary", source: "oracle/codemp/cgame/cg_event.c:103")
+                message = nil
             }
         }
 
@@ -201,77 +187,47 @@ private func CG_Obituary(_ ent: JKAMP.EntityState) {
             switch mod {
             case MOD_BRYAR_PISTOL, MOD_BRYAR_PISTOL_ALT, MOD_BLASTER, MOD_TURBLAST, MOD_DISRUPTOR, MOD_DISRUPTOR_SPLASH, MOD_DISRUPTOR_SNIPER, MOD_BOWCASTER, MOD_REPEATER, MOD_REPEATER_ALT, MOD_FLECHETTE:
                 if gender == GENDER_FEMALE {
-                    // Port-note: A store into `message`, a local the draft left as a hole.
-                    // Raven wrote: message = "SUICIDE_SHOT_FEMALE"
-                    portMissing("CG_Obituary", source: "oracle/codemp/cgame/cg_event.c:103")
+                    message = "SUICIDE_SHOT_FEMALE"
                 } else if gender == GENDER_NEUTER {
-                    // Port-note: A store into `message`, a local the draft left as a hole.
-                    // Raven wrote: message = "SUICIDE_SHOT_GENDERLESS"
-                    portMissing("CG_Obituary", source: "oracle/codemp/cgame/cg_event.c:103")
+                    message = "SUICIDE_SHOT_GENDERLESS"
                 } else {
-                    // Port-note: A store into `message`, a local the draft left as a hole.
-                    // Raven wrote: message = "SUICIDE_SHOT_MALE"
-                    portMissing("CG_Obituary", source: "oracle/codemp/cgame/cg_event.c:103")
+                    message = "SUICIDE_SHOT_MALE"
                 }
 
             case MOD_REPEATER_ALT_SPLASH, MOD_FLECHETTE_ALT_SPLASH, MOD_ROCKET, MOD_ROCKET_SPLASH, MOD_ROCKET_HOMING, MOD_ROCKET_HOMING_SPLASH, MOD_THERMAL, MOD_THERMAL_SPLASH, MOD_TRIP_MINE_SPLASH, MOD_TIMED_MINE_SPLASH, MOD_DET_PACK_SPLASH, MOD_VEHICLE, MOD_CONC, MOD_CONC_ALT:
                 if gender == GENDER_FEMALE {
-                    // Port-note: A store into `message`, a local the draft left as a hole.
-                    // Raven wrote: message = "SUICIDE_EXPLOSIVES_FEMALE"
-                    portMissing("CG_Obituary", source: "oracle/codemp/cgame/cg_event.c:103")
+                    message = "SUICIDE_EXPLOSIVES_FEMALE"
                 } else if gender == GENDER_NEUTER {
-                    // Port-note: A store into `message`, a local the draft left as a hole.
-                    // Raven wrote: message = "SUICIDE_EXPLOSIVES_GENDERLESS"
-                    portMissing("CG_Obituary", source: "oracle/codemp/cgame/cg_event.c:103")
+                    message = "SUICIDE_EXPLOSIVES_GENDERLESS"
                 } else {
-                    // Port-note: A store into `message`, a local the draft left as a hole.
-                    // Raven wrote: message = "SUICIDE_EXPLOSIVES_MALE"
-                    portMissing("CG_Obituary", source: "oracle/codemp/cgame/cg_event.c:103")
+                    message = "SUICIDE_EXPLOSIVES_MALE"
                 }
 
             case MOD_DEMP2:
                 if gender == GENDER_FEMALE {
-                    // Port-note: A store into `message`, a local the draft left as a hole.
-                    // Raven wrote: message = "SUICIDE_ELECTROCUTED_FEMALE"
-                    portMissing("CG_Obituary", source: "oracle/codemp/cgame/cg_event.c:103")
+                    message = "SUICIDE_ELECTROCUTED_FEMALE"
                 } else if gender == GENDER_NEUTER {
-                    // Port-note: A store into `message`, a local the draft left as a hole.
-                    // Raven wrote: message = "SUICIDE_ELECTROCUTED_GENDERLESS"
-                    portMissing("CG_Obituary", source: "oracle/codemp/cgame/cg_event.c:103")
+                    message = "SUICIDE_ELECTROCUTED_GENDERLESS"
                 } else {
-                    // Port-note: A store into `message`, a local the draft left as a hole.
-                    // Raven wrote: message = "SUICIDE_ELECTROCUTED_MALE"
-                    portMissing("CG_Obituary", source: "oracle/codemp/cgame/cg_event.c:103")
+                    message = "SUICIDE_ELECTROCUTED_MALE"
                 }
 
             case MOD_FALLING:
                 if gender == GENDER_FEMALE {
-                    // Port-note: A store into `message`, a local the draft left as a hole.
-                    // Raven wrote: message = "SUICIDE_FALLDEATH_FEMALE"
-                    portMissing("CG_Obituary", source: "oracle/codemp/cgame/cg_event.c:103")
+                    message = "SUICIDE_FALLDEATH_FEMALE"
                 } else if gender == GENDER_NEUTER {
-                    // Port-note: A store into `message`, a local the draft left as a hole.
-                    // Raven wrote: message = "SUICIDE_FALLDEATH_GENDERLESS"
-                    portMissing("CG_Obituary", source: "oracle/codemp/cgame/cg_event.c:103")
+                    message = "SUICIDE_FALLDEATH_GENDERLESS"
                 } else {
-                    // Port-note: A store into `message`, a local the draft left as a hole.
-                    // Raven wrote: message = "SUICIDE_FALLDEATH_MALE"
-                    portMissing("CG_Obituary", source: "oracle/codemp/cgame/cg_event.c:103")
+                    message = "SUICIDE_FALLDEATH_MALE"
                 }
 
             default:
                 if gender == GENDER_FEMALE {
-                    // Port-note: A store into `message`, a local the draft left as a hole.
-                    // Raven wrote: message = "SUICIDE_GENERICDEATH_FEMALE"
-                    portMissing("CG_Obituary", source: "oracle/codemp/cgame/cg_event.c:103")
+                    message = "SUICIDE_GENERICDEATH_FEMALE"
                 } else if gender == GENDER_NEUTER {
-                    // Port-note: A store into `message`, a local the draft left as a hole.
-                    // Raven wrote: message = "SUICIDE_GENERICDEATH_GENDERLESS"
-                    portMissing("CG_Obituary", source: "oracle/codemp/cgame/cg_event.c:103")
+                    message = "SUICIDE_GENERICDEATH_GENDERLESS"
                 } else {
-                    // Port-note: A store into `message`, a local the draft left as a hole.
-                    // Raven wrote: message = "SUICIDE_GENERICDEATH_MALE"
-                    portMissing("CG_Obituary", source: "oracle/codemp/cgame/cg_event.c:103")
+                    message = "SUICIDE_GENERICDEATH_MALE"
                 }
             }
         }
@@ -280,9 +236,28 @@ private func CG_Obituary(_ ent: JKAMP.EntityState) {
             break clientkilled
         }
 
-        // Port-note: A read of `message`, a local the draft left as a hole.
-        // Raven wrote: if (message) { gender = ci->gender; if (!message[0]) { vehMessage = qfalse; if ( gender == GENDER_FEMALE ) message = "SUICIDE_GENERICDEATH_FEMALE"; else if ( gender == GENDER_NEUTER ) message = "SUICIDE_GENERICDEATH_GENDERLESS"; else message = "SUICIDE_GENERICDEATH_MALE"; } if ( vehMessage ) { message = (char *)CG_GetStringEdString("MP_INGAMEVEH", message); } else { message = (char *)CG_GetStringEdString("MP_INGAME", message); } CG_Printf( "%s %s\n", targetName, message); return; }
-        portMissing("CG_Obituary", source: "oracle/codemp/cgame/cg_event.c:103")
+        if message != nil {
+            gender = ci!.gender
+
+            if message!.isEmpty {
+                vehMessage = false
+                if gender == GENDER_FEMALE {
+                    message = "SUICIDE_GENERICDEATH_FEMALE"
+                } else if gender == GENDER_NEUTER {
+                    message = "SUICIDE_GENERICDEATH_GENDERLESS"
+                } else {
+                    message = "SUICIDE_GENERICDEATH_MALE"
+                }
+            }
+            if vehMessage {
+                message = CG_GetStringEdString("MP_INGAMEVEH", message)
+            } else {
+                message = CG_GetStringEdString("MP_INGAME", message)
+            }
+
+            CG_Printf("%s %s\n", targetName, message!)
+            return
+        }
 
     }
 
@@ -345,104 +320,64 @@ private func CG_Obituary(_ ent: JKAMP.EntityState) {
     if attacker != ENTITYNUM_WORLD {
         switch mod {
         case MOD_STUN_BATON:
-            // Port-note: A store into `message`, a local the draft left as a hole.
-            // Raven wrote: message = "KILLED_STUN"
-            portMissing("CG_Obituary", source: "oracle/codemp/cgame/cg_event.c:103")
+            message = "KILLED_STUN"
 
         case MOD_MELEE:
-            // Port-note: A store into `message`, a local the draft left as a hole.
-            // Raven wrote: message = "KILLED_MELEE"
-            portMissing("CG_Obituary", source: "oracle/codemp/cgame/cg_event.c:103")
+            message = "KILLED_MELEE"
 
         case MOD_SABER:
-            // Port-note: A store into `message`, a local the draft left as a hole.
-            // Raven wrote: message = "KILLED_SABER"
-            portMissing("CG_Obituary", source: "oracle/codemp/cgame/cg_event.c:103")
+            message = "KILLED_SABER"
 
         case MOD_BRYAR_PISTOL, MOD_BRYAR_PISTOL_ALT:
-            // Port-note: A store into `message`, a local the draft left as a hole.
-            // Raven wrote: message = "KILLED_BRYAR"
-            portMissing("CG_Obituary", source: "oracle/codemp/cgame/cg_event.c:103")
+            message = "KILLED_BRYAR"
 
         case MOD_BLASTER:
-            // Port-note: A store into `message`, a local the draft left as a hole.
-            // Raven wrote: message = "KILLED_BLASTER"
-            portMissing("CG_Obituary", source: "oracle/codemp/cgame/cg_event.c:103")
+            message = "KILLED_BLASTER"
 
         case MOD_TURBLAST:
-            // Port-note: A store into `message`, a local the draft left as a hole.
-            // Raven wrote: message = "KILLED_BLASTER"
-            portMissing("CG_Obituary", source: "oracle/codemp/cgame/cg_event.c:103")
+            message = "KILLED_BLASTER"
 
         case MOD_DISRUPTOR, MOD_DISRUPTOR_SPLASH:
-            // Port-note: A store into `message`, a local the draft left as a hole.
-            // Raven wrote: message = "KILLED_DISRUPTOR"
-            portMissing("CG_Obituary", source: "oracle/codemp/cgame/cg_event.c:103")
+            message = "KILLED_DISRUPTOR"
 
         case MOD_DISRUPTOR_SNIPER:
-            // Port-note: A store into `message`, a local the draft left as a hole.
-            // Raven wrote: message = "KILLED_DISRUPTORSNIPE"
-            portMissing("CG_Obituary", source: "oracle/codemp/cgame/cg_event.c:103")
+            message = "KILLED_DISRUPTORSNIPE"
 
         case MOD_BOWCASTER:
-            // Port-note: A store into `message`, a local the draft left as a hole.
-            // Raven wrote: message = "KILLED_BOWCASTER"
-            portMissing("CG_Obituary", source: "oracle/codemp/cgame/cg_event.c:103")
+            message = "KILLED_BOWCASTER"
 
         case MOD_REPEATER:
-            // Port-note: A store into `message`, a local the draft left as a hole.
-            // Raven wrote: message = "KILLED_REPEATER"
-            portMissing("CG_Obituary", source: "oracle/codemp/cgame/cg_event.c:103")
+            message = "KILLED_REPEATER"
 
         case MOD_REPEATER_ALT, MOD_REPEATER_ALT_SPLASH:
-            // Port-note: A store into `message`, a local the draft left as a hole.
-            // Raven wrote: message = "KILLED_REPEATERALT"
-            portMissing("CG_Obituary", source: "oracle/codemp/cgame/cg_event.c:103")
+            message = "KILLED_REPEATERALT"
 
         case MOD_DEMP2, MOD_DEMP2_ALT:
-            // Port-note: A store into `message`, a local the draft left as a hole.
-            // Raven wrote: message = "KILLED_DEMP2"
-            portMissing("CG_Obituary", source: "oracle/codemp/cgame/cg_event.c:103")
+            message = "KILLED_DEMP2"
 
         case MOD_FLECHETTE:
-            // Port-note: A store into `message`, a local the draft left as a hole.
-            // Raven wrote: message = "KILLED_FLECHETTE"
-            portMissing("CG_Obituary", source: "oracle/codemp/cgame/cg_event.c:103")
+            message = "KILLED_FLECHETTE"
 
         case MOD_FLECHETTE_ALT_SPLASH:
-            // Port-note: A store into `message`, a local the draft left as a hole.
-            // Raven wrote: message = "KILLED_FLECHETTE_MINE"
-            portMissing("CG_Obituary", source: "oracle/codemp/cgame/cg_event.c:103")
+            message = "KILLED_FLECHETTE_MINE"
 
         case MOD_ROCKET, MOD_ROCKET_SPLASH:
-            // Port-note: A store into `message`, a local the draft left as a hole.
-            // Raven wrote: message = "KILLED_ROCKET"
-            portMissing("CG_Obituary", source: "oracle/codemp/cgame/cg_event.c:103")
+            message = "KILLED_ROCKET"
 
         case MOD_ROCKET_HOMING, MOD_ROCKET_HOMING_SPLASH:
-            // Port-note: A store into `message`, a local the draft left as a hole.
-            // Raven wrote: message = "KILLED_ROCKET_HOMING"
-            portMissing("CG_Obituary", source: "oracle/codemp/cgame/cg_event.c:103")
+            message = "KILLED_ROCKET_HOMING"
 
         case MOD_THERMAL, MOD_THERMAL_SPLASH:
-            // Port-note: A store into `message`, a local the draft left as a hole.
-            // Raven wrote: message = "KILLED_THERMAL"
-            portMissing("CG_Obituary", source: "oracle/codemp/cgame/cg_event.c:103")
+            message = "KILLED_THERMAL"
 
         case MOD_TRIP_MINE_SPLASH:
-            // Port-note: A store into `message`, a local the draft left as a hole.
-            // Raven wrote: message = "KILLED_TRIPMINE"
-            portMissing("CG_Obituary", source: "oracle/codemp/cgame/cg_event.c:103")
+            message = "KILLED_TRIPMINE"
 
         case MOD_TIMED_MINE_SPLASH:
-            // Port-note: A store into `message`, a local the draft left as a hole.
-            // Raven wrote: message = "KILLED_TRIPMINE_TIMED"
-            portMissing("CG_Obituary", source: "oracle/codemp/cgame/cg_event.c:103")
+            message = "KILLED_TRIPMINE_TIMED"
 
         case MOD_DET_PACK_SPLASH:
-            // Port-note: A store into `message`, a local the draft left as a hole.
-            // Raven wrote: message = "KILLED_DETPACK"
-            portMissing("CG_Obituary", source: "oracle/codemp/cgame/cg_event.c:103")
+            message = "KILLED_DETPACK"
 
         case MOD_VEHICLE:
             vehMessage = true
@@ -450,129 +385,116 @@ private func CG_Obituary(_ ent: JKAMP.EntityState) {
             case WP_BLASTER: //primary blasters
                 switch Q_irand(0, 2) {
                 case 2:
-                    // Port-note: A store into `message`, a local the draft left as a hole.
-                    // Raven wrote: message = "KILLED_VEH_BLASTER3"
-                    portMissing("CG_Obituary", source: "oracle/codemp/cgame/cg_event.c:103")
+                    message = "KILLED_VEH_BLASTER3"
 
                 case 1:
-                    // Port-note: A store into `message`, a local the draft left as a hole.
-                    // Raven wrote: message = "KILLED_VEH_BLASTER2"
-                    portMissing("CG_Obituary", source: "oracle/codemp/cgame/cg_event.c:103")
+                    message = "KILLED_VEH_BLASTER2"
 
                 default:
-                    // Port-note: A store into `message`, a local the draft left as a hole.
-                    // Raven wrote: message = "KILLED_VEH_BLASTER1"
-                    portMissing("CG_Obituary", source: "oracle/codemp/cgame/cg_event.c:103")
+                    message = "KILLED_VEH_BLASTER1"
                 }
 
             case WP_ROCKET_LAUNCHER: //missile
                 if Q_irand(0, 1) != 0 {
-                    // Port-note: A store into `message`, a local the draft left as a hole.
-                    // Raven wrote: message = "KILLED_VEH_MISSILE2"
-                    portMissing("CG_Obituary", source: "oracle/codemp/cgame/cg_event.c:103")
+                    message = "KILLED_VEH_MISSILE2"
                 } else {
-                    // Port-note: A store into `message`, a local the draft left as a hole.
-                    // Raven wrote: message = "KILLED_VEH_MISSILE1"
-                    portMissing("CG_Obituary", source: "oracle/codemp/cgame/cg_event.c:103")
+                    message = "KILLED_VEH_MISSILE1"
                 }
 
             case WP_THERMAL: //bomb
-                // Port-note: A store into `message`, a local the draft left as a hole.
-                // Raven wrote: message = "KILLED_VEH_BOMB"
-                portMissing("CG_Obituary", source: "oracle/codemp/cgame/cg_event.c:103")
+                message = "KILLED_VEH_BOMB"
 
             case WP_DEMP2: //ion cannon
-                // Port-note: A store into `message`, a local the draft left as a hole.
-                // Raven wrote: message = "KILLED_VEH_ION"
-                portMissing("CG_Obituary", source: "oracle/codemp/cgame/cg_event.c:103")
+                message = "KILLED_VEH_ION"
 
             case WP_TURRET: //turret
-                // Port-note: A store into `message`, a local the draft left as a hole.
-                // Raven wrote: message = "KILLED_VEH_TURRET"
-                portMissing("CG_Obituary", source: "oracle/codemp/cgame/cg_event.c:103")
+                message = "KILLED_VEH_TURRET"
 
             default:
                 vehMessage = false
-                // Port-note: A store into `message`, a local the draft left as a hole.
-                // Raven wrote: message = "KILLED_GENERIC"
-                portMissing("CG_Obituary", source: "oracle/codemp/cgame/cg_event.c:103")
+                message = "KILLED_GENERIC"
             }
 
         case MOD_CONC, MOD_CONC_ALT:
-            // Port-note: A store into `message`, a local the draft left as a hole.
-            // Raven wrote: message = "KILLED_GENERIC"
-            portMissing("CG_Obituary", source: "oracle/codemp/cgame/cg_event.c:103")
+            message = "KILLED_GENERIC"
 
         case MOD_FORCE_DARK:
-            // Port-note: A store into `message`, a local the draft left as a hole.
-            // Raven wrote: message = "KILLED_DARKFORCE"
-            portMissing("CG_Obituary", source: "oracle/codemp/cgame/cg_event.c:103")
+            message = "KILLED_DARKFORCE"
 
         case MOD_SENTRY:
-            // Port-note: A store into `message`, a local the draft left as a hole.
-            // Raven wrote: message = "KILLED_SENTRY"
-            portMissing("CG_Obituary", source: "oracle/codemp/cgame/cg_event.c:103")
+            message = "KILLED_SENTRY"
 
         case MOD_TELEFRAG:
-            // Port-note: A store into `message`, a local the draft left as a hole.
-            // Raven wrote: message = "KILLED_TELEFRAG"
-            portMissing("CG_Obituary", source: "oracle/codemp/cgame/cg_event.c:103")
+            message = "KILLED_TELEFRAG"
 
         case MOD_CRUSH:
-            // Port-note: A store into `message`, a local the draft left as a hole.
-            // Raven wrote: message = "KILLED_GENERIC"
-            portMissing("CG_Obituary", source: "oracle/codemp/cgame/cg_event.c:103")
+            message = "KILLED_GENERIC" //"KILLED_FORCETOSS";
 
         case MOD_FALLING:
-            // Port-note: A store into `message`, a local the draft left as a hole.
-            // Raven wrote: message = "KILLED_FORCETOSS"
-            portMissing("CG_Obituary", source: "oracle/codemp/cgame/cg_event.c:103")
+            message = "KILLED_FORCETOSS"
 
         case MOD_COLLISION, MOD_VEH_EXPLOSION:
             switch Q_irand(0, 2) {
             case 1:
-                // Port-note: A store into `message`, a local the draft left as a hole.
-                // Raven wrote: message = "KILLED_VEH_COLLISION2"
-                portMissing("CG_Obituary", source: "oracle/codemp/cgame/cg_event.c:103")
+                message = "KILLED_VEH_COLLISION2"
 
             case 2:
-                // Port-note: A store into `message`, a local the draft left as a hole.
-                // Raven wrote: message = "KILLED_VEH_COLLISION3"
-                portMissing("CG_Obituary", source: "oracle/codemp/cgame/cg_event.c:103")
+                message = "KILLED_VEH_COLLISION3"
 
             default:
-                // Port-note: A store into `message`, a local the draft left as a hole.
-                // Raven wrote: message = "KILLED_VEH_COLLISION1"
-                portMissing("CG_Obituary", source: "oracle/codemp/cgame/cg_event.c:103")
+                message = "KILLED_VEH_COLLISION1"
             }
             vehMessage = true
 
         case MOD_TRIGGER_HURT:
-            // Port-note: A store into `message`, a local the draft left as a hole.
-            // Raven wrote: message = "KILLED_GENERIC"
-            portMissing("CG_Obituary", source: "oracle/codemp/cgame/cg_event.c:103")
+            message = "KILLED_GENERIC" //"KILLED_FORCETOSS";
 
         case MOD_TARGET_LASER:
             if Q_irand(0, 1) != 0 {
-                // Port-note: A store into `message`, a local the draft left as a hole.
-                // Raven wrote: message = "KILLED_TURRET1"
-                portMissing("CG_Obituary", source: "oracle/codemp/cgame/cg_event.c:103")
+                message = "KILLED_TURRET1"
             } else {
-                // Port-note: A store into `message`, a local the draft left as a hole.
-                // Raven wrote: message = "KILLED_TURRET2"
-                portMissing("CG_Obituary", source: "oracle/codemp/cgame/cg_event.c:103")
+                message = "KILLED_TURRET2"
             }
             vehMessage = true
 
         default:
-            // Port-note: A store into `message`, a local the draft left as a hole.
-            // Raven wrote: message = "KILLED_GENERIC"
-            portMissing("CG_Obituary", source: "oracle/codemp/cgame/cg_event.c:103")
+            message = "KILLED_GENERIC"
         }
 
-        // Port-note: A read of `message`, a local the draft left as a hole.
-        // Raven wrote: if (message) { if ( vehMessage ) { message = (char *)CG_GetStringEdString("MP_INGAMEVEH", message); } else { message = (char *)CG_GetStringEdString("MP_INGAME", message); } CG_Printf( "%s ", targetName); if ( targetVehName[0] ) { CG_Printf( "(%s) ", targetVehName); } if ( mod == MOD_TARGET_LASER ) {//no attacker name, just a turbolaser or other kind of turret... CG_Printf( "%s", message); } else { CG_Printf( "%s %s", message, attackerName); if ( attackerVehName[0] && attackerVehWeapName[0] ) { CG_Printf( " (%s %s)", attackerVehName, attackerVehWeapName ); } else { if ( attackerVehName[0] ) { CG_Printf( " (%s)", attackerVehName ); } else if ( attackerVehWeapName[0] ) { CG_Printf(" (%s)", attackerVehWeapName ); } } } CG_Printf( "\n" ); return; }
-        portMissing("CG_Obituary", source: "oracle/codemp/cgame/cg_event.c:103")
+        if message != nil {
+            if vehMessage {
+                message = CG_GetStringEdString("MP_INGAMEVEH", message)
+            } else {
+                message = CG_GetStringEdString("MP_INGAME", message)
+            }
+
+            CG_Printf("%s ", targetName)
+            if targetVehName[0] != 0 {
+                CG_Printf("(%s) ", targetVehName)
+            }
+            if mod == MOD_TARGET_LASER {
+                //no attacker name, just a turbolaser or other kind of turret...
+                // Port-note: The draft of this statement did not compile, and the compiler wrote "cannot force unwrap value of non-optional type 'String'".
+                // Raven wrote: CG_Printf( "%s", message)
+                portMissing("CG_Obituary", source: "oracle/codemp/cgame/cg_event.c:103")
+            } else {
+                // Port-note: The draft of this statement did not compile, and the compiler wrote "cannot force unwrap value of non-optional type 'String'".
+                // Raven wrote: CG_Printf( "%s %s", message, attackerName)
+                portMissing("CG_Obituary", source: "oracle/codemp/cgame/cg_event.c:103")
+
+                if attackerVehName[0] != 0 && attackerVehWeapName[0] != 0 {
+                    CG_Printf(" (%s %s)", attackerVehName, attackerVehWeapName)
+                } else {
+                    if attackerVehName[0] != 0 {
+                        CG_Printf(" (%s)", attackerVehName)
+                    } else if attackerVehWeapName[0] != 0 {
+                        CG_Printf(" (%s)", attackerVehWeapName)
+                    }
+                }
+            }
+            CG_Printf("\n")
+            return
+        }
     }
 
     // we don't know what it was
@@ -2720,40 +2642,30 @@ func CG_EntityEvent(_ cent: Centity, _ position: JKAShared.vec3_t) {
             portMissing("CG_EntityEvent", source: "oracle/codemp/cgame/cg_event.c:1491")
         }
         if cg.snap!.ps.clientNum == es!.number {
-            // Port-note: A pointer local `char * psStringEDRef` with no view.
-            // Raven wrote: char *psStringEDRef = NULL;
-            portMissing("CG_EntityEvent", source: "oracle/codemp/cgame/cg_event.c:1491")
+            var psStringEDRef: String? = nil
 
             switch es!.eventParm {
             case SENTRY_NOROOM:
-                // Port-note: A store into `psStringEDRef`, a local the draft left as a hole.
-                // Raven wrote: psStringEDRef = (char *)CG_GetStringEdString("MP_INGAME", "SENTRY_NOROOM")
-                portMissing("CG_EntityEvent", source: "oracle/codemp/cgame/cg_event.c:1491")
+                psStringEDRef = CG_GetStringEdString("MP_INGAME", "SENTRY_NOROOM")
 
             case SENTRY_ALREADYPLACED:
-                // Port-note: A store into `psStringEDRef`, a local the draft left as a hole.
-                // Raven wrote: psStringEDRef = (char *)CG_GetStringEdString("MP_INGAME", "SENTRY_ALREADYPLACED")
-                portMissing("CG_EntityEvent", source: "oracle/codemp/cgame/cg_event.c:1491")
+                psStringEDRef = CG_GetStringEdString("MP_INGAME", "SENTRY_ALREADYPLACED")
 
             case SHIELD_NOROOM:
-                // Port-note: A store into `psStringEDRef`, a local the draft left as a hole.
-                // Raven wrote: psStringEDRef = (char *)CG_GetStringEdString("MP_INGAME", "SHIELD_NOROOM")
-                portMissing("CG_EntityEvent", source: "oracle/codemp/cgame/cg_event.c:1491")
+                psStringEDRef = CG_GetStringEdString("MP_INGAME", "SHIELD_NOROOM")
 
             case SEEKER_ALREADYDEPLOYED:
-                // Port-note: A store into `psStringEDRef`, a local the draft left as a hole.
-                // Raven wrote: psStringEDRef = (char *)CG_GetStringEdString("MP_INGAME", "SEEKER_ALREADYDEPLOYED")
-                portMissing("CG_EntityEvent", source: "oracle/codemp/cgame/cg_event.c:1491")
+                psStringEDRef = CG_GetStringEdString("MP_INGAME", "SEEKER_ALREADYDEPLOYED")
 
             default:
                 break
             }
 
-            // Port-note: A read of `psStringEDRef`, a local the draft left as a hole.
-            // Raven wrote: if (!psStringEDRef) { break; }
-            portMissing("CG_EntityEvent", source: "oracle/codemp/cgame/cg_event.c:1491")
+            if psStringEDRef == nil {
+                break
+            }
 
-            // Port-note: A read of `psStringEDRef`, a local the draft left as a hole.
+            // Port-note: The draft of this statement did not compile, and the compiler wrote "cannot force unwrap value of non-optional type 'String'".
             // Raven wrote: Com_Printf("%s\n", psStringEDRef)
             portMissing("CG_EntityEvent", source: "oracle/codemp/cgame/cg_event.c:1491")
         }
@@ -2958,9 +2870,7 @@ func CG_EntityEvent(_ cent: Centity, _ position: JKAShared.vec3_t) {
         ByteToDir(es!.eventParm, &dir)
         if es!.emplacedOwner != 0 {
             //hack: this is an index to a custom effect to use
-            // Port-note: The draft of this statement did not compile, and the compiler wrote "cannot pass immutable value as inout argument: 'position' is a 'let' constant".
-            // Raven wrote: trap_FX_PlayEffectID(cgs.gameEffects[es->emplacedOwner], position, dir, -1, -1)
-            portMissing("CG_EntityEvent", source: "oracle/codemp/cgame/cg_event.c:1491")
+            trap_FX_PlayEffectID(cgs.gameEffects[es!.emplacedOwner], position, dir, -1, -1)
         } else if CG_VehicleWeaponImpact(cent) {
             //a vehicle missile that uses an overridden impact effect...
         } else if (cent.currentState.eFlags & EF_ALT_FIRING) != 0 {
@@ -2983,9 +2893,7 @@ func CG_EntityEvent(_ cent: Centity, _ position: JKAShared.vec3_t) {
         ByteToDir(es!.eventParm, &dir)
         if es!.emplacedOwner != 0 {
             //hack: this is an index to a custom effect to use
-            // Port-note: The draft of this statement did not compile, and the compiler wrote "cannot pass immutable value as inout argument: 'position' is a 'let' constant".
-            // Raven wrote: trap_FX_PlayEffectID(cgs.gameEffects[es->emplacedOwner], position, dir, -1, -1)
-            portMissing("CG_EntityEvent", source: "oracle/codemp/cgame/cg_event.c:1491")
+            trap_FX_PlayEffectID(cgs.gameEffects[es!.emplacedOwner], position, dir, -1, -1)
         } else if CG_VehicleWeaponImpact(cent) {
             //a vehicle missile that used an overridden impact effect...
         } else if (cent.currentState.eFlags & EF_ALT_FIRING) != 0 {
@@ -3008,9 +2916,7 @@ func CG_EntityEvent(_ cent: Centity, _ position: JKAShared.vec3_t) {
         ByteToDir(es!.eventParm, &dir)
         if es!.emplacedOwner != 0 {
             //hack: this is an index to a custom effect to use
-            // Port-note: The draft of this statement did not compile, and the compiler wrote "cannot pass immutable value as inout argument: 'position' is a 'let' constant".
-            // Raven wrote: trap_FX_PlayEffectID(cgs.gameEffects[es->emplacedOwner], position, dir, -1, -1)
-            portMissing("CG_EntityEvent", source: "oracle/codemp/cgame/cg_event.c:1491")
+            trap_FX_PlayEffectID(cgs.gameEffects[es!.emplacedOwner], position, dir, -1, -1)
         } else if CG_VehicleWeaponImpact(cent) {
             //a vehicle missile that used an overridden impact effect...
         } else if (cent.currentState.eFlags & EF_ALT_FIRING) != 0 {
@@ -3136,13 +3042,9 @@ func CG_EntityEvent(_ cent: Centity, _ position: JKAShared.vec3_t) {
 
             if efxIndex != 0 {
                 if portalEffect {
-                    // Port-note: The draft of this statement did not compile, and the compiler wrote "cannot pass immutable value as inout argument: 'position' is a 'let' constant".
-                    // Raven wrote: trap_FX_PlayPortalEffectID(efxIndex, position, fxDir, -1, -1 )
-                    portMissing("CG_EntityEvent", source: "oracle/codemp/cgame/cg_event.c:1491")
+                    trap_FX_PlayPortalEffectID(efxIndex, position, fxDir, -1, -1)
                 } else {
-                    // Port-note: The draft of this statement did not compile, and the compiler wrote "cannot pass immutable value as inout argument: 'position' is a 'let' constant".
-                    // Raven wrote: trap_FX_PlayEffectID(efxIndex, position, fxDir, -1, -1 )
-                    portMissing("CG_EntityEvent", source: "oracle/codemp/cgame/cg_event.c:1491")
+                    trap_FX_PlayEffectID(efxIndex, position, fxDir, -1, -1)
                 }
             }
         }
