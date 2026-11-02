@@ -62,13 +62,21 @@ class Declarations:
         if len(arrays) == 1:
             # Raven's `markFragment_t markFragments[N], *mf;` opens the scratch, and the other names of the line stand before it.
             return arrays[0]
+        records = [v for v in vars_ if self.viewed_record(v)]
+        if len(vars_) > 1 and len(records) == len(vars_):
+            # Raven's `mdxaBone_t boltMatrix, lHandMatrix;` opens one scratch per record, nested in his order, from the first.
+            return vars_[0]
         if len(vars_) != 1:
             return None
-        t = vars_[0].type.get_canonical()
+        return vars_[0] if records else None
+
+    def viewed_record(self, var: ci.Cursor) -> bool:
+        """True when the variable is a C struct with a view."""
+        t = var.type.get_canonical()
         if t.kind != TypeKind.RECORD:
-            return None
+            return False
         record = self.types.record_name(t)
-        return vars_[0] if record and record in self.views.views else None
+        return bool(record) and record in self.views.views
 
     def scratch(self, decl: ci.Cursor, var: ci.Cursor, rest: list[ci.Cursor], last_line: int, depth: int) -> list[str]:
         """Raven's block from the record local on, as the closure of the view's scratch helper. A return inside the block is
@@ -112,10 +120,20 @@ class Declarations:
             out.append(f"{pad}let {result} = {opener} {{ {name} -> {self.fn.returns}? in")
         else:
             out.append(f"{pad}{opener} {{ {name} in")
-        out = [pad + line for line in self.declarations(decl, skip=var)] + roled(out, "frame")
+        siblings = [v for v in decl.get_children() if v.kind == CursorKind.VAR_DECL]
+        nested = array is None and len(siblings) > 1 and all(map(self.viewed_record, siblings))
+        following = siblings[siblings.index(var) + 1:] if nested else []
+        if not nested:
+            out = [pad + line for line in self.declarations(decl, skip=var)] + roled(out, "frame")
+        else:
+            out = roled(out, "frame")
         self.scratch_modes.append(mode)
         try:
-            body = self.statements(rest, decl.extent.end.line, last_line, depth + 1)
+            if following:
+                # The next record of Raven's declaration line opens its own scratch inside this one.
+                body = self.scratch(decl, following[0], rest, last_line, depth + 1)
+            else:
+                body = self.statements(rest, decl.extent.end.line, last_line, depth + 1)
         finally:
             self.scratch_modes.pop()
         while body and blank(body[-1]):
