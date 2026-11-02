@@ -393,8 +393,9 @@ class Cursor:
     """One `char *` local that walks a named buffer, as the cursor sweep reads it.
 
     `kind` is `read` for a local no use writes through, which Swift holds as a `TextCursor`, and `write` for one a use does write
-    through, which Swift holds as the byte offset of row 47. `buffer` is Raven's name for the buffer, and `is_global` says the
-    buffer is a file-scope one, so a body reaches it under the module's own rules."""
+    through, which Swift holds as the byte offset of row 47. `optional` is a write cursor Raven stores from `Q_strrchr` or
+    `strchr`, which Swift holds as the `Int32?` offset the call returns. `buffer` is Raven's name for the buffer, and `is_global`
+    says the buffer is a file-scope one, so a body reaches it under the module's own rules."""
 
     def __init__(self, kind: str, buffer: str, is_global: bool) -> None:
         self.kind = kind
@@ -403,7 +404,11 @@ class Cursor:
 
     @property
     def write(self) -> bool:
-        return self.kind == "write"
+        return self.kind in ("write", "optional")
+
+    @property
+    def optional(self) -> bool:
+        return self.kind == "optional"
 
 
 class Local:
@@ -1188,17 +1193,22 @@ class Table:
             if not buffers:
                 continue
             written = self.cursor_writes(cur, data, set(buffers))
-            for name, (buffer, is_global) in buffers.items():
+            for name, (buffer, is_global, found) in buffers.items():
                 kind = "write" if name in written else "read"
+                if found and kind == "read":
+                    # A read through the offset of a search has no TextCursor form, so the local keeps no row.
+                    continue
+                kind = "optional" if found else kind
                 self.cursors[(path.stem, cur.spelling, name)] = Cursor(kind, buffer, is_global)
                 if kind == "write" and is_global:
                     self.alias_writes.add(buffer)
 
-    def cursor_buffers(self, fn: ci.Cursor, data: bytes) -> dict[str, tuple[str, bool]]:
-        """The named buffer each `char *` local of the body walks, by the stores into it, with True for a file-scope buffer.
+    def cursor_buffers(self, fn: ci.Cursor, data: bytes) -> dict[str, tuple[str, bool, bool]]:
+        """The named buffer each `char *` local of the body walks, by the stores into it, with True for a file-scope buffer,
+        and True when a store is the search of `Q_strrchr` or `strchr`, whose offset can be NULL.
 
         A local with no store of a buffer has no entry, and neither has one Raven points at two buffers or at anything else."""
-        stores: dict[str, list[tuple[str, bool] | None]] = {}
+        stores: dict[str, list[tuple[str, bool] | tuple[str, bool, bool] | str | None]] = {}
         for node in fn.walk_preorder():
             if node.kind == CursorKind.VAR_DECL:
                 if not self.char_pointer(node.type):
@@ -1223,24 +1233,29 @@ class Table:
             if not self.char_pointer(left.type):
                 continue
             stores.setdefault(left.spelling, []).append(self.cursor_store(kids[1], data))
-        out: dict[str, tuple[str, bool]] = {}
+        out: dict[str, tuple[str, bool, bool]] = {}
         for name, seen in stores.items():
             if not seen or any(s is None for s in seen):
                 continue
-            named = {s for s in seen if s != "null"}
+            named = {s[:2] for s in seen if s != "null"}
             if len(named) != 1:
                 continue
-            out[name] = next(iter(named))
+            out[name] = next(iter(named)) + (any(len(s) == 3 for s in seen if s != "null"),)
         return out
 
-    def cursor_store(self, cur: ci.Cursor, data: bytes) -> tuple[str, bool] | str | None:
+    def cursor_store(self, cur: ci.Cursor, data: bytes) -> tuple[str, bool] | tuple[str, bool, bool] | str | None:
         """The buffer a store points a `char *` local at, as Raven's name and whether it is file-scope.
 
-        The three shapes are `p = buf`, `p = buf + offset`, and Raven's NULL, which names no buffer of its own.
+        The four shapes are `p = buf`, `p = buf + offset`, Raven's NULL, which names no buffer of its own, and the search of one
+        buffer, `slash = Q_strrchr(buf, '/')`, which gives a third True because the offset can be NULL.
         Any other store gives None, and the local then has no cursor row."""
         inner = self.unwrapped(cur)
         if data[inner.extent.start.offset:inner.extent.end.offset].decode("utf-8", "replace").strip() in ("NULL", "0"):
             return "null"
+        if inner.kind == CursorKind.CALL_EXPR and (RETURNS.get(inner.spelling) == "text_offset" or inner.spelling == "strchr"):
+            args = list(inner.get_arguments())
+            found = self.cursor_store(args[0], data) if args and self.unwrapped(args[0]).kind == CursorKind.DECL_REF_EXPR else None
+            return found + (True,) if isinstance(found, tuple) and len(found) == 2 else None
         if inner.kind == CursorKind.BINARY_OPERATOR:
             kids = list(inner.get_children())
             if len(kids) != 2:

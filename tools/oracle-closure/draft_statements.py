@@ -693,6 +693,11 @@ class Statements:
                     if op == "+=":
                         return [f"{pad}{self.expr(left)}.advance(by: {self.converted(right, 'Int32')})" + self.trailing(cur)]
                     raise Hole(f"Raven steps the cursor `{self.unwrap(left).spelling}` with `{op}`, and the TextCursor has no such step.")
+                if self.unwrap(left).kind == CursorKind.DECL_REF_EXPR and self.unwrap(left).spelling in self.offset_cursors \
+                        and self.offset_cursors[self.unwrap(left).spelling].optional and op == "=":
+                    # The search gives the offset into the buffer or nil, the `Int32?` the local holds.
+                    value = "nil" if self.is_null(right) else self.expr(right)
+                    return [f"{pad}{self.expr(left)} = {value}" + self.trailing(cur)]
                 if self.unwrap(left).kind == CursorKind.DECL_REF_EXPR and self.unwrap(left).spelling in self.offset_cursors:
                     if op == "=" and self.is_null(right):
                         raise Hole(f"Raven stores NULL into `{self.unwrap(left).spelling}`, and a byte offset has no NULL.")
@@ -988,6 +993,15 @@ class Statements:
                 test = f"{filled}.0 == 0" if negated else f"{filled}.0 != 0"
             else:
                 test = f"!{filled}.0" if negated else f"{filled}.0"
+        elif self.unwrap(cond).kind == CursorKind.DECL_REF_EXPR and self.unwrap(cond).spelling in self.offset_cursors \
+                and self.offset_cursors[self.unwrap(cond).spelling].optional:
+            # Raven's NULL test of the search binds the offset, and a step inside the arm needs the bound name mutable.
+            name = self.unwrap(cond).spelling
+            stepped = any(c.kind in (CursorKind.UNARY_OPERATOR, CursorKind.COMPOUND_ASSIGNMENT_OPERATOR) and list(c.get_children())
+                          and self.unwrap(list(c.get_children())[0]).kind == CursorKind.DECL_REF_EXPR
+                          and self.unwrap(list(c.get_children())[0]).spelling == name and (c.kind != CursorKind.UNARY_OPERATOR or self.is_step(c))
+                          for c in then.walk_preorder())
+            test = f"{'var' if stepped else 'let'} {swift_name(name)}"
         else:
             # The bind changes the hoists, so the draft asks for it once.
             bind = self.client_bind(cond, then)

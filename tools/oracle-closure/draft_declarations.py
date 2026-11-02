@@ -415,6 +415,10 @@ class Declarations:
             if init and not self.is_null(init[0]):
                 return f"var {name} = {self.text_cursor(init[0])}"
             return f"var {name} = JKAShared.TextCursor()"
+        if var.spelling in self.offset_cursors and self.offset_cursors[var.spelling].optional:
+            # The search of `Q_strrchr` gives the offset or nil, and Raven's NULL test binds it.
+            value = self.expr(init[0]) if init and not self.is_null(init[0]) else "nil"
+            return f"var {name}: Int32? = {value}"
         if var.spelling in self.offset_cursors:
             # A write cursor is the byte offset of row 47, because a write through a TextCursor would never reach Raven's buffer.
             return f"var {name}: Int32 = {self.cursor_offset(init[0]) if init else '0'}"
