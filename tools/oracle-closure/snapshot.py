@@ -8,8 +8,8 @@ One run parses once and drafts every stem in the same process, so a snapshot cos
 The snapshot folder belongs to the caller and stays outside version control.
 
 Usage:
-  .venv/bin/python snapshot.py --out ~/.cache/jka-swift/snapshot-stage-two-step1
-  .venv/bin/python snapshot.py --check ~/.cache/jka-swift/snapshot-stage-two-step1
+  .venv/bin/python snapshot.py --out ~/.cache/jka-swift/snapshot-stage-two-shared
+  .venv/bin/python snapshot.py --check ~/.cache/jka-swift/snapshot-stage-two-shared
 """
 
 from __future__ import annotations

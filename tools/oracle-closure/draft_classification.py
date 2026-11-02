@@ -296,6 +296,16 @@ class Classification:
             return "text"
         if self.field_slot(inner) is not None:
             return "text"
+        if inner.kind == CursorKind.ARRAY_SUBSCRIPT_EXPR:
+            # An element of a file-scope text table, `cg_customSoundNames[i]`, is the String or the String? the table holds.
+            table = self.unwrap(list(inner.get_children())[0])
+            if table.kind == CursorKind.DECL_REF_EXPR and table.referenced is not None and table.referenced.kind == CursorKind.VAR_DECL \
+                    and table.referenced.semantic_parent.kind == CursorKind.TRANSLATION_UNIT:
+                swift = self.registry.var_types.get(table.spelling, "").replace("JKAShared.", "")
+                if swift == "[String]":
+                    return "text"
+                if swift == "[String?]":
+                    return "optional"
         if inner.kind == CursorKind.DECL_REF_EXPR:
             t = inner.type.get_canonical()
             if t.kind == TypeKind.CONSTANTARRAY and t.element_type.get_canonical().kind == TypeKind.CHAR_S:
@@ -869,6 +879,11 @@ class Classification:
         inner = self.unwrap(cur)
         if inner.kind == CursorKind.DECL_REF_EXPR and self.slots_source(inner):
             return self.expr(inner) + ("!" if self.optional_slots_name(inner) else "")
+        if inner.kind == CursorKind.MEMBER_REF_EXPR and inner.referenced is not None and inner.referenced.kind == CursorKind.FIELD_DECL \
+                and inner.referenced.type.get_canonical().kind == TypeKind.CONSTANTARRAY \
+                and self.types.record_name(inner.referenced.type.get_canonical().element_type) in self.views.views:
+            # The record array field of a view is already its Slots, `bgAllEvents[n].torsoAnimEvents`.
+            return self.expr(inner)
         return None
 
     def one_record_slots(self, cur: ci.Cursor) -> str | None:
@@ -903,7 +918,8 @@ class Classification:
             if cur.kind == CursorKind.VAR_DECL and self.record_pointer_local(cur):
                 sources.setdefault(cur.spelling, [])
                 init = [c for c in cur.get_children() if c.kind.is_expression()]
-                if init:
+                # Raven's NULL initializer is no store, `animEvents = NULL` before the arms that fill it, and Swift checks that a store comes first.
+                if init and not self.is_null(init[0]):
                     sources[cur.spelling].append(self.table_expression(init[0]))
             if cur.kind != CursorKind.BINARY_OPERATOR or self.operator_or_none(cur) != "=":
                 continue
@@ -939,6 +955,11 @@ class Classification:
         inner = self.strip(cur)
         if inner.kind == CursorKind.MEMBER_REF_EXPR and inner.referenced is not None \
                 and inner.referenced.kind == CursorKind.FIELD_DECL and self.sk.table.indexed_field(inner.referenced):
+            return True
+        if inner.kind == CursorKind.MEMBER_REF_EXPR and inner.referenced is not None and inner.referenced.kind == CursorKind.FIELD_DECL \
+                and inner.referenced.type.get_canonical().kind == TypeKind.CONSTANTARRAY \
+                and self.types.record_name(inner.referenced.type.get_canonical().element_type) in self.views.views:
+            # A record array field, `bgAllEvents[n].torsoAnimEvents`, reads as the Slots accessor of its view.
             return True
         if inner.kind != CursorKind.DECL_REF_EXPR:
             return False

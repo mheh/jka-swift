@@ -62,13 +62,21 @@ class Declarations:
         if len(arrays) == 1:
             # Raven's `markFragment_t markFragments[N], *mf;` opens the scratch, and the other names of the line stand before it.
             return arrays[0]
+        records = [v for v in vars_ if self.viewed_record(v)]
+        if len(vars_) > 1 and len(records) == len(vars_):
+            # Raven's `mdxaBone_t boltMatrix, lHandMatrix;` opens one scratch per record, nested in his order, from the first.
+            return vars_[0]
         if len(vars_) != 1:
             return None
-        t = vars_[0].type.get_canonical()
+        return vars_[0] if records else None
+
+    def viewed_record(self, var: ci.Cursor) -> bool:
+        """True when the variable is a C struct with a view."""
+        t = var.type.get_canonical()
         if t.kind != TypeKind.RECORD:
-            return None
+            return False
         record = self.types.record_name(t)
-        return vars_[0] if record and record in self.views.views else None
+        return bool(record) and record in self.views.views
 
     def scratch(self, decl: ci.Cursor, var: ci.Cursor, rest: list[ci.Cursor], last_line: int, depth: int) -> list[str]:
         """Raven's block from the record local on, as the closure of the view's scratch helper. A return inside the block is
@@ -112,10 +120,20 @@ class Declarations:
             out.append(f"{pad}let {result} = {opener} {{ {name} -> {self.fn.returns}? in")
         else:
             out.append(f"{pad}{opener} {{ {name} in")
-        out = [pad + line for line in self.declarations(decl, skip=var)] + roled(out, "frame")
+        siblings = [v for v in decl.get_children() if v.kind == CursorKind.VAR_DECL]
+        nested = array is None and len(siblings) > 1 and all(map(self.viewed_record, siblings))
+        following = siblings[siblings.index(var) + 1:] if nested else []
+        if not nested:
+            out = [pad + line for line in self.declarations(decl, skip=var)] + roled(out, "frame")
+        else:
+            out = roled(out, "frame")
         self.scratch_modes.append(mode)
         try:
-            body = self.statements(rest, decl.extent.end.line, last_line, depth + 1)
+            if following:
+                # The next record of Raven's declaration line opens its own scratch inside this one.
+                body = self.scratch(decl, following[0], rest, last_line, depth + 1)
+            else:
+                body = self.statements(rest, decl.extent.end.line, last_line, depth + 1)
         finally:
             self.scratch_modes.pop()
         while body and blank(body[-1]):
@@ -397,6 +415,10 @@ class Declarations:
             if init and not self.is_null(init[0]):
                 return f"var {name} = {self.text_cursor(init[0])}"
             return f"var {name} = JKAShared.TextCursor()"
+        if var.spelling in self.offset_cursors and self.offset_cursors[var.spelling].optional:
+            # The search of `Q_strrchr` gives the offset or nil, and Raven's NULL test binds it.
+            value = self.expr(init[0]) if init and not self.is_null(init[0]) else "nil"
+            return f"var {name}: Int32? = {value}"
         if var.spelling in self.offset_cursors:
             # A write cursor is the byte offset of row 47, because a write through a TextCursor would never reach Raven's buffer.
             return f"var {name}: Int32 = {self.cursor_offset(init[0]) if init else '0'}"
@@ -434,8 +456,9 @@ class Declarations:
                     return f"{keyword} {name} = {view}(handle: OpaquePointer({self.uncast(init[0]).spelling}))"
                 if var.spelling in self.slots_locals:
                     # Every store into the local holds a table of records, so the local is the Slots over it.
-                    if init:
+                    if init and not self.is_null(init[0]):
                         return f"{keyword} {name}: Slots<{view}> = {self.slots_expression(init[0])}"
+                    # Raven's NULL initializer drops, and Swift checks that every path stores the table before the first read.
                     return f"var {name}: Slots<{view}>"
                 if init and record in ("gentity_t", "gclient_t") and self.plain_entity(var, init[0]):
                     # Every store is the address of a table slot, and no statement stores or tests NULL, so the local is never nil.

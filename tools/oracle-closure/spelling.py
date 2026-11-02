@@ -413,7 +413,8 @@ class Types:
                     return Answer(f"inout {self.views.qualified_view(record, TARGET)}?", "out_view")
             # The engine reads an array of model handles. The caller passes the view over `cgs.gameModels`, or nil.
             # The trap wrapper hands the engine the base of the view.
-            if t.get_pointee().spelling.replace("const ", "") == "qhandle_t":
+            # Raven declares two bone traps with `int *modelList`, and a PARAMS row names that array of model handles the same way.
+            if t.get_pointee().spelling.replace("const ", "") == "qhandle_t" or facts.ruled == "model_list":
                 return Answer("Slots<qhandle_t>?", "slots_opt")
             if (facts.traps and engine_array(t, facts.following)) or (not facts.traps and facts.fills_array):
                 # An `int *` with a count beside it is an array the engine fills, `trap_EntitiesInBox(mins, maxs, list, maxcount)`.

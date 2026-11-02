@@ -2378,7 +2378,7 @@ func BG_SI_Active(_ saber: JKAMP.SaberInfo) -> Bool {
 }
 
 /// Source: oracle/codemp/game/bg_saberLoad.c:2863
-func BG_SI_SetLength(_ saber: JKAMP.SaberInfo, _ length: Float) {
+public func BG_SI_SetLength(_ saber: JKAMP.SaberInfo, _ length: Float) {
     var i: Int32
 
     i = 0
@@ -2390,7 +2390,7 @@ func BG_SI_SetLength(_ saber: JKAMP.SaberInfo, _ length: Float) {
 
 //not in sp, added it for my own convenience
 /// Source: oracle/codemp/game/bg_saberLoad.c:2874
-func BG_SI_SetDesiredLength(_ saber: JKAMP.SaberInfo, _ len: Float, _ bladeNum: Int32) {
+public func BG_SI_SetDesiredLength(_ saber: JKAMP.SaberInfo, _ len: Float, _ bladeNum: Int32) {
     var i: Int32
     var startBlade: Int32 = 0
     var maxBlades: Int32 = saber.numBlades
@@ -2409,7 +2409,7 @@ func BG_SI_SetDesiredLength(_ saber: JKAMP.SaberInfo, _ len: Float, _ bladeNum: 
 
 //also not in sp, added it for my own convenience
 /// Source: oracle/codemp/game/bg_saberLoad.c:2890
-func BG_SI_SetLengthGradual(_ saber: JKAMP.SaberInfo, _ time: Int32) {
+public func BG_SI_SetLengthGradual(_ saber: JKAMP.SaberInfo, _ time: Int32) {
     var i: Int32
     var amt: Float
     var dLen: Float
