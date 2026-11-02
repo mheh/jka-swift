@@ -19,13 +19,10 @@ Also called by scoreboard drawing
 */
 /// Source: oracle/codemp/cgame/cg_event.c:45
 func CG_PlaceString(_ rank: Int32) -> String {
-    // Port-note: A static local `str` the function returns, storage that outlives the call.
-    // Raven wrote: static char str[64];
-    portMissing("CG_PlaceString", source: "oracle/codemp/cgame/cg_event.c:45")
+    // Raven's static buffer keeps the result valid after the return, and a returned `String` is already a copy.
+    var str = CharBuf(64)
     var s: String
-    // Port-note: A pointer local `char * t` with no view.
-    // Raven wrote: t;
-    portMissing("CG_PlaceString", source: "oracle/codemp/cgame/cg_event.c:45")
+    let t: CharBuf
     // number extenstions, eg 1st, 2nd, 3rd, 4th etc.
     // note that the rules are different for french, but by changing the required strip strings they seem to work
     var sST = CharBuf(10)
@@ -45,13 +42,9 @@ func CG_PlaceString(_ rank: Int32) -> String {
 
     if (rank & RANK_TIED_FLAG) != 0 {
         rank &= ~RANK_TIED_FLAG
-        // Port-note: A store into `t`, a local the draft left as a hole.
-        // Raven wrote: t = sTiedFor
-        portMissing("CG_PlaceString", source: "oracle/codemp/cgame/cg_event.c:45")
+        t = sTiedFor //"Tied for ";
     } else {
-        // Port-note: A store into `t`, a local the draft left as a hole.
-        // Raven wrote: t = ""
-        portMissing("CG_PlaceString", source: "oracle/codemp/cgame/cg_event.c:45")
+        t = ""
     }
 
     if rank == 1 {
@@ -76,12 +69,8 @@ func CG_PlaceString(_ rank: Int32) -> String {
         s = va("%i%s", rank, sTH)
     }
 
-    // Port-note: A read of `str`, a local the draft left as a hole.
-    // Raven wrote: Com_sprintf( str, sizeof( str ), "%s%s", t, s )
-    portMissing("CG_PlaceString", source: "oracle/codemp/cgame/cg_event.c:45")
-    // Port-note: A read of `str`, a local the draft left as a hole.
-    // Raven wrote: return str
-    portMissing("CG_PlaceString", source: "oracle/codemp/cgame/cg_event.c:45")
+    Com_sprintf(&str, Int32((str).count), "%s%s", t, s)
+    return String(str)
 }
 
 /**
@@ -686,9 +675,14 @@ private func CG_ItemPickup(_ itemNum: Int32) {
 
         strcpy(&upperKey, bg_itemlist[itemNum].classname!)
 
-        // Port-note: The draft of this statement did not compile, and the compiler wrote "cannot convert value of type 'CharBuf' to expected argument type 'String'".
-        // Raven wrote: if ( trap_SP_GetStringTextString( va("SP_INGAME_%s",Q_strupr(upperKey)), text, sizeof( text ))) { Com_Printf("%s %s\n", CG_GetStringEdString("MP_INGAME", "PICKUPLINE"), text); } else { Com_Printf("%s %s\n", CG_GetStringEdString("MP_INGAME", "PICKUPLINE"), bg_itemlist[itemNum].classname); }
-        portMissing("CG_ItemPickup", source: "oracle/codemp/cgame/cg_event.c:753")
+        Q_strupr(&upperKey)
+        let filledTest = trap_SP_GetStringTextString(va("SP_INGAME_%s", upperKey), Int32((text).count))
+        strcpy(&text, filledTest.1)
+        if filledTest.0 != 0 {
+            Com_Printf("%s %s\n", CG_GetStringEdString("MP_INGAME", "PICKUPLINE"), text)
+        } else {
+            Com_Printf("%s %s\n", CG_GetStringEdString("MP_INGAME", "PICKUPLINE"), bg_itemlist[itemNum].classname!)
+        }
     }
 }
 
@@ -845,13 +839,35 @@ func CG_PrintCTFMessage(_ ci: ClientInfo, _ teamName: String, _ ctfMessage: Int3
         }
 
         if !teamName.isEmpty {
-            // Port-note: A pointer local `const char * f` with no view.
-            // Raven wrote: const char *f = strstr(psStringEDString, "%s");
-            portMissing("CG_PrintCTFMessage", source: "oracle/codemp/cgame/cg_event.c:956")
+            let f = strstr(psStringEDString!, "%s")
 
-            // Port-note: A read of `f`, a local the draft left as a hole.
-            // Raven wrote: if (f) { int strLen = 0; int i = 0; if (ci) { Com_sprintf(printMsg, sizeof(printMsg), "%s ", ci->name); strLen = strlen(printMsg); } while (psStringEDString[i] && i < 512) { if (psStringEDString[i] == '%' && psStringEDString[i+1] == 's') { printMsg[strLen] = '\0'; Q_strcat(printMsg, sizeof(printMsg), teamName); strLen = strlen(printMsg); i++; } else { printMsg[strLen] = psStringEDString[i]; strLen++; } i++; } printMsg[strLen] = '\0'; goto doPrint; }
-            portMissing("CG_PrintCTFMessage", source: "oracle/codemp/cgame/cg_event.c:956")
+            if f != nil {
+                var strLen: Int32 = 0
+                var i: Int32 = 0
+
+                Com_sprintf(&printMsg, Int32((printMsg).count), "%s ", ci.name)
+                strLen = strlen(printMsg)
+
+                let psStringEDString = CharBuf(psStringEDString!)
+                while psStringEDString[i] != 0 && i < 512 {
+                    if psStringEDString[i] == Int32(ascii: "%") && psStringEDString[i + 1] == Int32(ascii: "s") {
+                        printMsg[strLen] = 0
+                        Q_strcat(&printMsg, Int32((printMsg).count), teamName)
+                        strLen = strlen(printMsg)
+
+                        i += 1
+                    } else {
+                        printMsg[strLen] = psStringEDString[i]
+                        strLen += 1
+                    }
+
+                    i += 1
+                }
+
+                printMsg[strLen] = 0
+
+                break doPrint
+            }
         }
 
         Com_sprintf(&printMsg, Int32((printMsg).count), "%s %s", ci.name, psStringEDString!)
@@ -1217,9 +1233,7 @@ func CG_EntityEvent(_ cent: Centity, _ position: JKAShared.vec3_t) {
                 return
             }
 
-            // Port-note: The draft of this statement did not compile, and the compiler wrote "value of optional type 'ClientInfo?' must be unwrapped to refer to member 'clear' of wrapped base type 'ClientInfo'".
-            // Raven wrote: memset(cent->npcClient, 0, sizeof(clientInfo_t))
-            portMissing("CG_EntityEvent", source: "oracle/codemp/cgame/cg_event.c:1491")
+            cent.npcClient!.clear()
             cent.npcClient!.ghoul2Model = nil
         }
 
@@ -1891,9 +1905,55 @@ func CG_EntityEvent(_ cent: Centity, _ position: JKAShared.vec3_t) {
         if cg_debugEvents.integer != 0 {
             CG_Printf("EV_FIRE_WEAPON\n")
         }
-        // Port-note: Raven's block leaves a loop outside the record's scope, and the closure cannot.
-        // Raven wrote: if (cent->currentState.number >= MAX_CLIENTS && cent->currentState.eType != ET_NPC) { //special case for turret firing vec3_t gunpoint, gunangle; mdxaBone_t matrix; weaponInfo_t *weaponInfo = &cg_weapons[WP_TURRET]; if ( !weaponInfo->registered ) { CG_RegisterWeapon(WP_TURRET); } if (cent->ghoul2) { if (!cent->bolt1) { cent->bolt1 = trap_G2API_AddBolt(cent->ghoul2, 0, "*flash01"); } if (!cent->bolt2) { cent->bolt2 = trap_G2API_AddBolt(cent->ghoul2, 0, "*flash02"); } trap_G2API_SetBoneAnim(cent->ghoul2, 0, "Bone02", 1, 4, BONE_ANIM_OVERRIDE_FREEZE|BONE_ANIM_BLEND, 1.0f, cg.time, -1, 300); } else { break; } if (cent->currentState.eventParm) { trap_G2API_GetBoltMatrix(cent->ghoul2, 0, cent->bolt2, &matrix, cent->currentState.angles, cent->currentState.origin, cg.time, cgs.gameModels, cent->modelScale); } else { trap_G2API_GetBoltMatrix(cent->ghoul2, 0, cent->bolt1, &matrix, cent->currentState.angles, cent->currentState.origin, cg.time, cgs.gameModels, cent->modelScale); } gunpoint[0] = matrix.matrix[0][3]; gunpoint[1] = matrix.matrix[1][3]; gunpoint[2] = matrix.matrix[2][3]; gunangle[0] = -matrix.matrix[0][0]; gunangle[1] = -matrix.matrix[1][0]; gunangle[2] = -matrix.matrix[2][0]; trap_FX_PlayEffectID(cgs.effects.mEmplacedMuzzleFlash, gunpoint, gunangle, -1, -1); } else if (cent->currentState.weapon != WP_EMPLACED_GUN || cent->currentState.eType == ET_NPC) { if (cent->currentState.eType == ET_NPC && cent->currentState.NPC_class == CLASS_VEHICLE && cent->m_pVehicle) { //vehicles do nothing for clientside weapon fire events.. at least for now. break; } CG_FireWeapon( cent, qfalse ); }
-        portMissing("CG_EntityEvent", source: "oracle/codemp/cgame/cg_event.c:1491")
+        if cent.currentState.number >= MAX_CLIENTS && cent.currentState.eType != ET_NPC {
+            //special case for turret firing
+            // Raven's record lives to the end of his block, so the block is the closure.
+            // A closure return is Raven's `break`, because no statement of the case follows the block.
+            MdxaBone.scratch { matrix in
+                var gunpoint = vec3_t()
+                var gunangle = vec3_t()
+
+                let weaponInfo = cg_weapons[WP_TURRET]
+
+                if !weaponInfo.registered {
+                    CG_RegisterWeapon(WP_TURRET)
+                }
+
+                if cent.ghoul2 != nil {
+                    if cent.bolt1 == 0 {
+                        cent.bolt1 = trap_G2API_AddBolt(cent.ghoul2, 0, "*flash01")
+                    }
+                    if cent.bolt2 == 0 {
+                        cent.bolt2 = trap_G2API_AddBolt(cent.ghoul2, 0, "*flash02")
+                    }
+                    trap_G2API_SetBoneAnim(cent.ghoul2, 0, "Bone02", 1, 4, BONE_ANIM_OVERRIDE_FREEZE | BONE_ANIM_BLEND, 1.0, cg.time, -1, 300)
+                } else {
+                    return
+                }
+
+                if cent.currentState.eventParm != 0 {
+                    trap_G2API_GetBoltMatrix(cent.ghoul2, 0, cent.bolt2, matrix, cent.currentState.angles, cent.currentState.origin, cg.time, cgs.gameModels, &cent.modelScale)
+                } else {
+                    trap_G2API_GetBoltMatrix(cent.ghoul2, 0, cent.bolt1, matrix, cent.currentState.angles, cent.currentState.origin, cg.time, cgs.gameModels, &cent.modelScale)
+                }
+
+                gunpoint[0] = matrix.matrix[0][3]
+                gunpoint[1] = matrix.matrix[1][3]
+                gunpoint[2] = matrix.matrix[2][3]
+
+                gunangle[0] = -matrix.matrix[0][0]
+                gunangle[1] = -matrix.matrix[1][0]
+                gunangle[2] = -matrix.matrix[2][0]
+
+                trap_FX_PlayEffectID(cgs.effects.mEmplacedMuzzleFlash, gunpoint, gunangle, -1, -1)
+            }
+        } else if cent.currentState.weapon != WP_EMPLACED_GUN || cent.currentState.eType == ET_NPC {
+            if cent.currentState.eType == ET_NPC && cent.currentState.NPC_class == CLASS_VEHICLE && cent.m_pVehicle != nil {
+                //vehicles do nothing for clientside weapon fire events.. at least for now.
+                break
+            }
+            CG_FireWeapon(cent, false)
+        }
 
     case EV_ALT_FIRE:
         if cg_debugEvents.integer != 0 {
@@ -2219,9 +2279,36 @@ func CG_EntityEvent(_ cent: Centity, _ position: JKAShared.vec3_t) {
         if cg_debugEvents.integer != 0 {
             CG_Printf("EV_SABER_UNHOLSTER\n")
         }
-        // Port-note: Raven's block leaves a loop outside the record's scope, and the closure cannot.
-        // Raven wrote: { trace_t tr; vec3_t playerMins = {-15, -15, DEFAULT_MINS_2+8}; vec3_t playerMaxs = {15, 15, DEFAULT_MAXS_2}; vec3_t ang, pos, dpos; VectorClear(ang); ang[ROLL] = 1; VectorCopy(position, dpos); dpos[2] -= 4096; CG_Trace(&tr, position, playerMins, playerMaxs, dpos, es->number, MASK_SOLID); VectorCopy(tr.endpos, pos); if (tr.fraction == 1) { break; } trap_FX_PlayEffectID(cgs.effects.mJediSpawn, pos, ang, -1, -1); trap_S_StartSound (NULL, es->number, CHAN_AUTO, trap_S_RegisterSound( "sound/weapons/saber/saberon.wav" ) ); if (cg.snap->ps.clientNum == es->number) { trap_S_StartLocalSound(cgs.media.happyMusic, CHAN_LOCAL); CGCam_SetMusicMult(0.3, 5000); } }
-        portMissing("CG_EntityEvent", source: "oracle/codemp/cgame/cg_event.c:1491")
+        // Raven's record lives to the end of his block, so the block is the closure.
+        // A closure return is Raven's `break`, because no statement of the case follows the block.
+        Trace.scratch { tr in
+            let playerMins = vec3_t(-15, -15, Float(DEFAULT_MINS_2 + 8))
+            let playerMaxs = vec3_t(15, 15, Float(DEFAULT_MAXS_2))
+            var ang = vec3_t()
+            var pos = vec3_t()
+            var dpos = vec3_t()
+
+            ang = vec3_t()
+            ang[ROLL] = 1
+
+            dpos = position
+            dpos[2] -= 4096
+
+            CG_Trace(tr, position, playerMins, playerMaxs, dpos, es!.number, MASK_SOLID)
+            pos = tr.endpos
+
+            if tr.fraction == 1 {
+                return
+            }
+            trap_FX_PlayEffectID(cgs.effects.mJediSpawn, pos, ang, -1, -1)
+
+            trap_S_StartSound(nil, es!.number, CHAN_AUTO, trap_S_RegisterSound("sound/weapons/saber/saberon.wav"))
+
+            if cg.snap!.ps.clientNum == es!.number {
+                trap_S_StartLocalSound(cgs.media.happyMusic, CHAN_LOCAL)
+                CGCam_SetMusicMult(0.3, 5000)
+            }
+        }
 
     case EV_DISRUPTOR_MAIN_SHOT:
         if cg_debugEvents.integer != 0 {
@@ -2502,17 +2589,61 @@ func CG_EntityEvent(_ cent: Centity, _ position: JKAShared.vec3_t) {
         if cg_debugEvents.integer != 0 {
             CG_Printf("EV_PLAYER_TELEPORT_IN\n")
         }
-        // Port-note: Raven's block leaves a loop outside the record's scope, and the closure cannot.
-        // Raven wrote: { trace_t tr; vec3_t playerMins = {-15, -15, DEFAULT_MINS_2+8}; vec3_t playerMaxs = {15, 15, DEFAULT_MAXS_2}; vec3_t ang, pos, dpos; VectorClear(ang); ang[ROLL] = 1; VectorCopy(position, dpos); dpos[2] -= 4096; CG_Trace(&tr, position, playerMins, playerMaxs, dpos, es->number, MASK_SOLID); VectorCopy(tr.endpos, pos); trap_S_StartSound (NULL, es->number, CHAN_AUTO, cgs.media.teleInSound ); if (tr.fraction == 1) { break; } trap_FX_PlayEffectID(cgs.effects.mSpawn, pos, ang, -1, -1); }
-        portMissing("CG_EntityEvent", source: "oracle/codemp/cgame/cg_event.c:1491")
+        // Raven's record lives to the end of his block, so the block is the closure.
+        // A closure return is Raven's `break`, because no statement of the case follows the block.
+        Trace.scratch { tr in
+            let playerMins = vec3_t(-15, -15, Float(DEFAULT_MINS_2 + 8))
+            let playerMaxs = vec3_t(15, 15, Float(DEFAULT_MAXS_2))
+            var ang = vec3_t()
+            var pos = vec3_t()
+            var dpos = vec3_t()
+
+            ang = vec3_t()
+            ang[ROLL] = 1
+
+            dpos = position
+            dpos[2] -= 4096
+
+            CG_Trace(tr, position, playerMins, playerMaxs, dpos, es!.number, MASK_SOLID)
+            pos = tr.endpos
+
+            trap_S_StartSound(nil, es!.number, CHAN_AUTO, cgs.media.teleInSound)
+
+            if tr.fraction == 1 {
+                return
+            }
+            trap_FX_PlayEffectID(cgs.effects.mSpawn, pos, ang, -1, -1)
+        }
 
     case EV_PLAYER_TELEPORT_OUT:
         if cg_debugEvents.integer != 0 {
             CG_Printf("EV_PLAYER_TELEPORT_OUT\n")
         }
-        // Port-note: Raven's block leaves a loop outside the record's scope, and the closure cannot.
-        // Raven wrote: { trace_t tr; vec3_t playerMins = {-15, -15, DEFAULT_MINS_2+8}; vec3_t playerMaxs = {15, 15, DEFAULT_MAXS_2}; vec3_t ang, pos, dpos; VectorClear(ang); ang[ROLL] = 1; VectorCopy(position, dpos); dpos[2] -= 4096; CG_Trace(&tr, position, playerMins, playerMaxs, dpos, es->number, MASK_SOLID); VectorCopy(tr.endpos, pos); trap_S_StartSound (NULL, es->number, CHAN_AUTO, cgs.media.teleOutSound ); if (tr.fraction == 1) { break; } trap_FX_PlayEffectID(cgs.effects.mSpawn, pos, ang, -1, -1); }
-        portMissing("CG_EntityEvent", source: "oracle/codemp/cgame/cg_event.c:1491")
+        // Raven's record lives to the end of his block, so the block is the closure.
+        // A closure return is Raven's `break`, because no statement of the case follows the block.
+        Trace.scratch { tr in
+            let playerMins = vec3_t(-15, -15, Float(DEFAULT_MINS_2 + 8))
+            let playerMaxs = vec3_t(15, 15, Float(DEFAULT_MAXS_2))
+            var ang = vec3_t()
+            var pos = vec3_t()
+            var dpos = vec3_t()
+
+            ang = vec3_t()
+            ang[ROLL] = 1
+
+            dpos = position
+            dpos[2] -= 4096
+
+            CG_Trace(tr, position, playerMins, playerMaxs, dpos, es!.number, MASK_SOLID)
+            pos = tr.endpos
+
+            trap_S_StartSound(nil, es!.number, CHAN_AUTO, cgs.media.teleOutSound)
+
+            if tr.fraction == 1 {
+                return
+            }
+            trap_FX_PlayEffectID(cgs.effects.mSpawn, pos, ang, -1, -1)
+        }
 
     case EV_ITEM_POP:
         if cg_debugEvents.integer != 0 {
@@ -3165,9 +3296,7 @@ func CG_EntityEvent(_ cent: Centity, _ position: JKAShared.vec3_t) {
         if cg_debugEvents.integer != 0 {
             CG_Printf("EV_TESTLINE\n")
         }
-        // Port-note: The draft of this statement did not compile, and the compiler wrote "cannot convert value of type 'Int32' to expected argument type 'UInt32'".
-        // Raven wrote: CG_TestLine(es->origin, es->origin2, es->time2, es->weapon, 1)
-        portMissing("CG_EntityEvent", source: "oracle/codemp/cgame/cg_event.c:1491")
+        CG_TestLine(es!.origin, es!.origin2, es!.time2, UInt32(bitPattern: es!.weapon), 1)
 
     default:
         if cg_debugEvents.integer != 0 {
