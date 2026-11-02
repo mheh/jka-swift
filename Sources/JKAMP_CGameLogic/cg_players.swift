@@ -334,9 +334,7 @@ func CG_ParseSurfsFile(_ modelName: String, _ skinName: String, _ surfOff: inout
 private func CG_RegisterClientModelname(_ ci: ClientInfo, _ modelName: String, _ skinName: String, _ teamName: String, _ clientNum: Int32) -> Bool {
     let handle: Int32
     var afilename = CharBuf(64)
-    // Port-note: A pointer local `char * slash` with no view.
-    // Raven wrote: char /**GLAName,*/ *slash;
-    portMissing("CG_RegisterClientModelname", source: "oracle/codemp/cgame/cg_players.c:421")
+    var slash: Int32? = nil
     var GLAName = CharBuf(64)
     var tempVec = vec3_t(0, 0, 0)
     var badModel: Bool = false
@@ -387,12 +385,18 @@ private func CG_RegisterClientModelname(_ ci: ClientInfo, _ modelName: String, _
 
         if strchr(skinName.text, Int32(ascii: "|")) != nil {
             //three part skin
-            useSkinName = va("models/players/%s/|%s", modelName.text, skinName.text)
+            // Port-note: The draft of this statement did not compile, and the compiler wrote "immutable value 'useSkinName' may only be initialized once".
+            // Raven wrote: useSkinName = va("models/players/%s/|%s", modelName, skinName)
+            portMissing("CG_RegisterClientModelname", source: "oracle/codemp/cgame/cg_players.c:421")
         } else {
-            useSkinName = va("models/players/%s/model_%s.skin", modelName.text, skinName.text)
+            // Port-note: The draft of this statement did not compile, and the compiler wrote "immutable value 'useSkinName' may only be initialized once".
+            // Raven wrote: useSkinName = va("models/players/%s/model_%s.skin", modelName, skinName)
+            portMissing("CG_RegisterClientModelname", source: "oracle/codemp/cgame/cg_players.c:421")
         }
 
-        checkSkin = trap_R_RegisterSkin(useSkinName)
+        // Port-note: The draft of this statement did not compile, and the compiler wrote "immutable value 'checkSkin' may only be initialized once".
+        // Raven wrote: checkSkin = trap_R_RegisterSkin(useSkinName)
+        portMissing("CG_RegisterClientModelname", source: "oracle/codemp/cgame/cg_players.c:421")
 
         if checkSkin != 0 {
             ci.torsoSkin = checkSkin
@@ -401,7 +405,9 @@ private func CG_RegisterClientModelname(_ ci: ClientInfo, _ modelName: String, _
             ci.torsoSkin = trap_R_RegisterSkin(va("models/players/%s/model_default.skin", modelName.text, skinName.text))
         }
         Com_sprintf(&afilename, Int32((afilename).count), "models/players/%s/model.glm", modelName.text)
-        handle = trap_G2API_InitGhoul2Model(&ci.ghoul2Model, String(afilename), 0, ci.torsoSkin, 0, 0, 0)
+        // Port-note: The draft of this statement did not compile, and the compiler wrote "immutable value 'handle' may only be initialized once".
+        // Raven wrote: handle = trap_G2API_InitGhoul2Model(&ci->ghoul2Model, afilename, 0, ci->torsoSkin, 0, 0, 0)
+        portMissing("CG_RegisterClientModelname", source: "oracle/codemp/cgame/cg_players.c:421")
 
         if handle < 0 {
             return false
@@ -428,12 +434,13 @@ private func CG_RegisterClientModelname(_ ci: ClientInfo, _ modelName: String, _
                 continue retryModel
             }
             Q_strncpyz(&afilename, String(GLAName), Int32((afilename).count))
-            // Port-note: A store into `slash`, a local the draft left as a hole.
-            // Raven wrote: slash = Q_strrchr( afilename, '/' )
-            portMissing("CG_RegisterClientModelname", source: "oracle/codemp/cgame/cg_players.c:421")
-            // Port-note: A read of `slash`, a local the draft left as a hole.
-            // Raven wrote: if ( slash ) { strcpy(slash, "/animation.cfg"); } // Now afilename holds just the path to the animation.cfg else { // Didn't find any slashes, this is a raw filename right in base (whish isn't a good thing) return qfalse; }
-            portMissing("CG_RegisterClientModelname", source: "oracle/codemp/cgame/cg_players.c:421")
+            slash = Q_strrchr(String(afilename), Int32(ascii: "/"))
+            if let slash {
+                strcpy(&afilename, "/animation.cfg", at: slash)
+            } else {
+                // Didn't find any slashes, this is a raw filename right in base (whish isn't a good thing)
+                return false
+            }
 
             //rww - All player models must use humanoid, no matter what.
             if Q_stricmp(afilename, "models/players/_humanoid/animation.cfg") != 0 {
@@ -631,19 +638,17 @@ private func CG_ColorFromInt(_ val: Int32, _ color: inout JKAShared.vec3_t) {
 func CG_G2SkelForModel(_ g2: OpaquePointer?) -> Int32 {
     var animIndex: Int32 = -1
     var GLAName = CharBuf(64)
-    // Port-note: A pointer local `char * slash` with no view.
-    // Raven wrote: char *slash;
-    portMissing("CG_G2SkelForModel", source: "oracle/codemp/cgame/cg_players.c:749")
+    var slash: Int32? = nil
 
     GLAName[0] = 0
     strcpy(&GLAName, trap_G2API_GetGLAName(g2, 0))
 
-    // Port-note: A store into `slash`, a local the draft left as a hole.
-    // Raven wrote: slash = Q_strrchr( GLAName, '/' )
-    portMissing("CG_G2SkelForModel", source: "oracle/codemp/cgame/cg_players.c:749")
-    // Port-note: A read of `slash`, a local the draft left as a hole.
-    // Raven wrote: if ( slash ) { strcpy(slash, "/animation.cfg"); animIndex = BG_ParseAnimationFile(GLAName, NULL, qfalse); }
-    portMissing("CG_G2SkelForModel", source: "oracle/codemp/cgame/cg_players.c:749")
+    slash = Q_strrchr(String(GLAName), Int32(ascii: "/"))
+    if let slash {
+        strcpy(&GLAName, "/animation.cfg", at: slash)
+
+        animIndex = BG_ParseAnimationFile(String(GLAName), nil, false)
+    }
 
     return animIndex
 }
@@ -653,9 +658,7 @@ func CG_G2SkelForModel(_ g2: OpaquePointer?) -> Int32 {
 func CG_G2EvIndexForModel(_ g2: OpaquePointer?, _ animIndex: Int32) -> Int32 {
     var evtIndex: Int32 = -1
     var GLAName = CharBuf(64)
-    // Port-note: A pointer local `char * slash` with no view.
-    // Raven wrote: char *slash;
-    portMissing("CG_G2EvIndexForModel", source: "oracle/codemp/cgame/cg_players.c:770")
+    var slash: Int32? = nil
 
     if animIndex == -1 {
         return -1
@@ -664,12 +667,13 @@ func CG_G2EvIndexForModel(_ g2: OpaquePointer?, _ animIndex: Int32) -> Int32 {
     GLAName[0] = 0
     strcpy(&GLAName, trap_G2API_GetGLAName(g2, 0))
 
-    // Port-note: A store into `slash`, a local the draft left as a hole.
-    // Raven wrote: slash = Q_strrchr( GLAName, '/' )
-    portMissing("CG_G2EvIndexForModel", source: "oracle/codemp/cgame/cg_players.c:770")
-    // Port-note: A read of `slash`, a local the draft left as a hole.
-    // Raven wrote: if ( slash ) { slash++; *slash = 0; evtIndex = BG_ParseAnimationEvtFile(GLAName, animIndex, bgNumAnimEvents); }
-    portMissing("CG_G2EvIndexForModel", source: "oracle/codemp/cgame/cg_players.c:770")
+    slash = Q_strrchr(String(GLAName), Int32(ascii: "/"))
+    if var slash {
+        slash += 1
+        GLAName[slash] = 0
+
+        evtIndex = BG_ParseAnimationEvtFile(String(GLAName), animIndex, bgNumAnimEvents)
+    }
 
     return evtIndex
 }
@@ -683,9 +687,7 @@ func CG_LoadCISounds(_ ci: ClientInfo, _ modelloaded: Bool) {
     let dir: String
     var soundpath = CharBuf(64)
     var soundName = CharBuf(1024)
-    // Port-note: A pointer local `const char * s` with no view.
-    // Raven wrote: const char *s;
-    portMissing("CG_LoadCISounds", source: "oracle/codemp/cgame/cg_players.c:799")
+    var s: String? = nil
 
     dir = ci.modelName
 
@@ -742,14 +744,12 @@ func CG_LoadCISounds(_ ci: ClientInfo, _ modelloaded: Bool) {
 
     i = 0
     while i < MAX_CUSTOM_SOUNDS {
-        // Port-note: A store into `s`, a local the draft left as a hole.
-        // Raven wrote: s = cg_customSoundNames[i]
-        portMissing("CG_LoadCISounds", source: "oracle/codemp/cgame/cg_players.c:799")
-        // Port-note: A read of `s`, a local the draft left as a hole.
-        // Raven wrote: if ( !s ) { break; }
-        portMissing("CG_LoadCISounds", source: "oracle/codemp/cgame/cg_players.c:799")
+        s = cg_customSoundNames[i]
+        if s == nil {
+            break
+        }
 
-        // Port-note: A read of `s`, a local the draft left as a hole.
+        // Port-note: The draft of this statement did not compile, and the compiler wrote "cannot convert value of type 'String?' to expected argument type 'Int'".
         // Raven wrote: Com_sprintf(soundName, sizeof(soundName), "%s", s+1)
         portMissing("CG_LoadCISounds", source: "oracle/codemp/cgame/cg_players.c:799")
         COM_StripExtension(String(soundName), &soundName)
@@ -780,14 +780,12 @@ func CG_LoadCISounds(_ ci: ClientInfo, _ modelloaded: Bool) {
         //load the siege sounds then
         i = 0
         while i < MAX_CUSTOM_SIEGE_SOUNDS {
-            // Port-note: A store into `s`, a local the draft left as a hole.
-            // Raven wrote: s = bg_customSiegeSoundNames[i]
-            portMissing("CG_LoadCISounds", source: "oracle/codemp/cgame/cg_players.c:799")
-            // Port-note: A read of `s`, a local the draft left as a hole.
-            // Raven wrote: if ( !s ) { break; }
-            portMissing("CG_LoadCISounds", source: "oracle/codemp/cgame/cg_players.c:799")
+            s = bg_customSiegeSoundNames[i]
+            if s == nil {
+                break
+            }
 
-            // Port-note: A read of `s`, a local the draft left as a hole.
+            // Port-note: The draft of this statement did not compile, and the compiler wrote "cannot convert value of type 'String?' to expected argument type 'Int'".
             // Raven wrote: Com_sprintf(soundName, sizeof(soundName), "%s", s+1)
             portMissing("CG_LoadCISounds", source: "oracle/codemp/cgame/cg_players.c:799")
             COM_StripExtension(String(soundName), &soundName)
@@ -819,14 +817,12 @@ func CG_LoadCISounds(_ ci: ClientInfo, _ modelloaded: Bool) {
         //load the Duel sounds then
         i = 0
         while i < MAX_CUSTOM_DUEL_SOUNDS {
-            // Port-note: A store into `s`, a local the draft left as a hole.
-            // Raven wrote: s = cg_customDuelSoundNames[i]
-            portMissing("CG_LoadCISounds", source: "oracle/codemp/cgame/cg_players.c:799")
-            // Port-note: A read of `s`, a local the draft left as a hole.
-            // Raven wrote: if ( !s ) { break; }
-            portMissing("CG_LoadCISounds", source: "oracle/codemp/cgame/cg_players.c:799")
+            s = cg_customDuelSoundNames[i]
+            if s == nil {
+                break
+            }
 
-            // Port-note: A read of `s`, a local the draft left as a hole.
+            // Port-note: The draft of this statement did not compile, and the compiler wrote "cannot convert value of type 'String?' to expected argument type 'Int'".
             // Raven wrote: Com_sprintf(soundName, sizeof(soundName), "%s", s+1)
             portMissing("CG_LoadCISounds", source: "oracle/codemp/cgame/cg_players.c:799")
             COM_StripExtension(String(soundName), &soundName)
@@ -1512,13 +1508,31 @@ func CG_NewClientInfo(_ clientNum: Int32, _ entitiesInitialized: Bool) {
             v = Info_ValueForKey(configstring, "siegeclass")
             newInfo.siegeIndex = -1
 
-            // Port-note: The draft of this statement did not compile, and the compiler wrote "cannot find 'BG_SiegeFindClassByName' in scope".
-            // Raven wrote: siegeClass_t *siegeClass = BG_SiegeFindClassByName(v);
-            portMissing("CG_NewClientInfo", source: "oracle/codemp/cgame/cg_players.c:1503")
+            let siegeClass: SiegeClass? = BG_SiegeFindClassByName(v)
 
-            // Port-note: A read of `siegeClass`, a local the draft left as a hole.
-            // Raven wrote: if (siegeClass) { //See if this class forces a model, if so, then use it. Same for skin. newInfo.siegeIndex = BG_SiegeFindClassIndexByName(v); if (siegeClass->forcedModel[0]) { Q_strncpyz( newInfo.modelName, siegeClass->forcedModel, sizeof( newInfo.modelName ) ); } if (siegeClass->forcedSkin[0]) { Q_strncpyz( newInfo.skinName, siegeClass->forcedSkin, sizeof( newInfo.skinName ) ); } if (siegeClass->hasForcedSaberColor) { newInfo.icolor1 = siegeClass->forcedSaberColor; CG_ColorFromInt( newInfo.icolor1, newInfo.color1 ); } if (siegeClass->hasForcedSaber2Color) { newInfo.icolor2 = siegeClass->forcedSaber2Color; CG_ColorFromInt( newInfo.icolor2, newInfo.color2 ); } }
-            portMissing("CG_NewClientInfo", source: "oracle/codemp/cgame/cg_players.c:1503")
+            if siegeClass != nil {
+                //See if this class forces a model, if so, then use it. Same for skin.
+                newInfo.siegeIndex = BG_SiegeFindClassIndexByName(v)
+
+                if !siegeClass!.forcedModel.isEmpty {
+                    Q_strncpyz(&newInfo.modelNameBuffer, siegeClass!.forcedModel, 64)
+                }
+
+                if !siegeClass!.forcedSkin.isEmpty {
+                    Q_strncpyz(&newInfo.skinNameBuffer, siegeClass!.forcedSkin, 64)
+                }
+
+                if siegeClass!.hasForcedSaberColor {
+                    newInfo.icolor1 = siegeClass!.forcedSaberColor
+
+                    CG_ColorFromInt(newInfo.icolor1, &newInfo.color1)
+                }
+                if siegeClass!.hasForcedSaber2Color {
+                    newInfo.icolor2 = siegeClass!.forcedSaber2Color
+
+                    CG_ColorFromInt(newInfo.icolor2, &newInfo.color2)
+                }
+            }
         }
 
         saberUpdate[0] = false
@@ -1717,12 +1731,8 @@ func CG_NewClientInfo(_ clientNum: Int32, _ entitiesInitialized: Bool) {
                 if cg_entities[clientNum].currentState.saberHolstered == 0 {
                     //if not holstered set length and desired length for both blades to full right now.
                     var j: Int32 = 0
-                    // Port-note: The draft of this statement did not compile, and the compiler wrote "cannot find 'BG_SI_SetDesiredLength' in scope".
-                    // Raven wrote: BG_SI_SetDesiredLength(&ci->saber[0], 0, -1)
-                    portMissing("CG_NewClientInfo", source: "oracle/codemp/cgame/cg_players.c:1503")
-                    // Port-note: The draft of this statement did not compile, and the compiler wrote "cannot find 'BG_SI_SetDesiredLength' in scope".
-                    // Raven wrote: BG_SI_SetDesiredLength(&ci->saber[1], 0, -1)
-                    portMissing("CG_NewClientInfo", source: "oracle/codemp/cgame/cg_players.c:1503")
+                    BG_SI_SetDesiredLength(ci!.saber[0], 0, -1)
+                    BG_SI_SetDesiredLength(ci!.saber[1], 0, -1)
 
                     i = 0
                     while i < MAX_SABERS {
@@ -1755,20 +1765,20 @@ Called at the beginning of CG_Player if cgQueueLoad is set.
 /// Source: oracle/codemp/cgame/cg_players.c:1953
 func CG_ActualLoadDeferredPlayers() {
     var i: Int32
-    var ci: ClientInfo?
+    var ci: Slots<ClientInfo>
 
     // scan for a deferred player to load
     i = 0
-    // Port-note: The draft of this statement did not compile, and the compiler wrote "cannot assign value of type 'Slots<ClientInfo>' to type 'ClientInfo'".
-    // Raven wrote: ci = cgs.clientinfo
-    portMissing("CG_ActualLoadDeferredPlayers", source: "oracle/codemp/cgame/cg_players.c:1953")
+    ci = cgs.clientinfo
     while i < cgs.maxclients {
-        if ci!.infoValid && ci!.deferred {
-            CG_LoadClientInfo(ci!)
+        if ci[0].infoValid && ci[0].deferred {
+            // Port-note: Raven passes `ci` to `CG_LoadClientInfo`, whose `ci` parameter takes one record, and Swift holds the argument as the Slots over the records.
+            // Raven wrote: CG_LoadClientInfo( ci )
+            portMissing("CG_ActualLoadDeferredPlayers", source: "oracle/codemp/cgame/cg_players.c:1953")
             //			break;
         }
         i += 1
-        // Port-note: The draft of this statement did not compile, and the compiler wrote "cannot convert value of type 'ClientInfo?' to expected argument type 'Int'".
+        // Port-note: The draft of this statement did not compile, and the compiler wrote "binary operator '+=' cannot be applied to operands of type 'Slots<ClientInfo>' and 'Int'".
         // Raven wrote: ci++
         portMissing("CG_ActualLoadDeferredPlayers", source: "oracle/codemp/cgame/cg_players.c:1953")
     }
@@ -1984,9 +1994,7 @@ private func CG_PlayerFootsteps(_ cent: Centity, _ footStepType: JKAShared.foots
 
 
             //FIXME: get yaw orientation of the foot and use on decal
-            // Port-note: Raven passes `cgs.gameModels` to `trap_G2API_GetBoltMatrix`, whose `modelList` parameter takes the Slots over the records, and Swift holds one record here. A Slots over one record has no form yet.
-            // Raven wrote: trap_G2API_GetBoltMatrix( cent->ghoul2, 0, footBolt, &boltMatrix, tempAngles, cent->lerpOrigin, cg.time, cgs.gameModels, cent->modelScale)
-            portMissing("CG_PlayerFootsteps", source: "oracle/codemp/cgame/cg_players.c:2183")
+            trap_G2API_GetBoltMatrix(cent.ghoul2, 0, footBolt, boltMatrix, tempAngles, cent.lerpOrigin, cg.time, cgs.gameModels, &cent.modelScale)
             BG_GiveMeVectorFromMatrix(boltMatrix, ORIGIN, &sideOrigin)
             sideOrigin[2] += 15 //fudge up a bit for coplanar
             _PlayerFootStep(sideOrigin, cent.pe.legs.yawAngle, 6, cent, footStepType)
@@ -2025,16 +2033,12 @@ func CG_PlayerAnimEvents(_ animFileIndex: Int32, _ eventFileIndex: Int32, _ tors
     var loopAnim: Bool = false
     var match: Bool = false
     var animBackward: Bool = false
-    var animEvents: Animevent? = nil
+    var animEvents: Slots<Animevent>
 
     if torso {
-        // Port-note: The draft of this statement did not compile, and the compiler wrote "cannot assign value of type 'Slots<Animevent>' to type 'Animevent'".
-        // Raven wrote: animEvents = bgAllEvents[eventFileIndex].torsoAnimEvents
-        portMissing("CG_PlayerAnimEvents", source: "oracle/codemp/cgame/cg_players.c:2461")
+        animEvents = bgAllEvents[eventFileIndex].torsoAnimEvents
     } else {
-        // Port-note: The draft of this statement did not compile, and the compiler wrote "cannot assign value of type 'Slots<Animevent>' to type 'Animevent'".
-        // Raven wrote: animEvents = bgAllEvents[eventFileIndex].legsAnimEvents
-        portMissing("CG_PlayerAnimEvents", source: "oracle/codemp/cgame/cg_players.c:2461")
+        animEvents = bgAllEvents[eventFileIndex].legsAnimEvents
     }
     if abs(Float((oldFrame - frame))) > 1 {
         //given a range, see if keyFrame falls in that range
@@ -2092,23 +2096,114 @@ func CG_PlayerAnimEvents(_ animFileIndex: Int32, _ eventFileIndex: Int32, _ tors
     // Check for anim sound
     i = 0
     while i < MAX_ANIM_EVENTS {
-        // Port-note: Raven walks `animEvents[i]` as an array through a `animevent_t *` parameter, and the view holds one record. A Slots ruling is due.
-        // Raven wrote: if ( animEvents[i].eventType == AEV_NONE ) // No event, end of list { break; }
-        portMissing("CG_PlayerAnimEvents", source: "oracle/codemp/cgame/cg_players.c:2461")
+        if animEvents[i].eventType == AEV_NONE {
+            break
+        }
 
         match = false
-        // Port-note: Raven walks `animEvents[i]` as an array through a `animevent_t *` parameter, and the view holds one record. A Slots ruling is due.
-        // Raven wrote: if ( animEvents[i].keyFrame == frame ) {//exact match match = qtrue; } else if ( fabs((float)(oldFrame-frame)) > 1 /*&& cg_reliableAnimSounds.integer*/ ) {//given a range, see if keyFrame falls in that range if ( inSameAnim ) {//if changed anims altogether, sorry, the sound is lost if ( fabs((float)(oldFrame-animEvents[i].keyFrame)) <= 3 || fabs((float)(frame-animEvents[i].keyFrame)) <= 3 ) {//must be at least close to the keyframe if ( animBackward ) {//animation plays backwards if ( oldFrame > animEvents[i].keyFrame && frame < animEvents[i].keyFrame ) {//old to new passed through keyframe match = qtrue; } else if ( loopAnim ) {//hmm, didn't pass through it linearally, see if we looped if ( animEvents[i].keyFrame >= firstFrame && animEvents[i].keyFrame < lastFrame ) {//keyframe is in this anim if ( oldFrame > animEvents[i].keyFrame && frame > oldFrame ) {//old to new passed through keyframe match = qtrue; } } } } else {//anim plays forwards if ( oldFrame < animEvents[i].keyFrame && frame > animEvents[i].keyFrame ) {//old to new passed through keyframe match = qtrue; } else if ( loopAnim ) {//hmm, didn't pass through it linearally, see if we looped if ( animEvents[i].keyFrame >= firstFrame && animEvents[i].keyFrame < lastFrame ) {//keyframe is in this anim if ( oldFrame < animEvents[i].keyFrame && frame < oldFrame ) {//old to new passed through keyframe match = qtrue; } } } } } } }
-        portMissing("CG_PlayerAnimEvents", source: "oracle/codemp/cgame/cg_players.c:2461")
+        if animEvents[i].keyFrame == frame {
+            //exact match
+            match = true
+        } else if abs(Float((oldFrame - frame))) > 1 {
+            //given a range, see if keyFrame falls in that range
+            if inSameAnim {
+                //if changed anims altogether, sorry, the sound is lost
+                if abs(Float((oldFrame - animEvents[i].keyFrame))) <= 3 || abs(Float((frame - animEvents[i].keyFrame))) <= 3 {
+                    //must be at least close to the keyframe
+                    if animBackward {
+                        //animation plays backwards
+                        if oldFrame > animEvents[i].keyFrame && frame < animEvents[i].keyFrame {
+                            //old to new passed through keyframe
+                            match = true
+                        } else if loopAnim {
+                            //hmm, didn't pass through it linearally, see if we looped
+                            if animEvents[i].keyFrame >= firstFrame && animEvents[i].keyFrame < lastFrame {
+                                //keyframe is in this anim
+                                if oldFrame > animEvents[i].keyFrame && frame > oldFrame {
+                                    //old to new passed through keyframe
+                                    match = true
+                                }
+                            }
+                        }
+                    } else {
+                        //anim plays forwards
+                        if oldFrame < animEvents[i].keyFrame && frame > animEvents[i].keyFrame {
+                            //old to new passed through keyframe
+                            match = true
+                        } else if loopAnim {
+                            //hmm, didn't pass through it linearally, see if we looped
+                            if animEvents[i].keyFrame >= firstFrame && animEvents[i].keyFrame < lastFrame {
+                                //keyframe is in this anim
+                                if oldFrame < animEvents[i].keyFrame && frame < oldFrame {
+                                    //old to new passed through keyframe
+                                    match = true
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        }
         if match {
-            // Port-note: Raven walks `animEvents[i]` as an array through a `animevent_t *` parameter, and the view holds one record. A Slots ruling is due.
-            // Raven wrote: switch ( animEvents[i].eventType ) { case AEV_SOUND: case AEV_SOUNDCHAN: // Determine probability of playing sound if (!animEvents[i].eventData[AED_SOUND_PROBABILITY]) // 100% { doEvent = qtrue; } else if (animEvents[i].eventData[AED_SOUND_PROBABILITY] > Q_irand(0, 99) ) { doEvent = qtrue; } break; case AEV_SABER_SWING: // Determine probability of playing sound if (!animEvents[i].eventData[AED_SABER_SWING_PROBABILITY]) // 100% { doEvent = qtrue; } else if (animEvents[i].eventData[AED_SABER_SWING_PROBABILITY] > Q_irand(0, 99) ) { doEvent = qtrue; } break; case AEV_SABER_SPIN: // Determine probability of playing sound if (!animEvents[i].eventData[AED_SABER_SPIN_PROBABILITY]) // 100% { doEvent = qtrue; } else if (animEvents[i].eventData[AED_SABER_SPIN_PROBABILITY] > Q_irand(0, 99) ) { doEvent = qtrue; } break; case AEV_FOOTSTEP: // Determine probability of playing sound if (!animEvents[i].eventData[AED_FOOTSTEP_PROBABILITY]) // 100% { doEvent = qtrue; } else if (animEvents[i].eventData[AED_FOOTSTEP_PROBABILITY] > Q_irand(0, 99) ) { doEvent = qtrue; } break; case AEV_EFFECT: // Determine probability of playing sound if (!animEvents[i].eventData[AED_EFFECT_PROBABILITY]) // 100% { doEvent = qtrue; } else if (animEvents[i].eventData[AED_EFFECT_PROBABILITY] > Q_irand(0, 99) ) { doEvent = qtrue; } break; case AEV_FIRE: // Determine probability of playing sound if (!animEvents[i].eventData[AED_FIRE_PROBABILITY]) // 100% { doEvent = qtrue; } else if (animEvents[i].eventData[AED_FIRE_PROBABILITY] > Q_irand(0, 99) ) { doEvent = qtrue; } break; case AEV_MOVE: doEvent = qtrue; break; default: //doEvent = qfalse;//implicit break; }
-            portMissing("CG_PlayerAnimEvents", source: "oracle/codemp/cgame/cg_players.c:2461")
+            switch animEvents[i].eventType {
+            case AEV_SOUND, AEV_SOUNDCHAN:
+                // Determine probability of playing sound
+                if animEvents[i].eventData[AED_SOUND_PROBABILITY] == 0 {
+                    doEvent = true
+                } else if animEvents[i].eventData[AED_SOUND_PROBABILITY] > Q_irand(0, 99) {
+                    doEvent = true
+                }
+
+            case AEV_SABER_SWING:
+                // Determine probability of playing sound
+                if animEvents[i].eventData[AED_SABER_SWING_PROBABILITY] == 0 {
+                    doEvent = true
+                } else if animEvents[i].eventData[AED_SABER_SWING_PROBABILITY] > Q_irand(0, 99) {
+                    doEvent = true
+                }
+
+            case AEV_SABER_SPIN:
+                // Determine probability of playing sound
+                if animEvents[i].eventData[AED_SABER_SPIN_PROBABILITY] == 0 {
+                    doEvent = true
+                } else if animEvents[i].eventData[AED_SABER_SPIN_PROBABILITY] > Q_irand(0, 99) {
+                    doEvent = true
+                }
+
+            case AEV_FOOTSTEP:
+                // Determine probability of playing sound
+                if animEvents[i].eventData[AED_FOOTSTEP_PROBABILITY] == 0 {
+                    doEvent = true
+                } else if animEvents[i].eventData[AED_FOOTSTEP_PROBABILITY] > Q_irand(0, 99) {
+                    doEvent = true
+                }
+
+            case AEV_EFFECT:
+                // Determine probability of playing sound
+                if animEvents[i].eventData[AED_EFFECT_PROBABILITY] == 0 {
+                    doEvent = true
+                } else if animEvents[i].eventData[AED_EFFECT_PROBABILITY] > Q_irand(0, 99) {
+                    doEvent = true
+                }
+
+            case AEV_FIRE:
+                // Determine probability of playing sound
+                if animEvents[i].eventData[AED_FIRE_PROBABILITY] == 0 {
+                    doEvent = true
+                } else if animEvents[i].eventData[AED_FIRE_PROBABILITY] > Q_irand(0, 99) {
+                    doEvent = true
+                }
+
+            case AEV_MOVE:
+                doEvent = true
+
+            default:
+                //doEvent = qfalse;//implicit
+                break
+            }
             // do event
             if doEvent {
-                // Port-note: Raven walks `animEvents[i]` as an array through a `animevent_t *` parameter, and the view holds one record. A Slots ruling is due.
-                // Raven wrote: CG_PlayerAnimEventDo( &cg_entities[entNum], &animEvents[i] )
-                portMissing("CG_PlayerAnimEvents", source: "oracle/codemp/cgame/cg_players.c:2461")
+                CG_PlayerAnimEventDo(cg_entities[entNum], animEvents[i])
             }
         }
         i += 1
@@ -2125,9 +2220,10 @@ func CG_TriggerAnimSounds(_ cent: Centity) {
 
     sFileIndex = cent.eventAnimIndex
 
-    // Port-note: The draft of this statement did not compile, and the compiler wrote "cannot convert value of type 'UnsafeMutablePointer<Slots<qhandle_t>>' (aka 'UnsafeMutablePointer<Slots<Int32>>') to expected argument type 'UnsafeMutablePointer<Int32>'".
-    // Raven wrote: if (trap_G2API_GetBoneFrame(cent->ghoul2, "model_root", cg.time, &currentFrame, cgs.gameModels, 0)) { // the above may have failed, not sure what to do about it, current frame will be zero in that case curFrame = floor( currentFrame ); }
-    portMissing("CG_TriggerAnimSounds", source: "oracle/codemp/cgame/cg_players.c:2676")
+    if trap_G2API_GetBoneFrame(cent.ghoul2, "model_root", cg.time, &currentFrame, cgs.gameModels, 0) {
+        // the above may have failed, not sure what to do about it, current frame will be zero in that case
+        curFrame = Int32(floor(currentFrame))
+    }
     if curFrame != cent.pe.legs.frame {
         CG_PlayerAnimEvents(cent.localAnimIndex, sFileIndex, false, cent.pe.legs.frame, curFrame, cent.currentState.number)
     }
@@ -2141,9 +2237,9 @@ func CG_TriggerAnimSounds(_ cent: Centity) {
         return
     }
 
-    // Port-note: The draft of this statement did not compile, and the compiler wrote "cannot convert value of type 'UnsafeMutablePointer<Slots<qhandle_t>>' (aka 'UnsafeMutablePointer<Slots<Int32>>') to expected argument type 'UnsafeMutablePointer<Int32>'".
-    // Raven wrote: if (trap_G2API_GetBoneFrame(cent->ghoul2, "lower_lumbar", cg.time, &currentFrame, cgs.gameModels, 0)) { curFrame = floor( currentFrame ); }
-    portMissing("CG_TriggerAnimSounds", source: "oracle/codemp/cgame/cg_players.c:2676")
+    if trap_G2API_GetBoneFrame(cent.ghoul2, "lower_lumbar", cg.time, &currentFrame, cgs.gameModels, 0) {
+        curFrame = Int32(floor(currentFrame))
+    }
     if curFrame != cent.pe.torso.frame {
         CG_PlayerAnimEvents(cent.localAnimIndex, sFileIndex, true, cent.pe.torso.frame, curFrame, cent.currentState.number)
     }
@@ -2524,9 +2620,16 @@ private func CG_PlayerAnimation(_ cent: Centity, _ legsOld: inout Int32, _ legs:
         return
     }
 
-    // Port-note: The draft of this statement did not compile, and the compiler wrote "cannot find 'PM_RunningAnim' in scope".
-    // Raven wrote: if (!PM_RunningAnim(cent->currentState.legsAnim) && !PM_WalkingAnim(cent->currentState.legsAnim)) { //if legs are not in a walking/running anim then just animate at standard speed speedScale = 1.0f; } else if (cent->currentState.forcePowersActive & (1 << FP_RAGE)) { speedScale = 1.3f; } else if (cent->currentState.forcePowersActive & (1 << FP_SPEED)) { speedScale = 1.7f; } else { speedScale = 1.0f; }
-    portMissing("CG_PlayerAnimation", source: "oracle/codemp/cgame/cg_players.c:3267")
+    if !PM_RunningAnim(cent.currentState.legsAnim) && !PM_WalkingAnim(cent.currentState.legsAnim) {
+        //if legs are not in a walking/running anim then just animate at standard speed
+        speedScale = 1.0
+    } else if (cent.currentState.forcePowersActive & (1 << FP_RAGE)) != 0 {
+        speedScale = 1.3
+    } else if (cent.currentState.forcePowersActive & (1 << FP_SPEED)) != 0 {
+        speedScale = 1.7
+    } else {
+        speedScale = 1.0
+    }
 
     if cent.currentState.eType == ET_NPC {
         ci = cent.npcClient
@@ -2601,9 +2704,7 @@ private func CG_RagAnimForPositioning(_ cent: Centity) -> Int32 {
 
         bolt = trap_G2API_AddBolt(cent.ghoul2, 0, "pelvis")
 
-        // Port-note: Raven passes `cgs.gameModels` to `trap_G2API_GetBoltMatrix`, whose `modelList` parameter takes the Slots over the records, and Swift holds one record here. A Slots over one record has no form yet.
-        // Raven wrote: trap_G2API_GetBoltMatrix(cent->ghoul2, 0, bolt, &matrix, cent->turAngles, cent->lerpOrigin, cg.time, cgs.gameModels, cent->modelScale)
-        portMissing("CG_RagAnimForPositioning", source: "oracle/codemp/cgame/cg_players.c:3460")
+        trap_G2API_GetBoltMatrix(cent.ghoul2, 0, bolt, matrix, cent.turAngles, cent.lerpOrigin, cg.time, cgs.gameModels, &cent.modelScale)
         BG_GiveMeVectorFromMatrix(matrix, NEGATIVE_Z, &dir)
 
         if dir[2] > 0.0 {
@@ -2701,26 +2802,20 @@ func CG_RagDoll(_ cent: Centity, _ forcedAngles: JKAShared.vec3_t) -> Bool {
 
                     //This may seem bad, but since we have a bone cache now it should manage to not be too disgustingly slow.
                     //Do the head first, because the hands reference it anyway.
-                    // Port-note: Raven passes `cgs.gameModels` to `trap_G2API_GetBoltMatrix`, whose `modelList` parameter takes the Slots over the records, and Swift holds one record here. A Slots over one record has no form yet.
-                    // Raven wrote: trap_G2API_GetBoltMatrix(cent->ghoul2, 0, boltChecks[2], &boltMatrix, tAng, cent->lerpOrigin, cg.time, cgs.gameModels, cent->modelScale)
-                    portMissing("CG_RagDoll", source: "oracle/codemp/cgame/cg_players.c:3486")
+                    trap_G2API_GetBoltMatrix(cent.ghoul2, 0, boltChecks[2], boltMatrix, tAng, cent.lerpOrigin, cg.time, cgs.gameModels, &cent.modelScale)
                     BG_GiveMeVectorFromMatrix(boltMatrix, ORIGIN, &boltPoints[2])
 
                     while i < 5 {
                         if i < 2 {
                             //when doing hands, trace to the head instead of origin
-                            // Port-note: Raven passes `cgs.gameModels` to `trap_G2API_GetBoltMatrix`, whose `modelList` parameter takes the Slots over the records, and Swift holds one record here. A Slots over one record has no form yet.
-                            // Raven wrote: trap_G2API_GetBoltMatrix(cent->ghoul2, 0, boltChecks[i], &boltMatrix, tAng, cent->lerpOrigin, cg.time, cgs.gameModels, cent->modelScale)
-                            portMissing("CG_RagDoll", source: "oracle/codemp/cgame/cg_players.c:3486")
+                            trap_G2API_GetBoltMatrix(cent.ghoul2, 0, boltChecks[i], boltMatrix, tAng, cent.lerpOrigin, cg.time, cgs.gameModels, &cent.modelScale)
                             BG_GiveMeVectorFromMatrix(boltMatrix, ORIGIN, &boltPoints[i])
                             trStart = boltPoints[i]
                             trEnd = boltPoints[2]
                         } else {
                             if i > 2 {
                                 //2 is the head, which already has the bolt point.
-                                // Port-note: Raven passes `cgs.gameModels` to `trap_G2API_GetBoltMatrix`, whose `modelList` parameter takes the Slots over the records, and Swift holds one record here. A Slots over one record has no form yet.
-                                // Raven wrote: trap_G2API_GetBoltMatrix(cent->ghoul2, 0, boltChecks[i], &boltMatrix, tAng, cent->lerpOrigin, cg.time, cgs.gameModels, cent->modelScale)
-                                portMissing("CG_RagDoll", source: "oracle/codemp/cgame/cg_players.c:3486")
+                                trap_G2API_GetBoltMatrix(cent.ghoul2, 0, boltChecks[i], boltMatrix, tAng, cent.lerpOrigin, cg.time, cgs.gameModels, &cent.modelScale)
                                 BG_GiveMeVectorFromMatrix(boltMatrix, ORIGIN, &boltPoints[i])
                             }
                             trStart = boltPoints[i]
@@ -2788,22 +2883,25 @@ func CG_RagDoll(_ cent: Centity, _ forcedAngles: JKAShared.vec3_t) -> Bool {
                     var flags: Int32 = 0
                     var animSpeed: Float = 0
 
-                    // Port-note: The draft of this statement did not compile, and the compiler wrote "cannot convert value of type 'UnsafeMutablePointer<Slots<qhandle_t>>' (aka 'UnsafeMutablePointer<Slots<Int32>>') to expected argument type 'UnsafeMutablePointer<Int32>'".
-                    // Raven wrote: if (trap_G2API_GetBoneAnim(cent->ghoul2, "model_root", cg.time, &currentFrame, &startFrame, &endFrame, &flags, &animSpeed, cgs.gameModels, 0)) { //lock the anim on the current frame. int blendTime = 500; animation_t *curAnim = &bgAllAnims[cent->localAnimIndex].anims[cent->currentState.legsAnim]; if (currentFrame >= (curAnim->firstFrame + curAnim->numFrames-1)) { //this is sort of silly but it works for now. currentFrame = (curAnim->firstFrame + curAnim->numFrames-2); } trap_G2API_SetBoneAnim(cent->ghoul2, 0, "lower_lumbar", currentFrame, currentFrame+1, flags, animSpeed,cg.time, currentFrame, blendTime); trap_G2API_SetBoneAnim(cent->ghoul2, 0, "model_root", currentFrame, currentFrame+1, flags, animSpeed, cg.time, currentFrame, blendTime); trap_G2API_SetBoneAnim(cent->ghoul2, 0, "Motion", currentFrame, currentFrame+1, flags, animSpeed, cg.time, currentFrame, blendTime); }
-                    portMissing("CG_RagDoll", source: "oracle/codemp/cgame/cg_players.c:3486")
+                    if trap_G2API_GetBoneAnim(cent.ghoul2, "model_root", cg.time, &currentFrame, &startFrame, &endFrame, &flags, &animSpeed, cgs.gameModels, 0) {
+                        //lock the anim on the current frame.
+                        let blendTime: Int32 = 500
+                        let curAnim: Animation? = bgAllAnims[cent.localAnimIndex].animsSlots[cent.currentState.legsAnim]
+
+                        if currentFrame >= (curAnim!.firstFrame + curAnim!.numFrames - 1) {
+                            //this is sort of silly but it works for now.
+                            currentFrame = Float((curAnim!.firstFrame + curAnim!.numFrames - 2))
+                        }
+
+                        trap_G2API_SetBoneAnim(cent.ghoul2, 0, "lower_lumbar", Int32(currentFrame), Int32(currentFrame + 1), flags, animSpeed, cg.time, currentFrame, blendTime)
+                        trap_G2API_SetBoneAnim(cent.ghoul2, 0, "model_root", Int32(currentFrame), Int32(currentFrame + 1), flags, animSpeed, cg.time, currentFrame, blendTime)
+                        trap_G2API_SetBoneAnim(cent.ghoul2, 0, "Motion", Int32(currentFrame), Int32(currentFrame + 1), flags, animSpeed, cg.time, currentFrame, blendTime)
+                    }
                 }
-                // Port-note: Raven passes `cgs.gameModels` to `CG_G2SetBoneAngles`, whose `modelList` parameter takes the Slots over the records, and Swift holds one record here. A Slots over one record has no form yet.
-                // Raven wrote: CG_G2SetBoneAngles(cent->ghoul2, 0, "upper_lumbar", vec3_origin, BONE_ANGLES_POSTMULT, POSITIVE_X, NEGATIVE_Y, NEGATIVE_Z, cgs.gameModels, 0, cg.time)
-                portMissing("CG_RagDoll", source: "oracle/codemp/cgame/cg_players.c:3486")
-                // Port-note: Raven passes `cgs.gameModels` to `CG_G2SetBoneAngles`, whose `modelList` parameter takes the Slots over the records, and Swift holds one record here. A Slots over one record has no form yet.
-                // Raven wrote: CG_G2SetBoneAngles(cent->ghoul2, 0, "lower_lumbar", vec3_origin, BONE_ANGLES_POSTMULT, POSITIVE_X, NEGATIVE_Y, NEGATIVE_Z, cgs.gameModels, 0, cg.time)
-                portMissing("CG_RagDoll", source: "oracle/codemp/cgame/cg_players.c:3486")
-                // Port-note: Raven passes `cgs.gameModels` to `CG_G2SetBoneAngles`, whose `modelList` parameter takes the Slots over the records, and Swift holds one record here. A Slots over one record has no form yet.
-                // Raven wrote: CG_G2SetBoneAngles(cent->ghoul2, 0, "thoracic", vec3_origin, BONE_ANGLES_POSTMULT, POSITIVE_X, NEGATIVE_Y, NEGATIVE_Z, cgs.gameModels, 0, cg.time)
-                portMissing("CG_RagDoll", source: "oracle/codemp/cgame/cg_players.c:3486")
-                // Port-note: Raven passes `cgs.gameModels` to `CG_G2SetBoneAngles`, whose `modelList` parameter takes the Slots over the records, and Swift holds one record here. A Slots over one record has no form yet.
-                // Raven wrote: CG_G2SetBoneAngles(cent->ghoul2, 0, "cervical", vec3_origin, BONE_ANGLES_POSTMULT, POSITIVE_X, NEGATIVE_Y, NEGATIVE_Z, cgs.gameModels, 0, cg.time)
-                portMissing("CG_RagDoll", source: "oracle/codemp/cgame/cg_players.c:3486")
+                CG_G2SetBoneAngles(cent.ghoul2, 0, "upper_lumbar", vec3_origin, BONE_ANGLES_POSTMULT, POSITIVE_X, NEGATIVE_Y, NEGATIVE_Z, cgs.gameModels, 0, cg.time)
+                CG_G2SetBoneAngles(cent.ghoul2, 0, "lower_lumbar", vec3_origin, BONE_ANGLES_POSTMULT, POSITIVE_X, NEGATIVE_Y, NEGATIVE_Z, cgs.gameModels, 0, cg.time)
+                CG_G2SetBoneAngles(cent.ghoul2, 0, "thoracic", vec3_origin, BONE_ANGLES_POSTMULT, POSITIVE_X, NEGATIVE_Y, NEGATIVE_Z, cgs.gameModels, 0, cg.time)
+                CG_G2SetBoneAngles(cent.ghoul2, 0, "cervical", vec3_origin, BONE_ANGLES_POSTMULT, POSITIVE_X, NEGATIVE_Y, NEGATIVE_Z, cgs.gameModels, 0, cg.time)
 
                 tParms.angles = forcedAngles
                 tParms.position = usedOrg
@@ -2860,22 +2958,16 @@ func CG_RagDoll(_ cent: Centity, _ forcedAngles: JKAShared.vec3_t) -> Bool {
                             var thorBolt: Int32 = 0
 
                             //Get the person who is holding our hand's hand location
-                            // Port-note: Raven passes `cgs.gameModels` to `trap_G2API_GetBoltMatrix`, whose `modelList` parameter takes the Slots over the records, and Swift holds one record here. A Slots over one record has no form yet.
-                            // Raven wrote: trap_G2API_GetBoltMatrix(grabEnt->ghoul2, 0, 0, &matrix, grabEnt->turAngles, grabEnt->lerpOrigin, cg.time, cgs.gameModels, grabEnt->modelScale)
-                            portMissing("CG_RagDoll", source: "oracle/codemp/cgame/cg_players.c:3486")
+                            trap_G2API_GetBoltMatrix(grabEnt!.ghoul2, 0, 0, matrix, grabEnt!.turAngles, grabEnt!.lerpOrigin, cg.time, cgs.gameModels, &grabEnt!.modelScale)
                             BG_GiveMeVectorFromMatrix(matrix, ORIGIN, &bOrg)
 
                             //Get our hand's location
-                            // Port-note: Raven passes `cgs.gameModels` to `trap_G2API_GetBoltMatrix`, whose `modelList` parameter takes the Slots over the records, and Swift holds one record here. A Slots over one record has no form yet.
-                            // Raven wrote: trap_G2API_GetBoltMatrix(cent->ghoul2, 0, 0, &matrix, cent->turAngles, cent->lerpOrigin, cg.time, cgs.gameModels, cent->modelScale)
-                            portMissing("CG_RagDoll", source: "oracle/codemp/cgame/cg_players.c:3486")
+                            trap_G2API_GetBoltMatrix(cent.ghoul2, 0, 0, matrix, cent.turAngles, cent.lerpOrigin, cg.time, cgs.gameModels, &cent.modelScale)
                             BG_GiveMeVectorFromMatrix(matrix, ORIGIN, &thisHand)
 
                             //Get the position of the thoracic bone for hinting its velocity later on
                             thorBolt = trap_G2API_AddBolt(cent.ghoul2, 0, "thoracic")
-                            // Port-note: Raven passes `cgs.gameModels` to `trap_G2API_GetBoltMatrix`, whose `modelList` parameter takes the Slots over the records, and Swift holds one record here. A Slots over one record has no form yet.
-                            // Raven wrote: trap_G2API_GetBoltMatrix(cent->ghoul2, 0, thorBolt, &matrix, cent->turAngles, cent->lerpOrigin, cg.time, cgs.gameModels, cent->modelScale)
-                            portMissing("CG_RagDoll", source: "oracle/codemp/cgame/cg_players.c:3486")
+                            trap_G2API_GetBoltMatrix(cent.ghoul2, 0, thorBolt, matrix, cent.turAngles, cent.lerpOrigin, cg.time, cgs.gameModels, &cent.modelScale)
                             BG_GiveMeVectorFromMatrix(matrix, ORIGIN, &thorPoint)
 
                             hands = bOrg - thisHand
@@ -3026,9 +3118,7 @@ func CG_G2ServerBoneAngles(_ cent: Centity) {
                 right = (cent.currentState.boneOrient >> 3) & 7 //3 bits from bit 3
                 up = (cent.currentState.boneOrient >> 6) & 7 //3 bits from bit 6
 
-                // Port-note: Raven passes `cgs.gameModels` to `trap_G2API_SetBoneAngles`, whose `modelList` parameter takes the Slots over the records, and Swift holds one record here. A Slots over one record has no form yet.
-                // Raven wrote: trap_G2API_SetBoneAngles(cent->ghoul2, 0, boneName, boneAngles, flags, up, right, forward, cgs.gameModels, 100, cg.time)
-                portMissing("CG_G2ServerBoneAngles", source: "oracle/codemp/cgame/cg_players.c:3914")
+                trap_G2API_SetBoneAngles(cent.ghoul2, 0, boneName, boneAngles, flags, up, right, forward, cgs.gameModels, 100, cg.time)
             }
         }
 
@@ -3312,9 +3402,7 @@ private func CG_G2PlayerAngles(_ cent: Centity, _ legs: inout [JKAShared.vec3_t]
                 MdxaBone.scratch { boltMatrix in
                     var boltOrg = vec3_t()
 
-                    // Port-note: Raven passes `cgs.gameModels` to `trap_G2API_GetBoltMatrix`, whose `modelList` parameter takes the Slots over the records, and Swift holds one record here. A Slots over one record has no form yet.
-                    // Raven wrote: trap_G2API_GetBoltMatrix(other->ghoul2, 0, ci->bolt_lhand, &boltMatrix, other->turAngles, other->lerpOrigin, cg.time, cgs.gameModels, other->modelScale)
-                    portMissing("CG_G2PlayerAngles", source: "oracle/codemp/cgame/cg_players.c:4192")
+                    trap_G2API_GetBoltMatrix(other!.ghoul2, 0, ci!.bolt_lhand, boltMatrix, other!.turAngles, other!.lerpOrigin, cg.time, cgs.gameModels, &other!.modelScale)
                     BG_GiveMeVectorFromMatrix(boltMatrix, ORIGIN, &boltOrg)
 
                     BG_IK_MoveArm(cent.ghoul2, ci!.bolt_lhand, cg.time, cent.currentState, cent.currentState.torsoAnim, &boltOrg, &cent.ikStatus, &cent.lerpOrigin, &cent.lerpAngles, &cent.modelScale, 500, false)
@@ -3403,9 +3491,7 @@ private func CG_PlayerFlag(_ cent: Centity, _ hModel: JKAShared.qhandle_t) {
 
             tAng = vec3_t(cent.turAngles[PITCH], cent.turAngles[YAW], cent.turAngles[ROLL])
 
-            // Port-note: Raven passes `cgs.gameModels` to `trap_G2API_GetBoltMatrix`, whose `modelList` parameter takes the Slots over the records, and Swift holds one record here. A Slots over one record has no form yet.
-            // Raven wrote: trap_G2API_GetBoltMatrix(cent->ghoul2, 0, ci->bolt_llumbar, &boltMatrix, tAng, cent->lerpOrigin, cg.time, cgs.gameModels, cent->modelScale)
-            portMissing("CG_PlayerFlag", source: "oracle/codemp/cgame/cg_players.c:4367")
+            trap_G2API_GetBoltMatrix(cent.ghoul2, 0, ci!.bolt_llumbar, boltMatrix, tAng, cent.lerpOrigin, cg.time, cgs.gameModels, &cent.modelScale)
             BG_GiveMeVectorFromMatrix(boltMatrix, ORIGIN, &boltOrg)
 
             BG_GiveMeVectorFromMatrix(boltMatrix, POSITIVE_X, &tAng)
@@ -3949,9 +4035,7 @@ private func CG_ForcePushBodyBlur(_ cent: Centity) {
                 continue
             }
 
-            // Port-note: Raven passes `cgs.gameModels` to `trap_G2API_GetBoltMatrix`, whose `modelList` parameter takes the Slots over the records, and Swift holds one record here. A Slots over one record has no form yet.
-            // Raven wrote: trap_G2API_GetBoltMatrix(cent->ghoul2, 0, bolt, &boltMatrix, cent->turAngles, cent->lerpOrigin, cg.time, cgs.gameModels, cent->modelScale)
-            portMissing("CG_ForcePushBodyBlur", source: "oracle/codemp/cgame/cg_players.c:4958")
+            trap_G2API_GetBoltMatrix(cent.ghoul2, 0, bolt, boltMatrix, cent.turAngles, cent.lerpOrigin, cg.time, cgs.gameModels, &cent.modelScale)
             BG_GiveMeVectorFromMatrix(boltMatrix, ORIGIN, &fxOrg)
 
             //standard effect, don't be refractive (for now)
@@ -5033,9 +5117,7 @@ func CG_AddSaberBlade(_ cent: Centity, _ scent: Centity, _ saber: JKAMP.RefEntit
                         trap_FX_PlayBoltedEffectID(client!.saber[saberNum].bladeEffect2, &scent.lerpOrigin, scent.ghoul2, bladeNum, scent.currentState.number, useModelIndex, -1, false)
                     }
                     //get the boltMatrix
-                    // Port-note: Raven passes `cgs.gameModels` to `trap_G2API_GetBoltMatrix`, whose `modelList` parameter takes the Slots over the records, and Swift holds one record here. A Slots over one record has no form yet.
-                    // Raven wrote: trap_G2API_GetBoltMatrix(scent->ghoul2, useModelIndex, bladeNum, &boltMatrix, futureAngles, origin, cg.time, cgs.gameModels, scent->modelScale)
-                    portMissing("CG_AddSaberBlade", source: "oracle/codemp/cgame/cg_players.c:5993")
+                    trap_G2API_GetBoltMatrix(scent.ghoul2, useModelIndex, bladeNum, boltMatrix, futureAngles, origin, cg.time, cgs.gameModels, &scent.modelScale)
 
                     // work the matrix axis stuff into the original axis and origins used.
                     BG_GiveMeVectorFromMatrix(boltMatrix, ORIGIN, &org_)
@@ -5921,14 +6003,10 @@ private func CG_CreateSurfaceDebris(_ cent: Centity, _ surfNum: Int32, _ fxID: I
     // Raven's record lives to the end of his block, so the block is the closure.
     // The closure gives true where Raven returns from the function.
     let earlyOut = MdxaBone.scratch { boltMatrix -> Bool in
-        // Port-note: A pointer local `const char * surfName` with no view.
-        // Raven wrote: const char *surfName = NULL;
-        portMissing("CG_CreateSurfaceDebris", source: "oracle/codemp/cgame/cg_players.c:7266")
+        var surfName: String? = nil
 
         if surfNum > 0 {
-            // Port-note: A store into `surfName`, a local the draft left as a hole.
-            // Raven wrote: surfName = bgToggleableSurfaces[surfNum]
-            portMissing("CG_CreateSurfaceDebris", source: "oracle/codemp/cgame/cg_players.c:7266")
+            surfName = bgToggleableSurfaces[surfNum]
         }
 
         if cent.ghoul2 == nil {
@@ -5937,9 +6015,39 @@ private func CG_CreateSurfaceDebris(_ cent: Centity, _ surfNum: Int32, _ fxID: I
         }
 
         //let's add the surface as a bolt so we can get the base point of it
-        // Port-note: A read of `surfName`, a local the draft left as a hole.
-        // Raven wrote: if (bgToggleableSurfaceDebris[surfNum] == 3) { //right wing flame b = trap_G2API_AddBolt(cent->ghoul2, 0, "*r_wingdamage"); if ( throwPart && cent->m_pVehicle && cent->m_pVehicle->m_pVehicleInfo ) { lostPartFX = cent->m_pVehicle->m_pVehicleInfo->iRWingFX; } } else if (bgToggleableSurfaceDebris[surfNum] == 4) { //left wing flame b = trap_G2API_AddBolt(cent->ghoul2, 0, "*l_wingdamage"); if ( throwPart && cent->m_pVehicle && cent->m_pVehicle->m_pVehicleInfo ) { lostPartFX = cent->m_pVehicle->m_pVehicleInfo->iLWingFX; } } else if (bgToggleableSurfaceDebris[surfNum] == 5) { //right wing flame 2 b = trap_G2API_AddBolt(cent->ghoul2, 0, "*r_wingdamage"); if ( throwPart && cent->m_pVehicle && cent->m_pVehicle->m_pVehicleInfo ) { lostPartFX = cent->m_pVehicle->m_pVehicleInfo->iRWingFX; } } else if (bgToggleableSurfaceDebris[surfNum] == 6) { //left wing flame 2 b = trap_G2API_AddBolt(cent->ghoul2, 0, "*l_wingdamage"); if ( throwPart && cent->m_pVehicle && cent->m_pVehicle->m_pVehicleInfo ) { lostPartFX = cent->m_pVehicle->m_pVehicleInfo->iLWingFX; } } else if (bgToggleableSurfaceDebris[surfNum] == 7) { //nose flame b = trap_G2API_AddBolt(cent->ghoul2, 0, "*nosedamage"); if ( cent->m_pVehicle && cent->m_pVehicle->m_pVehicleInfo ) { lostPartFX = cent->m_pVehicle->m_pVehicleInfo->iNoseFX; } } else if ( surfName ) { b = trap_G2API_AddBolt(cent->ghoul2, 0, surfName); }
-        portMissing("CG_CreateSurfaceDebris", source: "oracle/codemp/cgame/cg_players.c:7266")
+        if bgToggleableSurfaceDebris[surfNum] == 3 {
+            //right wing flame
+            b = trap_G2API_AddBolt(cent.ghoul2, 0, "*r_wingdamage")
+            if throwPart && cent.m_pVehicle != nil && cent.m_pVehicle!.m_pVehicleInfo != nil {
+                lostPartFX = cent.m_pVehicle!.m_pVehicleInfo!.iRWingFX
+            }
+        } else if bgToggleableSurfaceDebris[surfNum] == 4 {
+            //left wing flame
+            b = trap_G2API_AddBolt(cent.ghoul2, 0, "*l_wingdamage")
+            if throwPart && cent.m_pVehicle != nil && cent.m_pVehicle!.m_pVehicleInfo != nil {
+                lostPartFX = cent.m_pVehicle!.m_pVehicleInfo!.iLWingFX
+            }
+        } else if bgToggleableSurfaceDebris[surfNum] == 5 {
+            //right wing flame 2
+            b = trap_G2API_AddBolt(cent.ghoul2, 0, "*r_wingdamage")
+            if throwPart && cent.m_pVehicle != nil && cent.m_pVehicle!.m_pVehicleInfo != nil {
+                lostPartFX = cent.m_pVehicle!.m_pVehicleInfo!.iRWingFX
+            }
+        } else if bgToggleableSurfaceDebris[surfNum] == 6 {
+            //left wing flame 2
+            b = trap_G2API_AddBolt(cent.ghoul2, 0, "*l_wingdamage")
+            if throwPart && cent.m_pVehicle != nil && cent.m_pVehicle!.m_pVehicleInfo != nil {
+                lostPartFX = cent.m_pVehicle!.m_pVehicleInfo!.iLWingFX
+            }
+        } else if bgToggleableSurfaceDebris[surfNum] == 7 {
+            //nose flame
+            b = trap_G2API_AddBolt(cent.ghoul2, 0, "*nosedamage")
+            if cent.m_pVehicle != nil && cent.m_pVehicle!.m_pVehicleInfo != nil {
+                lostPartFX = cent.m_pVehicle!.m_pVehicleInfo!.iNoseFX
+            }
+        } else if surfName != nil {
+            b = trap_G2API_AddBolt(cent.ghoul2, 0, surfName!)
+        }
 
         if b == -1 || surfNum == -1 {
             //couldn't find this surface apparently, so play on origin?
@@ -5951,9 +6059,7 @@ private func CG_CreateSurfaceDebris(_ cent: Centity, _ surfNum: Int32, _ fxID: I
             VectorNormalize(&d)
         } else {
             //now let's get the position and direction of this surface and make a big explosion
-            // Port-note: Raven passes `cgs.gameModels` to `trap_G2API_GetBoltMatrix`, whose `modelList` parameter takes the Slots over the records, and Swift holds one record here. A Slots over one record has no form yet.
-            // Raven wrote: trap_G2API_GetBoltMatrix(cent->ghoul2, 0, b, &boltMatrix, cent->lerpAngles, cent->lerpOrigin, cg.time, cgs.gameModels, cent->modelScale)
-            portMissing("CG_CreateSurfaceDebris", source: "oracle/codemp/cgame/cg_players.c:7266")
+            trap_G2API_GetBoltMatrix(cent.ghoul2, 0, b, boltMatrix, cent.lerpAngles, cent.lerpOrigin, cg.time, cgs.gameModels, &cent.modelScale)
             BG_GiveMeVectorFromMatrix(boltMatrix, ORIGIN, &v)
             BG_GiveMeVectorFromMatrix(boltMatrix, POSITIVE_Z, &d)
         }
@@ -6016,9 +6122,7 @@ private func CG_CreateSurfaceSmoke(_ cent: Centity, _ shipSurf: Int32, _ fxID: I
         }
 
         //now let's get the position and direction of this surface and make a big explosion
-        // Port-note: Raven passes `cgs.gameModels` to `trap_G2API_GetBoltMatrix`, whose `modelList` parameter takes the Slots over the records, and Swift holds one record here. A Slots over one record has no form yet.
-        // Raven wrote: trap_G2API_GetBoltMatrix(cent->ghoul2, 0, b, &boltMatrix, cent->lerpAngles, cent->lerpOrigin, cg.time, cgs.gameModels, cent->modelScale)
-        portMissing("CG_CreateSurfaceSmoke", source: "oracle/codemp/cgame/cg_players.c:7365")
+        trap_G2API_GetBoltMatrix(cent.ghoul2, 0, b, boltMatrix, cent.lerpAngles, cent.lerpOrigin, cg.time, cgs.gameModels, &cent.modelScale)
         BG_GiveMeVectorFromMatrix(boltMatrix, ORIGIN, &v)
         BG_GiveMeVectorFromMatrix(boltMatrix, POSITIVE_Z, &d)
 
@@ -6059,9 +6163,7 @@ func CG_VehicleAttachDroidUnit(_ droidCent: Centity, _ legs: JKAMP.RefEntity) ->
                 var rt = vec3_t()
                 var tempAng = vec3_t()
 
-                // Port-note: Raven passes `cgs.gameModels` to `trap_G2API_GetBoltMatrix`, whose `modelList` parameter takes the Slots over the records, and Swift holds one record here. A Slots over one record has no form yet.
-                // Raven wrote: trap_G2API_GetBoltMatrix(vehCent->ghoul2, 0, vehCent->m_pVehicle->m_iDroidUnitTag, &boltMatrix, vehCent->lerpAngles, vehCent->lerpOrigin, cg.time, cgs.gameModels, vehCent->modelScale)
-                portMissing("CG_VehicleAttachDroidUnit", source: "oracle/codemp/cgame/cg_players.c:7433")
+                trap_G2API_GetBoltMatrix(vehCent!.ghoul2, 0, vehCent!.m_pVehicle!.m_iDroidUnitTag, boltMatrix, vehCent!.lerpAngles, vehCent!.lerpOrigin, cg.time, cgs.gameModels, &vehCent!.modelScale)
                 BG_GiveMeVectorFromMatrix(boltMatrix, ORIGIN, &droidCent.lerpOrigin)
                 BG_GiveMeVectorFromMatrix(boltMatrix, POSITIVE_X, &fwd) //WTF???
                 BG_GiveMeVectorFromMatrix(boltMatrix, NEGATIVE_Y, &rt) //WTF???
@@ -6096,9 +6198,11 @@ func CG_G2Animated(_ cent: Centity) {
         while i < BG_NUM_TOGGLEABLE_SURFACES && bgToggleableSurfaces[i] != nil {
             if !((cent.npcLocalSurfOff & (1 << i)) != 0) && (cent.currentState.surfacesOff & (1 << i)) != 0 {
                 //it wasn't off before but it's off now, so reflect this change in the g2 instance.
-                // Port-note: The draft of this statement did not compile, and the compiler wrote "cannot find 'bgToggleableSurfaceDebris' in scope".
-                // Raven wrote: if (bgToggleableSurfaceDebris[i] > 0) { //make some local debris of this thing? //FIXME: throw off the proper model effect, too CG_CreateSurfaceDebris(cent, i, cgs.effects.mShipDestDestroyed, qtrue); }
-                portMissing("CG_G2Animated", source: "oracle/codemp/cgame/cg_players.c:7463")
+                if bgToggleableSurfaceDebris[i] > 0 {
+                    //make some local debris of this thing?
+                    //FIXME: throw off the proper model effect, too
+                    CG_CreateSurfaceDebris(cent, i, cgs.effects.mShipDestDestroyed, true)
+                }
 
                 trap_G2API_SetSurfaceOnOff(cent.ghoul2, bgToggleableSurfaces[i], TURN_OFF)
             }
@@ -6294,9 +6398,7 @@ private func CG_ForceElectrocution(_ cent: Centity, _ origin: JKAShared.vec3_t, 
                 portMissing("CG_ForceElectrocution", source: "oracle/codemp/cgame/cg_players.c:7707")
             }
             if bolt >= 0 {
-                // Port-note: Raven passes `cgs.gameModels` to `trap_G2API_GetBoltMatrix`, whose `modelList` parameter takes the Slots over the records, and Swift holds one record here. A Slots over one record has no form yet.
-                // Raven wrote: found = trap_G2API_GetBoltMatrix( cent->ghoul2, 0, bolt, &boltMatrix, tempAngles, origin, cg.time, cgs.gameModels, cent->modelScale)
-                portMissing("CG_ForceElectrocution", source: "oracle/codemp/cgame/cg_players.c:7707")
+                found = trap_G2API_GetBoltMatrix(cent.ghoul2, 0, bolt, boltMatrix, tempAngles, origin, cg.time, cgs.gameModels, &cent.modelScale)
             }
 
             // Make sure that it's safe to even try and get these values out of the Matrix, otherwise the values could be garbage
@@ -6476,9 +6578,19 @@ private func CG_VehicleEffects(_ cent: Centity) {
             var surfDmg: Bool = false
 
             while i < BG_NUM_TOGGLEABLE_SURFACES {
-                // Port-note: The draft of this statement did not compile, and the compiler wrote "cannot find 'bgToggleableSurfaceDebris' in scope".
-                // Raven wrote: if (bgToggleableSurfaceDebris[i] > 1) { //this is decidedly a destroyable surface, let's check its status int surfTest = trap_G2API_GetSurfaceRenderStatus(cent->ghoul2, 0, bgToggleableSurfaces[i]); if ( surfTest != -1 && (surfTest&TURN_OFF) ) { //it exists, but it's off... surfDmg = qtrue; //create some flames CG_CreateSurfaceDebris(cent, i, cgs.effects.mShipDestBurning, qfalse); didFireTrail = qtrue; } }
-                portMissing("CG_VehicleEffects", source: "oracle/codemp/cgame/cg_players.c:7981")
+                if bgToggleableSurfaceDebris[i] > 1 {
+                    //this is decidedly a destroyable surface, let's check its status
+                    let surfTest: Int32 = trap_G2API_GetSurfaceRenderStatus(cent.ghoul2, 0, bgToggleableSurfaces[i])
+
+                    if surfTest != -1 && (surfTest & TURN_OFF) != 0 {
+                        //it exists, but it's off...
+                        surfDmg = true
+
+                        //create some flames
+                        CG_CreateSurfaceDebris(cent, i, cgs.effects.mShipDestBurning, false)
+                        didFireTrail = true
+                    }
+                }
 
                 i += 1
             }
@@ -6570,9 +6682,7 @@ private func CG_VehicleEffects(_ cent: Centity) {
                                 var boltOrg = vec3_t()
                                 var boltDir = vec3_t()
 
-                                // Port-note: Raven passes `cgs.gameModels` to `trap_G2API_GetBoltMatrix`, whose `modelList` parameter takes the Slots over the records, and Swift holds one record here. A Slots over one record has no form yet.
-                                // Raven wrote: trap_G2API_GetBoltMatrix(cent->ghoul2, 0, pVehNPC->m_iExhaustTag[i], &boltMatrix, flat, cent->lerpOrigin, cg.time, cgs.gameModels, cent->modelScale)
-                                portMissing("CG_VehicleEffects", source: "oracle/codemp/cgame/cg_players.c:7981")
+                                trap_G2API_GetBoltMatrix(cent.ghoul2, 0, pVehNPC!.m_iExhaustTag[i], boltMatrix, flat, cent.lerpOrigin, cg.time, cgs.gameModels, &cent.modelScale)
 
                                 BG_GiveMeVectorFromMatrix(boltMatrix, ORIGIN, &boltOrg)
                                 boltDir = fwd //fixme?
@@ -6611,9 +6721,7 @@ private func CG_VehicleEffects(_ cent: Centity) {
                                 break
                             }
 
-                            // Port-note: Raven passes `cgs.gameModels` to `trap_G2API_GetBoltMatrix`, whose `modelList` parameter takes the Slots over the records, and Swift holds one record here. A Slots over one record has no form yet.
-                            // Raven wrote: trap_G2API_GetBoltMatrix(cent->ghoul2, 0, trailBolt, &boltMatrix, getBoltAngles, cent->lerpOrigin, cg.time, cgs.gameModels, cent->modelScale)
-                            portMissing("CG_VehicleEffects", source: "oracle/codemp/cgame/cg_players.c:7981")
+                            trap_G2API_GetBoltMatrix(cent.ghoul2, 0, trailBolt, boltMatrix, getBoltAngles, cent.lerpOrigin, cg.time, cgs.gameModels, &cent.modelScale)
 
                             BG_GiveMeVectorFromMatrix(boltMatrix, ORIGIN, &boltOrg)
                             boltDir = fwd //fixme?
@@ -6813,1181 +6921,585 @@ func CG_Player(_ cent: Centity) {
             var iwantout: Int32 = 0
             var successchange: Int32 = 0
             var team: Int32 = 0
-            // Port-note: A local `mdxaBone_t boltMatrix` the table has no type for.
-            // Raven wrote: mdxaBone_t boltMatrix;
-            portMissing("CG_Player", source: "oracle/codemp/cgame/cg_players.c:8423")
-            // Port-note: A local `mdxaBone_t lHandMatrix` the table has no type for.
-            // Raven wrote: lHandMatrix;
-            portMissing("CG_Player", source: "oracle/codemp/cgame/cg_players.c:8423")
-            var doAlpha: Int32 = 0
-            var gotLHandMatrix: Bool = false
-            var g2HasWeapon: Bool = false
-            var drawPlayerSaber: Bool = false
-            var checkDroidShields: Bool = false
+            // Raven's record lives to the end of his block, so the block is the closure.
+            // The closure gives true where Raven returns from the function.
+            let earlyOut3 = MdxaBone.scratch { boltMatrix -> Bool in
+                // Raven's record lives to the end of his block, so the block is the closure.
+                // The closure gives true where Raven returns from the function.
+                let earlyOut4 = MdxaBone.scratch { lHandMatrix -> Bool in
+                    var doAlpha: Int32 = 0
+                    var gotLHandMatrix: Bool = false
+                    var g2HasWeapon: Bool = false
+                    var drawPlayerSaber: Bool = false
+                    var checkDroidShields: Bool = false
 
-            //first if we are not an npc and we are using an emplaced gun then make sure our
-            //angles are visually capped to the constraints (otherwise it's possible to lerp
-            //a little outside and look kind of twitchy)
-            stillDoSaber: do {
-                if cent.currentState.weapon == WP_EMPLACED_GUN && cent.currentState.otherEntityNum2 != 0 {
-                    var empYaw: Float = 0
+                    //first if we are not an npc and we are using an emplaced gun then make sure our
+                    //angles are visually capped to the constraints (otherwise it's possible to lerp
+                    //a little outside and look kind of twitchy)
+                    stillDoSaber: do {
+                        if cent.currentState.weapon == WP_EMPLACED_GUN && cent.currentState.otherEntityNum2 != 0 {
+                            var empYaw: Float = 0
 
-                    if BG_EmplacedView(&cent.lerpAngles, &cg_entities[cent.currentState.otherEntityNum2].currentState.angles, &empYaw, cg_entities[cent.currentState.otherEntityNum2].currentState.origin2[0]) != 0 {
-                        cent.lerpAngles[YAW] = empYaw
-                    }
-                }
-
-                if cent.currentState.iModelScale != 0 {
-                    //if the server says we have a custom scale then set it now.
-                    cent.modelScale[2] = cent.currentState.iModelScale / 100.0
-                    cent.modelScale[1] = cent.modelScale[2]
-                    cent.modelScale[0] = cent.modelScale[1]
-                    if cent.currentState.NPC_class != CLASS_VEHICLE {
-                        if cent.modelScale[2] != 0 && cent.modelScale[2] != 1.0 {
-                            cent.lerpOrigin[2] += 24 * (cent.modelScale[2] - 1)
-                        }
-                    }
-                } else {
-                    cent.modelScale = vec3_t()
-                }
-
-                if (cg_smoothClients.integer != 0 || cent.currentState.heldByClient != 0) && (cent.currentState.groundEntityNum >= ENTITYNUM_WORLD || cent.currentState.eType == ET_TERRAIN) && !((cent.currentState.eFlags2 & EF2_HYPERSPACE) != 0) && cg.predictedPlayerState.m_iVehicleNum != cent.currentState.number {
-                    //always smooth when being thrown
-                    var posDif = vec3_t()
-                    var smoothFactor: Float = 0
-                    var k: Int32 = 0
-                    var fTolerance: Float = 20000.0
-
-                    if cent.currentState.heldByClient != 0 {
-                        //smooth the origin more when in this state, because movement is origin-based on server.
-                        smoothFactor = 0.2
-                    } else if (cent.currentState.powerups & (1 << PW_SPEED)) != 0 || (cent.currentState.forcePowersActive & (1 << FP_RAGE)) != 0 {
-                        //we're moving fast so don't smooth as much
-                        smoothFactor = 0.6
-                    } else if cent.currentState.eType == ET_NPC && cent.currentState.NPC_class == CLASS_VEHICLE && cent.m_pVehicle != nil && cent.m_pVehicle!.m_pVehicleInfo!.type == VH_FIGHTER {
-                        //greater smoothing for flying vehicles, since they move so fast
-                        fTolerance = 6000000.0 //500000.0f; //yeah, this is so wrong..but..
-                        smoothFactor = 0.5
-                    } else {
-                        smoothFactor = 0.5
-                    }
-
-                    if DistanceSquared(cent.beamEnd, cent.lerpOrigin) > smoothFactor * fTolerance {
-                        cent.beamEnd = cent.lerpOrigin
-                    }
-
-                    posDif = cent.lerpOrigin - cent.beamEnd
-
-                    k = 0
-                    while k < 3 {
-                        cent.beamEnd[k] = (cent.beamEnd[k] + posDif[k] * smoothFactor)
-                        cent.lerpOrigin[k] = cent.beamEnd[k]
-                        k += 1
-                    }
-                } else {
-                    cent.beamEnd = cent.lerpOrigin
-                }
-
-                if cent.currentState.m_iVehicleNum != 0 && cent.currentState.NPC_class != CLASS_VEHICLE {
-                    //this player is riding a vehicle
-                    let veh: Centity? = cg_entities[cent.currentState.m_iVehicleNum]
-
-                    cent.lerpAngles[YAW] = veh!.lerpAngles[YAW]
-
-                    //Attach ourself to the vehicle
-                    if veh!.m_pVehicle != nil && cent.playerState != nil && veh!.playerState != nil && cent.ghoul2 != nil && veh!.ghoul2 != nil {
-                        if veh!.currentState.owner != cent.currentState.clientNum {
-                            //FIXME: what about visible passengers?
-                            if CG_VehicleAttachDroidUnit(cent, legs) {
-                                checkDroidShields = true
+                            if BG_EmplacedView(&cent.lerpAngles, &cg_entities[cent.currentState.otherEntityNum2].currentState.angles, &empYaw, cg_entities[cent.currentState.otherEntityNum2].currentState.origin2[0]) != 0 {
+                                cent.lerpAngles[YAW] = empYaw
                             }
-                        } else if veh!.currentState.owner != ENTITYNUM_NONE {
-                            //has a pilot...???
-                            var oldPSOrg = vec3_t()
-
-                            //make sure it has its pilot and parent set
-                            veh!.m_pVehicle!.m_pPilot = BgEntity(cg_entities[veh!.currentState.owner])
-                            veh!.m_pVehicle!.m_pParentEntity = veh.map { BgEntity($0) }
-
-                            oldPSOrg = veh!.playerState!.origin
-
-                            //update the veh's playerstate org for getting the bolt
-                            veh!.playerState!.origin = veh!.lerpOrigin
-                            cent.playerState!.origin = cent.lerpOrigin
-
-                            //Now do the attach
-                            veh!.playerState!.viewangles = veh!.lerpAngles
-                            veh!.m_pVehicle!.m_pVehicleInfo!.runAttachRiders(veh!.m_pVehicle)
-
-                            //copy the "playerstate origin" to the lerpOrigin since that's what we use to display
-                            cent.lerpOrigin = cent.playerState!.origin
-
-                            veh!.playerState!.origin = oldPSOrg
-                        }
-                    }
-                }
-
-                // the client number is stored in clientNum.  It can't be derived
-                // from the entity number, because a single client may have
-                // multiple corpses on the level using the same clientinfo
-                if cent.currentState.eType != ET_NPC {
-                    clientNum = cent.currentState.clientNum
-                    if clientNum < 0 || clientNum >= MAX_CLIENTS {
-                        CG_Error("Bad clientNum on player entity")
-                    }
-                    ci = cgs.clientinfo[clientNum]
-                } else {
-                    if cent.npcClient == nil {
-                        CG_CreateNPCClient(&cent.npcClient) //allocate memory for it
-
-                        if cent.npcClient == nil {
-                            return true
                         }
 
-                        // Port-note: The draft of this statement did not compile, and the compiler wrote "value of optional type 'ClientInfo?' must be unwrapped to refer to member 'clear' of wrapped base type 'ClientInfo'".
-                        // Raven wrote: memset(cent->npcClient, 0, sizeof(clientInfo_t))
-                        portMissing("CG_Player", source: "oracle/codemp/cgame/cg_players.c:8423")
-                        cent.npcClient!.ghoul2Model = nil
-                    }
-
-
-                    if cent.npcClient!.ghoul2Model != cent.ghoul2 && cent.ghoul2 != nil {
-                        cent.npcClient!.ghoul2Model = cent.ghoul2
-                        if cent.localAnimIndex <= 1 {
-                            cent.npcClient!.bolt_rhand = trap_G2API_AddBolt(cent.npcClient!.ghoul2Model, 0, "*r_hand")
-                            cent.npcClient!.bolt_lhand = trap_G2API_AddBolt(cent.npcClient!.ghoul2Model, 0, "*l_hand")
-
-                            //rhand must always be first bolt. lhand always second. Whichever you want the
-                            //jetpack bolted to must always be third.
-                            trap_G2API_AddBolt(cent.npcClient!.ghoul2Model, 0, "*chestg")
-
-                            //claw bolts
-                            trap_G2API_AddBolt(cent.npcClient!.ghoul2Model, 0, "*r_hand_cap_r_arm")
-                            trap_G2API_AddBolt(cent.npcClient!.ghoul2Model, 0, "*l_hand_cap_l_arm")
-
-                            cent.npcClient!.bolt_head = trap_G2API_AddBolt(cent.npcClient!.ghoul2Model, 0, "*head_top")
-                            if cent.npcClient!.bolt_head == -1 {
-                                cent.npcClient!.bolt_head = trap_G2API_AddBolt(cent.npcClient!.ghoul2Model, 0, "ceyebrow")
+                        if cent.currentState.iModelScale != 0 {
+                            //if the server says we have a custom scale then set it now.
+                            cent.modelScale[2] = cent.currentState.iModelScale / 100.0
+                            cent.modelScale[1] = cent.modelScale[2]
+                            cent.modelScale[0] = cent.modelScale[1]
+                            if cent.currentState.NPC_class != CLASS_VEHICLE {
+                                if cent.modelScale[2] != 0 && cent.modelScale[2] != 1.0 {
+                                    cent.lerpOrigin[2] += 24 * (cent.modelScale[2] - 1)
+                                }
                             }
-                            cent.npcClient!.bolt_motion = trap_G2API_AddBolt(cent.npcClient!.ghoul2Model, 0, "Motion")
-                            cent.npcClient!.bolt_llumbar = trap_G2API_AddBolt(cent.npcClient!.ghoul2Model, 0, "lower_lumbar")
                         } else {
-                            cent.npcClient!.bolt_rhand = -1
-                            cent.npcClient!.bolt_lhand = -1
-                            cent.npcClient!.bolt_head = -1
-                            cent.npcClient!.bolt_motion = -1
-                            cent.npcClient!.bolt_llumbar = -1
-                        }
-                        cent.npcClient!.team = TEAM_FREE
-                        cent.npcClient!.infoValid = true
-                    }
-                    ci = cent.npcClient
-                }
-
-                // it is possible to see corpses from disconnected players that may
-                // not have valid clientinfo
-                if !ci!.infoValid {
-                    return true
-                }
-
-                // Add the player to the radar if on the same team and its a team game
-                if cgs.gametype >= GT_TEAM {
-                    if cent.currentState.eType != ET_NPC && cg.snap!.ps.clientNum != cent.currentState.number && ci!.team == cg.snap!.ps.persistant[PERS_TEAM] {
-                        CG_AddRadarEnt(cent)
-                    }
-                }
-
-                if cent.currentState.eType == ET_NPC && cent.currentState.NPC_class == CLASS_VEHICLE {
-                    //add vehicles
-                    CG_AddRadarEnt(cent)
-                    if CG_InFighter() {
-                        //this is a vehicle, bracket it
-                        if cg.predictedPlayerState.m_iVehicleNum != cent.currentState.clientNum {
-                            //don't add the vehicle I'm in... :)
-                            CG_AddBracketedEnt(cent)
-                        }
-                    }
-                }
-
-                if cent.ghoul2 == nil {
-                    //not ready yet?
-                    trap_G2API_ClearAttachedInstance(cent.currentState.number)
-
-                    if ci!.ghoul2Model != nil && trap_G2_HaveWeGhoul2Models(ci!.ghoul2Model) {
-                        trap_G2API_DuplicateGhoul2Instance(ci!.ghoul2Model, &cent.ghoul2)
-
-                        //Attach the instance to this entity num so we can make use of client-server
-                        //shared operations if possible.
-                        trap_G2API_AttachInstanceToEntNum(cent.ghoul2, cent.currentState.number, false)
-
-                        if trap_G2API_AddBolt(cent.ghoul2, 0, "face") == -1 {
-                            //check now to see if we have this bone for setting anims and such
-                            cent.noFace = true
+                            cent.modelScale = vec3_t()
                         }
 
-                        cent.localAnimIndex = CG_G2SkelForModel(cent.ghoul2)
-                        cent.eventAnimIndex = CG_G2EvIndexForModel(cent.ghoul2, cent.localAnimIndex)
-                    }
-                    return true
-                }
+                        if (cg_smoothClients.integer != 0 || cent.currentState.heldByClient != 0) && (cent.currentState.groundEntityNum >= ENTITYNUM_WORLD || cent.currentState.eType == ET_TERRAIN) && !((cent.currentState.eFlags2 & EF2_HYPERSPACE) != 0) && cg.predictedPlayerState.m_iVehicleNum != cent.currentState.number {
+                            //always smooth when being thrown
+                            var posDif = vec3_t()
+                            var smoothFactor: Float = 0
+                            var k: Int32 = 0
+                            var fTolerance: Float = 20000.0
 
-                if ci!.superSmoothTime != 0 {
-                    //do crazy smoothing
-                    if ci!.superSmoothTime > cg.time {
-                        //do it
-                        trap_G2API_AbsurdSmoothing(cent.ghoul2, true)
-                    } else {
-                        //turn it off
-                        ci!.superSmoothTime = 0
-                        trap_G2API_AbsurdSmoothing(cent.ghoul2, false)
-                    }
-                }
-
-                if cg.predictedPlayerState.pm_type == PM_INTERMISSION {
-                    //don't show all this shit during intermission
-                    if cent.currentState.eType == ET_NPC && cent.currentState.NPC_class != CLASS_VEHICLE {
-                        //NPC in intermission
-                    } else {
-                        //don't render players or vehicles in intermissions, allow other NPCs for scripts
-                        return true
-                    }
-                }
-
-                CG_VehicleEffects(cent)
-
-                if (cent.currentState.eFlags & EF_JETPACK) != 0 && !((cent.currentState.eFlags & EF_DEAD) != 0) && cg_g2JetpackInstance != nil {
-                    //should have a jetpack attached
-                    //1 is rhand weap, 2 is lhand weap (akimbo sabs), 3 is jetpack
-                    if !trap_G2API_HasGhoul2ModelOnIndex((cent.ghoul2), 3) {
-                        trap_G2API_CopySpecificGhoul2Model(cg_g2JetpackInstance, 0, cent.ghoul2, 3)
-                    }
-
-                    if (cent.currentState.eFlags & EF_JETPACK_ACTIVE) != 0 {
-                        // Raven's record lives to the end of his block, so the block is the closure.
-                        MdxaBone.scratch { mat in
-                            var flamePos = vec3_t()
-                            var flameDir = vec3_t()
-                            var n: Int32 = 0
-
-                            while n < 2 {
-                                //Get the position/dir of the flame bolt on the jetpack model bolted to the player
-                                // Port-note: Raven passes `cgs.gameModels` to `trap_G2API_GetBoltMatrix`, whose `modelList` parameter takes the Slots over the records, and Swift holds one record here. A Slots over one record has no form yet.
-                                // Raven wrote: trap_G2API_GetBoltMatrix(cent->ghoul2, 3, n, &mat, cent->turAngles, cent->lerpOrigin, cg.time, cgs.gameModels, cent->modelScale)
-                                portMissing("CG_Player", source: "oracle/codemp/cgame/cg_players.c:8423")
-                                BG_GiveMeVectorFromMatrix(mat, ORIGIN, &flamePos)
-
-                                if n == 0 {
-                                    BG_GiveMeVectorFromMatrix(mat, NEGATIVE_Y, &flameDir)
-                                    _VectorMA(flamePos, -9.5, flameDir, &flamePos)
-                                    BG_GiveMeVectorFromMatrix(mat, POSITIVE_X, &flameDir)
-                                    _VectorMA(flamePos, -13.5, flameDir, &flamePos)
-                                } else {
-                                    BG_GiveMeVectorFromMatrix(mat, POSITIVE_X, &flameDir)
-                                    _VectorMA(flamePos, -9.5, flameDir, &flamePos)
-                                    BG_GiveMeVectorFromMatrix(mat, NEGATIVE_Y, &flameDir)
-                                    _VectorMA(flamePos, -13.5, flameDir, &flamePos)
-                                }
-
-                                if (cent.currentState.eFlags & EF_JETPACK_FLAMING) != 0 {
-                                    //create effects
-                                    //FIXME: Just one big effect
-                                    //Play the effect
-                                    trap_FX_PlayEffectID(cgs.effects.mBobaJet, flamePos, flameDir, -1, -1)
-                                    trap_FX_PlayEffectID(cgs.effects.mBobaJet, flamePos, flameDir, -1, -1)
-
-                                    //Keep the jet fire sound looping
-                                    trap_S_AddLoopingSound(cent.currentState.number, cent.lerpOrigin, vec3_origin, trap_S_RegisterSound("sound/effects/fire_lp"))
-                                } else {
-                                    //just idling
-                                    //FIXME: Different smaller effect for idle
-                                    //Play the effect
-                                    trap_FX_PlayEffectID(cgs.effects.mBobaJet, flamePos, flameDir, -1, -1)
-                                }
-
-                                n += 1
+                            if cent.currentState.heldByClient != 0 {
+                                //smooth the origin more when in this state, because movement is origin-based on server.
+                                smoothFactor = 0.2
+                            } else if (cent.currentState.powerups & (1 << PW_SPEED)) != 0 || (cent.currentState.forcePowersActive & (1 << FP_RAGE)) != 0 {
+                                //we're moving fast so don't smooth as much
+                                smoothFactor = 0.6
+                            } else if cent.currentState.eType == ET_NPC && cent.currentState.NPC_class == CLASS_VEHICLE && cent.m_pVehicle != nil && cent.m_pVehicle!.m_pVehicleInfo!.type == VH_FIGHTER {
+                                //greater smoothing for flying vehicles, since they move so fast
+                                fTolerance = 6000000.0 //500000.0f; //yeah, this is so wrong..but..
+                                smoothFactor = 0.5
+                            } else {
+                                smoothFactor = 0.5
                             }
 
-                            trap_S_AddLoopingSound(cent.currentState.number, cent.lerpOrigin, vec3_origin, trap_S_RegisterSound("sound/boba/JETHOVER"))
-                        }
-                    }
-                } else if trap_G2API_HasGhoul2ModelOnIndex((cent.ghoul2), 3) {
-                    //fixme: would be good if this could be done not every frame
-                    trap_G2API_RemoveGhoul2Model(&(cent.ghoul2), 3)
-                }
+                            if DistanceSquared(cent.beamEnd, cent.lerpOrigin) > smoothFactor * fTolerance {
+                                cent.beamEnd = cent.lerpOrigin
+                            }
 
-                g2HasWeapon = trap_G2API_HasGhoul2ModelOnIndex((cent.ghoul2), 1)
+                            posDif = cent.lerpOrigin - cent.beamEnd
 
-                if !g2HasWeapon {
-                    //force a redup of the weapon instance onto the client instance
-                    cent.ghoul2weapon = nil
-                    cent.weapon = 0
-                }
-
-                if cent.torsoBolt != 0 && !((cent.currentState.eFlags & EF_DEAD) != 0) {
-                    //he's alive and has a limb missing still, reattach it and reset the weapon
-                    CG_ReattachLimb(cent)
-                }
-
-                if cent.isRagging && !((cent.currentState.eFlags & EF_DEAD) != 0) && !((cent.currentState.eFlags & EF_RAG) != 0) {
-                    //make sure we don't ragdoll ever while alive unless directly told to with eFlags
-                    cent.isRagging = false
-                    trap_G2API_SetRagDoll(cent.ghoul2, nil) //calling with null parms resets to no ragdoll.
-                }
-
-                // Port-note: The draft of this statement did not compile, and the compiler wrote "cannot convert value of type 'Int32' to expected argument type 'Int'".
-                // Raven wrote: if (cent->ghoul2 && cent->torsoBolt && ((cent->torsoBolt & RARMBIT) || (cent->torsoBolt & RHANDBIT) || (cent->torsoBolt & WAISTBIT)) && g2HasWeapon) { //kill the weapon if the limb holding it is no longer on the model trap_G2API_RemoveGhoul2Model(&(cent->ghoul2), 1); g2HasWeapon = qfalse; }
-                portMissing("CG_Player", source: "oracle/codemp/cgame/cg_players.c:8423")
-
-                if cent.trickAlphaTime == 0 || (cg.time - cent.trickAlphaTime) > 1000 {
-                    //things got out of sync, perhaps a new client is trying to fill in this slot
-                    cent.trickAlpha = 255
-                    cent.trickAlphaTime = cg.time
-                }
-
-                if (cent.currentState.eFlags & EF_NODRAW) != 0 {
-                    //If nodraw, return here
-                    return true
-                } else if (cent.currentState.eFlags2 & EF2_SHIP_DEATH) != 0 {
-                    //died in ship, don't draw, we were "obliterated"
-                    return true
-                }
-
-                //If this client has tricked you.
-                if CG_IsMindTricked(cent.currentState.trickedentindex, cent.currentState.trickedentindex2, cent.currentState.trickedentindex3, cent.currentState.trickedentindex4, cg.snap!.ps.clientNum) != 0 {
-                    if cent.trickAlpha > 1 {
-                        cent.trickAlpha = Int32(Double(cent.trickAlpha) - (Double(cg.time - cent.trickAlphaTime) * 0.5))
-                        cent.trickAlphaTime = cg.time
-
-                        if cent.trickAlpha < 0 {
-                            cent.trickAlpha = 0
+                            k = 0
+                            while k < 3 {
+                                cent.beamEnd[k] = (cent.beamEnd[k] + posDif[k] * smoothFactor)
+                                cent.lerpOrigin[k] = cent.beamEnd[k]
+                                k += 1
+                            }
+                        } else {
+                            cent.beamEnd = cent.lerpOrigin
                         }
 
-                        doAlpha = 1
-                    } else {
-                        doAlpha = 1
-                        cent.trickAlpha = 1
-                        cent.trickAlphaTime = cg.time
-                        iwantout = 1
-                    }
-                } else {
-                    if cent.trickAlpha < 255 {
-                        cent.trickAlpha += (cg.time - cent.trickAlphaTime)
-                        cent.trickAlphaTime = cg.time
+                        if cent.currentState.m_iVehicleNum != 0 && cent.currentState.NPC_class != CLASS_VEHICLE {
+                            //this player is riding a vehicle
+                            let veh: Centity? = cg_entities[cent.currentState.m_iVehicleNum]
 
-                        if cent.trickAlpha > 255 {
-                            cent.trickAlpha = 255
+                            cent.lerpAngles[YAW] = veh!.lerpAngles[YAW]
+
+                            //Attach ourself to the vehicle
+                            if veh!.m_pVehicle != nil && cent.playerState != nil && veh!.playerState != nil && cent.ghoul2 != nil && veh!.ghoul2 != nil {
+                                if veh!.currentState.owner != cent.currentState.clientNum {
+                                    //FIXME: what about visible passengers?
+                                    if CG_VehicleAttachDroidUnit(cent, legs) {
+                                        checkDroidShields = true
+                                    }
+                                } else if veh!.currentState.owner != ENTITYNUM_NONE {
+                                    //has a pilot...???
+                                    var oldPSOrg = vec3_t()
+
+                                    //make sure it has its pilot and parent set
+                                    veh!.m_pVehicle!.m_pPilot = BgEntity(cg_entities[veh!.currentState.owner])
+                                    veh!.m_pVehicle!.m_pParentEntity = veh.map { BgEntity($0) }
+
+                                    oldPSOrg = veh!.playerState!.origin
+
+                                    //update the veh's playerstate org for getting the bolt
+                                    veh!.playerState!.origin = veh!.lerpOrigin
+                                    cent.playerState!.origin = cent.lerpOrigin
+
+                                    //Now do the attach
+                                    veh!.playerState!.viewangles = veh!.lerpAngles
+                                    veh!.m_pVehicle!.m_pVehicleInfo!.runAttachRiders(veh!.m_pVehicle)
+
+                                    //copy the "playerstate origin" to the lerpOrigin since that's what we use to display
+                                    cent.lerpOrigin = cent.playerState!.origin
+
+                                    veh!.playerState!.origin = oldPSOrg
+                                }
+                            }
                         }
 
-                        doAlpha = 1
-                    } else {
-                        cent.trickAlpha = 255
-                        cent.trickAlphaTime = cg.time
-                    }
-                }
-
-                // get the player model information
-                renderfx = 0
-                if cent.currentState.number == cg.snap!.ps.clientNum {
-                    if !cg.renderingThirdPerson {
-                        if cent.currentState.weapon != WP_SABER {
-                            renderfx = RF_THIRD_PERSON // only draw in mirrors
-                        }
-                    } else {
-                        if cg_cameraMode.integer != 0 {
-                            iwantout = 1
-
-
-                            // goto minimal_add;
-
-                            // NOTENOTE Temporary
-                            return true
-                        }
-                    }
-                }
-
-                // Update the player's client entity information regarding weapons.
-                // Explanation:  The entitystate has a weapond defined on it.  The cliententity does as well.
-                // The cliententity's weapon tells us what the ghoul2 instance on the cliententity has bolted to it.
-                // If the entitystate and cliententity weapons differ, then the state's needs to be copied to the client.
-                // Save the old weapon, to verify that it is or is not the same as the new weapon.
-                // rww - Make sure weapons don't get set BEFORE cent->ghoul2 is initialized or else we'll have no
-                // weapon bolted on
-                if cent.currentState.saberInFlight {
-                    cent.ghoul2weapon = CG_G2WeaponInstance(cent, WP_SABER)
-                }
-
-                if cent.ghoul2 != nil && (cent.currentState.eType != ET_NPC || (cent.currentState.NPC_class != CLASS_VEHICLE && cent.currentState.NPC_class != CLASS_REMOTE && cent.currentState.NPC_class != CLASS_SEEKER)) && cent.ghoul2weapon != CG_G2WeaponInstance(cent, cent.currentState.weapon) && !((cent.currentState.eFlags & EF_DEAD) != 0) && cent.torsoBolt == 0 && cg.snap != nil && (cent.currentState.number != cg.snap!.ps.clientNum || (cg.snap!.ps.pm_flags & PMF_FOLLOW) != 0) {
-                    if ci!.team == TEAM_SPECTATOR {
-                        cent.ghoul2weapon = nil
-                        cent.weapon = 0
-                    } else {
-                        CG_CopyG2WeaponInstance(cent, cent.currentState.weapon, cent.ghoul2)
-
+                        // the client number is stored in clientNum.  It can't be derived
+                        // from the entity number, because a single client may have
+                        // multiple corpses on the level using the same clientinfo
                         if cent.currentState.eType != ET_NPC {
-                            if cent.weapon == WP_SABER && cent.weapon != cent.currentState.weapon && cent.currentState.saberHolstered == 0 {
-                                //switching away from the saber
-                                //trap_S_StartSound(cent->lerpOrigin, cent->currentState.number, CHAN_AUTO, trap_S_RegisterSound( "sound/weapons/saber/saberoffquick.wav" ));
-                                if ci!.saber[0].soundOff != 0 && cent.currentState.saberHolstered == 0 {
-                                    trap_S_StartSound(cent.lerpOrigin, cent.currentState.number, CHAN_AUTO, ci!.saber[0].soundOff)
+                            clientNum = cent.currentState.clientNum
+                            if clientNum < 0 || clientNum >= MAX_CLIENTS {
+                                CG_Error("Bad clientNum on player entity")
+                            }
+                            ci = cgs.clientinfo[clientNum]
+                        } else {
+                            if cent.npcClient == nil {
+                                CG_CreateNPCClient(&cent.npcClient) //allocate memory for it
+
+                                if cent.npcClient == nil {
+                                    return true
                                 }
 
-                                if ci!.saber[1].soundOff != 0 && !ci!.saber[1].model.isEmpty && cent.currentState.saberHolstered == 0 {
-                                    trap_S_StartSound(cent.lerpOrigin, cent.currentState.number, CHAN_AUTO, ci!.saber[1].soundOff)
-                                }
-                            } else if cent.currentState.weapon == WP_SABER && cent.weapon != cent.currentState.weapon && !cent.saberWasInFlight {
-                                //switching to the saber
-                                //trap_S_StartSound(cent->lerpOrigin, cent->currentState.number, CHAN_AUTO, trap_S_RegisterSound( "sound/weapons/saber/saberon.wav" ));
-                                if ci!.saber[0].soundOn != 0 {
-                                    trap_S_StartSound(cent.lerpOrigin, cent.currentState.number, CHAN_AUTO, ci!.saber[0].soundOn)
-                                }
-
-                                if ci!.saber[1].soundOn != 0 {
-                                    trap_S_StartSound(cent.lerpOrigin, cent.currentState.number, CHAN_AUTO, ci!.saber[1].soundOn)
-                                }
-
-                                // Port-note: The draft of this statement did not compile, and the compiler wrote "cannot find 'BG_SI_SetDesiredLength' in scope".
-                                // Raven wrote: BG_SI_SetDesiredLength(&ci->saber[0], 0, -1)
+                                // Port-note: The draft of this statement did not compile, and the compiler wrote "value of optional type 'ClientInfo?' must be unwrapped to refer to member 'clear' of wrapped base type 'ClientInfo'".
+                                // Raven wrote: memset(cent->npcClient, 0, sizeof(clientInfo_t))
                                 portMissing("CG_Player", source: "oracle/codemp/cgame/cg_players.c:8423")
-                                // Port-note: The draft of this statement did not compile, and the compiler wrote "cannot find 'BG_SI_SetDesiredLength' in scope".
-                                // Raven wrote: BG_SI_SetDesiredLength(&ci->saber[1], 0, -1)
-                                portMissing("CG_Player", source: "oracle/codemp/cgame/cg_players.c:8423")
+                                cent.npcClient!.ghoul2Model = nil
+                            }
+
+
+                            if cent.npcClient!.ghoul2Model != cent.ghoul2 && cent.ghoul2 != nil {
+                                cent.npcClient!.ghoul2Model = cent.ghoul2
+                                if cent.localAnimIndex <= 1 {
+                                    cent.npcClient!.bolt_rhand = trap_G2API_AddBolt(cent.npcClient!.ghoul2Model, 0, "*r_hand")
+                                    cent.npcClient!.bolt_lhand = trap_G2API_AddBolt(cent.npcClient!.ghoul2Model, 0, "*l_hand")
+
+                                    //rhand must always be first bolt. lhand always second. Whichever you want the
+                                    //jetpack bolted to must always be third.
+                                    trap_G2API_AddBolt(cent.npcClient!.ghoul2Model, 0, "*chestg")
+
+                                    //claw bolts
+                                    trap_G2API_AddBolt(cent.npcClient!.ghoul2Model, 0, "*r_hand_cap_r_arm")
+                                    trap_G2API_AddBolt(cent.npcClient!.ghoul2Model, 0, "*l_hand_cap_l_arm")
+
+                                    cent.npcClient!.bolt_head = trap_G2API_AddBolt(cent.npcClient!.ghoul2Model, 0, "*head_top")
+                                    if cent.npcClient!.bolt_head == -1 {
+                                        cent.npcClient!.bolt_head = trap_G2API_AddBolt(cent.npcClient!.ghoul2Model, 0, "ceyebrow")
+                                    }
+                                    cent.npcClient!.bolt_motion = trap_G2API_AddBolt(cent.npcClient!.ghoul2Model, 0, "Motion")
+                                    cent.npcClient!.bolt_llumbar = trap_G2API_AddBolt(cent.npcClient!.ghoul2Model, 0, "lower_lumbar")
+                                } else {
+                                    cent.npcClient!.bolt_rhand = -1
+                                    cent.npcClient!.bolt_lhand = -1
+                                    cent.npcClient!.bolt_head = -1
+                                    cent.npcClient!.bolt_motion = -1
+                                    cent.npcClient!.bolt_llumbar = -1
+                                }
+                                cent.npcClient!.team = TEAM_FREE
+                                cent.npcClient!.infoValid = true
+                            }
+                            ci = cent.npcClient
+                        }
+
+                        // it is possible to see corpses from disconnected players that may
+                        // not have valid clientinfo
+                        if !ci!.infoValid {
+                            return true
+                        }
+
+                        // Add the player to the radar if on the same team and its a team game
+                        if cgs.gametype >= GT_TEAM {
+                            if cent.currentState.eType != ET_NPC && cg.snap!.ps.clientNum != cent.currentState.number && ci!.team == cg.snap!.ps.persistant[PERS_TEAM] {
+                                CG_AddRadarEnt(cent)
                             }
                         }
 
-                        cent.weapon = cent.currentState.weapon
-                        cent.ghoul2weapon = CG_G2WeaponInstance(cent, cent.currentState.weapon)
-                    }
-                } else if (cent.currentState.eFlags & EF_DEAD) != 0 || cent.torsoBolt != 0 {
-                    cent.ghoul2weapon = nil //be sure to update after respawning/getting limb regrown
-                }
-
-
-                if cent.saberWasInFlight && g2HasWeapon {
-                    cent.saberWasInFlight = false
-                }
-
-                // Raven clears the record with `memset` here. The scratch slot is zero at entry, so the body drops the call.
-
-                CG_SetGhoul2Info(legs, cent)
-
-                legs.modelScale = cent.modelScale
-                legs.radius = CG_RadiusForCent(cent)
-                legs.angles = vec3_t()
-
-                if ci!.colorOverride[0] != 0.0 || ci!.colorOverride[1] != 0.0 || ci!.colorOverride[2] != 0.0 {
-                    legs.shaderRGBA[0] = UInt8(truncatingIfNeeded: Int32(ci!.colorOverride[0] * 255.0))
-                    legs.shaderRGBA[1] = UInt8(truncatingIfNeeded: Int32(ci!.colorOverride[1] * 255.0))
-                    legs.shaderRGBA[2] = UInt8(truncatingIfNeeded: Int32(ci!.colorOverride[2] * 255.0))
-                    legs.shaderRGBA[3] = UInt8(truncatingIfNeeded: cent.currentState.customRGBA[3])
-                } else {
-                    legs.shaderRGBA[0] = UInt8(truncatingIfNeeded: cent.currentState.customRGBA[0])
-                    legs.shaderRGBA[1] = UInt8(truncatingIfNeeded: cent.currentState.customRGBA[1])
-                    legs.shaderRGBA[2] = UInt8(truncatingIfNeeded: cent.currentState.customRGBA[2])
-                    legs.shaderRGBA[3] = UInt8(truncatingIfNeeded: cent.currentState.customRGBA[3])
-                }
-
-                // minimal_add:
-
-                team = ci!.team
-
-                if cgs.gametype >= GT_TEAM && cg_drawFriend.integer != 0 && cent.currentState.number != cg.snap!.ps.clientNum && cent.currentState.eType != ET_NPC {
-                    // If the view is either a spectator or on the same team as this character, show a symbol above their head.
-                    if (cg.snap!.ps.persistant[PERS_TEAM] == TEAM_SPECTATOR || cg.snap!.ps.persistant[PERS_TEAM] == team) && !((cent.currentState.eFlags & EF_DEAD) != 0) {
-                        if cgs.gametype == GT_SIEGE {
-                            //check for per-map team shaders
-                            if team == SIEGETEAM_TEAM1 {
-                                if cgSiegeTeam1PlShader != 0 {
-                                    CG_PlayerFloatSprite(cent, cgSiegeTeam1PlShader)
-                                } else {
-                                    //if there isn't one fallback to default
-                                    CG_PlayerFloatSprite(cent, cgs.media.teamRedShader)
+                        if cent.currentState.eType == ET_NPC && cent.currentState.NPC_class == CLASS_VEHICLE {
+                            //add vehicles
+                            CG_AddRadarEnt(cent)
+                            if CG_InFighter() {
+                                //this is a vehicle, bracket it
+                                if cg.predictedPlayerState.m_iVehicleNum != cent.currentState.clientNum {
+                                    //don't add the vehicle I'm in... :)
+                                    CG_AddBracketedEnt(cent)
                                 }
+                            }
+                        }
+
+                        if cent.ghoul2 == nil {
+                            //not ready yet?
+                            trap_G2API_ClearAttachedInstance(cent.currentState.number)
+
+                            if ci!.ghoul2Model != nil && trap_G2_HaveWeGhoul2Models(ci!.ghoul2Model) {
+                                trap_G2API_DuplicateGhoul2Instance(ci!.ghoul2Model, &cent.ghoul2)
+
+                                //Attach the instance to this entity num so we can make use of client-server
+                                //shared operations if possible.
+                                trap_G2API_AttachInstanceToEntNum(cent.ghoul2, cent.currentState.number, false)
+
+                                if trap_G2API_AddBolt(cent.ghoul2, 0, "face") == -1 {
+                                    //check now to see if we have this bone for setting anims and such
+                                    cent.noFace = true
+                                }
+
+                                cent.localAnimIndex = CG_G2SkelForModel(cent.ghoul2)
+                                cent.eventAnimIndex = CG_G2EvIndexForModel(cent.ghoul2, cent.localAnimIndex)
+                            }
+                            return true
+                        }
+
+                        if ci!.superSmoothTime != 0 {
+                            //do crazy smoothing
+                            if ci!.superSmoothTime > cg.time {
+                                //do it
+                                trap_G2API_AbsurdSmoothing(cent.ghoul2, true)
                             } else {
-                                if cgSiegeTeam2PlShader != 0 {
-                                    CG_PlayerFloatSprite(cent, cgSiegeTeam2PlShader)
-                                } else {
-                                    //if there isn't one fallback to default
-                                    CG_PlayerFloatSprite(cent, cgs.media.teamBlueShader)
+                                //turn it off
+                                ci!.superSmoothTime = 0
+                                trap_G2API_AbsurdSmoothing(cent.ghoul2, false)
+                            }
+                        }
+
+                        if cg.predictedPlayerState.pm_type == PM_INTERMISSION {
+                            //don't show all this shit during intermission
+                            if cent.currentState.eType == ET_NPC && cent.currentState.NPC_class != CLASS_VEHICLE {
+                                //NPC in intermission
+                            } else {
+                                //don't render players or vehicles in intermissions, allow other NPCs for scripts
+                                return true
+                            }
+                        }
+
+                        CG_VehicleEffects(cent)
+
+                        if (cent.currentState.eFlags & EF_JETPACK) != 0 && !((cent.currentState.eFlags & EF_DEAD) != 0) && cg_g2JetpackInstance != nil {
+                            //should have a jetpack attached
+                            //1 is rhand weap, 2 is lhand weap (akimbo sabs), 3 is jetpack
+                            if !trap_G2API_HasGhoul2ModelOnIndex((cent.ghoul2), 3) {
+                                trap_G2API_CopySpecificGhoul2Model(cg_g2JetpackInstance, 0, cent.ghoul2, 3)
+                            }
+
+                            if (cent.currentState.eFlags & EF_JETPACK_ACTIVE) != 0 {
+                                // Raven's record lives to the end of his block, so the block is the closure.
+                                MdxaBone.scratch { mat in
+                                    var flamePos = vec3_t()
+                                    var flameDir = vec3_t()
+                                    var n: Int32 = 0
+
+                                    while n < 2 {
+                                        //Get the position/dir of the flame bolt on the jetpack model bolted to the player
+                                        trap_G2API_GetBoltMatrix(cent.ghoul2, 3, n, mat, cent.turAngles, cent.lerpOrigin, cg.time, cgs.gameModels, &cent.modelScale)
+                                        BG_GiveMeVectorFromMatrix(mat, ORIGIN, &flamePos)
+
+                                        if n == 0 {
+                                            BG_GiveMeVectorFromMatrix(mat, NEGATIVE_Y, &flameDir)
+                                            _VectorMA(flamePos, -9.5, flameDir, &flamePos)
+                                            BG_GiveMeVectorFromMatrix(mat, POSITIVE_X, &flameDir)
+                                            _VectorMA(flamePos, -13.5, flameDir, &flamePos)
+                                        } else {
+                                            BG_GiveMeVectorFromMatrix(mat, POSITIVE_X, &flameDir)
+                                            _VectorMA(flamePos, -9.5, flameDir, &flamePos)
+                                            BG_GiveMeVectorFromMatrix(mat, NEGATIVE_Y, &flameDir)
+                                            _VectorMA(flamePos, -13.5, flameDir, &flamePos)
+                                        }
+
+                                        if (cent.currentState.eFlags & EF_JETPACK_FLAMING) != 0 {
+                                            //create effects
+                                            //FIXME: Just one big effect
+                                            //Play the effect
+                                            trap_FX_PlayEffectID(cgs.effects.mBobaJet, flamePos, flameDir, -1, -1)
+                                            trap_FX_PlayEffectID(cgs.effects.mBobaJet, flamePos, flameDir, -1, -1)
+
+                                            //Keep the jet fire sound looping
+                                            trap_S_AddLoopingSound(cent.currentState.number, cent.lerpOrigin, vec3_origin, trap_S_RegisterSound("sound/effects/fire_lp"))
+                                        } else {
+                                            //just idling
+                                            //FIXME: Different smaller effect for idle
+                                            //Play the effect
+                                            trap_FX_PlayEffectID(cgs.effects.mBobaJet, flamePos, flameDir, -1, -1)
+                                        }
+
+                                        n += 1
+                                    }
+
+                                    trap_S_AddLoopingSound(cent.currentState.number, cent.lerpOrigin, vec3_origin, trap_S_RegisterSound("sound/boba/JETHOVER"))
                                 }
+                            }
+                        } else if trap_G2API_HasGhoul2ModelOnIndex((cent.ghoul2), 3) {
+                            //fixme: would be good if this could be done not every frame
+                            trap_G2API_RemoveGhoul2Model(&(cent.ghoul2), 3)
+                        }
+
+                        g2HasWeapon = trap_G2API_HasGhoul2ModelOnIndex((cent.ghoul2), 1)
+
+                        if !g2HasWeapon {
+                            //force a redup of the weapon instance onto the client instance
+                            cent.ghoul2weapon = nil
+                            cent.weapon = 0
+                        }
+
+                        if cent.torsoBolt != 0 && !((cent.currentState.eFlags & EF_DEAD) != 0) {
+                            //he's alive and has a limb missing still, reattach it and reset the weapon
+                            CG_ReattachLimb(cent)
+                        }
+
+                        if cent.isRagging && !((cent.currentState.eFlags & EF_DEAD) != 0) && !((cent.currentState.eFlags & EF_RAG) != 0) {
+                            //make sure we don't ragdoll ever while alive unless directly told to with eFlags
+                            cent.isRagging = false
+                            trap_G2API_SetRagDoll(cent.ghoul2, nil) //calling with null parms resets to no ragdoll.
+                        }
+
+                        // Port-note: The draft of this statement did not compile, and the compiler wrote "cannot convert value of type 'Int32' to expected argument type 'Int'".
+                        // Raven wrote: if (cent->ghoul2 && cent->torsoBolt && ((cent->torsoBolt & RARMBIT) || (cent->torsoBolt & RHANDBIT) || (cent->torsoBolt & WAISTBIT)) && g2HasWeapon) { //kill the weapon if the limb holding it is no longer on the model trap_G2API_RemoveGhoul2Model(&(cent->ghoul2), 1); g2HasWeapon = qfalse; }
+                        portMissing("CG_Player", source: "oracle/codemp/cgame/cg_players.c:8423")
+
+                        if cent.trickAlphaTime == 0 || (cg.time - cent.trickAlphaTime) > 1000 {
+                            //things got out of sync, perhaps a new client is trying to fill in this slot
+                            cent.trickAlpha = 255
+                            cent.trickAlphaTime = cg.time
+                        }
+
+                        if (cent.currentState.eFlags & EF_NODRAW) != 0 {
+                            //If nodraw, return here
+                            return true
+                        } else if (cent.currentState.eFlags2 & EF2_SHIP_DEATH) != 0 {
+                            //died in ship, don't draw, we were "obliterated"
+                            return true
+                        }
+
+                        //If this client has tricked you.
+                        if CG_IsMindTricked(cent.currentState.trickedentindex, cent.currentState.trickedentindex2, cent.currentState.trickedentindex3, cent.currentState.trickedentindex4, cg.snap!.ps.clientNum) != 0 {
+                            if cent.trickAlpha > 1 {
+                                cent.trickAlpha = Int32(Double(cent.trickAlpha) - (Double(cg.time - cent.trickAlphaTime) * 0.5))
+                                cent.trickAlphaTime = cg.time
+
+                                if cent.trickAlpha < 0 {
+                                    cent.trickAlpha = 0
+                                }
+
+                                doAlpha = 1
+                            } else {
+                                doAlpha = 1
+                                cent.trickAlpha = 1
+                                cent.trickAlphaTime = cg.time
+                                iwantout = 1
                             }
                         } else {
-                            //generic teamplay
-                            if team == TEAM_RED {
-                                CG_PlayerFloatSprite(cent, cgs.media.teamRedShader)
+                            if cent.trickAlpha < 255 {
+                                cent.trickAlpha += (cg.time - cent.trickAlphaTime)
+                                cent.trickAlphaTime = cg.time
+
+                                if cent.trickAlpha > 255 {
+                                    cent.trickAlpha = 255
+                                }
+
+                                doAlpha = 1
                             } else {
-                                CG_PlayerFloatSprite(cent, cgs.media.teamBlueShader)
+                                cent.trickAlpha = 255
+                                cent.trickAlphaTime = cg.time
                             }
                         }
-                    }
-                } else if cgs.gametype == GT_POWERDUEL && cg_drawFriend.integer != 0 && cent.currentState.number != cg.snap!.ps.clientNum {
-                    if cg.predictedPlayerState.persistant[PERS_TEAM] != TEAM_SPECTATOR && cent.currentState.number < MAX_CLIENTS && !((cent.currentState.eFlags & EF_DEAD) != 0) && ci != nil && cgs.clientinfo[cg.snap!.ps.clientNum].duelTeam == ci!.duelTeam {
-                        //ally in powerduel, so draw the icon
-                        CG_PlayerFloatSprite(cent, cgs.media.powerDuelAllyShader)
-                    } else if cg.predictedPlayerState.persistant[PERS_TEAM] == TEAM_SPECTATOR && cent.currentState.number < MAX_CLIENTS && !((cent.currentState.eFlags & EF_DEAD) != 0) && ci!.duelTeam == DUELTEAM_DOUBLE {
-                        CG_PlayerFloatSprite(cent, cgs.media.powerDuelAllyShader)
-                    }
-                }
 
-                if cgs.gametype == GT_JEDIMASTER && cg_drawFriend.integer != 0 && cent.currentState.number != cg.snap!.ps.clientNum {
-                    // If the view is either a spectator or on the same team as this character, show a symbol above their head.
-                    if (cg.snap!.ps.persistant[PERS_TEAM] == TEAM_SPECTATOR || cg.snap!.ps.persistant[PERS_TEAM] == team) && !((cent.currentState.eFlags & EF_DEAD) != 0) {
-                        if CG_ThereIsAMaster() {
-                            if !cg.snap!.ps.isJediMaster {
-                                if !cent.currentState.isJediMaster {
-                                    CG_PlayerFloatSprite(cent, cgs.media.teamRedShader)
+                        // get the player model information
+                        renderfx = 0
+                        if cent.currentState.number == cg.snap!.ps.clientNum {
+                            if !cg.renderingThirdPerson {
+                                if cent.currentState.weapon != WP_SABER {
+                                    renderfx = RF_THIRD_PERSON // only draw in mirrors
+                                }
+                            } else {
+                                if cg_cameraMode.integer != 0 {
+                                    iwantout = 1
+
+
+                                    // goto minimal_add;
+
+                                    // NOTENOTE Temporary
+                                    return true
                                 }
                             }
                         }
-                    }
-                }
 
-                // add the shadow
-                shadow = CG_PlayerShadow(cent, &shadowPlane)
+                        // Update the player's client entity information regarding weapons.
+                        // Explanation:  The entitystate has a weapond defined on it.  The cliententity does as well.
+                        // The cliententity's weapon tells us what the ghoul2 instance on the cliententity has bolted to it.
+                        // If the entitystate and cliententity weapons differ, then the state's needs to be copied to the client.
+                        // Save the old weapon, to verify that it is or is not the same as the new weapon.
+                        // rww - Make sure weapons don't get set BEFORE cent->ghoul2 is initialized or else we'll have no
+                        // weapon bolted on
+                        if cent.currentState.saberInFlight {
+                            cent.ghoul2weapon = CG_G2WeaponInstance(cent, WP_SABER)
+                        }
 
-                if ((cent.currentState.eFlags & EF_SEEKERDRONE) != 0 || cent.currentState.genericenemyindex != -1) && cent.currentState.eType != ET_NPC {
-                    // Raven's record lives to the end of his block, so the block is the closure.
-                    RefEntity.scratch { seeker in
+                        if cent.ghoul2 != nil && (cent.currentState.eType != ET_NPC || (cent.currentState.NPC_class != CLASS_VEHICLE && cent.currentState.NPC_class != CLASS_REMOTE && cent.currentState.NPC_class != CLASS_SEEKER)) && cent.ghoul2weapon != CG_G2WeaponInstance(cent, cent.currentState.weapon) && !((cent.currentState.eFlags & EF_DEAD) != 0) && cent.torsoBolt == 0 && cg.snap != nil && (cent.currentState.number != cg.snap!.ps.clientNum || (cg.snap!.ps.pm_flags & PMF_FOLLOW) != 0) {
+                            if ci!.team == TEAM_SPECTATOR {
+                                cent.ghoul2weapon = nil
+                                cent.weapon = 0
+                            } else {
+                                CG_CopyG2WeaponInstance(cent, cent.currentState.weapon, cent.ghoul2)
+
+                                if cent.currentState.eType != ET_NPC {
+                                    if cent.weapon == WP_SABER && cent.weapon != cent.currentState.weapon && cent.currentState.saberHolstered == 0 {
+                                        //switching away from the saber
+                                        //trap_S_StartSound(cent->lerpOrigin, cent->currentState.number, CHAN_AUTO, trap_S_RegisterSound( "sound/weapons/saber/saberoffquick.wav" ));
+                                        if ci!.saber[0].soundOff != 0 && cent.currentState.saberHolstered == 0 {
+                                            trap_S_StartSound(cent.lerpOrigin, cent.currentState.number, CHAN_AUTO, ci!.saber[0].soundOff)
+                                        }
+
+                                        if ci!.saber[1].soundOff != 0 && !ci!.saber[1].model.isEmpty && cent.currentState.saberHolstered == 0 {
+                                            trap_S_StartSound(cent.lerpOrigin, cent.currentState.number, CHAN_AUTO, ci!.saber[1].soundOff)
+                                        }
+                                    } else if cent.currentState.weapon == WP_SABER && cent.weapon != cent.currentState.weapon && !cent.saberWasInFlight {
+                                        //switching to the saber
+                                        //trap_S_StartSound(cent->lerpOrigin, cent->currentState.number, CHAN_AUTO, trap_S_RegisterSound( "sound/weapons/saber/saberon.wav" ));
+                                        if ci!.saber[0].soundOn != 0 {
+                                            trap_S_StartSound(cent.lerpOrigin, cent.currentState.number, CHAN_AUTO, ci!.saber[0].soundOn)
+                                        }
+
+                                        if ci!.saber[1].soundOn != 0 {
+                                            trap_S_StartSound(cent.lerpOrigin, cent.currentState.number, CHAN_AUTO, ci!.saber[1].soundOn)
+                                        }
+
+                                        BG_SI_SetDesiredLength(ci!.saber[0], 0, -1)
+                                        BG_SI_SetDesiredLength(ci!.saber[1], 0, -1)
+                                    }
+                                }
+
+                                cent.weapon = cent.currentState.weapon
+                                cent.ghoul2weapon = CG_G2WeaponInstance(cent, cent.currentState.weapon)
+                            }
+                        } else if (cent.currentState.eFlags & EF_DEAD) != 0 || cent.torsoBolt != 0 {
+                            cent.ghoul2weapon = nil //be sure to update after respawning/getting limb regrown
+                        }
+
+
+                        if cent.saberWasInFlight && g2HasWeapon {
+                            cent.saberWasInFlight = false
+                        }
 
                         // Raven clears the record with `memset` here. The scratch slot is zero at entry, so the body drops the call.
 
-                        elevated = cent.lerpOrigin
-                        elevated[2] += 40
-
-                        seeker.lightingOrigin = elevated
-                        seeker.shadowPlane = shadowPlane
-                        seeker.renderfx = 0 //renderfx;
-                        //don't show in first person?
-
-                        // Port-note: The draft of this statement did not compile, and the compiler wrote "the compiler is unable to type-check this expression in reasonable time; try breaking up the expression into distinct sub-expressions".
-                        // Raven wrote: angle = ((cg.time / 12) & 255) * (M_PI * 2) / 255
-                        portMissing("CG_Player", source: "oracle/codemp/cgame/cg_players.c:8423")
-                        dir[0] = cos(angle) * 20
-                        dir[1] = sin(angle) * 20
-                        dir[2] = cos(angle) * 5
-                        seeker.origin = elevated + dir
-
-                        seekorg = seeker.origin
-
-                        if cent.currentState.genericenemyindex > MAX_GENTITIES {
-                            var prefig: Float = Float((cent.currentState.genericenemyindex - cg.time) / 80)
-
-                            if prefig > 55 {
-                                prefig = 55
-                            } else if prefig < 1 {
-                                prefig = 1
-                            }
-
-                            elevated[2] -= 55 - prefig
-
-                            // Port-note: The draft of this statement did not compile, and the compiler wrote "the compiler is unable to type-check this expression in reasonable time; try breaking up the expression into distinct sub-expressions".
-                            // Raven wrote: angle = ((cg.time / 12) & 255) * (M_PI * 2) / 255
-                            portMissing("CG_Player", source: "oracle/codemp/cgame/cg_players.c:8423")
-                            dir[0] = cos(angle) * 20
-                            dir[1] = sin(angle) * 20
-                            dir[2] = cos(angle) * 5
-                            seeker.origin = elevated + dir
-                        } else if cent.currentState.genericenemyindex != ENTITYNUM_NONE && cent.currentState.genericenemyindex != -1 {
-                            let enent: Centity? = cg_entities[cent.currentState.genericenemyindex]
-
-                            if enent != nil {
-                                enang = enent!.lerpOrigin - seekorg
-                                VectorNormalize(&enang)
-                                vectoangles(enang, &angles)
-                                successchange = 1
-                            }
-                        }
-
-                        if successchange == 0 {
-                            angles[0] = sin(angle) * 30
-                            // Port-note: The draft of this statement did not compile, and the compiler wrote "the compiler is unable to type-check this expression in reasonable time; try breaking up the expression into distinct sub-expressions".
-                            // Raven wrote: angles[1] = (angle * 180 / M_PI) + 90
-                            portMissing("CG_Player", source: "oracle/codemp/cgame/cg_players.c:8423")
-                            if angles[1] > 360 {
-                                angles[1] -= 360
-                            }
-                            angles[2] = 0
-                        }
-
-                        // Port-note: The draft of this statement did not compile, and the compiler wrote "cannot convert value of type 'Slots<vec3_t>' (aka 'Slots<SIMD3<Float>>') to expected argument type '[vec3_t]' (aka 'Array<SIMD3<Float>>')".
-                        // Raven wrote: AnglesToAxis( angles, seeker.axis )
-                        portMissing("CG_Player", source: "oracle/codemp/cgame/cg_players.c:8423")
-
-                        seeker.hModel = trap_R_RegisterModel("models/items/remote.md3")
-                        trap_R_AddRefEntityToScene(seeker)
-                    }
-                }
-
-                // add a water splash if partially in and out of water
-                CG_PlayerSplash(cent)
-
-                if (cg_shadows.integer == 3 || cg_shadows.integer == 2) && shadow {
-                    renderfx |= RF_SHADOW_PLANE
-                }
-                renderfx |= RF_LIGHTING_ORIGIN // use the same origin for all
-
-                // if we've been hit, display proper fullscreen fx
-                CG_PlayerHitFX(cent)
-
-                legs.origin = cent.lerpOrigin
-
-                legs.lightingOrigin = cent.lerpOrigin
-                legs.shadowPlane = shadowPlane
-                legs.renderfx = renderfx
-                if cg_shadows.integer == 2 && (renderfx & RF_THIRD_PERSON) != 0 {
-                    //can see own shadow
-                    legs.renderfx |= RF_SHADOW_ONLY
-                }
-                legs.oldorigin = legs.origin // don't positionally lerp at all
-
-                // Port-note: The draft of this statement did not compile, and the compiler wrote "cannot convert value of type 'Slots<vec3_t>' (aka 'Slots<SIMD3<Float>>') to expected argument type '[vec3_t]' (aka 'Array<SIMD3<Float>>')".
-                // Raven wrote: CG_G2PlayerAngles( cent, legs.axis, rootAngles )
-                portMissing("CG_Player", source: "oracle/codemp/cgame/cg_players.c:8423")
-                CG_G2PlayerHeadAnims(cent)
-
-                if (cent.currentState.eFlags2 & EF2_HELD_BY_MONSTER) != 0 && cent.currentState.hasLookTarget {
-                    let rancor: Centity? = cg_entities[cent.currentState.lookTarget]
-                    if rancor != nil {
-                        // Port-note: Raven passes `cgs.gameModels` to `BG_AttachToRancor`, whose `modelList` parameter takes the Slots over the records, and Swift holds one record here. A Slots over one record has no form yet.
-                        // Raven wrote: BG_AttachToRancor( rancor->ghoul2, //ghoul2 info rancor->lerpAngles[YAW], rancor->lerpOrigin, cg.time, cgs.gameModels, rancor->modelScale, (rancor->currentState.eFlags2&EF2_GENERIC_NPC_FLAG), legs.origin, legs.angles, NULL )
-                        portMissing("CG_Player", source: "oracle/codemp/cgame/cg_players.c:8423")
-
-                        if cent.isRagging {
-                            //hack, ragdoll has you way at bottom of bounding box
-                            _VectorMA(legs.origin, 32, legs.axis[2], &legs.origin)
-                        }
-                        legs.oldorigin = legs.origin
-                        legs.lightingOrigin = legs.origin
-
-                        cent.lerpAngles = legs.angles
-                        rootAngles = cent.lerpAngles //??? tempAngles );//tempAngles is needed a lot below
-                        cent.turAngles = cent.lerpAngles
-                        cent.lerpOrigin = legs.origin
-                    }
-                }
-                //This call is mainly just to reconstruct the skeleton. But we'll get the left hand matrix while we're at it.
-                //If we don't reconstruct the skeleton after setting the bone angles, we will get bad bolt points on the model
-                //(e.g. the weapon model bolt will look "lagged") if there's no other GetBoltMatrix call for the rest of the
-                //frame. Yes, this is stupid and needs to be fixed properly.
-                //The current solution is to force it not to reconstruct the skeleton for the first GBM call in G2PlayerAngles.
-                //It works and we end up only reconstructing it once, but it doesn't seem like the best solution.
-                // Port-note: A read of `lHandMatrix`, a local the draft left as a hole.
-                // Raven wrote: trap_G2API_GetBoltMatrix(cent->ghoul2, 0, ci->bolt_lhand, &lHandMatrix, cent->turAngles, cent->lerpOrigin, cg.time, cgs.gameModels, cent->modelScale)
-                portMissing("CG_Player", source: "oracle/codemp/cgame/cg_players.c:8423")
-                gotLHandMatrix = true
-
-
-
-
-                /*
-                mdxaBone_t 		headMatrix;
-                trap_G2API_GetBoltMatrix(cent->ghoul2, 0, ci->bolt_head, &headMatrix, cent->turAngles, cent->lerpOrigin, cg.time, cgs.gameModels, cent->modelScale);
-                BG_GiveMeVectorFromMatrix(&headMatrix, ORIGIN, cg.refdef.vieworg);
-                */
-
-                if (cent.currentState.eFlags & EF_DEAD) != 0 {
-                    dead = true
-                    //rww - since our angles are fixed when we're dead this shouldn't be an issue anyway
-                    //we need to render the dying/dead player because we are now spawning the body on respawn instead of death
-                    //return;
-                }
-
-                ScaleModelAxis(legs)
-
-                // Raven clears the record with `memset` here. The scratch slot is zero at entry, so the body drops the call.
-
-                //rww - force speed "trail" effect
-                if !((cent.currentState.powerups & (1 << PW_SPEED)) != 0) || doAlpha != 0 || cg_speedTrail.integer == 0 {
-                    cent.frame_minus1_refreshed = 0
-                    cent.frame_minus2_refreshed = 0
-                }
-
-                if cent.frame_minus1_refreshed != 0 || cent.frame_minus2_refreshed != 0 {
-                    var tDir = vec3_t()
-                    var distVelBase: Int32 = 0
-
-                    tDir = cent.currentState.pos.trDelta
-                    distVelBase = Int32(Double(SPEED_TRAIL_DISTANCE) * (Double(VectorNormalize(&tDir)) * 0.004))
-
-                    if cent.frame_minus1_refreshed != 0 {
-                        // Raven's record lives to the end of his block, so the block is the closure.
-                        RefEntity.scratch(copying: legs) { reframe_minus1 in
-                            reframe_minus1.renderfx |= RF_FORCE_ENT_ALPHA
-                            reframe_minus1.shaderRGBA[0] = legs.shaderRGBA[0]
-                            reframe_minus1.shaderRGBA[1] = legs.shaderRGBA[1]
-                            reframe_minus1.shaderRGBA[2] = legs.shaderRGBA[2]
-                            reframe_minus1.shaderRGBA[3] = 100
-
-                            //rww - if the client gets a bad framerate we will only receive frame positions
-                            //once per frame anyway, so we might end up with speed trails very spread out.
-                            //in order to avoid that, we'll get the direction of the last trail from the player
-                            //and place the trail refent a set distance from the player location this frame
-                            tDir = cent.frame_minus1 - legs.origin
-                            VectorNormalize(&tDir)
-
-                            cent.frame_minus1[0] = legs.origin[0] + tDir[0] * distVelBase
-                            cent.frame_minus1[1] = legs.origin[1] + tDir[1] * distVelBase
-                            cent.frame_minus1[2] = legs.origin[2] + tDir[2] * distVelBase
-
-                            reframe_minus1.origin = cent.frame_minus1
-
-                            //reframe_minus1.customShader = 2;
-
-                            trap_R_AddRefEntityToScene(reframe_minus1)
-                        }
-                    }
-
-                    if cent.frame_minus2_refreshed != 0 {
-                        // Raven's record lives to the end of his block, so the block is the closure.
-                        RefEntity.scratch(copying: legs) { reframe_minus2 in
-
-                            reframe_minus2.renderfx |= RF_FORCE_ENT_ALPHA
-                            reframe_minus2.shaderRGBA[0] = legs.shaderRGBA[0]
-                            reframe_minus2.shaderRGBA[1] = legs.shaderRGBA[1]
-                            reframe_minus2.shaderRGBA[2] = legs.shaderRGBA[2]
-                            reframe_minus2.shaderRGBA[3] = 50
-
-                            //Same as above but do it between trail points instead of the player and first trail entry
-                            tDir = cent.frame_minus2 - cent.frame_minus1
-                            VectorNormalize(&tDir)
-
-                            cent.frame_minus2[0] = cent.frame_minus1[0] + tDir[0] * distVelBase
-                            cent.frame_minus2[1] = cent.frame_minus1[1] + tDir[1] * distVelBase
-                            cent.frame_minus2[2] = cent.frame_minus1[2] + tDir[2] * distVelBase
-
-                            reframe_minus2.origin = cent.frame_minus2
-
-                            //reframe_minus2.customShader = 2;
-
-                            trap_R_AddRefEntityToScene(reframe_minus2)
-                        }
-                    }
-                }
-
-                //trigger animation-based sounds, done before next lerp frame.
-                CG_TriggerAnimSounds(cent)
-
-                // get the animation state (after rotation, to allow feet shuffle)
-                CG_PlayerAnimation(cent, &legs.oldframe, &legs.frame, &legs.backlerp, &torso.oldframe, &torso.frame, &torso.backlerp)
-
-                // add the talk baloon or disconnect icon
-                CG_PlayerSprites(cent)
-
-                if (cent.currentState.eFlags & EF_DEAD) != 0 {
-                    //keep track of death anim frame for when we copy off the bodyqueue
-                    ci!.frame = cent.pe.torso.frame
-                }
-
-                if cent.currentState.activeForcePass > FORCE_LEVEL_3 && cent.currentState.NPC_class != CLASS_VEHICLE {
-                    var axis = [vec3_t](repeating: vec3_t(), count: 3)
-                    var tAng = vec3_t()
-                    var fAng = vec3_t()
-                    var fxDir = vec3_t()
-                    var efOrg = vec3_t()
-
-                    let realForceLev: Int32 = (cent.currentState.activeForcePass - FORCE_LEVEL_3)
-
-                    tAng = vec3_t(cent.turAngles[PITCH], cent.turAngles[YAW], cent.turAngles[ROLL])
-
-                    fAng = vec3_t(cent.pe.torso.pitchAngle, cent.pe.torso.yawAngle, 0)
-
-                    // Raven passes NULL for the `right` and `up` outputs.
-                    var scratchRight = vec3_t()
-                    var scratchUp = vec3_t()
-                    AngleVectors(fAng, &fxDir, &scratchRight, &scratchUp)
-
-                    if cent.currentState.torsoAnim == BOTH_FORCE_2HANDEDLIGHTNING_HOLD && Q_irand(0, 1) != 0 {
-                        //alternate back and forth between left and right
-                        // Raven's record lives to the end of his block, so the block is the closure.
-                        MdxaBone.scratch { rHandMatrix in
-                            // Port-note: Raven passes `cgs.gameModels` to `trap_G2API_GetBoltMatrix`, whose `modelList` parameter takes the Slots over the records, and Swift holds one record here. A Slots over one record has no form yet.
-                            // Raven wrote: trap_G2API_GetBoltMatrix(cent->ghoul2, 0, ci->bolt_rhand, &rHandMatrix, cent->turAngles, cent->lerpOrigin, cg.time, cgs.gameModels, cent->modelScale)
-                            portMissing("CG_Player", source: "oracle/codemp/cgame/cg_players.c:8423")
-                            efOrg[0] = rHandMatrix.matrix[0][3]
-                            efOrg[1] = rHandMatrix.matrix[1][3]
-                            efOrg[2] = rHandMatrix.matrix[2][3]
-                        }
-                    } else {
-                        //trap_G2API_GetBoltMatrix(cent->ghoul2, 0, ci->bolt_lhand, &boltMatrix, tAng, cent->lerpOrigin, cg.time, cgs.gameModels, cent->modelScale);
-                        if !gotLHandMatrix {
-                            // Port-note: A read of `lHandMatrix`, a local the draft left as a hole.
-                            // Raven wrote: trap_G2API_GetBoltMatrix(cent->ghoul2, 0, ci->bolt_lhand, &lHandMatrix, cent->turAngles, cent->lerpOrigin, cg.time, cgs.gameModels, cent->modelScale)
-                            portMissing("CG_Player", source: "oracle/codemp/cgame/cg_players.c:8423")
-                            gotLHandMatrix = true
-                        }
-                        // Port-note: A read of `lHandMatrix`, a local the draft left as a hole.
-                        // Raven wrote: efOrg[0] = lHandMatrix.matrix[0][3]
-                        portMissing("CG_Player", source: "oracle/codemp/cgame/cg_players.c:8423")
-                        // Port-note: A read of `lHandMatrix`, a local the draft left as a hole.
-                        // Raven wrote: efOrg[1] = lHandMatrix.matrix[1][3]
-                        portMissing("CG_Player", source: "oracle/codemp/cgame/cg_players.c:8423")
-                        // Port-note: A read of `lHandMatrix`, a local the draft left as a hole.
-                        // Raven wrote: efOrg[2] = lHandMatrix.matrix[2][3]
-                        portMissing("CG_Player", source: "oracle/codemp/cgame/cg_players.c:8423")
-                    }
-
-                    AnglesToAxis(fAng, &axis)
-
-                    if realForceLev > FORCE_LEVEL_2 {
-                        //arc
-                        //trap_FX_PlayEffectID( cgs.effects.forceLightningWide, efOrg, fxDir );
-                        //trap_FX_PlayEntityEffectID(cgs.effects.forceDrainWide, efOrg, axis, cent->boltInfo, cent->currentState.number, -1, -1);
-                        trap_FX_PlayEntityEffectID(cgs.effects.forceDrainWide, &efOrg, &axis, -1, -1, -1, -1)
-                    } else {
-                        //line
-                        //trap_FX_PlayEffectID( cgs.effects.forceLightning, efOrg, fxDir );
-                        //trap_FX_PlayEntityEffectID(cgs.effects.forceDrain, efOrg, axis, cent->boltInfo, cent->currentState.number, -1, -1);
-                        trap_FX_PlayEntityEffectID(cgs.effects.forceDrain, &efOrg, &axis, -1, -1, -1, -1)
-                    }
-
-                    /*
-                    if (cent->bolt4 < cg.time)
-                    {
-                    cent->bolt4 = cg.time + 100;
-                    trap_S_StartSound(NULL, cent->currentState.number, CHAN_AUTO, trap_S_RegisterSound("sound/weapons/force/drain.wav") );
-                    }
-                    */
-                } else if cent.currentState.activeForcePass != 0 && cent.currentState.NPC_class != CLASS_VEHICLE {
-                    //doing the electrocuting
-                    var axis = [vec3_t](repeating: vec3_t(), count: 3)
-                    var tAng = vec3_t()
-                    var fAng = vec3_t()
-                    var fxDir = vec3_t()
-                    var efOrg = vec3_t()
-
-                    tAng = vec3_t(cent.turAngles[PITCH], cent.turAngles[YAW], cent.turAngles[ROLL])
-
-                    fAng = vec3_t(cent.pe.torso.pitchAngle, cent.pe.torso.yawAngle, 0)
-
-                    // Raven passes NULL for the `right` and `up` outputs.
-                    var scratchRight2 = vec3_t()
-                    var scratchUp2 = vec3_t()
-                    AngleVectors(fAng, &fxDir, &scratchRight2, &scratchUp2)
-
-                    //trap_G2API_GetBoltMatrix(cent->ghoul2, 0, ci->bolt_lhand, &boltMatrix, tAng, cent->lerpOrigin, cg.time, cgs.gameModels, cent->modelScale);
-                    if !gotLHandMatrix {
-                        // Port-note: A read of `lHandMatrix`, a local the draft left as a hole.
-                        // Raven wrote: trap_G2API_GetBoltMatrix(cent->ghoul2, 0, ci->bolt_lhand, &lHandMatrix, cent->turAngles, cent->lerpOrigin, cg.time, cgs.gameModels, cent->modelScale)
-                        portMissing("CG_Player", source: "oracle/codemp/cgame/cg_players.c:8423")
-                        gotLHandMatrix = true
-                    }
-
-                    // Port-note: A read of `lHandMatrix`, a local the draft left as a hole.
-                    // Raven wrote: efOrg[0] = lHandMatrix.matrix[0][3]
-                    portMissing("CG_Player", source: "oracle/codemp/cgame/cg_players.c:8423")
-                    // Port-note: A read of `lHandMatrix`, a local the draft left as a hole.
-                    // Raven wrote: efOrg[1] = lHandMatrix.matrix[1][3]
-                    portMissing("CG_Player", source: "oracle/codemp/cgame/cg_players.c:8423")
-                    // Port-note: A read of `lHandMatrix`, a local the draft left as a hole.
-                    // Raven wrote: efOrg[2] = lHandMatrix.matrix[2][3]
-                    portMissing("CG_Player", source: "oracle/codemp/cgame/cg_players.c:8423")
-
-                    AnglesToAxis(fAng, &axis)
-
-                    if cent.currentState.activeForcePass > FORCE_LEVEL_2 {
-                        //arc
-                        //trap_FX_PlayEffectID( cgs.effects.forceLightningWide, efOrg, fxDir );
-                        //trap_FX_PlayEntityEffectID(cgs.effects.forceLightningWide, efOrg, axis, cent->boltInfo, cent->currentState.number, -1, -1);
-                        trap_FX_PlayEntityEffectID(cgs.effects.forceLightningWide, &efOrg, &axis, -1, -1, -1, -1)
-                    } else {
-                        //line
-                        //trap_FX_PlayEffectID( cgs.effects.forceLightning, efOrg, fxDir );
-                        //trap_FX_PlayEntityEffectID(cgs.effects.forceLightning, efOrg, axis, cent->boltInfo, cent->currentState.number, -1, -1);
-                        trap_FX_PlayEntityEffectID(cgs.effects.forceLightning, &efOrg, &axis, -1, -1, -1, -1)
-                    }
-
-                    /*
-                    if (cent->bolt4 < cg.time)
-                    {
-                    cent->bolt4 = cg.time + 100;
-                    trap_S_StartSound(NULL, cent->currentState.number, CHAN_AUTO, trap_S_RegisterSound("sound/weapons/force/lightning.wav") );
-                    }
-                    */
-                }
-
-                //fullbody push effect
-                if (cent.currentState.eFlags & EF_BODYPUSH) != 0 {
-                    CG_ForcePushBodyBlur(cent)
-                }
-
-                if (cent.currentState.powerups & (1 << PW_DISINT_4)) != 0 {
-                    var tAng = vec3_t()
-                    var efOrg = vec3_t()
-
-                    //VectorSet( tAng, 0, cent->pe.torso.yawAngle, 0 );
-                    tAng = vec3_t(cent.turAngles[PITCH], cent.turAngles[YAW], cent.turAngles[ROLL])
-
-                    //trap_G2API_GetBoltMatrix(cent->ghoul2, 0, ci->bolt_lhand, &boltMatrix, tAng, cent->lerpOrigin, cg.time, cgs.gameModels, cent->modelScale);
-                    if !gotLHandMatrix {
-                        // Port-note: A read of `lHandMatrix`, a local the draft left as a hole.
-                        // Raven wrote: trap_G2API_GetBoltMatrix(cent->ghoul2, 0, ci->bolt_lhand, &lHandMatrix, cent->turAngles, cent->lerpOrigin, cg.time, cgs.gameModels, cent->modelScale)
-                        portMissing("CG_Player", source: "oracle/codemp/cgame/cg_players.c:8423")
-                        gotLHandMatrix = true
-                    }
-
-                    // Port-note: A read of `lHandMatrix`, a local the draft left as a hole.
-                    // Raven wrote: efOrg[0] = lHandMatrix.matrix[0][3]
-                    portMissing("CG_Player", source: "oracle/codemp/cgame/cg_players.c:8423")
-                    // Port-note: A read of `lHandMatrix`, a local the draft left as a hole.
-                    // Raven wrote: efOrg[1] = lHandMatrix.matrix[1][3]
-                    portMissing("CG_Player", source: "oracle/codemp/cgame/cg_players.c:8423")
-                    // Port-note: A read of `lHandMatrix`, a local the draft left as a hole.
-                    // Raven wrote: efOrg[2] = lHandMatrix.matrix[2][3]
-                    portMissing("CG_Player", source: "oracle/codemp/cgame/cg_players.c:8423")
-
-                    if (cent.currentState.forcePowersActive & (1 << FP_GRIP)) != 0 && (cg.renderingThirdPerson || cent.currentState.number != cg.snap!.ps.clientNum) {
-                        var boltDir = vec3_t()
-                        var origBolt = vec3_t()
-                        origBolt = efOrg
-                        // Port-note: A read of `lHandMatrix`, a local the draft left as a hole.
-                        // Raven wrote: BG_GiveMeVectorFromMatrix( &lHandMatrix, NEGATIVE_Y, boltDir )
-                        portMissing("CG_Player", source: "oracle/codemp/cgame/cg_players.c:8423")
-
-                        CG_ForceGripEffect(efOrg)
-                        CG_ForceGripEffect(efOrg)
-
-                        /*
-                        //Render a scaled version of the model's hand with a n337 looking shader
-                        {
-                        const char *rotateBone;
-                        char *limbName;
-                        char *limbCapName;
-                        vec3_t armAng;
-                        refEntity_t regrip_arm;
-                        float wv = sin( cg.time * 0.003f ) * 0.08f + 0.1f;
-
-                        //rotateBone = "lradius";
-                        rotateBone = "lradiusX";
-                        limbName = "l_arm";
-                        limbCapName = "l_arm_cap_torso";
-
-                        if (cent->grip_arm && trap_G2_HaveWeGhoul2Models(cent->grip_arm))
-                        {
-                        trap_G2API_CleanGhoul2Models(&(cent->grip_arm));
-                        }
-
-                        memset( &regrip_arm, 0, sizeof(regrip_arm) );
-
-                        VectorCopy(origBolt, efOrg);
-
-
-                        //efOrg[2] += 8;
-                        efOrg[2] -= 4;
-
-                        VectorCopy(efOrg, regrip_arm.origin);
-                        VectorCopy(regrip_arm.origin, regrip_arm.lightingOrigin);
-
-                        //VectorCopy(cent->lerpAngles, armAng);
-                        VectorAdd(vec3_origin, rootAngles, armAng);
-                        //armAng[ROLL] = -90;
-                        armAng[ROLL] = 0;
-                        armAng[PITCH] = 0;
-                        AnglesToAxis(armAng, regrip_arm.axis);
-
-                        trap_G2API_DuplicateGhoul2Instance(cent->ghoul2, &cent->grip_arm);
-
-                        //remove all other models
-                        if (trap_G2API_HasGhoul2ModelOnIndex(&(cent->grip_arm), 1))
-                        { //weapon right
-                        trap_G2API_RemoveGhoul2Model(&(cent->grip_arm), 1);
-                        }
-                        if (trap_G2API_HasGhoul2ModelOnIndex(&(cent->grip_arm), 2))
-                        { //weapon left
-                        trap_G2API_RemoveGhoul2Model(&(cent->grip_arm), 2);
-                        }
-                        if (trap_G2API_HasGhoul2ModelOnIndex(&(cent->grip_arm), 3))
-                        { //jetpack
-                        trap_G2API_RemoveGhoul2Model(&(cent->grip_arm), 3);
-                        }
-
-                        trap_G2API_SetRootSurface(cent->grip_arm, 0, limbName);
-                        trap_G2API_SetNewOrigin(cent->grip_arm, trap_G2API_AddBolt(cent->grip_arm, 0, rotateBone));
-                        trap_G2API_SetSurfaceOnOff(cent->grip_arm, limbCapName, 0);
-
-                        regrip_arm.modelScale[0] = 1;//+(wv*6);
-                        regrip_arm.modelScale[1] = 1;//+(wv*6);
-                        regrip_arm.modelScale[2] = 1;//+(wv*6);
-                        ScaleModelAxis(&regrip_arm);
-
-                        regrip_arm.radius = 64;
-
-                        regrip_arm.customShader = trap_R_RegisterShader( "gfx/misc/red_portashield" );
-
-                        regrip_arm.renderfx |= RF_RGB_TINT;
-                        regrip_arm.shaderRGBA[0] = 255 - (wv*900);
-                        if (regrip_arm.shaderRGBA[0] < 30)
-                        {
-                        regrip_arm.shaderRGBA[0] = 30;
-                        }
-                        if (regrip_arm.shaderRGBA[0] > 255)
-                        {
-                        regrip_arm.shaderRGBA[0] = 255;
-                        }
-                        regrip_arm.shaderRGBA[1] = regrip_arm.shaderRGBA[2] = regrip_arm.shaderRGBA[0];
-
-                        regrip_arm.ghoul2 = cent->grip_arm;
-                        trap_R_AddRefEntityToScene( &regrip_arm );
-                        }
-                        */
-                    } else if !((cent.currentState.forcePowersActive & (1 << FP_GRIP)) != 0) {
-                        //use refractive effect
-                        CG_ForcePushBlur(efOrg, cent)
-                    }
-                } else if cent.bodyFadeTime != 0 {
-                    //reset the counter for keeping track of push refraction effect state
-                    cent.bodyFadeTime = 0
-                }
-
-                if cent.currentState.weapon == WP_STUN_BATON && cent.currentState.number == cg.snap!.ps.clientNum {
-                    trap_S_AddLoopingSound(cent.currentState.number, cg.refdef.vieworg, vec3_origin, trap_S_RegisterSound("sound/weapons/baton/idle.wav"))
-                }
-
-                //NOTE: All effects that should be visible during mindtrick should go above here
-
-                if iwantout != 0 {
-                    break stillDoSaber
-                    //return;
-                } else if doAlpha != 0 {
-                    legs.renderfx |= RF_FORCE_ENT_ALPHA
-                    legs.shaderRGBA[3] = UInt8(truncatingIfNeeded: cent.trickAlpha)
-
-                    if legs.shaderRGBA[3] < 1 {
-                        //don't cancel it out even if it's < 1
-                        legs.shaderRGBA[3] = 1
-                    }
-                }
-
-                if cent.teamPowerEffectTime > cg.time {
-                    if cent.teamPowerType {
-                        //absorb is a somewhat different effect entirely
-                        //Guess I'll take care of it where it's always been, just checking these values instead.
-                    } else {
-                        var preCol = vec4_t()
-                        var preRFX: Int32 = 0
-
-                        preRFX = legs.renderfx
-
-                        legs.renderfx |= RF_RGB_TINT
-                        legs.renderfx |= RF_FORCE_ENT_ALPHA
-
-                        preCol[0] = Float(legs.shaderRGBA[0])
-                        preCol[1] = Float(legs.shaderRGBA[1])
-                        preCol[2] = Float(legs.shaderRGBA[2])
-                        preCol[3] = Float(legs.shaderRGBA[3])
-
-                        if cent.teamPowerType {
-                            //heal
-                            legs.shaderRGBA[0] = 0
-                            legs.shaderRGBA[1] = 255
-                            legs.shaderRGBA[2] = 0
-                        } else if !cent.teamPowerType {
-                            //regen
-                            legs.shaderRGBA[0] = 0
-                            legs.shaderRGBA[1] = 0
-                            legs.shaderRGBA[2] = 255
+                        CG_SetGhoul2Info(legs, cent)
+
+                        legs.modelScale = cent.modelScale
+                        legs.radius = CG_RadiusForCent(cent)
+                        legs.angles = vec3_t()
+
+                        if ci!.colorOverride[0] != 0.0 || ci!.colorOverride[1] != 0.0 || ci!.colorOverride[2] != 0.0 {
+                            legs.shaderRGBA[0] = UInt8(truncatingIfNeeded: Int32(ci!.colorOverride[0] * 255.0))
+                            legs.shaderRGBA[1] = UInt8(truncatingIfNeeded: Int32(ci!.colorOverride[1] * 255.0))
+                            legs.shaderRGBA[2] = UInt8(truncatingIfNeeded: Int32(ci!.colorOverride[2] * 255.0))
+                            legs.shaderRGBA[3] = UInt8(truncatingIfNeeded: cent.currentState.customRGBA[3])
                         } else {
-                            //drain
-                            legs.shaderRGBA[0] = 255
-                            legs.shaderRGBA[1] = 0
-                            legs.shaderRGBA[2] = 0
+                            legs.shaderRGBA[0] = UInt8(truncatingIfNeeded: cent.currentState.customRGBA[0])
+                            legs.shaderRGBA[1] = UInt8(truncatingIfNeeded: cent.currentState.customRGBA[1])
+                            legs.shaderRGBA[2] = UInt8(truncatingIfNeeded: cent.currentState.customRGBA[2])
+                            legs.shaderRGBA[3] = UInt8(truncatingIfNeeded: cent.currentState.customRGBA[3])
                         }
 
-                        legs.shaderRGBA[3] = UInt8(truncatingIfNeeded: ((cent.teamPowerEffectTime - cg.time) / 8))
+                        // minimal_add:
 
-                        legs.customShader = trap_R_RegisterShader("powerups/ysalimarishell")
-                        trap_R_AddRefEntityToScene(legs)
+                        team = ci!.team
 
-                        legs.customShader = 0
-                        legs.renderfx = preRFX
-                        legs.shaderRGBA[0] = UInt8(truncatingIfNeeded: Int32(preCol[0]))
-                        legs.shaderRGBA[1] = UInt8(truncatingIfNeeded: Int32(preCol[1]))
-                        legs.shaderRGBA[2] = UInt8(truncatingIfNeeded: Int32(preCol[2]))
-                        legs.shaderRGBA[3] = UInt8(truncatingIfNeeded: Int32(preCol[3]))
-                    }
-                }
+                        if cgs.gametype >= GT_TEAM && cg_drawFriend.integer != 0 && cent.currentState.number != cg.snap!.ps.clientNum && cent.currentState.eType != ET_NPC {
+                            // If the view is either a spectator or on the same team as this character, show a symbol above their head.
+                            if (cg.snap!.ps.persistant[PERS_TEAM] == TEAM_SPECTATOR || cg.snap!.ps.persistant[PERS_TEAM] == team) && !((cent.currentState.eFlags & EF_DEAD) != 0) {
+                                if cgs.gametype == GT_SIEGE {
+                                    //check for per-map team shaders
+                                    if team == SIEGETEAM_TEAM1 {
+                                        if cgSiegeTeam1PlShader != 0 {
+                                            CG_PlayerFloatSprite(cent, cgSiegeTeam1PlShader)
+                                        } else {
+                                            //if there isn't one fallback to default
+                                            CG_PlayerFloatSprite(cent, cgs.media.teamRedShader)
+                                        }
+                                    } else {
+                                        if cgSiegeTeam2PlShader != 0 {
+                                            CG_PlayerFloatSprite(cent, cgSiegeTeam2PlShader)
+                                        } else {
+                                            //if there isn't one fallback to default
+                                            CG_PlayerFloatSprite(cent, cgs.media.teamBlueShader)
+                                        }
+                                    }
+                                } else {
+                                    //generic teamplay
+                                    if team == TEAM_RED {
+                                        CG_PlayerFloatSprite(cent, cgs.media.teamRedShader)
+                                    } else {
+                                        CG_PlayerFloatSprite(cent, cgs.media.teamBlueShader)
+                                    }
+                                }
+                            }
+                        } else if cgs.gametype == GT_POWERDUEL && cg_drawFriend.integer != 0 && cent.currentState.number != cg.snap!.ps.clientNum {
+                            if cg.predictedPlayerState.persistant[PERS_TEAM] != TEAM_SPECTATOR && cent.currentState.number < MAX_CLIENTS && !((cent.currentState.eFlags & EF_DEAD) != 0) && ci != nil && cgs.clientinfo[cg.snap!.ps.clientNum].duelTeam == ci!.duelTeam {
+                                //ally in powerduel, so draw the icon
+                                CG_PlayerFloatSprite(cent, cgs.media.powerDuelAllyShader)
+                            } else if cg.predictedPlayerState.persistant[PERS_TEAM] == TEAM_SPECTATOR && cent.currentState.number < MAX_CLIENTS && !((cent.currentState.eFlags & EF_DEAD) != 0) && ci!.duelTeam == DUELTEAM_DOUBLE {
+                                CG_PlayerFloatSprite(cent, cgs.media.powerDuelAllyShader)
+                            }
+                        }
 
-                //If you've tricked this client.
-                if CG_IsMindTricked(cg.snap!.ps.fd.forceMindtrickTargetIndex, cg.snap!.ps.fd.forceMindtrickTargetIndex2, cg.snap!.ps.fd.forceMindtrickTargetIndex3, cg.snap!.ps.fd.forceMindtrickTargetIndex4, cent.currentState.number) != 0 {
-                    if cent.ghoul2 != nil {
-                        var efOrg = vec3_t()
-                        var tAng = vec3_t()
-                        var fxAng = vec3_t()
-                        var axis = [vec3_t](repeating: vec3_t(), count: 3)
+                        if cgs.gametype == GT_JEDIMASTER && cg_drawFriend.integer != 0 && cent.currentState.number != cg.snap!.ps.clientNum {
+                            // If the view is either a spectator or on the same team as this character, show a symbol above their head.
+                            if (cg.snap!.ps.persistant[PERS_TEAM] == TEAM_SPECTATOR || cg.snap!.ps.persistant[PERS_TEAM] == team) && !((cent.currentState.eFlags & EF_DEAD) != 0) {
+                                if CG_ThereIsAMaster() {
+                                    if !cg.snap!.ps.isJediMaster {
+                                        if !cent.currentState.isJediMaster {
+                                            CG_PlayerFloatSprite(cent, cgs.media.teamRedShader)
+                                        }
+                                    }
+                                }
+                            }
+                        }
 
-                        //VectorSet( tAng, 0, cent->pe.torso.yawAngle, 0 );
-                        tAng = vec3_t(cent.turAngles[PITCH], cent.turAngles[YAW], cent.turAngles[ROLL])
+                        // add the shadow
+                        shadow = CG_PlayerShadow(cent, &shadowPlane)
 
-                        // Port-note: A read of `boltMatrix`, a local the draft left as a hole.
-                        // Raven wrote: trap_G2API_GetBoltMatrix(cent->ghoul2, 0, ci->bolt_head, &boltMatrix, tAng, cent->lerpOrigin, cg.time, cgs.gameModels, cent->modelScale)
-                        portMissing("CG_Player", source: "oracle/codemp/cgame/cg_players.c:8423")
+                        if ((cent.currentState.eFlags & EF_SEEKERDRONE) != 0 || cent.currentState.genericenemyindex != -1) && cent.currentState.eType != ET_NPC {
+                            // Raven's record lives to the end of his block, so the block is the closure.
+                            RefEntity.scratch { seeker in
 
-                        // Port-note: A read of `boltMatrix`, a local the draft left as a hole.
-                        // Raven wrote: BG_GiveMeVectorFromMatrix(&boltMatrix, ORIGIN, efOrg)
-                        portMissing("CG_Player", source: "oracle/codemp/cgame/cg_players.c:8423")
-                        // Port-note: A read of `boltMatrix`, a local the draft left as a hole.
-                        // Raven wrote: BG_GiveMeVectorFromMatrix(&boltMatrix, NEGATIVE_Y, fxAng)
-                        portMissing("CG_Player", source: "oracle/codemp/cgame/cg_players.c:8423")
-
-                        // Port-note: A read of `boltMatrix`, a local the draft left as a hole.
-                        // Raven wrote: axis[0][0] = boltMatrix.matrix[0][0]
-                        portMissing("CG_Player", source: "oracle/codemp/cgame/cg_players.c:8423")
-                        // Port-note: A read of `boltMatrix`, a local the draft left as a hole.
-                        // Raven wrote: axis[0][1] = boltMatrix.matrix[1][0]
-                        portMissing("CG_Player", source: "oracle/codemp/cgame/cg_players.c:8423")
-                        // Port-note: A read of `boltMatrix`, a local the draft left as a hole.
-                        // Raven wrote: axis[0][2] = boltMatrix.matrix[2][0]
-                        portMissing("CG_Player", source: "oracle/codemp/cgame/cg_players.c:8423")
-
-                        // Port-note: A read of `boltMatrix`, a local the draft left as a hole.
-                        // Raven wrote: axis[1][0] = boltMatrix.matrix[0][1]
-                        portMissing("CG_Player", source: "oracle/codemp/cgame/cg_players.c:8423")
-                        // Port-note: A read of `boltMatrix`, a local the draft left as a hole.
-                        // Raven wrote: axis[1][1] = boltMatrix.matrix[1][1]
-                        portMissing("CG_Player", source: "oracle/codemp/cgame/cg_players.c:8423")
-                        // Port-note: A read of `boltMatrix`, a local the draft left as a hole.
-                        // Raven wrote: axis[1][2] = boltMatrix.matrix[2][1]
-                        portMissing("CG_Player", source: "oracle/codemp/cgame/cg_players.c:8423")
-
-                        // Port-note: A read of `boltMatrix`, a local the draft left as a hole.
-                        // Raven wrote: axis[2][0] = boltMatrix.matrix[0][2]
-                        portMissing("CG_Player", source: "oracle/codemp/cgame/cg_players.c:8423")
-                        // Port-note: A read of `boltMatrix`, a local the draft left as a hole.
-                        // Raven wrote: axis[2][1] = boltMatrix.matrix[1][2]
-                        portMissing("CG_Player", source: "oracle/codemp/cgame/cg_players.c:8423")
-                        // Port-note: A read of `boltMatrix`, a local the draft left as a hole.
-                        // Raven wrote: axis[2][2] = boltMatrix.matrix[2][2]
-                        portMissing("CG_Player", source: "oracle/codemp/cgame/cg_players.c:8423")
-
-                        //trap_FX_PlayEntityEffectID(trap_FX_RegisterEffect("force/confusion.efx"), efOrg, axis, cent->boltInfo, cent->currentState.number);
-                        trap_FX_PlayEntityEffectID(cgs.effects.mForceConfustionOld, &efOrg, &axis, -1, -1, -1, -1)
-                    }
-                }
-
-                if cgs.gametype == GT_HOLOCRON && cent.currentState.time2 != 0 && (cg.renderingThirdPerson || cg.snap!.ps.clientNum != cent.currentState.number) {
-                    var i: Int32 = 0
-                    var renderedHolos: Int32 = 0
-                    // Raven's record lives to the end of his block, so the block is the closure.
-                    RefEntity.scratch { holoRef in
-
-                        while i < NUM_FORCE_POWERS && renderedHolos < 3 {
-                            if (cent.currentState.time2 & (1 << i)) != 0 {
-                                holoRef.clear()
+                                // Raven clears the record with `memset` here. The scratch slot is zero at entry, so the body drops the call.
 
                                 elevated = cent.lerpOrigin
-                                elevated[2] += 8
+                                elevated[2] += 40
 
-                                holoRef.lightingOrigin = elevated
-                                holoRef.shadowPlane = shadowPlane
-                                holoRef.renderfx = 0 //RF_THIRD_PERSON;
+                                seeker.lightingOrigin = elevated
+                                seeker.shadowPlane = shadowPlane
+                                seeker.renderfx = 0 //renderfx;
+                                //don't show in first person?
 
-                                if renderedHolos == 0 {
+                                // Port-note: The draft of this statement did not compile, and the compiler wrote "the compiler is unable to type-check this expression in reasonable time; try breaking up the expression into distinct sub-expressions".
+                                // Raven wrote: angle = ((cg.time / 12) & 255) * (M_PI * 2) / 255
+                                portMissing("CG_Player", source: "oracle/codemp/cgame/cg_players.c:8423")
+                                dir[0] = cos(angle) * 20
+                                dir[1] = sin(angle) * 20
+                                dir[2] = cos(angle) * 5
+                                seeker.origin = elevated + dir
+
+                                seekorg = seeker.origin
+
+                                if cent.currentState.genericenemyindex > MAX_GENTITIES {
+                                    var prefig: Float = Float((cent.currentState.genericenemyindex - cg.time) / 80)
+
+                                    if prefig > 55 {
+                                        prefig = 55
+                                    } else if prefig < 1 {
+                                        prefig = 1
+                                    }
+
+                                    elevated[2] -= 55 - prefig
+
                                     // Port-note: The draft of this statement did not compile, and the compiler wrote "the compiler is unable to type-check this expression in reasonable time; try breaking up the expression into distinct sub-expressions".
-                                    // Raven wrote: angle = ((cg.time / 8) & 255) * (M_PI * 2) / 255
+                                    // Raven wrote: angle = ((cg.time / 12) & 255) * (M_PI * 2) / 255
                                     portMissing("CG_Player", source: "oracle/codemp/cgame/cg_players.c:8423")
                                     dir[0] = cos(angle) * 20
                                     dir[1] = sin(angle) * 20
-                                    dir[2] = cos(angle) * 20
-                                    holoRef.origin = elevated + dir
+                                    dir[2] = cos(angle) * 5
+                                    seeker.origin = elevated + dir
+                                } else if cent.currentState.genericenemyindex != ENTITYNUM_NONE && cent.currentState.genericenemyindex != -1 {
+                                    let enent: Centity? = cg_entities[cent.currentState.genericenemyindex]
 
+                                    if enent != nil {
+                                        enang = enent!.lerpOrigin - seekorg
+                                        VectorNormalize(&enang)
+                                        vectoangles(enang, &angles)
+                                        successchange = 1
+                                    }
+                                }
+
+                                if successchange == 0 {
                                     angles[0] = sin(angle) * 30
                                     // Port-note: The draft of this statement did not compile, and the compiler wrote "the compiler is unable to type-check this expression in reasonable time; try breaking up the expression into distinct sub-expressions".
                                     // Raven wrote: angles[1] = (angle * 180 / M_PI) + 90
@@ -7996,215 +7508,1145 @@ func CG_Player(_ cent: Centity) {
                                         angles[1] -= 360
                                     }
                                     angles[2] = 0
-                                    // Port-note: The draft of this statement did not compile, and the compiler wrote "cannot convert value of type 'Slots<vec3_t>' (aka 'Slots<SIMD3<Float>>') to expected argument type '[vec3_t]' (aka 'Array<SIMD3<Float>>')".
-                                    // Raven wrote: AnglesToAxis( angles, holoRef.axis )
-                                    portMissing("CG_Player", source: "oracle/codemp/cgame/cg_players.c:8423")
-                                } else if renderedHolos == 1 {
-                                    // Port-note: The draft of this statement did not compile, and the compiler wrote "the compiler is unable to type-check this expression in reasonable time; try breaking up the expression into distinct sub-expressions".
-                                    // Raven wrote: angle = ((cg.time / 8) & 255) * (M_PI * 2) / 255 + M_PI
-                                    portMissing("CG_Player", source: "oracle/codemp/cgame/cg_players.c:8423")
-                                    if Double(angle) > M_PI * 2 {
-                                        // Port-note: The draft of this statement did not compile, and the compiler wrote "ambiguous use of 'M_PI'".
-                                        // Raven wrote: angle -= (float)M_PI * 2
-                                        portMissing("CG_Player", source: "oracle/codemp/cgame/cg_players.c:8423")
-                                    }
-                                    dir[0] = sin(angle) * 20
-                                    dir[1] = cos(angle) * 20
-                                    dir[2] = cos(angle) * 20
-                                    holoRef.origin = elevated + dir
-
-                                    angles[0] = Float(cos(Double(angle) - 0.5 * M_PI) * 30)
-                                    // Port-note: The draft of this statement did not compile, and the compiler wrote "the compiler is unable to type-check this expression in reasonable time; try breaking up the expression into distinct sub-expressions".
-                                    // Raven wrote: angles[1] = 360 - (angle * 180 / M_PI)
-                                    portMissing("CG_Player", source: "oracle/codemp/cgame/cg_players.c:8423")
-                                    if angles[1] > 360 {
-                                        angles[1] -= 360
-                                    }
-                                    angles[2] = 0
-                                    // Port-note: The draft of this statement did not compile, and the compiler wrote "cannot convert value of type 'Slots<vec3_t>' (aka 'Slots<SIMD3<Float>>') to expected argument type '[vec3_t]' (aka 'Array<SIMD3<Float>>')".
-                                    // Raven wrote: AnglesToAxis( angles, holoRef.axis )
-                                    portMissing("CG_Player", source: "oracle/codemp/cgame/cg_players.c:8423")
-                                } else {
-                                    // Port-note: The draft of this statement did not compile, and the compiler wrote "the compiler is unable to type-check this expression in reasonable time; try breaking up the expression into distinct sub-expressions".
-                                    // Raven wrote: angle = ((cg.time / 6) & 255) * (M_PI * 2) / 255 + 0.5 * M_PI
-                                    portMissing("CG_Player", source: "oracle/codemp/cgame/cg_players.c:8423")
-                                    if Double(angle) > M_PI * 2 {
-                                        // Port-note: The draft of this statement did not compile, and the compiler wrote "ambiguous use of 'M_PI'".
-                                        // Raven wrote: angle -= (float)M_PI * 2
-                                        portMissing("CG_Player", source: "oracle/codemp/cgame/cg_players.c:8423")
-                                    }
-                                    dir[0] = sin(angle) * 20
-                                    dir[1] = cos(angle) * 20
-                                    dir[2] = 0
-                                    holoRef.origin = elevated + dir
-
-                                    holoRef.axis[1] = dir
-                                    VectorNormalize(&holoRef.axis[1])
-                                    holoRef.axis[2] = vec3_t(0, 0, 1)
-                                    CrossProduct(holoRef.axis[1], holoRef.axis[2], &holoRef.axis[0])
                                 }
 
-                                holoRef.modelScale[0] = 0.5
-                                holoRef.modelScale[1] = 0.5
-                                holoRef.modelScale[2] = 0.5
-                                ScaleModelAxis(holoRef)
+                                // Port-note: The draft of this statement did not compile, and the compiler wrote "cannot convert value of type 'Slots<vec3_t>' (aka 'Slots<SIMD3<Float>>') to expected argument type '[vec3_t]' (aka 'Array<SIMD3<Float>>')".
+                                // Raven wrote: AnglesToAxis( angles, seeker.axis )
+                                portMissing("CG_Player", source: "oracle/codemp/cgame/cg_players.c:8423")
 
-                                do {
-                                    var wv: Float = 0
-                                    // Raven's record lives to the end of his block, so the block is the closure.
-                                    AddspriteArgStruct.scratch { fxSArgs in
-                                        var holoCenter = vec3_t()
+                                seeker.hModel = trap_R_RegisterModel("models/items/remote.md3")
+                                trap_R_AddRefEntityToScene(seeker)
+                            }
+                        }
 
-                                        holoCenter[0] = holoRef.origin[0] + holoRef.axis[2][0] * 18
-                                        holoCenter[1] = holoRef.origin[1] + holoRef.axis[2][1] * 18
-                                        holoCenter[2] = holoRef.origin[2] + holoRef.axis[2][2] * 18
+                        // add a water splash if partially in and out of water
+                        CG_PlayerSplash(cent)
 
-                                        wv = sin(cg.time * 0.004) * 0.08 + 0.1
+                        if (cg_shadows.integer == 3 || cg_shadows.integer == 2) && shadow {
+                            renderfx |= RF_SHADOW_PLANE
+                        }
+                        renderfx |= RF_LIGHTING_ORIGIN // use the same origin for all
 
-                                        fxSArgs.origin = holoCenter
-                                        fxSArgs.vel = vec3_t()
-                                        fxSArgs.accel = vec3_t()
-                                        fxSArgs.scale = wv * 60
-                                        fxSArgs.dscale = wv * 60
-                                        fxSArgs.sAlpha = wv * 12
-                                        fxSArgs.eAlpha = wv * 12
-                                        fxSArgs.rotation = 0.0
-                                        fxSArgs.bounce = 0.0
-                                        fxSArgs.life = 1
+                        // if we've been hit, display proper fullscreen fx
+                        CG_PlayerHitFX(cent)
 
-                                        fxSArgs.flags = 0x08000000 | 0x00000001
+                        legs.origin = cent.lerpOrigin
 
-                                        if forcePowerDarkLight[i] == FORCE_DARKSIDE {
-                                            //dark
-                                            fxSArgs.sAlpha *= 3
-                                            fxSArgs.eAlpha *= 3
-                                            fxSArgs.shader = cgs.media.redSaberGlowShader
-                                            trap_FX_AddSprite(fxSArgs)
-                                        } else if forcePowerDarkLight[i] == FORCE_LIGHTSIDE {
-                                            //light
-                                            fxSArgs.sAlpha = Float(Double(fxSArgs.sAlpha) * 1.5)
-                                            fxSArgs.eAlpha = Float(Double(fxSArgs.eAlpha) * 1.5)
-                                            fxSArgs.shader = cgs.media.redSaberGlowShader
-                                            trap_FX_AddSprite(fxSArgs)
-                                            fxSArgs.shader = cgs.media.greenSaberGlowShader
-                                            trap_FX_AddSprite(fxSArgs)
-                                            fxSArgs.shader = cgs.media.blueSaberGlowShader
-                                            trap_FX_AddSprite(fxSArgs)
-                                        } else {
-                                            //neutral
-                                            if i == FP_SABER_OFFENSE || i == FP_SABER_DEFENSE || i == FP_SABERTHROW {
-                                                //saber power
-                                                fxSArgs.sAlpha = Float(Double(fxSArgs.sAlpha) * 1.5)
-                                                fxSArgs.eAlpha = Float(Double(fxSArgs.eAlpha) * 1.5)
-                                                fxSArgs.shader = cgs.media.greenSaberGlowShader
-                                                trap_FX_AddSprite(fxSArgs)
-                                            } else {
-                                                fxSArgs.sAlpha = Float(Double(fxSArgs.sAlpha) * 0.5)
-                                                fxSArgs.eAlpha = Float(Double(fxSArgs.eAlpha) * 0.5)
-                                                fxSArgs.shader = cgs.media.greenSaberGlowShader
-                                                trap_FX_AddSprite(fxSArgs)
-                                                fxSArgs.shader = cgs.media.blueSaberGlowShader
-                                                trap_FX_AddSprite(fxSArgs)
+                        legs.lightingOrigin = cent.lerpOrigin
+                        legs.shadowPlane = shadowPlane
+                        legs.renderfx = renderfx
+                        if cg_shadows.integer == 2 && (renderfx & RF_THIRD_PERSON) != 0 {
+                            //can see own shadow
+                            legs.renderfx |= RF_SHADOW_ONLY
+                        }
+                        legs.oldorigin = legs.origin // don't positionally lerp at all
+
+                        // Port-note: The draft of this statement did not compile, and the compiler wrote "cannot convert value of type 'Slots<vec3_t>' (aka 'Slots<SIMD3<Float>>') to expected argument type '[vec3_t]' (aka 'Array<SIMD3<Float>>')".
+                        // Raven wrote: CG_G2PlayerAngles( cent, legs.axis, rootAngles )
+                        portMissing("CG_Player", source: "oracle/codemp/cgame/cg_players.c:8423")
+                        CG_G2PlayerHeadAnims(cent)
+
+                        if (cent.currentState.eFlags2 & EF2_HELD_BY_MONSTER) != 0 && cent.currentState.hasLookTarget {
+                            let rancor: Centity? = cg_entities[cent.currentState.lookTarget]
+                            if rancor != nil {
+                                var out_axis: [vec3_t]? = nil
+                                BG_AttachToRancor(rancor!.ghoul2, rancor!.lerpAngles[YAW], &rancor!.lerpOrigin, cg.time, cgs.gameModels, &rancor!.modelScale, (rancor!.currentState.eFlags2 & EF2_GENERIC_NPC_FLAG) != 0, &legs.origin, &legs.angles, &out_axis)
+
+                                if cent.isRagging {
+                                    //hack, ragdoll has you way at bottom of bounding box
+                                    _VectorMA(legs.origin, 32, legs.axis[2], &legs.origin)
+                                }
+                                legs.oldorigin = legs.origin
+                                legs.lightingOrigin = legs.origin
+
+                                cent.lerpAngles = legs.angles
+                                rootAngles = cent.lerpAngles //??? tempAngles );//tempAngles is needed a lot below
+                                cent.turAngles = cent.lerpAngles
+                                cent.lerpOrigin = legs.origin
+                            }
+                        }
+                        //This call is mainly just to reconstruct the skeleton. But we'll get the left hand matrix while we're at it.
+                        //If we don't reconstruct the skeleton after setting the bone angles, we will get bad bolt points on the model
+                        //(e.g. the weapon model bolt will look "lagged") if there's no other GetBoltMatrix call for the rest of the
+                        //frame. Yes, this is stupid and needs to be fixed properly.
+                        //The current solution is to force it not to reconstruct the skeleton for the first GBM call in G2PlayerAngles.
+                        //It works and we end up only reconstructing it once, but it doesn't seem like the best solution.
+                        trap_G2API_GetBoltMatrix(cent.ghoul2, 0, ci!.bolt_lhand, lHandMatrix, cent.turAngles, cent.lerpOrigin, cg.time, cgs.gameModels, &cent.modelScale)
+                        gotLHandMatrix = true
+
+
+
+
+                        /*
+                        mdxaBone_t 		headMatrix;
+                        trap_G2API_GetBoltMatrix(cent->ghoul2, 0, ci->bolt_head, &headMatrix, cent->turAngles, cent->lerpOrigin, cg.time, cgs.gameModels, cent->modelScale);
+                        BG_GiveMeVectorFromMatrix(&headMatrix, ORIGIN, cg.refdef.vieworg);
+                        */
+
+                        if (cent.currentState.eFlags & EF_DEAD) != 0 {
+                            dead = true
+                            //rww - since our angles are fixed when we're dead this shouldn't be an issue anyway
+                            //we need to render the dying/dead player because we are now spawning the body on respawn instead of death
+                            //return;
+                        }
+
+                        ScaleModelAxis(legs)
+
+                        // Raven clears the record with `memset` here. The scratch slot is zero at entry, so the body drops the call.
+
+                        //rww - force speed "trail" effect
+                        if !((cent.currentState.powerups & (1 << PW_SPEED)) != 0) || doAlpha != 0 || cg_speedTrail.integer == 0 {
+                            cent.frame_minus1_refreshed = 0
+                            cent.frame_minus2_refreshed = 0
+                        }
+
+                        if cent.frame_minus1_refreshed != 0 || cent.frame_minus2_refreshed != 0 {
+                            var tDir = vec3_t()
+                            var distVelBase: Int32 = 0
+
+                            tDir = cent.currentState.pos.trDelta
+                            distVelBase = Int32(Double(SPEED_TRAIL_DISTANCE) * (Double(VectorNormalize(&tDir)) * 0.004))
+
+                            if cent.frame_minus1_refreshed != 0 {
+                                // Raven's record lives to the end of his block, so the block is the closure.
+                                RefEntity.scratch(copying: legs) { reframe_minus1 in
+                                    reframe_minus1.renderfx |= RF_FORCE_ENT_ALPHA
+                                    reframe_minus1.shaderRGBA[0] = legs.shaderRGBA[0]
+                                    reframe_minus1.shaderRGBA[1] = legs.shaderRGBA[1]
+                                    reframe_minus1.shaderRGBA[2] = legs.shaderRGBA[2]
+                                    reframe_minus1.shaderRGBA[3] = 100
+
+                                    //rww - if the client gets a bad framerate we will only receive frame positions
+                                    //once per frame anyway, so we might end up with speed trails very spread out.
+                                    //in order to avoid that, we'll get the direction of the last trail from the player
+                                    //and place the trail refent a set distance from the player location this frame
+                                    tDir = cent.frame_minus1 - legs.origin
+                                    VectorNormalize(&tDir)
+
+                                    cent.frame_minus1[0] = legs.origin[0] + tDir[0] * distVelBase
+                                    cent.frame_minus1[1] = legs.origin[1] + tDir[1] * distVelBase
+                                    cent.frame_minus1[2] = legs.origin[2] + tDir[2] * distVelBase
+
+                                    reframe_minus1.origin = cent.frame_minus1
+
+                                    //reframe_minus1.customShader = 2;
+
+                                    trap_R_AddRefEntityToScene(reframe_minus1)
+                                }
+                            }
+
+                            if cent.frame_minus2_refreshed != 0 {
+                                // Raven's record lives to the end of his block, so the block is the closure.
+                                RefEntity.scratch(copying: legs) { reframe_minus2 in
+
+                                    reframe_minus2.renderfx |= RF_FORCE_ENT_ALPHA
+                                    reframe_minus2.shaderRGBA[0] = legs.shaderRGBA[0]
+                                    reframe_minus2.shaderRGBA[1] = legs.shaderRGBA[1]
+                                    reframe_minus2.shaderRGBA[2] = legs.shaderRGBA[2]
+                                    reframe_minus2.shaderRGBA[3] = 50
+
+                                    //Same as above but do it between trail points instead of the player and first trail entry
+                                    tDir = cent.frame_minus2 - cent.frame_minus1
+                                    VectorNormalize(&tDir)
+
+                                    cent.frame_minus2[0] = cent.frame_minus1[0] + tDir[0] * distVelBase
+                                    cent.frame_minus2[1] = cent.frame_minus1[1] + tDir[1] * distVelBase
+                                    cent.frame_minus2[2] = cent.frame_minus1[2] + tDir[2] * distVelBase
+
+                                    reframe_minus2.origin = cent.frame_minus2
+
+                                    //reframe_minus2.customShader = 2;
+
+                                    trap_R_AddRefEntityToScene(reframe_minus2)
+                                }
+                            }
+                        }
+
+                        //trigger animation-based sounds, done before next lerp frame.
+                        CG_TriggerAnimSounds(cent)
+
+                        // get the animation state (after rotation, to allow feet shuffle)
+                        CG_PlayerAnimation(cent, &legs.oldframe, &legs.frame, &legs.backlerp, &torso.oldframe, &torso.frame, &torso.backlerp)
+
+                        // add the talk baloon or disconnect icon
+                        CG_PlayerSprites(cent)
+
+                        if (cent.currentState.eFlags & EF_DEAD) != 0 {
+                            //keep track of death anim frame for when we copy off the bodyqueue
+                            ci!.frame = cent.pe.torso.frame
+                        }
+
+                        if cent.currentState.activeForcePass > FORCE_LEVEL_3 && cent.currentState.NPC_class != CLASS_VEHICLE {
+                            var axis = [vec3_t](repeating: vec3_t(), count: 3)
+                            var tAng = vec3_t()
+                            var fAng = vec3_t()
+                            var fxDir = vec3_t()
+                            var efOrg = vec3_t()
+
+                            let realForceLev: Int32 = (cent.currentState.activeForcePass - FORCE_LEVEL_3)
+
+                            tAng = vec3_t(cent.turAngles[PITCH], cent.turAngles[YAW], cent.turAngles[ROLL])
+
+                            fAng = vec3_t(cent.pe.torso.pitchAngle, cent.pe.torso.yawAngle, 0)
+
+                            // Raven passes NULL for the `right` and `up` outputs.
+                            var scratchRight = vec3_t()
+                            var scratchUp = vec3_t()
+                            AngleVectors(fAng, &fxDir, &scratchRight, &scratchUp)
+
+                            if cent.currentState.torsoAnim == BOTH_FORCE_2HANDEDLIGHTNING_HOLD && Q_irand(0, 1) != 0 {
+                                //alternate back and forth between left and right
+                                // Raven's record lives to the end of his block, so the block is the closure.
+                                MdxaBone.scratch { rHandMatrix in
+                                    trap_G2API_GetBoltMatrix(cent.ghoul2, 0, ci!.bolt_rhand, rHandMatrix, cent.turAngles, cent.lerpOrigin, cg.time, cgs.gameModels, &cent.modelScale)
+                                    efOrg[0] = rHandMatrix.matrix[0][3]
+                                    efOrg[1] = rHandMatrix.matrix[1][3]
+                                    efOrg[2] = rHandMatrix.matrix[2][3]
+                                }
+                            } else {
+                                //trap_G2API_GetBoltMatrix(cent->ghoul2, 0, ci->bolt_lhand, &boltMatrix, tAng, cent->lerpOrigin, cg.time, cgs.gameModels, cent->modelScale);
+                                if !gotLHandMatrix {
+                                    trap_G2API_GetBoltMatrix(cent.ghoul2, 0, ci!.bolt_lhand, lHandMatrix, cent.turAngles, cent.lerpOrigin, cg.time, cgs.gameModels, &cent.modelScale)
+                                    gotLHandMatrix = true
+                                }
+                                efOrg[0] = lHandMatrix.matrix[0][3]
+                                efOrg[1] = lHandMatrix.matrix[1][3]
+                                efOrg[2] = lHandMatrix.matrix[2][3]
+                            }
+
+                            AnglesToAxis(fAng, &axis)
+
+                            if realForceLev > FORCE_LEVEL_2 {
+                                //arc
+                                //trap_FX_PlayEffectID( cgs.effects.forceLightningWide, efOrg, fxDir );
+                                //trap_FX_PlayEntityEffectID(cgs.effects.forceDrainWide, efOrg, axis, cent->boltInfo, cent->currentState.number, -1, -1);
+                                trap_FX_PlayEntityEffectID(cgs.effects.forceDrainWide, &efOrg, &axis, -1, -1, -1, -1)
+                            } else {
+                                //line
+                                //trap_FX_PlayEffectID( cgs.effects.forceLightning, efOrg, fxDir );
+                                //trap_FX_PlayEntityEffectID(cgs.effects.forceDrain, efOrg, axis, cent->boltInfo, cent->currentState.number, -1, -1);
+                                trap_FX_PlayEntityEffectID(cgs.effects.forceDrain, &efOrg, &axis, -1, -1, -1, -1)
+                            }
+
+                            /*
+                            if (cent->bolt4 < cg.time)
+                            {
+                            cent->bolt4 = cg.time + 100;
+                            trap_S_StartSound(NULL, cent->currentState.number, CHAN_AUTO, trap_S_RegisterSound("sound/weapons/force/drain.wav") );
+                            }
+                            */
+                        } else if cent.currentState.activeForcePass != 0 && cent.currentState.NPC_class != CLASS_VEHICLE {
+                            //doing the electrocuting
+                            var axis = [vec3_t](repeating: vec3_t(), count: 3)
+                            var tAng = vec3_t()
+                            var fAng = vec3_t()
+                            var fxDir = vec3_t()
+                            var efOrg = vec3_t()
+
+                            tAng = vec3_t(cent.turAngles[PITCH], cent.turAngles[YAW], cent.turAngles[ROLL])
+
+                            fAng = vec3_t(cent.pe.torso.pitchAngle, cent.pe.torso.yawAngle, 0)
+
+                            // Raven passes NULL for the `right` and `up` outputs.
+                            var scratchRight2 = vec3_t()
+                            var scratchUp2 = vec3_t()
+                            AngleVectors(fAng, &fxDir, &scratchRight2, &scratchUp2)
+
+                            //trap_G2API_GetBoltMatrix(cent->ghoul2, 0, ci->bolt_lhand, &boltMatrix, tAng, cent->lerpOrigin, cg.time, cgs.gameModels, cent->modelScale);
+                            if !gotLHandMatrix {
+                                trap_G2API_GetBoltMatrix(cent.ghoul2, 0, ci!.bolt_lhand, lHandMatrix, cent.turAngles, cent.lerpOrigin, cg.time, cgs.gameModels, &cent.modelScale)
+                                gotLHandMatrix = true
+                            }
+
+                            efOrg[0] = lHandMatrix.matrix[0][3]
+                            efOrg[1] = lHandMatrix.matrix[1][3]
+                            efOrg[2] = lHandMatrix.matrix[2][3]
+
+                            AnglesToAxis(fAng, &axis)
+
+                            if cent.currentState.activeForcePass > FORCE_LEVEL_2 {
+                                //arc
+                                //trap_FX_PlayEffectID( cgs.effects.forceLightningWide, efOrg, fxDir );
+                                //trap_FX_PlayEntityEffectID(cgs.effects.forceLightningWide, efOrg, axis, cent->boltInfo, cent->currentState.number, -1, -1);
+                                trap_FX_PlayEntityEffectID(cgs.effects.forceLightningWide, &efOrg, &axis, -1, -1, -1, -1)
+                            } else {
+                                //line
+                                //trap_FX_PlayEffectID( cgs.effects.forceLightning, efOrg, fxDir );
+                                //trap_FX_PlayEntityEffectID(cgs.effects.forceLightning, efOrg, axis, cent->boltInfo, cent->currentState.number, -1, -1);
+                                trap_FX_PlayEntityEffectID(cgs.effects.forceLightning, &efOrg, &axis, -1, -1, -1, -1)
+                            }
+
+                            /*
+                            if (cent->bolt4 < cg.time)
+                            {
+                            cent->bolt4 = cg.time + 100;
+                            trap_S_StartSound(NULL, cent->currentState.number, CHAN_AUTO, trap_S_RegisterSound("sound/weapons/force/lightning.wav") );
+                            }
+                            */
+                        }
+
+                        //fullbody push effect
+                        if (cent.currentState.eFlags & EF_BODYPUSH) != 0 {
+                            CG_ForcePushBodyBlur(cent)
+                        }
+
+                        if (cent.currentState.powerups & (1 << PW_DISINT_4)) != 0 {
+                            var tAng = vec3_t()
+                            var efOrg = vec3_t()
+
+                            //VectorSet( tAng, 0, cent->pe.torso.yawAngle, 0 );
+                            tAng = vec3_t(cent.turAngles[PITCH], cent.turAngles[YAW], cent.turAngles[ROLL])
+
+                            //trap_G2API_GetBoltMatrix(cent->ghoul2, 0, ci->bolt_lhand, &boltMatrix, tAng, cent->lerpOrigin, cg.time, cgs.gameModels, cent->modelScale);
+                            if !gotLHandMatrix {
+                                trap_G2API_GetBoltMatrix(cent.ghoul2, 0, ci!.bolt_lhand, lHandMatrix, cent.turAngles, cent.lerpOrigin, cg.time, cgs.gameModels, &cent.modelScale)
+                                gotLHandMatrix = true
+                            }
+
+                            efOrg[0] = lHandMatrix.matrix[0][3]
+                            efOrg[1] = lHandMatrix.matrix[1][3]
+                            efOrg[2] = lHandMatrix.matrix[2][3]
+
+                            if (cent.currentState.forcePowersActive & (1 << FP_GRIP)) != 0 && (cg.renderingThirdPerson || cent.currentState.number != cg.snap!.ps.clientNum) {
+                                var boltDir = vec3_t()
+                                var origBolt = vec3_t()
+                                origBolt = efOrg
+                                BG_GiveMeVectorFromMatrix(lHandMatrix, NEGATIVE_Y, &boltDir)
+
+                                CG_ForceGripEffect(efOrg)
+                                CG_ForceGripEffect(efOrg)
+
+                                /*
+                                //Render a scaled version of the model's hand with a n337 looking shader
+                                {
+                                const char *rotateBone;
+                                char *limbName;
+                                char *limbCapName;
+                                vec3_t armAng;
+                                refEntity_t regrip_arm;
+                                float wv = sin( cg.time * 0.003f ) * 0.08f + 0.1f;
+
+                                //rotateBone = "lradius";
+                                rotateBone = "lradiusX";
+                                limbName = "l_arm";
+                                limbCapName = "l_arm_cap_torso";
+
+                                if (cent->grip_arm && trap_G2_HaveWeGhoul2Models(cent->grip_arm))
+                                {
+                                trap_G2API_CleanGhoul2Models(&(cent->grip_arm));
+                                }
+
+                                memset( &regrip_arm, 0, sizeof(regrip_arm) );
+
+                                VectorCopy(origBolt, efOrg);
+
+
+                                //efOrg[2] += 8;
+                                efOrg[2] -= 4;
+
+                                VectorCopy(efOrg, regrip_arm.origin);
+                                VectorCopy(regrip_arm.origin, regrip_arm.lightingOrigin);
+
+                                //VectorCopy(cent->lerpAngles, armAng);
+                                VectorAdd(vec3_origin, rootAngles, armAng);
+                                //armAng[ROLL] = -90;
+                                armAng[ROLL] = 0;
+                                armAng[PITCH] = 0;
+                                AnglesToAxis(armAng, regrip_arm.axis);
+
+                                trap_G2API_DuplicateGhoul2Instance(cent->ghoul2, &cent->grip_arm);
+
+                                //remove all other models
+                                if (trap_G2API_HasGhoul2ModelOnIndex(&(cent->grip_arm), 1))
+                                { //weapon right
+                                trap_G2API_RemoveGhoul2Model(&(cent->grip_arm), 1);
+                                }
+                                if (trap_G2API_HasGhoul2ModelOnIndex(&(cent->grip_arm), 2))
+                                { //weapon left
+                                trap_G2API_RemoveGhoul2Model(&(cent->grip_arm), 2);
+                                }
+                                if (trap_G2API_HasGhoul2ModelOnIndex(&(cent->grip_arm), 3))
+                                { //jetpack
+                                trap_G2API_RemoveGhoul2Model(&(cent->grip_arm), 3);
+                                }
+
+                                trap_G2API_SetRootSurface(cent->grip_arm, 0, limbName);
+                                trap_G2API_SetNewOrigin(cent->grip_arm, trap_G2API_AddBolt(cent->grip_arm, 0, rotateBone));
+                                trap_G2API_SetSurfaceOnOff(cent->grip_arm, limbCapName, 0);
+
+                                regrip_arm.modelScale[0] = 1;//+(wv*6);
+                                regrip_arm.modelScale[1] = 1;//+(wv*6);
+                                regrip_arm.modelScale[2] = 1;//+(wv*6);
+                                ScaleModelAxis(&regrip_arm);
+
+                                regrip_arm.radius = 64;
+
+                                regrip_arm.customShader = trap_R_RegisterShader( "gfx/misc/red_portashield" );
+
+                                regrip_arm.renderfx |= RF_RGB_TINT;
+                                regrip_arm.shaderRGBA[0] = 255 - (wv*900);
+                                if (regrip_arm.shaderRGBA[0] < 30)
+                                {
+                                regrip_arm.shaderRGBA[0] = 30;
+                                }
+                                if (regrip_arm.shaderRGBA[0] > 255)
+                                {
+                                regrip_arm.shaderRGBA[0] = 255;
+                                }
+                                regrip_arm.shaderRGBA[1] = regrip_arm.shaderRGBA[2] = regrip_arm.shaderRGBA[0];
+
+                                regrip_arm.ghoul2 = cent->grip_arm;
+                                trap_R_AddRefEntityToScene( &regrip_arm );
+                                }
+                                */
+                            } else if !((cent.currentState.forcePowersActive & (1 << FP_GRIP)) != 0) {
+                                //use refractive effect
+                                CG_ForcePushBlur(efOrg, cent)
+                            }
+                        } else if cent.bodyFadeTime != 0 {
+                            //reset the counter for keeping track of push refraction effect state
+                            cent.bodyFadeTime = 0
+                        }
+
+                        if cent.currentState.weapon == WP_STUN_BATON && cent.currentState.number == cg.snap!.ps.clientNum {
+                            trap_S_AddLoopingSound(cent.currentState.number, cg.refdef.vieworg, vec3_origin, trap_S_RegisterSound("sound/weapons/baton/idle.wav"))
+                        }
+
+                        //NOTE: All effects that should be visible during mindtrick should go above here
+
+                        if iwantout != 0 {
+                            break stillDoSaber
+                            //return;
+                        } else if doAlpha != 0 {
+                            legs.renderfx |= RF_FORCE_ENT_ALPHA
+                            legs.shaderRGBA[3] = UInt8(truncatingIfNeeded: cent.trickAlpha)
+
+                            if legs.shaderRGBA[3] < 1 {
+                                //don't cancel it out even if it's < 1
+                                legs.shaderRGBA[3] = 1
+                            }
+                        }
+
+                        if cent.teamPowerEffectTime > cg.time {
+                            if cent.teamPowerType {
+                                //absorb is a somewhat different effect entirely
+                                //Guess I'll take care of it where it's always been, just checking these values instead.
+                            } else {
+                                var preCol = vec4_t()
+                                var preRFX: Int32 = 0
+
+                                preRFX = legs.renderfx
+
+                                legs.renderfx |= RF_RGB_TINT
+                                legs.renderfx |= RF_FORCE_ENT_ALPHA
+
+                                preCol[0] = Float(legs.shaderRGBA[0])
+                                preCol[1] = Float(legs.shaderRGBA[1])
+                                preCol[2] = Float(legs.shaderRGBA[2])
+                                preCol[3] = Float(legs.shaderRGBA[3])
+
+                                if cent.teamPowerType {
+                                    //heal
+                                    legs.shaderRGBA[0] = 0
+                                    legs.shaderRGBA[1] = 255
+                                    legs.shaderRGBA[2] = 0
+                                } else if !cent.teamPowerType {
+                                    //regen
+                                    legs.shaderRGBA[0] = 0
+                                    legs.shaderRGBA[1] = 0
+                                    legs.shaderRGBA[2] = 255
+                                } else {
+                                    //drain
+                                    legs.shaderRGBA[0] = 255
+                                    legs.shaderRGBA[1] = 0
+                                    legs.shaderRGBA[2] = 0
+                                }
+
+                                legs.shaderRGBA[3] = UInt8(truncatingIfNeeded: ((cent.teamPowerEffectTime - cg.time) / 8))
+
+                                legs.customShader = trap_R_RegisterShader("powerups/ysalimarishell")
+                                trap_R_AddRefEntityToScene(legs)
+
+                                legs.customShader = 0
+                                legs.renderfx = preRFX
+                                legs.shaderRGBA[0] = UInt8(truncatingIfNeeded: Int32(preCol[0]))
+                                legs.shaderRGBA[1] = UInt8(truncatingIfNeeded: Int32(preCol[1]))
+                                legs.shaderRGBA[2] = UInt8(truncatingIfNeeded: Int32(preCol[2]))
+                                legs.shaderRGBA[3] = UInt8(truncatingIfNeeded: Int32(preCol[3]))
+                            }
+                        }
+
+                        //If you've tricked this client.
+                        if CG_IsMindTricked(cg.snap!.ps.fd.forceMindtrickTargetIndex, cg.snap!.ps.fd.forceMindtrickTargetIndex2, cg.snap!.ps.fd.forceMindtrickTargetIndex3, cg.snap!.ps.fd.forceMindtrickTargetIndex4, cent.currentState.number) != 0 {
+                            if cent.ghoul2 != nil {
+                                var efOrg = vec3_t()
+                                var tAng = vec3_t()
+                                var fxAng = vec3_t()
+                                var axis = [vec3_t](repeating: vec3_t(), count: 3)
+
+                                //VectorSet( tAng, 0, cent->pe.torso.yawAngle, 0 );
+                                tAng = vec3_t(cent.turAngles[PITCH], cent.turAngles[YAW], cent.turAngles[ROLL])
+
+                                trap_G2API_GetBoltMatrix(cent.ghoul2, 0, ci!.bolt_head, boltMatrix, tAng, cent.lerpOrigin, cg.time, cgs.gameModels, &cent.modelScale)
+
+                                BG_GiveMeVectorFromMatrix(boltMatrix, ORIGIN, &efOrg)
+                                BG_GiveMeVectorFromMatrix(boltMatrix, NEGATIVE_Y, &fxAng)
+
+                                axis[0][0] = boltMatrix.matrix[0][0]
+                                axis[0][1] = boltMatrix.matrix[1][0]
+                                axis[0][2] = boltMatrix.matrix[2][0]
+
+                                axis[1][0] = boltMatrix.matrix[0][1]
+                                axis[1][1] = boltMatrix.matrix[1][1]
+                                axis[1][2] = boltMatrix.matrix[2][1]
+
+                                axis[2][0] = boltMatrix.matrix[0][2]
+                                axis[2][1] = boltMatrix.matrix[1][2]
+                                axis[2][2] = boltMatrix.matrix[2][2]
+
+                                //trap_FX_PlayEntityEffectID(trap_FX_RegisterEffect("force/confusion.efx"), efOrg, axis, cent->boltInfo, cent->currentState.number);
+                                trap_FX_PlayEntityEffectID(cgs.effects.mForceConfustionOld, &efOrg, &axis, -1, -1, -1, -1)
+                            }
+                        }
+
+                        if cgs.gametype == GT_HOLOCRON && cent.currentState.time2 != 0 && (cg.renderingThirdPerson || cg.snap!.ps.clientNum != cent.currentState.number) {
+                            var i: Int32 = 0
+                            var renderedHolos: Int32 = 0
+                            // Raven's record lives to the end of his block, so the block is the closure.
+                            RefEntity.scratch { holoRef in
+
+                                while i < NUM_FORCE_POWERS && renderedHolos < 3 {
+                                    if (cent.currentState.time2 & (1 << i)) != 0 {
+                                        holoRef.clear()
+
+                                        elevated = cent.lerpOrigin
+                                        elevated[2] += 8
+
+                                        holoRef.lightingOrigin = elevated
+                                        holoRef.shadowPlane = shadowPlane
+                                        holoRef.renderfx = 0 //RF_THIRD_PERSON;
+
+                                        if renderedHolos == 0 {
+                                            // Port-note: The draft of this statement did not compile, and the compiler wrote "the compiler is unable to type-check this expression in reasonable time; try breaking up the expression into distinct sub-expressions".
+                                            // Raven wrote: angle = ((cg.time / 8) & 255) * (M_PI * 2) / 255
+                                            portMissing("CG_Player", source: "oracle/codemp/cgame/cg_players.c:8423")
+                                            dir[0] = cos(angle) * 20
+                                            dir[1] = sin(angle) * 20
+                                            dir[2] = cos(angle) * 20
+                                            holoRef.origin = elevated + dir
+
+                                            angles[0] = sin(angle) * 30
+                                            // Port-note: The draft of this statement did not compile, and the compiler wrote "the compiler is unable to type-check this expression in reasonable time; try breaking up the expression into distinct sub-expressions".
+                                            // Raven wrote: angles[1] = (angle * 180 / M_PI) + 90
+                                            portMissing("CG_Player", source: "oracle/codemp/cgame/cg_players.c:8423")
+                                            if angles[1] > 360 {
+                                                angles[1] -= 360
                                             }
+                                            angles[2] = 0
+                                            // Port-note: The draft of this statement did not compile, and the compiler wrote "cannot convert value of type 'Slots<vec3_t>' (aka 'Slots<SIMD3<Float>>') to expected argument type '[vec3_t]' (aka 'Array<SIMD3<Float>>')".
+                                            // Raven wrote: AnglesToAxis( angles, holoRef.axis )
+                                            portMissing("CG_Player", source: "oracle/codemp/cgame/cg_players.c:8423")
+                                        } else if renderedHolos == 1 {
+                                            // Port-note: The draft of this statement did not compile, and the compiler wrote "the compiler is unable to type-check this expression in reasonable time; try breaking up the expression into distinct sub-expressions".
+                                            // Raven wrote: angle = ((cg.time / 8) & 255) * (M_PI * 2) / 255 + M_PI
+                                            portMissing("CG_Player", source: "oracle/codemp/cgame/cg_players.c:8423")
+                                            if Double(angle) > M_PI * 2 {
+                                                // Port-note: The draft of this statement did not compile, and the compiler wrote "ambiguous use of 'M_PI'".
+                                                // Raven wrote: angle -= (float)M_PI * 2
+                                                portMissing("CG_Player", source: "oracle/codemp/cgame/cg_players.c:8423")
+                                            }
+                                            dir[0] = sin(angle) * 20
+                                            dir[1] = cos(angle) * 20
+                                            dir[2] = cos(angle) * 20
+                                            holoRef.origin = elevated + dir
+
+                                            angles[0] = Float(cos(Double(angle) - 0.5 * M_PI) * 30)
+                                            // Port-note: The draft of this statement did not compile, and the compiler wrote "the compiler is unable to type-check this expression in reasonable time; try breaking up the expression into distinct sub-expressions".
+                                            // Raven wrote: angles[1] = 360 - (angle * 180 / M_PI)
+                                            portMissing("CG_Player", source: "oracle/codemp/cgame/cg_players.c:8423")
+                                            if angles[1] > 360 {
+                                                angles[1] -= 360
+                                            }
+                                            angles[2] = 0
+                                            // Port-note: The draft of this statement did not compile, and the compiler wrote "cannot convert value of type 'Slots<vec3_t>' (aka 'Slots<SIMD3<Float>>') to expected argument type '[vec3_t]' (aka 'Array<SIMD3<Float>>')".
+                                            // Raven wrote: AnglesToAxis( angles, holoRef.axis )
+                                            portMissing("CG_Player", source: "oracle/codemp/cgame/cg_players.c:8423")
+                                        } else {
+                                            // Port-note: The draft of this statement did not compile, and the compiler wrote "the compiler is unable to type-check this expression in reasonable time; try breaking up the expression into distinct sub-expressions".
+                                            // Raven wrote: angle = ((cg.time / 6) & 255) * (M_PI * 2) / 255 + 0.5 * M_PI
+                                            portMissing("CG_Player", source: "oracle/codemp/cgame/cg_players.c:8423")
+                                            if Double(angle) > M_PI * 2 {
+                                                // Port-note: The draft of this statement did not compile, and the compiler wrote "ambiguous use of 'M_PI'".
+                                                // Raven wrote: angle -= (float)M_PI * 2
+                                                portMissing("CG_Player", source: "oracle/codemp/cgame/cg_players.c:8423")
+                                            }
+                                            dir[0] = sin(angle) * 20
+                                            dir[1] = cos(angle) * 20
+                                            dir[2] = 0
+                                            holoRef.origin = elevated + dir
+
+                                            holoRef.axis[1] = dir
+                                            VectorNormalize(&holoRef.axis[1])
+                                            holoRef.axis[2] = vec3_t(0, 0, 1)
+                                            CrossProduct(holoRef.axis[1], holoRef.axis[2], &holoRef.axis[0])
+                                        }
+
+                                        holoRef.modelScale[0] = 0.5
+                                        holoRef.modelScale[1] = 0.5
+                                        holoRef.modelScale[2] = 0.5
+                                        ScaleModelAxis(holoRef)
+
+                                        do {
+                                            var wv: Float = 0
+                                            // Raven's record lives to the end of his block, so the block is the closure.
+                                            AddspriteArgStruct.scratch { fxSArgs in
+                                                var holoCenter = vec3_t()
+
+                                                holoCenter[0] = holoRef.origin[0] + holoRef.axis[2][0] * 18
+                                                holoCenter[1] = holoRef.origin[1] + holoRef.axis[2][1] * 18
+                                                holoCenter[2] = holoRef.origin[2] + holoRef.axis[2][2] * 18
+
+                                                wv = sin(cg.time * 0.004) * 0.08 + 0.1
+
+                                                fxSArgs.origin = holoCenter
+                                                fxSArgs.vel = vec3_t()
+                                                fxSArgs.accel = vec3_t()
+                                                fxSArgs.scale = wv * 60
+                                                fxSArgs.dscale = wv * 60
+                                                fxSArgs.sAlpha = wv * 12
+                                                fxSArgs.eAlpha = wv * 12
+                                                fxSArgs.rotation = 0.0
+                                                fxSArgs.bounce = 0.0
+                                                fxSArgs.life = 1
+
+                                                fxSArgs.flags = 0x08000000 | 0x00000001
+
+                                                if forcePowerDarkLight[i] == FORCE_DARKSIDE {
+                                                    //dark
+                                                    fxSArgs.sAlpha *= 3
+                                                    fxSArgs.eAlpha *= 3
+                                                    fxSArgs.shader = cgs.media.redSaberGlowShader
+                                                    trap_FX_AddSprite(fxSArgs)
+                                                } else if forcePowerDarkLight[i] == FORCE_LIGHTSIDE {
+                                                    //light
+                                                    fxSArgs.sAlpha = Float(Double(fxSArgs.sAlpha) * 1.5)
+                                                    fxSArgs.eAlpha = Float(Double(fxSArgs.eAlpha) * 1.5)
+                                                    fxSArgs.shader = cgs.media.redSaberGlowShader
+                                                    trap_FX_AddSprite(fxSArgs)
+                                                    fxSArgs.shader = cgs.media.greenSaberGlowShader
+                                                    trap_FX_AddSprite(fxSArgs)
+                                                    fxSArgs.shader = cgs.media.blueSaberGlowShader
+                                                    trap_FX_AddSprite(fxSArgs)
+                                                } else {
+                                                    //neutral
+                                                    if i == FP_SABER_OFFENSE || i == FP_SABER_DEFENSE || i == FP_SABERTHROW {
+                                                        //saber power
+                                                        fxSArgs.sAlpha = Float(Double(fxSArgs.sAlpha) * 1.5)
+                                                        fxSArgs.eAlpha = Float(Double(fxSArgs.eAlpha) * 1.5)
+                                                        fxSArgs.shader = cgs.media.greenSaberGlowShader
+                                                        trap_FX_AddSprite(fxSArgs)
+                                                    } else {
+                                                        fxSArgs.sAlpha = Float(Double(fxSArgs.sAlpha) * 0.5)
+                                                        fxSArgs.eAlpha = Float(Double(fxSArgs.eAlpha) * 0.5)
+                                                        fxSArgs.shader = cgs.media.greenSaberGlowShader
+                                                        trap_FX_AddSprite(fxSArgs)
+                                                        fxSArgs.shader = cgs.media.blueSaberGlowShader
+                                                        trap_FX_AddSprite(fxSArgs)
+                                                    }
+                                                }
+                                            }
+                                        }
+
+                                        holoRef.hModel = trap_R_RegisterModel(forceHolocronModels[i])
+                                        trap_R_AddRefEntityToScene(holoRef)
+
+                                        renderedHolos += 1
+                                    }
+                                    i += 1
+                                }
+                            }
+                        }
+
+                        if (cent.currentState.powerups & (1 << PW_YSALAMIRI)) != 0 || (cgs.gametype == GT_CTY && ((cent.currentState.powerups & (1 << PW_REDFLAG)) != 0 || (cent.currentState.powerups & (1 << PW_BLUEFLAG)) != 0)) {
+                            if cgs.gametype == GT_CTY && (cent.currentState.powerups & (1 << PW_REDFLAG)) != 0 {
+                                CG_DrawPlayerSphere(cent, cent.lerpOrigin, 1.4, cgs.media.ysaliredShader)
+                            } else if cgs.gametype == GT_CTY && (cent.currentState.powerups & (1 << PW_BLUEFLAG)) != 0 {
+                                CG_DrawPlayerSphere(cent, cent.lerpOrigin, 1.4, cgs.media.ysaliblueShader)
+                            } else {
+                                CG_DrawPlayerSphere(cent, cent.lerpOrigin, 1.4, cgs.media.ysalimariShader)
+                            }
+                        }
+
+                        if (cent.currentState.powerups & (1 << PW_FORCE_BOON)) != 0 {
+                            CG_DrawPlayerSphere(cent, cent.lerpOrigin, 2.0, cgs.media.boonShader)
+                        }
+
+                        if (cent.currentState.powerups & (1 << PW_FORCE_ENLIGHTENED_DARK)) != 0 {
+                            CG_DrawPlayerSphere(cent, cent.lerpOrigin, 2.0, cgs.media.endarkenmentShader)
+                        } else if (cent.currentState.powerups & (1 << PW_FORCE_ENLIGHTENED_LIGHT)) != 0 {
+                            CG_DrawPlayerSphere(cent, cent.lerpOrigin, 2.0, cgs.media.enlightenmentShader)
+                        }
+
+                        if (cent.currentState.eFlags & EF_INVULNERABLE) != 0 {
+                            CG_DrawPlayerSphere(cent, cent.lerpOrigin, 1.0, cgs.media.invulnerabilityShader)
+                        }
+                    }
+                    if (cent.currentState.eFlags & EF_DEAD) != 0 && cent.currentState.weapon == WP_SABER {
+                        //cent->saberLength = 0;
+                        BG_SI_SetDesiredLength(ci!.saber[0], 0, -1)
+                        BG_SI_SetDesiredLength(ci!.saber[1], 0, -1)
+
+                        drawPlayerSaber = true
+                    } else if cent.currentState.weapon == WP_SABER && cent.currentState.saberHolstered < 2 {
+                        if (!cent.currentState.saberInFlight || ci!.saber[1].soundLoop != 0) && !((cent.currentState.eFlags & EF_DEAD) != 0) {
+                            var soundSpot = vec3_t()
+                            var didFirstSound: Bool = false
+
+                            if cg.snap!.ps.clientNum == cent.currentState.number {
+                                //trap_S_AddLoopingSound( cent->currentState.number, cg.refdef.vieworg, vec3_origin,
+                                //	trap_S_RegisterSound( "sound/weapons/saber/saberhum1.wav" ) );
+                                soundSpot = cg.refdef.vieworg
+                            } else {
+                                //trap_S_AddLoopingSound( cent->currentState.number, cent->lerpOrigin, vec3_origin,
+                                //	trap_S_RegisterSound( "sound/weapons/saber/saberhum1.wav" ) );
+                                soundSpot = cent.lerpOrigin
+                            }
+
+                            if !ci!.saber[0].model.isEmpty && ci!.saber[0].soundLoop != 0 && !cent.currentState.saberInFlight {
+                                var i: Int32 = 0
+                                var hasLen: Bool = false
+
+                                while i < ci!.saber[0].numBlades {
+                                    if ci!.saber[0].blade[i].length != 0 {
+                                        hasLen = true
+                                        break
+                                    }
+                                    i += 1
+                                }
+
+                                if hasLen {
+                                    trap_S_AddLoopingSound(cent.currentState.number, soundSpot, vec3_origin, ci!.saber[0].soundLoop)
+                                    didFirstSound = true
+                                }
+                            }
+                            if !ci!.saber[1].model.isEmpty && ci!.saber[1].soundLoop != 0 && (!didFirstSound || ci!.saber[0].soundLoop != ci!.saber[1].soundLoop) {
+                                var i: Int32 = 0
+                                var hasLen: Bool = false
+
+                                while i < ci!.saber[1].numBlades {
+                                    if ci!.saber[1].blade[i].length != 0 {
+                                        hasLen = true
+                                        break
+                                    }
+                                    i += 1
+                                }
+
+                                if hasLen {
+                                    trap_S_AddLoopingSound(cent.currentState.number, soundSpot, vec3_origin, ci!.saber[1].soundLoop)
+                                }
+                            }
+                        }
+
+                        if iwantout != 0 && !cent.currentState.saberInFlight {
+                            if (cent.currentState.eFlags & EF_DEAD) != 0 {
+                                if cent.ghoul2 != nil && cent.currentState.saberInFlight && g2HasWeapon {
+                                    //special case, kill the saber on a freshly dead player if another source says to.
+                                    trap_G2API_RemoveGhoul2Model(&(cent.ghoul2), 1)
+                                    g2HasWeapon = false
+                                }
+                            }
+                            return true
+                            //goto endOfCall;
+                        }
+
+                        if g2HasWeapon && cent.currentState.saberInFlight {
+                            //keep this set, so we don't re-unholster the thing when we get it back, even if it's knocked away.
+                            cent.saberWasInFlight = true
+                        }
+
+                        if cent.currentState.saberInFlight && cent.currentState.saberEntityNum != 0 {
+                            var saberEnt: Centity?
+
+                            saberEnt = cg_entities[cent.currentState.saberEntityNum]
+
+                            if g2HasWeapon || cent.bolt3 == 0 || saberEnt!.serverSaberHitIndex != saberEnt!.currentState.modelindex {
+                                //saber is in flight, do not have it as a standard weapon model
+                                var addBolts: Bool = false
+                                // Raven's record lives to the end of his block, so the block is the closure.
+                                MdxaBone.scratch { boltMat in
+
+                                    if g2HasWeapon {
+                                        //ah well, just stick it over the right hand right now.
+                                        trap_G2API_GetBoltMatrix(cent.ghoul2, 0, ci!.bolt_rhand, boltMat, cent.turAngles, cent.lerpOrigin, cg.time, cgs.gameModels, &cent.modelScale)
+                                        BG_GiveMeVectorFromMatrix(boltMat, ORIGIN, &saberEnt!.currentState.pos.trBase)
+
+                                        trap_G2API_RemoveGhoul2Model(&(cent.ghoul2), 1)
+                                        g2HasWeapon = false
+                                    }
+
+                                    //cent->bolt4 = 1;
+
+                                    saberEnt!.currentState.pos.trTime = cg.time
+                                    saberEnt!.currentState.apos.trTime = cg.time
+
+                                    saberEnt!.lerpOrigin = saberEnt!.currentState.pos.trBase
+                                    saberEnt!.lerpAngles = saberEnt!.currentState.apos.trBase
+
+                                    cent.bolt3 = Int32(saberEnt!.currentState.apos.trBase[0])
+                                    if cent.bolt3 == 0 {
+                                        cent.bolt3 = 1
+                                    }
+                                    cent.bolt2 = 0
+
+                                    saberEnt!.currentState.bolt2 = 123
+
+                                    if saberEnt!.ghoul2 != nil && saberEnt!.serverSaberHitIndex == saberEnt!.currentState.modelindex {
+                                        // now set up the gun bolt on it
+                                        addBolts = true
+                                    } else {
+                                        let saberModel: String = CG_ConfigString(CS_MODELS + saberEnt!.currentState.modelindex)
+
+                                        saberEnt!.serverSaberHitIndex = saberEnt!.currentState.modelindex
+
+                                        if saberEnt!.ghoul2 != nil {
+                                            //clean if we already have one (because server changed model string index)
+                                            trap_G2API_CleanGhoul2Models(&(saberEnt!.ghoul2))
+                                            // Port-note: The draft of this statement did not compile, and the compiler wrote "cannot assign value of type 'Int' to type 'OpaquePointer'".
+                                            // Raven wrote: saberEnt->ghoul2 = 0
+                                            portMissing("CG_Player", source: "oracle/codemp/cgame/cg_players.c:8423")
+                                        }
+
+                                        if !saberModel.isEmpty {
+                                            trap_G2API_InitGhoul2Model(&saberEnt!.ghoul2, saberModel, 0, 0, 0, 0, 0)
+                                        } else if !ci!.saber[0].model.isEmpty {
+                                            trap_G2API_InitGhoul2Model(&saberEnt!.ghoul2, ci!.saber[0].model, 0, 0, 0, 0, 0)
+                                        } else {
+                                            trap_G2API_InitGhoul2Model(&saberEnt!.ghoul2, "models/weapons2/saber/saber_w.glm", 0, 0, 0, 0, 0)
+                                        }
+                                        //trap_G2API_DuplicateGhoul2Instance(cent->ghoul2, &saberEnt->ghoul2);
+
+                                        if saberEnt!.ghoul2 != nil {
+                                            addBolts = true
+                                            //cent->bolt4 = 2;
+
+                                            saberEnt!.lerpOrigin = saberEnt!.currentState.pos.trBase
+                                            saberEnt!.lerpAngles = saberEnt!.currentState.apos.trBase
+                                            saberEnt!.currentState.pos.trTime = cg.time
+                                            saberEnt!.currentState.apos.trTime = cg.time
+                                        }
+                                    }
+
+                                    if addBolts {
+                                        var m: Int32 = 0
+                                        var tagBolt: Int32 = 0
+                                        var tagName: String
+
+                                        while m < ci!.saber[0].numBlades {
+                                            tagName = va("*blade%i", m + 1)
+                                            tagBolt = trap_G2API_AddBolt(saberEnt!.ghoul2, 0, tagName)
+
+                                            if tagBolt == -1 {
+                                                if m == 0 {
+                                                    //guess this is an 0ldsk3wl saber
+                                                    tagBolt = trap_G2API_AddBolt(saberEnt!.ghoul2, 0, "*flash")
+
+                                                    if tagBolt == -1 {
+                                                    }
+                                                    break
+                                                }
+
+                                                if tagBolt == -1 {
+                                                    break
+                                                }
+                                            }
+
+                                            m += 1
                                         }
                                     }
                                 }
-
-                                holoRef.hModel = trap_R_RegisterModel(forceHolocronModels[i])
-                                trap_R_AddRefEntityToScene(holoRef)
-
-                                renderedHolos += 1
                             }
-                            i += 1
+                            /*else if (cent->bolt4 != 2)
+                            {
+                            if (saberEnt->ghoul2)
+                            {
+                            trap_G2API_AddBolt(saberEnt->ghoul2, 0, "*flash");
+                            cent->bolt4 = 2;
+                            }
+                            }*/
+
+                            if saberEnt != nil && saberEnt!.ghoul2 != nil {
+                                var bladeAngles = vec3_t()
+                                var tAng = vec3_t()
+                                var efOrg = vec3_t()
+                                var wv: Float = 0
+                                var k: Int32 = 0
+                                var l: Int32 = 0
+                                // Raven's record lives to the end of his block, so the block is the closure.
+                                AddspriteArgStruct.scratch { fxSArgs in
+
+                                    if cent.bolt2 == 0 {
+                                        cent.bolt2 = cg.time
+                                    }
+
+                                    if cent.bolt3 != 90 {
+                                        if cent.bolt3 < 90 {
+                                            cent.bolt3 = Int32(Double(cent.bolt3) + (Double(cg.time - cent.bolt2) * 0.5))
+
+                                            if cent.bolt3 > 90 {
+                                                cent.bolt3 = 90
+                                            }
+                                        } else if cent.bolt3 > 90 {
+                                            cent.bolt3 = Int32(Double(cent.bolt3) - (Double(cg.time - cent.bolt2) * 0.5))
+
+                                            if cent.bolt3 < 90 {
+                                                cent.bolt3 = 90
+                                            }
+                                        }
+                                    }
+
+                                    cent.bolt2 = cg.time
+
+                                    saberEnt!.currentState.apos.trBase[0] = Float(cent.bolt3)
+                                    saberEnt!.lerpAngles[0] = Float(cent.bolt3)
+
+                                    if !saberEnt!.currentState.saberInFlight && saberEnt!.currentState.bolt2 != 123 {
+                                        //owner is pulling is back
+                                        if !((ci!.saber[0].saberFlags & SFL_RETURN_DAMAGE) != 0) || cent.currentState.saberHolstered != 0 {
+                                            var owndir = vec3_t()
+
+                                            owndir = saberEnt!.lerpOrigin - cent.lerpOrigin
+                                            VectorNormalize(&owndir)
+
+                                            vectoangles(owndir, &owndir)
+
+                                            owndir[0] += 90
+
+                                            saberEnt!.currentState.apos.trBase = owndir
+                                            saberEnt!.lerpAngles = owndir
+                                            saberEnt!.currentState.apos.trDelta = vec3_t()
+                                        }
+                                    }
+
+                                    //We don't actually want to rely entirely on server updates to render the position of the saber, because we actually know generally where
+                                    //it's going to be before the first position update even gets here, and it needs to start getting rendered the instant the saber model is
+                                    //removed from the player hand. So we'll just render it manually and let normal rendering for the entity be ignored.
+                                    if !saberEnt!.currentState.saberInFlight && saberEnt!.currentState.bolt2 != 123 {
+                                        //tell it that we're a saber and to render the glow around our handle because we're being pulled back
+                                        saberEnt!.bolt3 = 999
+                                    }
+
+                                    saberEnt!.currentState.modelGhoul2 = 1
+                                    CG_ManualEntityRender(saberEnt!)
+                                    saberEnt!.bolt3 = 0
+                                    saberEnt!.currentState.modelGhoul2 = 127
+
+                                    bladeAngles = saberEnt!.lerpAngles
+                                    bladeAngles[ROLL] = 0
+
+                                    if ci!.saber[0].numBlades > 1 && cent.currentState.saberHolstered == 1 {
+                                        //only first blade should be on
+                                        BG_SI_SetDesiredLength(ci!.saber[0], 0, -1)
+                                        BG_SI_SetDesiredLength(ci!.saber[0], -1, 0)
+                                    } else {
+                                        BG_SI_SetDesiredLength(ci!.saber[0], -1, -1)
+                                    }
+                                    if !ci!.saber[1].model.isEmpty && cent.currentState.saberHolstered == 1 {
+                                        BG_SI_SetDesiredLength(ci!.saber[1], 0, -1)
+                                    } else {
+                                        BG_SI_SetDesiredLength(ci!.saber[1], -1, -1)
+                                    }
+
+                                    //while (l < MAX_SABERS)
+                                    //Only want to do for the first saber actually, it's the one in flight.
+                                    while l < 1 {
+                                        if ci!.saber[l].model.isEmpty {
+                                            break
+                                        }
+
+                                        k = 0
+                                        while k < ci!.saber[l].numBlades {
+                                            if l == 0 && cent.currentState.saberHolstered == 1 && k > 0 {
+                                                //extra blades off
+                                                //don't draw them
+                                                CG_AddSaberBlade(cent, saberEnt!, nil, 0, 0, l, k, saberEnt!.lerpOrigin, bladeAngles, true, true)
+                                            } else {
+                                                CG_AddSaberBlade(cent, saberEnt!, nil, 0, 0, l, k, saberEnt!.lerpOrigin, bladeAngles, true, false)
+                                            }
+
+                                            k += 1
+                                        }
+                                        if ci!.saber[l].numBlades > 2 {
+                                            //add a single glow for the saber based on all the blade colors combined
+                                            CG_DoSaberLight(ci!.saber[l])
+                                        }
+
+                                        l += 1
+                                    }
+
+                                    //Make the player's hand glow while guiding the saber
+                                    tAng = vec3_t(cent.turAngles[PITCH], cent.turAngles[YAW], cent.turAngles[ROLL])
+
+                                    trap_G2API_GetBoltMatrix(cent.ghoul2, 0, ci!.bolt_rhand, boltMatrix, tAng, cent.lerpOrigin, cg.time, cgs.gameModels, &cent.modelScale)
+
+                                    efOrg[0] = boltMatrix.matrix[0][3]
+                                    efOrg[1] = boltMatrix.matrix[1][3]
+                                    efOrg[2] = boltMatrix.matrix[2][3]
+
+                                    wv = sin(cg.time * 0.003) * 0.08 + 0.1
+
+                                    //trap_FX_AddSprite( NULL, efOrg, NULL, NULL, 8.0f, 8.0f, wv, wv, 0.0f, 0.0f, 1.0f, cgs.media.yellowSaberGlowShader, 0x08000000 );
+                                    fxSArgs.origin = efOrg
+                                    fxSArgs.vel = vec3_t()
+                                    fxSArgs.accel = vec3_t()
+                                    fxSArgs.scale = 8.0
+                                    fxSArgs.dscale = 8.0
+                                    fxSArgs.sAlpha = wv
+                                    fxSArgs.eAlpha = wv
+                                    fxSArgs.rotation = 0.0
+                                    fxSArgs.bounce = 0.0
+                                    fxSArgs.life = 1
+                                    fxSArgs.shader = cgs.media.yellowDroppedSaberShader
+                                    fxSArgs.flags = 0x08000000
+                                    trap_FX_AddSprite(fxSArgs)
+                                }
+                            }
+                        } else {
+                            if ci!.saber[0].numBlades > 1 && cent.currentState.saberHolstered == 1 {
+                                //only first blade should be on
+                                BG_SI_SetDesiredLength(ci!.saber[0], 0, -1)
+                                BG_SI_SetDesiredLength(ci!.saber[0], -1, 0)
+                            } else {
+                                BG_SI_SetDesiredLength(ci!.saber[0], -1, -1)
+                            }
+                            if !ci!.saber[1].model.isEmpty && cent.currentState.saberHolstered == 1 {
+                                BG_SI_SetDesiredLength(ci!.saber[1], 0, -1)
+                            } else {
+                                BG_SI_SetDesiredLength(ci!.saber[1], -1, -1)
+                            }
                         }
-                    }
-                }
 
-                if (cent.currentState.powerups & (1 << PW_YSALAMIRI)) != 0 || (cgs.gametype == GT_CTY && ((cent.currentState.powerups & (1 << PW_REDFLAG)) != 0 || (cent.currentState.powerups & (1 << PW_BLUEFLAG)) != 0)) {
-                    if cgs.gametype == GT_CTY && (cent.currentState.powerups & (1 << PW_REDFLAG)) != 0 {
-                        CG_DrawPlayerSphere(cent, cent.lerpOrigin, 1.4, cgs.media.ysaliredShader)
-                    } else if cgs.gametype == GT_CTY && (cent.currentState.powerups & (1 << PW_BLUEFLAG)) != 0 {
-                        CG_DrawPlayerSphere(cent, cent.lerpOrigin, 1.4, cgs.media.ysaliblueShader)
+                        //If the arm the saber is in is broken, turn it off.
+                        /*
+                        if (cent->currentState.brokenLimbs & (1 << BROKENLIMB_RARM))
+                        {
+                        BG_SI_SetDesiredLength(&ci->saber[0], 0, -1);
+                        }
+                        */
+                        //Leaving right arm on, at least for now.
+                        if (cent.currentState.brokenLimbs & (1 << BROKENLIMB_LARM)) != 0 {
+                            BG_SI_SetDesiredLength(ci!.saber[1], 0, -1)
+                        }
+
+                        if cent.currentState.saberEntityNum == 0 {
+                            BG_SI_SetDesiredLength(ci!.saber[0], 0, -1)
+                            //BG_SI_SetDesiredLength(&ci->saber[1], 0, -1);
+                        }
+                        /*
+                        else
+                        {
+                        BG_SI_SetDesiredLength(&ci->saber[0], 0, -1);
+                        BG_SI_SetDesiredLength(&ci->saber[1], 0, -1);
+                        }
+                        */
+                        drawPlayerSaber = true
+                    } else if cent.currentState.weapon == WP_SABER {
+                        //cent->saberLength = 0;
+                        BG_SI_SetDesiredLength(ci!.saber[0], 0, -1)
+                        BG_SI_SetDesiredLength(ci!.saber[1], 0, -1)
+
+                        drawPlayerSaber = true
                     } else {
-                        CG_DrawPlayerSphere(cent, cent.lerpOrigin, 1.4, cgs.media.ysalimariShader)
-                    }
-                }
+                        //cent->saberLength = 0;
+                        BG_SI_SetDesiredLength(ci!.saber[0], 0, -1)
+                        BG_SI_SetDesiredLength(ci!.saber[1], 0, -1)
 
-                if (cent.currentState.powerups & (1 << PW_FORCE_BOON)) != 0 {
-                    CG_DrawPlayerSphere(cent, cent.lerpOrigin, 2.0, cgs.media.boonShader)
-                }
-
-                if (cent.currentState.powerups & (1 << PW_FORCE_ENLIGHTENED_DARK)) != 0 {
-                    CG_DrawPlayerSphere(cent, cent.lerpOrigin, 2.0, cgs.media.endarkenmentShader)
-                } else if (cent.currentState.powerups & (1 << PW_FORCE_ENLIGHTENED_LIGHT)) != 0 {
-                    CG_DrawPlayerSphere(cent, cent.lerpOrigin, 2.0, cgs.media.enlightenmentShader)
-                }
-
-                if (cent.currentState.eFlags & EF_INVULNERABLE) != 0 {
-                    CG_DrawPlayerSphere(cent, cent.lerpOrigin, 1.0, cgs.media.invulnerabilityShader)
-                }
-            }
-            if (cent.currentState.eFlags & EF_DEAD) != 0 && cent.currentState.weapon == WP_SABER {
-                //cent->saberLength = 0;
-                // Port-note: The draft of this statement did not compile, and the compiler wrote "cannot find 'BG_SI_SetDesiredLength' in scope".
-                // Raven wrote: BG_SI_SetDesiredLength(&ci->saber[0], 0, -1)
-                portMissing("CG_Player", source: "oracle/codemp/cgame/cg_players.c:8423")
-                // Port-note: The draft of this statement did not compile, and the compiler wrote "cannot find 'BG_SI_SetDesiredLength' in scope".
-                // Raven wrote: BG_SI_SetDesiredLength(&ci->saber[1], 0, -1)
-                portMissing("CG_Player", source: "oracle/codemp/cgame/cg_players.c:8423")
-
-                drawPlayerSaber = true
-            } else if cent.currentState.weapon == WP_SABER && cent.currentState.saberHolstered < 2 {
-                if (!cent.currentState.saberInFlight || ci!.saber[1].soundLoop != 0) && !((cent.currentState.eFlags & EF_DEAD) != 0) {
-                    var soundSpot = vec3_t()
-                    var didFirstSound: Bool = false
-
-                    if cg.snap!.ps.clientNum == cent.currentState.number {
-                        //trap_S_AddLoopingSound( cent->currentState.number, cg.refdef.vieworg, vec3_origin,
-                        //	trap_S_RegisterSound( "sound/weapons/saber/saberhum1.wav" ) );
-                        soundSpot = cg.refdef.vieworg
-                    } else {
-                        //trap_S_AddLoopingSound( cent->currentState.number, cent->lerpOrigin, vec3_origin,
-                        //	trap_S_RegisterSound( "sound/weapons/saber/saberhum1.wav" ) );
-                        soundSpot = cent.lerpOrigin
+                        BG_SI_SetLength(ci!.saber[0], 0)
+                        BG_SI_SetLength(ci!.saber[1], 0)
                     }
 
-                    if !ci!.saber[0].model.isEmpty && ci!.saber[0].soundLoop != 0 && !cent.currentState.saberInFlight {
-                        var i: Int32 = 0
-                        var hasLen: Bool = false
 
-                        while i < ci!.saber[0].numBlades {
-                            if ci!.saber[0].blade[i].length != 0 {
-                                hasLen = true
+                    if cent.currentState.weapon == WP_SABER {
+                        BG_SI_SetLengthGradual(ci!.saber[0], cg.time)
+                        BG_SI_SetLengthGradual(ci!.saber[1], cg.time)
+                    }
+
+                    if drawPlayerSaber {
+                        var saberEnt: Centity?
+                        var k: Int32 = 0
+                        var l: Int32 = 0
+
+                        if cent.currentState.saberEntityNum == 0 {
+                            l = 1 //The "primary" saber is missing or in flight or something, so only try to draw in the second one
+                        } else if !cent.currentState.saberInFlight {
+                            saberEnt = cg_entities[cent.currentState.saberEntityNum]
+
+                            if !g2HasWeapon {
+                                trap_G2API_CopySpecificGhoul2Model(CG_G2WeaponInstance(cent, WP_SABER), 0, cent.ghoul2, 1)
+
+                                if saberEnt != nil && saberEnt!.ghoul2 != nil {
+                                    trap_G2API_CleanGhoul2Models(&(saberEnt!.ghoul2))
+                                }
+
+                                saberEnt!.currentState.modelindex = 0
+                                saberEnt!.ghoul2 = nil
+                                saberEnt!.currentState.pos.trBase = vec3_t()
+                            }
+
+                            cent.bolt3 = 0
+                            cent.bolt2 = 0
+                        } else {
+                            l = 1 //The "primary" saber is missing or in flight or something, so only try to draw in the second one
+                        }
+
+                        while l < MAX_SABERS {
+                            k = 0
+
+                            if ci!.saber[l].model.isEmpty {
                                 break
                             }
-                            i += 1
-                        }
 
-                        if hasLen {
-                            trap_S_AddLoopingSound(cent.currentState.number, soundSpot, vec3_origin, ci!.saber[0].soundLoop)
-                            didFirstSound = true
-                        }
-                    }
-                    if !ci!.saber[1].model.isEmpty && ci!.saber[1].soundLoop != 0 && (!didFirstSound || ci!.saber[0].soundLoop != ci!.saber[1].soundLoop) {
-                        var i: Int32 = 0
-                        var hasLen: Bool = false
-
-                        while i < ci!.saber[1].numBlades {
-                            if ci!.saber[1].blade[i].length != 0 {
-                                hasLen = true
-                                break
+                            if (cent.currentState.eFlags2 & EF2_HELD_BY_MONSTER) != 0 {
+                                //vectoangles(legs.axis[0], rootAngles);
+                                vectoangles(legs.axis[0], &rootAngles)
                             }
-                            i += 1
-                        }
 
-                        if hasLen {
-                            trap_S_AddLoopingSound(cent.currentState.number, soundSpot, vec3_origin, ci!.saber[1].soundLoop)
+                            while k < ci!.saber[l].numBlades {
+                                if cent.currentState.saberHolstered == 1 && k > 0 && ci!.saber[l].blade[k].length <= 0 {
+                                    //extra blades off
+                                    //don't draw them
+                                    CG_AddSaberBlade(cent, cent, nil, 0, 0, l, k, legs.origin, rootAngles, false, true)
+                                } else if !ci!.saber[1].model.isEmpty && cent.currentState.saberHolstered == 1 && l > 0 && ci!.saber[l].blade[k].length <= 0 {
+                                    //second saber is turned off and this blade is done with turning off
+                                    CG_AddSaberBlade(cent, cent, nil, 0, 0, l, k, legs.origin, rootAngles, false, true)
+                                } else {
+                                    CG_AddSaberBlade(cent, cent, nil, 0, 0, l, k, legs.origin, rootAngles, false, false)
+                                }
+
+                                k += 1
+                            }
+                            if ci!.saber[l].numBlades > 2 {
+                                //add a single glow for the saber based on all the blade colors combined
+                                CG_DoSaberLight(ci!.saber[l])
+                            }
+
+                            l += 1
                         }
                     }
-                }
 
-                if iwantout != 0 && !cent.currentState.saberInFlight {
+                    if cent.currentState.saberInFlight && cent.currentState.saberEntityNum == 0 {
+                        //reset the length if the saber is knocked away
+                        BG_SI_SetDesiredLength(ci!.saber[0], 0, -1)
+                        BG_SI_SetDesiredLength(ci!.saber[1], 0, -1)
+
+                        if g2HasWeapon {
+                            //and remember to kill the bolton model in case we didn't get a thrown saber update first
+                            trap_G2API_RemoveGhoul2Model(&(cent.ghoul2), 1)
+                            g2HasWeapon = false
+                        }
+                        cent.bolt3 = 0
+                        cent.bolt2 = 0
+                    }
+
                     if (cent.currentState.eFlags & EF_DEAD) != 0 {
                         if cent.ghoul2 != nil && cent.currentState.saberInFlight && g2HasWeapon {
                             //special case, kill the saber on a freshly dead player if another source says to.
@@ -8212,980 +8654,537 @@ func CG_Player(_ cent: Centity) {
                             g2HasWeapon = false
                         }
                     }
-                    return true
-                    //goto endOfCall;
-                }
 
-                if g2HasWeapon && cent.currentState.saberInFlight {
-                    //keep this set, so we don't re-unholster the thing when we get it back, even if it's knocked away.
-                    cent.saberWasInFlight = true
-                }
-
-                if cent.currentState.saberInFlight && cent.currentState.saberEntityNum != 0 {
-                    var saberEnt: Centity?
-
-                    saberEnt = cg_entities[cent.currentState.saberEntityNum]
-
-                    if g2HasWeapon || cent.bolt3 == 0 || saberEnt!.serverSaberHitIndex != saberEnt!.currentState.modelindex {
-                        //saber is in flight, do not have it as a standard weapon model
-                        var addBolts: Bool = false
-                        // Raven's record lives to the end of his block, so the block is the closure.
-                        MdxaBone.scratch { boltMat in
-
-                            if g2HasWeapon {
-                                //ah well, just stick it over the right hand right now.
-                                // Port-note: Raven passes `cgs.gameModels` to `trap_G2API_GetBoltMatrix`, whose `modelList` parameter takes the Slots over the records, and Swift holds one record here. A Slots over one record has no form yet.
-                                // Raven wrote: trap_G2API_GetBoltMatrix(cent->ghoul2, 0, ci->bolt_rhand, &boltMat, cent->turAngles, cent->lerpOrigin, cg.time, cgs.gameModels, cent->modelScale)
-                                portMissing("CG_Player", source: "oracle/codemp/cgame/cg_players.c:8423")
-                                BG_GiveMeVectorFromMatrix(boltMat, ORIGIN, &saberEnt!.currentState.pos.trBase)
-
-                                trap_G2API_RemoveGhoul2Model(&(cent.ghoul2), 1)
-                                g2HasWeapon = false
-                            }
-
-                            //cent->bolt4 = 1;
-
-                            saberEnt!.currentState.pos.trTime = cg.time
-                            saberEnt!.currentState.apos.trTime = cg.time
-
-                            saberEnt!.lerpOrigin = saberEnt!.currentState.pos.trBase
-                            saberEnt!.lerpAngles = saberEnt!.currentState.apos.trBase
-
-                            cent.bolt3 = Int32(saberEnt!.currentState.apos.trBase[0])
-                            if cent.bolt3 == 0 {
-                                cent.bolt3 = 1
-                            }
-                            cent.bolt2 = 0
-
-                            saberEnt!.currentState.bolt2 = 123
-
-                            if saberEnt!.ghoul2 != nil && saberEnt!.serverSaberHitIndex == saberEnt!.currentState.modelindex {
-                                // now set up the gun bolt on it
-                                addBolts = true
-                            } else {
-                                let saberModel: String = CG_ConfigString(CS_MODELS + saberEnt!.currentState.modelindex)
-
-                                saberEnt!.serverSaberHitIndex = saberEnt!.currentState.modelindex
-
-                                if saberEnt!.ghoul2 != nil {
-                                    //clean if we already have one (because server changed model string index)
-                                    trap_G2API_CleanGhoul2Models(&(saberEnt!.ghoul2))
-                                    // Port-note: The draft of this statement did not compile, and the compiler wrote "cannot assign value of type 'Int' to type 'OpaquePointer'".
-                                    // Raven wrote: saberEnt->ghoul2 = 0
-                                    portMissing("CG_Player", source: "oracle/codemp/cgame/cg_players.c:8423")
-                                }
-
-                                if !saberModel.isEmpty {
-                                    trap_G2API_InitGhoul2Model(&saberEnt!.ghoul2, saberModel, 0, 0, 0, 0, 0)
-                                } else if !ci!.saber[0].model.isEmpty {
-                                    trap_G2API_InitGhoul2Model(&saberEnt!.ghoul2, ci!.saber[0].model, 0, 0, 0, 0, 0)
-                                } else {
-                                    trap_G2API_InitGhoul2Model(&saberEnt!.ghoul2, "models/weapons2/saber/saber_w.glm", 0, 0, 0, 0, 0)
-                                }
-                                //trap_G2API_DuplicateGhoul2Instance(cent->ghoul2, &saberEnt->ghoul2);
-
-                                if saberEnt!.ghoul2 != nil {
-                                    addBolts = true
-                                    //cent->bolt4 = 2;
-
-                                    saberEnt!.lerpOrigin = saberEnt!.currentState.pos.trBase
-                                    saberEnt!.lerpAngles = saberEnt!.currentState.apos.trBase
-                                    saberEnt!.currentState.pos.trTime = cg.time
-                                    saberEnt!.currentState.apos.trTime = cg.time
-                                }
-                            }
-
-                            if addBolts {
-                                var m: Int32 = 0
-                                var tagBolt: Int32 = 0
-                                var tagName: String
-
-                                while m < ci!.saber[0].numBlades {
-                                    tagName = va("*blade%i", m + 1)
-                                    tagBolt = trap_G2API_AddBolt(saberEnt!.ghoul2, 0, tagName)
-
-                                    if tagBolt == -1 {
-                                        if m == 0 {
-                                            //guess this is an 0ldsk3wl saber
-                                            tagBolt = trap_G2API_AddBolt(saberEnt!.ghoul2, 0, "*flash")
-
-                                            if tagBolt == -1 {
-                                            }
-                                            break
-                                        }
-
-                                        if tagBolt == -1 {
-                                            break
-                                        }
-                                    }
-
-                                    m += 1
-                                }
-                            }
-                        }
-                    }
-                    /*else if (cent->bolt4 != 2)
-                    {
-                    if (saberEnt->ghoul2)
-                    {
-                    trap_G2API_AddBolt(saberEnt->ghoul2, 0, "*flash");
-                    cent->bolt4 = 2;
-                    }
-                    }*/
-
-                    if saberEnt != nil && saberEnt!.ghoul2 != nil {
-                        var bladeAngles = vec3_t()
-                        var tAng = vec3_t()
-                        var efOrg = vec3_t()
-                        var wv: Float = 0
-                        var k: Int32 = 0
-                        var l: Int32 = 0
-                        // Raven's record lives to the end of his block, so the block is the closure.
-                        AddspriteArgStruct.scratch { fxSArgs in
-
-                            if cent.bolt2 == 0 {
-                                cent.bolt2 = cg.time
-                            }
-
-                            if cent.bolt3 != 90 {
-                                if cent.bolt3 < 90 {
-                                    cent.bolt3 = Int32(Double(cent.bolt3) + (Double(cg.time - cent.bolt2) * 0.5))
-
-                                    if cent.bolt3 > 90 {
-                                        cent.bolt3 = 90
-                                    }
-                                } else if cent.bolt3 > 90 {
-                                    cent.bolt3 = Int32(Double(cent.bolt3) - (Double(cg.time - cent.bolt2) * 0.5))
-
-                                    if cent.bolt3 < 90 {
-                                        cent.bolt3 = 90
-                                    }
-                                }
-                            }
-
-                            cent.bolt2 = cg.time
-
-                            saberEnt!.currentState.apos.trBase[0] = Float(cent.bolt3)
-                            saberEnt!.lerpAngles[0] = Float(cent.bolt3)
-
-                            if !saberEnt!.currentState.saberInFlight && saberEnt!.currentState.bolt2 != 123 {
-                                //owner is pulling is back
-                                if !((ci!.saber[0].saberFlags & SFL_RETURN_DAMAGE) != 0) || cent.currentState.saberHolstered != 0 {
-                                    var owndir = vec3_t()
-
-                                    owndir = saberEnt!.lerpOrigin - cent.lerpOrigin
-                                    VectorNormalize(&owndir)
-
-                                    vectoangles(owndir, &owndir)
-
-                                    owndir[0] += 90
-
-                                    saberEnt!.currentState.apos.trBase = owndir
-                                    saberEnt!.lerpAngles = owndir
-                                    saberEnt!.currentState.apos.trDelta = vec3_t()
-                                }
-                            }
-
-                            //We don't actually want to rely entirely on server updates to render the position of the saber, because we actually know generally where
-                            //it's going to be before the first position update even gets here, and it needs to start getting rendered the instant the saber model is
-                            //removed from the player hand. So we'll just render it manually and let normal rendering for the entity be ignored.
-                            if !saberEnt!.currentState.saberInFlight && saberEnt!.currentState.bolt2 != 123 {
-                                //tell it that we're a saber and to render the glow around our handle because we're being pulled back
-                                saberEnt!.bolt3 = 999
-                            }
-
-                            saberEnt!.currentState.modelGhoul2 = 1
-                            CG_ManualEntityRender(saberEnt!)
-                            saberEnt!.bolt3 = 0
-                            saberEnt!.currentState.modelGhoul2 = 127
-
-                            bladeAngles = saberEnt!.lerpAngles
-                            bladeAngles[ROLL] = 0
-
-                            if ci!.saber[0].numBlades > 1 && cent.currentState.saberHolstered == 1 {
-                                //only first blade should be on
-                                // Port-note: The draft of this statement did not compile, and the compiler wrote "cannot find 'BG_SI_SetDesiredLength' in scope".
-                                // Raven wrote: BG_SI_SetDesiredLength(&ci->saber[0], 0, -1)
-                                portMissing("CG_Player", source: "oracle/codemp/cgame/cg_players.c:8423")
-                                // Port-note: The draft of this statement did not compile, and the compiler wrote "cannot find 'BG_SI_SetDesiredLength' in scope".
-                                // Raven wrote: BG_SI_SetDesiredLength(&ci->saber[0], -1, 0)
-                                portMissing("CG_Player", source: "oracle/codemp/cgame/cg_players.c:8423")
-                            } else {
-                                // Port-note: The draft of this statement did not compile, and the compiler wrote "cannot find 'BG_SI_SetDesiredLength' in scope".
-                                // Raven wrote: BG_SI_SetDesiredLength(&ci->saber[0], -1, -1)
-                                portMissing("CG_Player", source: "oracle/codemp/cgame/cg_players.c:8423")
-                            }
-                            if !ci!.saber[1].model.isEmpty && cent.currentState.saberHolstered == 1 {
-                                // Port-note: The draft of this statement did not compile, and the compiler wrote "cannot find 'BG_SI_SetDesiredLength' in scope".
-                                // Raven wrote: BG_SI_SetDesiredLength(&ci->saber[1], 0, -1)
-                                portMissing("CG_Player", source: "oracle/codemp/cgame/cg_players.c:8423")
-                            } else {
-                                // Port-note: The draft of this statement did not compile, and the compiler wrote "cannot find 'BG_SI_SetDesiredLength' in scope".
-                                // Raven wrote: BG_SI_SetDesiredLength(&ci->saber[1], -1, -1)
-                                portMissing("CG_Player", source: "oracle/codemp/cgame/cg_players.c:8423")
-                            }
-
-                            //while (l < MAX_SABERS)
-                            //Only want to do for the first saber actually, it's the one in flight.
-                            while l < 1 {
-                                if ci!.saber[l].model.isEmpty {
-                                    break
-                                }
-
-                                k = 0
-                                while k < ci!.saber[l].numBlades {
-                                    if l == 0 && cent.currentState.saberHolstered == 1 && k > 0 {
-                                        //extra blades off
-                                        //don't draw them
-                                        CG_AddSaberBlade(cent, saberEnt!, nil, 0, 0, l, k, saberEnt!.lerpOrigin, bladeAngles, true, true)
-                                    } else {
-                                        CG_AddSaberBlade(cent, saberEnt!, nil, 0, 0, l, k, saberEnt!.lerpOrigin, bladeAngles, true, false)
-                                    }
-
-                                    k += 1
-                                }
-                                if ci!.saber[l].numBlades > 2 {
-                                    //add a single glow for the saber based on all the blade colors combined
-                                    CG_DoSaberLight(ci!.saber[l])
-                                }
-
-                                l += 1
-                            }
-
-                            //Make the player's hand glow while guiding the saber
-                            tAng = vec3_t(cent.turAngles[PITCH], cent.turAngles[YAW], cent.turAngles[ROLL])
-
-                            // Port-note: A read of `boltMatrix`, a local the draft left as a hole.
-                            // Raven wrote: trap_G2API_GetBoltMatrix(cent->ghoul2, 0, ci->bolt_rhand, &boltMatrix, tAng, cent->lerpOrigin, cg.time, cgs.gameModels, cent->modelScale)
-                            portMissing("CG_Player", source: "oracle/codemp/cgame/cg_players.c:8423")
-
-                            // Port-note: A read of `boltMatrix`, a local the draft left as a hole.
-                            // Raven wrote: efOrg[0] = boltMatrix.matrix[0][3]
-                            portMissing("CG_Player", source: "oracle/codemp/cgame/cg_players.c:8423")
-                            // Port-note: A read of `boltMatrix`, a local the draft left as a hole.
-                            // Raven wrote: efOrg[1] = boltMatrix.matrix[1][3]
-                            portMissing("CG_Player", source: "oracle/codemp/cgame/cg_players.c:8423")
-                            // Port-note: A read of `boltMatrix`, a local the draft left as a hole.
-                            // Raven wrote: efOrg[2] = boltMatrix.matrix[2][3]
-                            portMissing("CG_Player", source: "oracle/codemp/cgame/cg_players.c:8423")
-
-                            wv = sin(cg.time * 0.003) * 0.08 + 0.1
-
-                            //trap_FX_AddSprite( NULL, efOrg, NULL, NULL, 8.0f, 8.0f, wv, wv, 0.0f, 0.0f, 1.0f, cgs.media.yellowSaberGlowShader, 0x08000000 );
-                            fxSArgs.origin = efOrg
-                            fxSArgs.vel = vec3_t()
-                            fxSArgs.accel = vec3_t()
-                            fxSArgs.scale = 8.0
-                            fxSArgs.dscale = 8.0
-                            fxSArgs.sAlpha = wv
-                            fxSArgs.eAlpha = wv
-                            fxSArgs.rotation = 0.0
-                            fxSArgs.bounce = 0.0
-                            fxSArgs.life = 1
-                            fxSArgs.shader = cgs.media.yellowDroppedSaberShader
-                            fxSArgs.flags = 0x08000000
-                            trap_FX_AddSprite(fxSArgs)
-                        }
-                    }
-                } else {
-                    if ci!.saber[0].numBlades > 1 && cent.currentState.saberHolstered == 1 {
-                        //only first blade should be on
-                        // Port-note: The draft of this statement did not compile, and the compiler wrote "cannot find 'BG_SI_SetDesiredLength' in scope".
-                        // Raven wrote: BG_SI_SetDesiredLength(&ci->saber[0], 0, -1)
-                        portMissing("CG_Player", source: "oracle/codemp/cgame/cg_players.c:8423")
-                        // Port-note: The draft of this statement did not compile, and the compiler wrote "cannot find 'BG_SI_SetDesiredLength' in scope".
-                        // Raven wrote: BG_SI_SetDesiredLength(&ci->saber[0], -1, 0)
-                        portMissing("CG_Player", source: "oracle/codemp/cgame/cg_players.c:8423")
-                    } else {
-                        // Port-note: The draft of this statement did not compile, and the compiler wrote "cannot find 'BG_SI_SetDesiredLength' in scope".
-                        // Raven wrote: BG_SI_SetDesiredLength(&ci->saber[0], -1, -1)
-                        portMissing("CG_Player", source: "oracle/codemp/cgame/cg_players.c:8423")
-                    }
-                    if !ci!.saber[1].model.isEmpty && cent.currentState.saberHolstered == 1 {
-                        // Port-note: The draft of this statement did not compile, and the compiler wrote "cannot find 'BG_SI_SetDesiredLength' in scope".
-                        // Raven wrote: BG_SI_SetDesiredLength(&ci->saber[1], 0, -1)
-                        portMissing("CG_Player", source: "oracle/codemp/cgame/cg_players.c:8423")
-                    } else {
-                        // Port-note: The draft of this statement did not compile, and the compiler wrote "cannot find 'BG_SI_SetDesiredLength' in scope".
-                        // Raven wrote: BG_SI_SetDesiredLength(&ci->saber[1], -1, -1)
-                        portMissing("CG_Player", source: "oracle/codemp/cgame/cg_players.c:8423")
-                    }
-                }
-
-                //If the arm the saber is in is broken, turn it off.
-                /*
-                if (cent->currentState.brokenLimbs & (1 << BROKENLIMB_RARM))
-                {
-                BG_SI_SetDesiredLength(&ci->saber[0], 0, -1);
-                }
-                */
-                //Leaving right arm on, at least for now.
-                if (cent.currentState.brokenLimbs & (1 << BROKENLIMB_LARM)) != 0 {
-                    // Port-note: The draft of this statement did not compile, and the compiler wrote "cannot find 'BG_SI_SetDesiredLength' in scope".
-                    // Raven wrote: BG_SI_SetDesiredLength(&ci->saber[1], 0, -1)
-                    portMissing("CG_Player", source: "oracle/codemp/cgame/cg_players.c:8423")
-                }
-
-                if cent.currentState.saberEntityNum == 0 {
-                    // Port-note: The draft of this statement did not compile, and the compiler wrote "cannot find 'BG_SI_SetDesiredLength' in scope".
-                    // Raven wrote: BG_SI_SetDesiredLength(&ci->saber[0], 0, -1)
-                    portMissing("CG_Player", source: "oracle/codemp/cgame/cg_players.c:8423")
-                    //BG_SI_SetDesiredLength(&ci->saber[1], 0, -1);
-                }
-                /*
-                else
-                {
-                BG_SI_SetDesiredLength(&ci->saber[0], 0, -1);
-                BG_SI_SetDesiredLength(&ci->saber[1], 0, -1);
-                }
-                */
-                drawPlayerSaber = true
-            } else if cent.currentState.weapon == WP_SABER {
-                //cent->saberLength = 0;
-                // Port-note: The draft of this statement did not compile, and the compiler wrote "cannot find 'BG_SI_SetDesiredLength' in scope".
-                // Raven wrote: BG_SI_SetDesiredLength(&ci->saber[0], 0, -1)
-                portMissing("CG_Player", source: "oracle/codemp/cgame/cg_players.c:8423")
-                // Port-note: The draft of this statement did not compile, and the compiler wrote "cannot find 'BG_SI_SetDesiredLength' in scope".
-                // Raven wrote: BG_SI_SetDesiredLength(&ci->saber[1], 0, -1)
-                portMissing("CG_Player", source: "oracle/codemp/cgame/cg_players.c:8423")
-
-                drawPlayerSaber = true
-            } else {
-                //cent->saberLength = 0;
-                // Port-note: The draft of this statement did not compile, and the compiler wrote "cannot find 'BG_SI_SetDesiredLength' in scope".
-                // Raven wrote: BG_SI_SetDesiredLength(&ci->saber[0], 0, -1)
-                portMissing("CG_Player", source: "oracle/codemp/cgame/cg_players.c:8423")
-                // Port-note: The draft of this statement did not compile, and the compiler wrote "cannot find 'BG_SI_SetDesiredLength' in scope".
-                // Raven wrote: BG_SI_SetDesiredLength(&ci->saber[1], 0, -1)
-                portMissing("CG_Player", source: "oracle/codemp/cgame/cg_players.c:8423")
-
-                // Port-note: The draft of this statement did not compile, and the compiler wrote "cannot find 'BG_SI_SetLength' in scope".
-                // Raven wrote: BG_SI_SetLength(&ci->saber[0], 0)
-                portMissing("CG_Player", source: "oracle/codemp/cgame/cg_players.c:8423")
-                // Port-note: The draft of this statement did not compile, and the compiler wrote "cannot find 'BG_SI_SetLength' in scope".
-                // Raven wrote: BG_SI_SetLength(&ci->saber[1], 0)
-                portMissing("CG_Player", source: "oracle/codemp/cgame/cg_players.c:8423")
-            }
-
-
-            if cent.currentState.weapon == WP_SABER {
-                // Port-note: The draft of this statement did not compile, and the compiler wrote "cannot find 'BG_SI_SetLengthGradual' in scope".
-                // Raven wrote: BG_SI_SetLengthGradual(&ci->saber[0], cg.time)
-                portMissing("CG_Player", source: "oracle/codemp/cgame/cg_players.c:8423")
-                // Port-note: The draft of this statement did not compile, and the compiler wrote "cannot find 'BG_SI_SetLengthGradual' in scope".
-                // Raven wrote: BG_SI_SetLengthGradual(&ci->saber[1], cg.time)
-                portMissing("CG_Player", source: "oracle/codemp/cgame/cg_players.c:8423")
-            }
-
-            if drawPlayerSaber {
-                var saberEnt: Centity?
-                var k: Int32 = 0
-                var l: Int32 = 0
-
-                if cent.currentState.saberEntityNum == 0 {
-                    l = 1 //The "primary" saber is missing or in flight or something, so only try to draw in the second one
-                } else if !cent.currentState.saberInFlight {
-                    saberEnt = cg_entities[cent.currentState.saberEntityNum]
-
-                    if !g2HasWeapon {
-                        trap_G2API_CopySpecificGhoul2Model(CG_G2WeaponInstance(cent, WP_SABER), 0, cent.ghoul2, 1)
-
-                        if saberEnt != nil && saberEnt!.ghoul2 != nil {
-                            trap_G2API_CleanGhoul2Models(&(saberEnt!.ghoul2))
-                        }
-
-                        saberEnt!.currentState.modelindex = 0
-                        saberEnt!.ghoul2 = nil
-                        saberEnt!.currentState.pos.trBase = vec3_t()
+                    if iwantout != 0 {
+                        return true
+                        //goto endOfCall;
                     }
 
-                    cent.bolt3 = 0
-                    cent.bolt2 = 0
-                } else {
-                    l = 1 //The "primary" saber is missing or in flight or something, so only try to draw in the second one
-                }
-
-                while l < MAX_SABERS {
-                    k = 0
-
-                    if ci!.saber[l].model.isEmpty {
-                        break
+                    if (cg.snap!.ps.fd.forcePowersActive & (1 << FP_SEE)) != 0 && cg.snap!.ps.clientNum != cent.currentState.number {
+                        legs.shaderRGBA[0] = 255
+                        legs.shaderRGBA[1] = 255
+                        legs.shaderRGBA[2] = 0
+                        legs.renderfx |= RF_MINLIGHT
                     }
 
-                    if (cent.currentState.eFlags2 & EF2_HELD_BY_MONSTER) != 0 {
-                        //vectoangles(legs.axis[0], rootAngles);
-                        vectoangles(legs.axis[0], &rootAngles)
-                    }
-
-                    while k < ci!.saber[l].numBlades {
-                        if cent.currentState.saberHolstered == 1 && k > 0 && ci!.saber[l].blade[k].length <= 0 {
-                            //extra blades off
-                            //don't draw them
-                            CG_AddSaberBlade(cent, cent, nil, 0, 0, l, k, legs.origin, rootAngles, false, true)
-                        } else if !ci!.saber[1].model.isEmpty && cent.currentState.saberHolstered == 1 && l > 0 && ci!.saber[l].blade[k].length <= 0 {
-                            //second saber is turned off and this blade is done with turning off
-                            CG_AddSaberBlade(cent, cent, nil, 0, 0, l, k, legs.origin, rootAngles, false, true)
+                    if cg.snap!.ps.duelInProgress {
+                        //I guess go ahead and glow your own client too in a duel
+                        if cent.currentState.number != cg.snap!.ps.duelIndex && cent.currentState.number != cg.snap!.ps.clientNum {
+                            //everyone not involved in the duel is drawn very dark
+                            legs.shaderRGBA[0] = UInt8(truncatingIfNeeded: Int32(legs.shaderRGBA[0]) / 5)
+                            legs.shaderRGBA[1] = UInt8(truncatingIfNeeded: Int32(legs.shaderRGBA[1]) / 5)
+                            legs.shaderRGBA[2] = UInt8(truncatingIfNeeded: Int32(legs.shaderRGBA[2]) / 5)
+                            legs.renderfx |= RF_RGB_TINT
                         } else {
-                            CG_AddSaberBlade(cent, cent, nil, 0, 0, l, k, legs.origin, rootAngles, false, false)
+                            //adjust the glow by how far away you are from your dueling partner
+                            var duelEnt: Centity?
+
+                            duelEnt = cg_entities[cg.snap!.ps.duelIndex]
+
+                            if duelEnt != nil {
+                                var vecSub = vec3_t()
+                                var subLen: Float = 0
+
+                                vecSub = duelEnt!.lerpOrigin - cg.snap!.ps.origin
+                                subLen = VectorLength(vecSub)
+
+                                if subLen < 1 {
+                                    subLen = 1
+                                }
+
+                                if subLen > 1020 {
+                                    subLen = 1020
+                                }
+
+                                do {
+                                    let savRGBA: [UInt8] = [UInt8(truncatingIfNeeded: legs.shaderRGBA[0]), UInt8(truncatingIfNeeded: legs.shaderRGBA[1]), UInt8(truncatingIfNeeded: legs.shaderRGBA[2])]
+                                    legs.shaderRGBA[0] = UInt8(truncatingIfNeeded: Int32(max(255 - subLen / 4, 1)))
+                                    legs.shaderRGBA[1] = UInt8(truncatingIfNeeded: Int32(max(255 - subLen / 4, 1)))
+                                    legs.shaderRGBA[2] = UInt8(truncatingIfNeeded: Int32(max(255 - subLen / 4, 1)))
+
+                                    legs.renderfx &= ~RF_RGB_TINT
+                                    legs.renderfx &= ~RF_FORCE_ENT_ALPHA
+                                    legs.customShader = cgs.media.forceShell
+
+                                    trap_R_AddRefEntityToScene(legs) //draw the shell
+
+                                    legs.customShader = 0 //reset to player model
+
+                                    legs.shaderRGBA[0] = UInt8(truncatingIfNeeded: Int32(max(Int32(savRGBA[0]) - subLen / 8, 1)))
+                                    legs.shaderRGBA[1] = UInt8(truncatingIfNeeded: Int32(max(Int32(savRGBA[1]) - subLen / 8, 1)))
+                                    legs.shaderRGBA[2] = UInt8(truncatingIfNeeded: Int32(max(Int32(savRGBA[2]) - subLen / 8, 1)))
+                                }
+
+                                if subLen <= 1024 {
+                                    legs.renderfx |= RF_RGB_TINT
+                                }
+                            }
                         }
-
-                        k += 1
-                    }
-                    if ci!.saber[l].numBlades > 2 {
-                        //add a single glow for the saber based on all the blade colors combined
-                        CG_DoSaberLight(ci!.saber[l])
-                    }
-
-                    l += 1
-                }
-            }
-
-            if cent.currentState.saberInFlight && cent.currentState.saberEntityNum == 0 {
-                //reset the length if the saber is knocked away
-                // Port-note: The draft of this statement did not compile, and the compiler wrote "cannot find 'BG_SI_SetDesiredLength' in scope".
-                // Raven wrote: BG_SI_SetDesiredLength(&ci->saber[0], 0, -1)
-                portMissing("CG_Player", source: "oracle/codemp/cgame/cg_players.c:8423")
-                // Port-note: The draft of this statement did not compile, and the compiler wrote "cannot find 'BG_SI_SetDesiredLength' in scope".
-                // Raven wrote: BG_SI_SetDesiredLength(&ci->saber[1], 0, -1)
-                portMissing("CG_Player", source: "oracle/codemp/cgame/cg_players.c:8423")
-
-                if g2HasWeapon {
-                    //and remember to kill the bolton model in case we didn't get a thrown saber update first
-                    trap_G2API_RemoveGhoul2Model(&(cent.ghoul2), 1)
-                    g2HasWeapon = false
-                }
-                cent.bolt3 = 0
-                cent.bolt2 = 0
-            }
-
-            if (cent.currentState.eFlags & EF_DEAD) != 0 {
-                if cent.ghoul2 != nil && cent.currentState.saberInFlight && g2HasWeapon {
-                    //special case, kill the saber on a freshly dead player if another source says to.
-                    trap_G2API_RemoveGhoul2Model(&(cent.ghoul2), 1)
-                    g2HasWeapon = false
-                }
-            }
-
-            if iwantout != 0 {
-                return true
-                //goto endOfCall;
-            }
-
-            if (cg.snap!.ps.fd.forcePowersActive & (1 << FP_SEE)) != 0 && cg.snap!.ps.clientNum != cent.currentState.number {
-                legs.shaderRGBA[0] = 255
-                legs.shaderRGBA[1] = 255
-                legs.shaderRGBA[2] = 0
-                legs.renderfx |= RF_MINLIGHT
-            }
-
-            if cg.snap!.ps.duelInProgress {
-                //I guess go ahead and glow your own client too in a duel
-                if cent.currentState.number != cg.snap!.ps.duelIndex && cent.currentState.number != cg.snap!.ps.clientNum {
-                    //everyone not involved in the duel is drawn very dark
-                    legs.shaderRGBA[0] = UInt8(truncatingIfNeeded: Int32(legs.shaderRGBA[0]) / 5)
-                    legs.shaderRGBA[1] = UInt8(truncatingIfNeeded: Int32(legs.shaderRGBA[1]) / 5)
-                    legs.shaderRGBA[2] = UInt8(truncatingIfNeeded: Int32(legs.shaderRGBA[2]) / 5)
-                    legs.renderfx |= RF_RGB_TINT
-                } else {
-                    //adjust the glow by how far away you are from your dueling partner
-                    var duelEnt: Centity?
-
-                    duelEnt = cg_entities[cg.snap!.ps.duelIndex]
-
-                    if duelEnt != nil {
-                        var vecSub = vec3_t()
-                        var subLen: Float = 0
-
-                        vecSub = duelEnt!.lerpOrigin - cg.snap!.ps.origin
-                        subLen = VectorLength(vecSub)
-
-                        if subLen < 1 {
-                            subLen = 1
-                        }
-
-                        if subLen > 1020 {
-                            subLen = 1020
-                        }
-
-                        do {
-                            let savRGBA: [UInt8] = [UInt8(truncatingIfNeeded: legs.shaderRGBA[0]), UInt8(truncatingIfNeeded: legs.shaderRGBA[1]), UInt8(truncatingIfNeeded: legs.shaderRGBA[2])]
-                            legs.shaderRGBA[0] = UInt8(truncatingIfNeeded: Int32(max(255 - subLen / 4, 1)))
-                            legs.shaderRGBA[1] = UInt8(truncatingIfNeeded: Int32(max(255 - subLen / 4, 1)))
-                            legs.shaderRGBA[2] = UInt8(truncatingIfNeeded: Int32(max(255 - subLen / 4, 1)))
-
-                            legs.renderfx &= ~RF_RGB_TINT
-                            legs.renderfx &= ~RF_FORCE_ENT_ALPHA
-                            legs.customShader = cgs.media.forceShell
-
-                            trap_R_AddRefEntityToScene(legs) //draw the shell
-
-                            legs.customShader = 0 //reset to player model
-
-                            legs.shaderRGBA[0] = UInt8(truncatingIfNeeded: Int32(max(Int32(savRGBA[0]) - subLen / 8, 1)))
-                            legs.shaderRGBA[1] = UInt8(truncatingIfNeeded: Int32(max(Int32(savRGBA[1]) - subLen / 8, 1)))
-                            legs.shaderRGBA[2] = UInt8(truncatingIfNeeded: Int32(max(Int32(savRGBA[2]) - subLen / 8, 1)))
-                        }
-
-                        if subLen <= 1024 {
+                    } else {
+                        if cent.currentState.bolt1 != 0 && !((cent.currentState.eFlags & EF_DEAD) != 0) && cent.currentState.number != cg.snap!.ps.clientNum && (!cg.snap!.ps.duelInProgress || cg.snap!.ps.duelIndex != cent.currentState.number) {
+                            legs.shaderRGBA[0] = 50
+                            legs.shaderRGBA[1] = 50
+                            legs.shaderRGBA[2] = 50
                             legs.renderfx |= RF_RGB_TINT
                         }
                     }
-                }
-            } else {
-                if cent.currentState.bolt1 != 0 && !((cent.currentState.eFlags & EF_DEAD) != 0) && cent.currentState.number != cg.snap!.ps.clientNum && (!cg.snap!.ps.duelInProgress || cg.snap!.ps.duelIndex != cent.currentState.number) {
-                    legs.shaderRGBA[0] = 50
-                    legs.shaderRGBA[1] = 50
-                    legs.shaderRGBA[2] = 50
-                    legs.renderfx |= RF_RGB_TINT
-                }
-            }
 
-            if (cent.currentState.eFlags & EF_DISINTEGRATION) != 0 {
-                if cent.dustTrailTime == 0 {
-                    cent.dustTrailTime = cg.time
-                    cent.miscTime = legs.frame
-                }
+                    if (cent.currentState.eFlags & EF_DISINTEGRATION) != 0 {
+                        if cent.dustTrailTime == 0 {
+                            cent.dustTrailTime = cg.time
+                            cent.miscTime = legs.frame
+                        }
 
-                if (cg.time - cent.dustTrailTime) > 1500 {
-                    //avoid rendering the entity after disintegration has finished anyway
-                    //goto endOfCall;
-                    return true
-                }
+                        if (cg.time - cent.dustTrailTime) > 1500 {
+                            //avoid rendering the entity after disintegration has finished anyway
+                            //goto endOfCall;
+                            return true
+                        }
 
-                trap_G2API_SetBoneAnim(legs.ghoul2, 0, "model_root", cent.miscTime, cent.miscTime, BONE_ANIM_OVERRIDE_FREEZE, 1.0, cg.time, Float(cent.miscTime), -1)
+                        trap_G2API_SetBoneAnim(legs.ghoul2, 0, "model_root", cent.miscTime, cent.miscTime, BONE_ANIM_OVERRIDE_FREEZE, 1.0, cg.time, Float(cent.miscTime), -1)
 
-                if !cent.noLumbar {
-                    trap_G2API_SetBoneAnim(legs.ghoul2, 0, "lower_lumbar", cent.miscTime, cent.miscTime, BONE_ANIM_OVERRIDE_FREEZE, 1.0, cg.time, Float(cent.miscTime), -1)
+                        if !cent.noLumbar {
+                            trap_G2API_SetBoneAnim(legs.ghoul2, 0, "lower_lumbar", cent.miscTime, cent.miscTime, BONE_ANIM_OVERRIDE_FREEZE, 1.0, cg.time, Float(cent.miscTime), -1)
 
-                    if cent.localAnimIndex <= 1 {
-                        trap_G2API_SetBoneAnim(legs.ghoul2, 0, "Motion", cent.miscTime, cent.miscTime, BONE_ANIM_OVERRIDE_FREEZE, 1.0, cg.time, Float(cent.miscTime), -1)
+                            if cent.localAnimIndex <= 1 {
+                                trap_G2API_SetBoneAnim(legs.ghoul2, 0, "Motion", cent.miscTime, cent.miscTime, BONE_ANIM_OVERRIDE_FREEZE, 1.0, cg.time, Float(cent.miscTime), -1)
+                            }
+                        }
+
+                        CG_Disintegration(cent, legs)
+
+                        //goto endOfCall;
+                        return true
+                    } else {
+                        cent.dustTrailTime = 0
+                        cent.miscTime = 0
                     }
-                }
 
-                CG_Disintegration(cent, legs)
-
-                //goto endOfCall;
-                return true
-            } else {
-                cent.dustTrailTime = 0
-                cent.miscTime = 0
-            }
-
-            if (cent.currentState.powerups & (1 << PW_CLOAKED)) != 0 {
-                if !cent.cloaked {
-                    cent.cloaked = true
-                    cent.uncloaking = cg.time + 2000
-                }
-            } else if cent.cloaked {
-                cent.cloaked = false
-                cent.uncloaking = cg.time + 2000
-            }
-
-            if cent.uncloaking > cg.time {
-                //in the middle of cloaking
-                if (cg.snap!.ps.fd.forcePowersActive & (1 << FP_SEE)) != 0 && cg.snap!.ps.clientNum != cent.currentState.number {
-                    //just draw him
-                    trap_R_AddRefEntityToScene(legs)
-                } else {
-                    var perc: Float = Float((cent.uncloaking - cg.time)) / 2000.0
                     if (cent.currentState.powerups & (1 << PW_CLOAKED)) != 0 {
-                        //actually cloaking, so reverse it
-                        perc = 1.0 - perc
+                        if !cent.cloaked {
+                            cent.cloaked = true
+                            cent.uncloaking = cg.time + 2000
+                        }
+                    } else if cent.cloaked {
+                        cent.cloaked = false
+                        cent.uncloaking = cg.time + 2000
                     }
 
-                    if perc >= 0.0 && perc <= 1.0 {
-                        legs.renderfx &= ~RF_FORCE_ENT_ALPHA
-                        legs.renderfx |= RF_RGB_TINT
-                        legs.shaderRGBA[2] = UInt8(truncatingIfNeeded: Int32(255.0 * perc))
-                        legs.shaderRGBA[1] = legs.shaderRGBA[2]
-                        legs.shaderRGBA[0] = legs.shaderRGBA[1]
-                        legs.shaderRGBA[3] = 0
-                        legs.customShader = cgs.media.cloakedShader
-                        trap_R_AddRefEntityToScene(legs)
-
-                        legs.shaderRGBA[2] = 255
-                        legs.shaderRGBA[1] = legs.shaderRGBA[2]
-                        legs.shaderRGBA[0] = legs.shaderRGBA[1]
-                        legs.shaderRGBA[3] = UInt8(truncatingIfNeeded: Int32(255 * (1.0 - perc))) // let model alpha in
-                        legs.customShader = 0 // use regular skin
-                        legs.renderfx &= ~RF_RGB_TINT
-                        legs.renderfx |= RF_FORCE_ENT_ALPHA
-                        trap_R_AddRefEntityToScene(legs)
-                    }
-                }
-            } else if (cent.currentState.powerups & (1 << PW_CLOAKED)) != 0 {
-                //fully cloaked
-                if (cg.snap!.ps.fd.forcePowersActive & (1 << FP_SEE)) != 0 && cg.snap!.ps.clientNum != cent.currentState.number {
-                    //just draw him
-                    trap_R_AddRefEntityToScene(legs)
-                } else {
-                    if cg.renderingThirdPerson || cent.currentState.number != cg.predictedPlayerState.clientNum {
-                        /*
-                        legs.renderfx = 0;//&= ~(RF_RGB_TINT|RF_ALPHA_FADE);
-                        legs.shaderRGBA[0] = legs.shaderRGBA[1] = legs.shaderRGBA[2] = legs.shaderRGBA[3] = 255;
-                        legs.customShader = cgs.media.cloakedShader;
-
-                        legs.nonNormalizedAxes = qtrue;
-
-                        legs.modelScale[0] = 1.02f;
-                        legs.modelScale[1] = 1.02f;
-                        legs.modelScale[2] = 1.02f;
-                        VectorScale( legs.axis[0], legs.modelScale[0], legs.axis[0] );
-                        VectorScale( legs.axis[1], legs.modelScale[1], legs.axis[1] );
-                        VectorScale( legs.axis[2], legs.modelScale[2], legs.axis[2] );
-
-                        ScaleModelAxis(&legs);
-
-                        trap_R_AddRefEntityToScene( &legs );
-
-                        legs.modelScale[0] = 0.98f;
-                        legs.modelScale[1] = 0.98f;
-                        legs.modelScale[2] = 0.98f;
-                        VectorScale( legs.axis[0], legs.modelScale[0], legs.axis[0] );
-                        VectorScale( legs.axis[1], legs.modelScale[1], legs.axis[1] );
-                        VectorScale( legs.axis[2], legs.modelScale[2], legs.axis[2] );
-
-                        ScaleModelAxis(&legs);
-                        */
-
-                        if cg_shadows.integer != 2 && cgs.glconfig.stencilBits >= 4 && cg_renderToTextureFX.integer != 0 {
-                            trap_R_SetRefractProp(1.0, 0.0, false, false) //don't need to do this every frame.. but..
-                            legs.customShader = 2 //crazy "refractive" shader
+                    if cent.uncloaking > cg.time {
+                        //in the middle of cloaking
+                        if (cg.snap!.ps.fd.forcePowersActive & (1 << FP_SEE)) != 0 && cg.snap!.ps.clientNum != cent.currentState.number {
+                            //just draw him
                             trap_R_AddRefEntityToScene(legs)
-                            legs.customShader = 0
                         } else {
-                            //stencil buffer's in use, sorry
-                            legs.renderfx = 0 //&= ~(RF_RGB_TINT|RF_ALPHA_FADE);
-                            legs.shaderRGBA[3] = 255
-                            legs.shaderRGBA[2] = legs.shaderRGBA[3]
-                            legs.shaderRGBA[1] = legs.shaderRGBA[2]
-                            legs.shaderRGBA[0] = legs.shaderRGBA[1]
-                            legs.customShader = cgs.media.cloakedShader
+                            var perc: Float = Float((cent.uncloaking - cg.time)) / 2000.0
+                            if (cent.currentState.powerups & (1 << PW_CLOAKED)) != 0 {
+                                //actually cloaking, so reverse it
+                                perc = 1.0 - perc
+                            }
+
+                            if perc >= 0.0 && perc <= 1.0 {
+                                legs.renderfx &= ~RF_FORCE_ENT_ALPHA
+                                legs.renderfx |= RF_RGB_TINT
+                                legs.shaderRGBA[2] = UInt8(truncatingIfNeeded: Int32(255.0 * perc))
+                                legs.shaderRGBA[1] = legs.shaderRGBA[2]
+                                legs.shaderRGBA[0] = legs.shaderRGBA[1]
+                                legs.shaderRGBA[3] = 0
+                                legs.customShader = cgs.media.cloakedShader
+                                trap_R_AddRefEntityToScene(legs)
+
+                                legs.shaderRGBA[2] = 255
+                                legs.shaderRGBA[1] = legs.shaderRGBA[2]
+                                legs.shaderRGBA[0] = legs.shaderRGBA[1]
+                                legs.shaderRGBA[3] = UInt8(truncatingIfNeeded: Int32(255 * (1.0 - perc))) // let model alpha in
+                                legs.customShader = 0 // use regular skin
+                                legs.renderfx &= ~RF_RGB_TINT
+                                legs.renderfx |= RF_FORCE_ENT_ALPHA
+                                trap_R_AddRefEntityToScene(legs)
+                            }
+                        }
+                    } else if (cent.currentState.powerups & (1 << PW_CLOAKED)) != 0 {
+                        //fully cloaked
+                        if (cg.snap!.ps.fd.forcePowersActive & (1 << FP_SEE)) != 0 && cg.snap!.ps.clientNum != cent.currentState.number {
+                            //just draw him
                             trap_R_AddRefEntityToScene(legs)
-                            legs.customShader = 0
+                        } else {
+                            if cg.renderingThirdPerson || cent.currentState.number != cg.predictedPlayerState.clientNum {
+                                /*
+                                legs.renderfx = 0;//&= ~(RF_RGB_TINT|RF_ALPHA_FADE);
+                                legs.shaderRGBA[0] = legs.shaderRGBA[1] = legs.shaderRGBA[2] = legs.shaderRGBA[3] = 255;
+                                legs.customShader = cgs.media.cloakedShader;
+
+                                legs.nonNormalizedAxes = qtrue;
+
+                                legs.modelScale[0] = 1.02f;
+                                legs.modelScale[1] = 1.02f;
+                                legs.modelScale[2] = 1.02f;
+                                VectorScale( legs.axis[0], legs.modelScale[0], legs.axis[0] );
+                                VectorScale( legs.axis[1], legs.modelScale[1], legs.axis[1] );
+                                VectorScale( legs.axis[2], legs.modelScale[2], legs.axis[2] );
+
+                                ScaleModelAxis(&legs);
+
+                                trap_R_AddRefEntityToScene( &legs );
+
+                                legs.modelScale[0] = 0.98f;
+                                legs.modelScale[1] = 0.98f;
+                                legs.modelScale[2] = 0.98f;
+                                VectorScale( legs.axis[0], legs.modelScale[0], legs.axis[0] );
+                                VectorScale( legs.axis[1], legs.modelScale[1], legs.axis[1] );
+                                VectorScale( legs.axis[2], legs.modelScale[2], legs.axis[2] );
+
+                                ScaleModelAxis(&legs);
+                                */
+
+                                if cg_shadows.integer != 2 && cgs.glconfig.stencilBits >= 4 && cg_renderToTextureFX.integer != 0 {
+                                    trap_R_SetRefractProp(1.0, 0.0, false, false) //don't need to do this every frame.. but..
+                                    legs.customShader = 2 //crazy "refractive" shader
+                                    trap_R_AddRefEntityToScene(legs)
+                                    legs.customShader = 0
+                                } else {
+                                    //stencil buffer's in use, sorry
+                                    legs.renderfx = 0 //&= ~(RF_RGB_TINT|RF_ALPHA_FADE);
+                                    legs.shaderRGBA[3] = 255
+                                    legs.shaderRGBA[2] = legs.shaderRGBA[3]
+                                    legs.shaderRGBA[1] = legs.shaderRGBA[2]
+                                    legs.shaderRGBA[0] = legs.shaderRGBA[1]
+                                    legs.customShader = cgs.media.cloakedShader
+                                    trap_R_AddRefEntityToScene(legs)
+                                    legs.customShader = 0
+                                }
+                            }
                         }
                     }
-                }
-            }
 
-            if !((cent.currentState.powerups & (1 << PW_CLOAKED)) != 0) {
-                //don't add the normal model if cloaked
-                CG_CheckThirdPersonAlpha(cent, legs)
-                trap_R_AddRefEntityToScene(legs)
-            }
+                    if !((cent.currentState.powerups & (1 << PW_CLOAKED)) != 0) {
+                        //don't add the normal model if cloaked
+                        CG_CheckThirdPersonAlpha(cent, legs)
+                        trap_R_AddRefEntityToScene(legs)
+                    }
 
-            //cent->frame_minus2 = cent->frame_minus1;
-            cent.frame_minus2 = cent.frame_minus1
+                    //cent->frame_minus2 = cent->frame_minus1;
+                    cent.frame_minus2 = cent.frame_minus1
 
-            if cent.frame_minus1_refreshed != 0 {
-                cent.frame_minus2_refreshed = 1
-            }
+                    if cent.frame_minus1_refreshed != 0 {
+                        cent.frame_minus2_refreshed = 1
+                    }
 
-            //cent->frame_minus1 = legs;
-            cent.frame_minus1 = legs.origin
+                    //cent->frame_minus1 = legs;
+                    cent.frame_minus1 = legs.origin
 
-            cent.frame_minus1_refreshed = 1
+                    cent.frame_minus1_refreshed = 1
 
-            if cent.frame_hold_refreshed == 0 && (cent.currentState.powerups & (1 << PW_SPEEDBURST)) != 0 {
-                cent.frame_hold_time = cg.time + 254
-            }
+                    if cent.frame_hold_refreshed == 0 && (cent.currentState.powerups & (1 << PW_SPEEDBURST)) != 0 {
+                        cent.frame_hold_time = cg.time + 254
+                    }
 
-            if cent.frame_hold_time >= cg.time {
-                // Raven's record lives to the end of his block, so the block is the closure.
-                RefEntity.scratch { reframe_hold in
+                    if cent.frame_hold_time >= cg.time {
+                        // Raven's record lives to the end of his block, so the block is the closure.
+                        RefEntity.scratch { reframe_hold in
 
-                    if cent.frame_hold_refreshed == 0 {
-                        //We're taking the ghoul2 instance from the original refent and duplicating it onto our refent alias so that we can then freeze the frame and fade it for the effect
-                        if cent.frame_hold != nil && trap_G2_HaveWeGhoul2Models(cent.frame_hold) && cent.frame_hold != cent.ghoul2 {
-                            trap_G2API_CleanGhoul2Models(&(cent.frame_hold))
+                            if cent.frame_hold_refreshed == 0 {
+                                //We're taking the ghoul2 instance from the original refent and duplicating it onto our refent alias so that we can then freeze the frame and fade it for the effect
+                                if cent.frame_hold != nil && trap_G2_HaveWeGhoul2Models(cent.frame_hold) && cent.frame_hold != cent.ghoul2 {
+                                    trap_G2API_CleanGhoul2Models(&(cent.frame_hold))
+                                }
+                                reframe_hold.copy(from: legs)
+                                cent.frame_hold_refreshed = 1
+                                reframe_hold.ghoul2 = nil
+
+                                trap_G2API_DuplicateGhoul2Instance(cent.ghoul2, &cent.frame_hold)
+
+                                //Set the animation to the current frame and freeze on end
+                                //trap_G2API_SetBoneAnim(cent->frame_hold.ghoul2, 0, "model_root", cent->frame_hold.frame, cent->frame_hold.frame, BONE_ANIM_OVERRIDE_FREEZE, 1.0f, cg.time, cent->frame_hold.frame, -1);
+                                trap_G2API_SetBoneAnim(cent.frame_hold, 0, "model_root", legs.frame, legs.frame, 0, 1.0, cg.time, Float(legs.frame), -1)
+                            } else {
+                                reframe_hold.copy(from: legs)
+                                reframe_hold.ghoul2 = cent.frame_hold
+                            }
+
+                            reframe_hold.renderfx |= RF_FORCE_ENT_ALPHA
+                            reframe_hold.shaderRGBA[3] = UInt8(truncatingIfNeeded: (cent.frame_hold_time - cg.time))
+                            if reframe_hold.shaderRGBA[3] > 254 {
+                                reframe_hold.shaderRGBA[3] = 254
+                            }
+                            if reframe_hold.shaderRGBA[3] < 1 {
+                                reframe_hold.shaderRGBA[3] = 1
+                            }
+
+                            reframe_hold.ghoul2 = cent.frame_hold
+                            trap_R_AddRefEntityToScene(reframe_hold)
                         }
-                        reframe_hold.copy(from: legs)
-                        cent.frame_hold_refreshed = 1
-                        reframe_hold.ghoul2 = nil
-
-                        trap_G2API_DuplicateGhoul2Instance(cent.ghoul2, &cent.frame_hold)
-
-                        //Set the animation to the current frame and freeze on end
-                        //trap_G2API_SetBoneAnim(cent->frame_hold.ghoul2, 0, "model_root", cent->frame_hold.frame, cent->frame_hold.frame, BONE_ANIM_OVERRIDE_FREEZE, 1.0f, cg.time, cent->frame_hold.frame, -1);
-                        trap_G2API_SetBoneAnim(cent.frame_hold, 0, "model_root", legs.frame, legs.frame, 0, 1.0, cg.time, Float(legs.frame), -1)
                     } else {
-                        reframe_hold.copy(from: legs)
-                        reframe_hold.ghoul2 = cent.frame_hold
+                        cent.frame_hold_refreshed = 0
                     }
 
-                    reframe_hold.renderfx |= RF_FORCE_ENT_ALPHA
-                    reframe_hold.shaderRGBA[3] = UInt8(truncatingIfNeeded: (cent.frame_hold_time - cg.time))
-                    if reframe_hold.shaderRGBA[3] > 254 {
-                        reframe_hold.shaderRGBA[3] = 254
+                    //
+                    // add the gun / barrel / flash
+                    //
+                    if cent.currentState.weapon != WP_EMPLACED_GUN {
+                        CG_AddPlayerWeapon(legs, nil, cent, ci!.team, rootAngles, true)
                     }
-                    if reframe_hold.shaderRGBA[3] < 1 {
-                        reframe_hold.shaderRGBA[3] = 1
-                    }
+                    // add powerups floating behind the player
+                    CG_PlayerPowerups(cent, legs)
 
-                    reframe_hold.ghoul2 = cent.frame_hold
-                    trap_R_AddRefEntityToScene(reframe_hold)
-                }
-            } else {
-                cent.frame_hold_refreshed = 0
-            }
+                    if (cent.currentState.forcePowersActive & (1 << FP_RAGE)) != 0 && (cg.renderingThirdPerson || cent.currentState.number != cg.snap!.ps.clientNum) {
+                        //legs.customShader = cgs.media.rageShader;
+                        legs.renderfx &= ~RF_FORCE_ENT_ALPHA
+                        legs.renderfx &= ~RF_MINLIGHT
 
-            //
-            // add the gun / barrel / flash
-            //
-            if cent.currentState.weapon != WP_EMPLACED_GUN {
-                CG_AddPlayerWeapon(legs, nil, cent, ci!.team, rootAngles, true)
-            }
-            // add powerups floating behind the player
-            CG_PlayerPowerups(cent, legs)
-
-            if (cent.currentState.forcePowersActive & (1 << FP_RAGE)) != 0 && (cg.renderingThirdPerson || cent.currentState.number != cg.snap!.ps.clientNum) {
-                //legs.customShader = cgs.media.rageShader;
-                legs.renderfx &= ~RF_FORCE_ENT_ALPHA
-                legs.renderfx &= ~RF_MINLIGHT
-
-                legs.renderfx |= RF_RGB_TINT
-                legs.shaderRGBA[0] = 255
-                legs.shaderRGBA[2] = 0
-                legs.shaderRGBA[1] = legs.shaderRGBA[2]
-                legs.shaderRGBA[3] = 255
-
-                // The SDK also declares `rand`, so the call names the bg module.
-                if (JKAMP_BG.rand() & 1) != 0 {
-                    legs.customShader = cgs.media.electricBodyShader
-                } else {
-                    legs.customShader = cgs.media.electricBody2Shader
-                }
-
-                trap_R_AddRefEntityToScene(legs)
-            }
-
-            if !cg.snap!.ps.duelInProgress && cent.currentState.bolt1 != 0 && !((cent.currentState.eFlags & EF_DEAD) != 0) && cent.currentState.number != cg.snap!.ps.clientNum && (!cg.snap!.ps.duelInProgress || cg.snap!.ps.duelIndex != cent.currentState.number) {
-                legs.shaderRGBA[0] = 50
-                legs.shaderRGBA[1] = 50
-                legs.shaderRGBA[2] = 255
-
-                legs.renderfx &= ~RF_RGB_TINT
-                legs.renderfx &= ~RF_FORCE_ENT_ALPHA
-                legs.customShader = cgs.media.forceSightBubble
-
-                trap_R_AddRefEntityToScene(legs)
-            }
-
-            if CG_VehicleShouldDrawShields(cent) || (checkDroidShields && CG_VehicleShouldDrawShields(cg_entities[cent.currentState.m_iVehicleNum])) {
-                //Vehicles have form-fitting shields
-                var pVeh: Vehicle? = cent.m_pVehicle
-                if checkDroidShields {
-                    pVeh = cg_entities[cent.currentState.m_iVehicleNum].m_pVehicle
-                }
-                legs.shaderRGBA[0] = 255
-                legs.shaderRGBA[1] = 255
-                legs.shaderRGBA[2] = 255
-                legs.shaderRGBA[3] = UInt8(truncatingIfNeeded: Int32(10.0 + (sin(Float((cg.time / 4))) * 128.0))) //112.0 * ((cent->damageTime - cg.time) / MIN_SHIELD_TIME) + random()*16;
-
-                legs.renderfx &= ~RF_RGB_TINT
-                legs.renderfx &= ~RF_FORCE_ENT_ALPHA
-
-                if pVeh != nil && pVeh!.m_pVehicleInfo != nil && pVeh!.m_pVehicleInfo!.shieldShaderHandle != 0 {
-                    //use the vehicle-specific shader
-                    legs.customShader = pVeh!.m_pVehicleInfo!.shieldShaderHandle
-                } else {
-                    legs.customShader = cgs.media.playerShieldDamage
-                }
-
-                trap_R_AddRefEntityToScene(legs)
-            }
-            //For now, these two are using the old shield shader. This is just so that you
-            //can tell it apart from the JM/duel shaders, but it's still very obvious.
-            if (cent.currentState.forcePowersActive & (1 << FP_PROTECT)) != 0 {
-                //aborb is represented by green..
-                // Raven's record lives to the end of his block, so the block is the closure.
-                RefEntity.scratch { prot in
-
-                    prot.copy(from: legs)
-
-                    prot.shaderRGBA[0] = 0
-                    prot.shaderRGBA[1] = 128
-                    prot.shaderRGBA[2] = 0
-                    prot.shaderRGBA[3] = 254
-
-                    prot.renderfx &= ~RF_RGB_TINT
-                    prot.renderfx &= ~RF_FORCE_ENT_ALPHA
-                    prot.customShader = cgs.media.protectShader
-
-                    /*
-                    if (!prot.modelScale[0] && !prot.modelScale[1] && !prot.modelScale[2])
-                    {
-                    prot.modelScale[0] = prot.modelScale[1] = prot.modelScale[2] = 1.0f;
-                    }
-                    VectorScale(prot.modelScale, 1.1f, prot.modelScale);
-                    prot.origin[2] -= 2.0f;
-                    ScaleModelAxis(&prot);
-                    */
-
-                    trap_R_AddRefEntityToScene(prot)
-                }
-            }
-            //if (cent->currentState.forcePowersActive & (1 << FP_ABSORB))
-            //Showing only when the power has been active (absorbed something) recently now, instead of always.
-            //AND
-            //always show if it is you with the absorb on
-            if (cent.currentState.number == cg.predictedPlayerState.clientNum && (cg.predictedPlayerState.fd.forcePowersActive & (1 << FP_ABSORB)) != 0) || (cent.teamPowerEffectTime > cg.time && cent.teamPowerType) {
-                //aborb is represented by blue..
-                legs.shaderRGBA[0] = 0
-                legs.shaderRGBA[1] = 0
-                legs.shaderRGBA[2] = 255
-                legs.shaderRGBA[3] = 254
-
-                legs.renderfx &= ~RF_RGB_TINT
-                legs.renderfx &= ~RF_FORCE_ENT_ALPHA
-                legs.customShader = cgs.media.playerShieldDamage
-
-                trap_R_AddRefEntityToScene(legs)
-            }
-
-            if cent.currentState.isJediMaster && cg.snap!.ps.clientNum != cent.currentState.number {
-                legs.shaderRGBA[0] = 100
-                legs.shaderRGBA[1] = 100
-                legs.shaderRGBA[2] = 255
-
-                legs.renderfx &= ~RF_RGB_TINT
-                legs.renderfx &= ~RF_FORCE_ENT_ALPHA
-                legs.renderfx |= RF_NODEPTH
-                legs.customShader = cgs.media.forceShell
-
-                trap_R_AddRefEntityToScene(legs)
-
-                legs.renderfx &= ~RF_NODEPTH
-            }
-
-            if (cg.snap!.ps.fd.forcePowersActive & (1 << FP_SEE)) != 0 && cg.snap!.ps.clientNum != cent.currentState.number && cg_auraShell.integer != 0 {
-                if cgs.gametype == GT_SIEGE {
-                    // A team game
-                    if ci!.team == TEAM_SPECTATOR || ci!.team == TEAM_FREE {
-                        //yellow
+                        legs.renderfx |= RF_RGB_TINT
                         legs.shaderRGBA[0] = 255
-                        legs.shaderRGBA[1] = 255
                         legs.shaderRGBA[2] = 0
-                    } else if ci!.team != cgs.clientinfo[cg.snap!.ps.clientNum].team {
-                        //red
-                        legs.shaderRGBA[0] = 255
-                        legs.shaderRGBA[1] = 50
-                        legs.shaderRGBA[2] = 50
-                    } else {
-                        //green
-                        legs.shaderRGBA[0] = 50
-                        legs.shaderRGBA[1] = 255
-                        legs.shaderRGBA[2] = 50
-                    }
-                } else if cgs.gametype >= GT_TEAM {
-                    // A team game
-                    switch ci!.team {
-                    case TEAM_RED:
-                        legs.shaderRGBA[0] = 255
-                        legs.shaderRGBA[1] = 50
-                        legs.shaderRGBA[2] = 50
+                        legs.shaderRGBA[1] = legs.shaderRGBA[2]
+                        legs.shaderRGBA[3] = 255
 
-                    case TEAM_BLUE:
-                        legs.shaderRGBA[0] = 75
-                        legs.shaderRGBA[1] = 75
+                        // The SDK also declares `rand`, so the call names the bg module.
+                        if (JKAMP_BG.rand() & 1) != 0 {
+                            legs.customShader = cgs.media.electricBodyShader
+                        } else {
+                            legs.customShader = cgs.media.electricBody2Shader
+                        }
+
+                        trap_R_AddRefEntityToScene(legs)
+                    }
+
+                    if !cg.snap!.ps.duelInProgress && cent.currentState.bolt1 != 0 && !((cent.currentState.eFlags & EF_DEAD) != 0) && cent.currentState.number != cg.snap!.ps.clientNum && (!cg.snap!.ps.duelInProgress || cg.snap!.ps.duelIndex != cent.currentState.number) {
+                        legs.shaderRGBA[0] = 50
+                        legs.shaderRGBA[1] = 50
                         legs.shaderRGBA[2] = 255
 
-                    default:
+                        legs.renderfx &= ~RF_RGB_TINT
+                        legs.renderfx &= ~RF_FORCE_ENT_ALPHA
+                        legs.customShader = cgs.media.forceSightBubble
+
+                        trap_R_AddRefEntityToScene(legs)
+                    }
+
+                    if CG_VehicleShouldDrawShields(cent) || (checkDroidShields && CG_VehicleShouldDrawShields(cg_entities[cent.currentState.m_iVehicleNum])) {
+                        //Vehicles have form-fitting shields
+                        var pVeh: Vehicle? = cent.m_pVehicle
+                        if checkDroidShields {
+                            pVeh = cg_entities[cent.currentState.m_iVehicleNum].m_pVehicle
+                        }
                         legs.shaderRGBA[0] = 255
                         legs.shaderRGBA[1] = 255
-                        legs.shaderRGBA[2] = 0
+                        legs.shaderRGBA[2] = 255
+                        legs.shaderRGBA[3] = UInt8(truncatingIfNeeded: Int32(10.0 + (sin(Float((cg.time / 4))) * 128.0))) //112.0 * ((cent->damageTime - cg.time) / MIN_SHIELD_TIME) + random()*16;
+
+                        legs.renderfx &= ~RF_RGB_TINT
+                        legs.renderfx &= ~RF_FORCE_ENT_ALPHA
+
+                        if pVeh != nil && pVeh!.m_pVehicleInfo != nil && pVeh!.m_pVehicleInfo!.shieldShaderHandle != 0 {
+                            //use the vehicle-specific shader
+                            legs.customShader = pVeh!.m_pVehicleInfo!.shieldShaderHandle
+                        } else {
+                            legs.customShader = cgs.media.playerShieldDamage
+                        }
+
+                        trap_R_AddRefEntityToScene(legs)
                     }
-                } else {
-                    // Not a team game
-                    legs.shaderRGBA[0] = 255
-                    legs.shaderRGBA[1] = 255
-                    legs.shaderRGBA[2] = 0
-                }
+                    //For now, these two are using the old shield shader. This is just so that you
+                    //can tell it apart from the JM/duel shaders, but it's still very obvious.
+                    if (cent.currentState.forcePowersActive & (1 << FP_PROTECT)) != 0 {
+                        //aborb is represented by green..
+                        // Raven's record lives to the end of his block, so the block is the closure.
+                        RefEntity.scratch { prot in
 
-                /*		if (cg.snap->ps.fd.forcePowerLevel[FP_SEE] <= FORCE_LEVEL_1)
-                {
-                legs.renderfx |= RF_MINLIGHT;
-                }
-                else
-                */
-                do {
-                    // See through walls.
-                    legs.renderfx |= RF_MINLIGHT | RF_NODEPTH
+                            prot.copy(from: legs)
 
-                    if cg.snap!.ps.fd.forcePowerLevel[FP_SEE] < FORCE_LEVEL_2 {
-                        //only level 2+ can see players through walls
+                            prot.shaderRGBA[0] = 0
+                            prot.shaderRGBA[1] = 128
+                            prot.shaderRGBA[2] = 0
+                            prot.shaderRGBA[3] = 254
+
+                            prot.renderfx &= ~RF_RGB_TINT
+                            prot.renderfx &= ~RF_FORCE_ENT_ALPHA
+                            prot.customShader = cgs.media.protectShader
+
+                            /*
+                            if (!prot.modelScale[0] && !prot.modelScale[1] && !prot.modelScale[2])
+                            {
+                            prot.modelScale[0] = prot.modelScale[1] = prot.modelScale[2] = 1.0f;
+                            }
+                            VectorScale(prot.modelScale, 1.1f, prot.modelScale);
+                            prot.origin[2] -= 2.0f;
+                            ScaleModelAxis(&prot);
+                            */
+
+                            trap_R_AddRefEntityToScene(prot)
+                        }
+                    }
+                    //if (cent->currentState.forcePowersActive & (1 << FP_ABSORB))
+                    //Showing only when the power has been active (absorbed something) recently now, instead of always.
+                    //AND
+                    //always show if it is you with the absorb on
+                    if (cent.currentState.number == cg.predictedPlayerState.clientNum && (cg.predictedPlayerState.fd.forcePowersActive & (1 << FP_ABSORB)) != 0) || (cent.teamPowerEffectTime > cg.time && cent.teamPowerType) {
+                        //aborb is represented by blue..
+                        legs.shaderRGBA[0] = 0
+                        legs.shaderRGBA[1] = 0
+                        legs.shaderRGBA[2] = 255
+                        legs.shaderRGBA[3] = 254
+
+                        legs.renderfx &= ~RF_RGB_TINT
+                        legs.renderfx &= ~RF_FORCE_ENT_ALPHA
+                        legs.customShader = cgs.media.playerShieldDamage
+
+                        trap_R_AddRefEntityToScene(legs)
+                    }
+
+                    if cent.currentState.isJediMaster && cg.snap!.ps.clientNum != cent.currentState.number {
+                        legs.shaderRGBA[0] = 100
+                        legs.shaderRGBA[1] = 100
+                        legs.shaderRGBA[2] = 255
+
+                        legs.renderfx &= ~RF_RGB_TINT
+                        legs.renderfx &= ~RF_FORCE_ENT_ALPHA
+                        legs.renderfx |= RF_NODEPTH
+                        legs.customShader = cgs.media.forceShell
+
+                        trap_R_AddRefEntityToScene(legs)
+
                         legs.renderfx &= ~RF_NODEPTH
                     }
+
+                    if (cg.snap!.ps.fd.forcePowersActive & (1 << FP_SEE)) != 0 && cg.snap!.ps.clientNum != cent.currentState.number && cg_auraShell.integer != 0 {
+                        if cgs.gametype == GT_SIEGE {
+                            // A team game
+                            if ci!.team == TEAM_SPECTATOR || ci!.team == TEAM_FREE {
+                                //yellow
+                                legs.shaderRGBA[0] = 255
+                                legs.shaderRGBA[1] = 255
+                                legs.shaderRGBA[2] = 0
+                            } else if ci!.team != cgs.clientinfo[cg.snap!.ps.clientNum].team {
+                                //red
+                                legs.shaderRGBA[0] = 255
+                                legs.shaderRGBA[1] = 50
+                                legs.shaderRGBA[2] = 50
+                            } else {
+                                //green
+                                legs.shaderRGBA[0] = 50
+                                legs.shaderRGBA[1] = 255
+                                legs.shaderRGBA[2] = 50
+                            }
+                        } else if cgs.gametype >= GT_TEAM {
+                            // A team game
+                            switch ci!.team {
+                            case TEAM_RED:
+                                legs.shaderRGBA[0] = 255
+                                legs.shaderRGBA[1] = 50
+                                legs.shaderRGBA[2] = 50
+
+                            case TEAM_BLUE:
+                                legs.shaderRGBA[0] = 75
+                                legs.shaderRGBA[1] = 75
+                                legs.shaderRGBA[2] = 255
+
+                            default:
+                                legs.shaderRGBA[0] = 255
+                                legs.shaderRGBA[1] = 255
+                                legs.shaderRGBA[2] = 0
+                            }
+                        } else {
+                            // Not a team game
+                            legs.shaderRGBA[0] = 255
+                            legs.shaderRGBA[1] = 255
+                            legs.shaderRGBA[2] = 0
+                        }
+
+                        /*		if (cg.snap->ps.fd.forcePowerLevel[FP_SEE] <= FORCE_LEVEL_1)
+                        {
+                        legs.renderfx |= RF_MINLIGHT;
+                        }
+                        else
+                        */
+                        do {
+                            // See through walls.
+                            legs.renderfx |= RF_MINLIGHT | RF_NODEPTH
+
+                            if cg.snap!.ps.fd.forcePowerLevel[FP_SEE] < FORCE_LEVEL_2 {
+                                //only level 2+ can see players through walls
+                                legs.renderfx &= ~RF_NODEPTH
+                            }
+                        }
+
+                        legs.renderfx &= ~RF_RGB_TINT
+                        legs.renderfx &= ~RF_FORCE_ENT_ALPHA
+                        legs.customShader = cgs.media.sightShell
+
+                        trap_R_AddRefEntityToScene(legs)
+                    }
+
+                    // Electricity
+                    //------------------------------------------------
+                    if cent.currentState.emplacedOwner > cg.time {
+                        let dif: Int32 = cent.currentState.emplacedOwner - cg.time
+                        var tempAngles = vec3_t()
+
+                        // The SDK also declares `random`, so the call names the bg module.
+                        if dif > 0 && JKAMP_BG.random() > 0.4 {
+                            // fade out over the last 500 ms
+                            var brightness: Int32 = 255
+
+                            if dif < 500 {
+                                brightness = Int32(floor((dif - 500.0) / 500.0 * 255.0))
+                            }
+
+                            legs.renderfx &= ~RF_FORCE_ENT_ALPHA
+                            legs.renderfx &= ~RF_MINLIGHT
+
+                            legs.renderfx |= RF_RGB_TINT
+                            legs.shaderRGBA[2] = UInt8(truncatingIfNeeded: brightness)
+                            legs.shaderRGBA[1] = legs.shaderRGBA[2]
+                            legs.shaderRGBA[0] = legs.shaderRGBA[1]
+                            legs.shaderRGBA[3] = 255
+
+                            // The SDK also declares `rand`, so the call names the bg module.
+                            if (JKAMP_BG.rand() & 1) != 0 {
+                                legs.customShader = cgs.media.electricBodyShader
+                            } else {
+                                legs.customShader = cgs.media.electricBody2Shader
+                            }
+
+                            trap_R_AddRefEntityToScene(legs)
+
+                            // The SDK also declares `random`, so the call names the bg module.
+                            if JKAMP_BG.random() > 0.9 {
+                                trap_S_StartSound(nil, cent.currentState.number, CHAN_AUTO, cgs.media.crackleSound)
+                            }
+                        }
+
+                        tempAngles = vec3_t(0, cent.lerpAngles[YAW], 0)
+                        CG_ForceElectrocution(cent, legs.origin, tempAngles, cgs.media.boltShader, false)
+                    }
+
+                    if (cent.currentState.powerups & (1 << PW_SHIELDHIT)) != 0 {
+                        /*
+                        legs.shaderRGBA[0] = legs.shaderRGBA[1] = legs.shaderRGBA[2] = 255.0f * 0.5f;//t;
+                        legs.shaderRGBA[3] = 255;
+                        legs.renderfx &= ~RF_ALPHA_FADE;
+                        legs.renderfx |= RF_RGB_TINT;
+                        */
+
+                        legs.shaderRGBA[2] = UInt8(truncatingIfNeeded: Q_irand(1, 255))
+                        legs.shaderRGBA[1] = legs.shaderRGBA[2]
+                        legs.shaderRGBA[0] = legs.shaderRGBA[1]
+
+                        legs.renderfx &= ~RF_FORCE_ENT_ALPHA
+                        legs.renderfx &= ~RF_MINLIGHT
+                        legs.renderfx &= ~RF_RGB_TINT
+                        legs.customShader = cgs.media.playerShieldDamage
+
+                        trap_R_AddRefEntityToScene(legs)
+                    }
+                    return false
                 }
-
-                legs.renderfx &= ~RF_RGB_TINT
-                legs.renderfx &= ~RF_FORCE_ENT_ALPHA
-                legs.customShader = cgs.media.sightShell
-
-                trap_R_AddRefEntityToScene(legs)
-            }
-
-            // Electricity
-            //------------------------------------------------
-            if cent.currentState.emplacedOwner > cg.time {
-                let dif: Int32 = cent.currentState.emplacedOwner - cg.time
-                var tempAngles = vec3_t()
-
-                // The SDK also declares `random`, so the call names the bg module.
-                if dif > 0 && JKAMP_BG.random() > 0.4 {
-                    // fade out over the last 500 ms
-                    var brightness: Int32 = 255
-
-                    if dif < 500 {
-                        brightness = Int32(floor((dif - 500.0) / 500.0 * 255.0))
-                    }
-
-                    legs.renderfx &= ~RF_FORCE_ENT_ALPHA
-                    legs.renderfx &= ~RF_MINLIGHT
-
-                    legs.renderfx |= RF_RGB_TINT
-                    legs.shaderRGBA[2] = UInt8(truncatingIfNeeded: brightness)
-                    legs.shaderRGBA[1] = legs.shaderRGBA[2]
-                    legs.shaderRGBA[0] = legs.shaderRGBA[1]
-                    legs.shaderRGBA[3] = 255
-
-                    // The SDK also declares `rand`, so the call names the bg module.
-                    if (JKAMP_BG.rand() & 1) != 0 {
-                        legs.customShader = cgs.media.electricBodyShader
-                    } else {
-                        legs.customShader = cgs.media.electricBody2Shader
-                    }
-
-                    trap_R_AddRefEntityToScene(legs)
-
-                    // The SDK also declares `random`, so the call names the bg module.
-                    if JKAMP_BG.random() > 0.9 {
-                        trap_S_StartSound(nil, cent.currentState.number, CHAN_AUTO, cgs.media.crackleSound)
-                    }
+                if earlyOut4 {
+                    return true
                 }
-
-                tempAngles = vec3_t(0, cent.lerpAngles[YAW], 0)
-                CG_ForceElectrocution(cent, legs.origin, tempAngles, cgs.media.boltShader, false)
+                return false
             }
-
-            if (cent.currentState.powerups & (1 << PW_SHIELDHIT)) != 0 {
-                /*
-                legs.shaderRGBA[0] = legs.shaderRGBA[1] = legs.shaderRGBA[2] = 255.0f * 0.5f;//t;
-                legs.shaderRGBA[3] = 255;
-                legs.renderfx &= ~RF_ALPHA_FADE;
-                legs.renderfx |= RF_RGB_TINT;
-                */
-
-                legs.shaderRGBA[2] = UInt8(truncatingIfNeeded: Q_irand(1, 255))
-                legs.shaderRGBA[1] = legs.shaderRGBA[2]
-                legs.shaderRGBA[0] = legs.shaderRGBA[1]
-
-                legs.renderfx &= ~RF_FORCE_ENT_ALPHA
-                legs.renderfx &= ~RF_MINLIGHT
-                legs.renderfx &= ~RF_RGB_TINT
-                legs.customShader = cgs.media.playerShieldDamage
-
-                trap_R_AddRefEntityToScene(legs)
+            if earlyOut3 {
+                return true
             }
             return false
         }
@@ -9325,12 +9324,8 @@ func CG_ResetPlayerEntity(_ cent: Centity) {
         }
         if cent.currentState.saberHolstered == 0 {
             //if not holstered set length and desired length for both blades to full right now.
-            // Port-note: The draft of this statement did not compile, and the compiler wrote "cannot find 'BG_SI_SetDesiredLength' in scope".
-            // Raven wrote: BG_SI_SetDesiredLength(&ci->saber[0], 0, -1)
-            portMissing("CG_ResetPlayerEntity", source: "oracle/codemp/cgame/cg_players.c:11119")
-            // Port-note: The draft of this statement did not compile, and the compiler wrote "cannot find 'BG_SI_SetDesiredLength' in scope".
-            // Raven wrote: BG_SI_SetDesiredLength(&ci->saber[1], 0, -1)
-            portMissing("CG_ResetPlayerEntity", source: "oracle/codemp/cgame/cg_players.c:11119")
+            BG_SI_SetDesiredLength(ci!.saber[0], 0, -1)
+            BG_SI_SetDesiredLength(ci!.saber[1], 0, -1)
 
             i = 0
             while i < MAX_SABERS {
