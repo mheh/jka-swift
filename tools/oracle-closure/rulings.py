@@ -370,6 +370,7 @@ CHARBUF_ALLOCS = {"B_TempAlloc", "BG_TempAlloc"}
 #   model_list  a Slots<qhandle_t>? for an `int *modelList` the engine reads as the array of model handles, the form a `qhandle_t *` has
 #   out_opaque  an inout OpaquePointer? for a `void *` Raven's callers pass the address of a handle field to, the shape a `void **` already has
 #   view      the optional view of the record named beside the kind, ("view", record), for a `void *` every caller fills with that record or NULL
+#   float_mut  an inout Float for a `float *` of a stored function that the function reads and writes as one float, keyed by "record.field"
 PARAMS = {
     ("COM_ParseString", "s"): "out_string",
     # String_Parse of ui_shared.c:607 sets `*out` to the token and never walks it.
@@ -448,6 +449,8 @@ PARAMS = {
     ("Scroll_ListBox_AutoFunc", "p"): ("view", "scrollInfo_t"),
     ("Scroll_ListBox_ThumbFunc", "p"): ("view", "scrollInfo_t"),
     ("Scroll_Slider_ThumbFunc", "p"): ("view", "scrollInfo_t"),
+    # Raven passes `&item->special`, one float, at ui_shared.c:2655, and CG_OwnerDrawHandleKey of cg_newDraw.c reads one float.
+    ("displayContextDef_t.ownerDrawHandleKey", "special"): "float_mut",
     ("trap_G2API_RemoveGhoul2Models", "ghlInfo"): "out_opaque",
     ("trap_G2API_RemoveGhoul2Model", "ghlInfo"): "out_opaque",
 }
