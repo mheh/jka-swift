@@ -1615,9 +1615,8 @@ func CG_DrawForceSelect() {
             i = NUM_FORCE_POWERS
         }
 
-        // Port-note: Raven reads `forcePowerSorted[MAX_SHOWPOWERS]` one past the end after the wrap, the first slot of `forcePowerDarkLight` in his data.
-        // The Swift array traps there.
-        if !ForcePower_Valid(forcePowerSorted[i]) { // Does he have this power?
+        // AI: Raven reads one past the end of forcePowerSorted after the wrap. The port skips that slot.
+        if i == NUM_FORCE_POWERS || !ForcePower_Valid(forcePowerSorted[i]) { // Does he have this power?
             i -= 1
             continue
         }
@@ -1651,9 +1650,8 @@ func CG_DrawForceSelect() {
             i = 0
         }
 
-        // Port-note: Raven reads `forcePowerSorted[MAX_SHOWPOWERS]` one past the end after the wrap, the first slot of `forcePowerDarkLight` in his data.
-        // The Swift array traps there.
-        if !ForcePower_Valid(forcePowerSorted[i]) { // Does he have this power?
+        // AI: Raven reads one past the end of forcePowerSorted after the wrap. The port skips that slot.
+        if i == NUM_FORCE_POWERS || !ForcePower_Valid(forcePowerSorted[i]) { // Does he have this power?
             i += 1
             continue
         }
