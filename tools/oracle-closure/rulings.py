@@ -144,6 +144,9 @@ CGAME_ROOTS = {
     "consoleCommand_t": ("ConsoleCommand", "CJKAMP_CGame"),
     # Item_StartCapture of ui_shared.c fills `scrollInfo` and hands its address to the five Scroll functions through `captureData`.
     "scrollInfo_t": ("ScrollInfo", "CJKAMP_CGame"),
+    # The C tables g_bindings and itemFlags of ui_shared.c hold these rows.
+    "bind_t": ("Bind", "CJKAMP_CGame"),
+    "itemFlagsDef_t": ("ItemFlagsDef", "CJKAMP_CGame"),
     # A trap or a stub parameter names these, and no root field points at them.
     "polyVert_t": ("PolyVert", "CJKAMP"),
     "poly_t": ("Poly", "CJKAMP"),

@@ -107,4 +107,20 @@ typedef struct scrollInfo_s {
 	qboolean scrollDir;
 } scrollInfo_t;
 
+// Source: oracle/codemp/ui/ui_shared.c:152
+typedef struct  itemFlagsDef_s {
+	char *string;
+	int value;
+}	itemFlagsDef_t;
+
+// Source: oracle/codemp/ui/ui_shared.c:5173
+typedef struct {
+	char	*command;
+	int		id;
+	int		defaultbind1;
+	int		defaultbind2;
+	int		bind1;
+	int		bind2;
+} bind_t;
+
 #endif
