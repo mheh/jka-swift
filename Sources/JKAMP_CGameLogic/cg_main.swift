@@ -550,84 +550,71 @@ func CG_NoUseableForce() -> Bool {
 
 /// Source: oracle/codemp/cgame/cg_main.c:362
 private func C_PointContents() -> Int32 {
-    // Port-note: The draft of this statement did not compile, and the compiler wrote "cannot convert value of type 'String' to expected argument type 'UnsafeMutableRawPointer'".
-    // Raven wrote: TCGPointContents *data = (TCGPointContents *)cg.sharedBuffer;
-    portMissing("C_PointContents", source: "oracle/codemp/cgame/cg_main.c:362")
+    let data = CGPointContents(handle: OpaquePointer(cg.sharedBuffer))
 
-    // Port-note: A read of `data`, a local the draft left as a hole.
-    // Raven wrote: return CG_PointContents( data->mPoint, data->mPassEntityNum )
-    portMissing("C_PointContents", source: "oracle/codemp/cgame/cg_main.c:362")
+    return CG_PointContents(data.mPoint, data.mPassEntityNum)
 }
 
 /// Source: oracle/codemp/cgame/cg_main.c:369
 private func C_GetLerpOrigin() {
-    // Port-note: The draft of this statement did not compile, and the compiler wrote "cannot convert value of type 'String' to expected argument type 'UnsafeMutableRawPointer'".
-    // Raven wrote: TCGVectorData *data = (TCGVectorData *)cg.sharedBuffer;
-    portMissing("C_GetLerpOrigin", source: "oracle/codemp/cgame/cg_main.c:369")
+    let data = CGVectorData(handle: OpaquePointer(cg.sharedBuffer))
 
-    // Port-note: A read of `data`, a local the draft left as a hole.
-    // Raven wrote: VectorCopy(cg_entities[data->mEntityNum].lerpOrigin, data->mPoint)
-    portMissing("C_GetLerpOrigin", source: "oracle/codemp/cgame/cg_main.c:369")
+    data.mPoint = cg_entities[data.mEntityNum].lerpOrigin
 }
 
 /// Source: oracle/codemp/cgame/cg_main.c:376
 private func C_GetLerpData() {
     //only used by FX system to pass to getboltmat
-    // Port-note: The draft of this statement did not compile, and the compiler wrote "cannot convert value of type 'String' to expected argument type 'UnsafeMutableRawPointer'".
-    // Raven wrote: TCGGetBoltData *data = (TCGGetBoltData *)cg.sharedBuffer;
-    portMissing("C_GetLerpData", source: "oracle/codemp/cgame/cg_main.c:376")
+    let data = CGGetBoltData(handle: OpaquePointer(cg.sharedBuffer))
 
-    // Port-note: A read of `data`, a local the draft left as a hole.
-    // Raven wrote: VectorCopy(cg_entities[data->mEntityNum].lerpOrigin, data->mOrigin)
-    portMissing("C_GetLerpData", source: "oracle/codemp/cgame/cg_main.c:376")
-    // Port-note: A read of `data`, a local the draft left as a hole.
-    // Raven wrote: VectorCopy(cg_entities[data->mEntityNum].modelScale, data->mScale)
-    portMissing("C_GetLerpData", source: "oracle/codemp/cgame/cg_main.c:376")
-    // Port-note: A read of `data`, a local the draft left as a hole.
-    // Raven wrote: VectorCopy(cg_entities[data->mEntityNum].lerpAngles, data->mAngles)
-    portMissing("C_GetLerpData", source: "oracle/codemp/cgame/cg_main.c:376")
-    // Port-note: A read of `data`, a local the draft left as a hole.
-    // Raven wrote: if (cg_entities[data->mEntityNum].currentState.eType == ET_PLAYER) { //normal player data->mAngles[PITCH] = 0.0f; data->mAngles[ROLL] = 0.0f; } else if (cg_entities[data->mEntityNum].currentState.eType == ET_NPC) { //an NPC Vehicle_t *pVeh = cg_entities[data->mEntityNum].m_pVehicle; if (!pVeh) { //for vehicles, we may or may not want to 0 out pitch and roll data->mAngles[PITCH] = 0.0f; data->mAngles[ROLL] = 0.0f; } else if (pVeh->m_pVehicleInfo->type == VH_SPEEDER) { //speeder wants no pitch but a roll data->mAngles[PITCH] = 0.0f; } else if (pVeh->m_pVehicleInfo->type != VH_FIGHTER) { //fighters want all angles data->mAngles[PITCH] = 0.0f; data->mAngles[ROLL] = 0.0f; } }
-    portMissing("C_GetLerpData", source: "oracle/codemp/cgame/cg_main.c:376")
+    data.mOrigin = cg_entities[data.mEntityNum].lerpOrigin
+    data.mScale = cg_entities[data.mEntityNum].modelScale
+    data.mAngles = cg_entities[data.mEntityNum].lerpAngles
+    if cg_entities[data.mEntityNum].currentState.eType == ET_PLAYER {
+        //normal player
+        data.mAngles[PITCH] = 0.0
+        data.mAngles[ROLL] = 0.0
+    } else if cg_entities[data.mEntityNum].currentState.eType == ET_NPC {
+        //an NPC
+        let pVeh: Vehicle? = cg_entities[data.mEntityNum].m_pVehicle
+        if pVeh == nil {
+            //for vehicles, we may or may not want to 0 out pitch and roll
+            data.mAngles[PITCH] = 0.0
+            data.mAngles[ROLL] = 0.0
+        } else if pVeh!.m_pVehicleInfo!.type == VH_SPEEDER {
+            //speeder wants no pitch but a roll
+            data.mAngles[PITCH] = 0.0
+        } else if pVeh!.m_pVehicleInfo!.type != VH_FIGHTER {
+            //fighters want all angles
+            data.mAngles[PITCH] = 0.0
+            data.mAngles[ROLL] = 0.0
+        }
+    }
 }
 
 /// Source: oracle/codemp/cgame/cg_main.c:408
 private func C_Trace() {
-    // Port-note: The draft of this statement did not compile, and the compiler wrote "cannot convert value of type 'String' to expected argument type 'UnsafeMutableRawPointer'".
-    // Raven wrote: TCGTrace *td = (TCGTrace *)cg.sharedBuffer;
-    portMissing("C_Trace", source: "oracle/codemp/cgame/cg_main.c:408")
+    let td = CGTrace(handle: OpaquePointer(cg.sharedBuffer))
 
-    // Port-note: A read of `td`, a local the draft left as a hole.
-    // Raven wrote: CG_Trace(&td->mResult, td->mStart, td->mMins, td->mMaxs, td->mEnd, td->mSkipNumber, td->mMask)
-    portMissing("C_Trace", source: "oracle/codemp/cgame/cg_main.c:408")
+    CG_Trace(td.mResult, td.mStart, td.mMins, td.mMaxs, td.mEnd, td.mSkipNumber, td.mMask)
 }
 
 /// Source: oracle/codemp/cgame/cg_main.c:415
 private func C_G2Trace() {
-    // Port-note: The draft of this statement did not compile, and the compiler wrote "cannot convert value of type 'String' to expected argument type 'UnsafeMutableRawPointer'".
-    // Raven wrote: TCGTrace *td = (TCGTrace *)cg.sharedBuffer;
-    portMissing("C_G2Trace", source: "oracle/codemp/cgame/cg_main.c:415")
+    let td = CGTrace(handle: OpaquePointer(cg.sharedBuffer))
 
-    // Port-note: A read of `td`, a local the draft left as a hole.
-    // Raven wrote: CG_G2Trace(&td->mResult, td->mStart, td->mMins, td->mMaxs, td->mEnd, td->mSkipNumber, td->mMask)
-    portMissing("C_G2Trace", source: "oracle/codemp/cgame/cg_main.c:415")
+    CG_G2Trace(td.mResult, td.mStart, td.mMins, td.mMaxs, td.mEnd, td.mSkipNumber, td.mMask)
 }
 
 /// Source: oracle/codemp/cgame/cg_main.c:422
 private func C_G2Mark() {
-    // Port-note: The draft of this statement did not compile, and the compiler wrote "cannot convert value of type 'String' to expected argument type 'UnsafeMutableRawPointer'".
-    // Raven wrote: TCGG2Mark *td = (TCGG2Mark *)cg.sharedBuffer;
-    portMissing("C_G2Mark", source: "oracle/codemp/cgame/cg_main.c:422")
+    let td = CGG2Mark(handle: OpaquePointer(cg.sharedBuffer))
     // Raven's record lives to the end of his block, so the block is the closure.
     Trace.scratch { tr in
         var end = vec3_t()
 
-        // Port-note: A read of `td`, a local the draft left as a hole.
-        // Raven wrote: VectorMA(td->start, 64, td->dir, end)
-        portMissing("C_G2Mark", source: "oracle/codemp/cgame/cg_main.c:422")
-        // Port-note: A read of `td`, a local the draft left as a hole.
-        // Raven wrote: CG_G2Trace(&tr, td->start, NULL, NULL, end, ENTITYNUM_NONE, MASK_PLAYERSOLID)
-        portMissing("C_G2Mark", source: "oracle/codemp/cgame/cg_main.c:422")
+        _VectorMA(td.start, 64, td.dir, &end)
+        CG_G2Trace(tr, td.start, nil, nil, end, ENTITYNUM_NONE, MASK_PLAYERSOLID)
 
         if tr.entityNum < ENTITYNUM_WORLD && cg_entities[tr.entityNum].ghoul2 != nil {
             //hit someone with a ghoul2 instance, let's project the decal on them then.
@@ -635,9 +622,7 @@ private func C_G2Mark() {
 
             //CG_TestLine(tr.endpos, end, 2000, 0x0000ff, 1);
 
-            // Port-note: A read of `td`, a local the draft left as a hole.
-            // Raven wrote: CG_AddGhoul2Mark(td->shader, td->size, tr.endpos, end, tr.entityNum, cent->lerpOrigin, cent->lerpAngles[YAW], cent->ghoul2, cent->modelScale, Q_irand(2000, 4000))
-            portMissing("C_G2Mark", source: "oracle/codemp/cgame/cg_main.c:422")
+            CG_AddGhoul2Mark(td.shader, td.size, tr.endpos, end, tr.entityNum, cent!.lerpOrigin, cent!.lerpAngles[YAW], cent!.ghoul2, &cent!.modelScale, Q_irand(2000, 4000))
             //I'm making fx system decals have a very short lifetime.
         }
     }
@@ -711,20 +696,14 @@ private func CG_RagCallback(_ callType: Int32) -> Int32 {
     switch callType {
     case RAG_CALLBACK_DEBUGBOX:
         do {
-            // Port-note: The draft of this statement did not compile, and the compiler wrote "cannot convert value of type 'String' to expected argument type 'UnsafeMutableRawPointer'".
-            // Raven wrote: ragCallbackDebugBox_t *callData = (ragCallbackDebugBox_t *)cg.sharedBuffer;
-            portMissing("CG_RagCallback", source: "oracle/codemp/cgame/cg_main.c:508")
+            let callData = RagCallbackDebugBox(handle: OpaquePointer(cg.sharedBuffer))
 
-            // Port-note: A read of `callData`, a local the draft left as a hole.
-            // Raven wrote: CG_DebugBoxLines(callData->mins, callData->maxs, callData->duration)
-            portMissing("CG_RagCallback", source: "oracle/codemp/cgame/cg_main.c:508")
+            CG_DebugBoxLines(callData.mins, callData.maxs, callData.duration)
         }
 
     case RAG_CALLBACK_DEBUGLINE:
         do {
-            // Port-note: The draft of this statement did not compile, and the compiler wrote "cannot convert value of type 'String' to expected argument type 'UnsafeMutableRawPointer'".
-            // Raven wrote: ragCallbackDebugLine_t *callData = (ragCallbackDebugLine_t *)cg.sharedBuffer;
-            portMissing("CG_RagCallback", source: "oracle/codemp/cgame/cg_main.c:508")
+            let callData = RagCallbackDebugLine(handle: OpaquePointer(cg.sharedBuffer))
 
             // Port-note: The draft of this statement did not compile, and the compiler wrote "cannot convert value of type 'Int32' to expected argument type 'UInt32'".
             // Raven wrote: CG_TestLine(callData->start, callData->end, callData->time, callData->color, callData->radius)
@@ -733,17 +712,11 @@ private func CG_RagCallback(_ callType: Int32) -> Int32 {
 
     case RAG_CALLBACK_BONESNAP:
         do {
-            // Port-note: The draft of this statement did not compile, and the compiler wrote "cannot convert value of type 'String' to expected argument type 'UnsafeMutableRawPointer'".
-            // Raven wrote: ragCallbackBoneSnap_t *callData = (ragCallbackBoneSnap_t *)cg.sharedBuffer;
-            portMissing("CG_RagCallback", source: "oracle/codemp/cgame/cg_main.c:508")
-            // Port-note: A read of `callData`, a local the draft left as a hole.
-            // Raven wrote: centity_t *cent = &cg_entities[callData->entNum];
-            portMissing("CG_RagCallback", source: "oracle/codemp/cgame/cg_main.c:508")
+            let callData = RagCallbackBoneSnap(handle: OpaquePointer(cg.sharedBuffer))
+            let cent: Centity? = cg_entities[callData.entNum]
             let snapSound: Int32 = trap_S_RegisterSound(va("sound/player/bodyfall_human%i.wav", Q_irand(1, 3)))
 
-            // Port-note: A read of `cent`, a local the draft left as a hole.
-            // Raven wrote: trap_S_StartSound(cent->lerpOrigin, callData->entNum, CHAN_AUTO, snapSound)
-            portMissing("CG_RagCallback", source: "oracle/codemp/cgame/cg_main.c:508")
+            trap_S_StartSound(cent!.lerpOrigin, callData.entNum, CHAN_AUTO, snapSound)
         }
         fallthrough
 
@@ -755,13 +728,9 @@ private func CG_RagCallback(_ callType: Int32) -> Int32 {
 
     case RAG_CALLBACK_TRACELINE:
         do {
-            // Port-note: The draft of this statement did not compile, and the compiler wrote "cannot convert value of type 'String' to expected argument type 'UnsafeMutableRawPointer'".
-            // Raven wrote: ragCallbackTraceLine_t *callData = (ragCallbackTraceLine_t *)cg.sharedBuffer;
-            portMissing("CG_RagCallback", source: "oracle/codemp/cgame/cg_main.c:508")
+            let callData = RagCallbackTraceLine(handle: OpaquePointer(cg.sharedBuffer))
 
-            // Port-note: A read of `callData`, a local the draft left as a hole.
-            // Raven wrote: CG_Trace(&callData->tr, callData->start, callData->mins, callData->maxs, callData->end, callData->ignore, callData->mask)
-            portMissing("CG_RagCallback", source: "oracle/codemp/cgame/cg_main.c:508")
+            CG_Trace(callData.tr, callData.start, callData.mins, callData.maxs, callData.end, callData.ignore, callData.mask)
         }
 
     default:
@@ -773,60 +742,42 @@ private func CG_RagCallback(_ callType: Int32) -> Int32 {
 
 /// Source: oracle/codemp/cgame/cg_main.c:570
 private func C_ImpactMark() {
-    // Port-note: The draft of this statement did not compile, and the compiler wrote "cannot convert value of type 'String' to expected argument type 'UnsafeMutableRawPointer'".
-    // Raven wrote: TCGImpactMark *data = (TCGImpactMark *)cg.sharedBuffer;
-    portMissing("C_ImpactMark", source: "oracle/codemp/cgame/cg_main.c:570")
+    let data = CGImpactMark(handle: OpaquePointer(cg.sharedBuffer))
 
     /*
     CG_ImpactMark((int)arg0, (const float *)arg1, (const float *)arg2, (float)arg3,
     (float)arg4, (float)arg5, (float)arg6, (float)arg7, qtrue, (float)arg8, qfalse);
     */
-    // Port-note: A read of `data`, a local the draft left as a hole.
-    // Raven wrote: CG_ImpactMark(data->mHandle, data->mPoint, data->mAngle, data->mRotation, data->mRed, data->mGreen, data->mBlue, data->mAlphaStart, qtrue, data->mSizeStart, qfalse)
-    portMissing("C_ImpactMark", source: "oracle/codemp/cgame/cg_main.c:570")
+    CG_ImpactMark(data.mHandle, data.mPoint, data.mAngle, data.mRotation, data.mRed, data.mGreen, data.mBlue, data.mAlphaStart, true, data.mSizeStart, false)
 }
 
 /// Source: oracle/codemp/cgame/cg_main.c:582
 func CG_MiscEnt() {
     let modelIndex: Int32
     var RefEnt: RefEntity?
-    // Port-note: The draft of this statement did not compile, and the compiler wrote "cannot convert value of type 'String' to expected argument type 'UnsafeMutableRawPointer'".
-    // Raven wrote: TCGMiscEnt *data = (TCGMiscEnt *)cg.sharedBuffer;
-    portMissing("CG_MiscEnt", source: "oracle/codemp/cgame/cg_main.c:582")
+    let data = CGMiscEnt(handle: OpaquePointer(cg.sharedBuffer))
     var mins = vec3_t()
     var maxs = vec3_t()
-    // Port-note: A pointer local `float * radius` with no view.
-    // Raven wrote: float *radius;
-    portMissing("CG_MiscEnt", source: "oracle/codemp/cgame/cg_main.c:582")
-    // Port-note: A pointer local `float * zOff` with no view.
-    // Raven wrote: zOff;
-    portMissing("CG_MiscEnt", source: "oracle/codemp/cgame/cg_main.c:582")
+    var radiusIndex: Int32 = 0
+    var zOffIndex: Int32 = 0
 
     if NumMiscEnts >= MAX_MISC_ENTS {
         return
     }
 
-    // Port-note: A store into `radius`, a local the draft left as a hole.
-    // Raven wrote: radius = &Radius[NumMiscEnts]
-    portMissing("CG_MiscEnt", source: "oracle/codemp/cgame/cg_main.c:582")
-    // Port-note: A store into `zOff`, a local the draft left as a hole.
-    // Raven wrote: zOff = &zOffset[NumMiscEnts]
-    portMissing("CG_MiscEnt", source: "oracle/codemp/cgame/cg_main.c:582")
+    radiusIndex = NumMiscEnts
+    zOffIndex = NumMiscEnts
     // Port-note: A ++ inside an expression.
     // Raven wrote: RefEnt = &MiscEnts[NumMiscEnts++]
     portMissing("CG_MiscEnt", source: "oracle/codemp/cgame/cg_main.c:582")
 
-    // Port-note: A read of `data`, a local the draft left as a hole.
-    // Raven wrote: modelIndex = trap_R_RegisterModel(data->mModel)
-    portMissing("CG_MiscEnt", source: "oracle/codemp/cgame/cg_main.c:582")
+    modelIndex = trap_R_RegisterModel(data.mModel)
     if modelIndex == 0 {
         Com_Error(ERR_DROP, "client_model has invalid model definition")
         return
     }
 
-    // Port-note: A pointer dereference the draft cannot place.
-    // Raven wrote: *zOff = 0
-    portMissing("CG_MiscEnt", source: "oracle/codemp/cgame/cg_main.c:582")
+    zOffset[zOffIndex] = 0
 
     // Port-note: The draft of this statement did not compile, and the compiler wrote "value of optional type 'RefEntity?' must be unwrapped to refer to member 'clear' of wrapped base type 'RefEntity'".
     // Raven wrote: memset(RefEnt, 0, sizeof(refEntity_t))
@@ -835,24 +786,14 @@ func CG_MiscEnt() {
     RefEnt!.hModel = modelIndex
     RefEnt!.frame = 0
     trap_R_ModelBounds(modelIndex, &mins, &maxs)
-    // Port-note: A read of `data`, a local the draft left as a hole.
-    // Raven wrote: VectorCopy(data->mScale, RefEnt->modelScale)
-    portMissing("CG_MiscEnt", source: "oracle/codemp/cgame/cg_main.c:582")
-    // Port-note: A read of `data`, a local the draft left as a hole.
-    // Raven wrote: VectorCopy(data->mOrigin, RefEnt->origin)
-    portMissing("CG_MiscEnt", source: "oracle/codemp/cgame/cg_main.c:582")
+    RefEnt!.modelScale = data.mScale
+    RefEnt!.origin = data.mOrigin
 
-    // Port-note: An expression statement with no effect the draft knows.
-    // Raven wrote: VectorScaleVector(mins, data->mScale, mins)
-    portMissing("CG_MiscEnt", source: "oracle/codemp/cgame/cg_main.c:582")
-    // Port-note: An expression statement with no effect the draft knows.
-    // Raven wrote: VectorScaleVector(maxs, data->mScale, maxs)
-    portMissing("CG_MiscEnt", source: "oracle/codemp/cgame/cg_main.c:582")
-    // Port-note: A pointer dereference the draft cannot place.
-    // Raven wrote: *radius = Distance(mins, maxs)
-    portMissing("CG_MiscEnt", source: "oracle/codemp/cgame/cg_main.c:582")
+    mins = mins * data.mScale
+    maxs = maxs * data.mScale
+    Radius[radiusIndex] = Distance(mins, maxs)
 
-    // Port-note: The draft of this statement did not compile, and the compiler wrote "cannot convert value of type 'Slots<vec3_t>' (aka 'Slots<SIMD3<Float>>') to expected argument type '[vec3_t]' (aka 'Array<SIMD3<Float>>')".
+    // Port-note: The draft of this statement did not compile, and the compiler wrote "'&' used with non-inout argument of type 'Slots<vec3_t>' (aka 'Slots<SIMD3<Float>>')".
     // Raven wrote: AnglesToAxis( data->mAngles, RefEnt->axis )
     portMissing("CG_MiscEnt", source: "oracle/codemp/cgame/cg_main.c:582")
     ScaleModelAxis(RefEnt!)
@@ -862,41 +803,32 @@ func CG_MiscEnt() {
 func CG_DrawMiscEnts() {
     var i: Int32
     var RefEntIndex: Int32 = 0
-    // Port-note: A pointer local `float * radius` with no view.
-    // Raven wrote: float *radius;
-    portMissing("CG_DrawMiscEnts", source: "oracle/codemp/cgame/cg_main.c:624")
-    // Port-note: A pointer local `float * zOff` with no view.
-    // Raven wrote: zOff;
-    portMissing("CG_DrawMiscEnts", source: "oracle/codemp/cgame/cg_main.c:624")
+    var radiusIndex: Int32 = 0
+    var zOffIndex: Int32 = 0
     var difference = vec3_t()
     var cullOrigin = vec3_t()
 
     RefEntIndex = 0
-    // Port-note: A store into `radius`, a local the draft left as a hole.
-    // Raven wrote: radius = Radius
-    portMissing("CG_DrawMiscEnts", source: "oracle/codemp/cgame/cg_main.c:624")
-    // Port-note: A store into `zOff`, a local the draft left as a hole.
-    // Raven wrote: zOff = zOffset
-    portMissing("CG_DrawMiscEnts", source: "oracle/codemp/cgame/cg_main.c:624")
+    radiusIndex = 0
+    zOffIndex = 0
     i = 0
     while i < NumMiscEnts {
         cullOrigin = MiscEnts[RefEntIndex].origin
         cullOrigin[2] += 1.0
 
-        // Port-note: A pointer dereference the draft cannot place.
-        // Raven wrote: if (*zOff) { cullOrigin[2] += *zOff; }
-        portMissing("CG_DrawMiscEnts", source: "oracle/codemp/cgame/cg_main.c:624")
+        if zOffset[zOffIndex] != 0 {
+            cullOrigin[2] += zOffset[zOffIndex]
+        }
 
-        // Port-note: Raven passes `cg.snap->areamask` to `trap_R_inPVS`, whose `mask` parameter takes the Slots over the records, and Swift holds one record here. A Slots over one record has no form yet.
-        // Raven wrote: if (cg.snap && trap_R_inPVS(cg.refdef.vieworg, cullOrigin, cg.snap->areamask)) { VectorSubtract(RefEnt->origin, cg.refdef.vieworg, difference); if (VectorLength(difference)-(*radius) <= cg.distanceCull) { trap_R_AddRefEntityToScene(RefEnt); } }
-        portMissing("CG_DrawMiscEnts", source: "oracle/codemp/cgame/cg_main.c:624")
+        if cg.snap != nil && trap_R_inPVS(cg.refdef.vieworg, cullOrigin, cg.snap!.areamask) {
+            difference = MiscEnts[RefEntIndex].origin - cg.refdef.vieworg
+            if VectorLength(difference) - (Radius[radiusIndex]) <= cg.distanceCull {
+                trap_R_AddRefEntityToScene(MiscEnts[RefEntIndex])
+            }
+        }
         RefEntIndex += 1
-        // Port-note: A read of `radius`, a local the draft left as a hole.
-        // Raven wrote: radius++
-        portMissing("CG_DrawMiscEnts", source: "oracle/codemp/cgame/cg_main.c:624")
-        // Port-note: A read of `zOff`, a local the draft left as a hole.
-        // Raven wrote: zOff++
-        portMissing("CG_DrawMiscEnts", source: "oracle/codemp/cgame/cg_main.c:624")
+        radiusIndex += 1
+        zOffIndex += 1
         i += 1
     }
 }
@@ -930,95 +862,39 @@ func CG_RegisterCvars() {
 
     forceModelModificationCount = cg_forceModel.modificationCount
 
-    // Port-note: NULL for `cvar`, a VmCvar parameter.
-    // Raven wrote: trap_Cvar_Register(NULL, "model", DEFAULT_MODEL, CVAR_USERINFO | CVAR_ARCHIVE )
-    portMissing("CG_RegisterCvars", source: "oracle/codemp/cgame/cg_main.c:1062")
-    // Port-note: NULL for `cvar`, a VmCvar parameter.
-    // Raven wrote: trap_Cvar_Register(NULL, "forcepowers", DEFAULT_FORCEPOWERS, CVAR_USERINFO | CVAR_ARCHIVE )
-    portMissing("CG_RegisterCvars", source: "oracle/codemp/cgame/cg_main.c:1062")
+    trap_Cvar_Register(nil, "model", DEFAULT_MODEL, CVAR_USERINFO | CVAR_ARCHIVE)
+    trap_Cvar_Register(nil, "forcepowers", DEFAULT_FORCEPOWERS, CVAR_USERINFO | CVAR_ARCHIVE)
 
     // Cvars uses for transferring data between client and server
-    // Port-note: NULL for `cvar`, a VmCvar parameter.
-    // Raven wrote: trap_Cvar_Register(NULL, "ui_about_gametype", "0", CVAR_ROM|CVAR_INTERNAL )
-    portMissing("CG_RegisterCvars", source: "oracle/codemp/cgame/cg_main.c:1062")
-    // Port-note: NULL for `cvar`, a VmCvar parameter.
-    // Raven wrote: trap_Cvar_Register(NULL, "ui_about_fraglimit", "0", CVAR_ROM|CVAR_INTERNAL )
-    portMissing("CG_RegisterCvars", source: "oracle/codemp/cgame/cg_main.c:1062")
-    // Port-note: NULL for `cvar`, a VmCvar parameter.
-    // Raven wrote: trap_Cvar_Register(NULL, "ui_about_capturelimit", "0", CVAR_ROM|CVAR_INTERNAL )
-    portMissing("CG_RegisterCvars", source: "oracle/codemp/cgame/cg_main.c:1062")
-    // Port-note: NULL for `cvar`, a VmCvar parameter.
-    // Raven wrote: trap_Cvar_Register(NULL, "ui_about_duellimit", "0", CVAR_ROM|CVAR_INTERNAL )
-    portMissing("CG_RegisterCvars", source: "oracle/codemp/cgame/cg_main.c:1062")
-    // Port-note: NULL for `cvar`, a VmCvar parameter.
-    // Raven wrote: trap_Cvar_Register(NULL, "ui_about_timelimit", "0", CVAR_ROM|CVAR_INTERNAL )
-    portMissing("CG_RegisterCvars", source: "oracle/codemp/cgame/cg_main.c:1062")
-    // Port-note: NULL for `cvar`, a VmCvar parameter.
-    // Raven wrote: trap_Cvar_Register(NULL, "ui_about_maxclients", "0", CVAR_ROM|CVAR_INTERNAL )
-    portMissing("CG_RegisterCvars", source: "oracle/codemp/cgame/cg_main.c:1062")
-    // Port-note: NULL for `cvar`, a VmCvar parameter.
-    // Raven wrote: trap_Cvar_Register(NULL, "ui_about_dmflags", "0", CVAR_ROM|CVAR_INTERNAL )
-    portMissing("CG_RegisterCvars", source: "oracle/codemp/cgame/cg_main.c:1062")
-    // Port-note: NULL for `cvar`, a VmCvar parameter.
-    // Raven wrote: trap_Cvar_Register(NULL, "ui_about_mapname", "0", CVAR_ROM|CVAR_INTERNAL )
-    portMissing("CG_RegisterCvars", source: "oracle/codemp/cgame/cg_main.c:1062")
-    // Port-note: NULL for `cvar`, a VmCvar parameter.
-    // Raven wrote: trap_Cvar_Register(NULL, "ui_about_hostname", "0", CVAR_ROM|CVAR_INTERNAL )
-    portMissing("CG_RegisterCvars", source: "oracle/codemp/cgame/cg_main.c:1062")
-    // Port-note: NULL for `cvar`, a VmCvar parameter.
-    // Raven wrote: trap_Cvar_Register(NULL, "ui_about_needpass", "0", CVAR_ROM|CVAR_INTERNAL )
-    portMissing("CG_RegisterCvars", source: "oracle/codemp/cgame/cg_main.c:1062")
-    // Port-note: NULL for `cvar`, a VmCvar parameter.
-    // Raven wrote: trap_Cvar_Register(NULL, "ui_about_botminplayers", "0", CVAR_ROM|CVAR_INTERNAL )
-    portMissing("CG_RegisterCvars", source: "oracle/codemp/cgame/cg_main.c:1062")
+    trap_Cvar_Register(nil, "ui_about_gametype", "0", CVAR_ROM | CVAR_INTERNAL)
+    trap_Cvar_Register(nil, "ui_about_fraglimit", "0", CVAR_ROM | CVAR_INTERNAL)
+    trap_Cvar_Register(nil, "ui_about_capturelimit", "0", CVAR_ROM | CVAR_INTERNAL)
+    trap_Cvar_Register(nil, "ui_about_duellimit", "0", CVAR_ROM | CVAR_INTERNAL)
+    trap_Cvar_Register(nil, "ui_about_timelimit", "0", CVAR_ROM | CVAR_INTERNAL)
+    trap_Cvar_Register(nil, "ui_about_maxclients", "0", CVAR_ROM | CVAR_INTERNAL)
+    trap_Cvar_Register(nil, "ui_about_dmflags", "0", CVAR_ROM | CVAR_INTERNAL)
+    trap_Cvar_Register(nil, "ui_about_mapname", "0", CVAR_ROM | CVAR_INTERNAL)
+    trap_Cvar_Register(nil, "ui_about_hostname", "0", CVAR_ROM | CVAR_INTERNAL)
+    trap_Cvar_Register(nil, "ui_about_needpass", "0", CVAR_ROM | CVAR_INTERNAL)
+    trap_Cvar_Register(nil, "ui_about_botminplayers", "0", CVAR_ROM | CVAR_INTERNAL)
 
-    // Port-note: NULL for `cvar`, a VmCvar parameter.
-    // Raven wrote: trap_Cvar_Register(NULL, "ui_tm1_cnt", "0", CVAR_ROM | CVAR_INTERNAL )
-    portMissing("CG_RegisterCvars", source: "oracle/codemp/cgame/cg_main.c:1062")
-    // Port-note: NULL for `cvar`, a VmCvar parameter.
-    // Raven wrote: trap_Cvar_Register(NULL, "ui_tm2_cnt", "0", CVAR_ROM | CVAR_INTERNAL )
-    portMissing("CG_RegisterCvars", source: "oracle/codemp/cgame/cg_main.c:1062")
-    // Port-note: NULL for `cvar`, a VmCvar parameter.
-    // Raven wrote: trap_Cvar_Register(NULL, "ui_tm3_cnt", "0", CVAR_ROM | CVAR_INTERNAL )
-    portMissing("CG_RegisterCvars", source: "oracle/codemp/cgame/cg_main.c:1062")
+    trap_Cvar_Register(nil, "ui_tm1_cnt", "0", CVAR_ROM | CVAR_INTERNAL)
+    trap_Cvar_Register(nil, "ui_tm2_cnt", "0", CVAR_ROM | CVAR_INTERNAL)
+    trap_Cvar_Register(nil, "ui_tm3_cnt", "0", CVAR_ROM | CVAR_INTERNAL)
 
-    // Port-note: NULL for `cvar`, a VmCvar parameter.
-    // Raven wrote: trap_Cvar_Register(NULL, "ui_tm1_c0_cnt", "0", CVAR_ROM | CVAR_INTERNAL )
-    portMissing("CG_RegisterCvars", source: "oracle/codemp/cgame/cg_main.c:1062")
-    // Port-note: NULL for `cvar`, a VmCvar parameter.
-    // Raven wrote: trap_Cvar_Register(NULL, "ui_tm1_c1_cnt", "0", CVAR_ROM | CVAR_INTERNAL )
-    portMissing("CG_RegisterCvars", source: "oracle/codemp/cgame/cg_main.c:1062")
-    // Port-note: NULL for `cvar`, a VmCvar parameter.
-    // Raven wrote: trap_Cvar_Register(NULL, "ui_tm1_c2_cnt", "0", CVAR_ROM | CVAR_INTERNAL )
-    portMissing("CG_RegisterCvars", source: "oracle/codemp/cgame/cg_main.c:1062")
-    // Port-note: NULL for `cvar`, a VmCvar parameter.
-    // Raven wrote: trap_Cvar_Register(NULL, "ui_tm1_c3_cnt", "0", CVAR_ROM | CVAR_INTERNAL )
-    portMissing("CG_RegisterCvars", source: "oracle/codemp/cgame/cg_main.c:1062")
-    // Port-note: NULL for `cvar`, a VmCvar parameter.
-    // Raven wrote: trap_Cvar_Register(NULL, "ui_tm1_c4_cnt", "0", CVAR_ROM | CVAR_INTERNAL )
-    portMissing("CG_RegisterCvars", source: "oracle/codemp/cgame/cg_main.c:1062")
-    // Port-note: NULL for `cvar`, a VmCvar parameter.
-    // Raven wrote: trap_Cvar_Register(NULL, "ui_tm1_c5_cnt", "0", CVAR_ROM | CVAR_INTERNAL )
-    portMissing("CG_RegisterCvars", source: "oracle/codemp/cgame/cg_main.c:1062")
+    trap_Cvar_Register(nil, "ui_tm1_c0_cnt", "0", CVAR_ROM | CVAR_INTERNAL)
+    trap_Cvar_Register(nil, "ui_tm1_c1_cnt", "0", CVAR_ROM | CVAR_INTERNAL)
+    trap_Cvar_Register(nil, "ui_tm1_c2_cnt", "0", CVAR_ROM | CVAR_INTERNAL)
+    trap_Cvar_Register(nil, "ui_tm1_c3_cnt", "0", CVAR_ROM | CVAR_INTERNAL)
+    trap_Cvar_Register(nil, "ui_tm1_c4_cnt", "0", CVAR_ROM | CVAR_INTERNAL)
+    trap_Cvar_Register(nil, "ui_tm1_c5_cnt", "0", CVAR_ROM | CVAR_INTERNAL)
 
-    // Port-note: NULL for `cvar`, a VmCvar parameter.
-    // Raven wrote: trap_Cvar_Register(NULL, "ui_tm2_c0_cnt", "0", CVAR_ROM | CVAR_INTERNAL )
-    portMissing("CG_RegisterCvars", source: "oracle/codemp/cgame/cg_main.c:1062")
-    // Port-note: NULL for `cvar`, a VmCvar parameter.
-    // Raven wrote: trap_Cvar_Register(NULL, "ui_tm2_c1_cnt", "0", CVAR_ROM | CVAR_INTERNAL )
-    portMissing("CG_RegisterCvars", source: "oracle/codemp/cgame/cg_main.c:1062")
-    // Port-note: NULL for `cvar`, a VmCvar parameter.
-    // Raven wrote: trap_Cvar_Register(NULL, "ui_tm2_c2_cnt", "0", CVAR_ROM | CVAR_INTERNAL )
-    portMissing("CG_RegisterCvars", source: "oracle/codemp/cgame/cg_main.c:1062")
-    // Port-note: NULL for `cvar`, a VmCvar parameter.
-    // Raven wrote: trap_Cvar_Register(NULL, "ui_tm2_c3_cnt", "0", CVAR_ROM | CVAR_INTERNAL )
-    portMissing("CG_RegisterCvars", source: "oracle/codemp/cgame/cg_main.c:1062")
-    // Port-note: NULL for `cvar`, a VmCvar parameter.
-    // Raven wrote: trap_Cvar_Register(NULL, "ui_tm2_c4_cnt", "0", CVAR_ROM | CVAR_INTERNAL )
-    portMissing("CG_RegisterCvars", source: "oracle/codemp/cgame/cg_main.c:1062")
-    // Port-note: NULL for `cvar`, a VmCvar parameter.
-    // Raven wrote: trap_Cvar_Register(NULL, "ui_tm2_c5_cnt", "0", CVAR_ROM | CVAR_INTERNAL )
-    portMissing("CG_RegisterCvars", source: "oracle/codemp/cgame/cg_main.c:1062")
+    trap_Cvar_Register(nil, "ui_tm2_c0_cnt", "0", CVAR_ROM | CVAR_INTERNAL)
+    trap_Cvar_Register(nil, "ui_tm2_c1_cnt", "0", CVAR_ROM | CVAR_INTERNAL)
+    trap_Cvar_Register(nil, "ui_tm2_c2_cnt", "0", CVAR_ROM | CVAR_INTERNAL)
+    trap_Cvar_Register(nil, "ui_tm2_c3_cnt", "0", CVAR_ROM | CVAR_INTERNAL)
+    trap_Cvar_Register(nil, "ui_tm2_c4_cnt", "0", CVAR_ROM | CVAR_INTERNAL)
+    trap_Cvar_Register(nil, "ui_tm2_c5_cnt", "0", CVAR_ROM | CVAR_INTERNAL)
 }
 
 /**
@@ -1199,17 +1075,12 @@ CG_Argv
 */
 /// Source: oracle/codemp/cgame/cg_main.c:1263
 func CG_Argv(_ arg: Int32) -> String {
-    // Port-note: A static local `buffer` the function returns, storage that outlives the call.
-    // Raven wrote: static char buffer[MAX_STRING_CHARS];
-    portMissing("CG_Argv", source: "oracle/codemp/cgame/cg_main.c:1263")
+    // Raven's static buffer keeps the result valid after the return, and a returned `String` is already a copy.
+    var buffer = CharBuf(1024)
 
-    // Port-note: A read of `buffer`, a local the draft left as a hole.
-    // Raven wrote: trap_Argv( arg, buffer, sizeof( buffer ) )
-    portMissing("CG_Argv", source: "oracle/codemp/cgame/cg_main.c:1263")
+    strcpy(&buffer, trap_Argv(arg, Int32((buffer).count)))
 
-    // Port-note: A read of `buffer`, a local the draft left as a hole.
-    // Raven wrote: return buffer
-    portMissing("CG_Argv", source: "oracle/codemp/cgame/cg_main.c:1263")
+    return String(buffer)
 }
 
 /// Source: oracle/codemp/cgame/cg_main.c:1276
@@ -1320,15 +1191,34 @@ func CG_ParseSiegeState(_ str: String) {
     //	int prevState = cgSiegeRoundState;
     var b = CharBuf(1024)
 
-    // Port-note: The draft of this statement did not compile, and the compiler wrote "binary operator '!=' cannot be applied to operands of type 'Character' and 'Int'".
-    // Raven wrote: while (str[i] && str[i] != '|') { b[j] = str[i]; i++; j++; }
-    portMissing("CG_ParseSiegeState", source: "oracle/codemp/cgame/cg_main.c:1403")
+    while CharBuf(str)[i] != 0 && CharBuf(str)[i] != Int32(ascii: "|") {
+        b[j] = CharBuf(str)[i]
+        i += 1
+        j += 1
+    }
     b[j] = 0
     cgSiegeRoundState = atoi(b)
 
-    // Port-note: The draft of this statement did not compile, and the compiler wrote "binary operator '==' cannot be applied to operands of type 'Character' and 'Int32'".
-    // Raven wrote: if (str[i] == '|') { j = 0; i++; while (str[i]) { b[j] = str[i]; i++; j++; } b[j] = 0; // if (cgSiegeRoundState != prevState) { //it changed cgSiegeRoundTime = atoi(b); if (cgSiegeRoundState == 0 || cgSiegeRoundState == 2) { cgSiegeRoundBeganTime = cgSiegeRoundTime; } } } else { cgSiegeRoundTime = cg.time; }
-    portMissing("CG_ParseSiegeState", source: "oracle/codemp/cgame/cg_main.c:1403")
+    if CharBuf(str)[i] == Int32(ascii: "|") {
+        j = 0
+        i += 1
+        while CharBuf(str)[i] != 0 {
+            b[j] = CharBuf(str)[i]
+            i += 1
+            j += 1
+        }
+        b[j] = 0
+        //		if (cgSiegeRoundState != prevState)
+        do {
+            //it changed
+            cgSiegeRoundTime = atoi(b)
+            if cgSiegeRoundState == 0 || cgSiegeRoundState == 2 {
+                cgSiegeRoundBeganTime = cgSiegeRoundTime
+            }
+        }
+    } else {
+        cgSiegeRoundTime = cg.time
+    }
 }
 
 /// Source: oracle/codemp/cgame/cg_main.c:1456
@@ -1938,9 +1828,9 @@ private func CG_RegisterGraphics() {
     if cgs.gametype == GT_HOLOCRON || cg_buildScript.integer != 0 {
         i = 0
         while i < NUM_FORCE_POWERS {
-            // Port-note: The draft of this statement did not compile, and the compiler wrote "cannot convert value of type 'Character' to expected argument type 'Int'".
-            // Raven wrote: if (forceHolocronModels[i] && forceHolocronModels[i][0]) { trap_R_RegisterModel(forceHolocronModels[i]); }
-            portMissing("CG_RegisterGraphics", source: "oracle/codemp/cgame/cg_main.c:1919")
+            if forceHolocronModels[i] != nil && CharBuf(forceHolocronModels[i])[0] != 0 {
+                trap_R_RegisterModel(forceHolocronModels[i])
+            }
             i += 1
         }
     }
@@ -2274,22 +2164,11 @@ private func CG_RegisterGraphics() {
 
 /// Source: oracle/codemp/cgame/cg_main.c:2429
 func CG_GetStringEdString(_ refSection: String, _ refName: String?) -> String {
-    // Port-note: A local `char[2][1024] text` the table has no type for.
-    // Raven wrote: static char text[2][1024]={0};
-    portMissing("CG_GetStringEdString", source: "oracle/codemp/cgame/cg_main.c:2429")
-    // Port-note: A static local `index` a statement reads before it writes, storage that outlives the call.
-    // Raven wrote: static int index = 0;
-    portMissing("CG_GetStringEdString", source: "oracle/codemp/cgame/cg_main.c:2429")
+    // Raven's ring of static buffers keeps one result valid across a later call, and a returned `String` is already a copy.
+    var text = CharBuf(1024)
 
-    // Port-note: A store into `index`, a local the draft left as a hole.
-    // Raven wrote: index ^= 1
-    portMissing("CG_GetStringEdString", source: "oracle/codemp/cgame/cg_main.c:2429")
-    // Port-note: A read of `text`, a local the draft left as a hole.
-    // Raven wrote: trap_SP_GetStringTextString(va("%s_%s", refSection, refName), text[index], sizeof(text[0]))
-    portMissing("CG_GetStringEdString", source: "oracle/codemp/cgame/cg_main.c:2429")
-    // Port-note: A read of `text`, a local the draft left as a hole.
-    // Raven wrote: return text[index]
-    portMissing("CG_GetStringEdString", source: "oracle/codemp/cgame/cg_main.c:2429")
+    strcpy(&text, trap_SP_GetStringTextString(va("%s_%s", refSection, refName!), Int32((text).count)).1)
+    return String(text)
 }
 
 /// Source: oracle/codemp/cgame/cg_main.c:2442
@@ -2415,18 +2294,14 @@ CG_StartMusic
 */
 /// Source: oracle/codemp/cgame/cg_main.c:2550
 func CG_StartMusic(_ bForceStart: Bool) {
-    var s: String
+    var s = TextCursor()
     var parm1 = CharBuf(64)
     var parm2 = CharBuf(64)
 
     // start the background music
-    s = CG_ConfigString(CS_MUSIC)
-    // Port-note: A cast to `const char **` the draft has no view for.
-    // Raven wrote: Q_strncpyz( parm1, COM_Parse( (const char **)&s ), sizeof( parm1 ) )
-    portMissing("CG_StartMusic", source: "oracle/codemp/cgame/cg_main.c:2550")
-    // Port-note: A cast to `const char **` the draft has no view for.
-    // Raven wrote: Q_strncpyz( parm2, COM_Parse( (const char **)&s ), sizeof( parm2 ) )
-    portMissing("CG_StartMusic", source: "oracle/codemp/cgame/cg_main.c:2550")
+    s = TextCursor(CharBuf(CG_ConfigString(CS_MUSIC)))
+    Q_strncpyz(&parm1, COM_Parse(&s), Int32((parm1).count))
+    Q_strncpyz(&parm2, COM_Parse(&s), Int32((parm2).count))
 
     trap_S_StartBackgroundTrack(String(parm1), String(parm2), !bForceStart)
 }
@@ -2435,9 +2310,8 @@ func CG_StartMusic(_ bForceStart: Bool) {
 func CG_GetMenuBuffer(_ filename: String) -> String? {
     let len: Int32
     var f: fileHandle_t = 0
-    // Port-note: A static local `buf` a statement reads before it writes, storage that outlives the call.
-    // Raven wrote: static char buf[MAX_MENUFILE];
-    portMissing("CG_GetMenuBuffer", source: "oracle/codemp/cgame/cg_main.c:2563")
+    // Raven's static buffer keeps the result valid after the return, and a returned `String` is already a copy.
+    var buf = CharBuf(32768)
 
     len = trap_FS_FOpenFile(filename, &f, FS_READ)
     if f == 0 {
@@ -2450,17 +2324,11 @@ func CG_GetMenuBuffer(_ filename: String) -> String? {
         return nil
     }
 
-    // Port-note: A read of `buf`, a local the draft left as a hole.
-    // Raven wrote: trap_FS_Read( buf, len, f )
-    portMissing("CG_GetMenuBuffer", source: "oracle/codemp/cgame/cg_main.c:2563")
-    // Port-note: A read of `buf`, a local the draft left as a hole.
-    // Raven wrote: buf[len] = 0
-    portMissing("CG_GetMenuBuffer", source: "oracle/codemp/cgame/cg_main.c:2563")
+    trap_FS_Read(&buf, len, f)
+    buf[len] = 0
     trap_FS_FCloseFile(f)
 
-    // Port-note: A read of `buf`, a local the draft left as a hole.
-    // Raven wrote: return buf
-    portMissing("CG_GetMenuBuffer", source: "oracle/codemp/cgame/cg_main.c:2563")
+    return String(buf)
 }
 
 //
@@ -2493,53 +2361,45 @@ func CG_Asset_Parse(_ handle: Int32) -> Bool {
             // font
             if Q_stricmp(token.string, "font") == 0 {
                 var pointSize: Int32 = 0
-                // Port-note: The draft of this statement did not compile, and the compiler wrote "cannot convert value of type '_' to expected argument type 'Bool'".
-                // Raven wrote: if (!trap_PC_ReadToken(handle, &token) || !PC_Int_Parse(handle, &pointSize)) { return qfalse; }
-                portMissing("CG_Asset_Parse", source: "oracle/codemp/cgame/cg_main.c:2592")
+                if trap_PC_ReadToken(handle, token) == 0 || !PC_Int_Parse(handle, &pointSize) {
+                    return false
+                }
 
                 //			cgDC.registerFont(token.string, pointSize, &cgDC.Assets.textFont);
-                // Port-note: The draft of this statement did not compile, and the compiler wrote "cannot convert value of type 'String' to expected argument type 'OpaquePointer'".
-                // Raven wrote: cgDC.Assets.qhMediumFont = cgDC.RegisterFont(token.string)
-                portMissing("CG_Asset_Parse", source: "oracle/codemp/cgame/cg_main.c:2592")
+                cgDC.Assets.qhMediumFont = cgDC.runRegisterFont(token.string)
                 continue
             }
 
             // smallFont
             if Q_stricmp(token.string, "smallFont") == 0 {
                 var pointSize: Int32 = 0
-                // Port-note: The draft of this statement did not compile, and the compiler wrote "cannot find 'PC_Int_Parse' in scope".
-                // Raven wrote: if (!trap_PC_ReadToken(handle, &token) || !PC_Int_Parse(handle, &pointSize)) { return qfalse; }
-                portMissing("CG_Asset_Parse", source: "oracle/codemp/cgame/cg_main.c:2592")
+                if trap_PC_ReadToken(handle, token) == 0 || !PC_Int_Parse(handle, &pointSize) {
+                    return false
+                }
                 //			cgDC.registerFont(token.string, pointSize, &cgDC.Assets.smallFont);
-                // Port-note: The draft of this statement did not compile, and the compiler wrote "cannot convert value of type 'String' to expected argument type 'OpaquePointer'".
-                // Raven wrote: cgDC.Assets.qhSmallFont = cgDC.RegisterFont(token.string)
-                portMissing("CG_Asset_Parse", source: "oracle/codemp/cgame/cg_main.c:2592")
+                cgDC.Assets.qhSmallFont = cgDC.runRegisterFont(token.string)
                 continue
             }
 
             // smallFont
             if Q_stricmp(token.string, "small2Font") == 0 {
                 var pointSize: Int32 = 0
-                // Port-note: The draft of this statement did not compile, and the compiler wrote "cannot find 'PC_Int_Parse' in scope".
-                // Raven wrote: if (!trap_PC_ReadToken(handle, &token) || !PC_Int_Parse(handle, &pointSize)) { return qfalse; }
-                portMissing("CG_Asset_Parse", source: "oracle/codemp/cgame/cg_main.c:2592")
+                if trap_PC_ReadToken(handle, token) == 0 || !PC_Int_Parse(handle, &pointSize) {
+                    return false
+                }
                 //			cgDC.registerFont(token.string, pointSize, &cgDC.Assets.smallFont);
-                // Port-note: The draft of this statement did not compile, and the compiler wrote "cannot convert value of type 'String' to expected argument type 'OpaquePointer'".
-                // Raven wrote: cgDC.Assets.qhSmall2Font = cgDC.RegisterFont(token.string)
-                portMissing("CG_Asset_Parse", source: "oracle/codemp/cgame/cg_main.c:2592")
+                cgDC.Assets.qhSmall2Font = cgDC.runRegisterFont(token.string)
                 continue
             }
 
             // font
             if Q_stricmp(token.string, "bigfont") == 0 {
                 var pointSize: Int32 = 0
-                // Port-note: The draft of this statement did not compile, and the compiler wrote "cannot find 'PC_Int_Parse' in scope".
-                // Raven wrote: if (!trap_PC_ReadToken(handle, &token) || !PC_Int_Parse(handle, &pointSize)) { return qfalse; }
-                portMissing("CG_Asset_Parse", source: "oracle/codemp/cgame/cg_main.c:2592")
+                if trap_PC_ReadToken(handle, token) == 0 || !PC_Int_Parse(handle, &pointSize) {
+                    return false
+                }
                 //			cgDC.registerFont(token.string, pointSize, &cgDC.Assets.bigFont);
-                // Port-note: The draft of this statement did not compile, and the compiler wrote "cannot convert value of type 'String' to expected argument type 'OpaquePointer'".
-                // Raven wrote: cgDC.Assets.qhBigFont = cgDC.RegisterFont(token.string)
-                portMissing("CG_Asset_Parse", source: "oracle/codemp/cgame/cg_main.c:2592")
+                cgDC.Assets.qhBigFont = cgDC.runRegisterFont(token.string)
                 continue
             }
 
@@ -2589,7 +2449,7 @@ func CG_Asset_Parse(_ handle: Int32) -> Bool {
             }
 
             if Q_stricmp(token.string, "cursor") == 0 {
-                // Port-note: The draft of this statement did not compile, and the compiler wrote "cannot find 'PC_String_Parse' in scope".
+                // Port-note: The draft of this statement did not compile, and the compiler wrote "cannot convert value of type 'String?' to expected argument type 'TextCursor'".
                 // Raven wrote: if (!PC_String_Parse(handle, &cgDC.Assets.cursorStr)) { return qfalse; }
                 portMissing("CG_Asset_Parse", source: "oracle/codemp/cgame/cg_main.c:2592")
                 cgDC.Assets.cursor = trap_R_RegisterShaderNoMip(cgDC.Assets.cursorStr!)
@@ -2597,42 +2457,42 @@ func CG_Asset_Parse(_ handle: Int32) -> Bool {
             }
 
             if Q_stricmp(token.string, "fadeClamp") == 0 {
-                // Port-note: The draft of this statement did not compile, and the compiler wrote "cannot find 'PC_Float_Parse' in scope".
-                // Raven wrote: if (!PC_Float_Parse(handle, &cgDC.Assets.fadeClamp)) { return qfalse; }
-                portMissing("CG_Asset_Parse", source: "oracle/codemp/cgame/cg_main.c:2592")
+                if !PC_Float_Parse(handle, &cgDC.Assets.fadeClamp) {
+                    return false
+                }
                 continue
             }
 
             if Q_stricmp(token.string, "fadeCycle") == 0 {
-                // Port-note: The draft of this statement did not compile, and the compiler wrote "cannot find 'PC_Int_Parse' in scope".
-                // Raven wrote: if (!PC_Int_Parse(handle, &cgDC.Assets.fadeCycle)) { return qfalse; }
-                portMissing("CG_Asset_Parse", source: "oracle/codemp/cgame/cg_main.c:2592")
+                if !PC_Int_Parse(handle, &cgDC.Assets.fadeCycle) {
+                    return false
+                }
                 continue
             }
 
             if Q_stricmp(token.string, "fadeAmount") == 0 {
-                // Port-note: The draft of this statement did not compile, and the compiler wrote "cannot find 'PC_Float_Parse' in scope".
-                // Raven wrote: if (!PC_Float_Parse(handle, &cgDC.Assets.fadeAmount)) { return qfalse; }
-                portMissing("CG_Asset_Parse", source: "oracle/codemp/cgame/cg_main.c:2592")
+                if !PC_Float_Parse(handle, &cgDC.Assets.fadeAmount) {
+                    return false
+                }
                 continue
             }
 
             if Q_stricmp(token.string, "shadowX") == 0 {
-                // Port-note: The draft of this statement did not compile, and the compiler wrote "cannot find 'PC_Float_Parse' in scope".
-                // Raven wrote: if (!PC_Float_Parse(handle, &cgDC.Assets.shadowX)) { return qfalse; }
-                portMissing("CG_Asset_Parse", source: "oracle/codemp/cgame/cg_main.c:2592")
+                if !PC_Float_Parse(handle, &cgDC.Assets.shadowX) {
+                    return false
+                }
                 continue
             }
 
             if Q_stricmp(token.string, "shadowY") == 0 {
-                // Port-note: The draft of this statement did not compile, and the compiler wrote "cannot find 'PC_Float_Parse' in scope".
-                // Raven wrote: if (!PC_Float_Parse(handle, &cgDC.Assets.shadowY)) { return qfalse; }
-                portMissing("CG_Asset_Parse", source: "oracle/codemp/cgame/cg_main.c:2592")
+                if !PC_Float_Parse(handle, &cgDC.Assets.shadowY) {
+                    return false
+                }
                 continue
             }
 
             if Q_stricmp(token.string, "shadowColor") == 0 {
-                // Port-note: The draft of this statement did not compile, and the compiler wrote "cannot find 'PC_Color_Parse' in scope".
+                // Port-note: The draft of this statement did not compile, and the compiler wrote "cannot convert value of type 'Slots<Float>' to expected argument type 'vec4_t' (aka 'SIMD4<Float>')".
                 // Raven wrote: if (!PC_Color_Parse(handle, &cgDC.Assets.shadowColor)) { return qfalse; }
                 portMissing("CG_Asset_Parse", source: "oracle/codemp/cgame/cg_main.c:2592")
                 cgDC.Assets.shadowFadeClamp = cgDC.Assets.shadowColor[3]
@@ -2673,9 +2533,9 @@ func CG_ParseMenu(_ menuFile: String) {
             //	break;
             //}
 
-            // Port-note: The draft of this statement did not compile, and the compiler wrote "binary operator '==' cannot be applied to operands of type 'Character' and 'Int32'".
-            // Raven wrote: if ( token.string[0] == '}' ) { break; }
-            portMissing("CG_ParseMenu", source: "oracle/codemp/cgame/cg_main.c:2753")
+            if token.stringBuffer[0] == Int32(ascii: "}") {
+                break
+            }
 
             if Q_stricmp(token.string, "assetGlobalDef") == 0 {
                 if CG_Asset_Parse(handle) {
@@ -2688,9 +2548,7 @@ func CG_ParseMenu(_ menuFile: String) {
 
             if Q_stricmp(token.string, "menudef") == 0 {
                 // start a new menu
-                // Port-note: The draft of this statement did not compile, and the compiler wrote "cannot find 'Menu_New' in scope".
-                // Raven wrote: Menu_New(handle)
-                portMissing("CG_ParseMenu", source: "oracle/codemp/cgame/cg_main.c:2753")
+                Menu_New(handle)
             }
         }
         trap_PC_FreeSource(handle)
@@ -2705,18 +2563,14 @@ func CG_ParseMenu(_ menuFile: String) {
 func CG_Load_Menu(_ p: inout JKAShared.TextCursor) -> Bool {
     var token: String
 
-    // Port-note: A cast to `const char **` the draft has no view for.
-    // Raven wrote: token = COM_ParseExt((const char **)p, qtrue)
-    portMissing("CG_Load_Menu", source: "oracle/codemp/cgame/cg_main.c:2800")
+    token = COM_ParseExt(&p, true)
 
     if CharBuf(token)[0] != Int32(ascii: "{") {
         return false
     }
 
     while 1 != 0 {
-        // Port-note: A cast to `const char **` the draft has no view for.
-        // Raven wrote: token = COM_ParseExt((const char **)p, qtrue)
-        portMissing("CG_Load_Menu", source: "oracle/codemp/cgame/cg_main.c:2800")
+        token = COM_ParseExt(&p, true)
 
         if Q_stricmp(token, "}") == 0 {
             return true
@@ -2765,9 +2619,7 @@ private func CG_FeederCount(_ feederID: Float) -> Int32 {
 
 /// Source: oracle/codemp/cgame/cg_main.c:2856
 func CG_SetScoreSelection(_ p: MenuDef?) {
-    // Port-note: The draft of this statement did not compile, and the compiler wrote "no exact matches in call to initializer".
-    // Raven wrote: menuDef_t *menu = (menuDef_t*)p;
-    portMissing("CG_SetScoreSelection", source: "oracle/codemp/cgame/cg_main.c:2856")
+    let menu: MenuDef? = p
     let ps: PlayerState? = cg.snap!.ps
     var i: Int32
     var red: Int32
@@ -2787,9 +2639,10 @@ func CG_SetScoreSelection(_ p: MenuDef?) {
         i += 1
     }
 
-    // Port-note: A read of `menu`, a local the draft left as a hole.
-    // Raven wrote: if (menu == NULL) { // just interested in setting the selected score return; }
-    portMissing("CG_SetScoreSelection", source: "oracle/codemp/cgame/cg_main.c:2856")
+    if menu == nil {
+        // just interested in setting the selected score
+        return
+    }
 
     if cgs.gametype >= GT_TEAM {
         var feeder: Int32 = FEEDER_REDTEAM_LIST
@@ -2798,13 +2651,9 @@ func CG_SetScoreSelection(_ p: MenuDef?) {
             feeder = FEEDER_BLUETEAM_LIST
             i = blue
         }
-        // Port-note: The draft of this statement did not compile, and the compiler wrote "cannot find 'Menu_SetFeederSelection' in scope".
-        // Raven wrote: Menu_SetFeederSelection(menu, feeder, i, NULL)
-        portMissing("CG_SetScoreSelection", source: "oracle/codemp/cgame/cg_main.c:2856")
+        Menu_SetFeederSelection(menu!, feeder, i, nil)
     } else {
-        // Port-note: The draft of this statement did not compile, and the compiler wrote "cannot find 'Menu_SetFeederSelection' in scope".
-        // Raven wrote: Menu_SetFeederSelection(menu, FEEDER_SCOREBOARD, cg.selectedScore, NULL)
-        portMissing("CG_SetScoreSelection", source: "oracle/codemp/cgame/cg_main.c:2856")
+        Menu_SetFeederSelection(menu!, FEEDER_SCOREBOARD, cg.selectedScore, nil)
     }
 }
 
@@ -3033,9 +2882,7 @@ func CG_LoadMenus(_ menuFile: String) {
     var p = TextCursor()
     var len: Int32
     var f: fileHandle_t = 0
-    // Port-note: A static local `buf` a statement reads before it writes, storage that outlives the call.
-    // Raven wrote: static char buf[MAX_MENUDEFFILE];
-    portMissing("CG_LoadMenus", source: "oracle/codemp/cgame/cg_main.c:3076")
+    var buf = CharBuf(4096)
 
     len = trap_FS_FOpenFile(menuFile, &f, FS_READ)
 
@@ -3054,17 +2901,11 @@ func CG_LoadMenus(_ menuFile: String) {
         return
     }
 
-    // Port-note: A read of `buf`, a local the draft left as a hole.
-    // Raven wrote: trap_FS_Read( buf, len, f )
-    portMissing("CG_LoadMenus", source: "oracle/codemp/cgame/cg_main.c:3076")
-    // Port-note: A read of `buf`, a local the draft left as a hole.
-    // Raven wrote: buf[len] = 0
-    portMissing("CG_LoadMenus", source: "oracle/codemp/cgame/cg_main.c:3076")
+    trap_FS_Read(&buf, len, f)
+    buf[len] = 0
     trap_FS_FCloseFile(f)
 
-    // Port-note: A read of `buf`, a local the draft left as a hole.
-    // Raven wrote: p = buf
-    portMissing("CG_LoadMenus", source: "oracle/codemp/cgame/cg_main.c:3076")
+    p = TextCursor(buf)
 
     while 1 != 0 {
         token = COM_ParseExt(&p, true)
@@ -3212,13 +3053,9 @@ func CG_LoadHudMenu() {
     cgDC.drawCinematic = DisplayContextDefThunks.CG_DrawCinematic
     cgDC.runCinematicFrame = DisplayContextDefThunks.CG_RunCinematicFrame
 
-    // Port-note: The draft of this statement did not compile, and the compiler wrote "cannot find 'Init_Display' in scope".
-    // Raven wrote: Init_Display(&cgDC)
-    portMissing("CG_LoadHudMenu", source: "oracle/codemp/cgame/cg_main.c:3145")
+    Init_Display(cgDC)
 
-    // Port-note: The draft of this statement did not compile, and the compiler wrote "cannot find 'Menu_Reset' in scope".
-    // Raven wrote: Menu_Reset()
-    portMissing("CG_LoadHudMenu", source: "oracle/codemp/cgame/cg_main.c:3145")
+    Menu_Reset()
 
     hudSet = cg_hudFiles.string
     if CharBuf(hudSet)[0] == 0 {
@@ -3356,9 +3193,22 @@ func CG_NewString(_ string: String) -> String {
     // turn \n into a real linefeed
     i = 0
     while i < l {
-        // Port-note: The draft of this statement did not compile, and the compiler wrote "binary operator '==' cannot be applied to operands of type 'Character' and 'Int32'".
-        // Raven wrote: if (string[i] == '\\' && i < l-1) { i++; if (string[i] == 'n') { *new_p++ = '\n'; } else { *new_p++ = '\\'; } } else { *new_p++ = string[i]; }
-        portMissing("CG_NewString", source: "oracle/codemp/cgame/cg_main.c:3344")
+        if CharBuf(string)[i] == Int32(ascii: "\\") && i < l - 1 {
+            i += 1
+            if CharBuf(string)[i] == Int32(ascii: "n") {
+                // Port-note: A pointer dereference the draft cannot place.
+                // Raven wrote: *new_p++ = '\n'
+                portMissing("CG_NewString", source: "oracle/codemp/cgame/cg_main.c:3344")
+            } else {
+                // Port-note: A pointer dereference the draft cannot place.
+                // Raven wrote: *new_p++ = '\\'
+                portMissing("CG_NewString", source: "oracle/codemp/cgame/cg_main.c:3344")
+            }
+        } else {
+            // Port-note: A pointer dereference the draft cannot place.
+            // Raven wrote: *new_p++ = string[i]
+            portMissing("CG_NewString", source: "oracle/codemp/cgame/cg_main.c:3344")
+        }
         i += 1
     }
 
@@ -3399,12 +3249,8 @@ func CG_CreateModelFromSpawnEnt(_ ent: CgSpawnEnt) {
     var RefEnt: RefEntity?
     var mins = vec3_t()
     var maxs = vec3_t()
-    // Port-note: A pointer local `float * radius` with no view.
-    // Raven wrote: float *radius;
-    portMissing("CG_CreateModelFromSpawnEnt", source: "oracle/codemp/cgame/cg_main.c:3452")
-    // Port-note: A pointer local `float * zOff` with no view.
-    // Raven wrote: float *zOff;
-    portMissing("CG_CreateModelFromSpawnEnt", source: "oracle/codemp/cgame/cg_main.c:3452")
+    var radiusIndex: Int32 = 0
+    var zOffIndex: Int32 = 0
 
     if NumMiscEnts >= MAX_MISC_ENTS {
         Com_Error(ERR_DROP, "Too many misc_model_static's on level, ask a programmer to raise the limit (currently %i), or take some out.", MAX_MISC_ENTS)
@@ -3416,12 +3262,8 @@ func CG_CreateModelFromSpawnEnt(_ ent: CgSpawnEnt) {
         return
     }
 
-    // Port-note: A store into `radius`, a local the draft left as a hole.
-    // Raven wrote: radius = &Radius[NumMiscEnts]
-    portMissing("CG_CreateModelFromSpawnEnt", source: "oracle/codemp/cgame/cg_main.c:3452")
-    // Port-note: A store into `zOff`, a local the draft left as a hole.
-    // Raven wrote: zOff = &zOffset[NumMiscEnts]
-    portMissing("CG_CreateModelFromSpawnEnt", source: "oracle/codemp/cgame/cg_main.c:3452")
+    radiusIndex = NumMiscEnts
+    zOffIndex = NumMiscEnts
     // Port-note: A ++ inside an expression.
     // Raven wrote: RefEnt = &MiscEnts[NumMiscEnts++]
     portMissing("CG_CreateModelFromSpawnEnt", source: "oracle/codemp/cgame/cg_main.c:3452")
@@ -3449,25 +3291,17 @@ func CG_CreateModelFromSpawnEnt(_ ent: CgSpawnEnt) {
     RefEnt!.origin = ent.origin
     RefEnt!.lightingOrigin = ent.origin
 
-    // Port-note: An expression statement with no effect the draft knows.
-    // Raven wrote: VectorScaleVector(mins, ent->scale, mins)
-    portMissing("CG_CreateModelFromSpawnEnt", source: "oracle/codemp/cgame/cg_main.c:3452")
-    // Port-note: An expression statement with no effect the draft knows.
-    // Raven wrote: VectorScaleVector(maxs, ent->scale, maxs)
-    portMissing("CG_CreateModelFromSpawnEnt", source: "oracle/codemp/cgame/cg_main.c:3452")
-    // Port-note: A pointer dereference the draft cannot place.
-    // Raven wrote: *radius = Distance(mins, maxs)
-    portMissing("CG_CreateModelFromSpawnEnt", source: "oracle/codemp/cgame/cg_main.c:3452")
-    // Port-note: A pointer dereference the draft cannot place.
-    // Raven wrote: *zOff = ent->zoffset
-    portMissing("CG_CreateModelFromSpawnEnt", source: "oracle/codemp/cgame/cg_main.c:3452")
+    mins = mins * ent.scale
+    maxs = maxs * ent.scale
+    Radius[radiusIndex] = Distance(mins, maxs)
+    zOffset[zOffIndex] = ent.zoffset
 
     if ent.angle != 0 {
         //only yaw supplied...
         ent.angles[YAW] = ent.angle
     }
 
-    // Port-note: The draft of this statement did not compile, and the compiler wrote "cannot convert value of type 'Slots<vec3_t>' (aka 'Slots<SIMD3<Float>>') to expected argument type '[vec3_t]' (aka 'Array<SIMD3<Float>>')".
+    // Port-note: The draft of this statement did not compile, and the compiler wrote "'&' used with non-inout argument of type 'Slots<vec3_t>' (aka 'Slots<SIMD3<Float>>')".
     // Raven wrote: AnglesToAxis( ent->angles, RefEnt->axis )
     portMissing("CG_CreateModelFromSpawnEnt", source: "oracle/codemp/cgame/cg_main.c:3452")
     ScaleModelAxis(RefEnt!)
@@ -3578,9 +3412,7 @@ func CG_SpawnCGameEntFromVars() {
         i = 0
         while i < cg_numSpawnVars {
             //shove all this stuff into our data structure used specifically for getting spawn info
-            // Port-note: Raven passes `cg_spawnFields` to `BG_ParseField`, whose `l_fields` parameter takes the Slots over the records, and Swift holds one record here. A Slots over one record has no form yet.
-            // Raven wrote: BG_ParseField( cg_spawnFields, cg_spawnVars[i][0], cg_spawnVars[i][1], (byte *)&ent )
-            portMissing("CG_SpawnCGameEntFromVars", source: "oracle/codemp/cgame/cg_main.c:3608")
+            BG_ParseField(cg_spawnFields, cg_spawnVars[i][0], cg_spawnVars[i][1], UnsafeMutableRawPointer(ent.handle))
             i += 1
         }
 
@@ -3630,9 +3462,7 @@ the server and never even bother sending. -rww
 /// Source: oracle/codemp/cgame/cg_main.c:3664
 func CG_SpawnCGameOnlyEnts() {
     //make sure it is reset
-    // Port-note: The draft of this statement did not compile, and the compiler wrote "'nil' is not compatible with expected argument type 'Int32'".
-    // Raven wrote: trap_GetEntityToken(NULL, -1)
-    portMissing("CG_SpawnCGameOnlyEnts", source: "oracle/codemp/cgame/cg_main.c:3664")
+    trap_GetEntityToken(nil, -1)
 
     if !CG_ParseSpawnVars() {
         //first one is gonna be the world spawn
@@ -3827,9 +3657,7 @@ func CG_Init(_ serverMessageNum: Int32, _ serverCommandSequence: Int32, _ client
 
     trap_CM_LoadMap(cgs.mapname, false)
 
-    // Port-note: The draft of this statement did not compile, and the compiler wrote "cannot find 'String_Init' in scope".
-    // Raven wrote: String_Init()
-    portMissing("CG_Init", source: "oracle/codemp/cgame/cg_main.c:3704")
+    String_Init()
 
     cg.loading = true // force players to load instead of defer
 
@@ -3885,20 +3713,18 @@ func CG_Init(_ serverMessageNum: Int32, _ serverCommandSequence: Int32, _ client
 //makes sure returned string is in localized format
 /// Source: oracle/codemp/cgame/cg_main.c:3936
 func CG_GetLocationString(_ loc: String) -> String {
-    // Port-note: A static local `text` the function returns, storage that outlives the call.
-    // Raven wrote: static char text[1024]={0};
-    portMissing("CG_GetLocationString", source: "oracle/codemp/cgame/cg_main.c:3936")
+    // Raven's static buffer keeps the result valid after the return, and a returned `String` is already a copy.
+    var text = CharBuf(1024)
 
-    // Port-note: The draft of this statement did not compile, and the compiler wrote "cannot convert value of type 'Character' to expected argument type 'Int32'".
-    // Raven wrote: if (!loc || loc[0] != '@') { //just a raw string return loc; }
-    portMissing("CG_GetLocationString", source: "oracle/codemp/cgame/cg_main.c:3936")
+    if CharBuf(loc)[0] != Int32(ascii: "@") {
+        //just a raw string
+        return loc
+    }
 
-    // Port-note: A read of `text`, a local the draft left as a hole.
+    // Port-note: The draft of this statement did not compile, and the compiler wrote "cannot convert value of type 'Int' to expected argument type 'String'".
     // Raven wrote: trap_SP_GetStringTextString(loc+1, text, sizeof(text))
     portMissing("CG_GetLocationString", source: "oracle/codemp/cgame/cg_main.c:3936")
-    // Port-note: A read of `text`, a local the draft left as a hole.
-    // Raven wrote: return text
-    portMissing("CG_GetLocationString", source: "oracle/codemp/cgame/cg_main.c:3936")
+    return String(text)
 }
 
 /// Source: oracle/codemp/cgame/cg_main.c:3951
@@ -3960,9 +3786,7 @@ func CG_Shutdown() {
     //reset weather
     trap_R_WorldEffectCommand("die")
 
-    // Port-note: The draft of this statement did not compile, and the compiler wrote "cannot find 'UI_CleanupGhoul2' in scope".
-    // Raven wrote: UI_CleanupGhoul2()
-    portMissing("CG_Shutdown", source: "oracle/codemp/cgame/cg_main.c:3993")
+    UI_CleanupGhoul2()
     //If there was any ghoul2 stuff in our side of the shared ui code, then remove it now.
 
     // some mods may need to do cleanup work here,
