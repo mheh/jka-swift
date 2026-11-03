@@ -379,8 +379,13 @@ def probe() -> set[tuple[str, str]]:
 def main() -> int:
     ap = argparse.ArgumentParser(description=__doc__, formatter_class=argparse.RawDescriptionHelpFormatter)
     ap.add_argument("--no-probe", action="store_true", help="write once with every macro as an import, and skip the build that marks what Swift could not import")
+    ap.add_argument("--target", action="append", help="a view target to write, and the others keep their files; repeat it for several")
     args = ap.parse_args()
     targets = [t for t, view in VIEW_OF.items() if (SOURCES / t / "include").exists() and (SOURCES / view).exists()]
+    chosen = set(targets) if args.target is None else {t for t in targets if VIEW_OF[t] in args.target}
+    if args.target is not None and len(chosen) != len(set(args.target)):
+        print(f"reexport.py: --target names a view target with no C target under Sources: {', '.join(args.target)}", file=sys.stderr)
+        return 1
     # A name climbs one rung per failed build: the import, the expression, the expression narrowed to Int32, a cast literal, then the marker.
     # The cast rung writes a marker at once for a body of any other form.
     # Each set holds pairs of a view target and a name.
@@ -392,6 +397,14 @@ def main() -> int:
     for _ in range(24):
         declared: dict[str, str] = {}
         for target in targets:
+            if target not in chosen:
+                # A target that this run does not write gives the names of its files as they stand.
+                for path in (SOURCES / VIEW_OF[target] / "Generated").glob("*.swift"):
+                    text = path.read_text()
+                    if text.startswith(NOTE + "\n"):
+                        for name in re.findall(r"^public (?:let|struct|typealias) (\w+)", text, re.M):
+                            declared[name] = VIEW_OF[target]
+                continue
             # A target reads the names of the targets its umbrella reaches, and never the names of a sibling unit's target.
             reached = {VIEW_OF[d] for d in DEPS[target]}
             mine = [{name for view, name in rung if view == VIEW_OF[target]} for rung in (unimportable, narrowed, typed, unexpressible)]

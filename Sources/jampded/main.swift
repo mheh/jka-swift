@@ -1,24 +1,54 @@
+import Foundation
+import JKAShared
+import JKAMP_DedLogic
+
 // The entry point of the dedicated server, Raven's WinDed binary.
-// It prints the version line of Com_Init and exits, because the Com_Init and Com_Frame ports land in a later stage.
-// Source: oracle/codemp/null/win_main.cpp:1410
+// It builds the world, installs the shared channel, and runs Raven's main: the command line, Com_Init, and the frame loop.
 
-/// The version of the MP game, from the arm of a build without FINAL_BUILD and _DEBUG, as WinDed Release is.
-/// Source: oracle/codemp/qcommon/game_version.h:11, with VERSION_STRING_DOTTED from oracle/codemp/win32/AutoVersion.h:10
-let Q3_VERSION = "(internal)JAmp: v1.0.1.0"
+/**
+==================
+WinMain
 
-/// The platform name of the version line.
-#if os(macOS)
-/// Source: oracle/codemp/game/q_shared.h:197
-let CPUSTRING = "MacOSX-other"
-#elseif os(Linux)
-/// Source: oracle/codemp/game/q_shared.h:276
-let CPUSTRING = "linux-other"
-#else
-/// Port-note: Raven defined no CPUSTRING for a 64-bit Windows build, so the build failed there.
-/// This is the value of Raven's x86 arm at oracle/codemp/game/q_shared.h:157.
-let CPUSTRING = "win-x86"
-#endif
+==================
+*/
+/// Source: oracle/codemp/null/win_main.cpp:1410
+world = EngineWorld()
+// The host installs the shared channel here, in the shape of the cgame's dllEntry.
+sharedChannel.error = { level, text in JKAMP_DedLogic.Com_Error(level, text) }
+sharedChannel.print = { text in JKAMP_DedLogic.Com_Printf(text) }
 
-// Source: oracle/codemp/qcommon/common.cpp:1219
-// AI: Raven printed the compile date from __DATE__ after CPUSTRING. Swift has no compile date, so the line ends at CPUSTRING.
-print("\(Q3_VERSION) \(CPUSTRING)")
+// merge the command line, this is kinda silly
+var cmdline = CharBuf(CommandLine.arguments.dropFirst().joined(separator: " "))
+
+// no abort/retry/fail errors
+// AI: Raven called the Win32 SetErrorMode( SEM_FAILCRITICALERRORS ) here. The other platforms have no such mode, so the shell makes no call.
+
+// get the initial time base
+Sys_Milliseconds()
+
+Sys_InitStreamThread()
+
+Com_Init(&cmdline)
+
+NET_Init()
+
+// JKAShared declares a Com_Printf too, so the qualifier picks the engine's.
+JKAMP_DedLogic.Com_Printf("Working directory: %s\n", FileManager.default.currentDirectoryPath)
+
+// hide the early console since we've reached the point where we
+// have a working graphics subsystems
+if com_dedicated!.integer == 0 && com_viewlog!.integer == 0 {
+    Sys_ShowConsole(0, false)
+}
+
+// main game loop
+while true {
+    // if not running as a game client, sleep a bit
+    usleep(5_000)
+
+    // make sure mouse and joystick are only called once a frame
+    IN_Frame()
+
+    // run the game
+    Com_Frame()
+}

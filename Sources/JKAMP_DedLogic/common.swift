@@ -1,0 +1,839 @@
+import Foundation
+import JKAMP
+import JKAShared
+import JKAMP_Ded
+
+/// Source: oracle/codemp/qcommon/common.cpp:18
+private let MAXPRINTMSG = 4096 as Int32
+
+/// Source: oracle/codemp/qcommon/common.cpp:20
+let MAX_NUM_ARGVS = 50 as Int32
+
+/// Source: oracle/codemp/qcommon/common.cpp:22
+// Raven wrote: int com_argc
+let com_argc: Int32 = 0
+
+/// Source: oracle/codemp/qcommon/common.cpp:23
+// Raven wrote: char *com_argv[MAX_NUM_ARGVS+1]
+let com_argv: [String] = [String](repeating: "", count: 51)
+
+/// Source: oracle/codemp/qcommon/common.cpp:32
+// TODO: Port global debuglogfile
+// Raven wrote: FILE *debuglogfile
+// No table row for `FILE *`.
+
+/// Source: oracle/codemp/qcommon/common.cpp:33
+var logfile: JKAShared.fileHandle_t {
+    get { world.variables.logfile }
+    set { world.variables.logfile = newValue }
+}
+
+/// Source: oracle/codemp/qcommon/common.cpp:34
+var com_journalFile: JKAShared.fileHandle_t {
+    get { world.variables.com_journalFile }
+    set { world.variables.com_journalFile = newValue }
+}
+
+/// Source: oracle/codemp/qcommon/common.cpp:35
+var com_journalDataFile: JKAShared.fileHandle_t {
+    get { world.variables.com_journalDataFile }
+    set { world.variables.com_journalDataFile = newValue }
+}
+
+/// Source: oracle/codemp/qcommon/common.cpp:37
+public var com_viewlog: JKAMP.Cvar? {
+    get { world.variables.com_viewlog }
+    set { world.variables.com_viewlog = newValue }
+}
+
+/// Source: oracle/codemp/qcommon/common.cpp:38
+var com_speeds: JKAMP.Cvar? {
+    get { world.variables.com_speeds }
+    set { world.variables.com_speeds = newValue }
+}
+
+/// Source: oracle/codemp/qcommon/common.cpp:39
+var com_developer: JKAMP.Cvar? {
+    get { world.variables.com_developer }
+    set { world.variables.com_developer = newValue }
+}
+
+/// Source: oracle/codemp/qcommon/common.cpp:40
+var com_vmdebug: JKAMP.Cvar? {
+    get { world.variables.com_vmdebug }
+    set { world.variables.com_vmdebug = newValue }
+}
+
+/// Source: oracle/codemp/qcommon/common.cpp:41
+public var com_dedicated: JKAMP.Cvar? {
+    get { world.variables.com_dedicated }
+    set { world.variables.com_dedicated = newValue }
+}
+
+/// Source: oracle/codemp/qcommon/common.cpp:42
+var com_timescale: JKAMP.Cvar? {
+    get { world.variables.com_timescale }
+    set { world.variables.com_timescale = newValue }
+}
+
+/// Source: oracle/codemp/qcommon/common.cpp:43
+var com_fixedtime: JKAMP.Cvar? {
+    get { world.variables.com_fixedtime }
+    set { world.variables.com_fixedtime = newValue }
+}
+
+/// Source: oracle/codemp/qcommon/common.cpp:44
+var com_dropsim: JKAMP.Cvar? {
+    get { world.variables.com_dropsim }
+    set { world.variables.com_dropsim = newValue }
+}
+
+/// Source: oracle/codemp/qcommon/common.cpp:45
+var com_journal: JKAMP.Cvar? {
+    get { world.variables.com_journal }
+    set { world.variables.com_journal = newValue }
+}
+
+/// Source: oracle/codemp/qcommon/common.cpp:46
+var com_maxfps: JKAMP.Cvar? {
+    get { world.variables.com_maxfps }
+    set { world.variables.com_maxfps = newValue }
+}
+
+/// Source: oracle/codemp/qcommon/common.cpp:47
+var com_timedemo: JKAMP.Cvar? {
+    get { world.variables.com_timedemo }
+    set { world.variables.com_timedemo = newValue }
+}
+
+/// Source: oracle/codemp/qcommon/common.cpp:48
+var com_sv_running: JKAMP.Cvar? {
+    get { world.variables.com_sv_running }
+    set { world.variables.com_sv_running = newValue }
+}
+
+/// Source: oracle/codemp/qcommon/common.cpp:49
+var com_cl_running: JKAMP.Cvar? {
+    get { world.variables.com_cl_running }
+    set { world.variables.com_cl_running = newValue }
+}
+
+/// Source: oracle/codemp/qcommon/common.cpp:50
+var com_logfile: JKAMP.Cvar? {
+    get { world.variables.com_logfile }
+    set { world.variables.com_logfile = newValue }
+}
+
+/// Source: oracle/codemp/qcommon/common.cpp:51
+var com_showtrace: JKAMP.Cvar? {
+    get { world.variables.com_showtrace }
+    set { world.variables.com_showtrace = newValue }
+}
+
+/// Source: oracle/codemp/qcommon/common.cpp:53
+var com_optvehtrace: JKAMP.Cvar? {
+    get { world.variables.com_optvehtrace }
+    set { world.variables.com_optvehtrace = newValue }
+}
+
+/// Source: oracle/codemp/qcommon/common.cpp:56
+var com_G2Report: JKAMP.Cvar? {
+    get { world.variables.com_G2Report }
+    set { world.variables.com_G2Report = newValue }
+}
+
+/// Source: oracle/codemp/qcommon/common.cpp:59
+var com_terrainPhysics: JKAMP.Cvar? {
+    get { world.variables.com_terrainPhysics }
+    set { world.variables.com_terrainPhysics = newValue }
+}
+
+/// Source: oracle/codemp/qcommon/common.cpp:61
+var com_version: JKAMP.Cvar? {
+    get { world.variables.com_version }
+    set { world.variables.com_version = newValue }
+}
+
+/// Source: oracle/codemp/qcommon/common.cpp:62
+var com_blood: JKAMP.Cvar? {
+    get { world.variables.com_blood }
+    set { world.variables.com_blood = newValue }
+}
+
+/// Source: oracle/codemp/qcommon/common.cpp:63
+var com_buildScript: JKAMP.Cvar? {
+    get { world.variables.com_buildScript }
+    set { world.variables.com_buildScript = newValue }
+}
+
+/// Source: oracle/codemp/qcommon/common.cpp:64
+var com_introPlayed: JKAMP.Cvar? {
+    get { world.variables.com_introPlayed }
+    set { world.variables.com_introPlayed = newValue }
+}
+
+/// Source: oracle/codemp/qcommon/common.cpp:65
+var cl_paused: JKAMP.Cvar? {
+    get { world.variables.cl_paused }
+    set { world.variables.cl_paused = newValue }
+}
+
+/// Source: oracle/codemp/qcommon/common.cpp:66
+var sv_paused: JKAMP.Cvar? {
+    get { world.variables.sv_paused }
+    set { world.variables.sv_paused = newValue }
+}
+
+/// Source: oracle/codemp/qcommon/common.cpp:67
+var com_cameraMode: JKAMP.Cvar? {
+    get { world.variables.com_cameraMode }
+    set { world.variables.com_cameraMode = newValue }
+}
+
+/// Source: oracle/codemp/qcommon/common.cpp:72
+var com_RMG: JKAMP.Cvar? {
+    get { world.variables.com_RMG }
+    set { world.variables.com_RMG = newValue }
+}
+
+/// Source: oracle/codemp/qcommon/common.cpp:75
+var time_game: Int32 {
+    get { world.variables.time_game }
+    set { world.variables.time_game = newValue }
+}
+
+/// Source: oracle/codemp/qcommon/common.cpp:76
+// Raven wrote: int time_frontend
+let time_frontend: Int32 = 0
+
+/// Source: oracle/codemp/qcommon/common.cpp:77
+// Raven wrote: int time_backend
+let time_backend: Int32 = 0
+
+/// Source: oracle/codemp/qcommon/common.cpp:79
+var com_frameTime: Int32 {
+    get { world.variables.com_frameTime }
+    set { world.variables.com_frameTime = newValue }
+}
+
+/// Source: oracle/codemp/qcommon/common.cpp:80
+var com_frameMsec: Int32 {
+    get { world.variables.com_frameMsec }
+    set { world.variables.com_frameMsec = newValue }
+}
+
+/// Source: oracle/codemp/qcommon/common.cpp:81
+var com_frameNumber: Int32 {
+    get { world.variables.com_frameNumber }
+    set { world.variables.com_frameNumber = newValue }
+}
+
+/// Source: oracle/codemp/qcommon/common.cpp:83
+var com_errorEntered: Bool {
+    get { world.variables.com_errorEntered }
+    set { world.variables.com_errorEntered = newValue }
+}
+
+/// Source: oracle/codemp/qcommon/common.cpp:84
+var com_fullyInitialized: Bool {
+    get { world.variables.com_fullyInitialized }
+    set { world.variables.com_fullyInitialized = newValue }
+}
+
+/// Source: oracle/codemp/qcommon/common.cpp:86
+var com_errorMessage: JKAShared.CharBuf {
+    get { world.variables.com_errorMessage }
+    set { world.variables.com_errorMessage = newValue }
+}
+
+/// Source: oracle/codemp/qcommon/common.cpp:92
+var rd_buffer: String {
+    get { world.variables.rd_buffer }
+    set { world.variables.rd_buffer = newValue }
+}
+
+/// Source: oracle/codemp/qcommon/common.cpp:93
+var rd_buffersize: Int32 {
+    get { world.variables.rd_buffersize }
+    set { world.variables.rd_buffersize = newValue }
+}
+
+/// Source: oracle/codemp/qcommon/common.cpp:94
+// TODO: Port global rd_flush
+// Raven wrote: static void (*rd_flush)( char *buffer )
+// No table row for `void (*)(char *)`.
+
+/// Source: oracle/codemp/qcommon/common.cpp:386
+let MAX_CONSOLE_LINES = 32 as Int32
+
+/// Source: oracle/codemp/qcommon/common.cpp:387
+var com_numConsoleLines: Int32 {
+    get { world.variables.com_numConsoleLines }
+    set { world.variables.com_numConsoleLines = newValue }
+}
+
+/// Source: oracle/codemp/qcommon/common.cpp:388
+var com_consoleLines: [String] {
+    get { world.variables.com_consoleLines }
+    set { world.variables.com_consoleLines = newValue }
+}
+
+/// Source: oracle/codemp/qcommon/common.cpp:747
+let MAX_PUSHED_EVENTS = 1024 as Int32
+
+/// Source: oracle/codemp/qcommon/common.cpp:749
+var com_pushedEventsHead: Int32 {
+    get { world.variables.com_pushedEventsHead }
+    set { world.variables.com_pushedEventsHead = newValue }
+}
+
+/// Source: oracle/codemp/qcommon/common.cpp:750
+var com_pushedEventsTail: Int32 {
+    get { world.variables.com_pushedEventsTail }
+    set { world.variables.com_pushedEventsTail = newValue }
+}
+
+/// Source: oracle/codemp/qcommon/common.cpp:752
+// TODO: Port global com_pushedEvents
+// Raven wrote: static sysEvent_t com_pushedEvents[MAX_PUSHED_EVENTS]
+// No view for `sysEvent_t` of `qcommon.h`.
+
+/// Source: oracle/codemp/qcommon/common.cpp:96
+func Com_BeginRedirect(_ buffer: inout JKAShared.CharBuf, _ buffersize: Int32, _ flush: ((inout JKAShared.CharBuf) -> Void)?) {
+    // TODO: Port Com_BeginRedirect
+    portMissing("Com_BeginRedirect", source: "oracle/codemp/qcommon/common.cpp:96")
+}
+
+/// Source: oracle/codemp/qcommon/common.cpp:107
+func Com_EndRedirect() {
+    // TODO: Port Com_EndRedirect
+    portMissing("Com_EndRedirect", source: "oracle/codemp/qcommon/common.cpp:107")
+}
+
+/**
+```
+=============
+Com_Printf
+
+Both client and server can use this, and it will output
+to the apropriate place.
+
+A raw string should NEVER be passed as fmt, because of "%f" type crashers.
+=============
+```
+*/
+/// Source: oracle/codemp/qcommon/common.cpp:128
+public func Com_Printf(_ fmt: String, _ args: any JKAShared.FormatArg...) {
+    // TODO: Port Com_Printf
+    portMissing("Com_Printf", source: "oracle/codemp/qcommon/common.cpp:128")
+}
+
+/**
+```
+================
+Com_DPrintf
+
+A Com_Printf that only shows up if the "developer" cvar is set
+================
+```
+*/
+/// Source: oracle/codemp/qcommon/common.cpp:210
+func Com_DPrintf(_ fmt: String, _ args: any JKAShared.FormatArg...) {
+    // TODO: Port Com_DPrintf
+    portMissing("Com_DPrintf", source: "oracle/codemp/qcommon/common.cpp:210")
+}
+
+// Outputs to the VC / Windows Debug window (only in debug compile)
+/// Source: oracle/codemp/qcommon/common.cpp:226
+func Com_OPrintf(_ fmt: String, _ args: any JKAShared.FormatArg...) {
+    // TODO: Port Com_OPrintf
+    portMissing("Com_OPrintf", source: "oracle/codemp/qcommon/common.cpp:226")
+}
+
+/**
+```
+=============
+Com_Error
+
+Both client and server can use this, and it will
+do the apropriate things.
+=============
+```
+*/
+/// Source: oracle/codemp/qcommon/common.cpp:249
+public func Com_Error(_ code: Int32, _ fmt: String, _ args: any JKAShared.FormatArg...) -> Never {
+    // TODO: Port Com_Error
+    portMissing("Com_Error", source: "oracle/codemp/qcommon/common.cpp:249")
+}
+
+/**
+```
+=============
+Com_Quit_f
+
+Both client and server can use this, and it will
+do the apropriate things.
+=============
+```
+*/
+/// Source: oracle/codemp/qcommon/common.cpp:356
+func Com_Quit_f() {
+    // TODO: Port Com_Quit_f
+    portMissing("Com_Quit_f", source: "oracle/codemp/qcommon/common.cpp:356")
+}
+
+/**
+```
+==================
+Com_ParseCommandLine
+
+Break it up into multiple console lines
+==================
+```
+*/
+/// Source: oracle/codemp/qcommon/common.cpp:397
+func Com_ParseCommandLine(_ commandLine: inout JKAShared.CharBuf) {
+    // TODO: Port Com_ParseCommandLine
+    portMissing("Com_ParseCommandLine", source: "oracle/codemp/qcommon/common.cpp:397")
+}
+
+/**
+```
+===================
+Com_SafeMode
+
+Check for "safe" on the command line, which will
+skip loading of jampconfig.cfg
+===================
+```
+*/
+/// Source: oracle/codemp/qcommon/common.cpp:425
+func Com_SafeMode() -> Bool {
+    // TODO: Port Com_SafeMode
+    portMissing("Com_SafeMode", source: "oracle/codemp/qcommon/common.cpp:425")
+}
+
+/**
+```
+===============
+Com_StartupVariable
+
+Searches for command line parameters that are set commands.
+If match is not NULL, only that cvar will be looked for.
+That is necessary because cddir and basedir need to be set
+before the filesystem is started, but all other sets shouls
+be after execing the config and default.
+===============
+```
+*/
+/// Source: oracle/codemp/qcommon/common.cpp:451
+func Com_StartupVariable(_ match: String?) {
+    // TODO: Port Com_StartupVariable
+    portMissing("Com_StartupVariable", source: "oracle/codemp/qcommon/common.cpp:451")
+}
+
+/**
+```
+=================
+Com_AddStartupCommands
+
+Adds command line parameters as script statements
+Commands are seperated by + signs
+
+Returns qtrue if any late commands were added, which
+will keep the demoloop from immediately starting
+=================
+```
+*/
+/// Source: oracle/codemp/qcommon/common.cpp:484
+func Com_AddStartupCommands() -> Bool {
+    // TODO: Port Com_AddStartupCommands
+    portMissing("Com_AddStartupCommands", source: "oracle/codemp/qcommon/common.cpp:484")
+}
+
+/// Source: oracle/codemp/qcommon/common.cpp:509
+func Info_Print(_ s: String) {
+    // TODO: Port Info_Print
+    portMissing("Info_Print", source: "oracle/codemp/qcommon/common.cpp:509")
+}
+
+/**
+```
+============
+Com_StringContains
+============
+```
+*/
+/// Source: oracle/codemp/qcommon/common.cpp:556
+func Com_StringContains(_ str1: inout JKAShared.CharBuf, _ str2: String, _ casesensitive: Int32) -> String? {
+    // TODO: Port Com_StringContains
+    portMissing("Com_StringContains", source: "oracle/codemp/qcommon/common.cpp:556")
+}
+
+/**
+```
+============
+Com_Filter
+============
+```
+*/
+/// Source: oracle/codemp/qcommon/common.cpp:585
+func Com_Filter(_ filter: inout JKAShared.CharBuf, _ name: inout JKAShared.CharBuf, _ casesensitive: Int32) -> Int32 {
+    // TODO: Port Com_Filter
+    portMissing("Com_Filter", source: "oracle/codemp/qcommon/common.cpp:585")
+}
+
+/**
+```
+============
+Com_FilterPath
+============
+```
+*/
+/// Source: oracle/codemp/qcommon/common.cpp:665
+func Com_FilterPath(_ filter: String?, _ name: String, _ casesensitive: Int32) -> Int32 {
+    // TODO: Port Com_FilterPath
+    portMissing("Com_FilterPath", source: "oracle/codemp/qcommon/common.cpp:665")
+}
+
+/**
+```
+============
+Com_HashKey
+============
+```
+*/
+/// Source: oracle/codemp/qcommon/common.cpp:697
+func Com_HashKey(_ string: String, _ maxlen: Int32) -> Int32 {
+    // TODO: Port Com_HashKey
+    portMissing("Com_HashKey", source: "oracle/codemp/qcommon/common.cpp:697")
+}
+
+/**
+```
+================
+Com_RealTime
+================
+```
+*/
+/// Source: oracle/codemp/qcommon/common.cpp:713
+// TODO: Port signature
+// Raven wrote: int Com_RealTime(qtime_t *qtime)
+// No table row for `qtime_t * qtime`.
+func Com_RealTime() -> Never {
+    // TODO: Port Com_RealTime
+    portMissing("Com_RealTime", source: "oracle/codemp/qcommon/common.cpp:713")
+}
+
+/**
+```
+=================
+Com_InitJournaling
+=================
+```
+*/
+/// Source: oracle/codemp/qcommon/common.cpp:759
+func Com_InitJournaling() {
+    // TODO: Port Com_InitJournaling
+    portMissing("Com_InitJournaling", source: "oracle/codemp/qcommon/common.cpp:759")
+}
+
+/**
+```
+=================
+Com_GetRealEvent
+=================
+```
+*/
+/// Source: oracle/codemp/qcommon/common.cpp:789
+// TODO: Port signature
+// Raven wrote: sysEvent_t Com_GetRealEvent( void )
+// No table row for the return `sysEvent_t`.
+func Com_GetRealEvent() -> Never {
+    // TODO: Port Com_GetRealEvent
+    portMissing("Com_GetRealEvent", source: "oracle/codemp/qcommon/common.cpp:789")
+}
+
+/**
+```
+=================
+Com_InitPushEvent
+=================
+```
+*/
+// bk001129 - added
+/// Source: oracle/codemp/qcommon/common.cpp:834
+func Com_InitPushEvent() {
+    // TODO: Port Com_InitPushEvent
+    portMissing("Com_InitPushEvent", source: "oracle/codemp/qcommon/common.cpp:834")
+}
+
+/**
+```
+=================
+Com_PushEvent
+=================
+```
+*/
+/// Source: oracle/codemp/qcommon/common.cpp:850
+// TODO: Port signature
+// Raven wrote: void Com_PushEvent( sysEvent_t *event )
+// No table row for `sysEvent_t * event`.
+func Com_PushEvent() -> Never {
+    // TODO: Port Com_PushEvent
+    portMissing("Com_PushEvent", source: "oracle/codemp/qcommon/common.cpp:850")
+}
+
+/**
+```
+=================
+Com_GetEvent
+=================
+```
+*/
+/// Source: oracle/codemp/qcommon/common.cpp:881
+// TODO: Port signature
+// Raven wrote: sysEvent_t Com_GetEvent( void )
+// No table row for the return `sysEvent_t`.
+func Com_GetEvent() -> Never {
+    // TODO: Port Com_GetEvent
+    portMissing("Com_GetEvent", source: "oracle/codemp/qcommon/common.cpp:881")
+}
+
+/**
+```
+=================
+Com_RunAndTimeServerPacket
+=================
+```
+*/
+/// Source: oracle/codemp/qcommon/common.cpp:894
+func Com_RunAndTimeServerPacket(_ evFrom: Netadr, _ buf: Msg) {
+    // TODO: Port Com_RunAndTimeServerPacket
+    portMissing("Com_RunAndTimeServerPacket", source: "oracle/codemp/qcommon/common.cpp:894")
+}
+
+/**
+```
+=================
+Com_EventLoop
+
+Returns last event time
+=================
+```
+*/
+/// Source: oracle/codemp/qcommon/common.cpp:921
+func Com_EventLoop() -> Int32 {
+    // TODO: Port Com_EventLoop
+    portMissing("Com_EventLoop", source: "oracle/codemp/qcommon/common.cpp:921")
+}
+
+/**
+```
+================
+Com_Milliseconds
+
+Can be used for profiling, but will be journaled accurately
+================
+```
+*/
+/// Source: oracle/codemp/qcommon/common.cpp:1028
+func Com_Milliseconds() -> Int32 {
+    // TODO: Port Com_Milliseconds
+    portMissing("Com_Milliseconds", source: "oracle/codemp/qcommon/common.cpp:1028")
+}
+
+/**
+```
+=============
+Com_Error_f
+
+Just throw a fatal error to
+test error shutdown procedures
+=============
+```
+*/
+/// Source: oracle/codemp/qcommon/common.cpp:1053
+private func Com_Error_f() {
+    // TODO: Port Com_Error_f
+    portMissing("Com_Error_f", source: "oracle/codemp/qcommon/common.cpp:1053")
+}
+
+/**
+```
+=============
+Com_Freeze_f
+
+Just freeze in place for a given number of seconds to test
+error recovery
+=============
+```
+*/
+/// Source: oracle/codemp/qcommon/common.cpp:1070
+private func Com_Freeze_f() {
+    // TODO: Port Com_Freeze_f
+    portMissing("Com_Freeze_f", source: "oracle/codemp/qcommon/common.cpp:1070")
+}
+
+/**
+```
+=================
+Com_Crash_f
+
+A way to force a bus error for development reasons
+=================
+```
+*/
+/// Source: oracle/codemp/qcommon/common.cpp:1097
+private func Com_Crash_f() {
+    // TODO: Port Com_Crash_f
+    portMissing("Com_Crash_f", source: "oracle/codemp/qcommon/common.cpp:1097")
+}
+
+/**
+```
+=================
+Com_Init
+=================
+```
+*/
+/// Source: oracle/codemp/qcommon/common.cpp:1216
+public func Com_Init(_ commandLine: inout JKAShared.CharBuf) {
+    // TODO: Port Com_Init
+    portMissing("Com_Init", source: "oracle/codemp/qcommon/common.cpp:1216")
+}
+
+/// Source: oracle/codemp/qcommon/common.cpp:1446
+func Com_WriteConfigToFile(_ filename: String) {
+    // TODO: Port Com_WriteConfigToFile
+    portMissing("Com_WriteConfigToFile", source: "oracle/codemp/qcommon/common.cpp:1446")
+}
+
+/**
+```
+===============
+Com_WriteConfiguration
+
+Writes key bindings and archived cvars to config file if modified
+===============
+```
+*/
+/// Source: oracle/codemp/qcommon/common.cpp:1471
+func Com_WriteConfiguration() {
+    // TODO: Port Com_WriteConfiguration
+    portMissing("Com_WriteConfiguration", source: "oracle/codemp/qcommon/common.cpp:1471")
+}
+
+/**
+```
+===============
+Com_WriteConfig_f
+
+Write the config file to a specific name
+===============
+```
+*/
+/// Source: oracle/codemp/qcommon/common.cpp:1515
+func Com_WriteConfig_f() {
+    // TODO: Port Com_WriteConfig_f
+    portMissing("Com_WriteConfig_f", source: "oracle/codemp/qcommon/common.cpp:1515")
+}
+
+/**
+```
+================
+Com_ModifyMsec
+================
+```
+*/
+/// Source: oracle/codemp/qcommon/common.cpp:1534
+func Com_ModifyMsec(_ msec: Int32) -> Int32 {
+    // TODO: Port Com_ModifyMsec
+    portMissing("Com_ModifyMsec", source: "oracle/codemp/qcommon/common.cpp:1534")
+}
+
+/**
+```
+=================
+Com_Frame
+=================
+```
+*/
+/// Source: oracle/codemp/qcommon/common.cpp:1593
+public func Com_Frame() {
+    // TODO: Port Com_Frame
+    portMissing("Com_Frame", source: "oracle/codemp/qcommon/common.cpp:1593")
+}
+
+/// Source: oracle/codemp/qcommon/common.cpp:1785
+func Com_Shutdown() {
+    // TODO: Port Com_Shutdown
+    portMissing("Com_Shutdown", source: "oracle/codemp/qcommon/common.cpp:1785")
+}
+
+/// Source: oracle/codemp/qcommon/common.cpp:1815
+func Com_Memcpy(_ dest: OpaquePointer?, _ src: OpaquePointer?, _ count: CUnsignedLong) {
+    // TODO: Port Com_Memcpy
+    portMissing("Com_Memcpy", source: "oracle/codemp/qcommon/common.cpp:1815")
+}
+
+/// Source: oracle/codemp/qcommon/common.cpp:1820
+func Com_Memset(_ dest: OpaquePointer?, _ val: Int32, _ count: CUnsignedLong) {
+    // TODO: Port Com_Memset
+    portMissing("Com_Memset", source: "oracle/codemp/qcommon/common.cpp:1820")
+}
+
+/**
+```
+=====================
+Q_acos
+
+the msvc acos doesn't always return a value between -PI and PI:
+
+int i;
+i = 1065353246;
+acos(*(float*) &i) == -1.#IND0
+
+	This should go in q_math but it is too late to add new traps
+	to game and ui
+=====================
+```
+*/
+/// Source: oracle/codemp/qcommon/common.cpp:2143
+func Q_acos(_ c: Float) -> Float {
+    // TODO: Port Q_acos
+    portMissing("Q_acos", source: "oracle/codemp/qcommon/common.cpp:2143")
+}
+
+/// Source: oracle/codemp/qcommon/common.cpp:2157
+func Q_asin(_ c: Float) -> Float {
+    // TODO: Port Q_asin
+    portMissing("Q_asin", source: "oracle/codemp/qcommon/common.cpp:2157")
+}
+
+/// Source: oracle/codemp/qcommon/common.cpp:2179
+// TODO: Port signature
+// Raven wrote: bool Com_ParseTextFile(const char *file, class CGenericParser2 &parser, bool cleanFirst)
+// No table row for `class CGenericParser2 & parser`.
+func Com_ParseTextFile() -> Never {
+    // TODO: Port Com_ParseTextFile
+    portMissing("Com_ParseTextFile", source: "oracle/codemp/qcommon/common.cpp:2179")
+}
+
+/// Source: oracle/codemp/qcommon/common.cpp:2204
+// TODO: Port signature
+// Raven wrote: void Com_ParseTextFileDestroy(class CGenericParser2 &parser)
+// No table row for `class CGenericParser2 & parser`.
+func Com_ParseTextFileDestroy() -> Never {
+    // TODO: Port Com_ParseTextFileDestroy
+    portMissing("Com_ParseTextFileDestroy", source: "oracle/codemp/qcommon/common.cpp:2204")
+}
+
+/// Source: oracle/codemp/qcommon/common.cpp:2209
+// TODO: Port signature
+// Raven wrote: CGenericParser2 *Com_ParseTextFile(const char *file, bool cleanFirst, bool writeable)
+// No table row for the return `CGenericParser2 *`.
+func Com_ParseTextFile(_ file: String, _ cleanFirst: Bool, _ writeable: Bool) -> Never {
+    // TODO: Port Com_ParseTextFile
+    portMissing("Com_ParseTextFile", source: "oracle/codemp/qcommon/common.cpp:2209")
+}

@@ -37,17 +37,21 @@ from pathlib import Path
 HERE = Path(__file__).resolve().parent
 sys.path.insert(0, str(HERE))
 from extract import ABIS, TRIPLES, abi_blocks  # noqa: E402
-from rulings import HAND_FILES, HAND_HEADERS  # noqa: E402
+from rulings import HAND_FILES, HAND_HEADERS, HEADER_PRELUDES  # noqa: E402
 
 EXTRACT = HERE / "out" / "extract"
 
-MP_MODULES = ["mp-game", "mp-bg", "mp-cgame", "mp-ui"]
+MP_MODULES = ["mp-game", "mp-bg", "mp-cgame", "mp-ui", "mp-engine-ded"]
 SP_MODULES = ["sp-game", "sp-bg", "sp-cgame", "sp-ui"]
 TREE_PREFIX = {"mp": "codemp/", "sp": "code/"}
 # The bg run parses the bg_*.c files' own headers, bg_local.h and bg_saga.h, and never g_local.h, even though Raven's bg_*.c include
 # it under QAGAME. That keeps the game-private types out of the tree target, and the bg types in it.
-# The engine module of the dedicated server is not in the default list, so the default run places the types of the four game modules alone.
-# A run that names it under --mp places its types too, into CJKAMP_Ded.
+# The engine module of the dedicated server is in the default list, and it moves a type into the tree target only from the module ABI.
+# Its own types land in CJKAMP_Ded, which reads a type it shares with a module from the tree target.
+HOST_TARGET = "CJKAMP_Ded"
+# The module ABI headers that the game and the server both include, as identities of their files' folder.
+# The host takes part in the tree placement for these headers alone.
+MODULE_ABI = {"game/g_public", "icarus/interpreter"}
 TARGET_OF_MODULE = {
     "mp-game": "CJKAMP_Game", "mp-cgame": "CJKAMP_CGame", "mp-ui": "CJKAMP_UI", "mp-bg": "CJKAMP", "mp-engine-ded": "CJKAMP_Ded",
     "sp-game": "CJKASP_Game", "sp-cgame": "CJKASP_CGame", "sp-ui": "CJKASP_UI", "sp-bg": "CJKASP",
@@ -254,9 +258,11 @@ def load_tree(tree: str, modules: list[str]) -> tuple[dict[str, dict[str, Header
             headers[module][h.identity] = h
         platform[module] = read_platform(root)
         asserts[module] = read_asserts(root)
+        # The forward lines of the host go to its own forward header, as its platform spellings go to its own platform header.
+        forward = FORWARD.setdefault(HOST_TARGET, []) if TARGET_OF_MODULE.get(module) == HOST_TARGET else FORWARD[tree]
         for line in read_forward(root):
-            if line not in FORWARD[tree]:
-                FORWARD[tree].append(line)
+            if line not in forward:
+                forward.append(line)
     return headers, platform, asserts
 
 
@@ -353,8 +359,31 @@ def union_constants(tree: str, identity: str, versions: dict[str, Header]) -> He
     return carrier
 
 
-def partition_tree(tree: str, headers: dict[str, dict[str, Header]]) -> dict[str, Placed]:
-    """Within one tree: every identity lands in the tree target, or in one module target when only one module emits it or modules disagree."""
+def partition_tree(tree: str, headers: dict[str, dict[str, Header]], abi_only: bool = False) -> dict[str, Placed]:
+    """Within one tree: every identity lands in the tree target, or in one module target when only one module emits it or modules disagree.
+    With `abi_only`, the host's headers are already cut to the module ABI and take part like a module's."""
+    hosts = [m for m in headers if TARGET_OF_MODULE.get(m) == HOST_TARGET]
+    if hosts and not abi_only:
+        # The host takes part in the placement for the module ABI headers alone. Another type it emits that no module emits lands
+        # in its own target, and a type it reads with another text than the placed one keeps a copy of its own there.
+        abi = {m: {i: h for i, h in per.items() if i.rsplit("/", 1)[0] in MODULE_ABI} for m, per in headers.items() if m in hosts}
+        placed = partition_tree(tree, {m: per for m, per in headers.items() if m not in hosts} | abi, abi_only=True)
+        for m in hosts:
+            for identity, h in headers[m].items():
+                if identity in abi[m]:
+                    continue
+                p = placed.get(identity)
+                split = any(key.startswith(f"{identity}@") for key in placed)
+                if p is None and not split:
+                    placed[identity] = Placed(identity, HOST_TARGET, h)
+                elif (not split and h.is_constants and {n for n, _, _ in h.macros} <= {n for n, _, _ in p.header.macros}
+                      and not disagreeing_macros({m: h, "tree": p.header})):
+                    # The tree carries the union of a constants file, so a host that reads a subset of its macros with the same text
+                    # reads the tree's file, and no header path stands in two module maps.
+                    continue
+                elif split or p.header.key != h.key:
+                    placed[f"{identity}@{m}"] = Placed(identity, HOST_TARGET, h, conflict=m)
+        return placed
     identities = set()
     for per in headers.values():
         identities |= set(per)
@@ -403,8 +432,9 @@ def partition_tree(tree: str, headers: dict[str, dict[str, Header]]) -> dict[str
             else:
                 target = TREE_TARGET[tree]
                 # The includes of all agreeing versions are unioned, because a module may see one more forward typedef as a file.
+                # The host's includes stay out, because a tree type never includes a file of the host's target.
                 carrier = versions[modules[0]]
-                for m in modules[1:]:
+                for m in [m for m in modules[1:] if TARGET_OF_MODULE.get(m) != HOST_TARGET]:
                     for inc in versions[m].includes:
                         if inc not in carrier.includes:
                             carrier.includes.append(inc)
@@ -416,6 +446,9 @@ def partition_tree(tree: str, headers: dict[str, dict[str, Header]]) -> dict[str
     # Closure: a tree-level type that includes a module-private type moves to that module's target.
     # A tree-level type that includes a file placed per module is placed per module too, one copy per module that emits it.
     # The ui_shared.h types include the constants file of ui_shared.h, so a cgame copy and a ui copy each read their own module's file.
+    # A type that names a name of its header's prelude reads the .c file of the prelude, which each module places for itself,
+    # so the token enum of interpreter.h reads TK_USERDEF from g_ICARUScb.c in the game and from tokenizer.h in the server.
+    preludes = prelude_names(tree, placed)
     changed = True
     while changed:
         changed = False
@@ -423,7 +456,9 @@ def partition_tree(tree: str, headers: dict[str, dict[str, Header]]) -> dict[str
         for key, p in list(placed.items()):
             if p.conflict is not None:
                 continue
-            if p.target == TREE_TARGET[tree] and any(inc in per_module and inc not in placed for inc in p.header.includes):
+            reads = p.header.includes + [c for c, (header, names) in preludes.items()
+                                          if p.identity.startswith(header) and names & set(re.findall(r"\w+", p.header.key))]
+            if p.target == TREE_TARGET[tree] and any(inc in per_module and inc not in placed for inc in reads):
                 modules = [m for m, per in headers.items() if p.identity in per and m not in ("mp-bg", "sp-bg")]
                 if not modules:
                     sys.exit(f"merge.py: {tree} {p.identity} includes a file placed per module, and only the bg parse emits it")
@@ -440,6 +475,21 @@ def partition_tree(tree: str, headers: dict[str, dict[str, Header]]) -> dict[str
                     p.target = dep.target
                     changed = True
     return placed
+
+
+def prelude_names(tree: str, placed: dict[str, Placed]) -> dict[str, tuple[str, set[str]]]:
+    """Per constants identity of a prelude's .c file: the identity folder of the header it opens, and the names its text declares."""
+    out: dict[str, tuple[str, set[str]]] = {}
+    for header, (source, _, _) in HEADER_PRELUDES.items():
+        if not header.startswith(TREE_PREFIX[tree]):
+            continue
+        identity = identity_of(source, tree).removesuffix(".c") + "_c/constants.h"
+        names: set[str] = set()
+        for p in placed.values():
+            if p.identity == identity:
+                names |= set(re.findall(r"^\s*([A-Za-z_]\w*)\s*(?:=[^,\n]*)?,", strip_comments(p.header.body), re.M))
+        out[identity] = (identity_of(header, tree).removesuffix(".h") + "/", names)
+    return out
 
 
 RENAMED: list[str] = []
@@ -473,6 +523,8 @@ def macro_names_in(text: str) -> set[str]:
 def partition_shared(mp: dict[str, Placed], sp: dict[str, Placed]) -> tuple[set[str], dict[str, set[str]]]:
     """The identities shared by MP and SP, and per constants identity the shared macro names.
     A type is shared when both trees place it at tree level with the same code key, and every include and every used macro is shared."""
+    # The copies in the host target decide nothing here, because the host takes part in the placement for the module ABI alone.
+    mp = {key: p for key, p in mp.items() if p.target != HOST_TARGET}
     shared_macros: dict[str, set[str]] = {}
     for identity, p in mp.items():
         if not p.header.is_constants or identity not in sp:
@@ -707,6 +759,8 @@ def emit(out_dir: Path, mp_modules: list[str], sp_modules: list[str]) -> int:
             continue
         deps = TARGET_DEPS[target]
         forward = [f'#include "{d}_forward.h"' for d in deps] + [f'#include "{target}_platform.h"', ""]
+        if target == HOST_TARGET:
+            forward += [line for line in FORWARD.get(HOST_TARGET, []) if line not in FORWARD.get("mp", [])]
         shared_lines = [l for l in FORWARD.get("mp", []) if l in FORWARD.get("sp", [])]
         if target == SHARED:
             forward += shared_lines

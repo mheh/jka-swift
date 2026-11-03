@@ -98,8 +98,8 @@ public struct Entity: Hashable, HandleView {
     }
 
     /// Source: oracle/codemp/game/g_local.h:144
-    public var r: EntityShared {
-        get { EntityShared(handle: OpaquePointer(self.raw.pointer(to: \.r)!)) }
+    public var r: JKAMP.EntityShared {
+        get { JKAMP.EntityShared(handle: OpaquePointer(self.raw.pointer(to: \.r)!)) }
         nonmutating set { self.raw.pointee.r = UnsafeMutablePointer(newValue.handle).pointee }
     }
 
@@ -107,8 +107,8 @@ public struct Entity: Hashable, HandleView {
     public var taskID: Slots<Int32> { Slots<Int32>(scalars: UnsafeMutableRawPointer(self.raw.pointer(to: \.taskID)!), count: 10) }
 
     /// Source: oracle/codemp/game/g_local.h:148
-    public var parms: Parms? {
-        get { self.raw.pointee.parms.map { Parms(handle: OpaquePointer($0)) } }
+    public var parms: JKAMP.Parms? {
+        get { self.raw.pointee.parms.map { JKAMP.Parms(handle: OpaquePointer($0)) } }
         nonmutating set { self.raw.pointee.parms = UnsafeMutablePointer(newValue?.handle) }
     }
 

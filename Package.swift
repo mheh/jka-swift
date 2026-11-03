@@ -27,12 +27,14 @@ let package = Package(
         // MARK: - C, the copied Raven headers, written by merge.py
         // A type both trees define identically, 48 today. Every other C target depends on it.
         .target(name: "CJKAShared"),
-        // The MP tree: q_shared.h, bg_public.h, and the types all four MP modules agree on.
+        // The MP tree: q_shared.h, bg_public.h, the module ABI of g_public.h, and the types all four MP modules agree on.
         .target(name: "CJKAMP", dependencies: ["CJKAShared"]),
         // The types only one MP module declares, g_local.h for the game module.
         .target(name: "CJKAMP_Game", dependencies: ["CJKAMP"]),
         .target(name: "CJKAMP_CGame", dependencies: ["CJKAMP"]),
         .target(name: "CJKAMP_UI", dependencies: ["CJKAMP"]),
+        // The types only the dedicated server declares. It reads the g_public.h types it shares with the game from the tree target.
+        .target(name: "CJKAMP_Ded", dependencies: ["CJKAMP"]),
         // The SP tree compiles clean as C today, so it is declared. Its Swift side waits on packet row 4.
         .target(name: "CJKASP", dependencies: ["CJKAShared"]),
         .target(name: "CJKASP_Game", dependencies: ["CJKASP"]),
@@ -48,6 +50,8 @@ let package = Package(
         .target(name: "JKAMP_Game", dependencies: ["JKAMP", "CJKAMP_Game"]),
         // The cgame module views: Cg, Cgs, Centity, and every struct they reach.
         .target(name: "JKAMP_CGame", dependencies: ["JKAMP", "CJKAMP_CGame"]),
+        // The dedicated server views: ServerStatic, Server, Client, Msg, Vm, and every struct they reach.
+        .target(name: "JKAMP_Ded", dependencies: ["JKAMP", "CJKAMP_Ded"]),
 
         // MARK: - Swift logic, ported bodies, no C import
         // bg_*.c, shared by the game and cgame modules.
@@ -56,13 +60,15 @@ let package = Package(
         .target(name: "JKAMP_GameLogic", dependencies: ["JKAMP_Game", "JKAMP_BG"]),
         // cg_*.c and the one world instance.
         .target(name: "JKAMP_CGameLogic", dependencies: ["JKAMP_CGame", "JKAMP_BG"]),
+        // The qcommon, server, null, and win32 files of the dedicated server and the one world instance. A host compiles no bg file.
+        .target(name: "JKAMP_DedLogic", dependencies: ["JKAMP_Ded"]),
 
         // MARK: - Shell, the product
         // dllEntry and vmMain. It decodes words and calls the bare functions.
         .target(name: "jampgame", dependencies: ["JKAMP_GameLogic"]),
         .target(name: "cgame", dependencies: ["JKAMP_CGameLogic"]),
         // The dedicated server shell holds main, and it becomes the jampded executable.
-        .executableTarget(name: "jampded", dependencies: ["CJKAHost", "JKAShared"]),
+        .executableTarget(name: "jampded", dependencies: ["JKAMP_DedLogic", "CJKAHost", "CJKAZlib"]),
         // The dlopen loader, run in its own process, so the smoke test never loads the built library into the test process.
         .executableTarget(name: "jampsmoke", dependencies: ["CJKASyscall"]),
 

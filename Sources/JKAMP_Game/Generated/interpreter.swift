@@ -4,15 +4,6 @@ internal import CJKAMP_Game
 import JKAMP
 import JKAShared
 
-/// Source: oracle/codemp/icarus/interpreter.h:6
-public let ICARUS_VERSION = CJKAMP_Game.ICARUS_VERSION
-
-/// Source: oracle/codemp/icarus/interpreter.h:8
-public let MAX_STRING_SIZE = CJKAMP_Game.MAX_STRING_SIZE
-
-/// Source: oracle/codemp/icarus/interpreter.h:9
-public let MAX_VAR_NAME = CJKAMP_Game.MAX_VAR_NAME
-
 /// Source: oracle/codemp/icarus/interpreter.h:15
 public let TK_BLOCK_START: Int32 = Int32(truncatingIfNeeded: CJKAMP_Game.TK_BLOCK_START)
 
@@ -147,15 +138,6 @@ public let ID_EOF: Int32 = Int32(truncatingIfNeeded: CJKAMP_Game.ID_EOF)
 
 /// Source: oracle/codemp/icarus/interpreter.h:33
 public let NUM_IDS: Int32 = Int32(truncatingIfNeeded: CJKAMP_Game.NUM_IDS)
-
-/// Source: oracle/codemp/icarus/interpreter.h:107
-public let MSG_COMPLETED: Int32 = Int32(truncatingIfNeeded: CJKAMP_Game.MSG_COMPLETED)
-
-/// Source: oracle/codemp/icarus/interpreter.h:107
-public let MSG_EOF: Int32 = Int32(truncatingIfNeeded: CJKAMP_Game.MSG_EOF)
-
-/// Source: oracle/codemp/icarus/interpreter.h:107
-public let NUM_MESSAGES: Int32 = Int32(truncatingIfNeeded: CJKAMP_Game.NUM_MESSAGES)
 
 /// Source: oracle/codemp/icarus/interpreter.h:72
 public let TYPE_WAIT_COMPLETE: Int32 = Int32(truncatingIfNeeded: CJKAMP_Game.TYPE_WAIT_COMPLETE)
