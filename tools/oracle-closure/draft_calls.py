@@ -468,6 +468,10 @@ class Calls:
                 return f"{text}.{first[0]}!" if first[1] else f"{text}.{first[0]}"
             raven = " ".join(self.bytes[cur.extent.start.offset:cur.extent.end.offset].decode("utf-8", "replace").split())
             raise Hole(f"Raven passes the record `{raven}` in a format argument list, and a view is no FormatArg.")
+        if inout and inner.kind == CursorKind.MEMBER_REF_EXPR and inner.type.get_canonical().kind == TypeKind.CONSTANTARRAY \
+                and self.views.is_vec3(self.views.element_type(inner.type)) and self.overload_takes(callee, position, "Slots<vec3_t>"):
+            # The view holds Raven's `vec3_t axis[3]` field as its Slots, and the forward of that name takes the Slots by value.
+            return text
         return f"&{text}" if inout else text
 
     def four_floats(self, cur: ci.Cursor) -> bool:
