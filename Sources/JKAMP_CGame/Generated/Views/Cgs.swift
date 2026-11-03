@@ -422,9 +422,9 @@ public struct Cgs: Hashable, HandleView {
     }
 
     /// Source: oracle/codemp/cgame/cg_local.h:1600
-    public var capturedItem: OpaquePointer? {
-        get { OpaquePointer(self.raw.pointee.capturedItem) }
-        nonmutating set { self.raw.pointee.capturedItem = UnsafeMutableRawPointer(newValue) }
+    public var capturedItem: MenuDef? {
+        get { self.raw.pointee.capturedItem.map { MenuDef(handle: OpaquePointer($0)) } }
+        nonmutating set { self.raw.pointee.capturedItem = UnsafeMutableRawPointer(newValue?.handle) }
     }
 
     /// Source: oracle/codemp/cgame/cg_local.h:1601

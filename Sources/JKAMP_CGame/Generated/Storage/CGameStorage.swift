@@ -610,6 +610,10 @@ public final class CGameStorage {
     /// Source: oracle/codemp/cgame/cg_view.c:2280
     public let cg_autoMapInput: AutoMapInput
 
+    /// Raven's `scrollInfo_t scrollInfo` of `ui_shared.c`.
+    /// Source: oracle/codemp/ui/ui_shared.c:97
+    public let scrollInfo: ScrollInfo
+
     /// Raven's `menuDef_t Menus[MAX_MENUS]` of `ui_shared.c`.
     /// Source: oracle/codemp/ui/ui_shared.c:111
     public let Menus: Slots<MenuDef>
@@ -617,6 +621,10 @@ public final class CGameStorage {
     /// Raven's `menuDef_t *menuStack[MAX_OPEN_MENUS]` of `ui_shared.c`.
     /// Source: oracle/codemp/ui/ui_shared.c:114
     public let menuStack: Slots<MenuDef?>
+
+    /// Raven's `stringDef_t *strHandle[HASH_TABLE_SIZE]` of `ui_shared.c`.
+    /// Source: oracle/codemp/ui/ui_shared.c:288
+    public let strHandle: Slots<StringDef?>
 
     public init() {
         self.lagometer = CGameStorage.record(of: Lagometer.self)
@@ -770,8 +778,10 @@ public final class CGameStorage {
         self.cg_siegeExtendedData = CGameStorage.records(count: Int(JKAMP.MAX_CLIENTS), of: SiegeExtended.self)
         self.cgScreenEffects = CGameStorage.record(of: Cgscreffects.self)
         self.cg_autoMapInput = CGameStorage.record(of: AutoMapInput.self)
+        self.scrollInfo = CGameStorage.record(of: ScrollInfo.self)
         self.Menus = CGameStorage.records(count: Int(JKAMP_CGame.MAX_MENUS), of: MenuDef.self)
         self.menuStack = CGameStorage.table(count: Int(JKAMP_CGame.MAX_OPEN_MENUS), of: MenuDef.self)
+        self.strHandle = CGameStorage.table(count: 2048, of: StringDef.self)
     }
 
     deinit {
@@ -926,8 +936,10 @@ public final class CGameStorage {
         self.cg_siegeExtendedData.base.deallocate()
         UnsafeMutableRawPointer(self.cgScreenEffects.handle).deallocate()
         UnsafeMutableRawPointer(self.cg_autoMapInput.handle).deallocate()
+        UnsafeMutableRawPointer(self.scrollInfo.handle).deallocate()
         self.Menus.base.deallocate()
         self.menuStack.base.deallocate()
+        self.strHandle.base.deallocate()
     }
 
     /// One zeroed record, read through its view.
