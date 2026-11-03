@@ -40,9 +40,10 @@ func CG_GetColorForHealth(_ health: Int32, _ armor: Int32, _ hcolor: inout JKASh
     // calculate the total points of damage that can
     // be sustained at the current health / armor level
     if health <= 0 {
-        // Port-note: The draft of this statement did not compile, and the compiler wrote "cannot assign value of type 'SIMD3<Float>' to type 'vec4_t' (aka 'SIMD4<Float>')".
-        // Raven wrote: VectorClear( hcolor )
-        portMissing("CG_GetColorForHealth", source: "oracle/codemp/cgame/cg_drawtools.c:40")
+        // Raven's VectorClear macro, as its expansion over the first three floats of the vec4_t.
+        hcolor[2] = 0
+        hcolor[1] = hcolor[2]
+        hcolor[0] = hcolor[1]
         hcolor[3] = 1
         return
     }
@@ -232,15 +233,13 @@ func CG_DrawStringExt(_ x: Int32, _ y: Int32, _ string: String, _ setColor: JKAS
         // hack-a-doodle-do (post-release quick fix code)...
         //
         var color = vec4_t()
-        // Port-note: Raven's `memcpy(color,setColor, sizeof(color))` runs over bytes that are not one record with a view.
-        // Raven wrote: memcpy(color,setColor, sizeof(color))
-        portMissing("CG_DrawStringExt", source: "oracle/codemp/cgame/cg_drawtools.c:212")
+        color = setColor! // de-const it
         CG_Text_Paint(Float(x), Float(y), 1.0, color, string, 0.0, 0, shadow ? ITEM_TEXTSTYLE_SHADOWED : 0, FONT_MEDIUM)
     } else {
         var color = vec4_t()
-        // Port-note: A pointer local `const char * s` with no view.
-        // Raven wrote: const char *s;
-        portMissing("CG_DrawStringExt", source: "oracle/codemp/cgame/cg_drawtools.c:212")
+        // Raven steps a pointer through the bytes of `string`, so the branch reads a CharBuf copy of them.
+        let string = CharBuf(string)
+        var s: Int32
         var xx: Int32
 
         // draw the drop shadow
@@ -248,28 +247,39 @@ func CG_DrawStringExt(_ x: Int32, _ y: Int32, _ string: String, _ setColor: JKAS
             color[2] = 0
             color[1] = color[2]
             color[0] = color[1]
-            // Port-note: The draft of this statement did not compile, and the compiler wrote "value of optional type 'vec4_t?' (aka 'Optional<SIMD4<Float>>') must be unwrapped to refer to member 'subscript' of wrapped base type 'vec4_t' (aka 'SIMD4<Float>')".
-            // Raven wrote: color[3] = setColor[3]
-            portMissing("CG_DrawStringExt", source: "oracle/codemp/cgame/cg_drawtools.c:212")
+            color[3] = setColor![3]
             trap_R_SetColor(color)
-            // Port-note: A store into `s`, a local the draft left as a hole.
-            // Raven wrote: s = string
-            portMissing("CG_DrawStringExt", source: "oracle/codemp/cgame/cg_drawtools.c:212")
+            s = 0
             xx = x
-            // Port-note: A pointer dereference the draft cannot place.
-            // Raven wrote: while ( *s ) { if ( Q_IsColorString( s ) ) { s += 2; continue; } CG_DrawChar( xx + 2, y + 2, charWidth, charHeight, *s ); xx += charWidth; s++; }
-            portMissing("CG_DrawStringExt", source: "oracle/codemp/cgame/cg_drawtools.c:212")
+            while string[s] != 0 {
+                if Q_IsColorString(string, at: s) {
+                    s += 2
+                    continue
+                }
+                CG_DrawChar(xx + 2, y + 2, charWidth, charHeight, string[s])
+                xx += charWidth
+                s += 1
+            }
         }
 
         // draw the colored text
-        // Port-note: A store into `s`, a local the draft left as a hole.
-        // Raven wrote: s = string
-        portMissing("CG_DrawStringExt", source: "oracle/codemp/cgame/cg_drawtools.c:212")
+        s = 0
         xx = x
         trap_R_SetColor(setColor)
-        // Port-note: A pointer dereference the draft cannot place.
-        // Raven wrote: while ( *s ) { if ( Q_IsColorString( s ) ) { if ( !forceColor ) { memcpy( color, g_color_table[ColorIndex(*(s+1))], sizeof( color ) ); color[3] = setColor[3]; trap_R_SetColor( color ); } s += 2; continue; } CG_DrawChar( xx, y, charWidth, charHeight, *s ); xx += charWidth; s++; }
-        portMissing("CG_DrawStringExt", source: "oracle/codemp/cgame/cg_drawtools.c:212")
+        while string[s] != 0 {
+            if Q_IsColorString(string, at: s) {
+                if !forceColor {
+                    color = g_color_table[ColorIndex(string[s + 1])]
+                    color[3] = setColor![3]
+                    trap_R_SetColor(color)
+                }
+                s += 2
+                continue
+            }
+            CG_DrawChar(xx, y, charWidth, charHeight, string[s])
+            xx += charWidth
+            s += 1
+        }
         trap_R_SetColor(nil)
     }
 }
@@ -317,14 +327,19 @@ Returns character count, skiping color escape codes
 */
 /// Source: oracle/codemp/cgame/cg_drawtools.c:307
 func CG_DrawStrlen(_ str: String) -> Int32 {
-    // Port-note: A pointer local `const char * s` with no view.
-    // Raven wrote: const char *s = str;
-    portMissing("CG_DrawStrlen", source: "oracle/codemp/cgame/cg_drawtools.c:307")
+    // Raven steps a pointer through the bytes of `str`, so the body reads a CharBuf copy of them.
+    let str = CharBuf(str)
+    var s: Int32 = 0
     var count: Int32 = 0
 
-    // Port-note: A pointer dereference the draft cannot place.
-    // Raven wrote: while ( *s ) { if ( Q_IsColorString( s ) ) { s += 2; } else { count++; s++; } }
-    portMissing("CG_DrawStrlen", source: "oracle/codemp/cgame/cg_drawtools.c:307")
+    while str[s] != 0 {
+        if Q_IsColorString(str, at: s) {
+            s += 2
+        } else {
+            count += 1
+            s += 1
+        }
+    }
 
     return count
 }
@@ -458,9 +473,10 @@ func CG_ColorForHealth(_ hcolor: inout JKAShared.vec4_t) {
     health = cg.snap!.ps.stats[STAT_HEALTH]
 
     if health <= 0 {
-        // Port-note: The draft of this statement did not compile, and the compiler wrote "cannot assign value of type 'SIMD3<Float>' to type 'vec4_t' (aka 'SIMD4<Float>')".
-        // Raven wrote: VectorClear( hcolor )
-        portMissing("CG_ColorForHealth", source: "oracle/codemp/cgame/cg_drawtools.c:454")
+        // Raven's VectorClear macro, as its expansion over the first three floats of the vec4_t.
+        hcolor[2] = 0
+        hcolor[1] = hcolor[2]
+        hcolor[0] = hcolor[1]
         hcolor[3] = 1
         return
     }
