@@ -1,0 +1,4 @@
+0 00000000 vmMain
+0 000000bb helper
+1 00000000 g_word
+2 00000004 g_lit
