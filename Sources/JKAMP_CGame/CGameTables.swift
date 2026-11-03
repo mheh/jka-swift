@@ -15,6 +15,10 @@ public nonisolated(unsafe) let g_bindings: Slots<Bind> = makeBindings()
 /// Source: oracle/codemp/ui/ui_shared.c:157
 public nonisolated(unsafe) let itemFlags: Slots<ItemFlagsDef> = makeItemFlags()
 
+/// Raven's vehicle damage table of `cg_draw.c`, one row per side, over the C storage of `Sources/CJKAMP_CGame/cg_tables.c`.
+/// Source: oracle/codemp/cgame/cg_draw.c:2425
+public nonisolated(unsafe) let vehDamageData: Slots<Veh_damage> = makeVehDamageData()
+
 // MARK: - The bind over the C array
 
 /// The compiler crashes if a global initializer takes the address inline, so the table binds in a function.
@@ -34,4 +38,10 @@ private func makeItemFlags() -> Slots<ItemFlagsDef> {
     let base = withUnsafeMutablePointer(to: &CJKAMP_CGame.itemFlags) { UnsafeMutableRawPointer($0) }
     let count = MemoryLayout.size(ofValue: CJKAMP_CGame.itemFlags) / ItemFlagsDef.stride
     return Slots(views: base, count: count, stride: ItemFlagsDef.stride)
+}
+
+private func makeVehDamageData() -> Slots<Veh_damage> {
+    let base = withUnsafeMutablePointer(to: &CJKAMP_CGame.vehDamageData) { UnsafeMutableRawPointer($0) }
+    let count = MemoryLayout.size(ofValue: CJKAMP_CGame.vehDamageData) / Veh_damage.stride
+    return Slots(views: base, count: count, stride: Veh_damage.stride)
 }
