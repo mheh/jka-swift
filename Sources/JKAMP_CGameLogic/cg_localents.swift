@@ -90,9 +90,7 @@ func CG_AllocLocalEntity() -> LocalEntity? {
     le = cg_freeLocalEntities
     cg_freeLocalEntities = cg_freeLocalEntities!.next
 
-    // Port-note: The draft of this statement did not compile, and the compiler wrote "value of optional type 'LocalEntity?' must be unwrapped to refer to member 'clear' of wrapped base type 'LocalEntity'".
-    // Raven wrote: memset( le, 0, sizeof( *le ) )
-    portMissing("CG_AllocLocalEntity", source: "oracle/codemp/cgame/cg_localents.c:60")
+    le!.clear()
 
     // link into the active list
     le!.next = cg_activeLocalEntities.next
@@ -272,9 +270,9 @@ func CG_AddFragment(_ le: LocalEntity) {
                     t_e = 1
                 }
 
-                // Port-note: The draft of this statement did not compile, and the compiler wrote "cannot convert value of type 'Float' to expected argument type 'UInt8'".
-                // Raven wrote: if (le->refEntity.shaderRGBA[3] && t_e > le->refEntity.shaderRGBA[3]) { t_e = le->refEntity.shaderRGBA[3]; }
-                portMissing("CG_AddFragment", source: "oracle/codemp/cgame/cg_localents.c:234")
+                if le.refEntity.shaderRGBA[3] != 0 && t_e > Float(le.refEntity.shaderRGBA[3]) {
+                    t_e = Float(le.refEntity.shaderRGBA[3])
+                }
 
                 le.refEntity.shaderRGBA[3] = UInt8(truncatingIfNeeded: Int32(t_e))
 
@@ -299,9 +297,7 @@ func CG_AddFragment(_ le: LocalEntity) {
                 var angles = vec3_t()
 
                 BG_EvaluateTrajectory(le.angles, cg.time, &angles)
-                // Port-note: The draft of this statement did not compile, and the compiler wrote "'&' used with non-inout argument of type 'Slots<vec3_t>' (aka 'Slots<SIMD3<Float>>')".
-                // Raven wrote: AnglesToAxis( angles, le->refEntity.axis )
-                portMissing("CG_AddFragment", source: "oracle/codemp/cgame/cg_localents.c:234")
+                AnglesToAxis(angles, le.refEntity.axis)
                 ScaleModelAxis(le.refEntity)
             }
 
@@ -382,9 +378,7 @@ private func CG_AddFadeScaleModel(_ le: LocalEntity) {
 
     ent!.nonNormalizedAxes = true
 
-    // Port-note: The draft of this statement did not compile, and the compiler wrote "'&' used with non-inout argument of type 'Slots<vec3_t>' (aka 'Slots<SIMD3<Float>>')".
-    // Raven wrote: AxisCopy( axisDefault, ent->axis )
-    portMissing("CG_AddFadeScaleModel", source: "oracle/codemp/cgame/cg_localents.c:365")
+    AxisCopy(axisDefault, ent!.axis)
 
     ent!.axis[0] = ent!.axis[0] * (le.radius * frac)
     ent!.axis[1] = ent!.axis[1] * (le.radius * frac)
