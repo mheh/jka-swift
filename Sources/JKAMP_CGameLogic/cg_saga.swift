@@ -188,9 +188,9 @@ func CG_InitSiegeMode() {
 
         Com_sprintf(&levelname, Int32((levelname).count), "%s.siege\0", levelname)
 
-        // Port-note: The draft of this statement did not compile, and the compiler wrote "referencing operator function '==' on 'BinaryInteger' requires that 'CharBuf' conform to 'BinaryInteger'".
-        // Raven wrote: if (!levelname || !levelname[0]) { goto failure; }
-        portMissing("CG_InitSiegeMode", source: "oracle/codemp/cgame/cg_saga.c:143")
+        if levelname[0] == 0 {
+            break failure
+        }
 
         len = trap_FS_FOpenFile(String(levelname), &f, FS_READ)
 
@@ -217,9 +217,7 @@ func CG_InitSiegeMode() {
             if team1[0] == Int32(ascii: "@") {
                 //it's a damn stringed reference.
                 var b = CharBuf(256)
-                // Port-note: The draft of this statement did not compile, and the compiler wrote "cannot convert value of type 'Int' to expected argument type 'String'".
-                // Raven wrote: trap_SP_GetStringTextString(team1+1, b, 256)
-                portMissing("CG_InitSiegeMode", source: "oracle/codemp/cgame/cg_saga.c:143")
+                strcpy(&b, trap_SP_GetStringTextString(String(team1[1...]), 256).1)
                 trap_Cvar_Set("cg_siegeTeam1Name", String(b))
             } else {
                 trap_Cvar_Set("cg_siegeTeam1Name", String(team1))
@@ -235,9 +233,7 @@ func CG_InitSiegeMode() {
             if team2[0] == Int32(ascii: "@") {
                 //it's a damn stringed reference.
                 var b = CharBuf(256)
-                // Port-note: The draft of this statement did not compile, and the compiler wrote "cannot convert value of type 'Int' to expected argument type 'String'".
-                // Raven wrote: trap_SP_GetStringTextString(team2+1, b, 256)
-                portMissing("CG_InitSiegeMode", source: "oracle/codemp/cgame/cg_saga.c:143")
+                strcpy(&b, trap_SP_GetStringTextString(String(team2[1...]), 256).1)
                 trap_Cvar_Set("cg_siegeTeam2Name", String(b))
             } else {
                 trap_Cvar_Set("cg_siegeTeam2Name", String(team2))
@@ -601,9 +597,7 @@ func CG_SiegeGetObjectiveDescription(_ team: Int32, _ objective: Int32, _ buffer
         if BG_SiegeGetValueGroup(String(cgParseObjectives), va("Objective%i", objective), &objectiveStr) != 0 {
             //found the objective group
             //Parse the name right into the buffer.
-            // Port-note: The draft of this statement did not compile, and the compiler wrote "extra argument 'at' in call".
-            // Raven wrote: BG_SiegeGetPairedValue(objectiveStr, "goalname", buffer)
-            portMissing("CG_SiegeGetObjectiveDescription", source: "oracle/codemp/cgame/cg_saga.c:667")
+            BG_SiegeGetPairedValue(String(objectiveStr), "goalname", &buffer)
         }
     }
 }
@@ -669,9 +663,7 @@ func CG_SiegeBriefingDisplay(_ team: Int32, _ dontshow: Int32) {
         //Now set the cvar for the menu to display.
 
         //primary = (CG_SiegeGetObjectiveFinal(useTeam, i)>-1)?qtrue:qfalse;
-        // Port-note: The draft of this statement did not compile, and the compiler wrote "cannot convert value of type 'Bool' to expected argument type 'Int'".
-        // Raven wrote: primary = (CG_SiegeGetObjectiveFinal(useTeam, i)>0)?qtrue:qfalse
-        portMissing("CG_SiegeBriefingDisplay", source: "oracle/codemp/cgame/cg_saga.c:720")
+        primary = (CG_SiegeGetObjectiveFinal(useTeam, i) > 0) ? true : false
 
         properValue[0] = 0
         strcpy(&properValue, trap_Cvar_VariableStringBuffer(va("team%i_objective%i", useTeam, i), 1024))
@@ -853,9 +845,7 @@ func CG_SiegeObjectiveCompleted(_ ent: Centity, _ won: Int32, _ objectivenum: In
 /// Source: oracle/codemp/cgame/cg_saga.c:987
 func CG_ParseSiegeExtendedDataEntry(_ conStr: String) {
     var s = CharBuf(1024)
-    // Port-note: A pointer local `char * str` with no view.
-    // Raven wrote: char *str = (char *)conStr;
-    portMissing("CG_ParseSiegeExtendedDataEntry", source: "oracle/codemp/cgame/cg_saga.c:987")
+    var str = TextCursor(CharBuf(conStr))
     var argParses: Int32 = 0
     var i: Int32
     var maxAmmo: Int32 = 0
@@ -869,9 +859,35 @@ func CG_ParseSiegeExtendedDataEntry(_ conStr: String) {
         return
     }
 
-    // Port-note: A pointer dereference the draft cannot place.
-    // Raven wrote: while (*str && argParses < 4) { i = 0; while (*str && *str != '|') { s[i] = *str; i++; *str++; } s[i] = 0; switch (argParses) { case 0: clNum = atoi(s); break; case 1: health = atoi(s); break; case 2: maxhealth = atoi(s); break; case 3: ammo = atoi(s); break; default: break; } argParses++; str++; }
-    portMissing("CG_ParseSiegeExtendedDataEntry", source: "oracle/codemp/cgame/cg_saga.c:987")
+    // Raven steps past the NUL when an entry has fewer than four fields, and his next test reads the byte after it.
+    // The cursor reads 0 past the end of the text, so the walk stops there.
+    while str.byte != 0 && argParses < 4 {
+        i = 0
+        while str.byte != 0 && str.byte != Int32(ascii: "|") {
+            s[i] = str.byte
+            i += 1
+            str.advance()
+        }
+        s[i] = 0
+        switch argParses {
+        case 0:
+            clNum = atoi(s)
+
+        case 1:
+            health = atoi(s)
+
+        case 2:
+            maxhealth = atoi(s)
+
+        case 3:
+            ammo = atoi(s)
+
+        default:
+            break
+        }
+        argParses += 1
+        str.advance()
+    }
 
     if clNum < 0 || clNum >= MAX_CLIENTS {
         return
