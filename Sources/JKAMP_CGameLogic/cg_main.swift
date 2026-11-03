@@ -2129,7 +2129,7 @@ private func CG_RegisterGraphics() {
         strcpy(&modelName, cModelName)
         if strstr(modelName, ".glm") != nil || modelName[0] == Int32(ascii: "$") {
             //Check to see if it has a custom skin attached.
-            CG_HandleAppendedSkin(String(modelName))
+            CG_HandleAppendedSkin(&modelName)
             CG_CacheG2AnimInfo(String(modelName))
         }
 

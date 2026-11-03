@@ -303,7 +303,7 @@ BG_FIELDS = {"s", "playerState", "m_pVehicle", "ghoul2", "localAnimIndex", "mode
 #   5. An operand of one of TEXT_TESTS, and an operand of `!`, which are Raven's NULL tests and his comparisons.
 #   6. The whole condition of an `if`, a `while`, a `do`, or a `?:`, which is a NULL test again.
 #   7. An indexed read, `saberName[0]`, or a dereference, `*from`, used as a value and not as a store target.
-#   8. The value of a pointer local, `p = from`, whose own uses are all reads of these forms.
+#   8. The value of a pointer local, `p = from`, or the search of it, `p = Q_strrchr(from, '*')`, whose own uses are all reads of these forms.
 #      A step of that local, `p++`, moves the local and writes no byte, so it counts as a read of the local.
 # A cast, an address-of, pointer arithmetic, `++` on the parameter, a store into the parameter or through it,
 # a return of it, and a pass to a function with no body are none of these, so each one keeps the CharBuf.
@@ -982,6 +982,12 @@ class Table:
             return ("unknown", None)
         parent = chain[depth]
         kids = list(parent.get_children())
+        if parent.kind == CursorKind.CALL_EXPR and (RETURNS.get(parent.spelling) == "text_offset" or parent.spelling == "strchr") \
+                and len(kids) > 1 and self.same_extent(kids[1], inner):
+            # Raven's `p = Q_strrchr(from, '*')` points a local into the bytes of the parameter, which the sweep reads in turn.
+            searched = self.text_use(parent, chain[depth + 1:], data)
+            if searched[0] == "local":
+                return searched
         if parent.kind == CursorKind.CALL_EXPR:
             return self.text_argument(parent, inner, kids)
         if parent.kind == CursorKind.ARRAY_SUBSCRIPT_EXPR and kids and self.same_extent(kids[0], inner):

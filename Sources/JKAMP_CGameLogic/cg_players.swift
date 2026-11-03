@@ -5824,22 +5824,47 @@ func CG_ThereIsAMaster() -> Bool {
 //If so, it terminates the model string correctly, parses the skin name out, and returns
 //the handle of the registered skin.
 /// Source: oracle/codemp/cgame/cg_players.c:6817
-func CG_HandleAppendedSkin(_ modelName: String) -> Int32 {
+func CG_HandleAppendedSkin(_ modelName: inout JKAShared.CharBuf) -> Int32 {
     var skinName = CharBuf(64)
-    // Port-note: A pointer local `char * p` with no view.
-    // Raven wrote: char *p;
-    portMissing("CG_HandleAppendedSkin", source: "oracle/codemp/cgame/cg_players.c:6817")
     var skinID: qhandle_t = 0
     var i: Int32 = 0
 
     //see if it has a skin name
-    // Port-note: A store into `p`, a local the draft left as a hole.
-    // Raven wrote: p = Q_strrchr(modelName, '*')
-    portMissing("CG_HandleAppendedSkin", source: "oracle/codemp/cgame/cg_players.c:6817")
+    if var p = Q_strrchr(String(modelName), Int32(ascii: "*")) {
+        //found a *, we should have a model name before it and a skin name after it.
+        modelName[p] = 0 //terminate the modelName string at this point, then go ahead and parse to the next 0 for the skin.
+        p += 1
 
-    // Port-note: A read of `p`, a local the draft left as a hole.
-    // Raven wrote: if (p) { //found a *, we should have a model name before it and a skin name after it. *p = 0; //terminate the modelName string at this point, then go ahead and parse to the next 0 for the skin. p++; while (p && *p) { skinName[i] = *p; i++; p++; } skinName[i] = 0; if (skinName[0]) { //got it, register the skin under the model path. char baseFolder[MAX_QPATH]; strcpy(baseFolder, modelName); p = Q_strrchr(baseFolder, '/'); //go back to the first /, should be the path point if (p) { //got it.. terminate at the slash and register. char *useSkinName; *p = 0; if (strchr(skinName, '|')) {//three part skin useSkinName = va("%s/|%s", baseFolder, skinName); } else { useSkinName = va("%s/model_%s.skin", baseFolder, skinName); } skinID = trap_R_RegisterSkin(useSkinName); } } }
-    portMissing("CG_HandleAppendedSkin", source: "oracle/codemp/cgame/cg_players.c:6817")
+        while modelName[p] != 0 {
+            skinName[i] = modelName[p]
+            i += 1
+            p += 1
+        }
+        skinName[i] = 0
+
+        if skinName[0] != 0 {
+            //got it, register the skin under the model path.
+            var baseFolder = CharBuf(64)
+
+            strcpy(&baseFolder, String(modelName))
+            if let p = Q_strrchr(String(baseFolder), Int32(ascii: "/")) {
+                //go back to the first /, should be the path point
+                //got it.. terminate at the slash and register.
+                let useSkinName: String
+
+                baseFolder[p] = 0
+
+                if strchr(skinName, Int32(ascii: "|")) != nil {
+                    //three part skin
+                    useSkinName = va("%s/|%s", baseFolder, skinName)
+                } else {
+                    useSkinName = va("%s/model_%s.skin", baseFolder, skinName)
+                }
+
+                skinID = trap_R_RegisterSkin(useSkinName)
+            }
+        }
+    }
 
     return skinID
 }
@@ -6013,7 +6038,7 @@ func CG_G2AnimEntModelLoad(_ cent: Centity) {
             //this sound is *only* used for vehicles now
             cgs.media.noAmmoSound = trap_S_RegisterSound("sound/weapons/noammo.wav")
         } else {
-            skinID = CG_HandleAppendedSkin(String(modelName)) //get the skin if there is one.
+            skinID = CG_HandleAppendedSkin(&modelName) //get the skin if there is one.
         }
 
         if cent.ghoul2 != nil {
