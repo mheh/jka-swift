@@ -187,9 +187,10 @@ private func ProcessMoveCommands(_ pVeh: JKAMP.Vehicle) {
             }
         }
     } else {
-        // Port-note: No operator between the operands, the text there is `#ifdef _JK2MP ||`.
-        // Raven wrote: if ( !pVeh->m_pVehicleInfo->strafePerc #ifdef _JK2MP || (0 && pVeh->m_pParentEntity->s.number < MAX_CLIENTS) ) #else || (!g_speederControlScheme->value && !pVeh->m_pParentEntity->s.number) ) #endif {//if in a strafe-capable vehicle, clear strafing unless using alternate control scheme //pVeh->m_ucmd.rightmove = 0; }
-        portMissing("ProcessMoveCommands", source: "oracle/codemp/game/SpeederNPC.c:278")
+        if pVeh.m_pVehicleInfo!.strafePerc == 0 || (false && pVeh.m_pParentEntity!.s.number < MAX_CLIENTS) {
+            //if in a strafe-capable vehicle, clear strafing unless using alternate control scheme
+            //pVeh->m_ucmd.rightmove = 0;
+        }
     }
 
     if parentPS!.speed > speedMax {
@@ -335,9 +336,7 @@ func AnimateRiders(_ pVeh: JKAMP.Vehicle) {
         iBlend = 500
     } else {
         let HasWeapon: Bool = ((pilotPS!.weapon != WP_NONE) && (pilotPS!.weapon != WP_MELEE))
-        // Port-note: The draft of this statement did not compile, and the compiler wrote "cannot convert value of type '_' to expected argument type 'Bool'".
-        // Raven wrote: bool Attacking = (HasWeapon && !!(pVeh->m_ucmd.buttons&BUTTON_ATTACK));
-        portMissing("AnimateRiders", source: "oracle/codemp/game/SpeederNPC.c:630")
+        let Attacking: Bool = (HasWeapon && ((pVeh.m_ucmd.buttons & BUTTON_ATTACK) != 0))
         let Flying: Bool = false
         let Crashing: Bool = false
         var Right: Bool = (pVeh.m_ucmd.rightmove > 0)
@@ -376,9 +375,168 @@ func AnimateRiders(_ pVeh: JKAMP.Vehicle) {
         }
 
 
-        // Port-note: A read of `Attacking`, a local the draft left as a hole.
-        // Raven wrote: if (Attacking && WeaponPose) {// Attack! iBlend = 100; iFlags = SETANIM_FLAG_OVERRIDE|SETANIM_FLAG_HOLD|SETANIM_FLAG_RESTART; // Auto Aiming //=============================================== if (!Left && !Right) // Allow player strafe keys to override { #ifndef _JK2MP if (pVeh->m_pPilot->enemy) { vec3_t toEnemy; float toEnemyDistance; vec3_t actorRight; float actorRightDot; VectorSubtract(pVeh->m_pPilot->currentOrigin, pVeh->m_pPilot->enemy->currentOrigin, toEnemy); toEnemyDistance = VectorNormalize(toEnemy); AngleVectors(pVeh->m_pParentEntity->currentAngles, 0, actorRight, 0); actorRightDot = DotProduct(toEnemy, actorRight); if (fabsf(actorRightDot)>0.5f || pilotPS->weapon==WP_SABER) { Left = (actorRightDot>0.0f); Right = !Left; } else { Right = Left = false; } } else #endif if (pilotPS->weapon==WP_SABER && !Left && !Right) { Left = (WeaponPose==WPOSE_SABERLEFT); Right = !Left; } } if (Left) {// Attack Left switch(WeaponPose) { case WPOSE_BLASTER: Anim = BOTH_VS_ATL_G; break; case WPOSE_SABERLEFT: Anim = BOTH_VS_ATL_S; break; case WPOSE_SABERRIGHT: Anim = BOTH_VS_ATR_TO_L_S; break; default: assert(0); } } else if (Right) {// Attack Right switch(WeaponPose) { case WPOSE_BLASTER: Anim = BOTH_VS_ATR_G; break; case WPOSE_SABERLEFT: Anim = BOTH_VS_ATL_TO_R_S; break; case WPOSE_SABERRIGHT: Anim = BOTH_VS_ATR_S; break; default: assert(0); } } else {// Attack Ahead switch(WeaponPose) { case WPOSE_BLASTER: Anim = BOTH_VS_ATF_G; break; default: assert(0); } } } else if (Left && pVeh->m_ucmd.buttons&BUTTON_USE) {// Look To The Left Behind iBlend = 400; iFlags = SETANIM_FLAG_OVERRIDE | SETANIM_FLAG_HOLD; switch(WeaponPose) { case WPOSE_SABERLEFT: Anim = BOTH_VS_IDLE_SL; break; case WPOSE_SABERRIGHT: Anim = BOTH_VS_IDLE_SR; break; default: Anim = BOTH_VS_LOOKLEFT; } } else if (Right && pVeh->m_ucmd.buttons&BUTTON_USE) {// Look To The Right Behind iBlend = 400; iFlags = SETANIM_FLAG_OVERRIDE | SETANIM_FLAG_HOLD; switch(WeaponPose) { case WPOSE_SABERLEFT: Anim = BOTH_VS_IDLE_SL; break; case WPOSE_SABERRIGHT: Anim = BOTH_VS_IDLE_SR; break; default: Anim = BOTH_VS_LOOKRIGHT; } } else if (Turbo) {// Kicked In Turbo iBlend = 50; iFlags = SETANIM_FLAG_OVERRIDE | SETANIM_FLAG_HOLDLESS; Anim = BOTH_VS_TURBO; } else if (Flying) {// Off the ground in a jump iBlend = 800; iFlags = SETANIM_FLAG_OVERRIDE | SETANIM_FLAG_HOLD; switch(WeaponPose) { case WPOSE_NONE: Anim = BOTH_VS_AIR; break; case WPOSE_BLASTER: Anim = BOTH_VS_AIR_G; break; case WPOSE_SABERLEFT: Anim = BOTH_VS_AIR_SL; break; case WPOSE_SABERRIGHT: Anim = BOTH_VS_AIR_SR; break; default: assert(0); } } else if (Crashing) {// Hit the ground! iBlend = 100; iFlags = SETANIM_FLAG_OVERRIDE | SETANIM_FLAG_HOLDLESS; switch(WeaponPose) { case WPOSE_NONE: Anim = BOTH_VS_LAND; break; case WPOSE_BLASTER: Anim = BOTH_VS_LAND_G; break; case WPOSE_SABERLEFT: Anim = BOTH_VS_LAND_SL; break; case WPOSE_SABERRIGHT: Anim = BOTH_VS_LAND_SR; break; default: assert(0); } } else {// No Special Moves iBlend = 300; iFlags = SETANIM_FLAG_OVERRIDE | SETANIM_FLAG_HOLDLESS; if (pVeh->m_vOrientation[ROLL] <= -20) {// Lean Left switch(WeaponPose) { case WPOSE_NONE: Anim = BOTH_VS_LEANL; break; case WPOSE_BLASTER: Anim = BOTH_VS_LEANL_G; break; case WPOSE_SABERLEFT: Anim = BOTH_VS_LEANL_SL; break; case WPOSE_SABERRIGHT: Anim = BOTH_VS_LEANL_SR; break; default: assert(0); } } else if (pVeh->m_vOrientation[ROLL] >= 20) {// Lean Right switch(WeaponPose) { case WPOSE_NONE: Anim = BOTH_VS_LEANR; break; case WPOSE_BLASTER: Anim = BOTH_VS_LEANR_G; break; case WPOSE_SABERLEFT: Anim = BOTH_VS_LEANR_SL; break; case WPOSE_SABERRIGHT: Anim = BOTH_VS_LEANR_SR; break; default: assert(0); } } else {// No Lean switch(WeaponPose) { case WPOSE_NONE: Anim = BOTH_VS_IDLE; break; case WPOSE_BLASTER: Anim = BOTH_VS_IDLE_G; break; case WPOSE_SABERLEFT: Anim = BOTH_VS_IDLE_SL; break; case WPOSE_SABERRIGHT: Anim = BOTH_VS_IDLE_SR; break; default: assert(0); } } }
-        portMissing("AnimateRiders", source: "oracle/codemp/game/SpeederNPC.c:630")
+        if Attacking && WeaponPose != 0 {
+            // Attack!
+            iBlend = 100
+            iFlags = SETANIM_FLAG_OVERRIDE | SETANIM_FLAG_HOLD | SETANIM_FLAG_RESTART
+
+            // Auto Aiming
+            //===============================================
+            if !Left && !Right {
+                // Allow player strafe keys to override
+                if pilotPS!.weapon == WP_SABER && !Left && !Right {
+                    Left = (WeaponPose == WPOSE_SABERLEFT)
+                    Right = !Left
+                }
+            }
+
+
+            if Left {
+                // Attack Left
+                switch WeaponPose {
+                case WPOSE_BLASTER:
+                    Anim = BOTH_VS_ATL_G
+                case WPOSE_SABERLEFT:
+                    Anim = BOTH_VS_ATL_S
+                case WPOSE_SABERRIGHT:
+                    Anim = BOTH_VS_ATR_TO_L_S
+                default:
+                    break
+                }
+            } else if Right {
+                // Attack Right
+                switch WeaponPose {
+                case WPOSE_BLASTER:
+                    Anim = BOTH_VS_ATR_G
+                case WPOSE_SABERLEFT:
+                    Anim = BOTH_VS_ATL_TO_R_S
+                case WPOSE_SABERRIGHT:
+                    Anim = BOTH_VS_ATR_S
+                default:
+                    break
+                }
+            } else {
+                // Attack Ahead
+                switch WeaponPose {
+                case WPOSE_BLASTER:
+                    Anim = BOTH_VS_ATF_G
+                default:
+                    break
+                }
+            }
+
+        } else if Left && (pVeh.m_ucmd.buttons & BUTTON_USE) != 0 {
+            // Look To The Left Behind
+            iBlend = 400
+            iFlags = SETANIM_FLAG_OVERRIDE | SETANIM_FLAG_HOLD
+            switch WeaponPose {
+            case WPOSE_SABERLEFT:
+                Anim = BOTH_VS_IDLE_SL
+            case WPOSE_SABERRIGHT:
+                Anim = BOTH_VS_IDLE_SR
+            default:
+                Anim = BOTH_VS_LOOKLEFT
+            }
+        } else if Right && (pVeh.m_ucmd.buttons & BUTTON_USE) != 0 {
+            // Look To The Right Behind
+            iBlend = 400
+            iFlags = SETANIM_FLAG_OVERRIDE | SETANIM_FLAG_HOLD
+            switch WeaponPose {
+            case WPOSE_SABERLEFT:
+                Anim = BOTH_VS_IDLE_SL
+            case WPOSE_SABERRIGHT:
+                Anim = BOTH_VS_IDLE_SR
+            default:
+                Anim = BOTH_VS_LOOKRIGHT
+            }
+        } else if Turbo {
+            // Kicked In Turbo
+            iBlend = 50
+            iFlags = SETANIM_FLAG_OVERRIDE | SETANIM_FLAG_HOLDLESS
+            Anim = BOTH_VS_TURBO
+        } else if Flying {
+            // Off the ground in a jump
+            iBlend = 800
+            iFlags = SETANIM_FLAG_OVERRIDE | SETANIM_FLAG_HOLD
+
+            switch WeaponPose {
+            case WPOSE_NONE:
+                Anim = BOTH_VS_AIR
+            case WPOSE_BLASTER:
+                Anim = BOTH_VS_AIR_G
+            case WPOSE_SABERLEFT:
+                Anim = BOTH_VS_AIR_SL
+            case WPOSE_SABERRIGHT:
+                Anim = BOTH_VS_AIR_SR
+            default:
+                break
+            }
+        } else if Crashing {
+            // Hit the ground!
+            iBlend = 100
+            iFlags = SETANIM_FLAG_OVERRIDE | SETANIM_FLAG_HOLDLESS
+
+            switch WeaponPose {
+            case WPOSE_NONE:
+                Anim = BOTH_VS_LAND
+            case WPOSE_BLASTER:
+                Anim = BOTH_VS_LAND_G
+            case WPOSE_SABERLEFT:
+                Anim = BOTH_VS_LAND_SL
+            case WPOSE_SABERRIGHT:
+                Anim = BOTH_VS_LAND_SR
+            default:
+                break
+            }
+        } else {
+            // No Special Moves
+            iBlend = 300
+            iFlags = SETANIM_FLAG_OVERRIDE | SETANIM_FLAG_HOLDLESS
+
+            if pVeh.m_vOrientationVector[ROLL] <= -20 {
+                // Lean Left
+                switch WeaponPose {
+                case WPOSE_NONE:
+                    Anim = BOTH_VS_LEANL
+                case WPOSE_BLASTER:
+                    Anim = BOTH_VS_LEANL_G
+                case WPOSE_SABERLEFT:
+                    Anim = BOTH_VS_LEANL_SL
+                case WPOSE_SABERRIGHT:
+                    Anim = BOTH_VS_LEANL_SR
+                default:
+                    break
+                }
+            } else if pVeh.m_vOrientationVector[ROLL] >= 20 {
+                // Lean Right
+                switch WeaponPose {
+                case WPOSE_NONE:
+                    Anim = BOTH_VS_LEANR
+                case WPOSE_BLASTER:
+                    Anim = BOTH_VS_LEANR_G
+                case WPOSE_SABERLEFT:
+                    Anim = BOTH_VS_LEANR_SL
+                case WPOSE_SABERRIGHT:
+                    Anim = BOTH_VS_LEANR_SR
+                default:
+                    break
+                }
+            } else {
+                // No Lean
+                switch WeaponPose {
+                case WPOSE_NONE:
+                    Anim = BOTH_VS_IDLE
+                case WPOSE_BLASTER:
+                    Anim = BOTH_VS_IDLE_G
+                case WPOSE_SABERLEFT:
+                    Anim = BOTH_VS_IDLE_SL
+                case WPOSE_SABERRIGHT:
+                    Anim = BOTH_VS_IDLE_SR
+                default:
+                    break
+                }
+            }
+        } // No Special Moves
     }
 
     iFlags &= ~SETANIM_FLAG_OVERRIDE
@@ -428,12 +586,8 @@ func G_CreateSpeederNPC(_ pVeh: inout JKAMP.Vehicle?, _ strType: String) {
         //only allocate a new one if we really have to
         (pVeh) = Vehicle(BG_Alloc(Int32(Vehicle.byteCount)))
     }
-    // Port-note: The draft of this statement did not compile, and the compiler wrote "value of optional type 'Vehicle?' must be unwrapped to refer to member 'clear' of wrapped base type 'Vehicle'".
-    // Raven wrote: memset(*pVeh, 0, sizeof(Vehicle_t))
-    portMissing("G_CreateSpeederNPC", source: "oracle/codemp/game/SpeederNPC.c:1092")
-    // Port-note: The draft of this statement did not compile, and the compiler wrote "value of optional type 'Vehicle?' must be unwrapped to refer to member 'm_pVehicleInfo' of wrapped base type 'Vehicle'".
-    // Raven wrote: (*pVeh)->m_pVehicleInfo = &g_vehicleInfo[BG_VehicleGetIndex( strType )]
-    portMissing("G_CreateSpeederNPC", source: "oracle/codemp/game/SpeederNPC.c:1092")
+    pVeh!.clear()
+    pVeh!.m_pVehicleInfo = g_vehicleInfo[BG_VehicleGetIndex(strType)]
     // Allocate the Vehicle.
 }
 
