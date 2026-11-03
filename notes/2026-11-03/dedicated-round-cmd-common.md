@@ -55,3 +55,8 @@ Open rows 1 and 2 hold the reasons.
 2. `Cmd_Exec_f` reads a file through the stub `FS_ReadFile(_:_: inout OpaquePointer?)`.
    No code in the codebase turns that buffer into the `String` that `Cbuf_InsertText` takes without a cast.
    The body waits for a ruling on the `FS_ReadFile` buffer form, or for the `files_pc` round to give one.
+
+## Ledger of the open rows
+
+1. The form of `cmd_t` and the home of `cmd_text`: ruled. A struct Raven defines inside a `.c` file has its definition copied as Raven wrote it, with a `// Source:` cite, into a hand header the target's umbrella includes, as `g_types.h` and `cg_types.h` do for the game and the cgame (`docs/transcription.md:83`, `docs/transcription.md:87`). Then `cmd_t` joins `HOST_ROOTS` as `"cmd_t": ("Cmd", "CJKAMP_Ded")`. A file-scope record Raven leaves zero is one zeroed allocation on the storage class, so `cmd_text` lives on `EngineStorage` and the stub forwards `var cmd_text: Cmd { world.storage.cmd_text }` (`docs/transcription.md:447`). A file-scope character array is a `CharBuf` of Raven's bound, so `cmd_text_buf` is a `CharBuf(MAX_CMD_BUFFER)` on the same storage (`docs/transcription.md:461`). Change: the hand header and the table row in the table batch, a generator run, then the four `Cbuf_*` bodies.
+2. The `FS_ReadFile` buffer in `Cmd_Exec_f`: ruled to wait. The signature of `FS_ReadFile` belongs to the `files_pc` round and comes from the table, because a transcriptor keeps a signature as generated (`docs/transcription.md:73`, `docs/porting-rules.md:35`). Change: a `FS_ReadFile` row in the table batch, then the body of `Cmd_Exec_f`.
