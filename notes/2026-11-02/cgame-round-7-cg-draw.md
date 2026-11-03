@@ -6,7 +6,7 @@ The record of the seventh cgame transcription round on 2026-11-02, one stem, `cg
 
 Commit f70f405 is the rule 15 signature commit. Raven's `chatBoxItem_t **array` of CG_ChatBox_ArrayInsert is a C array of struct pointers that the function fills, so the parameter takes `inout [ChatBoxItem?]`, the signature row of the guide. The adopted file keeps the hand signature.
 
-Commit 7748303 closed 158 of the 160 notes by hand and wrote two rule 19 notes. cg_draw.swift holds 4 Port-notes and 2 `portMissing` lines. The build passes, and `swift test --no-parallel` passes 113 tests across its runs of 1, 84, 13, and 15.
+Commit 7748303 closed 158 of the 160 notes by hand and wrote two rule 19 notes, which the force select ruling then closed. cg_draw.swift holds 2 Port-notes and 2 `portMissing` lines. The build passes, and `swift test --no-parallel` passes 113 tests across its runs of 1, 84, 13, and 15.
 
 ## The shapes
 
@@ -29,7 +29,7 @@ Commit 7748303 closed 158 of the 160 notes by hand and wrote two rule 19 notes. 
 ## The notes left
 
 - CG_DrawVehicleDamage, two notes. `vehDamageData` is a table of `veh_damage_t`, a struct Raven defines in cg_draw.c. Its stub entry names the C storage form that `tables.py` writes, and that tool work is outside a hole round.
-- CG_DrawForceSelect, two rule 19 notes and no `portMissing`. After the wrap to `MAX_SHOWPOWERS`, Raven reads `forcePowerSorted[18]`, one past the end, which is the first slot of `forcePowerDarkLight` in his data. The Swift array traps there, and the loop reaches the wrap whenever the force select shows fewer powers than its side count. The defined behavior is a ruling for the user.
+- CG_DrawForceSelect had two rule 19 notes. After the wrap to `MAX_SHOWPOWERS`, Raven reads `forcePowerSorted[18]`, one past the end, which is the first slot of `forcePowerDarkLight` in his data. The coordinator ruled the smallest rule 19 form: the test also checks `i == NUM_FORCE_POWERS`, so the slot past the end counts as no power, with one rule 24 line above each test. Commit 4517bff closes both notes.
 
 ## Drafter rows found
 
