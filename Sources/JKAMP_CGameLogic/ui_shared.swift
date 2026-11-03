@@ -4164,7 +4164,7 @@ Controls_GetKeyAssignment
 ```
 */
 /// Source: oracle/codemp/ui/ui_shared.c:5302
-private func Controls_GetKeyAssignment(_ command: String, _ twokeys: inout Int32) {
+private func Controls_GetKeyAssignment(_ command: String, _ twokeys: inout [Int32]) {
     var count: Int32
     var j: Int32
     var b = CharBuf(256)
