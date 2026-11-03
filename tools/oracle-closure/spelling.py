@@ -281,6 +281,12 @@ class Types:
         if facts.ruled == "view":
             # Every caller fills the `void *` with one record or NULL, so the parameter is that record's optional view.
             return Answer(f"{self.views.qualified_view(facts.capacity, TARGET)}?", "view_opt")
+        if facts.ruled in ("keyword_buckets", "keyword_buckets_mut"):
+            # The buckets hold row indices, and the row table crosses as the next parameter of the signature, form A of R53.
+            inout = "inout " if facts.ruled == "keyword_buckets_mut" else ""
+            return Answer(f"{inout}[Int32?], _ rows: {inout}[KeywordHashRow]", "bare")
+        if facts.ruled == "row_index":
+            return Answer("Int32", "bare")
         if facts.ruled == "int_array_mut":
             # The body writes the caller's `int` array by index, so the array crosses inout, the `int` twin of float_array.
             return Answer("inout [Int32]", "bare")
