@@ -25,10 +25,12 @@ let ICON_FORCE = 1 as Int32
 /// Source: oracle/codemp/cgame/cg_weapons.c:892
 let ICON_INVENTORY = 2 as Int32
 
+/// Raven's `static void *g2WeaponInstances[MAX_WEAPONS]`, which the world keeps.
 /// Source: oracle/codemp/cgame/cg_weapons.c:2322
-// TODO: Port global g2WeaponInstances
-// Raven wrote: static void *g2WeaponInstances[MAX_WEAPONS]
-// No table row for `void *[19]`.
+var g2WeaponInstances: [OpaquePointer?] {
+    get { world.g2WeaponInstances }
+    set { world.g2WeaponInstances = newValue }
+}
 
 /**
 ```
@@ -70,31 +72,30 @@ func CG_RegisterItemVisuals(_ itemNum: Int32) {
 
     item = bg_itemlist[itemNum]
 
-    // Port-note: Raven's `memset( itemInfo, 0, sizeof( &itemInfo ) )` runs over a size that is not the record's own, and a view's clear() takes the whole record.
-    // Raven wrote: memset( itemInfo, 0, sizeof( &itemInfo ) )
-    portMissing("CG_RegisterItemVisuals", source: "oracle/codemp/cgame/cg_weapons.c:34")
+    // Raven's memset zeroes the size of a pointer, 8 bytes of `registered` and `models[0]` on the 64-bit build.
+    itemInfo!.registered = false
+    itemInfo!.models[0] = 0
     itemInfo!.registered = true
 
     if item!.giType == IT_TEAM && (item!.giTag == PW_REDFLAG || item!.giTag == PW_BLUEFLAG) && cgs.gametype == GT_CTY {
         //in CTY the flag model is different
-        // Port-note: The draft of this statement did not compile, and the compiler wrote "value of optional type 'String?' must be unwrapped to a value of type 'String'".
-        // Raven wrote: itemInfo->models[0] = trap_R_RegisterModel( item->world_model[1] )
-        portMissing("CG_RegisterItemVisuals", source: "oracle/codemp/cgame/cg_weapons.c:34")
+        itemInfo!.models[0] = trap_R_RegisterModel(item!.world_model[1]!)
     } else if item!.giType == IT_WEAPON && (item!.giTag == WP_THERMAL || item!.giTag == WP_TRIP_MINE || item!.giTag == WP_DET_PACK) {
-        // Port-note: The draft of this statement did not compile, and the compiler wrote "value of optional type 'String?' must be unwrapped to a value of type 'String'".
-        // Raven wrote: itemInfo->models[0] = trap_R_RegisterModel( item->world_model[1] )
-        portMissing("CG_RegisterItemVisuals", source: "oracle/codemp/cgame/cg_weapons.c:34")
+        itemInfo!.models[0] = trap_R_RegisterModel(item!.world_model[1]!)
     } else {
-        // Port-note: The draft of this statement did not compile, and the compiler wrote "value of optional type 'String?' must be unwrapped to a value of type 'String'".
-        // Raven wrote: itemInfo->models[0] = trap_R_RegisterModel( item->world_model[0] )
-        portMissing("CG_RegisterItemVisuals", source: "oracle/codemp/cgame/cg_weapons.c:34")
+        itemInfo!.models[0] = trap_R_RegisterModel(item!.world_model[0]!)
     }
     /*
     Ghoul2 Insert Start
     */
-    // Port-note: The draft of this statement did not compile, and the compiler wrote "cannot convert value of type 'Int' to expected argument type 'Range<Int>'".
-    // Raven wrote: if (!Q_stricmp(&item->world_model[0][strlen(item->world_model[0]) - 4], ".glm")) { handle = trap_G2API_InitGhoul2Model(&itemInfo->g2Models[0], item->world_model[0], 0 , 0, 0, 0, 0); if (handle<0) { itemInfo->g2Models[0] = NULL; } else { itemInfo->radius[0] = 60; } }
-    portMissing("CG_RegisterItemVisuals", source: "oracle/codemp/cgame/cg_weapons.c:34")
+    if Q_stricmp(CharBuf(item!.world_model[0]!)[(strlen(item!.world_model[0]!) - 4)...], ".glm") == 0 {
+        handle = trap_G2API_InitGhoul2Model(&itemInfo!.g2Models[0], item!.world_model[0]!, 0, 0, 0, 0, 0)
+        if handle < 0 {
+            itemInfo!.g2Models[0] = nil
+        } else {
+            itemInfo!.radius[0] = 60
+        }
+    }
     /*
     Ghoul2 Insert End
     */
@@ -118,9 +119,7 @@ func CG_RegisterItemVisuals(_ itemNum: Int32) {
     //
     if item!.giType == IT_POWERUP || item!.giType == IT_HEALTH || item!.giType == IT_ARMOR || item!.giType == IT_HOLDABLE {
         if item!.world_model[1] != nil {
-            // Port-note: The draft of this statement did not compile, and the compiler wrote "value of optional type 'String?' must be unwrapped to a value of type 'String'".
-            // Raven wrote: itemInfo->models[1] = trap_R_RegisterModel( item->world_model[1] )
-            portMissing("CG_RegisterItemVisuals", source: "oracle/codemp/cgame/cg_weapons.c:34")
+            itemInfo!.models[1] = trap_R_RegisterModel(item!.world_model[1]!)
         }
     }
 }
@@ -482,9 +481,7 @@ func CG_AddPlayerWeapon(_ parent: JKAMP.RefEntity, _ ps: JKAMP.PlayerState?, _ c
                             angles[PITCH] = 0
                             angles[ROLL] = 0
 
-                            // Port-note: The draft of this statement did not compile, and the compiler wrote "'&' used with non-inout argument of type 'Slots<vec3_t>' (aka 'Slots<SIMD3<Float>>')".
-                            // Raven wrote: AnglesToAxis( angles, barrel.axis )
-                            portMissing("CG_AddPlayerWeapon", source: "oracle/codemp/cgame/cg_weapons.c:404")
+                            AnglesToAxis(angles, barrel.axis)
 
                             if i == 0 {
                                 CG_PositionRotatedEntityOnTag(barrel, parent, weapon!.handsModel, "tag_barrel")
@@ -510,9 +507,7 @@ func CG_AddPlayerWeapon(_ parent: JKAMP.RefEntity, _ ps: JKAMP.PlayerState?, _ c
                             angles[PITCH] = 0
                             angles[ROLL] = 0
 
-                            // Port-note: The draft of this statement did not compile, and the compiler wrote "'&' used with non-inout argument of type 'Slots<vec3_t>' (aka 'Slots<SIMD3<Float>>')".
-                            // Raven wrote: AnglesToAxis( angles, barrel.axis )
-                            portMissing("CG_AddPlayerWeapon", source: "oracle/codemp/cgame/cg_weapons.c:404")
+                            AnglesToAxis(angles, barrel.axis)
 
                             CG_PositionRotatedEntityOnTag(barrel, parent, weapon!.handsModel, "tag_barrel")
 
@@ -687,9 +682,9 @@ func CG_AddPlayerWeapon(_ parent: JKAMP.RefEntity, _ ps: JKAMP.PlayerState?, _ c
                                 // Check the alt firing first.
                                 if weapon!.altMuzzleEffect != 0 {
                                     if !thirdPerson {
-                                        // Port-note: The draft of this statement did not compile, and the compiler wrote "cannot convert value of type 'Slots<vec3_t>' (aka 'Slots<SIMD3<Float>>') to expected argument type '[vec3_t]' (aka 'Array<SIMD3<Float>>')".
-                                        // Raven wrote: trap_FX_PlayEntityEffectID(weapon->altMuzzleEffect, flashorigin, flash.axis, -1, -1, -1, -1 )
-                                        portMissing("CG_AddPlayerWeapon", source: "oracle/codemp/cgame/cg_weapons.c:404")
+                                        // The engine only reads the axis, at FxScheduler.cpp:1230, so the copy is behavior-equal.
+                                        var flashAxis = Array(flash.axis)
+                                        trap_FX_PlayEntityEffectID(weapon!.altMuzzleEffect, &flashorigin, &flashAxis, -1, -1, -1, -1)
                                     } else {
                                         trap_FX_PlayEffectID(weapon!.altMuzzleEffect, flashorigin, flashdir, -1, -1)
                                     }
@@ -698,9 +693,9 @@ func CG_AddPlayerWeapon(_ parent: JKAMP.RefEntity, _ ps: JKAMP.PlayerState?, _ c
                                 // Regular firing
                                 if weapon!.muzzleEffect != 0 {
                                     if !thirdPerson {
-                                        // Port-note: The draft of this statement did not compile, and the compiler wrote "cannot convert value of type 'Slots<vec3_t>' (aka 'Slots<SIMD3<Float>>') to expected argument type '[vec3_t]' (aka 'Array<SIMD3<Float>>')".
-                                        // Raven wrote: trap_FX_PlayEntityEffectID(weapon->muzzleEffect, flashorigin, flash.axis, -1, -1, -1, -1 )
-                                        portMissing("CG_AddPlayerWeapon", source: "oracle/codemp/cgame/cg_weapons.c:404")
+                                        // The engine only reads the axis, at FxScheduler.cpp:1230, so the copy is behavior-equal.
+                                        var flashAxis = Array(flash.axis)
+                                        trap_FX_PlayEntityEffectID(weapon!.muzzleEffect, &flashorigin, &flashAxis, -1, -1, -1, -1)
                                     } else {
                                         trap_FX_PlayEffectID(weapon!.muzzleEffect, flashorigin, flashdir, -1, -1)
                                     }
@@ -818,9 +813,7 @@ func CG_AddViewWeapon(_ ps: JKAMP.PlayerState) {
         _VectorMA(hand.origin, cg_gun_y.value, cg.refdef.viewaxis[1], &hand.origin)
         _VectorMA(hand.origin, (cg_gun_z.value + fovOffset), cg.refdef.viewaxis[2], &hand.origin)
 
-        // Port-note: The draft of this statement did not compile, and the compiler wrote "'&' used with non-inout argument of type 'Slots<vec3_t>' (aka 'Slots<SIMD3<Float>>')".
-        // Raven wrote: AnglesToAxis( angles, hand.axis )
-        portMissing("CG_AddViewWeapon", source: "oracle/codemp/cgame/cg_weapons.c:766")
+        AnglesToAxis(angles, hand.axis)
 
         // map torso animations to weapon animations
         if cg_gun_frame.integer != 0 {
@@ -1263,9 +1256,14 @@ func CG_DrawWeaponSelect() {
 
         strcpy(&upperKey, cg_weapons[cg.weaponSelect].item!.classname!)
 
-        // Port-note: The draft of this statement did not compile, and the compiler wrote "cannot convert value of type 'CharBuf' to expected argument type 'String'".
-        // Raven wrote: if ( trap_SP_GetStringTextString( va("SP_INGAME_%s",Q_strupr(upperKey)), text, sizeof( text ))) { UI_DrawProportionalString(320, y+45+yOffset, text, UI_CENTER|UI_SMALLFONT, textColor); } else { UI_DrawProportionalString(320, y+45+yOffset, cg_weapons[ cg.weaponSelect ].item->classname, UI_CENTER|UI_SMALLFONT, textColor); }
-        portMissing("CG_DrawWeaponSelect", source: "oracle/codemp/cgame/cg_weapons.c:1076")
+        Q_strupr(&upperKey)
+        let filledTest = trap_SP_GetStringTextString(va("SP_INGAME_%s", upperKey), Int32((text).count))
+        strcpy(&text, filledTest.1)
+        if filledTest.0 != 0 {
+            UI_DrawProportionalString(320, y + 45 + yOffset, String(text), UI_CENTER | UI_SMALLFONT, textColor)
+        } else {
+            UI_DrawProportionalString(320, y + 45 + yOffset, cg_weapons[cg.weaponSelect].item!.classname!, UI_CENTER | UI_SMALLFONT, textColor)
+        }
     }
 
     trap_R_SetColor(nil)
@@ -2080,30 +2078,32 @@ func CG_CalcMuzzlePoint(_ entityNum: Int32, _ muzzle: inout JKAShared.vec3_t) ->
 /// Source: oracle/codemp/cgame/cg_weapons.c:2324
 func CG_InitG2Weapons() {
     var i: Int32 = 0
-    var item: Gitem?
-    // Port-note: Raven's `memset(g2WeaponInstances, 0, sizeof(g2WeaponInstances))` runs over bytes that are not one record with a view.
-    // Raven wrote: memset(g2WeaponInstances, 0, sizeof(g2WeaponInstances))
-    portMissing("CG_InitG2Weapons", source: "oracle/codemp/cgame/cg_weapons.c:2324")
-    // Port-note: The draft of this statement did not compile, and the compiler wrote "binary operator '+' cannot be applied to operands of type 'Slots<Gitem>' and 'Int'".
-    // Raven wrote: item = bg_itemlist + 1
-    portMissing("CG_InitG2Weapons", source: "oracle/codemp/cgame/cg_weapons.c:2324")
-    while item!.classname != nil {
-        if item!.giType == IT_WEAPON {
+    var itemIndex: Int32
+    g2WeaponInstances.fill(nil)
+    // Raven walks a `gitem_t *` from `bg_itemlist + 1` while `item->classname` is set. The port indexes the same slots.
+    itemIndex = 1
+    while bg_itemlist[itemIndex].classname != nil {
+        let item = bg_itemlist[itemIndex]
+        if item.giType == IT_WEAPON {
             // initialise model
-            // Port-note: The draft of this statement did not compile, and the compiler wrote "cannot find 'g2WeaponInstances' in scope".
-            // Raven wrote: trap_G2API_InitGhoul2Model(&g2WeaponInstances[/*i*/item->giTag], item->world_model[0], 0, 0, 0, 0, 0)
-            portMissing("CG_InitG2Weapons", source: "oracle/codemp/cgame/cg_weapons.c:2324")
+            trap_G2API_InitGhoul2Model(&g2WeaponInstances[/*i*/item.giTag], item.world_model[0]!, 0, 0, 0, 0, 0)
             //			trap_G2API_InitGhoul2Model(&g2WeaponInstances[i], item->world_model[0],G_ModelIndex( item->world_model[0] ) , 0, 0, 0, 0);
-            // Port-note: The draft of this statement did not compile, and the compiler wrote "cannot find 'g2WeaponInstances' in scope".
-            // Raven wrote: if (g2WeaponInstances[/*i*/item->giTag]) { // indicate we will be bolted to model 0 (ie the player) on bolt 0 (always the right hand) when we get copied trap_G2API_SetBoltInfo(g2WeaponInstances[/*i*/item->giTag], 0, 0); // now set up the gun bolt on it if (item->giTag == WP_SABER) { trap_G2API_AddBolt(g2WeaponInstances[/*i*/item->giTag], 0, "*blade1"); } else { trap_G2API_AddBolt(g2WeaponInstances[/*i*/item->giTag], 0, "*flash"); } i++; }
-            portMissing("CG_InitG2Weapons", source: "oracle/codemp/cgame/cg_weapons.c:2324")
+            if g2WeaponInstances[/*i*/item.giTag] != nil {
+                // indicate we will be bolted to model 0 (ie the player) on bolt 0 (always the right hand) when we get copied
+                trap_G2API_SetBoltInfo(g2WeaponInstances[/*i*/item.giTag], 0, 0)
+                // now set up the gun bolt on it
+                if item.giTag == WP_SABER {
+                    trap_G2API_AddBolt(g2WeaponInstances[/*i*/item.giTag], 0, "*blade1")
+                } else {
+                    trap_G2API_AddBolt(g2WeaponInstances[/*i*/item.giTag], 0, "*flash")
+                }
+                i += 1
+            }
             if i == MAX_WEAPONS {
                 break
             }
         }
-        // Port-note: The draft of this statement did not compile, and the compiler wrote "cannot convert value of type 'Gitem?' to expected argument type 'Int'".
-        // Raven wrote: item++
-        portMissing("CG_InitG2Weapons", source: "oracle/codemp/cgame/cg_weapons.c:2324")
+        itemIndex += 1
     }
 }
 
@@ -2113,20 +2113,40 @@ func CG_ShutDownG2Weapons() {
     var i: Int32
     i = 0
     while i < MAX_WEAPONS {
-        // Port-note: The draft of this statement did not compile, and the compiler wrote "cannot find 'g2WeaponInstances' in scope".
-        // Raven wrote: trap_G2API_CleanGhoul2Models(&g2WeaponInstances[i])
-        portMissing("CG_ShutDownG2Weapons", source: "oracle/codemp/cgame/cg_weapons.c:2364")
+        trap_G2API_CleanGhoul2Models(&g2WeaponInstances[i])
         i += 1
     }
 }
 
 /// Source: oracle/codemp/cgame/cg_weapons.c:2373
-// TODO: Port signature
-// Raven wrote: void *CG_G2WeaponInstance(centity_t *cent, int weapon)
-// No table row for the return `void *`.
 func CG_G2WeaponInstance(_ cent: Centity, _ weapon: Int32) -> OpaquePointer? {
-    // TODO: Port CG_G2WeaponInstance
-    portMissing("CG_G2WeaponInstance", source: "oracle/codemp/cgame/cg_weapons.c:2373")
+    var ci: ClientInfo? = nil
+
+    if weapon != WP_SABER {
+        return g2WeaponInstances[weapon]
+    }
+
+    if cent.currentState.eType != ET_PLAYER && cent.currentState.eType != ET_NPC {
+        return g2WeaponInstances[weapon]
+    }
+
+    if cent.currentState.eType == ET_NPC {
+        ci = cent.npcClient
+    } else {
+        ci = cgs.clientinfo[cent.currentState.number]
+    }
+
+    guard let ci else {
+        return g2WeaponInstances[weapon]
+    }
+
+    //Try to return the custom saber instance if we can.
+    if !ci.saber[0].model.isEmpty && ci.ghoul2Weapons[0] != nil {
+        return ci.ghoul2Weapons[0]
+    }
+
+    //If no custom then just use the default.
+    return g2WeaponInstances[weapon]
 }
 
 // what ghoul2 model do we want to copy ?
@@ -2135,9 +2155,62 @@ func CG_CopyG2WeaponInstance(_ cent: Centity, _ weaponNum: Int32, _ toGhoul2: Op
     // Raven assigns his own `toGhoul2` parameter. A Swift parameter is immutable, so the body takes a mutable copy of it.
     var toGhoul2 = toGhoul2
     //rww - the -1 is because there is no "weapon" for WP_NONE
-    // Port-note: The draft of this statement did not compile, and the compiler wrote "argument passed to call that takes no arguments".
-    // Raven wrote: if (CG_G2WeaponInstance(cent, weaponNum/*-1*/)) { if (weaponNum == WP_SABER) { clientInfo_t *ci = NULL; if (cent->currentState.eType == ET_NPC) { ci = cent->npcClient; } else { ci = &cgs.clientinfo[cent->currentState.number]; } if (!ci) { trap_G2API_CopySpecificGhoul2Model(CG_G2WeaponInstance(cent, weaponNum/*-1*/), 0, toGhoul2, 1); } else { //Try both the left hand saber and the right hand saber int i = 0; while (i < MAX_SABERS) { if (ci->saber[i].model[0] && ci->ghoul2Weapons[i]) { trap_G2API_CopySpecificGhoul2Model(ci->ghoul2Weapons[i], 0, toGhoul2, i+1); } else if (ci->ghoul2Weapons[i]) { //if the second saber has been removed, then be sure to remove it and free the instance. qboolean g2HasSecondSaber = trap_G2API_HasGhoul2ModelOnIndex(&(toGhoul2), 2); if (g2HasSecondSaber) { //remove it now since we're switching away from sabers trap_G2API_RemoveGhoul2Model(&(toGhoul2), 2); } trap_G2API_CleanGhoul2Models(&ci->ghoul2Weapons[i]); } i++; } } } else { qboolean g2HasSecondSaber = trap_G2API_HasGhoul2ModelOnIndex(&(toGhoul2), 2); if (g2HasSecondSaber) { //remove it now since we're switching away from sabers trap_G2API_RemoveGhoul2Model(&(toGhoul2), 2); } if (weaponNum == WP_EMPLACED_GUN) { //a bit of a hack to remove gun model when using an emplaced weap if (trap_G2API_HasGhoul2ModelOnIndex(&(toGhoul2), 1)) { trap_G2API_RemoveGhoul2Model(&(toGhoul2), 1); } } else if (weaponNum == WP_MELEE) { //don't want a weapon on the model for this one if (trap_G2API_HasGhoul2ModelOnIndex(&(toGhoul2), 1)) { trap_G2API_RemoveGhoul2Model(&(toGhoul2), 1); } } else { trap_G2API_CopySpecificGhoul2Model(CG_G2WeaponInstance(cent, weaponNum/*-1*/), 0, toGhoul2, 1); } } }
-    portMissing("CG_CopyG2WeaponInstance", source: "oracle/codemp/cgame/cg_weapons.c:2414")
+    if CG_G2WeaponInstance(cent, weaponNum/*-1*/) != nil {
+        if weaponNum == WP_SABER {
+            var ci: ClientInfo? = nil
+
+            if cent.currentState.eType == ET_NPC {
+                ci = cent.npcClient
+            } else {
+                ci = cgs.clientinfo[cent.currentState.number]
+            }
+
+            if ci == nil {
+                trap_G2API_CopySpecificGhoul2Model(CG_G2WeaponInstance(cent, weaponNum/*-1*/), 0, toGhoul2, 1)
+            } else {
+                //Try both the left hand saber and the right hand saber
+                var i: Int32 = 0
+
+                while i < MAX_SABERS {
+                    if !ci!.saber[i].model.isEmpty && ci!.ghoul2Weapons[i] != nil {
+                        trap_G2API_CopySpecificGhoul2Model(ci!.ghoul2Weapons[i], 0, toGhoul2, i + 1)
+                    } else if ci!.ghoul2Weapons[i] != nil {
+                        //if the second saber has been removed, then be sure to remove it and free the instance.
+                        let g2HasSecondSaber = trap_G2API_HasGhoul2ModelOnIndex((toGhoul2), 2)
+
+                        if g2HasSecondSaber {
+                            //remove it now since we're switching away from sabers
+                            trap_G2API_RemoveGhoul2Model(&(toGhoul2), 2)
+                        }
+                        trap_G2API_CleanGhoul2Models(&ci!.ghoul2Weapons[i])
+                    }
+
+                    i += 1
+                }
+            }
+        } else {
+            let g2HasSecondSaber = trap_G2API_HasGhoul2ModelOnIndex((toGhoul2), 2)
+
+            if g2HasSecondSaber {
+                //remove it now since we're switching away from sabers
+                trap_G2API_RemoveGhoul2Model(&(toGhoul2), 2)
+            }
+
+            if weaponNum == WP_EMPLACED_GUN {
+                //a bit of a hack to remove gun model when using an emplaced weap
+                if trap_G2API_HasGhoul2ModelOnIndex((toGhoul2), 1) {
+                    trap_G2API_RemoveGhoul2Model(&(toGhoul2), 1)
+                }
+            } else if weaponNum == WP_MELEE {
+                //don't want a weapon on the model for this one
+                if trap_G2API_HasGhoul2ModelOnIndex((toGhoul2), 1) {
+                    trap_G2API_RemoveGhoul2Model(&(toGhoul2), 1)
+                }
+            } else {
+                trap_G2API_CopySpecificGhoul2Model(CG_G2WeaponInstance(cent, weaponNum/*-1*/), 0, toGhoul2, 1)
+            }
+        }
+    }
 }
 
 /// Source: oracle/codemp/cgame/cg_weapons.c:2494
@@ -2152,9 +2225,7 @@ func CG_CheckPlayerG2Weapons(_ ps: JKAMP.PlayerState, _ cent: Centity) {
 
     // should we change the gun model on this player?
     if cent.currentState.saberInFlight {
-        // Port-note: The draft of this statement did not compile, and the compiler wrote "argument passed to call that takes no arguments".
-        // Raven wrote: cent->ghoul2weapon = CG_G2WeaponInstance(cent, WP_SABER)
-        portMissing("CG_CheckPlayerG2Weapons", source: "oracle/codemp/cgame/cg_weapons.c:2494")
+        cent.ghoul2weapon = CG_G2WeaponInstance(cent, WP_SABER)
     }
 
     if (cent.currentState.eFlags & EF_DEAD) != 0 {
@@ -2177,7 +2248,34 @@ func CG_CheckPlayerG2Weapons(_ ps: JKAMP.PlayerState, _ cent: Centity) {
         return
     }
 
-    // Port-note: The draft of this statement did not compile, and the compiler wrote "argument passed to call that takes no arguments".
-    // Raven wrote: if (cent->ghoul2 && cent->ghoul2weapon != CG_G2WeaponInstance(cent, ps->weapon) && ps->clientNum == cent->currentState.number) //don't want spectator mode forcing one client's weapon instance over another's { CG_CopyG2WeaponInstance(cent, ps->weapon, cent->ghoul2); cent->ghoul2weapon = CG_G2WeaponInstance(cent, ps->weapon); if (cent->weapon == WP_SABER && cent->weapon != ps->weapon && !ps->saberHolstered) { //switching away from the saber //trap_S_StartSound(cent->lerpOrigin, cent->currentState.number, CHAN_AUTO, trap_S_RegisterSound( "sound/weapons/saber/saberoffquick.wav" )); if (cgs.clientinfo[ps->clientNum].saber[0].soundOff && !ps->saberHolstered) { trap_S_StartSound(cent->lerpOrigin, cent->currentState.number, CHAN_AUTO, cgs.clientinfo[ps->clientNum].saber[0].soundOff); } if (cgs.clientinfo[ps->clientNum].saber[1].soundOff && cgs.clientinfo[ps->clientNum].saber[1].model[0] && !ps->saberHolstered) { trap_S_StartSound(cent->lerpOrigin, cent->currentState.number, CHAN_AUTO, cgs.clientinfo[ps->clientNum].saber[1].soundOff); } } else if (ps->weapon == WP_SABER && cent->weapon != ps->weapon && !cent->saberWasInFlight) { //switching to the saber //trap_S_StartSound(cent->lerpOrigin, cent->currentState.number, CHAN_AUTO, trap_S_RegisterSound( "sound/weapons/saber/saberon.wav" )); if (cgs.clientinfo[ps->clientNum].saber[0].soundOn) { trap_S_StartSound(cent->lerpOrigin, cent->currentState.number, CHAN_AUTO, cgs.clientinfo[ps->clientNum].saber[0].soundOn); } if (cgs.clientinfo[ps->clientNum].saber[1].soundOn) { trap_S_StartSound(cent->lerpOrigin, cent->currentState.number, CHAN_AUTO, cgs.clientinfo[ps->clientNum].saber[1].soundOn); } BG_SI_SetDesiredLength(&cgs.clientinfo[ps->clientNum].saber[0], 0, -1); BG_SI_SetDesiredLength(&cgs.clientinfo[ps->clientNum].saber[1], 0, -1); } cent->weapon = ps->weapon; }
-    portMissing("CG_CheckPlayerG2Weapons", source: "oracle/codemp/cgame/cg_weapons.c:2494")
+    if cent.ghoul2 != nil && cent.ghoul2weapon != CG_G2WeaponInstance(cent, ps.weapon) && ps.clientNum == cent.currentState.number {
+        //don't want spectator mode forcing one client's weapon instance over another's
+        CG_CopyG2WeaponInstance(cent, ps.weapon, cent.ghoul2)
+        cent.ghoul2weapon = CG_G2WeaponInstance(cent, ps.weapon)
+        if cent.weapon == WP_SABER && cent.weapon != ps.weapon && ps.saberHolstered == 0 {
+            //switching away from the saber
+            //trap_S_StartSound(cent->lerpOrigin, cent->currentState.number, CHAN_AUTO, trap_S_RegisterSound( "sound/weapons/saber/saberoffquick.wav" ));
+            if cgs.clientinfo[ps.clientNum].saber[0].soundOff != 0 && ps.saberHolstered == 0 {
+                trap_S_StartSound(cent.lerpOrigin, cent.currentState.number, CHAN_AUTO, cgs.clientinfo[ps.clientNum].saber[0].soundOff)
+            }
+
+            if cgs.clientinfo[ps.clientNum].saber[1].soundOff != 0 && !cgs.clientinfo[ps.clientNum].saber[1].model.isEmpty && ps.saberHolstered == 0 {
+                trap_S_StartSound(cent.lerpOrigin, cent.currentState.number, CHAN_AUTO, cgs.clientinfo[ps.clientNum].saber[1].soundOff)
+            }
+        } else if ps.weapon == WP_SABER && cent.weapon != ps.weapon && !cent.saberWasInFlight {
+            //switching to the saber
+            //trap_S_StartSound(cent->lerpOrigin, cent->currentState.number, CHAN_AUTO, trap_S_RegisterSound( "sound/weapons/saber/saberon.wav" ));
+            if cgs.clientinfo[ps.clientNum].saber[0].soundOn != 0 {
+                trap_S_StartSound(cent.lerpOrigin, cent.currentState.number, CHAN_AUTO, cgs.clientinfo[ps.clientNum].saber[0].soundOn)
+            }
+
+            if cgs.clientinfo[ps.clientNum].saber[1].soundOn != 0 {
+                trap_S_StartSound(cent.lerpOrigin, cent.currentState.number, CHAN_AUTO, cgs.clientinfo[ps.clientNum].saber[1].soundOn)
+            }
+
+            BG_SI_SetDesiredLength(cgs.clientinfo[ps.clientNum].saber[0], 0, -1)
+            BG_SI_SetDesiredLength(cgs.clientinfo[ps.clientNum].saber[1], 0, -1)
+        }
+        cent.weapon = ps.weapon
+    }
 }
