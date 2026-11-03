@@ -195,8 +195,19 @@ CGAME_ROOTS = {
     "ragCallbackBoneSnap_t": ("RagCallbackBoneSnap", "CJKAMP_CGame"),
 }
 
-# The dedicated server has no view root yet. Row E4 of notes/2026-11-03/dedicated-opening-docket.md names the records, and a later ruling writes the rows.
-HOST_ROOTS: dict[str, tuple[str, str]] = {}
+# The records the dedicated server reads, row E4 of notes/2026-11-03/dedicated-opening-docket.md and row T5 of its stage 1 tools record.
+HOST_ROOTS = {
+    # The rows the game holds for a struct of JKAMP come first, with the game's view name and target.
+    "playerState_t": ("PlayerState", "CJKAMP"),
+    "sharedEntity_t": ("SharedEntity", "CJKAMP"),
+    "cvar_t": ("Cvar", "CJKAMP"),
+    # The server's own state, Raven's `svs` and `sv` of sv_main.cpp, and the records its signatures take.
+    "serverStatic_t": ("ServerStatic", "CJKAMP_Ded"),
+    "server_t": ("Server", "CJKAMP_Ded"),
+    "client_t": ("Client", "CJKAMP_Ded"),
+    "msg_t": ("Msg", "CJKAMP_Ded"),
+    "vm_t": ("Vm", "CJKAMP_Ded"),
+}
 
 ROOTS = {"mp-game": GAME_ROOTS, "mp-cgame": CGAME_ROOTS, "mp-engine-ded": HOST_ROOTS}
 
