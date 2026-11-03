@@ -17,7 +17,7 @@ var HolocronIcons: [String] { world.HolocronIcons }
 
 /// Source: oracle/codemp/cgame/cg_main.c:113
 // Raven wrote: int cgWeatherOverride = 0
-let cgWeatherOverride: Int32 = { () -> Int32 in portMissing("cgWeatherOverride", source: "oracle/codemp/cgame/cg_main.c:113") }()
+let cgWeatherOverride: Int32 = 0
 
 /// Source: oracle/codemp/cgame/cg_main.c:115
 var forceModelModificationCount: Int32 {
