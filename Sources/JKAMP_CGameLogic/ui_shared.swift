@@ -528,10 +528,7 @@ Float_Parse
 ```
 */
 /// Source: oracle/codemp/ui/ui_shared.c:449
-// TODO: Port signature
-// Raven wrote: qboolean Float_Parse(char **p, float *f)
-// No table row for `char ** p`.
-func Float_Parse() -> Never {
+func Float_Parse(_ p: inout JKAShared.TextCursor, _ f: inout Float) -> Bool {
     // TODO: Port Float_Parse
     portMissing("Float_Parse", source: "oracle/codemp/ui/ui_shared.c:449")
 }
@@ -582,10 +579,7 @@ Color_Parse
 ```
 */
 /// Source: oracle/codemp/ui/ui_shared.c:492
-// TODO: Port signature
-// Raven wrote: qboolean Color_Parse(char **p, vec4_t *c)
-// No table row for `char ** p`.
-func Color_Parse() -> Never {
+func Color_Parse(_ p: inout JKAShared.TextCursor, _ c: inout JKAShared.vec4_t) -> Bool {
     // TODO: Port Color_Parse
     portMissing("Color_Parse", source: "oracle/codemp/ui/ui_shared.c:492")
 }
@@ -621,10 +615,7 @@ Int_Parse
 ```
 */
 /// Source: oracle/codemp/ui/ui_shared.c:528
-// TODO: Port signature
-// Raven wrote: qboolean Int_Parse(char **p, int *i)
-// No table row for `char ** p`.
-func Int_Parse() -> Never {
+func Int_Parse(_ p: inout JKAShared.TextCursor, _ i: inout Int32) -> Bool {
     // TODO: Port Int_Parse
     portMissing("Int_Parse", source: "oracle/codemp/ui/ui_shared.c:528")
 }
@@ -674,10 +665,7 @@ Rect_Parse
 ```
 */
 /// Source: oracle/codemp/ui/ui_shared.c:571
-// TODO: Port signature
-// Raven wrote: qboolean Rect_Parse(char **p, rectDef_t *r)
-// No table row for `char ** p`.
-func Rect_Parse() -> Never {
+func Rect_Parse(_ p: inout JKAShared.TextCursor, _ r: JKAMP.RectDef) -> Bool {
     // TODO: Port Rect_Parse
     portMissing("Rect_Parse", source: "oracle/codemp/ui/ui_shared.c:571")
 }
@@ -711,10 +699,7 @@ String_Parse
 ```
 */
 /// Source: oracle/codemp/ui/ui_shared.c:607
-// TODO: Port signature
-// Raven wrote: qboolean String_Parse(char **p, const char **out)
-// No table row for `char ** p`.
-func String_Parse() -> Never {
+func String_Parse(_ p: inout JKAShared.TextCursor, _ out: inout String) -> Bool {
     // TODO: Port String_Parse
     portMissing("String_Parse", source: "oracle/codemp/ui/ui_shared.c:607")
 }
@@ -1175,55 +1160,37 @@ func Menu_GetMatchingItemByNumber(_ menu: MenuDef, _ index: Int32, _ name: Strin
 }
 
 /// Source: oracle/codemp/ui/ui_shared.c:1063
-// TODO: Port signature
-// Raven wrote: qboolean Script_SetColor ( itemDef_t *item, char **args )
-// No table row for `char ** args`.
-func Script_SetColor() -> Never {
+func Script_SetColor(_ item: ItemDef, _ args: inout JKAShared.TextCursor) -> Bool {
     // TODO: Port Script_SetColor
     portMissing("Script_SetColor", source: "oracle/codemp/ui/ui_shared.c:1063")
 }
 
 /// Source: oracle/codemp/ui/ui_shared.c:1105
-// TODO: Port signature
-// Raven wrote: qboolean Script_SetAsset(itemDef_t *item, char **args)
-// No table row for `char ** args`.
-func Script_SetAsset() -> Never {
+func Script_SetAsset(_ item: ItemDef, _ args: inout JKAShared.TextCursor) -> Bool {
     // TODO: Port Script_SetAsset
     portMissing("Script_SetAsset", source: "oracle/codemp/ui/ui_shared.c:1105")
 }
 
 /// Source: oracle/codemp/ui/ui_shared.c:1119
-// TODO: Port signature
-// Raven wrote: qboolean Script_SetBackground(itemDef_t *item, char **args)
-// No table row for `char ** args`.
-func Script_SetBackground() -> Never {
+func Script_SetBackground(_ item: ItemDef, _ args: inout JKAShared.TextCursor) -> Bool {
     // TODO: Port Script_SetBackground
     portMissing("Script_SetBackground", source: "oracle/codemp/ui/ui_shared.c:1119")
 }
 
 /// Source: oracle/codemp/ui/ui_shared.c:1130
-// TODO: Port signature
-// Raven wrote: qboolean Script_SetItemRectCvar(itemDef_t *item, char **args)
-// No table row for `char ** args`.
-func Script_SetItemRectCvar() -> Never {
+func Script_SetItemRectCvar(_ item: ItemDef, _ args: inout JKAShared.TextCursor) -> Bool {
     // TODO: Port Script_SetItemRectCvar
     portMissing("Script_SetItemRectCvar", source: "oracle/codemp/ui/ui_shared.c:1130")
 }
 
 /// Source: oracle/codemp/ui/ui_shared.c:1193
-// TODO: Port signature
-// Raven wrote: qboolean Script_SetItemBackground(itemDef_t *item, char **args)
-// No table row for `char ** args`.
-func Script_SetItemBackground() -> Never {
+func Script_SetItemBackground(_ item: ItemDef, _ args: inout JKAShared.TextCursor) -> Bool {
     // TODO: Port Script_SetItemBackground
     portMissing("Script_SetItemBackground", source: "oracle/codemp/ui/ui_shared.c:1193")
 }
 
 /// Source: oracle/codemp/ui/ui_shared.c:1206
-// TODO: Port signature
-// Raven wrote: qboolean Script_SetItemText(itemDef_t *item, char **args)
-// No table row for `char ** args`.
-func Script_SetItemText() -> Never {
+func Script_SetItemText(_ item: ItemDef, _ args: inout JKAShared.TextCursor) -> Bool {
     // TODO: Port Script_SetItemText
     portMissing("Script_SetItemText", source: "oracle/codemp/ui/ui_shared.c:1206")
 }
@@ -1247,37 +1214,25 @@ func Menu_FindItemByName(_ menu: MenuDef, _ p: String) -> ItemDef? {
 }
 
 /// Source: oracle/codemp/ui/ui_shared.c:1235
-// TODO: Port signature
-// Raven wrote: qboolean Script_SetTeamColor(itemDef_t *item, char **args)
-// No table row for `char ** args`.
-func Script_SetTeamColor() -> Never {
+func Script_SetTeamColor(_ item: ItemDef, _ args: inout JKAShared.TextCursor) -> Bool {
     // TODO: Port Script_SetTeamColor
     portMissing("Script_SetTeamColor", source: "oracle/codemp/ui/ui_shared.c:1235")
 }
 
 /// Source: oracle/codemp/ui/ui_shared.c:1250
-// TODO: Port signature
-// Raven wrote: qboolean Script_SetItemColor(itemDef_t *item, char **args)
-// No table row for `char ** args`.
-func Script_SetItemColor() -> Never {
+func Script_SetItemColor(_ item: ItemDef, _ args: inout JKAShared.TextCursor) -> Bool {
     // TODO: Port Script_SetItemColor
     portMissing("Script_SetItemColor", source: "oracle/codemp/ui/ui_shared.c:1250")
 }
 
 /// Source: oracle/codemp/ui/ui_shared.c:1314
-// TODO: Port signature
-// Raven wrote: qboolean Script_SetItemColorCvar(itemDef_t *item, char **args)
-// No table row for `char ** args`.
-func Script_SetItemColorCvar() -> Never {
+func Script_SetItemColorCvar(_ item: ItemDef, _ args: inout JKAShared.TextCursor) -> Bool {
     // TODO: Port Script_SetItemColorCvar
     portMissing("Script_SetItemColorCvar", source: "oracle/codemp/ui/ui_shared.c:1314")
 }
 
 /// Source: oracle/codemp/ui/ui_shared.c:1403
-// TODO: Port signature
-// Raven wrote: qboolean Script_SetItemRect(itemDef_t *item, char **args)
-// No table row for `char ** args`.
-func Script_SetItemRect() -> Never {
+func Script_SetItemRect(_ item: ItemDef, _ args: inout JKAShared.TextCursor) -> Bool {
     // TODO: Port Script_SetItemRect
     portMissing("Script_SetItemRect", source: "oracle/codemp/ui/ui_shared.c:1403")
 }
@@ -1440,55 +1395,37 @@ func Menus_CloseAll() {
 }
 
 /// Source: oracle/codemp/ui/ui_shared.c:1591
-// TODO: Port signature
-// Raven wrote: qboolean Script_Show(itemDef_t *item, char **args)
-// No table row for `char ** args`.
-func Script_Show() -> Never {
+func Script_Show(_ item: ItemDef, _ args: inout JKAShared.TextCursor) -> Bool {
     // TODO: Port Script_Show
     portMissing("Script_Show", source: "oracle/codemp/ui/ui_shared.c:1591")
 }
 
 /// Source: oracle/codemp/ui/ui_shared.c:1601
-// TODO: Port signature
-// Raven wrote: qboolean Script_Hide(itemDef_t *item, char **args)
-// No table row for `char ** args`.
-func Script_Hide() -> Never {
+func Script_Hide(_ item: ItemDef, _ args: inout JKAShared.TextCursor) -> Bool {
     // TODO: Port Script_Hide
     portMissing("Script_Hide", source: "oracle/codemp/ui/ui_shared.c:1601")
 }
 
 /// Source: oracle/codemp/ui/ui_shared.c:1611
-// TODO: Port signature
-// Raven wrote: qboolean Script_FadeIn(itemDef_t *item, char **args)
-// No table row for `char ** args`.
-func Script_FadeIn() -> Never {
+func Script_FadeIn(_ item: ItemDef, _ args: inout JKAShared.TextCursor) -> Bool {
     // TODO: Port Script_FadeIn
     portMissing("Script_FadeIn", source: "oracle/codemp/ui/ui_shared.c:1611")
 }
 
 /// Source: oracle/codemp/ui/ui_shared.c:1622
-// TODO: Port signature
-// Raven wrote: qboolean Script_FadeOut(itemDef_t *item, char **args)
-// No table row for `char ** args`.
-func Script_FadeOut() -> Never {
+func Script_FadeOut(_ item: ItemDef, _ args: inout JKAShared.TextCursor) -> Bool {
     // TODO: Port Script_FadeOut
     portMissing("Script_FadeOut", source: "oracle/codemp/ui/ui_shared.c:1622")
 }
 
 /// Source: oracle/codemp/ui/ui_shared.c:1632
-// TODO: Port signature
-// Raven wrote: qboolean Script_Open(itemDef_t *item, char **args)
-// No table row for `char ** args`.
-func Script_Open() -> Never {
+func Script_Open(_ item: ItemDef, _ args: inout JKAShared.TextCursor) -> Bool {
     // TODO: Port Script_Open
     portMissing("Script_Open", source: "oracle/codemp/ui/ui_shared.c:1632")
 }
 
 /// Source: oracle/codemp/ui/ui_shared.c:1642
-// TODO: Port signature
-// Raven wrote: qboolean Script_Close(itemDef_t *item, char **args)
-// No table row for `char ** args`.
-func Script_Close() -> Never {
+func Script_Close(_ item: ItemDef, _ args: inout JKAShared.TextCursor) -> Bool {
     // TODO: Port Script_Close
     portMissing("Script_Close", source: "oracle/codemp/ui/ui_shared.c:1642")
 }
@@ -1610,10 +1547,7 @@ portion of the script can later be run with the "rundeferred"
 ```
 */
 /// Source: oracle/codemp/ui/ui_shared.c:1767
-// TODO: Port signature
-// Raven wrote: qboolean Script_Defer ( itemDef_t* item, char **args )
-// No table row for `char ** args`.
-func Script_Defer() -> Never {
+func Script_Defer(_ item: ItemDef, _ args: inout JKAShared.TextCursor) -> Bool {
     // TODO: Port Script_Defer
     portMissing("Script_Defer", source: "oracle/codemp/ui/ui_shared.c:1767")
 }
@@ -1629,19 +1563,13 @@ time so be careful of recursion
 ```
 */
 /// Source: oracle/codemp/ui/ui_shared.c:1794
-// TODO: Port signature
-// Raven wrote: qboolean Script_RunDeferred ( itemDef_t* item, char **args )
-// No table row for `char ** args`.
-func Script_RunDeferred() -> Never {
+func Script_RunDeferred(_ item: ItemDef, _ args: inout JKAShared.TextCursor) -> Bool {
     // TODO: Port Script_RunDeferred
     portMissing("Script_RunDeferred", source: "oracle/codemp/ui/ui_shared.c:1794")
 }
 
 /// Source: oracle/codemp/ui/ui_shared.c:1808
-// TODO: Port signature
-// Raven wrote: qboolean Script_Transition(itemDef_t *item, char **args)
-// No table row for `char ** args`.
-func Script_Transition() -> Never {
+func Script_Transition(_ item: ItemDef, _ args: inout JKAShared.TextCursor) -> Bool {
     // TODO: Port Script_Transition
     portMissing("Script_Transition", source: "oracle/codemp/ui/ui_shared.c:1808")
 }
@@ -1689,47 +1617,32 @@ func Menu_ItemDisable(_ menu: MenuDef, _ name: String, _ disableFlag: Int32) {
 
 // Set item disable flags
 /// Source: oracle/codemp/ui/ui_shared.c:1865
-// TODO: Port signature
-// Raven wrote: qboolean Script_Disable(itemDef_t *item, char **args)
-// No table row for `char ** args`.
-func Script_Disable() -> Never {
+func Script_Disable(_ item: ItemDef, _ args: inout JKAShared.TextCursor) -> Bool {
     // TODO: Port Script_Disable
     portMissing("Script_Disable", source: "oracle/codemp/ui/ui_shared.c:1865")
 }
 
 // Scale the given item instantly.
 /// Source: oracle/codemp/ui/ui_shared.c:1895
-// TODO: Port signature
-// Raven wrote: qboolean Script_Scale(itemDef_t *item, char **args)
-// No table row for `char ** args`.
-func Script_Scale() -> Never {
+func Script_Scale(_ item: ItemDef, _ args: inout JKAShared.TextCursor) -> Bool {
     // TODO: Port Script_Scale
     portMissing("Script_Scale", source: "oracle/codemp/ui/ui_shared.c:1895")
 }
 
 /// Source: oracle/codemp/ui/ui_shared.c:1939
-// TODO: Port signature
-// Raven wrote: qboolean Script_Orbit(itemDef_t *item, char **args)
-// No table row for `char ** args`.
-func Script_Orbit() -> Never {
+func Script_Orbit(_ item: ItemDef, _ args: inout JKAShared.TextCursor) -> Bool {
     // TODO: Port Script_Orbit
     portMissing("Script_Orbit", source: "oracle/codemp/ui/ui_shared.c:1939")
 }
 
 /// Source: oracle/codemp/ui/ui_shared.c:1956
-// TODO: Port signature
-// Raven wrote: qboolean Script_SetFocus(itemDef_t *item, char **args)
-// No table row for `char ** args`.
-func Script_SetFocus() -> Never {
+func Script_SetFocus(_ item: ItemDef, _ args: inout JKAShared.TextCursor) -> Bool {
     // TODO: Port Script_SetFocus
     portMissing("Script_SetFocus", source: "oracle/codemp/ui/ui_shared.c:1956")
 }
 
 /// Source: oracle/codemp/ui/ui_shared.c:1986
-// TODO: Port signature
-// Raven wrote: qboolean Script_SetPlayerModel(itemDef_t *item, char **args)
-// No table row for `char ** args`.
-func Script_SetPlayerModel() -> Never {
+func Script_SetPlayerModel(_ item: ItemDef, _ args: inout JKAShared.TextCursor) -> Bool {
     // TODO: Port Script_SetPlayerModel
     portMissing("Script_SetPlayerModel", source: "oracle/codemp/ui/ui_shared.c:1986")
 }
@@ -1766,10 +1679,7 @@ transition2		lfvscr		25 0 202 264  20 25
 ```
 */
 /// Source: oracle/codemp/ui/ui_shared.c:2027
-// TODO: Port signature
-// Raven wrote: qboolean Script_Transition2(itemDef_t *item, char **args)
-// No table row for `char ** args`.
-func Script_Transition2() -> Never {
+func Script_Transition2(_ item: ItemDef, _ args: inout JKAShared.TextCursor) -> Bool {
     // TODO: Port Script_Transition2
     portMissing("Script_Transition2", source: "oracle/codemp/ui/ui_shared.c:2027")
 }
@@ -1789,55 +1699,37 @@ transition3		lfvscr		(min extent) (max extent) (fovx,y)  20 25
 ```
 */
 /// Source: oracle/codemp/ui/ui_shared.c:2062
-// TODO: Port signature
-// Raven wrote: qboolean Script_Transition3(itemDef_t *item, char **args)
-// No table row for `char ** args`.
-func Script_Transition3() -> Never {
+func Script_Transition3(_ item: ItemDef, _ args: inout JKAShared.TextCursor) -> Bool {
     // TODO: Port Script_Transition3
     portMissing("Script_Transition3", source: "oracle/codemp/ui/ui_shared.c:2062")
 }
 
 /// Source: oracle/codemp/ui/ui_shared.c:2150
-// TODO: Port signature
-// Raven wrote: qboolean Script_SetCvar(itemDef_t *item, char **args)
-// No table row for `char ** args`.
-func Script_SetCvar() -> Never {
+func Script_SetCvar(_ item: ItemDef, _ args: inout JKAShared.TextCursor) -> Bool {
     // TODO: Port Script_SetCvar
     portMissing("Script_SetCvar", source: "oracle/codemp/ui/ui_shared.c:2150")
 }
 
 /// Source: oracle/codemp/ui/ui_shared.c:2160
-// TODO: Port signature
-// Raven wrote: qboolean Script_SetCvarToCvar(itemDef_t *item, char **args)
-// No table row for `char ** args`.
-func Script_SetCvarToCvar() -> Never {
+func Script_SetCvarToCvar(_ item: ItemDef, _ args: inout JKAShared.TextCursor) -> Bool {
     // TODO: Port Script_SetCvarToCvar
     portMissing("Script_SetCvarToCvar", source: "oracle/codemp/ui/ui_shared.c:2160")
 }
 
 /// Source: oracle/codemp/ui/ui_shared.c:2170
-// TODO: Port signature
-// Raven wrote: qboolean Script_Exec(itemDef_t *item, char **args)
-// No table row for `char ** args`.
-func Script_Exec() -> Never {
+func Script_Exec(_ item: ItemDef, _ args: inout JKAShared.TextCursor) -> Bool {
     // TODO: Port Script_Exec
     portMissing("Script_Exec", source: "oracle/codemp/ui/ui_shared.c:2170")
 }
 
 /// Source: oracle/codemp/ui/ui_shared.c:2178
-// TODO: Port signature
-// Raven wrote: qboolean Script_Play(itemDef_t *item, char **args)
-// No table row for `char ** args`.
-func Script_Play() -> Never {
+func Script_Play(_ item: ItemDef, _ args: inout JKAShared.TextCursor) -> Bool {
     // TODO: Port Script_Play
     portMissing("Script_Play", source: "oracle/codemp/ui/ui_shared.c:2178")
 }
 
 /// Source: oracle/codemp/ui/ui_shared.c:2186
-// TODO: Port signature
-// Raven wrote: qboolean Script_playLooped(itemDef_t *item, char **args)
-// No table row for `char ** args`.
-func Script_playLooped() -> Never {
+func Script_playLooped(_ item: ItemDef, _ args: inout JKAShared.TextCursor) -> Bool {
     // TODO: Port Script_playLooped
     portMissing("Script_playLooped", source: "oracle/codemp/ui/ui_shared.c:2186")
 }
