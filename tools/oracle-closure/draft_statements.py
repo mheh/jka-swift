@@ -509,6 +509,58 @@ class Statements:
         return canonical.kind == TypeKind.CONSTANTARRAY and canonical.element_count == 3 \
             and canonical.element_type.get_canonical().kind == TypeKind.FLOAT
 
+    def offset_post_step(self, left: ci.Cursor) -> str | None:
+        """Raven's name of the optional offset local in `*p++` on the left of a store, or None for any other left side."""
+        inner = self.unwrap(left)
+        if inner.kind != CursorKind.UNARY_OPERATOR or self.operator_or_none_unary(inner) != "*":
+            return None
+        step = self.unwrap(self.unary_parts(inner)[2])
+        if step.kind != CursorKind.UNARY_OPERATOR or not self.is_step(step):
+            return None
+        op, prefix, operand = self.unary_parts(step)
+        operand = self.unwrap(operand)
+        if op != "++" or prefix or operand.kind != CursorKind.DECL_REF_EXPR or operand.spelling not in self.offset_cursors \
+                or not self.offset_cursors[operand.spelling].optional:
+            return None
+        return operand.spelling
+
+    def offset_guard(self, cur: ci.Cursor, kids: list[ci.Cursor]) -> str | None:
+        """The bind of Raven's `if (!p) continue;`, `break;`, or `return ...;` over an optional offset local with no else arm,
+        `var p` or `let p`, or None for any other test.
+        Swift refuses a guard bind of a name in its own declaring scope, so the test must sit in a block inside the block that declares the local.
+        The bind is `var` when a later statement of the block writes the local."""
+        if len(kids) != 2:
+            return None
+        cond, then = self.unwrap(kids[0]), kids[1]
+        if cond.kind != CursorKind.UNARY_OPERATOR or self.operator_or_none_unary(cond) != "!":
+            return None
+        operand = self.unwrap(list(cond.get_children())[0])
+        if operand.kind != CursorKind.DECL_REF_EXPR or operand.spelling not in self.offset_cursors \
+                or not self.offset_cursors[operand.spelling].optional:
+            return None
+        arm = list(then.get_children()) if then.kind == CursorKind.COMPOUND_STMT else [then]
+        if len(arm) != 1 or arm[0].kind not in (CursorKind.CONTINUE_STMT, CursorKind.BREAK_STMT, CursorKind.RETURN_STMT):
+            return None
+        name = operand.spelling
+        blocks = [c for c in self.fn.cur.walk_preorder() if c.kind == CursorKind.COMPOUND_STMT]
+        enclosing = next((b for b in blocks if any(k.extent == cur.extent for k in b.get_children())), None)
+        declaring = next((b for b in blocks if any(k.kind == CursorKind.DECL_STMT and any(v.spelling == name for v in k.get_children())
+                                                   for k in b.get_children())), None)
+        if enclosing is None or declaring is None or enclosing.extent == declaring.extent \
+                or not (declaring.extent.start.offset <= enclosing.extent.start.offset and enclosing.extent.end.offset <= declaring.extent.end.offset):
+            return None
+        later = [k for k in enclosing.get_children() if k.extent.start.offset >= cur.extent.end.offset]
+        written = False
+        for node in (n for k in later for n in k.walk_preorder()):
+            parts = list(node.get_children())
+            target = self.unwrap(parts[0]) if parts else None
+            if target is None or target.kind != CursorKind.DECL_REF_EXPR or target.spelling != name:
+                continue
+            if node.kind == CursorKind.COMPOUND_ASSIGNMENT_OPERATOR or (node.kind == CursorKind.UNARY_OPERATOR and self.is_step(node)) \
+                    or (node.kind == CursorKind.BINARY_OPERATOR and self.operator_or_none(node) == "="):
+                written = True
+        return f"{'var' if written else 'let'} {swift_name(name)}"
+
     def whole_record_size(self, size: ci.Cursor, target: ci.Cursor) -> bool:
         """True when Raven's size argument is `sizeof` of the record itself, of the pointer's pointee, or of the record's type,
         `sizeof(Vehicle_t)` through a `Vehicle_t *`, which names the pointee's type by any typedef of it."""
@@ -711,6 +763,11 @@ class Statements:
                         raise Hole(f"Raven stores NULL into `{self.unwrap(left).spelling}`, and a byte offset has no NULL.")
                     value = self.cursor_offset(right) if op == "=" else self.converted(right, "Int32")
                     return [f"{pad}{self.expr(left)} {op} {value}" + self.trailing(cur)]
+                stepped = self.offset_post_step(left) if op == "=" else None
+                if stepped is not None:
+                    # Raven's `*p++ = x` through the search's offset is the store at the offset and the step after it.
+                    slot = f"{self.cursor_buffer(stepped)}[{swift_name(stepped)}]"
+                    return [f"{pad}{slot} = {self.converted(right, 'Int32')}" + self.trailing(cur), f"{pad}{swift_name(stepped)} += 1"]
                 if op == "=" and self.unwrap(left).kind == CursorKind.UNARY_OPERATOR \
                         and self.operator_or_none_unary(self.unwrap(left)) == "*":
                     # A byte store through a cursor takes the value as an Int32, which the CharBuf setter narrows.
@@ -980,6 +1037,10 @@ class Statements:
         pad = INDENT * depth
         kids = list(cur.get_children())
         cond, then = kids[0], kids[1]
+        guard = self.offset_guard(cur, kids)
+        if guard is not None:
+            # Raven's NULL test of the search leaves the block early, and the bound offset stands for the rest of the block.
+            return [f"{pad}guard {guard} else {{"] + self.branch(then, depth + 1) + roled([f"{pad}}}"], "frame")
         found = self.aliased_in_test(cond)
         head: list[str] = []
         if found is not None:
