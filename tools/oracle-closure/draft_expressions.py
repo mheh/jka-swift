@@ -611,6 +611,9 @@ class Expressions:
                     bang = "!" if inner.spelling in self.optional_texts else ""
                     return self.leaf(cur, f"JKAShared.CharBuf({self.expr(inner)}{bang})[0]")
                 raise Hole("A pointer dereference the draft cannot place.")
+            if (cur.extent.start.offset, cur.extent.end.offset) in getattr(self, "deferred_steps", set()):
+                # The statement steps the variable on its next line, so the subscript reads the old value.
+                return self.expr(operand)
             raise Hole(f"A {op} inside an expression.")
         if kind == CursorKind.BINARY_OPERATOR:
             op = self.binary_op(cur)

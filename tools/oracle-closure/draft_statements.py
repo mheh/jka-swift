@@ -515,6 +515,29 @@ class Statements:
             return None
         return self.expr(target), word
 
+    def subscript_step(self, cur: ci.Cursor, left: ci.Cursor) -> tuple[ci.Cursor, ci.Cursor, str] | None:
+        """The one post-increment inside a subscript on the left of a store, its operand, and its sign, or None.
+        The stepped variable appears once in the statement, so the store reads the old value and the step follows it."""
+        if not hasattr(self, "deferred_steps"):
+            self.deferred_steps: set[tuple[int, int]] = set()
+        found = []
+        for node in left.walk_preorder():
+            if node.kind != CursorKind.ARRAY_SUBSCRIPT_EXPR:
+                continue
+            index = self.unwrap(list(node.get_children())[1])
+            if index.kind == CursorKind.UNARY_OPERATOR and self.is_step(index) and not self.unary_parts(index)[1]:
+                found.append(index)
+        if len(found) != 1 or (found[0].extent.start.offset, found[0].extent.end.offset) in self.deferred_steps:
+            return None
+        op, _, operand = self.unary_parts(found[0])
+        operand = self.unwrap(operand)
+        named = " ".join(self.source.slice(operand.extent).split())
+        uses = [n for n in cur.walk_preorder() if n.kind in (CursorKind.DECL_REF_EXPR, CursorKind.MEMBER_REF_EXPR)
+                and " ".join(self.source.slice(n.extent).split()) == named]
+        if len(uses) != 1:
+            return None
+        return found[0], operand, op[0]
+
     def raw_field_record(self, args: list[ci.Cursor]) -> str | None:
         """The view of the record for Raven's `memset(item->typeData, 0, sizeof(listBoxDef_t))` over a raw field, or None.
         The value is zero, and the size is `sizeof` of one record with a view, the record Raven allocated into the field."""
@@ -745,6 +768,17 @@ class Statements:
                 return self.statement(left, depth) + self.statement(right, depth)
             if op in ASSIGN_OPS:
                 left, right = list(cur.get_children())
+                step = self.subscript_step(cur, left) if op == "=" else None
+                if step is not None:
+                    # Raven's `menuStack[openMenuCount++] = focus` is the store with the old value and the step on the next line.
+                    unary, operand, sign = step
+                    key = (unary.extent.start.offset, unary.extent.end.offset)
+                    self.deferred_steps.add(key)
+                    try:
+                        lines = self.statement_lines(cur, depth)
+                    finally:
+                        self.deferred_steps.discard(key)
+                    return lines + [f"{pad}{self.expr(operand)} {sign}= 1"]
                 if op == "=" and self.unwrap(left).kind == CursorKind.DECL_REF_EXPR and self.unwrap(left).spelling in self.charbuf_allocs \
                         and self.is_null(right):
                     # No read reaches Raven's NULL before the allocation, so the store drops under one comment.
