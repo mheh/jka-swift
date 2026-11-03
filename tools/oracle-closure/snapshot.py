@@ -58,7 +58,7 @@ def write(out: Path) -> int:
     # The drafts print from the lowered rows, as `bodies.py --stem` prints them, over the one skeleton and registry of this run.
     lowering = Lowering(sk, Registry())
     for stem in sorted(stem for stem in sk.files if target_of(stem) in (BG, LOGIC, SHARED)):
-        files[f"bodies/{stem}.swift"] = stem_text([lowering.lines(stem, fn.cur.spelling) for fn in sk.files[stem]])
+        files[f"bodies/{stem}.swift"] = stem_text([lowering.lines(stem, fn.key) for fn in sk.files[stem]])
     for name, text in files.items():
         path = out / name
         path.parent.mkdir(parents=True, exist_ok=True)

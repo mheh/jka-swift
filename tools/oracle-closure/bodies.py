@@ -226,7 +226,7 @@ class Drafter(Statements, Expressions, Calls, Declarations, Classification):
             return header
         self.fn = fn
         self.statement_seqs = {(row["kind"], row["start_offset"], row["end_offset"]): row["seq"]
-                               for row in self.sk.table.store.syntax("statements", fn.stem, fn.cur.spelling)}
+                               for row in self.sk.table.store.syntax("statements", fn.stem, fn.key)}
         self.source = self.sk.source(fn.stem)
         self.bytes = C.parsed_bytes(C.ORACLE / C.folder_of(fn.stem) / C.file_name(fn.stem))
         self.names = {c.spelling: p.name for c, p in zip(fn.cur.get_arguments(), fn.params)}
@@ -286,7 +286,7 @@ class Drafter(Statements, Expressions, Calls, Declarations, Classification):
         self.aliased_positions: dict[tuple[int, int, int], str] = {}
         # Raven's `siegeTeam_t **teamPtr` that only holds the address of a file-scope variable he chooses between.
         self.chosen_locals = self.chosen_local_names(fn.cur)
-        facts = self.sk.table.locals_of(fn.stem, fn.cur.spelling)
+        facts = self.sk.table.locals_of(fn.stem, fn.key)
         self.lets = facts.single_writes
         if any(self.record_local(c) is not None for c in fn.cur.walk_preorder()):
             # A closure cannot initialize a let of the enclosing body, so a body with a scratch record keeps every local a var.
@@ -475,7 +475,7 @@ class Lowering:
 
     def function(self, stem: str, function: str) -> Function:
         """The function of the stem by its name."""
-        fn = next((fn for fn in self.sk.files[stem] if fn.cur.spelling == function), None)
+        fn = next((fn for fn in self.sk.files[stem] if fn.key == function), None)
         if fn is None:
             raise SystemExit(f"bodies.py: the stem {stem} holds no function named {function}")
         return fn
@@ -496,7 +496,7 @@ def main() -> None:
         fns = sk.files[args.stem]
     else:
         parser.error("give --only or --stem")
-    print(stem_text([lowering.lines(fn.stem, fn.cur.spelling) for fn in fns]), end="", flush=True)
+    print(stem_text([lowering.lines(fn.stem, fn.key) for fn in fns]), end="", flush=True)
 
 
 if __name__ == "__main__":

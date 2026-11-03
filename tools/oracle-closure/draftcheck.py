@@ -236,7 +236,7 @@ class Stem:
             _, rows = drafter.rows()
             draft += function_lines(rows)
             # The body is seq 0, and no hole stands for a whole body, so a line of the body's own keeps no key.
-            keys += [(self.stem, fn.cur.spelling, row[1]) if row[1] else None for row in rows if row[2] != "trailing"]
+            keys += [(self.stem, fn.key, row[1]) if row[1] else None for row in rows if row[2] != "trailing"]
             draft.append("")
             keys.append(None)
             # The printer prints one line for each row that is not trailing, so the keys stand beside the lines they name.

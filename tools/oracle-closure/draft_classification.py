@@ -146,7 +146,7 @@ class Classification:
         reads: dict[str, Cursor] = {}
         writes: dict[str, Cursor] = {}
         walks: dict[str, tuple[str, str]] = {}
-        for name, row in self.sk.table.locals_of(fn.stem, fn.cur.spelling).rows.items():
+        for name, row in self.sk.table.locals_of(fn.stem, fn.key).rows.items():
             if row.cursor is not None:
                 (writes if row.cursor.write else reads)[name] = row.cursor
             if row.table is not None:

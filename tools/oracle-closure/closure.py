@@ -365,6 +365,23 @@ def file_name(stem: str) -> str:
     return stem + SUFFIXES.get(stem, ".c")
 
 
+# The names a file of a parse defines more than once, by translation unit, which only a C++ overload does.
+_OVERLOADS: dict[int, set[tuple[str, str]]] = {}
+
+
+def function_key(cur: ci.Cursor) -> str:
+    """The key of one function definition in its file, the name, with the line of the definition for a C++ overload.
+    adopt.py matches a draft to its stub by the same line, and a C file defines a name once, so its key is the name alone."""
+    tu = cur.translation_unit
+    if id(tu) not in _OVERLOADS:
+        counts: dict[tuple[str, str], int] = defaultdict(int)
+        for c in tu.cursor.get_children():
+            if c.kind == CursorKind.FUNCTION_DECL and c.is_definition() and c.location.file:
+                counts[(c.location.file.name, c.spelling)] += 1
+        _OVERLOADS[id(tu)] = {key for key, n in counts.items() if n > 1}
+    return f"{cur.spelling}:{cur.location.line}" if (cur.location.file.name, cur.spelling) in _OVERLOADS[id(tu)] else cur.spelling
+
+
 def within(path: Path, *folders: Path) -> bool:
     """Whether a resolved .c file of a parse stands in one of the folders.
     The folder of the run's unit also holds the files its row borrows, so a sweep of the unit's own parse reads them as its own files.

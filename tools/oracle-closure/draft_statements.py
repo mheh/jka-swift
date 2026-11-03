@@ -293,7 +293,7 @@ class Statements:
         """The compiler's message for a statement the compile gate rejected on an earlier pass, by its file, its function, and its seq.
         A statement the gate accepted has no message."""
         seq = self.statement_seqs.get(extent_key(cur))
-        return None if seq is None else self.compile_due.get((self.fn.stem, self.fn.cur.spelling, seq))
+        return None if seq is None else self.compile_due.get((self.fn.stem, self.fn.key, seq))
 
     def compile_hole(self, cur: ci.Cursor, depth: int) -> list[str] | None:
         """The hole of a statement whose draft the compile gate rejected on an earlier pass, or None for a statement it accepted."""

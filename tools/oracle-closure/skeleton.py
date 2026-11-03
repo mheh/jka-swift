@@ -113,6 +113,8 @@ class Function:
     def __init__(self, cur: ci.Cursor, stem: str) -> None:
         self.cur = cur
         self.name = cur.spelling
+        # The key of the function in the table and the store, the name, with the line for a C++ overload.
+        self.key = C.function_key(cur)
         self.stem = stem
         self.line = cur.location.line
         self.static = cur.storage_class == ci.StorageClass.STATIC
