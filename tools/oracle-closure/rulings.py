@@ -336,6 +336,8 @@ RETURNS = {
     "B_TempAlloc": "raw",
     "G_Alloc": "raw",
     "CG_StrPool_Alloc": "raw",
+    # UI_Alloc of ui_shared.c:209 takes the G_Alloc form, one block per call, and `memoryPool` has no storage.
+    "UI_Alloc": "raw",
     "BG_StringAlloc": "pooled_string",
     "G_NewString": "pooled_string",
     "CG_NewString": "pooled_string",
