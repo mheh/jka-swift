@@ -149,6 +149,8 @@ CGAME_ROOTS = {
     "itemFlagsDef_t": ("ItemFlagsDef", "CJKAMP_CGame"),
     # The file-scope table `strHandle` of ui_shared.c holds pointers to these, one hash chain of interned texts per bucket.
     "stringDef_t": ("StringDef", "CJKAMP_CGame"),
+    # The file-scope list head `ui_G2PtrTracker` of ui_shared.c points at these, one record per Ghoul2 instance the UI holds.
+    "uiG2PtrTracker_t": ("UiG2PtrTracker", "CJKAMP_CGame"),
     # A trap or a stub parameter names these, and no root field points at them.
     "polyVert_t": ("PolyVert", "CJKAMP"),
     "poly_t": ("Poly", "CJKAMP"),

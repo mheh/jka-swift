@@ -129,4 +129,14 @@ typedef struct stringDef_s {
 	const char *str;
 } stringDef_t;
 
+// Source: oracle/codemp/ui/ui_shared.c:7479
+typedef struct uiG2PtrTracker_s uiG2PtrTracker_t;
+
+// Source: oracle/codemp/ui/ui_shared.c:7481
+struct uiG2PtrTracker_s
+{
+	void *ghoul2;
+	uiG2PtrTracker_t *next;
+};
+
 #endif
