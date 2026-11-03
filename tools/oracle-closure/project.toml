@@ -344,7 +344,19 @@ srcglob = [
 [units.mp-engine-ded]
 name = "mp-engine-ded"
 lang = "c++"
-entry = "codemp/qcommon/qcommon.h"
+# The header parse reads the stage 1 headers by hand, in the shape of mp-engine, and no botlib header, row T2.
+# The null folder has no header of its own.
+entry = [
+    "codemp/qcommon/qcommon.h",
+    "codemp/qcommon/qfiles.h",
+    "codemp/qcommon/cm_local.h",
+    "codemp/qcommon/cm_patch.h",
+    "codemp/qcommon/files.h",
+    "codemp/qcommon/vm_local.h",
+    "codemp/server/server.h",
+    "codemp/win32/win_local.h",
+    "codemp/win32/resource.h",
+]
 includes = [
     "codemp/qcommon",
     "codemp/server",
