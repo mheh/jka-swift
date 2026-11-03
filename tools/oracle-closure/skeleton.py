@@ -834,14 +834,16 @@ class Skeleton:
         unsafe = "nonisolated(unsafe) " if "?" in swift or "CharBuf" in swift else ""
         return self.variable_access(var) + unsafe
 
-    def variable_entry(self, var: Variable) -> list[str]:
+    def variable_entry(self, var: Variable, count: bool = True) -> list[str]:
+        """The stub lines of one variable. The signature row reads the same lines with `count` off, so the run counts each variable once."""
         text = self.declaration_text(var)
         # A one-line definition keeps its initializer on the page. A table's initializer is Raven's data, read from the oracle.
         declaration = " ".join(text.split("=", 1)[0].split()) if "\n" in text else " ".join(text.split())
         lines = [f"/// Source: {var.cite}", f"// Raven wrote: {declaration}"]
         kind = var.kind
         initializer = "Raven's initializer" if "=" in text else "C's zero, since Raven wrote no initializer"
-        self.counts[f"variables, {kind}"] += 1
+        if count:
+            self.counts[f"variables, {kind}"] += 1
         if kind == "let" and "=" not in text:
             # Nothing writes it and Raven gave it no value, so it is C's zero for the module's life. A view is not Sendable, so its let says so.
             lines.append(f"{self.let_prefix(var)}let {var.name}: {var.swift} = {self.zero(var)}")
@@ -1398,7 +1400,7 @@ class Skeleton:
     def variable_signature(self, var: Variable) -> dict[str, str | None]:
         """The signature row of one file-scope variable. Its text is the stub's last line for the variable:
         the `let`, the rule 3 line, the storage line, or the reason."""
-        entry = self.variable_entry(var)
+        entry = self.variable_entry(var, count=False)
         return {"file": C.file_name(var.stem), "name": var.name, "kind": "variable", "target": target_of(var.stem), "text": entry[-1],
                 "forward": None, "reason": None, "source": f"oracle/{C.folder_of(var.stem)}/{C.file_name(var.stem)}:{var.line}", "destination": "", "state": var.kind, "peer": ""}
 
