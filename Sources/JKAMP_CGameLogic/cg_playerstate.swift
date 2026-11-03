@@ -397,9 +397,7 @@ func CG_TransitionPlayerState(_ ps: JKAMP.PlayerState, _ ops: JKAMP.PlayerState)
     if ps.clientNum != ops.clientNum {
         cg.thisFrameTeleport = true
         // make sure we don't get any unwanted transition effects
-        // Port-note: A pointer dereference the draft cannot place.
-        // Raven wrote: *ops = *ps
-        portMissing("CG_TransitionPlayerState", source: "oracle/codemp/cgame/cg_playerstate.c:495")
+        ops.copy(from: ps)
     }
 
     // damage events (player is getting wounded)
