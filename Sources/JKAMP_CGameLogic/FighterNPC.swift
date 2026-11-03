@@ -176,17 +176,23 @@ func FighterIsLanded(_ pVeh: JKAMP.Vehicle, _ parentPS: JKAMP.PlayerState) -> Bo
 
 /// Source: oracle/codemp/game/FighterNPC.c:310
 func FighterIsLanding(_ pVeh: JKAMP.Vehicle, _ parentPS: JKAMP.PlayerState) -> Bool {
-    // Port-note: No operator between the operands, the text there is `#ifdef QAGAME && pVeh->m_pVehicleInfo->Inhabited( pVeh ) #endif &&`.
-    // Raven wrote: if ( FighterOverValidLandingSurface( pVeh ) #ifdef QAGAME//only do this check on GAME side, because if it's CGAME, it's being predicted, and it's only predicted if the local client is the driver && pVeh->m_pVehicleInfo->Inhabited( pVeh )//has to have a driver in order to be capable of landing #endif && (pVeh->m_ucmd.forwardmove < 0||pVeh->m_ucmd.upmove<0) //decelerating or holding crouch button && parentPS->speed <= MIN_LANDING_SPEED )//going slow enough to start landing - was using pVeh->m_pVehicleInfo->speedIdle, but that's still too fast { return qtrue; }
-    portMissing("FighterIsLanding", source: "oracle/codemp/game/FighterNPC.c:310")
+    if FighterOverValidLandingSurface(pVeh)
+        && (pVeh.m_ucmd.forwardmove < 0 || pVeh.m_ucmd.upmove < 0) //decelerating or holding crouch button
+        && parentPS.speed <= MIN_LANDING_SPEED {
+        //going slow enough to start landing - was using pVeh->m_pVehicleInfo->speedIdle, but that's still too fast
+        return true
+    }
     return false
 }
 
 /// Source: oracle/codemp/game/FighterNPC.c:325
 func FighterIsLaunching(_ pVeh: JKAMP.Vehicle, _ parentPS: JKAMP.PlayerState) -> Bool {
-    // Port-note: No operator between the operands, the text there is `#ifdef QAGAME && pVeh->m_pVehicleInfo->Inhabited( pVeh ) #endif &&`.
-    // Raven wrote: if ( FighterOverValidLandingSurface( pVeh ) #ifdef QAGAME//only do this check on GAME side, because if it's CGAME, it's being predicted, and it's only predicted if the local client is the driver && pVeh->m_pVehicleInfo->Inhabited( pVeh )//has to have a driver in order to be capable of landing #endif && pVeh->m_ucmd.upmove > 0 //trying to take off && parentPS->speed <= 200.0f )//going slow enough to start landing - was using pVeh->m_pVehicleInfo->speedIdle, but that's still too fast { return qtrue; }
-    portMissing("FighterIsLaunching", source: "oracle/codemp/game/FighterNPC.c:325")
+    if FighterOverValidLandingSurface(pVeh)
+        && pVeh.m_ucmd.upmove > 0 //trying to take off
+        && parentPS.speed <= 200.0 {
+        //going slow enough to start landing - was using pVeh->m_pVehicleInfo->speedIdle, but that's still too fast
+        return true
+    }
     return false
 }
 
@@ -462,9 +468,73 @@ private func ProcessMoveCommands(_ pVeh: JKAMP.Vehicle) {
     }
 
     //STRAFING==============================================================================
-    // Port-note: No operator between the operands, the text there is `#ifdef QAGAME && pVeh->m_pVehicleInfo->Inhabited( pVeh ) #endif &&`.
-    // Raven wrote: if ( pVeh->m_pVehicleInfo->strafePerc #ifdef QAGAME//only do this check on GAME side, because if it's CGAME, it's being predicted, and it's only predicted if the local client is the driver && pVeh->m_pVehicleInfo->Inhabited( pVeh )//has to have a driver in order to be capable of landing #endif && !pVeh->m_iRemovedSurfaces && parentPS->electrifyTime < curTime && parentPS->vehTurnaroundTime < curTime && (pVeh->m_LandTrace.fraction >= 1.0f//no grounf ||pVeh->m_LandTrace.plane.normal[2] < MIN_LANDING_SLOPE//can't land here ||parentPS->speed>MIN_LANDING_SPEED)//going too fast to land && pVeh->m_ucmd.rightmove ) {//strafe vec3_t vAngles, vRight; float strafeSpeed = (pVeh->m_pVehicleInfo->strafePerc*speedMax)*5.0f; VectorCopy( pVeh->m_vOrientation, vAngles ); vAngles[PITCH] = vAngles[ROLL] = 0; AngleVectors( vAngles, NULL, vRight, NULL ); if ( pVeh->m_ucmd.rightmove > 0 ) {//strafe right //FIXME: this will probably make it possible to cheat and // go faster than max speed if you keep turning and strafing... if ( parentPS->hackingTime > -MAX_STRAFE_TIME ) {//can strafe right for 2 seconds float curStrafeSpeed = DotProduct( parentPS->velocity, vRight ); if ( curStrafeSpeed > 0.0f ) {//if > 0, already strafing right strafeSpeed -= curStrafeSpeed;//so it doesn't add up } if ( strafeSpeed > 0 ) { VectorMA( parentPS->velocity, strafeSpeed*pVeh->m_fTimeModifier, vRight, parentPS->velocity ); } parentPS->hackingTime -= 50*pVeh->m_fTimeModifier; } } else {//strafe left if ( parentPS->hackingTime < MAX_STRAFE_TIME ) {//can strafe left for 2 seconds float curStrafeSpeed = DotProduct( parentPS->velocity, vRight ); if ( curStrafeSpeed < 0.0f ) {//if < 0, already strafing left strafeSpeed += curStrafeSpeed;//so it doesn't add up } if ( strafeSpeed > 0 ) { VectorMA( parentPS->velocity, -strafeSpeed*pVeh->m_fTimeModifier, vRight, parentPS->velocity ); } parentPS->hackingTime += 50*pVeh->m_fTimeModifier; } } //strafing takes away from forward speed? If so, strafePerc above should use speedMax //parentPS->speed *= (1.0f-pVeh->m_pVehicleInfo->strafePerc); } else//if ( parentPS->hackingTime ) { if ( parentPS->hackingTime > 0 ) { parentPS->hackingTime -= 50*pVeh->m_fTimeModifier; if ( parentPS->hackingTime < 0 ) { parentPS->hackingTime = 0.0f; } } else if ( parentPS->hackingTime < 0 ) { parentPS->hackingTime += 50*pVeh->m_fTimeModifier; if ( parentPS->hackingTime > 0 ) { parentPS->hackingTime = 0.0f; } } }
-    portMissing("ProcessMoveCommands", source: "oracle/codemp/game/FighterNPC.c:370")
+    if pVeh.m_pVehicleInfo!.strafePerc != 0
+        && pVeh.m_iRemovedSurfaces == 0
+        && parentPS!.electrifyTime < curTime
+        && parentPS!.vehTurnaroundTime < curTime
+        && (pVeh.m_LandTrace.fraction >= 1.0 //no grounf
+            || pVeh.m_LandTrace.plane.normal[2] < MIN_LANDING_SLOPE //can't land here
+            || parentPS!.speed > MIN_LANDING_SPEED) //going too fast to land
+        && pVeh.m_ucmd.rightmove != 0 {
+        //strafe
+        var vAngles = vec3_t()
+        var vRight = vec3_t()
+        var strafeSpeed: Float = (pVeh.m_pVehicleInfo!.strafePerc * speedMax) * 5.0
+        vAngles = pVeh.m_vOrientationVector
+        vAngles[ROLL] = 0
+        vAngles[PITCH] = vAngles[ROLL]
+        // Raven passes NULL for the `forward` and `up` outputs.
+        var scratchForward = vec3_t()
+        var scratchUp = vec3_t()
+        AngleVectors(vAngles, &scratchForward, &vRight, &scratchUp)
+
+        if pVeh.m_ucmd.rightmove > 0 {
+            //strafe right
+            //FIXME: this will probably make it possible to cheat and
+            //		go faster than max speed if you keep turning and strafing...
+            if parentPS!.hackingTime > -MAX_STRAFE_TIME {
+                //can strafe right for 2 seconds
+                let curStrafeSpeed: Float = _DotProduct(parentPS!.velocity, vRight)
+                if curStrafeSpeed > 0.0 {
+                    //if > 0, already strafing right
+                    strafeSpeed -= curStrafeSpeed //so it doesn't add up
+                }
+                if strafeSpeed > 0 {
+                    _VectorMA(parentPS!.velocity, strafeSpeed * pVeh.m_fTimeModifier, vRight, &parentPS!.velocity)
+                }
+                parentPS!.hackingTime = Int32(parentPS!.hackingTime - 50 * pVeh.m_fTimeModifier)
+            }
+        } else {
+            //strafe left
+            if parentPS!.hackingTime < MAX_STRAFE_TIME {
+                //can strafe left for 2 seconds
+                let curStrafeSpeed: Float = _DotProduct(parentPS!.velocity, vRight)
+                if curStrafeSpeed < 0.0 {
+                    //if < 0, already strafing left
+                    strafeSpeed += curStrafeSpeed //so it doesn't add up
+                }
+                if strafeSpeed > 0 {
+                    _VectorMA(parentPS!.velocity, -strafeSpeed * pVeh.m_fTimeModifier, vRight, &parentPS!.velocity)
+                }
+                parentPS!.hackingTime = Int32(parentPS!.hackingTime + 50 * pVeh.m_fTimeModifier)
+            }
+        }
+        //strafing takes away from forward speed?  If so, strafePerc above should use speedMax
+        //parentPS->speed *= (1.0f-pVeh->m_pVehicleInfo->strafePerc);
+    } else {
+        //if ( parentPS->hackingTime )
+        if parentPS!.hackingTime > 0 {
+            parentPS!.hackingTime = Int32(parentPS!.hackingTime - 50 * pVeh.m_fTimeModifier)
+            if parentPS!.hackingTime < 0 {
+                parentPS!.hackingTime = 0
+            }
+        } else if parentPS!.hackingTime < 0 {
+            parentPS!.hackingTime = Int32(parentPS!.hackingTime + 50 * pVeh.m_fTimeModifier)
+            if parentPS!.hackingTime > 0 {
+                parentPS!.hackingTime = 0
+            }
+        }
+    }
     //STRAFING==============================================================================
 
     if parentPS!.speed > speedMax {
@@ -1018,12 +1088,8 @@ func G_CreateFighterNPC(_ pVeh: inout JKAMP.Vehicle?, _ strType: String) {
         //only allocate a new one if we really have to
         (pVeh) = Vehicle(BG_Alloc(Int32(Vehicle.byteCount)))
     }
-    // Port-note: The draft of this statement did not compile, and the compiler wrote "value of optional type 'Vehicle?' must be unwrapped to refer to member 'clear' of wrapped base type 'Vehicle'".
-    // Raven wrote: memset(*pVeh, 0, sizeof(Vehicle_t))
-    portMissing("G_CreateFighterNPC", source: "oracle/codemp/game/FighterNPC.c:1994")
-    // Port-note: The draft of this statement did not compile, and the compiler wrote "value of optional type 'Vehicle?' must be unwrapped to refer to member 'm_pVehicleInfo' of wrapped base type 'Vehicle'".
-    // Raven wrote: (*pVeh)->m_pVehicleInfo = &g_vehicleInfo[BG_VehicleGetIndex( strType )]
-    portMissing("G_CreateFighterNPC", source: "oracle/codemp/game/FighterNPC.c:1994")
+    pVeh!.clear()
+    pVeh!.m_pVehicleInfo = g_vehicleInfo[BG_VehicleGetIndex(strType)]
 }
 
 /// One static per function this file stores in a `VehicleInfo` callback field, so each has one address for the life of the module.
