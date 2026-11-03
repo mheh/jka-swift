@@ -902,6 +902,10 @@ public final class CGameWorld {
     /// Raven's `keywordHash_t *menuParseKeywordHash[KEYWORDHASH_SIZE]` of `ui_shared.c`, the index of the first row of each bucket, and nil for NULL.
     /// Source: oracle/codemp/ui/ui_shared.c:9758
     var menuParseKeywordHash = [Int32?](repeating: nil, count: Int(KEYWORDHASH_SIZE))
+
+    /// Raven's `static qboolean inHandleKey = qfalse` of `Menu_HandleKey` in `ui_shared.c`.
+    /// Source: oracle/codemp/ui/ui_shared.c:4541
+    var inHandleKey: Bool = false
 }
 
 /// One row of Raven's `commands` of `cg_consolecmds.c`, the `consoleCommand_t` record with the command function as a Swift function value.
