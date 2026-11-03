@@ -3746,7 +3746,8 @@ private func CG_DrawPowerupIcons(_ y: Int32) {
     y += 16
 
     j = 0
-    while j <= PW_NUM_POWERUPS {
+    // AI: Raven reads powerups[PW_NUM_POWERUPS], one past the end of the array. The port stops at the count.
+    while j < PW_NUM_POWERUPS {
         if cg.snap!.ps.powerups[j] > cg.time {
             let secondsleft: Int32 = (cg.snap!.ps.powerups[j] - cg.time) / 1000
 
