@@ -11,8 +11,8 @@ import Testing
 nonisolated(unsafe) private var recordedWords: [Int] = []
 
 /// The stand-in for the Swift host's system call. It stores every word it gets and returns the command.
-private let recordingSystemCall: jka_systemcall_fn = { parms, count in
-    recordedWords = Array(UnsafeBufferPointer(start: parms, count: Int(count)))
+private let recordingSystemCall: jka_systemcall_fn = { parms in
+    recordedWords = Array(UnsafeBufferPointer(start: parms, count: 15))
     return parms![0]
 }
 

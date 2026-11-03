@@ -21,7 +21,7 @@ intptr_t VM_DllSyscall( intptr_t arg, ... ) {
 		args[i] = va_arg(ap, intptr_t);
 	va_end(ap);
 
-	return jka_systemCall( args, (int)(sizeof (args) / sizeof (args[0])) );
+	return jka_systemCall( args );
 }
 
 // Source: oracle/codemp/null/win_main.cpp:784
