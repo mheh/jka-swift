@@ -319,9 +319,7 @@ private func CG_ClipMoveToEntities(_ start: JKAShared.vec3_t, _ mins: JKAShared.
 
                 if trace.allsolid != 0 || trace.fraction < tr.fraction {
                     trace.entityNum = ent!.number
-                    // Port-note: A pointer dereference the draft cannot place.
-                    // Raven wrote: *tr = trace
-                    portMissing("CG_ClipMoveToEntities", source: "oracle/codemp/cgame/cg_predict.c:216")
+                    tr.copy(from: trace)
                 } else if trace.startsolid != 0 {
                     tr.startsolid = 1
 
@@ -338,9 +336,7 @@ private func CG_ClipMoveToEntities(_ start: JKAShared.vec3_t, _ mins: JKAShared.
                         } else {
                             //it's alright, keep going
                             trace.copy(from: oldTrace)
-                            // Port-note: A pointer dereference the draft cannot place.
-                            // Raven wrote: *tr = trace
-                            portMissing("CG_ClipMoveToEntities", source: "oracle/codemp/cgame/cg_predict.c:216")
+                            tr.copy(from: trace)
                         }
                     } else {
                         return true
@@ -354,9 +350,7 @@ private func CG_ClipMoveToEntities(_ start: JKAShared.vec3_t, _ mins: JKAShared.
                         if trace.entityNum == ENTITYNUM_NONE {
                             //g2 trace failed, so put it back where it was.
                             trace.copy(from: oldTrace)
-                            // Port-note: A pointer dereference the draft cannot place.
-                            // Raven wrote: *tr = trace
-                            portMissing("CG_ClipMoveToEntities", source: "oracle/codemp/cgame/cg_predict.c:216")
+                            tr.copy(from: trace)
                         }
                     }
                 }
@@ -367,15 +361,11 @@ private func CG_ClipMoveToEntities(_ start: JKAShared.vec3_t, _ mins: JKAShared.
                     if !CG_VehicleClipCheck(ignored!, trace) {
                         //looks like it
                         trace.copy(from: oldTrace)
-                        // Port-note: A pointer dereference the draft cannot place.
-                        // Raven wrote: *tr = trace
-                        portMissing("CG_ClipMoveToEntities", source: "oracle/codemp/cgame/cg_predict.c:216")
+                        tr.copy(from: trace)
                     } else if hit!.currentState.eType == ET_MISSILE && hit!.currentState.owner == ignored!.currentState.number {
                         //hack, don't hit own missiles
                         trace.copy(from: oldTrace)
-                        // Port-note: A pointer dereference the draft cannot place.
-                        // Raven wrote: *tr = trace
-                        portMissing("CG_ClipMoveToEntities", source: "oracle/codemp/cgame/cg_predict.c:216")
+                        tr.copy(from: trace)
                     }
                 }
                 i += 1
@@ -409,9 +399,7 @@ func CG_Trace(_ result: JKAMP.Trace, _ start: JKAShared.vec3_t, _ mins: JKAShare
         // check all other solid models
         CG_ClipMoveToEntities(start, mins, maxs, end, skipNumber, mask, t, false)
 
-        // Port-note: A pointer dereference the draft cannot place.
-        // Raven wrote: *result = t
-        portMissing("CG_Trace", source: "oracle/codemp/cgame/cg_predict.c:359")
+        result.copy(from: t)
     }
 }
 
@@ -432,9 +420,7 @@ func CG_G2Trace(_ result: JKAMP.Trace, _ start: JKAShared.vec3_t, _ mins: JKASha
         // check all other solid models
         CG_ClipMoveToEntities(start, mins, maxs, end, skipNumber, mask, t, true)
 
-        // Port-note: A pointer dereference the draft cannot place.
-        // Raven wrote: *result = t
-        portMissing("CG_G2Trace", source: "oracle/codemp/cgame/cg_predict.c:376")
+        result.copy(from: t)
     }
 }
 
@@ -507,9 +493,7 @@ private func CG_InterpolatePlayerState(_ grabAngles: Bool) {
     prev = cg.snap
     next = cg.nextSnap
 
-    // Port-note: A pointer dereference the draft cannot place.
-    // Raven wrote: *out = cg.snap->ps
-    portMissing("CG_InterpolatePlayerState", source: "oracle/codemp/cgame/cg_predict.c:435")
+    out!.copy(from: cg.snap!.ps)
 
     // if we are still allowing local input, short circuit the view angles
     if grabAngles {
@@ -564,9 +548,7 @@ private func CG_InterpolateVehiclePlayerState(_ grabAngles: Bool) {
     prev = cg.snap
     next = cg.nextSnap
 
-    // Port-note: A pointer dereference the draft cannot place.
-    // Raven wrote: *out = cg.snap->vps
-    portMissing("CG_InterpolateVehiclePlayerState", source: "oracle/codemp/cgame/cg_predict.c:487")
+    out!.copy(from: cg.snap!.vps)
 
     // if we are still allowing local input, short circuit the view angles
     if grabAngles {
@@ -813,9 +795,7 @@ private func CG_TouchTriggerPrediction() {
 func CG_PmoveClientPointerUpdate() {
     var i: Int32
 
-    // Port-note: Raven's `memset(&cgSendPSPool[0], 0, sizeof(cgSendPSPool))` runs over a size that is not the record's own, and a view's clear() takes the whole record.
-    // Raven wrote: memset(&cgSendPSPool[0], 0, sizeof(cgSendPSPool))
-    portMissing("CG_PmoveClientPointerUpdate", source: "oracle/codemp/cgame/cg_predict.c:884")
+    cgSendPSPool.zero()
 
     i = 0
     while i < MAX_GENTITIES {
@@ -830,9 +810,7 @@ func CG_PmoveClientPointerUpdate() {
     // Last .next is already NULL from memset above
 
     //Set up bg entity data
-    // Port-note: The draft of this statement did not compile, and the compiler wrote "initializer 'init(_:)' requires that 'Slots<Centity>' conform to 'HandleView'".
-    // Raven wrote: cg_pmove.baseEnt = (bgEntity_t *)cg_entities
-    portMissing("CG_PmoveClientPointerUpdate", source: "oracle/codemp/cgame/cg_predict.c:884")
+    cg_pmove.baseEnt = BgEntity(cg_entities[0])
     cg_pmove.entSize = Int32(Centity.byteCount)
 
     cg_pmove.ghoul2 = nil
@@ -1197,9 +1175,7 @@ func CG_PredictPlayerState() {
 
                                 if veh!.m_pVehicle != nil {
                                     //make sure pointer is set up to go to our predicted state
-                                    // Port-note: Raven stores a pointer into the `float *` field with `veh->m_pVehicle->m_vOrientation = &cg.predictedVehicleState.vehOrientation[0]`, and rule 11 keeps a pointer out of a logic target.
-                                    // Raven wrote: veh->m_pVehicle->m_vOrientation = &cg.predictedVehicleState.vehOrientation[0]
-                                    portMissing("CG_PredictPlayerState", source: "oracle/codemp/cgame/cg_predict.c:963")
+                                    veh!.m_pVehicle!.pointOrientation(at: cg.predictedVehicleState)
 
                                     //keep this updated based on what the playerstate says
                                     veh!.m_pVehicle!.m_iRemovedSurfaces = cg.predictedVehicleState.vehSurfaces
@@ -1264,9 +1240,7 @@ func CG_PredictPlayerState() {
                                         cg_vehPmove.g2Bolts_LFoot = -1
                                         cg_vehPmove.g2Bolts_RFoot = -1
 
-                                        // Port-note: The draft of this statement did not compile, and the compiler wrote "initializer 'init(_:)' requires that 'Slots<Centity>' conform to 'HandleView'".
-                                        // Raven wrote: cg_vehPmove.baseEnt = (bgEntity_t *)cg_entities
-                                        portMissing("CG_PredictPlayerState", source: "oracle/codemp/cgame/cg_predict.c:963")
+                                        cg_vehPmove.baseEnt = BgEntity(cg_entities[0])
                                         cg_vehPmove.entSize = Int32(Centity.byteCount)
 
                                         cg_vehPmoveSet = true
@@ -1357,9 +1331,7 @@ func CG_PredictPlayerState() {
 
                         if veh!.m_pVehicle != nil {
                             //switch ptr back for this ent in case we stop riding it
-                            // Port-note: Raven stores a pointer into the `float *` field with `veh->m_pVehicle->m_vOrientation = &cgSendPS[veh->currentState.number]->vehOrientation[0]`, and rule 11 keeps a pointer out of a logic target.
-                            // Raven wrote: veh->m_pVehicle->m_vOrientation = &cgSendPS[veh->currentState.number]->vehOrientation[0]
-                            portMissing("CG_PredictPlayerState", source: "oracle/codemp/cgame/cg_predict.c:963")
+                            veh!.m_pVehicle!.pointOrientation(at: cgSendPS[veh!.currentState.number]!)
                         }
 
                         cg_entities[cg.predictedPlayerState.clientNum].playerState = cgSendPS[cg.predictedPlayerState.clientNum]
