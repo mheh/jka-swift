@@ -26,7 +26,7 @@ import closure as C
 from align import stub
 from draftcheck import DRAFTS, body_name, functions, splice
 from reexport import REPO
-from skeleton import LOGIC, NOTE, stub_path, target_of
+from skeleton import LOGIC, header_line, stub_path, target_of
 
 
 # The func line of a function, after any attribute and access word, `private func CG_DrawHealth(_ menuHUD: MenuDef) {`.
@@ -55,7 +55,7 @@ def adopt(stem: str) -> str:
     if not draft_path.exists():
         return f"{stem}: no draft on disk, skipped"
     hand = target.read_text().split("\n")
-    header = NOTE.format(stem=stem)
+    header = header_line(stem)
     draft = draft_path.read_text().split("\n")
     keep: set[int] = set()
     if hand[0] != header:

@@ -21,6 +21,10 @@ unit = "mp-game"
 # `borrowed` lists the .c files of another folder that the unit's build compiles too, which the unit's stubs mirror with Source lines in that folder.
 # `borrowed_rust` lists the jka-rust files under `jka-rust/crates/mp` that the manifest reads first for a borrowed file.
 # A unit whose `logic` target is not under the output root yet writes every file of its run under `tools/oracle-closure/out/<unit>/`.
+# `kind` is `module` when the row has no such key, a game module with a trap file and a vmMain shell.
+# A `host` row is an engine that loads the modules, and it names no trap file and no shell.
+# The skeleton of a host reads every file of the unit's `srcglob` less the files of `deferred`, and the plain functions of a .cpp file.
+# The `rust` key of a host is a list of crates under `jka-rust/crates/mp`.
 [targets.mp-game]
 other = "mp-cgame"
 folder = "codemp/game"
@@ -55,6 +59,39 @@ borrowed_rust = [
     "bg/src/vehicles",
     "cgame/src/vehicle_npc.rs",
     "uishared/src",
+]
+
+# The MP dedicated server, Raven's WinDed.vcproj, rows E4, E5, E6, and E11 of notes/2026-11-03/dedicated-opening-docket.md.
+[targets.mp-engine-ded]
+kind = "host"
+other = "mp-game"
+# A host has no single folder. Each file of its link set outside this folder stands as a borrowed file of the unit.
+folder = "codemp/server"
+logic = "JKAMP_DedLogic"
+views = "JKAMP_Ded"
+c_target = "CJKAMP_Ded"
+state = "Engine"
+rust = [
+    "engine/qcommon",
+    "engine/server",
+    "engine/core",
+]
+store = "tools/oracle-closure/out/mp-engine-ded/table.sqlite"
+# The files of the link set that the skeleton writes no stub for in this stage, by the rows under the srcglob of the unit.
+deferred = [
+    "codemp/renderer/*.c",
+    "codemp/renderer/*.cpp",
+    "codemp/png/*.cpp",
+    "codemp/zlib32/*.cpp",
+    "codemp/qcommon/RoffSystem.cpp",
+    "codemp/qcommon/cm_draw.cpp",
+    "codemp/qcommon/cm_randomterrain.cpp",
+    "codemp/qcommon/cm_terrain.cpp",
+    "codemp/ghoul2/*.cpp",
+    "codemp/server/NPCNav/*.cpp",
+    "codemp/botlib/*.cpp",
+    "codemp/icarus/*.cpp",
+    "codemp/RMG/*.cpp",
 ]
 
 [output]
@@ -300,12 +337,7 @@ srcglob = [
 # leaving exactly the headless host + server-side model/G2 loading). NB the
 # WinDed *Release* config oddly omits _JK2/MISSIONPACK (its Debug config has
 # _JK2); kept faithful. The whole engine is C++ (.cpp), so lang=c++.
-# srcglob is the WinDed compile set minus win32/null-device/vendored:
-#   qcommon+server+ghoul2+botlib+icarus+RMG in full, plus the 9 renderer
-#   sources WinDed links for server-side G2/model/shader loading
-#   (tr_model/mesh/ghoul2/image/shader/init/main/backend + matcomp), which
-#   compile down to their non-DEDICATED remainder. null_renderer/null_*
-#   are the stub device layer (our Rust host supplies its own) — excluded.
+# srcglob is the WinDed Release link set file by file, and the comments at the key give the rows.
 # Renderer files pull tr_local.h->qgl.h->GL, so the glshim include dir +
 # GL/win32 scalar-typedef defines from mp-renderer are merged in; -fdeclspec
 # for tr_local's __declspec(align), -fno-operator-names for its `or` fields.
@@ -351,22 +383,130 @@ flags = [
     "-fdeclspec",
     "-fno-operator-names",
 ]
+# The WinDed Release link set, oracle/codemp/WinDed.vcproj:138-894, file by file in the order of the project file, ruled by row E8.
+# Row E13 keeps vm.cpp and vm_interpreted.cpp and leaves vm_x86.cpp out, WinDed.vcproj:290.
+# Row E5 ports qcommon, server, null, and win32 in stage 1.
+# The files under the comment of row E5 below are a later port stage, and the parse keeps them because the syscalls of the game reach their types.
 srcglob = [
-    "codemp/qcommon/*.cpp",
-    "codemp/server/*.cpp",
-    "codemp/ghoul2/*.cpp",
-    "codemp/botlib/*.cpp",
-    "codemp/icarus/*.cpp",
-    "codemp/RMG/*.cpp",
-    "codemp/renderer/tr_model.cpp",
-    "codemp/renderer/tr_mesh.cpp",
+    "codemp/qcommon/cm_load.cpp",
+    "codemp/qcommon/cm_patch.cpp",
+    "codemp/qcommon/cm_polylib.cpp",
+    "codemp/qcommon/cm_shader.cpp",
+    "codemp/qcommon/cm_test.cpp",
+    "codemp/qcommon/cm_trace.cpp",
+    "codemp/qcommon/cmd_common.cpp",
+    "codemp/qcommon/cmd_pc.cpp",
+    "codemp/qcommon/common.cpp",
+    "codemp/qcommon/cvar.cpp",
+    "codemp/qcommon/files_common.cpp",
+    "codemp/qcommon/files_pc.cpp",
+    "codemp/qcommon/GenericParser2.cpp",
+    "codemp/qcommon/huffman.cpp",
+    "codemp/qcommon/md4.cpp",
+    "codemp/qcommon/msg.cpp",
+    "codemp/qcommon/net_chan.cpp",
+    "codemp/qcommon/q_math.cpp",
+    "codemp/qcommon/q_shared.cpp",
+    "codemp/qcommon/stringed_ingame.cpp",
+    "codemp/qcommon/stringed_interface.cpp",
+    "codemp/qcommon/unzip.cpp",
+    "codemp/qcommon/vm.cpp",
+    "codemp/qcommon/vm_interpreted.cpp",
+    "codemp/qcommon/z_memman_pc.cpp",
+    "codemp/server/sv_bot.cpp",
+    "codemp/server/sv_ccmds.cpp",
+    "codemp/server/sv_client.cpp",
+    "codemp/server/sv_game.cpp",
+    "codemp/server/sv_init.cpp",
+    "codemp/server/sv_main.cpp",
+    "codemp/server/sv_net_chan.cpp",
+    "codemp/server/sv_snapshot.cpp",
+    "codemp/server/sv_world.cpp",
+    "codemp/null/null_client.cpp",
+    "codemp/null/null_glimp.cpp",
+    "codemp/null/null_input.cpp",
+    "codemp/null/null_renderer.cpp",
+    "codemp/null/null_snddma.cpp",
+    "codemp/null/win_main.cpp",
+    "codemp/win32/win_net.cpp",
+    "codemp/win32/win_shared.cpp",
+    # Row E5 does not name the renderer and png files, WinDed.vcproj:400-430.
+    "codemp/renderer/matcomp.c",
+    "codemp/renderer/tr_backend.cpp",
     "codemp/renderer/tr_ghoul2.cpp",
     "codemp/renderer/tr_image.cpp",
-    "codemp/renderer/tr_shader.cpp",
     "codemp/renderer/tr_init.cpp",
     "codemp/renderer/tr_main.cpp",
-    "codemp/renderer/tr_backend.cpp",
-    "codemp/renderer/matcomp.c",
+    "codemp/renderer/tr_mesh.cpp",
+    "codemp/renderer/tr_model.cpp",
+    "codemp/renderer/tr_shader.cpp",
+    "codemp/png/png.cpp",
+    # Row E14 sends the inflate calls to the system zlib, so the zlib32 files do not port, WinDed.vcproj:878-893.
+    "codemp/zlib32/deflate.cpp",
+    "codemp/zlib32/inflate.cpp",
+    "codemp/zlib32/zipcommon.cpp",
+    # Row E5: a later port stage. ROFF and the terrain in qcommon, then Ghoul2, NPCNav, the botlib, ICARUS, and the RMG.
+    "codemp/qcommon/RoffSystem.cpp",
+    "codemp/qcommon/cm_draw.cpp",
+    "codemp/qcommon/cm_randomterrain.cpp",
+    "codemp/qcommon/cm_terrain.cpp",
+    "codemp/ghoul2/G2_API.cpp",
+    "codemp/ghoul2/G2_bolts.cpp",
+    "codemp/ghoul2/G2_bones.cpp",
+    "codemp/ghoul2/G2_misc.cpp",
+    "codemp/ghoul2/G2_surfaces.cpp",
+    "codemp/server/NPCNav/gameCallbacks.cpp",
+    "codemp/server/NPCNav/navigator.cpp",
+    "codemp/botlib/be_aas_bspq3.cpp",
+    "codemp/botlib/be_aas_cluster.cpp",
+    "codemp/botlib/be_aas_debug.cpp",
+    "codemp/botlib/be_aas_entity.cpp",
+    "codemp/botlib/be_aas_file.cpp",
+    "codemp/botlib/be_aas_main.cpp",
+    "codemp/botlib/be_aas_move.cpp",
+    "codemp/botlib/be_aas_optimize.cpp",
+    "codemp/botlib/be_aas_reach.cpp",
+    "codemp/botlib/be_aas_route.cpp",
+    "codemp/botlib/be_aas_routealt.cpp",
+    "codemp/botlib/be_aas_sample.cpp",
+    "codemp/botlib/be_ai_char.cpp",
+    "codemp/botlib/be_ai_chat.cpp",
+    "codemp/botlib/be_ai_gen.cpp",
+    "codemp/botlib/be_ai_goal.cpp",
+    "codemp/botlib/be_ai_move.cpp",
+    "codemp/botlib/be_ai_weap.cpp",
+    "codemp/botlib/be_ai_weight.cpp",
+    "codemp/botlib/be_ea.cpp",
+    "codemp/botlib/be_interface.cpp",
+    "codemp/botlib/l_crc.cpp",
+    "codemp/botlib/l_libvar.cpp",
+    "codemp/botlib/l_log.cpp",
+    "codemp/botlib/l_memory.cpp",
+    "codemp/botlib/l_precomp.cpp",
+    "codemp/botlib/l_script.cpp",
+    "codemp/botlib/l_struct.cpp",
+    "codemp/icarus/BlockStream.cpp",
+    "codemp/icarus/GameInterface.cpp",
+    "codemp/icarus/Instance.cpp",
+    "codemp/icarus/Interface.cpp",
+    "codemp/icarus/Memory.cpp",
+    "codemp/icarus/Q3_Interface.cpp",
+    "codemp/icarus/Q3_Registers.cpp",
+    "codemp/icarus/Sequence.cpp",
+    "codemp/icarus/Sequencer.cpp",
+    "codemp/icarus/TaskManager.cpp",
+    "codemp/RMG/RM_Area.cpp",
+    "codemp/RMG/RM_Instance.cpp",
+    "codemp/RMG/RM_Instance_BSP.cpp",
+    "codemp/RMG/RM_Instance_Group.cpp",
+    "codemp/RMG/RM_Instance_Random.cpp",
+    "codemp/RMG/RM_Instance_Void.cpp",
+    "codemp/RMG/RM_InstanceFile.cpp",
+    "codemp/RMG/RM_Manager.cpp",
+    "codemp/RMG/RM_Mission.cpp",
+    "codemp/RMG/RM_Objective.cpp",
+    "codemp/RMG/RM_Path.cpp",
+    "codemp/RMG/RM_Terrain.cpp",
 ]
 
 # Multi-entry: qcommon owns many headers unreachable from qcommon.h

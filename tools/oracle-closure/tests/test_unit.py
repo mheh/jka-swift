@@ -101,9 +101,26 @@ class DefaultUnit(unittest.TestCase):
             self.assertEqual(target, "CJKAMP_Game")
 
         # and the re-exports name every unit's target, the game's first
-        self.assertEqual(reexport.VIEW_OF, {"CJKAShared": "JKAShared", "CJKAMP": "JKAMP", "CJKAMP_Game": "JKAMP_Game", "CJKAMP_CGame": "JKAMP_CGame"})
+        self.assertEqual(reexport.VIEW_OF, {"CJKAShared": "JKAShared", "CJKAMP": "JKAMP", "CJKAMP_Game": "JKAMP_Game", "CJKAMP_CGame": "JKAMP_CGame",
+                                            "CJKAMP_Ded": "JKAMP_Ded"})
         self.assertEqual(reexport.DEPS, {"CJKAShared": [], "CJKAMP": ["CJKAShared"], "CJKAMP_Game": ["CJKAMP", "CJKAShared"],
-                                         "CJKAMP_CGame": ["CJKAMP", "CJKAShared"]})
+                                         "CJKAMP_CGame": ["CJKAMP", "CJKAShared"], "CJKAMP_Ded": ["CJKAMP", "CJKAShared"]})
+
+    def test_the_dedicated_server_is_a_host(self) -> None:
+        import closure as C
+
+        # given the row of the dedicated server, rows E6 and E11 of notes/2026-11-03/dedicated-opening-docket.md
+        row = C.PROJECT["targets"]["mp-engine-ded"]
+
+        # then it is a host with no trap file, its state is the engine, and it names three crates of jka-rust's engine
+        self.assertEqual(row["kind"], "host")
+        self.assertNotIn("traps", row)
+        self.assertEqual((row["logic"], row["views"], row["c_target"], row["state"]), ("JKAMP_DedLogic", "JKAMP_Ded", "CJKAMP_Ded", "Engine"))
+        self.assertEqual(row["rust"], ["engine/qcommon", "engine/server", "engine/core"])
+
+        # and the game is no host, so its files keep the .c suffix
+        self.assertFalse(C.HOST)
+        self.assertEqual(C.file_name("g_main"), "g_main.c")
 
     def test_the_roots_are_the_game_roots(self) -> None:
         import views

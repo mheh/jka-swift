@@ -900,9 +900,9 @@ class Table:
     @functools.cache
     def adopted(stem: str) -> bool:
         """True when the stub of a Raven .c file is adopted, so its hand signature stands and the skeleton writes it no more."""
-        from skeleton import NOTE, stub_path
+        from skeleton import header_line, stub_path
         out = stub_path(stem)
-        return out.exists() and out.read_text().split("\n", 1)[0] != NOTE.format(stem=stem)
+        return out.exists() and out.read_text().split("\n", 1)[0] != header_line(stem)
 
     def argument_root(self, cur: ci.Cursor) -> str | None:
         """The name at the root of a call argument, `axis` for `axis`, `axis[0]`, and `&axis[0]`, or None for any other argument."""
