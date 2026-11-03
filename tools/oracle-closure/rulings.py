@@ -160,6 +160,13 @@ CGAME_ROOTS = {
     "itemDef_t": ("ItemDef", "CJKAMP_CGame"),
     "menuDef_t": ("MenuDef", "CJKAMP_CGame"),
     "cachedAssets_t": ("CachedAssets", "CJKAMP_CGame"),
+    # Item_ValidateTypeData of ui_shared.c allocates one of these into the `void *typeData` of an item by its type, and the bodies cast it back.
+    # No root field points at them, because the field is a `void *`.
+    "listBoxDef_t": ("ListBoxDef", "CJKAMP_CGame"),
+    "multiDef_t": ("MultiDef", "CJKAMP_CGame"),
+    "textScrollDef_t": ("TextScrollDef", "CJKAMP_CGame"),
+    "editFieldDef_t": ("EditFieldDef", "CJKAMP"),
+    "modelDef_t": ("ModelDef", "CJKAMP"),
     # The game's view of CollisionRecord_t stands in JKAMP_Game, which a cgame target cannot import, so the cgame has its own.
     "CollisionRecord_t": ("CollisionRecord", "CJKAMP_CGame"),
     # vmMain and the engine's callbacks read these through the shared buffer of cg_public.h, and no root field points at them.
