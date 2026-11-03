@@ -3,7 +3,6 @@
 #ifndef JKA_CJKAMP_DED_FORWARD_H
 #define JKA_CJKAMP_DED_FORWARD_H
 
-#include "CJKAMP_Game_forward.h"
 #include "CJKAMP_forward.h"
 #include "CJKAShared_forward.h"
 #include "CJKAMP_Ded_platform.h"

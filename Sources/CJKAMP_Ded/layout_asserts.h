@@ -437,10 +437,6 @@ _Static_assert(offsetof(server_t, mLocalSubBSPIndex) == 647884, "server_t.mLocal
 _Static_assert(offsetof(server_t, mLocalSubBSPModelOffset) == 647888, "server_t.mLocalSubBSPModelOffset");
 _Static_assert(offsetof(server_t, mLocalSubBSPEntityParsePoint) == 647892, "server_t.mLocalSubBSPEntityParsePoint");
 _Static_assert(offsetof(server_t, mSharedMemory) == 647896, "server_t.mSharedMemory");
-_Static_assert(sizeof(variable_t) == 72, "variable_t");
-_Static_assert(offsetof(variable_t, name) == 0, "variable_t.name");
-_Static_assert(offsetof(variable_t, type) == 64, "variable_t.type");
-_Static_assert(offsetof(variable_t, data) == 68, "variable_t.data");
 _Static_assert(sizeof(keywordArray_t) == 8, "keywordArray_t");
 _Static_assert(offsetof(keywordArray_t, m_keyword) == 0, "keywordArray_t.m_keyword");
 _Static_assert(offsetof(keywordArray_t, m_tokenvalue) == 4, "keywordArray_t.m_tokenvalue");
@@ -874,10 +870,6 @@ _Static_assert(offsetof(server_t, mLocalSubBSPIndex) == 664936, "server_t.mLocal
 _Static_assert(offsetof(server_t, mLocalSubBSPModelOffset) == 664940, "server_t.mLocalSubBSPModelOffset");
 _Static_assert(offsetof(server_t, mLocalSubBSPEntityParsePoint) == 664944, "server_t.mLocalSubBSPEntityParsePoint");
 _Static_assert(offsetof(server_t, mSharedMemory) == 664952, "server_t.mSharedMemory");
-_Static_assert(sizeof(variable_t) == 80, "variable_t");
-_Static_assert(offsetof(variable_t, name) == 0, "variable_t.name");
-_Static_assert(offsetof(variable_t, type) == 64, "variable_t.type");
-_Static_assert(offsetof(variable_t, data) == 72, "variable_t.data");
 _Static_assert(sizeof(keywordArray_t) == 16, "keywordArray_t");
 _Static_assert(offsetof(keywordArray_t, m_keyword) == 0, "keywordArray_t.m_keyword");
 _Static_assert(offsetof(keywordArray_t, m_tokenvalue) == 8, "keywordArray_t.m_tokenvalue");
@@ -1316,10 +1308,6 @@ _Static_assert(offsetof(server_t, mLocalSubBSPIndex) == 664936, "server_t.mLocal
 _Static_assert(offsetof(server_t, mLocalSubBSPModelOffset) == 664940, "server_t.mLocalSubBSPModelOffset");
 _Static_assert(offsetof(server_t, mLocalSubBSPEntityParsePoint) == 664944, "server_t.mLocalSubBSPEntityParsePoint");
 _Static_assert(offsetof(server_t, mSharedMemory) == 664952, "server_t.mSharedMemory");
-_Static_assert(sizeof(variable_t) == 80, "variable_t");
-_Static_assert(offsetof(variable_t, name) == 0, "variable_t.name");
-_Static_assert(offsetof(variable_t, type) == 64, "variable_t.type");
-_Static_assert(offsetof(variable_t, data) == 72, "variable_t.data");
 _Static_assert(sizeof(keywordArray_t) == 16, "keywordArray_t");
 _Static_assert(offsetof(keywordArray_t, m_keyword) == 0, "keywordArray_t.m_keyword");
 _Static_assert(offsetof(keywordArray_t, m_tokenvalue) == 8, "keywordArray_t.m_tokenvalue");

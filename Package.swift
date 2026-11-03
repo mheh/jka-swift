@@ -27,14 +27,14 @@ let package = Package(
         // MARK: - C, the copied Raven headers, written by merge.py
         // A type both trees define identically, 48 today. Every other C target depends on it.
         .target(name: "CJKAShared"),
-        // The MP tree: q_shared.h, bg_public.h, and the types all four MP modules agree on.
+        // The MP tree: q_shared.h, bg_public.h, the module ABI of g_public.h, and the types all four MP modules agree on.
         .target(name: "CJKAMP", dependencies: ["CJKAShared"]),
         // The types only one MP module declares, g_local.h for the game module.
         .target(name: "CJKAMP_Game", dependencies: ["CJKAMP"]),
         .target(name: "CJKAMP_CGame", dependencies: ["CJKAMP"]),
         .target(name: "CJKAMP_UI", dependencies: ["CJKAMP"]),
-        // The types only the dedicated server declares. It reads the g_public.h types it shares with the game from the game's target.
-        .target(name: "CJKAMP_Ded", dependencies: ["CJKAMP_Game", "CJKAMP"]),
+        // The types only the dedicated server declares. It reads the g_public.h types it shares with the game from the tree target.
+        .target(name: "CJKAMP_Ded", dependencies: ["CJKAMP"]),
         // The SP tree compiles clean as C today, so it is declared. Its Swift side waits on packet row 4.
         .target(name: "CJKASP", dependencies: ["CJKAShared"]),
         .target(name: "CJKASP_Game", dependencies: ["CJKASP"]),

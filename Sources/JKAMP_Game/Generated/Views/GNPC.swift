@@ -224,19 +224,19 @@ public struct GNPC: Hashable, HandleView {
     }
 
     /// Source: oracle/codemp/game/b_public.h:155
-    public var behaviorState: bState_t {
+    public var behaviorState: JKAMP.bState_t {
         get { Int32(truncatingIfNeeded: self.raw.pointee.behaviorState.rawValue) }
         nonmutating set { self.raw.pointee.behaviorState = .init(rawValue: .init(truncatingIfNeeded: newValue)) }
     }
 
     /// Source: oracle/codemp/game/b_public.h:156
-    public var defaultBehavior: bState_t {
+    public var defaultBehavior: JKAMP.bState_t {
         get { Int32(truncatingIfNeeded: self.raw.pointee.defaultBehavior.rawValue) }
         nonmutating set { self.raw.pointee.defaultBehavior = .init(rawValue: .init(truncatingIfNeeded: newValue)) }
     }
 
     /// Source: oracle/codemp/game/b_public.h:157
-    public var tempBehavior: bState_t {
+    public var tempBehavior: JKAMP.bState_t {
         get { Int32(truncatingIfNeeded: self.raw.pointee.tempBehavior.rawValue) }
         nonmutating set { self.raw.pointee.tempBehavior = .init(rawValue: .init(truncatingIfNeeded: newValue)) }
     }
