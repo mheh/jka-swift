@@ -6,7 +6,7 @@ import JKAMP_BG
 
 /// Source: oracle/codemp/cgame/cg_draw.c:23
 // Raven wrote: menuDef_t *menuScoreboard = NULL
-nonisolated(unsafe) let menuScoreboard: MenuDef? = { () -> MenuDef? in portMissing("menuScoreboard", source: "oracle/codemp/cgame/cg_draw.c:23") }()
+nonisolated(unsafe) let menuScoreboard: MenuDef? = nil
 
 /// Source: oracle/codemp/cgame/cg_draw.c:24
 // Raven wrote: vec4_t bluehudtint = {0.5, 0.5, 1.0, 1.0}
@@ -432,9 +432,7 @@ let CHATBOX_FONT_HEIGHT = 20 as Int32
 
 /// Source: oracle/codemp/cgame/cg_draw.c:102
 func UI_ParseAnimationFile(_ filename: String, _ animset: JKAMP.Animation, _ isHumanoid: Bool) -> Int32 {
-    // Port-note: Raven passes `animset` to `BG_ParseAnimationFile`, whose `animset` parameter takes the Slots over the records, and Swift holds one record here. A Slots over one record has no form yet.
-    // Raven wrote: return BG_ParseAnimationFile(filename, animset, isHumanoid)
-    portMissing("UI_ParseAnimationFile", source: "oracle/codemp/cgame/cg_draw.c:102")
+    return BG_ParseAnimationFile(filename, Slots(record: animset), isHumanoid)
 }
 
 /// Source: oracle/codemp/cgame/cg_draw.c:107
@@ -519,9 +517,6 @@ CG_DrawZoomMask
 private func CG_DrawZoomMask() {
     var color1 = vec4_t()
     var level: Float
-    // Port-note: A static local `flip` a statement reads before it writes, storage that outlives the call.
-    // Raven wrote: static qboolean flip = qtrue;
-    portMissing("CG_DrawZoomMask", source: "oracle/codemp/cgame/cg_draw.c:220")
 
     //	int ammo = cg_entities[0].gent->client->ps.ammo[weaponData[cent->currentState.weapon].ammoIndex];
     var cx: Float
@@ -614,15 +609,15 @@ private func CG_DrawZoomMask() {
         CG_DrawPic(4, 282 - level, 16, 16, cgs.media.binocularArrow)
 
         // The top triangle bit randomly flips
-        // Port-note: A read of `flip`, a local the draft left as a hole.
-        // Raven wrote: if ( flip ) { CG_DrawPic( 330, 60, -26, -30, cgs.media.binocularTri ); } else { CG_DrawPic( 307, 40, 26, 30, cgs.media.binocularTri ); }
-        portMissing("CG_DrawZoomMask", source: "oracle/codemp/cgame/cg_draw.c:220")
+        if flip {
+            CG_DrawPic(330, 60, -26, -30, cgs.media.binocularTri)
+        } else {
+            CG_DrawPic(307, 40, 26, 30, cgs.media.binocularTri)
+        }
 
         // The SDK also declares `random`, so the call names the bg module.
         if JKAMP_BG.random() > 0.98 && (cg.time & 1024) != 0 {
-            // Port-note: A store into `flip`, a local the draft left as a hole.
-            // Raven wrote: flip = !flip
-            portMissing("CG_DrawZoomMask", source: "oracle/codemp/cgame/cg_draw.c:220")
+            flip = !flip
         }
     } else if cg.predictedPlayerState.zoomMode != 0 {
         // disruptor zoom mode
@@ -743,6 +738,13 @@ private func CG_DrawZoomMask() {
     }
 }
 
+/// Raven's `static qboolean flip` of `CG_DrawZoomMask`, which the world keeps.
+/// Source: oracle/codemp/cgame/cg_draw.c:224
+var flip: Bool {
+    get { world.flip }
+    set { world.flip = newValue }
+}
+
 /**
 ```
 ================
@@ -767,9 +769,7 @@ func CG_Draw3DModel(_ x: Float, _ y: Float, _ w: Float, _ h: Float, _ model: JKA
             // Raven clears the record with `memset` here. The scratch slot is zero at entry, so the body drops the call.
 
             // Raven clears the record with `memset` here. The scratch slot is zero at entry, so the body drops the call.
-            // Port-note: The draft of this statement did not compile, and the compiler wrote "cannot convert value of type 'Slots<vec3_t>' (aka 'Slots<SIMD3<Float>>') to expected argument type '[vec3_t]' (aka 'Array<SIMD3<Float>>')".
-            // Raven wrote: AnglesToAxis( angles, ent.axis )
-            portMissing("CG_Draw3DModel", source: "oracle/codemp/cgame/cg_draw.c:467")
+            AnglesToAxis(angles, ent.axis)
             ent.origin = origin
             ent.hModel = model
             ent.ghoul2 = ghoul2
@@ -779,9 +779,7 @@ func CG_Draw3DModel(_ x: Float, _ y: Float, _ w: Float, _ h: Float, _ model: JKA
 
             refdef.rdflags = RDF_NOWORLDMODEL
 
-            // Port-note: The draft of this statement did not compile, and the compiler wrote "cannot convert value of type 'Slots<vec3_t>' (aka 'Slots<SIMD3<Float>>') to expected argument type '[vec3_t]' (aka 'Array<SIMD3<Float>>')".
-            // Raven wrote: AxisClear( refdef.viewaxis )
-            portMissing("CG_Draw3DModel", source: "oracle/codemp/cgame/cg_draw.c:467")
+            AxisClear(refdef.viewaxis)
 
             refdef.fov_x = 30
             refdef.fov_y = 30
@@ -953,9 +951,7 @@ func CG_DrawHealth(_ menuHUD: MenuDef) {
     // Print the health tics, fading out the one which is partial health
     i = (MAX_HUD_TICS - 1)
     while i >= 0 {
-        // Port-note: The draft of this statement did not compile, and the compiler wrote "cannot find 'Menu_FindItemByName' in scope".
-        // Raven wrote: focusItem = Menu_FindItemByName(menuHUD, healthTicName[i])
-        portMissing("CG_DrawHealth", source: "oracle/codemp/cgame/cg_draw.c:614")
+        focusItem = Menu_FindItemByName(menuHUD, healthTicName[i])
 
         if focusItem == nil {
             i -= 1
@@ -981,9 +977,7 @@ func CG_DrawHealth(_ menuHUD: MenuDef) {
     }
 
     // Print the mueric amount
-    // Port-note: The draft of this statement did not compile, and the compiler wrote "cannot find 'Menu_FindItemByName' in scope".
-    // Raven wrote: focusItem = Menu_FindItemByName(menuHUD, "healthamount")
-    portMissing("CG_DrawHealth", source: "oracle/codemp/cgame/cg_draw.c:614")
+    focusItem = Menu_FindItemByName(menuHUD, "healthamount")
     if focusItem != nil {
         // Print health amount
         trap_R_SetColor(vec4_t(focusItem!.window.foreColor[0], focusItem!.window.foreColor[1], focusItem!.window.foreColor[2], focusItem!.window.foreColor[3]))
@@ -1031,9 +1025,7 @@ func CG_DrawArmor(_ menuHUD: MenuDef) {
     calcColor = hudTintColor
     i = (MAX_HUD_TICS - 1)
     while i >= 0 {
-        // Port-note: The draft of this statement did not compile, and the compiler wrote "cannot find 'Menu_FindItemByName' in scope".
-        // Raven wrote: focusItem = Menu_FindItemByName(menuHUD, armorTicName[i])
-        portMissing("CG_DrawArmor", source: "oracle/codemp/cgame/cg_draw.c:702")
+        focusItem = Menu_FindItemByName(menuHUD, armorTicName[i])
 
         if focusItem == nil {
             i -= 1
@@ -1064,9 +1056,7 @@ func CG_DrawArmor(_ menuHUD: MenuDef) {
         i -= 1
     }
 
-    // Port-note: The draft of this statement did not compile, and the compiler wrote "cannot find 'Menu_FindItemByName' in scope".
-    // Raven wrote: focusItem = Menu_FindItemByName(menuHUD, "armoramount")
-    portMissing("CG_DrawArmor", source: "oracle/codemp/cgame/cg_draw.c:702")
+    focusItem = Menu_FindItemByName(menuHUD, "armoramount")
 
     if focusItem != nil {
         // Print armor amount
@@ -1126,9 +1116,7 @@ private func CG_DrawSaberStyle(_ cent: Centity, _ menuHUD: MenuDef) {
     switch cg.predictedPlayerState.fd.saberDrawAnimLevel {
     case 1, //FORCE_LEVEL_1:
          5: //FORCE_LEVEL_5://Tavion
-        // Port-note: The draft of this statement did not compile, and the compiler wrote "cannot find 'Menu_FindItemByName' in scope".
-        // Raven wrote: focusItem = Menu_FindItemByName(menuHUD, "saberstyle_fast")
-        portMissing("CG_DrawSaberStyle", source: "oracle/codemp/cgame/cg_draw.c:841")
+        focusItem = Menu_FindItemByName(menuHUD, "saberstyle_fast")
 
         if focusItem != nil {
             // Raven wrote: trap_R_SetColor( hudTintColor )
@@ -1140,9 +1128,7 @@ private func CG_DrawSaberStyle(_ cent: Centity, _ menuHUD: MenuDef) {
     case 2, //FORCE_LEVEL_2:
          6, //SS_DUAL
          7: //SS_STAFF
-        // Port-note: The draft of this statement did not compile, and the compiler wrote "cannot find 'Menu_FindItemByName' in scope".
-        // Raven wrote: focusItem = Menu_FindItemByName(menuHUD, "saberstyle_medium")
-        portMissing("CG_DrawSaberStyle", source: "oracle/codemp/cgame/cg_draw.c:841")
+        focusItem = Menu_FindItemByName(menuHUD, "saberstyle_medium")
 
         if focusItem != nil {
             // Raven wrote: trap_R_SetColor( hudTintColor )
@@ -1153,9 +1139,7 @@ private func CG_DrawSaberStyle(_ cent: Centity, _ menuHUD: MenuDef) {
 
     case 3, //FORCE_LEVEL_3:
          4: //FORCE_LEVEL_4://Desann
-        // Port-note: The draft of this statement did not compile, and the compiler wrote "cannot find 'Menu_FindItemByName' in scope".
-        // Raven wrote: focusItem = Menu_FindItemByName(menuHUD, "saberstyle_strong")
-        portMissing("CG_DrawSaberStyle", source: "oracle/codemp/cgame/cg_draw.c:841")
+        focusItem = Menu_FindItemByName(menuHUD, "saberstyle_strong")
 
         if focusItem != nil {
             // Raven wrote: trap_R_SetColor( hudTintColor )
@@ -1199,9 +1183,7 @@ private func CG_DrawAmmo(_ cent: Centity, _ menuHUD: MenuDef) {
         return
     }
 
-    // Port-note: The draft of this statement did not compile, and the compiler wrote "cannot find 'Menu_FindItemByName' in scope".
-    // Raven wrote: focusItem = Menu_FindItemByName(menuHUD, "ammoamount")
-    portMissing("CG_DrawAmmo", source: "oracle/codemp/cgame/cg_draw.c:928")
+    focusItem = Menu_FindItemByName(menuHUD, "ammoamount")
     // Raven wrote: trap_R_SetColor( hudTintColor )
     trap_R_SetColor(hudTintColor)
 
@@ -1210,18 +1192,14 @@ private func CG_DrawAmmo(_ cent: Centity, _ menuHUD: MenuDef) {
         inc = Float(8 / MAX_HUD_TICS)
         value = 8
 
-        // Port-note: The draft of this statement did not compile, and the compiler wrote "cannot find 'Menu_FindItemByName' in scope".
-        // Raven wrote: focusItem = Menu_FindItemByName(menuHUD, "ammoinfinite")
-        portMissing("CG_DrawAmmo", source: "oracle/codemp/cgame/cg_draw.c:928")
+        focusItem = Menu_FindItemByName(menuHUD, "ammoinfinite")
         // Raven wrote: trap_R_SetColor( hudTintColor )
         trap_R_SetColor(hudTintColor)
         if focusItem != nil {
             UI_DrawProportionalString(Int32(focusItem!.window.rect.x), Int32(focusItem!.window.rect.y), "--", NUM_FONT_SMALL, vec4_t(focusItem!.window.foreColor[0], focusItem!.window.foreColor[1], focusItem!.window.foreColor[2], focusItem!.window.foreColor[3]))
         }
     } else {
-        // Port-note: The draft of this statement did not compile, and the compiler wrote "cannot find 'Menu_FindItemByName' in scope".
-        // Raven wrote: focusItem = Menu_FindItemByName(menuHUD, "ammoamount")
-        portMissing("CG_DrawAmmo", source: "oracle/codemp/cgame/cg_draw.c:928")
+        focusItem = Menu_FindItemByName(menuHUD, "ammoamount")
         // Raven wrote: trap_R_SetColor( hudTintColor )
         trap_R_SetColor(hudTintColor)
         if focusItem != nil {
@@ -1239,9 +1217,7 @@ private func CG_DrawAmmo(_ cent: Centity, _ menuHUD: MenuDef) {
     // Draw tics
     i = MAX_HUD_TICS - 1
     while i >= 0 {
-        // Port-note: The draft of this statement did not compile, and the compiler wrote "cannot find 'Menu_FindItemByName' in scope".
-        // Raven wrote: focusItem = Menu_FindItemByName(menuHUD, ammoTicName[i])
-        portMissing("CG_DrawAmmo", source: "oracle/codemp/cgame/cg_draw.c:928")
+        focusItem = Menu_FindItemByName(menuHUD, ammoTicName[i])
 
         if focusItem == nil {
             i -= 1
@@ -1315,9 +1291,7 @@ func CG_DrawForcePower(_ menuHUD: MenuDef) {
 
     i = MAX_HUD_TICS - 1
     while i >= 0 {
-        // Port-note: The draft of this statement did not compile, and the compiler wrote "cannot find 'Menu_FindItemByName' in scope".
-        // Raven wrote: focusItem = Menu_FindItemByName(menuHUD, forceTicName[i])
-        portMissing("CG_DrawForcePower", source: "oracle/codemp/cgame/cg_draw.c:1042")
+        focusItem = Menu_FindItemByName(menuHUD, forceTicName[i])
 
         if focusItem == nil {
             i -= 1
@@ -1357,9 +1331,7 @@ func CG_DrawForcePower(_ menuHUD: MenuDef) {
         i -= 1
     }
 
-    // Port-note: The draft of this statement did not compile, and the compiler wrote "cannot find 'Menu_FindItemByName' in scope".
-    // Raven wrote: focusItem = Menu_FindItemByName(menuHUD, "forceamount")
-    portMissing("CG_DrawForcePower", source: "oracle/codemp/cgame/cg_draw.c:1042")
+    focusItem = Menu_FindItemByName(menuHUD, "forceamount")
 
     if focusItem != nil {
         // Print force amount
@@ -1440,16 +1412,12 @@ func CG_DrawHUD(_ cent: Centity) {
     }
 
     // Draw the left HUD
-    // Port-note: The draft of this statement did not compile, and the compiler wrote "cannot find 'Menus_FindByName' in scope".
-    // Raven wrote: menuHUD = Menus_FindByName("lefthud")
-    portMissing("CG_DrawHUD", source: "oracle/codemp/cgame/cg_draw.c:1169")
+    menuHUD = Menus_FindByName("lefthud")
     if menuHUD != nil {
         var focusItem: ItemDef?
 
         // Print scanline
-        // Port-note: The draft of this statement did not compile, and the compiler wrote "cannot find 'Menu_FindItemByName' in scope".
-        // Raven wrote: focusItem = Menu_FindItemByName(menuHUD, "scanline")
-        portMissing("CG_DrawHUD", source: "oracle/codemp/cgame/cg_draw.c:1169")
+        focusItem = Menu_FindItemByName(menuHUD!, "scanline")
         if focusItem != nil {
             // Raven wrote: trap_R_SetColor( hudTintColor )
             trap_R_SetColor(hudTintColor)
@@ -1457,9 +1425,7 @@ func CG_DrawHUD(_ cent: Centity) {
         }
 
         // Print frame
-        // Port-note: The draft of this statement did not compile, and the compiler wrote "cannot find 'Menu_FindItemByName' in scope".
-        // Raven wrote: focusItem = Menu_FindItemByName(menuHUD, "frame")
-        portMissing("CG_DrawHUD", source: "oracle/codemp/cgame/cg_draw.c:1169")
+        focusItem = Menu_FindItemByName(menuHUD!, "frame")
         if focusItem != nil {
             // Raven wrote: trap_R_SetColor( hudTintColor )
             trap_R_SetColor(hudTintColor)
@@ -1505,33 +1471,25 @@ func CG_DrawHUD(_ cent: Centity) {
         scoreStr = va("%s: %i", CG_GetStringEdString("MP_INGAME", "SCORE"), cg.snap!.ps.persistant[PERS_SCORE])
     }
 
-    // Port-note: The draft of this statement did not compile, and the compiler wrote "cannot find 'Menus_FindByName' in scope".
-    // Raven wrote: menuHUD = Menus_FindByName("righthud")
-    portMissing("CG_DrawHUD", source: "oracle/codemp/cgame/cg_draw.c:1169")
+    menuHUD = Menus_FindByName("righthud")
 
     if menuHUD != nil {
         if cgs.gametype != GT_POWERDUEL {
-            // Port-note: The draft of this statement did not compile, and the compiler wrote "cannot find 'Menu_FindItemByName' in scope".
-            // Raven wrote: focusItem = Menu_FindItemByName(menuHUD, "score_line")
-            portMissing("CG_DrawHUD", source: "oracle/codemp/cgame/cg_draw.c:1169")
+            focusItem = Menu_FindItemByName(menuHUD!, "score_line")
             if focusItem != nil {
                 UI_DrawScaledProportionalString(Int32(focusItem!.window.rect.x), Int32(focusItem!.window.rect.y), scoreStr!, UI_RIGHT | UI_DROPSHADOW, vec4_t(focusItem!.window.foreColor[0], focusItem!.window.foreColor[1], focusItem!.window.foreColor[2], focusItem!.window.foreColor[3]), 0.7)
             }
         }
 
         // Print scanline
-        // Port-note: The draft of this statement did not compile, and the compiler wrote "cannot find 'Menu_FindItemByName' in scope".
-        // Raven wrote: focusItem = Menu_FindItemByName(menuHUD, "scanline")
-        portMissing("CG_DrawHUD", source: "oracle/codemp/cgame/cg_draw.c:1169")
+        focusItem = Menu_FindItemByName(menuHUD!, "scanline")
         if focusItem != nil {
             // Raven wrote: trap_R_SetColor( hudTintColor )
             trap_R_SetColor(hudTintColor)
             CG_DrawPic(focusItem!.window.rect.x, focusItem!.window.rect.y, focusItem!.window.rect.w, focusItem!.window.rect.h, focusItem!.window.background)
         }
 
-        // Port-note: The draft of this statement did not compile, and the compiler wrote "cannot find 'Menu_FindItemByName' in scope".
-        // Raven wrote: focusItem = Menu_FindItemByName(menuHUD, "frame")
-        portMissing("CG_DrawHUD", source: "oracle/codemp/cgame/cg_draw.c:1169")
+        focusItem = Menu_FindItemByName(menuHUD!, "frame")
         if focusItem != nil {
             // Raven wrote: trap_R_SetColor( hudTintColor )
             trap_R_SetColor(hudTintColor)
@@ -1643,9 +1601,7 @@ func CG_DrawForceSelect() {
     // Background
     length = (sideLeftIconCnt * smallIconSize) + (sideLeftIconCnt * pad) + bigIconSize + (sideRightIconCnt * smallIconSize) + (sideRightIconCnt * pad) + 12
 
-    // Port-note: The draft of this statement did not compile, and the compiler wrote "cannot find 'BG_ProperForceIndex' in scope".
-    // Raven wrote: i = BG_ProperForceIndex(cg.forceSelect) - 1
-    portMissing("CG_DrawForceSelect", source: "oracle/codemp/cgame/cg_draw.c:1421")
+    i = BG_ProperForceIndex(cg.forceSelect) - 1
     if i < 0 {
         i = NUM_FORCE_POWERS
     }
@@ -1659,15 +1615,19 @@ func CG_DrawForceSelect() {
             i = NUM_FORCE_POWERS
         }
 
-        // Port-note: The draft of this statement did not compile, and the compiler wrote "cannot find 'forcePowerSorted' in scope".
-        // Raven wrote: if (!ForcePower_Valid(forcePowerSorted[i])) // Does he have this power? { continue; }
-        portMissing("CG_DrawForceSelect", source: "oracle/codemp/cgame/cg_draw.c:1421")
+        // Port-note: Raven reads `forcePowerSorted[MAX_SHOWPOWERS]` one past the end after the wrap, the first slot of `forcePowerDarkLight` in his data.
+        // The Swift array traps there.
+        if !ForcePower_Valid(forcePowerSorted[i]) { // Does he have this power?
+            i -= 1
+            continue
+        }
 
         iconCnt += 1 // Good icon
 
-        // Port-note: The draft of this statement did not compile, and the compiler wrote "cannot find 'forcePowerSorted' in scope".
-        // Raven wrote: if (cgs.media.forcePowerIcons[forcePowerSorted[i]]) { CG_DrawPic( holdX, y + yOffset, smallIconSize, smallIconSize, cgs.media.forcePowerIcons[forcePowerSorted[i]] ); holdX -= (smallIconSize+pad); }
-        portMissing("CG_DrawForceSelect", source: "oracle/codemp/cgame/cg_draw.c:1421")
+        if cgs.media.forcePowerIcons[forcePowerSorted[i]] != 0 {
+            CG_DrawPic(Float(holdX), Float(y + yOffset), Float(smallIconSize), Float(smallIconSize), cgs.media.forcePowerIcons[forcePowerSorted[i]])
+            holdX -= (smallIconSize + pad)
+        }
         i -= 1
     }
 
@@ -1678,9 +1638,7 @@ func CG_DrawForceSelect() {
         }
     }
 
-    // Port-note: The draft of this statement did not compile, and the compiler wrote "cannot find 'BG_ProperForceIndex' in scope".
-    // Raven wrote: i = BG_ProperForceIndex(cg.forceSelect) + 1
-    portMissing("CG_DrawForceSelect", source: "oracle/codemp/cgame/cg_draw.c:1421")
+    i = BG_ProperForceIndex(cg.forceSelect) + 1
     if i > NUM_FORCE_POWERS {
         i = 0
     }
@@ -1693,15 +1651,19 @@ func CG_DrawForceSelect() {
             i = 0
         }
 
-        // Port-note: The draft of this statement did not compile, and the compiler wrote "cannot find 'forcePowerSorted' in scope".
-        // Raven wrote: if (!ForcePower_Valid(forcePowerSorted[i])) // Does he have this power? { continue; }
-        portMissing("CG_DrawForceSelect", source: "oracle/codemp/cgame/cg_draw.c:1421")
+        // Port-note: Raven reads `forcePowerSorted[MAX_SHOWPOWERS]` one past the end after the wrap, the first slot of `forcePowerDarkLight` in his data.
+        // The Swift array traps there.
+        if !ForcePower_Valid(forcePowerSorted[i]) { // Does he have this power?
+            i += 1
+            continue
+        }
 
         iconCnt += 1 // Good icon
 
-        // Port-note: The draft of this statement did not compile, and the compiler wrote "cannot find 'forcePowerSorted' in scope".
-        // Raven wrote: if (cgs.media.forcePowerIcons[forcePowerSorted[i]]) { CG_DrawPic( holdX, y + yOffset, smallIconSize, smallIconSize, cgs.media.forcePowerIcons[forcePowerSorted[i]] ); //only cache the icon for display holdX += (smallIconSize+pad); }
-        portMissing("CG_DrawForceSelect", source: "oracle/codemp/cgame/cg_draw.c:1421")
+        if cgs.media.forcePowerIcons[forcePowerSorted[i]] != 0 {
+            CG_DrawPic(Float(holdX), Float(y + yOffset), Float(smallIconSize), Float(smallIconSize), cgs.media.forcePowerIcons[forcePowerSorted[i]]) //only cache the icon for display
+            holdX += (smallIconSize + pad)
+        }
         i += 1
     }
 
@@ -1856,9 +1818,14 @@ func CG_DrawInvenSelect() {
 
             strcpy(&upperKey, bg_itemlist[itemNdex].classname!)
 
-            // Port-note: The draft of this statement did not compile, and the compiler wrote "cannot convert value of type 'CharBuf' to expected argument type 'String'".
-            // Raven wrote: if ( trap_SP_GetStringTextString( va("SP_INGAME_%s",Q_strupr(upperKey)), text, sizeof( text ))) { UI_DrawProportionalString(320, y+45, text, UI_CENTER | UI_SMALLFONT, textColor); } else { UI_DrawProportionalString(320, y+45, bg_itemlist[itemNdex].classname, UI_CENTER | UI_SMALLFONT, textColor); }
-            portMissing("CG_DrawInvenSelect", source: "oracle/codemp/cgame/cg_draw.c:1585")
+            Q_strupr(&upperKey)
+            let filledTest = trap_SP_GetStringTextString(va("SP_INGAME_%s", upperKey), Int32((text).count))
+            strcpy(&text, filledTest.1)
+            if filledTest.0 != 0 {
+                UI_DrawProportionalString(320, y + 45, String(text), UI_CENTER | UI_SMALLFONT, textColor)
+            } else {
+                UI_DrawProportionalString(320, y + 45, bg_itemlist[itemNdex].classname!, UI_CENTER | UI_SMALLFONT, textColor)
+            }
         }
     }
 
@@ -1970,9 +1937,7 @@ func CG_DrawVehicleShields(_ menuHUD: MenuDef, _ veh: Centity) -> Float {
     var item: ItemDef?
     let percShields: Float
 
-    // Port-note: The draft of this statement did not compile, and the compiler wrote "cannot find 'Menu_FindItemByName' in scope".
-    // Raven wrote: item = Menu_FindItemByName((menuDef_t *) menuHUD, "armorbackground")
-    portMissing("CG_DrawVehicleShields", source: "oracle/codemp/cgame/cg_draw.c:1873")
+    item = Menu_FindItemByName(menuHUD, "armorbackground")
 
     if item != nil {
         trap_R_SetColor(vec4_t(item!.window.foreColor[0], item!.window.foreColor[1], item!.window.foreColor[2], item!.window.foreColor[3]))
@@ -1991,9 +1956,7 @@ func CG_DrawVehicleShields(_ menuHUD: MenuDef, _ veh: Centity) -> Float {
         // Raven wrote: sprintf( itemName, "armor_tic%d", i )
         strcpy(&itemName, va("armor_tic%d", i))
 
-        // Port-note: The draft of this statement did not compile, and the compiler wrote "cannot find 'Menu_FindItemByName' in scope".
-        // Raven wrote: item = Menu_FindItemByName((menuDef_t *) menuHUD, itemName)
-        portMissing("CG_DrawVehicleShields", source: "oracle/codemp/cgame/cg_draw.c:1873")
+        item = Menu_FindItemByName(menuHUD, String(itemName))
 
         if item == nil {
             i += 1
@@ -2031,9 +1994,7 @@ func CG_DrawVehicleAmmo(_ menuHUD: MenuDef, _ veh: Centity) {
     var calcColor = vec4_t()
     var item: ItemDef?
 
-    // Port-note: The draft of this statement did not compile, and the compiler wrote "cannot find 'Menu_FindItemByName' in scope".
-    // Raven wrote: item = Menu_FindItemByName((menuDef_t *) menuHUD, "ammobackground")
-    portMissing("CG_DrawVehicleAmmo", source: "oracle/codemp/cgame/cg_draw.c:1942")
+    item = Menu_FindItemByName(menuHUD, "ammobackground")
 
     if item != nil {
         trap_R_SetColor(vec4_t(item!.window.foreColor[0], item!.window.foreColor[1], item!.window.foreColor[2], item!.window.foreColor[3]))
@@ -2049,9 +2010,7 @@ func CG_DrawVehicleAmmo(_ menuHUD: MenuDef, _ veh: Centity) {
         // Raven wrote: sprintf( itemName, "ammo_tic%d", i )
         strcpy(&itemName, va("ammo_tic%d", i))
 
-        // Port-note: The draft of this statement did not compile, and the compiler wrote "cannot find 'Menu_FindItemByName' in scope".
-        // Raven wrote: item = Menu_FindItemByName((menuDef_t *)menuHUD, itemName)
-        portMissing("CG_DrawVehicleAmmo", source: "oracle/codemp/cgame/cg_draw.c:1942")
+        item = Menu_FindItemByName(menuHUD, String(itemName))
 
         if item == nil {
             i += 1
@@ -2059,9 +2018,8 @@ func CG_DrawVehicleAmmo(_ menuHUD: MenuDef, _ veh: Centity) {
         }
 
         if cg_vehicleAmmoWarningTime > cg.time && cg_vehicleAmmoWarning == 0 {
-            // Port-note: Raven's `memcpy(calcColor, g_color_table[ColorIndex(COLOR_RED)], sizeof(vec4_t))` runs over bytes that are not one record with a view.
             // Raven wrote: memcpy(calcColor, g_color_table[ColorIndex(COLOR_RED)], sizeof(vec4_t))
-            portMissing("CG_DrawVehicleAmmo", source: "oracle/codemp/cgame/cg_draw.c:1942")
+            calcColor = g_color_table[ColorIndex(COLOR_RED)]
             calcColor[3] = Float(sin(Double(cg.time) * 0.005) * 0.5 + 0.5)
         } else {
             // Raven wrote: memcpy(calcColor, item->window.foreColor, sizeof(vec4_t))
@@ -2094,9 +2052,7 @@ func CG_DrawVehicleAmmoUpper(_ menuHUD: MenuDef, _ veh: Centity) {
     var calcColor = vec4_t()
     var item: ItemDef?
 
-    // Port-note: The draft of this statement did not compile, and the compiler wrote "cannot find 'Menu_FindItemByName' in scope".
-    // Raven wrote: item = Menu_FindItemByName((menuDef_t *)menuHUD, "ammoupperbackground")
-    portMissing("CG_DrawVehicleAmmoUpper", source: "oracle/codemp/cgame/cg_draw.c:2013")
+    item = Menu_FindItemByName(menuHUD, "ammoupperbackground")
 
     if item != nil {
         trap_R_SetColor(vec4_t(item!.window.foreColor[0], item!.window.foreColor[1], item!.window.foreColor[2], item!.window.foreColor[3]))
@@ -2112,9 +2068,7 @@ func CG_DrawVehicleAmmoUpper(_ menuHUD: MenuDef, _ veh: Centity) {
         // Raven wrote: sprintf( itemName, "ammoupper_tic%d", i )
         strcpy(&itemName, va("ammoupper_tic%d", i))
 
-        // Port-note: The draft of this statement did not compile, and the compiler wrote "cannot find 'Menu_FindItemByName' in scope".
-        // Raven wrote: item = Menu_FindItemByName((menuDef_t *)menuHUD, itemName)
-        portMissing("CG_DrawVehicleAmmoUpper", source: "oracle/codemp/cgame/cg_draw.c:2013")
+        item = Menu_FindItemByName(menuHUD, String(itemName))
 
         if item == nil {
             i += 1
@@ -2122,9 +2076,8 @@ func CG_DrawVehicleAmmoUpper(_ menuHUD: MenuDef, _ veh: Centity) {
         }
 
         if cg_vehicleAmmoWarningTime > cg.time && cg_vehicleAmmoWarning == 0 {
-            // Port-note: Raven's `memcpy(calcColor, g_color_table[ColorIndex(COLOR_RED)], sizeof(vec4_t))` runs over bytes that are not one record with a view.
             // Raven wrote: memcpy(calcColor, g_color_table[ColorIndex(COLOR_RED)], sizeof(vec4_t))
-            portMissing("CG_DrawVehicleAmmoUpper", source: "oracle/codemp/cgame/cg_draw.c:2013")
+            calcColor = g_color_table[ColorIndex(COLOR_RED)]
             calcColor[3] = Float(sin(Double(cg.time) * 0.005) * 0.5 + 0.5)
         } else {
             // Raven wrote: memcpy(calcColor, item->window.foreColor, sizeof(vec4_t))
@@ -2158,9 +2111,7 @@ func CG_DrawVehicleAmmoLower(_ menuHUD: MenuDef, _ veh: Centity) {
     var item: ItemDef?
 
 
-    // Port-note: The draft of this statement did not compile, and the compiler wrote "cannot find 'Menu_FindItemByName' in scope".
-    // Raven wrote: item = Menu_FindItemByName((menuDef_t *)menuHUD, "ammolowerbackground")
-    portMissing("CG_DrawVehicleAmmoLower", source: "oracle/codemp/cgame/cg_draw.c:2084")
+    item = Menu_FindItemByName(menuHUD, "ammolowerbackground")
 
     if item != nil {
         trap_R_SetColor(vec4_t(item!.window.foreColor[0], item!.window.foreColor[1], item!.window.foreColor[2], item!.window.foreColor[3]))
@@ -2176,9 +2127,7 @@ func CG_DrawVehicleAmmoLower(_ menuHUD: MenuDef, _ veh: Centity) {
         // Raven wrote: sprintf( itemName, "ammolower_tic%d", i )
         strcpy(&itemName, va("ammolower_tic%d", i))
 
-        // Port-note: The draft of this statement did not compile, and the compiler wrote "cannot find 'Menu_FindItemByName' in scope".
-        // Raven wrote: item = Menu_FindItemByName((menuDef_t *)menuHUD, itemName)
-        portMissing("CG_DrawVehicleAmmoLower", source: "oracle/codemp/cgame/cg_draw.c:2084")
+        item = Menu_FindItemByName(menuHUD, String(itemName))
 
         if item == nil {
             i += 1
@@ -2186,9 +2135,8 @@ func CG_DrawVehicleAmmoLower(_ menuHUD: MenuDef, _ veh: Centity) {
         }
 
         if cg_vehicleAmmoWarningTime > cg.time && cg_vehicleAmmoWarning == 1 {
-            // Port-note: Raven's `memcpy(calcColor, g_color_table[ColorIndex(COLOR_RED)], sizeof(vec4_t))` runs over bytes that are not one record with a view.
             // Raven wrote: memcpy(calcColor, g_color_table[ColorIndex(COLOR_RED)], sizeof(vec4_t))
-            portMissing("CG_DrawVehicleAmmoLower", source: "oracle/codemp/cgame/cg_draw.c:2084")
+            calcColor = g_color_table[ColorIndex(COLOR_RED)]
             calcColor[3] = Float(sin(Double(cg.time) * 0.005) * 0.5 + 0.5)
         } else {
             // Raven wrote: memcpy(calcColor, item->window.foreColor, sizeof(vec4_t))
@@ -2217,9 +2165,7 @@ func CG_DrawVehicleTurboRecharge(_ menuHUD: MenuDef, _ veh: Centity) {
     var item: ItemDef?
     var height: Int32
 
-    // Port-note: The draft of this statement did not compile, and the compiler wrote "cannot find 'Menu_FindItemByName' in scope".
-    // Raven wrote: item = Menu_FindItemByName( (menuDef_t *) menuHUD, "turborecharge")
-    portMissing("CG_DrawVehicleTurboRecharge", source: "oracle/codemp/cgame/cg_draw.c:2156")
+    item = Menu_FindItemByName(menuHUD, "turborecharge")
 
     if item != nil {
         var percent: Float = 0.0
@@ -2276,9 +2222,7 @@ func CG_DrawVehicleWeaponsLinked(_ menuHUD: MenuDef, _ veh: Centity) {
     if drawLink {
         var item: ItemDef?
 
-        // Port-note: The draft of this statement did not compile, and the compiler wrote "cannot find 'Menu_FindItemByName' in scope".
-        // Raven wrote: item = Menu_FindItemByName( (menuDef_t *) menuHUD, "weaponslinked")
-        portMissing("CG_DrawVehicleWeaponsLinked", source: "oracle/codemp/cgame/cg_draw.c:2197")
+        item = Menu_FindItemByName(menuHUD, "weaponslinked")
 
         if item != nil {
             trap_R_SetColor(colorTable[CT_CYAN])
@@ -2298,9 +2242,7 @@ func CG_DrawVehicleSpeed(_ menuHUD: MenuDef, _ veh: Centity) {
     var calcColor = vec4_t()
     var item: ItemDef?
 
-    // Port-note: The draft of this statement did not compile, and the compiler wrote "cannot find 'Menu_FindItemByName' in scope".
-    // Raven wrote: item = Menu_FindItemByName((menuDef_t *) menuHUD, "speedbackground")
-    portMissing("CG_DrawVehicleSpeed", source: "oracle/codemp/cgame/cg_draw.c:2251")
+    item = Menu_FindItemByName(menuHUD, "speedbackground")
 
     if item != nil {
         trap_R_SetColor(vec4_t(item!.window.foreColor[0], item!.window.foreColor[1], item!.window.foreColor[2], item!.window.foreColor[3]))
@@ -2320,9 +2262,7 @@ func CG_DrawVehicleSpeed(_ menuHUD: MenuDef, _ veh: Centity) {
         // Raven wrote: sprintf( itemName, "speed_tic%d", i )
         strcpy(&itemName, va("speed_tic%d", i))
 
-        // Port-note: The draft of this statement did not compile, and the compiler wrote "cannot find 'Menu_FindItemByName' in scope".
-        // Raven wrote: item = Menu_FindItemByName((menuDef_t *)menuHUD, itemName)
-        portMissing("CG_DrawVehicleSpeed", source: "oracle/codemp/cgame/cg_draw.c:2251")
+        item = Menu_FindItemByName(menuHUD, String(itemName))
 
         if item == nil {
             i += 1
@@ -2381,9 +2321,7 @@ func CG_DrawVehicleArmor(_ menuHUD: MenuDef, _ veh: Centity) {
     maxArmor = Float(veh.m_pVehicle!.m_pVehicleInfo!.armor)
     currValue = Float(cg.predictedVehicleState.stats[STAT_HEALTH])
 
-    // Port-note: The draft of this statement did not compile, and the compiler wrote "cannot find 'Menu_FindItemByName' in scope".
-    // Raven wrote: item = Menu_FindItemByName( (menuDef_t *) menuHUD, "shieldbackground")
-    portMissing("CG_DrawVehicleArmor", source: "oracle/codemp/cgame/cg_draw.c:2344")
+    item = Menu_FindItemByName(menuHUD, "shieldbackground")
 
     if item != nil {
         trap_R_SetColor(vec4_t(item!.window.foreColor[0], item!.window.foreColor[1], item!.window.foreColor[2], item!.window.foreColor[3]))
@@ -2400,9 +2338,7 @@ func CG_DrawVehicleArmor(_ menuHUD: MenuDef, _ veh: Centity) {
         // Raven wrote: sprintf( itemName, "shield_tic%d", i )
         strcpy(&itemName, va("shield_tic%d", i))
 
-        // Port-note: The draft of this statement did not compile, and the compiler wrote "cannot find 'Menu_FindItemByName' in scope".
-        // Raven wrote: item = Menu_FindItemByName((menuDef_t *) menuHUD, itemName)
-        portMissing("CG_DrawVehicleArmor", source: "oracle/codemp/cgame/cg_draw.c:2344")
+        item = Menu_FindItemByName(menuHUD, String(itemName))
 
         if item == nil {
             i += 1
@@ -2480,17 +2416,13 @@ func CG_DrawVehicleDamageHUD(_ veh: Centity, _ brokenLimbs: Int32, _ percShields
     var item: ItemDef?
     var color = vec4_t()
 
-    // Port-note: The draft of this statement did not compile, and the compiler wrote "cannot find 'Menus_FindByName' in scope".
-    // Raven wrote: menuHUD = Menus_FindByName(menuName)
-    portMissing("CG_DrawVehicleDamageHUD", source: "oracle/codemp/cgame/cg_draw.c:2495")
+    menuHUD = Menus_FindByName(menuName)
 
     if menuHUD == nil {
         return
     }
 
-    // Port-note: The draft of this statement did not compile, and the compiler wrote "cannot find 'Menu_FindItemByName' in scope".
-    // Raven wrote: item = Menu_FindItemByName(menuHUD, "background")
-    portMissing("CG_DrawVehicleDamageHUD", source: "oracle/codemp/cgame/cg_draw.c:2495")
+    item = Menu_FindItemByName(menuHUD!, "background")
     if item != nil {
         if veh.m_pVehicle!.m_pVehicleInfo!.dmgIndicBackgroundHandle != 0 {
             if veh.damageTime > cg.time {
@@ -2515,9 +2447,7 @@ func CG_DrawVehicleDamageHUD(_ veh: Centity, _ brokenLimbs: Int32, _ percShields
         }
     }
 
-    // Port-note: The draft of this statement did not compile, and the compiler wrote "cannot find 'Menu_FindItemByName' in scope".
-    // Raven wrote: item = Menu_FindItemByName(menuHUD, "outer_frame")
-    portMissing("CG_DrawVehicleDamageHUD", source: "oracle/codemp/cgame/cg_draw.c:2495")
+    item = Menu_FindItemByName(menuHUD!, "outer_frame")
     if item != nil {
         if veh.m_pVehicle!.m_pVehicleInfo!.dmgIndicFrameHandle != 0 {
             trap_R_SetColor(vec4_t(item!.window.foreColor[0], item!.window.foreColor[1], item!.window.foreColor[2], item!.window.foreColor[3]))
@@ -2525,9 +2455,7 @@ func CG_DrawVehicleDamageHUD(_ veh: Centity, _ brokenLimbs: Int32, _ percShields
         }
     }
 
-    // Port-note: The draft of this statement did not compile, and the compiler wrote "cannot find 'Menu_FindItemByName' in scope".
-    // Raven wrote: item = Menu_FindItemByName(menuHUD, "shields")
-    portMissing("CG_DrawVehicleDamageHUD", source: "oracle/codemp/cgame/cg_draw.c:2495")
+    item = Menu_FindItemByName(menuHUD!, "shields")
     if item != nil {
         if veh.m_pVehicle!.m_pVehicleInfo!.dmgIndicShieldHandle != 0 {
             // Raven wrote: VectorCopy4 ( colorTable[CT_HUD_GREEN], color )
@@ -2555,9 +2483,7 @@ func CG_DrawVehicleHud(_ cent: Centity) -> Bool {
     let shieldPerc: Float
     var alpha: Float = 0
 
-    // Port-note: The draft of this statement did not compile, and the compiler wrote "cannot find 'Menus_FindByName' in scope".
-    // Raven wrote: menuHUD = Menus_FindByName("swoopvehiclehud")
-    portMissing("CG_DrawVehicleHud", source: "oracle/codemp/cgame/cg_draw.c:2585")
+    menuHUD = Menus_FindByName("swoopvehiclehud")
     if menuHUD == nil {
         return true // Draw player HUD
     }
@@ -2576,9 +2502,7 @@ func CG_DrawVehicleHud(_ cent: Centity) -> Bool {
     CG_DrawVehicleTurboRecharge(menuHUD!, veh!)
     CG_DrawVehicleWeaponsLinked(menuHUD!, veh!)
 
-    // Port-note: The draft of this statement did not compile, and the compiler wrote "cannot find 'Menu_FindItemByName' in scope".
-    // Raven wrote: item = Menu_FindItemByName(menuHUD, "leftframe")
-    portMissing("CG_DrawVehicleHud", source: "oracle/codemp/cgame/cg_draw.c:2585")
+    item = Menu_FindItemByName(menuHUD!, "leftframe")
 
     // Draw frame
     if item != nil {
@@ -2586,9 +2510,7 @@ func CG_DrawVehicleHud(_ cent: Centity) -> Bool {
         CG_DrawPic(item!.window.rect.x, item!.window.rect.y, item!.window.rect.w, item!.window.rect.h, item!.window.background)
     }
 
-    // Port-note: The draft of this statement did not compile, and the compiler wrote "cannot find 'Menu_FindItemByName' in scope".
-    // Raven wrote: item = Menu_FindItemByName(menuHUD, "rightframe")
-    portMissing("CG_DrawVehicleHud", source: "oracle/codemp/cgame/cg_draw.c:2585")
+    item = Menu_FindItemByName(menuHUD!, "rightframe")
 
     if item != nil {
         trap_R_SetColor(vec4_t(item!.window.foreColor[0], item!.window.foreColor[1], item!.window.foreColor[2], item!.window.foreColor[3]))
@@ -2703,18 +2625,17 @@ CG_DrawPickupItem
 /// Source: oracle/codemp/cgame/cg_draw.c:2752
 private func CG_DrawPickupItem() {
     let value: Int32
-    // Port-note: A pointer local `float * fadeColor` with no view.
-    // Raven wrote: float *fadeColor;
-    portMissing("CG_DrawPickupItem", source: "oracle/codemp/cgame/cg_draw.c:2752")
+    var fadeColor: vec4_t?
 
     value = cg.itemPickup
     if value != 0 && cg_items[value].icon != -1 {
-        // Port-note: A store into `fadeColor`, a local the draft left as a hole.
-        // Raven wrote: fadeColor = CG_FadeColor( cg.itemPickupTime, 3000 )
-        portMissing("CG_DrawPickupItem", source: "oracle/codemp/cgame/cg_draw.c:2752")
-        // Port-note: A read of `fadeColor`, a local the draft left as a hole.
-        // Raven wrote: if ( fadeColor ) { CG_RegisterItemVisuals( value ); trap_R_SetColor( fadeColor ); CG_DrawPic( 573, 320, ICON_SIZE, ICON_SIZE, cg_items[ value ].icon ); trap_R_SetColor( NULL ); }
-        portMissing("CG_DrawPickupItem", source: "oracle/codemp/cgame/cg_draw.c:2752")
+        fadeColor = CG_FadeColor(cg.itemPickupTime, 3000)
+        if fadeColor != nil {
+            CG_RegisterItemVisuals(value)
+            trap_R_SetColor(fadeColor)
+            CG_DrawPic(573, 320, Float(ICON_SIZE), Float(ICON_SIZE), cg_items[value].icon)
+            trap_R_SetColor(nil)
+        }
     }
 }
 
@@ -2744,9 +2665,7 @@ func CG_DrawTeamBackground(_ x: Int32, _ y: Int32, _ w: Int32, _ h: Int32, _ alp
     }
     //	trap_R_SetColor( hcolor );
 
-    // Port-note: The draft of this statement did not compile, and the compiler wrote "cannot convert value of type 'vec4_t' (aka 'SIMD4<Float>') to expected argument type 'Float'".
-    // Raven wrote: CG_FillRect ( x, y, w, h, hcolor )
-    portMissing("CG_DrawTeamBackground", source: "oracle/codemp/cgame/cg_draw.c:2776")
+    CG_FillRect(Float(x), Float(y), Float(w), Float(h), hcolor)
     //	CG_DrawPic( x, y, w, h, cgs.media.teamStatusBar );
     trap_R_SetColor(nil)
 }
@@ -2984,18 +2903,6 @@ private func CG_DrawSnapshot(_ y: Float) -> Float {
 private func CG_DrawFPS(_ y: Float) -> Float {
     let s: String
     let w: Int32
-    // Port-note: A static local `previousTimes` a statement writes, storage that outlives the call.
-    // Raven wrote: static unsigned short previousTimes[FPS_FRAMES];
-    portMissing("CG_DrawFPS", source: "oracle/codemp/cgame/cg_draw.c:3071")
-    // Port-note: A static local `index` a statement reads before it writes, storage that outlives the call.
-    // Raven wrote: static unsigned short index;
-    portMissing("CG_DrawFPS", source: "oracle/codemp/cgame/cg_draw.c:3071")
-    // Port-note: A static local `previous` a statement reads before it writes, storage that outlives the call.
-    // Raven wrote: static int previous;
-    portMissing("CG_DrawFPS", source: "oracle/codemp/cgame/cg_draw.c:3071")
-    // Port-note: A static local `lastupdate` a statement reads before it writes, storage that outlives the call.
-    // Raven wrote: lastupdate;
-    portMissing("CG_DrawFPS", source: "oracle/codemp/cgame/cg_draw.c:3071")
     let t: Int32
     var i: Int32
     let fps: Int32
@@ -3007,22 +2914,18 @@ private func CG_DrawFPS(_ y: Float) -> Float {
     // don't use serverTime, because that will be drifting to
     // correct for internet lag changes, timescales, timedemos, etc
     t = trap_Milliseconds()
-    // Port-note: A read of `previous`, a local the draft left as a hole.
-    // Raven wrote: frameTime = t - previous
-    portMissing("CG_DrawFPS", source: "oracle/codemp/cgame/cg_draw.c:3071")
-    // Port-note: A store into `previous`, a local the draft left as a hole.
-    // Raven wrote: previous = t
-    portMissing("CG_DrawFPS", source: "oracle/codemp/cgame/cg_draw.c:3071")
-    // Port-note: A read of `lastupdate`, a local the draft left as a hole.
-    // Raven wrote: if (t - lastupdate > 50) //don't sample faster than this { lastupdate = t; previousTimes[index % FPS_FRAMES] = frameTime; index++; }
-    portMissing("CG_DrawFPS", source: "oracle/codemp/cgame/cg_draw.c:3071")
+    frameTime = UInt16(truncatingIfNeeded: t - previous)
+    previous = t
+    if t - lastupdate > 50 { //don't sample faster than this
+        lastupdate = t
+        previousTimes[Int32(index) % FPS_FRAMES] = frameTime
+        index = UInt16(truncatingIfNeeded: Int32(index) + 1)
+    }
     // average multiple frames together to smooth changes out a bit
     total = 0
     i = 0
     while i < FPS_FRAMES {
-        // Port-note: A read of `previousTimes`, a local the draft left as a hole.
-        // Raven wrote: total += previousTimes[i]
-        portMissing("CG_DrawFPS", source: "oracle/codemp/cgame/cg_draw.c:3071")
+        total += Int32(previousTimes[i])
         i += 1
     }
     if total == 0 {
@@ -3038,6 +2941,34 @@ private func CG_DrawFPS(_ y: Float) -> Float {
     return y + BIGCHAR_HEIGHT + 4
 }
 
+/// Raven's `static unsigned short previousTimes[FPS_FRAMES]` of `CG_DrawFPS`, which the world keeps.
+/// Source: oracle/codemp/cgame/cg_draw.c:3074
+var previousTimes: [UInt16] {
+    get { world.previousTimes }
+    set { world.previousTimes = newValue }
+}
+
+/// Raven's `static unsigned short index` of `CG_DrawFPS`, which the world keeps.
+/// Source: oracle/codemp/cgame/cg_draw.c:3075
+var index: UInt16 {
+    get { world.index }
+    set { world.index = newValue }
+}
+
+/// Raven's `static int previous` of `CG_DrawFPS`, which the world keeps.
+/// Source: oracle/codemp/cgame/cg_draw.c:3076
+var previous: Int32 {
+    get { world.previous }
+    set { world.previous = newValue }
+}
+
+/// Raven's `static int lastupdate` of `CG_DrawFPS`, which the world keeps.
+/// Source: oracle/codemp/cgame/cg_draw.c:3076
+var lastupdate: Int32 {
+    get { world.lastupdate }
+    set { world.lastupdate = newValue }
+}
+
 /// Source: oracle/codemp/cgame/cg_draw.c:3117
 func CG_DrawHealthBarRough(_ x: Float, _ y: Float, _ width: Int32, _ height: Int32, _ ratio: Float, _ color1: JKAShared.vec4_t?, _ color2: JKAShared.vec4_t?) {
     let midpoint: Float
@@ -3046,15 +2977,11 @@ func CG_DrawHealthBarRough(_ x: Float, _ y: Float, _ width: Int32, _ height: Int
 
     midpoint = width * ratio - 1
     remainder = width - midpoint
-    // Port-note: The draft of this statement did not compile, and the compiler wrote "value of type 'Float' has no subscripts".
-    // Raven wrote: color3[0] = color1[0] * 0.5f
-    portMissing("CG_DrawHealthBarRough", source: "oracle/codemp/cgame/cg_draw.c:3117")
+    color3[0] = color1![0] * 0.5
 
     //this won't line up otherwise.
     CG_DrawRect(x + 1, y + height / 2 - 1, midpoint, 1, Float(height / 4 + 1), color1) // creme-y filling.
-    // Port-note: The draft of this statement did not compile, and the compiler wrote "cannot convert value of type '[Float]' to expected argument type 'Float'".
-    // Raven wrote: CG_DrawRect(x + midpoint, y + height/2-1, remainder, 1, height/4+1, color3)
-    portMissing("CG_DrawHealthBarRough", source: "oracle/codemp/cgame/cg_draw.c:3117")
+    CG_DrawRect(x + midpoint, y + height / 2 - 1, remainder, 1, Float(height / 4 + 1), vec4_t(color3[0], color3[1], color3[2], color3[3]))
     CG_DrawRect(x, y, Float(width), Float(height), 1, color2) // hard crispy shell
 }
 
@@ -3079,9 +3006,7 @@ func CG_DrawDuelistHealth(_ x: Float, _ y: Float, _ w: Float, _ h: Float, _ duel
     }
     duelHealthColor[0] = (ratio * 0.2) + 0.5
 
-    // Port-note: The draft of this statement did not compile, and the compiler wrote "cannot convert value of type '[Float]' to expected argument type 'Float'".
-    // Raven wrote: CG_DrawHealthBarRough (x, y, w, h, ratio, duelHealthColor, colorTable[CT_WHITE])
-    portMissing("CG_DrawDuelistHealth", source: "oracle/codemp/cgame/cg_draw.c:3132")
+    CG_DrawHealthBarRough(x, y, Int32(w), Int32(h), ratio, vec4_t(duelHealthColor[0], duelHealthColor[1], duelHealthColor[2], duelHealthColor[3]), colorTable[CT_WHITE])
 }
 
 /// Source: oracle/codemp/cgame/cg_draw.c:3179
@@ -3125,9 +3050,9 @@ func CG_DrawRadar(_ y: Float) -> Float {
     CG_DrawPic(Float(RADAR_X + xOffset), y, Float(RADAR_RADIUS * 2), Float(RADAR_RADIUS * 2), cgs.media.radarShader)
 
     //Always green for your own team.
-    // Port-note: No operator between the operands, the text there is ``.
-    // Raven wrote: VectorCopy ( g_color_table[ColorIndex(COLOR_GREEN)], teamColor )
-    portMissing("CG_DrawRadar", source: "oracle/codemp/cgame/cg_draw.c:3179")
+    teamColor[0] = g_color_table[ColorIndex(COLOR_GREEN)][0]
+    teamColor[1] = g_color_table[ColorIndex(COLOR_GREEN)][1]
+    teamColor[2] = g_color_table[ColorIndex(COLOR_GREEN)][2]
     teamColor[3] = 1.0
 
     // Draw all of the radar entities.  Draw them backwards so players are drawn last
@@ -3215,9 +3140,7 @@ func CG_DrawRadar(_ y: Float) -> Float {
                         if cgs.clientinfo[cent!.currentState.m_iVehicleNum - 1].team == local!.team {
                             trap_R_SetColor(teamColor)
                         } else {
-                            // Port-note: No operator between the operands, the text there is ``.
-                            // Raven wrote: trap_R_SetColor ( g_color_table[ColorIndex(COLOR_RED)] )
-                            portMissing("CG_DrawRadar", source: "oracle/codemp/cgame/cg_draw.c:3179")
+                            trap_R_SetColor(g_color_table[ColorIndex(COLOR_RED)])
                         }
                     } else {
                         trap_R_SetColor(nil)
@@ -3390,9 +3313,7 @@ func CG_DrawRadar(_ y: Float) -> Float {
                     if cl!.team == local!.team {
                         trap_R_SetColor(teamColor)
                     } else {
-                        // Port-note: No operator between the operands, the text there is ``.
-                        // Raven wrote: trap_R_SetColor ( g_color_table[ColorIndex(COLOR_RED)] )
-                        portMissing("CG_DrawRadar", source: "oracle/codemp/cgame/cg_draw.c:3179")
+                        trap_R_SetColor(g_color_table[ColorIndex(COLOR_RED)])
                     }
                 } else {
                     trap_R_SetColor(nil)
@@ -3523,13 +3444,13 @@ func CG_DrawRadar(_ y: Float) -> Float {
                             shader = cgs.gameIcons[cent!.currentState.genericenemyindex]
                         } else {
                             if cg.snap != nil && cent!.currentState.brokenLimbs == cg.snap!.ps.persistant[PERS_TEAM] {
-                                // Port-note: No operator between the operands, the text there is ``.
-                                // Raven wrote: VectorCopy ( g_color_table[ColorIndex(COLOR_RED)], color )
-                                portMissing("CG_DrawRadar", source: "oracle/codemp/cgame/cg_draw.c:3179")
+                                color[0] = g_color_table[ColorIndex(COLOR_RED)][0]
+                                color[1] = g_color_table[ColorIndex(COLOR_RED)][1]
+                                color[2] = g_color_table[ColorIndex(COLOR_RED)][2]
                             } else {
-                                // Port-note: No operator between the operands, the text there is ``.
-                                // Raven wrote: VectorCopy ( g_color_table[ColorIndex(COLOR_GREEN)], color )
-                                portMissing("CG_DrawRadar", source: "oracle/codemp/cgame/cg_draw.c:3179")
+                                color[0] = g_color_table[ColorIndex(COLOR_GREEN)][0]
+                                color[1] = g_color_table[ColorIndex(COLOR_GREEN)][1]
+                                color[2] = g_color_table[ColorIndex(COLOR_GREEN)][2]
                             }
 
                             shader = cgs.media.siegeItemShader
@@ -3736,9 +3657,7 @@ private func CG_DrawTeamOverlay(_ y: Float, _ right: Bool, _ upper: Bool) -> Flo
 
             xx = x + TINYCHAR_WIDTH
 
-            // Port-note: The draft of this statement did not compile, and the compiler wrote "cannot convert value of type 'vec4_t' (aka 'SIMD4<Float>') to expected argument type 'Float'".
-            // Raven wrote: CG_DrawStringExt( xx + xOffset, y, ci->name, hcolor, qfalse, qfalse, TINYCHAR_WIDTH, TINYCHAR_HEIGHT, TEAM_OVERLAY_MAXNAME_WIDTH)
-            portMissing("CG_DrawTeamOverlay", source: "oracle/codemp/cgame/cg_draw.c:3779")
+            CG_DrawStringExt(xx + xOffset, Int32(y), ci!.name, hcolor, false, false, TINYCHAR_WIDTH, TINYCHAR_HEIGHT, TEAM_OVERLAY_MAXNAME_WIDTH)
 
             if lwidth != 0 {
                 p = CG_GetLocationString(CG_ConfigString(CS_LOCATIONS + ci!.location))
@@ -3754,9 +3673,7 @@ private func CG_DrawTeamOverlay(_ y: Float, _ right: Bool, _ upper: Bool) -> Flo
                 //				xx = x + TINYCHAR_WIDTH * 2 + TINYCHAR_WIDTH * pwidth +
                 //					((lwidth/2 - len/2) * TINYCHAR_WIDTH);
                 xx = x + TINYCHAR_WIDTH * 2 + TINYCHAR_WIDTH * pwidth
-                // Port-note: The draft of this statement did not compile, and the compiler wrote "cannot convert value of type 'vec4_t' (aka 'SIMD4<Float>') to expected argument type 'Float'".
-                // Raven wrote: CG_DrawStringExt( xx + xOffset, y, p, hcolor, qfalse, qfalse, TINYCHAR_WIDTH, TINYCHAR_HEIGHT, TEAM_OVERLAY_MAXLOCATION_WIDTH)
-                portMissing("CG_DrawTeamOverlay", source: "oracle/codemp/cgame/cg_draw.c:3779")
+                CG_DrawStringExt(xx + xOffset, Int32(y), p, hcolor, false, false, TINYCHAR_WIDTH, TINYCHAR_HEIGHT, TEAM_OVERLAY_MAXLOCATION_WIDTH)
             }
 
             CG_GetColorForHealth(ci!.health, ci!.armor, &hcolor)
@@ -3765,9 +3682,7 @@ private func CG_DrawTeamOverlay(_ y: Float, _ right: Bool, _ upper: Bool) -> Flo
 
             xx = x + TINYCHAR_WIDTH * 3 + TINYCHAR_WIDTH * pwidth + TINYCHAR_WIDTH * lwidth
 
-            // Port-note: The draft of this statement did not compile, and the compiler wrote "cannot convert value of type 'vec4_t' (aka 'SIMD4<Float>') to expected argument type 'Float'".
-            // Raven wrote: CG_DrawStringExt( xx + xOffset, y, st, hcolor, qfalse, qfalse, TINYCHAR_WIDTH, TINYCHAR_HEIGHT, 0 )
-            portMissing("CG_DrawTeamOverlay", source: "oracle/codemp/cgame/cg_draw.c:3779")
+            CG_DrawStringExt(xx + xOffset, Int32(y), String(st), hcolor, false, false, TINYCHAR_WIDTH, TINYCHAR_HEIGHT, 0)
 
             // draw weapon icon
             xx += TINYCHAR_WIDTH * 3
@@ -4065,9 +3980,7 @@ private func CG_DrawLagometer() {
         if v > 0 {
             if color != 1 {
                 color = 1
-                // Port-note: No operator between the operands, the text there is ``.
-                // Raven wrote: trap_R_SetColor( g_color_table[ColorIndex(COLOR_YELLOW)] )
-                portMissing("CG_DrawLagometer", source: "oracle/codemp/cgame/cg_draw.c:4252")
+                trap_R_SetColor(g_color_table[ColorIndex(COLOR_YELLOW)])
             }
             if v > range {
                 v = range
@@ -4076,9 +3989,7 @@ private func CG_DrawLagometer() {
         } else if v < 0 {
             if color != 2 {
                 color = 2
-                // Port-note: No operator between the operands, the text there is ``.
-                // Raven wrote: trap_R_SetColor( g_color_table[ColorIndex(COLOR_BLUE)] )
-                portMissing("CG_DrawLagometer", source: "oracle/codemp/cgame/cg_draw.c:4252")
+                trap_R_SetColor(g_color_table[ColorIndex(COLOR_BLUE)])
             }
             v = -v
             if v > range {
@@ -4101,16 +4012,12 @@ private func CG_DrawLagometer() {
             if (lagometer.snapshotFlags[i] & SNAPFLAG_RATE_DELAYED) != 0 {
                 if color != 5 {
                     color = 5 // YELLOW for rate delay
-                    // Port-note: No operator between the operands, the text there is ``.
-                    // Raven wrote: trap_R_SetColor( g_color_table[ColorIndex(COLOR_YELLOW)] )
-                    portMissing("CG_DrawLagometer", source: "oracle/codemp/cgame/cg_draw.c:4252")
+                    trap_R_SetColor(g_color_table[ColorIndex(COLOR_YELLOW)])
                 }
             } else {
                 if color != 3 {
                     color = 3
-                    // Port-note: No operator between the operands, the text there is ``.
-                    // Raven wrote: trap_R_SetColor( g_color_table[ColorIndex(COLOR_GREEN)] )
-                    portMissing("CG_DrawLagometer", source: "oracle/codemp/cgame/cg_draw.c:4252")
+                    trap_R_SetColor(g_color_table[ColorIndex(COLOR_GREEN)])
                 }
             }
             v = v * vscale
@@ -4121,9 +4028,7 @@ private func CG_DrawLagometer() {
         } else if v < 0 {
             if color != 4 {
                 color = 4 // RED for dropped snapshots
-                // Port-note: No operator between the operands, the text there is ``.
-                // Raven wrote: trap_R_SetColor( g_color_table[ColorIndex(COLOR_RED)] )
-                portMissing("CG_DrawLagometer", source: "oracle/codemp/cgame/cg_draw.c:4252")
+                trap_R_SetColor(g_color_table[ColorIndex(COLOR_RED)])
             }
             trap_R_DrawStretchPic(ax + aw - a, ay + ah - range, 1, range, 0, 0, 0, 0, cgs.media.whiteShader)
         }
@@ -4216,25 +4121,19 @@ private func CG_DrawCenterString() {
     var y: Int32
     var w: Int32
     var h: Int32
-    // Port-note: A pointer local `float * color` with no view.
-    // Raven wrote: float *color;
-    portMissing("CG_DrawCenterString", source: "oracle/codemp/cgame/cg_draw.c:4423")
+    var color: vec4_t?
     let scale: Float = 1.0
 
     if cg.centerPrintTime == 0 {
         return
     }
 
-    // Port-note: A store into `color`, a local the draft left as a hole.
-    // Raven wrote: color = CG_FadeColor( cg.centerPrintTime, 1000 * cg_centertime.value )
-    portMissing("CG_DrawCenterString", source: "oracle/codemp/cgame/cg_draw.c:4423")
-    // Port-note: A read of `color`, a local the draft left as a hole.
-    // Raven wrote: if ( !color ) { return; }
-    portMissing("CG_DrawCenterString", source: "oracle/codemp/cgame/cg_draw.c:4423")
+    color = CG_FadeColor(cg.centerPrintTime, Int32(1000 * cg_centertime.value))
+    if color == nil {
+        return
+    }
 
-    // Port-note: A read of `color`, a local the draft left as a hole.
-    // Raven wrote: trap_R_SetColor( color )
-    portMissing("CG_DrawCenterString", source: "oracle/codemp/cgame/cg_draw.c:4423")
+    trap_R_SetColor(color)
 
     // Raven wrote: start = cg.centerPrint
     start = TextCursor(cg.centerPrintBuffer)
@@ -4259,9 +4158,7 @@ private func CG_DrawCenterString() {
         w = CG_Text_Width(String(linebuffer), scale, FONT_MEDIUM)
         h = CG_Text_Height(String(linebuffer), scale, FONT_MEDIUM)
         x = (SCREEN_WIDTH - w) / 2
-        // Port-note: A read of `color`, a local the draft left as a hole.
-        // Raven wrote: CG_Text_Paint(x, y + h, scale, color, linebuffer, 0, 0, ITEM_TEXTSTYLE_SHADOWEDMORE, FONT_MEDIUM)
-        portMissing("CG_DrawCenterString", source: "oracle/codemp/cgame/cg_draw.c:4423")
+        CG_Text_Paint(Float(x), Float(y + h), scale, color!, String(linebuffer), 0, 0, ITEM_TEXTSTYLE_SHADOWEDMORE, FONT_MEDIUM)
         y += h + 6
 
         // Raven wrote: while ( *start && ( *start != '\n' ) ) { start++; }
@@ -4330,9 +4227,7 @@ func CG_DrawSiegeInfo(_ cent: Centity, _ chX: Float, _ chY: Float, _ chW: Float,
         return
     }
 
-    // Port-note: The draft of this statement did not compile, and the compiler wrote "cannot find 'BG_SiegeFindClassByName' in scope".
-    // Raven wrote: siegeClass = BG_SiegeFindClassByName(v)
-    portMissing("CG_DrawSiegeInfo", source: "oracle/codemp/cgame/cg_draw.c:4489")
+    siegeClass = BG_SiegeFindClassByName(v)
 
     if siegeClass == nil {
         //invalid
@@ -4367,19 +4262,13 @@ func CG_DrawSiegeInfo(_ cent: Centity, _ chX: Float, _ chY: Float, _ chW: Float,
     cColor[3] = 0.4
 
     //draw the background (black)
-    // Port-note: The draft of this statement did not compile, and the compiler wrote "cannot convert value of type 'vec4_t' (aka 'SIMD4<Float>') to expected argument type 'Float'".
-    // Raven wrote: CG_DrawRect(x, y, HEALTH_WIDTH, HEALTH_HEIGHT, 1.0f, colorTable[CT_BLACK])
-    portMissing("CG_DrawSiegeInfo", source: "oracle/codemp/cgame/cg_draw.c:4489")
+    CG_DrawRect(x, y, HEALTH_WIDTH, HEALTH_HEIGHT, 1.0, colorTable[CT_BLACK])
 
     //now draw the part to show how much health there is in the color specified
-    // Port-note: The draft of this statement did not compile, and the compiler wrote "cannot convert value of type 'vec4_t' (aka 'SIMD4<Float>') to expected argument type 'Float'".
-    // Raven wrote: CG_FillRect(x+1.0f, y+1.0f, percent-1.0f, HEALTH_HEIGHT-1.0f, aColor)
-    portMissing("CG_DrawSiegeInfo", source: "oracle/codemp/cgame/cg_draw.c:4489")
+    CG_FillRect(x + 1.0, y + 1.0, percent - 1.0, HEALTH_HEIGHT - 1.0, aColor)
 
     //then draw the other part greyed out
-    // Port-note: The draft of this statement did not compile, and the compiler wrote "cannot convert value of type 'vec4_t' (aka 'SIMD4<Float>') to expected argument type 'Float'".
-    // Raven wrote: CG_FillRect(x+percent, y+1.0f, HEALTH_WIDTH-percent-1.0f, HEALTH_HEIGHT-1.0f, cColor)
-    portMissing("CG_DrawSiegeInfo", source: "oracle/codemp/cgame/cg_draw.c:4489")
+    CG_FillRect(x + percent, y + 1.0, HEALTH_WIDTH - percent - 1.0, HEALTH_HEIGHT - 1.0, cColor)
 
 
     //now draw his ammo
@@ -4417,19 +4306,13 @@ func CG_DrawSiegeInfo(_ cent: Centity, _ chX: Float, _ chY: Float, _ chW: Float,
     cColor[3] = 0.4
 
     //draw the background (black)
-    // Port-note: The draft of this statement did not compile, and the compiler wrote "cannot convert value of type 'vec4_t' (aka 'SIMD4<Float>') to expected argument type 'Float'".
-    // Raven wrote: CG_DrawRect(x, y, HEALTH_WIDTH, HEALTH_HEIGHT, 1.0f, colorTable[CT_BLACK])
-    portMissing("CG_DrawSiegeInfo", source: "oracle/codemp/cgame/cg_draw.c:4489")
+    CG_DrawRect(x, y, HEALTH_WIDTH, HEALTH_HEIGHT, 1.0, colorTable[CT_BLACK])
 
     //now draw the part to show how much health there is in the color specified
-    // Port-note: The draft of this statement did not compile, and the compiler wrote "cannot convert value of type 'vec4_t' (aka 'SIMD4<Float>') to expected argument type 'Float'".
-    // Raven wrote: CG_FillRect(x+1.0f, y+1.0f, percent-1.0f, HEALTH_HEIGHT-1.0f, aColor)
-    portMissing("CG_DrawSiegeInfo", source: "oracle/codemp/cgame/cg_draw.c:4489")
+    CG_FillRect(x + 1.0, y + 1.0, percent - 1.0, HEALTH_HEIGHT - 1.0, aColor)
 
     //then draw the other part greyed out
-    // Port-note: The draft of this statement did not compile, and the compiler wrote "cannot convert value of type 'vec4_t' (aka 'SIMD4<Float>') to expected argument type 'Float'".
-    // Raven wrote: CG_FillRect(x+percent, y+1.0f, HEALTH_WIDTH-percent-1.0f, HEALTH_HEIGHT-1.0f, cColor)
-    portMissing("CG_DrawSiegeInfo", source: "oracle/codemp/cgame/cg_draw.c:4489")
+    CG_FillRect(x + percent, y + 1.0, HEALTH_WIDTH - percent - 1.0, HEALTH_HEIGHT - 1.0, cColor)
 }
 
 //draw the health bar based on current "health" and maxhealth
@@ -4479,19 +4362,13 @@ func CG_DrawHealthBar(_ cent: Centity, _ chX: Float, _ chY: Float, _ chW: Float,
     cColor[3] = 0.4
 
     //draw the background (black)
-    // Port-note: The draft of this statement did not compile, and the compiler wrote "cannot convert value of type 'vec4_t' (aka 'SIMD4<Float>') to expected argument type 'Float'".
-    // Raven wrote: CG_DrawRect(x, y, HEALTH_WIDTH, HEALTH_HEIGHT, 1.0f, colorTable[CT_BLACK])
-    portMissing("CG_DrawHealthBar", source: "oracle/codemp/cgame/cg_draw.c:4632")
+    CG_DrawRect(x, y, HEALTH_WIDTH, HEALTH_HEIGHT, 1.0, colorTable[CT_BLACK])
 
     //now draw the part to show how much health there is in the color specified
-    // Port-note: The draft of this statement did not compile, and the compiler wrote "cannot convert value of type 'vec4_t' (aka 'SIMD4<Float>') to expected argument type 'Float'".
-    // Raven wrote: CG_FillRect(x+1.0f, y+1.0f, percent-1.0f, HEALTH_HEIGHT-1.0f, aColor)
-    portMissing("CG_DrawHealthBar", source: "oracle/codemp/cgame/cg_draw.c:4632")
+    CG_FillRect(x + 1.0, y + 1.0, percent - 1.0, HEALTH_HEIGHT - 1.0, aColor)
 
     //then draw the other part greyed out
-    // Port-note: The draft of this statement did not compile, and the compiler wrote "cannot convert value of type 'vec4_t' (aka 'SIMD4<Float>') to expected argument type 'Float'".
-    // Raven wrote: CG_FillRect(x+percent, y+1.0f, HEALTH_WIDTH-percent-1.0f, HEALTH_HEIGHT-1.0f, cColor)
-    portMissing("CG_DrawHealthBar", source: "oracle/codemp/cgame/cg_draw.c:4632")
+    CG_FillRect(x + percent, y + 1.0, HEALTH_WIDTH - percent - 1.0, HEALTH_HEIGHT - 1.0, cColor)
 }
 
 //same routine (at least for now), draw progress of a "hack" or whatever
@@ -4527,19 +4404,13 @@ func CG_DrawHaqrBar(_ chX: Float, _ chY: Float, _ chW: Float, _ chH: Float) {
     cColor[3] = 0.1
 
     //draw the background (black)
-    // Port-note: The draft of this statement did not compile, and the compiler wrote "cannot convert value of type 'vec4_t' (aka 'SIMD4<Float>') to expected argument type 'Float'".
-    // Raven wrote: CG_DrawRect(x, y, HEALTH_WIDTH, HEALTH_HEIGHT, 1.0f, colorTable[CT_BLACK])
-    portMissing("CG_DrawHaqrBar", source: "oracle/codemp/cgame/cg_draw.c:4691")
+    CG_DrawRect(x, y, HEALTH_WIDTH, HEALTH_HEIGHT, 1.0, colorTable[CT_BLACK])
 
     //now draw the part to show how much health there is in the color specified
-    // Port-note: The draft of this statement did not compile, and the compiler wrote "cannot convert value of type 'vec4_t' (aka 'SIMD4<Float>') to expected argument type 'Float'".
-    // Raven wrote: CG_FillRect(x+1.0f, y+1.0f, percent-1.0f, HEALTH_HEIGHT-1.0f, aColor)
-    portMissing("CG_DrawHaqrBar", source: "oracle/codemp/cgame/cg_draw.c:4691")
+    CG_FillRect(x + 1.0, y + 1.0, percent - 1.0, HEALTH_HEIGHT - 1.0, aColor)
 
     //then draw the other part greyed out
-    // Port-note: The draft of this statement did not compile, and the compiler wrote "cannot convert value of type 'vec4_t' (aka 'SIMD4<Float>') to expected argument type 'Float'".
-    // Raven wrote: CG_FillRect(x+percent, y+1.0f, HEALTH_WIDTH-percent-1.0f, HEALTH_HEIGHT-1.0f, cColor)
-    portMissing("CG_DrawHaqrBar", source: "oracle/codemp/cgame/cg_draw.c:4691")
+    CG_FillRect(x + percent, y + 1.0, HEALTH_WIDTH - percent - 1.0, HEALTH_HEIGHT - 1.0, cColor)
 
     //draw the hacker icon
     CG_DrawPic(x, y - HEALTH_WIDTH, HEALTH_WIDTH, HEALTH_WIDTH, cgs.media.hackerIconShader)
@@ -4581,19 +4452,13 @@ func CG_DrawGenericTimerBar() {
     cColor[3] = 0.1
 
     //draw the background (black)
-    // Port-note: The draft of this statement did not compile, and the compiler wrote "cannot convert value of type 'vec4_t' (aka 'SIMD4<Float>') to expected argument type 'Float'".
-    // Raven wrote: CG_DrawRect(x, y, CGTIMERBAR_W, CGTIMERBAR_H, 1.0f, colorTable[CT_BLACK])
-    portMissing("CG_DrawGenericTimerBar", source: "oracle/codemp/cgame/cg_draw.c:4745")
+    CG_DrawRect(x, y, CGTIMERBAR_W, CGTIMERBAR_H, 1.0, colorTable[CT_BLACK])
 
     //now draw the part to show how much health there is in the color specified
-    // Port-note: The draft of this statement did not compile, and the compiler wrote "cannot convert value of type 'vec4_t' (aka 'SIMD4<Float>') to expected argument type 'Float'".
-    // Raven wrote: CG_FillRect(x+1.0f, y+1.0f+(CGTIMERBAR_H-percent), CGTIMERBAR_W-2.0f, CGTIMERBAR_H-1.0f-(CGTIMERBAR_H-percent), aColor)
-    portMissing("CG_DrawGenericTimerBar", source: "oracle/codemp/cgame/cg_draw.c:4745")
+    CG_FillRect(x + 1.0, y + 1.0 + (CGTIMERBAR_H - percent), CGTIMERBAR_W - 2.0, CGTIMERBAR_H - 1.0 - (CGTIMERBAR_H - percent), aColor)
 
     //then draw the other part greyed out
-    // Port-note: The draft of this statement did not compile, and the compiler wrote "cannot convert value of type 'vec4_t' (aka 'SIMD4<Float>') to expected argument type 'Float'".
-    // Raven wrote: CG_FillRect(x+1.0f, y+1.0f, CGTIMERBAR_W-2.0f, CGTIMERBAR_H-percent, cColor)
-    portMissing("CG_DrawGenericTimerBar", source: "oracle/codemp/cgame/cg_draw.c:4745")
+    CG_FillRect(x + 1.0, y + 1.0, CGTIMERBAR_W - 2.0, CGTIMERBAR_H - percent, cColor)
 }
 
 /// Source: oracle/codemp/cgame/cg_draw.c:4806
@@ -5145,37 +5010,25 @@ func CG_BracketEntity(_ cent: Centity, _ radius: Float) {
             if cgs.gametype < GT_TEAM {
                 //ffa?
                 isEnemy = true
-                // Port-note: No operator between the operands, the text there is ``.
-                // Raven wrote: trap_R_SetColor ( g_color_table[ColorIndex(COLOR_RED)] )
-                portMissing("CG_BracketEntity", source: "oracle/codemp/cgame/cg_draw.c:5413")
+                trap_R_SetColor(g_color_table[ColorIndex(COLOR_RED)])
             } else if cgs.clientinfo[cent.currentState.m_iVehicleNum - 1].team == local!.team {
-                // Port-note: No operator between the operands, the text there is ``.
-                // Raven wrote: trap_R_SetColor ( g_color_table[ColorIndex(COLOR_GREEN)] )
-                portMissing("CG_BracketEntity", source: "oracle/codemp/cgame/cg_draw.c:5413")
+                trap_R_SetColor(g_color_table[ColorIndex(COLOR_GREEN)])
             } else {
                 isEnemy = true
-                // Port-note: No operator between the operands, the text there is ``.
-                // Raven wrote: trap_R_SetColor ( g_color_table[ColorIndex(COLOR_RED)] )
-                portMissing("CG_BracketEntity", source: "oracle/codemp/cgame/cg_draw.c:5413")
+                trap_R_SetColor(g_color_table[ColorIndex(COLOR_RED)])
             }
         } else if cent.currentState.teamowner != 0 {
             if cgs.gametype < GT_TEAM {
                 //ffa?
                 isEnemy = true
-                // Port-note: No operator between the operands, the text there is ``.
-                // Raven wrote: trap_R_SetColor ( g_color_table[ColorIndex(COLOR_RED)] )
-                portMissing("CG_BracketEntity", source: "oracle/codemp/cgame/cg_draw.c:5413")
+                trap_R_SetColor(g_color_table[ColorIndex(COLOR_RED)])
             } else if cent.currentState.teamowner != cg.predictedPlayerState.persistant[PERS_TEAM] {
                 // on enemy team
                 isEnemy = true
-                // Port-note: No operator between the operands, the text there is ``.
-                // Raven wrote: trap_R_SetColor ( g_color_table[ColorIndex(COLOR_RED)] )
-                portMissing("CG_BracketEntity", source: "oracle/codemp/cgame/cg_draw.c:5413")
+                trap_R_SetColor(g_color_table[ColorIndex(COLOR_RED)])
             } else {
                 //a friend
-                // Port-note: No operator between the operands, the text there is ``.
-                // Raven wrote: trap_R_SetColor ( g_color_table[ColorIndex(COLOR_GREEN)] )
-                portMissing("CG_BracketEntity", source: "oracle/codemp/cgame/cg_draw.c:5413")
+                trap_R_SetColor(g_color_table[ColorIndex(COLOR_GREEN)])
             }
         } else {
             //FIXME: if we want to ever bracket anything besides vehicles (like siege objectives we want to blow up), we should handle the coloring here
@@ -5269,19 +5122,13 @@ func CG_BracketEntity(_ cent: Centity, _ radius: Float) {
                                     if !CG_WorldCoordToScreenCoordFloat(vehLeadPos, &leadX, &leadY) {
                                         //off-screen, don't draw it
                                         //just draw the line
-                                        // Port-note: No operator between the operands, the text there is ``.
-                                        // Raven wrote: CG_DottedLine( x, y, leadX, leadY, 1, 10, g_color_table[ColorIndex(COLOR_RED)], 0.5f )
-                                        portMissing("CG_BracketEntity", source: "oracle/codemp/cgame/cg_draw.c:5413")
+                                        CG_DottedLine(x, y, leadX, leadY, 1, 10, g_color_table[ColorIndex(COLOR_RED)], 0.5)
                                         return true
                                     }
                                     //draw a line from the ship's cur pos to the lead pos
-                                    // Port-note: No operator between the operands, the text there is ``.
-                                    // Raven wrote: CG_DottedLine( x, y, leadX, leadY, 1, 10, g_color_table[ColorIndex(COLOR_RED)], 0.5f )
-                                    portMissing("CG_BracketEntity", source: "oracle/codemp/cgame/cg_draw.c:5413")
+                                    CG_DottedLine(x, y, leadX, leadY, 1, 10, g_color_table[ColorIndex(COLOR_RED)], 0.5)
                                     //now draw the lead indicator
-                                    // Port-note: No operator between the operands, the text there is ``.
-                                    // Raven wrote: trap_R_SetColor ( g_color_table[ColorIndex(COLOR_RED)] )
-                                    portMissing("CG_BracketEntity", source: "oracle/codemp/cgame/cg_draw.c:5413")
+                                    trap_R_SetColor(g_color_table[ColorIndex(COLOR_RED)])
                                     CG_DrawPic(leadX - 8, leadY - 8, 16, 16, trap_R_RegisterShader("gfx/menus/radar/lead"))
                                 }
                             }
@@ -5355,9 +5202,14 @@ private func CG_DrawHolocronIcons() {
     }
 
     while i < NUM_FORCE_POWERS {
-        // Port-note: The draft of this statement did not compile, and the compiler wrote "cannot find 'forcePowerSorted' in scope".
-        // Raven wrote: if (cg.snap->ps.holocronBits & (1 << forcePowerSorted[i])) { CG_DrawPic( startx, starty, endx, endy, cgs.media.forcePowerIcons[forcePowerSorted[i]]); starty += (icon_size+2); //+2 for spacing if ((starty+icon_size) >= SCREEN_HEIGHT-80) { starty = 10;//SCREEN_HEIGHT - icon_size*3; startx += (icon_size+2); } }
-        portMissing("CG_DrawHolocronIcons", source: "oracle/codemp/cgame/cg_draw.c:5645")
+        if (cg.snap!.ps.holocronBits & (1 << forcePowerSorted[i])) != 0 {
+            CG_DrawPic(Float(startx), Float(starty), Float(endx), Float(endy), cgs.media.forcePowerIcons[forcePowerSorted[i]])
+            starty += (icon_size + 2) //+2 for spacing
+            if (starty + icon_size) >= SCREEN_HEIGHT - 80 {
+                starty = 10 //SCREEN_HEIGHT - icon_size*3;
+                startx += (icon_size + 2)
+            }
+        }
 
         i += 1
     }
@@ -5393,9 +5245,14 @@ private func CG_DrawActivePowers() {
     }
 
     while i < NUM_FORCE_POWERS {
-        // Port-note: The draft of this statement did not compile, and the compiler wrote "cannot convert value of type '_' to expected argument type 'Bool'".
-        // Raven wrote: if ((cg.snap->ps.fd.forcePowersActive & (1 << forcePowerSorted[i])) && CG_IsDurationPower(forcePowerSorted[i])) { CG_DrawPic( startx, starty, endx, endy, cgs.media.forcePowerIcons[forcePowerSorted[i]]); startx += (icon_size+2); //+2 for spacing if ((startx+icon_size) >= SCREEN_WIDTH-80) { startx = icon_size*2+16; starty += (icon_size+2); } }
-        portMissing("CG_DrawActivePowers", source: "oracle/codemp/cgame/cg_draw.c:5700")
+        if (cg.snap!.ps.fd.forcePowersActive & (1 << forcePowerSorted[i])) != 0 && CG_IsDurationPower(forcePowerSorted[i]) {
+            CG_DrawPic(Float(startx), Float(starty), Float(endx), Float(endy), cgs.media.forcePowerIcons[forcePowerSorted[i]])
+            startx += (icon_size + 2) //+2 for spacing
+            if (startx + icon_size) >= SCREEN_WIDTH - 80 {
+                startx = icon_size * 2 + 16
+                starty += (icon_size + 2)
+            }
+        }
 
         i += 1
     }
@@ -5910,9 +5767,7 @@ CG_DrawCrosshairNames
 */
 /// Source: oracle/codemp/cgame/cg_draw.c:6333
 private func CG_DrawCrosshairNames() {
-    // Port-note: A pointer local `float * color` with no view.
-    // Raven wrote: float *color;
-    portMissing("CG_DrawCrosshairNames", source: "oracle/codemp/cgame/cg_draw.c:6333")
+    var color: vec4_t?
     var tcolor = vec4_t()
     let name: String
     var sanitized = CharBuf(1024)
@@ -5952,12 +5807,11 @@ private func CG_DrawCrosshairNames() {
     }
 
     // draw the name of the player being looked at
-    // Port-note: A store into `color`, a local the draft left as a hole.
-    // Raven wrote: color = CG_FadeColor( cg.crosshairClientTime, 1000 )
-    portMissing("CG_DrawCrosshairNames", source: "oracle/codemp/cgame/cg_draw.c:6333")
-    // Port-note: A read of `color`, a local the draft left as a hole.
-    // Raven wrote: if ( !color ) { trap_R_SetColor( NULL ); return; }
-    portMissing("CG_DrawCrosshairNames", source: "oracle/codemp/cgame/cg_draw.c:6333")
+    color = CG_FadeColor(cg.crosshairClientTime, 1000)
+    if color == nil {
+        trap_R_SetColor(nil)
+        return
+    }
 
     name = cgs.clientinfo[cg.crosshairClientNum].name
 
@@ -6001,9 +5855,7 @@ private func CG_DrawCrosshairNames() {
     tcolor[0] = colorTable[baseColor][0]
     tcolor[1] = colorTable[baseColor][1]
     tcolor[2] = colorTable[baseColor][2]
-    // Port-note: A read of `color`, a local the draft left as a hole.
-    // Raven wrote: tcolor[3] = color[3]*0.5f
-    portMissing("CG_DrawCrosshairNames", source: "oracle/codemp/cgame/cg_draw.c:6333")
+    tcolor[3] = color![3] * 0.5
 
     CG_SanitizeString(name, &sanitized)
 
@@ -6126,9 +5978,24 @@ private func CG_DrawVote() {
         strcpy(&sCmd, trap_SP_GetStringTextString("MENUS_WARMUP", Int32((sCmd).count)).1)
     } else if strncmp(cgs.voteString, "g_gametype", 10) == 0 {
         strcpy(&sCmd, trap_SP_GetStringTextString("MENUS_GAME_TYPE", Int32((sCmd).count)).1)
-        // Port-note: The draft of this statement did not compile, and the compiler wrote "cannot find 'stricmp' in scope".
-        // Raven wrote: if ( stricmp("Free For All", cgs.voteString+11)==0 ) { sParm = CG_GetStringEdString("MENUS", "FREE_FOR_ALL"); } else if ( stricmp("Duel", cgs.voteString+11)==0 ) { sParm = CG_GetStringEdString("MENUS", "DUEL"); } else if ( stricmp("Holocron FFA", cgs.voteString+11)==0 ) { sParm = CG_GetStringEdString("MENUS", "HOLOCRON_FFA"); } else if ( stricmp("Power Duel", cgs.voteString+11)==0 ) { sParm = CG_GetStringEdString("MENUS", "POWERDUEL"); } else if ( stricmp("Team FFA", cgs.voteString+11)==0 ) { sParm = CG_GetStringEdString("MENUS", "TEAM_FFA"); } else if ( stricmp("Siege", cgs.voteString+11)==0 ) { sParm = CG_GetStringEdString("MENUS", "SIEGE"); } else if ( stricmp("Capture the Flag", cgs.voteString+11)==0 ) { sParm = CG_GetStringEdString("MENUS", "CAPTURE_THE_FLAG"); } else if ( stricmp("Capture the Ysalamiri", cgs.voteString+11)==0 ) { sParm = CG_GetStringEdString("MENUS", "CAPTURE_THE_YSALIMARI"); }
-        portMissing("CG_DrawVote", source: "oracle/codemp/cgame/cg_draw.c:6552")
+        // Raven's stricmp is the platform's strcasecmp, and Q_stricmp gives the same zero test.
+        if Q_stricmp("Free For All", String(CharBuf(cgs.voteString)[11...])) == 0 {
+            sParm = CG_GetStringEdString("MENUS", "FREE_FOR_ALL")
+        } else if Q_stricmp("Duel", String(CharBuf(cgs.voteString)[11...])) == 0 {
+            sParm = CG_GetStringEdString("MENUS", "DUEL")
+        } else if Q_stricmp("Holocron FFA", String(CharBuf(cgs.voteString)[11...])) == 0 {
+            sParm = CG_GetStringEdString("MENUS", "HOLOCRON_FFA")
+        } else if Q_stricmp("Power Duel", String(CharBuf(cgs.voteString)[11...])) == 0 {
+            sParm = CG_GetStringEdString("MENUS", "POWERDUEL")
+        } else if Q_stricmp("Team FFA", String(CharBuf(cgs.voteString)[11...])) == 0 {
+            sParm = CG_GetStringEdString("MENUS", "TEAM_FFA")
+        } else if Q_stricmp("Siege", String(CharBuf(cgs.voteString)[11...])) == 0 {
+            sParm = CG_GetStringEdString("MENUS", "SIEGE")
+        } else if Q_stricmp("Capture the Flag", String(CharBuf(cgs.voteString)[11...])) == 0 {
+            sParm = CG_GetStringEdString("MENUS", "CAPTURE_THE_FLAG")
+        } else if Q_stricmp("Capture the Ysalamiri", String(CharBuf(cgs.voteString)[11...])) == 0 {
+            sParm = CG_GetStringEdString("MENUS", "CAPTURE_THE_YSALIMARI")
+        }
     } else if strncmp(cgs.voteString, "map", 3) == 0 {
         strcpy(&sCmd, trap_SP_GetStringTextString("MENUS_NEW_MAP", Int32((sCmd).count)).1)
         // Raven wrote: sParm = cgs.voteString+4
@@ -6466,9 +6333,7 @@ func CG_DrawTimedMenus() {
     if cg.voiceTime != 0 {
         let t: Int32 = cg.time - cg.voiceTime
         if t > 2500 {
-            // Port-note: The draft of this statement did not compile, and the compiler wrote "cannot find 'Menus_CloseByName' in scope".
-            // Raven wrote: Menus_CloseByName("voiceMenu")
-            portMissing("CG_DrawTimedMenus", source: "oracle/codemp/cgame/cg_draw.c:7073")
+            Menus_CloseByName("voiceMenu")
             trap_Cvar_Set("cl_conXOffset", "0")
             cg.voiceTime = 0
         }
@@ -6559,19 +6424,13 @@ func CG_DrawJetpackFuel() {
     cColor[3] = 0.1
 
     //draw the background (black)
-    // Port-note: The draft of this statement did not compile, and the compiler wrote "cannot convert value of type 'vec4_t' (aka 'SIMD4<Float>') to expected argument type 'Float'".
-    // Raven wrote: CG_DrawRect(x, y, JPFUELBAR_W, JPFUELBAR_H, 1.0f, colorTable[CT_BLACK])
-    portMissing("CG_DrawJetpackFuel", source: "oracle/codemp/cgame/cg_draw.c:7150")
+    CG_DrawRect(x, y, JPFUELBAR_W, JPFUELBAR_H, 1.0, colorTable[CT_BLACK])
 
     //now draw the part to show how much health there is in the color specified
-    // Port-note: The draft of this statement did not compile, and the compiler wrote "cannot convert value of type 'vec4_t' (aka 'SIMD4<Float>') to expected argument type 'Float'".
-    // Raven wrote: CG_FillRect(x+1.0f, y+1.0f+(JPFUELBAR_H-percent), JPFUELBAR_W-1.0f, JPFUELBAR_H-1.0f-(JPFUELBAR_H-percent), aColor)
-    portMissing("CG_DrawJetpackFuel", source: "oracle/codemp/cgame/cg_draw.c:7150")
+    CG_FillRect(x + 1.0, y + 1.0 + (JPFUELBAR_H - percent), JPFUELBAR_W - 1.0, JPFUELBAR_H - 1.0 - (JPFUELBAR_H - percent), aColor)
 
     //then draw the other part greyed out
-    // Port-note: The draft of this statement did not compile, and the compiler wrote "cannot convert value of type 'vec4_t' (aka 'SIMD4<Float>') to expected argument type 'Float'".
-    // Raven wrote: CG_FillRect(x+1.0f, y+1.0f, JPFUELBAR_W-1.0f, JPFUELBAR_H-percent, cColor)
-    portMissing("CG_DrawJetpackFuel", source: "oracle/codemp/cgame/cg_draw.c:7150")
+    CG_FillRect(x + 1.0, y + 1.0, JPFUELBAR_W - 1.0, JPFUELBAR_H - percent, cColor)
 }
 
 /// Source: oracle/codemp/cgame/cg_draw.c:7202
@@ -6619,19 +6478,13 @@ func CG_DrawEWebHealth() {
     cColor[3] = 0.1
 
     //draw the background (black)
-    // Port-note: The draft of this statement did not compile, and the compiler wrote "cannot convert value of type 'vec4_t' (aka 'SIMD4<Float>') to expected argument type 'Float'".
-    // Raven wrote: CG_DrawRect(x, y, EWEBHEALTH_W, EWEBHEALTH_H, 1.0f, colorTable[CT_BLACK])
-    portMissing("CG_DrawEWebHealth", source: "oracle/codemp/cgame/cg_draw.c:7202")
+    CG_DrawRect(x, y, EWEBHEALTH_W, EWEBHEALTH_H, 1.0, colorTable[CT_BLACK])
 
     //now draw the part to show how much health there is in the color specified
-    // Port-note: The draft of this statement did not compile, and the compiler wrote "cannot convert value of type 'vec4_t' (aka 'SIMD4<Float>') to expected argument type 'Float'".
-    // Raven wrote: CG_FillRect(x+1.0f, y+1.0f+(EWEBHEALTH_H-percent), EWEBHEALTH_W-1.0f, EWEBHEALTH_H-1.0f-(EWEBHEALTH_H-percent), aColor)
-    portMissing("CG_DrawEWebHealth", source: "oracle/codemp/cgame/cg_draw.c:7202")
+    CG_FillRect(x + 1.0, y + 1.0 + (EWEBHEALTH_H - percent), EWEBHEALTH_W - 1.0, EWEBHEALTH_H - 1.0 - (EWEBHEALTH_H - percent), aColor)
 
     //then draw the other part greyed out
-    // Port-note: The draft of this statement did not compile, and the compiler wrote "cannot convert value of type 'vec4_t' (aka 'SIMD4<Float>') to expected argument type 'Float'".
-    // Raven wrote: CG_FillRect(x+1.0f, y+1.0f, EWEBHEALTH_W-1.0f, EWEBHEALTH_H-percent, cColor)
-    portMissing("CG_DrawEWebHealth", source: "oracle/codemp/cgame/cg_draw.c:7202")
+    CG_FillRect(x + 1.0, y + 1.0, EWEBHEALTH_W - 1.0, EWEBHEALTH_H - percent, cColor)
 }
 
 /// Source: oracle/codemp/cgame/cg_draw.c:7265
@@ -6675,19 +6528,13 @@ func CG_DrawCloakFuel() {
     cColor[3] = 0.1
 
     //draw the background (black)
-    // Port-note: The draft of this statement did not compile, and the compiler wrote "cannot convert value of type 'vec4_t' (aka 'SIMD4<Float>') to expected argument type 'Float'".
-    // Raven wrote: CG_DrawRect(x, y, CLFUELBAR_W, CLFUELBAR_H, 1.0f, colorTable[CT_BLACK])
-    portMissing("CG_DrawCloakFuel", source: "oracle/codemp/cgame/cg_draw.c:7265")
+    CG_DrawRect(x, y, CLFUELBAR_W, CLFUELBAR_H, 1.0, colorTable[CT_BLACK])
 
     //now draw the part to show how much fuel there is in the color specified
-    // Port-note: The draft of this statement did not compile, and the compiler wrote "cannot convert value of type 'vec4_t' (aka 'SIMD4<Float>') to expected argument type 'Float'".
-    // Raven wrote: CG_FillRect(x+1.0f, y+1.0f+(CLFUELBAR_H-percent), CLFUELBAR_W-1.0f, CLFUELBAR_H-1.0f-(CLFUELBAR_H-percent), aColor)
-    portMissing("CG_DrawCloakFuel", source: "oracle/codemp/cgame/cg_draw.c:7265")
+    CG_FillRect(x + 1.0, y + 1.0 + (CLFUELBAR_H - percent), CLFUELBAR_W - 1.0, CLFUELBAR_H - 1.0 - (CLFUELBAR_H - percent), aColor)
 
     //then draw the other part greyed out
-    // Port-note: The draft of this statement did not compile, and the compiler wrote "cannot convert value of type 'vec4_t' (aka 'SIMD4<Float>') to expected argument type 'Float'".
-    // Raven wrote: CG_FillRect(x+1.0f, y+1.0f, CLFUELBAR_W-1.0f, CLFUELBAR_H-percent, cColor)
-    portMissing("CG_DrawCloakFuel", source: "oracle/codemp/cgame/cg_draw.c:7265")
+    CG_FillRect(x + 1.0, y + 1.0, CLFUELBAR_W - 1.0, CLFUELBAR_H - percent, cColor)
 }
 
 /// Source: oracle/codemp/cgame/cg_draw.c:7356
@@ -6703,16 +6550,12 @@ private func CG_DrawSiegeTimer(_ timeRemaining: Int32, _ isMyTeam: Bool) {
     var menuHUD: MenuDef? = nil
     var item: ItemDef? = nil
 
-    // Port-note: The draft of this statement did not compile, and the compiler wrote "cannot find 'Menus_FindByName' in scope".
-    // Raven wrote: menuHUD = Menus_FindByName("mp_timer")
-    portMissing("CG_DrawSiegeTimer", source: "oracle/codemp/cgame/cg_draw.c:7356")
+    menuHUD = Menus_FindByName("mp_timer")
     if menuHUD == nil {
         return
     }
 
-    // Port-note: The draft of this statement did not compile, and the compiler wrote "cannot find 'Menu_FindItemByName' in scope".
-    // Raven wrote: item = Menu_FindItemByName(menuHUD, "frame")
-    portMissing("CG_DrawSiegeTimer", source: "oracle/codemp/cgame/cg_draw.c:7356")
+    item = Menu_FindItemByName(menuHUD!, "frame")
 
     if item != nil {
         trap_R_SetColor(vec4_t(item!.window.foreColor[0], item!.window.foreColor[1], item!.window.foreColor[2], item!.window.foreColor[3]))
@@ -6739,9 +6582,7 @@ private func CG_DrawSiegeTimer(_ timeRemaining: Int32, _ isMyTeam: Bool) {
     //	UI_DrawProportionalString( x+16, y+40, timeStr,
     //		UI_SMALLFONT|UI_DROPSHADOW, colorTable[fColor] );
 
-    // Port-note: The draft of this statement did not compile, and the compiler wrote "cannot find 'Menu_FindItemByName' in scope".
-    // Raven wrote: item = Menu_FindItemByName(menuHUD, "timer")
-    portMissing("CG_DrawSiegeTimer", source: "oracle/codemp/cgame/cg_draw.c:7356")
+    item = Menu_FindItemByName(menuHUD!, "timer")
     if item != nil {
         UI_DrawProportionalString(Int32(item!.window.rect.x), Int32(item!.window.rect.y), String(timeStr), UI_SMALLFONT | UI_DROPSHADOW, colorTable[fColor])
     }
@@ -6755,16 +6596,12 @@ private func CG_DrawSiegeDeathTimer(_ timeRemaining: Int32) {
     var menuHUD: MenuDef? = nil
     var item: ItemDef? = nil
 
-    // Port-note: The draft of this statement did not compile, and the compiler wrote "cannot find 'Menus_FindByName' in scope".
-    // Raven wrote: menuHUD = Menus_FindByName("mp_timer")
-    portMissing("CG_DrawSiegeDeathTimer", source: "oracle/codemp/cgame/cg_draw.c:7424")
+    menuHUD = Menus_FindByName("mp_timer")
     if menuHUD == nil {
         return
     }
 
-    // Port-note: The draft of this statement did not compile, and the compiler wrote "cannot find 'Menu_FindItemByName' in scope".
-    // Raven wrote: item = Menu_FindItemByName(menuHUD, "frame")
-    portMissing("CG_DrawSiegeDeathTimer", source: "oracle/codemp/cgame/cg_draw.c:7424")
+    item = Menu_FindItemByName(menuHUD!, "frame")
 
     if item != nil {
         trap_R_SetColor(vec4_t(item!.window.foreColor[0], item!.window.foreColor[1], item!.window.foreColor[2], item!.window.foreColor[3]))
@@ -6784,9 +6621,7 @@ private func CG_DrawSiegeDeathTimer(_ timeRemaining: Int32) {
         strcpy(&timeStr, va("%i:%i", minutes, seconds))
     }
 
-    // Port-note: The draft of this statement did not compile, and the compiler wrote "cannot find 'Menu_FindItemByName' in scope".
-    // Raven wrote: item = Menu_FindItemByName(menuHUD, "deathtimer")
-    portMissing("CG_DrawSiegeDeathTimer", source: "oracle/codemp/cgame/cg_draw.c:7424")
+    item = Menu_FindItemByName(menuHUD!, "deathtimer")
     if item != nil {
         UI_DrawProportionalString(Int32(item!.window.rect.x), Int32(item!.window.rect.y), String(timeStr), UI_SMALLFONT | UI_DROPSHADOW, vec4_t(item!.window.foreColor[0], item!.window.foreColor[1], item!.window.foreColor[2], item!.window.foreColor[3]))
     }
@@ -6926,14 +6761,16 @@ func CG_ChatBox_AddString(_ chatStr: inout JKAShared.CharBuf) {
 //insert item into array (rearranging the array if necessary)
 /// Source: oracle/codemp/cgame/cg_draw.c:7627
 func CG_ChatBox_ArrayInsert(_ array: inout [ChatBoxItem?], _ insPoint: Int32, _ maxNum: Int32, _ item: ChatBoxItem) {
-    // Port-note: The draft of this statement did not compile, and the compiler wrote "value of type 'ChatBoxItem?' has no subscripts".
-    // Raven wrote: if (array[insPoint]) { //recursively call, to move everything up to the top if (insPoint+1 >= maxNum) { CG_Error("CG_ChatBox_ArrayInsert: Exceeded array size"); } CG_ChatBox_ArrayInsert(array, insPoint+1, maxNum, array[insPoint]); }
-    portMissing("CG_ChatBox_ArrayInsert", source: "oracle/codemp/cgame/cg_draw.c:7627")
+    if array[insPoint] != nil {
+        //recursively call, to move everything up to the top
+        if insPoint + 1 >= maxNum {
+            CG_Error("CG_ChatBox_ArrayInsert: Exceeded array size")
+        }
+        CG_ChatBox_ArrayInsert(&array, insPoint + 1, maxNum, array[insPoint]!)
+    }
 
     //now that we have moved anything that would be in this slot up, insert what we want into the slot
-    // Port-note: The draft of this statement did not compile, and the compiler wrote "value of type 'ChatBoxItem?' has no subscripts".
-    // Raven wrote: array[insPoint] = item
-    portMissing("CG_ChatBox_ArrayInsert", source: "oracle/codemp/cgame/cg_draw.c:7627")
+    array[insPoint] = item
 }
 
 //go through all the chat strings and draw them if they are not yet expired
@@ -6968,9 +6805,7 @@ private func CG_ChatBox_DrawStrings() {
                 }
                 check -= 1
             }
-            // Port-note: A read of `drawThese`, a local the draft left as a hole.
-            // Raven wrote: CG_ChatBox_ArrayInsert(drawThese, insertionPoint, MAX_CHATBOX_ITEMS, &cg.chatItems[i])
-            portMissing("CG_ChatBox_DrawStrings", source: "oracle/codemp/cgame/cg_draw.c:7643")
+            CG_ChatBox_ArrayInsert(&drawThese, insertionPoint, MAX_CHATBOX_ITEMS, cg.chatItems[i])
             numToDraw += 1
             linesToDraw += cg.chatItems[i].lines
         }
@@ -7027,9 +6862,7 @@ private func CG_Draw2DScreenTints() {
             hcolor[2] = 0
 
             if !cg.renderingThirdPerson {
-                // Port-note: The draft of this statement did not compile, and the compiler wrote "cannot convert value of type 'vec4_t' (aka 'SIMD4<Float>') to expected argument type 'Float'".
-                // Raven wrote: CG_DrawRect(0, 0, SCREEN_WIDTH, SCREEN_HEIGHT, SCREEN_WIDTH*SCREEN_HEIGHT, hcolor)
-                portMissing("CG_Draw2DScreenTints", source: "oracle/codemp/cgame/cg_draw.c:7701")
+                CG_DrawRect(0, 0, Float(SCREEN_WIDTH), Float(SCREEN_HEIGHT), Float(SCREEN_WIDTH * SCREEN_HEIGHT), hcolor)
             }
 
             cgRageFadeTime = 0
@@ -7073,18 +6906,14 @@ private func CG_Draw2DScreenTints() {
             }
 
             if !cg.renderingThirdPerson && rageTime != 0 {
-                // Port-note: The draft of this statement did not compile, and the compiler wrote "cannot convert value of type 'vec4_t' (aka 'SIMD4<Float>') to expected argument type 'Float'".
-                // Raven wrote: CG_DrawRect(0, 0, SCREEN_WIDTH, SCREEN_HEIGHT, SCREEN_WIDTH*SCREEN_HEIGHT, hcolor)
-                portMissing("CG_Draw2DScreenTints", source: "oracle/codemp/cgame/cg_draw.c:7701")
+                CG_DrawRect(0, 0, Float(SCREEN_WIDTH), Float(SCREEN_HEIGHT), Float(SCREEN_WIDTH * SCREEN_HEIGHT), hcolor)
             } else {
                 if cg.snap!.ps.fd.forceRageRecoveryTime > cg.time {
                     hcolor[3] = 0.15
                     hcolor[0] = 0.2
                     hcolor[1] = 0.2
                     hcolor[2] = 0.2
-                    // Port-note: The draft of this statement did not compile, and the compiler wrote "cannot convert value of type 'vec4_t' (aka 'SIMD4<Float>') to expected argument type 'Float'".
-                    // Raven wrote: CG_DrawRect(0, 0, SCREEN_WIDTH, SCREEN_HEIGHT, SCREEN_WIDTH*SCREEN_HEIGHT, hcolor)
-                    portMissing("CG_Draw2DScreenTints", source: "oracle/codemp/cgame/cg_draw.c:7701")
+                    CG_DrawRect(0, 0, Float(SCREEN_WIDTH), Float(SCREEN_HEIGHT), Float(SCREEN_WIDTH * SCREEN_HEIGHT), hcolor)
                 }
                 cgRageTime = 0
             }
@@ -7110,9 +6939,7 @@ private func CG_Draw2DScreenTints() {
             hcolor[2] = 0.2
 
             if !cg.renderingThirdPerson {
-                // Port-note: The draft of this statement did not compile, and the compiler wrote "cannot convert value of type 'vec4_t' (aka 'SIMD4<Float>') to expected argument type 'Float'".
-                // Raven wrote: CG_DrawRect(0, 0, SCREEN_WIDTH, SCREEN_HEIGHT, SCREEN_WIDTH*SCREEN_HEIGHT, hcolor)
-                portMissing("CG_Draw2DScreenTints", source: "oracle/codemp/cgame/cg_draw.c:7701")
+                CG_DrawRect(0, 0, Float(SCREEN_WIDTH), Float(SCREEN_HEIGHT), Float(SCREEN_WIDTH * SCREEN_HEIGHT), hcolor)
             }
 
             cgRageRecFadeTime = 0
@@ -7140,9 +6967,7 @@ private func CG_Draw2DScreenTints() {
             hcolor[2] = 0.2
 
             if !cg.renderingThirdPerson && rageRecTime != 0 {
-                // Port-note: The draft of this statement did not compile, and the compiler wrote "cannot convert value of type 'vec4_t' (aka 'SIMD4<Float>') to expected argument type 'Float'".
-                // Raven wrote: CG_DrawRect(0, 0, SCREEN_WIDTH, SCREEN_HEIGHT, SCREEN_WIDTH*SCREEN_HEIGHT, hcolor)
-                portMissing("CG_Draw2DScreenTints", source: "oracle/codemp/cgame/cg_draw.c:7701")
+                CG_DrawRect(0, 0, Float(SCREEN_WIDTH), Float(SCREEN_HEIGHT), Float(SCREEN_WIDTH * SCREEN_HEIGHT), hcolor)
             } else {
                 cgRageRecTime = 0
             }
@@ -7170,9 +6995,7 @@ private func CG_Draw2DScreenTints() {
             hcolor[2] = 0.7
 
             if !cg.renderingThirdPerson {
-                // Port-note: The draft of this statement did not compile, and the compiler wrote "cannot convert value of type 'vec4_t' (aka 'SIMD4<Float>') to expected argument type 'Float'".
-                // Raven wrote: CG_DrawRect(0, 0, SCREEN_WIDTH, SCREEN_HEIGHT, SCREEN_WIDTH*SCREEN_HEIGHT, hcolor)
-                portMissing("CG_Draw2DScreenTints", source: "oracle/codemp/cgame/cg_draw.c:7701")
+                CG_DrawRect(0, 0, Float(SCREEN_WIDTH), Float(SCREEN_HEIGHT), Float(SCREEN_WIDTH * SCREEN_HEIGHT), hcolor)
             }
 
             cgAbsorbFadeTime = 0
@@ -7200,9 +7023,7 @@ private func CG_Draw2DScreenTints() {
             hcolor[2] = 0.7
 
             if !cg.renderingThirdPerson && absorbTime != 0 {
-                // Port-note: The draft of this statement did not compile, and the compiler wrote "cannot convert value of type 'vec4_t' (aka 'SIMD4<Float>') to expected argument type 'Float'".
-                // Raven wrote: CG_DrawRect(0, 0, SCREEN_WIDTH, SCREEN_HEIGHT, SCREEN_WIDTH*SCREEN_HEIGHT, hcolor)
-                portMissing("CG_Draw2DScreenTints", source: "oracle/codemp/cgame/cg_draw.c:7701")
+                CG_DrawRect(0, 0, Float(SCREEN_WIDTH), Float(SCREEN_HEIGHT), Float(SCREEN_WIDTH * SCREEN_HEIGHT), hcolor)
             } else {
                 cgAbsorbTime = 0
             }
@@ -7230,9 +7051,7 @@ private func CG_Draw2DScreenTints() {
             hcolor[2] = 0
 
             if !cg.renderingThirdPerson {
-                // Port-note: The draft of this statement did not compile, and the compiler wrote "cannot convert value of type 'vec4_t' (aka 'SIMD4<Float>') to expected argument type 'Float'".
-                // Raven wrote: CG_DrawRect(0, 0, SCREEN_WIDTH, SCREEN_HEIGHT, SCREEN_WIDTH*SCREEN_HEIGHT, hcolor)
-                portMissing("CG_Draw2DScreenTints", source: "oracle/codemp/cgame/cg_draw.c:7701")
+                CG_DrawRect(0, 0, Float(SCREEN_WIDTH), Float(SCREEN_HEIGHT), Float(SCREEN_WIDTH * SCREEN_HEIGHT), hcolor)
             }
 
             cgProtectFadeTime = 0
@@ -7260,9 +7079,7 @@ private func CG_Draw2DScreenTints() {
             hcolor[2] = 0
 
             if !cg.renderingThirdPerson && protectTime != 0 {
-                // Port-note: The draft of this statement did not compile, and the compiler wrote "cannot convert value of type 'vec4_t' (aka 'SIMD4<Float>') to expected argument type 'Float'".
-                // Raven wrote: CG_DrawRect(0, 0, SCREEN_WIDTH, SCREEN_HEIGHT, SCREEN_WIDTH*SCREEN_HEIGHT, hcolor)
-                portMissing("CG_Draw2DScreenTints", source: "oracle/codemp/cgame/cg_draw.c:7701")
+                CG_DrawRect(0, 0, Float(SCREEN_WIDTH), Float(SCREEN_HEIGHT), Float(SCREEN_WIDTH * SCREEN_HEIGHT), hcolor)
             } else {
                 cgProtectTime = 0
             }
@@ -7294,9 +7111,7 @@ private func CG_Draw2DScreenTints() {
             hcolor[2] = 0
 
             if !cg.renderingThirdPerson {
-                // Port-note: The draft of this statement did not compile, and the compiler wrote "cannot convert value of type 'vec4_t' (aka 'SIMD4<Float>') to expected argument type 'Float'".
-                // Raven wrote: CG_DrawRect(0, 0, SCREEN_WIDTH, SCREEN_HEIGHT, SCREEN_WIDTH*SCREEN_HEIGHT, hcolor)
-                portMissing("CG_Draw2DScreenTints", source: "oracle/codemp/cgame/cg_draw.c:7701")
+                CG_DrawRect(0, 0, Float(SCREEN_WIDTH), Float(SCREEN_HEIGHT), Float(SCREEN_WIDTH * SCREEN_HEIGHT), hcolor)
             }
 
             cgYsalFadeTime = 0
@@ -7324,9 +7139,7 @@ private func CG_Draw2DScreenTints() {
             hcolor[2] = 0
 
             if !cg.renderingThirdPerson && ysalTime != 0 {
-                // Port-note: The draft of this statement did not compile, and the compiler wrote "cannot convert value of type 'vec4_t' (aka 'SIMD4<Float>') to expected argument type 'Float'".
-                // Raven wrote: CG_DrawRect(0, 0, SCREEN_WIDTH, SCREEN_HEIGHT, SCREEN_WIDTH*SCREEN_HEIGHT, hcolor)
-                portMissing("CG_Draw2DScreenTints", source: "oracle/codemp/cgame/cg_draw.c:7701")
+                CG_DrawRect(0, 0, Float(SCREEN_WIDTH), Float(SCREEN_HEIGHT), Float(SCREEN_WIDTH * SCREEN_HEIGHT), hcolor)
             } else {
                 cgYsalTime = 0
             }
@@ -7341,9 +7154,7 @@ private func CG_Draw2DScreenTints() {
         hcolor[1] = 0
         hcolor[2] = 0
 
-        // Port-note: The draft of this statement did not compile, and the compiler wrote "cannot convert value of type 'vec4_t' (aka 'SIMD4<Float>') to expected argument type 'Float'".
-        // Raven wrote: CG_DrawRect( 0, 0, SCREEN_WIDTH, SCREEN_HEIGHT, SCREEN_WIDTH*SCREEN_HEIGHT, hcolor )
-        portMissing("CG_Draw2DScreenTints", source: "oracle/codemp/cgame/cg_draw.c:7701")
+        CG_DrawRect(0, 0, Float(SCREEN_WIDTH), Float(SCREEN_HEIGHT), Float(SCREEN_WIDTH * SCREEN_HEIGHT), hcolor)
     } else if (cg.refdef.viewContents & CONTENTS_SLIME) != 0 {
         //tint screen green
         let phase: Float = Float(Double(cg.time) / 1000.0 * WAVE_FREQUENCY * M_PI * 2)
@@ -7352,9 +7163,7 @@ private func CG_Draw2DScreenTints() {
         hcolor[1] = 0.7
         hcolor[2] = 0
 
-        // Port-note: The draft of this statement did not compile, and the compiler wrote "cannot convert value of type 'vec4_t' (aka 'SIMD4<Float>') to expected argument type 'Float'".
-        // Raven wrote: CG_DrawRect( 0, 0, SCREEN_WIDTH, SCREEN_HEIGHT, SCREEN_WIDTH*SCREEN_HEIGHT, hcolor )
-        portMissing("CG_Draw2DScreenTints", source: "oracle/codemp/cgame/cg_draw.c:7701")
+        CG_DrawRect(0, 0, Float(SCREEN_WIDTH), Float(SCREEN_HEIGHT), Float(SCREEN_WIDTH * SCREEN_HEIGHT), hcolor)
     } else if (cg.refdef.viewContents & CONTENTS_WATER) != 0 {
         //tint screen light blue -- FIXME: don't do this if CONTENTS_FOG? (in case someone *does* make a water shader with fog in it?)
         let phase: Float = Float(Double(cg.time) / 1000.0 * WAVE_FREQUENCY * M_PI * 2)
@@ -7363,9 +7172,7 @@ private func CG_Draw2DScreenTints() {
         hcolor[1] = 0.2
         hcolor[2] = 0.8
 
-        // Port-note: The draft of this statement did not compile, and the compiler wrote "cannot convert value of type 'vec4_t' (aka 'SIMD4<Float>') to expected argument type 'Float'".
-        // Raven wrote: CG_DrawRect( 0, 0, SCREEN_WIDTH, SCREEN_HEIGHT, SCREEN_WIDTH*SCREEN_HEIGHT, hcolor )
-        portMissing("CG_Draw2DScreenTints", source: "oracle/codemp/cgame/cg_draw.c:7701")
+        CG_DrawRect(0, 0, Float(SCREEN_WIDTH), Float(SCREEN_HEIGHT), Float(SCREEN_WIDTH * SCREEN_HEIGHT), hcolor)
     }
 }
 
@@ -7462,9 +7269,7 @@ private func CG_Draw2D() {
         if !cg.showScores && cg.snap!.ps.stats[STAT_HEALTH] > 0 {
             if 0 != 0 {
                 //Reenable if stats are drawn with menu system again
-                // Port-note: The draft of this statement did not compile, and the compiler wrote "cannot find 'Menu_PaintAll' in scope".
-                // Raven wrote: Menu_PaintAll()
-                portMissing("CG_Draw2D", source: "oracle/codemp/cgame/cg_draw.c:8118")
+                Menu_PaintAll()
                 CG_DrawTimedMenus()
             }
 
@@ -7528,9 +7333,9 @@ private func CG_Draw2D() {
 
         fallTime = Float((cg.time - cg.snap!.ps.fallingToDeath))
 
-        // Port-note: The draft of this statement did not compile, and the compiler wrote "ambiguous use of operator '/'".
-        // Raven wrote: fallTime /= (FALL_FADE_TIME/2)
-        portMissing("CG_Draw2D", source: "oracle/codemp/cgame/cg_draw.c:8118")
+        // Raven's one expression is two terms here, because the compiler finds two readings of the integer divide.
+        let fadeHalf: Int32 = FALL_FADE_TIME / 2
+        fallTime /= fadeHalf
 
         if fallTime < 0 {
             fallTime = 0
@@ -7544,9 +7349,7 @@ private func CG_Draw2D() {
         hcolor[1] = 0
         hcolor[2] = 0
 
-        // Port-note: The draft of this statement did not compile, and the compiler wrote "cannot convert value of type 'vec4_t' (aka 'SIMD4<Float>') to expected argument type 'Float'".
-        // Raven wrote: CG_DrawRect(0, 0, SCREEN_WIDTH, SCREEN_HEIGHT, SCREEN_WIDTH*SCREEN_HEIGHT, hcolor)
-        portMissing("CG_Draw2D", source: "oracle/codemp/cgame/cg_draw.c:8118")
+        CG_DrawRect(0, 0, Float(SCREEN_WIDTH), Float(SCREEN_HEIGHT), Float(SCREEN_WIDTH * SCREEN_HEIGHT), hcolor)
 
         if !gCGHasFallVector {
             gCGFallVector = cg.snap!.ps.origin
