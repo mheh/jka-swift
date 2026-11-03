@@ -11,6 +11,7 @@ import clang.cindex as ci
 from clang.cindex import CursorKind, TypeKind
 
 from spelling import INT_KINDS
+from reexport import SCALARS
 
 from skeleton import BG, LOGIC, VIEWS, target_of
 from table import Param, swift_name
@@ -405,7 +406,7 @@ class Calls:
                 and inner.referenced.type.get_canonical().kind == TypeKind.CONSTANTARRAY \
                 and inner.referenced.type.get_canonical().element_type.kind != TypeKind.RECORD \
                 and param[1].replace("JKAShared.", "").removesuffix("?").removeprefix("Slots<").removesuffix(">") \
-                == inner.referenced.type.element_type.spelling:
+                in (inner.referenced.type.element_type.spelling, SCALARS.get(inner.referenced.type.element_type.get_canonical().kind)):
             # The scalar array field of a view reads as its Slots, `cgs.gameModels`, and the callee takes the Slots of that scalar.
             return text
         if param is not None and self.types.is_slots(param[1]):
