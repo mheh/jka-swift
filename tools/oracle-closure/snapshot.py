@@ -7,12 +7,13 @@ One run parses once and drafts every stem in the same process, so a snapshot cos
 `--check` writes a new snapshot to a temporary folder and compares it with the given folder by `diff -r`.
 `--unit` takes the snapshot of another unit. The bg channel is the run of the `[sweep]` unit, so the snapshot of another unit holds no channel text.
 A host has no trap file, so its snapshot holds no trap text.
-The snapshot folder belongs to the caller and stays outside version control.
+The snapshot folders belong to the caller and stay outside version control, one folder per unit under the cache root `~/.cache/jka-swift`.
 
 Usage:
   .venv/bin/python snapshot.py --out ~/.cache/jka-swift/snapshot-stage-two-shared
   .venv/bin/python snapshot.py --check ~/.cache/jka-swift/snapshot-stage-two-shared
-  .venv/bin/python snapshot.py --unit mp-cgame --out ~/.cache/jka-swift/snapshot-cgame
+  .venv/bin/python snapshot.py --unit mp-cgame --out ~/.cache/jka-swift/snapshot-mp-cgame
+  .venv/bin/python snapshot.py --unit mp-engine-ded --out ~/.cache/jka-swift/snapshot-mp-engine-ded
 """
 
 from __future__ import annotations
