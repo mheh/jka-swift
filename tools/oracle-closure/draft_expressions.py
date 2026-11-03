@@ -599,6 +599,9 @@ class Expressions:
                 if raw is not None:
                     # Raven's `*(char **)(b+ofs)` reads the slot at that byte offset, the same subscript his store writes.
                     return self.raw_slot(raw)
+                if self.string_field(inner):
+                    # Raven's `*token.string` on a view's `char name[N]` field is its first byte, which the field's Buffer accessor reads.
+                    return self.leaf(cur, f"{self.buffer_expr(inner)}[0]")
                 if inner.kind == CursorKind.DECL_REF_EXPR and inner.spelling in self.text_locals:
                     # Raven's `*textPtr` reads the first byte of the text, which the CharBuf of the text reads.
                     bang = "!" if inner.spelling in self.optional_texts else ""
