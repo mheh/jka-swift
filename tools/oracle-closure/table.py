@@ -1490,6 +1490,7 @@ class Table:
         stepped: set[str] = set()
         parameter_walks: dict[str, tuple[str, str]] = {}
         slot_walks: dict[str, tuple[str, str]] = {}
+        scalar_walks: dict[str, tuple[str, str]] = {}
         other_stores: set[str] = set()
         for cur in fn.walk_preorder():
             kids = list(cur.get_children())
@@ -1517,6 +1518,14 @@ class Table:
                     parameter_walks[left.spelling] = (slot, f"{swift_name(left.spelling)}Index")
                 continue
             if left.kind != CursorKind.DECL_REF_EXPR or left.referenced is None or left.referenced.kind != CursorKind.VAR_DECL:
+                continue
+            if self.scalar_pointer(left.referenced.type) and left.referenced.semantic_parent is not None \
+                    and left.referenced.semantic_parent.kind != CursorKind.TRANSLATION_UNIT:
+                slot = self.table_slot(right, data, scalar=True)
+                if slot is not None and scalar_walks.get(left.spelling, (slot,))[0] == slot:
+                    scalar_walks[left.spelling] = (slot, f"{swift_name(left.spelling)}Index")
+                else:
+                    other_stores.add(left.spelling)
                 continue
             if self.record_pointer(left.referenced.type) and left.referenced.semantic_parent is not None \
                     and left.referenced.semantic_parent.kind != CursorKind.TRANSLATION_UNIT:
@@ -1550,10 +1559,27 @@ class Table:
         # Every store into it must point into the one table, and no statement takes its address.
         # A local the body never steps only names one record.
         out |= {name: walk for name, walk in slot_walks.items() if name in stepped and name not in addressed and name not in other_stores and name not in out}
+        # A float pointer local that every store points into one file-scope float array, `radius = &Radius[n]`, has no view to name,
+        # so it is an index into that array whether or not the body steps it.
+        out |= {name: walk for name, walk in scalar_walks.items() if name not in addressed and name not in other_stores and name not in out}
         return out, written, addressed
 
-    def table_slot(self, cur: ci.Cursor, data: bytes) -> str | None:
-        """The Swift name of the file-scope table of records that Raven's `g_entities`, `g_entities + n`, or `&g_entities[n]` points into, or None."""
+    @staticmethod
+    def scalar_pointer(t: ci.Type) -> bool:
+        """True for Raven's `float *`."""
+        canonical = t.get_canonical()
+        return canonical.kind == TypeKind.POINTER and canonical.get_pointee().get_canonical().kind == TypeKind.FLOAT
+
+    @staticmethod
+    def scalar_table(ref: ci.Cursor) -> bool:
+        """True for a file-scope array of floats, `static float Radius[MAX_MISC_ENTS]`, the table a float pointer walk steps over."""
+        return ref.kind == CursorKind.VAR_DECL and ref.type.get_canonical().kind == TypeKind.CONSTANTARRAY \
+            and ref.type.get_canonical().element_type.get_canonical().kind == TypeKind.FLOAT \
+            and ref.semantic_parent is not None and ref.semantic_parent.kind == CursorKind.TRANSLATION_UNIT
+
+    def table_slot(self, cur: ci.Cursor, data: bytes, scalar: bool = False) -> str | None:
+        """The Swift name of the file-scope table of records that Raven's `g_entities`, `g_entities + n`, or `&g_entities[n]` points into, or None.
+        `scalar` asks the same of a file-scope array of floats."""
         cur = self.unwrapped(cur)
         if cur.kind == CursorKind.BINARY_OPERATOR and len(list(cur.get_children())) == 2 and not collapsed(cur) \
                 and between(data, *list(cur.get_children())) in ("+", "-"):
@@ -1563,7 +1589,8 @@ class Table:
             if slot.kind != CursorKind.ARRAY_SUBSCRIPT_EXPR:
                 return None
             cur = self.unwrapped(list(slot.get_children())[0])
-        if cur.kind == CursorKind.DECL_REF_EXPR and cur.referenced is not None and self.record_table(cur.referenced):
+        if cur.kind == CursorKind.DECL_REF_EXPR and cur.referenced is not None \
+                and (self.scalar_table(cur.referenced) if scalar else self.record_table(cur.referenced)):
             return swift_name(cur.spelling)
         return None
 

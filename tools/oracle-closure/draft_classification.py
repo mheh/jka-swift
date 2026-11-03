@@ -182,6 +182,9 @@ class Classification:
         if inner.kind != CursorKind.DECL_REF_EXPR:
             return None
         name = inner.spelling
+        if step is None and name in self.table_cursors and self.sk.table.scalar_pointer(inner.type):
+            # A float pointer walk is an index into its array, so Raven's `*radius` is the array's float at that index.
+            return self.expr(inner)
         if name in self.offset_cursors:
             index = self.expr(inner) if step is None else f"{self.expr(inner)} {op} {step}"
             return f"{self.cursor_buffer(name)}[{index}]"

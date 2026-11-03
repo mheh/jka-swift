@@ -775,9 +775,12 @@ class Statements:
                 if op == "=" and self.unwrap(left).kind == CursorKind.UNARY_OPERATOR \
                         and self.operator_or_none_unary(self.unwrap(left)) == "*":
                     # A byte store through a cursor takes the value as an Int32, which the CharBuf setter narrows.
-                    slot = self.cursor_deref(self.unary_parts(self.unwrap(left))[2])
+                    pointer = self.unwrap(self.unary_parts(self.unwrap(left))[2])
+                    slot = self.cursor_deref(pointer)
                     if slot is not None:
-                        return [f"{pad}{slot} = {self.converted(right, 'Int32')}" + self.trailing(cur)]
+                        # A float pointer walk stores a float into its array.
+                        scalar = pointer.kind == CursorKind.DECL_REF_EXPR and pointer.spelling in self.table_cursors
+                        return [f"{pad}{slot} = {self.converted(right, 'Float' if scalar else 'Int32')}" + self.trailing(cur)]
                 if op == "=" and self.unwrap(left).kind == CursorKind.DECL_REF_EXPR and self.unwrap(left).spelling in self.text_locals \
                         and (self.is_null(right) or self.field_slot(right) is not None or self.optional_text_call(right)):
                     optional = self.unwrap(left).spelling in self.optional_texts

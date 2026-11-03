@@ -772,7 +772,7 @@ class Expressions:
                 if inner.referenced.semantic_parent.kind == CursorKind.TRANSLATION_UNIT and inner.spelling not in self.sk.table.file_walks:
                     return None
                 return table, index
-            if self.sk.table.record_table(inner.referenced):
+            if self.sk.table.record_table(inner.referenced) or self.sk.table.scalar_table(inner.referenced):
                 return swift_name(inner.spelling), "0"
             return None
         if inner.kind == CursorKind.UNARY_OPERATOR and self.unary_parts(inner)[0] == "&":
@@ -780,7 +780,8 @@ class Expressions:
             if slot.kind == CursorKind.ARRAY_SUBSCRIPT_EXPR:
                 base, index = list(slot.get_children())
                 base = self.unwrap(base)
-                if base.kind == CursorKind.DECL_REF_EXPR and base.referenced is not None and self.sk.table.record_table(base.referenced):
+                if base.kind == CursorKind.DECL_REF_EXPR and base.referenced is not None \
+                        and (self.sk.table.record_table(base.referenced) or self.sk.table.scalar_table(base.referenced)):
                     return swift_name(base.spelling), self.converted(index, "Int32")
             return None
         if inner.kind == CursorKind.BINARY_OPERATOR and not self.collapsed(inner) and self.binary_op(inner) in ("+", "-") \
