@@ -10,15 +10,15 @@ var forceHolocronModels: [String] { world.forceHolocronModels }
 
 /// Source: oracle/codemp/cgame/cg_ents.c:2736
 // Raven wrote: int CG_BMS_START = 0
-let CG_BMS_START: Int32 = { () -> Int32 in portMissing("CG_BMS_START", source: "oracle/codemp/cgame/cg_ents.c:2736") }()
+let CG_BMS_START: Int32 = 0
 
 /// Source: oracle/codemp/cgame/cg_ents.c:2737
 // Raven wrote: int CG_BMS_MID = 1
-let CG_BMS_MID: Int32 = { () -> Int32 in portMissing("CG_BMS_MID", source: "oracle/codemp/cgame/cg_ents.c:2737") }()
+let CG_BMS_MID: Int32 = 1
 
 /// Source: oracle/codemp/cgame/cg_ents.c:2738
 // Raven wrote: int CG_BMS_END = 2
-let CG_BMS_END: Int32 = { () -> Int32 in portMissing("CG_BMS_END", source: "oracle/codemp/cgame/cg_ents.c:2738") }()
+let CG_BMS_END: Int32 = 2
 
 /**
 ```
@@ -48,9 +48,7 @@ func CG_PositionEntityOnTag(_ entity: JKAMP.RefEntity, _ parent: JKAMP.RefEntity
         }
 
         // had to cast away the const to avoid compiler problems...
-        // Port-note: The draft of this statement did not compile, and the compiler wrote "'&' used with non-inout argument of type 'Slots<vec3_t>' (aka 'Slots<SIMD3<Float>>')".
-        // Raven wrote: MatrixMultiply( lerped.axis, ((refEntity_t *)parent)->axis, entity->axis )
-        portMissing("CG_PositionEntityOnTag", source: "oracle/codemp/cgame/cg_ents.c:26")
+        MatrixMultiply(Array(lerped.axis), Array(parent.axis), entity.axis)
         entity.backlerp = parent.backlerp
     }
 }
@@ -85,12 +83,8 @@ func CG_PositionRotatedEntityOnTag(_ entity: JKAMP.RefEntity, _ parent: JKAMP.Re
         }
 
         // had to cast away the const to avoid compiler problems...
-        // Port-note: The draft of this statement did not compile, and the compiler wrote "cannot convert value of type 'Slots<vec3_t>' (aka 'Slots<SIMD3<Float>>') to expected argument type '[vec3_t]' (aka 'Array<SIMD3<Float>>')".
-        // Raven wrote: MatrixMultiply( entity->axis, lerped.axis, tempAxis )
-        portMissing("CG_PositionRotatedEntityOnTag", source: "oracle/codemp/cgame/cg_ents.c:55")
-        // Port-note: The draft of this statement did not compile, and the compiler wrote "'&' used with non-inout argument of type 'Slots<vec3_t>' (aka 'Slots<SIMD3<Float>>')".
-        // Raven wrote: MatrixMultiply( tempAxis, ((refEntity_t *)parent)->axis, entity->axis )
-        portMissing("CG_PositionRotatedEntityOnTag", source: "oracle/codemp/cgame/cg_ents.c:55")
+        MatrixMultiply(Array(entity.axis), Array(lerped.axis), &tempAxis)
+        MatrixMultiply(tempAxis, Array(parent.axis), entity.axis)
     }
 }
 
@@ -344,13 +338,14 @@ func FX_AddOrientedLine(_ start: JKAShared.vec3_t, _ end: JKAShared.vec3_t, _ no
     le!.refEntity.origin = start
     le!.refEntity.oldorigin = end
 
-    // Port-note: The draft of this statement did not compile, and the compiler wrote "'&' used with non-inout argument of type 'Slots<vec3_t>' (aka 'Slots<SIMD3<Float>>')".
-    // Raven wrote: AxisClear(le->refEntity.axis)
-    portMissing("FX_AddOrientedLine", source: "oracle/codemp/cgame/cg_ents.c:329")
+    AxisClear(le!.refEntity.axis)
     le!.refEntity.axis[0] = normal
-    // Port-note: The draft of this statement did not compile, and the compiler wrote "cannot convert value of type 'Slots<vec3_t>' (aka 'Slots<SIMD3<Float>>') to expected argument type '[vec3_t]' (aka 'Array<SIMD3<Float>>')".
-    // Raven wrote: RotateAroundDirection( le->refEntity.axis, 0)
-    portMissing("FX_AddOrientedLine", source: "oracle/codemp/cgame/cg_ents.c:329")
+    // RotateAroundDirection takes an array, and the view holds `axis` as a Slots, so the call fills a copy that stores back.
+    var axisCopy = [le!.refEntity.axis[0], le!.refEntity.axis[1], le!.refEntity.axis[2]]
+    RotateAroundDirection(&axisCopy, 0)
+    le!.refEntity.axis[0] = axisCopy[0]
+    le!.refEntity.axis[1] = axisCopy[1]
+    le!.refEntity.axis[2] = axisCopy[2]
 
     le!.refEntity.shaderRGBA[0] = 0xff
     le!.refEntity.shaderRGBA[1] = 0xff
@@ -703,22 +698,20 @@ private func CG_RenderTimeEntBolt(_ cent: Centity) -> Bool {
 
 /// Source: oracle/codemp/cgame/cg_ents.c:799
 func CG_AddRadarEnt(_ cent: Centity) {
-    // Port-note: A sizeof of `short[48]` the draft cannot size.
-    // Raven wrote: if (cg.radarEntityCount == sizeof(cg.radarEntities)/sizeof(cg.radarEntities[0])) { #ifdef _DEBUG Com_Printf("^3Warning: CG_AddRadarEnt full. (%d max)\n", sizeof(cg.radarEntities)/sizeof(cg.radarEntities[0])); #endif return; }
-    portMissing("CG_AddRadarEnt", source: "oracle/codemp/cgame/cg_ents.c:799")
-    // Port-note: A ++ inside an expression.
-    // Raven wrote: cg.radarEntities[cg.radarEntityCount++] = cent->currentState.number
-    portMissing("CG_AddRadarEnt", source: "oracle/codemp/cgame/cg_ents.c:799")
+    if cg.radarEntityCount == cg.radarEntities.count {
+        return
+    }
+    cg.radarEntities[cg.radarEntityCount] = Int16(truncatingIfNeeded: cent.currentState.number)
+    cg.radarEntityCount += 1
 }
 
 /// Source: oracle/codemp/cgame/cg_ents.c:811
 func CG_AddBracketedEnt(_ cent: Centity) {
-    // Port-note: A sizeof of `short[48]` the draft cannot size.
-    // Raven wrote: if (cg.bracketedEntityCount == sizeof(cg.bracketedEntities)/sizeof(cg.bracketedEntities[0])) { #ifdef _DEBUG Com_Printf("^3Warning: CG_AddBracketedEnt full. (%d max)\n", sizeof(cg.radarEntities)/sizeof(cg.bracketedEntities[0])); #endif return; }
-    portMissing("CG_AddBracketedEnt", source: "oracle/codemp/cgame/cg_ents.c:811")
-    // Port-note: A ++ inside an expression.
-    // Raven wrote: cg.bracketedEntities[cg.bracketedEntityCount++] = cent->currentState.number
-    portMissing("CG_AddBracketedEnt", source: "oracle/codemp/cgame/cg_ents.c:811")
+    if cg.bracketedEntityCount == cg.bracketedEntities.count {
+        return
+    }
+    cg.bracketedEntities[cg.bracketedEntityCount] = Int16(truncatingIfNeeded: cent.currentState.number)
+    cg.bracketedEntityCount += 1
 }
 
 /// Source: oracle/codemp/cgame/cg_ents.c:833
@@ -1253,9 +1246,7 @@ private func CG_General(_ cent: Centity) {
 
                 //Rotate them
                 cent.lerpAngles = cg.autoAngles
-                // Port-note: The draft of this statement did not compile, and the compiler wrote "'&' used with non-inout argument of type 'Slots<vec3_t>' (aka 'Slots<SIMD3<Float>>')".
-                // Raven wrote: AxisCopy( cg.autoAxis, ent.axis )
-                portMissing("CG_General", source: "oracle/codemp/cgame/cg_ents.c:833")
+                AxisCopy(Array(cg.autoAxis), ent.axis)
             } else if !doNotSetModel {
                 ent.hModel = cgs.gameModels[s1!.modelindex]
             }
@@ -1266,9 +1257,7 @@ private func CG_General(_ cent: Centity) {
             }
 
             // convert angles to axis
-            // Port-note: The draft of this statement did not compile, and the compiler wrote "'&' used with non-inout argument of type 'Slots<vec3_t>' (aka 'Slots<SIMD3<Float>>')".
-            // Raven wrote: AnglesToAxis( cent->lerpAngles, ent.axis )
-            portMissing("CG_General", source: "oracle/codemp/cgame/cg_ents.c:833")
+            AnglesToAxis(cent.lerpAngles, ent.axis)
 
             if cent.currentState.iModelScale != 0 {
                 //if the server says we have a custom scale then set it now.
@@ -1725,9 +1714,7 @@ private func CG_Item(_ cent: Centity) {
             ent.customShader = 0
             ent.origin = cent.lerpOrigin
             cent.lerpAngles = cent.currentState.angles
-            // Port-note: The draft of this statement did not compile, and the compiler wrote "'&' used with non-inout argument of type 'Slots<vec3_t>' (aka 'Slots<SIMD3<Float>>')".
-            // Raven wrote: AnglesToAxis(cent->lerpAngles, ent.axis)
-            portMissing("CG_Item", source: "oracle/codemp/cgame/cg_ents.c:1885")
+            AnglesToAxis(cent.lerpAngles, ent.axis)
             ent.hModel = cgs.media.itemHoloModel
 
             doGrey = CG_GreyItem(item!.giType, item!.giTag, cg.snap!.ps.fd.forceSide)
@@ -1836,14 +1823,10 @@ private func CG_Item(_ cent: Centity) {
             //only weapons and powerups rotate now
             // autorotate at one of two speeds
             cent.lerpAngles = cg.autoAngles
-            // Port-note: The draft of this statement did not compile, and the compiler wrote "'&' used with non-inout argument of type 'Slots<vec3_t>' (aka 'Slots<SIMD3<Float>>')".
-            // Raven wrote: AxisCopy( cg.autoAxis, ent.axis )
-            portMissing("CG_Item", source: "oracle/codemp/cgame/cg_ents.c:1885")
+            AxisCopy(Array(cg.autoAxis), ent.axis)
         } else {
             cent.lerpAngles = cent.currentState.angles
-            // Port-note: The draft of this statement did not compile, and the compiler wrote "'&' used with non-inout argument of type 'Slots<vec3_t>' (aka 'Slots<SIMD3<Float>>')".
-            // Raven wrote: AnglesToAxis(cent->lerpAngles, ent.axis)
-            portMissing("CG_Item", source: "oracle/codemp/cgame/cg_ents.c:1885")
+            AnglesToAxis(cent.lerpAngles, ent.axis)
         }
 
         wi = nil
@@ -2071,9 +2054,7 @@ private func CG_Item(_ cent: Centity) {
                         ent.origin[2] += 12
                         spinAngles[1] = (cg.time & 1023) * 360 / -1024.0
                     }
-                    // Port-note: The draft of this statement did not compile, and the compiler wrote "'&' used with non-inout argument of type 'Slots<vec3_t>' (aka 'Slots<SIMD3<Float>>')".
-                    // Raven wrote: AnglesToAxis( spinAngles, ent.axis )
-                    portMissing("CG_Item", source: "oracle/codemp/cgame/cg_ents.c:1885")
+                    AnglesToAxis(spinAngles, ent.axis)
 
                     trap_R_AddRefEntityToScene(ent)
                 }
@@ -2110,9 +2091,7 @@ func CG_CreateDistortionTrailPart(_ cent: Centity, _ scale: Float, _ pos: JKASha
 
         ang = cent.lerpAngles
         ang[PITCH] += 90.0
-        // Port-note: The draft of this statement did not compile, and the compiler wrote "'&' used with non-inout argument of type 'Slots<vec3_t>' (aka 'Slots<SIMD3<Float>>')".
-        // Raven wrote: AnglesToAxis(ang, ent.axis)
-        portMissing("CG_CreateDistortionTrailPart", source: "oracle/codemp/cgame/cg_ents.c:2331")
+        AnglesToAxis(ang, ent.axis)
 
         //radius must be a power of 2, and is the actual captured texture size
         if vLen < 512 {
@@ -2188,9 +2167,7 @@ private func CG_Missile(_ cent: Centity) {
                 if cent.ghoul2 != nil {
                     //clean if we already have one (because server changed model string index)
                     trap_G2API_CleanGhoul2Models(&(cent.ghoul2))
-                    // Port-note: The draft of this statement did not compile, and the compiler wrote "cannot assign value of type 'Int' to type 'OpaquePointer'".
-                    // Raven wrote: cent->ghoul2 = 0
-                    portMissing("CG_Missile", source: "oracle/codemp/cgame/cg_ents.c:2426")
+                    cent.ghoul2 = nil
                 }
 
                 if !saberModel.isEmpty {
@@ -2339,29 +2316,39 @@ private func CG_Missile(_ cent: Centity) {
             // spin as it moves
             if s1!.pos.trType != TR_STATIONARY {
                 if (s1!.eFlags & EF_MISSILE_STICK) != 0 {
-                    // Port-note: The draft of this statement did not compile, and the compiler wrote "cannot convert value of type 'Slots<vec3_t>' (aka 'Slots<SIMD3<Float>>') to expected argument type '[vec3_t]' (aka 'Array<SIMD3<Float>>')".
-                    // Raven wrote: RotateAroundDirection( ent.axis, cg.time * 0.5f )
-                    portMissing("CG_Missile", source: "oracle/codemp/cgame/cg_ents.c:2426")
+                    // RotateAroundDirection takes an array, and the view holds `axis` as a Slots, so the call fills a copy that stores back.
+                    var axisCopy = [ent.axis[0], ent.axis[1], ent.axis[2]]
+                    RotateAroundDirection(&axisCopy, cg.time * 0.5)
+                    ent.axis[0] = axisCopy[0]
+                    ent.axis[1] = axisCopy[1]
+                    ent.axis[2] = axisCopy[2]
                 } else {
-                    // Port-note: The draft of this statement did not compile, and the compiler wrote "cannot convert value of type 'Slots<vec3_t>' (aka 'Slots<SIMD3<Float>>') to expected argument type '[vec3_t]' (aka 'Array<SIMD3<Float>>')".
-                    // Raven wrote: RotateAroundDirection( ent.axis, cg.time * 0.25f )
-                    portMissing("CG_Missile", source: "oracle/codemp/cgame/cg_ents.c:2426")
+                    // RotateAroundDirection takes an array, and the view holds `axis` as a Slots, so the call fills a copy that stores back.
+                    var axisCopy = [ent.axis[0], ent.axis[1], ent.axis[2]]
+                    RotateAroundDirection(&axisCopy, cg.time * 0.25)
+                    ent.axis[0] = axisCopy[0]
+                    ent.axis[1] = axisCopy[1]
+                    ent.axis[2] = axisCopy[2]
                 }
             } else {
                 if (s1!.eFlags & EF_MISSILE_STICK) != 0 {
-                    // Port-note: The draft of this statement did not compile, and the compiler wrote "cannot convert value of type 'Slots<vec3_t>' (aka 'Slots<SIMD3<Float>>') to expected argument type '[vec3_t]' (aka 'Array<SIMD3<Float>>')".
-                    // Raven wrote: RotateAroundDirection( ent.axis, (float)s1->pos.trTime * 0.5f )
-                    portMissing("CG_Missile", source: "oracle/codemp/cgame/cg_ents.c:2426")
+                    // RotateAroundDirection takes an array, and the view holds `axis` as a Slots, so the call fills a copy that stores back.
+                    var axisCopy = [ent.axis[0], ent.axis[1], ent.axis[2]]
+                    RotateAroundDirection(&axisCopy, Float(s1!.pos.trTime) * 0.5)
+                    ent.axis[0] = axisCopy[0]
+                    ent.axis[1] = axisCopy[1]
+                    ent.axis[2] = axisCopy[2]
                 } else {
-                    // Port-note: The draft of this statement did not compile, and the compiler wrote "cannot convert value of type 'Slots<vec3_t>' (aka 'Slots<SIMD3<Float>>') to expected argument type '[vec3_t]' (aka 'Array<SIMD3<Float>>')".
-                    // Raven wrote: RotateAroundDirection( ent.axis, (float)s1->time )
-                    portMissing("CG_Missile", source: "oracle/codemp/cgame/cg_ents.c:2426")
+                    // RotateAroundDirection takes an array, and the view holds `axis` as a Slots, so the call fills a copy that stores back.
+                    var axisCopy = [ent.axis[0], ent.axis[1], ent.axis[2]]
+                    RotateAroundDirection(&axisCopy, Float(s1!.time))
+                    ent.axis[0] = axisCopy[0]
+                    ent.axis[1] = axisCopy[1]
+                    ent.axis[2] = axisCopy[2]
                 }
             }
         } else {
-            // Port-note: The draft of this statement did not compile, and the compiler wrote "'&' used with non-inout argument of type 'Slots<vec3_t>' (aka 'Slots<SIMD3<Float>>')".
-            // Raven wrote: AnglesToAxis( cent->lerpAngles, ent.axis )
-            portMissing("CG_Missile", source: "oracle/codemp/cgame/cg_ents.c:2426")
+            AnglesToAxis(cent.lerpAngles, ent.axis)
         }
 
         if s1!.weapon == WP_SABER {
@@ -2547,9 +2534,7 @@ private func CG_Mover(_ cent: Centity) {
 
         ent.origin = cent.lerpOrigin
         ent.oldorigin = cent.lerpOrigin
-        // Port-note: The draft of this statement did not compile, and the compiler wrote "'&' used with non-inout argument of type 'Slots<vec3_t>' (aka 'Slots<SIMD3<Float>>')".
-        // Raven wrote: AnglesToAxis( cent->lerpAngles, ent.axis )
-        portMissing("CG_Mover", source: "oracle/codemp/cgame/cg_ents.c:2824")
+        AnglesToAxis(cent.lerpAngles, ent.axis)
 
         ent.renderfx = RF_NOSHADOW
         /*
@@ -2628,9 +2613,7 @@ func CG_Beam(_ cent: Centity) {
         // Raven clears the record with `memset` here. The scratch slot is zero at entry, so the body drops the call.
         ent.origin = s1!.pos.trBase
         ent.oldorigin = s1!.origin2
-        // Port-note: The draft of this statement did not compile, and the compiler wrote "'&' used with non-inout argument of type 'Slots<vec3_t>' (aka 'Slots<SIMD3<Float>>')".
-        // Raven wrote: AxisClear( ent.axis )
-        portMissing("CG_Beam", source: "oracle/codemp/cgame/cg_ents.c:2935")
+        AxisClear(ent.axis)
         ent.reType = RT_BEAM
 
         ent.renderfx = RF_NOSHADOW
@@ -2873,9 +2856,7 @@ private func CG_TeamBase(_ cent: Centity) {
             model.reType = RT_MODEL
             model.lightingOrigin = cent.lerpOrigin
             model.origin = cent.lerpOrigin
-            // Port-note: The draft of this statement did not compile, and the compiler wrote "'&' used with non-inout argument of type 'Slots<vec3_t>' (aka 'Slots<SIMD3<Float>>')".
-            // Raven wrote: AnglesToAxis( cent->currentState.angles, model.axis )
-            portMissing("CG_TeamBase", source: "oracle/codemp/cgame/cg_ents.c:3209")
+            AnglesToAxis(cent.currentState.angles, model.axis)
             if cent.currentState.modelindex == TEAM_RED {
                 model.hModel = cgs.media.redFlagBaseModel
             } else if cent.currentState.modelindex == TEAM_BLUE {
@@ -3110,12 +3091,8 @@ func CG_AddPacketEntities(_ isPortal: Bool) {
     cg.autoAnglesFast[1] = (cg.time & 1023) * 360 / 1024.0
     cg.autoAnglesFast[2] = 0
 
-    // Port-note: The draft of this statement did not compile, and the compiler wrote "'&' used with non-inout argument of type 'Slots<vec3_t>' (aka 'Slots<SIMD3<Float>>')".
-    // Raven wrote: AnglesToAxis( cg.autoAngles, cg.autoAxis )
-    portMissing("CG_AddPacketEntities", source: "oracle/codemp/cgame/cg_ents.c:3428")
-    // Port-note: The draft of this statement did not compile, and the compiler wrote "'&' used with non-inout argument of type 'Slots<vec3_t>' (aka 'Slots<SIMD3<Float>>')".
-    // Raven wrote: AnglesToAxis( cg.autoAnglesFast, cg.autoAxisFast )
-    portMissing("CG_AddPacketEntities", source: "oracle/codemp/cgame/cg_ents.c:3428")
+    AnglesToAxis(cg.autoAngles, cg.autoAxis)
+    AnglesToAxis(cg.autoAnglesFast, cg.autoAxisFast)
 
     // Reset radar entities
     cg.radarEntityCount = 0
