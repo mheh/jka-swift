@@ -108,9 +108,7 @@ func CG_SetInitialSnapshot(_ snap: Snapshot) {
         state = cg.snap!.entities[i]
         cent = cg_entities[state!.number]
 
-        // Port-note: The draft of this statement did not compile, and the compiler wrote "value of optional type 'EntityState?' must be unwrapped to a value of type 'EntityState'".
-        // Raven wrote: memcpy(&cent->currentState, state, sizeof(entityState_t))
-        portMissing("CG_SetInitialSnapshot", source: "oracle/codemp/cgame/cg_snapshot.c:80")
+        cent!.currentState = state!
         //cent->currentState = *state;
         cent!.interpolate = false
         cent!.currentValid = true
@@ -221,9 +219,7 @@ private func CG_SetNextSnap(_ snap: Snapshot) {
         es = snap.entities[num]
         cent = cg_entities[es!.number]
 
-        // Port-note: The draft of this statement did not compile, and the compiler wrote "value of optional type 'EntityState?' must be unwrapped to a value of type 'EntityState'".
-        // Raven wrote: memcpy(&cent->nextState, es, sizeof(entityState_t))
-        portMissing("CG_SetNextSnap", source: "oracle/codemp/cgame/cg_snapshot.c:206")
+        cent!.nextState = es!
         //cent->nextState = *es;
 
         // if this frame is a teleport, or the entity wasn't in the
