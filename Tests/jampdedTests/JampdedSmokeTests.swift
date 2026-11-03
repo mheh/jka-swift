@@ -5,11 +5,12 @@ import Testing
 private final class Anchor {}
 
 /// This test runs the built `jampded` executable in its own process.
-/// The shell prints the version line of Com_Init and exits 0, so the test proves the product builds and starts.
+/// The shell runs Raven's main, and the first function it reaches with no port traps with its `TODO: Port` subject.
+/// So the test proves the product builds, starts, and reaches the logic target.
 @Suite(.serialized)
 struct JampdedSmokeSuite {
-    @Test("jampded prints Raven's version line and exits 0")
-    func printsTheVersionLine() throws {
+    @Test("jampded runs Raven's main to its first unported function")
+    func runsToTheFirstUnportedFunction() throws {
         let server = try #require(Self.builtArtifactPath(named: Self.serverName))
 
         let process = Process()
@@ -21,32 +22,14 @@ struct JampdedSmokeSuite {
         process.standardError = stderrPipe
 
         try process.run()
-        let stdoutData = stdoutPipe.fileHandleForReading.readDataToEndOfFile()
+        _ = stdoutPipe.fileHandleForReading.readDataToEndOfFile()
         let stderrData = stderrPipe.fileHandleForReading.readDataToEndOfFile()
         process.waitUntilExit()
 
+        // The trap of portMissing names its subject, so a stop for any other reason fails here.
         let stderrText = String(data: stderrData, encoding: .utf8) ?? ""
-        guard process.terminationStatus == 0 else {
-            Issue.record("jampded exited with status \(process.terminationStatus): \(stderrText)")
-            return
-        }
-
-        let stdoutText = String(data: stdoutData, encoding: .utf8) ?? ""
-        let lines = stdoutText.split(separator: "\n", omittingEmptySubsequences: true).map(String.init)
-
-        // The line is Q3_VERSION and CPUSTRING, from oracle/codemp/qcommon/common.cpp:1219.
-        #expect(lines == ["(internal)JAmp: v1.0.1.0 \(Self.cpuString)"])
-    }
-
-    /// The CPUSTRING of this platform, as the shell picks it.
-    private static var cpuString: String {
-        #if os(macOS)
-        return "MacOSX-other"
-        #elseif os(Linux)
-        return "linux-other"
-        #else
-        return "win-x86"
-        #endif
+        #expect(process.terminationStatus != 0)
+        #expect(stderrText.contains("TODO: Port "))
     }
 
     /// The executable's file name on this platform, as the linker writes it.
