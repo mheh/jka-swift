@@ -49,13 +49,13 @@ public let MODEL_WIDTH = CJKAMP.MODEL_WIDTH
 public let BOLT_WIDTH = CJKAMP.BOLT_WIDTH
 
 /// Source: oracle/codemp/ghoul2/G2.h:34
-public let MODEL_AND = ((1 << MODEL_WIDTH) - 1)
+public let MODEL_AND = ((1 << MODEL_WIDTH) - 1) as Int32
 
 /// Source: oracle/codemp/ghoul2/G2.h:35
-public let BOLT_AND = ((1 << BOLT_WIDTH) - 1)
+public let BOLT_AND = ((1 << BOLT_WIDTH) - 1) as Int32
 
 /// Source: oracle/codemp/ghoul2/G2.h:36
-public let ENTITY_AND = ((1 << ENTITY_WIDTH) - 1)
+public let ENTITY_AND = ((1 << ENTITY_WIDTH) - 1) as Int32
 
 /// Source: oracle/codemp/ghoul2/G2.h:38
 public let BOLT_SHIFT = CJKAMP.BOLT_SHIFT

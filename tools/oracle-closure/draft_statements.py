@@ -573,6 +573,10 @@ class Statements:
         for node in size.walk_preorder():
             if node.kind == CursorKind.TYPE_REF and node.referenced is not None and node.referenced.type.get_canonical() == record_type:
                 return True
+        operand = [k for k in size.get_children() if k.kind.is_expression()]
+        if operand and record_type.kind == TypeKind.RECORD and self.unwrap(operand[0]).type.get_canonical() == record_type:
+            # Raven's `sizeof(cent->pe.legs)` for a store into `pe.torso` names another field of the same record type.
+            return True
         inner = m.group(1).replace(" ", "")
         record = " ".join(self.bytes[target.extent.start.offset:target.extent.end.offset].decode("utf-8", "replace").split()).replace(" ", "")
         t = target.type.get_canonical()

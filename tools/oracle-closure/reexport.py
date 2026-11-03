@@ -182,7 +182,9 @@ def swift_expression(cur: ci.Cursor, enum_of: dict[str, str], declared: dict[str
         return text if len(out) == 1 else None
     if literal_only:
         return f"{text} as {('Float' if float_suffix and has_float_suffix else 'Double') if has_float else 'Int32'}"
-    return f"{text} as Int32" if narrow else text
+    # C's `1 << n` is an int, and Swift reads a bare integer literal on the left of a shift as an Int.
+    shifted = any(tok in ("<<", ">>") and i and re.fullmatch(r"(0x[0-9a-fA-F]+|0o[0-7]+|\d+)", out[i - 1]) for i, tok in enumerate(out))
+    return f"{text} as Int32" if narrow or shifted else text
 
 
 def cast_literal(cur: ci.Cursor, typealiases: set[str], declared: dict[str, str]) -> tuple[str, str] | None:
