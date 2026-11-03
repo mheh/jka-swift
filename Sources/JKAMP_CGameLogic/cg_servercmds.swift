@@ -38,9 +38,7 @@ private func CG_ParseScores() {
     cg.teamScores[0] = atoi(CG_Argv(2))
     cg.teamScores[1] = atoi(CG_Argv(3))
 
-    // Port-note: Raven's `memset( cg.scores, 0, sizeof( cg.scores ) )` runs over bytes that are not one record with a view.
-    // Raven wrote: memset( cg.scores, 0, sizeof( cg.scores ) )
-    portMissing("CG_ParseScores", source: "oracle/codemp/cgame/cg_servercmds.c:21")
+    cg.scores.zero()
     i = 0
     while i < readScores {
         //
@@ -170,9 +168,26 @@ func CG_ParseServerinfo() {
     trap_Cvar_Set("cg_siegeTeam2", Info_ValueForKey(info, "g_siegeTeam2"))
 
     tinfo = CG_ConfigString(CS_TERRAINS + 1)
-    // Port-note: A pointer dereference the draft cannot place.
-    // Raven wrote: if ( !tinfo || !*tinfo ) { cg.mInRMG = qfalse; } else { int weather = 0; cg.mInRMG = qtrue; trap_Cvar_Set("RMG", "1"); weather = atoi( Info_ValueForKey( info, "RMG_weather" ) ); trap_Cvar_Set("RMG_weather", va("%i", weather)); if (weather == 1 || weather == 2) { cg.mRMGWeather = qtrue; } else { cg.mRMGWeather = qfalse; } }
-    portMissing("CG_ParseServerinfo", source: "oracle/codemp/cgame/cg_servercmds.c:105")
+    // Raven's `!tinfo || !*tinfo` tests the pointer and the first byte.
+    // The configstring text is never NULL, so both tests read as one.
+    if tinfo.isEmpty {
+        cg.mInRMG = false
+    } else {
+        var weather: Int32 = 0
+
+        cg.mInRMG = true
+        trap_Cvar_Set("RMG", "1")
+
+        weather = atoi(Info_ValueForKey(info, "RMG_weather"))
+
+        trap_Cvar_Set("RMG_weather", va("%i", weather))
+
+        if weather == 1 || weather == 2 {
+            cg.mRMGWeather = true
+        } else {
+            cg.mRMGWeather = false
+        }
+    }
 }
 
 /**
@@ -264,22 +279,48 @@ func CG_ShaderStateChanged() {
     var originalShader = CharBuf(64)
     var newShader = CharBuf(64)
     var timeOffset = CharBuf(16)
-    // Port-note: A pointer local `const char * o` with no view.
-    // Raven wrote: const char *o;
-    portMissing("CG_ShaderStateChanged", source: "oracle/codemp/cgame/cg_servercmds.c:269")
-    // Port-note: A pointer local `char * n` with no view.
-    // Raven wrote: char *n;
-    portMissing("CG_ShaderStateChanged", source: "oracle/codemp/cgame/cg_servercmds.c:269")
-    // Port-note: A pointer local `char * t` with no view.
-    // Raven wrote: t;
-    portMissing("CG_ShaderStateChanged", source: "oracle/codemp/cgame/cg_servercmds.c:269")
+    var o: TextCursor
+    var n: Int32?
+    var t: Int32?
 
-    // Port-note: A store into `o`, a local the draft left as a hole.
-    // Raven wrote: o = CG_ConfigString( CS_SHADERSTATE )
-    portMissing("CG_ShaderStateChanged", source: "oracle/codemp/cgame/cg_servercmds.c:269")
-    // Port-note: A read of `o`, a local the draft left as a hole.
-    // Raven wrote: while (o && *o) { n = strstr(o, "="); if (n && *n) { strncpy(originalShader, o, n-o); originalShader[n-o] = 0; n++; t = strstr(n, ":"); if (t && *t) { strncpy(newShader, n, t-n); newShader[t-n] = 0; } else { break; } t++; o = strstr(t, "@"); if (o) { strncpy(timeOffset, t, o-t); timeOffset[o-t] = 0; o++; trap_R_RemapShader( originalShader, newShader, timeOffset ); } } else { break; } }
-    portMissing("CG_ShaderStateChanged", source: "oracle/codemp/cgame/cg_servercmds.c:269")
+    o = TextCursor(CharBuf(CG_ConfigString(CS_SHADERSTATE)))
+    while !o.isNull && o.byte != 0 {
+        if let found = strstr(o.buf[o.offset!...], "=") {
+            n = o.offset! + found
+        } else {
+            n = nil
+        }
+        if n != nil && o.buf[n!] != 0 {
+            strncpy(&originalShader, o.buf[o.offset!...], n! - o.offset!)
+            originalShader[n! - o.offset!] = 0
+            n! += 1
+            if let found = strstr(o.buf[n!...], ":") {
+                t = n! + found
+            } else {
+                t = nil
+            }
+            if t != nil && o.buf[t!] != 0 {
+                strncpy(&newShader, o.buf[n!...], t! - n!)
+                newShader[t! - n!] = 0
+            } else {
+                break
+            }
+            t! += 1
+            if let found = strstr(o.buf[t!...], "@") {
+                o.offset = t! + found
+            } else {
+                o.offset = nil
+            }
+            if !o.isNull {
+                strncpy(&timeOffset, o.buf[t!...], o.offset! - t!)
+                timeOffset[o.offset! - t!] = 0
+                o.advance()
+                trap_R_RemapShader(String(originalShader), String(newShader), String(timeOffset))
+            }
+        } else {
+            break
+        }
+    }
 }
 
 /// Source: oracle/codemp/cgame/cg_servercmds.c:310
@@ -363,28 +404,20 @@ private func CG_RegisterCustomSounds(_ ci: ClientInfo, _ setType: Int32, _ psDir
     i = 0
     while i < iTableEntries {
         var hSFX: sfxHandle_t
-        // Port-note: A pointer local `const char * s` with no view.
-        // Raven wrote: const char *s = GetCustomSoundForType(setType, i);
-        portMissing("CG_RegisterCustomSounds", source: "oracle/codemp/cgame/cg_servercmds.c:360")
+        var s = GetCustomSoundForType(setType, i).map { TextCursor(CharBuf($0)) } ?? TextCursor()
 
-        // Port-note: A read of `s`, a local the draft left as a hole.
-        // Raven wrote: if ( !s ) { break; }
-        portMissing("CG_RegisterCustomSounds", source: "oracle/codemp/cgame/cg_servercmds.c:360")
+        if s.isNull {
+            break
+        }
 
-        // Port-note: A read of `s`, a local the draft left as a hole.
-        // Raven wrote: s++
-        portMissing("CG_RegisterCustomSounds", source: "oracle/codemp/cgame/cg_servercmds.c:360")
-        // Port-note: A read of `s`, a local the draft left as a hole.
-        // Raven wrote: hSFX = trap_S_RegisterSound( va("sound/chars/%s/misc/%s", psDir, s) )
-        portMissing("CG_RegisterCustomSounds", source: "oracle/codemp/cgame/cg_servercmds.c:360")
+        s.advance()
+        hSFX = trap_S_RegisterSound(va("sound/chars/%s/misc/%s", psDir, s.text))
 
         if hSFX == 0 {
             var modifiedSound = CharBuf(64)
             var p: Int32? = nil
 
-            // Port-note: A read of `s`, a local the draft left as a hole.
-            // Raven wrote: strcpy(modifiedSound, s)
-            portMissing("CG_RegisterCustomSounds", source: "oracle/codemp/cgame/cg_servercmds.c:360")
+            strcpy(&modifiedSound, s.text)
             p = strchr(modifiedSound, Int32(ascii: "."))
 
             if var p {
@@ -437,9 +470,10 @@ func CG_PrecacheNPCSounds(_ str: String) {
             if s != nil && !s!.isEmpty {
                 //whatever it is, try registering it under this folder.
                 k = 1
-                // Port-note: The draft of this statement did not compile, and the compiler wrote "binary operator '!=' cannot be applied to operands of type 'Character' and 'Int'".
-                // Raven wrote: while (s[k]) { sEnd[k-1] = s[k]; k++; }
-                portMissing("CG_PrecacheNPCSounds", source: "oracle/codemp/cgame/cg_servercmds.c:432")
+                while CharBuf(s!)[k] != 0 {
+                    sEnd[k - 1] = CharBuf(s!)[k]
+                    k += 1
+                }
                 sEnd[k - 1] = 0
 
                 trap_S_ShutUp(true)
@@ -699,9 +733,11 @@ private func CG_ConfigStringModified() {
         cgs.teamVoteNo[num - CS_TEAMVOTE_NO] = atoi(str)
         cgs.teamVoteModified[num - CS_TEAMVOTE_NO] = true
     } else if num >= CS_TEAMVOTE_STRING && num <= CS_TEAMVOTE_STRING + 1 {
-        // Port-note: A sizeof of `char[2][1024]` the draft cannot size.
-        // Raven wrote: Q_strncpyz( cgs.teamVoteString[num-CS_TEAMVOTE_STRING], str, sizeof( cgs.teamVoteString ) )
-        portMissing("CG_ConfigStringModified", source: "oracle/codemp/cgame/cg_servercmds.c:671")
+        // Raven passes sizeof(teamVoteString), 2048, so the NUL pad of row 0 clears row 1 and the pad of row 1 overruns the array.
+        // The store bounds the text to its row, and the other row keeps its bytes.
+        var teamVoteString = CharBuf(2048)
+        Q_strncpyz(&teamVoteString, str, 2048)
+        cgs.teamVoteString[num - CS_TEAMVOTE_STRING] = String(teamVoteString)
     } else if num == CS_INTERMISSION {
         cg.intermissionStarted = atoi(str) != 0
     } else if num >= CS_MODELS && num < CS_MODELS + MAX_MODELS {
@@ -953,12 +989,12 @@ private func CG_RemoveChatEscapeChar(_ text: inout JKAShared.CharBuf) {
     l = 0
     i = 0
     while text[textIndex + i] != 0 {
-        // Port-note: A character literal with an escape.
-        // Raven wrote: if (text[i] == '\x19') continue
-        portMissing("CG_RemoveChatEscapeChar", source: "oracle/codemp/cgame/cg_servercmds.c:1045")
-        // Port-note: A ++ inside an expression.
-        // Raven wrote: text[l++] = text[i]
-        portMissing("CG_RemoveChatEscapeChar", source: "oracle/codemp/cgame/cg_servercmds.c:1045")
+        if text[textIndex + i] == Int32(ascii: "\u{19}") {
+            i += 1
+            continue
+        }
+        text[textIndex + l] = text[textIndex + i]
+        l += 1
         i += 1
     }
     text[textIndex + l] = 0
@@ -1008,9 +1044,7 @@ func CG_CheckSVStringEdRef(_ buf: inout JKAShared.CharBuf, _ str: String) {
                     stringRef[r] = 0
 
                     buf[bufIndex + b] = 0
-                    // Port-note: The draft of this statement did not compile, and the compiler wrote "cannot convert value of type 'CharBuf' to expected argument type 'String'".
-                    // Raven wrote: Q_strcat(buf, MAX_STRINGED_SV_STRING, CG_GetStringEdString("MP_SVGAME", stringRef))
-                    portMissing("CG_CheckSVStringEdRef", source: "oracle/codemp/cgame/cg_servercmds.c:1059")
+                    Q_strcat(&buf, MAX_STRINGED_SV_STRING, CG_GetStringEdString("MP_SVGAME", String(stringRef)), at: bufIndex)
                     b = strlen(buf)
                 }
             }
@@ -1343,15 +1377,11 @@ private func CG_ServerCommand() {
 
     if strcmp(cmd, "cps") == 0 {
         var strEd = CharBuf(1024)
-        // Port-note: A pointer local `char * x` with no view.
-        // Raven wrote: char *x = (char *)CG_Argv(1);
-        portMissing("CG_ServerCommand", source: "oracle/codemp/cgame/cg_servercmds.c:1257")
-        // Port-note: A read of `x`, a local the draft left as a hole.
-        // Raven wrote: if (x[0] == '@') { x++; }
-        portMissing("CG_ServerCommand", source: "oracle/codemp/cgame/cg_servercmds.c:1257")
-        // Port-note: A read of `x`, a local the draft left as a hole.
-        // Raven wrote: trap_SP_GetStringTextString(x, strEd, MAX_STRINGED_SV_STRING)
-        portMissing("CG_ServerCommand", source: "oracle/codemp/cgame/cg_servercmds.c:1257")
+        var x = TextCursor(CharBuf(CG_Argv(1)))
+        if x[0] == Int32(ascii: "@") {
+            x.advance()
+        }
+        strcpy(&strEd, trap_SP_GetStringTextString(x.text, MAX_STRINGED_SV_STRING).1)
         CG_CenterPrint(String(strEd), Int32(Double(SCREEN_HEIGHT) * 0.20), BIGCHAR_WIDTH)
         return
     }
@@ -1408,9 +1438,7 @@ private func CG_ServerCommand() {
 
             if loc[0] == Int32(ascii: "@") {
                 //get localized text
-                // Port-note: The draft of this statement did not compile, and the compiler wrote "cannot convert value of type 'Int' to expected argument type 'String'".
-                // Raven wrote: trap_SP_GetStringTextString(loc+1, loc, MAX_STRING_CHARS)
-                portMissing("CG_ServerCommand", source: "oracle/codemp/cgame/cg_servercmds.c:1257")
+                strcpy(&loc, trap_SP_GetStringTextString(String(loc[1...]), MAX_STRING_CHARS).1)
             }
 
             trap_S_StartLocalSound(cgs.media.talkSound, CHAN_LOCAL_SOUND)
@@ -1439,9 +1467,7 @@ private func CG_ServerCommand() {
 
         if loc[0] == Int32(ascii: "@") {
             //get localized text
-            // Port-note: The draft of this statement did not compile, and the compiler wrote "cannot convert value of type 'Int' to expected argument type 'String'".
-            // Raven wrote: trap_SP_GetStringTextString(loc+1, loc, MAX_STRING_CHARS)
-            portMissing("CG_ServerCommand", source: "oracle/codemp/cgame/cg_servercmds.c:1257")
+            strcpy(&loc, trap_SP_GetStringTextString(String(loc[1...]), MAX_STRING_CHARS).1)
         }
 
         trap_S_StartLocalSound(cgs.media.talkSound, CHAN_LOCAL_SOUND)
@@ -1505,8 +1531,9 @@ with this this snapshot.
 /// Source: oracle/codemp/cgame/cg_servercmds.c:1681
 func CG_ExecuteNewServerCommands(_ latestSequence: Int32) {
     while cgs.serverCommandSequence < latestSequence {
-        // Port-note: A ++ inside an expression.
-        // Raven wrote: if ( trap_GetServerCommand( ++cgs.serverCommandSequence ) ) { CG_ServerCommand(); }
-        portMissing("CG_ExecuteNewServerCommands", source: "oracle/codemp/cgame/cg_servercmds.c:1681")
+        cgs.serverCommandSequence += 1
+        if trap_GetServerCommand(cgs.serverCommandSequence) {
+            CG_ServerCommand()
+        }
     }
 }
