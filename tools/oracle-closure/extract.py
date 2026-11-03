@@ -884,6 +884,28 @@ def emit(module: str, out_dir: Path, check: bool, triples: list[str]) -> int:
                 typed.override = f"// Raven redefines {d.name} as `{' '.join(body_tokens)}` at {d.cite}, so that is the type.\ntypedef {' '.join(body_tokens)} {d.name};"
         NOTES.append(f"{d.cite} macro {d.name} renames the typedef {d.name}, which now reads: typedef {' '.join(body_tokens)} {d.name}")
     decls = [d for d in decls if d not in shadowing]
+    # A header macro named as an enumerator of another header, as server.h:22 names PERS_SCORE of bg_public.h, would rewrite that enum.
+    # The macro stays in its header alone, and the constants file leaves it out.
+    enumerators = {c.spelling: d.file for d in decls if d.kind != "macro" and d.record() is not None and d.record().kind == CursorKind.ENUM_DECL
+                   for c in d.record().get_children() if c.kind == CursorKind.ENUM_CONSTANT_DECL}
+    includes_of: dict[str, set[str]] = defaultdict(set)
+    for inclusion in tu.get_includes():
+        if inclusion.source is not None:
+            includes_of[inclusion.source.name].add(inclusion.include.name)
+
+    def reached(header: str) -> set[str]:
+        seen: set[str] = set()
+        todo = [header]
+        while todo:
+            for included in includes_of[todo.pop()] - seen:
+                seen.add(included)
+                todo.append(included)
+        return seen
+
+    clashing = [d for d in decls if d.kind == "macro" and d.name in enumerators and enumerators[d.name] in reached(d.file)]
+    for d in clashing:
+        NOTES.append(f"{d.cite} macro {d.name} stays in its header, because an enum of an included header names {d.name}")
+    decls = [d for d in decls if d not in clashing]
     for d in decls:
         if d.kind == "class" and d.name in C_STRUCT_CLASSES:
             # The struct holds the fields alone, each in Raven's text with `struct` in the place of `class`.
