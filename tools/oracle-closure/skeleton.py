@@ -836,6 +836,16 @@ class Skeleton:
         elif kind == "hand":
             if HAND_VARS[var.name] is None:
                 lines.append("// No storage, by the HAND_VARS ruling.")
+            elif HAND_VARS[var.name].startswith("["):
+                # A hand table of rows on the state object, which the stub forwards under Raven's name.
+                spelled = "bg" if target_of(var.stem) == BG else "world"
+                home = "BgState" if target_of(var.stem) == BG else f"{STATE}World"
+                lines = [f"/// Source: {var.cite}", f"/// Raven's table, a hand property of `{home}`, by the HAND_VARS ruling."]
+                # KeywordHash_Add writes a row's `next` through a pointer the write sweep does not follow, so the forward always has a setter.
+                lines += [f"{self.variable_access(var)}var {var.name}: {HAND_VARS[var.name]} {{",
+                          f"    get {{ {spelled}.{var.name} }}",
+                          f"    set {{ {spelled}.{var.name} = newValue }}",
+                          "}"]
             else:
                 lines.append(f"// A hand property of the state object, `{HAND_VARS[var.name]}`, by the HAND_VARS ruling.")
         elif kind == "state_data":

@@ -727,6 +727,181 @@ public final class CGameWorld {
     /// Raven's `static vec3_t WHITE={1.0f,1.0f,1.0f}` of `fx_disruptor.c`.
     /// Source: oracle/codemp/cgame/fx_disruptor.c:11
     var fx_disruptor_WHITE: JKAShared.vec3_t = JKAShared.vec3_t(1.0, 1.0, 1.0)
+
+    // MARK: - ui_shared.c
+
+    /// Raven's `commandDef_t commandList[]` of `ui_shared.c`, 30 rows in Raven's order.
+    /// Source: oracle/codemp/ui/ui_shared.c:2194
+    var commandList: [CommandDefRow] = [
+        CommandDefRow(name: "fadein", handler: Script_FadeIn),
+        CommandDefRow(name: "fadeout", handler: Script_FadeOut),
+        CommandDefRow(name: "show", handler: Script_Show),
+        CommandDefRow(name: "hide", handler: Script_Hide),
+        CommandDefRow(name: "setcolor", handler: Script_SetColor),
+        CommandDefRow(name: "open", handler: Script_Open),
+        CommandDefRow(name: "close", handler: Script_Close),
+        CommandDefRow(name: "setasset", handler: Script_SetAsset),
+        CommandDefRow(name: "setbackground", handler: Script_SetBackground),
+        CommandDefRow(name: "setitemrectcvar", handler: Script_SetItemRectCvar),
+        CommandDefRow(name: "setitembackground", handler: Script_SetItemBackground),
+        CommandDefRow(name: "setitemtext", handler: Script_SetItemText),
+        CommandDefRow(name: "setitemcolor", handler: Script_SetItemColor),
+        CommandDefRow(name: "setitemcolorcvar", handler: Script_SetItemColorCvar),
+        CommandDefRow(name: "setitemrect", handler: Script_SetItemRect),
+        CommandDefRow(name: "setteamcolor", handler: Script_SetTeamColor),
+        CommandDefRow(name: "setfocus", handler: Script_SetFocus),
+        CommandDefRow(name: "setplayermodel", handler: Script_SetPlayerModel),
+        CommandDefRow(name: "transition", handler: Script_Transition),
+        CommandDefRow(name: "setcvar", handler: Script_SetCvar),
+        CommandDefRow(name: "setcvartocvar", handler: Script_SetCvarToCvar),
+        CommandDefRow(name: "exec", handler: Script_Exec),
+        CommandDefRow(name: "play", handler: Script_Play),
+        CommandDefRow(name: "playlooped", handler: Script_playLooped),
+        CommandDefRow(name: "orbit", handler: Script_Orbit),
+        CommandDefRow(name: "scale", handler: Script_Scale),
+        CommandDefRow(name: "disable", handler: Script_Disable),
+        CommandDefRow(name: "defer", handler: Script_Defer),
+        CommandDefRow(name: "rundeferred", handler: Script_RunDeferred),
+        CommandDefRow(name: "transition2", handler: Script_Transition2),
+    ]
+
+    /// Raven's `keywordHash_t itemParseKeywords[]` of `ui_shared.c`, 83 rows in Raven's order.
+    /// The array's count takes the place of his `{0, 0, 0}` row, and KeywordHash_Add links a row into its bucket through `next`.
+    /// Source: oracle/codemp/ui/ui_shared.c:8892
+    var itemParseKeywords: [KeywordHashRow] = [
+        KeywordHashRow(keyword: "action", func: ItemParse_action, next: nil),
+        KeywordHashRow(keyword: "addColorRange", func: ItemParse_addColorRange, next: nil),
+        KeywordHashRow(keyword: "align", func: ItemParse_align, next: nil),
+        KeywordHashRow(keyword: "autowrapped", func: ItemParse_autowrapped, next: nil),
+        KeywordHashRow(keyword: "appearance_slot", func: ItemParse_Appearance_slot, next: nil),
+        KeywordHashRow(keyword: "asset_model", func: ItemParse_asset_model, next: nil),
+        KeywordHashRow(keyword: "asset_shader", func: ItemParse_asset_shader, next: nil),
+        KeywordHashRow(keyword: "backcolor", func: ItemParse_backcolor, next: nil),
+        KeywordHashRow(keyword: "background", func: ItemParse_background, next: nil),
+        KeywordHashRow(keyword: "border", func: ItemParse_border, next: nil),
+        KeywordHashRow(keyword: "bordercolor", func: ItemParse_bordercolor, next: nil),
+        KeywordHashRow(keyword: "bordersize", func: ItemParse_bordersize, next: nil),
+        KeywordHashRow(keyword: "cinematic", func: ItemParse_cinematic, next: nil),
+        KeywordHashRow(keyword: "columns", func: ItemParse_columns, next: nil),
+        KeywordHashRow(keyword: "cvar", func: ItemParse_cvar, next: nil),
+        KeywordHashRow(keyword: "cvarFloat", func: ItemParse_cvarFloat, next: nil),
+        KeywordHashRow(keyword: "cvarFloatList", func: ItemParse_cvarFloatList, next: nil),
+        KeywordHashRow(keyword: "cvarStrList", func: ItemParse_cvarStrList, next: nil),
+        KeywordHashRow(keyword: "cvarTest", func: ItemParse_cvarTest, next: nil),
+        KeywordHashRow(keyword: "desctext", func: ItemParse_descText, next: nil),
+        KeywordHashRow(keyword: "decoration", func: ItemParse_decoration, next: nil),
+        KeywordHashRow(keyword: "disableCvar", func: ItemParse_disableCvar, next: nil),
+        KeywordHashRow(keyword: "doubleclick", func: ItemParse_doubleClick, next: nil),
+        KeywordHashRow(keyword: "elementheight", func: ItemParse_elementheight, next: nil),
+        KeywordHashRow(keyword: "elementtype", func: ItemParse_elementtype, next: nil),
+        KeywordHashRow(keyword: "elementwidth", func: ItemParse_elementwidth, next: nil),
+        KeywordHashRow(keyword: "enableCvar", func: ItemParse_enableCvar, next: nil),
+        KeywordHashRow(keyword: "feeder", func: ItemParse_feeder, next: nil),
+        KeywordHashRow(keyword: "flag", func: ItemParse_flag, next: nil),
+        KeywordHashRow(keyword: "focusSound", func: ItemParse_focusSound, next: nil),
+        KeywordHashRow(keyword: "font", func: ItemParse_font, next: nil),
+        KeywordHashRow(keyword: "forecolor", func: ItemParse_forecolor, next: nil),
+        KeywordHashRow(keyword: "group", func: ItemParse_group, next: nil),
+        KeywordHashRow(keyword: "hideCvar", func: ItemParse_hideCvar, next: nil),
+        KeywordHashRow(keyword: "horizontalscroll", func: ItemParse_horizontalscroll, next: nil),
+        KeywordHashRow(keyword: "isCharacter", func: ItemParse_isCharacter, next: nil),
+        KeywordHashRow(keyword: "isSaber", func: ItemParse_isSaber, next: nil),
+        KeywordHashRow(keyword: "isSaber2", func: ItemParse_isSaber2, next: nil),
+        KeywordHashRow(keyword: "leaveFocus", func: ItemParse_leaveFocus, next: nil),
+        KeywordHashRow(keyword: "maxChars", func: ItemParse_maxChars, next: nil),
+        KeywordHashRow(keyword: "maxPaintChars", func: ItemParse_maxPaintChars, next: nil),
+        KeywordHashRow(keyword: "model_angle", func: ItemParse_model_angle, next: nil),
+        KeywordHashRow(keyword: "model_fovx", func: ItemParse_model_fovx, next: nil),
+        KeywordHashRow(keyword: "model_fovy", func: ItemParse_model_fovy, next: nil),
+        KeywordHashRow(keyword: "model_origin", func: ItemParse_model_origin, next: nil),
+        KeywordHashRow(keyword: "model_rotation", func: ItemParse_model_rotation, next: nil),
+        KeywordHashRow(keyword: "model_g2mins", func: ItemParse_model_g2mins, next: nil),
+        KeywordHashRow(keyword: "model_g2maxs", func: ItemParse_model_g2maxs, next: nil),
+        KeywordHashRow(keyword: "model_g2scale", func: ItemParse_model_g2scale, next: nil),
+        KeywordHashRow(keyword: "model_g2skin", func: ItemParse_model_g2skin, next: nil),
+        KeywordHashRow(keyword: "model_g2anim", func: ItemParse_model_g2anim, next: nil),
+        KeywordHashRow(keyword: "mouseEnter", func: ItemParse_mouseEnter, next: nil),
+        KeywordHashRow(keyword: "mouseEnterText", func: ItemParse_mouseEnterText, next: nil),
+        KeywordHashRow(keyword: "mouseExit", func: ItemParse_mouseExit, next: nil),
+        KeywordHashRow(keyword: "mouseExitText", func: ItemParse_mouseExitText, next: nil),
+        KeywordHashRow(keyword: "name", func: ItemParse_name, next: nil),
+        KeywordHashRow(keyword: "notselectable", func: ItemParse_notselectable, next: nil),
+        KeywordHashRow(keyword: "onFocus", func: ItemParse_onFocus, next: nil),
+        KeywordHashRow(keyword: "outlinecolor", func: ItemParse_outlinecolor, next: nil),
+        KeywordHashRow(keyword: "ownerdraw", func: ItemParse_ownerdraw, next: nil),
+        KeywordHashRow(keyword: "ownerdrawFlag", func: ItemParse_ownerdrawFlag, next: nil),
+        KeywordHashRow(keyword: "rect", func: ItemParse_rect, next: nil),
+        KeywordHashRow(keyword: "rectcvar", func: ItemParse_rectcvar, next: nil),
+        KeywordHashRow(keyword: "showCvar", func: ItemParse_showCvar, next: nil),
+        KeywordHashRow(keyword: "special", func: ItemParse_special, next: nil),
+        KeywordHashRow(keyword: "style", func: ItemParse_style, next: nil),
+        KeywordHashRow(keyword: "text", func: ItemParse_text, next: nil),
+        KeywordHashRow(keyword: "textalign", func: ItemParse_textalign, next: nil),
+        KeywordHashRow(keyword: "textalignx", func: ItemParse_textalignx, next: nil),
+        KeywordHashRow(keyword: "textaligny", func: ItemParse_textaligny, next: nil),
+        KeywordHashRow(keyword: "textscale", func: ItemParse_textscale, next: nil),
+        KeywordHashRow(keyword: "textstyle", func: ItemParse_textstyle, next: nil),
+        KeywordHashRow(keyword: "text2", func: ItemParse_text2, next: nil),
+        KeywordHashRow(keyword: "text2alignx", func: ItemParse_text2alignx, next: nil),
+        KeywordHashRow(keyword: "text2aligny", func: ItemParse_text2aligny, next: nil),
+        KeywordHashRow(keyword: "type", func: ItemParse_type, next: nil),
+        KeywordHashRow(keyword: "visible", func: ItemParse_visible, next: nil),
+        KeywordHashRow(keyword: "wrapped", func: ItemParse_wrapped, next: nil),
+        KeywordHashRow(keyword: "maxLineChars", func: ItemParse_maxLineChars, next: nil),
+        KeywordHashRow(keyword: "lineHeight", func: ItemParse_lineHeight, next: nil),
+        KeywordHashRow(keyword: "invertyesno", func: ItemParse_invertyesno, next: nil),
+        KeywordHashRow(keyword: "scrollhidden", func: ItemParse_scrollhidden, next: nil),
+        KeywordHashRow(keyword: "xoffset\t\t", func: ItemParse_xoffset, next: nil),
+    ]
+
+    /// Raven's `keywordHash_t *itemParseKeywordHash[KEYWORDHASH_SIZE]` of `ui_shared.c`, the index of the first row of each bucket, and nil for NULL.
+    /// Source: oracle/codemp/ui/ui_shared.c:8988
+    var itemParseKeywordHash = [Int32?](repeating: nil, count: Int(KEYWORDHASH_SIZE))
+
+    /// Raven's `keywordHash_t menuParseKeywords[]` of `ui_shared.c`, 35 rows in Raven's order.
+    /// The array's count takes the place of his `{0, 0, 0}` row, and KeywordHash_Add links a row into its bucket through `next`.
+    /// Source: oracle/codemp/ui/ui_shared.c:9717
+    var menuParseKeywords: [KeywordHashRow] = [
+        KeywordHashRow(keyword: "appearanceIncrement", func: MenuParse_appearanceIncrement, next: nil),
+        KeywordHashRow(keyword: "backcolor", func: MenuParse_backcolor, next: nil),
+        KeywordHashRow(keyword: "background", func: MenuParse_background, next: nil),
+        KeywordHashRow(keyword: "border", func: MenuParse_border, next: nil),
+        KeywordHashRow(keyword: "bordercolor", func: MenuParse_bordercolor, next: nil),
+        KeywordHashRow(keyword: "borderSize", func: MenuParse_borderSize, next: nil),
+        KeywordHashRow(keyword: "cinematic", func: MenuParse_cinematic, next: nil),
+        KeywordHashRow(keyword: "descAlignment", func: MenuParse_descAlignment, next: nil),
+        KeywordHashRow(keyword: "desccolor", func: MenuParse_descColor, next: nil),
+        KeywordHashRow(keyword: "descX", func: MenuParse_descX, next: nil),
+        KeywordHashRow(keyword: "descY", func: MenuParse_descY, next: nil),
+        KeywordHashRow(keyword: "descScale", func: MenuParse_descScale, next: nil),
+        KeywordHashRow(keyword: "disablecolor", func: MenuParse_disablecolor, next: nil),
+        KeywordHashRow(keyword: "fadeAmount", func: MenuParse_fadeAmount, next: nil),
+        KeywordHashRow(keyword: "fadeClamp", func: MenuParse_fadeClamp, next: nil),
+        KeywordHashRow(keyword: "fadeCycle", func: MenuParse_fadeCycle, next: nil),
+        KeywordHashRow(keyword: "focuscolor", func: MenuParse_focuscolor, next: nil),
+        KeywordHashRow(keyword: "font", func: MenuParse_font, next: nil),
+        KeywordHashRow(keyword: "forecolor", func: MenuParse_forecolor, next: nil),
+        KeywordHashRow(keyword: "fullscreen", func: MenuParse_fullscreen, next: nil),
+        KeywordHashRow(keyword: "itemDef", func: MenuParse_itemDef, next: nil),
+        KeywordHashRow(keyword: "name", func: MenuParse_name, next: nil),
+        KeywordHashRow(keyword: "onClose", func: MenuParse_onClose, next: nil),
+        KeywordHashRow(keyword: "onAccept", func: MenuParse_onAccept, next: nil),
+        KeywordHashRow(keyword: "onESC", func: MenuParse_onESC, next: nil),
+        KeywordHashRow(keyword: "outOfBoundsClick", func: MenuParse_outOfBounds, next: nil),
+        KeywordHashRow(keyword: "onOpen", func: MenuParse_onOpen, next: nil),
+        KeywordHashRow(keyword: "outlinecolor", func: MenuParse_outlinecolor, next: nil),
+        KeywordHashRow(keyword: "ownerdraw", func: MenuParse_ownerdraw, next: nil),
+        KeywordHashRow(keyword: "ownerdrawFlag", func: MenuParse_ownerdrawFlag, next: nil),
+        KeywordHashRow(keyword: "popup", func: MenuParse_popup, next: nil),
+        KeywordHashRow(keyword: "rect", func: MenuParse_rect, next: nil),
+        KeywordHashRow(keyword: "soundLoop", func: MenuParse_soundLoop, next: nil),
+        KeywordHashRow(keyword: "style", func: MenuParse_style, next: nil),
+        KeywordHashRow(keyword: "visible", func: MenuParse_visible, next: nil),
+    ]
+
+    /// Raven's `keywordHash_t *menuParseKeywordHash[KEYWORDHASH_SIZE]` of `ui_shared.c`, the index of the first row of each bucket, and nil for NULL.
+    /// Source: oracle/codemp/ui/ui_shared.c:9758
+    var menuParseKeywordHash = [Int32?](repeating: nil, count: Int(KEYWORDHASH_SIZE))
 }
 
 /// One row of Raven's `commands` of `cg_consolecmds.c`, the `consoleCommand_t` record with the command function as a Swift function value.
@@ -734,6 +909,21 @@ public final class CGameWorld {
 struct ConsoleCommandRow {
     let cmd: String
     let function: () -> Void
+}
+
+/// One row of Raven's `itemParseKeywords` and `menuParseKeywords` of `ui_shared.c`, the `keywordHash_t` record with the parse function as a Swift function value.
+/// C storage cannot hold the address of a Swift function, so the tables are hand data on `CGameWorld`, and Raven's `next` pointer is the index of the next row of the bucket.
+struct KeywordHashRow {
+    let keyword: String
+    let `func`: (ItemDef, Int32) -> Bool
+    var next: Int32?
+}
+
+/// One row of Raven's `commandList` of `ui_shared.c`, the `commandDef_t` record with the script function as a Swift function value.
+/// C storage cannot hold the address of a Swift function, so the table is hand data on `CGameWorld`.
+struct CommandDefRow {
+    let name: String
+    let handler: (ItemDef, inout TextCursor) -> Bool
 }
 
 /// One row of Raven's `cvarTable` of `cg_main.c`, the `cvarTable_t` record with the cvar handle as a key path into `CGameStorage`.

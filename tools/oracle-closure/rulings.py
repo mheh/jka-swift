@@ -223,7 +223,17 @@ NEVER_NULL_VARS = {"pm"}
 # The entry stays, so the stub does not declare a `CharBuf` of `POOLSIZE` bytes, and a body that reads `memoryPool` drafts a `portMissing` hole.
 # `cg_strPool` has no storage, because `CG_StrPool_Alloc` returns one block per call, in the `G_Alloc` form.
 # The entry stays, so the stub does not declare the pool of `MAX_CGSTRPOOL_SIZE` bytes, and a body that reads `cg_strPool` drafts a `portMissing` hole.
-HAND_VARS = {"bg_pool": None, "memoryPool": None, "cg_strPool": None}
+# A value that is a Swift array type names a hand table on the state object, and the stub forwards it under Raven's name.
+# The keyword tables of ui_shared.c hold the address of a parse function in each row, so each is a hand array of rows on CGameWorld,
+# and each hash table holds the index of the first row of a bucket. `commandList` holds the address of a script function the same way.
+HAND_VARS = {
+    "bg_pool": None, "memoryPool": None, "cg_strPool": None,
+    "commandList": "[CommandDefRow]",
+    "itemParseKeywords": "[KeywordHashRow]",
+    "menuParseKeywords": "[KeywordHashRow]",
+    "itemParseKeywordHash": "[Int32?]",
+    "menuParseKeywordHash": "[Int32?]",
+}
 
 # File-scope character arrays whose address the engine holds, so each one is one zeroed byte allocation on the storage class, not a `CharBuf`.
 # `gSharedBuffer` of g_main.c goes to the engine through `trap_SV_RegisterSharedMemory`, and vmMain reads the ICARUS views at its base.
