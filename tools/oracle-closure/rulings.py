@@ -147,6 +147,8 @@ CGAME_ROOTS = {
     # The C tables g_bindings and itemFlags of ui_shared.c hold these rows.
     "bind_t": ("Bind", "CJKAMP_CGame"),
     "itemFlagsDef_t": ("ItemFlagsDef", "CJKAMP_CGame"),
+    # The file-scope table `strHandle` of ui_shared.c holds pointers to these, one hash chain of interned texts per bucket.
+    "stringDef_t": ("StringDef", "CJKAMP_CGame"),
     # A trap or a stub parameter names these, and no root field points at them.
     "polyVert_t": ("PolyVert", "CJKAMP"),
     "poly_t": ("Poly", "CJKAMP"),

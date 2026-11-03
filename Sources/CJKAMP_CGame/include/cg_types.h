@@ -123,4 +123,10 @@ typedef struct {
 	int		bind2;
 } bind_t;
 
+// Source: oracle/codemp/ui/ui_shared.c:279
+typedef struct stringDef_s {
+	struct stringDef_s *next;
+	const char *str;
+} stringDef_t;
+
 #endif
