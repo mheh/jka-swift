@@ -7,8 +7,6 @@ import JKAMP_CGame
 /// The cgame module points each closure of the bg channel at its own function of the same name, where its build defines one.
 /// A closure with no such function keeps its trapping default, so a call to a game closure names the closure at the first call.
 public func installBgChannel() {
-    bg.error = { level, text in Com_Error(level, text) }
-    bg.print = { text in Com_Printf(text) }
     bg.fighterAltControl = bg_fighterAltControl
     bg.straps.strap_G2API_GetBoltMatrix = { strap_G2API_GetBoltMatrix($0, $1, $2, $3, $4, $5, $6, $7, &$8) }
     bg.straps.strap_G2API_GetBoltMatrix_NoReconstruct = { strap_G2API_GetBoltMatrix_NoReconstruct($0, $1, $2, $3, $4, $5, $6, $7, &$8) }
