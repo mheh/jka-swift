@@ -548,7 +548,7 @@ public func CG_NoUseableForce() -> Bool {
 
 /// Source: oracle/codemp/cgame/cg_main.c:190
 // Raven wrote: int vmMain( int command, int arg0, int arg1, int arg2, int arg3, int arg4, int arg5, int arg6, int arg7, int arg8, int arg9, int arg10, int arg11 )
-// Not ported: the shell's vmMain in Sources/jampgame/jampgame.swift decodes the command words and calls the bare functions, under rule 11 and ruling F5.
+// Not ported: the shell's vmMain in Sources/cgame/cgame.swift decodes the command words and calls the bare functions, under rule 11 and ruling F5.
 
 /// Source: oracle/codemp/cgame/cg_main.c:362
 public func C_PointContents() -> Int32 {

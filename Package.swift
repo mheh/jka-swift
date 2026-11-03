@@ -50,6 +50,7 @@ let package = Package(
         // MARK: - Shell, the product
         // dllEntry and vmMain. It decodes words and calls the bare functions.
         .target(name: "jampgame", dependencies: ["JKAMP_GameLogic"]),
+        .target(name: "cgame", dependencies: ["JKAMP_CGameLogic"]),
         // The dlopen loader, run in its own process, so the smoke test never loads the built library into the test process.
         .executableTarget(name: "jampsmoke", dependencies: ["CJKASyscall"]),
 
