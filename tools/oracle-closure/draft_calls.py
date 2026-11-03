@@ -125,6 +125,12 @@ class Calls:
             if at is not None:
                 words.append(f"at: {at[2]}")
             return f"{self.qualifier(name)}{LIBC_SPELLINGS.get(name, swift_name(name))}({', '.join(words)})"
+        if callee is not None and callee.kind == CursorKind.MEMBER_REF_EXPR \
+                and (not callee.spelling or callee.referenced is not None and callee.referenced.kind != CursorKind.FIELD_DECL):
+            # A C++ class of a host file has methods, and the C++ docket ports them. A method of a library class the parse
+            # cannot resolve, `std::map::clear`, has no name in the parse.
+            method = callee.spelling or " ".join(t.spelling for t in callee.get_tokens())
+            raise Hole(f"Raven calls the C++ method `{method}`, which the C++ docket ports.")
         if callee is not None and callee.kind == CursorKind.MEMBER_REF_EXPR:
             # A stored function on a view runs through the view's method, `pm.runTrace(...)`, which views.py writes per field.
             kids_ = list(callee.get_children())

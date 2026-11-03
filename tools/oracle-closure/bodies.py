@@ -327,7 +327,12 @@ class Drafter(Statements, Expressions, Calls, Declarations, Classification):
         self.hoists = self.shared_reads(body)
         lines = header[:-3]
         # A line of the body that no statement inside it drafted, a gap, a parameter copy, or a frame, belongs to the body, seq 0 of the function.
-        lines += marked(self.block_body(body, 1), self.statement_number(body))
+        try:
+            drafted = self.block_body(body, 1)
+        except Hole as hole:
+            # A hole no statement holds, a goto into a label from both sides at the top of the body, makes the body one hole.
+            drafted = self.hole(body, 1, str(hole))
+        lines += marked(drafted, self.statement_number(body))
         lines.append("}")
         # Each line gives up its statement mark and its role here.
         # line_keys keeps the statement beside the line for the compile gate, and line_roles keeps the role.
