@@ -275,9 +275,9 @@ public struct ItemDef: Hashable, HandleView {
     }
 
     /// Source: oracle/codemp/ui/ui_shared.h:298
-    public var typeData: OpaquePointer? {
-        get { OpaquePointer(self.raw.pointee.typeData) }
-        nonmutating set { self.raw.pointee.typeData = UnsafeMutableRawPointer(newValue) }
+    public var typeData: UnsafeMutableRawPointer? {
+        get { self.raw.pointee.typeData }
+        nonmutating set { self.raw.pointee.typeData = newValue }
     }
 
     /// Source: oracle/codemp/ui/ui_shared.h:299

@@ -227,6 +227,13 @@ BYTE_STORAGE_VARS = {"gSharedBuffer"}
 # The field twin of BYTE_STORAGE_VARS: a character array field whose address the engine holds, which the view reads as the field's address.
 # `cg.sharedBuffer` of cg_local.h goes to the engine through `trap_CG_RegisterSharedMemory`, and the engine callbacks of cg_main.c read records at its base.
 BYTE_STORAGE_FIELDS = {("cg_t", "sharedBuffer")}
+# (struct, field) -> the kind of a pointer field, where the C type alone does not say. The field twin of PARAMS, with two of its kinds:
+#   raw   an UnsafeMutableRawPointer? for a `void *` that holds one of several records, which Raven casts back by another field
+#   view  the optional view of the record named beside the kind, ("view", record), for a `void *` every store fills with that record or NULL
+# Item_ValidateTypeData allocates one of five records into `typeData` by `item->type`, ui_shared.c:7279, and the bodies cast it back.
+FIELDS = {
+    ("itemDef_t", "typeData"): "raw",
+}
 
 @dataclass(frozen=True)
 class HandMacro:

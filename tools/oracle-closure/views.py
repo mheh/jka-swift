@@ -45,7 +45,7 @@ from clang.cindex import CursorKind, TypeKind
 
 import closure as C
 from reexport import DEPS, SCALARS, SOURCES, VIEW_OF, source_lines
-from rulings import BYTE_STORAGE_FIELDS, NEVER_NULL, ROOTS, SLOT_BOUNDS
+from rulings import BYTE_STORAGE_FIELDS, FIELDS, NEVER_NULL, ROOTS, SLOT_BOUNDS
 from spelling import Types
 
 # Every C target the translation unit of the run's unit reaches, most specific first.
@@ -323,6 +323,15 @@ class Generator:
                     return self.trapping(name, view, get, f"{pointee} = UnsafeMutablePointer(newValue.handle)") + self.slots(field, view, self.c_name_of(inner), target)
                 return self.property(name, f"{view}?", f"{pointee}.map {{ {view}(handle: OpaquePointer($0)) }}",
                                      f"{pointee} = UnsafeMutablePointer(newValue?.handle)") + self.slots(field, view, self.c_name_of(inner), target)
+            ruled = FIELDS.get((self.owner_of(field), name))
+            if ruled == "raw" and inner.get_canonical().kind == TypeKind.VOID:
+                # The field holds one of several records, and a body views the record it holds through the cast Raven wrote.
+                return self.property(name, "UnsafeMutableRawPointer?", pointee, f"{pointee} = newValue")
+            if isinstance(ruled, tuple) and ruled[0] == "view" and inner.get_canonical().kind == TypeKind.VOID and ruled[1] in self.views:
+                # Every store fills the field with one record or NULL, so the field is that record's optional view.
+                view = self.qualified_view(ruled[1], target)
+                return self.property(name, f"{view}?", f"{pointee}.map {{ {view}(handle: OpaquePointer($0)) }}",
+                                     f"{pointee} = UnsafeMutableRawPointer(newValue?.handle)")
             back = "UnsafeMutableRawPointer" if inner.get_canonical().kind == TypeKind.VOID else "UnsafeMutablePointer"
             lines = self.property(name, "OpaquePointer?", f"OpaquePointer({pointee})", f"{pointee} = {back}(newValue)")
             if inner.get_canonical().kind == TypeKind.FLOAT:

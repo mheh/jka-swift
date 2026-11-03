@@ -368,6 +368,10 @@ class Statements:
             local = self.zeroed_local(args)
             if local is not None:
                 return [f"{pad}{self.expr(local)}.zero()" + self.trailing(cur)]
+            # Raven's `memset(item->typeData, 0, sizeof(listBoxDef_t))` over a raw field clears the record he allocated there.
+            record = self.raw_field_record(args)
+            if record is not None:
+                return [f"{pad}{record}({self.expr(args[0])}!).clear()" + self.trailing(cur)]
             # Raven's memset over a whole array of scalars or vectors is one value into every element, `totalDmg.fill(0)`.
             filled = self.filled_array(args)
             if filled is not None:
@@ -457,6 +461,9 @@ class Statements:
         target = self.strip(args[0])
         if target.kind == CursorKind.UNARY_OPERATOR and self.unary_parts(target)[0] == "&":
             target = self.strip(self.unary_parts(target)[2])
+        if self.unwrap(target).kind == CursorKind.CSTYLE_CAST_EXPR:
+            # Raven's `(char*)scrollPtr->pLines` names the same bytes as the array.
+            target = self.strip(list(self.unwrap(target).get_children())[-1])
         t = self.unwrap(target).type.get_canonical()
         if t.kind != TypeKind.CONSTANTARRAY:
             return None
@@ -465,7 +472,12 @@ class Statements:
         while inner.kind == TypeKind.CONSTANTARRAY and not self.vector_type(inner):
             inner = inner.element_type.get_canonical()
         value = " ".join(self.source.slice(self.unwrap(args[1]).extent).split())
-        if self.vector_type(inner):
+        if inner.kind == TypeKind.POINTER:
+            # An array of pointers, Raven's `const char *pLines[N]`, which the view holds as a Slots of optionals, and zero is NULL.
+            if value != "0":
+                return None
+            word = "nil"
+        elif self.vector_type(inner):
             if value != "0":
                 return None
             word = "vec3_t()"
@@ -502,6 +514,19 @@ class Statements:
         if size not in wholes:
             return None
         return self.expr(target), word
+
+    def raw_field_record(self, args: list[ci.Cursor]) -> str | None:
+        """The view of the record for Raven's `memset(item->typeData, 0, sizeof(listBoxDef_t))` over a raw field, or None.
+        The value is zero, and the size is `sizeof` of one record with a view, the record Raven allocated into the field."""
+        if len(args) != 3 or self.field_kind(args[0]) != "raw":
+            return None
+        value = " ".join(self.source.slice(self.unwrap(args[1]).extent).split())
+        size = "".join(self.source.slice(self.unwrap(args[2]).extent).split())
+        m = re.fullmatch(r"sizeof\((\w+)\)", size)
+        if value != "0" or m is None or m.group(1) not in self.views.views:
+            return None
+        self.reachable(m.group(1))
+        return self.views.qualified_view(m.group(1), TARGET)
 
     def vector_type(self, t: ci.Type) -> bool:
         """True for Raven's `vec3_t`, an array of three floats."""

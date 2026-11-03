@@ -11,7 +11,7 @@ from clang.cindex import CursorKind, TypeKind
 
 from spelling import INT_KINDS
 
-from rulings import CHARBUF_ALLOCS, NEVER_NULL_VARS
+from rulings import CHARBUF_ALLOCS, FIELDS, NEVER_NULL_VARS
 import closure as C
 from skeleton import BG, Function, target_of
 from table import ASSIGN_OPS, Cursor, swift_name
@@ -125,11 +125,21 @@ class Classification:
             return inner.spelling in self.raw_locals
         if inner.kind == CursorKind.CALL_EXPR:
             return self.callee_returns(self.callee_name(inner) or "") == "UnsafeMutableRawPointer"
+        if inner.kind == CursorKind.MEMBER_REF_EXPR:
+            # A FIELDS row of kind raw spells a `void *` field as the raw pointer.
+            return self.field_kind(inner) == "raw"
         if inner.kind == CursorKind.UNARY_OPERATOR and self.operator_or_none_unary(inner) == "*":
             # Raven's `*(char **)(b+ofs)` is the raw pointer the slot at that byte offset holds.
             raw = self.raw_store(inner)
             return raw is not None and raw[1] == "pointer"
         return False
+
+    def field_kind(self, cur: ci.Cursor) -> str | tuple[str, str] | None:
+        """The FIELDS kind of a member read, `raw` or ("view", record), or None for a field no row names."""
+        inner = self.unwrap(cur)
+        if inner.kind != CursorKind.MEMBER_REF_EXPR or inner.referenced is None or inner.referenced.semantic_parent is None:
+            return None
+        return FIELDS.get((self.types.record_name(inner.referenced.semantic_parent.type), inner.spelling))
 
     def local_facts(self, fn: Function) -> tuple[dict[str, Cursor], dict[str, Cursor], dict[str, tuple[str, str]]]:
         """The read cursors, the write cursors, and the table walks of one body, by the local read of the table, each under Raven's own name."""
