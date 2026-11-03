@@ -961,6 +961,11 @@ class Expressions:
                     and canonical.get_pointee().get_canonical().get_pointee().get_canonical().kind == TypeKind.CHAR_S:
                 # Raven's `(const char **)&p` is the address of a cursor, which the plain `&p` shape already passes.
                 return self.expr(self.unwrap(operand))
+            cursor_param = self.params_by_name.get(self.strip(operand).spelling) if self.strip(operand).kind == CursorKind.DECL_REF_EXPR else None
+            if cursor_param is not None and "TextCursor" in (cursor_param.swift or "") \
+                    and canonical.get_pointee().get_canonical().kind == TypeKind.POINTER:
+                # Raven's `(const char **)p` over his own `const char **p` is the cursor parameter, which the call passes as `&p`.
+                return self.expr(operand)
             record = self.types.record_name(canonical.get_pointee())
             if record and record in self.views.views:
                 self.reachable(record)

@@ -278,6 +278,8 @@ class Drafter(Statements, Expressions, Calls, Declarations, Classification):
         self.raw_locals = self.raw_local_names(fn.cur) - self.charbuf_locals
         # Raven's `const char *token` that only holds parsed text is a String.
         self.text_locals, self.optional_texts = self.text_local_names(fn.cur)
+        # A cursor the parser steps through a cast of its address is a TextCursor, even where a store gives it a call's text.
+        self.text_locals -= set(self.cursor_locals)
         # The slot text each copy stands for inside the one call being drafted, `fxAxis[2]` for `fxAxis2`.
         self.slot_copies: dict[str, str] = {}
         # The copy that stands in for each earlier aliased argument of the one call being drafted, keyed by the argument's extent and position.

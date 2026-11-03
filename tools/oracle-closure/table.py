@@ -307,6 +307,8 @@ BG_FIELDS = {"s", "playerState", "m_pVehicle", "ghoul2", "localAnimIndex", "mode
 #      A step of that local, `p++`, moves the local and writes no byte, so it counts as a read of the local.
 # A cast, an address-of, pointer arithmetic, `++` on the parameter, a store into the parameter or through it,
 # a return of it, and a pass to a function with no body are none of these, so each one keeps the CharBuf.
+# The store kind of a cursor local set from the text a call returns, which names the call and no buffer.
+TEXT_CALL = ("", False)
 TEXT_READERS = {"Q_stricmp", "Q_stricmpn", "Q_strncmp", "strlen", "strcmp", "strncmp", "atoi", "atof", "Com_Printf"}
 TEXT_TESTS = {"==", "!=", "<", ">", "<=", ">=", "&&", "||"}
 # A C comment of either form, which a reader of the source text between two nodes drops before it reads the operator there.
@@ -1239,8 +1241,21 @@ class Table:
             if not self.char_pointer(left.type):
                 continue
             stores.setdefault(left.spelling, []).append(self.cursor_store(kids[1], data))
+        # A local whose address Raven casts to `const char **` for a parser, `COM_Parse((const char **)&s)`, is a cursor
+        # even where its store is the text a call returns, because the parser steps it.
+        cast_addressed = set()
+        for node in fn.walk_preorder():
+            if node.kind == CursorKind.CSTYLE_CAST_EXPR and node.type.get_canonical().kind == TypeKind.POINTER \
+                    and node.type.get_canonical().get_pointee().get_canonical().kind == TypeKind.POINTER:
+                operand = self.unwrapped(list(node.get_children())[-1])
+                if operand.kind == CursorKind.UNARY_OPERATOR and data[operand.extent.start.offset:operand.extent.start.offset + 1] == b"&":
+                    target = self.unwrapped(list(operand.get_children())[0])
+                    if target.kind == CursorKind.DECL_REF_EXPR:
+                        cast_addressed.add(target.spelling)
         out: dict[str, tuple[str, bool, bool]] = {}
         for name, seen in stores.items():
+            if any(s == TEXT_CALL for s in seen) and name not in cast_addressed:
+                continue
             if not seen or any(s is None for s in seen):
                 continue
             named = {s[:2] for s in seen if s != "null"}
@@ -1262,6 +1277,10 @@ class Table:
             args = list(inner.get_arguments())
             found = self.cursor_store(args[0], data) if args and self.unwrapped(args[0]).kind == CursorKind.DECL_REF_EXPR else None
             return found + (True,) if isinstance(found, tuple) and len(found) == 2 else None
+        called = self.unwrapped(list(inner.get_children())[-1]) if inner.kind == CursorKind.CSTYLE_CAST_EXPR else inner
+        if called.kind == CursorKind.CALL_EXPR and self.char_pointer(called.type):
+            # The text a call returns, which a cursor walks only where the parser steps it, see `cursor_buffers`.
+            return TEXT_CALL
         if inner.kind == CursorKind.BINARY_OPERATOR:
             kids = list(inner.get_children())
             if len(kids) != 2:

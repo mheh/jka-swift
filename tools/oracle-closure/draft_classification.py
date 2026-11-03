@@ -156,6 +156,9 @@ class Classification:
         if inner.kind == CursorKind.BINARY_OPERATOR and self.operator_or_none(inner) == "+":
             base, offset = list(inner.get_children())
             return f"JKAShared.TextCursor({self.expr(base)}, at: {self.converted(offset, 'Int32')})"
+        if self.is_call(self.uncast(inner)):
+            # The text a call returns is a String, and the cursor walks the CharBuf of it.
+            return f"JKAShared.TextCursor(JKAShared.CharBuf({self.expr(self.uncast(inner))}))"
         return f"JKAShared.TextCursor({self.expr(inner)})"
 
     def cursor_offset(self, cur: ci.Cursor) -> str:
