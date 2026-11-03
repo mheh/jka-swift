@@ -30,7 +30,7 @@ One commit per stem closed the notes by hand:
 - 7eaa671, SpeederNPC. The strafe test, the `Attacking` local, and its animation chain take the text of the game body of the same file.
 - 16168c8, 21896bb, and the SpeederNPC commit. The `G_Create*NPC` memset and the info store go through `pVeh!`, as the game bodies do.
 - f9ecbc8, cg_scoreboard. The `float *color` parameter takes `&color[0]` and `&fadeColor![0]`, the first float of Raven's pointer. `fade = *fadeColor` reads `fadeColor![0]`. The pre-increment in the test is a step and then the test.
-- 4ff650f, cg_info. `Q_strupr(&upperKey)` runs in place, and the call passes `String(upperKey)`.
+- 4ff650f, cg_info. `Q_strupr(&upperKey)` runs in place, and the call passes `String(upperKey)`. The table commit after the record closes the two `forceMasteryLevels` reads.
 - a649d86, cg_light. `*(int*)ls->value` joins the four bytes in little-endian order under one AI line. The light style string is a CharBuf, and Raven's expression is two terms.
 - add4245, cg_turret. The test of the `turAngles` array address is always true, so the bone call runs with no test.
 - 691923e, cg_weaponinit. The `bg_itemlist + 1` walks are `itemIndex` and `ammoIndex`. The memset is `weaponInfo!.clear()`. MAKERGB is three stores under one comment that names the macro. The 16 trail function stores use the 14 thunks of a private `WeaponInfoThunks`, in the `VehicleInfoThunks` form.
@@ -50,11 +50,11 @@ The build passes, and `swift test --no-parallel` passes 113 tests across its run
 
 ## The notes left
 
-cg_info holds 2 Port-notes and 2 `portMissing` lines, at the two reads of `forceMasteryLevels` in CG_DrawInformation. Raven declares the table at `bg_misc.c:150`, and `bg_misc.swift` carries `forceMasteryPoints` beside its place but not `forceMasteryLevels`. The table belongs in `bg_misc.swift` as a public `let` of Raven's eight strings, which is a file outside this round.
+The first hole round left 2 Port-notes in cg_info, at the two reads of `forceMasteryLevels` in CG_DrawInformation, because the table had no Swift home. The coordinator ruled the table into `bg_misc.swift` as a public `let` of Raven's eight strings from `bg_misc.c:150`, in the form of its sibling `forceMasteryPoints`. The two reads take the plain read, `forceMasteryLevels[value]` and `forceMasteryLevels[7]`.
 
 cg_marks holds 0 Port-notes and the one dead `portMissing` line of R17.
 
-The other nine files hold 0 Port-notes and 0 `portMissing` lines.
+The other ten files hold 0 Port-notes and 0 `portMissing` lines. The build passes, and `swift test --no-parallel` passes the same 113 tests.
 
 ## Drafter rows found
 
