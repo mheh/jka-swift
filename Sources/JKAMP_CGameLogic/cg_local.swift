@@ -128,6 +128,26 @@ public final class CGameWorld {
     /// Source: oracle/codemp/cgame/cg_draw.c:5326
     var cg_saberFlashPos: JKAShared.vec3_t = vec3_t()
 
+    /// Raven's `static qboolean flip = qtrue` of `CG_DrawZoomMask` in `cg_draw.c`.
+    /// Source: oracle/codemp/cgame/cg_draw.c:224
+    var flip: Bool = true
+
+    /// Raven's `static unsigned short previousTimes[FPS_FRAMES]` of `CG_DrawFPS` in `cg_draw.c`.
+    /// Source: oracle/codemp/cgame/cg_draw.c:3074
+    var previousTimes = [UInt16](repeating: 0, count: Int(FPS_FRAMES))
+
+    /// Raven's `static unsigned short index` of `CG_DrawFPS` in `cg_draw.c`.
+    /// Source: oracle/codemp/cgame/cg_draw.c:3075
+    var index: UInt16 = 0
+
+    /// Raven's `static int previous` of `CG_DrawFPS` in `cg_draw.c`.
+    /// Source: oracle/codemp/cgame/cg_draw.c:3076
+    var previous: Int32 = 0
+
+    /// Raven's `static int lastupdate` of `CG_DrawFPS` in `cg_draw.c`.
+    /// Source: oracle/codemp/cgame/cg_draw.c:3076
+    var lastupdate: Int32 = 0
+
     // MARK: - cg_ents.c
 
     /// Raven's `char *forceHolocronModels[]` of `cg_ents.c`.
