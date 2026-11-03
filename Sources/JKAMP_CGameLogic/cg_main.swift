@@ -2948,9 +2948,7 @@ func CG_LoadHudMenu() {
     cgDC.deferScript = DisplayContextDefThunks.CG_DeferMenuScript
     cgDC.getTeamColor = DisplayContextDefThunks.CG_GetTeamColor
     cgDC.setCVar = DisplayContextDefThunks.trap_Cvar_Set
-    // Port-note: The draft of this statement did not compile, and the compiler wrote "failed to produce diagnostic for expression; please submit a bug report (https://swift.org/contributing/#reporting-bugs)".
-    // Raven wrote: cgDC.getCVarString = trap_Cvar_VariableStringBuffer
-    portMissing("CG_LoadHudMenu", source: "oracle/codemp/cgame/cg_main.c:3145")
+    cgDC.getCVarString = DisplayContextDefThunks.trap_Cvar_VariableStringBuffer
     cgDC.getCVarValue = DisplayContextDefThunks.CG_Cvar_Get
     cgDC.drawTextWithCursor = DisplayContextDefThunks.CG_Text_PaintWithCursor
     //cgDC.setOverstrikeMode = &trap_Key_SetOverstrikeMode;
@@ -4008,6 +4006,12 @@ private enum DisplayContextDefThunks {
 
     /// Source: oracle/codemp/cgame/cg_syscalls.c:58
     static let trap_Cvar_Set: DisplayContextDefSetCVar = { JKAMP_CGame.trap_Cvar_Set(text(at: $0!), text(at: $1!)) }
+
+    /// Source: oracle/codemp/cgame/cg_syscalls.c:62
+    static let trap_Cvar_VariableStringBuffer: DisplayContextDefGetCVarString = { var_name, buffer, bufsize in
+        let value = JKAMP_CGame.trap_Cvar_VariableStringBuffer(text(at: var_name!), bufsize)
+        store(value, at: UnsafeMutableRawPointer(buffer!), capacity: Int(bufsize))
+    }
 
     /// Source: oracle/codemp/cgame/cg_syscalls.c:307
     static let trap_Language_IsAsian: DisplayContextDefLanguage_IsAsian = { JKAMP_CGame.trap_Language_IsAsian() ? 1 : 0 }
