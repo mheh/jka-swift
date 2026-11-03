@@ -50,7 +50,8 @@ The build passes, and `swift test --no-parallel` passes 113 tests across its run
 - `(bgEntity_t *)cg_entities` is `BgEntity(cg_entities[0])`.
 - A store of a player state's `vehOrientation` into `m_vOrientation` is `pointOrientation(at:)`.
 - `#ifdef QAGAME` in the borrowed FighterNPC takes the cgame branch.
-- Two sites carry a rule 19 comment and no Port-note. The teamVoteString store bounds the text to its row, where Raven's 2048 bound lets the NUL pad of row 0 clear row 1 and the pad of row 1 overrun the array. The walk of CG_ParseSiegeExtendedDataEntry stops at the NUL, where Raven steps past it and reads the next byte.
+- The teamVoteString store keeps Raven's pad. His Q_strncpyz takes the size of both rows, 2048 bytes, so the store zeroes the table before a copy into row 0, and a copy into row 1 writes row 1 alone. The coordinator ruled this form, and commit e12dce9 carries it.
+- The walk of CG_ParseSiegeExtendedDataEntry carries a rule 19 comment and no Port-note. It stops at the NUL, where Raven steps past it and reads the next byte.
 
 ## The notes left
 
@@ -58,7 +59,6 @@ The build passes, and `swift test --no-parallel` passes 113 tests across its run
 - cg_predict, 3 notes in CG_ClipMoveToEntities. Raven saves `m_vOrientation`, points it at `cent->lerpAngles`, and restores it. `pointOrientation(at:)` points only at a player state, and a centity form needs a view method in the cgame view target.
 - cg_newDraw, 1 note in CG_KeyEvent. The ui_shared stub of Display_CaptureItem has a signature marker and takes no arguments.
 - Three stubs keep a `TODO: Port signature` marker and a portMissing line with no Port-note: CG_FadeColor of cg_drawtools, and CG_DoGlassQuad and CG_CalcBiLerp of cg_effects.
-- The teamVoteString divergence changes what a player sees when row 0 changes, and it waits for a ruling.
 
 ## Drafter rows found
 
