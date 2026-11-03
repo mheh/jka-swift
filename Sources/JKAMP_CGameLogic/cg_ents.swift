@@ -32,8 +32,27 @@ tag location
 */
 /// Source: oracle/codemp/cgame/cg_ents.c:26
 func CG_PositionEntityOnTag(_ entity: JKAMP.RefEntity, _ parent: JKAMP.RefEntity, _ parentModel: JKAShared.qhandle_t, _ tagName: String) {
-    // TODO: Port CG_PositionEntityOnTag
-    portMissing("CG_PositionEntityOnTag", source: "oracle/codemp/cgame/cg_ents.c:26")
+    var i: Int32 = 0
+    // Raven's record lives to the end of his block, so the block is the closure.
+    Orientation.scratch { lerped in
+
+        // lerp the tag
+        trap_R_LerpTag(lerped, parentModel, parent.oldframe, parent.frame, Float(1.0 - Double(parent.backlerp)), tagName)
+
+        // FIXME: allow origin offsets along tag?
+        entity.origin = parent.origin
+        i = 0
+        while i < 3 {
+            _VectorMA(entity.origin, lerped.origin[i], parent.axis[i], &entity.origin)
+            i += 1
+        }
+
+        // had to cast away the const to avoid compiler problems...
+        // Port-note: The draft of this statement did not compile, and the compiler wrote "'&' used with non-inout argument of type 'Slots<vec3_t>' (aka 'Slots<SIMD3<Float>>')".
+        // Raven wrote: MatrixMultiply( lerped.axis, ((refEntity_t *)parent)->axis, entity->axis )
+        portMissing("CG_PositionEntityOnTag", source: "oracle/codemp/cgame/cg_ents.c:26")
+        entity.backlerp = parent.backlerp
+    }
 }
 
 /**
@@ -48,8 +67,31 @@ tag location
 */
 /// Source: oracle/codemp/cgame/cg_ents.c:55
 func CG_PositionRotatedEntityOnTag(_ entity: JKAMP.RefEntity, _ parent: JKAMP.RefEntity, _ parentModel: JKAShared.qhandle_t, _ tagName: String) {
-    // TODO: Port CG_PositionRotatedEntityOnTag
-    portMissing("CG_PositionRotatedEntityOnTag", source: "oracle/codemp/cgame/cg_ents.c:55")
+    var i: Int32 = 0
+    // Raven's record lives to the end of his block, so the block is the closure.
+    Orientation.scratch { lerped in
+        var tempAxis = [vec3_t](repeating: vec3_t(), count: 3)
+
+        //AxisClear( entity->axis );
+        // lerp the tag
+        trap_R_LerpTag(lerped, parentModel, parent.oldframe, parent.frame, Float(1.0 - Double(parent.backlerp)), tagName)
+
+        // FIXME: allow origin offsets along tag?
+        entity.origin = parent.origin
+        i = 0
+        while i < 3 {
+            _VectorMA(entity.origin, lerped.origin[i], parent.axis[i], &entity.origin)
+            i += 1
+        }
+
+        // had to cast away the const to avoid compiler problems...
+        // Port-note: The draft of this statement did not compile, and the compiler wrote "cannot convert value of type 'Slots<vec3_t>' (aka 'Slots<SIMD3<Float>>') to expected argument type '[vec3_t]' (aka 'Array<SIMD3<Float>>')".
+        // Raven wrote: MatrixMultiply( entity->axis, lerped.axis, tempAxis )
+        portMissing("CG_PositionRotatedEntityOnTag", source: "oracle/codemp/cgame/cg_ents.c:55")
+        // Port-note: The draft of this statement did not compile, and the compiler wrote "'&' used with non-inout argument of type 'Slots<vec3_t>' (aka 'Slots<SIMD3<Float>>')".
+        // Raven wrote: MatrixMultiply( tempAxis, ((refEntity_t *)parent)->axis, entity->axis )
+        portMissing("CG_PositionRotatedEntityOnTag", source: "oracle/codemp/cgame/cg_ents.c:55")
+    }
 }
 
 //only need to use the CG_S_ system when you want a looping sound that isn't going to add itself
@@ -65,8 +107,14 @@ Also called by event processing code
 */
 /// Source: oracle/codemp/cgame/cg_ents.c:96
 func CG_SetEntitySoundPosition(_ cent: Centity) {
-    // TODO: Port CG_SetEntitySoundPosition
-    portMissing("CG_SetEntitySoundPosition", source: "oracle/codemp/cgame/cg_ents.c:96")
+    if cent.currentState.solid == SOLID_BMODEL {
+        var origin = vec3_t()
+
+        origin = cent.lerpOrigin + cgs.inlineModelMidpoints[cent.currentState.modelindex]
+        trap_S_UpdateEntityPosition(cent.currentState.number, origin)
+    } else {
+        trap_S_UpdateEntityPosition(cent.currentState.number, cent.lerpOrigin)
+    }
 }
 
 /**
@@ -80,8 +128,39 @@ Set the current looping sounds on the entity.
 */
 /// Source: oracle/codemp/cgame/cg_ents.c:119
 func CG_S_AddLoopingSound(_ entityNum: Int32, _ origin: JKAShared.vec3_t, _ velocity: JKAShared.vec3_t, _ sfx: JKAShared.sfxHandle_t) {
-    // TODO: Port CG_S_AddLoopingSound
-    portMissing("CG_S_AddLoopingSound", source: "oracle/codemp/cgame/cg_ents.c:119")
+    let cent: Centity? = cg_entities[entityNum]
+    var cSound: CgLoopSound? = nil
+    let i: Int32 = 0
+    var alreadyPlaying: Bool = false
+
+    //first see if we're already looping this sound handle.
+    while i < cent!.numLoopingSounds {
+        cSound = cent!.loopingSound[i]
+
+        if cSound!.sfx == sfx {
+            alreadyPlaying = true
+            break
+        }
+    }
+
+    if alreadyPlaying && cSound != nil {
+        //if this is the case, just update the properties of the looping sound and return.
+        cSound!.origin = origin
+        cSound!.velocity = velocity
+    } else if cent!.numLoopingSounds >= MAX_CG_LOOPSOUNDS {
+        //Just don't add it then I suppose.
+        return
+    }
+
+    //Add a new looping sound.
+    cSound = cent!.loopingSound[cent!.numLoopingSounds]
+
+    cSound!.entityNum = entityNum
+    cSound!.origin = origin
+    cSound!.velocity = velocity
+    cSound!.sfx = sfx
+
+    cent!.numLoopingSounds += 1
 }
 
 /**
@@ -95,8 +174,7 @@ For now just redirect, might eventually do something different.
 */
 /// Source: oracle/codemp/cgame/cg_ents.c:169
 func CG_S_AddRealLoopingSound(_ entityNum: Int32, _ origin: JKAShared.vec3_t, _ velocity: JKAShared.vec3_t, _ sfx: JKAShared.sfxHandle_t) {
-    // TODO: Port CG_S_AddRealLoopingSound
-    portMissing("CG_S_AddRealLoopingSound", source: "oracle/codemp/cgame/cg_ents.c:169")
+    CG_S_AddLoopingSound(entityNum, origin, velocity, sfx)
 }
 
 /**
@@ -110,8 +188,34 @@ Clear looping sounds.
 */
 /// Source: oracle/codemp/cgame/cg_ents.c:181
 func CG_S_StopLoopingSound(_ entityNum: Int32, _ sfx: JKAShared.sfxHandle_t) {
-    // TODO: Port CG_S_StopLoopingSound
-    portMissing("CG_S_StopLoopingSound", source: "oracle/codemp/cgame/cg_ents.c:181")
+    let cent: Centity? = cg_entities[entityNum]
+    var cSound: CgLoopSound?
+
+    if sfx == -1 {
+        //clear all the looping sounds on the entity
+        cent!.numLoopingSounds = 0
+    } else {
+        //otherwise, clear only the specified looping sound
+        var i: Int32 = 0
+
+        while i < cent!.numLoopingSounds {
+            cSound = cent!.loopingSound[i]
+
+            if cSound!.sfx == sfx {
+                //remove it then
+                var x: Int32 = i + 1
+
+                while x < cent!.numLoopingSounds {
+                    cent!.loopingSound[x - 1].copy(from: cent!.loopingSound[x])
+                    x += 1
+                }
+                cent!.numLoopingSounds -= 1
+            }
+
+            i += 1
+        }
+    }
+    //trap_S_StopLoopingSound(entityNum);
 }
 
 /**
@@ -125,8 +229,29 @@ Update any existing looping sounds on the entity.
 */
 /// Source: oracle/codemp/cgame/cg_ents.c:223
 func CG_S_UpdateLoopingSounds(_ entityNum: Int32) {
-    // TODO: Port CG_S_UpdateLoopingSounds
-    portMissing("CG_S_UpdateLoopingSounds", source: "oracle/codemp/cgame/cg_ents.c:223")
+    let cent: Centity? = cg_entities[entityNum]
+    var cSound: CgLoopSound?
+    var lerpOrg = vec3_t()
+    var i: Int32 = 0
+
+    if cent!.numLoopingSounds == 0 {
+        return
+    }
+
+    if cent!.currentState.eType == ET_MOVER {
+        lerpOrg = cent!.lerpOrigin + cgs.inlineModelMidpoints[cent!.currentState.modelindex]
+    } else {
+        lerpOrg = cent!.lerpOrigin
+    }
+
+    while i < cent!.numLoopingSounds {
+        cSound = cent!.loopingSound[i]
+
+        //trap_S_AddLoopingSound(entityNum, cSound->origin, cSound->velocity, cSound->sfx);
+        //I guess just keep using lerpOrigin for now,
+        trap_S_AddLoopingSound(entityNum, lerpOrg, cSound!.velocity, cSound!.sfx)
+        i += 1
+    }
 }
 
 /**
@@ -140,20 +265,177 @@ Add continuous entity effects, like local entity emission and lighting
 */
 /// Source: oracle/codemp/cgame/cg_ents.c:264
 private func CG_EntityEffects(_ cent: Centity) {
-    // TODO: Port CG_EntityEffects
-    portMissing("CG_EntityEffects", source: "oracle/codemp/cgame/cg_ents.c:264")
+    // update sound origins
+    CG_SetEntitySoundPosition(cent)
+
+    // add loop sound
+    if cent.currentState.loopSound != 0 || (cent.currentState.loopIsSoundset && cent.currentState.number >= MAX_CLIENTS) {
+        var realSoundIndex: sfxHandle_t = -1
+
+        if cent.currentState.loopIsSoundset && cent.currentState.number >= MAX_CLIENTS {
+            //If this is so, then first get our soundset from the index, and loopSound actually contains which part of the set to
+            //use rather than a sound index (BMS_START [0], BMS_MID [1], or BMS_END [2]). Typically loop sounds will be BMS_MID.
+            let soundSet: String
+
+            soundSet = CG_ConfigString(CS_AMBIENT_SET + cent.currentState.soundSetIndex)
+
+            if !soundSet.isEmpty {
+                realSoundIndex = trap_AS_GetBModelSound(soundSet, cent.currentState.loopSound)
+            }
+        } else {
+            realSoundIndex = cgs.gameSounds[cent.currentState.loopSound]
+        }
+
+        //rww - doors and things with looping sounds have a crazy origin (being brush models and all)
+        if realSoundIndex != -1 {
+            if cent.currentState.solid == SOLID_BMODEL {
+                var origin = vec3_t()
+
+                origin = cent.lerpOrigin + cgs.inlineModelMidpoints[cent.currentState.modelindex]
+                trap_S_AddLoopingSound(cent.currentState.number, origin, vec3_origin, realSoundIndex)
+            } else if cent.currentState.eType != ET_SPEAKER {
+                trap_S_AddLoopingSound(cent.currentState.number, cent.lerpOrigin, vec3_origin, realSoundIndex)
+            } else {
+                trap_S_AddRealLoopingSound(cent.currentState.number, cent.lerpOrigin, vec3_origin, realSoundIndex)
+            }
+        }
+    }
+
+
+    // constant light glow
+    if cent.currentState.constantLight != 0 {
+        let cl: Int32
+        let i: Int32
+        let r: Int32
+        let g: Int32
+        let b: Int32
+
+        cl = cent.currentState.constantLight
+        r = cl & 255
+        g = (cl >> 8) & 255
+        b = (cl >> 16) & 255
+        i = ((cl >> 24) & 255) * 4
+        trap_R_AddLightToScene(cent.lerpOrigin, Float(i), Float(r), Float(g), Float(b))
+    }
 }
 
 /// Source: oracle/codemp/cgame/cg_ents.c:329
 func FX_AddOrientedLine(_ start: JKAShared.vec3_t, _ end: JKAShared.vec3_t, _ normal: JKAShared.vec3_t, _ stScale: Float, _ scale: Float, _ dscale: Float, _ startalpha: Float, _ endalpha: Float, _ killTime: Float, _ shader: JKAShared.qhandle_t) -> LocalEntity? {
-    // TODO: Port FX_AddOrientedLine
+    var le: LocalEntity?
+
+
+    le = CG_AllocLocalEntity()
+    le!.leType = LE_OLINE
+
+    le!.startTime = cg.time
+    le!.endTime = Int32(le!.startTime + killTime)
+    le!.data.line.width = scale
+    le!.data.line.dwidth = dscale
+
+    le!.alpha = startalpha
+    le!.dalpha = endalpha - startalpha
+
+    le!.refEntity.data.line.stscale = stScale
+    le!.refEntity.data.line.width = scale
+
+    le!.refEntity.customShader = shader
+
+    // set origin
+    le!.refEntity.origin = start
+    le!.refEntity.oldorigin = end
+
+    // Port-note: The draft of this statement did not compile, and the compiler wrote "'&' used with non-inout argument of type 'Slots<vec3_t>' (aka 'Slots<SIMD3<Float>>')".
+    // Raven wrote: AxisClear(le->refEntity.axis)
     portMissing("FX_AddOrientedLine", source: "oracle/codemp/cgame/cg_ents.c:329")
+    le!.refEntity.axis[0] = normal
+    // Port-note: The draft of this statement did not compile, and the compiler wrote "cannot convert value of type 'Slots<vec3_t>' (aka 'Slots<SIMD3<Float>>') to expected argument type '[vec3_t]' (aka 'Array<SIMD3<Float>>')".
+    // Raven wrote: RotateAroundDirection( le->refEntity.axis, 0)
+    portMissing("FX_AddOrientedLine", source: "oracle/codemp/cgame/cg_ents.c:329")
+
+    le!.refEntity.shaderRGBA[0] = 0xff
+    le!.refEntity.shaderRGBA[1] = 0xff
+    le!.refEntity.shaderRGBA[2] = 0xff
+    le!.refEntity.shaderRGBA[3] = 0xff
+
+    le!.color[0] = 1.0
+    le!.color[1] = 1.0
+    le!.color[2] = 1.0
+    le!.color[3] = 1.0
+    le!.lifeRate = Float(1.0 / Double(le!.endTime - le!.startTime))
+
+    return (le)
 }
 
 /// Source: oracle/codemp/cgame/cg_ents.c:379
 func FX_DrawPortableShield(_ cent: Centity) {
-    // TODO: Port FX_DrawPortableShield
-    portMissing("FX_DrawPortableShield", source: "oracle/codemp/cgame/cg_ents.c:379")
+    //rww - this code differs a bit from the draw code in EF, I don't know why I had to do
+    //it this way yet it worked in EF the other way.
+
+    let xaxis: Int32
+    let height: Int32
+    let posWidth: Int32
+    let negWidth: Int32
+    let team: Int32
+    var start = vec3_t()
+    var end = vec3_t()
+    var normal = vec3_t()
+    var le: LocalEntity?
+    var shader: qhandle_t
+    var buf = CharBuf(1024)
+
+    strcpy(&buf, trap_Cvar_VariableStringBuffer("cl_paused", Int32((buf).count)))
+
+    if atoi(buf) != 0 {
+        //rww - fix to keep from rendering repeatedly while HUD menu is up
+        return
+    }
+
+    if (cent.currentState.eFlags & EF_NODRAW) != 0 {
+        return
+    }
+
+    // decode the data stored in time2
+    xaxis = ((cent.currentState.time2 >> 24) & 1)
+    height = ((cent.currentState.time2 >> 16) & 255)
+    posWidth = ((cent.currentState.time2 >> 8) & 255)
+    negWidth = (cent.currentState.time2 & 255)
+
+    team = (cent.currentState.otherEntityNum2)
+
+    normal = vec3_t()
+
+    start = cent.lerpOrigin
+    end = cent.lerpOrigin
+
+    if xaxis != 0 {
+        start[0] -= negWidth
+        end[0] += posWidth
+    } else {
+        start[1] -= negWidth
+        end[1] += posWidth
+    }
+
+    normal[0] = 1
+    normal[1] = 1
+
+    start[2] += height / 2
+    end[2] += height / 2
+
+    if team == TEAM_RED {
+        if cent.currentState.trickedentindex != 0 {
+            shader = trap_R_RegisterShader("gfx/misc/red_dmgshield")
+        } else {
+            shader = trap_R_RegisterShader("gfx/misc/red_portashield")
+        }
+    } else {
+        if cent.currentState.trickedentindex != 0 {
+            shader = trap_R_RegisterShader("gfx/misc/blue_dmgshield")
+        } else {
+            shader = trap_R_RegisterShader("gfx/misc/blue_portashield")
+        }
+    }
+
+    le = FX_AddOrientedLine(start, end, normal, 1.0, Float(height), 0.0, 1.0, 1.0, 50.0, shader)
 }
 
 /**
@@ -165,65 +447,1184 @@ CG_Special
 */
 /// Source: oracle/codemp/cgame/cg_ents.c:463
 func CG_Special(_ cent: Centity) {
-    // TODO: Port CG_Special
-    portMissing("CG_Special", source: "oracle/codemp/cgame/cg_ents.c:463")
+    var s1: EntityState?
+
+    s1 = cent.currentState
+
+    if s1 == nil {
+        return
+    }
+
+    // if set to invisible, skip
+    if s1!.modelindex == 0 {
+        return
+    }
+
+    if s1!.modelindex == HI_SHIELD {
+        // The portable shield should go through a different rendering function.
+        FX_DrawPortableShield(cent)
+        return
+    }
 }
 
 // Copy the ghoul2 data into the ref ent correctly
 /// Source: oracle/codemp/cgame/cg_ents.c:490
 func CG_SetGhoul2Info(_ ent: JKAMP.RefEntity, _ cent: Centity) {
-    // TODO: Port CG_SetGhoul2Info
-    portMissing("CG_SetGhoul2Info", source: "oracle/codemp/cgame/cg_ents.c:490")
+    ent.ghoul2 = cent.ghoul2
+    ent.modelScale = cent.modelScale
+    ent.radius = cent.radius
+    ent.angles = cent.lerpAngles
 }
 
 // create 8 new points on screen around a model so we can see it's bounding box
 /// Source: oracle/codemp/cgame/cg_ents.c:502
 func CG_CreateBBRefEnts(_ s1: JKAMP.EntityState, _ origin: JKAShared.vec3_t) {
-    // TODO: Port CG_CreateBBRefEnts
-    portMissing("CG_CreateBBRefEnts", source: "oracle/codemp/cgame/cg_ents.c:502")
+    /*
+    //g2r
+    #if _DEBUG
+    refEntity_t		point[8];
+    int				i;
+    vec3_t			angles = {0,0,0};
+
+    for (i=0; i<8; i++)
+    {
+    memset (&point[i], 0, sizeof(refEntity_t));
+    point[i].reType = RT_SPRITE;
+    point[i].radius = 1;
+    point[i].customShader = trap_R_RegisterShader("textures/tests/circle");
+    point[i].shaderRGBA[0] = 255;
+    point[i].shaderRGBA[1] = 255;
+    point[i].shaderRGBA[2] = 255;
+    point[i].shaderRGBA[3] = 255;
+
+    AnglesToAxis( angles, point[i].axis );
+
+    // now, we need to put the correct origins into each origin from the mins and max's
+    switch(i)
+    {
+    case 0:
+    VectorCopy(s1->mins, point[i].origin);
+    break;
+    case 1:
+    VectorCopy(s1->mins, point[i].origin);
+    point[i].origin[0] = s1->maxs[0];
+    break;
+    case 2:
+    VectorCopy(s1->mins, point[i].origin);
+    point[i].origin[1] = s1->maxs[1];
+    break;
+    case 3:
+    VectorCopy(s1->mins, point[i].origin);
+    point[i].origin[0] = s1->maxs[0];
+    point[i].origin[1] = s1->maxs[1];
+    break;
+    case 4:
+    VectorCopy(s1->maxs, point[i].origin);
+    break;
+    case 5:
+    VectorCopy(s1->maxs, point[i].origin);
+    point[i].origin[0] = s1->mins[0];
+    break;
+    case 6:
+    VectorCopy(s1->maxs, point[i].origin);
+    point[i].origin[1] = s1->mins[1];
+    break;
+    case 7:
+    VectorCopy(s1->maxs, point[i].origin);
+    point[i].origin[0] = s1->mins[0];
+    point[i].origin[1] = s1->mins[1];
+    break;
+    }
+
+    // add the original origin to each point and then stuff them out there
+    VectorAdd(point[i].origin, origin, point[i].origin);
+
+    trap_R_AddRefEntityToScene (&point[i]);
+    }
+    #endif
+    */
 }
 
 // write in the axis and stuff
 /// Source: oracle/codemp/cgame/cg_ents.c:571
 func G2_BoltToGhoul2Model(_ cent: Centity, _ ent: JKAMP.RefEntity) {
-    // TODO: Port G2_BoltToGhoul2Model
-    portMissing("G2_BoltToGhoul2Model", source: "oracle/codemp/cgame/cg_ents.c:571")
+    // extract the wraith ID from the bolt info
+    var modelNum: Int32 = cent.boltInfo >> MODEL_SHIFT
+    var boltNum: Int32 = cent.boltInfo >> BOLT_SHIFT
+    var entNum: Int32 = cent.boltInfo >> ENTITY_SHIFT
+    // Raven's record lives to the end of his block, so the block is the closure.
+    MdxaBone.scratch { boltMatrix in
+
+        modelNum &= MODEL_AND
+        boltNum &= BOLT_AND
+        entNum &= ENTITY_AND
+
+
+        //NOTENOTE I put this here because the cgs.gamemodels array no longer gets initialized.
+
+
+        // go away and get me the bolt position for this frame please
+        trap_G2API_GetBoltMatrix(cent.ghoul2, modelNum, boltNum, boltMatrix, cg_entities[entNum].currentState.angles, cg_entities[entNum].currentState.origin, cg.time, cgs.gameModels, &cent.modelScale)
+
+        // set up the axis and origin we need for the actual effect spawning
+        ent.origin[0] = boltMatrix.matrix[0][3]
+        ent.origin[1] = boltMatrix.matrix[1][3]
+        ent.origin[2] = boltMatrix.matrix[2][3]
+
+        ent.axis[0][0] = boltMatrix.matrix[0][0]
+        ent.axis[0][1] = boltMatrix.matrix[1][0]
+        ent.axis[0][2] = boltMatrix.matrix[2][0]
+
+        ent.axis[1][0] = boltMatrix.matrix[0][1]
+        ent.axis[1][1] = boltMatrix.matrix[1][1]
+        ent.axis[1][2] = boltMatrix.matrix[2][1]
+
+        ent.axis[2][0] = boltMatrix.matrix[0][2]
+        ent.axis[2][1] = boltMatrix.matrix[1][2]
+        ent.axis[2][2] = boltMatrix.matrix[2][2]
+    }
 }
 
 /// Source: oracle/codemp/cgame/cg_ents.c:609
 func ScaleModelAxis(_ ent: JKAMP.RefEntity) {
-    // TODO: Port ScaleModelAxis
-    portMissing("ScaleModelAxis", source: "oracle/codemp/cgame/cg_ents.c:609")
+    // scale the model should we need to
+    if ent.modelScale[0] != 0 && ent.modelScale[0] != 1.0 {
+        ent.axis[0] = ent.axis[0] * ent.modelScale[0]
+        ent.nonNormalizedAxes = true
+    }
+    if ent.modelScale[1] != 0 && ent.modelScale[1] != 1.0 {
+        ent.axis[1] = ent.axis[1] * ent.modelScale[1]
+        ent.nonNormalizedAxes = true
+    }
+    if ent.modelScale[2] != 0 && ent.modelScale[2] != 1.0 {
+        ent.axis[2] = ent.axis[2] * ent.modelScale[2]
+        ent.nonNormalizedAxes = true
+    }
 }
 
 /// Source: oracle/codemp/cgame/cg_ents.c:653
 func CG_Disintegration(_ cent: Centity, _ ent: JKAMP.RefEntity) {
-    // TODO: Port CG_Disintegration
-    portMissing("CG_Disintegration", source: "oracle/codemp/cgame/cg_ents.c:653")
+    var tempAng = vec3_t()
+    var hitLoc = vec3_t()
+    var tempLength: Float = 0
+
+    hitLoc = cent.currentState.origin2
+
+    ent.oldorigin = hitLoc - ent.origin
+
+    tempLength = VectorNormalize(&ent.oldorigin)
+    vectoangles(ent.oldorigin, &tempAng)
+    tempAng[YAW] -= cent.lerpAngles[YAW]
+    // Raven passes NULL for the `right` and `up` outputs.
+    var scratchRight = vec3_t()
+    var scratchUp = vec3_t()
+    AngleVectors(tempAng, &ent.oldorigin, &scratchRight, &scratchUp)
+    ent.oldorigin = ent.oldorigin * tempLength
+
+    ent.endTime = Float(cent.dustTrailTime)
+
+    ent.renderfx |= RF_DISINTEGRATE2
+    ent.customShader = cgs.media.disruptorShader
+    trap_R_AddRefEntityToScene(ent)
+
+    ent.renderfx &= ~(RF_DISINTEGRATE2)
+    ent.renderfx |= (RF_DISINTEGRATE1)
+    ent.customShader = 0
+    trap_R_AddRefEntityToScene(ent)
+
+    // The SDK also declares `random`, so the call names the bg module.
+    if cg.time - ent.endTime < 1000 && (cg_timescale.value * cg_timescale.value * JKAMP_BG.random()) > 0.05 {
+        var fxOrg = vec3_t()
+        var fxDir = vec3_t()
+        // Raven's record lives to the end of his block, so the block is the closure.
+        MdxaBone.scratch { boltMatrix in
+            let torsoBolt: Int32 = trap_G2API_AddBolt(cent.ghoul2, 0, "lower_lumbar")
+
+            fxDir = vec3_t(0, 1, 0)
+
+            trap_G2API_GetBoltMatrix(cent.ghoul2, 0, torsoBolt, boltMatrix, cent.lerpAngles, cent.lerpOrigin, cg.time, cgs.gameModels, &cent.modelScale)
+            BG_GiveMeVectorFromMatrix(boltMatrix, ORIGIN, &fxOrg)
+
+            _VectorMA(fxOrg, -18, cg.refdef.viewaxis[0], &fxOrg)
+            fxOrg[2] = Float(Double(fxOrg[2]) + (crandom() * 20))
+            trap_FX_PlayEffectID(cgs.effects.mDisruptorDeathSmoke, fxOrg, fxDir, -1, -1)
+
+            // The SDK also declares `random`, so the call names the bg module.
+            if JKAMP_BG.random() > 0.5 {
+                trap_FX_PlayEffectID(cgs.effects.mDisruptorDeathSmoke, fxOrg, fxDir, -1, -1)
+            }
+        }
+    }
 }
 
 /// Source: oracle/codemp/cgame/cg_ents.c:703
 private func CG_RenderTimeEntBolt(_ cent: Centity) -> Bool {
-    // TODO: Port CG_RenderTimeEntBolt
-    portMissing("CG_RenderTimeEntBolt", source: "oracle/codemp/cgame/cg_ents.c:703")
+    let clientNum: Int32 = cent.currentState.boltToPlayer - 1
+    var cl: Centity?
+    // Raven's record lives to the end of his block, so the block is the closure.
+    // Every path of Raven's block returns, so the closure's value is the function's.
+    return MdxaBone.scratch { matrix -> Bool in
+        var boltOrg = vec3_t()
+        var boltAng = vec3_t()
+        var getBolt: Int32 = -1
+
+        if clientNum >= MAX_CLIENTS || clientNum < 0 {
+            return false
+        }
+
+        cl = cg_entities[clientNum]
+
+        if cl!.ghoul2 == nil {
+            return false
+        }
+
+        if clientNum == cg.predictedPlayerState.clientNum && !cg.renderingThirdPerson {
+            //If in first person and you have it then render the thing spinning around on your hud.
+            cgSiegeEntityRender = cent.currentState.number //set it to render at the end of the frame.
+            return false
+        }
+
+        getBolt = trap_G2API_AddBolt(cl!.ghoul2, 0, "lhand")
+
+        trap_G2API_GetBoltMatrix(cl!.ghoul2, 0, getBolt, matrix, cl!.turAngles, cl!.lerpOrigin, cg.time, cgs.gameModels, &cl!.modelScale)
+
+        BG_GiveMeVectorFromMatrix(matrix, ORIGIN, &boltOrg)
+        BG_GiveMeVectorFromMatrix(matrix, NEGATIVE_Y, &boltAng)
+        vectoangles(boltAng, &boltAng)
+        boltAng[ROLL] = 0
+        boltAng[PITCH] = boltAng[ROLL]
+
+        cent.lerpOrigin = boltOrg
+        cent.lerpAngles = boltAng
+
+        return true
+    }
 }
 
 /// Source: oracle/codemp/cgame/cg_ents.c:799
 func CG_AddRadarEnt(_ cent: Centity) {
-    // TODO: Port CG_AddRadarEnt
+    // Port-note: A sizeof of `short[48]` the draft cannot size.
+    // Raven wrote: if (cg.radarEntityCount == sizeof(cg.radarEntities)/sizeof(cg.radarEntities[0])) { #ifdef _DEBUG Com_Printf("^3Warning: CG_AddRadarEnt full. (%d max)\n", sizeof(cg.radarEntities)/sizeof(cg.radarEntities[0])); #endif return; }
+    portMissing("CG_AddRadarEnt", source: "oracle/codemp/cgame/cg_ents.c:799")
+    // Port-note: A ++ inside an expression.
+    // Raven wrote: cg.radarEntities[cg.radarEntityCount++] = cent->currentState.number
     portMissing("CG_AddRadarEnt", source: "oracle/codemp/cgame/cg_ents.c:799")
 }
 
 /// Source: oracle/codemp/cgame/cg_ents.c:811
 func CG_AddBracketedEnt(_ cent: Centity) {
-    // TODO: Port CG_AddBracketedEnt
+    // Port-note: A sizeof of `short[48]` the draft cannot size.
+    // Raven wrote: if (cg.bracketedEntityCount == sizeof(cg.bracketedEntities)/sizeof(cg.bracketedEntities[0])) { #ifdef _DEBUG Com_Printf("^3Warning: CG_AddBracketedEnt full. (%d max)\n", sizeof(cg.radarEntities)/sizeof(cg.bracketedEntities[0])); #endif return; }
+    portMissing("CG_AddBracketedEnt", source: "oracle/codemp/cgame/cg_ents.c:811")
+    // Port-note: A ++ inside an expression.
+    // Raven wrote: cg.bracketedEntities[cg.bracketedEntityCount++] = cent->currentState.number
     portMissing("CG_AddBracketedEnt", source: "oracle/codemp/cgame/cg_ents.c:811")
 }
 
 /// Source: oracle/codemp/cgame/cg_ents.c:833
 private func CG_General(_ cent: Centity) {
-    // TODO: Port CG_General
-    portMissing("CG_General", source: "oracle/codemp/cgame/cg_ents.c:833")
+    // Raven's record lives to the end of his block, so the block is the closure.
+    // The closure gives true where Raven returns from the function.
+    let earlyOut = RefEntity.scratch { ent -> Bool in
+        var s1: EntityState?
+        var val: Float = 0
+        var beamID: Int32 = 0
+        var beamOrg = vec3_t()
+        // Raven's record lives to the end of his block, so the block is the closure.
+        // The closure gives true where Raven returns from the function.
+        let earlyOut2 = MdxaBone.scratch { matrix -> Bool in
+            var doNotSetModel: Bool = false
+
+            if cent.currentState.modelGhoul2 == 127 {
+                //not ready to be drawn or initialized..
+                return true
+            }
+
+            if cent.ghoul2 != nil && cent.currentState.modelGhoul2 == 0 && cent.currentState.eType != ET_BODY && cent.currentState.number >= MAX_CLIENTS {
+                //this is a bad thing
+                if trap_G2_HaveWeGhoul2Models(cent.ghoul2) {
+                    trap_G2API_CleanGhoul2Models(&(cent.ghoul2))
+                }
+            }
+
+            if (cent.currentState.eFlags & EF_RADAROBJECT) != 0 {
+                CG_AddRadarEnt(cent)
+            }
+            if (cent.currentState.eFlags2 & EF2_BRACKET_ENTITY) != 0 {
+                if CG_InFighter() {
+                    //only bracken when in a fighter
+                    CG_AddBracketedEnt(cent)
+                }
+            }
+
+            if cent.currentState.boltToPlayer != 0 {
+                //Shove it into the player's left hand then.
+                let pl: Centity? = cg_entities[cent.currentState.boltToPlayer - 1]
+                if CG_IsMindTricked(pl!.currentState.trickedentindex, pl!.currentState.trickedentindex2, pl!.currentState.trickedentindex3, pl!.currentState.trickedentindex4, cg.predictedPlayerState.clientNum) != 0 {
+                    //don't show if this guy is mindtricking
+                    return true
+                }
+                if !CG_RenderTimeEntBolt(cent) {
+                    //If this function returns qfalse we shouldn't render this ent at all.
+                    if cent.currentState.boltToPlayer > 0 && cent.currentState.boltToPlayer <= MAX_CLIENTS {
+                        cent.lerpOrigin = pl!.lerpOrigin
+
+                        if (cent.currentState.eFlags & EF_CLIENTSMOOTH) != 0 {
+                            //if it's set to smooth keep the smoothed lerp origin updated, as we don't want to smooth while bolted.
+                            cent.turAngles = cent.lerpOrigin
+                        }
+                    }
+                    return true
+                }
+
+                if (cent.currentState.eFlags & EF_CLIENTSMOOTH) != 0 {
+                    //if it's set to smooth keep the smoothed lerp origin updated, as we don't want to smooth while bolted.
+                    cent.turAngles = cent.lerpOrigin
+                }
+
+                /* disabled for now
+                if (pl->currentState.number != cg.predictedPlayerState.clientNum)
+                { //don't render thing above head to self
+                CG_SiegeEntRenderAboveHead(cent);
+                }
+                */
+            } else if (cent.currentState.eFlags & EF_CLIENTSMOOTH) != 0 {
+                if cent.currentState.groundEntityNum >= ENTITYNUM_WORLD {
+                    let smoothFactor: Float = 0.5 * cg_timescale.value
+                    var k: Int32 = 0
+                    var posDif = vec3_t()
+
+                    //Use origin smoothing since dismembered limbs use ExPhys
+                    if DistanceSquared(cent.turAngles, cent.lerpOrigin) > 18000.0 {
+                        cent.turAngles = cent.lerpOrigin
+                    }
+
+                    posDif = cent.lerpOrigin - cent.turAngles
+
+                    k = 0
+                    while k < 3 {
+                        cent.turAngles[k] = (cent.turAngles[k] + posDif[k] * smoothFactor)
+                        cent.lerpOrigin[k] = cent.turAngles[k]
+                        k += 1
+                    }
+                } else {
+                    //if we're sitting on an entity like a moving plat then we don't want to smooth either
+                    cent.turAngles = cent.lerpOrigin
+                }
+            }
+
+            //rww - now do ragdoll stuff
+            if cent.ghoul2 != nil && (cent.currentState.eType == ET_BODY || (cent.currentState.eFlags & EF_RAG) != 0) {
+                if !((cent.currentState.eFlags & EF_NODRAW) != 0) && !((cent.currentState.eFlags & EF_DISINTEGRATION) != 0) && cent.bodyFadeTime <= cg.time {
+                    var forcedAngles = vec3_t()
+
+                    forcedAngles = vec3_t()
+                    forcedAngles[YAW] = cent.lerpAngles[YAW]
+
+                    CG_RagDoll(cent, forcedAngles)
+                }
+            } else if cent.isRagging {
+                cent.isRagging = false
+
+                if cent.ghoul2 != nil && trap_G2_HaveWeGhoul2Models(cent.ghoul2) {
+                    //May not be valid, in the case of a ragged entity being removed and a non-g2 ent filling its slot.
+                    trap_G2API_SetRagDoll(cent.ghoul2, nil) //calling with null parms resets to no ragdoll.
+                }
+            }
+
+            if cent.currentState.boneOrient != 0 && cent.ghoul2 != nil {
+                //server sent us some bone angles to use
+                CG_G2ServerBoneAngles(cent)
+            }
+
+            if (cent.currentState.eFlags & EF_G2ANIMATING) != 0 && cent.ghoul2 != nil {
+                //mini-animation routine for general objects that want to play quick ghoul2 anims
+                //obviously lacks much of the functionality contained in player/npc animation.
+                //we actually use torsoAnim as the start frame and legsAnim as the end frame and
+                //always play the anim on the root bone.
+                if cent.currentState.torsoAnim != cent.pe.torso.animationNumber || cent.currentState.legsAnim != cent.pe.legs.animationNumber || cent.currentState.torsoFlip != cent.pe.torso.lastFlip {
+                    trap_G2API_SetBoneAnim(cent.ghoul2, 0, "model_root", cent.currentState.torsoAnim, cent.currentState.legsAnim, (BONE_ANIM_OVERRIDE_FREEZE | BONE_ANIM_BLEND), 1.0, cg.time, -1, 100)
+
+                    cent.pe.torso.animationNumber = cent.currentState.torsoAnim
+                    cent.pe.legs.animationNumber = cent.currentState.legsAnim
+                    cent.pe.torso.lastFlip = cent.currentState.torsoFlip
+                }
+            }
+
+            // Raven clears the record with `memset` here. The scratch slot is zero at entry, so the body drops the call.
+
+            ent.shaderRGBA[0] = UInt8(truncatingIfNeeded: cent.currentState.customRGBA[0])
+            ent.shaderRGBA[1] = UInt8(truncatingIfNeeded: cent.currentState.customRGBA[1])
+            ent.shaderRGBA[2] = UInt8(truncatingIfNeeded: cent.currentState.customRGBA[2])
+            ent.shaderRGBA[3] = UInt8(truncatingIfNeeded: cent.currentState.customRGBA[3])
+
+            if cent.currentState.modelGhoul2 >= G2_MODELPART_HEAD && cent.currentState.modelGhoul2 <= G2_MODELPART_RLEG && cent.currentState.weapon == G2_MODEL_PART {
+                //special case for client limbs
+                var clEnt: Centity?
+                let dismember_settings: Int32 = cg_dismember.integer
+                let smoothFactor: Float = 0.5 * cg_timescale.value
+                var k: Int32 = 0
+                var posDif = vec3_t()
+
+                doNotSetModel = true
+
+                if cent.currentState.modelindex >= 0 {
+                    clEnt = cg_entities[cent.currentState.modelindex]
+                } else {
+                    clEnt = cg_entities[cent.currentState.otherEntityNum2]
+                }
+
+                if dismember_settings == 0 {
+                    //This client does not wish to see dismemberment.
+                    return true
+                }
+
+                if dismember_settings < 2 && (cent.currentState.modelGhoul2 == G2_MODELPART_HEAD || cent.currentState.modelGhoul2 == G2_MODELPART_WAIST) {
+                    //dismember settings are not high enough to display decaps and torso slashes
+                    return true
+                }
+
+                if cent.ghoul2 == nil {
+                    var limbBone: String
+                    var rotateBone: String
+                    var limbName = CharBuf(64)
+                    var stubName = CharBuf(64)
+                    var limbCapName = CharBuf(64)
+                    var stubCapName = CharBuf(64)
+                    var limbTagName: String
+                    var stubTagName: String
+                    var limb_anim: Int32 = 0
+                    var newBolt: Int32 = 0
+                    let limbBit: Int32 = (1 << (cent.currentState.modelGhoul2 - 10))
+
+                    if clEnt != nil && (clEnt!.torsoBolt & limbBit) != 0 {
+                        //already have this limb missing!
+                        return true
+                    }
+
+
+                    if clEnt != nil && !((clEnt!.currentState.eFlags & EF_DEAD) != 0) {
+                        //death flag hasn't made it through yet for the limb owner, we cannot create the limb until he's flagged as dead
+                        return true
+                    }
+
+                    if clEnt != nil && (!BG_InDeathAnim(clEnt!.currentState.torsoAnim) || !BG_InDeathAnim(clEnt!.pe.torso.animationNumber)) {
+                        //don't make it unless we're in an actual death anim already
+                        if clEnt!.currentState.torsoAnim != BOTH_RIGHTHANDCHOPPEDOFF {
+                            //exception
+                            return true
+                        }
+                    }
+
+                    cent.bolt4 = -1
+                    cent.trailTime = 0
+
+                    if cent.currentState.modelGhoul2 == G2_MODELPART_HEAD {
+                        limbBone = "cervical"
+                        rotateBone = "cranium"
+                        Q_strncpyz(&limbName, "head", Int32((limbName).count))
+                        Q_strncpyz(&limbCapName, "head_cap_torso", Int32((limbCapName).count))
+                        Q_strncpyz(&stubCapName, "torso_cap_head", Int32((stubCapName).count))
+                        limbTagName = "*head_cap_torso"
+                        stubTagName = "*torso_cap_head"
+                        limb_anim = BOTH_DISMEMBER_HEAD1
+                    } else if cent.currentState.modelGhoul2 == G2_MODELPART_WAIST {
+                        limbBone = "pelvis"
+
+                        if clEnt!.localAnimIndex <= 1 {
+                            //humanoid/rtrooper
+                            rotateBone = "thoracic"
+                        } else {
+                            rotateBone = "pelvis"
+                        }
+                        Q_strncpyz(&limbName, "torso", Int32((limbName).count))
+                        Q_strncpyz(&limbCapName, "torso_cap_hips", Int32((limbCapName).count))
+                        Q_strncpyz(&stubCapName, "hips_cap_torso", Int32((stubCapName).count))
+                        limbTagName = "*torso_cap_hips"
+                        stubTagName = "*hips_cap_torso"
+                        limb_anim = BOTH_DISMEMBER_TORSO1
+                    } else if cent.currentState.modelGhoul2 == G2_MODELPART_LARM {
+                        limbBone = "lhumerus"
+                        rotateBone = "lradius"
+                        BG_GetRootSurfNameWithVariant(clEnt!.ghoul2, "l_arm", &limbName, Int32((limbName).count))
+                        BG_GetRootSurfNameWithVariant(clEnt!.ghoul2, "torso", &stubName, Int32((stubName).count))
+                        Com_sprintf(&limbCapName, Int32((limbCapName).count), "%s_cap_torso", limbName)
+                        Com_sprintf(&stubCapName, Int32((stubCapName).count), "%s_cap_l_arm", stubName)
+                        limbTagName = "*l_arm_cap_torso"
+                        stubTagName = "*torso_cap_l_arm"
+                        limb_anim = BOTH_DISMEMBER_LARM
+                    } else if cent.currentState.modelGhoul2 == G2_MODELPART_RARM {
+                        limbBone = "rhumerus"
+                        rotateBone = "rradius"
+                        BG_GetRootSurfNameWithVariant(clEnt!.ghoul2, "r_arm", &limbName, Int32((limbName).count))
+                        BG_GetRootSurfNameWithVariant(clEnt!.ghoul2, "torso", &stubName, Int32((stubName).count))
+                        Com_sprintf(&limbCapName, Int32((limbCapName).count), "%s_cap_torso", limbName)
+                        Com_sprintf(&stubCapName, Int32((stubCapName).count), "%s_cap_r_arm", stubName)
+                        limbTagName = "*r_arm_cap_torso"
+                        stubTagName = "*torso_cap_r_arm"
+                        limb_anim = BOTH_DISMEMBER_RARM
+                    } else if cent.currentState.modelGhoul2 == G2_MODELPART_RHAND {
+                        limbBone = "rradiusX"
+                        rotateBone = "rhand"
+                        BG_GetRootSurfNameWithVariant(clEnt!.ghoul2, "r_hand", &limbName, Int32((limbName).count))
+                        BG_GetRootSurfNameWithVariant(clEnt!.ghoul2, "r_arm", &stubName, Int32((stubName).count))
+                        Com_sprintf(&limbCapName, Int32((limbCapName).count), "%s_cap_r_arm", limbName)
+                        Com_sprintf(&stubCapName, Int32((stubCapName).count), "%s_cap_r_hand", stubName)
+                        limbTagName = "*r_hand_cap_r_arm"
+                        stubTagName = "*r_arm_cap_r_hand"
+                        limb_anim = BOTH_DISMEMBER_RARM
+                    } else if cent.currentState.modelGhoul2 == G2_MODELPART_LLEG {
+                        limbBone = "lfemurYZ"
+                        rotateBone = "ltibia"
+                        BG_GetRootSurfNameWithVariant(clEnt!.ghoul2, "l_leg", &limbName, Int32((limbName).count))
+                        BG_GetRootSurfNameWithVariant(clEnt!.ghoul2, "hips", &stubName, Int32((stubName).count))
+                        Com_sprintf(&limbCapName, Int32((limbCapName).count), "%s_cap_hips", limbName)
+                        Com_sprintf(&stubCapName, Int32((stubCapName).count), "%s_cap_l_leg", stubName)
+                        limbTagName = "*l_leg_cap_hips"
+                        stubTagName = "*hips_cap_l_leg"
+                        limb_anim = BOTH_DISMEMBER_LLEG
+                    } else if cent.currentState.modelGhoul2 == G2_MODELPART_RLEG {
+                        limbBone = "rfemurYZ"
+                        rotateBone = "rtibia"
+                        BG_GetRootSurfNameWithVariant(clEnt!.ghoul2, "r_leg", &limbName, Int32((limbName).count))
+                        BG_GetRootSurfNameWithVariant(clEnt!.ghoul2, "hips", &stubName, Int32((stubName).count))
+                        Com_sprintf(&limbCapName, Int32((limbCapName).count), "%s_cap_hips", limbName)
+                        Com_sprintf(&stubCapName, Int32((stubCapName).count), "%s_cap_r_leg", stubName)
+                        limbTagName = "*r_leg_cap_hips"
+                        stubTagName = "*hips_cap_r_leg"
+                        limb_anim = BOTH_DISMEMBER_RLEG
+                    } else {
+                        //umm... just default to the right leg, I guess (same as on server)
+                        limbBone = "rfemurYZ"
+                        rotateBone = "rtibia"
+                        BG_GetRootSurfNameWithVariant(clEnt!.ghoul2, "r_leg", &limbName, Int32((limbName).count))
+                        BG_GetRootSurfNameWithVariant(clEnt!.ghoul2, "hips", &stubName, Int32((stubName).count))
+                        Com_sprintf(&limbCapName, Int32((limbCapName).count), "%s_cap_hips", limbName)
+                        Com_sprintf(&stubCapName, Int32((stubCapName).count), "%s_cap_r_leg", stubName)
+                        limbTagName = "*r_leg_cap_hips"
+                        stubTagName = "*hips_cap_r_leg"
+                        limb_anim = BOTH_DISMEMBER_RLEG
+                    }
+
+                    if clEnt != nil && clEnt!.ghoul2 != nil {
+                        if trap_G2API_HasGhoul2ModelOnIndex((clEnt!.ghoul2), 2) {
+                            //don't want to bother dealing with a second saber on limbs and stuff, just remove the thing
+                            trap_G2API_RemoveGhoul2Model(&(clEnt!.ghoul2), 2)
+                        }
+
+                        if trap_G2API_HasGhoul2ModelOnIndex((clEnt!.ghoul2), 3) {
+                            //turn off jetpack also I suppose
+                            trap_G2API_RemoveGhoul2Model(&(clEnt!.ghoul2), 3)
+                        }
+
+                        if clEnt!.localAnimIndex <= 0 {
+                            //humanoid
+                            trap_G2API_SetBoneAngles(clEnt!.ghoul2, 0, "model_root", vec3_origin, BONE_ANGLES_POSTMULT, POSITIVE_X, NEGATIVE_Y, NEGATIVE_Z, cgs.gameModels, 100, cg.time)
+                            trap_G2API_SetBoneAngles(clEnt!.ghoul2, 0, "pelvis", vec3_origin, BONE_ANGLES_POSTMULT, POSITIVE_X, NEGATIVE_Y, NEGATIVE_Z, cgs.gameModels, 0, cg.time)
+                            trap_G2API_SetBoneAngles(clEnt!.ghoul2, 0, "thoracic", vec3_origin, BONE_ANGLES_POSTMULT, POSITIVE_X, NEGATIVE_Y, NEGATIVE_Z, cgs.gameModels, 0, cg.time)
+                            trap_G2API_SetBoneAngles(clEnt!.ghoul2, 0, "upper_lumbar", vec3_origin, BONE_ANGLES_POSTMULT, POSITIVE_X, NEGATIVE_Y, NEGATIVE_Z, cgs.gameModels, 100, cg.time)
+                            trap_G2API_SetBoneAngles(clEnt!.ghoul2, 0, "lower_lumbar", vec3_origin, BONE_ANGLES_POSTMULT, POSITIVE_X, NEGATIVE_Y, NEGATIVE_Z, cgs.gameModels, 100, cg.time)
+                            trap_G2API_SetBoneAngles(clEnt!.ghoul2, 0, "cranium", vec3_origin, BONE_ANGLES_POSTMULT, POSITIVE_Z, NEGATIVE_Y, POSITIVE_X, cgs.gameModels, 100, cg.time)
+                        } else {
+                            trap_G2API_SetBoneAngles(clEnt!.ghoul2, 0, "model_root", vec3_origin, BONE_ANGLES_POSTMULT, POSITIVE_X, NEGATIVE_Y, NEGATIVE_Z, cgs.gameModels, 100, cg.time)
+                            trap_G2API_SetBoneAngles(clEnt!.ghoul2, 0, "pelvis", vec3_origin, BONE_ANGLES_POSTMULT, POSITIVE_X, NEGATIVE_Y, NEGATIVE_Z, cgs.gameModels, 0, cg.time)
+                            trap_G2API_SetBoneAngles(clEnt!.ghoul2, 0, "upper_lumbar", vec3_origin, BONE_ANGLES_POSTMULT, POSITIVE_X, NEGATIVE_Y, NEGATIVE_Z, cgs.gameModels, 100, cg.time)
+                            trap_G2API_SetBoneAngles(clEnt!.ghoul2, 0, "lower_lumbar", vec3_origin, BONE_ANGLES_POSTMULT, POSITIVE_X, NEGATIVE_Y, NEGATIVE_Z, cgs.gameModels, 100, cg.time)
+                        }
+
+                        trap_G2API_DuplicateGhoul2Instance(clEnt!.ghoul2, &cent.ghoul2)
+                    }
+
+                    if cent.ghoul2 == nil {
+                        return true
+                    }
+
+                    newBolt = trap_G2API_AddBolt(cent.ghoul2, 0, limbTagName)
+                    if newBolt != -1 {
+                        var boltOrg = vec3_t()
+                        var boltAng = vec3_t()
+
+                        trap_G2API_GetBoltMatrix(cent.ghoul2, 0, newBolt, matrix, cent.lerpAngles, cent.lerpOrigin, cg.time, cgs.gameModels, &cent.modelScale)
+
+                        BG_GiveMeVectorFromMatrix(matrix, ORIGIN, &boltOrg)
+                        BG_GiveMeVectorFromMatrix(matrix, NEGATIVE_Y, &boltAng)
+
+                        trap_FX_PlayEffectID(cgs.effects.mBlasterSmoke, boltOrg, boltAng, -1, -1)
+                    }
+
+                    cent.bolt4 = newBolt
+
+                    trap_G2API_SetRootSurface(cent.ghoul2, 0, String(limbName))
+
+                    trap_G2API_SetNewOrigin(cent.ghoul2, trap_G2API_AddBolt(cent.ghoul2, 0, rotateBone))
+
+                    trap_G2API_SetSurfaceOnOff(cent.ghoul2, String(limbCapName), 0)
+
+                    trap_G2API_SetSurfaceOnOff(clEnt!.ghoul2, String(limbName), 0x00000100)
+                    trap_G2API_SetSurfaceOnOff(clEnt!.ghoul2, String(stubCapName), 0)
+
+                    newBolt = trap_G2API_AddBolt(clEnt!.ghoul2, 0, stubTagName)
+                    if newBolt != -1 {
+                        var boltOrg = vec3_t()
+                        var boltAng = vec3_t()
+
+                        trap_G2API_GetBoltMatrix(clEnt!.ghoul2, 0, newBolt, matrix, clEnt!.lerpAngles, clEnt!.lerpOrigin, cg.time, cgs.gameModels, &clEnt!.modelScale)
+
+                        BG_GiveMeVectorFromMatrix(matrix, ORIGIN, &boltOrg)
+                        BG_GiveMeVectorFromMatrix(matrix, NEGATIVE_Y, &boltAng)
+
+                        trap_FX_PlayEffectID(cgs.effects.mBlasterSmoke, boltOrg, boltAng, -1, -1)
+                    }
+
+                    if cent.currentState.modelGhoul2 == G2_MODELPART_RARM || cent.currentState.modelGhoul2 == G2_MODELPART_RHAND || cent.currentState.modelGhoul2 == G2_MODELPART_WAIST {
+                        //Cut his weapon holding arm off, so remove the weapon
+                        if trap_G2API_HasGhoul2ModelOnIndex((clEnt!.ghoul2), 1) {
+                            trap_G2API_RemoveGhoul2Model(&(clEnt!.ghoul2), 1)
+                        }
+                    }
+
+                    clEnt!.torsoBolt |= limbBit //reinit model after copying limbless one to queue
+                    //This causes issues after respawning.. just keep track of limbs cut/made on server or something.
+                    /*
+                    if (cent->currentState.modelGhoul2 == G2_MODELPART_WAIST)
+                    {
+                    clEnt->torsoBolt |= (1 << (G2_MODELPART_HEAD-10));
+                    clEnt->torsoBolt |= (1 << (G2_MODELPART_RARM-10));
+                    clEnt->torsoBolt |= (1 << (G2_MODELPART_LARM-10));
+                    clEnt->torsoBolt |= (1 << (G2_MODELPART_RHAND-10));
+                    }
+                    else if (cent->currentState.modelGhoul2 == G2_MODELPART_RARM)
+                    {
+                    clEnt->torsoBolt |= (1 << (G2_MODELPART_RHAND-10));
+                    }
+                    */
+
+                    cent.turAngles = cent.lerpOrigin
+                    //	return;
+                }
+
+                //Use origin smoothing since dismembered limbs use ExPhys
+                if DistanceSquared(cent.turAngles, cent.lerpOrigin) > 18000.0 {
+                    cent.turAngles = cent.lerpOrigin
+                }
+
+                posDif = cent.lerpOrigin - cent.turAngles
+
+                k = 0
+                while k < 3 {
+                    cent.turAngles[k] = (cent.turAngles[k] + posDif[k] * smoothFactor)
+                    cent.lerpOrigin[k] = cent.turAngles[k]
+                    k += 1
+                }
+
+                if cent.ghoul2 != nil && cent.bolt4 != -1 && cent.trailTime < cg.time {
+                    if cent.bolt4 != -1 && (cent.currentState.pos.trDelta[0] != 0 || cent.currentState.pos.trDelta[1] != 0 || cent.currentState.pos.trDelta[2] != 0) {
+                        var boltOrg = vec3_t()
+                        var boltAng = vec3_t()
+
+                        trap_G2API_GetBoltMatrix(cent.ghoul2, 0, cent.bolt4, matrix, cent.lerpAngles, cent.lerpOrigin, cg.time, cgs.gameModels, &cent.modelScale)
+
+                        BG_GiveMeVectorFromMatrix(matrix, ORIGIN, &boltOrg)
+                        BG_GiveMeVectorFromMatrix(matrix, NEGATIVE_Y, &boltAng)
+
+                        if boltAng[0] == 0 && boltAng[1] == 0 && boltAng[2] == 0 {
+                            boltAng[1] = 1
+                        }
+                        trap_FX_PlayEffectID(cgs.effects.mBlasterSmoke, boltOrg, boltAng, -1, -1)
+
+                        cent.trailTime = cg.time + 400
+                    }
+                }
+
+                ent.radius = Float(cent.currentState.g2radius)
+                ent.hModel = 0
+            }
+
+            if cent.currentState.number >= MAX_CLIENTS && cent.currentState.activeForcePass == NUM_FORCE_POWERS + 1 && cent.currentState.NPC_class != CLASS_VEHICLE {
+                var empAngles = vec3_t()
+                var empOwn: Centity?
+
+                empOwn = cg_entities[cent.currentState.emplacedOwner]
+
+                if cg.snap!.ps.clientNum == empOwn!.currentState.number && !cg.renderingThirdPerson {
+                    empAngles = cg.refdef.viewangles
+                } else {
+                    empAngles = empOwn!.lerpAngles
+                }
+
+                if empAngles[PITCH] > 40 {
+                    empAngles[PITCH] = 40
+                }
+                empAngles[YAW] -= cent.currentState.angles[YAW]
+
+                trap_G2API_SetBoneAngles(cent.ghoul2, 0, "Bone02", empAngles, BONE_ANGLES_REPLACE, NEGATIVE_Y, NEGATIVE_X, POSITIVE_Z, nil, 0, cg.time)
+            }
+
+            s1 = cent.currentState
+
+            // if set to invisible, skip
+            if (s1!.modelindex == 0) && !(trap_G2_HaveWeGhoul2Models(cent.ghoul2)) {
+                return true
+            }
+
+            if (s1!.eFlags & EF_NODRAW) != 0 {
+                return true
+            }
+
+            // set frame
+            if (s1!.eFlags & EF_SHADER_ANIM) != 0 {
+                // Deliberately setting it up so that shader anim will completely override any kind of model animation frame setting.
+                ent.renderfx |= RF_SETANIMINDEX
+                ent.skinNum = s1!.frame
+            } else {
+                ent.frame = s1!.frame
+            }
+            ent.oldframe = ent.frame
+            ent.backlerp = 0
+
+            /*
+            Ghoul2 Insert Start
+            */
+            CG_SetGhoul2Info(ent, cent)
+
+            /*
+            Ghoul2 Insert End
+            */
+            ent.origin = cent.lerpOrigin
+            ent.oldorigin = cent.lerpOrigin
+
+            if cent.currentState.modelGhoul2 != 0 {
+                //If the game says this guy uses a ghoul2 model and the g2 instance handle is null, then initialize it
+                if cent.ghoul2 == nil && cent.currentState.bolt1 == 0 {
+                    var skinName = CharBuf(64)
+                    let modelName: String = CG_ConfigString(CS_MODELS + cent.currentState.modelindex)
+                    var l: Int32 = 0
+                    var skin: Int32 = 0
+
+                    trap_G2API_InitGhoul2Model(&cent.ghoul2, modelName, 0, 0, 0, 0, 0)
+                    if cent.ghoul2 != nil && trap_G2API_SkinlessModel(cent.ghoul2, 0) {
+                        //well, you'd never want a skinless model, so try to get his skin...
+                        Q_strncpyz(&skinName, modelName, MAX_QPATH)
+                        l = strlen(skinName)
+                        while l > 0 && skinName[l] != Int32(ascii: "/") {
+                            //parse back to first /
+                            l -= 1
+                        }
+                        if skinName[l] == Int32(ascii: "/") {
+                            //got it
+                            l += 1
+                            skinName[l] = 0
+                            Q_strcat(&skinName, MAX_QPATH, "model_default.skin")
+
+                            skin = trap_R_RegisterSkin(String(skinName))
+                        }
+                        trap_G2API_SetSkin(cent.ghoul2, 0, skin, skin)
+                    }
+                } else if cent.currentState.bolt1 != 0 {
+                    TurretClientRun(cent)
+                }
+
+                if cent.ghoul2 != nil {
+                    //give us a proper radius
+                    ent.radius = Float(cent.currentState.g2radius)
+                }
+            }
+
+            if s1!.eType == ET_BODY {
+                //bodies should have a radius as well
+                ent.radius = Float(cent.currentState.g2radius)
+
+                if cent.ghoul2 != nil {
+                    //all bodies should already have a ghoul2 instance. Use it to set the torso/head angles to 0.
+                    cent.lerpAngles[PITCH] = 0
+                    cent.lerpAngles[ROLL] = 0
+                    trap_G2API_SetBoneAngles(cent.ghoul2, 0, "pelvis", vec3_origin, BONE_ANGLES_POSTMULT, POSITIVE_X, NEGATIVE_Y, NEGATIVE_Z, cgs.gameModels, 0, cg.time)
+                    trap_G2API_SetBoneAngles(cent.ghoul2, 0, "thoracic", vec3_origin, BONE_ANGLES_POSTMULT, POSITIVE_X, NEGATIVE_Y, NEGATIVE_Z, cgs.gameModels, 0, cg.time)
+                    trap_G2API_SetBoneAngles(cent.ghoul2, 0, "upper_lumbar", vec3_origin, BONE_ANGLES_POSTMULT, POSITIVE_X, NEGATIVE_Y, NEGATIVE_Z, cgs.gameModels, 100, cg.time)
+                    trap_G2API_SetBoneAngles(cent.ghoul2, 0, "lower_lumbar", vec3_origin, BONE_ANGLES_POSTMULT, POSITIVE_X, NEGATIVE_Y, NEGATIVE_Z, cgs.gameModels, 100, cg.time)
+                    trap_G2API_SetBoneAngles(cent.ghoul2, 0, "cranium", vec3_origin, BONE_ANGLES_POSTMULT, POSITIVE_Z, NEGATIVE_Y, POSITIVE_X, cgs.gameModels, 100, cg.time)
+                }
+            }
+
+            if s1!.eType == ET_HOLOCRON && s1!.modelindex < -100 {
+                //special render, it's a holocron
+                //Using actual models now:
+                ent.hModel = trap_R_RegisterModel(forceHolocronModels[s1!.modelindex + 128])
+
+                //Rotate them
+                cent.lerpAngles = cg.autoAngles
+                // Port-note: The draft of this statement did not compile, and the compiler wrote "'&' used with non-inout argument of type 'Slots<vec3_t>' (aka 'Slots<SIMD3<Float>>')".
+                // Raven wrote: AxisCopy( cg.autoAxis, ent.axis )
+                portMissing("CG_General", source: "oracle/codemp/cgame/cg_ents.c:833")
+            } else if !doNotSetModel {
+                ent.hModel = cgs.gameModels[s1!.modelindex]
+            }
+
+            // player model
+            if s1!.number == cg.snap!.ps.clientNum {
+                ent.renderfx |= RF_THIRD_PERSON // only draw from mirrors
+            }
+
+            // convert angles to axis
+            // Port-note: The draft of this statement did not compile, and the compiler wrote "'&' used with non-inout argument of type 'Slots<vec3_t>' (aka 'Slots<SIMD3<Float>>')".
+            // Raven wrote: AnglesToAxis( cent->lerpAngles, ent.axis )
+            portMissing("CG_General", source: "oracle/codemp/cgame/cg_ents.c:833")
+
+            if cent.currentState.iModelScale != 0 {
+                //if the server says we have a custom scale then set it now.
+                if cent.currentState.legsFlip {
+                    //scalar
+                    cent.modelScale[2] = Float(cent.currentState.iModelScale)
+                    cent.modelScale[1] = cent.modelScale[2]
+                    cent.modelScale[0] = cent.modelScale[1]
+                } else {
+                    //percentage
+                    cent.modelScale[2] = cent.currentState.iModelScale / 100.0
+                    cent.modelScale[1] = cent.modelScale[2]
+                    cent.modelScale[0] = cent.modelScale[1]
+                }
+                ent.modelScale = cent.modelScale
+                ScaleModelAxis(ent)
+            } else {
+                cent.modelScale = vec3_t()
+            }
+
+            if cent.currentState.time > cg.time && cent.currentState.weapon == WP_EMPLACED_GUN {
+                // make the gun pulse red to warn about it exploding
+                val = (1.0 - Float((cent.currentState.time - cg.time)) / 3200.0) * 0.3
+
+                ent.customShader = trap_R_RegisterShader("gfx/effects/turretflashdie")
+                ent.shaderRGBA[0] = UInt8(truncatingIfNeeded: Int32((sin(cg.time * 0.04) * val * 0.4 + val) * 255))
+                ent.shaderRGBA[2] = 0
+                ent.shaderRGBA[1] = ent.shaderRGBA[2]
+
+                ent.shaderRGBA[3] = 100
+                trap_R_AddRefEntityToScene(ent)
+                ent.customShader = 0
+            } else if cent.currentState.time == -1 && cent.currentState.weapon == WP_EMPLACED_GUN {
+                ent.customShader = trap_R_RegisterShader("models/map_objects/imp_mine/turret_chair_dmg.tga")
+                //trap_R_AddRefEntityToScene( &ent );
+            }
+
+            if (cent.currentState.eFlags & EF_DISINTEGRATION) != 0 && cent.currentState.eType == ET_BODY {
+                if cent.dustTrailTime == 0 {
+                    cent.dustTrailTime = cg.time
+                }
+
+                CG_Disintegration(cent, ent)
+                return true
+            } else if cent.currentState.eType == ET_BODY {
+                if cent.bodyFadeTime > cg.time {
+                    let lightSide: Bool = cent.teamPowerType
+                    var hitLoc = vec3_t()
+                    var tempAng = vec3_t()
+                    var tempLength: Float = 0
+                    let curTimeDif: Int32 = ((cg.time + 60000) - cent.bodyFadeTime)
+                    let tMult: Int32 = Int32(Double(curTimeDif) * 0.08)
+
+                    ent.renderfx |= RF_FORCE_ENT_ALPHA
+
+                    /*
+                    if (!cent->bodyHeight)
+                    {
+                    cent->bodyHeight = ent.origin[2];
+                    }
+                    */
+
+                    if Double(curTimeDif) * 0.1 > 254 {
+                        ent.shaderRGBA[3] = 0
+                    } else {
+                        ent.shaderRGBA[3] = UInt8(truncatingIfNeeded: (254 - tMult))
+                    }
+
+                    if ent.shaderRGBA[3] >= 1 {
+                        //add the transparent body section
+                        trap_R_AddRefEntityToScene(ent)
+                    }
+
+                    ent.renderfx &= ~RF_FORCE_ENT_ALPHA
+                    ent.renderfx |= RF_RGB_TINT
+
+                    if tMult > 200 {
+                        //begin the disintegration effect
+                        ent.shaderRGBA[3] = 200
+                        if cent.dustTrailTime == 0 {
+                            cent.dustTrailTime = cg.time
+                            if lightSide {
+                                trap_S_StartSound(nil, cent.currentState.number, CHAN_AUTO, trap_S_RegisterSound("sound/weapons/force/see.wav"))
+                            } else {
+                                trap_S_StartSound(nil, cent.currentState.number, CHAN_AUTO, trap_S_RegisterSound("sound/weapons/force/lightning"))
+                            }
+                        }
+                        ent.endTime = Float(cent.dustTrailTime)
+                        ent.renderfx |= RF_DISINTEGRATE2
+                    } else {
+                        //set the alpha on the to-be-disintegrated layer
+                        ent.shaderRGBA[3] = UInt8(truncatingIfNeeded: tMult)
+                        if ent.shaderRGBA[3] < 1 {
+                            ent.shaderRGBA[3] = 1
+                        }
+                    }
+                    //Set everything up on the disint ref
+                    ent.shaderRGBA[2] = ent.shaderRGBA[3]
+                    ent.shaderRGBA[1] = ent.shaderRGBA[2]
+                    ent.shaderRGBA[0] = ent.shaderRGBA[1]
+                    hitLoc = cent.lerpOrigin
+
+                    ent.oldorigin = hitLoc - ent.origin
+
+                    tempLength = VectorNormalize(&ent.oldorigin)
+                    vectoangles(ent.oldorigin, &tempAng)
+                    tempAng[YAW] -= cent.lerpAngles[YAW]
+                    // Raven passes NULL for the `right` and `up` outputs.
+                    var scratchRight = vec3_t()
+                    var scratchUp = vec3_t()
+                    AngleVectors(tempAng, &ent.oldorigin, &scratchRight, &scratchUp)
+                    ent.oldorigin = ent.oldorigin * tempLength
+
+                    if lightSide {
+                        //might be temporary, dunno.
+                        ent.customShader = cgs.media.playerShieldDamage
+                    } else {
+                        ent.customShader = cgs.media.redSaberGlowShader
+                    }
+
+                    //slowly move the glowing part upward, out of the fading body
+                    /*
+                    cent->bodyHeight += 0.4f;
+                    ent.origin[2] = cent->bodyHeight;
+                    */
+
+                    trap_R_AddRefEntityToScene(ent)
+                    ent.renderfx &= ~RF_DISINTEGRATE2
+                    ent.customShader = 0
+
+                    if curTimeDif < 3400 {
+                        if lightSide {
+                            if curTimeDif < 2200 {
+                                //probably temporary
+                                trap_S_StartSound(nil, cent.currentState.number, CHAN_AUTO, trap_S_RegisterSound("sound/weapons/saber/saberhum1.wav"))
+                            }
+                        } else {
+                            //probably temporary as well
+                            ent.renderfx |= RF_RGB_TINT
+                            ent.shaderRGBA[0] = 255
+                            ent.shaderRGBA[2] = 0
+                            ent.shaderRGBA[1] = ent.shaderRGBA[2]
+                            ent.shaderRGBA[3] = 255
+                            // The SDK also declares `rand`, so the call names the bg module.
+                            if (JKAMP_BG.rand() & 1) != 0 {
+                                ent.customShader = cgs.media.electricBodyShader
+                            } else {
+                                ent.customShader = cgs.media.electricBody2Shader
+                            }
+                            // The SDK also declares `random`, so the call names the bg module.
+                            if JKAMP_BG.random() > 0.9 {
+                                trap_S_StartSound(nil, cent.currentState.number, CHAN_AUTO, cgs.media.crackleSound)
+                            }
+                            trap_R_AddRefEntityToScene(ent)
+                        }
+                    }
+
+                    return true
+                } else {
+                    cent.dustTrailTime = 0
+                }
+            }
+
+            if cent.currentState.modelGhoul2 != 0 && ent.ghoul2 == nil && ent.hModel == 0 {
+                return true
+            }
+
+            // add to refresh list
+            trap_R_AddRefEntityToScene(ent)
+
+            if cent.bolt3 == 999 {
+                //this is an in-flight saber being rendered manually
+                var org = vec3_t()
+                var wv: Float = 0
+                var i: Int32 = 0
+                // Raven's record lives to the end of his block, so the block is the closure.
+                AddspriteArgStruct.scratch { fxSArgs in
+                    //refEntity_t sRef;
+                    //memcpy( &sRef, &ent, sizeof( sRef ) );
+
+                    ent.customShader = cgs.media.solidWhite
+                    ent.renderfx = RF_RGB_TINT
+                    wv = sin(cg.time * 0.003) * 0.08 + 0.1
+                    ent.shaderRGBA[0] = UInt8(truncatingIfNeeded: Int32(wv * 255))
+                    ent.shaderRGBA[1] = UInt8(truncatingIfNeeded: Int32(wv * 255))
+                    ent.shaderRGBA[2] = UInt8(truncatingIfNeeded: Int32(wv * 0))
+                    trap_R_AddRefEntityToScene(ent)
+
+                    i = -4
+                    while i < 10 {
+                        _VectorMA(ent.origin, Float(-i), ent.axis[2], &org)
+
+                        fxSArgs.origin = org
+                        fxSArgs.vel = vec3_t()
+                        fxSArgs.accel = vec3_t()
+                        fxSArgs.scale = 5.5
+                        fxSArgs.dscale = 5.5
+                        fxSArgs.sAlpha = wv
+                        fxSArgs.eAlpha = wv
+                        fxSArgs.rotation = 0.0
+                        fxSArgs.bounce = 0.0
+                        fxSArgs.life = 1
+                        fxSArgs.shader = cgs.media.yellowDroppedSaberShader
+                        fxSArgs.flags = 0x08000000
+
+                        //trap_FX_AddSprite( org, NULL, NULL, 5.5f, 5.5f, wv, wv, 0.0f, 0.0f, 1.0f, cgs.media.yellowSaberGlowShader, 0x08000000 );
+                        trap_FX_AddSprite(fxSArgs)
+                        i += 1
+                    }
+                }
+            } else if cent.currentState.trickedentindex3 != 0 {
+                //holocron special effects
+                var org = vec3_t()
+                var wv: Float = 0
+                // Raven's record lives to the end of his block, so the block is the closure.
+                AddspriteArgStruct.scratch { fxSArgs in
+                    //refEntity_t sRef;
+                    //memcpy( &sRef, &ent, sizeof( sRef ) );
+
+                    ent.customShader = cgs.media.solidWhite
+                    ent.renderfx = RF_RGB_TINT
+                    wv = sin(cg.time * 0.005) * 0.08 + 0.1 //* 0.08f + 0.1f;
+
+                    if cent.currentState.trickedentindex3 == 1 {
+                        //dark
+                        ent.shaderRGBA[0] = UInt8(truncatingIfNeeded: Int32(wv * 255))
+                        ent.shaderRGBA[1] = 0
+                        ent.shaderRGBA[2] = 0
+                    } else if cent.currentState.trickedentindex3 == 2 {
+                        //light
+                        ent.shaderRGBA[0] = UInt8(truncatingIfNeeded: Int32(wv * 255))
+                        ent.shaderRGBA[1] = UInt8(truncatingIfNeeded: Int32(wv * 255))
+                        ent.shaderRGBA[2] = UInt8(truncatingIfNeeded: Int32(wv * 255))
+                    } else {
+                        //neutral
+                        if (s1!.modelindex + 128) == FP_SABER_OFFENSE || (s1!.modelindex + 128) == FP_SABER_DEFENSE || (s1!.modelindex + 128) == FP_SABERTHROW {
+                            //saber power
+                            ent.shaderRGBA[0] = 0
+                            ent.shaderRGBA[1] = UInt8(truncatingIfNeeded: Int32(wv * 255))
+                            ent.shaderRGBA[2] = 0
+                        } else {
+                            ent.shaderRGBA[0] = 0
+                            ent.shaderRGBA[1] = UInt8(truncatingIfNeeded: Int32(wv * 255))
+                            ent.shaderRGBA[2] = UInt8(truncatingIfNeeded: Int32(wv * 255))
+                        }
+                    }
+
+                    ent.modelScale[0] = 1.1
+                    ent.modelScale[1] = 1.1
+                    ent.modelScale[2] = 1.1
+
+                    ent.origin[2] -= 2
+                    ScaleModelAxis(ent)
+
+                    trap_R_AddRefEntityToScene(ent)
+
+                    _VectorMA(ent.origin, 1, ent.axis[2], &org)
+
+                    org[2] += 18
+
+                    wv = sin(cg.time * 0.002) * 0.08 + 0.1 //* 0.08f + 0.1f;
+
+                    fxSArgs.origin = org
+                    fxSArgs.vel = vec3_t()
+                    fxSArgs.accel = vec3_t()
+                    fxSArgs.scale = wv * 120 //16.0f;
+                    fxSArgs.dscale = wv * 120 //16.0f;
+                    fxSArgs.sAlpha = wv * 12
+                    fxSArgs.eAlpha = wv * 12
+                    fxSArgs.rotation = 0.0
+                    fxSArgs.bounce = 0.0
+                    fxSArgs.life = 1
+
+                    fxSArgs.flags = 0x08000000 | 0x00000001
+
+                    if cent.currentState.trickedentindex3 == 1 {
+                        //dark
+                        fxSArgs.sAlpha *= 3
+                        fxSArgs.eAlpha *= 3
+                        fxSArgs.shader = cgs.media.redSaberGlowShader
+                        trap_FX_AddSprite(fxSArgs)
+                    } else if cent.currentState.trickedentindex3 == 2 {
+                        //light
+                        fxSArgs.sAlpha = Float(Double(fxSArgs.sAlpha) * 1.5)
+                        fxSArgs.eAlpha = Float(Double(fxSArgs.eAlpha) * 1.5)
+                        fxSArgs.shader = cgs.media.redSaberGlowShader
+                        trap_FX_AddSprite(fxSArgs)
+                        fxSArgs.shader = cgs.media.greenSaberGlowShader
+                        trap_FX_AddSprite(fxSArgs)
+                        fxSArgs.shader = cgs.media.blueSaberGlowShader
+                        trap_FX_AddSprite(fxSArgs)
+                    } else {
+                        //neutral
+                        if (s1!.modelindex + 128) == FP_SABER_OFFENSE || (s1!.modelindex + 128) == FP_SABER_DEFENSE || (s1!.modelindex + 128) == FP_SABERTHROW {
+                            //saber power
+                            fxSArgs.sAlpha = Float(Double(fxSArgs.sAlpha) * 1.5)
+                            fxSArgs.eAlpha = Float(Double(fxSArgs.eAlpha) * 1.5)
+                            fxSArgs.shader = cgs.media.greenSaberGlowShader
+                            trap_FX_AddSprite(fxSArgs)
+                        } else {
+                            fxSArgs.sAlpha = Float(Double(fxSArgs.sAlpha) * 0.5)
+                            fxSArgs.eAlpha = Float(Double(fxSArgs.eAlpha) * 0.5)
+                            fxSArgs.shader = cgs.media.greenSaberGlowShader
+                            trap_FX_AddSprite(fxSArgs)
+                            fxSArgs.shader = cgs.media.blueSaberGlowShader
+                            trap_FX_AddSprite(fxSArgs)
+                        }
+                    }
+                }
+            }
+
+            if cent.currentState.time == -1 && cent.currentState.weapon == WP_TRIP_MINE && (cent.currentState.eFlags & EF_FIRING) != 0 {
+                //if force sight is active, render the laser multiple times up to the force sight level to increase visibility
+                if cent.currentState.bolt2 == 1 {
+                    _VectorMA(ent.origin, 6.6, ent.axis[0], &beamOrg) // forward
+                    beamID = cgs.effects.tripmineGlowFX
+                    trap_FX_PlayEffectID(beamID, beamOrg, cent.currentState.pos.trDelta, -1, -1)
+                } else {
+                    var i: Int32 = 0
+
+                    _VectorMA(ent.origin, 6.6, ent.axis[0], &beamOrg) // forward
+                    beamID = cgs.effects.tripmineLaserFX
+
+                    if (cg.snap!.ps.fd.forcePowersActive & (1 << FP_SEE)) != 0 {
+                        i = cg.snap!.ps.fd.forcePowerLevel[FP_SEE]
+
+                        while i > 0 {
+                            trap_FX_PlayEffectID(beamID, beamOrg, cent.currentState.pos.trDelta, -1, -1)
+                            trap_FX_PlayEffectID(beamID, beamOrg, cent.currentState.pos.trDelta, -1, -1)
+                            i -= 1
+                        }
+                    }
+
+                    trap_FX_PlayEffectID(beamID, beamOrg, cent.currentState.pos.trDelta, -1, -1)
+                }
+            }
+            /*
+            Ghoul2 Insert Start
+            */
+
+            if cg_debugBB.integer != 0 {
+                CG_CreateBBRefEnts(s1!, cent.lerpOrigin)
+            }
+            /*
+            Ghoul2 Insert End
+            */
+            return false
+        }
+        if earlyOut2 {
+            return true
+        }
+        return false
+    }
+    if earlyOut {
+        return
+    }
 }
 
 /**
@@ -237,14 +1638,41 @@ Speaker entities can automatically play sounds
 */
 /// Source: oracle/codemp/cgame/cg_ents.c:1835
 private func CG_Speaker(_ cent: Centity) {
-    // TODO: Port CG_Speaker
-    portMissing("CG_Speaker", source: "oracle/codemp/cgame/cg_ents.c:1835")
+    if cent.currentState.trickedentindex != 0 {
+        CG_S_StopLoopingSound(cent.currentState.number, -1)
+    }
+
+    if cent.currentState.clientNum == 0 {
+        // FIXME: use something other than clientNum...
+        return // not auto triggering
+    }
+
+    if cg.time < cent.miscTime {
+        return
+    }
+
+    trap_S_StartSound(nil, cent.currentState.number, CHAN_ITEM, cgs.gameSounds[cent.currentState.eventParm])
+
+    //	ent->s.frame = ent->wait * 10;
+    //	ent->s.clientNum = ent->random * 10;
+    cent.miscTime = Int32(Double(cg.time + cent.currentState.frame * 100) + Double(cent.currentState.clientNum * 100) * crandom())
 }
 
 /// Source: oracle/codemp/cgame/cg_ents.c:1856
 func CG_GreyItem(_ type: Int32, _ tag: Int32, _ plSide: Int32) -> Bool {
-    // TODO: Port CG_GreyItem
-    portMissing("CG_GreyItem", source: "oracle/codemp/cgame/cg_ents.c:1856")
+    if type == IT_POWERUP && (tag == PW_FORCE_ENLIGHTENED_LIGHT || tag == PW_FORCE_ENLIGHTENED_DARK) {
+        if plSide == FORCE_LIGHTSIDE {
+            if tag == PW_FORCE_ENLIGHTENED_DARK {
+                return true
+            }
+        } else if plSide == FORCE_DARKSIDE {
+            if tag == PW_FORCE_ENLIGHTENED_LIGHT {
+                return true
+            }
+        }
+    }
+
+    return false
 }
 
 /**
@@ -256,14 +1684,467 @@ CG_Item
 */
 /// Source: oracle/codemp/cgame/cg_ents.c:1885
 private func CG_Item(_ cent: Centity) {
-    // TODO: Port CG_Item
-    portMissing("CG_Item", source: "oracle/codemp/cgame/cg_ents.c:1885")
+    // Raven's record lives to the end of his block, so the block is the closure.
+    // The closure gives true where Raven returns from the function.
+    let earlyOut = RefEntity.scratch { ent -> Bool in
+        var es: EntityState?
+        var item: Gitem?
+        var msec: Int32 = 0
+        var scale: Float = 0
+        var wi: WeaponInfo?
+
+        es = cent.currentState
+        if es!.modelindex >= bg_numItems {
+            CG_Error("Bad item index %i on entity", es!.modelindex)
+        }
+
+        /*
+        Ghoul2 Insert Start
+        */
+
+        if (es!.eFlags & EF_NODRAW) != 0 && (es!.eFlags & EF_ITEMPLACEHOLDER) != 0 {
+            es!.eFlags &= ~EF_NODRAW
+        }
+
+        if es!.modelindex == 0 {
+            return true
+        }
+
+        item = bg_itemlist[es!.modelindex]
+
+        if (item!.giType == IT_WEAPON || item!.giType == IT_POWERUP) && !((cent.currentState.eFlags & EF_DROPPEDWEAPON) != 0) && cg_simpleItems.integer == 0 {
+            var uNorm = vec3_t()
+            var doGrey: Bool = false
+
+            uNorm = vec3_t()
+
+            uNorm[2] = 1
+
+            // Raven clears the record with `memset` here. The scratch slot is zero at entry, so the body drops the call.
+
+            ent.customShader = 0
+            ent.origin = cent.lerpOrigin
+            cent.lerpAngles = cent.currentState.angles
+            // Port-note: The draft of this statement did not compile, and the compiler wrote "'&' used with non-inout argument of type 'Slots<vec3_t>' (aka 'Slots<SIMD3<Float>>')".
+            // Raven wrote: AnglesToAxis(cent->lerpAngles, ent.axis)
+            portMissing("CG_Item", source: "oracle/codemp/cgame/cg_ents.c:1885")
+            ent.hModel = cgs.media.itemHoloModel
+
+            doGrey = CG_GreyItem(item!.giType, item!.giTag, cg.snap!.ps.fd.forceSide)
+
+            if doGrey {
+                ent.renderfx |= RF_RGB_TINT
+
+                ent.shaderRGBA[0] = 150
+                ent.shaderRGBA[1] = 150
+                ent.shaderRGBA[2] = 150
+            }
+
+            trap_R_AddRefEntityToScene(ent)
+
+            if !doGrey {
+                trap_FX_PlayEffectID(cgs.effects.itemCone, ent.origin, uNorm, -1, -1)
+            }
+        }
+
+        // if set to invisible, skip
+        if (es!.eFlags & EF_NODRAW) != 0 {
+            return true
+        }
+        /*
+        Ghoul2 Insert End
+        */
+
+        if cg_simpleItems.integer != 0 && item!.giType != IT_TEAM {
+            // Raven clears the record with `memset` here. The scratch slot is zero at entry, so the body drops the call.
+            ent.reType = RT_SPRITE
+            ent.origin = cent.lerpOrigin
+            ent.radius = 14
+            ent.customShader = cg_items[es!.modelindex].icon
+            ent.shaderRGBA[0] = 255
+            ent.shaderRGBA[1] = 255
+            ent.shaderRGBA[2] = 255
+
+            ent.origin[2] += 16
+
+            if item!.giType != IT_POWERUP || item!.giTag != PW_FORCE_BOON {
+                ent.renderfx |= RF_FORCE_ENT_ALPHA
+            }
+
+            if (es!.eFlags & EF_ITEMPLACEHOLDER) != 0 {
+                if item!.giType == IT_POWERUP && item!.giTag == PW_FORCE_BOON {
+                    return true
+                }
+                ent.shaderRGBA[0] = 200
+                ent.shaderRGBA[1] = 200
+                ent.shaderRGBA[2] = 200
+                ent.shaderRGBA[3] = UInt8(truncatingIfNeeded: Int32(150 + sin(Double(cg.time) * 0.01) * 30))
+            } else {
+                ent.shaderRGBA[3] = 255
+            }
+
+            if CG_GreyItem(item!.giType, item!.giTag, cg.snap!.ps.fd.forceSide) {
+                ent.shaderRGBA[0] = 100
+                ent.shaderRGBA[1] = 100
+                ent.shaderRGBA[2] = 100
+
+                ent.shaderRGBA[3] = 200
+
+                if item!.giTag == PW_FORCE_ENLIGHTENED_LIGHT {
+                    ent.customShader = trap_R_RegisterShader("gfx/misc/mp_light_enlight_disable")
+                } else {
+                    ent.customShader = trap_R_RegisterShader("gfx/misc/mp_dark_enlight_disable")
+                }
+            }
+            trap_R_AddRefEntityToScene(ent)
+            return true
+        }
+
+        if (item!.giType == IT_WEAPON || item!.giType == IT_POWERUP) && !((cent.currentState.eFlags & EF_DROPPEDWEAPON) != 0) {
+            cent.lerpOrigin[2] += 16
+        }
+
+        if (!((cent.currentState.eFlags & EF_DROPPEDWEAPON) != 0) || item!.giType == IT_POWERUP) && (item!.giType == IT_WEAPON || item!.giType == IT_POWERUP) {
+            // items bob up and down continuously
+            scale = Float(0.005 + Double(cent.currentState.number) * 0.00001)
+            cent.lerpOrigin[2] += 4 + cos((cg.time + 1000) * scale) * 4
+        } else {
+            if item!.giType == IT_HOLDABLE {
+                if item!.giTag == HI_SEEKER {
+                    cent.lerpOrigin[2] += 5
+                }
+                if item!.giTag == HI_SHIELD {
+                    cent.lerpOrigin[2] += 2
+                }
+                if item!.giTag == HI_BINOCULARS {
+                    cent.lerpOrigin[2] += 2
+                }
+            }
+            if item!.giType == IT_HEALTH {
+                cent.lerpOrigin[2] += 2
+            }
+            if item!.giType == IT_ARMOR {
+                if item!.quantity == 100 {
+                    cent.lerpOrigin[2] += 7
+                }
+            }
+        }
+
+        // Raven clears the record with `memset` here. The scratch slot is zero at entry, so the body drops the call.
+
+        if (!((cent.currentState.eFlags & EF_DROPPEDWEAPON) != 0) || item!.giType == IT_POWERUP) && (item!.giType == IT_WEAPON || item!.giType == IT_POWERUP) {
+            //only weapons and powerups rotate now
+            // autorotate at one of two speeds
+            cent.lerpAngles = cg.autoAngles
+            // Port-note: The draft of this statement did not compile, and the compiler wrote "'&' used with non-inout argument of type 'Slots<vec3_t>' (aka 'Slots<SIMD3<Float>>')".
+            // Raven wrote: AxisCopy( cg.autoAxis, ent.axis )
+            portMissing("CG_Item", source: "oracle/codemp/cgame/cg_ents.c:1885")
+        } else {
+            cent.lerpAngles = cent.currentState.angles
+            // Port-note: The draft of this statement did not compile, and the compiler wrote "'&' used with non-inout argument of type 'Slots<vec3_t>' (aka 'Slots<SIMD3<Float>>')".
+            // Raven wrote: AnglesToAxis(cent->lerpAngles, ent.axis)
+            portMissing("CG_Item", source: "oracle/codemp/cgame/cg_ents.c:1885")
+        }
+
+        wi = nil
+        // the weapons have their origin where they attatch to player
+        // models, so we need to offset them or they will rotate
+        // eccentricly
+        if !((cent.currentState.eFlags & EF_DROPPEDWEAPON) != 0) {
+            if item!.giType == IT_WEAPON {
+                wi = cg_weapons[item!.giTag]
+                cent.lerpOrigin[0] -= wi!.weaponMidpoint[0] * ent.axis[0][0] + wi!.weaponMidpoint[1] * ent.axis[1][0] + wi!.weaponMidpoint[2] * ent.axis[2][0]
+                cent.lerpOrigin[1] -= wi!.weaponMidpoint[0] * ent.axis[0][1] + wi!.weaponMidpoint[1] * ent.axis[1][1] + wi!.weaponMidpoint[2] * ent.axis[2][1]
+                cent.lerpOrigin[2] -= wi!.weaponMidpoint[0] * ent.axis[0][2] + wi!.weaponMidpoint[1] * ent.axis[1][2] + wi!.weaponMidpoint[2] * ent.axis[2][2]
+
+                cent.lerpOrigin[2] += 8 // an extra height boost
+            }
+        } else {
+            wi = cg_weapons[item!.giTag]
+
+            switch item!.giTag {
+            case WP_BLASTER:
+                cent.lerpOrigin[2] -= 12
+
+            case WP_DISRUPTOR:
+                cent.lerpOrigin[2] -= 13
+
+            case WP_BOWCASTER:
+                cent.lerpOrigin[2] -= 16
+
+            case WP_REPEATER:
+                cent.lerpOrigin[2] -= 12
+
+            case WP_DEMP2:
+                cent.lerpOrigin[2] -= 10
+
+            case WP_FLECHETTE:
+                cent.lerpOrigin[2] -= 6
+
+            case WP_ROCKET_LAUNCHER:
+                cent.lerpOrigin[2] -= 11
+
+            case WP_THERMAL:
+                cent.lerpOrigin[2] -= 12
+
+            case WP_TRIP_MINE:
+                cent.lerpOrigin[2] -= 16
+
+            case WP_DET_PACK:
+                cent.lerpOrigin[2] -= 16
+
+            default:
+                cent.lerpOrigin[2] -= 8
+            }
+        }
+
+        ent.hModel = cg_items[es!.modelindex].models[0]
+        /*
+        Ghoul2 Insert Start
+        */
+        ent.ghoul2 = cg_items[es!.modelindex].g2Models[0]
+        ent.radius = cg_items[es!.modelindex].radius[0]
+        ent.angles = cent.lerpAngles
+        /*
+        Ghoul2 Insert End
+        */
+        ent.origin = cent.lerpOrigin
+        ent.oldorigin = cent.lerpOrigin
+
+        ent.nonNormalizedAxes = false
+
+        // if just respawned, slowly scale up
+
+        msec = cg.time - cent.miscTime
+
+        if CG_GreyItem(item!.giType, item!.giTag, cg.snap!.ps.fd.forceSide) {
+            ent.renderfx |= RF_RGB_TINT
+
+            ent.shaderRGBA[0] = 150
+            ent.shaderRGBA[1] = 150
+            ent.shaderRGBA[2] = 150
+
+            ent.renderfx |= RF_FORCE_ENT_ALPHA
+
+            ent.shaderRGBA[3] = 200
+
+            if item!.giTag == PW_FORCE_ENLIGHTENED_LIGHT {
+                ent.customShader = trap_R_RegisterShader("gfx/misc/mp_light_enlight_disable")
+            } else {
+                ent.customShader = trap_R_RegisterShader("gfx/misc/mp_dark_enlight_disable")
+            }
+
+            trap_R_AddRefEntityToScene(ent)
+            return true
+        }
+
+        if (es!.eFlags & EF_ITEMPLACEHOLDER) != 0 {
+            if (es!.eFlags & EF_DEAD) != 0 {
+                return true
+            }
+
+            ent.renderfx |= RF_RGB_TINT
+            ent.shaderRGBA[0] = 0
+            ent.shaderRGBA[1] = 200
+            ent.shaderRGBA[2] = 85
+            ent.customShader = cgs.media.itemRespawningPlaceholder
+        }
+
+        // increase the size of the weapons when they are presented as items
+        if item!.giType == IT_WEAPON {
+            ent.axis[0] = ent.axis[0] * 1.5
+            ent.axis[1] = ent.axis[1] * 1.5
+            ent.axis[2] = ent.axis[2] * 1.5
+            ent.nonNormalizedAxes = true
+            //trap_S_AddLoopingSound( cent->currentState.number, cent->lerpOrigin, vec3_origin, cgs.media.weaponHoverSound );
+        }
+
+        if !((cent.currentState.eFlags & EF_DROPPEDWEAPON) != 0) && (item!.giType == IT_WEAPON || item!.giType == IT_POWERUP) {
+            ent.renderfx |= RF_MINLIGHT
+        }
+
+        if item!.giType != IT_TEAM && msec >= 0 && msec < ITEM_SCALEUP_TIME && !((es!.eFlags & EF_ITEMPLACEHOLDER) != 0) && !((es!.eFlags & EF_DROPPEDWEAPON) != 0) {
+            // if just respawned, fade in, but don't do this for flags.
+            var alpha: Float = 0
+            var a: Int32 = 0
+
+            alpha = Float(msec) / ITEM_SCALEUP_TIME
+            a = Int32(Double(alpha) * 255.0)
+            if a <= 0 {
+                a = 1
+            }
+
+            ent.shaderRGBA[3] = UInt8(truncatingIfNeeded: a)
+            if item!.giType != IT_POWERUP || item!.giTag != PW_FORCE_BOON {
+                //boon model uses a different blending mode for the sprite inside and doesn't look proper with this method
+                ent.renderfx |= RF_FORCE_ENT_ALPHA
+            }
+            trap_R_AddRefEntityToScene(ent)
+
+            ent.renderfx &= ~RF_FORCE_ENT_ALPHA
+
+            // Now draw the static shader over it.
+            // Alpha in over half the time, out over half.
+
+            //alpha = sin(M_PI*alpha);
+            a = Int32(Double(alpha) * 255.0)
+
+            a = 255 - a
+
+            if a <= 0 {
+                a = 1
+            }
+            if a > 255 {
+                a = 255
+            }
+
+            ent.customShader = cgs.media.itemRespawningRezOut
+
+            /*
+            ent.shaderRGBA[0] = 0;
+            ent.shaderRGBA[1] = a;
+            ent.shaderRGBA[2] = a-100;
+
+            if (ent.shaderRGBA[2] < 0)
+            {
+            ent.shaderRGBA[2] = 0;
+            }
+            */
+
+            /*
+            ent.shaderRGBA[0] =
+            ent.shaderRGBA[1] =
+            ent.shaderRGBA[2] = a;
+            */
+
+            ent.renderfx |= RF_RGB_TINT
+            ent.shaderRGBA[0] = 0
+            ent.shaderRGBA[1] = 200
+            ent.shaderRGBA[2] = 85
+
+            trap_R_AddRefEntityToScene(ent)
+        } else {
+            // add to refresh list  -- normal item
+            if item!.giType == IT_TEAM && (item!.giTag == PW_REDFLAG || item!.giTag == PW_BLUEFLAG) {
+                ent.modelScale[0] = 0.7
+                ent.modelScale[1] = 0.7
+                ent.modelScale[2] = 0.7
+                ScaleModelAxis(ent)
+            }
+            trap_R_AddRefEntityToScene(ent)
+        }
+
+        //rww - As far as I can see, this is useless.
+        /*
+        if ( item->giType == IT_WEAPON && wi->barrelModel ) {
+        refEntity_t	barrel;
+
+        memset( &barrel, 0, sizeof( barrel ) );
+
+        barrel.hModel = wi->barrelModel;
+
+        VectorCopy( ent.lightingOrigin, barrel.lightingOrigin );
+        barrel.shadowPlane = ent.shadowPlane;
+        barrel.renderfx = ent.renderfx;
+
+        barrel.customShader = ent.customShader;
+
+        CG_PositionRotatedEntityOnTag( &barrel, &ent, wi->weaponModel, "tag_barrel" );
+
+        AxisCopy( ent.axis, barrel.axis );
+        barrel.nonNormalizedAxes = ent.nonNormalizedAxes;
+
+        trap_R_AddRefEntityToScene( &barrel );
+        }
+        */
+
+        // accompanying rings / spheres for powerups
+        if cg_simpleItems.integer == 0 {
+            var spinAngles = vec3_t()
+
+            spinAngles = vec3_t()
+
+            if item!.giType == IT_HEALTH || item!.giType == IT_POWERUP {
+                ent.hModel = cg_items[es!.modelindex].models[1]
+                if (ent.hModel) != 0 {
+                    if item!.giType == IT_POWERUP {
+                        ent.origin[2] += 12
+                        spinAngles[1] = (cg.time & 1023) * 360 / -1024.0
+                    }
+                    // Port-note: The draft of this statement did not compile, and the compiler wrote "'&' used with non-inout argument of type 'Slots<vec3_t>' (aka 'Slots<SIMD3<Float>>')".
+                    // Raven wrote: AnglesToAxis( spinAngles, ent.axis )
+                    portMissing("CG_Item", source: "oracle/codemp/cgame/cg_ents.c:1885")
+
+                    trap_R_AddRefEntityToScene(ent)
+                }
+            }
+        }
+        return false
+    }
+    if earlyOut {
+        return
+    }
 }
 
 /// Source: oracle/codemp/cgame/cg_ents.c:2331
 func CG_CreateDistortionTrailPart(_ cent: Centity, _ scale: Float, _ pos: JKAShared.vec3_t) {
-    // TODO: Port CG_CreateDistortionTrailPart
-    portMissing("CG_CreateDistortionTrailPart", source: "oracle/codemp/cgame/cg_ents.c:2331")
+    // Raven's record lives to the end of his block, so the block is the closure.
+    // The closure gives true where Raven returns from the function.
+    let earlyOut = RefEntity.scratch { ent -> Bool in
+        var ang = vec3_t()
+        var vLen: Float = 0
+
+        if cg_renderToTextureFX.integer == 0 {
+            return true
+        }
+        // Raven clears the record with `memset` here. The scratch slot is zero at entry, so the body drops the call.
+
+        ent.origin = pos
+
+        ent.axis[0] = ent.origin - cg.refdef.vieworg
+        vLen = VectorLength(ent.axis[0])
+        if VectorNormalize(&ent.axis[0]) <= 0.1 {
+            // Entity is right on vieworg.  quit.
+            return true
+        }
+
+        ang = cent.lerpAngles
+        ang[PITCH] += 90.0
+        // Port-note: The draft of this statement did not compile, and the compiler wrote "'&' used with non-inout argument of type 'Slots<vec3_t>' (aka 'Slots<SIMD3<Float>>')".
+        // Raven wrote: AnglesToAxis(ang, ent.axis)
+        portMissing("CG_CreateDistortionTrailPart", source: "oracle/codemp/cgame/cg_ents.c:2331")
+
+        //radius must be a power of 2, and is the actual captured texture size
+        if vLen < 512 {
+            ent.radius = 256
+        } else if vLen < 1024 {
+            ent.radius = 128
+        } else if vLen < 2048 {
+            ent.radius = 64
+        } else {
+            ent.radius = 32
+        }
+
+        ent.modelScale[0] = scale
+        ent.modelScale[1] = scale
+        ent.modelScale[2] = scale * 16.0
+        ScaleModelAxis(ent)
+
+        ent.hModel = trap_R_RegisterModel("models/weapons2/merr_sonn/trailmodel.md3")
+        ent.customShader = cgs.media.itemRespawningRezOut //cgs.media.cloakedShader;//cgs.media.halfShieldShader;
+
+        ent.renderfx = (RF_DISTORTION | RF_FORCE_ENT_ALPHA)
+        ent.shaderRGBA[0] = UInt8(truncatingIfNeeded: 255)
+        ent.shaderRGBA[1] = UInt8(truncatingIfNeeded: 255)
+        ent.shaderRGBA[2] = UInt8(truncatingIfNeeded: 255)
+        ent.shaderRGBA[3] = UInt8(truncatingIfNeeded: 100)
+
+        trap_R_AddRefEntityToScene(ent)
+        return false
+    }
+    if earlyOut {
+        return
+    }
 }
 
 /**
@@ -275,20 +2156,342 @@ CG_Missile
 */
 /// Source: oracle/codemp/cgame/cg_ents.c:2426
 private func CG_Missile(_ cent: Centity) {
-    // TODO: Port CG_Missile
-    portMissing("CG_Missile", source: "oracle/codemp/cgame/cg_ents.c:2426")
+    // Raven's record lives to the end of his block, so the block is the closure.
+    // The closure gives true where Raven returns from the function.
+    let earlyOut = RefEntity.scratch { ent -> Bool in
+        var s1: EntityState?
+        var weapon: WeaponInfo?
+        //	int	col;
+
+        s1 = cent.currentState
+        if s1!.weapon > WP_NUM_WEAPONS && s1!.weapon != G2_MODEL_PART {
+            s1!.weapon = 0
+        }
+
+        if cent.ghoul2 != nil && s1!.weapon == G2_MODEL_PART {
+            weapon = cg_weapons[WP_SABER]
+        } else {
+            weapon = cg_weapons[s1!.weapon]
+        }
+
+        if (cent.currentState.eFlags & EF_RADAROBJECT) != 0 {
+            CG_AddRadarEnt(cent)
+        }
+
+        if s1!.weapon == WP_SABER {
+            if (cent.currentState.modelindex != cent.serverSaberHitIndex || cent.ghoul2 == nil) && !((s1!.eFlags & EF_NODRAW) != 0) {
+                //no g2, or server changed the model we are using
+                let saberModel: String = CG_ConfigString(CS_MODELS + cent.currentState.modelindex)
+
+                cent.serverSaberHitIndex = cent.currentState.modelindex
+
+                if cent.ghoul2 != nil {
+                    //clean if we already have one (because server changed model string index)
+                    trap_G2API_CleanGhoul2Models(&(cent.ghoul2))
+                    // Port-note: The draft of this statement did not compile, and the compiler wrote "cannot assign value of type 'Int' to type 'OpaquePointer'".
+                    // Raven wrote: cent->ghoul2 = 0
+                    portMissing("CG_Missile", source: "oracle/codemp/cgame/cg_ents.c:2426")
+                }
+
+                if !saberModel.isEmpty {
+                    trap_G2API_InitGhoul2Model(&cent.ghoul2, saberModel, 0, 0, 0, 0, 0)
+                } else {
+                    trap_G2API_InitGhoul2Model(&cent.ghoul2, "models/weapons2/saber/saber_w.glm", 0, 0, 0, 0, 0)
+                }
+                return true
+            } else if (s1!.eFlags & EF_NODRAW) != 0 {
+                return true
+            }
+        }
+
+        if cent.ghoul2 != nil {
+            //give us a proper radius
+            ent.radius = Float(cent.currentState.g2radius)
+        }
+
+        // calculate the axis
+        cent.lerpAngles = s1!.angles
+
+        if s1!.otherEntityNum2 != 0 && s1!.weapon != WP_SABER {
+            //using an over-ridden trail effect!
+            var forward = vec3_t()
+
+            if VectorNormalize2(cent.currentState.pos.trDelta, &forward) == 0.0 {
+                forward[2] = 1.0
+            }
+            if (s1!.eFlags & EF_JETPACK_ACTIVE) != 0 && (g_vehWeaponInfo[s1!.otherEntityNum2].iShotFX != 0 || g_vehWeaponInfo[s1!.otherEntityNum2].iModel != NULL_HANDLE) {
+                //a vehicle with an override for the weapon trail fx or model
+                trap_FX_PlayEffectID(g_vehWeaponInfo[s1!.otherEntityNum2].iShotFX, cent.lerpOrigin, forward, -1, -1)
+                if g_vehWeaponInfo[s1!.otherEntityNum2].iLoopSound != 0 {
+                    var velocity = vec3_t()
+                    BG_EvaluateTrajectoryDelta(cent.currentState.pos, cg.time, &velocity)
+                    trap_S_AddLoopingSound(cent.currentState.number, cent.lerpOrigin, velocity, g_vehWeaponInfo[s1!.otherEntityNum2].iLoopSound)
+                }
+                //add custom model
+                if g_vehWeaponInfo[s1!.otherEntityNum2].iModel == NULL_HANDLE {
+                    return true
+                }
+            } else {
+                //a regular missile
+                trap_FX_PlayEffectID(cgs.gameEffects[s1!.otherEntityNum2], cent.lerpOrigin, forward, -1, -1)
+                if s1!.loopSound != 0 {
+                    var velocity = vec3_t()
+                    BG_EvaluateTrajectoryDelta(cent.currentState.pos, cg.time, &velocity)
+                    trap_S_AddLoopingSound(cent.currentState.number, cent.lerpOrigin, velocity, s1!.loopSound)
+                }
+                //FIXME: if has a custom model, too, then set it and do rest of code below?
+                return true
+            }
+        } else if (cent.currentState.eFlags & EF_ALT_FIRING) != 0 {
+            // add trails
+            if weapon!.altMissileTrailFunc != nil {
+                weapon!.runAltMissileTrailFunc(cent, weapon)
+            }
+
+            // add dynamic light
+            if weapon!.altMissileDlight != 0 {
+                trap_R_AddLightToScene(cent.lerpOrigin, weapon!.altMissileDlight, weapon!.altMissileDlightColor[0], weapon!.altMissileDlightColor[1], weapon!.altMissileDlightColor[2])
+            }
+
+            // add missile sound
+            if weapon!.altMissileSound != 0 {
+                var velocity = vec3_t()
+
+                BG_EvaluateTrajectoryDelta(cent.currentState.pos, cg.time, &velocity)
+
+                trap_S_AddLoopingSound(cent.currentState.number, cent.lerpOrigin, velocity, weapon!.altMissileSound)
+            }
+
+            //Don't draw something without a model
+            if weapon!.altMissileModel == NULL_HANDLE {
+                return true
+            }
+        } else {
+            // add trails
+            if weapon!.missileTrailFunc != nil {
+                weapon!.runMissileTrailFunc(cent, weapon)
+            }
+
+            // add dynamic light
+            if weapon!.missileDlight != 0 {
+                trap_R_AddLightToScene(cent.lerpOrigin, weapon!.missileDlight, weapon!.missileDlightColor[0], weapon!.missileDlightColor[1], weapon!.missileDlightColor[2])
+            }
+
+            // add missile sound
+            if weapon!.missileSound != 0 {
+                var velocity = vec3_t()
+
+                BG_EvaluateTrajectoryDelta(cent.currentState.pos, cg.time, &velocity)
+
+                trap_S_AddLoopingSound(cent.currentState.number, cent.lerpOrigin, velocity, weapon!.missileSound)
+            }
+
+            //Don't draw something without a model
+            if weapon!.missileModel == NULL_HANDLE && s1!.weapon != WP_SABER && s1!.weapon != G2_MODEL_PART {
+                return true
+            }
+        }
+
+        // create the render entity
+        // Raven clears the record with `memset` here. The scratch slot is zero at entry, so the body drops the call.
+        ent.origin = cent.lerpOrigin
+        ent.oldorigin = cent.lerpOrigin
+        /*
+        Ghoul2 Insert Start
+        */
+        CG_SetGhoul2Info(ent, cent)
+
+        /*
+        Ghoul2 Insert End
+        */
+
+        // flicker between two skins
+        ent.skinNum = cg.clientFrame & 1
+        ent.renderfx = RF_NOSHADOW
+
+        if !((s1!.eFlags & EF_JETPACK_ACTIVE) != 0) {
+            if s1!.weapon != WP_SABER && s1!.weapon != G2_MODEL_PART {
+                //if ( cent->currentState.eFlags | EF_ALT_FIRING )
+                //rww - why was this like this?
+                if (cent.currentState.eFlags & EF_ALT_FIRING) != 0 {
+                    ent.hModel = weapon!.altMissileModel
+                } else {
+                    ent.hModel = weapon!.missileModel
+                }
+            }
+        } else {
+            //add custom model
+            if g_vehWeaponInfo[s1!.otherEntityNum2].iModel != NULL_HANDLE {
+                ent.hModel = g_vehWeaponInfo[s1!.otherEntityNum2].iModel
+            } else {
+                //wtf?  how did we get here?
+                return true
+            }
+        }
+
+        // spin as it moves
+        if s1!.apos.trType != TR_INTERPOLATE {
+            // convert direction of travel into axis
+            if VectorNormalize2(s1!.pos.trDelta, &ent.axis[0]) == 0 {
+                ent.axis[0][2] = 1
+            }
+
+            // spin as it moves
+            if s1!.pos.trType != TR_STATIONARY {
+                if (s1!.eFlags & EF_MISSILE_STICK) != 0 {
+                    // Port-note: The draft of this statement did not compile, and the compiler wrote "cannot convert value of type 'Slots<vec3_t>' (aka 'Slots<SIMD3<Float>>') to expected argument type '[vec3_t]' (aka 'Array<SIMD3<Float>>')".
+                    // Raven wrote: RotateAroundDirection( ent.axis, cg.time * 0.5f )
+                    portMissing("CG_Missile", source: "oracle/codemp/cgame/cg_ents.c:2426")
+                } else {
+                    // Port-note: The draft of this statement did not compile, and the compiler wrote "cannot convert value of type 'Slots<vec3_t>' (aka 'Slots<SIMD3<Float>>') to expected argument type '[vec3_t]' (aka 'Array<SIMD3<Float>>')".
+                    // Raven wrote: RotateAroundDirection( ent.axis, cg.time * 0.25f )
+                    portMissing("CG_Missile", source: "oracle/codemp/cgame/cg_ents.c:2426")
+                }
+            } else {
+                if (s1!.eFlags & EF_MISSILE_STICK) != 0 {
+                    // Port-note: The draft of this statement did not compile, and the compiler wrote "cannot convert value of type 'Slots<vec3_t>' (aka 'Slots<SIMD3<Float>>') to expected argument type '[vec3_t]' (aka 'Array<SIMD3<Float>>')".
+                    // Raven wrote: RotateAroundDirection( ent.axis, (float)s1->pos.trTime * 0.5f )
+                    portMissing("CG_Missile", source: "oracle/codemp/cgame/cg_ents.c:2426")
+                } else {
+                    // Port-note: The draft of this statement did not compile, and the compiler wrote "cannot convert value of type 'Slots<vec3_t>' (aka 'Slots<SIMD3<Float>>') to expected argument type '[vec3_t]' (aka 'Array<SIMD3<Float>>')".
+                    // Raven wrote: RotateAroundDirection( ent.axis, (float)s1->time )
+                    portMissing("CG_Missile", source: "oracle/codemp/cgame/cg_ents.c:2426")
+                }
+            }
+        } else {
+            // Port-note: The draft of this statement did not compile, and the compiler wrote "'&' used with non-inout argument of type 'Slots<vec3_t>' (aka 'Slots<SIMD3<Float>>')".
+            // Raven wrote: AnglesToAxis( cent->lerpAngles, ent.axis )
+            portMissing("CG_Missile", source: "oracle/codemp/cgame/cg_ents.c:2426")
+        }
+
+        if s1!.weapon == WP_SABER {
+            ent.radius = Float(s1!.g2radius)
+        }
+
+        // add to refresh list, possibly with quad glow
+        CG_AddRefEntityWithPowerups(ent, s1!, TEAM_FREE)
+
+        if s1!.weapon == WP_SABER && cgs.gametype == GT_JEDIMASTER {
+            //in jedimaster always make the saber glow when on the ground
+            var org = vec3_t()
+            var wv: Float = 0
+            var i: Int32 = 0
+            // Raven's record lives to the end of his block, so the block is the closure.
+            AddspriteArgStruct.scratch { fxSArgs in
+                //refEntity_t sRef;
+                //memcpy( &sRef, &ent, sizeof( sRef ) );
+
+                ent.customShader = cgs.media.solidWhite
+                ent.renderfx = RF_RGB_TINT
+                wv = sin(cg.time * 0.003) * 0.08 + 0.1
+                ent.shaderRGBA[0] = UInt8(truncatingIfNeeded: Int32(wv * 255))
+                ent.shaderRGBA[1] = UInt8(truncatingIfNeeded: Int32(wv * 255))
+                ent.shaderRGBA[2] = UInt8(truncatingIfNeeded: Int32(wv * 0))
+                trap_R_AddRefEntityToScene(ent)
+
+                i = -4
+                while i < 10 {
+                    _VectorMA(ent.origin, Float(-i), ent.axis[2], &org)
+
+                    fxSArgs.origin = org
+                    fxSArgs.vel = vec3_t()
+                    fxSArgs.accel = vec3_t()
+                    fxSArgs.scale = 5.5
+                    fxSArgs.dscale = 5.5
+                    fxSArgs.sAlpha = wv
+                    fxSArgs.eAlpha = wv
+                    fxSArgs.rotation = 0.0
+                    fxSArgs.bounce = 0.0
+                    fxSArgs.life = 1
+                    fxSArgs.shader = cgs.media.yellowDroppedSaberShader
+                    fxSArgs.flags = 0x08000000
+
+                    //trap_FX_AddSprite( org, NULL, NULL, 5.5f, 5.5f, wv, wv, 0.0f, 0.0f, 1.0f, cgs.media.yellowSaberGlowShader, 0x08000000 );
+                    trap_FX_AddSprite(fxSArgs)
+                    i += 1
+                }
+
+                if cgs.gametype == GT_JEDIMASTER {
+                    ent.shaderRGBA[0] = 255
+                    ent.shaderRGBA[1] = 255
+                    ent.shaderRGBA[2] = 0
+
+                    ent.renderfx |= RF_DEPTHHACK
+                    ent.customShader = cgs.media.forceSightBubble
+
+                    trap_R_AddRefEntityToScene(ent)
+                }
+            }
+        }
+
+        if (s1!.eFlags & EF_FIRING) != 0 {
+            //special code for adding the beam to the attached tripwire mine
+            var beamOrg = vec3_t()
+
+            _VectorMA(ent.origin, 8, ent.axis[0], &beamOrg) // forward
+            trap_FX_PlayEffectID(cgs.effects.mTripMineLaster, beamOrg, ent.axis[0], -1, -1)
+        }
+        return false
+    }
+    if earlyOut {
+        return
+    }
 }
 
 /// Source: oracle/codemp/cgame/cg_ents.c:2746
 func CG_PlayDoorLoopSound(_ cent: Centity) {
-    // TODO: Port CG_PlayDoorLoopSound
-    portMissing("CG_PlayDoorLoopSound", source: "oracle/codemp/cgame/cg_ents.c:2746")
+    let sfx: sfxHandle_t
+    let soundSet: String
+    var origin = vec3_t()
+
+    if cent.currentState.soundSetIndex == 0 {
+        return
+    }
+
+    soundSet = CG_ConfigString(CS_AMBIENT_SET + cent.currentState.soundSetIndex)
+
+    if soundSet.isEmpty {
+        return
+    }
+
+    sfx = trap_AS_GetBModelSound(soundSet, CG_BMS_MID)
+
+    if sfx == -1 {
+        return
+    }
+
+    if cent.currentState.eType == ET_MOVER {
+        origin = cent.lerpOrigin + cgs.inlineModelMidpoints[cent.currentState.modelindex]
+    } else {
+        origin = cent.lerpOrigin
+    }
+
+    //ent->s.loopSound = sfx;
+    CG_S_AddRealLoopingSound(cent.currentState.number, origin, vec3_origin, sfx)
 }
 
 /// Source: oracle/codemp/cgame/cg_ents.c:2792
 func CG_PlayDoorSound(_ cent: Centity, _ type: Int32) {
-    // TODO: Port CG_PlayDoorSound
-    portMissing("CG_PlayDoorSound", source: "oracle/codemp/cgame/cg_ents.c:2792")
+    let sfx: sfxHandle_t
+    let soundSet: String
+
+    if cent.currentState.soundSetIndex == 0 {
+        return
+    }
+
+    soundSet = CG_ConfigString(CS_AMBIENT_SET + cent.currentState.soundSetIndex)
+
+    if soundSet.isEmpty {
+        return
+    }
+
+    sfx = trap_AS_GetBModelSound(soundSet, type)
+
+    if sfx == -1 {
+        return
+    }
+
+    trap_S_StartSound(nil, cent.currentState.number, CHAN_AUTO, sfx)
 }
 
 /**
@@ -300,8 +2503,108 @@ CG_Mover
 */
 /// Source: oracle/codemp/cgame/cg_ents.c:2824
 private func CG_Mover(_ cent: Centity) {
-    // TODO: Port CG_Mover
-    portMissing("CG_Mover", source: "oracle/codemp/cgame/cg_ents.c:2824")
+    // Raven's record lives to the end of his block, so the block is the closure.
+    // The closure gives true where Raven returns from the function.
+    let earlyOut = RefEntity.scratch { ent -> Bool in
+        var s1: EntityState?
+
+        s1 = cent.currentState
+
+        // create the render entity
+        // Raven clears the record with `memset` here. The scratch slot is zero at entry, so the body drops the call.
+
+        if (cent.currentState.eFlags2 & EF2_HYPERSPACE) != 0 {
+            //I'm the hyperspace brush
+            var drawMe: Bool = false
+            if cg.predictedPlayerState.m_iVehicleNum != 0 && cg.predictedVehicleState.hyperSpaceTime != 0 && (cg.time - cg.predictedVehicleState.hyperSpaceTime) < HYPERSPACE_TIME && (cg.time - cg.predictedVehicleState.hyperSpaceTime) > 1000 {
+                if cg.snap != nil && cg.snap!.ps.pm_type == PM_INTERMISSION {
+                    //in the intermission, stop drawing hyperspace ent
+                } else if (cg.predictedVehicleState.eFlags2 & EF2_HYPERSPACE) != 0 {
+                    //actually hyperspacing now
+                    let timeFrac: Float = (Float((cg.time - cg.predictedVehicleState.hyperSpaceTime - 1000))) / (HYPERSPACE_TIME - 1000)
+                    if timeFrac < (HYPERSPACE_TELEPORT_FRAC + 0.1) {
+                        //still in hyperspace or just popped out
+                        let alpha: Float = timeFrac < 0.5 ? timeFrac / 0.5 : 1.0
+                        drawMe = true
+                        _VectorMA(cg.refdef.vieworg, 1000.0 + ((1.0 - timeFrac) * 1000.0), cg.refdef.viewaxis[0], &cent.lerpOrigin)
+                        cent.lerpAngles = vec3_t(cg.refdef.viewangles[PITCH], cg.refdef.viewangles[YAW] - 90.0, 0) //cos( ( cg.time + 1000 ) *  scale ) * 4 );
+                        ent.shaderRGBA[2] = 255
+                        ent.shaderRGBA[1] = ent.shaderRGBA[2]
+                        ent.shaderRGBA[0] = ent.shaderRGBA[1]
+                        ent.shaderRGBA[3] = UInt8(truncatingIfNeeded: Int32(alpha * 255))
+                    }
+                }
+            }
+            if !drawMe {
+                //else, never draw
+                return true
+            }
+        }
+
+        if (cent.currentState.eFlags & EF_RADAROBJECT) != 0 {
+            CG_AddRadarEnt(cent)
+        }
+
+        ent.origin = cent.lerpOrigin
+        ent.oldorigin = cent.lerpOrigin
+        // Port-note: The draft of this statement did not compile, and the compiler wrote "'&' used with non-inout argument of type 'Slots<vec3_t>' (aka 'Slots<SIMD3<Float>>')".
+        // Raven wrote: AnglesToAxis( cent->lerpAngles, ent.axis )
+        portMissing("CG_Mover", source: "oracle/codemp/cgame/cg_ents.c:2824")
+
+        ent.renderfx = RF_NOSHADOW
+        /*
+        Ghoul2 Insert Start
+        */
+
+        CG_SetGhoul2Info(ent, cent)
+        /*
+        Ghoul2 Insert End
+        */
+        // flicker between two skins (FIXME?)
+        ent.skinNum = (cg.time >> 6) & 1
+
+        // get the model, either as a bmodel or a modelindex
+        if s1!.solid == SOLID_BMODEL {
+            ent.hModel = cgs.inlineDrawModel[s1!.modelindex]
+        } else {
+            ent.hModel = cgs.gameModels[s1!.modelindex]
+        }
+
+        if (s1!.eFlags & EF_SHADER_ANIM) != 0 {
+            ent.renderfx |= RF_SETANIMINDEX
+            ent.skinNum = s1!.frame
+            //ent.shaderTime = cg.time*0.001f - s1->frame/s1->time;//NOTE: s1->time is number of frames
+        }
+
+        // add to refresh list
+        trap_R_AddRefEntityToScene(ent)
+
+        // add the secondary model
+        if s1!.modelindex2 != 0 {
+            ent.skinNum = 0
+            ent.hModel = cgs.gameModels[s1!.modelindex2]
+            if s1!.iModelScale != 0 {
+                //custom model2 scale
+                if s1!.legsFlip {
+                    //scalar
+                    ent.modelScale[2] = Float(s1!.iModelScale)
+                    ent.modelScale[1] = ent.modelScale[2]
+                    ent.modelScale[0] = ent.modelScale[1]
+                } else {
+                    //percentage
+                    ent.modelScale[2] = s1!.iModelScale / 100.0
+                    ent.modelScale[1] = ent.modelScale[2]
+                    ent.modelScale[0] = ent.modelScale[1]
+                }
+                ScaleModelAxis(ent)
+            }
+            trap_R_AddRefEntityToScene(ent)
+        }
+        return false
+    }
+    if earlyOut {
+        return
+    }
 }
 
 /**
@@ -315,8 +2618,33 @@ Also called as an event
 */
 /// Source: oracle/codemp/cgame/cg_ents.c:2935
 func CG_Beam(_ cent: Centity) {
-    // TODO: Port CG_Beam
-    portMissing("CG_Beam", source: "oracle/codemp/cgame/cg_ents.c:2935")
+    // Raven's record lives to the end of his block, so the block is the closure.
+    RefEntity.scratch { ent in
+        var s1: EntityState?
+
+        s1 = cent.currentState
+
+        // create the render entity
+        // Raven clears the record with `memset` here. The scratch slot is zero at entry, so the body drops the call.
+        ent.origin = s1!.pos.trBase
+        ent.oldorigin = s1!.origin2
+        // Port-note: The draft of this statement did not compile, and the compiler wrote "'&' used with non-inout argument of type 'Slots<vec3_t>' (aka 'Slots<SIMD3<Float>>')".
+        // Raven wrote: AxisClear( ent.axis )
+        portMissing("CG_Beam", source: "oracle/codemp/cgame/cg_ents.c:2935")
+        ent.reType = RT_BEAM
+
+        ent.renderfx = RF_NOSHADOW
+        /*
+        Ghoul2 Insert Start
+        */
+        CG_SetGhoul2Info(ent, cent)
+
+        /*
+        Ghoul2 Insert End
+        */
+        // add to refresh list
+        trap_R_AddRefEntityToScene(ent)
+    }
 }
 
 /**
@@ -328,8 +2656,38 @@ CG_Portal
 */
 /// Source: oracle/codemp/cgame/cg_ents.c:2967
 private func CG_Portal(_ cent: Centity) {
-    // TODO: Port CG_Portal
-    portMissing("CG_Portal", source: "oracle/codemp/cgame/cg_ents.c:2967")
+    // Raven's record lives to the end of his block, so the block is the closure.
+    RefEntity.scratch { ent in
+        var s1: EntityState?
+
+        s1 = cent.currentState
+
+        // create the render entity
+        // Raven clears the record with `memset` here. The scratch slot is zero at entry, so the body drops the call.
+        ent.origin = cent.lerpOrigin
+        ent.oldorigin = s1!.origin2
+        ByteToDir(s1!.eventParm, &ent.axis[0])
+        PerpendicularVector(&ent.axis[1], ent.axis[0])
+
+        // negating this tends to get the directions like they want
+        // we really should have a camera roll value
+        ent.axis[1] = vec3_origin - ent.axis[1]
+
+        CrossProduct(ent.axis[0], ent.axis[1], &ent.axis[2])
+        ent.reType = RT_PORTALSURFACE
+        ent.oldframe = s1!.powerups
+        ent.frame = s1!.frame // rotation speed
+        ent.skinNum = Int32(Double(s1!.clientNum) / 256.0 * 360) // roll offset
+        /*
+        Ghoul2 Insert Start
+        */
+        CG_SetGhoul2Info(ent, cent)
+        /*
+        Ghoul2 Insert End
+        */
+        // add to refresh list
+        trap_R_AddRefEntityToScene(ent)
+    }
 }
 
 /**
@@ -343,8 +2701,37 @@ Also called by client movement prediction code
 */
 /// Source: oracle/codemp/cgame/cg_ents.c:3008
 func CG_AdjustPositionForMover(_ `in`: JKAShared.vec3_t, _ moverNum: Int32, _ fromTime: Int32, _ toTime: Int32, _ out: inout JKAShared.vec3_t) {
-    // TODO: Port CG_AdjustPositionForMover
-    portMissing("CG_AdjustPositionForMover", source: "oracle/codemp/cgame/cg_ents.c:3008")
+    var cent: Centity?
+    var oldOrigin = vec3_t()
+    var origin = vec3_t()
+    var deltaOrigin = vec3_t()
+    var oldAngles = vec3_t()
+    var angles = vec3_t()
+    var deltaAngles = vec3_t()
+
+    if moverNum <= 0 || moverNum >= ENTITYNUM_MAX_NORMAL {
+        out = `in`
+        return
+    }
+
+    cent = cg_entities[moverNum]
+    if cent!.currentState.eType != ET_MOVER {
+        out = `in`
+        return
+    }
+
+    BG_EvaluateTrajectory(cent!.currentState.pos, fromTime, &oldOrigin)
+    BG_EvaluateTrajectory(cent!.currentState.apos, fromTime, &oldAngles)
+
+    BG_EvaluateTrajectory(cent!.currentState.pos, toTime, &origin)
+    BG_EvaluateTrajectory(cent!.currentState.apos, toTime, &angles)
+
+    deltaOrigin = origin - oldOrigin
+    deltaAngles = angles - oldAngles
+
+    out = `in` + deltaOrigin
+
+    // FIXME: origin change when on a rotating object
 }
 
 /**
@@ -356,8 +2743,33 @@ CG_InterpolateEntityPosition
 */
 /// Source: oracle/codemp/cgame/cg_ents.c:3043
 private func CG_InterpolateEntityPosition(_ cent: Centity) {
-    // TODO: Port CG_InterpolateEntityPosition
-    portMissing("CG_InterpolateEntityPosition", source: "oracle/codemp/cgame/cg_ents.c:3043")
+    var current = vec3_t()
+    var next = vec3_t()
+    let f: Float
+
+    // it would be an internal error to find an entity that interpolates without
+    // a snapshot ahead of the current one
+    if cg.nextSnap == nil {
+        CG_Error("CG_InterpoateEntityPosition: cg.nextSnap == NULL")
+    }
+
+    f = cg.frameInterpolation
+
+    // this will linearize a sine or parabolic curve, but it is important
+    // to not extrapolate player positions if more recent data is available
+    BG_EvaluateTrajectory(cent.currentState.pos, cg.snap!.serverTime, &current)
+    BG_EvaluateTrajectory(cent.nextState.pos, cg.nextSnap!.serverTime, &next)
+
+    cent.lerpOrigin[0] = current[0] + f * (next[0] - current[0])
+    cent.lerpOrigin[1] = current[1] + f * (next[1] - current[1])
+    cent.lerpOrigin[2] = current[2] + f * (next[2] - current[2])
+
+    BG_EvaluateTrajectory(cent.currentState.apos, cg.snap!.serverTime, &current)
+    BG_EvaluateTrajectory(cent.nextState.apos, cg.nextSnap!.serverTime, &next)
+
+    cent.lerpAngles[0] = LerpAngle(current[0], next[0], f)
+    cent.lerpAngles[1] = LerpAngle(current[1], next[1], f)
+    cent.lerpAngles[2] = LerpAngle(current[2], next[2], f)
 }
 
 /**
@@ -370,8 +2782,78 @@ CG_CalcEntityLerpPositions
 */
 /// Source: oracle/codemp/cgame/cg_ents.c:3078
 func CG_CalcEntityLerpPositions(_ cent: Centity) {
-    // TODO: Port CG_CalcEntityLerpPositions
-    portMissing("CG_CalcEntityLerpPositions", source: "oracle/codemp/cgame/cg_ents.c:3078")
+    var goAway: Bool = false
+
+    // if this player does not want to see extrapolated players
+    if cg_smoothClients.integer == 0 {
+        // make sure the clients use TR_INTERPOLATE
+        if cent.currentState.number < MAX_CLIENTS {
+            cent.currentState.pos.trType = TR_INTERPOLATE
+            cent.nextState.pos.trType = TR_INTERPOLATE
+        }
+    }
+
+    if cg.predictedPlayerState.m_iVehicleNum != 0 && cg.predictedPlayerState.m_iVehicleNum == cent.currentState.number && cent.currentState.eType == ET_NPC && cent.currentState.NPC_class == CLASS_VEHICLE {
+        //special case for vehicle we are riding
+        let veh: Centity? = cg_entities[cg.predictedPlayerState.m_iVehicleNum]
+
+        if veh!.currentState.owner == cg.predictedPlayerState.clientNum {
+            //only do this if the vehicle is pilotted by this client and predicting properly
+            BG_EvaluateTrajectory(cent.currentState.pos, cg.time, &cent.lerpOrigin)
+            BG_EvaluateTrajectory(cent.currentState.apos, cg.time, &cent.lerpAngles)
+            return
+        }
+    }
+
+    if cent.interpolate && cent.currentState.pos.trType == TR_INTERPOLATE {
+        CG_InterpolateEntityPosition(cent)
+        return
+    }
+
+    // first see if we can interpolate between two snaps for
+    // linear extrapolated clients
+    if cent.interpolate && cent.currentState.pos.trType == TR_LINEAR_STOP && cent.currentState.number < MAX_CLIENTS {
+        CG_InterpolateEntityPosition(cent)
+        goAway = true
+    } else if cent.interpolate && cent.currentState.eType == ET_NPC && cent.currentState.NPC_class == CLASS_VEHICLE {
+        CG_InterpolateEntityPosition(cent)
+        goAway = true
+    } else {
+        // just use the current frame and evaluate as best we can
+        BG_EvaluateTrajectory(cent.currentState.pos, cg.time, &cent.lerpOrigin)
+        BG_EvaluateTrajectory(cent.currentState.apos, cg.time, &cent.lerpAngles)
+    }
+
+
+    //VectorSubtract(cent->lerpOrigin, callData->bonePos, slideDir);
+
+    //Store it in case we want to go back
+
+    //just add a little at a time
+
+    //Let's trace there to make sure we can make it
+
+    /*
+    if (cent->lerpOriginOffset[2] > 4.0f)
+    { //don't go too far off the ground
+    cent->lerpOriginOffset[2] = 4.0f;
+    }
+    */
+    //I guess I just don't want this happening.
+
+    //done with this bit
+
+    //See if we should add in the offset for ragdoll
+
+    if goAway {
+        return
+    }
+
+    // adjust for riding a mover if it wasn't rolled into the predicted
+    // player state
+    if cent.currentState.number != cg.predictedPlayerState.clientNum {
+        CG_AdjustPositionForMover(cent.lerpOrigin, cent.currentState.groundEntityNum, cg.snap!.serverTime, cg.time, &cent.lerpOrigin)
+    }
 }
 
 /**
@@ -383,14 +2865,93 @@ CG_TeamBase
 */
 /// Source: oracle/codemp/cgame/cg_ents.c:3209
 private func CG_TeamBase(_ cent: Centity) {
-    // TODO: Port CG_TeamBase
-    portMissing("CG_TeamBase", source: "oracle/codemp/cgame/cg_ents.c:3209")
+    // Raven's record lives to the end of his block, so the block is the closure.
+    RefEntity.scratch { model in
+        if cgs.gametype == GT_CTF || cgs.gametype == GT_CTY {
+            // show the flag base
+            // Raven clears the record with `memset` here. The scratch slot is zero at entry, so the body drops the call.
+            model.reType = RT_MODEL
+            model.lightingOrigin = cent.lerpOrigin
+            model.origin = cent.lerpOrigin
+            // Port-note: The draft of this statement did not compile, and the compiler wrote "'&' used with non-inout argument of type 'Slots<vec3_t>' (aka 'Slots<SIMD3<Float>>')".
+            // Raven wrote: AnglesToAxis( cent->currentState.angles, model.axis )
+            portMissing("CG_TeamBase", source: "oracle/codemp/cgame/cg_ents.c:3209")
+            if cent.currentState.modelindex == TEAM_RED {
+                model.hModel = cgs.media.redFlagBaseModel
+            } else if cent.currentState.modelindex == TEAM_BLUE {
+                model.hModel = cgs.media.blueFlagBaseModel
+            } else {
+                model.hModel = cgs.media.neutralFlagBaseModel
+            }
+
+            if cent.currentState.eType != ET_NPC {
+                //do not do this for g2animents
+                trap_R_AddRefEntityToScene(model)
+            }
+        }
+    }
 }
 
 /// Source: oracle/codemp/cgame/cg_ents.c:3237
 private func CG_FX(_ cent: Centity) {
-    // TODO: Port CG_FX
-    portMissing("CG_FX", source: "oracle/codemp/cgame/cg_ents.c:3237")
+    var fxDir = vec3_t()
+    var efxIndex: Int32 = 0
+    var s1: EntityState?
+    let s: String
+
+    if cent.miscTime > cg.time {
+        return
+    }
+
+    s1 = cent.currentState
+
+    if s1 == nil {
+        return
+    }
+
+    if s1!.modelindex2 == FX_STATE_OFF {
+        // fx not active
+        return
+    }
+
+    if s1!.modelindex2 < FX_STATE_ONE_SHOT_LIMIT {
+        // fx is single shot
+        if cent.muzzleFlashTime == s1!.modelindex2 {
+            return
+        }
+
+        cent.muzzleFlashTime = s1!.modelindex2
+    }
+
+    // The SDK also declares `random`, so the call names the bg module.
+    cent.miscTime = Int32(cg.time + s1!.speed + JKAMP_BG.random() * s1!.time)
+
+    // Raven passes NULL for the `right` and `up` outputs.
+    var scratchRight = vec3_t()
+    var scratchUp = vec3_t()
+    AngleVectors(s1!.angles, &fxDir, &scratchRight, &scratchUp)
+
+    if fxDir[0] == 0 && fxDir[1] == 0 && fxDir[2] == 0 {
+        fxDir[1] = 1
+    }
+
+    if cgs.gameEffects[s1!.modelindex] != 0 {
+        efxIndex = cgs.gameEffects[s1!.modelindex]
+    } else {
+        s = CG_ConfigString(CS_EFFECTS + s1!.modelindex)
+        if !s.isEmpty {
+            efxIndex = trap_FX_RegisterEffect(s)
+            cgs.gameEffects[s1!.modelindex] = efxIndex
+        }
+    }
+
+    if efxIndex != 0 {
+        if s1!.isPortalEnt {
+            trap_FX_PlayPortalEffectID(efxIndex, cent.lerpOrigin, fxDir, -1, -1)
+        } else {
+            trap_FX_PlayEffectID(efxIndex, cent.lerpOrigin, fxDir, -1, -1)
+        }
+    }
 }
 
 /**
@@ -403,14 +2964,99 @@ CG_AddCEntity
 */
 /// Source: oracle/codemp/cgame/cg_ents.c:3316
 private func CG_AddCEntity(_ cent: Centity) {
-    // TODO: Port CG_AddCEntity
-    portMissing("CG_AddCEntity", source: "oracle/codemp/cgame/cg_ents.c:3316")
+    // event-only entities will have been dealt with already
+    if cent.currentState.eType >= ET_EVENTS {
+        return
+    }
+
+    if cg.predictedPlayerState.pm_type == PM_INTERMISSION {
+        //don't render anything then
+        if cent.currentState.eType == ET_GENERAL || cent.currentState.eType == ET_PLAYER || cent.currentState.eType == ET_INVISIBLE {
+            return
+        }
+        if cent.currentState.eType == ET_NPC {
+            //NPC in intermission
+            if cent.currentState.NPC_class == CLASS_VEHICLE {
+                //don't render vehicles in intermissions, allow other NPCs for scripts
+                return
+            }
+        }
+    }
+
+    // calculate the current origin
+    CG_CalcEntityLerpPositions(cent)
+
+    // add automatic effects
+    CG_EntityEffects(cent)
+    /*
+    Ghoul2 Insert Start
+    */
+
+    // add local sound set if any
+    if cent.currentState.soundSetIndex != 0 && cent.currentState.eType != ET_MOVER {
+        let soundSet: String = CG_ConfigString(CS_AMBIENT_SET + cent.currentState.soundSetIndex)
+
+        if !soundSet.isEmpty {
+            trap_S_AddLocalSet(soundSet, &cg.refdef.vieworg, &cent.lerpOrigin, cent.currentState.number, cg.time)
+        }
+    }
+    /*
+    Ghoul2 Insert End
+    */
+    switch cent.currentState.eType {
+    case ET_FX:
+        CG_FX(cent)
+
+    case ET_INVISIBLE, ET_PUSH_TRIGGER, ET_TELEPORT_TRIGGER, ET_TERRAIN:
+        break
+
+    case ET_GENERAL:
+        CG_General(cent)
+
+    case ET_PLAYER:
+        CG_Player(cent)
+
+    case ET_ITEM:
+        CG_Item(cent)
+
+    case ET_MISSILE:
+        CG_Missile(cent)
+
+    case ET_SPECIAL:
+        CG_Special(cent)
+
+    case ET_HOLOCRON:
+        CG_General(cent)
+
+    case ET_MOVER:
+        CG_Mover(cent)
+
+    case ET_BEAM:
+        CG_Beam(cent)
+
+    case ET_PORTAL:
+        CG_Portal(cent)
+
+    case ET_SPEAKER:
+        CG_Speaker(cent)
+
+    case ET_NPC: //An entity that wants to be able to use ghoul2 humanoid (and other) anims. Like a player, but not.
+        CG_G2Animated(cent)
+
+    case ET_TEAM:
+        CG_TeamBase(cent)
+
+    case ET_BODY:
+        CG_General(cent)
+
+    default:
+        CG_Error("Bad entity type: %i\n", cent.currentState.eType)
+    }
 }
 
 /// Source: oracle/codemp/cgame/cg_ents.c:3417
 func CG_ManualEntityRender(_ cent: Centity) {
-    // TODO: Port CG_ManualEntityRender
-    portMissing("CG_ManualEntityRender", source: "oracle/codemp/cgame/cg_ents.c:3417")
+    CG_AddCEntity(cent)
 }
 
 /**
@@ -423,18 +3069,383 @@ CG_AddPacketEntities
 */
 /// Source: oracle/codemp/cgame/cg_ents.c:3428
 func CG_AddPacketEntities(_ isPortal: Bool) {
-    // TODO: Port CG_AddPacketEntities
+    var num: Int32
+    var cent: Centity?
+    var ps: PlayerState?
+
+    if isPortal {
+        num = 0
+        while num < cg.snap!.numEntities {
+            cent = cg_entities[cg.snap!.entities[num].number]
+
+            if cent!.currentState.isPortalEnt {
+                CG_AddCEntity(cent!)
+            }
+            num += 1
+        }
+        return
+    }
+
+    // set cg.frameInterpolation
+    if cg.nextSnap != nil {
+        let delta: Int32
+
+        delta = (cg.nextSnap!.serverTime - cg.snap!.serverTime)
+        if delta == 0 {
+            cg.frameInterpolation = 0
+        } else {
+            cg.frameInterpolation = Float((cg.time - cg.snap!.serverTime)) / delta
+        }
+    } else {
+        cg.frameInterpolation = 0 // actually, it should never be used, because
+        // no entities should be marked as interpolating
+    }
+
+    // the auto-rotating items will all have the same axis
+    cg.autoAngles[0] = 0
+    cg.autoAngles[1] = Float(Double((cg.time & 2047) * 360) / 2048.0)
+    cg.autoAngles[2] = 0
+
+    cg.autoAnglesFast[0] = 0
+    cg.autoAnglesFast[1] = (cg.time & 1023) * 360 / 1024.0
+    cg.autoAnglesFast[2] = 0
+
+    // Port-note: The draft of this statement did not compile, and the compiler wrote "'&' used with non-inout argument of type 'Slots<vec3_t>' (aka 'Slots<SIMD3<Float>>')".
+    // Raven wrote: AnglesToAxis( cg.autoAngles, cg.autoAxis )
     portMissing("CG_AddPacketEntities", source: "oracle/codemp/cgame/cg_ents.c:3428")
+    // Port-note: The draft of this statement did not compile, and the compiler wrote "'&' used with non-inout argument of type 'Slots<vec3_t>' (aka 'Slots<SIMD3<Float>>')".
+    // Raven wrote: AnglesToAxis( cg.autoAnglesFast, cg.autoAxisFast )
+    portMissing("CG_AddPacketEntities", source: "oracle/codemp/cgame/cg_ents.c:3428")
+
+    // Reset radar entities
+    cg.radarEntityCount = 0
+    cg.bracketedEntityCount = 0
+
+    // generate and add the entity from the playerstate
+    ps = cg.predictedPlayerState
+
+    CG_CheckPlayerG2Weapons(ps!, cg_entities[cg.predictedPlayerState.clientNum])
+    BG_PlayerStateToEntityState(ps!, cg_entities[cg.predictedPlayerState.clientNum].currentState, false)
+
+    if cg.predictedPlayerState.m_iVehicleNum != 0 {
+        //add the vehicle I'm riding first
+        //BG_PlayerStateToEntityState( &cg.predictedVehicleState, &cg_entities[cg.predictedPlayerState.m_iVehicleNum].currentState, qfalse );
+        //cg_entities[cg.predictedPlayerState.m_iVehicleNum].currentState.eType = ET_NPC;
+        let veh: Centity? = cg_entities[cg.predictedPlayerState.m_iVehicleNum]
+
+        if veh!.currentState.owner == cg.predictedPlayerState.clientNum {
+            BG_PlayerStateToEntityState(cg.predictedVehicleState, veh!.currentState, false)
+            veh!.currentState.eType = ET_NPC
+
+            veh!.currentState.pos.trType = TR_INTERPOLATE
+        }
+        CG_AddCEntity(veh!)
+        veh!.bodyHeight = Float(cg.time) //indicate we have already been added
+    }
+
+    CG_AddCEntity(cg_entities[cg.predictedPlayerState.clientNum])
+
+    /*
+    // lerp the non-predicted value for lightning gun origins
+    CG_CalcEntityLerpPositions( &cg_entities[ cg.snap->ps.clientNum ] );
+    */
+    //No longer have to do this.
+
+    // add each entity sent over by the server
+    num = 0
+    while num < cg.snap!.numEntities {
+        // Don't re-add ents that have been predicted.
+        if cg.snap!.entities[num].number != cg.snap!.ps.clientNum {
+            cent = cg_entities[cg.snap!.entities[num].number]
+            if cent!.currentState.eType == ET_PLAYER && cent!.currentState.m_iVehicleNum != 0 {
+                //add his veh first
+                var j: Int32 = 0
+
+                while j < cg.snap!.numEntities {
+                    if cg.snap!.entities[j].number == cent!.currentState.m_iVehicleNum {
+                        let veh: Centity? = cg_entities[cg.snap!.entities[j].number]
+
+                        CG_AddCEntity(veh!)
+                        veh!.bodyHeight = Float(cg.time) //indicate we have already been added
+                        break
+                    }
+
+                    j += 1
+                }
+            } else if cent!.currentState.eType == ET_NPC && cent!.currentState.m_iVehicleNum != 0 && cent!.bodyHeight == cg.time {
+                //never add a vehicle with a pilot, his pilot entity will get him added first.
+                //if we were to add the vehicle after the pilot, the pilot's bolt would lag a frame behind.
+                num += 1
+                continue
+            }
+            CG_AddCEntity(cent!)
+        }
+        num += 1
+    }
+
+    num = 0
+    while num < cg_numpermanents {
+        cent = cg_permanents[num]
+        if cent!.currentValid {
+            CG_AddCEntity(cent!)
+        }
+        num += 1
+    }
 }
 
 /// Source: oracle/codemp/cgame/cg_ents.c:3555
 func CG_ROFF_NotetrackCallback(_ cent: Centity, _ notetrack: String) {
-    // TODO: Port CG_ROFF_NotetrackCallback
-    portMissing("CG_ROFF_NotetrackCallback", source: "oracle/codemp/cgame/cg_ents.c:3555")
+    var i: Int32 = 0
+    var r: Int32 = 0
+    var objectID: Int32 = 0
+    var anglesGathered: Int32 = 0
+    var posoffsetGathered: Int32 = 0
+    var type = CharBuf(256)
+    var argument = CharBuf(512)
+    var addlArg = CharBuf(512)
+    var errMsg = CharBuf(256)
+    var t = CharBuf(64)
+    var addlArgs: Int32 = 0
+    var parsedAngles = vec3_t()
+    var parsedOffset = vec3_t()
+    var useAngles = vec3_t()
+    var useOrigin = vec3_t()
+    var forward = vec3_t()
+    var right = vec3_t()
+    var up = vec3_t()
+
+    functionend: do {
+
+        //notetrack = "effect effects/explosion1.efx 0+0+64 0-0-1";
+
+        while CharBuf(notetrack)[i] != 0 && CharBuf(notetrack)[i] != Int32(ascii: " ") {
+            type[i] = CharBuf(notetrack)[i]
+            i += 1
+        }
+
+        type[i] = 0
+
+        if CharBuf(notetrack)[i] != Int32(ascii: " ") {
+            //didn't pass in a valid notetrack type, or forgot the argument for it
+            return
+        }
+
+        i += 1
+
+        while CharBuf(notetrack)[i] != 0 && CharBuf(notetrack)[i] != Int32(ascii: " ") {
+            argument[r] = CharBuf(notetrack)[i]
+            r += 1
+            i += 1
+        }
+        argument[r] = 0
+
+        if r == 0 {
+            return
+        }
+
+        if CharBuf(notetrack)[i] == Int32(ascii: " ") {
+            //additional arguments...
+            addlArgs = 1
+
+            i += 1
+            r = 0
+            while CharBuf(notetrack)[i] != 0 {
+                addlArg[r] = CharBuf(notetrack)[i]
+                r += 1
+                i += 1
+            }
+            addlArg[r] = 0
+        }
+
+        if strcmp(type, "effect") == 0 {
+            defaultoffsetposition: do {
+                if addlArgs == 0 {
+                    //sprintf(errMsg, "Offset position argument for 'effect' type is invalid.");
+                    //goto functionend;
+                    parsedOffset = vec3_t()
+                    break defaultoffsetposition
+                }
+
+                i = 0
+
+                while posoffsetGathered < 3 {
+                    r = 0
+                    while addlArg[i] != 0 && addlArg[i] != Int32(ascii: "+") && addlArg[i] != Int32(ascii: " ") {
+                        t[r] = addlArg[i]
+                        r += 1
+                        i += 1
+                    }
+                    t[r] = 0
+                    i += 1
+                    if r == 0 {
+                        //failure..
+                        //sprintf(errMsg, "Offset position argument for 'effect' type is invalid.");
+                        //goto functionend;
+                        parsedOffset = vec3_t()
+                        i = 0
+                        break defaultoffsetposition
+                    }
+                    parsedOffset[posoffsetGathered] = Float(atof(t))
+                    posoffsetGathered += 1
+                }
+
+                if posoffsetGathered < 3 {
+                    Com_sprintf(&errMsg, Int32((errMsg).count), "Offset position argument for 'effect' type is invalid.")
+                    break functionend
+                }
+
+                i -= 1
+
+                if addlArg[i] != Int32(ascii: " ") {
+                    addlArgs = 0
+                }
+
+            }
+
+            objectID = trap_FX_RegisterEffect(String(argument))
+
+            if objectID != 0 {
+                if addlArgs != 0 {
+                    //if there is an additional argument for an effect it is expected to be XANGLE-YANGLE-ZANGLE
+                    i += 1
+                    while anglesGathered < 3 {
+                        r = 0
+                        while addlArg[i] != 0 && addlArg[i] != Int32(ascii: "-") {
+                            t[r] = addlArg[i]
+                            r += 1
+                            i += 1
+                        }
+                        t[r] = 0
+                        i += 1
+
+                        if r == 0 {
+                            //failed to get a new part of the vector
+                            anglesGathered = 0
+                            break
+                        }
+
+                        parsedAngles[anglesGathered] = Float(atof(t))
+                        anglesGathered += 1
+                    }
+
+                    if anglesGathered != 0 {
+                        useAngles = parsedAngles
+                    } else {
+                        //failed to parse angles from the extra argument provided..
+                        useAngles = cent.lerpAngles
+                    }
+                } else {
+                    //if no constant angles, play in direction entity is facing
+                    useAngles = cent.lerpAngles
+                }
+
+                AngleVectors(useAngles, &forward, &right, &up)
+
+                useOrigin = cent.lerpOrigin
+
+                //forward
+                useOrigin[0] += forward[0] * parsedOffset[0]
+                useOrigin[1] += forward[1] * parsedOffset[0]
+                useOrigin[2] += forward[2] * parsedOffset[0]
+
+                //right
+                useOrigin[0] += right[0] * parsedOffset[1]
+                useOrigin[1] += right[1] * parsedOffset[1]
+                useOrigin[2] += right[2] * parsedOffset[1]
+
+                //up
+                useOrigin[0] += up[0] * parsedOffset[2]
+                useOrigin[1] += up[1] * parsedOffset[2]
+                useOrigin[2] += up[2] * parsedOffset[2]
+
+                trap_FX_PlayEffectID(objectID, useOrigin, useAngles, -1, -1)
+            }
+        } else if strcmp(type, "sound") == 0 {
+            objectID = trap_S_RegisterSound(String(argument))
+            trap_S_StartSound(cent.lerpOrigin, cent.currentState.number, CHAN_BODY, objectID)
+        } else if strcmp(type, "loop") == 0 {
+            //handled server-side
+            return
+        } else {
+            //else if ...
+            if type[0] != 0 {
+                Com_Printf("^3Warning: \"%s\" is an invalid ROFF notetrack function\n", type)
+            } else {
+                Com_Printf("^3Warning: Notetrack is missing function and/or arguments\n")
+            }
+        }
+
+        return
+
+    }
+    Com_Printf("^3Type-specific notetrack error: %s\n", errMsg)
+    return
 }
 
 /// Source: oracle/codemp/cgame/cg_ents.c:3760
 func CG_Cube(_ mins: JKAShared.vec3_t, _ maxs: JKAShared.vec3_t, _ color: JKAShared.vec3_t, _ alpha: Float) {
-    // TODO: Port CG_Cube
-    portMissing("CG_Cube", source: "oracle/codemp/cgame/cg_ents.c:3760")
+    var rot = vec3_t(0, 0, 0)
+    var vec: [Int32] = [Int32](repeating: 0, count: 3)
+    var axis: Int32 = 0
+    var i: Int32 = 0
+    // Raven's record lives to the end of his block, so the block is the closure.
+    AddpolyArgStruct.scratch { apArgs in
+
+        // Raven clears the record with `memset` here. The scratch slot is zero at entry, so the body drops the call.
+
+        axis = 0
+        vec[0] = 0
+        vec[1] = 1
+        vec[2] = 2
+        while axis < 3 {
+            i = 0
+            while i < 3 {
+                if vec[i] > 2 {
+                    vec[i] = 0
+                }
+                i += 1
+            }
+
+            apArgs.p[0][vec[1]] = mins[vec[1]]
+            apArgs.p[0][vec[2]] = mins[vec[2]]
+
+            apArgs.p[1][vec[1]] = mins[vec[1]]
+            apArgs.p[1][vec[2]] = maxs[vec[2]]
+
+            apArgs.p[2][vec[1]] = maxs[vec[1]]
+            apArgs.p[2][vec[2]] = maxs[vec[2]]
+
+            apArgs.p[3][vec[1]] = maxs[vec[1]]
+            apArgs.p[3][vec[2]] = mins[vec[2]]
+
+            //- face
+            apArgs.p[3][vec[0]] = mins[vec[0]]
+            apArgs.p[2][vec[0]] = apArgs.p[3][vec[0]]
+            apArgs.p[1][vec[0]] = apArgs.p[2][vec[0]]
+            apArgs.p[0][vec[0]] = apArgs.p[1][vec[0]]
+
+            apArgs.numVerts = 4
+            apArgs.alpha2 = alpha
+            apArgs.alpha1 = apArgs.alpha2
+            apArgs.rgb1 = color
+            apArgs.rgb2 = color
+            apArgs.rotationDelta = rot
+            apArgs.killTime = cg.frametime
+            apArgs.shader = cgs.media.solidWhite
+
+            trap_FX_AddPoly(apArgs)
+
+            //+ face
+            apArgs.p[3][vec[0]] = maxs[vec[0]]
+            apArgs.p[2][vec[0]] = apArgs.p[3][vec[0]]
+            apArgs.p[1][vec[0]] = apArgs.p[2][vec[0]]
+            apArgs.p[0][vec[0]] = apArgs.p[1][vec[0]]
+
+            trap_FX_AddPoly(apArgs)
+            axis += 1
+            vec[0] += 1
+            vec[1] += 1
+            vec[2] += 1
+        }
+    }
 }
