@@ -15,11 +15,13 @@ let package = Package(
         // MARK: - C, the syscall shim
         // The variadic call the Swift importer cannot express. It holds no Raven header.
         .target(name: "CJKASyscall"),
-        // The engine side of the same call: the variadic callee VM_DllSyscall and the module load. It holds no Raven header.
+        // The engine side of the same call, the variadic callee VM_DllSyscall and the module load.
+        // It holds no Raven header.
         .target(name: "CJKAHost", dependencies: ["CJKASyscall"]),
 
         // MARK: - C, the system zlib
-        // The inflate calls of the pk3 reader. The module map links the system zlib, because zlib is not Raven's code.
+        // The inflate calls of the pk3 reader.
+        // The module map links the system zlib, because zlib is not Raven's code.
         .systemLibrary(name: "CJKAZlib"),
 
         // MARK: - C, the copied Raven headers, written by merge.py
@@ -59,7 +61,7 @@ let package = Package(
         // dllEntry and vmMain. It decodes words and calls the bare functions.
         .target(name: "jampgame", dependencies: ["JKAMP_GameLogic"]),
         .target(name: "cgame", dependencies: ["JKAMP_CGameLogic"]),
-        // The dedicated server. It holds main, and it becomes the jampded executable.
+        // The dedicated server shell holds main, and it becomes the jampded executable.
         .executableTarget(name: "jampded", dependencies: ["CJKAHost", "JKAShared"]),
         // The dlopen loader, run in its own process, so the smoke test never loads the built library into the test process.
         .executableTarget(name: "jampsmoke", dependencies: ["CJKASyscall"]),
