@@ -544,7 +544,7 @@ func CG_AddPlayerWeapon(_ parent: JKAMP.RefEntity, _ ps: JKAMP.PlayerState?, _ c
                             // The closure gives true where Raven returns from the function.
                             let earlyOut5 = MdxaBone.scratch { boltMatrix -> Bool in
 
-                                if !trap_G2API_HasGhoul2ModelOnIndex((cent.ghoul2), 1) {
+                                if !trap_G2API_HasGhoul2ModelOnIndex(&(cent.ghoul2), 1) {
                                     //it's quite possible that we may have have no weapon model and be in a valid state, so return here if this is the case
                                     return true
                                 }
@@ -656,7 +656,7 @@ func CG_AddPlayerWeapon(_ parent: JKAMP.RefEntity, _ ps: JKAMP.PlayerState?, _ c
                             // The closure gives true where Raven returns from the function.
                             let earlyOut5 = MdxaBone.scratch { boltMatrix -> Bool in
 
-                                if !trap_G2API_HasGhoul2ModelOnIndex((cent.ghoul2), 1) {
+                                if !trap_G2API_HasGhoul2ModelOnIndex(&(cent.ghoul2), 1) {
                                     //it's quite possible that we may have have no weapon model and be in a valid state, so return here if this is the case
                                     return true
                                 }
@@ -1642,7 +1642,7 @@ func CG_GetClientWeaponMuzzleBoltPoint(_ clIndex: Int32, _ to: inout JKAShared.v
 
         cent = cg_entities[clIndex]
 
-        if cent == nil || cent!.ghoul2 == nil || !trap_G2_HaveWeGhoul2Models(cent!.ghoul2) || !trap_G2API_HasGhoul2ModelOnIndex((cent!.ghoul2), 1) {
+        if cent == nil || cent!.ghoul2 == nil || !trap_G2_HaveWeGhoul2Models(cent!.ghoul2) || !trap_G2API_HasGhoul2ModelOnIndex(&(cent!.ghoul2), 1) {
             return true
         }
 
@@ -2176,7 +2176,7 @@ func CG_CopyG2WeaponInstance(_ cent: Centity, _ weaponNum: Int32, _ toGhoul2: Op
                         trap_G2API_CopySpecificGhoul2Model(ci!.ghoul2Weapons[i], 0, toGhoul2, i + 1)
                     } else if ci!.ghoul2Weapons[i] != nil {
                         //if the second saber has been removed, then be sure to remove it and free the instance.
-                        let g2HasSecondSaber = trap_G2API_HasGhoul2ModelOnIndex((toGhoul2), 2)
+                        let g2HasSecondSaber = trap_G2API_HasGhoul2ModelOnIndex(&(toGhoul2), 2)
 
                         if g2HasSecondSaber {
                             //remove it now since we're switching away from sabers
@@ -2189,7 +2189,7 @@ func CG_CopyG2WeaponInstance(_ cent: Centity, _ weaponNum: Int32, _ toGhoul2: Op
                 }
             }
         } else {
-            let g2HasSecondSaber = trap_G2API_HasGhoul2ModelOnIndex((toGhoul2), 2)
+            let g2HasSecondSaber = trap_G2API_HasGhoul2ModelOnIndex(&(toGhoul2), 2)
 
             if g2HasSecondSaber {
                 //remove it now since we're switching away from sabers
@@ -2198,12 +2198,12 @@ func CG_CopyG2WeaponInstance(_ cent: Centity, _ weaponNum: Int32, _ toGhoul2: Op
 
             if weaponNum == WP_EMPLACED_GUN {
                 //a bit of a hack to remove gun model when using an emplaced weap
-                if trap_G2API_HasGhoul2ModelOnIndex((toGhoul2), 1) {
+                if trap_G2API_HasGhoul2ModelOnIndex(&(toGhoul2), 1) {
                     trap_G2API_RemoveGhoul2Model(&(toGhoul2), 1)
                 }
             } else if weaponNum == WP_MELEE {
                 //don't want a weapon on the model for this one
-                if trap_G2API_HasGhoul2ModelOnIndex((toGhoul2), 1) {
+                if trap_G2API_HasGhoul2ModelOnIndex(&(toGhoul2), 1) {
                     trap_G2API_RemoveGhoul2Model(&(toGhoul2), 1)
                 }
             } else {

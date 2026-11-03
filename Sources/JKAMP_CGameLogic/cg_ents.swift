@@ -1000,12 +1000,12 @@ private func CG_General(_ cent: Centity) {
                     }
 
                     if clEnt != nil && clEnt!.ghoul2 != nil {
-                        if trap_G2API_HasGhoul2ModelOnIndex((clEnt!.ghoul2), 2) {
+                        if trap_G2API_HasGhoul2ModelOnIndex(&(clEnt!.ghoul2), 2) {
                             //don't want to bother dealing with a second saber on limbs and stuff, just remove the thing
                             trap_G2API_RemoveGhoul2Model(&(clEnt!.ghoul2), 2)
                         }
 
-                        if trap_G2API_HasGhoul2ModelOnIndex((clEnt!.ghoul2), 3) {
+                        if trap_G2API_HasGhoul2ModelOnIndex(&(clEnt!.ghoul2), 3) {
                             //turn off jetpack also I suppose
                             trap_G2API_RemoveGhoul2Model(&(clEnt!.ghoul2), 3)
                         }
@@ -1071,7 +1071,7 @@ private func CG_General(_ cent: Centity) {
 
                     if cent.currentState.modelGhoul2 == G2_MODELPART_RARM || cent.currentState.modelGhoul2 == G2_MODELPART_RHAND || cent.currentState.modelGhoul2 == G2_MODELPART_WAIST {
                         //Cut his weapon holding arm off, so remove the weapon
-                        if trap_G2API_HasGhoul2ModelOnIndex((clEnt!.ghoul2), 1) {
+                        if trap_G2API_HasGhoul2ModelOnIndex(&(clEnt!.ghoul2), 1) {
                             trap_G2API_RemoveGhoul2Model(&(clEnt!.ghoul2), 1)
                         }
                     }
