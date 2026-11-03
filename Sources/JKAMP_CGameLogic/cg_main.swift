@@ -2426,9 +2426,11 @@ func CG_Asset_Parse(_ handle: Int32) -> Bool {
             }
 
             if Q_stricmp(token.string, "cursor") == 0 {
-                // Port-note: The draft of this statement did not compile, and the compiler wrote "cannot convert value of type 'String?' to expected argument type 'TextCursor'".
-                // Raven wrote: if (!PC_String_Parse(handle, &cgDC.Assets.cursorStr)) { return qfalse; }
-                portMissing("CG_Asset_Parse", source: "oracle/codemp/cgame/cg_main.c:2592")
+                var cursorStr: String = ""
+                if !PC_String_Parse(handle, &cursorStr) {
+                    return false
+                }
+                cgDC.Assets.cursorStr = cursorStr
                 cgDC.Assets.cursor = trap_R_RegisterShaderNoMip(cgDC.Assets.cursorStr!)
                 continue
             }
