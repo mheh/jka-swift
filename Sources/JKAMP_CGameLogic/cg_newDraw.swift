@@ -580,7 +580,7 @@ func CG_OwnerDraw(_ x: Float, _ y: Float, _ w: Float, _ h: Float, _ text_x: Floa
 }
 
 /// Source: oracle/codemp/cgame/cg_newDraw.c:747
-func CG_MouseEvent(_ x: Int32, _ y: Int32) {
+public func CG_MouseEvent(_ x: Int32, _ y: Int32) {
     let n: Int32
 
     if (cg.predictedPlayerState.pm_type == PM_NORMAL || cg.predictedPlayerState.pm_type == PM_JETPACK || cg.predictedPlayerState.pm_type == PM_FLOAT || cg.predictedPlayerState.pm_type == PM_SPECTATOR) && cg.showScores == false {
@@ -653,7 +653,7 @@ CG_EventHandling
 ```
 */
 /// Source: oracle/codemp/cgame/cg_newDraw.c:816
-func CG_EventHandling(_ type: Int32) {
+public func CG_EventHandling(_ type: Int32) {
     cgs.eventHandling = type != 0
     if type == CGAME_EVENT_NONE {
         CG_HideTeamMenu()
@@ -664,7 +664,7 @@ func CG_EventHandling(_ type: Int32) {
 }
 
 /// Source: oracle/codemp/cgame/cg_newDraw.c:829
-func CG_KeyEvent(_ key: Int32, _ down: Bool) {
+public func CG_KeyEvent(_ key: Int32, _ down: Bool) {
     if !down {
         return
     }

@@ -248,7 +248,7 @@ Cmd_Argc() / Cmd_Argv()
 ```
 */
 /// Source: oracle/codemp/cgame/cg_consolecmds.c:309
-func CG_ConsoleCommand() -> Bool {
+public func CG_ConsoleCommand() -> Bool {
     let cmd: String
     var i: Int32
 

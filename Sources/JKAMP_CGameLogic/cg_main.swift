@@ -5,7 +5,7 @@ import JKAMP_CGame
 import JKAMP_BG
 
 /// Source: oracle/codemp/cgame/cg_main.c:8
-var cgDC: DisplayContextDef { world.storage.cgDC }
+public var cgDC: DisplayContextDef { world.storage.cgDC }
 
 /// Source: oracle/codemp/cgame/cg_main.c:27
 /// Raven's data table, a hand property of `CGameWorld`.
@@ -50,13 +50,13 @@ var NumMiscEnts: Int32 {
 }
 
 /// Source: oracle/codemp/cgame/cg_main.c:691
-var cg: Cg { world.storage.cg }
+public var cg: Cg { world.storage.cg }
 
 /// Source: oracle/codemp/cgame/cg_main.c:692
-var cgs: Cgs { world.storage.cgs }
+public var cgs: Cgs { world.storage.cgs }
 
 /// Source: oracle/codemp/cgame/cg_main.c:693
-var cg_entities: Slots<Centity> { world.storage.cg_entities }
+public var cg_entities: Slots<Centity> { world.storage.cg_entities }
 
 /// Source: oracle/codemp/cgame/cg_main.c:695
 var cg_permanents: Slots<Centity?> { world.storage.cg_permanents }
@@ -529,7 +529,7 @@ var cg_skyOriScale: Float {
 
 //do we have any force powers that we would normally need to cycle to?
 /// Source: oracle/codemp/cgame/cg_main.c:159
-func CG_NoUseableForce() -> Bool {
+public func CG_NoUseableForce() -> Bool {
     var i: Int32 = FP_HEAL
     while i < NUM_FORCE_POWERS {
         if i != FP_SABERTHROW && i != FP_SABER_OFFENSE && i != FP_SABER_DEFENSE && i != FP_LEVITATION {
@@ -551,21 +551,21 @@ func CG_NoUseableForce() -> Bool {
 // Not ported: the shell's vmMain in Sources/jampgame/jampgame.swift decodes the command words and calls the bare functions, under rule 11 and ruling F5.
 
 /// Source: oracle/codemp/cgame/cg_main.c:362
-private func C_PointContents() -> Int32 {
+public func C_PointContents() -> Int32 {
     let data = CGPointContents(cg.sharedBuffer)
 
     return CG_PointContents(data.mPoint, data.mPassEntityNum)
 }
 
 /// Source: oracle/codemp/cgame/cg_main.c:369
-private func C_GetLerpOrigin() {
+public func C_GetLerpOrigin() {
     let data = CGVectorData(cg.sharedBuffer)
 
     data.mPoint = cg_entities[data.mEntityNum].lerpOrigin
 }
 
 /// Source: oracle/codemp/cgame/cg_main.c:376
-private func C_GetLerpData() {
+public func C_GetLerpData() {
     //only used by FX system to pass to getboltmat
     let data = CGGetBoltData(cg.sharedBuffer)
 
@@ -595,21 +595,21 @@ private func C_GetLerpData() {
 }
 
 /// Source: oracle/codemp/cgame/cg_main.c:408
-private func C_Trace() {
+public func C_Trace() {
     let td = CGTrace(cg.sharedBuffer)
 
     CG_Trace(td.mResult, td.mStart, td.mMins, td.mMaxs, td.mEnd, td.mSkipNumber, td.mMask)
 }
 
 /// Source: oracle/codemp/cgame/cg_main.c:415
-private func C_G2Trace() {
+public func C_G2Trace() {
     let td = CGTrace(cg.sharedBuffer)
 
     CG_G2Trace(td.mResult, td.mStart, td.mMins, td.mMaxs, td.mEnd, td.mSkipNumber, td.mMask)
 }
 
 /// Source: oracle/codemp/cgame/cg_main.c:422
-private func C_G2Mark() {
+public func C_G2Mark() {
     let td = CGG2Mark(cg.sharedBuffer)
     // Raven's record lives to the end of his block, so the block is the closure.
     Trace.scratch { tr in
@@ -694,7 +694,7 @@ private func CG_DebugBoxLines(_ mins: JKAShared.vec3_t, _ maxs: JKAShared.vec3_t
 
 //handle ragdoll callbacks, for events and debugging -rww
 /// Source: oracle/codemp/cgame/cg_main.c:508
-private func CG_RagCallback(_ callType: Int32) -> Int32 {
+public func CG_RagCallback(_ callType: Int32) -> Int32 {
     switch callType {
     case RAG_CALLBACK_DEBUGBOX:
         do {
@@ -741,7 +741,7 @@ private func CG_RagCallback(_ callType: Int32) -> Int32 {
 }
 
 /// Source: oracle/codemp/cgame/cg_main.c:570
-private func C_ImpactMark() {
+public func C_ImpactMark() {
     let data = CGImpactMark(cg.sharedBuffer)
 
     /*
@@ -752,7 +752,7 @@ private func C_ImpactMark() {
 }
 
 /// Source: oracle/codemp/cgame/cg_main.c:582
-func CG_MiscEnt() {
+public func CG_MiscEnt() {
     let modelIndex: Int32
     var RefEnt: RefEntity?
     let data = CGMiscEnt(cg.sharedBuffer)
@@ -969,7 +969,7 @@ func CG_UpdateCvars() {
 }
 
 /// Source: oracle/codemp/cgame/cg_main.c:1189
-func CG_CrosshairPlayer() -> Int32 {
+public func CG_CrosshairPlayer() -> Int32 {
     if cg.time > (cg.crosshairClientTime + 1000) {
         return -1
     }
@@ -982,7 +982,7 @@ func CG_CrosshairPlayer() -> Int32 {
 }
 
 /// Source: oracle/codemp/cgame/cg_main.c:1202
-func CG_LastAttacker() -> Int32 {
+public func CG_LastAttacker() -> Int32 {
     if cg.attackerTime == 0 {
         return -1
     }
@@ -999,7 +999,7 @@ func CG_Printf(_ msg: String, _ args: any JKAShared.FormatArg...) {
 }
 
 /// Source: oracle/codemp/cgame/cg_main.c:1220
-func CG_Error(_ msg: String, _ args: any JKAShared.FormatArg...) -> Never {
+public func CG_Error(_ msg: String, _ args: any JKAShared.FormatArg...) -> Never {
     var text = CharBuf(1024)
 
     strcpy(&text, JKAShared.format(msg, args))
@@ -1008,7 +1008,7 @@ func CG_Error(_ msg: String, _ args: any JKAShared.FormatArg...) -> Never {
 }
 
 /// Source: oracle/codemp/cgame/cg_main.c:1234
-func Com_Error(_ level: Int32, _ error: String, _ args: any JKAShared.FormatArg...) -> Never {
+public func Com_Error(_ level: Int32, _ error: String, _ args: any JKAShared.FormatArg...) -> Never {
     var text = CharBuf(1024)
 
     strcpy(&text, JKAShared.format(error, args))
@@ -1017,7 +1017,7 @@ func Com_Error(_ level: Int32, _ error: String, _ args: any JKAShared.FormatArg.
 }
 
 /// Source: oracle/codemp/cgame/cg_main.c:1245
-func Com_Printf(_ msg: String, _ args: any JKAShared.FormatArg...) {
+public func Com_Printf(_ msg: String, _ args: any JKAShared.FormatArg...) {
     var text = CharBuf(1024)
 
     strcpy(&text, JKAShared.format(msg, args))
@@ -3386,7 +3386,7 @@ Will perform callbacks to make the loading info screen update.
 ```
 */
 /// Source: oracle/codemp/cgame/cg_main.c:3704
-func CG_Init(_ serverMessageNum: Int32, _ serverCommandSequence: Int32, _ clientNum: Int32) {
+public func CG_Init(_ serverMessageNum: Int32, _ serverCommandSequence: Int32, _ clientNum: Int32) {
     var item: Gitem?
     var buf = CharBuf(64)
     var s: String
@@ -3663,7 +3663,7 @@ Called before every level change or subsystem restart
 ```
 */
 /// Source: oracle/codemp/cgame/cg_main.c:3993
-func CG_Shutdown() {
+public func CG_Shutdown() {
     BG_ClearAnimsets() //free all dynamic allocations made through the engine
 
     CG_DestroyAllGhoul2()
