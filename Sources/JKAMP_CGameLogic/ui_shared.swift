@@ -712,7 +712,7 @@ PC_String_Parse
 ```
 */
 /// Source: oracle/codemp/ui/ui_shared.c:623
-func PC_String_Parse(_ handle: Int32, _ out: inout String) -> Bool {
+func PC_String_Parse(_ handle: Int32, _ out: inout String?) -> Bool {
     let squiggy: String = "}"
     // Raven's record lives to the end of his block, so the block is the closure.
     // Every path of Raven's block returns, so the closure's value is the function's.
@@ -744,7 +744,7 @@ PC_Script_Parse
 ```
 */
 /// Source: oracle/codemp/ui/ui_shared.c:650
-func PC_Script_Parse(_ handle: Int32, _ out: inout JKAShared.TextCursor) -> Bool {
+func PC_Script_Parse(_ handle: Int32, _ out: inout String?) -> Bool {
     var script = CharBuf(2048)
     // Raven's record lives to the end of his block, so the block is the closure.
     // Every path of Raven's block returns, so the closure's value is the function's.

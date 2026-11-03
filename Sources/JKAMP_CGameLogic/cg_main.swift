@@ -2426,7 +2426,7 @@ func CG_Asset_Parse(_ handle: Int32) -> Bool {
             }
 
             if Q_stricmp(token.string, "cursor") == 0 {
-                var cursorStr: String = ""
+                var cursorStr: String? = nil
                 if !PC_String_Parse(handle, &cursorStr) {
                     return false
                 }
