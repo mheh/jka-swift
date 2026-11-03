@@ -518,6 +518,8 @@ WRAPPING_ARITHMETIC = {"Q_rand", "Q_random", "Q_crandom", "rand", "srand", "iran
 # See row 4a of the game globals walk.
 NIL_OVERLOADS = {
     ("trap_Cvar_Register", "cvar"): "the three rows of gameCvarTable in g_main.c with a NULL handle, gamename, gamedate, and sv_mapname",
+    # The engine reads a size of -1 as the rewind of the entity string and returns before it touches the buffer, tr_bsp.cpp:1981.
+    ("trap_GetEntityToken", "buffer"): "CG_ParseEntitiesFromString in cg_main.c, the call `trap_GetEntityToken(NULL, -1)` that rewinds the entity string",
 }
 
 # The traps whose buffer holds a NUL-separated list, which a caller walks past the first NUL, so the trap returns every byte as a CharBuf.

@@ -211,6 +211,7 @@ class Traps:
             lines.append(f'    fatalError("trap_Error returned: \\({mapped[params[0].spelling].name})")')
         lines.append("}")
         lines += self.nil_overload(cur, name, mapped, returns, body)
+        lines += self.nil_buffer_overload(cur, name, mapped, result[0], call)
         lines += self.buffer_overload(cur, name, mapped, returns, never)
         lines += self.text_overload(cur, name, mapped, returns, never)
         lines += self.record_overload(cur, name, mapped, returns, never)
@@ -219,7 +220,7 @@ class Traps:
     def nil_overload(self, cur: ci.Cursor, name: str, mapped: dict[str, Param], returns: str | None, body: list[str]) -> list[str]:
         """The second overload of a NIL_OVERLOADS ruling, the same body with the named view parameter optional.
         A nil view is the zero word, as Raven's NULL was, and a caller that holds a view still takes the first overload."""
-        nil = [p for p in mapped.values() if (name, p.name) in NIL_OVERLOADS]
+        nil = [p for p in mapped.values() if (name, p.name) in NIL_OVERLOADS and p.kind != "out_string"]
         if len(nil) != 1:
             return []
         self.counts["nil overloads"] += 1
@@ -231,6 +232,28 @@ class Traps:
             "",
             f"/// Source: oracle/{SOURCE}:{cur.location.line}",
             f"/// Raven hands `{nil[0].name}` a NULL from {NIL_OVERLOADS[(name, nil[0].name)]}.",
+            "/// This overload takes that nil.",
+            head + " {",
+        ] + body + ["}"]
+
+    def nil_buffer_overload(self, cur: ci.Cursor, name: str, mapped: dict[str, Param], returns: str | None, call: str) -> list[str]:
+        """The second overload of a NIL_OVERLOADS ruling on a buffer the engine fills, which takes Raven's NULL for the buffer.
+        The nil is the zero word, and the overload returns Raven's own return alone, because the engine fills no buffer."""
+        nil = [p for p in mapped.values() if (name, p.name) in NIL_OVERLOADS and p.kind == "out_string"]
+        if len(nil) != 1:
+            return []
+        self.counts["nil overloads"] += 1
+        buffer = nil[0]
+        signature = ", ".join(f"_ {p.name}: OpaquePointer?" if p is buffer else f"_ {p.name}: {p.swift}" for p in mapped.values() if p.swift or p is buffer)
+        head = f"public func {name}({signature})" + (f" -> {returns}" if returns else "")
+        if returns:
+            head = "@discardableResult\n" + head
+        word = call.replace(buffer.word(), buffer.name)
+        body = [f"    let word = {word}", f"    return {self.table.result(cur)[1]}"] if returns else [f"    _ = {word}"]
+        return [
+            "",
+            f"/// Source: oracle/{SOURCE}:{cur.location.line}",
+            f"/// Raven hands `{buffer.name}` a NULL from {NIL_OVERLOADS[(name, buffer.name)]}.",
             "/// This overload takes that nil.",
             head + " {",
         ] + body + ["}"]

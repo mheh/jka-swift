@@ -1049,6 +1049,15 @@ public func trap_GetEntityToken(_ bufferSize: Int32) -> (Bool, String) {
     return (word != 0, String(nulTerminated: buffer))
 }
 
+/// Source: oracle/codemp/cgame/cg_syscalls.c:612
+/// Raven hands `buffer` a NULL from CG_ParseEntitiesFromString in cg_main.c, the call `trap_GetEntityToken(NULL, -1)` that rewinds the entity string.
+/// This overload takes that nil.
+@discardableResult
+public func trap_GetEntityToken(_ buffer: OpaquePointer?, _ bufferSize: Int32) -> Bool {
+    let word = Syscall.call(CG_GET_ENTITY_TOKEN, buffer, bufferSize)
+    return word != 0
+}
+
 /// Source: oracle/codemp/cgame/cg_syscalls.c:616
 @discardableResult
 public func trap_R_inPVS(_ p1: JKAShared.vec3_t, _ p2: JKAShared.vec3_t, _ mask: Slots<UInt8>) -> Bool {
