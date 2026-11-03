@@ -41,3 +41,10 @@ The bodies call the stub signatures of `cmd_common`, `common`, `files_common`, a
 ## Undone
 
 The build did not reach the Swift targets, so the bodies are not compile-checked. The next compile run after the C fix lands can show Swift errors in `cvar.swift`. The likely sites are the `Com_Filter` call with the literal `0`, the `hashTable[hash] = v` store, and the `CLong` arithmetic in generateHashValue.
+
+## Ledger of the open rows
+
+1. `Cvar_FreeString` with no caller: ruled. Ruling C1 removes every call, so the stub stays as generated with its `TODO: Port` marker and one line that says the pool ruling C1 removed its callers. Precedent: the dead-surface form of rule 20 (`docs/porting-rules.md:45`), and the pooled block that is never freed (`g_mem.swift:32`). Change: the one-line note at the stub.
+2. `Cvar_Realloc` and `Cvar_Defrag` as no-ops: open for the user. A callable no-op is a ruling of the user's (`docs/porting-rules.md:34`), and no game or cgame site gives a pool defrag a Swift form.
+3. `Cvar_Register` and `Cvar_Update`: ruled to the table. `vmCvar_t` joins `HOST_ROOTS` as `"vmCvar_t": ("VmCvar", "CJKAMP")`, the row `GAME_ROOTS` and `CGAME_ROOTS` hold (`tools/oracle-closure/rulings.py:36`, `tools/oracle-closure/rulings.py:104`). Change: the table row, a generator run, then the two bodies.
+4. The float-to-`Int32` trap in `Cvar_SetValue` (ruling C8): ruled. The game spells Raven's `(int)` of a float as `Float(Int32(...))` (`Sources/JKAMP_GameLogic/NPC_AI_Interrogator.swift:384`). An out-of-range value is undefined in C, so the Swift trap is a rule 19 divergence (`docs/porting-rules.md:44`). Change: one `Port-note:` line at the site that says C is undefined past the `Int32` range.
