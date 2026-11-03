@@ -404,6 +404,9 @@ class Types:
                 # function sets to the token instead has a PARAMS entry, and a non-const `char **` takes that entry the same way.
                 if facts.ruled == "out_string":
                     return Answer("inout String", "out_string_ref")
+                if facts.ruled == "out_optional_string":
+                    # The function stores a text or NULL, and a caller passes the address of a `char *` field, which a view holds as a String?.
+                    return Answer("inout String?", "out_string_ref")
             if inner.kind == TypeKind.POINTER and inner.get_pointee().get_canonical().kind == TypeKind.CHAR_S:
                 # A `char **` the function walks is the same cursor whether or not Raven wrote `const`, `Float_Parse(char **p, ...)`.
                 return None if facts.traps else Answer("inout JKAShared.TextCursor", "text_cursor")

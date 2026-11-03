@@ -358,6 +358,7 @@ CHARBUF_ALLOCS = {"B_TempAlloc", "BG_TempAlloc"}
 #   vec3_mut  an inout vec3_t for a `float *` Raven fills as three floats, see "A pointer out-param Raven indexes"
 #   vec3_const  a vec3_t by value for a `vec3_t` Raven declares without const and the engine only reads, the form a `const vec3_t` has
 #   out_string  an inout String, for a `const char **` the function sets to the token instead of walking
+#   out_optional_string  an inout String?, for a `const char **` the function sets to a text or NULL, which a caller passes as a `char *` field
 #   text_cursor  a TextCursor by value, for a `const char *` Raven passes as a cursor and returns advanced
 #   fill_buffer  a `char *` a trap fills with no size beside it, given as ("fill_buffer", capacity) with the capacity Raven's
 #                callers declare for the buffer, and the trap returns the String the same way a sized buffer does
@@ -373,7 +374,9 @@ PARAMS = {
     ("COM_ParseString", "s"): "out_string",
     # String_Parse of ui_shared.c:607 sets `*out` to the token and never walks it.
     ("String_Parse", "out"): "out_string",
-    ("PC_String_Parse", "out"): "out_string",
+    # Both set `*out` to the String_Alloc text, which is NULL when the pool is full, and the callers pass the address of a `char *` field.
+    ("PC_String_Parse", "out"): "out_optional_string",
+    ("PC_Script_Parse", "out"): "out_optional_string",
     # A `char **` the function sets once to a string it owns, never walked, the same shape as the const one.
     ("G_SpawnString", "out"): "out_string",
     ("Q3_GetString", "value"): "out_string",
