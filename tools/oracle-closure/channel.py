@@ -567,6 +567,10 @@ def main() -> None:
     ap.add_argument("--rebuild", action="store_true", help="sweep every fact of the table again and write the store anew")
     ap.add_argument("--only", choices=["bg", "game"], help="print to stdout, write nothing")
     args = ap.parse_args()
+    if C.HOST:
+        # A host has no bg channel, so a run over a host has no work.
+        print(f"channel.py: {C.UNIT} is a host and has no bg channel, so the run writes nothing")
+        return
     if C.UNIT != C.PROJECT["sweep"]["unit"]:
         # The bg side is the game run's, so another unit writes its install alone and maps no hook over its own table.
         install = ConsumerInstall(C.Parse())

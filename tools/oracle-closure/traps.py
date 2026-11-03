@@ -42,6 +42,11 @@ from reexport import REPO, SOURCES
 from rulings import LIST_TRAPS, NIL_OVERLOADS, NOT_PORTED
 from table import Param, SourceFile, Table, swift_name
 
+# A host has no trap table, so a run over a host has no work.
+if C.HOST:
+    print(f"traps.py: {C.UNIT} is a host and has no trap table, so the run writes nothing")
+    raise SystemExit(0)
+
 TARGET = C.TARGETS["c_target"]
 # The view target and the C target of the unit, and the file of the unit's folder that holds the trap table.
 VIEW = C.TARGETS["views"]

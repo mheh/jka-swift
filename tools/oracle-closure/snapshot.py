@@ -29,7 +29,6 @@ from channel import Channel
 from manifest import Manifest
 from printer import stem_text
 from skeleton import BG, LOGIC, SHARED, target_of
-from traps import Traps
 from views import Generator, indexed_fields, texts
 
 
@@ -43,6 +42,8 @@ def write(out: Path) -> int:
         files[f"skeleton/{stem}.swift"] = "\n".join(sk.file(stem)) + "\n"
         files[f"manifest/{stem}.md"] = "\n".join(manifest.file(stem)) + "\n"
     if "traps" in C.TARGETS:
+        from traps import Traps
+
         files[f"traps/{Path(C.TARGETS['traps']).stem}.swift"] = "\n".join(Traps(parse).emit()).rstrip() + "\n"
     if C.UNIT == C.PROJECT["sweep"]["unit"]:
         channel = Channel(parse)
