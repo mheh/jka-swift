@@ -8,7 +8,7 @@
 typedef intptr_t (*jka_syscall_fn)(intptr_t arg, ...);
 
 // Swift cannot call a C variadic, so this shim spreads a fixed array into the variadic call.
-// One arm exists per argument count Raven uses, 0 through 13.
+// One arm exists per argument count Raven uses, 0 through 14.
 intptr_t jka_syscall(jka_syscall_fn fn, intptr_t command, int count, const intptr_t *args);
 
 // The stand-in engine the dlopen smoke test installs, because Swift cannot write a C variadic callee.

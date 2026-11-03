@@ -1,7 +1,7 @@
 internal import CJKASyscall
 
 /// This transport calls the engine's variadic entry point through the C shim.
-/// The shim has one arm per word count, 0 through 13, and aborts on a wider call.
+/// The shim has one arm per word count, 0 through 14, and aborts on a wider call.
 public struct EngineTransport: SyscallTransport {
     /// The engine's variadic entry point, as `dllEntry` handed it over.
     /// Swift imports a C variadic function pointer as `OpaquePointer`, so this is the C type under its Swift name.

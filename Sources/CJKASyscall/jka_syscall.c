@@ -18,8 +18,9 @@ intptr_t jka_syscall(jka_syscall_fn fn, intptr_t command, int count, const intpt
     case 11: return fn(command, a[0], a[1], a[2], a[3], a[4], a[5], a[6], a[7], a[8], a[9], a[10]);
     case 12: return fn(command, a[0], a[1], a[2], a[3], a[4], a[5], a[6], a[7], a[8], a[9], a[10], a[11]);
     case 13: return fn(command, a[0], a[1], a[2], a[3], a[4], a[5], a[6], a[7], a[8], a[9], a[10], a[11], a[12]);
+    case 14: return fn(command, a[0], a[1], a[2], a[3], a[4], a[5], a[6], a[7], a[8], a[9], a[10], a[11], a[12], a[13]);
     default:
-        // No Raven trap passes more than 13 arguments, so a wider call is a module bug.
+        // No Raven trap passes more than 14 arguments, trap_FX_AddLine of the cgame, so a wider call is a module bug.
         abort();
     }
 }
