@@ -18,7 +18,14 @@ struct JampgameSmokeSuite {
 
         let process = Process()
         process.executableURL = URL(fileURLWithPath: loader)
-        process.arguments = [library]
+        // The loader sends command 39 with tag 1, HI_SEEKER, and type 6, IT_HOLDABLE, and expects row 4.
+        process.arguments = [
+            library,
+            String(GAME_GETITEMINDEXBYTAG.rawValue),
+            "4",
+            "1",
+            "6",
+        ]
 
         let stdoutPipe = Pipe()
         let stderrPipe = Pipe()
@@ -39,7 +46,6 @@ struct JampgameSmokeSuite {
         let stdoutText = String(data: stdoutData, encoding: .utf8) ?? ""
         let lines = stdoutText.split(separator: "\n", omittingEmptySubsequences: true).map(String.init)
 
-        // The loader sends command 39 with tag 1, HI_SEEKER, and type 6, IT_HOLDABLE.
         // Row 4 of bg_itemlist is item_seeker, and the dispatch makes no syscall.
         #expect(GAME_GETITEMINDEXBYTAG.rawValue == 39)
         #expect(lines == [
