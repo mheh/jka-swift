@@ -79,11 +79,11 @@ var cameraCurLoc: JKAShared.vec3_t {
 
 /// Source: oracle/codemp/cgame/cg_view.c:228
 // Raven wrote: vec3_t cameraOldLoc={0,0,0}, cameraNewLoc={0,0,0}
-let cameraOldLoc: JKAShared.vec3_t = { () -> JKAShared.vec3_t in portMissing("cameraOldLoc", source: "oracle/codemp/cgame/cg_view.c:228") }()
+let cameraOldLoc: JKAShared.vec3_t = vec3_t()
 
 /// Source: oracle/codemp/cgame/cg_view.c:228
 // Raven wrote: vec3_t cameraOldLoc={0,0,0}, cameraNewLoc={0,0,0}
-let cameraNewLoc: JKAShared.vec3_t = { () -> JKAShared.vec3_t in portMissing("cameraNewLoc", source: "oracle/codemp/cgame/cg_view.c:228") }()
+let cameraNewLoc: JKAShared.vec3_t = vec3_t()
 
 /// Source: oracle/codemp/cgame/cg_view.c:229
 var cameraLastFrame: Int32 {
@@ -151,7 +151,7 @@ var cg_autoMapZoom: Float {
 
 /// Source: oracle/codemp/cgame/cg_view.c:2278
 // Raven wrote: float cg_autoMapZoomMainOffset = 0.0f
-let cg_autoMapZoomMainOffset: Float = { () -> Float in portMissing("cg_autoMapZoomMainOffset", source: "oracle/codemp/cgame/cg_view.c:2278") }()
+let cg_autoMapZoomMainOffset: Float = 0.0
 
 /// Source: oracle/codemp/cgame/cg_view.c:2279
 /// Raven's data table, a hand property of `CGameWorld`.
@@ -231,9 +231,7 @@ func CG_TestModel_f() {
     angles[YAW] = 180 + cg.refdef.viewangles[1]
     angles[ROLL] = 0
 
-    // Port-note: The draft of this statement did not compile, and the compiler wrote "'&' used with non-inout argument of type 'Slots<vec3_t>' (aka 'Slots<SIMD3<Float>>')".
-    // Raven wrote: AnglesToAxis( angles, cg.testModelEntity.axis )
-    portMissing("CG_TestModel_f", source: "oracle/codemp/cgame/cg_view.c:60")
+    AnglesToAxis(angles, cg.testModelEntity.axis)
     cg.testGun = false
 }
 
@@ -813,9 +811,7 @@ private func CG_OffsetThirdPersonView() {
 
     // Temp: just move the camera to the side a bit
     if thirdPersonHorzOffset != 0.0 {
-        // Port-note: The draft of this statement did not compile, and the compiler wrote "'&' used with non-inout argument of type 'Slots<vec3_t>' (aka 'Slots<SIMD3<Float>>')".
-        // Raven wrote: AnglesToAxis( cg.refdef.viewangles, cg.refdef.viewaxis )
-        portMissing("CG_OffsetThirdPersonView", source: "oracle/codemp/cgame/cg_view.c:603")
+        AnglesToAxis(cg.refdef.viewangles, cg.refdef.viewaxis)
         _VectorMA(cameraCurLoc, thirdPersonHorzOffset, cg.refdef.viewaxis[1], &cameraCurLoc)
     }
 
@@ -1067,9 +1063,7 @@ func CG_CalcFOVFromX(_ fov_x: Float) -> Bool {
     let inwater: Bool
 
     x = Float(Double(cg.refdef.width) / tan(Double(fov_x / 360) * M_PI))
-    // Port-note: The draft of this statement did not compile, and the compiler wrote "cannot convert value of type 'Int32' to expected argument type 'Float'".
-    // Raven wrote: fov_y = atan2( cg.refdef.height, x )
-    portMissing("CG_CalcFOVFromX", source: "oracle/codemp/cgame/cg_view.c:1130")
+    fov_y = Float(atan2(Double(cg.refdef.height), Double(x)))
     fov_y = Float(Double(fov_y * 360) / M_PI)
 
     // there's a problem with this, it only takes the leafbrushes into account, not the entity brushes,
@@ -1100,6 +1094,13 @@ func CG_CalcFOVFromX(_ fov_x: Float) -> Bool {
 
 
     return (inwater)
+}
+
+/// Raven's `static int zoomSoundTime` of `CG_CalcFov`, which the world keeps.
+/// Source: oracle/codemp/cgame/cg_view.c:1264
+var zoomSoundTime: Int32 {
+    get { world.zoomSoundTime }
+    set { world.zoomSoundTime = newValue }
 }
 
 /// Source: oracle/codemp/cgame/cg_view.c:1191
@@ -1164,13 +1165,11 @@ private func CG_CalcFov() -> Int32 {
                     zoomFov = cgFov
                 } else {
                     // Still zooming
-                    // Port-note: A static local `zoomSoundTime` a statement reads before it writes, storage that outlives the call.
-                    // Raven wrote: static int zoomSoundTime = 0;
-                    portMissing("CG_CalcFov", source: "oracle/codemp/cgame/cg_view.c:1191")
 
-                    // Port-note: A read of `zoomSoundTime`, a local the draft left as a hole.
-                    // Raven wrote: if (zoomSoundTime < cg.time || zoomSoundTime > cg.time + 10000) { trap_S_StartSound(cg.refdef.vieworg, ENTITYNUM_WORLD, CHAN_LOCAL, cgs.media.disruptorZoomLoop); zoomSoundTime = cg.time + 300; }
-                    portMissing("CG_CalcFov", source: "oracle/codemp/cgame/cg_view.c:1191")
+                    if zoomSoundTime < cg.time || zoomSoundTime > cg.time + 10000 {
+                        trap_S_StartSound(cg.refdef.vieworg, ENTITYNUM_WORLD, CHAN_LOCAL, cgs.media.disruptorZoomLoop)
+                        zoomSoundTime = cg.time + 300
+                    }
                 }
             }
 
@@ -1183,9 +1182,7 @@ private func CG_CalcFov() -> Int32 {
 
             f = (cg.time - cg.predictedPlayerState.zoomTime) / ZOOM_OUT_TIME
             if Double(f) > 1.0 {
-                // Port-note: The draft of this statement did not compile, and the compiler wrote "assigning a variable to itself".
-                // Raven wrote: fov_x = fov_x
-                portMissing("CG_CalcFov", source: "oracle/codemp/cgame/cg_view.c:1191")
+                // Raven wrote `fov_x = fov_x`, a store with no effect, and Swift refuses a store of a variable to itself.
             } else {
                 fov_x = cg.predictedPlayerState.zoomFov + f * (fov_x - cg.predictedPlayerState.zoomFov)
             }
@@ -1193,9 +1190,7 @@ private func CG_CalcFov() -> Int32 {
     }
 
     x = Float(Double(cg.refdef.width) / tan(Double(fov_x / 360) * M_PI))
-    // Port-note: The draft of this statement did not compile, and the compiler wrote "cannot convert value of type 'Int32' to expected argument type 'Float'".
-    // Raven wrote: fov_y = atan2( cg.refdef.height, x )
-    portMissing("CG_CalcFov", source: "oracle/codemp/cgame/cg_view.c:1191")
+    fov_y = Float(atan2(Double(cg.refdef.height), Double(x)))
     fov_y = Float(Double(fov_y * 360) / M_PI)
 
     // warp if underwater
@@ -1482,9 +1477,7 @@ private func CG_CalcViewValues() -> Int32 {
     if ps!.pm_type == PM_INTERMISSION {
         cg.refdef.vieworg = ps!.origin
         cg.refdef.viewangles = ps!.viewangles
-        // Port-note: The draft of this statement did not compile, and the compiler wrote "'&' used with non-inout argument of type 'Slots<vec3_t>' (aka 'Slots<SIMD3<Float>>')".
-        // Raven wrote: AnglesToAxis( cg.refdef.viewangles, cg.refdef.viewaxis )
-        portMissing("CG_CalcViewValues", source: "oracle/codemp/cgame/cg_view.c:1564")
+        AnglesToAxis(cg.refdef.viewangles, cg.refdef.viewaxis)
         return CG_CalcFov()
     }
 
@@ -1559,9 +1552,7 @@ private func CG_CalcViewValues() -> Int32 {
     }
 
     // position eye relative to origin
-    // Port-note: The draft of this statement did not compile, and the compiler wrote "'&' used with non-inout argument of type 'Slots<vec3_t>' (aka 'Slots<SIMD3<Float>>')".
-    // Raven wrote: AnglesToAxis( cg.refdef.viewangles, cg.refdef.viewaxis )
-    portMissing("CG_CalcViewValues", source: "oracle/codemp/cgame/cg_view.c:1564")
+    AnglesToAxis(cg.refdef.viewangles, cg.refdef.viewaxis)
 
     if cg.hyperspace {
         cg.refdef.rdflags |= RDF_NOWORLDMODEL | RDF_HYPERSPACE
@@ -1730,9 +1721,7 @@ func CG_DrawSkyBoxPortal(_ cstr: String) {
         }
 
         x = Float(Double(cg.refdef.width) / tan(Double(fov_x / 360) * M_PI))
-        // Port-note: The draft of this statement did not compile, and the compiler wrote "cannot convert value of type 'Int32' to expected argument type 'Float'".
-        // Raven wrote: fov_y = atan2( cg.refdef.height, x )
-        portMissing("CG_DrawSkyBoxPortal", source: "oracle/codemp/cgame/cg_view.c:1748")
+        fov_y = Float(atan2(Double(cg.refdef.height), Double(x)))
         fov_y = Float(Double(fov_y * 360) / M_PI)
 
         cg.refdef.fov_x = fov_x
@@ -2004,9 +1993,7 @@ func CG_EmplacedView(_ angles: inout JKAShared.vec3_t) {
 
     if override != 0 {
         cg.refdef.viewangles[YAW] = yaw
-        // Port-note: The draft of this statement did not compile, and the compiler wrote "'&' used with non-inout argument of type 'Slots<vec3_t>' (aka 'Slots<SIMD3<Float>>')".
-        // Raven wrote: AnglesToAxis(cg.refdef.viewangles, cg.refdef.viewaxis)
-        portMissing("CG_EmplacedView", source: "oracle/codemp/cgame/cg_view.c:2185")
+        AnglesToAxis(cg.refdef.viewangles, cg.refdef.viewaxis)
 
         if override == 2 {
             trap_SetClientForceAngle(cg.time + 5000, &cg.refdef.viewangles)
@@ -2041,9 +2028,7 @@ private func CG_AddRefentForAutoMap(_ cent: Centity) {
 
         ent.origin = cent.lerpOrigin
         ent.angles = flat
-        // Port-note: The draft of this statement did not compile, and the compiler wrote "'&' used with non-inout argument of type 'Slots<vec3_t>' (aka 'Slots<SIMD3<Float>>')".
-        // Raven wrote: AnglesToAxis(flat, ent.axis)
-        portMissing("CG_AddRefentForAutoMap", source: "oracle/codemp/cgame/cg_view.c:2214")
+        AnglesToAxis(flat, ent.axis)
 
         if cent.ghoul2 != nil && (cent.currentState.eType == ET_PLAYER || cent.currentState.eType == ET_NPC || cent.currentState.modelGhoul2 != 0) {
             //using a ghoul2 model
@@ -2170,9 +2155,7 @@ func CG_DrawAutoMap() {
             AngleVectors(refdef.viewangles, &fwd, &scratchRight, &scratchUp)
             _VectorMA(refdef.vieworg, -cg_autoMapZoom, fwd, &refdef.vieworg)
 
-            // Port-note: The draft of this statement did not compile, and the compiler wrote "'&' used with non-inout argument of type 'Slots<vec3_t>' (aka 'Slots<SIMD3<Float>>')".
-            // Raven wrote: AnglesToAxis(refdef.viewangles, refdef.viewaxis)
-            portMissing("CG_DrawAutoMap", source: "oracle/codemp/cgame/cg_view.c:2284")
+            AnglesToAxis(refdef.viewangles, refdef.viewaxis)
 
             refdef.fov_x = 50
             refdef.fov_y = 50
@@ -2413,9 +2396,11 @@ func CG_DrawActiveFrame(_ serverTime: Int32, _ stereoView: JKAMP.stereoFrame_t, 
         CG_AddTestModel()
     }
     cg.refdef.time = cg.time
-    // Port-note: Raven's `memcpy( cg.refdef.areamask, cg.snap->areamask, sizeof( cg.refdef.areamask ) )` runs over bytes that are not one record with a view.
-    // Raven wrote: memcpy( cg.refdef.areamask, cg.snap->areamask, sizeof( cg.refdef.areamask ) )
-    portMissing("CG_DrawActiveFrame", source: "oracle/codemp/cgame/cg_view.c:2447")
+    var k: Int32 = 0
+    while k < MAX_MAP_AREA_BYTES {
+        cg.refdef.areamask[k] = cg.snap!.areamask[k]
+        k += 1
+    }
 
     // warning sounds when powerup is wearing off
     CG_PowerupTimerSounds()
@@ -2431,9 +2416,7 @@ func CG_DrawActiveFrame(_ serverTime: Int32, _ stereoView: JKAMP.stereoFrame_t, 
         vectoangles(lookAng, &lookAng)
 
         cg.refdef.vieworg = gCGFallVector
-        // Port-note: The draft of this statement did not compile, and the compiler wrote "'&' used with non-inout argument of type 'Slots<vec3_t>' (aka 'Slots<SIMD3<Float>>')".
-        // Raven wrote: AnglesToAxis(lookAng, cg.refdef.viewaxis)
-        portMissing("CG_DrawActiveFrame", source: "oracle/codemp/cgame/cg_view.c:2447")
+        AnglesToAxis(lookAng, cg.refdef.viewaxis)
     }
 
     //This is done from the vieworg to get origin for non-attenuated sounds
@@ -2444,9 +2427,9 @@ func CG_DrawActiveFrame(_ serverTime: Int32, _ stereoView: JKAMP.stereoFrame_t, 
     }
 
     // update audio positions
-    // Port-note: The draft of this statement did not compile, and the compiler wrote "cannot convert value of type 'Slots<vec3_t>' (aka 'Slots<SIMD3<Float>>') to expected argument type '[vec3_t]' (aka 'Array<SIMD3<Float>>')".
-    // Raven wrote: trap_S_Respatialize( cg.snap->ps.clientNum, cg.refdef.vieworg, cg.refdef.viewaxis, inwater )
-    portMissing("CG_DrawActiveFrame", source: "oracle/codemp/cgame/cg_view.c:2447")
+    // The engine only reads the axis, at snd_dma.cpp:2518-2520, so the copy is behavior-equal.
+    var viewaxis = Array(cg.refdef.viewaxis)
+    trap_S_Respatialize(cg.snap!.ps.clientNum, cg.refdef.vieworg, &viewaxis, inwater)
 
     // make sure the lagometerSample and frame timing isn't done twice when in stereo
     if stereoView != STEREO_RIGHT {
