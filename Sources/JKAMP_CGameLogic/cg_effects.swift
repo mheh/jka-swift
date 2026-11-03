@@ -160,6 +160,13 @@ func CG_BubbleTrail(_ start: JKAShared.vec3_t, _ end: JKAShared.vec3_t, _ spacin
     }
 }
 
+/// Raven's `static int seed` of `CG_SmokePuff`, which the world keeps.
+/// Source: oracle/codemp/cgame/cg_effects.c:86
+var seed: Int32 {
+    get { world.seed }
+    set { world.seed = newValue }
+}
+
 /**
 ```
 =====================
@@ -171,9 +178,6 @@ Adds a smoke puff or blood trail localEntity.
 */
 /// Source: oracle/codemp/cgame/cg_effects.c:78
 func CG_SmokePuff(_ p: JKAShared.vec3_t, _ vel: JKAShared.vec3_t, _ radius: Float, _ r: Float, _ g: Float, _ b: Float, _ a: Float, _ duration: Float, _ startTime: Int32, _ fadeInTime: Int32, _ leFlags: Int32, _ hShader: JKAShared.qhandle_t) -> LocalEntity? {
-    // Port-note: A static local `seed` a statement reads before it writes, storage that outlives the call.
-    // Raven wrote: static int seed = 0x92;
-    portMissing("CG_SmokePuff", source: "oracle/codemp/cgame/cg_effects.c:78")
     var le: LocalEntity?
     var re: RefEntity?
     //	int fadeInTime = startTime + duration / 2;
@@ -183,9 +187,7 @@ func CG_SmokePuff(_ p: JKAShared.vec3_t, _ vel: JKAShared.vec3_t, _ radius: Floa
     le!.radius = radius
 
     re = le!.refEntity
-    // Port-note: A read of `seed`, a local the draft left as a hole.
-    // Raven wrote: re->rotation = Q_random( &seed ) * 360
-    portMissing("CG_SmokePuff", source: "oracle/codemp/cgame/cg_effects.c:78")
+    re!.rotation = Q_random(&seed) * 360
     re!.radius = radius
     re!.shaderTime = startTime / 1000.0
 
@@ -317,9 +319,7 @@ func CG_ThrowChunk(_ origin: JKAShared.vec3_t, _ velocity: JKAShared.vec3_t, _ h
     le!.endTime = Int32(le!.startTime + 5000 + JKAMP_BG.random() * 3000)
 
     re!.origin = origin
-    // Port-note: The draft of this statement did not compile, and the compiler wrote "'&' used with non-inout argument of type 'Slots<vec3_t>' (aka 'Slots<SIMD3<Float>>')".
-    // Raven wrote: AxisCopy( axisDefault, re->axis )
-    portMissing("CG_ThrowChunk", source: "oracle/codemp/cgame/cg_effects.c:211")
+    AxisCopy(axisDefault, re!.axis)
     re!.hModel = hModel
 
     le!.pos.trType = TR_GRAVITY
@@ -431,9 +431,7 @@ func CG_DoGlass(_ verts: inout [JKAShared.vec3_t], _ normal: JKAShared.vec3_t, _
     var glassShards: Int32 = 0
     var stick: Bool = true
     var subVerts = [vec3_t](repeating: vec3_t(), count: 4)
-    // Port-note: A local `vec2_t[4] biPoints` the table has no type for.
-    // Raven wrote: vec2_t biPoints[4];
-    portMissing("CG_DoGlass", source: "oracle/codemp/cgame/cg_effects.c:456")
+    var biPoints = [vec2_t](repeating: vec2_t(), count: 4)
 
     // To do a smarter tesselation, we should figure out the relative height and width of the brush face,
     //	then use this to pick a lod value from 1-3 in each axis.  This will give us 1-9 lod levels, which will
@@ -511,7 +509,7 @@ func CG_DoGlass(_ verts: inout [JKAShared.vec3_t], _ normal: JKAShared.vec3_t, _
                 zz = z
             }
 
-            // Port-note: A read of `biPoints`, a local the draft left as a hole.
+            // Port-note: The Vector2Set stub takes `a` as `[Float]` by value, so Raven's write through `a` does not reach `biPoints`.
             // Raven wrote: Vector2Set( biPoints[0], xx, zz )
             portMissing("CG_DoGlass", source: "oracle/codemp/cgame/cg_effects.c:456")
 
@@ -527,7 +525,7 @@ func CG_DoGlass(_ verts: inout [JKAShared.vec3_t], _ normal: JKAShared.vec3_t, _
                 zz = z
             }
 
-            // Port-note: A read of `biPoints`, a local the draft left as a hole.
+            // Port-note: The Vector2Set stub takes `a` as `[Float]` by value, so Raven's write through `a` does not reach `biPoints`.
             // Raven wrote: Vector2Set( biPoints[1], xx + stepWidth, zz )
             portMissing("CG_DoGlass", source: "oracle/codemp/cgame/cg_effects.c:456")
 
@@ -543,7 +541,7 @@ func CG_DoGlass(_ verts: inout [JKAShared.vec3_t], _ normal: JKAShared.vec3_t, _
                 zz = z
             }
 
-            // Port-note: A read of `biPoints`, a local the draft left as a hole.
+            // Port-note: The Vector2Set stub takes `a` as `[Float]` by value, so Raven's write through `a` does not reach `biPoints`.
             // Raven wrote: Vector2Set( biPoints[2], xx + stepWidth, zz + stepHeight)
             portMissing("CG_DoGlass", source: "oracle/codemp/cgame/cg_effects.c:456")
 
@@ -559,13 +557,11 @@ func CG_DoGlass(_ verts: inout [JKAShared.vec3_t], _ normal: JKAShared.vec3_t, _
                 zz = z
             }
 
-            // Port-note: A read of `biPoints`, a local the draft left as a hole.
+            // Port-note: The Vector2Set stub takes `a` as `[Float]` by value, so Raven's write through `a` does not reach `biPoints`.
             // Raven wrote: Vector2Set( biPoints[3], xx, zz + stepHeight )
             portMissing("CG_DoGlass", source: "oracle/codemp/cgame/cg_effects.c:456")
 
-            // Port-note: A read of `biPoints`, a local the draft left as a hole.
-            // Raven wrote: CG_CalcBiLerp( verts, subVerts, biPoints )
-            portMissing("CG_DoGlass", source: "oracle/codemp/cgame/cg_effects.c:456")
+            CG_CalcBiLerp(&verts, &subVerts, &biPoints)
 
             // The SDK also declares `random`, so the call names the bg module.
             dif = DistanceSquared(subVerts[0], dmgPt) * timeDecay - JKAMP_BG.random() * 32
@@ -582,9 +578,7 @@ func CG_DoGlass(_ verts: inout [JKAShared.vec3_t], _ normal: JKAShared.vec3_t, _
                 time = 0
             }
 
-            // Port-note: A read of `biPoints`, a local the draft left as a hole.
-            // Raven wrote: CG_DoGlassQuad( subVerts, biPoints, stick, time, dmgDir )
-            portMissing("CG_DoGlass", source: "oracle/codemp/cgame/cg_effects.c:456")
+            CG_DoGlassQuad(&subVerts, &biPoints, stick, time, dmgDir)
             glassShards += 1
 
             if maxShards != 0 && glassShards >= maxShards {
@@ -1116,9 +1110,7 @@ func CG_Chunks(_ owner: Int32, _ origin: JKAShared.vec3_t, _ normal: JKAShared.v
             // Make sure that we have the desired start size set
             le!.radius = flrand(baseScale * 0.75, baseScale * 1.25)
             re!.nonNormalizedAxes = true
-            // Port-note: The draft of this statement did not compile, and the compiler wrote "'&' used with non-inout argument of type 'Slots<vec3_t>' (aka 'Slots<SIMD3<Float>>')".
-            // Raven wrote: AxisCopy( axisDefault, re->axis )
-            portMissing("CG_Chunks", source: "oracle/codemp/cgame/cg_effects.c:1061")
+            AxisCopy(axisDefault, re!.axis)
             k = 0
             while k < 3 {
                 re!.modelScale[k] = le!.radius
@@ -1184,9 +1176,7 @@ func CG_ScorePlum(_ client: Int32, _ org: JKAShared.vec3_t, _ score: Int32) {
     re!.radius = 16
 
     angles = vec3_t()
-    // Port-note: The draft of this statement did not compile, and the compiler wrote "'&' used with non-inout argument of type 'Slots<vec3_t>' (aka 'Slots<SIMD3<Float>>')".
-    // Raven wrote: AnglesToAxis( angles, re->axis )
-    portMissing("CG_ScorePlum", source: "oracle/codemp/cgame/cg_effects.c:1261")
+    AnglesToAxis(angles, re!.axis)
 }
 
 /**
@@ -1230,9 +1220,12 @@ func CG_MakeExplosion(_ origin: JKAShared.vec3_t, _ dir: JKAShared.vec3_t, _ hMo
             ang = Float(JKAMP_BG.rand() % 360)
         }
         ex!.refEntity.axis[0] = dir
-        // Port-note: The draft of this statement did not compile, and the compiler wrote "cannot convert value of type 'Slots<vec3_t>' (aka 'Slots<SIMD3<Float>>') to expected argument type '[vec3_t]' (aka 'Array<SIMD3<Float>>')".
-        // Raven wrote: RotateAroundDirection( ex->refEntity.axis, ang )
-        portMissing("CG_MakeExplosion", source: "oracle/codemp/cgame/cg_effects.c:1306")
+        // RotateAroundDirection takes an array, and the view holds `axis` as a Slots, so the call fills a copy that stores back.
+        var axisCopy = [ex!.refEntity.axis[0], ex!.refEntity.axis[1], ex!.refEntity.axis[2]]
+        RotateAroundDirection(&axisCopy, ang)
+        ex!.refEntity.axis[0] = axisCopy[0]
+        ex!.refEntity.axis[1] = axisCopy[1]
+        ex!.refEntity.axis[2] = axisCopy[2]
     }
 
     ex!.startTime = cg.time - offset
@@ -1428,9 +1421,7 @@ func CG_LaunchGib(_ origin: JKAShared.vec3_t, _ velocity: JKAShared.vec3_t, _ hM
     le!.endTime = Int32(le!.startTime + 5000 + JKAMP_BG.random() * 3000)
 
     re!.origin = origin
-    // Port-note: The draft of this statement did not compile, and the compiler wrote "'&' used with non-inout argument of type 'Slots<vec3_t>' (aka 'Slots<SIMD3<Float>>')".
-    // Raven wrote: AxisCopy( axisDefault, re->axis )
-    portMissing("CG_LaunchGib", source: "oracle/codemp/cgame/cg_effects.c:1522")
+    AxisCopy(axisDefault, re!.axis)
     re!.hModel = hModel
 
     le!.pos.trType = TR_GRAVITY

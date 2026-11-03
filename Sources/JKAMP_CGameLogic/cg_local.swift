@@ -128,6 +128,12 @@ public final class CGameWorld {
     /// Source: oracle/codemp/cgame/cg_draw.c:5326
     var cg_saberFlashPos: JKAShared.vec3_t = vec3_t()
 
+    // MARK: - cg_effects.c
+
+    /// Raven's `static int seed = 0x92` of `CG_SmokePuff` in `cg_effects.c`.
+    /// Source: oracle/codemp/cgame/cg_effects.c:86
+    var seed: Int32 = 0x92
+
     // MARK: - cg_ents.c
 
     /// Raven's `char *forceHolocronModels[]` of `cg_ents.c`.
