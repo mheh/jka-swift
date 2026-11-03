@@ -314,8 +314,11 @@ TYPES = {
 #   text_offset    an Int32? byte offset into the argument, or nil, the shape strchr has in CString.swift
 #   text_offset_nonnull  an Int32 byte offset into the argument that is never NULL
 #   vec3           a JKAShared.vec3_t by value, for a `float *` Raven returns out of a static ring of temporaries
+#   vec4           a JKAShared.vec4_t? by value, for a `float *` Raven returns out of a static `vec4_t` or NULL
 #   table          a Slots over the records a field holds, for a function that returns the pointer of a field with a bound in SLOT_BOUNDS
 #   view           the optional view of the record named beside the kind, ("view", record), for a `void *` return of that record or NULL
+#   opaque         an OpaquePointer?, for a `void *` handle Raven returns that is not an allocation, the spelling the Ghoul2 traps take
+#   row_index      an Int32? row index, for a `keywordHash_t *` row Raven returns or NULL, form A of R53
 RETURNS = {
     "SkipWhitespace": "text_cursor",
     "ClientConnect": "optional_string",
@@ -342,10 +345,15 @@ RETURNS = {
     "G_NewString": "pooled_string",
     "CG_NewString": "pooled_string",
     "tv": "vec3",
+    # CG_FadeColor returns its static `vec4_t color` or NULL at cg_drawtools.c:387, and its callers test the NULL.
+    "CG_FadeColor": "vec4",
     # BG_AnimsetAlloc returns `bgAllAnims[bgNumAllAnims].anims` at bg_panimate.c:1734, the table the parser indexes. Row X10 of 2026-10-27.
     "BG_AnimsetAlloc": "table",
     # Display_CaptureItem returns `&Menus[i]` or NULL at ui_shared.c:9858, and both callers cast it to `menuDef_t *`.
     "Display_CaptureItem": ("view", "menuDef_t"),
+    # CG_G2WeaponInstance returns a Ghoul2 instance of `g2WeaponInstances` or NULL at cg_weapons.c:2373.
+    "CG_G2WeaponInstance": "opaque",
+    "KeywordHash_Find": "row_index",
 }
 
 # Allocators whose `char *` result a body holds as a CharBuf of the constant size Raven asks for, when every store into the local is that call.
@@ -372,6 +380,9 @@ CHARBUF_ALLOCS = {"B_TempAlloc", "BG_TempAlloc"}
 #   out_opaque  an inout OpaquePointer? for a `void *` Raven's callers pass the address of a handle field to, the shape a `void **` already has
 #   view      the optional view of the record named beside the kind, ("view", record), for a `void *` every caller fills with that record or NULL
 #   float_mut  an inout Float for a `float *` of a stored function that the function reads and writes as one float, keyed by "record.field"
+#   keyword_buckets  the bucket table of row indices and the row table beside it, form A of R53, for `keywordHash_t *table[]`
+#   keyword_buckets_mut  the same pair inout, for the function that links a row into the buckets
+#   row_index  an Int32 row index for a `keywordHash_t *` row pointer, form A of R53
 PARAMS = {
     ("COM_ParseString", "s"): "out_string",
     # String_Parse of ui_shared.c:607 sets `*out` to the token and never walks it.
@@ -446,6 +457,10 @@ PARAMS = {
     ("trap_CG_RegisterSharedMemory", "memory"): "raw",
     # Raven casts `void *p` to `menuDef_t *` at cg_main.c:2858, and his callers pass `menuScoreboard` at cg_draw.c:6780 and NULL at cg_servercmds.c:68.
     ("CG_SetScoreSelection", "p"): ("view", "menuDef_t"),
+    # The keyword hash of ui_shared.c:7347 and :7360 links rows by index, form A of R53, so the row table crosses beside the buckets.
+    ("KeywordHash_Add", "table"): "keyword_buckets_mut",
+    ("KeywordHash_Add", "key"): "row_index",
+    ("KeywordHash_Find", "table"): "keyword_buckets",
     # Raven casts `void *p` to `menuDef_t *` at ui_shared.c:9881, and cg_newDraw.c:776 and :778 pass `cgs.capturedItem` or NULL.
     ("Display_MouseMove", "p"): ("view", "menuDef_t"),
     # Raven casts `void *p` to `scrollInfo_t *` at ui_shared.c:3833 and the four siblings, and the one caller passes `captureData`, which holds `&scrollInfo`.
@@ -500,7 +515,8 @@ PUBLIC_NAMES = {
 LIBC_FUNCTIONS = {"sqrt": ([("x", "Float")], "Float", "x.squareRoot()")}
 
 # The Swift name of a C library function whose Foundation name Swift deprecates, so a body writes `abs` where Raven wrote `fabs`.
-LIBC_SPELLINGS = {"fabs": "abs", "fabsf": "abs"}
+# Raven's `stricmp` is the platform's `strcasecmp`, and `Q_stricmp` gives the same zero test over ASCII, `CG_DrawVote` of cg_draw.c.
+LIBC_SPELLINGS = {"fabs": "abs", "fabsf": "abs", "stricmp": "Q_stricmp"}
 
 # Macros a platform defines or not, so a conditional that names one stays as Raven wrote it in the extracted header, and each platform build takes its own arm.
 # PATH_MAX picks the arm of MAX_OSPATH at q_shared.h:394, and Windows has no PATH_MAX.

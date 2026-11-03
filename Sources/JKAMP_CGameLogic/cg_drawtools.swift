@@ -419,12 +419,32 @@ CG_FadeColor
 ```
 */
 /// Source: oracle/codemp/cgame/cg_drawtools.c:387
-// TODO: Port signature
-// Raven wrote: float *CG_FadeColor( int startMsec, int totalMsec )
-// No table row for the return `float *`.
 func CG_FadeColor(_ startMsec: Int32, _ totalMsec: Int32) -> JKAShared.vec4_t? {
-    // TODO: Port CG_FadeColor
-    portMissing("CG_FadeColor", source: "oracle/codemp/cgame/cg_drawtools.c:387")
+    // AI: Raven returns the address of a static `vec4_t`. The function returns the vector by value, so the static is a local the body fills whole.
+    var color = vec4_t()
+    let t: Int32
+
+    if startMsec == 0 {
+        return nil
+    }
+
+    t = cg.time - startMsec
+
+    if t >= totalMsec {
+        return nil
+    }
+
+    // fade out
+    if totalMsec - t < FADE_TIME {
+        color[3] = Float(Double(totalMsec - t) * 1.0 / Double(FADE_TIME))
+    } else {
+        color[3] = 1.0
+    }
+    color[2] = 1
+    color[1] = color[2]
+    color[0] = color[1]
+
+    return color
 }
 
 /**

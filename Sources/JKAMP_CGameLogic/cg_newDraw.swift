@@ -689,9 +689,7 @@ func CG_KeyEvent(_ key: Int32, _ down: Bool) {
         cgs.capturedItem = nil
     } else {
         if key == A_MOUSE2 && down {
-            // Port-note: The draft of this statement did not compile, and the compiler wrote "argument passed to call that takes no arguments".
-            // Raven wrote: cgs.capturedItem = Display_CaptureItem(cgs.cursorX, cgs.cursorY)
-            portMissing("CG_KeyEvent", source: "oracle/codemp/cgame/cg_newDraw.c:829")
+            cgs.capturedItem = Display_CaptureItem(cgs.cursorX, cgs.cursorY)
         }
     }
 }

@@ -342,21 +342,144 @@ func CG_ThrowChunk(_ origin: JKAShared.vec3_t, _ velocity: JKAShared.vec3_t, _ h
 }
 
 /// Source: oracle/codemp/cgame/cg_effects.c:261
-// TODO: Port signature
-// Raven wrote: static void CG_DoGlassQuad( vec3_t p[4], vec2_t uv[4], qboolean stick, int time, vec3_t dmgDir )
-// No table row for `vec2_t[4] uv`.
 private func CG_DoGlassQuad(_ p: inout [JKAShared.vec3_t], _ uv: inout [JKAShared.vec2_t], _ stick: Bool, _ time: Int32, _ dmgDir: JKAShared.vec3_t) {
-    // TODO: Port CG_DoGlassQuad
-    portMissing("CG_DoGlassQuad", source: "oracle/codemp/cgame/cg_effects.c:261")
+    var bounce: Float = 0
+    var rotDelta = vec3_t()
+    var vel = vec3_t()
+    var accel = vec3_t()
+    var rgb1 = vec3_t()
+    // Raven's record lives to the end of his block, so the block is the closure.
+    AddpolyArgStruct.scratch { apArgs in
+        var i: Int32 = 0
+        var i_2: Int32 = 0
+
+        vel = vec3_t(Float(crandom() * 12), Float(crandom() * 12), -1)
+
+        if !stick {
+            // We aren't a motion delayed chunk, so let us move quickly
+            _VectorMA(vel, 0.3, dmgDir, &vel)
+        }
+
+        // Set up acceleration due to gravity, 800 is standard QuakeIII gravity, so let's use something close
+        // The SDK also declares `random`, so the call names the bg module.
+        accel = vec3_t(0.0, 0.0, -(600.0 + JKAMP_BG.random() * 100.0))
+
+        // We are using an additive shader, so let's set the RGB low so we look more like transparent glass
+        //	VectorSet( rgb1, 0.1f, 0.1f, 0.1f );
+        rgb1 = vec3_t(1.0, 1.0, 1.0)
+
+        // Being glass, we don't want to bounce much
+        // The SDK also declares `random`, so the call names the bg module.
+        bounce = JKAMP_BG.random() * 0.2 + 0.15
+
+        // Set up our random rotate, we only do PITCH and YAW, not ROLL.  This is something like degrees per second
+        rotDelta = vec3_t(Float(crandom() * 40.0), Float(crandom() * 40.0), 0.0)
+
+        //In an ideal world, this might actually work.
+        /*
+        CPoly *pol = FX_AddPoly(p, uv, 4,			// verts, ST, vertCount
+        vel, accel,				// motion
+        0.15f, 0.0f, 85.0f,		// alpha start, alpha end, alpha parm ( begin alpha fade when 85% of life is complete )
+        rgb1, rgb1, 0.0f,		// rgb start, rgb end, rgb parm ( not used )
+        rotDelta, bounce, time,	// rotation amount, bounce, and time to delay motion for ( zero if no delay );
+        6000,					// life
+        cgi_R_RegisterShader( "gfx/misc/test_crackle" ),
+        FX_APPLY_PHYSICS | FX_ALPHA_NONLINEAR | FX_USE_ALPHA );
+
+        if ( random() > 0.95f && pol )
+        {
+        pol->AddFlags( FX_IMPACT_RUNS_FX | FX_KILL_ON_IMPACT );
+        pol->SetImpactFxID( theFxScheduler.RegisterEffect( "glass_impact" ));
+        }
+        */
+
+        //rww - this is dirty.
+
+        i = 0
+        i_2 = 0
+
+        while i < 4 {
+            while i_2 < 3 {
+                apArgs.p[i][i_2] = p[i][i_2]
+
+                i_2 += 1
+            }
+
+            i_2 = 0
+            i += 1
+        }
+
+        i = 0
+        i_2 = 0
+
+        while i < 4 {
+            while i_2 < 2 {
+                apArgs.ev[i][Int(i_2)] = uv[i][Int(i_2)]
+
+                i_2 += 1
+            }
+
+            i_2 = 0
+            i += 1
+        }
+
+        apArgs.numVerts = 4
+        apArgs.vel = vel
+        apArgs.accel = accel
+
+        apArgs.alpha1 = 0.15
+        apArgs.alpha2 = 0.0
+        apArgs.alphaParm = 85.0
+
+        apArgs.rgb1 = rgb1
+        apArgs.rgb2 = rgb1
+
+        apArgs.rgbParm = 0.0
+
+        apArgs.rotationDelta = rotDelta
+
+        apArgs.bounce = bounce
+        apArgs.motionDelay = time
+        apArgs.killTime = 6000
+        apArgs.shader = cgs.media.glassShardShader
+        apArgs.flags = (FX_APPLY_PHYSICS | FX_ALPHA_NONLINEAR | FX_USE_ALPHA)
+
+        trap_FX_AddPoly(apArgs)
+    }
 }
 
 /// Source: oracle/codemp/cgame/cg_effects.c:367
-// TODO: Port signature
-// Raven wrote: static void CG_CalcBiLerp( vec3_t verts[4], vec3_t subVerts[4], vec2_t uv[4] )
-// No table row for `vec2_t[4] uv`.
 private func CG_CalcBiLerp(_ verts: inout [JKAShared.vec3_t], _ subVerts: inout [JKAShared.vec3_t], _ uv: inout [JKAShared.vec2_t]) {
-    // TODO: Port CG_CalcBiLerp
-    portMissing("CG_CalcBiLerp", source: "oracle/codemp/cgame/cg_effects.c:367")
+    var temp = vec3_t()
+
+    // Nasty crap
+    subVerts[0] = verts[0] * (1.0 - uv[0][0])
+    _VectorMA(subVerts[0], uv[0][0], verts[1], &subVerts[0])
+    temp = subVerts[0] * (1.0 - uv[0][1])
+    subVerts[0] = verts[3] * (1.0 - uv[0][0])
+    _VectorMA(subVerts[0], uv[0][0], verts[2], &subVerts[0])
+    _VectorMA(temp, uv[0][1], subVerts[0], &subVerts[0])
+
+    subVerts[1] = verts[0] * (1.0 - uv[1][0])
+    _VectorMA(subVerts[1], uv[1][0], verts[1], &subVerts[1])
+    temp = subVerts[1] * (1.0 - uv[1][1])
+    subVerts[1] = verts[3] * (1.0 - uv[1][0])
+    _VectorMA(subVerts[1], uv[1][0], verts[2], &subVerts[1])
+    _VectorMA(temp, uv[1][1], subVerts[1], &subVerts[1])
+
+    subVerts[2] = verts[0] * (1.0 - uv[2][0])
+    _VectorMA(subVerts[2], uv[2][0], verts[1], &subVerts[2])
+    temp = subVerts[2] * (1.0 - uv[2][1])
+    subVerts[2] = verts[3] * (1.0 - uv[2][0])
+    _VectorMA(subVerts[2], uv[2][0], verts[2], &subVerts[2])
+    _VectorMA(temp, uv[2][1], subVerts[2], &subVerts[2])
+
+    subVerts[3] = verts[0] * (1.0 - uv[3][0])
+    _VectorMA(subVerts[3], uv[3][0], verts[1], &subVerts[3])
+    temp = subVerts[3] * (1.0 - uv[3][1])
+    subVerts[3] = verts[3] * (1.0 - uv[3][0])
+    _VectorMA(subVerts[3], uv[3][0], verts[2], &subVerts[3])
+    _VectorMA(temp, uv[3][1], subVerts[3], &subVerts[3])
 }
 
 /// Source: oracle/codemp/cgame/cg_effects.c:404
@@ -404,9 +527,7 @@ func CG_InitGlass() {
 }
 
 /// Source: oracle/codemp/cgame/cg_effects.c:446
-func Vector2Set(_ a: [Float], _ b: Float, _ c: Float) {
-    // Raven assigns his own `a` parameter. A Swift parameter is immutable, so the body takes a mutable copy of it.
-    var a = a
+func Vector2Set(_ a: inout JKAShared.vec2_t, _ b: Float, _ c: Float) {
     a[0] = b
     a[1] = c
 }
@@ -509,9 +630,7 @@ func CG_DoGlass(_ verts: inout [JKAShared.vec3_t], _ normal: JKAShared.vec3_t, _
                 zz = z
             }
 
-            // Port-note: The Vector2Set stub takes `a` as `[Float]` by value, so Raven's write through `a` does not reach `biPoints`.
-            // Raven wrote: Vector2Set( biPoints[0], xx, zz )
-            portMissing("CG_DoGlass", source: "oracle/codemp/cgame/cg_effects.c:456")
+            Vector2Set(&biPoints[0], xx, zz)
 
             if t + 1 > 0 && t + 1 < mxWidth {
                 xx = x - offX[i][t + 1]
@@ -525,9 +644,7 @@ func CG_DoGlass(_ verts: inout [JKAShared.vec3_t], _ normal: JKAShared.vec3_t, _
                 zz = z
             }
 
-            // Port-note: The Vector2Set stub takes `a` as `[Float]` by value, so Raven's write through `a` does not reach `biPoints`.
-            // Raven wrote: Vector2Set( biPoints[1], xx + stepWidth, zz )
-            portMissing("CG_DoGlass", source: "oracle/codemp/cgame/cg_effects.c:456")
+            Vector2Set(&biPoints[1], xx + stepWidth, zz)
 
             if t + 1 > 0 && t + 1 < mxWidth {
                 xx = x - offX[i + 1][t + 1]
@@ -541,9 +658,7 @@ func CG_DoGlass(_ verts: inout [JKAShared.vec3_t], _ normal: JKAShared.vec3_t, _
                 zz = z
             }
 
-            // Port-note: The Vector2Set stub takes `a` as `[Float]` by value, so Raven's write through `a` does not reach `biPoints`.
-            // Raven wrote: Vector2Set( biPoints[2], xx + stepWidth, zz + stepHeight)
-            portMissing("CG_DoGlass", source: "oracle/codemp/cgame/cg_effects.c:456")
+            Vector2Set(&biPoints[2], xx + stepWidth, zz + stepHeight)
 
             if t > 0 && t < mxWidth {
                 xx = x - offX[i + 1][t]
@@ -557,9 +672,7 @@ func CG_DoGlass(_ verts: inout [JKAShared.vec3_t], _ normal: JKAShared.vec3_t, _
                 zz = z
             }
 
-            // Port-note: The Vector2Set stub takes `a` as `[Float]` by value, so Raven's write through `a` does not reach `biPoints`.
-            // Raven wrote: Vector2Set( biPoints[3], xx, zz + stepHeight )
-            portMissing("CG_DoGlass", source: "oracle/codemp/cgame/cg_effects.c:456")
+            Vector2Set(&biPoints[3], xx, zz + stepHeight)
 
             CG_CalcBiLerp(&verts, &subVerts, &biPoints)
 

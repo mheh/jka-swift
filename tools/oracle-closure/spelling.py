@@ -26,7 +26,7 @@ BUILTINS = set(SCALARS.values()) | {"Bool", "Float", "Int32"}
 NARROW_STORAGE = {SCALARS[k] for k in NARROW}
 INT_KINDS = {TypeKind.INT, TypeKind.UINT, TypeKind.LONG, TypeKind.ULONG, TypeKind.SHORT, TypeKind.USHORT}
 # The vector typedefs JKAShared spells as SIMD types, so a parameter of one is the vector itself, never a pointer.
-VECTORS = {"vec3_t", "vec4_t"}
+VECTORS = {"vec2_t", "vec3_t", "vec4_t"}
 # An int beside a char * is its size only when Raven named it so. trap_BotSetChatName's `client` is not a size.
 SIZE_NAME = re.compile(r"size|len|max", re.I)
 # The unsigned Swift spellings. A view widens a byte and a short to Int32, so those two read as signed arithmetic.
@@ -281,6 +281,12 @@ class Types:
         if facts.ruled == "view":
             # Every caller fills the `void *` with one record or NULL, so the parameter is that record's optional view.
             return Answer(f"{self.views.qualified_view(facts.capacity, TARGET)}?", "view_opt")
+        if facts.ruled in ("keyword_buckets", "keyword_buckets_mut"):
+            # The buckets hold row indices, and the row table crosses as the next parameter of the signature, form A of R53.
+            inout = "inout " if facts.ruled == "keyword_buckets_mut" else ""
+            return Answer(f"{inout}[Int32?], _ rows: {inout}[KeywordHashRow]", "bare")
+        if facts.ruled == "row_index":
+            return Answer("Int32", "bare")
         if facts.ruled == "int_array_mut":
             # The body writes the caller's `int` array by index, so the array crosses inout, the `int` twin of float_array.
             return Answer("inout [Int32]", "bare")
@@ -457,6 +463,9 @@ class Types:
                 # A written axis a caller skips with NULL is an optional inout, with the same forward as a written vector.
                 return Answer("inout [JKAShared.vec3_t]?", "axis_mut_opt")
             return Answer("inout [JKAShared.vec3_t]", "vec3_axis")
+        if canonical.kind == TypeKind.CONSTANTARRAY and "vec2_t" in t.spelling and not facts.traps:
+            # `vec2_t uv[4]` is the caller's array of texture coordinates, so it crosses as the axis does, `CG_CalcBiLerp(..., uv)`.
+            return Answer("inout [JKAShared.vec2_t]", "vec3_axis")
         if canonical.kind in (TypeKind.CONSTANTARRAY, TypeKind.INCOMPLETEARRAY) and not facts.traps:
             # A C array of struct pointers the function fills, `gentity_t *ent_list[MAX_GENTITIES]`, is the caller's array of optional views.
             element = canonical.element_type.get_canonical()

@@ -289,16 +289,10 @@ private func CG_ClipMoveToEntities(_ start: JKAShared.vec3_t, _ mins: JKAShared.
 
                     if ent!.eType == ET_NPC && ent!.NPC_class == CLASS_VEHICLE && cent!.m_pVehicle != nil {
                         //try to dynamically adjust his bbox dynamically, if possible
-                        // Port-note: A pointer local `float * old` with no view.
-                        // Raven wrote: float *old = cent->m_pVehicle->m_vOrientation;
-                        portMissing("CG_ClipMoveToEntities", source: "oracle/codemp/cgame/cg_predict.c:216")
-                        // Port-note: Raven stores a pointer into the `float *` field with `cent->m_pVehicle->m_vOrientation = &cent->lerpAngles[0]`, and rule 11 keeps a pointer out of a logic target.
-                        // Raven wrote: cent->m_pVehicle->m_vOrientation = &cent->lerpAngles[0]
-                        portMissing("CG_ClipMoveToEntities", source: "oracle/codemp/cgame/cg_predict.c:216")
+                        let old = cent!.m_pVehicle!.m_vOrientation
+                        cent!.m_pVehicle!.pointOrientation(at: cent!)
                         BG_VehicleAdjustBBoxForOrientation(cent!.m_pVehicle!, &cent!.lerpOrigin, &bmins, &bmaxs, cent!.currentState.number, MASK_PLAYERSOLID, nil)
-                        // Port-note: Raven stores a pointer into the `float *` field with `cent->m_pVehicle->m_vOrientation = old`, and rule 11 keeps a pointer out of a logic target.
-                        // Raven wrote: cent->m_pVehicle->m_vOrientation = old
-                        portMissing("CG_ClipMoveToEntities", source: "oracle/codemp/cgame/cg_predict.c:216")
+                        cent!.m_pVehicle!.m_vOrientation = old
                     }
 
                     cmodel = trap_CM_TempBoxModel(bmins, bmaxs)

@@ -12,4 +12,7 @@ extern bind_t g_bindings[96];
 // Source: oracle/codemp/ui/ui_shared.c:157
 extern itemFlagsDef_t itemFlags[2];
 
+// Source: oracle/codemp/cgame/cg_draw.c:2425
+extern veh_damage_t vehDamageData[4];
+
 #endif
