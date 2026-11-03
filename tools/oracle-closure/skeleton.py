@@ -615,7 +615,10 @@ class Skeleton:
             # A struct or an array of structs is one zeroed allocation the state object owns, reached through its view.
             record = self.table.views.record_name(element)
             if not record or record not in self.table.views.views:
-                var.reason = f"No view for `{' '.join(element.spelling.split())}`, a struct Raven defines inside a .c file."
+                where = element.get_declaration().location.file
+                header = Path(where.name).name if where is not None and Path(where.name).suffix == ".h" else None
+                var.reason = (f"No view for `{' '.join(element.spelling.split())}` of `{header}`." if header
+                              else f"No view for `{' '.join(element.spelling.split())}`, a struct Raven defines inside a .c file.")
                 return
             if var.data and depth and self.holds_address(element):
                 # C storage cannot hold the address of a Swift function or of a record the state object owns,
