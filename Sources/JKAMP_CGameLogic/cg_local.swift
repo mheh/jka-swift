@@ -509,6 +509,16 @@ public final class CGameWorld {
     /// Source: oracle/codemp/cgame/cg_marks.c:382
     let cl_numparticles: Int32 = MAX_PARTICLES
 
+    // MARK: - cg_newDraw.c
+
+    /// Raven's `static const char *s = ""` of `CG_GetKillerText` in `cg_newDraw.c`.
+    /// Source: oracle/codemp/cgame/cg_newDraw.c:205
+    var s_CG_GetKillerText: String = ""
+
+    /// Raven's `static const char *s = ""` of `CG_GetGameStatusText` in `cg_newDraw.c`.
+    /// Source: oracle/codemp/cgame/cg_newDraw.c:214
+    var s_CG_GetGameStatusText: String = ""
+
     // MARK: - cg_players.c
 
     /// Raven's `char *cg_customSoundNames[MAX_CUSTOM_SOUNDS]` of `cg_players.c`.

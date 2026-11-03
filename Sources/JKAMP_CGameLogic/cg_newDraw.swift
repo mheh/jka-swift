@@ -57,15 +57,11 @@ func CG_GetValue(_ ownerDraw: Int32) -> Float {
 
     switch ownerDraw {
     case CG_SELECTEDPLAYER_ARMOR:
-        // Port-note: The draft of this statement did not compile, and the compiler wrote "binary operator '+' cannot be applied to operands of type 'Slots<ClientInfo>' and 'Int32'".
-        // Raven wrote: ci = cgs.clientinfo + sortedTeamPlayers[CG_GetSelectedPlayer()]
-        portMissing("CG_GetValue", source: "oracle/codemp/cgame/cg_newDraw.c:46")
+        ci = cgs.clientinfo[sortedTeamPlayers[CG_GetSelectedPlayer()]]
         return Float(ci!.armor)
 
     case CG_SELECTEDPLAYER_HEALTH:
-        // Port-note: The draft of this statement did not compile, and the compiler wrote "binary operator '+' cannot be applied to operands of type 'Slots<ClientInfo>' and 'Int32'".
-        // Raven wrote: ci = cgs.clientinfo + sortedTeamPlayers[CG_GetSelectedPlayer()]
-        portMissing("CG_GetValue", source: "oracle/codemp/cgame/cg_newDraw.c:46")
+        ci = cgs.clientinfo[sortedTeamPlayers[CG_GetSelectedPlayer()]]
         return Float(ci!.health)
 
     case CG_PLAYER_ARMOR_VALUE:
@@ -209,57 +205,53 @@ func CG_OwnerDrawVisible(_ flags: Int32) -> Bool {
     return false
 }
 
+/// Raven's `static const char *s` of `CG_GetKillerText`, which the world keeps.
+/// Source: oracle/codemp/cgame/cg_newDraw.c:205
+var s_CG_GetKillerText: String {
+    get { world.s_CG_GetKillerText }
+    set { world.s_CG_GetKillerText = newValue }
+}
+
 /// Source: oracle/codemp/cgame/cg_newDraw.c:204
 func CG_GetKillerText() -> String {
-    // Port-note: A static local `s` the function returns, storage that outlives the call.
-    // Raven wrote: static const char *s = "";
-    portMissing("CG_GetKillerText", source: "oracle/codemp/cgame/cg_newDraw.c:204")
+    // Raven's static local `s` is the world's `s_CG_GetKillerText`.
+    // AI: Raven's `s` points into the va ring, which a later va call writes over. The world keeps a copy of the text.
     if !cg.killerName.isEmpty {
-        // Port-note: A store into `s`, a local the draft left as a hole.
-        // Raven wrote: s = va("%s %s", CG_GetStringEdString("MP_INGAME", "KILLEDBY"), cg.killerName )
-        portMissing("CG_GetKillerText", source: "oracle/codemp/cgame/cg_newDraw.c:204")
+        s_CG_GetKillerText = va("%s %s", CG_GetStringEdString("MP_INGAME", "KILLEDBY"), cg.killerName)
     }
-    // Port-note: A read of `s`, a local the draft left as a hole.
-    // Raven wrote: return s
-    portMissing("CG_GetKillerText", source: "oracle/codemp/cgame/cg_newDraw.c:204")
+    return s_CG_GetKillerText
+}
+
+/// Raven's `static const char *s` of `CG_GetGameStatusText`, which the world keeps.
+/// Source: oracle/codemp/cgame/cg_newDraw.c:214
+var s_CG_GetGameStatusText: String {
+    get { world.s_CG_GetGameStatusText }
+    set { world.s_CG_GetGameStatusText = newValue }
 }
 
 /// Source: oracle/codemp/cgame/cg_newDraw.c:213
 func CG_GetGameStatusText() -> String {
-    // Port-note: A static local `s` the function returns, storage that outlives the call.
-    // Raven wrote: static const char *s = "";
-    portMissing("CG_GetGameStatusText", source: "oracle/codemp/cgame/cg_newDraw.c:213")
+    // Raven's static local `s` is the world's `s_CG_GetGameStatusText`.
+    // AI: Raven's `s` points into the va ring, which a later va call writes over. The world keeps a copy of the text.
     if cgs.gametype == GT_POWERDUEL {
-        // Port-note: A store into `s`, a local the draft left as a hole.
-        // Raven wrote: s = ""
-        portMissing("CG_GetGameStatusText", source: "oracle/codemp/cgame/cg_newDraw.c:213")
+        s_CG_GetGameStatusText = ""
     } else if cgs.gametype < GT_TEAM {
         if cg.snap!.ps.persistant[PERS_TEAM] != TEAM_SPECTATOR {
             var sPlaceWith = CharBuf(256)
             strcpy(&sPlaceWith, trap_SP_GetStringTextString("MP_INGAME_PLACE_WITH", Int32((sPlaceWith).count)).1)
 
-            // Port-note: A store into `s`, a local the draft left as a hole.
-            // Raven wrote: s = va("%s %s %i",CG_PlaceString( cg.snap->ps.persistant[PERS_RANK] + 1 ), sPlaceWith, cg.snap->ps.persistant[PERS_SCORE] )
-            portMissing("CG_GetGameStatusText", source: "oracle/codemp/cgame/cg_newDraw.c:213")
+            s_CG_GetGameStatusText = va("%s %s %i", CG_PlaceString(cg.snap!.ps.persistant[PERS_RANK] + 1), sPlaceWith, cg.snap!.ps.persistant[PERS_SCORE])
         }
     } else {
         if cg.teamScores[0] == cg.teamScores[1] {
-            // Port-note: A store into `s`, a local the draft left as a hole.
-            // Raven wrote: s = va("%s %i", CG_GetStringEdString("MP_INGAME", "TIEDAT"), cg.teamScores[0] )
-            portMissing("CG_GetGameStatusText", source: "oracle/codemp/cgame/cg_newDraw.c:213")
+            s_CG_GetGameStatusText = va("%s %i", CG_GetStringEdString("MP_INGAME", "TIEDAT"), cg.teamScores[0])
         } else if cg.teamScores[0] >= cg.teamScores[1] {
-            // Port-note: A store into `s`, a local the draft left as a hole.
-            // Raven wrote: s = va("%s, %i / %i", CG_GetStringEdString("MP_INGAME", "RED_LEADS"), cg.teamScores[0], cg.teamScores[1] )
-            portMissing("CG_GetGameStatusText", source: "oracle/codemp/cgame/cg_newDraw.c:213")
+            s_CG_GetGameStatusText = va("%s, %i / %i", CG_GetStringEdString("MP_INGAME", "RED_LEADS"), cg.teamScores[0], cg.teamScores[1])
         } else {
-            // Port-note: A store into `s`, a local the draft left as a hole.
-            // Raven wrote: s = va("%s, %i / %i", CG_GetStringEdString("MP_INGAME", "BLUE_LEADS"), cg.teamScores[1], cg.teamScores[0] )
-            portMissing("CG_GetGameStatusText", source: "oracle/codemp/cgame/cg_newDraw.c:213")
+            s_CG_GetGameStatusText = va("%s, %i / %i", CG_GetStringEdString("MP_INGAME", "BLUE_LEADS"), cg.teamScores[1], cg.teamScores[0])
         }
     }
-    // Port-note: A read of `s`, a local the draft left as a hole.
-    // Raven wrote: return s
-    portMissing("CG_GetGameStatusText", source: "oracle/codemp/cgame/cg_newDraw.c:213")
+    return s_CG_GetGameStatusText
 }
 
 /// Source: oracle/codemp/cgame/cg_newDraw.c:242
@@ -299,21 +291,29 @@ private func CG_Text_Paint_Limit(_ maxX: inout Float, _ x: Float, _ y: Float, _ 
         //  Ok, this is slow and tacky, but only called occasionally, and it works...
         //
         var sTemp = CharBuf(4096)
-        // Port-note: A pointer local `const char * psText` with no view.
-        // Raven wrote: const char *psText = text;
-        portMissing("CG_Text_Paint_Limit", source: "oracle/codemp/cgame/cg_newDraw.c:267")
-        var psOut: CharBuf = sTemp[(0)...]
-        // Port-note: A pointer local `char * psOutLastGood` with no view.
-        // Raven wrote: char *psOutLastGood = psOut;
-        portMissing("CG_Text_Paint_Limit", source: "oracle/codemp/cgame/cg_newDraw.c:267")
+        var psText = TextCursor(CharBuf(text))
+        var psOut: Int32 = 0
+        var psOutLastGood: Int32 = psOut
         var uiLetter: UInt32
 
-        // Port-note: A pointer dereference the draft cannot place.
-        // Raven wrote: while (*psText && (x + trap_R_Font_StrLenPixels(sTemp, iFontIndex, scale)<=*maxX) && psOut < &sTemp[sizeof(sTemp)-1] // sanity ) { int iAdvanceCount; psOutLastGood = psOut; uiLetter = trap_AnyLanguage_ReadCharFromString(psText, &iAdvanceCount, &bIsTrailingPunctuation); psText += iAdvanceCount; if (uiLetter > 255) { *psOut++ = uiLetter>>8; *psOut++ = uiLetter&0xFF; } else { *psOut++ = uiLetter&0xFF; } }
-        portMissing("CG_Text_Paint_Limit", source: "oracle/codemp/cgame/cg_newDraw.c:267")
-        // Port-note: A pointer dereference the draft cannot place.
-        // Raven wrote: *psOutLastGood = '\0'
-        portMissing("CG_Text_Paint_Limit", source: "oracle/codemp/cgame/cg_newDraw.c:267")
+        while psText.byte != 0 && (x + trap_R_Font_StrLenPixels(String(sTemp), iFontIndex, scale) <= maxX) && psOut < sTemp.count - 1 { // sanity
+            var iAdvanceCount: Int32 = 0
+            psOutLastGood = psOut
+
+            uiLetter = trap_AnyLanguage_ReadCharFromString(psText.text, &iAdvanceCount, &bIsTrailingPunctuation)
+            psText.advance(by: iAdvanceCount)
+
+            if uiLetter > 255 {
+                sTemp[psOut] = uiLetter >> 8
+                psOut += 1
+                sTemp[psOut] = uiLetter & 0xFF
+                psOut += 1
+            } else {
+                sTemp[psOut] = uiLetter & 0xFF
+                psOut += 1
+            }
+        }
+        sTemp[psOutLastGood] = 0
 
         maxX = 0 // feedback
         CG_Text_Paint(x, y, scale, color, String(sTemp), adjust, limit, ITEM_TEXTSTYLE_NORMAL, iMenuFont)
@@ -348,9 +348,7 @@ func CG_DrawNewTeamInfo(_ rect: JKAMP.RectDef, _ text_x: Float, _ text_y: Float,
     count = (numSortedTeamPlayers > 8) ? 8 : numSortedTeamPlayers
     i = 0
     while i < count {
-        // Port-note: The draft of this statement did not compile, and the compiler wrote "binary operator '+' cannot be applied to operands of type 'Slots<ClientInfo>' and 'Int32'".
-        // Raven wrote: ci = cgs.clientinfo + sortedTeamPlayers[i]
-        portMissing("CG_DrawNewTeamInfo", source: "oracle/codemp/cgame/cg_newDraw.c:327")
+        ci = cgs.clientinfo[sortedTeamPlayers[i]]
         if ci!.infoValid && ci!.team == cg.snap!.ps.persistant[PERS_TEAM] {
             len = CG_Text_Width(ci!.name, scale, 0)
             if len > pwidth {
@@ -365,9 +363,14 @@ func CG_DrawNewTeamInfo(_ rect: JKAMP.RectDef, _ text_x: Float, _ text_y: Float,
     i = 1
     while i < MAX_LOCATIONS {
         p = CG_GetLocationString(CG_ConfigString(CS_LOCATIONS + i))
-        // Port-note: A pointer dereference the draft cannot place.
-        // Raven wrote: if (p && *p) { len = CG_Text_Width(p, scale, 0); if (len > lwidth) lwidth = len; }
-        portMissing("CG_DrawNewTeamInfo", source: "oracle/codemp/cgame/cg_newDraw.c:327")
+        // Raven tests `p` and `*p`.
+        // Both read as the same Swift test, so the draft writes it once.
+        if !p.isEmpty {
+            len = CG_Text_Width(p, scale, 0)
+            if len > lwidth {
+                lwidth = Float(len)
+            }
+        }
         i += 1
     }
 
@@ -375,9 +378,7 @@ func CG_DrawNewTeamInfo(_ rect: JKAMP.RectDef, _ text_x: Float, _ text_y: Float,
 
     i = 0
     while i < count {
-        // Port-note: The draft of this statement did not compile, and the compiler wrote "binary operator '+' cannot be applied to operands of type 'Slots<ClientInfo>' and 'Int32'".
-        // Raven wrote: ci = cgs.clientinfo + sortedTeamPlayers[i]
-        portMissing("CG_DrawNewTeamInfo", source: "oracle/codemp/cgame/cg_newDraw.c:327")
+        ci = cgs.clientinfo[sortedTeamPlayers[i]]
         if ci!.infoValid && ci!.team == cg.snap!.ps.persistant[PERS_TEAM] {
             xx = Int32(rect.x + 1)
             j = 0
@@ -425,9 +426,11 @@ func CG_DrawNewTeamInfo(_ rect: JKAMP.RectDef, _ text_x: Float, _ text_y: Float,
             CG_Text_Paint_Limit(&maxx, Float(xx), y + text_y, scale, color, ci!.name, 0, 0, FONT_MEDIUM)
 
             p = CG_GetLocationString(CG_ConfigString(CS_LOCATIONS + ci!.location))
-            // Port-note: A pointer dereference the draft cannot place.
-            // Raven wrote: if (!p || !*p) { p = "unknown"; }
-            portMissing("CG_DrawNewTeamInfo", source: "oracle/codemp/cgame/cg_newDraw.c:327")
+            // Raven tests `!p` and `!*p`.
+            // Both read as the same Swift test, so the draft writes it once.
+            if p.isEmpty {
+                p = "unknown"
+            }
 
             xx = Int32(Float(xx) + (leftOver / 3 + 2))
             maxx = rect.w - 4
@@ -463,9 +466,7 @@ func CG_DrawTeamSpectators(_ rect: JKAMP.RectDef, _ scale: Float, _ color: JKASh
             cg.spectatorTime = cg.time + 10
             if cg.spectatorPaintX <= rect.x + 2 {
                 if cg.spectatorOffset < cg.spectatorLen {
-                    // Port-note: The draft of this statement did not compile, and the compiler wrote "cannot convert value of type 'Int8' to expected argument type 'String'".
-                    // Raven wrote: cg.spectatorPaintX += CG_Text_Width(&cg.spectatorList[cg.spectatorOffset], scale, 1) - 1
-                    portMissing("CG_DrawTeamSpectators", source: "oracle/codemp/cgame/cg_newDraw.c:437")
+                    cg.spectatorPaintX += CG_Text_Width(String(cg.spectatorListBuffer[cg.spectatorOffset...]), scale, 1) - 1
                     cg.spectatorOffset += 1
                 } else {
                     cg.spectatorOffset = 0
@@ -485,9 +486,7 @@ func CG_DrawTeamSpectators(_ rect: JKAMP.RectDef, _ scale: Float, _ color: JKASh
         }
 
         maxX = rect.x + rect.w - 2
-        // Port-note: The draft of this statement did not compile, and the compiler wrote "cannot convert value of type 'Int8' to expected argument type 'String'".
-        // Raven wrote: CG_Text_Paint_Limit(&maxX, cg.spectatorPaintX, rect->y + rect->h - 3, scale, color, &cg.spectatorList[cg.spectatorOffset], 0, 0, FONT_MEDIUM)
-        portMissing("CG_DrawTeamSpectators", source: "oracle/codemp/cgame/cg_newDraw.c:437")
+        CG_Text_Paint_Limit(&maxX, Float(cg.spectatorPaintX), rect.y + rect.h - 3, scale, color, String(cg.spectatorListBuffer[cg.spectatorOffset...]), 0, 0, FONT_MEDIUM)
         if cg.spectatorPaintX2 >= 0 {
             var maxX2: Float = rect.x + rect.w - 2
             CG_Text_Paint_Limit(&maxX2, Float(cg.spectatorPaintX2), rect.y + rect.h - 3, scale, color, cg.spectatorList, 0, cg.spectatorOffset, FONT_MEDIUM)
