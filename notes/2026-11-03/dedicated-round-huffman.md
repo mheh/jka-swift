@@ -52,3 +52,9 @@ The rows below follow a pattern that the codebase already holds, so the round ru
 - B3, the `buffer` local: `UnsafeMutableRawPointer(mbuf.data!) + offset`, under the rule 11 comment of `bg_vehicleLoad.swift:64`. The raw pointer from an `OpaquePointer?` field has the form of `cg_main.swift:4013`. The drafter left this site as a rule 11 hole.
 - B4, the post-increments of `&(huff->nodeList[huff->blocNode++])`: the statement with the old value, then `blocNode += 1`, by the post-increment rule of "The C character buffer".
 - B5, two drafter findings. The drafter adds `var fout = fout` to `Huff_putBit` and `add_bit`, which Raven never assigns, so the round drops the copy. The drafter types the copy of `node` in `Huff_Receive` and `Huff_offsetReceive` non-optional and drops Raven's NULL test and its `return`, so the round keeps `var node: Node? = node` and Raven's test.
+
+## Ledger of the open rows
+
+- R-A, the `seq[65536]` byte scratch: ruled. Raven's local becomes a zeroed `Slots<UInt8>` field of 65536 on `EngineStorage`, the static-buffer pattern of `docs/transcription.md:447`. This gives the raw base at the rule 11 site. Change: the storage field, then one `// AI:` line in each body.
+- R-B, `head` and `freelist` as `node_t **`: ruled. A `views.py` accessor row covers a pointer-to-pointer field, so the body reads and writes the slot through the view and no pointer code enters the body. Change: the row joins the table batch, and `get_ppnode` and `free_ppnode` take their signatures from the same row.
+- R-C, the parity test target: ruled. The `JKAMP_DedLogicTests` target on branch `dedicated-round-vm-interpreted` is the one host test target. Change: the huff parity test lands there after R-B and the msg `msg_hData` table.
