@@ -390,6 +390,10 @@ defines = [
     "HDC=void *",
     "HGLRC=void *",
     "DECLARE_HANDLE(name)=typedef void *name",
+    # WinVars_t of win_local.h holds these Windows types, and OSVERSIONINFO takes the layout of the Windows SDK's OSVERSIONINFOA.
+    "HINSTANCE=void *",
+    "HWND=void *",
+    "OSVERSIONINFO=struct { unsigned int dwOSVersionInfoSize; unsigned int dwMajorVersion; unsigned int dwMinorVersion; unsigned int dwBuildNumber; unsigned int dwPlatformId; char szCSDVersion[128]; }",
 ]
 flags = [
     "-fdeclspec",
