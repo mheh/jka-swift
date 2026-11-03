@@ -37,3 +37,12 @@ The module `shasum` was `fac7507823e0501a52447a944592f7dd941d1b21`.
 4. The green test requires `REF REPLAY END` on both sides, so a run with `FRAMES` at or below the last record frame is never green. Section 3 sets this test only when `N` passes the last record. Proposed: keep it, because every claimed corpus runs to its end.
 5. The step diff prints its first 20 lines only, so a long mismatch shows its start. The full streams stay in `/tmp/jka-referee/a.steps` and `b.steps`.
 6. The `SEAM` probe lines of the probe commit did not appear in the host log of this run, so the `grep -o` filter had no probe line to drop.
+
+## The ledger
+
+- Row 1, ratified as a fact. The script takes both host paths as arguments.
+- Row 2, ratified as a fact. The green run proves two fork processes agree on the corpus under clock seeds, as row H11 of the referee docket states, and proves no Swift host yet.
+- Row 3, ratified as proposed. The three defaults stay, and a duel corpus runs with `GAMETYPE=3`.
+- Row 4, ratified as proposed. A claimed corpus runs to its end.
+- Row 5, ratified as a fact.
+- Row 6, ratified as a fact.
