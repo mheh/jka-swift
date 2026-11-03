@@ -487,16 +487,16 @@ func CG_Text_Paint(_ x: Float, _ y: Float, _ scale: Float, _ color: JKAShared.ve
         iStyleOR = STYLE_BLINK
 
     case ITEM_TEXTSTYLE_SHADOWED:
-        iStyleOR = Int32(STYLE_DROPSHADOW)
+        iStyleOR = Int32(bitPattern: STYLE_DROPSHADOW)
 
     case ITEM_TEXTSTYLE_OUTLINED:
-        iStyleOR = Int32(STYLE_DROPSHADOW)
+        iStyleOR = Int32(bitPattern: STYLE_DROPSHADOW)
 
     case ITEM_TEXTSTYLE_OUTLINESHADOWED:
-        iStyleOR = Int32(STYLE_DROPSHADOW)
+        iStyleOR = Int32(bitPattern: STYLE_DROPSHADOW)
 
     case ITEM_TEXTSTYLE_SHADOWEDMORE:
-        iStyleOR = Int32(STYLE_DROPSHADOW)
+        iStyleOR = Int32(bitPattern: STYLE_DROPSHADOW)
 
     default:
         break
