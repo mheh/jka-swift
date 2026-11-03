@@ -37,3 +37,30 @@ The record of stage 2 of the dedicated server, the package shell, on the branch 
 11. `CPUSTRING` follows Raven's arms per platform: `MacOSX-other` on macOS (`oracle/codemp/game/q_shared.h:197`) and `linux-other` on Linux (`:276`). Raven defines none for a 64-bit Windows build, and the shell uses `win-x86` there under a `Port-note:` (`Sources/jampded/main.swift:17-19`).
 12. `Q3_VERSION` is the `(internal)` arm of `oracle/codemp/qcommon/game_version.h:11`, because WinDed Release defines no `FINAL_BUILD` (`oracle/codemp/WinDed.vcproj:32`). The shell holds the text as a literal (`Sources/jampded/main.swift:7`), because the merged macro is only in `Sources/CJKAMP_UI/include/codemp/qcommon/game_version/constants.h:7` and the shell imports no MP header.
 13. The `vmMain` pointer type has a fixed count of 12 words under a `Port-note:` (`Sources/CJKAHost/include/jka_host.h:21-22`), where Raven's `entryPoint` is variadic (`oracle/codemp/qcommon/vm_local.h:123`) and `VM_Call` passes 16 words (`oracle/codemp/qcommon/vm.cpp:816-819`).
+
+## The ledger
+
+The user delegated the rows on 2026-11-03 with the words "remember to prove the rows and auto rule. match existing codebase patterns in reference to the rows". A proving agent opened every citation, the coordinator read the failures and the sources below, and each ruling takes the form the game and cgame already use for the same shape.
+
+- Row 1, ratified. The `// AI:` line names the mechanism, as rule 24 says.
+- Row 2, replaced. The `count` parameter goes. The installed pointer takes Raven's form, `intptr_t (*)(const intptr_t *parms)`, because the callee always passes the full array and the port adds no parameter without a counterpart.
+- Row 3, replaced. The array holds 16 words, Raven's count at `vm.cpp:366`, with the Source line on it.
+- Row 4, ratified. The read of 14 words on every call is Raven's form and stays. The sentence on the test results cites the gate section of this record.
+- Row 5, ratified. The C file calls `dllEntry( VM_DllSyscall )` itself.
+- Row 6, ratified. The one `unsafeFlags` sits on a test target, which no dependent package builds, so a fork's mod target does not meet it. The record says so in place of the uncited sentence.
+- Row 7, ratified. `dlclose` on a failed lookup is Raven's `FreeLibrary` and stays.
+- Row 8, parked for the CI row of E12, which is the user's by the CI ruling.
+- Row 9, parked with row 8.
+- Row 10, ratified. The compile date stays out, with the `// AI:` line that is there.
+- Row 11, ratified. `win-x86` on a 64-bit Windows build is rule 19, and rule 24 says a rule 19 note keeps its `Port-note:` prefix, so the site stays as it is. The coordinator first ruled an `// AI:` line here and withdrew it on the agent's read of rule 24.
+- Row 12, ratified. The literal stays until `CJKAMP_Ded` lands under `Sources/` with the engine's `game_version` constants, then the shell reads the macro, in the commit of row T3.
+- Row 13, ratified. The pointer type matches the Swift module's `vmMain` of twelve words.
+
+## The rows landed
+
+Two commits on the branch `dedicated-shell-rows` changed the code of `Sources/CJKAHost/`.
+
+- b52a9c4 is row 2. The pointer `jka_systemcall_fn` takes Raven's form, and the test follows.
+- c1a2ecc is row 3. The array in `VM_DllSyscall` holds 16 words, with a Source line at `vm.cpp:366`.
+
+Row 11 stays under its `Port-note:` by rule 24, so `Sources/jampded/main.swift` has no change.
