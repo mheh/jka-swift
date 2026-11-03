@@ -970,6 +970,20 @@ class Statements:
                 return [f"{pad}{target} {op} {value}" + self.trailing(cur)]
         if self.is_call(cur) and self.callee_name(cur) in RECORD_CALLS:
             return self.record_bytes(cur, depth)
+        if self.is_call(cur) and re.match(r"va_(start|end)\s*\(", self.source.slice(cur.extent).strip()):
+            # Raven's `va_start` and `va_end` drop under the variadic form, because the Swift function holds its arguments as `args`.
+            rest = self.trailing_comment(cur)
+            return roled([f"{pad}{rest}"], "comment") if rest else []
+        if self.is_call(cur) and self.callee_name(cur) == "vsprintf":
+            # Raven's `vsprintf(buf, fmt, argptr)` into a `char buf[N]` copies the formatted text into the buffer, which keeps its N bytes.
+            # The module name stands before `format`, because a parameter of that name hides the function.
+            target, fmt = [self.strip(a) for a in list(cur.get_children())[1:3]]
+            if not self.is_charbuf(target):
+                raise Hole("Raven's `vsprintf` writes into a target that is not a `char buf[N]`.")
+            text = self.expr(fmt)
+            if self.is_charbuf(fmt):
+                text = f"String({text})"
+            return [f"{pad}strcpy(&{self.expr(target)}, JKAShared.format({text}, args))" + self.trailing(cur)]
         if self.is_call(cur) and self.callee_name(cur) in DROPPED:
             # `assert` is `((void)0)` under Raven's NDEBUG build, so the body drops it, by "assert".
             rest = self.trailing_comment(cur)

@@ -1018,6 +1018,9 @@ class Table:
             return ("read", None)
         if parent.kind == CursorKind.CONDITIONAL_OPERATOR and kids and self.same_extent(kids[0], inner):
             return ("read", None)
+        if any(c.kind == CursorKind.CALL_EXPR and c.spelling.startswith("__builtin_va_") for c in chain[depth:depth + 3]):
+            # Raven's `va_start(argptr, format)` names the last fixed parameter to find the variadic ones, and reads no byte of it.
+            return ("read", None)
         return ("unknown", None)
 
     @staticmethod
@@ -1109,6 +1112,9 @@ class Table:
         args = kids[1:]
         position = next((i for i, a in enumerate(args) if self.same_extent(a, inner)), None)
         callee = call.referenced
+        if call.spelling.startswith("__builtin_va_"):
+            # Raven's `va_start(argptr, format)` names the last fixed parameter to find the variadic ones, and reads no byte of it.
+            return ("read", None)
         if position is None or callee is None or callee.kind != CursorKind.FUNCTION_DECL:
             return ("unknown", None)
         name = callee.spelling

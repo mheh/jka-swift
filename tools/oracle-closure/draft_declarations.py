@@ -320,6 +320,9 @@ class Declarations:
         return out
 
     def declaration(self, var: ci.Cursor) -> str:
+        if var.type.spelling == "va_list":
+            # Raven's `va_list argptr` drops under the variadic form, because the Swift function holds its arguments as `args`.
+            return ""
         if var.spelling in self.chosen_locals:
             # The local only names one of the file-scope variables, and the nested function's inout parameter is that name.
             return ""
