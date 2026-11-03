@@ -53,9 +53,7 @@ private func CG_DistortionOrb(_ cent: Centity) {
         vectoangles(ent.axis[0], &ang)
         ang[ROLL] = Float(cent.trickAlpha)
         cent.trickAlpha += 16 //spin the half-sphere to give a "screwdriver" effect
-        // Port-note: The draft of this statement did not compile, and the compiler wrote "'&' used with non-inout argument of type 'Slots<vec3_t>' (aka 'Slots<SIMD3<Float>>')".
-        // Raven wrote: AnglesToAxis(ang, ent.axis)
-        portMissing("CG_DistortionOrb", source: "oracle/codemp/cgame/fx_heavyrepeater.c:45")
+        AnglesToAxis(ang, ent.axis)
 
         //radius must be a power of 2, and is the actual captured texture size
         if vLen < 128 {
