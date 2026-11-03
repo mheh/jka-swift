@@ -85,10 +85,10 @@ public struct DisplayContextDef: Hashable, HandleView {
 
     /// Calls the stored `setColor` function through the C pointer, with the caller's arguments, as Raven's `pm->setColor(...)` did.
     /// A NULL `setColor` traps with the field's name, as Raven's call through the pointer would crash.
-    public func runSetColor(_ v: JKAShared.vec4_t) {
+    public func runSetColor(_ v: JKAShared.vec4_t?) {
         precondition(self.raw.pointee.setColor != nil, "setColor is NULL")
-        withUnsafePointer(to: v) { v in
-            self.setColor!(OpaquePointer(v))
+        withUnsafePointer(to: v ?? .zero) { vPointer in
+            self.setColor!(v == nil ? nil : OpaquePointer(vPointer))
         }
     }
 
@@ -469,9 +469,18 @@ public struct DisplayContextDef: Hashable, HandleView {
 
     /// Calls the stored `runScript` function through the C pointer, with the caller's arguments, as Raven's `pm->runScript(...)` did.
     /// A NULL `runScript` traps with the field's name, as Raven's call through the pointer would crash.
-    public func runRunScript(_ p: OpaquePointer?) {
+    public func runRunScript(_ p: inout JKAShared.TextCursor) {
         precondition(self.raw.pointee.runScript != nil, "runScript is NULL")
-        self.runScript!(p)
+        var bytes = p.buf
+        let start = p.offset
+        let (offset, result) = bytes.withUnsafeMutableRawPointer { base -> (Int32?, Void) in
+            var pointer: UnsafeMutablePointer<CChar>? = start.map { base.assumingMemoryBound(to: CChar.self) + Int($0) }
+            let result: Void = withUnsafeMutablePointer(to: &pointer) { cursorAddress in self.runScript!(OpaquePointer(cursorAddress)) }
+            return (pointer.map { Int32(UnsafeMutableRawPointer($0) - base) }, result)
+        }
+        p.buf = bytes
+        p.offset = offset
+        _ = result
     }
 
     /// Source: oracle/codemp/ui/ui_shared.h:430
@@ -483,9 +492,18 @@ public struct DisplayContextDef: Hashable, HandleView {
     /// Calls the stored `deferScript` function through the C pointer, with the caller's arguments, as Raven's `pm->deferScript(...)` did.
     /// A NULL `deferScript` traps with the field's name, as Raven's call through the pointer would crash.
     @discardableResult
-    public func runDeferScript(_ p: OpaquePointer?) -> Bool {
+    public func runDeferScript(_ p: inout JKAShared.TextCursor) -> Bool {
         precondition(self.raw.pointee.deferScript != nil, "deferScript is NULL")
-        return self.deferScript!(p) != 0
+        var bytes = p.buf
+        let start = p.offset
+        let (offset, result) = bytes.withUnsafeMutableRawPointer { base -> (Int32?, Bool) in
+            var pointer: UnsafeMutablePointer<CChar>? = start.map { base.assumingMemoryBound(to: CChar.self) + Int($0) }
+            let result: Bool = withUnsafeMutablePointer(to: &pointer) { cursorAddress in self.deferScript!(OpaquePointer(cursorAddress)) != 0 }
+            return (pointer.map { Int32(UnsafeMutableRawPointer($0) - base) }, result)
+        }
+        p.buf = bytes
+        p.offset = offset
+        return result
     }
 
     /// Source: oracle/codemp/ui/ui_shared.h:431
@@ -496,9 +514,11 @@ public struct DisplayContextDef: Hashable, HandleView {
 
     /// Calls the stored `getTeamColor` function through the C pointer, with the caller's arguments, as Raven's `pm->getTeamColor(...)` did.
     /// A NULL `getTeamColor` traps with the field's name, as Raven's call through the pointer would crash.
-    public func runGetTeamColor(_ color: OpaquePointer?) {
+    public func runGetTeamColor(_ color: inout JKAShared.vec4_t) {
         precondition(self.raw.pointee.getTeamColor != nil, "getTeamColor is NULL")
-        self.getTeamColor!(color)
+        withUnsafeMutablePointer(to: &color) { color in
+            self.getTeamColor!(OpaquePointer(color))
+        }
     }
 
     /// Source: oracle/codemp/ui/ui_shared.h:432
@@ -509,10 +529,12 @@ public struct DisplayContextDef: Hashable, HandleView {
 
     /// Calls the stored `getCVarString` function through the C pointer, with the caller's arguments, as Raven's `pm->getCVarString(...)` did.
     /// A NULL `getCVarString` traps with the field's name, as Raven's call through the pointer would crash.
-    public func runGetCVarString(_ cvar: String, _ buffer: OpaquePointer?, _ bufsize: Int32) {
+    public func runGetCVarString(_ cvar: String, _ buffer: inout JKAShared.CharBuf, _ bufsize: Int32) {
         precondition(self.raw.pointee.getCVarString != nil, "getCVarString is NULL")
         withCString(cvar) { cvar in
-            self.getCVarString!(OpaquePointer(cvar), buffer, bufsize)
+            buffer.withUnsafeMutableRawPointer { buffer in
+                self.getCVarString!(OpaquePointer(cvar), OpaquePointer(buffer), bufsize)
+            }
         }
     }
 
@@ -615,7 +637,7 @@ public struct DisplayContextDef: Hashable, HandleView {
     /// Calls the stored `ownerDrawHandleKey` function through the C pointer, with the caller's arguments, as Raven's `pm->ownerDrawHandleKey(...)` did.
     /// A NULL `ownerDrawHandleKey` traps with the field's name, as Raven's call through the pointer would crash.
     @discardableResult
-    public func runOwnerDrawHandleKey(_ ownerDraw: Int32, _ flags: Int32, _ special: inout JKAShared.vec3_t, _ key: Int32) -> Bool {
+    public func runOwnerDrawHandleKey(_ ownerDraw: Int32, _ flags: Int32, _ special: inout Float, _ key: Int32) -> Bool {
         precondition(self.raw.pointee.ownerDrawHandleKey != nil, "ownerDrawHandleKey is NULL")
         return withUnsafeMutablePointer(to: &special) { special in
             self.ownerDrawHandleKey!(ownerDraw, flags, OpaquePointer(special), key) != 0
@@ -644,9 +666,16 @@ public struct DisplayContextDef: Hashable, HandleView {
 
     /// Calls the stored `feederItemText` function through the C pointer, with the caller's arguments, as Raven's `pm->feederItemText(...)` did.
     /// A NULL `feederItemText` traps with the field's name, as Raven's call through the pointer would crash.
-    public func runFeederItemText(_ feederID: Float, _ index: Int32, _ column: Int32, _ handle1: OpaquePointer?, _ handle2: OpaquePointer?, _ handle3: OpaquePointer?) {
+    @discardableResult
+    public func runFeederItemText(_ feederID: Float, _ index: Int32, _ column: Int32, _ handle1: inout Int32, _ handle2: inout Int32, _ handle3: inout Int32) -> String? {
         precondition(self.raw.pointee.feederItemText != nil, "feederItemText is NULL")
-        self.feederItemText!(feederID, index, column, handle1, handle2, handle3)
+        return withUnsafeMutablePointer(to: &handle1) { handle1 in
+            withUnsafeMutablePointer(to: &handle2) { handle2 in
+                withUnsafeMutablePointer(to: &handle3) { handle3 in
+                    self.feederItemText!(feederID, index, column, OpaquePointer(handle1), OpaquePointer(handle2), OpaquePointer(handle3)).map { cString(at: UnsafeRawPointer($0)) }
+                }
+            }
+        }
     }
 
     /// Source: oracle/codemp/ui/ui_shared.h:442
@@ -685,9 +714,11 @@ public struct DisplayContextDef: Hashable, HandleView {
 
     /// Calls the stored `keynumToStringBuf` function through the C pointer, with the caller's arguments, as Raven's `pm->keynumToStringBuf(...)` did.
     /// A NULL `keynumToStringBuf` traps with the field's name, as Raven's call through the pointer would crash.
-    public func runKeynumToStringBuf(_ keynum: Int32, _ buf: OpaquePointer?, _ buflen: Int32) {
+    public func runKeynumToStringBuf(_ keynum: Int32, _ buf: inout JKAShared.CharBuf, _ buflen: Int32) {
         precondition(self.raw.pointee.keynumToStringBuf != nil, "keynumToStringBuf is NULL")
-        self.keynumToStringBuf!(keynum, buf, buflen)
+        buf.withUnsafeMutableRawPointer { buf in
+            self.keynumToStringBuf!(keynum, OpaquePointer(buf), buflen)
+        }
     }
 
     /// Source: oracle/codemp/ui/ui_shared.h:445
@@ -698,9 +729,11 @@ public struct DisplayContextDef: Hashable, HandleView {
 
     /// Calls the stored `getBindingBuf` function through the C pointer, with the caller's arguments, as Raven's `pm->getBindingBuf(...)` did.
     /// A NULL `getBindingBuf` traps with the field's name, as Raven's call through the pointer would crash.
-    public func runGetBindingBuf(_ keynum: Int32, _ buf: OpaquePointer?, _ buflen: Int32) {
+    public func runGetBindingBuf(_ keynum: Int32, _ buf: inout JKAShared.CharBuf, _ buflen: Int32) {
         precondition(self.raw.pointee.getBindingBuf != nil, "getBindingBuf is NULL")
-        self.getBindingBuf!(keynum, buf, buflen)
+        buf.withUnsafeMutableRawPointer { buf in
+            self.getBindingBuf!(keynum, OpaquePointer(buf), buflen)
+        }
     }
 
     /// Source: oracle/codemp/ui/ui_shared.h:446

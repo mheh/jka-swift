@@ -1,4 +1,4 @@
-/// This file holds the libc names Raven calls: `atoi`, `atof`, `strlen`, `strcpy`, `strncpy`, `strcat`, `strcmp`, `strchr`, `strstr`, `memset`, `tolower`, and `toupper`.
+/// This file holds the libc names Raven calls: `atoi`, `atof`, `strlen`, `strcpy`, `strncpy`, `strcat`, `strcmp`, `strchr`, `strstr`, `memset`, `memmove`, `tolower`, and `toupper`.
 /// A ported body spells the call as Raven wrote it, over `CharBuf`, `String`, or `PooledString`.
 /// Each function works over raw bytes, with C semantics, and a `String` argument reaches its bytes through `CharBuf(_ string:)`.
 /// `atof` returns `Double` as C's does, and the rest narrow to `Int32` once inside.
@@ -359,6 +359,24 @@ public func memset(_ buf: inout CharBuf, _ value: Int32, _ count: Int32) {
     buf.withMutableBytes { bytes in
         for i in 0..<Int(count) {
             bytes[i] = UInt8(truncatingIfNeeded: value)
+        }
+    }
+}
+
+// MARK: - memmove
+
+/// This copies `count` bytes from byte `sourceOffset` of `buf` to byte `offset` of the same buffer, Raven's `memmove(buf + offset, buf + sourceOffset, count)`.
+/// The two ranges can overlap, so the copy reads every source byte before it writes, as if through a temporary, and a range past the end traps.
+public func memmove(_ buf: inout CharBuf, _ sourceOffset: some BinaryInteger, _ count: some BinaryInteger, at offset: some BinaryInteger) {
+    let start = Int(offset)
+    let sourceStart = Int(sourceOffset)
+    let limit = Int(count)
+    precondition(limit >= 0 && start >= 0 && sourceStart >= 0, "memmove: negative offset or count")
+    precondition(start + limit <= buf.count && sourceStart + limit <= buf.count, "memmove: count past the end of the buffer")
+    buf.withMutableBytes { bytes in
+        let source = Array(bytes[sourceStart ..< sourceStart + limit])
+        for i in 0..<limit {
+            bytes[start + i] = source[i]
         }
     }
 }

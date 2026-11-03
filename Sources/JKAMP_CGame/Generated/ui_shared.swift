@@ -211,15 +211,6 @@ public let MAX_LB_COLUMNS = CJKAMP_CGame.MAX_LB_COLUMNS
 /// Source: oracle/codemp/ui/ui_shared.h:198
 public let MAX_MULTI_CVARS = CJKAMP_CGame.MAX_MULTI_CVARS
 
-/// Source: oracle/codemp/ui/ui_shared.h:242
-public let ITEM_ALIGN_LEFT = CJKAMP_CGame.ITEM_ALIGN_LEFT
-
-/// Source: oracle/codemp/ui/ui_shared.h:243
-public let ITEM_ALIGN_CENTER = CJKAMP_CGame.ITEM_ALIGN_CENTER
-
-/// Source: oracle/codemp/ui/ui_shared.h:244
-public let ITEM_ALIGN_RIGHT = CJKAMP_CGame.ITEM_ALIGN_RIGHT
-
 /// Source: oracle/codemp/ui/ui_shared.h:246
 public let CVAR_ENABLE = CJKAMP_CGame.CVAR_ENABLE
 

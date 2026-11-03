@@ -6,4 +6,10 @@
 // Source: oracle/codemp/cgame/cg_main.c:3393
 extern BG_field_t cg_spawnFields[14];
 
+// Source: oracle/codemp/ui/ui_shared.c:5190
+extern bind_t g_bindings[96];
+
+// Source: oracle/codemp/ui/ui_shared.c:157
+extern itemFlagsDef_t itemFlags[2];
+
 #endif

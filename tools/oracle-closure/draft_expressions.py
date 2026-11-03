@@ -12,7 +12,7 @@ from clang.cindex import CursorKind, TypeKind
 
 from spelling import Facts, UNSIGNED, VECTORS
 
-from rulings import PARAMS, HAND_MACROS, HAND_VARS, WRAPPING_ARITHMETIC
+from rulings import PARAMS, HAND_MACROS, HAND_VARS, RETURNS, WRAPPING_ARITHMETIC
 from overlay import MACRO_RETURNS, MACROS
 import closure as C
 from skeleton import BG, LOGIC, VIEWS, target_of
@@ -258,6 +258,10 @@ class Expressions:
     def empty_test(self, cur: ci.Cursor) -> str | None:
         """The Swift name of a String parameter under Raven's `s[0]`, or None."""
         inner = self.unwrap(cur)
+        if inner.kind == CursorKind.UNARY_OPERATOR and self.operator_or_none_unary(inner) == "*" \
+                and self.pooled_field(self.unwrap(self.unary_parts(inner)[2])):
+            # Raven's `*item->enableCvar` reads the first byte of a `char *` field, the same test as `item->enableCvar[0]`.
+            return f"{self.expr(self.unwrap(self.unary_parts(inner)[2]))}!"
         if inner.kind != CursorKind.ARRAY_SUBSCRIPT_EXPR:
             return None
         base, index = list(inner.get_children())
@@ -581,7 +585,7 @@ class Expressions:
                 slot = self.unwrap(operand)
                 if slot.kind == CursorKind.ARRAY_SUBSCRIPT_EXPR:
                     base, index = list(slot.get_children())
-                    if HAND_VARS.get(self.unwrap(base).spelling) is not None:
+                    if HAND_VARS.get(self.unwrap(base).spelling) is not None and not HAND_VARS[self.unwrap(base).spelling].startswith("["):
                         # `&bg_pool[i]` is a pointer into the raw allocation, and the raw pointer advances by the offset.
                         return f"{HAND_VARS[self.unwrap(base).spelling]} + ({self.converted(index, 'Int32')})"
                 # The address of a value is the value in Swift, and the call site adds `&` where a parameter is inout.
@@ -599,7 +603,17 @@ class Expressions:
                 if raw is not None:
                     # Raven's `*(char **)(b+ofs)` reads the slot at that byte offset, the same subscript his store writes.
                     return self.raw_slot(raw)
+                if self.string_field(inner):
+                    # Raven's `*token.string` on a view's `char name[N]` field is its first byte, which the field's Buffer accessor reads.
+                    return self.leaf(cur, f"{self.buffer_expr(inner)}[0]")
+                if inner.kind == CursorKind.DECL_REF_EXPR and inner.spelling in self.text_locals:
+                    # Raven's `*textPtr` reads the first byte of the text, which the CharBuf of the text reads.
+                    bang = "!" if inner.spelling in self.optional_texts else ""
+                    return self.leaf(cur, f"JKAShared.CharBuf({self.expr(inner)}{bang})[0]")
                 raise Hole("A pointer dereference the draft cannot place.")
+            if (cur.extent.start.offset, cur.extent.end.offset) in getattr(self, "deferred_steps", set()):
+                # The statement steps the variable on its next line, so the subscript reads the old value.
+                return self.expr(operand)
             raise Hole(f"A {op} inside an expression.")
         if kind == CursorKind.BINARY_OPERATOR:
             op = self.binary_op(cur)
@@ -769,7 +783,7 @@ class Expressions:
             fields = [field for field, pairs in self.sk.stores.items() if any(stored == name for stored, _ in pairs)]
             if len(fields) == 1:
                 return f"{fields[0][0].upper()}{fields[0][1:]}.{swift_name(name)}"
-        if HAND_VARS.get(name) is not None:
+        if HAND_VARS.get(name) is not None and not HAND_VARS[name].startswith("["):
             return HAND_VARS[name]
         if ref is not None and ref.kind == CursorKind.VAR_DECL and ref.semantic_parent is not None and ref.semantic_parent.kind == CursorKind.TRANSLATION_UNIT:
             self.reach(name, "variable")
@@ -972,6 +986,12 @@ class Expressions:
                 ruled = PARAMS.get((self.fn.raven_name, self.strip(operand).spelling)) if self.strip(operand).kind == CursorKind.DECL_REF_EXPR else None
                 if ruled == ("view", record):
                     # The PARAMS row already gives the `void *` parameter the view of this record, so the cast is the parameter.
+                    return self.expr(operand)
+                if self.field_kind(operand) == ("view", record):
+                    # The FIELDS row already gives the `void *` field the view of this record, so the cast is the field.
+                    return self.expr(operand)
+                if self.strip(operand).kind == CursorKind.CALL_EXPR and RETURNS.get(self.callee_name(self.strip(operand)) or "") == ("view", record):
+                    # The RETURNS row already gives the `void *` return the view of this record, so the cast is the call.
                     return self.expr(operand)
                 if self.types.record_name(self.strip(operand).type.get_canonical().get_pointee()) == record:
                     # A cast to the type the operand already has is Raven's habit, and the view is the same view.

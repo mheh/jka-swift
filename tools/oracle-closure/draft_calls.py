@@ -89,6 +89,9 @@ class Calls:
         args = kids[1:]
         if callee is not None and callee.kind == CursorKind.DECL_REF_EXPR and callee.referenced is not None and callee.referenced.kind == CursorKind.FUNCTION_DECL:
             name = callee.spelling
+            if name == "vsprintf":
+                # The statement form copies the formatted text into the buffer. A read of the count it returns has no form yet.
+                raise Hole("Raven reads the count `vsprintf` returns, and the variadic form has no count.")
             if name in MACROS:
                 return self.macro_call(name, args)
             if name == "FOFS":
@@ -151,6 +154,9 @@ class Calls:
             if callee.kind == CursorKind.DECL_REF_EXPR and (self.params_by_name.get(callee.spelling, Param("", None, "")).swift or "").endswith(")?"):
                 # A callback parameter is an optional closure, and Raven calls it under his `if (localTrace)` guard.
                 return f"{self.expr(callee)}?({', '.join(words)})"
+            if callee.kind == CursorKind.DECL_REF_EXPR and self.registry.var_types.get(swift_name(callee.spelling), "").endswith(")?"):
+                # A file-scope stored function is an optional closure, and the call traps where Raven's call through NULL would crash.
+                return f"{self.expr(callee)}!({', '.join(words)})"
             return f"{self.expr(callee)}({', '.join(words)})"
         raise Hole("A call with no callee.")
 
@@ -465,6 +471,10 @@ class Calls:
                 return f"{text}.{first[0]}!" if first[1] else f"{text}.{first[0]}"
             raven = " ".join(self.bytes[cur.extent.start.offset:cur.extent.end.offset].decode("utf-8", "replace").split())
             raise Hole(f"Raven passes the record `{raven}` in a format argument list, and a view is no FormatArg.")
+        if inout and inner.kind == CursorKind.MEMBER_REF_EXPR and inner.type.get_canonical().kind == TypeKind.CONSTANTARRAY \
+                and self.views.is_vec3(self.views.element_type(inner.type)) and self.overload_takes(callee, position, "Slots<vec3_t>"):
+            # The view holds Raven's `vec3_t axis[3]` field as its Slots, and the forward of that name takes the Slots by value.
+            return text
         return f"&{text}" if inout else text
 
     def four_floats(self, cur: ci.Cursor) -> bool:

@@ -552,14 +552,14 @@ func CG_NoUseableForce() -> Bool {
 
 /// Source: oracle/codemp/cgame/cg_main.c:362
 private func C_PointContents() -> Int32 {
-    let data = CGPointContents(handle: OpaquePointer(cg.sharedBuffer))
+    let data = CGPointContents(cg.sharedBuffer)
 
     return CG_PointContents(data.mPoint, data.mPassEntityNum)
 }
 
 /// Source: oracle/codemp/cgame/cg_main.c:369
 private func C_GetLerpOrigin() {
-    let data = CGVectorData(handle: OpaquePointer(cg.sharedBuffer))
+    let data = CGVectorData(cg.sharedBuffer)
 
     data.mPoint = cg_entities[data.mEntityNum].lerpOrigin
 }
@@ -567,7 +567,7 @@ private func C_GetLerpOrigin() {
 /// Source: oracle/codemp/cgame/cg_main.c:376
 private func C_GetLerpData() {
     //only used by FX system to pass to getboltmat
-    let data = CGGetBoltData(handle: OpaquePointer(cg.sharedBuffer))
+    let data = CGGetBoltData(cg.sharedBuffer)
 
     data.mOrigin = cg_entities[data.mEntityNum].lerpOrigin
     data.mScale = cg_entities[data.mEntityNum].modelScale
@@ -596,21 +596,21 @@ private func C_GetLerpData() {
 
 /// Source: oracle/codemp/cgame/cg_main.c:408
 private func C_Trace() {
-    let td = CGTrace(handle: OpaquePointer(cg.sharedBuffer))
+    let td = CGTrace(cg.sharedBuffer)
 
     CG_Trace(td.mResult, td.mStart, td.mMins, td.mMaxs, td.mEnd, td.mSkipNumber, td.mMask)
 }
 
 /// Source: oracle/codemp/cgame/cg_main.c:415
 private func C_G2Trace() {
-    let td = CGTrace(handle: OpaquePointer(cg.sharedBuffer))
+    let td = CGTrace(cg.sharedBuffer)
 
     CG_G2Trace(td.mResult, td.mStart, td.mMins, td.mMaxs, td.mEnd, td.mSkipNumber, td.mMask)
 }
 
 /// Source: oracle/codemp/cgame/cg_main.c:422
 private func C_G2Mark() {
-    let td = CGG2Mark(handle: OpaquePointer(cg.sharedBuffer))
+    let td = CGG2Mark(cg.sharedBuffer)
     // Raven's record lives to the end of his block, so the block is the closure.
     Trace.scratch { tr in
         var end = vec3_t()
@@ -698,21 +698,21 @@ private func CG_RagCallback(_ callType: Int32) -> Int32 {
     switch callType {
     case RAG_CALLBACK_DEBUGBOX:
         do {
-            let callData = RagCallbackDebugBox(handle: OpaquePointer(cg.sharedBuffer))
+            let callData = RagCallbackDebugBox(cg.sharedBuffer)
 
             CG_DebugBoxLines(callData.mins, callData.maxs, callData.duration)
         }
 
     case RAG_CALLBACK_DEBUGLINE:
         do {
-            let callData = RagCallbackDebugLine(handle: OpaquePointer(cg.sharedBuffer))
+            let callData = RagCallbackDebugLine(cg.sharedBuffer)
 
             CG_TestLine(callData.start, callData.end, callData.time, UInt32(bitPattern: callData.color), callData.radius)
         }
 
     case RAG_CALLBACK_BONESNAP:
         do {
-            let callData = RagCallbackBoneSnap(handle: OpaquePointer(cg.sharedBuffer))
+            let callData = RagCallbackBoneSnap(cg.sharedBuffer)
             let cent: Centity? = cg_entities[callData.entNum]
             let snapSound: Int32 = trap_S_RegisterSound(va("sound/player/bodyfall_human%i.wav", Q_irand(1, 3)))
 
@@ -728,7 +728,7 @@ private func CG_RagCallback(_ callType: Int32) -> Int32 {
 
     case RAG_CALLBACK_TRACELINE:
         do {
-            let callData = RagCallbackTraceLine(handle: OpaquePointer(cg.sharedBuffer))
+            let callData = RagCallbackTraceLine(cg.sharedBuffer)
 
             CG_Trace(callData.tr, callData.start, callData.mins, callData.maxs, callData.end, callData.ignore, callData.mask)
         }
@@ -742,7 +742,7 @@ private func CG_RagCallback(_ callType: Int32) -> Int32 {
 
 /// Source: oracle/codemp/cgame/cg_main.c:570
 private func C_ImpactMark() {
-    let data = CGImpactMark(handle: OpaquePointer(cg.sharedBuffer))
+    let data = CGImpactMark(cg.sharedBuffer)
 
     /*
     CG_ImpactMark((int)arg0, (const float *)arg1, (const float *)arg2, (float)arg3,
@@ -755,7 +755,7 @@ private func C_ImpactMark() {
 func CG_MiscEnt() {
     let modelIndex: Int32
     var RefEnt: RefEntity?
-    let data = CGMiscEnt(handle: OpaquePointer(cg.sharedBuffer))
+    let data = CGMiscEnt(cg.sharedBuffer)
     var mins = vec3_t()
     var maxs = vec3_t()
     var radiusIndex: Int32 = 0
@@ -2426,7 +2426,7 @@ func CG_Asset_Parse(_ handle: Int32) -> Bool {
             }
 
             if Q_stricmp(token.string, "cursor") == 0 {
-                var cursorStr: String = ""
+                var cursorStr: String? = nil
                 if !PC_String_Parse(handle, &cursorStr) {
                     return false
                 }

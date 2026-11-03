@@ -458,9 +458,13 @@ public struct CGameVariables {
     /// Source: oracle/codemp/cgame/cg_weapons.c:131
     public var cgWeapFrameTime: Int32 = 0
 
+    /// Raven's `void (*captureFunc) (void *p)` of `ui_shared.c`.
+    /// Source: oracle/codemp/ui/ui_shared.c:99
+    public var captureFunc: ((ScrollInfo?) -> Void)? = nil
+
     /// Raven's `void *captureData` of `ui_shared.c`.
     /// Source: oracle/codemp/ui/ui_shared.c:100
-    public var captureData: OpaquePointer? = nil
+    public var captureData: ScrollInfo? = nil
 
     /// Raven's `itemDef_t *itemCapture` of `ui_shared.c`.
     /// Source: oracle/codemp/ui/ui_shared.c:101
@@ -541,6 +545,10 @@ public struct CGameVariables {
     /// Raven's `char g_nameBind2[32]` of `ui_shared.c`.
     /// Source: oracle/codemp/ui/ui_shared.c:5408
     public var g_nameBind2: JKAShared.CharBuf = JKAShared.CharBuf(32)
+
+    /// Raven's `uiG2PtrTracker_t *ui_G2PtrTracker` of `ui_shared.c`.
+    /// Source: oracle/codemp/ui/ui_shared.c:7487
+    public var ui_G2PtrTracker: UiG2PtrTracker? = nil
 
     public init() {}
 }

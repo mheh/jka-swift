@@ -320,6 +320,9 @@ class Declarations:
         return out
 
     def declaration(self, var: ci.Cursor) -> str:
+        if var.type.spelling == "va_list":
+            # Raven's `va_list argptr` drops under the variadic form, because the Swift function holds its arguments as `args`.
+            return ""
         if var.spelling in self.chosen_locals:
             # The local only names one of the file-scope variables, and the nested function's inout parameter is that name.
             return ""
@@ -476,6 +479,9 @@ class Declarations:
             if record and record in self.views.views:
                 self.reachable(record)
                 view = self.views.qualified_view(record, TARGET)
+                if init and self.byte_storage_cast(init[0]) and self.uncast(init[0]).kind == CursorKind.MEMBER_REF_EXPR:
+                    # Raven's `T *data = (T *)cg.sharedBuffer` reads a view at the field's address through `init(_ raw:)`, his cast.
+                    return f"{keyword} {name} = {view}({self.expr(self.uncast(init[0]))})"
                 if init and self.byte_storage_cast(init[0]):
                     # Raven's `T *sharedMem = (T *)gSharedBuffer` reads a view at the base of a byte allocation the storage class owns.
                     return f"{keyword} {name} = {view}(handle: OpaquePointer({self.expr(self.uncast(init[0]))}))"
