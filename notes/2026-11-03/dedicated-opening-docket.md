@@ -96,7 +96,7 @@ Proposed: `unzip.cpp` ports in Swift as part of qcommon, and the inflate calls g
 - E2, ratified as proposed, 2026-11-03.
 - E3, ratified as proposed, 2026-11-03.
 - E4, ratified as proposed, 2026-11-03.
-- E5, ratified as proposed, 2026-11-03.
+- E5, ratified as proposed, 2026-11-03. Amended on 2026-11-03 after the compile scout `dedicated-cxx-link-scout.md`, under the user's delegation "rule them automatically after proving them and making sure patterns match": the C++ link set is out. Raven's 72 files compile one in 72 unedited, and the link needs edited copies of Raven's C++, four unsafe compiler flags on a library target, `extern "C"` in copied headers against rule 12, and C storage for `sv`, `svs`, and `cmg` against E4, none of which the codebase holds. Stage 1 ports qcommon, server, null, and win32 in Swift, and every syscall arm of the botlib, Ghoul2, NPCNav, ICARUS, ROFF, RMG, and terrain is a `portMissing` body, the one stub form the skeleton writes, until its subsystem ports in its own stage. The first host proof is a referee corpus with no bot and no NPC, as row H11 of the referee docket sets. An arm a corpus reaches is measured by the trap it raises, and the Ghoul2 stage opens first on that measure, as the row already orders.
 - E6, ratified as proposed, 2026-11-03.
 - E7, ratified as proposed, 2026-11-03.
 - E8, ratified as proposed, 2026-11-03.
