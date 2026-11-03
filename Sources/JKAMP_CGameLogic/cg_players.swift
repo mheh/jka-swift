@@ -3630,12 +3630,7 @@ private func CG_PlayerFlag(_ cent: Centity, _ hModel: JKAShared.qhandle_t) {
             _VectorMA(boltOrg, 24, axis[0], &ent.origin)
 
             angles[ROLL] += 20
-            // AnglesToAxis takes an array, and the view holds `axis` as a Slots, so the call fills a copy that stores back.
-            var axisCopy = [ent.axis[0], ent.axis[1], ent.axis[2]]
-            AnglesToAxis(angles, &axisCopy)
-            ent.axis[0] = axisCopy[0]
-            ent.axis[1] = axisCopy[1]
-            ent.axis[2] = axisCopy[2]
+            AnglesToAxis(angles, ent.axis)
 
             ent.hModel = hModel
 
@@ -4080,12 +4075,7 @@ private func CG_ForcePushBlur(_ org: JKAShared.vec3_t, _ cent: Centity?) {
 
             vectoangles(ent.axis[0], &ang)
             ang[ROLL] += 180.0
-            // AnglesToAxis takes an array, and the view holds `axis` as a Slots, so the call fills a copy that stores back.
-            var axisCopy = [ent.axis[0], ent.axis[1], ent.axis[2]]
-            AnglesToAxis(ang, &axisCopy)
-            ent.axis[0] = axisCopy[0]
-            ent.axis[1] = axisCopy[1]
-            ent.axis[2] = axisCopy[2]
+            AnglesToAxis(ang, ent.axis)
 
             //radius must be a power of 2, and is the actual captured texture size
             if vLen < 128 {
@@ -4274,12 +4264,7 @@ func CG_DrawPlayerShield(_ cent: Centity, _ origin: JKAShared.vec3_t) {
 
         ent.origin = origin
         ent.origin[2] = Float(Double(ent.origin[2]) + 10.0)
-        // AnglesToAxis takes an array, and the view holds `axis` as a Slots, so the call fills a copy that stores back.
-        var axisCopy = [ent.axis[0], ent.axis[1], ent.axis[2]]
-        AnglesToAxis(cent.damageAngles, &axisCopy)
-        ent.axis[0] = axisCopy[0]
-        ent.axis[1] = axisCopy[1]
-        ent.axis[2] = axisCopy[2]
+        AnglesToAxis(cent.damageAngles, ent.axis)
 
         // The SDK also declares `random`, so the call names the bg module.
         alpha = Int32(255.0 * (Double(cent.damageTime - cg.time) / MIN_SHIELD_TIME) + Double(JKAMP_BG.random() * 16))
@@ -4631,9 +4616,7 @@ func CG_GetTagWorldPosition(_ model: JKAMP.RefEntity, _ tag: String, _ pos: inou
             i += 1
         }
 
-        // Port-note: The draft of this statement did not compile, and the compiler wrote "cannot convert value of type 'Slots<vec3_t>' (aka 'Slots<SIMD3<Float>>') to expected argument type '[[Float]]'".
-        // Raven wrote: MatrixMultiply( orientation.axis, model->axis, axis )
-        portMissing("CG_GetTagWorldPosition", source: "oracle/codemp/cgame/cg_players.c:5437")
+        MatrixMultiply(Array(orientation.axis), Array(model.axis), &axis)
     }
 }
 
@@ -5624,12 +5607,7 @@ func CG_DrawPlayerSphere(_ cent: Centity, _ origin: JKAShared.vec3_t, _ scale: F
         vectoangles(ent.axis[0], &ang)
         ang[ROLL] += 180.0
         ang[PITCH] += 180.0
-        // AnglesToAxis takes an array, and the view holds `axis` as a Slots, so the call fills a copy that stores back.
-        var axisCopy = [ent.axis[0], ent.axis[1], ent.axis[2]]
-        AnglesToAxis(ang, &axisCopy)
-        ent.axis[0] = axisCopy[0]
-        ent.axis[1] = axisCopy[1]
-        ent.axis[2] = axisCopy[2]
+        AnglesToAxis(ang, ent.axis)
 
         ent.axis[0] = ent.axis[0] * scale
         ent.axis[1] = ent.axis[1] * scale
@@ -5651,12 +5629,7 @@ func CG_DrawPlayerSphere(_ cent: Centity, _ origin: JKAShared.vec3_t, _ scale: F
         }
 
         ang[PITCH] -= 180.0
-        // AnglesToAxis takes an array, and the view holds `axis` as a Slots, so the call fills a copy that stores back.
-        axisCopy = [ent.axis[0], ent.axis[1], ent.axis[2]]
-        AnglesToAxis(ang, &axisCopy)
-        ent.axis[0] = axisCopy[0]
-        ent.axis[1] = axisCopy[1]
-        ent.axis[2] = axisCopy[2]
+        AnglesToAxis(ang, ent.axis)
 
         ent.axis[0] = ent.axis[0] * (scale * 0.5)
         ent.axis[1] = ent.axis[1] * (scale * 0.5)
@@ -7716,12 +7689,7 @@ func CG_Player(_ cent: Centity) {
                                     angles[2] = 0
                                 }
 
-                                // AnglesToAxis takes an array, and the view holds `axis` as a Slots, so the call fills a copy that stores back.
-                                var axisCopy = [seeker.axis[0], seeker.axis[1], seeker.axis[2]]
-                                AnglesToAxis(angles, &axisCopy)
-                                seeker.axis[0] = axisCopy[0]
-                                seeker.axis[1] = axisCopy[1]
-                                seeker.axis[2] = axisCopy[2]
+                                AnglesToAxis(angles, seeker.axis)
 
                                 seeker.hModel = trap_R_RegisterModel("models/items/remote.md3")
                                 trap_R_AddRefEntityToScene(seeker)
@@ -8255,12 +8223,7 @@ func CG_Player(_ cent: Centity) {
                                                 angles[1] -= 360
                                             }
                                             angles[2] = 0
-                                            // AnglesToAxis takes an array, and the view holds `axis` as a Slots, so the call fills a copy that stores back.
-                                            var axisCopy = [holoRef.axis[0], holoRef.axis[1], holoRef.axis[2]]
-                                            AnglesToAxis(angles, &axisCopy)
-                                            holoRef.axis[0] = axisCopy[0]
-                                            holoRef.axis[1] = axisCopy[1]
-                                            holoRef.axis[2] = axisCopy[2]
+                                            AnglesToAxis(angles, holoRef.axis)
                                         } else if renderedHolos == 1 {
                                             // Raven's one expression is two terms here, because the compiler cannot type-check it whole in reasonable time.
                                             let timeStep: Int32 = (cg.time / 8) & 255
@@ -8282,12 +8245,7 @@ func CG_Player(_ cent: Centity) {
                                                 angles[1] -= 360
                                             }
                                             angles[2] = 0
-                                            // AnglesToAxis takes an array, and the view holds `axis` as a Slots, so the call fills a copy that stores back.
-                                            var axisCopy = [holoRef.axis[0], holoRef.axis[1], holoRef.axis[2]]
-                                            AnglesToAxis(angles, &axisCopy)
-                                            holoRef.axis[0] = axisCopy[0]
-                                            holoRef.axis[1] = axisCopy[1]
-                                            holoRef.axis[2] = axisCopy[2]
+                                            AnglesToAxis(angles, holoRef.axis)
                                         } else {
                                             // Raven's one expression is two terms here, because the compiler cannot type-check it whole in reasonable time.
                                             let timeStep: Int32 = (cg.time / 6) & 255

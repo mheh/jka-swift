@@ -299,9 +299,9 @@ enum QMathDump {
             AxisClear(&cleared)
             out += "aclear \(GoldenFormat.bits(cleared[0][0])) \(GoldenFormat.bits(cleared[1][1])) \(GoldenFormat.bits(cleared[2][2]))\n"
 
-            let m1: [[Float]] = [[a[0], a[1], a[2]], [b[0], b[1], b[2]], [c[0], c[1], c[2]]]
-            let m2: [[Float]] = [[c[0], b[1], a[2]], [a[0], c[1], b[2]], [b[0], a[1], c[2]]]
-            var product = [[Float]](repeating: [Float](repeating: 0, count: 3), count: 3)
+            let m1: [vec3_t] = [vec3_t(a[0], a[1], a[2]), vec3_t(b[0], b[1], b[2]), vec3_t(c[0], c[1], c[2])]
+            let m2: [vec3_t] = [vec3_t(c[0], b[1], a[2]), vec3_t(a[0], c[1], b[2]), vec3_t(b[0], a[1], c[2])]
+            var product = [vec3_t](repeating: vec3_t(), count: 3)
             MatrixMultiply(m1, m2, &product)
             out += "mm \(GoldenFormat.bits(product[0][0])) \(GoldenFormat.bits(product[1][1])) \(GoldenFormat.bits(product[2][2]))\n"
 
