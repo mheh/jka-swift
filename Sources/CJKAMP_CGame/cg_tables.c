@@ -143,3 +143,12 @@ itemFlagsDef_t itemFlags [] = {
 "WINDOW_INACTIVE",		WINDOW_INACTIVE,
 NULL,					(int) NULL
 };
+
+// Source: oracle/codemp/cgame/cg_draw.c:2425-2431
+veh_damage_t vehDamageData[4] = 
+{
+"vehicle_front",SHIPSURF_DAMAGE_FRONT_HEAVY,SHIPSURF_DAMAGE_FRONT_LIGHT,
+"vehicle_back",SHIPSURF_DAMAGE_BACK_HEAVY,SHIPSURF_DAMAGE_BACK_LIGHT,
+"vehicle_left",SHIPSURF_DAMAGE_LEFT_HEAVY,SHIPSURF_DAMAGE_LEFT_LIGHT,
+"vehicle_right",SHIPSURF_DAMAGE_RIGHT_HEAVY,SHIPSURF_DAMAGE_RIGHT_LIGHT,
+};
