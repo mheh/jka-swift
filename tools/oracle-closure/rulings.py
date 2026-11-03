@@ -537,9 +537,14 @@ LIBC_SPELLINGS = {"fabs": "abs", "fabsf": "abs", "stricmp": "Q_stricmp"}
 # PATH_MAX picks the arm of MAX_OSPATH at q_shared.h:394, and Windows has no PATH_MAX.
 PLATFORM_MACROS = {"PATH_MAX"}
 
-# Classes of the oracle that a C target takes as a struct of their fields, because a C struct points at them and rule 12 keeps the copied header.
+# Classes of the oracle that a C target names as a struct, because a C struct points at them and rule 12 keeps the copied header.
+# A `fields` class is a C struct of its fields, and a `tag` class is a bare struct tag in forward.h, for a class C names behind a pointer alone.
 # `clipMap_t.shaders` at cm_local.h:165 points at `CCMShader`, whose four methods are inline accessors, so the C struct leaves them out.
-C_STRUCT_CLASSES = {"CCMShader": "oracle/codemp/qcommon/cm_local.h:77"}
+# `clipMap_t.landScape` at cm_local.h:210 points at the terrain class `CCMLandScape`, which C never reads, row S6.
+C_STRUCT_CLASSES = {
+    "CCMShader": ("fields", "oracle/codemp/qcommon/cm_local.h:77"),
+    "CCMLandScape": ("tag", "oracle/codemp/qcommon/cm_landscape.h:135"),
+}
 
 # C targets whose copied headers include a C library header, as CJKASyscall includes <stdint.h>.
 # `qfile_gut` of files.h:71 holds a `FILE *`, so CJKAMP_Ded includes <stdio.h>, and its parses take the include path of the SDK, row S3.

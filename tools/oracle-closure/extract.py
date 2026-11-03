@@ -519,6 +519,8 @@ def link(decls: list[Decl], macro_names: dict[str, Decl]) -> None:
         if through_pointer:
             record = dep.record()
             is_class = record is not None and record.kind in (CursorKind.CLASS_DECL, CursorKind.CLASS_TEMPLATE)
+            if is_class and C_STRUCT_CLASSES.get(dep.name, ("",))[0] == "tag":
+                return
             if not is_class and (dep.forward_only or (record is not None and record.kind in RECORD_KINDS and tag_of(record))):
                 return
         if os.environ.get("EXTRACT_DEBUG") == decl.name:
@@ -907,7 +909,7 @@ def emit(module: str, out_dir: Path, check: bool, triples: list[str]) -> int:
         NOTES.append(f"{d.cite} macro {d.name} stays in its header, because an enum of an included header names {d.name}")
     decls = [d for d in decls if d not in clashing]
     for d in decls:
-        if d.kind == "class" and d.name in C_STRUCT_CLASSES:
+        if d.kind == "class" and C_STRUCT_CLASSES.get(d.name, ("",))[0] == "fields":
             # The struct holds the fields alone, each in Raven's text with `struct` in the place of `class`.
             lines = lines_of(d.file)
             fields = [re.sub(r"\bclass\b", "struct", lines[f.extent.start.line - 1][f.extent.start.column - 1:f.extent.end.column - 1])
@@ -949,6 +951,10 @@ def emit(module: str, out_dir: Path, check: bool, triples: list[str]) -> int:
     for decl in decls:
         record = decl.record() if decl.kind != "macro" else None
         tag = tag_of(record) if record is not None and record.kind in RECORD_KINDS else None
+        if tag is not None and C_STRUCT_CLASSES.get(decl.name, ("",))[0] == "tag":
+            # A class C names behind a pointer alone is a bare struct tag, with the typedef that lets C name it without the keyword.
+            forward += [f"struct {tag};", f"typedef struct {tag} {tag};"]
+            continue
         # A C++ struct still gets its tag and typedef lines, because a C struct may point at it, and a pointer needs only the name.
         # A class does not, because `class X;` is not C.
         if tag is None or (decl.filename in cxx_files and record.kind != CursorKind.STRUCT_DECL and record.kind != CursorKind.UNION_DECL):
