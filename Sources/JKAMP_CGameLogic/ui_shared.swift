@@ -265,10 +265,7 @@ UI_Alloc
 ```
 */
 /// Source: oracle/codemp/ui/ui_shared.c:209
-// TODO: Port signature
-// Raven wrote: void *UI_Alloc( int size )
-// No table row for the return `void *`.
-func UI_Alloc() -> Never {
+func UI_Alloc(_ size: Int32) -> UnsafeMutableRawPointer {
     // TODO: Port UI_Alloc
     portMissing("UI_Alloc", source: "oracle/codemp/ui/ui_shared.c:209")
 }
