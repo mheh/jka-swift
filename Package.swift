@@ -9,6 +9,7 @@ let package = Package(
     products: [
         .library(name: "jampgame", type: .dynamic, targets: ["jampgame"]),
         .library(name: "cgame", type: .dynamic, targets: ["cgame"]),
+        .executable(name: "jampded", targets: ["jampded"]),
     ],
     targets: [
         // MARK: - C, the syscall shim
@@ -58,6 +59,8 @@ let package = Package(
         // dllEntry and vmMain. It decodes words and calls the bare functions.
         .target(name: "jampgame", dependencies: ["JKAMP_GameLogic"]),
         .target(name: "cgame", dependencies: ["JKAMP_CGameLogic"]),
+        // The dedicated server. It holds main, and it becomes the jampded executable.
+        .executableTarget(name: "jampded", dependencies: ["CJKAHost", "JKAShared"]),
         // The dlopen loader, run in its own process, so the smoke test never loads the built library into the test process.
         .executableTarget(name: "jampsmoke", dependencies: ["CJKASyscall"]),
 
