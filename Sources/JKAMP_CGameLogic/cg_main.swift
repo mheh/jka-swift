@@ -2471,9 +2471,16 @@ func CG_Asset_Parse(_ handle: Int32) -> Bool {
             }
 
             if Q_stricmp(token.string, "shadowColor") == 0 {
-                // Port-note: The draft of this statement did not compile, and the compiler wrote "cannot convert value of type 'Slots<Float>' to expected argument type 'vec4_t' (aka 'SIMD4<Float>')".
-                // Raven wrote: if (!PC_Color_Parse(handle, &cgDC.Assets.shadowColor)) { return qfalse; }
-                portMissing("CG_Asset_Parse", source: "oracle/codemp/cgame/cg_main.c:2592")
+                // PC_Color_Parse takes a vec4_t, and the view holds `shadowColor` as a Slots, so the call fills a copy that stores back.
+                var shadowColor = vec4_t(cgDC.Assets.shadowColor[0], cgDC.Assets.shadowColor[1], cgDC.Assets.shadowColor[2], cgDC.Assets.shadowColor[3])
+                let parsed = PC_Color_Parse(handle, &shadowColor)
+                cgDC.Assets.shadowColor[0] = shadowColor[0]
+                cgDC.Assets.shadowColor[1] = shadowColor[1]
+                cgDC.Assets.shadowColor[2] = shadowColor[2]
+                cgDC.Assets.shadowColor[3] = shadowColor[3]
+                if !parsed {
+                    return false
+                }
                 cgDC.Assets.shadowFadeClamp = cgDC.Assets.shadowColor[3]
                 continue
             }
