@@ -94,7 +94,7 @@ An enum of that last kind is `private let` constants of type `Int32` at the top 
 | a `vec2_t name[N]` parameter | `inout [vec2_t]`, the form of the axis row, `uv` of `CG_CalcBiLerp` |
 | a non-const `char *` parameter of a function that is not a trap, with or without a size parameter beside it | `String` when the text sweep reads every use, `String?` when the NULL sweep also reaches it, and `inout CharBuf` otherwise, where the caller passes its own buffer with `&`. A `const char *` stays `String`. |
 | a function-pointer parameter | an optional Swift closure, whose parameters go through these same rows |
-| a `void *` return | `UnsafeMutableRawPointer` for `BG_Alloc`, `BG_AllocUnaligned`, and `BG_TempAlloc`, and also for `B_Alloc`, `B_TempAlloc`, `G_Alloc`, and `CG_StrPool_Alloc`. `BG_StringAlloc`, `G_NewString`, and `CG_NewString` return `String`, the text a `char *` field takes. |
+| a `void *` return | `UnsafeMutableRawPointer` for `BG_Alloc`, `BG_AllocUnaligned`, and `BG_TempAlloc`, and also for `B_Alloc`, `B_TempAlloc`, `G_Alloc`, and `CG_StrPool_Alloc`. `BG_StringAlloc`, `G_NewString`, and `CG_NewString` return `String`, the text a `char *` field takes. A `void *` handle that is not an allocation, `CG_G2WeaponInstance`, returns `OpaquePointer?`, RETURNS kind `opaque`. |
 | a pointer parameter Raven fills as a fixed set of floats, such as `float *colors` of `BG_ValidateSkinForTeam` | `inout vec3_t` |
 | a `qhandle_t *` parameter of a trap or strap function | `UnsafeMutablePointer<Int32>?` |
 | a `const char *` return | `String`, or `String?` where the RETURNS kind `optional_string` marks a function that returns `NULL` on one path. |

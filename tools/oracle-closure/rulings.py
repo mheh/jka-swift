@@ -317,6 +317,7 @@ TYPES = {
 #   vec4           a JKAShared.vec4_t? by value, for a `float *` Raven returns out of a static `vec4_t` or NULL
 #   table          a Slots over the records a field holds, for a function that returns the pointer of a field with a bound in SLOT_BOUNDS
 #   view           the optional view of the record named beside the kind, ("view", record), for a `void *` return of that record or NULL
+#   opaque         an OpaquePointer?, for a `void *` handle Raven returns that is not an allocation, the spelling the Ghoul2 traps take
 RETURNS = {
     "SkipWhitespace": "text_cursor",
     "ClientConnect": "optional_string",
@@ -349,6 +350,8 @@ RETURNS = {
     "BG_AnimsetAlloc": "table",
     # Display_CaptureItem returns `&Menus[i]` or NULL at ui_shared.c:9858, and both callers cast it to `menuDef_t *`.
     "Display_CaptureItem": ("view", "menuDef_t"),
+    # CG_G2WeaponInstance returns a Ghoul2 instance of `g2WeaponInstances` or NULL at cg_weapons.c:2373.
+    "CG_G2WeaponInstance": "opaque",
 }
 
 # Allocators whose `char *` result a body holds as a CharBuf of the constant size Raven asks for, when every store into the local is that call.
@@ -503,7 +506,8 @@ PUBLIC_NAMES = {
 LIBC_FUNCTIONS = {"sqrt": ([("x", "Float")], "Float", "x.squareRoot()")}
 
 # The Swift name of a C library function whose Foundation name Swift deprecates, so a body writes `abs` where Raven wrote `fabs`.
-LIBC_SPELLINGS = {"fabs": "abs", "fabsf": "abs"}
+# Raven's `stricmp` is the platform's `strcasecmp`, and `Q_stricmp` gives the same zero test over ASCII, `CG_DrawVote` of cg_draw.c.
+LIBC_SPELLINGS = {"fabs": "abs", "fabsf": "abs", "stricmp": "Q_stricmp"}
 
 # Macros a platform defines or not, so a conditional that names one stays as Raven wrote it in the extracted header, and each platform build takes its own arm.
 # PATH_MAX picks the arm of MAX_OSPATH at q_shared.h:394, and Windows has no PATH_MAX.
