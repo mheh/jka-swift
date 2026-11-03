@@ -41,13 +41,14 @@ from rulings import HAND_FILES, HAND_HEADERS  # noqa: E402
 
 EXTRACT = HERE / "out" / "extract"
 
-MP_MODULES = ["mp-game", "mp-bg", "mp-cgame", "mp-ui"]
+MP_MODULES = ["mp-game", "mp-bg", "mp-cgame", "mp-ui", "mp-engine-ded"]
 SP_MODULES = ["sp-game", "sp-bg", "sp-cgame", "sp-ui"]
 TREE_PREFIX = {"mp": "codemp/", "sp": "code/"}
 # The bg run parses the bg_*.c files' own headers, bg_local.h and bg_saga.h, and never g_local.h, even though Raven's bg_*.c include
 # it under QAGAME. That keeps the game-private types out of the tree target, and the bg types in it.
-# The engine module of the dedicated server is not in the default list, so the default run places the types of the four game modules alone.
-# A run that names it under --mp places its types too, into CJKAMP_Ded.
+# The engine module of the dedicated server is in the default list, and it never moves a type into a tree target.
+# Its own types land in CJKAMP_Ded, which reads a type it shares with a module from that module's target.
+HOST_TARGET = "CJKAMP_Ded"
 TARGET_OF_MODULE = {
     "mp-game": "CJKAMP_Game", "mp-cgame": "CJKAMP_CGame", "mp-ui": "CJKAMP_UI", "mp-bg": "CJKAMP", "mp-engine-ded": "CJKAMP_Ded",
     "sp-game": "CJKASP_Game", "sp-cgame": "CJKASP_CGame", "sp-ui": "CJKASP_UI", "sp-bg": "CJKASP",
@@ -61,7 +62,7 @@ FORWARD: dict[str, list[str]] = {}
 TARGET_DEPS = {
     SHARED: [],
     "CJKAMP": [SHARED], "CJKAMP_Game": ["CJKAMP", SHARED], "CJKAMP_CGame": ["CJKAMP", SHARED], "CJKAMP_UI": ["CJKAMP", SHARED],
-    "CJKAMP_Ded": ["CJKAMP", SHARED],
+    "CJKAMP_Ded": ["CJKAMP_Game", "CJKAMP", SHARED],
     "CJKASP": [SHARED], "CJKASP_Game": ["CJKASP", SHARED], "CJKASP_CGame": ["CJKASP", SHARED], "CJKASP_UI": ["CJKASP", SHARED],
 }
 
@@ -254,9 +255,11 @@ def load_tree(tree: str, modules: list[str]) -> tuple[dict[str, dict[str, Header
             headers[module][h.identity] = h
         platform[module] = read_platform(root)
         asserts[module] = read_asserts(root)
+        # The forward lines of the host go to its own forward header, as its platform spellings go to its own platform header.
+        forward = FORWARD.setdefault(HOST_TARGET, []) if TARGET_OF_MODULE.get(module) == HOST_TARGET else FORWARD[tree]
         for line in read_forward(root):
-            if line not in FORWARD[tree]:
-                FORWARD[tree].append(line)
+            if line not in forward:
+                forward.append(line)
     return headers, platform, asserts
 
 
@@ -355,6 +358,20 @@ def union_constants(tree: str, identity: str, versions: dict[str, Header]) -> He
 
 def partition_tree(tree: str, headers: dict[str, dict[str, Header]]) -> dict[str, Placed]:
     """Within one tree: every identity lands in the tree target, or in one module target when only one module emits it or modules disagree."""
+    hosts = [m for m in headers if TARGET_OF_MODULE.get(m) == HOST_TARGET]
+    if hosts:
+        # The host takes no part in the placement. A type it emits that no module emits lands in its own target,
+        # and a type it reads with another text than the placed one keeps a copy of its own there.
+        placed = partition_tree(tree, {m: per for m, per in headers.items() if m not in hosts})
+        for m in hosts:
+            for identity, h in headers[m].items():
+                p = placed.get(identity)
+                split = any(key.startswith(f"{identity}@") for key in placed)
+                if p is None and not split:
+                    placed[identity] = Placed(identity, HOST_TARGET, h)
+                elif split or p.header.key != h.key:
+                    placed[f"{identity}@{m}"] = Placed(identity, HOST_TARGET, h, conflict=m)
+        return placed
     identities = set()
     for per in headers.values():
         identities |= set(per)
@@ -473,6 +490,8 @@ def macro_names_in(text: str) -> set[str]:
 def partition_shared(mp: dict[str, Placed], sp: dict[str, Placed]) -> tuple[set[str], dict[str, set[str]]]:
     """The identities shared by MP and SP, and per constants identity the shared macro names.
     A type is shared when both trees place it at tree level with the same code key, and every include and every used macro is shared."""
+    # The copies of the host decide nothing here, because the host takes no part in the placement.
+    mp = {key: p for key, p in mp.items() if p.target != HOST_TARGET}
     shared_macros: dict[str, set[str]] = {}
     for identity, p in mp.items():
         if not p.header.is_constants or identity not in sp:
@@ -706,7 +725,11 @@ def emit(out_dir: Path, mp_modules: list[str], sp_modules: list[str]) -> int:
         if target not in out.files and target not in out.tags:
             continue
         deps = TARGET_DEPS[target]
+        # The host reads the types it shares with a module by their paths, and never a module's umbrella, so no game-only name reaches it.
+        umbrellas = [d for d in deps if not (target == HOST_TARGET and d in TARGET_OF_MODULE.values() and d not in TREE_TARGET.values())]
         forward = [f'#include "{d}_forward.h"' for d in deps] + [f'#include "{target}_platform.h"', ""]
+        if target == HOST_TARGET:
+            forward += [line for line in FORWARD.get(HOST_TARGET, []) if line not in FORWARD.get("mp", [])]
         shared_lines = [l for l in FORWARD.get("mp", []) if l in FORWARD.get("sp", [])]
         if target == SHARED:
             forward += shared_lines
@@ -742,7 +765,7 @@ def emit(out_dir: Path, mp_modules: list[str], sp_modules: list[str]) -> int:
             "// Raven wrote typedef enum { ... }; with no name in bg_weapons.h and its kin, and the copies keep the text verbatim.",
             '#pragma clang diagnostic ignored "-Wmissing-declarations"',
             "",
-        ] + [f'#include "{inc}"' for inc in [f"{d}.h" for d in deps] + ordered] + [""]
+        ] + [f'#include "{inc}"' for inc in [f"{d}.h" for d in umbrellas] + ordered] + [""]
         out.files[target][f"{target}.h"] = wrap(f"{target}.h", [], [], umbrella)
         blocks = abi_blocks({abi: out.asserts[target][abi] for abi in ABIS if abi in out.asserts[target]}, list(TRIPLES))
         out.files[target]["layout_asserts.h"] = wrap("layout_asserts.h", [], ["#include <stddef.h>", f'#include "{target}.h"'], [""] + blocks + [""])

@@ -14,6 +14,8 @@ for target in CJKAShared CJKAMP CJKAMP_Game CJKAMP_CGame CJKAMP_UI CJKAMP_Ded CJ
     [ -d "$target/include" ] || continue
     flags=(-I "$target/include" -I CJKAShared/include)
     case "$target" in
+        # The host reads the types it shares with the game from the game's target, as merge.py places them.
+        CJKAMP_Ded) flags+=(-I CJKAMP_Game/include -I CJKAMP/include) ;;
         CJKAMP*) flags+=(-I CJKAMP/include) ;;
         CJKASP*) flags+=(-I CJKASP/include) ;;
     esac
