@@ -315,6 +315,7 @@ CHARBUF_ALLOCS = {"B_TempAlloc", "BG_TempAlloc"}
 #   int_value  an Int32 by value for a `const void *` a qsort comparator reads as `*(int *)`, so the comparator is `(Int32, Int32) -> Int32`
 #   model_list  a Slots<qhandle_t>? for an `int *modelList` the engine reads as the array of model handles, the form a `qhandle_t *` has
 #   out_opaque  an inout OpaquePointer? for a `void *` Raven's callers pass the address of a handle field to, the shape a `void **` already has
+#   view      the optional view of the record named beside the kind, ("view", record), for a `void *` every caller fills with that record or NULL
 PARAMS = {
     ("COM_ParseString", "s"): "out_string",
     # A `char **` the function sets once to a string it owns, never walked, the same shape as the const one.
@@ -378,6 +379,8 @@ PARAMS = {
     # Raven declares `void *ghlInfo`, w_saber.c:6593 and g_turret_G2.c:135 pass `&ent->ghoul2`, and the engine casts the word to `CGhoul2Info_v **` at sv_gameapi.cpp:1590.
     # Raven hands the engine the address of `cg.sharedBuffer`, cg_main.c:3713, the BYTE_STORAGE_FIELDS row, as the game hands `gSharedBuffer`.
     ("trap_CG_RegisterSharedMemory", "memory"): "raw",
+    # Raven casts `void *p` to `menuDef_t *` at cg_main.c:2858, and his callers pass `menuScoreboard` at cg_draw.c:6780 and NULL at cg_servercmds.c:68.
+    ("CG_SetScoreSelection", "p"): ("view", "menuDef_t"),
     ("trap_G2API_RemoveGhoul2Models", "ghlInfo"): "out_opaque",
     ("trap_G2API_RemoveGhoul2Model", "ghlInfo"): "out_opaque",
 }

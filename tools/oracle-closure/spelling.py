@@ -278,6 +278,9 @@ class Types:
         if facts.ruled == "out_opaque":
             # Raven declares `void *` and his callers pass the address of a handle field, the `void **` shape below.
             return Answer("inout OpaquePointer?", "out_opaque")
+        if facts.ruled == "view":
+            # Every caller fills the `void *` with one record or NULL, so the parameter is that record's optional view.
+            return Answer(f"{self.views.qualified_view(facts.capacity, TARGET)}?", "view_opt")
         if facts.ruled == "int_array":
             # The body only reads the values, and Raven's callers pass NULL with a count of zero, so the array crosses by value as an optional.
             return Answer("[Int32]?", "int_array")
