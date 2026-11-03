@@ -807,7 +807,8 @@ class Statements:
                         scalar = pointer.kind == CursorKind.DECL_REF_EXPR and pointer.spelling in self.table_cursors
                         return [f"{pad}{slot} = {self.converted(right, 'Float' if scalar else 'Int32')}" + self.trailing(cur)]
                 if op == "=" and self.unwrap(left).kind == CursorKind.DECL_REF_EXPR and self.unwrap(left).spelling in self.text_locals \
-                        and (self.is_null(right) or self.field_slot(right) is not None or self.optional_text_call(right)):
+                        and (self.is_null(right) or self.field_slot(right) is not None or self.optional_text_call(right)
+                             or self.pooled_field(right) or (self.unwrap(right).kind == CursorKind.DECL_REF_EXPR and self.is_charbuf(right))):
                     optional = self.unwrap(left).spelling in self.optional_texts
                     return [f"{pad}{self.expr(left)} = {self.text_value(right, optional)}" + self.trailing(cur)]
                 if op == "=" and self.is_null(right) and self.unwrap(left).kind == CursorKind.DECL_REF_EXPR \

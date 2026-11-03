@@ -599,6 +599,10 @@ class Expressions:
                 if raw is not None:
                     # Raven's `*(char **)(b+ofs)` reads the slot at that byte offset, the same subscript his store writes.
                     return self.raw_slot(raw)
+                if inner.kind == CursorKind.DECL_REF_EXPR and inner.spelling in self.text_locals:
+                    # Raven's `*textPtr` reads the first byte of the text, which the CharBuf of the text reads.
+                    bang = "!" if inner.spelling in self.optional_texts else ""
+                    return self.leaf(cur, f"JKAShared.CharBuf({self.expr(inner)}{bang})[0]")
                 raise Hole("A pointer dereference the draft cannot place.")
             raise Hole(f"A {op} inside an expression.")
         if kind == CursorKind.BINARY_OPERATOR:
